@@ -243,19 +243,20 @@
 
 					/* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000018 /* 32MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32MB)
 
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| (2 << BR_PS_SHIFT)	/* 16 bit port */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
+				| BR_PS_16	/* 16 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
 				/* 0xFE000FF7 */
 
@@ -272,11 +273,22 @@
 #define CONFIG_SYS_BCSR		0xF8000000
 					/* Access window base at BCSR base */
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_BCSR
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000000E /* Access window size 32K */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
-				/* Port size=8bit, MSEL=GPCM */
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_BCSR | 0x00000801)
-#define CONFIG_SYS_OR1_PRELIM	0xFFFFE9f7 /* length 32K */
+#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_BCSR \
+				| BR_PS_8 \
+				| BR_MS_GPCM \
+				| BR_V)
+				/* 0xF8000801 */
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB \
+				| OR_GPCM_XAM \
+				| OR_GPCM_CSNT \
+				| OR_GPCM_XACS \
+				| OR_GPCM_SCY_15 \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
+				| OR_GPCM_EAD)
+				/* 0xFFFFE9F7 */
 
 /*
  * NAND Flash on the Local Bus
@@ -286,13 +298,13 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_NAND_FSL_ELBC	1
 
-#define CONFIG_SYS_NAND_BASE	0xE0600000	/* 0xE0600000 */
+#define CONFIG_SYS_NAND_BASE	0xE0600000
 #define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
+				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
 				| BR_PS_8		/* 8 bit port */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR3_PRELIM	(0xFFFF8000	/* length 32K */ \
+				| BR_V)			/* valid */
+#define CONFIG_SYS_OR3_PRELIM	(OR_AM_32KB \
 				| OR_FCM_BCTLD \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
@@ -303,7 +315,7 @@
 				/* 0xFFFF919E */
 
 #define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR3_PRELIM	0x8000000E	/* 32KB  */
+#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
 /*
  * Serial Port

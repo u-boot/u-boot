@@ -275,14 +275,15 @@
 #define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000016	/* 8 MB window size */
 
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| (2 << BR_PS_SHIFT)	/* 16 bit port */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(0xFF800000		/* 8 MByte */ \
+				| BR_PS_16	/* 16 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_9 \
-				| OR_GPCM_EHTR \
+				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
-				/* 0xFF806FF7	TODO SLOW 8 MB flash size */
+				/* 0xFF800191 */
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	256 /* max sectors per device */
@@ -294,13 +295,13 @@
 /*
  * NAND Flash on the Local Bus
  */
-#define CONFIG_SYS_NAND_BASE	0xE0600000	/* 0xE0600000 */
+#define CONFIG_SYS_NAND_BASE	0xE0600000
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| (2 << BR_DECC_SHIFT)	/* Use HW ECC */ \
-				| BR_PS_8 |		/* 8 bit Port */ \
-				| BR_MS_FCM |		/* MSEL = FCM */ \
+				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
+				| BR_PS_8		/* 8 bit port */ \
+				| BR_MS_FCM		/* MSEL = FCM */ \
 				| BR_V)			/* valid */
-#define CONFIG_SYS_OR1_PRELIM	(0xFFFF8000		/* length 32K */ \
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
@@ -308,7 +309,7 @@
 				| OR_FCM_TRLX \
 				| OR_FCM_EHTR)
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000000E	/* 32KB  */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
 /* Vitesse 7385 */
 
@@ -316,11 +317,24 @@
 
 #ifdef CONFIG_VSC7385_ENET
 
-#define CONFIG_SYS_BR2_PRELIM		0xf0000801	/* Base address */
-#define CONFIG_SYS_OR2_PRELIM		0xfffe09ff	/* 128K bytes*/
+#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_VSC7385_BASE \
+					| BR_PS_8 \
+					| BR_MS_GPCM \
+					| BR_V)
+					/* 0xF0000801 */
+#define CONFIG_SYS_OR2_PRELIM		(OR_AM_128KB \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_XACS \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_SETA \
+					| OR_GPCM_TRLX_SET \
+					| OR_GPCM_EHTR_SET \
+					| OR_GPCM_EAD)
+					/* 0xfffe09ff */
+
 					/* Access Base */
 #define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VSC7385_BASE
-#define CONFIG_SYS_LBLAWAR2_PRELIM	0x80000010	/* Access Size 128K */
+#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
 
 #endif
 

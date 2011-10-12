@@ -205,9 +205,10 @@
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	/* buffer up multiple bytes */
 
 #define CONFIG_SYS_NOR_BR_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| (2 << BR_PS_SHIFT)	/* 16 bit port */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_NOR_OR_PRELIM	(0xFF800000	/* 8 MByte */ \
+					| BR_PS_16	/* 16 bit port */ \
+					| BR_MS_GPCM	/* MSEL = GPCM */ \
+					| BR_V)		/* valid */
+#define CONFIG_SYS_NOR_OR_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_9 \
 				| OR_GPCM_EHTR \
@@ -215,7 +216,8 @@
 				/* 0xFF006FF7	TODO SLOW 16 MB flash size */
 					/* window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000017	/* 16 MB window size */
+					/* 16 MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_16MB)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	135	/* sectors per device */
@@ -271,14 +273,16 @@
 #define CONFIG_CMD_NAND 1
 #define CONFIG_NAND_FSL_ELBC 1
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
+#define CONFIG_SYS_NAND_WINDOW_SIZE (32 * 1024)
 
 
 #define CONFIG_SYS_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
+				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
 				| BR_PS_8		/* 8 bit port */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
 				| BR_V)			/* valid */
-#define CONFIG_SYS_NAND_OR_PRELIM	(0xFFFF8000	/* length 32K */ \
+#define CONFIG_SYS_NAND_OR_PRELIM	\
+				(P2SZ_TO_AM(CONFIG_SYS_NAND_WINDOW_SIZE) \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
@@ -300,31 +304,57 @@
 #endif
 
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000000E	/* 32KB  */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
 #define CONFIG_SYS_NAND_LBLAWBAR_PRELIM CONFIG_SYS_LBLAWBAR1_PRELIM
 #define CONFIG_SYS_NAND_LBLAWAR_PRELIM CONFIG_SYS_LBLAWAR1_PRELIM
 
-/* local bus read write buffer mapping */
-#define CONFIG_SYS_BR3_PRELIM		0xFA000801	/* map at 0xFA000000 */
-#define CONFIG_SYS_OR3_PRELIM		0xFFFF8FF7	/* 32kB */
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	0xFA000000
-#define CONFIG_SYS_LBLAWAR3_PRELIM	0x8000000E	/* 32KB  */
+/* local bus write LED / read status buffer (BCSR) mapping */
+#define CONFIG_SYS_BCSR_ADDR		0xFA000000
+#define CONFIG_SYS_BCSR_SIZE		(32 * 1024)	/* 0x00008000 */
+					/* map at 0xFA000000 on LCS3 */
+#define CONFIG_SYS_BR3_PRELIM		(CONFIG_SYS_BCSR_ADDR \
+					| BR_PS_8	/* 8 bit port */ \
+					| BR_MS_GPCM	/* MSEL = GPCM */ \
+					| BR_V)		/* valid */
+					/* 0xFA000801 */
+#define CONFIG_SYS_OR3_PRELIM		(P2SZ_TO_AM(CONFIG_SYS_BCSR_SIZE) \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_ACS_DIV2 \
+					| OR_GPCM_XACS \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_TRLX_SET \
+					| OR_GPCM_EHTR_SET \
+					| OR_GPCM_EAD)
+					/* 0xFFFF8FF7 */
+#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_BCSR_ADDR
+#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
 /* Vitesse 7385 */
 
-#define CONFIG_SYS_VSC7385_BASE	0xF0000000
-
 #ifdef CONFIG_VSC7385_ENET
 
-					/* VSC7385 Base address */
-#define CONFIG_SYS_BR2_PRELIM		0xf0000801
-					/* VSC7385, 128K bytes*/
-#define CONFIG_SYS_OR2_PRELIM		0xfffe09ff
+					/* VSC7385 Base address on LCS2 */
+#define CONFIG_SYS_VSC7385_BASE		0xF0000000
+#define CONFIG_SYS_VSC7385_SIZE		(128 * 1024)	/* 0x00020000 */
+
+#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_VSC7385_BASE \
+					| BR_PS_8	/* 8 bit port */ \
+					| BR_MS_GPCM	/* MSEL = GPCM */ \
+					| BR_V)		/* valid */
+#define CONFIG_SYS_OR2_PRELIM		(P2SZ_TO_AM(CONFIG_SYS_VSC7385_SIZE) \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_XACS \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_SETA \
+					| OR_GPCM_TRLX_SET \
+					| OR_GPCM_EHTR_SET \
+					| OR_GPCM_EAD)
+					/* 0xFFFE09FF */
+
 					/* Access window base at VSC7385 base */
 #define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VSC7385_BASE
-					/* Access window size 128K */
-#define CONFIG_SYS_LBLAWAR2_PRELIM	0x80000010
+#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
 
 #endif
 

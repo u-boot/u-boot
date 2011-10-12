@@ -178,21 +178,23 @@
 #define CONFIG_SYS_FLASH_PROTECTION	1	/* Use h/w Flash protection. */
 /* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE | \
-				(2 << BR_PS_SHIFT) |	/* 16 bit port */ \
-				BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
+#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
+				| BR_PS_16	/* 16 bit port  */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
+
 					/* window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000018	/* 32 MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32MB)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	256	/* max sectors per device */
@@ -215,11 +217,19 @@
 #define CONFIG_SYS_BCSR			0xE2400000
 					/* Access window base at BCSR base */
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_BCSR
-					/* Access window size 32K */
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000000E
-					/* Port-size=8bit, MSEL=GPCM */
-#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR|0x00000801)
-#define CONFIG_SYS_OR1_PRELIM		0xFFFFE8F0	/* length 32K */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
+#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR \
+					| BR_PS_8 \
+					| BR_MS_GPCM \
+					| BR_V)
+					/* 0x00000801 */
+#define CONFIG_SYS_OR1_PRELIM		(OR_AM_32KB \
+					| OR_GPCM_XAM \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_TRLX_CLEAR \
+					| OR_GPCM_EHTR_CLEAR)
+					/* 0xFFFFE8F0 */
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFD000000	/* Initial RAM addr */
@@ -263,15 +273,15 @@
  *
  * 0    4    8    12   16   20   24   28
  * 1111 0000 0000 0000 0001 1000 0110 0001 = F0001861
- *
- * FIXME: CONFIG_SYS_LBC_SDRAM_BASE should be masked and OR'ed into
- * FIXME: the top 17 bits of BR2.
  */
 
-					/* Port-size=32bit, MSEL=SDRAM */
-#define CONFIG_SYS_BR2_PRELIM		0xF0001861
-#define CONFIG_SYS_LBLAWBAR2_PRELIM	0xF0000000
-#define CONFIG_SYS_LBLAWAR2_PRELIM	0x80000019	/* 64M */
+#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_LBC_SDRAM_BASE \
+					| BR_PS_32	/* 32-bit port */ \
+					| BR_MS_SDRAM	/* MSEL = SDRAM */ \
+					| BR_V)		/* Valid */
+					/* 0xF0001861 */
+#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_LBC_SDRAM_BASE
+#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_64MB)
 
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
@@ -287,7 +297,12 @@
  * 1111 1100 0000 0000 0110 1001 0000 0001 = FC006901
  */
 
-#define CONFIG_SYS_OR2_PRELIM	0xFC006901
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_64MB \
+			| OR_SDRAM_XAM \
+			| ((9 - OR_SDRAM_MIN_COLS) << OR_SDRAM_COLS_SHIFT) \
+			| ((13 - OR_SDRAM_MIN_ROWS) << OR_SDRAM_ROWS_SHIFT) \
+			| OR_SDRAM_EAD)
+			/* 0xFC006901 */
 
 				/* LB sdram refresh timer, about 6us */
 #define CONFIG_SYS_LBC_LSRT	0x32000000

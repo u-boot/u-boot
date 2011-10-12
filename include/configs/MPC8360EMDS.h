@@ -207,19 +207,20 @@
 
 					/* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000018 /* 32MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32MB)
 
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| (2 << BR_PS_SHIFT)	/* 16 bit port */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
-				| OR_UPM_XAM \
+				| BR_PS_16	/* 16 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
+				| OR_GPCM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
@@ -233,11 +234,21 @@
 #define CONFIG_SYS_BCSR			0xF8000000
 					/* Access window base at BCSR base */
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_BCSR
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000000F /* Access window size 64K */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_64KB)
 
-					/* Port size=8bit, MSEL=GPCM */
-#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR|0x00000801)
-#define CONFIG_SYS_OR1_PRELIM		0xFFFFE9f7 /* length 32K */
+#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_BCSR \
+				| BR_PS_8 \
+				| BR_MS_GPCM \
+				| BR_V)
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB \
+				| OR_GPCM_XAM \
+				| OR_GPCM_CSNT \
+				| OR_GPCM_XACS \
+				| OR_GPCM_SCY_15 \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
+				| OR_GPCM_EAD)
+				/* 0xFFFFE9F7 */
 
 /*
  * SDRAM on the Local Bus
@@ -249,7 +260,7 @@
 
 #ifdef CONFIG_SYS_LB_SDRAM
 #define CONFIG_SYS_LBLAWBAR2		0
-#define CONFIG_SYS_LBLAWAR2		0x80000019 /* 64MB */
+#define CONFIG_SYS_LBLAWAR2		(LBLAWAR_EN | LBLAWAR_64MB)
 
 /*local bus BR2, OR2 definition for SDRAM if soldered on the EPB board */
 /*
@@ -266,7 +277,8 @@
  * xxxx xxxx xxxx xxxx x001 1000 0110 0001 = 00001861
  */
 
-#define CONFIG_SYS_BR2		0x00001861 /*Port size=32bit, MSEL=SDRAM */
+/* Port size=32bit, MSEL=DRAM */
+#define CONFIG_SYS_BR2	(BR_PS_32 | BR_MS_SDRAM | BR_V) /* 0xF0001861 */
 
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
@@ -282,7 +294,12 @@
  * 1111 1100 0000 0000 0110 1001 0000 0001 = fc006901
  */
 
-#define CONFIG_SYS_OR2		0xfc006901
+#define CONFIG_SYS_OR2	(MEG_TO_AM(CONFIG_SYS_LBC_SDRAM_SIZE) \
+			| OR_SDRAM_XAM \
+			| ((9 - OR_SDRAM_MIN_COLS) << OR_SDRAM_COLS_SHIFT) \
+			| ((13 - OR_SDRAM_MIN_ROWS) << OR_SDRAM_ROWS_SHIFT) \
+			| OR_SDRAM_EAD)
+			/* 0xFC006901 */
 
 				/* LB sdram refresh timer, about 6us */
 #define CONFIG_SYS_LBC_LSRT	0x32000000
@@ -303,22 +320,54 @@
 #endif
 
 /*
- * Windows to access PIB via local bus
+ * Windows to access Platform I/O Boards (PIB) via local bus
  */
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	0xf8010000 /* windows base 0xf8010000 */
-#define CONFIG_SYS_LBLAWAR3_PRELIM	0x8000000e /* windows size 32KB */
+#define CONFIG_SYS_PIB_BASE		0xF8008000
+#define CONFIG_SYS_PIB_WINDOW_SIZE	(32 * 1024)
+
+/* [RFC] This LBLAW only covers the 2nd window (CS5) */
+#define CONFIG_SYS_LBLAWBAR3_PRELIM	\
+			CONFIG_SYS_PIB_BASE + CONFIG_SYS_PIB_WINDOW_SIZE
+#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
 /*
  * CS4 on Local Bus, to PIB
  */
-#define CONFIG_SYS_BR4_PRELIM	0xf8008801 /* CS4 base address at 0xf8008000 */
-#define CONFIG_SYS_OR4_PRELIM	0xffffe9f7 /* size 32KB, port size 8bit, GPCM */
+				/* CS4 base address at 0xf8008000 */
+#define CONFIG_SYS_BR4_PRELIM	(CONFIG_SYS_PIB_BASE \
+				| BR_PS_8 \
+				| BR_MS_GPCM \
+				| BR_V)
+				/* 0xF8008801 */
+#define CONFIG_SYS_OR4_PRELIM	(OR_AM_32KB \
+				| OR_GPCM_XAM \
+				| OR_GPCM_CSNT \
+				| OR_GPCM_XACS \
+				| OR_GPCM_SCY_15 \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
+				| OR_GPCM_EAD)
+				/* 0xffffe9f7 */
 
 /*
  * CS5 on Local Bus, to PIB
  */
-#define CONFIG_SYS_BR5_PRELIM	0xf8010801 /* CS5 base address at 0xf8010000 */
-#define CONFIG_SYS_OR5_PRELIM	0xffffe9f7 /* size 32KB, port size 8bit, GPCM */
+				/* CS5 base address at 0xf8010000 */
+#define CONFIG_SYS_BR5_PRELIM	((CONFIG_SYS_PIB_BASE + \
+						CONFIG_SYS_PIB_WINDOW_SIZE) \
+				| BR_PS_8 \
+				| BR_MS_GPCM \
+				| BR_V)
+				/* 0xF8010801 */
+#define CONFIG_SYS_OR5_PRELIM	(CONFIG_SYS_PIB_BASE \
+				| OR_GPCM_XAM \
+				| OR_GPCM_CSNT \
+				| OR_GPCM_XACS \
+				| OR_GPCM_SCY_15 \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
+				| OR_GPCM_EAD)
+				/* 0xffffe9f7 */
 
 /*
  * Serial Port

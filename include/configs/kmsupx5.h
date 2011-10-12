@@ -69,8 +69,8 @@
 				 OR_GPCM_CSNT | \
 				 OR_GPCM_ACS_DIV4 | \
 				 OR_GPCM_SCY_2 | \
-				 (OR_GPCM_TRLX & \
-				 (~OR_GPCM_EHTR)) |  /* EHTR = 0 */ \
+				 OR_GPCM_TRLX_SET | \
+				 OR_GPCM_EHTR_CLEAR | \
 				 OR_GPCM_EAD)
 
 /* LPXF:  icache cacheable, but dcache-inhibit and guarded */

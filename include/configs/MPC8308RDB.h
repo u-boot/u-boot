@@ -239,19 +239,18 @@
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_8MB)
 
-#define CONFIG_SYS_BR0_PRELIM	(\
-		CONFIG_SYS_FLASH_BASE	/* Flash Base address */	|\
-		(2 << BR_PS_SHIFT)	/* 16 bit port size */		|\
-		BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
+#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
+				| BR_PS_16	/* 16 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
-				| OR_GPCM_EAD)
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 /* 127 64KB sectors and 8 8KB top sectors per device */
@@ -264,12 +263,13 @@
  * NAND Flash on the Local Bus
  */
 #define CONFIG_SYS_NAND_BASE	0xE0600000		/* 0xE0600000 */
+#define CONFIG_SYS_NAND_WINDOW_SIZE	(32 * 1024)	/* 0x00008000 */
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
-				| BR_PS_8		/* 8 bit port */ \
+				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
+				| BR_PS_8		/* 8 bit Port */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
 				| BR_V)			/* valid */
-#define CONFIG_SYS_OR1_PRELIM	(0xFFFF8000		/* length 32K */ \
+#define CONFIG_SYS_OR1_PRELIM	(P2SZ_TO_AM(CONFIG_SYS_NAND_WINDOW_SIZE) \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
@@ -283,9 +283,22 @@
 
 #ifdef CONFIG_VSC7385_ENET
 #define CONFIG_TSEC2
+					/* VSC7385 Base address on CS2 */
 #define CONFIG_SYS_VSC7385_BASE		0xF0000000
-#define CONFIG_SYS_BR2_PRELIM		0xf0000801 /* VSC7385 Base address */
-#define CONFIG_SYS_OR2_PRELIM		0xfffe09ff /* VSC7385, 128K bytes*/
+#define CONFIG_SYS_VSC7385_SIZE		(128 * 1024) /* 0x00020000 */
+#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_VSC7385_BASE \
+					| BR_PS_8	/* 8-bit port */ \
+					| BR_MS_GPCM	/* MSEL = GPCM */ \
+					| BR_V)		/* valid */
+					/* 0xF0000801 */
+#define CONFIG_SYS_OR2_PRELIM		(P2SZ_TO_AM(CONFIG_SYS_VSC7385_SIZE) \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_XACS \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_SETA \
+					| OR_GPCM_TRLX_SET \
+					| OR_GPCM_EHTR_SET)
+					/* 0xFFFE09FF */
 /* Access window base at VSC7385 base */
 #define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VSC7385_BASE
 /* Access window size 128K */

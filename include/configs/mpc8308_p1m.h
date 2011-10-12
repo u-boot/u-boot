@@ -248,18 +248,18 @@
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_64MB)
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE	/* Flash Base addr */ \
-				| (2 << BR_PS_SHIFT)	/* 16 bit port */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
+#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
+				| BR_PS_16	/* 16 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_4 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
-				| OR_GPCM_EAD)
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	512
@@ -274,11 +274,12 @@
  */
 #define CONFIG_SYS_SJA1000_BASE	0xFBFF0000
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_SJA1000_BASE \
-				| (1 << BR_PS_SHIFT)	/* 8 bit port */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR1_PRELIM	(0xFFFF8000		/* length 32K */ \
+				| BR_PS_8	/* 8 bit port size */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB \
 				| OR_GPCM_SCY_5 \
-				| OR_GPCM_EHTR)
+				| OR_GPCM_EHTR_SET)
 				/* 0xFFFF8052 */
 
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_SJA1000_BASE
@@ -289,11 +290,12 @@
  */
 #define CONFIG_SYS_CPLD_BASE	0xFBFF8000
 #define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_CPLD_BASE \
-				| (1 << BR_PS_SHIFT)	/* 8 bit port */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR2_PRELIM	(0xFFFF8000		/* length 32K */ \
+				| BR_PS_8	/* 8 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_32KB \
 				| OR_GPCM_SCY_4 \
-				| OR_GPCM_EHTR)
+				| OR_GPCM_EHTR_SET)
 				/* 0xFFFF8042 */
 
 #define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_CPLD_BASE

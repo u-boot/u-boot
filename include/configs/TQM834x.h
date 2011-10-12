@@ -119,13 +119,12 @@
 					| OR_GPCM_SCY_5 \
 					| OR_GPCM_TRLX)
 
-#define CONFIG_SYS_PRELIM_OR_AM	0xc0000000	/* OR addr mask: 1 GiB */
+#define CONFIG_SYS_PRELIM_OR_AM		OR_AM_1GB /* OR addr mask: 1 GiB */
 
 #define CONFIG_SYS_OR0_PRELIM		(CONFIG_SYS_PRELIM_OR_AM  \
 					| CONFIG_SYS_OR_TIMING_FLASH)
 
-					/* 1 GiB window size (2^(size + 1)) */
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x8000001D
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_1GB)
 
 					/* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE

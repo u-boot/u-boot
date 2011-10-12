@@ -137,15 +137,16 @@
  * PAXE on the local bus CS3
  */
 #define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_PAXE_BASE
-#define CONFIG_SYS_LBLAWAR3_PRELIM	0x8000001C /* 512MB window size */
+#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_512MB)
 
 #define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_PAXE_BASE | \
-				(1 << BR_PS_SHIFT) | /* 8 bit port size */ \
+				BR_PS_8 | /* 8 bit port size */ \
+				BR_MS_GPCM | /* MSEL = GPCM */ \
 				BR_V)
 #define CONFIG_SYS_OR3_PRELIM	(MEG_TO_AM(CONFIG_SYS_PAXE_SIZE) | \
 				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | \
 				OR_GPCM_SCY_2 | \
-				OR_GPCM_TRLX | OR_GPCM_EAD)
+				OR_GPCM_TRLX_SET | OR_GPCM_EAD)
 
 /*
  * MMU Setup

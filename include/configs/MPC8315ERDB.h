@@ -229,20 +229,21 @@
 
 					/* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000016 /* 8MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_8MB)
 
 #define CONFIG_SYS_NOR_BR_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| (2 << BR_PS_SHIFT)	/* 16 bit port */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_NOR_OR_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
-				| OR_UPM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
-				| OR_GPCM_EAD)
+					| BR_PS_16	/* 16 bit port */ \
+					| BR_MS_GPCM	/* MSEL = GPCM */ \
+					| BR_V)		/* valid */
+#define CONFIG_SYS_NOR_OR_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
+					| OR_UPM_XAM \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_ACS_DIV2 \
+					| OR_GPCM_XACS \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_TRLX_SET \
+					| OR_GPCM_EHTR_SET \
+					| OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 /* 127 64KB sectors and 8 8KB top sectors per device */
@@ -273,7 +274,8 @@
 #define CONFIG_MTD_NAND_VERIFY_WRITE	1
 #define CONFIG_CMD_NAND			1
 #define CONFIG_NAND_FSL_ELBC		1
-#define CONFIG_SYS_NAND_BLOCK_SIZE 16384
+#define CONFIG_SYS_NAND_BLOCK_SIZE	16384
+#define CONFIG_SYS_NAND_WINDOW_SIZE    (32 * 1024)     /* 0x00008000 */
 
 #define CONFIG_SYS_NAND_U_BOOT_SIZE  (512 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST   0x00100000
@@ -282,11 +284,12 @@
 #define CONFIG_SYS_NAND_U_BOOT_RELOC 0x00010000
 
 #define CONFIG_SYS_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
+				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
 				| BR_PS_8		/* 8 bit port */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
 				| BR_V)			/* valid */
-#define CONFIG_SYS_NAND_OR_PRELIM	(0xFFFF8000	/* length 32K */ \
+#define CONFIG_SYS_NAND_OR_PRELIM	\
+				(P2SZ_TO_AM(CONFIG_SYS_NAND_WINDOW_SIZE) \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
@@ -308,7 +311,7 @@
 #endif
 
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000000E	/* 32KB  */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
 #define CONFIG_SYS_NAND_LBLAWBAR_PRELIM CONFIG_SYS_LBLAWBAR1_PRELIM
 #define CONFIG_SYS_NAND_LBLAWAR_PRELIM CONFIG_SYS_LBLAWAR1_PRELIM

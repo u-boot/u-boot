@@ -185,83 +185,27 @@
 
 					/* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000018	/* 32MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32MB)
 
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| (2 << BR_PS_SHIFT)	/* 16 bit port */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	0xfe006ff7		/* 16MB Flash size */
+				| BR_PS_16	/* 16 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
+				| OR_GPCM_XAM \
+				| OR_GPCM_CSNT \
+				| OR_GPCM_ACS_DIV2 \
+				| OR_GPCM_XACS \
+				| OR_GPCM_SCY_15 \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
+				| OR_GPCM_EAD)
+				/* 0xFE006FF7 */
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	128	/* sectors per device */
 
 #undef CONFIG_SYS_FLASH_CHECKSUM
-
-/*
- * SDRAM on the Local Bus
- */
-#undef CONFIG_SYS_LB_SDRAM	/* The board has not SRDAM on local bus */
-
-#ifdef CONFIG_SYS_LB_SDRAM
-#define CONFIG_SYS_LBC_SDRAM_BASE	0xF0000000	/* SDRAM base addr */
-#define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
-
-#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_LBC_SDRAM_BASE
-#define CONFIG_SYS_LBLAWAR2_PRELIM	0x80000019	/* 64MB */
-
-/*local bus BR2, OR2 definition for SDRAM if soldered on the EPB board */
-/*
- * Base Register 2 and Option Register 2 configure SDRAM.
- * The SDRAM base address, CONFIG_SYS_LBC_SDRAM_BASE, is 0xf0000000.
- *
- * For BR2, need:
- *    Base address of 0xf0000000 = BR[0:16] = 1111 0000 0000 0000 0
- *    port size = 32-bits = BR2[19:20] = 11
- *    no parity checking = BR2[21:22] = 00
- *    SDRAM for MSEL = BR2[24:26] = 011
- *    Valid = BR[31] = 1
- *
- * 0    4    8    12   16   20   24   28
- * 1111 0000 0000 0000 0001 1000 0110 0001 = f0001861
- *
- * CONFIG_SYS_LBC_SDRAM_BASE should be masked and OR'ed into
- * the top 17 bits of BR2.
- */
-
-				/*Port size=32bit, MSEL=SDRAM */
-#define CONFIG_SYS_BR2_PRELIM	0xf0001861
-
-/*
- * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
- *
- * For OR2, need:
- *    64MB mask for AM, OR2[0:7] = 1111 1100
- *                 XAM, OR2[17:18] = 11
- *    9 columns OR2[19-21] = 010
- *    13 rows   OR2[23-25] = 100
- *    EAD set for extra time OR[31] = 1
- *
- * 0    4    8    12   16   20   24   28
- * 1111 1100 0000 0000 0110 1001 0000 0001 = fc006901
- */
-
-#define CONFIG_SYS_OR2_PRELIM	0xfc006901
-
-				/* LB sdram refresh timer, about 6us */
-#define CONFIG_SYS_LBC_LSRT	0x32000000
-				/* LB refresh timer prescal, 266MHz/32 */
-#define CONFIG_SYS_LBC_MRTPR	0x20000000
-
-#define CONFIG_SYS_LBC_LSDMR_COMMON	0x0063b723
-
-#endif
-
-/*
- * Windows to access PIB via local bus
- */
-					/* windows base 0xf8008000 */
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	0xf8008000
-#define CONFIG_SYS_LBLAWAR3_PRELIM	0x8000000f	/* windows size 64KB */
 
 /*
  * Serial Port

@@ -151,26 +151,26 @@
 #define CONFIG_NAND_FSL_ELBC		1
 
 #define CONFIG_SYS_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
+				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
 				| BR_PS_8		/* 8 bit Port */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
 				| BR_V)			/* valid */
 
 #ifdef CONFIG_NAND_SP
-#define CONFIG_SYS_NAND_OR_PRELIM	(0xFFFF8000	/* length 32K */ \
+#define CONFIG_SYS_NAND_OR_PRELIM	(OR_AM_32KB \
 					| OR_FCM_CSCT \
 					| OR_FCM_CST \
 					| OR_FCM_CHT \
 					| OR_FCM_SCY_1 \
 					| OR_FCM_TRLX \
 					| OR_FCM_EHTR)
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x8000000E	/* 32KB */
-#define CONFIG_SYS_NAND_PAGE_SIZE	(512)	/* NAND chip page size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
+#define CONFIG_SYS_NAND_PAGE_SIZE	512	/* NAND chip page size */
 					/* NAND chip block size */
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(16 << 10)
 #define NAND_CACHE_PAGES		32
 #elif defined(CONFIG_NAND_LP)
-#define CONFIG_SYS_NAND_OR_PRELIM	(0xFFFC0000	/* length 256K */ \
+#define CONFIG_SYS_NAND_OR_PRELIM	(OR_AM_256KB \
 					| OR_FCM_PGS \
 					| OR_FCM_CSCT \
 					| OR_FCM_CST \
@@ -178,8 +178,8 @@
 					| OR_FCM_SCY_1 \
 					| OR_FCM_TRLX \
 					| OR_FCM_EHTR)
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000011	/* 256KB */
-#define CONFIG_SYS_NAND_PAGE_SIZE	(2048)	/* NAND chip page size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_256KB)
+#define CONFIG_SYS_NAND_PAGE_SIZE	2048	/* NAND chip page size */
 					/* NAND chip block size */
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 << 10)
 #define NAND_CACHE_PAGES		64

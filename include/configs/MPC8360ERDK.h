@@ -198,19 +198,20 @@
 
 					/* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000018 /* 32MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32MB)
 
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| (2 << BR_PS_SHIFT) /* 16 bit port */ \
-				| BR_V)	/* valid */
-#define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
+				| BR_PS_16	/* 16 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
@@ -228,11 +229,20 @@
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000001b /* Access window size 4K */
+/*
+ * [RFC] Comment said 4KB window; code said 256MB window; OR1 says 64MB
+ * ... What's correct?
+ */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
 
 /* Port size 8 bit, UPMA */
-#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_NAND_BASE | 0x00000881)
-#define CONFIG_SYS_OR1_PRELIM		0xfc000001
+#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_NAND_BASE \
+					| BR_PS_8 \
+					| BR_MS_UPMA \
+					| BR_V)
+					/* 0x60000881 */
+#define CONFIG_SYS_OR1_PRELIM		(OR_AM_64MB | OR_UPM_EAD)
+					/* 0xFC000001 */
 
 /*
  * Fujitsu MB86277 (MINT) graphics controller
@@ -240,12 +250,16 @@
 #define CONFIG_SYS_VIDEO_BASE		0x70000000
 
 #define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VIDEO_BASE
-#define CONFIG_SYS_LBLAWAR2_PRELIM	0x80000019 /* Access window size 64MB */
+#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_64MB)
 
 /* Port size 32 bit, UPMB */
-				/* PS=11, UPMB */
-#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_VIDEO_BASE | 0x000018a1)
-#define CONFIG_SYS_OR2_PRELIM	0xfc000001 /* (64MB, EAD=1) */
+#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_VIDEO_BASE \
+				| BR_PS_32 \
+				| BR_MS_UPMB \
+				| BR_V)
+				/* 0x000018a1 */
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_64MB | OR_UPM_EAD)
+				/* 0xFC000001 */
 
 /*
  * Serial Port

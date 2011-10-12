@@ -235,7 +235,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_FLASH_BANKS_LIST	\
 		{CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE + 0x800000}
 #define CONFIG_SYS_FLASH_SIZE		16	/* FLASH size in MB */
-#define CONFIG_SYS_FLASH_SIZE_SHIFT	4	/* log2 of the above value */
 #define CONFIG_SYS_FLASH_PROTECTION	1	/* Use h/w Flash protection. */
 
 /* Vitesse 7385 */
@@ -256,19 +255,21 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* Flash */
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE | BR_PS_16 | BR_V)
-#define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
+#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
+				| BR_PS_16 \
+				| BR_MS_GPCM \
+				| BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN \
-					| (0x13 + CONFIG_SYS_FLASH_SIZE_SHIFT))
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_16MB)
 
 /* Vitesse 7385 */
 
@@ -276,14 +277,17 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #ifdef CONFIG_VSC7385_ENET
 
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_VSC7385_BASE | BR_PS_8 | BR_V)
+#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_VSC7385_BASE \
+				| BR_PS_8 \
+				| BR_MS_GPCM \
+				| BR_V)
 #define CONFIG_SYS_OR1_PRELIM	(OR_AM_128KB \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
 				| OR_GPCM_SETA \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
 
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_VSC7385_BASE
@@ -294,14 +298,17 @@ boards, we say we have two, but don't display a message if we find only one. */
 /* LED */
 
 #define CONFIG_SYS_LED_BASE	0xF9000000
-#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_LED_BASE | BR_PS_8 | BR_V)
+#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_LED_BASE \
+				| BR_PS_8 \
+				| BR_MS_GPCM \
+				| BR_V)
 #define CONFIG_SYS_OR2_PRELIM	(OR_AM_2MB \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_9 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
 
 /* Compact Flash */

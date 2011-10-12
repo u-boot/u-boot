@@ -103,16 +103,17 @@
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x8000001b /* 256MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
 
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE | \
-				(2 << BR_PS_SHIFT) | /* 16 bit port size */ \
+				BR_PS_16 | /* 16 bit port size */ \
+				BR_MS_GPCM | /* MSEL = GPCM */ \
 				BR_V)
 
 #define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) | \
 				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | \
 				OR_GPCM_SCY_5 | \
-				OR_GPCM_TRLX | OR_GPCM_EAD)
+				OR_GPCM_TRLX_SET | OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1   /* max num of flash banks	*/
 #define CONFIG_SYS_MAX_FLASH_SECT	512 /* max num of sects on one chip */
@@ -123,15 +124,16 @@
  */
 /* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_KMBEC_FPGA_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000001A /* 128MB window size */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_128MB)
 
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_KMBEC_FPGA_BASE | \
-				(1 << BR_PS_SHIFT) | /* 8 bit port size */ \
+				BR_PS_8 | /* 8 bit port size */ \
+				BR_MS_GPCM | /* MSEL = GPCM */ \
 				BR_V)
 #define CONFIG_SYS_OR1_PRELIM	(MEG_TO_AM(CONFIG_SYS_KMBEC_FPGA_SIZE) | \
 				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | \
 				OR_GPCM_SCY_2 | \
-				OR_GPCM_TRLX | OR_GPCM_EAD)
+				OR_GPCM_TRLX_SET | OR_GPCM_EAD)
 
 /*
  * Serial Port

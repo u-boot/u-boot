@@ -70,7 +70,7 @@
 				 OR_GPCM_CSNT | \
 				 OR_GPCM_ACS_DIV4 | \
 				 OR_GPCM_SCY_3 | \
-				 OR_GPCM_TRLX)
+				 OR_GPCM_TRLX_SET)
 
 #define CONFIG_SYS_MAMR	(MxMR_GPL_x4DIS | \
 			 0x0000c000 | \

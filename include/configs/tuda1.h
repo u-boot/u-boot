@@ -73,8 +73,8 @@
 				 OR_GPCM_CSNT | \
 				 OR_GPCM_ACS_DIV4 | \
 				 OR_GPCM_SCY_2 | \
-				 (OR_GPCM_TRLX & \
-				 (~OR_GPCM_EHTR)) |  /* EHTR = 0 */ \
+				 OR_GPCM_TRLX_SET | \
+				 OR_GPCM_EHTR_CLEAR | \
 				 OR_GPCM_EAD)
 /*
  * PINC3 on the local bus CS3
@@ -91,11 +91,10 @@
 
 #define CONFIG_SYS_OR3_PRELIM	(MEG_TO_AM(CONFIG_SYS_APP2_SIZE) | \
 				 OR_GPCM_CSNT |	\
-				 (OR_GPCM_ACS_DIV2 & /* ACS = 11 */\
-				 (~OR_GPCM_XACS)) |  /* XACS = 0 */\
-				 (OR_GPCM_SCY_2 & \
-				 (~OR_GPCM_EHTR)) |  /* EHTR = 0 */ \
-				 OR_GPCM_TRLX)
+				 OR_GPCM_ACS_DIV2 | \
+				 OR_GPCM_SCY_2 | \
+				 OR_GPCM_TRLX_SET | \
+				 OR_GPCM_EHTR_CLEAR)
 
 #define CONFIG_SYS_MAMR		(MxMR_GPL_x4DIS | \
 				 0x0000c000 | \

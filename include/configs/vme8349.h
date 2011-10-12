@@ -123,29 +123,56 @@
 #define CONFIG_SYS_FLASH_BASE		0xffc00000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		4		/* flash size in MB */
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | \
-					 (2 << BR_PS_SHIFT) |	/*  16bit */ \
-					 BR_V)			/* valid */
+					 BR_PS_16 |	/*  16bit */ \
+					 BR_MS_GPCM |	/*  MSEL = GPCM */ \
+					 BR_V)		/* valid */
 
-#define CONFIG_SYS_OR0_PRELIM		0xffc06ff7	/*   4 MB flash size */
+#define CONFIG_SYS_OR0_PRELIM		(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
+					| OR_GPCM_XAM \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_ACS_DIV2 \
+					| OR_GPCM_XACS \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_TRLX_SET \
+					| OR_GPCM_EHTR_SET \
+					| OR_GPCM_EAD)
+					/* 0xffc06ff7 */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000015	/*   4 MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_4MB)
 #else
 #define CONFIG_SYS_FLASH_BASE		0xf8000000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		128		/* flash size in MB */
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | \
-					 (2 << BR_PS_SHIFT) |	/*  16bit */ \
-					 BR_V)			/* valid */
+					 BR_PS_16 |	/*  16bit */ \
+					 BR_MS_GPCM |	/*  MSEL = GPCM */ \
+					 BR_V)		/* valid */
 
-#define CONFIG_SYS_OR0_PRELIM		0xf8006ff7	/* 128 MB flash size */
+#define CONFIG_SYS_OR0_PRELIM		(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
+					| OR_GPCM_XAM \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_ACS_DIV2 \
+					| OR_GPCM_XACS \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_TRLX_SET \
+					| OR_GPCM_EHTR_SET \
+					| OR_GPCM_EAD)
+					/* 0xf8006ff7 */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x8000001a	/* 128 MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_128MB)
 #endif
 /* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
-#define CONFIG_SYS_BR1_PRELIM		(0xf0000000 | 0x00001801)
-#define CONFIG_SYS_OR1_PRELIM		(0xfffc0008 | 0x00000200)
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	0xf0000000
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(0x80000000 | 0x00000011)
+#define CONFIG_SYS_WINDOW1_BASE		0xf0000000
+#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_WINDOW1_BASE \
+					| BR_PS_32 \
+					| BR_MS_GPCM \
+					| BR_V)
+					/* 0xF0001801 */
+#define CONFIG_SYS_OR1_PRELIM		(OR_AM_256KB \
+					| OR_GPCM_SETA)
+					/* 0xfffc0208 */
+#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_WINDOW1_BASE
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_256KB)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device*/
