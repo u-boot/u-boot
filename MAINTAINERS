@@ -928,6 +928,10 @@ Stefan Roese <sr@denx.de>
 
 	vct_xxx		MIPS32 4Kc
 
+Xiangfu Liu <xiangfu@openmobilefree.net>
+
+	qi_lb60		MIPS32 (XBurst Jz4740 SoC)
+
 #########################################################################
 # Nios-II Systems:							#
 #									#

@@ -400,7 +400,9 @@ LIST_mips="		\
 ## MIPS Systems		(little endian)
 #########################################################################
 
-LIST_mips4kc_el=""
+LIST_mips4kc_el="	\
+	qi_lb60		\
+"
 
 LIST_mips5kc_el=""
 
