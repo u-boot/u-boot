@@ -157,11 +157,9 @@ endif
 
 #########################################################################
 
-ifneq (,$(findstring s,$(MAKEFLAGS)))
-ARFLAGS = cr
-else
-ARFLAGS = crv
-endif
+# We don't actually use $(ARFLAGS) anywhere anymore, so catch people
+# who are porting old code to latest mainline but not updating $(AR).
+ARFLAGS = $(error update your Makefile to use cmd_link_o_target and not AR)
 RELFLAGS= $(PLATFORM_RELFLAGS)
 DBGFLAGS= -g # -DDEBUG
 OPTFLAGS= -Os #-fomit-frame-pointer
