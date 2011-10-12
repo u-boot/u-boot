@@ -342,7 +342,8 @@ static int emaclite_recv(struct eth_device *dev)
 
 }
 
-int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr)
+int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
+							int txpp, int rxpp)
 {
 	struct eth_device *dev;
 	struct xemaclite *emaclite;
@@ -359,12 +360,8 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr)
 
 	dev->priv = emaclite;
 
-#ifdef CONFIG_XILINX_EMACLITE_TX_PING_PONG
-	emaclite->txpp = 1;
-#endif
-#ifdef CONFIG_XILINX_EMACLITE_RX_PING_PONG
-	emaclite->rxpp = 1;
-#endif
+	emaclite->txpp = txpp;
+	emaclite->rxpp = rxpp;
 
 	sprintf(dev->name, "Xelite.%lx", base_addr);
 
