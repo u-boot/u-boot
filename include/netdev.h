@@ -97,7 +97,7 @@ int uli526x_initialize(bd_t *bis);
 int armada100_fec_register(unsigned long base_addr);
 int xilinx_axiemac_initialize(bd_t *bis, unsigned long base_addr,
 							unsigned long dma_addr);
-int xilinx_emaclite_initialize (bd_t *bis, int base_addr);
+int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr);
 
 /* Boards with PCI network controllers can call this from their board_eth_init()
  * function to initialize whatever's on board.
