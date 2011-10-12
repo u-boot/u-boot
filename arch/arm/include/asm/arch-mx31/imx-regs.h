@@ -513,6 +513,20 @@ enum iomux_pins {
 #define PLL_MFI(x)		(((x) & 0xf) << 10)
 #define PLL_MFN(x)		(((x) & 0x3ff) << 0)
 
+#define GET_PDR0_CSI_PODF(x)	(((x) >> 23) & 0x1ff)
+#define GET_PDR0_PER_PODF(x)	(((x) >> 16) & 0x1f)
+#define GET_PDR0_HSP_PODF(x)	(((x) >> 11) & 0x7)
+#define GET_PDR0_NFC_PODF(x)	(((x) >> 8) & 0x7)
+#define GET_PDR0_IPG_PODF(x)	(((x) >> 6) & 0x3)
+#define GET_PDR0_MAX_PODF(x)	(((x) >> 3) & 0x7)
+#define GET_PDR0_MCU_PODF(x)	((x) & 0x7)
+
+#define GET_PLL_PD(x)		(((x) >> 26) & 0xf)
+#define GET_PLL_MFD(x)		(((x) >> 16) & 0x3ff)
+#define GET_PLL_MFI(x)		(((x) >> 10) & 0xf)
+#define GET_PLL_MFN(x)		(((x) >> 0) & 0x3ff)
+
+
 #define WEIM_ESDCTL0	0xB8001000
 #define WEIM_ESDCFG0	0xB8001004
 #define WEIM_ESDCTL1	0xB8001008
