@@ -206,7 +206,7 @@
 /* No SPD? Then manually set up DDR parameters */
 #ifndef CONFIG_SPD_EEPROM
     #define CONFIG_SYS_DDR_SIZE		256	/* Mb */
-    #define CONFIG_SYS_DDR_CONFIG	(CSCONFIG_EN \
+    #define CONFIG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN \
 					| CSCONFIG_ROW_BIT_13 \
 					| CSCONFIG_COL_BIT_10)
 

@@ -130,7 +130,7 @@
  * seem to have the SPD connected to I2C.
  */
 #define CONFIG_SYS_DDR_SIZE	128		/* MB */
-#define CONFIG_SYS_DDR_CONFIG	(CSCONFIG_EN \
+#define CONFIG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN \
 				| CSCONFIG_ODT_RD_NEVER \
 				| CSCONFIG_ODT_WR_ONLY_CURRENT \
 				| CSCONFIG_ROW_BIT_13 \

@@ -114,7 +114,7 @@
  * NB: manual DDR setup untested on sbc834x
  */
 #define CONFIG_SYS_DDR_SIZE		256		/* MB */
-#define CONFIG_SYS_DDR_CONFIG		(CSCONFIG_EN \
+#define CONFIG_SYS_DDR_CS2_CONFIG	(CSCONFIG_EN \
 					| CSCONFIG_ROW_BIT_13 \
 					| CSCONFIG_COL_BIT_10)
 #define CONFIG_SYS_DDR_TIMING_1	0x36332321

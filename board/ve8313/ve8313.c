@@ -65,8 +65,14 @@ static long fixed_sdram(void)
 	 */
 	__udelay(50000);
 
-	out_be32(&im->ddr.csbnds[0].csbnds, (msize - 1) >> 24);
-	out_be32(&im->ddr.cs_config[0], CONFIG_SYS_DDR_CONFIG);
+#if ((CONFIG_SYS_DDR_SDRAM_BASE & 0x00FFFFFF) != 0)
+#warning Chip select bounds is only configurable in 16MB increments
+#endif
+	out_be32(&im->ddr.csbnds[0].csbnds,
+		((CONFIG_SYS_DDR_SDRAM_BASE >> CSBNDS_SA_SHIFT) & CSBNDS_SA) |
+		(((CONFIG_SYS_DDR_SDRAM_BASE + msize - 1) >> CSBNDS_EA_SHIFT) &
+			CSBNDS_EA));
+	out_be32(&im->ddr.cs_config[0], CONFIG_SYS_DDR_CS0_CONFIG);
 
 	/* Currently we use only one CS, so disable the other bank. */
 	out_be32(&im->ddr.cs_config[1], 0);

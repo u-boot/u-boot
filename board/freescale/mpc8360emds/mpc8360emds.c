@@ -216,19 +216,15 @@ phys_size_t initdram(int board_type)
 int fixed_sdram(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	u32 msize = 0;
-	u32 ddr_size;
-	u32 ddr_size_log2;
+	u32 msize = CONFIG_SYS_DDR_SIZE;
+	u32 ddr_size = msize << 20;
+	u32 ddr_size_log2 = __ilog2(ddr_size);
+	u32 half_ddr_size = ddr_size >> 1;
 
-	msize = CONFIG_SYS_DDR_SIZE;
-	for (ddr_size = msize << 20, ddr_size_log2 = 0;
-	     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++) {
-		if (ddr_size & 1) {
-			return -1;
-		}
-	}
+	im->sysconf.ddrlaw[0].bar =
+		CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar =
-	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
+		LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
 #if (CONFIG_SYS_DDR_SIZE != 256)
 #warning Currenly any ddr size other than 256 is not supported
 #endif
@@ -246,11 +242,25 @@ int fixed_sdram(void)
 	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
 #else
-	im->ddr.csbnds[0].csbnds = 0x00000007;
-	im->ddr.csbnds[1].csbnds = 0x0008000f;
 
-	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CONFIG;
-	im->ddr.cs_config[1] = CONFIG_SYS_DDR_CONFIG;
+#if ((CONFIG_SYS_DDR_SDRAM_BASE & 0x00FFFFFF) != 0)
+#warning Chip select bounds is only configurable in 16MB increments
+#endif
+	im->ddr.csbnds[0].csbnds =
+		((CONFIG_SYS_DDR_SDRAM_BASE >> CSBNDS_SA_SHIFT) & CSBNDS_SA) |
+		(((CONFIG_SYS_DDR_SDRAM_BASE + half_ddr_size - 1) >>
+				CSBNDS_EA_SHIFT) & CSBNDS_EA);
+	im->ddr.csbnds[1].csbnds =
+		(((CONFIG_SYS_DDR_SDRAM_BASE + half_ddr_size) >>
+				CSBNDS_SA_SHIFT) & CSBNDS_SA) |
+		(((CONFIG_SYS_DDR_SDRAM_BASE + ddr_size - 1) >>
+				CSBNDS_EA_SHIFT) & CSBNDS_EA);
+
+	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
+	im->ddr.cs_config[1] = CONFIG_SYS_DDR_CS1_CONFIG;
+
+	im->ddr.cs_config[2] = 0;
+	im->ddr.cs_config[3] = 0;
 
 	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
 	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
