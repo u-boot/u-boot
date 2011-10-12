@@ -40,6 +40,8 @@ Buffer Requirements:
 - If the buffer is not cache-line aligned invalidation will be restricted
   to the aligned part. That is, one cache-line at the respective boundary
   may be left out while doing invalidation.
+- A suitable buffer can be alloced on the stack using the
+  ALLOC_CACHE_ALIGN_BUFFER macro.
 
 Cleanup Before Linux:
 - cleanup_before_linux() should flush the D-cache, invalidate I-cache, and
