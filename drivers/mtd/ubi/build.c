@@ -476,21 +476,21 @@ static int attach_by_scanning(struct ubi_device *ubi)
 	if (err)
 		goto out_si;
 
-	err = ubi_wl_init_scan(ubi, si);
-	if (err)
-		goto out_vtbl;
-
 	err = ubi_eba_init_scan(ubi, si);
 	if (err)
 		goto out_wl;
 
+	err = ubi_wl_init_scan(ubi, si);
+	if (err)
+		goto out_vtbl;
+
 	ubi_scan_destroy_si(si);
 	return 0;
 
-out_wl:
-	ubi_wl_close(ubi);
 out_vtbl:
 	vfree(ubi->vtbl);
+out_wl:
+	ubi_wl_close(ubi);
 out_si:
 	ubi_scan_destroy_si(si);
 	return err;
