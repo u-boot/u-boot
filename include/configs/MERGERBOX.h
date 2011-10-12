@@ -177,7 +177,7 @@
  */
 #define CONFIG_MTD_NAND_VERIFY_WRITE	1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_NAND_FSL_ELBC 	1
+#define CONFIG_NAND_FSL_ELBC		1
 
 #define CONFIG_SYS_NAND_BASE	0xE0600000
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_NAND_BASE | (2<<BR_DECC_SHIFT) |\
@@ -473,7 +473,7 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	6
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 		2
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
 #define CONFIG_SYS_EEPROM_SIZE			0x4000
 
 /*
@@ -530,8 +530,8 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_RESET_TO_RETRY	1000
 
-#define MV_CI		MergerBox
-#define MV_VCI		MergerBox
+#define MV_CI		"MergerBox"
+#define MV_VCI		"MergerBox"
 #define MV_FPGA_DATA	0xfc100000
 #define MV_FPGA_SIZE	0x00200000
 
@@ -570,8 +570,8 @@
 	"mv_version=" U_BOOT_VERSION "\0"\
 	"mtdids=" MTDIDS_DEFAULT "\0"\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"\
-	"dhcp_client_id=" MK_STR(MV_CI) "\0"\
-	"dhcp_vendor-class-identifier=" MK_STR(MV_VCI) "\0"\
+	"dhcp_client_id=" MV_CI "\0"\
+	"dhcp_vendor-class-identifier=" MV_VCI "\0"\
 	"upd_uboot=dhcp;tftp bdi2000/u-boot-mergerbox-xp.bin;"\
 		"protect off all;erase $uboota +0xC0000;"\
 		"cp.b $loadaddr $uboota $filesize\0"\
