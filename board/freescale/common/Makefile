@@ -70,12 +70,6 @@ $(LIB):	$(obj).depend $(OBJS) $(SUBLIB)
 $(SUBLIB): $(obj).depend
 	$(MAKE) -C $(dir $(subst $(obj),,$@))
 
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
-
 #########################################################################
 
 # defines $(obj).depend target

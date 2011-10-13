@@ -30,11 +30,6 @@ OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
 #########################################################################
 
 # defines $(obj).depend target

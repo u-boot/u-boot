@@ -38,13 +38,6 @@ all:  $(LIB)
 $(LIB): $(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
-.PHONY: clean distclean
-clean:
-	rm -f $(OBJS)
-
-distclean:  clean
-	rm -f $(LIB) core *.bak .depend
-
 #########################################################################
 
 # defines $(obj).depend target

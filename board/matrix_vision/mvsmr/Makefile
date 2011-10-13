@@ -38,12 +38,6 @@ $(LIB): $(obj).depend $(OBJS)
 	        $(call cmd_link_o_target, $(OBJS))
 	@mkimage -T script -C none -n mvSMR_Script -d bootscript $(obj)bootscript.img
 
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend $(obj)bootscript.img
-
 #########################################################################
 
 include $(SRCTREE)/rules.mk

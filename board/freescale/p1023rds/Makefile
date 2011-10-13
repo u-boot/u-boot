@@ -22,12 +22,6 @@ SOBJS	:= $(addprefix $(obj),$(SOBJS))
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
-clean:
-	rm -f $(OBJS) $(SOBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
 #########################################################################
 
 # defines $(obj).depend target
