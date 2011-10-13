@@ -101,14 +101,8 @@ static void display_flash_config(ulong size)
 
 static int init_baudrate (void)
 {
-	char tmp[64];	/* long enough for environment variables */
-	int i = getenv_f("baudrate", tmp, sizeof (tmp));
-
-	gd->baudrate = (i > 0)
-			? (int) simple_strtoul (tmp, NULL, 10)
-			: CONFIG_BAUDRATE;
-
-	return (0);
+	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
+	return 0;
 }
 
 
@@ -348,9 +342,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 /** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
 
 	/* Initialize from environment */
-	if ((s = getenv ("loadaddr")) != NULL) {
-		load_addr = simple_strtoul (s, NULL, 16);
-	}
+	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 #if defined(CONFIG_CMD_NET)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
