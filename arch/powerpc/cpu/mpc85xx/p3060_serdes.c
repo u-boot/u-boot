@@ -83,8 +83,6 @@ void soc_serdes_init(void)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	u32 devdisr2 = in_be32(&gur->devdisr2);
 	u32 rcwsr11 = in_be32(&gur->rcwsr[11]);
-	u32 rcwsr13 = in_be32(&gur->rcwsr[13]);
-	u32 ec1_ext, ec2_ext;
 
 	/* NOTE: Leave FM1-1,FM1-2 alone for MDIO access */
 
@@ -115,24 +113,6 @@ void soc_serdes_init(void)
 		FSL_CORENET_RCWSR11_EC2_FM2_DTSEC1) {
 		devdisr2 &= ~FSL_CORENET_DEVDISR2_DTSEC2_1;
 	}
-
-	ec1_ext = rcwsr13 & FSL_CORENET_RCWSR13_EC1_EXT;
-	if (ec1_ext) {
-		if ((ec1_ext == FSL_CORENET_RCWSR13_EC1_EXT_FM1_DTSEC4_RGMII) ||
-			(ec1_ext == FSL_CORENET_RCWSR13_EC1_EXT_FM1_DTSEC4_MII))
-			devdisr2 &= ~FSL_CORENET_DEVDISR2_DTSEC1_4;
-	}
-
-	ec2_ext = rcwsr13 & FSL_CORENET_RCWSR13_EC2_EXT;
-	if (ec2_ext) {
-		if ((ec2_ext == FSL_CORENET_RCWSR13_EC2_EXT_FM2_DTSEC4_RGMII) ||
-			(ec2_ext == FSL_CORENET_RCWSR13_EC2_EXT_FM2_DTSEC4_MII))
-			devdisr2 &= ~FSL_CORENET_DEVDISR2_DTSEC2_4;
-	}
-
-	if ((rcwsr13 & FSL_CORENET_RCWSR13_EC3) ==
-		FSL_CORENET_RCWSR13_EC3_FM2_DTSEC4_MII)
-		devdisr2 &= ~FSL_CORENET_DEVDISR2_DTSEC2_4;
 
 	out_be32(&gur->devdisr2, devdisr2);
 }

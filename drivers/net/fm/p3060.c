@@ -52,7 +52,6 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	u32 rcwsr11 = in_be32(&gur->rcwsr[11]);
-	u32 rcwsr13 = in_be32(&gur->rcwsr[13]);
 
 	if (is_device_disabled(port))
 		return PHY_INTERFACE_MODE_NONE;
@@ -69,22 +68,6 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	if ((port == FM2_DTSEC1) && ((rcwsr11 & FSL_CORENET_RCWSR11_EC2) ==
 		FSL_CORENET_RCWSR11_EC2_FM2_DTSEC1))
 		return PHY_INTERFACE_MODE_RGMII;
-
-	if ((port == FM1_DTSEC4) && ((rcwsr13 & FSL_CORENET_RCWSR13_EC1_EXT) ==
-		FSL_CORENET_RCWSR13_EC1_EXT_FM1_DTSEC4_RGMII))
-		return PHY_INTERFACE_MODE_RGMII;
-
-	if ((port == FM1_DTSEC4) && ((rcwsr13 & FSL_CORENET_RCWSR13_EC1_EXT) ==
-		FSL_CORENET_RCWSR13_EC1_EXT_FM1_DTSEC4_MII))
-		return PHY_INTERFACE_MODE_MII;
-
-	if ((port == FM2_DTSEC4) && ((rcwsr13 & FSL_CORENET_RCWSR13_EC2_EXT) ==
-		FSL_CORENET_RCWSR13_EC2_EXT_FM2_DTSEC4_RGMII))
-		return PHY_INTERFACE_MODE_RGMII;
-
-	if ((port == FM2_DTSEC4) && ((rcwsr13 & FSL_CORENET_RCWSR13_EC2_EXT) ==
-		FSL_CORENET_RCWSR13_EC2_EXT_FM2_DTSEC4_MII))
-		return PHY_INTERFACE_MODE_MII;
 
 	switch (port) {
 	case FM1_DTSEC1:
