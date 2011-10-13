@@ -373,7 +373,7 @@
 
 #define CONFIG_HOSTNAME		mecp512x
 #define CONFIG_BOOTFILE		/tftpboot/mecp512x/uImage
-#define CONFIG_ROOTPATH		/tftpboot/mecp512x/target_root
+#define CONFIG_ROOTPATH		"/tftpboot/mecp512x/target_root"
 
 #define CONFIG_LOADADDR		400000	/* def. location for tftp and bootm */
 

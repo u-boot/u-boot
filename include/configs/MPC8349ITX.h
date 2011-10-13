@@ -681,7 +681,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #endif
 
 /* Default path and filenames */
-#define CONFIG_ROOTPATH		/nfsroot/rootfs
+#define CONFIG_ROOTPATH		"/nfsroot/rootfs"
 #define CONFIG_BOOTFILE		uImage
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
 
@@ -698,7 +698,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_BOOTARGS \
 	"root=/dev/nfs rw" \
-	" nfsroot=" MK_STR(CONFIG_SERVERIP) ":" MK_STR(CONFIG_ROOTPATH) \
+	" nfsroot=" MK_STR(CONFIG_SERVERIP) ":" CONFIG_ROOTPATH		\
 	" ip=" MK_STR(CONFIG_IPADDR) ":" MK_STR(CONFIG_SERVERIP) ":"	\
 		MK_STR(CONFIG_GATEWAYIP) ":" MK_STR(CONFIG_NETMASK) ":" \
 		MK_STR(CONFIG_HOSTNAME) ":" MK_STR(CONFIG_NETDEV) ":off" \

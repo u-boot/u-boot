@@ -428,7 +428,7 @@
  */
 
 #define CONFIG_HOSTNAME		SBC8560
-#define CONFIG_ROOTPATH		/home/ppc
+#define CONFIG_ROOTPATH		"/home/ppc"
 #define CONFIG_BOOTFILE		uImage
 
 #define	CONFIG_EXTRA_ENV_SETTINGS		\

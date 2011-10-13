@@ -81,7 +81,7 @@
 #define CONFIG_GATEWAYIP	169.254.144.144	/* dedic card  */
 #define CONFIG_SERVERIP	169.254.144.144	/* tftp server */
 #define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_ROOTPATH	/export/uClinux-dist/romfs	/*NFS*/
+#define CONFIG_ROOTPATH		"/export/uClinux-dist/romfs"	/*NFS*/
 #define CFG_AUTOLOAD		"no"
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING

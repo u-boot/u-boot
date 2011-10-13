@@ -526,7 +526,7 @@
 
 #define CONFIG_HOSTNAME		mpc5121ads
 #define CONFIG_BOOTFILE		mpc5121ads/uImage
-#define CONFIG_ROOTPATH		/opt/eldk/ppc_6xx
+#define CONFIG_ROOTPATH		"/opt/eldk/ppc_6xx"
 
 #define CONFIG_LOADADDR		400000	/* default location for tftp and bootm */
 

@@ -530,7 +530,7 @@
 #define CONFIG_IPADDR		192.168.1.100
 
 #define CONFIG_HOSTNAME		unknown
-#define CONFIG_ROOTPATH		/opt/nfsroot
+#define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		uImage
 #define CONFIG_UBOOTPATH	8610hpcd/u-boot.bin
 

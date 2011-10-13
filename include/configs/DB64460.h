@@ -139,7 +139,7 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 
 #define CONFIG_SERIAL		"No. 1"
 #define CONFIG_SERVERIP		10.2.1.126
-#define CONFIG_ROOTPATH /mnt/yellow_dog_mini
+#define CONFIG_ROOTPATH		"/mnt/yellow_dog_mini"
 
 
 #define CONFIG_TESTDRAMDATA	y

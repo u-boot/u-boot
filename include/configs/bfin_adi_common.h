@@ -265,7 +265,7 @@
 #  define CONFIG_SERVERIP	192.168.0.2
 # endif
 # ifndef CONFIG_ROOTPATH
-#  define CONFIG_ROOTPATH	/romfs
+#  define CONFIG_ROOTPATH	"/romfs"
 # endif
 # ifdef CONFIG_CMD_DHCP
 #  ifndef CONFIG_SYS_AUTOLOAD

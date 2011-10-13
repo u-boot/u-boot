@@ -47,7 +47,7 @@
  * Network Settings
  */
 #ifndef __ADSPBF534__
-#define CONFIG_ROOTPATH        /romfs
+#define CONFIG_ROOTPATH        "/romfs"
 
 #define CONFIG_BFIN_MAC         1
 #define CONFIG_PHY_ADDR         0

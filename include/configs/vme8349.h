@@ -545,7 +545,7 @@
 #endif
 
 #define CONFIG_HOSTNAME		VME8349
-#define CONFIG_ROOTPATH		/tftpboot/rootfs
+#define CONFIG_ROOTPATH		"/tftpboot/rootfs"
 #define CONFIG_BOOTFILE		uImage
 
 #define CONFIG_LOADADDR		800000	/* def location for tftp and bootm */

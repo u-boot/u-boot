@@ -642,7 +642,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 
 #define CONFIG_HOSTNAME		P2020RDB
-#define CONFIG_ROOTPATH		/opt/nfsroot
+#define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		uImage
 #define CONFIG_UBOOTPATH	u-boot.bin/* U-Boot image on TFTP server */
 

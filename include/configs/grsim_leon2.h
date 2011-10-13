@@ -118,7 +118,7 @@
 #define CONFIG_GATEWAYIP 192.168.0.1
 #define CONFIG_SERVERIP 192.168.0.81
 #define CONFIG_IPADDR 192.168.0.80
-#define CONFIG_ROOTPATH /export/rootfs
+#define CONFIG_ROOTPATH "/export/rootfs"
 #define CONFIG_HOSTNAME  grxc3s1500
 #define CONFIG_BOOTFILE  /uImage
 

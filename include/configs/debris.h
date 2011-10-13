@@ -81,7 +81,7 @@
 #undef CONFIG_SYS_AUTOLOAD
 
 /* rootpath */
-#define CONFIG_ROOTPATH /tftpboot/target
+#define CONFIG_ROOTPATH "/tftpboot/target"
 
 /* gatewayip */
 #define CONFIG_GATEWAYIP 192.168.0.1

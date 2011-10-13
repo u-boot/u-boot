@@ -437,7 +437,7 @@
 #define CONFIG_IPADDR    192.168.1.253
 
 #define CONFIG_HOSTNAME		unknown
-#define CONFIG_ROOTPATH		/nfsroot
+#define CONFIG_ROOTPATH		"/nfsroot"
 #define CONFIG_BOOTFILE		your.uImage
 
 #define CONFIG_SERVERIP  192.168.1.1

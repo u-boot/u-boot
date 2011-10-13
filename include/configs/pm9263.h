@@ -352,7 +352,7 @@
 #define CONFIG_SYS_JFFS2_FIRST_SECTOR	11
 
 #define CONFIG_BOOTCOMMAND		"run flashboot"
-#define CONFIG_ROOTPATH			/ronetix/rootfs
+#define CONFIG_ROOTPATH			"/ronetix/rootfs"
 #define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds\n"
 
 #define CONFIG_CON_ROT			"fbcon=rotate:3 "

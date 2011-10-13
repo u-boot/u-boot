@@ -537,7 +537,7 @@
 
 #define CONFIG_HOSTNAME			aria
 #define CONFIG_BOOTFILE			aria/uImage
-#define CONFIG_ROOTPATH			/opt/eldk/ppc_6xx
+#define CONFIG_ROOTPATH			"/opt/eldk/ppc_6xx"
 
 #define CONFIG_LOADADDR			400000	/* default load addr */
 

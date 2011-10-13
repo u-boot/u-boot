@@ -610,7 +610,7 @@
 #endif
 
 #define CONFIG_HOSTNAME		SBC8349
-#define CONFIG_ROOTPATH		/tftpboot/rootfs
+#define CONFIG_ROOTPATH		"/tftpboot/rootfs"
 #define CONFIG_BOOTFILE		uImage
 
 #define CONFIG_LOADADDR		800000	/* default location for tftp and bootm */

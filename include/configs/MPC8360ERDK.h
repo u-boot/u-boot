@@ -501,7 +501,7 @@
 #define CONFIG_HOSTNAME	mpc8360erdk
 #define CONFIG_BOOTFILE	uImage
 
-#define CONFIG_ROOTPATH		/nfsroot/
+#define CONFIG_ROOTPATH		"/nfsroot/"
 
 #define	CONFIG_BOOTDELAY 2	/* -1 disables auto-boot */
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */

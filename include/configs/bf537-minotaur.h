@@ -85,7 +85,7 @@
 #endif
 
 #define CONFIG_SYS_AUTOLOAD	"no"
-#define CONFIG_ROOTPATH		/romfs
+#define CONFIG_ROOTPATH		"/romfs"
 /* Uncomment next line to use fixed MAC address */
 /* #define CONFIG_ETHADDR	02:80:ad:20:31:42 */
 

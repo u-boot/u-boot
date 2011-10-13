@@ -597,7 +597,7 @@
 #define CONFIG_NETDEV		eth1
 
 #define CONFIG_HOSTNAME		mpc8313erdb
-#define CONFIG_ROOTPATH		/nfs/root/path
+#define CONFIG_ROOTPATH		"/nfs/root/path"
 #define CONFIG_BOOTFILE		uImage
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
 #define CONFIG_FDTFILE		mpc8313erdb.dtb
