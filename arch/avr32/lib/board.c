@@ -95,18 +95,9 @@ static inline void dma_alloc_init(void)
 
 static int init_baudrate(void)
 {
-	char tmp[64];
-	int i;
-
-	i = getenv_f("baudrate", tmp, sizeof(tmp));
-	if (i > 0) {
-		gd->baudrate = simple_strtoul(tmp, NULL, 10);
-	} else {
-		gd->baudrate = CONFIG_BAUDRATE;
-	}
+	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
 	return 0;
 }
-
 
 static int display_banner (void)
 {
@@ -319,9 +310,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	jumptable_init();
 	console_init_r();
 
-	s = getenv("loadaddr");
-	if (s)
-		load_addr = simple_strtoul(s, NULL, 16);
+	/* Initialize from environment */
+	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
 #ifdef CONFIG_BITBANGMII
 	bb_miiphy_init();
