@@ -574,8 +574,6 @@ void pci_target_init(struct pci_controller *hose)
 	/* No error reporting */
 	pci_hose_write_config_word(hose, 0, PCI_ERREN, 0);
 
-	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
-
 	if (!is_monarch()) {
 		/* Program the board's subsystem id/classcode */
 		pci_hose_write_config_word(hose, 0, PCI_SUBSYSTEM_ID,
