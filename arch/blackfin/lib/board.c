@@ -62,11 +62,7 @@ static int display_banner(void)
 
 static int init_baudrate(void)
 {
-	char baudrate[15];
-	int i = getenv_f("baudrate", baudrate, sizeof(baudrate));
-	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
-	    ? simple_strtoul(baudrate, NULL, 10)
-	    : CONFIG_BAUDRATE;
+	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
 	return 0;
 }
 
@@ -374,8 +370,7 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #endif
 
 	/* Initialize from environment */
-	if ((s = getenv("loadaddr")) != NULL)
-		load_addr = simple_strtoul(s, NULL, 16);
+	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
