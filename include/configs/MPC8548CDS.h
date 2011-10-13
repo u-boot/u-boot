@@ -29,6 +29,10 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#ifdef CONFIG_36BIT
+#define CONFIG_PHYS_64BIT
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -73,6 +77,11 @@ extern unsigned long get_clock_freq(void);
  * Only possible on E500 Version 2 or newer cores.
  */
 #define CONFIG_ENABLE_36BIT_PHYS	1
+
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_ADDR_MAP
+#define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
+#endif
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
@@ -122,6 +131,19 @@ extern unsigned long get_clock_freq(void);
  * 0xff00_0000	0xff7f_ffff	FLASH (2nd bank)	8M	non-cacheable
  * 0xff80_0000	0xffff_ffff	FLASH (boot bank)	8M	non-cacheable
  *
+ * 36bit:
+ * 0x00000_0000	0x07fff_ffff	DDR			2G	cacheable
+ * 0xc0000_0000	0xc1fff_ffff	PCI1 MEM		512M	cacheable
+ * 0xc2000_0000	0xc3fff_ffff	PCIe MEM		512M	cacheable
+ * 0xc4000_0000	0xc5fff_ffff	RapidIO			512M	cacheable
+ * 0xfe000_0000	0xfe00f_ffff	CCSR			1M	non-cacheable
+ * 0xfe200_0000	0xfe20f_ffff	PCI1 IO			1M	non-cacheable
+ * 0xfe300_0000	0xfe30f_ffff	PCIe IO			1M	non-cacheable
+ * 0xff000_0000	0xff3ff_ffff	SDRAM			64M	cacheable
+ * 0xff800_0000	0xff80f_ffff	NVRAM/CADMUS		1M	non-cacheable
+ * 0xfff00_0000	0xfff7f_ffff	FLASH (2nd bank)	8M	non-cacheable
+ * 0xfff80_0000	0xfffff_ffff	FLASH (boot bank)	8M	non-cacheable
+ *
  */
 
 
@@ -160,7 +182,11 @@ extern unsigned long get_clock_freq(void);
  */
 
 #define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH 16M */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_FLASH_BASE_PHYS	0xfff000000ull
+#else
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
+#endif
 
 #define CONFIG_SYS_BR0_PRELIM \
 	(BR_PHYS_ADDR((CONFIG_SYS_FLASH_BASE_PHYS + 0x800000)) \
@@ -191,7 +217,11 @@ extern unsigned long get_clock_freq(void);
  * SDRAM on the Local Bus
  */
 #define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_LBC_SDRAM_BASE_PHYS	0xff0000000ull
+#else
 #define CONFIG_SYS_LBC_SDRAM_BASE_PHYS	CONFIG_SYS_LBC_SDRAM_BASE
+#endif
 #define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
 
 /*
@@ -285,7 +315,11 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_FSL_CADMUS
 
 #define CADMUS_BASE_ADDR 0xf8000000
+#ifdef CONFIG_PHYS_64BIT
+#define CADMUS_BASE_ADDR_PHYS	0xff8000000ull
+#else
 #define CADMUS_BASE_ADDR_PHYS	CADMUS_BASE_ADDR
+#endif
 #define CONFIG_SYS_BR3_PRELIM \
 	(BR_PHYS_ADDR(CADMUS_BASE_ADDR_PHYS) | BR_PS_8 | BR_V)
 #define CONFIG_SYS_OR3_PRELIM	 0xfff00ff7
@@ -347,23 +381,41 @@ extern unsigned long get_clock_freq(void);
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 #define CONFIG_SYS_PCI1_MEM_VIRT	0x80000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCI1_MEM_BUS		0xe0000000
+#define CONFIG_SYS_PCI1_MEM_PHYS	0xc00000000ull
+#else
 #define CONFIG_SYS_PCI1_MEM_BUS	0x80000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	0x80000000
+#endif
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCI1_IO_VIRT	0xe2000000
 #define CONFIG_SYS_PCI1_IO_BUS	0x00000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCI1_IO_PHYS 0xfe2000000ull
+#else
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe2000000
+#endif
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 #ifdef CONFIG_PCIE1
 #define CONFIG_SYS_PCIE1_NAME		"Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xa0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE1_MEM_PHYS	0xc20000000ull
+#else
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
+#endif
 #define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE1_IO_VIRT	0xe3000000
 #define CONFIG_SYS_PCIE1_IO_BUS	0x00000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_IO_PHYS        0xfe3000000ull
+#else
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe3000000
+#endif
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
 #endif
 
@@ -371,7 +423,11 @@ extern unsigned long get_clock_freq(void);
  * RapidIO MMU
  */
 #define CONFIG_SYS_SRIO1_MEM_VIRT	0xc0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_SRIO1_MEM_PHYS	0xc40000000ull
+#else
 #define CONFIG_SYS_SRIO1_MEM_PHYS	0xc0000000
+#endif
 #define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
 #ifdef CONFIG_LEGACY
