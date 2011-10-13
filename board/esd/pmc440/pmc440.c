@@ -617,21 +617,6 @@ void pci_master_init(struct pci_controller *hose)
 
 static void wait_for_pci_ready(void)
 {
-	int i;
-	char *s = getenv("pcidelay");
-	/*
-	 * We have our own handling of the pcidelay variable.
-	 * Using CONFIG_PCI_BOOTDELAY enables pausing for host
-	 * and adapter devices. For adapter devices we do not
-	 * want this.
-	 */
-	if (s) {
-		int ms = simple_strtoul(s, NULL, 10);
-		printf("PCI:   Waiting for %d ms\n", ms);
-		for (i=0; i<ms; i++)
-			udelay(1000);
-	}
-
 	if (!(in_be32((void*)GPIO1_IR) & GPIO1_PPC_EREADY)) {
 		printf("PCI:   Waiting for EREADY (CTRL-C to skip) ... ");
 		while (1) {
