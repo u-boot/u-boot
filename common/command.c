@@ -475,6 +475,12 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
 			cmdtp->help = (char *)addr;
 		}
 #endif
+#ifdef CONFIG_AUTO_COMPLETE
+		if (cmdtp->complete) {
+			addr = (ulong)(cmdtp->complete) + gd->reloc_off;
+			cmdtp->complete = (char *)addr;
+		}
+#endif
 		cmdtp++;
 	}
 }
