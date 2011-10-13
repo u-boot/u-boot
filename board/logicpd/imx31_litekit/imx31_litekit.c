@@ -91,7 +91,7 @@ int board_init(void)
 	return 0;
 }
 
-int checkboard (void)
+int checkboard(void)
 {
 	printf("Board: i.MX31 Litekit\n");
 	return 0;

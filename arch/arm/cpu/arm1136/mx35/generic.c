@@ -240,7 +240,7 @@ unsigned int mxc_get_main_clock(enum mxc_main_clocks clk)
 		}
 		break;
 	case IPG_CLK:
-		ret_val = get_ipg_clk();;
+		ret_val = get_ipg_clk();
 		break;
 	case IPG_PER_CLK:
 		ret_val = get_ipg_per_clk();

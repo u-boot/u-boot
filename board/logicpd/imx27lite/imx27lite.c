@@ -26,7 +26,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_init (void)
+int board_init(void)
 {
 	struct gpio_regs *regs = (struct gpio_regs *)IMX_GPIO_BASE;
 #if defined(CONFIG_SYS_NAND_LARGEPAGE)
@@ -64,7 +64,7 @@ int board_init (void)
 	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
 	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
@@ -86,7 +86,7 @@ void dram_init_banksize(void)
 
 int checkboard(void)
 {
-	puts ("Board: ");
+	puts("Board: ");
 	puts(CONFIG_BOARDNAME);
 	return 0;
 }

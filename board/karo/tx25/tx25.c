@@ -151,7 +151,7 @@ int board_late_init(void)
 	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM_1,

@@ -43,7 +43,7 @@ void hw_watchdog_reset(void)
 }
 #endif
 
-int dram_init (void)
+int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
 	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
@@ -60,7 +60,7 @@ static void qong_fpga_reset(void)
 	udelay(300);
 }
 
-int board_early_init_f (void)
+int board_early_init_f(void)
 {
 #ifdef CONFIG_QONG_FPGA
 	/* CS1: FPGA/Network Controller/GPIO, 16-bit, no DTACK */
@@ -149,7 +149,7 @@ int board_early_init_f (void)
 
 }
 
-int board_init (void)
+int board_init(void)
 {
 	/* Chip selects */
 	/* CS0: Nor Flash #0 - it must be init'ed when executing from DDR */
@@ -194,13 +194,13 @@ int board_late_init(void)
 	return 0;
 }
 
-int checkboard (void)
+int checkboard(void)
 {
 	printf("Board: DAVE/DENX Qong\n");
 	return 0;
 }
 
-int misc_init_r (void)
+int misc_init_r(void)
 {
 #ifdef CONFIG_QONG_FPGA
 	u32 tmp;

@@ -43,7 +43,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* "time" is measured in 1 / CONFIG_SYS_HZ seconds, "tick" is internal timer period */
+/*
+ * "time" is measured in 1 / CONFIG_SYS_HZ seconds,
+ * "tick" is internal timer period
+ */
+
 #ifdef CONFIG_MX31_TIMER_HIGH_PRECISION
 /* ~0.4% error - measured with stop-watch on 100s boot-delay */
 static inline unsigned long long tick_to_time(unsigned long long tick)
@@ -68,7 +72,8 @@ static inline unsigned long long us_to_tick(unsigned long long us)
 }
 #else
 /* ~2% error */
-#define TICK_PER_TIME	((CONFIG_MX31_CLK32 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ)
+#define TICK_PER_TIME	((CONFIG_MX31_CLK32 + CONFIG_SYS_HZ / 2) \
+							/ CONFIG_SYS_HZ)
 #define US_PER_TICK	(1000000 / CONFIG_MX31_CLK32)
 
 static inline unsigned long long tick_to_time(unsigned long long tick)
@@ -91,7 +96,7 @@ static inline unsigned long long us_to_tick(unsigned long long us)
 #endif
 
 /* The 32768Hz 32-bit timer overruns in 131072 seconds */
-int timer_init (void)
+int timer_init(void)
 {
 	int i;
 
@@ -106,7 +111,7 @@ int timer_init (void)
 	return 0;
 }
 
-unsigned long long get_ticks (void)
+unsigned long long get_ticks(void)
 {
 	ulong now = GPTCNT; /* current tick value */
 
@@ -119,7 +124,7 @@ unsigned long long get_ticks (void)
 	return gd->tbl;
 }
 
-ulong get_timer_masked (void)
+ulong get_timer_masked(void)
 {
 	/*
 	 * get_ticks() returns a long long (64 bit), it wraps in
@@ -130,13 +135,13 @@ ulong get_timer_masked (void)
 	return tick_to_time(get_ticks());
 }
 
-ulong get_timer (ulong base)
+ulong get_timer(ulong base)
 {
-	return get_timer_masked () - base;
+	return get_timer_masked() - base;
 }
 
 /* delay x useconds AND preserve advance timestamp value */
-void __udelay (unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;
@@ -148,7 +153,7 @@ void __udelay (unsigned long usec)
 		 /*NOP*/;
 }
 
-void reset_cpu (ulong addr)
+void reset_cpu(ulong addr)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE;
 	wdog->wcr = WDOG_ENABLE;

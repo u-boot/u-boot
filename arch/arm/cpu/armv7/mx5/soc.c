@@ -26,6 +26,8 @@
 #include <common.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
+
 #include <asm/errno.h>
 #include <asm/io.h>
 
@@ -115,14 +117,6 @@ int print_cpuinfo(void)
 	printf("Reset cause: %s\n", get_reset_cause());
 	return 0;
 }
-#endif
-
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
-#if defined(CONFIG_FEC_MXC)
-extern int fecmxc_initialize(bd_t *bis);
 #endif
 
 int cpu_eth_init(bd_t *bis)

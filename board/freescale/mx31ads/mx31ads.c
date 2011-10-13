@@ -112,7 +112,7 @@ int board_init(void)
 	return 0;
 }
 
-int checkboard (void)
+int checkboard(void)
 {
 	printf("Board: MX31ADS\n");
 	return 0;
