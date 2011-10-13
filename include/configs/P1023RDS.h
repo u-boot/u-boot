@@ -495,7 +495,7 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment Configuration
  */
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	(u-boot.bin) /* U-Boot image on TFTP server */
 
 /* default location for tftp and bootm */

@@ -531,7 +531,7 @@
 
 #define CONFIG_HOSTNAME		unknown
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	8610hpcd/u-boot.bin
 
 #define CONFIG_SERVERIP		192.168.1.1

@@ -448,7 +448,7 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_HOSTNAME  unknown
 #define CONFIG_ROOTPATH  "/nfsroot"
-#define CONFIG_BOOTFILE  your.uImage
+#define CONFIG_BOOTFILE  "your.uImage"
 
 #define CONFIG_SERVERIP  192.168.1.1
 #define CONFIG_GATEWAYIP 192.168.1.1

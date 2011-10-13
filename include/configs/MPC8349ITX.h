@@ -682,7 +682,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* Default path and filenames */
 #define CONFIG_ROOTPATH		"/nfsroot/rootfs"
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
 
 #ifdef CONFIG_MPC8349ITX

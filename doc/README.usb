@@ -169,7 +169,7 @@ All of these can be obtained from the bootp server if not set.
 
 #define CONFIG_IPADDR		10.0.0.2  (replace with your value)
 #define CONFIG_SERVERIP		10.0.0.1  (replace with your value)
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 
 
 The 'usb start' command should identify the adapter something like this:

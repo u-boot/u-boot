@@ -426,6 +426,6 @@
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_HOSTNAME		SBC8560
 #define CONFIG_ROOTPATH		"YourRootPath"
-#define CONFIG_BOOTFILE		YourImageName
+#define CONFIG_BOOTFILE		"YourImageName"
 
 #endif	/* __CONFIG_H */

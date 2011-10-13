@@ -490,7 +490,7 @@
 
 #define CONFIG_HOSTNAME		simpc8313
 #define CONFIG_ROOTPATH		"/tftpboot/"
-#define CONFIG_BOOTFILE		/tftpboot/uImage
+#define CONFIG_BOOTFILE		"/tftpboot/uImage"
 #define CONFIG_UBOOTPATH	u-boot-nand.bin	/* U-Boot image on TFTP server */
 #define CONFIG_FDTFILE		simpc8313.dtb
 

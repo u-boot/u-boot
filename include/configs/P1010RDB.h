@@ -720,7 +720,7 @@ extern unsigned long get_sdram_size(void);
 
 #define CONFIG_HOSTNAME		P1010RDB
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin/* U-Boot image on TFTP server */
 
 /* default location for tftp and bootm */

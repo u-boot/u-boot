@@ -137,7 +137,7 @@
 #define CONFIG_IPADDR 192.168.0.206
 #define CONFIG_ROOTPATH "/export/rootfs"
 #define CONFIG_HOSTNAME  ax2000
-#define CONFIG_BOOTFILE  /uImage
+#define CONFIG_BOOTFILE "/uImage"
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

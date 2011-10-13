@@ -56,7 +56,7 @@
 #define CONFIG_GATEWAYIP	192.168.1.1
 #define CONFIG_NETMASK		255.255.0.0
 #define CONFIG_HOSTNAME		idmr
-#define CONFIG_BOOTFILE		/tftpboot/idmr/uImage
+#define CONFIG_BOOTFILE		"/tftpboot/idmr/uImage"
 #define CONFIG_PREBOOT		"echo;echo Type \\\"run flash_nfs\\\" to mount root " \
 				"filesystem over NFS; echo"
 

@@ -697,7 +697,7 @@
 
 #define CONFIG_HOSTNAME		mpc8349emds
 #define CONFIG_ROOTPATH		"/nfsroot/rootfs"
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 
 #define CONFIG_LOADADDR		800000	/* default location for tftp and bootm */
 

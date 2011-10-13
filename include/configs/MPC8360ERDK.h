@@ -499,7 +499,7 @@
 
 #define CONFIG_LOADADDR	a00000
 #define CONFIG_HOSTNAME	mpc8360erdk
-#define CONFIG_BOOTFILE	uImage
+#define CONFIG_BOOTFILE	"uImage"
 
 #define CONFIG_ROOTPATH		"/nfsroot/"
 

@@ -93,7 +93,7 @@
 #define CONFIG_HOSTNAME debris
 
 /* bootfile */
-#define CONFIG_BOOTFILE pImage
+#define CONFIG_BOOTFILE "pImage"
 
 /* loadaddr */
 #define CONFIG_LOADADDR 800000

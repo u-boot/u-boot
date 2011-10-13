@@ -378,7 +378,7 @@
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_HOSTNAME		STX_GP3
 #define CONFIG_ROOTPATH		"/gppproot"
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_LOADADDR		0x1000000
 
 #endif	/* __CONFIG_H */

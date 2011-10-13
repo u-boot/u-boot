@@ -566,7 +566,7 @@
 
 #define CONFIG_HOSTNAME		sbc8641d
 #define CONFIG_ROOTPATH		"/opt/eldk/ppc_74xx"
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 
 #define CONFIG_SERVERIP		192.168.0.2
 #define CONFIG_GATEWAYIP	192.168.0.1

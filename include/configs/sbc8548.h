@@ -528,7 +528,7 @@
 
 #define CONFIG_HOSTNAME	 sbc8548
 #define CONFIG_ROOTPATH	 "/opt/eldk/ppc_85xx"
-#define CONFIG_BOOTFILE	 /uImage
+#define CONFIG_BOOTFILE	 "/uImage"
 #define CONFIG_UBOOTPATH /u-boot.bin	/* TFTP server */
 
 #define CONFIG_SERVERIP	 192.168.0.2
