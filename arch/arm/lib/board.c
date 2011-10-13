@@ -118,16 +118,11 @@ void blue_led_off(void) __attribute__((weak, alias("__blue_led_off")));
 #if defined(CONFIG_ARM_DCC) && !defined(CONFIG_BAUDRATE)
 #define CONFIG_BAUDRATE 115200
 #endif
+
 static int init_baudrate(void)
 {
-	char tmp[64];	/* long enough for environment variables */
-	int i = getenv_f("baudrate", tmp, sizeof(tmp));
-
-	gd->baudrate = (i > 0)
-			? (int) simple_strtoul(tmp, NULL, 10)
-			: CONFIG_BAUDRATE;
-
-	return (0);
+	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
+	return 0;
 }
 
 static int display_banner(void)
@@ -267,6 +262,9 @@ void board_init_f(ulong bootflag)
 	init_fnc_t **init_fnc_ptr;
 	gd_t *id;
 	ulong addr, addr_sp;
+#ifdef CONFIG_PRAM
+	ulong reg;
+#endif
 
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) ((CONFIG_SYS_INIT_SP_ADDR) & ~0x07);
@@ -317,9 +315,7 @@ void board_init_f(ulong bootflag)
 	/*
 	 * reserve protected RAM
 	 */
-	i = getenv_r("pram", (char *)tmp, sizeof(tmp));
-	reg = (i > 0) ? simple_strtoul((const char *)tmp, NULL, 10) :
-		CONFIG_PRAM;
+	reg = getenv_ulong("pram", 10, CONFIG_PRAM);
 	addr -= (reg << 10);		/* size is in kB */
 	debug("Reserving %ldk for protected RAM at %08lx\n", reg, addr);
 #endif /* CONFIG_PRAM */
@@ -441,7 +437,6 @@ static char *failed = "*** failed ***\n";
 
 void board_init_r(gd_t *id, ulong dest_addr)
 {
-	char *s;
 	ulong malloc_start;
 #if !defined(CONFIG_SYS_NO_FLASH)
 	ulong flash_size;
@@ -569,9 +564,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif /* CONFIG_DRIVER_SMC91111 || CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */
-	s = getenv("loadaddr");
-	if (s != NULL)
-		load_addr = simple_strtoul(s, NULL, 16);
+	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 #if defined(CONFIG_CMD_NET)
 	s = getenv("bootfile");
 	if (s != NULL)
@@ -604,18 +597,11 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	 * taking into account the protected RAM at top of memory
 	 */
 	{
-		ulong pram;
+		ulong pram = 0;
 		uchar memsz[32];
-#ifdef CONFIG_PRAM
-		char *s;
 
-		s = getenv("pram");
-		if (s != NULL)
-			pram = simple_strtoul(s, NULL, 10);
-		else
-			pram = CONFIG_PRAM;
-#else
-		pram = 0;
+#ifdef CONFIG_PRAM
+		pram = getenv_ulong("pram", 10, CONFIG_PRAM);
 #endif
 #ifdef CONFIG_LOGBUFFER
 #ifndef CONFIG_ALT_LB_ADDR
