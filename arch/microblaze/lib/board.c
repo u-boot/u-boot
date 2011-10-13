@@ -172,9 +172,8 @@ void board_init (void)
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
 
-	if ((s = getenv ("loadaddr")) != NULL) {
-		load_addr = simple_strtoul (s, NULL, 16);
-	}
+	/* Initialize from environment */
+	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
 #if defined(CONFIG_CMD_NET)
 	/* IP Address */
