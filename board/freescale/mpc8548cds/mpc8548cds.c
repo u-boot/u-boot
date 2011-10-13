@@ -50,10 +50,10 @@ int checkboard (void)
 
 	uint cpu_board_rev = get_cpu_board_revision ();
 
-	printf ("Board: CDS Version 0x%02x, PCI Slot %d\n",
-		get_board_version (), pci_slot);
-
-	printf ("CPU Board Revision %d.%d (0x%04x)\n",
+	puts("Board: MPC8548CDS");
+	printf(" Carrier Rev: 0x%02x, PCI Slot %d\n",
+			get_board_version(), pci_slot);
+	printf("       Daughtercard Rev: %d.%d (0x%04x)\n",
 		MPC85XX_CPU_BOARD_MAJOR (cpu_board_rev),
 		MPC85XX_CPU_BOARD_MINOR (cpu_board_rev), cpu_board_rev);
 	/*

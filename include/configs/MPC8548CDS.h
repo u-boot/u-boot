@@ -106,6 +106,24 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #undef CONFIG_CLOCKS_IN_MHZ
+/*
+ * Physical Address Map
+ *
+ * 32bit:
+ * 0x0000_0000	0x7fff_ffff	DDR			2G	cacheable
+ * 0x8000_0000	0x9fff_ffff	PCI1 MEM		512M	cacheable
+ * 0xa000_0000	0xbfff_ffff	PCIe MEM		512M	cacheable
+ * 0xc000_0000	0xdfff_ffff	RapidIO			512M	cacheable
+ * 0xe000_0000	0xe00f_ffff	CCSR			1M	non-cacheable
+ * 0xe200_0000	0xe20f_ffff	PCI1 IO			1M	non-cacheable
+ * 0xe300_0000	0xe30f_ffff	PCIe IO			1M	non-cacheable
+ * 0xf000_0000	0xf3ff_ffff	SDRAM			64M	cacheable
+ * 0xf800_0000	0xf80f_ffff	NVRAM/CADMUS		1M	non-cacheable
+ * 0xff00_0000	0xff7f_ffff	FLASH (2nd bank)	8M	non-cacheable
+ * 0xff80_0000	0xffff_ffff	FLASH (boot bank)	8M	non-cacheable
+ *
+ */
+
 
 /*
  * Local Bus Definitions
@@ -141,16 +159,20 @@ extern unsigned long get_clock_freq(void);
  * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65	 ORx
  */
 
-#define CONFIG_SYS_BOOT_BLOCK		0xff000000	/* boot TLB block */
-#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_BOOT_BLOCK	/* start of FLASH 16M */
+#define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH 16M */
+#define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 
-#define CONFIG_SYS_BR0_PRELIM		0xff801001
-#define CONFIG_SYS_BR1_PRELIM		0xff001001
+#define CONFIG_SYS_BR0_PRELIM \
+	(BR_PHYS_ADDR((CONFIG_SYS_FLASH_BASE_PHYS + 0x800000)) \
+	| BR_PS_16 | BR_V)
+#define CONFIG_SYS_BR1_PRELIM \
+	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
 
 #define	CONFIG_SYS_OR0_PRELIM		0xff806e65
 #define	CONFIG_SYS_OR1_PRELIM		0xff806e65
 
-#define CONFIG_SYS_FLASH_BANKS_LIST	{0xff800000, CONFIG_SYS_FLASH_BASE}
+#define CONFIG_SYS_FLASH_BANKS_LIST \
+	{CONFIG_SYS_FLASH_BASE_PHYS + 0x800000, CONFIG_SYS_FLASH_BASE_PHYS}
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	128		/* sectors per device */
 #undef	CONFIG_SYS_FLASH_CHECKSUM
@@ -168,12 +190,8 @@ extern unsigned long get_clock_freq(void);
 /*
  * SDRAM on the Local Bus
  */
-#define CONFIG_SYS_LBC_CACHE_BASE	0xf0000000	/* Localbus cacheable */
-#define CONFIG_SYS_LBC_CACHE_SIZE	64
-#define CONFIG_SYS_LBC_NONCACHE_BASE	0xf8000000	/* Localbus non-cacheable */
-#define CONFIG_SYS_LBC_NONCACHE_SIZE	64
-
-#define CONFIG_SYS_LBC_SDRAM_BASE	CONFIG_SYS_LBC_CACHE_BASE	/* Localbus SDRAM */
+#define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
+#define CONFIG_SYS_LBC_SDRAM_BASE_PHYS	CONFIG_SYS_LBC_SDRAM_BASE
 #define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
 
 /*
@@ -194,7 +212,9 @@ extern unsigned long get_clock_freq(void);
  * FIXME: the top 17 bits of BR2.
  */
 
-#define CONFIG_SYS_BR2_PRELIM		0xf0001861
+#define CONFIG_SYS_BR2_PRELIM \
+	(BR_PHYS_ADDR(CONFIG_SYS_LBC_SDRAM_BASE_PHYS) \
+	| BR_PS_32 | (3<<BR_MSEL_SHIFT) | BR_V)
 
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
@@ -265,14 +285,14 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_FSL_CADMUS
 
 #define CADMUS_BASE_ADDR 0xf8000000
-#define CONFIG_SYS_BR3_PRELIM	 0xf8000801
+#define CADMUS_BASE_ADDR_PHYS	CADMUS_BASE_ADDR
+#define CONFIG_SYS_BR3_PRELIM \
+	(BR_PHYS_ADDR(CADMUS_BASE_ADDR_PHYS) | BR_PS_8 | BR_V)
 #define CONFIG_SYS_OR3_PRELIM	 0xfff00ff7
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
-
-#define CONFIG_SYS_INIT_L2_ADDR	0xf8f80000	/* relocate boot L2SRAM */
 
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
@@ -326,9 +346,6 @@ extern unsigned long get_clock_freq(void);
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
-#define CONFIG_SYS_PCI_VIRT		0x80000000	/* 1G PCI TLB */
-#define CONFIG_SYS_PCI_PHYS		0x80000000	/* 1G PCI TLB */
-
 #define CONFIG_SYS_PCI1_MEM_VIRT	0x80000000
 #define CONFIG_SYS_PCI1_MEM_BUS	0x80000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	0x80000000
@@ -337,17 +354,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCI1_IO_BUS	0x00000000
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe2000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
-
-#ifdef CONFIG_PCI2
-#define CONFIG_SYS_PCI2_MEM_VIRT	0xa0000000
-#define CONFIG_SYS_PCI2_MEM_BUS	0xa0000000
-#define CONFIG_SYS_PCI2_MEM_PHYS	0xa0000000
-#define CONFIG_SYS_PCI2_MEM_SIZE	0x20000000	/* 512M */
-#define CONFIG_SYS_PCI2_IO_VIRT	0xe2800000
-#define CONFIG_SYS_PCI2_IO_BUS	0x00000000
-#define CONFIG_SYS_PCI2_IO_PHYS	0xe2800000
-#define CONFIG_SYS_PCI2_IO_SIZE	0x00100000	/* 1M */
-#endif
 
 #ifdef CONFIG_PCIE1
 #define CONFIG_SYS_PCIE1_NAME		"Slot"
@@ -364,9 +370,8 @@ extern unsigned long get_clock_freq(void);
 /*
  * RapidIO MMU
  */
-#define CONFIG_SYS_SRIO1_MEM_VIRT	0xC0000000
-#define CONFIG_SYS_SRIO1_MEM_BUS	0xC0000000
-#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BUS
+#define CONFIG_SYS_SRIO1_MEM_VIRT	0xc0000000
+#define CONFIG_SYS_SRIO1_MEM_PHYS	0xc0000000
 #define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
 #ifdef CONFIG_LEGACY
