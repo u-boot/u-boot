@@ -49,6 +49,7 @@
 #define L1_CACHE_BYTES (1 << L1_CACHE_SHIFT)
 
 #include <asm/linkage.h>
+#include <asm/cache.h>
 
 #ifndef __ASSEMBLY__
 # ifdef SHARED_RESOURCES
