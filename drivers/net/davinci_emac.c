@@ -279,16 +279,42 @@ static int gen_get_link_speed(int phy_addr)
 static int gen_auto_negotiate(int phy_addr)
 {
 	u_int16_t	tmp;
+	u_int16_t	val;
+	unsigned long	cntr = 0;
+
+	if (!davinci_eth_phy_read(phy_addr, MII_BMCR, &tmp))
+		return 0;
+
+	val = tmp | BMCR_FULLDPLX | BMCR_ANENABLE |
+						BMCR_SPEED100;
+	davinci_eth_phy_write(phy_addr, MII_BMCR, val);
+
+	if (!davinci_eth_phy_read(phy_addr, MII_ADVERTISE, &val))
+		return 0;
+
+	val |= (ADVERTISE_100FULL | ADVERTISE_100HALF | ADVERTISE_10FULL |
+							ADVERTISE_10HALF);
+	davinci_eth_phy_write(phy_addr, MII_ADVERTISE, val);
 
 	if (!davinci_eth_phy_read(phy_addr, MII_BMCR, &tmp))
 		return(0);
 
 	/* Restart Auto_negotiation  */
-	tmp |= BMCR_ANENABLE;
+	tmp |= BMCR_ANRESTART;
 	davinci_eth_phy_write(phy_addr, MII_BMCR, tmp);
 
 	/*check AutoNegotiate complete */
-	udelay (10000);
+	do {
+		udelay(40000);
+		if (!davinci_eth_phy_read(phy_addr, MII_BMSR, &tmp))
+			return 0;
+
+		if (tmp & BMSR_ANEGCOMPLETE)
+			break;
+
+		cntr++;
+	} while (cntr < 200);
+
 	if (!davinci_eth_phy_read(phy_addr, MII_BMSR, &tmp))
 		return(0);
 
