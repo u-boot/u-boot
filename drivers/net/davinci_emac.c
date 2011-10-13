@@ -48,9 +48,9 @@ unsigned int	emac_dbg = 0;
 #define debug_emac(fmt,args...)	if (emac_dbg) printf(fmt,##args)
 
 #ifdef DAVINCI_EMAC_GIG_ENABLE
-#define emac_gigabit_enable()	davinci_eth_gigabit_enable()
+#define emac_gigabit_enable(phy_addr)	davinci_eth_gigabit_enable(phy_addr)
 #else
-#define emac_gigabit_enable()	/* no gigabit to enable */
+#define emac_gigabit_enable(phy_addr)	/* no gigabit to enable */
 #endif
 
 static void davinci_eth_mdio_enable(void);
@@ -357,11 +357,11 @@ static int davinci_mii_phy_write(const char *devname, unsigned char addr, unsign
 }
 #endif
 
-static void  __attribute__((unused)) davinci_eth_gigabit_enable(void)
+static void  __attribute__((unused)) davinci_eth_gigabit_enable(int phy_addr)
 {
 	u_int16_t data;
 
-	if (davinci_eth_phy_read(EMAC_MDIO_PHY_NUM, 0, &data)) {
+	if (davinci_eth_phy_read(phy_addr, 0, &data)) {
 		if (data & (1 << 6)) { /* speed selection MSB */
 			/*
 			 * Check if link detected is giga-bit
@@ -484,7 +484,7 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	if (index == -1)
 		return(0);
 
-	emac_gigabit_enable();
+	emac_gigabit_enable(active_phy_addr[index]);
 
 	/* Start receive process */
 	writel((u_int32_t)emac_rx_desc, &adap_emac->RX0HDP);
@@ -589,7 +589,7 @@ static int davinci_eth_send_packet (struct eth_device *dev,
 		return (ret_status);
 	}
 
-	emac_gigabit_enable();
+	emac_gigabit_enable(active_phy_addr[index]);
 
 	/* Check packet size and if < EMAC_MIN_ETHERNET_PKT_SIZE, pad it up */
 	if (length < EMAC_MIN_ETHERNET_PKT_SIZE) {
@@ -614,7 +614,7 @@ static int davinci_eth_send_packet (struct eth_device *dev,
 			return (ret_status);
 		}
 
-		emac_gigabit_enable();
+		emac_gigabit_enable(active_phy_addr[index]);
 
 		if (readl(&adap_emac->TXINTSTATRAW) & 0x01) {
 			ret_status = length;

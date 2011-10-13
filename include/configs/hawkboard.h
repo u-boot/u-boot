@@ -83,7 +83,6 @@
 /*
  * Network & Ethernet Configuration
  */
-#define CONFIG_EMAC_MDIO_PHY_NUM	0x7
 #if !defined(CONFIG_NAND_SPL)
 #define CONFIG_DRIVER_TI_EMAC
 #endif

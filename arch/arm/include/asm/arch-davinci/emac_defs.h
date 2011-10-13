@@ -84,10 +84,6 @@
 #define EMAC_MDIO_CLOCK_FREQ		2000000		/* 2.0 MHz */
 #endif
 
-/* PHY mask - set only those phy number bits where phy is/can be connected */
-#define EMAC_MDIO_PHY_NUM           CONFIG_EMAC_MDIO_PHY_NUM
-#define EMAC_MDIO_PHY_MASK          (1 << EMAC_MDIO_PHY_NUM)
-
 /* Ethernet Min/Max packet size */
 #define EMAC_MIN_ETHERNET_PKT_SIZE	60
 #define EMAC_MAX_ETHERNET_PKT_SIZE	1518
