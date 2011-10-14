@@ -25,6 +25,26 @@
 
 #include <asm/types.h>
 
+struct srio_liodn_id_table {
+	u32 id[2];
+	unsigned long reg_offset[2];
+	u8 num_ids;
+	u8 portid;
+};
+#define SET_SRIO_LIODN_1(port, idA) \
+	{ .id = { idA }, .num_ids = 1, .portid = port, \
+	  .reg_offset[0] = offsetof(ccsr_gur_t, rio##port##liodnr) \
+		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+	}
+
+#define SET_SRIO_LIODN_2(port, idA, idB) \
+	{ .id = { idA, idB }, .num_ids = 2, .portid = port, \
+	  .reg_offset[0] = offsetof(ccsr_gur_t, rio##port##liodnr) \
+		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+	  .reg_offset[1] = offsetof(ccsr_gur_t, rio##port##maintliodnr) \
+		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+	}
+
 struct liodn_id_table {
 	const char * compat;
 	u32 id[2];
@@ -158,7 +178,9 @@ extern void fdt_fixup_liodn(void *blob);
 extern struct liodn_id_table liodn_tbl[], liodn_bases[], sec_liodn_tbl[];
 extern struct liodn_id_table raide_liodn_tbl[];
 extern struct liodn_id_table fman1_liodn_tbl[], fman2_liodn_tbl[];
+extern struct srio_liodn_id_table srio_liodn_tbl[];
 extern int liodn_tbl_sz, sec_liodn_tbl_sz, raide_liodn_tbl_sz;
 extern int fman1_liodn_tbl_sz, fman2_liodn_tbl_sz;
+extern int srio_liodn_tbl_sz;
 
 #endif

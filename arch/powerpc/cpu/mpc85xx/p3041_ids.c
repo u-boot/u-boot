@@ -40,6 +40,12 @@ struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
 };
 #endif
 
+struct srio_liodn_id_table srio_liodn_tbl[] = {
+	SET_SRIO_LIODN_2(1, 199, 200),
+	SET_SRIO_LIODN_2(2, 201, 202),
+};
+int srio_liodn_tbl_sz = ARRAY_SIZE(srio_liodn_tbl);
+
 struct liodn_id_table liodn_tbl[] = {
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	SET_QMAN_LIODN(31),

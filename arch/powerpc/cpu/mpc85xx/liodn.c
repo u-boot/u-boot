@@ -40,6 +40,21 @@ int get_dpaa_liodn(enum fsl_dpaa_dev dpaa_dev, u32 *liodns, int liodn_offset)
 	return liodn_bases[dpaa_dev].num_ids;
 }
 
+static void set_srio_liodn(struct srio_liodn_id_table *tbl, int size)
+{
+	int i;
+
+	for (i = 0; i < size; i++) {
+		unsigned long reg_off = tbl[i].reg_offset[0];
+		out_be32((u32 *)reg_off, tbl[i].id[0]);
+
+		if (tbl[i].num_ids == 2) {
+			reg_off = tbl[i].reg_offset[1];
+			out_be32((u32 *)reg_off, tbl[i].id[1]);
+		}
+	}
+}
+
 static void set_liodn(struct liodn_id_table *tbl, int size)
 {
 	int i;
@@ -137,6 +152,9 @@ void set_liodns(void)
 {
 	/* setup general liodn offsets */
 	set_liodn(liodn_tbl, liodn_tbl_sz);
+
+	/* setup SRIO port liodns */
+	set_srio_liodn(srio_liodn_tbl, srio_liodn_tbl_sz);
 
 	/* setup SEC block liodn bases & offsets if we have one */
 	if (IS_E_PROCESSOR(get_svr())) {
