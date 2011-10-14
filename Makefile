@@ -625,6 +625,8 @@ ucname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\U\1/')
 M52277EVB_config \
 M52277EVB_spansion_config \
 M52277EVB_stmicro_config :	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/freescale/m52277evb
 	@case "$@" in \
 	M52277EVB_config)		FLASH=SPANSION;; \
 	M52277EVB_spansion_config)	FLASH=SPANSION;; \
@@ -644,6 +646,8 @@ M52277EVB_stmicro_config :	unconfig
 M5235EVB_config \
 M5235EVB_Flash16_config \
 M5235EVB_Flash32_config:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/freescale/m5235evb
 	@case "$@" in \
 	M5235EVB_config)		FLASH=16;; \
 	M5235EVB_Flash16_config)	FLASH=16;; \
@@ -658,19 +662,19 @@ M5235EVB_Flash32_config:	unconfig
 	@$(MKCONFIG) -n $@ -a M5235EVB m68k mcf523x m5235evb freescale
 
 EB+MCF-EV123_config :		unconfig
-	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/BuS/EB+MCF-EV123
 	@echo "CONFIG_SYS_TEXT_BASE = 0xFFE00000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) -n $@ EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
 
 EB+MCF-EV123_internal_config :	unconfig
-	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/BuS/EB+MCF-EV123
 	@echo "CONFIG_SYS_TEXT_BASE = 0xF0000000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) -n $@ EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
 
 M54451EVB_config \
 M54451EVB_stmicro_config :	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/freescale/m54451evb
 	@case "$@" in \
 	M54451EVB_config)		FLASH=NOR;; \
 	M54451EVB_stmicro_config)	FLASH=STMICRO;; \
@@ -694,6 +698,8 @@ M54455EVB_a66_config \
 M54455EVB_i33_config \
 M54455EVB_i66_config \
 M54455EVB_stm33_config :	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/freescale/m54455evb
 	@case "$@" in \
 	M54455EVB_config)		FLASH=ATMEL; FREQ=33333333;; \
 	M54455EVB_atmel_config)		FLASH=ATMEL; FREQ=33333333;; \
