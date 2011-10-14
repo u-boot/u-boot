@@ -537,6 +537,27 @@ void fdt_fixup_fman_firmware(void *blob)
 #define fdt_fixup_fman_firmware(x)
 #endif
 
+#if defined(CONFIG_PPC_P4080) || defined(CONFIG_PPC_P3060)
+static void fdt_fixup_usb(void *fdt)
+{
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 rcwsr11 = in_be32(&gur->rcwsr[11]);
+	int off;
+
+	off = fdt_node_offset_by_compatible(fdt, -1, "fsl,mpc85xx-usb2-mph");
+	if ((rcwsr11 & FSL_CORENET_RCWSR11_EC1) !=
+				FSL_CORENET_RCWSR11_EC1_FM1_USB1)
+		fdt_status_disabled(fdt, off);
+
+	off = fdt_node_offset_by_compatible(fdt, -1, "fsl,mpc85xx-usb2-dr");
+	if ((rcwsr11 & FSL_CORENET_RCWSR11_EC2) !=
+				FSL_CORENET_RCWSR11_EC2_USB2)
+		fdt_status_disabled(fdt, off);
+}
+#else
+#define fdt_fixup_usb(x)
+#endif
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int off;
@@ -641,6 +662,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	do_fixup_by_compat_u32(blob, "fsl,flexcan-v1.0",
 			"clock_freq", gd->bus_clk, 1);
+
+	fdt_fixup_usb(blob);
 }
 
 /*
