@@ -29,7 +29,9 @@ SOBJS	:= reset.o
 
 COBJS	:= timer.o
 COBJS	+= utils.o
+ifdef CONFIG_OMAP
 COBJS	+= gpio.o
+endif
 
 ifdef CONFIG_SPL_BUILD
 COBJS	+= spl.o

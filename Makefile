@@ -289,6 +289,9 @@ LIBS += lib/libfdt/libfdt.o
 LIBS += api/libapi.o
 LIBS += post/libpost.o
 
+ifeq ($(SOC),am33xx)
+LIBS += $(CPUDIR)/omap-common/libomap-common.o
+endif
 ifeq ($(SOC),omap3)
 LIBS += $(CPUDIR)/omap-common/libomap-common.o
 endif
