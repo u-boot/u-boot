@@ -18,6 +18,7 @@ LIB	= $(obj)lib$(SOC).o
 
 SOBJS	:= lowlevel_init.o
 
+COBJS	+= clock.o
 COBJS	+= sys_info.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
