@@ -184,6 +184,35 @@ void set_liodns(void)
 #endif
 }
 
+static void fdt_fixup_srio_liodn(void *blob, struct srio_liodn_id_table *tbl)
+{
+	int i, srio_off;
+
+	/* search for srio node, if doesn't exist just return - nothing todo */
+	srio_off = fdt_node_offset_by_compatible(blob, -1, "fsl,srio");
+	if (srio_off < 0)
+		return ;
+
+	for (i = 0; i < srio_liodn_tbl_sz; i++) {
+		int off, portid = tbl[i].portid;
+
+		off = fdt_node_offset_by_prop_value(blob, srio_off,
+			 "cell-index", &portid, 4);
+		if (off >= 0) {
+			off = fdt_setprop(blob, off, "fsl,liodn",
+				&tbl[i].id[0],
+				sizeof(u32) * tbl[i].num_ids);
+			if (off > 0)
+				printf("WARNING unable to set fsl,liodn for "
+					"fsl,srio port %d: %s\n",
+					portid, fdt_strerror(off));
+		} else {
+			debug("WARNING: couldn't set fsl,liodn for srio: %s.\n",
+				fdt_strerror(off));
+		}
+	}
+}
+
 static void fdt_fixup_liodn_tbl(void *blob, struct liodn_id_table *tbl, int sz)
 {
 	int i;
@@ -213,6 +242,8 @@ static void fdt_fixup_liodn_tbl(void *blob, struct liodn_id_table *tbl, int sz)
 
 void fdt_fixup_liodn(void *blob)
 {
+	fdt_fixup_srio_liodn(blob, srio_liodn_tbl);
+
 	fdt_fixup_liodn_tbl(blob, liodn_tbl, liodn_tbl_sz);
 #ifdef CONFIG_SYS_DPAA_FMAN
 	fdt_fixup_liodn_tbl(blob, fman1_liodn_tbl, fman1_liodn_tbl_sz);

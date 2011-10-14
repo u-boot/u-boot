@@ -275,21 +275,73 @@ int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
 }
 
 #ifdef CONFIG_SYS_SRIO
+static inline void ft_disable_srio_port(void *blob, int srio_off, int port)
+{
+	int off = fdt_node_offset_by_prop_value(blob, srio_off,
+			"cell-index", &port, 4);
+	if (off >= 0) {
+		off = fdt_setprop_string(blob, off, "status", "disabled");
+		if (off > 0)
+			printf("WARNING unable to set status for fsl,srio "
+				"port %d: %s\n", port, fdt_strerror(off));
+	}
+}
+
+static inline void ft_disable_rman(void *blob)
+{
+	int off = fdt_node_offset_by_compatible(blob, -1, "fsl,rman");
+	if (off >= 0) {
+		off = fdt_setprop_string(blob, off, "status", "disabled");
+		if (off > 0)
+			printf("WARNING unable to set status for fsl,rman %s\n",
+				fdt_strerror(off));
+	}
+}
+
+static inline void ft_disable_rmu(void *blob)
+{
+	int off = fdt_node_offset_by_compatible(blob, -1, "fsl,srio-rmu");
+	if (off >= 0) {
+		off = fdt_setprop_string(blob, off, "status", "disabled");
+		if (off > 0)
+			printf("WARNING unable to set status for "
+				"fsl,srio-rmu %s\n", fdt_strerror(off));
+	}
+}
+
 void ft_srio_setup(void *blob)
 {
+	int srio1_used = 0, srio2_used = 0;
+	int srio_off;
+
+	/* search for srio node, if doesn't exist just return - nothing todo */
+	srio_off = fdt_node_offset_by_compatible(blob, -1, "fsl,srio");
+	if (srio_off < 0)
+		return ;
+
 #ifdef CONFIG_SRIO1
-	if (!is_serdes_configured(SRIO1)) {
-		fdt_del_node_and_alias(blob, "rio0");
-	}
-#else
-	fdt_del_node_and_alias(blob, "rio0");
+	if (is_serdes_configured(SRIO1))
+		srio1_used = 1;
 #endif
 #ifdef CONFIG_SRIO2
-	if (!is_serdes_configured(SRIO2)) {
-		fdt_del_node_and_alias(blob, "rio1");
-	}
-#else
-	fdt_del_node_and_alias(blob, "rio1");
+	if (is_serdes_configured(SRIO2))
+		srio2_used = 1;
 #endif
+
+	/* mark port1 disabled */
+	if (!srio1_used)
+		ft_disable_srio_port(blob, srio_off, 1);
+
+	/* mark port2 disabled */
+	if (!srio2_used)
+		ft_disable_srio_port(blob, srio_off, 2);
+
+	/* if both ports not used, disable controller, rmu and rman */
+	if (!srio1_used && !srio2_used) {
+		fdt_setprop_string(blob, srio_off, "status", "disabled");
+
+		ft_disable_rman(blob);
+		ft_disable_rmu(blob);
+	}
 }
 #endif
