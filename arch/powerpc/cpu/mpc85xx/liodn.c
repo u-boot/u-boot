@@ -148,6 +148,34 @@ static void setup_raide_liodn_base(void)
 }
 #endif
 
+#ifdef CONFIG_SYS_DPAA_RMAN
+static void set_rman_liodn(struct liodn_id_table *tbl, int size)
+{
+	int i;
+	struct ccsr_rman *rman = (void *)CONFIG_SYS_FSL_CORENET_RMAN_ADDR;
+
+	for (i = 0; i < size; i++) {
+		/* write the RMan block number */
+		out_be32(&rman->mmitar, i);
+		/* write the liodn offset corresponding to the block */
+		out_be32((u32 *)(tbl[i].reg_offset), tbl[i].id[0]);
+	}
+}
+
+static void setup_rman_liodn_base(struct liodn_id_table *tbl, int size)
+{
+	int i;
+	struct ccsr_rman *rman = (void *)CONFIG_SYS_FSL_CORENET_RMAN_ADDR;
+	u32 base = liodn_bases[FSL_HW_PORTAL_RMAN].id[0];
+
+	out_be32(&rman->mmliodnbr, base);
+
+	/* update liodn offset */
+	for (i = 0; i < size; i++)
+		tbl[i].id[0] += base;
+}
+#endif
+
 void set_liodns(void)
 {
 	/* setup general liodn offsets */
@@ -181,6 +209,13 @@ void set_liodns(void)
 	/* raid engine ccr addr code for liodn */
 	set_liodn(raide_liodn_tbl, raide_liodn_tbl_sz);
 	setup_raide_liodn_base();
+#endif
+
+#ifdef CONFIG_SYS_DPAA_RMAN
+	/* setup RMan liodn offsets */
+	set_rman_liodn(rman_liodn_tbl, rman_liodn_tbl_sz);
+	/* setup RMan liodn base */
+	setup_rman_liodn_base(rman_liodn_tbl, rman_liodn_tbl_sz);
 #endif
 }
 
@@ -255,5 +290,9 @@ void fdt_fixup_liodn(void *blob)
 
 #ifdef CONFIG_SYS_FSL_RAID_ENGINE
 	fdt_fixup_liodn_tbl(blob, raide_liodn_tbl, raide_liodn_tbl_sz);
+#endif
+
+#ifdef CONFIG_SYS_DPAA_RMAN
+	fdt_fixup_liodn_tbl(blob, rman_liodn_tbl, rman_liodn_tbl_sz);
 #endif
 }

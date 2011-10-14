@@ -113,6 +113,17 @@ struct liodn_id_table raide_liodn_tbl[] = {
 int raide_liodn_tbl_sz = ARRAY_SIZE(raide_liodn_tbl);
 #endif
 
+#ifdef CONFIG_SYS_DPAA_RMAN
+struct liodn_id_table rman_liodn_tbl[] = {
+	/* Set RMan block 0-3 liodn offset */
+	SET_RMAN_LIODN(0, 6),
+	SET_RMAN_LIODN(1, 7),
+	SET_RMAN_LIODN(2, 8),
+	SET_RMAN_LIODN(3, 9),
+};
+int rman_liodn_tbl_sz = ARRAY_SIZE(rman_liodn_tbl);
+#endif
+
 struct liodn_id_table liodn_bases[] = {
 	[FSL_HW_PORTAL_SEC]  = SET_LIODN_BASE_2(64, 100),
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -123,5 +134,8 @@ struct liodn_id_table liodn_bases[] = {
 #endif
 #ifdef CONFIG_SYS_FSL_RAID_ENGINE
 	[FSL_HW_PORTAL_RAID_ENGINE]  = SET_LIODN_BASE_1(47),
+#endif
+#ifdef CONFIG_SYS_DPAA_RMAN
+	[FSL_HW_PORTAL_RMAN] = SET_LIODN_BASE_1(80),
 #endif
 };

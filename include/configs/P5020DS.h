@@ -36,6 +36,7 @@
 #define CONFIG_PCIE3
 #define CONFIG_PCIE4
 #define CONFIG_SYS_FSL_RAID_ENGINE
+#define CONFIG_SYS_DPAA_RMAN
 
 #define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
 

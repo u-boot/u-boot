@@ -104,6 +104,17 @@ struct liodn_id_table sec_liodn_tbl[] = {
 };
 int sec_liodn_tbl_sz = ARRAY_SIZE(sec_liodn_tbl);
 
+#ifdef CONFIG_SYS_DPAA_RMAN
+struct liodn_id_table rman_liodn_tbl[] = {
+	/* Set RMan block 0-3 liodn offset */
+	SET_RMAN_LIODN(0, 6),
+	SET_RMAN_LIODN(1, 7),
+	SET_RMAN_LIODN(2, 8),
+	SET_RMAN_LIODN(3, 9),
+};
+int rman_liodn_tbl_sz = ARRAY_SIZE(rman_liodn_tbl);
+#endif
+
 struct liodn_id_table liodn_bases[] = {
 	[FSL_HW_PORTAL_SEC]  = SET_LIODN_BASE_2(64, 100),
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -111,5 +122,8 @@ struct liodn_id_table liodn_bases[] = {
 #endif
 #ifdef CONFIG_SYS_DPAA_PME
 	[FSL_HW_PORTAL_PME]   = SET_LIODN_BASE_2(136, 172),
+#endif
+#ifdef CONFIG_SYS_DPAA_RMAN
+	[FSL_HW_PORTAL_RMAN] = SET_LIODN_BASE_1(80),
 #endif
 };
