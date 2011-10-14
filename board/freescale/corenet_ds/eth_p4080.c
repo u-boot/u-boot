@@ -199,22 +199,6 @@ static int p4080ds_mdio_init(char *realbusname, u32 muxval)
 	return mdio_register(bus);
 }
 
-/*
- * Sets the specified node's status to the value contained in "status"
- * If the first character of the specified path is "/" then we use
- * alias as a path.  Otherwise, we look for an alias of that name
- */
-static void fdt_set_node_status(void *fdt, const char *alias,
-			const char *status)
-{
-	const char *path = fdt_get_alias(fdt, alias);
-
-	if (!path)
-		path = alias;
-
-	do_fixup_by_path(fdt, path, "status", status, strlen(status) + 1, 1);
-}
-
 void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 				enum fm_port port, int offset)
 {
@@ -255,28 +239,28 @@ void fdt_fixup_board_enet(void *fdt)
 	 */
 
 	/* We've got six MDIO nodes that may or may not need to exist */
-	fdt_set_node_status(fdt, "emi1_slot3", "disabled");
-	fdt_set_node_status(fdt, "emi1_slot4", "disabled");
-	fdt_set_node_status(fdt, "emi1_slot5", "disabled");
-	fdt_set_node_status(fdt, "emi2_slot4", "disabled");
-	fdt_set_node_status(fdt, "emi2_slot5", "disabled");
+	fdt_status_disabled_by_alias(fdt, "emi1_slot3");
+	fdt_status_disabled_by_alias(fdt, "emi1_slot4");
+	fdt_status_disabled_by_alias(fdt, "emi1_slot5");
+	fdt_status_disabled_by_alias(fdt, "emi2_slot4");
+	fdt_status_disabled_by_alias(fdt, "emi2_slot5");
 
 	for (i = 0; i < NUM_FM_PORTS; i++) {
 		switch (mdio_mux[i]) {
 		case EMI1_SLOT3:
-			fdt_set_node_status(fdt, "emi1_slot3", "okay");
+			fdt_status_okay_by_alias(fdt, "emi1_slot3");
 			break;
 		case EMI1_SLOT4:
-			fdt_set_node_status(fdt, "emi1_slot4", "okay");
+			fdt_status_okay_by_alias(fdt, "emi1_slot4");
 			break;
 		case EMI1_SLOT5:
-			fdt_set_node_status(fdt, "emi1_slot5", "okay");
+			fdt_status_okay_by_alias(fdt, "emi1_slot5");
 			break;
 		case EMI2_SLOT4:
-			fdt_set_node_status(fdt, "emi2_slot4", "okay");
+			fdt_status_okay_by_alias(fdt, "emi2_slot4");
 			break;
 		case EMI2_SLOT5:
-			fdt_set_node_status(fdt, "emi2_slot5", "okay");
+			fdt_status_okay_by_alias(fdt, "emi2_slot5");
 			break;
 		}
 	}

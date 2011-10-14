@@ -2,7 +2,7 @@
  * (C) Copyright 2007
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com
  *
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -1257,6 +1257,64 @@ unsigned int fdt_create_phandle(void *fdt, int nodeoffset)
 	}
 
 	return phandle;
+}
+
+/*
+ * fdt_set_node_status: Set status for the given node
+ *
+ * @fdt: ptr to device tree
+ * @nodeoffset: node to update
+ * @status: FDT_STATUS_OKAY, FDT_STATUS_DISABLED,
+ *	    FDT_STATUS_FAIL, FDT_STATUS_FAIL_ERROR_CODE
+ * @error_code: optional, only used if status is FDT_STATUS_FAIL_ERROR_CODE
+ */
+int fdt_set_node_status(void *fdt, int nodeoffset,
+			enum fdt_status status, unsigned int error_code)
+{
+	char buf[16];
+	int ret = 0;
+
+	if (nodeoffset < 0)
+		return nodeoffset;
+
+	switch (status) {
+	case FDT_STATUS_OKAY:
+		ret = fdt_setprop_string(fdt, nodeoffset, "status", "okay");
+		break;
+	case FDT_STATUS_DISABLED:
+		ret = fdt_setprop_string(fdt, nodeoffset, "status", "disabled");
+		break;
+	case FDT_STATUS_FAIL:
+		ret = fdt_setprop_string(fdt, nodeoffset, "status", "fail");
+		break;
+	case FDT_STATUS_FAIL_ERROR_CODE:
+		sprintf(buf, "fail-%d", error_code);
+		ret = fdt_setprop_string(fdt, nodeoffset, "status", buf);
+		break;
+	default:
+		printf("Invalid fdt status: %x\n", status);
+		ret = -1;
+		break;
+	}
+
+	return ret;
+}
+
+/*
+ * fdt_set_status_by_alias: Set status for the given node given an alias
+ *
+ * @fdt: ptr to device tree
+ * @alias: alias of node to update
+ * @status: FDT_STATUS_OKAY, FDT_STATUS_DISABLED,
+ *	    FDT_STATUS_FAIL, FDT_STATUS_FAIL_ERROR_CODE
+ * @error_code: optional, only used if status is FDT_STATUS_FAIL_ERROR_CODE
+ */
+int fdt_set_status_by_alias(void *fdt, const char* alias,
+			    enum fdt_status status, unsigned int error_code)
+{
+	int offset = fdt_path_offset(fdt, alias);
+
+	return fdt_set_node_status(fdt, offset, status, error_code);
 }
 
 #if defined(CONFIG_VIDEO)
