@@ -638,13 +638,11 @@ M52277EVB_stmicro_config :	unconfig
 	if [ "$${FLASH}" = "SPANSION" ] ; then \
 		echo "#define CONFIG_SYS_SPANSION_BOOT"	>> $(obj)include/config.h ; \
 		echo "CONFIG_SYS_TEXT_BASE = 0x00000000" > $(obj)board/freescale/m52277evb/config.tmp ; \
-		cp $(obj)board/freescale/m52277evb/u-boot.spa $(obj)board/freescale/m52277evb/u-boot.lds ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
 		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
 		echo "CONFIG_SYS_TEXT_BASE = 0x43E00000" > $(obj)board/freescale/m52277evb/config.tmp ; \
-		cp $(obj)board/freescale/m52277evb/u-boot.stm $(obj)board/freescale/m52277evb/u-boot.lds ; \
 	fi
 	@$(MKCONFIG) -n $@ -a M52277EVB m68k mcf5227x m52277evb freescale
 
@@ -659,10 +657,8 @@ M5235EVB_Flash32_config:	unconfig
 	if [ "$${FLASH}" != "16" ] ; then \
 		echo "#define NORFLASH_PS32BIT	1" >> $(obj)include/config.h ; \
 		echo "CONFIG_SYS_TEXT_BASE = 0xFFC00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
-		cp $(obj)board/freescale/m5235evb/u-boot.32 $(obj)board/freescale/m5235evb/u-boot.lds ; \
 	else \
 		echo "CONFIG_SYS_TEXT_BASE = 0xFFE00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
-		cp $(obj)board/freescale/m5235evb/u-boot.16 $(obj)board/freescale/m5235evb/u-boot.lds ; \
 	fi
 	@$(MKCONFIG) -n $@ -a M5235EVB m68k mcf523x m5235evb freescale
 
@@ -709,13 +705,11 @@ M54451EVB_stmicro_config :	unconfig
 	esac; \
 	if [ "$${FLASH}" = "NOR" ] ; then \
 		echo "CONFIG_SYS_TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54451evb/config.tmp ; \
-		cp $(obj)board/freescale/m54451evb/u-boot.spa $(obj)board/freescale/m54451evb/u-boot.lds ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
 		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
 		echo "CONFIG_SYS_TEXT_BASE = 0x47E00000" > $(obj)board/freescale/m54451evb/config.tmp ; \
-		cp $(obj)board/freescale/m54451evb/u-boot.stm $(obj)board/freescale/m54451evb/u-boot.lds ; \
 	fi; \
 	echo "#define CONFIG_SYS_INPUT_CLKSRC 24000000" >> $(obj)include/config.h ;
 	@$(MKCONFIG) -n $@ -a M54451EVB m68k mcf5445x m54451evb freescale
@@ -741,18 +735,15 @@ M54455EVB_stm33_config :	unconfig
 	if [ "$${FLASH}" = "INTEL" ] ; then \
 		echo "#define CONFIG_SYS_INTEL_BOOT" >> $(obj)include/config.h ; \
 		echo "CONFIG_SYS_TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
-		cp $(obj)board/freescale/m54455evb/u-boot.int $(obj)board/freescale/m54455evb/u-boot.lds ; \
 	fi; \
 	if [ "$${FLASH}" = "ATMEL" ] ; then \
 		echo "#define CONFIG_SYS_ATMEL_BOOT"	>> $(obj)include/config.h ; \
 		echo "CONFIG_SYS_TEXT_BASE = 0x04000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
-		cp $(obj)board/freescale/m54455evb/u-boot.atm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
 		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
 		echo "CONFIG_SYS_TEXT_BASE = 0x4FE00000" > $(obj)board/freescale/m54455evb/config.tmp ; \
-		cp $(obj)board/freescale/m54455evb/u-boot.stm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 	fi; \
 	echo "#define CONFIG_SYS_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
 	$(XECHO) "... with $${FREQ}Hz input clock"
