@@ -738,6 +738,10 @@ Nagendra T S  <nagendra@mistralsolutions.com>
 
    am3517_crane    ARM ARMV7 (AM35x SoC)
 
+Chandan Nath <chandan.nath@ti.com>
+
+	am335x_evm	ARM ARMV7 (AM33xx Soc)
+
 Kyungmin Park <kyungmin.park@samsung.com>
 
 	apollon		ARM1136EJS
