@@ -816,6 +816,17 @@ The following options need to be configured:
 
 		XXX - this list needs to get updated!
 
+- Device tree:
+		CONFIG_OF_CONTROL
+		If this variable is defined, U-Boot will use a device tree
+		to configure its devices, instead of relying on statically
+		compiled #defines in the board file. This option is
+		experimental and only available on a few boards. The device
+		tree is available in the global data as gd->fdt_blob.
+
+		U-Boot needs to get its device tree from somewhere. This will
+		be enabled in a future patch.
+
 - Watchdog:
 		CONFIG_WATCHDOG
 		If this variable is defined, it enables watchdog
