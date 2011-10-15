@@ -100,6 +100,14 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
     state = (struct inflate_state FAR *)strm->state;
     in = strm->next_in - OFF;
     last = in + (strm->avail_in - 5);
+    if (in > last && strm->avail_in > 5) {
+        /*
+         * overflow detected, limit strm->avail_in to the
+         * max. possible size and recalculate last
+         */
+        strm->avail_in = 0xffffffff - (unsigned int)in;
+        last = in + (strm->avail_in - 5);
+    }
     out = strm->next_out - OFF;
     beg = out - (start - strm->avail_out);
     end = out + (strm->avail_out - 257);
