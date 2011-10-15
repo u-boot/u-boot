@@ -152,6 +152,7 @@ COBJS-$(CONFIG_CMD_STRINGS) += cmd_strings.o
 COBJS-$(CONFIG_CMD_TERMINAL) += cmd_terminal.o
 COBJS-$(CONFIG_CMD_TIME) += cmd_time.o
 COBJS-$(CONFIG_SYS_HUSH_PARSER) += cmd_test.o
+COBJS-$(CONFIG_CMD_TPM) += cmd_tpm.o
 COBJS-$(CONFIG_CMD_TSI148) += cmd_tsi148.o
 COBJS-$(CONFIG_CMD_UBI) += cmd_ubi.o
 COBJS-$(CONFIG_CMD_UBIFS) += cmd_ubifs.o
