@@ -17,24 +17,24 @@
 		     UART_FCR_RXSR |	\
 		     UART_FCR_TXSR)		/* Clear & enable FIFOs */
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
-#define serial_out(x,y)	outb(x,(ulong)y)
-#define serial_in(y)	inb((ulong)y)
+#define serial_out(x, y)	outb(x, (ulong)y)
+#define serial_in(y)		inb((ulong)y)
 #elif defined(CONFIG_SYS_NS16550_MEM32) && (CONFIG_SYS_NS16550_REG_SIZE > 0)
-#define serial_out(x,y) out_be32(y,x)
-#define serial_in(y) 	in_be32(y)
+#define serial_out(x, y)	out_be32(y, x)
+#define serial_in(y)		in_be32(y)
 #elif defined(CONFIG_SYS_NS16550_MEM32) && (CONFIG_SYS_NS16550_REG_SIZE < 0)
-#define serial_out(x,y) out_le32(y,x)
-#define serial_in(y) 	in_le32(y)
+#define serial_out(x, y)	out_le32(y, x)
+#define serial_in(y)		in_le32(y)
 #else
-#define serial_out(x,y) writeb(x,y)
-#define serial_in(y) 	readb(y)
+#define serial_out(x, y)	writeb(x, y)
+#define serial_in(y)		readb(y)
 #endif
 
 #ifndef CONFIG_SYS_NS16550_IER
 #define CONFIG_SYS_NS16550_IER  0x00
 #endif /* CONFIG_SYS_NS16550_IER */
 
-void NS16550_init (NS16550_t com_port, int baud_divisor)
+void NS16550_init(NS16550_t com_port, int baud_divisor)
 {
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
 #if defined(CONFIG_OMAP) && !defined(CONFIG_OMAP3_ZOOM2)
@@ -52,15 +52,17 @@ void NS16550_init (NS16550_t com_port, int baud_divisor)
 	serial_out(UART_LCRVAL, &com_port->lcr);
 #if defined(CONFIG_OMAP) && !defined(CONFIG_OMAP3_ZOOM2)
 #if defined(CONFIG_APTIX)
-	serial_out(3, &com_port->mdr1);	/* /13 mode so Aptix 6MHz can hit 115200 */
+	/* /13 mode so Aptix 6MHz can hit 115200 */
+	serial_out(3, &com_port->mdr1);
 #else
-	serial_out(0, &com_port->mdr1);	/* /16 is proper to hit 115200 with 48MHz */
+	/* /16 is proper to hit 115200 with 48MHz */
+	serial_out(0, &com_port->mdr1);
 #endif
 #endif /* CONFIG_OMAP */
 }
 
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS
-void NS16550_reinit (NS16550_t com_port, int baud_divisor)
+void NS16550_reinit(NS16550_t com_port, int baud_divisor)
 {
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
 	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
@@ -76,9 +78,10 @@ void NS16550_reinit (NS16550_t com_port, int baud_divisor)
 }
 #endif /* CONFIG_NS16550_MIN_FUNCTIONS */
 
-void NS16550_putc (NS16550_t com_port, char c)
+void NS16550_putc(NS16550_t com_port, char c)
 {
-	while ((serial_in(&com_port->lsr) & UART_LSR_THRE) == 0);
+	while ((serial_in(&com_port->lsr) & UART_LSR_THRE) == 0)
+		;
 	serial_out(c, &com_port->thr);
 
 	/*
@@ -92,7 +95,7 @@ void NS16550_putc (NS16550_t com_port, char c)
 }
 
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS
-char NS16550_getc (NS16550_t com_port)
+char NS16550_getc(NS16550_t com_port)
 {
 	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0) {
 #ifdef CONFIG_USB_TTY
@@ -104,9 +107,9 @@ char NS16550_getc (NS16550_t com_port)
 	return serial_in(&com_port->rbr);
 }
 
-int NS16550_tstc (NS16550_t com_port)
+int NS16550_tstc(NS16550_t com_port)
 {
-	return ((serial_in(&com_port->lsr) & UART_LSR_DR) != 0);
+	return (serial_in(&com_port->lsr) & UART_LSR_DR) != 0;
 }
 
 #endif /* CONFIG_NS16550_MIN_FUNCTIONS */
