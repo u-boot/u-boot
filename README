@@ -824,8 +824,15 @@ The following options need to be configured:
 		experimental and only available on a few boards. The device
 		tree is available in the global data as gd->fdt_blob.
 
-		U-Boot needs to get its device tree from somewhere. This will
-		be enabled in a future patch.
+		U-Boot needs to get its device tree from somewhere. At present
+		the only way is to embed it in the image with CONFIG_OF_EMBED.
+
+		CONFIG_OF_EMBED
+		If this variable is defined, U-Boot will embed a device tree
+		binary in its image. This device tree file should be in the
+		board directory and called <soc>-<board>.dts. The binary file
+		is then picked up in board_init_f() and made available through
+		the global data structure as gd->blob.
 
 - Watchdog:
 		CONFIG_WATCHDOG

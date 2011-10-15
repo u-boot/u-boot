@@ -276,6 +276,7 @@ int	checkdram     (void);
 int	last_stage_init(void);
 extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
+extern u8 _binary_dt_dtb_start[];	/* embedded device tree blob */
 
 /* common/flash.c */
 void flash_perror (int);
