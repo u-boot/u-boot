@@ -36,6 +36,13 @@ void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 		      const void *val, int len, int create);
 void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,
 			  u32 val, int create);
+
+static inline void do_fixup_by_path_string(void *fdt, const char *path,
+					   const char *prop, const char *status)
+{
+	do_fixup_by_path(fdt, path, prop, status, strlen(status) + 1, 1);
+}
+
 void do_fixup_by_prop(void *fdt,
 		      const char *pname, const void *pval, int plen,
 		      const char *prop, const void *val, int len,
@@ -90,7 +97,7 @@ int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off);
 int fdt_alloc_phandle(void *blob);
 int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle);
-int fdt_create_phandle(void *fdt, int nodeoffset);
+unsigned int fdt_create_phandle(void *fdt, int nodeoffset);
 int fdt_add_edid(void *blob, const char *compat, unsigned char *buf);
 
 int fdt_verify_alias_address(void *fdt, int anode, const char *alias,

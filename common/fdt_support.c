@@ -1182,14 +1182,11 @@ int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
  */
 int fdt_alloc_phandle(void *blob)
 {
-	int offset, len, phandle = 0;
-	const u32 *val;
+	int offset, phandle = 0;
 
 	for (offset = fdt_next_node(blob, -1, NULL); offset >= 0;
 	     offset = fdt_next_node(blob, offset, NULL)) {
-		val = fdt_getprop(blob, offset, "linux,phandle", &len);
-		if (val)
-			phandle = max(*val, phandle);
+		phandle = max(phandle, fdt_get_phandle(blob, offset));
 	}
 
 	return phandle + 1;
@@ -1241,15 +1238,22 @@ int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle)
  * @fdt: ptr to device tree
  * @nodeoffset: node to update
  */
-int fdt_create_phandle(void *fdt, int nodeoffset)
+unsigned int fdt_create_phandle(void *fdt, int nodeoffset)
 {
 	/* see if there is a phandle already */
 	int phandle = fdt_get_phandle(fdt, nodeoffset);
 
 	/* if we got 0, means no phandle so create one */
 	if (phandle == 0) {
+		int ret;
+
 		phandle = fdt_alloc_phandle(fdt);
-		fdt_set_phandle(fdt, nodeoffset, phandle);
+		ret = fdt_set_phandle(fdt, nodeoffset, phandle);
+		if (ret < 0) {
+			printf("Can't set phandle %u: %s\n", phandle,
+			       fdt_strerror(ret));
+			return 0;
+		}
 	}
 
 	return phandle;
