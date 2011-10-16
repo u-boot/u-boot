@@ -390,6 +390,13 @@ void board_init_f (ulong bootflag)
 		}
 	}
 
+#ifdef CONFIG_POST
+	post_bootmode_init();
+	post_run(NULL, POST_ROM | post_bootmode_get(0));
+#endif
+
+	WATCHDOG_RESET();
+
 	/*
 	 * Now that we have DRAM mapped and working, we can
 	 * relocate the code and continue running from DRAM.
@@ -595,13 +602,6 @@ void board_init_f (ulong bootflag)
 	debug ("New Stack Pointer is: %08lx\n", addr_sp);
 
 	WATCHDOG_RESET ();
-
-#ifdef CONFIG_POST
-	post_bootmode_init();
-	post_run (NULL, POST_ROM | post_bootmode_get(0));
-#endif
-
-	WATCHDOG_RESET();
 
 	gd->relocaddr = addr; /* Record relocation address, useful for debug */
 
