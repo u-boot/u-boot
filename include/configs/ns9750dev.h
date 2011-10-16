@@ -55,7 +55,6 @@
  * Hardware drivers
  */
 #define CONFIG_NS9750_UART		1	/* use on-chip UART */
-#define CONFIG_DRIVER_NS9750_ETHERNET	1	/* use on-chip ethernet */
 
 /*
  * select serial console configuration
@@ -86,7 +85,6 @@
 #define CONFIG_CMD_LOADB
 #define CONFIG_CMD_LOADS
 #define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 
 
