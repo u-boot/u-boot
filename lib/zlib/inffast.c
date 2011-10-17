@@ -105,7 +105,7 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
          * overflow detected, limit strm->avail_in to the
          * max. possible size and recalculate last
          */
-        strm->avail_in = 0xffffffff - (unsigned int)in;
+	strm->avail_in = 0xffffffff - (uintptr_t)in;
         last = in + (strm->avail_in - 5);
     }
     out = strm->next_out - OFF;
