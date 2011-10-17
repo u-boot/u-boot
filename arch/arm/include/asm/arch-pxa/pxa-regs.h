@@ -645,7 +645,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UDCOTGICR_IEIDR		(1 << 1)	/* OTG ID Change Rising Edge Interrupt Enable */
 #define UDCOTGICR_IEIDF		(1 << 0)	/* OTG ID Change Falling Edge Interrupt Enable */
 
-#define UDCCSN(x)	__REG2(0x40600100, (x) << 2)
+#define UDCCSN(x)	(0x40600100 + ((x) << 2))
 #define UDCCSR0		0x40600100 /* UDC Control/Status register - Endpoint 0 */
 
 #define UDCCSR0_SA	(1 << 7)	/* Setup Active */
@@ -693,7 +693,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UDCCSR_PC	(1 << 1)	/* Packet Complete */
 #define UDCCSR_FS	(1 << 0)	/* FIFO needs service */
 
-#define UDCBCN(x)	__REG2(0x40600200, (x)<<2)
+#define UDCBCN(x)	(0x40600200 + ((x) << 2))
 #define UDCBCR0         0x40600200 /* Byte Count Register - EP0 */
 #define UDCBCRA         0x40600204 /* Byte Count Register - EPA */
 #define UDCBCRB         0x40600208 /* Byte Count Register - EPB */
@@ -719,7 +719,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UDCBCRW         0x40600258 /* Byte Count Register - EPW */
 #define UDCBCRX         0x4060025C /* Byte Count Register - EPX */
 
-#define UDCDN(x)	__REG2(0x40600300, (x)<<2)
+#define UDCDN(x)	(0x40600300 + ((x) << 2))
 #define UDCDR0          0x40600300 /* Data Register - EP0 */
 #define UDCDRA          0x40600304 /* Data Register - EPA */
 #define UDCDRB          0x40600308 /* Data Register - EPB */
@@ -745,7 +745,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UDCDRW          0x40600358 /* Data Register - EPW */
 #define UDCDRX          0x4060035C /* Data Register - EPX */
 
-#define UDCCN(x)	__REG2(0x40600400, (x)<<2)
+#define UDCCN(x)	(0x40600400 + ((x) << 2))
 #define UDCCRA          0x40600404 /* Configuration register EPA */
 #define UDCCRB          0x40600408 /* Configuration register EPB */
 #define UDCCRC          0x4060040C /* Configuration register EPC */
