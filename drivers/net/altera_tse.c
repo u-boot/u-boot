@@ -323,6 +323,8 @@ static int tse_eth_rx(struct eth_device *dev)
 
 		/* setup the sgdma */
 		alt_sgdma_do_async_transfer(priv->sgdma_rx, &rx_desc[0]);
+
+		return packet_length;
 	}
 
 	return -1;
