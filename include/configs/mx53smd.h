@@ -93,7 +93,7 @@
 
 #define CONFIG_BOOTDELAY	3
 
-#define CONFIG_PRIME	"FEC0"
+#define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_LOADADDR		0x70800000	/* loadaddr env var */
 #define CONFIG_SYS_TEXT_BASE    0x77800000

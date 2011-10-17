@@ -90,7 +90,7 @@
 
 #define CONFIG_BOOTDELAY	3
 
-#define CONFIG_PRIME	"smc911x"
+#define CONFIG_ETHPRIME		"smc911x"
 
 /*Support LAN9217*/
 #define CONFIG_SMC911X
