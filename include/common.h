@@ -834,6 +834,14 @@ int cpu_release(int nr, int argc, char * const argv[]);
 #define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
 #define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
 
+/*
+ * ARCH_DMA_MINALIGN is defined in asm/cache.h for each architecture.  It
+ * is used to align DMA buffers.
+ */
+#ifndef __ASSEMBLY__
+#include <asm/cache.h>
+#endif
+
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY
 # include <environment.h>
