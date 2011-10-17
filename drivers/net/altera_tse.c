@@ -882,7 +882,8 @@ static int tse_eth_init(struct eth_device *dev, bd_t * bd)
 
 /* TSE init code */
 int altera_tse_initialize(u8 dev_num, int mac_base,
-			  int sgdma_rx_base, int sgdma_tx_base)
+			  int sgdma_rx_base, int sgdma_tx_base,
+			  u32 sgdma_desc_base, u32 sgdma_desc_size)
 {
 	struct altera_tse_priv *priv;
 	struct eth_device *dev;
@@ -903,8 +904,20 @@ int altera_tse_initialize(u8 dev_num, int mac_base,
 		free(dev);
 		return 0;
 	}
-	tx_desc = dma_alloc_coherent(sizeof(*tx_desc) * (3 + PKTBUFSRX),
-				     &dma_handle);
+	if (sgdma_desc_size) {
+		if (sgdma_desc_size < (sizeof(*tx_desc) * (3 + PKTBUFSRX))) {
+			printf("ALTERA_TSE-%hu: "
+			       "descriptor memory is too small\n", dev_num);
+			free(priv);
+			free(dev);
+			return 0;
+		}
+		tx_desc = (struct alt_sgdma_descriptor *)sgdma_desc_base;
+	} else {
+		tx_desc = dma_alloc_coherent(sizeof(*tx_desc) * (3 + PKTBUFSRX),
+					     &dma_handle);
+	}
+
 	rx_desc = tx_desc + 2;
 	debug("tx desc: address = 0x%x\n", (unsigned int)tx_desc);
 	debug("rx desc: address = 0x%x\n", (unsigned int)rx_desc);

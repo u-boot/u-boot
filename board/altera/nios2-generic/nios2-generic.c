@@ -74,7 +74,15 @@ int board_eth_init(bd_t *bis)
 	rc += altera_tse_initialize(0,
 				    CONFIG_SYS_ALTERA_TSE_MAC_BASE,
 				    CONFIG_SYS_ALTERA_TSE_SGDMA_RX_BASE,
-				    CONFIG_SYS_ALTERA_TSE_SGDMA_TX_BASE);
+				    CONFIG_SYS_ALTERA_TSE_SGDMA_TX_BASE,
+#if defined(CONFIG_SYS_ALTERA_TSE_SGDMA_DESC_BASE) && \
+	(CONFIG_SYS_ALTERA_TSE_SGDMA_DESC_SIZE > 0)
+				    CONFIG_SYS_ALTERA_TSE_SGDMA_DESC_BASE,
+				    CONFIG_SYS_ALTERA_TSE_SGDMA_DESC_SIZE);
+#else
+				    0,
+				    0);
+#endif
 #endif
 #ifdef CONFIG_ETHOC
 	rc += ethoc_initialize(0, CONFIG_SYS_ETHOC_BASE);
