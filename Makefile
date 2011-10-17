@@ -137,7 +137,14 @@ unexport CDPATH
 
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
-SUBDIRS	= tools
+# The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
+# is "yes"), so compile examples after U-Boot is compiled.
+SUBDIR_TOOLS = tools
+SUBDIR_EXAMPLES = examples/standalone examples/api
+SUBDIRS = $(SUBDIR_TOOLS)
+ifndef CONFIG_SANDBOX
+SUBDIRS += $(SUBDIR_EXAMPLES)
+endif
 
 .PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
 
@@ -153,11 +160,6 @@ sinclude $(obj)include/autoconf.mk
 # load ARCH, BOARD, and CPU configuration
 include $(obj)include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
-
-ifndef CONFIG_SANDBOX
-SUBDIRS += examples/standalone \
-	  examples/api
-endif
 
 # set default to nothing for native builds
 ifeq ($(HOSTARCH),$(ARCH))
@@ -355,7 +357,7 @@ ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
 ALL-$(CONFIG_MMC_U_BOOT) += $(obj)mmc_spl/u-boot-mmc-spl.bin
 ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
 
-all:		$(ALL-y)
+all:		$(ALL-y) $(SUBDIR_EXAMPLES)
 
 $(obj)u-boot.hex:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@
@@ -418,7 +420,7 @@ GEN_UBOOT = \
 endif
 
 $(obj)u-boot:	depend \
-		$(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
+		$(SUBDIR_TOOLS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,u-boot) | \
@@ -431,7 +433,7 @@ endif
 $(OBJS):	depend
 		$(MAKE) -C $(CPUDIR) $(if $(REMOTE_BUILD),$@,$(notdir $@))
 
-$(LIBS):	depend $(SUBDIRS)
+$(LIBS):	depend $(SUBDIR_TOOLS)
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
 
 $(LIBBOARD):	depend $(LIBS)
@@ -439,6 +441,8 @@ $(LIBBOARD):	depend $(LIBS)
 
 $(SUBDIRS):	depend
 		$(MAKE) -C $@ all
+
+$(SUBDIR_EXAMPLES): $(obj)u-boot
 
 $(LDSCRIPT):	depend
 		$(MAKE) -C $(dir $@) $(notdir $@)
