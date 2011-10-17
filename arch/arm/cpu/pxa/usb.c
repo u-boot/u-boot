@@ -72,7 +72,7 @@ int usb_cpu_stop(void)
 	udelay(11);
 	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
-	writel(readl(UHCCOMS) | UHCHR_FHR, UHCCOMS);
+	writel(readl(UHCCOMS) | UHCCOMS_HCR, UHCCOMS);
 	udelay(10);
 
 #if defined(CONFIG_CPU_MONAHANS)

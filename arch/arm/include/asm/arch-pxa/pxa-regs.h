@@ -835,6 +835,8 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UHCHIE		0x4C000068
 #define UHCHIT		0x4C00006C
 
+#define UHCCOMS_HCR	(1<<0)
+
 #define UHCHR_FSBIR	(1<<0)
 #define UHCHR_FHR	(1<<1)
 #define UHCHR_CGR	(1<<2)
