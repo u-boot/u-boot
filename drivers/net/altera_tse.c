@@ -357,8 +357,8 @@ static void tse_eth_reset(struct eth_device *dev)
 
 	if (counter >= ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR) {
 		debug("Timeout waiting for rx sgdma!\n");
-		rx_sgdma->control &= ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
-		rx_sgdma->control &= ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
+		rx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
+		rx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
 	}
 
 	counter = 0;
@@ -370,8 +370,8 @@ static void tse_eth_reset(struct eth_device *dev)
 
 	if (counter >= ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR) {
 		debug("Timeout waiting for tx sgdma!\n");
-		tx_sgdma->control &= ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
-		tx_sgdma->control &= ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
+		tx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
+		tx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
 	}
 	/* reset the mac */
 	mac_dev->command_config.bits.transmit_enable = 1;
