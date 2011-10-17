@@ -790,7 +790,7 @@ clobber:	clean
 	@rm -f $(obj)u-boot.ubl
 	@rm -f $(obj)u-boot.dtb
 	@rm -f $(obj)u-boot.sb
-	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
+	@rm -f $(obj)tools/inca-swap-bytes
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -fr $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@rm -fr $(obj)include/generated
