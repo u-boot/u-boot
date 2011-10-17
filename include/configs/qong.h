@@ -79,15 +79,16 @@
 #define CONFIG_DNET_BASE	(CS1_BASE + QONG_FPGA_PERIPH_SIZE)
 
 /* Framebuffer and LCD */
-#define CONFIG_LCD
+#define CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_MX3
-#define	CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define LCD_BPP		LCD_COLOR16
-#define	CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
-#define CONFIG_DISPLAY_COM57H5M10XRC
 
 /* USB */
 #define CONFIG_CMD_USB
@@ -177,6 +178,9 @@
 		" +${filesize};cp.b ${fileaddr} "			\
 		xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0"		\
 	"upd=run load update\0"						\
+	"videomode=video=ctfb:x:640,y:480,depth:16,mode:0,pclk:40000,"	\
+		"le:120,ri:40,up:35,lo:10,hs:30,vs:3,sync:100663296,"	\
+		"vmode:0\0"						\
 
 /*
  * Miscellaneous configurable options

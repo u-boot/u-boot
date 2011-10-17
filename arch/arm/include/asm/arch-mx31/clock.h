@@ -30,6 +30,7 @@ enum mxc_clock {
 	MXC_IPG_PERCLK,
 	MXC_CSPI_CLK,
 	MXC_UART_CLK,
+	MXC_IPU_CLK
 };
 
 unsigned int mxc_get_clock(enum mxc_clock clk);
