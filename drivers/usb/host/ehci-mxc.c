@@ -120,7 +120,6 @@ int ehci_hcd_init(void)
 
 	udelay(80);
 
-	/* Take USB2 */
 	ehci = (struct usb_ehci *)(IMX_USB_BASE +
 		(0x200 * CONFIG_MXC_USB_PORT));
 	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
