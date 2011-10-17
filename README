@@ -1072,6 +1072,16 @@ The following options need to be configured:
 			CONFIG_SH_ETHER_CACHE_WRITEBACK
 			If this option is set, the driver enables cache flush.
 
+- TPM Support:
+		CONFIG_GENERIC_LPC_TPM
+		Support for generic parallel port TPM devices. Only one device
+		per system is supported at this time.
+
+			CONFIG_TPM_TIS_BASE_ADDRESS
+			Base address where the generic TPM device is mapped
+			to. Contemporary x86 systems usually map it at
+			0xfed40000.
+
 - USB Support:
 		At the moment only the UHCI host controller is
 		supported (PIP405, MIP405, MPC5200); define
