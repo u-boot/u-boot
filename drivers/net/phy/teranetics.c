@@ -95,7 +95,7 @@ int tn2020_startup(struct phy_device *phydev)
 
 struct phy_driver tn2020_driver = {
 	.name = "Teranetics TN2020",
-	.uid = 0x00a19410,
+	.uid = PHY_UID_TN2020,
 	.mask = 0xfffffff0,
 	.features = PHY_10G_FEATURES,
 	.mmds = (MDIO_DEVS_PMAPMD | MDIO_DEVS_PCS |

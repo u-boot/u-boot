@@ -93,21 +93,43 @@ struct mii_dev *mii_dev_for_muxval(u32 muxval)
 	return bus;
 }
 
-#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+#if defined(CONFIG_SYS_P4080_ERRATUM_SERDES9) && defined(CONFIG_PHY_TERANETICS)
 int board_phy_config(struct phy_device *phydev)
 {
-	/*
-	 * If this is the 10G PHY, and we switched it to fiber,
-	 * we need to reset the serdes link for SERDES9
-	 */
-	if ((phydev->port == PORT_FIBRE) && (phydev->drv->uid == 0x00a19410)) {
+	if (phydev->drv->uid == PHY_UID_TN2020) {
+		unsigned long timeout = 1 * 1000; /* 1 seconds */
 		enum srds_prtcl device;
 
+		/*
+		 * Wait for the XAUI to come out of reset.  This is when it
+		 * starts transmitting alignment signals.
+		 */
+		while (--timeout) {
+			int reg = phy_read(phydev, MDIO_MMD_PHYXS, MDIO_CTRL1);
+			if (reg < 0) {
+				printf("TN2020: Error reading from PHY at "
+				       "address %u\n", phydev->addr);
+				break;
+			}
+			/*
+			 * Note that we've never actually seen
+			 * MDIO_CTRL1_RESET set to 1.
+			 */
+			if ((reg & MDIO_CTRL1_RESET) == 0)
+				break;
+			udelay(1000);
+		}
+
+		if (!timeout) {
+			printf("TN2020: Timeout waiting for PHY at address %u "
+			       " to reset.\n", phydev->addr);
+		}
+
 		switch (phydev->addr) {
-		case 4:
+		case CONFIG_SYS_FM1_10GEC1_PHY_ADDR:
 			device = XAUI_FM1;
 			break;
-		case 0:
+		case CONFIG_SYS_FM2_10GEC1_PHY_ADDR:
 			device = XAUI_FM2;
 			break;
 		default:
