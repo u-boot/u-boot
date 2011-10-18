@@ -38,7 +38,8 @@ DEPS := $(basename $(patsubst %,$(obj).depend.%,$(PWD_SRCS)))
 #	1 .Concatenate all the generated depend files together
 #	2. Add in the deps from OTHER_SRCS which we couldn't process
 #	3. Add in the HOSTSRCS
-$(obj).depend:	$(src)Makefile $(TOPDIR)/config.mk $(DEPS) $(HOSTSRCS)
+$(obj).depend:	$(src)Makefile $(TOPDIR)/config.mk $(DEPS) $(OTHER_SRCS) \
+		$(HOSTSRCS)
 	cat /dev/null $(DEPS) >$@
 	@for f in $(OTHER_SRCS); do \
 		g=`basename $$f | sed -e 's/\(.*\)\.[[:alnum:]_]/\1.o/'`; \
