@@ -55,9 +55,28 @@
 #define DEBUGOUT(fmt, args...)	do { } while (0)
 #endif
 
+/* I/O wrapper functions */
+#define E1000_WRITE_REG(a, reg, value) \
+	(writel((value), ((a)->hw_addr + E1000_##reg)))
+#define E1000_READ_REG(a, reg) \
+	(readl((a)->hw_addr + E1000_##reg))
+#define E1000_WRITE_REG_ARRAY(a, reg, offset, value) \
+	(writel((value), ((a)->hw_addr + E1000_##reg + ((offset) << 2))))
+#define E1000_READ_REG_ARRAY(a, reg, offset) \
+	(readl((a)->hw_addr + E1000_##reg + ((offset) << 2)))
+#define E1000_WRITE_FLUSH(a) \
+	do { uint32_t x = E1000_READ_REG(a, STATUS); } while (0)
+
 /* Forward declarations of structures used by the shared code */
 struct e1000_hw;
 struct e1000_hw_stats;
+
+/* Internal E1000 helper functions */
+int32_t e1000_acquire_eeprom(struct e1000_hw *hw);
+void e1000_standby_eeprom(struct e1000_hw *hw);
+void e1000_release_eeprom(struct e1000_hw *hw);
+void e1000_raise_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
+void e1000_lower_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
 
 typedef enum {
 	FALSE = 0,

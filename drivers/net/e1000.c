@@ -134,13 +134,6 @@ static void e1000_set_media_type(struct e1000_hw *hw);
 
 static int32_t e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask);
 static int32_t e1000_check_phy_reset_block(struct e1000_hw *hw);
-#define E1000_WRITE_REG(a, reg, value) (writel((value), ((a)->hw_addr + E1000_##reg)))
-#define E1000_READ_REG(a, reg) (readl((a)->hw_addr + E1000_##reg))
-#define E1000_WRITE_REG_ARRAY(a, reg, offset, value) (\
-			writel((value), ((a)->hw_addr + E1000_##reg + ((offset) << 2))))
-#define E1000_READ_REG_ARRAY(a, reg, offset) ( \
-	readl((a)->hw_addr + E1000_##reg + ((offset) << 2)))
-#define E1000_WRITE_FLUSH(a) {uint32_t x; x = E1000_READ_REG(a, STATUS);}
 
 #ifndef CONFIG_AP1000 /* remove for warnings */
 static int32_t e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
@@ -152,8 +145,7 @@ static int32_t e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
  * hw - Struct containing variables accessed by shared code
  * eecd - EECD's current value
  *****************************************************************************/
-static void
-e1000_raise_ee_clk(struct e1000_hw *hw, uint32_t * eecd)
+void e1000_raise_ee_clk(struct e1000_hw *hw, uint32_t * eecd)
 {
 	/* Raise the clock input to the EEPROM (by setting the SK bit), and then
 	 * wait 50 microseconds.
@@ -170,8 +162,7 @@ e1000_raise_ee_clk(struct e1000_hw *hw, uint32_t * eecd)
  * hw - Struct containing variables accessed by shared code
  * eecd - EECD's current value
  *****************************************************************************/
-static void
-e1000_lower_ee_clk(struct e1000_hw *hw, uint32_t * eecd)
+void e1000_lower_ee_clk(struct e1000_hw *hw, uint32_t * eecd)
 {
 	/* Lower the clock input to the EEPROM (by clearing the SK bit), and then
 	 * wait 50 microseconds.
@@ -275,8 +266,7 @@ e1000_shift_in_ee_bits(struct e1000_hw *hw, uint16_t count)
  *
  * hw - Struct containing variables accessed by shared code
  *****************************************************************************/
-static void
-e1000_standby_eeprom(struct e1000_hw *hw)
+void e1000_standby_eeprom(struct e1000_hw *hw)
 {
 	struct e1000_eeprom_info *eeprom = &hw->eeprom;
 	uint32_t eecd;
@@ -354,8 +344,7 @@ static boolean_t e1000_is_onboard_nvm_eeprom(struct e1000_hw *hw)
  * Lowers EEPROM clock. Clears input pin. Sets the chip select pin. This
  * function should be called before issuing a command to the EEPROM.
  *****************************************************************************/
-static int32_t
-e1000_acquire_eeprom(struct e1000_hw *hw)
+int32_t e1000_acquire_eeprom(struct e1000_hw *hw)
 {
 	struct e1000_eeprom_info *eeprom = &hw->eeprom;
 	uint32_t eecd, i = 0;
@@ -671,8 +660,7 @@ e1000_read_eeprom_eerd(struct e1000_hw *hw,
 	return error;
 }
 
-static void
-e1000_release_eeprom(struct e1000_hw *hw)
+void e1000_release_eeprom(struct e1000_hw *hw)
 {
 	uint32_t eecd;
 
