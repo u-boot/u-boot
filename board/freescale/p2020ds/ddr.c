@@ -57,6 +57,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 {
 	const struct board_specific_parameters *pbsp, *pbsp_highest = NULL;
 	ulong ddr_freq;
+	int i;
 
 	if (ctrl_num) {
 		printf("Wrong parameter for controller number %d", ctrl_num);
@@ -64,6 +65,17 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	}
 	if (!pdimm->n_ranks)
 		return;
+
+	/*
+	 * set odt_rd_cfg and odt_wr_cfg. If the there is only one dimm in
+	 * that controller, set odt_wr_cfg to 4 for CS0, and 0 to CS1. If
+	 * there are two dimms in the controller, set odt_rd_cfg to 3 and
+	 * odt_wr_cfg to 3 for the even CS, 0 for the odd CS.
+	 */
+	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+		popts->cs_local_opts[i].odt_rd_cfg = 0;
+		popts->cs_local_opts[i].odt_wr_cfg = 1;
+	}
 
 	pbsp = dimm0;
 
