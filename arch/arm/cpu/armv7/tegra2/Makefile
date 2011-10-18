@@ -36,7 +36,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
 all:	 $(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

@@ -47,7 +47,7 @@ endif
 all:	$(ALL)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 ifdef CONFIG_SPL_BUILD
 tools/mk$(BOARD)spl.exe:	tools/mkv310_image.c
