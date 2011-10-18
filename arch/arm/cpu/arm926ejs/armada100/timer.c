@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/armada100.h>
 
 /*

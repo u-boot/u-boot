@@ -31,6 +31,7 @@
 #ifndef _ARMD1_CONFIG_H
 #define _ARMD1_CONFIG_H
 
+#include <asm/arch/armada100.h>
 #define CONFIG_ARM926EJS	1	/* Basic Architecture */
 
 #define CONFIG_SYS_TCLK		(14745600)	/* NS16550 clk config */
