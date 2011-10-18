@@ -479,7 +479,8 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
 #ifdef CONFIG_AUTO_COMPLETE
 		if (cmdtp->complete) {
 			addr = (ulong)(cmdtp->complete) + gd->reloc_off;
-			cmdtp->complete = (char *)addr;
+			cmdtp->complete =
+				(int (*)(int, char * const [], char, int, char * []))addr;
 		}
 #endif
 		cmdtp++;
