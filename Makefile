@@ -622,11 +622,6 @@ ucname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\U\1/')
 #########################################################################
 ## Coldfire
 #########################################################################
-
-astro_mcf5373l_config \
-astro_mcf5373l_RAM_config :	unconfig
-	@$(MKCONFIG) -n $@ -t $@ astro_mcf5373l m68k mcf532x mcf5373l astro
-
 M52277EVB_config \
 M52277EVB_spansion_config \
 M52277EVB_stmicro_config :	unconfig
@@ -662,9 +657,6 @@ M5235EVB_Flash32_config:	unconfig
 	fi
 	@$(MKCONFIG) -n $@ -a M5235EVB m68k mcf523x m5235evb freescale
 
-cobra5272_config :		unconfig
-	@$(MKCONFIG) $@ m68k mcf52x2 cobra5272
-
 EB+MCF-EV123_config :		unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/BuS/EB+MCF-EV123
@@ -676,26 +668,6 @@ EB+MCF-EV123_internal_config :	unconfig
 	@mkdir -p $(obj)board/BuS/EB+MCF-EV123
 	@echo "CONFIG_SYS_TEXT_BASE = 0xF0000000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) -n $@ EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
-
-M5329AFEE_config \
-M5329BFEE_config :	unconfig
-	@case "$@" in \
-	M5329AFEE_config)	NAND=0;; \
-	M5329BFEE_config)	NAND=16;; \
-	esac; \
-	if [ "$${NAND}" != "0" ] ; then \
-		echo "#define NANDFLASH_SIZE	$${NAND}" > $(obj)include/config.h ; \
-	fi
-	@$(MKCONFIG) -n $@ -a M5329EVB m68k mcf532x m5329evb freescale
-
-M5373EVB_config :	unconfig
-	@case "$@" in \
-	M5373EVB_config)	NAND=16;; \
-	esac; \
-	if [ "$${NAND}" != "0" ] ; then \
-		echo "#define NANDFLASH_SIZE	$${NAND}" > $(obj)include/config.h ; \
-	fi
-	@$(MKCONFIG) -a M5373EVB m68k mcf532x m5373evb freescale
 
 M54451EVB_config \
 M54451EVB_stmicro_config :	unconfig
@@ -748,74 +720,6 @@ M54455EVB_stm33_config :	unconfig
 	echo "#define CONFIG_SYS_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
 	$(XECHO) "... with $${FREQ}Hz input clock"
 	@$(MKCONFIG) -n $@ -a M54455EVB m68k mcf5445x m54455evb freescale
-
-M5475AFE_config \
-M5475BFE_config \
-M5475CFE_config \
-M5475DFE_config \
-M5475EFE_config \
-M5475FFE_config \
-M5475GFE_config :	unconfig
-	@case "$@" in \
-	M5475AFE_config)	BOOT=2;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
-	M5475BFE_config)	BOOT=2;CODE=16;VID=0;USB=0;RAM=64;RAM1=0;; \
-	M5475CFE_config)	BOOT=2;CODE=16;VID=1;USB=1;RAM=64;RAM1=0;; \
-	M5475DFE_config)	BOOT=2;CODE=0;VID=0;USB=1;RAM=64;RAM1=0;; \
-	M5475EFE_config)	BOOT=2;CODE=0;VID=1;USB=1;RAM=64;RAM1=0;; \
-	M5475FFE_config)	BOOT=2;CODE=32;VID=1;USB=1;RAM=64;RAM1=64;; \
-	M5475GFE_config)	BOOT=4;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
-	esac; \
-	echo "#define CONFIG_SYS_BUSCLK	133333333" > $(obj)include/config.h ; \
-	echo "#define CONFIG_SYS_BOOTSZ	$${BOOT}" >> $(obj)include/config.h ; \
-	echo "#define CONFIG_SYS_DRAMSZ	$${RAM}" >> $(obj)include/config.h ; \
-	if [ "$${RAM1}" != "0" ] ; then \
-		echo "#define CONFIG_SYS_DRAMSZ1	$${RAM1}" >> $(obj)include/config.h ; \
-	fi; \
-	if [ "$${CODE}" != "0" ] ; then \
-		echo "#define CONFIG_SYS_NOR1SZ	$${CODE}" >> $(obj)include/config.h ; \
-	fi; \
-	if [ "$${VID}" == "1" ] ; then \
-		echo "#define CONFIG_SYS_VIDEO" >> $(obj)include/config.h ; \
-	fi; \
-	if [ "$${USB}" == "1" ] ; then \
-		echo "#define CONFIG_SYS_USBCTRL" >> $(obj)include/config.h ; \
-	fi
-	@$(MKCONFIG) -n $@ -a M5475EVB m68k mcf547x_8x m547xevb freescale
-
-M5485AFE_config \
-M5485BFE_config \
-M5485CFE_config \
-M5485DFE_config \
-M5485EFE_config \
-M5485FFE_config \
-M5485GFE_config \
-M5485HFE_config :	unconfig
-	@case "$@" in \
-	M5485AFE_config)	BOOT=2;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
-	M5485BFE_config)	BOOT=2;CODE=16;VID=0;USB=0;RAM=64;RAM1=0;; \
-	M5485CFE_config)	BOOT=2;CODE=16;VID=1;USB=1;RAM=64;RAM1=0;; \
-	M5485DFE_config)	BOOT=2;CODE=0;VID=0;USB=1;RAM=64;RAM1=0;; \
-	M5485EFE_config)	BOOT=2;CODE=0;VID=1;USB=1;RAM=64;RAM1=0;; \
-	M5485FFE_config)	BOOT=2;CODE=32;VID=1;USB=1;RAM=64;RAM1=64;; \
-	M5485GFE_config)	BOOT=4;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
-	M5485HFE_config)	BOOT=2;CODE=16;VID=1;USB=0;RAM=64;RAM1=0;; \
-	esac; \
-	echo "#define CONFIG_SYS_BUSCLK	100000000" > $(obj)include/config.h ; \
-	echo "#define CONFIG_SYS_BOOTSZ	$${BOOT}" >> $(obj)include/config.h ; \
-	echo "#define CONFIG_SYS_DRAMSZ	$${RAM}" >> $(obj)include/config.h ; \
-	if [ "$${RAM1}" != "0" ] ; then \
-		echo "#define CONFIG_SYS_DRAMSZ1	$${RAM1}" >> $(obj)include/config.h ; \
-	fi; \
-	if [ "$${CODE}" != "0" ] ; then \
-		echo "#define CONFIG_SYS_NOR1SZ	$${CODE}" >> $(obj)include/config.h ; \
-	fi; \
-	if [ "$${VID}" == "1" ] ; then \
-		echo "#define CONFIG_SYS_VIDEO" >> $(obj)include/config.h ; \
-	fi; \
-	if [ "$${USB}" == "1" ] ; then \
-		echo "#define CONFIG_SYS_USBCTRL" >> $(obj)include/config.h ; \
-	fi
-	@$(MKCONFIG) -n $@ -a M5485EVB m68k mcf547x_8x m548xevb freescale
 
 #========================================================================
 # ARM

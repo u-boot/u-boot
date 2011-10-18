@@ -440,18 +440,12 @@ LIST_microblaze="$(boards_by_arch microblaze)"
 #########################################################################
 
 LIST_m68k="$(boards_by_arch m68k)
-	astro_mcf5373l		\
-	cobra5272		\
 	EB+MCF-EV123		\
 	EB+MCF-EV123_internal	\
 	M52277EVB		\
 	M5235EVB		\
-	M5329AFEE		\
-	M5373EVB		\
 	M54451EVB		\
 	M54455EVB		\
-	M5475AFE		\
-	M5485AFE		\
 "
 LIST_coldfire=${LIST_m68k}
 
