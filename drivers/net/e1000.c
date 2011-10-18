@@ -5155,6 +5155,9 @@ void e1000_get_bus_type(struct e1000_hw *hw)
 	}
 }
 
+/* A list of all registered e1000 devices */
+static LIST_HEAD(e1000_hw_list);
+
 /**************************************************************************
 PROBE - Look for an adapter, this routine's visible to the outside
 You should omit the last argument struct pci_device * for a non-PCI NIC
@@ -5234,8 +5237,9 @@ e1000_initialize(bd_t * bis)
 		if (e1000_check_phy_reset_block(hw))
 			E1000_ERR(nic, "PHY Reset is blocked!\n");
 
-		/* Basic init was OK, reset the hardware */
+		/* Basic init was OK, reset the hardware and allow SPI access */
 		e1000_reset_hw(hw);
+		list_add_tail(&hw->list_node, &e1000_hw_list);
 
 		/* Validate the EEPROM and get chipset information */
 #if !(defined(CONFIG_AP1000) || defined(CONFIG_MVBC_1G))
@@ -5263,3 +5267,63 @@ e1000_initialize(bd_t * bis)
 
 	return i;
 }
+
+struct e1000_hw *e1000_find_card(unsigned int cardnum)
+{
+	struct e1000_hw *hw;
+
+	list_for_each_entry(hw, &e1000_hw_list, list_node)
+		if (hw->cardnum == cardnum)
+			return hw;
+
+	return NULL;
+}
+
+#ifdef CONFIG_CMD_E1000
+static int do_e1000(cmd_tbl_t *cmdtp, int flag,
+		int argc, char * const argv[])
+{
+	struct e1000_hw *hw;
+
+	if (argc < 3) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	/* Make sure we can find the requested e1000 card */
+	hw = e1000_find_card(simple_strtoul(argv[1], NULL, 10));
+	if (!hw) {
+		printf("e1000: ERROR: No such device: e1000#%s\n", argv[1]);
+		return 1;
+	}
+
+	if (!strcmp(argv[2], "print-mac-address")) {
+		unsigned char *mac = hw->nic->enetaddr;
+		printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
+			mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		return 0;
+	}
+
+#ifdef CONFIG_E1000_SPI
+	/* Handle the "SPI" subcommand */
+	if (!strcmp(argv[2], "spi"))
+		return do_e1000_spi(cmdtp, hw, argc - 3, argv + 3);
+#endif
+
+	cmd_usage(cmdtp);
+	return 1;
+}
+
+U_BOOT_CMD(
+	e1000, 7, 0, do_e1000,
+	"Intel e1000 controller management",
+	/*  */"<card#> print-mac-address\n"
+#ifdef CONFIG_E1000_SPI
+	"e1000 <card#> spi show [<offset> [<length>]]\n"
+	"e1000 <card#> spi dump <addr> <offset> <length>\n"
+	"e1000 <card#> spi program <addr> <offset> <length>\n"
+	"e1000 <card#> spi checksum [update]\n"
+#endif
+	"       - Manage the Intel E1000 PCI device"
+);
+#endif /* not CONFIG_CMD_E1000 */

@@ -35,11 +35,16 @@
 #define _E1000_HW_H_
 
 #include <common.h>
+#include <linux/list.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <pci.h>
+
+#ifdef CONFIG_E1000_SPI
+#include <spi.h>
+#endif
 
 #define E1000_ERR(NIC, fmt, args...) \
 	printf("e1000: %s: ERROR: " fmt, (NIC)->name ,##args)
@@ -72,11 +77,17 @@ struct e1000_hw;
 struct e1000_hw_stats;
 
 /* Internal E1000 helper functions */
+struct e1000_hw *e1000_find_card(unsigned int cardnum);
 int32_t e1000_acquire_eeprom(struct e1000_hw *hw);
 void e1000_standby_eeprom(struct e1000_hw *hw);
 void e1000_release_eeprom(struct e1000_hw *hw);
 void e1000_raise_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
 void e1000_lower_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
+
+#ifdef CONFIG_E1000_SPI
+int do_e1000_spi(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
+		int argc, char * const argv[]);
+#endif
 
 typedef enum {
 	FALSE = 0,
@@ -1068,7 +1079,11 @@ typedef enum {
 
 /* Structure containing variables used by the shared code (e1000_hw.c) */
 struct e1000_hw {
+	struct list_head list_node;
 	struct eth_device *nic;
+#ifdef CONFIG_E1000_SPI
+	struct spi_slave spi;
+#endif
 	unsigned int cardnum;
 
 	pci_dev_t pdev;
