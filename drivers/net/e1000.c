@@ -876,29 +876,41 @@ e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
  * If the the sum of the 64 16 bit words is 0xBABA, the EEPROM's checksum is
  * valid.
  *****************************************************************************/
-static int
-e1000_validate_eeprom_checksum(struct eth_device *nic)
+static int e1000_validate_eeprom_checksum(struct e1000_hw *hw)
 {
-	struct e1000_hw *hw = nic->priv;
-	uint16_t checksum = 0;
-	uint16_t i, eeprom_data;
+	uint16_t i, checksum, checksum_reg, *buf;
 
 	DEBUGFUNC();
 
-	for (i = 0; i < (EEPROM_CHECKSUM_REG + 1); i++) {
-		if (e1000_read_eeprom(hw, i, 1,  &eeprom_data) < 0) {
-			DEBUGOUT("EEPROM Read Error\n");
-			return -E1000_ERR_EEPROM;
-		}
-		checksum += eeprom_data;
-	}
-
-	if (checksum == (uint16_t) EEPROM_SUM) {
-		return 0;
-	} else {
-		DEBUGOUT("EEPROM Checksum Invalid\n");
+	/* Allocate a temporary buffer */
+	buf = malloc(sizeof(buf[0]) * (EEPROM_CHECKSUM_REG + 1));
+	if (!buf) {
+		E1000_ERR(hw->nic, "Unable to allocate EEPROM buffer!\n");
 		return -E1000_ERR_EEPROM;
 	}
+
+	/* Read the EEPROM */
+	if (e1000_read_eeprom(hw, 0, EEPROM_CHECKSUM_REG + 1, buf) < 0) {
+		E1000_ERR(hw->nic, "Unable to read EEPROM!\n");
+		return -E1000_ERR_EEPROM;
+	}
+
+	/* Compute the checksum */
+	for (i = 0; i < EEPROM_CHECKSUM_REG; i++)
+		checksum += buf[i];
+	checksum = ((uint16_t)EEPROM_SUM) - checksum;
+	checksum_reg = buf[i];
+
+	/* Verify it! */
+	if (checksum == checksum_reg)
+		return 0;
+
+	/* Hrm, verification failed, print an error */
+	E1000_ERR(hw->nic, "EEPROM checksum is incorrect!\n");
+	E1000_ERR(hw->nic, "  ...register was 0x%04hx, calculated 0x%04hx\n",
+			checksum_reg, checksum);
+
+	return -E1000_ERR_EEPROM;
 }
 
 /*****************************************************************************
@@ -5243,10 +5255,8 @@ e1000_initialize(bd_t * bis)
 			E1000_ERR(nic, "EEPROM is invalid!\n");
 			continue;
 		}
-		if (e1000_validate_eeprom_checksum(nic) < 0) {
-			E1000_ERR(nic, "EEPROM checksum is bad!\n");
+		if (e1000_validate_eeprom_checksum(hw))
 			continue;
-		}
 #endif
 		e1000_read_mac_addr(nic);
 		e1000_get_bus_type(hw);
