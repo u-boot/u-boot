@@ -329,14 +329,19 @@ int tstc(void)
 	return serial_tstc();
 }
 
-#ifdef CONFIG_PRE_CONSOLE_BUFFER
+#if defined(CONFIG_PRE_CONSOLE_BUFFER) || defined(CONFIG_PRE_CONSOLE_PUTC)
 #define CIRC_BUF_IDX(idx) ((idx) % (unsigned long)CONFIG_PRE_CON_BUF_SZ)
 
 static void pre_console_putc(const char c)
 {
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
 	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
 
 	buffer[CIRC_BUF_IDX(gd->precon_buf_idx++)] = c;
+#endif
+#ifdef CONFIG_PRE_CONSOLE_PUTC
+	board_pre_console_putc(c);
+#endif
 }
 
 static void pre_console_puts(const char *s)
@@ -347,6 +352,7 @@ static void pre_console_puts(const char *s)
 
 static void print_pre_console_buffer(void)
 {
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long i = 0;
 	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
 
@@ -355,7 +361,9 @@ static void print_pre_console_buffer(void)
 
 	while (i < gd->precon_buf_idx)
 		putc(buffer[CIRC_BUF_IDX(i++)]);
+#endif
 }
+
 #else
 static inline void pre_console_putc(const char c) {}
 static inline void pre_console_puts(const char *s) {}
