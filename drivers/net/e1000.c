@@ -66,7 +66,7 @@ static struct e1000_rx_desc *rx_base;
 static int tx_tail;
 static int rx_tail, rx_last;
 
-static struct pci_device_id supported[] = {
+static struct pci_device_id e1000_supported[] = {
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82542},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82543GC_FIBER},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82543GC_COPPER},
@@ -4761,7 +4761,7 @@ e1000_set_media_type(struct e1000_hw *hw)
  **/
 
 static int
-e1000_sw_init(struct eth_device *nic, int cardnum)
+e1000_sw_init(struct eth_device *nic)
 {
 	struct e1000_hw *hw = (typeof(hw)) nic->priv;
 	int result;
@@ -4779,7 +4779,7 @@ e1000_sw_init(struct eth_device *nic, int cardnum)
 	/* identify the MAC */
 	result = e1000_set_mac_type(hw);
 	if (result) {
-		E1000_ERR("Unknown MAC Type\n");
+		E1000_ERR(hw->nic, "Unknown MAC Type\n");
 		return result;
 	}
 
@@ -5111,9 +5111,9 @@ e1000_init(struct eth_device *nic, bd_t * bis)
 	if (ret_val < 0) {
 		if ((ret_val == -E1000_ERR_NOLINK) ||
 		    (ret_val == -E1000_ERR_TIMEOUT)) {
-			E1000_ERR("Valid Link not detected\n");
+			E1000_ERR(hw->nic, "Valid Link not detected\n");
 		} else {
-			E1000_ERR("Hardware Initialization Failed\n");
+			E1000_ERR(hw->nic, "Hardware Initialization Failed\n");
 		}
 		return 0;
 	}
@@ -5162,57 +5162,59 @@ You should omit the last argument struct pci_device * for a non-PCI NIC
 int
 e1000_initialize(bd_t * bis)
 {
+	unsigned int i;
 	pci_dev_t devno;
-	int card_number = 0;
-	struct eth_device *nic = NULL;
-	struct e1000_hw *hw = NULL;
-	u32 iobase;
-	int idx = 0;
-	u32 PciCommandWord;
 
 	DEBUGFUNC();
 
-	while (1) {		/* Find PCI device(s) */
-		if ((devno = pci_find_devices(supported, idx++)) < 0) {
-			break;
-		}
+	/* Find and probe all the matching PCI devices */
+	for (i = 0; (devno = pci_find_devices(e1000_supported, i)) >= 0; i++) {
+		u32 val;
 
-		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &iobase);
-		iobase &= ~0xf;	/* Mask the bits that say "this is an io addr" */
-		DEBUGOUT("e1000#%d: iobase 0x%08x\n", card_number, iobase);
-
-		pci_write_config_dword(devno, PCI_COMMAND,
-				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-		/* Check if I/O accesses and Bus Mastering are enabled. */
-		pci_read_config_dword(devno, PCI_COMMAND, &PciCommandWord);
-		if (!(PciCommandWord & PCI_COMMAND_MEMORY)) {
-			printf("Error: Can not enable MEM access.\n");
-			continue;
-		} else if (!(PciCommandWord & PCI_COMMAND_MASTER)) {
-			printf("Error: Can not enable Bus Mastering.\n");
-			continue;
-		}
-
-		nic = (struct eth_device *) malloc(sizeof (*nic));
-		if (!nic) {
-			printf("Error: e1000 - Can not alloc memory\n");
-			return 0;
-		}
-
-		hw = (struct e1000_hw *) malloc(sizeof (*hw));
-		if (!hw) {
+		/*
+		 * These will never get freed due to errors, this allows us to
+		 * perform SPI EEPROM programming from U-boot, for example.
+		 */
+		struct eth_device *nic = malloc(sizeof(*nic));
+		struct e1000_hw *hw = malloc(sizeof(*hw));
+		if (!nic || !hw) {
+			printf("e1000#%u: Out of Memory!\n", i);
 			free(nic);
-			printf("Error: e1000 - Can not alloc memory\n");
-			return 0;
+			free(hw);
+			continue;
 		}
 
+		/* Make sure all of the fields are initially zeroed */
 		memset(nic, 0, sizeof(*nic));
 		memset(hw, 0, sizeof(*hw));
 
+		/* Assign the passed-in values */
+		hw->cardnum = i;
 		hw->pdev = devno;
+		hw->nic = nic;
 		nic->priv = hw;
 
-		sprintf(nic->name, "e1000#%d", card_number);
+		/* Generate a card name */
+		sprintf(nic->name, "e1000#%u", hw->cardnum);
+
+		/* Print a debug message with the IO base address */
+		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &val);
+		E1000_DBG(nic, "iobase 0x%08x\n", val & 0xfffffff0);
+
+		/* Try to enable I/O accesses and bus-mastering */
+		val = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+		pci_write_config_dword(devno, PCI_COMMAND, val);
+
+		/* Make sure it worked */
+		pci_read_config_dword(devno, PCI_COMMAND, &val);
+		if (!(val & PCI_COMMAND_MEMORY)) {
+			E1000_ERR(nic, "Can't enable I/O memory\n");
+			continue;
+		}
+		if (!(val & PCI_COMMAND_MASTER)) {
+			E1000_ERR(nic, "Can't enable bus-mastering\n");
+			continue;
+		}
 
 		/* Are these variables needed? */
 		hw->fc = e1000_fc_default;
@@ -5220,50 +5222,46 @@ e1000_initialize(bd_t * bis)
 		hw->autoneg_failed = 0;
 		hw->autoneg = 1;
 		hw->get_link_status = TRUE;
-		hw->hw_addr =
-			pci_map_bar(devno, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+		hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
+							PCI_REGION_MEM);
 		hw->mac_type = e1000_undefined;
 
 		/* MAC and Phy settings */
-		if (e1000_sw_init(nic, card_number) < 0) {
-			free(hw);
-			free(nic);
-			return 0;
+		if (e1000_sw_init(nic) < 0) {
+			E1000_ERR(nic, "Software init failed\n");
+			continue;
 		}
 		if (e1000_check_phy_reset_block(hw))
-			printf("phy reset block error \n");
+			E1000_ERR(nic, "PHY Reset is blocked!\n");
+
+		/* Basic init was OK, reset the hardware */
 		e1000_reset_hw(hw);
+
+		/* Validate the EEPROM and get chipset information */
 #if !(defined(CONFIG_AP1000) || defined(CONFIG_MVBC_1G))
 		if (e1000_init_eeprom_params(hw)) {
-			printf("The EEPROM Checksum Is Not Valid\n");
-			free(hw);
-			free(nic);
-			return 0;
+			E1000_ERR(nic, "EEPROM is invalid!\n");
+			continue;
 		}
 		if (e1000_validate_eeprom_checksum(nic) < 0) {
-			printf("The EEPROM Checksum Is Not Valid\n");
-			free(hw);
-			free(nic);
-			return 0;
+			E1000_ERR(nic, "EEPROM checksum is bad!\n");
+			continue;
 		}
 #endif
 		e1000_read_mac_addr(nic);
-
-		/* get the bus type information */
 		e1000_get_bus_type(hw);
 
-		printf("e1000: %02x:%02x:%02x:%02x:%02x:%02x\n",
+		printf("e1000: %02x:%02x:%02x:%02x:%02x:%02x\n       ",
 		       nic->enetaddr[0], nic->enetaddr[1], nic->enetaddr[2],
 		       nic->enetaddr[3], nic->enetaddr[4], nic->enetaddr[5]);
 
+		/* Set up the function pointers and register the device */
 		nic->init = e1000_init;
 		nic->recv = e1000_poll;
 		nic->send = e1000_transmit;
 		nic->halt = e1000_disable;
-
 		eth_register(nic);
-
-		card_number++;
 	}
-	return card_number;
+
+	return i;
 }
