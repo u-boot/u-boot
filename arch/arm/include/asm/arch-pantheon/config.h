@@ -25,6 +25,8 @@
 #ifndef _PANTHEON_CONFIG_H
 #define _PANTHEON_CONFIG_H
 
+#include <asm/arch/pantheon.h>
+
 #define CONFIG_ARM926EJS	1	/* Basic Architecture */
 
 #define CONFIG_SYS_TCLK		(14745600)	/* NS16550 clk config */

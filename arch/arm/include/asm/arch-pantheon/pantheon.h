@@ -25,13 +25,6 @@
 #ifndef _PANTHEON_H
 #define _PANTHEON_H
 
-#ifndef __ASSEMBLY__
-#include <asm/types.h>
-#include <asm/io.h>
-#endif	/* __ASSEMBLY__ */
-
-#include <asm/arch/cpu.h>
-
 /* Common APB clock register bit definitions */
 #define APBC_APBCLK     (1<<0)  /* APB Bus Clock Enable */
 #define APBC_FNCLK      (1<<1)  /* Functional Clock Enable */
