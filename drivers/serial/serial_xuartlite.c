@@ -40,7 +40,7 @@ struct uartlite {
 	unsigned int status;
 };
 
-static const struct uartlite *userial_ports[4] = {
+static struct uartlite *userial_ports[4] = {
 #ifdef XILINX_UARTLITE_BASEADDR
 	[0] = (struct uartlite *)XILINX_UARTLITE_BASEADDR,
 #endif
