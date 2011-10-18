@@ -107,6 +107,10 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 }
 #endif
 
+void spi_init(void)
+{
+}
+
 void spi_cs_activate(struct spi_slave *slave)
 {
 	writel(readl(&spireg->ctrl) | KWSPI_IRQUNMASK, &spireg->ctrl);
