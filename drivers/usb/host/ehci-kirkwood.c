@@ -27,6 +27,7 @@
 #include <usb.h>
 #include "ehci.h"
 #include "ehci-core.h"
+#include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
 
 #define rdl(off)	readl(KW_USB20_BASE + (off))

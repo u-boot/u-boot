@@ -39,6 +39,7 @@
 #error "SOC Name not defined"
 #endif /* CONFIG_KW88F6281 */
 
+#include <asm/arch/kirkwood.h>
 #define CONFIG_ARM926EJS	1	/* Basic Architecture */
 
 #define CONFIG_MD5	/* get_random_hex on krikwood needs MD5 support */

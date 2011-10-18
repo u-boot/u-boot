@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/kirkwood.h>
 
 #define UBOOT_CNTR	0	/* counter to use for uboot timer */
