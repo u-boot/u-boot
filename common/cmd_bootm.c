@@ -1200,34 +1200,35 @@ U_BOOT_CMD(
 /* helper routines */
 /*******************************************************************/
 #ifdef CONFIG_SILENT_CONSOLE
-static void fixup_silent_linux ()
+static void fixup_silent_linux(void)
 {
 	char buf[256], *start, *end;
-	char *cmdline = getenv ("bootargs");
+	char *cmdline = getenv("bootargs");
 
 	/* Only fix cmdline when requested */
 	if (!(gd->flags & GD_FLG_SILENT))
 		return;
 
-	debug ("before silent fix-up: %s\n", cmdline);
+	debug("before silent fix-up: %s\n", cmdline);
 	if (cmdline) {
-		if ((start = strstr (cmdline, "console=")) != NULL) {
-			end = strchr (start, ' ');
-			strncpy (buf, cmdline, (start - cmdline + 8));
+		start = strstr(cmdline, "console=");
+		if (start) {
+			end = strchr(start, ' ');
+			strncpy(buf, cmdline, (start - cmdline + 8));
 			if (end)
-				strcpy (buf + (start - cmdline + 8), end);
+				strcpy(buf + (start - cmdline + 8), end);
 			else
 				buf[start - cmdline + 8] = '\0';
 		} else {
-			strcpy (buf, cmdline);
-			strcat (buf, " console=");
+			strcpy(buf, cmdline);
+			strcat(buf, " console=");
 		}
 	} else {
-		strcpy (buf, "console=");
+		strcpy(buf, "console=");
 	}
 
-	setenv ("bootargs", buf);
-	debug ("after silent fix-up: %s\n", buf);
+	setenv("bootargs", buf);
+	debug("after silent fix-up: %s\n", buf);
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 
