@@ -314,6 +314,10 @@ int	setenv	     (const char *, const char *);
 #ifdef CONFIG_SANDBOX
 # include <asm/u-boot-sandbox.h>	/* TODO(sjg) what needs to be fixed? */
 #endif
+#ifdef CONFIG_NDS32
+# include <asm/mach-types.h>
+# include <asm/u-boot-nds32.h>
+#endif /* CONFIG_NDS32 */
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
