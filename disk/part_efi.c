@@ -125,17 +125,17 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 	int i = 0;
 
 	if (!dev_desc) {
-		printf("%s: Invalid Argument(s)\n", __FUNCTION__);
+		printf("%s: Invalid Argument(s)\n", __func__);
 		return;
 	}
 	/* This function validates AND fills in the GPT header and PTE */
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, pgpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n", __FUNCTION__);
+		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
 		return;
 	}
 
-	debug("%s: gpt-entry at 0x%08X\n", __FUNCTION__, (unsigned int)*pgpt_pte);
+	debug("%s: gpt-entry at 0x%08X\n", __func__, (unsigned int)*pgpt_pte);
 
 	printf("Part\tName\t\t\tStart LBA\tEnd LBA\n");
 	for (i = 0; i < le32_to_int(gpt_head->num_partition_entries); i++) {
@@ -152,7 +152,7 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 
 	/* Remember to free pte */
 	if (*pgpt_pte != NULL) {
-		debug("%s: Freeing pgpt_pte\n", __FUNCTION__);
+		debug("%s: Freeing pgpt_pte\n", __func__);
 		free(*pgpt_pte);
 	}
 	return;
@@ -166,14 +166,14 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 
 	/* "part" argument must be at least 1 */
 	if (!dev_desc || !info || part < 1) {
-		printf("%s: Invalid Argument(s)\n", __FUNCTION__);
+		printf("%s: Invalid Argument(s)\n", __func__);
 		return -1;
 	}
 
 	/* This function validates AND fills in the GPT header and PTE */
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, pgpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n", __FUNCTION__);
+		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
 		return -1;
 	}
 
@@ -188,12 +188,12 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 			print_efiname(&(*pgpt_pte)[part - 1]));
 	sprintf((char *)info->type, "U-Boot");
 
-	debug("%s: start 0x%lX, size 0x%lX, name %s", __FUNCTION__,
+	debug("%s: start 0x%lX, size 0x%lX, name %s", __func__,
 		info->start, info->size, info->name);
 
 	/* Remember to free pte */
 	if (*pgpt_pte != NULL) {
-		debug("%s: Freeing pgpt_pte\n", __FUNCTION__);
+		debug("%s: Freeing pgpt_pte\n", __func__);
 		free(*pgpt_pte);
 	}
 	return 0;
@@ -271,7 +271,7 @@ static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 	unsigned long long lastlba;
 
 	if (!dev_desc || !pgpt_head) {
-		printf("%s: Invalid Argument(s)\n", __FUNCTION__);
+		printf("%s: Invalid Argument(s)\n", __func__);
 		return 0;
 	}
 
@@ -375,14 +375,14 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 	gpt_entry *pte = NULL;
 
 	if (!dev_desc || !pgpt_head) {
-		printf("%s: Invalid Argument(s)\n", __FUNCTION__);
+		printf("%s: Invalid Argument(s)\n", __func__);
 		return NULL;
 	}
 
 	count = le32_to_int(pgpt_head->num_partition_entries) *
 		le32_to_int(pgpt_head->sizeof_partition_entry);
 
-	debug("%s: count = %lu * %lu = %u\n", __FUNCTION__,
+	debug("%s: count = %lu * %lu = %u\n", __func__,
 		le32_to_int(pgpt_head->num_partition_entries),
 		le32_to_int(pgpt_head->sizeof_partition_entry), count);
 
@@ -393,7 +393,7 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 
 	if (count == 0 || pte == NULL) {
 		printf("%s: ERROR: Can't allocate 0x%X bytes for GPT Entries\n",
-			__FUNCTION__, count);
+			__func__, count);
 		return NULL;
 	}
 
@@ -421,7 +421,7 @@ static int is_pte_valid(gpt_entry * pte)
 	efi_guid_t unused_guid;
 
 	if (!pte) {
-		printf("%s: Invalid Argument(s)\n", __FUNCTION__);
+		printf("%s: Invalid Argument(s)\n", __func__);
 		return 0;
 	}
 
@@ -433,7 +433,7 @@ static int is_pte_valid(gpt_entry * pte)
 	if (memcmp(pte->partition_type_guid.b, unused_guid.b,
 		sizeof(unused_guid.b)) == 0) {
 
-		debug("%s: Found an unused PTE GUID at 0x%08X\n", __FUNCTION__,
+		debug("%s: Found an unused PTE GUID at 0x%08X\n", __func__,
 		(unsigned int)pte);
 
 		return 0;
