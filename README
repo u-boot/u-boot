@@ -183,6 +183,10 @@ Directory Hierarchy:
       /mips32		Files specific to MIPS32 CPUs
       /xburst		Files specific to Ingenic XBurst CPUs
     /lib		Architecture specific library files
+  /nds32		Files generic to NDS32 architecture
+    /cpu		CPU specific files
+      /n1213		Files specific to Andes Technology N1213 CPUs
+    /lib		Architecture specific library files
   /nios2		Files generic to Altera NIOS2 architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
@@ -3156,7 +3160,7 @@ Low Level (hardware related) configuration options:
 		globally (CONFIG_CMD_MEM).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
-		[ARM, MIPS only] If this variable is defined, then certain
+		[ARM, NDS32, MIPS only] If this variable is defined, then certain
 		low level initializations (like setting up the memory
 		controller) are omitted and/or U-Boot does not
 		relocate itself into RAM.
@@ -3723,8 +3727,8 @@ details; basically, the header defines the following image properties:
   Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, LynxOS,
   INTEGRITY).
 * Target CPU Architecture (Provisions for Alpha, ARM, AVR32, Intel x86,
-  IA64, MIPS, Nios II, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
-  Currently supported: ARM, AVR32, Intel x86, MIPS, Nios II, PowerPC).
+  IA64, MIPS, NDS32, Nios II, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
+  Currently supported: ARM, AVR32, Intel x86, MIPS, NDS32, Nios II, PowerPC).
 * Compression Type (uncompressed, gzip, bzip2)
 * Load Address
 * Entry Point
@@ -4416,6 +4420,20 @@ On Nios II, the ABI is documented here:
 
     Note: on Nios II, we give "-G0" option to gcc and don't use gp
     to access small data sections, so gp is free.
+
+On NDS32, the following registers are used:
+
+	R0-R1:	argument/return
+	R2-R5:	argument
+	R15:	temporary register for assembler
+	R16:	trampoline register
+	R28:	frame pointer (FP)
+	R29:	global pointer (GP)
+	R30:	link register (LP)
+	R31:	stack pointer (SP)
+	PC:	program counter (PC)
+
+    ==> U-Boot will use R10 to hold a pointer to the global data
 
 NOTE: DECLARE_GLOBAL_DATA_PTR must be used with file-global scope,
 or current versions of GCC may "optimize" the code too much.
