@@ -76,8 +76,7 @@ static u32 pmic_reg(struct pmic *p, u32 reg, u32 *val, u32 write)
 	}
 
 	if (write) {
-		pmic_tx = p->hw.spi.prepare_tx(0, NULL, write);
-		pmic_tx &= ~(1 << 31);
+		pmic_tx = p->hw.spi.prepare_tx(reg, val, 0);
 		tmp = cpu_to_be32(pmic_tx);
 		if (spi_xfer(slave, pmic_spi_bitlen, &tmp, &pmic_rx,
 			pmic_spi_flags)) {
