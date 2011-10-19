@@ -435,6 +435,31 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#elif defined(CONFIG_NDS32)
+
+int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int i;
+	bd_t *bd = gd->bd;
+
+	print_num("arch_number",	bd->bi_arch_number);
+	print_num("boot_params",	(ulong)bd->bi_boot_params);
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
+		print_num("DRAM bank",	i);
+		print_num("-> start",	bd->bi_dram[i].start);
+		print_num("-> size",	bd->bi_dram[i].size);
+	}
+
+#if defined(CONFIG_CMD_NET)
+	print_eth(0);
+	printf("ip_addr     = %pI4\n", &bd->bi_ip_addr);
+#endif
+	printf("baudrate    = %d bps\n", bd->bi_baudrate);
+
+	return 0;
+}
+
 #else
  #error "a case for this architecture does not exist!"
 #endif
