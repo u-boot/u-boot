@@ -143,7 +143,7 @@ int board_early_init_f(void)
 	mx31_set_pad(MX31_PIN_SRXD3, H2_PAD_CFG);	/* USBH2_DATA6 */
 	mx31_set_pad(MX31_PIN_STXD3, H2_PAD_CFG);	/* USBH2_DATA7 */
 
-	writel(readl((IOMUXC_BASE + 0x8)) | (1 << 11), IOMUXC_BASE + 0x8);
+	mx31_set_gpr(MUX_PGP_UH2, 1);
 
 	return 0;
 
