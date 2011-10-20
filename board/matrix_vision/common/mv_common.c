@@ -29,6 +29,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_ENV_IS_NOWHERE
 static char* entries_to_keep[] = {
 	"serial#", "ethaddr", "eth1addr", "model_info", "sensor_cnt",
 	"fpgadatasize", "ddr_size", "use_dhcp", "use_static_ipaddr",
@@ -38,7 +39,6 @@ static char* entries_to_keep[] = {
 #define MV_MAX_ENV_ENTRY_LENGTH	64
 #define MV_KEEP_ENTRIES		ARRAY_SIZE(entries_to_keep)
 
-#ifndef CONFIG_ENV_IS_NOWHERE
 void mv_reset_environment(void)
 {
 	int i;
