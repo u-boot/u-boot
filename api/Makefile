@@ -24,7 +24,8 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libapi.o
 
-COBJS-$(CONFIG_API) += api.o api_net.o api_storage.o api_platform-$(ARCH).o
+COBJS-$(CONFIG_API) += api.o api_display.o api_net.o api_storage.o \
+		       api_platform-$(ARCH).o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
