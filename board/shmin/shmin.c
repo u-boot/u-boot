@@ -28,6 +28,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <netdev.h>
 
 int checkboard(void)
 {
@@ -53,6 +54,11 @@ int dram_init(void)
 	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
 	printf("DRAM:  %dMB\n", CONFIG_SYS_SDRAM_SIZE / (1024 * 1024));
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return ne2k_register();
 }
 
 void led_set_state(unsigned short value)
