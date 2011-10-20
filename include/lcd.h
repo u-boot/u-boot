@@ -210,6 +210,8 @@ void	lcd_disable	(void);
 void	lcd_putc	(const char c);
 void	lcd_puts	(const char *s);
 void	lcd_printf	(const char *fmt, ...);
+void	lcd_clear(void);
+int	lcd_display_bitmap(ulong bmp_image, int x, int y);
 
 /* Allow boards to customize the information displayed */
 void lcd_show_board_info(void);
