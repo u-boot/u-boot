@@ -590,7 +590,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	}
 #endif
 
-#ifdef BOARD_LATE_INIT
+#ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init();
 #endif
 

@@ -45,7 +45,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
 
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */

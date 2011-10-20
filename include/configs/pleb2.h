@@ -38,7 +38,7 @@
 #define CONFIG_PLEB2		1	/* on an PLEB2 Board	    */
 #undef CONFIG_LCD
 #undef CONFIG_MMC
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */

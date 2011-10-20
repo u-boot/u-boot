@@ -45,7 +45,7 @@
 /* #define _CONFIG_UART2 */		/* internal uart 2 */
 /* #define CONFIG_SILENT_CONSOLE */	/* use this to disable output */
 
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 #define USE_920T_MMU		1
 
 #if 0

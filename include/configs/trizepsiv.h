@@ -43,7 +43,7 @@
 #define CONFIG_PXA27X		1	/* This is an PXA27x CPU    */
 
 #define CONFIG_MMC		1
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */

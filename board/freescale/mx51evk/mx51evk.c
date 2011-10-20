@@ -409,7 +409,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef BOARD_LATE_INIT
+#ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
 #ifdef CONFIG_MXC_SPI

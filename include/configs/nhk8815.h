@@ -96,7 +96,7 @@
 #define CONFIG_SYS_MEMTEST_END		0x0FFFFFFF
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 256 * 1024)
 
-#define BOARD_LATE_INIT		/* call board_late_init during start up */
+#define CONFIG_BOARD_LATE_INIT	/* call board_late_init during start up */
 
 /* timing informazion */
 #define CONFIG_SYS_HZ		1000 /* Mandatory... */

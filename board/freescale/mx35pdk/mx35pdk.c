@@ -38,8 +38,8 @@
 #include <asm/arch/sys_proto.h>
 #include <netdev.h>
 
-#ifndef BOARD_LATE_INIT
-#error "BOARD_LATE_INIT must be set for this board"
+#ifndef CONFIG_BOARD_LATE_INIT
+#error "CONFIG_BOARD_LATE_INIT must be set for this board"
 #endif
 
 #ifndef CONFIG_BOARD_EARLY_INIT_F

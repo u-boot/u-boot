@@ -29,7 +29,7 @@
 #define	CONFIG_ZIPITZ2		1	/* Zipit Z2 board */
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
-#undef	BOARD_LATE_INIT
+#undef	CONFIG_BOARD_LATE_INIT
 #undef	CONFIG_USE_IRQ
 #undef	CONFIG_SKIP_LOWLEVEL_INIT
 

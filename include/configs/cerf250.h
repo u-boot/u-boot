@@ -36,7 +36,7 @@
  */
 #define CONFIG_PXA250		1	/* This is an PXA250 CPU    */
 #define CONFIG_CERF250		1	/* on Cerf PXA Board	    */
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_BAUDRATE		38400
 #define	CONFIG_SYS_TEXT_BASE	0x0
 

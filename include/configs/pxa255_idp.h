@@ -64,7 +64,7 @@
 
 #define CONFIG_MMC		1
 #define CONFIG_DOS_PARTITION	1
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 

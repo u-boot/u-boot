@@ -41,7 +41,7 @@
 #define CONFIG_SHARP_LM8V31
 #endif
 #define CONFIG_MMC
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_DOS_PARTITION
 #define	CONFIG_SYS_TEXT_BASE	0x0
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */

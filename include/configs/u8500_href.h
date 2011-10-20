@@ -35,7 +35,7 @@
 #define CONFIG_SYS_HZ		1000		/* must be 1000 */
 
 #define CONFIG_BOARD_EARLY_INIT_F
-#define BOARD_LATE_INIT
+#define CONFIG_BOARD_LATE_INIT
 
 /*
  * Size of malloc() pool

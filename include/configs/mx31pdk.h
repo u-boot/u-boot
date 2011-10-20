@@ -102,7 +102,7 @@
  */
 #undef CONFIG_CMD_IMLS
 
-#define BOARD_LATE_INIT
+#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_BOOTDELAY	3
 

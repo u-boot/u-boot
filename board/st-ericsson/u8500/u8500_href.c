@@ -226,7 +226,7 @@ unsigned int addr_vall_arr[] = {
 	0xA03FE024, 0x00000000	/* USB */
 };
 
-#ifdef BOARD_LATE_INIT
+#ifdef CONFIG_BOARD_LATE_INIT
 #ifdef CONFIG_MMC
 
 #define LDO_VAUX3_MASK		0x3
@@ -351,7 +351,7 @@ int board_late_init(void)
 
 	return 0;
 }
-#endif /* BOARD_LATE_INIT */
+#endif /* CONFIG_BOARD_LATE_INIT */
 
 static void early_gpio_setup(struct gpio_register *gpio_reg, u32 bits)
 {

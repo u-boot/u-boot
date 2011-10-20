@@ -74,7 +74,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef BOARD_LATE_INIT
+#ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
 #ifdef CONFIG_S6E63D6

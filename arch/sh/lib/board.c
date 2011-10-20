@@ -141,7 +141,7 @@ init_fnc_t *init_sequence[] =
 	stdio_init,
 	console_init_r,
 	interrupt_init,
-#ifdef BOARD_LATE_INIT
+#ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
 #endif
 #if defined(CONFIG_CMD_NET)

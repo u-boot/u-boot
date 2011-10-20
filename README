@@ -2447,6 +2447,20 @@ Modem Support:
 
 		See also: doc/README.Modem
 
+Board initialization settings:
+------------------------------
+
+During Initialization u-boot calls a number of board specific functions
+to allow the preparation of board specific prerequisites, e.g. pin setup
+before drivers are initialized. To enable these callbacks the
+following configuration macros have to be defined. Currently this is
+architecture specific, so please check arch/your_architecture/lib/board.c
+typically in board_init_f() and board_init_r().
+
+- CONFIG_BOARD_EARLY_INIT_F: Call board_early_init_f()
+- CONFIG_BOARD_EARLY_INIT_R: Call board_early_init_r()
+- CONFIG_BOARD_LATE_INIT: Call board_late_init()
+- CONFIG_BOARD_POSTCLK_INIT: Call board_postclk_init()
 
 Configuration Settings:
 -----------------------

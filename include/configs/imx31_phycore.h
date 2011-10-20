@@ -192,7 +192,7 @@
 
 /* EET platform additions */
 #ifdef CONFIG_IMX31_PHYCORE_EET
-#define BOARD_LATE_INIT
+#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_MXC_GPIO
 
