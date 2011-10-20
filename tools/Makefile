@@ -111,8 +111,11 @@ LIBFDT_OBJ_FILES-y += fdt_wip.o
 
 # Generated LCD/video logo
 LOGO_H = $(OBJTREE)/include/bmp_logo.h
+LOGO_DATA_H = $(OBJTREE)/include/bmp_logo_data.h
 LOGO-$(CONFIG_LCD_LOGO) += $(LOGO_H)
+LOGO-$(CONFIG_LCD_LOGO) += $(LOGO_DATA_H)
 LOGO-$(CONFIG_VIDEO_LOGO) += $(LOGO_H)
+LOGO-$(CONFIG_VIDEO_LOGO) += $(LOGO_DATA_H)
 
 ifeq ($(LOGO_BMP),)
 LOGO_BMP= logos/denx.bmp
@@ -236,7 +239,10 @@ else
 endif
 
 $(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
-	$(obj)./bmp_logo $(LOGO_BMP) >$@
+	$(obj)./bmp_logo --gen-info $(LOGO_BMP) > $@
+
+$(LOGO_DATA_H):	$(obj)bmp_logo $(LOGO_BMP)
+	$(obj)./bmp_logo --gen-data $(LOGO_BMP) > $@
 
 #########################################################################
 
