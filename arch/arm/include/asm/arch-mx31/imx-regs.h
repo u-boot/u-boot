@@ -468,6 +468,44 @@ enum iomux_pins {
 	MX31_PIN_CAPTURE	= IOMUX_PIN(7,    327),
 };
 
+/*
+ * various IOMUX general purpose functions
+ */
+enum iomux_gp_func {
+	MUX_PGP_FIRI			= 1 << 0,
+	MUX_DDR_MODE			= 1 << 1,
+	MUX_PGP_CSPI_BB			= 1 << 2,
+	MUX_PGP_ATA_1			= 1 << 3,
+	MUX_PGP_ATA_2			= 1 << 4,
+	MUX_PGP_ATA_3			= 1 << 5,
+	MUX_PGP_ATA_4			= 1 << 6,
+	MUX_PGP_ATA_5			= 1 << 7,
+	MUX_PGP_ATA_6			= 1 << 8,
+	MUX_PGP_ATA_7			= 1 << 9,
+	MUX_PGP_ATA_8			= 1 << 10,
+	MUX_PGP_UH2			= 1 << 11,
+	MUX_SDCTL_CSD0_SEL		= 1 << 12,
+	MUX_SDCTL_CSD1_SEL		= 1 << 13,
+	MUX_CSPI1_UART3			= 1 << 14,
+	MUX_EXTDMAREQ2_MBX_SEL		= 1 << 15,
+	MUX_TAMPER_DETECT_EN		= 1 << 16,
+	MUX_PGP_USB_4WIRE		= 1 << 17,
+	MUX_PGP_USB_COMMON		= 1 << 18,
+	MUX_SDHC_MEMSTICK1		= 1 << 19,
+	MUX_SDHC_MEMSTICK2		= 1 << 20,
+	MUX_PGP_SPLL_BYP		= 1 << 21,
+	MUX_PGP_UPLL_BYP		= 1 << 22,
+	MUX_PGP_MSHC1_CLK_SEL		= 1 << 23,
+	MUX_PGP_MSHC2_CLK_SEL		= 1 << 24,
+	MUX_CSPI3_UART5_SEL		= 1 << 25,
+	MUX_PGP_ATA_9			= 1 << 26,
+	MUX_PGP_USB_SUSPEND		= 1 << 27,
+	MUX_PGP_USB_OTG_LOOPBACK	= 1 << 28,
+	MUX_PGP_USB_HS1_LOOPBACK	= 1 << 29,
+	MUX_PGP_USB_HS2_LOOPBACK	= 1 << 30,
+	MUX_CLKO_DDR_MODE		= 1 << 31,
+};
+
 /* Bit definitions for RCSR register in CCM */
 #define CCM_RCSR_NF16B	(1 << 31)
 #define CCM_RCSR_NFMS	(1 << 30)
