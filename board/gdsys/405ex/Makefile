@@ -23,26 +23,25 @@
 
 include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)board/$(VENDOR)/common)
-endif
+LIB	= $(obj)lib$(BOARD).o
 
-LIB	= $(obj)lib$(VENDOR).o
+COBJS-$(CONFIG_IO64) += io64.o
 
-COBJS-$(CONFIG_IO) += miiphybb.o
-COBJS-$(CONFIG_IO64) += miiphybb.o
-COBJS-$(CONFIG_IOCON) += osd.o
-COBJS-$(CONFIG_DLVISION_10G) += osd.o
+COBJS-$(CONFIG_CMD_CHIP_CONFIG) += chip_config.o
 
-COBJS   := $(COBJS-y)
-SOBJS   =
+COBJS   := $(BOARD).o $(COBJS-y)
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+clean:
+	rm -f $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 
