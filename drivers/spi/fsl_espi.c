@@ -97,8 +97,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		pm = spibrg / (max_hz * 16 * 2);
 		if (pm > 16) {
 			pm = 16;
-			debug("Requested speed is too low: %d Hz, "
-				"%d Hz is used.\n", max_hz, spibrg / (32 * 16));
+			debug("Requested speed is too low: %d Hz, %ld Hz "
+				"is used.\n", max_hz, spibrg / (32 * 16));
 		}
 	} else
 		pm = spibrg / (max_hz * 2);
@@ -234,7 +234,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 		break;
 	}
 
-	debug("spi_xfer: slave %u:%u dout %08X(%08x) din %08X(%08x) len %u\n",
+	debug("spi_xfer: slave %u:%u dout %08X(%p) din %08X(%p) len %u\n",
 	      slave->bus, slave->cs, *(uint *) dout,
 	      dout, *(uint *) din, din, len);
 
