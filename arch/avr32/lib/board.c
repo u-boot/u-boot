@@ -39,7 +39,7 @@
 #define CONFIG_IDENT_STRING ""
 #endif
 
-#ifdef CONFIG_ATMEL_MCI
+#ifdef CONFIG_GENERIC_ATMEL_MCI
 #include <mmc.h>
 #endif
 DECLARE_GLOBAL_DATA_PTR;
