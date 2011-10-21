@@ -907,8 +907,8 @@ static u32 DQS_calibration_methodB(struct ddrautocal *cal)
 	mtsdram(SDRAM_RQDC, rqdc_reg);
 	mtsdram(SDRAM_RFDC, rfdc_reg);
 
-	debug("RQDC: 0x%08X\n", rqdc_reg);
-	debug("RFDC: 0x%08X\n", rfdc_reg);
+	debug("RQDC: 0x%08lX\n", rqdc_reg);
+	debug("RFDC: 0x%08lX\n", rfdc_reg);
 
 	/* if something passed, then return the size of the largest window */
 	if (passed != 0) {
@@ -1214,7 +1214,7 @@ u32 DQS_autocalibration(void)
 				SDRAM_RQDC_RQFD_ENCODE(tcal.autocal.rqfd));
 
 		mfsdram(SDRAM_RQDC, rqdc_reg);
-		debug("*** best_result: read value SDRAM_RQDC 0x%08x\n",
+		debug("*** best_result: read value SDRAM_RQDC 0x%08lx\n",
 				rqdc_reg);
 
 #if defined(CONFIG_DDR_RFDC_FIXED)
@@ -1227,7 +1227,7 @@ u32 DQS_autocalibration(void)
 #endif /* CONFIG_DDR_RFDC_FIXED */
 
 		mfsdram(SDRAM_RFDC, rfdc_reg);
-		debug("*** best_result: read value SDRAM_RFDC 0x%08x\n",
+		debug("*** best_result: read value SDRAM_RFDC 0x%08lx\n",
 				rfdc_reg);
 		mfsdram(SDRAM_RDCC, val);
 		debug("***  SDRAM_RDCC 0x%08x\n", val);
