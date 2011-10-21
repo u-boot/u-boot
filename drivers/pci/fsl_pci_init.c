@@ -305,10 +305,10 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	inbound = fsl_pci_setup_inbound_windows(hose, out_lo, pcie_cap, pi);
 
 	for (r = 0; r < hose->region_count; r++)
-		debug("PCI reg:%d %016llx:%016llx %016llx %08x\n", r,
+		debug("PCI reg:%d %016llx:%016llx %016llx %08lx\n", r,
 			(u64)hose->regions[r].phys_start,
-			hose->regions[r].bus_start,
-			hose->regions[r].size,
+			(u64)hose->regions[r].bus_start,
+			(u64)hose->regions[r].size,
 			hose->regions[r].flags);
 
 	pci_register_hose(hose);
@@ -344,7 +344,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 			setbits_be32(&pci->pdb_stat, 0x08000000);
 			(void) in_be32(&pci->pdb_stat);
 			udelay(100);
-			debug("  Asserting PCIe reset @%x = %x\n",
+			debug("  Asserting PCIe reset @%p = %x\n",
 			      &pci->pdb_stat, in_be32(&pci->pdb_stat));
 			/* clear PCIe reset */
 			clrbits_be32(&pci->pdb_stat, 0x08000000);
