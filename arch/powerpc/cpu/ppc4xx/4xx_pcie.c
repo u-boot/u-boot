@@ -265,7 +265,8 @@ static int pcie_read_config(struct pci_controller *hose, unsigned int devfn,
 	 */
 	pcie_dmer_disable ();
 
-	debug("%s: cfg_data=%08x offset=%08x\n", __func__, hose->cfg_data, offset);
+	debug("%s: cfg_data=%p offset=%08x\n", __func__,
+		hose->cfg_data, offset);
 	switch (len) {
 	case 1:
 		*val = in_8(hose->cfg_data + offset);
