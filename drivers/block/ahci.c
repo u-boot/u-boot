@@ -398,7 +398,7 @@ static int ahci_port_start(u8 port)
 	 * 32 bytes each in size
 	 */
 	pp->cmd_slot = (struct ahci_cmd_hdr *)mem;
-	debug("cmd_slot = 0x%x\n", pp->cmd_slot);
+	debug("cmd_slot = %p\n", pp->cmd_slot);
 	mem += (AHCI_CMD_SLOT_SZ + 224);
 
 	/*
