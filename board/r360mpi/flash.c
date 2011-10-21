@@ -219,7 +219,7 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 
 	value = addr[0];
 
-	debug ("Manuf. ID @ 0x%08lx: 0x%08lx\n", (ulong)addr, value);
+	debug("Manuf. ID @ 0x%08lx: 0x%08x\n", (ulong)addr, value);
 
 	switch (value) {
 	case (FPW) INTEL_MANUFACT:
@@ -235,7 +235,7 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 
 	value = addr[1];			/* device ID        */
 
-	debug ("Device ID @ 0x%08lx: 0x%08lx\n", (ulong)(&addr[1]), value);
+	debug("Device ID @ 0x%08lx: 0x%08x\n", (ulong)(&addr[1]), value);
 
 	switch (value) {
 	case (FPW) INTEL_ID_28F320J3A:
