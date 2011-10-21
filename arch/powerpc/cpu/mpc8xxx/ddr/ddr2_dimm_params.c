@@ -40,7 +40,7 @@ compute_ranksize(unsigned int mem_type, unsigned char row_dens)
 	/* Bottom 5 bits up to the top. */
 	bsize = ((row_dens >> 5) | ((row_dens & 31) << 3));
 	bsize <<= 27ULL;
-	debug("DDR: DDR II rank density = 0x%08x\n", bsize);
+	debug("DDR: DDR II rank density = 0x%16llx\n", bsize);
 
 	return bsize;
 }
