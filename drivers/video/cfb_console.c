@@ -1152,7 +1152,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	colors = le32_to_cpu(bmp->header.colors_used);
 	compression = le32_to_cpu(bmp->header.compression);
 
-	debug("Display-bmp: %d x %d  with %d colors\n",
+	debug("Display-bmp: %ld x %ld  with %d colors\n",
 	      width, height, colors);
 
 	if (compression != BMP_BI_RGB
