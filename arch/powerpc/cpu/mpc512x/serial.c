@@ -140,7 +140,7 @@ void serial_setbrg_dev(unsigned int idx)
 		if (br_env)
 			baudrate = simple_strtoul(br_env, NULL, 10);
 
-		debug("%s: idx %d, baudrate %d\n", __func__, idx, baudrate);
+		debug("%s: idx %d, baudrate %ld\n", __func__, idx, baudrate);
 	}
 
 	/* calculate divisor for setting PSC CTUR and CTLR registers */
