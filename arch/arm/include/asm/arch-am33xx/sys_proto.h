@@ -20,13 +20,6 @@
 #define _SYS_PROTO_H_
 
 #define BOARD_REV_ID	0x0
-struct {
-	u32 board_type_v1;
-	u32 board_type_v2;
-	u32 mtype;
-	char *board_string;
-	char *nand_string;
-} board_sysinfo;
 
 u32 get_cpu_rev(void);
 u32 get_sysboot_value(void);
