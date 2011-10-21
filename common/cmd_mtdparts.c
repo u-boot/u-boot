@@ -839,9 +839,7 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 	const char *mtd_id;
 	unsigned int mtd_id_len;
 	const char *p;
-#ifdef DEBUG
 	const char *pend;
-#endif
 	LIST_HEAD(tmp_list);
 	struct list_head *entry, *n;
 	u16 num_parts;
