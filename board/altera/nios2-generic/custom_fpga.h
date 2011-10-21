@@ -51,6 +51,7 @@
 /* led_pio.s1 is a altera_avalon_pio */
 #define LED_PIO_BASE 0x82120870
 #define LED_PIO_WIDTH 8
+#define LED_PIO_RSTVAL 0x0
 
 /* high_res_timer.s1 is a altera_avalon_timer */
 #define CONFIG_SYS_TIMER_BASE 0x82120820
