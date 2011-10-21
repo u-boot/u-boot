@@ -125,6 +125,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /************************************************************************/
 
 #include <video_font.h>			/* Get font data, width and height */
+#include <video_font_data.h>
 
 #ifdef CONFIG_VIDEO_LOGO
 #include <video_logo.h>			/* Get logo data, width and height */

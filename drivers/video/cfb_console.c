@@ -203,6 +203,7 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <video_font.h>
+#include <video_font_data.h>
 
 #if defined(CONFIG_CMD_DATE)
 #include <rtc.h>

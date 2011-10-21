@@ -41,6 +41,7 @@
 
 /* include the font data */
 #include <video_font.h>
+#include <video_font_data.h>
 
 #if VIDEO_FONT_WIDTH != 8 || VIDEO_FONT_HEIGHT != 16
 #error Expecting VIDEO_FONT_WIDTH == 8 && VIDEO_FONT_HEIGHT == 16
