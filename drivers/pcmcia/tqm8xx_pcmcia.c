@@ -43,19 +43,28 @@ static inline void power_config(int slot) {}
 
 static inline void power_off(int slot)
 {
-	out_be32(PCMCIA_CTRL, 0);
+	volatile unsigned __iomem *addr;
+	addr = (volatile unsigned __iomem *)PCMCIA_CTRL;
+
+	out_be32(addr, 0);
 }
 
 static inline void power_on_5_0(int slot)
 {
+	volatile unsigned __iomem *addr;
+	addr = (volatile unsigned __iomem *)PCMCIA_CTRL;
+
 	/* Enable 5V Vccout */
-	out_be32(PCMCIA_CTRL, 2);
+	out_be32(addr, 2);
 }
 
 static inline void power_on_3_3(int slot)
 {
+	volatile unsigned __iomem *addr;
+	addr = (volatile unsigned __iomem *)PCMCIA_CTRL;
+
 	/* Enable 3.3V Vccout */
-	out_be32(PCMCIA_CTRL, 1);
+	out_be32(addr, 1);
 }
 
 #else
