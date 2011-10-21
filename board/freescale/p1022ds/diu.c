@@ -74,7 +74,7 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	temp = 1000000000 / pixclock;
 	temp *= 1000;
 	pixval = speed_ccb / temp;
-	debug("DIU pixval = %lu\n", pixval);
+	debug("DIU pixval = %u\n", pixval);
 
 	/* Modify PXCLK in GUTS CLKDVDR */
 	temp = in_be32(&gur->clkdvdr) & 0x2000FFFF;
