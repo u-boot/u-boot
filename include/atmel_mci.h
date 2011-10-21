@@ -19,8 +19,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef __CPU_AT32AP_ATMEL_MCI_H__
-#define __CPU_AT32AP_ATMEL_MCI_H__
+#ifndef __ATMEL_MCI_H__
+#define __ATMEL_MCI_H__
+
+int atmel_mci_init(void *regs);
 
 #ifndef __ASSEMBLY__
 
@@ -242,4 +244,4 @@ typedef struct atmel_mci {
 #define mmci_writel(reg,value)				\
 	writel((value), (void *)ATMEL_BASE_MMCI + MMCI_##reg)
 
-#endif /* __CPU_AT32AP_ATMEL_MCI_H__ */
+#endif /* __ATMEL_MCI_H__ */
