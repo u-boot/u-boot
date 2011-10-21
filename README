@@ -3558,6 +3558,25 @@ List of environment variables (most likely not complete):
 		  Ethernet is encapsulated/received over 802.1q
 		  VLAN tagged frames.
 
+The following image location variables contain the location of images
+used in booting. The "Image" column gives the role of the image and is
+not an environment variable name. The other columns are environment
+variable names. "File Name" gives the name of the file on a TFTP
+server, "RAM Address" gives the location in RAM the image will be
+loaded to, and "Flash Location" gives the image's address in NOR
+flash or offset in NAND flash.
+
+*Note* - these variables don't have to be defined for all boards, some
+boards currenlty use other variables for these purposes, and some
+boards use these variables for other purposes.
+
+Image               File Name        RAM Address       Flash Location
+-----               ---------        -----------       --------------
+u-boot              u-boot           u-boot_addr_r     u-boot_addr
+Linux kernel        bootfile         kernel_addr_r     kernel_addr
+device tree blob    fdtfile          fdt_addr_r        fdt_addr
+ramdisk             ramdiskfile      ramdisk_addr_r    ramdisk_addr
+
 The following environment variables may be used and automatically
 updated by the network boot commands ("bootp" and "rarpboot"),
 depending the information provided by your boot server:

@@ -31,11 +31,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void print_num(const char *, ulong);
 
-#if !(defined(CONFIG_ARM) || defined(CONFIG_M68K)) || defined(CONFIG_CMD_NET)
+#if !(defined(CONFIG_ARM) || defined(CONFIG_M68K) || defined(CONFIG_SANDBOX)) \
+	|| defined(CONFIG_CMD_NET)
+#define HAVE_PRINT_ETH
 static void print_eth(int idx);
 #endif
 
-#if (!defined(CONFIG_ARM) && !defined(CONFIG_X86))
+#if (!defined(CONFIG_ARM) && !defined(CONFIG_X86) && !defined(CONFIG_SANDBOX))
+#define HAVE_PRINT_LNUM
 static void print_lnum(const char *, u64);
 #endif
 
@@ -413,6 +416,29 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#elif defined(CONFIG_SANDBOX)
+
+int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int i;
+	bd_t *bd = gd->bd;
+
+	print_num("boot_params", (ulong)bd->bi_boot_params);
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
+		print_num("DRAM bank", i);
+		print_num("-> start", bd->bi_dram[i].start);
+		print_num("-> size", bd->bi_dram[i].size);
+	}
+
+#if defined(CONFIG_CMD_NET)
+	print_eth(0);
+	printf("ip_addr     = %pI4\n", &bd->bi_ip_addr);
+#endif
+	print_num("FB base  ", gd->fb_base);
+	return 0;
+}
+
 #else
  #error "a case for this architecture does not exist!"
 #endif
@@ -422,7 +448,7 @@ static void print_num(const char *name, ulong value)
 	printf("%-12s= 0x%08lX\n", name, value);
 }
 
-#if !(defined(CONFIG_ARM) || defined(CONFIG_M68K)) || defined(CONFIG_CMD_NET)
+#ifdef HAVE_PRINT_ETH
 static void print_eth(int idx)
 {
 	char name[10], *val;
@@ -437,7 +463,7 @@ static void print_eth(int idx)
 }
 #endif
 
-#if (!defined(CONFIG_ARM) && !defined(CONFIG_X86))
+#ifdef HAVE_PRINT_LNUM
 static void print_lnum(const char *name, u64 value)
 {
 	printf("%-12s= 0x%.8llX\n", name, value);

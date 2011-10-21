@@ -495,7 +495,7 @@ int fdt_resize(void *blob)
 	total = fdt_num_mem_rsv(blob);
 	for (i = 0; i < total; i++) {
 		fdt_get_mem_rsv(blob, i, &addr, &size);
-		if (addr == (uint64_t)(u32)blob) {
+		if (addr == (uintptr_t)blob) {
 			fdt_del_mem_rsv(blob, i);
 			break;
 		}
@@ -511,14 +511,14 @@ int fdt_resize(void *blob)
 		fdt_size_dt_strings(blob) + 5 * sizeof(struct fdt_reserve_entry);
 
 	/* Make it so the fdt ends on a page boundary */
-	actualsize = ALIGN(actualsize + ((uint)blob & 0xfff), 0x1000);
-	actualsize = actualsize - ((uint)blob & 0xfff);
+	actualsize = ALIGN(actualsize + ((uintptr_t)blob & 0xfff), 0x1000);
+	actualsize = actualsize - ((uintptr_t)blob & 0xfff);
 
 	/* Change the fdt header to reflect the correct size */
 	fdt_set_totalsize(blob, actualsize);
 
 	/* Add the new reservation */
-	ret = fdt_add_mem_rsv(blob, (uint)blob, actualsize);
+	ret = fdt_add_mem_rsv(blob, (uintptr_t)blob, actualsize);
 	if (ret < 0)
 		return ret;
 

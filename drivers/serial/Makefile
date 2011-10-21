@@ -53,6 +53,7 @@ COBJS-$(CONFIG_SA1100_SERIAL) += serial_sa1100.o
 COBJS-$(CONFIG_S3C24X0_SERIAL) += serial_s3c24x0.o
 COBJS-$(CONFIG_S3C44B0_SERIAL) += serial_s3c44b0.o
 COBJS-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
+COBJS-$(CONFIG_SANDBOX_SERIAL) += sandbox.o
 COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
 COBJS-$(CONFIG_TEGRA2) += serial_tegra2.o
 

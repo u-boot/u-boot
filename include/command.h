@@ -117,7 +117,8 @@ extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #define CMD_FLAG_REPEAT		0x0001	/* repeat last command		*/
 #define CMD_FLAG_BOOTD		0x0002	/* command is from bootd	*/
 
-#define Struct_Section  __attribute__ ((unused,section (".u_boot_cmd")))
+#define Struct_Section  __attribute__((unused, section(".u_boot_cmd"), \
+		aligned(4)))
 
 #ifdef CONFIG_AUTO_COMPLETE
 # define _CMD_COMPLETE(x) x,

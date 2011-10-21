@@ -109,7 +109,7 @@ void kw_gpio_set_valid(unsigned pin, int mode)
  */
 int kw_gpio_direction_input(unsigned pin)
 {
-	if (!kw_gpio_is_valid(pin, GPIO_INPUT_OK))
+	if (kw_gpio_is_valid(pin, GPIO_INPUT_OK) != 0)
 		return 1;
 
 	/* Configure GPIO direction. */

@@ -111,11 +111,25 @@ typedef unsigned int uint;
 #include <linux/types.h>
 #include <asm/byteorder.h>
 
+#if __SIZEOF_LONG__ == 8
+# define __WORDSIZE	64
+#elif __SIZEOF_LONG__ == 4
+# define __WORDSIZE	32
+#else
+/*
+ * Assume 32-bit for now - only newer toolchains support this feature and
+ * this is only required for sandbox support at present.
+ */
+#define __WORDSIZE	32
+#endif
+
 /* Types for `void *' pointers. */
 #if __WORDSIZE == 64
 typedef unsigned long int       uintptr_t;
-#else
+#elif __WORDSIZE == 32
 typedef unsigned int            uintptr_t;
+#else
+#error "__WORDSIZE has unexpected value"
 #endif
 
 #endif

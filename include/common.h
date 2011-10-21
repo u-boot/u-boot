@@ -255,11 +255,17 @@ int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 /* common/main.c */
 void	main_loop	(void);
 int	run_command	(const char *cmd, int flag);
+#ifdef CONFIG_CMD_PXE
+int run_command2(const char *cmd, int flag);
+#endif
 int	readline	(const char *const prompt);
 int	readline_into_buffer	(const char *const prompt, char * buffer);
 int	parse_line (char *, char *[]);
 void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
+#ifdef CONFIG_MENU
+int	abortboot(int bootdelay);
+#endif
 
 /* arch/$(ARCH)/lib/board.c */
 void	board_init_f  (ulong) __attribute__ ((noreturn));
@@ -282,6 +288,9 @@ extern ulong load_addr;		/* Default Load Address */
 /* common/cmd_doc.c */
 void	doc_probe(unsigned long physadr);
 
+/* common/cmd_net.c */
+int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
@@ -302,6 +311,9 @@ int	setenv	     (const char *, const char *);
 #ifdef CONFIG_X86		/* x86 version to be fixed! */
 # include <asm/u-boot-x86.h>
 #endif /* CONFIG_X86 */
+#ifdef CONFIG_SANDBOX
+# include <asm/u-boot-sandbox.h>	/* TODO(sjg) what needs to be fixed? */
+#endif
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
@@ -690,6 +702,10 @@ int strcmp_compar(const void *, const void *);
 
 /* lib/time.c */
 void	udelay        (unsigned long);
+
+/* lib/uuid.c */
+void uuid_str_to_bin(const char *uuid, unsigned char *out);
+int uuid_str_valid(const char *uuid);
 
 /* lib/vsprintf.c */
 ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);

@@ -937,7 +937,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (readback != val) {
 				printf ("\nMem error @ 0x%08X: "
 					"found %08lX, expected %08lX\n",
-					(uint)addr, readback, val);
+					(uint)(uintptr_t)addr, readback, val);
 				errs++;
 				if (ctrlc()) {
 					putc ('\n');

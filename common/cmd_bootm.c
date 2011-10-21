@@ -438,9 +438,8 @@ static int bootm_start_standalone(ulong iflag, int argc, char * const argv[])
 		setenv("filesize", buf);
 		return 0;
 	}
-	appl = (int (*)(int, char * const []))ntohl(images.ep);
+	appl = (int (*)(int, char * const []))(ulong)ntohl(images.ep);
 	(*appl)(argc-1, &argv[1]);
-
 	return 0;
 }
 
@@ -464,14 +463,14 @@ static cmd_tbl_t cmd_bootm_sub[] = {
 int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
-	int state;
+	long state;
 	cmd_tbl_t *c;
 	boot_os_fn *boot_fn;
 
 	c = find_cmd_tbl(argv[1], &cmd_bootm_sub[0], ARRAY_SIZE(cmd_bootm_sub));
 
 	if (c) {
-		state = (int)c->cmd;
+		state = (long)c->cmd;
 
 		/* treat start special since it resets the state machine */
 		if (state == BOOTM_STATE_START) {
@@ -1201,34 +1200,35 @@ U_BOOT_CMD(
 /* helper routines */
 /*******************************************************************/
 #ifdef CONFIG_SILENT_CONSOLE
-static void fixup_silent_linux ()
+static void fixup_silent_linux(void)
 {
 	char buf[256], *start, *end;
-	char *cmdline = getenv ("bootargs");
+	char *cmdline = getenv("bootargs");
 
 	/* Only fix cmdline when requested */
 	if (!(gd->flags & GD_FLG_SILENT))
 		return;
 
-	debug ("before silent fix-up: %s\n", cmdline);
+	debug("before silent fix-up: %s\n", cmdline);
 	if (cmdline) {
-		if ((start = strstr (cmdline, "console=")) != NULL) {
-			end = strchr (start, ' ');
-			strncpy (buf, cmdline, (start - cmdline + 8));
+		start = strstr(cmdline, "console=");
+		if (start) {
+			end = strchr(start, ' ');
+			strncpy(buf, cmdline, (start - cmdline + 8));
 			if (end)
-				strcpy (buf + (start - cmdline + 8), end);
+				strcpy(buf + (start - cmdline + 8), end);
 			else
 				buf[start - cmdline + 8] = '\0';
 		} else {
-			strcpy (buf, cmdline);
-			strcat (buf, " console=");
+			strcpy(buf, cmdline);
+			strcat(buf, " console=");
 		}
 	} else {
-		strcpy (buf, "console=");
+		strcpy(buf, "console=");
 	}
 
-	setenv ("bootargs", buf);
-	debug ("after silent fix-up: %s\n", buf);
+	setenv("bootargs", buf);
+	debug("after silent fix-up: %s\n", buf);
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 

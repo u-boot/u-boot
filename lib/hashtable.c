@@ -32,6 +32,7 @@
 #ifdef USE_HOSTCC		/* HOST build */
 # include <string.h>
 # include <assert.h>
+# include <ctype.h>
 
 # ifndef debug
 #  ifdef DEBUG
@@ -43,6 +44,7 @@
 #else				/* U-Boot build */
 # include <common.h>
 # include <linux/string.h>
+# include <linux/ctype.h>
 #endif
 
 #ifndef	CONFIG_ENV_MIN_ENTRIES	/* minimum number of entries */
@@ -690,7 +692,7 @@ int himport_r(struct hsearch_data *htab,
 		ENTRY e, *rv;
 
 		/* skip leading white space */
-		while ((*dp == ' ') || (*dp == '\t'))
+		while (isblank(*dp))
 			++dp;
 
 		/* skip comment lines */

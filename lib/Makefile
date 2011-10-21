@@ -55,6 +55,7 @@ COBJS-y += ctype.o
 COBJS-y += div64.o
 COBJS-y += string.o
 COBJS-y += time.o
+COBJS-$(CONFIG_BOOTP_PXE) += uuid.o
 COBJS-y += vsprintf.o
 
 COBJS	:= $(COBJS-y)

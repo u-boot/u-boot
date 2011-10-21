@@ -40,7 +40,7 @@
 # Generated files
 #
 
-*.depend
+*.depend*
 /LOG
 /errlog
 /reloc_off
