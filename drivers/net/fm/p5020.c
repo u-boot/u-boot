@@ -43,6 +43,11 @@ static int is_device_disabled(enum fm_port port)
 void fman_disable_port(enum fm_port port)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+
+	/* don't allow disabling of DTSEC1 as its needed for MDIO */
+	if (port == FM1_DTSEC1)
+		return;
+
 	setbits_be32(&gur->devdisr2, port_to_devdisr[port]);
 }
 

@@ -38,6 +38,10 @@ enum fsl_dpaa_dev {
 #ifdef CONFIG_SYS_FSL_RAID_ENGINE
 	FSL_HW_PORTAL_RAID_ENGINE,
 #endif
+#ifdef CONFIG_SYS_DPAA_RMAN
+	FSL_HW_PORTAL_RMAN,
+#endif
+
 };
 
 struct qportal_info {

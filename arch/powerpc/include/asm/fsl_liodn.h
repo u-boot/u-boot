@@ -25,6 +25,26 @@
 
 #include <asm/types.h>
 
+struct srio_liodn_id_table {
+	u32 id[2];
+	unsigned long reg_offset[2];
+	u8 num_ids;
+	u8 portid;
+};
+#define SET_SRIO_LIODN_1(port, idA) \
+	{ .id = { idA }, .num_ids = 1, .portid = port, \
+	  .reg_offset[0] = offsetof(ccsr_gur_t, rio##port##liodnr) \
+		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+	}
+
+#define SET_SRIO_LIODN_2(port, idA, idB) \
+	{ .id = { idA, idB }, .num_ids = 2, .portid = port, \
+	  .reg_offset[0] = offsetof(ccsr_gur_t, rio##port##liodnr) \
+		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+	  .reg_offset[1] = offsetof(ccsr_gur_t, rio##port##maintliodnr) \
+		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+	}
+
 struct liodn_id_table {
 	const char * compat;
 	u32 id[2];
@@ -155,10 +175,20 @@ extern void fdt_fixup_liodn(void *blob);
 	offsetof(struct ccsr_raide, jq[jqNum].ring[rNum].cfg0) + \
 	CONFIG_SYS_FSL_RAID_ENGINE_OFFSET)
 
+#define SET_RMAN_LIODN(ibNum, liodn) \
+	SET_LIODN_ENTRY_1("fsl,rman-inbound-block", liodn, \
+		offsetof(struct ccsr_rman, mmitdr) + \
+		CONFIG_SYS_FSL_CORENET_RMAN_OFFSET, \
+		CONFIG_SYS_FSL_CORENET_RMAN_OFFSET + ibNum * 0x1000)
+
 extern struct liodn_id_table liodn_tbl[], liodn_bases[], sec_liodn_tbl[];
 extern struct liodn_id_table raide_liodn_tbl[];
 extern struct liodn_id_table fman1_liodn_tbl[], fman2_liodn_tbl[];
+extern struct srio_liodn_id_table srio_liodn_tbl[];
+extern struct liodn_id_table rman_liodn_tbl[];
 extern int liodn_tbl_sz, sec_liodn_tbl_sz, raide_liodn_tbl_sz;
 extern int fman1_liodn_tbl_sz, fman2_liodn_tbl_sz;
+extern int srio_liodn_tbl_sz;
+extern int rman_liodn_tbl_sz;
 
 #endif

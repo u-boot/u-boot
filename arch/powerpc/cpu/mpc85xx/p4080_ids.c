@@ -40,6 +40,12 @@ struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
 };
 #endif
 
+struct srio_liodn_id_table srio_liodn_tbl[] = {
+	SET_SRIO_LIODN_1(1, 198),
+	SET_SRIO_LIODN_1(2, 199),
+};
+int srio_liodn_tbl_sz = ARRAY_SIZE(srio_liodn_tbl);
+
 struct liodn_id_table liodn_tbl[] = {
 	SET_USB_LIODN(1, "fsl-usb2-mph", 127),
 	SET_USB_LIODN(2, "fsl-usb2-dr", 157),
@@ -53,9 +59,7 @@ struct liodn_id_table liodn_tbl[] = {
 	SET_DMA_LIODN(1, 196),
 	SET_DMA_LIODN(2, 197),
 
-	SET_GUTS_LIODN("fsl,rapidio-delta", 198, rio1liodnr, 0),
-	SET_GUTS_LIODN(NULL, 199, rio2liodnr, 0),
-	SET_GUTS_LIODN(NULL, 200, rmuliodnr, 0),
+	SET_GUTS_LIODN("fsl,srio-rmu", 200, rmuliodnr, 0xd3000),
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	SET_QMAN_LIODN(31),

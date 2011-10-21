@@ -183,6 +183,8 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 {
 	int off, ph;
 	phys_addr_t paddr = CONFIG_SYS_CCSRBAR_PHYS + info->compat_offset;
+	u64 dtsec1_addr = (u64)CONFIG_SYS_CCSRBAR_PHYS +
+				CONFIG_SYS_FSL_FM1_DTSEC1_OFFSET;
 
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
 
@@ -195,9 +197,13 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	/* board code might have caused offset to change */
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
 
-	/* disable both the mac node and the node that has a handle to it */
-	fdt_setprop_string(blob, off, "status", "disabled");
+	/* Don't disable FM1-DTSEC1 MAC as its used for MDIO */
+	if (paddr != dtsec1_addr) {
+		/* disable the mac node */
+		fdt_setprop_string(blob, off, "status", "disabled");
+	}
 
+	/* disable the node point to the mac */
 	ph = fdt_get_phandle(blob, off);
 	do_fixup_by_prop(blob, "fsl,fman-mac", &ph, sizeof(ph),
 		"status", "disabled", strlen("disabled") + 1, 1);

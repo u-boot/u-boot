@@ -93,21 +93,43 @@ struct mii_dev *mii_dev_for_muxval(u32 muxval)
 	return bus;
 }
 
-#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+#if defined(CONFIG_SYS_P4080_ERRATUM_SERDES9) && defined(CONFIG_PHY_TERANETICS)
 int board_phy_config(struct phy_device *phydev)
 {
-	/*
-	 * If this is the 10G PHY, and we switched it to fiber,
-	 * we need to reset the serdes link for SERDES9
-	 */
-	if ((phydev->port == PORT_FIBRE) && (phydev->drv->uid == 0x00a19410)) {
+	if (phydev->drv->uid == PHY_UID_TN2020) {
+		unsigned long timeout = 1 * 1000; /* 1 seconds */
 		enum srds_prtcl device;
 
+		/*
+		 * Wait for the XAUI to come out of reset.  This is when it
+		 * starts transmitting alignment signals.
+		 */
+		while (--timeout) {
+			int reg = phy_read(phydev, MDIO_MMD_PHYXS, MDIO_CTRL1);
+			if (reg < 0) {
+				printf("TN2020: Error reading from PHY at "
+				       "address %u\n", phydev->addr);
+				break;
+			}
+			/*
+			 * Note that we've never actually seen
+			 * MDIO_CTRL1_RESET set to 1.
+			 */
+			if ((reg & MDIO_CTRL1_RESET) == 0)
+				break;
+			udelay(1000);
+		}
+
+		if (!timeout) {
+			printf("TN2020: Timeout waiting for PHY at address %u "
+			       " to reset.\n", phydev->addr);
+		}
+
 		switch (phydev->addr) {
-		case 4:
+		case CONFIG_SYS_FM1_10GEC1_PHY_ADDR:
 			device = XAUI_FM1;
 			break;
-		case 0:
+		case CONFIG_SYS_FM2_10GEC1_PHY_ADDR:
 			device = XAUI_FM2;
 			break;
 		default:
@@ -199,22 +221,6 @@ static int p4080ds_mdio_init(char *realbusname, u32 muxval)
 	return mdio_register(bus);
 }
 
-/*
- * Sets the specified node's status to the value contained in "status"
- * If the first character of the specified path is "/" then we use
- * alias as a path.  Otherwise, we look for an alias of that name
- */
-static void fdt_set_node_status(void *fdt, const char *alias,
-			const char *status)
-{
-	const char *path = fdt_get_alias(fdt, alias);
-
-	if (!path)
-		path = alias;
-
-	do_fixup_by_path(fdt, path, "status", status, strlen(status) + 1, 1);
-}
-
 void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 				enum fm_port port, int offset)
 {
@@ -255,28 +261,28 @@ void fdt_fixup_board_enet(void *fdt)
 	 */
 
 	/* We've got six MDIO nodes that may or may not need to exist */
-	fdt_set_node_status(fdt, "emi1_slot3", "disabled");
-	fdt_set_node_status(fdt, "emi1_slot4", "disabled");
-	fdt_set_node_status(fdt, "emi1_slot5", "disabled");
-	fdt_set_node_status(fdt, "emi2_slot4", "disabled");
-	fdt_set_node_status(fdt, "emi2_slot5", "disabled");
+	fdt_status_disabled_by_alias(fdt, "emi1_slot3");
+	fdt_status_disabled_by_alias(fdt, "emi1_slot4");
+	fdt_status_disabled_by_alias(fdt, "emi1_slot5");
+	fdt_status_disabled_by_alias(fdt, "emi2_slot4");
+	fdt_status_disabled_by_alias(fdt, "emi2_slot5");
 
 	for (i = 0; i < NUM_FM_PORTS; i++) {
 		switch (mdio_mux[i]) {
 		case EMI1_SLOT3:
-			fdt_set_node_status(fdt, "emi1_slot3", "okay");
+			fdt_status_okay_by_alias(fdt, "emi1_slot3");
 			break;
 		case EMI1_SLOT4:
-			fdt_set_node_status(fdt, "emi1_slot4", "okay");
+			fdt_status_okay_by_alias(fdt, "emi1_slot4");
 			break;
 		case EMI1_SLOT5:
-			fdt_set_node_status(fdt, "emi1_slot5", "okay");
+			fdt_status_okay_by_alias(fdt, "emi1_slot5");
 			break;
 		case EMI2_SLOT4:
-			fdt_set_node_status(fdt, "emi2_slot4", "okay");
+			fdt_status_okay_by_alias(fdt, "emi2_slot4");
 			break;
 		case EMI2_SLOT5:
-			fdt_set_node_status(fdt, "emi2_slot5", "okay");
+			fdt_status_okay_by_alias(fdt, "emi2_slot5");
 			break;
 		}
 	}

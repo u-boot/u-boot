@@ -104,5 +104,33 @@ int fdt_verify_alias_address(void *fdt, int anode, const char *alias,
 			      u64 addr);
 u64 fdt_get_base_address(void *fdt, int node);
 
+enum fdt_status {
+	FDT_STATUS_OKAY,
+	FDT_STATUS_DISABLED,
+	FDT_STATUS_FAIL,
+	FDT_STATUS_FAIL_ERROR_CODE,
+};
+int fdt_set_node_status(void *fdt, int nodeoffset,
+			enum fdt_status status, unsigned int error_code);
+static inline int fdt_status_okay(void *fdt, int nodeoffset)
+{
+	return fdt_set_node_status(fdt, nodeoffset, FDT_STATUS_OKAY, 0);
+}
+static inline int fdt_status_disabled(void *fdt, int nodeoffset)
+{
+	return fdt_set_node_status(fdt, nodeoffset, FDT_STATUS_DISABLED, 0);
+}
+
+int fdt_set_status_by_alias(void *fdt, const char* alias,
+			    enum fdt_status status, unsigned int error_code);
+static inline int fdt_status_okay_by_alias(void *fdt, const char* alias)
+{
+	return fdt_set_status_by_alias(fdt, alias, FDT_STATUS_OKAY, 0);
+}
+static inline int fdt_status_disabled_by_alias(void *fdt, const char* alias)
+{
+	return fdt_set_status_by_alias(fdt, alias, FDT_STATUS_DISABLED, 0);
+}
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 #endif /* ifndef __FDT_SUPPORT_H */

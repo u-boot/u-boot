@@ -70,6 +70,7 @@
 #include <fm_eth.h>
 #include <fsl_mdio.h>
 #include <malloc.h>
+#include <fdt_support.h>
 #include <asm/fsl_dtsec.h>
 
 #include "../common/ngpixis.h"
@@ -197,25 +198,6 @@ static int hydra_mdio_init(char *realbusname, char *fakebusname)
 	bus->priv = hmdio;
 
 	return mdio_register(bus);
-}
-
-/*
- * Given an alias or a path for a node, set the status of that node.
- *
- * If 'alias' is not a valid alias, then it is treated as a full path to the
- * node.  No error checking is performed.
- *
- * This function is normally called to set the status for a virtual MDIO node.
- */
-static void fdt_set_node_status(void *fdt, const char *alias,
-				const char *status)
-{
-	const char *path = fdt_get_alias(fdt, alias);
-
-	if (!path)
-		path = alias;
-
-	do_fixup_by_path(fdt, path, "status", status, strlen(status) + 1, 1);
 }
 
 /*
@@ -372,14 +354,14 @@ void fdt_fixup_board_enet(void *fdt)
 		case PHY_INTERFACE_MODE_SGMII:
 			lane = serdes_get_first_lane(SGMII_FM1_DTSEC1 + idx);
 			if (lane >= 0) {
-				fdt_set_node_status(fdt, "emi1_sgmii", "okay");
+				fdt_status_okay_by_alias(fdt, "emi1_sgmii");
 				/* Also set the MUX value */
 				fdt_set_mdio_mux(fdt, "emi1_sgmii",
 						 mdio_mux[i].val);
 			}
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
-			fdt_set_node_status(fdt, "emi1_rgmii", "okay");
+			fdt_status_okay_by_alias(fdt, "emi1_rgmii");
 			break;
 		default:
 			break;
@@ -388,7 +370,7 @@ void fdt_fixup_board_enet(void *fdt)
 
 	lane = serdes_get_first_lane(XAUI_FM1);
 	if (lane >= 0)
-		fdt_set_node_status(fdt, "emi2_xgmii", "okay");
+		fdt_status_okay_by_alias(fdt, "emi2_xgmii");
 #endif
 }
 

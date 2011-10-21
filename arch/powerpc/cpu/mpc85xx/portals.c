@@ -245,6 +245,12 @@ void fdt_fixup_qportals(void *blob)
 				goto err;
 		}
 #endif
+#ifdef CONFIG_SYS_DPAA_RMAN
+		err = fdt_qportal(blob, off, i, "rman@0",
+				  FSL_HW_PORTAL_RMAN, 1);
+		if (err < 0)
+			goto err;
+#endif
 
 err:
 		if (err < 0) {

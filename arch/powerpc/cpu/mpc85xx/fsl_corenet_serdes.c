@@ -504,9 +504,6 @@ void fsl_serdes_init(void)
 	const char *srds_lpd_arg;
 	size_t arglen;
 #endif
-#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
-	enum srds_prtcl device;
-#endif
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
 	int need_serdes_a001;	/* TRUE == need work-around for SERDES A001 */
 #endif
@@ -785,13 +782,6 @@ void fsl_serdes_init(void)
 		/* Bank 3 has been enabled, so now we can disable bank 2 */
 		setbits_be32(&srds_regs->bank[FSL_SRDS_BANK_2].rstctl,
 			     SRDS_RSTCTL_SDPD);
-	}
-#endif
-
-#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
-	for (device = XAUI_FM1; device <= XAUI_FM2; device++) {
-		if (is_serdes_configured(device))
-			__serdes_reset_rx(srds_regs, cfg, device);
 	}
 #endif
 }
