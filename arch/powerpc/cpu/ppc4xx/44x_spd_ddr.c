@@ -820,7 +820,7 @@ static void program_tr0(unsigned long *dimm_populated,
 		break;
 	}
 
-	debug("tr0: %x\n", tr0);
+	debug("tr0: %lx\n", tr0);
 	mtsdram(SDRAM0_TR0, tr0);
 }
 
@@ -1051,7 +1051,7 @@ static void program_tr1(void)
 	}
 	tr1 |= SDRAM_TR1_RDCT_ENCODE(rdclt_average);
 
-	debug("tr1: %x\n", tr1);
+	debug("tr1: %lx\n", tr1);
 
 	/*
 	 * program SDRAM Timing Register 1 TR1
@@ -1124,7 +1124,7 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 			num_col_addr = spd_read(iic0_dimm_addr[dimm_num], 4);
 			num_banks    = spd_read(iic0_dimm_addr[dimm_num], 5);
 			bank_size_id = spd_read(iic0_dimm_addr[dimm_num], 31);
-			debug("DIMM%d: row=%d col=%d banks=%d\n", dimm_num,
+			debug("DIMM%ld: row=%d col=%d banks=%d\n", dimm_num,
 			      num_row_addr, num_col_addr, num_banks);
 
 			/*
@@ -1193,9 +1193,11 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 				bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes =
 					(4 << 20) * bank_size_id;
 				bank_parms[ctrl_bank_num[dimm_num]+i].cr = cr;
-				debug("DIMM%d-bank %d (SDRAM0_B%dCR): bank_size_bytes=%d\n",
-				      dimm_num, i, ctrl_bank_num[dimm_num]+i,
-				      bank_parms[ctrl_bank_num[dimm_num]+i].bank_size_bytes);
+				debug("DIMM%ld-bank %ld (SDRAM0_B%ldCR): "
+					"bank_size_bytes=%ld\n",
+					dimm_num, i,
+					ctrl_bank_num[dimm_num] + i,
+					bank_parms[ctrl_bank_num[dimm_num] + i].bank_size_bytes);
 			}
 		}
 	}
@@ -1239,7 +1241,8 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 				bank_parms[sorted_bank_num[bx_cr_num]].cr;
 			mtdcr(SDRAM0_CFGDATA, temp);
 			bank_base_addr += bank_parms[sorted_bank_num[bx_cr_num]].bank_size_bytes;
-			debug("SDRAM0_B%dCR=0x%08lx\n", sorted_bank_num[bx_cr_num], temp);
+			debug("SDRAM0_B%ldCR=0x%08lx\n",
+				sorted_bank_num[bx_cr_num], temp);
 		}
 	}
 
