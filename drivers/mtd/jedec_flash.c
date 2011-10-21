@@ -390,7 +390,8 @@ static inline void fill_info(flash_info_t *info, const struct amd_flash_info *je
 	debug("unlock address index %d\n", uaddr_idx);
 	info->addr_unlock1 = unlock_addrs[uaddr_idx].addr1;
 	info->addr_unlock2 = unlock_addrs[uaddr_idx].addr2;
-	debug("unlock addresses are 0x%x/0x%x\n", info->addr_unlock1, info->addr_unlock2);
+	debug("unlock addresses are 0x%lx/0x%lx\n",
+		info->addr_unlock1, info->addr_unlock2);
 
 	sect_cnt = 0;
 	total_size = 0;
@@ -399,7 +400,7 @@ static inline void fill_info(flash_info_t *info, const struct amd_flash_info *je
 		ulong erase_region_count = (jedec_entry->regions[i] & 0xff) + 1;
 
 		total_size += erase_region_size * erase_region_count;
-		debug ("erase_region_count = %d erase_region_size = %d\n",
+		debug("erase_region_count = %ld erase_region_size = %ld\n",
 		       erase_region_count, erase_region_size);
 		for (j = 0; j < erase_region_count; j++) {
 			if (sect_cnt >= CONFIG_SYS_MAX_FLASH_SECT) {
