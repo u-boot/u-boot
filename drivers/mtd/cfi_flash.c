@@ -2149,7 +2149,7 @@ void flash_protect_default(void)
 
 #if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
 	for (i = 0; i < (sizeof(apl) / sizeof(struct apl_s)); i++) {
-		debug("autoprotecting from %08x to %08x\n",
+		debug("autoprotecting from %08lx to %08lx\n",
 		      apl[i].start, apl[i].start + apl[i].size - 1);
 		flash_protect(FLAG_PROTECT_SET,
 			       apl[i].start,
