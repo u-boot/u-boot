@@ -51,7 +51,8 @@ unsigned long flash_init (void)
 	int size_val = 0;
 
 	debug("[%s, %d] Entering ...\n", __FUNCTION__, __LINE__);
-	debug("[%s, %d] flash_info = 0x%08X ...\n", __FUNCTION__, __LINE__, flash_info);
+	debug("[%s, %d] flash_info = 0x%p ...\n", __func__, __LINE__,
+						flash_info);
 
 	/* Init: no FLASHes known */
 	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
