@@ -25,9 +25,9 @@
 #include <asm/arch/imx-regs.h>
 
 /* High Level Configuration Options */
-#define CONFIG_ARM1136		1	/* This is an arm1136 CPU core */
-#define CONFIG_MX31		1	/* in a mx31 */
-#define CONFIG_QONG		1
+#define CONFIG_ARM1136			/* This is an arm1136 CPU core */
+#define CONFIG_MX31			/* in a mx31 */
+#define CONFIG_QONG
 #define CONFIG_MX31_HCLK_FREQ	26000000	/* 26MHz */
 #define CONFIG_MX31_CLK32	32768
 
@@ -36,9 +36,9 @@
 
 #define CONFIG_SYS_TEXT_BASE 0xa0000000
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
 
 /*
  * Size of malloc() pool
@@ -71,14 +71,14 @@
 
 /* FPGA */
 #define CONFIG_FPGA
-#define CONFIG_QONG_FPGA	1
+#define CONFIG_QONG_FPGA
 #define CONFIG_FPGA_BASE	(CS1_BASE)
 #define CONFIG_FPGA_LATTICE
 #define CONFIG_FPGA_COUNT	1
 
 #ifdef CONFIG_QONG_FPGA
 /* Ethernet */
-#define CONFIG_DNET		1
+#define CONFIG_DNET
 #define CONFIG_DNET_BASE	(CS1_BASE + QONG_FPGA_PERIPH_SIZE)
 
 /* Framebuffer and LCD */
@@ -206,13 +206,13 @@
 
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_CMDLINE_EDITING	1
-#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser */
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
 
-#define CONFIG_MISC_INIT_R	1
+#define CONFIG_MISC_INIT_R
 /*-----------------------------------------------------------------------
  * Stack sizes
  *
@@ -262,7 +262,7 @@ extern int qong_nand_rdy(void *chip);
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		0x40000		/* Reserve 256KiB */
 
-#define	CONFIG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x80000)
@@ -275,13 +275,13 @@ extern int qong_nand_rdy(void *chip);
  * CFI FLASH driver setup
  */
 /* Flash memory is CFI compliant */
-#define CONFIG_SYS_FLASH_CFI			1
+#define CONFIG_SYS_FLASH_CFI
 /* Use drivers/cfi_flash.c */
-#define CONFIG_FLASH_CFI_DRIVER			1
+#define CONFIG_FLASH_CFI_DRIVER
 /* Use buffered writes (~10x faster) */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 /* Use hardware sector protection */
-#define CONFIG_SYS_FLASH_PROTECTION		1
+#define CONFIG_SYS_FLASH_PROTECTION
 
 /*
  * Filesystem
@@ -311,6 +311,6 @@ extern int qong_nand_rdy(void *chip);
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)
 
-#define CONFIG_BOARD_EARLY_INIT_F	1
+#define CONFIG_BOARD_EARLY_INIT_F
 
 #endif /* __CONFIG_H */
