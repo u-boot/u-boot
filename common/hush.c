@@ -17,7 +17,6 @@
  *      Erik W. Troan, which they placed in the public domain.  I don't know
  *      how much of the Johnson/Troan code has survived the repeated rewrites.
  * Other credits:
- *      simple_itoa() was lifted from boa-0.93.15
  *      b_addchr() derived from similar w_addchar function in glibc-2.2
  *      setup_redirect(), redirect_opt_num(), and big chunks of main()
  *        and many builtins derived from contributions by Erik Andersen
@@ -920,20 +919,6 @@ static int b_addqchr(o_string *o, int ch, int quote)
 		if (rc) return rc;
 	}
 	return b_addchr(o, ch);
-}
-
-/* belongs in utility.c */
-char *simple_itoa(unsigned int i)
-{
-	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	static char local[22];
-	char *p = &local[21];
-	*p-- = '\0';
-	do {
-		*p-- = '0' + i % 10;
-		i /= 10;
-	} while (i > 0);
-	return p + 1;
 }
 
 #ifndef __U_BOOT__

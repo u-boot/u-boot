@@ -723,6 +723,7 @@ void	panic(const char *fmt, ...)
 int	sprintf(char * buf, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 2, 3)));
 int	vsprintf(char *buf, const char *fmt, va_list args);
+char *simple_itoa(ulong i);
 
 /* lib/strmhz.c */
 char *	strmhz(char *buf, unsigned long hz);

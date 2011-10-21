@@ -7,6 +7,8 @@
 /* vsprintf.c -- Lars Wirzenius & Linus Torvalds. */
 /*
  * Wirzenius wrote this portably, Torvalds fucked it up :-)
+ *
+ * from hush: simple_itoa() was lifted from boa-0.93.15
  */
 
 #include <stdarg.h>
@@ -737,4 +739,18 @@ void __assert_fail(const char *assertion, const char *file, unsigned line,
 	/* This will not return */
 	panic("%s:%u: %s: Assertion `%s' failed.", file, line, function,
 	      assertion);
+}
+
+char *simple_itoa(ulong i)
+{
+	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
+	static char local[22];
+	char *p = &local[21];
+
+	*p-- = '\0';
+	do {
+		*p-- = '0' + i % 10;
+		i /= 10;
+	} while (i > 0);
+	return p + 1;
 }
