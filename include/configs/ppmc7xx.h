@@ -51,6 +51,10 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
+#ifndef __ASSEMBLY__
+#include <galileo/core.h>
+#endif
+
 /*
  * Monitor configuration
  *

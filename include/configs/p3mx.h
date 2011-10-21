@@ -447,4 +447,8 @@
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
 
+#ifndef __ASSEMBLY__
+#include <../board/Marvell/include/core.h>
+#endif
+
 #endif	/* __CONFIG_H */

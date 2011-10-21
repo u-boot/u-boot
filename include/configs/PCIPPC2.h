@@ -55,6 +55,10 @@
 #define CONFIG_PREBOOT		""
 #define CONFIG_BOOTDELAY	5
 
+#ifndef __ASSEMBLY__
+#include <galileo/core.h>
+#endif
+
 /*
  * BOOTP options
  */

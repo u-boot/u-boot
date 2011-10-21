@@ -54,6 +54,10 @@
 
 #undef  CONFIG_ECC		/* disable ECC support */
 
+#ifndef __ASSEMBLY__
+#include <galileo/core.h>
+#endif
+
 /* Board-specific Initialization Functions to be called */
 #define CONFIG_SYS_BOARD_ASM_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
