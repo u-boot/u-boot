@@ -253,6 +253,16 @@
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
+/*
+ * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
+ * 64 bytes before this address should be set aside for u-boot.img's
+ * header. That is 0x800FFFC0--0x80100000 should not be used for any
+ * other needs.
+ */
+#define CONFIG_SYS_TEXT_BASE		0x80100000
+#define CONFIG_SYS_SPL_MALLOC_START	0x80200000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
+
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
@@ -267,13 +277,5 @@
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/omap-common/u-boot-spl.lds"
-
-/*
- * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
- * 64 bytes before this address should be set aside for u-boot.img's
- * header. That is 0x800FFFC0--0x80100000 should not be used for any
- * other needs.
- */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
 
 #endif /* __CONFIG_OMAP4_COMMON_H */
