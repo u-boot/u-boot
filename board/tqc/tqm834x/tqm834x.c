@@ -123,7 +123,7 @@ phys_size_t initdram (int board_type)
 			(long *)(CONFIG_SYS_DDR_BASE + size));
 		size += bank_size;
 
-		debug("DDR Bank%d size: %d MiB\n\n", cs, bank_size >> 20);
+		debug("DDR Bank%d size: %ld MiB\n\n", cs, bank_size >> 20);
 
 		/* exit if less than one bank */
 		if(size < DDR_MAX_SIZE_PER_CS) break;
@@ -333,7 +333,7 @@ static long int get_ddr_bank_size(short cs, long *base)
  */
 static void set_cs_bounds(short cs, long base, long size)
 {
-	debug("Setting bounds %08x, %08x for cs %d\n", base, size, cs);
+	debug("Setting bounds %08lx, %08lx for cs %d\n", base, size, cs);
 	if(size == 0){
 		im->ddr.csbnds[cs].csbnds = 0x00000000;
 	} else {
@@ -351,7 +351,7 @@ static void set_cs_bounds(short cs, long base, long size)
  */
 static void set_cs_config(short cs, long config)
 {
-	debug("Setting config %08x for cs %d\n", config, cs);
+	debug("Setting config %08lx for cs %d\n", config, cs);
 	im->ddr.cs_config[cs] = config;
 	SYNC;
 }
