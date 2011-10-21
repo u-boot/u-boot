@@ -171,7 +171,7 @@ static void sata_identify (int num, int dev)
 	sata_dev_desc[devno].removable = 0;
 
 	sata_dev_desc[devno].lba = (u32) n_sectors;
-	debug ("lba=0x%x\n", sata_dev_desc[devno].lba);
+	debug("lba=0x%lx\n", sata_dev_desc[devno].lba);
 
 #ifdef CONFIG_LBA48
 	if (iobuf[83] & (1 << 10)) {
