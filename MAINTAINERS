@@ -560,6 +560,7 @@ Albert ARIBAUD <albert.u.boot@aribaud.net>
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
+	flea3		i.MX35
 	mx35pdk		i.MX35
 	mx51evk		i.MX51
 	polaris		xscale/pxa
