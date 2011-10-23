@@ -477,13 +477,14 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	flash_size = flash_init();
 	if (flash_size > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM
+		char *s = getenv("flashchecksum");
+
 		print_size(flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
 		 *
 		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 		 */
-		s = getenv("flashchecksum");
 		if (s && (*s == 'y')) {
 			printf("  CRC: %08X", crc32(0,
 				(const unsigned char *) CONFIG_SYS_FLASH_BASE,
@@ -566,9 +567,12 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 #if defined(CONFIG_CMD_NET)
-	s = getenv("bootfile");
-	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
+	{
+		char *s = getenv("bootfile");
+
+		if (s != NULL)
+			copy_filename(BootFile, s, sizeof(BootFile));
+	}
 #endif
 
 #ifdef BOARD_LATE_INIT
