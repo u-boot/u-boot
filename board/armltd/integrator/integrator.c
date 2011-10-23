@@ -86,6 +86,15 @@ int misc_init_r (void)
 	return (0);
 }
 
+/*
+ * The Integrator remaps the Flash memory to 0x00000000 and executes U-Boot
+ * from there, which means we cannot test the RAM underneath the ROM at this
+ * point. It will be unmapped later on, when we are executing from the
+ * relocated in RAM U-Boot. We simply assume that this RAM is usable if the
+ * RAM on higher addresses works fine.
+ */
+#define REMAPPED_FLASH_SZ 0x40000
+
 int dram_init (void)
 {
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
@@ -111,15 +120,17 @@ extern void dram_query(void);
 	 *
 	 */
 	sdram_shift		 = ((cm_reg_sdram & 0x0000001C)/4)%4;
-	gd->bd->bi_dram[0].size	 = 0x01000000 << sdram_shift;
-	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((long *) CONFIG_SYS_SDRAM_BASE +
+				    REMAPPED_FLASH_SZ,
 				    0x01000000 << sdram_shift);
 	}
 #else
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((long *) CONFIG_SYS_SDRAM_BASE +
+				    REMAPPED_FLASH_SZ,
 				    PHYS_SDRAM_1_SIZE);
 #endif /* CM_SPD_DETECT */
+	/* We only have one bank of RAM, set it to whatever was detected */
+	gd->bd->bi_dram[0].size	 = gd->ram_size;
 
 	return 0;
 }
