@@ -623,7 +623,6 @@ void board_init_f (ulong bootflag)
  */
 void board_init_r (gd_t *id, ulong dest_addr)
 {
-	char *s;
 	bd_t *bd;
 	ulong malloc_start;
 
@@ -727,6 +726,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		flash_size = 0;
 	} else if ((flash_size = flash_init ()) > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM
+		char *s;
+
 		print_size (flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
@@ -927,8 +928,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 #if defined(CONFIG_CMD_NET)
-	if ((s = getenv ("bootfile")) != NULL) {
-		copy_filename (BootFile, s, sizeof (BootFile));
+	{
+		char *s = getenv("bootfile");
+
+		if (s != NULL)
+			copy_filename(BootFile, s, sizeof(BootFile));
 	}
 #endif
 
