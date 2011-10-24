@@ -48,6 +48,8 @@
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <mmc.h>
+#include <libfdt.h>
+#include <fdtdec.h>
 #include <post.h>
 #include <logbuff.h>
 
@@ -234,6 +236,9 @@ init_fnc_t *init_sequence[] = {
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
+#ifdef CONFIG_OF_CONTROL
+	fdtdec_check_fdt,
+#endif
 	timer_init,		/* initialize timer */
 #ifdef CONFIG_FSL_ESDHC
 	get_clocks,
@@ -274,6 +279,13 @@ void board_init_f(ulong bootflag)
 	memset((void *)gd, 0, sizeof(gd_t));
 
 	gd->mon_len = _bss_end_ofs;
+#ifdef CONFIG_OF_EMBED
+	/* Get a pointer to the FDT */
+	gd->fdt_blob = _binary_dt_dtb_start;
+#elif defined CONFIG_OF_SEPARATE
+	/* FDT is at end of image */
+	gd->fdt_blob = (void *)(_end_ofs + _TEXT_BASE);
+#endif
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {
