@@ -195,6 +195,40 @@ static void TftpTimeout(void);
 
 /**********************************************************************/
 
+static void show_block_marker(void)
+{
+#ifdef CONFIG_TFTP_TSIZE
+	if (TftpTsize) {
+		ulong pos = TftpBlock * TftpBlkSize + TftpBlockWrapOffset;
+
+		while (TftpNumchars < pos * 50 / TftpTsize) {
+			putc('#');
+			TftpNumchars++;
+		}
+	}
+#endif
+	else {
+		if (((TftpBlock - 1) % 10) == 0)
+			putc('#');
+		else if ((TftpBlock % (10 * HASHES_PER_LINE)) == 0)
+			puts("\n\t ");
+	}
+}
+
+/* The TFTP get or put is complete */
+static void tftp_complete(void)
+{
+#ifdef CONFIG_TFTP_TSIZE
+	/* Print hash marks for the last packet received */
+	while (TftpTsize && TftpNumchars < 49) {
+		putc('#');
+		TftpNumchars++;
+	}
+#endif
+	puts("\ndone\n");
+	NetState = NETLOOP_SUCCESS;
+}
+
 static void
 TftpSend(void)
 {
@@ -400,21 +434,8 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 				TftpBlkSize * TFTP_SEQUENCE_SIZE;
 			printf("\n\t %lu MB received\n\t ",
 				TftpBlockWrapOffset>>20);
-		}
-#ifdef CONFIG_TFTP_TSIZE
-		else if (TftpTsize) {
-			while (TftpNumchars <
-			       NetBootFileXferSize * 50 / TftpTsize) {
-				putc('#');
-				TftpNumchars++;
-			}
-		}
-#endif
-		else {
-			if (((TftpBlock - 1) % 10) == 0)
-				putc('#');
-			else if ((TftpBlock % (10 * HASHES_PER_LINE)) == 0)
-				puts("\n\t ");
+		} else {
+			show_block_marker();
 		}
 
 		if (TftpState == STATE_SEND_RRQ)
@@ -498,21 +519,8 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		}
 		else
 #endif
-		if (len < TftpBlkSize) {
-			/*
-			 *	We received the whole thing.  Try to
-			 *	run it.
-			 */
-#ifdef CONFIG_TFTP_TSIZE
-			/* Print hash marks for the last packet received */
-			while (TftpTsize && TftpNumchars < 49) {
-				putc('#');
-				TftpNumchars++;
-			}
-#endif
-			puts("\ndone\n");
-			NetState = NETLOOP_SUCCESS;
-		}
+		if (len < TftpBlkSize)
+			tftp_complete();
 		break;
 
 	case TFTP_ERROR:
