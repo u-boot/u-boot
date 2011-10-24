@@ -41,12 +41,12 @@
  * increase in the final file size: 144260 vs. 109536 Bytes.
  */
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_REVISION_TAG		1
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
+#define CONFIG_REVISION_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
 
-#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_LIBFDT
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX51_BABBAGE
 /*
