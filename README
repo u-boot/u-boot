@@ -788,6 +788,7 @@ The following options need to be configured:
 		CONFIG_CMD_SOURCE	  "source" command Support
 		CONFIG_CMD_SPI		* SPI serial bus support
 		CONFIG_CMD_TFTPSRV	* TFTP transfer in server mode
+		CONFIG_CMD_TFTPPUT	* TFTP put command (upload)
 		CONFIG_CMD_TIME		* run command and report execution time
 		CONFIG_CMD_USB		* USB support
 		CONFIG_CMD_CDP		* Cisco Discover Protocol support
@@ -3344,6 +3345,7 @@ bootp	- boot image via network using BootP/TFTP protocol
 tftpboot- boot image via network using TFTP protocol
 	       and env variables "ipaddr" and "serverip"
 	       (and eventually "gatewayip")
+tftpput - upload a file via network using TFTP protocol
 rarpboot- boot image via network using RARP/TFTP protocol
 diskboot- boot from IDE devicebootd   - boot default, i.e., run 'bootcmd'
 loads	- load S-Record file over serial line

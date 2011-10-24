@@ -408,6 +408,9 @@ restart:
 		NetBootFileXferSize = 0;
 		switch (protocol) {
 		case TFTPGET:
+#ifdef CONFIG_CMD_TFTPPUT
+		case TFTPPUT:
+#endif
 			/* always use ARP to get server ethernet address */
 			TftpStart(protocol);
 			break;
@@ -1794,6 +1797,7 @@ static int net_check_prereq(enum proto_t protocol)
 	case NFS:
 #endif
 	case TFTPGET:
+	case TFTPPUT:
 		if (NetServerIP == 0) {
 			puts("*** ERROR: `serverip' not set\n");
 			return 1;
