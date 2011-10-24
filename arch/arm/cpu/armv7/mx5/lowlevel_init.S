@@ -180,6 +180,21 @@
 1:	ldr r1, [r0, #CLKCTL_CDHIPR]
 	cmp r1, #0x0
 	bne 1b
+#else
+	ldr r1, =0x3FFFFFFF
+	str r1, [r0, #CLKCTL_CCGR0]
+	ldr r1, =0x0
+	str r1, [r0, #CLKCTL_CCGR1]
+	str r1, [r0, #CLKCTL_CCGR2]
+	str r1, [r0, #CLKCTL_CCGR3]
+	str r1, [r0, #CLKCTL_CCGR7]
+
+	ldr r1, =0x00030000
+	str r1, [r0, #CLKCTL_CCGR4]
+	ldr r1, =0x00FFF030
+	str r1, [r0, #CLKCTL_CCGR5]
+	ldr r1, =0x0F00030F
+	str r1, [r0, #CLKCTL_CCGR6]
 #endif
 
 	/* Switch ARM to step clock */
