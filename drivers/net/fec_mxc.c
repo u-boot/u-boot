@@ -109,7 +109,7 @@ static void fec_mii_setspeed(struct fec_priv *fec)
 	 */
 	writel((((imx_get_fecclk() / 1000000) + 2) / 5) << 1,
 			&fec->eth->mii_speed);
-	debug("fec_init: mii_speed %#lx\n",
+	debug("fec_init: mii_speed %08x\n",
 			readl(&fec->eth->mii_speed));
 }
 static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
@@ -629,7 +629,7 @@ static int fec_recv(struct eth_device *dev)
 	 */
 	ievent = readl(&fec->eth->ievent);
 	writel(ievent, &fec->eth->ievent);
-	debug("fec_recv: ievent 0x%x\n", ievent);
+	debug("fec_recv: ievent 0x%lx\n", ievent);
 	if (ievent & FEC_IEVENT_BABR) {
 		fec_halt(dev);
 		fec_init(dev, fec->bd);
