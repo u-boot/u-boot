@@ -40,7 +40,7 @@ unsigned int query_sdram_size(void)
 	u32 reg;
 
 	reg = readl(&pmc->pmc_scratch20);
-	debug("pmc->pmc_scratch20 (ODMData) = 0x%08lX\n", reg);
+	debug("pmc->pmc_scratch20 (ODMData) = 0x%08x\n", reg);
 
 	/* bits 31:28 in OdmData are used for RAM size  */
 	switch ((reg) >> 28) {
