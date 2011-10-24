@@ -55,7 +55,7 @@ fetch_and_parse (char *fn, ulong addr, int (*cback)(uchar *, uchar *))
 	load_addr = addr;
 	NetBootFileXferSize = 0;
 
-	if (NetLoop (TFTP) == 0) {
+	if (NetLoop(TFTPGET) == 0) {
 		printf ("tftp transfer of file '%s' failed\n", fn);
 		return (0);
 	}

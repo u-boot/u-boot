@@ -28,7 +28,7 @@
 #include <command.h>
 #include <net.h>
 
-static int netboot_common (proto_t, cmd_tbl_t *, int , char * const []);
+static int netboot_common(enum proto_t, cmd_tbl_t *, int, char * const []);
 
 int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -43,7 +43,7 @@ U_BOOT_CMD(
 
 int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return netboot_common (TFTP, cmdtp, argc, argv);
+	return netboot_common(TFTPGET, cmdtp, argc, argv);
 }
 
 U_BOOT_CMD(
@@ -167,8 +167,8 @@ static void netboot_update_env (void)
 #endif
 }
 
-static int
-netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char * const argv[])
+static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
+		char * const argv[])
 {
 	char *s;
 	char *end;

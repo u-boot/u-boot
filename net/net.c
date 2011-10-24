@@ -225,7 +225,7 @@ static ulong	timeDelta;
 /* THE transmit packet */
 volatile uchar *NetTxPacket;
 
-static int net_check_prereq(proto_t protocol);
+static int net_check_prereq(enum proto_t protocol);
 
 static int NetTryCount;
 
@@ -311,8 +311,7 @@ void ArpTimeoutCheck(void)
 	}
 }
 
-static void
-NetInitLoop(proto_t protocol)
+static void NetInitLoop(enum proto_t protocol)
 {
 	static int env_changed_id;
 	bd_t *bd = gd->bd;
@@ -341,8 +340,7 @@ NetInitLoop(proto_t protocol)
  *	Main network processing loop.
  */
 
-int
-NetLoop(proto_t protocol)
+int NetLoop(enum proto_t protocol)
 {
 	bd_t *bd = gd->bd;
 	int ret = -1;
@@ -407,10 +405,11 @@ restart:
 
 	case 0:
 		NetDevExists = 1;
+		NetBootFileXferSize = 0;
 		switch (protocol) {
-		case TFTP:
+		case TFTPGET:
 			/* always use ARP to get server ethernet address */
-			TftpStart();
+			TftpStart(protocol);
 			break;
 #ifdef CONFIG_CMD_TFTPSRV
 		case TFTPSRV:
@@ -472,7 +471,6 @@ restart:
 			break;
 		}
 
-		NetBootFileXferSize = 0;
 		break;
 	}
 
@@ -1764,7 +1762,7 @@ NetReceive(volatile uchar *inpkt, int len)
 
 /**********************************************************************/
 
-static int net_check_prereq(proto_t protocol)
+static int net_check_prereq(enum proto_t protocol)
 {
 	switch (protocol) {
 		/* Fall through */
@@ -1795,7 +1793,7 @@ static int net_check_prereq(proto_t protocol)
 #if defined(CONFIG_CMD_NFS)
 	case NFS:
 #endif
-	case TFTP:
+	case TFTPGET:
 		if (NetServerIP == 0) {
 			puts("*** ERROR: `serverip' not set\n");
 			return 1;

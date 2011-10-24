@@ -365,8 +365,10 @@ extern int		NetState;		/* Network loop state		*/
 
 extern int		NetRestartWrap;		/* Tried all network devices	*/
 
-typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP,
-	       TFTPSRV } proto_t;
+enum proto_t {
+	BOOTP, RARP, ARP, TFTPGET, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP,
+	TFTPSRV
+};
 
 /* from net/net.c */
 extern char	BootFile[128];			/* Boot File name		*/
@@ -392,7 +394,7 @@ extern int NetTimeOffset;			/* offset time from UTC		*/
 #endif
 
 /* Initialize the network adapter */
-extern int	NetLoop(proto_t);
+extern int NetLoop(enum proto_t);
 
 /* Shutdown adapters and cleanup */
 extern void	NetStop(void);

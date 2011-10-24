@@ -200,7 +200,7 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			load_addr = simple_strtoul (argv[3], NULL, 16);
 			NetBootFileXferSize = 0;
 
-			if (NetLoop (TFTP) <= 0) {
+			if (NetLoop(TFTPGET) <= 0) {
 				printf ("tftp transfer failed - aborting "
 					"fgpa load\n");
 				return 1;
