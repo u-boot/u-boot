@@ -377,7 +377,7 @@ static int smsc95xx_write_hwaddr(struct eth_device *eth)
 
 	/* set hardware address */
 	debug("** %s()\n", __func__);
-	addr_lo = cpu_to_le32(*((u32 *)eth->enetaddr));
+	addr_lo = cpu_to_le32(*eth->enetaddr);
 	addr_hi = cpu_to_le16(*((u16 *)(eth->enetaddr + 4)));
 	ret = smsc95xx_write_reg(dev, ADDRL, addr_lo);
 	if (ret < 0) {
