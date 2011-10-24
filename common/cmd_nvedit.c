@@ -377,6 +377,36 @@ int setenv(const char *varname, const char *varvalue)
 		return _do_env_set(0, 3, (char * const *)argv);
 }
 
+/**
+ * Set an environment variable to an integer value
+ *
+ * @param varname	Environmet variable to set
+ * @param value		Value to set it to
+ * @return 0 if ok, 1 on error
+ */
+int setenv_ulong(const char *varname, ulong value)
+{
+	/* TODO: this should be unsigned */
+	char *str = simple_itoa(value);
+
+	return setenv(varname, str);
+}
+
+/**
+ * Set an environment variable to an address in hex
+ *
+ * @param varname	Environmet variable to set
+ * @param addr		Value to set it to
+ * @return 0 if ok, 1 on error
+ */
+int setenv_addr(const char *varname, const void *addr)
+{
+	char str[17];
+
+	sprintf(str, "%x", (uintptr_t)addr);
+	return setenv(varname, str);
+}
+
 int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
