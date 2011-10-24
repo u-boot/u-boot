@@ -25,6 +25,7 @@ LIB	= $(obj)libfat.o
 
 AOBJS	=
 COBJS-$(CONFIG_CMD_FAT)	:= fat.o
+COBJS-$(CONFIG_FAT_WRITE):= fat_write.o
 
 ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_CMD_FAT)	+= file.o
