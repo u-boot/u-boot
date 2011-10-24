@@ -317,7 +317,7 @@ int lattice_load(Lattice_desc *desc, const void *buf, size_t bsize)
 			read_bytes = 0;
 			bufsize = bsize;
 			debug("%s: Launching the Lattice ISPVME Loader:"
-				" addr 0x%x size 0x%x...\n",
+				" addr %p size 0x%lx...\n",
 				__func__, fpga_image, bufsize);
 			ret_val = ispVM();
 			if (ret_val)
