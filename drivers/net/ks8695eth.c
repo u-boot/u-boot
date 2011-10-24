@@ -196,7 +196,7 @@ static int ks8695_eth_send(struct eth_device *dev, volatile void *packet,
 	volatile struct ks8695_txdesc *dp;
 	static int next = 0;
 
-	debug ("%s(%d): eth_send(packet=%x,len=%d)\n", __FILE__, __LINE__,
+	debug ("%s(%d): eth_send(packet=%p,len=%d)\n", __FILE__, __LINE__,
 		packet, len);
 
 	dp = &ks8695_tx[next];
