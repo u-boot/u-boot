@@ -595,8 +595,7 @@ TftpTimeout(void)
 }
 
 
-void
-TftpStart(void)
+void TftpStart(enum proto_t protocol)
 {
 	char *ep;             /* Environment pointer */
 
