@@ -190,6 +190,17 @@ store_block(unsigned block, uchar *src, unsigned len)
 		NetBootFileXferSize = newsize;
 }
 
+/* Clear our state ready for a new transfer */
+void new_transfer(void)
+{
+	TftpLastBlock = 0;
+	TftpBlockWrap = 0;
+	TftpBlockWrapOffset = 0;
+#ifdef CONFIG_CMD_TFTPPUT
+	TftpFinalBlock = 0;
+#endif
+}
+
 static void TftpSend(void);
 static void TftpTimeout(void);
 
@@ -212,6 +223,42 @@ static void show_block_marker(void)
 			putc('#');
 		else if ((TftpBlock % (10 * HASHES_PER_LINE)) == 0)
 			puts("\n\t ");
+	}
+}
+
+/**
+ * restart the current transfer due to an error
+ *
+ * @param msg	Message to print for user
+ */
+static void restart(const char *msg)
+{
+	printf("\n%s; starting again\n", msg);
+#ifdef CONFIG_MCAST_TFTP
+	mcast_cleanup();
+#endif
+	NetStartAgain();
+}
+
+/*
+ * Check if the block number has wrapped, and update progress
+ *
+ * TODO: The egregious use of global variables in this file should be tidied.
+ */
+static void update_block_number(void)
+{
+	/*
+	 * RFC1350 specifies that the first data packet will
+	 * have sequence number 1. If we receive a sequence
+	 * number of 0 this means that there was a wrap
+	 * around of the (16 bit) counter.
+	 */
+	if (TftpBlock == 0) {
+		TftpBlockWrap++;
+		TftpBlockWrapOffset += TftpBlkSize * TFTP_SEQUENCE_SIZE;
+		TftpTimeoutCount = 0; /* we've done well, reset thhe timeout */
+	} else {
+		show_block_marker();
 	}
 }
 
@@ -373,9 +420,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		TftpRemoteIP = sip;
 		TftpRemotePort = src;
 		TftpOurPort = 1024 + (get_timer(0) % 3072);
-		TftpLastBlock = 0;
-		TftpBlockWrap = 0;
-		TftpBlockWrapOffset = 0;
+		new_transfer();
 		TftpSend(); /* Send ACK(0) */
 		break;
 #endif
@@ -422,21 +467,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		len -= 2;
 		TftpBlock = ntohs(*(ushort *)pkt);
 
-		/*
-		 * RFC1350 specifies that the first data packet will
-		 * have sequence number 1. If we receive a sequence
-		 * number of 0 this means that there was a wrap
-		 * around of the (16 bit) counter.
-		 */
-		if (TftpBlock == 0) {
-			TftpBlockWrap++;
-			TftpBlockWrapOffset +=
-				TftpBlkSize * TFTP_SEQUENCE_SIZE;
-			printf("\n\t %lu MB received\n\t ",
-				TftpBlockWrapOffset>>20);
-		} else {
-			show_block_marker();
-		}
+		update_block_number();
 
 		if (TftpState == STATE_SEND_RRQ)
 			debug("Server did not acknowledge timeout option!\n");
@@ -446,9 +477,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			/* first block received */
 			TftpState = STATE_DATA;
 			TftpRemotePort = src;
-			TftpLastBlock = 0;
-			TftpBlockWrap = 0;
-			TftpBlockWrapOffset = 0;
+			new_transfer();
 
 #ifdef CONFIG_MCAST_TFTP
 			if (Multicast) { /* start!=1 common if mcast */
@@ -556,11 +585,7 @@ static void
 TftpTimeout(void)
 {
 	if (++TftpTimeoutCount > TftpTimeoutCountMax) {
-		puts("\nRetry count exceeded; starting again\n");
-#ifdef CONFIG_MCAST_TFTP
-		mcast_cleanup();
-#endif
-		NetStartAgain();
+		restart("Retry count exceeded");
 	} else {
 		puts("T ");
 		NetSetTimeout(TftpTimeoutMSecs, TftpTimeout);
