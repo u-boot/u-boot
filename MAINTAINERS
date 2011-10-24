@@ -219,6 +219,10 @@ Wolfgang Grandegger <wg@denx.de>
 	IPHASE4539	MPC8260
 	SCM		MPC8260
 
+Rob Herring <rob.herring@calxeda.com>
+
+	highbank	highbank
+
 Klaus Heydeck <heydeck@kieback-peter.de>
 
 	KUP4K		MPC855
