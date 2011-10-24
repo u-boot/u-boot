@@ -215,6 +215,7 @@ volatile uchar *NetRxPackets[PKTBUFSRX];
 
 /* Current RX packet handler */
 static rxhand_f *packetHandler;
+static rxhand_icmp_f *packet_icmp_handler;	/* Current ICMP rx handler */
 /* Current timeout handler */
 static thand_f *timeHandler;
 /* Time base value */
@@ -344,6 +345,7 @@ int
 NetLoop(proto_t protocol)
 {
 	bd_t *bd = gd->bd;
+	int ret = -1;
 
 	NetRestarted = 0;
 	NetDevExists = 0;
@@ -512,7 +514,7 @@ restart:
 		if (ctrlc()) {
 			eth_halt();
 			puts("\nAbort\n");
-			return -1;
+			goto done;
 		}
 
 		ArpTimeoutCheck();
@@ -564,12 +566,19 @@ restart:
 				setenv("fileaddr", buf);
 			}
 			eth_halt();
-			return NetBootFileXferSize;
+			ret = NetBootFileXferSize;
+			goto done;
 
 		case NETLOOP_FAIL:
-			return -1;
+			goto done;
 		}
 	}
+
+done:
+	/* Clear out the handlers */
+	NetSetHandler(NULL);
+	net_set_icmp_handler(NULL);
+	return ret;
 }
 
 /**********************************************************************/
@@ -643,6 +652,10 @@ NetSetHandler(rxhand_f *f)
 	packetHandler = f;
 }
 
+void net_set_icmp_handler(rxhand_icmp_f *f)
+{
+	packet_icmp_handler = f;
+}
 
 void
 NetSetTimeout(ulong iv, thand_f *f)
@@ -1383,6 +1396,10 @@ static void receive_icmp(IP_t *ip, int len, IPaddr_t src_ip, Ethernet_t *et)
 		break;
 #endif
 	default:
+		if (packet_icmp_handler)
+			packet_icmp_handler(icmph->type, icmph->code,
+				ntohs(ip->udp_dst), src_ip, ntohs(ip->udp_src),
+				icmph->un.data, ntohs(ip->udp_len));
 		break;
 	}
 }
@@ -1671,6 +1688,10 @@ NetReceive(volatile uchar *inpkt, int len)
 		 * subnet. So this is probably a warning that your
 		 * configuration might be wrong. But I'm not really
 		 * sure if there aren't any other situations.
+		 *
+		 * Simon Glass <sjg@chromium.org>: We get an ICMP when
+		 * we send a tftp packet to a dead connection, or when
+		 * there is no server at the other end.
 		 */
 		if (ip->ip_p == IPPROTO_ICMP) {
 			receive_icmp(ip, len, src_ip, et);

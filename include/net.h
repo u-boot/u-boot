@@ -48,6 +48,19 @@ typedef void rxhand_f(uchar *pkt, unsigned dport,
 		      IPaddr_t sip, unsigned sport,
 		      unsigned len);
 
+/**
+ * An incoming ICMP packet handler.
+ * @param type	ICMP type
+ * @param code	ICMP code
+ * @param dport	destination UDP port
+ * @param sip	source IP address
+ * @param sport	source UDP port
+ * @param pkt	pointer to the ICMP packet data
+ * @param len	packet length
+ */
+typedef void rxhand_icmp_f(unsigned type, unsigned code, unsigned dport,
+		IPaddr_t sip, unsigned sport, uchar *pkt, unsigned len);
+
 /*
  *	A timeout handler.  Called after time interval has expired.
  */
@@ -244,12 +257,16 @@ typedef struct
  * ICMP stuff (just enough to handle (host) redirect messages)
  */
 #define ICMP_ECHO_REPLY		0	/* Echo reply			*/
+#define ICMP_NOT_REACH		3	/* Detination unreachable	*/
 #define ICMP_REDIRECT		5	/* Redirect (change route)	*/
 #define ICMP_ECHO_REQUEST	8	/* Echo request			*/
 
 /* Codes for REDIRECT. */
 #define ICMP_REDIR_NET		0	/* Redirect Net			*/
 #define ICMP_REDIR_HOST		1	/* Redirect Host		*/
+
+/* Codes for NOT_REACH */
+#define ICMP_NOT_REACH_PORT	3	/* Port unreachable		*/
 
 typedef struct icmphdr {
 	uchar		type;
@@ -265,6 +282,7 @@ typedef struct icmphdr {
 			ushort	__unused;
 			ushort	mtu;
 		} frag;
+		uchar data[0];
 	} un;
 } ICMP_t;
 
@@ -397,6 +415,7 @@ extern uint	NetCksum(uchar *, int);		/* Calculate the checksum	*/
 
 /* Set callbacks */
 extern void	NetSetHandler(rxhand_f *);	/* Set RX packet handler	*/
+extern void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
 extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler		*/
 
 /* Transmit "NetTxPacket" */
