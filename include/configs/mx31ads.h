@@ -78,7 +78,7 @@
 #define CONFIG_FSL_PMIC_CLK	1000000
 #define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 #define CONFIG_FSL_PMIC_BITLEN	32
-#define CONFIG_RTC_MC13783
+#define CONFIG_RTC_MC13XXX
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
