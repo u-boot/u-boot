@@ -359,8 +359,16 @@ ALL-$(CONFIG_ONENAND_U_BOOT) += $(obj)u-boot-onenand.bin
 ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
 ALL-$(CONFIG_MMC_U_BOOT) += $(obj)mmc_spl/u-boot-mmc-spl.bin
 ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
+ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 
 all:		$(ALL-y) $(SUBDIR_EXAMPLES)
+
+$(obj)u-boot.dtb:	$(obj)u-boot
+		$(MAKE) -C dts binary
+		mv $(obj)dts/dt.dtb $@
+
+$(obj)u-boot-dtb.bin:	$(obj)u-boot.bin $(obj)u-boot.dtb
+		cat $^ >$@
 
 $(obj)u-boot.hex:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@
