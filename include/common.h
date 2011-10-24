@@ -116,19 +116,25 @@ typedef volatile unsigned char	vu_char;
 #include <flash.h>
 #include <image.h>
 
-#ifdef	DEBUG
-#define debug(fmt,args...)	printf (fmt ,##args)
-#define debugX(level,fmt,args...) if (DEBUG>=level) printf(fmt,##args);
-#else
-#define debug(fmt,args...)
-#define debugX(level,fmt,args...)
-#endif	/* DEBUG */
-
 #ifdef DEBUG
-# define _DEBUG 1
+#define _DEBUG	1
 #else
-# define _DEBUG 0
+#define _DEBUG	0
 #endif
+
+/*
+ * Output a debug text when condition "cond" is met. The "cond" should be
+ * computed by a preprocessor in the best case, allowing for the best
+ * optimization.
+ */
+#define debug_cond(cond, fmt, args...)		\
+	do {					\
+		if (cond)			\
+			printf(fmt, ##args);	\
+	} while (0)
+
+#define debug(fmt, args...)			\
+	debug_cond(_DEBUG, fmt, ##args)
 
 /*
  * An assertion is run-time check done in debug mode only. If DEBUG is not
