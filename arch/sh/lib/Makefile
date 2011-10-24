@@ -28,6 +28,7 @@ GLSOBJS	+= ashiftrt.o
 GLSOBJS	+= ashiftlt.o
 GLSOBJS	+= lshiftrt.o
 GLSOBJS	+= ashldi3.o
+GLSOBJS	+= ashrsi3.o
 GLSOBJS	+= lshrdi3.o
 GLSOBJS	+= movmem.o
 
