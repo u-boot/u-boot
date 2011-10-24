@@ -98,13 +98,59 @@ extern void __raw_readsl(unsigned int addr, void *data, int longlen);
 #define __raw_readw(a)			__arch_getw(a)
 #define __raw_readl(a)			__arch_getl(a)
 
-#define writeb(v, a)			__arch_putb(v, a)
-#define writew(v, a)			__arch_putw(v, a)
-#define writel(v, a)			__arch_putl(v, a)
+/*
+ * TODO: The kernel offers some more advanced versions of barriers, it might
+ * have some advantages to use them instead of the simple one here.
+ */
+#define dmb()		__asm__ __volatile__ ("" : : : "memory")
+#define __iormb()	dmb()
+#define __iowmb()	dmb()
 
-#define readb(a)			__arch_getb(a)
-#define readw(a)			__arch_getw(a)
-#define readl(a)			__arch_getl(a)
+static inline void writeb(unsigned char val, unsigned char *addr)
+{
+	__iowmb();
+	__arch_putb(val, addr);
+}
+
+static inline void writew(unsigned short val, unsigned short *addr)
+{
+	__iowmb();
+	__arch_putw(val, addr);
+
+}
+
+static inline void writel(unsigned int val, unsigned int *addr)
+{
+	__iowmb();
+	__arch_putl(val, addr);
+}
+
+static inline unsigned char readb(unsigned char *addr)
+{
+	u8	val;
+
+	val = __arch_getb(addr);
+	__iormb();
+	return val;
+}
+
+static inline unsigned short readw(unsigned short *addr)
+{
+	u16	val;
+
+	val = __arch_getw(addr);
+	__iormb();
+	return val;
+}
+
+static inline unsigned int readl(unsigned int *addr)
+{
+	u32	val;
+
+	val = __arch_getl(addr);
+	__iormb();
+	return val;
+}
 
 /*
  * The compiler seems to be incapable of optimising constants
@@ -338,20 +384,6 @@ check_signature(unsigned long io_addr, const unsigned char *signature,
 out:
 	return retval;
 }
-
-#elif !defined(readb)
-
-#define readb(addr)			(__readwrite_bug("readb"), 0)
-#define readw(addr)			(__readwrite_bug("readw"), 0)
-#define readl(addr)			(__readwrite_bug("readl"), 0)
-#define writeb(v, addr)			__readwrite_bug("writeb")
-#define writew(v, addr)			__readwrite_bug("writew")
-#define writel(v, addr)			__readwrite_bug("writel")
-
-#define eth_io_copy_and_sum(a, b, c, d)	__readwrite_bug("eth_io_copy_and_sum")
-
-#define check_signature(io, sig, len)	(0)
-
 #endif	/* __mem_pci */
 
 /*
