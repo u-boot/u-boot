@@ -3499,6 +3499,10 @@ List of environment variables (most likely not complete):
 		  add the information it needs into it, and the memory
 		  must be accessible by the kernel.
 
+  fdtcontroladdr- if set this is the address of the control flattened
+		  device tree used by U-Boot when CONFIG_OF_CONTROL is
+		  defined.
+
   i2cfast	- (PPC405GP|PPC405EP only)
 		  if set to 'y' configures Linux I2C driver for fast
 		  mode (400kHZ). This environment variable is used in

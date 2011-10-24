@@ -286,6 +286,9 @@ void board_init_f(ulong bootflag)
 	/* FDT is at end of image */
 	gd->fdt_blob = (void *)(_end_ofs + _TEXT_BASE);
 #endif
+	/* Allow the early environment to override the fdt address */
+	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
+						(uintptr_t)gd->fdt_blob);
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {
