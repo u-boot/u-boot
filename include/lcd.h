@@ -159,8 +159,8 @@ typedef struct vidinfo {
 #elif defined(CONFIG_ATMEL_LCD)
 
 typedef struct vidinfo {
-	u_long vl_col;		/* Number of columns (i.e. 640) */
-	u_long vl_row;		/* Number of rows (i.e. 480) */
+	ushort vl_col;		/* Number of columns (i.e. 640) */
+	ushort vl_row;		/* Number of rows (i.e. 480) */
 	u_long vl_clk;	/* pixel clock in ps    */
 
 	/* LCD configuration register */
