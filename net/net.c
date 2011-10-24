@@ -1331,6 +1331,62 @@ static inline IP_t *NetDefragment(IP_t *ip, int *lenp)
 }
 #endif
 
+/**
+ * Receive an ICMP packet. We deal with REDIRECT and PING here, and silently
+ * drop others.
+ *
+ * @parma ip	IP packet containing the ICMP
+ */
+static void receive_icmp(IP_t *ip, int len, IPaddr_t src_ip, Ethernet_t *et)
+{
+	ICMP_t *icmph = (ICMP_t *)&ip->udp_src;
+
+	switch (icmph->type) {
+	case ICMP_REDIRECT:
+		if (icmph->code != ICMP_REDIR_HOST)
+			return;
+		printf(" ICMP Host Redirect to %pI4 ",
+			&icmph->un.gateway);
+		break;
+#if defined(CONFIG_CMD_PING)
+	case ICMP_ECHO_REPLY:
+		/*
+			* IP header OK.  Pass the packet to the
+			* current handler.
+			*/
+		/*
+		 * XXX point to ip packet - should this use
+		 * packet_icmp_handler?
+		 */
+		(*packetHandler)((uchar *)ip, 0, src_ip, 0, 0);
+		break;
+	case ICMP_ECHO_REQUEST:
+		debug("Got ICMP ECHO REQUEST, return %d bytes\n",
+			ETHER_HDR_SIZE + len);
+
+		memcpy(&et->et_dest[0], &et->et_src[0], 6);
+		memcpy(&et->et_src[0], NetOurEther, 6);
+
+		ip->ip_sum = 0;
+		ip->ip_off = 0;
+		NetCopyIP((void *)&ip->ip_dst, &ip->ip_src);
+		NetCopyIP((void *)&ip->ip_src, &NetOurIP);
+		ip->ip_sum = ~NetCksum((uchar *)ip,
+					IP_HDR_SIZE_NO_UDP >> 1);
+
+		icmph->type = ICMP_ECHO_REPLY;
+		icmph->checksum = 0;
+		icmph->checksum = ~NetCksum((uchar *)icmph,
+			(len - IP_HDR_SIZE_NO_UDP) >> 1);
+		(void) eth_send((uchar *)et,
+				ETHER_HDR_SIZE + len);
+		break;
+#endif
+	default:
+		break;
+	}
+}
+
 void
 NetReceive(volatile uchar *inpkt, int len)
 {
@@ -1617,49 +1673,8 @@ NetReceive(volatile uchar *inpkt, int len)
 		 * sure if there aren't any other situations.
 		 */
 		if (ip->ip_p == IPPROTO_ICMP) {
-			ICMP_t *icmph = (ICMP_t *)&(ip->udp_src);
-
-			switch (icmph->type) {
-			case ICMP_REDIRECT:
-				if (icmph->code != ICMP_REDIR_HOST)
-					return;
-				printf(" ICMP Host Redirect to %pI4 ",
-					&icmph->un.gateway);
-				return;
-#if defined(CONFIG_CMD_PING)
-			case ICMP_ECHO_REPLY:
-				/*
-				 * IP header OK.  Pass the packet to the
-				 * current handler.
-				 */
-				/* XXX point to ip packet */
-				(*packetHandler)((uchar *)ip, 0, src_ip, 0, 0);
-				return;
-			case ICMP_ECHO_REQUEST:
-				debug("Got ICMP ECHO REQUEST, return %d bytes\n",
-				      ETHER_HDR_SIZE + len);
-
-				memcpy(&et->et_dest[0], &et->et_src[0], 6);
-				memcpy(&et->et_src[0], NetOurEther, 6);
-
-				ip->ip_sum = 0;
-				ip->ip_off = 0;
-				NetCopyIP((void *)&ip->ip_dst, &ip->ip_src);
-				NetCopyIP((void *)&ip->ip_src, &NetOurIP);
-				ip->ip_sum = ~NetCksum((uchar *)ip,
-						       IP_HDR_SIZE_NO_UDP >> 1);
-
-				icmph->type = ICMP_ECHO_REPLY;
-				icmph->checksum = 0;
-				icmph->checksum = ~NetCksum((uchar *)icmph,
-					(len - IP_HDR_SIZE_NO_UDP) >> 1);
-				(void) eth_send((uchar *)et,
-						ETHER_HDR_SIZE + len);
-				return;
-#endif
-			default:
-				return;
-			}
+			receive_icmp(ip, len, src_ip, et);
+			return;
 		} else if (ip->ip_p != IPPROTO_UDP) {	/* Only UDP packets */
 			return;
 		}
