@@ -164,7 +164,7 @@ int vcxk_init(unsigned long width, unsigned long height)
 #else
 	#error CONFIG_SYS_VCXK_DEFAULT_LINEALIGN is invalid
 #endif
-	debug("linesize ((%d + 15) / 8 & ~0x1) = %d\n",
+	debug("linesize ((%ld + 15) / 8 & ~0x1) = %ld\n",
 		display_width, display_bwidth);
 
 #ifdef CONFIG_SYS_VCXK_AUTODETECT
