@@ -4456,8 +4456,8 @@ int yaffs_ReadDataFromFile(yaffs_Object * in, __u8 * buffer, loff_t offset,
 			   int nBytes)
 {
 
-	__u32 chunk;
-	__u32 start;
+	__u32 chunk = 0;
+	__u32 start = 0;
 	int nToCopy;
 	int n = nBytes;
 	int nDone = 0;
@@ -4576,8 +4576,8 @@ int yaffs_WriteDataToFile(yaffs_Object * in, const __u8 * buffer, loff_t offset,
 			  int nBytes, int writeThrough)
 {
 
-	__u32 chunk;
-	__u32 start;
+	__u32 chunk = 0;
+	__u32 start = 0;
 	int nToCopy;
 	int n = nBytes;
 	int nDone = 0;
@@ -4811,8 +4811,8 @@ int yaffs_ResizeFile(yaffs_Object * in, loff_t newSize)
 {
 
 	int oldFileSize = in->variant.fileVariant.fileSize;
-	__u32 newSizeOfPartialChunk;
-	__u32 newFullChunks;
+	__u32 newSizeOfPartialChunk = 0;
+	__u32 newFullChunks = 0;
 
 	yaffs_Device *dev = in->myDev;
 
