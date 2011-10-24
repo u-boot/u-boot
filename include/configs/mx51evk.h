@@ -79,6 +79,7 @@
 #define CONFIG_FSL_PMIC_CLK	2500000
 #define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 #define CONFIG_FSL_PMIC_BITLEN	32
+#define CONFIG_RTC_MC13XXX
 
 /*
  * MMC Configs
@@ -123,6 +124,8 @@
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_IMLS
+
+#define CONFIG_CMD_DATE
 
 #define CONFIG_BOOTDELAY	3
 
