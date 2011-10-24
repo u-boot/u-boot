@@ -51,4 +51,15 @@ DEFINE_GET_SYS_REG(DCM_CFG);
 #define DCM_CFG_OFF_DSZ	6	/* D-cache line size */
 #define DCM_CFG_MSK_DSZ	(0x7UL << DCM_CFG_OFF_DSZ)
 
+/*
+ * The current upper bound for NDS32 L1 data cache line sizes is 32 bytes.
+ * We use that value for aligning DMA buffers unless the board config has
+ * specified an alternate cache line size.
+ */
+#ifdef CONFIG_SYS_CACHELINE_SIZE
+#define ARCH_DMA_MINALIGN	CONFIG_SYS_CACHELINE_SIZE
+#else
+#define ARCH_DMA_MINALIGN	32
+#endif
+
 #endif /* _ASM_CACHE_H */
