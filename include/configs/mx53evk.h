@@ -63,6 +63,7 @@
 #define CONFIG_PMIC_I2C
 #define CONFIG_PMIC_FSL
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR    8
+#define CONFIG_RTC_MC13XXX
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -88,6 +89,7 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_DATE
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
