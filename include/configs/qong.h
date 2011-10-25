@@ -43,7 +43,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1536 * 1024)
 
 /*
  * Hardware drivers
@@ -92,6 +92,8 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
 
 /* USB */
 #define CONFIG_CMD_USB
@@ -137,6 +139,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_SPI
+#define CONFIG_CMD_UNZIP
 
 #define CONFIG_BOARD_LATE_INIT
 
