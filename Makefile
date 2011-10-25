@@ -142,9 +142,6 @@ unexport CDPATH
 SUBDIR_TOOLS = tools
 SUBDIR_EXAMPLES = examples/standalone examples/api
 SUBDIRS = $(SUBDIR_TOOLS)
-ifndef CONFIG_SANDBOX
-SUBDIRS += $(SUBDIR_EXAMPLES)
-endif
 
 .PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
 
@@ -156,6 +153,10 @@ ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
 all:
 sinclude $(obj)include/autoconf.mk.dep
 sinclude $(obj)include/autoconf.mk
+
+ifndef CONFIG_SANDBOX
+SUBDIRS += $(SUBDIR_EXAMPLES)
+endif
 
 # load ARCH, BOARD, and CPU configuration
 include $(obj)include/config.mk
