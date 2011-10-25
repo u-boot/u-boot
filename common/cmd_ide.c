@@ -1224,7 +1224,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		lba48 = 1;
 	}
 #endif
-	debug ("ide_read dev %d start %LX, blocks %lX buffer at %lX\n",
+	debug("ide_read dev %d start %lX, blocks %lX buffer at %lX\n",
 		device, blknr, blkcnt, (ulong)buffer);
 
 	ide_led (DEVICE_LED(device), 1);	/* LED on	*/
