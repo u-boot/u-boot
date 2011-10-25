@@ -583,7 +583,11 @@ static uint mii_m88e1111s_setmode_sr(uint mii_reg, struct altera_tse_priv *priv)
 {
 	uint mii_data = tse_mdio_read(priv, mii_reg);
 	mii_data &= 0xfff0;
-	mii_data |= 0xb;
+	if ((priv->flags >= 1) && (priv->flags <= 4))
+		mii_data |= 0xb;
+	else if (priv->flags == 5)
+		mii_data |= 0x4;
+
 	return mii_data;
 }
 
@@ -591,7 +595,9 @@ static uint mii_m88e1111s_setmode_cr(uint mii_reg, struct altera_tse_priv *priv)
 {
 	uint mii_data = tse_mdio_read(priv, mii_reg);
 	mii_data &= ~0x82;
-	mii_data |= 0x82;
+	if ((priv->flags >= 1) && (priv->flags <= 4))
+		mii_data |= 0x82;
+
 	return mii_data;
 }
 
