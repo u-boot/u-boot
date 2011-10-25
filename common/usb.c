@@ -56,15 +56,15 @@
 #endif
 
 #ifdef DEBUG
-#define USB_DEBUG
-#define USB_HUB_DEBUG
+#define USB_DEBUG	1
+#define USB_HUB_DEBUG	1
+#else
+#define USB_DEBUG	0
+#define USB_HUB_DEBUG	0
 #endif
 
-#ifdef	USB_DEBUG
-#define	USB_PRINTF(fmt, args...)	printf(fmt , ##args)
-#else
-#define USB_PRINTF(fmt, args...)
-#endif
+#define USB_PRINTF(fmt, args...)	debug_cond(USB_DEBUG, fmt, ##args)
+#define USB_HUB_PRINTF(fmt, args...)	debug_cond(USB_HUB_DEBUG, fmt, ##args)
 
 #define USB_BUFSIZ	512
 
@@ -967,13 +967,6 @@ void usb_scan_devices(void)
  * HUB "Driver"
  * Probes device for being a hub and configurate it
  */
-
-#ifdef	USB_HUB_DEBUG
-#define	USB_HUB_PRINTF(fmt, args...)	printf(fmt , ##args)
-#else
-#define USB_HUB_PRINTF(fmt, args...)
-#endif
-
 
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
 static int usb_hub_index;
