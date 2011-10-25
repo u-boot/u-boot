@@ -49,6 +49,21 @@ ssize_t os_read(int fd, void *buf, size_t count);
 ssize_t os_write(int fd, const void *buf, size_t count);
 
 /**
+ * Access to the OS lseek() system call
+ *
+ * \param fd	File descriptor as returned by os_open()
+ * \param offset	File offset (based on whence)
+ * \param whence	Position offset is relative to (see below)
+ * \return new file offset
+ */
+off_t os_lseek(int fd, off_t offset, int whence);
+
+/* Defines for "whence" in os_lseek() */
+#define OS_SEEK_SET	0
+#define OS_SEEK_CUR	1
+#define OS_SEEK_END	2
+
+/**
  * Access to the OS open() system call
  *
  * \param pathname	Pathname of file to open

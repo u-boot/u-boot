@@ -45,6 +45,19 @@ ssize_t os_write(int fd, const void *buf, size_t count)
 	return write(fd, buf, count);
 }
 
+off_t os_lseek(int fd, off_t offset, int whence)
+{
+	if (whence == OS_SEEK_SET)
+		whence = SEEK_SET;
+	else if (whence == OS_SEEK_CUR)
+		whence = SEEK_CUR;
+	else if (whence == OS_SEEK_END)
+		whence = SEEK_END;
+	else
+		os_exit(1);
+	return lseek(fd, offset, whence);
+}
+
 int os_open(const char *pathname, int flags)
 {
 	return open(pathname, flags);
