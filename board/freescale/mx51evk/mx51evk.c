@@ -254,15 +254,13 @@ static void power_init(void)
 	pmic_reg_write(p, REG_MODE_1, val);
 	udelay(200);
 
-	gpio_direction_output(46, 0);
-
-	/* Reset the ethernet controller over GPIO */
-	writel(0x1, IOMUXC_BASE_ADDR + 0x0AC);
-
 	/* Enable VGEN3, VCAM, VAUDIO, VVIDEO, VSD regulators */
 	val = VGEN3EN | VGEN3CONFIG | VCAMEN | VCAMCONFIG |
 		VVIDEOEN | VAUDIOEN  | VSDEN;
 	pmic_reg_write(p, REG_MODE_1, val);
+
+	mxc_request_iomux(MX51_PIN_EIM_A20, IOMUX_CONFIG_ALT1);
+	gpio_direction_output(46, 0);
 
 	udelay(500);
 
