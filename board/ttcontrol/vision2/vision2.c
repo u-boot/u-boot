@@ -31,7 +31,6 @@
 #include <asm/arch/iomux.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/errno.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <pmic.h>
