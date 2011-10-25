@@ -46,16 +46,16 @@
  */
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
-#if defined(CONFIG_I2C_MULTI_BUS)
-#if !defined(CONFIG_SYS_MAX_I2C_BUS)
-#define CONFIG_SYS_MAX_I2C_BUS		2
-#endif
-#define I2C_GET_BUS()		i2c_get_bus_num()
-#define I2C_SET_BUS(a)		i2c_set_bus_num(a)
+#ifdef	CONFIG_I2C_MULTI_BUS
+#define	MAX_I2C_BUS			2
+#define	I2C_MULTI_BUS			1
 #else
-#define CONFIG_SYS_MAX_I2C_BUS		1
-#define I2C_GET_BUS()		0
-#define I2C_SET_BUS(a)
+#define	MAX_I2C_BUS			1
+#define	I2C_MULTI_BUS			0
+#endif
+
+#if !defined(CONFIG_SYS_MAX_I2C_BUS)
+#define CONFIG_SYS_MAX_I2C_BUS		MAX_I2C_BUS
 #endif
 
 /* define the I2C bus number for RTC and DTT if not already done */
@@ -235,5 +235,19 @@ int i2c_set_bus_speed(unsigned int);
  */
 
 unsigned int i2c_get_bus_speed(void);
+
+/* NOTE: These two functions MUST be always_inline to avoid code growth! */
+static inline unsigned int I2C_GET_BUS(void) __attribute__((always_inline));
+static inline unsigned int I2C_GET_BUS(void)
+{
+	return I2C_MULTI_BUS ? i2c_get_bus_num() : 0;
+}
+
+static inline void I2C_SET_BUS(unsigned int bus) __attribute__((always_inline));
+static inline void I2C_SET_BUS(unsigned int bus)
+{
+	if (I2C_MULTI_BUS)
+		i2c_set_bus_num(bus);
+}
 
 #endif	/* _I2C_H_ */
