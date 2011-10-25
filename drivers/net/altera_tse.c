@@ -199,6 +199,12 @@ static int alt_sgdma_do_async_transfer(volatile struct alt_sgdma_registers *dev,
 		debug("Timeout waiting sgdma in do async!\n");
 
 	/*
+	 * Clear the RUN bit in the control register. This is needed
+	 * to restart the SGDMA engine later on.
+	 */
+	dev->control = 0;
+
+	/*
 	 * Clear any (previous) status register information
 	 * that might occlude our error checking later.
 	 */
