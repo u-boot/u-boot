@@ -1,6 +1,8 @@
 /*
- * (C) Copyright 2006-2008
- * Texas Instruments.
+ * Configuration settings for the TI OMAP3 EVM board.
+ *
+ * Copyright (C) 2006-2011 Texas Instruments Incorporated - http://www.ti.com/
+ *
  * Author :
  *	Manikandan Pillai <mani.pillai@ti.com>
  * Derived from Beagle Board and 3430 SDP code by
@@ -8,8 +10,6 @@
  *	Syed Mohammed Khasim <khasim@ti.com>
  *
  * Manikandan Pillai <mani.pillai@ti.com>
- *
- * Configuration settings for the TI OMAP3 EVM board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -30,11 +30,130 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __OMAP3EVM_CONFIG_H
+#define __OMAP3EVM_CONFIG_H
+
+#include <asm/arch/cpu.h>
+#include <asm/arch/omap3.h>
+
+/* =============================================================================
+ * This section holds the common definitions that correspond to the
+ * current default configuration - omap3_evm_config
+ * =============================================================================
+ */
+
+/* ----------------------------------------------------------------------------
+ * Supported U-boot commands
+ * ----------------------------------------------------------------------------
+ */
+
+/* Default commands to include */
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
+#define CONFIG_CMD_FAT		/* FAT support			*/
+#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
+
+#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
+#define CONFIG_CMD_MMC		/* MMC support			*/
+#define CONFIG_CMD_NAND		/* NAND support			*/
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+
+#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
+#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
+#undef CONFIG_CMD_IMI		/* iminfo			*/
+#undef CONFIG_CMD_IMLS		/* List all found images	*/
+
+/* ----------------------------------------------------------------------------
+ * Supported U-boot features
+ * ----------------------------------------------------------------------------
+ */
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_SYS_HUSH_PARSER
+
+/* Display CPU and Board information */
+#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_DISPLAY_BOARDINFO
+
+/* Allow to overwrite serial and ethaddr */
+#define CONFIG_ENV_OVERWRITE
+
+/* Add auto-completion support */
+#define CONFIG_AUTO_COMPLETE
+
+/* ----------------------------------------------------------------------------
+ * Supported hardware
+ * ----------------------------------------------------------------------------
+ */
+
+/* MMC */
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_OMAP_HSMMC
+#define CONFIG_DOS_PARTITION
+
+/* USB
+ *
+ * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
+ * Enable CONFIG_MUSB_UDD for Device functionalities.
+ */
+#define CONFIG_USB_OMAP3
+#define CONFIG_MUSB_HCD
+/* #define CONFIG_MUSB_UDC */
+
+/* -----------------------------------------------------------------------------
+ * Default environment
+ * -----------------------------------------------------------------------------
+ */
+#define CONFIG_BOOTDELAY	10
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"loadaddr=0x82000000\0" \
+	"usbtty=cdc_acm\0" \
+	"mmcdev=0\0" \
+	"memsize=128M\0" \
+	"console=ttyO0,115200n8\0" \
+	"mmcargs=setenv bootargs console=${console} " \
+		"mem=${memsize}\0 " \
+		"root=/dev/mmcblk0p2 rw " \
+		"rootfstype=ext3 rootwait\0" \
+	"nandargs=setenv bootargs console=${console} " \
+		"mem=${memsize}\0 " \
+		"root=/dev/mtdblock4 rw " \
+		"rootfstype=jffs2\0" \
+	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+	"bootscript=echo Running bootscript from mmc ...; " \
+		"source ${loadaddr}\0" \
+	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"bootm ${loadaddr}\0" \
+	"nandboot=echo Booting from nand ...; " \
+		"run nandargs; " \
+		"onenand read ${loadaddr} 280000 400000; " \
+		"bootm ${loadaddr}\0" \
+
+#define CONFIG_BOOTCOMMAND \
+	"if mmc rescan ${mmcdev}; then " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
+			"if run loaduimage; then " \
+				"run mmcboot; " \
+			"else run nandboot; " \
+			"fi; " \
+		"fi; " \
+	"else run nandboot; fi"
+
+/* =============================================================================
+ * This section holds the common definitions that can be used by
+ * all OMAP3EVM based configurations.
+ * =============================================================================
+ */
 
 /*
- * High Level Configuration Options
+ * High level configuration options
  */
 #define CONFIG_OMAP			/* This is TI OMAP core */
 #define CONFIG_OMAP34XX			/* belonging to 34XX family */
@@ -45,12 +164,6 @@
 #define CONFIG_OMAP3_EVM		/* This is a OMAP3 EVM */
 #define CONFIG_OMAP3_MICRON_DDR		/* with MICRON DDR part */
 #define CONFIG_TWL4030_POWER		/* with TWL4030 PMIC */
-
-/*
- * Get cpu and chip specific definitions
- */
-#include <asm/arch/cpu.h>
-#include <asm/arch/omap3.h>
 
 #undef CONFIG_USE_IRQ			/* no support for IRQs */
 
@@ -77,10 +190,10 @@
 
 /*
  * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
+ * These values are used in start.S
  */
 #define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
+
 #ifdef CONFIG_USE_IRQ
 #define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack 4 KiB */
 #define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack 4 KiB */
@@ -193,22 +306,8 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000
 
 /*
- * MMC
+ * USB
  */
-#define CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_OMAP_HSMMC
-#define CONFIG_DOS_PARTITION
-
-/* USB
- *
- * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
- * Enable CONFIG_MUSB_UDD for Device functionalities.
- */
-#define CONFIG_USB_OMAP3
-#define CONFIG_MUSB_HCD
-/* #define CONFIG_MUSB_UDC */
-
 #ifdef CONFIG_USB_OMAP3
 
 #ifdef CONFIG_MUSB_HCD
@@ -244,15 +343,9 @@
  * U-boot features
  * ----------------------------------------------------------------------------
  */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"OMAP3_EVM # "
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_MAXARGS		16	/* max args for a command */
-
-/* Display CPU and Board information */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_MISC_INIT_R
 
@@ -260,12 +353,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
-
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
-/* Add auto-completion support */
-#define CONFIG_AUTO_COMPLETE
 
 /* Size of Console IO buffer */
 #define CONFIG_SYS_CBSIZE		512
@@ -277,28 +364,11 @@
 /* Size of bootarg buffer */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
-/* Default commands to include */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
-
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
-#define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-
-#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_IMLS		/* List all found images	*/
+#define CONFIG_BOOTFILE			uImage
 
 /*
- * Additional definitions that depend on chosen commands
+ * NAND / OneNAND
  */
-/* NAND */
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
 
@@ -390,4 +460,4 @@
 		"fi; " \
 	"else run nandboot; fi"
 
-#endif /* __CONFIG_H */
+#endif /* __OMAP3EVM_CONFIG_H */
