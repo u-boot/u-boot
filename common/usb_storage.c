@@ -373,7 +373,7 @@ static int us_one_transfer(struct us_data *us, int pipe, char *buf, int length)
 					usb_clear_halt(us->pusb_dev, pipe);
 					us->pusb_dev->status = stat;
 					if (this_xfer == partial) {
-						USB_STOR_PRINTF("bulk transferred with error %X, but data ok\n", us->pusb_dev->status);
+						USB_STOR_PRINTF("bulk transferred with error %lX, but data ok\n", us->pusb_dev->status);
 						return 0;
 					}
 					else
@@ -385,12 +385,12 @@ static int us_one_transfer(struct us_data *us, int pipe, char *buf, int length)
 				}
 				USB_STOR_PRINTF("bulk transferred with error");
 				if (this_xfer == partial) {
-					USB_STOR_PRINTF(" %d, but data ok\n",
+					USB_STOR_PRINTF(" %ld, but data ok\n",
 							us->pusb_dev->status);
 					return 0;
 				}
 				/* if our try counter reaches 0, bail out */
-					USB_STOR_PRINTF(" %d, data %d\n",
+					USB_STOR_PRINTF(" %ld, data %d\n",
 						us->pusb_dev->status, partial);
 				if (!maxtry--)
 						return result;
@@ -438,19 +438,19 @@ static int usb_stor_BBB_reset(struct us_data *us)
 
 	/* long wait for reset */
 	wait_ms(150);
-	USB_STOR_PRINTF("BBB_reset result %d: status %X reset\n", result,
+	USB_STOR_PRINTF("BBB_reset result %d: status %lX reset\n", result,
 			us->pusb_dev->status);
 	pipe = usb_rcvbulkpipe(us->pusb_dev, us->ep_in);
 	result = usb_clear_halt(us->pusb_dev, pipe);
 	/* long wait for reset */
 	wait_ms(150);
-	USB_STOR_PRINTF("BBB_reset result %d: status %X clearing IN endpoint\n",
+	USB_STOR_PRINTF("BBB_reset result %d: status %lX clearing IN endpoint\n",
 			result, us->pusb_dev->status);
 	/* long wait for reset */
 	pipe = usb_sndbulkpipe(us->pusb_dev, us->ep_out);
 	result = usb_clear_halt(us->pusb_dev, pipe);
 	wait_ms(150);
-	USB_STOR_PRINTF("BBB_reset result %d: status %X"
+	USB_STOR_PRINTF("BBB_reset result %d: status %lX"
 			" clearing OUT endpoint\n", result,
 			us->pusb_dev->status);
 	USB_STOR_PRINTF("BBB_reset done\n");
@@ -478,7 +478,7 @@ static int usb_stor_CB_reset(struct us_data *us)
 
 	/* long wait for reset */
 	wait_ms(1500);
-	USB_STOR_PRINTF("CB_reset result %d: status %X"
+	USB_STOR_PRINTF("CB_reset result %d: status %lX"
 			" clearing endpoint halt\n", result,
 			us->pusb_dev->status);
 	usb_clear_halt(us->pusb_dev, usb_rcvbulkpipe(us->pusb_dev, us->ep_in));
@@ -569,7 +569,7 @@ int usb_stor_CB_comdat(ccb *srb, struct us_data *us)
 					 srb->cmd, srb->cmdlen,
 					 USB_CNTL_TIMEOUT * 5);
 		USB_STOR_PRINTF("CB_transport: control msg returned %d,"
-				" status %X\n", result, us->pusb_dev->status);
+				" status %lX\n", result, us->pusb_dev->status);
 		/* check the return code for the command */
 		if (result < 0) {
 			if (us->pusb_dev->status & USB_ST_STALLED) {
@@ -581,7 +581,7 @@ int usb_stor_CB_comdat(ccb *srb, struct us_data *us)
 				us->pusb_dev->status = status;
 			}
 			USB_STOR_PRINTF(" error during command %02X"
-					" Stat = %X\n", srb->cmd[0],
+					" Stat = %lX\n", srb->cmd[0],
 					us->pusb_dev->status);
 			return result;
 		}
@@ -778,7 +778,7 @@ again:
 		usb_stor_BBB_reset(us);
 		return USB_STOR_TRANSPORT_FAILED;
 	} else if (data_actlen > srb->datalen) {
-		USB_STOR_PRINTF("transferred %dB instead of %dB\n",
+		USB_STOR_PRINTF("transferred %dB instead of %ldB\n",
 			data_actlen, srb->datalen);
 		return USB_STOR_TRANSPORT_FAILED;
 	} else if (csw.bCSWStatus == CSWSTATUS_FAILED) {
@@ -803,7 +803,7 @@ int usb_stor_CB_transport(ccb *srb, struct us_data *us)
 	/* issue the command */
 do_retry:
 	result = usb_stor_CB_comdat(srb, us);
-	USB_STOR_PRINTF("command / Data returned %d, status %X\n",
+	USB_STOR_PRINTF("command / Data returned %d, status %lX\n",
 			result, us->pusb_dev->status);
 	/* if this is an CBI Protocol, get IRQ */
 	if (us->protocol == US_PR_CBI) {
@@ -826,7 +826,7 @@ do_retry:
 	/* do we have to issue an auto request? */
 	/* HERE we have to check the result */
 	if ((result < 0) && !(us->pusb_dev->status & USB_ST_STALLED)) {
-		USB_STOR_PRINTF("ERROR %X\n", us->pusb_dev->status);
+		USB_STOR_PRINTF("ERROR %lX\n", us->pusb_dev->status);
 		us->transport_reset(us);
 		return USB_STOR_TRANSPORT_ERROR;
 	}
@@ -853,7 +853,7 @@ do_retry:
 		status = usb_stor_CBI_get_status(psrb, us);
 
 	if ((result < 0) && !(us->pusb_dev->status & USB_ST_STALLED)) {
-		USB_STOR_PRINTF(" AUTO REQUEST ERROR %d\n",
+		USB_STOR_PRINTF(" AUTO REQUEST ERROR %ld\n",
 				us->pusb_dev->status);
 		return USB_STOR_TRANSPORT_ERROR;
 	}
