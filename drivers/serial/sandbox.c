@@ -44,8 +44,7 @@ void serial_putc(const char ch)
 
 void serial_puts(const char *str)
 {
-	while (*str)
-		serial_putc(*str++);
+	os_write(1, str, strlen(str));
 }
 
 int serial_getc(void)
