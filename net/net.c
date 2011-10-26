@@ -246,7 +246,6 @@ int		NetArpWaitTry;
 
 void ArpRequest(void)
 {
-	int i;
 	volatile uchar *pkt;
 	ARP_t *arp;
 
@@ -268,11 +267,8 @@ void ArpRequest(void)
 	memcpy(&arp->ar_data[0], NetOurEther, 6);
 	/* source IP addr */
 	NetWriteIP((uchar *) &arp->ar_data[6], NetOurIP);
-	for (i = 10; i < 16; ++i) {
-		/* dest ET addr = 0 */
-		arp->ar_data[i] = 0;
-	}
-
+	/* dest ET addr = 0 */
+	memset(&arp->ar_data[10], '\0', 6);
 	if ((NetArpWaitPacketIP & NetOurSubnetMask) !=
 	    (NetOurIP & NetOurSubnetMask)) {
 		if (NetOurGatewayIP == 0) {
