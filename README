@@ -134,7 +134,7 @@ Additional fields (if present) indicate release candidates or bug fix
 releases in "stable" maintenance trees.
 
 Examples:
-	U-Boot v2009.11     - Release November 2009
+	U-Boot v2009.11	    - Release November 2009
 	U-Boot v2009.11.1   - Release 1 in version November 2009 stable tree
 	U-Boot v2010.09-rc1 - Release candiate 1 for September 2010 release
 
@@ -769,7 +769,7 @@ The following options need to be configured:
 		CONFIG_CMD_NAND		* NAND support
 		CONFIG_CMD_NET		  bootp, tftpboot, rarpboot
 		CONFIG_CMD_PCA953X	* PCA953x I2C gpio commands
-		CONFIG_CMD_PCA953X_INFO	* PCA953x I2C gpio info command
+		CONFIG_CMD_PCA953X_INFO * PCA953x I2C gpio info command
 		CONFIG_CMD_PCI		* pciinfo
 		CONFIG_CMD_PCMCIA		* PCMCIA support
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
@@ -1730,24 +1730,24 @@ The following options need to be configured:
 		CONFIG_I2C_MULTI_BUS
 
 		This option allows the use of multiple I2C buses, each of which
-		must have a controller.  At any point in time, only one bus is
-		active.  To switch to a different bus, use the 'i2c dev' command.
+		must have a controller.	 At any point in time, only one bus is
+		active.	 To switch to a different bus, use the 'i2c dev' command.
 		Note that bus numbering is zero-based.
 
 		CONFIG_SYS_I2C_NOPROBES
 
 		This option specifies a list of I2C devices that will be skipped
-		when the 'i2c probe' command is issued.  If CONFIG_I2C_MULTI_BUS
+		when the 'i2c probe' command is issued.	 If CONFIG_I2C_MULTI_BUS
 		is set, specify a list of bus-device pairs.  Otherwise, specify
 		a 1D array of device addresses
 
 		e.g.
 			#undef	CONFIG_I2C_MULTI_BUS
-			#define CONFIG_SYS_I2C_NOPROBES	{0x50,0x68}
+			#define CONFIG_SYS_I2C_NOPROBES {0x50,0x68}
 
 		will skip addresses 0x50 and 0x68 on a board with one I2C bus
 
-			#define	CONFIG_I2C_MULTI_BUS
+			#define CONFIG_I2C_MULTI_BUS
 			#define CONFIG_SYS_I2C_MULTI_NOPROBES	{{0,0x50},{0,0x68},{1,0x54}}
 
 		will skip addresses 0x50 and 0x68 on bus 0 and address 0x54 on bus 1
@@ -1866,7 +1866,7 @@ The following options need to be configured:
 		Enables a hardware SPI driver for general-purpose reads
 		and writes.  As with CONFIG_SOFT_SPI, the board configuration
 		must define a list of chip-select function pointers.
-		Currently supported on some MPC8xxx processors.  For an
+		Currently supported on some MPC8xxx processors.	 For an
 		example, see include/configs/mpc8349emds.h.
 
 		CONFIG_MXC_SPI
@@ -2181,7 +2181,7 @@ Legacy uImage format:
    13	common/image.c		Start multifile image verification
    14	common/image.c		No initial ramdisk, no multifile, continue.
 
-   15	arch/<arch>/lib/bootm.c	All preparation done, transferring control to OS
+   15	arch/<arch>/lib/bootm.c All preparation done, transferring control to OS
 
   -30	arch/powerpc/lib/board.c	Fatal error, hang the system
   -31	post/post.c		POST test failed, detected by post_output_backlog()
@@ -2545,7 +2545,7 @@ Configuration Settings:
 		used) must be put below this limit, unless "bootm_low"
 		enviroment variable is defined and non-zero. In such case
 		all data for the Linux kernel must be between "bootm_low"
-		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.  The environment
+		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.	 The environment
 		variable "bootm_mapsize" will override the value of
 		CONFIG_SYS_BOOTMAPSZ.  If CONFIG_SYS_BOOTMAPSZ is undefined,
 		then the value in "bootm_size" will be used instead.
@@ -2835,7 +2835,7 @@ to save the current settings.
 	  This setting describes a second storage area of CONFIG_ENV_SIZE
 	  size used to hold a redundant copy of the environment data, so
 	  that there is a valid backup copy in case there is a power failure
-	  during a "saveenv" operation.  CONFIG_ENV_OFFSET_RENDUND must be
+	  during a "saveenv" operation.	 CONFIG_ENV_OFFSET_RENDUND must be
 	  aligned to an erase block boundary.
 
 	- CONFIG_ENV_RANGE (optional):
@@ -2929,7 +2929,7 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_CCSRBAR_PHYS:
 		Physical address of CCSR.  CCSR can be relocated to a new
 		physical address, if desired.  In this case, this macro should
-		be set to that address.  Otherwise, it should be set to the
+		be set to that address.	 Otherwise, it should be set to the
 		same value as CONFIG_SYS_CCSRBAR_DEFAULT.  For example, CCSR
 		is typically relocated on 36-bit builds.  It is recommended
 		that this macro be defined via the _HIGH and _LOW macros:
@@ -3461,7 +3461,7 @@ List of environment variables (most likely not complete):
 		  kernel -- see the description of CONFIG_SYS_BOOTMAPSZ and
 		  bootm_mapsize.
 
-  bootm_mapsize	- Size of the initial memory mapping for the Linux kernel.
+  bootm_mapsize - Size of the initial memory mapping for the Linux kernel.
 		  This variable is given as a hexadecimal number and it
 		  defines the size of the memory region starting at base
 		  address bootm_low that is accessible by the Linux kernel
@@ -3615,12 +3615,12 @@ flash or offset in NAND flash.
 boards currenlty use other variables for these purposes, and some
 boards use these variables for other purposes.
 
-Image               File Name        RAM Address       Flash Location
------               ---------        -----------       --------------
-u-boot              u-boot           u-boot_addr_r     u-boot_addr
-Linux kernel        bootfile         kernel_addr_r     kernel_addr
-device tree blob    fdtfile          fdt_addr_r        fdt_addr
-ramdisk             ramdiskfile      ramdisk_addr_r    ramdisk_addr
+Image		    File Name	     RAM Address       Flash Location
+-----		    ---------	     -----------       --------------
+u-boot		    u-boot	     u-boot_addr_r     u-boot_addr
+Linux kernel	    bootfile	     kernel_addr_r     kernel_addr
+device tree blob    fdtfile	     fdt_addr_r	       fdt_addr
+ramdisk		    ramdiskfile	     ramdisk_addr_r    ramdisk_addr
 
 The following environment variables may be used and automatically
 updated by the network boot commands ("bootp" and "rarpboot"),
@@ -3735,7 +3735,7 @@ o If neither SROM nor the environment contain a MAC address, an error
   is raised.
 
 If Ethernet drivers implement the 'write_hwaddr' function, valid MAC addresses
-will be programmed into hardware as part of the initialization process.  This
+will be programmed into hardware as part of the initialization process.	 This
 may be skipped by setting the appropriate 'ethmacskip' environment variable.
 The naming convention is as follows:
 "ethmacskip" (=>eth0), "eth1macskip" (=>eth1) etc.
