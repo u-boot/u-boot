@@ -38,19 +38,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static u32 system_rev;
-
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
 	{MMC_SDHC1_BASE_ADDR, 1},
 	{MMC_SDHC2_BASE_ADDR, 1},
 };
 #endif
-
-u32 get_board_rev(void)
-{
-	return system_rev;
-}
 
 int dram_init(void)
 {
@@ -404,8 +397,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	system_rev = get_cpu_rev();
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
