@@ -100,7 +100,7 @@
 /* turn on command-line edit/hist/auto */
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
-#define CONFIG_AUTOCOMPLETE
+#define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_SYS_NO_FLASH
 
