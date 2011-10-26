@@ -21,6 +21,7 @@
 
 #include <fcntl.h>
 #include <stdlib.h>
+#include <termios.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -52,4 +53,37 @@ int os_close(int fd)
 void os_exit(int exit_code)
 {
 	exit(exit_code);
+}
+
+/* Restore tty state when we exit */
+static struct termios orig_term;
+
+static void os_fd_restore(void)
+{
+	tcsetattr(0, TCSANOW, &orig_term);
+}
+
+/* Put tty into raw mode so <tab> and <ctrl+c> work */
+void os_tty_raw(int fd)
+{
+	static int setup = 0;
+	struct termios term;
+
+	if (setup)
+		return;
+	setup = 1;
+
+	/* If not a tty, don't complain */
+	if (tcgetattr(fd, &orig_term))
+		return;
+
+	term = orig_term;
+	term.c_iflag = IGNBRK | IGNPAR;
+	term.c_oflag = OPOST | ONLCR;
+	term.c_cflag = CS8 | CREAD | CLOCAL;
+	term.c_lflag = 0;
+	if (tcsetattr(fd, TCSANOW, &term))
+		return;
+
+	atexit(os_fd_restore);
 }

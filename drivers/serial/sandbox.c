@@ -30,6 +30,7 @@
 
 int serial_init(void)
 {
+	os_tty_raw(0);
 	return 0;
 }
 
