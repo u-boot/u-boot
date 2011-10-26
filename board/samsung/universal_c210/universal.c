@@ -27,6 +27,7 @@
 #include <asm/arch/adc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,6 +57,10 @@ int board_init(void)
 
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);
+
+#if defined(CONFIG_PMIC)
+	pmic_init();
+#endif
 
 	return 0;
 }
