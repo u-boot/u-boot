@@ -215,7 +215,9 @@ volatile uchar *NetRxPackets[PKTBUFSRX];
 
 /* Current RX packet handler */
 static rxhand_f *packetHandler;
+#ifdef CONFIG_CMD_TFTPPUT
 static rxhand_icmp_f *packet_icmp_handler;	/* Current ICMP rx handler */
+#endif
 /* Current timeout handler */
 static thand_f *timeHandler;
 /* Time base value */
@@ -576,9 +578,11 @@ restart:
 	}
 
 done:
+#ifdef CONFIG_CMD_TFTPPUT
 	/* Clear out the handlers */
 	NetSetHandler(NULL);
 	net_set_icmp_handler(NULL);
+#endif
 	return ret;
 }
 
@@ -653,10 +657,12 @@ NetSetHandler(rxhand_f *f)
 	packetHandler = f;
 }
 
+#ifdef CONFIG_CMD_TFTPPUT
 void net_set_icmp_handler(rxhand_icmp_f *f)
 {
 	packet_icmp_handler = f;
 }
+#endif
 
 void
 NetSetTimeout(ulong iv, thand_f *f)
@@ -1397,10 +1403,12 @@ static void receive_icmp(IP_t *ip, int len, IPaddr_t src_ip, Ethernet_t *et)
 		break;
 #endif
 	default:
+#ifdef CONFIG_CMD_TFTPPUT
 		if (packet_icmp_handler)
 			packet_icmp_handler(icmph->type, icmph->code,
 				ntohs(ip->udp_dst), src_ip, ntohs(ip->udp_src),
 				icmph->un.data, ntohs(ip->udp_len));
+#endif
 		break;
 	}
 }

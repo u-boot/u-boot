@@ -421,7 +421,7 @@ TftpSend(void)
 			 TftpOurPort, len);
 }
 
-
+#ifdef CONFIG_CMD_TFTPPUT
 static void icmp_handler(unsigned type, unsigned code, unsigned dest,
 			 IPaddr_t sip, unsigned src, uchar *pkt, unsigned len)
 {
@@ -430,6 +430,7 @@ static void icmp_handler(unsigned type, unsigned code, unsigned dest,
 		restart("TFTP server died");
 	}
 }
+#endif
 
 static void
 TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
@@ -771,8 +772,9 @@ void TftpStart(enum proto_t protocol)
 
 	NetSetTimeout(TftpTimeoutMSecs, TftpTimeout);
 	NetSetHandler(TftpHandler);
+#ifdef CONFIG_CMD_TFTPPUT
 	net_set_icmp_handler(icmp_handler);
-
+#endif
 	TftpRemotePort = WELL_KNOWN_PORT;
 	TftpTimeoutCount = 0;
 	/* Use a pseudo-random port unless a specific port is set */
