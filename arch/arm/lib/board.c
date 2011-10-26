@@ -73,10 +73,6 @@ extern int  AT91F_DataflashInit(void);
 extern void dataflash_print_info(void);
 #endif
 
-#ifdef CONFIG_DRIVER_RTL8019
-extern void rtl8019_get_enetaddr (uchar * addr);
-#endif
-
 #if defined(CONFIG_HARD_I2C) || \
     defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
