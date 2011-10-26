@@ -1432,17 +1432,36 @@ The following options need to be configured:
 		Define a default value for the IP address to use for
 		the default Ethernet interface, in case this is not
 		determined through e.g. bootp.
+		(Environment variable "ipaddr")
 
 - Server IP address:
 		CONFIG_SERVERIP
 
 		Defines a default value for the IP address of a TFTP
 		server to contact when using the "tftboot" command.
+		(Environment variable "serverip")
 
 		CONFIG_KEEP_SERVERADDR
 
 		Keeps the server's MAC address, in the env 'serveraddr'
 		for passing to bootargs (like Linux's netconsole option)
+
+- Gateway IP address:
+		CONFIG_GATEWAYIP
+
+		Defines a default value for the IP address of the
+		default router where packets to other networks are
+		sent to.
+		(Environment variable "gatewayip")
+
+- Subnet mask:
+		CONFIG_NETMASK
+
+		Defines a default value for the subnet mask (or
+		routing prefix) which is used to determine if an IP
+		address belongs to the local subnet or needs to be
+		forwarded through a router.
+		(Environment variable "netmask")
 
 - Multicast TFTP Mode:
 		CONFIG_MCAST_TFTP
