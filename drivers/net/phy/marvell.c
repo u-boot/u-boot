@@ -43,6 +43,24 @@
 #define MIIM_88E1111_PHY_LED_DIRECT	0x4100
 #define MIIM_88E1111_PHY_LED_COMBINE	0x411C
 
+/* 88E1111 Extended PHY Specific Control Register */
+#define MIIM_88E1111_PHY_EXT_CR		0x14
+#define MIIM_88E1111_RX_DELAY		0x80
+#define MIIM_88E1111_TX_DELAY		0x2
+
+/* 88E1111 Extended PHY Specific Status Register */
+#define MIIM_88E1111_PHY_EXT_SR		0x1b
+#define MIIM_88E1111_HWCFG_MODE_MASK		0xf
+#define MIIM_88E1111_HWCFG_MODE_COPPER_RGMII	0xb
+#define MIIM_88E1111_HWCFG_MODE_FIBER_RGMII	0x3
+#define MIIM_88E1111_HWCFG_MODE_SGMII_NO_CLK	0x4
+#define MIIM_88E1111_HWCFG_MODE_COPPER_RTBI	0x9
+#define MIIM_88E1111_HWCFG_FIBER_COPPER_AUTO	0x8000
+#define MIIM_88E1111_HWCFG_FIBER_COPPER_RES	0x2000
+
+#define MIIM_88E1111_COPPER		0
+#define MIIM_88E1111_FIBER		1
+
 /* 88E1118 PHY defines */
 #define MIIM_88E1118_PHY_PAGE		22
 #define MIIM_88E1118_PHY_LED_PAGE	3
@@ -162,19 +180,102 @@ static int m88e1011s_startup(struct phy_device *phydev)
 static int m88e1111s_config(struct phy_device *phydev)
 {
 	int reg;
+	int timeout;
 
 	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII) ||
 			(phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
 			(phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) ||
 			(phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID)) {
-		reg = phy_read(phydev, MDIO_DEVAD_NONE, 0x1b);
-		reg = (reg & 0xfff0) | 0xb;
-		phy_write(phydev, MDIO_DEVAD_NONE, 0x1b, reg);
-	} else {
-		phy_write(phydev, MDIO_DEVAD_NONE, 0x1b, 0x1f);
+		reg = phy_read(phydev,
+			MDIO_DEVAD_NONE, MIIM_88E1111_PHY_EXT_CR);
+		if ((phydev->interface == PHY_INTERFACE_MODE_RGMII) ||
+			(phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)) {
+			reg |= (MIIM_88E1111_RX_DELAY | MIIM_88E1111_TX_DELAY);
+		} else if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
+			reg &= ~MIIM_88E1111_TX_DELAY;
+			reg |= MIIM_88E1111_RX_DELAY;
+		} else if (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
+			reg &= ~MIIM_88E1111_RX_DELAY;
+			reg |= MIIM_88E1111_TX_DELAY;
+		}
+
+		phy_write(phydev,
+			MDIO_DEVAD_NONE, MIIM_88E1111_PHY_EXT_CR, reg);
+
+		reg = phy_read(phydev,
+			MDIO_DEVAD_NONE, MIIM_88E1111_PHY_EXT_SR);
+
+		reg &= ~(MIIM_88E1111_HWCFG_MODE_MASK);
+
+		if (reg & MIIM_88E1111_HWCFG_FIBER_COPPER_RES)
+			reg |= MIIM_88E1111_HWCFG_MODE_FIBER_RGMII;
+		else
+			reg |= MIIM_88E1111_HWCFG_MODE_COPPER_RGMII;
+
+		phy_write(phydev,
+			MDIO_DEVAD_NONE, MIIM_88E1111_PHY_EXT_SR, reg);
 	}
 
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x14, 0x0cd2);
+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
+		reg = phy_read(phydev,
+			MDIO_DEVAD_NONE, MIIM_88E1111_PHY_EXT_SR);
+
+		reg &= ~(MIIM_88E1111_HWCFG_MODE_MASK);
+		reg |= MIIM_88E1111_HWCFG_MODE_SGMII_NO_CLK;
+		reg |= MIIM_88E1111_HWCFG_FIBER_COPPER_AUTO;
+
+		phy_write(phydev, MDIO_DEVAD_NONE,
+			MIIM_88E1111_PHY_EXT_SR, reg);
+	}
+
+	if (phydev->interface == PHY_INTERFACE_MODE_RTBI) {
+		reg = phy_read(phydev,
+			MDIO_DEVAD_NONE, MIIM_88E1111_PHY_EXT_CR);
+		reg |= (MIIM_88E1111_RX_DELAY | MIIM_88E1111_TX_DELAY);
+		phy_write(phydev,
+			MDIO_DEVAD_NONE, MIIM_88E1111_PHY_EXT_CR, reg);
+
+		reg = phy_read(phydev, MDIO_DEVAD_NONE,
+			MIIM_88E1111_PHY_EXT_SR);
+		reg &= ~(MIIM_88E1111_HWCFG_MODE_MASK |
+			MIIM_88E1111_HWCFG_FIBER_COPPER_RES);
+		reg |= 0x7 | MIIM_88E1111_HWCFG_FIBER_COPPER_AUTO;
+		phy_write(phydev, MDIO_DEVAD_NONE,
+			MIIM_88E1111_PHY_EXT_SR, reg);
+
+		/* soft reset */
+		timeout = 1000;
+		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
+		udelay(1000);
+		reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+		while ((reg & BMCR_RESET) && --timeout) {
+			udelay(1000);
+			reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+		}
+		if (!timeout)
+			printf("%s: phy soft reset timeout\n", __func__);
+
+		reg = phy_read(phydev, MDIO_DEVAD_NONE,
+			MIIM_88E1111_PHY_EXT_SR);
+		reg &= ~(MIIM_88E1111_HWCFG_MODE_MASK |
+			MIIM_88E1111_HWCFG_FIBER_COPPER_RES);
+		reg |= MIIM_88E1111_HWCFG_MODE_COPPER_RTBI |
+			MIIM_88E1111_HWCFG_FIBER_COPPER_AUTO;
+		phy_write(phydev, MDIO_DEVAD_NONE,
+			MIIM_88E1111_PHY_EXT_SR, reg);
+	}
+
+	/* soft reset */
+	timeout = 1000;
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
+	udelay(1000);
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+	while ((reg & BMCR_RESET) && --timeout) {
+		udelay(1000);
+		reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
+	}
+	if (!timeout)
+		printf("%s: phy soft reset timeout\n", __func__);
 
 	genphy_config_aneg(phydev);
 
