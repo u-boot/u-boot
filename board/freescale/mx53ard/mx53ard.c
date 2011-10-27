@@ -37,11 +37,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u32 get_board_rev(void)
-{
-	return get_cpu_rev();
-}
-
 int dram_init(void)
 {
 	u32 size1, size2;
