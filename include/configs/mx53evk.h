@@ -33,12 +33,12 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_REVISION_TAG		1
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
+#define CONFIG_REVISION_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
 
-#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_LIBFDT
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
@@ -51,9 +51,9 @@
 #define CONFIG_SYS_MX53_UART1
 
 /* I2C Configs */
-#define CONFIG_CMD_I2C          1
-#define CONFIG_HARD_I2C         1
-#define CONFIG_I2C_MXC          1
+#define CONFIG_CMD_I2C
+#define CONFIG_HARD_I2C
+#define CONFIG_I2C_MXC
 #define CONFIG_SYS_I2C_MX53_PORT2       1
 #define CONFIG_SYS_I2C_SPEED            100000
 #define CONFIG_SYS_I2C_SLAVE            0xfe
