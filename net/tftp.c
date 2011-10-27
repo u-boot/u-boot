@@ -332,8 +332,12 @@ TftpSend(void)
 	case STATE_SEND_WRQ:
 		xp = pkt;
 		s = (ushort *)pkt;
+#ifdef CONFIG_CMD_TFTPPUT
 		*s++ = htons(TftpState == STATE_SEND_RRQ ? TFTP_RRQ :
 			TFTP_WRQ);
+#else
+		*s++ = htons(TFTP_RRQ);
+#endif
 		pkt = (uchar *)s;
 		strcpy((char *)pkt, tftp_filename);
 		pkt += strlen(tftp_filename) + 1;
@@ -730,7 +734,12 @@ void TftpStart(enum proto_t protocol)
 
 	printf("Using %s device\n", eth_get_name());
 	printf("TFTP %s server %pI4; our IP address is %pI4",
-	       protocol == TFTPPUT ? "to" : "from", &TftpRemoteIP, &NetOurIP);
+#ifdef CONFIG_CMD_TFTPPUT
+	       protocol == TFTPPUT ? "to" : "from",
+#else
+		"from",
+#endif
+		&TftpRemoteIP, &NetOurIP);
 
 	/* Check if we need to send across this subnet */
 	if (NetOurGatewayIP && NetOurSubnetMask) {
