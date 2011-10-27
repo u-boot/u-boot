@@ -43,8 +43,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static u32 system_rev;
-
 static struct fb_videomode nec_nl6448bc26_09c = {
 	"NEC_NL6448BC26-09C",
 	60,	/* Refresh */
@@ -148,13 +146,6 @@ static void init_drive_strength(void)
 	mxc_iomux_set_pad(MX51_PIN_CTL_DRAM_DQM3,
 		PAD_CTL_PKE_ENABLE | PAD_CTL_PUE_KEEPER |
 		PAD_CTL_DRV_HIGH | PAD_CTL_SRE_FAST);
-}
-
-u32 get_board_rev(void)
-{
-	system_rev = get_cpu_rev();
-
-	return system_rev;
 }
 
 int dram_init(void)
