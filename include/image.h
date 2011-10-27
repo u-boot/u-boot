@@ -615,7 +615,7 @@ void fit_conf_print(const void *fit, int noffset, const char *p);
 #ifndef USE_HOSTCC
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {
-	return !fit_image_check_arch(fdt, node, IH_ARCH_DEFAULT);
+	return fit_image_check_arch(fdt, node, IH_ARCH_DEFAULT);
 }
 #endif /* USE_HOSTCC */
 
