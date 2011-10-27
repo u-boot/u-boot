@@ -25,7 +25,7 @@
 #define readw(addr) \
   ({ unsigned short __v = (*(volatile unsigned short *) (addr)); __v; })
 #define readl(addr) \
-  ({ unsigned long __v = (*(volatile unsigned long *) (addr)); __v; })
+	({ unsigned int __v = (*(volatile unsigned int *) (addr)); __v; })
 
 #define writeb(b, addr) \
   (void)((*(volatile unsigned char *) (addr)) = (b))

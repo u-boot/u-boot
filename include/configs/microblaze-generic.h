@@ -68,6 +68,10 @@
 # define CONFIG_XILINX_LL_TEMAC		1
 # define CONFIG_SYS_ENET
 #endif
+#if defined(XILINX_AXIEMAC_BASEADDR)
+# define CONFIG_XILINX_AXIEMAC	1
+# define CONFIG_SYS_ENET
+#endif
 
 #undef ET_DEBUG
 
