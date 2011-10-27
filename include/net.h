@@ -430,6 +430,12 @@ extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, i
 extern void	NetReceive(volatile uchar *, int);
 
 /*
+ * Check if autoload is enabled. If so, use either NFS or TFTP to download
+ * the boot file.
+ */
+void net_auto_load(void);
+
+/*
  * The following functions are a bit ugly, but necessary to deal with
  * alignment restrictions on ARM.
  *

@@ -46,24 +46,8 @@ static void
 RarpHandler(uchar *dummi0, unsigned dummi1, IPaddr_t sip, unsigned dummi2,
 	    unsigned dummi3)
 {
-	char *s;
 	debug("Got good RARP\n");
-	if ((s = getenv("autoload")) != NULL) {
-		if (*s == 'n') {
-			/*
-			 * Just use RARP to configure system;
-			 * Do not use TFTP/NFS to to load the bootfile.
-			 */
-			NetState = NETLOOP_SUCCESS;
-			return;
-#if defined(CONFIG_CMD_NFS)
-		} else if ((s != NULL) && !strcmp(s, "NFS")) {
-			NfsStart();
-			return;
-#endif
-		}
-	}
-	TftpStart ();
+	net_auto_load();
 }
 
 

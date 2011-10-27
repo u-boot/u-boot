@@ -309,6 +309,36 @@ void ArpTimeoutCheck(void)
 	}
 }
 
+/*
+ * Check if autoload is enabled. If so, use either NFS or TFTP to download
+ * the boot file.
+ */
+void net_auto_load(void)
+{
+	const char *s = getenv("autoload");
+
+	if (s != NULL) {
+		if (*s == 'n') {
+			/*
+			 * Just use BOOTP/RARP to configure system;
+			 * Do not use TFTP to load the bootfile.
+			 */
+			NetState = NETLOOP_SUCCESS;
+			return;
+		}
+#if defined(CONFIG_CMD_NFS)
+		if (strcmp(s, "NFS") == 0) {
+			/*
+			 * Use NFS to load the bootfile.
+			 */
+			NfsStart();
+			return;
+		}
+#endif
+	}
+	TftpStart(TFTPGET);
+}
+
 static void NetInitLoop(enum proto_t protocol)
 {
 	static int env_changed_id;
