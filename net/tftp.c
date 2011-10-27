@@ -198,7 +198,7 @@ store_block(unsigned block, uchar *src, unsigned len)
 }
 
 /* Clear our state ready for a new transfer */
-void new_transfer(void)
+static void new_transfer(void)
 {
 	TftpLastBlock = 0;
 	TftpBlockWrap = 0;
