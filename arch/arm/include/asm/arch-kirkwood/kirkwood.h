@@ -27,13 +27,7 @@
 #ifndef _ASM_ARCH_KIRKWOOD_H
 #define _ASM_ARCH_KIRKWOOD_H
 
-#ifndef __ASSEMBLY__
-#include <asm/types.h>
-#include <asm/io.h>
-#endif /* __ASSEMBLY__ */
-
 #if defined (CONFIG_FEROCEON_88FR131) || defined (CONFIG_SHEEVA_88SV131)
-#include <asm/arch/cpu.h>
 
 /* SOC specific definations */
 #define INTREG_BASE			0xd0000000

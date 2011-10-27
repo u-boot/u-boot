@@ -73,4 +73,11 @@ const struct pad_conf_entry wkup_padconf_array_essential[] = {
 
 };
 
+const struct pad_conf_entry wkup_padconf_array_essential_4460[] = {
+
+{PAD1_FREF_CLK4_REQ, (M3)},	 /* gpio_wk7, TPS */
+
+};
+
+
 #endif  /* _OMAP4_MUX_DATA_H_ */

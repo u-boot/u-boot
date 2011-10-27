@@ -30,13 +30,7 @@
 #ifndef _ASM_ARCH_ORION5X_H
 #define _ASM_ARCH_ORION5X_H
 
-#ifndef __ASSEMBLY__
-#include <asm/types.h>
-#include <asm/io.h>
-#endif /* __ASSEMBLY__ */
-
 #if defined(CONFIG_FEROCEON)
-#include <asm/arch/cpu.h>
 
 /* SOC specific definations */
 #define ORION5X_REGISTER(x)			(ORION5X_REGS_PHY_BASE + x)

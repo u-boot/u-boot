@@ -187,6 +187,7 @@ COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 endif
 
 COBJS-y += console.o
+COBJS-y += dlmalloc.o
 COBJS-y += memsize.o
 COBJS-y += stdio.o
 

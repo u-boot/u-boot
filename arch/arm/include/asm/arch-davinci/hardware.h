@@ -260,6 +260,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_LPSC_UART2		(DAVINCI_LPSC_PSC1_BASE + 13)
 #define DAVINCI_LPSC_LCDC		(DAVINCI_LPSC_PSC1_BASE + 16)
 #define DAVINCI_LPSC_ePWM		(DAVINCI_LPSC_PSC1_BASE + 17)
+#define DAVINCI_LPSC_MMCSD1		(DAVINCI_LPSC_PSC1_BASE + 18)
 #define DAVINCI_LPSC_eCAP		(DAVINCI_LPSC_PSC1_BASE + 20)
 #define DAVINCI_LPSC_L3_CBA_RAM		(DAVINCI_LPSC_PSC1_BASE + 31)
 
@@ -355,6 +356,8 @@ struct davinci_psc_regs {
 #define davinci_psc1_regs ((struct davinci_psc_regs *)DAVINCI_PSC1_BASE)
 
 #endif /* CONFIG_SOC_DA8XX */
+
+#define PSC_MDSTAT_STATE		0x3f
 
 #ifndef CONFIG_SOC_DA8XX
 

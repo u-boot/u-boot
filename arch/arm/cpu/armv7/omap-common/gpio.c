@@ -237,11 +237,4 @@ int gpio_request(int gpio, const char *label)
  */
 void gpio_free(unsigned gpio)
 {
-	const struct gpio_bank *bank;
-
-	if (check_gpio(gpio) < 0)
-		return;
-	bank = get_gpio_bank(gpio);
-
-	_set_gpio_direction(bank, get_gpio_index(gpio), 1);
 }

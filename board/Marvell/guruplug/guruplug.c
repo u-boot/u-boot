@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <miiphy.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/mpp.h>
 #include "guruplug.h"

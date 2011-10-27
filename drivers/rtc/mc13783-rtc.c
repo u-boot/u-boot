@@ -23,24 +23,27 @@
 #include <common.h>
 #include <rtc.h>
 #include <spi.h>
+#include <pmic.h>
 #include <fsl_pmic.h>
 
 int rtc_get(struct rtc_time *rtc)
 {
 	u32 day1, day2, time;
 	int tim, i = 0;
+	struct pmic *p = get_pmic();
+	int ret;
 
 	do {
-		day1 = pmic_reg_read(REG_RTC_DAY);
-		if (day1 < 0)
+		ret = pmic_reg_read(p, REG_RTC_DAY, &day1);
+		if (ret < 0)
 			return -1;
 
-		time = pmic_reg_read(REG_RTC_TIME);
-		if (time < 0)
+		ret = pmic_reg_read(p, REG_RTC_TIME, &time);
+		if (ret < 0)
 			return -1;
 
-		day2 = pmic_reg_read(REG_RTC_DAY);
-		if (day2 < 0)
+		ret = pmic_reg_read(p, REG_RTC_DAY, &day2);
+		if (ret < 0)
 			return -1;
 
 	} while (day1 != day2 && i++ < 3);
@@ -58,14 +61,15 @@ int rtc_get(struct rtc_time *rtc)
 int rtc_set(struct rtc_time *rtc)
 {
 	u32 time, day;
+	struct pmic *p = get_pmic();
 
 	time = mktime(rtc->tm_year, rtc->tm_mon, rtc->tm_mday,
 		      rtc->tm_hour, rtc->tm_min, rtc->tm_sec);
 	day = time / 86400;
 	time %= 86400;
 
-	pmic_reg_write(REG_RTC_DAY, day);
-	pmic_reg_write(REG_RTC_TIME, time);
+	pmic_reg_write(p, REG_RTC_DAY, day);
+	pmic_reg_write(p, REG_RTC_TIME, time);
 
 	return 0;
 }

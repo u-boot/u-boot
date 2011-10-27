@@ -127,10 +127,6 @@ int get_board_revision(void)
 		revision = gpio_get_value(173) << 2 |
 			   gpio_get_value(172) << 1 |
 			   gpio_get_value(171);
-
-		gpio_free(171);
-		gpio_free(172);
-		gpio_free(173);
 	} else {
 		printf("Error: unable to acquire board revision GPIOs\n");
 		revision = -1;
@@ -521,8 +517,6 @@ int do_userbutton(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		button = 0;
 		printf("NOT pressed.\n");
 	}
-
-	gpio_free(gpio);
 
 	return !button;
 }

@@ -95,7 +95,6 @@ void zoom2_identify(void)
 
 		gpio_direction_input(94);
 		val = gpio_get_value(94);
-		gpio_free(94);
 
 		if (val)
 			revision = ZOOM2_REVISION_BETA;

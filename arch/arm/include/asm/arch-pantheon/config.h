@@ -25,6 +25,8 @@
 #ifndef _PANTHEON_CONFIG_H
 #define _PANTHEON_CONFIG_H
 
+#include <asm/arch/pantheon.h>
+
 #define CONFIG_ARM926EJS	1	/* Basic Architecture */
 
 #define CONFIG_SYS_TCLK		(14745600)	/* NS16550 clk config */
@@ -43,6 +45,24 @@
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		0
 #define CONFIG_SYS_I2C_SLAVE		0xfe
+#endif
+
+/*
+ * MMC definition
+ */
+#ifdef CONFIG_CMD_MMC
+#define CONFIG_CMD_FAT			1
+#define CONFIG_MMC			1
+#define CONFIG_GENERIC_MMC		1
+#define CONFIG_SDHCI			1
+#define CONFIG_MMC_SDHCI_IO_ACCESSORS	1
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT	0x1000
+#define CONFIG_MMC_SDMA			1
+#define CONFIG_MV_SDHCI			1
+#define CONFIG_DOS_PARTITION		1
+#define CONFIG_EFI_PARTITION		1
+#define CONFIG_SYS_MMC_NUM		2
+#define CONFIG_SYS_MMC_BASE		{0xD4280000, 0xd4281000}
 #endif
 
 #endif /* _PANTHEON_CONFIG_H */

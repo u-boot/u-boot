@@ -152,9 +152,11 @@ static void set_muxconf_regs_essential(void)
 		   sizeof(wkup_padconf_array_essential) /
 		   sizeof(struct pad_conf_entry));
 
-	/* gpio_wk7 is used for controlling TPS on 4460 */
 	if (omap_revision() >= OMAP4460_ES1_0)
-		writew(M3, CONTROL_WKUP_PAD1_FREF_CLK4_REQ);
+		do_set_mux(CONTROL_PADCONF_WKUP,
+				 wkup_padconf_array_essential_4460,
+				 sizeof(wkup_padconf_array_essential_4460) /
+				 sizeof(struct pad_conf_entry));
 }
 
 static void set_mux_conf_regs(void)
@@ -200,13 +202,13 @@ static void init_omap4_revision(void)
 		break;
 	case MIDR_CORTEX_A9_R1P2:
 		switch (readl(CONTROL_ID_CODE)) {
-		case OMAP4_CONTROL_ID_CODE_ES2_0:
+		case OMAP4430_CONTROL_ID_CODE_ES2_0:
 			*omap4_revision = OMAP4430_ES2_0;
 			break;
-		case OMAP4_CONTROL_ID_CODE_ES2_1:
+		case OMAP4430_CONTROL_ID_CODE_ES2_1:
 			*omap4_revision = OMAP4430_ES2_1;
 			break;
-		case OMAP4_CONTROL_ID_CODE_ES2_2:
+		case OMAP4430_CONTROL_ID_CODE_ES2_2:
 			*omap4_revision = OMAP4430_ES2_2;
 			break;
 		default:
@@ -218,7 +220,17 @@ static void init_omap4_revision(void)
 		*omap4_revision = OMAP4430_ES2_3;
 		break;
 	case MIDR_CORTEX_A9_R2P10:
-		*omap4_revision = OMAP4460_ES1_0;
+		switch (readl(CONTROL_ID_CODE)) {
+		case OMAP4460_CONTROL_ID_CODE_ES1_0:
+			*omap4_revision = OMAP4460_ES1_0;
+			break;
+		case OMAP4460_CONTROL_ID_CODE_ES1_1:
+			*omap4_revision = OMAP4460_ES1_1;
+			break;
+		default:
+			*omap4_revision = OMAP4460_ES1_0;
+			break;
+		}
 		break;
 	default:
 		*omap4_revision = OMAP4430_SILICON_ID_INVALID;

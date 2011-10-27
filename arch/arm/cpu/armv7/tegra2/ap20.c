@@ -36,7 +36,7 @@ u32 s_first_boot = 1;
 void init_pllx(void)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_PLL_ID_XCPU];
+	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_ID_XCPU];
 	u32 reg;
 
 	/* If PLLX is already enabled, just return */
@@ -189,7 +189,6 @@ static void reset_A9_cpu(int reset)
 
 static void clock_enable_coresight(int enable)
 {
-	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 	u32 rst, src;
 
 	clock_set_enable(PERIPH_ID_CORESIGHT, enable);
@@ -203,7 +202,7 @@ static void clock_enable_coresight(int enable)
 		 *  (bits 7:0), so 00000001b == 1.5 (n+1 + .5)
 		 */
 		src = CLK_DIVIDER(NVBL_PLLP_KHZ, 144000);
-		writel(src, &clkrst->crc_clk_src_csite);
+		clock_ll_set_source_divisor(PERIPH_ID_CSI, 0, src);
 
 		/* Unlock the CPU CoreSight interfaces */
 		rst = 0xC5ACCE55;

@@ -25,8 +25,10 @@
 #include <netdev.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <nand.h>
+#include <pmic.h>
 #include <fsl_pmic.h>
 #include <asm/gpio.h>
 #include "qong_fpga.h"
@@ -41,7 +43,7 @@ void hw_watchdog_reset(void)
 }
 #endif
 
-int dram_init (void)
+int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
 	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
@@ -58,14 +60,20 @@ static void qong_fpga_reset(void)
 	udelay(300);
 }
 
-int board_early_init_f (void)
+int board_early_init_f(void)
 {
 #ifdef CONFIG_QONG_FPGA
-	/* CS1: FPGA/Network Controller/GPIO */
-	/* 16-bit, no DTACK */
-	__REG(CSCR_U(1)) = 0x00000A01;
-	__REG(CSCR_L(1)) = 0x20040501;
-	__REG(CSCR_A(1)) = 0x04020C00;
+	/* CS1: FPGA/Network Controller/GPIO, 16-bit, no DTACK */
+	static const struct mxc_weimcs cs1 = {
+		/*    sp wp bcd bcs psz pme sync dol cnc wsc ew wws edc */
+		CSCR_U(0, 0,  0,  0,  0,  0,   0,  0,  0, 10, 0,  0,  1),
+		/*   oea oen ebwa ebwn csa ebc dsz csn psr cre wrap csen */
+		CSCR_L(2,  0,   0,   4,  0,  0,  5,  0,  0,  0,   0,   1),
+		/*  ebra ebrn rwa rwn mum lah lbn lba dww dct wwu age cnc2 fce*/
+		CSCR_A(0,   4,  0,  2,  0,  0,  3,  0,  0,  0,  0,  0,   0,  0)
+	};
+
+	mxc_setup_weimcs(1, &cs1);
 
 	/* setup pins for FPGA */
 	mx31_gpio_mux(IOMUX_MODE(0x76, MUX_CTL_GPIO));
@@ -141,55 +149,21 @@ int board_early_init_f (void)
 
 }
 
-int board_init (void)
+int board_init(void)
 {
 	/* Chip selects */
 	/* CS0: Nor Flash #0 - it must be init'ed when executing from DDR */
 	/* Assumptions: HCLK = 133 MHz, tACC = 130ns */
-	__REG(CSCR_U(0)) = ((0 << 31)	| /* SP */
-						(0 << 30)	| /* WP */
-						(0 << 28)	| /* BCD */
-						(0 << 24)	| /* BCS */
-						(0 << 22)	| /* PSZ */
-						(0 << 21)	| /* PME */
-						(0 << 20)	| /* SYNC */
-						(0 << 16)	| /* DOL */
-						(3 << 14)	| /* CNC */
-						(21 << 8)	| /* WSC */
-						(0 << 7)	| /* EW */
-						(0 << 4)	| /* WWS */
-						(6 << 0)	  /* EDC */
-					   );
+	static const struct mxc_weimcs cs0 = {
+		/*     sp wp bcd bcs psz pme sync dol cnc wsc ew wws edc */
+		CSCR_U(0, 0,  0,  0,  0,  0,   0,  0,  3, 21, 0,  0,  6),
+		/*   oea oen ebwa ebwn csa ebc dsz csn psr cre wrap csen */
+		CSCR_L(0,  1,   3,   3,  1,  1,  5,  1,  0,  0,   0,  1),
+		/*  ebra ebrn rwa rwn mum lah lbn lba dww dct wwu age cnc2 fce*/
+		CSCR_A(0,   1,  2,  2,  0,  0,  2,  0,  0,  0,  0,  0,   0,  0)
+	};
 
-	__REG(CSCR_L(0)) = ((2 << 28)	| /* OEA */
-						(1 << 24)	| /* OEN */
-						(3 << 20)	| /* EBWA */
-						(3 << 16)	| /* EBWN */
-						(1 << 12)	| /* CSA */
-						(1 << 11)	| /* EBC */
-						(5 << 8)	| /* DSZ */
-						(1 << 4)	| /* CSN */
-						(0 << 3)	| /* PSR */
-						(0 << 2)	| /* CRE */
-						(0 << 1)	| /* WRAP */
-						(1 << 0)	  /* CSEN */
-					   );
-
-	__REG(CSCR_A(0)) = ((2 << 28)	| /* EBRA */
-						(1 << 24)	| /* EBRN */
-						(2 << 20)	| /* RWA */
-						(2 << 16)	| /* RWN */
-						(0 << 15)	| /* MUM */
-						(0 << 13)	| /* LAH */
-						(2 << 10)	| /* LBN */
-						(0 << 8)	| /* LBA */
-						(0 << 6)	| /* DWW */
-						(0 << 4)	| /* DCT */
-						(0 << 3)	| /* WWU */
-						(0 << 2)	| /* AGE */
-						(0 << 1)	| /* CNC2 */
-						(0 << 0)	  /* FCE */
-					   );
+	mxc_setup_weimcs(0, &cs0);
 
 	/* board id for linux */
 	gd->bd->bi_arch_number = MACH_TYPE_QONG;
@@ -203,11 +177,15 @@ int board_init (void)
 int board_late_init(void)
 {
 	u32 val;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
 
 	/* Enable RTC battery */
-	val = pmic_reg_read(REG_POWER_CTL0);
-	pmic_reg_write(REG_POWER_CTL0, val | COINCHEN);
-	pmic_reg_write(REG_INT_STATUS1, RTCRSTI);
+	pmic_reg_read(p, REG_POWER_CTL0, &val);
+	pmic_reg_write(p, REG_POWER_CTL0, val | COINCHEN);
+	pmic_reg_write(p, REG_INT_STATUS1, RTCRSTI);
 
 #ifdef CONFIG_HW_WATCHDOG
 	mxc_hw_watchdog_enable();
@@ -216,13 +194,13 @@ int board_late_init(void)
 	return 0;
 }
 
-int checkboard (void)
+int checkboard(void)
 {
 	printf("Board: DAVE/DENX Qong\n");
 	return 0;
 }
 
-int misc_init_r (void)
+int misc_init_r(void)
 {
 #ifdef CONFIG_QONG_FPGA
 	u32 tmp;
@@ -247,11 +225,18 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_QONG_FPGA) && defined(CONFIG_NAND_PLAT)
 static void board_nand_setup(void)
 {
-
 	/* CS3: NAND 8-bit */
-	__REG(CSCR_U(3)) = 0x00004f00;
-	__REG(CSCR_L(3)) = 0x20013b31;
-	__REG(CSCR_A(3)) = 0x00020800;
+	static const struct mxc_weimcs cs3 = {
+		/*    sp wp bcd bcs psz pme sync dol cnc wsc ew wws edc */
+		CSCR_U(0, 0,  0,  0,  0,  0,   0,  0,  1, 15, 0,  0,  0),
+		/*   oea oen ebwa ebwn csa ebc dsz csn psr cre wrap csen */
+		CSCR_L(2,  0,   0,   1,  3,  1,  3,  3,  0,  0,   0,   1),
+		/*  ebra ebrn rwa rwn mum lah lbn lba dww dct wwu age cnc2 fce*/
+		CSCR_A(0,   0,  0,  2,  0,  0,  2,  0,  0,  0,  0,  0,  0,   0)
+	};
+
+	mxc_setup_weimcs(3, &cs3);
+
 	__REG(IOMUXC_GPR) |= 1 << 13;
 
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_NFC_WP, MUX_CTL_IN_GPIO));

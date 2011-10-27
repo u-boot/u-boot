@@ -34,6 +34,7 @@
 #include <asm/arch/mmc_host_def.h>
 #include <i2c.h>
 #include <image.h>
+#include <malloc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -105,6 +106,9 @@ void board_init_r(gd_t *id, ulong dummy)
 	u32 boot_device;
 	debug(">>spl:board_init_r()\n");
 
+	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
+			CONFIG_SYS_SPL_MALLOC_SIZE);
+
 	timer_init();
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
@@ -160,3 +164,11 @@ void preloader_console_init(void)
 	omap_rev_string(rev_string_buffer);
 	printf("Texas Instruments %s\n", rev_string_buffer);
 }
+
+void __omap_rev_string(char *str)
+{
+	sprintf(str, "Revision detection unimplemented");
+}
+
+void omap_rev_string(char *str)
+	__attribute__((weak, alias("__omap_rev_string")));

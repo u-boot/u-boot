@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,9 +49,16 @@ int board_early_init_f(void)
 	 * the only non-zero field "Wait State Control" is set to half the
 	 * default value.
 	 */
-	__REG(CSCR_U(0)) = 0x00000f00;
-	__REG(CSCR_L(0)) = 0x10000D03;
-	__REG(CSCR_A(0)) = 0x00720900;
+	static const struct mxc_weimcs cs0 = {
+		/*    sp wp bcd bcs psz pme sync dol cnc wsc ew wws edc */
+		CSCR_U(0, 0,  0,  0,  0,  0,   0,  0,  0, 15, 0,  0,  0),
+		/*   oea oen ebwa ebwn csa ebc dsz csn psr cre wrap csen */
+		CSCR_L(1,  0,   0,   0,  0,  1,  5,  0,  0,  0,   1,   1),
+		/*  ebra ebrn rwa rwn mum lah lbn lba dww dct wwu age cnc2 fce*/
+		CSCR_A(0,   0,  7,  2,  0,  0,  2,  1,  0,  0,  0,  0,   0,   0)
+	};
+
+	mxc_setup_weimcs(0, &cs0);
 
 	/* setup pins for UART1 */
 	mx31_gpio_mux(MUX_RXD1__UART1_RXD_MUX);
@@ -104,7 +112,7 @@ int board_init(void)
 	return 0;
 }
 
-int checkboard (void)
+int checkboard(void)
 {
 	printf("Board: MX31ADS\n");
 	return 0;

@@ -45,8 +45,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define timestamp gd->tbl
-#define lastinc gd->lastinc
+#define timestamp	(gd->tbl)
+#define lastinc		(gd->lastinc)
 
 /*
  * "time" is measured in 1 / CONFIG_SYS_HZ seconds,
@@ -124,7 +124,7 @@ int timer_init(void)
 	return 0;
 }
 
-unsigned long long get_ticks (void)
+unsigned long long get_ticks(void)
 {
 	struct gpt_regs *regs = (struct gpt_regs *)IMX_TIM1_BASE;
 	ulong now = readl(&regs->gpt_tcn); /* current tick value */
@@ -143,7 +143,7 @@ unsigned long long get_ticks (void)
 	return timestamp;
 }
 
-ulong get_timer_masked (void)
+ulong get_timer_masked(void)
 {
 	/*
 	 * get_ticks() returns a long long (64 bit), it wraps in
@@ -154,13 +154,13 @@ ulong get_timer_masked (void)
 	return tick_to_time(get_ticks());
 }
 
-ulong get_timer (ulong base)
+ulong get_timer(ulong base)
 {
-	return get_timer_masked () - base;
+	return get_timer_masked() - base;
 }
 
 /* delay x useconds AND preserve advance timstamp value */
-void __udelay (unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;

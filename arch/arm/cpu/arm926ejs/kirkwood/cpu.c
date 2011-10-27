@@ -26,6 +26,8 @@
 #include <netdev.h>
 #include <asm/cache.h>
 #include <u-boot/md5.h>
+#include <asm/io.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
 #include <hush.h>
 

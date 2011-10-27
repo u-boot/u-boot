@@ -60,9 +60,6 @@
 #define CONFIG_SYS_HZ_CLOCK		27000000	/* Timer Input clock freq */
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SOC_DM644X
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_L2CACHE_OFF
 /*====================================================*/
 /* EEPROM definitions for Atmel 24C256BN SEEPROM chip */
 /* on Sonata/DV_EVM board. No EEPROM on schmoogie.    */
@@ -105,7 +102,6 @@
 /* Network & Ethernet Configuration */
 /*==================================*/
 #define CONFIG_DRIVER_TI_EMAC
-#define CONFIG_EMAC_MDIO_PHY_NUM	1
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS

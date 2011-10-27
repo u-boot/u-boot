@@ -27,6 +27,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/io.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/spi.h>
 #include <asm/arch/mpp.h>
@@ -105,6 +106,10 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 	return (bus == 0 && (cs == 0 || cs == 1));
 }
 #endif
+
+void spi_init(void)
+{
+}
 
 void spi_cs_activate(struct spi_slave *slave)
 {

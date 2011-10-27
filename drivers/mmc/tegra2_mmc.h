@@ -73,6 +73,7 @@ struct mmc_host {
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
 	unsigned int base;	/* Base address, SDMMC1/2/3/4 */
+	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
 };
 
 int tegra2_mmc_init(int dev_index, int bus_width);

@@ -70,6 +70,10 @@ Conn Clark <clark@esteem.com>
 
 	ESTEEM192E	MPC8xx
 
+Jason Cooper <u-boot@lakedaemon.net>
+
+	dreamplug	ARM926EJS (Kirkwood SoC)
+
 Joe D'Abbraccio <ljd015@freescale.com>
 
 	MPC837xERDB	MPC837x
@@ -214,6 +218,10 @@ Wolfgang Grandegger <wg@denx.de>
 	PN62		MPC8240
 	IPHASE4539	MPC8260
 	SCM		MPC8260
+
+Rob Herring <rob.herring@calxeda.com>
+
+	highbank	highbank
 
 Klaus Heydeck <heydeck@kieback-peter.de>
 
@@ -733,6 +741,10 @@ Eric Millbrandt <emillbrandt@dekaresearch.com>
 Nagendra T S  <nagendra@mistralsolutions.com>
 
    am3517_crane    ARM ARMV7 (AM35x SoC)
+
+Chandan Nath <chandan.nath@ti.com>
+
+	am335x_evm	ARM ARMV7 (AM33xx Soc)
 
 Kyungmin Park <kyungmin.park@samsung.com>
 

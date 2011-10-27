@@ -43,9 +43,12 @@ struct clk_pll_simple {
  * structure for which we use clk_pll_simple. The reason for this non-
  * othogonal setup is not stated.
  */
-#define TEGRA_CLK_PLLS		6
-#define TEGRA_CLK_SIMPLE_PLLS	3	/* Number of simple PLLs */
-#define TEGRA_CLK_REGS		3	/* Number of clock enable registers */
+enum {
+	TEGRA_CLK_PLLS		= 6,	/* Number of normal PLLs */
+	TEGRA_CLK_SIMPLE_PLLS	= 3,	/* Number of simple PLLs */
+	TEGRA_CLK_REGS		= 3,	/* Number of clock enable registers */
+	TEGRA_CLK_SOURCES	= 64,	/* Number of peripheral clock sources */
+};
 
 /* Clock/Reset Controller (CLK_RST_CONTROLLER_) regs */
 struct clk_rst_ctlr {
@@ -79,65 +82,10 @@ struct clk_rst_ctlr {
 	uint crc_reserved10;		/* _reserved_10,	0xF8 */
 	uint crc_reserved11;		/* _reserved_11,	0xFC */
 
-	uint crc_clk_src_i2s1;		/*_I2S1_0,		0x100 */
-	uint crc_clk_src_i2s2;		/*_I2S2_0,		0x104 */
-	uint crc_clk_src_spdif_out;	/*_SPDIF_OUT_0,		0x108 */
-	uint crc_clk_src_spdif_in;	/*_SPDIF_IN_0,		0x10C */
-	uint crc_clk_src_pwm;		/*_PWM_0,		0x110 */
-	uint crc_clk_src_spi1;		/*_SPI1_0,		0x114 */
-	uint crc_clk_src_sbc2;		/*_SBC2_0,		0x118 */
-	uint crc_clk_src_sbc3;		/*_SBC3_0,		0x11C */
-	uint crc_clk_src_xio;		/*_XIO_0,		0x120 */
-	uint crc_clk_src_i2c1;		/*_I2C1_0,		0x124 */
-	uint crc_clk_src_dvc_i2c;	/*_DVC_I2C_0,		0x128 */
-	uint crc_clk_src_twc;		/*_TWC_0,		0x12C */
-	uint crc_reserved12;		/*			0x130 */
-	uint crc_clk_src_sbc1;		/*_SBC1_0,		0x134 */
-	uint crc_clk_src_disp1;		/*_DISP1_0,		0x138 */
-	uint crc_clk_src_disp2;		/*_DISP2_0,		0x13C */
-	uint crc_clk_src_cve;		/*_CVE_0,		0x140 */
-	uint crc_clk_src_ide;		/*_IDE_0,		0x144 */
-	uint crc_clk_src_vi;		/*_VI_0,		0x148 */
-	uint crc_reserved13;		/*			0x14C */
-	uint crc_clk_src_sdmmc1;	/*_SDMMC1_0,		0x150 */
-	uint crc_clk_src_sdmmc2;	/*_SDMMC2_0,		0x154 */
-	uint crc_clk_src_g3d;		/*_G3D_0,		0x158 */
-	uint crc_clk_src_g2d;		/*_G2D_0,		0x15C */
-	uint crc_clk_src_ndflash;	/*_NDFLASH_0,		0x160 */
-	uint crc_clk_src_sdmmc4;	/*_SDMMC4_0,		0x164 */
-	uint crc_clk_src_vfir;		/*_VFIR_0,		0x168 */
-	uint crc_clk_src_epp;		/*_EPP_0,		0x16C */
-	uint crc_clk_src_mp3;		/*_MPE_0,		0x170 */
-	uint crc_clk_src_mipi;		/*_MIPI_0,		0x174 */
-	uint crc_clk_src_uarta;		/*_UARTA_0,		0x178 */
-	uint crc_clk_src_uartb;		/*_UARTB_0,		0x17C */
-	uint crc_clk_src_host1x;	/*_HOST1X_0,		0x180 */
-	uint crc_reserved14;		/*			0x184 */
-	uint crc_clk_src_tvo;		/*_TVO_0,		0x188 */
-	uint crc_clk_src_hdmi;		/*_HDMI_0,		0x18C */
-	uint crc_reserved15;		/*			0x190 */
-	uint crc_clk_src_tvdac;		/*_TVDAC_0,		0x194 */
-	uint crc_clk_src_i2c2;		/*_I2C2_0,		0x198 */
-	uint crc_clk_src_emc;		/*_EMC_0,		0x19C */
-	uint crc_clk_src_uartc;		/*_UARTC_0,		0x1A0 */
-	uint crc_reserved16;		/*			0x1A4 */
-	uint crc_clk_src_vi_sensor;	/*_VI_SENSOR_0,		0x1A8 */
-	uint crc_reserved17;		/*			0x1AC */
-	uint crc_reserved18;		/*			0x1B0 */
-	uint crc_clk_src_sbc4;		/*_SBC4_0,		0x1B4 */
-	uint crc_clk_src_i2c3;		/*_I2C3_0,		0x1B8 */
-	uint crc_clk_src_sdmmc3;	/*_SDMMC3_0,		0x1BC */
-	uint crc_clk_src_uartd;		/*_UARTD_0,		0x1C0 */
-	uint crc_clk_src_uarte;		/*_UARTE_0,		0x1C4 */
-	uint crc_clk_src_vde;		/*_VDE_0,		0x1C8 */
-	uint crc_clk_src_owr;		/*_OWR_0,		0x1CC */
-	uint crc_clk_src_nor;		/*_NOR_0,		0x1D0 */
-	uint crc_clk_src_csite;		/*_CSITE_0,		0x1D4 */
-	uint crc_reserved19[9];		/*			0x1D8-1F8 */
-	uint crc_clk_src_osc;		/*_OSC_0,		0x1FC */
+	uint crc_clk_src[TEGRA_CLK_SOURCES]; /*_I2S1_0...	0x100-1fc */
 	uint crc_reserved20[80];	/*			0x200-33C */
-	uint crc_cpu_cmplx_set;		/* _CPU_CMPLX_SET_0,	0x340 */
-	uint crc_cpu_cmplx_clr;		/* _CPU_CMPLX_CLR_0,	0x344 */
+	uint crc_cpu_cmplx_set;		/* _CPU_CMPLX_SET_0,	0x340	  */
+	uint crc_cpu_cmplx_clr;		/* _CPU_CMPLX_CLR_0,	0x344     */
 };
 
 /* CLK_RST_CONTROLLER_CLK_CPU_CMPLX_0 */
@@ -156,10 +104,13 @@ struct clk_rst_ctlr {
 #define PLL_BASE_OVRRIDE_MASK	(1U << 28)
 
 #define PLL_DIVP_SHIFT		20
+#define PLL_DIVP_MASK		(7U << PLL_DIVP_SHIFT)
 
 #define PLL_DIVN_SHIFT		8
+#define PLL_DIVN_MASK		(0x3ffU << PLL_DIVN_SHIFT)
 
 #define PLL_DIVM_SHIFT		0
+#define PLL_DIVM_MASK		(0x1f << PLL_DIVM_SHIFT)
 
 /* CLK_RST_CONTROLLER_PLLx_MISC_0 */
 #define PLL_CPCON_SHIFT		8
@@ -168,9 +119,20 @@ struct clk_rst_ctlr {
 #define PLL_LFCON_SHIFT		4
 
 #define PLLU_VCO_FREQ_SHIFT	20
+#define PLLU_VCO_FREQ_MASK	(1U << PLLU_VCO_FREQ_SHIFT)
 
 /* CLK_RST_CONTROLLER_OSC_CTRL_0 */
 #define OSC_FREQ_SHIFT		30
 #define OSC_FREQ_MASK		(3U << OSC_FREQ_SHIFT)
+
+/* CLK_RST_CONTROLLER_CLK_SOURCE_x_OUT_0 */
+#define OUT_CLK_DIVISOR_SHIFT	0
+#define OUT_CLK_DIVISOR_MASK	(255 << OUT_CLK_DIVISOR_SHIFT)
+
+#define OUT_CLK_SOURCE_SHIFT	30
+#define OUT_CLK_SOURCE_MASK	(3U << OUT_CLK_SOURCE_SHIFT)
+
+#define OUT_CLK_SOURCE4_SHIFT	28
+#define OUT_CLK_SOURCE4_MASK	(15U << OUT_CLK_SOURCE4_SHIFT)
 
 #endif	/* CLK_RST_H */

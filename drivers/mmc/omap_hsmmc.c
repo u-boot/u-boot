@@ -475,12 +475,16 @@ int omap_mmc_init(int dev_index)
 	case 0:
 		mmc->priv = (hsmmc_t *)OMAP_HSMMC1_BASE;
 		break;
+#ifdef OMAP_HSMMC2_BASE
 	case 1:
 		mmc->priv = (hsmmc_t *)OMAP_HSMMC2_BASE;
 		break;
+#endif
+#ifdef OMAP_HSMMC3_BASE
 	case 2:
 		mmc->priv = (hsmmc_t *)OMAP_HSMMC3_BASE;
 		break;
+#endif
 	default:
 		mmc->priv = (hsmmc_t *)OMAP_HSMMC1_BASE;
 		return 1;

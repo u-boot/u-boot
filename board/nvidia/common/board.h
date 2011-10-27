@@ -25,10 +25,8 @@
 #define _BOARD_H_
 
 void tegra2_start(void);
-void clock_init(void);
-void pinmux_init(void);
-void gpio_init(void);
 void gpio_config_uart(void);
+void gpio_config_mmc(void);
 int tegra2_mmc_init(int dev_index, int bus_width);
 
 #endif	/* BOARD_H */

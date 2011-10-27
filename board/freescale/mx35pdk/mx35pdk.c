@@ -30,6 +30,7 @@
 #include <asm/arch/mx35_pins.h>
 #include <asm/arch/iomux.h>
 #include <i2c.h>
+#include <pmic.h>
 #include <fsl_pmic.h>
 #include <mc9sdz60.h>
 #include <mc13892.h>
@@ -202,9 +203,10 @@ int board_init(void)
 
 static inline int pmic_detect(void)
 {
-	int id;
+	unsigned int id;
+	struct pmic *p = get_pmic();
 
-	id = pmic_reg_read(REG_IDENTIFICATION);
+	pmic_reg_read(p, REG_IDENTIFICATION, &id);
 
 	id = (id >> 6) & 0x7;
 	if (id == 0x7)
@@ -225,15 +227,19 @@ int board_late_init(void)
 {
 	u8 val;
 	u32 pmic_val;
+	struct pmic *p;
 
+	pmic_init();
 	if (pmic_detect()) {
+		p = get_pmic();
 		mxc_request_iomux(MX35_PIN_WATCHDOG_RST, MUX_CONFIG_SION |
 					MUX_CONFIG_ALT1);
 
-		pmic_val = pmic_reg_read(REG_SETTING_0);
-		pmic_reg_write(REG_SETTING_0, pmic_val | VO_1_30V | VO_1_50V);
-		pmic_val = pmic_reg_read(REG_MODE_0);
-		pmic_reg_write(REG_MODE_0, pmic_val | VGEN3EN);
+		pmic_reg_read(p, REG_SETTING_0, &pmic_val);
+		pmic_reg_write(p, REG_SETTING_0,
+			pmic_val | VO_1_30V | VO_1_50V);
+		pmic_reg_read(p, REG_MODE_0, &pmic_val);
+		pmic_reg_write(p, REG_MODE_0, pmic_val | VGEN3EN);
 
 		mxc_request_iomux(MX35_PIN_COMPARE, MUX_CONFIG_GPIO);
 		mxc_iomux_set_input(MUX_IN_GPIO1_IN_5, INPUT_CTL_PATH0);

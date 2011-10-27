@@ -23,36 +23,46 @@
 #include <mmc.h>
 #include <asm/io.h>
 #include <asm/arch/clk_rst.h>
+#include <asm/arch/clock.h>
 #include "tegra2_mmc.h"
 
 /* support 4 mmc hosts */
 struct mmc mmc_dev[4];
 struct mmc_host mmc_host[4];
 
-static inline struct tegra2_mmc *tegra2_get_base_mmc(int dev_index)
+
+/**
+ * Get the host address and peripheral ID for a device. Devices are numbered
+ * from 0 to 3.
+ *
+ * @param host		Structure to fill in (base, reg, mmc_id)
+ * @param dev_index	Device index (0-3)
+ */
+static void tegra2_get_setup(struct mmc_host *host, int dev_index)
 {
-	unsigned long offset;
 	debug("tegra2_get_base_mmc: dev_index = %d\n", dev_index);
 
 	switch (dev_index) {
-	case 0:
-		offset = TEGRA2_SDMMC4_BASE;
-		break;
 	case 1:
-		offset = TEGRA2_SDMMC3_BASE;
+		host->base = TEGRA2_SDMMC3_BASE;
+		host->mmc_id = PERIPH_ID_SDMMC3;
 		break;
 	case 2:
-		offset = TEGRA2_SDMMC2_BASE;
+		host->base = TEGRA2_SDMMC2_BASE;
+		host->mmc_id = PERIPH_ID_SDMMC2;
 		break;
 	case 3:
-		offset = TEGRA2_SDMMC1_BASE;
+		host->base = TEGRA2_SDMMC1_BASE;
+		host->mmc_id = PERIPH_ID_SDMMC1;
 		break;
+	case 0:
 	default:
-		offset = TEGRA2_SDMMC4_BASE;
+		host->base = TEGRA2_SDMMC4_BASE;
+		host->mmc_id = PERIPH_ID_SDMMC4;
 		break;
 	}
 
-	return (struct tegra2_mmc *)(offset);
+	host->reg = (struct tegra2_mmc *)host->base;
 }
 
 static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
@@ -274,62 +284,24 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 static void mmc_change_clock(struct mmc_host *host, uint clock)
 {
-	int div, hw_div;
+	int div;
 	unsigned short clk;
 	unsigned long timeout;
-	unsigned int reg, hostbase;
-	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+
 	debug(" mmc_change_clock called\n");
 
-	/* Change Tegra2 SDMMCx clock divisor here */
-	/* Source is 216MHz, PLLP_OUT0 */
+	/*
+	 * Change Tegra2 SDMMCx clock divisor here. Source is 216MHz,
+	 * PLLP_OUT0
+	 */
 	if (clock == 0)
 		goto out;
-
-	div = 1;
-	if (clock <= 400000) {
-		hw_div = ((9-1)<<1);		/* Best match is 375KHz */
-		div = 64;
-	} else if (clock <= 20000000)
-		hw_div = ((11-1)<<1);		/* Best match is 19.6MHz */
-	else if (clock <= 26000000)
-		hw_div = ((9-1)<<1);		/* Use 24MHz */
-	else
-		hw_div = ((4-1)<<1) + 1;	/* 4.5 divisor for 48MHz */
-
-	debug("mmc_change_clock: hw_div = %d, card clock div = %d\n",
-		hw_div, div);
-
-	/* Change SDMMCx divisor */
-
-	hostbase = readl(&host->base);
-	debug("mmc_change_clock: hostbase = %08X\n", hostbase);
-
-	if (hostbase == TEGRA2_SDMMC1_BASE) {
-		reg = readl(&clkrst->crc_clk_src_sdmmc1);
-		reg &= 0xFFFFFF00;	/* divisor (7.1) = 00 */
-		reg |= hw_div;		/* n-1 */
-		writel(reg, &clkrst->crc_clk_src_sdmmc1);
-	} else if (hostbase == TEGRA2_SDMMC2_BASE) {
-		reg = readl(&clkrst->crc_clk_src_sdmmc2);
-		reg &= 0xFFFFFF00;	/* divisor (7.1) = 00 */
-		reg |= hw_div;		/* n-1 */
-		writel(reg, &clkrst->crc_clk_src_sdmmc2);
-	} else if (hostbase == TEGRA2_SDMMC3_BASE) {
-		reg = readl(&clkrst->crc_clk_src_sdmmc3);
-		reg &= 0xFFFFFF00;	/* divisor (7.1) = 00 */
-		reg |= hw_div;		/* n-1 */
-		writel(reg, &clkrst->crc_clk_src_sdmmc3);
-	} else {
-		reg = readl(&clkrst->crc_clk_src_sdmmc4);
-		reg &= 0xFFFFFF00;	/* divisor (7.1) = 00 */
-		reg |= hw_div;		/* n-1 */
-		writel(reg, &clkrst->crc_clk_src_sdmmc4);
-	}
+	clock_adjust_periph_pll_div(host->mmc_id, CLOCK_ID_PERIPH, clock,
+				    &div);
+	debug("div = %d\n", div);
 
 	writew(0, &host->reg->clkcon);
 
-	div >>= 1;
 	/*
 	 * CLKCON
 	 * SELFREQ[15:8]	: base clock divided by value
@@ -337,6 +309,7 @@ static void mmc_change_clock(struct mmc_host *host, uint clock)
 	 * STBLINTCLK[1]	: Internal Clock Stable
 	 * ENINTCLK[0]		: Internal Clock Enable
 	 */
+	div >>= 1;
 	clk = (div << 8) | (1 << 0);
 	writew(clk, &host->reg->clkcon);
 
@@ -355,7 +328,6 @@ static void mmc_change_clock(struct mmc_host *host, uint clock)
 	writew(clk, &host->reg->clkcon);
 
 	debug("mmc_change_clock: clkcon = %08X\n", clk);
-	debug("mmc_change_clock: CLK_SOURCE_SDMMCx = %08X\n", reg);
 
 out:
 	host->clock = clock;
@@ -370,7 +342,6 @@ static void mmc_set_ios(struct mmc *mmc)
 	debug("bus_width: %x, clock: %d\n", mmc->bus_width, mmc->clock);
 
 	/* Change clock first */
-
 	mmc_change_clock(host, mmc->clock);
 
 	ctrl = readb(&host->reg->hostctl);
@@ -481,7 +452,7 @@ static int tegra2_mmc_initialize(int dev_index, int bus_width)
 		mmc->host_caps = MMC_MODE_8BIT;
 	else
 		mmc->host_caps = MMC_MODE_4BIT;
-	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
+	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
 
 	/*
 	 * min freq is for card identification, and is the highest
@@ -495,8 +466,7 @@ static int tegra2_mmc_initialize(int dev_index, int bus_width)
 	mmc->f_max = 48000000;
 
 	mmc_host[dev_index].clock = 0;
-	mmc_host[dev_index].reg = tegra2_get_base_mmc(dev_index);
-	mmc_host[dev_index].base = (unsigned int)mmc_host[dev_index].reg;
+	tegra2_get_setup(&mmc_host[dev_index], dev_index);
 	mmc_register(mmc);
 
 	return 0;

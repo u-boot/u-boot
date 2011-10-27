@@ -27,7 +27,7 @@
 
 #include <common.h>
 #include <config.h>
-#include <asm/arch/orion5x.h>
+#include <asm/arch/cpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

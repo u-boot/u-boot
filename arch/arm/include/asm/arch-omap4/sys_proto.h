@@ -43,7 +43,6 @@ void sr32(void *, u32, u32, u32);
 u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);
 void set_pl310_ctrl_reg(u32 val);
-void omap_rev_string(char *omap4_rev_string);
 void setup_clocks_for_console(void);
 void prcm_init(void);
 void bypass_dpll(u32 *const base);

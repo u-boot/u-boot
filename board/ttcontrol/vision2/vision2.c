@@ -34,6 +34,7 @@
 #include <asm/errno.h>
 #include <i2c.h>
 #include <mmc.h>
+#include <pmic.h>
 #include <fsl_esdhc.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
@@ -313,59 +314,63 @@ static void reset_peripherals(int reset)
 static void power_init_mx51(void)
 {
 	unsigned int val;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
 
 	/* Write needed to Power Gate 2 register */
-	val = pmic_reg_read(REG_POWER_MISC);
+	pmic_reg_read(p, REG_POWER_MISC, &val);
 
 	/* enable VCAM with 2.775V to enable read from PMIC */
 	val = VCAMCONFIG | VCAMEN;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 
 	/*
 	 * Set switchers in Auto in NORMAL mode & STANDBY mode
 	 * Setup the switcher mode for SW1 & SW2
 	 */
-	val = pmic_reg_read(REG_SW_4);
+	pmic_reg_read(p, REG_SW_4, &val);
 	val = (val & ~((SWMODE_MASK << SWMODE1_SHIFT) |
 		(SWMODE_MASK << SWMODE2_SHIFT)));
 	val |= (SWMODE_AUTO_AUTO << SWMODE1_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE2_SHIFT);
-	pmic_reg_write(REG_SW_4, val);
+	pmic_reg_write(p, REG_SW_4, val);
 
 	/* Setup the switcher mode for SW3 & SW4 */
-	val = pmic_reg_read(REG_SW_5);
+	pmic_reg_read(p, REG_SW_5, &val);
 	val &= ~((SWMODE_MASK << SWMODE4_SHIFT) |
 		(SWMODE_MASK << SWMODE3_SHIFT));
 	val |= (SWMODE_AUTO_AUTO << SWMODE4_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE3_SHIFT);
-	pmic_reg_write(REG_SW_5, val);
+	pmic_reg_write(p, REG_SW_5, val);
 
 
 	/* Set VGEN3 to 1.8V, VCAM to 3.0V */
-	val = pmic_reg_read(REG_SETTING_0);
+	pmic_reg_read(p, REG_SETTING_0, &val);
 	val &= ~(VCAM_MASK | VGEN3_MASK);
 	val |= VCAM_3_0;
-	pmic_reg_write(REG_SETTING_0, val);
+	pmic_reg_write(p, REG_SETTING_0, val);
 
 	/* Set VVIDEO to 2.775V, VAUDIO to 3V0, VSD to 1.8V */
-	val = pmic_reg_read(REG_SETTING_1);
+	pmic_reg_read(p, REG_SETTING_1, &val);
 	val &= ~(VVIDEO_MASK | VSD_MASK | VAUDIO_MASK);
 	val |= VVIDEO_2_775 | VAUDIO_3_0 | VSD_1_8;
-	pmic_reg_write(REG_SETTING_1, val);
+	pmic_reg_write(p, REG_SETTING_1, val);
 
 	/* Configure VGEN3 and VCAM regulators to use external PNP */
 	val = VGEN3CONFIG | VCAMCONFIG;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 	udelay(200);
 
 	/* Enable VGEN3, VCAM, VAUDIO, VVIDEO, VSD regulators */
 	val = VGEN3EN | VGEN3CONFIG | VCAMEN | VCAMCONFIG |
 		VVIDEOEN | VAUDIOEN  | VSDEN;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 
-	val = pmic_reg_read(REG_POWER_CTL2);
+	pmic_reg_read(p, REG_POWER_CTL2, &val);
 	val |= WDIRESET;
-	pmic_reg_write(REG_POWER_CTL2, val);
+	pmic_reg_write(p, REG_POWER_CTL2, val);
 
 	udelay(2500);
 

@@ -32,6 +32,7 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <pmic.h>
 #include <fsl_pmic.h>
 #include <asm/gpio.h>
 #include <mc13892.h>
@@ -124,12 +125,16 @@ static void setup_i2c(unsigned int port_number)
 void power_init(void)
 {
 	unsigned int val;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
 
 	/* Set VDDA to 1.25V */
-	val = pmic_reg_read(REG_SW_2);
+	pmic_reg_read(p, REG_SW_2, &val);
 	val &= ~SWX_OUT_MASK;
 	val |= SWX_OUT_1_25;
-	pmic_reg_write(REG_SW_2, val);
+	pmic_reg_write(p, REG_SW_2, val);
 
 	/*
 	 * Need increase VCC and VDDA to 1.3V
@@ -137,16 +142,16 @@ void power_init(void)
 	 */
 	if (is_soc_rev(CHIP_REV_2_0) == 0) {
 		/* Set VCC to 1.3V for TO2 */
-		val = pmic_reg_read(REG_SW_1);
+		pmic_reg_read(p, REG_SW_1, &val);
 		val &= ~SWX_OUT_MASK;
 		val |= SWX_OUT_1_30;
-		pmic_reg_write(REG_SW_1, val);
+		pmic_reg_write(p, REG_SW_1, val);
 
 		/* Set VDDA to 1.3V for TO2 */
-		val = pmic_reg_read(REG_SW_2);
+		pmic_reg_read(p, REG_SW_2, &val);
 		val &= ~SWX_OUT_MASK;
 		val |= SWX_OUT_1_30;
-		pmic_reg_write(REG_SW_2, val);
+		pmic_reg_write(p, REG_SW_2, val);
 	}
 }
 

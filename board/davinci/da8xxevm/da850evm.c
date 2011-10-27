@@ -278,6 +278,20 @@ u32 get_board_rev(void)
 	return rev;
 }
 
+int board_early_init_f(void)
+{
+	/*
+	 * Power on required peripherals
+	 * ARM does not have access by default to PSC0 and PSC1
+	 * assuming here that the DSP bootloader has set the IOPU
+	 * such that PSC access is available to ARM
+	 */
+	if (da8xx_configure_lpsc_items(lpsc, ARRAY_SIZE(lpsc)))
+		return 1;
+
+	return 0;
+}
+
 int board_init(void)
 {
 #ifdef CONFIG_USE_NOR
@@ -309,15 +323,6 @@ int board_init(void)
 
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
-
-	/*
-	 * Power on required peripherals
-	 * ARM does not have access by default to PSC0 and PSC1
-	 * assuming here that the DSP bootloader has set the IOPU
-	 * such that PSC access is available to ARM
-	 */
-	if (da8xx_configure_lpsc_items(lpsc, ARRAY_SIZE(lpsc)))
-		return 1;
 
 	/* setup the SUSPSRC for ARM to control emulation suspend */
 	writel(readl(&davinci_syscfg_regs->suspsrc) &

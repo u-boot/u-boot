@@ -71,5 +71,4 @@ void power_init_r(void);
 void dieid_num_r(void);
 void do_omap3_emu_romcode_call(u32 service_id, u32 parameters);
 void omap3_gp_romcode_call(u32 service_id, u32 parameter);
-void omap_rev_string(char *omap_rev_string);
 #endif
