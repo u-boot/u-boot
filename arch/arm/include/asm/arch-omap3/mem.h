@@ -86,28 +86,16 @@ enum {
 		ACTIM_CTRLB_TXP(b)	|	\
 		ACTIM_CTRLB_TXSR(d)
 
-/* Infineon part of 3430SDP (165MHz optimized) 6.06ns
- *   ACTIMA
- *	TDAL = Twr/Tck + Trp/tck = 15/6 + 18/6 = 2.5 + 3 = 5.5 -> 6
- *	TDPL (Twr) = 15/6	= 2.5 -> 3
- *	TRRD = 12/6	= 2
- *	TRCD = 18/6	= 3
- *	TRP = 18/6	= 3
- *	TRAS = 42/6	= 7
- *	TRC = 60/6	= 10
- *	TRFC = 72/6	= 12
- *   ACTIMB
- *	TCKE = 2
- *	XSR = 120/6 = 20
- */
-#define INFINEON_TDAL_165	6
-#define INFINEON_TDPL_165	3
-#define INFINEON_TRRD_165	2
-#define INFINEON_TRCD_165	3
-#define INFINEON_TRP_165	3
-#define INFINEON_TRAS_165	7
-#define INFINEON_TRC_165	10
-#define INFINEON_TRFC_165	12
+/* Infineon part of 3430SDP (165MHz optimized) 6.06ns */
+#define INFINEON_TDAL_165	6	/* Twr/Tck + Trp/tck		*/
+					/* 15/6 + 18/6 = 5.5 -> 6	*/
+#define INFINEON_TDPL_165	3	/* 15/6 = 2.5 -> 3 (Twr)	*/
+#define INFINEON_TRRD_165	2	/* 12/6 = 2			*/
+#define INFINEON_TRCD_165	3	/* 18/6 = 3			*/
+#define INFINEON_TRP_165	3	/* 18/6 = 3			*/
+#define INFINEON_TRAS_165	7	/* 42/6 = 7			*/
+#define INFINEON_TRC_165	10	/* 60/6 = 10			*/
+#define INFINEON_TRFC_165	12	/* 72/6 = 12			*/
 
 #define INFINEON_V_ACTIMA_165	\
 		ACTIM_CTRLA(INFINEON_TRFC_165, INFINEON_TRC_165,	\
@@ -118,36 +106,22 @@ enum {
 #define INFINEON_TWTR_165	1
 #define INFINEON_TCKE_165	2
 #define INFINEON_TXP_165	2
-#define INFINEON_XSR_165	20
+#define INFINEON_XSR_165	20	/* 120/6 = 20	*/
 
 #define INFINEON_V_ACTIMB_165	\
 		ACTIM_CTRLB(INFINEON_TWTR_165, INFINEON_TCKE_165,	\
 				INFINEON_TXP_165, INFINEON_XSR_165)
 
-/* Micron part of 3430 EVM (165MHz optimized) 6.06ns
- * ACTIMA
- *	TDAL = Twr/Tck + Trp/tck= 15/6 + 18 /6 = 2.5 + 3 = 5.5 -> 6
- *	TDPL (Twr)	= 15/6	= 2.5 -> 3
- *	TRRD		= 12/6	= 2
- *	TRCD		= 18/6	= 3
- *	TRP		= 18/6	= 3
- *	TRAS		= 42/6	= 7
- *	TRC		= 60/6	= 10
- *	TRFC		= 125/6	= 21
- * ACTIMB
- *	TWTR		= 1
- *	TCKE		= 1
- *	TXSR		= 138/6	= 23
- *	TXP		= 25/6	= 4.1 ~5
- */
-#define MICRON_TDAL_165		6
-#define MICRON_TDPL_165		3
-#define MICRON_TRRD_165		2
-#define MICRON_TRCD_165		3
-#define MICRON_TRP_165		3
-#define MICRON_TRAS_165		7
-#define MICRON_TRC_165		10
-#define MICRON_TRFC_165		21
+/* Micron part of 3430 EVM (165MHz optimized) 6.06ns */
+#define MICRON_TDAL_165		6	/* Twr/Tck + Trp/tck		*/
+					/* 15/6 + 18/6 = 5.5 -> 6	*/
+#define MICRON_TDPL_165		3	/* 15/6 = 2.5 -> 3 (Twr)	*/
+#define MICRON_TRRD_165		2	/* 12/6 = 2			*/
+#define MICRON_TRCD_165		3	/* 18/6 = 3			*/
+#define MICRON_TRP_165		3	/* 18/6 = 3			*/
+#define MICRON_TRAS_165		7	/* 42/6 = 7			*/
+#define MICRON_TRC_165		10	/* 60/6 = 10			*/
+#define MICRON_TRFC_165		21	/* 125/6 = 21			*/
 
 #define MICRON_V_ACTIMA_165	\
 		ACTIM_CTRLA(MICRON_TRFC_165, MICRON_TRC_165,		\
@@ -157,8 +131,8 @@ enum {
 
 #define MICRON_TWTR_165		1
 #define MICRON_TCKE_165		1
-#define MICRON_XSR_165		23
-#define MICRON_TXP_165		5
+#define MICRON_XSR_165		23	/* 138/6 = 23		*/
+#define MICRON_TXP_165		5	/* 25/6 = 4.1 => ~5	*/
 
 #define MICRON_V_ACTIMB_165	\
 		ACTIM_CTRLB(MICRON_TWTR_165, MICRON_TCKE_165,	\
@@ -191,31 +165,16 @@ enum {
 #define MICRON_V_MR ((MICRON_WBST << 9) | (MICRON_CASL << 4) | \
 	(MICRON_SIL << 3) | (MICRON_BL))
 
-/*
- * NUMONYX part of IGEP v2 (165MHz optimized) 6.06ns
- *   ACTIMA
- *	TDAL = Twr/Tck + Trp/tck = 15/6 + 18/6 = 2.5 + 3 = 5.5 -> 6
- *	TDPL (Twr) = 15/6 = 2.5 -> 3
- *	TRRD = 12/6 = 2
- *	TRCD = 22.5/6 = 3.75 -> 4
- *	TRP  = 18/6 = 3
- *	TRAS = 42/6 = 7
- *	TRC  = 60/6 = 10
- *	TRFC = 140/6 = 23.3 -> 24
- *   ACTIMB
- *	TWTR = 2
- *	TCKE = 2
- *	TXSR = 200/6 =  33.3 -> 34
- *	TXP  = 1.0 + 1.1 = 2.1 -> 3
- */
-#define NUMONYX_TDAL_165	6
-#define NUMONYX_TDPL_165	3
-#define NUMONYX_TRRD_165	2
-#define NUMONYX_TRCD_165	4
-#define NUMONYX_TRP_165		3
-#define NUMONYX_TRAS_165	7
-#define NUMONYX_TRC_165		10
-#define NUMONYX_TRFC_165	24
+/* NUMONYX part of IGEP v2 (165MHz optimized) 6.06ns */
+#define NUMONYX_TDAL_165	6	/* Twr/Tck + Trp/tck		*/
+					/* 15/6 + 18/6 = 5.5 -> 6	*/
+#define NUMONYX_TDPL_165	3	/* 15/6 = 2.5 -> 3 (Twr)	*/
+#define NUMONYX_TRRD_165	2	/* 12/6 = 2			*/
+#define NUMONYX_TRCD_165	4	/* 22.5/6 = 3.75 -> 4		*/
+#define NUMONYX_TRP_165		3	/* 18/6 = 3			*/
+#define NUMONYX_TRAS_165	7	/* 42/6 = 7			*/
+#define NUMONYX_TRC_165		10	/* 60/6 = 10			*/
+#define NUMONYX_TRFC_165	24	/* 140/6 = 23.3 -> 24		*/
 
 #define NUMONYX_V_ACTIMA_165	\
 		ACTIM_CTRLA(NUMONYX_TRFC_165, NUMONYX_TRC_165,		\
@@ -225,8 +184,8 @@ enum {
 
 #define NUMONYX_TWTR_165	2
 #define NUMONYX_TCKE_165	2
-#define NUMONYX_TXP_165		3
-#define NUMONYX_XSR_165		34
+#define NUMONYX_TXP_165		3	/* 200/6 =  33.3 -> 34	*/
+#define NUMONYX_XSR_165		34	/* 1.0 + 1.1 = 2.1 -> 3	*/
 
 #define NUMONYX_V_ACTIMB_165	\
 		ACTIM_CTRLB(NUMONYX_TWTR_165, NUMONYX_TCKE_165,	\
