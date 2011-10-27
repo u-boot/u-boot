@@ -32,9 +32,6 @@ SECTIONS
     arch/m68k/cpu/mcf5227x/libmcf5227x.o	(.text*)
     arch/m68k/lib/libm68k.o		(.text*)
 
-    . = DEFINED(env_offset) ? env_offset : .;
-    common/env_embedded.o	(.text*)
-
     *(.text*)
   }
   _etext = .;
