@@ -522,6 +522,17 @@ struct mx31_weim {
 	struct mx31_weim_cscr cscr[6];
 };
 
+/* ESD control registers */
+struct esdc_regs {
+	u32 ctl0;
+	u32 cfg0;
+	u32 ctl1;
+	u32 cfg1;
+	u32 misc;
+	u32 dly[5];
+	u32 dlyl;
+};
+
 #endif
 
 #define __REG(x)     (*((volatile u32 *)(x)))
@@ -599,6 +610,8 @@ struct mx31_weim {
 #define ESDCTL_FP(x)			((x) << 8)
 #define ESDCTL_BL(x)			((x) << 7)
 #define ESDCTL_PRCT(x)			((x) << 0)
+
+#define ESDCTL_BASE_ADDR	0xB8001000
 
 /* 13 fields of the upper CS control register */
 #define CSCR_U(sp, wp, bcd, bcs, psz, pme, sync, dol, \
