@@ -54,6 +54,38 @@ enum {
 #define SDP_SDRC_DLLAB_CTRL	((DLL_ENADLL << 3) | \
 				(DLL_LOCKDLL << 2) | (DLL_DLLPHASE_90 << 1))
 
+/* Helper macros to arrive at value of the SDRC_ACTIM_CTRLA register. */
+#define ACTIM_CTRLA_TRFC(v)	(((v) & 0x1F) << 27)	/* 31:27 */
+#define ACTIM_CTRLA_TRC(v)	(((v) & 0x1F) << 22)	/* 26:22 */
+#define ACTIM_CTRLA_TRAS(v)	(((v) & 0x0F) << 18)	/* 21:18 */
+#define ACTIM_CTRLA_TRP(v)	(((v) & 0x07) << 15)	/* 17:15 */
+#define ACTIM_CTRLA_TRCD(v)	(((v) & 0x07) << 12)	/* 14:12 */
+#define ACTIM_CTRLA_TRRD(v)	(((v) & 0x07) << 9)	/* 11:9  */
+#define ACTIM_CTRLA_TDPL(v)	(((v) & 0x07) << 6)	/*  8:6  */
+#define ACTIM_CTRLA_TDAL(v)	(v & 0x1F)		/*  4:0  */
+
+#define ACTIM_CTRLA(a,b,c,d,e,f,g,h)		\
+		ACTIM_CTRLA_TRFC(a)	|	\
+		ACTIM_CTRLA_TRC(b)	|	\
+		ACTIM_CTRLA_TRAS(b)	|	\
+		ACTIM_CTRLA_TRP(d)	|	\
+		ACTIM_CTRLA_TRCD(e)	|	\
+		ACTIM_CTRLA_TRRD(f)	|	\
+		ACTIM_CTRLA_TDPL(g)	|	\
+		ACTIM_CTRLA_TDAL(h)
+
+/* Helper macros to arrive at value of the SDRC_ACTIM_CTRLB register. */
+#define ACTIM_CTRLB_TWTR(v)	(((v) & 0x03) << 16)	/* 17:16 */
+#define ACTIM_CTRLB_TCKE(v)	(((v) & 0x07) << 12)	/* 14:12 */
+#define ACTIM_CTRLB_TXP(v)	(((v) & 0x07) << 8)	/* 10:8  */
+#define ACTIM_CTRLB_TXSR(v)	(v & 0xFF)		/*  7:0  */
+
+#define ACTIM_CTRLB(a,b,c,d)			\
+		ACTIM_CTRLB_TWTR(a)	|	\
+		ACTIM_CTRLB_TCKE(b)	|	\
+		ACTIM_CTRLB_TXP(b)	|	\
+		ACTIM_CTRLB_TXSR(d)
+
 /* Infineon part of 3430SDP (165MHz optimized) 6.06ns
  *   ACTIMA
  *	TDAL = Twr/Tck + Trp/tck = 15/6 + 18/6 = 2.5 + 3 = 5.5 -> 6
@@ -76,19 +108,21 @@ enum {
 #define INFINEON_TRAS_165	7
 #define INFINEON_TRC_165	10
 #define INFINEON_TRFC_165	12
-#define INFINEON_V_ACTIMA_165	((INFINEON_TRFC_165 << 27) |		\
-		(INFINEON_TRC_165 << 22) | (INFINEON_TRAS_165 << 18) |	\
-		(INFINEON_TRP_165 << 15) | (INFINEON_TRCD_165 << 12) |	\
-		(INFINEON_TRRD_165 << 9) | (INFINEON_TDPL_165 << 6) |	\
-		(INFINEON_TDAL_165))
+
+#define INFINEON_V_ACTIMA_165	\
+		ACTIM_CTRLA(INFINEON_TRFC_165, INFINEON_TRC_165,	\
+				INFINEON_TRAS_165, INFINEON_TRP_165,	\
+				INFINEON_TRCD_165, INFINEON_TRRD_165,	\
+				INFINEON_TDPL_165, INFINEON_TDAL_165)
 
 #define INFINEON_TWTR_165	1
 #define INFINEON_TCKE_165	2
 #define INFINEON_TXP_165	2
 #define INFINEON_XSR_165	20
-#define INFINEON_V_ACTIMB_165	((INFINEON_TCKE_165 << 12) |		\
-		(INFINEON_XSR_165 << 0) | (INFINEON_TXP_165 << 8) |	\
-		(INFINEON_TWTR_165 << 16))
+
+#define INFINEON_V_ACTIMB_165	\
+		ACTIM_CTRLB(INFINEON_TWTR_165, INFINEON_TCKE_165,	\
+				INFINEON_TXP_165, INFINEON_XSR_165)
 
 /* Micron part of 3430 EVM (165MHz optimized) 6.06ns
  * ACTIMA
@@ -114,19 +148,21 @@ enum {
 #define MICRON_TRAS_165		7
 #define MICRON_TRC_165		10
 #define MICRON_TRFC_165		21
-#define MICRON_V_ACTIMA_165 ((MICRON_TRFC_165 << 27) |			\
-		(MICRON_TRC_165 << 22) | (MICRON_TRAS_165 << 18) |	\
-		(MICRON_TRP_165 << 15) | (MICRON_TRCD_165 << 12) |	\
-		(MICRON_TRRD_165 << 9) | (MICRON_TDPL_165 << 6) |	\
-		(MICRON_TDAL_165))
+
+#define MICRON_V_ACTIMA_165	\
+		ACTIM_CTRLA(MICRON_TRFC_165, MICRON_TRC_165,		\
+				MICRON_TRAS_165, MICRON_TRP_165,	\
+				MICRON_TRCD_165, MICRON_TRRD_165,	\
+				MICRON_TDPL_165, MICRON_TDAL_165)
 
 #define MICRON_TWTR_165		1
 #define MICRON_TCKE_165		1
 #define MICRON_XSR_165		23
 #define MICRON_TXP_165		5
-#define MICRON_V_ACTIMB_165 ((MICRON_TCKE_165 << 12) |			\
-		(MICRON_XSR_165 << 0) | (MICRON_TXP_165 << 8) |	\
-		(MICRON_TWTR_165 << 16))
+
+#define MICRON_V_ACTIMB_165	\
+		ACTIM_CTRLB(MICRON_TWTR_165, MICRON_TCKE_165,	\
+				MICRON_TXP_165,	MICRON_XSR_165)
 
 #define MICRON_RAMTYPE			0x1
 #define MICRON_DDRTYPE			0x0
@@ -180,19 +216,21 @@ enum {
 #define NUMONYX_TRAS_165   7
 #define NUMONYX_TRC_165   10
 #define NUMONYX_TRFC_165  24
-#define NUMONYX_V_ACTIMA_165 ((NUMONYX_TRFC_165 << 27) | \
-		(NUMONYX_TRC_165 << 22) | (NUMONYX_TRAS_165 << 18) | \
-		(NUMONYX_TRP_165 << 15) | (NUMONYX_TRCD_165 << 12) | \
-		(NUMONYX_TRRD_165 << 9) | (NUMONYX_TDPL_165 << 6) | \
-		(NUMONYX_TDAL_165))
+
+#define NUMONYX_V_ACTIMA_165	\
+		ACTIM_CTRLA(NUMONYX_TRFC_165, NUMONYX_TRC_165,		\
+				NUMONYX_TRAS_165, NUMONYX_TRP_165,	\
+				NUMONYX_TRCD_165, NUMONYX_TRRD_165,	\
+				NUMONYX_TDPL_165, NUMONYX_TDAL_165)
 
 #define NUMONYX_TWTR_165   2
 #define NUMONYX_TCKE_165   2
 #define NUMONYX_TXP_165    3
 #define NUMONYX_XSR_165    34
-#define NUMONYX_V_ACTIMB_165 ((NUMONYX_TCKE_165 << 12) | \
-		(NUMONYX_XSR_165 << 0) | (NUMONYX_TXP_165 << 8) | \
-		(NUMONYX_TWTR_165 << 16))
+
+#define NUMONYX_V_ACTIMB_165	\
+		ACTIM_CTRLB(NUMONYX_TWTR_165, NUMONYX_TCKE_165,	\
+				NUMONYX_TXP_165, NUMONYX_XSR_165)
 
 #ifdef CONFIG_OMAP3_INFINEON_DDR
 #define V_ACTIMA_165 INFINEON_V_ACTIMA_165
