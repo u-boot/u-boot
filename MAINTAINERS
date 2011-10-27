@@ -758,6 +758,10 @@ Sandeep Paulraj <s-paulraj@ti.com>
 	davinci_dm365evm	ARM926EJS
 	davinci_dm6467evm	ARM926EJS
 
+Helmut Raiger <helmut.raiger@hale.at>
+
+	tt01		i.MX31
+
 Linus Walleij <linus.walleij@linaro.org>
 	integratorap	various
 	integratorcp	various
