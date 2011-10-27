@@ -194,28 +194,28 @@ enum {
 /*
  * NUMONYX part of IGEP v2 (165MHz optimized) 6.06ns
  *   ACTIMA
- *      TDAL = Twr/Tck + Trp/tck = 15/6 + 18/6 = 2.5 + 3 = 5.5 -> 6
- *      TDPL (Twr) = 15/6 = 2.5 -> 3
- *      TRRD = 12/6 = 2
- *      TRCD = 22.5/6 = 3.75 -> 4
- *      TRP  = 18/6 = 3
- *      TRAS = 42/6 = 7
- *      TRC  = 60/6 = 10
- *      TRFC = 140/6 = 23.3 -> 24
+ *	TDAL = Twr/Tck + Trp/tck = 15/6 + 18/6 = 2.5 + 3 = 5.5 -> 6
+ *	TDPL (Twr) = 15/6 = 2.5 -> 3
+ *	TRRD = 12/6 = 2
+ *	TRCD = 22.5/6 = 3.75 -> 4
+ *	TRP  = 18/6 = 3
+ *	TRAS = 42/6 = 7
+ *	TRC  = 60/6 = 10
+ *	TRFC = 140/6 = 23.3 -> 24
  *   ACTIMB
  *	TWTR = 2
  *	TCKE = 2
  *	TXSR = 200/6 =  33.3 -> 34
  *	TXP  = 1.0 + 1.1 = 2.1 -> 3
  */
-#define NUMONYX_TDAL_165   6
-#define NUMONYX_TDPL_165   3
-#define NUMONYX_TRRD_165   2
-#define NUMONYX_TRCD_165   4
-#define NUMONYX_TRP_165    3
-#define NUMONYX_TRAS_165   7
-#define NUMONYX_TRC_165   10
-#define NUMONYX_TRFC_165  24
+#define NUMONYX_TDAL_165	6
+#define NUMONYX_TDPL_165	3
+#define NUMONYX_TRRD_165	2
+#define NUMONYX_TRCD_165	4
+#define NUMONYX_TRP_165		3
+#define NUMONYX_TRAS_165	7
+#define NUMONYX_TRC_165		10
+#define NUMONYX_TRFC_165	24
 
 #define NUMONYX_V_ACTIMA_165	\
 		ACTIM_CTRLA(NUMONYX_TRFC_165, NUMONYX_TRC_165,		\
@@ -223,31 +223,31 @@ enum {
 				NUMONYX_TRCD_165, NUMONYX_TRRD_165,	\
 				NUMONYX_TDPL_165, NUMONYX_TDAL_165)
 
-#define NUMONYX_TWTR_165   2
-#define NUMONYX_TCKE_165   2
-#define NUMONYX_TXP_165    3
-#define NUMONYX_XSR_165    34
+#define NUMONYX_TWTR_165	2
+#define NUMONYX_TCKE_165	2
+#define NUMONYX_TXP_165		3
+#define NUMONYX_XSR_165		34
 
 #define NUMONYX_V_ACTIMB_165	\
 		ACTIM_CTRLB(NUMONYX_TWTR_165, NUMONYX_TCKE_165,	\
 				NUMONYX_TXP_165, NUMONYX_XSR_165)
 
 #ifdef CONFIG_OMAP3_INFINEON_DDR
-#define V_ACTIMA_165 INFINEON_V_ACTIMA_165
-#define V_ACTIMB_165 INFINEON_V_ACTIMB_165
+#define V_ACTIMA_165		INFINEON_V_ACTIMA_165
+#define V_ACTIMB_165		INFINEON_V_ACTIMB_165
 #endif
 
 #ifdef CONFIG_OMAP3_MICRON_DDR
-#define V_ACTIMA_165 MICRON_V_ACTIMA_165
-#define V_ACTIMB_165 MICRON_V_ACTIMB_165
+#define V_ACTIMA_165		MICRON_V_ACTIMA_165
+#define V_ACTIMB_165		MICRON_V_ACTIMB_165
 #define V_MCFG			MICRON_V_MCFG
 #define V_RFR_CTRL		MICRON_V_RFR_CTRL
 #define V_MR			MICRON_V_MR
 #endif
 
 #ifdef CONFIG_OMAP3_NUMONYX_DDR
-#define V_ACTIMA_165 NUMONYX_V_ACTIMA_165
-#define V_ACTIMB_165 NUMONYX_V_ACTIMB_165
+#define V_ACTIMA_165		NUMONYX_V_ACTIMA_165
+#define V_ACTIMB_165		NUMONYX_V_ACTIMB_165
 #endif
 
 #if !defined(V_ACTIMA_165) || !defined(V_ACTIMB_165)
