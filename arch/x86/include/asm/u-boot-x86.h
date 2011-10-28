@@ -42,7 +42,6 @@ int dram_init_f(void);
 int cpu_init_interrupts(void);
 
 /* board/.../... */
-int board_init(void);
 int dram_init(void);
 
 void setup_pcat_compatibility(void);
