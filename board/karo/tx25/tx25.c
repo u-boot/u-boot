@@ -140,7 +140,6 @@ int board_init()
 	mx25_uart1_init_pins();
 #endif
 	/* board id for linux */
-	gd->bd->bi_arch_number = MACH_TYPE_TX25;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 	return 0;
 }
