@@ -884,6 +884,7 @@ static int e1000_validate_eeprom_checksum(struct e1000_hw *hw)
 	}
 
 	/* Compute the checksum */
+	checksum = 0;
 	for (i = 0; i < EEPROM_CHECKSUM_REG; i++)
 		checksum += buf[i];
 	checksum = ((uint16_t)EEPROM_SUM) - checksum;

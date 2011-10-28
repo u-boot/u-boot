@@ -62,15 +62,15 @@
 
 /* I/O wrapper functions */
 #define E1000_WRITE_REG(a, reg, value) \
-	(writel((value), ((a)->hw_addr + E1000_##reg)))
+	writel((value), ((a)->hw_addr + E1000_##reg))
 #define E1000_READ_REG(a, reg) \
-	(readl((a)->hw_addr + E1000_##reg))
+	readl((a)->hw_addr + E1000_##reg)
 #define E1000_WRITE_REG_ARRAY(a, reg, offset, value) \
-	(writel((value), ((a)->hw_addr + E1000_##reg + ((offset) << 2))))
+	writel((value), ((a)->hw_addr + E1000_##reg + ((offset) << 2)))
 #define E1000_READ_REG_ARRAY(a, reg, offset) \
-	(readl((a)->hw_addr + E1000_##reg + ((offset) << 2)))
+	readl((a)->hw_addr + E1000_##reg + ((offset) << 2))
 #define E1000_WRITE_FLUSH(a) \
-	do { uint32_t x = E1000_READ_REG(a, STATUS); } while (0)
+	do { E1000_READ_REG(a, STATUS); } while (0)
 
 /* Forward declarations of structures used by the shared code */
 struct e1000_hw;
