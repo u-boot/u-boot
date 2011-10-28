@@ -1904,7 +1904,7 @@ The following options need to be configured:
 		CONFIG_MXC_SPI
 
 		Enables the driver for the SPI controllers on i.MX and MXC
-		SoCs. Currently only i.MX31 is supported.
+		SoCs. Currently i.MX31/35/51 are supported.
 
 - FPGA Support: CONFIG_FPGA
 
