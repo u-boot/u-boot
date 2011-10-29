@@ -1769,7 +1769,6 @@ static void emac_err (struct eth_device *dev, unsigned long isr)
  *-----------------------------------------------------------------------------*/
 static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 {
-	struct enet_frame *ef_ptr;
 	unsigned long data_len;
 	unsigned long rx_eob_isr;
 	EMAC_4XX_HW_PST hw_p = dev->priv;
@@ -1828,8 +1827,6 @@ static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 			} else {
 				hw_p->stats.rx_frames++;
 				hw_p->stats.rx += data_len;
-				ef_ptr = (struct enet_frame *) hw_p->rx[i].
-					data_ptr;
 #ifdef INFO_4XX_ENET
 				hw_p->stats.pkts_rx++;
 #endif
