@@ -666,13 +666,10 @@ static ulong flash_get_size (ulong base, int banknum)
 static int flash_write_cfiword (flash_info_t *info, ulong dest, cfiword_t cword)
 {
 
-	cfiptr_t ctladdr;
 	cfiptr_t cptr;
 	int flag;
 
-	ctladdr.cp = flash_make_addr(info, 0, 0);
 	cptr.cp = (uchar *)dest;
-
 
 	/* Check if Flash is (sufficiently) erased */
 	switch(info->portwidth) {
