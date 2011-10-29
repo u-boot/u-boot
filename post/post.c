@@ -417,7 +417,6 @@ int post_info(char *name)
 int post_log(char *format, ...)
 {
 	va_list args;
-	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
 
 	va_start(args, format);
@@ -425,7 +424,7 @@ int post_log(char *format, ...)
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
-	i = vsprintf(printbuffer, format, args);
+	vsprintf(printbuffer, format, args);
 	va_end(args);
 
 #ifdef CONFIG_LOGBUFFER
