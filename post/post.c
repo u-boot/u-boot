@@ -48,9 +48,8 @@ int post_init_f(void)
 	for (i = 0; i < post_list_size; i++) {
 		struct post_test *test = post_list + i;
 
-		if (test->init_f && test->init_f()) {
+		if (test->init_f && test->init_f())
 			res = -1;
-		}
 	}
 
 	gd->post_init_f_time = post_time_ms(0);
@@ -106,7 +105,7 @@ void post_bootmode_init(void)
 		newword = BOOTMODE_MAGIC | POST_NORMAL;
 	else
 		/* Use old value */
-		newword = post_word_load () & ~POST_COLDBOOT;
+		newword = post_word_load() & ~POST_COLDBOOT;
 
 	if (bootmode == 0)
 		/* We are booting after power-on */
@@ -153,9 +152,9 @@ void post_output_backlog(void)
 
 	for (j = 0; j < post_list_size; j++) {
 		if (gd->post_log_word & (post_list[j].testid)) {
-			post_log ("POST %s ", post_list[j].cmd);
+			post_log("POST %s ", post_list[j].cmd);
 			if (gd->post_log_res & post_list[j].testid)
-				post_log ("PASSED\n");
+				post_log("PASSED\n");
 			else {
 				post_log("FAILED\n");
 				show_boot_progress(-31);
@@ -199,12 +198,11 @@ static void post_get_env_flags(int *test_flags)
 	int i, j;
 
 	for (i = 0; i < varnum; i++) {
-		if (getenv_f(var[i], list, sizeof (list)) <= 0)
+		if (getenv_f(var[i], list, sizeof(list)) <= 0)
 			continue;
 
-		for (j = 0; j < post_list_size; j++) {
+		for (j = 0; j < post_list_size; j++)
 			test_flags[j] &= ~flag[i];
-		}
 
 		last = 0;
 		name = list;
@@ -222,14 +220,14 @@ static void post_get_env_flags(int *test_flags)
 				*s = 0;
 
 			for (j = 0; j < post_list_size; j++) {
-				if (strcmp (post_list[j].cmd, name) == 0) {
+				if (strcmp(post_list[j].cmd, name) == 0) {
 					test_flags[j] |= flag[i];
 					break;
 				}
 			}
 
 			if (j == post_list_size)
-				printf ("No such test: %s\n", name);
+				printf("No such test: %s\n", name);
 
 			name = s + 1;
 		}
@@ -264,7 +262,7 @@ static int post_run_single(struct post_test *test,
 {
 	if ((flags & test_flags & POST_ALWAYS) &&
 		(flags & test_flags & POST_MEM)) {
-		WATCHDOG_RESET ();
+		WATCHDOG_RESET();
 
 		if (!(flags & POST_REBOOT)) {
 			if ((test_flags & POST_REBOOT) &&
@@ -283,11 +281,10 @@ static int post_run_single(struct post_test *test,
 		show_post_progress(i, POST_BEFORE, POST_FAILED);
 
 		if (test_flags & POST_PREREL) {
-			if ((*test->test) (flags) == 0) {
+			if ((*test->test)(flags) == 0) {
 				post_log_mark_succ(test->testid);
 				show_post_progress(i, POST_AFTER, POST_PASSED);
-			}
-			else {
+			} else {
 				show_post_progress(i, POST_AFTER, POST_FAILED);
 				if (test_flags & POST_CRITICAL)
 					gd->flags |= GD_FLG_POSTFAIL;
@@ -309,9 +306,8 @@ static int post_run_single(struct post_test *test,
 			}
 		}
 
-		if ((test_flags & POST_REBOOT) && !(flags & POST_MANUAL)) {
+		if ((test_flags & POST_REBOOT) && !(flags & POST_MANUAL))
 			post_bootmode_test_off();
-		}
 
 		return 0;
 	} else {
@@ -319,7 +315,7 @@ static int post_run_single(struct post_test *test,
 	}
 }
 
-int post_run (char *name, int flags)
+int post_run(char *name, int flags)
 {
 	unsigned int i;
 	int test_flags[POST_MAX_NUMBER];
@@ -366,7 +362,7 @@ int post_run (char *name, int flags)
 		return 0;
 	} else {
 		for (i = 0; i < post_list_size; i++) {
-			if (strcmp (post_list[i].cmd, name) == 0)
+			if (strcmp(post_list[i].cmd, name) == 0)
 				break;
 		}
 
@@ -396,7 +392,7 @@ static int post_info_single(struct post_test *test, int full)
 	}
 }
 
-int post_info (char *name)
+int post_info(char *name)
 {
 	unsigned int i;
 
@@ -407,15 +403,14 @@ int post_info (char *name)
 		return 0;
 	} else {
 		for (i = 0; i < post_list_size; i++) {
-			if (strcmp (post_list[i].cmd, name) == 0)
+			if (strcmp(post_list[i].cmd, name) == 0)
 				break;
 		}
 
-		if (i < post_list_size) {
+		if (i < post_list_size)
 			return post_info_single(post_list + i, 1);
-		} else {
+		else
 			return -1;
-		}
 	}
 }
 
@@ -425,13 +420,13 @@ int post_log(char *format, ...)
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
 
-	va_start (args, format);
+	va_start(args, format);
 
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
-	i = vsprintf (printbuffer, format, args);
-	va_end (args);
+	i = vsprintf(printbuffer, format, args);
+	va_end(args);
 
 #ifdef CONFIG_LOGBUFFER
 	/* Send to the logbuffer */
@@ -457,32 +452,32 @@ void post_reloc(void)
 		struct post_test *test = post_list + i;
 
 		if (test->name) {
-			addr = (ulong) (test->name) + gd->reloc_off;
+			addr = (ulong)(test->name) + gd->reloc_off;
 			test->name = (char *)addr;
 		}
 
 		if (test->cmd) {
-			addr = (ulong) (test->cmd) + gd->reloc_off;
+			addr = (ulong)(test->cmd) + gd->reloc_off;
 			test->cmd = (char *)addr;
 		}
 
 		if (test->desc) {
-			addr = (ulong) (test->desc) + gd->reloc_off;
+			addr = (ulong)(test->desc) + gd->reloc_off;
 			test->desc = (char *)addr;
 		}
 
 		if (test->test) {
-			addr = (ulong) (test->test) + gd->reloc_off;
+			addr = (ulong)(test->test) + gd->reloc_off;
 			test->test = (int (*)(int flags)) addr;
 		}
 
 		if (test->init_f) {
-			addr = (ulong) (test->init_f) + gd->reloc_off;
+			addr = (ulong)(test->init_f) + gd->reloc_off;
 			test->init_f = (int (*)(void)) addr;
 		}
 
 		if (test->reloc) {
-			addr = (ulong) (test->reloc) + gd->reloc_off;
+			addr = (ulong)(test->reloc) + gd->reloc_off;
 			test->reloc = (void (*)(void)) addr;
 
 			test->reloc();
