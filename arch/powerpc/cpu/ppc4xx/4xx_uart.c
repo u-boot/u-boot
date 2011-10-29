@@ -200,9 +200,6 @@ int get_serial_clock(void)
 {
 	u32 clk;
 	u32 udiv;
-#if defined(CONFIG_405CR) || defined(CONFIG_405EP) || defined(CONFIG_405GP)
-	u32 tmp;
-#endif
 #if !defined(CONFIG_405EZ)
 	u32 reg;
 #endif
@@ -216,7 +213,6 @@ int get_serial_clock(void)
 	 */
 
 #if defined(CONFIG_405CR) || defined(CONFIG_405GP)
-	tmp = 0;
 	reg = mfdcr(CPC0_CR0) & ~CR0_MASK;
 #ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
 	clk = CONFIG_SYS_EXT_SERIAL_CLOCK;
@@ -227,8 +223,11 @@ int get_serial_clock(void)
 #ifdef CONFIG_SYS_405_UART_ERRATA_59
 	udiv = 31;			/* Errata 59: stuck at 31 */
 #else /* CONFIG_SYS_405_UART_ERRATA_59 */
-	tmp = CONFIG_SYS_BASE_BAUD * 16;
-	udiv = (clk + tmp / 2) / tmp;
+	{
+		u32 tmp = CONFIG_SYS_BASE_BAUD * 16;
+
+		udiv = (clk + tmp / 2) / tmp;
+	}
 	if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
 		udiv = UDIV_MAX;
 #endif /* CONFIG_SYS_405_UART_ERRATA_59 */
@@ -243,12 +242,15 @@ int get_serial_clock(void)
 #endif /* CONFIG_405CR */
 
 #if defined(CONFIG_405EP)
-	reg = mfdcr(CPC0_UCR) & ~(UCR0_MASK | UCR1_MASK);
-	clk = gd->cpu_clk;
-	tmp = CONFIG_SYS_BASE_BAUD * 16;
-	udiv = (clk + tmp / 2) / tmp;
-	if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
-		udiv = UDIV_MAX;
+	{
+		u32 tmp = CONFIG_SYS_BASE_BAUD * 16;
+
+		reg = mfdcr(CPC0_UCR) & ~(UCR0_MASK | UCR1_MASK);
+		clk = gd->cpu_clk;
+		udiv = (clk + tmp / 2) / tmp;
+		if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
+			udiv = UDIV_MAX;
+	}
 	reg |= udiv << UCR0_UDIV_POS;	        /* set the UART divisor */
 	reg |= udiv << UCR1_UDIV_POS;	        /* set the UART divisor */
 	mtdcr(CPC0_UCR, reg);
