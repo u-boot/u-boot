@@ -37,6 +37,7 @@
 #include <asm/types.h>
 #include <asm/system.h>
 #include <asm/byteorder.h>
+#include <asm/arch/cpu.h>
 
 #if defined(CONFIG_KIRKWOOD)
 #include <asm/arch/kirkwood.h>
