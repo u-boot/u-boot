@@ -319,6 +319,55 @@ l2_disabled:
 #endif /* CONFIG_MPC8569 */
 
 /*
+ * Search for the TLB that covers the code we're executing, and shrink it
+ * so that it covers only this 4K page.  That will ensure that any other
+ * TLB we create won't interfere with it.  We assume that the TLB exists,
+ * which is why we don't check the Valid bit of MAS1.
+ *
+ * This is necessary, for example, when booting from the on-chip ROM,
+ * which (oddly) creates a single 4GB TLB that covers CCSR and DDR.
+ * If we don't shrink this TLB now, then we'll accidentally delete it
+ * in "purge_old_ccsr_tlb" below.
+ */
+	bl	nexti		/* Find our address */
+nexti:	mflr	r1		/* R1 = our PC */
+	li	r2, 0
+	mtspr	MAS6, r2	/* Assume the current PID and AS are 0 */
+	isync
+	msync
+	tlbsx	0, r1		/* This must succeed */
+
+	/* Set the size of the TLB to 4KB */
+	mfspr	r3, MAS1
+	li	r2, 0xF00
+	andc	r3, r3, r2	/* Clear the TSIZE bits */
+	ori	r3, r3, MAS1_TSIZE(BOOKE_PAGESZ_4K)@l
+	mtspr	MAS1, r3
+
+	/*
+	 * Set the base address of the TLB to our PC.  We assume that
+	 * virtual == physical.  We also assume that MAS2_EPN == MAS3_RPN.
+	 */
+	lis	r3, MAS2_EPN@h
+	ori	r3, r3, MAS2_EPN@l	/* R3 = MAS2_EPN */
+
+	and	r1, r1, r3	/* Our PC, rounded down to the nearest page */
+
+	mfspr	r2, MAS2
+	andc	r2, r2, r3
+	or	r2, r2, r1
+	mtspr	MAS2, r2	/* Set the EPN to our PC base address */
+
+	mfspr	r2, MAS3
+	andc	r2, r2, r3
+	or	r2, r2, r1
+	mtspr	MAS3, r2	/* Set the RPN to our PC base address */
+
+	isync
+	msync
+	tlbwe
+
+/*
  * Relocate CCSR, if necessary.  We relocate CCSR if (obviously) the default
  * location is not where we want it.  This typically happens on a 36-bit
  * system, where we want to move CCSR to near the top of 36-bit address space.
