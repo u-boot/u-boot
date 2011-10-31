@@ -30,7 +30,7 @@ m501sk	arm	arm920t	b1a2bd4	  2011-07-17
 kb9202	arm	arm920t	5bd3814	  2011-07-17
 csb637	arm	arm920t	d14af08	  2011-07-17
 cmc_pu2	arm	arm920t	37a9b4d	  2011-07-17
-at91cap9adk arm	arm926ejs b550834 2011-07-17	Stelian Pop <stelian.pop@leadtechdesign.com>
+at91cap9adk arm	arm926ejs b550834 2011-07-17	Stelian Pop <stelian@popies.net>
 voiceblue arm	arm925t	1b793a4	  2011-07-17
 smdk2400 arm	arm920t	ad218a8	  2011-07-17	Gary Jennejohn <garyj@denx.de>
 sbc2410x arm	arm920t	1f7f0ed	  2011-07-17

@@ -1,7 +1,7 @@
 /*
  * [origin: Linux kernel include/asm-arm/arch-at91/at91cap9.h]
  *
- *  Copyright (C) 2007 Stelian Pop <stelian.pop@leadtechdesign.com>
+ *  Copyright (C) 2007 Stelian Pop <stelian@popies.net>
  *  Copyright (C) 2007 Lead Tech Design <www.leadtechdesign.com>
  *  Copyright (C) 2007 Atmel Corporation.
  *
