@@ -139,8 +139,6 @@ int board_init(void)
 		(1 << ATMEL_ID_PIOC) |
 		(1 << ATMEL_ID_PIODE), &pmc->pcer);
 
-	/* arch number of AT91SAM9M10G45EK-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_PM9G45;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 

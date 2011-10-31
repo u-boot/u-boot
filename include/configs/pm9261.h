@@ -52,6 +52,9 @@
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 #define CONFIG_SYS_TEXT_BASE	0
 
+#define MACH_TYPE_PM9261	1187
+#define CONFIG_MACH_TYPE	MACH_TYPE_PM9261
+
 /* clocks */
 /* CKGR_MOR - enable main osc. */
 #define CONFIG_SYS_MOR_VAL						\
