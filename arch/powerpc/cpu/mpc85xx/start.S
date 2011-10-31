@@ -352,6 +352,8 @@ purge_old_ccsr_tlb:
 
 	li	r1, 0
 	mtspr	MAS6, r1	/* Search the current address space and PID */
+	isync
+	msync
 	tlbsx	0, r8
 	mfspr	r1, MAS1
 	andis.  r2, r1, MAS1_VALID@h	/* Check for the Valid bit */
@@ -359,6 +361,8 @@ purge_old_ccsr_tlb:
 
 	rlwinm	r1, r1, 0, 1, 31	/* Clear Valid bit */
 	mtspr	MAS1, r1
+	isync
+	msync
 	tlbwe
 1:
 
