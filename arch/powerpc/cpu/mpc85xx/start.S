@@ -411,6 +411,33 @@ create_ccsr_old_tlb:
 	msync
 	tlbwe
 
+	/*
+	 * We have a TLB for what we think is the current (old) CCSR.  Let's
+	 * verify that, otherwise we won't be able to move it.
+	 * CONFIG_SYS_CCSRBAR_DEFAULT is always a 32-bit number, so we only
+	 * need to compare the lower 32 bits of CCSRBAR on CoreNet systems.
+	 */
+verify_old_ccsr:
+	lis     r0, CONFIG_SYS_CCSRBAR_DEFAULT@h
+	ori     r0, r0, CONFIG_SYS_CCSRBAR_DEFAULT@l
+#ifdef CONFIG_FSL_CORENET
+	lwz	r1, 4(r9)		/* CCSRBARL */
+#else
+	lwz	r1, 0(r9)		/* CCSRBAR, shifted right by 12 */
+	slwi	r1, r1, 12
+#endif
+
+	cmpl	0, r0, r1
+
+	/*
+	 * If the value we read from CCSRBARL is not what we expect, then
+	 * enter an infinite loop.  This will at least allow a debugger to
+	 * halt execution and examine TLBs, etc.  There's no point in going
+	 * on.
+	 */
+infinite_debug_loop:
+	bne	infinite_debug_loop
+
 #ifdef CONFIG_FSL_CORENET
 
 #define CCSR_LAWBARH0	(CONFIG_SYS_CCSRBAR + 0x1000)
