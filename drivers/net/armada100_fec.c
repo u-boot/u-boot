@@ -440,6 +440,7 @@ static int armdfec_init(struct eth_device *dev, bd_t *bd)
 	struct armdfec_device *darmdfec = to_darmdfec(dev);
 	struct armdfec_reg *regs = darmdfec->regs;
 	int phy_adr;
+	u32 temp;
 
 	armdfec_init_rx_desc_ring(darmdfec);
 
@@ -479,9 +480,12 @@ static int armdfec_init(struct eth_device *dev, bd_t *bd)
 	update_hash_table_mac_address(darmdfec, NULL, dev->enetaddr);
 
 	/* Update TX and RX queue descriptor register */
-	writel((u32)darmdfec->p_txdesc, &regs->txcdp[TXQ]);
-	writel((u32)darmdfec->p_rxdesc, &regs->rxfdp[RXQ]);
-	writel((u32)darmdfec->p_rxdesc_curr, &regs->rxcdp[RXQ]);
+	temp = (u32)&regs->txcdp[TXQ];
+	writel((u32)darmdfec->p_txdesc, temp);
+	temp = (u32)&regs->rxfdp[RXQ];
+	writel((u32)darmdfec->p_rxdesc, temp);
+	temp = (u32)&regs->rxcdp[RXQ];
+	writel((u32)darmdfec->p_rxdesc_curr, temp);
 
 	/* Enable Interrupts */
 	writel(ALL_INTS, &regs->im);
@@ -614,6 +618,7 @@ static int armdfec_recv(struct eth_device *dev)
 	struct rx_desc *p_rxdesc_curr = darmdfec->p_rxdesc_curr;
 	u32 cmd_sts;
 	u32 timeout = 0;
+	u32 temp;
 
 	/* wait untill rx packet available or timeout */
 	do {
@@ -667,7 +672,8 @@ static int armdfec_recv(struct eth_device *dev)
 	p_rxdesc_curr->buf_size = PKTSIZE_ALIGN;
 	p_rxdesc_curr->byte_cnt = 0;
 
-	writel((u32)p_rxdesc_curr->nxtdesc_p, (u32)&darmdfec->p_rxdesc_curr);
+	temp = (u32)&darmdfec->p_rxdesc_curr;
+	writel((u32)p_rxdesc_curr->nxtdesc_p, temp);
 
 	return 0;
 }
