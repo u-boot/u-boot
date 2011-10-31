@@ -387,7 +387,7 @@ create_ccsr_new_tlb:
 	tlbwe
 
 	/*
-	 * Create a TLB for the old location of CCSR.  Register R9 is reserved
+	 * Create a TLB for the current location of CCSR.  Register R9 is reserved
 	 * for the virtual address of this TLB (CONFIG_SYS_CCSRBAR + 0x1000).
 	 */
 create_ccsr_old_tlb:
@@ -446,7 +446,7 @@ create_temp_law:
 	 */
 read_old_ccsrbar:
 	lwz	r0, 0(r9)	/* CCSRBARH */
-	lwz	r0, 4(r9)	/* CCSRBARH */
+	lwz	r0, 4(r9)	/* CCSRBARL */
 	isync
 
 	/*
