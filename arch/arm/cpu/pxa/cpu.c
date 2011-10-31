@@ -328,3 +328,19 @@ void i2c_clk_enable(void)
 	writel(readl(CKEN) | CKEN14_I2C, CKEN);
 #endif
 }
+
+void reset_cpu(ulong ignored) __attribute__((noreturn));
+
+void reset_cpu(ulong ignored)
+{
+	uint32_t tmp;
+
+	setbits_le32(OWER, OWER_WME);
+
+	tmp = readl(OSCR);
+	tmp += 0x1000;
+	writel(tmp, OSMR3);
+
+	for (;;)
+		;
+}
