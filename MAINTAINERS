@@ -876,6 +876,11 @@ Tom Warren <twarren@nvidia.com>
 	harmony		Tegra2 (ARM7 & A9 Dual Core)
 	seaboard	Tegra2 (ARM7 & A9 Dual Core)
 
+Tom Warren <twarren@nvidia.com>
+Stephen Warren <swarren@nvidia.com>
+
+	ventana		Tegra2 (ARM7 & A9 Dual Core)
+
 Thomas Weber <weber@corscience.de>
 
 	devkit8000	ARM ARMV7 (OMAP3530 SoC)

@@ -32,10 +32,10 @@
 #include "../common/board.h"
 
 /*
- * Routine: gpio_config_uart
+ * Routine: gpio_config_uart_seaboard
  * Description: Force GPIO_PI3 low on Seaboard so UART4 works.
  */
-void gpio_config_uart(void)
+static void gpio_config_uart_seaboard(void)
 {
 	int gp = GPIO_PI3;
 	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
@@ -54,6 +54,13 @@ void gpio_config_uart(void)
 	val = readl(&bank->gpio_dir_out[GPIO_PORT(gp)]);
 	val |= 1 << GPIO_BIT(gp);
 	writel(val, &bank->gpio_dir_out[GPIO_PORT(gp)]);
+}
+
+void gpio_config_uart(void)
+{
+	if (machine_is_ventana())
+		return;
+	gpio_config_uart_seaboard();
 }
 
 #ifdef CONFIG_TEGRA2_MMC
