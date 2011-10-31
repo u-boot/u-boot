@@ -435,14 +435,22 @@ static int mmc_core_init(struct mmc *mmc)
 
 static int tegra2_mmc_initialize(int dev_index, int bus_width)
 {
+	struct mmc_host *host;
 	struct mmc *mmc;
 
 	debug(" mmc_initialize called\n");
 
+	host = &mmc_host[dev_index];
+
+	host->clock = 0;
+	tegra2_get_setup(host, dev_index);
+
+	clock_start_periph_pll(host->mmc_id, CLOCK_ID_PERIPH, 20000000);
+
 	mmc = &mmc_dev[dev_index];
 
 	sprintf(mmc->name, "Tegra2 SD/MMC");
-	mmc->priv = &mmc_host[dev_index];
+	mmc->priv = host;
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_core_init;
@@ -465,8 +473,6 @@ static int tegra2_mmc_initialize(int dev_index, int bus_width)
 	mmc->f_min = 375000;
 	mmc->f_max = 48000000;
 
-	mmc_host[dev_index].clock = 0;
-	tegra2_get_setup(&mmc_host[dev_index], dev_index);
 	mmc_register(mmc);
 
 	return 0;

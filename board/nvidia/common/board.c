@@ -102,16 +102,6 @@ static void pin_mux_uart(void)
 
 #ifdef CONFIG_TEGRA2_MMC
 /*
- * Routine: clock_init_mmc
- * Description: init the PLL and clocks for the SDMMC controllers
- */
-static void clock_init_mmc(void)
-{
-	clock_start_periph_pll(PERIPH_ID_SDMMC4, CLOCK_ID_PERIPH, 20000000);
-	clock_start_periph_pll(PERIPH_ID_SDMMC3, CLOCK_ID_PERIPH, 20000000);
-}
-
-/*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)
  */
@@ -157,8 +147,7 @@ int board_init(void)
 int board_mmc_init(bd_t *bd)
 {
 	debug("board_mmc_init called\n");
-	/* Enable clocks, muxes, etc. for SDMMC controllers */
-	clock_init_mmc();
+	/* Enable muxes, etc. for SDMMC controllers */
 	pin_mux_mmc();
 	gpio_config_mmc();
 
