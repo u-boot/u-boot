@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/pinmux.h>
+#include <asm/gpio.h>
 #ifdef CONFIG_TEGRA2_MMC
 #include <mmc.h>
 #endif
@@ -72,15 +73,6 @@ static void pin_mux_mmc(void)
 	pinmux_tristate_disable(PINGRP_ATC);
 }
 
-/*
- * Routine: gpio_config_mmc
- * Description: Set GPIOs for SD card
- */
-void gpio_config_mmc(void)
-{
-	/* Not implemented for now */
-}
-
 /* this is a weak define that we are overriding */
 int board_mmc_init(bd_t *bd)
 {
@@ -88,29 +80,16 @@ int board_mmc_init(bd_t *bd)
 
 	/* Enable muxes, etc. for SDMMC controllers */
 	pin_mux_mmc();
-	gpio_config_mmc();
 
 	debug("board_mmc_init: init SD slot J26\n");
 	/* init dev 0, SD slot J26, with 4-bit bus */
 	/* The board has an 8-bit bus, but 8-bit doesn't work yet */
-	tegra2_mmc_init(0, 4);
+	tegra2_mmc_init(0, 4, GPIO_PI6, GPIO_PH2);
 
 	debug("board_mmc_init: init SD slot J5\n");
 	/* init dev 2, SD slot J5, with 4-bit bus */
-	tegra2_mmc_init(2, 4);
+	tegra2_mmc_init(2, 4, GPIO_PT3, GPIO_PI5);
 
-	return 0;
-}
-
-/* this is a weak define that we are overriding */
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
-{
-	debug("board_mmc_getcd called\n");
-	/*
-	 * Hard-code CD presence for now. Need to add GPIO inputs
-	 * for Harmony
-	 */
-	*cd = 1;
 	return 0;
 }
 #endif

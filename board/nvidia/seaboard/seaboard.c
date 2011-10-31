@@ -87,19 +87,6 @@ static void pin_mux_mmc(void)
 	pinmux_tristate_disable(PINGRP_ATC);
 }
 
-/*
- * Routine: gpio_config_mmc
- * Description: Set GPIOs for SDMMC3 SDIO slot.
- */
-void gpio_config_mmc(void)
-{
-	/* Set EN_VDDIO_SD (GPIO I6) */
-	gpio_direction_output(GPIO_PI6, 1);
-
-	/* Config pin as GPI for Card Detect (GPIO I5) */
-	gpio_direction_input(GPIO_PI5);
-}
-
 /* this is a weak define that we are overriding */
 int board_mmc_init(bd_t *bd)
 {
@@ -107,31 +94,15 @@ int board_mmc_init(bd_t *bd)
 
 	/* Enable muxes, etc. for SDMMC controllers */
 	pin_mux_mmc();
-	gpio_config_mmc();
 
 	debug("board_mmc_init: init eMMC\n");
 	/* init dev 0, eMMC chip, with 4-bit bus */
 	/* The board has an 8-bit bus, but 8-bit doesn't work yet */
-	tegra2_mmc_init(0, 4);
+	tegra2_mmc_init(0, 4, -1, -1);
 
 	debug("board_mmc_init: init SD slot\n");
 	/* init dev 1, SD slot, with 4-bit bus */
-	tegra2_mmc_init(1, 4);
-
-	return 0;
-}
-
-/* this is a weak define that we are overriding */
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
-{
-	debug("board_mmc_getcd called\n");
-	*cd = 1;			/* Assume card is inserted, or eMMC */
-
-	if (IS_SD(mmc)) {
-		/* Seaboard SDMMC3 = SDIO3_CD = GPIO_PI5 */
-		if (gpio_get_value(GPIO_PI5))
-			*cd = 0;
-	}
+	tegra2_mmc_init(1, 4, GPIO_PI6, GPIO_PI5);
 
 	return 0;
 }

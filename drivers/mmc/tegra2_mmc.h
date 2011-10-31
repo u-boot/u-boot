@@ -123,9 +123,11 @@ struct mmc_host {
 	unsigned int clock;	/* Current clock (MHz) */
 	unsigned int base;	/* Base address, SDMMC1/2/3/4 */
 	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
+	int pwr_gpio;		/* Power GPIO */
+	int cd_gpio;		/* Change Detect GPIO */
 };
 
-int tegra2_mmc_init(int dev_index, int bus_width);
+int tegra2_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio);
 
 #endif	/* __ASSEMBLY__ */
 #endif	/* __TEGRA2_MMC_H_ */
