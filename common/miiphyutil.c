@@ -102,6 +102,7 @@ static int legacy_miiphy_write(struct mii_dev *bus, int addr, int devad,
 /*****************************************************************************
  *
  * Register read and write MII access routines for the device <name>.
+ * This API is now deprecated. Please use mdio_alloc and mdio_register, instead.
  */
 void miiphy_register(const char *name,
 		      int (*read)(const char *devname, unsigned char addr,
@@ -281,6 +282,8 @@ static struct mii_dev *miiphy_get_active_dev(const char *devname)
  * Read to variable <value> from the PHY attached to device <devname>,
  * use PHY address <addr> and register <reg>.
  *
+ * This API is deprecated. Use phy_read on a phy_device found via phy_connect
+ *
  * Returns:
  *   0 on success
  */
@@ -306,6 +309,8 @@ int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
  *
  * Write <value> to the PHY attached to device <devname>,
  * use PHY address <addr> and register <reg>.
+ *
+ * This API is deprecated. Use phy_write on a phy_device found by phy_connect
  *
  * Returns:
  *   0 on success
@@ -350,6 +355,8 @@ void miiphy_listdev(void)
  * Model:    6 bits (unsigned char)
  * Revision: 4 bits (unsigned char)
  *
+ * This API is deprecated.
+ *
  * Returns:
  *   0 on success
  */
@@ -389,6 +396,9 @@ int miiphy_info(const char *devname, unsigned char addr, unsigned int *oui,
 /*****************************************************************************
  *
  * Reset the PHY.
+ *
+ * This API is deprecated. Use PHYLIB.
+ *
  * Returns:
  *   0 on success
  */

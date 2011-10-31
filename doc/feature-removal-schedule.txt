@@ -7,6 +7,17 @@ file.
 
 ---------------------------
 
+What:	Users of the legacy miiphy_* code
+When:	undetermined
+
+Why:	We now have a PHY library, which allows everyone to share PHY
+	drivers. All new drivers should use this infrastructure, and
+	all old drivers should get converted to use it.
+
+Who:	Andy Fleming <afleming@freescale.com> and driver maintainers
+
+---------------------------
+
 What:	boards with xxx_config targets in top level Makefile
 When:	Release v2012.03
 
