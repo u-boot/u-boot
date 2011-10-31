@@ -41,7 +41,8 @@
 
 #include <asm/arch/kirkwood.h>
 #define CONFIG_ARM926EJS	1	/* Basic Architecture */
-
+#define CONFIG_SYS_CACHELINE_SIZE	32
+				/* default Dcache Line length for kirkwood */
 #define CONFIG_MD5	/* get_random_hex on krikwood needs MD5 support */
 #define CONFIG_KIRKWOOD_EGIGA_INIT	/* Enable GbePort0/1 for kernel */
 #define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
