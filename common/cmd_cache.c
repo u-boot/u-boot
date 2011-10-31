@@ -30,10 +30,10 @@
 
 static int parse_argv(const char *);
 
-void __weak flush_icache(void)
+void __weak invalidate_icache_all(void)
 {
-	/* please define arch specific flush_icache */
-	puts("No arch specific flush_icache available!\n");
+	/* please define arch specific invalidate_icache_all */
+	puts("No arch specific invalidate_icache_all available!\n");
 }
 
 int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -45,7 +45,7 @@ int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			break;
 		case 1:	icache_enable ();
 			break;
-		case 2: flush_icache();
+		case 2: invalidate_icache_all();
 			break;
 		}
 		/* FALL TROUGH */
@@ -59,10 +59,10 @@ int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-void __weak flush_dcache(void)
+void __weak flush_dcache_all(void)
 {
-	puts("No arch specific flush_dcache available!\n");
-	/* please define arch specific flush_dcache */
+	puts("No arch specific flush_dcache_all available!\n");
+	/* please define arch specific flush_dcache_all */
 }
 
 int do_dcache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -74,7 +74,7 @@ int do_dcache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			break;
 		case 1:	dcache_enable ();
 			break;
-		case 2: flush_dcache();
+		case 2: flush_dcache_all();
 			break;
 		}
 		/* FALL TROUGH */
