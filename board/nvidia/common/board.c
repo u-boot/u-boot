@@ -33,10 +33,6 @@
 #include <asm/arch/uart.h>
 #include "board.h"
 
-#ifdef CONFIG_TEGRA2_MMC
-#include <mmc.h>
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 const struct tegra2_sysinfo sysinfo = {
@@ -100,33 +96,6 @@ static void pin_mux_uart(void)
 #endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
 }
 
-#ifdef CONFIG_TEGRA2_MMC
-/*
- * Routine: pin_mux_mmc
- * Description: setup the pin muxes/tristate values for the SDMMC(s)
- */
-static void pin_mux_mmc(void)
-{
-	/* SDMMC4: config 3, x8 on 2nd set of pins */
-	pinmux_set_func(PINGRP_ATB, PMUX_FUNC_SDIO4);
-	pinmux_set_func(PINGRP_GMA, PMUX_FUNC_SDIO4);
-	pinmux_set_func(PINGRP_GME, PMUX_FUNC_SDIO4);
-
-	pinmux_tristate_disable(PINGRP_ATB);
-	pinmux_tristate_disable(PINGRP_GMA);
-	pinmux_tristate_disable(PINGRP_GME);
-
-	/* SDMMC3: SDIO3_CLK, SDIO3_CMD, SDIO3_DAT[3:0] */
-	pinmux_set_func(PINGRP_SDB, PMUX_FUNC_SDIO3);
-	pinmux_set_func(PINGRP_SDC, PMUX_FUNC_SDIO3);
-	pinmux_set_func(PINGRP_SDD, PMUX_FUNC_SDIO3);
-
-	pinmux_tristate_disable(PINGRP_SDC);
-	pinmux_tristate_disable(PINGRP_SDD);
-	pinmux_tristate_disable(PINGRP_SDB);
-}
-#endif
-
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -141,27 +110,6 @@ int board_init(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_TEGRA2_MMC
-/* this is a weak define that we are overriding */
-int board_mmc_init(bd_t *bd)
-{
-	debug("board_mmc_init called\n");
-	/* Enable muxes, etc. for SDMMC controllers */
-	pin_mux_mmc();
-	gpio_config_mmc();
-
-	debug("board_mmc_init: init eMMC\n");
-	/* init dev 0, eMMC chip, with 4-bit bus */
-	tegra2_mmc_init(0, 4);
-
-	debug("board_mmc_init: init SD slot\n");
-	/* init dev 1, SD slot, with 4-bit bus */
-	tegra2_mmc_init(1, 4);
-
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
