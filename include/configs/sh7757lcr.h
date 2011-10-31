@@ -31,6 +31,7 @@
 #define CONFIG_SH_32BIT		1
 #define CONFIG_CPU_SH7757	1
 #define CONFIG_SH7757LCR	1
+#define CONFIG_SH7757LCR_DDR_ECC	1
 
 #define CONFIG_SYS_TEXT_BASE	0x8ef80000
 #define CONFIG_SYS_LDSCRIPT	"board/renesas/sh7757lcr/u-boot.lds"
