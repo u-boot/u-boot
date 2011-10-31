@@ -29,6 +29,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+
+#define MACH_TYPE_MPL_VCMA9	227
+
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -37,6 +40,7 @@
 #define CONFIG_S3C24X0		/* in a SAMSUNG S3C24x0-type SoC */
 #define CONFIG_S3C2410		/* specifically a SAMSUNG S3C2410 SoC */
 #define CONFIG_VCMA9		/* on a MPL VCMA9 Board  */
+#define CONFIG_MACH_TYPE	MACH_TYPE_MPL_VCMA9 /* Machine type */
 
 #define CONFIG_SYS_TEXT_BASE	0x0
 
