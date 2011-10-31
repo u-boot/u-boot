@@ -72,9 +72,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/* arch number of VCMA9-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_MPL_VCMA9;
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x30000100;
 
