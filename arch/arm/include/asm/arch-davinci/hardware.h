@@ -56,6 +56,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_DMA_3PTC1_BASE			(0x01c10400)
 #define DAVINCI_UART0_BASE			(0x01c20000)
 #define DAVINCI_UART1_BASE			(0x01c20400)
+#define DAVINCI_TIMER3_BASE			(0x01c20800)
 #define DAVINCI_I2C_BASE			(0x01c21000)
 #define DAVINCI_TIMER0_BASE			(0x01c21400)
 #define DAVINCI_TIMER1_BASE			(0x01c21800)
@@ -63,6 +64,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_PWM0_BASE			(0x01c22000)
 #define DAVINCI_PWM1_BASE			(0x01c22400)
 #define DAVINCI_PWM2_BASE			(0x01c22800)
+#define DAVINCI_TIMER4_BASE			(0x01c23800)
 #define DAVINCI_SYSTEM_MODULE_BASE		(0x01c40000)
 #define DAVINCI_PLL_CNTRL0_BASE			(0x01c40800)
 #define DAVINCI_PLL_CNTRL1_BASE			(0x01c40c00)
@@ -108,6 +110,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_MMC_SD1_BASE			0x01d00000
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x01d10000
 #define DAVINCI_MMC_SD0_BASE			0x01d11000
+#define DAVINCI_DDR_EMIF_CTRL_BASE		0x20000000
 
 #elif defined(CONFIG_SOC_DM646X)
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x20008000
@@ -543,4 +546,14 @@ static inline int get_async3_src(void)
 
 #endif /* CONFIG_SOC_DA8XX */
 
+#if defined(CONFIG_SOC_DM365)
+#include <asm/arch/aintc_defs.h>
+#include <asm/arch/ddr2_defs.h>
+#include <asm/arch/emif_defs.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/pll_defs.h>
+#include <asm/arch/psc_defs.h>
+#include <asm/arch/syscfg_defs.h>
+#include <asm/arch/timer_defs.h>
+#endif
 #endif /* __ASM_ARCH_HARDWARE_H */
