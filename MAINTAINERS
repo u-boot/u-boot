@@ -421,6 +421,7 @@ Georg Schardt <schardt@team-ctech.de>
 
 Heiko Schocher <hs@denx.de>
 
+	cam_enc_4xx	davinci/ARM926EJS
 	charon		MPC5200
 	ids8247		MPC8247
 	jupiter		MPC5200
