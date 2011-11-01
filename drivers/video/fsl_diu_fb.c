@@ -106,6 +106,38 @@ static struct fb_videomode fsl_diu_mode_1280_1024 = {
 	.vmode		= FB_VMODE_NONINTERLACED
 };
 
+static struct fb_videomode fsl_diu_mode_1280_720 = {
+	.name		= "1280x720-60",
+	.refresh	= 60,
+	.xres		= 1280,
+	.yres		= 720,
+	.pixclock	= 13426,
+	.left_margin	= 192,
+	.right_margin	= 64,
+	.upper_margin	= 22,
+	.lower_margin	= 1,
+	.hsync_len	= 136,
+	.vsync_len	= 3,
+	.sync		= FB_SYNC_COMP_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+	.vmode		= FB_VMODE_NONINTERLACED
+};
+
+static struct fb_videomode fsl_diu_mode_1920_1080 = {
+	.name		= "1920x1080-60",
+	.refresh	= 60,
+	.xres		= 1920,
+	.yres		= 1080,
+	.pixclock	= 5787,
+	.left_margin	= 328,
+	.right_margin	= 120,
+	.upper_margin	= 34,
+	.lower_margin	= 1,
+	.hsync_len	= 208,
+	.vsync_len	= 3,
+	.sync		= FB_SYNC_COMP_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+	.vmode		= FB_VMODE_NONINTERLACED
+};
+
 /*
  * These are the fields of area descriptor(in DDR memory) for every plane
  */
@@ -258,6 +290,12 @@ int fsl_diu_init(u16 xres, u16 yres, u32 pixel_format, int gamma_fix)
 		break;
 	case RESOLUTION(1280, 1024):
 		fsl_diu_mode_db = &fsl_diu_mode_1280_1024;
+		break;
+	case RESOLUTION(1280, 720):
+		fsl_diu_mode_db = &fsl_diu_mode_1280_720;
+		break;
+	case RESOLUTION(1920, 1080):
+		fsl_diu_mode_db = &fsl_diu_mode_1920_1080;
 		break;
 	default:
 		printf("DIU:   Unsupported resolution %ux%u\n", xres, yres);
