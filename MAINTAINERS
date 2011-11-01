@@ -142,6 +142,10 @@ Phil Edworthy <phil.edworthy@renesas.com>
 
 	rsk7264		SH7264
 
+egnite GmbH <info@egnite.de>
+
+	ethernut5	ARM926EJS (AT91SAM9XE SoC)
+
 Dirk Eibach <eibach@gdsys.de>
 
 	devconcenter	PPC460EX
