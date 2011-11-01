@@ -76,4 +76,8 @@ struct dv_pll_regs {
 #define dv_pll0_regs ((struct dv_pll_regs *)DAVINCI_PLL_CNTRL0_BASE)
 #define dv_pll1_regs ((struct dv_pll_regs *)DAVINCI_PLL_CNTRL1_BASE)
 
+#define ARM_PLLDIV	(offsetof(struct dv_pll_regs, plldiv2))
+#define DDR_PLLDIV	(offsetof(struct dv_pll_regs, plldiv7))
+
+unsigned int davinci_clk_get(unsigned int div);
 #endif /* _DV_PLL_DEFS_H_ */
