@@ -1678,14 +1678,6 @@ struct e1000_hw {
 #define EEPROM_EWEN_OPCODE  0x13	/* EERPOM erase/write enable */
 #define EEPROM_EWDS_OPCODE  0x10	/* EERPOM erast/write disable */
 
-/* EEPROM Word Offsets */
-#define EEPROM_COMPAT		   0x0003
-#define EEPROM_ID_LED_SETTINGS	   0x0004
-#define EEPROM_INIT_CONTROL1_REG   0x000A
-#define EEPROM_INIT_CONTROL2_REG   0x000F
-#define EEPROM_FLASH_VERSION	   0x0032
-#define EEPROM_CHECKSUM_REG	   0x003F
-
 /* Word definitions for ID LED Settings */
 #define ID_LED_RESERVED_0000 0x0000
 #define ID_LED_RESERVED_FFFF 0xFFFF
@@ -2479,7 +2471,6 @@ struct e1000_hw {
 #define ADVERTISE_100_FULL		0x0008
 #define ADVERTISE_1000_HALF		0x0010
 #define ADVERTISE_1000_FULL		0x0020
-#define AUTONEG_ADVERTISE_SPEED_DEFAULT 0x002F	/* Everything but 1000-Half */
 
 #define ICH_FLASH_GFPREG   0x0000
 #define ICH_FLASH_HSFSTS   0x0004
@@ -2504,7 +2495,6 @@ struct e1000_hw {
 #define ICH_GFPREG_BASE_MASK       0x1FFF
 #define ICH_FLASH_LINEAR_ADDR_MASK 0x00FFFFFF
 
-#define E1000_EEWR     0x0102C  /* EEPROM Write Register - RW */
 #define E1000_SW_FW_SYNC 0x05B5C /* Software-Firmware Synchronization - RW */
 
 /* SPI EEPROM Status Register */
@@ -2599,7 +2589,6 @@ struct e1000_hw {
 #define PHY_CFG_TIMEOUT             100
 #define DEFAULT_80003ES2LAN_TIPG_IPGT_10_100 0x00000009
 #define DEFAULT_80003ES2LAN_TIPG_IPGT_1000   0x00000008
-#define E1000_TXDMAC_DPP 0x00000001
 #define AUTO_ALL_MODES	0
 
 #ifndef E1000_MASTER_SLAVE
