@@ -33,6 +33,8 @@
 
 #include <asm/arch/armada100.h>
 #define CONFIG_ARM926EJS	1	/* Basic Architecture */
+/* default Dcache Line length for armada100 */
+#define CONFIG_SYS_CACHELINE_SIZE       32
 
 #define CONFIG_SYS_TCLK		(14745600)	/* NS16550 clk config */
 #define CONFIG_SYS_HZ_CLOCK	(3250000)	/* Timer Freq. 3.25MHZ */
