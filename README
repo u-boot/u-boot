@@ -3257,6 +3257,11 @@ Low Level (hardware related) configuration options:
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.
 
+- CONFIG_SYS_NAND_HW_ECC_OOBFIRST
+		define this, if you want to read first the oob data
+		and then the data. This is used for example on
+		davinci plattforms.
+
 - CONFIG_USE_ARCH_MEMCPY
   CONFIG_USE_ARCH_MEMSET
 		If these options are used a optimized version of memcpy/memset will
