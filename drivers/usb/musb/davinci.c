@@ -26,6 +26,10 @@
 #include "davinci.h"
 #include <asm/arch/hardware.h>
 
+#if !defined(CONFIG_DV_USBPHY_CTL)
+#define CONFIG_DV_USBPHY_CTL (USBPHY_SESNDEN | USBPHY_VBDTCTEN)
+#endif
+
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {
 	.regs		= (struct musb_regs *)MENTOR_USB0_BASE,
@@ -50,7 +54,7 @@ static u8 phy_on(void)
 	writel(USBPHY_PHY24MHZ | USBPHY_SESNDEN |
 			USBPHY_VBDTCTEN, USBPHY_CTL_PADDR);
 #else
-	writel(USBPHY_SESNDEN | USBPHY_VBDTCTEN, USBPHY_CTL_PADDR);
+	writel(CONFIG_DV_USBPHY_CTL, USBPHY_CTL_PADDR);
 #endif
 	timeout = musb_cfg.timeout;
 
