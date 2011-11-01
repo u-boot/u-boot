@@ -36,6 +36,9 @@
 #ifndef _CONFIG_KM_ARM_H
 #define _CONFIG_KM_ARM_H
 
+/* We got removed from Linux mach-types.h */
+#define MACH_TYPE_KM_KIRKWOOD          2255
+
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -44,6 +47,8 @@
 #define CONFIG_KIRKWOOD			/* SOC Family Name */
 #define CONFIG_KW88F6281		/* SOC Name */
 #define CONFIG_MACH_KM_KIRKWOOD		/* Machine type */
+
+#define CONFIG_MACH_TYPE	MACH_TYPE_KM_KIRKWOOD
 
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
