@@ -85,7 +85,8 @@ endif
 # We don't want gcc reordering functions if possible.  This ensures that an
 # application's entry point will be the first function in the application's
 # source file.
-CFLAGS += $(call cc-option,-fno-toplevel-reorder)
+CFLAGS_NTR := $(call cc-option,-fno-toplevel-reorder)
+CFLAGS += $(CFLAGS_NTR)
 
 all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN) $(ELF)
 

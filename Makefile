@@ -320,7 +320,7 @@ else
 PLATFORM_LIBGCC = -L $(USE_PRIVATE_LIBGCC) -lgcc
 endif
 else
-PLATFORM_LIBGCC = -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
+PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
 endif
 PLATFORM_LIBS += $(PLATFORM_LIBGCC)
 export PLATFORM_LIBS

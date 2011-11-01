@@ -27,10 +27,12 @@ PLATFORM_CPPFLAGS += -fno-strict-aliasing
 PLATFORM_CPPFLAGS += -Wstrict-prototypes
 PLATFORM_CPPFLAGS += -mregparm=3
 PLATFORM_CPPFLAGS += -fomit-frame-pointer
-PLATFORM_CPPFLAGS += $(call cc-option, -ffreestanding)
-PLATFORM_CPPFLAGS += $(call cc-option, -fno-toplevel-reorder,  $(call cc-option, -fno-unit-at-a-time))
-PLATFORM_CPPFLAGS += $(call cc-option, -fno-stack-protector)
-PLATFORM_CPPFLAGS += $(call cc-option, -mpreferred-stack-boundary=2)
+PF_CPPFLAGS_X86   := $(call cc-option, -ffreestanding) \
+		     $(call cc-option, -fno-toplevel-reorder, \
+		       $(call cc-option, -fno-unit-at-a-time)) \
+		     $(call cc-option, -fno-stack-protector) \
+		     $(call cc-option, -mpreferred-stack-boundary=2)
+PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_X86)
 PLATFORM_CPPFLAGS += -fno-dwarf2-cfi-asm
 PLATFORM_CPPFLAGS += -DREALMODE_BASE=0x7c0
 
