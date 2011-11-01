@@ -60,11 +60,16 @@
  */
 #define CONFIG_SYS_TCLK			166000000 /* 166MHz */
 
+#define CONFIG_NR_DRAM_BANKS		1
+#ifdef CONFIG_INETSPACE_V2
+/* Different SDRAM configuration and size for Internet Space v2 */
+#define CONFIG_SYS_KWD_CONFIG ($(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg)
+#endif
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
-#define CONFIG_NR_DRAM_BANKS		2
 #include "mv-common.h"
 
 /* Remove or override few declarations from mv-common.h */
