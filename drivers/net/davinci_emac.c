@@ -809,7 +809,7 @@ int davinci_emac_initialize(void)
 			phy[i].auto_negotiate = gen_auto_negotiate;
 		}
 
-		debug("Ethernet PHY: %s\n", phy.name);
+		debug("Ethernet PHY: %s\n", phy[i].name);
 
 		miiphy_register(phy[i].name, davinci_mii_phy_read,
 						davinci_mii_phy_write);
