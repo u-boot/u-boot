@@ -126,7 +126,15 @@ _fiq:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#ifdef CONFIG_NAND_SPL /* deprecated, use instead CONFIG_SPL_BUILD */
 	.word	CONFIG_SYS_TEXT_BASE
+#else
+#ifdef CONFIG_SPL_BUILD
+	.word	CONFIG_SPL_TEXT_BASE
+#else
+	.word	CONFIG_SYS_TEXT_BASE
+#endif
+#endif
 
 /*
  * These are defined in the board-specific linker script.
@@ -192,7 +200,15 @@ reset:
 
 /* Set stackpointer in internal RAM to call board_init_f */
 call_board_init_f:
+#ifdef CONFIG_NAND_SPL /* deprecated, use instead CONFIG_SPL_BUILD */
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
+#else
+#ifdef CONFIG_SPL_BUILD
+	ldr	sp, =(CONFIG_SPL_STACK)
+#else
+	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
+#endif
+#endif
 	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
 	ldr	r0,=0x00000000
 	bl	board_init_f
@@ -217,6 +233,7 @@ stack_setup:
 	mov	sp, r4
 
 	adr	r0, _start
+	sub	r9, r6, r0		/* r9 <- relocation offset */
 	cmp	r0, r6
 	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy loop */
@@ -271,12 +288,17 @@ fixnext:
 #endif
 
 clear_bss:
-#ifndef CONFIG_SPL_BUILD
+#ifdef CONFIG_SPL_BUILD
+	/* No relocation for SPL */
+	ldr	r0, =__bss_start
+	ldr	r1, =__bss_end__
+#else
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	mov	r4, r6			/* reloc addr */
 	add	r0, r0, r4
 	add	r1, r1, r4
+#endif
 	mov	r2, #0x00000000		/* clear			    */
 
 clbss_l:str	r2, [r0]		/* clear loop...		    */
@@ -284,6 +306,7 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 	cmp	r0, r1
 	bne	clbss_l
 
+#ifndef CONFIG_SPL_BUILD
 	bl coloured_LED_init
 	bl red_led_on
 #endif
