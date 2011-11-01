@@ -1374,7 +1374,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 	const image_header_t *fdt_hdr;
 	ulong		fdt_addr;
 	char		*fdt_blob = NULL;
-	ulong		image_start, image_end;
+	ulong		image_start, image_data, image_end;
 	ulong		load_start, load_end;
 #if defined(CONFIG_FIT)
 	void		*fit_hdr;
@@ -1482,10 +1482,17 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 			 * make sure we don't overwrite initial image
 			 */
 			image_start = (ulong)fdt_hdr;
+			image_data = (ulong)image_get_data(fdt_hdr);
 			image_end = image_get_image_end(fdt_hdr);
 
 			load_start = image_get_load(fdt_hdr);
 			load_end = load_start + image_get_data_size(fdt_hdr);
+
+			if (load_start == image_start ||
+			    load_start == image_data) {
+				fdt_blob = (char *)image_data;
+				break;
+			}
 
 			if ((load_start < image_end) && (load_end > image_start)) {
 				fdt_error("fdt overwritten");
@@ -1493,10 +1500,10 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 			}
 
 			debug("   Loading FDT from 0x%08lx to 0x%08lx\n",
-					image_get_data(fdt_hdr), load_start);
+					image_data, load_start);
 
 			memmove((void *)load_start,
-					(void *)image_get_data(fdt_hdr),
+					(void *)image_data,
 					image_get_data_size(fdt_hdr));
 
 			fdt_blob = (char *)load_start;
