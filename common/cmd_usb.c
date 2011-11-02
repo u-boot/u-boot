@@ -701,10 +701,10 @@ U_BOOT_CMD(
 	usb,	5,	1,	do_usb,
 	"USB sub-system",
 	"reset - reset (rescan) USB controller\n"
-	"usb stop [f]  - stop USB [f]=force stop\n"
-	"usb tree  - show USB device tree\n"
+	"usb stop [f] - stop USB [f]=force stop\n"
+	"usb tree - show USB device tree\n"
 	"usb info [dev] - show available USB devices\n"
-	"usb storage  - show details of USB storage devices\n"
+	"usb storage - show details of USB storage devices\n"
 	"usb dev [dev] - show or set current USB storage device\n"
 	"usb part [dev] - print partition table of one or all USB storage"
 	" devices\n"
@@ -726,7 +726,7 @@ U_BOOT_CMD(
 	usb,	5,	1,	do_usb,
 	"USB sub-system",
 	"reset - reset (rescan) USB controller\n"
-	"usb  tree  - show USB device tree\n"
-	"usb  info [dev] - show available USB devices"
+	"usb tree - show USB device tree\n"
+	"usb info [dev] - show available USB devices"
 );
 #endif
