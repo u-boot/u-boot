@@ -655,6 +655,15 @@ The following options need to be configured:
 		to get the character out. Baud rates will need to default
 		to something sensible.
 
+- Safe printf() functions
+		Define CONFIG_SYS_VSNPRINTF to compile in safe versions of
+		the printf() functions. These are defined in
+		include/vsprintf.h and include snprintf(), vsnprintf() and
+		so on. Code size increase is approximately 300-500 bytes.
+		If this option is not given then these functions will
+		silently discard their buffer size argument - this means
+		you are not getting any overflow checking in this case.
+
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
 		set to -1 to disable autoboot.

@@ -26,6 +26,9 @@
 # define NUM_TYPE long long
 #define noinline __attribute__((noinline))
 
+/* some reluctance to put this into a new limits.h, so it is here */
+#define INT_MAX		((int)(~0U>>1))
+
 const char hex_asc[] = "0123456789abcdef";
 #define hex_asc_lo(x)   hex_asc[((x) & 0x0f)]
 #define hex_asc_hi(x)   hex_asc[((x) & 0xf0) >> 4]
@@ -291,7 +294,22 @@ static noinline char* put_dec(char *buf, unsigned NUM_TYPE num)
 #define SMALL	32		/* Must be 32 == 0x20 */
 #define SPECIAL	64		/* 0x */
 
-static char *number(char *buf, unsigned NUM_TYPE num, int base, int size, int precision, int type)
+#ifdef CONFIG_SYS_VSNPRINTF
+/*
+ * Macro to add a new character to our output string, but only if it will
+ * fit. The macro moves to the next character position in the output string.
+ */
+#define ADDCH(str, ch) do { \
+	if ((str) < end) \
+		*(str) = (ch); \
+	++str; \
+	} while (0)
+#else
+#define ADDCH(str, ch)	(*(str)++ = (ch))
+#endif
+
+static char *number(char *buf, char *end, unsigned NUM_TYPE num,
+		int base, int size, int precision, int type)
 {
 	/* we are called with base 8, 10 or 16, only, thus don't need "G..."  */
 	static const char digits[16] = "0123456789ABCDEF"; /* "GHIJKLMNOPQRSTUVWXYZ"; */
@@ -353,37 +371,40 @@ static char *number(char *buf, unsigned NUM_TYPE num, int base, int size, int pr
 		precision = i;
 	/* leading space padding */
 	size -= precision;
-	if (!(type & (ZEROPAD+LEFT)))
-		while(--size >= 0)
-			*buf++ = ' ';
+	if (!(type & (ZEROPAD + LEFT))) {
+		while (--size >= 0)
+			ADDCH(buf, ' ');
+	}
 	/* sign */
 	if (sign)
-		*buf++ = sign;
+		ADDCH(buf, sign);
 	/* "0x" / "0" prefix */
 	if (need_pfx) {
-		*buf++ = '0';
+		ADDCH(buf, '0');
 		if (base == 16)
-			*buf++ = ('X' | locase);
+			ADDCH(buf, 'X' | locase);
 	}
 	/* zero or space padding */
 	if (!(type & LEFT)) {
 		char c = (type & ZEROPAD) ? '0' : ' ';
+
 		while (--size >= 0)
-			*buf++ = c;
+			ADDCH(buf, c);
 	}
 	/* hmm even more zero padding? */
 	while (i <= --precision)
-		*buf++ = '0';
+		ADDCH(buf, '0');
 	/* actual digits of result */
 	while (--i >= 0)
-		*buf++ = tmp[i];
+		ADDCH(buf, tmp[i]);
 	/* trailing space padding */
 	while (--size >= 0)
-		*buf++ = ' ';
+		ADDCH(buf, ' ');
 	return buf;
 }
 
-static char *string(char *buf, char *s, int field_width, int precision, int flags)
+static char *string(char *buf, char *end, char *s, int field_width,
+		int precision, int flags)
 {
 	int len, i;
 
@@ -394,16 +415,16 @@ static char *string(char *buf, char *s, int field_width, int precision, int flag
 
 	if (!(flags & LEFT))
 		while (len < field_width--)
-			*buf++ = ' ';
+			ADDCH(buf, ' ');
 	for (i = 0; i < len; ++i)
-		*buf++ = *s++;
+		ADDCH(buf, *s++);
 	while (len < field_width--)
-		*buf++ = ' ';
+		ADDCH(buf, ' ');
 	return buf;
 }
 
 #ifdef CONFIG_CMD_NET
-static char *mac_address_string(char *buf, u8 *addr, int field_width,
+static char *mac_address_string(char *buf, char *end, u8 *addr, int field_width,
 				int precision, int flags)
 {
 	char mac_addr[6 * 3]; /* (6 * 2 hex digits), 5 colons and trailing zero */
@@ -417,10 +438,11 @@ static char *mac_address_string(char *buf, u8 *addr, int field_width,
 	}
 	*p = '\0';
 
-	return string(buf, mac_addr, field_width, precision, flags & ~SPECIAL);
+	return string(buf, end, mac_addr, field_width, precision,
+		      flags & ~SPECIAL);
 }
 
-static char *ip6_addr_string(char *buf, u8 *addr, int field_width,
+static char *ip6_addr_string(char *buf, char *end, u8 *addr, int field_width,
 			 int precision, int flags)
 {
 	char ip6_addr[8 * 5]; /* (8 * 4 hex digits), 7 colons and trailing zero */
@@ -435,10 +457,11 @@ static char *ip6_addr_string(char *buf, u8 *addr, int field_width,
 	}
 	*p = '\0';
 
-	return string(buf, ip6_addr, field_width, precision, flags & ~SPECIAL);
+	return string(buf, end, ip6_addr, field_width, precision,
+		      flags & ~SPECIAL);
 }
 
-static char *ip4_addr_string(char *buf, u8 *addr, int field_width,
+static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 			 int precision, int flags)
 {
 	char ip4_addr[4 * 4]; /* (4 * 3 decimal digits), 3 dots and trailing zero */
@@ -456,7 +479,8 @@ static char *ip4_addr_string(char *buf, u8 *addr, int field_width,
 	}
 	*p = '\0';
 
-	return string(buf, ip4_addr, field_width, precision, flags & ~SPECIAL);
+	return string(buf, end, ip4_addr, field_width, precision,
+		      flags & ~SPECIAL);
 }
 #endif
 
@@ -478,10 +502,12 @@ static char *ip4_addr_string(char *buf, u8 *addr, int field_width,
  * function pointers are really function descriptors, which contain a
  * pointer to the real address.
  */
-static char *pointer(const char *fmt, char *buf, void *ptr, int field_width, int precision, int flags)
+static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+		int field_width, int precision, int flags)
 {
 	if (!ptr)
-		return string(buf, "(null)", field_width, precision, flags);
+		return string(buf, end, "(null)", field_width, precision,
+			      flags);
 
 #ifdef CONFIG_CMD_NET
 	switch (*fmt) {
@@ -489,15 +515,18 @@ static char *pointer(const char *fmt, char *buf, void *ptr, int field_width, int
 		flags |= SPECIAL;
 		/* Fallthrough */
 	case 'M':
-		return mac_address_string(buf, ptr, field_width, precision, flags);
+		return mac_address_string(buf, end, ptr, field_width,
+					  precision, flags);
 	case 'i':
 		flags |= SPECIAL;
 		/* Fallthrough */
 	case 'I':
 		if (fmt[1] == '6')
-			return ip6_addr_string(buf, ptr, field_width, precision, flags);
+			return ip6_addr_string(buf, end, ptr, field_width,
+					       precision, flags);
 		if (fmt[1] == '4')
-			return ip4_addr_string(buf, ptr, field_width, precision, flags);
+			return ip4_addr_string(buf, end, ptr, field_width,
+					       precision, flags);
 		flags &= ~SPECIAL;
 		break;
 	}
@@ -507,27 +536,31 @@ static char *pointer(const char *fmt, char *buf, void *ptr, int field_width, int
 		field_width = 2*sizeof(void *);
 		flags |= ZEROPAD;
 	}
-	return number(buf, (unsigned long) ptr, 16, field_width, precision, flags);
+	return number(buf, end, (unsigned long)ptr, 16, field_width,
+		      precision, flags);
 }
 
 /**
- * vsprintf - Format a string and place it in a buffer
- * @buf: The buffer to place the result into
- * @fmt: The format string to use
- * @args: Arguments for the format string
+ * Format a string and place it in a buffer (base function)
  *
- * This function follows C99 vsprintf, but has some extensions:
+ * @param buf	The buffer to place the result into
+ * @param size	The size of the buffer, including the trailing null space
+ * @param fmt	The format string to use
+ * @param args	Arguments for the format string
+ * @return The number characters which would be generated for the given
+ * input, excluding the trailing '\0', as per ISO C99. Note that fewer
+ * characters may be written if this number of characters is >= size.
+ *
+ * This function follows C99 vsnprintf, but has some extensions:
  * %pS output the name of a text symbol
  * %pF output the name of a function pointer
  * %pR output the address range in a struct resource
  *
- * The function returns the number of characters written
- * into @buf.
- *
  * Call this function if you are already dealing with a va_list.
- * You probably want sprintf() instead.
+ * You probably want snprintf() instead.
  */
-int vsprintf(char *buf, const char *fmt, va_list args)
+static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
+			      va_list args)
 {
 	unsigned NUM_TYPE num;
 	int base;
@@ -542,12 +575,20 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				/* 'z' support added 23/7/1999 S.H.    */
 				/* 'z' changed to 'Z' --davidm 1/25/99 */
 				/* 't' added for ptrdiff_t */
+	char *end = buf + size;
 
+#ifdef CONFIG_SYS_VSNPRINTF
+	/* Make sure end is always >= buf - do we want this in U-Boot? */
+	if (end < buf) {
+		end = ((void *)-1);
+		size = end - buf;
+	}
+#endif
 	str = buf;
 
 	for (; *fmt ; ++fmt) {
 		if (*fmt != '%') {
-			*str++ = *fmt;
+			ADDCH(str, *fmt);
 			continue;
 		}
 
@@ -609,20 +650,22 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 
 		switch (*fmt) {
 		case 'c':
-			if (!(flags & LEFT))
+			if (!(flags & LEFT)) {
 				while (--field_width > 0)
-					*str++ = ' ';
-			*str++ = (unsigned char) va_arg(args, int);
+					ADDCH(str, ' ');
+			}
+			ADDCH(str, (unsigned char) va_arg(args, int));
 			while (--field_width > 0)
-				*str++ = ' ';
+				ADDCH(str, ' ');
 			continue;
 
 		case 's':
-			str = string(str, va_arg(args, char *), field_width, precision, flags);
+			str = string(str, end, va_arg(args, char *),
+				     field_width, precision, flags);
 			continue;
 
 		case 'p':
-			str = pointer(fmt+1, str,
+			str = pointer(fmt+1, str, end,
 					va_arg(args, void *),
 					field_width, precision, flags);
 			/* Skip all alphanumeric pointer suffixes */
@@ -641,7 +684,7 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 			continue;
 
 		case '%':
-			*str++ = '%';
+			ADDCH(str, '%');
 			continue;
 
 		/* integer number formats - set up the flags and "break" */
@@ -662,9 +705,9 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 			break;
 
 		default:
-			*str++ = '%';
+			ADDCH(str, '%');
 			if (*fmt)
-				*str++ = *fmt;
+				ADDCH(str, *fmt);
 			else
 				--fmt;
 			continue;
@@ -688,17 +731,135 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 			if (flags & SIGN)
 				num = (signed int) num;
 		}
-		str = number(str, num, base, field_width, precision, flags);
+		str = number(str, end, num, base, field_width, precision,
+			     flags);
 	}
+
+#ifdef CONFIG_SYS_VSNPRINTF
+	if (size > 0) {
+		ADDCH(str, '\0');
+		if (str > end)
+			end[-1] = '\0';
+	}
+#else
 	*str = '\0';
+#endif
+	/* the trailing null byte doesn't count towards the total */
 	return str-buf;
 }
 
+#ifdef CONFIG_SYS_VSNPRINTF
+int vsnprintf(char *buf, size_t size, const char *fmt,
+			      va_list args)
+{
+	return vsnprintf_internal(buf, size, fmt, args);
+}
+
 /**
- * sprintf - Format a string and place it in a buffer
- * @buf: The buffer to place the result into
- * @fmt: The format string to use
- * @...: Arguments for the format string
+ * Format a string and place it in a buffer (va_list version)
+ *
+ * @param buf	The buffer to place the result into
+ * @param size	The size of the buffer, including the trailing null space
+ * @param fmt	The format string to use
+ * @param args	Arguments for the format string
+ * @return the number of characters which have been written into
+ * the @buf not including the trailing '\0'. If @size is == 0 the function
+ * returns 0.
+ *
+ * If you're not already dealing with a va_list consider using scnprintf().
+ *
+ * See the vsprintf() documentation for format string extensions over C99.
+ */
+int vscnprintf(char *buf, size_t size, const char *fmt, va_list args)
+{
+	int i;
+
+	i = vsnprintf(buf, size, fmt, args);
+
+	if (likely(i < size))
+		return i;
+	if (size != 0)
+		return size - 1;
+	return 0;
+}
+
+/**
+ * Format a string and place it in a buffer
+ *
+ * @param buf	The buffer to place the result into
+ * @param size	The size of the buffer, including the trailing null space
+ * @param fmt	The format string to use
+ * @param ...	Arguments for the format string
+ * @return the number of characters which would be
+ * generated for the given input, excluding the trailing null,
+ * as per ISO C99.  If the return is greater than or equal to
+ * @size, the resulting string is truncated.
+ *
+ * See the vsprintf() documentation for format string extensions over C99.
+ */
+int snprintf(char *buf, size_t size, const char *fmt, ...)
+{
+	va_list args;
+	int i;
+
+	va_start(args, fmt);
+	i = vsnprintf(buf, size, fmt, args);
+	va_end(args);
+
+	return i;
+}
+
+/**
+ * Format a string and place it in a buffer
+ *
+ * @param buf	The buffer to place the result into
+ * @param size	The size of the buffer, including the trailing null space
+ * @param fmt	The format string to use
+ * @param ...	Arguments for the format string
+ *
+ * The return value is the number of characters written into @buf not including
+ * the trailing '\0'. If @size is == 0 the function returns 0.
+ *
+ * See the vsprintf() documentation for format string extensions over C99.
+ */
+
+int scnprintf(char *buf, size_t size, const char *fmt, ...)
+{
+	va_list args;
+	int i;
+
+	va_start(args, fmt);
+	i = vscnprintf(buf, size, fmt, args);
+	va_end(args);
+
+	return i;
+}
+#endif /* CONFIG_SYS_VSNPRINT */
+
+/**
+ * Format a string and place it in a buffer (va_list version)
+ *
+ * @param buf	The buffer to place the result into
+ * @param fmt	The format string to use
+ * @param args	Arguments for the format string
+ *
+ * The function returns the number of characters written
+ * into @buf. Use vsnprintf() or vscnprintf() in order to avoid
+ * buffer overflows.
+ *
+ * If you're not already dealing with a va_list consider using sprintf().
+ */
+int vsprintf(char *buf, const char *fmt, va_list args)
+{
+	return vsnprintf_internal(buf, INT_MAX, fmt, args);
+}
+
+/**
+ * Format a string and place it in a buffer
+ *
+ * @param buf	The buffer to place the result into
+ * @param fmt	The format string to use
+ * @param ...	Arguments for the format string
  *
  * The function returns the number of characters written
  * into @buf.

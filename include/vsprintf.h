@@ -36,4 +36,23 @@ int sprintf(char *buf, const char *fmt, ...)
 int vsprintf(char *buf, const char *fmt, va_list args);
 char *simple_itoa(ulong i);
 
+#ifdef CONFIG_SYS_VSNPRINTF
+int snprintf(char *buf, size_t size, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 3, 4)));
+int scnprintf(char *buf, size_t size, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 3, 4)));
+int vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
+int vscnprintf(char *buf, size_t size, const char *fmt, va_list args);
+#else
+/*
+ * Use macros to silently drop the size parameter. Note that the 'cn'
+ * versions are the same as the 'n' versions since the functions assume
+ * there is always enough buffer space when !CONFIG_SYS_VSNPRINTF
+ */
+#define snprintf(buf, size, fmt, args...) sprintf(buf, fmt, ##args)
+#define scnprintf(buf, size, fmt, args...) sprintf(buf, fmt, ##args)
+#define vsnprintf(buf, size, fmt, args...) vsprintf(buf, fmt, ##args)
+#define vscnprintf(buf, size, fmt, args...) vsprintf(buf, fmt, ##args)
+#endif /* CONFIG_SYS_VSNPRINTF */
+
 #endif
