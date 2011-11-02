@@ -700,7 +700,8 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	usb,	5,	1,	do_usb,
 	"USB sub-system",
-	"reset - reset (rescan) USB controller\n"
+	"start - start (scan) USB controller\n"
+	"usb reset - reset (rescan) USB controller\n"
 	"usb stop [f] - stop USB [f]=force stop\n"
 	"usb tree - show USB device tree\n"
 	"usb info [dev] - show available USB devices\n"
@@ -725,7 +726,8 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	usb,	5,	1,	do_usb,
 	"USB sub-system",
-	"reset - reset (rescan) USB controller\n"
+	"start - start (scan) USB controller\n"
+	"usb reset - reset (rescan) USB controller\n"
 	"usb tree - show USB device tree\n"
 	"usb info [dev] - show available USB devices"
 );
