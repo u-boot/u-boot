@@ -308,7 +308,6 @@ static void board_net_init_r(bd_t *bd)
 
 void board_init_r(gd_t * id, ulong dest_addr)
 {
-	char *s;
 	bd_t *bd;
 	gd = id;
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
