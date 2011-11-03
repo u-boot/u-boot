@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006,2011 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  *
@@ -569,6 +569,7 @@
  */
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
+#define CONFIG_BAT_RW
 
 /* DDR/LBC SDRAM: cacheable */
 #define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE \

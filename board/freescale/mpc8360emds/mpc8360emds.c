@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006,2010 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006,2010-2011 Freescale Semiconductor, Inc.
  * Dave Liu <daveliu@freescale.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -24,6 +24,7 @@
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <asm/fsl_enet.h>
+#include <asm/mmu.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
@@ -139,9 +140,20 @@ int board_early_init_f(void)
 
 int board_early_init_r(void)
 {
+	gd_t *gd;
 #ifdef CONFIG_PQ_MDS_PIB
 	pib_init();
 #endif
+	/*
+	 * BAT6 is used for SDRAM when DDR size is 512MB or larger than 256MB
+	 * So re-setup PCI MEM space used BAT5 after relocated to DDR
+	 */
+	gd = (gd_t *)(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
+	if (gd->ram_size > CONFIG_MAX_MEM_MAPPED) {
+		write_bat(DBAT5, CONFIG_SYS_DBAT6U, CONFIG_SYS_DBAT6L);
+		write_bat(IBAT5, CONFIG_SYS_IBAT6U, CONFIG_SYS_IBAT6L);
+	}
+
 	return 0;
 }
 
@@ -301,6 +313,19 @@ static int sdram_init(unsigned int base)
 	/* window base address should be aligned to the window size */
 	if (rem)
 		base = base - rem + sdram_size;
+
+	/*
+	 * Setup BAT6 for SDRAM when DDR size is 512MB or larger than 256MB
+	 * After relocated to DDR, reuse BAT5 for PCI MEM space
+	 */
+	if (base > CONFIG_MAX_MEM_MAPPED) {
+		unsigned long batl = base | BATL_PP_10 | BATL_MEMCOHERENCE;
+		unsigned long batu = base | BATU_BL_64M | BATU_VS | BATU_VP;
+
+		/* Setup the BAT6 for SDRAM */
+		write_bat(DBAT6, batu, batl);
+		write_bat(IBAT6, batu, batl);
+	}
 
 	sdram_addr = (uint *)base;
 	/*
