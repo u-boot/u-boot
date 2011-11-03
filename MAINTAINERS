@@ -817,11 +817,6 @@ Heiko Schocher <hs@denx.de>
 	magnesium	i.MX27
 	mgcoge3un	ARM926EJS (Kirkwood SoC)
 
-Robert Schwebel <r.schwebel@pengutronix.de>
-
-	csb226		xscale/pxa
-	innokom		xscale/pxa
-
 Michael Schwingen <michael@schwingen.org>
 
 	actux1		xscale/ixp
