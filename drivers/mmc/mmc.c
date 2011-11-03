@@ -631,14 +631,12 @@ int mmc_change_freq(struct mmc *mmc)
 	if (mmc->version < MMC_VERSION_4)
 		return 0;
 
-	mmc->card_caps |= MMC_MODE_4BIT;
-
 	err = mmc_send_ext_csd(mmc, ext_csd);
 
 	if (err)
 		return err;
 
-	cardtype = ext_csd[196] & 0xf;
+	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0xf;
 
 	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
 
@@ -652,7 +650,7 @@ int mmc_change_freq(struct mmc *mmc)
 		return err;
 
 	/* No high-speed support */
-	if (!ext_csd[185])
+	if (!ext_csd[EXT_CSD_HS_TIMING])
 		return 0;
 
 	/* High Speed is set, there are two types: 52MHz and 26MHz */
@@ -856,11 +854,12 @@ void mmc_set_bus_width(struct mmc *mmc, uint width)
 
 int mmc_startup(struct mmc *mmc)
 {
-	int err;
+	int err, width;
 	uint mult, freq;
 	u64 cmult, csize, capacity;
 	struct mmc_cmd cmd;
 	ALLOC_CACHE_ALIGN_BUFFER(char, ext_csd, 512);
+	ALLOC_CACHE_ALIGN_BUFFER(char, test_csd, 512);
 	int timeout = 1000;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
@@ -989,7 +988,7 @@ int mmc_startup(struct mmc *mmc)
 	/* Select the card, and put it into Transfer Mode */
 	if (!mmc_host_is_spi(mmc)) { /* cmd not supported in spi */
 		cmd.cmdidx = MMC_CMD_SELECT_CARD;
-		cmd.resp_type = MMC_RSP_R1b;
+		cmd.resp_type = MMC_RSP_R1;
 		cmd.cmdarg = mmc->rca << 16;
 		cmd.flags = 0;
 		err = mmc_send_cmd(mmc, &cmd, NULL);
@@ -1006,14 +1005,16 @@ int mmc_startup(struct mmc *mmc)
 	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
 		/* check  ext_csd version and capacity */
 		err = mmc_send_ext_csd(mmc, ext_csd);
-		if (!err & (ext_csd[192] >= 2)) {
+		if (!err & (ext_csd[EXT_CSD_REV] >= 2)) {
 			/*
 			 * According to the JEDEC Standard, the value of
 			 * ext_csd's capacity is valid if the value is more
 			 * than 2GB
 			 */
-			capacity = ext_csd[212] << 0 | ext_csd[213] << 8 |
-				   ext_csd[214] << 16 | ext_csd[215] << 24;
+			capacity = ext_csd[EXT_CSD_SEC_CNT] << 0
+					| ext_csd[EXT_CSD_SEC_CNT + 1] << 8
+					| ext_csd[EXT_CSD_SEC_CNT + 2] << 16
+					| ext_csd[EXT_CSD_SEC_CNT + 3] << 24;
 			capacity *= 512;
 			if ((capacity >> 20) > 2 * 1024)
 				mmc->capacity = capacity;
@@ -1024,8 +1025,9 @@ int mmc_startup(struct mmc *mmc)
 		 * group size from ext_csd directly, or calculate
 		 * the group size from the csd value.
 		 */
-		if (ext_csd[175])
-			mmc->erase_grp_size = ext_csd[224] * 512 * 1024;
+		if (ext_csd[EXT_CSD_ERASE_GROUP_DEF])
+			mmc->erase_grp_size =
+			      ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] * 512 * 1024;
 		else {
 			int erase_gsz, erase_gmul;
 			erase_gsz = (mmc->csd[2] & 0x00007c00) >> 10;
@@ -1035,8 +1037,8 @@ int mmc_startup(struct mmc *mmc)
 		}
 
 		/* store the partition info of emmc */
-		if (ext_csd[160] & PART_SUPPORT)
-			mmc->part_config = ext_csd[179];
+		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT)
+			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
 	}
 
 	if (IS_SD(mmc))
@@ -1077,26 +1079,35 @@ int mmc_startup(struct mmc *mmc)
 		else
 			mmc_set_clock(mmc, 25000000);
 	} else {
-		if (mmc->card_caps & MMC_MODE_4BIT) {
+		for (width = EXT_CSD_BUS_WIDTH_8; width >= 0; width--) {
 			/* Set the card to use 4 bit*/
 			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
-					EXT_CSD_BUS_WIDTH,
-					EXT_CSD_BUS_WIDTH_4);
+					EXT_CSD_BUS_WIDTH, width);
 
 			if (err)
-				return err;
+				continue;
 
-			mmc_set_bus_width(mmc, 4);
-		} else if (mmc->card_caps & MMC_MODE_8BIT) {
-			/* Set the card to use 8 bit*/
-			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
-					EXT_CSD_BUS_WIDTH,
-					EXT_CSD_BUS_WIDTH_8);
+			if (!width) {
+				mmc_set_bus_width(mmc, 1);
+				break;
+			} else
+				mmc_set_bus_width(mmc, 4 * width);
 
-			if (err)
-				return err;
+			err = mmc_send_ext_csd(mmc, test_csd);
+			if (!err && ext_csd[EXT_CSD_PARTITIONING_SUPPORT] \
+				    == test_csd[EXT_CSD_PARTITIONING_SUPPORT]
+				 && ext_csd[EXT_CSD_ERASE_GROUP_DEF] \
+				    == test_csd[EXT_CSD_ERASE_GROUP_DEF] \
+				 && ext_csd[EXT_CSD_REV] \
+				    == test_csd[EXT_CSD_REV]
+				 && ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] \
+				    == test_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
+				 && memcmp(&ext_csd[EXT_CSD_SEC_CNT], \
+					&test_csd[EXT_CSD_SEC_CNT], 4) == 0) {
 
-			mmc_set_bus_width(mmc, 8);
+				mmc->card_caps |= width;
+				break;
+			}
 		}
 
 		if (mmc->card_caps & MMC_MODE_HS) {
@@ -1179,7 +1190,7 @@ block_dev_desc_t *mmc_get_dev(int dev)
 
 int mmc_init(struct mmc *mmc)
 {
-	int err;
+	int err, retry = 3;
 
 	if (mmc->has_init)
 		return 0;
@@ -1202,7 +1213,19 @@ int mmc_init(struct mmc *mmc)
 	mmc->part_num = 0;
 
 	/* Test for SD version 2 */
-	err = mmc_send_if_cond(mmc);
+	/*
+	 * retry here for 3 times, as for some controller it has dynamic
+	 * clock gating, and only toggle out clk when the first cmd0 send
+	 * out, while some card strictly obey the 74 clocks rule, the interval
+	 * may not be sufficient between the cmd0 and this cmd8, retry to
+	 * fulfil the clock requirement
+	 */
+	do {
+		err = mmc_send_if_cond(mmc);
+	} while (--retry > 0 && err);
+
+	if (err)
+		return err;
 
 	/* Now try to get the SD card's operating condition */
 	err = sd_send_op_cond(mmc);

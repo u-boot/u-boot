@@ -81,8 +81,9 @@ static void sdhci_transfer_pio(struct sdhci_host *host, struct mmc_data *data)
 static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 				unsigned int start_addr)
 {
-	unsigned int stat, rdy, mask, block = 0;
+	unsigned int stat, rdy, mask, timeout, block = 0;
 
+	timeout = 10000;
 	rdy = SDHCI_INT_SPACE_AVAIL | SDHCI_INT_DATA_AVAIL;
 	mask = SDHCI_DATA_AVAILABLE | SDHCI_SPACE_AVAILABLE;
 	do {
@@ -103,11 +104,17 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 #ifdef CONFIG_MMC_SDMA
 		if (stat & SDHCI_INT_DMA_END) {
 			sdhci_writel(host, SDHCI_INT_DMA_END, SDHCI_INT_STATUS);
-			start_addr &= SDHCI_DEFAULT_BOUNDARY_SIZE - 1;
+			start_addr &= ~(SDHCI_DEFAULT_BOUNDARY_SIZE - 1);
 			start_addr += SDHCI_DEFAULT_BOUNDARY_SIZE;
 			sdhci_writel(host, start_addr, SDHCI_DMA_ADDRESS);
 		}
 #endif
+		if (timeout-- > 0)
+			udelay(10);
+		else {
+			printf("Transfer data timeout\n");
+			return -1;
+		}
 	} while (!(stat & SDHCI_INT_DATA_END));
 	return 0;
 }
@@ -196,7 +203,7 @@ int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	sdhci_writel(host, cmd->cmdarg, SDHCI_ARGUMENT);
 #ifdef CONFIG_MMC_SDMA
-	flush_cache(0, ~0);
+	flush_cache(start_addr, trans_bytes);
 #endif
 	sdhci_writew(host, SDHCI_MAKE_CMD(cmd->cmdidx, flags), SDHCI_COMMAND);
 	do {
@@ -377,6 +384,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	}
 
 	mmc->priv = host;
+	host->mmc = mmc;
 
 	sprintf(mmc->name, "%s", host->name);
 	mmc->send_cmd = sdhci_send_command;
