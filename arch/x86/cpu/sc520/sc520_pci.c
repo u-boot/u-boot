@@ -28,8 +28,8 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <asm/pci.h>
-#include <asm/ic/pci.h>
-#include <asm/ic/sc520.h>
+#include <asm/arch/pci.h>
+#include <asm/arch/sc520.h>
 
 static struct {
 	u8 priority;

@@ -26,7 +26,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/ic/sc520.h>
+#include <asm/arch/sc520.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

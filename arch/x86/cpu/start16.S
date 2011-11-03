@@ -50,7 +50,7 @@ board_init16_ret:
 
 	/* Turn of cache (this might require a 486-class CPU) */
 	movl	%cr0, %eax
-	orl	$(X86_CR0_NW & X86_CR0_CD), %eax
+	orl	$(X86_CR0_NW | X86_CR0_CD), %eax
 	movl	%eax, %cr0
 	wbinvd
 

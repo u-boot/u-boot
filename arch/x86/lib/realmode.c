@@ -41,7 +41,7 @@ int realmode_setup(void)
 	if (realmode_size > (REALMODE_MAILBOX - (char *)REALMODE_BASE)) {
 		printf("realmode switch too large (%ld bytes, max is %d)\n",
 		       realmode_size,
-		       (REALMODE_MAILBOX - (char *)REALMODE_BASE));
+		       (int)(REALMODE_MAILBOX - (char *)REALMODE_BASE));
 		return -1;
 	}
 

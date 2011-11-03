@@ -23,7 +23,7 @@
 
 #include <config.h>
 #include <asm/processor-flags.h>
-#include <asm/ic/sc520.h>
+#include <asm/arch/sc520.h>
 
 .section .text
 

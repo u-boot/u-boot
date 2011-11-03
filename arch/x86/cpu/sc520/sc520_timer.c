@@ -27,7 +27,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/interrupt.h>
-#include <asm/ic/sc520.h>
+#include <asm/arch/sc520.h>
 
 void sc520_timer_isr(void)
 {

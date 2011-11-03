@@ -27,11 +27,9 @@
  * that is used by U-boot to its final destination.
  */
 
-/* #include <asm/ic/sc520_defs.h> */
-
 #include "config.h"
 #include "hardware.h"
-#include <asm/ic/sc520.h>
+#include <asm/arch/sc520.h>
 
 .text
 .section .start16, "ax"
