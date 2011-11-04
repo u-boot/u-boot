@@ -271,7 +271,7 @@ static int ethoc_init_ring(struct eth_device *dev)
 		if (i == priv->num_rx - 1)
 			bd.stat |= RX_BD_WRAP;
 
-		flush_dcache(bd.addr, PKTSIZE_ALIGN);
+		flush_dcache_range(bd.addr, bd.addr + PKTSIZE_ALIGN);
 		ethoc_write_bd(dev, priv->num_tx + i, &bd);
 	}
 
@@ -376,7 +376,7 @@ static int ethoc_rx(struct eth_device *dev, int limit)
 		}
 
 		/* clear the buffer descriptor so it can be reused */
-		flush_dcache(bd.addr, PKTSIZE_ALIGN);
+		flush_dcache_range(bd.addr, bd.addr + PKTSIZE_ALIGN);
 		bd.stat &= ~RX_BD_STATS;
 		bd.stat |= RX_BD_EMPTY;
 		ethoc_write_bd(dev, entry, &bd);
@@ -430,7 +430,7 @@ static int ethoc_send(struct eth_device *dev, volatile void *packet, int length)
 		bd.stat &= ~TX_BD_PAD;
 	bd.addr = (u32)packet;
 
-	flush_dcache(bd.addr, length);
+	flush_dcache_range(bd.addr, bd.addr + length);
 	bd.stat &= ~(TX_BD_STATS | TX_BD_LEN_MASK);
 	bd.stat |= TX_BD_LEN(length);
 	ethoc_write_bd(dev, entry, &bd);
