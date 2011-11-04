@@ -31,9 +31,6 @@
 #include <asm/cpm_8260.h>
 #include <i2c.h>
 
-/* define to enable debug messages */
-#undef  DEBUG_I2C
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_I2C_MULTI_BUS)
@@ -124,12 +121,6 @@ typedef struct I2C_BD {
 
 #define BD_I2C_RX_ERR	BD_SC_OV
 
-#ifdef DEBUG_I2C
-#define PRINTD(x) printf x
-#else
-#define PRINTD(x)
-#endif
-
 /*
  * Returns the best value of I2BRG to meet desired clock speed of I2C with
  * input parameters (clock speed, filter, and predivider value).
@@ -142,18 +133,18 @@ i2c_roundrate(int hz, int speed, int filter, int modval,
 {
 	int moddiv = 1 << (5 - (modval & 3)), brgdiv, div;
 
-	PRINTD(("\t[I2C] trying hz=%d, speed=%d, filter=%d, modval=%d\n",
-		hz, speed, filter, modval));
+	debug("\t[I2C] trying hz=%d, speed=%d, filter=%d, modval=%d\n",
+		hz, speed, filter, modval);
 
 	div = moddiv * speed;
 	brgdiv = (hz + div - 1) / div;
 
-	PRINTD(("\t\tmoddiv=%d, brgdiv=%d\n", moddiv, brgdiv));
+	debug("\t\tmoddiv=%d, brgdiv=%d\n", moddiv, brgdiv);
 
 	*brgval = ((brgdiv + 1) / 2) - 3 - (2 * filter);
 
 	if ((*brgval < 0) || (*brgval > 255)) {
-		PRINTD(("\t\trejected brgval=%d\n", *brgval));
+		debug("\t\trejected brgval=%d\n", *brgval);
 		return -1;
 	}
 
@@ -161,7 +152,7 @@ i2c_roundrate(int hz, int speed, int filter, int modval,
 	div = moddiv * brgdiv;
 	*totspeed = hz / div;
 
-	PRINTD(("\t\taccepted brgval=%d, totspeed=%d\n", *brgval, *totspeed));
+	debug("\t\taccepted brgval=%d, totspeed=%d\n", *brgval, *totspeed);
 
 	return 0;
 }
@@ -196,17 +187,17 @@ static int i2c_setrate(int hz, int speed)
 		}
 	}
 
-	PRINTD(("[I2C] Best is:\n"));
-	PRINTD(("[I2C] CPU=%dhz RATE=%d F=%d I2MOD=%08x I2BRG=%08x DIFF=%dhz\n",
+	debug("[I2C] Best is:\n");
+	debug("[I2C] CPU=%dhz RATE=%d F=%d I2MOD=%08x I2BRG=%08x DIFF=%dhz\n",
 		hz, speed, bestspeed_filter, bestspeed_modval, bestspeed_brgval,
-		bestspeed_diff));
+		bestspeed_diff);
 
 	i2c->i2c_i2mod |= ((bestspeed_modval & 3) << 1) |
 		(bestspeed_filter << 3);
 	i2c->i2c_i2brg = bestspeed_brgval & 0xff;
 
-	PRINTD(("[I2C] i2mod=%08x i2brg=%08x\n", i2c->i2c_i2mod,
-		i2c->i2c_i2brg));
+	debug("[I2C] i2mod=%08x i2brg=%08x\n", i2c->i2c_i2mod,
+		i2c->i2c_i2brg);
 
 	return 1;
 }
@@ -267,7 +258,7 @@ void i2c_init(int speed, int slaveadd)
 	 * and current CPU rate (we assume sccr dfbgr field is 0;
 	 * divide BRGCLK by 1)
 	 */
-	PRINTD(("[I2C] Setting rate...\n"));
+	debug("[I2C] Setting rate...\n");
 	i2c_setrate(gd->brg_clk, CONFIG_SYS_I2C_SPEED);
 
 	/* Set I2C controller in master mode */
@@ -281,10 +272,10 @@ void i2c_init(int speed, int slaveadd)
 	txbd = (I2C_BD *)((unsigned char *) &immap->
 			im_dprambase[iip->iic_tbase]);
 
-	PRINTD(("[I2C] rbase = %04x\n", iip->iic_rbase));
-	PRINTD(("[I2C] tbase = %04x\n", iip->iic_tbase));
-	PRINTD(("[I2C] rxbd = %08x\n", (int) rxbd));
-	PRINTD(("[I2C] txbd = %08x\n", (int) txbd));
+	debug("[I2C] rbase = %04x\n", iip->iic_rbase);
+	debug("[I2C] tbase = %04x\n", iip->iic_tbase);
+	debug("[I2C] rxbd = %08x\n", (int) rxbd);
+	debug("[I2C] txbd = %08x\n", (int) txbd);
 
 	/* Set big endian byte order */
 	iip->iic_tfcr = 0x10;
@@ -312,7 +303,7 @@ void i2c_newio(i2c_state_t *state)
 	volatile iic_t *iip;
 	uint dpaddr;
 
-	PRINTD(("[I2C] i2c_newio\n"));
+	debug("[I2C] i2c_newio\n");
 
 	dpaddr = *((unsigned short *)(&immap->im_dprambase[PROFF_I2C_BASE]));
 	iip = (iic_t *)&immap->im_dprambase[dpaddr];
@@ -325,9 +316,9 @@ void i2c_newio(i2c_state_t *state)
 	state->err_cb = NULL;
 	state->cb_data = NULL;
 
-	PRINTD(("[I2C] rxbd = %08x\n", (int)state->rxbd));
-	PRINTD(("[I2C] txbd = %08x\n", (int)state->txbd));
-	PRINTD(("[I2C] tx_buf = %08x\n", (int)state->tx_buf));
+	debug("[I2C] rxbd = %08x\n", (int)state->rxbd);
+	debug("[I2C] txbd = %08x\n", (int)state->txbd);
+	debug("[I2C] tx_buf = %08x\n", (int)state->tx_buf);
 
 	/* clear the buffer memory */
 	memset((char *) state->tx_buf, 0, MAX_TX_SPACE);
@@ -342,8 +333,8 @@ int i2c_send(i2c_state_t *state,
 	volatile I2C_BD *txbd;
 	int i, j;
 
-	PRINTD(("[I2C] i2c_send add=%02d sec=%02d flag=%02d size=%d\n",
-		address, secondary_address, flags, size));
+	debug("[I2C] i2c_send add=%02d sec=%02d flag=%02d size=%d\n",
+		address, secondary_address, flags, size);
 
 	/* trying to send message larger than BD */
 	if (size > I2C_RXTX_LEN)
@@ -356,10 +347,10 @@ int i2c_send(i2c_state_t *state,
 	txbd = (I2C_BD *)state->txbd;
 	txbd->addr = state->tx_buf;
 
-	PRINTD(("[I2C] txbd = %08x\n", (int) txbd));
+	debug("[I2C] txbd = %08x\n", (int) txbd);
 
 	if (flags & I2CF_START_COND) {
-		PRINTD(("[I2C] Formatting addresses...\n"));
+		debug("[I2C] Formatting addresses...\n");
 		if (flags & I2CF_ENABLE_SECONDARY) {
 			/* Length of message plus dest addresses */
 			txbd->length = size + 2;
@@ -386,12 +377,12 @@ int i2c_send(i2c_state_t *state,
 		txbd->status |= BD_SC_LAST | BD_SC_WRAP;
 
 	/* Copy data to send into buffer */
-	PRINTD(("[I2C] copy data...\n"));
+	debug("[I2C] copy data...\n");
 	for (j = 0; j < size; i++, j++)
 		txbd->addr[i] = dataout[j];
 
-	PRINTD(("[I2C] txbd: length=0x%04x status=0x%04x addr[0]=0x%02x addr[1]=0x%02x\n",
-		txbd->length, txbd->status, txbd->addr[0], txbd->addr[1]));
+	debug("[I2C] txbd: length=0x%04x status=0x%04x addr[0]=0x%02x addr[1]=0x%02x\n",
+		txbd->length, txbd->status, txbd->addr[0], txbd->addr[1]);
 
 	/* advance state */
 	state->tx_buf += txbd->length;
@@ -411,8 +402,8 @@ int i2c_receive(i2c_state_t *state,
 {
 	volatile I2C_BD *rxbd, *txbd;
 
-	PRINTD(("[I2C] i2c_receive %02d %02d %02d\n", address,
-		secondary_address, flags));
+	debug("[I2C] i2c_receive %02d %02d %02d\n", address,
+		secondary_address, flags);
 
 	/* Expected to receive too much */
 	if (size_to_expect > I2C_RXTX_LEN)
@@ -426,8 +417,8 @@ int i2c_receive(i2c_state_t *state,
 	rxbd = (I2C_BD *) state->rxbd;
 	txbd = (I2C_BD *) state->txbd;
 
-	PRINTD(("[I2C] rxbd = %08x\n", (int) rxbd));
-	PRINTD(("[I2C] txbd = %08x\n", (int) txbd));
+	debug("[I2C] rxbd = %08x\n", (int) rxbd);
+	debug("[I2C] txbd = %08x\n", (int) txbd);
 
 	txbd->addr = state->tx_buf;
 
@@ -455,10 +446,10 @@ int i2c_receive(i2c_state_t *state,
 		rxbd->status |= BD_SC_WRAP;
 	}
 
-	PRINTD(("[I2C] txbd: length=0x%04x status=0x%04x addr[0]=0x%02x addr[1]=0x%02x\n",
-		txbd->length, txbd->status, txbd->addr[0], txbd->addr[1]));
-	PRINTD(("[I2C] rxbd: length=0x%04x status=0x%04x addr[0]=0x%02x addr[1]=0x%02x\n",
-		rxbd->length, rxbd->status, rxbd->addr[0], rxbd->addr[1]));
+	debug("[I2C] txbd: length=0x%04x status=0x%04x addr[0]=0x%02x addr[1]=0x%02x\n",
+		txbd->length, txbd->status, txbd->addr[0], txbd->addr[1]);
+	debug("[I2C] rxbd: length=0x%04x status=0x%04x addr[0]=0x%02x addr[1]=0x%02x\n",
+		rxbd->length, rxbd->status, rxbd->addr[0], rxbd->addr[1]);
 
 	/* advance state */
 	state->tx_buf += txbd->length;
@@ -482,10 +473,10 @@ int i2c_doio(i2c_state_t *state)
 	int n, i, b, rxcnt = 0, rxtimeo = 0, txcnt = 0, txtimeo = 0, rc = 0;
 	uint dpaddr;
 
-	PRINTD(("[I2C] i2c_doio\n"));
+	debug("[I2C] i2c_doio\n");
 
 	if (state->tx_idx <= 0 && state->rx_idx <= 0) {
-		PRINTD(("[I2C] No I/O is queued\n"));
+		debug("[I2C] No I/O is queued\n");
 		return I2CERR_QUEUE_EMPTY;
 	}
 
@@ -495,7 +486,7 @@ int i2c_doio(i2c_state_t *state)
 	iip->iic_tbptr = iip->iic_tbase;
 
 	/* Enable I2C */
-	PRINTD(("[I2C] Enabling I2C...\n"));
+	debug("[I2C] Enabling I2C...\n");
 	i2c->i2c_i2mod |= 0x01;
 
 	/* Begin transmission */
@@ -515,8 +506,8 @@ int i2c_doio(i2c_state_t *state)
 
 		txbd--;		/* wait until last in list is done */
 
-		PRINTD(("[I2C] Transmitting...(txbd=0x%08lx)\n",
-			(ulong) txbd));
+		debug("[I2C] Transmitting...(txbd=0x%08lx)\n",
+			(ulong) txbd);
 
 		udelay(START_DELAY_US);	/* give it time to start */
 		while ((txbd->status & BD_SC_READY) && (++txcnt < txtimeo)) {
@@ -539,7 +530,7 @@ int i2c_doio(i2c_state_t *state)
 
 		rxbd--;		/* wait until last in list is done */
 
-		PRINTD(("[I2C] Receiving...(rxbd=0x%08lx)\n", (ulong) rxbd));
+		debug("[I2C] Receiving...(rxbd=0x%08lx)\n", (ulong) rxbd);
 
 		udelay(START_DELAY_US);	/* give it time to start */
 		while ((rxbd->status & BD_SC_EMPTY) && (++rxcnt < rxtimeo)) {
