@@ -159,15 +159,18 @@ video_search_param (char *start, char *param)
 int video_get_params (struct ctfb_res_modes *pPar, char *penv)
 {
 	char *p, *s, *val_s;
-	int i = 0, t;
+	int i = 0;
 	int bpp;
 	int mode;
+
 	/* first search for the environment containing the real param string */
 	s = penv;
-	if ((p = getenv (s)) != NULL) {
+
+	if ((p = getenv (s)) != NULL)
 		s = p;
-	}
-	/* in case of the bootargs line, we have to start
+
+	/*
+	 * in case of the bootargs line, we have to start
 	 * after "video=ctfb:"
 	 */
 	i = video_search_param (s, "video=ctfb:");
@@ -177,19 +180,22 @@ int video_get_params (struct ctfb_res_modes *pPar, char *penv)
 	}
 	/* search for mode as a default value */
 	p = s;
-	t = 0;
 	mode = 0;		/* default */
+
 	while ((i = video_get_param_len (p, ',')) != 0) {
 		GET_OPTION ("mode:", mode)
 			p += i;
 		if (*p != 0)
 			p++;	/* skip ',' */
 	}
+
 	if (mode >= RES_MODES_COUNT)
 		mode = 0;
+
 	*pPar = res_mode_init[mode];	/* copy default values */
 	bpp = 24 - ((mode % 3) * 8);
 	p = s;			/* restart */
+
 	while ((i = video_get_param_len (p, ',')) != 0) {
 		GET_OPTION ("x:", pPar->xres)
 			GET_OPTION ("y:", pPar->yres)
