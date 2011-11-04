@@ -629,9 +629,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	bd_t *bd;
 	ulong malloc_start;
 
-#if defined(CONFIG_SYS_FLASH_CHECKSUM) || defined(CONFIG_CMD_NET)
-	char *s;
-#endif
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong flash_size;
 #endif
