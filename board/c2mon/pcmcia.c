@@ -199,7 +199,6 @@ int pcmcia_hardware_disable(int slot)
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
 {
 	volatile immap_t	*immap;
-	volatile cpm8xx_t	*cp;
 	volatile pcmconf8xx_t	*pcmp;
 	u_long reg;
 	ushort sreg;
@@ -210,12 +209,11 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	'A'+slot, vcc/10, vcc%10, vpp/10, vcc%10);
 
 	immap = (immap_t *)CONFIG_SYS_IMMR;
-	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	/*
-	* Disable PCMCIA buffers (isolate the interface)
-	* and assert RESET signal
-	*/
+	 * Disable PCMCIA buffers (isolate the interface)
+	 * and assert RESET signal
+	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
 	reg  = PCMCIA_PGCRX(_slot_);
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
