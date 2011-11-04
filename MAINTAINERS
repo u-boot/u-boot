@@ -668,6 +668,10 @@ Grazvydas Ignotas <notasas@gmail.com>
 
 	omap3_pandora	ARM ARMV7 (OMAP3xx SoC)
 
+Michael Jones <michael.jones@matrix-vision.de>
+
+	omap3_mvblx	ARM ARMV7 (OMAP3xx SoC)
+
 Matthias Kaehlcke <matthias@kaehlcke.net>
 	edb9301			ARM920T (EP9301)
 	edb9302			ARM920T (EP9302)

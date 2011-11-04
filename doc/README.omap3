@@ -68,6 +68,11 @@ make
 make cm_t35_config
 make
 
+* BlueLYNX-X:
+
+make omap3_mvblx_config
+make
+
 Custom commands
 ===============
 
