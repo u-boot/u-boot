@@ -111,7 +111,6 @@ static int do_command(struct mmc *dev, struct mmc_cmd *cmd)
 static int read_bytes(struct mmc *dev, u32 *dest, u32 blkcount, u32 blksize)
 {
 	u32 *tempbuff = dest;
-	int i;
 	u64 xfercount = blkcount * blksize;
 	struct mmc_host *host = dev->priv;
 	u32 status, status_err;
@@ -121,31 +120,6 @@ static int read_bytes(struct mmc *dev, u32 *dest, u32 blkcount, u32 blksize)
 	status = readl(&host->base->status);
 	status_err = status & (SDI_STA_DCRCFAIL | SDI_STA_DTIMEOUT |
 			       SDI_STA_RXOVERR);
-	while (!status_err &&
-	       (xfercount >= SDI_FIFO_BURST_SIZE * sizeof(u32))) {
-		if (status & SDI_STA_RXFIFOBR) {
-			for (i = 0; i < SDI_FIFO_BURST_SIZE; i++)
-				*(tempbuff + i) = readl(&host->base->fifo);
-			tempbuff += SDI_FIFO_BURST_SIZE;
-			xfercount -= SDI_FIFO_BURST_SIZE * sizeof(u32);
-		}
-		status = readl(&host->base->status);
-		status_err = status &
-			(SDI_STA_DCRCFAIL | SDI_STA_DTIMEOUT | SDI_STA_RXOVERR);
-	}
-
-	if (status & SDI_STA_DTIMEOUT) {
-		printf("Read data timed out, xfercount: %llu, status: 0x%08X\n",
-			xfercount, status);
-		return -ETIMEDOUT;
-	} else if (status & SDI_STA_DCRCFAIL) {
-		printf("Read data blk CRC error: 0x%x\n", status);
-		return -EILSEQ;
-	} else if (status & SDI_STA_RXOVERR) {
-		printf("Read data RX overflow error\n");
-		return -EIO;
-	}
-
 	while ((!status_err) && (xfercount >= sizeof(u32))) {
 		if (status & SDI_STA_RXDAVL) {
 			*(tempbuff) = readl(&host->base->fifo);
