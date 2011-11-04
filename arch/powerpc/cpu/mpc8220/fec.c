@@ -772,8 +772,8 @@ static int mpc8220_fec_recv (struct eth_device *dev)
 			frame = (NBUF *) pRbd->dataPointer;
 			frame_length = pRbd->dataLength - 4;
 
-#if (0)
-			{
+			/* DEBUG code */
+			if (_DEBUG) {
 				int i;
 
 				printf ("recv data hdr:");
@@ -781,7 +781,7 @@ static int mpc8220_fec_recv (struct eth_device *dev)
 					printf ("%x ", *(frame->head + i));
 				printf ("\n");
 			}
-#endif
+
 			/*
 			 *  Fill the buffer and pass it to upper layers
 			 */
