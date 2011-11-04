@@ -1209,9 +1209,7 @@ static int do_i2c_add_bus(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			device = device->next;
 		}
 	} else {
-		I2C_MUX_DEVICE *dev;
-
-		dev = i2c_mux_ident_muxstring ((uchar *)argv[1]);
+		(void)i2c_mux_ident_muxstring ((uchar *)argv[1]);
 		ret = 0;
 	}
 	return ret;
