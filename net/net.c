@@ -1080,7 +1080,6 @@ CDPHandler(const uchar *pkt, unsigned len)
 	const uchar *t;
 	const ushort *ss;
 	ushort type, tlen;
-	uchar applid;
 	ushort vlan, nvlan;
 
 	/* minimum size? */
@@ -1152,11 +1151,10 @@ CDPHandler(const uchar *pkt, unsigned len)
 				if (tlen < 3)
 					goto pkt_short;
 
-				applid = t[0];
 				ss = (const ushort *)(t + 1);
 
 #ifdef CONFIG_CDP_APPLIANCE_VLAN_TYPE
-				if (applid == CONFIG_CDP_APPLIANCE_VLAN_TYPE)
+				if (t[0] == CONFIG_CDP_APPLIANCE_VLAN_TYPE)
 					vlan = *ss;
 #else
 				/* XXX will this work; dunno */
