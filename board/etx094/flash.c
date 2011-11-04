@@ -40,7 +40,7 @@ unsigned long flash_init(void)
 {
 	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	unsigned long size_b0, size_b1;
+	unsigned long size_b0;
 	int i;
 
 	/* Init: no FLASHes known */
@@ -54,23 +54,6 @@ unsigned long flash_init(void)
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
 			size_b0, size_b0<<20);
-	}
-
-	size_b1 = flash_get_size((vu_long *)FLASH_BASE1_PRELIM, &flash_info[1]);
-
-	if (size_b1 > size_b0) {
-		printf("## ERROR: "
-			"Bank 1 (0x%08lx = %ld MB) > Bank 0 (0x%08lx = %ld MB)\n",
-			size_b1, size_b1<<20,
-			size_b0, size_b0<<20
-		);
-		flash_info[0].flash_id	= FLASH_UNKNOWN;
-		flash_info[1].flash_id	= FLASH_UNKNOWN;
-		flash_info[0].sector_count	= -1;
-		flash_info[1].sector_count	= -1;
-		flash_info[0].size		= 0;
-		flash_info[1].size		= 0;
-		return 0;
 	}
 
 	/* Remap FLASH according to real size */
@@ -97,42 +80,11 @@ unsigned long flash_init(void)
 		      &flash_info[0]);
 #endif
 
-	if (size_b1) {
-		memctl->memc_or1 = CONFIG_SYS_OR_TIMING_FLASH |
-			(-size_b1 & 0xFFFF8000);
-#ifdef CONFIG_FLASH_16BIT
-		memctl->memc_br1 = ((CONFIG_SYS_FLASH_BASE + size_b0) &
-			BR_BA_MSK) | BR_MS_GPCM | BR_V | BR_PS_16;
-#else
-		memctl->memc_br1 = ((CONFIG_SYS_FLASH_BASE + size_b0) &
-			BR_BA_MSK) | BR_MS_GPCM | BR_V;
-#endif
-
-		/* Re-do sizing to get full correct info */
-		size_b1 = flash_get_size((vu_long *)(CONFIG_SYS_FLASH_BASE +
-				size_b0), &flash_info[1]);
-
-		flash_get_offsets(CONFIG_SYS_FLASH_BASE + size_b0,
-				&flash_info[1]);
-
-#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
-		/* monitor protection ON by default */
-		flash_protect(FLAG_PROTECT_SET,
-			      CONFIG_SYS_MONITOR_BASE,
-			      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
-			      &flash_info[1]);
-#endif
-	} else {
-		memctl->memc_br1 = 0;		/* invalidate bank */
-
-		flash_info[1].flash_id = FLASH_UNKNOWN;
-		flash_info[1].sector_count = -1;
-	}
+	memctl->memc_br1 = 0;		/* invalidate bank 1 */
 
 	flash_info[0].size = size_b0;
-	flash_info[1].size = size_b1;
 
-	return size_b0 + size_b1;
+	return size_b0;
 }
 
 /*-----------------------------------------------------------------------
