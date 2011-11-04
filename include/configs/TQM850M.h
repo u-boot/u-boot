@@ -45,6 +45,8 @@
 
 #define	CONFIG_BOOTCOUNT_LIMIT
 
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
 #define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo"
