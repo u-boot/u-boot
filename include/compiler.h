@@ -123,16 +123,10 @@ typedef unsigned int uint;
 #define __WORDSIZE	32
 #endif
 
-/* Types for `void *' pointers. */
-#if __WORDSIZE == 64
-typedef unsigned long int       uintptr_t;
-#elif __WORDSIZE == 32
-typedef unsigned int            uintptr_t;
-#else
-#error "__WORDSIZE has unexpected value"
-#endif
+/* Type for `void *' pointers. */
+typedef unsigned long int uintptr_t;
 
-#endif
+#endif /* USE_HOSTCC */
 
 /* compiler options */
 #define uninitialized_var(x)		x = x
