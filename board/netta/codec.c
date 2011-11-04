@@ -1386,34 +1386,31 @@ static inline unsigned int s_transfer_internal(int s_id, unsigned int address, u
 static void s_write_BR(int s_id, unsigned int regno, unsigned int val)
 {
 	unsigned int address;
-	unsigned int v;
 
 	address = 0x70 | (regno & 15);
 	val &= 0xff;
 
-	v = s_transfer_internal(s_id, address, val);
+	(void)s_transfer_internal(s_id, address, val);
 }
 
 static void s_write_OR(int s_id, unsigned int regno, unsigned int val)
 {
 	unsigned int address;
-	unsigned int v;
 
 	address = 0x70 | (regno & 15);
 	val &= 0xff;
 
-	v = s_transfer_internal(s_id, address, val);
+	(void)s_transfer_internal(s_id, address, val);
 }
 
 static void s_write_NR(int s_id, unsigned int regno, unsigned int val)
 {
 	unsigned int address;
-	unsigned int v;
 
 	address = (regno & 7) << 4;
 	val &= 0xf;
 
-	v = s_transfer_internal(s_id, address | val, 0x00);
+	(void)s_transfer_internal(s_id, address | val, 0x00);
 }
 
 #define BR7_IFR			0x08	/* IDL2 free run */
