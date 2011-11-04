@@ -18,18 +18,16 @@
 
 static void cfg_port_B (void)
 {
-	volatile immap_t	*immap;
 	volatile cpm8xx_t	*cp;
 	uint reg;
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
 	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/*
-	* Configure Port B for TPS2205 PC-Card Power-Interface Switch
-	*
-	* Switch off all voltages, assert shutdown
-	*/
+	 * Configure Port B for TPS2205 PC-Card Power-Interface Switch
+	 *
+	 * Switch off all voltages, assert shutdown
+	 */
 	reg  = cp->cp_pbdat;
 	reg |= (TPS2205_VPP_PGM | TPS2205_VPP_VCC |	/* VAVPP => Hi-Z */
 			TPS2205_VCC3    | TPS2205_VCC5    |	/* VAVCC => Hi-Z */
@@ -47,7 +45,6 @@ static void cfg_port_B (void)
 
 int pcmcia_hardware_enable(int slot)
 {
-	volatile immap_t	*immap;
 	volatile cpm8xx_t	*cp;
 	volatile pcmconf8xx_t	*pcmp;
 	volatile sysconf8xx_t	*sysp;
@@ -58,7 +55,6 @@ int pcmcia_hardware_enable(int slot)
 
 	udelay(10000);
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
 	sysp  = (sysconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_siu_conf));
 	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
@@ -188,7 +184,6 @@ int pcmcia_hardware_disable(int slot)
 
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
 {
-	volatile immap_t	*immap;
 	volatile cpm8xx_t	*cp;
 	volatile pcmconf8xx_t	*pcmp;
 	u_long reg;
@@ -198,7 +193,6 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 			" Slot %c, Vcc=%d.%d, Vpp=%d.%d\n",
 	'A'+slot, vcc/10, vcc%10, vpp/10, vcc%10);
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
 	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	/*
