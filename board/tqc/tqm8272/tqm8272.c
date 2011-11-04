@@ -459,10 +459,9 @@ phys_size_t initdram (int board_type)
 #ifndef CONFIG_SYS_RAMBOOT
 	long size8, size9;
 #endif
-	long psize, lsize;
+	long psize;
 
 	psize = 16 * 1024 * 1024;
-	lsize = 0;
 
 	memctl->memc_psrt = CONFIG_SYS_PSRT;
 	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
