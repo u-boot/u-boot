@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
+#include <linux/compiler.h>
 
 #ifdef CONFIG_ADDR_MAP
 #include <addr_map.h>
@@ -35,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 {
-	int batn = -1;
+	__maybe_unused int batn = -1;
 
 	sync();
 
