@@ -35,7 +35,7 @@ static void flash_get_offsets(ulong base, flash_info_t *info);
 
 unsigned long flash_init(void)
 {
-	unsigned long size_b0, size_b1;
+	unsigned long size_b0;
 	int i;
 
 	/* Init: no FLASHes known */
@@ -57,15 +57,9 @@ unsigned long flash_init(void)
 		      &flash_info[0]);
 #endif
 
-	size_b1 = 0 ;
-
-	flash_info[1].flash_id = FLASH_UNKNOWN;
-	flash_info[1].sector_count = -1;
-
 	flash_info[0].size = size_b0;
-	flash_info[1].size = size_b1;
 
-	return size_b0 + size_b1;
+	return size_b0;
 }
 
 /*-----------------------------------------------------------------------
@@ -181,7 +175,7 @@ static ulong flash_get_size(vu_long *addr, flash_info_t *info)
 
 	/* Write auto select command: read Manufacturer ID */
 
-	debug("Base address is: %08x\n", caddr);
+	debug("Base address is: %8p\n", caddr);
 
 	caddr[0x0555] = 0xAA;
 	caddr[0x02AA] = 0x55;
