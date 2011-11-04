@@ -405,7 +405,7 @@ int setenv_addr(const char *varname, const void *addr)
 {
 	char str[17];
 
-	sprintf(str, "%x", (uintptr_t)addr);
+	sprintf(str, "%lx", (uintptr_t)addr);
 	return setenv(varname, str);
 }
 
@@ -871,7 +871,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 				" - truncated\n", MAX_ENV_SIZE);
 		}
 		++size;
-		printf("## Info: input data size = %zd = 0x%zX\n", size, size);
+		printf("## Info: input data size = %zu = 0x%zX\n", size, size);
 	}
 
 	if (chk) {
