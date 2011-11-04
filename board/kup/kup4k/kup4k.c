@@ -152,7 +152,7 @@ phys_size_t initdram(int board_type)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size = 0;
-	uchar *latch,rev,mod,tmp;
+	uchar *latch, rev, tmp;
 
 	/*
 	 * Init ChipSelect #4 (CAN + HW-Latch) to determine Hardware Revision
@@ -164,7 +164,6 @@ phys_size_t initdram(int board_type)
 	latch = (uchar *)0x90000200;
 	tmp = swapbyte(*latch);
 	rev = (tmp & 0xF8) >> 3;
-	mod = (tmp & 0x07);
 
 	upmconfig(UPMA, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));
