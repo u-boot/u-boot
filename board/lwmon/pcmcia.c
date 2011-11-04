@@ -29,8 +29,6 @@
 
 int pcmcia_hardware_enable(int slot)
 {
-	volatile immap_t	*immap;
-	volatile cpm8xx_t	*cp;
 	volatile pcmconf8xx_t	*pcmp;
 	volatile sysconf8xx_t	*sysp;
 	uint reg, mask;
@@ -51,10 +49,8 @@ int pcmcia_hardware_enable(int slot)
 #endif
 	udelay(10000);
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
 	sysp  = (sysconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_siu_conf));
 	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
-	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/*
 	 * Configure SIUMCR to enable PCMCIA port B
@@ -171,7 +167,6 @@ int pcmcia_hardware_disable(int slot)
 
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
 {
-	volatile immap_t	*immap;
 	volatile pcmconf8xx_t	*pcmp;
 	u_long reg;
 	uchar val;
@@ -181,7 +176,6 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 		" Slot %c, Vcc=%d.%d, Vpp=%d.%d\n",
 		'A'+slot, vcc/10, vcc%10, vpp/10, vcc%10);
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
 	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	/*
 	 * Disable PCMCIA buffers (isolate the interface)
