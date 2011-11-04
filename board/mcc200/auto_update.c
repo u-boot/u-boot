@@ -341,7 +341,7 @@ int do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev;
 	long sz;
-	int i, res = 0, bitmap_first, cnt, old_ctrlc, got_ctrlc;
+	int i, res = 0, cnt, old_ctrlc;
 	char *env;
 	long start, end;
 
@@ -450,8 +450,6 @@ int do_auto_update(void)
 	/* make sure that we see CTRL-C and save the old state */
 	old_ctrlc = disable_ctrlc(0);
 
-	bitmap_first = 0;
-
 	/* validate the images first */
 	for (i = 0; i < AU_MAXFILES; i++) {
 		ulong imsize;
@@ -506,14 +504,11 @@ int do_auto_update(void)
 		/* this is really not a good idea, but it's what the */
 		/* customer wants. */
 		cnt = 0;
-		got_ctrlc = 0;
 		do {
 			res = au_do_update(i, sz);
 			/* let the user break out of the loop */
 			if (ctrlc() || had_ctrlc()) {
 				clear_ctrlc();
-				if (res < 0)
-					got_ctrlc = 1;
 				break;
 			}
 			cnt++;
