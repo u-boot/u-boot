@@ -52,13 +52,12 @@ unsigned long flash_init (void)
 {
 	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	unsigned long size_b0, size_b1;
+	unsigned long size_b0;
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i)
 		flash_info[i].flash_id = FLASH_UNKNOWN;
-	}
 
 	/* Static FLASH Bank configuration here - FIXME XXX */
 
@@ -68,27 +67,6 @@ unsigned long flash_init (void)
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
 			size_b0,
 			size_b0 >> 20);
-	}
-
-	if (FLASH_BASE1_PRELIM != 0x0) {
-		size_b1 = flash_get_size((vu_long *)FLASH_BASE1_PRELIM, &flash_info[1]);
-
-		if (size_b1 > size_b0) {
-			printf ("## ERROR: Bank 1 (0x%08lx = %ld MB)"
-				" > Bank 0 (0x%08lx = %ld MB)\n",
-				size_b1, size_b1 >> 20,
-				size_b0, size_b0 >> 20);
-
-			flash_info[0].flash_id	= FLASH_UNKNOWN;
-			flash_info[1].flash_id	= FLASH_UNKNOWN;
-			flash_info[0].sector_count	= -1;
-			flash_info[1].sector_count	= -1;
-			flash_info[0].size		= 0;
-			flash_info[1].size		= 0;
-			return (0);
-		}
-	} else {
-		size_b1 = 0;
 	}
 
 	/* Remap FLASH according to real size */
@@ -117,13 +95,9 @@ unsigned long flash_init (void)
 #endif
 
 	/* ICU862 Board has only one Flash Bank */
-	flash_info[1].flash_id = FLASH_UNKNOWN;
-	flash_info[1].sector_count = -1;
-
 	flash_info[0].size = size_b0;
-	flash_info[1].size = size_b1;
 
-	return (size_b0 + size_b1);
+	return size_b0;
 
 }
 
