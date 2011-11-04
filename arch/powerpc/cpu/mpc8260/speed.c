@@ -110,7 +110,7 @@ int get_clocks (void)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	ulong clkin;
 	ulong sccr, dfbrg;
-	ulong scmr, corecnf, busdf, cpmdf, plldf, pllmf;
+	ulong scmr, corecnf, plldf, pllmf;
 	corecnf_t *cp;
 
 #if !defined(CONFIG_8260_CLKIN)
@@ -130,9 +130,6 @@ int get_clocks (void)
 	corecnf = (scmr & SCMR_CORECNF_MSK) >> SCMR_CORECNF_SHIFT;
 	cp = &corecnf_tab[corecnf];
 
-	busdf = (scmr & SCMR_BUSDF_MSK) >> SCMR_BUSDF_SHIFT;
-	cpmdf = (scmr & SCMR_CPMDF_MSK) >> SCMR_CPMDF_SHIFT;
-
 	/* HiP7, HiP7 Rev01, HiP7 RevA */
 	if ((get_pvr () == PVR_8260_HIP7) ||
 	    (get_pvr () == PVR_8260_HIP7R1) ||
@@ -144,12 +141,6 @@ int get_clocks (void)
 		plldf = (scmr & SCMR_PLLDF) ? 1 : 0;
 		gd->vco_out = (clkin * 2 * (pllmf + 1)) / (plldf + 1);
 	}
-#if 0
-	if (gd->vco_out / (busdf + 1) != clkin) {
-		/* aaarrrggghhh!!! */
-		return (1);
-	}
-#endif
 
 	gd->cpm_clk = gd->vco_out / 2;
 	gd->bus_clk = clkin;
