@@ -101,6 +101,7 @@
 #include <common.h>
 #include <version.h>
 #include <malloc.h>
+#include <linux/compiler.h>
 
 /*
  * Console device defines with SMI graphic
@@ -1560,7 +1561,8 @@ void logo_plot(void *screen, int width, int x, int y)
 static void *video_logo(void)
 {
 	char info[128];
-	int space, len, y_off = 0;
+	int space, len;
+	__maybe_unused int y_off = 0;
 
 #ifdef CONFIG_SPLASH_SCREEN
 	char *s;
