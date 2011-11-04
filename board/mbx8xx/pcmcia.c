@@ -77,10 +77,7 @@ int pcmcia_voltage_set (int slot, int vcc, int vpp)
 
 int pcmcia_hardware_enable (int slot)
 {
-	volatile immap_t *immap;
-	volatile cpm8xx_t *cp;
 	volatile pcmconf8xx_t *pcmp;
-	volatile sysconf8xx_t *sysp;
 	uint reg, mask;
 
 	debug ("hardware_enable: " PCMCIA_BOARD_MSG " Slot %c\n",
@@ -88,10 +85,7 @@ int pcmcia_hardware_enable (int slot)
 
 	udelay (10000);
 
-	immap = (immap_t *) CONFIG_SYS_IMMR;
-	sysp = (sysconf8xx_t *) (&(((immap_t *) CONFIG_SYS_IMMR)->im_siu_conf));
 	pcmp = (pcmconf8xx_t *) (&(((immap_t *) CONFIG_SYS_IMMR)->im_pcmcia));
-	cp = (cpm8xx_t *) (&(((immap_t *) CONFIG_SYS_IMMR)->im_cpm));
 
 	/* clear interrupt state, and disable interrupts */
 	pcmp->pcmc_pscr = PCMCIA_MASK (_slot_);
