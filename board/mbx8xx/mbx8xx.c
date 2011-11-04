@@ -117,14 +117,16 @@ static const uint sdram_table_50[] = {
 
 /* ------------------------------------------------------------------------- */
 
+#ifdef CONFIG_SYS_USE_OSCCLK
 static unsigned int get_reffreq(void);
+#endif
 static unsigned int board_get_cpufreq(void);
 
 void mbx_init (void)
 {
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
-	ulong speed, refclock, plprcr, sccr;
+	ulong speed, plprcr, sccr;
 	ulong br0_32 = memctl->memc_br0 & 0x400;
 
 	/* real-time clock status and control register */
@@ -152,7 +154,6 @@ void mbx_init (void)
 	immr->im_clkrst.car_sccr = sccr;
 
 	speed = board_get_cpufreq ();
-	refclock = get_reffreq ();
 
 #if ((CONFIG_SYS_PLPRCR & PLPRCR_MF_MSK) != 0)
 	plprcr = CONFIG_SYS_PLPRCR;
@@ -163,7 +164,7 @@ void mbx_init (void)
 #endif
 
 #ifdef CONFIG_SYS_USE_OSCCLK			/* See doc/README.MBX ! */
-	plprcr |= ((speed + refclock / 2) / refclock - 1) << 20;
+	plprcr |= ((speed + get_reffreq() / 2) / refclock - 1) << 20;
 #endif
 
 	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
@@ -226,21 +227,27 @@ static unsigned int board_get_cpufreq (void)
 {
 #ifndef CONFIG_8xx_GCLK_FREQ
 	vpd_packet_t *packet;
+	ulong *p;
 
 	packet = vpd_find_packet (VPD_PID_ICS);
-	return *((ulong *) packet->data);
+	p = (ulong *)packet->data;
+	return *p;
 #else
 	return((unsigned int)CONFIG_8xx_GCLK_FREQ );
 #endif /* CONFIG_8xx_GCLK_FREQ */
 }
 
+#ifdef CONFIG_SYS_USE_OSCCLK
 static unsigned int get_reffreq (void)
 {
 	vpd_packet_t *packet;
+	ulong *p;
 
 	packet = vpd_find_packet (VPD_PID_RCS);
-	return *((ulong *) packet->data);
+	p = (ulong *)packet->data;
+	return *p;
 }
+#endif
 
 static void board_get_enetaddr(uchar *addr)
 {
