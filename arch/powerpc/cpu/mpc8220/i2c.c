@@ -105,15 +105,13 @@ static int wait_for_bb (void)
 	status = mpc_reg_in (&regs->sr);
 
 	while (timeout-- && (status & I2C_BB)) {
-#if 1
-		volatile int temp;
 
 		mpc_reg_out (&regs->cr, I2C_STA, I2C_STA);
-		temp = mpc_reg_in (&regs->dr);
+		(void)mpc_reg_in (&regs->dr);
 		mpc_reg_out (&regs->cr, 0, I2C_STA);
 		mpc_reg_out (&regs->cr, 0, 0);
 		mpc_reg_out (&regs->cr, I2C_EN, 0);
-#endif
+
 		udelay (1000);
 		status = mpc_reg_in (&regs->sr);
 	}
