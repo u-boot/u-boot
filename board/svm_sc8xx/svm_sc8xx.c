@@ -80,14 +80,11 @@ int checkboard(void)
 	char buf[64];
 	int i;
 	int l = getenv_f("serial#", buf, sizeof(buf));
-	int board_type;
 
 	if (l < 0 || strncmp(buf, "SVM8", 4)) {
 		printf("### No HW ID - assuming SVM SC8xx\n");
 		return (0);
 	}
-
-	board_type = 1;
 
 	for (i = 0; i < l; ++i) {
 		if (buf[i] == ' ')
@@ -97,7 +94,7 @@ int checkboard(void)
 
 	putc('\n');
 
-	return (0);
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
