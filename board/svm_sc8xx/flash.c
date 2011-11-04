@@ -539,7 +539,7 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 static int write_word(flash_info_t *info, ulong dest, ulong data)
 {
 	ulong addr = (ulong) (info->start[0]);
-	ulong start, last;
+	ulong start;
 	int flag;
 	ulong i;
 	int data_short[2];
@@ -587,7 +587,6 @@ static int write_word(flash_info_t *info, ulong dest, ulong data)
 				enable_interrupts();
 
 			start = get_timer(0);
-			last = start;
 			while ((my_in_8((unsigned char *)(dest + i))) !=
 			       (data_ch[i])) {
 				if (get_timer(start) >
@@ -612,7 +611,6 @@ static int write_word(flash_info_t *info, ulong dest, ulong data)
 			enable_interrupts();
 
 		start = get_timer(0);
-		last = start;
 		while ((my_in_be16((unsigned short *)(dest + (i * 2)))) !=
 							(data_short[i])) {
 			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT)
