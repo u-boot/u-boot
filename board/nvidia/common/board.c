@@ -38,6 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 enum {
 	/* UARTs which we can enable */
 	UARTA	= 1 << 0,
+	UARTB	= 1 << 1,
 	UARTD	= 1 << 3,
 };
 
@@ -76,6 +77,8 @@ static void clock_init_uart(int uart_ids)
 {
 	if (uart_ids & UARTA)
 		enable_uart(PERIPH_ID_UART1);
+	if (uart_ids & UARTB)
+		enable_uart(PERIPH_ID_UART2);
 	if (uart_ids & UARTD)
 		enable_uart(PERIPH_ID_UART4);
 }
@@ -91,6 +94,10 @@ static void pin_mux_uart(int uart_ids)
 		pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
 		pinmux_tristate_disable(PINGRP_IRRX);
 		pinmux_tristate_disable(PINGRP_IRTX);
+	}
+	if (uart_ids & UARTB) {
+		pinmux_set_func(PINGRP_UAD, PMUX_FUNC_IRDA);
+		pinmux_tristate_disable(PINGRP_UAD);
 	}
 	if (uart_ids & UARTD) {
 		pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
@@ -120,6 +127,9 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_TEGRA2_ENABLE_UARTA
 	uart_ids |= UARTA;
+#endif
+#ifdef CONFIG_TEGRA2_ENABLE_UARTB
+	uart_ids |= UARTB;
 #endif
 #ifdef CONFIG_TEGRA2_ENABLE_UARTD
 	uart_ids |= UARTD;
