@@ -51,8 +51,7 @@
 #define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
 
 /* Environment */
-#define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_SIZE			0x20000	/* Total Size Environment */
+#define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
 
 /*
  * Size of malloc() pool
