@@ -114,6 +114,9 @@ int board_init(void)
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
+	/* We didn't do this init in start.S, so do it now */
+	cpu_init_cp15();
+
 	/* Initialize essential common plls */
 	clock_early_init();
 
