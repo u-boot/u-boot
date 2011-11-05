@@ -95,10 +95,9 @@
 #define RX_BUF_LEN_IDX 0	/* 0, 1, 2 is allowed - 8,16,32K rx buffer */
 #define RX_BUF_LEN (8192 << RX_BUF_LEN_IDX)
 
-#undef DEBUG_TX
-#undef DEBUG_RX
+#define DEBUG_TX	0	/* set to 1 to enable debug code */
+#define DEBUG_RX	0	/* set to 1 to enable debug code */
 
-#define currticks()	get_timer(0)
 #define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)dev->priv, a)
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
 
@@ -253,7 +252,6 @@ int rtl8139_initialize(bd_t *bis)
 static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 {
 	int i;
-	int speed10, fullduplex;
 	int addr_len;
 	unsigned short *ap = (unsigned short *)dev->enetaddr;
 
@@ -265,9 +263,6 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 	addr_len = read_eeprom(0,8) == 0x8129 ? 8 : 6;
 	for (i = 0; i < 3; i++)
 		*ap++ = le16_to_cpu (read_eeprom(i + 7, addr_len));
-
-	speed10 = inb(ioaddr + MediaStatus) & MSRSpeed10;
-	fullduplex = inw(ioaddr + MII_BMCR) & BMCRDuplex;
 
 	rtl_reset(dev);
 
@@ -389,9 +384,8 @@ static void rtl_reset(struct eth_device *dev)
 	 * from the configuration EEPROM default, because the card manufacturer
 	 * should have set that to match the card.  */
 
-#ifdef	DEBUG_RX
-	printf("rx ring address is %X\n",(unsigned long)rx_ring);
-#endif
+	debug_cond(DEBUG_RX,
+		"rx ring address is %lX\n",(unsigned long)rx_ring);
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 	outl(phys_to_bus((int)rx_ring), ioaddr + RxBuf);
 
@@ -424,9 +418,7 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 
 	memcpy((char *)tx_buffer, (char *)packet, (int)length);
 
-#ifdef	DEBUG_TX
-	printf("sending %d bytes\n", len);
-#endif
+	debug_cond(DEBUG_TX, "sending %d bytes\n", len);
 
 	/* Note: RTL8139 doesn't auto-pad, send minimum payload (another 4
 	 * bytes are sent automatically for the FCS, totalling to 64 bytes). */
@@ -453,16 +445,18 @@ static int rtl_transmit(struct eth_device *dev, volatile void *packet, int lengt
 
 	if (status & TxOK) {
 		cur_tx = (cur_tx + 1) % NUM_TX_DESC;
-#ifdef	DEBUG_TX
-		printf("tx done (%d ticks), status %hX txstatus %X\n",
-			to-currticks(), status, txstatus);
-#endif
+
+		debug_cond(DEBUG_TX,
+			"tx done, status %hX txstatus %lX\n",
+			status, txstatus);
+
 		return length;
 	} else {
-#ifdef	DEBUG_TX
-		printf("tx timeout/error (%d usecs), status %hX txstatus %X\n",
-		       10*i, status, txstatus);
-#endif
+
+		debug_cond(DEBUG_TX,
+			"tx timeout/error (%d usecs), status %hX txstatus %lX\n",
+			10*i, status, txstatus);
+
 		rtl_reset(dev);
 
 		return 0;
@@ -486,9 +480,7 @@ static int rtl_poll(struct eth_device *dev)
 	/* See below for the rest of the interrupt acknowledges.  */
 	outw(status & ~(RxFIFOOver | RxOverflow | RxOK), ioaddr + IntrStatus);
 
-#ifdef	DEBUG_RX
-	printf("rtl_poll: int %hX ", status);
-#endif
+	debug_cond(DEBUG_RX, "rtl_poll: int %hX ", status);
 
 	ring_offs = cur_rx % RX_BUF_LEN;
 	/* ring_offs is guaranteed being 4-byte aligned */
@@ -513,14 +505,11 @@ static int rtl_poll(struct eth_device *dev)
 		memcpy(&(rxdata[semi_count]), rx_ring, rx_size-4-semi_count);
 
 		NetReceive(rxdata, length);
-#ifdef	DEBUG_RX
-		printf("rx packet %d+%d bytes", semi_count,rx_size-4-semi_count);
-#endif
+		debug_cond(DEBUG_RX, "rx packet %d+%d bytes",
+			semi_count, rx_size-4-semi_count);
 	} else {
 		NetReceive(rx_ring + ring_offs + 4, length);
-#ifdef	DEBUG_RX
-		printf("rx packet %d bytes", rx_size-4);
-#endif
+		debug_cond(DEBUG_RX, "rx packet %d bytes", rx_size-4);
 	}
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 
