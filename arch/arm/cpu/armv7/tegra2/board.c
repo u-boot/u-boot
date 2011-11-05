@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include "ap20.h"
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/pmc.h>
@@ -86,3 +87,17 @@ int checkboard(void)
 	return 0;
 }
 #endif	/* CONFIG_DISPLAY_BOARDINFO */
+
+#ifdef CONFIG_ARCH_CPU_INIT
+/*
+ * Note this function is executed by the ARM7TDMI AVP. It does not return
+ * in this case. It is also called once the A9 starts up, but does nothing in
+ * that case.
+ */
+int arch_cpu_init(void)
+{
+	/* Fire up the Cortex A9 */
+	tegra2_start();
+	return 0;
+}
+#endif

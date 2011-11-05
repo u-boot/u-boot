@@ -125,9 +125,6 @@ int board_early_init_f(void)
 
 	/* Initialize periph GPIOs */
 	gpio_config_uart();
-
-	/* Init UART, scratch regs, and start CPU */
-	tegra2_start();
 	return 0;
 }
 #endif	/* EARLY_INIT */
