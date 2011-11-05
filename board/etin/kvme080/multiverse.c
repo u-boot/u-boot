@@ -17,6 +17,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <linux/compiler.h>
 
 #include "multiverse.h"
 
@@ -103,7 +104,7 @@ int multiv_reset(unsigned long base)
 
 void multiv_auto_slot_id(unsigned long base)
 {
-	unsigned int vector;
+	__maybe_unused unsigned int vector;
 	int slot_id = 1;
 	if (readb(base + VME_CTRL) & VME_CTRL_SYSFAIL) {
 		*(volatile unsigned int*)(base + VME_IRQ2_REG) = 0xfe;
