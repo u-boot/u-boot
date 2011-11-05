@@ -102,3 +102,6 @@ void uart_init(void);
 void udelay(unsigned long);
 void cold_boot(void);
 void cache_configure(void);
+
+/* This is the main entry into U-Boot, used by the Cortex-A9 */
+extern void _start(void);
