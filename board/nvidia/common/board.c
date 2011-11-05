@@ -31,6 +31,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart.h>
+#include <spi.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -114,6 +115,9 @@ int board_init(void)
 	clock_init();
 	clock_verify();
 
+#ifdef CONFIG_TEGRA2_SPI
+	spi_init();
+#endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
 
