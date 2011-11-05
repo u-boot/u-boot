@@ -28,9 +28,11 @@
 #include <spi.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
+#include <ns16550.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/uart-spi-switch.h>
 #include <asm/arch/tegra2_spi.h>
 
 struct tegra_spi_slave {
@@ -128,6 +130,16 @@ int spi_claim_bus(struct spi_slave *slave)
 	 */
 	pinmux_set_func(PINGRP_GMD, PMUX_FUNC_SFLASH);
 	pinmux_tristate_disable(PINGRP_LSPI);
+
+#ifndef CONFIG_SPI_UART_SWITCH
+	/*
+	 * NOTE:
+	 * Only set PinMux bits 3:2 to SPI here on boards that don't have the
+	 * SPI UART switch or subsequent UART data won't go out!  See
+	 * spi_uart_switch().
+	 */
+	/* TODO: pinmux_set_func(PINGRP_GMC, PMUX_FUNC_SFLASH); */
+#endif
 	return 0;
 }
 
@@ -144,6 +156,8 @@ void spi_release_bus(struct spi_slave *slave)
 void spi_cs_activate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
+
+	pinmux_select_spi();
 
 	/* CS is negated on Tegra, so drive a 1 to get a 0 */
 	setbits_le32(&spi->regs->command, SPI_CMD_CS_VAL);
