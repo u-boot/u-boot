@@ -24,6 +24,7 @@
 #include <common.h>
 #include <ioports.h>
 #include <mpc8260.h>
+#include <linux/compiler.h>
 
 #include "scm.h"
 
@@ -397,7 +398,7 @@ static void config_scoh_cs (void)
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 	volatile can_reg_t *can = (volatile can_reg_t *) CONFIG_SYS_CAN0_BASE;
-	volatile uint tmp, i;
+	__maybe_unused volatile uint tmp, i;
 
 	/* Initialize OR3 / BR3 for CAN Bus Controller 0 */
 	memctl->memc_or3 = CONFIG_SYS_CAN0_OR3;
