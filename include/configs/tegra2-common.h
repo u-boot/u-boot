@@ -36,7 +36,6 @@
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 #define CONFIG_ARCH_CPU_INIT		/* Fire up the A9 core */
-#define CONFIG_ENABLE_CORTEXA9		/* enable CPU (A9 complex) */
 
 #include <asm/arch/tegra2.h>		/* get chip and board defs */
 
@@ -46,7 +45,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_SKIP_RELOCATE_UBOOT
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
