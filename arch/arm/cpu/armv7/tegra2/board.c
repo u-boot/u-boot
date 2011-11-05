@@ -65,10 +65,8 @@ int dram_init(void)
 
 	/* Now check it dynamically */
 	rs = get_ram_size(CONFIG_SYS_SDRAM_BASE, gd->ram_size);
-	if (rs) {
-		printf("dynamic ram_size = %lu\n", rs);
+	if (rs)
 		gd->bd->bi_dram[0].size = gd->ram_size = rs;
-	}
 	return 0;
 }
 
