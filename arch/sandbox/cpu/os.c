@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 
 #include <os.h>
 
@@ -86,4 +87,10 @@ void os_tty_raw(int fd)
 		return;
 
 	atexit(os_fd_restore);
+}
+
+void *os_malloc(size_t length)
+{
+	return mmap(NULL, length, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }

@@ -76,3 +76,11 @@ void os_exit(int exit_code);
  * Put tty into raw mode to mimic serial console better
  */
 void os_tty_raw(int fd);
+
+/**
+ * Acquires some memory from the underlying os.
+ *
+ * \param length	Number of bytes to be allocated
+ * \return Pointer to length bytes or NULL on error
+ */
+void *os_malloc(size_t length);

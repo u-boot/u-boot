@@ -45,7 +45,11 @@
 #include <version.h>
 #include <serial.h>
 
+#include <os.h>
+
 DECLARE_GLOBAL_DATA_PTR;
+
+static gd_t gd_mem;
 
 /************************************************************************
  * Init Utilities							*
@@ -147,7 +151,7 @@ void board_init_f(ulong bootflag)
 	uchar *mem;
 	unsigned long addr_sp, addr, size;
 
-	gd = malloc(sizeof(gd_t));
+	gd = &gd_mem;
 	assert(gd);
 
 	memset((void *)gd, 0, sizeof(gd_t));
@@ -158,7 +162,8 @@ void board_init_f(ulong bootflag)
 	}
 
 	size = CONFIG_SYS_SDRAM_SIZE;
-	mem = malloc(size);
+	mem = os_malloc(CONFIG_SYS_SDRAM_SIZE);
+
 	assert(mem);
 	gd->ram_buf = mem;
 	addr = (ulong)(mem + size);
@@ -214,11 +219,9 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	post_output_backlog();
 #endif
 
-#if 0 /* Sandbox uses system malloc for now */
-	/* The Malloc area is immediately below the monitor copy in DRAM */
-	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
-	mem_malloc_init(malloc_start, TOTAL_MALLOC_LEN);
-#endif
+	/* The Malloc area is at the top of simulated DRAM */
+	mem_malloc_init((ulong)gd->ram_buf + gd->ram_size - TOTAL_MALLOC_LEN,
+			TOTAL_MALLOC_LEN);
 
 	/* initialize environment */
 	env_relocate();
