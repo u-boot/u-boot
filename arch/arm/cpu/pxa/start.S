@@ -38,6 +38,13 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
+
+#ifdef CONFIG_PXA25X
+#if ((CONFIG_SYS_INIT_SP_ADDR) != 0xfffff800)
+#error "Init SP address must be set to 0xfffff800 for PXA250"
+#endif
+#endif
+
 .globl _start
 _start: b	reset
 #ifdef CONFIG_SPL_BUILD
@@ -153,6 +160,10 @@ reset:
 	bl  cpu_init_crit
 #endif
 
+#ifdef	CONFIG_PXA250
+	bl	lock_cache_for_stack
+#endif
+
 /* Set stackpointer in internal RAM to call board_init_f */
 call_board_init_f:
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
@@ -178,6 +189,11 @@ relocate_code:
 	/* Set up the stack						    */
 stack_setup:
 	mov	sp, r4
+
+/* Disable the Dcache RAM lock for stack now */
+#ifdef	CONFIG_PXA250
+	bl	cpu_init_crit
+#endif
 
 	adr	r0, _start
 	cmp	r0, r6
@@ -291,7 +307,7 @@ _dynsym_start_ofs:
  *
  *************************************************************************
  */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) || defined(CONFIG_PXA250)
 cpu_init_crit:
 	/*
 	 * flush v4 I/D caches
@@ -311,7 +327,7 @@ cpu_init_crit:
 	mcr	p15, 0, r0, c1, c0, 0
 
 	mov	pc, lr		/* back to my caller */
-#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
+#endif /* !CONFIG_SKIP_LOWLEVEL_INIT || CONFIG_PXA250 */
 
 #ifndef CONFIG_SPL_BUILD
 /*
@@ -495,3 +511,95 @@ fiq:
 #endif
 	.align 5
 #endif	/* CONFIG_SPL_BUILD */
+
+
+/*
+ * Enable MMU to use DCache as DRAM.
+ *
+ * This is useful on PXA25x and PXA26x in early bootstages, where there is no
+ * other possible memory available to hold stack.
+ */
+#ifdef CONFIG_PXA250
+.macro CPWAIT reg
+	mrc	p15, 0, \reg, c2, c0, 0
+	mov	\reg, \reg
+	sub	pc, pc, #4
+.endm
+lock_cache_for_stack:
+	/* Domain access -- enable for all CPs */
+	ldr	r0, =0x0000ffff
+	mcr	p15, 0, r0, c3, c0, 0
+
+	/* Point TTBR to MMU table */
+	ldr	r0, =mmutable
+	mcr	p15, 0, r0, c2, c0, 0
+
+	/* Kick in MMU, ICache, DCache, BTB */
+	mrc	p15, 0, r0, c1, c0, 0
+	bic	r0, #0x1b00
+	bic	r0, #0x0087
+	orr	r0, #0x1800
+	orr	r0, #0x0005
+	mcr	p15, 0, r0, c1, c0, 0
+	CPWAIT	r0
+
+	/* Unlock Icache, Dcache */
+	mcr	p15, 0, r0, c9, c1, 1
+	mcr	p15, 0, r0, c9, c2, 1
+
+	/* Flush Icache, Dcache, BTB */
+	mcr	p15, 0, r0, c7, c7, 0
+
+	/* Unlock I-TLB, D-TLB */
+	mcr	p15, 0, r0, c10, c4, 1
+	mcr	p15, 0, r0, c10, c8, 1
+
+	/* Flush TLB */
+	mcr	p15, 0, r0, c8, c7, 0
+
+	/* Allocate 4096 bytes of Dcache as RAM */
+
+	/* Drain pending loads and stores */
+	mcr	p15, 0, r0, c7, c10, 4
+
+	mov	r4, #0x00
+	mov	r5, #0x00
+	mov	r2, #0x01
+	mcr	p15, 0, r0, c9, c2, 0
+	CPWAIT	r0
+
+	/* 128 lines reserved (128 x 32bytes = 4096 bytes total) */
+	mov	r0, #128
+	ldr	r1, =0xfffff000
+
+alloc:
+	mcr	p15, 0, r1, c7, c2, 5
+	/* Drain pending loads and stores */
+	mcr	p15, 0, r0, c7, c10, 4
+	strd	r4, [r1], #8
+	strd	r4, [r1], #8
+	strd	r4, [r1], #8
+	strd	r4, [r1], #8
+	subs	r0, #0x01
+	bne	alloc
+	/* Drain pending loads and stores */
+	mcr	p15, 0, r0, c7, c10, 4
+	mov	r2, #0x00
+	mcr	p15, 0, r2, c9, c2, 0
+	CPWAIT	r0
+
+	mov	pc, lr
+
+.section .mmutable, "a"
+mmutable:
+	.align	14
+	/* 0x00000000 - 0xffe00000 : 1:1, uncached mapping */
+	.set	__base, 0
+	.rept	0xfff
+	.word	(__base << 20) | 0xc12
+	.set	__base, __base + 1
+	.endr
+
+	/* 0xfff00000 : 1:1, cached mapping */
+	.word	(0xfff << 20) | 0x1c1e
+#endif	/* CONFIG_PXA250 */
