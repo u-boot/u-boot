@@ -324,9 +324,9 @@ int do_flinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifndef CONFIG_SYS_NO_FLASH
-	flash_info_t *info;
+	flash_info_t *info = NULL;
 	ulong bank, addr_first, addr_last;
-	int n, sect_first, sect_last;
+	int n, sect_first = 0, sect_last = 0;
 #if defined(CONFIG_CMD_MTDPARTS)
 	struct mtd_device *dev;
 	struct part_info *part;
@@ -457,9 +457,9 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rcode = 0;
 #ifndef CONFIG_SYS_NO_FLASH
-	flash_info_t *info;
+	flash_info_t *info = NULL;
 	ulong bank;
-	int i, n, sect_first, sect_last;
+	int i, n, sect_first = 0, sect_last = 0;
 #if defined(CONFIG_CMD_MTDPARTS)
 	struct mtd_device *dev;
 	struct part_info *part;
