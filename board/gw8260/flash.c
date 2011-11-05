@@ -78,7 +78,6 @@ static int write_word (flash_info_t *info, ulong dest, ulong data);
  */
 unsigned long flash_init(void)
 {
-	unsigned long size;
 	int i;
 
 	/* Init: no FLASHes known */
@@ -86,7 +85,7 @@ unsigned long flash_init(void)
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
 	/* for now, only support the 4 MB Flash SIMM */
-	size = flash_get_size((vu_long *) CONFIG_SYS_FLASH0_BASE,
+	(void)flash_get_size((vu_long *) CONFIG_SYS_FLASH0_BASE,
 			      &flash_info[0]);
 	/*
 	 * protect monitor and environment sectors
