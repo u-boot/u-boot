@@ -76,7 +76,6 @@ hymod_get_ethaddr (void)
 		if (n == 17) {
 			int i;
 			char *p, *q;
-			uchar ea[6];
 
 			/* see if it looks like an ethernet address */
 
@@ -85,7 +84,7 @@ hymod_get_ethaddr (void)
 			for (i = 0; i < 6; i++) {
 				char term = (i == 5 ? '\0' : ':');
 
-				ea[i] = simple_strtol (p, &q, 16);
+				(void)simple_strtol (p, &q, 16);
 
 				if ((q - p) != 2 || *q++ != term)
 					break;
