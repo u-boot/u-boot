@@ -35,6 +35,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+enum {
+	/* UARTs which we can enable */
+	UARTA	= 1 << 0,
+	UARTD	= 1 << 3,
+};
+
 const struct tegra2_sysinfo sysinfo = {
 	CONFIG_TEGRA2_BOARD_STRING
 };
@@ -64,36 +70,32 @@ static void enable_uart(enum periph_id pid)
 
 /*
  * Routine: clock_init_uart
- * Description: init the PLL and clock for the UART(s)
+ * Description: init clock for the UART(s)
  */
-static void clock_init_uart(void)
+static void clock_init_uart(int uart_ids)
 {
-#if defined(CONFIG_TEGRA2_ENABLE_UARTA)
-	enable_uart(PERIPH_ID_UART1);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
-#if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	enable_uart(PERIPH_ID_UART4);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
+	if (uart_ids & UARTA)
+		enable_uart(PERIPH_ID_UART1);
+	if (uart_ids & UARTD)
+		enable_uart(PERIPH_ID_UART4);
 }
 
 /*
  * Routine: pin_mux_uart
  * Description: setup the pin muxes/tristate values for the UART(s)
  */
-static void pin_mux_uart(void)
+static void pin_mux_uart(int uart_ids)
 {
-#if defined(CONFIG_TEGRA2_ENABLE_UARTA)
-	pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
-	pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
-
-	pinmux_tristate_disable(PINGRP_IRRX);
-	pinmux_tristate_disable(PINGRP_IRTX);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
-#if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
-
-	pinmux_tristate_disable(PINGRP_GMC);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
+	if (uart_ids & UARTA) {
+		pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
+		pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
+		pinmux_tristate_disable(PINGRP_IRRX);
+		pinmux_tristate_disable(PINGRP_IRTX);
+	}
+	if (uart_ids & UARTD) {
+		pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
+		pinmux_tristate_disable(PINGRP_GMC);
+	}
 }
 
 /*
@@ -114,6 +116,15 @@ int board_init(void)
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
+	int uart_ids = 0;	/* bit mask of which UART ids to enable */
+
+#ifdef CONFIG_TEGRA2_ENABLE_UARTA
+	uart_ids |= UARTA;
+#endif
+#ifdef CONFIG_TEGRA2_ENABLE_UARTD
+	uart_ids |= UARTD;
+#endif
+
 	/* We didn't do this init in start.S, so do it now */
 	cpu_init_cp15();
 
@@ -121,10 +132,10 @@ int board_early_init_f(void)
 	clock_early_init();
 
 	/* Initialize UART clocks */
-	clock_init_uart();
+	clock_init_uart(uart_ids);
 
 	/* Initialize periph pinmuxes */
-	pin_mux_uart();
+	pin_mux_uart(uart_ids);
 
 	/* Initialize periph GPIOs */
 	gpio_config_uart();
