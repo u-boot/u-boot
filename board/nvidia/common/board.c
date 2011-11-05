@@ -112,9 +112,13 @@ static void pin_mux_uart(int uart_ids)
  */
 int board_init(void)
 {
+	/* Do clocks and UART first so that printf() works */
 	clock_init();
 	clock_verify();
 
+#ifdef CONFIG_SPI_UART_SWITCH
+	gpio_config_uart();
+#endif
 #ifdef CONFIG_TEGRA2_SPI
 	spi_init();
 #endif
@@ -152,7 +156,11 @@ int board_early_init_f(void)
 	pin_mux_uart(uart_ids);
 
 	/* Initialize periph GPIOs */
+#ifdef CONFIG_SPI_UART_SWITCH
+	gpio_early_init_uart();
+#else
 	gpio_config_uart();
+#endif
 	return 0;
 }
 #endif	/* EARLY_INIT */
