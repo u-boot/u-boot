@@ -37,6 +37,10 @@
 #define CONFIG_USE_ARCH_MEMCPY
 #define CONFIG_USE_ARCH_MEMSET
 
+#define MACH_TYPE_JADECPU	2636
+
+#define CONFIG_MACH_TYPE MACH_TYPE_JADECPU
+
 /*
  * Environment settings
  */

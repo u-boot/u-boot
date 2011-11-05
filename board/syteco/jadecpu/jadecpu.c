@@ -40,7 +40,6 @@ int board_init(void)
 	writel(0x00000010, &ccnt->cmux_md);
 
 	gd->flags = 0;
-	gd->bd->bi_arch_number = MACH_TYPE_JADECPU;
 	gd->bd->bi_boot_params = PHYS_SDRAM + PHYS_SDRAM_SIZE - 0x10000;
 
 	icache_enable();
