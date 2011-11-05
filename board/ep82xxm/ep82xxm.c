@@ -31,6 +31,7 @@
 #include <pci.h>
 #endif
 #include <miiphy.h>
+#include <linux/compiler.h>
 
 /*
  * I/O Port configuration table
@@ -230,8 +231,8 @@ phys_size_t initdram(int board_type)
 	uint psdmr = CONFIG_SYS_PSDMR;
 	int i;
 
-	unsigned char	ramtmp;
 	unsigned char	*ramptr1 = (unsigned char *)0x00000110;
+	__maybe_unused unsigned char	ramtmp;
 
 	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
