@@ -177,7 +177,6 @@ phys_size_t initdram(int board_type)
 	uint sdam;
 	uint bsma;
 	uint sda10;
-	u_char spd_size;
 	u_char data;
 	u_char cksum;
 	int j;
@@ -192,7 +191,6 @@ phys_size_t initdram(int board_type)
 	 * Read the SDRAM SPD EEPROM via I2C.
 	 */
 	i2c_read(SDRAM_SPD_ADDR, 0, 1, &data, 1);
-	spd_size = data;
 	cksum = data;
 	for (j = 1; j < 64; j++) {	/* read only the checksummed bytes */
 		/* note: the I2C address autoincrements when alen == 0 */
