@@ -55,14 +55,6 @@ unsigned int query_sdram_size(void)
 	}
 }
 
-void s_init(void)
-{
-#ifndef CONFIG_ICACHE_OFF
-	icache_enable();
-#endif
-	invalidate_dcache();
-}
-
 int dram_init(void)
 {
 	unsigned long rs;
