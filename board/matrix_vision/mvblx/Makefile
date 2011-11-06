@@ -37,12 +37,6 @@ CFLAGS += -Werror
 $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
-clean:
-	rm -f $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
-
 #########################################################################
 
 # defines $(obj).depend target
