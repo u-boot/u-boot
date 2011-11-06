@@ -125,7 +125,7 @@ static int env_print(char *name)
 	}
 
 	/* print whole list */
-	len = hexport_r(&env_htab, '\n', &res, 0);
+	len = hexport_r(&env_htab, '\n', &res, 0, 0, NULL);
 
 	if (len > 0) {
 		puts(res);
@@ -647,7 +647,7 @@ static int do_env_delete(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 #ifdef CONFIG_CMD_EXPORTENV
 /*
- * env export [-t | -b | -c] addr [size]
+ * env export [-t | -b | -c] [-s size] addr [var ...]
  *	-t:	export as text format; if size is given, data will be
  *		padded with '\0' bytes; if not, one terminating '\0'
  *		will be added (which is included in the "filesize"
@@ -657,8 +657,12 @@ static int do_env_delete(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
  *		'\0', list end marked by double "\0\0")
  *	-c:	export as checksum protected environment format as
  *		used for example by "saveenv" command
+ *	-s size:
+ *		size of output buffer
  *	addr:	memory address where environment gets stored
- *	size:	size of output buffer
+ *	var...	List of variable names that get included into the
+ *		export. Without arguments, the whole environment gets
+ *		exported.
  *
  * With "-c" and size is NOT given, then the export command will
  * format the data as currently used for the persistent storage,
@@ -691,7 +695,7 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 {
 	char	buf[32];
 	char	*addr, *cmd, *res;
-	size_t	size;
+	size_t	size = 0;
 	ssize_t	len;
 	env_t	*envp;
 	char	sep = '\n';
@@ -715,6 +719,11 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 				sep = '\0';
 				chk = 1;
 				break;
+			case 's':		/* size given */
+				if (--argc <= 0)
+					return cmd_usage(cmdtp);
+				size = simple_strtoul(*++argv, NULL, 16);
+				goto NXTARG;
 			case 't':		/* text format */
 				if (fmt++)
 					goto sep_err;
@@ -724,6 +733,7 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 				return cmd_usage(cmdtp);
 			}
 		}
+NXTARG:		;
 	}
 
 	if (argc < 1)
@@ -731,15 +741,14 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	addr = (char *)simple_strtoul(argv[0], NULL, 16);
 
-	if (argc == 2) {
-		size = simple_strtoul(argv[1], NULL, 16);
+	if (size)
 		memset(addr, '\0', size);
-	} else {
-		size = 0;
-	}
+
+	argc--;
+	argv++;
 
 	if (sep) {		/* export as text file */
-		len = hexport_r(&env_htab, sep, &addr, size);
+		len = hexport_r(&env_htab, sep, &addr, size, argc, argv);
 		if (len < 0) {
 			error("Cannot export environment: errno = %d\n",
 				errno);
@@ -758,7 +767,7 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	else			/* export as raw binary data */
 		res = addr;
 
-	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE);
+	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE, argc, argv);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n",
 			errno);
@@ -965,7 +974,7 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_EDITENV)
 	"env edit name - edit environment variable\n"
 #endif
-	"env export [-t | -b | -c] addr [size] - export environment\n"
+	"env export [-t | -b | -c] [-s size] addr [var ...] - export environment\n"
 #if defined(CONFIG_CMD_GREPENV)
 	"env grep string [...] - search environment\n"
 #endif

@@ -91,7 +91,8 @@ extern int hstrstr_r(const char *__match, int __last_idx, ENTRY ** __retval,
 extern int hdelete_r(const char *__key, struct hsearch_data *__htab);
 
 extern ssize_t hexport_r(struct hsearch_data *__htab,
-		     const char __sep, char **__resp, size_t __size);
+		     const char __sep, char **__resp, size_t __size,
+		     int argc, char * const argv[]);
 
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,

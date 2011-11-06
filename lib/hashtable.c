@@ -478,7 +478,8 @@ static int cmpkey(const void *p1, const void *p2)
 }
 
 ssize_t hexport_r(struct hsearch_data *htab, const char sep,
-		 char **resp, size_t size)
+		 char **resp, size_t size,
+		 int argc, char * const argv[])
 {
 	ENTRY *list[htab->size];
 	char *res, *p;
@@ -502,6 +503,16 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
+			int arg, found = 0;
+
+			for (arg = 0; arg < argc; ++arg) {
+				if (strcmp(argv[arg], ep->key) == 0) {
+					found = 1;
+					break;
+				}
+			}
+			if ((argc > 0) && (found == 0))
+				continue;
 
 			list[n++] = ep;
 
@@ -539,7 +550,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 	/* Check if the user supplied buffer size is sufficient */
 	if (size) {
 		if (size < totlen + 1) {	/* provided buffer too small */
-			debug("### buffer too small: %d, but need %d\n",
+			printf("Env export buffer too small: %d, but need %d\n",
 				size, totlen + 1);
 			__set_errno(ENOMEM);
 			return (-1);
