@@ -1370,7 +1370,6 @@ e1000_reset_hw(struct e1000_hw *hw)
 {
 	uint32_t ctrl;
 	uint32_t ctrl_ext;
-	uint32_t icr;
 	uint32_t manc;
 	uint32_t pba = 0;
 
@@ -1443,7 +1442,7 @@ e1000_reset_hw(struct e1000_hw *hw)
 	E1000_WRITE_REG(hw, IMC, 0xffffffff);
 
 	/* Clear any pending interrupt events. */
-	icr = E1000_READ_REG(hw, ICR);
+	E1000_READ_REG(hw, ICR);
 
 	/* If MWI was previously enabled, reenable it. */
 	if (hw->mac_type == e1000_82542_rev2_0) {
@@ -4447,7 +4446,8 @@ e1000_phy_init_script(struct e1000_hw *hw)
 		mdelay(20);
 
 		/* Now enable the transmitter */
-		e1000_write_phy_reg(hw, 0x2F5B, phy_saved_data);
+		if (!ret_val)
+			e1000_write_phy_reg(hw, 0x2F5B, phy_saved_data);
 
 		if (hw->mac_type == e1000_82547) {
 			uint16_t fused, fine, coarse;
