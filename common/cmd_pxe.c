@@ -1273,10 +1273,21 @@ static void handle_pxe_menu(struct pxe_menu *cfg)
 
 	menu_destroy(m);
 
-	if (err < 1)
-		return;
+	/*
+	 * err == 1 means we got a choice back from menu_get_choice.
+	 *
+	 * err == -ENOENT if the menu was setup to select the default but no
+	 * default was set. in that case, we should continue trying to boot
+	 * labels that haven't been attempted yet.
+	 *
+	 * otherwise, the user interrupted or there was some other error and
+	 * we give up.
+	 */
 
-	label_boot(choice);
+	if (err == 1)
+		label_boot(choice);
+	else if (err != -ENOENT)
+		return;
 
 	boot_unattempted_labels(cfg);
 }
