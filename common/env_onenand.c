@@ -39,9 +39,6 @@
 extern struct mtd_info onenand_mtd;
 extern struct onenand_chip onenand_chip;
 
-/* References to names in env_common.c */
-extern uchar default_environment[];
-
 char *env_name_spec = "OneNAND";
 
 #define ONENAND_MAX_ENV_SIZE	4096

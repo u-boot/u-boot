@@ -32,9 +32,6 @@
 #include <search.h>
 #include <errno.h>
 
-/* references to names in env_common.c */
-extern uchar default_environment[];
-
 char *env_name_spec = "MMC";
 
 #ifdef ENV_IS_EMBEDDED

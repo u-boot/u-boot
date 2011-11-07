@@ -40,7 +40,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 extern env_t *env_ptr;
-extern uchar default_environment[];
 
 ulong flash_get_size(ulong base, int banknum);
 void env_crc_update(void);

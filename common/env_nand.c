@@ -55,9 +55,6 @@
 #define CONFIG_ENV_RANGE	CONFIG_ENV_SIZE
 #endif
 
-/* references to names in env_common.c */
-extern uchar default_environment[];
-
 char *env_name_spec = "NAND";
 
 

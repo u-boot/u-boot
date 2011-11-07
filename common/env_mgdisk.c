@@ -27,9 +27,6 @@
 #include <linux/stddef.h>
 #include <mg_disk.h>
 
-/* references to names in env_common.c */
-extern uchar default_environment[];
-
 char *env_name_spec = "MG_DISK";
 
 env_t *env_ptr = 0;

@@ -37,8 +37,6 @@ extern int write_dataflash(unsigned long addr_dest,
 	unsigned long addr_src, unsigned long size);
 extern int AT91F_DataflashInit(void);
 
-extern uchar default_environment[];
-
 uchar env_get_char_spec(int index)
 {
 	uchar c;

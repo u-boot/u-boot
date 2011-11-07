@@ -55,9 +55,6 @@ static ulong env_new_offset = CONFIG_ENV_OFFSET_REDUND;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* references to names in env_common.c */
-extern uchar default_environment[];
-
 char * env_name_spec = "SPI Flash";
 
 static struct spi_flash *env_flash;
