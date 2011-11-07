@@ -29,13 +29,13 @@
 
 char *env_name_spec = "MG_DISK";
 
-env_t *env_ptr = 0;
+env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
 
 uchar env_get_char_spec(int index)
 {
-	return (*((uchar *)(gd->env_addr + index)));
+	return *((uchar *)(gd->env_addr + index));
 }
 
 void env_relocate_spec(void)
