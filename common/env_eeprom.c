@@ -37,13 +37,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-env_t *env_ptr = NULL;
+env_t *env_ptr;
 
 char *env_name_spec = "EEPROM";
 int env_eeprom_bus = -1;
 
 static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
-	uchar *buffer, unsigned cnt)
+			   uchar *buffer, unsigned cnt)
 {
 	int rcode;
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
@@ -57,7 +57,7 @@ static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 			if (dev != NULL)
 				env_eeprom_bus = dev->busid;
 			else
-				printf ("error adding env eeprom bus.\n");
+				printf("error adding env eeprom bus.\n");
 		}
 		if (old_bus != env_eeprom_bus) {
 			i2c_set_bus_num(env_eeprom_bus);
@@ -69,7 +69,7 @@ static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 	}
 #endif
 
-	rcode = eeprom_read (dev_addr, offset, buffer, cnt);
+	rcode = eeprom_read(dev_addr, offset, buffer, cnt);
 
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 	if (old_bus != env_eeprom_bus)
@@ -79,7 +79,7 @@ static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 }
 
 static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
-	uchar *buffer, unsigned cnt)
+			    uchar *buffer, unsigned cnt)
 {
 	int rcode;
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
@@ -94,24 +94,22 @@ static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
 	return rcode;
 }
 
-uchar env_get_char_spec (int index)
+uchar env_get_char_spec(int index)
 {
 	uchar c;
-	unsigned int off;
-	off = CONFIG_ENV_OFFSET;
+	unsigned int off = CONFIG_ENV_OFFSET;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (gd->env_valid == 2)
 		off = CONFIG_ENV_OFFSET_REDUND;
 #endif
 	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
-		     off + index + offsetof(env_t,data),
-		     &c, 1);
+			off + index + offsetof(env_t, data), &c, 1);
 
-	return (c);
+	return c;
 }
 
-void env_relocate_spec (void)
+void env_relocate_spec(void)
 {
 	char buf[CONFIG_ENV_SIZE];
 	unsigned int off = CONFIG_ENV_OFFSET;
@@ -121,9 +119,7 @@ void env_relocate_spec (void)
 		off = CONFIG_ENV_OFFSET_REDUND;
 #endif
 	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
-		     off,
-		     (uchar *)buf,
-		     CONFIG_ENV_SIZE);
+			off, (uchar *)buf, CONFIG_ENV_SIZE);
 
 	env_import(buf, 1);
 }
@@ -133,11 +129,11 @@ int saveenv(void)
 	env_t	env_new;
 	ssize_t	len;
 	char	*res;
-	int rc;
-	unsigned int off = CONFIG_ENV_OFFSET;
+	int	rc;
+	unsigned int off	= CONFIG_ENV_OFFSET;
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	unsigned int off_red = CONFIG_ENV_OFFSET_REDUND;
-	char flag_obsolete = OBSOLETE_FLAG;
+	unsigned int off_red	= CONFIG_ENV_OFFSET_REDUND;
+	char flag_obsolete	= OBSOLETE_FLAG;
 #endif
 
 	BUG_ON(env_ptr != NULL);
@@ -152,32 +148,28 @@ int saveenv(void)
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (gd->env_valid == 1) {
-		off = CONFIG_ENV_OFFSET_REDUND;
-		off_red = CONFIG_ENV_OFFSET;
+		off	= CONFIG_ENV_OFFSET_REDUND;
+		off_red	= CONFIG_ENV_OFFSET;
 	}
 
 	env_new.flags = ACTIVE_FLAG;
 #endif
 
 	rc = eeprom_bus_write(CONFIG_SYS_DEF_EEPROM_ADDR,
-			     off,
-			     (uchar *)&env_new,
-			     CONFIG_ENV_SIZE);
+			      off, (uchar *)&env_new, CONFIG_ENV_SIZE);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (rc == 0) {
 		eeprom_bus_write(CONFIG_SYS_DEF_EEPROM_ADDR,
-				  off_red + offsetof(env_t,flags),
-				  (uchar *)&flag_obsolete,
-				  1);
+				 off_red + offsetof(env_t, flags),
+				 (uchar *)&flag_obsolete, 1);
+
 		if (gd->env_valid == 1)
 			gd->env_valid = 2;
 		else
 			gd->env_valid = 1;
-
 	}
 #endif
-
 	return rc;
 }
 
@@ -187,17 +179,13 @@ int saveenv(void)
  * We are still running from ROM, so data use is limited.
  * Use a (moderately small) buffer on the stack
  */
-
 #ifdef CONFIG_ENV_OFFSET_REDUND
 int env_init(void)
 {
-	ulong len;
-	ulong crc[2], crc_tmp;
+	ulong len, crc[2], crc_tmp;
 	unsigned int off, off_env[2];
-	uchar buf[64];
-	int crc_ok[2] = {0,0};
-	unsigned char flags[2];
-	int i;
+	uchar buf[64], flags[2];
+	int i, crc_ok[2] = {0, 0};
 
 	eeprom_init();	/* prepare for EEPROM read/write */
 
@@ -207,39 +195,39 @@ int env_init(void)
 	for (i = 0; i < 2; i++) {
 		/* read CRC */
 		eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
-			off_env[i] + offsetof(env_t,crc),
-			(uchar *)&crc[i], sizeof(ulong));
+				off_env[i] + offsetof(env_t, crc),
+				(uchar *)&crc[i], sizeof(ulong));
 		/* read FLAGS */
 		eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
-			off_env[i] + offsetof(env_t,flags),
-			(uchar *)&flags[i], sizeof(uchar));
+				off_env[i] + offsetof(env_t, flags),
+				(uchar *)&flags[i], sizeof(uchar));
 
 		crc_tmp = 0;
 		len = ENV_SIZE;
-		off = off_env[i] + offsetof(env_t,data);
+		off = off_env[i] + offsetof(env_t, data);
 		while (len > 0) {
 			int n = (len > sizeof(buf)) ? sizeof(buf) : len;
 
 			eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR, off,
-				buf, n);
+					buf, n);
 
 			crc_tmp = crc32(crc_tmp, buf, n);
 			len -= n;
 			off += n;
 		}
+
 		if (crc_tmp == crc[i])
 			crc_ok[i] = 1;
 	}
 
 	if (!crc_ok[0] && !crc_ok[1]) {
-		gd->env_addr  = 0;
-		gd->env_valid = 0;
+		gd->env_addr	= 0;
+		gd->env_valid	= 0;
 
 		return 0;
 	} else if (crc_ok[0] && !crc_ok[1]) {
 		gd->env_valid = 1;
-	}
-	else if (!crc_ok[0] && crc_ok[1]) {
+	} else if (!crc_ok[0] && crc_ok[1]) {
 		gd->env_valid = 2;
 	} else {
 		/* both ok - check serial */
@@ -249,18 +237,18 @@ int env_init(void)
 			gd->env_valid = 2;
 		else if (flags[0] == 0xFF && flags[1] == 0)
 			gd->env_valid = 2;
-		else if(flags[1] == 0xFF && flags[0] == 0)
+		else if (flags[1] == 0xFF && flags[0] == 0)
 			gd->env_valid = 1;
 		else /* flags are equal - almost impossible */
 			gd->env_valid = 1;
 	}
 
 	if (gd->env_valid == 2)
-		gd->env_addr = off_env[1] + offsetof(env_t,data);
+		gd->env_addr = off_env[1] + offsetof(env_t, data);
 	else if (gd->env_valid == 1)
-		gd->env_addr = off_env[0] + offsetof(env_t,data);
+		gd->env_addr = off_env[0] + offsetof(env_t, data);
 
-	return (0);
+	return 0;
 }
 #else
 int env_init(void)
@@ -273,12 +261,12 @@ int env_init(void)
 
 	/* read old CRC */
 	eeprom_bus_read(CONFIG_SYS_DEF_EEPROM_ADDR,
-		     CONFIG_ENV_OFFSET+offsetof(env_t,crc),
-		     (uchar *)&crc, sizeof(ulong));
+			CONFIG_ENV_OFFSET + offsetof(env_t, crc),
+			(uchar *)&crc, sizeof(ulong));
 
 	new = 0;
 	len = ENV_SIZE;
-	off = offsetof(env_t,data);
+	off = offsetof(env_t, data);
 
 	while (len > 0) {
 		int n = (len > sizeof(buf)) ? sizeof(buf) : len;
@@ -291,13 +279,13 @@ int env_init(void)
 	}
 
 	if (crc == new) {
-		gd->env_addr  = offsetof(env_t,data);
-		gd->env_valid = 1;
+		gd->env_addr	= offsetof(env_t, data);
+		gd->env_valid	= 1;
 	} else {
-		gd->env_addr  = 0;
-		gd->env_valid = 0;
+		gd->env_addr	= 0;
+		gd->env_valid	= 0;
 	}
 
-	return (0);
+	return 0;
 }
 #endif
