@@ -39,6 +39,18 @@
 /*
  * System Clock Setup
  */
+#ifdef CONFIG_CLKIN_33MHZ
+#ifdef CONFIG_PCISLAVE
+#define CONFIG_83XX_PCICLK	33330000 /* in HZ */
+#else
+#define CONFIG_83XX_CLKIN	33330000 /* in Hz */
+#endif
+
+#ifndef CONFIG_SYS_CLK_FREQ
+#define CONFIG_SYS_CLK_FREQ	33330000
+#endif
+
+#elif defined(CONFIG_CLKIN_66MHZ)
 #ifdef CONFIG_PCISLAVE
 #define CONFIG_83XX_PCICLK	66000000 /* in HZ */
 #else
@@ -48,10 +60,24 @@
 #ifndef CONFIG_SYS_CLK_FREQ
 #define CONFIG_SYS_CLK_FREQ	66000000
 #endif
+#else
+#error Unknown oscillator frequency.
+#endif
 
 /*
  * Hardware Reset Configuration Word
  */
+#ifdef CONFIG_CLKIN_33MHZ
+#define CONFIG_SYS_HRCW_LOW (\
+	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
+	HRCWL_DDR_TO_SCB_CLK_1X1 |\
+	HRCWL_CSB_TO_CLKIN_8X1 |\
+	HRCWL_VCO_1X2 |\
+	HRCWL_CE_PLL_VCO_DIV_4 |\
+	HRCWL_CE_PLL_DIV_1X1 |\
+	HRCWL_CE_TO_PLL_1X15 |\
+	HRCWL_CORE_TO_CSB_2X1)
+#elif defined(CONFIG_CLKIN_66MHZ)
 #define CONFIG_SYS_HRCW_LOW (\
 	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
 	HRCWL_DDR_TO_SCB_CLK_1X1 |\
@@ -61,6 +87,7 @@
 	HRCWL_CE_PLL_DIV_1X1 |\
 	HRCWL_CE_TO_PLL_1X6 |\
 	HRCWL_CORE_TO_CSB_2X1)
+#endif
 
 #ifdef CONFIG_PCISLAVE
 #define CONFIG_SYS_HRCW_HIGH (\
