@@ -25,6 +25,12 @@
 #include <asm/arch/a320.h>
 
 /*
+ * mach-type definition
+ */
+#define MACH_TYPE_FARADAY	758
+#define CONFIG_MACH_TYPE	MACH_TYPE_FARADAY
+
+/*
  * Linux kernel tagged list
  */
 #define CONFIG_CMDLINE_TAG
