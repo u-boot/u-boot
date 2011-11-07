@@ -162,6 +162,14 @@ extern env_t environment;
 #endif /* ENV_IS_EMBEDDED */
 
 extern const unsigned char default_environment[];
+extern env_t *env_ptr;
+
+extern void env_relocate_spec(void);
+extern unsigned char env_get_char_spec(int);
+
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+extern void env_reloc(void);
+#endif
 
 #ifndef DO_DEPS_ONLY
 

@@ -34,13 +34,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern env_t *env_ptr;
-
-extern void env_relocate_spec (void);
-extern uchar env_get_char_spec(int);
-
-static uchar env_get_char_init (int index);
-
 /************************************************************************
  * Default settings to be used when no valid environment is found
  */
@@ -94,7 +87,7 @@ const uchar default_environment[] = {
 	"serverip="	MK_STR(CONFIG_SERVERIP)		"\0"
 #endif
 #ifdef	CONFIG_SYS_AUTOLOAD
-	"autoload="	CONFIG_SYS_AUTOLOAD			"\0"
+	"autoload="	CONFIG_SYS_AUTOLOAD		"\0"
 #endif
 #ifdef	CONFIG_PREBOOT
 	"preboot="	CONFIG_PREBOOT			"\0"
@@ -117,13 +110,13 @@ const uchar default_environment[] = {
 #ifdef	CONFIG_LOADADDR
 	"loadaddr="	MK_STR(CONFIG_LOADADDR)		"\0"
 #endif
-#ifdef  CONFIG_CLOCKS_IN_MHZ
+#ifdef	CONFIG_CLOCKS_IN_MHZ
 	"clocks_in_mhz=1\0"
 #endif
 #if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
 	"pcidelay="	MK_STR(CONFIG_PCI_BOOTDELAY)	"\0"
 #endif
-#ifdef  CONFIG_EXTRA_ENV_SETTINGS
+#ifdef	CONFIG_EXTRA_ENV_SETTINGS
 	CONFIG_EXTRA_ENV_SETTINGS
 #endif
 	"\0"
@@ -131,38 +124,30 @@ const uchar default_environment[] = {
 
 struct hsearch_data env_htab;
 
-static uchar env_get_char_init (int index)
+static uchar env_get_char_init(int index)
 {
-	uchar c;
-
 	/* if crc was bad, use the default environment */
 	if (gd->env_valid)
-		c = env_get_char_spec(index);
+		return env_get_char_spec(index);
 	else
-		c = default_environment[index];
-
-	return (c);
+		return default_environment[index];
 }
 
-uchar env_get_char_memory (int index)
+uchar env_get_char_memory(int index)
 {
 	return *env_get_addr(index);
 }
 
-uchar env_get_char (int index)
+uchar env_get_char(int index)
 {
-	uchar c;
-
 	/* if relocated to RAM */
 	if (gd->flags & GD_FLG_RELOC)
-		c = env_get_char_memory(index);
+		return env_get_char_memory(index);
 	else
-		c = env_get_char_init(index);
-
-	return (c);
+		return env_get_char_init(index);
 }
 
-const uchar *env_get_addr (int index)
+const uchar *env_get_addr(int index)
 {
 	if (gd->env_valid)
 		return (uchar *)(gd->env_addr + index);
@@ -181,7 +166,7 @@ void set_default_env(const char *s)
 		if (*s == '!') {
 			printf("*** Warning - %s, "
 				"using default environment\n\n",
-				s+1);
+				s + 1);
 		} else {
 			puts(s);
 		}
@@ -190,9 +175,9 @@ void set_default_env(const char *s)
 	}
 
 	if (himport_r(&env_htab, (char *)default_environment,
-		    sizeof(default_environment), '\0', 0) == 0) {
+			sizeof(default_environment), '\0', 0) == 0)
 		error("Environment import failed: errno = %d\n", errno);
-	}
+
 	gd->flags |= GD_FLG_ENV_READY;
 }
 
@@ -227,22 +212,20 @@ int env_import(const char *buf, int check)
 	return 0;
 }
 
-void env_relocate (void)
+void env_relocate(void)
 {
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	extern void env_reloc(void);
-
 	env_reloc();
 #endif
 	if (gd->env_valid == 0) {
 #if defined(CONFIG_ENV_IS_NOWHERE)	/* Environment not changable */
 		set_default_env(NULL);
 #else
-		show_boot_progress (-60);
+		show_boot_progress(-60);
 		set_default_env("!bad CRC");
 #endif
 	} else {
-		env_relocate_spec ();
+		env_relocate_spec();
 	}
 }
 
@@ -272,6 +255,7 @@ int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf)
 
 	if (idx)
 		cmdv[found++] = "...";
+
 	cmdv[found] = NULL;
 	return found;
 }
