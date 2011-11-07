@@ -31,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-env_t *env_ptr = NULL;
+env_t *env_ptr;
 
 void env_relocate_spec(void)
 {
@@ -39,7 +39,7 @@ void env_relocate_spec(void)
 
 uchar env_get_char_spec(int index)
 {
-	return ( *((uchar *)(gd->env_addr + index)) );
+	return *((uchar *)(gd->env_addr + index));
 }
 
 /*
@@ -49,8 +49,8 @@ uchar env_get_char_spec(int index)
  */
 int env_init(void)
 {
-	gd->env_addr  = (ulong)&default_environment[0];
-	gd->env_valid = 0;
+	gd->env_addr	= (ulong)&default_environment[0];
+	gd->env_valid	= 0;
 
-	return (0);
+	return 0;
 }
