@@ -208,6 +208,8 @@ extern int dataflash_real_protect (int flag, unsigned long start_addr, unsigned 
 extern int addr_dataflash (unsigned long addr);
 extern int read_dataflash (unsigned long addr, unsigned long size, char *result);
 extern int write_dataflash (unsigned long addr, unsigned long dest, unsigned long size);
+extern int AT91F_DataflashInit(void);
+
 extern void dataflash_print_info (void);
 extern void dataflash_perror (int err);
 extern void AT91F_DataflashSetEnv (void);

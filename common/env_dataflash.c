@@ -27,23 +27,17 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-env_t *env_ptr = NULL;
+env_t *env_ptr;
 
-char * env_name_spec = "dataflash";
-
-extern int read_dataflash(unsigned long addr, unsigned long size,
-	char *result);
-extern int write_dataflash(unsigned long addr_dest,
-	unsigned long addr_src, unsigned long size);
-extern int AT91F_DataflashInit(void);
+char *env_name_spec = "dataflash";
 
 uchar env_get_char_spec(int index)
 {
 	uchar c;
 
-	read_dataflash(CONFIG_ENV_ADDR + index + offsetof(env_t,data),
+	read_dataflash(CONFIG_ENV_ADDR + index + offsetof(env_t, data),
 			1, (char *)&c);
-	return (c);
+	return c;
 }
 
 void env_relocate_spec(void)
@@ -71,7 +65,7 @@ int saveenv(void)
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
-	env_new.crc   = crc32(0, env_new.data, ENV_SIZE);
+	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
 
 	return write_dataflash(CONFIG_ENV_ADDR,
 				(unsigned long)&env_new,
@@ -86,7 +80,7 @@ int saveenv(void)
  */
 int env_init(void)
 {
-	ulong crc, len, new;
+	ulong crc, len = ENV_SIZE, new = 0;
 	unsigned off;
 	uchar buf[64];
 
@@ -99,25 +93,23 @@ int env_init(void)
 	read_dataflash(CONFIG_ENV_ADDR + offsetof(env_t, crc),
 		sizeof(ulong), (char *)&crc);
 
-	new = 0;
-	len = ENV_SIZE;
-	off = offsetof(env_t,data);
+	off = offsetof(env_t, data);
 	while (len > 0) {
 		int n = (len > sizeof(buf)) ? sizeof(buf) : len;
 
 		read_dataflash(CONFIG_ENV_ADDR + off, n, (char *)buf);
 
-		new = crc32 (new, buf, n);
+		new = crc32(new, buf, n);
 		len -= n;
 		off += n;
 	}
 
 	if (crc == new) {
-		gd->env_addr  = offsetof(env_t,data);
-		gd->env_valid = 1;
+		gd->env_addr	= offsetof(env_t, data);
+		gd->env_valid	= 1;
 	} else {
-		gd->env_addr  = (ulong)&default_environment[0];
-		gd->env_valid = 0;
+		gd->env_addr	= (ulong)&default_environment[0];
+		gd->env_valid	= 0;
 	}
 
 	return 0;
