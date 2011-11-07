@@ -35,6 +35,11 @@ COBJS-$(CONFIG_SOC_DM644X)	+= dm644x.o
 COBJS-$(CONFIG_SOC_DM646X)	+= dm646x.o
 COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= lxt972.o dp83848.o et1011c.o ksz8873.o
 
+ifdef CONFIG_SPL_BUILD
+COBJS-y	+= spl.o
+COBJS-y	+= dm365_lowlevel.o
+endif
+
 SOBJS	= reset.o
 
 ifndef CONFIG_SKIP_LOWLEVEL_INIT

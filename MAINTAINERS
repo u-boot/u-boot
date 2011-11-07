@@ -421,6 +421,7 @@ Georg Schardt <schardt@team-ctech.de>
 
 Heiko Schocher <hs@denx.de>
 
+	cam_enc_4xx	davinci/ARM926EJS
 	charon		MPC5200
 	ids8247		MPC8247
 	jupiter		MPC5200
@@ -560,6 +561,7 @@ Albert ARIBAUD <albert.u.boot@aribaud.net>
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
+	flea3		i.MX35
 	mx35pdk		i.MX35
 	mx51evk		i.MX51
 	polaris		xscale/pxa
@@ -666,6 +668,10 @@ Grazvydas Ignotas <notasas@gmail.com>
 
 	omap3_pandora	ARM ARMV7 (OMAP3xx SoC)
 
+Michael Jones <michael.jones@matrix-vision.de>
+
+	omap3_mvblx	ARM ARMV7 (OMAP3xx SoC)
+
 Matthias Kaehlcke <matthias@kaehlcke.net>
 	edb9301			ARM920T (EP9301)
 	edb9302			ARM920T (EP9302)
@@ -756,6 +762,10 @@ Sandeep Paulraj <s-paulraj@ti.com>
 	davinci_dm355leopard	ARM926EJS
 	davinci_dm365evm	ARM926EJS
 	davinci_dm6467evm	ARM926EJS
+
+Helmut Raiger <helmut.raiger@hale.at>
+
+	tt01		i.MX31
 
 Linus Walleij <linus.walleij@linaro.org>
 	integratorap	various

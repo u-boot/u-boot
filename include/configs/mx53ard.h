@@ -34,7 +34,6 @@
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
-#define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
@@ -90,7 +89,7 @@
 
 #define CONFIG_BOOTDELAY	3
 
-#define CONFIG_PRIME	"smc911x"
+#define CONFIG_ETHPRIME		"smc911x"
 
 /*Support LAN9217*/
 #define CONFIG_SMC911X

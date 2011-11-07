@@ -37,6 +37,9 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+/* Mach Type */
+#define CONFIG_MACH_TYPE		MACH_TYPE_SMDKV310
+
 /* Keep L2 Cache Disabled */
 #define CONFIG_L2_OFF			1
 
@@ -87,7 +90,10 @@
 
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_MMC_U_BOOT
+
+/* MMC SPL */
+#define CONFIG_SPL
+#define COPY_BL2_FNPTR_ADDR	0x00002488
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
 

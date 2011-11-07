@@ -53,6 +53,11 @@ unsigned int	emac_dbg = 0;
 #define emac_gigabit_enable(phy_addr)	/* no gigabit to enable */
 #endif
 
+#if !defined(CONFIG_SYS_EMAC_TI_CLKDIV)
+#define CONFIG_SYS_EMAC_TI_CLKDIV	((EMAC_MDIO_BUS_FREQ / \
+		EMAC_MDIO_CLOCK_FREQ) - 1)
+#endif
+
 static void davinci_eth_mdio_enable(void);
 
 static int gen_init_phy(int phy_addr);
@@ -131,7 +136,7 @@ static void davinci_eth_mdio_enable(void)
 {
 	u_int32_t	clkdiv;
 
-	clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
+	clkdiv = CONFIG_SYS_EMAC_TI_CLKDIV;
 
 	writel((clkdiv & 0xff) |
 	       MDIO_CONTROL_ENABLE |
@@ -473,7 +478,7 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 #endif
 
 	/* Init MDIO & get link state */
-	clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
+	clkdiv = CONFIG_SYS_EMAC_TI_CLKDIV;
 	writel((clkdiv & 0xff) | MDIO_CONTROL_ENABLE | MDIO_CONTROL_FAULT,
 	       &adap_mdio->CONTROL);
 
@@ -809,7 +814,7 @@ int davinci_emac_initialize(void)
 			phy[i].auto_negotiate = gen_auto_negotiate;
 		}
 
-		debug("Ethernet PHY: %s\n", phy.name);
+		debug("Ethernet PHY: %s\n", phy[i].name);
 
 		miiphy_register(phy[i].name, davinci_mii_phy_read,
 						davinci_mii_phy_write);

@@ -26,6 +26,10 @@
 #include "davinci.h"
 #include <asm/arch/hardware.h>
 
+#if !defined(CONFIG_DV_USBPHY_CTL)
+#define CONFIG_DV_USBPHY_CTL (USBPHY_SESNDEN | USBPHY_VBDTCTEN)
+#endif
+
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {
 	.regs		= (struct musb_regs *)MENTOR_USB0_BASE,
@@ -50,7 +54,7 @@ static u8 phy_on(void)
 	writel(USBPHY_PHY24MHZ | USBPHY_SESNDEN |
 			USBPHY_VBDTCTEN, USBPHY_CTL_PADDR);
 #else
-	writel(USBPHY_SESNDEN | USBPHY_VBDTCTEN, USBPHY_CTL_PADDR);
+	writel(CONFIG_DV_USBPHY_CTL, USBPHY_CTL_PADDR);
 #endif
 	timeout = musb_cfg.timeout;
 
@@ -78,6 +82,17 @@ static void phy_off(void)
 	writel(USBPHY_OSCPDWN | USBPHY_PHYPDWN, USBPHY_CTL_PADDR);
 }
 
+void __enable_vbus(void)
+{
+	/*
+	 *  nothing to do, vbus is handled through the cpu.
+	 *  Define this function in board code, if it is
+	 *  different on your board.
+	 */
+}
+void  enable_vbus(void)
+	__attribute__((weak, alias("__enable_vbus")));
+
 /*
  * This function performs Davinci platform specific initialization for usb0.
  */
@@ -86,9 +101,8 @@ int musb_platform_init(void)
 	u32  revision;
 
 	/* enable USB VBUS */
-#ifndef DAVINCI_DM365EVM
 	enable_vbus();
-#endif
+
 	/* start the on-chip USB phy and its pll */
 	if (!phy_on())
 		return -1;

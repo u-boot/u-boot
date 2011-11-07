@@ -38,19 +38,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static u32 system_rev;
-
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
 	{MMC_SDHC1_BASE_ADDR, 1},
 	{MMC_SDHC2_BASE_ADDR, 1},
 };
 #endif
-
-u32 get_board_rev(void)
-{
-	return system_rev;
-}
 
 int dram_init(void)
 {
@@ -254,15 +247,13 @@ static void power_init(void)
 	pmic_reg_write(p, REG_MODE_1, val);
 	udelay(200);
 
-	gpio_direction_output(46, 0);
-
-	/* Reset the ethernet controller over GPIO */
-	writel(0x1, IOMUXC_BASE_ADDR + 0x0AC);
-
 	/* Enable VGEN3, VCAM, VAUDIO, VVIDEO, VSD regulators */
 	val = VGEN3EN | VGEN3CONFIG | VCAMEN | VCAMCONFIG |
 		VVIDEOEN | VAUDIOEN  | VSDEN;
 	pmic_reg_write(p, REG_MODE_1, val);
+
+	mxc_request_iomux(MX51_PIN_EIM_A20, IOMUX_CONFIG_ALT1);
+	gpio_direction_output(46, 0);
 
 	udelay(500);
 
@@ -406,8 +397,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	system_rev = get_cpu_rev();
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 

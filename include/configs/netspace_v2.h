@@ -60,11 +60,16 @@
  */
 #define CONFIG_SYS_TCLK			166000000 /* 166MHz */
 
+#define CONFIG_NR_DRAM_BANKS		1
+#ifdef CONFIG_INETSPACE_V2
+/* Different SDRAM configuration and size for Internet Space v2 */
+#define CONFIG_SYS_KWD_CONFIG ($(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg)
+#endif
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
-#define CONFIG_NR_DRAM_BANKS		2
 #include "mv-common.h"
 
 /* Remove or override few declarations from mv-common.h */
@@ -101,6 +106,17 @@
  * Enable GPI0 support
  */
 #define CONFIG_KIRKWOOD_GPIO
+
+/*
+ * Enable I2C support
+ */
+#ifdef CONFIG_CMD_I2C
+/* I2C EEPROM HT24LC04 (512B - 32 pages of 16 Bytes) */
+#define CONFIG_CMD_EEPROM
+#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4 /* 16-byte page size */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1 /* 8-bit device address */
+#endif /* CONFIG_CMD_I2C */
 
 /*
  * File systems support

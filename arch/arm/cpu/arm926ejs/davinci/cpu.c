@@ -146,13 +146,15 @@ static inline unsigned pll_prediv(volatile void *pllbase)
 		return 8;
 	else
 		return pll_div(pllbase, PLLC_PREDIV);
+#elif defined(CONFIG_SOC_DM365)
+	return pll_div(pllbase, PLLC_PREDIV);
 #endif
 	return 1;
 }
 
 static inline unsigned pll_postdiv(volatile void *pllbase)
 {
-#ifdef CONFIG_SOC_DM355
+#if defined(CONFIG_SOC_DM355) || defined(CONFIG_SOC_DM365)
 	return pll_div(pllbase, PLLC_POSTDIV);
 #elif defined(CONFIG_SOC_DM6446)
 	if (pllbase == (volatile void *)DAVINCI_PLL_CNTRL0_BASE)
@@ -171,9 +173,13 @@ static unsigned pll_sysclk_mhz(unsigned pll_addr, unsigned div)
 #endif
 
 	/* the PLL might be bypassed */
-	if (REG(pllbase + PLLC_PLLCTL) & BIT(0)) {
+	if (readl(pllbase + PLLC_PLLCTL) & BIT(0)) {
 		base /= pll_prediv(pllbase);
+#if defined(CONFIG_SOC_DM365)
+		base *=  2 * (readl(pllbase + PLLC_PLLM) & 0x0ff);
+#else
 		base *= 1 + (REG(pllbase + PLLC_PLLM) & 0x0ff);
+#endif
 		base /= pll_postdiv(pllbase);
 	}
 	return DIV_ROUND_UP(base, 1000 * pll_div(pllbase, div));
@@ -184,8 +190,13 @@ int print_cpuinfo(void)
 	/* REVISIT fetch and display CPU ID and revision information
 	 * too ... that will matter as more revisions appear.
 	 */
+#if defined(CONFIG_SOC_DM365)
+	printf("Cores: ARM %d MHz",
+			pll_sysclk_mhz(DAVINCI_PLL_CNTRL1_BASE, ARM_PLLDIV));
+#else
 	printf("Cores: ARM %d MHz",
 			pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, ARM_PLLDIV));
+#endif
 
 #ifdef DSP_PLLDIV
 	printf(", DSP %d MHz",
@@ -194,8 +205,13 @@ int print_cpuinfo(void)
 
 	printf("\nDDR:   %d MHz\n",
 			/* DDR PHY uses an x2 input clock */
+#if defined(CONFIG_SOC_DM365)
+			pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, DDR_PLLDIV)
+				/ 2);
+#else
 			pll_sysclk_mhz(DAVINCI_PLL_CNTRL1_BASE, DDR_PLLDIV)
 				/ 2);
+#endif
 	return 0;
 }
 
@@ -203,6 +219,13 @@ int print_cpuinfo(void)
 unsigned int davinci_arm_clk_get()
 {
 	return pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, ARM_PLLDIV) * 1000000;
+}
+#endif
+
+#if defined(CONFIG_SOC_DM365)
+unsigned int davinci_clk_get(unsigned int div)
+{
+	return pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, div) * 1000000;
 }
 #endif
 #endif /* CONFIG_DISPLAY_CPUINFO */

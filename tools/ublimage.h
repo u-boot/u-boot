@@ -66,7 +66,7 @@ enum ublimage_fld_types {
 #define UBL_IMAGE_SIZE              (0x00003800u)
 
 /* one NAND block */
-#define UBL_BLOCK_SIZE 512
+#define UBL_BLOCK_SIZE 2048
 
 /* from sprufg5a.pdf Table 109 */
 struct ubl_header {

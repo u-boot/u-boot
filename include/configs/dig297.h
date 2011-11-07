@@ -32,6 +32,14 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <asm/mach-types.h>
+#ifdef MACH_TYPE_OMAP3_CPS
+#error "MACH_TYPE_OMAP3_CPS has been defined properly, please remove this."
+#else
+#define MACH_TYPE_OMAP3_CPS 2751
+#endif
+#define CONFIG_MACH_TYPE MACH_TYPE_OMAP3_CPS
+
 /*
  * High Level Configuration Options
  */

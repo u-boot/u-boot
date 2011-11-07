@@ -120,12 +120,6 @@ int board_early_init_f(void)
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_STP, MUX_CTL_FUNC));
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_DATA0, MUX_CTL_FUNC));
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_DATA1, MUX_CTL_FUNC));
-	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_STXD3, MUX_CTL_FUNC));
-	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SRXD3, MUX_CTL_FUNC));
-	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SCK3, MUX_CTL_FUNC));
-	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SFS3, MUX_CTL_FUNC));
-	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_STXD6, MUX_CTL_FUNC));
-	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SRXD6, MUX_CTL_FUNC));
 
 #define H2_PAD_CFG (PAD_CTL_DRV_MAX | PAD_CTL_SRE_FAST | PAD_CTL_HYS_CMOS | \
 			PAD_CTL_ODE_CMOS | PAD_CTL_100K_PU)
@@ -143,7 +137,7 @@ int board_early_init_f(void)
 	mx31_set_pad(MX31_PIN_SRXD3, H2_PAD_CFG);	/* USBH2_DATA6 */
 	mx31_set_pad(MX31_PIN_STXD3, H2_PAD_CFG);	/* USBH2_DATA7 */
 
-	writel(readl((IOMUXC_BASE + 0x8)) | (1 << 11), IOMUXC_BASE + 0x8);
+	mx31_set_gpr(MUX_PGP_UH2, 1);
 
 	return 0;
 

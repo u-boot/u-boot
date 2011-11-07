@@ -41,12 +41,11 @@
  * increase in the final file size: 144260 vs. 109536 Bytes.
  */
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_REVISION_TAG		1
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
 
-#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_LIBFDT
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX51_BABBAGE
 /*
@@ -79,6 +78,7 @@
 #define CONFIG_FSL_PMIC_CLK	2500000
 #define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 #define CONFIG_FSL_PMIC_BITLEN	32
+#define CONFIG_RTC_MC13XXX
 
 /*
  * MMC Configs
@@ -124,9 +124,11 @@
 
 #undef CONFIG_CMD_IMLS
 
+#define CONFIG_CMD_DATE
+
 #define CONFIG_BOOTDELAY	3
 
-#define CONFIG_PRIME	"FEC0"
+#define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_LOADADDR		0x90800000	/* loadaddr env var */
 

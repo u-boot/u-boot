@@ -30,6 +30,9 @@ ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_SPL_NAND_SIMPLE
 COBJS-y += nand_spl_simple.o
 endif
+ifdef CONFIG_SPL_NAND_LOAD
+COBJS-y	+= nand_spl_load.o
+endif
 else
 COBJS-y += nand.o
 COBJS-y += nand_bbt.o

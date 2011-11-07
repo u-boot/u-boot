@@ -56,6 +56,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_DMA_3PTC1_BASE			(0x01c10400)
 #define DAVINCI_UART0_BASE			(0x01c20000)
 #define DAVINCI_UART1_BASE			(0x01c20400)
+#define DAVINCI_TIMER3_BASE			(0x01c20800)
 #define DAVINCI_I2C_BASE			(0x01c21000)
 #define DAVINCI_TIMER0_BASE			(0x01c21400)
 #define DAVINCI_TIMER1_BASE			(0x01c21800)
@@ -63,6 +64,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_PWM0_BASE			(0x01c22000)
 #define DAVINCI_PWM1_BASE			(0x01c22400)
 #define DAVINCI_PWM2_BASE			(0x01c22800)
+#define DAVINCI_TIMER4_BASE			(0x01c23800)
 #define DAVINCI_SYSTEM_MODULE_BASE		(0x01c40000)
 #define DAVINCI_PLL_CNTRL0_BASE			(0x01c40800)
 #define DAVINCI_PLL_CNTRL1_BASE			(0x01c40c00)
@@ -108,6 +110,9 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_MMC_SD1_BASE			0x01d00000
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x01d10000
 #define DAVINCI_MMC_SD0_BASE			0x01d11000
+#define DAVINCI_DDR_EMIF_CTRL_BASE		0x20000000
+#define DAVINCI_SPI0_BASE			0x01c66000
+#define DAVINCI_SPI1_BASE			0x01c66800
 
 #elif defined(CONFIG_SOC_DM646X)
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x20008000
@@ -157,6 +162,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_DDR_EMIF_DATA_BASE		0xc0000000
 #define DAVINCI_INTC_BASE			0xfffee000
 #define DAVINCI_BOOTCFG_BASE			0x01c14000
+#define DAVINCI_LCD_CNTL_BASE			0x01e13000
 #define DAVINCI_L3CBARAM_BASE			0x80000000
 #define JTAG_ID_REG                            (DAVINCI_BOOTCFG_BASE + 0x18)
 #define CHIP_REV_ID_REG				(DAVINCI_BOOTCFG_BASE + 0x24)
@@ -171,6 +177,10 @@ typedef volatile unsigned int *	dv_reg_p;
 #define GPIO_BANK2_REG_OPDATA_ADDR		(DAVINCI_GPIO_BASE + 0x3c)
 #define GPIO_BANK2_REG_SET_ADDR			(DAVINCI_GPIO_BASE + 0x40)
 #define GPIO_BANK2_REG_CLR_ADDR			(DAVINCI_GPIO_BASE + 0x44)
+#define GPIO_BANK6_REG_DIR_ADDR			(DAVINCI_GPIO_BASE + 0x88)
+#define GPIO_BANK6_REG_OPDATA_ADDR		(DAVINCI_GPIO_BASE + 0x8c)
+#define GPIO_BANK6_REG_SET_ADDR			(DAVINCI_GPIO_BASE + 0x90)
+#define GPIO_BANK6_REG_CLR_ADDR			(DAVINCI_GPIO_BASE + 0x94)
 #endif /* CONFIG_SOC_DA8XX */
 
 /* Power and Sleep Controller (PSC) Domains */
@@ -292,6 +302,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #endif /* CONFIG_SOC_DA8XX */
 
 void lpsc_on(unsigned int id);
+void lpsc_syncreset(unsigned int id);
 void dsp_on(void);
 
 void davinci_enable_uart0(void);
@@ -358,6 +369,7 @@ struct davinci_psc_regs {
 #endif /* CONFIG_SOC_DA8XX */
 
 #define PSC_MDSTAT_STATE		0x3f
+#define PSC_MDCTL_NEXT			0x07
 
 #ifndef CONFIG_SOC_DA8XX
 
@@ -434,7 +446,8 @@ struct davinci_syscfg_regs {
 	dv_reg	rsvd[13];
 	dv_reg	kick0;
 	dv_reg	kick1;
-	dv_reg	rsvd1[56];
+	dv_reg	rsvd1[53];
+	dv_reg	mstpri[3];
 	dv_reg	pinmux[20];
 	dv_reg	suspsrc;
 	dv_reg	chipsig;
@@ -454,7 +467,7 @@ struct davinci_syscfg_regs {
 #define DAVINCI_SYSCFG_SUSPSRC_I2C		(1 << 16)
 #define DAVINCI_SYSCFG_SUSPSRC_SPI0		(1 << 21)
 #define DAVINCI_SYSCFG_SUSPSRC_SPI1		(1 << 22)
-#define DAVINCI_SYSCFG_SUSPSRC_UART2		(1 << 20)
+#define DAVINCI_SYSCFG_SUSPSRC_UART0		(1 << 18)
 #define DAVINCI_SYSCFG_SUSPSRC_TIMER0		(1 << 27)
 
 struct davinci_syscfg1_regs {
@@ -541,4 +554,14 @@ static inline int get_async3_src(void)
 
 #endif /* CONFIG_SOC_DA8XX */
 
+#if defined(CONFIG_SOC_DM365)
+#include <asm/arch/aintc_defs.h>
+#include <asm/arch/ddr2_defs.h>
+#include <asm/arch/emif_defs.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/pll_defs.h>
+#include <asm/arch/psc_defs.h>
+#include <asm/arch/syscfg_defs.h>
+#include <asm/arch/timer_defs.h>
+#endif
 #endif /* __ASM_ARCH_HARDWARE_H */

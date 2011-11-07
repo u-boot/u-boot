@@ -243,4 +243,23 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - GENERATED_GBL_DATA_SIZE)
 
+#define CONFIG_SYS_CACHELINE_SIZE       32
+
+#include <asm/arch/gpio.h>
+/*
+ * I2C Settings
+ */
+#define CONFIG_SOFT_I2C_GPIO_SCL s5pc210_gpio_part1_get_nr(b, 7)
+#define CONFIG_SOFT_I2C_GPIO_SDA s5pc210_gpio_part1_get_nr(b, 6)
+
+#define CONFIG_SOFT_I2C
+#define CONFIG_SOFT_I2C_READ_REPEATED_START
+#define CONFIG_SYS_I2C_SPEED	50000
+#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_SYS_MAX_I2C_BUS	7
+
+#define CONFIG_PMIC
+#define CONFIG_PMIC_I2C
+#define CONFIG_PMIC_MAX8998
+
 #endif	/* __CONFIG_H */

@@ -876,7 +876,7 @@ The following options need to be configured:
 
 		CONFIG_RTC_MPC8xx	- use internal RTC of MPC8xx
 		CONFIG_RTC_PCF8563	- use Philips PCF8563 RTC
-		CONFIG_RTC_MC13783	- use MC13783 RTC
+		CONFIG_RTC_MC13XXX	- use MC13783 or MC13892 RTC
 		CONFIG_RTC_MC146818	- use MC146818 RTC
 		CONFIG_RTC_DS1307	- use Maxim, Inc. DS1307 RTC
 		CONFIG_RTC_DS1337	- use Maxim, Inc. DS1337 RTC
@@ -1904,7 +1904,7 @@ The following options need to be configured:
 		CONFIG_MXC_SPI
 
 		Enables the driver for the SPI controllers on i.MX and MXC
-		SoCs. Currently only i.MX31 is supported.
+		SoCs. Currently i.MX31/35/51 are supported.
 
 - FPGA Support: CONFIG_FPGA
 
@@ -3256,6 +3256,11 @@ Low Level (hardware related) configuration options:
 		Modifies the behaviour of start.S when compiling a loader
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.
+
+- CONFIG_SYS_NAND_HW_ECC_OOBFIRST
+		define this, if you want to read first the oob data
+		and then the data. This is used for example on
+		davinci plattforms.
 
 - CONFIG_USE_ARCH_MEMCPY
   CONFIG_USE_ARCH_MEMSET

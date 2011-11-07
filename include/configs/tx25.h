@@ -34,6 +34,12 @@
 /* NAND BOOT is the only boot method */
 #define CONFIG_NAND_U_BOOT
 
+#ifndef MACH_TYPE_TX25
+#define MACH_TYPE_TX25	2177
+#endif
+
+#define CONFIG_MACH_TYPE MACH_TYPE_TX25
+
 #ifdef CONFIG_NAND_SPL
 /* Start copying real U-boot from the second page */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x800

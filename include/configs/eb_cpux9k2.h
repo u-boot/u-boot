@@ -41,6 +41,8 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_EARLY_INIT_F
 
+#define MACH_TYPE_EB_CPUX9K2		1977
+#define CONFIG_MACH_TYPE		MACH_TYPE_EB_CPUX9K2
 /*--------------------------------------------------------------------------*/
 #define CONFIG_SYS_TEXT_BASE 		0x00000000
 #define CONFIG_SYS_LOAD_ADDR		0x21000000  /* default load address */

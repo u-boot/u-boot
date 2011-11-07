@@ -29,10 +29,7 @@
 #if defined(CONFIG_PMIC_SPI)
 static u32 pmic_spi_prepare_tx(u32 reg, u32 *val, u32 write)
 {
-	if ((val == NULL) && (write))
-		return *val & ~(1 << 31);
-	else
-		return (write << 31) | (reg << 25) | (*val & 0x00FFFFFF);
+	return (write << 31) | (reg << 25) | (*val & 0x00FFFFFF);
 }
 #endif
 

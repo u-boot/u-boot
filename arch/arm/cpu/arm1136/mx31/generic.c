@@ -27,6 +27,8 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 
+#define IOMUXGPR	(IOMUXC_BASE + 0x008)
+
 static u32 mx31_decode_pll(u32 reg, u32 infreq)
 {
 	u32 mfi = GET_PLL_MFI(reg);
@@ -139,6 +141,19 @@ void mx31_set_pad(enum iomux_pins pin, u32 config)
 	l |= config << (field * 10);
 	writel(l, reg);
 
+}
+
+void mx31_set_gpr(enum iomux_gp_func gp, char en)
+{
+	u32 l;
+
+	l = readl(IOMUXGPR);
+	if (en)
+		l |= gp;
+	else
+		l &= ~gp;
+
+	writel(l, IOMUXGPR);
 }
 
 void mxc_setup_weimcs(int cs, const struct mxc_weimcs *weimcs)

@@ -36,6 +36,9 @@
 #ifndef _CONFIG_KM_ARM_H
 #define _CONFIG_KM_ARM_H
 
+/* We got removed from Linux mach-types.h */
+#define MACH_TYPE_KM_KIRKWOOD          2255
+
 /*
  * High Level Configuration Options (easy to change)
  */
@@ -44,6 +47,8 @@
 #define CONFIG_KIRKWOOD			/* SOC Family Name */
 #define CONFIG_KW88F6281		/* SOC Name */
 #define CONFIG_MACH_KM_KIRKWOOD		/* Machine type */
+
+#define CONFIG_MACH_TYPE	MACH_TYPE_KM_KIRKWOOD
 
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
@@ -69,7 +74,8 @@
 
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
-		"bootcountaddr=${bootcountaddr} ${mtdparts}"
+		"bootcountaddr=${bootcountaddr} ${mtdparts}"		\
+		" boardid=0x${IVM_BoardId} hwkey=0x${IVM_HWKey}"
 
 #define CONFIG_KM_DEF_ENV_CPU						\
 	"boot=bootm ${load_addr_r} - -\0"				\
@@ -254,7 +260,6 @@ int get_scl(void);
 #if defined(CONFIG_SYS_NO_FLASH)
 #define CONFIG_KM_UBI_PARTITION_NAME   "ubi0"
 #undef	CONFIG_FLASH_CFI_MTD
-#undef	CONFIG_CMD_JFFS2
 #undef	CONFIG_JFFS2_CMDLINE
 #endif
 
