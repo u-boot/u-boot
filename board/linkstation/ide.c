@@ -62,14 +62,16 @@ int ide_preinit (void)
 							   &ide_bus_offset32);
 		ide_bus_offset[0] = ide_bus_offset32 & 0xfffffffe;
 		ide_bus_offset[0] = pci_hose_bus_to_phys(&hose,
-							 ide_bus_offset[0] & 0xfffffffe,
-							 PCI_REGION_IO);
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_2,
-				      (u32 *) &ide_bus_offset[1]);
-		ide_bus_offset[1] &= 0xfffffffe;
-		ide_bus_offset[1] = pci_hose_bus_to_phys(&hose,
-							 ide_bus_offset[1] & 0xfffffffe,
-							 PCI_REGION_IO);
+						ide_bus_offset[0] & 0xfffffffe,
+						PCI_REGION_IO);
+		if (CONFIG_SYS_IDE_MAXBUS > 1) {
+			pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_2,
+					      (u32 *) &ide_bus_offset[1]);
+			ide_bus_offset[1] &= 0xfffffffe;
+			ide_bus_offset[1] = pci_hose_bus_to_phys(&hose,
+						ide_bus_offset[1] & 0xfffffffe,
+						PCI_REGION_IO);
+		}
 	}
 
 	if (pci_find_device (PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_8212, 0) != -1) {
