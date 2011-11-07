@@ -38,21 +38,22 @@
  */
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
-# ifndef  CONFIG_ENV_ADDR
-#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
+# ifndef	CONFIG_ENV_ADDR
+#  define	CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CONFIG_ENV_OFFSET
-#  define CONFIG_ENV_OFFSET (CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
+# ifndef	CONFIG_ENV_OFFSET
+#  define	CONFIG_ENV_OFFSET (CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
 # endif
 # if !defined(CONFIG_ENV_ADDR_REDUND) && defined(CONFIG_ENV_OFFSET_REDUND)
-#  define CONFIG_ENV_ADDR_REDUND	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET_REDUND)
+#  define	CONFIG_ENV_ADDR_REDUND	\
+		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET_REDUND)
 # endif
 # if defined(CONFIG_ENV_SECT_SIZE) || defined(CONFIG_ENV_SIZE)
-#  ifndef  CONFIG_ENV_SECT_SIZE
-#   define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
+#  ifndef	CONFIG_ENV_SECT_SIZE
+#   define	CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #  endif
-#  ifndef  CONFIG_ENV_SIZE
-#   define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
+#  ifndef	CONFIG_ENV_SIZE
+#   define	CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 #  endif
 # else
 #  error "Both CONFIG_ENV_SECT_SIZE and CONFIG_ENV_SIZE undefined"
@@ -60,8 +61,9 @@
 # if defined(CONFIG_ENV_ADDR_REDUND) && !defined(CONFIG_ENV_SIZE_REDUND)
 #  define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 # endif
-# if (CONFIG_ENV_ADDR >= CONFIG_SYS_MONITOR_BASE) && \
-     (CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) <= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+# if	(CONFIG_ENV_ADDR >= CONFIG_SYS_MONITOR_BASE) &&		\
+	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE) <=			\
+	(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #  define ENV_IS_EMBEDDED	1
 # endif
 # if defined(CONFIG_ENV_ADDR_REDUND) || defined(CONFIG_ENV_OFFSET_REDUND)
@@ -105,10 +107,10 @@ extern unsigned long nand_env_oob_offset;
 
 /* Embedded env is only supported for some flash types */
 #ifdef CONFIG_ENV_IS_EMBEDDED
-# if !defined(CONFIG_ENV_IS_IN_FLASH) && \
-     !defined(CONFIG_ENV_IS_IN_NAND) && \
-     !defined(CONFIG_ENV_IS_IN_ONENAND) && \
-     !defined(CONFIG_ENV_IS_IN_SPI_FLASH)
+# if	!defined(CONFIG_ENV_IS_IN_FLASH)	&& \
+	!defined(CONFIG_ENV_IS_IN_NAND)		&& \
+	!defined(CONFIG_ENV_IS_IN_ONENAND)	&& \
+	!defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #  error "CONFIG_ENV_IS_EMBEDDED not supported for your flash type"
 # endif
 #endif
@@ -144,7 +146,7 @@ extern unsigned long nand_env_oob_offset;
 
 #define ENV_SIZE (CONFIG_ENV_SIZE - ENV_HEADER_SIZE)
 
-typedef	struct environment_s {
+typedef struct environment_s {
 	uint32_t	crc;		/* CRC32 over data bytes	*/
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 	unsigned char	flags;		/* active/obsolete flags	*/
@@ -159,14 +161,14 @@ typedef	struct environment_s {
 extern struct hsearch_data env_htab;
 
 /* Function that returns a character from the environment */
-unsigned char env_get_char (int);
+unsigned char env_get_char(int);
 
 /* Function that returns a pointer to a value from the environment */
 const unsigned char *env_get_addr(int);
-unsigned char env_get_char_memory (int index);
+unsigned char env_get_char_memory(int index);
 
 /* Function that updates CRC of the enironment */
-void env_crc_update (void);
+void env_crc_update(void);
 
 /* [re]set to the default environment */
 void set_default_env(const char *s);
@@ -174,6 +176,6 @@ void set_default_env(const char *s);
 /* Import from binary representation into hash table */
 int env_import(const char *buf, int check);
 
-#endif
+#endif /* DO_DEPS_ONLY */
 
-#endif	/* _ENVIRONMENT_H_ */
+#endif /* _ENVIRONMENT_H_ */
