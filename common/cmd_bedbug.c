@@ -15,7 +15,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern void show_regs __P ((struct pt_regs *));
 extern int run_command __P ((const char *, int));
-extern char console_buffer[];
 
 ulong dis_last_addr = 0;	/* Last address disassembled   */
 ulong dis_last_len = 20;	/* Default disassembler length */

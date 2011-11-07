@@ -423,7 +423,6 @@ int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_CMD_ASKENV)
 int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	extern char console_buffer[CONFIG_SYS_CBSIZE];
 	char message[CONFIG_SYS_CBSIZE];
 	int size = CONFIG_SYS_CBSIZE - 1;
 	int i, len, pos;

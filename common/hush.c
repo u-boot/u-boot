@@ -1000,7 +1000,6 @@ static void get_user_input(struct in_str *i)
 	fflush(stdout);
 	i->p = the_command;
 #else
-	extern char console_buffer[];
 	int n;
 	static char the_command[CONFIG_SYS_CBSIZE];
 

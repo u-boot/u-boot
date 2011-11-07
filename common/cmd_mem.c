@@ -977,7 +977,6 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 {
 	ulong	addr, i;
 	int	nbytes, size;
-	extern char console_buffer[];
 
 	if (argc != 2)
 		return cmd_usage(cmdtp);

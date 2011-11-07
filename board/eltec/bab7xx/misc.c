@@ -31,7 +31,6 @@
 #include "srom.h"
 
 /* imports  */
-extern char console_buffer[CONFIG_SYS_CBSIZE];
 extern int l2_cache_enable (int l2control);
 extern void *nvram_read (void *dest, const short src, size_t count);
 extern void nvram_write (short dest, const void *src, size_t count);

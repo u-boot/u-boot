@@ -68,7 +68,6 @@ int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	/* DCR's value */
 	int nbytes;
-	extern char console_buffer[];
 
 	/* Validate arguments */
 	if (argc < 2)

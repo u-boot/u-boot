@@ -272,6 +272,7 @@ void	reset_cmd_timeout(void);
 #ifdef CONFIG_MENU
 int	abortboot(int bootdelay);
 #endif
+extern char console_buffer[];
 
 /* arch/$(ARCH)/lib/board.c */
 void	board_init_f  (ulong) __attribute__ ((noreturn));

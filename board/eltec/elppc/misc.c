@@ -29,7 +29,6 @@
 #include "srom.h"
 
 /* imports  */
-extern char console_buffer[CONFIG_SYS_CBSIZE];
 extern int l2_cache_enable (int l2control);
 extern int eepro100_write_eeprom (struct eth_device *dev, int location,
 				  int addr_len, unsigned short data);

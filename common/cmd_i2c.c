@@ -449,7 +449,6 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 	ulong	data;
 	int	size = 1;
 	int	nbytes;
-	extern char console_buffer[];
 
 	if (argc != 3)
 		return cmd_usage(cmdtp);
