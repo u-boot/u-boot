@@ -42,6 +42,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	CONFIG_FEC_XCV_TYPE	MII100
 #endif
 
+/*
+ * The i.MX28 operates with packets in big endian. We need to swap them before
+ * sending and after receiving.
+ */
+#ifdef	CONFIG_MX28
+#define	CONFIG_FEC_MXC_SWAP_PACKET
+#endif
+
 #undef DEBUG
 
 struct nbuf {
@@ -51,6 +59,32 @@ struct nbuf {
 	uint8_t head[16];	/**< MAC header(6 + 6 + 2) + 2(aligned) */
 };
 
+#ifdef	CONFIG_FEC_MXC_SWAP_PACKET
+static void swap_packet(uint32_t *packet, int length)
+{
+	int i;
+
+	for (i = 0; i < DIV_ROUND_UP(length, 4); i++)
+		packet[i] = __swab32(packet[i]);
+}
+#endif
+
+/*
+ * The i.MX28 has two ethernet interfaces, but they are not equal.
+ * Only the first one can access the MDIO bus.
+ */
+#ifdef	CONFIG_MX28
+static inline struct ethernet_regs *fec_miiphy_fec_to_eth(struct fec_priv *fec)
+{
+	return (struct ethernet_regs *)MXS_ENET0_BASE;
+}
+#else
+static inline struct ethernet_regs *fec_miiphy_fec_to_eth(struct fec_priv *fec)
+{
+	return fec->eth;
+}
+#endif
+
 /*
  * MII-interface related functions
  */
@@ -59,7 +93,7 @@ static int fec_miiphy_read(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 {
 	struct eth_device *edev = eth_get_dev_by_name(dev);
 	struct fec_priv *fec = (struct fec_priv *)edev->priv;
-	struct ethernet_regs *eth = fec->eth;
+	struct ethernet_regs *eth = fec_miiphy_fec_to_eth(fec);
 
 	uint32_t reg;		/* convenient holder for the PHY register */
 	uint32_t phy;		/* convenient holder for the PHY */
@@ -117,7 +151,7 @@ static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 {
 	struct eth_device *edev = eth_get_dev_by_name(dev);
 	struct fec_priv *fec = (struct fec_priv *)edev->priv;
-	struct ethernet_regs *eth = fec->eth;
+	struct ethernet_regs *eth = fec_miiphy_fec_to_eth(fec);
 
 	uint32_t reg;		/* convenient holder for the PHY register */
 	uint32_t phy;		/* convenient holder for the PHY */
@@ -572,6 +606,9 @@ static int fec_send(struct eth_device *dev, volatile void* packet, int length)
 	 * Note: We are always using the first buffer for transmission,
 	 * the second will be empty and only used to stop the DMA engine
 	 */
+#ifdef	CONFIG_FEC_MXC_SWAP_PACKET
+	swap_packet((uint32_t *)packet, length);
+#endif
 	writew(length, &fec->tbd_base[fec->tbd_index].data_length);
 	writel((uint32_t)packet, &fec->tbd_base[fec->tbd_index].data_pointer);
 	/*
@@ -668,6 +705,9 @@ static int fec_recv(struct eth_device *dev)
 			/*
 			 *  Fill the buffer and pass it to upper layers
 			 */
+#ifdef	CONFIG_FEC_MXC_SWAP_PACKET
+			swap_packet((uint32_t *)frame->data, frame_length);
+#endif
 			memcpy(buff, frame->data, frame_length);
 			NetReceive(buff, frame_length);
 			len = frame_length;
