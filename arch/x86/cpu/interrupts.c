@@ -31,6 +31,7 @@
 #include <asm/interrupt.h>
 #include <asm/io.h>
 #include <asm/processor-flags.h>
+#include <linux/compiler.h>
 
 #define DECLARE_INTERRUPT(x) \
 	".globl irq_"#x"\n" \
@@ -83,22 +84,22 @@ static inline unsigned long get_debugreg(int regno)
 
 	switch (regno) {
 	case 0:
-		asm("mov %%db0, %0" :"=r" (val));
+		asm("mov %%db0, %0" : "=r" (val));
 		break;
 	case 1:
-		asm("mov %%db1, %0" :"=r" (val));
+		asm("mov %%db1, %0" : "=r" (val));
 		break;
 	case 2:
-		asm("mov %%db2, %0" :"=r" (val));
+		asm("mov %%db2, %0" : "=r" (val));
 		break;
 	case 3:
-		asm("mov %%db3, %0" :"=r" (val));
+		asm("mov %%db3, %0" : "=r" (val));
 		break;
 	case 6:
-		asm("mov %%db6, %0" :"=r" (val));
+		asm("mov %%db6, %0" : "=r" (val));
 		break;
 	case 7:
-		asm("mov %%db7, %0" :"=r" (val));
+		asm("mov %%db7, %0" : "=r" (val));
 		break;
 	default:
 		val = 0;
@@ -120,7 +121,8 @@ void dump_regs(struct irq_regs *regs)
 	printf("ESI: %08lx EDI: %08lx EBP: %08lx ESP: %08lx\n",
 		regs->esi, regs->edi, regs->ebp, regs->esp);
 	printf(" DS: %04x ES: %04x FS: %04x GS: %04x SS: %04x\n",
-	       (u16)regs->xds, (u16)regs->xes, (u16)regs->xfs, (u16)regs->xgs, (u16)regs->xss);
+	       (u16)regs->xds, (u16)regs->xes, (u16)regs->xfs,
+	       (u16)regs->xgs, (u16)regs->xss);
 
 	cr0 = read_cr0();
 	cr2 = read_cr2();
@@ -164,13 +166,13 @@ struct idt_entry {
 	u8	res;
 	u8	access;
 	u16	base_high;
-} __attribute__ ((packed));
+} __packed;
 
 struct desc_ptr {
 	unsigned short size;
 	unsigned long address;
 	unsigned short segment;
-} __attribute__((packed));
+} __packed;
 
 struct idt_entry idt[256];
 
@@ -178,7 +180,7 @@ struct desc_ptr idt_ptr;
 
 static inline void load_idt(const struct desc_ptr *dtr)
 {
-	asm volatile("cs lidt %0"::"m" (*dtr));
+	asm volatile("cs lidt %0" : : "m" (*dtr));
 }
 
 void set_vector(u8 intnum, void *routine)
@@ -187,6 +189,11 @@ void set_vector(u8 intnum, void *routine)
 	idt[intnum].base_low = (u16)((u32)(routine) & 0xffff);
 }
 
+/*
+ * Ideally these would be defined static to avoid a checkpatch warning, but
+ * the compiler cannot see them in the inline asm and complains that they
+ * aren't defined
+ */
 void irq_0(void);
 void irq_1(void);
 
@@ -201,7 +208,7 @@ int cpu_init_interrupts(void)
 	disable_interrupts();
 
 	/* Setup the IDT */
-	for (i=0;i<256;i++) {
+	for (i = 0; i < 256; i++) {
 		idt[i].access = 0x8e;
 		idt[i].res = 0;
 		idt[i].selector = 0x10;
@@ -238,7 +245,7 @@ int disable_interrupts(void)
 
 	asm volatile ("pushfl ; popl %0 ; cli\n" : "=g" (flags) : );
 
-	return flags & X86_EFLAGS_IF; /* IE flags is bit 9 */
+	return flags & X86_EFLAGS_IF;
 }
 
 /* IRQ Low-Level Service Routine */
