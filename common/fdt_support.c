@@ -49,8 +49,8 @@ DECLARE_GLOBAL_DATA_PTR;
  * Convenience function to find a node and return it's property or a
  * default value if it doesn't exist.
  */
-u32 fdt_getprop_u32_default(void *fdt, const char *path, const char *prop,
-				const u32 dflt)
+u32 fdt_getprop_u32_default(const void *fdt, const char *path,
+				const char *prop, const u32 dflt)
 {
 	const u32 *val;
 	int off;
