@@ -75,6 +75,7 @@
 #define	CONFIG_CMD_SETEXPR
 #define	CONFIG_CMD_SF
 #define	CONFIG_CMD_SPI
+#define	CONFIG_CMD_USB
 
 /*
  * Memory configurations
@@ -215,6 +216,17 @@
 #define	CONFIG_SYS_I2C_RTC_ADDR		0x68
 #define	CONFIG_SYS_M41T11_BASE_YEAR	2000
 #endif
+#endif
+
+/*
+ * USB
+ */
+#ifdef	CONFIG_CMD_USB
+#define	CONFIG_USB_EHCI
+#define	CONFIG_USB_EHCI_MXS
+#define	CONFIG_EHCI_MXS_PORT		1
+#define	CONFIG_EHCI_IS_TDI
+#define	CONFIG_USB_STORAGE
 #endif
 
 /*
