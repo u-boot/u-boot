@@ -31,6 +31,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 
@@ -133,6 +134,11 @@ int arch_cpu_init(void)
 		CLKCTRL_GPMI_CLKGATE | CLKCTRL_GPMI_DIV_MASK, 1);
 
 	udelay(1000);
+
+	/*
+	 * Configure GPIO unit
+	 */
+	mxs_gpio_init();
 
 	return 0;
 }
