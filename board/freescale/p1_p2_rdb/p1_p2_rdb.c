@@ -264,7 +264,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 
+#if defined(CONFIG_HAS_FSL_DR_USB)
 	fdt_fixup_dr_usb(blob, bd);
+#endif
 
 #if defined(CONFIG_SDCARD) || defined(CONFIG_SPIFLASH)
 	/* Delete eLBC node as it is muxed with USB2 controller */
