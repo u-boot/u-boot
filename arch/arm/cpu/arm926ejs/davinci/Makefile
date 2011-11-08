@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(SOC).o
 
 COBJS-y				+= cpu.o timer.o psc.o
-COBJS-$(CONFIG_AM18018_LOWLEVEL)       += am1808_lowlevel.o
+COBJS-$(CONFIG_DA850_LOWLEVEL)	+= da850_lowlevel.o
 COBJS-$(CONFIG_SOC_DM355)	+= dm355.o
 COBJS-$(CONFIG_SOC_DM365)	+= dm365.o
 COBJS-$(CONFIG_SOC_DM644X)	+= dm644x.o

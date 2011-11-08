@@ -1,5 +1,5 @@
 /*
- * SoC-specific lowlevel code for AM1808 and similar chips
+ * SoC-specific lowlevel code for DA850
  *
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
@@ -21,24 +21,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-#ifndef __AM1808_LOWLEVEL_H
-#define __AM1808_LOWLEVEL_H
+#ifndef __DA850_LOWLEVEL_H
+#define __DA850_LOWLEVEL_H
 
 /* NOR Boot Configuration Word Field Descriptions */
-#define AM1808_NORBOOT_COPY_XK(X)	((X - 1) << 8)
-#define AM1808_NORBOOT_METHOD_DIRECT	(1 << 4)
-#define AM1808_NORBOOT_16BIT		(1 << 0)
+#define DA850_NORBOOT_COPY_XK(X)	((X - 1) << 8)
+#define DA850_NORBOOT_METHOD_DIRECT	(1 << 4)
+#define DA850_NORBOOT_16BIT		(1 << 0)
 
 #define dv_maskbits(addr, val) \
 	writel((readl(addr) & val), addr)
 
-void am1808_waitloop(unsigned long loopcnt);
-int am1808_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult);
-void am1808_lpc_transition(unsigned char pscnum, unsigned char module,
+void da850_waitloop(unsigned long loopcnt);
+int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult);
+void da850_lpc_transition(unsigned char pscnum, unsigned char module,
 		unsigned char domain, unsigned char state);
-int am1808_ddr_setup(unsigned int freq);
-void am1808_psc_init(void);
-void am1808_pinmux_ctl(unsigned long offset, unsigned long mask,
+int da850_ddr_setup(unsigned int freq);
+void da850_psc_init(void);
+void da850_pinmux_ctl(unsigned long offset, unsigned long mask,
 	unsigned long value);
 
-#endif /* #ifndef __AM1808_LOWLEVEL_H */
+#endif /* #ifndef __DA850_LOWLEVEL_H */

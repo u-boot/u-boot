@@ -1,5 +1,5 @@
 /*
- * SoC-specific lowlevel code for AM1808 and similar chips
+ * SoC-specific lowlevel code for DA850
  *
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
@@ -25,12 +25,12 @@
 #include <nand.h>
 #include <ns16550.h>
 #include <post.h>
-#include <asm/arch/am1808_lowlevel.h>
+#include <asm/arch/da850_lowlevel.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/ddr2_defs.h>
 #include <asm/arch/emif_defs.h>
 
-void am1808_waitloop(unsigned long loopcnt)
+void da850_waitloop(unsigned long loopcnt)
 {
 	unsigned long	i;
 
@@ -38,7 +38,7 @@ void am1808_waitloop(unsigned long loopcnt)
 		asm("   NOP");
 }
 
-int am1808_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
+int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 {
 	if (reg == davinci_pllc0_regs)
 		/* Unlock PLL registers. */
@@ -55,7 +55,7 @@ int am1808_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 	/* Set PLLEN=0 => PLL BYPASS MODE */
 	clrbits_le32(&reg->pllctl, 0x00000001);
 
-	am1808_waitloop(150);
+	da850_waitloop(150);
 
 	if (reg == davinci_pllc0_regs) {
 		/*
@@ -87,10 +87,10 @@ int am1808_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 
 	/* program the postdiv */
 	if (reg == davinci_pllc0_regs)
-		writel((0x8000 | CONFIG_SYS_AM1808_PLL0_POSTDIV),
+		writel((0x8000 | CONFIG_SYS_DA850_PLL0_POSTDIV),
 			&reg->postdiv);
 	else
-		writel((0x8000 | CONFIG_SYS_AM1808_PLL1_POSTDIV),
+		writel((0x8000 | CONFIG_SYS_DA850_PLL1_POSTDIV),
 			&reg->postdiv);
 
 	/*
@@ -101,17 +101,17 @@ int am1808_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 		;
 
 	if (reg == davinci_pllc0_regs) {
-		writel(CONFIG_SYS_AM1808_PLL0_PLLDIV1, &reg->plldiv1);
-		writel(CONFIG_SYS_AM1808_PLL0_PLLDIV2, &reg->plldiv2);
-		writel(CONFIG_SYS_AM1808_PLL0_PLLDIV3, &reg->plldiv3);
-		writel(CONFIG_SYS_AM1808_PLL0_PLLDIV4, &reg->plldiv4);
-		writel(CONFIG_SYS_AM1808_PLL0_PLLDIV5, &reg->plldiv5);
-		writel(CONFIG_SYS_AM1808_PLL0_PLLDIV6, &reg->plldiv6);
-		writel(CONFIG_SYS_AM1808_PLL0_PLLDIV7, &reg->plldiv7);
+		writel(CONFIG_SYS_DA850_PLL0_PLLDIV1, &reg->plldiv1);
+		writel(CONFIG_SYS_DA850_PLL0_PLLDIV2, &reg->plldiv2);
+		writel(CONFIG_SYS_DA850_PLL0_PLLDIV3, &reg->plldiv3);
+		writel(CONFIG_SYS_DA850_PLL0_PLLDIV4, &reg->plldiv4);
+		writel(CONFIG_SYS_DA850_PLL0_PLLDIV5, &reg->plldiv5);
+		writel(CONFIG_SYS_DA850_PLL0_PLLDIV6, &reg->plldiv6);
+		writel(CONFIG_SYS_DA850_PLL0_PLLDIV7, &reg->plldiv7);
 	} else {
-		writel(CONFIG_SYS_AM1808_PLL1_PLLDIV1, &reg->plldiv1);
-		writel(CONFIG_SYS_AM1808_PLL1_PLLDIV2, &reg->plldiv2);
-		writel(CONFIG_SYS_AM1808_PLL1_PLLDIV3, &reg->plldiv3);
+		writel(CONFIG_SYS_DA850_PLL1_PLLDIV1, &reg->plldiv1);
+		writel(CONFIG_SYS_DA850_PLL1_PLLDIV2, &reg->plldiv2);
+		writel(CONFIG_SYS_DA850_PLL1_PLLDIV3, &reg->plldiv3);
 	}
 
 	/*
@@ -128,13 +128,13 @@ int am1808_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 		;
 
 	/* Wait for PLL to reset properly. See PLL spec for PLL reset time */
-	am1808_waitloop(200);
+	da850_waitloop(200);
 
 	/* Set the PLLRST bit in PLLCTL to 1 to bring the PLL out of reset */
 	setbits_le32(&reg->pllctl, 0x00000008);
 
 	/* Wait for PLL to lock. See PLL spec for PLL lock time */
-	am1808_waitloop(2400);
+	da850_waitloop(2400);
 
 	/*
 	 * Set the PLLEN bit in PLLCTL to 1 to remove the PLL from bypass
@@ -153,7 +153,7 @@ int am1808_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 	return 0;
 }
 
-void am1808_lpc_transition(unsigned char pscnum, unsigned char module,
+void da850_lpc_transition(unsigned char pscnum, unsigned char module,
 		unsigned char domain, unsigned char state)
 {
 	struct davinci_psc_regs	*reg;
@@ -190,12 +190,12 @@ void am1808_lpc_transition(unsigned char pscnum, unsigned char module,
 		;
 }
 
-int am1808_ddr_setup(unsigned int freq)
+int da850_ddr_setup(unsigned int freq)
 {
 	unsigned long	tmp;
 
 	/* Enable the Clock to DDR2/mDDR */
-	am1808_lpc_transition(1, 6, 0, PSC_ENABLE);
+	da850_lpc_transition(1, 6, 0, PSC_ENABLE);
 
 	tmp = readl(&davinci_syscfg1_regs->vtpio_ctl);
 	if ((tmp & VTP_POWERDWN) == VTP_POWERDWN) {
@@ -217,19 +217,19 @@ int am1808_ddr_setup(unsigned int freq)
 		setbits_le32(&davinci_syscfg1_regs->vtpio_ctl, VTP_IOPWRDWN);
 	}
 
-	writel(CONFIG_SYS_AM1808_DDR2_DDRPHYCR, &dv_ddr2_regs_ctrl->ddrphycr);
+	writel(CONFIG_SYS_DA850_DDR2_DDRPHYCR, &dv_ddr2_regs_ctrl->ddrphycr);
 	clrbits_le32(&davinci_syscfg1_regs->ddr_slew,
 		(1 << DDR_SLEW_CMOSEN_BIT));
 
 	setbits_le32(&dv_ddr2_regs_ctrl->sdbcr, DV_DDR_BOOTUNLOCK);
 
-	writel((CONFIG_SYS_AM1808_DDR2_SDBCR & ~0xf0000000) |
+	writel((CONFIG_SYS_DA850_DDR2_SDBCR & ~0xf0000000) |
 		(readl(&dv_ddr2_regs_ctrl->sdbcr) & 0xf0000000), /*rsv Bytes*/
 		&dv_ddr2_regs_ctrl->sdbcr);
-	writel(CONFIG_SYS_AM1808_DDR2_SDBCR2, &dv_ddr2_regs_ctrl->sdbcr2);
+	writel(CONFIG_SYS_DA850_DDR2_SDBCR2, &dv_ddr2_regs_ctrl->sdbcr2);
 
-	writel(CONFIG_SYS_AM1808_DDR2_SDTIMR, &dv_ddr2_regs_ctrl->sdtimr);
-	writel(CONFIG_SYS_AM1808_DDR2_SDTIMR2, &dv_ddr2_regs_ctrl->sdtimr2);
+	writel(CONFIG_SYS_DA850_DDR2_SDTIMR, &dv_ddr2_regs_ctrl->sdtimr);
+	writel(CONFIG_SYS_DA850_DDR2_SDTIMR2, &dv_ddr2_regs_ctrl->sdtimr2);
 
 	clrbits_le32(&dv_ddr2_regs_ctrl->sdbcr,
 		(1 << DV_DDR_SDCR_TIMUNLOCK_SHIFT));
@@ -238,15 +238,15 @@ int am1808_ddr_setup(unsigned int freq)
 	 * LPMODEN and MCLKSTOPEN must be set!
 	 * Without this bits set, PSC don;t switch states !!
 	 */
-	writel(CONFIG_SYS_AM1808_DDR2_SDRCR |
+	writel(CONFIG_SYS_DA850_DDR2_SDRCR |
 		(1 << DV_DDR_SRCR_LPMODEN_SHIFT) |
 		(1 << DV_DDR_SRCR_MCLKSTOPEN_SHIFT),
 		&dv_ddr2_regs_ctrl->sdrcr);
 
 	/* SyncReset the Clock to EMIF3A SDRAM */
-	am1808_lpc_transition(1, 6, 0, PSC_SYNCRESET);
+	da850_lpc_transition(1, 6, 0, PSC_SYNCRESET);
 	/* Enable the Clock to EMIF3A SDRAM */
-	am1808_lpc_transition(1, 6, 0, PSC_ENABLE);
+	da850_lpc_transition(1, 6, 0, PSC_ENABLE);
 
 	/* disable self refresh */
 	clrbits_le32(&dv_ddr2_regs_ctrl->sdrcr, 0xc0000000);
@@ -255,13 +255,13 @@ int am1808_ddr_setup(unsigned int freq)
 	return 0;
 }
 
-static void am1808_set_mdctl(dv_reg_p mdctl)
+static void da850_set_mdctl(dv_reg_p mdctl)
 {
 	if ((readl(mdctl) & 0x1F) != PSC_ENABLE)
 		writel(((readl(mdctl) & 0xFFFFFFE0) | PSC_ENABLE), mdctl);
 }
 
-void am1808_psc_init(void)
+void da850_psc_init(void)
 {
 	struct davinci_psc_regs	*reg;
 	int i;
@@ -272,10 +272,10 @@ void am1808_psc_init(void)
 		;
 
 	for (i = 3; i <= 4 ; i++)
-		am1808_set_mdctl(&reg->psc0.mdctl[i]);
+		da850_set_mdctl(&reg->psc0.mdctl[i]);
 
 	for (i = 7; i <= 12 ; i++)
-		am1808_set_mdctl(&reg->psc0.mdctl[i]);
+		da850_set_mdctl(&reg->psc0.mdctl[i]);
 
 	/* Do Always-On Power Domain Transitions */
 	setbits_le32(&reg->ptcmd, 0x00000001);
@@ -287,15 +287,15 @@ void am1808_psc_init(void)
 	while ((readl(&reg->ptstat) & 0x00000001))
 		;
 
-	am1808_set_mdctl(&reg->psc1.mdctl[3]);
-	am1808_set_mdctl(&reg->psc1.mdctl[6]);
+	da850_set_mdctl(&reg->psc1.mdctl[3]);
+	da850_set_mdctl(&reg->psc1.mdctl[6]);
 
 	/* UART1 + UART2 */
 	for (i = 12 ; i <= 13 ; i++)
-		am1808_set_mdctl(&reg->psc1.mdctl[i]);
+		da850_set_mdctl(&reg->psc1.mdctl[i]);
 
-	am1808_set_mdctl(&reg->psc1.mdctl[26]);
-	am1808_set_mdctl(&reg->psc1.mdctl[31]);
+	da850_set_mdctl(&reg->psc1.mdctl[26]);
+	da850_set_mdctl(&reg->psc1.mdctl[31]);
 
 	/* Do Always-On Power Domain Transitions */
 	setbits_le32(&reg->ptcmd, 0x00000001);
@@ -303,7 +303,7 @@ void am1808_psc_init(void)
 		;
 }
 
-void am1808_pinmux_ctl(unsigned long offset, unsigned long mask,
+void da850_pinmux_ctl(unsigned long offset, unsigned long mask,
 	unsigned long value)
 {
 	clrbits_le32(&davinci_syscfg_regs->pinmux[offset], mask);
@@ -369,42 +369,42 @@ int arch_cpu_init(void)
 		((1 << 27) | (1 << 22) | (1 << 20) | (1 << 5) |	(1 << 16)));
 
 	/* System PSC setup - enable all */
-	am1808_psc_init();
+	da850_psc_init();
 
 	/* Setup Pinmux */
-	am1808_pinmux_ctl(0, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX0);
-	am1808_pinmux_ctl(1, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX1);
-	am1808_pinmux_ctl(2, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX2);
-	am1808_pinmux_ctl(3, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX3);
-	am1808_pinmux_ctl(4, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX4);
-	am1808_pinmux_ctl(5, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX5);
-	am1808_pinmux_ctl(6, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX6);
-	am1808_pinmux_ctl(7, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX7);
-	am1808_pinmux_ctl(8, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX8);
-	am1808_pinmux_ctl(9, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX9);
-	am1808_pinmux_ctl(10, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX10);
-	am1808_pinmux_ctl(11, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX11);
-	am1808_pinmux_ctl(12, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX12);
-	am1808_pinmux_ctl(13, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX13);
-	am1808_pinmux_ctl(14, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX14);
-	am1808_pinmux_ctl(15, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX15);
-	am1808_pinmux_ctl(16, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX16);
-	am1808_pinmux_ctl(17, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX17);
-	am1808_pinmux_ctl(18, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX18);
-	am1808_pinmux_ctl(19, 0xFFFFFFFF, CONFIG_SYS_AM1808_PINMUX19);
+	da850_pinmux_ctl(0, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX0);
+	da850_pinmux_ctl(1, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX1);
+	da850_pinmux_ctl(2, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX2);
+	da850_pinmux_ctl(3, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX3);
+	da850_pinmux_ctl(4, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX4);
+	da850_pinmux_ctl(5, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX5);
+	da850_pinmux_ctl(6, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX6);
+	da850_pinmux_ctl(7, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX7);
+	da850_pinmux_ctl(8, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX8);
+	da850_pinmux_ctl(9, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX9);
+	da850_pinmux_ctl(10, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX10);
+	da850_pinmux_ctl(11, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX11);
+	da850_pinmux_ctl(12, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX12);
+	da850_pinmux_ctl(13, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX13);
+	da850_pinmux_ctl(14, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX14);
+	da850_pinmux_ctl(15, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX15);
+	da850_pinmux_ctl(16, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX16);
+	da850_pinmux_ctl(17, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX17);
+	da850_pinmux_ctl(18, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX18);
+	da850_pinmux_ctl(19, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX19);
 
 	/* PLL setup */
-	am1808_pll_init(davinci_pllc0_regs, CONFIG_SYS_AM1808_PLL0_PLLM);
-	am1808_pll_init(davinci_pllc1_regs, CONFIG_SYS_AM1808_PLL1_PLLM);
+	da850_pll_init(davinci_pllc0_regs, CONFIG_SYS_DA850_PLL0_PLLM);
+	da850_pll_init(davinci_pllc1_regs, CONFIG_SYS_DA850_PLL1_PLLM);
 
 	/* GPIO setup */
 	board_gpio_init();
 
 	/* setup CSn config */
-	writel(CONFIG_SYS_AM1808_CS2CFG, &davinci_emif_regs->ab1cr);
-	writel(CONFIG_SYS_AM1808_CS3CFG, &davinci_emif_regs->ab2cr);
+	writel(CONFIG_SYS_DA850_CS2CFG, &davinci_emif_regs->ab1cr);
+	writel(CONFIG_SYS_DA850_CS3CFG, &davinci_emif_regs->ab2cr);
 
-	am1808_lpc_transition(1, 13, 0, PSC_ENABLE);
+	da850_lpc_transition(1, 13, 0, PSC_ENABLE);
 	NS16550_init((NS16550_t)(CONFIG_SYS_NS16550_COM1),
 			CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 
@@ -416,13 +416,13 @@ int arch_cpu_init(void)
 		(CONFIG_SYS_NS16550_COM1 + 0x30));
 #if defined(CONFIG_NAND_SPL)
 	puts("ddr init\n");
-	am1808_ddr_setup(132);
+	da850_ddr_setup(132);
 
 	puts("boot u-boot ...\n");
 
 	nand_boot();
 #else
-	am1808_ddr_setup(132);
+	da850_ddr_setup(132);
 	return 0;
 #endif
 }
