@@ -43,23 +43,27 @@
 int fixed_sdram(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	u32 ddr_size;		/* The size of RAM, in bytes */
-	u32 ddr_size_log2 = 0;
-
-	for (ddr_size = CONFIG_SYS_DDR_SIZE * 0x100000; ddr_size > 1; ddr_size >>= 1) {
-		if (ddr_size & 1) {
-			return -1;
-		}
-		ddr_size_log2++;
-	}
+	/* The size of RAM, in bytes */
+	u32 ddr_size = CONFIG_SYS_DDR_SIZE << 20;
+	u32 ddr_size_log2 = __ilog2(ddr_size);
 
 	im->sysconf.ddrlaw[0].ar =
 	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
 	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000;
 
-	/* Only one CS0 for DDR */
-	im->ddr.csbnds[0].csbnds = 0x0000000f;
-	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CONFIG;
+#if ((CONFIG_SYS_DDR_SDRAM_BASE & 0x00FFFFFF) != 0)
+#warning Chip select bounds is only configurable in 16MB increments
+#endif
+	im->ddr.csbnds[0].csbnds =
+		((CONFIG_SYS_DDR_SDRAM_BASE >> CSBNDS_SA_SHIFT) & CSBNDS_SA) |
+		(((CONFIG_SYS_DDR_SDRAM_BASE + ddr_size - 1) >>
+				CSBNDS_EA_SHIFT) & CSBNDS_EA);
+	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
+
+	/* Only one CS for DDR */
+	im->ddr.cs_config[1] = 0;
+	im->ddr.cs_config[2] = 0;
+	im->ddr.cs_config[3] = 0;
 
 	debug("cs0_bnds = 0x%08x\n", im->ddr.csbnds[0].csbnds);
 	debug("cs0_config = 0x%08x\n", im->ddr.cs_config[0]);

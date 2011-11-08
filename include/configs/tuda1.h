@@ -73,8 +73,8 @@
 				 OR_GPCM_CSNT | \
 				 OR_GPCM_ACS_DIV4 | \
 				 OR_GPCM_SCY_2 | \
-				 (OR_GPCM_TRLX & \
-				 (~OR_GPCM_EHTR)) |  /* EHTR = 0 */ \
+				 OR_GPCM_TRLX_SET | \
+				 OR_GPCM_EHTR_CLEAR | \
 				 OR_GPCM_EAD)
 /*
  * PINC3 on the local bus CS3
@@ -91,11 +91,10 @@
 
 #define CONFIG_SYS_OR3_PRELIM	(MEG_TO_AM(CONFIG_SYS_APP2_SIZE) | \
 				 OR_GPCM_CSNT |	\
-				 (OR_GPCM_ACS_DIV2 & /* ACS = 11 */\
-				 (~OR_GPCM_XACS)) |  /* XACS = 0 */\
-				 (OR_GPCM_SCY_2 & \
-				 (~OR_GPCM_EHTR)) |  /* EHTR = 0 */ \
-				 OR_GPCM_TRLX)
+				 OR_GPCM_ACS_DIV2 | \
+				 OR_GPCM_SCY_2 | \
+				 OR_GPCM_TRLX_SET | \
+				 OR_GPCM_EHTR_CLEAR)
 
 #define CONFIG_SYS_MAMR		(MxMR_GPL_x4DIS | \
 				 0x0000c000 | \
@@ -106,7 +105,7 @@
  */
 /* PAXG:  icache cacheable, but dcache-inhibit and guarded */
 #define CONFIG_SYS_IBAT5L	(CONFIG_SYS_APP1_BASE | \
-				 BATL_PP_10 | \
+				 BATL_PP_RW | \
 				 BATL_MEMCOHERENCE)
 /* 512M should also include APP2... */
 #define CONFIG_SYS_IBAT5U	(CONFIG_SYS_APP1_BASE | \
@@ -114,21 +113,21 @@
 				 BATU_VS | \
 				 BATU_VP)
 #define CONFIG_SYS_DBAT5L	(CONFIG_SYS_APP1_BASE | \
-				 BATL_PP_10 | \
+				 BATL_PP_RW | \
 				 BATL_CACHEINHIBIT | \
 				 BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U
 
 /* PINC3:  icache cacheable, but dcache-inhibit and guarded */
 #define CONFIG_SYS_IBAT6L	(CONFIG_SYS_APP2_BASE | \
-				 BATL_PP_10 | \
+				 BATL_PP_RW | \
 				 BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT6U	(CONFIG_SYS_APP2_BASE | \
 				 BATU_BL_256M | \
 				 BATU_VS | \
 				 BATU_VP)
 #define CONFIG_SYS_DBAT6L	(CONFIG_SYS_APP2_BASE | \
-				 BATL_PP_10 | \
+				 BATL_PP_RW | \
 				 BATL_CACHEINHIBIT | \
 				 BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
