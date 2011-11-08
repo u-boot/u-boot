@@ -153,49 +153,12 @@ int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 	return 0;
 }
 
-void da850_lpc_transition(unsigned char pscnum, unsigned char module,
-		unsigned char domain, unsigned char state)
-{
-	struct davinci_psc_regs	*reg;
-	dv_reg_p mdstat, mdctl;
-
-	if (pscnum == 0) {
-		reg = davinci_psc0_regs;
-		mdstat = &reg->psc0.mdstat[module];
-		mdctl = &reg->psc0.mdctl[module];
-	} else {
-		reg = davinci_psc1_regs;
-		mdstat = &reg->psc1.mdstat[module];
-		mdctl = &reg->psc1.mdctl[module];
-	}
-
-	/* Wait for any outstanding transition to complete */
-	while ((readl(&reg->ptstat) & (0x00000001 << domain)))
-		;
-
-	/* If we are already in that state, just return */
-	if ((readl(mdstat) & 0x1F) == state)
-		return;
-
-	/* Perform transition */
-	writel((readl(mdctl) & 0xFFFFFFE0) | state, mdctl);
-	setbits_le32(&reg->ptcmd, (0x00000001 << domain));
-
-	/* Wait for transition to complete */
-	while (readl(&reg->ptstat) & (0x00000001 << domain))
-		;
-
-	/* Wait and verify the state */
-	while ((readl(mdstat) & 0x1F) != state)
-		;
-}
-
 int da850_ddr_setup(unsigned int freq)
 {
 	unsigned long	tmp;
 
 	/* Enable the Clock to DDR2/mDDR */
-	da850_lpc_transition(1, 6, 0, PSC_ENABLE);
+	lpsc_on(DAVINCI_LPSC_DDR_EMIF);
 
 	tmp = readl(&davinci_syscfg1_regs->vtpio_ctl);
 	if ((tmp & VTP_POWERDWN) == VTP_POWERDWN) {
@@ -244,63 +207,15 @@ int da850_ddr_setup(unsigned int freq)
 		&dv_ddr2_regs_ctrl->sdrcr);
 
 	/* SyncReset the Clock to EMIF3A SDRAM */
-	da850_lpc_transition(1, 6, 0, PSC_SYNCRESET);
+	lpsc_syncreset(DAVINCI_LPSC_DDR_EMIF);
 	/* Enable the Clock to EMIF3A SDRAM */
-	da850_lpc_transition(1, 6, 0, PSC_ENABLE);
+	lpsc_on(DAVINCI_LPSC_DDR_EMIF);
 
 	/* disable self refresh */
 	clrbits_le32(&dv_ddr2_regs_ctrl->sdrcr, 0xc0000000);
 	writel(0x30, &dv_ddr2_regs_ctrl->pbbpr);
 
 	return 0;
-}
-
-static void da850_set_mdctl(dv_reg_p mdctl)
-{
-	if ((readl(mdctl) & 0x1F) != PSC_ENABLE)
-		writel(((readl(mdctl) & 0xFFFFFFE0) | PSC_ENABLE), mdctl);
-}
-
-void da850_psc_init(void)
-{
-	struct davinci_psc_regs	*reg;
-	int i;
-
-	/* PSC 0 domain 0 init */
-	reg = davinci_psc0_regs;
-	while ((readl(&reg->ptstat) & 0x00000001))
-		;
-
-	for (i = 3; i <= 4 ; i++)
-		da850_set_mdctl(&reg->psc0.mdctl[i]);
-
-	for (i = 7; i <= 12 ; i++)
-		da850_set_mdctl(&reg->psc0.mdctl[i]);
-
-	/* Do Always-On Power Domain Transitions */
-	setbits_le32(&reg->ptcmd, 0x00000001);
-	while (readl(&reg->ptstat) & 0x00000001)
-		;
-
-	/* PSC1, domain 1 init */
-	reg = davinci_psc1_regs;
-	while ((readl(&reg->ptstat) & 0x00000001))
-		;
-
-	da850_set_mdctl(&reg->psc1.mdctl[3]);
-	da850_set_mdctl(&reg->psc1.mdctl[6]);
-
-	/* UART1 + UART2 */
-	for (i = 12 ; i <= 13 ; i++)
-		da850_set_mdctl(&reg->psc1.mdctl[i]);
-
-	da850_set_mdctl(&reg->psc1.mdctl[26]);
-	da850_set_mdctl(&reg->psc1.mdctl[31]);
-
-	/* Do Always-On Power Domain Transitions */
-	setbits_le32(&reg->ptcmd, 0x00000001);
-	while (readl(&reg->ptstat) & 0x00000001)
-		;
 }
 
 void da850_pinmux_ctl(unsigned long offset, unsigned long mask,
@@ -368,9 +283,6 @@ int arch_cpu_init(void)
 	dv_maskbits(&davinci_syscfg_regs->suspsrc,
 		((1 << 27) | (1 << 22) | (1 << 20) | (1 << 5) |	(1 << 16)));
 
-	/* System PSC setup - enable all */
-	da850_psc_init();
-
 	/* Setup Pinmux */
 	da850_pinmux_ctl(0, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX0);
 	da850_pinmux_ctl(1, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX1);
@@ -404,7 +316,7 @@ int arch_cpu_init(void)
 	writel(CONFIG_SYS_DA850_CS2CFG, &davinci_emif_regs->ab1cr);
 	writel(CONFIG_SYS_DA850_CS3CFG, &davinci_emif_regs->ab2cr);
 
-	da850_lpc_transition(1, 13, 0, PSC_ENABLE);
+	lpsc_on(DAVINCI_LPSC_UART2);
 	NS16550_init((NS16550_t)(CONFIG_SYS_NS16550_COM1),
 			CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 
