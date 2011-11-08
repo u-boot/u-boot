@@ -165,6 +165,31 @@ void mx28_mem_setup_vddd(void)
 		&power_regs->hw_power_vdddctrl);
 }
 
+#define	HW_DIGCTRL_SCRATCH0	0x8001c280
+#define	HW_DIGCTRL_SCRATCH1	0x8001c290
+void data_abort_memdetect_handler(void) __attribute__((naked));
+void data_abort_memdetect_handler(void)
+{
+	asm volatile("subs pc, r14, #4");
+}
+
+void mx28_mem_get_size(void)
+{
+	uint32_t sz, da;
+	uint32_t *vt = (uint32_t *)0x20;
+
+	/* Replace the DABT handler. */
+	da = vt[4];
+	vt[4] = (uint32_t)&data_abort_memdetect_handler;
+
+	sz = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
+	writel(sz, HW_DIGCTRL_SCRATCH0);
+	writel(sz, HW_DIGCTRL_SCRATCH1);
+
+	/* Restore the old DABT handler. */
+	vt[4] = da;
+}
+
 void mx28_mem_init(void)
 {
 	struct mx28_clkctrl_regs *clkctrl_regs =
@@ -210,4 +235,6 @@ void mx28_mem_init(void)
 	early_delay(10000);
 
 	mx28_mem_setup_cpu_and_hbus();
+
+	mx28_mem_get_size();
 }

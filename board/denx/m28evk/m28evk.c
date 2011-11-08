@@ -63,10 +63,24 @@ int board_init(void)
 	return 0;
 }
 
+#define	HW_DIGCTRL_SCRATCH0	0x8001c280
+#define	HW_DIGCTRL_SCRATCH1	0x8001c290
 int dram_init(void)
 {
-	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
+	uint32_t sz[2];
+
+	sz[0] = readl(HW_DIGCTRL_SCRATCH0);
+	sz[1] = readl(HW_DIGCTRL_SCRATCH1);
+
+	if (sz[0] != sz[1]) {
+		printf("MX28:\n"
+			"Error, the RAM size in HW_DIGCTRL_SCRATCH0 and\n"
+			"HW_DIGCTRL_SCRATCH1 is not the same. Please\n"
+			"verify these two registers contain valid RAM size!\n");
+		hang();
+	}
+
+	gd->ram_size = sz[0];
 	return 0;
 }
 

@@ -30,7 +30,7 @@ COBJS	:= m28evk.o
 endif
 
 ifdef	CONFIG_SPL_BUILD
-COBJS	:= mem_init.o mmc_boot.o power_init.o
+COBJS	:= mem_init.o mmc_boot.o power_init.o memsize.o
 endif
 
 SRCS	:= $(COBJS:.o=.c)
@@ -40,6 +40,11 @@ $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 all:	$(ALL)
+
+ifdef	CONFIG_SPL_BUILD
+memsize.c:
+	ln -sf $(TOPDIR)/common/memsize.c $@
+endif
 
 #########################################################################
 
