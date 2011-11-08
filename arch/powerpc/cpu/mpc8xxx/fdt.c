@@ -87,13 +87,12 @@ void ft_fixup_num_cores(void *blob) {
 #endif /* defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) */
 
 #ifdef CONFIG_HAS_FSL_DR_USB
-static void fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
-				const char *phy_type)
+static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
+				const char *phy_type, int start_offset)
 {
 	const char *compat = "fsl-usb2-dr";
 	const char *prop_mode = "dr_mode";
 	const char *prop_type = "phy_type";
-	static int start_offset = -1;
 	int node_offset;
 	int err;
 
@@ -102,7 +101,7 @@ static void fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
 	if (node_offset < 0) {
 		printf("WARNING: could not find compatible node %s: %s.\n",
 			compat, fdt_strerror(node_offset));
-		return;
+		return -1;
 	}
 
 	if (mode) {
@@ -121,16 +120,18 @@ static void fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
 			       prop_type, compat, fdt_strerror(err));
 	}
 
-	start_offset = node_offset;
+	return node_offset;
 }
 
 void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 {
 	const char *modes[] = { "host", "peripheral", "otg" };
-	const char *phys[] = { "ulpi", "umti" };
+	const char *phys[] = { "ulpi", "utmi" };
 	const char *mode = NULL;
 	const char *phy_type = NULL;
 	char usb1_defined = 0;
+	int usb_mode_off = -1;
+	int usb_phy_off = -1;
 	char str[5];
 	int i, j;
 
@@ -153,11 +154,11 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 				}
 			}
 			if (mode_idx >= 0)
-				fdt_fixup_usb_mode_phy_type(blob,
-					modes[mode_idx], NULL);
+				usb_mode_off = fdt_fixup_usb_mode_phy_type(blob,
+					modes[mode_idx], NULL, usb_mode_off);
 			if (phy_idx >= 0)
-				fdt_fixup_usb_mode_phy_type(blob,
-					NULL, phys[phy_idx]);
+				usb_phy_off = fdt_fixup_usb_mode_phy_type(blob,
+					NULL, phys[phy_idx], usb_phy_off);
 			if (!strcmp(str, "usb1"))
 				usb1_defined = 1;
 			if (mode_idx < 0 && phy_idx < 0)
@@ -165,11 +166,12 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 		}
 	}
 	if (!usb1_defined) {
+		int usb_off = -1;
 		mode = getenv("usb_dr_mode");
 		phy_type = getenv("usb_phy_type");
 		if (!mode && !phy_type)
 			return;
-		fdt_fixup_usb_mode_phy_type(blob, mode, phy_type);
+		fdt_fixup_usb_mode_phy_type(blob, mode, phy_type, usb_off);
 	}
 }
 #endif /* CONFIG_HAS_FSL_DR_USB */
