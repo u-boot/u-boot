@@ -184,18 +184,31 @@ int da850_ddr_setup(unsigned int freq)
 	clrbits_le32(&davinci_syscfg1_regs->ddr_slew,
 		(1 << DDR_SLEW_CMOSEN_BIT));
 
+	/*
+	 * SDRAM Configuration Register (SDCR):
+	 * First set the BOOTUNLOCK bit to make configuration bits
+	 * writeable.
+	 */
 	setbits_le32(&dv_ddr2_regs_ctrl->sdbcr, DV_DDR_BOOTUNLOCK);
 
-	writel((CONFIG_SYS_DA850_DDR2_SDBCR & ~0xf0000000) |
-		(readl(&dv_ddr2_regs_ctrl->sdbcr) & 0xf0000000), /*rsv Bytes*/
-		&dv_ddr2_regs_ctrl->sdbcr);
-	writel(CONFIG_SYS_DA850_DDR2_SDBCR2, &dv_ddr2_regs_ctrl->sdbcr2);
+	/*
+	 * Write the new value of these bits and clear BOOTUNLOCK.
+	 * At the same time, set the TIMUNLOCK bit to allow changing
+	 * the timing registers
+	 */
+	tmp = CONFIG_SYS_DA850_DDR2_SDBCR;
+	tmp &= ~(0x1 << DV_DDR_SDCR_BOOTUNLOCK_SHIFT);
+	tmp |= (0x1 << DV_DDR_SDCR_TIMUNLOCK_SHIFT);
+	writel(tmp, &dv_ddr2_regs_ctrl->sdbcr);
 
+	/* write memory configuration and timing */
+	writel(CONFIG_SYS_DA850_DDR2_SDBCR2, &dv_ddr2_regs_ctrl->sdbcr2);
 	writel(CONFIG_SYS_DA850_DDR2_SDTIMR, &dv_ddr2_regs_ctrl->sdtimr);
 	writel(CONFIG_SYS_DA850_DDR2_SDTIMR2, &dv_ddr2_regs_ctrl->sdtimr2);
 
-	clrbits_le32(&dv_ddr2_regs_ctrl->sdbcr,
-		(1 << DV_DDR_SDCR_TIMUNLOCK_SHIFT));
+	/* clear the TIMUNLOCK bit and write the value of the CL field */
+	tmp &= ~(0x1 << DV_DDR_SDCR_TIMUNLOCK_SHIFT);
+	writel(tmp, &dv_ddr2_regs_ctrl->sdbcr);
 
 	/*
 	 * LPMODEN and MCLKSTOPEN must be set!
