@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libdma.o
 
 COBJS-$(CONFIG_FSLDMAFEC) += MCD_tasksInit.o MCD_dmaApi.o MCD_tasks.o
+COBJS-$(CONFIG_APBH_DMA) += apbh_dma.o
 COBJS-$(CONFIG_FSL_DMA) += fsl_dma.o
 COBJS-$(CONFIG_OMAP3_DMA) += omap3_dma.o
 

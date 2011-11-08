@@ -23,6 +23,7 @@
 #ifndef __IMX_REGS_H__
 #define __IMX_REGS_H__
 
+#include <asm/arch/regs-apbh.h>
 #include <asm/arch/regs-base.h>
 #include <asm/arch/regs-bch.h>
 #include <asm/arch/regs-clkctrl.h>
