@@ -61,3 +61,17 @@ You can write MAC address to SPI ROM.
 		 ETHERC ch1 = 00:00:87:6c:21:81
 		GETHERC ch0 = 00:00:87:6c:21:82
 		GETHERC ch1 = 00:00:87:6c:21:83
+
+
+Update SPI ROM:
+============================
+
+1. Copy u-boot image to RAM area.
+2. Probe SPI device. 
+   => sf probe 0 
+   8192 KiB M25P64 at 0:0 is now current device
+3. Erase SPI ROM.
+   => sf erase 0 80000  
+4. Write u-boot image to SPI ROM.
+   => sf write 0x89000000 0 80000
+
