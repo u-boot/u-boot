@@ -43,6 +43,14 @@
 #define	CONFIG_ARCH_CPU_INIT
 
 /*
+ * SPL
+ */
+#define	CONFIG_SPL
+#define	CONFIG_SPL_NO_CPU_SUPPORT_CODE
+#define	CONFIG_SPL_START_S_PATH		"board/denx/m28evk"
+#define	CONFIG_SPL_LDSCRIPT		"board/denx/m28evk/u-boot-spl.lds"
+
+/*
  * U-Boot Commands
  */
 #include <config_cmd_default.h>

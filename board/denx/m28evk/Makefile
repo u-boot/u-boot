@@ -25,13 +25,21 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
+ifndef	CONFIG_SPL_BUILD
 COBJS	:= m28evk.o
+endif
+
+ifdef	CONFIG_SPL_BUILD
+COBJS	:= mem_init.o mmc_boot.o power_init.o
+endif
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
+
+all:	$(ALL)
 
 #########################################################################
 
