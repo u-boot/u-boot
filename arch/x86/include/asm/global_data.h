@@ -91,8 +91,6 @@ extern gd_t *gd;
 #define	GD_FLG_LOGINIT		0x00020	/* Log Buffer has been initialized	*/
 #define GD_FLG_DISABLE_CONSOLE	0x00040	/* Disable console (in & out)		*/
 #define GD_FLG_ENV_READY	0x00080	/* Environment imported into hash table	*/
-#define GD_FLG_COLD_BOOT	0x00100	/* Cold Boot */
-#define GD_FLG_WARM_BOOT	0x00200	/* Warm Boot */
 
 #if 0
 #define DECLARE_GLOBAL_DATA_PTR

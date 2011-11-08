@@ -37,9 +37,6 @@
 .code16
 .globl start16
 start16:
-	/* Set the Cold Boot / Hard Reset flag */
-	movl	$GD_FLG_COLD_BOOT, %ebx
-
 	/*
 	 * First we let the BSP do some early initialization
 	 * this code have to map the flash to its final position

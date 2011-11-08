@@ -53,8 +53,6 @@ _x86boot_start:
 	movl	%eax, %cr0
 	wbinvd
 
-	/* Tell 32-bit code it is being entered from an in-RAM copy */
-	movw	$GD_FLG_WARM_BOOT, %bx
 _start:
 	/* This is the 32-bit cold-reset entry point */
 
