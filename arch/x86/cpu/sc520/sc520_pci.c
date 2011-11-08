@@ -130,9 +130,7 @@ void pci_sc520_init(struct pci_controller *hose)
 	hose->last_busno = 0xff;
 	hose->region_count = pci_set_regions(hose);
 
-	pci_setup_type1(hose,
-			SC520_REG_ADDR,
-			SC520_REG_DATA);
+	pci_setup_type1(hose);
 
 	pci_register_hose(hose);
 
