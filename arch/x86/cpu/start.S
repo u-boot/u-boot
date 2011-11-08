@@ -30,6 +30,7 @@
 #include <version.h>
 #include <asm/global_data.h>
 #include <asm/processor-flags.h>
+#include <generated/asm-offsets.h>
 
 .section .text
 .code32
@@ -112,7 +113,7 @@ relocate_code:
 
 	/* Setup call address of in-RAM copy of board_init_r() */
 	movl	$board_init_r, %ebp
-	addl	(GD_RELOC_OFF * 4)(%edx), %ebp
+	addl	(GENERATED_GD_RELOC_OFF)(%edx), %ebp
 
 	/* Setup parameters to board_init_r() */
 	movl	%edx, %eax

@@ -61,25 +61,6 @@ extern gd_t *gd;
 
 #endif
 
-/* Word Offsets into Global Data - MUST match struct gd_t */
-#define GD_BD		0
-#define GD_FLAGS	1
-#define GD_BAUDRATE	2
-#define GD_HAVE_CONSOLE	3
-#define GD_RELOC_OFF	4
-#define GD_LOAD_OFF	5
-#define GD_ENV_ADDR	6
-#define GD_ENV_VALID	7
-#define GD_CPU_CLK	8
-#define GD_BUS_CLK	9
-#define GD_RELOC_ADDR	10
-#define GD_START_ADDR_SP	11
-#define GD_RAM_SIZE	12
-#define GD_RESET_STATUS	13
-#define GD_JT		14
-
-#define GD_SIZE		15
-
 /*
  * Global Data Flags
  */
