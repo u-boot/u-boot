@@ -26,11 +26,7 @@
 #include <asm/ptrace.h>
 #include <asm/realmode.h>
 
-#define REALMODE_MAILBOX ((char*)0xe00)
-
-extern ulong __realmode_start;
-extern ulong __realmode_size;
-extern char realmode_enter;
+#define REALMODE_MAILBOX ((char *)0xe00)
 
 int realmode_setup(void)
 {
@@ -63,15 +59,14 @@ int enter_realmode(u16 seg, u16 off, struct pt_regs *in, struct pt_regs *out)
 
 	in->eip = off;
 	in->xcs = seg;
-	if (3>(in->esp & 0xffff)) {
+	if ((in->esp & 0xffff) < 4)
 		printf("Warning: entering realmode with sp < 4 will fail\n");
-	}
 
 	memcpy(REALMODE_MAILBOX, in, sizeof(struct pt_regs));
 	asm("wbinvd\n");
 
 	__asm__ volatile (
-		 "lcall $0x20,%0\n"  : :  "i" (&realmode_enter) );
+		 "lcall $0x20,%0\n" : : "i" (&realmode_enter));
 
 	asm("wbinvd\n");
 	memcpy(out, REALMODE_MAILBOX, sizeof(struct pt_regs));
@@ -79,9 +74,10 @@ int enter_realmode(u16 seg, u16 off, struct pt_regs *in, struct pt_regs *out)
 	return out->eax;
 }
 
-
-/* This code is supposed to access a realmode interrupt
- * it does currently not work for me */
+/*
+ * This code is supposed to access a realmode interrupt
+ * it does currently not work for me
+ */
 int enter_realmode_int(u8 lvl, struct pt_regs *in, struct pt_regs *out)
 {
 	/* place two instructions at 0x700 */
@@ -92,5 +88,5 @@ int enter_realmode_int(u8 lvl, struct pt_regs *in, struct pt_regs *out)
 
 	enter_realmode(0x00, 0x700, in, out);
 
-	return out->eflags&1;
+	return out->eflags & 0x00000001;
 }

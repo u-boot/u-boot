@@ -80,11 +80,15 @@ cs	incl	num_pci_bios_present
 #endif
 	movl	$0x20494350, %eax
 gs	movl	%eax, OFFS_EDX(%bp)
+
+	/* We support cfg type 1 version 2.10 */
 	movb	$0x01, %al
-gs	movb	%al, OFFS_AL(%bp)	/* We support cfg type 1 */
-	movw	$0x0210, %ax            /* version 2.10 */
+gs	movb	%al, OFFS_AL(%bp)
+	movw	$0x0210, %ax
 gs	movw	%ax, OFFS_BX(%bp)
-cs	movb	pci_last_bus, %al       /* last bus number */
+
+	/* last bus number */
+cs	movb	pci_last_bus, %al
 gs	movb	%al, OFFS_CL(%bp)
 	jmp	clear_carry
 
@@ -97,16 +101,22 @@ cs	incl	num_pci_bios_find_device
 #endif
 gs	movw	OFFS_CX(%bp), %di
 	shll	$16, %edi
-gs	movw	OFFS_DX(%bp), %di       /* edi now holds device in upper 16
-					 * bits and vendor in lower 16 bits */
+gs	movw	OFFS_DX(%bp), %di
+	/* edi now holds device in upper 16 bits and vendor in lower 16 bits */
+
 gs	movw	OFFS_SI(%bp), %si
-	xorw	%bx, %bx                /* start at bus 0 dev 0 function 0 */
+
+	/* start at bus 0 dev 0 function 0 */
+	xorw	%bx, %bx
 pfd_loop:
-	xorw	%ax, %ax		/* dword 0 is vendor/device */
+	/* dword 0 is vendor/device */
+	xorw	%ax, %ax
 	call	__pci_bios_select_register
 	movw	$0xcfc, %dx
 	inl	%dx, %eax
-	cmpl	%edi, %eax		/* our device ? */
+
+	/* our device ? */
+	cmpl	%edi, %eax
 	je	pfd_found_one
 pfd_next_dev:
 	/* check for multi function devices */
@@ -120,13 +130,16 @@ pfd_next_dev:
 	andb	$0x80, %al
 	jz	pfd_not_multi_function
 pfd_function_not_zero:
-	incw	%bx			/* next function, overflows in to
-					 * device number, then bus number */
+	/* next function, overflows in to device number, then bus number */
+	incw	%bx
 	jmp	pfd_check_bus
 
 pfd_not_multi_function:
-	andw	$0xfff8, %bx            /* remove function bits */
-	addw	$0x0008, %bx            /* next device, overflows in to bus number */
+	/* remove function bits */
+	andw	$0xfff8, %bx
+
+	/* next device, overflows in to bus number */
+	addw	$0x0008, %bx
 pfd_check_bus:
 cs	movb	pci_last_bus, %ah
 	cmpb	%ah, %bh
@@ -142,7 +155,8 @@ gs	movw	%bx, OFFS_BX(%bp)
 	jmp	clear_carry
 
 pfd_not_found:
-	movb	$0x86, %ah              /* device not found */
+	/* device not found */
+	movb	$0x86, %ah
 	jmp	set_carry
 
 /*****************************************************************************/
@@ -152,17 +166,24 @@ pci_bios_find_class:
 cs	incl	num_pci_bios_find_class
 #endif
 gs	movl	OFFS_ECX(%bp), %edi
-	andl	$0x00ffffff, %edi       /* edi now holds class-code in lower 24 bits */
+
+	/* edi now holds class-code in lower 24 bits */
+	andl	$0x00ffffff, %edi
 gs	movw	OFFS_SI(%bp), %si
-	xorw	%bx, %bx                /* start at bus 0 dev 0 function 0 */
+
+	/* start at bus 0 dev 0 function 0 */
+	xorw	%bx, %bx
 pfc_loop:
-	movw	$8, %ax			/* dword 8 is class-code high 24bits */
+	/* dword 8 is class-code high 24bits */
+	movw	$8, %ax
 	call	__pci_bios_select_register
 	movw	$0xcfc, %dx
 	inl	%dx, %eax
 	shrl	$8, %eax
 	andl	$0x00ffffff, %eax
-	cmpl	%edi, %eax		/* our device ? */
+
+	/* our device ? */
+	cmpl	%edi, %eax
 	je	pfc_found_one
 pfc_next_dev:
 	/* check for multi function devices */
@@ -175,13 +196,16 @@ pfc_next_dev:
 	andb	$0x80, %al
 	jz	pfc_not_multi_function
 pfc_function_not_zero:
-	incw	%bx			/* next function, overflows in to
-					 * device number, then bus number */
+	/* next function, overflows in to device number, then bus number */
+	incw	%bx
 	jmp	pfc_check_bus
 
 pfc_not_multi_function:
-	andw	$0xfff8, %bx            /* remove function bits */
-	addw	$0x0008, %bx            /* next device, overflows in to bus number */
+	/* remove function bits */
+	andw	$0xfff8, %bx
+
+	/* next device, overflows in to bus number */
+	addw	$0x0008, %bx
 pfc_check_bus:
 cs	movb	pci_last_bus, %ah
 	cmpb	%ah, %bh
@@ -197,7 +221,8 @@ gs	movw	%bx, OFFS_BX(%bp)
 	jmp	clear_carry
 
 pfc_not_found:
-	movb	$0x86, %ah              /* device not found */
+	/* device not found */
+	movb	$0x86, %ah
 	jmp	set_carry
 
 /*****************************************************************************/
@@ -206,7 +231,8 @@ pci_bios_generate_special_cycle:
 #ifdef PCI_BIOS_DEBUG
 cs	incl	num_pci_bios_generate_special_cycle
 #endif
-	movb	$0x81, %ah              /* function not supported */
+	/* function not supported */
+	movb	$0x81, %ah
 	jmp	set_carry
 
 /*****************************************************************************/
@@ -296,7 +322,8 @@ pci_bios_get_irq_routing:
 #ifdef PCI_BIOS_DEBUG
 cs	incl	num_pci_bios_get_irq_routing
 #endif
-	movb	$0x81, %ah              /* function not supported */
+	/* function not supported */
+	movb	$0x81, %ah
 	jmp	set_carry
 
 /*****************************************************************************/
@@ -305,7 +332,8 @@ pci_bios_set_irq:
 #ifdef PCI_BIOS_DEBUG
 cs	incl	num_pci_bios_set_irq
 #endif
-	movb	$0x81, %ah              /* function not supported */
+	/* function not supported */
+	movb	$0x81, %ah
 	jmp	set_carry
 
 /*****************************************************************************/
@@ -314,7 +342,8 @@ unknown_function:
 #ifdef PCI_BIOS_DEBUG
 cs	incl	num_pci_bios_unknown_function
 #endif
-	movb	$0x81, %ah              /* function not supported */
+	/* function not supported */
+	movb	$0x81, %ah
 	jmp	set_carry
 
 /*****************************************************************************/
@@ -323,7 +352,8 @@ pci_bios_select_register:
 gs	movw	OFFS_BX(%bp), %bx
 gs	movw	OFFS_DI(%bp), %ax
 /* destroys eax, dx */
-__pci_bios_select_register:               /* BX holds device id, AX holds register index */
+__pci_bios_select_register:
+	/* BX holds device id, AX holds register index */
 	pushl	%ebx
 	andl	$0xfc, %eax
 	andl	$0xffff, %ebx
@@ -338,7 +368,9 @@ __pci_bios_select_register:               /* BX holds device id, AX holds regist
 
 clear_carry:
 gs	movw	OFFS_FLAGS(%bp), %ax
-	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
+
+	/* clear carry -- function succeeded */
+	andw	$0xfffe, %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 gs	movb	%ah, OFFS_AH(%bp)
@@ -347,7 +379,9 @@ gs	movb	%ah, OFFS_AH(%bp)
 set_carry:
 gs	movb	%ah, OFFS_AH(%bp)
 gs	movw	OFFS_FLAGS(%bp), %ax
-	orw	$1, %ax				/* return carry -- function not supported */
+
+	/* return carry -- function not supported */
+	orw	$1, %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	movw	$-1, %ax
 	ret

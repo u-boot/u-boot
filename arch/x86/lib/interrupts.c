@@ -56,8 +56,8 @@ struct irq_action {
 };
 
 static struct irq_action irq_handlers[CONFIG_SYS_NUM_IRQS] = { {0} };
-static int spurious_irq_cnt = 0;
-static int spurious_irq = 0;
+static int spurious_irq_cnt;
+static int spurious_irq;
 
 void irq_install_handler(int irq, interrupt_handler_t *handler, void *arg)
 {
@@ -70,10 +70,10 @@ void irq_install_handler(int irq, interrupt_handler_t *handler, void *arg)
 
 	if (irq_handlers[irq].handler != NULL)
 		printf("irq_install_handler: 0x%08lx replacing 0x%08lx\n",
-		       (ulong) handler,
-		       (ulong) irq_handlers[irq].handler);
+				(ulong) handler,
+				(ulong) irq_handlers[irq].handler);
 
-	status = disable_interrupts ();
+	status = disable_interrupts();
 
 	irq_handlers[irq].handler = handler;
 	irq_handlers[irq].arg = arg;
@@ -96,7 +96,7 @@ void irq_free_handler(int irq)
 		return;
 	}
 
-	status = disable_interrupts ();
+	status = disable_interrupts();
 
 	mask_irq(irq);
 
@@ -141,14 +141,14 @@ int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int irq;
 
 	printf("Spurious IRQ: %u, last unknown IRQ: %d\n",
-	       spurious_irq_cnt, spurious_irq);
+			spurious_irq_cnt, spurious_irq);
 
-	printf ("Interrupt-Information:\n");
-	printf ("Nr  Routine   Arg       Count\n");
+	printf("Interrupt-Information:\n");
+	printf("Nr  Routine   Arg       Count\n");
 
 	for (irq = 0; irq <= CONFIG_SYS_NUM_IRQS; irq++) {
 		if (irq_handlers[irq].handler != NULL) {
-			printf ("%02d  %08lx  %08lx  %d\n",
+			printf("%02d  %08lx  %08lx  %d\n",
 					irq,
 					(ulong)irq_handlers[irq].handler,
 					(ulong)irq_handlers[irq].arg,

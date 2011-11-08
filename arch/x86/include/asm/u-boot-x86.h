@@ -24,6 +24,14 @@
 #ifndef _U_BOOT_I386_H_
 #define _U_BOOT_I386_H_	1
 
+/* Exports from the Linker Script */
+extern ulong __text_start;
+extern ulong __data_end;
+extern ulong __rel_dyn_start;
+extern ulong __rel_dyn_end;
+extern ulong __bss_start;
+extern ulong __bss_end;
+
 /* cpu/.../cpu.c */
 int x86_cpu_init_r(void);
 int cpu_init_r(void);

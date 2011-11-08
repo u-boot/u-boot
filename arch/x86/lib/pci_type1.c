@@ -29,7 +29,7 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#define cfg_read(val, addr, op)	*val = op((int)(addr))
+#define cfg_read(val, addr, op)		(*val = op((int)(addr)))
 #define cfg_write(val, addr, op)	op((val), (int)(addr))
 
 #define TYPE1_PCI_OP(rw, size, type, op, mask)				\
@@ -42,7 +42,6 @@ type1_##rw##_config_##size(struct pci_controller *hose,			\
 	return 0;							\
 }
 
-
 TYPE1_PCI_OP(read, byte, u8 *, inb, 3)
 TYPE1_PCI_OP(read, word, u16 *, inw, 2)
 TYPE1_PCI_OP(read, dword, u32 *, inl, 0)
@@ -51,7 +50,7 @@ TYPE1_PCI_OP(write, byte, u8, outb, 3)
 TYPE1_PCI_OP(write, word, u16, outw, 2)
 TYPE1_PCI_OP(write, dword, u32, outl, 0)
 
-void pci_setup_type1(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data)
+void pci_setup_type1(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 {
 	pci_set_ops(hose,
 		    type1_read_config_byte,
@@ -61,6 +60,6 @@ void pci_setup_type1(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data)
 		    type1_write_config_word,
 		    type1_write_config_dword);
 
-	hose->cfg_addr = (unsigned int *) cfg_addr;
-	hose->cfg_data = (unsigned char *) cfg_data;
+	hose->cfg_addr = (unsigned int *)cfg_addr;
+	hose->cfg_data = (unsigned char *)cfg_data;
 }

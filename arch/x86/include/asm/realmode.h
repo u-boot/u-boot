@@ -25,6 +25,10 @@
 #define __ASM_REALMODE_H_
 #include <asm/ptrace.h>
 
+extern ulong __realmode_start;
+extern ulong __realmode_size;
+extern char realmode_enter;
+
 int bios_setup(void);
 int enter_realmode(u16 seg, u16 off, struct pt_regs *in, struct pt_regs *out);
 int enter_realmode_int(u8 lvl, struct pt_regs *in, struct pt_regs *out);

@@ -76,7 +76,7 @@ int interrupt_init(void)
 	 * Enable cascaded interrupts by unmasking the cascade IRQ pin of
 	 * the master PIC
 	 */
-	unmask_irq (2);
+	unmask_irq(2);
 
 	enable_interrupts();
 

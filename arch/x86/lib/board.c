@@ -56,15 +56,6 @@
 #define XTRN_DECLARE_GLOBAL_DATA_PTR	/* empty = allocate here */
 DECLARE_GLOBAL_DATA_PTR = (gd_t *) (CONFIG_SYS_INIT_GD_ADDR);
 
-
-/* Exports from the Linker Script */
-extern ulong __text_start;
-extern ulong __data_end;
-extern ulong __rel_dyn_start;
-extern ulong __rel_dyn_end;
-extern ulong __bss_start;
-extern ulong __bss_end;
-
 /************************************************************************
  * Init Utilities							*
  ************************************************************************
@@ -72,48 +63,38 @@ extern ulong __bss_end;
  * or dropped completely,
  * but let's get it working (again) first...
  */
-static int init_baudrate (void)
+static int init_baudrate(void)
 {
 	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
 	return 0;
 }
 
-static int display_banner (void)
+static int display_banner(void)
 {
 
-	printf ("\n\n%s\n\n", version_string);
-/*
-	printf ("U-Boot code: %08lX -> %08lX  data: %08lX -> %08lX\n"
-		"        BSS: %08lX -> %08lX stack: %08lX -> %08lX\n",
-		i386boot_start, i386boot_romdata_start-1,
-		i386boot_romdata_dest, i386boot_romdata_dest+i386boot_romdata_size-1,
-		i386boot_bss_start, i386boot_bss_start+i386boot_bss_size-1,
-		i386boot_bss_start+i386boot_bss_size,
-		i386boot_bss_start+i386boot_bss_size+CONFIG_SYS_STACK_SIZE-1);
+	printf("\n\n%s\n\n", version_string);
 
-*/
-
-	return (0);
+	return 0;
 }
 
-static int display_dram_config (void)
+static int display_dram_config(void)
 {
 	int i;
 
-	puts ("DRAM Configuration:\n");
+	puts("DRAM Configuration:\n");
 
-	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
-		printf ("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
-		print_size (gd->bd->bi_dram[i].size, "\n");
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		printf("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
+		print_size(gd->bd->bi_dram[i].size, "\n");
 	}
 
-	return (0);
+	return 0;
 }
 
-static void display_flash_config (ulong size)
+static void display_flash_config(ulong size)
 {
-	puts ("Flash: ");
-	print_size (size, "\n");
+	puts("Flash: ");
+	print_size(size, "\n");
 }
 
 /*
@@ -214,7 +195,7 @@ static int clear_bss(void)
 	void *bss_end = &__bss_end;
 
 	ulong *dst_addr = (ulong *)(bss_start + gd->reloc_off);
-	ulong *end_addr = (ulong *)(bss_end + gd->reloc_off);;
+	ulong *end_addr = (ulong *)(bss_end + gd->reloc_off);
 
 	while (dst_addr < end_addr)
 		*dst_addr++ = 0x00000000;
@@ -227,10 +208,23 @@ static int do_elf_reloc_fixups(void)
 	Elf32_Rel *re_src = (Elf32_Rel *)(&__rel_dyn_start);
 	Elf32_Rel *re_end = (Elf32_Rel *)(&__rel_dyn_end);
 
+	Elf32_Addr *offset_ptr_rom;
+	Elf32_Addr *offset_ptr_ram;
+
 	do {
-		if (re_src->r_offset >= CONFIG_SYS_TEXT_BASE)
-			if (*(Elf32_Addr *)(re_src->r_offset + gd->reloc_off) >= CONFIG_SYS_TEXT_BASE)
-				*(Elf32_Addr *)(re_src->r_offset + gd->reloc_off) += gd->reloc_off;
+		/* Get the location from the relocation entry */
+		offset_ptr_rom = (Elf32_Addr *)re_src->r_offset;
+
+		/* Check that the location of the relocation is in .text */
+		if (offset_ptr_rom >= (Elf32_Addr *)CONFIG_SYS_TEXT_BASE) {
+
+			/* Switch to the in-RAM version */
+			offset_ptr_ram = offset_ptr_rom + gd->reloc_off;
+
+			/* Check that the target points into .text */
+			if (*offset_ptr_ram >= CONFIG_SYS_TEXT_BASE)
+				*offset_ptr_ram += gd->reloc_off;
+		}
 	} while (re_src++ < re_end);
 
 	return 0;
@@ -254,7 +248,8 @@ void board_init_f(ulong boot_flags)
 	relocate_code(gd->start_addr_sp, gd, gd->relocaddr);
 
 	/* NOTREACHED - relocate_code() does not return */
-	while(1);
+	while (1)
+		;
 }
 
 void board_init_r(gd_t *id, ulong dest_addr)
@@ -272,10 +267,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	memcpy(gd, id, sizeof(gd_t));
 
 	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
+	__asm__ __volatile__("" : : : "memory");
 
 	gd->bd = &bd_data;
-	memset (gd->bd, 0, sizeof (bd_t));
+	memset(gd->bd, 0, sizeof(bd_t));
 	show_boot_progress(0x22);
 
 	gd->baudrate =  CONFIG_BAUDRATE;
@@ -285,7 +280,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	for (init_fnc_ptr = init_sequence_r; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0)
-			hang ();
+			hang();
 	}
 	show_boot_progress(0x23);
 
@@ -300,13 +295,13 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	show_boot_progress(0x25);
 
 	/* initialize environment */
-	env_relocate ();
+	env_relocate();
 	show_boot_progress(0x26);
 
 
 #ifdef CONFIG_CMD_NET
 	/* IP Address */
-	bd_data.bi_ip_addr = getenv_IPaddr ("ipaddr");
+	bd_data.bi_ip_addr = getenv_IPaddr("ipaddr");
 #endif
 
 #if defined(CONFIG_PCI)
@@ -319,9 +314,9 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	show_boot_progress(0x27);
 
 
-	stdio_init ();
+	stdio_init();
 
-	jumptable_init ();
+	jumptable_init();
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
@@ -333,7 +328,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 #if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_CMD_IDE)
 	WATCHDOG_RESET();
-	puts ("PCMCIA:");
+	puts("PCMCIA:");
 	pcmcia_init();
 #endif
 
@@ -348,7 +343,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	show_boot_progress(0x28);
 
 #ifdef CONFIG_STATUS_LED
-	status_led_set (STATUS_LED_BOOT, STATUS_LED_BLINKING);
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
 #endif
 
 	udelay(20);
@@ -356,9 +351,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 #if defined(CONFIG_CMD_NET)
-	if ((s = getenv ("bootfile")) != NULL) {
-		copy_filename (BootFile, s, sizeof (BootFile));
-	}
+	s = getenv("bootfile");
+
+	if (s != NULL)
+		copy_filename(BootFile, s, sizeof(BootFile));
 #endif
 
 	WATCHDOG_RESET();
@@ -390,10 +386,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	eth_initialize(gd->bd);
 #endif
 
-#if ( defined(CONFIG_CMD_NET)) && (0)
+#if (defined(CONFIG_CMD_NET)) && (0)
 	WATCHDOG_RESET();
 # ifdef DEBUG
-	puts ("Reset Ethernet PHY\n");
+	puts("Reset Ethernet PHY\n");
 # endif
 	reset_phy();
 #endif
@@ -410,27 +406,27 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 
 #ifdef CONFIG_POST
-	post_run (NULL, POST_RAM | post_bootmode_get(0));
+	post_run(NULL, POST_RAM | post_bootmode_get(0));
 #endif
-
 
 	show_boot_progress(0x29);
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */
-	for (;;) {
+	for (;;)
 		main_loop();
-	}
 
 	/* NOTREACHED - no way out of command loop except booting */
 }
 
-void hang (void)
+void hang(void)
 {
-	puts ("### ERROR ### Please RESET the board ###\n");
-	for (;;);
+	puts("### ERROR ### Please RESET the board ###\n");
+	for (;;)
+		;
 }
 
-unsigned long do_go_exec (ulong (*entry)(int, char * const []), int argc, char * const argv[])
+unsigned long do_go_exec(ulong (*entry)(int, char * const []),
+			 int argc, char * const argv[])
 {
 	unsigned long ret = 0;
 	char **argv_tmp;
