@@ -129,3 +129,23 @@ die:	hlt
 blank_idt_ptr:
 	.word	0		/* limit */
 	.long	0		/* base */
+
+	.p2align	2	/* force 4-byte alignment */
+
+multiboot_header:
+	/* magic */
+	.long	0x1BADB002
+	/* flags */
+	.long	(1 << 16)
+	/* checksum */
+	.long	-0x1BADB002 - (1 << 16)
+	/* header addr */
+	.long	multiboot_header - _x86boot_start + CONFIG_SYS_TEXT_BASE
+	/* load addr */
+	.long	CONFIG_SYS_TEXT_BASE
+	/* load end addr */
+	.long	0
+	/* bss end addr */
+	.long	0
+	/* entry addr */
+	.long	CONFIG_SYS_TEXT_BASE
