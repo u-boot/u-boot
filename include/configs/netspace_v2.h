@@ -87,6 +87,7 @@
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
+#define CONFIG_MISC_INIT_R /* Call misc_init_r() to initialize MAC address */
 #define CONFIG_MVGBE_PORTS		{1, 0} /* enable port 0 only */
 #define CONFIG_NETCONSOLE
 #endif

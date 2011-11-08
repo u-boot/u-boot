@@ -24,6 +24,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <command.h>
+#include <i2c.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/mpp.h>
@@ -85,6 +86,48 @@ int board_init(void)
 
 	/* Boot parameters address */
 	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+
+	return 0;
+}
+
+int misc_init_r(void)
+{
+#if defined(CONFIG_CMD_I2C) && defined(CONFIG_SYS_I2C_EEPROM_ADDR)
+	if (!getenv("ethaddr")) {
+		ushort version;
+		uchar mac[6];
+		int ret;
+
+		/* I2C-0 for on-board EEPROM */
+		i2c_set_bus_num(0);
+
+		/* Check layout version for EEPROM data */
+		ret = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,
+				CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
+				(uchar *) &version, 2);
+		if (ret != 0) {
+			printf("Error: failed to read I2C EEPROM @%02x\n",
+				CONFIG_SYS_I2C_EEPROM_ADDR);
+			return ret;
+		}
+		version = be16_to_cpu(version);
+		if (version < 1 || version > 3) {
+			printf("Error: unknown version %d for EEPROM data\n",
+				version);
+			return -1;
+		}
+
+		/* Read Ethernet MAC address from EEPROM */
+		ret = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 2,
+				CONFIG_SYS_I2C_EEPROM_ADDR_LEN, mac, 6);
+		if (ret != 0) {
+			printf("Error: failed to read I2C EEPROM @%02x\n",
+				CONFIG_SYS_I2C_EEPROM_ADDR);
+			return ret;
+		}
+		eth_setenv_enetaddr("ethaddr", mac);
+	}
+#endif /* CONFIG_CMD_I2C && CONFIG_SYS_I2C_EEPROM_ADDR */
 
 	return 0;
 }
