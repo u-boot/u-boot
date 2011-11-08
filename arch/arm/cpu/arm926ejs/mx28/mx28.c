@@ -35,6 +35,8 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* 1 second delay should be plenty of time for block reset. */
 #define	RESET_MAX_TIMEOUT	1000000
 
@@ -116,11 +118,31 @@ int mx28_reset_block(struct mx28_register *reg)
 	return 0;
 }
 
+void mx28_fixup_vt(uint32_t start_addr)
+{
+	uint32_t *vt = (uint32_t *)0x20;
+	int i;
+
+	for (i = 0; i < 8; i++)
+		vt[i] = start_addr + (4 * i);
+}
+
+#ifdef	CONFIG_ARCH_MISC_INIT
+int arch_misc_init(void)
+{
+	mx28_fixup_vt(gd->relocaddr);
+	return 0;
+}
+#endif
+
 #ifdef	CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)
 {
 	struct mx28_clkctrl_regs *clkctrl_regs =
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	extern uint32_t _start;
+
+	mx28_fixup_vt((uint32_t)&_start);
 
 	/*
 	 * Enable NAND clock
