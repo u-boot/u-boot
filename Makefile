@@ -424,6 +424,10 @@ $(obj)u-boot.ubl:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		rm $(obj)u-boot-ubl.bin
 		rm $(obj)spl/u-boot-spl-pad.bin
 
+$(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
+		elftosb -zdf imx28 -c $(TOPDIR)/board/$(BOARDDIR)/u-boot.bd \
+			-o $(obj)u-boot.sb
+
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
 		cd $(LNDIR) && $(CC) $(SYMS) -T $(obj)u-boot.lds \
@@ -791,6 +795,7 @@ clobber:	clean
 	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)u-boot.ubl
 	@rm -f $(obj)u-boot.dtb
+	@rm -f $(obj)u-boot.sb
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -fr $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
