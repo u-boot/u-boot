@@ -40,9 +40,6 @@ static void sc520_set_dram_timing(void);
 static void sc520_set_dram_refresh_rate(void);
 static void sc520_enable_dram_refresh(void);
 static void sc520_enable_sdram(void);
-#if CONFIG_SYS_SDRAM_ECC_ENABLE
-static void sc520_enable_ecc(void)
-#endif
 
 int dram_init_f(void)
 {
@@ -51,9 +48,6 @@ int dram_init_f(void)
 	sc520_set_dram_refresh_rate();
 	sc520_enable_dram_refresh();
 	sc520_enable_sdram();
-#if CONFIG_SYS_SDRAM_ECC_ENABLE
-	sc520_enable_ecc();
-#endif
 
 	return 0;
 }
@@ -425,53 +419,6 @@ static void sc520_sizemem(void)
 	writel(0x00000000, &sc520_mmcr->par[3]);
 	writel(0x00000000, &sc520_mmcr->par[4]);
 }
-
-#if CONFIG_SYS_SDRAM_ECC_ENABLE
-static void sc520_enable_ecc(void)
-
-	/* A nominal memory test: just a byte at each address line */
-	movl	%eax, %ecx
-	shrl	$0x1, %ecx
-	movl	$0x1, %edi
-memtest0:
-	movb	$0xa5, (%edi)
-	cmpb	$0xa5, (%edi)
-	jne	out
-	shrl	$0x1, %ecx
-	andl	%ecx, %ecx
-	jz	set_ecc
-	shll	$0x1, %edi
-	jmp	memtest0
-
-set_ecc:
-	/* clear all ram with a memset */
-	movl	%eax, %ecx
-	xorl	%esi, %esi
-	xorl	%edi, %edi
-	xorl	%eax, %eax
-	shrl	$0x2, %ecx
-	cld
-	rep	stosl
-
-	/* enable read, write buffers */
-	movb	$0x11, %al
-	movl	$DBCTL, %edi
-	movb	%al, (%edi)
-
-	/* enable NMI mapping for ECC */
-	movl	$ECCINT, %edi
-	movb	$0x10, %al
-	movb	%al, (%edi)
-
-	/* Turn on ECC */
-	movl	$ECCCTL, %edi
-	movb	$0x05, %al
-	movb	%al,(%edi)
-
-out:
-	jmp	init_ecc_ret
-}
-#endif
 
 int dram_init(void)
 {
