@@ -161,19 +161,26 @@ gd_t *gd;
 
 static int calculate_relocation_address(void)
 {
-	void *text_start = &__text_start;
-	void *bss_end = &__bss_end;
-	void *dest_addr;
+	ulong text_start = (ulong)&__text_start;
+	ulong bss_end = (ulong)&__bss_end;
+	ulong dest_addr;
 	ulong rel_offset;
 
 	/* Calculate destination RAM Address and relocation offset */
-	dest_addr = (void *)gd->ram_size;
+	dest_addr = gd->ram_size;
 	dest_addr -= CONFIG_SYS_STACK_SIZE;
 	dest_addr -= (bss_end - text_start);
+
+	/*
+	 * Round destination address down to 16-byte boundary to keep
+	 * IDT and GDT 16-byte aligned
+	 */
+	dest_addr &= ~15;
+
 	rel_offset = dest_addr - text_start;
 
 	gd->start_addr_sp = gd->ram_size;
-	gd->relocaddr = (ulong)dest_addr;
+	gd->relocaddr = dest_addr;
 	gd->reloc_off = rel_offset;
 
 	return 0;
