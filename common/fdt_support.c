@@ -61,7 +61,7 @@ u32 fdt_getprop_u32_default(void *fdt, const char *path, const char *prop,
 
 	val = fdt_getprop(fdt, off, prop, NULL);
 	if (val)
-		return *val;
+		return fdt32_to_cpu(*val);
 	else
 		return dflt;
 }
@@ -372,7 +372,7 @@ static int get_cells_len(void *blob, char *nr_cells_name)
 	const u32 *cell;
 
 	cell = fdt_getprop(blob, 0, nr_cells_name, NULL);
-	if (cell && *cell == 2)
+	if (cell && fdt32_to_cpu(*cell) == 2)
 		return 8;
 
 	return 4;
