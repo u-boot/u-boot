@@ -48,7 +48,7 @@ _x86boot_start:
 	cli
 	cld
 
-	/* Turn of cache (this might require a 486-class CPU) */
+	/* Turn off cache (this might require a 486-class CPU) */
 	movl	%cr0, %eax
 	orl	$(X86_CR0_NW | X86_CR0_CD), %eax
 	movl	%eax, %cr0
@@ -122,7 +122,8 @@ relocate_code:
 	/* Jump to in-RAM copy of board_init_r() */
 	call	*%ebp
 
-die:	hlt
+die:
+	hlt
 	jmp	die
 	hlt
 
