@@ -91,11 +91,13 @@ static int display_dram_config(void)
 	return 0;
 }
 
+#ifndef CONFIG_SYS_NO_FLASH
 static void display_flash_config(ulong size)
 {
 	puts("Flash: ");
 	print_size(size, "\n");
 }
+#endif
 
 /*
  * Breath some life into the board...
@@ -254,8 +256,12 @@ void board_init_f(ulong boot_flags)
 
 void board_init_r(gd_t *id, ulong dest_addr)
 {
+#if defined(CONFIG_CMD_NET)
 	char *s;
+#endif
+#ifndef CONFIG_SYS_NO_FLASH
 	ulong size;
+#endif
 	static bd_t bd_data;
 	static gd_t gd_data;
 	init_fnc_t **init_fnc_ptr;
@@ -287,10 +293,13 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
 #endif
+
+#ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init();
 	display_flash_config(size);
 	show_boot_progress(0x24);
+#endif
 
 	show_boot_progress(0x25);
 

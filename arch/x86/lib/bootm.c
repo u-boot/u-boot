@@ -35,7 +35,7 @@
 int do_bootm_linux(int flag, int argc, char * const argv[],
 		bootm_headers_t *images)
 {
-	void		*base_ptr;
+	void		*base_ptr = NULL;
 	ulong		os_data, os_len;
 	image_header_t	*hdr;
 
@@ -73,8 +73,10 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 		goto error;
 	}
 
+#ifdef CONFIG_CMD_ZBOOT
 	base_ptr = load_zimage((void *)os_data, os_len,
 			images->rd_start, images->rd_end - images->rd_start, 0);
+#endif
 
 	if (NULL == base_ptr) {
 		printf("## Kernel loading failed ...\n");

@@ -39,45 +39,6 @@
 #define PRINTF(fmt, args...)
 #endif
 
-#ifdef CONFIG_PCI
-
-#ifdef PCI_BIOS_DEBUG
-void print_bios_bios_stat(void)
-{
-	printf("16 bit functions:\n");
-	printf("pci_bios_present:                %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_present));
-	printf("pci_bios_find_device:            %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_find_device));
-	printf("pci_bios_find_class:             %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_find_class));
-	printf("pci_bios_generate_special_cycle: %d\n",
-			RELOC_16_LONG(0xf000,
-				      num_pci_bios_generate_special_cycle));
-	printf("pci_bios_read_cfg_byte:          %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_read_cfg_byte));
-	printf("pci_bios_read_cfg_word:          %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_read_cfg_word));
-	printf("pci_bios_read_cfg_dword:         %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_read_cfg_dword));
-	printf("pci_bios_write_cfg_byte:         %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_write_cfg_byte));
-	printf("pci_bios_write_cfg_word:         %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_write_cfg_word));
-	printf("pci_bios_write_cfg_dword:        %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_write_cfg_dword));
-	printf("pci_bios_get_irq_routing:        %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_get_irq_routing));
-	printf("pci_bios_set_irq:                %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_set_irq));
-	printf("pci_bios_unknown_function:       %d\n",
-			RELOC_16_LONG(0xf000, num_pci_bios_unknown_function));
-
-}
-#endif
-
-#ifdef CONFIG_VIDEO
-
 #define PCI_CLASS_VIDEO			3
 #define PCI_CLASS_VIDEO_STD		0
 #define PCI_CLASS_VIDEO_PROG_IF_VGA	0
@@ -233,5 +194,3 @@ int video_bios_init(void)
 	return 1;
 
 }
-#endif
-#endif

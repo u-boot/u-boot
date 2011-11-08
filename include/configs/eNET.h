@@ -105,6 +105,7 @@
 #define CONFIG_CMD_SETGETDCR
 #define CONFIG_CMD_SOURCE
 #define CONFIG_CMD_XIMG
+#define CONFIG_CMD_ZBOOT
 
 #define CONFIG_BOOTDELAY			15
 #define CONFIG_BOOTARGS				"root=/dev/mtdblock0 console=ttyS0,9600"
@@ -153,6 +154,10 @@
 #undef  CONFIG_SYS_GENERIC_TIMER
 #define CONFIG_SYS_PCAT_INTERRUPTS
 #define CONFIG_SYS_NUM_IRQS			16
+#define CONFIG_SYS_PC_BIOS
+#define CONFIG_SYS_PCI_BIOS
+#define CONFIG_SYS_X86_REALMODE
+#define CONFIG_SYS_X86_ISR_TIMER
 
 /*-----------------------------------------------------------------------
  * Memory organization:
