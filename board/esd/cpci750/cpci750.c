@@ -566,7 +566,7 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	volatile unsigned int *ptr;
 	int count = 0;
 	int count2 = 0;
-	int status;
+	int status = 0;
 	char addr[16];
 	char str[] = "\\|/-";
 	char *local_args[2];
@@ -622,7 +622,7 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		break;
 	}
 
-	return 0;
+	return status;
 }
 
 U_BOOT_CMD(
