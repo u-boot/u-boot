@@ -172,7 +172,7 @@ void set_tlb(u8 tlb, u32 epn, u64 rpn,
 
 void disable_tlb(u8 esel)
 {
-	u32 _mas0, _mas1, _mas2, _mas3, _mas7;
+	u32 _mas0, _mas1, _mas2, _mas3;
 
 	free_tlb_cam(esel);
 
@@ -180,14 +180,13 @@ void disable_tlb(u8 esel)
 	_mas1 = 0;
 	_mas2 = 0;
 	_mas3 = 0;
-	_mas7 = 0;
 
 	mtspr(MAS0, _mas0);
 	mtspr(MAS1, _mas1);
 	mtspr(MAS2, _mas2);
 	mtspr(MAS3, _mas3);
 #ifdef CONFIG_ENABLE_36BIT_PHYS
-	mtspr(MAS7, _mas7);
+	mtspr(MAS7, 0);
 #endif
 	asm volatile("isync;msync;tlbwe;isync");
 
