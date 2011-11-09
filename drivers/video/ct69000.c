@@ -35,9 +35,11 @@
 #undef VGA_DEBUG
 #undef VGA_DUMP_REG
 #ifdef VGA_DEBUG
-#define	PRINTF(fmt,args...)	printf (fmt ,##args)
+#undef _DEBUG
+#define _DEBUG  1
 #else
-#define PRINTF(fmt,args...)
+#undef _DEBUG
+#define _DEBUG  0
 #endif
 
 /* Macros */
@@ -740,7 +742,7 @@ FindAndSetPllParamIntoXrRegs (unsigned int pixelclock,
 	}
 	m += param->mn_diff;
 	n += param->mn_diff;
-	PRINTF ("VCO %d, pd %d, m %d n %d vld %d \n", fvco, pd, m, n, vld);
+	debug("VCO %d, pd %d, m %d n %d vld %d\n", fvco, pd, m, n, vld);
 	xr_cb = ((0x7 & PD) << 4) | (vld == param->vld_set ? 0x04 : 0);
 	/* All four of the registers used for dot clock 2 (XRC8 - XRCB) must be
 	 * written, and in order from XRC8 to XRCB, before the hardware will
@@ -751,7 +753,7 @@ FindAndSetPllParamIntoXrRegs (unsigned int pixelclock,
 	ctWrite_i (CT_XR_O, 0xca, 0);	/* because of a hw bug I guess, but we write */
 	ctWrite_i (CT_XR_O, 0xcb, xr_cb);	/* 0 to it for savety */
 	new_pixclock = ReadPixClckFromXrRegsBack (param);
-	PRINTF ("pixelclock.set = %d, pixelclock.real = %d \n",
+	debug("pixelclock.set = %d, pixelclock.real = %d\n",
 		pixelclock, new_pixclock);
 }
 
@@ -1119,7 +1121,7 @@ video_hw_init (void)
 		pGD->dprBase &= 0xfffff000;
 		pGD->dprBase += 0x00001000;
 	}
-	PRINTF ("Cursor Start %x Pattern Start %x\n", pGD->dprBase,
+	debug("Cursor Start %x Pattern Start %x\n", pGD->dprBase,
 		PATTERN_ADR);
 	pGD->vprBase = pci_mem_base;	/* Dummy */
 	pGD->cprBase = pci_mem_base;	/* Dummy */
