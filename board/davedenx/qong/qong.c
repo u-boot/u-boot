@@ -231,7 +231,7 @@ static void board_nand_setup(void)
 
 	mxc_setup_weimcs(3, &cs3);
 
-	__REG(IOMUXC_GPR) |= 1 << 13;
+	mx31_set_gpr(MUX_SDCTL_CSD1_SEL, 1);
 
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_NFC_WP, MUX_CTL_IN_GPIO));
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_NFC_CE, MUX_CTL_IN_GPIO));
