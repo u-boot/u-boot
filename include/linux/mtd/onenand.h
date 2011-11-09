@@ -101,6 +101,7 @@ struct onenand_chip {
 				size_t count);
 	unsigned short (*read_word) (void __iomem *addr);
 	void (*write_word) (unsigned short value, void __iomem *addr);
+	int (*chip_probe)(struct mtd_info *mtd);
 	void (*mmcontrol) (struct mtd_info *mtd, int sync_read);
 	int (*block_markbad)(struct mtd_info *mtd, loff_t ofs);
 	int (*scan_bbt)(struct mtd_info *mtd);
