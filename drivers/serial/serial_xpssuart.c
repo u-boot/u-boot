@@ -15,26 +15,38 @@ void serial_setbrg(void)
 	/*              master clock
 	 * Baud rate = ---------------
 	 *              bgen*(bdiv+1)
-	 *
-	 * master clock = 50MHz (I think?)
-	 * bdiv remains at default (reset) 15
-	 *
-	 * Simplify RHS to base/bgen, where base == master/16
 	 */
-	long base = XDFUART_BASECLK;
 	long baud = gd->baudrate;
-	long bgen = base / baud;
-	long base_err = base - (bgen*baud);
-	long mod_bgen = bgen + (base_err >= 0 ? 1 : -1);
-	long mod_err = base - (mod_bgen*baud);
 
-	/* you'd think there'd be an abs() macro somewhere in include/... */
-	mod_err = mod_err < 0 ? -mod_err : mod_err;
-	base_err = base_err < 0 ? -base_err : base_err;
+	/* Variables to vary. */
+	unsigned int bdiv, bgen;
 
-	bgen = mod_err < base_err ? mod_bgen : bgen;
+	/* Calculation results. */
+	long calc_baud = 0;
+	unsigned int calc_bauderror;
 
-	xdfuart_writel(BAUDDIV,XDFUART_BDIV); /* Ensure it's 15 */
+	/* Find acceptable values for baud generation. */
+	for (bdiv = 4; bdiv < 255; bdiv++) {
+
+		bgen = XDFUART_MASTER / (baud * (bdiv + 1));
+		if (bgen < 2 || bgen > 65535)
+			continue;
+
+		calc_baud = XDFUART_MASTER / (bgen * (bdiv + 1));
+
+		/* Use first calculated baudrate with an acceptable
+		 * (<3%) error.
+		 */
+		if (baud > calc_baud)
+			calc_bauderror = baud - calc_baud;
+		else
+			calc_bauderror = calc_baud - baud;
+		if ( ((calc_bauderror * 100) / baud) < 3 )
+			break;
+
+	}
+
+	xdfuart_writel(BAUDDIV,bdiv);
 	xdfuart_writel(BAUDGEN,bgen);
 }
 
