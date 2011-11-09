@@ -107,7 +107,7 @@ void init_early_memctl_regs(void)
 void upmconfig(uint upm, uint *table, uint size)
 {
 	fsl_lbc_t *lbc = LBC_BASE_ADDR;
-	int i, mdr, mad, old_mad = 0;
+	int i, mad, old_mad = 0;
 	u32 mask = (~MxMR_OP_MSK & ~MxMR_MAD_MSK);
 	u32 msel = BR_UPMx_TO_MSEL(upm);
 	u32 *mxmr = &lbc->mamr + upm;
@@ -138,7 +138,7 @@ void upmconfig(uint upm, uint *table, uint size)
 	for (i = 0; i < size; i++) {
 		out_be32(mxmr, (in_be32(mxmr) & mask) | MxMR_OP_WARR | i);
 		out_be32(&lbc->mdr, table[i]);
-		mdr = in_be32(&lbc->mdr);
+		(void)in_be32(&lbc->mdr);
 		*dummy = 0;
 		do {
 			mad = in_be32(mxmr) & MxMR_MAD_MSK;
