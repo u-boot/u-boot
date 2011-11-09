@@ -112,13 +112,24 @@ static int zuma_mbox_do_all_mailbox(void)
 
 static void zuma_mbox_dump(void)
 {
-	printf("ACC MAC=%04x%08x\n", *(unsigned short *) (&zuma_acc_mac),
-	       *(unsigned int *) ((char *) &zuma_acc_mac + 2));
-	printf("PRV MAC=%04x%08x\n", *(unsigned short *) (&zuma_prv_mac),
-	       *(unsigned int *) ((char *) &zuma_prv_mac + 2));
-	printf("slot:bac=%d:%d\n", (zuma_slot_bac >> 2) & 0xf,
-	       zuma_slot_bac & 0x3);
-	printf("BAUD1=%d BAUD2=%d\n", zuma_console_baud, zuma_debug_baud);
+	unsigned short s;
+	unsigned int i;
+
+	memcpy(&s, &zuma_acc_mac,    sizeof(s));
+	memcpy(&i, &zuma_acc_mac[2], sizeof(i));
+	printf("ACC MAC=%04x%08x\n", s, i);
+
+	memcpy(&s, &zuma_prv_mac,    sizeof(s));
+	memcpy(&s, &zuma_prv_mac[2], sizeof(i));
+	printf("PRV MAC=%04x%08x\n", s, i);
+
+	printf("slot:bac=%d:%d\n",
+		(zuma_slot_bac >> 2) & 0xf,
+		zuma_slot_bac & 0x3);
+
+	printf("BAUD1=%d BAUD2=%d\n",
+		zuma_console_baud,
+		zuma_debug_baud);
 }
 
 
