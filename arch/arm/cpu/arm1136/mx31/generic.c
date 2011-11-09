@@ -87,7 +87,7 @@ static u32 mx31_get_hsp_clk(void)
 void mx31_dump_clocks(void)
 {
 	u32 cpufreq = mx31_get_mcu_main_clk();
-	printf("mx31 cpu clock: %dMHz\n",cpufreq / 1000000);
+	printf("mx31 cpu clock: %dMHz\n", cpufreq / 1000000);
 	printf("ipg clock     : %dHz\n", mx31_get_ipg_clk());
 	printf("hsp clock     : %dHz\n", mx31_get_hsp_clk());
 }
@@ -215,7 +215,7 @@ static char *get_reset_cause(void)
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
-int print_cpuinfo (void)
+int print_cpuinfo(void)
 {
 	u32 srev = get_cpu_rev();
 
