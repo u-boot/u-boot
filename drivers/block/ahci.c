@@ -561,12 +561,9 @@ static int ata_scsiop_inquiry(ccb *pccb)
  */
 static int ata_scsiop_read10(ccb * pccb)
 {
-	u64 lba = 0;
 	u32 len = 0;
 	u8 fis[20];
 
-	lba = (((u64) pccb->cmd[2]) << 24) | (((u64) pccb->cmd[3]) << 16)
-	    | (((u64) pccb->cmd[4]) << 8) | ((u64) pccb->cmd[5]);
 	len = (((u32) pccb->cmd[7]) << 8) | ((u32) pccb->cmd[8]);
 
 	/* For 10-byte and 16-byte SCSI R/W commands, transfer
