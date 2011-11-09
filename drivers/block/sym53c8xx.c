@@ -453,11 +453,9 @@ void scsi_int_enable(void)
 
 void scsi_write_dsp(unsigned long start)
 {
-	unsigned long val;
 #ifdef SCSI_SINGLE_STEP
 	unsigned char t;
 #endif
-	val = start;
 	out32r(scsi_mem_addr + DSP,start);
 #ifdef SCSI_SINGLE_STEP
 	t=scsi_read_byte(DCNTL);
