@@ -35,6 +35,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -101,15 +102,15 @@ int dram_init (void)
 #ifdef CONFIG_CM_SPD_DETECT
 	{
 extern void dram_query(void);
-	unsigned long cm_reg_sdram;
-	unsigned long sdram_shift;
+	u32 cm_reg_sdram;
+	u32 sdram_shift;
 
 	dram_query();	/* Assembler accesses to CM registers */
 			/* Queries the SPD values	      */
 
 	/* Obtain the SDRAM size from the CM SDRAM register */
 
-	cm_reg_sdram = *(volatile ulong *)(CM_BASE + OS_SDRAM);
+	cm_reg_sdram = readl(CM_BASE + OS_SDRAM);
 	/*   Register	      SDRAM size
 	 *
 	 *   0xXXXXXXbbb000bb	 16 MB
@@ -119,7 +120,7 @@ extern void dram_query(void);
 	 *   0xXXXXXXbbb100bb	256 MB
 	 *
 	 */
-	sdram_shift		 = ((cm_reg_sdram & 0x0000001C)/4)%4;
+	sdram_shift = ((cm_reg_sdram & 0x0000001C)/4)%4;
 	gd->ram_size = get_ram_size((long *) CONFIG_SYS_SDRAM_BASE +
 				    REMAPPED_FLASH_SZ,
 				    0x01000000 << sdram_shift);
