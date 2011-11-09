@@ -84,12 +84,10 @@ local_bus_init(void)
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
-	uint lbc_hz;
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
 	clkdiv = (lbc->lcrr & LCRR_CLKDIV) * 2;
-	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	gur->lbiuiplldcr1 = 0x00078080;
 	if (clkdiv == 16) {
@@ -118,7 +116,6 @@ void lbc_sdram_init(void)
 	uint idx;
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
-	uint cpu_board_rev;
 	uint lsdmr_common;
 
 	puts("LBC SDRAM: ");
@@ -140,7 +137,6 @@ void lbc_sdram_init(void)
 	/*
 	 * MPC8548 uses "new" 15-16 style addressing.
 	 */
-	cpu_board_rev = get_cpu_board_revision();
 	lsdmr_common = CONFIG_SYS_LBC_LSDMR_COMMON;
 	lsdmr_common |= LSDMR_BSMA1516;
 
