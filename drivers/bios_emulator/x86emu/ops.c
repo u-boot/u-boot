@@ -3518,11 +3518,9 @@ Handles opcode 0xcc
 ****************************************************************************/
 void x86emuOp_int3(u8 X86EMU_UNUSED(op1))
 {
-    u16 tmp;
-
     START_OF_INSTR();
     DECODE_PRINTF("INT 3\n");
-    tmp = (u16) mem_access_word(3 * 4 + 2);
+    (void)mem_access_word(3 * 4 + 2);
     /* access the segment register */
     TRACE_AND_STEP();
 	if (_X86EMU_intrTab[3]) {
@@ -3546,14 +3544,13 @@ Handles opcode 0xcd
 ****************************************************************************/
 void x86emuOp_int_IMM(u8 X86EMU_UNUSED(op1))
 {
-    u16 tmp;
     u8 intnum;
 
     START_OF_INSTR();
     DECODE_PRINTF("INT\t");
     intnum = fetch_byte_imm();
     DECODE_PRINTF2("%x\n", intnum);
-    tmp = mem_access_word(intnum * 4 + 2);
+    (void)mem_access_word(intnum * 4 + 2);
     TRACE_AND_STEP();
 	if (_X86EMU_intrTab[intnum]) {
 		(*_X86EMU_intrTab[intnum])(intnum);
@@ -3576,13 +3573,11 @@ Handles opcode 0xce
 ****************************************************************************/
 void x86emuOp_into(u8 X86EMU_UNUSED(op1))
 {
-    u16 tmp;
-
     START_OF_INSTR();
     DECODE_PRINTF("INTO\n");
     TRACE_AND_STEP();
     if (ACCESS_FLAG(F_OF)) {
-	tmp = mem_access_word(4 * 4 + 2);
+	(void)mem_access_word(4 * 4 + 2);
 		if (_X86EMU_intrTab[4]) {
 			(*_X86EMU_intrTab[4])(4);
 	} else {
@@ -3990,11 +3985,9 @@ Handles opcode 0xd5
 ****************************************************************************/
 void x86emuOp_aad(u8 X86EMU_UNUSED(op1))
 {
-    u8 a;
-
     START_OF_INSTR();
     DECODE_PRINTF("AAD\n");
-    a = fetch_byte_imm();
+    (void)fetch_byte_imm();
     TRACE_AND_STEP();
     M.x86.R_AX = aad_word(M.x86.R_AX);
     DECODE_CLEAR_SEGOVR();
