@@ -24,6 +24,7 @@
 #include <common.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
+#include <linux/mtd/samsung_onenand.h>
 
 void onenand_board_init(struct mtd_info *mtd)
 {
@@ -31,4 +32,5 @@ void onenand_board_init(struct mtd_info *mtd)
 
 	this->base = (void *)CONFIG_SYS_ONENAND_BASE;
 	this->options |= ONENAND_RUNTIME_BADBLOCK_CHECK;
+	this->chip_probe = s5pc210_chip_probe;
 }
