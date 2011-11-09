@@ -140,6 +140,9 @@ struct onenand_chip {
 #define ONENAND_IS_DDP(this)						\
 	(this->device_id & ONENAND_DEVICE_IS_DDP)
 
+#define ONENAND_IS_4KB_PAGE(this)					\
+	(this->options & ONENAND_HAS_4KB_PAGE)
+
 #define ONENAND_IS_2PLANE(this)			(0)
 
 /*
@@ -148,6 +151,7 @@ struct onenand_chip {
 #define ONENAND_HAS_CONT_LOCK		(0x0001)
 #define ONENAND_HAS_UNLOCK_ALL		(0x0002)
 #define ONENAND_HAS_2PLANE		(0x0004)
+#define ONENAND_HAS_4KB_PAGE            (0x0008)
 #define ONENAND_RUNTIME_BADBLOCK_CHECK	(0x0200)
 #define ONENAND_PAGEBUF_ALLOC		(0x1000)
 #define ONENAND_OOBBUF_ALLOC		(0x2000)
