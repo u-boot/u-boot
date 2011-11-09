@@ -144,14 +144,15 @@ void mx31_set_pad(enum iomux_pins pin, u32 config)
 void mx31_set_gpr(enum iomux_gp_func gp, char en)
 {
 	u32 l;
+	struct iomuxc_regs *iomuxc = (struct iomuxc_regs *)IOMUXC_BASE;
 
-	l = readl(IOMUXC_GPR);
+	l = readl(&iomuxc->gpr);
 	if (en)
 		l |= gp;
 	else
 		l &= ~gp;
 
-	writel(l, IOMUXC_GPR);
+	writel(l, &iomuxc->gpr);
 }
 
 void mxc_setup_weimcs(int cs, const struct mxc_weimcs *weimcs)

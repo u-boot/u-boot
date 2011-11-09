@@ -98,6 +98,12 @@ struct iim_regs {
 	u32 iim_scs3;
 };
 
+struct iomuxc_regs {
+	u32 unused1;
+	u32 unused2;
+	u32 gpr;
+};
+
 struct mx3_cpu_type {
 	u8 srev;
 	u32 v;
@@ -636,7 +642,6 @@ struct esdc_regs {
 #define WEIM_BASE	0xb8002000
 
 #define IOMUXC_BASE	0x43FAC000
-#define IOMUXC_GPR	(IOMUXC_BASE + 0x8)
 #define IOMUXC_SW_MUX_CTL(x)	(IOMUXC_BASE + 0xc + (x) * 4)
 #define IOMUXC_SW_PAD_CTL(x)	(IOMUXC_BASE + 0x154 + (x) * 4)
 
