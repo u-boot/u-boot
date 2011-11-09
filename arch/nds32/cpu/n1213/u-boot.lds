@@ -41,7 +41,7 @@ SECTIONS
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
 	. = ALIGN(4);
-	.data : { *(.data) }
+	.data : { *(.data*) }
 
 	. = ALIGN(4);
 
