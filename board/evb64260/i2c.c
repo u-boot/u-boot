@@ -20,7 +20,7 @@ static void
 i2c_init(int speed, int slaveaddr)
 {
 	unsigned int n, m, freq, margin, power;
-	unsigned int actualFreq, actualN = 0, actualM = 0;
+	unsigned int actualN = 0, actualM = 0;
 	unsigned int control, status;
 	unsigned int minMargin = 0xffffffff;
 	unsigned int tclk = 125000000;
@@ -37,7 +37,6 @@ i2c_init(int speed, int slaveaddr)
 				margin = freq - speed;
 			if (margin < minMargin) {
 				minMargin   = margin;
-				actualFreq  = freq;
 				actualN	    = n;
 				actualM	    = m;
 			}
