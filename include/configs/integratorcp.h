@@ -37,6 +37,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
+#define CONFIG_SYS_TEXT_BASE		0x01000000
 #define CONFIG_SYS_MEMTEST_START	0x100000
 #define CONFIG_SYS_MEMTEST_END		0x10000000
 #define CONFIG_SYS_HZ			1000
