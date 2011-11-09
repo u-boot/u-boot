@@ -36,6 +36,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include "arm-ebi.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,6 +57,8 @@ void show_boot_progress(int progress)
 
 int board_init (void)
 {
+	u32 val;
+
 	/* arch number of Integrator Board */
 #ifdef CONFIG_ARCH_CINTEGRATOR
 	gd->bd->bi_arch_number = MACH_TYPE_CINTEGRATOR;
@@ -72,6 +75,18 @@ int board_init (void)
 extern void cm_remap(void);
 	cm_remap();	/* remaps writeable memory to 0x00000000 */
 #endif
+
+	/*
+	 * The system comes up with the flash memory non-writable and
+	 * configuration locked. If we want U-Boot to be used for flash
+	 * access we cannot have the flash memory locked.
+	 */
+	writel(EBI_UNLOCK_MAGIC, EBI_BASE + EBI_LOCK_REG);
+	val = readl(EBI_BASE + EBI_CSR1_REG);
+	val &= EBI_CSR_WREN_MASK;
+	val |= EBI_CSR_WREN_ENABLE;
+	writel(val, EBI_BASE + EBI_CSR1_REG);
+	writel(0, EBI_BASE + EBI_LOCK_REG);
 
 	icache_enable ();
 
