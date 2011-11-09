@@ -37,6 +37,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include "arm-ebi.h"
+#include "integrator-sc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -76,7 +77,19 @@ extern void cm_remap(void);
 	cm_remap();	/* remaps writeable memory to 0x00000000 */
 #endif
 
+#ifdef CONFIG_ARCH_CINTEGRATOR
 	/*
+	 * Flash protection on the Integrator/CP is in a simple register
+	 */
+	val = readl(CP_FLASHPROG);
+	val |= (CP_FLASHPROG_FLVPPEN | CP_FLASHPROG_FLWREN);
+	writel(val, CP_FLASHPROG);
+#else
+	/*
+	 * The Integrator/AP has some special protection mechanisms
+	 * for the external memories, first the External Bus Interface (EBI)
+	 * then the system controller (SC).
+	 *
 	 * The system comes up with the flash memory non-writable and
 	 * configuration locked. If we want U-Boot to be used for flash
 	 * access we cannot have the flash memory locked.
@@ -87,6 +100,13 @@ extern void cm_remap(void);
 	val |= EBI_CSR_WREN_ENABLE;
 	writel(val, EBI_BASE + EBI_CSR1_REG);
 	writel(0, EBI_BASE + EBI_LOCK_REG);
+
+	/*
+	 * Set up the system controller to remove write protection from
+	 * the flash memory and enable Vpp
+	 */
+	writel(SC_CTRL_FLASHVPP | SC_CTRL_FLASHWP, SC_CTRLS);
+#endif
 
 	icache_enable ();
 
