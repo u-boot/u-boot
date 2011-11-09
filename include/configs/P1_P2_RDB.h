@@ -151,7 +151,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_CCSRBAR		0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
-#if defined(CONFIG_RAMBOOT_NAND) && !defined(CONFIG_NAND_SPL)
+#if defined(CONFIG_NAND_SPL)
 #define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
 #endif
 
