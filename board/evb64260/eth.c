@@ -127,31 +127,32 @@ static void gt6426x_handle_SMI(struct eth_dev_s *p, unsigned int icr)
 #endif
 
     if(icr&0x10000000) {
-	unsigned int psr;
-	psr=GTREGREAD(ETHERNET0_PORT_STATUS_REGISTER + p->reg_base);
 #ifdef DEBUG
+	unsigned int psr;
+
+	psr=GTREGREAD(ETHERNET0_PORT_STATUS_REGISTER + p->reg_base);
 	printf("PHY state change:\n"
 	       "  GT:%s:%s:%s:%s\n",
-		psr&1?"100":" 10",
-		psr&8?" Link":"nLink",
-		psr&2?"FD":"HD",
-		psr&4?" FC":"nFC");
+		psr & 1 ? "100" : " 10",
+		psr & 8 ? " Link" : "nLink",
+		psr & 2 ? "FD" : "HD",
+		psr & 4 ? " FC" : "nFC");
 
 #ifdef CONFIG_INTEL_LXT97X /* non-standard mii reg (intel lxt972a) */
 	{
-	unsigned short mii_11;
-	mii_11=miiphy_read_ret(ether_port_phy_addr[p->dev],0x11);
+		unsigned short mii_11;
+		mii_11 = miiphy_read_ret(ether_port_phy_addr[p->dev], 0x11);
 
-	printf(" mii:%s:%s:%s:%s %s:%s %s\n",
-		mii_11&(1<<14)?"100":" 10",
-		mii_11&(1<<10)?" Link":"nLink",
-		mii_11&(1<<9)?"FD":"HD",
-		mii_11&(1<<4)?" FC":"nFC",
+		printf(" mii:%s:%s:%s:%s %s:%s %s\n",
+			mii_11 & (1 << 14) ? "100" : " 10",
+			mii_11 & (1 << 10) ? " Link" : "nLink",
+			mii_11 & (1 << 9) ? "FD" : "HD",
+			mii_11 & (1 << 4) ? " FC" : "nFC",
 
-		mii_11&(1<<7)?"ANc":"ANnc",
-		mii_11&(1<<8)?"AN":"Manual",
-		""
-		);
+			mii_11 & (1 << 7) ? "ANc" : "ANnc",
+			mii_11 & (1 << 8) ? "AN" : "Manual",
+			""
+			);
 	}
 #endif /* CONFIG_INTEL_LXT97X */
 #endif /* DEBUG */
