@@ -32,6 +32,7 @@
 #include <galileo/gt64260R.h>
 #include <net.h>
 #include <netdev.h>
+#include <linux/compiler.h>
 
 #include <asm/io.h>
 #include "eth.h"
@@ -360,7 +361,7 @@ debug_led(int led, int mode)
 {
 #if !defined(CONFIG_ZUMA_V2) && !defined(CONFIG_P3G4)
 	volatile int *addr = NULL;
-	int dummy;
+	__maybe_unused int dummy;
 
 	if (mode == 1) {
 		switch (led) {
