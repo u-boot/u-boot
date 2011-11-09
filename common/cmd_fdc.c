@@ -428,8 +428,8 @@ int fdc_terminate(FDC_COMMAND_STRUCT *pCMD)
 int fdc_read_data(unsigned char *buffer, unsigned long blocks,FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 {
   /* first seek to start address */
-	unsigned long len,lastblk,readblk,i,timeout,ii,offset;
-	unsigned char pcn,c,retriesrw,retriescal;
+	unsigned long len,readblk,i,timeout,ii,offset;
+	unsigned char c,retriesrw,retriescal;
 	unsigned char *bufferw; /* working buffer */
 	int sect_size;
 	int flags;
@@ -442,18 +442,19 @@ int fdc_read_data(unsigned char *buffer, unsigned long blocks,FDC_COMMAND_STRUCT
 	offset=0;
 	if(fdc_seek(pCMD,pFG)==FALSE) {
 		stop_fdc_drive(pCMD);
-		enable_interrupts();
+		if (flags)
+			enable_interrupts();
 		return FALSE;
 	}
 	if((pCMD->result[STATUS_0]&0x20)!=0x20) {
 		printf("Seek error Status: %02X\n",pCMD->result[STATUS_0]);
 		stop_fdc_drive(pCMD);
-		enable_interrupts();
+		if (flags)
+			enable_interrupts();
 		return FALSE;
 	}
-	pcn=pCMD->result[STATUS_PCN]; /* current track */
 	/* now determine the next seek point */
-	lastblk=pCMD->blnr + blocks;
+	/*	lastblk=pCMD->blnr + blocks; */
 	/*	readblk=(pFG->head*pFG->sect)-(pCMD->blnr%(pFG->head*pFG->sect)); */
 	readblk=pFG->sect-(pCMD->blnr%pFG->sect);
 	PRINTF("1st nr of block possible read %ld start %ld\n",readblk,pCMD->blnr);
@@ -467,7 +468,8 @@ retryrw:
 		pCMD->cmd[COMMAND]=FDC_CMD_READ;
 		if(fdc_issue_cmd(pCMD,pFG)==FALSE) {
 			stop_fdc_drive(pCMD);
-			enable_interrupts();
+			if (flags)
+				enable_interrupts();
 			return FALSE;
 		}
 		for (i=0;i<len;i++) {
@@ -488,14 +490,16 @@ retryrw:
 					if(retriesrw++>FDC_RW_RETRIES) {
 						if (retriescal++>FDC_CAL_RETRIES) {
 							stop_fdc_drive(pCMD);
-							enable_interrupts();
+							if (flags)
+								enable_interrupts();
 							return FALSE;
 						}
 						else {
 							PRINTF(" trying to recalibrate Try %d\n",retriescal);
 							if(fdc_recalibrate(pCMD,pFG)==FALSE) {
 								stop_fdc_drive(pCMD);
-								enable_interrupts();
+								if (flags)
+									enable_interrupts();
 								return FALSE;
 							}
 							retriesrw=0;
@@ -528,7 +532,8 @@ retrycal:
 		/* a seek is necessary */
 		if(fdc_seek(pCMD,pFG)==FALSE) {
 			stop_fdc_drive(pCMD);
-			enable_interrupts();
+			if (flags)
+				enable_interrupts();
 			return FALSE;
 		}
 		if((pCMD->result[STATUS_0]&0x20)!=0x20) {
@@ -536,10 +541,10 @@ retrycal:
 			stop_fdc_drive(pCMD);
 			return FALSE;
 		}
-		pcn=pCMD->result[STATUS_PCN]; /* current track */
 	}while(TRUE); /* start over */
 	stop_fdc_drive(pCMD); /* switch off drive */
-	enable_interrupts();
+	if (flags)
+		enable_interrupts();
 	return TRUE;
 }
 
