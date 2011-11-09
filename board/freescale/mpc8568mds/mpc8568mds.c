@@ -147,12 +147,10 @@ local_bus_init(void)
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
-	uint lbc_hz;
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
 	clkdiv = (lbc->lcrr & LCRR_CLKDIV) * 2;
-	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	gur->lbiuiplldcr1 = 0x00078080;
 	if (clkdiv == 16) {
@@ -302,6 +300,7 @@ pib_init(void)
 	i2c_write(0x27, 0x3, 1, &val8, 1);
 
 	asm("eieio");
+	i2c_set_bus_num(orig_i2c_bus);
 }
 
 #ifdef CONFIG_PCI
