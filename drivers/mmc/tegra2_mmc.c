@@ -116,34 +116,24 @@ static void mmc_set_transfer_mode(struct mmc_host *host, struct mmc_data *data)
 	writew(mode, &host->reg->trnmod);
 }
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			struct mmc_data *data)
+static int mmc_wait_inhibit(struct mmc_host *host,
+			    struct mmc_cmd *cmd,
+			    struct mmc_data *data,
+			    unsigned int timeout)
 {
-	struct mmc_host *host = (struct mmc_host *)mmc->priv;
-	int flags, i;
-	unsigned int timeout;
-	unsigned int mask;
-	unsigned int retry = 0x100000;
-	debug(" mmc_send_cmd called\n");
-
-	/* Wait max 10 ms */
-	timeout = 10;
-
 	/*
 	 * PRNSTS
-	 * CMDINHDAT[1]	: Command Inhibit (DAT)
-	 * CMDINHCMD[0]	: Command Inhibit (CMD)
+	 * CMDINHDAT[1] : Command Inhibit (DAT)
+	 * CMDINHCMD[0] : Command Inhibit (CMD)
 	 */
-	mask = TEGRA_MMC_PRNSTS_CMD_INHIBIT_CMD;
-	if ((data != NULL) || (cmd->resp_type & MMC_RSP_BUSY))
-		mask |= TEGRA_MMC_PRNSTS_CMD_INHIBIT_DAT;
+	unsigned int mask = TEGRA_MMC_PRNSTS_CMD_INHIBIT_CMD;
 
 	/*
 	 * We shouldn't wait for data inhibit for stop commands, even
 	 * though they might use busy signaling
 	 */
-	if (data)
-		mask &= ~TEGRA_MMC_PRNSTS_CMD_INHIBIT_DAT;
+	if ((data == NULL) && (cmd->resp_type & MMC_RSP_BUSY))
+		mask |= TEGRA_MMC_PRNSTS_CMD_INHIBIT_DAT;
 
 	while (readl(&host->reg->prnsts) & mask) {
 		if (timeout == 0) {
@@ -153,6 +143,24 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		timeout--;
 		udelay(1000);
 	}
+
+	return 0;
+}
+
+static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			struct mmc_data *data)
+{
+	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+	int flags, i;
+	int result;
+	unsigned int mask;
+	unsigned int retry = 0x100000;
+	debug(" mmc_send_cmd called\n");
+
+	result = mmc_wait_inhibit(host, cmd, data, 10 /* ms */);
+
+	if (result < 0)
+		return result;
 
 	if (data)
 		mmc_prepare_data(host, data);
