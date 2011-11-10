@@ -74,7 +74,7 @@
 /* IPADDR, SERVERIP */
 /* Need I2C for RTC? */
 
-#define CONFIG_IDENT_STRING	"\nXilinx Pele Emulaton Platform"
+#define CONFIG_IDENT_STRING	"\nXilinx Pele Emulation Platform"
 #define CONFIG_PANIC_HANG	1 /* For development/debugging */
 
 #define CONFIG_AUTO_COMPLETE	1
@@ -149,7 +149,7 @@
 #define CONFIG_TTC0	1
 #define CONFIG_GEM0	1
 
-#define TIMER_INPUT_CLOCK               5000000
+#define TIMER_INPUT_CLOCK               XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ / 2
 #define CONFIG_TIMER_PRESCALE           255
 #define TIMER_TICK_HZ                   (TIMER_INPUT_CLOCK / CONFIG_TIMER_PRESCALE)
 #define CONFIG_SYS_HZ                   1000
