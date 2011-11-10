@@ -272,7 +272,13 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		return 1;
 	}
 
+	if (images.os.type == IH_TYPE_KERNEL_NOLOAD) {
+		images.os.load = images.os.image_start;
+		images.ep += images.os.load;
+	}
+
 	if (((images.os.type == IH_TYPE_KERNEL) ||
+	     (images.os.type == IH_TYPE_KERNEL_NOLOAD) ||
 	     (images.os.type == IH_TYPE_MULTI)) &&
 	    (images.os.os == IH_OS_LINUX)) {
 		/* find ramdisk */
@@ -796,7 +802,8 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
 	}
 
 	show_boot_progress(106);
-	if (!fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL)) {
+	if (!fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL) &&
+	    !fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL_NOLOAD)) {
 		puts("Not a kernel image\n");
 		show_boot_progress(-106);
 		return 0;
@@ -874,6 +881,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		/* get os_data and os_len */
 		switch (image_get_type(hdr)) {
 		case IH_TYPE_KERNEL:
+		case IH_TYPE_KERNEL_NOLOAD:
 			*os_data = image_get_data(hdr);
 			*os_len = image_get_data_size(hdr);
 			break;
