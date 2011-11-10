@@ -260,6 +260,8 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (data) {
+		unsigned long	start = get_timer(0);
+
 		while (1) {
 			mask = readl(&host->reg->norintsts);
 
@@ -284,6 +286,18 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 				/* Transfer Complete */
 				debug("r/w is done\n");
 				break;
+			} else if (get_timer(start) > 2000UL) {
+				writel(mask, &host->reg->norintsts);
+				printf("%s: MMC Timeout\n"
+				       "    Interrupt status        0x%08x\n"
+				       "    Interrupt status enable 0x%08x\n"
+				       "    Interrupt signal enable 0x%08x\n"
+				       "    Present status          0x%08x\n",
+				       __func__, mask,
+				       readl(&host->reg->norintstsen),
+				       readl(&host->reg->norintsigen),
+				       readl(&host->reg->prnsts));
+				return -1;
 			}
 		}
 		writel(mask, &host->reg->norintsts);
