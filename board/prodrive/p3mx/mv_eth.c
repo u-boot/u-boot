@@ -274,7 +274,7 @@ void mv6446x_eth_initialize (bd_t * bis)
 			return;
 		}
 
-		/* must be less than NAMESIZE (16) */
+		/* must be less than sizeof(dev->name) */
 		sprintf (dev->name, "mv_enet%d", devnum);
 
 #ifdef DEBUG

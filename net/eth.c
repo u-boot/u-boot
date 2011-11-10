@@ -203,7 +203,7 @@ int eth_register(struct eth_device *dev)
 	struct eth_device *d;
 	static int index = 0;
 
-	assert(strlen(dev->name) < NAMESIZE);
+	assert(strlen(dev->name) < sizeof(dev->name));
 
 	if (!eth_devices) {
 		eth_current = eth_devices = dev;

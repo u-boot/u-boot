@@ -85,7 +85,7 @@
 #endif
 
 struct fixed_phy_port {
-	char name[NAMESIZE];	/* ethernet port name */
+	char name[16];	/* ethernet port name */
 	unsigned int speed;	/* specified speed 10,100 or 1000 */
 	unsigned int duplex;	/* specified duplex FULL or HALF */
 };

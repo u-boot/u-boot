@@ -3,10 +3,9 @@
 
 #include <post.h>
 
-#define NAMESIZE 16
-
 struct serial_device {
-	char name[NAMESIZE];
+	/* enough bytes to match alignment of following func pointer */
+	char name[16];
 
 	int  (*init) (void);
 	int  (*uninit) (void);

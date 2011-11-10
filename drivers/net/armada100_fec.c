@@ -715,7 +715,7 @@ int armada100_fec_register(unsigned long base_addr)
 	/* Assign ARMADA100 Fast Ethernet Controller Base Address */
 	darmdfec->regs = (void *)base_addr;
 
-	/* must be less than NAMESIZE (16) */
+	/* must be less than sizeof(dev->name) */
 	strcpy(dev->name, "armd-fec0");
 
 	dev->init = armdfec_init;

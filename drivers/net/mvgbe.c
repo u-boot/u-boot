@@ -702,7 +702,7 @@ error1:
 
 		dev = &dmvgbe->dev;
 
-		/* must be less than NAMESIZE (16) */
+		/* must be less than sizeof(dev->name) */
 		sprintf(dev->name, "egiga%d", devnum);
 
 		switch (devnum) {

@@ -67,8 +67,6 @@ typedef void rxhand_icmp_f(unsigned type, unsigned code, unsigned dport,
  */
 typedef void	thand_f(void);
 
-#define NAMESIZE 16
-
 enum eth_state_t {
 	ETH_STATE_INIT,
 	ETH_STATE_PASSIVE,
@@ -76,7 +74,7 @@ enum eth_state_t {
 };
 
 struct eth_device {
-	char name[NAMESIZE];
+	char name[16];
 	unsigned char enetaddr[6];
 	int iobase;
 	int state;
