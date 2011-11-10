@@ -31,6 +31,18 @@
 #include <pci.h>
 
 extern ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS];
+int cpci_hd_type;
+
+int ata_device(int dev)
+{
+	int retval;
+
+	retval = (dev & 1) << 4;
+	if (cpci_hd_type == 2)
+		retval ^= 1 << 4;
+	return retval;
+}
+
 
 int ide_preinit (void)
 {
@@ -39,14 +51,21 @@ int ide_preinit (void)
 	int l;
 
 	status = 1;
+	cpci_hd_type = 0;
 	if (CPCI750_SLAVE_TEST != 0)
 		return status;
 	for (l = 0; l < CONFIG_SYS_IDE_MAXBUS; l++) {
 		ide_bus_offset[l] = -ATA_STATUS;
 	}
 	devbusfn = pci_find_device (0x1103, 0x0004, 0);
-	if (devbusfn == -1)
+	if (devbusfn != -1) {
+		cpci_hd_type = 1;
+	} else {
 	        devbusfn = pci_find_device (0x1095, 0x3114, 0);
+		if (devbusfn != -1) {
+			cpci_hd_type = 2;
+		}
+	}
 	if (devbusfn != -1) {
 		ulong *ide_bus_offset_ptr;
 
