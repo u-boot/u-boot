@@ -320,6 +320,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
 	__maybe_unused uint unc_len = CONFIG_SYS_BOOTM_LEN;
+	int no_overlap = 0;
 #if defined(CONFIG_LZMA) || defined(CONFIG_LZO)
 	int ret;
 #endif /* defined(CONFIG_LZMA) || defined(CONFIG_LZO) */
@@ -330,6 +331,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	case IH_COMP_NONE:
 		if (load == blob_start || load == image_start) {
 			printf("   XIP %s ... ", type_name);
+			no_overlap = 1;
 		} else {
 			printf("   Loading %s ... ", type_name);
 			memmove_wd((void *)load, (void *)image_start,
@@ -424,7 +426,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	if (boot_progress)
 		show_boot_progress(7);
 
-	if ((load < blob_end) && (*load_end > blob_start)) {
+	if (!no_overlap && (load < blob_end) && (*load_end > blob_start)) {
 		debug("images.os.start = 0x%lX, images.os.end = 0x%lx\n",
 			blob_start, blob_end);
 		debug("images.os.load = 0x%lx, load_end = 0x%lx\n", load,
