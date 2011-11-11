@@ -243,4 +243,14 @@ struct usb_ehci {
 	u8	res14[0xafc];
 };
 
+/*
+ * For MXC SOCs
+ */
+#define MXC_EHCI_POWER_PINS_ENABLED	(1 << 5)
+#define MXC_EHCI_TTL_ENABLED		(1 << 6)
+#define MXC_EHCI_INTERNAL_PHY		(1 << 7)
+
+/* Board-specific initialization */
+int board_ehci_hcd_init(int port);
+
 #endif /* _EHCI_FSL_H */
