@@ -40,4 +40,9 @@ u32 imx_get_uartclk(void);
 u32 imx_get_fecclk(void);
 unsigned int mxc_get_clock(enum mxc_clock clk);
 
+void set_usb_phy2_clk(void);
+void enable_usb_phy2_clk(unsigned char enable);
+void set_usboh3_clk(void);
+void enable_usboh3_clk(unsigned char enable);
+
 #endif /* __ASM_ARCH_CLOCK_H */

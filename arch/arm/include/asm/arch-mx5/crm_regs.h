@@ -195,7 +195,10 @@ struct mxc_ccm_reg {
 /* Define the bits in register CCGRx */
 #define MXC_CCM_CCGR_CG_MASK				0x3
 
+#define MXC_CCM_CCGR4_CG5_OFFSET			10
+#define MXC_CCM_CCGR4_CG6_OFFSET			12
 #define MXC_CCM_CCGR5_CG5_OFFSET			10
+#define MXC_CCM_CCGR2_CG14_OFFSET			28
 
 /* Define the bits in register CLPCR */
 #define MXC_CCM_CLPCR_BYPASS_IPU_LPM_HS                 (0x1 << 18)
