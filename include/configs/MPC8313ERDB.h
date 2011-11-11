@@ -82,7 +82,8 @@
 
 #define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
 
-#define CONFIG_BOARD_EARLY_INIT_F		/* call board_pre_init */
+#define CONFIG_BOARD_EARLY_INIT_F		/* call board_early_init_f */
+#define CONFIG_BOARD_EARLY_INIT_R		/* call board_early_init_r */
 
 #define CONFIG_SYS_IMMR		0xE0000000
 
@@ -363,6 +364,9 @@
 #define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
+#define CONFIG_MPC83XX_GPIO 1
+#define CONFIG_CMD_GPIO 1
+
 /*
  * Serial Port
  */
@@ -581,7 +585,8 @@
 
 /* System IO Config */
 #define CONFIG_SYS_SICRH	(SICRH_TSOBI1 | SICRH_TSOBI2)	/* RGMII */
-#define CONFIG_SYS_SICRL	SICRL_USBDR_10	/* Enable Internal USB Phy  */
+			/* Enable Internal USB Phy and GPIO on LCD Connector */
+#define CONFIG_SYS_SICRL	(SICRL_USBDR_10 | SICRL_LBC)
 
 #define CONFIG_SYS_HID0_INIT	0x000000000
 #define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
