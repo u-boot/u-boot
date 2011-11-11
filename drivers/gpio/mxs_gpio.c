@@ -69,68 +69,64 @@ void mxs_gpio_init(void)
 	}
 }
 
-int gpio_get_value(int gp)
+int gpio_get_value(unsigned gpio)
 {
-	uint32_t bank = PAD_BANK(gp);
+	uint32_t bank = PAD_BANK(gpio);
 	uint32_t offset = PINCTRL_DIN(bank);
 	struct mx28_register *reg =
 		(struct mx28_register *)(MXS_PINCTRL_BASE + offset);
 
-	return (readl(&reg->reg) >> PAD_PIN(gp)) & 1;
+	return (readl(&reg->reg) >> PAD_PIN(gpio)) & 1;
 }
 
-void gpio_set_value(int gp, int value)
+void gpio_set_value(unsigned gpio, int value)
 {
-	uint32_t bank = PAD_BANK(gp);
+	uint32_t bank = PAD_BANK(gpio);
 	uint32_t offset = PINCTRL_DOUT(bank);
 	struct mx28_register *reg =
 		(struct mx28_register *)(MXS_PINCTRL_BASE + offset);
 
 	if (value)
-		writel(1 << PAD_PIN(gp), &reg->reg_set);
+		writel(1 << PAD_PIN(gpio), &reg->reg_set);
 	else
-		writel(1 << PAD_PIN(gp), &reg->reg_clr);
+		writel(1 << PAD_PIN(gpio), &reg->reg_clr);
 }
 
-int gpio_direction_input(int gp)
+int gpio_direction_input(unsigned gpio)
 {
-	uint32_t bank = PAD_BANK(gp);
+	uint32_t bank = PAD_BANK(gpio);
 	uint32_t offset = PINCTRL_DOE(bank);
 	struct mx28_register *reg =
 		(struct mx28_register *)(MXS_PINCTRL_BASE + offset);
 
-	writel(1 << PAD_PIN(gp), &reg->reg_clr);
+	writel(1 << PAD_PIN(gpio), &reg->reg_clr);
 
 	return 0;
 }
 
-int gpio_direction_output(int gp, int value)
+int gpio_direction_output(unsigned gpio, int value)
 {
-	uint32_t bank = PAD_BANK(gp);
+	uint32_t bank = PAD_BANK(gpio);
 	uint32_t offset = PINCTRL_DOE(bank);
 	struct mx28_register *reg =
 		(struct mx28_register *)(MXS_PINCTRL_BASE + offset);
 
-	writel(1 << PAD_PIN(gp), &reg->reg_set);
+	writel(1 << PAD_PIN(gpio), &reg->reg_set);
 
-	gpio_set_value(gp, value);
-
-	return 0;
-}
-
-int gpio_request(int gp, const char *label)
-{
-	if (PAD_BANK(gp) >= PINCTRL_BANKS)
-		return -EINVAL;
+	gpio_set_value(gpio, value);
 
 	return 0;
 }
 
-void gpio_free(int gp)
+int gpio_request(unsigned gpio, const char *label)
 {
+	if (PAD_BANK(gpio) >= PINCTRL_BANKS)
+		return -1;
+
+	return 0;
 }
 
-void gpio_toggle_value(int gp)
+int gpio_free(unsigned gpio)
 {
-	gpio_set_value(gp, !gpio_get_value(gp));
+	return 0;
 }

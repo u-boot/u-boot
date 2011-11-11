@@ -36,7 +36,7 @@
  * published by the Free Software Foundation.
  */
 #include <common.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 
@@ -56,17 +56,17 @@ static inline int get_gpio_index(int gpio)
 static inline int gpio_valid(int gpio)
 {
 	if (gpio < 0)
-		return -EINVAL;
+		return -1;
 	if (gpio < 192)
 		return 0;
-	return -EINVAL;
+	return -1;
 }
 
 static int check_gpio(int gpio)
 {
 	if (gpio_valid(gpio) < 0) {
 		printf("ERROR : check_gpio: invalid GPIO %d\n", gpio);
-		return -EINVAL;
+		return -1;
 	}
 	return 0;
 }
@@ -106,7 +106,7 @@ static int _get_gpio_direction(const struct gpio_bank *bank, int gpio)
 		reg += OMAP_GPIO_OE;
 		break;
 	default:
-		return -EINVAL;
+		return -1;
 	}
 
 	v = __raw_readl(reg);
@@ -142,27 +142,29 @@ static void _set_gpio_dataout(const struct gpio_bank *bank, int gpio,
 /**
  * Set value of the specified gpio
  */
-void gpio_set_value(int gpio, int value)
+int gpio_set_value(unsigned gpio, int value)
 {
 	const struct gpio_bank *bank;
 
 	if (check_gpio(gpio) < 0)
-		return;
+		return -1;
 	bank = get_gpio_bank(gpio);
 	_set_gpio_dataout(bank, get_gpio_index(gpio), value);
+
+	return 0;
 }
 
 /**
  * Get value of the specified gpio
  */
-int gpio_get_value(int gpio)
+int gpio_get_value(unsigned gpio)
 {
 	const struct gpio_bank *bank;
 	void *reg;
 	int input;
 
 	if (check_gpio(gpio) < 0)
-		return -EINVAL;
+		return -1;
 	bank = get_gpio_bank(gpio);
 	reg = bank->base;
 	switch (bank->method) {
@@ -176,11 +178,11 @@ int gpio_get_value(int gpio)
 			reg += OMAP_GPIO_DATAOUT;
 			break;
 		default:
-			return -EINVAL;
+			return -1;
 		}
 		break;
 	default:
-		return -EINVAL;
+		return -1;
 	}
 	return (__raw_readl(reg)
 			& (1 << get_gpio_index(gpio))) != 0;
@@ -194,7 +196,7 @@ int gpio_direction_input(unsigned gpio)
 	const struct gpio_bank *bank;
 
 	if (check_gpio(gpio) < 0)
-		return -EINVAL;
+		return -1;
 
 	bank = get_gpio_bank(gpio);
 	_set_gpio_direction(bank, get_gpio_index(gpio), 1);
@@ -210,7 +212,7 @@ int gpio_direction_output(unsigned gpio, int value)
 	const struct gpio_bank *bank;
 
 	if (check_gpio(gpio) < 0)
-		return -EINVAL;
+		return -1;
 
 	bank = get_gpio_bank(gpio);
 	_set_gpio_dataout(bank, get_gpio_index(gpio), value);
@@ -224,10 +226,10 @@ int gpio_direction_output(unsigned gpio, int value)
  *
  * NOTE: Argument 'label' is unused.
  */
-int gpio_request(int gpio, const char *label)
+int gpio_request(unsigned gpio, const char *label)
 {
 	if (check_gpio(gpio) < 0)
-		return -EINVAL;
+		return -1;
 
 	return 0;
 }
@@ -235,6 +237,7 @@ int gpio_request(int gpio, const char *label)
 /**
  * Reset and free the gpio after using it.
  */
-void gpio_free(unsigned gpio)
+int gpio_free(unsigned gpio)
 {
+	return 0;
 }
