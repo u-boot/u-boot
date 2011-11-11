@@ -78,6 +78,16 @@ static void setup_iomux_uart(void)
 				PAD_CTL_ODE_OPENDRAIN_ENABLE);
 }
 
+#ifdef CONFIG_USB_EHCI_MX5
+void board_ehci_hcd_init(int port)
+{
+	/* request VBUS power enable pin, GPIO[8}, gpio7 */
+	mxc_request_iomux(MX53_PIN_ATA_DA_2, IOMUX_CONFIG_ALT1);
+	gpio_direction_output(IOMUX_TO_GPIO(MX53_PIN_ATA_DA_2), 0);
+	gpio_set_value(IOMUX_TO_GPIO(MX53_PIN_ATA_DA_2), 1);
+}
+#endif
+
 static void setup_iomux_fec(void)
 {
 	/*FEC_MDIO*/
