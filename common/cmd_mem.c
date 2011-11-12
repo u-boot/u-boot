@@ -33,7 +33,6 @@
 #include <dataflash.h>
 #endif
 #include <watchdog.h>
-#include <asm/io.h>
 
 #ifdef	CMD_MEM_DEBUG
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)
@@ -142,13 +141,9 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 # endif
 
 	{
-		ulong bytes = size * length;
-		void *buf = map_physmem(addr, bytes, MAP_WRBACK);
-
 		/* Print the lines. */
-		print_buffer(addr, buf, size, length, DISP_LINE_LEN / size);
-		addr += bytes;
-		unmap_physmem(buf, bytes);
+		print_buffer(addr, (void*)addr, size, length, DISP_LINE_LEN/size);
+		addr += size*length;
 	}
 #endif
 
