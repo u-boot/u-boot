@@ -30,7 +30,11 @@
 
 int realmode_setup(void)
 {
-	ulong realmode_start = (ulong)&__realmode_start + gd->reloc_off;
+	/*
+	 * The realmode section is not relocated and still in the ROM. The
+	 * __realmode_start symbol was adjusted, though, so adjust it back.
+	 */
+	ulong realmode_start = (ulong)&__realmode_start - gd->reloc_off;
 	ulong realmode_size = (ulong)&__realmode_size;
 
 	/* copy the realmode switch code */
