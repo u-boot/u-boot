@@ -231,8 +231,11 @@ static int do_elf_reloc_fixups(void)
 			offset_ptr_ram = offset_ptr_rom + gd->reloc_off;
 
 			/* Check that the target points into .text */
-			if (*offset_ptr_ram >= CONFIG_SYS_TEXT_BASE)
+			if (*offset_ptr_ram >= CONFIG_SYS_TEXT_BASE &&
+					*offset_ptr_ram <
+					(CONFIG_SYS_TEXT_BASE + size)) {
 				*offset_ptr_ram += gd->reloc_off;
+			}
 		}
 	} while (re_src++ < re_end);
 

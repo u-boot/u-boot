@@ -78,11 +78,8 @@ static void setvector(int vector, u16 segment, void *handler)
 
 int bios_setup(void)
 {
-	/*
-	 * The BIOS section is not relocated and still in the ROM. The
-	 * __bios_start symbol was adjusted, though, so adjust it back.
-	 */
-	ulong bios_start = (ulong)&__bios_start - gd->reloc_off;
+	/* The BIOS section is not relocated and still in the ROM. */
+	ulong bios_start = (ulong)&__bios_start;
 	ulong bios_size = (ulong)&__bios_size;
 
 	static int done;
