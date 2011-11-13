@@ -209,7 +209,8 @@
 #define	CONFIG_SYS_MONITOR_LEN		0x80000
 #define	CONFIG_ENV_ADDR			\
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-#define	CONFIG_ENV_SIZE			0x4000
+#define	CONFIG_ENV_SIZE			0x20000
+#define	CONFIG_ENV_SECT_SIZE		0x20000
 
 #if	defined(CONFIG_CMD_FLASH)	/* NOR */
 #define	PHYS_FLASH_1			0x00000000	/* Flash Bank #1 */
@@ -238,22 +239,11 @@
 
 #define	CONFIG_ENV_IS_IN_FLASH		1
 
-/*
- * The first four sectors of the NOR flash are 0x8000 bytes big, the rest of the
- * flash consists of 0x20000 bytes big sectors.
- */
-#if	(CONFIG_ENV_ADDR <= 0x18000)
-#define	CONFIG_ENV_SECT_SIZE		0x8000
-#else
-#define	CONFIG_ENV_SECT_SIZE		0x20000
-#endif
-
 #elif	defined(CONFIG_CMD_ONENAND)	/* OneNAND */
 #define	CONFIG_SYS_NO_FLASH
 #define	CONFIG_SYS_ONENAND_BASE		0x00000000
 
 #define	CONFIG_ENV_IS_IN_ONENAND	1
-#define	CONFIG_ENV_SECT_SIZE		0x20000
 
 #else	/* No flash */
 #define	CONFIG_SYS_NO_FLASH
