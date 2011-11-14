@@ -313,6 +313,13 @@ static unsigned char ext_key_map[] = {
 	0x00  /* map end */
 	};
 
+/******************************************************************************/
+
+static int kbd_controller_present(void)
+{
+	return in8(I8042_STATUS_REG) != 0xff;
+}
+
 /*******************************************************************************
  *
  * i8042_kbd_init - reset keyboard and init state flags
@@ -321,6 +328,9 @@ int i8042_kbd_init(void)
 {
 	int keymap, try;
 	char *penv;
+
+	if (!kbd_controller_present())
+		return -1;
 
 #ifdef CONFIG_USE_CPCIDVI
 	penv = getenv("console");
@@ -603,7 +613,7 @@ static int kbd_input_empty(void)
 	while ((in8(I8042_STATUS_REG) & 0x02) && kbdTimeout--)
 		udelay(1000);
 
-	return kbdTimeout;
+	return kbdTimeout != -1;
 }
 
 /******************************************************************************/
