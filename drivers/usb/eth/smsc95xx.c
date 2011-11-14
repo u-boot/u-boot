@@ -20,6 +20,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/unaligned.h>
 #include <common.h>
 #include <usb.h>
 #include <linux/mii.h>
@@ -372,13 +373,12 @@ static int smsc95xx_init_mac_address(struct eth_device *eth,
 static int smsc95xx_write_hwaddr(struct eth_device *eth)
 {
 	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	u32 addr_lo, addr_hi;
+	u32 addr_lo = __get_unaligned_le32(&eth->enetaddr[0]);
+	u32 addr_hi = __get_unaligned_le16(&eth->enetaddr[4]);
 	int ret;
 
 	/* set hardware address */
 	debug("** %s()\n", __func__);
-	addr_lo = cpu_to_le32(*eth->enetaddr);
-	addr_hi = cpu_to_le16(*((u16 *)(eth->enetaddr + 4)));
 	ret = smsc95xx_write_reg(dev, ADDRL, addr_lo);
 	if (ret < 0) {
 		debug("Failed to write ADDRL: %d\n", ret);
