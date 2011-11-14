@@ -1,8 +1,8 @@
 /*
  * sh_eth.c - Driver for Renesas SH7763's ethernet controler.
  *
- * Copyright (C) 2008 Renesas Solutions Corp.
- * Copyright (c) 2008 Nobuhiro Iwamatsu
+ * Copyright (C) 2008, 2011 Renesas Solutions Corp.
+ * Copyright (c) 2008, 2011 Nobuhiro Iwamatsu
  * Copyright (c) 2007 Carlos Munoz <carlos@kenati.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -371,7 +371,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(0, TFTR(port));
 	outl((FIFO_SIZE_T | FIFO_SIZE_R), FDR(port));
 	outl(RMCR_RST, RMCR(port));
-#ifndef CONFIG_CPU_SH7757
+#if !defined(CONFIG_CPU_SH7757) && !defined(CONFIG_CPU_SH7724)
 	outl(0, RPADIR(port));
 #endif
 	outl((FIFO_F_D_RFF | FIFO_F_D_RFD), FCFTR(port));
@@ -393,16 +393,19 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(val, MALR(port));
 
 	outl(RFLR_RFL_MIN, RFLR(port));
-#ifndef CONFIG_CPU_SH7757
+#if !defined(CONFIG_CPU_SH7757) && !defined(CONFIG_CPU_SH7724)
 	outl(0, PIPR(port));
 #endif
+#if !defined(CONFIG_CPU_SH7724)
 	outl(APR_AP, APR(port));
 	outl(MPR_MP, MPR(port));
-#ifdef CONFIG_CPU_SH7757
-	outl(TPAUSER_UNLIMITED, TPAUSER(port));
-#else
-	outl(TPAUSER_TPAUSE, TPAUSER(port));
 #endif
+#if defined(CONFIG_CPU_SH7763)
+	outl(TPAUSER_TPAUSE, TPAUSER(port));
+#elif defined(CONFIG_CPU_SH7757)
+	outl(TPAUSER_UNLIMITED, TPAUSER(port));
+#endif
+
 	/* Configure phy */
 	ret = sh_eth_phy_config(eth);
 	if (ret) {
@@ -412,33 +415,34 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	phy = port_info->phydev;
 	phy_startup(phy);
 
+	val = 0;
+
 	/* Set the transfer speed */
-#ifdef CONFIG_CPU_SH7763
 	if (phy->speed == 100) {
 		printf(SHETHER_NAME ": 100Base/");
+#ifdef CONFIG_CPU_SH7763
 		outl(GECMR_100B, GECMR(port));
+#elif defined(CONFIG_CPU_SH7757)
+		outl(1, RTRATE(port));
+#elif defined(CONFIG_CPU_SH7724)
+		val = ECMR_RTM;
+#endif
 	} else if (phy->speed == 10) {
 		printf(SHETHER_NAME ": 10Base/");
+#ifdef CONFIG_CPU_SH7763
 		outl(GECMR_10B, GECMR(port));
-	}
-#endif
-#if defined(CONFIG_CPU_SH7757)
-	if (phy->speed == 100) {
-		printf("100Base/");
-		outl(1, RTRATE(port));
-	} else if (phy->speed == 10) {
-		printf("10Base/");
+#elif defined(CONFIG_CPU_SH7757)
 		outl(0, RTRATE(port));
-	}
 #endif
+	}
 
 	/* Check if full duplex mode is supported by the phy */
 	if (phy->duplex) {
 		printf("Full\n");
-		outl((ECMR_CHG_DM|ECMR_RE|ECMR_TE|ECMR_DM), ECMR(port));
+		outl(val | (ECMR_CHG_DM|ECMR_RE|ECMR_TE|ECMR_DM), ECMR(port));
 	} else {
 		printf("Half\n");
-		outl((ECMR_CHG_DM|ECMR_RE|ECMR_TE),  ECMR(port));
+		outl(val | (ECMR_CHG_DM|ECMR_RE|ECMR_TE),  ECMR(port));
 	}
 
 	return ret;
