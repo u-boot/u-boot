@@ -380,18 +380,14 @@ static int smsc95xx_write_hwaddr(struct eth_device *eth)
 	/* set hardware address */
 	debug("** %s()\n", __func__);
 	ret = smsc95xx_write_reg(dev, ADDRL, addr_lo);
-	if (ret < 0) {
-		debug("Failed to write ADDRL: %d\n", ret);
+	if (ret < 0)
 		return ret;
-	}
 
 	ret = smsc95xx_write_reg(dev, ADDRH, addr_hi);
 	if (ret < 0)
 		return ret;
-	debug("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
-		eth->enetaddr[0], eth->enetaddr[1],
-		eth->enetaddr[2], eth->enetaddr[3],
-		eth->enetaddr[4], eth->enetaddr[5]);
+
+	debug("MAC %pM\n", eth->enetaddr);
 	dev->have_hwaddr = 1;
 	return 0;
 }
