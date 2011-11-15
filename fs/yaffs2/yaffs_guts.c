@@ -851,9 +851,8 @@ static int yaffs_CheckChunkErased(struct yaffs_DeviceStruct *dev,
 	int retval = YAFFS_OK;
 	__u8 *data = yaffs_GetTempBuffer(dev, __LINE__);
 	yaffs_ExtendedTags tags;
-	int result;
 
-	result = yaffs_ReadChunkWithTagsFromNAND(dev, chunkInNAND, data, &tags);
+	yaffs_ReadChunkWithTagsFromNAND(dev, chunkInNAND, data, &tags);
 
 	if(tags.eccResult > YAFFS_ECC_RESULT_NO_ERROR)
 		retval = YAFFS_FAIL;
@@ -3460,7 +3459,6 @@ int yaffs_UpdateObjectHeader(yaffs_Object * in, const YCHAR * name, int force,
 
 	int prevChunkId;
 	int retVal = 0;
-	int result = 0;
 
 	int newChunkId;
 	yaffs_ExtendedTags newTags;
@@ -3484,7 +3482,7 @@ int yaffs_UpdateObjectHeader(yaffs_Object * in, const YCHAR * name, int force,
 		prevChunkId = in->chunkId;
 
 		if (prevChunkId >= 0) {
-			result = yaffs_ReadChunkWithTagsFromNAND(dev, prevChunkId,
+			yaffs_ReadChunkWithTagsFromNAND(dev, prevChunkId,
 							buffer, &oldTags);
 
 			yaffs_VerifyObjectHeader(in,oh,&oldTags,0);
@@ -3771,7 +3769,6 @@ static yaffs_ChunkCache *yaffs_GrabChunkCache(yaffs_Device * dev)
 	yaffs_Object *theObj;
 	int usage;
 	int i;
-	int pushout;
 
 	if (dev->nShortOpCaches > 0) {
 		/* Try find a non-dirty one... */
@@ -3790,7 +3787,6 @@ static yaffs_ChunkCache *yaffs_GrabChunkCache(yaffs_Device * dev)
 			theObj = NULL;
 			usage = -1;
 			cache = NULL;
-			pushout = -1;
 
 			for (i = 0; i < dev->nShortOpCaches; i++) {
 				if (dev->srCache[i].object &&
@@ -3800,7 +3796,6 @@ static yaffs_ChunkCache *yaffs_GrabChunkCache(yaffs_Device * dev)
 					usage = dev->srCache[i].lastUse;
 					theObj = dev->srCache[i].object;
 					cache = &dev->srCache[i];
-					pushout = i;
 				}
 			}
 
@@ -5234,7 +5229,6 @@ static int yaffs_Scan(yaffs_Device * dev)
 	int startIterator;
 	int endIterator;
 	int nBlocksToScan = 0;
-	int result;
 
 	int chunk;
 	int c;
@@ -5377,7 +5371,7 @@ static int yaffs_Scan(yaffs_Device * dev)
 			/* Read the tags and decide what to do */
 			chunk = blk * dev->nChunksPerBlock + c;
 
-			result = yaffs_ReadChunkWithTagsFromNAND(dev, chunk, NULL,
+			yaffs_ReadChunkWithTagsFromNAND(dev, chunk, NULL,
 							&tags);
 
 			/* Let's have a good look at this chunk... */
@@ -5474,7 +5468,7 @@ static int yaffs_Scan(yaffs_Device * dev)
 				yaffs_SetChunkBit(dev, blk, c);
 				bi->pagesInUse++;
 
-				result = yaffs_ReadChunkWithTagsFromNAND(dev, chunk,
+				yaffs_ReadChunkWithTagsFromNAND(dev, chunk,
 								chunkData,
 								NULL);
 
@@ -5744,8 +5738,6 @@ static void yaffs_CheckObjectDetailsLoaded(yaffs_Object *in)
 	yaffs_ObjectHeader *oh;
 	yaffs_Device *dev = in->myDev;
 	yaffs_ExtendedTags tags;
-	int result;
-	int alloc_failed = 0;
 
 	if(!in)
 		return;
@@ -5760,7 +5752,8 @@ static void yaffs_CheckObjectDetailsLoaded(yaffs_Object *in)
 		in->lazyLoaded = 0;
 		chunkData = yaffs_GetTempBuffer(dev, __LINE__);
 
-		result = yaffs_ReadChunkWithTagsFromNAND(dev,in->chunkId,chunkData,&tags);
+		yaffs_ReadChunkWithTagsFromNAND(dev, in->chunkId,
+						chunkData, &tags);
 		oh = (yaffs_ObjectHeader *) chunkData;
 
 		in->yst_mode = oh->yst_mode;
@@ -5785,8 +5778,6 @@ static void yaffs_CheckObjectDetailsLoaded(yaffs_Object *in)
 		if(in->variantType == YAFFS_OBJECT_TYPE_SYMLINK){
 			 in->variant.symLinkVariant.alias =
 						    yaffs_CloneString(oh->alias);
-			if(!in->variant.symLinkVariant.alias)
-				alloc_failed = 1; /* Not returned to caller */
 		}
 
 		yaffs_ReleaseTempBuffer(dev,chunkData, __LINE__);
@@ -5803,9 +5794,7 @@ static int yaffs_ScanBackwards(yaffs_Device * dev)
 	int nBlocksToScan = 0;
 
 	int chunk;
-	int result;
 	int c;
-	int deleted;
 	yaffs_BlockState state;
 	yaffs_Object *hardList = NULL;
 	yaffs_BlockInfo *bi;
@@ -5971,8 +5960,6 @@ static int yaffs_ScanBackwards(yaffs_Device * dev)
 
 		state = bi->blockState;
 
-		deleted = 0;
-
 		/* For each chunk in each block that needs scanning.... */
 		foundChunksInBlock = 0;
 		for (c = dev->nChunksPerBlock - 1;
@@ -5985,7 +5972,7 @@ static int yaffs_ScanBackwards(yaffs_Device * dev)
 
 			chunk = blk * dev->nChunksPerBlock + c;
 
-			result = yaffs_ReadChunkWithTagsFromNAND(dev, chunk, NULL,
+			yaffs_ReadChunkWithTagsFromNAND(dev, chunk, NULL,
 							&tags);
 
 			/* Let's have a good look at this chunk... */
@@ -6132,7 +6119,7 @@ static int yaffs_ScanBackwards(yaffs_Device * dev)
 					 * living with invalid data until needed.
 					 */
 
-					result = yaffs_ReadChunkWithTagsFromNAND(dev,
+					yaffs_ReadChunkWithTagsFromNAND(dev,
 									chunk,
 									chunkData,
 									NULL);
@@ -6654,7 +6641,6 @@ int yaffs_GetObjectName(yaffs_Object * obj, YCHAR * name, int buffSize)
 	}
 #endif
 	else {
-		int result;
 		__u8 *buffer = yaffs_GetTempBuffer(obj->myDev, __LINE__);
 
 		yaffs_ObjectHeader *oh = (yaffs_ObjectHeader *) buffer;
@@ -6662,7 +6648,7 @@ int yaffs_GetObjectName(yaffs_Object * obj, YCHAR * name, int buffSize)
 		memset(buffer, 0, obj->myDev->nDataBytesPerChunk);
 
 		if (obj->chunkId >= 0) {
-			result = yaffs_ReadChunkWithTagsFromNAND(obj->myDev,
+			yaffs_ReadChunkWithTagsFromNAND(obj->myDev,
 							obj->chunkId, buffer,
 							NULL);
 		}
