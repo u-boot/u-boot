@@ -172,10 +172,11 @@ int board_eth_init(bd_t *bd)
 	if (board_handle_erratum2()) {
 		int i;
 
-		for (i = 0; i < ARRAY_SIZE(uec_info); i++)
+		for (i = 0; i < ARRAY_SIZE(uec_info); i++) {
 			uec_info[i].enet_interface_type =
 				PHY_INTERFACE_MODE_RGMII_RXID;
 			uec_info[i].speed = SPEED_1000;
+		}
 	}
 	return uec_eth_init(bd, uec_info, ARRAY_SIZE(uec_info));
 }
