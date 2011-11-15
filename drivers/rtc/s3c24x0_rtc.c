@@ -34,8 +34,7 @@
 
 #include <rtc.h>
 #include <asm/io.h>
-
-/*#define	DEBUG*/
+#include <linux/compiler.h>
 
 typedef enum {
 	RTC_ENABLE,
@@ -64,7 +63,8 @@ int rtc_get(struct rtc_time *tmp)
 {
 	struct s3c24x0_rtc *rtc = s3c24x0_get_base_rtc();
 	uchar sec, min, hour, mday, wday, mon, year;
-	uchar a_sec, a_min, a_hour, a_date, a_mon, a_year, a_armed;
+	__maybe_unused uchar a_sec, a_min, a_hour, a_date,
+			     a_mon, a_year, a_armed;
 
 	/* enable access to RTC registers */
 	SetRTC_Access(RTC_ENABLE);
