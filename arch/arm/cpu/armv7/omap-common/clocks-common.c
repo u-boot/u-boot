@@ -46,139 +46,6 @@
 #define puts(s)
 #endif
 
-#define abs(x) (((x) < 0) ? ((x)*-1) : (x))
-
-struct omap4_prcm_regs *const prcm = (struct omap4_prcm_regs *)0x4A004100;
-
-static const u32 sys_clk_array[8] = {
-	12000000,	       /* 12 MHz */
-	13000000,	       /* 13 MHz */
-	16800000,	       /* 16.8 MHz */
-	19200000,	       /* 19.2 MHz */
-	26000000,	       /* 26 MHz */
-	27000000,	       /* 27 MHz */
-	38400000,	       /* 38.4 MHz */
-};
-
-/*
- * The M & N values in the following tables are created using the
- * following tool:
- * tools/omap/clocks_get_m_n.c
- * Please use this tool for creating the table for any new frequency.
- */
-
-/* dpll locked at 1840 MHz MPU clk at 920 MHz(OPP Turbo 4460) - DCC OFF */
-static const struct dpll_params mpu_dpll_params_1840mhz[NUM_SYS_CLKS] = {
-	{230, 2, 1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{920, 12, 1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{219, 3, 1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{575, 11, 1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{460, 12, 1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{920, 26, 1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{575, 23, 1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
-};
-
-/* dpll locked at 1584 MHz - MPU clk at 792 MHz(OPP Turbo 4430) */
-static const struct dpll_params mpu_dpll_params_1584mhz[NUM_SYS_CLKS] = {
-	{66, 0, 1, -1, -1, -1, -1, -1},		/* 12 MHz   */
-	{792, 12, 1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{330, 6, 1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{165, 3, 1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{396, 12, 1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{88, 2, 1, -1, -1, -1, -1, -1},		/* 27 MHz   */
-	{165, 7, 1, -1, -1, -1, -1, -1}		/* 38.4 MHz */
-};
-
-/* dpll locked at 1200 MHz - MPU clk at 600 MHz */
-static const struct dpll_params mpu_dpll_params_1200mhz[NUM_SYS_CLKS] = {
-	{50, 0, 1, -1, -1, -1, -1, -1},		/* 12 MHz   */
-	{600, 12, 1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{250, 6, 1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{125, 3, 1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{300, 12, 1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{200, 8, 1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{125, 7, 1, -1, -1, -1, -1, -1}		/* 38.4 MHz */
-};
-
-static const struct dpll_params core_dpll_params_1600mhz[NUM_SYS_CLKS] = {
-	{200, 2, 1, 5, 8, 4, 6, 5},	/* 12 MHz   */
-	{800, 12, 1, 5, 8, 4, 6, 5},	/* 13 MHz   */
-	{619, 12, 1, 5, 8, 4, 6, 5},	/* 16.8 MHz */
-	{125, 2, 1, 5, 8, 4, 6, 5},	/* 19.2 MHz */
-	{400, 12, 1, 5, 8, 4, 6, 5},	/* 26 MHz   */
-	{800, 26, 1, 5, 8, 4, 6, 5},	/* 27 MHz   */
-	{125, 5, 1, 5, 8, 4, 6, 5}	/* 38.4 MHz */
-};
-
-static const struct dpll_params core_dpll_params_es1_1524mhz[NUM_SYS_CLKS] = {
-	{127, 1, 1, 5, 8, 4, 6, 5},	/* 12 MHz   */
-	{762, 12, 1, 5, 8, 4, 6, 5},	/* 13 MHz   */
-	{635, 13, 1, 5, 8, 4, 6, 5},	/* 16.8 MHz */
-	{635, 15, 1, 5, 8, 4, 6, 5},	/* 19.2 MHz */
-	{381, 12, 1, 5, 8, 4, 6, 5},	/* 26 MHz   */
-	{254, 8, 1, 5, 8, 4, 6, 5},	/* 27 MHz   */
-	{496, 24, 1, 5, 8, 4, 6, 5}	/* 38.4 MHz */
-};
-
-static const struct dpll_params
-		core_dpll_params_es2_1600mhz_ddr200mhz[NUM_SYS_CLKS] = {
-	{200, 2, 2, 5, 8, 4, 6, 5},	/* 12 MHz   */
-	{800, 12, 2, 5, 8, 4, 6, 5},	/* 13 MHz   */
-	{619, 12, 2, 5, 8, 4, 6, 5},	/* 16.8 MHz */
-	{125, 2, 2, 5, 8, 4, 6, 5},	/* 19.2 MHz */
-	{400, 12, 2, 5, 8, 4, 6, 5},	/* 26 MHz   */
-	{800, 26, 2, 5, 8, 4, 6, 5},	/* 27 MHz   */
-	{125, 5, 2, 5, 8, 4, 6, 5}	/* 38.4 MHz */
-};
-
-static const struct dpll_params per_dpll_params_1536mhz[NUM_SYS_CLKS] = {
-	{64, 0, 8, 6, 12, 9, 4, 5},	/* 12 MHz   */
-	{768, 12, 8, 6, 12, 9, 4, 5},	/* 13 MHz   */
-	{320, 6, 8, 6, 12, 9, 4, 5},	/* 16.8 MHz */
-	{40, 0, 8, 6, 12, 9, 4, 5},	/* 19.2 MHz */
-	{384, 12, 8, 6, 12, 9, 4, 5},	/* 26 MHz   */
-	{256, 8, 8, 6, 12, 9, 4, 5},	/* 27 MHz   */
-	{20, 0, 8, 6, 12, 9, 4, 5}	/* 38.4 MHz */
-};
-
-static const struct dpll_params iva_dpll_params_1862mhz[NUM_SYS_CLKS] = {
-	{931, 11, -1, -1, 4, 7, -1, -1},	/* 12 MHz   */
-	{931, 12, -1, -1, 4, 7, -1, -1},	/* 13 MHz   */
-	{665, 11, -1, -1, 4, 7, -1, -1},	/* 16.8 MHz */
-	{727, 14, -1, -1, 4, 7, -1, -1},	/* 19.2 MHz */
-	{931, 25, -1, -1, 4, 7, -1, -1},	/* 26 MHz   */
-	{931, 26, -1, -1, 4, 7, -1, -1},	/* 27 MHz   */
-	{412, 16, -1, -1, 4, 7, -1, -1}		/* 38.4 MHz */
-};
-
-/* ABE M & N values with sys_clk as source */
-static const struct dpll_params
-		abe_dpll_params_sysclk_196608khz[NUM_SYS_CLKS] = {
-	{49, 5, 1, 1, -1, -1, -1, -1},	/* 12 MHz   */
-	{68, 8, 1, 1, -1, -1, -1, -1},	/* 13 MHz   */
-	{35, 5, 1, 1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{46, 8, 1, 1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{34, 8, 1, 1, -1, -1, -1, -1},	/* 26 MHz   */
-	{29, 7, 1, 1, -1, -1, -1, -1},	/* 27 MHz   */
-	{64, 24, 1, 1, -1, -1, -1, -1}	/* 38.4 MHz */
-};
-
-/* ABE M & N values with 32K clock as source */
-static const struct dpll_params abe_dpll_params_32k_196608khz = {
-	750, 0, 1, 1, -1, -1, -1, -1
-};
-
-
-static const struct dpll_params usb_dpll_params_1920mhz[NUM_SYS_CLKS] = {
-	{80, 0, 2, -1, -1, -1, -1, -1},		/* 12 MHz   */
-	{960, 12, 2, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{400, 6, 2, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{50, 0, 2, -1, -1, -1, -1, -1},		/* 19.2 MHz */
-	{480, 12, 2, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{320, 8, 2, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{25, 0, 2, -1, -1, -1, -1, -1}		/* 38.4 MHz */
-};
-
 static inline u32 __get_sys_clk_index(void)
 {
 	u32 ind;
@@ -271,46 +138,19 @@ static void do_setup_dpll(u32 *const base, const struct dpll_params *params,
 	if (lock)
 		do_lock_dpll(base);
 
-	/* Setup post-dividers */
-	if (params->m2 >= 0)
-		writel(params->m2, &dpll_regs->cm_div_m2_dpll);
-	if (params->m3 >= 0)
-		writel(params->m3, &dpll_regs->cm_div_m3_dpll);
-	if (params->m4 >= 0)
-		writel(params->m4, &dpll_regs->cm_div_m4_dpll);
-	if (params->m5 >= 0)
-		writel(params->m5, &dpll_regs->cm_div_m5_dpll);
-	if (params->m6 >= 0)
-		writel(params->m6, &dpll_regs->cm_div_m6_dpll);
-	if (params->m7 >= 0)
-		writel(params->m7, &dpll_regs->cm_div_m7_dpll);
+	setup_post_dividers(base, params);
 
 	/* Wait till the DPLL locks */
 	if (lock)
 		wait_for_lock(base);
 }
 
-const struct dpll_params *get_core_dpll_params(void)
+u32 omap_ddr_clk(void)
 {
-	u32 sysclk_ind = get_sys_clk_index();
-
-	switch (omap_revision()) {
-	case OMAP4430_ES1_0:
-		return &core_dpll_params_es1_1524mhz[sysclk_ind];
-	case OMAP4430_ES2_0:
-	case OMAP4430_SILICON_ID_INVALID:
-		 /* safest */
-		return &core_dpll_params_es2_1600mhz_ddr200mhz[sysclk_ind];
-	default:
-		return &core_dpll_params_1600mhz[sysclk_ind];
-	}
-}
-
-u32 omap4_ddr_clk(void)
-{
-	u32 ddr_clk, sys_clk_khz;
+	u32 ddr_clk, sys_clk_khz, omap_rev, divider;
 	const struct dpll_params *core_dpll_params;
 
+	omap_rev = omap_revision();
 	sys_clk_khz = get_sys_clk_freq() / 1000;
 
 	core_dpll_params = get_core_dpll_params();
@@ -320,12 +160,22 @@ u32 omap4_ddr_clk(void)
 	/* Find Core DPLL locked frequency first */
 	ddr_clk = sys_clk_khz * 2 * core_dpll_params->m /
 			(core_dpll_params->n + 1);
-	/*
-	 * DDR frequency is PHY_ROOT_CLK/2
-	 * PHY_ROOT_CLK = Fdpll/2/M2
-	 */
-	ddr_clk = ddr_clk / 4 / core_dpll_params->m2;
 
+	if (omap_rev < OMAP5430_ES1_0) {
+		/*
+		 * DDR frequency is PHY_ROOT_CLK/2
+		 * PHY_ROOT_CLK = Fdpll/2/M2
+		 */
+		divider = 4;
+	} else {
+		/*
+		 * DDR frequency is PHY_ROOT_CLK
+		 * PHY_ROOT_CLK = Fdpll/2/M2
+		 */
+		divider = 2;
+	}
+
+	ddr_clk = ddr_clk / divider / core_dpll_params->m2;
 	ddr_clk *= 1000;	/* convert to Hz */
 	debug("ddr_clk %d\n ", ddr_clk);
 
@@ -344,20 +194,16 @@ void configure_mpu_dpll(void)
 {
 	const struct dpll_params *params;
 	struct dpll_regs *mpu_dpll_regs;
-	u32 omap4_rev, sysclk_ind;
+	u32 omap_rev;
+	omap_rev = omap_revision();
 
-	omap4_rev = omap_revision();
-	sysclk_ind = get_sys_clk_index();
-
-	if (omap4_rev == OMAP4430_ES1_0)
-		params = &mpu_dpll_params_1200mhz[sysclk_ind];
-	else if (omap4_rev < OMAP4460_ES1_0)
-		params = &mpu_dpll_params_1584mhz[sysclk_ind];
-	else
-		params = &mpu_dpll_params_1840mhz[sysclk_ind];
-
-	/* DCC and clock divider settings for 4460 */
-	if (omap4_rev >= OMAP4460_ES1_0) {
+	/*
+	 * DCC and clock divider settings for 4460.
+	 * DCC is required, if more than a certain frequency is required.
+	 * For, 4460 > 1GHZ.
+	 *     5430 > 1.4GHZ.
+	 */
+	if ((omap_rev >= OMAP4460_ES1_0) && (omap_rev < OMAP5430_ES1_0)) {
 		mpu_dpll_regs =
 			(struct dpll_regs *)&prcm->cm_clkmode_dpll_mpu;
 		bypass_dpll(&prcm->cm_clkmode_dpll_mpu);
@@ -369,6 +215,7 @@ void configure_mpu_dpll(void)
 			CM_CLKSEL_DCC_EN_MASK);
 	}
 
+	params = get_mpu_dpll_params();
 	do_setup_dpll(&prcm->cm_clkmode_dpll_mpu, params, DPLL_LOCK);
 	debug("MPU DPLL locked\n");
 }
@@ -397,8 +244,9 @@ static void setup_dplls(void)
 	debug("Core DPLL configured\n");
 
 	/* lock PER dpll */
+	params = get_per_dpll_params();
 	do_setup_dpll(&prcm->cm_clkmode_dpll_per,
-			&per_dpll_params_1536mhz[sysclk_ind], DPLL_LOCK);
+			params, DPLL_LOCK);
 	debug("PER DPLL locked\n");
 
 	/* MPU dpll */
@@ -418,8 +266,8 @@ static void setup_non_essential_dplls(void)
 	clrsetbits_le32(&prcm->cm_bypclk_dpll_iva,
 		CM_BYPCLK_DPLL_IVA_CLKSEL_MASK, DPLL_IVA_CLKSEL_CORE_X2_DIV_2);
 
-	do_setup_dpll(&prcm->cm_clkmode_dpll_iva,
-			&iva_dpll_params_1862mhz[sysclk_ind], DPLL_LOCK);
+	params = get_iva_dpll_params();
+	do_setup_dpll(&prcm->cm_clkmode_dpll_iva, params, DPLL_LOCK);
 
 	/*
 	 * USB:
@@ -429,7 +277,7 @@ static void setup_non_essential_dplls(void)
 	 * Use CLKINP in KHz and adjust the denominator accordingly so
 	 * that we have enough accuracy and at the same time no overflow
 	 */
-	params = &usb_dpll_params_1920mhz[sysclk_ind];
+	params = get_usb_dpll_params();
 	num = params->m * sys_clk_khz;
 	den = (params->n + 1) * 250 * 1000;
 	num += den - 1;
@@ -441,11 +289,11 @@ static void setup_non_essential_dplls(void)
 	/* Now setup the dpll with the regular function */
 	do_setup_dpll(&prcm->cm_clkmode_dpll_usb, params, DPLL_LOCK);
 
-#ifdef CONFIG_SYS_OMAP4_ABE_SYSCK
-	params = &abe_dpll_params_sysclk_196608khz[sysclk_ind];
+	/* Configure ABE dpll */
+	params = get_abe_dpll_params();
+#ifdef CONFIG_SYS_OMAP_ABE_SYSCK
 	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_SYSCLK;
 #else
-	params = &abe_dpll_params_32k_196608khz;
 	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_32KCLK;
 	/*
 	 * We need to enable some additional options to achieve
@@ -470,7 +318,7 @@ static void setup_non_essential_dplls(void)
 	do_setup_dpll(&prcm->cm_clkmode_dpll_abe, params, DPLL_LOCK);
 }
 
-static void do_scale_tps62361(u32 reg, u32 volt_mv)
+void do_scale_tps62361(u32 reg, u32 volt_mv)
 {
 	u32 temp, step;
 
@@ -498,7 +346,7 @@ static void do_scale_tps62361(u32 reg, u32 volt_mv)
 	}
 }
 
-static void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
+void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
 {
 	u32 temp, offset_code;
 	u32 step = 12660; /* 12.66 mV represented in uV */
@@ -527,75 +375,6 @@ static void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
 	if (!wait_on_value(PRM_VC_VAL_BYPASS_VALID_BIT, 0,
 				&prcm->prm_vc_val_bypass, LDELAY)) {
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
-	}
-}
-
-/*
- * Setup the voltages for vdd_mpu, vdd_core, and vdd_iva
- * We set the maximum voltages allowed here because Smart-Reflex is not
- * enabled in bootloader. Voltage initialization in the kernel will set
- * these to the nominal values after enabling Smart-Reflex
- */
-static void scale_vcores(void)
-{
-	u32 volt, sys_clk_khz, cycles_hi, cycles_low, temp, omap4_rev;
-
-	sys_clk_khz = get_sys_clk_freq() / 1000;
-
-	/*
-	 * Setup the dedicated I2C controller for Voltage Control
-	 * I2C clk - high period 40% low period 60%
-	 */
-	cycles_hi = sys_clk_khz * 4 / PRM_VC_I2C_CHANNEL_FREQ_KHZ / 10;
-	cycles_low = sys_clk_khz * 6 / PRM_VC_I2C_CHANNEL_FREQ_KHZ / 10;
-	/* values to be set in register - less by 5 & 7 respectively */
-	cycles_hi -= 5;
-	cycles_low -= 7;
-	temp = (cycles_hi << PRM_VC_CFG_I2C_CLK_SCLH_SHIFT) |
-	       (cycles_low << PRM_VC_CFG_I2C_CLK_SCLL_SHIFT);
-	writel(temp, &prcm->prm_vc_cfg_i2c_clk);
-
-	/* Disable high speed mode and all advanced features */
-	writel(0x0, &prcm->prm_vc_cfg_i2c_mode);
-
-	omap4_rev = omap_revision();
-	/* TPS - supplies vdd_mpu on 4460 */
-	if (omap4_rev >= OMAP4460_ES1_0) {
-		volt = 1430;
-		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
-	}
-
-	/*
-	 * VCORE 1
-	 *
-	 * 4430 : supplies vdd_mpu
-	 * Setting a high voltage for Nitro mode as smart reflex is not enabled.
-	 * We use the maximum possible value in the AVS range because the next
-	 * higher voltage in the discrete range (code >= 0b111010) is way too
-	 * high
-	 *
-	 * 4460 : supplies vdd_core
-	 */
-	if (omap4_rev < OMAP4460_ES1_0) {
-		volt = 1417;
-		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
-	} else {
-		volt = 1200;
-		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
-	}
-
-	/* VCORE 2 - supplies vdd_iva */
-	volt = 1200;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
-
-	/*
-	 * VCORE 3
-	 * 4430 : supplies vdd_core
-	 * 4460 : not connected
-	 */
-	if (omap4_rev < OMAP4460_ES1_0) {
-		volt = 1200;
-		do_scale_vcore(SMPS_REG_ADDR_VCORE3, volt);
 	}
 }
 
@@ -634,213 +413,6 @@ static inline void enable_clock_module(u32 *const clkctrl_addr, u32 enable_mode,
 	if (wait_for_enable)
 		wait_for_clk_enable(clkctrl_addr);
 }
-
-/*
- * Enable essential clock domains, modules and
- * do some additional special settings needed
- */
-static void enable_basic_clocks(void)
-{
-	u32 i, max = 100, wait_for_enable = 1;
-	u32 *const clk_domains_essential[] = {
-		&prcm->cm_l4per_clkstctrl,
-		&prcm->cm_l3init_clkstctrl,
-		&prcm->cm_memif_clkstctrl,
-		&prcm->cm_l4cfg_clkstctrl,
-		0
-	};
-
-	u32 *const clk_modules_hw_auto_essential[] = {
-		&prcm->cm_wkup_gpio1_clkctrl,
-		&prcm->cm_l4per_gpio2_clkctrl,
-		&prcm->cm_l4per_gpio3_clkctrl,
-		&prcm->cm_l4per_gpio4_clkctrl,
-		&prcm->cm_l4per_gpio5_clkctrl,
-		&prcm->cm_l4per_gpio6_clkctrl,
-		&prcm->cm_memif_emif_1_clkctrl,
-		&prcm->cm_memif_emif_2_clkctrl,
-		&prcm->cm_l3init_hsusbotg_clkctrl,
-		&prcm->cm_l3init_usbphy_clkctrl,
-		&prcm->cm_l4cfg_l4_cfg_clkctrl,
-		0
-	};
-
-	u32 *const clk_modules_explicit_en_essential[] = {
-		&prcm->cm_l4per_gptimer2_clkctrl,
-		&prcm->cm_l3init_hsmmc1_clkctrl,
-		&prcm->cm_l3init_hsmmc2_clkctrl,
-		&prcm->cm_l4per_mcspi1_clkctrl,
-		&prcm->cm_wkup_gptimer1_clkctrl,
-		&prcm->cm_l4per_i2c1_clkctrl,
-		&prcm->cm_l4per_i2c2_clkctrl,
-		&prcm->cm_l4per_i2c3_clkctrl,
-		&prcm->cm_l4per_i2c4_clkctrl,
-		&prcm->cm_wkup_wdtimer2_clkctrl,
-		&prcm->cm_l4per_uart3_clkctrl,
-		0
-	};
-
-	/* Enable optional additional functional clock for GPIO4 */
-	setbits_le32(&prcm->cm_l4per_gpio4_clkctrl,
-			GPIO4_CLKCTRL_OPTFCLKEN_MASK);
-
-	/* Enable 96 MHz clock for MMC1 & MMC2 */
-	setbits_le32(&prcm->cm_l3init_hsmmc1_clkctrl,
-			HSMMC_CLKCTRL_CLKSEL_MASK);
-	setbits_le32(&prcm->cm_l3init_hsmmc2_clkctrl,
-			HSMMC_CLKCTRL_CLKSEL_MASK);
-
-	/* Select 32KHz clock as the source of GPTIMER1 */
-	setbits_le32(&prcm->cm_wkup_gptimer1_clkctrl,
-			GPTIMER1_CLKCTRL_CLKSEL_MASK);
-
-	/* Enable optional 48M functional clock for USB  PHY */
-	setbits_le32(&prcm->cm_l3init_usbphy_clkctrl,
-			USBPHY_CLKCTRL_OPTFCLKEN_PHY_48M_MASK);
-
-	/* Put the clock domains in SW_WKUP mode */
-	for (i = 0; (i < max) && clk_domains_essential[i]; i++) {
-		enable_clock_domain(clk_domains_essential[i],
-				    CD_CLKCTRL_CLKTRCTRL_SW_WKUP);
-	}
-
-	/* Clock modules that need to be put in HW_AUTO */
-	for (i = 0; (i < max) && clk_modules_hw_auto_essential[i]; i++) {
-		enable_clock_module(clk_modules_hw_auto_essential[i],
-				    MODULE_CLKCTRL_MODULEMODE_HW_AUTO,
-				    wait_for_enable);
-	};
-
-	/* Clock modules that need to be put in SW_EXPLICIT_EN mode */
-	for (i = 0; (i < max) && clk_modules_explicit_en_essential[i]; i++) {
-		enable_clock_module(clk_modules_explicit_en_essential[i],
-				    MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN,
-				    wait_for_enable);
-	};
-
-	/* Put the clock domains in HW_AUTO mode now */
-	for (i = 0; (i < max) && clk_domains_essential[i]; i++) {
-		enable_clock_domain(clk_domains_essential[i],
-				    CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
-	}
-}
-
-/*
- * Enable non-essential clock domains, modules and
- * do some additional special settings needed
- */
-static void enable_non_essential_clocks(void)
-{
-	u32 i, max = 100, wait_for_enable = 0;
-	u32 *const clk_domains_non_essential[] = {
-		&prcm->cm_mpu_m3_clkstctrl,
-		&prcm->cm_ivahd_clkstctrl,
-		&prcm->cm_dsp_clkstctrl,
-		&prcm->cm_dss_clkstctrl,
-		&prcm->cm_sgx_clkstctrl,
-		&prcm->cm1_abe_clkstctrl,
-		&prcm->cm_c2c_clkstctrl,
-		&prcm->cm_cam_clkstctrl,
-		&prcm->cm_dss_clkstctrl,
-		&prcm->cm_sdma_clkstctrl,
-		0
-	};
-
-	u32 *const clk_modules_hw_auto_non_essential[] = {
-		&prcm->cm_mpu_m3_mpu_m3_clkctrl,
-		&prcm->cm_ivahd_ivahd_clkctrl,
-		&prcm->cm_ivahd_sl2_clkctrl,
-		&prcm->cm_dsp_dsp_clkctrl,
-		&prcm->cm_l3_2_gpmc_clkctrl,
-		&prcm->cm_l3instr_l3_3_clkctrl,
-		&prcm->cm_l3instr_l3_instr_clkctrl,
-		&prcm->cm_l3instr_intrconn_wp1_clkctrl,
-		&prcm->cm_l3init_hsi_clkctrl,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
-		0
-	};
-
-	u32 *const clk_modules_explicit_en_non_essential[] = {
-		&prcm->cm1_abe_aess_clkctrl,
-		&prcm->cm1_abe_pdm_clkctrl,
-		&prcm->cm1_abe_dmic_clkctrl,
-		&prcm->cm1_abe_mcasp_clkctrl,
-		&prcm->cm1_abe_mcbsp1_clkctrl,
-		&prcm->cm1_abe_mcbsp2_clkctrl,
-		&prcm->cm1_abe_mcbsp3_clkctrl,
-		&prcm->cm1_abe_slimbus_clkctrl,
-		&prcm->cm1_abe_timer5_clkctrl,
-		&prcm->cm1_abe_timer6_clkctrl,
-		&prcm->cm1_abe_timer7_clkctrl,
-		&prcm->cm1_abe_timer8_clkctrl,
-		&prcm->cm1_abe_wdt3_clkctrl,
-		&prcm->cm_l4per_gptimer9_clkctrl,
-		&prcm->cm_l4per_gptimer10_clkctrl,
-		&prcm->cm_l4per_gptimer11_clkctrl,
-		&prcm->cm_l4per_gptimer3_clkctrl,
-		&prcm->cm_l4per_gptimer4_clkctrl,
-		&prcm->cm_l4per_hdq1w_clkctrl,
-		&prcm->cm_l4per_mcbsp4_clkctrl,
-		&prcm->cm_l4per_mcspi2_clkctrl,
-		&prcm->cm_l4per_mcspi3_clkctrl,
-		&prcm->cm_l4per_mcspi4_clkctrl,
-		&prcm->cm_l4per_mmcsd3_clkctrl,
-		&prcm->cm_l4per_mmcsd4_clkctrl,
-		&prcm->cm_l4per_mmcsd5_clkctrl,
-		&prcm->cm_l4per_uart1_clkctrl,
-		&prcm->cm_l4per_uart2_clkctrl,
-		&prcm->cm_l4per_uart4_clkctrl,
-		&prcm->cm_wkup_keyboard_clkctrl,
-		&prcm->cm_wkup_wdtimer2_clkctrl,
-		&prcm->cm_cam_iss_clkctrl,
-		&prcm->cm_cam_fdif_clkctrl,
-		&prcm->cm_dss_dss_clkctrl,
-		&prcm->cm_sgx_sgx_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
-		&prcm->cm_l3init_fsusb_clkctrl,
-		0
-	};
-
-	/* Enable optional functional clock for ISS */
-	setbits_le32(&prcm->cm_cam_iss_clkctrl, ISS_CLKCTRL_OPTFCLKEN_MASK);
-
-	/* Enable all optional functional clocks of DSS */
-	setbits_le32(&prcm->cm_dss_dss_clkctrl, DSS_CLKCTRL_OPTFCLKEN_MASK);
-
-
-	/* Put the clock domains in SW_WKUP mode */
-	for (i = 0; (i < max) && clk_domains_non_essential[i]; i++) {
-		enable_clock_domain(clk_domains_non_essential[i],
-				    CD_CLKCTRL_CLKTRCTRL_SW_WKUP);
-	}
-
-	/* Clock modules that need to be put in HW_AUTO */
-	for (i = 0; (i < max) && clk_modules_hw_auto_non_essential[i]; i++) {
-		enable_clock_module(clk_modules_hw_auto_non_essential[i],
-				    MODULE_CLKCTRL_MODULEMODE_HW_AUTO,
-				    wait_for_enable);
-	};
-
-	/* Clock modules that need to be put in SW_EXPLICIT_EN mode */
-	for (i = 0; (i < max) && clk_modules_explicit_en_non_essential[i];
-	     i++) {
-		enable_clock_module(clk_modules_explicit_en_non_essential[i],
-				    MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN,
-				    wait_for_enable);
-	};
-
-	/* Put the clock domains in HW_AUTO mode now */
-	for (i = 0; (i < max) && clk_domains_non_essential[i]; i++) {
-		enable_clock_domain(clk_domains_non_essential[i],
-				    CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
-	}
-
-	/* Put camera module in no sleep mode */
-	clrsetbits_le32(&prcm->cm_cam_clkstctrl, MODULE_CLKCTRL_MODULEMODE_MASK,
-			CD_CLKCTRL_CLKTRCTRL_NO_SLEEP <<
-			MODULE_CLKCTRL_MODULEMODE_SHIFT);
-}
-
 
 void freq_update_core(void)
 {
@@ -921,6 +493,63 @@ void setup_clocks_for_console(void)
 	clrsetbits_le32(&prcm->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
 			CD_CLKCTRL_CLKTRCTRL_HW_AUTO <<
 			CD_CLKCTRL_CLKTRCTRL_SHIFT);
+}
+
+void setup_sri2c(void)
+{
+	u32 sys_clk_khz, cycles_hi, cycles_low, temp;
+
+	sys_clk_khz = get_sys_clk_freq() / 1000;
+
+	/*
+	 * Setup the dedicated I2C controller for Voltage Control
+	 * I2C clk - high period 40% low period 60%
+	 */
+	cycles_hi = sys_clk_khz * 4 / PRM_VC_I2C_CHANNEL_FREQ_KHZ / 10;
+	cycles_low = sys_clk_khz * 6 / PRM_VC_I2C_CHANNEL_FREQ_KHZ / 10;
+	/* values to be set in register - less by 5 & 7 respectively */
+	cycles_hi -= 5;
+	cycles_low -= 7;
+	temp = (cycles_hi << PRM_VC_CFG_I2C_CLK_SCLH_SHIFT) |
+	       (cycles_low << PRM_VC_CFG_I2C_CLK_SCLL_SHIFT);
+	writel(temp, &prcm->prm_vc_cfg_i2c_clk);
+
+	/* Disable high speed mode and all advanced features */
+	writel(0x0, &prcm->prm_vc_cfg_i2c_mode);
+}
+
+void do_enable_clocks(u32 *const *clk_domains,
+			    u32 *const *clk_modules_hw_auto,
+			    u32 *const *clk_modules_explicit_en,
+			    u8 wait_for_enable)
+{
+	u32 i, max = 100;
+
+	/* Put the clock domains in SW_WKUP mode */
+	for (i = 0; (i < max) && clk_domains[i]; i++) {
+		enable_clock_domain(clk_domains[i],
+				    CD_CLKCTRL_CLKTRCTRL_SW_WKUP);
+	}
+
+	/* Clock modules that need to be put in HW_AUTO */
+	for (i = 0; (i < max) && clk_modules_hw_auto[i]; i++) {
+		enable_clock_module(clk_modules_hw_auto[i],
+				    MODULE_CLKCTRL_MODULEMODE_HW_AUTO,
+				    wait_for_enable);
+	};
+
+	/* Clock modules that need to be put in SW_EXPLICIT_EN mode */
+	for (i = 0; (i < max) && clk_modules_explicit_en[i]; i++) {
+		enable_clock_module(clk_modules_explicit_en[i],
+				    MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN,
+				    wait_for_enable);
+	};
+
+	/* Put the clock domains in HW_AUTO mode now */
+	for (i = 0; (i < max) && clk_domains[i]; i++) {
+		enable_clock_domain(clk_domains[i],
+				    CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
+	}
 }
 
 void prcm_init(void)

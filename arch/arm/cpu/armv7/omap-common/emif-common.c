@@ -1045,7 +1045,7 @@ static void do_sdram_init(u32 base)
 				&dev_details.cs1_device_timings);
 
 	/* Calculate the register values */
-	emif_calculate_regs(&dev_details, omap4_ddr_clk(), &calculated_regs);
+	emif_calculate_regs(&dev_details, omap_ddr_clk(), &calculated_regs);
 	regs = &calculated_regs;
 #endif /* CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS */
 

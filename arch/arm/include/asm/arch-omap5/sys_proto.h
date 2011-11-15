@@ -26,13 +26,12 @@
 #include <asm/arch/clocks.h>
 #include <asm/omap_common.h>
 #include <asm/arch/mux_omap5.h>
+#include <asm/arch/clocks.h>
 
 struct omap_sysinfo {
 	char *board_string;
 };
 extern const struct omap_sysinfo sysinfo;
-
-extern struct omap5_prcm_regs *const prcm;
 
 void gpmc_init(void);
 void watchdog_init(void);

@@ -27,6 +27,7 @@ LIB	=  $(obj)lib$(SOC).o
 
 COBJS	+= sdram_elpida.o
 COBJS	+= hwinit.o
+COBJS	+= clocks.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))

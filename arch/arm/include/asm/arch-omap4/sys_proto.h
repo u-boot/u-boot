@@ -32,8 +32,6 @@ struct omap_sysinfo {
 };
 extern const struct omap_sysinfo sysinfo;
 
-extern struct omap4_prcm_regs *const prcm;
-
 void gpmc_init(void);
 void watchdog_init(void);
 u32 get_device_type(void);
