@@ -45,7 +45,8 @@ int dm365_pll1_init(unsigned long pllmult, unsigned long prediv)
 	clrbits_le32(&dv_pll0_regs->pllctl, PLLCTL_PLLPWRDN);
 
 	clrbits_le32(&dv_pll0_regs->pllctl, PLLCTL_RES_9);
-	setbits_le32(&dv_pll0_regs->pllctl, clksrc << 8);
+	setbits_le32(&dv_pll0_regs->pllctl,
+		clksrc << PLLCTL_CLOCK_MODE_SHIFT);
 
 	/*
 	 * Set PLLENSRC '0', PLL Enable(PLLEN) selection is controlled
@@ -82,7 +83,7 @@ int dm365_pll1_init(unsigned long pllmult, unsigned long prediv)
 	writel(PLLSECCTL_STOPMODE | PLLSECCTL_TINITZ, &dv_pll0_regs->secctl);
 
 	/* Program the PostDiv for PLL1 */
-	writel(0x8000, &dv_pll0_regs->postdiv);
+	writel(PLL_POSTDEN, &dv_pll0_regs->postdiv);
 
 	/* Post divider setting for PLL1 */
 	writel(CONFIG_SYS_DM36x_PLL1_PLLDIV1, &dv_pll0_regs->plldiv1);
@@ -126,7 +127,8 @@ int dm365_pll2_init(unsigned long pllm, unsigned long prediv)
 	 * VDB has input on MXI pin
 	 */
 	clrbits_le32(&dv_pll1_regs->pllctl, PLLCTL_RES_9);
-	setbits_le32(&dv_pll1_regs->pllctl, clksrc << 8);
+	setbits_le32(&dv_pll1_regs->pllctl,
+		clksrc << PLLCTL_CLOCK_MODE_SHIFT);
 
 	/*
 	 * Set PLLENSRC '0', PLL Enable(PLLEN) selection is controlled
@@ -151,7 +153,7 @@ int dm365_pll2_init(unsigned long pllm, unsigned long prediv)
 	writel(pllm, &dv_pll1_regs->pllm);
 	writel(prediv, &dv_pll1_regs->prediv);
 
-	writel(0x8000, &dv_pll1_regs->postdiv);
+	writel(PLL_POSTDEN, &dv_pll1_regs->postdiv);
 
 	/* Assert TENABLE = 1, TENABLEDIV = 1, TINITZ = 1 */
 	writel(PLLSECCTL_STOPMODE | PLLSECCTL_TENABLEDIV | PLLSECCTL_TENABLE |
@@ -261,21 +263,23 @@ void dm365_vpss_sync_reset(void)
 		VPSS_CLK_CTL_VPSS_CLKMD);
 
 	/* LPSC SyncReset DDR Clock Enable */
-	writel(((readl(&dv_psc_regs->mdctl[47]) & ~PSC_MD_STATE_MSK) |
-		PSC_SYNCRESET), &dv_psc_regs->mdctl[47]);
+	writel(((readl(&dv_psc_regs->mdctl[DAVINCI_LPSC_VPSSMASTER]) &
+		~PSC_MD_STATE_MSK) | PSC_SYNCRESET),
+		&dv_psc_regs->mdctl[DAVINCI_LPSC_VPSSMASTER]);
 
 	writel((1 << PdNum), &dv_psc_regs->ptcmd);
 
 	while (!(((readl(&dv_psc_regs->ptstat) >> PdNum) & PSC_GOSTAT) == 0))
 		;
-	while (!((readl(&dv_psc_regs->mdstat[47]) &  PSC_MD_STATE_MSK) ==
-		PSC_SYNCRESET))
+	while (!((readl(&dv_psc_regs->mdstat[DAVINCI_LPSC_VPSSMASTER]) &
+		PSC_MD_STATE_MSK) == PSC_SYNCRESET))
 		;
 }
 
 void dm365_por_reset(void)
 {
-	if (readl(&dv_pll0_regs->rstype) & 3)
+	if (readl(&dv_pll0_regs->rstype) &
+		(PLL_RSTYPE_POR | PLL_RSTYPE_XWRST))
 		dm365_vpss_sync_reset();
 }
 
@@ -291,19 +295,20 @@ void dm365_psc_init(void)
 
 	for (lpscgroup = lpscmin; lpscgroup <= lpscmax; lpscgroup++) {
 		if (lpscgroup == 0) {
-			lpsc_start = 0; /* Enabling LPSC 3 to 28 SCR first */
-			lpsc_end   = 28;
+			/* Enabling LPSC 3 to 28 SCR first */
+			lpsc_start = DAVINCI_LPSC_VPSSMSTR;
+			lpsc_end   = DAVINCI_LPSC_TIMER1;
 		} else if (lpscgroup == 1) { /* Skip locked LPSCs [29-37] */
-			lpsc_start = 38;
-			lpsc_end   = 47;
+			lpsc_start = DAVINCI_LPSC_CFG5;
+			lpsc_end   = DAVINCI_LPSC_VPSSMASTER;
 		} else {
-			lpsc_start = 50;
-			lpsc_end   = 51;
+			lpsc_start = DAVINCI_LPSC_MJCP;
+			lpsc_end   = DAVINCI_LPSC_HDVICP;
 		}
 
 		/* NEXT=0x3, Enable LPSC's */
 		for (i = lpsc_start; i <= lpsc_end; i++)
-			setbits_le32(&dv_psc_regs->mdctl[i], 0x3);
+			setbits_le32(&dv_psc_regs->mdctl[i], PSC_ENABLE);
 
 		/*
 		 * Program goctl to start transition sequence for LPSCs
@@ -322,7 +327,7 @@ void dm365_psc_init(void)
 		/* Wait for MODSTAT = ENABLE from LPSC's */
 		for (i = lpsc_start; i <= lpsc_end; i++)
 			while (!((readl(&dv_psc_regs->mdstat[i]) &
-				PSC_MD_STATE_MSK) == 0x3))
+				PSC_MD_STATE_MSK) == PSC_ENABLE))
 				;
 	}
 }
@@ -332,7 +337,7 @@ static void dm365_emif_init(void)
 	writel(CONFIG_SYS_DM36x_AWCCR, &davinci_emif_regs->awccr);
 	writel(CONFIG_SYS_DM36x_AB1CR, &davinci_emif_regs->ab1cr);
 
-	setbits_le32(&davinci_emif_regs->nandfcr, 1);
+	setbits_le32(&davinci_emif_regs->nandfcr, DAVINCI_NANDFCR_CS2NAND);
 
 	writel(CONFIG_SYS_DM36x_AB2CR, &davinci_emif_regs->ab2cr);
 
@@ -361,31 +366,12 @@ int post_log(char *format, ...)
 
 void dm36x_lowlevel_init(ulong bootflag)
 {
-	/*
-	 * copied from arch/arm/cpu/arm926ejs/start.S
-	 *
-	 * flush v4 I/D caches
-	 */
-	asm("mov	r0, #0");
-	asm("mcr	p15, 0, r0, c7, c7, 0");	/* flush v3/v4 cache */
-	asm("mcr	p15, 0, r0, c8, c7, 0");	/* flush v4 TLB */
-
-	/*
-	 * disable MMU stuff and caches
-	 */
-	asm("mrc	p15, 0, r0, c1, c0, 0");
-	/* clear bits 13, 9:8 (--V- --RS) */
-	asm("bic	r0, r0, #0x00002300");
-	/* clear bits 7, 2:0 (B--- -CAM) */
-	asm("bic	r0, r0, #0x00000087");
-	/* set bit 2 (A) Align */
-	asm("orr	r0, r0, #0x00000002");
-	/* set bit 12 (I) I-Cache */
-	asm("orr	r0, r0, #0x00001000");
-	asm("mcr	p15, 0, r0, c1, c0, 0");
+	struct davinci_uart_ctrl_regs *davinci_uart_ctrl_regs =
+		(struct davinci_uart_ctrl_regs *)(CONFIG_SYS_NS16550_COM1 +
+		DAVINCI_UART_CTRL_BASE);
 
 	/* Mask all interrupts */
-	writel(0x04, &dv_aintc_regs->intctl);
+	writel(DV_AINTC_INTCTL_IDMODE, &dv_aintc_regs->intctl);
 	writel(0x0, &dv_aintc_regs->eabase);
 	writel(0x0, &dv_aintc_regs->eint0);
 	writel(0x0, &dv_aintc_regs->eint1);
@@ -422,7 +408,10 @@ void dm36x_lowlevel_init(ulong bootflag)
 	 * Fix Power and Emulation Management Register
 	 * see sprufh2.pdf page 38 Table 22
 	 */
-	writel(0x0000e003, (CONFIG_SYS_NS16550_COM1 + 0x30));
+	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
+		DAVINCI_UART_PWREMU_MGMT_UTRST),
+	       &davinci_uart_ctrl_regs->pwremu_mgmt);
+
 	puts("ddr init\n");
 	dm365_ddr_setup();
 

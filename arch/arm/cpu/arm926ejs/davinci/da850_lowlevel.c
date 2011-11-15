@@ -29,6 +29,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/ddr2_defs.h>
 #include <asm/arch/emif_defs.h>
+#include <asm/arch/pll_defs.h>
 
 void da850_waitloop(unsigned long loopcnt)
 {
@@ -42,18 +43,18 @@ int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 {
 	if (reg == davinci_pllc0_regs)
 		/* Unlock PLL registers. */
-		clrbits_le32(&davinci_syscfg_regs->cfgchip0, 0x00000010);
+		clrbits_le32(&davinci_syscfg_regs->cfgchip0, PLL_MASTER_LOCK);
 
 	/*
 	 * Set PLLENSRC '0',bit 5, PLL Enable(PLLEN) selection is controlled
 	 * through MMR
 	 */
-	clrbits_le32(&reg->pllctl, 0x00000020);
+	clrbits_le32(&reg->pllctl, PLLCTL_PLLENSRC);
 	/* PLLCTL.EXTCLKSRC bit 9 should be left at 0 for Freon */
-	clrbits_le32(&reg->pllctl, 0x00000200);
+	clrbits_le32(&reg->pllctl, PLLCTL_EXTCLKSRC);
 
 	/* Set PLLEN=0 => PLL BYPASS MODE */
-	clrbits_le32(&reg->pllctl, 0x00000001);
+	clrbits_le32(&reg->pllctl, PLLCTL_PLLEN);
 
 	da850_waitloop(150);
 
@@ -62,42 +63,43 @@ int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 		 * Select the Clock Mode bit 8 as External Clock or On Chip
 		 * Oscilator
 		 */
-		dv_maskbits(&reg->pllctl, 0xFFFFFEFF);
-		setbits_le32(&reg->pllctl, (CONFIG_SYS_DV_CLKMODE << 8));
+		dv_maskbits(&reg->pllctl, ~PLLCTL_RES_9);
+		setbits_le32(&reg->pllctl,
+			(CONFIG_SYS_DV_CLKMODE << PLLCTL_CLOCK_MODE_SHIFT));
 	}
 
 	/* Clear PLLRST bit to reset the PLL */
-	clrbits_le32(&reg->pllctl, 0x00000008);
+	clrbits_le32(&reg->pllctl, PLLCTL_PLLRST);
 
 	/* Disable the PLL output */
-	setbits_le32(&reg->pllctl, 0x00000010);
+	setbits_le32(&reg->pllctl, PLLCTL_PLLDIS);
 
 	/* PLL initialization sequence */
 	/*
 	 * Power up the PLL- PWRDN bit set to 0 to bring the PLL out of
 	 * power down bit
 	 */
-	clrbits_le32(&reg->pllctl, 0x00000002);
+	clrbits_le32(&reg->pllctl, PLLCTL_PLLPWRDN);
 
 	/* Enable the PLL from Disable Mode PLLDIS bit to 0 */
-	clrbits_le32(&reg->pllctl, 0x00000010);
+	clrbits_le32(&reg->pllctl, PLLCTL_PLLDIS);
 
 	/* Program the required multiplier value in PLLM */
 	writel(pllmult, &reg->pllm);
 
 	/* program the postdiv */
 	if (reg == davinci_pllc0_regs)
-		writel((0x8000 | CONFIG_SYS_DA850_PLL0_POSTDIV),
+		writel((PLL_POSTDEN | CONFIG_SYS_DA850_PLL0_POSTDIV),
 			&reg->postdiv);
 	else
-		writel((0x8000 | CONFIG_SYS_DA850_PLL1_POSTDIV),
+		writel((PLL_POSTDEN | CONFIG_SYS_DA850_PLL1_POSTDIV),
 			&reg->postdiv);
 
 	/*
 	 * Check for the GOSTAT bit in PLLSTAT to clear to 0 to indicate that
 	 * no GO operation is currently in progress
 	 */
-	while ((readl(&reg->pllstat) & 0x1) == 1)
+	while ((readl(&reg->pllstat) & PLLCMD_GOSTAT) == PLLCMD_GOSTAT)
 		;
 
 	if (reg == davinci_pllc0_regs) {
@@ -118,20 +120,20 @@ int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 	 * Set the GOSET bit in PLLCMD to 1 to initiate a new divider
 	 * transition.
 	 */
-	setbits_le32(&reg->pllcmd, 0x01);
+	setbits_le32(&reg->pllcmd, PLLCMD_GOSTAT);
 
 	/*
 	 * Wait for the GOSTAT bit in PLLSTAT to clear to 0
 	 * (completion of phase alignment).
 	 */
-	while ((readl(&reg->pllstat) & 0x1) == 1)
+	while ((readl(&reg->pllstat) & PLLCMD_GOSTAT) == PLLCMD_GOSTAT)
 		;
 
 	/* Wait for PLL to reset properly. See PLL spec for PLL reset time */
 	da850_waitloop(200);
 
 	/* Set the PLLRST bit in PLLCTL to 1 to bring the PLL out of reset */
-	setbits_le32(&reg->pllctl, 0x00000008);
+	setbits_le32(&reg->pllctl, PLLCTL_PLLRST);
 
 	/* Wait for PLL to lock. See PLL spec for PLL lock time */
 	da850_waitloop(2400);
@@ -140,7 +142,7 @@ int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 	 * Set the PLLEN bit in PLLCTL to 1 to remove the PLL from bypass
 	 * mode
 	 */
-	setbits_le32(&reg->pllctl, 0x00000001);
+	setbits_le32(&reg->pllctl, PLLCTL_PLLEN);
 
 
 	/*
@@ -148,12 +150,13 @@ int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 	 * run off SYSCLK
 	 */
 	if (reg == davinci_pllc0_regs)
-		dv_maskbits(&davinci_syscfg_regs->cfgchip3, 0xFFFFFFF8);
+		dv_maskbits(&davinci_syscfg_regs->cfgchip3,
+			~(PLL_SCSCFG3_DIV45PENA | PLL_SCSCFG3_EMA_CLKSRC));
 
 	return 0;
 }
 
-int da850_ddr_setup(unsigned int freq)
+int da850_ddr_setup(void)
 {
 	unsigned long	tmp;
 
@@ -197,8 +200,8 @@ int da850_ddr_setup(unsigned int freq)
 	 * the timing registers
 	 */
 	tmp = CONFIG_SYS_DA850_DDR2_SDBCR;
-	tmp &= ~(0x1 << DV_DDR_SDCR_BOOTUNLOCK_SHIFT);
-	tmp |= (0x1 << DV_DDR_SDCR_TIMUNLOCK_SHIFT);
+	tmp &= ~DV_DDR_BOOTUNLOCK;
+	tmp |= DV_DDR_TIMUNLOCK;
 	writel(tmp, &dv_ddr2_regs_ctrl->sdbcr);
 
 	/* write memory configuration and timing */
@@ -207,7 +210,7 @@ int da850_ddr_setup(unsigned int freq)
 	writel(CONFIG_SYS_DA850_DDR2_SDTIMR2, &dv_ddr2_regs_ctrl->sdtimr2);
 
 	/* clear the TIMUNLOCK bit and write the value of the CL field */
-	tmp &= ~(0x1 << DV_DDR_SDCR_TIMUNLOCK_SHIFT);
+	tmp &= ~DV_DDR_TIMUNLOCK;
 	writel(tmp, &dv_ddr2_regs_ctrl->sdbcr);
 
 	/*
@@ -225,8 +228,9 @@ int da850_ddr_setup(unsigned int freq)
 	lpsc_on(DAVINCI_LPSC_DDR_EMIF);
 
 	/* disable self refresh */
-	clrbits_le32(&dv_ddr2_regs_ctrl->sdrcr, 0xc0000000);
-	writel(0x30, &dv_ddr2_regs_ctrl->pbbpr);
+	clrbits_le32(&dv_ddr2_regs_ctrl->sdrcr,
+		DV_DDR_SDRCR_LPMODEN | DV_DDR_SDRCR_LPMODEN);
+	writel(CONFIG_SYS_DA850_DDR2_PBBPR, &dv_ddr2_regs_ctrl->pbbpr);
 
 	return 0;
 }
@@ -244,57 +248,14 @@ void board_gpio_init(void)
 	return;
 }
 
-#if defined(CONFIG_NAND_SPL)
-void nand_boot(void)
-{
-	__attribute__((noreturn)) void (*uboot)(void);
-
-	/* copy image from NOR to RAM */
-	memcpy((void *)CONFIG_SYS_NAND_U_BOOT_DST,
-		(void *)CONFIG_SYS_NAND_U_BOOT_OFFS,
-		CONFIG_SYS_NAND_U_BOOT_SIZE);
-
-	/* and jump to it ... */
-	uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
-	(*uboot)();
-}
-#endif
-
-#if defined(CONFIG_NAND_SPL)
-void board_init_f(ulong bootflag)
-#else
 int arch_cpu_init(void)
-#endif
 {
-	/*
-	 * copied from arch/arm/cpu/arm926ejs/start.S
-	 *
-	 * flush v4 I/D caches
-	 */
-	asm("mov	r0, #0");
-	asm("mcr	p15, 0, r0, c7, c7, 0");	/* flush v3/v4 cache */
-	asm("mcr	p15, 0, r0, c8, c7, 0");	/* flush v4 TLB */
-
-	/*
-	 * disable MMU stuff and caches
-	 */
-	asm("mrc	p15, 0, r0, c1, c0, 0");
-	/* clear bits 13, 9:8 (--V- --RS) */
-	asm("bic	r0, r0, #0x00002300");
-	/* clear bits 7, 2:0 (B--- -CAM) */
-	asm("bic	r0, r0, #0x00000087");
-	/* set bit 2 (A) Align */
-	asm("orr	r0, r0, #0x00000002");
-	/* set bit 12 (I) I-Cache */
-	asm("orr	r0, r0, #0x00001000");
-	asm("mcr	p15, 0, r0, c1, c0, 0");
-
 	/* Unlock kick registers */
-	writel(0x83e70b13, &davinci_syscfg_regs->kick0);
-	writel(0x95a4f1e0, &davinci_syscfg_regs->kick1);
+	writel(DV_SYSCFG_KICK0_UNLOCK, &davinci_syscfg_regs->kick0);
+	writel(DV_SYSCFG_KICK1_UNLOCK, &davinci_syscfg_regs->kick1);
 
 	dv_maskbits(&davinci_syscfg_regs->suspsrc,
-		((1 << 27) | (1 << 22) | (1 << 20) | (1 << 5) |	(1 << 16)));
+		CONFIG_SYS_DA850_SYSCFG_SUSPSRC);
 
 	/* Setup Pinmux */
 	da850_pinmux_ctl(0, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX0);
@@ -326,10 +287,14 @@ int arch_cpu_init(void)
 	board_gpio_init();
 
 	/* setup CSn config */
+#if defined(CONFIG_SYS_DA850_CS2CFG)
 	writel(CONFIG_SYS_DA850_CS2CFG, &davinci_emif_regs->ab1cr);
+#endif
+#if defined(CONFIG_SYS_DA850_CS3CFG)
 	writel(CONFIG_SYS_DA850_CS3CFG, &davinci_emif_regs->ab2cr);
+#endif
 
-	lpsc_on(DAVINCI_LPSC_UART2);
+	lpsc_on(CONFIG_SYS_DA850_LPSC_UART);
 	NS16550_init((NS16550_t)(CONFIG_SYS_NS16550_COM1),
 			CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 
@@ -337,17 +302,10 @@ int arch_cpu_init(void)
 	 * Fix Power and Emulation Management Register
 	 * see sprufw3a.pdf page 37 Table 24
 	 */
-	writel(readl((CONFIG_SYS_NS16550_COM1 + 0x30)) | 0x00006001,
-		(CONFIG_SYS_NS16550_COM1 + 0x30));
-#if defined(CONFIG_NAND_SPL)
-	puts("ddr init\n");
-	da850_ddr_setup(132);
+	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
+		DAVINCI_UART_PWREMU_MGMT_UTRST),
+	       &davinci_uart2_ctrl_regs->pwremu_mgmt);
 
-	puts("boot u-boot ...\n");
-
-	nand_boot();
-#else
-	da850_ddr_setup(132);
+	da850_ddr_setup();
 	return 0;
-#endif
 }
