@@ -380,8 +380,6 @@ static void program_cfg0(unsigned long *dimm_populated,
 	unsigned char ecc;
 	unsigned char attributes;
 	unsigned long data_width;
-	unsigned long dimm_32bit;
-	unsigned long dimm_64bit;
 
 	/*
 	 * get Memory Controller Options 0 data
@@ -423,10 +421,8 @@ static void program_cfg0(unsigned long *dimm_populated,
 				(unsigned long)spd_read(iic0_dimm_addr[dimm_num],6) +
 				(((unsigned long)spd_read(iic0_dimm_addr[dimm_num],7)) << 8);
 			if (data_width == 64 || data_width == 72) {
-				dimm_64bit = TRUE;
 				cfg0 |= SDRAM_CFG0_DMWD_64;
 			} else if (data_width == 32 || data_width == 40) {
-				dimm_32bit = TRUE;
 				cfg0 |= SDRAM_CFG0_DMWD_32;
 			} else {
 				printf("WARNING: DIMM with datawidth of %lu bits.\n",
