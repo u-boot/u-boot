@@ -41,7 +41,6 @@ int i2c_make_abort(void)
 {
 	struct fsl_i2c *dev;
 	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
-	uchar	dummy;
 	uchar   last;
 	int     nbr_read = 0;
 	int     i = 0;
@@ -52,7 +51,7 @@ int i2c_make_abort(void)
 	udelay(DELAY_ABORT_SEQ);
 	out_8(&dev->cr, (I2C_CR_MEN | I2C_CR_MSTA));
 	udelay(DELAY_ABORT_SEQ);
-	dummy = in_8(&dev->dr);
+	in_8(&dev->dr);
 	udelay(DELAY_ABORT_SEQ);
 	last = in_8(&dev->dr);
 	nbr_read++;
