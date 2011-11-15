@@ -154,18 +154,20 @@ u32 ddr_rdss_opt(ulong) __attribute__((weak, alias("__ddr_rdss_opt")));
 
 static u32 *get_membase(int bxcr_num)
 {
-	ulong bxcf;
 	u32 *membase;
 
 #if defined(SDRAM_R0BAS)
 	/* BAS from Memory Queue rank reg. */
 	membase =
 	    (u32 *)(SDRAM_RXBAS_SDBA_DECODE(mfdcr_any(SDRAM_R0BAS+bxcr_num)));
-	bxcf = 0;	/* just to satisfy the compiler */
 #else
-	/* BAS from SDRAM_MBxCF mem rank reg. */
-	mfsdram(SDRAM_MB0CF + (bxcr_num<<2), bxcf);
-	membase = (u32 *)((bxcf & 0xfff80000) << 3);
+	{
+		ulong bxcf;
+
+		/* BAS from SDRAM_MBxCF mem rank reg. */
+		mfsdram(SDRAM_MB0CF + (bxcr_num<<2), bxcf);
+		membase = (u32 *)((bxcf & 0xfff80000) << 3);
+	}
 #endif
 
 	return membase;
@@ -719,7 +721,9 @@ static u32 program_DQS_calibration_methodB(struct ddrautocal *ddrcal)
 static u32 DQS_calibration_methodB(struct ddrautocal *cal)
 {
 	ulong rfdc_reg;
+#ifndef CONFIG_DDR_RFDC_FIXED
 	ulong rffd;
+#endif
 
 	ulong rqdc_reg;
 	ulong rqfd;
@@ -837,7 +841,6 @@ static u32 DQS_calibration_methodB(struct ddrautocal *cal)
 	mtsdram(SDRAM_RFDC, rfdc_reg | SDRAM_RFDC_RFFD_ENCODE(rffd_average));
 #endif /* CONFIG_DDR_RFDC_FIXED */
 
-	rffd = rffd_average;
 	in_window = 0;
 
 	curr_win_min = curr_win_max = 0;
