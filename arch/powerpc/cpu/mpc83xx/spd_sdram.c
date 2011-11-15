@@ -149,7 +149,7 @@ long int spd_sdram()
 	unsigned int memsize;
 	unsigned int law_size;
 	unsigned char caslat, caslat_ctrl;
-	unsigned int trfc, trfc_clk, trfc_low, trfc_high;
+	unsigned int trfc, trfc_clk, trfc_low;
 	unsigned int trcd_clk, trtp_clk;
 	unsigned char cke_min_clk;
 	unsigned char add_lat, wr_lat;
@@ -542,7 +542,6 @@ long int spd_sdram()
 	 * so preadjust it down 8 first before splitting it up.
 	 */
 	trfc_low = (trfc_clk - 8) & 0xf;
-	trfc_high = ((trfc_clk - 8) >> 4) & 0x3;
 
 	ddr->timing_cfg_1 =
 	    (((picos_to_clk(spd.trp * 250) & 0x07) << 28 ) |	/* PRETOACT */
