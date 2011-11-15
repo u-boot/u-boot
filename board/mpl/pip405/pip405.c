@@ -179,7 +179,6 @@ void write_4hex (unsigned long val)
 
 int board_early_init_f (void)
 {
-	unsigned char dataout[1];
 	unsigned char datain[128];
 	unsigned long sdram_size = 0;
 	SDRAM_SETUP *t = (SDRAM_SETUP *) sdram_setup_table;
@@ -189,9 +188,13 @@ int board_early_init_f (void)
 	unsigned short i;
 	unsigned char rows, cols, banks, sdram_banks, density;
 	unsigned char supported_cal, trp_clocks, trcd_clocks, tras_clocks,
-			trc_clocks, tctp_clocks;
+		trc_clocks;
 	unsigned char cal_index, cal_val, spd_version, spd_chksum;
 	unsigned char buf[8];
+#ifdef SDRAM_DEBUG
+	unsigned char tctp_clocks;
+#endif
+
 	/* set up the config port */
 	mtdcr (EBC0_CFGADDR, PB7AP);
 	mtdcr (EBC0_CFGDATA, CONFIG_PORT_AP);
@@ -210,7 +213,6 @@ int board_early_init_f (void)
 
 	/* Read Serial Presence Detect Information */
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	dataout[0] = 0;
 	for (i = 0; i < 128; i++)
 		datain[i] = 127;
 	i2c_read(SPD_EEPROM_ADDRESS,0,1,datain,128);
@@ -307,12 +309,13 @@ int board_early_init_f (void)
 
 	/* trc_clocks is sum of trp_clocks + tras_clocks */
 	trc_clocks = trp_clocks + tras_clocks;
+
+#ifdef SDRAM_DEBUG
 	/* ctp = ((trp + tras) - trp - trcd) => tras - trcd */
 	tctp_clocks =
 			((NSto10PS (datain[30]) - NSto10PS (datain[29])) +
 			 (tmemclk - 1)) / tmemclk;
 
-#ifdef SDRAM_DEBUG
 	serial_puts ("c_RP: ");
 	write_hex (trp_clocks);
 	serial_puts ("\nc_RCD: ");
