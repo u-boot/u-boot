@@ -34,12 +34,11 @@ GNU_FPOST_ATTR
 
 int fpu_post_test_math1 (void)
 {
-	volatile double a, *p;
+	volatile double a;
 	double c, d;
 	volatile double b;
 
 	d = 1.0;
-	p = &b;
 
 	do
 	{
