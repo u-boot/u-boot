@@ -206,7 +206,7 @@ static ulong flash_get_size (unsigned char * addr, flash_info_t * info)
 
 int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
-	int flag, prot, sect;
+	int prot, sect;
 	ulong type;
 	int rcode = 0;
 	ulong start;
@@ -240,7 +240,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		printf ("\n");
 
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts ();
+	disable_interrupts();
 
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last; sect++) {
@@ -370,7 +370,6 @@ static int write_data (flash_info_t * info, ulong dest, unsigned char data)
 {
 	volatile unsigned char *addr = (volatile unsigned char *) dest;
 	ulong status;
-	int flag;
 	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
@@ -380,7 +379,7 @@ static int write_data (flash_info_t * info, ulong dest, unsigned char data)
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts ();
+	disable_interrupts();
 
 	*addr = 0x40;	/* write setup */
 	*addr = data;
