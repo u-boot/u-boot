@@ -440,11 +440,9 @@ static int sata_dwc_softreset(struct ata_port *ap)
 {
 	u8 nsect,lbal = 0;
 	u8 tmp = 0;
-	u32 serror = 0;
-	u8 status = 0;
 	struct ata_ioports *ioaddr = &ap->ioaddr;
 
-	serror = in_le32((void *)ap->ioaddr.scr_addr + (SCR_ERROR * 4));
+	in_le32((void *)ap->ioaddr.scr_addr + (SCR_ERROR * 4));
 
 	writeb(0x55, ioaddr->nsect_addr);
 	writeb(0xaa, ioaddr->lbal_addr);
@@ -476,7 +474,7 @@ static int sata_dwc_softreset(struct ata_port *ap)
 	writeb(ap->ctl, ioaddr->ctl_addr);
 
 	msleep(150);
-	status = ata_check_status(ap);
+	ata_check_status(ap);
 
 	msleep(50);
 	ata_check_status(ap);
@@ -535,7 +533,6 @@ int scan_sata(int dev)
 	const u16 *id;
 	struct ata_device *ata_dev = &ata_device;
 	unsigned long pio_mask, mwdma_mask, udma_mask;
-	unsigned long xfer_mask;
 	char revbuf[7];
 	u16 iobuf[ATA_SECTOR_WORDS];
 
@@ -629,10 +626,6 @@ int scan_sata(int dev)
 	if (id[ATA_ID_FIELD_VALID] & (1 << 2))
 		udma_mask = id[ATA_ID_UDMA_MODES] & 0xff;
 
-	xfer_mask = ((pio_mask << ATA_SHIFT_PIO) & ATA_MASK_PIO) |
-		((mwdma_mask << ATA_SHIFT_MWDMA) & ATA_MASK_MWDMA) |
-		((udma_mask << ATA_SHIFT_UDMA) & ATA_MASK_UDMA);
-
 	if (ata_dev->class == ATA_DEV_ATA) {
 		if (ata_id_is_cfa(id)) {
 			if (id[162] & 1)
@@ -651,14 +644,11 @@ int scan_sata(int dev)
 			ata_dev->multi_count = ata_dev->id[59] & 0xff;
 
 		if (ata_id_has_lba(id)) {
-			const char *lba_desc;
 			char ncq_desc[20];
 
-			lba_desc = "LBA";
 			ata_dev->flags |= ATA_DFLAG_LBA;
 			if (ata_id_has_lba48(id)) {
 				ata_dev->flags |= ATA_DFLAG_LBA48;
-				lba_desc = "LBA48";
 
 				if (ata_dev->n_sectors >= (1UL << 28) &&
 					ata_id_has_flush_ext(id))
@@ -890,6 +880,7 @@ retry:
 	return 0;
 
 err_out:
+	printf("failed to READ ID (%s, err_mask=0x%x)\n", reason, err_mask);
 	return rc;
 }
 
@@ -1807,7 +1798,6 @@ static int ata_dev_read_sectors(unsigned char *pdata, unsigned long datalen,
 	unsigned int err_mask = 0;
 	const char *reason;
 	int may_fallback = 1;
-	int rc;
 
 	if (dev_state == SATA_ERROR)
 		return FALSE;
@@ -1904,18 +1894,9 @@ retry:
 			return -ENOENT;
 		}
 
-		rc = -EIO;
 		reason = "I/O error";
 		goto err_out;
 	}
-
-	/* Falling back doesn't make sense if ID data was read
-	 * successfully at least once.
-	 */
-	may_fallback = 0;
-
-	rc = -EINVAL;
-	reason = "device reports invalid type";
 
 	return TRUE;
 
@@ -1991,7 +1972,6 @@ static int ata_dev_write_sectors(unsigned char* pdata, unsigned long datalen,
 	unsigned int err_mask = 0;
 	const char *reason;
 	int may_fallback = 1;
-	int rc;
 
 	if (dev_state == SATA_ERROR)
 		return FALSE;
@@ -2089,18 +2069,9 @@ retry:
 			return -ENOENT;
 		}
 
-		rc = -EIO;
 		reason = "I/O error";
 		goto err_out;
 	}
-
-	/* Falling back doesn't make sense if ID data was read
-	 * successfully at least once.
-	 */
-	may_fallback = 0;
-
-	rc = -EINVAL;
-	reason = "device reports invalid type";
 
 	return TRUE;
 
