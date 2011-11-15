@@ -290,16 +290,9 @@ LIBS += lib/libfdt/libfdt.o
 LIBS += api/libapi.o
 LIBS += post/libpost.o
 
-ifeq ($(SOC),am33xx)
+ifneq ($(CONFIG_AM335X)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS += $(CPUDIR)/omap-common/libomap-common.o
 endif
-ifeq ($(SOC),omap3)
-LIBS += $(CPUDIR)/omap-common/libomap-common.o
-endif
-ifeq ($(SOC),omap4)
-LIBS += $(CPUDIR)/omap-common/libomap-common.o
-endif
-
 ifeq ($(SOC),s5pc1xx)
 LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
