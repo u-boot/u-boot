@@ -393,7 +393,6 @@ int vcxk_display_bitmap(ulong addr, int x, int y)
 	unsigned long width;
 	unsigned long height;
 	unsigned long bpp;
-	unsigned long compression;
 
 	unsigned long lw;
 
@@ -404,7 +403,6 @@ int vcxk_display_bitmap(ulong addr, int x, int y)
 	bmp = (bmp_image_t *) addr;
 	if ((bmp->header.signature[0] == 'B') &&
 	    (bmp->header.signature[1] == 'M')) {
-		compression  = le32_to_cpu(bmp->header.compression);
 		width        = le32_to_cpu(bmp->header.width);
 		height       = le32_to_cpu(bmp->header.height);
 		bpp          = le16_to_cpu(bmp->header.bit_count);
