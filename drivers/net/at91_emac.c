@@ -474,11 +474,9 @@ static int at91emac_recv(struct eth_device *netdev)
 
 static int at91emac_write_hwaddr(struct eth_device *netdev)
 {
-	emac_device *dev;
 	at91_emac_t *emac;
 	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 	emac = (at91_emac_t *) netdev->iobase;
-	dev = (emac_device *) netdev->priv;
 
 	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
 	DEBUG_AT91EMAC("init MAC-ADDR %02x:%02x:%02x:%02x:%02x:%02x\n",
