@@ -87,7 +87,6 @@ static void print_fpga_info(unsigned dev)
 	u16 fpga_features = in_le16(&fpga->fpga_features);
 	unsigned unit_type;
 	unsigned hardware_version;
-	unsigned feature_compression;
 	unsigned feature_rs232;
 	unsigned feature_audio;
 	unsigned feature_sysclock;
@@ -111,7 +110,6 @@ static void print_fpga_info(unsigned dev)
 
 	unit_type = (versions >> 4) & 0x000f;
 	hardware_version = versions & 0x000f;
-	feature_compression = (fpga_features >> 13) & 0x0003;
 	feature_rs232 = fpga_features & (1<<11);
 	feature_audio = (fpga_features >> 9) & 0x0003;
 	feature_sysclock = (fpga_features >> 7) & 0x0003;
