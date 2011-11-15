@@ -64,6 +64,9 @@ endif
 ifeq ($(SOC),omap4)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
+ifeq ($(SOC),omap5)
+LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
+endif
 
 START := $(addprefix $(SPLTREE)/,$(START))
 LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))

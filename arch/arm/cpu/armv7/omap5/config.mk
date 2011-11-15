@@ -1,9 +1,9 @@
 #
-# (C) Copyright 2000-2010
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
+# Copyright 2011 Linaro Limited
 # See file CREDITS for list of people who contributed to this
 # project.
+#
+# Aneesh V <annesh@ti.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,26 +21,8 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	=  $(obj)lib$(SOC).o
-
-COBJS	+= sdram_elpida.o
-COBJS	+= hwinit.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
-
-all:	 $(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+ifdef CONFIG_SPL_BUILD
+ALL-y	+= $(OBJTREE)/MLO
+else
+ALL-y	+= $(obj)u-boot.img
+endif

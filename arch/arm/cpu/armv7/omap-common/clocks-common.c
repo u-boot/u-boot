@@ -925,7 +925,7 @@ void setup_clocks_for_console(void)
 
 void prcm_init(void)
 {
-	switch (omap4_hw_init_context()) {
+	switch (omap_hw_init_context()) {
 	case OMAP_INIT_CONTEXT_SPL:
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:

@@ -44,7 +44,8 @@
 
 #define OMAP44XX_DRAM_ADDR_SPACE_START	0x80000000
 #define OMAP44XX_DRAM_ADDR_SPACE_END	0xD0000000
-
+#define DRAM_ADDR_SPACE_START	OMAP44XX_DRAM_ADDR_SPACE_START
+#define DRAM_ADDR_SPACE_END	OMAP44XX_DRAM_ADDR_SPACE_END
 
 /* CONTROL */
 #define CTRL_BASE		(OMAP44XX_L4_CORE_BASE + 0x2000)
@@ -57,16 +58,11 @@
 /* CONTROL_ID_CODE */
 #define CONTROL_ID_CODE		0x4A002204
 
-/* 4430 */
-#define OMAP4430_CONTROL_ID_CODE_ES1_0	0x0B85202F
-#define OMAP4430_CONTROL_ID_CODE_ES2_0	0x1B85202F
-#define OMAP4430_CONTROL_ID_CODE_ES2_1	0x3B95C02F
-#define OMAP4430_CONTROL_ID_CODE_ES2_2	0x4B95C02F
-#define OMAP4430_CONTROL_ID_CODE_ES2_3	0x6B95C02F
-
-/* 4460 */
-#define OMAP4460_CONTROL_ID_CODE_ES1_0	0x0B94E02F
-#define OMAP4460_CONTROL_ID_CODE_ES1_1	0x2B94E02F
+#define OMAP4_CONTROL_ID_CODE_ES1_0	0x0B85202F
+#define OMAP4_CONTROL_ID_CODE_ES2_0	0x1B85202F
+#define OMAP4_CONTROL_ID_CODE_ES2_1	0x3B95C02F
+#define OMAP4_CONTROL_ID_CODE_ES2_2	0x4B95C02F
+#define OMAP4_CONTROL_ID_CODE_ES2_3	0x6B95C02F
 
 /* UART */
 #define UART1_BASE		(OMAP44XX_L4_PER_BASE + 0x6a000)
@@ -151,7 +147,7 @@ struct omap4_sys_ctrl_regs {
 	unsigned int control_ldosram_mpu_voltage_ctrl;	/* 0x4A002324 */
 	unsigned int control_ldosram_core_voltage_ctrl;	/* 0x4A002328 */
 	unsigned int pad3[260277];
-	unsigned int control_pbiaslite;			/* 0x4A100600 */
+	unsigned int control_pbiaslite;                 /* 0x4A100600 */
 	unsigned int pad4[63];
 	unsigned int control_efuse_1;			/* 0x4A100700 */
 	unsigned int control_efuse_2;			/* 0x4A100704 */
@@ -187,16 +183,6 @@ struct control_lpddr2io_regs {
 #define OMAP4_SRAM_SCRATCH_EMIF_T_NUM	(SRAM_SCRATCH_SPACE_ADDR + 0xC)
 #define OMAP4_SRAM_SCRATCH_EMIF_T_DEN	(SRAM_SCRATCH_SPACE_ADDR + 0x10)
 #define OMAP4_SRAM_SCRATCH_SPACE_END	(SRAM_SCRATCH_SPACE_ADDR + 0x14)
-
-/* Silicon revisions */
-#define OMAP4430_SILICON_ID_INVALID	0xFFFFFFFF
-#define OMAP4430_ES1_0	0x44300100
-#define OMAP4430_ES2_0	0x44300200
-#define OMAP4430_ES2_1	0x44300210
-#define OMAP4430_ES2_2	0x44300220
-#define OMAP4430_ES2_3	0x44300230
-#define OMAP4460_ES1_0	0x44600100
-#define OMAP4460_ES1_1	0x44600110
 
 /* ROM code defines */
 /* Boot device */

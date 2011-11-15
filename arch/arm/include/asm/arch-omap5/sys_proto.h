@@ -22,17 +22,17 @@
 #define _SYS_PROTO_H_
 
 #include <asm/arch/omap.h>
-#include <asm/arch/clocks.h>
 #include <asm/io.h>
+#include <asm/arch/clocks.h>
 #include <asm/omap_common.h>
-#include <asm/arch/mux_omap4.h>
+#include <asm/arch/mux_omap5.h>
 
 struct omap_sysinfo {
 	char *board_string;
 };
 extern const struct omap_sysinfo sysinfo;
 
-extern struct omap4_prcm_regs *const prcm;
+extern struct omap5_prcm_regs *const prcm;
 
 void gpmc_init(void);
 void watchdog_init(void);
@@ -43,14 +43,13 @@ void set_muxconf_regs_non_essential(void);
 void sr32(void *, u32, u32, u32);
 u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);
-void set_pl310_ctrl_reg(u32 val);
 void omap_rev_string(char *omap_rev_string);
 void setup_clocks_for_console(void);
 void prcm_init(void);
 void bypass_dpll(u32 *const base);
 void freq_update_core(void);
 u32 get_sys_clk_freq(void);
-u32 omap4_ddr_clk(void);
+u32 omap5_ddr_clk(void);
 void cancel_out(u32 *num, u32 *den, u32 den_limit);
 void sdram_init(void);
 u32 omap_sdram_size(void);
@@ -58,12 +57,20 @@ u32 cortex_rev(void);
 void init_omap_revision(void);
 void do_io_settings(void);
 
+/*
+ * This is used to verify if the configuration header
+ * was executed by Romcode prior to control of transfer
+ * to the bootloader. SPL is responsible for saving and
+ * passing this to the u-boot.
+ */
+extern struct omap_boot_parameters boot_params;
+
 static inline u32 running_from_sdram(void)
 {
 	u32 pc;
 	asm volatile ("mov %0, pc" : "=r" (pc));
-	return ((pc >= OMAP44XX_DRAM_ADDR_SPACE_START) &&
-	    (pc < OMAP44XX_DRAM_ADDR_SPACE_END));
+	return ((pc >= OMAP54XX_DRAM_ADDR_SPACE_START) &&
+	    (pc < OMAP54XX_DRAM_ADDR_SPACE_END));
 }
 
 static inline u8 uboot_loaded_by_spl(void)
@@ -107,8 +114,8 @@ static inline u32 omap_hw_init_context(void)
 
 static inline u32 omap_revision(void)
 {
-	extern u32 *const omap4_revision;
-	return *omap4_revision;
+	extern u32 *const omap5_revision;
+	return *omap5_revision;
 }
 
 #endif

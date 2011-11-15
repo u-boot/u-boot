@@ -1212,7 +1212,7 @@ void sdram_init(void)
 
 	debug(">>sdram_init()\n");
 
-	if (omap4_hw_init_context() == OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL)
+	if (omap_hw_init_context() == OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL)
 		return;
 
 	in_sdram = running_from_sdram();
@@ -1237,7 +1237,7 @@ void sdram_init(void)
 
 	/* Do some testing after the init */
 	if (!in_sdram) {
-		size_prog = omap4_sdram_size();
+		size_prog = omap_sdram_size();
 		size_detect = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 						size_prog);
 		/* Compare with the size programmed */

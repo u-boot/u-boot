@@ -1,6 +1,6 @@
 /*
  *
- * Common functions for OMAP4 based boards
+ * Common functions for OMAP4/5 based boards
  *
  * (C) Copyright 2010
  * Texas Instruments, <www.ti.com>
@@ -28,28 +28,11 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include <asm/armv7.h>
-#include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/arch/emif.h>
-#include <asm/arch/gpio.h>
-#include "../omap4/omap4_mux_data.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-u32 *const omap4_revision = (u32 *)OMAP4_SRAM_SCRATCH_OMAP4_REV;
-
-static const struct gpio_bank gpio_bank_44xx[6] = {
-	{ (void *)OMAP44XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO3_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO5_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO6_BASE, METHOD_GPIO_24XX },
-};
-
-const struct gpio_bank *const omap_gpio_bank = gpio_bank_44xx;
 
 #ifdef CONFIG_SPL_BUILD
 /*
@@ -58,78 +41,17 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_44xx;
  * We would not typically need to save these parameters in regular
  * U-Boot. This is needed only in SPL at the moment.
  */
-u32 omap4_boot_device = BOOT_DEVICE_MMC1;
-u32 omap4_boot_mode = MMCSD_MODE_FAT;
+u32 omap_bootdevice = BOOT_DEVICE_MMC1;
+u32 omap_bootmode = MMCSD_MODE_FAT;
 
 u32 omap_boot_device(void)
 {
-	return omap4_boot_device;
+	return omap_bootdevice;
 }
 
 u32 omap_boot_mode(void)
 {
-	return omap4_boot_mode;
-}
-
-/*
- * Some tuning of IOs for optimal power and performance
- */
-static void do_io_settings(void)
-{
-	u32 lpddr2io;
-	struct control_lpddr2io_regs *lpddr2io_regs =
-		(struct control_lpddr2io_regs *)LPDDR2_IO_REGS_BASE;
-	struct omap4_sys_ctrl_regs *const ctrl =
-		(struct omap4_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
-
-	u32 omap4_rev = omap_revision();
-
-	if (omap4_rev == OMAP4430_ES1_0)
-		lpddr2io = CONTROL_LPDDR2IO_SLEW_125PS_DRV8_PULL_DOWN;
-	else if (omap4_rev == OMAP4430_ES2_0)
-		lpddr2io = CONTROL_LPDDR2IO_SLEW_325PS_DRV8_GATE_KEEPER;
-	else
-		lpddr2io = CONTROL_LPDDR2IO_SLEW_315PS_DRV12_PULL_DOWN;
-
-	/* EMIF1 */
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_0);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_1);
-	/* No pull for GR10 as per hw team's recommendation */
-	writel(lpddr2io & ~LPDDR2IO_GR10_WD_MASK,
-		&lpddr2io_regs->control_lpddr2io1_2);
-	writel(CONTROL_LPDDR2IO_3_VAL, &lpddr2io_regs->control_lpddr2io1_3);
-
-	/* EMIF2 */
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_0);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_1);
-	/* No pull for GR10 as per hw team's recommendation */
-	writel(lpddr2io & ~LPDDR2IO_GR10_WD_MASK,
-		&lpddr2io_regs->control_lpddr2io2_2);
-	writel(CONTROL_LPDDR2IO_3_VAL, &lpddr2io_regs->control_lpddr2io2_3);
-
-	/*
-	 * Some of these settings (TRIM values) come from eFuse and are
-	 * in turn programmed in the eFuse at manufacturing time after
-	 * calibration of the device. Do the software over-ride only if
-	 * the device is not correctly trimmed
-	 */
-	if (!(readl(&ctrl->control_std_fuse_opp_bgap) & 0xFFFF)) {
-
-		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
-			&ctrl->control_ldosram_iva_voltage_ctrl);
-
-		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
-			&ctrl->control_ldosram_mpu_voltage_ctrl);
-
-		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
-			&ctrl->control_ldosram_core_voltage_ctrl);
-	}
-
-	if (!readl(&ctrl->control_efuse_1))
-		writel(CONTROL_EFUSE_1_OVERRIDE, &ctrl->control_efuse_1);
-
-	if (!readl(&ctrl->control_efuse_2))
-		writel(CONTROL_EFUSE_2_OVERRIDE, &ctrl->control_efuse_2);
+	return omap_bootmode;
 }
 #endif
 
@@ -142,26 +64,9 @@ void do_set_mux(u32 base, struct pad_conf_entry const *array, int size)
 		writew(pad->val, base + pad->offset);
 }
 
-static void set_muxconf_regs_essential(void)
-{
-	do_set_mux(CONTROL_PADCONF_CORE, core_padconf_array_essential,
-		   sizeof(core_padconf_array_essential) /
-		   sizeof(struct pad_conf_entry));
-
-	do_set_mux(CONTROL_PADCONF_WKUP, wkup_padconf_array_essential,
-		   sizeof(wkup_padconf_array_essential) /
-		   sizeof(struct pad_conf_entry));
-
-	if (omap_revision() >= OMAP4460_ES1_0)
-		do_set_mux(CONTROL_PADCONF_WKUP,
-				 wkup_padconf_array_essential_4460,
-				 sizeof(wkup_padconf_array_essential_4460) /
-				 sizeof(struct pad_conf_entry));
-}
-
 static void set_mux_conf_regs(void)
 {
-	switch (omap4_hw_init_context()) {
+	switch (omap_hw_init_context()) {
 	case OMAP_INIT_CONTEXT_SPL:
 		set_muxconf_regs_essential();
 		break;
@@ -176,7 +81,7 @@ static void set_mux_conf_regs(void)
 	}
 }
 
-static u32 cortex_a9_rev(void)
+u32 cortex_rev(void)
 {
 
 	unsigned int rev;
@@ -187,65 +92,14 @@ static u32 cortex_a9_rev(void)
 	return rev;
 }
 
-static void init_omap4_revision(void)
+void omap_rev_string(char *omap_rev_string)
 {
-	/*
-	 * For some of the ES2/ES1 boards ID_CODE is not reliable:
-	 * Also, ES1 and ES2 have different ARM revisions
-	 * So use ARM revision for identification
-	 */
-	unsigned int arm_rev = cortex_a9_rev();
+	u32 omap_rev = omap_revision();
+	u32 omap_variant = (omap_rev & 0xFFFF0000) >> 16;
+	u32 major_rev = (omap_rev & 0x00000F00) >> 8;
+	u32 minor_rev = (omap_rev & 0x000000F0) >> 4;
 
-	switch (arm_rev) {
-	case MIDR_CORTEX_A9_R0P1:
-		*omap4_revision = OMAP4430_ES1_0;
-		break;
-	case MIDR_CORTEX_A9_R1P2:
-		switch (readl(CONTROL_ID_CODE)) {
-		case OMAP4430_CONTROL_ID_CODE_ES2_0:
-			*omap4_revision = OMAP4430_ES2_0;
-			break;
-		case OMAP4430_CONTROL_ID_CODE_ES2_1:
-			*omap4_revision = OMAP4430_ES2_1;
-			break;
-		case OMAP4430_CONTROL_ID_CODE_ES2_2:
-			*omap4_revision = OMAP4430_ES2_2;
-			break;
-		default:
-			*omap4_revision = OMAP4430_ES2_0;
-			break;
-		}
-		break;
-	case MIDR_CORTEX_A9_R1P3:
-		*omap4_revision = OMAP4430_ES2_3;
-		break;
-	case MIDR_CORTEX_A9_R2P10:
-		switch (readl(CONTROL_ID_CODE)) {
-		case OMAP4460_CONTROL_ID_CODE_ES1_0:
-			*omap4_revision = OMAP4460_ES1_0;
-			break;
-		case OMAP4460_CONTROL_ID_CODE_ES1_1:
-			*omap4_revision = OMAP4460_ES1_1;
-			break;
-		default:
-			*omap4_revision = OMAP4460_ES1_0;
-			break;
-		}
-		break;
-	default:
-		*omap4_revision = OMAP4430_SILICON_ID_INVALID;
-		break;
-	}
-}
-
-void omap_rev_string(char *omap4_rev_string)
-{
-	u32 omap4_rev = omap_revision();
-	u32 omap4_variant = (omap4_rev & 0xFFFF0000) >> 16;
-	u32 major_rev = (omap4_rev & 0x00000F00) >> 8;
-	u32 minor_rev = (omap4_rev & 0x000000F0) >> 4;
-
-	sprintf(omap4_rev_string, "OMAP%x ES%x.%x", omap4_variant, major_rev,
+	sprintf(omap_rev_string, "OMAP%x ES%x.%x", omap_variant, major_rev,
 		minor_rev);
 }
 
@@ -265,7 +119,7 @@ void omap_rev_string(char *omap4_rev_string)
  */
 void s_init(void)
 {
-	init_omap4_revision();
+	init_omap_revision();
 	watchdog_init();
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
@@ -312,7 +166,7 @@ void watchdog_init(void)
  * This is needed because the size of memory installed may be
  * different on different versions of the board
  */
-u32 omap4_sdram_size(void)
+u32 omap_sdram_size(void)
 {
 	u32 section, i, total_size = 0, size, addr;
 	for (i = 0; i < 4; i++) {
@@ -339,8 +193,7 @@ u32 omap4_sdram_size(void)
 int dram_init(void)
 {
 	sdram_init();
-	gd->ram_size = omap4_sdram_size();
-
+	gd->ram_size = omap_sdram_size();
 	return 0;
 }
 
@@ -363,18 +216,26 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-#ifndef CONFIG_SYS_L2CACHE_OFF
-void v7_outer_cache_enable(void)
+/*
+ *  get_device_type(): tell if GP/HS/EMU/TST
+ */
+u32 get_device_type(void)
 {
-	set_pl310_ctrl_reg(1);
+	return 0;
 }
 
-void v7_outer_cache_disable(void)
+/*
+ * Print CPU information
+ */
+int print_cpuinfo(void)
 {
-	set_pl310_ctrl_reg(0);
-}
-#endif
+	char rev_string_buffer[50];
 
+	omap_rev_string(rev_string_buffer);
+	printf("CPU  : %s\n", rev_string_buffer);
+
+	return 0;
+}
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {

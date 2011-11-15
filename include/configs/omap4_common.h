@@ -39,7 +39,7 @@
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>
-#include <asm/arch/omap4.h>
+#include <asm/arch/omap.h>
 
 /* Display CPU and Board Info */
 #define CONFIG_DISPLAY_CPUINFO		1

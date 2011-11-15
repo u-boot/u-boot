@@ -25,8 +25,10 @@ include $(TOPDIR)/config.mk
 
 LIB	=  $(obj)lib$(SOC).o
 
-COBJS	+= sdram_elpida.o
 COBJS	+= hwinit.o
+COBJS	+= clocks.o
+COBJS	+= emif.o
+COBJS	+= sdram_elpida.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))

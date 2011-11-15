@@ -26,7 +26,7 @@
  * MA 02111-1307 USA
  */
 
-#include <asm/arch/omap4.h>
+#include <asm/arch/omap.h>
 #ifdef CONFIG_SPL_BUILD
 .global save_boot_params
 save_boot_params:
@@ -43,17 +43,17 @@ save_boot_params:
 	cmp	r2, r0
 	blt	1f
 
-	/* Store the boot device in omap4_boot_device */
+	/* Store the boot device in omap_boot_device */
 	ldr     r2, [r0, #BOOT_DEVICE_OFFSET]	@ r1 <- value of boot device
 	and	r2, #BOOT_DEVICE_MASK
-	ldr	r3, =omap4_boot_device
-	str     r2, [r3]			@ omap4_boot_device <- r1
+	ldr	r3, =omap_bootdevice
+	str     r2, [r3]			@ omap_boot_device <- r1
 
-	/* Store the boot mode (raw/FAT) in omap4_boot_mode */
+	/* Store the boot mode (raw/FAT) in omap_boot_mode */
 	ldr	r2, [r0, #DEV_DESC_PTR_OFFSET]	@ get the device descriptor ptr
 	ldr	r2, [r2, #DEV_DATA_PTR_OFFSET]	@ get the pDeviceData ptr
 	ldr	r2, [r2, #BOOT_MODE_OFFSET]	@ get the boot mode
-	ldr	r3, =omap4_boot_mode
+	ldr	r3, =omap_bootmode
 	str	r2, [r3]
 1:
 	bx	lr

@@ -845,6 +845,7 @@ Aneesh V <aneesh@ti.com>
 
 	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
 	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
+	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
 
 Marek Vasut <marek.vasut@gmail.com>
 
