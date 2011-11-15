@@ -187,7 +187,6 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 	int eccbytes = CONFIG_SYS_NAND_ECCBYTES;
 	int eccsteps = CONFIG_SYS_NAND_ECCSTEPS;
 	uint8_t *p = dst;
-	int stat;
 
 	nand_command(mtd, block, page, 0, NAND_CMD_READ0);
 
@@ -217,7 +216,7 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 		 * from correct_data(). We just hope that all possible errors
 		 * are corrected by this routine.
 		 */
-		stat = this->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
+		this->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
 	}
 
 	return 0;
@@ -268,7 +267,6 @@ void nand_boot(void)
 {
 	struct nand_chip nand_chip;
 	nand_info_t nand_info;
-	int ret;
 	__attribute__((noreturn)) void (*uboot)(void);
 
 	/*
@@ -287,8 +285,8 @@ void nand_boot(void)
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
-	ret = nand_load(&nand_info, CONFIG_SYS_NAND_U_BOOT_OFFS, CONFIG_SYS_NAND_U_BOOT_SIZE,
-			(uchar *)CONFIG_SYS_NAND_U_BOOT_DST);
+	nand_load(&nand_info, CONFIG_SYS_NAND_U_BOOT_OFFS, CONFIG_SYS_NAND_U_BOOT_SIZE,
+		  (uchar *)CONFIG_SYS_NAND_U_BOOT_DST);
 
 #ifdef CONFIG_NAND_ENV_DST
 	nand_load(&nand_info, CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
