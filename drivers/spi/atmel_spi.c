@@ -136,13 +136,11 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	unsigned int	len_tx;
 	unsigned int	len_rx;
 	unsigned int	len;
-	int		ret;
 	u32		status;
 	const u8	*txp = dout;
 	u8		*rxp = din;
 	u8		value;
 
-	ret = 0;
 	if (bitlen == 0)
 		/* Finish any previously submitted transfers */
 		goto out;
