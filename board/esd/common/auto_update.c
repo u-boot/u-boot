@@ -91,7 +91,6 @@ int au_check_cksum_valid(int i, long nbytes)
 int au_check_header_valid(int i, long nbytes)
 {
 	image_header_t *hdr;
-	unsigned long checksum;
 
 	hdr = (image_header_t *)LOAD_ADDR;
 #if defined(CONFIG_FIT)
@@ -126,9 +125,6 @@ int au_check_header_valid(int i, long nbytes)
 		printf ("Image %s wrong type\n", au_image[i].name);
 		return -1;
 	}
-
-	/* recycle checksum */
-	checksum = image_get_data_size (hdr);
 
 	return 0;
 }
@@ -397,7 +393,7 @@ int do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev = NULL;
 	long sz;
-	int i, res, cnt, old_ctrlc, got_ctrlc;
+	int i, res, cnt, old_ctrlc;
 	char buffer[32];
 	char str[80];
 	int n;
@@ -473,8 +469,6 @@ int do_auto_update(void)
 			/* let the user break out of the loop */
 			if (ctrlc() || had_ctrlc ()) {
 				clear_ctrlc ();
-				if (res < 0)
-					got_ctrlc = 1;
 				break;
 			}
 			cnt++;
