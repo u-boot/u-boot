@@ -432,7 +432,6 @@ static void enc_receive(enc_dev_t *enc)
 	u16 pkt_len;
 	u16 copy_len;
 	u16 status;
-	u8 eir_reg;
 	u8 pkt_cnt = 0;
 	u16 rxbuf_rdpt;
 	u8 hbuf[6];
@@ -476,7 +475,7 @@ static void enc_receive(enc_dev_t *enc)
 		/* read pktcnt */
 		pkt_cnt = enc_r8(enc, CTL_REG_EPKTCNT);
 		if (copy_len == 0) {
-			eir_reg = enc_r8(enc, CTL_REG_EIR);
+			(void)enc_r8(enc, CTL_REG_EIR);
 			enc_reset_rx(enc);
 			printf("%s: receive copy_len=0\n", enc->dev->name);
 			continue;
@@ -489,7 +488,7 @@ static void enc_receive(enc_dev_t *enc)
 		NetReceive(packet, pkt_len);
 		if (enc_claim_bus(enc))
 			return;
-		eir_reg = enc_r8(enc, CTL_REG_EIR);
+		(void)enc_r8(enc, CTL_REG_EIR);
 	} while (pkt_cnt);
 	/* Use EPKTCNT not EIR.PKTIF flag, see errata pt. 6 */
 }
@@ -500,14 +499,13 @@ static void enc_receive(enc_dev_t *enc)
 static void enc_poll(enc_dev_t *enc)
 {
 	u8 eir_reg;
-	u8 estat_reg;
 	u8 pkt_cnt;
 
 #ifdef CONFIG_USE_IRQ
 	/* clear global interrupt enable bit in enc28j60 */
 	enc_bclr(enc, CTL_REG_EIE, ENC_EIE_INTIE);
 #endif
-	estat_reg = enc_r8(enc, CTL_REG_ESTAT);
+	(void)enc_r8(enc, CTL_REG_ESTAT);
 	eir_reg = enc_r8(enc, CTL_REG_EIR);
 	if (eir_reg & ENC_EIR_TXIF) {
 		/* clear TXIF bit in EIR */
