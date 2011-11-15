@@ -80,6 +80,7 @@ struct spl_image_info {
 
 extern struct spl_image_info spl_image;
 
+extern u32* boot_params_ptr;
 u32 omap_boot_device(void);
 u32 omap_boot_mode(void);
 

@@ -708,6 +708,7 @@ void setup_post_dividers(u32 *const base, const struct dpll_params *params);
 u32 get_sys_clk_index(void);
 void enable_basic_clocks(void);
 void enable_non_essential_clocks(void);
+void enable_basic_uboot_clocks(void);
 void do_enable_clocks(u32 *const *clk_domains,
 		      u32 *const *clk_modules_hw_auto,
 		      u32 *const *clk_modules_explicit_en,

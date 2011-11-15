@@ -27,7 +27,7 @@
  */
 
 #include <asm/arch/omap.h>
-#ifdef CONFIG_SPL_BUILD
+
 .global save_boot_params
 save_boot_params:
 	/*
@@ -43,21 +43,40 @@ save_boot_params:
 	cmp	r2, r0
 	blt	1f
 
+	/*
+	 * store the boot params passed from rom code or saved
+	 * and passed by SPL
+	 */
+	cmp	r0, #0
+	beq	1f
+	ldr	r1, =boot_params
+	str	r0, [r1]
+#ifdef CONFIG_SPL_BUILD
 	/* Store the boot device in omap_boot_device */
-	ldr     r2, [r0, #BOOT_DEVICE_OFFSET]	@ r1 <- value of boot device
+	ldrb	r2, [r0, #BOOT_DEVICE_OFFSET]	@ r1 <- value of boot device
 	and	r2, #BOOT_DEVICE_MASK
-	ldr	r3, =omap_bootdevice
-	str     r2, [r3]			@ omap_boot_device <- r1
+	ldr	r3, =boot_params
+	strb	r2, [r3, #BOOT_DEVICE_OFFSET]	@ omap_boot_device <- r1
 
+	/* boot mode is passed only for devices that can raw/fat mode */
+	cmp	r2, #2
+	blt	2f
+	cmp	r2, #7
+	bgt	2f
 	/* Store the boot mode (raw/FAT) in omap_boot_mode */
 	ldr	r2, [r0, #DEV_DESC_PTR_OFFSET]	@ get the device descriptor ptr
 	ldr	r2, [r2, #DEV_DATA_PTR_OFFSET]	@ get the pDeviceData ptr
 	ldr	r2, [r2, #BOOT_MODE_OFFSET]	@ get the boot mode
 	ldr	r3, =omap_bootmode
 	str	r2, [r3]
+#endif
+2:
+	ldrb	r2, [r0, #CH_FLAGS_OFFSET]
+	ldr	r3, =boot_params
+	strb	r2, [r3, #CH_FLAGS_OFFSET]
 1:
 	bx	lr
-#endif
+
 
 .globl lowlevel_init
 lowlevel_init:

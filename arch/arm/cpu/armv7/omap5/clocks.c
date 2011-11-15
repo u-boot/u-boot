@@ -273,30 +273,26 @@ void enable_basic_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_essential[] = {
+		&prcm->cm_memif_emif_1_clkctrl,
+		&prcm->cm_memif_emif_2_clkctrl,
+		&prcm->cm_l4cfg_l4_cfg_clkctrl,
 		&prcm->cm_wkup_gpio1_clkctrl,
 		&prcm->cm_l4per_gpio2_clkctrl,
 		&prcm->cm_l4per_gpio3_clkctrl,
 		&prcm->cm_l4per_gpio4_clkctrl,
 		&prcm->cm_l4per_gpio5_clkctrl,
 		&prcm->cm_l4per_gpio6_clkctrl,
-		&prcm->cm_memif_emif_1_clkctrl,
-		&prcm->cm_memif_emif_2_clkctrl,
-		&prcm->cm_l4cfg_l4_cfg_clkctrl,
 		0
 	};
 
 	u32 *const clk_modules_explicit_en_essential[] = {
-		&prcm->cm_l4per_gptimer2_clkctrl,
+		&prcm->cm_wkup_gptimer1_clkctrl,
 		&prcm->cm_l3init_hsmmc1_clkctrl,
 		&prcm->cm_l3init_hsmmc2_clkctrl,
-		&prcm->cm_l4per_mcspi1_clkctrl,
-		&prcm->cm_wkup_gptimer1_clkctrl,
-		&prcm->cm_l4per_i2c1_clkctrl,
-		&prcm->cm_l4per_i2c2_clkctrl,
-		&prcm->cm_l4per_i2c3_clkctrl,
-		&prcm->cm_l4per_i2c4_clkctrl,
+		&prcm->cm_l4per_gptimer2_clkctrl,
 		&prcm->cm_wkup_wdtimer2_clkctrl,
 		&prcm->cm_l4per_uart3_clkctrl,
+		&prcm->cm_l4per_i2c1_clkctrl,
 		0
 	};
 
@@ -313,6 +309,30 @@ void enable_basic_clocks(void)
 	/* Select 32KHz clock as the source of GPTIMER1 */
 	setbits_le32(&prcm->cm_wkup_gptimer1_clkctrl,
 			GPTIMER1_CLKCTRL_CLKSEL_MASK);
+
+	do_enable_clocks(clk_domains_essential,
+			 clk_modules_hw_auto_essential,
+			 clk_modules_explicit_en_essential,
+			 1);
+}
+
+void enable_basic_uboot_clocks(void)
+{
+	u32 *const clk_domains_essential[] = {
+		0
+	};
+
+	u32 *const clk_modules_hw_auto_essential[] = {
+		0
+	};
+
+	u32 *const clk_modules_explicit_en_essential[] = {
+		&prcm->cm_l4per_mcspi1_clkctrl,
+		&prcm->cm_l4per_i2c2_clkctrl,
+		&prcm->cm_l4per_i2c3_clkctrl,
+		&prcm->cm_l4per_i2c4_clkctrl,
+		0
+	};
 
 	do_enable_clocks(clk_domains_essential,
 			 clk_modules_hw_auto_essential,

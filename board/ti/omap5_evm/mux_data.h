@@ -50,14 +50,6 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 {SDMMC1_DAT5, (PTU | IEN | OFF_EN | OFF_PD | OFF_IN | M0)}, /* sdmmc1_dat5 */
 {SDMMC1_DAT6, (PTU | IEN | OFF_EN | OFF_PD | OFF_IN | M0)}, /* sdmmc1_dat6 */
 {SDMMC1_DAT7, (PTU | IEN | OFF_EN | OFF_PD | OFF_IN | M0)}, /* sdmmc1_dat7 */
-{I2C1_SCL, (PTU | IEN | M0)},				/* i2c1_scl */
-{I2C1_SDA, (PTU | IEN | M0)},				/* i2c1_sda */
-{I2C2_SCL, (PTU | IEN | M0)},				/* i2c2_scl */
-{I2C2_SDA, (PTU | IEN | M0)},				/* i2c2_sda */
-{I2C3_SCL, (PTU | IEN | M0)},				/* i2c3_scl */
-{I2C3_SDA, (PTU | IEN | M0)},				/* i2c3_sda */
-{I2C4_SCL, (PTU | IEN | M0)},				/* i2c4_scl */
-{I2C4_SDA, (PTU | IEN | M0)},				/* i2c4_sda */
 {UART3_CTS_RCTX, (PTU | IEN | M0)},			/* uart3_tx */
 {UART3_RTS_SD, (M0)},					/* uart3_rts_sd */
 {UART3_RX_IRRX, (IEN | M0)},				/* uart3_rx */
@@ -245,6 +237,14 @@ const struct pad_conf_entry core_padconf_array_non_essential[] = {
 	{DPM_EMU17, (IEN | M5)},					/* dispc2_data2 */
 	{DPM_EMU18, (IEN | M5)},					/* dispc2_data1 */
 	{DPM_EMU19, (IEN | M5)},					/* dispc2_data0 */
+	{I2C1_SCL, (PTU | IEN | M0)},				/* i2c1_scl */
+	{I2C1_SDA, (PTU | IEN | M0)},				/* i2c1_sda */
+	{I2C2_SCL, (PTU | IEN | M0)},				/* i2c2_scl */
+	{I2C2_SDA, (PTU | IEN | M0)},				/* i2c2_sda */
+	{I2C3_SCL, (PTU | IEN | M0)},				/* i2c3_scl */
+	{I2C3_SDA, (PTU | IEN | M0)},				/* i2c3_sda */
+	{I2C4_SCL, (PTU | IEN | M0)},				/* i2c4_scl */
+	{I2C4_SDA, (PTU | IEN | M0)}				/* i2c4_sda */
 };
 
 const struct pad_conf_entry wkup_padconf_array_non_essential[] = {

@@ -31,8 +31,17 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/emif.h>
+#include <asm/omap_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * This is used to verify if the configuration header
+ * was executed by rom code prior to control of transfer
+ * to the bootloader. SPL is responsible for saving and
+ * passing the boot_params pointer to the u-boot.
+ */
+struct omap_boot_parameters boot_params __attribute__ ((section(".data")));
 
 #ifdef CONFIG_SPL_BUILD
 /*
@@ -41,12 +50,11 @@ DECLARE_GLOBAL_DATA_PTR;
  * We would not typically need to save these parameters in regular
  * U-Boot. This is needed only in SPL at the moment.
  */
-u32 omap_bootdevice = BOOT_DEVICE_MMC1;
 u32 omap_bootmode = MMCSD_MODE_FAT;
 
 u32 omap_boot_device(void)
 {
-	return omap_bootdevice;
+	return (u32) (boot_params.omap_bootdevice);
 }
 
 u32 omap_boot_mode(void)
@@ -71,12 +79,16 @@ static void set_mux_conf_regs(void)
 		set_muxconf_regs_essential();
 		break;
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL:
+#ifdef CONFIG_SYS_ENABLE_PADS_ALL
 		set_muxconf_regs_non_essential();
+#endif
 		break;
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
 		set_muxconf_regs_essential();
+#ifdef CONFIG_SYS_ENABLE_PADS_ALL
 		set_muxconf_regs_non_essential();
+#endif
 		break;
 	}
 }
@@ -102,6 +114,13 @@ void omap_rev_string(char *omap_rev_string)
 	sprintf(omap_rev_string, "OMAP%x ES%x.%x", omap_variant, major_rev,
 		minor_rev);
 }
+
+#ifdef CONFIG_SPL_BUILD
+static void init_boot_params(void)
+{
+	boot_params_ptr = (u32 *) &boot_params;
+}
+#endif
 
 /*
  * Routine: s_init
@@ -131,6 +150,7 @@ void s_init(void)
 #ifdef CONFIG_SPL_BUILD
 	/* For regular u-boot sdram_init() is called from dram_init() */
 	sdram_init();
+	init_boot_params();
 #endif
 }
 

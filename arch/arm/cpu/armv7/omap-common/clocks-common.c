@@ -115,17 +115,46 @@ static inline void wait_for_lock(u32 *const base)
 	}
 }
 
-static void do_setup_dpll(u32 *const base, const struct dpll_params *params,
-				u8 lock)
+inline u32 check_for_lock(u32 *const base)
 {
-	u32 temp;
 	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
+	u32 lock = readl(&dpll_regs->cm_idlest_dpll) & ST_DPLL_CLK_MASK;
+
+	return lock;
+}
+
+static void do_setup_dpll(u32 *const base, const struct dpll_params *params,
+				u8 lock, char *dpll)
+{
+	u32 temp, M, N;
+	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
+
+	temp = readl(&dpll_regs->cm_clksel_dpll);
+
+	if (check_for_lock(base)) {
+		/*
+		 * The Dpll has already been locked by rom code using CH.
+		 * Check if M,N are matching with Ideal nominal opp values.
+		 * If matches, skip the rest otherwise relock.
+		 */
+		M = (temp & CM_CLKSEL_DPLL_M_MASK) >> CM_CLKSEL_DPLL_M_SHIFT;
+		N = (temp & CM_CLKSEL_DPLL_N_MASK) >> CM_CLKSEL_DPLL_N_SHIFT;
+		if ((M != (params->m)) || (N != (params->n))) {
+			debug("\n %s Dpll locked, but not for ideal M = %d,"
+				"N = %d values, current values are M = %d,"
+				"N= %d" , dpll, params->m, params->n,
+				M, N);
+		} else {
+			/* Dpll locked with ideal values for nominal opps. */
+			debug("\n %s Dpll already locked with ideal"
+						"nominal opp values", dpll);
+			goto setup_post_dividers;
+		}
+	}
 
 	bypass_dpll(base);
 
 	/* Set M & N */
-	temp = readl(&dpll_regs->cm_clksel_dpll);
-
 	temp &= ~CM_CLKSEL_DPLL_M_MASK;
 	temp |= (params->m << CM_CLKSEL_DPLL_M_SHIFT) & CM_CLKSEL_DPLL_M_MASK;
 
@@ -138,6 +167,7 @@ static void do_setup_dpll(u32 *const base, const struct dpll_params *params,
 	if (lock)
 		do_lock_dpll(base);
 
+setup_post_dividers:
 	setup_post_dividers(base, params);
 
 	/* Wait till the DPLL locks */
@@ -216,7 +246,8 @@ void configure_mpu_dpll(void)
 	}
 
 	params = get_mpu_dpll_params();
-	do_setup_dpll(&prcm->cm_clkmode_dpll_mpu, params, DPLL_LOCK);
+
+	do_setup_dpll(&prcm->cm_clkmode_dpll_mpu, params, DPLL_LOCK, "mpu");
 	debug("MPU DPLL locked\n");
 }
 
@@ -235,7 +266,8 @@ static void setup_dplls(void)
 	 * Core DPLL will be locked after setting up EMIF
 	 * using the FREQ_UPDATE method(freq_update_core())
 	 */
-	do_setup_dpll(&prcm->cm_clkmode_dpll_core, params, DPLL_NO_LOCK);
+	do_setup_dpll(&prcm->cm_clkmode_dpll_core, params, DPLL_NO_LOCK,
+								"core");
 	/* Set the ratios for CORE_CLK, L3_CLK, L4_CLK */
 	temp = (CLKSEL_CORE_X2_DIV_1 << CLKSEL_CORE_SHIFT) |
 	    (CLKSEL_L3_CORE_DIV_2 << CLKSEL_L3_SHIFT) |
@@ -246,13 +278,14 @@ static void setup_dplls(void)
 	/* lock PER dpll */
 	params = get_per_dpll_params();
 	do_setup_dpll(&prcm->cm_clkmode_dpll_per,
-			params, DPLL_LOCK);
+			params, DPLL_LOCK, "per");
 	debug("PER DPLL locked\n");
 
 	/* MPU dpll */
 	configure_mpu_dpll();
 }
 
+#ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
 static void setup_non_essential_dplls(void)
 {
 	u32 sys_clk_khz, abe_ref_clk;
@@ -267,7 +300,7 @@ static void setup_non_essential_dplls(void)
 		CM_BYPCLK_DPLL_IVA_CLKSEL_MASK, DPLL_IVA_CLKSEL_CORE_X2_DIV_2);
 
 	params = get_iva_dpll_params();
-	do_setup_dpll(&prcm->cm_clkmode_dpll_iva, params, DPLL_LOCK);
+	do_setup_dpll(&prcm->cm_clkmode_dpll_iva, params, DPLL_LOCK, "iva");
 
 	/*
 	 * USB:
@@ -287,7 +320,7 @@ static void setup_non_essential_dplls(void)
 			sd_div << CM_CLKSEL_DPLL_DPLL_SD_DIV_SHIFT);
 
 	/* Now setup the dpll with the regular function */
-	do_setup_dpll(&prcm->cm_clkmode_dpll_usb, params, DPLL_LOCK);
+	do_setup_dpll(&prcm->cm_clkmode_dpll_usb, params, DPLL_LOCK, "usb");
 
 	/* Configure ABE dpll */
 	params = get_abe_dpll_params();
@@ -315,8 +348,9 @@ static void setup_non_essential_dplls(void)
 			CM_ABE_PLL_REF_CLKSEL_CLKSEL_MASK,
 			abe_ref_clk << CM_ABE_PLL_REF_CLKSEL_CLKSEL_SHIFT);
 	/* Lock the dpll */
-	do_setup_dpll(&prcm->cm_clkmode_dpll_abe, params, DPLL_LOCK);
+	do_setup_dpll(&prcm->cm_clkmode_dpll_abe, params, DPLL_LOCK, "abe");
 }
+#endif
 
 void do_scale_tps62361(u32 reg, u32 volt_mv)
 {
@@ -561,10 +595,15 @@ void prcm_init(void)
 		enable_basic_clocks();
 		scale_vcores();
 		setup_dplls();
+#ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
 		setup_non_essential_dplls();
 		enable_non_essential_clocks();
+#endif
 		break;
 	default:
 		break;
 	}
+
+	if (OMAP_INIT_CONTEXT_SPL != omap_hw_init_context())
+		enable_basic_uboot_clocks();
 }

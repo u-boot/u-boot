@@ -55,6 +55,13 @@ u32 omap_sdram_size(void);
 u32 cortex_rev(void);
 void init_omap_revision(void);
 void do_io_settings(void);
+/*
+ * This is used to verify if the configuration header
+ * was executed by Romcode prior to control of transfer
+ * to the bootloader. SPL is responsible for saving and
+ * passing this to the u-boot.
+ */
+extern struct omap_boot_parameters boot_params;
 
 static inline u32 running_from_sdram(void)
 {
@@ -67,15 +74,17 @@ static inline u32 running_from_sdram(void)
 static inline u8 uboot_loaded_by_spl(void)
 {
 	/*
-	 * Configuration Header is not supported yet, so u-boot init running
-	 * from SDRAM implies that it was loaded by SPL. When this situation
-	 * changes one of these approaches could be taken:
-	 * i.  Pass a magic from SPL to U-Boot and U-Boot save it at a known
-	 *     location.
-	 * ii. Check the OPP. CH can support only 50% OPP while SPL initializes
-	 *     the DPLLs at 100% OPP.
+	 * u-boot can be running from sdram either because of configuration
+	 * Header or by SPL. If because of CH, then the romcode sets the
+	 * CHSETTINGS executed bit to true in the boot parameter structure that
+	 * it passes to the bootloader.This parameter is stored in the ch_flags
+	 * variable by both SPL and u-boot.Check out for CHSETTINGS, which is a
+	 * mandatory section if CH is present.
 	 */
-	return running_from_sdram();
+	if ((boot_params.ch_flags) & (CH_FLAGS_CHSETTINGS))
+		return 0;
+	else
+		return running_from_sdram();
 }
 /*
  * The basic hardware init of OMAP(s_init()) can happen in 4
