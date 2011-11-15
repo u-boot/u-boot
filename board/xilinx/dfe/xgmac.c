@@ -18,7 +18,12 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
 /*************************** Constant Definitions ***************************/
 
 #define EMACPSS_DEVICE_ID   0
-#define PHY_ADDR 0x17
+
+#if defined(CONFIG_EP107)
+# define PHY_ADDR 0x17
+#else
+# define PHY_ADDR 0x10
+#endif
 
 #define RXBD_CNT       8	/* Number of RxBDs to use */
 #define TXBD_CNT       8	/* Number of TxBDs to use */
