@@ -660,8 +660,19 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_compat_u32(blob, "fsl,gianfar-ptp-timer",
 			"timer-frequency", gd->bus_clk/2, 1);
 
+	/*
+	 * clock-freq should change to clock-frequency and
+	 * flexcan-v1.0 should change to p1010-flexcan respectively
+	 * in the future.
+	 */
 	do_fixup_by_compat_u32(blob, "fsl,flexcan-v1.0",
-			"clock_freq", gd->bus_clk, 1);
+			"clock_freq", gd->bus_clk/2, 1);
+
+	do_fixup_by_compat_u32(blob, "fsl,flexcan-v1.0",
+			"clock-frequency", gd->bus_clk/2, 1);
+
+	do_fixup_by_compat_u32(blob, "fsl,p1010-flexcan",
+			"clock-frequency", gd->bus_clk/2, 1);
 
 	fdt_fixup_usb(blob);
 }
