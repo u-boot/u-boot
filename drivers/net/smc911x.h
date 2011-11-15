@@ -471,8 +471,11 @@ static void smc911x_reset(struct eth_device *dev)
 {
 	int timeout;
 
-	/* Take out of PM setting first */
-	if (smc911x_reg_read(dev, PMT_CTRL) & PMT_CTRL_READY) {
+	/*
+	 *  Take out of PM setting first
+	 *  Device is already wake up if PMT_CTRL_READY bit is set
+	 */
+	if ((smc911x_reg_read(dev, PMT_CTRL) & PMT_CTRL_READY) == 0) {
 		/* Write to the bytetest will take out of powerdown */
 		smc911x_reg_write(dev, BYTE_TEST, 0x0);
 
