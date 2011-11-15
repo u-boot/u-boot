@@ -448,6 +448,7 @@ struct davinci_pllc_regs {
 enum davinci_clk_ids {
 	DAVINCI_SPI0_CLKID = 2,
 	DAVINCI_UART2_CLKID = 2,
+	DAVINCI_MMC_CLKID = 2,
 	DAVINCI_MDIO_CLKID = 4,
 	DAVINCI_ARM_CLKID = 6,
 	DAVINCI_PLLM_CLKID = 0xff,
