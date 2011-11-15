@@ -92,6 +92,7 @@
 #include <asm/ppc4xx-mal.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <linux/compiler.h>
 
 #if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
@@ -872,7 +873,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
-	int ethgroup = -1;
+	__maybe_unused int ethgroup = -1;
 #endif
 #endif
 	u32 bd_cached;
