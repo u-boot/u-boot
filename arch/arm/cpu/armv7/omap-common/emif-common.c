@@ -26,28 +26,29 @@
  */
 
 #include <common.h>
-#include <asm/arch/emif.h>
+#include <asm/emif.h>
 #include <asm/arch/clocks.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
 #include <asm/utils.h>
 
-static inline u32 emif_num(u32 base)
+inline u32 emif_num(u32 base)
 {
-	if (base == OMAP44XX_EMIF1)
+	if (base == EMIF1_BASE)
 		return 1;
-	else if (base == OMAP44XX_EMIF2)
+	else if (base == EMIF2_BASE)
 		return 2;
 	else
 		return 0;
 }
+
 
 static inline u32 get_mr(u32 base, u32 cs, u32 mr_addr)
 {
 	u32 mr;
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
-	mr_addr |= cs << OMAP44XX_REG_CS_SHIFT;
+	mr_addr |= cs << EMIF_REG_CS_SHIFT;
 	writel(mr_addr, &emif->emif_lpddr2_mode_reg_cfg);
 	if (omap_revision() == OMAP4430_ES2_0)
 		mr = readl(&emif->emif_lpddr2_mode_reg_data_es2);
@@ -62,7 +63,7 @@ static inline void set_mr(u32 base, u32 cs, u32 mr_addr, u32 mr_val)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
-	mr_addr |= cs << OMAP44XX_REG_CS_SHIFT;
+	mr_addr |= cs << EMIF_REG_CS_SHIFT;
 	writel(mr_addr, &emif->emif_lpddr2_mode_reg_cfg);
 	writel(mr_val, &emif->emif_lpddr2_mode_reg_data);
 }
@@ -73,7 +74,7 @@ void emif_reset_phy(u32 base)
 	u32 iodft;
 
 	iodft = readl(&emif->emif_iodft_tlgc);
-	iodft |= OMAP44XX_REG_RESET_PHY_MASK;
+	iodft |= EMIF_REG_RESET_PHY_MASK;
 	writel(iodft, &emif->emif_iodft_tlgc);
 }
 
@@ -96,7 +97,7 @@ static void do_lpddr2_init(u32 base, u32 cs)
 	 * Enable refresh along with writing MR2
 	 * Encoding of RL in MR2 is (RL - 2)
 	 */
-	mr_addr = LPDDR2_MR2 | OMAP44XX_REG_REFRESH_EN_MASK;
+	mr_addr = LPDDR2_MR2 | EMIF_REG_REFRESH_EN_MASK;
 	set_mr(base, cs, mr_addr, RL_FINAL - 2);
 }
 
@@ -105,13 +106,13 @@ static void lpddr2_init(u32 base, const struct emif_regs *regs)
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
 	/* Not NVM */
-	clrbits_le32(&emif->emif_lpddr2_nvm_config, OMAP44XX_REG_CS1NVMEN_MASK);
+	clrbits_le32(&emif->emif_lpddr2_nvm_config, EMIF_REG_CS1NVMEN_MASK);
 
 	/*
 	 * Keep REG_INITREF_DIS = 1 to prevent re-initialization of SDRAM
 	 * when EMIF_SDRAM_CONFIG register is written
 	 */
-	setbits_le32(&emif->emif_sdram_ref_ctrl, OMAP44XX_REG_INITREF_DIS_MASK);
+	setbits_le32(&emif->emif_sdram_ref_ctrl, EMIF_REG_INITREF_DIS_MASK);
 
 	/*
 	 * Set the SDRAM_CONFIG and PHY_CTRL for the
@@ -121,18 +122,18 @@ static void lpddr2_init(u32 base, const struct emif_regs *regs)
 	writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
 
 	do_lpddr2_init(base, CS0);
-	if (regs->sdram_config & OMAP44XX_REG_EBANK_MASK)
+	if (regs->sdram_config & EMIF_REG_EBANK_MASK)
 		do_lpddr2_init(base, CS1);
 
 	writel(regs->sdram_config, &emif->emif_sdram_config);
 	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);
 
 	/* Enable refresh now */
-	clrbits_le32(&emif->emif_sdram_ref_ctrl, OMAP44XX_REG_INITREF_DIS_MASK);
+	clrbits_le32(&emif->emif_sdram_ref_ctrl, EMIF_REG_INITREF_DIS_MASK);
 
 }
 
-static void emif_update_timings(u32 base, const struct emif_regs *regs)
+void emif_update_timings(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
@@ -152,7 +153,10 @@ static void emif_update_timings(u32 base, const struct emif_regs *regs)
 	writel(regs->temp_alert_config, &emif->emif_temp_alert_config);
 	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
 
-	if (omap_revision() >= OMAP4460_ES1_0) {
+	if (omap_revision() == OMAP5430_ES1_0) {
+		writel(EMIF_L3_CONFIG_VAL_SYS_10_MPU_5_LL_0,
+			&emif->emif_l3_config);
+	} else if (omap_revision() >= OMAP4460_ES1_0) {
 		writel(EMIF_L3_CONFIG_VAL_SYS_10_MPU_3_LL_0,
 			&emif->emif_l3_config);
 	} else {
@@ -163,10 +167,6 @@ static void emif_update_timings(u32 base, const struct emif_regs *regs)
 
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 #define print_timing_reg(reg) debug(#reg" - 0x%08x\n", (reg))
-
-static u32 *const T_num = (u32 *)OMAP4_SRAM_SCRATCH_EMIF_T_NUM;
-static u32 *const T_den = (u32 *)OMAP4_SRAM_SCRATCH_EMIF_T_DEN;
-static u32 *const emif_sizes = (u32 *)OMAP4_SRAM_SCRATCH_EMIF_SIZE;
 
 /*
  * Organization and refresh requirements for LPDDR2 devices of different
@@ -311,24 +311,24 @@ static u32 get_sdram_config_reg(const struct lpddr2_device_details *cs0_device,
 {
 	u32 config_reg = 0;
 
-	config_reg |=  (cs0_device->type + 4) << OMAP44XX_REG_SDRAM_TYPE_SHIFT;
+	config_reg |=  (cs0_device->type + 4) << EMIF_REG_SDRAM_TYPE_SHIFT;
 	config_reg |=  EMIF_INTERLEAVING_POLICY_MAX_INTERLEAVING <<
-			OMAP44XX_REG_IBANK_POS_SHIFT;
+			EMIF_REG_IBANK_POS_SHIFT;
 
-	config_reg |= cs0_device->io_width << OMAP44XX_REG_NARROW_MODE_SHIFT;
+	config_reg |= cs0_device->io_width << EMIF_REG_NARROW_MODE_SHIFT;
 
-	config_reg |= RL << OMAP44XX_REG_CL_SHIFT;
+	config_reg |= RL << EMIF_REG_CL_SHIFT;
 
 	config_reg |= addressing->row_sz[cs0_device->io_width] <<
-			OMAP44XX_REG_ROWSIZE_SHIFT;
+			EMIF_REG_ROWSIZE_SHIFT;
 
-	config_reg |= addressing->num_banks << OMAP44XX_REG_IBANK_SHIFT;
+	config_reg |= addressing->num_banks << EMIF_REG_IBANK_SHIFT;
 
 	config_reg |= (cs1_device ? EBANK_CS1_EN : EBANK_CS1_DIS) <<
-			OMAP44XX_REG_EBANK_SHIFT;
+			EMIF_REG_EBANK_SHIFT;
 
 	config_reg |= addressing->col_sz[cs0_device->io_width] <<
-			OMAP44XX_REG_PAGESIZE_SHIFT;
+			EMIF_REG_PAGESIZE_SHIFT;
 
 	return config_reg;
 }
@@ -343,7 +343,7 @@ static u32 get_sdram_ref_ctrl(u32 freq,
 	 * division by 10000 to account for khz and x10 in t_REFI_us_x10
 	 */
 	val = addressing->t_REFI_us_x10 * freq_khz / 10000;
-	ref_ctrl |= val << OMAP44XX_REG_REFRESH_RATE_SHIFT;
+	ref_ctrl |= val << EMIF_REG_REFRESH_RATE_SHIFT;
 
 	return ref_ctrl;
 }
@@ -354,7 +354,7 @@ static u32 get_sdram_tim_1_reg(const struct lpddr2_ac_timings *timings,
 {
 	u32 tim1 = 0, val = 0;
 	val = max(min_tck->tWTR, ns_x2_2_cycles(timings->tWTRx2)) - 1;
-	tim1 |= val << OMAP44XX_REG_T_WTR_SHIFT;
+	tim1 |= val << EMIF_REG_T_WTR_SHIFT;
 
 	if (addressing->num_banks == BANKS8)
 		val = (timings->tFAW * (*T_den) + 4 * (*T_num) - 1) /
@@ -362,22 +362,22 @@ static u32 get_sdram_tim_1_reg(const struct lpddr2_ac_timings *timings,
 	else
 		val = max(min_tck->tRRD, ns_2_cycles(timings->tRRD)) - 1;
 
-	tim1 |= val << OMAP44XX_REG_T_RRD_SHIFT;
+	tim1 |= val << EMIF_REG_T_RRD_SHIFT;
 
 	val = ns_2_cycles(timings->tRASmin + timings->tRPab) - 1;
-	tim1 |= val << OMAP44XX_REG_T_RC_SHIFT;
+	tim1 |= val << EMIF_REG_T_RC_SHIFT;
 
 	val = max(min_tck->tRAS_MIN, ns_2_cycles(timings->tRASmin)) - 1;
-	tim1 |= val << OMAP44XX_REG_T_RAS_SHIFT;
+	tim1 |= val << EMIF_REG_T_RAS_SHIFT;
 
 	val = max(min_tck->tWR, ns_2_cycles(timings->tWR)) - 1;
-	tim1 |= val << OMAP44XX_REG_T_WR_SHIFT;
+	tim1 |= val << EMIF_REG_T_WR_SHIFT;
 
 	val = max(min_tck->tRCD, ns_2_cycles(timings->tRCD)) - 1;
-	tim1 |= val << OMAP44XX_REG_T_RCD_SHIFT;
+	tim1 |= val << EMIF_REG_T_RCD_SHIFT;
 
 	val = max(min_tck->tRP_AB, ns_2_cycles(timings->tRPab)) - 1;
-	tim1 |= val << OMAP44XX_REG_T_RP_SHIFT;
+	tim1 |= val << EMIF_REG_T_RP_SHIFT;
 
 	return tim1;
 }
@@ -387,21 +387,21 @@ static u32 get_sdram_tim_2_reg(const struct lpddr2_ac_timings *timings,
 {
 	u32 tim2 = 0, val = 0;
 	val = max(min_tck->tCKE, timings->tCKE) - 1;
-	tim2 |= val << OMAP44XX_REG_T_CKE_SHIFT;
+	tim2 |= val << EMIF_REG_T_CKE_SHIFT;
 
 	val = max(min_tck->tRTP, ns_x2_2_cycles(timings->tRTPx2)) - 1;
-	tim2 |= val << OMAP44XX_REG_T_RTP_SHIFT;
+	tim2 |= val << EMIF_REG_T_RTP_SHIFT;
 
 	/*
 	 * tXSRD = tRFCab + 10 ns. XSRD and XSNR should have the
 	 * same value
 	 */
 	val = ns_2_cycles(timings->tXSR) - 1;
-	tim2 |= val << OMAP44XX_REG_T_XSRD_SHIFT;
-	tim2 |= val << OMAP44XX_REG_T_XSNR_SHIFT;
+	tim2 |= val << EMIF_REG_T_XSRD_SHIFT;
+	tim2 |= val << EMIF_REG_T_XSNR_SHIFT;
 
 	val = max(min_tck->tXP, ns_x2_2_cycles(timings->tXPx2)) - 1;
-	tim2 |= val << OMAP44XX_REG_T_XP_SHIFT;
+	tim2 |= val << EMIF_REG_T_XP_SHIFT;
 
 	return tim2;
 }
@@ -412,19 +412,19 @@ static u32 get_sdram_tim_3_reg(const struct lpddr2_ac_timings *timings,
 {
 	u32 tim3 = 0, val = 0;
 	val = min(timings->tRASmax * 10 / addressing->t_REFI_us_x10 - 1, 0xF);
-	tim3 |= val << OMAP44XX_REG_T_RAS_MAX_SHIFT;
+	tim3 |= val << EMIF_REG_T_RAS_MAX_SHIFT;
 
 	val = ns_2_cycles(timings->tRFCab) - 1;
-	tim3 |= val << OMAP44XX_REG_T_RFC_SHIFT;
+	tim3 |= val << EMIF_REG_T_RFC_SHIFT;
 
 	val = ns_x2_2_cycles(timings->tDQSCKMAXx2) - 1;
-	tim3 |= val << OMAP44XX_REG_T_TDQSCKMAX_SHIFT;
+	tim3 |= val << EMIF_REG_T_TDQSCKMAX_SHIFT;
 
 	val = ns_2_cycles(timings->tZQCS) - 1;
-	tim3 |= val << OMAP44XX_REG_ZQ_ZQCS_SHIFT;
+	tim3 |= val << EMIF_REG_ZQ_ZQCS_SHIFT;
 
 	val = max(min_tck->tCKESR, ns_2_cycles(timings->tCKESR)) - 1;
-	tim3 |= val << OMAP44XX_REG_T_CKESR_SHIFT;
+	tim3 |= val << EMIF_REG_T_CKESR_SHIFT;
 
 	return tim3;
 }
@@ -442,13 +442,13 @@ static u32 get_zq_config_reg(const struct lpddr2_device_details *cs1_device,
 		val =
 		    EMIF_ZQCS_INTERVAL_NORMAL_IN_US * 10 /
 		    addressing->t_REFI_us_x10;
-	zq |= val << OMAP44XX_REG_ZQ_REFINTERVAL_SHIFT;
+	zq |= val << EMIF_REG_ZQ_REFINTERVAL_SHIFT;
 
-	zq |= (REG_ZQ_ZQCL_MULT - 1) << OMAP44XX_REG_ZQ_ZQCL_MULT_SHIFT;
+	zq |= (REG_ZQ_ZQCL_MULT - 1) << EMIF_REG_ZQ_ZQCL_MULT_SHIFT;
 
-	zq |= (REG_ZQ_ZQINIT_MULT - 1) << OMAP44XX_REG_ZQ_ZQINIT_MULT_SHIFT;
+	zq |= (REG_ZQ_ZQINIT_MULT - 1) << EMIF_REG_ZQ_ZQINIT_MULT_SHIFT;
 
-	zq |= REG_ZQ_SFEXITEN_ENABLE << OMAP44XX_REG_ZQ_SFEXITEN_SHIFT;
+	zq |= REG_ZQ_SFEXITEN_ENABLE << EMIF_REG_ZQ_SFEXITEN_SHIFT;
 
 	/*
 	 * Assuming that two chipselects have a single calibration resistor
@@ -458,11 +458,11 @@ static u32 get_zq_config_reg(const struct lpddr2_device_details *cs1_device,
 	 * that none of the boards today have calibration resistors per CS,
 	 * it would be an unnecessary overhead.
 	 */
-	zq |= REG_ZQ_DUALCALEN_DISABLE << OMAP44XX_REG_ZQ_DUALCALEN_SHIFT;
+	zq |= REG_ZQ_DUALCALEN_DISABLE << EMIF_REG_ZQ_DUALCALEN_SHIFT;
 
-	zq |= REG_ZQ_CS0EN_ENABLE << OMAP44XX_REG_ZQ_CS0EN_SHIFT;
+	zq |= REG_ZQ_CS0EN_ENABLE << EMIF_REG_ZQ_CS0EN_SHIFT;
 
-	zq |= (cs1_device ? 1 : 0) << OMAP44XX_REG_ZQ_CS1EN_SHIFT;
+	zq |= (cs1_device ? 1 : 0) << EMIF_REG_ZQ_CS1EN_SHIFT;
 
 	return zq;
 }
@@ -476,17 +476,17 @@ static u32 get_temp_alert_config(const struct lpddr2_device_details *cs1_device,
 	    TEMP_ALERT_POLL_INTERVAL_MS * 10000 / addressing->t_REFI_us_x10;
 	if (is_derated)
 		interval *= 4;
-	alert |= interval << OMAP44XX_REG_TA_REFINTERVAL_SHIFT;
+	alert |= interval << EMIF_REG_TA_REFINTERVAL_SHIFT;
 
-	alert |= TEMP_ALERT_CONFIG_DEVCT_1 << OMAP44XX_REG_TA_DEVCNT_SHIFT;
+	alert |= TEMP_ALERT_CONFIG_DEVCT_1 << EMIF_REG_TA_DEVCNT_SHIFT;
 
-	alert |= TEMP_ALERT_CONFIG_DEVWDT_32 << OMAP44XX_REG_TA_DEVWDT_SHIFT;
+	alert |= TEMP_ALERT_CONFIG_DEVWDT_32 << EMIF_REG_TA_DEVWDT_SHIFT;
 
-	alert |= 1 << OMAP44XX_REG_TA_SFEXITEN_SHIFT;
+	alert |= 1 << EMIF_REG_TA_SFEXITEN_SHIFT;
 
-	alert |= 1 << OMAP44XX_REG_TA_CS0EN_SHIFT;
+	alert |= 1 << EMIF_REG_TA_CS0EN_SHIFT;
 
-	alert |= (cs1_device ? 1 : 0) << OMAP44XX_REG_TA_CS1EN_SHIFT;
+	alert |= (cs1_device ? 1 : 0) << EMIF_REG_TA_CS1EN_SHIFT;
 
 	return alert;
 }
@@ -499,9 +499,9 @@ static u32 get_read_idle_ctrl_reg(u8 volt_ramp)
 	else
 		/*Maximum value in normal conditions - suggested by hw team */
 		val = 0x1FF;
-	idle |= val << OMAP44XX_REG_READ_IDLE_INTERVAL_SHIFT;
+	idle |= val << EMIF_REG_READ_IDLE_INTERVAL_SHIFT;
 
-	idle |= EMIF_REG_READ_IDLE_LEN_VAL << OMAP44XX_REG_READ_IDLE_LEN_SHIFT;
+	idle |= EMIF_REG_READ_IDLE_LEN_VAL << EMIF_REG_READ_IDLE_LEN_SHIFT;
 
 	return idle;
 }
@@ -510,7 +510,7 @@ static u32 get_ddr_phy_ctrl_1(u32 freq, u8 RL)
 {
 	u32 phy = 0, val = 0;
 
-	phy |= (RL + 2) << OMAP44XX_REG_READ_LATENCY_SHIFT;
+	phy |= (RL + 2) << EMIF_REG_READ_LATENCY_SHIFT;
 
 	if (freq <= 100000000)
 		val = EMIF_DLL_SLAVE_DLY_CTRL_100_MHZ_AND_LESS;
@@ -518,11 +518,11 @@ static u32 get_ddr_phy_ctrl_1(u32 freq, u8 RL)
 		val = EMIF_DLL_SLAVE_DLY_CTRL_200_MHZ;
 	else
 		val = EMIF_DLL_SLAVE_DLY_CTRL_400_MHZ;
-	phy |= val << OMAP44XX_REG_DLL_SLAVE_DLY_CTRL_SHIFT;
+	phy |= val << EMIF_REG_DLL_SLAVE_DLY_CTRL_SHIFT;
 
 	/* Other fields are constant magic values. Hardcode them together */
 	phy |= EMIF_DDR_PHY_CTRL_1_BASE_VAL <<
-		OMAP44XX_EMIF_DDR_PHY_CTRL_1_BASE_VAL_SHIFT;
+		EMIF_EMIF_DDR_PHY_CTRL_1_BASE_VAL_SHIFT;
 
 	return phy;
 }
@@ -665,123 +665,6 @@ static void emif_calculate_regs(
 	print_timing_reg(regs->emif_ddr_phy_ctlr_1_init);
 }
 #endif /* CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS */
-
-#ifdef CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
-/* Base AC Timing values specified by JESD209-2 for 400MHz operation */
-static const struct lpddr2_ac_timings timings_jedec_400_mhz = {
-	.max_freq = 400000000,
-	.RL = 6,
-	.tRPab = 21,
-	.tRCD = 18,
-	.tWR = 15,
-	.tRASmin = 42,
-	.tRRD = 10,
-	.tWTRx2 = 15,
-	.tXSR = 140,
-	.tXPx2 = 15,
-	.tRFCab = 130,
-	.tRTPx2 = 15,
-	.tCKE = 3,
-	.tCKESR = 15,
-	.tZQCS = 90,
-	.tZQCL = 360,
-	.tZQINIT = 1000,
-	.tDQSCKMAXx2 = 11,
-	.tRASmax = 70,
-	.tFAW = 50
-};
-
-/* Base AC Timing values specified by JESD209-2 for 333 MHz operation */
-static const struct lpddr2_ac_timings timings_jedec_333_mhz = {
-	.max_freq = 333000000,
-	.RL = 5,
-	.tRPab = 21,
-	.tRCD = 18,
-	.tWR = 15,
-	.tRASmin = 42,
-	.tRRD = 10,
-	.tWTRx2 = 15,
-	.tXSR = 140,
-	.tXPx2 = 15,
-	.tRFCab = 130,
-	.tRTPx2 = 15,
-	.tCKE = 3,
-	.tCKESR = 15,
-	.tZQCS = 90,
-	.tZQCL = 360,
-	.tZQINIT = 1000,
-	.tDQSCKMAXx2 = 11,
-	.tRASmax = 70,
-	.tFAW = 50
-};
-
-/* Base AC Timing values specified by JESD209-2 for 200 MHz operation */
-static const struct lpddr2_ac_timings timings_jedec_200_mhz = {
-	.max_freq = 200000000,
-	.RL = 3,
-	.tRPab = 21,
-	.tRCD = 18,
-	.tWR = 15,
-	.tRASmin = 42,
-	.tRRD = 10,
-	.tWTRx2 = 20,
-	.tXSR = 140,
-	.tXPx2 = 15,
-	.tRFCab = 130,
-	.tRTPx2 = 15,
-	.tCKE = 3,
-	.tCKESR = 15,
-	.tZQCS = 90,
-	.tZQCL = 360,
-	.tZQINIT = 1000,
-	.tDQSCKMAXx2 = 11,
-	.tRASmax = 70,
-	.tFAW = 50
-};
-
-/*
- * Min tCK values specified by JESD209-2
- * Min tCK specifies the minimum duration of some AC timing parameters in terms
- * of the number of cycles. If the calculated number of cycles based on the
- * absolute time value is less than the min tCK value, min tCK value should
- * be used instead. This typically happens at low frequencies.
- */
-static const struct lpddr2_min_tck min_tck_jedec = {
-	.tRL = 3,
-	.tRP_AB = 3,
-	.tRCD = 3,
-	.tWR = 3,
-	.tRAS_MIN = 3,
-	.tRRD = 2,
-	.tWTR = 2,
-	.tXP = 2,
-	.tRTP = 2,
-	.tCKE = 3,
-	.tCKESR = 3,
-	.tFAW = 8
-};
-
-static const struct lpddr2_ac_timings const*
-			jedec_ac_timings[MAX_NUM_SPEEDBINS] = {
-	&timings_jedec_200_mhz,
-	&timings_jedec_333_mhz,
-	&timings_jedec_400_mhz
-};
-
-static const struct lpddr2_device_timings jedec_default_timings = {
-	.ac_timings = jedec_ac_timings,
-	.min_tck = &min_tck_jedec
-};
-
-void emif_get_device_timings(u32 emif_nr,
-		const struct lpddr2_device_timings **cs0_device_timings,
-		const struct lpddr2_device_timings **cs1_device_timings)
-{
-	/* Assume Identical devices on EMIF1 & EMIF2 */
-	*cs0_device_timings = &jedec_default_timings;
-	*cs1_device_timings = &jedec_default_timings;
-}
-#endif /* CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS */
 
 #ifdef CONFIG_SYS_AUTOMATIC_SDRAM_DETECTION
 const char *get_lpddr2_type(u8 type_id)
@@ -967,7 +850,8 @@ struct lpddr2_device_details *emif_get_device_details(u32 emif_nr, u8 cs,
 			struct lpddr2_device_details *lpddr2_dev_details)
 {
 	u32 phy;
-	u32 base = (emif_nr == 1) ? OMAP44XX_EMIF1 : OMAP44XX_EMIF2;
+	u32 base = (emif_nr == 1) ? EMIF1_BASE : EMIF2_BASE;
+
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
 	if (!lpddr2_dev_details)
@@ -996,7 +880,7 @@ static void do_sdram_init(u32 base)
 	debug(">>do_sdram_init() %x\n", base);
 
 	in_sdram = running_from_sdram();
-	emif_nr = (base == OMAP44XX_EMIF1) ? 1 : 2;
+	emif_nr = (base == EMIF1_BASE) ? 1 : 2;
 
 #ifdef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 	emif_get_reg_dump(emif_nr, &regs);
@@ -1063,21 +947,24 @@ static void do_sdram_init(u32 base)
 	debug("<<do_sdram_init() %x\n", base);
 }
 
-static void emif_post_init_config(u32 base)
+void emif_post_init_config(u32 base)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
-	u32 omap4_rev = omap_revision();
+	u32 omap_rev = omap_revision();
+
+	if (omap_rev == OMAP5430_ES1_0)
+		return;
 
 	/* reset phy on ES2.0 */
-	if (omap4_rev == OMAP4430_ES2_0)
+	if (omap_rev == OMAP4430_ES2_0)
 		emif_reset_phy(base);
 
 	/* Put EMIF back in smart idle on ES1.0 */
-	if (omap4_rev == OMAP4430_ES1_0)
+	if (omap_rev == OMAP4430_ES1_0)
 		writel(0x80000000, &emif->emif_pwr_mgmt_ctrl);
 }
 
-static void dmm_init(u32 base)
+void dmm_init(u32 base)
 {
 	const struct dmm_lisa_map_regs *lisa_map_regs;
 
@@ -1102,12 +989,12 @@ static void dmm_init(u32 base)
 	if (emif1_size && emif2_size) {
 		mapped_size = min(emif1_size, emif2_size);
 		section_map = DMM_LISA_MAP_INTERLEAVED_BASE_VAL;
-		section_map |= 0 << OMAP44XX_SDRC_ADDR_SHIFT;
+		section_map |= 0 << EMIF_SDRC_ADDR_SHIFT;
 		/* only MSB */
 		section_map |= (sys_addr >> 24) <<
-				OMAP44XX_SYS_ADDR_SHIFT;
+				EMIF_SYS_ADDR_SHIFT;
 		section_map |= get_dmm_section_size_map(mapped_size * 2)
-				<< OMAP44XX_SYS_SIZE_SHIFT;
+				<< EMIF_SYS_SIZE_SHIFT;
 		lis_map_regs_calculated.dmm_lisa_map_3 = section_map;
 		emif1_size -= mapped_size;
 		emif2_size -= mapped_size;
@@ -1122,22 +1009,22 @@ static void dmm_init(u32 base)
 	if (emif1_size) {
 		section_map = DMM_LISA_MAP_EMIF1_ONLY_BASE_VAL;
 		section_map |= get_dmm_section_size_map(emif1_size)
-				<< OMAP44XX_SYS_SIZE_SHIFT;
+				<< EMIF_SYS_SIZE_SHIFT;
 		/* only MSB */
 		section_map |= (mapped_size >> 24) <<
-				OMAP44XX_SDRC_ADDR_SHIFT;
+				EMIF_SDRC_ADDR_SHIFT;
 		/* only MSB */
-		section_map |= (sys_addr >> 24) << OMAP44XX_SYS_ADDR_SHIFT;
+		section_map |= (sys_addr >> 24) << EMIF_SYS_ADDR_SHIFT;
 		section_cnt--;
 	}
 	if (emif2_size) {
 		section_map = DMM_LISA_MAP_EMIF2_ONLY_BASE_VAL;
 		section_map |= get_dmm_section_size_map(emif2_size) <<
-				OMAP44XX_SYS_SIZE_SHIFT;
+				EMIF_SYS_SIZE_SHIFT;
 		/* only MSB */
-		section_map |= mapped_size >> 24 << OMAP44XX_SDRC_ADDR_SHIFT;
+		section_map |= mapped_size >> 24 << EMIF_SDRC_ADDR_SHIFT;
 		/* only MSB */
-		section_map |= sys_addr >> 24 << OMAP44XX_SYS_ADDR_SHIFT;
+		section_map |= sys_addr >> 24 << EMIF_SYS_ADDR_SHIFT;
 		section_cnt--;
 	}
 
@@ -1176,7 +1063,7 @@ static void dmm_init(u32 base)
 
 	if (omap_revision() >= OMAP4460_ES1_0) {
 		hw_lisa_map_regs =
-		    (struct dmm_lisa_map_regs *)OMAP44XX_MA_LISA_MAP_BASE;
+		    (struct dmm_lisa_map_regs *)MA_BASE;
 
 		writel(lisa_map_regs->dmm_lisa_map_3,
 			&hw_lisa_map_regs->dmm_lisa_map_3);
@@ -1222,14 +1109,13 @@ void sdram_init(void)
 		bypass_dpll(&prcm->cm_clkmode_dpll_core);
 
 
-	do_sdram_init(OMAP44XX_EMIF1);
-	do_sdram_init(OMAP44XX_EMIF2);
+	do_sdram_init(EMIF1_BASE);
+	do_sdram_init(EMIF2_BASE);
 
 	if (!in_sdram) {
-		dmm_init(OMAP44XX_DMM_LISA_MAP_BASE);
-		emif_post_init_config(OMAP44XX_EMIF1);
-		emif_post_init_config(OMAP44XX_EMIF2);
-
+		dmm_init(DMM_BASE);
+		emif_post_init_config(EMIF1_BASE);
+		emif_post_init_config(EMIF2_BASE);
 	}
 
 	/* for the shadow registers to take effect */

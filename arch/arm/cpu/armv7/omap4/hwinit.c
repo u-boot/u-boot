@@ -32,7 +32,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
-#include <asm/arch/emif.h>
+#include <asm/emif.h>
 #include <asm/arch/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
