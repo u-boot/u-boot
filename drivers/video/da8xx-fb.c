@@ -685,7 +685,6 @@ static u32 wait_for_event(u32 event)
 void *video_hw_init(void)
 {
 	struct da8xx_fb_par *par;
-	int ret;
 	u32 size;
 	char *p;
 
@@ -738,7 +737,6 @@ void *video_hw_init(void)
 
 	if (lcd_init(par, &lcd_cfg, lcd_panel) < 0) {
 		printf("lcd_init failed\n");
-		ret = -EFAULT;
 		goto err_release_fb;
 	}
 
@@ -754,7 +752,6 @@ void *video_hw_init(void)
 		(unsigned int)par->vram_virt);
 	if (!par->vram_virt) {
 		printf("GLCD: malloc for frame buffer failed\n");
-		ret = -EINVAL;
 		goto err_release_fb;
 	}
 
