@@ -290,16 +290,9 @@ LIBS += lib/libfdt/libfdt.o
 LIBS += api/libapi.o
 LIBS += post/libpost.o
 
-ifeq ($(SOC),am33xx)
+ifneq ($(CONFIG_AM335X)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS += $(CPUDIR)/omap-common/libomap-common.o
 endif
-ifeq ($(SOC),omap3)
-LIBS += $(CPUDIR)/omap-common/libomap-common.o
-endif
-ifeq ($(SOC),omap4)
-LIBS += $(CPUDIR)/omap-common/libomap-common.o
-endif
-
 ifeq ($(SOC),s5pc1xx)
 LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
@@ -423,6 +416,10 @@ $(obj)u-boot.ubl:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		-e $(CONFIG_SYS_TEXT_BASE) -d $(obj)u-boot-ubl.bin $(obj)u-boot.ubl
 		rm $(obj)u-boot-ubl.bin
 		rm $(obj)spl/u-boot-spl-pad.bin
+
+$(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
+		elftosb -zdf imx28 -c $(TOPDIR)/board/$(BOARDDIR)/u-boot.bd \
+			-o $(obj)u-boot.sb
 
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
@@ -791,6 +788,7 @@ clobber:	clean
 	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)u-boot.ubl
 	@rm -f $(obj)u-boot.dtb
+	@rm -f $(obj)u-boot.sb
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -fr $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm

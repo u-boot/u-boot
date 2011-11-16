@@ -36,6 +36,7 @@
 /u-boot.lds
 /u-boot.ubl
 /u-boot.dtb
+/u-boot.sb
 
 #
 # Generated files

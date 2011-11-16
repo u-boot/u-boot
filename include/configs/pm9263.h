@@ -52,6 +52,9 @@
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 #define CONFIG_SYS_TEXT_BASE	0
 
+#define MACH_TYPE_PM9263	1475
+#define CONFIG_MACH_TYPE	MACH_TYPE_PM9263
+
 /* clocks */
 #define CONFIG_SYS_MOR_VAL						\
 		(AT91_PMC_MOR_MOSCEN |					\

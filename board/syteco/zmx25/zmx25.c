@@ -128,7 +128,6 @@ int board_late_init(void)
 
 #ifdef CONFIG_FEC_MXC
 	struct iomuxc_mux_ctl *muxctl;
-	struct iomuxc_pad_ctl *padctl;
 	u32 gpio_mux_mode2 = MX25_PIN_MUX_MODE(2);
 	u32 gpio_mux_mode5 = MX25_PIN_MUX_MODE(5);
 
@@ -144,7 +143,6 @@ int board_late_init(void)
 	 * FEC_RX_ERR: FEC_RX_ERR is ALT 2 mode of pin R2
 	 */
 	muxctl = (struct iomuxc_mux_ctl *)IMX_IOPADMUX_BASE;
-	padctl = (struct iomuxc_pad_ctl *)IMX_IOPADCTL_BASE;
 
 	writel(gpio_mux_mode5, &muxctl->pad_upll_bypclk);
 	writel(gpio_mux_mode2, &muxctl->pad_uart2_cts);

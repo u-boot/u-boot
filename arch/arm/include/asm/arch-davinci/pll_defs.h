@@ -57,11 +57,24 @@ struct dv_pll_regs {
 	unsigned int	plldiv9;	/* 0x174 */
 };
 
+#define PLL_MASTER_LOCK	(1 << 4)
+
+#define PLLCTL_CLOCK_MODE_SHIFT	8
 #define PLLCTL_PLLEN	(1 << 0)
 #define PLLCTL_PLLPWRDN	(1 << 1)
 #define PLLCTL_PLLRST	(1 << 3)
+#define PLLCTL_PLLDIS	(1 << 4)
 #define PLLCTL_PLLENSRC	(1 << 5)
 #define PLLCTL_RES_9	(1 << 8)
+#define PLLCTL_EXTCLKSRC	(1 << 9)
+
+#define PLL_POSTDEN	(1 << 15)
+
+#define PLL_SCSCFG3_DIV45PENA	(1 << 2)
+#define PLL_SCSCFG3_EMA_CLKSRC	(1 << 1)
+
+#define PLL_RSTYPE_POR		(1 << 0)
+#define PLL_RSTYPE_XWRST	(1 << 1)
 
 #define PLLSECCTL_TINITZ	(1 << 16)
 #define PLLSECCTL_TENABLE	(1 << 17)
@@ -69,6 +82,7 @@ struct dv_pll_regs {
 #define PLLSECCTL_STOPMODE	(1 << 22)
 
 #define PLLCMD_GOSET		(1 << 0)
+#define PLLCMD_GOSTAT		(1 << 0)
 
 #define PLL0_LOCK		0x07000000
 #define PLL1_LOCK		0x07000000

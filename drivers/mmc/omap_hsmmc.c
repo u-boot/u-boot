@@ -36,8 +36,9 @@
 /* If we fail after 1 second wait, something is really bad */
 #define MAX_RETRY_MS	1000
 
-static int mmc_read_data(hsmmc_t *mmc_base, char *buf, unsigned int size);
-static int mmc_write_data(hsmmc_t *mmc_base, const char *buf, unsigned int siz);
+static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size);
+static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
+			unsigned int siz);
 static struct mmc hsmmc_dev[2];
 
 #if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
@@ -97,7 +98,7 @@ unsigned char mmc_board_init(struct mmc *mmc)
 	return 0;
 }
 
-void mmc_init_stream(hsmmc_t *mmc_base)
+void mmc_init_stream(struct hsmmc *mmc_base)
 {
 	ulong start;
 
@@ -128,7 +129,7 @@ void mmc_init_stream(hsmmc_t *mmc_base)
 
 static int mmc_init_setup(struct mmc *mmc)
 {
-	hsmmc_t *mmc_base = (hsmmc_t *)mmc->priv;
+	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
 	unsigned int reg_val;
 	unsigned int dsor;
 	ulong start;
@@ -192,7 +193,7 @@ static int mmc_init_setup(struct mmc *mmc)
 static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
-	hsmmc_t *mmc_base = (hsmmc_t *)mmc->priv;
+	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
 	unsigned int flags, mmc_stat;
 	ulong start;
 
@@ -305,7 +306,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-static int mmc_read_data(hsmmc_t *mmc_base, char *buf, unsigned int size)
+static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size)
 {
 	unsigned int *output_buf = (unsigned int *)buf;
 	unsigned int mmc_stat;
@@ -356,7 +357,8 @@ static int mmc_read_data(hsmmc_t *mmc_base, char *buf, unsigned int size)
 	return 0;
 }
 
-static int mmc_write_data(hsmmc_t *mmc_base, const char *buf, unsigned int size)
+static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
+				unsigned int size)
 {
 	unsigned int *input_buf = (unsigned int *)buf;
 	unsigned int mmc_stat;
@@ -409,7 +411,7 @@ static int mmc_write_data(hsmmc_t *mmc_base, const char *buf, unsigned int size)
 
 static void mmc_set_ios(struct mmc *mmc)
 {
-	hsmmc_t *mmc_base = (hsmmc_t *)mmc->priv;
+	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
 	unsigned int dsor = 0;
 	ulong start;
 
@@ -473,20 +475,20 @@ int omap_mmc_init(int dev_index)
 
 	switch (dev_index) {
 	case 0:
-		mmc->priv = (hsmmc_t *)OMAP_HSMMC1_BASE;
+		mmc->priv = (struct hsmmc *)OMAP_HSMMC1_BASE;
 		break;
 #ifdef OMAP_HSMMC2_BASE
 	case 1:
-		mmc->priv = (hsmmc_t *)OMAP_HSMMC2_BASE;
+		mmc->priv = (struct hsmmc *)OMAP_HSMMC2_BASE;
 		break;
 #endif
 #ifdef OMAP_HSMMC3_BASE
 	case 2:
-		mmc->priv = (hsmmc_t *)OMAP_HSMMC3_BASE;
+		mmc->priv = (struct hsmmc *)OMAP_HSMMC3_BASE;
 		break;
 #endif
 	default:
-		mmc->priv = (hsmmc_t *)OMAP_HSMMC1_BASE;
+		mmc->priv = (struct hsmmc *)OMAP_HSMMC1_BASE;
 		return 1;
 	}
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;

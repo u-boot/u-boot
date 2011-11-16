@@ -263,18 +263,24 @@ int usb_maxpacket(struct usb_device *dev, unsigned long pipe)
 		return dev->epmaxpacketin[((pipe>>15) & 0xf)];
 }
 
-/* The routine usb_set_maxpacket_ep() is extracted from the loop of routine
+/*
+ * The routine usb_set_maxpacket_ep() is extracted from the loop of routine
  * usb_set_maxpacket(), because the optimizer of GCC 4.x chokes on this routine
  * when it is inlined in 1 single routine. What happens is that the register r3
  * is used as loop-count 'i', but gets overwritten later on.
  * This is clearly a compiler bug, but it is easier to workaround it here than
  * to update the compiler (Occurs with at least several GCC 4.{1,2},x
  * CodeSourcery compilers like e.g. 2007q3, 2008q1, 2008q3 lite editions on ARM)
+ *
+ * NOTE: Similar behaviour was observed with GCC4.6 on ARMv5.
  */
 static void  __attribute__((noinline))
-usb_set_maxpacket_ep(struct usb_device *dev, struct usb_endpoint_descriptor *ep)
+usb_set_maxpacket_ep(struct usb_device *dev, int if_idx, int ep_idx)
 {
 	int b;
+	struct usb_endpoint_descriptor *ep;
+
+	ep = &dev->config.if_desc[if_idx].ep_desc[ep_idx];
 
 	b = ep->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 
@@ -313,8 +319,7 @@ int usb_set_maxpacket(struct usb_device *dev)
 
 	for (i = 0; i < dev->config.desc.bNumInterfaces; i++)
 		for (ii = 0; ii < dev->config.if_desc[i].desc.bNumEndpoints; ii++)
-			usb_set_maxpacket_ep(dev,
-					  &dev->config.if_desc[i].ep_desc[ii]);
+			usb_set_maxpacket_ep(dev, i, ii);
 
 	return 0;
 }

@@ -24,6 +24,26 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define REV_DM6467EVM		0
+#define REV_DM6467TEVM		1
+/*
+ * get_board_rev() - setup to pass kernel board revision information
+ * Returns:
+ * bit[0-3]	System clock frequency
+ * 0000b	- 27 MHz
+ * 0001b	- 33 MHz
+ */
+u32 get_board_rev(void)
+{
+
+#ifdef DAVINCI_DM6467TEVM
+	return REV_DM6467TEVM;
+#else
+	return REV_DM6467EVM;
+#endif
+
+}
+
 int board_init(void)
 {
 	gd->bd->bi_arch_number = MACH_TYPE_DAVINCI_DM6467_EVM;

@@ -70,6 +70,7 @@ struct davinci_emif_regs {
 #define DAVINCI_NANDFCR_1BIT_ECC_START(n)		(1 << (8 + (n-2)))
 #define DAVINCI_NANDFCR_4BIT_ECC_START			(1 << 12)
 #define DAVINCI_NANDFCR_4BIT_CALC_START			(1 << 13)
+#define DAVINCI_NANDFCR_CS2NAND				(1 << 0)
 
 /* Chip Select setup */
 #define DAVINCI_ABCR_STROBE_SELECT			(1 << 31)

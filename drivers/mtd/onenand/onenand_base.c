@@ -1943,15 +1943,9 @@ static int onenand_do_lock_cmd(struct mtd_info *mtd, loff_t ofs, size_t len, int
 {
 	struct onenand_chip *this = mtd->priv;
 	int start, end, block, value, status;
-	int wp_status_mask;
 
 	start = onenand_block(this, ofs);
 	end = onenand_block(this, ofs + len);
-
-	if (cmd == ONENAND_CMD_LOCK)
-		wp_status_mask = ONENAND_WP_LS;
-	else
-		wp_status_mask = ONENAND_WP_US;
 
 	/* Continuous lock scheme */
 	if (this->options & ONENAND_HAS_CONT_LOCK) {
@@ -2226,19 +2220,21 @@ static const struct onenand_manufacturers onenand_manuf_ids[] = {
 static int onenand_check_maf(int manuf)
 {
 	int size = ARRAY_SIZE(onenand_manuf_ids);
-	char *name;
 	int i;
+#ifdef ONENAND_DEBUG
+	char *name;
+#endif
 
 	for (i = 0; i < size; i++)
 		if (manuf == onenand_manuf_ids[i].id)
 			break;
 
+#ifdef ONENAND_DEBUG
 	if (i < size)
 		name = onenand_manuf_ids[i].name;
 	else
 		name = "Unknown";
 
-#ifdef ONENAND_DEBUG
 	printk(KERN_DEBUG "OneNAND Manufacturer: %s (0x%0x)\n", name, manuf);
 #endif
 
@@ -2255,7 +2251,7 @@ static int flexonenand_get_boundary(struct mtd_info *mtd)
 {
 	struct onenand_chip *this = mtd->priv;
 	unsigned int die, bdry;
-	int ret, syscfg, locked;
+	int syscfg, locked;
 
 	/* Disable ECC */
 	syscfg = this->read_word(this->base + ONENAND_REG_SYS_CFG1);
@@ -2266,7 +2262,7 @@ static int flexonenand_get_boundary(struct mtd_info *mtd)
 		this->wait(mtd, FL_SYNCING);
 
 		this->command(mtd, FLEXONENAND_CMD_READ_PI, die, 0);
-		ret = this->wait(mtd, FL_READING);
+		this->wait(mtd, FL_READING);
 
 		bdry = this->read_word(this->base + ONENAND_DATARAM);
 		if ((bdry >> FLEXONENAND_PI_UNLOCK_SHIFT) == 3)
@@ -2276,7 +2272,7 @@ static int flexonenand_get_boundary(struct mtd_info *mtd)
 		this->boundary[die] = bdry & FLEXONENAND_PI_MASK;
 
 		this->command(mtd, ONENAND_CMD_RESET, 0, 0);
-		ret = this->wait(mtd, FL_RESETING);
+		this->wait(mtd, FL_RESETING);
 
 		printk(KERN_INFO "Die %d boundary: %d%s\n", die,
 		       this->boundary[die], locked ? "(Locked)" : "(Unlocked)");

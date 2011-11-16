@@ -47,4 +47,6 @@ struct dv_aintc_regs {
 
 #define dv_aintc_regs ((struct dv_aintc_regs *)DAVINCI_ARM_INTC_BASE)
 
+#define DV_AINTC_INTCTL_IDMODE	(1 << 2)
+
 #endif /* _DV_AINTC_DEFS_H_ */

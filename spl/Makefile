@@ -54,6 +54,7 @@ LIBS-$(CONFIG_SPL_FAT_SUPPORT) += fs/fat/libfat.o
 LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/libgeneric.o
 LIBS-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/libpower.o
 LIBS-$(CONFIG_SPL_NAND_SUPPORT) += drivers/mtd/nand/libnand.o
+LIBS-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/libonenand.o
 LIBS-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/libdma.o
 LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/memory.o
 
@@ -61,6 +62,9 @@ ifeq ($(SOC),omap3)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 ifeq ($(SOC),omap4)
+LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
+endif
+ifeq ($(SOC),omap5)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
