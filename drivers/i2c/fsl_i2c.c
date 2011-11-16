@@ -225,7 +225,7 @@ unsigned int get_i2c_clock(int bus)
 void
 i2c_init(int speed, int slaveadd)
 {
-	struct fsl_i2c *dev;
+	const struct fsl_i2c *dev;
 	unsigned int temp;
 	int bus_num, i;
 
