@@ -688,6 +688,12 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #define CCSR_VIRT_TO_PHYS(x) \
 	(CONFIG_SYS_CCSRBAR_PHYS + ((x) - CONFIG_SYS_CCSRBAR))
 
+static void msg(const char *name, uint64_t uaddr, uint64_t daddr)
+{
+	printf("Warning: U-Boot configured %s at address %llx,\n"
+	       "but the device tree has it at %llx\n", name, uaddr, daddr);
+}
+
 /*
  * Verify the device tree
  *
@@ -703,33 +709,32 @@ void ft_cpu_setup(void *blob, bd_t *bd)
  */
 int ft_verify_fdt(void *fdt)
 {
-	uint64_t ccsr = 0;
+	uint64_t addr = 0;
 	int aliases;
 	int off;
 
 	/* First check the CCSR base address */
 	off = fdt_node_offset_by_prop_value(fdt, -1, "device_type", "soc", 4);
 	if (off > 0)
-		ccsr = fdt_get_base_address(fdt, off);
+		addr = fdt_get_base_address(fdt, off);
 
-	if (!ccsr) {
+	if (!addr) {
 		printf("Warning: could not determine base CCSR address in "
 		       "device tree\n");
 		/* No point in checking anything else */
 		return 0;
 	}
 
-	if (ccsr != CONFIG_SYS_CCSRBAR_PHYS) {
-		printf("Warning: U-Boot configured CCSR at address %llx,\n"
-		       "but the device tree has it at %llx\n",
-		       (uint64_t) CONFIG_SYS_CCSRBAR_PHYS, ccsr);
+	if (addr != CONFIG_SYS_CCSRBAR_PHYS) {
+		msg("CCSR", CONFIG_SYS_CCSRBAR_PHYS, addr);
 		/* No point in checking anything else */
 		return 0;
 	}
 
 	/*
-	 * Get the 'aliases' node.  If there isn't one, then there's nothing
-	 * left to do.
+	 * Check some nodes via aliases.  We assume that U-Boot and the device
+	 * tree enumerate the devices equally.  E.g. the first serial port in
+	 * U-Boot is the same as "serial0" in the device tree.
 	 */
 	aliases = fdt_path_offset(fdt, "/aliases");
 	if (aliases > 0) {
@@ -745,6 +750,31 @@ int ft_verify_fdt(void *fdt)
 			return 0;
 #endif
 	}
+
+	/*
+	 * The localbus node is typically a root node, even though the lbc
+	 * controller is part of CCSR.  If we were to put the lbc node under
+	 * the SOC node, then the 'ranges' property in the lbc node would
+	 * translate through the 'ranges' property of the parent SOC node, and
+	 * we don't want that.  Since it's a separate node, it's possible for
+	 * the 'reg' property to be wrong, so check it here.  For now, we
+	 * only check for "fsl,elbc" nodes.
+	 */
+#ifdef CONFIG_SYS_LBC_ADDR
+	off = fdt_node_offset_by_compatible(fdt, -1, "fsl,elbc");
+	if (off > 0) {
+		const u32 *reg = fdt_getprop(fdt, off, "reg", NULL);
+		if (reg) {
+			uint64_t uaddr = CCSR_VIRT_TO_PHYS(CONFIG_SYS_LBC_ADDR);
+
+			addr = fdt_translate_address(fdt, off, reg);
+			if (uaddr != addr) {
+				msg("the localbus", uaddr, addr);
+				return 0;
+			}
+		}
+	}
+#endif
 
 	return 1;
 }
