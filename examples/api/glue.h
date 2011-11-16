@@ -77,4 +77,9 @@ int			ub_dev_send(int handle, void *buf, int len);
 int			ub_dev_recv(int handle, void *buf, int len, int *rlen);
 struct device_info *	ub_dev_get(int);
 
+/* display */
+int ub_display_get_info(int type, struct display_info *di);
+int ub_display_draw_bitmap(ulong bitmap, int x, int y);
+void ub_display_clear(void);
+
 #endif /* _API_GLUE_H_ */

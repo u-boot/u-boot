@@ -824,7 +824,7 @@ void *video_hw_init(void)
 	char *penv;
 	u32 memsize;
 	unsigned long t1, hsynch, vsynch;
-	int bits_per_pixel, i, tmp, vesa_idx = 0, videomode;
+	int bits_per_pixel, i, tmp, videomode;
 
 	tmp = 0;
 
@@ -857,7 +857,6 @@ void *video_hw_init(void)
 		mode = (struct ctfb_res_modes *)
 				&res_mode_init[vesa_modes[i].resindex];
 		bits_per_pixel = vesa_modes[i].bits_per_pixel;
-		vesa_idx = vesa_modes[i].resindex;
 	} else {
 		mode = (struct ctfb_res_modes *) &var_mode;
 		bits_per_pixel = video_get_params(mode, penv);

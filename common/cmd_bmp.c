@@ -237,9 +237,7 @@ static int bmp_display(ulong addr, int x, int y)
 	}
 
 #if defined(CONFIG_LCD)
-	extern int lcd_display_bitmap (ulong, int, int);
-
-	ret = lcd_display_bitmap ((unsigned long)bmp, x, y);
+	ret = lcd_display_bitmap((ulong)bmp, x, y);
 #elif defined(CONFIG_VIDEO)
 	extern int video_display_bitmap (ulong, int, int);
 

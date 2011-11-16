@@ -252,8 +252,10 @@ int fsl_diu_init(u16 xres, u16 yres, u32 pixel_format, int gamma_fix)
 		break;
 	case RESOLUTION(800, 600):
 		fsl_diu_mode_db = &fsl_diu_mode_800_600;
+		break;
 	case RESOLUTION(1024, 768):
 		fsl_diu_mode_db = &fsl_diu_mode_1024_768;
+		break;
 	case RESOLUTION(1280, 1024):
 		fsl_diu_mode_db = &fsl_diu_mode_1280_1024;
 		break;

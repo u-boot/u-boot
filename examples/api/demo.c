@@ -48,6 +48,7 @@ int main(int argc, char * const argv[])
 	ulong start, now;
 	struct device_info *di;
 	lbasize_t rlen;
+	struct display_info disinfo;
 
 	if (!api_search_sig(&sig))
 		return -1;
@@ -175,6 +176,36 @@ int main(int argc, char * const argv[])
 
 	while ((env = ub_env_enum(env)) != NULL)
 		printf("%s = %s\n", env, ub_env_get(env));
+
+	printf("\n*** Display ***\n");
+
+	if (ub_display_get_info(DISPLAY_TYPE_LCD, &disinfo)) {
+		printf("LCD info: failed\n");
+	} else {
+		printf("LCD info:\n");
+		printf("  pixel width:  %d\n", disinfo.pixel_width);
+		printf("  pixel height: %d\n", disinfo.pixel_height);
+		printf("  screen rows:  %d\n", disinfo.screen_rows);
+		printf("  screen cols:  %d\n", disinfo.screen_cols);
+	}
+	if (ub_display_get_info(DISPLAY_TYPE_VIDEO, &disinfo)) {
+		printf("video info: failed\n");
+	} else {
+		printf("video info:\n");
+		printf("  pixel width:  %d\n", disinfo.pixel_width);
+		printf("  pixel height: %d\n", disinfo.pixel_height);
+		printf("  screen rows:  %d\n", disinfo.screen_rows);
+		printf("  screen cols:  %d\n", disinfo.screen_cols);
+	}
+
+	printf("*** Press any key to continue ***\n");
+	printf("got char 0x%x\n", ub_getc());
+
+	/*
+	 * This only clears messages on screen, not on serial port. It is
+	 * equivalent to a no-op if no display is available.
+	 */
+	ub_display_clear();
 
 	/* reset */
 	printf("\n*** Resetting board ***\n");
