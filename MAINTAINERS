@@ -305,10 +305,6 @@ Ryan Mallon <ryan@bluewatersys.com>
 	snapper9260		ARM926EJS (AT91SAM9260 SoC)
 	snapper9g20		ARM926EJS (AT91SAM9G20 SoC)
 
-Eran Man <eran@nbase.co.il>
-
-	EVB64260_750CX	MPC750CX
-
 Andrea "llandre" Marson <andrea.marson@dave-tech.it>
 
 	PPChameleonEVB	PPC405EP
@@ -543,9 +539,9 @@ Unknown / orphaned boards:
 	rsdproto	MPC8260
 
 	EVB64260	MPC7xx_74xx
+	EVB64260_750CX	MPC750CX	[Eran Man <eran@nbase.co.il>]
 
 	versatile	ARM926EJ-S
-
 
 #########################################################################
 # ARM Systems:								#
