@@ -49,8 +49,8 @@ DECLARE_GLOBAL_DATA_PTR;
  * Convenience function to find a node and return it's property or a
  * default value if it doesn't exist.
  */
-u32 fdt_getprop_u32_default(void *fdt, const char *path, const char *prop,
-				const u32 dflt)
+u32 fdt_getprop_u32_default(const void *fdt, const char *path,
+				const char *prop, const u32 dflt)
 {
 	const u32 *val;
 	int off;
@@ -61,7 +61,7 @@ u32 fdt_getprop_u32_default(void *fdt, const char *path, const char *prop,
 
 	val = fdt_getprop(fdt, off, prop, NULL);
 	if (val)
-		return *val;
+		return fdt32_to_cpu(*val);
 	else
 		return dflt;
 }
@@ -372,7 +372,7 @@ static int get_cells_len(void *blob, char *nr_cells_name)
 	const u32 *cell;
 
 	cell = fdt_getprop(blob, 0, nr_cells_name, NULL);
-	if (cell && *cell == 2)
+	if (cell && fdt32_to_cpu(*cell) == 2)
 		return 8;
 
 	return 4;
