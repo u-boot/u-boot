@@ -37,6 +37,7 @@
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
+#include <linux/compiler.h>
 
 /*
  * Constructor for a conventional segment GDT (or LDT) entry

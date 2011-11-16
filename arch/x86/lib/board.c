@@ -220,6 +220,9 @@ static int do_elf_reloc_fixups(void)
 	Elf32_Addr *offset_ptr_rom;
 	Elf32_Addr *offset_ptr_ram;
 
+	/* The size of the region of u-boot that runs out of RAM. */
+	uintptr_t size = (uintptr_t)&__bss_end - (uintptr_t)&__text_start;
+
 	do {
 		/* Get the location from the relocation entry */
 		offset_ptr_rom = (Elf32_Addr *)re_src->r_offset;
@@ -228,7 +231,8 @@ static int do_elf_reloc_fixups(void)
 		if (offset_ptr_rom >= (Elf32_Addr *)CONFIG_SYS_TEXT_BASE) {
 
 			/* Switch to the in-RAM version */
-			offset_ptr_ram = offset_ptr_rom + gd->reloc_off;
+			offset_ptr_ram = (Elf32_Addr *)((ulong)offset_ptr_rom +
+							gd->reloc_off);
 
 			/* Check that the target points into .text */
 			if (*offset_ptr_ram >= CONFIG_SYS_TEXT_BASE &&
