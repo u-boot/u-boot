@@ -319,6 +319,55 @@ l2_disabled:
 #endif /* CONFIG_MPC8569 */
 
 /*
+ * Search for the TLB that covers the code we're executing, and shrink it
+ * so that it covers only this 4K page.  That will ensure that any other
+ * TLB we create won't interfere with it.  We assume that the TLB exists,
+ * which is why we don't check the Valid bit of MAS1.
+ *
+ * This is necessary, for example, when booting from the on-chip ROM,
+ * which (oddly) creates a single 4GB TLB that covers CCSR and DDR.
+ * If we don't shrink this TLB now, then we'll accidentally delete it
+ * in "purge_old_ccsr_tlb" below.
+ */
+	bl	nexti		/* Find our address */
+nexti:	mflr	r1		/* R1 = our PC */
+	li	r2, 0
+	mtspr	MAS6, r2	/* Assume the current PID and AS are 0 */
+	isync
+	msync
+	tlbsx	0, r1		/* This must succeed */
+
+	/* Set the size of the TLB to 4KB */
+	mfspr	r3, MAS1
+	li	r2, 0xF00
+	andc	r3, r3, r2	/* Clear the TSIZE bits */
+	ori	r3, r3, MAS1_TSIZE(BOOKE_PAGESZ_4K)@l
+	mtspr	MAS1, r3
+
+	/*
+	 * Set the base address of the TLB to our PC.  We assume that
+	 * virtual == physical.  We also assume that MAS2_EPN == MAS3_RPN.
+	 */
+	lis	r3, MAS2_EPN@h
+	ori	r3, r3, MAS2_EPN@l	/* R3 = MAS2_EPN */
+
+	and	r1, r1, r3	/* Our PC, rounded down to the nearest page */
+
+	mfspr	r2, MAS2
+	andc	r2, r2, r3
+	or	r2, r2, r1
+	mtspr	MAS2, r2	/* Set the EPN to our PC base address */
+
+	mfspr	r2, MAS3
+	andc	r2, r2, r3
+	or	r2, r2, r1
+	mtspr	MAS3, r2	/* Set the RPN to our PC base address */
+
+	isync
+	msync
+	tlbwe
+
+/*
  * Relocate CCSR, if necessary.  We relocate CCSR if (obviously) the default
  * location is not where we want it.  This typically happens on a 36-bit
  * system, where we want to move CCSR to near the top of 36-bit address space.
@@ -352,6 +401,8 @@ purge_old_ccsr_tlb:
 
 	li	r1, 0
 	mtspr	MAS6, r1	/* Search the current address space and PID */
+	isync
+	msync
 	tlbsx	0, r8
 	mfspr	r1, MAS1
 	andis.  r2, r1, MAS1_VALID@h	/* Check for the Valid bit */
@@ -359,6 +410,8 @@ purge_old_ccsr_tlb:
 
 	rlwinm	r1, r1, 0, 1, 31	/* Clear Valid bit */
 	mtspr	MAS1, r1
+	isync
+	msync
 	tlbwe
 1:
 
@@ -387,7 +440,7 @@ create_ccsr_new_tlb:
 	tlbwe
 
 	/*
-	 * Create a TLB for the old location of CCSR.  Register R9 is reserved
+	 * Create a TLB for the current location of CCSR.  Register R9 is reserved
 	 * for the virtual address of this TLB (CONFIG_SYS_CCSRBAR + 0x1000).
 	 */
 create_ccsr_old_tlb:
@@ -406,6 +459,33 @@ create_ccsr_old_tlb:
 	isync
 	msync
 	tlbwe
+
+	/*
+	 * We have a TLB for what we think is the current (old) CCSR.  Let's
+	 * verify that, otherwise we won't be able to move it.
+	 * CONFIG_SYS_CCSRBAR_DEFAULT is always a 32-bit number, so we only
+	 * need to compare the lower 32 bits of CCSRBAR on CoreNet systems.
+	 */
+verify_old_ccsr:
+	lis     r0, CONFIG_SYS_CCSRBAR_DEFAULT@h
+	ori     r0, r0, CONFIG_SYS_CCSRBAR_DEFAULT@l
+#ifdef CONFIG_FSL_CORENET
+	lwz	r1, 4(r9)		/* CCSRBARL */
+#else
+	lwz	r1, 0(r9)		/* CCSRBAR, shifted right by 12 */
+	slwi	r1, r1, 12
+#endif
+
+	cmpl	0, r0, r1
+
+	/*
+	 * If the value we read from CCSRBARL is not what we expect, then
+	 * enter an infinite loop.  This will at least allow a debugger to
+	 * halt execution and examine TLBs, etc.  There's no point in going
+	 * on.
+	 */
+infinite_debug_loop:
+	bne	infinite_debug_loop
 
 #ifdef CONFIG_FSL_CORENET
 
@@ -446,7 +526,7 @@ create_temp_law:
 	 */
 read_old_ccsrbar:
 	lwz	r0, 0(r9)	/* CCSRBARH */
-	lwz	r0, 4(r9)	/* CCSRBARH */
+	lwz	r0, 4(r9)	/* CCSRBARL */
 	isync
 
 	/*

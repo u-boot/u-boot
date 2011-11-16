@@ -301,7 +301,6 @@ int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
-	struct dtsec *tsec = (void *)CONFIG_SYS_FSL_FM1_DTSEC1_ADDR;
 	int i;
 	struct fsl_pq_mdio_info dtsec_mdio_info;
 	struct tgec_mdio_info tgec_mdio_info;
@@ -326,13 +325,6 @@ int board_eth_init(bd_t *bis)
 		SLOT5, /* 16 - Bank 3:C */
 		SLOT5, /* 17 - Bank 3:D */
 	};
-
-	/*
-	 * Set TBIPA on FM1@DTSEC1.  This is needed for configurations
-	 * where FM1@DTSEC1 isn't used directly, since it provides
-	 * MDIO for other ports.
-	 */
-	out_be32(&tsec->tbipa, CONFIG_SYS_TBIPA_VALUE);
 
 	/* Initialize the mdio_mux array so we can recognize empty elements */
 	for (i = 0; i < NUM_FM_PORTS; i++)

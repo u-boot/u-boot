@@ -317,7 +317,6 @@ int cpu_init_r(void)
 	volatile ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
 	volatile uint cache_ctl;
 	uint svr, ver;
-	uint l2srbar;
 	u32 l2siz_field;
 
 	svr = get_svr();
@@ -385,8 +384,8 @@ int cpu_init_r(void)
 
 	if (l2cache->l2ctl & MPC85xx_L2CTL_L2E) {
 		puts("already enabled");
-		l2srbar = l2cache->l2srbar0;
 #if defined(CONFIG_SYS_INIT_L2_ADDR) && defined(CONFIG_SYS_FLASH_BASE)
+		u32 l2srbar = l2cache->l2srbar0;
 		if (l2cache->l2ctl & MPC85xx_L2CTL_L2SRAM_ENTIRE
 				&& l2srbar >= CONFIG_SYS_FLASH_BASE) {
 			l2srbar = CONFIG_SYS_INIT_L2_ADDR;

@@ -495,7 +495,6 @@ void fsl_serdes_init(void)
 	int cfg;
 	serdes_corenet_t *srds_regs;
 	int lane, bank, idx;
-	enum srds_prtcl lane_prtcl;
 	int have_bank[SRDS_MAX_BANK] = {};
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	u32 serdes8_devdisr = 0;
@@ -507,6 +506,7 @@ void fsl_serdes_init(void)
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
 	int need_serdes_a001;	/* TRUE == need work-around for SERDES A001 */
 #endif
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
 
@@ -516,6 +516,7 @@ void fsl_serdes_init(void)
 	 */
 	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		buf = buffer;
+#endif
 
 	/* Is serdes enabled at all? */
 	if (!(in_be32(&gur->rcwsr[5]) & FSL_CORENET_RCWSR5_SRDS_EN))
@@ -617,7 +618,10 @@ void fsl_serdes_init(void)
 		}
 	}
 
+#if defined(CONFIG_SYS_P4080_ERRATUM_SERDES8) || defined (CONFIG_SYS_P4080_ERRATUM_SERDES9)
 	for (lane = 0; lane < SRDS_MAX_LANES; lane++) {
+		enum srds_prtcl lane_prtcl;
+
 		idx = serdes_get_lane_idx(lane);
 		lane_prtcl = serdes_get_prtcl(cfg, lane);
 
@@ -729,6 +733,7 @@ void fsl_serdes_init(void)
 
 #endif
 	}
+#endif
 
 #ifdef DEBUG
 	puts("\n");

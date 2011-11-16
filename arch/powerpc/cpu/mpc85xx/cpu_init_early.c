@@ -71,7 +71,7 @@ void cpu_init_early_f(void)
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_IFC_A003399) && !defined(CONFIG_SYS_RAMBOOT)
 	ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
-	u32  *l2srbar, *dst, *src;
+	u32  *dst, *src;
 	void (*setup_ifc_sram)(void);
 #endif
 
@@ -137,7 +137,7 @@ void cpu_init_early_f(void)
 	dst = (u32 *) SRAM_BASE_ADDR;
 	src = (u32 *) setup_ifc;
 	for (i = 0; i < 1024; i++)
-		*l2srbar++ = *src++;
+		*dst++ = *src++;
 
 	setup_ifc_sram();
 

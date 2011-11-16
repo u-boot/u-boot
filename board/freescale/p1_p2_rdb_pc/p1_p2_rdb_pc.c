@@ -444,6 +444,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_board_fixup_qe_pins(blob);
 #endif
 #endif
+
+#if defined(CONFIG_HAS_FSL_DR_USB)
 	fdt_fixup_dr_usb(blob, bd);
+#endif
 }
 #endif
