@@ -25,6 +25,7 @@
 include $(TOPDIR)/config.mk
 
 ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../seaboard)
 $(shell mkdir -p $(obj)../common)
 endif
 
