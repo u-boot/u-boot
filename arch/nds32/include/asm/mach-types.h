@@ -26,4 +26,18 @@ extern unsigned int __machine_arch_type;
 # define machine_is_adpag101()	(0)
 #endif
 
+#define MACH_TYPE_ADPAG101P            1
+
+#ifdef CONFIG_ARCH_ADPAG101P
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ADPAG101P
+# endif
+# define machine_is_adpag101p()	(machine_arch_type == MACH_TYPE_ADPAG101P)
+#else
+# define machine_is_adpag101p()	(1)
+#endif
+
 #endif /* __ASM_NDS32_MACH_TYPE_H */

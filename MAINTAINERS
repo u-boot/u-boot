@@ -1151,6 +1151,7 @@ Chong Huang <chuang@ucrobotics.com>
 Macpaul Lin <macpaul@andestech.com>
 
 	ADP-AG101	N1213 (AG101 SoC)
+	ADP-AG101P	N1213 (AG101P XC5 FPGA)
 
 #########################################################################
 # End of MAINTAINERS list						#
