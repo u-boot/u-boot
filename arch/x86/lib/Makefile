@@ -32,6 +32,7 @@ SOBJS-$(CONFIG_SYS_X86_REALMODE)	+= realmode_switch.o
 COBJS-$(CONFIG_SYS_PC_BIOS)	+= bios_setup.o
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
+COBJS-y	+= gcc.o
 COBJS-y	+= interrupts.o
 COBJS-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
 COBJS-$(CONFIG_SYS_GENERIC_TIMER) += pcat_timer.o
@@ -49,6 +50,11 @@ OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
+
+$(PREFIXED_LIBGCC): $(NORMAL_LIBGCC)
+	$(OBJCOPY) $< $@ --prefix-symbols=__normal_
+
+$(LIB): $(PREFIXED_LIBGCC)
 
 #########################################################################
 
