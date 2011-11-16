@@ -28,13 +28,12 @@
 #if defined(CONFIG_OF_BOARD_SETUP)
 static void cds_pci_fixup(void *blob)
 {
-	int node, tmp[2];
+	int node;
 	const char *path;
 	int len, slot, i;
 	u32 *map = NULL;
 
 	node = fdt_path_offset(blob, "/aliases");
-	tmp[0] = 0;
 	if (node >= 0) {
 		path = fdt_getprop(blob, node, "pci0", NULL);
 		if (path) {

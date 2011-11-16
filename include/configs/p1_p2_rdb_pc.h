@@ -221,7 +221,7 @@
 
 /* IN case of NAND bootloader relocate CCSRBAR in RAMboot code not in the 4k
        SPL code*/
-#if defined(CONFIG_NAND_U_BOOT) && defined(CONFIG_NAND_SPL)
+#if defined(CONFIG_NAND_SPL)
 #define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
 #endif
 

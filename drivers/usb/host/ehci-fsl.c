@@ -40,11 +40,13 @@
 int ehci_hcd_init(void)
 {
 	struct usb_ehci *ehci;
-	char usb_phy[5];
 	const char *phy_type = NULL;
 	size_t len;
+#ifdef CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
+	char usb_phy[5];
 
 	usb_phy[0] = '\0';
+#endif
 
 	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
 	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);

@@ -483,7 +483,9 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	unsigned int i;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
+#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
 	const struct dynamic_odt *pdodt = odt_unknown;
+#endif
 	ulong ddr_freq;
 
 	/*
@@ -493,6 +495,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		buf = buffer;
 
+#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
 	/* Chip select options. */
 	if (CONFIG_DIMM_SLOTS_PER_CTLR == 1) {
 		switch (pdimm[0].n_ranks) {
@@ -546,6 +549,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			break;
 		}
 	}
+#endif
 
 	/* Pick chip-select local options. */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {

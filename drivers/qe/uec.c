@@ -264,13 +264,10 @@ static int uec_open(uec_private_t *uec, comm_dir_e mode)
 
 static int uec_stop(uec_private_t *uec, comm_dir_e mode)
 {
-	ucc_fast_private_t	*uccf;
-
 	if (!uec || !uec->uccf) {
 		printf("%s: No handle passed.\n", __FUNCTION__);
 		return -EINVAL;
 	}
-	uccf = uec->uccf;
 
 	/* check if the UCC number is in range. */
 	if (uec->uec_info->uf_info.ucc_num >= UCC_MAX_NUM) {
@@ -325,7 +322,6 @@ static int uec_set_mac_if_mode(uec_private_t *uec,
 		phy_interface_t if_mode, int speed)
 {
 	phy_interface_t		enet_if_mode;
-	uec_info_t		*uec_info;
 	uec_t			*uec_regs;
 	u32			upsmr;
 	u32			maccfg2;
@@ -335,7 +331,6 @@ static int uec_set_mac_if_mode(uec_private_t *uec,
 		return -EINVAL;
 	}
 
-	uec_info = uec->uec_info;
 	uec_regs = uec->uec_regs;
 	enet_if_mode = if_mode;
 
@@ -516,12 +511,10 @@ bus_fail:
 static void adjust_link(struct eth_device *dev)
 {
 	uec_private_t		*uec = (uec_private_t *)dev->priv;
-	uec_t			*uec_regs;
 	struct uec_mii_info	*mii_info = uec->mii_info;
 
 	extern void change_phy_interface_mode(struct eth_device *dev,
 				 phy_interface_t mode, int speed);
-	uec_regs = uec->uec_regs;
 
 	if (mii_info->link) {
 		/* Now we make sure that we can be in full duplex mode.

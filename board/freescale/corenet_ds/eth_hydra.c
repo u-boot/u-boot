@@ -377,7 +377,6 @@ void fdt_fixup_board_enet(void *fdt)
 int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_FMAN_ENET
-	struct dtsec *tsec = (void *)CONFIG_SYS_FSL_FM1_DTSEC1_ADDR;
 	struct fsl_pq_mdio_info dtsec_mdio_info;
 	struct tgec_mdio_info tgec_mdio_info;
 	unsigned int i, slot;
@@ -386,13 +385,6 @@ int board_eth_init(bd_t *bis)
 	printf("Initializing Fman\n");
 
 	initialize_lane_to_slot();
-
-	/*
-	 * Set TBIPA on FM1@DTSEC1.  This is needed for configurations
-	 * where FM1@DTSEC1 isn't used directly, since it provides
-	 * MDIO for other ports.
-	 */
-	out_be32(&tsec->tbipa, CONFIG_SYS_TBIPA_VALUE);
 
 	/* We want to use the PIXIS to configure MUX routing, not GPIOs. */
 	setbits_8(&pixis->brdcfg2, BRDCFG2_REG_GPIO_SEL);

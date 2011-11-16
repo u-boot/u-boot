@@ -139,7 +139,6 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_FMAN_ENET
-	struct dtsec *tsec = (void *)CONFIG_SYS_FSL_FM1_DTSEC1_ADDR;
 	struct fsl_pq_mdio_info dtsec_mdio_info;
 	struct tgec_mdio_info tgec_mdio_info;
 	unsigned int i, slot;
@@ -148,13 +147,6 @@ int board_eth_init(bd_t *bis)
 	printf("Initializing Fman\n");
 
 	initialize_lane_to_slot();
-
-	/*
-	 * Set TBIPA on FM1@DTSEC1.  This is needed for configurations
-	 * where FM1@DTSEC1 isn't used directly, since it provides
-	 * MDIO for other ports.
-	 */
-	out_be32(&tsec->tbipa, CONFIG_SYS_TBIPA_VALUE);
 
 	dtsec_mdio_info.regs =
 		(struct tsec_mii_mng *)CONFIG_SYS_FM1_DTSEC1_MDIO_ADDR;

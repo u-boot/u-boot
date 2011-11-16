@@ -77,12 +77,10 @@ local_bus_init(void)
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
-	uint lbc_hz;
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
 	clkdiv = (in_be32(&lbc->lcrr) & LCRR_CLKDIV) * 2;
-	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	out_be32(&gur->lbiuiplldcr1, 0x00078080);
 	if (clkdiv == 16) {

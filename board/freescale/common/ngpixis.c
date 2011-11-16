@@ -156,9 +156,29 @@ static void pixis_dump_regs(void)
 }
 #endif
 
+void pixis_sysclk_set(unsigned long sysclk)
+{
+	unsigned long freq_word;
+	u8 sclk0, sclk1, sclk2;
+
+	freq_word = ics307_sysclk_calculator(sysclk);
+	sclk2 = freq_word & 0xff;
+	sclk1 = (freq_word >> 8) & 0xff;
+	sclk0 = (freq_word >> 16) & 0xff;
+
+	/* set SYSCLK enable bit */
+	PIXIS_WRITE(vcfgen0, 0x01);
+
+	/* SYSCLK to required frequency */
+	PIXIS_WRITE(sclk[0], sclk0);
+	PIXIS_WRITE(sclk[1], sclk1);
+	PIXIS_WRITE(sclk[2], sclk2);
+}
+
 int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int i;
+	unsigned long sysclk;
 	char *p_altbank = NULL;
 #ifdef DEBUG
 	char *p_dump = NULL;
@@ -182,6 +202,12 @@ int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			continue;
 		}
 #endif
+		if (strcmp(argv[i], "sysclk") == 0) {
+			sysclk = simple_strtoul(argv[i + 1], NULL, 0);
+			i += 1;
+			pixis_sysclk_set(sysclk);
+			continue;
+		}
 
 		unknown_param = argv[i];
 	}
@@ -219,4 +245,5 @@ U_BOOT_CMD(
 #ifdef DEBUG
 	"pixis_reset dump - display the PIXIS registers\n"
 #endif
+	"pixis_reset sysclk <SYSCLK_freq> - reset with SYSCLK frequency(KHz)\n"
 	);

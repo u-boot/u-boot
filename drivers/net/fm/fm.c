@@ -395,7 +395,6 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	int dev = CONFIG_SYS_MMC_ENV_DEV;
 	void *addr = malloc(CONFIG_SYS_FMAN_FW_LENGTH);
 	u32 cnt = CONFIG_SYS_FMAN_FW_LENGTH / 512;
-	u32 n;
 	u32 blk = CONFIG_SYS_QE_FW_IN_MMC / 512;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 
@@ -405,7 +404,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 		printf("\nMMC read: dev # %u, block # %u, count %u ...\n",
 				dev, blk, cnt);
 		mmc_init(mmc);
-		n = mmc->block_dev.block_read(dev, blk, cnt, addr);
+		(void)mmc->block_dev.block_read(dev, blk, cnt, addr);
 		/* flush cache after read */
 		flush_cache((ulong)addr, cnt * 512);
 	}

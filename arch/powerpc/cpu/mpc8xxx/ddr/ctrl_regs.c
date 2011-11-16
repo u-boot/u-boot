@@ -672,7 +672,6 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		rcw_en = 1;
 		ap_en = popts->ap_en;
 	} else {
-		rcw_en = 0;
 		ap_en = 0;
 	}
 
@@ -702,9 +701,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((obc_cfg & 0x1) << 6)
 		| ((ap_en & 0x1) << 5)
 		| ((d_init & 0x1) << 4)
-#ifdef CONFIG_FSL_DDR3
 		| ((rcw_en & 0x1) << 2)
-#endif
 		| ((md_en & 0x1) << 0)
 		);
 	debug("FSLDDR: ddr_sdram_cfg_2 = 0x%08x\n", ddr->ddr_sdram_cfg_2);
@@ -745,7 +742,7 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
 
 #ifdef CONFIG_FSL_DDR3
 	if (unq_mrs_en) {	/* unique mode registers are supported */
-		for (i = 1; i < 4; i++) {
+		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 			if (popts->rtt_override)
 				rtt_wr = popts->rtt_wr_override_value;
 			else
@@ -944,7 +941,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	debug("FSLDDR: ddr_sdram_mode = 0x%08x\n", ddr->ddr_sdram_mode);
 
 	if (unq_mrs_en) {	/* unique mode registers are supported */
-		for (i = 1; i < 4; i++) {
+		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 			if (popts->rtt_override)
 				rtt = popts->rtt_override_value;
 			else

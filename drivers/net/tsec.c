@@ -19,6 +19,7 @@
 #include <tsec.h>
 #include <fsl_mdio.h>
 #include <asm/errno.h>
+#include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,6 +43,9 @@ static RTXBD rtx __attribute__ ((aligned(8)));
 #else
 #error "rtx must be 64-bit aligned"
 #endif
+
+static int tsec_send(struct eth_device *dev,
+	volatile void *packet, int length);
 
 /* Default initializations for TSEC controllers. */
 
@@ -236,6 +240,87 @@ static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
 			(phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 }
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
+/*
+ * When MACCFG1[Rx_EN] is enabled during system boot as part
+ * of the eTSEC port initialization sequence,
+ * the eTSEC Rx logic may not be properly initialized.
+ */
+void redundant_init(struct eth_device *dev)
+{
+	struct tsec_private *priv = dev->priv;
+	tsec_t *regs = priv->regs;
+	uint t, count = 0;
+	int fail = 1;
+	static const u8 pkt[] = {
+		0x00, 0x1e, 0x4f, 0x12, 0xcb, 0x2c, 0x00, 0x25,
+		0x64, 0xbb, 0xd1, 0xab, 0x08, 0x00, 0x45, 0x00,
+		0x00, 0x5c, 0xdd, 0x22, 0x00, 0x00, 0x80, 0x01,
+		0x1f, 0x71, 0x0a, 0xc1, 0x14, 0x22, 0x0a, 0xc1,
+		0x14, 0x6a, 0x08, 0x00, 0xef, 0x7e, 0x02, 0x00,
+		0x94, 0x05, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66,
+		0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e,
+		0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76,
+		0x77, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
+		0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
+		0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,
+		0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68,
+		0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70,
+		0x71, 0x72};
+
+	/* Enable promiscuous mode */
+	setbits_be32(&regs->rctrl, 0x8);
+	/* Enable loopback mode */
+	setbits_be32(&regs->maccfg1, MACCFG1_LOOPBACK);
+	/* Enable transmit and receive */
+	setbits_be32(&regs->maccfg1, MACCFG1_RX_EN | MACCFG1_TX_EN);
+
+	/* Tell the DMA it is clear to go */
+	setbits_be32(&regs->dmactrl, DMACTRL_INIT_SETTINGS);
+	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
+	out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
+	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
+
+	do {
+		tsec_send(dev, (void *)pkt, sizeof(pkt));
+
+		/* Wait for buffer to be received */
+		for (t = 0; rtx.rxbd[rxIdx].status & RXBD_EMPTY; t++) {
+			if (t >= 10 * TOUT_LOOP) {
+				printf("%s: tsec: rx error\n", dev->name);
+				break;
+			}
+		}
+
+		if (!memcmp(pkt, (void *)NetRxPackets[rxIdx], sizeof(pkt)))
+			fail = 0;
+
+		rtx.rxbd[rxIdx].length = 0;
+		rtx.rxbd[rxIdx].status =
+		    RXBD_EMPTY | (((rxIdx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
+		rxIdx = (rxIdx + 1) % PKTBUFSRX;
+
+		if (in_be32(&regs->ievent) & IEVENT_BSY) {
+			out_be32(&regs->ievent, IEVENT_BSY);
+			out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
+		}
+		if (fail) {
+			printf("loopback recv packet error!\n");
+			clrbits_be32(&regs->maccfg1, MACCFG1_RX_EN);
+			udelay(1000);
+			setbits_be32(&regs->maccfg1, MACCFG1_RX_EN);
+		}
+	} while ((count++ < 4) && (fail == 1));
+
+	if (fail)
+		panic("eTSEC init fail!\n");
+	/* Disable promiscuous mode */
+	clrbits_be32(&regs->rctrl, 0x8);
+	/* Disable loopback mode */
+	clrbits_be32(&regs->maccfg1, MACCFG1_LOOPBACK);
+}
+#endif
+
 /* Set up the buffers and their descriptors, and bring up the
  * interface
  */
@@ -248,6 +333,9 @@ static void startup_tsec(struct eth_device *dev)
 	/* reset the indices to zero */
 	rxIdx = 0;
 	txIdx = 0;
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
+	uint svr;
+#endif
 
 	/* Point to the buffer descriptors */
 	out_be32(&regs->tbase, (unsigned int)(&rtx.txbd[txIdx]));
@@ -269,6 +357,11 @@ static void startup_tsec(struct eth_device *dev)
 	}
 	rtx.txbd[TX_BUF_CNT - 1].status |= TXBD_WRAP;
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
+	svr = get_svr();
+	if ((SVR_MAJ(svr) == 1) || IS_SVR_REV(svr, 2, 0))
+		redundant_init(dev);
+#endif
 	/* Enable Transmit and Receive */
 	setbits_be32(&regs->maccfg1, MACCFG1_RX_EN | MACCFG1_TX_EN);
 
