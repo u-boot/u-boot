@@ -65,6 +65,7 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_SYS_BARGSIZE		1024		/* Bootarg Size */
 #define CONFIG_SYS_LOAD_ADDR		0x80700000	/* kernel address */
+#define CONFIG_REVISION_TAG
 
 /* Serial Driver info */
 #define CONFIG_SYS_NS16550

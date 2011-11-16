@@ -1104,6 +1104,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_THALES_ADC           3492
 #define MACH_TYPE_UBISYS_P9D_EVP       3493
 #define MACH_TYPE_ATDGP318             3494
+#define MACH_TYPE_OMAP5_SEVM           3777
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type
@@ -14207,6 +14208,18 @@ extern unsigned int __machine_arch_type;
 # define machine_is_atdgp318()	(machine_arch_type == MACH_TYPE_ATDGP318)
 #else
 # define machine_is_atdgp318()	(0)
+#endif
+
+#ifdef CONFIG_MACH_OMAP5_SEVM
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type     __machine_arch_type
+# else
+#  define machine_arch_type     MACH_TYPE_OMAP5_SEVM
+# endif
+# define machine_is_omap5_sevm()      (machine_arch_type == MACH_TYPE_OMAP5_SEVM)
+#else
+# define machine_is_omap5_sevm()      (0)
 #endif
 
 /*

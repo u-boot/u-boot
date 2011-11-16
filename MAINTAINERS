@@ -775,16 +775,16 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
 
-Manikandan Pillai <mani.pillai@ti.com>
-
-	omap3_evm	ARM ARMV7 (OMAP3xx SoC)
-
 Stelian Pop <stelian.pop@leadtechdesign.com>
 
 	at91sam9260ek	ARM926EJS (AT91SAM9260 SoC)
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
+
+Tom Rini <trini@ti.com>
+
+	omap3_evm	ARM ARMV7 (OMAP3xx SoC)
 
 Tom Rix <Tom.Rix@windriver.com>
 
@@ -817,11 +817,6 @@ Heiko Schocher <hs@denx.de>
 	magnesium	i.MX27
 	mgcoge3un	ARM926EJS (Kirkwood SoC)
 
-Robert Schwebel <r.schwebel@pengutronix.de>
-
-	csb226		xscale/pxa
-	innokom		xscale/pxa
-
 Michael Schwingen <michael@schwingen.org>
 
 	actux1		xscale/ixp
@@ -850,6 +845,7 @@ Aneesh V <aneesh@ti.com>
 
 	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
 	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
+	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
 
 Marek Vasut <marek.vasut@gmail.com>
 
@@ -859,6 +855,7 @@ Marek Vasut <marek.vasut@gmail.com>
 	palmtc		xscale/pxa
 	vpac270		xscale/pxa
 	zipitz2		xscale/pxa
+	m28evk		i.MX28
  	efikamx		i.MX51
 	efikasb		i.MX51
 

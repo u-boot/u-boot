@@ -687,4 +687,27 @@ struct dpll_params {
 	s8 m7;
 };
 
+extern struct omap4_prcm_regs *const prcm;
+extern const u32 sys_clk_array[8];
+
+void scale_vcores(void);
+void do_scale_tps62361(u32 reg, u32 volt_mv);
+u32 omap_ddr_clk(void);
+void do_scale_vcore(u32 vcore_reg, u32 volt_mv);
+void setup_sri2c(void);
+void setup_post_dividers(u32 *const base, const struct dpll_params *params);
+u32 get_sys_clk_index(void);
+void enable_basic_clocks(void);
+void enable_basic_uboot_clocks(void);
+void enable_non_essential_clocks(void);
+void do_enable_clocks(u32 *const *clk_domains,
+		      u32 *const *clk_modules_hw_auto,
+		      u32 *const *clk_modules_explicit_en,
+		      u8 wait_for_enable);
+const struct dpll_params *get_mpu_dpll_params(void);
+const struct dpll_params *get_core_dpll_params(void);
+const struct dpll_params *get_per_dpll_params(void);
+const struct dpll_params *get_iva_dpll_params(void);
+const struct dpll_params *get_usb_dpll_params(void);
+const struct dpll_params *get_abe_dpll_params(void);
 #endif /* _CLOCKS_OMAP4_H_ */

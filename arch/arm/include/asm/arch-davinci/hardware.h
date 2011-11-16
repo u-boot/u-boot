@@ -230,6 +230,9 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_LPSC_CFG5		38
 #define DAVINCI_LPSC_GEM		39
 #define DAVINCI_LPSC_IMCOP		40
+#define DAVINCI_LPSC_VPSSMASTER		47
+#define DAVINCI_LPSC_MJCP		50
+#define DAVINCI_LPSC_HDVICP		51
 
 #define DAVINCI_DM646X_LPSC_EMAC	14
 #define DAVINCI_DM646X_LPSC_UART0	26
@@ -385,6 +388,20 @@ struct davinci_psc_regs {
 #define PINMUX3				0x01c4000c
 #define PINMUX4				0x01c40010
 
+struct davinci_uart_ctrl_regs {
+	dv_reg	revid1;
+	dv_reg	res;
+	dv_reg	pwremu_mgmt;
+	dv_reg	mdr;
+};
+
+#define DAVINCI_UART_CTRL_BASE 0x28
+
+/* UART PWREMU_MGMT definitions */
+#define DAVINCI_UART_PWREMU_MGMT_FREE	(1 << 0)
+#define DAVINCI_UART_PWREMU_MGMT_URRST	(1 << 13)
+#define DAVINCI_UART_PWREMU_MGMT_UTRST	(1 << 14)
+
 #else /* CONFIG_SOC_DA8XX */
 
 struct davinci_pllc_regs {
@@ -431,6 +448,7 @@ struct davinci_pllc_regs {
 enum davinci_clk_ids {
 	DAVINCI_SPI0_CLKID = 2,
 	DAVINCI_UART2_CLKID = 2,
+	DAVINCI_MMC_CLKID = 2,
 	DAVINCI_MDIO_CLKID = 4,
 	DAVINCI_ARM_CLKID = 6,
 	DAVINCI_PLLM_CLKID = 0xff,
@@ -468,6 +486,7 @@ struct davinci_syscfg_regs {
 #define DAVINCI_SYSCFG_SUSPSRC_SPI0		(1 << 21)
 #define DAVINCI_SYSCFG_SUSPSRC_SPI1		(1 << 22)
 #define DAVINCI_SYSCFG_SUSPSRC_UART0		(1 << 18)
+#define DAVINCI_SYSCFG_SUSPSRC_UART2		(1 << 20)
 #define DAVINCI_SYSCFG_SUSPSRC_TIMER0		(1 << 27)
 
 struct davinci_syscfg1_regs {
@@ -490,6 +509,9 @@ struct davinci_syscfg1_regs {
 #define VTP_CLKRZ		(1 << 13)
 #define VTP_READY		(1 << 15)
 #define VTP_IOPWRDWN		(1 << 14)
+
+#define DV_SYSCFG_KICK0_UNLOCK	0x83e70b13
+#define DV_SYSCFG_KICK1_UNLOCK	0x95a4f1e0
 
 /* Interrupt controller */
 struct davinci_aintc_regs {

@@ -27,8 +27,6 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 
-#define IOMUXGPR	(IOMUXC_BASE + 0x008)
-
 static u32 mx31_decode_pll(u32 reg, u32 infreq)
 {
 	u32 mfi = GET_PLL_MFI(reg);
@@ -89,7 +87,7 @@ static u32 mx31_get_hsp_clk(void)
 void mx31_dump_clocks(void)
 {
 	u32 cpufreq = mx31_get_mcu_main_clk();
-	printf("mx31 cpu clock: %dMHz\n",cpufreq / 1000000);
+	printf("mx31 cpu clock: %dMHz\n", cpufreq / 1000000);
 	printf("ipg clock     : %dHz\n", mx31_get_ipg_clk());
 	printf("hsp clock     : %dHz\n", mx31_get_hsp_clk());
 }
@@ -146,14 +144,15 @@ void mx31_set_pad(enum iomux_pins pin, u32 config)
 void mx31_set_gpr(enum iomux_gp_func gp, char en)
 {
 	u32 l;
+	struct iomuxc_regs *iomuxc = (struct iomuxc_regs *)IOMUXC_BASE;
 
-	l = readl(IOMUXGPR);
+	l = readl(&iomuxc->gpr);
 	if (en)
 		l |= gp;
 	else
 		l &= ~gp;
 
-	writel(l, IOMUXGPR);
+	writel(l, &iomuxc->gpr);
 }
 
 void mxc_setup_weimcs(int cs, const struct mxc_weimcs *weimcs)
@@ -216,7 +215,7 @@ static char *get_reset_cause(void)
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
-int print_cpuinfo (void)
+int print_cpuinfo(void)
 {
 	u32 srev = get_cpu_rev();
 

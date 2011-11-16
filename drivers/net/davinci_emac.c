@@ -85,15 +85,17 @@ static int			emac_rx_queue_active = 0;
 /* Receive packet buffers */
 static unsigned char		emac_rx_buffers[EMAC_MAX_RX_BUFFERS * (EMAC_MAX_ETHERNET_PKT_SIZE + EMAC_PKT_ALIGN)];
 
-#define MAX_PHY		3
+#ifndef CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT
+#define CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT	3
+#endif
 
 /* PHY address for a discovered PHY (0xff - not found) */
-static u_int8_t	active_phy_addr[MAX_PHY] = { 0xff, 0xff, 0xff };
+static u_int8_t	active_phy_addr[CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT];
 
 /* number of PHY found active */
 static u_int8_t	num_phy;
 
-phy_t				phy[MAX_PHY];
+phy_t				phy[CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT];
 
 static int davinci_eth_set_mac_addr(struct eth_device *dev)
 {
@@ -160,9 +162,8 @@ static int davinci_eth_phy_detect(void)
 	int		j;
 	unsigned int	count = 0;
 
-	active_phy_addr[0] = 0xff;
-	active_phy_addr[1] = 0xff;
-	active_phy_addr[2] = 0xff;
+	for (i = 0; i < CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT; i++)
+		active_phy_addr[i] = 0xff;
 
 	udelay(1000);
 	phy_act_state = readl(&adap_mdio->ALIVE);
@@ -175,7 +176,14 @@ static int davinci_eth_phy_detect(void)
 	for (i = 0, j = 0; i < 32; i++)
 		if (phy_act_state & (1 << i)) {
 			count++;
-			active_phy_addr[j++] = i;
+			if (count < CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT) {
+				active_phy_addr[j++] = i;
+			} else {
+				printf("%s: to many PHYs detected.\n",
+					__func__);
+				count = 0;
+				break;
+			}
 		}
 
 	num_phy = count;
@@ -752,7 +760,7 @@ int davinci_emac_initialize(void)
 	if (!ret)
 		return(0);
 	else
-		printf(" %d ETH PHY detected\n", ret);
+		debug_emac(" %d ETH PHY detected\n", ret);
 
 	/* Get PHY ID and initialize phy_ops for a detected PHY */
 	for (i = 0; i < num_phy; i++) {

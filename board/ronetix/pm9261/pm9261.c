@@ -248,9 +248,6 @@ int board_init(void)
 		1 << ATMEL_ID_PIOC,
 		&pmc->pcer);
 
-	/* arch number of PM9261-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_PM9261;
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 

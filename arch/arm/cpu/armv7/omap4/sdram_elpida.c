@@ -26,7 +26,7 @@
  * MA 02111-1307 USA
  */
 
-#include <asm/arch/emif.h>
+#include <asm/emif.h>
 #include <asm/arch/sys_proto.h>
 
 /*
