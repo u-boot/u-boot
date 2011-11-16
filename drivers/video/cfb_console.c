@@ -203,6 +203,7 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <video_font.h>
+#include <video_font_data.h>
 
 #if defined(CONFIG_CMD_DATE)
 #include <rtc.h>
@@ -286,6 +287,7 @@ void console_cursor(int state);
 #ifdef	CONFIG_VIDEO_LOGO
 #ifdef	CONFIG_VIDEO_BMP_LOGO
 #include <bmp_logo.h>
+#include <bmp_logo_data.h>
 #define VIDEO_LOGO_WIDTH	BMP_LOGO_WIDTH
 #define VIDEO_LOGO_HEIGHT	BMP_LOGO_HEIGHT
 #define VIDEO_LOGO_LUT_OFFSET	BMP_LOGO_OFFSET
