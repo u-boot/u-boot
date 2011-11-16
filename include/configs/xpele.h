@@ -13,7 +13,11 @@
 /* Select target configuration: comment out for ZC770 instead of EP107. */
 #define CONFIG_EP107		1
 
-#include "../board/xilinx/dfe/xparameters.h"
+#ifdef CONFIG_EP107
+# include "../board/xilinx/dfe/xparameters.h"
+#else
+# include "../board/xilinx/dfe/xparameters_zynq.h"
+#endif
 
 /*
  * Open Firmware flat tree
