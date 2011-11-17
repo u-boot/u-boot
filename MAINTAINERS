@@ -786,6 +786,7 @@ Stelian Pop <stelian@popies.net>
 Thierry Reding <thierry.reding@avionic-design.de>
 
 	plutux		Tegra2 (ARM7 & A9 Dual Core)
+	medcom		Tegra2 (ARM7 & A9 Dual Core)
 
 Tom Rini <trini@ti.com>
 
