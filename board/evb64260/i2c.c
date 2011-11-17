@@ -20,25 +20,25 @@ static void
 i2c_init(int speed, int slaveaddr)
 {
 	unsigned int n, m, freq, margin, power;
-	unsigned int actualN = 0, actualM = 0;
+	unsigned int actualn = 0, actualm = 0;
 	unsigned int control, status;
-	unsigned int minMargin = 0xffffffff;
+	unsigned int minmargin = 0xffffffff;
 	unsigned int tclk = 125000000;
 
 	DP(puts("i2c_init\n"));
 
 	for (n = 0 ; n < 8 ; n++) {
 		for (m = 0 ; m < 16 ; m++) {
-			power = 2<<n; /* power = 2^(n+1) */
-			freq = tclk/(10*(m+1)*power);
+			power = 2 << n; /* power = 2^(n+1) */
+			freq = tclk / (10 * (m + 1) * power);
 			if (speed > freq)
 				margin = speed - freq;
 			else
 				margin = freq - speed;
-			if (margin < minMargin) {
-				minMargin   = margin;
-				actualN	    = n;
-				actualM	    = m;
+			if (margin < minmargin) {
+				minmargin   = margin;
+				actualn	    = n;
+				actualm	    = m;
 			}
 		}
 	}
@@ -55,7 +55,7 @@ i2c_init(int speed, int slaveaddr)
 
 	DP(puts("set baudrate\n"));
 
-	GT_REG_WRITE(I2C_STATUS_BAUDE_RATE, (actualM << 3) | actualN);
+	GT_REG_WRITE(I2C_STATUS_BAUDE_RATE, (actualm << 3) | actualn);
 	GT_REG_WRITE(I2C_CONTROL, (0x1 << 2) | (0x1 << 6));
 
 	udelay(I2C_DELAY * 10);
@@ -257,11 +257,11 @@ i2c_read(uchar dev_addr, unsigned int offset, int len, uchar *data,
 	 int ten_bit)
 {
 	uchar status = 0;
-	unsigned int i2cFreq = 400000;
+	unsigned int i2cfreq = 400000;
 
 	DP(puts("i2c_read\n"));
 
-	i2c_init(i2cFreq, 0);
+	i2c_init(i2cfreq, 0);
 
 	status = i2c_start();
 
@@ -280,7 +280,7 @@ i2c_read(uchar dev_addr, unsigned int offset, int len, uchar *data,
 		return status;
 	}
 
-	i2c_init(i2cFreq, 0);
+	i2c_init(i2cfreq, 0);
 
 	status = i2c_start();
 	if (status) {
