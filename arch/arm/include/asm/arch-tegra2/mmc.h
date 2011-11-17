@@ -1,7 +1,5 @@
 /*
- *  (C) Copyright 2010,2011
- *  NVIDIA Corporation <www.nvidia.com>
- *
+ * Copyright (c) 2011, Google Inc. All rights reserved.
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -21,10 +19,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#ifndef _TEGRA2_MMC_H_
+#define _TEGRA2_MMC_H_
 
-void gpio_config_uart(void);
-void gpio_early_init_uart(void);
+int tegra2_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio);
 
-#endif	/* BOARD_H */
+#endif /* TEGRA2_MMC_H_ */
