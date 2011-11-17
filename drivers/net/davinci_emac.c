@@ -220,7 +220,7 @@ static int davinci_eth_phy_detect(void)
 	for (i = 0, j = 0; i < 32; i++)
 		if (phy_act_state & (1 << i)) {
 			count++;
-			if (count < CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT) {
+			if (count <= CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT) {
 				active_phy_addr[j++] = i;
 			} else {
 				printf("%s: to many PHYs detected.\n",
