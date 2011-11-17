@@ -59,8 +59,7 @@ char *env_name_spec = "NAND";
 
 
 #if defined(ENV_IS_EMBEDDED)
-extern uchar environment[];
-env_t *env_ptr = (env_t *)(&environment[0]);
+env_t *env_ptr = &environment;
 #elif defined(CONFIG_NAND_ENV_DST)
 env_t *env_ptr = (env_t *)CONFIG_NAND_ENV_DST;
 #else /* ! ENV_IS_EMBEDDED */

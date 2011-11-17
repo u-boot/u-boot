@@ -44,10 +44,6 @@ char *env_name_spec = "OneNAND";
 #define ONENAND_MAX_ENV_SIZE	4096
 #define ONENAND_ENV_SIZE(mtd)	(ONENAND_MAX_ENV_SIZE - ENV_HEADER_SIZE)
 
-#ifdef ENV_IS_EMBEDDED
-extern uchar environment[];
-#endif /* ENV_IS_EMBEDDED */
-
 DECLARE_GLOBAL_DATA_PTR;
 
 uchar env_get_char_spec(int index)
@@ -64,7 +60,7 @@ void env_relocate_spec(void)
 	int rc;
 	size_t retlen;
 #ifdef ENV_IS_EMBEDDED
-	char *buf = (char *)&environment[0];
+	char *buf = (char *)&environment;
 #else
 	loff_t env_addr = CONFIG_ENV_ADDR;
 	char onenand_env[ONENAND_MAX_ENV_SIZE];

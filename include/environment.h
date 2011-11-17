@@ -154,6 +154,10 @@ typedef struct environment_s {
 	unsigned char	data[ENV_SIZE]; /* Environment data		*/
 } env_t;
 
+#ifdef ENV_IS_EMBEDDED
+extern env_t environment;
+#endif /* ENV_IS_EMBEDDED */
+
 extern const unsigned char default_environment[];
 
 #ifndef DO_DEPS_ONLY

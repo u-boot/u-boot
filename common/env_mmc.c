@@ -35,8 +35,7 @@
 char *env_name_spec = "MMC";
 
 #ifdef ENV_IS_EMBEDDED
-extern uchar environment[];
-env_t *env_ptr = (env_t *)(&environment[0]);
+env_t *env_ptr = &environment;
 #else /* ! ENV_IS_EMBEDDED */
 env_t *env_ptr = NULL;
 #endif /* ENV_IS_EMBEDDED */
