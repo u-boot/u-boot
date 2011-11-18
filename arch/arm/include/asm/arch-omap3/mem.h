@@ -212,32 +212,6 @@ enum {
 		ACTIM_CTRLB(NUMONYX_TWTR_165, NUMONYX_TCKE_165,	\
 				NUMONYX_TXP_165, NUMONYX_XSR_165)
 
-#ifdef CONFIG_OMAP3_INFINEON_DDR
-#define V_ACTIMA_165		INFINEON_V_ACTIMA_165
-#define V_ACTIMB_165		INFINEON_V_ACTIMB_165
-#endif
-
-#ifdef CONFIG_OMAP3_MICRON_DDR
-#define V_ACTIMA_165		MICRON_V_ACTIMA_165
-#define V_ACTIMB_165		MICRON_V_ACTIMB_165
-#define V_MCFG			MICRON_V_MCFG_165(PHYS_SDRAM_1_SIZE)
-#define V_RFR_CTRL		SDP_3430_SDRC_RFR_CTRL_165MHz
-#define V_MR			MICRON_V_MR_165
-#endif
-
-#ifdef CONFIG_OMAP3_NUMONYX_DDR
-#define V_ACTIMA_165		NUMONYX_V_ACTIMA_165
-#define V_ACTIMB_165		NUMONYX_V_ACTIMB_165
-#endif
-
-#if !defined(V_ACTIMA_165) || !defined(V_ACTIMB_165)
-#error "Please choose the right DDR type in config header"
-#endif
-
-#if defined(CONFIG_SPL_BUILD) && (!defined(V_MCFG) || !defined(V_RFR_CTRL))
-#error "Please choose the right DDR type in config header"
-#endif
-
 /*
  * GPMC settings -
  * Definitions is as per the following format

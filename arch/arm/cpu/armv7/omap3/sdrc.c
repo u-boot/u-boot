@@ -148,6 +148,18 @@ void do_sdrc_init(u32 cs, u32 early)
 	sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
 	sdrc_actim_base1 = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
 
+	/*
+	 * When called in the early context this may be SPL and we will
+	 * need to set all of the timings.  This ends up being board
+	 * specific so we call a helper function to take care of this
+	 * for us.  Otherwise, to be safe, we need to copy the settings
+	 * from the first bank to the second.  We will setup CS0,
+	 * then set cs_cfg to the appropriate value then try and
+	 * setup CS1.
+	 */
+#ifdef CONFIG_SPL_BUILD
+	get_board_mem_timings(&mcfg, &ctrla, &ctrlb, &rfr_ctrl, &mr);
+#endif
 	if (early) {
 		/* reset sdrc controller */
 		writel(SOFTRESET, &sdrc_base->sysconfig);
@@ -164,21 +176,11 @@ void do_sdrc_init(u32 cs, u32 early)
 
 		writel(ENADLL | DLLPHASE_90, &sdrc_base->dlla_ctrl);
 		sdelay(0x20000);
-/* As long as V_MCFG and V_RFR_CTRL is not defined for all OMAP3 boards we need
- * to prevent this to be build in non-SPL build */
 #ifdef CONFIG_SPL_BUILD
-		/*
-		 * If we use a SPL there is no x-loader nor config header so
-		 * we have to do the job ourselfs
-		 */
-
-		mcfg = V_MCFG;
-		ctrla = V_ACTIMA_165;
-		ctrlb = V_ACTIMB_165;
-		rfr_ctrl = V_RFR_CTRL;
-		mr = V_MR;
-
 		write_sdrc_timings(CS0, sdrc_actim_base0, mcfg, ctrla, ctrlb,
+				rfr_ctrl, mr);
+		make_cs1_contiguous();
+		write_sdrc_timings(CS0, sdrc_actim_base1, mcfg, ctrla, ctrlb,
 				rfr_ctrl, mr);
 #endif
 
