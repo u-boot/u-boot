@@ -105,9 +105,15 @@ void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
 	writel(gpmc_config[3], &cs->config4);
 	writel(gpmc_config[4], &cs->config5);
 	writel(gpmc_config[5], &cs->config6);
-	/* Enable the config */
-	writel((((size & 0xF) << 8) | ((base >> 24) & 0x3F) |
-		(1 << 6)), &cs->config7);
+
+	/*
+	 * Enable the config.  size is the CS size and goes in
+	 * bits 11:8.  We set bit 6 to enable this CS and the base
+	 * address goes into bits 5:0.
+	 */
+	 writel((size << 8) | (GPMC_CS_ENABLE << 6) |
+				 ((base >> 24) & GPMC_BASEADDR_MASK),
+				 &cs->config7);
 	sdelay(2000);
 }
 
