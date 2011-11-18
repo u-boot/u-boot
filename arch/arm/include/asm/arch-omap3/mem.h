@@ -39,6 +39,12 @@ enum {
 
 #define EARLY_INIT	1
 
+/*
+ * For a full explanation of these registers and values please see
+ * the Technical Reference Manual (TRM) for any of the processors in
+ * this family.
+ */
+
 /* Slower full frequency range default timings for x32 operation*/
 #define SDRC_SHARING	0x00000100
 #define SDRC_MR_0_SDR	0x00000031
@@ -85,6 +91,27 @@ enum {
 		ACTIM_CTRLB_TCKE(b)	|	\
 		ACTIM_CTRLB_TXP(b)	|	\
 		ACTIM_CTRLB_TXSR(d)
+
+/*
+ * Values used in the MCFG register.  Only values we use today
+ * are defined and the rest can be found in the TRM.  Unless otherwise
+ * noted all fields are one bit.
+ */
+#define V_MCFG_RAMTYPE_DDR		(0x1)
+#define V_MCFG_DEEPPD_EN		(0x1 << 3)
+#define V_MCFG_B32NOT16_32		(0x1 << 4)
+#define V_MCFG_BANKALLOCATION_RBC	(0x2 << 6)	/* 6:7 */
+#define V_MCFG_RAMSIZE(a)		((((a)/(1024*1024))/2) << 8) /* 8:17 */
+#define V_MCFG_ADDRMUXLEGACY_FLEX	(0x1 << 19)
+#define V_MCFG_CASWIDTH_10B		(0x5 << 20)	/* 20:22 */
+#define V_MCFG_RASWIDTH(a)		((a) << 24)	/* 24:26 */
+
+/* Macro to construct MCFG */
+#define MCFG(a, b)						\
+		V_MCFG_RASWIDTH(b) | V_MCFG_CASWIDTH_10B |	\
+		V_MCFG_ADDRMUXLEGACY_FLEX | V_MCFG_RAMSIZE(a) |	\
+		V_MCFG_BANKALLOCATION_RBC |			\
+		V_MCFG_B32NOT16_32 | V_MCFG_DEEPPD_EN | V_MCFG_RAMTYPE_DDR
 
 /* Infineon part of 3430SDP (165MHz optimized) 6.06ns */
 #define INFINEON_TDAL_165	6	/* Twr/Tck + Trp/tck		*/
@@ -138,21 +165,8 @@ enum {
 		ACTIM_CTRLB(MICRON_TWTR_165, MICRON_TCKE_165,	\
 				MICRON_TXP_165,	MICRON_XSR_165)
 
-#define MICRON_RAMTYPE			0x1
-#define MICRON_DDRTYPE			0x0
-#define MICRON_DEEPPD			0x1
-#define MICRON_B32NOT16			0x1
-#define MICRON_BANKALLOCATION	0x2
-#define MICRON_RAMSIZE			((PHYS_SDRAM_1_SIZE/(1024*1024))/2)
-#define MICRON_ADDRMUXLEGACY	0x1
-#define MICRON_CASWIDTH			0x5
-#define MICRON_RASWIDTH			0x2
-#define MICRON_LOCKSTATUS		0x0
-#define MICRON_V_MCFG ((MICRON_LOCKSTATUS << 30) | (MICRON_RASWIDTH << 24) | \
-	(MICRON_CASWIDTH << 20) | (MICRON_ADDRMUXLEGACY << 19) | \
-	(MICRON_RAMSIZE << 8) | (MICRON_BANKALLOCATION << 6) | \
-	(MICRON_B32NOT16 << 4) | (MICRON_DEEPPD << 3) | \
-	(MICRON_DDRTYPE << 2) | (MICRON_RAMTYPE))
+#define MICRON_RASWIDTH		0x2
+#define MICRON_V_MCFG(size)	MCFG((size), MICRON_RASWIDTH)
 
 #define MICRON_ARCV				2030
 #define MICRON_ARE				0x1
@@ -199,7 +213,7 @@ enum {
 #ifdef CONFIG_OMAP3_MICRON_DDR
 #define V_ACTIMA_165		MICRON_V_ACTIMA_165
 #define V_ACTIMB_165		MICRON_V_ACTIMB_165
-#define V_MCFG			MICRON_V_MCFG
+#define V_MCFG			MICRON_V_MCFG(PHYS_SDRAM_1_SIZE)
 #define V_RFR_CTRL		MICRON_V_RFR_CTRL
 #define V_MR			MICRON_V_MR
 #endif
