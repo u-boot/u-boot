@@ -108,14 +108,45 @@ u32 get_sdr_cs_offset(u32 cs)
 }
 
 /*
+ * write_sdrc_timings -
+ *  - Takes CS and associated timings and initalize SDRAM
+ *  - Test CS to make sure it's OK for use
+ */
+static void write_sdrc_timings(u32 cs, struct sdrc_actim *sdrc_actim_base,
+		u32 mcfg, u32 ctrla, u32 ctrlb, u32 rfr_ctrl, u32 mr)
+{
+	/* Setup timings we got from the board. */
+	writel(mcfg, &sdrc_base->cs[cs].mcfg);
+	writel(ctrla, &sdrc_actim_base->ctrla);
+	writel(ctrlb, &sdrc_actim_base->ctrlb);
+	writel(rfr_ctrl, &sdrc_base->cs[cs].rfr_ctrl);
+	writel(CMD_NOP, &sdrc_base->cs[cs].manual);
+	writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
+	writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
+	writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
+	writel(mr, &sdrc_base->cs[cs].mr);
+
+	/*
+	 * Test ram in this bank
+	 * Disable if bad or not present
+	 */
+	if (!mem_ok(cs))
+		writel(0, &sdrc_base->cs[cs].mcfg);
+}
+
+/*
  * do_sdrc_init -
- *  - Initialize the SDRAM for use.
- *  - code called once in C-Stack only context for CS0 and a possible 2nd
- *    time depending on memory configuration from stack+global context
+ *  - Code called once in C-Stack only context for CS0 and with early being
+ *    true and a possible 2nd time depending on memory configuration from
+ *    stack+global context.
  */
 void do_sdrc_init(u32 cs, u32 early)
 {
 	struct sdrc_actim *sdrc_actim_base0, *sdrc_actim_base1;
+	u32 mcfg, ctrla, ctrlb, rfr_ctrl, mr;
+
+	sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
+	sdrc_actim_base1 = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
 
 	if (early) {
 		/* reset sdrc controller */
@@ -127,73 +158,48 @@ void do_sdrc_init(u32 cs, u32 early)
 		/* setup sdrc to ball mux */
 		writel(SDRC_SHARING, &sdrc_base->sharing);
 
-		/* Disable Power Down of CKE cuz of 1 CKE on combo part */
+		/* Disable Power Down of CKE because of 1 CKE on combo part */
 		writel(WAKEUPPROC | SRFRONRESET | PAGEPOLICY_HIGH,
 				&sdrc_base->power);
 
 		writel(ENADLL | DLLPHASE_90, &sdrc_base->dlla_ctrl);
 		sdelay(0x20000);
-	}
-
 /* As long as V_MCFG and V_RFR_CTRL is not defined for all OMAP3 boards we need
  * to prevent this to be build in non-SPL build */
 #ifdef CONFIG_SPL_BUILD
-	/* If we use a SPL there is no x-loader nor config header so we have
-	 * to do the job ourselfs
-	 */
-	if (cs == CS0) {
-		sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
+		/*
+		 * If we use a SPL there is no x-loader nor config header so
+		 * we have to do the job ourselfs
+		 */
 
-		/* General SDRC config */
-		writel(V_MCFG, &sdrc_base->cs[cs].mcfg);
-		writel(V_RFR_CTRL, &sdrc_base->cs[cs].rfr_ctrl);
+		mcfg = V_MCFG;
+		ctrla = V_ACTIMA_165;
+		ctrlb = V_ACTIMB_165;
+		rfr_ctrl = V_RFR_CTRL;
+		mr = V_MR;
 
-		/* AC timings */
-		writel(V_ACTIMA_165, &sdrc_actim_base0->ctrla);
-		writel(V_ACTIMB_165, &sdrc_actim_base0->ctrlb);
-
-		/* Initialize */
-		writel(CMD_NOP, &sdrc_base->cs[cs].manual);
-		writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
-		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-
-		writel(V_MR, &sdrc_base->cs[cs].mr);
-	}
+		write_sdrc_timings(CS0, sdrc_actim_base0, mcfg, ctrla, ctrlb,
+				rfr_ctrl, mr);
 #endif
 
-	/*
-	 * SDRC timings are set up by x-load or config header
-	 * We don't need to redo them here.
-	 * Older x-loads configure only CS0
-	 * configure CS1 to handle this ommission
-	 */
-	if (cs == CS1) {
-		sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
-		sdrc_actim_base1 = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
-		writel(readl(&sdrc_base->cs[CS0].mcfg),
-			&sdrc_base->cs[CS1].mcfg);
-		writel(readl(&sdrc_base->cs[CS0].rfr_ctrl),
-			&sdrc_base->cs[CS1].rfr_ctrl);
-		writel(readl(&sdrc_actim_base0->ctrla),
-			&sdrc_actim_base1->ctrla);
-		writel(readl(&sdrc_actim_base0->ctrlb),
-			&sdrc_actim_base1->ctrlb);
-
-		writel(CMD_NOP, &sdrc_base->cs[cs].manual);
-		writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
-		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-		writel(readl(&sdrc_base->cs[CS0].mr),
-			&sdrc_base->cs[CS1].mr);
 	}
 
 	/*
-	 * Test ram in this bank
-	 * Disable if bad or not present
+	 * If we aren't using SPL we have been loaded by some
+	 * other means which may not have correctly initialized
+	 * both CS0 and CS1 (such as some older versions of x-loader)
+	 * so we may be asked now to setup CS1.
 	 */
-	if (!mem_ok(cs))
-		writel(0, &sdrc_base->cs[cs].mcfg);
+	if (cs == CS1) {
+		mcfg = readl(&sdrc_base->cs[CS0].mcfg),
+		rfr_ctrl = readl(&sdrc_base->cs[CS0].rfr_ctrl);
+		ctrla = readl(&sdrc_actim_base0->ctrla),
+		ctrlb = readl(&sdrc_actim_base0->ctrlb);
+		mr = readl(&sdrc_base->cs[CS0].mr);
+		write_sdrc_timings(cs, sdrc_actim_base1, mcfg, ctrla, ctrlb,
+				rfr_ctrl, mr);
+
+	}
 }
 
 /*
