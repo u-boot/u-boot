@@ -29,8 +29,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct serial_device *serial_devices = NULL;
-static struct serial_device *serial_current = NULL;
+static struct serial_device *serial_devices;
+static struct serial_device *serial_current;
 
 void serial_register(struct serial_device *dev)
 {
@@ -47,14 +47,14 @@ void serial_register(struct serial_device *dev)
 	serial_devices = dev;
 }
 
-void serial_initialize (void)
+void serial_initialize(void)
 {
 #if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
-	serial_register (&serial_smc_device);
+	serial_register(&serial_smc_device);
 #endif
-#if defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
- || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
-	serial_register (&serial_scc_device);
+#if	defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) || \
+	defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
+	serial_register(&serial_scc_device);
 #endif
 
 #if defined(CONFIG_SYS_NS16550_SERIAL)
@@ -71,13 +71,13 @@ void serial_initialize (void)
 	serial_register(&eserial4_device);
 #endif
 #endif /* CONFIG_SYS_NS16550_SERIAL */
-#if defined (CONFIG_FFUART)
+#if defined(CONFIG_FFUART)
 	serial_register(&serial_ffuart_device);
 #endif
-#if defined (CONFIG_BTUART)
+#if defined(CONFIG_BTUART)
 	serial_register(&serial_btuart_device);
 #endif
-#if defined (CONFIG_STUART)
+#if defined(CONFIG_STUART)
 	serial_register(&serial_stuart_device);
 #endif
 #if defined(CONFIG_S3C2410)
@@ -122,18 +122,18 @@ void serial_initialize (void)
 	serial_register(&uartlite_serial3_device);
 # endif /* XILINX_UARTLITE_BASEADDR3 */
 #endif /* CONFIG_XILINX_UARTLITE */
-	serial_assign (default_serial_console ()->name);
+	serial_assign(default_serial_console()->name);
 }
 
-void serial_stdio_init (void)
+void serial_stdio_init(void)
 {
 	struct stdio_dev dev;
 	struct serial_device *s = serial_devices;
 
 	while (s) {
-		memset (&dev, 0, sizeof (dev));
+		memset(&dev, 0, sizeof(dev));
 
-		strcpy (dev.name, s->name);
+		strcpy(dev.name, s->name);
 		dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 
 		dev.start = s->init;
@@ -143,18 +143,18 @@ void serial_stdio_init (void)
 		dev.getc = s->getc;
 		dev.tstc = s->tstc;
 
-		stdio_register (&dev);
+		stdio_register(&dev);
 
 		s = s->next;
 	}
 }
 
-int serial_assign (char *name)
+int serial_assign(char *name)
 {
 	struct serial_device *s;
 
 	for (s = serial_devices; s; s = s->next) {
-		if (strcmp (s->name, name) == 0) {
+		if (strcmp(s->name, name) == 0) {
 			serial_current = s;
 			return 0;
 		}
@@ -163,13 +163,12 @@ int serial_assign (char *name)
 	return 1;
 }
 
-void serial_reinit_all (void)
+void serial_reinit_all(void)
 {
 	struct serial_device *s;
 
-	for (s = serial_devices; s; s = s->next) {
-		s->init ();
-	}
+	for (s = serial_devices; s; s = s->next)
+		s->init();
 }
 
 static struct serial_device *get_current(void)
@@ -192,27 +191,27 @@ int serial_init(void)
 	return get_current()->init();
 }
 
-void serial_setbrg (void)
+void serial_setbrg(void)
 {
 	get_current()->setbrg();
 }
 
-int serial_getc (void)
+int serial_getc(void)
 {
 	return get_current()->getc();
 }
 
-int serial_tstc (void)
+int serial_tstc(void)
 {
 	return get_current()->tstc();
 }
 
-void serial_putc (const char c)
+void serial_putc(const char c)
 {
 	get_current()->putc(c);
 }
 
-void serial_puts (const char *s)
+void serial_puts(const char *s)
 {
 	get_current()->puts(s);
 }
