@@ -230,7 +230,8 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			(char *) bootaddr);
 	printf ("## Starting vxWorks at 0x%08lx ...\n", addr);
 
-	((void (*)(void)) addr) ();
+	dcache_disable();
+	((void (*)(int)) addr) (0);
 
 	puts ("## vxWorks terminated\n");
 	return 1;
