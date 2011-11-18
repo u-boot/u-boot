@@ -1169,5 +1169,16 @@ Macpaul Lin <macpaul@andestech.com>
 	ADP-AG101P	N1213 (AG101P XC5 FPGA)
 
 #########################################################################
+# OpenRISC Systems:							#
+#									#
+# Maintainer Name, Email Address					#
+#	Board		CPU						#
+#########################################################################
+
+Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+
+	openrisc-generic	OpenRISC
+
+#########################################################################
 # End of MAINTAINERS list						#
 #########################################################################
