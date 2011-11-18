@@ -149,7 +149,7 @@ void serial_stdio_init(void)
 	}
 }
 
-int serial_assign(char *name)
+int serial_assign(const char *name)
 {
 	struct serial_device *s;
 
