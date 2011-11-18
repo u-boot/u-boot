@@ -44,8 +44,6 @@
 #include <usb.h>
 #include "usb_ohci.h"
 
-#include "usbdev.h"
-
 #define OHCI_USE_NPS		/* force NoPowerSwitching mode */
 #undef OHCI_VERBOSE_DEBUG	/* not always helpful */
 #undef DEBUG
@@ -1622,11 +1620,6 @@ int usb_lowlevel_init(void)
 #endif
 	ohci_inited = 1;
 	urb_finished = 1;
-
-#if defined(CONFIG_440EP) || defined(CONFIG_440EPX)
-	/* init the device driver */
-	usb_dev_init();
-#endif
 
 	return 0;
 }

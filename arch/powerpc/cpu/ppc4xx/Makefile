@@ -61,7 +61,6 @@ COBJS	+= tlb.o
 COBJS	+= traps.o
 COBJS	+= usb.o
 COBJS	+= usb_ohci.o
-COBJS	+= usbdev.o
 COBJS-$(CONFIG_XILINX_440) += xilinx_irq.o
 ifndef CONFIG_XILINX_440
 COBJS	+= 4xx_uart.o
