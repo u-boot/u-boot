@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004-2008
+ * (C) Copyright 2004-2011
  * Texas Instruments, <www.ti.com>
  *
  * Author :
@@ -34,9 +34,11 @@
 #include <status_led.h>
 #endif
 #include <twl4030.h>
+#include <linux/mtd/nand.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
+#include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
@@ -134,6 +136,69 @@ int get_board_revision(void)
 
 	return revision;
 }
+
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on both banks.
+ */
+void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
+		u32 *mr)
+{
+	int pop_mfr, pop_id;
+
+	/*
+	 * We need to identify what PoP memory is on the board so that
+	 * we know what timings to use.  If we can't identify it then
+	 * we know it's an xM.  To map the ID values please see nand_ids.c
+	 */
+	identify_nand_chip(&pop_mfr, &pop_id);
+
+	*mr = MICRON_V_MR_165;
+	switch (get_board_revision()) {
+	case REVISION_C4:
+		if (pop_mfr == NAND_MFR_STMICRO && pop_id == 0xba) {
+			/* 512MB DDR */
+			*mcfg = NUMONYX_V_MCFG_165(512 << 20);
+			*ctrla = NUMONYX_V_ACTIMA_165;
+			*ctrlb = NUMONYX_V_ACTIMB_165;
+			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+			break;
+		} else if (pop_mfr == NAND_MFR_MICRON && pop_id == 0xbc) {
+			/* Beagleboard Rev C5, 256MB DDR */
+			*mcfg = MICRON_V_MCFG_200(256 << 20);
+			*ctrla = MICRON_V_ACTIMA_200;
+			*ctrlb = MICRON_V_ACTIMB_200;
+			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+			break;
+		}
+	case REVISION_XM_A:
+	case REVISION_XM_B:
+	case REVISION_XM_C:
+		if (pop_mfr == 0) {
+			/* 256MB DDR */
+			*mcfg = MICRON_V_MCFG_200(256 << 20);
+			*ctrla = MICRON_V_ACTIMA_200;
+			*ctrlb = MICRON_V_ACTIMB_200;
+			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+		} else {
+			/* 512MB DDR */
+			*mcfg = NUMONYX_V_MCFG_165(512 << 20);
+			*ctrla = NUMONYX_V_ACTIMA_165;
+			*ctrlb = NUMONYX_V_ACTIMB_165;
+			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		}
+		break;
+	default:
+		/* Assume 128MB and Micron/165MHz timings to be safe */
+		*mcfg = MICRON_V_MCFG_165(128 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	}
+}
+#endif
 
 /*
  * Routine: get_expansion_id
@@ -367,7 +432,7 @@ void set_muxconf_regs(void)
 	MUX_BEAGLE();
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0);
@@ -476,6 +541,7 @@ int ehci_hcd_init(void)
 
 #endif /* CONFIG_USB_EHCI */
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * This command returns the status of the user button on beagle xM
  * Input - none
@@ -528,3 +594,4 @@ U_BOOT_CMD(
 	"Return the status of the BeagleBoard USER button",
 	""
 );
+#endif
