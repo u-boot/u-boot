@@ -58,10 +58,9 @@ u32 is_mem_sdr(void)
 
 /*
  * make_cs1_contiguous -
- *  - For es2 and above remap cs1 behind cs0 to allow command line
- *    mem=xyz use all memory with out discontinuous support compiled in.
- *    Could do it at the ATAG, but there really is two banks...
- *  - Called as part of 2nd phase DDR init.
+ * - When we have CS1 populated we want to have it mapped after cs0 to allow
+ *   command line mem=xyz use all memory with out discontinuous support
+ *   compiled in.  We could do it in the ATAG, but there really is two banks...
  */
 void make_cs1_contiguous(void)
 {
@@ -207,16 +206,16 @@ int dram_init(void)
 
 	size0 = get_sdr_cs_size(CS0);
 	/*
-	 * If a second bank of DDR is attached to CS1 this is
-	 * where it can be started.  Early init code will init
-	 * memory on CS0.
+	 * We always need to have cs_cfg point at where the second
+	 * bank would be, if present.  Failure to do so can lead to
+	 * strange situations where memory isn't detected and
+	 * configured correctly.  CS0 will already have been setup
+	 * at this point.
 	 */
-	if ((sysinfo.mtype == DDR_COMBO) || (sysinfo.mtype == DDR_STACKED)) {
-		do_sdrc_init(CS1, NOT_EARLY);
-		make_cs1_contiguous();
+	make_cs1_contiguous();
+	do_sdrc_init(CS1, NOT_EARLY);
+	size1 = get_sdr_cs_size(CS1);
 
-		size1 = get_sdr_cs_size(CS1);
-	}
 	gd->ram_size = size0 + size1;
 
 	return 0;
