@@ -606,7 +606,7 @@ int mxs_dma_wait_complete(uint32_t timeout, unsigned int chan)
 		mxs_dma_reset(chan);
 	}
 
-	return 0;
+	return ret;
 }
 
 /*
