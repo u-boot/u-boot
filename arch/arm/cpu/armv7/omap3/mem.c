@@ -86,6 +86,7 @@ u32 mem_ok(u32 cs)
 	writel(0x0, addr + 4);		/* remove pattern off the bus */
 	val1 = readl(addr + 0x400);	/* get pos A value */
 	val2 = readl(addr);		/* get val2 */
+	writel(0x0, addr + 0x400);	/* clear pos A */
 
 	if ((val1 != 0) || (val2 != pattern))	/* see if pos A val changed */
 		return 0;
