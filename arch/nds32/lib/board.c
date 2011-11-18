@@ -351,6 +351,11 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	nand_init();		/* go init the NAND */
 #endif
 
+#if defined(CONFIG_CMD_IDE)
+	puts("IDE:   ");
+	ide_init();
+#endif
+
 #ifdef CONFIG_GENERIC_MMC
 	puts("MMC:   ");
 	mmc_initialize(gd->bd);
