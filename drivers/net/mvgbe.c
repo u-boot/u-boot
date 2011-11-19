@@ -531,6 +531,7 @@ static int mvgbe_send(struct eth_device *dev, void *dataptr,
 	struct mvgbe_txdesc *p_txdesc = dmvgbe->p_txdesc;
 	void *p = (void *)dataptr;
 	u32 cmd_sts;
+	u32 txuq0_reg_addr;
 
 	/* Copy buffer if it's misaligned */
 	if ((u32) dataptr & 0x07) {
@@ -552,7 +553,8 @@ static int mvgbe_send(struct eth_device *dev, void *dataptr,
 	p_txdesc->byte_cnt = datasize;
 
 	/* Set this tc desc as zeroth TXUQ */
-	MVGBE_REG_WR(regs->tcqdp[TXUQ], (u32) p_txdesc);
+	txuq0_reg_addr = (u32)&regs->tcqdp[TXUQ];
+	writel((u32) p_txdesc, txuq0_reg_addr);
 
 	/* ensure tx desc writes above are performed before we start Tx DMA */
 	isb();
@@ -583,6 +585,7 @@ static int mvgbe_recv(struct eth_device *dev)
 	struct mvgbe_rxdesc *p_rxdesc_curr = dmvgbe->p_rxdesc_curr;
 	u32 cmd_sts;
 	u32 timeout = 0;
+	u32 rxdesc_curr_addr;
 
 	/* wait untill rx packet available or timeout */
 	do {
@@ -637,8 +640,8 @@ static int mvgbe_recv(struct eth_device *dev)
 	p_rxdesc_curr->buf_size = PKTSIZE_ALIGN;
 	p_rxdesc_curr->byte_cnt = 0;
 
-	writel((unsigned)p_rxdesc_curr->nxtdesc_p,
-		(u32) &dmvgbe->p_rxdesc_curr);
+	rxdesc_curr_addr = (u32)&dmvgbe->p_rxdesc_curr;
+	writel((unsigned)p_rxdesc_curr->nxtdesc_p, rxdesc_curr_addr);
 
 	return 0;
 }
