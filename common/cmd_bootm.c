@@ -36,6 +36,7 @@
 #include <lmb.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
+#include <linux/compiler.h>
 
 #if defined(CONFIG_CMD_USB)
 #include <usb.h>
@@ -312,7 +313,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	ulong blob_end = os.end;
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
-	uint unc_len = CONFIG_SYS_BOOTM_LEN;
+	__maybe_unused uint unc_len = CONFIG_SYS_BOOTM_LEN;
 #if defined(CONFIG_LZMA) || defined(CONFIG_LZO)
 	int ret;
 #endif /* defined(CONFIG_LZMA) || defined(CONFIG_LZO) */
