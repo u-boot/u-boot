@@ -180,7 +180,7 @@ static void aisimage_print_header(const void *hdr)
 
 static uint32_t *ais_insert_cmd_header(uint32_t cmd, uint32_t nargs,
 	uint32_t *parms, struct image_type_params *tparams,
-	uint32_t *ptr, uint32_t size)
+	uint32_t *ptr)
 {
 	int i;
 
@@ -285,7 +285,7 @@ static int aisimage_generate(struct mkimage_params *params,
 	uint32_t nargs, cmd_parms[10];
 	uint32_t value, size;
 	char *name = params->imagename;
-	uint32_t *aishdr, tsize;
+	uint32_t *aishdr;
 
 	fd = fopen(name, "r");
 	if (fd == 0) {
@@ -363,7 +363,7 @@ static int aisimage_generate(struct mkimage_params *params,
 		if (cmd != CMD_INVALID) {
 			/* Now insert the command into the header */
 			aishdr = ais_insert_cmd_header(cmd, nargs, cmd_parms,
-				tparams, aishdr, tsize);
+				tparams, aishdr);
 		}
 
 	}
