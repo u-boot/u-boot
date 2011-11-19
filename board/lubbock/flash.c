@@ -220,7 +220,7 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 
 int flash_erase (flash_info_t *info, int s_first, int s_last)
 {
-	int flag, prot, sect;
+	int prot, sect;
 	ulong type, start;
 	int rcode = 0;
 
@@ -255,7 +255,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	}
 
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts ();
+	disable_interrupts();
 
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last; sect++) {
@@ -389,7 +389,6 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 {
 	FPWV *addr = (FPWV *) dest;
 	ulong status;
-	int flag;
 	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
@@ -398,7 +397,7 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts ();
+	disable_interrupts();
 
 	*addr = (FPW) 0x00400040;	/* write setup */
 	*addr = data;
