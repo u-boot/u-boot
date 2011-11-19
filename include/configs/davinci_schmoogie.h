@@ -27,6 +27,9 @@
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_SYS_USE_NAND
 #define CONFIG_DISPLAY_CPUINFO
+#define MACH_TYPE_SCHMOOGIE 1255
+#define CONFIG_MACH_TYPE MACH_TYPE_SCHMOOGIE
+
 /*===================*/
 /* SoC Configuration */
 /*===================*/
