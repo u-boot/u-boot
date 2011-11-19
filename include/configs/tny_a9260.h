@@ -45,8 +45,12 @@
 /* Define actual evaluation board type from used processor type */
 #ifdef CONFIG_AT91SAM9G20
 # define CONFIG_TNY_A9G20
+# define MACH_TYPE_TNY_A9G20		2059
+# define CONFIG_MACH_TYPE		MACH_TYPE_TNY_A9G20
 #else
 # define CONFIG_TNY_A9260
+# define MACH_TYPE_TNY_A9260		2058
+# define CONFIG_MACH_TYPE		MACH_TYPE_TNY_A9260
 #endif
 
 /* ARM asynchronous clock */

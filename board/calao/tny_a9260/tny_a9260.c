@@ -86,11 +86,6 @@ int board_init(void)
 	/* Enable Ctrlc */
 	console_init_f();
 
-#if defined(CONFIG_TNY_A9260)
-	gd->bd->bi_arch_number = MACH_TYPE_TNY_A9260;
-#elif defined(CONFIG_TNY_A9G20)
-	gd->bd->bi_arch_number = MACH_TYPE_TNY_A9G20;
-#endif
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
