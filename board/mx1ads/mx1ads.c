@@ -27,6 +27,7 @@
 #include <netdev.h>
 /*#include <mc9328.h>*/
 #include <asm/arch/imx-regs.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -80,8 +81,6 @@ static u32 mc9328sid;
 
 int board_early_init_f(void)
 {
-	volatile unsigned int tmp;
-
 	mc9328sid = SIDR;
 
 	GPCR = 0x000003AB;	/* I/O pad driving strength     */
@@ -107,8 +106,8 @@ int board_early_init_f(void)
 	GIUS (0) &= 0xFF3FFFFF;
 	GPR (0) &= 0xFF3FFFFF;
 
-	tmp = *(unsigned int *) (0x1500000C);
-	tmp = *(unsigned int *) (0x1500000C);
+	readl(0x1500000C);
+	readl(0x1500000C);
 
 	SetAsynchMode ();
 
