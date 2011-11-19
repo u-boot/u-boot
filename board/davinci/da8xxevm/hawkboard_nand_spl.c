@@ -99,8 +99,8 @@ void board_init_f(ulong bootflag)
 	/*
 	 * Kick Registers need to be set to allow access to Pin Mux registers
 	 */
-	writel(HAWKBOARD_KICK0_UNLOCK, &davinci_syscfg_regs->kick0);
-	writel(HAWKBOARD_KICK1_UNLOCK, &davinci_syscfg_regs->kick1);
+	writel(DV_SYSCFG_KICK0_UNLOCK, &davinci_syscfg_regs->kick0);
+	writel(DV_SYSCFG_KICK1_UNLOCK, &davinci_syscfg_regs->kick1);
 
 	/* setup the SUSPSRC for ARM to control emulation suspend */
 	writel(readl(&davinci_syscfg_regs->suspsrc) &
