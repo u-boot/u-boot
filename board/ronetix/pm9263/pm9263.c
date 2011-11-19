@@ -164,7 +164,6 @@ void lcd_disable(void)
 /* Initialize the PSRAM memory */
 static int pm9263_lcd_hw_psram_init(void)
 {
-	volatile uint16_t x;
 	unsigned long csa;
 	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC1;
 	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
@@ -196,14 +195,14 @@ static int pm9263_lcd_hw_psram_init(void)
 	at91_set_pio_value(PSRAM_CRE_PIN, 0);	/* set PSRAM_CRE_PIN to '0' */
 
 	/* PSRAM: write BCR */
-	x = readw(PSRAM_CTRL_REG);
-	x = readw(PSRAM_CTRL_REG);
+	readw(PSRAM_CTRL_REG);
+	readw(PSRAM_CTRL_REG);
 	writew(1, PSRAM_CTRL_REG);	/* 0 - RCR,1 - BCR */
 	writew(0x9d4f, PSRAM_CTRL_REG);	/* write the BCR */
 
 	/* write RCR of the PSRAM */
-	x = readw(PSRAM_CTRL_REG);
-	x = readw(PSRAM_CTRL_REG);
+	readw(PSRAM_CTRL_REG);
+	readw(PSRAM_CTRL_REG);
 	writew(0, PSRAM_CTRL_REG);	/* 0 - RCR,1 - BCR */
 	/* set RCR; 0x10-async mode,0x90-page mode */
 	writew(0x90, PSRAM_CTRL_REG);
@@ -222,8 +221,8 @@ static int pm9263_lcd_hw_psram_init(void)
 		at91_set_pio_value(PSRAM_CRE_PIN, 1); /* set PSRAM_CRE_PIN to '1' */
 
 		/* write RCR of the PSRAM */
-		x = readw(PSRAM_CTRL_REG);
-		x = readw(PSRAM_CTRL_REG);
+		readw(PSRAM_CTRL_REG);
+		readw(PSRAM_CTRL_REG);
 		writew(0, PSRAM_CTRL_REG);	/* 0 - RCR,1 - BCR */
 		/* set RCR;0x10-async mode,0x90-page mode */
 		writew(0x90, PSRAM_CTRL_REG);
