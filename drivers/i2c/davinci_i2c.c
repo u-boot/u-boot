@@ -78,13 +78,11 @@ static int poll_i2c_irq(int mask)
 
 void flush_rx(void)
 {
-	int	dummy;
-
 	while (1) {
 		if (!(REG(I2C_STAT) & I2C_STAT_RRDY))
 			break;
 
-		dummy = REG(I2C_DRR);
+		REG(I2C_DRR);
 		REG(I2C_STAT) = I2C_STAT_RRDY;
 		udelay(1000);
 	}
