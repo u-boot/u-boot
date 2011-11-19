@@ -848,7 +848,6 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int len, struct devrequest *setup)
 {
 	int devnum = usb_pipedevice(pipe);
-	u16 csr;
 	u8  devspeed;
 
 #ifdef MUSB_NO_MULTIPOINT
@@ -862,7 +861,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	/* select control endpoint */
 	writeb(MUSB_CONTROL_EP, &musbr->index);
-	csr = readw(&musbr->txcsr);
+	readw(&musbr->txcsr);
 
 #ifndef MUSB_NO_MULTIPOINT
 	/* target addr and (for multipoint) hub addr/port */
