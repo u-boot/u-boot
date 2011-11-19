@@ -36,6 +36,9 @@
 #define CONFIG_ENV_IS_IN_EEPROM
 #endif
 
+#define MACH_TYPE_SBC35_A9G20		1848
+#define CONFIG_MACH_TYPE		MACH_TYPE_SBC35_A9G20
+
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12.000 MHz crystal */

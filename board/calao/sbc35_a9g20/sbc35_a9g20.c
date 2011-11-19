@@ -152,7 +152,6 @@ int board_init(void)
 	/* Enable Ctrlc */
 	console_init_f();
 
-	gd->bd->bi_arch_number = MACH_TYPE_SBC35_A9G20;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
