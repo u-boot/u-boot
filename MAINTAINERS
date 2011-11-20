@@ -712,10 +712,6 @@ Sergey Kubushyn <ksi@koi8.net>
 	SONATA		ARM926EJS
 	SCHMOOGIE	ARM926EJS
 
-Prakash Kumar <prakash@embedx.com>
-
-	cerf250		xscale/pxa
-
 Vipin Kumar <vipin.kumar@st.com>
 
 	spear300	ARM926EJS (spear300 Soc)
