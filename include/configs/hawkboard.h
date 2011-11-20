@@ -114,7 +114,6 @@
 /* Max number of NAND devices */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE_LIST	{ 0x62000000, }
-#define NAND_MAX_CHIPS			1
 /* Block 0--not used by bootcode */
 #define CONFIG_ENV_OFFSET		0x0
 
