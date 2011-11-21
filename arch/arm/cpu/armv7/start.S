@@ -32,6 +32,7 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
+#include <asm/system.h>
 
 .globl _start
 _start: b	reset
@@ -142,6 +143,22 @@ reset:
 	bic	r0, r0, #0x1f
 	orr	r0, r0, #0xd3
 	msr	cpsr,r0
+
+/*
+ * Setup vector:
+ * (OMAP4 spl TEXT_BASE is not 32 byte aligned.
+ * Continue to use ROM code vector only in OMAP4 spl)
+ */
+#if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD))
+	/* Set V=0 in CP15 SCTRL register - for VBAR to point to vector */
+	mrc	p15, 0, r0, c1, c0, 0	@ Read CP15 SCTRL Register
+	bic	r0, #CR_V		@ V = 0
+	mcr	p15, 0, r0, c1, c0, 0	@ Write CP15 SCTRL Register
+
+	/* Set vector address in CP15 VBAR register */
+	ldr	r0, =_start
+	mcr	p15, 0, r0, c12, c0, 0	@Set VBAR
+#endif
 
 #if defined(CONFIG_OMAP34XX)
 	/* Copy vectors to mask ROM indirect addr */
