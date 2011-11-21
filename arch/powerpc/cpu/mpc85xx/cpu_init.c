@@ -37,11 +37,14 @@
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
+#include <linux/compiler.h>
 #include "mp.h"
 #ifdef CONFIG_SYS_QE_FW_IN_NAND
 #include <nand.h>
 #include <errno.h>
 #endif
+
+#include "../../../../drivers/block/fsl_sata.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -301,6 +304,7 @@ __attribute__((weak, alias("__fsl_serdes__init"))) void fsl_serdes_init(void);
  */
 int cpu_init_r(void)
 {
+	__maybe_unused u32 svr = get_svr();
 #ifdef CONFIG_SYS_LBC_LCRR
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 #endif
@@ -316,10 +320,9 @@ int cpu_init_r(void)
 #if defined(CONFIG_L2_CACHE)
 	volatile ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
 	volatile uint cache_ctl;
-	uint svr, ver;
+	uint ver;
 	u32 l2siz_field;
 
-	svr = get_svr();
 	ver = SVR_SOC_VER(svr);
 
 	asm("msync;isync");
@@ -401,8 +404,8 @@ int cpu_init_r(void)
 		puts("enabled\n");
 	}
 #elif defined(CONFIG_BACKSIDE_L2_CACHE)
-	if ((SVR_SOC_VER(get_svr()) == SVR_P2040) ||
-	    (SVR_SOC_VER(get_svr()) == SVR_P2040_E)) {
+	if ((SVR_SOC_VER(svr) == SVR_P2040) ||
+	    (SVR_SOC_VER(svr) == SVR_P2040_E)) {
 		puts("N/A\n");
 		goto skip_l2;
 	}
@@ -487,6 +490,32 @@ skip_l2:
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
 #endif
+
+#if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)
+	/*
+	 * For P1022/1013 Rev1.0 silicon, after power on SATA host
+	 * controller is configured in legacy mode instead of the
+	 * expected enterprise mode. Software needs to clear bit[28]
+	 * of HControl register to change to enterprise mode from
+	 * legacy mode.  We assume that the controller is offline.
+	 */
+	if (IS_SVR_REV(svr, 1, 0) &&
+	    ((SVR_SOC_VER(svr) == SVR_P1022) ||
+	     (SVR_SOC_VER(svr) == SVR_P1022_E) ||
+	     (SVR_SOC_VER(svr) == SVR_P1013) ||
+	     (SVR_SOC_VER(svr) == SVR_P1013_E))) {
+		fsl_sata_reg_t *reg;
+
+		/* first SATA controller */
+		reg = (void *)CONFIG_SYS_MPC85xx_SATA1_ADDR;
+		clrbits_le32(&reg->hcontrol, HCONTROL_ENTERPRISE_EN);
+
+		/* second SATA controller */
+		reg = (void *)CONFIG_SYS_MPC85xx_SATA2_ADDR;
+		clrbits_le32(&reg->hcontrol, HCONTROL_ENTERPRISE_EN);
+	}
+#endif
+
 
 	return 0;
 }
