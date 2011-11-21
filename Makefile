@@ -483,7 +483,7 @@ mmc_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
 
 $(obj)mmc_spl/u-boot-mmc-spl.bin:	mmc_spl
 
-$(obj)spl/u-boot-spl.bin:		depend
+$(obj)spl/u-boot-spl.bin:	$(SUBDIR_TOOLS) depend
 		$(MAKE) -C spl all
 
 updater:
