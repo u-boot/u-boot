@@ -446,10 +446,9 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #endif	/* CONFIG_PCI */
 
 /* SATA */
-#define CONFIG_FSL_SATA_V2
-#ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_LIBATA
 #define CONFIG_FSL_SATA
+#ifdef CONFIG_FSL_SATA
+#define CONFIG_LIBATA
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1
