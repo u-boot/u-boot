@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+pleb2   arm     pxa     b185a1c   2011-25-11
 cradle  arm     pxa     4e24f8a   2011-25-11    Kyle Harris <kharris@nexus-tech.net>
 cerf250 arm     pxa     a3f1241   2011-25-11    Prakash Kumar <prakash@embedx.com>
 mpq101	powerpc	mpc85xx	-	  2011-10-23	Alex Dubov <oakad@yahoo.com>
