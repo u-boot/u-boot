@@ -428,9 +428,8 @@ static void setup_gpios(void)
 	gpio_direction_output(4, 1);
 
 	gpio_direction_output(7, 0);
-	for (i = 65; i < 71; i++) {
+	for (i = 65; i < 71; i++)
 		gpio_direction_output(i, 0);
-	}
 
 	gpio_direction_output(94, 0);
 
