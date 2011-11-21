@@ -651,6 +651,7 @@ Simon Guinot <simon.guinot@sequanux.org>
 	inetspace_v2	ARM926EJS (Kirkwood SoC)
 	netspace_v2	ARM926EJS (Kirkwood SoC)
 	netspace_max_v2	ARM926EJS (Kirkwood SoC)
+	net2big_v2	ARM926EJS (Kirkwood SoC)
 
 Igor Grinberg <grinberg@compulab.co.il>
 
