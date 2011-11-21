@@ -344,6 +344,7 @@ export PLATFORM_LIBS
 # on the fly.
 LDPPFLAGS += \
 	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
+	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
