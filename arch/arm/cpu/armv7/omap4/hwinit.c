@@ -146,7 +146,15 @@ void init_omap_revision(void)
 		*omap4_revision = OMAP4430_ES2_3;
 		break;
 	case MIDR_CORTEX_A9_R2P10:
-		*omap4_revision = OMAP4460_ES1_0;
+		switch (readl(CONTROL_ID_CODE)) {
+		case OMAP4460_CONTROL_ID_CODE_ES1_1:
+			*omap4_revision = OMAP4460_ES1_1;
+			break;
+		case OMAP4460_CONTROL_ID_CODE_ES1_0:
+		default:
+			*omap4_revision = OMAP4460_ES1_0;
+			break;
+		}
 		break;
 	default:
 		*omap4_revision = OMAP4430_SILICON_ID_INVALID;
