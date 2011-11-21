@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CONFIG_NETSPACE_V2_H
-#define _CONFIG_NETSPACE_V2_H
+#ifndef _CONFIG_LACIE_KW_H
+#define _CONFIG_LACIE_KW_H
 
 /*
  * Machine number definition
@@ -30,6 +30,9 @@
 #elif defined(CONFIG_NETSPACE_MAX_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MAX_V2
 #define CONFIG_IDENT_STRING		" NS Max v2"
+#elif defined(CONFIG_NET2BIG_V2)
+#define CONFIG_MACH_TYPE		MACH_TYPE_NET2BIG_V2
+#define CONFIG_IDENT_STRING		" 2Big v2"
 #else
 #error "Unknown board"
 #endif
@@ -56,11 +59,19 @@
 #define CONFIG_CMD_USB
 
 /*
- * Core clock definition.
+ * Core clock definition
  */
 #define CONFIG_SYS_TCLK			166000000 /* 166MHz */
 
+/*
+ * SDRAM configuration
+ */
+#if defined(CONFIG_NET2BIG_V2)
+#define CONFIG_NR_DRAM_BANKS		2
+#else
 #define CONFIG_NR_DRAM_BANKS		1
+#endif
+
 #ifdef CONFIG_INETSPACE_V2
 /* Different SDRAM configuration and size for Internet Space v2 */
 #define CONFIG_SYS_KWD_CONFIG ($(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg)
@@ -81,7 +92,11 @@
 #define CONFIG_ENV_SPI_MAX_HZ           20000000 /* 20Mhz */
 #define CONFIG_SYS_IDE_MAXBUS           1
 #define CONFIG_SYS_IDE_MAXDEVICE        1
+#if defined(CONFIG_NET2BIG_V2)
+#define CONFIG_SYS_PROMPT		"2big2> "
+#else
 #define CONFIG_SYS_PROMPT		"ns2> "
+#endif
 
 /*
  * Ethernet Driver configuration
@@ -97,11 +112,10 @@
  */
 #ifdef CONFIG_MVSATA_IDE
 #define CONFIG_SYS_ATA_IDE0_OFFSET      MV_SATA_PORT0_OFFSET
-/* Network Space Max v2 use 2 SATA ports */
-#ifdef CONFIG_NETSPACE_MAX_V2
+#if defined(CONFIG_NETSPACE_MAX_V2) || defined(CONFIG_NET2BIG_V2)
 #define CONFIG_SYS_ATA_IDE1_OFFSET      MV_SATA_PORT1_OFFSET
 #endif
-#endif
+#endif /* CONFIG_MVSATA_IDE */
 
 /*
  * Enable GPI0 support
@@ -176,4 +190,4 @@
 	"usbload=usb start && "					\
 		"fatload usb 0:1 $loadaddr /boot/$bootfile\0"
 
-#endif /* _CONFIG_NETSPACE_V2_H */
+#endif /* _CONFIG_LACIE_KW_H */

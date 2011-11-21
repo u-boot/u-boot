@@ -21,10 +21,13 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= net2big_v2.o
+COBJS	:= $(BOARD).o ../common/common.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
