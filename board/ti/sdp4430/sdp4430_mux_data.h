@@ -67,7 +67,7 @@ const struct pad_conf_entry wkup_padconf_array_essential[] = {
 
 const struct pad_conf_entry wkup_padconf_array_essential_4460[] = {
 
-{PAD1_FREF_CLK4_REQ, (M3)},	 /* gpio_wk7, TPS */
+{PAD1_FREF_CLK4_REQ, (PTU | M7)}, /* gpio_wk7 for TPS: safe mode + pull up */
 
 };
 
@@ -273,6 +273,10 @@ const struct pad_conf_entry wkup_padconf_array_non_essential[] = {
 	{PAD1_SYS_PWRON_RESET, (M3)},		/* gpio_wk29 */
 	{PAD0_SYS_BOOT6, (IEN | M3)},		/* gpio_wk9 */
 	{PAD1_SYS_BOOT7, (IEN | M3)},		/* gpio_wk10 */
+};
+
+const struct pad_conf_entry wkup_padconf_array_non_essential_4430[] = {
+	{PAD1_FREF_CLK4_REQ, (M3)}	/* gpio_wk7 - Debug led-2 */
 };
 
 #endif /* _SDP4430_MUX_DATA_H */

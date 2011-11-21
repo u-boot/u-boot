@@ -359,14 +359,6 @@ void do_scale_tps62361(u32 reg, u32 volt_mv)
 	step = volt_mv - TPS62361_BASE_VOLT_MV;
 	step /= 10;
 
-	/*
-	 * Select SET1 in TPS62361:
-	 * VSEL1 is grounded on board. So the following selects
-	 * VSEL1 = 0 and VSEL0 = 1
-	 */
-	gpio_direction_output(TPS62361_VSEL0_GPIO, 0);
-	gpio_set_value(TPS62361_VSEL0_GPIO, 1);
-
 	temp = TPS62361_I2C_SLAVE_ADDR |
 	    (reg << PRM_VC_VAL_BYPASS_REGADDR_SHIFT) |
 	    (step << PRM_VC_VAL_BYPASS_DATA_SHIFT) |
