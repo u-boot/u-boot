@@ -390,4 +390,6 @@
 
 #define CONFIG_OMAP3_SPI
 
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
 #endif /* __CONFIG_H */

@@ -307,4 +307,6 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
 #endif				/* __CONFIG_H */

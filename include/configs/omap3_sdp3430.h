@@ -358,4 +358,6 @@
  *  - rest for filesystem
  */
 
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
 #endif				/* __CONFIG_H */
