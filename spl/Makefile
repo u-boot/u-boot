@@ -81,6 +81,9 @@ ifeq ($(wildcard $(LDSCRIPT)),)
 	LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
+	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
+endif
+ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
 endif
 

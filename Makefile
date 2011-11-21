@@ -174,6 +174,8 @@ include $(TOPDIR)/config.mk
 # that (or fail if absent).  Otherwise, search for a linker script in a
 # standard location.
 
+LDSCRIPT_MAKEFILE_DIR = $(dir $(LDSCRIPT))
+
 ifndef LDSCRIPT
 	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
 	ifdef CONFIG_SYS_LDSCRIPT
@@ -182,6 +184,7 @@ ifndef LDSCRIPT
 	endif
 endif
 
+# If there is no specified link script, we look in a number of places for it
 ifndef LDSCRIPT
 	ifeq ($(CONFIG_NAND_U_BOOT),y)
 		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
@@ -194,6 +197,11 @@ ifndef LDSCRIPT
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
 		LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot.lds
+	endif
+	ifeq ($(wildcard $(LDSCRIPT)),)
+		LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
+		# We don't expect a Makefile here
+		LDSCRIPT_MAKEFILE_DIR =
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
@@ -513,7 +521,7 @@ depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
 		$(obj)include/autoconf.mk \
 		$(obj)include/generated/generic-asm-offsets.h \
 		$(obj)include/generated/asm-offsets.h
-		for dir in $(SUBDIRS) $(CPUDIR) $(dir $(LDSCRIPT)) ; do \
+		for dir in $(SUBDIRS) $(CPUDIR) $(LDSCRIPT_MAKEFILE_DIR) ; do \
 			$(MAKE) -C $$dir _depend ; done
 
 TAG_SUBDIRS = $(SUBDIRS)
