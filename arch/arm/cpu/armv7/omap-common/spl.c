@@ -115,7 +115,6 @@ void board_init_r(gd_t *id, ulong dummy)
 			CONFIG_SYS_SPL_MALLOC_SIZE);
 
 	timer_init();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	boot_device = omap_boot_device();
 	debug("boot device - %d\n", boot_device);
