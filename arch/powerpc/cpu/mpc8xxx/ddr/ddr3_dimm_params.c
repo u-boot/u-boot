@@ -135,6 +135,7 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	switch (spd->module_type & DDR3_SPD_MODULETYPE_MASK) {
 	case DDR3_SPD_MODULETYPE_RDIMM:
 	case DDR3_SPD_MODULETYPE_MINI_RDIMM:
+	case DDR3_SPD_MODULETYPE_72B_SO_RDIMM:
 		/* Registered/buffered DIMMs */
 		pdimm->registered_dimm = 1;
 		for (i = 0; i < 16; i += 2) {
@@ -148,6 +149,12 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	case DDR3_SPD_MODULETYPE_SO_DIMM:
 	case DDR3_SPD_MODULETYPE_MICRO_DIMM:
 	case DDR3_SPD_MODULETYPE_MINI_UDIMM:
+	case DDR3_SPD_MODULETYPE_MINI_CDIMM:
+	case DDR3_SPD_MODULETYPE_72B_SO_UDIMM:
+	case DDR3_SPD_MODULETYPE_72B_SO_CDIMM:
+	case DDR3_SPD_MODULETYPE_LRDIMM:
+	case DDR3_SPD_MODULETYPE_16B_SO_DIMM:
+	case DDR3_SPD_MODULETYPE_32B_SO_DIMM:
 		/* Unbuffered DIMMs */
 		if (spd->mod_section.unbuffered.addr_mapping & 0x1)
 			pdimm->mirrored_dimm = 1;
