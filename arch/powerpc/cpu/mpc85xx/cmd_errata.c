@@ -53,6 +53,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
 	puts("Work-around for Erratum CPU22 enabled\n");
 #endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_CPU_A003999)
+	puts("Work-around for Erratum CPU-A003999 enabled\n");
+#endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN)
 	puts("Work-around for DDR MSYNC_IN Erratum enabled\n");
 #endif

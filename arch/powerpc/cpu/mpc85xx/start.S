@@ -253,6 +253,12 @@ l2_disabled:
 	mtspr	HID1,r0
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_CPU_A003999
+	mfspr	r3,977
+	oris	r3,r3,0x0100
+	mtspr	977,r3
+#endif
+
 	/* Enable Branch Prediction */
 #if defined(CONFIG_BTB)
 	lis	r0,BUCSR_ENABLE@h
