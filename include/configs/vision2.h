@@ -54,7 +54,7 @@
  * Hardware drivers
  */
 #define CONFIG_MXC_UART
-#define CONFIG_SYS_MX51_UART3
+#define CONFIG_MXC_UART_BASE	UART3_BASE
 #define CONFIG_MXC_GPIO
 #define CONFIG_MXC_SPI
 #define CONFIG_HW_WATCHDOG

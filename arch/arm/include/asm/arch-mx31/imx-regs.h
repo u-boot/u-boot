@@ -600,6 +600,12 @@ struct esdc_regs {
 #define WEIM_ESDCFG1	0xB800100C
 #define WEIM_ESDMISC	0xB8001010
 
+#define UART1_BASE	0x43F90000
+#define UART2_BASE	0x43F94000
+#define UART3_BASE	0x5000C000
+#define UART4_BASE	0x43FB0000
+#define UART5_BASE	0x43FB4000
+
 #define ESDCTL_SDE			(1 << 31)
 #define ESDCTL_CMD_RW			(0 << 28)
 #define ESDCTL_CMD_PRECHARGE		(1 << 28)

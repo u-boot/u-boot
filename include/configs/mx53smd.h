@@ -44,7 +44,7 @@
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_UART
-#define CONFIG_SYS_MX53_UART1
+#define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* I2C Configs */
 #define CONFIG_CMD_I2C
