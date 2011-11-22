@@ -3274,6 +3274,44 @@ Low Level (hardware related) configuration options:
 		be used if available. These functions may be faster under some
 		conditions but may increase the binary size.
 
+Freescale QE/FMAN Firmware Support:
+-----------------------------------
+
+The Freescale QUICCEngine (QE) and Frame Manager (FMAN) both support the
+loading of "firmware", which is encoded in the QE firmware binary format.
+This firmware often needs to be loaded during U-Boot booting, so macros
+are used to identify the storage device (NOR flash, SPI, etc) and the address
+within that device.
+
+- CONFIG_SYS_QE_FMAN_FW_ADDR
+	The address in the storage device where the firmware is located.  The
+	meaning of this address depends on which CONFIG_SYS_QE_FW_IN_xxx macro
+	is also specified.
+
+- CONFIG_SYS_QE_FMAN_FW_LENGTH
+	The maximum possible size of the firmware.  The firmware binary format
+	has a field that specifies the actual size of the firmware, but it
+	might not be possible to read any part of the firmware unless some
+	local storage is allocated to hold the entire firmware first.
+
+- CONFIG_SYS_QE_FMAN_FW_IN_NOR
+	Specifies that QE/FMAN firmware is located in NOR flash, mapped as
+	normal addressable memory via the LBC.  CONFIG_SYS_FMAN_FW_ADDR is the
+	virtual address in NOR flash.
+
+- CONFIG_SYS_QE_FMAN_FW_IN_NAND
+	Specifies that QE/FMAN firmware is located in NAND flash.
+	CONFIG_SYS_FMAN_FW_ADDR is the offset within NAND flash.
+
+- CONFIG_SYS_QE_FMAN_FW_IN_MMC
+	Specifies that QE/FMAN firmware is located on the primary SD/MMC
+	device.  CONFIG_SYS_FMAN_FW_ADDR is the byte offset on that device.
+
+- CONFIG_SYS_QE_FMAN_FW_IN_SPIFLASH
+	Specifies that QE/FMAN firmware is located on the primary SPI
+	device.  CONFIG_SYS_FMAN_FW_ADDR is the byte offset on that device.
+
+
 Building the Software:
 ======================
 

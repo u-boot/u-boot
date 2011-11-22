@@ -466,7 +466,7 @@ void fdt_fixup_fman_firmware(void *blob)
 		return;
 	}
 
-	if (length > CONFIG_SYS_FMAN_FW_LENGTH) {
+	if (length > CONFIG_SYS_QE_FMAN_FW_LENGTH) {
 		printf("Fman firmware at %p is too large (size=%u)\n",
 		       fmanfw, length);
 		return;

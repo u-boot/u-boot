@@ -170,11 +170,11 @@ void qe_init(uint qe_base)
 	/* Init the QE IMMR base */
 	qe_immr = (qe_map_t *)qe_base;
 
-#ifdef CONFIG_SYS_QE_FW_ADDR
+#ifdef CONFIG_SYS_QE_FMAN_FW_IN_NOR
 	/*
 	 * Upload microcode to IRAM for those SOCs which do not have ROM in QE.
 	 */
-	qe_upload_firmware((const struct qe_firmware *) CONFIG_SYS_QE_FW_ADDR);
+	qe_upload_firmware((const void *)CONFIG_SYS_QE_FMAN_FW_ADDR);
 
 	/* enable the microcode in IRAM */
 	out_be32(&qe_immr->iram.iready,QE_IRAM_READY);

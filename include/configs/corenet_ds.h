@@ -474,21 +474,25 @@
  * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
  * env, so we got 0x110000.
  */
-#define CONFIG_SYS_QE_FW_IN_SPIFLASH	0x110000
+#define CONFIG_SYS_QE_FW_IN_SPIFLASH
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	0x110000
 #elif defined(CONFIG_SDCARD)
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
  * about 545KB (1089 blocks), Env is stored after the image, and the env size is
  * 0x2000 (16 blocks), 8 + 1089 + 16 = 1113, enlarge it to 1130.
  */
-#define CONFIG_SYS_QE_FW_IN_MMC		(512 * 1130)
+#define CONFIG_SYS_QE_FMAN_FW_IN_MMC
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	(512 * 1130)
 #elif defined(CONFIG_NAND)
-#define CONFIG_SYS_QE_FW_IN_NAND	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_QE_FMAN_FW_IN_NAND
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else
-#define CONFIG_SYS_FMAN_FW_ADDR		0xEF000000
+#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
+#define CONFIG_SYS_QE_FMAN_FW_ADDR		0xEF000000
 #endif
-#define CONFIG_SYS_FMAN_FW_LENGTH	0x10000
-#define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_FMAN_FW_LENGTH)
+#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
+#define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET

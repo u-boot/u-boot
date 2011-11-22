@@ -39,7 +39,7 @@
 #include <asm/fsl_serdes.h>
 #include <linux/compiler.h>
 #include "mp.h"
-#ifdef CONFIG_SYS_QE_FW_IN_NAND
+#ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #include <nand.h>
 #include <errno.h>
 #endif
@@ -552,17 +552,17 @@ void cpu_secondary_init_r(void)
 {
 #ifdef CONFIG_QE
 	uint qe_base = CONFIG_SYS_IMMR + 0x00080000; /* QE immr base */
-#ifdef CONFIG_SYS_QE_FW_IN_NAND
+#ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
 	int ret;
-	size_t fw_length = CONFIG_SYS_QE_FW_LENGTH;
+	size_t fw_length = CONFIG_SYS_QE_FMAN_FW_LENGTH;
 
 	/* load QE firmware from NAND flash to DDR first */
-	ret = nand_read(&nand_info[0], (loff_t)CONFIG_SYS_QE_FW_IN_NAND,
-			&fw_length, (u_char *)CONFIG_SYS_QE_FW_ADDR);
+	ret = nand_read(&nand_info[0], (loff_t)CONFIG_SYS_QE_FMAN_FW_IN_NAND,
+			&fw_length, (u_char *)CONFIG_SYS_QE_FMAN_FW_ADDR);
 
 	if (ret && ret == -EUCLEAN) {
 		printf ("NAND read for QE firmware at offset %x failed %d\n",
-				CONFIG_SYS_QE_FW_IN_NAND, ret);
+				CONFIG_SYS_QE_FMAN_FW_IN_NAND, ret);
 	}
 #endif
 	qe_init(qe_base);
