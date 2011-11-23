@@ -135,36 +135,11 @@ struct mxs_dma_chan {
 	struct list_head done;
 };
 
-/* Hardware management ops */
-int mxs_dma_enable(int channel);
-int mxs_dma_disable(int channel);
-int mxs_dma_reset(int channel);
-int mxs_dma_freeze(int channel);
-int mxs_dma_unfreeze(int channel);
-int mxs_dma_read_semaphore(int channel);
-int mxs_dma_enable_irq(int channel, int enable);
-int mxs_dma_irq_is_pending(int channel);
-int mxs_dma_ack_irq(int channel);
-
-/* Channel management ops */
-int mxs_dma_request(int channel);
-int mxs_dma_release(int channel);
-
-/* Descriptor management ops */
 struct mxs_dma_desc *mxs_dma_desc_alloc(void);
 void mxs_dma_desc_free(struct mxs_dma_desc *);
-
-unsigned int mxs_dma_cmd_address(struct mxs_dma_desc *desc);
-int mxs_dma_desc_pending(struct mxs_dma_desc *pdesc);
-
 int mxs_dma_desc_append(int channel, struct mxs_dma_desc *pdesc);
 
-int mxs_dma_get_finished(int channel, struct list_head *head);
-int mxs_dma_finish(int channel, struct list_head *head);
-
-int mxs_dma_wait_complete(uint32_t timeout, unsigned int chan);
 int mxs_dma_go(int chan);
-
 int mxs_dma_init(void);
 
 #endif	/* __DMA_H__ */
