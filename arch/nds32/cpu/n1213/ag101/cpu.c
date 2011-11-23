@@ -45,10 +45,6 @@
  */
 int cleanup_before_linux(void)
 {
-#ifdef CONFIG_MMU
-	unsigned long i;
-#endif
-
 	disable_interrupts();
 
 #ifdef CONFIG_MMU
@@ -123,8 +119,8 @@ void icache_inval_range(unsigned long start, unsigned long end)
 
 void flush_cache(unsigned long addr, unsigned long size)
 {
-	dcache_flush_range(addr , addr + size);
-	icache_inval_range(addr , addr + size);
+	dcache_flush_range(addr, addr + size);
+	icache_inval_range(addr, addr + size);
 }
 
 void icache_enable(void)

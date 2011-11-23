@@ -33,7 +33,7 @@ static ulong lastdec;
 
 int timer_init(void)
 {
-	static struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
+	struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
 	unsigned int cr;
 
 	debug("%s()\n", __func__);
@@ -80,7 +80,7 @@ int timer_init(void)
  */
 void reset_timer_masked(void)
 {
-	static struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
+	struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
 
 	/* capure current decrementer value time */
 #ifdef CONFIG_FTTMR010_EXT_CLK
@@ -104,7 +104,7 @@ void reset_timer(void)
  */
 ulong get_timer_masked(void)
 {
-	static struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
+	struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
 
 	/* current tick value */
 #ifdef CONFIG_FTTMR010_EXT_CLK
@@ -160,7 +160,7 @@ void set_timer(ulong t)
 /* delay x useconds AND preserve advance timestamp value */
 void __udelay(unsigned long usec)
 {
-	static struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
+	struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
 
 #ifdef CONFIG_FTTMR010_EXT_CLK
 	long tmo = usec * (TIMER_CLOCK / 1000) / 1000;
