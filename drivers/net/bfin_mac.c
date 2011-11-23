@@ -259,6 +259,8 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 		*opmode = 0;
 
 	bfin_write_EMAC_MMC_CTL(RSTC | CROLL);
+	bfin_write_EMAC_VLAN1(EMAC_VLANX_DEF_VAL);
+	bfin_write_EMAC_VLAN2(EMAC_VLANX_DEF_VAL);
 
 	/* Initialize the TX DMA channel registers */
 	bfin_write_DMA2_X_COUNT(0);
