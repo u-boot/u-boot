@@ -94,6 +94,10 @@ void spl_nand_load_image(void);
 /* MMC SPL functions */
 void spl_mmc_load_image(void);
 
+#ifdef CONFIG_SPL_BOARD_INIT
+void spl_board_init(void);
+#endif
+
 /*
  * silicon revisions.
  * Moving this to common, so that most of code can be moved to common,

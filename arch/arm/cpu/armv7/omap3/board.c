@@ -40,6 +40,7 @@
 #include <asm/armv7.h>
 #include <asm/arch/gpio.h>
 #include <asm/omap_common.h>
+#include <i2c.h>
 
 /* Declarations */
 extern omap3_sysinfo sysinfo;
@@ -89,6 +90,10 @@ u32 omap_boot_device(void)
 	return omap3_boot_device;
 }
 
+void spl_board_init(void)
+{
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+}
 #endif /* CONFIG_SPL_BUILD */
 
 
