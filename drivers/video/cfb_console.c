@@ -164,7 +164,7 @@
 /*
  * Defines for the i.MX31 driver (mx3fb.c)
  */
-#ifdef CONFIG_VIDEO_MX3
+#if defined(CONFIG_VIDEO_MX3) || defined(CONFIG_VIDEO_MX5)
 #define VIDEO_FB_16BPP_WORD_SWAP
 #endif
 
