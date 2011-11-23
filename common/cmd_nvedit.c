@@ -179,7 +179,7 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 
 	while (arg <= argc) {
 		idx = 0;
-		while (idx = hstrstr_r(argv[arg], idx, &match, &env_htab)) {
+		while ((idx = hstrstr_r(argv[arg], idx, &match, &env_htab))) {
 			if (!(matched[idx / 8] & (1 << (idx & 7)))) {
 				puts(match->key);
 				puts("=");
