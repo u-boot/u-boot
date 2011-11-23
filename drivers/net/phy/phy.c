@@ -444,6 +444,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_REALTEK
 	phy_realtek_init();
 #endif
+#ifdef CONFIG_PHY_SMSC
+	phy_smsc_init();
+#endif
 #ifdef CONFIG_PHY_TERANETICS
 	phy_teranetics_init();
 #endif

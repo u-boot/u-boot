@@ -38,6 +38,7 @@ COBJS-$(CONFIG_PHY_MARVELL) += marvell.o
 COBJS-$(CONFIG_PHY_MICREL) += micrel.o
 COBJS-$(CONFIG_PHY_NATSEMI) += natsemi.o
 COBJS-$(CONFIG_PHY_REALTEK) += realtek.o
+COBJS-$(CONFIG_PHY_SMSC) += smsc.o
 COBJS-$(CONFIG_PHY_TERANETICS) += teranetics.o
 COBJS-$(CONFIG_PHY_VITESSE) += vitesse.o
 
