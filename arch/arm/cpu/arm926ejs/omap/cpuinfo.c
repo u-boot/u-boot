@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <linux/compiler.h>
 
 #if defined(CONFIG_DISPLAY_CPUINFO) && defined(CONFIG_OMAP)
 
@@ -151,8 +152,8 @@ int print_cpuinfo (void)
 	u8 die_rev;
 	u32 omap_id;
 	u8 cpu_type;
-	u32 system_serial_high;
-	u32 system_serial_low;
+	__maybe_unused u32 system_serial_high;
+	__maybe_unused u32 system_serial_low;
 	u32 system_rev = 0;
 
 	jtag_id = omap_get_jtag_id();
