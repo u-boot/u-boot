@@ -22,6 +22,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx5x_pins.h>
+#include <asm/arch/iomux.h>
 
 #include "ehci.h"
 #include "ehci-core.h"
@@ -198,6 +199,13 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 	return ret;
 }
 
+void __board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
+{
+}
+
+void board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
+	__attribute((weak, alias("__board_ehci_hcd_postinit")));
+
 int ehci_hcd_init(void)
 {
 	struct usb_ehci *ehci;
@@ -217,7 +225,7 @@ int ehci_hcd_init(void)
 	enable_usb_phy2_clk(1);
 	mdelay(1);
 
-	/* do board specific initialization */
+	/* Do board specific initialization */
 	board_ehci_hcd_init(CONFIG_MXC_USB_PORT);
 
 	ehci = (struct usb_ehci *)(OTG_BASE_ADDR +
@@ -231,8 +239,10 @@ int ehci_hcd_init(void)
 	setbits_le32(&ehci->portsc, USB_EN);
 
 	mxc_set_usbcontrol(CONFIG_MXC_USB_PORT, CONFIG_MXC_USB_FLAGS);
-
 	mdelay(10);
+
+	/* Do board specific post-initialization */
+	board_ehci_hcd_postinit(ehci, CONFIG_MXC_USB_PORT);
 
 	return 0;
 }
