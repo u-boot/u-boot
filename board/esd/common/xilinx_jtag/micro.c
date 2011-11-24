@@ -1831,7 +1831,6 @@ int xsvfExecute(void)
 int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int     iErrorCode;
-	char*   pzXsvfFileName;
 	unsigned long duration;
 	unsigned long long startClock, endClock;
 
@@ -1847,7 +1846,6 @@ int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	iErrorCode          = XSVF_ERRORCODE( XSVF_ERROR_NONE );
-	pzXsvfFileName      = 0;
 	xsvf_iDebugLevel    = 0;
 
 	printf("XSVF Player v%s, Xilinx, Inc.\n", XSVF_VERSION);
