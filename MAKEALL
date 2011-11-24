@@ -383,14 +383,11 @@ LIST_mips4kc="		\
 	vct_premium_onenand_small	\
 "
 
-LIST_mips5kc=""
-
 LIST_au1xx0="		\
 	dbau1000	\
 	dbau1100	\
 	dbau1500	\
 	dbau1550	\
-	dbau1550_el	\
 	gth2		\
 "
 
@@ -404,20 +401,16 @@ LIST_mips="		\
 ## MIPS Systems		(little endian)
 #########################################################################
 
-LIST_mips4kc_el="	\
+LIST_xburst_el="	\
 	qi_lb60		\
 "
-
-LIST_mips5kc_el=""
 
 LIST_au1xx0_el="	\
 	dbau1550_el	\
 	pb1000		\
 "
-
 LIST_mips_el="			\
-	${LIST_mips4kc_el}	\
-	${LIST_mips5kc_el}	\
+	${LIST_xburst_el}	\
 	${LIST_au1xx0_el}	\
 "
 
