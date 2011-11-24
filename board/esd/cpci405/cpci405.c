@@ -656,7 +656,6 @@ int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int i;
 	unsigned char ow_id[6];
 	char str[32];
-	unsigned char ow_crc;
 
 	/*
 	 * Clear 1-wire bit (open drain with pull-up)
@@ -675,11 +674,10 @@ int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	OWReadByte(); /* skip family code ( == 0x01) */
 	for (i = 0; i < 6; i++)
 		ow_id[i] = OWReadByte();
-	ow_crc = OWReadByte(); /* read crc */
+	OWReadByte(); /* read crc */
 
-	sprintf(str, "%08X%04X",
-		*(unsigned int *)&ow_id[0],
-		*(unsigned short *)&ow_id[4]);
+	sprintf(str, "%02X%02X%02X%02X%02X%02X",
+		ow_id[0], ow_id[1], ow_id[2], ow_id[3], ow_id[4], ow_id[5]);
 	printf("Setting environment variable 'ow_id' to %s\n", str);
 	setenv("ow_id", str);
 
