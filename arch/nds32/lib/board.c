@@ -365,6 +365,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	env_relocate();
 
 #if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)
+	puts("PCI:   ");
 	nds32_pci_init();
 #endif
 
