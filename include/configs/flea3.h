@@ -107,7 +107,7 @@
 
 #define CONFIG_BOOTDELAY	3
 
-#define CONFIG_LOADADDR		0x90800000	/* loadaddr env var */
+#define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 
 
 /*
@@ -162,10 +162,10 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1
-#define PHYS_SDRAM_1		CSD1_BASE_ADDR
+#define PHYS_SDRAM_1		CSD0_BASE_ADDR
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
 
-#define CONFIG_SYS_SDRAM_BASE		CSD1_BASE_ADDR
+#define CONFIG_SYS_SDRAM_BASE		CSD0_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR + 0x10000)
 #define CONFIG_SYS_INIT_RAM_SIZE		(IRAM_SIZE / 2)
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
@@ -181,10 +181,14 @@
 #define CONFIG_FLASH_CFI_MTD
 #define CONFIG_MTD_PARTITIONS
 #define MTDIDS_DEFAULT		"nand0=mxc_nand,nor0=physmap-flash.0"
-#define MTDPARTS_DEFAULT	"mtdparts=mxc_nand:196m(root1)," \
-				"196m(root2),-(user);"	\
+#define MTDPARTS_DEFAULT	"mtdparts=mxc_nand:50m(root1)," \
+				"32m(rootfb)," \
+				"64m(pcache)," \
+				"64m(app1)," \
+				"10m(app2),-(spool);" \
 				"physmap-flash.0:512k(u-boot),64k(env1)," \
 				"64k(env2),3776k(kernel1),3776k(kernel2)"
+
 /*
  * FLASH and environment organization
  */
@@ -249,10 +253,10 @@
 		"else run addip_sta;fi\0"	\
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addtty=setenv bootargs ${bootargs}"				\
-		" console=ttymxc0,${baudrate}\0"			\
+		" console=ttymxc2,${baudrate}\0"			\
 	"addmisc=setenv bootargs ${bootargs} ${misc}\0"			\
-	"loadaddr=90800000\0"						\
-	"kernel_addr_r=90800000\0"					\
+	"loadaddr=80800000\0"						\
+	"kernel_addr_r=80800000\0"					\
 	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
 	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
 	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/uRamdisk\0"		\

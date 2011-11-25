@@ -160,7 +160,7 @@ static void board_setup_sdram(void)
 	writel(0x2000, &esdc->esdctl0);
 	writel(0x2000, &esdc->esdctl1);
 
-	board_setup_sdram_bank(CSD1_BASE_ADDR);
+	board_setup_sdram_bank(CSD0_BASE_ADDR);
 }
 
 static void setup_iomux_uart3(void)
@@ -229,7 +229,7 @@ int board_early_init_f(void)
 		(struct ccm_regs *)IMX_CCM_BASE;
 
 	/* setup GPIO3_1 to set HighVCore signal */
-	mxc_request_iomux(MX35_PIN_ATA_DATA1, MUX_CONFIG_ALT5);
+	mxc_request_iomux(MX35_PIN_ATA_DA1, MUX_CONFIG_ALT5);
 	gpio_direction_output(65, 1);
 
 	/* initialize PLL and clock configuration */
