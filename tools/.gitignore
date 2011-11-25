@@ -2,6 +2,7 @@
 /envcrc
 /gen_eth_addr
 /img2srec
+/mkenvimage
 /mkimage
 /mpc86x_clk
 /mxsboot
