@@ -39,10 +39,11 @@ struct mxc_gpt {
 static struct mxc_gpt *cur_gpt = (struct mxc_gpt *)GPT1_BASE_ADDR;
 
 /* General purpose timers bitfields */
-#define GPTCR_SWR       (1<<15)	/* Software reset */
-#define GPTCR_FRR       (1<<9)	/* Freerun / restart */
-#define GPTCR_CLKSOURCE_32 (4<<6)	/* Clock source */
-#define GPTCR_TEN       (1)	/* Timer enable */
+#define GPTCR_SWR		(1 << 15)	/* Software reset */
+#define GPTCR_FRR		(1 << 9)	/* Freerun / restart */
+#define GPTCR_CLKSOURCE_32	(4 << 6)	/* Clock source */
+#define GPTCR_TEN		1		/* Timer enable */
+#define CLK_32KHZ		32768		/* 32Khz input */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -68,7 +69,7 @@ int timer_init(void)
 	__raw_writel(i | GPTCR_CLKSOURCE_32 | GPTCR_TEN, &cur_gpt->control);
 
 	val = __raw_readl(&cur_gpt->counter);
-	lastinc = val / (CONFIG_SYS_MX5_CLK32 / CONFIG_SYS_HZ);
+	lastinc = val / (CLK_32KHZ / CONFIG_SYS_HZ);
 	timestamp = 0;
 
 	return 0;
@@ -77,11 +78,11 @@ int timer_init(void)
 ulong get_timer_masked(void)
 {
 	ulong val = __raw_readl(&cur_gpt->counter);
-	val /= (CONFIG_SYS_MX5_CLK32 / CONFIG_SYS_HZ);
+	val /= (CLK_32KHZ / CONFIG_SYS_HZ);
 	if (val >= lastinc)
 		timestamp += (val - lastinc);
 	else
-		timestamp += ((0xFFFFFFFF / (CONFIG_SYS_MX5_CLK32 / CONFIG_SYS_HZ))
+		timestamp += ((0xFFFFFFFF / (CLK_32KHZ / CONFIG_SYS_HZ))
 				- lastinc) + val;
 	lastinc = val;
 	return timestamp;
@@ -96,7 +97,7 @@ ulong get_timer(ulong base)
 void __udelay(unsigned long usec)
 {
 	unsigned long now, start, tmo;
-	tmo = usec * (CONFIG_SYS_MX5_CLK32 / 1000) / 1000;
+	tmo = usec * (CLK_32KHZ / 1000) / 1000;
 
 	if (!tmo)
 		tmo = 1;

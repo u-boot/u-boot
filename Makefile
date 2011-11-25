@@ -296,6 +296,14 @@ LIBS += post/libpost.o
 ifneq ($(CONFIG_AM335X)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS += $(CPUDIR)/omap-common/libomap-common.o
 endif
+
+ifeq ($(SOC),mx5)
+LIBS += $(CPUDIR)/imx-common/libimx-common.o
+endif
+ifeq ($(SOC),mx6)
+LIBS += $(CPUDIR)/imx-common/libimx-common.o
+endif
+
 ifeq ($(SOC),s5pc1xx)
 LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
 endif

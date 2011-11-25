@@ -2,7 +2,7 @@
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# (C) Copyright 2009 Freescale Semiconductor, Inc.
+# (C) Copyright 2011 Freescale Semiconductor, Inc.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -25,10 +25,9 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).o
+LIB     = $(obj)libimx-common.o
 
-COBJS	= soc.o clock.o iomux.o
-SOBJS = lowlevel_init.o
+COBJS	= timer.o cpu.o speed.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
