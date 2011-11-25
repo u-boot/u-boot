@@ -58,7 +58,8 @@ struct fsl_esdhc {
 	uint	autoc12err;
 	uint	hostcapblt;
 	uint	wml;
-	char	reserved1[8];
+	uint    mixctrl;
+	char    reserved1[4];
 	uint	fevt;
 	char	reserved2[168];
 	uint	hostver;
@@ -298,8 +299,13 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	/* Send the command */
 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
+#if defined(CONFIG_FSL_USDHC)
+	esdhc_write32(&regs->mixctrl,
+	(esdhc_read32(&regs->mixctrl) & 0xFFFFFF80) | (xfertyp & 0x7F));
+	esdhc_write32(&regs->xfertyp, xfertyp & 0xFFFF0000);
+#else
 	esdhc_write32(&regs->xfertyp, xfertyp);
-
+#endif
 	/* Wait for the command to complete */
 	while (!(esdhc_read32(&regs->irqstat) & IRQSTAT_CC))
 		;
@@ -482,7 +488,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 
 	mmc = malloc(sizeof(struct mmc));
 
-	sprintf(mmc->name, "FSL_ESDHC");
+	sprintf(mmc->name, "FSL_SDHC");
 	regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
 	/* First reset the eSDHC controller */
