@@ -1,0 +1,4 @@
+#ifndef __ASM_OPENRISC_PROCESSOR_H
+#define __ASM_OPENRISC_PROCESSOR_H
+
+#endif
