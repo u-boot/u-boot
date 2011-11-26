@@ -58,11 +58,6 @@
  */
 #define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack 4 KiB */
-#define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack 4 KiB */
-#endif
-
 /*
  * Physical Memory Map
  * Note 1: CS1 may or may not be populated
