@@ -27,7 +27,6 @@
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
-#define CONFIG_OMAP3430		1	/* which is in a 3430 */
 #define CONFIG_OMAP3_IGEP0020	1	/* working with IGEP0020 */
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
