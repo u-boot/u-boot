@@ -68,7 +68,7 @@ typedef unsigned long int		dword;
 
 #define	SMC_IO_EXTENT	16
 
-#ifdef CONFIG_PXA250
+#ifdef CONFIG_CPU_PXA25X
 
 #ifdef	CONFIG_LUBBOCK
 #define	SMC_IO_SHIFT	2
@@ -146,7 +146,7 @@ typedef unsigned long int		dword;
 					};  \
 				})
 
-#else /* if not CONFIG_PXA250 */
+#else /* if not CONFIG_CPU_PXA25X */
 
 /*
  * We have only 16 Bit PCMCIA access on Socket 0

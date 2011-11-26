@@ -25,7 +25,7 @@
 /*
  * High Level Board Configuration Options
  */
-#define	CONFIG_PXA27X		1	/* Marvell PXA270 CPU */
+#define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_VPAC270		1	/* Voipac PXA270 board */
 #define	CONFIG_SYS_TEXT_BASE	0xa0000000
 

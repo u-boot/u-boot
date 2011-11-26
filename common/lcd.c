@@ -41,7 +41,9 @@
 #include <lcd.h>
 #include <watchdog.h>
 
-#if defined CONFIG_PXA250 || defined CONFIG_PXA27X || defined CONFIG_CPU_MONAHANS
+#if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
+	defined(CONFIG_CPU_MONAHANS)
+#define CONFIG_CPU_PXA
 #include <asm/byteorder.h>
 #endif
 
@@ -512,7 +514,7 @@ void bitmap_plot (int x, int y)
 	uchar *bmap;
 	uchar *fb;
 	ushort *fb16;
-#if defined CONFIG_PXA250 || defined CONFIG_PXA27X || defined CONFIG_CPU_MONAHANS
+#if defined(CONFIG_CPU_PXA)
 	struct pxafb_info *fbi = &panel_info.pxa;
 #elif defined(CONFIG_MPC823)
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
@@ -528,7 +530,7 @@ void bitmap_plot (int x, int y)
 
 	if (NBITS(panel_info.vl_bpix) < 12) {
 		/* Leave room for default color map */
-#if defined CONFIG_PXA250 || defined CONFIG_PXA27X || defined CONFIG_CPU_MONAHANS
+#if defined(CONFIG_CPU_PXA)
 		cmap = (ushort *)fbi->palette;
 #elif defined(CONFIG_MPC823)
 		cmap = (ushort *)&(cp->lcd_cmap[BMP_LOGO_OFFSET*sizeof(ushort)]);
@@ -623,7 +625,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	unsigned long width, height, byte_width;
 	unsigned long pwidth = panel_info.vl_col;
 	unsigned colors, bpix, bmp_bpix;
-#if defined CONFIG_PXA250 || defined CONFIG_PXA27X || defined CONFIG_CPU_MONAHANS
+#if defined(CONFIG_CPU_PXA)
 	struct pxafb_info *fbi = &panel_info.pxa;
 #elif defined(CONFIG_MPC823)
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
@@ -663,7 +665,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #if !defined(CONFIG_MCC200)
 	/* MCC200 LCD doesn't need CMAP, supports 1bpp b&w only */
 	if (bmp_bpix == 8) {
-#if defined CONFIG_PXA250 || defined CONFIG_PXA27X || defined CONFIG_CPU_MONAHANS
+#if defined(CONFIG_CPU_PXA)
 		cmap = (ushort *)fbi->palette;
 #elif defined(CONFIG_MPC823)
 		cmap = (ushort *)&(cp->lcd_cmap[255*sizeof(ushort)]);
@@ -752,7 +754,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			WATCHDOG_RESET();
 			for (j = 0; j < width; j++) {
 				if (bpix != 16) {
-#if defined CONFIG_PXA250 || defined CONFIG_PXA27X || defined CONFIG_CPU_MONAHANS || defined(CONFIG_ATMEL_LCD)
+#if defined(CONFIG_CPU_PXA) || defined(CONFIG_ATMEL_LCD)
 					*(fb++) = *(bmap++);
 #elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
 					*(fb++) = 255 - *(bmap++);

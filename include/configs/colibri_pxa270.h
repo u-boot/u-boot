@@ -25,7 +25,7 @@
 /*
  * High Level Board Configuration Options
  */
-#define	CONFIG_PXA27X		1	/* Marvell PXA270 CPU */
+#define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_VPAC270		1	/* Toradex Colibri PXA270 board */
 
 #undef	CONFIG_BOARD_LATE_INIT

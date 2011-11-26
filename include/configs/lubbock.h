@@ -34,7 +34,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_PXA250		1	/* This is an PXA250 CPU    */
+#define CONFIG_CPU_PXA25X		1	/* This is an PXA250 CPU    */
 #define CONFIG_LUBBOCK		1	/* on an LUBBOCK Board	    */
 #define CONFIG_LCD		1
 #ifdef CONFIG_LCD

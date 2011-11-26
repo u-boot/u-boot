@@ -49,7 +49,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	BTUART_INDEX	0
 #define	FFUART_INDEX	1
 #define	STUART_INDEX	2
-#elif	CONFIG_PXA250
+#elif	CONFIG_CPU_PXA25X
 #define	UART_CLK_BASE	(1 << 4)	/* HWUART */
 #define	UART_CLK_REG	CKEN
 #define	HWUART_INDEX	0
@@ -68,7 +68,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * Only PXA250 has HWUART, to avoid poluting the code with more macros,
  * artificially introduce this.
  */
-#ifndef	CONFIG_PXA250
+#ifndef	CONFIG_CPU_PXA25X
 #define	HWUART_INDEX	0xff
 #endif
 

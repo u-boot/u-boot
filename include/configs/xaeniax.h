@@ -40,7 +40,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_PXA250		1	/* This is an PXA255 CPU    */
+#define CONFIG_CPU_PXA25X		1	/* This is an PXA255 CPU    */
 #define CONFIG_XAENIAX		1	/* on a xaeniax board	    */
 #define	CONFIG_SYS_TEXT_BASE	0x0
 

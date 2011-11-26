@@ -27,7 +27,7 @@
 /*
  * High Level Board Configuration Options
  */
-#define	CONFIG_PXA250			1	/* Intel PXA255 CPU */
+#define	CONFIG_CPU_PXA25X			1	/* Intel PXA255 CPU */
 #define	CONFIG_PALMTC			1	/* Palm Tungsten|C board */
 
 /*

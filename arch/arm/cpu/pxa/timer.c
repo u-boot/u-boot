@@ -35,9 +35,9 @@
 #error: interrupts not implemented yet
 #endif
 
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 #define TIMER_FREQ_HZ 3250000
-#elif defined(CONFIG_PXA250)
+#elif defined(CONFIG_CPU_PXA25X)
 #define TIMER_FREQ_HZ 3686400
 #else
 #error "Timer frequency unknown - please config PXA CPU type"

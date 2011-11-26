@@ -234,21 +234,21 @@ void pxa_gpio_setup(void)
 	writel(CONFIG_SYS_GPSR0_VAL, GPSR0);
 	writel(CONFIG_SYS_GPSR1_VAL, GPSR1);
 	writel(CONFIG_SYS_GPSR2_VAL, GPSR2);
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 	writel(CONFIG_SYS_GPSR3_VAL, GPSR3);
 #endif
 
 	writel(CONFIG_SYS_GPCR0_VAL, GPCR0);
 	writel(CONFIG_SYS_GPCR1_VAL, GPCR1);
 	writel(CONFIG_SYS_GPCR2_VAL, GPCR2);
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 	writel(CONFIG_SYS_GPCR3_VAL, GPCR3);
 #endif
 
 	writel(CONFIG_SYS_GPDR0_VAL, GPDR0);
 	writel(CONFIG_SYS_GPDR1_VAL, GPDR1);
 	writel(CONFIG_SYS_GPDR2_VAL, GPDR2);
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 	writel(CONFIG_SYS_GPDR3_VAL, GPDR3);
 #endif
 
@@ -258,7 +258,7 @@ void pxa_gpio_setup(void)
 	writel(CONFIG_SYS_GAFR1_U_VAL, GAFR1_U);
 	writel(CONFIG_SYS_GAFR2_L_VAL, GAFR2_L);
 	writel(CONFIG_SYS_GAFR2_U_VAL, GAFR2_U);
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 	writel(CONFIG_SYS_GAFR3_L_VAL, GAFR3_L);
 	writel(CONFIG_SYS_GAFR3_U_VAL, GAFR3_U);
 #endif
@@ -270,7 +270,7 @@ void pxa_interrupt_setup(void)
 {
 	writel(0, ICLR);
 	writel(0, ICMR);
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 	writel(0, ICLR2);
 	writel(0, ICMR2);
 #endif

@@ -39,7 +39,7 @@
 #include <config.h>
 #include <version.h>
 
-#ifdef CONFIG_PXA25X
+#ifdef CONFIG_CPU_PXA25X
 #if ((CONFIG_SYS_INIT_SP_ADDR) != 0xfffff800)
 #error "Init SP address must be set to 0xfffff800 for PXA250"
 #endif
@@ -160,7 +160,7 @@ reset:
 	bl  cpu_init_crit
 #endif
 
-#ifdef	CONFIG_PXA250
+#ifdef	CONFIG_CPU_PXA25X
 	bl	lock_cache_for_stack
 #endif
 
@@ -191,7 +191,7 @@ stack_setup:
 	mov	sp, r4
 
 /* Disable the Dcache RAM lock for stack now */
-#ifdef	CONFIG_PXA250
+#ifdef	CONFIG_CPU_PXA25X
 	bl	cpu_init_crit
 #endif
 
@@ -307,7 +307,7 @@ _dynsym_start_ofs:
  *
  *************************************************************************
  */
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) || defined(CONFIG_PXA250)
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) || defined(CONFIG_CPU_PXA25X)
 cpu_init_crit:
 	/*
 	 * flush v4 I/D caches
@@ -327,7 +327,7 @@ cpu_init_crit:
 	mcr	p15, 0, r0, c1, c0, 0
 
 	mov	pc, lr		/* back to my caller */
-#endif /* !CONFIG_SKIP_LOWLEVEL_INIT || CONFIG_PXA250 */
+#endif /* !CONFIG_SKIP_LOWLEVEL_INIT || CONFIG_CPU_PXA25X */
 
 #ifndef CONFIG_SPL_BUILD
 /*
@@ -519,7 +519,7 @@ fiq:
  * This is useful on PXA25x and PXA26x in early bootstages, where there is no
  * other possible memory available to hold stack.
  */
-#ifdef CONFIG_PXA250
+#ifdef CONFIG_CPU_PXA25X
 .macro CPWAIT reg
 	mrc	p15, 0, \reg, c2, c0, 0
 	mov	\reg, \reg
@@ -602,4 +602,4 @@ mmutable:
 
 	/* 0xfff00000 : 1:1, cached mapping */
 	.word	(0xfff << 20) | 0x1c1e
-#endif	/* CONFIG_PXA250 */
+#endif	/* CONFIG_CPU_PXA25X */
