@@ -28,8 +28,6 @@
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_SYS_TEXT_BASE		0x0
 
-#define	CONFIG_DISPLAY_CPUINFO
-
 /*
  * Environment settings
  */
@@ -90,27 +88,6 @@
 #define	CONFIG_BOOTP_BOOTPATH
 #define	CONFIG_BOOTP_GATEWAY
 #define	CONFIG_BOOTP_HOSTNAME
-#endif
-
-/*
- * MMC Card Configuration
- */
-#ifdef	CONFIG_CMD_MMC
-#define	CONFIG_MMC
-#define	CONFIG_GENERIC_MMC
-#define	CONFIG_PXA_MMC_GENERIC
-#define	CONFIG_SYS_MMC_BASE		0xF0000000
-#define	CONFIG_CMD_FAT
-#define	CONFIG_CMD_EXT2
-#define	CONFIG_DOS_PARTITION
-#endif
-
-/*
- * KGDB
- */
-#ifdef	CONFIG_CMD_KGDB
-#define	CONFIG_KGDB_BAUDRATE		230400		/* speed to run kgdb serial port */
-#define	CONFIG_KGDB_SER_INDEX		2		/* which serial port to use */
 #endif
 
 /*
@@ -263,17 +240,6 @@
 #define	CONFIG_SYS_MCIO0_VAL	0x0001430f
 #define	CONFIG_SYS_MCIO1_VAL	0x0001430f
 
-/*
- * USB
- */
-#ifdef CONFIG_CMD_USB
-#define	CONFIG_USB_OHCI_NEW
-#define	CONFIG_SYS_USB_OHCI_CPU_INIT
-#define	CONFIG_SYS_USB_OHCI_BOARD_INIT
-#define	CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-#define	CONFIG_SYS_USB_OHCI_REGS_BASE	0x4C000000
-#define	CONFIG_SYS_USB_OHCI_SLOT_NAME	"tdex270"
-#define	CONFIG_USB_STORAGE
-#endif
+#include "pxa-common.h"
 
 #endif	/* __CONFIG_H */
