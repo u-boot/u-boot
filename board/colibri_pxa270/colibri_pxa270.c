@@ -21,26 +21,19 @@
 
 #include <common.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/regs-mmc.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <serial.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* ------------------------------------------------------------------------- */
-
-/*
- * Miscelaneous platform dependent initialisations
- */
-extern struct serial_device serial_ffuart_device;
-extern struct serial_device serial_btuart_device;
-extern struct serial_device serial_stuart_device;
-
-struct serial_device *default_serial_console (void)
+struct serial_device *default_serial_console(void)
 {
 	return &serial_ffuart_device;
 }
 
-int board_init (void)
+int board_init(void)
 {
 	/* We have RAM, disable cache */
 	dcache_disable();
@@ -63,12 +56,6 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-}
-
 #ifdef	CONFIG_CMD_USB
 int usb_board_init(void)
 {
@@ -78,7 +65,8 @@ int usb_board_init(void)
 
 	writel(readl(UHCHR) | UHCHR_FSBIR, UHCHR);
 
-	while (UHCHR & UHCHR_FSBIR);
+	while (UHCHR & UHCHR_FSBIR)
+		;
 
 	writel(readl(UHCHR) & ~UHCHR_SSE, UHCHR);
 	writel((UHCHIE_UPRIE | UHCHIE_RWIE), UHCHIE);
@@ -124,5 +112,13 @@ void usb_board_stop(void)
 int board_eth_init(bd_t *bis)
 {
 	return dm9000_initialize(bis);
+}
+#endif
+
+#ifdef	CONFIG_CMD_MMC
+int board_mmc_init(bd_t *bis)
+{
+	pxa_mmc_register(0);
+	return 0;
 }
 #endif

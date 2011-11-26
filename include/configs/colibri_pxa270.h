@@ -26,20 +26,16 @@
  * High Level Board Configuration Options
  */
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
-#define	CONFIG_VPAC270		1	/* Toradex Colibri PXA270 board */
+#define	CONFIG_SYS_TEXT_BASE		0x0
 
-#undef	CONFIG_BOARD_LATE_INIT
-#undef	CONFIG_USE_IRQ
-#undef	CONFIG_SKIP_LOWLEVEL_INIT
+#define	CONFIG_DISPLAY_CPUINFO
 
 /*
  * Environment settings
  */
-#define	CONFIG_ENV_SIZE			0x4000
-#define	CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
-#define	CONFIG_SYS_TEXT_BASE		0x0
-#define	CONFIG_ENV_OVERWRITE		/* override default environment */
-
+#define	CONFIG_ENV_OVERWRITE
+#define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
+#define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\
 	"if mmc init && fatload mmc 0 0xa0000000 uImage; then "		\
 		"bootm 0xa0000000; "					\
@@ -53,8 +49,8 @@
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
-
 #define	CONFIG_LZMA			/* LZMA compression support */
+#define	CONFIG_OF_LIBFDT
 
 /*
  * Serial Console Configuration
@@ -101,9 +97,11 @@
  */
 #ifdef	CONFIG_CMD_MMC
 #define	CONFIG_MMC
-#define	CONFIG_PXA_MMC
+#define	CONFIG_GENERIC_MMC
+#define	CONFIG_PXA_MMC_GENERIC
 #define	CONFIG_SYS_MMC_BASE		0xF0000000
 #define	CONFIG_CMD_FAT
+#define	CONFIG_CMD_EXT2
 #define	CONFIG_DOS_PARTITION
 #endif
 
@@ -121,34 +119,37 @@
 #define	CONFIG_SYS_HUSH_PARSER		1
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
+#define	CONFIG_SYS_LONGHELP
 #ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT		"$ "		/* Monitor Command Prompt */
+#define	CONFIG_SYS_PROMPT		"$ "
 #else
-#define	CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt */
+#define	CONFIG_SYS_PROMPT		"=> "
 #endif
-#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
-#define	CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
-#define	CONFIG_SYS_MAXARGS		16		/* max number of command args */
-#define	CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
+#define	CONFIG_SYS_CBSIZE		256
+#define	CONFIG_SYS_PBSIZE		\
+	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
+#define	CONFIG_SYS_MAXARGS		16
+#define	CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
+#define	CONFIG_CMDLINE_EDITING		1
+#define	CONFIG_AUTO_COMPLETE		1
+
 
 /*
  * Clock Configuration
  */
-#undef	CONFIG_SYS_CLKS_IN_HZ
-#define	CONFIG_SYS_HZ			3250000		/* Timer @ 3250000 Hz */
-#define CONFIG_SYS_CPUSPEED		0x290		/* 520 MHz */
+#define	CONFIG_SYS_HZ			1000		/* Timer @ 3250000 Hz */
+#define	CONFIG_SYS_CPUSPEED		0x290		/* 520MHz */
 
 /*
  * Stack sizes
  *
  * The stack sizes are set up in start.S using the settings below
  */
-#define	CONFIG_STACKSIZE		(128*1024)	/* regular stack */
+#define	CONFIG_STACKSIZE		(128 * 1024)	/* regular stack */
 #ifdef	CONFIG_USE_IRQ
-#define	CONFIG_STACKSIZE_IRQ		(4*1024)	/* IRQ stack */
-#define	CONFIG_STACKSIZE_FIQ		(4*1024)	/* FIQ stack */
+#define	CONFIG_STACKSIZE_IRQ		(4 * 1024)	/* IRQ stack */
+#define	CONFIG_STACKSIZE_FIQ		(4 * 1024)	/* FIQ stack */
 #endif
 
 /*
@@ -164,10 +165,9 @@
 #define CONFIG_SYS_MEMTEST_START	0xa0400000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0xa0800000	/* 4 ... 8 MB in DRAM */
 
-#define	CONFIG_SYS_LOAD_ADDR		(0xa1000000)
-
+#define	CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1)
+#define	CONFIG_SYS_INIT_SP_ADDR		0x5c010000
 
 /*
  * NOR FLASH
@@ -182,8 +182,8 @@
 #define	CONFIG_SYS_MAX_FLASH_SECT	(4 + 255)
 #define	CONFIG_SYS_MAX_FLASH_BANKS	1
 
-#define	CONFIG_SYS_FLASH_ERASE_TOUT	(25*CONFIG_SYS_HZ)
-#define	CONFIG_SYS_FLASH_WRITE_TOUT	(25*CONFIG_SYS_HZ)
+#define	CONFIG_SYS_FLASH_ERASE_TOUT	(25 * CONFIG_SYS_HZ)
+#define	CONFIG_SYS_FLASH_WRITE_TOUT	(25 * CONFIG_SYS_HZ)
 
 #define	CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 #define	CONFIG_SYS_FLASH_PROTECTION		1
@@ -195,14 +195,15 @@
 #define	CONFIG_SYS_ENV_IS_NOWHERE
 #endif
 
-#define	CONFIG_SYS_MONITOR_BASE		0x000000
-#define	CONFIG_SYS_MONITOR_LEN		0x40000
+#define	CONFIG_SYS_MONITOR_BASE		0x0
+#define	CONFIG_SYS_MONITOR_LEN		0x80000
 
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_ENV_SECT_SIZE	0x40000
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
-
+#define	CONFIG_ENV_ADDR			\
+			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+#define	CONFIG_ENV_SIZE			0x40000
+#define	CONFIG_ENV_SECT_SIZE		0x40000
+#define CONFIG_ENV_ADDR_REDUND		(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 
 /*
  * GPIO settings
