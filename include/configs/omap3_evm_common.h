@@ -73,9 +73,6 @@
 #define PHYS_SDRAM_1_SIZE		(32 << 20)
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C
-
 /* Limits for memtest */
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \

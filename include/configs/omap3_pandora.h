@@ -240,9 +240,6 @@
 #define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C		1
-
 #define CONFIG_SYS_TEXT_BASE		0x80008000
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800

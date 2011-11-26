@@ -286,9 +286,6 @@
 #define PHYS_SDRAM_1_SIZE		(128 << 20)	/* at least 128 MiB */
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C			1
-
 /* NAND and environment organization  */
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
 

@@ -295,9 +295,6 @@
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
 #define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C		1
-
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
