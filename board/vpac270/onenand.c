@@ -26,8 +26,7 @@
 #include <config.h>
 #include <asm/io.h>
 #include <onenand_uboot.h>
-
-extern void pxa_dram_init(void);
+#include <asm/arch/pxa.h>
 
 void board_init_f(unsigned long unused)
 {

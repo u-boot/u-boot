@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/pxa.h>
 #include <serial.h>
 #include <asm/io.h>
 #include <spartan3.h>
@@ -57,7 +58,6 @@ struct serial_device *default_serial_console(void)
 	return &serial_stuart_device;
 }
 
-extern void pxa_dram_init(void);
 int dram_init(void)
 {
 	pxa_dram_init();

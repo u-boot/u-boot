@@ -23,6 +23,7 @@
 #include <command.h>
 #include <serial.h>
 #include <asm/io.h>
+#include <asm/arch/pxa.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,7 +56,6 @@ struct serial_device *default_serial_console(void)
 	return &serial_ffuart_device;
 }
 
-extern void pxa_dram_init(void);
 int dram_init(void)
 {
 	pxa_dram_init();

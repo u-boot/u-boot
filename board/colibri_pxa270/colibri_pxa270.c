@@ -22,6 +22,7 @@
 #include <common.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/regs-mmc.h>
+#include <asm/arch/pxa.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <serial.h>
@@ -48,7 +49,6 @@ int board_init(void)
 	return 0;
 }
 
-extern void pxa_dram_init(void);
 int dram_init(void)
 {
 	pxa_dram_init();
