@@ -26,85 +26,49 @@
  * MA 02111-1307 USA
  */
 
-/*
- * CPU specific code
- */
-
 #include <asm/io.h>
 #include <asm/system.h>
 #include <command.h>
 #include <common.h>
 #include <asm/arch/pxa-regs.h>
 
-static void cache_flush(void);
-
-int cleanup_before_linux (void)
-{
-	/*
-	 * this function is called just before we call linux
-	 * it prepares the processor for linux
-	 *
-	 * just disable everything that can disturb booting linux
-	 */
-
-	disable_interrupts ();
-
-	/* turn off I-cache */
-	icache_disable();
-	dcache_disable();
-
-	/* flush I-cache */
-	cache_flush();
-
-	return (0);
-}
-
-/* flush I/D-cache */
-static void cache_flush (void)
+/* Flush I/D-cache */
+static void cache_flush(void)
 {
 	unsigned long i = 0;
 
-	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+	asm ("mcr p15, 0, %0, c7, c5, 0" : : "r" (i));
 }
 
-#ifndef CONFIG_CPU_MONAHANS
-void set_GPIO_mode(int gpio_mode)
+int cleanup_before_linux(void)
 {
-	int gpio = gpio_mode & GPIO_MD_MASK_NR;
-	int fn = (gpio_mode & GPIO_MD_MASK_FN) >> 8;
-	int val;
+	/*
+	 * This function is called just before we call Linux. It prepares
+	 * the processor for Linux by just disabling everything that can
+	 * disturb booting Linux.
+	 */
 
-	/* This below changes direction setting of GPIO "gpio" */
-	val = readl(GPDR(gpio));
+	disable_interrupts();
+	icache_disable();
+	dcache_disable();
+	cache_flush();
 
-	if (gpio_mode & GPIO_MD_MASK_DIR)
-		val |= GPIO_bit(gpio);
-	else
-		val &= ~GPIO_bit(gpio);
-
-	writel(val, GPDR(gpio));
-
-	/* This below updates only AF of GPIO "gpio" */
-	val = readl(GAFR(gpio));
-	val &= ~(0x3 << (((gpio) & 0xf) * 2));
-	val |= fn << (((gpio) & 0xf) * 2);
-	writel(val, GAFR(gpio));
+	return 0;
 }
-#endif /* CONFIG_CPU_MONAHANS */
 
 void pxa_wait_ticks(int ticks)
 {
 	writel(0, OSCR);
 	while (readl(OSCR) < ticks)
-		asm volatile("":::"memory");
+		asm volatile("" : : : "memory");
 }
 
 inline void writelrb(uint32_t val, uint32_t addr)
 {
 	writel(val, addr);
-	asm volatile("":::"memory");
+	asm volatile("" : : : "memory");
 	readl(addr);
-	asm volatile("":::"memory");
+	asm volatile("" : : : "memory");
 }
 
 void pxa_dram_init(void)
@@ -201,7 +165,7 @@ void pxa_dram_init(void)
 	 */
 	for (i = 9; i >= 0; i--) {
 		writel(i, 0xa0000000);
-		asm volatile("":::"memory");
+		asm volatile("" : : : "memory");
 	}
 	/*
 	 * 9) Write MDCNFG with enable bits asserted (MDCNFG:DEx set to 1).
@@ -234,21 +198,21 @@ void pxa_gpio_setup(void)
 	writel(CONFIG_SYS_GPSR0_VAL, GPSR0);
 	writel(CONFIG_SYS_GPSR1_VAL, GPSR1);
 	writel(CONFIG_SYS_GPSR2_VAL, GPSR2);
-#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X)
 	writel(CONFIG_SYS_GPSR3_VAL, GPSR3);
 #endif
 
 	writel(CONFIG_SYS_GPCR0_VAL, GPCR0);
 	writel(CONFIG_SYS_GPCR1_VAL, GPCR1);
 	writel(CONFIG_SYS_GPCR2_VAL, GPCR2);
-#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X)
 	writel(CONFIG_SYS_GPCR3_VAL, GPCR3);
 #endif
 
 	writel(CONFIG_SYS_GPDR0_VAL, GPDR0);
 	writel(CONFIG_SYS_GPDR1_VAL, GPDR1);
 	writel(CONFIG_SYS_GPDR2_VAL, GPDR2);
-#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X)
 	writel(CONFIG_SYS_GPDR3_VAL, GPDR3);
 #endif
 
@@ -258,7 +222,7 @@ void pxa_gpio_setup(void)
 	writel(CONFIG_SYS_GAFR1_U_VAL, GAFR1_U);
 	writel(CONFIG_SYS_GAFR2_L_VAL, GAFR2_L);
 	writel(CONFIG_SYS_GAFR2_U_VAL, GAFR2_U);
-#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X)
 	writel(CONFIG_SYS_GAFR3_L_VAL, GAFR3_L);
 	writel(CONFIG_SYS_GAFR3_U_VAL, GAFR3_U);
 #endif
@@ -270,7 +234,7 @@ void pxa_interrupt_setup(void)
 {
 	writel(0, ICLR);
 	writel(0, ICMR);
-#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X)
 	writel(0, ICLR2);
 	writel(0, ICMR2);
 #endif
@@ -278,18 +242,14 @@ void pxa_interrupt_setup(void)
 
 void pxa_clock_setup(void)
 {
-#ifndef CONFIG_CPU_MONAHANS
 	writel(CONFIG_SYS_CKEN, CKEN);
 	writel(CONFIG_SYS_CCCR, CCCR);
-	asm volatile("mcr	p14, 0, %0, c6, c0, 0"::"r"(2));
-#else
-/* Set CKENA/CKENB/ACCR for MH */
-#endif
+	asm volatile("mcr	p14, 0, %0, c6, c0, 0" : : "r"(2));
 
 	/* enable the 32Khz oscillator for RTC and PowerManager */
 	writel(OSCC_OON, OSCC);
-	while(!(readl(OSCC) & OSCC_OOK))
-		asm volatile("":::"memory");
+	while (!(readl(OSCC) & OSCC_OOK))
+		asm volatile("" : : : "memory");
 }
 
 void pxa_wakeup(void)
@@ -305,14 +265,13 @@ void pxa_wakeup(void)
 		pxa_dram_init();
 		icache_disable();
 		dcache_disable();
-		asm volatile("mov	pc, %0"::"r"(readl(PSPR)));
+		asm volatile("mov	pc, %0" : : "r"(readl(PSPR)));
 	}
 }
 
 int arch_cpu_init(void)
 {
 	pxa_gpio_setup();
-/*	pxa_wait_ticks(0x8000); */
 	pxa_wakeup();
 	pxa_interrupt_setup();
 	pxa_clock_setup();
@@ -321,12 +280,8 @@ int arch_cpu_init(void)
 
 void i2c_clk_enable(void)
 {
-	/* set the global I2C clock on */
-#ifdef CONFIG_CPU_MONAHANS
-	writel(readl(CKENB) | (CKENB_4_I2C), CKENB);
-#else
+	/* Set the global I2C clock on */
 	writel(readl(CKEN) | CKEN14_I2C, CKEN);
-#endif
 }
 
 void reset_cpu(ulong ignored) __attribute__((noreturn));

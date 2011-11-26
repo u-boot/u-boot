@@ -27,7 +27,10 @@ LIB	= $(obj)lib$(CPU).o
 
 START	= start.o
 
-COBJS	+= cpu.o
+COBJS-$(CONFIG_CPU_PXA25X)	= pxa2xx.o
+COBJS-$(CONFIG_CPU_PXA27X)	= pxa2xx.o
+
+COBJS	= $(COBJS-y)
 COBJS	+= pxafb.o
 COBJS	+= timer.o
 COBJS	+= usb.o
