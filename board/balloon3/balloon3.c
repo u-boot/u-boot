@@ -60,7 +60,7 @@ struct serial_device *default_serial_console(void)
 
 int dram_init(void)
 {
-	pxa_dram_init();
+	pxa2xx_dram_init();
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }

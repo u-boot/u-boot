@@ -71,7 +71,7 @@ inline void writelrb(uint32_t val, uint32_t addr)
 	asm volatile("" : : : "memory");
 }
 
-void pxa_dram_init(void)
+void pxa2xx_dram_init(void)
 {
 	uint32_t tmp;
 	int i;
@@ -262,7 +262,7 @@ void pxa_wakeup(void)
 	/* Wakeup */
 	if (rcsr & RCSR_SMR) {
 		writel(PSSR_PH, PSSR);
-		pxa_dram_init();
+		pxa2xx_dram_init();
 		icache_disable();
 		dcache_disable();
 		asm volatile("mov	pc, %0" : : "r"(readl(PSPR)));

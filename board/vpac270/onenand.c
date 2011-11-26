@@ -45,7 +45,7 @@ void board_init_f(unsigned long unused)
 
 	/* Hereby, the code runs from (S)RAM, copy U-Boot and execute it. */
 	arch_cpu_init();
-	pxa_dram_init();
+	pxa2xx_dram_init();
 	onenand_spl_load_image(CONFIG_SPL_ONENAND_LOAD_ADDR,
 				CONFIG_SPL_ONENAND_LOAD_SIZE,
 				(void *)CONFIG_SYS_TEXT_BASE);

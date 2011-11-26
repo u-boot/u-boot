@@ -24,6 +24,6 @@
 
 int cpu_is_pxa25x(void);
 int cpu_is_pxa27x(void);
-void pxa_dram_init(void);
+void pxa2xx_dram_init(void);
 
 #endif	/* __PXA_H__ */
