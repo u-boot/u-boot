@@ -61,7 +61,6 @@
 #endif	/* CONFIG_ENV_IS_IN_FLASH */
 
 #if defined(ENV_IS_EMBEDDED) && !defined(CONFIG_BUILD_ENVCRC)
-# include <environment.h>
 # define CONFIG_BUILD_ENVCRC 1
 #endif
 
@@ -74,12 +73,13 @@
 #define ENV_SIZE (CONFIG_ENV_SIZE - ENV_HEADER_SIZE)
 
 
-extern uint32_t crc32 (uint32_t, const unsigned char *, unsigned int);
-
 #ifdef CONFIG_BUILD_ENVCRC
+# include <environment.h>
 extern unsigned int env_size;
 extern env_t environment;
 #endif	/* CONFIG_BUILD_ENVCRC */
+
+extern uint32_t crc32 (uint32_t, const unsigned char *, unsigned int);
 
 int main (int argc, char **argv)
 {
