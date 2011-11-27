@@ -1190,7 +1190,7 @@ block_dev_desc_t *mmc_get_dev(int dev)
 
 int mmc_init(struct mmc *mmc)
 {
-	int err, retry = 3;
+	int err;
 
 	if (mmc->has_init)
 		return 0;
@@ -1213,19 +1213,7 @@ int mmc_init(struct mmc *mmc)
 	mmc->part_num = 0;
 
 	/* Test for SD version 2 */
-	/*
-	 * retry here for 3 times, as for some controller it has dynamic
-	 * clock gating, and only toggle out clk when the first cmd0 send
-	 * out, while some card strictly obey the 74 clocks rule, the interval
-	 * may not be sufficient between the cmd0 and this cmd8, retry to
-	 * fulfil the clock requirement
-	 */
-	do {
-		err = mmc_send_if_cond(mmc);
-	} while (--retry > 0 && err);
-
-	if (err)
-		return err;
+	err = mmc_send_if_cond(mmc);
 
 	/* Now try to get the SD card's operating condition */
 	err = sd_send_op_cond(mmc);
