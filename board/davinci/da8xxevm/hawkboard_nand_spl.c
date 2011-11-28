@@ -71,15 +71,9 @@ static const struct pinmux_config uart2_pins[] = {
 	{ pinmux(4), 2, 5 }
 };
 
-static const struct pinmux_config i2c_pins[] = {
-	{ pinmux(4), 2, 4 },
-	{ pinmux(4), 2, 5 }
-};
-
 static const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(mii_pins),
 	PINMUX_ITEM(mdio_pins),
-	PINMUX_ITEM(i2c_pins),
 	PINMUX_ITEM(nand_pins),
 	PINMUX_ITEM(uart2_pins),
 };
