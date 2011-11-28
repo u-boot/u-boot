@@ -41,6 +41,8 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
+#define CONFIG_ENV_IS_NOWHERE
+
 /* SD/MMC */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
