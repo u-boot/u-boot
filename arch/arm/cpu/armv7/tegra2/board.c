@@ -80,6 +80,10 @@ int arch_cpu_init(void)
 {
 	/* Fire up the Cortex A9 */
 	tegra2_start();
+
+	/* We didn't do this init in start.S, so do it now */
+	cpu_init_cp15();
+
 	return 0;
 }
 #endif

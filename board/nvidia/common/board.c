@@ -143,9 +143,6 @@ int board_early_init_f(void)
 	uart_ids |= UARTD;
 #endif
 
-	/* We didn't do this init in start.S, so do it now */
-	cpu_init_cp15();
-
 	/* Initialize essential common plls */
 	clock_early_init();
 
