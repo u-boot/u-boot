@@ -223,6 +223,9 @@ int misc_init_r(void)
 }
 
 static const struct pinmux_resource pinmuxes[] = {
+#ifdef CONFIG_DRIVER_TI_EMAC
+	PINMUX_ITEM(emac_pins),
+#endif
 #ifdef CONFIG_SPI_FLASH
 	PINMUX_ITEM(spi1_pins),
 #endif
@@ -344,9 +347,6 @@ int board_init(void)
 #endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
-	if (davinci_configure_pin_mux(emac_pins, ARRAY_SIZE(emac_pins)) != 0)
-		return 1;
-
 	davinci_emac_mii_mode_sel(HAS_RMII);
 #endif /* CONFIG_DRIVER_TI_EMAC */
 
