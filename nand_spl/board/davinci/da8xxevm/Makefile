@@ -43,6 +43,7 @@ SOBJS	= _divsi3.o \
 COBJS	= cpu.o \
 	davinci_nand.o \
 	pinmux.o \
+	da850_pinmux.o \
 	div0.o \
 	hawkboard_nand_spl.o \
 	memsize.o \
@@ -81,6 +82,10 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 $(obj)pinmux.c:
 	@rm -f $@
 	@ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/pinmux.c $@
+
+$(obj)da850_pinmux.c:
+	@rm -f $@
+	@ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/da850_pinmux.c $@
 
 # from drivers/mtd/nand directory
 $(obj)davinci_nand.c:
