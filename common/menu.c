@@ -87,10 +87,12 @@ static inline void *menu_item_print(struct menu *m,
 				struct menu_item *item,
 				void *extra)
 {
-	if (!m->item_data_print)
-		printf("%s\n", item->key);
-	else
+	if (!m->item_data_print) {
+		putc(item->key);
+		putc('\n');
+	} else {
 		m->item_data_print(item->data);
+	}
 
 	return NULL;
 }
@@ -117,8 +119,10 @@ static inline void *menu_item_destroy(struct menu *m,
  */
 static inline void menu_display(struct menu *m)
 {
-	if (m->title)
-		printf("%s:\n", m->title);
+	if (m->title) {
+		puts(m->title);
+		putc('\n');
+	}
 
 	menu_items_iter(m, menu_item_print, NULL);
 }
@@ -226,7 +230,7 @@ static inline int menu_interactive_choice(struct menu *m, void **choice)
 			if (!choice_item)
 				printf("%s not found\n", cbuf);
 		} else {
-			printf("^C\n");
+			puts("^C\n");
 			return -EINTR;
 		}
 	}
