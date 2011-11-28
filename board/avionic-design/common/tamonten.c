@@ -27,6 +27,7 @@
 #include <ns16550.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
+#include <asm/arch/board.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clk_rst.h>
@@ -53,44 +54,6 @@ const struct tegra2_sysinfo sysinfo = {
 int timer_init(void)
 {
 	return 0;
-}
-
-static void enable_uart(enum periph_id pid)
-{
-	/* Assert UART reset and enable clock */
-	reset_set_enable(pid, 1);
-	clock_enable(pid);
-	clock_ll_set_source(pid, 0);	/* UARTx_CLK_SRC = 00, PLLP_OUT0 */
-
-	/* wait for 2us */
-	udelay(2);
-
-	/* De-assert reset to UART */
-	reset_set_enable(pid, 0);
-}
-
-/*
- * Routine: clock_init_uart
- * Description: init the PLL and clock for the UART(s)
- */
-static void clock_init_uart(void)
-{
-#if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	enable_uart(PERIPH_ID_UART4);
-#endif /* CONFIG_TEGRA2_ENABLE_UARTD */
-}
-
-/*
- * Routine: pin_mux_uart
- * Description: setup the pin muxes/tristate values for the UART(s)
- */
-static void pin_mux_uart(void)
-{
-#if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
-
-	pinmux_tristate_disable(PINGRP_GMC);
-#endif /* CONFIG_TEGRA2_ENABLE_UARTD */
 }
 
 #ifdef CONFIG_TEGRA2_MMC
@@ -146,15 +109,8 @@ int board_mmc_init(bd_t *bd)
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	/* Initialize essential common plls */
-	clock_early_init();
-
-	/* Initialize UART clocks */
-	clock_init_uart();
-
-	/* Initialize periph pinmuxes */
-	pin_mux_uart();
-
+	/* Initialize selected UARTs */
+	board_init_uart_f();
 	return 0;
 }
 #endif /* EARLY_INIT */

@@ -27,6 +27,7 @@
 #include <asm/arch/tegra2.h>
 #include <asm/arch/sys_proto.h>
 
+#include <asm/arch/board.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
@@ -35,13 +36,6 @@
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-enum {
-	/* UARTs which we can enable */
-	UARTA	= 1 << 0,
-	UARTB	= 1 << 1,
-	UARTD	= 1 << 3,
-};
 
 const struct tegra2_sysinfo sysinfo = {
 	CONFIG_TEGRA2_BOARD_STRING
@@ -54,56 +48,6 @@ const struct tegra2_sysinfo sysinfo = {
 int timer_init(void)
 {
 	return 0;
-}
-
-static void enable_uart(enum periph_id pid)
-{
-	/* Assert UART reset and enable clock */
-	reset_set_enable(pid, 1);
-	clock_enable(pid);
-	clock_ll_set_source(pid, 0);	/* UARTx_CLK_SRC = 00, PLLP_OUT0 */
-
-	/* wait for 2us */
-	udelay(2);
-
-	/* De-assert reset to UART */
-	reset_set_enable(pid, 0);
-}
-
-/*
- * Routine: clock_init_uart
- * Description: init clock for the UART(s)
- */
-static void clock_init_uart(int uart_ids)
-{
-	if (uart_ids & UARTA)
-		enable_uart(PERIPH_ID_UART1);
-	if (uart_ids & UARTB)
-		enable_uart(PERIPH_ID_UART2);
-	if (uart_ids & UARTD)
-		enable_uart(PERIPH_ID_UART4);
-}
-
-/*
- * Routine: pin_mux_uart
- * Description: setup the pin muxes/tristate values for the UART(s)
- */
-static void pin_mux_uart(int uart_ids)
-{
-	if (uart_ids & UARTA) {
-		pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
-		pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
-		pinmux_tristate_disable(PINGRP_IRRX);
-		pinmux_tristate_disable(PINGRP_IRTX);
-	}
-	if (uart_ids & UARTB) {
-		pinmux_set_func(PINGRP_UAD, PMUX_FUNC_IRDA);
-		pinmux_tristate_disable(PINGRP_UAD);
-	}
-	if (uart_ids & UARTD) {
-		pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
-		pinmux_tristate_disable(PINGRP_GMC);
-	}
 }
 
 /*
@@ -131,23 +75,7 @@ int board_init(void)
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	int uart_ids = 0;	/* bit mask of which UART ids to enable */
-
-#ifdef CONFIG_TEGRA2_ENABLE_UARTA
-	uart_ids |= UARTA;
-#endif
-#ifdef CONFIG_TEGRA2_ENABLE_UARTB
-	uart_ids |= UARTB;
-#endif
-#ifdef CONFIG_TEGRA2_ENABLE_UARTD
-	uart_ids |= UARTD;
-#endif
-
-	/* Initialize UART clocks */
-	clock_init_uart(uart_ids);
-
-	/* Initialize periph pinmuxes */
-	pin_mux_uart(uart_ids);
+	board_init_uart_f();
 
 	/* Initialize periph GPIOs */
 #ifdef CONFIG_SPI_UART_SWITCH
