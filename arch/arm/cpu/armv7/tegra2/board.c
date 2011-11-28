@@ -84,6 +84,9 @@ int arch_cpu_init(void)
 	/* We didn't do this init in start.S, so do it now */
 	cpu_init_cp15();
 
+	/* Initialize essential common plls */
+	clock_early_init();
+
 	return 0;
 }
 #endif

@@ -143,9 +143,6 @@ int board_early_init_f(void)
 	uart_ids |= UARTD;
 #endif
 
-	/* Initialize essential common plls */
-	clock_early_init();
-
 	/* Initialize UART clocks */
 	clock_init_uart(uart_ids);
 
