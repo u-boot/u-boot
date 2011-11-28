@@ -348,7 +348,7 @@ int board_nand_init(struct nand_chip *nand)
 
 	nand->chip_delay = 100;
 	/* Default ECC mode */
-#ifndef CONFIG_SPL_BUILD
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_NAND_SOFTECC)
 	nand->ecc.mode = NAND_ECC_SOFT;
 #else
 	nand->ecc.mode = NAND_ECC_HW;
@@ -359,7 +359,9 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.correct = omap_correct_data;
 	nand->ecc.calculate = omap_calculate_ecc;
 	omap_hwecc_init(nand);
+#endif
 
+#ifdef CONFIG_SPL_BUILD
 	if (nand->options & NAND_BUSWIDTH_16)
 		nand->read_buf = nand_read_buf16;
 	else
