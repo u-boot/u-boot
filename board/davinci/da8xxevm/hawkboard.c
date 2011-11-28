@@ -47,8 +47,8 @@ int board_early_init_f(void)
 	/*
 	 * Kick Registers need to be set to allow access to Pin Mux registers
 	 */
-	writel(HAWKBOARD_KICK0_UNLOCK, &davinci_syscfg_regs->kick0);
-	writel(HAWKBOARD_KICK1_UNLOCK, &davinci_syscfg_regs->kick1);
+	writel(DV_SYSCFG_KICK0_UNLOCK, &davinci_syscfg_regs->kick0);
+	writel(DV_SYSCFG_KICK1_UNLOCK, &davinci_syscfg_regs->kick1);
 
 	/* set cfgchip3 to select mii */
 	writel(readl(&davinci_syscfg_regs->cfgchip3) &

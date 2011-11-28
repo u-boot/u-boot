@@ -93,16 +93,6 @@ u32 omap_boot_device(void)
 
 
 /******************************************************************************
- * Routine: delay
- * Description: spinning delay to use before udelay works
- *****************************************************************************/
-static inline void delay(unsigned long loops)
-{
-	__asm__ volatile ("1:\n" "subs %0, %1, #1\n"
-			  "bne 1b":"=r" (loops):"0"(loops));
-}
-
-/******************************************************************************
  * Routine: secure_unlock
  * Description: Setup security registers for access
  *              (GP Device only)
@@ -227,7 +217,7 @@ void s_init(void)
 #endif
 
 	set_muxconf_regs();
-	delay(100);
+	sdelay(100);
 
 	prcm_init();
 

@@ -52,6 +52,8 @@
 #define CONFIG_SYS_NAND_SMALLPAGE
 #define CONFIG_SYS_USE_NOR
 #define CONFIG_DISPLAY_CPUINFO
+#define MACH_TYPE_SONATA 1254
+#define CONFIG_MACH_TYPE MACH_TYPE_SONATA
 /*===================*/
 /* SoC Configuration */
 /*===================*/
