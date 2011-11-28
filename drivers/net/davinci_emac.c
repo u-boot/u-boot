@@ -41,6 +41,7 @@
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <linux/compiler.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include "davinci_emac.h"
@@ -105,7 +106,8 @@ static volatile emac_desc	*emac_rx_active_tail = 0;
 static int			emac_rx_queue_active = 0;
 
 /* Receive packet buffers */
-static unsigned char		emac_rx_buffers[EMAC_MAX_RX_BUFFERS * (EMAC_MAX_ETHERNET_PKT_SIZE + EMAC_PKT_ALIGN)];
+static unsigned char emac_rx_buffers[EMAC_MAX_RX_BUFFERS * EMAC_RXBUF_SIZE]
+				__aligned(ARCH_DMA_MINALIGN);
 
 #ifndef CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT
 #define CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT	3
@@ -118,6 +120,26 @@ static u_int8_t	active_phy_addr[CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT];
 static u_int8_t	num_phy;
 
 phy_t				phy[CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT];
+
+static inline void davinci_flush_rx_descs(void)
+{
+	/* flush the whole RX descs area */
+	flush_dcache_range(EMAC_WRAPPER_RAM_ADDR + EMAC_RX_DESC_BASE,
+			EMAC_WRAPPER_RAM_ADDR + EMAC_TX_DESC_BASE);
+}
+
+static inline void davinci_invalidate_rx_descs(void)
+{
+	/* invalidate the whole RX descs area */
+	invalidate_dcache_range(EMAC_WRAPPER_RAM_ADDR + EMAC_RX_DESC_BASE,
+			EMAC_WRAPPER_RAM_ADDR + EMAC_TX_DESC_BASE);
+}
+
+static inline void davinci_flush_desc(emac_desc *desc)
+{
+	flush_dcache_range((unsigned long)desc,
+			(unsigned long)desc + sizeof(*desc));
+}
 
 static int davinci_eth_set_mac_addr(struct eth_device *dev)
 {
@@ -470,7 +492,7 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	emac_rx_active_head = emac_rx_desc;
 	for (cnt = 0; cnt < EMAC_MAX_RX_BUFFERS; cnt++) {
 		rx_desc->next = BD_TO_HW((u_int32_t)(rx_desc + 1));
-		rx_desc->buffer = &emac_rx_buffers[cnt * (EMAC_MAX_ETHERNET_PKT_SIZE + EMAC_PKT_ALIGN)];
+		rx_desc->buffer = &emac_rx_buffers[cnt * EMAC_RXBUF_SIZE];
 		rx_desc->buff_off_len = EMAC_MAX_ETHERNET_PKT_SIZE;
 		rx_desc->pkt_flag_len = EMAC_CPPI_OWNERSHIP_BIT;
 		rx_desc++;
@@ -481,6 +503,8 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	rx_desc->next = 0;
 	emac_rx_active_tail = rx_desc;
 	emac_rx_queue_active = 1;
+
+	davinci_flush_rx_descs();
 
 	/* Enable TX/RX */
 	writel(EMAC_MAX_ETHERNET_PKT_SIZE, &adap_emac->RXMAXLEN);
@@ -639,6 +663,11 @@ static int davinci_eth_send_packet (struct eth_device *dev,
 				      EMAC_CPPI_SOP_BIT |
 				      EMAC_CPPI_OWNERSHIP_BIT |
 				      EMAC_CPPI_EOP_BIT);
+
+	flush_dcache_range((unsigned long)packet,
+			(unsigned long)packet + length);
+	davinci_flush_desc(emac_tx_desc);
+
 	/* Send the packet */
 	writel(BD_TO_HW((unsigned long)emac_tx_desc), &adap_emac->TX0HDP);
 
@@ -671,6 +700,8 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 	volatile emac_desc *tail_desc;
 	int status, ret = -1;
 
+	davinci_invalidate_rx_descs();
+
 	rx_curr_desc = emac_rx_active_head;
 	status = rx_curr_desc->pkt_flag_len;
 	if ((rx_curr_desc) && ((status & EMAC_CPPI_OWNERSHIP_BIT) == 0)) {
@@ -678,6 +709,9 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 			/* Error in packet - discard it and requeue desc */
 			printf ("WARN: emac_rcv_pkt: Error in packet\n");
 		} else {
+			unsigned long tmp = (unsigned long)rx_curr_desc->buffer;
+
+			invalidate_dcache_range(tmp, tmp + EMAC_RXBUF_SIZE);
 			NetReceive (rx_curr_desc->buffer,
 				    (rx_curr_desc->buff_off_len & 0xffff));
 			ret = rx_curr_desc->buff_off_len & 0xffff;
@@ -703,6 +737,7 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 		rx_curr_desc->buff_off_len = EMAC_MAX_ETHERNET_PKT_SIZE;
 		rx_curr_desc->pkt_flag_len = EMAC_CPPI_OWNERSHIP_BIT;
 		rx_curr_desc->next = 0;
+		davinci_flush_desc(rx_curr_desc);
 
 		if (emac_rx_active_head == 0) {
 			printf ("INFO: emac_rcv_pkt: active queue head = 0\n");
@@ -720,11 +755,13 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 			tail_desc->next = BD_TO_HW((ulong) curr_desc);
 			status = tail_desc->pkt_flag_len;
 			if (status & EMAC_CPPI_EOQ_BIT) {
+				davinci_flush_desc(tail_desc);
 				writel(BD_TO_HW((ulong)curr_desc),
 				       &adap_emac->RX0HDP);
 				status &= ~EMAC_CPPI_EOQ_BIT;
 				tail_desc->pkt_flag_len = status;
 			}
+			davinci_flush_desc(tail_desc);
 		}
 		return (ret);
 	}

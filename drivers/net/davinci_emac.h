@@ -24,8 +24,9 @@
 /* Ethernet Min/Max packet size */
 #define EMAC_MIN_ETHERNET_PKT_SIZE	60
 #define EMAC_MAX_ETHERNET_PKT_SIZE	1518
-/* 1518 + 18 = 1536 (packet aligned on 32 byte boundry) */
-#define EMAC_PKT_ALIGN			18
+/* Buffer size (should be aligned on 32 byte and cache line) */
+#define EMAC_RXBUF_SIZE	ALIGN(ALIGN(EMAC_MAX_ETHERNET_PKT_SIZE, 32),\
+				ARCH_DMA_MINALIGN)
 
 /* Number of RX packet buffers
  * NOTE: Only 1 buffer supported as of now
