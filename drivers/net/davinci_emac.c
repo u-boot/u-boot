@@ -520,7 +520,8 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	writel(1, &adap_emac->RXUNICASTSET);
 
 	/* Enable MII interface and Full duplex mode */
-#ifdef CONFIG_SOC_DA8XX
+#if defined(CONFIG_SOC_DA8XX) || \
+	(defined(CONFIG_OMAP34XX) && defined(CONFIG_DRIVER_TI_EMAC_USE_RMII))
 	writel((EMAC_MACCONTROL_MIIEN_ENABLE |
 		EMAC_MACCONTROL_FULLDUPLEX_ENABLE |
 		EMAC_MACCONTROL_RMIISPEED_100),
