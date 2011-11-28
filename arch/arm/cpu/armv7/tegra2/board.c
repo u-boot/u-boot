@@ -24,11 +24,21 @@
 #include <common.h>
 #include <asm/io.h>
 #include "ap20.h"
+#include <asm/arch/clock.h>
+#include <asm/arch/funcmux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/pmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+enum {
+	/* UARTs which we can enable */
+	UARTA	= 1 << 0,
+	UARTB	= 1 << 1,
+	UARTD	= 1 << 3,
+	UART_COUNT = 4,
+};
 
 /*
  * Boot ROM initializes the odmdata in APBDEV_PMC_SCRATCH20_0,
@@ -90,3 +100,44 @@ int arch_cpu_init(void)
 	return 0;
 }
 #endif
+
+/**
+ * Set up the specified uarts
+ *
+ * @param uarts_ids	Mask containing UARTs to init (UARTx)
+ */
+static void setup_uarts(int uart_ids)
+{
+	static enum periph_id id_for_uart[] = {
+		PERIPH_ID_UART1,
+		PERIPH_ID_UART2,
+		PERIPH_ID_UART3,
+		PERIPH_ID_UART4,
+	};
+	size_t i;
+
+	for (i = 0; i < UART_COUNT; i++) {
+		if (uart_ids & (1 << i)) {
+			enum periph_id id = id_for_uart[i];
+
+			funcmux_select(id, 0);
+			clock_ll_start_uart(id);
+		}
+	}
+}
+
+void board_init_uart_f(void)
+{
+	int uart_ids = 0;	/* bit mask of which UART ids to enable */
+
+#ifdef CONFIG_TEGRA2_ENABLE_UARTA
+	uart_ids |= UARTA;
+#endif
+#ifdef CONFIG_TEGRA2_ENABLE_UARTB
+	uart_ids |= UARTB;
+#endif
+#ifdef CONFIG_TEGRA2_ENABLE_UARTD
+	uart_ids |= UARTD;
+#endif
+	setup_uarts(uart_ids);
+}
