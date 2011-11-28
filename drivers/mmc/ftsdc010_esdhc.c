@@ -90,8 +90,13 @@ static void ftsdc010_pio_read(struct mmc_host *host, char *buf, unsigned int siz
 
 	while (size) {
 		status = readl(&host->reg->status);
+		debug("%s: size: %08x\n", __func__, size);
 
 		if (status & FTSDC010_STATUS_FIFO_ORUN) {
+
+			debug("%s: FIFO OVERRUN: sta: %08x\n",
+					__func__, status);
+
 			fifo = host->fifo_len > size ?
 				size : host->fifo_len;
 
@@ -146,7 +151,7 @@ static void ftsdc010_pio_write(struct mmc_host *host, const char *buf,
 	while (size) {
 		status = readl(&host->reg->status);
 
-		if (status & FTSDC010_STATUS_FIFO_ORUN) {
+		if (status & FTSDC010_STATUS_FIFO_URUN) {
 			fifo = host->fifo_len > size ?
 				size : host->fifo_len;
 
@@ -158,7 +163,6 @@ static void ftsdc010_pio_write(struct mmc_host *host, const char *buf,
 				writel(*ptr, &host->reg->dwr);
 				ptr++;
 			}
-
 		} else {
 			udelay(1);
 			if (++retry >= FTSDC010_PIO_RETRY) {
@@ -169,56 +173,19 @@ static void ftsdc010_pio_write(struct mmc_host *host, const char *buf,
 	}
 }
 
-static int ftsdc010_pio_check_status(struct mmc *mmc, struct mmc_cmd *cmd,
+static int ftsdc010_check_rsp(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
 	struct mmc_host *host = mmc->priv;
-
 	unsigned int sta, clear;
-	unsigned int i;
 
-	/* check response and hardware status */
-	clear = 0;
-
-	/* chech CMD_SEND */
-	for (i = 0; i < FTSDC010_CMD_RETRY; i++) {
-		sta = readl(&host->reg->status);
-		/* Command Complete */
-		if (sta & FTSDC010_STATUS_CMD_SEND) {
-			if (!data)
-				clear |= FTSDC010_CLR_CMD_SEND;
-			break;
-		}
-	}
-
-	if (i > FTSDC010_CMD_RETRY) {
-		printf("%s: send command timeout\n", __func__);
-		return TIMEOUT;
-	}
-
-	/* debug: print status register and command index*/
-	debug("sta: %08x cmd %d\n", sta, cmd->cmdidx);
-
-	/* handle data FIFO */
-	if ((sta & FTSDC010_STATUS_FIFO_ORUN) ||
-		(sta & FTSDC010_STATUS_FIFO_URUN)) {
-
-		/* Wrong DATA FIFO Flag */
-		if (data == NULL)
-			printf("%s, data fifo wrong: sta: %08x cmd %d\n",
-				__func__, sta, cmd->cmdidx);
-
-		if (sta & FTSDC010_STATUS_FIFO_ORUN)
-			clear |= FTSDC010_STATUS_FIFO_ORUN;
-		if (sta & FTSDC010_STATUS_FIFO_URUN)
-			clear |= FTSDC010_STATUS_FIFO_URUN;
-	}
+	sta = readl(&host->reg->status);
+	debug("%s: sta: %08x cmd %d\n", __func__, sta, cmd->cmdidx);
 
 	/* check RSP TIMEOUT or FAIL */
 	if (sta & FTSDC010_STATUS_RSP_TIMEOUT) {
 		/* RSP TIMEOUT */
-		debug("%s: RSP timeout: sta: %08x cmd %d\n",
-				__func__, sta, cmd->cmdidx);
+		debug("%s: RSP timeout: sta: %08x\n", __func__, sta);
 
 		clear |= FTSDC010_CLR_RSP_TIMEOUT;
 		writel(clear, &host->reg->clr);
@@ -226,47 +193,62 @@ static int ftsdc010_pio_check_status(struct mmc *mmc, struct mmc_cmd *cmd,
 		return TIMEOUT;
 	} else if (sta & FTSDC010_STATUS_RSP_CRC_FAIL) {
 		/* clear response fail bit */
-		debug("%s: RSP CRC FAIL: sta: %08x cmd %d\n",
-				__func__, sta, cmd->cmdidx);
+		debug("%s: RSP CRC FAIL: sta: %08x\n", __func__, sta);
 
 		clear |= FTSDC010_CLR_RSP_CRC_FAIL;
 		writel(clear, &host->reg->clr);
 
-		return 0;
+		return COMM_ERR;
 	} else if (sta & FTSDC010_STATUS_RSP_CRC_OK) {
 
 		/* clear response CRC OK bit */
 		clear |= FTSDC010_CLR_RSP_CRC_OK;
 	}
 
+	writel(clear, &host->reg->clr);
+	return 0;
+}
+
+static int ftsdc010_check_data(struct mmc *mmc, struct mmc_cmd *cmd,
+			struct mmc_data *data)
+{
+	struct mmc_host *host = mmc->priv;
+	unsigned int sta, clear;
+
+	sta = readl(&host->reg->status);
+	debug("%s: sta: %08x cmd %d\n", __func__, sta, cmd->cmdidx);
+
 	/* check DATA TIMEOUT or FAIL */
 	if (data) {
+
+		/* Transfer Complete */
+		if (sta & FTSDC010_STATUS_DATA_END)
+			clear |= FTSDC010_STATUS_DATA_END;
+
+		/* Data CRC_OK */
+		if (sta & FTSDC010_STATUS_DATA_CRC_OK)
+			clear |= FTSDC010_STATUS_DATA_CRC_OK;
+
+		/* DATA TIMEOUT or DATA CRC FAIL */
 		if (sta & FTSDC010_STATUS_DATA_TIMEOUT) {
 			/* DATA TIMEOUT */
-			debug("%s: DATA TIMEOUT: sta: %08x\n",
-					__func__, sta);
+			debug("%s: DATA TIMEOUT: sta: %08x\n", __func__, sta);
 
 			clear |= FTSDC010_STATUS_DATA_TIMEOUT;
-			writel(sta, &host->reg->clr);
+			writel(clear, &host->reg->clr);
+
 			return TIMEOUT;
 		} else if (sta & FTSDC010_STATUS_DATA_CRC_FAIL) {
-			/* Error Interrupt */
-			debug("%s: DATA CRC FAIL: sta: %08x\n",
-					__func__, sta);
+			/* DATA CRC FAIL */
+			debug("%s: DATA CRC FAIL: sta: %08x\n", __func__, sta);
 
 			clear |= FTSDC010_STATUS_DATA_CRC_FAIL;
 			writel(clear, &host->reg->clr);
 
-			return 0;
-		} else if (sta & FTSDC010_STATUS_DATA_END) {
-			/* Transfer Complete */
-			clear |= FTSDC010_STATUS_DATA_END;
+			return COMM_ERR;
 		}
+		writel(clear, &host->reg->clr);
 	}
-
-	/* transaction is success and clear status register */
-	writel(clear, &host->reg->clr);
-
 	return 0;
 }
 
@@ -281,6 +263,9 @@ static int ftsdc010_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	unsigned int ccon;
 	unsigned int mask, tmpmask;
 	unsigned int ret;
+	unsigned int sta, i;
+
+	ret = 0;
 
 	if (data)
 		mask = FTSDC010_INT_MASK_RSP_TIMEOUT;
@@ -290,12 +275,8 @@ static int ftsdc010_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		mask = FTSDC010_INT_MASK_CMD_SEND;
 
 	/* write argu reg */
-	debug("%s: cmd->arg: %08x\n", __func__, cmd->cmdarg);
+	debug("%s: argu: %08x\n", __func__, host->reg->argu);
 	writel(cmd->cmdarg, &host->reg->argu);
-
-	/* setup cmd reg */
-	debug("cmd: %d\n", cmd->cmdidx);
-	debug("resp: %08x\n", cmd->resp_type);
 
 	/* setup commnad */
 	ccon = FTSDC010_CMD_IDX(cmd->cmdidx);
@@ -340,7 +321,51 @@ static int ftsdc010_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* write cmd reg */
 	debug("%s: ccon: %08x\n", __func__, ccon);
 	writel(ccon, &host->reg->cmd);
-	udelay(4*FTSDC010_DELAY_UNIT);
+
+	/* check CMD_SEND */
+	for (i = 0; i < FTSDC010_CMD_RETRY; i++) {
+		/*
+		 * If we read status register too fast
+		 * will lead hardware error and the RSP_TIMEOUT
+		 * flag will be raised incorrectly.
+		 */
+		udelay(16*FTSDC010_DELAY_UNIT);
+		sta = readl(&host->reg->status);
+
+		/* Command Complete */
+		/*
+		 * Note:
+		 *	Do not clear FTSDC010_CLR_CMD_SEND flag.
+		 *	(by writing FTSDC010_CLR_CMD_SEND bit to clear register)
+		 *	It will make the driver becomes very slow.
+		 *	If the operation hasn't been finished, hardware will
+		 *	clear this bit automatically.
+		 *	In origin, the driver will clear this flag if there is
+		 *	no data need to be read.
+		 */
+		if (sta & FTSDC010_STATUS_CMD_SEND)
+			break;
+	}
+
+	if (i > FTSDC010_CMD_RETRY) {
+		printf("%s: send command timeout\n", __func__);
+		return TIMEOUT;
+	}
+
+	/* check rsp status */
+	ret = ftsdc010_check_rsp(mmc, cmd, data);
+	if (ret)
+		return ret;
+
+	/* read response if we have RSP_OK */
+	if (ccon & FTSDC010_CMD_LONG_RSP) {
+		cmd->response[0] = readl(&host->reg->rsp3);
+		cmd->response[1] = readl(&host->reg->rsp2);
+		cmd->response[2] = readl(&host->reg->rsp1);
+		cmd->response[3] = readl(&host->reg->rsp0);
+	} else {
+		cmd->response[0] = readl(&host->reg->rsp0);
+	}
 
 	/* read/write data */
 	if (data && (data->flags & MMC_DATA_READ)) {
@@ -351,19 +376,11 @@ static int ftsdc010_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 				data->blocksize * data->blocks);
 	}
 
-	/* pio check response status */
-	ret = ftsdc010_pio_check_status(mmc, cmd, data);
-	if (!ret) {
-		/* if it is long response */
-		if (ccon & FTSDC010_CMD_LONG_RSP) {
-			cmd->response[0] = readl(&host->reg->rsp3);
-			cmd->response[1] = readl(&host->reg->rsp2);
-			cmd->response[2] = readl(&host->reg->rsp1);
-			cmd->response[3] = readl(&host->reg->rsp0);
-
-		} else {
-			cmd->response[0] = readl(&host->reg->rsp0);
-		}
+	/* check data status */
+	if (data) {
+		ret = ftsdc010_check_data(mmc, cmd, data);
+		if (ret)
+			return ret;
 	}
 
 	udelay(FTSDC010_DELAY_UNIT);
@@ -431,8 +448,6 @@ static int ftsdc010_setup_data(struct mmc *mmc, struct mmc_data *data)
 	/* always reset fifo since last transfer may fail */
 	dcon |= FTSDC010_DCR_FIFO_RST;
 
-	/* handle sdio */
-	dcon = data->blocksize | data->blocks << 15;
 	if (data->blocks > 1)
 		dcon |= FTSDC010_SDIO_CTRL1_SDIO_BLK_MODE;
 #endif
@@ -497,7 +512,7 @@ static void ftsdc010_set_clk(struct mmc *mmc)
 {
 	struct mmc_host *host = mmc->priv;
 	unsigned char clk_div;
-	unsigned char real_rate;
+	unsigned int real_rate;
 	unsigned int clock;
 
 	debug("%s: mmc_set_clock: %x\n", __func__, mmc->clock);
@@ -518,7 +533,7 @@ static void ftsdc010_set_clk(struct mmc *mmc)
 				break;
 		}
 
-		debug("%s: computed real_rete: %x, clk_div: %x\n",
+		debug("%s: computed real_rate: %x, clk_div: %x\n",
 			 __func__, real_rate, clk_div);
 
 		if (clk_div > 127)
@@ -579,6 +594,7 @@ static void ftsdc010_set_ios(struct mmc *mmc)
 static void ftsdc010_reset(struct mmc_host *host)
 {
 	unsigned int timeout;
+	unsigned int sta;
 
 	/* Do SDC_RST: Software reset for all register */
 	writel(FTSDC010_CMD_SDC_RST, &host->reg->cmd);
@@ -598,6 +614,10 @@ static void ftsdc010_reset(struct mmc_host *host)
 		timeout--;
 		udelay(10*FTSDC010_DELAY_UNIT);
 	}
+
+	sta = readl(&host->reg->status);
+	if (sta & FTSDC010_STATUS_CARD_CHANGE)
+		writel(FTSDC010_CLR_CARD_CHANGE, &host->reg->clr);
 }
 
 static int ftsdc010_core_init(struct mmc *mmc)
@@ -649,8 +669,6 @@ int ftsdc010_mmc_init(int dev_index)
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 
 	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
-
-	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	mmc->f_min = CONFIG_SYS_CLK_FREQ / 2 / (2*128);
 	mmc->f_max = CONFIG_SYS_CLK_FREQ / 2 / 2;
