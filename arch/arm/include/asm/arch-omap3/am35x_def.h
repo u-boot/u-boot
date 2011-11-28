@@ -32,6 +32,9 @@
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 
+/* IP_SW_RESET bits */
+#define CPGMACSS_SW_RST		(1 << 1)	/* reset CPGMAC */
+
 /* General register mappings of system control module */
 #define AM35X_SCM_GEN_BASE	0x48002270
 struct am35x_scm_general {

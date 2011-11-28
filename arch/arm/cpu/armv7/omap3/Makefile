@@ -32,6 +32,7 @@ COBJS	+= clock.o
 COBJS	+= mem.o
 COBJS	+= sys_info.o
 
+COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= emac.o
 COBJS-$(CONFIG_EMIF4)	+= emif4.o
 COBJS-$(CONFIG_SDRC)	+= sdrc.o
 
