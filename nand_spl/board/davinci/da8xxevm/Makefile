@@ -42,7 +42,7 @@ SOBJS	= _divsi3.o \
 
 COBJS	= cpu.o \
 	davinci_nand.o \
-	davinci_pinmux.o \
+	pinmux.o \
 	div0.o \
 	hawkboard_nand_spl.o \
 	memsize.o \
@@ -78,9 +78,9 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 # create symbolic links for common files
 
 # from board directory
-$(obj)davinci_pinmux.c:
+$(obj)pinmux.c:
 	@rm -f $@
-	@ln -s $(TOPDIR)/board/davinci/common/davinci_pinmux.c $@
+	@ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/pinmux.c $@
 
 # from drivers/mtd/nand directory
 $(obj)davinci_nand.c:

@@ -34,8 +34,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
-
 /* SPI0 pin muxer settings */
 static const struct pinmux_config spi1_pins[] = {
 	{ pinmux(5), 1, 1 },

@@ -29,7 +29,7 @@ endif
 
 LIB	= $(obj)lib$(VENDOR).o
 
-COBJS	:= misc.o davinci_pinmux.o
+COBJS	:= misc.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

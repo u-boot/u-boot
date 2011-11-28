@@ -480,6 +480,8 @@ struct davinci_syscfg_regs {
 #define davinci_syscfg_regs \
 	((struct davinci_syscfg_regs *)DAVINCI_BOOTCFG_BASE)
 
+#define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
+
 /* Emulation suspend bits */
 #define DAVINCI_SYSCFG_SUSPSRC_EMAC		(1 << 5)
 #define DAVINCI_SYSCFG_SUSPSRC_I2C		(1 << 16)

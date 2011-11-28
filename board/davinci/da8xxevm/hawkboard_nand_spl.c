@@ -32,8 +32,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define pinmux(x)			(&davinci_syscfg_regs->pinmux[x])
-
 static const struct pinmux_config mii_pins[] = {
 	{ pinmux(2), 8, 1 },
 	{ pinmux(2), 8, 2 },
