@@ -701,10 +701,6 @@ Chander Kashyap <k.chander@samsung.com>
 Torsten Koschorrek <koschorrek@synertronixx.de>
 	scb9328		ARM920T (i.MXL)
 
-Frederik Kriewitz <frederik@kriewitz.eu>
-
-	devkit8000	ARM ARMV7 (OMAP3530 SoC)
-
 Sergey Kubushyn <ksi@koi8.net>
 
 	DV-EVM		ARM926EJS
@@ -880,6 +876,10 @@ Tom Warren <twarren@nvidia.com>
 
 	harmony		Tegra2 (ARM7 & A9 Dual Core)
 	seaboard	Tegra2 (ARM7 & A9 Dual Core)
+
+Thomas Weber <weber@corscience.de>
+
+	devkit8000	ARM ARMV7 (OMAP3530 SoC)
 
 Lei Wen <leiwen@marvell.com>
 
