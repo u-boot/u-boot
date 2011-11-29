@@ -34,12 +34,12 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
-	/* Ignore this for now */
+	os_usleep(usec);
 }
 
 unsigned long timer_get_us(void)
 {
-	return 0;
+	return os_get_nsec() / 1000;
 }
 
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)

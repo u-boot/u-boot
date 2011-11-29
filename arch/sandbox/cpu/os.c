@@ -23,9 +23,12 @@
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+#include <time.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <linux/types.h>
 
 #include <os.h>
 
@@ -93,4 +96,28 @@ void *os_malloc(size_t length)
 {
 	return mmap(NULL, length, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+}
+
+void os_usleep(unsigned long usec)
+{
+	usleep(usec);
+}
+
+u64 os_get_nsec(void)
+{
+#if defined(CLOCK_MONOTONIC) && defined(_POSIX_MONOTONIC_CLOCK)
+	struct timespec tp;
+	if (EINVAL == clock_gettime(CLOCK_MONOTONIC, &tp)) {
+		struct timeval tv;
+
+		gettimeofday(&tv, NULL);
+		tp.tv_sec = tv.tv_sec;
+		tp.tv_nsec = tv.tv_usec * 1000;
+	}
+	return tp.tv_sec * 1000000000ULL + tp.tv_nsec;
+#else
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec * 1000000000ULL + tv.tv_usec * 1000;
+#endif
 }

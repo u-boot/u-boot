@@ -84,3 +84,17 @@ void os_tty_raw(int fd);
  * \return Pointer to length bytes or NULL on error
  */
 void *os_malloc(size_t length);
+
+/**
+ * Access to the usleep function of the os
+ *
+ * \param usec Time to sleep in micro seconds
+ */
+void os_usleep(unsigned long usec);
+
+/**
+ * Gets a monotonic increasing number of nano seconds from the OS
+ *
+ * \return A monotonic increasing time scaled in nano seconds
+ */
+u64 os_get_nsec(void);
