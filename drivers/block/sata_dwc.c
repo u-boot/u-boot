@@ -532,7 +532,7 @@ int scan_sata(int dev)
 	u8 status;
 	const u16 *id;
 	struct ata_device *ata_dev = &ata_device;
-	unsigned long pio_mask, mwdma_mask, udma_mask;
+	unsigned long pio_mask, mwdma_mask;
 	char revbuf[7];
 	u16 iobuf[ATA_SECTOR_WORDS];
 
@@ -621,10 +621,6 @@ int scan_sata(int dev)
 		if (dma > 1)
 			mwdma_mask |= (1 << 4);
 	}
-
-	udma_mask = 0;
-	if (id[ATA_ID_FIELD_VALID] & (1 << 2))
-		udma_mask = id[ATA_ID_UDMA_MODES] & 0xff;
 
 	if (ata_dev->class == ATA_DEV_ATA) {
 		if (ata_id_is_cfa(id)) {
