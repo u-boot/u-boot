@@ -812,6 +812,7 @@ Jens Scharsig <esw@bus-elektronik.de>
 
 Heiko Schocher <hs@denx.de>
 
+	enbw_cmc	ARM926EJS (AM1808 SoC)
 	magnesium	i.MX27
 	mgcoge3un	ARM926EJS (Kirkwood SoC)
 
