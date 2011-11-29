@@ -550,11 +550,12 @@ static int sl811_rh_submit_urb(struct usb_device *usb_dev, unsigned long pipe,
 	__u8 *bufp = data_buf;
 	int len = 0;
 	int status = 0;
-
 	__u16 bmRType_bReq;
-	__u16 wValue;
-	__u16 wIndex;
-	__u16 wLength;
+	__u16 wValue  = le16_to_cpu (cmd->value);
+	__u16 wLength = le16_to_cpu (cmd->length);
+#ifdef SL811_DEBUG
+	__u16 wIndex  = le16_to_cpu (cmd->index);
+#endif
 
 	if (usb_pipeint(pipe)) {
 		PDEBUG(0, "interrupt transfer unimplemented!\n");
@@ -562,9 +563,6 @@ static int sl811_rh_submit_urb(struct usb_device *usb_dev, unsigned long pipe,
 	}
 
 	bmRType_bReq  = cmd->requesttype | (cmd->request << 8);
-	wValue	      = le16_to_cpu (cmd->value);
-	wIndex	      = le16_to_cpu (cmd->index);
-	wLength	      = le16_to_cpu (cmd->length);
 
 	PDEBUG(5, "submit rh urb, req = %d(%x) val = %#x index = %#x len=%d\n",
 	       bmRType_bReq, bmRType_bReq, wValue, wIndex, wLength);
