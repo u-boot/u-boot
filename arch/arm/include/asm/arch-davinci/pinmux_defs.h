@@ -28,6 +28,7 @@ extern const struct pinmux_config spi1_pins_base[3];
 extern const struct pinmux_config spi1_pins_scs0[1];
 
 /* UART pin muxer settings */
+extern const struct pinmux_config uart1_pins_txrx[2];
 extern const struct pinmux_config uart2_pins_txrx[2];
 extern const struct pinmux_config uart2_pins_rtscts[2];
 

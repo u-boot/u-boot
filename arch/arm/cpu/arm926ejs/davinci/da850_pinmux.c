@@ -35,6 +35,11 @@ const struct pinmux_config spi1_pins_scs0[] = {
 };
 
 /* UART pin muxer settings */
+const struct pinmux_config uart1_pins_txrx[] = {
+	{ pinmux(4), 2, 6 }, /* UART1_RXD */
+	{ pinmux(4), 2, 7 }, /* UART1_TXD */
+};
+
 const struct pinmux_config uart2_pins_txrx[] = {
 	{ pinmux(4), 2, 4 }, /* UART2_RXD */
 	{ pinmux(4), 2, 5 }, /* UART2_TXD */
