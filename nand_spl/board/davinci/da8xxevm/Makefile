@@ -127,15 +127,14 @@ $(obj)cpu.c:
 	@rm -f $@
 	@ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/cpu.c $@
 
+$(obj)misc.c:
+	@rm -f $@
+	ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/misc.c $@
+
 # from board directory
 $(obj)hawkboard_nand_spl.c:
 	@rm -f $@
 	ln -s $(TOPDIR)/board/davinci/da8xxevm/hawkboard_nand_spl.c $@
-
-# from board directory
-$(obj)misc.c:
-	@rm -f $@
-	ln -s $(TOPDIR)/board/davinci/common/misc.c $@
 
 $(obj)psc.c:
 	@rm -f $@
