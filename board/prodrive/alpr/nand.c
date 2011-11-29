@@ -122,12 +122,10 @@ static int alpr_nand_verify_buf(struct mtd_info *mtd, const u_char *buf, int len
 
 static int alpr_nand_dev_ready(struct mtd_info *mtd)
 {
-	volatile u_char val;
-
 	/*
 	 * Blocking read to wait for NAND to be ready
 	 */
-	val = readb(&(alpr_ndfc->addr_wait));
+	(void)readb(&(alpr_ndfc->addr_wait));
 
 	/*
 	 * Return always true
