@@ -13,7 +13,9 @@
 
 int raise (int signum)
 {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 	printf("raise: Signal # %d caught\n", signum);
+#endif
 	return 0;
 }
 
