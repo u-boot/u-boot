@@ -235,12 +235,11 @@ void pci_init_board(void)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	struct fsl_pci_info pci_info;
-	u32 devdisr, pordevsr;
+	u32 devdisr;
 	int first_free_busno;
 	int pci_agent;
 
 	devdisr = in_be32(&gur->devdisr);
-	pordevsr = in_be32(&gur->pordevsr);
 
 	first_free_busno = fsl_pcie_init_board(0);
 
