@@ -11,7 +11,7 @@
 #define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
 #define CONFIG_PELE		1 /* SoC? */
 /* Select target configuration: comment out for ZC770 instead of EP107. */
-#define CONFIG_EP107		1
+//#define CONFIG_EP107		1
 
 #ifdef CONFIG_EP107
 # include "../board/xilinx/dfe/xparameters.h"
