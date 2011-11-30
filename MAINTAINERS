@@ -572,6 +572,7 @@ Stefano Babic <sbabic@denx.de>
 	mx51evk		i.MX51
 	polaris		xscale/pxa
 	trizepsiv	xscale/pxa
+	twister		omap3
  	vision2		i.MX51
 
 Jason Liu <r64343@freescale.com>
