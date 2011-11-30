@@ -18,7 +18,7 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
 /*************************** Constant Definitions ***************************/
 
 #define EMACPSS_DEVICE_ID   0
-#define PHY_ADDR 0x17
+#define PHY_ADDR 0x7
 
 #define RXBD_CNT       8	/* Number of RxBDs to use */
 #define TXBD_CNT       8	/* Number of TxBDs to use */
@@ -87,7 +87,6 @@ static void phy_rst(XEmacPss * e)
 	phy_wr(e, 0, tmp);
 
 	while (phy_rd(e, 0) & 0x8000) {
-   	     putc('.');
 	}
 	puts("\nPHY reset complete.\n");
 }
@@ -222,8 +221,17 @@ int eth_init(bd_t * bis)
 
 	/* PHY Setup */
 
+#ifdef CONFIG_EP107
 	/* "add delay to RGMII rx interface" */
 	phy_wr(EmacPssInstancePtr, 20, 0xc93);
+#else
+	phy_wr(EmacPssInstancePtr, 22, 2);	/* page 2 */
+
+	/* rx clock transition when data stable */
+	phy_wr(EmacPssInstancePtr, 21, 0x3030);
+
+	phy_wr(EmacPssInstancePtr, 22, 0);	/* page 0 */
+#endif
 
 	/* link speed advertisement for autonegotiation */
 	tmp = phy_rd(EmacPssInstancePtr, 4);
@@ -243,13 +251,8 @@ int eth_init(bd_t * bis)
 	phy_rst(EmacPssInstancePtr);
 
 	puts("\nWaiting for PHY to complete autonegotiation.");
-	tmp = 0;
-	while (!(phy_rd(EmacPssInstancePtr, 1) & (1 << 5))) {
-		if ((tmp % 50) == 0) {
-			putc('.');
-		}
-		tmp++;
-	}
+	while (!(phy_rd(EmacPssInstancePtr, 1) & (1 << 5)));
+
 	puts("\nPHY claims autonegotiation complete...\n");
 
 	puts("GEM link speed is 100Mbps\n");
@@ -311,6 +314,9 @@ int eth_send(volatile void *ptr, int len)
 	}
 
 	if (Status & XEMACPSS_TXSR_TXCOMPL_MASK) {
+
+//		printf("tx packet sent\n");
+
 		/*
 		 * Now that the frame has been sent, post process our TxBDs.
 		 */
@@ -347,6 +353,9 @@ int eth_rx(void)
 	    XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
 			     XEMACPSS_RXSR_OFFSET);
 	if (status & XEMACPSS_RXSR_FRAMERX_MASK) {
+
+//		printf("rx packet received\n");
+	
 		do {
 			retval = Xgmac_process_rx(EmacPssInstancePtr);
 		} while (retval == 0) ;
