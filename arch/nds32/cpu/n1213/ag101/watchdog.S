@@ -22,12 +22,12 @@
  */
 
 #include <asm/arch-ag101/ag101.h>
+#include <linux/linkage.h>
 
 .text
 
 #ifndef CONFIG_SKIP_TRUNOFF_WATCHDOG
-.globl	turnoff_watchdog
-turnoff_watchdog:
+ENTRY(turnoff_watchdog)
 
 #define WD_CR		0xC
 #define WD_ENABLE	0x1
@@ -45,4 +45,5 @@ turnoff_watchdog:
 
 	ret
 
+ENDPROC(turnoff_watchdog)
 #endif
