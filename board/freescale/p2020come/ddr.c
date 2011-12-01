@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Freescale Semiconductor, Inc.
+ * Copyright 2009, 2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -11,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -19,24 +19,27 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#include <common.h>
 
-/*
- * P5020 DS board configuration file
- *
- */
-#define CONFIG_P5020DS
-#define CONFIG_PHYS_64BIT
-#define CONFIG_PPC_P5020
+#include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_ddr_dimm_params.h>
 
-#define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
+void fsl_ddr_board_options(memctl_options_t *popts,
+				dimm_params_t *pdimm,
+				unsigned int ctrl_num)
+{
+	if (ctrl_num) {
+		printf("Wrong parameter for controller number %d", ctrl_num);
+		return;
+	}
 
-#define CONFIG_MMC
-#define CONFIG_NAND_FSL_ELBC
-#define CONFIG_PCIE3
-#define CONFIG_PCIE4
-#define CONFIG_SYS_FSL_RAID_ENGINE
-#define CONFIG_SYS_DPAA_RMAN
+	if (!pdimm->n_ranks)
+		return;
 
-#define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
-
-#include "corenet_ds.h"
+	/*
+	 * Set DDR_SDRAM_CLK_CNTL = 0x02800000
+	 *
+	 * Clock is launched 5/8 applied cycle after address/command
+	 */
+	popts->clk_adjust = 5;
+}

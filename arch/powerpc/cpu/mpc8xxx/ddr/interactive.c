@@ -1354,7 +1354,6 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 {
 	unsigned long long ddrsize;
 	const char *prompt = "FSL DDR>";
-	unsigned int len;
 	char buffer[CONFIG_SYS_CBSIZE];
 	char *argv[CONFIG_SYS_MAXARGS + 1];	/* NULL terminated */
 	int argc;
@@ -1389,7 +1388,7 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		 * No need to worry for buffer overflow here in
 		 * this function;  readline() maxes out at CFG_CBSIZE
 		 */
-		len = readline_into_buffer(prompt,  buffer);
+		readline_into_buffer(prompt,  buffer);
 		argc = parse_line(buffer, argv);
 		if (argc == 0)
 			continue;

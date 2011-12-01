@@ -25,11 +25,11 @@
 #include "fm.h"
 #include "../../qe/qe.h"		/* For struct qe_firmware */
 
-#ifdef CONFIG_SYS_QE_FW_IN_NAND
+#ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #include <nand.h>
 #elif defined(CONFIG_SYS_QE_FW_IN_SPIFLASH)
 #include <spi_flash.h>
-#elif defined(CONFIG_SYS_QE_FW_IN_MMC)
+#elif defined(CONFIG_SYS_QE_FMAN_FW_IN_MMC)
 #include <mmc.h>
 #endif
 
@@ -363,21 +363,21 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 {
 	int rc;
 	char env_addr[32];
-#if defined(CONFIG_SYS_FMAN_FW_ADDR)
-	void *addr = (void *)CONFIG_SYS_FMAN_FW_ADDR;
-#elif defined(CONFIG_SYS_QE_FW_IN_NAND)
-	size_t fw_length = CONFIG_SYS_FMAN_FW_LENGTH;
-	void *addr = malloc(CONFIG_SYS_FMAN_FW_LENGTH);
+#if defined(CONFIG_SYS_QE_FMAN_FW_IN_NOR)
+	void *addr = (void *)CONFIG_SYS_QE_FMAN_FW_ADDR;
+#elif defined(CONFIG_SYS_QE_FMAN_FW_IN_NAND)
+	size_t fw_length = CONFIG_SYS_QE_FMAN_FW_LENGTH;
+	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 
-	rc = nand_read(&nand_info[0], (loff_t)CONFIG_SYS_QE_FW_IN_NAND,
+	rc = nand_read(&nand_info[0], (loff_t)CONFIG_SYS_QE_FMAN_FW_ADDR,
 		       &fw_length, (u_char *)addr);
 	if (rc == -EUCLEAN) {
 		printf("NAND read of FMAN firmware at offset 0x%x failed %d\n",
-			CONFIG_SYS_QE_FW_IN_NAND, rc);
+			CONFIG_SYS_QE_FMAN_FW_ADDR, rc);
 	}
 #elif defined(CONFIG_SYS_QE_FW_IN_SPIFLASH)
 	struct spi_flash *ucode_flash;
-	void *addr = malloc(CONFIG_SYS_FMAN_FW_LENGTH);
+	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 	int ret = 0;
 
 	ucode_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
@@ -385,17 +385,17 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	if (!ucode_flash)
 		printf("SF: probe for ucode failed\n");
 	else {
-		ret = spi_flash_read(ucode_flash, CONFIG_SYS_QE_FW_IN_SPIFLASH,
-				CONFIG_SYS_FMAN_FW_LENGTH, addr);
+		ret = spi_flash_read(ucode_flash, CONFIG_SYS_QE_FMAN_FW_ADDR,
+				CONFIG_SYS_QE_FMAN_FW_LENGTH, addr);
 		if (ret)
 			printf("SF: read for ucode failed\n");
 		spi_flash_free(ucode_flash);
 	}
-#elif defined(CONFIG_SYS_QE_FW_IN_MMC)
+#elif defined(CONFIG_SYS_QE_FMAN_FW_IN_MMC)
 	int dev = CONFIG_SYS_MMC_ENV_DEV;
-	void *addr = malloc(CONFIG_SYS_FMAN_FW_LENGTH);
-	u32 cnt = CONFIG_SYS_FMAN_FW_LENGTH / 512;
-	u32 blk = CONFIG_SYS_QE_FW_IN_MMC / 512;
+	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
+	u32 cnt = CONFIG_SYS_QE_FMAN_FW_LENGTH / 512;
+	u32 blk = CONFIG_SYS_QE_FMAN_FW_ADDR / 512;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 
 	if (!mmc)

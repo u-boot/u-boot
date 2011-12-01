@@ -1,8 +1,5 @@
 /*
- * Copyright 2009-2011 Freescale Semiconductor, Inc.
- *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Copyright 2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -11,7 +8,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -20,23 +17,14 @@
  * MA 02111-1307 USA
  */
 
-/*
- * P5020 DS board configuration file
- *
- */
-#define CONFIG_P5020DS
-#define CONFIG_PHYS_64BIT
-#define CONFIG_PPC_P5020
+#ifndef __P3060QDS_H__
+#define __P3060QDS_H__
 
-#define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
+#include <asm/fsl_ddr_sdram.h>
+#include <asm/u-boot.h>
 
-#define CONFIG_MMC
-#define CONFIG_NAND_FSL_ELBC
-#define CONFIG_PCIE3
-#define CONFIG_PCIE4
-#define CONFIG_SYS_FSL_RAID_ENGINE
-#define CONFIG_SYS_DPAA_RMAN
+void fdt_fixup_board_enet(void *blob);
+void pci_of_setup(void *blob, bd_t *bd);
+extern fixed_ddr_parm_t fixed_ddr_parm_0[];
 
-#define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
-
-#include "corenet_ds.h"
+#endif

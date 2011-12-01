@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,10 +25,15 @@
 
 #include "ics307_clk.h"
 
-#ifdef CONFIG_FSL_NGPIXIS
+#if defined(CONFIG_FSL_NGPIXIS)
 #include "ngpixis.h"
+#define fpga_reg pixis
+#elif defined(CONFIG_FSL_QIXIS)
+#include "qixis.h"
+#define fpga_reg ((struct qixis *)QIXIS_BASE)
 #else
 #include "pixis.h"
+#define fpga_reg pixis
 #endif
 
 /* define for SYS CLK or CLK1Frequency */
@@ -143,15 +148,15 @@ static unsigned long ics307_clk_freq(u8 cw0, u8 cw1, u8 cw2)
 unsigned long get_board_sys_clk(void)
 {
 	return ics307_clk_freq(
-			in_8(&pixis->sclk[0]),
-			in_8(&pixis->sclk[1]),
-			in_8(&pixis->sclk[2]));
+			in_8(&fpga_reg->sclk[0]),
+			in_8(&fpga_reg->sclk[1]),
+			in_8(&fpga_reg->sclk[2]));
 }
 
 unsigned long get_board_ddr_clk(void)
 {
 	return ics307_clk_freq(
-			in_8(&pixis->dclk[0]),
-			in_8(&pixis->dclk[1]),
-			in_8(&pixis->dclk[2]));
+			in_8(&fpga_reg->dclk[0]),
+			in_8(&fpga_reg->dclk[1]),
+			in_8(&fpga_reg->dclk[2]));
 }

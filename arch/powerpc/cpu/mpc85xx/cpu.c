@@ -42,6 +42,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Default board reset function
+ */
+static void
+__board_reset(void)
+{
+	/* Do nothing */
+}
+void board_reset(void) __attribute__((weak, alias("__board_reset")));
+
 int checkcpu (void)
 {
 	sys_info_t sysinfo;
@@ -215,7 +225,12 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	mtspr(DBCR0,val);
 #else
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	out_be32(&gur->rstcr, 0x2);	/* HRESET_REQ */
+
+	/* Attempt board-specific reset */
+	board_reset();
+
+	/* Next try asserting HRESET_REQ */
+	out_be32(&gur->rstcr, 0x2);
 	udelay(100);
 #endif
 

@@ -677,8 +677,9 @@
 
 #ifdef CONFIG_QE
 /* QE microcode/firmware address */
-#define CONFIG_SYS_QE_FW_ADDR		0xefec0000
-#define CONFIG_SYS_QE_FW_LENGTH		0x10000
+#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xefec0000
+#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #endif /* CONFIG_QE */
 
 #ifdef CONFIG_P1025RDB

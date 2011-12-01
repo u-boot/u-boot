@@ -68,6 +68,12 @@ __secondary_start_page:
 	mtspr	SPRN_HID1,r3
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_CPU_A003999
+	mfspr	r3,977
+	oris	r3,r3,0x0100
+	mtspr	977,r3
+#endif
+
 	/* Enable branch prediction */
 	lis	r3,BUCSR_ENABLE@h
 	ori	r3,r3,BUCSR_ENABLE@l
