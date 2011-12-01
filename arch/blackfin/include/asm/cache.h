@@ -7,7 +7,7 @@
 #ifndef __ARCH_BLACKFIN_CACHE_H
 #define __ARCH_BLACKFIN_CACHE_H
 
-#include <asm/linkage.h>	/* for asmlinkage */
+#include <linux/linkage.h>	/* for asmlinkage */
 
 /*
  * Bytes per L1 cache line
