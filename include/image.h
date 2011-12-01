@@ -162,6 +162,7 @@
 #define IH_TYPE_UBLIMAGE	11	/* Davinci UBL Image		*/
 #define IH_TYPE_OMAPIMAGE	12	/* TI OMAP Config Header Image	*/
 #define IH_TYPE_AISIMAGE	13	/* TI Davinci AIS Image		*/
+#define IH_TYPE_KERNEL_NOLOAD	14	/* OS Kernel Image, can run from any load address */
 
 /*
  * Compression Types

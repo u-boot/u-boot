@@ -272,7 +272,13 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		return 1;
 	}
 
+	if (images.os.type == IH_TYPE_KERNEL_NOLOAD) {
+		images.os.load = images.os.image_start;
+		images.ep += images.os.load;
+	}
+
 	if (((images.os.type == IH_TYPE_KERNEL) ||
+	     (images.os.type == IH_TYPE_KERNEL_NOLOAD) ||
 	     (images.os.type == IH_TYPE_MULTI)) &&
 	    (images.os.os == IH_OS_LINUX)) {
 		/* find ramdisk */
@@ -314,6 +320,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
 	__maybe_unused uint unc_len = CONFIG_SYS_BOOTM_LEN;
+	int no_overlap = 0;
 #if defined(CONFIG_LZMA) || defined(CONFIG_LZO)
 	int ret;
 #endif /* defined(CONFIG_LZMA) || defined(CONFIG_LZO) */
@@ -324,6 +331,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	case IH_COMP_NONE:
 		if (load == blob_start || load == image_start) {
 			printf("   XIP %s ... ", type_name);
+			no_overlap = 1;
 		} else {
 			printf("   Loading %s ... ", type_name);
 			memmove_wd((void *)load, (void *)image_start,
@@ -418,7 +426,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	if (boot_progress)
 		show_boot_progress(7);
 
-	if ((load < blob_end) && (*load_end > blob_start)) {
+	if (!no_overlap && (load < blob_end) && (*load_end > blob_start)) {
 		debug("images.os.start = 0x%lX, images.os.end = 0x%lx\n",
 			blob_start, blob_end);
 		debug("images.os.load = 0x%lx, load_end = 0x%lx\n", load,
@@ -796,7 +804,8 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
 	}
 
 	show_boot_progress(106);
-	if (!fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL)) {
+	if (!fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL) &&
+	    !fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL_NOLOAD)) {
 		puts("Not a kernel image\n");
 		show_boot_progress(-106);
 		return 0;
@@ -874,6 +883,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		/* get os_data and os_len */
 		switch (image_get_type(hdr)) {
 		case IH_TYPE_KERNEL:
+		case IH_TYPE_KERNEL_NOLOAD:
 			*os_data = image_get_data(hdr);
 			*os_len = image_get_data_size(hdr);
 			break;
