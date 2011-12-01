@@ -432,6 +432,8 @@
 #define CONFIG_SYS_PCI_MASTER_INIT
 #define CONFIG_SYS_PCI_BOARD_FIXUP_IRQ
 
+#define CONFIG_PCI_BOOTDELAY 0
+
 /* PCI identification */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh      */
 #define CONFIG_SYS_PCI_SUBSYS_ID_NONMONARCH 0x0441	/* PCI Device ID: Non-Monarch */

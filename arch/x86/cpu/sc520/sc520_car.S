@@ -24,6 +24,7 @@
 #include <config.h>
 #include <asm/processor-flags.h>
 #include <asm/arch/sc520.h>
+#include <generated/asm-offsets.h>
 
 .section .text
 
@@ -55,7 +56,7 @@ car_init:
 
 	/* Configure Cache-As-RAM PAR */
 	movl	$CONFIG_SYS_SC520_CAR_PAR, %eax
-	movl	$SC520_PAR2, %edi
+	movl	$(SC520_MMCR_BASE + GENERATED_SC520_PAR2), %edi
 	movl	%eax, (%edi)
 
 	/* Trash the cache then turn it on */

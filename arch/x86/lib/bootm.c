@@ -32,9 +32,10 @@
 #include <asm/zimage.h>
 
 /*cmd_boot.c*/
-int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char * const argv[],
+		bootm_headers_t *images)
 {
-	void		*base_ptr;
+	void		*base_ptr = NULL;
 	ulong		os_data, os_len;
 	image_header_t	*hdr;
 
@@ -48,41 +49,43 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 
 	if (images->legacy_hdr_valid) {
 		hdr = images->legacy_hdr_os;
-		if (image_check_type (hdr, IH_TYPE_MULTI)) {
+		if (image_check_type(hdr, IH_TYPE_MULTI)) {
 			/* if multi-part image, we need to get first subimage */
-			image_multi_getimg (hdr, 0, &os_data, &os_len);
+			image_multi_getimg(hdr, 0, &os_data, &os_len);
 		} else {
 			/* otherwise get image data */
-			os_data = image_get_data (hdr);
-			os_len = image_get_data_size (hdr);
+			os_data = image_get_data(hdr);
+			os_len = image_get_data_size(hdr);
 		}
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os) {
-		ret = fit_image_get_data (images->fit_hdr_os,
+		ret = fit_image_get_data(images->fit_hdr_os,
 					images->fit_noffset_os, &data, &len);
 		if (ret) {
-			puts ("Can't get image data/size!\n");
+			puts("Can't get image data/size!\n");
 			goto error;
 		}
 		os_data = (ulong)data;
 		os_len = (ulong)len;
 #endif
 	} else {
-		puts ("Could not find kernel image!\n");
+		puts("Could not find kernel image!\n");
 		goto error;
 	}
 
-	base_ptr = load_zimage ((void*)os_data, os_len,
+#ifdef CONFIG_CMD_ZBOOT
+	base_ptr = load_zimage((void *)os_data, os_len,
 			images->rd_start, images->rd_end - images->rd_start, 0);
+#endif
 
 	if (NULL == base_ptr) {
-		printf ("## Kernel loading failed ...\n");
+		printf("## Kernel loading failed ...\n");
 		goto error;
 
 	}
 
 #ifdef DEBUG
-	printf ("## Transferring control to Linux (at address %08x) ...\n",
+	printf("## Transferring control to Linux (at address %08x) ...\n",
 		(u32)base_ptr);
 #endif
 

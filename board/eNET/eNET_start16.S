@@ -30,6 +30,7 @@
 #include "config.h"
 #include "hardware.h"
 #include <asm/arch/sc520.h>
+#include <generated/asm-offsets.h>
 
 .text
 .section .start16, "ax"
@@ -46,12 +47,12 @@ board_init16:
 	movw	%ax, %ds
 
 	/* Map PAR for Boot Flash (BOOTCS, 512kB @ 0x380000000) */
-	movl    $(SC520_PAR14 - SC520_MMCR_BASE), %edi
+	movl    $GENERATED_SC520_PAR14, %edi
 	movl	$CONFIG_SYS_SC520_BOOTCS_PAR, %eax
 	movl	%eax, (%di)
 
 	/* Map PAR for LED, Hex Switches (GPCS6, 20 Bytes @ 0x1000) */
-	movl    $(SC520_PAR15 - SC520_MMCR_BASE), %edi
+	movl    $GENERATED_SC520_PAR15, %edi
 	movl	$CONFIG_SYS_SC520_LLIO_PAR, %eax
 	movl	%eax, (%di)
 

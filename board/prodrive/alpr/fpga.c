@@ -85,9 +85,6 @@ static unsigned long regval;
 /* PROGRAM_SEL_DPR	= LOW */
 int fpga_pre_fn(int cookie)
 {
-	unsigned long	reg;
-
-	reg = in32(GPIO0_IR);
 	/* Enable the FPGA Chain */
 	SET_GPIO_REG_1(GPIO0_TCR, CONFIG_SYS_GPIO_PROG_EN);
 	SET_GPIO_REG_0(GPIO0_ODR, CONFIG_SYS_GPIO_PROG_EN);

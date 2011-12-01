@@ -34,74 +34,22 @@
 #include <pci.h>
 #include <asm/realmode.h>
 #include <asm/io.h>
+#include "bios.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define NUMVECTS	256
 
-#define BIOS_DATA        ((char*)0x400)
-#define BIOS_DATA_SIZE   256
-#define BIOS_BASE        ((char*)0xf0000)
-#define BIOS_CS          0xf000
-
-extern ulong __bios_start;
-extern ulong __bios_size;
-
-/* these are defined in a 16bit segment and needs
- * to be accessed with the RELOC_16_xxxx() macros below
- */
-extern u16 ram_in_64kb_chunks;
-extern u16 bios_equipment;
-extern u8  pci_last_bus;
-
-extern void *rm_int00;
-extern void *rm_int01;
-extern void *rm_int02;
-extern void *rm_int03;
-extern void *rm_int04;
-extern void *rm_int05;
-extern void *rm_int06;
-extern void *rm_int07;
-extern void *rm_int08;
-extern void *rm_int09;
-extern void *rm_int0a;
-extern void *rm_int0b;
-extern void *rm_int0c;
-extern void *rm_int0d;
-extern void *rm_int0e;
-extern void *rm_int0f;
-extern void *rm_int10;
-extern void *rm_int11;
-extern void *rm_int12;
-extern void *rm_int13;
-extern void *rm_int14;
-extern void *rm_int15;
-extern void *rm_int16;
-extern void *rm_int17;
-extern void *rm_int18;
-extern void *rm_int19;
-extern void *rm_int1a;
-extern void *rm_int1b;
-extern void *rm_int1c;
-extern void *rm_int1d;
-extern void *rm_int1e;
-extern void *rm_int1f;
-extern void *rm_def_int;
-
-extern void *realmode_reset;
-extern void *realmode_pci_bios_call_entry;
-
 static int set_jmp_vector(int entry_point, void *target)
 {
-	if (entry_point & ~0xffff) {
+	if (entry_point & ~0xffff)
 		return -1;
-	}
 
-	if (((u32)target-0xf0000) & ~0xffff) {
+	if (((u32)target - 0xf0000) & ~0xffff)
 		return -1;
-	}
+
 	printf("set_jmp_vector: 0xf000:%04x -> %p\n",
-	       entry_point, target);
+			entry_point, target);
 
 	/* jmp opcode */
 	writeb(0xea, 0xf0000 + entry_point);
@@ -115,51 +63,42 @@ static int set_jmp_vector(int entry_point, void *target)
 	return 0;
 }
 
-
-/*
- ************************************************************
- * Install an interrupt vector
- ************************************************************
- */
-
+/* Install an interrupt vector */
 static void setvector(int vector, u16 segment, void *handler)
 {
-	u16 *ptr = (u16*)(vector*4);
-	ptr[0] = ((u32)handler - (segment << 4))&0xffff;
+	u16 *ptr = (u16 *)(vector * 4);
+	ptr[0] = ((u32)handler - (segment << 4)) & 0xffff;
 	ptr[1] = segment;
 
 #if 0
 	printf("setvector: int%02x -> %04x:%04x\n",
-	       vector, ptr[1], ptr[0]);
+			vector, ptr[1], ptr[0]);
 #endif
 }
 
-#define RELOC_16_LONG(seg, off) *(u32*)(seg << 4 | (u32)&off)
-#define RELOC_16_WORD(seg, off) *(u16*)(seg << 4 | (u32)&off)
-#define RELOC_16_BYTE(seg, off) *(u8*)(seg << 4 | (u32)&off)
-
 int bios_setup(void)
 {
-	ulong bios_start = (ulong)&__bios_start + gd->reloc_off;
+	/* The BIOS section is not relocated and still in the ROM. */
+	ulong bios_start = (ulong)&__bios_start;
 	ulong bios_size = (ulong)&__bios_size;
 
-	static int done=0;
+	static int done;
 	int vector;
 #ifdef CONFIG_PCI
 	struct pci_controller *pri_hose;
 #endif
-	if (done) {
+	if (done)
 		return 0;
-	}
+
 	done = 1;
 
 	if (bios_size > 65536) {
 		printf("BIOS too large (%ld bytes, max is 65536)\n",
-		       bios_size);
+				bios_size);
 		return -1;
 	}
 
-	memcpy(BIOS_BASE, (void*)bios_start, bios_size);
+	memcpy(BIOS_BASE, (void *)bios_start, bios_size);
 
 	/* clear bda */
 	memset(BIOS_DATA, 0, BIOS_DATA_SIZE);
@@ -178,9 +117,8 @@ int bios_setup(void)
 
 
 	/* setup realmode interrupt vectors */
-	for (vector = 0; vector < NUMVECTS; vector++) {
+	for (vector = 0; vector < NUMVECTS; vector++)
 		setvector(vector, BIOS_CS, &rm_def_int);
-	}
 
 	setvector(0x00, BIOS_CS, &rm_int00);
 	setvector(0x01, BIOS_CS, &rm_int01);

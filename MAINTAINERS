@@ -150,6 +150,7 @@ Dirk Eibach <eibach@gdsys.de>
 	gdppc440etx	PPC440EP/GR
 	intip		PPC460EX
 	io		PPC405EP
+	io64		PPC405EX
 	iocon		PPC405EP
 	neo		PPC405EP
 
@@ -449,6 +450,10 @@ Andre Schwarz <andre.schwarz@matrix-vision.de>
 Jon Smirl <jonsmirl@gmail.com>
 
 	pcm030		MPC5200
+
+Ira W. Snyder <iws@ovro.caltech.edu>
+
+	P2020COME	P2020
 
 Timur Tabi <timur@freescale.com>
 

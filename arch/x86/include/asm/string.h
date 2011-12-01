@@ -23,7 +23,7 @@ extern void * memmove(void *, const void *, __kernel_size_t);
 #undef __HAVE_ARCH_MEMCHR
 extern void * memchr(const void *, int, __kernel_size_t);
 
-#undef __HAVE_ARCH_MEMSET
+#define __HAVE_ARCH_MEMSET
 extern void * memset(void *, int, __kernel_size_t);
 
 #undef __HAVE_ARCH_MEMZERO

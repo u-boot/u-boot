@@ -157,7 +157,7 @@ unsigned long flash_init (void)
 	int i;
 
 #if !defined(CONFIG_PATI)
-	unsigned long size_b1,flashcr,size_reg;
+	unsigned long flashcr,size_reg;
 	int mode;
 	extern char version_string;
 	char *p = &version_string;
@@ -197,7 +197,6 @@ unsigned long flash_init (void)
 #if !defined(CONFIG_PATI)
 	/* protect reset vector */
 	flash_info[0].protect[flash_info[0].sector_count-1] = 1;
-	size_b1 = 0 ;
 	flash_info[0].size = size_b0;
 	/* set up flash cs according to the size */
 	size_reg=(flash_info[0].size >>20);

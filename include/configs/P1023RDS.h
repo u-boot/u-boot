@@ -526,12 +526,14 @@ extern unsigned long get_clock_freq(void);
 #ifndef CONFIG_NAND
 /* Default address of microcode for the Linux Fman driver */
 /* QE microcode/firmware address */
-#define CONFIG_SYS_FMAN_FW_ADDR		0xEF000000
+#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xEF000000
 #else
-#define CONFIG_SYS_QE_FW_IN_NAND	0x1f00000
+#define CONFIG_SYS_QE_FMAN_FW_IN_NAND
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	0x1f00000
 #endif
-#define CONFIG_SYS_FMAN_FW_LENGTH	0x10000
-#define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_FMAN_FW_LENGTH)
+#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
+#define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_FM1_DTSEC1_PHY_ADDR	0x2

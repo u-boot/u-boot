@@ -42,11 +42,13 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 	u16 device;
 	u32 class_code;
 
+	u32 pci_data;
+
 	hose = pci_bus_to_hose(PCI_BUS(dev));
-#if 0
-	printf("pci_shadow_rom() asked to shadow device %x to %x\n",
+
+	debug("pci_shadow_rom() asked to shadow device %x to %x\n",
 	       dev, (u32)dest);
-#endif
+
 	pci_read_config_word(dev, PCI_VENDOR_ID, &vendor);
 	pci_read_config_word(dev, PCI_DEVICE_ID, &device);
 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_code);
@@ -67,7 +69,7 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 		return -1;
 	}
 
-	size = (~(addr_reg&PCI_ROM_ADDRESS_MASK))+1;
+	size = (~(addr_reg&PCI_ROM_ADDRESS_MASK)) + 1;
 
 	debug("ROM is %d bytes\n", size);
 
@@ -80,27 +82,25 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 			       |PCI_ROM_ADDRESS_ENABLE);
 
 
-	for (i=rom_addr;i<rom_addr+size; i+=512) {
-
-
+	for (i = rom_addr; i < rom_addr + size; i += 512) {
 		if (readw(i) == 0xaa55) {
-			u32 pci_data;
 #ifdef PCI_ROM_SCAN_VERBOSE
 			printf("ROM signature found\n");
 #endif
-			pci_data = readw(0x18+i);
+			pci_data = readw(0x18 + i);
 			pci_data += i;
 
-			if (0==memcmp((void*)pci_data, "PCIR", 4)) {
+			if (0 == memcmp((void *)pci_data, "PCIR", 4)) {
 #ifdef PCI_ROM_SCAN_VERBOSE
-				printf("Fount PCI rom image at offset %d\n", i-rom_addr);
+				printf("Fount PCI rom image at offset %d\n",
+				       i - rom_addr);
 				printf("Vendor %04x device %04x class %06x\n",
-				       readw(pci_data+4), readw(pci_data+6),
-				       readl(pci_data+0x0d)&0xffffff);
+				       readw(pci_data + 4), readw(pci_data + 6),
+				       readl(pci_data + 0x0d) & 0xffffff);
 				printf("%s\n",
-				       (readw(pci_data+0x15) &0x80)?
-				       "Last image":"More images follow");
-				switch	(readb(pci_data+0x14)) {
+				       (readw(pci_data + 0x15) & 0x80) ?
+				       "Last image" : "More images follow");
+				switch	(readb(pci_data + 0x14)) {
 				case 0:
 					printf("X86 code\n");
 					break;
@@ -111,35 +111,38 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 					printf("PARISC code\n");
 					break;
 				}
-				printf("Image size %d\n", readw(pci_data+0x10) * 512);
+				printf("Image size %d\n",
+				       readw(pci_data + 0x10) * 512);
 #endif
-				/* FixMe: I think we should compare the class code
-				 * bytes as well but I have no reference on the
-				 * exact order of these bytes in the PCI ROM header */
-				if (readw(pci_data+4) == vendor &&
-				    readw(pci_data+6) == device &&
-				    /* (readl(pci_data+0x0d)&0xffffff) == class_code && */
-				    readb(pci_data+0x14) == 0 /* x86 code image */ ) {
+				/*
+				 * FixMe: I think we should compare the class
+				 * code bytes as well but I have no reference
+				 * on the exact order of these bytes in the PCI
+				 * ROM header
+				 */
+				if (readw(pci_data + 4) == vendor &&
+				    readw(pci_data + 6) == device &&
+				    readb(pci_data + 0x14) == 0) {
 #ifdef PCI_ROM_SCAN_VERBOSE
-					printf("Suitable ROM image found, copying\n");
+					printf("Suitable ROM image found\n");
 #endif
-					memmove(dest, (void*)rom_addr, readw(pci_data+0x10) * 512);
+					memmove(dest, (void *)rom_addr,
+						readw(pci_data + 0x10) * 512);
 					res = 0;
 					break;
 
 				}
-				if (readw(pci_data+0x15) &0x80) {
+
+				if (readw(pci_data + 0x15) & 0x80)
 					break;
-				}
 			}
 		}
 
 	}
 
 #ifdef PCI_ROM_SCAN_VERBOSE
-	if (res) {
+	if (res)
 		printf("No suitable image found\n");
-	}
 #endif
 	/* disable PAR register and PCI device ROM address devocer */
 	pci_remove_rom_window(hose, rom_addr);
@@ -148,3 +151,38 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 
 	return res;
 }
+
+#ifdef PCI_BIOS_DEBUG
+
+void print_bios_bios_stat(void)
+{
+	printf("16 bit functions:\n");
+	printf("pci_bios_present:                %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_present));
+	printf("pci_bios_find_device:            %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_find_device));
+	printf("pci_bios_find_class:             %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_find_class));
+	printf("pci_bios_generate_special_cycle: %d\n",
+			RELOC_16_LONG(0xf000,
+				      num_pci_bios_generate_special_cycle));
+	printf("pci_bios_read_cfg_byte:          %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_read_cfg_byte));
+	printf("pci_bios_read_cfg_word:          %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_read_cfg_word));
+	printf("pci_bios_read_cfg_dword:         %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_read_cfg_dword));
+	printf("pci_bios_write_cfg_byte:         %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_write_cfg_byte));
+	printf("pci_bios_write_cfg_word:         %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_write_cfg_word));
+	printf("pci_bios_write_cfg_dword:        %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_write_cfg_dword));
+	printf("pci_bios_get_irq_routing:        %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_get_irq_routing));
+	printf("pci_bios_set_irq:                %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_set_irq));
+	printf("pci_bios_unknown_function:       %d\n",
+			RELOC_16_LONG(0xf000, num_pci_bios_unknown_function));
+}
+#endif

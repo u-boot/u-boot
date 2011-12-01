@@ -70,26 +70,28 @@ int pci_sc520_set_irq(int pci_pin, int irq)
 
 	debug("set_irq(): map INT%c to IRQ%d\n", pci_pin + 'A', irq);
 
-	if (irq < 0 || irq > 15) {
+	if (irq < 0 || irq > 15)
 		return -1; /* illegal irq */
-	}
 
-	if (pci_pin < 0 || pci_pin > 15) {
+	if (pci_pin < 0 || pci_pin > 15)
 		return -1; /* illegal pci int pin */
-	}
 
 	/* first disable any non-pci interrupt source that use
 	 * this level */
 
 	/* PCI interrupt mapping (A through D)*/
-	for (i=0; i<=3 ;i++) {
-		if (readb(&sc520_mmcr->pci_int_map[i]) == sc520_irq[irq].priority)
+	for (i = 0; i <= 3 ; i++) {
+		tmpb = readb(&sc520_mmcr->pci_int_map[i]);
+
+		if (tmpb == sc520_irq[irq].priority)
 			writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[i]);
 	}
 
 	/* GP IRQ interrupt mapping */
-	for (i=0; i<=10 ;i++) {
-		if (readb(&sc520_mmcr->gp_int_map[i]) == sc520_irq[irq].priority)
+	for (i = 0; i <= 10 ; i++) {
+		tmpb = readb(&sc520_mmcr->gp_int_map[i]);
+
+		if (tmpb == sc520_irq[irq].priority)
 			writeb(SC520_IRQ_DISABLED, &sc520_mmcr->gp_int_map[i]);
 	}
 
@@ -102,10 +104,12 @@ int pci_sc520_set_irq(int pci_pin, int irq)
 	if (pci_pin < 4) {
 		/* PCI INTA-INTD */
 		/* route the interrupt */
-		writeb(sc520_irq[irq].priority, &sc520_mmcr->pci_int_map[pci_pin]);
+		writeb(sc520_irq[irq].priority,
+				&sc520_mmcr->pci_int_map[pci_pin]);
 	} else {
 		/* GPIRQ0-GPIRQ10 used for additional PCI INTS */
-		writeb(sc520_irq[irq].priority, &sc520_mmcr->gp_int_map[pci_pin - 4]);
+		writeb(sc520_irq[irq].priority,
+				&sc520_mmcr->gp_int_map[pci_pin - 4]);
 
 		/* also set the polarity in this case */
 		tmpw = readw(&sc520_mmcr->intpinpol);
@@ -126,9 +130,7 @@ void pci_sc520_init(struct pci_controller *hose)
 	hose->last_busno = 0xff;
 	hose->region_count = pci_set_regions(hose);
 
-	pci_setup_type1(hose,
-			SC520_REG_ADDR,
-			SC520_REG_DATA);
+	pci_setup_type1(hose);
 
 	pci_register_hose(hose);
 

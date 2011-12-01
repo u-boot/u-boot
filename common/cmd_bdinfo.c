@@ -31,7 +31,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void print_num(const char *, ulong);
 
-#if !(defined(CONFIG_ARM) || defined(CONFIG_M68K) || defined(CONFIG_SANDBOX)) \
+#if !(defined(CONFIG_ARM) || defined(CONFIG_M68K) || \
+	defined(CONFIG_SANDBOX) || defined(CONFIG_X86)) \
 	|| defined(CONFIG_CMD_NET)
 #define HAVE_PRINT_ETH
 static void print_eth(int idx);

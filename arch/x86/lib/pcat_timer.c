@@ -30,7 +30,7 @@
 #define TIMER0_VALUE 0x04aa /* 1kHz 1.9318MHz / 1000 */
 #define TIMER2_VALUE 0x0a8e /* 440Hz */
 
-static int timer_init_done = 0;
+static int timer_init_done;
 
 int timer_init(void)
 {
@@ -42,18 +42,18 @@ int timer_init(void)
 	 * (to stasrt a beep: write 3 to port 0x61,
 	 * to stop it again: write 0)
 	 */
-	outb (PIT_CMD_CTR0 | PIT_CMD_BOTH | PIT_CMD_MODE2,
-	      PIT_BASE + PIT_COMMAND);
-	outb (TIMER0_VALUE & 0xff, PIT_BASE + PIT_T0);
-	outb (TIMER0_VALUE >> 8, PIT_BASE + PIT_T0);
+	outb(PIT_CMD_CTR0 | PIT_CMD_BOTH | PIT_CMD_MODE2,
+			PIT_BASE + PIT_COMMAND);
+	outb(TIMER0_VALUE & 0xff, PIT_BASE + PIT_T0);
+	outb(TIMER0_VALUE >> 8, PIT_BASE + PIT_T0);
 
-	outb (PIT_CMD_CTR2 | PIT_CMD_BOTH | PIT_CMD_MODE3,
-	      PIT_BASE + PIT_COMMAND);
-	outb (TIMER2_VALUE & 0xff, PIT_BASE + PIT_T2);
-	outb (TIMER2_VALUE >> 8, PIT_BASE + PIT_T2);
+	outb(PIT_CMD_CTR2 | PIT_CMD_BOTH | PIT_CMD_MODE3,
+			PIT_BASE + PIT_COMMAND);
+	outb(TIMER2_VALUE & 0xff, PIT_BASE + PIT_T2);
+	outb(TIMER2_VALUE >> 8, PIT_BASE + PIT_T2);
 
-	irq_install_handler (0, timer_isr, NULL);
-	unmask_irq (0);
+	irq_install_handler(0, timer_isr, NULL);
+	unmask_irq(0);
 
 	timer_init_done = 1;
 
@@ -64,21 +64,20 @@ static u16 read_pit(void)
 {
 	u8 low;
 
-	outb (PIT_CMD_LATCH, PIT_BASE + PIT_COMMAND);
-	low = inb (PIT_BASE + PIT_T0);
+	outb(PIT_CMD_LATCH, PIT_BASE + PIT_COMMAND);
+	low = inb(PIT_BASE + PIT_T0);
 
-	return ((inb (PIT_BASE + PIT_T0) << 8) | low);
+	return (inb(PIT_BASE + PIT_T0) << 8) | low;
 }
 
 /* this is not very exact */
-void __udelay (unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	int counter;
 	int wraps;
 
-	if (timer_init_done)
-	{
-		counter = read_pit ();
+	if (timer_init_done) {
+		counter = read_pit();
 		wraps = usec / 1000;
 		usec = usec % 1000;
 
@@ -92,7 +91,7 @@ void __udelay (unsigned long usec)
 		}
 
 		while (1) {
-			int new_count = read_pit ();
+			int new_count = read_pit();
 
 			if (((new_count < usec) && !wraps) || wraps < 0)
 				break;

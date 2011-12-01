@@ -37,6 +37,7 @@
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
+#include <linux/compiler.h>
 
 /*
  * Constructor for a conventional segment GDT (or LDT) entry
@@ -52,7 +53,7 @@
 struct gdt_ptr {
 	u16 len;
 	u32 ptr;
-} __attribute__((packed));
+} __packed;
 
 static void reload_gdt(void)
 {
@@ -115,14 +116,14 @@ int x86_cpu_init_r(void)
 	reload_gdt();
 
 	/* Initialize core interrupt and exception functionality of CPU */
-	cpu_init_interrupts ();
+	cpu_init_interrupts();
 	return 0;
 }
 int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	printf ("resetting ...\n");
+	printf("resetting ...\n");
 
 	/* wait 50 ms */
 	udelay(50000);
@@ -133,7 +134,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-void  flush_cache (unsigned long dummy1, unsigned long dummy2)
+void  flush_cache(unsigned long dummy1, unsigned long dummy2)
 {
 	asm("wbinvd\n");
 }
@@ -142,16 +143,16 @@ void __attribute__ ((regparm(0))) generate_gpf(void);
 
 /* segment 0x70 is an arbitrary segment which does not exist */
 asm(".globl generate_gpf\n"
-    ".hidden generate_gpf\n"
-    ".type generate_gpf, @function\n"
-    "generate_gpf:\n"
-    "ljmp   $0x70, $0x47114711\n");
+	".hidden generate_gpf\n"
+	".type generate_gpf, @function\n"
+	"generate_gpf:\n"
+	"ljmp   $0x70, $0x47114711\n");
 
 void __reset_cpu(ulong addr)
 {
 	printf("Resetting using x86 Triple Fault\n");
-	set_vector(13, generate_gpf);  /* general protection fault handler */
-	set_vector(8, generate_gpf);   /* double fault handler */
-	generate_gpf();                /* start the show */
+	set_vector(13, generate_gpf);	/* general protection fault handler */
+	set_vector(8, generate_gpf);	/* double fault handler */
+	generate_gpf();			/* start the show */
 }
 void reset_cpu(ulong addr) __attribute__((weak, alias("__reset_cpu")));
