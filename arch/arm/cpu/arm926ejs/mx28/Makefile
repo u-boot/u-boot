@@ -27,6 +27,10 @@ LIB	= $(obj)lib$(SOC).o
 
 COBJS	= clock.o mx28.o iomux.o timer.o
 
+ifdef	CONFIG_SPL_BUILD
+COBJS	+= memsize.o spl_boot.o spl_mem_init.o spl_power_init.o
+endif
+
 SRCS	:= $(START:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 START	:= $(addprefix $(obj),$(START))
@@ -35,6 +39,11 @@ all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
+
+ifdef	CONFIG_SPL_BUILD
+memsize.c:
+	ln -sf $(TOPDIR)/common/memsize.c $@
+endif
 
 #########################################################################
 

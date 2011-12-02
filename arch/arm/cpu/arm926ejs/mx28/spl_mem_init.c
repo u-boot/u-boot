@@ -29,7 +29,7 @@
 #include <asm/arch/iomux-mx28.h>
 #include <asm/arch/imx-regs.h>
 
-#include "m28_init.h"
+#include "mx28_init.h"
 
 uint32_t dram_vals[] = {
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,

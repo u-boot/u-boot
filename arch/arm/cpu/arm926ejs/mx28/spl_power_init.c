@@ -28,7 +28,7 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 
-#include "m28_init.h"
+#include "mx28_init.h"
 
 void mx28_power_clock2xtal(void)
 {

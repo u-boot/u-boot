@@ -1,5 +1,5 @@
 /*
- * Freescale i.MX28 Boot setup
+ * DENX M28 Boot setup
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
@@ -27,23 +27,8 @@
 #include <config.h>
 #include <asm/io.h>
 #include <asm/arch/iomux-mx28.h>
-
-#include "m28_init.h"
-
-/*
- * This delay function is intended to be used only in early stage of boot, where
- * clock are not set up yet. The timer used here is reset on every boot and
- * takes a few seconds to roll. The boot doesn't take that long, so to keep the
- * code simple, it doesn't take rolling into consideration.
- */
-#define	HW_DIGCTRL_MICROSECONDS	0x8001c0c0
-void early_delay(int delay)
-{
-	uint32_t st = readl(HW_DIGCTRL_MICROSECONDS);
-	st += delay;
-	while (st > readl(HW_DIGCTRL_MICROSECONDS))
-		;
-}
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 
 #define	MUX_CONFIG_LED	(MXS_PAD_3V3 | MXS_PAD_4MA | MXS_PAD_NOPULL)
 #define	MUX_CONFIG_LCD	(MXS_PAD_3V3 | MXS_PAD_4MA)
@@ -108,10 +93,6 @@ const iomux_cfg_t iomux_setup[] = {
 	/* CAN */
 	MX28_PAD_GPMI_RDY2__CAN0_TX,
 	MX28_PAD_GPMI_RDY3__CAN0_RX,
-
-	/* I2C */
-	MX28_PAD_I2C0_SCL__I2C0_SCL,
-	MX28_PAD_I2C0_SDA__I2C0_SDA,
 
 	/* TSC2007 */
 	MX28_PAD_SAIF0_MCLK__GPIO_3_20 | MUX_CONFIG_TSC,
@@ -235,39 +216,5 @@ const iomux_cfg_t iomux_setup[] = {
 
 void board_init_ll(void)
 {
-	mxs_iomux_setup_multiple_pads(iomux_setup, ARRAY_SIZE(iomux_setup));
-	mx28_power_init();
-	mx28_mem_init();
-	mx28_power_wait_pswitch();
-}
-
-/* Support aparatus */
-inline void board_init_f(unsigned long bootflag)
-{
-	for (;;)
-		;
-}
-
-inline void board_init_r(gd_t *id, ulong dest_addr)
-{
-	for (;;)
-		;
-}
-
-inline int printf(const char *fmt, ...)
-{
-	return 0;
-}
-
-inline void __coloured_LED_init(void) {}
-inline void __red_LED_on(void) {}
-void coloured_LED_init(void)
-	__attribute__((weak, alias("__coloured_LED_init")));
-void red_LED_on(void)
-	__attribute__((weak, alias("__red_LED_on")));
-void hang(void) __attribute__ ((noreturn));
-void hang(void)
-{
-	for (;;)
-		;
+	mx28_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
 }

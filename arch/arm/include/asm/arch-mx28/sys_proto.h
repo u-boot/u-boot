@@ -29,4 +29,10 @@ int mx28_wait_mask_clr(struct mx28_register *reg, uint32_t mask, int timeout);
 
 int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int));
 
+#ifdef CONFIG_SPL_BUILD
+#include <asm/arch/iomux-mx28.h>
+void mx28_common_spl_init(const iomux_cfg_t *iomux_setup,
+			const unsigned int iomux_size);
+#endif
+
 #endif	/* __MX28_H__ */
