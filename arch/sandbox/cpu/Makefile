@@ -23,9 +23,6 @@
 # MA 02111-1307 USA
 #
 
-# os.c is build in the system environment, so needs standard includes
-CPPFLAGS_arch/sandbox/cpu/os.o += -I/usr/include
-
 include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).o
@@ -39,6 +36,10 @@ all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
+
+# os.c is build in the system environment, so needs standard includes
+$(obj)os.o: ALL_CFLAGS := $(filter-out -nostdinc,$(ALL_CFLAGS))
+$(obj).depend.os: CPPFLAGS := $(filter-out -nostdinc,$(CPPFLAGS))
 
 #########################################################################
 
