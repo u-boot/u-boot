@@ -16,6 +16,7 @@ usage()
 	  -c CPU,    --cpu CPU         Build all boards with cpu CPU
 	  -v VENDOR, --vendor VENDOR   Build all boards with vendor VENDOR
 	  -s SOC,    --soc SOC         Build all boards with soc SOC
+	  -l,        --list            List all targets to be built
 	  -h,        --help            This help output
 
 	Selections by these options are logically ANDed; if the same option
@@ -47,8 +48,8 @@ usage()
 	exit ${ret}
 }
 
-SHORT_OPTS="ha:c:v:s:"
-LONG_OPTS="help,arch:,cpu:,vendor:,soc:"
+SHORT_OPTS="ha:c:v:s:l"
+LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
@@ -65,6 +66,7 @@ TEMP=`getopt -o ${SHORT_OPTS} --long ${LONG_OPTS} \
 eval set -- "$TEMP"
 
 SELECTED=''
+ONLY_LIST=''
 
 while true ; do
 	case "$1" in
@@ -104,6 +106,9 @@ while true ; do
 		fi
 		SELECTED='y'
 		shift 2 ;;
+	-l|--list)
+		ONLY_LIST='y'
+		shift ;;
 	-h|--help)
 		usage ;;
 	--)
@@ -487,6 +492,11 @@ LIST_nds32="$(boards_by_arch nds32)"
 build_target() {
 	target=$1
 
+	if [ "$ONLY_LIST" == 'y' ] ; then
+		echo "$target"
+		return
+	fi
+
 	${MAKE} distclean >/dev/null
 	${MAKE} -s ${target}_config
 
@@ -530,6 +540,7 @@ build_targets() {
 #-----------------------------------------------------------------------
 
 print_stats() {
+	if [ "$ONLY_LIST" == 'y' ] ; then return ; fi
 	echo ""
 	echo "--------------------- SUMMARY ----------------------------"
 	echo "Boards compiled: ${TOTAL_CNT}"
