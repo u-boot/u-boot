@@ -28,23 +28,22 @@
  */
 void nand_boot(void)
 {
-	int ret;
 	__attribute__((noreturn)) void (*uboot)(void);
 
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
-	ret =  nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
 			CONFIG_SYS_NAND_U_BOOT_SIZE,
-		(void *)CONFIG_SYS_NAND_U_BOOT_DST);
+			(void *)CONFIG_SYS_NAND_U_BOOT_DST);
 
 #ifdef CONFIG_NAND_ENV_DST
-	ret =  nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-		(void *)CONFIG_NAND_ENV_DST);
+	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
+			(void *)CONFIG_NAND_ENV_DST);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	ret =  nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, CONFIG_ENV_SIZE,
-		(void *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
+	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, CONFIG_ENV_SIZE,
+			(void *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
 #endif
 #endif
 
