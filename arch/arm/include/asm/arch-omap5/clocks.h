@@ -686,14 +686,14 @@ struct dpll_regs {
 struct dpll_params {
 	u32 m;
 	u32 n;
-	u8 m2;
-	u8 m3;
-	u8 h11;
-	u8 h12;
-	u8 h13;
-	u8 h14;
-	u8 h22;
-	u8 h23;
+	s8 m2;
+	s8 m3;
+	s8 h11;
+	s8 h12;
+	s8 h13;
+	s8 h14;
+	s8 h22;
+	s8 h23;
 };
 
 extern struct omap5_prcm_regs *const prcm;
