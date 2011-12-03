@@ -88,7 +88,7 @@ static inline void *menu_item_print(struct menu *m,
 				void *extra)
 {
 	if (!m->item_data_print) {
-		putc(item->key);
+		puts(item->key);
 		putc('\n');
 	} else {
 		m->item_data_print(item->data);
