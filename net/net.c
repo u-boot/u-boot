@@ -728,7 +728,7 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 	 */
 	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
 
-		debug("sending ARP for %08lx\n", dest);
+		debug("sending ARP for %08x\n", dest);
 
 		NetArpWaitPacketIP = dest;
 		NetArpWaitPacketMAC = ether;
@@ -751,7 +751,7 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 		return 1;	/* waiting */
 	}
 
-	debug("sending UDP to %08lx/%pM\n", dest, ether);
+	debug("sending UDP to %08x/%pM\n", dest, ether);
 
 	pkt = (uchar *)NetTxPacket;
 	pkt += NetSetEther(pkt, ether, PROT_IP);
@@ -775,7 +775,7 @@ int PingSend(void)
 
 	memcpy(mac, NetEtherNullAddr, 6);
 
-	debug("sending ARP for %08lx\n", NetPingIP);
+	debug("sending ARP for %08x\n", NetPingIP);
 
 	NetArpWaitPacketIP = NetPingIP;
 	NetArpWaitPacketMAC = mac;

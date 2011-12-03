@@ -688,7 +688,7 @@ NfsStart (void)
 	}
 
 	if (BootFile[0] == '\0') {
-		sprintf (default_filename, "/nfsroot/%02lX%02lX%02lX%02lX.img",
+		sprintf(default_filename, "/nfsroot/%02X%02X%02X%02X.img",
 			NetOurIP & 0xFF,
 			(NetOurIP >>  8) & 0xFF,
 			(NetOurIP >> 16) & 0xFF,

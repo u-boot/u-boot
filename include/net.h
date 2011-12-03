@@ -33,7 +33,8 @@
 
 #define PKTALIGN	32
 
-typedef ulong		IPaddr_t;
+/* IPv4 addresses are always 32 bits in size */
+typedef u32		IPaddr_t;
 
 
 /**
