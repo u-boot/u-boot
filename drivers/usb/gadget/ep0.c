@@ -184,7 +184,6 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 			       int index)
 {
 	int port = 0;		/* XXX compound device */
-	char *cp;
 
 	/*dbg_ep0(3, "max: %x type: %x index: %x", max, descriptor_type, index); */
 
@@ -196,7 +195,6 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 
 	/* setup tx urb */
 	urb->actual_length = 0;
-	cp = (char*)urb->buffer;
 
 	dbg_ep0 (2, "%s", USBD_DEVICE_DESCRIPTORS (descriptor_type));
 
