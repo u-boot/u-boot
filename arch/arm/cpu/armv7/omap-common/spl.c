@@ -100,9 +100,10 @@ static void jump_to_image_no_args(void)
 	debug("image entry point: 0x%X\n", spl_image.entry_point);
 	/* Pass the saved boot_params from rom code */
 #if defined(CONFIG_VIRTIO) || defined(CONFIG_ZEBU)
-	image_entry = 0x80100000;
+	image_entry = (image_entry_noargs_t)0x80100000;
 #endif
-	image_entry((u32 *)&boot_params_ptr);
+	u32 boot_params_ptr_addr = (u32)&boot_params_ptr;
+	image_entry((u32 *)boot_params_ptr_addr);
 }
 
 void jump_to_image_no_args(void) __attribute__ ((noreturn));
