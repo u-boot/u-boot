@@ -76,6 +76,600 @@ lowlevel_init:
 	bne doit
 #endif
 
+#ifdef CONFIG_ZYNQ_DDR_533_INIT
+   
+    LDR     r0,   =0xf8000008   	/*DDR PLL Settings */ 
+    LDR     r4,   = 0xdf0d 
+    STR     r4,   [r0]  
+    
+    NOP					/* 11 cRYSTAL Clocks  */
+    NOP 	
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP					/* 11 cRYSTAL Clocks  */
+    NOP 	
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    
+
+
+    LDR     r0,   =0xf8000124
+  	
+     	
+
+    LDR     r0,   =0xf8000124     
+    LDR     r4,   =0x18200003 
+    STR     r4,   [r0]  
+ 
+    NOP					/* 11 cRYSTAL Clocks  */
+    NOP 	
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP					/* 11 cRYSTAL Clocks  */
+    NOP 	
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+
+
+    LDR     r0,   =0xf8000124
+
+    LDR     r0,   =0xf8000104
+
+
+    LDR     r0,   =0xf8000104      
+    LDR     r4,   =0x20008 
+    STR     r4,   [r0]  
+
+ 
+    NOP					/* 11 cRYSTAL Clocks */
+    NOP 	
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP					/* 11 cRYSTAL Clocks  */
+    NOP 	
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+
+    LDR     r0,   =0xf8000104
+
+    LDR     r0,   =0xf8000128 
+    LDR     r4,   =0x3500201 
+    STR     r4,   [r0]  
+    
+    
+    NOP					/* 11 cRYSTAL Clocks see if it locks ? */
+    NOP 	
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+ 
+    
+    LDR     r0,   = 0xf8000000  /*SLCR Base APB Address */ 
+    LDR     r4,   = 0x00000600 
+    STR     r4,   [r0,  #0xB40]  
+    LDR     r5,   [r0,  #0xB40]  
+     
+      
+    LDR     r4,   = 0x00000600 
+    STR     r4,   [r0,  #0xB44]  
+    LDR     r5,   [r0,  #0xB44]  
+     
+      
+    LDR     r4,   = 0x00000672 
+    STR     r4,   [r0,  #0xB48]  
+    LDR     r5,   [r0,  #0xB48]  
+     
+      
+    LDR     r4,   = 0x00000672 
+    STR     r4,   [r0,  #0xB4C]  
+    LDR     r5,   [r0,  #0xB4C]  
+     
+      
+    LDR     r4,   = 0x00000674 
+    STR     r4,   [r0,  #0xB50]  
+    LDR     r5,   [r0,  #0xB50]  
+     
+      
+    LDR     r4,   = 0x00000674 
+    STR     r4,   [r0,  #0xB54]  
+    LDR     r5,   [r0,  #0xB54]  
+     
+      
+    LDR     r4,   = 0x00000600 
+    STR     r4,   [r0,  #0xB58]  
+    LDR     r5,   [r0,  #0xB58]  
+     
+      
+    LDR     r4,   = 0x00D6861C 
+    STR     r4,   [r0,  #0xB5C]  
+    LDR     r5,   [r0,  #0xB5C]  
+     
+      
+    LDR     r4,   = 0x00F9861C 
+    STR     r4,   [r0,  #0xB60]  
+    LDR     r5,   [r0,  #0xB60]  
+     
+      
+    LDR     r4,   = 0x00F9861C 
+    STR     r4,   [r0,  #0xB64]  
+    LDR     r5,   [r0,  #0xB64]  
+     
+      
+    LDR     r4,   = 0x00D6861C 
+    STR     r4,   [r0,  #0xB68]  
+    LDR     r5,   [r0,  #0xB68]  
+     
+      
+    LDR     r4,   = 0x00000E09 
+    STR     r4,   [r0,  #0xB6C]  
+    LDR     r5,   [r0,  #0xB6C]  
+     
+      
+    LDR     r4,   = 0x00000021 
+    STR     r4,   [r0,  #0xB70]  
+    LDR     r5,   [r0,  #0xB70]  
+     
+      
+    LDR     r4,   = 0x00000020 
+    STR     r4,   [r0,  #0xB70]  
+    LDR     r5,   [r0,  #0xB70]  
+     
+      
+    LDR     r4,   = 0x00000823 
+    STR     r4,   [r0,  #0xB70]  
+    LDR     r5,   [r0,  #0xB70]  
+     
+      
+    LDR     r0,   = 0xf8006000  /*DRAM Base APB Address */ 
+    LDR     r4,   = 0x00000080 
+    STR     r4,   [r0,  #0x0]  
+    LDR     r5,   [r0,  #0x0]  
+     
+      
+    LDR     r4,   = 0x00081081 
+    STR     r4,   [r0,  #0x4]  
+    LDR     r5,   [r0,  #0x4]  
+     
+      
+    LDR     r4,   = 0x03C0780F 
+    STR     r4,   [r0,  #0x8]  
+    LDR     r5,   [r0,  #0x8]  
+     
+      
+    LDR     r4,   = 0x02001001 
+    STR     r4,   [r0,  #0xC]  
+    LDR     r5,   [r0,  #0xC]  
+     
+      
+    LDR     r4,   = 0x00014001 
+    STR     r4,   [r0,  #0x10]  
+    LDR     r5,   [r0,  #0x10]  
+     
+      
+    LDR     r4,   = 0x0004281A 
+    STR     r4,   [r0,  #0x14]  
+    LDR     r5,   [r0,  #0x14]  
+     
+      
+    LDR     r4,   = 0x44E458D2 
+    STR     r4,   [r0,  #0x18]  
+    LDR     r5,   [r0,  #0x18]  
+     
+      
+    LDR     r4,   = 0x720238E5 
+    STR     r4,   [r0,  #0x1C]  
+    LDR     r5,   [r0,  #0x1C]  
+     
+      
+    LDR     r4,   = 0x272872D0 
+    STR     r4,   [r0,  #0x20]  
+    LDR     r5,   [r0,  #0x20]  
+     
+      
+    LDR     r4,   = 0x0000003C 
+    STR     r4,   [r0,  #0x24]  
+    LDR     r5,   [r0,  #0x24]  
+     
+      
+    LDR     r4,   = 0x00002007 
+    STR     r4,   [r0,  #0x28]  
+    LDR     r5,   [r0,  #0x28]  
+     
+      
+    LDR     r4,   = 0x00000008 
+    STR     r4,   [r0,  #0x2C]  
+    LDR     r5,   [r0,  #0x2C]  
+     
+      
+    LDR     r4,   = 0x00040930 
+    STR     r4,   [r0,  #0x30]  
+    LDR     r5,   [r0,  #0x30]  
+     
+      
+    LDR     r4,   = 0x00010694 
+    STR     r4,   [r0,  #0x34]  
+    LDR     r5,   [r0,  #0x34]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0x38]  
+    LDR     r5,   [r0,  #0x38]  
+     
+      
+    LDR     r4,   = 0x00000777 
+    STR     r4,   [r0,  #0x3C]  
+    LDR     r5,   [r0,  #0x3C]  
+     
+      
+    LDR     r4,   = 0xFFF00000 
+    STR     r4,   [r0,  #0x40]  
+    LDR     r5,   [r0,  #0x40]  
+     
+      
+    LDR     r4,   = 0x0F666666 
+    STR     r4,   [r0,  #0x44]  
+    LDR     r5,   [r0,  #0x44]  
+     
+      
+    LDR     r4,   = 0x0003C248 
+    STR     r4,   [r0,  #0x48]  
+    LDR     r5,   [r0,  #0x48]  
+     
+      
+    LDR     r4,   = 0x77010800 
+    STR     r4,   [r0,  #0x50]  
+    LDR     r5,   [r0,  #0x50]  
+     
+      
+    LDR     r4,   = 0x00000101 
+    STR     r4,   [r0,  #0x58]  
+    LDR     r5,   [r0,  #0x58]  
+     
+      
+    LDR     r4,   = 0x00005003 
+    STR     r4,   [r0,  #0x5C]  
+    LDR     r5,   [r0,  #0x5C]  
+     
+      
+    LDR     r4,   = 0x0000003E 
+    STR     r4,   [r0,  #0x60]  
+    LDR     r5,   [r0,  #0x60]  
+     
+      
+    LDR     r4,   = 0x00020000 
+    STR     r4,   [r0,  #0x64]  
+    LDR     r5,   [r0,  #0x64]  
+     
+      
+    LDR     r4,   = 0x00284141 
+    STR     r4,   [r0,  #0x68]  
+    LDR     r5,   [r0,  #0x68]  
+     
+      
+    LDR     r4,   = 0x00001610 
+    STR     r4,   [r0,  #0x6C]  
+    LDR     r5,   [r0,  #0x6C]  
+     
+      
+    LDR     r4,   = 0x00008000 
+    STR     r4,   [r0,  #0xA0]  
+    LDR     r5,   [r0,  #0xA0]  
+     
+      
+    LDR     r4,   = 0x10200802 
+    STR     r4,   [r0,  #0xA4]  
+    LDR     r5,   [r0,  #0xA4]  
+     
+      
+    LDR     r4,   = 0x0690CB73 
+    STR     r4,   [r0,  #0xA8]  
+    LDR     r5,   [r0,  #0xA8]  
+     
+      
+    LDR     r4,   = 0x000001FE 
+    STR     r4,   [r0,  #0xAC]  
+    LDR     r5,   [r0,  #0xAC]  
+     
+      
+    LDR     r4,   = 0x1CFFFFFF 
+    STR     r4,   [r0,  #0xB0]  
+    LDR     r5,   [r0,  #0xB0]  
+     
+      
+    LDR     r4,   = 0x00000200 
+    STR     r4,   [r0,  #0xB4]  
+    LDR     r5,   [r0,  #0xB4]  
+     
+      
+    LDR     r4,   = 0x00200066 
+    STR     r4,   [r0,  #0xB8]  
+    LDR     r5,   [r0,  #0xB8]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0xBC]  
+    LDR     r5,   [r0,  #0xBC]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0xC4]  
+    LDR     r5,   [r0,  #0xC4]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0xC8]  
+    LDR     r5,   [r0,  #0xC8]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0xDC]  
+    LDR     r5,   [r0,  #0xDC]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0xF0]  
+    LDR     r5,   [r0,  #0xF0]  
+     
+      
+    LDR     r4,   = 0x00000008 
+    STR     r4,   [r0,  #0xF4]  
+    LDR     r5,   [r0,  #0xF4]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0x114]  
+    LDR     r5,   [r0,  #0x114]  
+     
+      
+    LDR     r4,   = 0x40000001 
+    STR     r4,   [r0,  #0x118]  
+    LDR     r5,   [r0,  #0x118]  
+     
+      
+    LDR     r4,   = 0x40000001 
+    STR     r4,   [r0,  #0x11C]  
+    LDR     r5,   [r0,  #0x11C]  
+     
+      
+    LDR     r4,   = 0x40000001 
+    STR     r4,   [r0,  #0x120]  
+    LDR     r5,   [r0,  #0x120]  
+     
+      
+    LDR     r4,   = 0x40000001 
+    STR     r4,   [r0,  #0x124]  
+    LDR     r5,   [r0,  #0x124]  
+     
+      
+    LDR     r4,   = 0x00036022 
+    STR     r4,   [r0,  #0x12C]  
+    LDR     r5,   [r0,  #0x12C]  
+     
+      
+    LDR     r4,   = 0x00038419 
+    STR     r4,   [r0,  #0x130]  
+    LDR     r5,   [r0,  #0x130]  
+     
+      
+    LDR     r4,   = 0x00038818 
+    STR     r4,   [r0,  #0x134]  
+    LDR     r5,   [r0,  #0x134]  
+     
+      
+    LDR     r4,   = 0x00036C1F 
+    STR     r4,   [r0,  #0x138]  
+    LDR     r5,   [r0,  #0x138]  
+     
+      
+    LDR     r4,   = 0x00000035 
+    STR     r4,   [r0,  #0x140]  
+    LDR     r5,   [r0,  #0x140]  
+     
+      
+    LDR     r4,   = 0x00000035 
+    STR     r4,   [r0,  #0x144]  
+    LDR     r5,   [r0,  #0x144]  
+     
+      
+    LDR     r4,   = 0x00000035 
+    STR     r4,   [r0,  #0x148]  
+    LDR     r5,   [r0,  #0x148]  
+     
+      
+    LDR     r4,   = 0x00000035 
+    STR     r4,   [r0,  #0x14C]  
+    LDR     r5,   [r0,  #0x14C]  
+     
+      
+    LDR     r4,   = 0x00000022 
+    STR     r4,   [r0,  #0x154]  
+    LDR     r5,   [r0,  #0x154]  
+     
+      
+    LDR     r4,   = 0x00000019 
+    STR     r4,   [r0,  #0x158]  
+    LDR     r5,   [r0,  #0x158]  
+     
+      
+    LDR     r4,   = 0x00000018 
+    STR     r4,   [r0,  #0x15C]  
+    LDR     r5,   [r0,  #0x15C]  
+     
+      
+    LDR     r4,   = 0x0000001F 
+    STR     r4,   [r0,  #0x160]  
+    LDR     r5,   [r0,  #0x160]  
+     
+      
+    LDR     r4,   = 0x0000012D 
+    STR     r4,   [r0,  #0x168]  
+    LDR     r5,   [r0,  #0x168]  
+     
+      
+    LDR     r4,   = 0x00000136 
+    STR     r4,   [r0,  #0x16C]  
+    LDR     r5,   [r0,  #0x16C]  
+     
+      
+    LDR     r4,   = 0x00000137 
+    STR     r4,   [r0,  #0x170]  
+    LDR     r5,   [r0,  #0x170]  
+     
+      
+    LDR     r4,   = 0x00000130 
+    STR     r4,   [r0,  #0x174]  
+    LDR     r5,   [r0,  #0x174]  
+     
+      
+    LDR     r4,   = 0x00000062 
+    STR     r4,   [r0,  #0x17C]  
+    LDR     r5,   [r0,  #0x17C]  
+     
+      
+    LDR     r4,   = 0x00000059 
+    STR     r4,   [r0,  #0x180]  
+    LDR     r5,   [r0,  #0x180]  
+     
+      
+    LDR     r4,   = 0x00000058 
+    STR     r4,   [r0,  #0x184]  
+    LDR     r5,   [r0,  #0x184]  
+     
+      
+    LDR     r4,   = 0x0000005F 
+    STR     r4,   [r0,  #0x188]  
+    LDR     r5,   [r0,  #0x188]  
+     
+      
+    LDR     r4,   = 0x10040080 
+    STR     r4,   [r0,  #0x190]  
+    LDR     r5,   [r0,  #0x190]  
+     
+      
+    LDR     r4,   = 0x0001FC82 
+    STR     r4,   [r0,  #0x194]  
+    LDR     r5,   [r0,  #0x194]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0x204]  
+    LDR     r5,   [r0,  #0x204]  
+     
+      
+    LDR     r4,   = 0x000803FF 
+    STR     r4,   [r0,  #0x208]  
+    LDR     r5,   [r0,  #0x208]  
+     
+      
+    LDR     r4,   = 0x000803FF 
+    STR     r4,   [r0,  #0x20C]  
+    LDR     r5,   [r0,  #0x20C]  
+     
+      
+    LDR     r4,   = 0x000803FF 
+    STR     r4,   [r0,  #0x210]  
+    LDR     r5,   [r0,  #0x210]  
+     
+      
+    LDR     r4,   = 0x000803FF 
+    STR     r4,   [r0,  #0x214]  
+    LDR     r5,   [r0,  #0x214]  
+     
+      
+    LDR     r4,   = 0x000003FF 
+    STR     r4,   [r0,  #0x218]  
+    LDR     r5,   [r0,  #0x218]  
+     
+      
+    LDR     r4,   = 0x000003FF 
+    STR     r4,   [r0,  #0x21C]  
+    LDR     r5,   [r0,  #0x21C]  
+     
+      
+    LDR     r4,   = 0x000003FF 
+    STR     r4,   [r0,  #0x220]  
+    LDR     r5,   [r0,  #0x220]  
+     
+      
+    LDR     r4,   = 0x000003FF 
+    STR     r4,   [r0,  #0x224]  
+    LDR     r5,   [r0,  #0x224]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0x2A8]  
+    LDR     r5,   [r0,  #0x2A8]  
+     
+      
+    LDR     r4,   = 0x00000000 
+    STR     r4,   [r0,  #0x2AC]  
+    LDR     r5,   [r0,  #0x2AC]  
+     
+      
+    LDR     r4,   = 0x00005125 
+    STR     r4,   [r0,  #0x2B0]  
+    LDR     r5,   [r0,  #0x2B0]  
+     
+      
+    LDR     r4,   = 0x000012A8 
+    STR     r4,   [r0,  #0x2B4]  
+    LDR     r5,   [r0,  #0x2B4]  
+     
+      
+    LDR     r4,   = 0x00000081 
+    STR     r4,   [r0,  #0x0]  
+    LDR     r5,   [r0,  #0x0]  
+     
+#endif  
+	
 	mov pc, lr
 
 doit:

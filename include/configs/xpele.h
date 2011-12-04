@@ -10,6 +10,11 @@
 #define CONFIG_XDF		1 /* Board */
 #define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
 #define CONFIG_PELE		1 /* SoC? */
+
+//#define CONFIG_ZYNQ_MIO_INIT	1	/* for use without FSBL */
+//#define CONFIG_ZYNQ_PLL_INIT	1	/* for use without FSBL */
+//#define CONFIG_ZYNQ_DDR_533_INIT	1	/* for use without FSBL */
+
 /* Select target configuration: comment out for ZC770 instead of EP107. */
 //#define CONFIG_EP107		1
 
@@ -61,7 +66,7 @@
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
-#define CONFIG_BOOTDELAY	2 /* -1 to Disable autoboot */
+#define CONFIG_BOOTDELAY	10 /* -1 to Disable autoboot */
 
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC

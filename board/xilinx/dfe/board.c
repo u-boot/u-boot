@@ -100,7 +100,7 @@ void init_nor_flash()
 
 #if 1
 /* PLL divisor */
-#define ARM_PLL_FDIV		40
+#define ARM_PLL_FDIV		48	/* 800 MHz CPU */ 
 #define DDR_PLL_FDIV		24
 #define	IO_PLL_FDIV		30
 
@@ -158,7 +158,7 @@ void init_nor_flash()
 #define CAN_DIVISOR1		1
 /* FPGA0 */
 #define FPGA0_SRCSEL		IO_PLL
-#define FPGA0_DIVISOR0		15
+#define FPGA0_DIVISOR0		40 // 15
 #define FPGA0_DIVISOR1		1
 /* FPGA1 */
 #define FPGA1_SRCSEL		IO_PLL
@@ -367,7 +367,7 @@ void memtest_pll_init(void)
 	Xil_Out32(SLCR_UNLOCK, 0xDF0D);
 
 	/* ARM PLL initialization */
-//	memtest_arm_pll_init();
+	memtest_arm_pll_init();
 
 	/* DDR PLL initialization */
 //	memtest_ddr_pll_init();
@@ -500,6 +500,7 @@ void memtest_clock_init(void)
 	/* SLCR unlock */
 	Xil_Out32(SLCR_UNLOCK, 0xDF0D);
 
+#if 1
 	/* ARM */
 	Xil_Out32(SLCR_ARM_CLK_CTRL, (CPU_PERI_CLKACT_ENABLE | CPU_1XCLKACT_ENABLE | CPU_2XCLKACT_ENABLE | CPU_3OR2XCLKACT_ENABLE |
 							CPU_6OR4XCLKACT_ENABLE | (CPU_DIVISOR << CPU_DIVISOR_SHIFT) | (CPU_SRCSEL << CPU_SRCSEL_SHIFT)));
@@ -510,11 +511,12 @@ void memtest_clock_init(void)
 
 	/* QSPI */
 	Xil_Out32(SLCR_LQSPI_CLK_CTRL, ((LQSPI_DIVISOR << LQSPI_DIVISOR_SHIFT) | (LQSPI_SRCSEL << LQSPI_SRCSEL_SHIFT) | LQSPI_CLKACT_ENABLE));
-
+#endif
 	/* GEM0 */
 	Xil_Out32(SLCR_GEM0_RCLK_CTRL, ((GEM0_RX_SRCSEL << GEM0_RX_SRCSEL_SHIFT) | GEM0_RX_CLKACT_ENABLE));
 	Xil_Out32(SLCR_GEM0_CLK_CTRL, ((GEM0_DIVISOR1 << GEM0_DIVISOR1_SHIFT) | (GEM0_DIVISOR0 << GEM0_DIVISOR0_SHIFT) | (GEM0_SRCSEL << GEM0_SRCSEL_SHIFT) | GEM0_CLKACT_ENABLE));
 
+#if 1
 	/* USB0 */
 	/* USB Reference clock coming in externally hence no need to set */
 	Xil_Out32(SLCR_USB0_CLK_CTRL, ((USB0_DIVISOR1 << USB0_DIVISOR1_SHIFT) | (USB0_DIVISOR0 << USB0_DIVISOR0_SHIFT) | (USB0_SRCSEL << USB0_SRCSEL_SHIFT) | USB0_CLKACT_ENABLE));
@@ -557,21 +559,32 @@ void memtest_clock_init(void)
 
 	/* DCI */
 	Xil_Out32(SLCR_DCI_CLK_CTRL, ((DCI_DIVISOR1 << DCI_DIVISOR1_SHIFT) | (DCI_DIVISOR0 << DCI_DIVISOR0_SHIFT) | DCI_CLKACT_ENABLE));
-
+#endif
 	/* SLCR lock */
 	Xil_Out32(SLCR_LOCK, 0x767B);
 }
 
 int from_burst_main()
 {
+#ifdef CONFIG_ZYNQ_MIO_INIT
 	memtest_mio_init();
+#endif
+#ifdef CONFIG_ZYNQ_PLL_INIT
 	memtest_pll_init();
+#endif
+#ifdef CONFIG_ZYNQ_MIO_INIT
 	memtest_clock_init();
+#endif
 }
 
 int board_init(void)
 {
 	from_burst_main();
+
+	/* temporary hack to clear pending irqs before Linux as it 
+	   will hang Linux */
+
+	Xil_Out32(0xe0001014, 0x26d);
 
 	icache_enable();
 	init_nor_flash();
