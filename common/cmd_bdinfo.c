@@ -26,25 +26,44 @@
  */
 #include <common.h>
 #include <command.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void print_num(const char *, ulong);
+__maybe_unused
+static void print_num(const char *name, ulong value)
+{
+	printf("%-12s= 0x%08lX\n", name, value);
+}
 
-#if !(defined(CONFIG_ARM) || defined(CONFIG_M68K) || \
-	defined(CONFIG_SANDBOX) || defined(CONFIG_X86)) \
-	|| defined(CONFIG_CMD_NET)
-#define HAVE_PRINT_ETH
-static void print_eth(int idx);
-#endif
+static void print_eth(int idx)
+{
+	char name[10], *val;
+	if (idx)
+		sprintf(name, "eth%iaddr", idx);
+	else
+		strcpy(name, "ethaddr");
+	val = getenv(name);
+	if (!val)
+		val = "(not set)";
+	printf("%-12s= %s\n", name, val);
+}
 
-#if (!defined(CONFIG_ARM) && !defined(CONFIG_X86) && !defined(CONFIG_SANDBOX))
-#define HAVE_PRINT_LNUM
-static void print_lnum(const char *, u64);
-#endif
+__maybe_unused
+static void print_lnum(const char *name, u64 value)
+{
+	printf("%-12s= 0x%.8llX\n", name, value);
+}
+
+__maybe_unused
+static void print_mhz(const char *name, unsigned long hz)
+{
+	char buf[32];
+
+	printf("%-12s= %6s MHz\n", name, strmhz(buf, hz));
+}
 
 #if defined(CONFIG_PPC)
-static void print_mhz(const char *, unsigned long);
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -209,8 +228,6 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_M68K)
 
-static void print_mhz(const char *, unsigned long);
-
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
@@ -257,8 +274,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 #elif defined(CONFIG_BLACKFIN)
-
-static void print_mhz(const char *, unsigned long);
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -378,8 +393,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_X86)
 
-static void print_mhz(const char *, unsigned long);
-
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
@@ -464,46 +477,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #else
  #error "a case for this architecture does not exist!"
 #endif
-
-static void print_num(const char *name, ulong value)
-{
-	printf("%-12s= 0x%08lX\n", name, value);
-}
-
-#ifdef HAVE_PRINT_ETH
-static void print_eth(int idx)
-{
-	char name[10], *val;
-	if (idx)
-		sprintf(name, "eth%iaddr", idx);
-	else
-		strcpy(name, "ethaddr");
-	val = getenv(name);
-	if (!val)
-		val = "(not set)";
-	printf("%-12s= %s\n", name, val);
-}
-#endif
-
-#ifdef HAVE_PRINT_LNUM
-static void print_lnum(const char *name, u64 value)
-{
-	printf("%-12s= 0x%.8llX\n", name, value);
-}
-#endif
-
-#if	defined(CONFIG_PPC) || \
-	defined(CONFIG_M68K) || \
-	defined(CONFIG_BLACKFIN) || \
-	defined(CONFIG_X86)
-static void print_mhz(const char *name, unsigned long hz)
-{
-	char buf[32];
-
-	printf("%-12s= %6s MHz\n", name, strmhz(buf, hz));
-}
-#endif	/* CONFIG_PPC */
-
 
 /* -------------------------------------------------------------------- */
 
