@@ -233,8 +233,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
 			goto out;
 	}
 
-	debug("SF: Successfully erased %zu bytes @ %#x\n",
-	      len * erase_size, start);
+	debug("SF: Successfully erased %zu bytes @ %#x\n", len, start);
 
  out:
 	spi_release_bus(flash->spi);
