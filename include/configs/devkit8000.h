@@ -36,7 +36,13 @@
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_DEVKIT8000	1	/* working with DevKit8000 */
 
-#define	CONFIG_SYS_TEXT_BASE	0x80008000
+/*
+ * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
+ * 64 bytes before this address should be set aside for u-boot.img's
+ * header. That is 0x800FFFC0--0x80100000 should not be used for any
+ * other needs.
+ */
+#define CONFIG_SYS_TEXT_BASE	0x80100000
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
@@ -347,7 +353,7 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200000
 
-#define CONFIG_SYS_SPL_MALLOC_START	0x80108000
+#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
 
 #endif /* __CONFIG_H */
