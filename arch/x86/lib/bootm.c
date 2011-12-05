@@ -38,6 +38,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	void		*base_ptr = NULL;
 	ulong		os_data, os_len;
 	image_header_t	*hdr;
+	void		*load_address;
 
 #if defined(CONFIG_FIT)
 	const void	*data;
@@ -75,7 +76,8 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 
 #ifdef CONFIG_CMD_ZBOOT
 	base_ptr = load_zimage((void *)os_data, os_len,
-			images->rd_start, images->rd_end - images->rd_start, 0);
+			images->rd_start, images->rd_end - images->rd_start,
+			0, &load_address);
 #endif
 
 	if (NULL == base_ptr) {
@@ -92,7 +94,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	/* we assume that the kernel is in place */
 	printf("\nStarting kernel ...\n\n");
 
-	boot_zimage(base_ptr);
+	boot_zimage(base_ptr, load_address);
 	/* does not return */
 
 error:

@@ -52,6 +52,16 @@
 
 #define COMMAND_LINE_SIZE	2048
 
+unsigned generic_install_e820_map(unsigned max_entries,
+				  struct e820entry *entries)
+{
+	return 0;
+}
+
+unsigned install_e820_map(unsigned max_entries,
+			  struct e820entry *entries)
+	__attribute__((weak, alias("generic_install_e820_map")));
+
 static void build_command_line(char *command_line, int auto_boot)
 {
 	char *env_command_line;
@@ -81,13 +91,12 @@ static void build_command_line(char *command_line, int auto_boot)
 
 void *load_zimage(char *image, unsigned long kernel_size,
 		  unsigned long initrd_addr, unsigned long initrd_size,
-		  int auto_boot)
+		  int auto_boot, void **load_address)
 {
 	struct boot_params *setup_base;
 	int setup_size;
 	int bootproto;
 	int big_image;
-	void *load_address;
 
 	struct boot_params *params = (struct boot_params *)image;
 	struct setup_header *hdr = &params->hdr;
@@ -134,14 +143,23 @@ void *load_zimage(char *image, unsigned long kernel_size,
 
 	/* Determine load address */
 	if (big_image)
-		load_address = (void *)BZIMAGE_LOAD_ADDR;
+		*load_address = (void *)BZIMAGE_LOAD_ADDR;
 	else
-		load_address = (void *)ZIMAGE_LOAD_ADDR;
+		*load_address = (void *)ZIMAGE_LOAD_ADDR;
 
+#if defined CONFIG_ZBOOT_32
+	printf("Building boot_params at 0x%8.8lx\n", (ulong)setup_base);
+	memset(setup_base, 0, sizeof(*setup_base));
+	setup_base->hdr = params->hdr;
+
+	setup_base->e820_entries = install_e820_map(
+		ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
+#else
 	/* load setup */
 	printf("Moving Real-Mode Code to 0x%8.8lx (%d bytes)\n",
 	       (ulong)setup_base, setup_size);
 	memmove(setup_base, image, setup_size);
+#endif
 
 	printf("Using boot protocol version %x.%02x\n",
 	       (bootproto & 0xff00) >> 8, bootproto & 0xff);
@@ -180,7 +198,7 @@ void *load_zimage(char *image, unsigned long kernel_size,
 
 		if (hdr->setup_sects >= 15) {
 			printf("Linux kernel version %s\n",
-			       (char *)setup_base +
+			       (char *)params +
 			       hdr->kernel_version + 0x200);
 		} else {
 			printf("Setup Sectors < 15 - "
@@ -235,17 +253,36 @@ void *load_zimage(char *image, unsigned long kernel_size,
 	build_command_line((char *)setup_base + COMMAND_LINE_OFFSET, auto_boot);
 
 	printf("Loading %czImage at address 0x%08x (%ld bytes)\n",
-	       big_image ? 'b' : ' ', (u32)load_address, kernel_size);
+	       big_image ? 'b' : ' ', (u32)*load_address, kernel_size);
 
-
-	memmove(load_address, image + setup_size, kernel_size);
+	memmove(*load_address, image + setup_size, kernel_size);
 
 	/* ready for booting */
 	return setup_base;
 }
 
-void boot_zimage(void *setup_base)
+void boot_zimage(void *setup_base, void *load_address)
 {
+	printf("\nStarting kernel ...\n\n");
+
+#if defined CONFIG_ZBOOT_32
+	/*
+	 * Set %ebx, %ebp, and %edi to 0, %esi to point to the boot_params
+	 * structure, and then jump to the kernel. We assume that %cs is
+	 * 0x10, 4GB flat, and read/execute, and the data segments are 0x18,
+	 * 4GB flat, and read/write. U-boot is setting them up that way for
+	 * itself in arch/i386/cpu/cpu.c.
+	 */
+	__asm__ __volatile__ (
+	"movl $0, %%ebp		\n"
+	"cli			\n"
+	"jmp %[kernel_entry]	\n"
+	:: [kernel_entry]"a"(load_address),
+	   [boot_params] "S"(setup_base),
+	   "b"(0), "D"(0)
+	:  "%ebp"
+	);
+#else
 	struct pt_regs regs;
 
 	memset(&regs, 0, sizeof(struct pt_regs));
@@ -256,12 +293,14 @@ void boot_zimage(void *setup_base)
 	regs.eflags = 0;
 	enter_realmode(((u32)setup_base + SETUP_START_OFFSET) >> 4, 0,
 		       &regs, &regs);
+#endif
 }
 
 int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	void *base_ptr;
 	void *bzImage_addr = NULL;
+	void *load_address;
 	char *s;
 	ulong bzImage_size = 0;
 
@@ -285,7 +324,8 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		bzImage_size = simple_strtoul(argv[2], NULL, 16);
 
 	/* Lets look for */
-	base_ptr = load_zimage(bzImage_addr, bzImage_size, 0, 0, 0);
+	base_ptr = load_zimage(bzImage_addr, bzImage_size, 0, 0, 0,
+		&load_address);
 
 	if (!base_ptr) {
 		printf("## Kernel loading failed ...\n");
@@ -295,9 +335,7 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		       (u32)base_ptr);
 
 		/* we assume that the kernel is in place */
-		printf("\nStarting kernel ...\n\n");
-
-		boot_zimage(base_ptr);
+		boot_zimage(base_ptr, load_address);
 		/* does not return */
 	}
 
