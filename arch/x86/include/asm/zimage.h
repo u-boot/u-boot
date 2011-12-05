@@ -24,6 +24,7 @@
 #ifndef _ASM_ZIMAGE_H_
 #define _ASM_ZIMAGE_H_
 
+#include <asm/bootparam.h>
 #include <asm/e820.h>
 
 /* linux i386 zImage/bzImage header. Offsets relative to
@@ -49,9 +50,10 @@
 /* Implementation defined function to install an e820 map. */
 unsigned install_e820_map(unsigned max_entries, struct e820entry *);
 
-void *load_zimage(char *image, unsigned long kernel_size,
-		  unsigned long initrd_addr, unsigned long initrd_size,
-		  int auto_boot, void **load_address);
+struct boot_params *load_zimage(char *image, unsigned long kernel_size,
+				void **load_address);
+int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
+		 unsigned long initrd_addr, unsigned long initrd_size);
 
 void boot_zimage(void *setup_base, void *load_address);
 
