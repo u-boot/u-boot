@@ -23,6 +23,6 @@
 #ifdef __MINGW32__
 #include "mingw_support.c"
 #endif
-#ifdef __APPLE__
+#if defined(__APPLE__) && __DARWIN_C_LEVEL < 200809L
 #include "getline.c"
 #endif
