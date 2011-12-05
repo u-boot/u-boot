@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 	/* Check datasize and allocate the data */
 	if (datasize == 0) {
 		fprintf(stderr,
-			"Please specify the size of the envrionnment "
+			"Please specify the size of the environment "
 			"partition.\n");
 		usage(argv[0]);
 		return EXIT_FAILURE;
@@ -182,12 +182,12 @@ int main(int argc, char **argv)
 		ret = close(txt_fd);
 	}
 	/*
-	 * The right test to do is "=>" (not ">") because of the additionnal
+	 * The right test to do is "=>" (not ">") because of the additional
 	 * ending \0. See below.
 	 */
 	if (filesize >= envsize) {
 		fprintf(stderr, "The input file is larger than the "
-				"envrionnment partition size\n");
+				"environment partition size\n");
 		return EXIT_FAILURE;
 	}
 
@@ -196,7 +196,7 @@ int main(int argc, char **argv)
 		if (filebuf[fp] == '\n') {
 			if (fp == 0) {
 				/*
-				 * Newline at the beggining of the file ?
+				 * Newline at the beginning of the file ?
 				 * Ignore it.
 				 */
 				continue;
