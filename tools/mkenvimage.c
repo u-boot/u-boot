@@ -80,8 +80,11 @@ int main(int argc, char **argv)
 
 	int fp, ep;
 
+	/* Turn off getopt()'s internal error message */
+	opterr = 0;
+
 	/* Parse the cmdline */
-	while ((option = getopt(argc, argv, "s:o:rbp:h")) != -1) {
+	while ((option = getopt(argc, argv, ":s:o:rbp:h")) != -1) {
 		switch (option) {
 		case 's':
 			datasize = strtol(optarg, NULL, 0);
@@ -106,8 +109,13 @@ int main(int argc, char **argv)
 		case 'h':
 			usage(argv[0]);
 			return EXIT_SUCCESS;
+		case ':':
+			fprintf(stderr, "Missing argument for option -%c\n",
+				optopt);
+			usage(argv[0]);
+			return EXIT_FAILURE;
 		default:
-			fprintf(stderr, "Wrong option -%c\n", option);
+			fprintf(stderr, "Wrong option -%c\n", optopt);
 			usage(argv[0]);
 			return EXIT_FAILURE;
 		}
