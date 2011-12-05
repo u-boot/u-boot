@@ -27,27 +27,6 @@
 /* linux i386 zImage/bzImage header. Offsets relative to
  * the start of the image */
 
-#define CMD_LINE_MAGIC_OFF  0x020 /* Magic 0xa33f if the offset below is valid */
-#define CMD_LINE_OFFSET_OFF 0x022 /* Offset to comandline */
-#define SETUP_SECTS_OFF     0x1F1 /* The size of the setup in sectors */
-#define ROOT_FLAGS_OFF      0x1F2 /* If set, the root is mounted readonly */
-#define VID_MODE_OFF        0x1FA /* Video mode control */
-#define ROOT_DEV_OFF        0x1FC /* Default root device number */
-#define BOOT_FLAG_OFF       0x1FE /* 0xAA55 magic number */
-#define HEADER_OFF          0x202 /* Magic signature "HdrS" */
-#define VERSION_OFF         0x206 /* Boot protocol version supported */
-#define REALMODE_SWTCH_OFF  0x208 /* Boot loader hook (see below) */
-#define START_SYS_OFF       0x20C /* Points to kernel version string */
-#define TYPE_OF_LOADER_OFF  0x210 /* Boot loader identifier */
-#define LOADFLAGS_OFF       0x211 /* Boot protocol option flags */
-#define SETUP_MOVE_SIZE_OFF 0x212 /* Move to high memory size (used with hooks) */
-#define CODE32_START_OFF    0x214 /* Boot loader hook (see below) */
-#define RAMDISK_IMAGE_OFF   0x218 /* initrd load address (set by boot loader) */
-#define RAMDISK_SIZE_OFF    0x21C /* initrd size (set by boot loader) */
-#define HEAP_END_PTR_OFF    0x224 /* Free memory after setup end */
-#define CMD_LINE_PTR_OFF    0x228 /* 32-bit pointer to the kernel command line */
-
-
 #define HEAP_FLAG           0x80
 #define BIG_KERNEL_FLAG     0x01
 

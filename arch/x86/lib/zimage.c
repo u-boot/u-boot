@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
@@ -82,21 +83,22 @@ void *load_zimage(char *image, unsigned long kernel_size,
 		  unsigned long initrd_addr, unsigned long initrd_size,
 		  int auto_boot)
 {
-	void *setup_base;
+	struct boot_params *setup_base;
 	int setup_size;
 	int bootproto;
 	int big_image;
 	void *load_address;
-	struct setup_header *hdr;
 
-	hdr = (struct setup_header *)(image + SETUP_SECTS_OFF);
+	struct boot_params *params = (struct boot_params *)image;
+	struct setup_header *hdr = &params->hdr;
 
 	/* base address for real-mode segment */
-	setup_base = (void *)DEFAULT_SETUP_BASE;
+	setup_base = (struct boot_params *)DEFAULT_SETUP_BASE;
 
 	if (KERNEL_MAGIC != hdr->boot_flag) {
-		printf("Error: Invalid Boot Flag (found 0x%04x, expected 0x%04x)\n",
-		       hdr->boot_flag, KERNEL_MAGIC);
+		printf("Error: Invalid Boot Flag "
+			"(found 0x%04x, expected 0x%04x)\n",
+			hdr->boot_flag, KERNEL_MAGIC);
 		return 0;
 	} else {
 		printf("Valid Boot Flag\n");
@@ -131,9 +133,10 @@ void *load_zimage(char *image, unsigned long kernel_size,
 		    (hdr->loadflags & BIG_KERNEL_FLAG);
 
 	/* Determine load address */
-	load_address = (void *)(big_image ?
-				BZIMAGE_LOAD_ADDR :
-				ZIMAGE_LOAD_ADDR);
+	if (big_image)
+		load_address = (void *)BZIMAGE_LOAD_ADDR;
+	else
+		load_address = (void *)ZIMAGE_LOAD_ADDR;
 
 	/* load setup */
 	printf("Moving Real-Mode Code to 0x%8.8lx (%d bytes)\n",
@@ -144,8 +147,8 @@ void *load_zimage(char *image, unsigned long kernel_size,
 	       (bootproto & 0xff00) >> 8, bootproto & 0xff);
 
 	if (bootproto == 0x0100) {
-		*(u16 *)(setup_base + CMD_LINE_MAGIC_OFF) = COMMAND_LINE_MAGIC;
-		*(u16 *)(setup_base + CMD_LINE_OFFSET_OFF) = COMMAND_LINE_OFFSET;
+		setup_base->screen_info.cl_magic = COMMAND_LINE_MAGIC;
+		setup_base->screen_info.cl_offset = COMMAND_LINE_OFFSET;
 
 		/*
 		 * A very old kernel MUST have its real-mode code
@@ -157,33 +160,36 @@ void *load_zimage(char *image, unsigned long kernel_size,
 
 			/* Copy the command line */
 			memmove((void *)0x99000,
-				setup_base + COMMAND_LINE_OFFSET,
+				(u8 *)setup_base + COMMAND_LINE_OFFSET,
 				COMMAND_LINE_SIZE);
 
 			 /* Relocated */
-			setup_base = (void *)0x90000;
+			setup_base = (struct boot_params *)0x90000;
 		}
 
 		/* It is recommended to clear memory up to the 32K mark */
-		memset((void *)0x90000 + setup_size, 0,
-		       SETUP_MAX_SIZE-setup_size);
+		memset((u8 *)0x90000 + setup_size, 0,
+		       SETUP_MAX_SIZE - setup_size);
 	}
 
 	/* We are now setting up the real-mode version of the header */
-	hdr = (struct setup_header *)(setup_base + SETUP_SECTS_OFF);
+	hdr = &setup_base->hdr;
 
 	if (bootproto >= 0x0200) {
 		hdr->type_of_loader = 8;
 
-		if (hdr->setup_sects >= 15)
+		if (hdr->setup_sects >= 15) {
 			printf("Linux kernel version %s\n",
-			       (char *)(setup_base +
-					(hdr->kernel_version + 0x200)));
-		else
-			printf("Setup Sectors < 15 - Cannot print kernel version.\n");
+			       (char *)setup_base +
+			       hdr->kernel_version + 0x200);
+		} else {
+			printf("Setup Sectors < 15 - "
+			       "Cannot print kernel version.\n");
+		}
 
 		if (initrd_addr) {
-			printf("Initial RAM disk at linear address 0x%08lx, size %ld bytes\n",
+			printf("Initial RAM disk at linear address "
+			       "0x%08lx, size %ld bytes\n",
 			       initrd_addr, initrd_size);
 
 			hdr->ramdisk_image = initrd_addr;
@@ -197,11 +203,11 @@ void *load_zimage(char *image, unsigned long kernel_size,
 	}
 
 	if (bootproto >= 0x0202) {
-		hdr->cmd_line_ptr = (u32)setup_base + COMMAND_LINE_OFFSET;
+		hdr->cmd_line_ptr =
+			(uintptr_t)setup_base + COMMAND_LINE_OFFSET;
 	} else if (bootproto >= 0x0200) {
-
-		*(u16 *)(setup_base + CMD_LINE_MAGIC_OFF) = COMMAND_LINE_MAGIC;
-		*(u16 *)(setup_base + CMD_LINE_OFFSET_OFF) = COMMAND_LINE_OFFSET;
+		setup_base->screen_info.cl_magic = COMMAND_LINE_MAGIC;
+		setup_base->screen_info.cl_offset = COMMAND_LINE_OFFSET;
 
 		hdr->setup_move_size = 0x9100;
 	}
@@ -214,11 +220,11 @@ void *load_zimage(char *image, unsigned long kernel_size,
 
 	if (big_image) {
 		if ((kernel_size) > BZIMAGE_MAX_SIZE) {
-			printf("Error: bzImage kernel too big! (size: %ld, max: %d)\n",
-			       kernel_size, BZIMAGE_MAX_SIZE);
+			printf("Error: bzImage kernel too big! "
+				"(size: %ld, max: %d)\n",
+				kernel_size, BZIMAGE_MAX_SIZE);
 			return 0;
 		}
-
 	} else if ((kernel_size) > ZIMAGE_MAX_SIZE) {
 		printf("Error: zImage kernel too big! (size: %ld, max: %d)\n",
 		       kernel_size, ZIMAGE_MAX_SIZE);
@@ -226,7 +232,7 @@ void *load_zimage(char *image, unsigned long kernel_size,
 	}
 
 	/* build command line at COMMAND_LINE_OFFSET */
-	build_command_line(setup_base + COMMAND_LINE_OFFSET, auto_boot);
+	build_command_line((char *)setup_base + COMMAND_LINE_OFFSET, auto_boot);
 
 	printf("Loading %czImage at address 0x%08x (%ld bytes)\n",
 	       big_image ? 'b' : ' ', (u32)load_address, kernel_size);
@@ -248,8 +254,8 @@ void boot_zimage(void *setup_base)
 	regs.xss = regs.xds;
 	regs.esp = 0x9000;
 	regs.eflags = 0;
-	enter_realmode(((u32)setup_base+SETUP_START_OFFSET)>>4, 0, &regs,
-		       &regs);
+	enter_realmode(((u32)setup_base + SETUP_START_OFFSET) >> 4, 0,
+		       &regs, &regs);
 }
 
 int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -264,11 +270,12 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	/* Setup board for maximum PC/AT Compatibility */
 	setup_pcat_compatibility();
 
-	if (argc >= 2)
+	if (argc >= 2) {
 		/* argv[1] holds the address of the bzImage */
 		s = argv[1];
-	else
+	} else {
 		s = getenv("fileaddr");
+	}
 
 	if (s)
 		bzImage_addr = (void *)simple_strtoul(s, NULL, 16);
@@ -277,14 +284,15 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		/* argv[2] holds the size of the bzImage */
 		bzImage_size = simple_strtoul(argv[2], NULL, 16);
 
-	/* Lets look for*/
+	/* Lets look for */
 	base_ptr = load_zimage(bzImage_addr, bzImage_size, 0, 0, 0);
 
 	if (!base_ptr) {
 		printf("## Kernel loading failed ...\n");
 	} else {
-		printf("## Transferring control to Linux (at address %08x) ...\n",
-			(u32)base_ptr);
+		printf("## Transferring control to Linux "
+		       "(at address %08x) ...\n",
+		       (u32)base_ptr);
 
 		/* we assume that the kernel is in place */
 		printf("\nStarting kernel ...\n\n");
