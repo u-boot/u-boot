@@ -30,8 +30,6 @@
  * MA 02111-1307 USA
  */
 
-#define DEBUG
-
 #include <common.h>
 #include <command.h>
 #include <environment.h>
