@@ -46,7 +46,6 @@ COBJS	= cpu.o \
 	da850_pinmux.o \
 	div0.o \
 	hawkboard_nand_spl.o \
-	memsize.o \
 	misc.o \
 	nand_boot.o \
 	ns16550.o \
@@ -139,11 +138,6 @@ $(obj)hawkboard_nand_spl.c:
 $(obj)psc.c:
 	@rm -f $@
 	ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/psc.c $@
-
-# from common directory
-$(obj)memsize.c:
-	@rm -f $@
-	ln -s $(TOPDIR)/common/memsize.c $@
 
 #########################################################################
 
