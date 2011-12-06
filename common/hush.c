@@ -1642,6 +1642,15 @@ static int run_pipe_real(struct pipe *pi)
 				 * Is it really safe for inline use?  Experimentally,
 				 * things seem to work with glibc. */
 				setup_redirects(child, squirrel);
+
+				child->argv += i;  /* XXX horrible hack */
+				rcode = x->function(child);
+				/* XXX restore hack so free() can work right */
+				child->argv -= i;
+				restore_redirects(squirrel);
+			}
+			return rcode;
+		}
 #else
 			/* check ";", because ,example , argv consist from
 			 * "help;flinfo" must not execute
@@ -1674,22 +1683,11 @@ static int run_pipe_real(struct pipe *pi)
 				if ((child->argc - i) > cmdtp->maxargs)
 					return cmd_usage(cmdtp);
 #endif
-				child->argv+=i;  /* XXX horrible hack */
-#ifndef __U_BOOT__
-				rcode = x->function(child);
-#else
 				/* OK - call function to do the command */
-				rcode = cmd_call(cmdtp, flag,  child->argc-i,
-						 &child->argv[i]);
+				rcode = cmd_call(cmdtp, flag,  child->argc,
+						 child->argv);
 				if (!cmdtp->repeatable)
 					flag_repeat = 0;
-#endif
-				child->argv-=i;  /* XXX restore hack so free() can work right */
-#ifndef __U_BOOT__
-
-				restore_redirects(squirrel);
-#endif
-
 				return rcode;
 			}
 		}
