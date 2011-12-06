@@ -36,6 +36,7 @@ static void print_num(const char *name, ulong value)
 	printf("%-12s= 0x%08lX\n", name, value);
 }
 
+__maybe_unused
 static void print_eth(int idx)
 {
 	char name[10], *val;
