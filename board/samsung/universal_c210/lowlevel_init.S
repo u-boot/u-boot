@@ -1,5 +1,5 @@
 /*
- * Lowlevel setup for universal board based on S5PC210
+ * Lowlevel setup for universal board based on EXYNOS4210
  *
  * Copyright (C) 2010 Samsung Electronics
  * Kyungmin Park <kyungmin.park@samsung.com>
@@ -43,11 +43,11 @@ lowlevel_init:
 	/* r5 has always zero */
 	mov	r5, #0
 
-	ldr	r7, =S5PC210_GPIO_PART1_BASE
-	ldr	r6, =S5PC210_GPIO_PART2_BASE
+	ldr	r7, =EXYNOS4_GPIO_PART1_BASE
+	ldr	r6, =EXYNOS4_GPIO_PART2_BASE
 
 	/* System Timer */
-	ldr	r0, =S5PC210_SYSTIMER_BASE
+	ldr	r0, =EXYNOS4_SYSTIMER_BASE
 	ldr	r1, =0x5000
 	str	r1, [r0, #0x0]
 	ldr	r1, =0xffffffff
@@ -57,7 +57,7 @@ lowlevel_init:
 
 	/* PMIC manual reset */
 	/* nPOWER: XEINT_23: GPX2[7] */
-	add	r0, r6, #0xC40			@ S5PC210_GPIO_X2_OFFSET
+	add	r0, r6, #0xC40			@ EXYNOS4_GPIO_X2_OFFSET
 	ldr	r1, [r0, #0x0]
 	bic	r1, r1, #(0xf << 28)		@ 28 = 7 * 4-bit
 	orr	r1, r1, #(0x1 << 28)		@ Output
@@ -71,7 +71,7 @@ lowlevel_init:
 	bl	system_clock_init
 
 	/* Disable Watchdog */
-	ldr	r0, =S5PC210_WATCHDOG_BASE		@0x10060000
+	ldr	r0, =EXYNOS4_WATCHDOG_BASE		@0x10060000
 	str	r5, [r0]
 
 	/* UART */
@@ -99,12 +99,12 @@ uart_asm_init:
 	 */
 	mov	r0, r7
 	ldr	r1, =0x22222222
-	str	r1, [r0, #0x00]			@ S5PC210_GPIO_A0_OFFSET
+	str	r1, [r0, #0x00]			@ EXYNOS4_GPIO_A0_OFFSET
 	ldr	r1, =0x00223322
-	str	r1, [r0, #0x20]			@ S5PC210_GPIO_A1_OFFSET
+	str	r1, [r0, #0x20]			@ EXYNOS4_GPIO_A1_OFFSET
 
-	/* UART_SEL GPY4[7] (part2) at S5PC210 */
-	add	r0, r6, #0x1A0			@ S5PC210_GPIO_Y4_OFFSET
+	/* UART_SEL GPY4[7] (part2) at EXYNOS4 */
+	add	r0, r6, #0x1A0			@ EXYNOS4_GPIO_Y4_OFFSET
 	ldr	r1, [r0, #0x0]
 	bic	r1, r1, #(0xf << 28)		@ 28 = 7 * 4-bit
 	orr	r1, r1, #(0x1 << 28)
@@ -125,7 +125,7 @@ uart_asm_init:
 	nop
 
 system_clock_init:
-	ldr	r0, =S5PC210_CLOCK_BASE
+	ldr	r0, =EXYNOS4_CLOCK_BASE
 
 	/* APLL(1), MPLL(1), CORE(0), HPM(0) */
 	ldr	r1, =0x0101
@@ -326,7 +326,7 @@ system_clock_init:
 	nop
 
 system_power_init:
-	ldr	r0, =S5PC210_POWER_BASE		@ 0x10020000
+	ldr	r0, =EXYNOS4_POWER_BASE		@ 0x10020000
 
 	ldr	r2, =0x330C			@ PS_HOLD_CONTROL
 	ldr	r1, [r0, r2]

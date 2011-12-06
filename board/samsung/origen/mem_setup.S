@@ -1,5 +1,5 @@
 /*
- * Memory setup for ORIGEN board based on S5PV310
+ * Memory setup for ORIGEN board based on EXYNOS4210
  *
  * Copyright (C) 2011 Samsung Electronics
  *
@@ -38,7 +38,7 @@ mem_ctrl_asm_init:
 	str r1, [r0]
 
 #ifdef SET_MIU
-	ldr	r0, =S5PC210_MIU_BASE
+	ldr	r0, =EXYNOS4_MIU_BASE
 	/* Interleave: 2Bit, Interleave_bit1: 0x21, Interleave_bit2: 0x7 */
 	ldr	r1, =0x20001507
 	str	r1, [r0, #APB_SFR_INTERLEAVE_CONF_OFFSET]
@@ -48,7 +48,7 @@ mem_ctrl_asm_init:
 	str	r1, [r0, #APB_SFR_ARBRITATION_CONF_OFFSET]
 #endif
 	/* DREX0 */
-	ldr	r0, =S5PC210_DMC0_BASE
+	ldr	r0, =EXYNOS4_DMC0_BASE
 
 	/*
 	 * DLL Parameter Setting:
@@ -229,7 +229,7 @@ mem_ctrl_asm_init:
 	bne	8b
 
 	/* DREX1 */
-	ldr	r0, =S5PC210_DMC1_BASE	@0x10410000
+	ldr	r0, =EXYNOS4_DMC1_BASE	@0x10410000
 
 	/*
 	 * DLL Parameter Setting:
@@ -410,11 +410,11 @@ mem_ctrl_asm_init:
 	bne	8b
 
 	/* turn on DREX0, DREX1 */
-	ldr	r0, =S5PC210_DMC0_BASE
+	ldr	r0, =EXYNOS4_DMC0_BASE
 	ldr	r1, =0x0FFF303a
 	str	r1, [r0, #DMC_CONCONTROL]
 
-	ldr	r0, =S5PC210_DMC1_BASE
+	ldr	r0, =EXYNOS4_DMC1_BASE
 	ldr	r1, =0x0FFF303a
 	str	r1, [r0, #DMC_CONCONTROL]
 

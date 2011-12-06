@@ -2,7 +2,7 @@
  * Copyright (C) 2010 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  *
- * Configuation settings for the SAMSUNG Universal (s5pc100) board.
+ * Configuation settings for the SAMSUNG Universal (EXYNOS4210) board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -32,7 +32,7 @@
  */
 #define CONFIG_SAMSUNG		1	/* in a SAMSUNG core */
 #define CONFIG_S5P		1	/* which is in a S5P Family */
-#define CONFIG_S5PC210		1	/* which is in a S5PC210 */
+#define CONFIG_EXYNOS4210	1	/* which is in a EXYNOS4210 */
 #define CONFIG_UNIVERSAL	1	/* working with Universal */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
@@ -47,7 +47,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_TEXT_BASE		0x44800000
 
-/* input clock of PLL: Universal has 24MHz input clock at S5PC210 */
+/* input clock of PLL: Universal has 24MHz input clock at EXYNOS4210 */
 #define CONFIG_SYS_CLK_FREQ_C210	24000000
 
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -249,8 +249,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_SOFT_I2C_GPIO_SCL s5pc210_gpio_part1_get_nr(b, 7)
-#define CONFIG_SOFT_I2C_GPIO_SDA s5pc210_gpio_part1_get_nr(b, 6)
+#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part1_get_nr(b, 7)
+#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part1_get_nr(b, 6)
 
 #define CONFIG_SOFT_I2C
 #define CONFIG_SOFT_I2C_READ_REPEATED_START

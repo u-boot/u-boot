@@ -30,11 +30,11 @@
 #define CONFIG_SYS_CLK_FREQ_C210	24000000
 #endif
 
-/* s5pc210: return pll clock frequency */
-static unsigned long s5pc210_get_pll_clk(int pllreg)
+/* exynos4: return pll clock frequency */
+static unsigned long exynos4_get_pll_clk(int pllreg)
 {
-	struct s5pc210_clock *clk =
-		(struct s5pc210_clock *)samsung_get_base_clock();
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned long r, m, p, s, k = 0, mask, fout;
 	unsigned int freq;
 
@@ -96,11 +96,11 @@ static unsigned long s5pc210_get_pll_clk(int pllreg)
 	return fout;
 }
 
-/* s5pc210: return ARM clock frequency */
-static unsigned long s5pc210_get_arm_clk(void)
+/* exynos4: return ARM clock frequency */
+static unsigned long exynos4_get_arm_clk(void)
 {
-	struct s5pc210_clock *clk =
-		(struct s5pc210_clock *)samsung_get_base_clock();
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned long div;
 	unsigned long dout_apll;
 	unsigned int apll_ratio;
@@ -115,11 +115,11 @@ static unsigned long s5pc210_get_arm_clk(void)
 	return dout_apll;
 }
 
-/* s5pc210: return pwm clock frequency */
-static unsigned long s5pc210_get_pwm_clk(void)
+/* exynos4: return pwm clock frequency */
+static unsigned long exynos4_get_pwm_clk(void)
 {
-	struct s5pc210_clock *clk =
-		(struct s5pc210_clock *)samsung_get_base_clock();
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned long pclk, sclk;
 	unsigned int sel;
 	unsigned int ratio;
@@ -158,11 +158,11 @@ static unsigned long s5pc210_get_pwm_clk(void)
 	return pclk;
 }
 
-/* s5pc210: return uart clock frequency */
-static unsigned long s5pc210_get_uart_clk(int dev_index)
+/* exynos4: return uart clock frequency */
+static unsigned long exynos4_get_uart_clk(int dev_index)
 {
-	struct s5pc210_clock *clk =
-		(struct s5pc210_clock *)samsung_get_base_clock();
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned long uclk, sclk;
 	unsigned int sel;
 	unsigned int ratio;
@@ -205,11 +205,11 @@ static unsigned long s5pc210_get_uart_clk(int dev_index)
 	return uclk;
 }
 
-/* s5pc210: set the mmc clock */
-static void s5pc210_set_mmc_clk(int dev_index, unsigned int div)
+/* exynos4: set the mmc clock */
+static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 {
-	struct s5pc210_clock *clk =
-		(struct s5pc210_clock *)samsung_get_base_clock();
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned int addr;
 	unsigned int val;
 
@@ -234,25 +234,25 @@ static void s5pc210_set_mmc_clk(int dev_index, unsigned int div)
 
 unsigned long get_pll_clk(int pllreg)
 {
-	return s5pc210_get_pll_clk(pllreg);
+	return exynos4_get_pll_clk(pllreg);
 }
 
 unsigned long get_arm_clk(void)
 {
-	return s5pc210_get_arm_clk();
+	return exynos4_get_arm_clk();
 }
 
 unsigned long get_pwm_clk(void)
 {
-	return s5pc210_get_pwm_clk();
+	return exynos4_get_pwm_clk();
 }
 
 unsigned long get_uart_clk(int dev_index)
 {
-	return s5pc210_get_uart_clk(dev_index);
+	return exynos4_get_uart_clk(dev_index);
 }
 
 void set_mmc_clk(int dev_index, unsigned int div)
 {
-	s5pc210_set_mmc_clk(dev_index, div);
+	exynos4_set_mmc_clk(dev_index, div);
 }

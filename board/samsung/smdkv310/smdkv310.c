@@ -29,8 +29,8 @@
 #include <asm/arch/sromc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-struct s5pc210_gpio_part1 *gpio1;
-struct s5pc210_gpio_part2 *gpio2;
+struct exynos4_gpio_part1 *gpio1;
+struct exynos4_gpio_part2 *gpio2;
 
 static void smc9115_pre_init(void)
 {
@@ -52,8 +52,8 @@ static void smc9115_pre_init(void)
 
 int board_init(void)
 {
-	gpio1 = (struct s5pc210_gpio_part1 *) S5PC210_GPIO_PART1_BASE;
-	gpio2 = (struct s5pc210_gpio_part2 *) S5PC210_GPIO_PART2_BASE;
+	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
+	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
 
 	smc9115_pre_init();
 

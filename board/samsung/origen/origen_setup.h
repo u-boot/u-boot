@@ -98,8 +98,8 @@
 #define INFORM1_OFFSET			0x804
 
 /* GPIO Offsets for UART: GPIO Contol Register */
-#define S5PC210_GPIO_A0_CON_OFFSET	0x00
-#define S5PC210_GPIO_A1_CON_OFFSET	0x20
+#define EXYNOS4_GPIO_A0_CON_OFFSET	0x00
+#define EXYNOS4_GPIO_A1_CON_OFFSET	0x20
 
 /* UART Register offsets */
 #define ULCON_OFFSET		0x00
@@ -416,8 +416,8 @@
  * UART GPIO_A0/GPIO_A1 Control Register Value
  * 0x2: UART Function
  */
-#define S5PC210_GPIO_A0_CON_VAL	0x22222222
-#define S5PC210_GPIO_A1_CON_VAL	0x222222
+#define EXYNOS4_GPIO_A0_CON_VAL	0x22222222
+#define EXYNOS4_GPIO_A1_CON_VAL	0x222222
 
 /* ULCON: UART Line Control Value 8N1 */
 #define WORD_LEN_5_BIT		0x00
