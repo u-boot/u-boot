@@ -1,5 +1,6 @@
 #include <common.h>
 #include <exports.h>
+#include <spi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
