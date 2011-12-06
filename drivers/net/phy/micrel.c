@@ -32,9 +32,20 @@ static struct phy_driver KSZ804_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver KS8721_driver = {
+	.name = "Micrel KS8721BL",
+	.uid = 0x221610,
+	.mask = 0xfffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &genphy_config,
+	.startup = &genphy_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_micrel_init(void)
 {
 	phy_register(&KSZ804_driver);
+	phy_register(&KS8721_driver);
 
 	return 0;
 }
