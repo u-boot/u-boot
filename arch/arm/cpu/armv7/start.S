@@ -132,6 +132,7 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr,r0
 
+#if !defined(CONFIG_TEGRA2)
 /*
  * Setup vector:
  * (OMAP4 spl TEXT_BASE is not 32 byte aligned.
@@ -147,6 +148,7 @@ reset:
 	ldr	r0, =_start
 	mcr	p15, 0, r0, c12, c0, 0	@Set VBAR
 #endif
+#endif	/* !Tegra2 */
 
 	/* the mask ROM code should have PLL and others stable */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
