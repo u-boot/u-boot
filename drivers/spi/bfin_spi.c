@@ -248,6 +248,8 @@ void spi_release_bus(struct spi_slave *slave)
 static int spi_pio_xfer(struct bfin_spi_slave *bss, const u8 *tx, u8 *rx,
 			uint bytes)
 {
+	/* discard invalid data and clear RXS */
+	read_SPI_RDBR(bss);
 	/* todo: take advantage of hardware fifos  */
 	while (bytes--) {
 		u8 value = (tx ? *tx++ : CONFIG_BFIN_SPI_IDLE_VAL);
