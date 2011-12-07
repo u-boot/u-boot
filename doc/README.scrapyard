@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+BAB7xx	powerpc	MPC740/MPC750  -  2011-12-07	Frank Gottschling <fgottschling@eltec.de>
 xm250   arm     pxa     c746cdd   2011-25-11
 pleb2   arm     pxa     b185a1c   2011-25-11
 cradle  arm     pxa     4e24f8a   2011-25-11    Kyle Harris <kharris@nexus-tech.net>

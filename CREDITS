@@ -161,7 +161,7 @@ D: Support for WRS SBC8347/8349 boards
 
 N: Frank Gottschling
 E: fgottschling@eltec.de
-D: Support for ELTEC MHPC/BAB7xx/ELPPC boards, cfb-console, i8042, SMI LynxEM
+D: Support for ELTEC MHPC/ELPPC boards, cfb-console, i8042, SMI LynxEM
 W: www.eltec.de
 
 N: Marius Groeger
@@ -183,7 +183,7 @@ D: Port to Walnut405 board
 
 N: Andreas Heppel
 E: aheppel@sysgo.de
-D: CPU Support for MPC 75x; board support for Eltec BAB750 [obsolete!]
+D: CPU Support for MPC 75x
 
 N: Josh Huber
 E: huber@alum.wpi.edu

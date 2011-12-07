@@ -564,7 +564,7 @@ The following options need to be configured:
 
 		CONFIG_CFB_CONSOLE
 		Enables console device for a color framebuffer. Needs following
-		defines (cf. smiLynxEM, i8042, board/eltec/bab7xx)
+		defines (cf. smiLynxEM, i8042)
 			VIDEO_FB_LITTLE_ENDIAN	graphic memory organisation
 						(default big endian)
 			VIDEO_HW_RECTFILL	graphic chip supports
