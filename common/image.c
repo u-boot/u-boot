@@ -1104,6 +1104,14 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 			memmove_wd((void *)*initrd_start,
 					(void *)rd_data, rd_len, CHUNKSZ);
 
+#ifdef CONFIG_MP
+			/*
+			 * Ensure the image is flushed to memory to handle
+			 * AMP boot scenarios in which we might not be
+			 * HW cache coherent
+			 */
+			flush_cache((unsigned long)*initrd_start, rd_len);
+#endif
 			puts("OK\n");
 		}
 	} else {
