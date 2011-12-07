@@ -106,9 +106,9 @@ static int legacy_miiphy_write(struct mii_dev *bus, int addr, int devad,
  */
 void miiphy_register(const char *name,
 		      int (*read)(const char *devname, unsigned char addr,
-				   unsigned short reg, unsigned short *value),
+				   unsigned char reg, unsigned short *value),
 		      int (*write)(const char *devname, unsigned char addr,
-				    unsigned short reg, unsigned short value))
+				    unsigned char reg, unsigned short value))
 {
 	struct mii_dev *new_dev;
 	struct legacy_mii_dev *ldev;
@@ -287,7 +287,7 @@ static struct mii_dev *miiphy_get_active_dev(const char *devname)
  * Returns:
  *   0 on success
  */
-int miiphy_read(const char *devname, unsigned char addr, unsigned short reg,
+int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		 unsigned short *value)
 {
 	struct mii_dev *bus;
@@ -315,7 +315,7 @@ int miiphy_read(const char *devname, unsigned char addr, unsigned short reg,
  * Returns:
  *   0 on success
  */
-int miiphy_write(const char *devname, unsigned char addr, unsigned short reg,
+int miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
 		  unsigned short value)
 {
 	struct mii_dev *bus;

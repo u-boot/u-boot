@@ -42,14 +42,14 @@
 
 struct legacy_mii_dev {
 	int (*read)(const char *devname, unsigned char addr,
-		     unsigned short reg, unsigned short *value);
+		     unsigned char reg, unsigned short *value);
 	int (*write)(const char *devname, unsigned char addr,
-		      unsigned short reg, unsigned short value);
+		      unsigned char reg, unsigned short value);
 };
 
-int miiphy_read(const char *devname, unsigned char addr, unsigned short reg,
+int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		 unsigned short *value);
-int miiphy_write(const char *devname, unsigned char addr, unsigned short reg,
+int miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
 		  unsigned short value);
 int miiphy_info(const char *devname, unsigned char addr, unsigned int *oui,
 		 unsigned char *model, unsigned char *rev);
@@ -65,9 +65,9 @@ void miiphy_init(void);
 
 void miiphy_register(const char *devname,
 		      int (*read)(const char *devname, unsigned char addr,
-				   unsigned short reg, unsigned short *value),
+				   unsigned char reg, unsigned short *value),
 		      int (*write)(const char *devname, unsigned char addr,
-				    unsigned short reg, unsigned short value));
+				    unsigned char reg, unsigned short value));
 
 int miiphy_set_current_dev(const char *devname);
 const char *miiphy_get_current_dev(void);
