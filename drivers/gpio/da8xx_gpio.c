@@ -205,9 +205,6 @@ void gpio_free(int gp)
 
 void gpio_toggle_value(int gp)
 {
-	struct davinci_gpio *bank;
-
-	bank = GPIO_BANK(gp);
 	gpio_set_value(gp, !gpio_get_value(gp));
 }
 
