@@ -147,7 +147,6 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 	int eccbytes = CONFIG_SYS_NAND_ECCBYTES;
 	int eccsteps = CONFIG_SYS_NAND_ECCSTEPS;
 	uint8_t *p = dst;
-	int stat;
 
 	/*
 	 * No malloc available for now, just use some temporary locations
@@ -170,7 +169,7 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 		this->ecc.hwctl(mtd, NAND_ECC_READ);
 		this->read_buf(mtd, p, eccsize);
 		this->ecc.calculate(mtd, p, &ecc_calc[i]);
-		stat = this->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
+		this->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
 	}
 
 	return 0;
