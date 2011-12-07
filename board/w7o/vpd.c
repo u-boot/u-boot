@@ -165,8 +165,8 @@ static int vpd_is_valid(unsigned dev_addr, unsigned char *buf)
 		printf("Error: VPD EEPROM 0x%x missing CRC\n", dev_addr);
 		return 0;
 	}
-	stored_crc16 = *((ushort *) packet->data);
-	*(ushort *) packet->data = 0;
+	memcpy(&stored_crc16, packet->data, sizeof(ushort));
+	memset(packet->data, 0, sizeof(ushort));
 
 	/* OK, lets calculate the CRC and check it */
 #if defined(VXWORKS)
@@ -175,7 +175,7 @@ static int vpd_is_valid(unsigned dev_addr, unsigned char *buf)
 	calc_crc16 = (0xffff & crc32(0, buf, num_bytes));
 #endif
 	/* Now restore the CRC */
-	*(ushort *) packet->data = stored_crc16;
+	memcpy(packet->data, &stored_crc16, sizeof(ushort));
 	if (stored_crc16 != calc_crc16) {
 		printf("Error: VPD EEPROM 0x%x has bad CRC 0x%x\n",
 		       dev_addr, stored_crc16);
@@ -277,8 +277,9 @@ int vpd_get_data(unsigned char dev_addr, VPD *vpdInfo)
 			break;
 		case VPD_PID_SN:
 			if (size_ok(packet, sizeof(unsigned long))) {
-				vpdInfo->serialNum =
-					*(unsigned long *) packet->data;
+				memcpy(&vpdInfo->serialNum,
+					packet->data,
+					sizeof(unsigned long));
 			}
 			break;
 		case VPD_PID_MANID:
@@ -287,19 +288,22 @@ int vpd_get_data(unsigned char dev_addr, VPD *vpdInfo)
 			break;
 		case VPD_PID_PCO:
 			if (size_ok(packet, sizeof(unsigned long))) {
-				vpdInfo->configOpt =
-					*(unsigned long *) packet->data;
+				memcpy(&vpdInfo->configOpt,
+					packet->data,
+					sizeof(unsigned long));
 			}
 			break;
 		case VPD_PID_SYSCLK:
 			if (size_ok(packet, sizeof(unsigned long)))
-				vpdInfo->sysClk =
-					*(unsigned long *) packet->data;
+				memcpy(&vpdInfo->sysClk,
+					packet->data,
+					sizeof(unsigned long));
 			break;
 		case VPD_PID_SERCLK:
 			if (size_ok(packet, sizeof(unsigned long)))
-				vpdInfo->serClk =
-					*(unsigned long *) packet->data;
+				memcpy(&vpdInfo->serClk,
+					packet->data,
+					sizeof(unsigned long));
 			break;
 		case VPD_PID_FLASH:
 			if (size_ok(packet, 9)) {	/* XXX - hardcoded,
