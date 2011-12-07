@@ -49,6 +49,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <i2c.h>
+#include <mb862xx.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -226,11 +227,6 @@ static void exbo_hw_init(void)
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
 	struct mpc5xxx_wu_gpio *wu_gpio =
 				(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
-	unsigned char val;
-
-	/* 1st, check if extension board is present */
-	if (i2c_read(CONFIG_SYS_EXBO_EE_I2C_ADDRESS, 0, 1, &val, 1))
-		return;
 
 	/* configure IrDA pins (PSC6 port) as gpios */
 	gpio->port_config &= 0xFF8FFFFF;
@@ -285,8 +281,6 @@ int board_early_init_r(void)
 	/* enable CS0 */
 	setbits_be32((void *)MPC5XXX_ADDECR, (1 << 16));
 
-	exbo_hw_init();
-
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 	/* Low level USB init, required for proper kernel operation */
 	usb_cpu_init();
@@ -326,7 +320,14 @@ void board_get_enetaddr (uchar * enet)
 
 int misc_init_r(void)
 {
+	pci_dev_t devbusfn;
 	uchar enetaddr[6];
+
+	/* check if graphic extension board is present */
+	devbusfn = pci_find_device(PCI_VENDOR_ID_FUJITSU,
+				   PCI_DEVICE_ID_CORAL_PA, 0);
+	if (devbusfn != -1)
+		exbo_hw_init();
 
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 		board_get_enetaddr(enetaddr);
