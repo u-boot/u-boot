@@ -217,7 +217,7 @@ int fixed_sdram(void)
 	out_be32(&im->ddr.sdram_interval, CONFIG_SYS_DDR_INTERVAL);
 	out_be32(&im->ddr.sdram_clk_cntl, CONFIG_SYS_DDR_CLK_CNTL);
 	udelay(200);
-	out_be32(&im->ddr.sdram_cfg, SDRAM_CFG_MEM_EN);
+	setbits_be32(&im->ddr.sdram_cfg, SDRAM_CFG_MEM_EN);
 
 	msize = CONFIG_SYS_DDR_SIZE << 20;
 	disable_addr_trans();
