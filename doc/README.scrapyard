@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+rmu	powerpc	MPC850	-	  2011-12-07	Wolfgang Denk <wd@denx.de>
 OXC	powerpc	MPC8240	-	  2011-12-07
 BAB7xx	powerpc	MPC740/MPC750  -  2011-12-07	Frank Gottschling <fgottschling@eltec.de>
 xm250   arm     pxa     c746cdd   2011-25-11
