@@ -40,7 +40,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_PXA250		1	/* This is an PXA255 CPU    */
+#define CONFIG_CPU_PXA25X		1	/* This is an PXA255 CPU    */
 #define CONFIG_XAENIAX		1	/* on a xaeniax board	    */
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
@@ -168,7 +168,7 @@
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1)
+#define	CONFIG_SYS_INIT_SP_ADDR		0xfffff800
 
 /*
  * FLASH and environment organization

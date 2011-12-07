@@ -139,6 +139,22 @@
 #define VCAM_3_0	(3 << 16)
 #define VCAM_MASK	(3 << 16)
 
+/* Reg Mode 0 */
+#define VGEN1EN		(1 << 0)
+#define VGEN1STBY	(1 << 1)
+#define VGEN1MODE	(1 << 2)
+#define VIOHIEN		(1 << 3)
+#define VIOHISTBY	(1 << 4)
+#define VDIGEN		(1 << 9)
+#define VDIGSTBY	(1 << 10)
+#define VGEN2EN		(1 << 12)
+#define VGEN2STBY	(1 << 13)
+#define VGEN2MODE	(1 << 14)
+#define VPLLEN		(1 << 15)
+#define VPLLSTBY	(1 << 16)
+#define VUSBEN		(1 << 18)
+#define VUSBSTBY	(1 << 19)
+
 /* Reg Mode 1 */
 #define VGEN3EN		(1 << 0)
 #define VGEN3STBY	(1 << 1)

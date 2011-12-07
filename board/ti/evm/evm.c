@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004-2008
+ * (C) Copyright 2004-2011
  * Texas Instruments, <www.ti.com>
  *
  * Author :
@@ -37,6 +37,7 @@
 #include <asm/gpio.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
+#include <linux/mtd/nand.h>
 #include "evm.h"
 
 #define OMAP3EVM_GPIO_ETH_RST_GEN1		64
@@ -118,6 +119,42 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on the first bank.  This
+ * provides the timing values back to the function that configures
+ * the memory.
+ */
+void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
+		u32 *mr)
+{
+	int pop_mfr, pop_id;
+
+	/*
+	 * We need to identify what PoP memory is on the board so that
+	 * we know what timings to use.  To map the ID values please see
+	 * nand_ids.c
+	 */
+	identify_nand_chip(&pop_mfr, &pop_id);
+
+	if (pop_mfr == NAND_MFR_HYNIX && pop_id == 0xbc) {
+		/* 256MB DDR */
+		*mcfg = HYNIX_V_MCFG_200(256 << 20);
+		*ctrla = HYNIX_V_ACTIMA_200;
+		*ctrlb = HYNIX_V_ACTIMB_200;
+	} else {
+		/* 128MB DDR */
+		*mcfg = MICRON_V_MCFG_165(128 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+	}
+	*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	*mr = MICRON_V_MR_165;
+}
+#endif
 
 /*
  * Routine: misc_init_r
@@ -238,7 +275,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif /* CONFIG_CMD_NET */
 
-#ifdef CONFIG_GENERIC_MMC
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0);

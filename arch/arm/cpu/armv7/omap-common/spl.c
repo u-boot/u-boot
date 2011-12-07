@@ -100,9 +100,10 @@ static void jump_to_image_no_args(void)
 	debug("image entry point: 0x%X\n", spl_image.entry_point);
 	/* Pass the saved boot_params from rom code */
 #if defined(CONFIG_VIRTIO) || defined(CONFIG_ZEBU)
-	image_entry = 0x80100000;
+	image_entry = (image_entry_noargs_t)0x80100000;
 #endif
-	image_entry((u32 *)&boot_params_ptr);
+	u32 boot_params_ptr_addr = (u32)&boot_params_ptr;
+	image_entry((u32 *)boot_params_ptr_addr);
 }
 
 void jump_to_image_no_args(void) __attribute__ ((noreturn));
@@ -115,7 +116,10 @@ void board_init_r(gd_t *id, ulong dummy)
 			CONFIG_SYS_SPL_MALLOC_SIZE);
 
 	timer_init();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+
+#ifdef CONFIG_SPL_BOARD_INIT
+	spl_board_init();
+#endif
 
 	boot_device = omap_boot_device();
 	debug("boot device - %d\n", boot_device);

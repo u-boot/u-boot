@@ -27,6 +27,7 @@
 #include <post.h>
 #include <asm/arch/da850_lowlevel.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/davinci_misc.h>
 #include <asm/arch/ddr2_defs.h>
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/pll_defs.h>
@@ -235,18 +236,15 @@ int da850_ddr_setup(void)
 	return 0;
 }
 
-void da850_pinmux_ctl(unsigned long offset, unsigned long mask,
-	unsigned long value)
-{
-	clrbits_le32(&davinci_syscfg_regs->pinmux[offset], mask);
-	setbits_le32(&davinci_syscfg_regs->pinmux[offset], (mask & value));
-}
-
 __attribute__((weak))
 void board_gpio_init(void)
 {
 	return;
 }
+
+/* pinmux_resource[] vector is defined in the board specific file */
+extern const struct pinmux_resource pinmuxes[];
+extern const int pinmuxes_size;
 
 int arch_cpu_init(void)
 {
@@ -257,27 +255,9 @@ int arch_cpu_init(void)
 	dv_maskbits(&davinci_syscfg_regs->suspsrc,
 		CONFIG_SYS_DA850_SYSCFG_SUSPSRC);
 
-	/* Setup Pinmux */
-	da850_pinmux_ctl(0, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX0);
-	da850_pinmux_ctl(1, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX1);
-	da850_pinmux_ctl(2, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX2);
-	da850_pinmux_ctl(3, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX3);
-	da850_pinmux_ctl(4, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX4);
-	da850_pinmux_ctl(5, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX5);
-	da850_pinmux_ctl(6, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX6);
-	da850_pinmux_ctl(7, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX7);
-	da850_pinmux_ctl(8, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX8);
-	da850_pinmux_ctl(9, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX9);
-	da850_pinmux_ctl(10, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX10);
-	da850_pinmux_ctl(11, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX11);
-	da850_pinmux_ctl(12, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX12);
-	da850_pinmux_ctl(13, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX13);
-	da850_pinmux_ctl(14, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX14);
-	da850_pinmux_ctl(15, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX15);
-	da850_pinmux_ctl(16, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX16);
-	da850_pinmux_ctl(17, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX17);
-	da850_pinmux_ctl(18, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX18);
-	da850_pinmux_ctl(19, 0xFFFFFFFF, CONFIG_SYS_DA850_PINMUX19);
+	/* configure pinmux settings */
+	if (davinci_configure_pin_mux_items(pinmuxes, pinmuxes_size))
+		return 1;
 
 	/* PLL setup */
 	da850_pll_init(davinci_pllc0_regs, CONFIG_SYS_DA850_PLL0_PLLM);

@@ -26,10 +26,13 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= edminiv2.o
+COBJS	:= edminiv2.o ../common/common.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

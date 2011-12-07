@@ -25,9 +25,19 @@
 /*
  * High Level Board Configuration Options
  */
-#define	CONFIG_PXA27X		1	/* Marvell PXA270 CPU */
+#define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_VPAC270		1	/* Voipac PXA270 board */
-#define	CONFIG_SYS_TEXT_BASE	0x0
+#define	CONFIG_SYS_TEXT_BASE	0xa0000000
+
+#ifdef	CONFIG_ONENAND
+#define	CONFIG_SPL
+#define	CONFIG_SPL_ONENAND_SUPPORT
+#define	CONFIG_SPL_ONENAND_LOAD_ADDR	0x2000
+#define	CONFIG_SPL_ONENAND_LOAD_SIZE	\
+	(512 * 1024 - CONFIG_SPL_ONENAND_LOAD_ADDR)
+#define	CONFIG_SPL_TEXT_BASE	0x5c000000
+#define	CONFIG_SPL_LDSCRIPT	"board/vpac270/u-boot-spl.lds"
+#endif
 
 /*
  * Environment settings
@@ -46,12 +56,19 @@
 		"bootm 0xa4000000; "					\
 	"fi; "								\
 	"bootm 0x60000;"
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"update_onenand="						\
+		"onenand erase 0x0 0x80000 ; "				\
+		"onenand write 0xa0000000 0x0 0x80000"
+
 #define	CONFIG_BOOTARGS			"console=tty0 console=ttyS0,115200"
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_LZMA			/* LZMA compression support */
+#define	CONFIG_OF_LIBFDT
 
 /*
  * Serial Console Configuration
@@ -141,6 +158,8 @@
 #define	CONFIG_SYS_MAXARGS		16
 #define	CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
+#define	CONFIG_CMDLINE_EDITING		1
+#define	CONFIG_AUTO_COMPLETE		1
 
 /*
  * Clock Configuration
@@ -180,19 +199,18 @@
 #define	CONFIG_SYS_MEMTEST_END		0xa0800000	/* 4 ... 8 MB in DRAM */
 
 #define	CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1
-#define	CONFIG_SYS_IPL_LOAD_ADDR	(0x5c000000)
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define	CONFIG_SYS_INIT_SP_ADDR		\
-	(PHYS_SDRAM_1 + GENERATED_GBL_DATA_SIZE + 2048)
+#define	CONFIG_SYS_INIT_SP_ADDR		0x5c010000
 
 /*
  * NOR FLASH
  */
 #define	CONFIG_SYS_MONITOR_BASE		0x0
-#define	CONFIG_SYS_MONITOR_LEN		0x40000
+#define	CONFIG_SYS_MONITOR_LEN		0x80000
 #define	CONFIG_ENV_ADDR			\
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-#define	CONFIG_ENV_SIZE			0x4000
+#define	CONFIG_ENV_SIZE			0x20000
+#define	CONFIG_ENV_SECT_SIZE		0x20000
 
 #if	defined(CONFIG_CMD_FLASH)	/* NOR */
 #define	PHYS_FLASH_1			0x00000000	/* Flash Bank #1 */
@@ -221,22 +239,11 @@
 
 #define	CONFIG_ENV_IS_IN_FLASH		1
 
-/*
- * The first four sectors of the NOR flash are 0x8000 bytes big, the rest of the
- * flash consists of 0x20000 bytes big sectors.
- */
-#if	(CONFIG_ENV_ADDR <= 0x18000)
-#define	CONFIG_ENV_SECT_SIZE		0x8000
-#else
-#define	CONFIG_ENV_SECT_SIZE		0x20000
-#endif
-
 #elif	defined(CONFIG_CMD_ONENAND)	/* OneNAND */
 #define	CONFIG_SYS_NO_FLASH
 #define	CONFIG_SYS_ONENAND_BASE		0x00000000
 
 #define	CONFIG_ENV_IS_IN_ONENAND	1
-#define	CONFIG_ENV_SECT_SIZE		0x20000
 
 #else	/* No flash */
 #define	CONFIG_SYS_NO_FLASH

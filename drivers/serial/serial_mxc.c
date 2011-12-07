@@ -24,40 +24,11 @@
 
 #define __REG(x)     (*((volatile u32 *)(x)))
 
-#if defined(CONFIG_SYS_MX31_UART1) || defined(CONFIG_SYS_MX25_UART1)
-#define UART_PHYS 0x43f90000
-#elif defined(CONFIG_SYS_MX31_UART2) || defined(CONFIG_SYS_MX25_UART2)
-#define UART_PHYS 0x43f94000
-#elif defined(CONFIG_SYS_MX31_UART3) || defined(CONFIG_SYS_MX25_UART3)
-#define UART_PHYS 0x5000c000
-#elif defined(CONFIG_SYS_MX31_UART4) || defined(CONFIG_SYS_MX25_UART4)
-#define UART_PHYS 0x43fb0000
-#elif defined(CONFIG_SYS_MX31_UART5) || defined(CONFIG_SYS_MX25_UART5)
-#define UART_PHYS 0x43fb4000
-#elif defined(CONFIG_SYS_MX27_UART1)
-#define UART_PHYS 0x1000a000
-#elif defined(CONFIG_SYS_MX27_UART2)
-#define UART_PHYS 0x1000b000
-#elif defined(CONFIG_SYS_MX27_UART3)
-#define UART_PHYS 0x1000c000
-#elif defined(CONFIG_SYS_MX27_UART4)
-#define UART_PHYS 0x1000d000
-#elif defined(CONFIG_SYS_MX27_UART5)
-#define UART_PHYS 0x1001b000
-#elif defined(CONFIG_SYS_MX27_UART6)
-#define UART_PHYS 0x1001c000
-#elif defined(CONFIG_SYS_MX35_UART1) || defined(CONFIG_SYS_MX51_UART1) || \
-	defined(CONFIG_SYS_MX53_UART1)
-#define UART_PHYS UART1_BASE_ADDR
-#elif defined(CONFIG_SYS_MX35_UART2) || defined(CONFIG_SYS_MX51_UART2) || \
-	defined(CONFIG_SYS_MX53_UART2)
-#define UART_PHYS UART2_BASE_ADDR
-#elif defined(CONFIG_SYS_MX35_UART3) || defined(CONFIG_SYS_MX51_UART3) || \
-	defined(CONFIG_SYS_MX53_UART3)
-#define UART_PHYS UART3_BASE_ADDR
-#else
-#error "define CONFIG_SYS_MXxx_UARTx to use the MXC UART driver"
+#ifndef CONFIG_MXC_UART_BASE
+#error "define CONFIG_MXC_UART_BASE to use the MXC UART driver"
 #endif
+
+#define UART_PHYS	CONFIG_MXC_UART_BASE
 
 #ifdef CONFIG_SERIAL_MULTI
 #warning "MXC driver does not support MULTI serials."

@@ -27,63 +27,20 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
+#include <asm/arch/pinmux_defs.h>
 #include <ns16550.h>
 #include <nand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define pinmux(x)			(&davinci_syscfg_regs->pinmux[x])
-
-static const struct pinmux_config mii_pins[] = {
-	{ pinmux(2), 8, 1 },
-	{ pinmux(2), 8, 2 },
-	{ pinmux(2), 8, 3 },
-	{ pinmux(2), 8, 4 },
-	{ pinmux(2), 8, 5 },
-	{ pinmux(2), 8, 6 },
-	{ pinmux(2), 8, 7 }
-};
-
-static const struct pinmux_config mdio_pins[] = {
-	{ pinmux(4), 8, 0 },
-	{ pinmux(4), 8, 1 }
-};
-
-static const struct pinmux_config nand_pins[] = {
-	{ pinmux(7), 1, 1 },
-	{ pinmux(7), 1, 2 },
-	{ pinmux(7), 1, 4 },
-	{ pinmux(7), 1, 5 },
-	{ pinmux(9), 1, 0 },
-	{ pinmux(9), 1, 1 },
-	{ pinmux(9), 1, 2 },
-	{ pinmux(9), 1, 3 },
-	{ pinmux(9), 1, 4 },
-	{ pinmux(9), 1, 5 },
-	{ pinmux(9), 1, 6 },
-	{ pinmux(9), 1, 7 },
-	{ pinmux(12), 1, 5 },
-	{ pinmux(12), 1, 6 }
-};
-
-static const struct pinmux_config uart2_pins[] = {
-	{ pinmux(0), 4, 6 },
-	{ pinmux(0), 4, 7 },
-	{ pinmux(4), 2, 4 },
-	{ pinmux(4), 2, 5 }
-};
-
-static const struct pinmux_config i2c_pins[] = {
-	{ pinmux(4), 2, 4 },
-	{ pinmux(4), 2, 5 }
-};
-
 static const struct pinmux_resource pinmuxes[] = {
-	PINMUX_ITEM(mii_pins),
-	PINMUX_ITEM(mdio_pins),
-	PINMUX_ITEM(i2c_pins),
-	PINMUX_ITEM(nand_pins),
-	PINMUX_ITEM(uart2_pins),
+	PINMUX_ITEM(emac_pins_mii),
+	PINMUX_ITEM(emac_pins_mdio),
+	PINMUX_ITEM(emifa_pins_cs3),
+	PINMUX_ITEM(emifa_pins_cs4),
+	PINMUX_ITEM(emifa_pins_nand),
+	PINMUX_ITEM(uart2_pins_txrx),
+	PINMUX_ITEM(uart2_pins_rtscts),
 };
 
 static const struct lpsc_resource lpsc[] = {

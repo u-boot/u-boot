@@ -211,10 +211,6 @@
  * The stack sizes are set up in start.S using the settings below
  */
 #define	CONFIG_STACKSIZE SZ_128K	/* regular stack */
-#ifdef	CONFIG_USE_IRQ
-# define	CONFIG_STACKSIZE_IRQ SZ_4K	/* IRQ stack */
-# define	CONFIG_STACKSIZE_FIQ SZ_4K	/* FIQ stack */
-#endif
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

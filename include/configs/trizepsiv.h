@@ -40,7 +40,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_PXA27X		1	/* This is an PXA27x CPU    */
+#define CONFIG_CPU_PXA27X		1	/* This is an PXA27x CPU    */
 
 #define CONFIG_MMC		1
 #define CONFIG_BOARD_LATE_INIT

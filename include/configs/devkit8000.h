@@ -34,10 +34,15 @@
 /* High Level Configuration Options */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
-#define CONFIG_OMAP3430		1	/* which is in a 3430 */
 #define CONFIG_OMAP3_DEVKIT8000	1	/* working with DevKit8000 */
 
-#define	CONFIG_SYS_TEXT_BASE	0x80008000
+/*
+ * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
+ * 64 bytes before this address should be set aside for u-boot.img's
+ * header. That is 0x800FFFC0--0x80100000 should not be used for any
+ * other needs.
+ */
+#define CONFIG_SYS_TEXT_BASE	0x80100000
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
@@ -68,10 +73,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 
 /* Hardware drivers */
-
-/* DDR - I use Micron DDR */
-#define CONFIG_OMAP3_MICRON_DDR		1
-
 /* DM9000 */
 #define CONFIG_NET_RETRY_COUNT		20
 #define	CONFIG_DRIVER_DM9000		1
@@ -276,19 +277,11 @@
 
 /* The stack sizes are set up in start.S using the settings below */
 #define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ		(4 << 10)	/* IRQ stack 4 KiB */
-#define CONFIG_STACKSIZE_FIQ		(4 << 10)	/* FIQ stack 4 KiB */
-#endif
 
 /*  Physical Memory Map  */
 #define CONFIG_NR_DRAM_BANKS		2 /* CS1 may or may not be populated */
 #define PHYS_SDRAM_1			OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE		(128 << 20)	/* at least 128 MiB */
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
-
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C			1
 
 /* NAND and environment organization  */
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
@@ -317,6 +310,7 @@
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
@@ -359,7 +353,7 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200000
 
-#define CONFIG_SYS_SPL_MALLOC_START	0x80108000
+#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
 
 #endif /* __CONFIG_H */

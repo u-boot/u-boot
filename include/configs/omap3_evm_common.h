@@ -22,12 +22,10 @@
  */
 #define CONFIG_OMAP			/* This is TI OMAP core */
 #define CONFIG_OMAP34XX			/* belonging to 34XX family */
-#define CONFIG_OMAP3430			/* which is in a 3430 */
 
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 
 #define CONFIG_OMAP3_EVM		/* This is a OMAP3 EVM */
-#define CONFIG_OMAP3_MICRON_DDR		/* with MICRON DDR part */
 #define CONFIG_TWL4030_POWER		/* with TWL4030 PMIC */
 
 #undef CONFIG_USE_IRQ			/* no support for IRQs */
@@ -59,11 +57,6 @@
  */
 #define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack 4 KiB */
-#define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack 4 KiB */
-#endif
-
 /*
  * Physical Memory Map
  * Note 1: CS1 may or may not be populated
@@ -71,11 +64,7 @@
  */
 #define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE		(32 << 20)
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
-
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C
 
 /* Limits for memtest */
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
@@ -288,5 +277,35 @@
 
 /* Uncomment to define the board revision statically */
 /* #define CONFIG_STATIC_BOARD_REV	OMAP3EVM_BOARD_GEN_2 */
+
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
+/* Defines for SPL */
+#define CONFIG_SPL
+#define CONFIG_SPL_TEXT_BASE		0x40200800
+#define CONFIG_SPL_MAX_SIZE		(45 * 1024)	/* 45 KB */
+#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+
+#define CONFIG_SPL_BSS_START_ADDR	0x80000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_POWER_SUPPORT
+#define CONFIG_SPL_OMAP3_ID_NAND
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+
+/*
+ * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
+ * 64 bytes before this address should be set aside for u-boot.img's
+ * header. That is 0x800FFFC0--0x80100000 should not be used for any
+ * other needs.
+ */
+#define CONFIG_SYS_TEXT_BASE		0x80100000
+#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
 #endif /* __OMAP3_EVM_COMMON_H */

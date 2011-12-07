@@ -27,7 +27,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 
-#ifdef CONFIG_SYS_MX31_UART1
 void mx31_uart1_hw_init(void)
 {
 	/* setup pins for UART1 */
@@ -36,9 +35,7 @@ void mx31_uart1_hw_init(void)
 	mx31_gpio_mux(MUX_RTS1__UART1_RTS_B);
 	mx31_gpio_mux(MUX_CTS1__UART1_CTS_B);
 }
-#endif
 
-#ifdef CONFIG_SYS_MX31_UART2
 void mx31_uart2_hw_init(void)
 {
 	/* setup pins for UART2 */
@@ -47,7 +44,6 @@ void mx31_uart2_hw_init(void)
 	mx31_gpio_mux(MUX_RTS2__UART2_RTS_B);
 	mx31_gpio_mux(MUX_CTS2__UART2_CTS_B);
 }
-#endif
 
 #ifdef CONFIG_MXC_SPI
 /*

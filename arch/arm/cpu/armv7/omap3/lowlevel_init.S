@@ -216,6 +216,14 @@ lowlevel_init:
 	ldr	sp, SRAM_STACK
 	str	ip, [sp]	/* stash old link register */
 	mov	ip, lr		/* save link reg across call */
+#if !defined(CONFIG_SYS_NAND_BOOT) && !defined(CONFIG_SYS_ONENAND_BOOT)
+/*
+ * No need to copy/exec the clock code - DPLL adjust already done
+ * in NAND/oneNAND Boot.
+ */
+	ldr	r1, =SRAM_CLK_CODE
+	bl	cpy_clk_code
+#endif /* NAND Boot */
 	bl	s_init		/* go setup pll, mux, memory */
 	ldr	ip, [sp]	/* restore save ip */
 	mov	lr, ip		/* restore link reg */

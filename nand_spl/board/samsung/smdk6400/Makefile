@@ -33,12 +33,12 @@ nandobj	:= $(OBJTREE)/nand_spl/
 
 LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS := -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE) $(LDFLAGS) \
-	   $(LDFLAGS_FINAL)
+		$(LDFLAGS_FINAL) -gc-sections
 AFLAGS	+= -DCONFIG_NAND_SPL
-CFLAGS	+= -DCONFIG_NAND_SPL
+CFLAGS	+= -DCONFIG_NAND_SPL -ffunction-sections
 
 SOBJS	= start.o cpu_init.o lowlevel_init.o
-COBJS	= nand_boot.o nand_ecc.o s3c64xx.o smdk6400_nand_spl.o
+COBJS	= nand_boot.o nand_ecc.o s3c64xx.o smdk6400_nand_spl.o nand_base.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -98,6 +98,9 @@ $(obj)smdk6400_nand_spl.c:
 	@rm -f $@
 	@ln -s $(TOPDIR)/board/samsung/smdk6400/smdk6400_nand_spl.c $@
 
+$(obj)nand_base.c:
+	@rm -f $@
+	@ln -s $(TOPDIR)/drivers/mtd/nand/nand_base.c $@
 #########################################################################
 
 $(obj)%.o:	$(obj)%.S

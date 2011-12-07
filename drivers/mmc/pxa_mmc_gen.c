@@ -30,12 +30,12 @@
 #include <asm/io.h>
 
 /* PXAMMC Generic default config for various CPUs */
-#if defined(CONFIG_PXA250)
+#if defined(CONFIG_CPU_PXA25X)
 #define PXAMMC_FIFO_SIZE	1
 #define PXAMMC_MIN_SPEED	312500
 #define PXAMMC_MAX_SPEED	20000000
 #define PXAMMC_HOST_CAPS	(0)
-#elif defined(CONFIG_PXA27X)
+#elif defined(CONFIG_CPU_PXA27X)
 #define PXAMMC_CRC_SKIP
 #define PXAMMC_FIFO_SIZE	32
 #define PXAMMC_MIN_SPEED	304000

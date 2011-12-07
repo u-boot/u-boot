@@ -253,11 +253,10 @@ void configure_mpu_dpll(void)
 
 static void setup_dplls(void)
 {
-	u32 sysclk_ind, temp;
+	u32 temp;
 	const struct dpll_params *params;
-	debug("setup_dplls\n");
 
-	sysclk_ind = get_sys_clk_index();
+	debug("setup_dplls\n");
 
 	/* CORE dpll */
 	params = get_core_dpll_params();	/* default - safest */
@@ -289,10 +288,9 @@ static void setup_dplls(void)
 static void setup_non_essential_dplls(void)
 {
 	u32 sys_clk_khz, abe_ref_clk;
-	u32 sysclk_ind, sd_div, num, den;
+	u32 sd_div, num, den;
 	const struct dpll_params *params;
 
-	sysclk_ind = get_sys_clk_index();
 	sys_clk_khz = get_sys_clk_freq() / 1000;
 
 	/* IVA */
@@ -358,14 +356,6 @@ void do_scale_tps62361(u32 reg, u32 volt_mv)
 
 	step = volt_mv - TPS62361_BASE_VOLT_MV;
 	step /= 10;
-
-	/*
-	 * Select SET1 in TPS62361:
-	 * VSEL1 is grounded on board. So the following selects
-	 * VSEL1 = 0 and VSEL0 = 1
-	 */
-	gpio_direction_output(TPS62361_VSEL0_GPIO, 0);
-	gpio_set_value(TPS62361_VSEL0_GPIO, 1);
 
 	temp = TPS62361_I2C_SLAVE_ADDR |
 	    (reg << PRM_VC_VAL_BYPASS_REGADDR_SHIFT) |

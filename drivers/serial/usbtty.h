@@ -31,7 +31,7 @@
 #include <usb/omap1510_udc.h>
 #elif defined(CONFIG_MUSB_UDC)
 #include <usb/musb_udc.h>
-#elif defined(CONFIG_PXA27X)
+#elif defined(CONFIG_CPU_PXA27X)
 #include <usb/pxa27x_udc.h>
 #elif defined(CONFIG_SPEAR3XX) || defined(CONFIG_SPEAR600)
 #include <usb/spr_udc.h>

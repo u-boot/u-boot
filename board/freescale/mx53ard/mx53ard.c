@@ -87,6 +87,9 @@ int board_mmc_getcd(u8 *cd, struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 
+	mxc_request_iomux(MX53_PIN_GPIO_1, IOMUX_CONFIG_ALT1);
+	mxc_request_iomux(MX53_PIN_GPIO_4, IOMUX_CONFIG_ALT1);
+
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
 		*cd = gpio_get_value(1); /*GPIO1_1*/
 	else

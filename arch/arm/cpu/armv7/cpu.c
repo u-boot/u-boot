@@ -65,6 +65,7 @@ int cleanup_before_linux(void)
 	 * dcache_disable() in turn flushes the d-cache and disables MMU
 	 */
 	dcache_disable();
+	v7_outer_cache_disable();
 
 	/*
 	 * After D-cache is flushed and before it is disabled there may

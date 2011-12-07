@@ -380,7 +380,7 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 
 	/* Allocate memory for PTE, remember to FREE */
 	if (count != 0) {
-		pte = memalign(CONFIG_SYS_CACHELINE_SIZE, count);
+		pte = memalign(ARCH_DMA_MINALIGN, count);
 	}
 
 	if (count == 0 || pte == NULL) {

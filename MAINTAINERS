@@ -142,6 +142,10 @@ Phil Edworthy <phil.edworthy@renesas.com>
 
 	rsk7264		SH7264
 
+egnite GmbH <info@egnite.de>
+
+	ethernut5	ARM926EJS (AT91SAM9XE SoC)
+
 Dirk Eibach <eibach@gdsys.de>
 
 	devconcenter	PPC460EX
@@ -651,6 +655,7 @@ Simon Guinot <simon.guinot@sequanux.org>
 	inetspace_v2	ARM926EJS (Kirkwood SoC)
 	netspace_v2	ARM926EJS (Kirkwood SoC)
 	netspace_max_v2	ARM926EJS (Kirkwood SoC)
+	net2big_v2	ARM926EJS (Kirkwood SoC)
 
 Igor Grinberg <grinberg@compulab.co.il>
 
@@ -706,10 +711,6 @@ Sergey Kubushyn <ksi@koi8.net>
 	DV-EVM		ARM926EJS
 	SONATA		ARM926EJS
 	SCHMOOGIE	ARM926EJS
-
-Prakash Kumar <prakash@embedx.com>
-
-	cerf250		xscale/pxa
 
 Vipin Kumar <vipin.kumar@st.com>
 
@@ -811,6 +812,7 @@ Jens Scharsig <esw@bus-elektronik.de>
 
 Heiko Schocher <hs@denx.de>
 
+	enbw_cmc	ARM926EJS (AM1808 SoC)
 	magnesium	i.MX27
 	mgcoge3un	ARM926EJS (Kirkwood SoC)
 
@@ -904,7 +906,6 @@ Sughosh Ganu <urwithsughosh@gmail.com>
 Unknown / orphaned boards:
  	Board		CPU	Last known maintainer / Comment
 .........................................................................
-	cradle		xscale/pxa	Kyle Harris <kharris@nexus-tech.net> / dead address
 	lubbock		xscale/pxa	Kyle Harris <kharris@nexus-tech.net> / dead address
 
 	imx31_phycore_eet i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned

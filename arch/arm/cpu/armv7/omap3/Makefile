@@ -31,7 +31,11 @@ COBJS	+= board.o
 COBJS	+= clock.o
 COBJS	+= mem.o
 COBJS	+= sys_info.o
+ifdef CONFIG_SPL_BUILD
+COBJS-$(CONFIG_SPL_OMAP3_ID_NAND)	+= spl_id_nand.o
+endif
 
+COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= emac.o
 COBJS-$(CONFIG_EMIF4)	+= emif4.o
 COBJS-$(CONFIG_SDRC)	+= sdrc.o
 

@@ -903,9 +903,9 @@ static void do_sdram_init(u32 base)
 	 */
 	struct lpddr2_device_details cs0_dev_details, cs1_dev_details;
 	emif_reset_phy(base);
-	dev_details.cs0_device_details = emif_get_device_details(base, CS0,
+	dev_details.cs0_device_details = emif_get_device_details(emif_nr, CS0,
 						&cs0_dev_details);
-	dev_details.cs1_device_details = emif_get_device_details(base, CS1,
+	dev_details.cs1_device_details = emif_get_device_details(emif_nr, CS1,
 						&cs1_dev_details);
 	emif_reset_phy(base);
 

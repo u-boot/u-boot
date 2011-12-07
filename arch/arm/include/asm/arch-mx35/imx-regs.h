@@ -42,8 +42,8 @@
 #define I2C_BASE_ADDR           0x43F80000
 #define I2C3_BASE_ADDR          0x43F84000
 #define ATA_BASE_ADDR           0x43F8C000
-#define UART1_BASE_ADDR         0x43F90000
-#define UART2_BASE_ADDR         0x43F94000
+#define UART1_BASE		0x43F90000
+#define UART2_BASE		0x43F94000
 #define I2C2_BASE_ADDR          0x43F98000
 #define CSPI1_BASE_ADDR         0x43FA4000
 #define IOMUXC_BASE_ADDR        0x43FAC000
@@ -52,7 +52,7 @@
  * SPBA
  */
 #define SPBA_BASE_ADDR          0x50000000
-#define UART3_BASE_ADDR         0x5000C000
+#define UART3_BASE		0x5000C000
 #define CSPI2_BASE_ADDR         0x50010000
 #define ATA_DMA_BASE_ADDR       0x50020000
 #define FEC_BASE_ADDR           0x50038000

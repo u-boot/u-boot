@@ -59,7 +59,7 @@
 #define CONFIG_SYS_I2C_SLAVE		0xfe
 
 #define CONFIG_MXC_UART
-#define CONFIG_SYS_MX31_UART1
+#define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

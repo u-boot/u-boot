@@ -42,10 +42,10 @@ SOBJS	= _divsi3.o \
 
 COBJS	= cpu.o \
 	davinci_nand.o \
-	davinci_pinmux.o \
+	pinmux.o \
+	da850_pinmux.o \
 	div0.o \
 	hawkboard_nand_spl.o \
-	memsize.o \
 	misc.o \
 	nand_boot.o \
 	ns16550.o \
@@ -78,9 +78,13 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 # create symbolic links for common files
 
 # from board directory
-$(obj)davinci_pinmux.c:
+$(obj)pinmux.c:
 	@rm -f $@
-	@ln -s $(TOPDIR)/board/davinci/common/davinci_pinmux.c $@
+	@ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/pinmux.c $@
+
+$(obj)da850_pinmux.c:
+	@rm -f $@
+	@ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/da850_pinmux.c $@
 
 # from drivers/mtd/nand directory
 $(obj)davinci_nand.c:
@@ -122,24 +126,18 @@ $(obj)cpu.c:
 	@rm -f $@
 	@ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/cpu.c $@
 
+$(obj)misc.c:
+	@rm -f $@
+	ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/misc.c $@
+
 # from board directory
 $(obj)hawkboard_nand_spl.c:
 	@rm -f $@
 	ln -s $(TOPDIR)/board/davinci/da8xxevm/hawkboard_nand_spl.c $@
 
-# from board directory
-$(obj)misc.c:
-	@rm -f $@
-	ln -s $(TOPDIR)/board/davinci/common/misc.c $@
-
 $(obj)psc.c:
 	@rm -f $@
 	ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/psc.c $@
-
-# from common directory
-$(obj)memsize.c:
-	@rm -f $@
-	ln -s $(TOPDIR)/common/memsize.c $@
 
 #########################################################################
 

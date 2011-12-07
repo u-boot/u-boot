@@ -138,3 +138,24 @@ int board_eth_init(bd_t *bis)
 	return dm9000_initialize(bis);
 }
 #endif
+
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on the first bank.  This
+ * provides the timing values back to the function that configures
+ * the memory.  We have either one or two banks of 128MB DDR.
+ */
+void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
+		u32 *mr)
+{
+	/* General SDRC config */
+	*mcfg = MICRON_V_MCFG_165(128 << 20);
+	*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+
+	/* AC timings */
+	*ctrla = MICRON_V_ACTIMA_165;
+	*ctrlb = MICRON_V_ACTIMB_165;
+
+	*mr = MICRON_V_MR_165;
+}

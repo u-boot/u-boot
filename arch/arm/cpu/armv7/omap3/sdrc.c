@@ -58,10 +58,9 @@ u32 is_mem_sdr(void)
 
 /*
  * make_cs1_contiguous -
- *  - For es2 and above remap cs1 behind cs0 to allow command line
- *    mem=xyz use all memory with out discontinuous support compiled in.
- *    Could do it at the ATAG, but there really is two banks...
- *  - Called as part of 2nd phase DDR init.
+ * - When we have CS1 populated we want to have it mapped after cs0 to allow
+ *   command line mem=xyz use all memory with out discontinuous support
+ *   compiled in.  We could do it in the ATAG, but there really is two banks...
  */
 void make_cs1_contiguous(void)
 {
@@ -109,15 +108,58 @@ u32 get_sdr_cs_offset(u32 cs)
 }
 
 /*
+ * write_sdrc_timings -
+ *  - Takes CS and associated timings and initalize SDRAM
+ *  - Test CS to make sure it's OK for use
+ */
+static void write_sdrc_timings(u32 cs, struct sdrc_actim *sdrc_actim_base,
+		u32 mcfg, u32 ctrla, u32 ctrlb, u32 rfr_ctrl, u32 mr)
+{
+	/* Setup timings we got from the board. */
+	writel(mcfg, &sdrc_base->cs[cs].mcfg);
+	writel(ctrla, &sdrc_actim_base->ctrla);
+	writel(ctrlb, &sdrc_actim_base->ctrlb);
+	writel(rfr_ctrl, &sdrc_base->cs[cs].rfr_ctrl);
+	writel(CMD_NOP, &sdrc_base->cs[cs].manual);
+	writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
+	writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
+	writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
+	writel(mr, &sdrc_base->cs[cs].mr);
+
+	/*
+	 * Test ram in this bank
+	 * Disable if bad or not present
+	 */
+	if (!mem_ok(cs))
+		writel(0, &sdrc_base->cs[cs].mcfg);
+}
+
+/*
  * do_sdrc_init -
- *  - Initialize the SDRAM for use.
- *  - code called once in C-Stack only context for CS0 and a possible 2nd
- *    time depending on memory configuration from stack+global context
+ *  - Code called once in C-Stack only context for CS0 and with early being
+ *    true and a possible 2nd time depending on memory configuration from
+ *    stack+global context.
  */
 void do_sdrc_init(u32 cs, u32 early)
 {
 	struct sdrc_actim *sdrc_actim_base0, *sdrc_actim_base1;
+	u32 mcfg, ctrla, ctrlb, rfr_ctrl, mr;
 
+	sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
+	sdrc_actim_base1 = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
+
+	/*
+	 * When called in the early context this may be SPL and we will
+	 * need to set all of the timings.  This ends up being board
+	 * specific so we call a helper function to take care of this
+	 * for us.  Otherwise, to be safe, we need to copy the settings
+	 * from the first bank to the second.  We will setup CS0,
+	 * then set cs_cfg to the appropriate value then try and
+	 * setup CS1.
+	 */
+#ifdef CONFIG_SPL_BUILD
+	get_board_mem_timings(&mcfg, &ctrla, &ctrlb, &rfr_ctrl, &mr);
+#endif
 	if (early) {
 		/* reset sdrc controller */
 		writel(SOFTRESET, &sdrc_base->sysconfig);
@@ -128,73 +170,38 @@ void do_sdrc_init(u32 cs, u32 early)
 		/* setup sdrc to ball mux */
 		writel(SDRC_SHARING, &sdrc_base->sharing);
 
-		/* Disable Power Down of CKE cuz of 1 CKE on combo part */
+		/* Disable Power Down of CKE because of 1 CKE on combo part */
 		writel(WAKEUPPROC | SRFRONRESET | PAGEPOLICY_HIGH,
 				&sdrc_base->power);
 
 		writel(ENADLL | DLLPHASE_90, &sdrc_base->dlla_ctrl);
 		sdelay(0x20000);
-	}
-
-/* As long as V_MCFG and V_RFR_CTRL is not defined for all OMAP3 boards we need
- * to prevent this to be build in non-SPL build */
 #ifdef CONFIG_SPL_BUILD
-	/* If we use a SPL there is no x-loader nor config header so we have
-	 * to do the job ourselfs
-	 */
-	if (cs == CS0) {
-		sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
-
-		/* General SDRC config */
-		writel(V_MCFG, &sdrc_base->cs[cs].mcfg);
-		writel(V_RFR_CTRL, &sdrc_base->cs[cs].rfr_ctrl);
-
-		/* AC timings */
-		writel(V_ACTIMA_165, &sdrc_actim_base0->ctrla);
-		writel(V_ACTIMB_165, &sdrc_actim_base0->ctrlb);
-
-		/* Initialize */
-		writel(CMD_NOP, &sdrc_base->cs[cs].manual);
-		writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
-		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-
-		writel(V_MR, &sdrc_base->cs[cs].mr);
-	}
+		write_sdrc_timings(CS0, sdrc_actim_base0, mcfg, ctrla, ctrlb,
+				rfr_ctrl, mr);
+		make_cs1_contiguous();
+		write_sdrc_timings(CS0, sdrc_actim_base1, mcfg, ctrla, ctrlb,
+				rfr_ctrl, mr);
 #endif
 
-	/*
-	 * SDRC timings are set up by x-load or config header
-	 * We don't need to redo them here.
-	 * Older x-loads configure only CS0
-	 * configure CS1 to handle this ommission
-	 */
-	if (cs == CS1) {
-		sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
-		sdrc_actim_base1 = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
-		writel(readl(&sdrc_base->cs[CS0].mcfg),
-			&sdrc_base->cs[CS1].mcfg);
-		writel(readl(&sdrc_base->cs[CS0].rfr_ctrl),
-			&sdrc_base->cs[CS1].rfr_ctrl);
-		writel(readl(&sdrc_actim_base0->ctrla),
-			&sdrc_actim_base1->ctrla);
-		writel(readl(&sdrc_actim_base0->ctrlb),
-			&sdrc_actim_base1->ctrlb);
-
-		writel(CMD_NOP, &sdrc_base->cs[cs].manual);
-		writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
-		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-		writel(readl(&sdrc_base->cs[CS0].mr),
-			&sdrc_base->cs[CS1].mr);
 	}
 
 	/*
-	 * Test ram in this bank
-	 * Disable if bad or not present
+	 * If we aren't using SPL we have been loaded by some
+	 * other means which may not have correctly initialized
+	 * both CS0 and CS1 (such as some older versions of x-loader)
+	 * so we may be asked now to setup CS1.
 	 */
-	if (!mem_ok(cs))
-		writel(0, &sdrc_base->cs[cs].mcfg);
+	if (cs == CS1) {
+		mcfg = readl(&sdrc_base->cs[CS0].mcfg),
+		rfr_ctrl = readl(&sdrc_base->cs[CS0].rfr_ctrl);
+		ctrla = readl(&sdrc_actim_base0->ctrla),
+		ctrlb = readl(&sdrc_actim_base0->ctrlb);
+		mr = readl(&sdrc_base->cs[CS0].mr);
+		write_sdrc_timings(cs, sdrc_actim_base1, mcfg, ctrla, ctrlb,
+				rfr_ctrl, mr);
+
+	}
 }
 
 /*
@@ -207,16 +214,16 @@ int dram_init(void)
 
 	size0 = get_sdr_cs_size(CS0);
 	/*
-	 * If a second bank of DDR is attached to CS1 this is
-	 * where it can be started.  Early init code will init
-	 * memory on CS0.
+	 * We always need to have cs_cfg point at where the second
+	 * bank would be, if present.  Failure to do so can lead to
+	 * strange situations where memory isn't detected and
+	 * configured correctly.  CS0 will already have been setup
+	 * at this point.
 	 */
-	if ((sysinfo.mtype == DDR_COMBO) || (sysinfo.mtype == DDR_STACKED)) {
-		do_sdrc_init(CS1, NOT_EARLY);
-		make_cs1_contiguous();
+	make_cs1_contiguous();
+	do_sdrc_init(CS1, NOT_EARLY);
+	size1 = get_sdr_cs_size(CS1);
 
-		size1 = get_sdr_cs_size(CS1);
-	}
 	gd->ram_size = size0 + size1;
 
 	return 0;

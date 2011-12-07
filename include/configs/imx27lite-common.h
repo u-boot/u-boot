@@ -102,7 +102,7 @@
  * Serial Driver info
  */
 #define CONFIG_MXC_UART
-#define CONFIG_SYS_MX27_UART1
+#define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }

@@ -40,8 +40,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
-
 static const struct da8xx_panel lcd_panel = {
 	/* Casio COM57H531x */
 	.name = "Casio_COM57H531x",

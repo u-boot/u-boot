@@ -94,6 +94,10 @@ void spl_nand_load_image(void);
 /* MMC SPL functions */
 void spl_mmc_load_image(void);
 
+#ifdef CONFIG_SPL_BOARD_INIT
+void spl_board_init(void);
+#endif
+
 /*
  * silicon revisions.
  * Moving this to common, so that most of code can be moved to common,
@@ -108,6 +112,7 @@ void spl_mmc_load_image(void);
 #define OMAP4430_ES2_2	0x44300220
 #define OMAP4430_ES2_3	0x44300230
 #define OMAP4460_ES1_0	0x44600100
+#define OMAP4460_ES1_1	0x44600110
 
 /* omap5 */
 #define OMAP5430_SILICON_ID_INVALID	0

@@ -76,7 +76,7 @@ const struct pad_conf_entry wkup_padconf_array_essential[] = {
 
 const struct pad_conf_entry wkup_padconf_array_essential_4460[] = {
 
-{PAD1_FREF_CLK4_REQ, (M3)},	 /* gpio_wk7, TPS */
+{PAD1_FREF_CLK4_REQ, (PTU | M7)}, /* gpio_wk7 for TPS: safe mode + pull up */
 
 };
 

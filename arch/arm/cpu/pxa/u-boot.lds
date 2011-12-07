@@ -63,6 +63,12 @@ SECTIONS
 		*(.dynsym)
 	}
 
+	. = ALIGN(4096);
+
+	.mmutable : {
+		*(.mmutable)
+	}
+
 	_end = .;
 
 	.bss __rel_dyn_start (OVERLAY) : {

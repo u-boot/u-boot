@@ -27,32 +27,6 @@
 #include <asm/arch/hardware.h>
 
 #if defined(CONFIG_CMD_DATE)
-struct davinci_rtc {
-	u_int32_t	second;
-	u_int32_t	minutes;
-	u_int32_t	hours;
-	u_int32_t	day;
-	u_int32_t	month; /* 0x10 */
-	u_int32_t	year;
-	u_int32_t	dotw;
-	u_int32_t	resv1;
-	u_int32_t	alarmsecond; /* 0x20 */
-	u_int32_t	alarmminute;
-	u_int32_t	alarmhour;
-	u_int32_t	alarmday;
-	u_int32_t	alarmmonth; /* 0x30 */
-	u_int32_t	alarmyear;
-	u_int32_t	resv2[2];
-	u_int32_t	ctrl; /* 0x40 */
-	u_int32_t	status;
-	u_int32_t	irq;
-};
-
-#define RTC_STATE_BUSY	0x01
-#define RTC_STATE_RUN	0x02
-
-#define davinci_rtc_base ((struct davinci_rtc *)DAVINCI_RTC_BASE)
-
 int rtc_get(struct rtc_time *tmp)
 {
 	struct davinci_rtc *rtc = davinci_rtc_base;

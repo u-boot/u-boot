@@ -120,7 +120,7 @@ int gpio_direction_output(int gp, int value)
 
 int gpio_request(int gp, const char *label)
 {
-	if (PAD_BANK(gp) > PINCTRL_BANKS)
+	if (PAD_BANK(gp) >= PINCTRL_BANKS)
 		return -EINVAL;
 
 	return 0;

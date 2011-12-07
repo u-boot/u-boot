@@ -29,10 +29,10 @@ START	:= start.o
 
 ifndef CONFIG_SPL_BUILD
 COBJS	+= cache_v7.o
-COBJS	+= cpu.o
 endif
 
-COBJS  += syslib.o
+COBJS	+= cpu.o
+COBJS	+= syslib.o
 
 SRCS	:= $(START:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

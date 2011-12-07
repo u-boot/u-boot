@@ -150,23 +150,25 @@ static int mvsata_ide_initialize_port(struct mvsata_port_registers *port)
 
 int ide_preinit(void)
 {
+	int ret = MVSATA_STATUS_TIMEOUT;
 	int status;
+
 	/* Enable ATA port 0 (could be SATA port 0 or 1) if declared */
 #if defined(CONFIG_SYS_ATA_IDE0_OFFSET)
 	status = mvsata_ide_initialize_port(
 		(struct mvsata_port_registers *)
 		(CONFIG_SYS_ATA_BASE_ADDR + CONFIG_SYS_ATA_IDE0_OFFSET));
-	if (status)
-		return status;
+	if (status == MVSATA_STATUS_OK)
+		ret = MVSATA_STATUS_OK;
 #endif
 	/* Enable ATA port 1 (could be SATA port 0 or 1) if declared */
 #if defined(CONFIG_SYS_ATA_IDE1_OFFSET)
 	status = mvsata_ide_initialize_port(
 		(struct mvsata_port_registers *)
 		(CONFIG_SYS_ATA_BASE_ADDR + CONFIG_SYS_ATA_IDE1_OFFSET));
-	if (status)
-		return status;
+	if (status == MVSATA_STATUS_OK)
+		ret = MVSATA_STATUS_OK;
 #endif
-	/* return success if all ports initializations succeeded */
-	return MVSATA_STATUS_OK;
+	/* Return success if at least one port initialization succeeded */
+	return ret;
 }

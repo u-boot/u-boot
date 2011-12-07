@@ -27,6 +27,7 @@
 #include <command.h>
 #include <serial.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/pxa.h>
 #include <spi.h>
 #include <asm/io.h>
 
@@ -65,10 +66,9 @@ struct serial_device *default_serial_console (void)
 	return &serial_stuart_device;
 }
 
-extern void pxa_dram_init(void);
 int dram_init(void)
 {
-	pxa_dram_init();
+	pxa2xx_dram_init();
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }

@@ -148,7 +148,7 @@
  * make sure that the transceiver is enabled during PL=1 for testing!
  */
 #define CONFIG_MXC_UART
-#define CONFIG_SYS_MX31_UART2
+#define CONFIG_MXC_UART_BASE	UART2_BASE
 
 #define CONFIG_MXC_SPI
 #define CONFIG_MXC_GPIO

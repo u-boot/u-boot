@@ -78,7 +78,7 @@ struct smc91111_priv{
 
 #define	SMC_IO_EXTENT	16
 
-#ifdef CONFIG_PXA250
+#ifdef CONFIG_CPU_PXA25X
 
 #ifdef CONFIG_XSENGINE
 #define	SMC_inl(a,r)	(*((volatile dword *)((a)->iobase+((r)<<1))))
@@ -180,7 +180,7 @@ struct smc91111_priv{
 					};  \
 				})
 
-#elif defined(CONFIG_LEON)	/* if not CONFIG_PXA250 */
+#elif defined(CONFIG_LEON)	/* if not CONFIG_CPU_PXA25X */
 
 #define SMC_LEON_SWAP16(_x_) ({ word _x = (_x_); ((_x << 8) | (_x >> 8)); })
 
@@ -249,7 +249,7 @@ struct smc91111_priv{
 					};  \
 				}while(0)
 
-#else				/* if not CONFIG_PXA250 and not CONFIG_LEON */
+#else			/* if not CONFIG_CPU_PXA25X and not CONFIG_LEON */
 
 #ifndef CONFIG_SMC_USE_IOFUNCS /* these macros don't work on some boards */
 /*
