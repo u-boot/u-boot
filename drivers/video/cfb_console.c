@@ -368,9 +368,9 @@ static void *video_console_address;	/* console buffer start address */
 
 static int video_logo_height = VIDEO_LOGO_HEIGHT;
 
-static int cursor_state;
-static int old_col;
-static int old_row;
+static int __maybe_unused cursor_state;
+static int __maybe_unused old_col;
+static int __maybe_unused old_row;
 
 static int console_col;		/* cursor col */
 static int console_row;		/* cursor row */
@@ -429,23 +429,6 @@ static const int video_font_draw_table32[16][4] = {
 	{0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00000000},
 	{0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff}
 };
-
-
-static void video_invertchar(int xx, int yy)
-{
-	int firstx = xx * VIDEO_PIXEL_SIZE;
-	int lastx = (xx + VIDEO_FONT_WIDTH) * VIDEO_PIXEL_SIZE;
-	int firsty = yy * VIDEO_LINE_LEN;
-	int lasty = (yy + VIDEO_FONT_HEIGHT) * VIDEO_LINE_LEN;
-	int x, y;
-	for (y = firsty; y < lasty; y += VIDEO_LINE_LEN) {
-		for (x = firstx; x < lastx; x++) {
-			u8 *dest = (u8 *)(video_fb_address) + x + y;
-			*dest = ~*dest;
-		}
-	}
-}
-
 
 static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 {
@@ -627,7 +610,20 @@ static void video_set_cursor(void)
 	console_cursor(1);
 }
 
-
+static void video_invertchar(int xx, int yy)
+{
+	int firstx = xx * VIDEO_PIXEL_SIZE;
+	int lastx = (xx + VIDEO_FONT_WIDTH) * VIDEO_PIXEL_SIZE;
+	int firsty = yy * VIDEO_LINE_LEN;
+	int lasty = (yy + VIDEO_FONT_HEIGHT) * VIDEO_LINE_LEN;
+	int x, y;
+	for (y = firsty; y < lasty; y += VIDEO_LINE_LEN) {
+		for (x = firstx; x < lastx; x++) {
+			u8 *dest = (u8 *)(video_fb_address) + x + y;
+			*dest = ~*dest;
+		}
+	}
+}
 
 void console_cursor(int state)
 {
