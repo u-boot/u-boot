@@ -26,6 +26,7 @@
 #include <common.h>
 #include "w7o.h"
 #include <asm/processor.h>
+#include <linux/compiler.h>
 #include "errors.h"
 
 static void
@@ -63,10 +64,10 @@ fpgaDownload(unsigned char *saddr, unsigned long size, unsigned short *daddr)
 	unsigned long *source;	/* image source addr */
 	unsigned short *dest;	/* destination FPGA addr */
 	volatile unsigned short *ndest;	/* temp dest FPGA addr */
-	volatile unsigned short val;	/* temp val */
 	unsigned long cnfg = GPIO_XCV_CNFG;	/* FPGA CNFG */
 	unsigned long eirq = GPIO_XCV_IRQ;
 	int retval = -1;	/* Function return value */
+	__maybe_unused volatile unsigned short val;	/* temp val */
 
 	/* Setup some basic values */
 	length = (size / 4) + 1;	/* size in words, rounding UP
