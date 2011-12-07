@@ -51,6 +51,7 @@
 			    cp 0xFC600000 0x1000000 0x8000; \
 			    echo Copying ramdisk...; \
 			    cp 0xFC800000 0x800000 ${ramdisk_size};\
+			ping 10.10.70.101;\
 			    go 0x8000\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM...;	\
 			    nand read 0x8000 0x200000 ${nand_kernel_size}; \
