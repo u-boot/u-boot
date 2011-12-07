@@ -44,7 +44,7 @@ unsigned long flash_init(void)
 {
 	int i;
 	unsigned long size_b0, base_b0;
-	unsigned long size_b1, base_b1;
+	unsigned long size_b1;
 
 	/* Init: no FLASHes known */
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i)
@@ -69,7 +69,6 @@ unsigned long flash_init(void)
 
 	/* Calculate base addresses */
 	base_b0 = -size_b0;
-	base_b1 = -size_b1;
 
 	/* Setup offsets for Boot Flash */
 	flash_get_offsets(base_b0, &flash_info[0]);
