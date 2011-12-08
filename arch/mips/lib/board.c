@@ -38,8 +38,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#undef DEBUG
-
 extern int timer_init(void);
 
 extern int incaip_set_cpuclk(void);
@@ -64,42 +62,43 @@ int __board_early_init_f(void)
 	 */
 	return 0;
 }
-int board_early_init_f(void) __attribute__((weak, alias("__board_early_init_f")));
+int board_early_init_f(void)
+	__attribute__((weak, alias("__board_early_init_f")));
 
-
-static int init_func_ram (void)
+static int init_func_ram(void)
 {
 #ifdef	CONFIG_BOARD_TYPES
 	int board_type = gd->board_type;
 #else
 	int board_type = 0;	/* use dummy arg */
 #endif
-	puts ("DRAM:  ");
+	puts("DRAM:  ");
 
-	if ((gd->ram_size = initdram (board_type)) > 0) {
-		print_size (gd->ram_size, "\n");
-		return (0);
+	gd->ram_size = initdram(board_type);
+	if (gd->ram_size > 0) {
+		print_size(gd->ram_size, "\n");
+		return 0;
 	}
-	puts (failed);
-	return (1);
+	puts(failed);
+	return 1;
 }
 
 static int display_banner(void)
 {
 
-	printf ("\n\n%s\n\n", version_string);
-	return (0);
+	printf("\n\n%s\n\n", version_string);
+	return 0;
 }
 
 #ifndef CONFIG_SYS_NO_FLASH
 static void display_flash_config(ulong size)
 {
-	puts ("Flash: ");
-	print_size (size, "\n");
+	puts("Flash: ");
+	print_size(size, "\n");
 }
 #endif
 
-static int init_baudrate (void)
+static int init_baudrate(void)
 {
 	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
 	return 0;
@@ -126,16 +125,16 @@ static int init_baudrate (void)
  * argument, and returns an integer return code, where 0 means
  * "continue" and != 0 means "fatal error, hang the system".
  */
-typedef int (init_fnc_t) (void);
+typedef int (init_fnc_t)(void);
 
 init_fnc_t *init_sequence[] = {
 	board_early_init_f,
 	timer_init,
 	env_init,		/* initialize environment */
 #ifdef CONFIG_INCA_IP
-	incaip_set_cpuclk,	/* set cpu clock according to environment variable */
+	incaip_set_cpuclk,	/* set cpu clock according to env. variable */
 #endif
-	init_baudrate,		/* initialze baudrate settings */
+	init_baudrate,		/* initialize baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,
 	display_banner,		/* say that we are here */
@@ -157,14 +156,13 @@ void board_init_f(ulong bootflag)
 	 */
 	gd = &gd_data;
 	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
+	__asm__ __volatile__("" : : : "memory");
 
-	memset ((void *)gd, 0, sizeof (gd_t));
+	memset((void *)gd, 0, sizeof(gd_t));
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
-		if ((*init_fnc_ptr)() != 0) {
-			hang ();
-		}
+		if ((*init_fnc_ptr)() != 0)
+			hang();
 	}
 
 	/*
@@ -179,7 +177,7 @@ void board_init_f(ulong bootflag)
 	/* round down to next 4 kB limit.
 	 */
 	addr &= ~(4096 - 1);
-	debug ("Top of RAM usable for U-Boot at: %08lx\n", addr);
+	debug("Top of RAM usable for U-Boot at: %08lx\n", addr);
 
 	/* Reserve memory for U-Boot code, data & bss
 	 * round down to next 16 kB limit
@@ -187,12 +185,12 @@ void board_init_f(ulong bootflag)
 	addr -= len;
 	addr &= ~(16 * 1024 - 1);
 
-	debug ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
+	debug("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
 
 	 /* Reserve memory for malloc() arena.
 	 */
 	addr_sp = addr - TOTAL_MALLOC_LEN;
-	debug ("Reserving %dk for malloc() at: %08lx\n",
+	debug("Reserving %dk for malloc() at: %08lx\n",
 			TOTAL_MALLOC_LEN >> 10, addr_sp);
 
 	/*
@@ -202,19 +200,19 @@ void board_init_f(ulong bootflag)
 	addr_sp -= sizeof(bd_t);
 	bd = (bd_t *)addr_sp;
 	gd->bd = bd;
-	debug ("Reserving %zu Bytes for Board Info at: %08lx\n",
+	debug("Reserving %zu Bytes for Board Info at: %08lx\n",
 			sizeof(bd_t), addr_sp);
 
 	addr_sp -= sizeof(gd_t);
 	id = (gd_t *)addr_sp;
-	debug ("Reserving %zu Bytes for Global Data at: %08lx\n",
-			sizeof (gd_t), addr_sp);
+	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
+			sizeof(gd_t), addr_sp);
 
 	/* Reserve memory for boot params.
 	 */
 	addr_sp -= CONFIG_SYS_BOOTPARAMS_LEN;
 	bd->bi_boot_params = addr_sp;
-	debug ("Reserving %dk for boot params() at: %08lx\n",
+	debug("Reserving %dk for boot params() at: %08lx\n",
 			CONFIG_SYS_BOOTPARAMS_LEN >> 10, addr_sp);
 
 	/*
@@ -229,39 +227,37 @@ void board_init_f(ulong bootflag)
 	*s-- = 0;
 	*s-- = 0;
 	addr_sp = (ulong)s;
-	debug ("Stack Pointer at: %08lx\n", addr_sp);
+	debug("Stack Pointer at: %08lx\n", addr_sp);
 
 	/*
 	 * Save local variables to board info struct
 	 */
-	bd->bi_memstart	= CONFIG_SYS_SDRAM_BASE;	/* start of  DRAM memory */
-	bd->bi_memsize	= gd->ram_size;		/* size  of  DRAM memory in bytes */
+	bd->bi_memstart	= CONFIG_SYS_SDRAM_BASE;	/* start of DRAM */
+	bd->bi_memsize	= gd->ram_size;		/* size of DRAM in bytes */
 	bd->bi_baudrate	= gd->baudrate;		/* Console Baudrate */
 
-	memcpy (id, (void *)gd, sizeof (gd_t));
+	memcpy(id, (void *)gd, sizeof(gd_t));
 
-	relocate_code (addr_sp, id, addr);
+	relocate_code(addr_sp, id, addr);
 
 	/* NOTREACHED - relocate_code() does not return */
 }
-/************************************************************************
- *
+
+/*
  * This is the next part if the initialization sequence: we are now
  * running from RAM and have a "normal" C environment, i. e. global
  * data can be written, BSS has been cleared, the stack size in not
  * that critical any more, etc.
- *
- ************************************************************************
  */
 
-void board_init_r (gd_t *id, ulong dest_addr)
+void board_init_r(gd_t *id, ulong dest_addr)
 {
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong size;
 #endif
-	extern void malloc_bin_reloc (void);
+	extern void malloc_bin_reloc(void);
 #ifndef CONFIG_ENV_IS_NOWHERE
-	extern char * env_name_spec;
+	extern char *env_name_spec;
 #endif
 	char *s;
 	bd_t *bd;
@@ -269,7 +265,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	gd = id;
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
-	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
+	debug("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
 	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 
@@ -298,7 +294,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init();
-	display_flash_config (size);
+	display_flash_config(size);
 	bd->bi_flashsize = size;
 #endif
 
@@ -310,8 +306,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 #ifdef CONFIG_CMD_NAND
-	puts ("NAND:  ");
-	nand_init ();		/* go init the NAND */
+	puts("NAND:  ");
+	nand_init();		/* go init the NAND */
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
@@ -333,51 +329,51 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 /** leave this here (after malloc(), environment and PCI are working) **/
 	/* Initialize stdio devices */
-	stdio_init ();
+	stdio_init();
 
-	jumptable_init ();
+	jumptable_init();
 
 	/* Initialize the console (after the relocation and devices init) */
-	console_init_r ();
+	console_init_r();
 /** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 #if defined(CONFIG_CMD_NET)
-	if ((s = getenv ("bootfile")) != NULL) {
-		copy_filename (BootFile, s, sizeof (BootFile));
-	}
+	s = getenv("bootfile");
+	if (s != NULL)
+		copy_filename(BootFile, s, sizeof(BootFile));
 #endif
 
 #ifdef CONFIG_CMD_SPI
-	puts ("SPI:   ");
-	spi_init ();		/* go init the SPI */
-	puts ("ready\n");
+	puts("SPI:   ");
+	spi_init();		/* go init the SPI */
+	puts("ready\n");
 #endif
 
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
-	misc_init_r ();
+	misc_init_r();
 #endif
 
 #ifdef CONFIG_BITBANGMII
 	bb_miiphy_init();
 #endif
 #if defined(CONFIG_CMD_NET)
-	puts ("Net:   ");
+	puts("Net:   ");
 	eth_initialize(gd->bd);
 #endif
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */
-	for (;;) {
-		main_loop ();
-	}
+	for (;;)
+		main_loop();
 
 	/* NOTREACHED - no way out of command loop except booting */
 }
 
-void hang (void)
+void hang(void)
 {
-	puts ("### ERROR ### Please RESET the board ###\n");
-	for (;;);
+	puts("### ERROR ### Please RESET the board ###\n");
+	for (;;)
+		;
 }
