@@ -76,6 +76,7 @@ Add SNMP
 #include <command.h>
 #include <net.h>
 #include <malloc.h>
+#include <linux/compiler.h>
 
 /* forward definition of function used for the uboot interface */
 void uboot_push_packet_len(int len);
@@ -279,7 +280,7 @@ dp83902a_send(u8 *data, int total_len, u32 key)
 		 * does (i.e., also read data).
 		 */
 
-		u16 tmp;
+		__maybe_unused u16 tmp;
 		int len = 1;
 
 		DP_OUT(base, DP_RSAL, 0x100 - len);
@@ -373,7 +374,7 @@ dp83902a_RxEvent(void)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
 	u8 *base = dp->base;
-	u8 rsr;
+	__maybe_unused u8 rsr;
 	u8 rcv_hdr[4];
 	int i, len, pkt, cur;
 
@@ -510,7 +511,7 @@ dp83902a_TxEvent(void)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
 	u8 *base = dp->base;
-	u8 tsr;
+	__maybe_unused u8 tsr;
 	u32 key;
 
 	DEBUG_FUNCTION();
@@ -547,7 +548,7 @@ dp83902a_ClearCounters(void)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
 	u8 *base = dp->base;
-	u8 cnt1, cnt2, cnt3;
+	__maybe_unused u8 cnt1, cnt2, cnt3;
 
 	DP_IN(base, DP_FER, cnt1);
 	DP_IN(base, DP_CER, cnt2);
