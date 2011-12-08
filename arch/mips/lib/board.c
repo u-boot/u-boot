@@ -259,7 +259,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifndef CONFIG_ENV_IS_NOWHERE
 	extern char *env_name_spec;
 #endif
-	char *s;
 	bd_t *bd;
 
 	gd = id;
@@ -340,9 +339,12 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 #if defined(CONFIG_CMD_NET)
-	s = getenv("bootfile");
-	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
+	{
+		char *s = getenv("bootfile");
+
+		if (s != NULL)
+			copy_filename(BootFile, s, sizeof(BootFile));
+	}
 #endif
 
 #ifdef CONFIG_CMD_SPI
