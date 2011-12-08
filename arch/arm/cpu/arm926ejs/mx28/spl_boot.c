@@ -68,17 +68,8 @@ inline void board_init_r(gd_t *id, ulong dest_addr)
 		;
 }
 
-inline int printf(const char *fmt, ...)
-{
-	return 0;
-}
-
-inline void __coloured_LED_init(void) {}
-inline void __red_LED_on(void) {}
-void coloured_LED_init(void)
-	__attribute__((weak, alias("__coloured_LED_init")));
-void red_LED_on(void)
-	__attribute__((weak, alias("__red_LED_on")));
+void serial_putc(const char c) {}
+void serial_puts(const char *s) {}
 void hang(void) __attribute__ ((noreturn));
 void hang(void)
 {

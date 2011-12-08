@@ -67,16 +67,16 @@ SECTIONS
 		*(.dynsym)
 	}
 
-	_end = .;
-
-	.bss __rel_dyn_start (OVERLAY) : {
+	.bss : {
+		. = ALIGN(4);
 		__bss_start = .;
-		*(.bss)
-		 . = ALIGN(4);
+		*(.bss*)
+		. = ALIGN(4);
 		__bss_end__ = .;
 	}
 
-	/DISCARD/ : { *(.bss*) }
+	_end = .;
+
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynsym*) }
 	/DISCARD/ : { *(.dynamic*) }
