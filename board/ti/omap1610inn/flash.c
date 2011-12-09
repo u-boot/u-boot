@@ -136,9 +136,7 @@ void flash_unlock(flash_info_t * info)
 static void flash_get_offsets (ulong base, flash_info_t * info)
 {
 	int i;
-	OrgDef *pOrgDef;
 
-	pOrgDef = OrgIntel_28F256L18T;
 	if (info->flash_id == FLASH_UNKNOWN) {
 		return;
 	}
@@ -352,6 +350,9 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			printf (" done\n");
 		}
 	}
+	if (flag)
+		enable_interrupts();
+
 	return rcode;
 }
 
@@ -453,13 +454,13 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 {
 	FPWV *addr = (FPWV *) dest;
 	ulong status;
-	int flag;
+	int flag, rc = 0;
 	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
-		printf ("not erased at %08lx (%x)\n", (ulong) addr, *addr);
-		return (2);
+		printf("not erased at %08lx (%x)\n", (ulong) addr, *addr);
+		return 2;
 	}
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
@@ -472,12 +473,16 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
 		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
-			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
-			return (1);
+			rc = 1;
+			goto done;
 		}
 	}
+done:
+	if (flag)
+		enable_interrupts();
+
 	*addr = (FPW) 0x00FF00FF;	/* restore read mode */
-	return (0);
+	return rc;
 }
 
 void inline spin_wheel (void)
