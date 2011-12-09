@@ -25,6 +25,7 @@
 
 #include <spi.h>
 #include <linux/types.h>
+#include <linux/compiler.h>
 
 struct spi_flash {
 	struct spi_slave *spi;
@@ -67,5 +68,7 @@ static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 {
 	return flash->erase(flash, offset, len);
 }
+
+void spi_boot(void) __noreturn;
 
 #endif /* _SPI_FLASH_H_ */
