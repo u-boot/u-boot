@@ -336,22 +336,28 @@ void lcd_show_board_info(void)
 
 #endif /* CONFIG_LCD */
 
-int board_init(void)
+int board_early_init_f(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
-	/* Enable Ctrlc */
-	console_init_f();
-
-	writel((1 << ATMEL_ID_PIOA) |
-		(1 << ATMEL_ID_PIOCDE) |
-		(1 << ATMEL_ID_PIOB),
+	/* Enable clocks for all PIOs */
+	writel((1 << ATMEL_ID_PIOA) | (1 << ATMEL_ID_PIOB) |
+		(1 << ATMEL_ID_PIOCDE),
 		&pmc->pcer);
+
+	at91_seriald_hw_init();
+
+	return 0;
+}
+
+int board_init(void)
+{
+	/* arch number of AT91SAM9263EK-Board */
+	gd->bd->bi_arch_number = MACH_TYPE_PM9263;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	pm9263_nand_hw_init();
 #endif
