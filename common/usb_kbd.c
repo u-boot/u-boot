@@ -133,7 +133,7 @@ static int usb_kbd_testc(void)
 static int usb_kbd_getc(void)
 {
 	char c;
-	while (usb_in_pointer == usb_out_pointer)
+	while (usb_in_pointer == usb_out_pointer) {
 #ifdef CONFIG_SYS_USB_EVENT_POLL
 		usb_event_poll();
 #endif
