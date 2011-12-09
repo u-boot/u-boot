@@ -654,26 +654,6 @@ ucname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\U\1/')
 # ARM
 #========================================================================
 
-xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$(subst _config,,$1))))
-
-omap1610inn_config \
-omap1610inn_cs0boot_config \
-omap1610inn_cs3boot_config \
-omap1610inn_cs_autoboot_config \
-omap1610h2_config \
-omap1610h2_cs0boot_config \
-omap1610h2_cs3boot_config \
-omap1610h2_cs_autoboot_config:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _cs0boot_, $@)" ] ; then \
-		echo "#define CONFIG_CS0_BOOT" >> .$(obj)include/config.h ; \
-	elif [ "$(findstring _cs_autoboot_, $@)" ] ; then \
-		echo "#define CONFIG_CS_AUTOBOOT" >> $(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_CS3_BOOT" >> $(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn ti omap
-
 omap730p2_config \
 omap730p2_cs0boot_config \
 omap730p2_cs3boot_config :	unconfig
