@@ -69,21 +69,21 @@
 #endif
 
 #ifdef ET_DEBUG
-#define DEBUG_AT91EMAC(...)	printf(__VA_ARGS__);
+#define DEBUG_AT91EMAC	1
 #else
-#define DEBUG_AT91EMAC(...)
+#define DEBUG_AT91EMAC	0
 #endif
 
 #ifdef MII_DEBUG
-#define DEBUG_AT91PHY(...)	printf(__VA_ARGS__);
+#define DEBUG_AT91PHY	1
 #else
-#define DEBUG_AT91PHY(...)
+#define DEBUG_AT91PHY	0
 #endif
 
 #ifndef CONFIG_DRIVER_AT91EMAC_QUIET
-#define VERBOSEP(...)	printf(__VA_ARGS__);
+#define VERBOSEP	1
 #else
-#define VERBOSEP(...)
+#define VERBOSEP	0
 #endif
 
 #define RBF_ADDR      0xfffffffc
@@ -137,14 +137,15 @@ int  at91emac_read(at91_emac_t *at91mac, unsigned char addr,
 
 	do {
 		netstat = readl(&at91mac->sr);
-		DEBUG_AT91PHY("poll SR %08lx\n", netstat);
+		debug_cond(DEBUG_AT91PHY, "poll SR %08lx\n", netstat);
 	} while (!(netstat & AT91_EMAC_SR_IDLE));
 
 	*value = readl(&at91mac->man) & AT91_EMAC_MAN_DATA_MASK;
 
 	at91emac_DisableMDIO(at91mac);
 
-	DEBUG_AT91PHY("AT91PHY read %x REG(%d)=%x\n", at91mac, reg, *value)
+	debug_cond(DEBUG_AT91PHY,
+		"AT91PHY read %p REG(%d)=%x\n", at91mac, reg, *value);
 
 	return 0;
 }
@@ -153,7 +154,8 @@ int  at91emac_write(at91_emac_t *at91mac, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
 	unsigned long netstat;
-	DEBUG_AT91PHY("AT91PHY write %x REG(%d)=%x\n", at91mac, reg, &value)
+	debug_cond(DEBUG_AT91PHY,
+		"AT91PHY write %p REG(%d)=%p\n", at91mac, reg, &value);
 
 	at91emac_EnableMDIO(at91mac);
 
@@ -164,7 +166,7 @@ int  at91emac_write(at91_emac_t *at91mac, unsigned char addr,
 
 	do {
 		netstat = readl(&at91mac->sr);
-		DEBUG_AT91PHY("poll SR %08lx\n", netstat);
+		debug_cond(DEBUG_AT91PHY, "poll SR %08lx\n", netstat);
 	} while (!(netstat & AT91_EMAC_SR_IDLE));
 
 	at91emac_DisableMDIO(at91mac);
@@ -216,7 +218,7 @@ static int at91emac_phy_reset(struct eth_device *netdev)
 	adv = ADVERTISE_CSMA | ADVERTISE_ALL;
 	at91emac_write(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
 		MII_ADVERTISE, adv);
-	VERBOSEP("%s: Starting autonegotiation...\n", netdev->name);
+	debug_cond(VERBOSEP, "%s: Starting autonegotiation...\n", netdev->name);
 	at91emac_write(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR, MII_BMCR,
 		(BMCR_ANENABLE | BMCR_ANRESTART));
 
@@ -229,7 +231,8 @@ static int at91emac_phy_reset(struct eth_device *netdev)
 	}
 
 	if (status & BMSR_ANEGCOMPLETE) {
-		VERBOSEP("%s: Autonegotiation complete\n", netdev->name);
+		debug_cond(VERBOSEP,
+			"%s: Autonegotiation complete\n", netdev->name);
 	} else {
 		printf("%s: Autonegotiation timed out (status=0x%04x)\n",
 		       netdev->name, status);
@@ -272,7 +275,7 @@ static int at91emac_phy_init(struct eth_device *netdev)
 		}
 	}
 	if (!(status & BMSR_LSTATUS)) {
-		VERBOSEP("%s: link down\n", netdev->name);
+		debug_cond(VERBOSEP, "%s: link down\n", netdev->name);
 		return -3;
 	} else {
 		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
@@ -283,7 +286,7 @@ static int at91emac_phy_init(struct eth_device *netdev)
 		speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF)
 			 ? 1 : 0);
 		duplex = (media & ADVERTISE_FULL) ? 1 : 0;
-		VERBOSEP("%s: link up, %sMbps %s-duplex\n",
+		debug_cond(VERBOSEP, "%s: link up, %sMbps %s-duplex\n",
 		       netdev->name,
 		       speed ? "100" : "10",
 		       duplex ? "full" : "half");
@@ -409,7 +412,7 @@ static void at91emac_halt(struct eth_device *netdev)
 	emac = (at91_emac_t *) netdev->iobase;
 	writel(readl(&emac->ctl) & ~(AT91_EMAC_CTL_TE | AT91_EMAC_CTL_RE),
 		&emac->ctl);
-	DEBUG_AT91EMAC("halt MAC\n");
+	debug_cond(DEBUG_AT91EMAC, "halt MAC\n");
 }
 
 static int at91emac_send(struct eth_device *netdev, volatile void *packet,
@@ -425,7 +428,7 @@ static int at91emac_send(struct eth_device *netdev, volatile void *packet,
 	writel(AT91_EMAC_TCR_LEN(length), &emac->tcr);
 	while (AT91_EMAC_TCR_LEN(readl(&emac->tcr)))
 		;
-	DEBUG_AT91EMAC("Send %d \n", length);
+	debug_cond(DEBUG_AT91EMAC, "Send %d\n", length);
 	writel(readl(&emac->tsr) | AT91_EMAC_TSR_COMP, &emac->tsr);
 	return 0;
 }
@@ -445,7 +448,7 @@ static int at91emac_recv(struct eth_device *netdev)
 		size = rbfp->size & RBF_SIZE;
 		NetReceive(NetRxPackets[dev->rbindex], size);
 
-		DEBUG_AT91EMAC("Recv[%d]: %d bytes @ %x \n",
+		debug_cond(DEBUG_AT91EMAC, "Recv[%ld]: %d bytes @ %lx\n",
 			dev->rbindex, size, rbfp->addr);
 
 		rbfp->addr &= ~RBF_OWNER;
@@ -479,14 +482,15 @@ static int at91emac_write_hwaddr(struct eth_device *netdev)
 	emac = (at91_emac_t *) netdev->iobase;
 
 	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
-	DEBUG_AT91EMAC("init MAC-ADDR %02x:%02x:%02x:%02x:%02x:%02x\n",
+	debug_cond(DEBUG_AT91EMAC,
+		"init MAC-ADDR %02x:%02x:%02x:%02x:%02x:%02x\n",
 		netdev->enetaddr[5], netdev->enetaddr[4], netdev->enetaddr[3],
 		netdev->enetaddr[2], netdev->enetaddr[1], netdev->enetaddr[0]);
 	writel( (netdev->enetaddr[0] | netdev->enetaddr[1] << 8 |
 			netdev->enetaddr[2] << 16 | netdev->enetaddr[3] << 24),
 			&emac->sa2l);
 	writel((netdev->enetaddr[4] | netdev->enetaddr[5] << 8), &emac->sa2h);
-	DEBUG_AT91EMAC("init MAC-ADDR %x%x \n",
+	debug_cond(DEBUG_AT91EMAC, "init MAC-ADDR %x%x\n",
 		readl(&emac->sa2h), readl(&emac->sa2l));
 	return 0;
 }
