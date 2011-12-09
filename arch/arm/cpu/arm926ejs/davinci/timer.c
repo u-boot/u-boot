@@ -40,6 +40,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/timer_defs.h>
+#include <div64.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -86,14 +87,15 @@ ulong get_timer(ulong base)
 
 	timer_diff = get_ticks() - gd->timer_reset_value;
 
-	return (timer_diff / (gd->timer_rate_hz / CONFIG_SYS_HZ)) - base;
+	return lldiv(timer_diff, (gd->timer_rate_hz / CONFIG_SYS_HZ)) - base;
 }
 
 void __udelay(unsigned long usec)
 {
 	unsigned long long endtime;
 
-	endtime = ((unsigned long long)usec * gd->timer_rate_hz) / 1000000UL;
+	endtime = lldiv((unsigned long long)usec * gd->timer_rate_hz,
+			1000000UL);
 	endtime += get_ticks();
 
 	while (get_ticks() < endtime)
