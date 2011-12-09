@@ -2976,7 +2976,7 @@ static int yaffs_GarbageCollectBlock(yaffs_Device * dev, int block)
 
 	dev->isDoingGC = 0;
 
-	return YAFFS_OK;
+	return retVal;
 }
 
 /* New garbage collector
