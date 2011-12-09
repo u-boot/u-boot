@@ -716,16 +716,6 @@ scpu_config:	unconfig
 	@$(MKCONFIG) -n $@ -a pdnb3 arm ixp pdnb3 prodrive
 
 #########################################################################
-## ARM1136 Systems
-#########################################################################
-
-apollon_config		: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_ONENAND_U_BOOT" > $(obj)include/config.h
-	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
-	@$(MKCONFIG) $@ arm arm1136 apollon - omap24xx
-
-#########################################################################
 ## ARM1176 Systems
 #########################################################################
 smdk6400_noUSB_config	\

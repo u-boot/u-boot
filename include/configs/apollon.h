@@ -37,6 +37,8 @@
 #define CONFIG_APOLLON		1
 #define CONFIG_APOLLON_PLUS	1 /* If you have apollon plus 1.x */
 
+#define CONFIG_ONENAND_U_BOOT	y
+
 /* Clock config to target*/
 #define PRCM_CONFIG_I		1
 /* #define PRCM_CONFIG_II	1 */

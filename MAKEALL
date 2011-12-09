@@ -317,7 +317,6 @@ LIST_ARM9="$(boards_by_cpu arm920t)	\
 ## ARM11 Systems
 #########################################################################
 LIST_ARM11="$(boards_by_cpu arm1136)	\
-	apollon			\
 	imx31_phycore		\
 	imx31_phycore_eet	\
 	mx31pdk			\
