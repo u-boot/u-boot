@@ -95,6 +95,15 @@ into the RAM.
 The programmers and UBL are always released as part of any standard TI
 software release associated with an SOC.
 
+Alternative boot method (DA850 EVM only):
+For the DA850 EVM an SPL (secondary program loader, see doc/README.SPL)
+is provided to load U-Boot directly from SPI flash. In this case, the
+SPL does the low level initialization that is otherwise done by the SPL.
+To build U-Boot with this SPL, do
+make da850evm_config
+make u-boot.ais
+and program the resulting u-boot.ais file to the SPI flash of the DA850 EVM.
+
 Environment Variables
 =====================
 
