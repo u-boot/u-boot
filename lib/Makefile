@@ -50,6 +50,8 @@ COBJS-$(CONFIG_SHA1) += sha1.o
 COBJS-$(CONFIG_SHA256) += sha256.o
 COBJS-y	+= strmhz.o
 COBJS-$(CONFIG_RBTREE)	+= rbtree.o
+else
+COBJS-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += display_options.o
 endif
 
 COBJS-y += ctype.o
