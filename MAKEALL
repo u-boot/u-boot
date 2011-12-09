@@ -308,7 +308,6 @@ LIST_SA="$(boards_by_cpu sa1100)"
 LIST_ARM9="$(boards_by_cpu arm920t)	\
 	$(boards_by_cpu arm926ejs)	\
 	$(boards_by_cpu arm925t)	\
-	omap730p2		\
 "
 
 #########################################################################

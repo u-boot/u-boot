@@ -654,17 +654,6 @@ ucname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\U\1/')
 # ARM
 #========================================================================
 
-omap730p2_config \
-omap730p2_cs0boot_config \
-omap730p2_cs3boot_config :	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _cs0boot_, $@)" ] ; then \
-		echo "#define CONFIG_CS0_BOOT" >> $(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_CS3_BOOT" >> $(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a omap730p2 arm arm926ejs omap730p2 ti omap
-
 spear300_config \
 spear310_config \
 spear320_config :	unconfig
