@@ -429,6 +429,18 @@ $(obj)u-boot.ubl:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		rm $(obj)u-boot-ubl.bin
 		rm $(obj)spl/u-boot-spl-pad.bin
 
+$(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
+		$(obj)tools/mkimage -s -n /dev/null -T aisimage \
+			-e $(CONFIG_SPL_TEXT_BASE) \
+			-d $(obj)spl/u-boot-spl.bin \
+			$(obj)spl/u-boot-spl.ais
+		$(OBJCOPY) ${OBJCFLAGS} -I binary \
+			--pad-to=$(CONFIG_SPL_MAX_SIZE) -O binary \
+			$(obj)spl/u-boot-spl.ais $(obj)spl/u-boot-spl-pad.ais
+		cat $(obj)spl/u-boot-spl-pad.ais $(obj)u-boot.bin > \
+			$(obj)u-boot.ais
+		rm $(obj)spl/u-boot-spl{,-pad}.ais
+
 $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
 		elftosb -zdf imx28 -c $(TOPDIR)/board/$(BOARDDIR)/u-boot.bd \
 			-o $(obj)u-boot.sb
@@ -762,6 +774,7 @@ clobber:	tidy
 	@rm -f $(obj)u-boot.kwb
 	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)u-boot.ubl
+	@rm -f $(obj)u-boot.ais
 	@rm -f $(obj)u-boot.dtb
 	@rm -f $(obj)u-boot.sb
 	@rm -f $(obj)tools/inca-swap-bytes
