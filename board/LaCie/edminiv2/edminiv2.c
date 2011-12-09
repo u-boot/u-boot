@@ -27,6 +27,7 @@
 #include <common.h>
 #include <miiphy.h>
 #include <asm/arch/orion5x.h>
+#include "../common/common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
