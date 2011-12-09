@@ -119,9 +119,7 @@ unsigned long flash_init (void)
 static void flash_get_offsets (ulong base, flash_info_t * info)
 {
 	int i;
-	OrgDef *pOrgDef;
 
-	pOrgDef = OrgIntel_28F256L18T;
 	if (info->flash_id == FLASH_UNKNOWN) {
 		return;
 	}
@@ -335,6 +333,10 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			printf (" done\n");
 		}
 	}
+
+	if (flag)
+		enable_interrupts();
+
 	return rcode;
 }
 
@@ -436,7 +438,7 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 {
 	FPWV *addr = (FPWV *) dest;
 	ulong status;
-	int flag;
+	int flag, rc = 0;
 	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
@@ -456,12 +458,15 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
 		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
-			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
-			return (1);
+			rc = 1;
+			goto done;
 		}
 	}
-	*addr = (FPW) 0x00FF00FF;	/* restore read mode */
-	return (0);
+done:
+	*addr = (FPW)0x00FF00FF;	/* restore read mode */
+	if (flag)
+		enable_interrupts();
+	return rc;
 }
 
 void inline spin_wheel (void)
