@@ -26,6 +26,16 @@
 #include <nand.h>
 #include <asm/arch/dm365_lowlevel.h>
 #include <ns16550.h>
+#include <malloc.h>
+#include <spi_flash.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+/* Define global data structure pointer to it*/
+static gd_t gdata __attribute__ ((section(".data")));
+static bd_t bdata __attribute__ ((section(".data")));
+
+#ifndef CONFIG_SPL_LIBCOMMON_SUPPORT
 
 void puts(const char *str)
 {
@@ -41,6 +51,8 @@ void putc(char c)
 	NS16550_putc((NS16550_t)(CONFIG_SYS_NS16550_COM1), c);
 }
 
+#endif /* CONFIG_SPL_LIBCOMMON_SUPPORT */
+
 inline void hang(void)
 {
 	puts("### ERROR ### Please RESET the board ###\n");
@@ -50,14 +62,34 @@ inline void hang(void)
 
 void board_init_f(ulong dummy)
 {
+#ifdef CONFIG_SOC_DM365
 	dm36x_lowlevel_init(0);
+#endif
+#ifdef CONFIG_SOC_DA8XX
+	arch_cpu_init();
+#endif
 	relocate_code(CONFIG_SPL_STACK, NULL, CONFIG_SPL_TEXT_BASE);
 }
 
 void board_init_r(gd_t *id, ulong dummy)
 {
-
+#ifdef CONFIG_SOC_DM365
 	nand_init();
 	puts("Nand boot...\n");
 	nand_boot();
+#endif
+#ifdef CONFIG_SOC_DA8XX
+	mem_malloc_init(CONFIG_SYS_TEXT_BASE - CONFIG_SYS_MALLOC_LEN,
+			CONFIG_SYS_MALLOC_LEN);
+
+	gd = &gdata;
+	gd->bd = &bdata;
+	gd->flags |= GD_FLG_RELOC;
+	gd->baudrate = CONFIG_BAUDRATE;
+	serial_init();          /* serial communications setup */
+	gd->have_console = 1;
+
+	puts("SPI boot...\n");
+	spi_boot();
+#endif
 }
