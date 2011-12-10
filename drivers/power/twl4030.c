@@ -97,9 +97,9 @@ void twl4030_power_init(void)
 
 void twl4030_power_mmc_init(void)
 {
-	/* Set VMMC1 to 3 Volts */
+	/* Set VMMC1 to 3.15 Volts */
 	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VMMC1_DEDICATED,
-				TWL4030_PM_RECEIVER_VMMC1_VSEL_30,
+				TWL4030_PM_RECEIVER_VMMC1_VSEL_32,
 				TWL4030_PM_RECEIVER_VMMC1_DEV_GRP,
 				TWL4030_PM_RECEIVER_DEV_GRP_P1);
 }
