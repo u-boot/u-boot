@@ -977,7 +977,9 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_RUN)
 	"env run var [...] - run commands in an environment variable\n"
 #endif
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 	"env save - save environment\n"
+#endif
 	"env set [-f] name [arg ...]\n"
 );
 
