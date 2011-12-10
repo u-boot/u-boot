@@ -322,7 +322,7 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int err;
 
 	if (argc != 1)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 
 	pxefile_addr_str = from_env("pxefile_addr_r");
@@ -1312,7 +1312,7 @@ do_pxe_boot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	} else if (argc == 2) {
 		pxefile_addr_str = argv[1];
 	} else {
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	if (strict_strtoul(pxefile_addr_str, 16, &pxefile_addr_r) < 0) {
@@ -1344,7 +1344,7 @@ int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	cmd_tbl_t *cp;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* drop initial "pxe" arg */
 	argc--;
@@ -1355,7 +1355,7 @@ int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (cp)
 		return cp->cmd(cmdtp, flag, argc, argv);
 
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(

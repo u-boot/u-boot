@@ -43,7 +43,7 @@ int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int     rcode = 0;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 

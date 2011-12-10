@@ -102,7 +102,7 @@ static int do_bmp_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 		addr = simple_strtoul(argv[1], NULL, 16);
 		break;
 	default:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	return (bmp_info(addr));
@@ -126,7 +126,7 @@ static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 	        y = simple_strtoul(argv[3], NULL, 10);
 	        break;
 	default:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	 return (bmp_display(addr, x, y));
@@ -166,7 +166,7 @@ static int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (c)
 		return  c->cmd(cmdtp, flag, argc, argv);
 	else
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(

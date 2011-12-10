@@ -27,7 +27,7 @@ static int do_df(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 usage:
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(

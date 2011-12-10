@@ -161,7 +161,7 @@ int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 
 	/* Validate arguments */
 	if ((argc != 4))
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* Check for a data width specification.
 	 * Defaults to long (4) if no specification.

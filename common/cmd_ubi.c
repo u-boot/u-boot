@@ -438,7 +438,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	int err = 0;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (mtdparts_init() != 0) {
 		printf("Error initializing mtdparts!\n");
@@ -465,7 +465,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		if (argc < 3)
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 #ifdef CONFIG_CMD_UBIFS
 		/*

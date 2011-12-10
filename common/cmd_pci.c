@@ -480,7 +480,7 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 1;
  usage:
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 /***************************************************/

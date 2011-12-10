@@ -179,7 +179,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	switch (argc) {
 	case 0:
 	case 1:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	case 2:
 		if (strncmp(argv[1], "res", 3) == 0) {
 			puts("\nReset IDE"
@@ -232,7 +232,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			}
 			return rcode;
 		}
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	case 3:
 		if (strncmp(argv[1], "dev", 3) == 0) {
 			int dev = (int) simple_strtoul(argv[2], NULL, 10);
@@ -266,7 +266,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			return rcode;
 		}
 
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	default:
 		/* at least 4 args */
 
@@ -325,7 +325,7 @@ int do_ide(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			else
 				return 1;
 		} else {
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 		}
 
 		return rcode;
@@ -361,7 +361,7 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		break;
 	default:
 		show_boot_progress(-42);
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 	show_boot_progress(42);
 

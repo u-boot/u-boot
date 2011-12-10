@@ -255,7 +255,7 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	switch (op) {
 	case FPGA_NONE:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	case FPGA_INFO:
 		rc = fpga_info (dev);
@@ -334,7 +334,7 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	default:
 		printf ("Unknown operation\n");
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 	return (rc);
 }

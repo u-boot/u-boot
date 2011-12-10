@@ -104,7 +104,7 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		}
 	}
 
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 #endif
 

@@ -32,7 +32,7 @@ int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int dev;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (strcmp(argv[1], "init") == 0) {
 		if (argc == 2) {
@@ -43,7 +43,7 @@ int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		} else if (argc == 3) {
 			dev = (int)simple_strtoul(argv[2], NULL, 10);
 		} else {
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 		}
 
 		if (mmc_legacy_init(dev) != 0) {
@@ -68,12 +68,12 @@ int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 			curr_device = dev;
 		} else {
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 		}
 
 		printf("mmc%d is current device\n", curr_device);
 	} else {
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	return 0;
@@ -153,7 +153,7 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	enum mmc_state state;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (curr_device < 0) {
 		if (get_mmc_num() > 0)
@@ -216,7 +216,7 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return 1;
 			}
 		} else
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 		mmc = find_mmc_device(dev);
 		if (!mmc) {
@@ -307,7 +307,7 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return (n == cnt) ? 0 : 1;
 	}
 
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(

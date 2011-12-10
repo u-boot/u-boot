@@ -241,10 +241,10 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			return 0;
 		}
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	default:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 }
 

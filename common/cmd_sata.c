@@ -79,7 +79,7 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	switch (argc) {
 	case 0:
 	case 1:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	case 2:
 		if (strncmp(argv[1],"inf", 3) == 0) {
 			int i;
@@ -116,7 +116,7 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			return rc;
 		}
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	case 3:
 		if (strncmp(argv[1], "dev", 3) == 0) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
@@ -147,7 +147,7 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			return rc;
 		}
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	default: /* at least 4 args */
 		if (strcmp(argv[1], "read") == 0) {
@@ -183,7 +183,7 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				n, (n == cnt) ? "OK" : "ERROR");
 			return (n == cnt) ? 0 : 1;
 		} else {
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 		}
 
 		return rc;

@@ -193,7 +193,7 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct mii_dev *bus;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/*
 	 * We use the last specified parameters, unless new ones are

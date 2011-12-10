@@ -93,8 +93,7 @@ int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		break;
 	default:
-		cmd_usage(cmdtp);
-		rcode = 1;
+		rcode = CMD_RET_USAGE;
 	}
 
 	/* switch back to original I2C bus */

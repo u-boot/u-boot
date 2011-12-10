@@ -32,7 +32,7 @@ static int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	u8 output[20];
 
 	if (argc < 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 	len = simple_strtoul(argv[2], NULL, 16);

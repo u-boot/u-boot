@@ -45,7 +45,7 @@ int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 
 	/* Validate arguments */
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* Get a DCR */
 	dcrn = (unsigned short) simple_strtoul (argv[1], NULL, 16);
@@ -71,7 +71,7 @@ int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	/* Validate arguments */
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* Set a DCR */
 	dcrn = (unsigned short) simple_strtoul (argv[1], NULL, 16);
@@ -116,7 +116,7 @@ int do_getidcr (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* Validate arguments */
 	if (argc < 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* Find out whether ther is '.' (dot) symbol in the first parameter. */
 	strncpy (buf, argv[1], sizeof(buf)-1);
@@ -170,7 +170,7 @@ int do_setidcr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	/* Validate arguments */
 	if (argc < 4)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* Find out whether ther is '.' (dot) symbol in the first parameter. */
 	strncpy (buf, argv[1], sizeof(buf)-1);

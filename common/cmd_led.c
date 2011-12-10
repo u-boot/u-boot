@@ -93,12 +93,12 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* Validate arguments */
 	if ((argc != 3)) {
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	cmd = get_led_cmd(argv[2]);
 	if (cmd < 0) {
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	for (i = 0; led_commands[i].string; i++) {
@@ -132,7 +132,7 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* If we ran out of matches, print Usage */
 	if (!match) {
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	return 0;

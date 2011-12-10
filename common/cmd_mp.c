@@ -29,7 +29,7 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long cpuid;
 
 	if (argc < 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	cpuid = simple_strtoul(argv[1], NULL, 10);
 	if (!is_core_valid(cpuid)) {
@@ -46,17 +46,17 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		else if (strncmp(argv[2], "disable", 7) == 0)
 			return cpu_disable(cpuid);
 		else
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 		return 0;
 	}
 
 	/* 4 or greater, make sure its release */
 	if (strncmp(argv[2], "release", 7) != 0)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (cpu_release(cpuid, argc - 3, argv + 3))
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	return 0;
 }

@@ -2035,7 +2035,7 @@ int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return spread_partitions();
 #endif /* CONFIG_CMD_MTDPARTS_SPREAD */
 
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 /***************************************************/

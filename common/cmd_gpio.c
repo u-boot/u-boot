@@ -38,7 +38,7 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc != 3)
  show_usage:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	str_cmd = argv[1];
 	str_gpio = argv[2];
 

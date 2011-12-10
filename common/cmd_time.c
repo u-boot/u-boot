@@ -38,7 +38,7 @@ static int run_command_and_time_it(int flag, int argc, char * const argv[],
 		return 1;
 	}
 	if (argc > cmdtp->maxargs)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/*
 	 * TODO(clchiou): get_timer_masked() is only defined in certain ARM
@@ -77,7 +77,7 @@ static int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int retval = 0;
 
 	if (argc == 1)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	retval = run_command_and_time_it(0, argc - 1, argv + 1, &cycles);
 	report_time(cycles);

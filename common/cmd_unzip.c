@@ -39,7 +39,7 @@ static int do_unzip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			dst = simple_strtoul(argv[2], NULL, 16);
 			break;
 		default:
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 	}
 
 	if (gunzip((void *) dst, dst_len, (void *) src, &src_len) != 0)

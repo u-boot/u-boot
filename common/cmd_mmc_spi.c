@@ -78,8 +78,7 @@ static int do_mmc_spi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 
 usage:
-	cmd_usage(cmdtp);
-	return 1;
+	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(

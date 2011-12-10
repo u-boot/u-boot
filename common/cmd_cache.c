@@ -54,7 +54,7 @@ int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			icache_status() ? "ON" : "OFF");
 		return 0;
 	default:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 	return 0;
 }
@@ -83,7 +83,7 @@ int do_dcache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			dcache_status() ? "ON" : "OFF");
 		return 0;
 	default:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 	return 0;
 

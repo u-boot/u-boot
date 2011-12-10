@@ -44,7 +44,7 @@ int do_portio_out (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	uint value = out_last_value;
 
 	if (argc != 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
 		/*
@@ -102,7 +102,7 @@ int do_portio_in (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	uint size = in_last_size;
 
 	if (argc != 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
 		/*

@@ -390,7 +390,7 @@ static int do_onenand_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 	size_t retlen = 0;
 
 	if (argc < 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	s = strchr(argv[0], '.');
 	if ((s != NULL) && (!strcmp(s, ".oob")))
@@ -417,7 +417,7 @@ static int do_onenand_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	size_t retlen = 0;
 
 	if (argc < 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (strncmp(argv[0] + 6, "yaffs", 5) == 0)
 		withoob = 1;
@@ -503,7 +503,7 @@ static int do_onenand_dump(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 	char *s;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	s = strchr(argv[0], '.');
 	ofs = (int)simple_strtoul(argv[1], NULL, 16);
@@ -525,7 +525,7 @@ static int do_onenand_markbad(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 	argv += 2;
 
 	if (argc <= 0)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	while (argc > 0) {
 		addr = simple_strtoul(*argv, NULL, 16);
@@ -569,7 +569,7 @@ static int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 	cmd_tbl_t *c;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	mtd = &onenand_mtd;
 
@@ -582,7 +582,7 @@ static int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 	if (c)
 		return c->cmd(cmdtp, flag, argc, argv);
 	else
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(

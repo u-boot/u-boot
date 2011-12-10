@@ -173,7 +173,7 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 	int rcode = 1, arg = 1, idx;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	memset(matched, 0, env_htab.size / 8);
 
@@ -411,7 +411,7 @@ int setenv_addr(const char *varname, const void *addr)
 int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	return _do_env_set(flag, argc, argv);
 }
@@ -435,7 +435,7 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Check the syntax */
 	switch (argc) {
 	case 1:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	case 2:		/* env_ask envname */
 		sprintf(message, "Please enter '%s':", argv[1]);
@@ -493,7 +493,7 @@ int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *init_val;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* Set read buffer to initial value or empty sting */
 	init_val = getenv(argv[1]);
@@ -631,7 +631,7 @@ static int do_env_default(cmd_tbl_t *cmdtp, int flag,
 			  int argc, char * const argv[])
 {
 	if (argc != 2 || strcmp(argv[1], "-f") != 0)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	set_default_env("## Resetting to default environment\n");
 	return 0;
@@ -730,14 +730,14 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag,
 				sep = '\n';
 				break;
 			default:
-				return cmd_usage(cmdtp);
+				return CMD_RET_USAGE;
 			}
 		}
 NXTARG:		;
 	}
 
 	if (argc < 1)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	addr = (char *)simple_strtoul(argv[0], NULL, 16);
 
@@ -838,13 +838,13 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 				del = 1;
 				break;
 			default:
-				return cmd_usage(cmdtp);
+				return CMD_RET_USAGE;
 			}
 		}
 	}
 
 	if (argc < 1)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (!fmt)
 		printf("## Warning: defaulting to text format\n");
@@ -944,7 +944,7 @@ static int do_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	cmd_tbl_t *cp;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* drop initial "env" arg */
 	argc--;
@@ -955,7 +955,7 @@ static int do_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (cp)
 		return cp->cmd(cmdtp, flag, argc, argv);
 
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(
