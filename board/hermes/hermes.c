@@ -595,7 +595,9 @@ void show_boot_progress (int status)
 {
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
-	if (status < -32) status = -1;	/* let things compatible */
+	/* let things compatible */
+	if (status < -BOOTSTAGE_ID_POST_FAIL_R)
+		status = -1;
 	status ^= 0x0F;
 	status = (status & 0x0F) << 14;
 	immr->im_cpm.cp_pbdat = (immr->im_cpm.cp_pbdat & ~PB_LED_ALL) | status;

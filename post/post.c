@@ -158,7 +158,7 @@ void post_output_backlog(void)
 				post_log("PASSED\n");
 			else {
 				post_log("FAILED\n");
-				show_boot_error(31);
+				show_boot_error(BOOTSTAGE_ID_POST_FAIL_R);
 			}
 		}
 	}
@@ -295,7 +295,7 @@ static int post_run_single(struct post_test *test,
 		} else {
 			if ((*test->test)(flags) != 0) {
 				post_log("FAILED\n");
-				show_boot_error(32);
+				show_boot_error(BOOTSTAGE_ID_POST_FAIL_R);
 				show_post_progress(i, POST_AFTER, POST_FAILED);
 				if (test_flags & POST_CRITICAL)
 					gd->flags |= GD_FLG_POSTFAIL;

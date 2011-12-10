@@ -66,6 +66,31 @@ enum bootstage_id {
 	BOOTSTAGE_ID_NO_RAMDISK,	/* No ram disk found (not an error) */
 
 	BOOTSTAGE_ID_RUN_OS	= 15,	/* Exiting U-Boot, entering OS */
+
+	BOOTSTAGE_ID_NEED_RESET = 30,
+	BOOTSTAGE_ID_POST_FAIL,		/* Post failure */
+	BOOTSTAGE_ID_POST_FAIL_R,	/* Post failure reported after reloc */
+
+	/*
+	 * This set is reported ony by x86, and the meaning is different. In
+	 * this case we are reporting completion of a particular stage.
+	 * This should probably change in he x86 code (which doesn't report
+	 * errors in any case), but discussion this can perhaps wait until we
+	 * have a generic board implementation.
+	 */
+	BOOTSTAGE_ID_BOARD_INIT_R,	/* We have relocated */
+	BOOTSTAGE_ID_BOARD_GLOBAL_DATA,	/* Global data is set up */
+
+	BOOTSTAGE_ID_BOARD_INIT_SEQ,	/* We completed the init sequence */
+	BOOTSTAGE_ID_BOARD_FLASH,	/* We have configured flash banks */
+	BOOTSTAGE_ID_BOARD_FLASH_37,	/* In case you didn't hear... */
+	BOOTSTAGE_ID_BOARD_ENV,		/* Environment is relocated & ready */
+	BOOTSTAGE_ID_BOARD_PCI,		/* PCI is up */
+
+	BOOTSTAGE_ID_BOARD_INTERRUPTS,	/* Exceptions / interrupts ready */
+	BOOTSTAGE_ID_BOARD_DONE,	/* Board init done, off to main loop */
+	/* ^^^ here ends the x86 sequence */
+
 };
 
 /*

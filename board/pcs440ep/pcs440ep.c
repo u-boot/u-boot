@@ -97,7 +97,8 @@ static void status_led_blink (void)
 void show_boot_progress (int val)
 {
 	/* find all valid Codes for val in README */
-	if (val == -30) return;
+	if (val == -BOOTSTAGE_ID_NEED_RESET)
+		return;
 	if (val < 0) {
 		/* smthing goes wrong */
 		status_led_blink ();
