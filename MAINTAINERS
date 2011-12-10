@@ -578,6 +578,7 @@ Jason Liu <r64343@freescale.com>
 
 	mx53evk         i.MX53
 	mx53loco        i.MX53
+	mx6qarm2	i.MX6Q
 
 Enric Balletbo i Serra <eballetbo@iseebcn.com>
 
@@ -697,12 +698,12 @@ Minkyu Kang <mk7.kang@samsung.com>
 
 	SMDKC100		ARM ARMV7 (S5PC100 SoC)
 	s5p_goni		ARM ARMV7 (S5PC110 SoC)
-	s5pc210_universal	ARM ARMV7 (S5PC210 SoC)
+	s5pc210_universal	ARM ARMV7 (EXYNOS4210 SoC)
 
 Chander Kashyap <k.chander@samsung.com>
 
-	origen			ARM ARMV7 (S5PC210 SoC)
-	SMDKV310		ARM ARMV7 (S5PC210 SoC)
+	origen			ARM ARMV7 (EXYNOS4210 SoC)
+	SMDKV310		ARM ARMV7 (EXYNOS4210 SoC)
 
 Torsten Koschorrek <koschorrek@synertronixx.de>
 	scb9328		ARM920T (i.MXL)
@@ -879,6 +880,11 @@ Tom Warren <twarren@nvidia.com>
 
 	harmony		Tegra2 (ARM7 & A9 Dual Core)
 	seaboard	Tegra2 (ARM7 & A9 Dual Core)
+
+Tom Warren <twarren@nvidia.com>
+Stephen Warren <swarren@nvidia.com>
+
+	ventana		Tegra2 (ARM7 & A9 Dual Core)
 
 Thomas Weber <weber@corscience.de>
 

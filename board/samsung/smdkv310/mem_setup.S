@@ -1,5 +1,5 @@
 /*
- * Memory setup for SMDKV310 board based on S5PC210
+ * Memory setup for SMDKV310 board based on EXYNOS4210
  *
  * Copyright (C) 2011 Samsung Electronics
  *
@@ -54,7 +54,7 @@ mem_ctrl_asm_init:
 	str r1, [r0]
 
 #ifdef SET_MIU
-	ldr	r0, =S5PC210_MIU_BASE	@0x10600000
+	ldr	r0, =EXYNOS4_MIU_BASE	@0x10600000
 #ifdef CONFIG_MIU_1BIT_INTERLEAVED
 	ldr	r1, =0x0000000c
 	str	r1, [r0, #0x400]	@MIU_INTLV_CONFIG
@@ -89,7 +89,7 @@ mem_ctrl_asm_init:
 #endif
 #endif
 	/* DREX0 */
-	ldr	r0, =S5PC210_DMC0_BASE	@0x10400000
+	ldr	r0, =EXYNOS4_DMC0_BASE	@0x10400000
 
 	ldr	r1, =0xe0000086
 	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
@@ -221,7 +221,7 @@ mem_ctrl_asm_init:
 	bne	8b
 
 	/* DREX1 */
-	ldr	r0, =S5PC210_DMC1_BASE	@0x10410000
+	ldr	r0, =EXYNOS4_DMC1_BASE	@0x10410000
 
 	ldr	r1, =0xe0000086
 	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1

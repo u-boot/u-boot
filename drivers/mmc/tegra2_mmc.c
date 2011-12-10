@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <mmc.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
@@ -473,19 +474,36 @@ static int mmc_core_init(struct mmc *mmc)
 	return 0;
 }
 
-static int tegra2_mmc_initialize(int dev_index, int bus_width)
+int tegra2_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 {
 	struct mmc_host *host;
+	char gpusage[12]; /* "SD/MMCn PWR" or "SD/MMCn CD" */
 	struct mmc *mmc;
 
-	debug(" mmc_initialize called\n");
+	debug(" tegra2_mmc_init: index %d, bus width %d "
+		"pwr_gpio %d cd_gpio %d\n",
+		dev_index, bus_width, pwr_gpio, cd_gpio);
 
 	host = &mmc_host[dev_index];
 
 	host->clock = 0;
+	host->pwr_gpio = pwr_gpio;
+	host->cd_gpio = cd_gpio;
 	tegra2_get_setup(host, dev_index);
 
 	clock_start_periph_pll(host->mmc_id, CLOCK_ID_PERIPH, 20000000);
+
+	if (host->pwr_gpio >= 0) {
+		sprintf(gpusage, "SD/MMC%d PWR", dev_index);
+		gpio_request(host->pwr_gpio, gpusage);
+		gpio_direction_output(host->pwr_gpio, 1);
+	}
+
+	if (host->cd_gpio >= 0) {
+		sprintf(gpusage, "SD/MMC%d CD", dev_index);
+		gpio_request(host->cd_gpio, gpusage);
+		gpio_direction_input(host->cd_gpio);
+	}
 
 	mmc = &mmc_dev[dev_index];
 
@@ -518,9 +536,21 @@ static int tegra2_mmc_initialize(int dev_index, int bus_width)
 	return 0;
 }
 
-int tegra2_mmc_init(int dev_index, int bus_width)
+/* this is a weak define that we are overriding */
+int board_mmc_getcd(u8 *cd, struct mmc *mmc)
 {
-	debug(" tegra2_mmc_init: index %d, bus width %d\n",
-		dev_index, bus_width);
-	return tegra2_mmc_initialize(dev_index, bus_width);
+	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+
+	debug("board_mmc_getcd called\n");
+
+	*cd = 1; /* Assume card is inserted, or eMMC */
+
+	if (IS_SD(mmc)) {
+		if (host->cd_gpio >= 0) {
+			if (gpio_get_value(host->cd_gpio))
+				*cd = 0;
+		}
+	}
+
+	return 0;
 }

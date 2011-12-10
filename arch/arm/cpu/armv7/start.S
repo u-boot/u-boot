@@ -82,18 +82,6 @@ _end_vect:
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE
 
-#ifdef CONFIG_TEGRA2
-/*
- * Tegra2 uses 2 separate CPUs - the AVP (ARM7TDMI) and the CPU (dual A9s).
- * U-Boot runs on the AVP first, setting things up for the CPU (PLLs,
- * muxes, clocks, clamps, etc.). Then the AVP halts, and expects the CPU
- * to pick up its reset vector, which points here.
- */
-.globl _armboot_start
-_armboot_start:
-	.word _start
-#endif
-
 /*
  * These are defined in the board-specific linker script.
  */
@@ -162,6 +150,7 @@ reset:
 
 	/* the mask ROM code should have PLL and others stable */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
+	bl	cpu_init_cp15
 	bl	cpu_init_crit
 #endif
 
@@ -299,17 +288,16 @@ jump_2_ram:
 _board_init_r_ofs:
 	.word board_init_r - _start
 
-
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 /*************************************************************************
  *
- * CPU_init_critical registers
+ * cpu_init_cp15
  *
- * setup important registers
- * setup memory timing
+ * Setup CP15 registers (cache, MMU, TLBs). The I-cache is turned on unless
+ * CONFIG_SYS_ICACHE_OFF is defined.
  *
  *************************************************************************/
-cpu_init_crit:
+.globl cpu_init_cp15
+cpu_init_cp15:
 	/*
 	 * Invalidate L1 I/D
 	 */
@@ -334,7 +322,19 @@ cpu_init_crit:
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-cache
 #endif
 	mcr	p15, 0, r0, c1, c0, 0
+	mov	pc, lr			@ back to my caller
 
+
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+/*************************************************************************
+ *
+ * CPU_init_critical registers
+ *
+ * setup important registers
+ * setup memory timing
+ *
+ *************************************************************************/
+cpu_init_crit:
 	/*
 	 * Jump to board specific initialization...
 	 * The Mask ROM will have already initialized

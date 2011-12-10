@@ -23,7 +23,7 @@
 #define __ASM_ARM_ARCH_CLOCK_H_
 
 #ifndef __ASSEMBLY__
-struct s5pc210_clock {
+struct exynos4_clock {
 	unsigned char	res1[0x4200];
 	unsigned int	src_leftbus;
 	unsigned char	res2[0x1fc];

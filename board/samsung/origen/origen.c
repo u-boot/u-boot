@@ -27,13 +27,13 @@
 #include <asm/arch/mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-struct s5pc210_gpio_part1 *gpio1;
-struct s5pc210_gpio_part2 *gpio2;
+struct exynos4_gpio_part1 *gpio1;
+struct exynos4_gpio_part2 *gpio2;
 
 int board_init(void)
 {
-	gpio1 = (struct s5pc210_gpio_part1 *) S5PC210_GPIO_PART1_BASE;
-	gpio2 = (struct s5pc210_gpio_part2 *) S5PC210_GPIO_PART2_BASE;
+	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
+	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
 	return 0;

@@ -1,9 +1,5 @@
 /*
- *  (C) Copyright 2010,2011
- *  NVIDIA Corporation <www.nvidia.com>
- *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,10 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+.section ".text.init", "x"
 
-#ifndef _SERIAL_TEGRA_H_
-#define _SERIAL_TEGRA_H_
+.globl lowlevel_init
+lowlevel_init:
 
-#include <asm/arch/uart.h>
-
-#endif /* _SERIAL_TEGRA_H_ */
+	mov pc, lr

@@ -24,9 +24,12 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
+#include <asm/arch/pinmux.h>
+#include <asm/gpio.h>
 #ifdef CONFIG_TEGRA2_MMC
 #include <mmc.h>
 #endif
+#include "../common/board.h"
 
 /*
  * Routine: gpio_config_uart
@@ -38,23 +41,55 @@ void gpio_config_uart(void)
 
 #ifdef CONFIG_TEGRA2_MMC
 /*
- * Routine: gpio_config_mmc
- * Description: Set GPIOs for SD card
+ * Routine: pin_mux_mmc
+ * Description: setup the pin muxes/tristate values for the SDMMC(s)
  */
-void gpio_config_mmc(void)
+static void pin_mux_mmc(void)
 {
-	/* Not implemented for now */
+	/* SDMMC4: config 3, x8 on 2nd set of pins */
+	pinmux_set_func(PINGRP_ATB, PMUX_FUNC_SDIO4);
+	pinmux_set_func(PINGRP_GMA, PMUX_FUNC_SDIO4);
+	pinmux_set_func(PINGRP_GME, PMUX_FUNC_SDIO4);
+
+	pinmux_tristate_disable(PINGRP_ATB);
+	pinmux_tristate_disable(PINGRP_GMA);
+	pinmux_tristate_disable(PINGRP_GME);
+
+	/* For power GPIO PI6 */
+	pinmux_tristate_disable(PINGRP_ATA);
+	/* For CD GPIO PH2 */
+	pinmux_tristate_disable(PINGRP_ATD);
+
+	/* SDMMC2: SDIO2_CLK, SDIO2_CMD, SDIO2_DAT[7:0] */
+	pinmux_set_func(PINGRP_DTA, PMUX_FUNC_SDIO2);
+	pinmux_set_func(PINGRP_DTD, PMUX_FUNC_SDIO2);
+
+	pinmux_tristate_disable(PINGRP_DTA);
+	pinmux_tristate_disable(PINGRP_DTD);
+
+	/* For power GPIO PT3 */
+	pinmux_tristate_disable(PINGRP_DTB);
+	/* For CD GPIO PI5 */
+	pinmux_tristate_disable(PINGRP_ATC);
 }
 
 /* this is a weak define that we are overriding */
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
+int board_mmc_init(bd_t *bd)
 {
-	debug("board_mmc_getcd called\n");
-	/*
-	 * Hard-code CD presence for now. Need to add GPIO inputs
-	 * for Harmony
-	 */
-	*cd = 1;
+	debug("board_mmc_init called\n");
+
+	/* Enable muxes, etc. for SDMMC controllers */
+	pin_mux_mmc();
+
+	debug("board_mmc_init: init SD slot J26\n");
+	/* init dev 0, SD slot J26, with 4-bit bus */
+	/* The board has an 8-bit bus, but 8-bit doesn't work yet */
+	tegra2_mmc_init(0, 4, GPIO_PI6, GPIO_PH2);
+
+	debug("board_mmc_init: init SD slot J5\n");
+	/* init dev 2, SD slot J5, with 4-bit bus */
+	tegra2_mmc_init(2, 4, GPIO_PT3, GPIO_PI5);
+
 	return 0;
 }
 #endif

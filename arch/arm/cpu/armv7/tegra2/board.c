@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include "ap20.h"
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/pmc.h>
@@ -54,28 +55,10 @@ unsigned int query_sdram_size(void)
 	}
 }
 
-void s_init(void)
-{
-#ifndef CONFIG_ICACHE_OFF
-	icache_enable();
-#endif
-	invalidate_dcache();
-}
-
 int dram_init(void)
 {
-	unsigned long rs;
-
 	/* We do not initialise DRAM here. We just query the size */
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = gd->ram_size = query_sdram_size();
-
-	/* Now check it dynamically */
-	rs = get_ram_size(CONFIG_SYS_SDRAM_BASE, gd->ram_size);
-	if (rs) {
-		printf("dynamic ram_size = %lu\n", rs);
-		gd->bd->bi_dram[0].size = gd->ram_size = rs;
-	}
+	gd->ram_size = query_sdram_size();
 	return 0;
 }
 
@@ -86,3 +69,17 @@ int checkboard(void)
 	return 0;
 }
 #endif	/* CONFIG_DISPLAY_BOARDINFO */
+
+#ifdef CONFIG_ARCH_CPU_INIT
+/*
+ * Note this function is executed by the ARM7TDMI AVP. It does not return
+ * in this case. It is also called once the A9 starts up, but does nothing in
+ * that case.
+ */
+int arch_cpu_init(void)
+{
+	/* Fire up the Cortex A9 */
+	tegra2_start();
+	return 0;
+}
+#endif

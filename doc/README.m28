@@ -113,7 +113,8 @@ must have the following parameters:
 	* Partition size ........ at least 1024 kb
 	* Partition type ........ 0x53 (sometimes "OnTrack DM6 Aux3")
 
-For example in Linux fdisk, the sequence for a clear card is the following:
+For example in Linux fdisk, the sequence for a clear card follows. Be sure to
+run fdisk with the option "-u=sectors" to set units to sectors:
 
 	* o ..................... create a clear partition table
 	* n ..................... create new partition

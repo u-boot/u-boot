@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2011 Samsung Electronics
  *
- * Configuration settings for the SAMSUNG SMDKV310 (S5PC210) board.
+ * Configuration settings for the SAMSUNG SMDKV310 (EXYNOS4210) board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -28,7 +28,7 @@
 /* High Level Configuration Options */
 #define CONFIG_SAMSUNG			1	/* in a SAMSUNG core */
 #define CONFIG_S5P			1	/* S5P Family */
-#define CONFIG_S5PC210			1	/* which is in a S5PC210 SoC */
+#define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
 #define CONFIG_SMDKV310			1	/* working with SMDKV310*/
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
@@ -65,7 +65,7 @@
 #define CONFIG_SERIAL_MULTI		1
 #define CONFIG_SERIAL1			1	/* use SERIAL 1 */
 #define CONFIG_BAUDRATE			115200
-#define S5PC210_DEFAULT_UART_OFFSET	0x010000
+#define EXYNOS4_DEFAULT_UART_OFFSET	0x010000
 
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC		1

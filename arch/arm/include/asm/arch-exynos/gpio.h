@@ -32,7 +32,7 @@ struct s5p_gpio_bank {
 	unsigned char	res1[8];
 };
 
-struct s5pc210_gpio_part1 {
+struct exynos4_gpio_part1 {
 	struct s5p_gpio_bank a0;
 	struct s5p_gpio_bank a1;
 	struct s5p_gpio_bank b;
@@ -51,7 +51,7 @@ struct s5pc210_gpio_part1 {
 	struct s5p_gpio_bank f3;
 };
 
-struct s5pc210_gpio_part2 {
+struct exynos4_gpio_part2 {
 	struct s5p_gpio_bank j0;
 	struct s5p_gpio_bank j1;
 	struct s5p_gpio_bank k0;
@@ -75,7 +75,7 @@ struct s5pc210_gpio_part2 {
 	struct s5p_gpio_bank x3;
 };
 
-struct s5pc210_gpio_part3 {
+struct exynos4_gpio_part3 {
 	struct s5p_gpio_bank z;
 };
 
@@ -92,27 +92,27 @@ void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode);
 /* GPIO pins per bank  */
 #define GPIO_PER_BANK 8
 
-#define s5pc210_gpio_part1_get_nr(bank, pin) \
-	((((((unsigned int) &(((struct s5pc210_gpio_part1 *) \
-			       S5PC210_GPIO_PART1_BASE)->bank)) \
-	    - S5PC210_GPIO_PART1_BASE) / sizeof(struct s5p_gpio_bank)) \
+#define exynos4_gpio_part1_get_nr(bank, pin) \
+	((((((unsigned int) &(((struct exynos4_gpio_part1 *) \
+			       EXYNOS4_GPIO_PART1_BASE)->bank)) \
+	    - EXYNOS4_GPIO_PART1_BASE) / sizeof(struct s5p_gpio_bank)) \
 	  * GPIO_PER_BANK) + pin)
 
-#define GPIO_PART1_MAX ((sizeof(struct s5pc210_gpio_part1) \
+#define GPIO_PART1_MAX ((sizeof(struct exynos4_gpio_part1) \
 			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
 
-#define s5pc210_gpio_part2_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct s5pc210_gpio_part2 *) \
-				S5PC210_GPIO_PART2_BASE)->bank)) \
-	    - S5PC210_GPIO_PART2_BASE) / sizeof(struct s5p_gpio_bank)) \
+#define exynos4_gpio_part2_get_nr(bank, pin) \
+	(((((((unsigned int) &(((struct exynos4_gpio_part2 *) \
+				EXYNOS4_GPIO_PART2_BASE)->bank)) \
+	    - EXYNOS4_GPIO_PART2_BASE) / sizeof(struct s5p_gpio_bank)) \
 	  * GPIO_PER_BANK) + pin) + GPIO_PART1_MAX)
 
 static inline unsigned int s5p_gpio_base(int nr)
 {
 	if (nr < GPIO_PART1_MAX)
-		return S5PC210_GPIO_PART1_BASE;
+		return EXYNOS4_GPIO_PART1_BASE;
 	else
-		return S5PC210_GPIO_PART2_BASE;
+		return EXYNOS4_GPIO_PART2_BASE;
 
 	return 0;
 }

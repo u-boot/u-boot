@@ -104,7 +104,7 @@ static int m28_mmc_wp(int id)
 
 int board_mmc_init(bd_t *bis)
 {
-	/* Configure WP as output */
+	/* Configure WP as input. */
 	gpio_direction_input(MX28_PAD_AUART2_CTS__GPIO_3_10);
 
 	return mxsmmc_initialize(bis, 0, m28_mmc_wp);

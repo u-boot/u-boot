@@ -37,7 +37,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text	:
 	{
-		board/denx/m28evk/start.o	(.text)
+		arch/arm/cpu/arm926ejs/mx28/start.o	(.text)
 		*(.text)
 	}
 
@@ -67,16 +67,16 @@ SECTIONS
 		*(.dynsym)
 	}
 
-	_end = .;
-
-	.bss __rel_dyn_start (OVERLAY) : {
+	.bss : {
+		. = ALIGN(4);
 		__bss_start = .;
-		*(.bss)
-		 . = ALIGN(4);
+		*(.bss*)
+		. = ALIGN(4);
 		__bss_end__ = .;
 	}
 
-	/DISCARD/ : { *(.bss*) }
+	_end = .;
+
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynsym*) }
 	/DISCARD/ : { *(.dynamic*) }

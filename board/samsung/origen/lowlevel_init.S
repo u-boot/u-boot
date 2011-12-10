@@ -1,5 +1,5 @@
 /*
- * Lowlevel setup for ORIGEN board based on S5PV310
+ * Lowlevel setup for ORIGEN board based on EXYNOS4210
  *
  * Copyright (C) 2011 Samsung Electronics
  *
@@ -43,11 +43,11 @@ lowlevel_init:
 
 	/* r5 has always zero */
 	mov	r5, #0
-	ldr	r7, =S5PC210_GPIO_PART1_BASE
-	ldr	r6, =S5PC210_GPIO_PART2_BASE
+	ldr	r7, =EXYNOS4_GPIO_PART1_BASE
+	ldr	r6, =EXYNOS4_GPIO_PART2_BASE
 
 	/* check reset status */
-	ldr	r0, =(S5PC210_POWER_BASE + INFORM1_OFFSET)
+	ldr	r0, =(EXYNOS4_POWER_BASE + INFORM1_OFFSET)
 	ldr	r1, [r0]
 
 	/* AFTR wakeup reset */
@@ -97,9 +97,9 @@ wakeup_reset:
 
 exit_wakeup:
 	/* Load return address and jump to kernel */
-	ldr	r0, =(S5PC210_POWER_BASE + INFORM0_OFFSET)
+	ldr	r0, =(EXYNOS4_POWER_BASE + INFORM0_OFFSET)
 
-	/* r1 = physical address of s5pc210_cpu_resume function */
+	/* r1 = physical address of exynos4210_cpu_resume function */
 	ldr	r1, [r0]
 
 	/* Jump to kernel*/
@@ -113,7 +113,7 @@ exit_wakeup:
  */
 system_clock_init:
 	push	{lr}
-	ldr	r0, =S5PC210_CLOCK_BASE
+	ldr	r0, =EXYNOS4_CLOCK_BASE
 
 	/* APLL(1), MPLL(1), CORE(0), HPM(0) */
 	ldr	r1, =CLK_SRC_CPU_VAL
@@ -290,13 +290,13 @@ uart_asm_init:
 
 	/* setup UART0-UART3 GPIOs (part1) */
 	mov	r0, r7
-	ldr	r1, =S5PC210_GPIO_A0_CON_VAL
-	str	r1, [r0, #S5PC210_GPIO_A0_CON_OFFSET]
-	ldr	r1, =S5PC210_GPIO_A1_CON_VAL
-	str	r1, [r0, #S5PC210_GPIO_A1_CON_OFFSET]
+	ldr	r1, =EXYNOS4_GPIO_A0_CON_VAL
+	str	r1, [r0, #EXYNOS4_GPIO_A0_CON_OFFSET]
+	ldr	r1, =EXYNOS4_GPIO_A1_CON_VAL
+	str	r1, [r0, #EXYNOS4_GPIO_A1_CON_OFFSET]
 
-	ldr r0, =S5PC210_UART_BASE
-	add r0, r0, #S5PC210_DEFAULT_UART_OFFSET
+	ldr r0, =EXYNOS4_UART_BASE
+	add r0, r0, #EXYNOS4_DEFAULT_UART_OFFSET
 
 	ldr	r1, =ULCON_VAL
 	str	r1, [r0, #ULCON_OFFSET]

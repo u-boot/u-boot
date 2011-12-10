@@ -19,33 +19,33 @@
  *
  */
 
-#ifndef _S5PC2XX_CPU_H
-#define _S5PC2XX_CPU_H
+#ifndef _EXYNOS4_CPU_H
+#define _EXYNOS4_CPU_H
 
-#define S5PC2XX_ADDR_BASE	0x10000000
+#define EXYNOS4_ADDR_BASE		0x10000000
 
-/* S5PC210 */
-#define S5PC210_GPIO_PART3_BASE	0x03860000
-#define S5PC210_PRO_ID		0x10000000
-#define S5PC210_POWER_BASE	0x10020000
-#define S5PC210_SWRESET		0x10020400
-#define S5PC210_CLOCK_BASE	0x10030000
-#define S5PC210_SYSTIMER_BASE	0x10050000
-#define S5PC210_WATCHDOG_BASE	0x10060000
-#define S5PC210_MIU_BASE	0x10600000
-#define S5PC210_DMC0_BASE	0x10400000
-#define S5PC210_DMC1_BASE	0x10410000
-#define S5PC210_GPIO_PART2_BASE	0x11000000
-#define S5PC210_GPIO_PART1_BASE	0x11400000
-#define S5PC210_FIMD_BASE	0x11C00000
-#define S5PC210_USBOTG_BASE	0x12480000
-#define S5PC210_MMC_BASE	0x12510000
-#define S5PC210_SROMC_BASE	0x12570000
-#define S5PC210_USBPHY_BASE	0x125B0000
-#define S5PC210_UART_BASE	0x13800000
-#define S5PC210_ADC_BASE	0x13910000
-#define S5PC210_PWMTIMER_BASE	0x139D0000
-#define S5PC210_MODEM_BASE	0x13A00000
+/* EXYNOS4 */
+#define EXYNOS4_GPIO_PART3_BASE		0x03860000
+#define EXYNOS4_PRO_ID			0x10000000
+#define EXYNOS4_POWER_BASE		0x10020000
+#define EXYNOS4_SWRESET			0x10020400
+#define EXYNOS4_CLOCK_BASE		0x10030000
+#define EXYNOS4_SYSTIMER_BASE		0x10050000
+#define EXYNOS4_WATCHDOG_BASE		0x10060000
+#define EXYNOS4_MIU_BASE		0x10600000
+#define EXYNOS4_DMC0_BASE		0x10400000
+#define EXYNOS4_DMC1_BASE		0x10410000
+#define EXYNOS4_GPIO_PART2_BASE		0x11000000
+#define EXYNOS4_GPIO_PART1_BASE		0x11400000
+#define EXYNOS4_FIMD_BASE		0x11C00000
+#define EXYNOS4_USBOTG_BASE		0x12480000
+#define EXYNOS4_MMC_BASE		0x12510000
+#define EXYNOS4_SROMC_BASE		0x12570000
+#define EXYNOS4_USBPHY_BASE		0x125B0000
+#define EXYNOS4_UART_BASE		0x13800000
+#define EXYNOS4_ADC_BASE		0x13910000
+#define EXYNOS4_PWMTIMER_BASE		0x139D0000
+#define EXYNOS4_MODEM_BASE		0x13A00000
 
 #ifndef __ASSEMBLY__
 #include <asm/io.h>
@@ -60,12 +60,12 @@ static inline int s5p_get_cpu_rev(void)
 
 static inline void s5p_set_cpu_id(void)
 {
-	s5p_cpu_id = readl(S5PC210_PRO_ID);
+	s5p_cpu_id = readl(EXYNOS4_PRO_ID);
 	s5p_cpu_id = (0xC000 | ((s5p_cpu_id & 0x00FFF000) >> 12));
 
 	/*
-	 * 0xC200: S5PC210 EVT0
-	 * 0xC210: S5PC210 EVT1
+	 * 0xC200: EXYNOS4210 EVT0
+	 * 0xC210: EXYNOS4210 EVT1
 	 */
 	if (s5p_cpu_id == 0xC200) {
 		s5p_cpu_id |= 0x10;
@@ -81,13 +81,13 @@ static inline int cpu_is_##type(void)			\
 	return s5p_cpu_id == id ? 1 : 0;		\
 }
 
-IS_SAMSUNG_TYPE(s5pc210, 0xc210)
+IS_SAMSUNG_TYPE(exynos4, 0xc210)
 
 #define SAMSUNG_BASE(device, base)				\
 static inline unsigned int samsung_get_base_##device(void)	\
 {								\
-	if (cpu_is_s5pc210())					\
-		return S5PC210_##base;				\
+	if (cpu_is_exynos4())					\
+		return EXYNOS4_##base;				\
 	else							\
 		return 0;					\
 }
@@ -110,4 +110,4 @@ SAMSUNG_BASE(usb_otg, USBOTG_BASE)
 SAMSUNG_BASE(watchdog, WATCHDOG_BASE)
 #endif
 
-#endif	/* _S5PC2XX_CPU_H */
+#endif	/* _EXYNOS4_CPU_H */

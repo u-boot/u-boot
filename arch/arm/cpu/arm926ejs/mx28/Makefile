@@ -27,6 +27,10 @@ LIB	= $(obj)lib$(SOC).o
 
 COBJS	= clock.o mx28.o iomux.o timer.o
 
+ifdef	CONFIG_SPL_BUILD
+COBJS	+= spl_boot.o spl_mem_init.o spl_power_init.o
+endif
+
 SRCS	:= $(START:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 START	:= $(addprefix $(obj),$(START))
