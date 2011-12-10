@@ -345,7 +345,7 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	const void *fit_hdr = NULL;
 #endif
 
-	show_boot_progress(41);
+	show_boot_progress(BOOTSTAGE_ID_IDE_START);
 	switch (argc) {
 	case 1:
 		addr = CONFIG_SYS_LOAD_ADDR;
@@ -360,41 +360,43 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		boot_device = argv[2];
 		break;
 	default:
-		show_boot_error(42);
+		show_boot_error(BOOTSTAGE_ID_IDE_ADDR);
 		return CMD_RET_USAGE;
 	}
-	show_boot_progress(42);
+	show_boot_progress(BOOTSTAGE_ID_IDE_ADDR);
 
 	if (!boot_device) {
 		puts("\n** No boot device **\n");
-		show_boot_error(43);
+		show_boot_error(BOOTSTAGE_ID_IDE_BOOT_DEVICE);
 		return 1;
 	}
-	show_boot_progress(43);
+	show_boot_progress(BOOTSTAGE_ID_IDE_BOOT_DEVICE);
 
 	dev = simple_strtoul(boot_device, &ep, 16);
 
 	if (ide_dev_desc[dev].type == DEV_TYPE_UNKNOWN) {
 		printf("\n** Device %d not available\n", dev);
-		show_boot_error(44);
+		show_boot_error(BOOTSTAGE_ID_IDE_TYPE);
 		return 1;
 	}
-	show_boot_progress(44);
+	show_boot_progress(BOOTSTAGE_ID_IDE_TYPE);
 
 	if (*ep) {
 		if (*ep != ':') {
 			puts("\n** Invalid boot device, use `dev[:part]' **\n");
-			show_boot_error(45);
+			show_boot_error(BOOTSTAGE_ID_IDE_PART);
 			return 1;
 		}
 		part = simple_strtoul(++ep, NULL, 16);
 	}
-	show_boot_progress(45);
+	show_boot_progress(BOOTSTAGE_ID_IDE_PART);
+
 	if (get_partition_info(&ide_dev_desc[dev], part, &info)) {
-		show_boot_error(46);
+		show_boot_error(BOOTSTAGE_ID_IDE_PART_INFO);
 		return 1;
 	}
-	show_boot_progress(46);
+	show_boot_progress(BOOTSTAGE_ID_IDE_PART_INFO);
+
 	if ((strncmp((char *)info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0)
 	    &&
 	    (strncmp((char *)info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)
@@ -402,10 +404,10 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		printf("\n** Invalid partition type \"%.32s\"" " (expect \""
 			BOOT_PART_TYPE "\")\n",
 			info.type);
-		show_boot_error(47);
+		show_boot_error(BOOTSTAGE_ID_IDE_PART_TYPE);
 		return 1;
 	}
-	show_boot_progress(47);
+	show_boot_progress(BOOTSTAGE_ID_IDE_PART_TYPE);
 
 	printf("\nLoading from IDE device %d, partition %d: "
 	       "Name: %.32s  Type: %.32s\n", dev, part, info.name, info.type);
@@ -416,23 +418,23 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if (ide_dev_desc[dev].
 	    block_read(dev, info.start, 1, (ulong *) addr) != 1) {
 		printf("** Read error on %d:%d\n", dev, part);
-		show_boot_error(48);
+		show_boot_error(BOOTSTAGE_ID_IDE_PART_READ);
 		return 1;
 	}
-	show_boot_progress(48);
+	show_boot_progress(BOOTSTAGE_ID_IDE_PART_READ);
 
 	switch (genimg_get_format((void *) addr)) {
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *) addr;
 
-		show_boot_progress(49);
+		show_boot_progress(BOOTSTAGE_ID_IDE_FORMAT);
 
 		if (!image_check_hcrc(hdr)) {
 			puts("\n** Bad Header Checksum **\n");
-			show_boot_error(50);
+			show_boot_error(BOOTSTAGE_ID_IDE_CHECKSUM);
 			return 1;
 		}
-		show_boot_progress(50);
+		show_boot_progress(BOOTSTAGE_ID_IDE_CHECKSUM);
 
 		image_print_contents(hdr);
 
@@ -447,7 +449,7 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		break;
 #endif
 	default:
-		show_boot_error(49);
+		show_boot_error(BOOTSTAGE_ID_IDE_FORMAT);
 		puts("** Unknown image type\n");
 		return 1;
 	}
@@ -459,20 +461,20 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if (ide_dev_desc[dev].block_read(dev, info.start + 1, cnt,
 					 (ulong *)(addr + info.blksz)) != cnt) {
 		printf("** Read error on %d:%d\n", dev, part);
-		show_boot_error(51);
+		show_boot_error(BOOTSTAGE_ID_IDE_READ);
 		return 1;
 	}
-	show_boot_progress(51);
+	show_boot_progress(BOOTSTAGE_ID_IDE_READ);
 
 #if defined(CONFIG_FIT)
 	/* This cannot be done earlier, we need complete FIT image in RAM first */
 	if (genimg_get_format((void *) addr) == IMAGE_FORMAT_FIT) {
 		if (!fit_check_format(fit_hdr)) {
-			show_boot_error(140);
+			show_boot_error(BOOTSTAGE_ID_IDE_FIT_READ);
 			puts("** Bad FIT image format\n");
 			return 1;
 		}
-		show_boot_progress(141);
+		show_boot_progress(BOOTSTAGE_ID_IDE_FIT_READ_OK);
 		fit_print_contents(fit_hdr);
 	}
 #endif

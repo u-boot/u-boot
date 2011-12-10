@@ -91,6 +91,20 @@ enum bootstage_id {
 	BOOTSTAGE_ID_BOARD_DONE,	/* Board init done, off to main loop */
 	/* ^^^ here ends the x86 sequence */
 
+	/* Boot stages related to loading a kernel from an IDE device */
+	BOOTSTAGE_ID_IDE_START = 41,
+	BOOTSTAGE_ID_IDE_ADDR,
+	BOOTSTAGE_ID_IDE_BOOT_DEVICE,
+	BOOTSTAGE_ID_IDE_TYPE,
+
+	BOOTSTAGE_ID_IDE_PART,
+	BOOTSTAGE_ID_IDE_PART_INFO,
+	BOOTSTAGE_ID_IDE_PART_TYPE,
+	BOOTSTAGE_ID_IDE_PART_READ,
+	BOOTSTAGE_ID_IDE_FORMAT,
+
+	BOOTSTAGE_ID_IDE_CHECKSUM,	/* 50 */
+	BOOTSTAGE_ID_IDE_READ,
 };
 
 /*
