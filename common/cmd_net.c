@@ -43,7 +43,12 @@ U_BOOT_CMD(
 
 int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return netboot_common(TFTPGET, cmdtp, argc, argv);
+	int ret;
+
+	bootstage_mark_name(BOOTSTAGE_KERNELREAD_START, "tftp_start");
+	ret = netboot_common(TFTPGET, cmdtp, argc, argv);
+	bootstage_mark_name(BOOTSTAGE_KERNELREAD_STOP, "tftp_done");
+	return ret;
 }
 
 U_BOOT_CMD(

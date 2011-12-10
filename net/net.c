@@ -402,6 +402,7 @@ int NetLoop(enum proto_t protocol)
 		NetArpWaitTxPacketSize = 0;
 	}
 
+	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
 	eth_halt();
 	eth_set_current();
 	if (eth_init(bd) < 0) {

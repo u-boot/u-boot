@@ -199,6 +199,8 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 	bootm_start_lmb();
 
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_START, "bootm_start");
+
 	/* get kernel image header, start address and length */
 	os_hdr = boot_get_kernel(cmdtp, flag, argc, argv,
 			&images, &images.os.image_start, &images.os.image_len);

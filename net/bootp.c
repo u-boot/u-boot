@@ -322,6 +322,7 @@ BootpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		BootpVendorProcess((uchar *)&bp->bp_vend[4], len);
 
 	NetSetTimeout(0, (thand_f *)0);
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP, "bootp_stop");
 
 	debug("Got good BOOTP\n");
 
@@ -589,6 +590,7 @@ BootpRequest (void)
 	Bootp_t *bp;
 	int ext_len, pktlen, iplen;
 
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_START, "bootp_start");
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = INIT;
 #endif
@@ -949,6 +951,8 @@ DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			BootpCopyNetParams(bp); /* Store net params from reply */
 			dhcp_state = BOUND;
 			printf ("DHCP client bound to address %pI4\n", &NetOurIP);
+			bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP,
+					    "bootp_stop");
 
 			net_auto_load();
 			return;
