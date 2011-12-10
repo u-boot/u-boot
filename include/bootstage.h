@@ -58,6 +58,13 @@ enum bootstage_id {
 	BOOTSTAGE_ID_BOOT_OS_RETURNED,	/* Tried to boot OS, but it returned */
 	BOOTSTAGE_ID_CHECK_RAMDISK = 9,	/* Checking ram disk */
 
+	BOOTSTAGE_ID_RD_MAGIC,		/* Checking ram disk magic */
+	BOOTSTAGE_ID_RD_HDR_CHECKSUM,	/* Checking ram disk heder checksum */
+	BOOTSTAGE_ID_RD_CHECKSUM,	/* Checking ram disk checksum */
+	BOOTSTAGE_ID_COPY_RAMDISK = 12,	/* Copying ram disk into place */
+	BOOTSTAGE_ID_RAMDISK,		/* Checking for valid ramdisk */
+	BOOTSTAGE_ID_NO_RAMDISK,	/* No ram disk found (not an error) */
+
 	BOOTSTAGE_ID_RUN_OS	= 15,	/* Exiting U-Boot, entering OS */
 };
 

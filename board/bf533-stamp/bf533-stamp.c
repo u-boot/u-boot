@@ -112,11 +112,11 @@ void show_boot_progress(int status)
 		stamp_led_set(STATUS_LED_ON, STATUS_LED_ON, STATUS_LED_OFF);
 		break;
 	case BOOTSTAGE_ID_BOOT_OS_RETURNED:
-	case 10:
-	case 11:
-	case 12:
-	case 13:
-	case 14:
+	case BOOTSTAGE_ID_RD_MAGIC:
+	case BOOTSTAGE_ID_RD_HDR_CHECKSUM:
+	case BOOTSTAGE_ID_RD_CHECKSUM:
+	case BOOTSTAGE_ID_RAMDISK:
+	case BOOTSTAGE_ID_NO_RAMDISK:
 	case BOOTSTAGE_ID_RUN_OS:
 		stamp_led_set(STATUS_LED_OFF, STATUS_LED_OFF, STATUS_LED_OFF);
 		break;

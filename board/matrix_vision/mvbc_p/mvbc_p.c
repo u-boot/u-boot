@@ -247,7 +247,7 @@ void show_boot_progress(int val)
 	case 65:
 		setbits_be32(&gpio->simple_dvo, LED_G1);
 		break;
-	case 12:
+	case BOOTSTAGE_ID_COPY_RAMDISK:
 		setbits_be32(&gpio->simple_dvo, LED_Y);
 		break;
 	case BOOTSTAGE_ID_RUN_OS:

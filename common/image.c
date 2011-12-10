@@ -373,37 +373,37 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 
 	if (!image_check_magic(rd_hdr)) {
 		puts("Bad Magic Number\n");
-		show_boot_error(10);
+		show_boot_error(BOOTSTAGE_ID_RD_MAGIC);
 		return NULL;
 	}
 
 	if (!image_check_hcrc(rd_hdr)) {
 		puts("Bad Header Checksum\n");
-		show_boot_error(11);
+		show_boot_error(BOOTSTAGE_ID_RD_HDR_CHECKSUM);
 		return NULL;
 	}
 
-	show_boot_progress(10);
+	show_boot_progress(BOOTSTAGE_ID_RD_MAGIC);
 	image_print_contents(rd_hdr);
 
 	if (verify) {
 		puts("   Verifying Checksum ... ");
 		if (!image_check_dcrc(rd_hdr)) {
 			puts("Bad Data CRC\n");
-			show_boot_error(12);
+			show_boot_error(BOOTSTAGE_ID_RD_CHECKSUM);
 			return NULL;
 		}
 		puts("OK\n");
 	}
 
-	show_boot_progress(11);
+	show_boot_progress(BOOTSTAGE_ID_RD_HDR_CHECKSUM);
 
 	if (!image_check_os(rd_hdr, IH_OS_LINUX) ||
 	    !image_check_arch(rd_hdr, arch) ||
 	    !image_check_type(rd_hdr, IH_TYPE_RAMDISK)) {
 		printf("No Linux %s Ramdisk Image\n",
 				genimg_get_arch_name(arch));
-		show_boot_error(13);
+		show_boot_error(BOOTSTAGE_ID_RAMDISK);
 		return NULL;
 	}
 
@@ -895,7 +895,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			printf("## Loading init Ramdisk from Legacy "
 					"Image at %08lx ...\n", rd_addr);
 
-			show_boot_progress(BOOTSTAGE_ID_LOAD_RAMDISK);
+			show_boot_progress(BOOTSTAGE_ID_CHECK_RAMDISK);
 			rd_hdr = image_get_ramdisk(rd_addr, arch,
 							images->verify);
 
@@ -1002,7 +1002,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		 * Now check if we have a legacy mult-component image,
 		 * get second entry data start address and len.
 		 */
-		show_boot_progress(13);
+		show_boot_progress(BOOTSTAGE_ID_RAMDISK);
 		printf("## Loading init Ramdisk from multi component "
 				"Legacy Image at %08lx ...\n",
 				(ulong)images->legacy_hdr_os);
@@ -1012,7 +1012,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		/*
 		 * no initrd image
 		 */
-		show_boot_progress(14);
+		show_boot_progress(BOOTSTAGE_ID_NO_RAMDISK);
 		rd_len = rd_data = 0;
 	}
 
@@ -1096,7 +1096,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 				puts("ramdisk - allocation error\n");
 				goto error;
 			}
-			show_boot_progress(12);
+			show_boot_progress(BOOTSTAGE_ID_COPY_RAMDISK);
 
 			*initrd_end = *initrd_start + rd_len;
 			printf("   Loading Ramdisk to %08lx, end %08lx ... ",
