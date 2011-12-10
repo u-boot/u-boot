@@ -788,7 +788,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	if (s != NULL &&
 	    (strcmp(s, ".jffs2") && strcmp(s, ".e") && strcmp(s, ".i"))) {
 		printf("Unknown nand load suffix '%s'\n", s);
-		show_boot_progress(-53);
+		show_boot_error(53);
 		return 1;
 	}
 
@@ -798,7 +798,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	r = nand_read_skip_bad(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
-		show_boot_progress (-56);
+		show_boot_error(56);
 		return 1;
 	}
 	show_boot_progress (56);
@@ -821,7 +821,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 		break;
 #endif
 	default:
-		show_boot_progress (-57);
+		show_boot_error(57);
 		puts ("** Unknown image type\n");
 		return 1;
 	}
@@ -830,7 +830,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	r = nand_read_skip_bad(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
-		show_boot_progress (-58);
+		show_boot_error(58);
 		return 1;
 	}
 	show_boot_progress (58);
@@ -839,7 +839,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	/* This cannot be done earlier, we need complete FIT image in RAM first */
 	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT) {
 		if (!fit_check_format (fit_hdr)) {
-			show_boot_progress (-150);
+			show_boot_error(150);
 			puts ("** Bad FIT image format\n");
 			return 1;
 		}
@@ -908,14 +908,14 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_CMD_MTDPARTS)
 usage:
 #endif
-		show_boot_progress(-53);
+		show_boot_error(53);
 		return CMD_RET_USAGE;
 	}
 
 	show_boot_progress(53);
 	if (!boot_device) {
 		puts("\n** No boot device **\n");
-		show_boot_progress(-54);
+		show_boot_error(54);
 		return 1;
 	}
 	show_boot_progress(54);
@@ -924,7 +924,7 @@ usage:
 
 	if (idx < 0 || idx >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[idx].name) {
 		printf("\n** Device %d not available\n", idx);
-		show_boot_progress(-55);
+		show_boot_error(55);
 		return 1;
 	}
 	show_boot_progress(55);

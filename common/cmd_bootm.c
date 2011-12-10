@@ -222,21 +222,21 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		if (fit_image_get_type(images.fit_hdr_os,
 					images.fit_noffset_os, &images.os.type)) {
 			puts("Can't get image type!\n");
-			show_boot_progress(-109);
+			show_boot_error(109);
 			return 1;
 		}
 
 		if (fit_image_get_comp(images.fit_hdr_os,
 					images.fit_noffset_os, &images.os.comp)) {
 			puts("Can't get image compression!\n");
-			show_boot_progress(-110);
+			show_boot_error(110);
 			return 1;
 		}
 
 		if (fit_image_get_os(images.fit_hdr_os,
 					images.fit_noffset_os, &images.os.os)) {
 			puts("Can't get image OS!\n");
-			show_boot_progress(-111);
+			show_boot_error(111);
 			return 1;
 		}
 
@@ -245,7 +245,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		if (fit_image_get_load(images.fit_hdr_os, images.fit_noffset_os,
 					&images.os.load)) {
 			puts("Can't get image load address!\n");
-			show_boot_progress(-112);
+			show_boot_error(112);
 			return 1;
 		}
 		break;
@@ -348,7 +348,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 			puts("GUNZIP: uncompress, out-of-mem or overwrite "
 				"error - must RESET board to recover\n");
 			if (boot_progress)
-				show_boot_progress(-6);
+				show_boot_error(6);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -370,7 +370,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 			printf("BUNZIP2: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", i);
 			if (boot_progress)
-				show_boot_progress(-6);
+				show_boot_error(6);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -389,7 +389,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		if (ret != SZ_OK) {
 			printf("LZMA: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", ret);
-			show_boot_progress(-6);
+			show_boot_error(6);
 			return BOOTM_ERR_RESET;
 		}
 		*load_end = load + unc_len;
@@ -407,7 +407,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 			printf("LZO: uncompress or overwrite error %d "
 			      "- must RESET board to recover\n", ret);
 			if (boot_progress)
-				show_boot_progress(-6);
+				show_boot_error(6);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -649,14 +649,14 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			} else {
 				puts("ERROR: new format image overwritten - "
 					"must RESET the board to recover\n");
-				show_boot_progress(-113);
+				show_boot_error(113);
 				do_reset(cmdtp, flag, argc, argv);
 			}
 		}
 		if (ret == BOOTM_ERR_UNIMPLEMENTED) {
 			if (iflag)
 				enable_interrupts();
-			show_boot_progress(-7);
+			show_boot_error(7);
 			return 1;
 		}
 	}
@@ -685,7 +685,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			enable_interrupts();
 		printf("ERROR: booting os '%s' (%d) is not supported\n",
 			genimg_get_os_name(images.os.os), images.os.os);
-		show_boot_progress(-8);
+		show_boot_error(8);
 		return 1;
 	}
 
@@ -693,7 +693,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	boot_fn(0, argc, argv, &images);
 
-	show_boot_progress(-9);
+	show_boot_error(9);
 #ifdef DEBUG
 	puts("\n## Control returned to monitor - resetting...\n");
 #endif
@@ -735,14 +735,14 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify)
 
 	if (!image_check_magic(hdr)) {
 		puts("Bad Magic Number\n");
-		show_boot_progress(-1);
+		show_boot_error(1);
 		return NULL;
 	}
 	show_boot_progress(2);
 
 	if (!image_check_hcrc(hdr)) {
 		puts("Bad Header Checksum\n");
-		show_boot_progress(-2);
+		show_boot_error(2);
 		return NULL;
 	}
 
@@ -753,7 +753,7 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify)
 		puts("   Verifying Checksum ... ");
 		if (!image_check_dcrc(hdr)) {
 			printf("Bad Data CRC\n");
-			show_boot_progress(-3);
+			show_boot_error(3);
 			return NULL;
 		}
 		puts("OK\n");
@@ -762,7 +762,7 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify)
 
 	if (!image_check_target_arch(hdr)) {
 		printf("Unsupported Architecture 0x%x\n", image_get_arch(hdr));
-		show_boot_progress(-4);
+		show_boot_error(4);
 		return NULL;
 	}
 	return hdr;
@@ -790,7 +790,7 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
 		puts("   Verifying Hash Integrity ... ");
 		if (!fit_image_check_hashes(fit, os_noffset)) {
 			puts("Bad Data Hash\n");
-			show_boot_progress(-104);
+			show_boot_error(104);
 			return 0;
 		}
 		puts("OK\n");
@@ -799,7 +799,7 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
 
 	if (!fit_image_check_target_arch(fit, os_noffset)) {
 		puts("Unsupported Architecture\n");
-		show_boot_progress(-105);
+		show_boot_error(105);
 		return 0;
 	}
 
@@ -807,7 +807,7 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
 	if (!fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL) &&
 	    !fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL_NOLOAD)) {
 		puts("Not a kernel image\n");
-		show_boot_progress(-106);
+		show_boot_error(106);
 		return 0;
 	}
 
@@ -897,7 +897,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		default:
 			printf("Wrong Image Type for %s command\n",
 				cmdtp->name);
-			show_boot_progress(-5);
+			show_boot_error(5);
 			return NULL;
 		}
 
@@ -922,7 +922,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		if (!fit_check_format(fit_hdr)) {
 			puts("Bad FIT kernel image format!\n");
-			show_boot_progress(-100);
+			show_boot_error(100);
 			return NULL;
 		}
 		show_boot_progress(100);
@@ -938,7 +938,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 			cfg_noffset = fit_conf_get_node(fit_hdr,
 							fit_uname_config);
 			if (cfg_noffset < 0) {
-				show_boot_progress(-101);
+				show_boot_error(101);
 				return NULL;
 			}
 			/* save configuration uname provided in the first
@@ -962,7 +962,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 							fit_uname_kernel);
 		}
 		if (os_noffset < 0) {
-			show_boot_progress(-103);
+			show_boot_error(103);
 			return NULL;
 		}
 
@@ -975,7 +975,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		/* get kernel image data address and length */
 		if (fit_image_get_data(fit_hdr, os_noffset, &data, &len)) {
 			puts("Could not find kernel subimage data!\n");
-			show_boot_progress(-107);
+			show_boot_error(107);
 			return NULL;
 		}
 		show_boot_progress(108);
@@ -989,7 +989,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	default:
 		printf("Wrong Image Format for %s command\n", cmdtp->name);
-		show_boot_progress(-108);
+		show_boot_error(108);
 		return NULL;
 	}
 

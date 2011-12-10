@@ -54,5 +54,9 @@ enum bootstage_id {
  *		has occurred.
  */
 void show_boot_progress(int val);
+static inline void show_boot_error(int val)
+{
+	show_boot_progress(-val);
+}
 
 #endif

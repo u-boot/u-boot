@@ -280,7 +280,7 @@ int eth_initialize(bd_t *bis)
 
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
-		show_boot_progress (-64);
+		show_boot_error(64);
 	} else {
 		struct eth_device *dev = eth_devices;
 		char *ethprime = getenv ("ethprime");

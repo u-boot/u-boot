@@ -373,13 +373,13 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 
 	if (!image_check_magic(rd_hdr)) {
 		puts("Bad Magic Number\n");
-		show_boot_progress(-10);
+		show_boot_error(10);
 		return NULL;
 	}
 
 	if (!image_check_hcrc(rd_hdr)) {
 		puts("Bad Header Checksum\n");
-		show_boot_progress(-11);
+		show_boot_error(11);
 		return NULL;
 	}
 
@@ -390,7 +390,7 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 		puts("   Verifying Checksum ... ");
 		if (!image_check_dcrc(rd_hdr)) {
 			puts("Bad Data CRC\n");
-			show_boot_progress(-12);
+			show_boot_error(12);
 			return NULL;
 		}
 		puts("OK\n");
@@ -403,7 +403,7 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 	    !image_check_type(rd_hdr, IH_TYPE_RAMDISK)) {
 		printf("No Linux %s Ramdisk Image\n",
 				genimg_get_arch_name(arch));
-		show_boot_progress(-13);
+		show_boot_error(13);
 		return NULL;
 	}
 
@@ -915,7 +915,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			show_boot_progress(120);
 			if (!fit_check_format(fit_hdr)) {
 				puts("Bad FIT ramdisk image format!\n");
-				show_boot_progress(-120);
+				show_boot_error(120);
 				return 1;
 			}
 			show_boot_progress(121);
@@ -932,7 +932,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 				if (cfg_noffset < 0) {
 					puts("Could not find configuration "
 						"node\n");
-					show_boot_progress(-122);
+					show_boot_error(122);
 					return 1;
 				}
 				fit_uname_config = fdt_get_name(fit_hdr,
@@ -952,7 +952,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			}
 			if (rd_noffset < 0) {
 				puts("Could not find subimage node\n");
-				show_boot_progress(-124);
+				show_boot_error(124);
 				return 1;
 			}
 
@@ -968,7 +968,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			if (fit_image_get_data(fit_hdr, rd_noffset, &data,
 						&size)) {
 				puts("Could not find ramdisk subimage data!\n");
-				show_boot_progress(-127);
+				show_boot_error(127);
 				return 1;
 			}
 			show_boot_progress(128);
@@ -979,7 +979,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			if (fit_image_get_load(fit_hdr, rd_noffset, &rd_load)) {
 				puts("Can't get ramdisk subimage load "
 					"address!\n");
-				show_boot_progress(-129);
+				show_boot_error(129);
 				return 1;
 			}
 			show_boot_progress(129);
@@ -3176,7 +3176,7 @@ static int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
 		puts("   Verifying Hash Integrity ... ");
 		if (!fit_image_check_hashes(fit, rd_noffset)) {
 			puts("Bad Data Hash\n");
-			show_boot_progress(-125);
+			show_boot_error(125);
 			return 0;
 		}
 		puts("OK\n");
@@ -3188,7 +3188,7 @@ static int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
 	    !fit_image_check_type(fit, rd_noffset, IH_TYPE_RAMDISK)) {
 		printf("No Linux %s Ramdisk Image\n",
 				genimg_get_arch_name(arch));
-		show_boot_progress(-126);
+		show_boot_error(126);
 		return 0;
 	}
 
