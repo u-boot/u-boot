@@ -69,7 +69,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 		printf("Using machid 0x%x from environment\n", machid);
 	}
 
-	show_boot_progress(15);
+	show_boot_progress(BOOTSTAGE_ID_RUN_OS);
 
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	       (ulong)theKernel);

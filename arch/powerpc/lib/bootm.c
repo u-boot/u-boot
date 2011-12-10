@@ -69,7 +69,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
 
-	show_boot_progress (15);
+	show_boot_progress(BOOTSTAGE_ID_RUN_OS);
 
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();

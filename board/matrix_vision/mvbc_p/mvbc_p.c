@@ -250,7 +250,7 @@ void show_boot_progress(int val)
 	case 12:
 		setbits_be32(&gpio->simple_dvo, LED_Y);
 		break;
-	case 15:
+	case BOOTSTAGE_ID_RUN_OS:
 		setbits_be32(&gpio->simple_dvo, LED_R);
 		break;
 	default:

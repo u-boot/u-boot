@@ -1334,7 +1334,7 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 		"(at address %08lx) ...\n",
 		(ulong)loader);
 
-	show_boot_progress(15);
+	show_boot_progress(BOOTSTAGE_ID_RUN_OS);
 
 	/*
 	 * NetBSD Stage-2 Loader Parameters:
@@ -1392,7 +1392,7 @@ static int do_bootm_rtems(int flag, int argc, char * const argv[],
 	printf("## Transferring control to RTEMS (at address %08lx) ...\n",
 		(ulong)entry_point);
 
-	show_boot_progress(15);
+	show_boot_progress(BOOTSTAGE_ID_RUN_OS);
 
 	/*
 	 * RTEMS Parameters:
@@ -1425,7 +1425,7 @@ static int do_bootm_ose(int flag, int argc, char * const argv[],
 	printf("## Transferring control to OSE (at address %08lx) ...\n",
 		(ulong)entry_point);
 
-	show_boot_progress(15);
+	show_boot_progress(BOOTSTAGE_ID_RUN_OS);
 
 	/*
 	 * OSE Parameters:
@@ -1506,7 +1506,7 @@ static int do_bootm_integrity(int flag, int argc, char * const argv[],
 	printf("## Transferring control to INTEGRITY (at address %08lx) ...\n",
 		(ulong)entry_point);
 
-	show_boot_progress(15);
+	show_boot_progress(BOOTSTAGE_ID_RUN_OS);
 
 	/*
 	 * INTEGRITY Parameters:

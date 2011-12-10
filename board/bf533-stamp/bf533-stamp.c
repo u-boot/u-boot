@@ -117,7 +117,7 @@ void show_boot_progress(int status)
 	case 12:
 	case 13:
 	case 14:
-	case 15:
+	case BOOTSTAGE_ID_RUN_OS:
 		stamp_led_set(STATUS_LED_OFF, STATUS_LED_OFF, STATUS_LED_OFF);
 		break;
 	default:

@@ -110,8 +110,7 @@ void show_boot_progress (int val)
 			status_led_set (1, STATUS_LED_ON);
 			status_led_set (2, STATUS_LED_ON);
 			break;
-		case 15:
-			/* booting */
+		case BOOTSTAGE_ID_RUN_OS:
 			status_led_set (0, STATUS_LED_ON);
 			status_led_set (1, STATUS_LED_ON);
 			status_led_set (2, STATUS_LED_ON);

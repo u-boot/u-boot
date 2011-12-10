@@ -485,7 +485,7 @@ int board_mmc_init(bd_t *bis)
 /* Call usb_stop() before starting the kernel */
 void show_boot_progress(int val)
 {
-	if(val == 15)
+	if (val == BOOTSTAGE_ID_RUN_OS)
 		usb_stop();
 }
 
