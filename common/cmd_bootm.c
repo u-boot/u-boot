@@ -222,21 +222,21 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		if (fit_image_get_type(images.fit_hdr_os,
 					images.fit_noffset_os, &images.os.type)) {
 			puts("Can't get image type!\n");
-			show_boot_error(109);
+			show_boot_error(BOOTSTAGE_ID_FIT_TYPE);
 			return 1;
 		}
 
 		if (fit_image_get_comp(images.fit_hdr_os,
 					images.fit_noffset_os, &images.os.comp)) {
 			puts("Can't get image compression!\n");
-			show_boot_error(110);
+			show_boot_error(BOOTSTAGE_ID_FIT_COMPRESSION);
 			return 1;
 		}
 
 		if (fit_image_get_os(images.fit_hdr_os,
 					images.fit_noffset_os, &images.os.os)) {
 			puts("Can't get image OS!\n");
-			show_boot_error(111);
+			show_boot_error(BOOTSTAGE_ID_FIT_OS);
 			return 1;
 		}
 
@@ -245,7 +245,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		if (fit_image_get_load(images.fit_hdr_os, images.fit_noffset_os,
 					&images.os.load)) {
 			puts("Can't get image load address!\n");
-			show_boot_error(112);
+			show_boot_error(BOOTSTAGE_ID_FIT_LOADADDR);
 			return 1;
 		}
 		break;
@@ -648,7 +648,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			} else {
 				puts("ERROR: new format image overwritten - "
 					"must RESET the board to recover\n");
-				show_boot_error(113);
+				show_boot_error(BOOTSTAGE_ID_OVERWRITTEN);
 				do_reset(cmdtp, flag, argc, argv);
 			}
 		}
@@ -789,28 +789,28 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
 		puts("   Verifying Hash Integrity ... ");
 		if (!fit_image_check_hashes(fit, os_noffset)) {
 			puts("Bad Data Hash\n");
-			show_boot_error(104);
+			show_boot_error(BOOTSTAGE_ID_FIT_CHECK_HASH);
 			return 0;
 		}
 		puts("OK\n");
 	}
-	show_boot_progress(105);
+	show_boot_progress(BOOTSTAGE_ID_FIT_CHECK_ARCH);
 
 	if (!fit_image_check_target_arch(fit, os_noffset)) {
 		puts("Unsupported Architecture\n");
-		show_boot_error(105);
+		show_boot_error(BOOTSTAGE_ID_FIT_CHECK_ARCH);
 		return 0;
 	}
 
-	show_boot_progress(106);
+	show_boot_progress(BOOTSTAGE_ID_FIT_CHECK_KERNEL);
 	if (!fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL) &&
 	    !fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL_NOLOAD)) {
 		puts("Not a kernel image\n");
-		show_boot_error(106);
+		show_boot_error(BOOTSTAGE_ID_FIT_CHECK_KERNEL);
 		return 0;
 	}
 
-	show_boot_progress(107);
+	show_boot_progress(BOOTSTAGE_ID_FIT_CHECKED);
 	return 1;
 }
 #endif /* CONFIG_FIT */
@@ -921,10 +921,10 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		if (!fit_check_format(fit_hdr)) {
 			puts("Bad FIT kernel image format!\n");
-			show_boot_error(100);
+			show_boot_error(BOOTSTAGE_ID_FIT_FORMAT);
 			return NULL;
 		}
-		show_boot_progress(100);
+		show_boot_progress(BOOTSTAGE_ID_FIT_FORMAT);
 
 		if (!fit_uname_kernel) {
 			/*
@@ -933,11 +933,11 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 			 * fit_conf_get_node() will try to find default config
 			 * node
 			 */
-			show_boot_progress(101);
+			show_boot_progress(BOOTSTAGE_ID_FIT_NO_UNIT_NAME);
 			cfg_noffset = fit_conf_get_node(fit_hdr,
 							fit_uname_config);
 			if (cfg_noffset < 0) {
-				show_boot_error(101);
+				show_boot_error(BOOTSTAGE_ID_FIT_NO_UNIT_NAME);
 				return NULL;
 			}
 			/* save configuration uname provided in the first
@@ -948,7 +948,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 								NULL);
 			printf("   Using '%s' configuration\n",
 				images->fit_uname_cfg);
-			show_boot_progress(103);
+			show_boot_progress(BOOTSTAGE_ID_FIT_CONFIG);
 
 			os_noffset = fit_conf_get_kernel_node(fit_hdr,
 								cfg_noffset);
@@ -956,28 +956,28 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 							NULL);
 		} else {
 			/* get kernel component image node offset */
-			show_boot_progress(102);
+			show_boot_progress(BOOTSTAGE_ID_FIT_UNIT_NAME);
 			os_noffset = fit_image_get_node(fit_hdr,
 							fit_uname_kernel);
 		}
 		if (os_noffset < 0) {
-			show_boot_error(103);
+			show_boot_error(BOOTSTAGE_ID_FIT_CONFIG);
 			return NULL;
 		}
 
 		printf("   Trying '%s' kernel subimage\n", fit_uname_kernel);
 
-		show_boot_progress(104);
+		show_boot_progress(BOOTSTAGE_ID_FIT_CHECK_SUBIMAGE);
 		if (!fit_check_kernel(fit_hdr, os_noffset, images->verify))
 			return NULL;
 
 		/* get kernel image data address and length */
 		if (fit_image_get_data(fit_hdr, os_noffset, &data, &len)) {
 			puts("Could not find kernel subimage data!\n");
-			show_boot_error(107);
+			show_boot_error(BOOTSTAGE_ID_FIT_KERNEL_INFO_ERR);
 			return NULL;
 		}
-		show_boot_progress(108);
+		show_boot_progress(BOOTSTAGE_ID_FIT_KERNEL_INFO);
 
 		*os_len = len;
 		*os_data = (ulong)data;
@@ -988,7 +988,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	default:
 		printf("Wrong Image Format for %s command\n", cmdtp->name);
-		show_boot_error(108);
+		show_boot_error(BOOTSTAGE_ID_FIT_KERNEL_INFO);
 		return NULL;
 	}
 
