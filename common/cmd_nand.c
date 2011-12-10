@@ -788,7 +788,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	if (s != NULL &&
 	    (strcmp(s, ".jffs2") && strcmp(s, ".e") && strcmp(s, ".i"))) {
 		printf("Unknown nand load suffix '%s'\n", s);
-		show_boot_error(53);
+		show_boot_error(BOOTSTAGE_ID_NAND_SUFFIX);
 		return 1;
 	}
 
@@ -798,16 +798,16 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	r = nand_read_skip_bad(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
-		show_boot_error(56);
+		show_boot_error(BOOTSTAGE_ID_NAND_HDR_READ);
 		return 1;
 	}
-	show_boot_progress (56);
+	show_boot_progress(BOOTSTAGE_ID_NAND_HDR_READ);
 
 	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
 
-		show_boot_progress (57);
+		show_boot_progress(BOOTSTAGE_ID_NAND_TYPE);
 		image_print_contents (hdr);
 
 		cnt = image_get_image_size (hdr);
@@ -821,29 +821,29 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 		break;
 #endif
 	default:
-		show_boot_error(57);
+		show_boot_error(BOOTSTAGE_ID_NAND_TYPE);
 		puts ("** Unknown image type\n");
 		return 1;
 	}
-	show_boot_progress (57);
+	show_boot_progress(BOOTSTAGE_ID_NAND_TYPE);
 
 	r = nand_read_skip_bad(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
-		show_boot_error(58);
+		show_boot_error(BOOTSTAGE_ID_NAND_READ);
 		return 1;
 	}
-	show_boot_progress (58);
+	show_boot_progress(BOOTSTAGE_ID_NAND_READ);
 
 #if defined(CONFIG_FIT)
 	/* This cannot be done earlier, we need complete FIT image in RAM first */
 	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT) {
 		if (!fit_check_format (fit_hdr)) {
-			show_boot_error(150);
+			show_boot_error(BOOTSTAGE_ID_NAND_FIT_READ);
 			puts ("** Bad FIT image format\n");
 			return 1;
 		}
-		show_boot_progress (151);
+		show_boot_progress(BOOTSTAGE_ID_NAND_FIT_READ_OK);
 		fit_print_contents (fit_hdr);
 	}
 #endif
@@ -885,7 +885,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
-	show_boot_progress(52);
+	show_boot_progress(BOOTSTAGE_ID_NAND_PART);
 	switch (argc) {
 	case 1:
 		addr = CONFIG_SYS_LOAD_ADDR;
@@ -908,26 +908,26 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_CMD_MTDPARTS)
 usage:
 #endif
-		show_boot_error(53);
+		show_boot_error(BOOTSTAGE_ID_NAND_SUFFIX);
 		return CMD_RET_USAGE;
 	}
+	show_boot_progress(BOOTSTAGE_ID_NAND_SUFFIX);
 
-	show_boot_progress(53);
 	if (!boot_device) {
 		puts("\n** No boot device **\n");
-		show_boot_error(54);
+		show_boot_error(BOOTSTAGE_ID_NAND_BOOT_DEVICE);
 		return 1;
 	}
-	show_boot_progress(54);
+	show_boot_progress(BOOTSTAGE_ID_NAND_BOOT_DEVICE);
 
 	idx = simple_strtoul(boot_device, NULL, 16);
 
 	if (idx < 0 || idx >= CONFIG_SYS_MAX_NAND_DEVICE || !nand_info[idx].name) {
 		printf("\n** Device %d not available\n", idx);
-		show_boot_error(55);
+		show_boot_error(BOOTSTAGE_ID_NAND_AVAILABLE);
 		return 1;
 	}
-	show_boot_progress(55);
+	show_boot_progress(BOOTSTAGE_ID_NAND_AVAILABLE);
 
 	return nand_load_image(cmdtp, &nand_info[idx], offset, addr, argv[0]);
 }
