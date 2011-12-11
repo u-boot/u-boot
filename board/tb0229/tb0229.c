@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/addrspace.h>
 #include <asm/io.h>
 #include <asm/reboot.h>

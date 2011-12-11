@@ -184,7 +184,7 @@ static int vr4131_pci_write_config_dword (u32 hose, u32 dev, u32 reg, u32 val)
  *	Initialize VR4131 PCIU
  */
 
-vr4131_pciu_init ()
+static void vr4131_pciu_init(void)
 {
 	/* PCI clock */
 	*VR4131_PCICLKSELREG = 0x00000002;
