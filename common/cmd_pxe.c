@@ -918,7 +918,7 @@ static int parse_menu(char **c, struct pxe_menu *cfg, char *b, int nest_level)
 {
 	struct token t;
 	char *s = *c;
-	int err;
+	int err = 0;
 
 	get_token(c, &t, L_KEYWORD);
 
