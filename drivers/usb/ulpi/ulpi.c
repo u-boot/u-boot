@@ -92,8 +92,8 @@ int ulpi_select_transceiver(u32 ulpi_viewport, unsigned speed)
 		tspeed = speed;
 		break;
 	default:
-		printf("ULPI: %s: wrong transceiver speed specified, "
-			"falling back to full speed\n", __func__);
+		printf("ULPI: %s: wrong transceiver speed specified: %u, "
+			"falling back to full speed\n", __func__, speed);
 	}
 
 	val = ulpi_read(ulpi_viewport, &ulpi->function_ctrl);
@@ -140,8 +140,8 @@ int ulpi_opmode_sel(u32 ulpi_viewport, unsigned opmode)
 		topmode = opmode;
 		break;
 	default:
-		printf("ULPI: %s: wrong OpMode specified, "
-			"falling back to OpMode Normal\n", __func__);
+		printf("ULPI: %s: wrong OpMode specified: %u, "
+			"falling back to OpMode Normal\n", __func__, opmode);
 	}
 
 	val = ulpi_read(ulpi_viewport, &ulpi->function_ctrl);
@@ -161,8 +161,8 @@ int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode)
 	case ULPI_IFACE_3_PIN_SERIAL_MODE:
 		break;
 	default:
-		printf("ULPI: %s: unrecognized Serial Mode specified\n",
-			__func__);
+		printf("ULPI: %s: unrecognized Serial Mode specified: %u\n",
+			__func__, smode);
 		return ULPI_ERROR;
 	}
 
