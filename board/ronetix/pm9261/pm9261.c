@@ -237,21 +237,28 @@ void lcd_show_board_info(void)
 
 #endif /* CONFIG_LCD */
 
-int board_init(void)
+int board_early_init_f(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
-	/* Enable Ctrlc */
-	console_init_f();
-
+	/* Enable clocks for some PIOs */
 	writel(1 << ATMEL_ID_PIOA |
 		1 << ATMEL_ID_PIOC,
 		&pmc->pcer);
 
+	at91_seriald_hw_init();
+
+	return 0;
+}
+
+int board_init(void)
+{
+	/* arch number of PM9261-Board */
+	gd->bd->bi_arch_number = MACH_TYPE_PM9261;
+
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	pm9261_nand_hw_init();
 #endif

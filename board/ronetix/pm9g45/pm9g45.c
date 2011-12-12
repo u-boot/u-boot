@@ -127,22 +127,28 @@ static void pm9g45_macb_hw_init(void)
 }
 #endif
 
-int board_init(void)
+int board_early_init_f(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
-	/* Enable Ctrlc */
-	console_init_f();
-
+	/* Enable clocks for all PIOs */
 	writel((1 << ATMEL_ID_PIOA) |
 		(1 << ATMEL_ID_PIOB) |
 		(1 << ATMEL_ID_PIOC) |
 		(1 << ATMEL_ID_PIODE), &pmc->pcer);
 
+	at91_seriald_hw_init();
+
+	return 0;
+}
+
+int board_init(void)
+{
+	/* arch number of AT91SAM9M10G45EK-Board */
+	gd->bd->bi_arch_number = MACH_TYPE_PM9G45;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	pm9g45_nand_hw_init();
 #endif

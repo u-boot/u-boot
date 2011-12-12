@@ -57,6 +57,7 @@
 #define CONFIG_INITRD_TAG	1
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /*
  * Hardware drivers
