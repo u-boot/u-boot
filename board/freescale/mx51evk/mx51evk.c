@@ -203,7 +203,7 @@ static void setup_usb_h1(void)
 	mxc_iomux_set_pad(MX51_PIN_EIM_D21, GPIO_PAD);
 }
 
-void board_ehci_hcd_init(int port)
+int board_ehci_hcd_init(int port)
 {
 	/* Set USBH1_STP to GPIO and toggle it */
 	mxc_request_iomux(MX51_PIN_USBH1_STP, IOMUX_CONFIG_GPIO);
@@ -228,6 +228,7 @@ void board_ehci_hcd_init(int port)
 	gpio_direction_output(MX51EVK_USBH1_HUB_RST, 0);
 	mdelay(2);
 	gpio_set_value(MX51EVK_USBH1_HUB_RST, 1);
+	return 0;
 }
 #endif
 
