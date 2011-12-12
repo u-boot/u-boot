@@ -39,8 +39,8 @@ static struct ulpi_regs *ulpi = (struct ulpi_regs *)0;
 
 static int ulpi_integrity_check(u32 ulpi_viewport)
 {
-	u32 err, val, tval = ULPI_TEST_VALUE;
-	int i;
+	u32 val, tval = ULPI_TEST_VALUE;
+	int err, i;
 
 	/* Use the 'special' test value to check all bits */
 	for (i = 0; i < 2; i++, tval <<= 1) {
@@ -171,7 +171,7 @@ int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode)
 
 int ulpi_suspend(u32 ulpi_viewport)
 {
-	u32 err;
+	int err;
 
 	err = ulpi_write(ulpi_viewport, &ulpi->function_ctrl_clear,
 			ULPI_FC_SUSPENDM);
@@ -214,7 +214,7 @@ int ulpi_reset_wait(u32) __attribute__((weak, alias("__ulpi_reset_wait")));
 
 int ulpi_reset(u32 ulpi_viewport)
 {
-	u32 err;
+	int err;
 
 	err = ulpi_write(ulpi_viewport,
 			&ulpi->function_ctrl_set, ULPI_FC_RESET);

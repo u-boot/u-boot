@@ -98,7 +98,7 @@ static int ulpi_request(u32 ulpi_viewport, u32 value)
 	return err;
 }
 
-u32 ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value)
+int ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value)
 {
 	u32 val = ULPI_RWRUN | ULPI_RWCTRL | ((u32)reg << 16) | (value & 0xff);
 
@@ -107,7 +107,7 @@ u32 ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value)
 
 u32 ulpi_read(u32 ulpi_viewport, u8 *reg)
 {
-	u32 err;
+	int err;
 	u32 val = ULPI_RWRUN | ((u32)reg << 16);
 
 	err = ulpi_request(ulpi_viewport, val);

@@ -108,7 +108,7 @@ int ulpi_reset(u32 ulpi_viewport);
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-u32 ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value);
+int ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value);
 
 /*
  * Read the ULPI PHY register content via the viewport.
