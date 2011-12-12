@@ -50,6 +50,78 @@ struct mxc_pll_reg *mxc_plls[PLL_CLOCKS] = {
 
 struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
 
+void set_usboh3_clk(void)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->cscmr1) &
+		 ~MXC_CCM_CSCMR1_USBOH3_CLK_SEL_MASK;
+	reg |= 1 << MXC_CCM_CSCMR1_USBOH3_CLK_SEL_OFFSET;
+	writel(reg, &mxc_ccm->cscmr1);
+
+	reg = readl(&mxc_ccm->cscdr1);
+	reg &= ~MXC_CCM_CSCDR1_USBOH3_CLK_PODF_MASK;
+	reg &= ~MXC_CCM_CSCDR1_USBOH3_CLK_PRED_MASK;
+	reg |= 4 << MXC_CCM_CSCDR1_USBOH3_CLK_PRED_OFFSET;
+	reg |= 1 << MXC_CCM_CSCDR1_USBOH3_CLK_PODF_OFFSET;
+
+	writel(reg, &mxc_ccm->cscdr1);
+}
+
+void enable_usboh3_clk(unsigned char enable)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->CCGR2);
+	if (enable)
+		reg |= 1 << MXC_CCM_CCGR2_CG14_OFFSET;
+	else
+		reg &= ~(1 << MXC_CCM_CCGR2_CG14_OFFSET);
+	writel(reg, &mxc_ccm->CCGR2);
+}
+
+void set_usb_phy1_clk(void)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->cscmr1);
+	reg &= ~MXC_CCM_CSCMR1_USB_PHY_CLK_SEL;
+	writel(reg, &mxc_ccm->cscmr1);
+}
+
+void enable_usb_phy1_clk(unsigned char enable)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->CCGR4);
+	if (enable)
+		reg |= 1 << MXC_CCM_CCGR4_CG5_OFFSET;
+	else
+		reg &= ~(1 << MXC_CCM_CCGR4_CG5_OFFSET);
+	writel(reg, &mxc_ccm->CCGR4);
+}
+
+void set_usb_phy2_clk(void)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->cscmr1);
+	reg &= ~MXC_CCM_CSCMR1_USB_PHY_CLK_SEL;
+	writel(reg, &mxc_ccm->cscmr1);
+}
+
+void enable_usb_phy2_clk(unsigned char enable)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->CCGR4);
+	if (enable)
+		reg |= 1 << MXC_CCM_CCGR4_CG6_OFFSET;
+	else
+		reg &= ~(1 << MXC_CCM_CCGR4_CG6_OFFSET);
+	writel(reg, &mxc_ccm->CCGR4);
+}
+
 /*
  * Calculate the frequency of PLLn.
  */

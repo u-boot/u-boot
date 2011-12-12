@@ -72,6 +72,19 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
 
+/* USB Configs */
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_FAT
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_MX5
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_SMSC95XX
+#define CONFIG_MXC_USB_PORT	1
+#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CONFIG_MXC_USB_FLAGS	0
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1

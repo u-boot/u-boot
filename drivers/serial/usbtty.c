@@ -554,10 +554,10 @@ int drv_usbtty_init (void)
 	usbtty_init_strings ();
 	usbtty_init_instances ();
 
+	usbtty_init_endpoints ();
+
 	udc_startup_events (device_instance);/* Enable dev, init udc pointers */
 	udc_connect ();		/* Enable pullup for host detection */
-
-	usbtty_init_endpoints ();
 
 	/* Device initialization */
 	memset (&usbttydev, 0, sizeof (usbttydev));

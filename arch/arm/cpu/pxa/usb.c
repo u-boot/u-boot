@@ -55,7 +55,7 @@ int usb_cpu_init(void)
 	while (readl(UHCHR) & UHCHR_FSBIR)
 		udelay(1);
 
-#if defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
 	writel(readl(UHCHR) & ~UHCHR_SSEP0, UHCHR);
 #endif
 #if defined(CONFIG_CPU_PXA27X)
@@ -72,10 +72,10 @@ int usb_cpu_stop(void)
 	udelay(11);
 	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
-	writel(readl(UHCCOMS) | UHCHR_FHR, UHCCOMS);
+	writel(readl(UHCCOMS) | UHCCOMS_HCR, UHCCOMS);
 	udelay(10);
 
-#if defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
 	writel(readl(UHCHR) | UHCHR_SSEP0, UHCHR);
 #endif
 #if defined(CONFIG_CPU_PXA27X)

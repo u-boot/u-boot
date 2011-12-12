@@ -26,6 +26,10 @@
 #include <asm/io.h>
 #include <malloc.h>
 #include <watchdog.h>
+#ifdef CONFIG_USB_KEYBOARD
+#include <stdio_dev.h>
+extern unsigned char new[];
+#endif
 
 #include "ehci.h"
 
@@ -48,7 +52,7 @@ static struct descriptor {
 		0x29,		/* bDescriptorType: hub descriptor */
 		2,		/* bNrPorts -- runtime modified */
 		0,		/* wHubCharacteristics */
-		0xff,		/* bPwrOn2PwrGood */
+		10,		/* bPwrOn2PwrGood */
 		0,		/* bHubCntrCurrent */
 		{},		/* Device removable */
 		{}		/* at most 7 ports! XXX */
@@ -200,6 +204,14 @@ static inline void ehci_invalidate_dcache(struct QH *qh)
 {
 }
 #endif /* CONFIG_EHCI_DCACHE */
+
+void __ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+{
+	mdelay(50);
+}
+
+void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+	__attribute__((weak, alias("__ehci_powerup_fixup")));
 
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 {
@@ -709,8 +721,8 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				 * usb 2.0 specification say 50 ms resets on
 				 * root
 				 */
-				wait_ms(50);
-				/* terminate the reset */
+				ehci_powerup_fixup(status_reg, &reg);
+
 				ehci_writel(status_reg, reg & ~EHCI_PS_PR);
 				/*
 				 * A host controller must terminate the reset
@@ -895,5 +907,32 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	debug("dev=%p, pipe=%lu, buffer=%p, length=%d, interval=%d",
 	      dev, pipe, buffer, length, interval);
-	return -1;
+	return ehci_submit_async(dev, pipe, buffer, length, NULL);
 }
+
+#ifdef CONFIG_SYS_USB_EVENT_POLL
+/*
+ * This function polls for USB keyboard data.
+ */
+void usb_event_poll()
+{
+	struct stdio_dev *dev;
+	struct usb_device *usb_kbd_dev;
+	struct usb_interface *iface;
+	struct usb_endpoint_descriptor *ep;
+	int pipe;
+	int maxp;
+
+	/* Get the pointer to USB Keyboard device pointer */
+	dev = stdio_get_by_name("usbkbd");
+	usb_kbd_dev = (struct usb_device *)dev->priv;
+	iface = &usb_kbd_dev->config.if_desc[0];
+	ep = &iface->ep_desc[0];
+	pipe = usb_rcvintpipe(usb_kbd_dev, ep->bEndpointAddress);
+
+	/* Submit a interrupt transfer request */
+	maxp = usb_maxpacket(usb_kbd_dev, pipe);
+	usb_submit_int_msg(usb_kbd_dev, pipe, &new[0],
+			maxp > 8 ? 8 : maxp, ep->bInterval);
+}
+#endif /* CONFIG_SYS_USB_EVENT_POLL */

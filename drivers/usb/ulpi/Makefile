@@ -1,7 +1,5 @@
 #
-# (C) Copyright 2000-2007
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
+# Copyright (C) 2011 Jana Rapava <fermata7@gmail.com>
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -12,40 +10,20 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# Foundation, Inc.
 #
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libusb_gadget.o
+LIB	:= $(obj)libusb_ulpi.o
 
-# new USB gadget layer dependencies
-ifdef CONFIG_USB_GADGET
-COBJS-y += epautoconf.o config.o usbstring.o
-COBJS-$(CONFIG_USB_GADGET_S3C_UDC_OTG) += s3c_udc_otg.o
-endif
-ifdef CONFIG_USB_ETHER
-COBJS-y += ether.o epautoconf.o config.o usbstring.o
-COBJS-$(CONFIG_USB_ETH_RNDIS) += rndis.o
-COBJS-$(CONFIG_MV_UDC)	+= mv_udc.o
-else
-# Devices not related to the new gadget layer depend on CONFIG_USB_DEVICE
-ifdef CONFIG_USB_DEVICE
-COBJS-y += core.o
-COBJS-y += ep0.o
-COBJS-$(CONFIG_OMAP1510) += omap1510_udc.o
-COBJS-$(CONFIG_OMAP1610) += omap1510_udc.o
-COBJS-$(CONFIG_MPC885_FAMILY) += mpc8xx_udc.o
-COBJS-$(CONFIG_CPU_PXA27X) += pxa27x_udc.o
-COBJS-$(CONFIG_SPEARUDC) += spr_udc.o
-endif
-endif
+COBJS-$(CONFIG_USB_ULPI)		+= ulpi.o
+COBJS-$(CONFIG_USB_ULPI_VIEWPORT)	+= ulpi-viewport.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

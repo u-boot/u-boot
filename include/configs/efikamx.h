@@ -44,6 +44,10 @@
 
 #define CONFIG_SYS_TEXT_BASE		0x97800000
 
+#define	CONFIG_L2_OFF
+#define	CONFIG_SYS_ICACHE_OFF
+#define	CONFIG_SYS_DCACHE_OFF
+
 /*
  * Bootloader Components Configuration
  */
@@ -53,6 +57,8 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DATE
 #undef CONFIG_CMD_IMLS
 
 /*
@@ -175,17 +181,46 @@
 #endif
 
 /*
+ * USB
+ */
+#define	CONFIG_CMD_USB
+#ifdef	CONFIG_CMD_USB
+#define	CONFIG_USB_EHCI			/* Enable EHCI USB support */
+#define	CONFIG_USB_EHCI_MX5
+#define	CONFIG_USB_ULPI
+#define	CONFIG_USB_ULPI_VIEWPORT
+#define	CONFIG_MXC_USB_PORT	1
+#if	(CONFIG_MXC_USB_PORT == 0)
+#define	CONFIG_MXC_USB_PORTSC	(1 << 28)
+#define	CONFIG_MXC_USB_FLAGS	MXC_EHCI_INTERNAL_PHY
+#else
+#define	CONFIG_MXC_USB_PORTSC	(2 << 30)
+#define	CONFIG_MXC_USB_FLAGS	0
+#endif
+#define	CONFIG_EHCI_IS_TDI
+#define	CONFIG_USB_STORAGE
+#define	CONFIG_USB_HOST_ETHER
+#define	CONFIG_USB_KEYBOARD
+#define	CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
+#define CONFIG_PREBOOT
+/* USB NET */
+#ifdef	CONFIG_CMD_NET
+#define	CONFIG_USB_ETHER_ASIX
+#define	CONFIG_NET_MULTI
+#define	CONFIG_CMD_PING
+#define	CONFIG_CMD_DHCP
+#endif
+#endif /* CONFIG_CMD_USB */
+
+/*
  * Filesystems
  */
 #ifdef CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
+#ifdef	CONFIG_CMD_NET
+#define	CONFIG_CMD_NFS
 #endif
-
-#undef CONFIG_CMD_PING
-#undef CONFIG_CMD_DHCP
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#define CONFIG_CMD_DATE
+#endif
 
 /*
  * Miscellaneous configurable options

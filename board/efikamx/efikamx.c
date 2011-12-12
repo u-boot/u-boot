@@ -540,6 +540,15 @@ static inline void setup_iomux_ata(void) { }
 #endif
 
 /*
+ * EHCI USB
+ */
+#ifdef	CONFIG_CMD_USB
+extern void setup_iomux_usb(void);
+#else
+static inline void setup_iomux_usb(void) { }
+#endif
+
+/*
  * LED configuration
  */
 void setup_iomux_led(void)
@@ -688,6 +697,12 @@ int board_late_init(void)
 
 	setup_iomux_led();
 	setup_iomux_ata();
+	setup_iomux_usb();
+
+	if (machine_is_efikasb())
+		setenv("preboot", "usb reset ; setenv stdin usbkbd\0");
+
+	setup_iomux_led();
 
 	efikamx_toggle_led(EFIKAMX_LED_BLUE);
 
