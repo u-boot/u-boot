@@ -382,12 +382,12 @@ void init_8259A(void)
 int handle_isa_int(void)
 {
 	unsigned long irqack;
-	unsigned char isr1,isr2,irq;
+	unsigned char irq;
 	/* first we acknokledge the int via the PCI bus */
 	irqack=in32(PCI_INT_ACK_ADDR);
 	/* now we get the ISRs */
-	isr2=in8(ISR_2);
-	isr1=in8(ISR_1);
+	in8(ISR_2);
+	in8(ISR_1);
 	irq=(unsigned char)irqack;
 	irq-=32;
 /*	if((irq==7)&&((isr1&0x80)==0)) {
