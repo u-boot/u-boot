@@ -340,18 +340,21 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 
 	/* READID must read all 5 possible bytes while CEB is active */
 	case NAND_CMD_READID:
-		vdbg("fsl_elbc_cmdfunc: NAND_CMD_READID.\n");
+	case NAND_CMD_PARAM:
+		vdbg("fsl_elbc_cmdfunc: NAND_CMD 0x%x.\n", command);
 
 		out_be32(&lbc->fir, (FIR_OP_CW0 << FIR_OP0_SHIFT) |
 				    (FIR_OP_UA  << FIR_OP1_SHIFT) |
 				    (FIR_OP_RBW << FIR_OP2_SHIFT));
-		out_be32(&lbc->fcr, NAND_CMD_READID << FCR_CMD0_SHIFT);
-		/* 5 bytes for manuf, device and exts */
-		out_be32(&lbc->fbcr, 5);
-		ctrl->read_bytes = 5;
+		out_be32(&lbc->fcr, command << FCR_CMD0_SHIFT);
+		/*
+		 * although currently it's 8 bytes for READID, we always read
+		 * the maximum 256 bytes(for PARAM)
+		 */
+		out_be32(&lbc->fbcr, 256);
+		ctrl->read_bytes = 256;
 		ctrl->use_mdr = 1;
-		ctrl->mdr = 0;
-
+		ctrl->mdr = column;
 		set_addr(mtd, 0, 0, 0);
 		fsl_elbc_run_command(mtd);
 		return;
