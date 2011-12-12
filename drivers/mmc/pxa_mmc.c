@@ -560,11 +560,6 @@ mmc_legacy_init(int verbose)
 	/* Reset device interface type */
 	mmc_dev.if_type = IF_TYPE_UNKNOWN;
 
-#if defined(CONFIG_LUBBOCK) || \
-	(defined(CONFIG_GUMSTIX) && !defined(CONFIG_CPU_PXA27X))
-	set_GPIO_mode(GPIO6_MMCCLK_MD);
-	set_GPIO_mode(GPIO8_MMCCS0_MD);
-#endif
 #ifdef CONFIG_CPU_MONAHANS	/* pxa3xx */
 	writel(readl(CKENA) | CKENA_12_MMC0 | CKENA_13_MMC1, CKENA);
 #else	/* pxa2xx */
