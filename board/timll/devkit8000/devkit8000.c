@@ -48,6 +48,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static u32 gpmc_net_config[GPMC_MAX_REG] = {
+	NET_GPMC_CONFIG1,
+	NET_GPMC_CONFIG2,
+	NET_GPMC_CONFIG3,
+	NET_GPMC_CONFIG4,
+	NET_GPMC_CONFIG5,
+	NET_GPMC_CONFIG6,
+	0
+};
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -82,13 +92,8 @@ int misc_init_r(void)
 
 #ifdef CONFIG_DRIVER_DM9000
 	/* Configure GPMC registers for DM9000 */
-	writel(NET_GPMC_CONFIG1, &gpmc_cfg->cs[6].config1);
-	writel(NET_GPMC_CONFIG2, &gpmc_cfg->cs[6].config2);
-	writel(NET_GPMC_CONFIG3, &gpmc_cfg->cs[6].config3);
-	writel(NET_GPMC_CONFIG4, &gpmc_cfg->cs[6].config4);
-	writel(NET_GPMC_CONFIG5, &gpmc_cfg->cs[6].config5);
-	writel(NET_GPMC_CONFIG6, &gpmc_cfg->cs[6].config6);
-	writel(NET_GPMC_CONFIG7, &gpmc_cfg->cs[6].config7);
+	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[6],
+			CONFIG_DM9000_BASE, GPMC_SIZE_16M);
 
 	/* Use OMAP DIE_ID as MAC address */
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
