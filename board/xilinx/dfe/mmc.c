@@ -73,7 +73,7 @@ static void init_port(void)
 	sd_out8(SD_PWR_CTRL_R, SD_POWER_33|SD_POWER_ON);
 
 	/* Enable Internal clock and wait for it to stablilize */
-	clk = (0x40 << SD_DIV_SHIFT) | SD_CLK_INT_EN;
+	clk = SD_CLK_INT_EN;
 	sd_out16(SD_CLK_CTL_R, clk);
 	do {
 		clk = sd_in16(SD_CLK_CTL_R);
