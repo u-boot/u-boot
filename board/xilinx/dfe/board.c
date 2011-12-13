@@ -579,12 +579,21 @@ int from_burst_main()
 
 int board_init(void)
 {
+	/* taken from burst, some DDR/MIO/Clock setup hacked in */
+
 	from_burst_main();
 
 	/* temporary hack to clear pending irqs before Linux as it 
 	   will hang Linux */
 
 	Xil_Out32(0xe0001014, 0x26d);
+
+	/* temporary hack to take USB out of reset til the is fixed
+	   in Linux */
+
+	Xil_Out32(0xe000a204, 0x80);
+	Xil_Out32(0xe000a208, 0x80);
+	Xil_Out32(0xe000a040, 0x80);
 
 	icache_enable();
 	init_nor_flash();
