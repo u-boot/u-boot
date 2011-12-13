@@ -4,11 +4,11 @@ sources {
 }
 
 section (0) {
-        load u_boot_spl > 0x0000;
-        load ivt (entry = 0x0014) > 0x8000;
+	load u_boot_spl > 0x0000;
+	load ivt (entry = 0x0014) > 0x8000;
 	hab call 0x8000;
 
-        load u_boot > 0x40000100;
-        load ivt (entry = 0x40000100) > 0x8000;
+	load u_boot > 0x40000100;
+	load ivt (entry = 0x40000100) > 0x8000;
 	hab call 0x8000;
 }
