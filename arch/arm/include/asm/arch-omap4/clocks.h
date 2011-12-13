@@ -470,6 +470,47 @@ struct omap4_prcm_regs {
 
 };
 
+struct omap4_scrm_regs {
+	u32 revision;		/* 0x0000 */
+	u32 pad00[63];
+	u32 clksetuptime;	/* 0x0100 */
+	u32 pmicsetuptime;	/* 0x0104 */
+	u32 pad01[2];
+	u32 altclksrc;		/* 0x0110 */
+	u32 pad02[2];
+	u32 c2cclkm;		/* 0x011c */
+	u32 pad03[56];
+	u32 extclkreq;		/* 0x0200 */
+	u32 accclkreq;		/* 0x0204 */
+	u32 pwrreq;		/* 0x0208 */
+	u32 pad04[1];
+	u32 auxclkreq0;		/* 0x0210 */
+	u32 auxclkreq1;		/* 0x0214 */
+	u32 auxclkreq2;		/* 0x0218 */
+	u32 auxclkreq3;		/* 0x021c */
+	u32 auxclkreq4;		/* 0x0220 */
+	u32 auxclkreq5;		/* 0x0224 */
+	u32 pad05[3];
+	u32 c2cclkreq;		/* 0x0234 */
+	u32 pad06[54];
+	u32 auxclk0;		/* 0x0310 */
+	u32 auxclk1;		/* 0x0314 */
+	u32 auxclk2;		/* 0x0318 */
+	u32 auxclk3;		/* 0x031c */
+	u32 auxclk4;		/* 0x0320 */
+	u32 auxclk5;		/* 0x0324 */
+	u32 pad07[54];
+	u32 rsttime_reg;	/* 0x0400 */
+	u32 pad08[6];
+	u32 c2crstctrl;		/* 0x041c */
+	u32 extpwronrstctrl;	/* 0x0420 */
+	u32 pad09[59];
+	u32 extwarmrstst_reg;	/* 0x0510 */
+	u32 apewarmrstst_reg;	/* 0x0514 */
+	u32 pad10[1];
+	u32 c2cwarmrstst_reg;	/* 0x051C */
+};
+
 /* DPLL register offsets */
 #define CM_CLKMODE_DPLL		0
 #define CM_IDLEST_DPLL		0x4
@@ -651,6 +692,28 @@ struct omap4_prcm_regs {
 
 #define TPS62361_BASE_VOLT_MV	500
 #define TPS62361_VSEL0_GPIO	7
+
+/* AUXCLKx reg fields */
+#define AUXCLK_ENABLE_MASK		(1 << 8)
+#define AUXCLK_SRCSELECT_SHIFT		1
+#define AUXCLK_SRCSELECT_MASK		(3 << 1)
+#define AUXCLK_CLKDIV_SHIFT		16
+#define AUXCLK_CLKDIV_MASK		(0xF << 16)
+
+#define AUXCLK_SRCSELECT_SYS_CLK	0
+#define AUXCLK_SRCSELECT_CORE_DPLL	1
+#define AUXCLK_SRCSELECT_PER_DPLL	2
+#define AUXCLK_SRCSELECT_ALTERNATE	3
+
+#define AUXCLK_CLKDIV_2			1
+#define AUXCLK_CLKDIV_16		0xF
+
+/* ALTCLKSRC */
+#define ALTCLKSRC_MODE_MASK		3
+#define ALTCLKSRC_ENABLE_INT_MASK	4
+#define ALTCLKSRC_ENABLE_EXT_MASK	8
+
+#define ALTCLKSRC_MODE_ACTIVE		1
 
 /* Defines for DPLL setup */
 #define DPLL_LOCKED_FREQ_TOLERANCE_0		0
