@@ -416,13 +416,13 @@ const ulong REPEAT_PATTERN  = 1000;
 
 void bootcount_store(ulong a)
 {
-	volatile ulong *save_addr;
-	volatile ulong size = 0;
+	ulong *save_addr;
+	ulong size = 0;
 	int i;
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		size += gd->bd->bi_dram[i].size;
-	}
-	save_addr = (ulong*)(size - BOOTCOUNT_ADDR);
+	save_addr = (ulong *)(size - BOOTCOUNT_ADDR);
 	writel(a, save_addr);
 	writel(BOOTCOUNT_MAGIC, &save_addr[1]);
 
@@ -434,15 +434,14 @@ void bootcount_store(ulong a)
 
 ulong bootcount_load(void)
 {
-	volatile ulong *save_addr;
-	volatile ulong size = 0;
+	ulong *save_addr;
+	ulong size = 0;
 	ulong counter = 0;
 	int i, tmp;
 
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		size += gd->bd->bi_dram[i].size;
-	}
-	save_addr = (ulong*)(size - BOOTCOUNT_ADDR);
+	save_addr = (ulong *)(size - BOOTCOUNT_ADDR);
 
 	counter = readl(&save_addr[0]);
 
@@ -492,13 +491,13 @@ int post_hotkeys_pressed(void)
 
 ulong post_word_load(void)
 {
-	volatile void* addr = (void *) (gd->ram_size - BOOTCOUNT_ADDR + POST_WORD_OFF);
+	void* addr = (void *) (gd->ram_size - BOOTCOUNT_ADDR + POST_WORD_OFF);
 	return in_le32(addr);
 
 }
 void post_word_store(ulong value)
 {
-	volatile void* addr = (void *) (gd->ram_size - BOOTCOUNT_ADDR + POST_WORD_OFF);
+	void* addr = (void *) (gd->ram_size - BOOTCOUNT_ADDR + POST_WORD_OFF);
 	out_le32(addr, value);
 }
 
