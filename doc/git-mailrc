@@ -39,16 +39,17 @@ alias arches         arch
 
 alias arm            uboot, aaribaud
 alias at91           uboot, reinhardm
-alias davinci        omap
+alias davinci        ti
 alias imx            uboot, sbabic
 alias kirkwood       uboot, prafulla
-alias omap           uboot, Sandeep Paulraj <s-paulraj@ti.com>
+alias omap           ti
 alias pxa            uboot, marex
 alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom
 alias tegra          uboot, Simon Glass <sjg@chromium.org>, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
+alias ti             uboot, Sandeep Paulraj <s-paulraj@ti.com>, Tom Rini <trini@ti.com>
 
 alias avr32          uboot, reinhardm
 
