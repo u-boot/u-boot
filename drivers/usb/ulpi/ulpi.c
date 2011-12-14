@@ -79,9 +79,9 @@ int ulpi_init(u32 ulpi_viewport)
 	return ulpi_integrity_check(ulpi_viewport);
 }
 
-int ulpi_select_transceiver(u32 ulpi_viewport, u8 speed)
+int ulpi_select_transceiver(u32 ulpi_viewport, unsigned speed)
 {
-	u8 tspeed = ULPI_FC_FULL_SPEED;
+	u32 tspeed = ULPI_FC_FULL_SPEED;
 	u32 val;
 
 	switch (speed) {
@@ -127,9 +127,9 @@ int ulpi_set_pd(u32 ulpi_viewport, int enable)
 	return ulpi_write(ulpi_viewport, reg, val);
 }
 
-int ulpi_opmode_sel(u32 ulpi_viewport, u8 opmode)
+int ulpi_opmode_sel(u32 ulpi_viewport, unsigned opmode)
 {
-	u8 topmode = ULPI_FC_OPMODE_NORMAL;
+	u32 topmode = ULPI_FC_OPMODE_NORMAL;
 	u32 val;
 
 	switch (opmode) {
@@ -154,7 +154,7 @@ int ulpi_opmode_sel(u32 ulpi_viewport, u8 opmode)
 	return ulpi_write(ulpi_viewport, &ulpi->function_ctrl, val);
 }
 
-int ulpi_serial_mode_enable(u32 ulpi_viewport, u8 smode)
+int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode)
 {
 	switch (smode) {
 	case ULPI_IFACE_6_PIN_SERIAL_MODE:
