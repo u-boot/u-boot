@@ -13,6 +13,7 @@
  *
  * (C) Copyright 2010-2011
  * Lukas Roggli, KEYMILE Ltd, lukas.roggli@keymile.com
+ * Holger Brunck,  Keymile GmbH, holger.bruncl@keymile.com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,9 +27,9 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_TUDA1		/* TUDA1 board specific */
-#define CONFIG_HOSTNAME		tuda1
-#define CONFIG_KM_BOARD_NAME   "tuda1"
+#define CONFIG_TUXXX		/* TUXX1 board specific */
+#define CONFIG_HOSTNAME		tuxx1
+#define CONFIG_KM_BOARD_NAME   "tuxx1"
 
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
 
@@ -43,15 +44,15 @@
 /*
  * Init Local Bus Memory Controller:
  *
- * Bank Bus     Machine PortSz  Size  Device
- * ---- ---     ------- ------  -----  ------
- *  2   Local   GPCM    8 bit  256MB	PAXG
- *  3   Local   GPCM    8 bit  256MB	PINC3
+ * Bank Bus     Machine PortSz  Size  Device on TUDA1  TUXA1
+ * ---- ---     ------- ------  -----  ---------------------
+ *  2   Local   GPCM    8 bit  256MB	         PAXG  LPXF
+ *  3   Local   GPCM    8 bit  256MB	         PINC3 PINC2
  *
  */
 
 /*
- * PAXG on the local bus CS2
+ * Configuration for C2 on the local bus
  */
 /* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_APP1_BASE
@@ -71,7 +72,7 @@
 				 OR_GPCM_EHTR_CLEAR | \
 				 OR_GPCM_EAD)
 /*
- * PINC3 on the local bus CS3
+ * Configuration for C3 on the local bus
  */
 /* Access window base at PINC3 base */
 #define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_APP2_BASE
@@ -97,7 +98,7 @@
 /*
  * MMU Setup
  */
-/* PAXG:  icache cacheable, but dcache-inhibit and guarded */
+/* APP1: icache cacheable, but dcache-inhibit and guarded */
 #define CONFIG_SYS_IBAT5L	(CONFIG_SYS_APP1_BASE | \
 				 BATL_PP_RW | \
 				 BATL_MEMCOHERENCE)
@@ -112,7 +113,7 @@
 				 BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U
 
-/* PINC3:  icache cacheable, but dcache-inhibit and guarded */
+/* APP2:  icache cacheable, but dcache-inhibit and guarded */
 #define CONFIG_SYS_IBAT6L	(CONFIG_SYS_APP2_BASE | \
 				 BATL_PP_RW | \
 				 BATL_MEMCOHERENCE)
