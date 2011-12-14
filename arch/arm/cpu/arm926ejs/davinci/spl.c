@@ -29,13 +29,14 @@
 #include <malloc.h>
 #include <spi_flash.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 
+DECLARE_GLOBAL_DATA_PTR;
 /* Define global data structure pointer to it*/
 static gd_t gdata __attribute__ ((section(".data")));
 static bd_t bdata __attribute__ ((section(".data")));
 
-#ifndef CONFIG_SPL_LIBCOMMON_SUPPORT
+#else
 
 void puts(const char *str)
 {
