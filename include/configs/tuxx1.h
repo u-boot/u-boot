@@ -27,9 +27,13 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_TUXXX		/* TUXX1 board specific */
+#define CONFIG_TUXXX		/* TUXX1 board (tuxa1/tuda1) specific */
 #define CONFIG_HOSTNAME		tuxx1
+#ifdef CONFIG_KM_DISABLE_APP2
+#define CONFIG_KM_BOARD_NAME   "tuge1"
+#else
 #define CONFIG_KM_BOARD_NAME   "tuxx1"
+#endif
 
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
 
@@ -38,16 +42,18 @@
 
 #define CONFIG_SYS_APP1_BASE	0xA0000000    /* PAXG */
 #define	CONFIG_SYS_APP1_SIZE	256 /* Megabytes */
+#ifndef CONFIG_KM_DISABLE_APP2
 #define CONFIG_SYS_APP2_BASE	0xB0000000    /* PINC3 */
 #define	CONFIG_SYS_APP2_SIZE	256 /* Megabytes */
+#endif
 
 /*
  * Init Local Bus Memory Controller:
  *
- * Bank Bus     Machine PortSz  Size  Device on TUDA1  TUXA1
- * ---- ---     ------- ------  -----  ---------------------
- *  2   Local   GPCM    8 bit  256MB	         PAXG  LPXF
- *  3   Local   GPCM    8 bit  256MB	         PINC3 PINC2
+ * Bank Bus     Machine PortSz  Size  Device on TUDA1  TUXA1  TUGE1
+ * ---- ---     ------- ------  -----  ----------------------------
+ *  2   Local   GPCM    8 bit  256MB	         PAXG  LPXF   PAXI
+ *  3   Local   GPCM    8 bit  256MB	         PINC3 PINC2  unused
  *
  */
 
@@ -71,6 +77,7 @@
 				 OR_GPCM_TRLX_SET | \
 				 OR_GPCM_EHTR_CLEAR | \
 				 OR_GPCM_EAD)
+#ifndef CONFIG_KM_DISABLE_APP2
 /*
  * Configuration for C3 on the local bus
  */
@@ -94,6 +101,7 @@
 #define CONFIG_SYS_MAMR		(MxMR_GPL_x4DIS | \
 				 0x0000c000 | \
 				 MxMR_WLFx_2X)
+#endif
 
 /*
  * MMU Setup
@@ -113,6 +121,11 @@
 				 BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U
 
+#ifdef CONFIG_KM_DISABLE_APP2
+#define CONFIG_SYS_IBAT6L	(0)
+#define CONFIG_SYS_IBAT6U	(0)
+#define CONFIG_SYS_DBAT6L	CONFIG_SYS_IBAT6L
+#else
 /* APP2:  icache cacheable, but dcache-inhibit and guarded */
 #define CONFIG_SYS_IBAT6L	(CONFIG_SYS_APP2_BASE | \
 				 BATL_PP_RW | \
@@ -125,6 +138,7 @@
 				 BATL_PP_RW | \
 				 BATL_CACHEINHIBIT | \
 				 BATL_GUARDEDSTORAGE)
+#endif
 #define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
 
 #define CONFIG_SYS_IBAT7L	(0)
