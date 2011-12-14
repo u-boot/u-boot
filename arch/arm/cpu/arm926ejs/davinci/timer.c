@@ -108,7 +108,7 @@ void __udelay(unsigned long usec)
  */
 ulong get_tbclk(void)
 {
-	return CONFIG_SYS_HZ;
+	return gd->timer_rate_hz;
 }
 
 #ifdef CONFIG_HW_WATCHDOG
