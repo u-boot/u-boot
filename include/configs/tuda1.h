@@ -41,12 +41,6 @@
 #define	CONFIG_SYS_APP2_SIZE	256 /* Megabytes */
 
 /*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LCRR		(LCRR_DBYP | LCRR_EADC_1 | LCRR_CLKDIV_2)
-#define CONFIG_SYS_LBC_LBCR	0x00000000
-
-/*
  * Init Local Bus Memory Controller:
  *
  * Bank Bus     Machine PortSz  Size  Device
