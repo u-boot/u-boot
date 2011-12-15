@@ -137,9 +137,6 @@
 #define CONFIG_SYS_I2C_BUS_SELECT	1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
-/* DDR - I use Infineon DDR */
-#define CONFIG_OMAP3_INFINEON_DDR	1
-
 /* OMITTED:  single 1 Gbit MT29F1G NAND flash */
 
 /*

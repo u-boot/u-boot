@@ -109,9 +109,6 @@
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION
 
-/* DDR - I use Micron DDR */
-#define CONFIG_OMAP3_MICRON_DDR
-
 /* library portions to compile in */
 #define CONFIG_RBTREE
 #define CONFIG_MTD_PARTITIONS

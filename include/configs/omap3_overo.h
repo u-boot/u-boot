@@ -90,9 +90,6 @@
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
 
-/* DDR - I use Micron DDR */
-#define CONFIG_OMAP3_MICRON_DDR		1
-
 /* commands to include */
 #include <config_cmd_default.h>
 

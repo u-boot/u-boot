@@ -99,9 +99,6 @@
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
 
-/* DDR - I use Micron DDR */
-#define CONFIG_OMAP3_MICRON_DDR		1
-
 /* Status LED */
 #define CONFIG_STATUS_LED		1 /* Status LED enabled	*/
 #define CONFIG_BOARD_SPECIFIC_LED	1

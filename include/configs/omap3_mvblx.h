@@ -102,9 +102,6 @@
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
 
-/* DDR - I use Micron DDR */
-#define CONFIG_OMAP3_MICRON_DDR		1
-
 /* USB */
 #define CONFIG_MUSB_UDC			1
 #define CONFIG_USB_OMAP3		1
