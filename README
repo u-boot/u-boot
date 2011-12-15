@@ -1029,6 +1029,9 @@ The following options need to be configured:
 			If this defined, the driver is quiet.
 			The driver doen't show link status messages.
 
+		CONFIG_CALXEDA_XGMAC
+		Support for the Calxeda XGMAC device
+
 		CONFIG_DRIVER_LAN91C96
 		Support for SMSC's LAN91C96 chips.
 
