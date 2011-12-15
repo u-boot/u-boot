@@ -33,6 +33,18 @@ int board_init(void)
 	return 0;
 }
 
+/* We know all the init functions have been run now */
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+
+#ifdef CONFIG_CALXEDA_XGMAC
+	rc += calxedaxgmac_initialize(0, 0xfff50000);
+	rc += calxedaxgmac_initialize(1, 0xfff51000);
+#endif
+	return rc;
+}
+
 int misc_init_r(void)
 {
 	ahci_init(0xffe08000);

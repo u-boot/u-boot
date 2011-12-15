@@ -51,19 +51,27 @@
 
 #define CONFIG_DOS_PARTITION
 
+#define CONFIG_CALXEDA_XGMAC
+
+/* PXE support */
+#define CONFIG_BOOTP_PXE
+#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
+#define CONFIG_BOOTP_VCI_STRING		"U-boot.armv7.highbank"
+
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 
 #define CONFIG_CMD_BDI
+#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_LOADS
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_PXE
+#define CONFIG_MENU
 
 #define CONFIG_BOOTDELAY		2
 /*
@@ -81,6 +89,12 @@
 					 sizeof(CONFIG_SYS_PROMPT)+16)
 
 #define CONFIG_SYS_LOAD_ADDR		0x800000
+
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+		"fdtaddr_r=0x600000\0" \
+		"pxefile_addr_r=0x700000\0" \
+		"kernel_addr_r=0x800000\0" \
+		"ramdisk_addr_r=0x01000000\0" \
 
 /*-----------------------------------------------------------------------
  * Stack sizes
