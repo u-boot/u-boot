@@ -28,6 +28,9 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <pmic.h>
+#include <usb/s3c_udc.h>
+#include <asm/arch/cpu.h>
+#include <max8998_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -252,4 +255,49 @@ int board_mmc_init(bd_t *bis)
 	return err;
 
 }
+#endif
+
+#ifdef CONFIG_USB_GADGET
+static int s5pc210_phy_control(int on)
+{
+	int ret;
+	struct pmic *p = get_pmic();
+
+	if (pmic_probe(p))
+		return -1;
+
+	if (on) {
+		ret |= pmic_set_output(p,
+				       MAX8998_REG_BUCK_ACTIVE_DISCHARGE3,
+				       MAX8998_SAFEOUT1, LDO_ON);
+		ret |= pmic_set_output(p, MAX8998_REG_ONOFF1,
+				      MAX8998_LDO3, LDO_ON);
+		ret |= pmic_set_output(p, MAX8998_REG_ONOFF2,
+				      MAX8998_LDO8, LDO_ON);
+
+	} else {
+		ret |= pmic_set_output(p, MAX8998_REG_ONOFF2,
+				      MAX8998_LDO8, LDO_OFF);
+		ret |= pmic_set_output(p, MAX8998_REG_ONOFF1,
+				      MAX8998_LDO3, LDO_OFF);
+		ret |= pmic_set_output(p,
+				       MAX8998_REG_BUCK_ACTIVE_DISCHARGE3,
+				       MAX8998_SAFEOUT1, LDO_OFF);
+	}
+
+	if (ret) {
+		puts("MAX8998 LDO setting error!\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+struct s3c_plat_otg_data s5pc210_otg_data = {
+	.phy_control = s5pc210_phy_control,
+	.regs_phy = EXYNOS4_USBPHY_BASE,
+	.regs_otg = EXYNOS4_USBOTG_BASE,
+	.usb_phy_ctrl = EXYNOS4_USBPHY_CONTROL,
+	.usb_flags = PHY0_SLEEP,
+};
 #endif
