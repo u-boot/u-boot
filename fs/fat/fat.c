@@ -876,7 +876,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	while (1) {
 		int i;
 
-		debug("FAT read sect=%d, clust_size=%d, DIRENTSPERBLOCK=%d\n",
+		debug("FAT read sect=%d, clust_size=%d, DIRENTSPERBLOCK=%zd\n",
 			cursect, mydata->clust_size, DIRENTSPERBLOCK);
 
 		if (disk_read(cursect,
