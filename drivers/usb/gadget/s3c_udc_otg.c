@@ -40,6 +40,7 @@
 #include <linux/usb/gadget.h>
 
 #include <asm/byteorder.h>
+#include <asm/unaligned.h>
 #include <asm/io.h>
 
 #include <asm/mach-types.h>
@@ -586,7 +587,8 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 	if (!_ep || !desc || ep->desc || _ep->name == ep0name
 	    || desc->bDescriptorType != USB_DT_ENDPOINT
 	    || ep->bEndpointAddress != desc->bEndpointAddress
-	    || ep_maxpacket(ep) < le16_to_cpu(desc->wMaxPacketSize)) {
+	    || ep_maxpacket(ep) <
+	    le16_to_cpu(get_unaligned(&desc->wMaxPacketSize))) {
 
 		DEBUG("%s: bad ep or descriptor\n", __func__);
 		return -EINVAL;
@@ -603,8 +605,8 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 
 	/* hardware _could_ do smaller, but driver doesn't */
 	if ((desc->bmAttributes == USB_ENDPOINT_XFER_BULK
-	     && le16_to_cpu(desc->wMaxPacketSize) != ep_maxpacket(ep))
-	    || !desc->wMaxPacketSize) {
+	     && le16_to_cpu(get_unaligned(&desc->wMaxPacketSize)) !=
+	     ep_maxpacket(ep)) || !get_unaligned(&desc->wMaxPacketSize)) {
 
 		DEBUG("%s: bad %s maxpacket\n", __func__, _ep->name);
 		return -ERANGE;
@@ -620,7 +622,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 	ep->stopped = 0;
 	ep->desc = desc;
 	ep->pio_irqs = 0;
-	ep->ep.maxpacket = le16_to_cpu(desc->wMaxPacketSize);
+	ep->ep.maxpacket = le16_to_cpu(get_unaligned(&desc->wMaxPacketSize));
 
 	/* Reset halt state */
 	s3c_udc_set_nak(ep);

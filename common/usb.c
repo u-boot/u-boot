@@ -49,6 +49,7 @@
 #include <asm/processor.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
+#include <asm/unaligned.h>
 
 #include <usb.h>
 #ifdef CONFIG_4xx
@@ -279,30 +280,32 @@ usb_set_maxpacket_ep(struct usb_device *dev, int if_idx, int ep_idx)
 {
 	int b;
 	struct usb_endpoint_descriptor *ep;
+	u16 ep_wMaxPacketSize;
 
 	ep = &dev->config.if_desc[if_idx].ep_desc[ep_idx];
 
 	b = ep->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	ep_wMaxPacketSize = get_unaligned(&ep->wMaxPacketSize);
 
 	if ((ep->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) ==
 						USB_ENDPOINT_XFER_CONTROL) {
 		/* Control => bidirectional */
-		dev->epmaxpacketout[b] = ep->wMaxPacketSize;
-		dev->epmaxpacketin[b] = ep->wMaxPacketSize;
+		dev->epmaxpacketout[b] = ep_wMaxPacketSize;
+		dev->epmaxpacketin[b] = ep_wMaxPacketSize;
 		USB_PRINTF("##Control EP epmaxpacketout/in[%d] = %d\n",
 			   b, dev->epmaxpacketin[b]);
 	} else {
 		if ((ep->bEndpointAddress & 0x80) == 0) {
 			/* OUT Endpoint */
-			if (ep->wMaxPacketSize > dev->epmaxpacketout[b]) {
-				dev->epmaxpacketout[b] = ep->wMaxPacketSize;
+			if (ep_wMaxPacketSize > dev->epmaxpacketout[b]) {
+				dev->epmaxpacketout[b] = ep_wMaxPacketSize;
 				USB_PRINTF("##EP epmaxpacketout[%d] = %d\n",
 					   b, dev->epmaxpacketout[b]);
 			}
 		} else {
 			/* IN Endpoint */
-			if (ep->wMaxPacketSize > dev->epmaxpacketin[b]) {
-				dev->epmaxpacketin[b] = ep->wMaxPacketSize;
+			if (ep_wMaxPacketSize > dev->epmaxpacketin[b]) {
+				dev->epmaxpacketin[b] = ep_wMaxPacketSize;
 				USB_PRINTF("##EP epmaxpacketin[%d] = %d\n",
 					   b, dev->epmaxpacketin[b]);
 			}
@@ -333,6 +336,7 @@ int usb_parse_config(struct usb_device *dev, unsigned char *buffer, int cfgno)
 	struct usb_descriptor_header *head;
 	int index, ifno, epno, curr_if_num;
 	int i;
+	u16 ep_wMaxPacketSize;
 
 	ifno = -1;
 	epno = -1;
@@ -378,8 +382,15 @@ int usb_parse_config(struct usb_device *dev, unsigned char *buffer, int cfgno)
 			dev->config.if_desc[ifno].no_of_ep++;
 			memcpy(&dev->config.if_desc[ifno].ep_desc[epno],
 				&buffer[index], buffer[index]);
-			le16_to_cpus(&(dev->config.if_desc[ifno].ep_desc[epno].\
-							       wMaxPacketSize));
+			ep_wMaxPacketSize = get_unaligned(&dev->config.\
+							if_desc[ifno].\
+							ep_desc[epno].\
+							wMaxPacketSize);
+			put_unaligned(le16_to_cpu(ep_wMaxPacketSize),
+					&dev->config.\
+					if_desc[ifno].\
+					ep_desc[epno].\
+					wMaxPacketSize);
 			USB_PRINTF("if %d, ep %d\n", ifno, epno);
 			break;
 		default:
