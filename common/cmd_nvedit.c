@@ -868,7 +868,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 			printf("## Warning: Input data exceeds %d bytes"
 				" - truncated\n", MAX_ENV_SIZE);
 		}
-		++size;
+		size += 2;
 		printf("## Info: input data size = %zu = 0x%zX\n", size, size);
 	}
 
