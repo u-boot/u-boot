@@ -285,6 +285,11 @@ u32 imx_get_uartclk(void)
 	return get_uart_clk();
 }
 
+u32 imx_get_fecclk(void)
+{
+	return decode_pll(PLL_ENET, CONFIG_SYS_MX6_HCLK);
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
