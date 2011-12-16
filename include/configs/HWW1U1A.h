@@ -438,11 +438,14 @@ const char *hww1u1a_get_ps1(void);
 
 /* Extra environment parameters */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"preboot=setenv bootargs \"${bootargs} "CONFIG_BOOTARGS_DYNAMIC"\"\0" \
+	"ethprime=e1000#0\0"						\
+	"ethrotate=no\0"						\
+	"setbootargs=setenv bootargs "					\
+			"\"${bootargs} "CONFIG_BOOTARGS_DYNAMIC"\"\0"	\
 	"perf_mode=performance\0"					\
 	"hwconfig="	"fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1;"	\
 			"usb1:dr_mode=host,phy_type=ulpi\0"		\
-	"flkernel=0xe8020000\0"						\
+	"flkernel=0xe8000000\0"						\
 	"flinitramfs=0xe8800000\0"					\
 	"fldevicetree=0xeff20000\0"					\
 	"flbootm=bootm ${flkernel} ${flinitramfs} ${fldevicetree}\0"	\
