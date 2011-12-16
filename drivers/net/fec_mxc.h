@@ -196,6 +196,7 @@ struct ethernet_regs {
 #define FEC_RCNTRL_PROM			0x00000008
 #define FEC_RCNTRL_BC_REJ		0x00000010
 #define FEC_RCNTRL_FCE			0x00000020
+#define FEC_RCNTRL_RGMII		0x00000040
 #define FEC_RCNTRL_RMII			0x00000100
 
 #define FEC_TCNTRL_GTS			0x00000001
@@ -206,6 +207,9 @@ struct ethernet_regs {
 
 #define FEC_ECNTRL_RESET		0x00000001	/* reset the FEC */
 #define FEC_ECNTRL_ETHER_EN		0x00000002	/* enable the FEC */
+#define FEC_ECNTRL_DBSWAP		0x00000100
+
+#define FEC_X_WMRK_STRFWD		0x00000100
 
 #if defined(CONFIG_MX25) || defined(CONFIG_MX53)
 /* defines for MIIGSK */
@@ -261,7 +265,8 @@ enum xceiver_type {
 	SEVENWIRE,	/* 7-wire       */
 	MII10,		/* MII 10Mbps   */
 	MII100,		/* MII 100Mbps  */
-	RMII		/* RMII */
+	RMII,		/* RMII */
+	RGMII,		/* RGMII */
 };
 
 /**

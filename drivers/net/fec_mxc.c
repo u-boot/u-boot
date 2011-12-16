@@ -384,6 +384,14 @@ static int fec_open(struct eth_device *edev)
 	writel(1 << 2, &fec->eth->x_cntrl);
 	fec->rbd_index = 0;
 
+#if defined(CONFIG_MX6Q)
+	/* Enable ENET HW endian SWAP */
+	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_DBSWAP,
+		&fec->eth->ecntrl);
+	/* Enable ENET store and forward mode */
+	writel(readl(&fec->eth->x_wmrk) | FEC_X_WMRK_STRFWD,
+		&fec->eth->x_wmrk);
+#endif
 	/*
 	 * Enable FEC-Lite controller
 	 */
@@ -485,6 +493,8 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	rcntrl = PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT;
 	if (fec->xcv_type == SEVENWIRE)
 		rcntrl |= FEC_RCNTRL_FCE;
+	else if (fec->xcv_type == RGMII)
+		rcntrl |= FEC_RCNTRL_RGMII;
 	else if (fec->xcv_type == RMII)
 		rcntrl |= FEC_RCNTRL_RMII;
 	else	/* MII mode */
