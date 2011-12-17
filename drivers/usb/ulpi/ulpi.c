@@ -39,8 +39,8 @@ static struct ulpi_regs *ulpi = (struct ulpi_regs *)0;
 
 static int ulpi_integrity_check(u32 ulpi_viewport)
 {
-	u32 err, val, tval = ULPI_TEST_VALUE;
-	int i;
+	u32 val, tval = ULPI_TEST_VALUE;
+	int err, i;
 
 	/* Use the 'special' test value to check all bits */
 	for (i = 0; i < 2; i++, tval <<= 1) {
@@ -79,9 +79,9 @@ int ulpi_init(u32 ulpi_viewport)
 	return ulpi_integrity_check(ulpi_viewport);
 }
 
-int ulpi_select_transceiver(u32 ulpi_viewport, u8 speed)
+int ulpi_select_transceiver(u32 ulpi_viewport, unsigned speed)
 {
-	u8 tspeed = ULPI_FC_FULL_SPEED;
+	u32 tspeed = ULPI_FC_FULL_SPEED;
 	u32 val;
 
 	switch (speed) {
@@ -92,8 +92,8 @@ int ulpi_select_transceiver(u32 ulpi_viewport, u8 speed)
 		tspeed = speed;
 		break;
 	default:
-		printf("ULPI: %s: wrong transceiver speed specified, "
-			"falling back to full speed\n", __func__);
+		printf("ULPI: %s: wrong transceiver speed specified: %u, "
+			"falling back to full speed\n", __func__, speed);
 	}
 
 	val = ulpi_read(ulpi_viewport, &ulpi->function_ctrl);
@@ -127,9 +127,9 @@ int ulpi_set_pd(u32 ulpi_viewport, int enable)
 	return ulpi_write(ulpi_viewport, reg, val);
 }
 
-int ulpi_opmode_sel(u32 ulpi_viewport, u8 opmode)
+int ulpi_opmode_sel(u32 ulpi_viewport, unsigned opmode)
 {
-	u8 topmode = ULPI_FC_OPMODE_NORMAL;
+	u32 topmode = ULPI_FC_OPMODE_NORMAL;
 	u32 val;
 
 	switch (opmode) {
@@ -140,8 +140,8 @@ int ulpi_opmode_sel(u32 ulpi_viewport, u8 opmode)
 		topmode = opmode;
 		break;
 	default:
-		printf("ULPI: %s: wrong OpMode specified, "
-			"falling back to OpMode Normal\n", __func__);
+		printf("ULPI: %s: wrong OpMode specified: %u, "
+			"falling back to OpMode Normal\n", __func__, opmode);
 	}
 
 	val = ulpi_read(ulpi_viewport, &ulpi->function_ctrl);
@@ -154,15 +154,15 @@ int ulpi_opmode_sel(u32 ulpi_viewport, u8 opmode)
 	return ulpi_write(ulpi_viewport, &ulpi->function_ctrl, val);
 }
 
-int ulpi_serial_mode_enable(u32 ulpi_viewport, u8 smode)
+int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode)
 {
 	switch (smode) {
 	case ULPI_IFACE_6_PIN_SERIAL_MODE:
 	case ULPI_IFACE_3_PIN_SERIAL_MODE:
 		break;
 	default:
-		printf("ULPI: %s: unrecognized Serial Mode specified\n",
-			__func__);
+		printf("ULPI: %s: unrecognized Serial Mode specified: %u\n",
+			__func__, smode);
 		return ULPI_ERROR;
 	}
 
@@ -171,7 +171,7 @@ int ulpi_serial_mode_enable(u32 ulpi_viewport, u8 smode)
 
 int ulpi_suspend(u32 ulpi_viewport)
 {
-	u32 err;
+	int err;
 
 	err = ulpi_write(ulpi_viewport, &ulpi->function_ctrl_clear,
 			ULPI_FC_SUSPENDM);
@@ -214,7 +214,7 @@ int ulpi_reset_wait(u32) __attribute__((weak, alias("__ulpi_reset_wait")));
 
 int ulpi_reset(u32 ulpi_viewport)
 {
-	u32 err;
+	int err;
 
 	err = ulpi_write(ulpi_viewport,
 			&ulpi->function_ctrl_set, ULPI_FC_RESET);

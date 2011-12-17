@@ -1185,6 +1185,14 @@ The following options need to be configured:
 			for your device
 			- CONFIG_USBD_PRODUCTID 0xFFFF
 
+- ULPI Layer Support:
+		The ULPI (UTMI Low Pin (count) Interface) PHYs are supported via
+		the generic ULPI layer. The generic layer accesses the ULPI PHY
+		via the platform viewport, so you need both the genric layer and
+		the viewport enabled. Currently only Chipidea/ARC based
+		viewport is supported.
+		To enable the ULPI layer support, define CONFIG_USB_ULPI and
+		CONFIG_USB_ULPI_VIEWPORT in your board configuration file.
 
 - MMC Support:
 		The MMC controller on the Intel PXA is supported. To

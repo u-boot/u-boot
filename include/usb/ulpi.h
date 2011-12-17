@@ -41,7 +41,7 @@ int ulpi_init(u32 ulpi_viewport);
  *                ULPI_FC_LOW_SPEED,  ULPI_FC_FS4LS
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_select_transceiver(u32 ulpi_viewport, u8 speed);
+int ulpi_select_transceiver(u32 ulpi_viewport, unsigned speed);
 
 /*
  * Enable/disable VBUS.
@@ -66,7 +66,7 @@ int ulpi_set_pd(u32 ulpi_viewport, int enable);
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_opmode_sel(u32 ulpi_viewport, u8 opmode);
+int ulpi_opmode_sel(u32 ulpi_viewport, unsigned opmode);
 
 /*
  * Switch to Serial Mode.
@@ -78,7 +78,7 @@ int ulpi_opmode_sel(u32 ulpi_viewport, u8 opmode);
  * Switches immediately to Serial Mode.
  * To return from Serial Mode, STP line needs to be asserted.
  */
-int ulpi_serial_mode_enable(u32 ulpi_viewport, u8 smode);
+int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode);
 
 /*
  * Put PHY into low power mode.
@@ -108,7 +108,7 @@ int ulpi_reset(u32 ulpi_viewport);
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-u32 ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value);
+int ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value);
 
 /*
  * Read the ULPI PHY register content via the viewport.

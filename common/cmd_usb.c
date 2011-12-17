@@ -28,6 +28,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/byteorder.h>
+#include <asm/unaligned.h>
 #include <part.h>
 #include <usb.h>
 
@@ -240,7 +241,7 @@ void usb_display_ep_desc(struct usb_endpoint_descriptor *epdesc)
 		printf("Interrupt");
 		break;
 	}
-	printf(" MaxPacket %d", epdesc->wMaxPacketSize);
+	printf(" MaxPacket %d", get_unaligned(&epdesc->wMaxPacketSize));
 	if ((epdesc->bmAttributes & 0x03) == 0x3)
 		printf(" Interval %dms", epdesc->bInterval);
 	printf("\n");

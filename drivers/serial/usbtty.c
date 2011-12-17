@@ -25,6 +25,7 @@
 #include <config.h>
 #include <circbuf.h>
 #include <stdio_dev.h>
+#include <asm/unaligned.h>
 #include "usbtty.h"
 #include "usb_cdc_acm.h"
 #include "usbdescriptors.h"
@@ -626,6 +627,9 @@ static void usbtty_init_strings (void)
 	usb_strings = usbtty_string_table;
 }
 
+#define init_wMaxPacketSize(x)	le16_to_cpu(get_unaligned(\
+			&ep_descriptor_ptrs[(x) - 1]->wMaxPacketSize));
+
 static void usbtty_init_instances (void)
 {
 	int i;
@@ -688,14 +692,12 @@ static void usbtty_init_instances (void)
 		endpoint_instance[i].rcv_attributes =
 			ep_descriptor_ptrs[i - 1]->bmAttributes;
 
-		endpoint_instance[i].rcv_packetSize =
-			le16_to_cpu(ep_descriptor_ptrs[i - 1]->wMaxPacketSize);
+		endpoint_instance[i].rcv_packetSize = init_wMaxPacketSize(i);
 
 		endpoint_instance[i].tx_attributes =
 			ep_descriptor_ptrs[i - 1]->bmAttributes;
 
-		endpoint_instance[i].tx_packetSize =
-			le16_to_cpu(ep_descriptor_ptrs[i - 1]->wMaxPacketSize);
+		endpoint_instance[i].tx_packetSize = init_wMaxPacketSize(i);
 
 		endpoint_instance[i].tx_attributes =
 			ep_descriptor_ptrs[i - 1]->bmAttributes;
