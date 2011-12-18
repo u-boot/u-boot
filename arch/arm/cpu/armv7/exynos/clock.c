@@ -102,17 +102,20 @@ static unsigned long exynos4_get_arm_clk(void)
 	struct exynos4_clock *clk =
 		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned long div;
-	unsigned long dout_apll;
-	unsigned int apll_ratio;
+	unsigned long armclk;
+	unsigned int core_ratio;
+	unsigned int core2_ratio;
 
 	div = readl(&clk->div_cpu0);
 
-	/* APLL_RATIO: [26:24] */
-	apll_ratio = (div >> 24) & 0x7;
+	/* CORE_RATIO: [2:0], CORE2_RATIO: [30:28] */
+	core_ratio = (div >> 0) & 0x7;
+	core2_ratio = (div >> 28) & 0x7;
 
-	dout_apll = get_pll_clk(APLL) / (apll_ratio + 1);
+	armclk = get_pll_clk(APLL) / (core_ratio + 1);
+	armclk /= (core2_ratio + 1);
 
-	return dout_apll;
+	return armclk;
 }
 
 /* exynos4: return pwm clock frequency */
