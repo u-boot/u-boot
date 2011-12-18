@@ -57,7 +57,7 @@ struct s5p_timer {
 	unsigned int	tcmpb2;
 	unsigned int	tcnto2;
 	unsigned int	tcntb3;
-	unsigned int	res1;
+	unsigned int	tcmpb3;
 	unsigned int	tcnto3;
 	unsigned int	tcntb4;
 	unsigned int	tcnto4;
