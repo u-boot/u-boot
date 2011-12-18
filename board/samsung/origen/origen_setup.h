@@ -56,6 +56,8 @@
 #define CLK_SRC_PERIL0_OFFSET	0xC250
 #define CLK_DIV_PERIL0_OFFSET	0xC550
 
+#define CLK_SRC_LCD0_OFFSET	0xC234
+
 #define APLL_LOCK_OFFSET	0x14000
 #define MPLL_LOCK_OFFSET	0x14008
 #define APLL_CON0_OFFSET	0x14100
@@ -350,6 +352,16 @@
 				| (UART2_RATIO << 8) \
 				| (UART1_RATIO << 4) \
 				| (UART0_RATIO << 0))
+
+/* CLK_SRC_LCD0 */
+#define FIMD_SEL_SCLKMPLL	6
+#define MDNIE0_SEL_XUSBXTI	1
+#define MDNIE_PWM0_SEL_XUSBXTI	1
+#define MIPI0_SEL_XUSBXTI	1
+#define CLK_SRC_LCD0_VAL	((MIPI0_SEL_XUSBXTI << 12) \
+				| (MDNIE_PWM0_SEL_XUSBXTI << 8) \
+				| (MDNIE0_SEL_XUSBXTI << 4) \
+				| (FIMD_SEL_SCLKMPLL << 0))
 
 /* Required period to generate a stable clock output */
 /* PLL_LOCK_TIME */

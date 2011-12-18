@@ -158,6 +158,11 @@ system_clock_init:
 	ldr	r2, =CLK_SRC_PERIL0_OFFSET
 	str	r1, [r0, r2]
 
+	/* FIMD0 */
+	ldr	r1, =CLK_SRC_LCD0_VAL
+	ldr	r2, =CLK_SRC_LCD0_OFFSET
+	str	r1, [r0, r2]
+
 	/* wait ?us */
 	mov	r1, #0x10000
 3:	subs	r1, r1, #1
