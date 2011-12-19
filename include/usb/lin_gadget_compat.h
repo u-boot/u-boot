@@ -26,7 +26,7 @@
 /* common */
 #define spin_lock_init(...)
 #define spin_lock(...)
-#define spin_lock_irqsave(lock, flags) do {flags = 1; } while (0)
+#define spin_lock_irqsave(lock, flags) do { debug("%lu\n", flags); } while (0)
 #define spin_unlock(...)
 #define spin_unlock_irqrestore(lock, flags) do {flags = 0; } while (0)
 #define disable_irq(...)

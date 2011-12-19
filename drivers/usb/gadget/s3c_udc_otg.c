@@ -47,7 +47,6 @@
 #include <asm/arch/gpio.h>
 
 #include "regs-otg.h"
-#include <usb/s3c_udc.h>
 #include <usb/lin_gadget_compat.h>
 
 /***********************************************************/
@@ -73,8 +72,6 @@
 #define EP0_CON		0
 #define EP_MASK		0xF
 
-#if defined(DEBUG_S3C_UDC_SETUP) || defined(DEBUG_S3C_UDC_ISR)	  \
-	|| defined(DEBUG_S3C_UDC_OUT_EP)
 static char *state_names[] = {
 	"WAIT_FOR_SETUP",
 	"DATA_STATE_XMIT",
@@ -86,7 +83,6 @@ static char *state_names[] = {
 	"WAIT_FOR_IN_COMPLETE",
 	"WAIT_FOR_NULL_COMPLETE",
 };
-#endif
 
 #define DRIVER_DESC "S3C HS USB OTG Device Driver, (c) Samsung Electronics"
 #define DRIVER_VERSION "15 March 2009"
@@ -362,7 +358,7 @@ static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
 {
 	unsigned int stopped = ep->stopped;
 
-	DEBUG("%s: %s %p, req = %p, stopped = %d\n",
+	debug("%s: %s %p, req = %p, stopped = %d\n",
 	      __func__, ep->ep.name, ep, &req->req, stopped);
 
 	list_del_init(&req->queue);
@@ -373,7 +369,7 @@ static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
 		status = req->req.status;
 
 	if (status && status != -ESHUTDOWN) {
-		DEBUG("complete %s req %p stat %d len %u/%u\n",
+		debug("complete %s req %p stat %d len %u/%u\n",
 		      ep->ep.name, &req->req, status,
 		      req->req.actual, req->req.length);
 	}
@@ -401,7 +397,7 @@ static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
 	req->req.complete(&ep->ep, &req->req);
 	spin_lock(&ep->dev->lock);
 
-	DEBUG("callback completed\n");
+	debug("callback completed\n");
 
 	ep->stopped = stopped;
 }
@@ -413,7 +409,7 @@ static void nuke(struct s3c_ep *ep, int status)
 {
 	struct s3c_request *req;
 
-	DEBUG("%s: %s %p\n", __func__, ep->ep.name, ep);
+	debug("%s: %s %p\n", __func__, ep->ep.name, ep);
 
 	/* called with irqs blocked */
 	while (!list_empty(&ep->queue)) {
@@ -456,7 +452,7 @@ static void reconfig_usbd(void)
 	int i;
 	unsigned int uTemp = writel(CORE_SOFT_RESET, &reg->grstctl);
 
-	DEBUG(2, "Reseting OTG controller\n");
+	debug("Reseting OTG controller\n");
 
 	writel(0<<15		/* PHY Low Power Clock sel*/
 		|1<<14		/* Non-Periodic TxFIFO Rewind Enable*/
@@ -526,13 +522,13 @@ static void reconfig_usbd(void)
 	/* Flush the RX FIFO */
 	writel(RX_FIFO_FLUSH, &reg->grstctl);
 	while (readl(&reg->grstctl) & RX_FIFO_FLUSH)
-		DEBUG("%s: waiting for S3C_UDC_OTG_GRSTCTL\n", __func__);
+		debug("%s: waiting for S3C_UDC_OTG_GRSTCTL\n", __func__);
 
 	/* Flush all the Tx FIFO's */
 	writel(TX_FIFO_FLUSH_ALL, &reg->grstctl);
 	writel(TX_FIFO_FLUSH_ALL | TX_FIFO_FLUSH, &reg->grstctl);
 	while (readl(&reg->grstctl) & TX_FIFO_FLUSH)
-		DEBUG("%s: waiting for S3C_UDC_OTG_GRSTCTL\n", __func__);
+		debug("%s: waiting for S3C_UDC_OTG_GRSTCTL\n", __func__);
 
 	/* 13. Clear NAK bit of EP0, EP1, EP2*/
 	/* For Slave mode*/
@@ -581,7 +577,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 	struct s3c_udc *dev;
 	unsigned long flags;
 
-	DEBUG("%s: %p\n", __func__, _ep);
+	debug("%s: %p\n", __func__, _ep);
 
 	ep = container_of(_ep, struct s3c_ep, ep);
 	if (!_ep || !desc || ep->desc || _ep->name == ep0name
@@ -590,7 +586,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 	    || ep_maxpacket(ep) <
 	    le16_to_cpu(get_unaligned(&desc->wMaxPacketSize))) {
 
-		DEBUG("%s: bad ep or descriptor\n", __func__);
+		debug("%s: bad ep or descriptor\n", __func__);
 		return -EINVAL;
 	}
 
@@ -599,7 +595,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 	    && ep->bmAttributes != USB_ENDPOINT_XFER_BULK
 	    && desc->bmAttributes != USB_ENDPOINT_XFER_INT) {
 
-		DEBUG("%s: %s type mismatch\n", __func__, _ep->name);
+		debug("%s: %s type mismatch\n", __func__, _ep->name);
 		return -EINVAL;
 	}
 
@@ -608,14 +604,14 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 	     && le16_to_cpu(get_unaligned(&desc->wMaxPacketSize)) !=
 	     ep_maxpacket(ep)) || !get_unaligned(&desc->wMaxPacketSize)) {
 
-		DEBUG("%s: bad %s maxpacket\n", __func__, _ep->name);
+		debug("%s: bad %s maxpacket\n", __func__, _ep->name);
 		return -ERANGE;
 	}
 
 	dev = ep->dev;
 	if (!dev->driver || dev->gadget.speed == USB_SPEED_UNKNOWN) {
 
-		DEBUG("%s: bogus device state\n", __func__);
+		debug("%s: bogus device state\n", __func__);
 		return -ESHUTDOWN;
 	}
 
@@ -632,7 +628,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 	s3c_udc_ep_activate(ep);
 	spin_unlock_irqrestore(&ep->dev->lock, flags);
 
-	DEBUG("%s: enabled %s, stopped = %d, maxpacket = %d\n",
+	debug("%s: enabled %s, stopped = %d, maxpacket = %d\n",
 	      __func__, _ep->name, ep->stopped, ep->ep.maxpacket);
 	return 0;
 }
@@ -645,11 +641,11 @@ static int s3c_ep_disable(struct usb_ep *_ep)
 	struct s3c_ep *ep;
 	unsigned long flags;
 
-	DEBUG("%s: %p\n", __func__, _ep);
+	debug("%s: %p\n", __func__, _ep);
 
 	ep = container_of(_ep, struct s3c_ep, ep);
 	if (!_ep || !ep->desc) {
-		DEBUG("%s: %s not enabled\n", __func__,
+		debug("%s: %s not enabled\n", __func__,
 		      _ep ? ep->ep.name : NULL);
 		return -EINVAL;
 	}
@@ -664,7 +660,7 @@ static int s3c_ep_disable(struct usb_ep *_ep)
 
 	spin_unlock_irqrestore(&ep->dev->lock, flags);
 
-	DEBUG("%s: disabled %s\n", __func__, _ep->name);
+	debug("%s: disabled %s\n", __func__, _ep->name);
 	return 0;
 }
 
@@ -673,7 +669,7 @@ static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
 {
 	struct s3c_request *req;
 
-	DEBUG("%s: %s %p\n", __func__, ep->name, ep);
+	debug("%s: %s %p\n", __func__, ep->name, ep);
 
 	req = kmalloc(sizeof *req, gfp_flags);
 	if (!req)
@@ -689,7 +685,7 @@ static void s3c_free_request(struct usb_ep *ep, struct usb_request *_req)
 {
 	struct s3c_request *req;
 
-	DEBUG("%s: %p\n", __func__, ep);
+	debug("%s: %p\n", __func__, ep);
 
 	req = container_of(_req, struct s3c_request, req);
 	WARN_ON(!list_empty(&req->queue));
@@ -703,7 +699,7 @@ static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 	struct s3c_request *req;
 	unsigned long flags;
 
-	DEBUG("%s: %p\n", __func__, _ep);
+	debug("%s: %p\n", __func__, _ep);
 
 	ep = container_of(_ep, struct s3c_ep, ep);
 	if (!_ep || ep->ep.name == ep0name)
@@ -737,11 +733,11 @@ static int s3c_fifo_status(struct usb_ep *_ep)
 
 	ep = container_of(_ep, struct s3c_ep, ep);
 	if (!_ep) {
-		DEBUG("%s: bad ep\n", __func__);
+		debug("%s: bad ep\n", __func__);
 		return -ENODEV;
 	}
 
-	DEBUG("%s: %d\n", __func__, ep_index(ep));
+	debug("%s: %d\n", __func__, ep_index(ep));
 
 	/* LPD can't report unclaimed bytes from IN fifos */
 	if (ep_is_in(ep))
@@ -759,11 +755,11 @@ static void s3c_fifo_flush(struct usb_ep *_ep)
 
 	ep = container_of(_ep, struct s3c_ep, ep);
 	if (unlikely(!_ep || (!ep->desc && ep->ep.name != ep0name))) {
-		DEBUG("%s: bad ep\n", __func__);
+		debug("%s: bad ep\n", __func__);
 		return;
 	}
 
-	DEBUG("%s: %d\n", __func__, ep_index(ep));
+	debug("%s: %d\n", __func__, ep_index(ep));
 }
 
 static const struct usb_gadget_ops s3c_udc_ops = {
@@ -849,7 +845,7 @@ int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 	struct s3c_udc *dev = &memory;
 	int retval = 0, i;
 
-	DEBUG("%s: %p\n", __func__, pdata);
+	debug("%s: %p\n", __func__, pdata);
 
 	dev->pdata = pdata;
 

@@ -131,16 +131,10 @@ extern struct s3c_udc *the_controller;
 #define DEBUG_EP0(fmt, args...) do {} while (0)
 #endif
 
-#ifdef DEBUG_S3C_UDC
-#define DEBUG(fmt, args...) printk(fmt, ##args)
-#else
-#define DEBUG(fmt, args...) do {} while (0)
-#endif
-
 #ifdef DEBUG_S3C_UDC_ISR
-#define DEBUG_ISR(fmt, args...) printk(fmt, ##args)
+#define DEBUG_ISR	1
 #else
-#define DEBUG_ISR(fmt, args...) do {} while (0)
+#define DEBUG_ISR	0
 #endif
 
 #ifdef DEBUG_S3C_UDC_OUT_EP
@@ -150,9 +144,15 @@ extern struct s3c_udc *the_controller;
 #endif
 
 #ifdef DEBUG_S3C_UDC_IN_EP
-#define DEBUG_IN_EP(fmt, args...) printk(fmt, ##args)
+#define DEBUG_IN_EP	1
 #else
-#define DEBUG_IN_EP(fmt, args...) do {} while (0)
+#define DEBUG_IN_EP	0
+#endif
+
+#if defined(DEBUG_S3C_UDC_SETUP) || defined(DEBUG_S3C_UDC_EP0) || \
+	defined(DEBUG_S3C_UDC_ISR) || defined(DEBUG_S3C_UDC_OUT_EP) || \
+	defined(DEBUG_S3C_UDC_IN_EP) || defined(DEBUG_S3C_UDC)
+#define DEBUG
 #endif
 
 #define ERR(stuff...)		printf("ERR udc: " stuff)
