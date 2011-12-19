@@ -41,6 +41,10 @@ Reinhard Arlt <reinhard.arlt@esd-electronics.com>
 
 	CPCI750		PPC750FX/GX
 
+Peter Barada <peter.barada@logicpd.com>
+
+	omap3_logic	ARM ARMV7 (Logic OMAP35xx/DM37xx)
+
 Yuli Barcohen <yuli@arabellasw.com>
 
 	Adder		MPC87x/MPC852T
