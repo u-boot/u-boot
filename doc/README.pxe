@@ -115,50 +115,50 @@ Supported global commands
 -------------------------
 Unrecognized commands are ignored.
 
-default <label>     - the label named here is treated as the default and is
-                      the first label 'pxe boot' attempts to boot.
+default <label>	    - the label named here is treated as the default and is
+		      the first label 'pxe boot' attempts to boot.
 
 menu title <string> - sets a title for the menu of labels being displayed.
 
 menu include <path> - use tftp to retrieve the pxe file at <path>, which
-                      is then immediately parsed as if the start of its
-                      contents were the next line in the current file. nesting
-                      of include up to 16 files deep is supported.
+		      is then immediately parsed as if the start of its
+		      contents were the next line in the current file. nesting
+		      of include up to 16 files deep is supported.
 
-prompt <flag>       - if 1, always prompt the user to enter a label to boot
-                      from. if 0, only prompt the user if timeout expires.
+prompt <flag>	    - if 1, always prompt the user to enter a label to boot
+		      from. if 0, only prompt the user if timeout expires.
 
 timeout <num>	    - wait for user input for <num>/10 seconds before
-                      auto-booting a node.
+		      auto-booting a node.
 
-label <name>        - begin a label definition. labels continue until
-                      a command not recognized as a label command is seen,
-                      or EOF is reached.
+label <name>	    - begin a label definition. labels continue until
+		      a command not recognized as a label command is seen,
+		      or EOF is reached.
 
 Supported label commands
 ------------------------
 labels end when a command not recognized as a label command is reached, or EOF.
 
-menu default        - set this label as the default label to boot; this is
-                      the same behavior as the global default command but
-                      specified in a different way
+menu default	    - set this label as the default label to boot; this is
+		      the same behavior as the global default command but
+		      specified in a different way
 
-kernel <path>       - if this label is chosen, use tftp to retrieve the kernel
-                      at <path>. it will be stored at the address indicated in
-                      the kernel_addr_r environment variable, and that address
-                      will be passed to bootm to boot this kernel.
+kernel <path>	    - if this label is chosen, use tftp to retrieve the kernel
+		      at <path>. it will be stored at the address indicated in
+		      the kernel_addr_r environment variable, and that address
+		      will be passed to bootm to boot this kernel.
 
-append <string>     - use <string> as the kernel command line when booting this
-                      label.
+append <string>	    - use <string> as the kernel command line when booting this
+		      label.
 
-initrd <path>       - if this label is chosen, use tftp to retrieve the initrd
-                      at <path>. it will be stored at the address indicated in
-                      the initrd_addr_r environment variable, and that address
-                      will be passed to bootm.
+initrd <path>	    - if this label is chosen, use tftp to retrieve the initrd
+		      at <path>. it will be stored at the address indicated in
+		      the initrd_addr_r environment variable, and that address
+		      will be passed to bootm.
 
 localboot <flag>    - Run the command defined by "localcmd" in the environment.
-                      <flag> is ignored and is only here to match the syntax of
-                      PXELINUX config files.
+		      <flag> is ignored and is only here to match the syntax of
+		      PXELINUX config files.
 
 Example
 -------
@@ -217,7 +217,7 @@ PXELINUX and U-boot's pxe support.
 
 - U-boot's pxe doesn't provide the full menu implementation that PXELINUX
   does, only a simple text based menu using the commands described in
-  this README.  With PXELINUX, it's possible to have a graphical boot
+  this README.	With PXELINUX, it's possible to have a graphical boot
   menu, submenus, passwords, etc. U-boot's pxe could be extended to support
   a more robust menuing system like that of PXELINUX's.
 

@@ -251,5 +251,3 @@ int ehci_hcd_stop(void)
 {
 	return 0;
 }
-
-

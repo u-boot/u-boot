@@ -97,7 +97,7 @@ char *pick_a_tool(void)
 			printf("failed to add item!");
 			menu_destroy(m);
 			return NULL;
-                }
+		}
 	}
 
 	if (menu_get_choice(m, (void **)&tool) != 1)
