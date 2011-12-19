@@ -246,11 +246,9 @@ rm_int1f:
 rm_def_int:
 	iret
 
-
 	/*
-	 * All interrupt jumptable entries jump to here
-	 * after pushing the interrupt vector number onto the
-	 * stack.
+	 * All interrupt jumptable entries jump to here after pushing the
+	 * interrupt vector number onto the stack.
 	 */
 any_interrupt16:
 	MAKE_BIOS_STACK
@@ -272,7 +270,8 @@ gs	movw	OFFS_VECTOR(%bp), %ax
 	je	Lint_1ah
 	movw	$0xffff, %ax
 	jmp	Lout
-Lint_10h:					/* VGA BIOS services */
+Lint_10h:
+	/* VGA BIOS services */
 	call	bios_10h
 	jmp	Lout
 Lint_11h:
@@ -281,35 +280,42 @@ Lint_11h:
 Lint_12h:
 	call	bios_12h
 	jmp	Lout
-Lint_13h:					/* BIOS disk services */
+Lint_13h:
+	/* BIOS disk services */
 	call	bios_13h
 	jmp	Lout
-Lint_15h:					/* Misc. BIOS services */
+Lint_15h:
+	/* Misc. BIOS services */
 	call	bios_15h
 	jmp	Lout
-Lint_16h:					/* keyboard services */
+Lint_16h:
+	/* keyboard services */
 	call	bios_16h
 	jmp	Lout
-Lint_1ah:					/* PCI bios */
+Lint_1ah:
+	/* PCI bios */
 	call	bios_1ah
 	jmp	Lout
 Lout:
 	cmpw	$0, %ax
 	je	Lhandeled
 
-	/* Insert code for unhandeled INTs here.
+	/*
+	 * Insert code for unhandeled INTs here.
 	 *
-	 * ROLO prints a message to the console
-	 * (we could do that but then we're in 16bit mode
-	 * so we'll have to get back into 32bit mode
-	 * to use the console I/O routines (if we do this
-	 * we shuls make int 0x10 and int 0x16 work as well))
+	 * ROLO prints a message to the console we could do that but then
+	 * we're in 16bit mode so we'll have to get back into 32bit mode
+	 * to use the console I/O routines (if we do this we should make
+	 * int 0x10 and int 0x16 work as well)
 	 */
 Lhandeled:
 	RESTORE_CALLERS_STACK
-	addw	$2,%sp				/* dump vector number */
-	iret					/* return from interrupt */
 
+	/* dump vector number */
+	addw	$2,%sp
+
+	/* return from interrupt */
+	iret
 
 /*
  ************************************************************
@@ -327,21 +333,23 @@ gs	movw	OFFS_AX(%bp), %ax
 	je	Lvid_cfg
 	movw	$0xffff, %ax
 	ret
-Lcur_pos:					/* Read Cursor Position and Size */
+Lcur_pos:
+	/* Read Cursor Position and Size */
 gs	movw	$0, OFFS_CX(%bp)
 gs	movw	$0, OFFS_DX(%bp)
 	xorw	%ax, %ax
 	ret
-Lvid_state:					/* Get Video State */
-gs	movw	$(80 << 8|0x03), OFFS_AX(%bp)	/* 80 columns, 80x25, 16 colors */
+Lvid_state:
+	/* Get Video State - 80 columns, 80x25, 16 colors */
+gs	movw	$(80 << 8|0x03), OFFS_AX(%bp)
 gs	movw	$0, OFFS_BX(%bp)
 	xorw	%ax, %ax
 	ret
-Lvid_cfg:	/* Video Subsystem Configuration (EGA/VGA) */
-gs	movw	$0x10, OFFS_BX(%bp)		/* indicate CGA/MDA/HGA */
+Lvid_cfg:
+	/* Video Subsystem Configuration (EGA/VGA) - indicate CGA/MDA/HGA */
+gs	movw	$0x10, OFFS_BX(%bp)
 	xorw	%ax, %ax
 	ret
-
 
 /*
  ************************************************************
@@ -354,7 +362,6 @@ cs	movw	bios_equipment, %ax
 gs	movw	%ax, OFFS_AX(%bp)
 	xorw	%ax, %ax
 	ret
-
 
 /*
  ************************************************************
@@ -370,15 +377,17 @@ cs	movw	ram_in_64kb_chunks, %ax
 b12_more_than_640k:
 	movw	$0x280, %ax
 b12_return:
-gs	movw	%ax, OFFS_AX(%bp)		/* return number of kilobytes in ax */
+	/* return number of kilobytes in ax */
+gs	movw	%ax, OFFS_AX(%bp)
 
 gs	movw	OFFS_FLAGS(%bp), %ax
-	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
+
+	/* clear carry -- function succeeded */
+	andw	$0xfffe, %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 
 	xorw	%ax, %ax
 	ret
-
 
 /*
  ************************************************************
@@ -394,11 +403,12 @@ gs	movw	OFFS_AX(%bp), %ax
 	ret
 Lfunc_15h:
 gs	movw	OFFS_AX(%bp), %ax
-	andw	$0xff, %ax			/* return AH=0->drive not present */
+
+	/* return AH=0->drive not present */
+	andw	$0x00ff, %ax
 gs	movw	%ax, OFFS_AX(%bp)
 	xorw	%ax, %ax
 	ret
-
 
 /*
  ***********************************************************
@@ -417,9 +427,12 @@ gs	movw	OFFS_AX(%bp), %ax
 	movw	$0xffff, %ax
 	ret
 
-Lfunc_c0h:					/* Return System Configuration Parameters (PS2 only) */
+Lfunc_c0h:
+	/* Return System Configuration Parameters (PS2 only) */
 gs	movw	OFFS_FLAGS(%bp), %ax
-	orw	$1, %ax				/* return carry -- function not supported */
+
+	/* return carry -- function not supported */
+	orw	$1, %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 	ret
@@ -430,38 +443,56 @@ gs	movw	OFFS_AX(%bp), %ax
 	cmpw	$1, %ax
 	je	Lfunc_e801h
 gs	movw	OFFS_FLAGS(%bp), %ax
-	orw	$1, %ax				/* return carry -- function not supported */
+
+	/* return carry -- function not supported */
+	orw	$1, %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 	ret
 
-Lfunc_e801h:					/* Get memory size for >64M Configurations */
+Lfunc_e801h:
+	/* Get memory size for >64M Configurations */
 cs	movw	ram_in_64kb_chunks, %ax
 	cmpw	$0x100, %ax
 	ja	e801_more_than_16mb
-	shlw	$6, %ax				/* multiply by 64 */
-	subw	$0x400, %ax			/* 1st meg does not count */
 
-gs	movw	%ax, OFFS_AX(%bp)		/* return memory size between 1M and 16M in 1kb chunks in AX and CX */
+	/* multiply by 64 */
+	shlw	$6, %ax
+
+	/* 1st meg does not count */
+	subw	$0x400, %ax
+
+	/* return memory size between 1M and 16M in 1kb chunks in AX and CX */
+gs	movw	%ax, OFFS_AX(%bp)
 gs	movw	%ax, OFFS_CX(%bp)
-gs	movw	$0, OFFS_BX(%bp)		/* set BX and DX to 0*/
+
+	/* set BX and DX to 0*/
+gs	movw	$0, OFFS_BX(%bp)
 gs	movw	$0, OFFS_DX(%bp)
 gs	movw	OFFS_FLAGS(%bp), %ax
-	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
+
+	/* clear carry -- function succeeded */
+	andw	$0xfffe, %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 	ret
 
 e801_more_than_16mb:
-	subw	$0x100, %ax			/* subtract 16MB */
+	/* subtract 16MB */
+	subw	$0x100, %ax
 
-gs	movw	$0x3c00, OFFS_AX(%bp)		/* return 0x3c00 (16MB-1MB) in AX and CX */
+	/* return 0x3c00 (16MB-1MB) in AX and CX */
+gs	movw	$0x3c00, OFFS_AX(%bp)
 gs	movw	$0x3c00, OFFS_CX(%bp)
-gs	movw	%ax, OFFS_BX(%bp)		/* set BX and DX to number of 64kb chunks above 16MB */
+
+	/* set BX and DX to number of 64kb chunks above 16MB */
+gs	movw	%ax, OFFS_BX(%bp)
 gs	movw	%ax, OFFS_DX(%bp)
 
 gs	movw	OFFS_FLAGS(%bp), %ax
-	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
+
+	/* clear carry -- function succeeded */
+	andw	$0xfffe, %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 	xorw	%ax, %ax
 	ret
@@ -473,17 +504,21 @@ cs	movw	ram_in_64kb_chunks, %ax
 	movw	$0x100, %ax
 b88_not_more_than16:
 	shlw	$6, %ax
-	subw	$0x400, %ax			/* 1st meg does not count */
 
-gs	movw	%ax, OFFS_AX(%bp)		/* return number of kilobytes between 16MB and 16MB in ax */
+	/* 1st meg does not count */
+	subw	$0x400, %ax
+
+	/* return number of kilobytes between 16MB and 16MB in ax */
+gs	movw	%ax, OFFS_AX(%bp)
 
 gs	movw	OFFS_FLAGS(%bp), %ax
-	andw	$0xfffe, %ax			/* clear carry -- function succeeded */
+
+	/* clear carry -- function succeeded */
+	andw	$0xfffe, %ax
 gs	movw	%ax, OFFS_FLAGS(%bp)
 
 	xorw	%ax, %ax
 	ret
-
 
 /*
  ************************************************************
@@ -498,7 +533,8 @@ gs	movw	OFFS_AX(%bp), %ax
 	movw	$0xffff, %ax
 	ret
 Lfunc_03h:
-	xorw	%ax, %ax			/* do nothing -- function not supported */
+	/* do nothing -- function not supported */
+	xorw	%ax, %ax
 	ret
 
 /*
@@ -514,7 +550,9 @@ gs	movw	OFFS_AX(%bp), %ax
 	ret
 Lfunc_b1h:
 	call	realmode_pci_bios
-	xorw	%ax, %ax			/* do nothing -- function not supported */
+
+	/* do nothing -- function not supported */
+	xorw	%ax, %ax
 	ret
 
 
