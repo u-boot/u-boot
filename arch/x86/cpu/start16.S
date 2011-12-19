@@ -86,7 +86,11 @@ gdt_ptr:
 	.word	0x20		/* limit (32 bytes = 4 GDT entries) */
 	.long	BOOT_SEG + gdt	/* base */
 
-	/* The GDT table ...
+/* Some CPUs are picky about GDT alignment... */
+.align 16
+gdt:
+	/*
+	 * The GDT table ...
 	 *
 	 *	 Selector	Type
 	 *	 0x00		NULL
@@ -94,17 +98,46 @@ gdt_ptr:
 	 *	 0x10		32bit code
 	 *	 0x18		32bit data/stack
 	 */
+	/* The NULL Desciptor - Mandatory */
+	.word	0x0000		/* limit_low */
+	.word	0x0000		/* base_low */
+	.byte	0x00		/* base_middle */
+	.byte	0x00		/* access */
+	.byte	0x00		/* flags + limit_high */
+	.byte	0x00		/* base_high */
 
-gdt:
-	.word	0, 0, 0, 0	/* NULL  */
-	.word	0, 0, 0, 0	/* unused */
+	/* Unused Desciptor - (matches Linux) */
+	.word	0x0000		/* limit_low */
+	.word	0x0000		/* base_low */
+	.byte	0x00		/* base_middle */
+	.byte	0x00		/* access */
+	.byte	0x00		/* flags + limit_high */
+	.byte	0x00		/* base_high */
 
-	.word	0xFFFF		/* 4Gb - (0x100000*0x1000 = 4Gb) */
-	.word	0		/* base address = 0 */
-	.word	0x9B00		/* code read/exec */
-	.word	0x00CF		/* granularity = 4096, 386 (+5th nibble of limit) */
+	/*
+	 * The Code Segment Descriptor:
+	 * - Base   = 0x00000000
+	 * - Size   = 4GB
+	 * - Access = Present, Ring 0, Exec (Code), Readable
+	 * - Flags  = 4kB Granularity, 32-bit
+	 */
+	.word	0xffff		/* limit_low */
+	.word	0x0000		/* base_low */
+	.byte	0x00		/* base_middle */
+	.byte	0x9b		/* access */
+	.byte	0xcf		/* flags + limit_high */
+	.byte	0x00		/* base_high */
 
-	.word	0xFFFF		/* 4Gb - (0x100000*0x1000 = 4Gb) */
-	.word	0x0		/* base address = 0 */
-	.word	0x9300		/* data read/write */
-	.word	0x00CF		/* granularity = 4096, 386 (+5th nibble of limit) */
+	/*
+	 * The Data Segment Descriptor:
+	 * - Base   = 0x00000000
+	 * - Size   = 4GB
+	 * - Access = Present, Ring 0, Non-Exec (Data), Writable
+	 * - Flags  = 4kB Granularity, 32-bit
+	 */
+	.word	0xffff		/* limit_low */
+	.word	0x0000		/* base_low */
+	.byte	0x00		/* base_middle */
+	.byte	0x93		/* access */
+	.byte	0xcf		/* flags + limit_high */
+	.byte	0x00		/* base_high */
