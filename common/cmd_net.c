@@ -221,8 +221,11 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 
 #ifdef CONFIG_CMD_TFTPPUT
 	case 4:
-		save_addr = strict_strtoul(argv[1], NULL, 16);
-		save_size = strict_strtoul(argv[2], NULL, 16);
+		if (strict_strtoul(argv[1], 16, &save_addr) < 0 ||
+			strict_strtoul(argv[2], 16, &save_size) < 0) {
+			printf("Invalid address/size\n");
+			return cmd_usage(cmdtp);
+		}
 		copy_filename(BootFile, argv[3], sizeof(BootFile));
 		break;
 #endif
