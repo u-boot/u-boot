@@ -879,7 +879,7 @@ static void xnandpss_cmd_function(struct mtd_info *mtd, unsigned int command,
 
 	ndelay(100);
 
-	if (command == NAND_CMD_READ0) {
+	if ((command == NAND_CMD_READ0) || (command == NAND_CMD_RESET)) {
 		while (!chip->dev_ready(mtd))
 				;
 		return;
