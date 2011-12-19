@@ -195,12 +195,12 @@ static int udc_read_urb_ep0(void)
 
 	for (i = 0; i < w; i++) {
 		data32[ep0_urb->actual_length / 4 + i] = readl(UDCDN(0));
-//		ep0_urb->actual_length += 4;
+		/* ep0_urb->actual_length += 4; */
 	}
 
 	for (i = 0; i < b; i++) {
 		data8[ep0_urb->actual_length + w * 4 + i] = readb(UDCDN(0));
-//		ep0_urb->actual_length++;
+		/* ep0_urb->actual_length++; */
 	}
 
 	ep0_urb->actual_length += n;
@@ -599,7 +599,6 @@ void udc_setup_ep(struct usb_device_instance *device, unsigned int id,
 
 	writel(tmp, UDCCN(ep_num));
 
-	//usbdbg
 	usbdbg("UDCCR%c = %x", 'A' + ep_num-1, readl(UDCCN(ep_num)));
 	usbdbg("UDCCSR%c = %x", 'A' + ep_num-1, readl(UDCCSN(ep_num)));
 }
