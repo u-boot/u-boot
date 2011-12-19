@@ -214,7 +214,7 @@ struct iim_regs {
 	u32     crc_value;
 	u32     rsvd6[3];
 	u32     version;
-	u32     rsvd7[0xd8];
+	u32     rsvd7[0xdb];
 
 	struct fuse_bank {
 		u32	fuse_regs[0x20];

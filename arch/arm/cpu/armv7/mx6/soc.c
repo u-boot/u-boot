@@ -70,13 +70,15 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 	struct fuse_bank4_regs *fuse =
 			(struct fuse_bank4_regs *)bank->fuse_regs;
 
-	u32 mac_lo = readl(&fuse->mac_addr_low);
-	u32 mac_hi = readl(&fuse->mac_addr_high);
+	u32 value = readl(&fuse->mac_addr_high);
+	mac[0] = (value >> 8);
+	mac[1] = value ;
 
-	*(u32 *)mac = mac_lo;
-
-	mac[4] = mac_hi & 0xff;
-	mac[5] = (mac_hi >> 8) & 0xff;
+	value = readl(&fuse->mac_addr_low);
+	mac[2] = value >> 24 ;
+	mac[3] = value >> 16 ;
+	mac[4] = value >> 8 ;
+	mac[5] = value ;
 
 }
 #endif
