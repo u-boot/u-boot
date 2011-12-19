@@ -31,8 +31,7 @@ endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	+= ../seaboard/seaboard.o
-COBJS	+= ../common/board.o
+COBJS	= ../seaboard/seaboard.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
