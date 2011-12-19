@@ -260,7 +260,7 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)
 {
-	int ret;
+	int ret = 0;
 	struct pmic *p = get_pmic();
 
 	if (pmic_probe(p))
