@@ -11,12 +11,12 @@
 #define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
 #define CONFIG_PELE		1 /* SoC? */
 
-//#define CONFIG_ZYNQ_MIO_INIT	1	/* for use without FSBL */
-//#define CONFIG_ZYNQ_PLL_INIT	1	/* for use without FSBL */
-//#define CONFIG_ZYNQ_DDR_533_INIT	1	/* for use without FSBL */
+/* Select board: comment out all but one. */
 
-/* Select target configuration: comment out for ZC770 instead of EP107. */
 //#define CONFIG_EP107		1
+#define CONFIG_ZC770_XM010
+//#define CONFIG_ZC770_XM011
+//#define CONFIG_ZC770_XM010_XM011
 
 #ifdef CONFIG_EP107
 # include "../board/xilinx/dfe/xparameters.h"
@@ -213,11 +213,13 @@
 /*
  * NAND Flash settings
  */
+#if defined(CONFIG_ZC770_XM011) || defined(CONFIG_ZC770_XM010_XM011)
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 #define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
 #define CONFIG_MTD_DEVICE
+#endif
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #define CONFIG_PELE_XILINX_FLASH_HEADER
