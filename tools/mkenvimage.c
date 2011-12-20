@@ -213,18 +213,18 @@ int main(int argc, char **argv)
 	/* Replace newlines separating variables with \0 */
 	for (fp = 0, ep = 0 ; fp < filesize ; fp++) {
 		if (filebuf[fp] == '\n') {
-			if (fp == 0) {
+			if (ep == 0) {
 				/*
-				 * Newline at the beginning of the file ?
-				 * Ignore it.
+				 * Newlines at the beginning of the file ?
+				 * Ignore them.
 				 */
 				continue;
 			} else if (filebuf[fp-1] == '\\') {
 				/*
 				 * Embedded newline in a variable.
 				 *
-				 * The backslash was added to the envptr ;
-				 * rewind and replace it with a newline
+				 * The backslash was added to the envptr; rewind
+				 * and replace it with a newline
 				 */
 				ep--;
 				envptr[ep++] = '\n';
