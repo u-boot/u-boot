@@ -274,6 +274,8 @@ get_cluster (fsdata *mydata, __u32 clustnum, __u8 *buffer,
 {
 	__u32 idx = 0;
 	__u32 startsect;
+	__u32 nr_sect;
+	int ret;
 
 	if (clustnum > 0) {
 		startsect = mydata->data_begin +
@@ -284,16 +286,19 @@ get_cluster (fsdata *mydata, __u32 clustnum, __u8 *buffer,
 
 	debug("gc - clustnum: %d, startsect: %d\n", clustnum, startsect);
 
-	if (disk_read(startsect, size / mydata->sect_size, buffer) < 0) {
-		debug("Error reading data\n");
+	nr_sect = size / mydata->sect_size;
+	ret = disk_read(startsect, nr_sect, buffer);
+	if (ret != nr_sect) {
+		debug("Error reading data (got %d)\n", ret);
 		return -1;
 	}
 	if (size % mydata->sect_size) {
 		__u8 tmpbuf[mydata->sect_size];
 
 		idx = size / mydata->sect_size;
-		if (disk_read(startsect + idx, 1, tmpbuf) < 0) {
-			debug("Error reading data\n");
+		ret = disk_read(startsect + idx, 1, tmpbuf);
+		if (ret != 1) {
+			debug("Error reading data (got %d)\n", ret);
 			return -1;
 		}
 		buffer += idx * mydata->sect_size;
@@ -803,6 +808,11 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 
 	mydata->sect_size = (bs.sector_size[1] << 8) + bs.sector_size[0];
 	mydata->clust_size = bs.cluster_size;
+	if (mydata->sect_size != cur_part_info.blksz) {
+		printf("Error: FAT sector size mismatch (fs=%hu, dev=%lu)\n",
+				mydata->sect_size, cur_part_info.blksz);
+		return -1;
+	}
 
 	if (mydata->fatsize == 32) {
 		mydata->data_begin = mydata->rootdir_sect -
