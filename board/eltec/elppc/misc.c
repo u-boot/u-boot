@@ -116,7 +116,7 @@ int misc_init_r (void)
 		eerev.etheraddr[5] = 0x4D;
 
 		/* cache config word for ELPPC */
-		*(int *) &eerev.res[0] = 0;
+		memset(&eerev.res[0], 0, 4);
 
 		initSrom = 1;	/* force dialog */
 		copyNv = 1;	/* copy to nvram */
