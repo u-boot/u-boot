@@ -40,12 +40,6 @@
 #include <common.h>
 #include <version.h>
 
-#if defined(CONFIG_OMAP1610)
-#include <./configs/omap1510.h>
-#elif defined(CONFIG_OMAP730)
-#include <./configs/omap730.h>
-#endif
-
 /*
  *************************************************************************
  *
