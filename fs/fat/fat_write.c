@@ -112,6 +112,7 @@ static void set_name(dir_entry *dirent, const char *filename)
 	debug("ext : %s\n", dirent->ext);
 }
 
+static __u8 num_of_fats;
 /*
  * Write fat buffer into block device
  */
@@ -132,6 +133,15 @@ static int flush_fat_buffer(fsdata *mydata)
 	if (disk_write(startblock, getsize, bufptr) < 0) {
 		debug("error: writing FAT blocks\n");
 		return -1;
+	}
+
+	if (num_of_fats == 2) {
+		/* Update corresponding second FAT blocks */
+		startblock += mydata->fatlength;
+		if (disk_write(startblock, getsize, bufptr) < 0) {
+			debug("error: writing second FAT blocks\n");
+			return -1;
+		}
 	}
 
 	return 0;
@@ -950,6 +960,7 @@ static int do_fat_write(const char *filename, void *buffer,
 
 	cursect = mydata->rootdir_sect
 		= mydata->fat_sect + mydata->fatlength * bs.fats;
+	num_of_fats = bs.fats;
 
 	mydata->sect_size = (bs.sector_size[1] << 8) + bs.sector_size[0];
 	mydata->clust_size = bs.cluster_size;
