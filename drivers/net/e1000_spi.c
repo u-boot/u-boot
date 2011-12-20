@@ -1,4 +1,5 @@
 #include "e1000.h"
+#include <linux/compiler.h>
 
 /*-----------------------------------------------------------------------
  * SPI transfer
@@ -112,7 +113,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 void spi_free_slave(struct spi_slave *spi)
 {
-	struct e1000_hw *hw = e1000_hw_from_spi(spi);
+	__maybe_unused struct e1000_hw *hw = e1000_hw_from_spi(spi);
 	E1000_DBG(hw->nic, "EEPROM SPI access released\n");
 }
 
@@ -469,7 +470,7 @@ static int do_e1000_spi_program(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 		int argc, char * const argv[])
 {
-	uint16_t i, length, checksum, checksum_reg;
+	uint16_t i, length, checksum = 0, checksum_reg;
 	uint16_t *buffer;
 	boolean_t upd;
 
