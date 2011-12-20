@@ -1771,12 +1771,6 @@ static int hc_start(ohci_t *ohci)
 
 /*-------------------------------------------------------------------------*/
 
-/* Poll USB interrupt. */
-void usb_event_poll(void)
-{
-	hc_interrupt();
-}
-
 /* an interrupt happens */
 
 static int hc_interrupt(void)

@@ -1265,31 +1265,3 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 	dev->act_len = len;
 	return 0;
 }
-
-
-#ifdef CONFIG_SYS_USB_EVENT_POLL
-/*
- * This function polls for USB keyboard data.
- */
-void usb_event_poll()
-{
-	struct stdio_dev *dev;
-	struct usb_device *usb_kbd_dev;
-	struct usb_interface *iface;
-	struct usb_endpoint_descriptor *ep;
-	int pipe;
-	int maxp;
-
-	/* Get the pointer to USB Keyboard device pointer */
-	dev = stdio_get_by_name("usbkbd");
-	usb_kbd_dev = (struct usb_device *)dev->priv;
-	iface = &usb_kbd_dev->config.if_desc[0];
-	ep = &iface->ep_desc[0];
-	pipe = usb_rcvintpipe(usb_kbd_dev, ep->bEndpointAddress);
-
-	/* Submit a interrupt transfer request */
-	maxp = usb_maxpacket(usb_kbd_dev, pipe);
-	usb_submit_int_msg(usb_kbd_dev, pipe, &new[0],
-			maxp > 8 ? 8 : maxp, ep->bInterval);
-}
-#endif /* CONFIG_SYS_USB_EVENT_POLL */

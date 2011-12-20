@@ -908,12 +908,6 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	return 0;
 }
 
-void usb_event_poll(void)
-{
-	/* no implement */
-	R8A66597_DPRINT("%s\n", __func__);
-}
-
 int usb_lowlevel_init(void)
 {
 	struct r8a66597 *r8a66597 = &gr8a66597;

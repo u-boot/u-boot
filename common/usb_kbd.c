@@ -323,7 +323,23 @@ static int usb_kbd_irq(struct usb_device *dev)
 static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 {
 #if	defined(CONFIG_SYS_USB_EVENT_POLL)
-	usb_event_poll();
+	struct usb_interface *iface;
+	struct usb_endpoint_descriptor *ep;
+	struct usb_kbd_pdata *data;
+	int pipe;
+	int maxp;
+
+	/* Get the pointer to USB Keyboard device pointer */
+	data = dev->privptr;
+	iface = &dev->config.if_desc[0];
+	ep = &iface->ep_desc[0];
+	pipe = usb_rcvintpipe(dev, ep->bEndpointAddress);
+
+	/* Submit a interrupt transfer request */
+	maxp = usb_maxpacket(dev, pipe);
+	usb_submit_int_msg(dev, pipe, &data->new[0],
+			maxp > 8 ? 8 : maxp, ep->bInterval);
+
 	usb_kbd_irq_worker(dev);
 #elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
 	struct usb_interface *iface;
