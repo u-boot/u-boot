@@ -260,6 +260,27 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 }
 #endif
 
+#define	HW_DIGCTRL_SCRATCH0	0x8001c280
+#define	HW_DIGCTRL_SCRATCH1	0x8001c290
+int mx28_dram_init(void)
+{
+	uint32_t sz[2];
+
+	sz[0] = readl(HW_DIGCTRL_SCRATCH0);
+	sz[1] = readl(HW_DIGCTRL_SCRATCH1);
+
+	if (sz[0] != sz[1]) {
+		printf("MX28:\n"
+			"Error, the RAM size in HW_DIGCTRL_SCRATCH0 and\n"
+			"HW_DIGCTRL_SCRATCH1 is not the same. Please\n"
+			"verify these two registers contain valid RAM size!\n");
+		hang();
+	}
+
+	gd->ram_size = sz[0];
+	return 0;
+}
+
 U_BOOT_CMD(
 	clocks,	CONFIG_SYS_MAXARGS, 1, do_mx28_showclocks,
 	"display clocks",
