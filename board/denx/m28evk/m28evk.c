@@ -181,7 +181,7 @@ int board_eth_init(bd_t *bis)
 #ifdef	CONFIG_M28_FEC_MAC_IN_OCOTP
 
 #define	MXS_OCOTP_MAX_TIMEOUT	1000000
-void imx_get_mac_from_fuse(char *mac)
+void imx_get_mac_from_fuse(int dev_id, char *mac)
 {
 	struct mx28_ocotp_regs *ocotp_regs =
 		(struct mx28_ocotp_regs *)MXS_OCOTP_BASE;
@@ -207,7 +207,7 @@ void imx_get_mac_from_fuse(char *mac)
 	mac[5] = data & 0xff;
 }
 #else
-void imx_get_mac_from_fuse(char *mac)
+void imx_get_mac_from_fuse(int dev_id, char *mac)
 {
 	memset(mac, 0, 6);
 }

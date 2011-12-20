@@ -63,7 +63,7 @@ int arch_cpu_init(void)
 #endif
 
 #if defined(CONFIG_FEC_MXC)
-void imx_get_mac_from_fuse(unsigned char *mac)
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
 	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
 	struct fuse_bank *bank = &iim->bank[4];

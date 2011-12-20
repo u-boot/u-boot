@@ -32,7 +32,7 @@
 #ifndef __FEC_MXC_H
 #define __FEC_MXC_H
 
-void imx_get_mac_from_fuse(unsigned char *mac);
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
 /**
  * Layout description of the FEC

@@ -312,7 +312,7 @@ void mx25_fec_init_pins(void)
 
 }
 
-void imx_get_mac_from_fuse(unsigned char *mac)
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
 	int i;
 	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;

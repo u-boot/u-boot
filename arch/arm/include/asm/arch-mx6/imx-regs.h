@@ -167,7 +167,7 @@
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
-extern void imx_get_mac_from_fuse(unsigned char *mac);
+extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
 /* System Reset Controller (SRC) */
 struct src {
