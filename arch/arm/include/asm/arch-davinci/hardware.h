@@ -622,8 +622,8 @@ struct davinci_rtc {
 #define RTC_STATE_BUSY	0x01
 #define RTC_STATE_RUN	0x02
 
-#define RTC_KICK0R_WE	0x130be783
-#define RTC_KICK1R_WE	0xe0f1a495
+#define RTC_KICK0R_WE	0x83e70b13
+#define RTC_KICK1R_WE	0x95a4f1e0
 
 #define davinci_rtc_base ((struct davinci_rtc *)DAVINCI_RTC_BASE)
 

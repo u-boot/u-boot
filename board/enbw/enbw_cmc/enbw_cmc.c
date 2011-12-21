@@ -526,8 +526,8 @@ void bootcount_store(ulong a)
 	 * for RTC Scratch registers. Cratch0 and 1 are
 	 * used for bootcount values.
 	 */
-	out_be32(&reg->kick0r, RTC_KICK0R_WE);
-	out_be32(&reg->kick1r, RTC_KICK1R_WE);
+	writel(RTC_KICK0R_WE, &reg->kick0r);
+	writel(RTC_KICK1R_WE, &reg->kick1r);
 	out_be32(&reg->scratch0, a);
 	out_be32(&reg->scratch1, BOOTCOUNT_MAGIC);
 }
