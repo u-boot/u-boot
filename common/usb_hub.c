@@ -109,6 +109,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 {
 	int i;
 	struct usb_device *dev;
+	unsigned pgood_delay = hub->desc.bPwrOn2PwrGood * 2;
 
 	dev = hub->pusb_dev;
 	/* Enable power to the ports */
@@ -116,8 +117,10 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	for (i = 0; i < dev->maxchild; i++) {
 		usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
 		USB_HUB_PRINTF("port %d returns %lX\n", i + 1, dev->status);
-		wait_ms(hub->desc.bPwrOn2PwrGood * 2);
 	}
+
+	/* Wait at least 100 msec for power to become stable */
+	wait_ms(max(pgood_delay, (unsigned)100));
 }
 
 void usb_hub_reset(void)
