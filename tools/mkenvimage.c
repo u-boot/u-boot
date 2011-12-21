@@ -25,6 +25,9 @@
  * MA 02111-1307 USA
  */
 
+/* We want the GNU version of basename() */
+#define _GNU_SOURCE
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -79,6 +82,9 @@ int main(int argc, char **argv)
 	struct stat txt_file_stat;
 
 	int fp, ep;
+	const char *prg;
+
+	prg = basename(argv[0]);
 
 	/* Parse the cmdline */
 	while ((option = getopt(argc, argv, "s:o:rbp:h")) != -1) {
@@ -104,11 +110,11 @@ int main(int argc, char **argv)
 			padbyte = strtol(optarg, NULL, 0);
 			break;
 		case 'h':
-			usage(argv[0]);
+			usage(prg);
 			return EXIT_SUCCESS;
 		default:
 			fprintf(stderr, "Wrong option -%c\n", option);
-			usage(argv[0]);
+			usage(prg);
 			return EXIT_FAILURE;
 		}
 	}
@@ -118,7 +124,7 @@ int main(int argc, char **argv)
 		fprintf(stderr,
 			"Please specify the size of the envrionnment "
 			"partition.\n");
-		usage(argv[0]);
+		usage(prg);
 		return EXIT_FAILURE;
 	}
 
