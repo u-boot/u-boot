@@ -28,8 +28,10 @@ endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	= $(BOARD).o ../common/flash.o cmd_mip405.o ../common/pci.o \
-			../common/usb_uhci.o ../common/common_util.o
+COBJS	= $(BOARD).o cmd_mip405.o \
+		../common/pci.o \
+		../common/usb_uhci.o \
+		../common/common_util.o
 
 SOBJS	= init.o
 
