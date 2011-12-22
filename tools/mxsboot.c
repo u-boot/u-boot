@@ -606,6 +606,9 @@ int parse_ops(int argc, char **argv)
 	};
 	int type;
 
+	if (argc < 4)
+		return -1;
+
 	for (i = 1; i < argc; i++) {
 		if (!strncmp(argv[i], "-w", 2))
 			type = PARAM_WRITE;
