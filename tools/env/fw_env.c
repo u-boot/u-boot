@@ -45,6 +45,8 @@
 
 #include "fw_env.h"
 
+#include <config.h>
+
 #define WHITESPACE(c) ((c == '\t') || (c == ' '))
 
 #define min(x, y) ({				\
@@ -390,15 +392,22 @@ int fw_env_write(char *name, char *value)
 	 * Delete any existing definition
 	 */
 	if (oldval) {
+#ifndef CONFIG_ENV_OVERWRITE
 		/*
 		 * Ethernet Address and serial# can be set only once
 		 */
-		if ((strcmp (name, "ethaddr") == 0) ||
-			(strcmp (name, "serial#") == 0)) {
+		if (
+		    (strcmp(name, "serial#") == 0) ||
+		    ((strcmp(name, "ethaddr") == 0)
+#if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
+		    && (strcmp(oldval, MK_STR(CONFIG_ETHADDR)) != 0)
+#endif /* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
+		   ) ) {
 			fprintf (stderr, "Can't overwrite \"%s\"\n", name);
 			errno = EROFS;
 			return -1;
 		}
+#endif /* CONFIG_ENV_OVERWRITE */
 
 		if (*++nxt == '\0') {
 			*env = '\0';
