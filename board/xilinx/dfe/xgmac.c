@@ -25,6 +25,8 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
 
 #define phy_spinwait(e) do { while (!Xgmac_phy_mgmt_idle(e)); } while (0)
 
+#define dmb() __asm__ __volatile__ ("dmb" : : : "memory")
+
 /*************************** Variable Definitions ***************************/
 
 /*
@@ -91,6 +93,12 @@ static void phy_rst(XEmacPss * e)
 	puts("\nPHY reset complete.\n");
 }
 
+static void Out32(u32 OutAddress, u32 Value)
+{
+	*(volatile u32 *) OutAddress = Value;
+	dmb();
+}
+
 /*****************************************************************************/
 
 void eth_halt(void)
@@ -101,6 +109,7 @@ void eth_halt(void)
 int eth_init(bd_t * bis)
 {
 	int tmp;
+	int link_speed;
 	int Status;
 	XEmacPss_Config *Config;
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
@@ -178,12 +187,13 @@ int eth_init(bd_t * bis)
 	 *  Bit 0:  Set for 100 Mbps operation.
 	 *  Bit 1:  Set for Full Duplex mode.
 	 *  Bit 4:  Set to allow Copy all frames.
+	 *  Bit 10: Set for Gigabit.
 	 *  Bit 17: Set for FCS removal.
 	 *  Bits 20-18: Set with value binary 010 to divide pclk by 32
 	 *              (pclk up to 80 MHz)
 	 */
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
-			  XEMACPSS_NWCFG_OFFSET, 0x000A0013);
+			  XEMACPSS_NWCFG_OFFSET, 0x000A0413);
 
 	/*
 	 * Following is the setup for DMA Configuration register.
@@ -236,13 +246,20 @@ int eth_init(bd_t * bis)
 	/* link speed advertisement for autonegotiation */
 	tmp = phy_rd(EmacPssInstancePtr, 4);
 	tmp |= 0xd80;		/* enable 100Mbps */
-	tmp &= ~0x60;		/* disable 10 Mbps */
+	tmp |= 0x60;		/* enable 10 Mbps */
 	phy_wr(EmacPssInstancePtr, 4, tmp);
 
-	/* *disable* gigabit advertisement */
+	/* enable gigabit advertisement */
 	tmp = phy_rd(EmacPssInstancePtr, 9);
-	tmp &= ~0x0300;
+	tmp |= 0x0300;
 	phy_wr(EmacPssInstancePtr, 9, tmp);
+
+	/* Copper specific control register 1 */
+	phy_wr(EmacPssInstancePtr, 22, 0);
+	tmp = phy_rd(EmacPssInstancePtr, 16);
+	tmp |= (7 << 12);	/* max number of gigabit attempts */
+	tmp |= (1 << 11);	/* enable downshift */
+	phy_wr(EmacPssInstancePtr, 16, tmp);
 
 	/* enable autonegotiation, set 100Mbps, full-duplex, restart aneg */
 	tmp = phy_rd(EmacPssInstancePtr, 0);
@@ -251,11 +268,77 @@ int eth_init(bd_t * bis)
 	phy_rst(EmacPssInstancePtr);
 
 	puts("\nWaiting for PHY to complete autonegotiation.");
-	while (!(phy_rd(EmacPssInstancePtr, 1) & (1 << 5)));
+	tmp = 0; /* delay counter */
+	while (!(phy_rd(EmacPssInstancePtr, 1) & (1 << 5))) {
+		udelay(10000);
+		tmp++;
+		if (tmp > 1000) { /* stalled if no link after 10 seconds */
+			printf("***Error: Auto-negotiation stalled...\n");
+			return -1;
+		}
+	}
 
 	puts("\nPHY claims autonegotiation complete...\n");
 
-	puts("GEM link speed is 100Mbps\n");
+	/* Check if the link is up */
+	phy_wr(EmacPssInstancePtr, 22, 0);
+	tmp = phy_rd(EmacPssInstancePtr, 17);
+	if (  ((tmp >> 10) & 1) ) {
+		/* Check for an auto-negotiation error */
+		phy_wr(EmacPssInstancePtr, 22, 0);
+		tmp = phy_rd(EmacPssInstancePtr, 19);
+		if ( (tmp >> 15) & 1 ) {
+			puts("***Error: Auto-negotiation error is present.\n");
+			return -1;
+		}
+	} else {
+		puts("***Error: Link is not up.\n");
+		return -1;
+	}
+
+	/* Determine link speed */
+	phy_wr(EmacPssInstancePtr, 22, 0);
+	tmp = phy_rd(EmacPssInstancePtr, 17);
+	if ( ((tmp >> 14) & 3) == 2)		/* 1000Mbps */
+		link_speed = 1000;
+	else if ( ((tmp >> 14) & 3) == 1)	/* 100Mbps */
+		link_speed = 100;
+	else					/* 10Mbps */
+		link_speed = 10;
+
+	/* MAC Setup */
+	tmp = XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
+			  XEMACPSS_NWCFG_OFFSET);
+	if (link_speed == 10)
+		tmp &= ~(0x1);		/* enable 10Mbps */
+	else
+		tmp |= 0x1;		/* enable 100Mbps */
+	if (link_speed == 1000)
+		tmp |= 0x400;		/* enable 1000Mbps */
+	else
+		tmp &= ~(0x400);	/* disable gigabit */
+	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
+			  XEMACPSS_NWCFG_OFFSET, tmp);
+
+	/* GEM0_CLK Setup */
+	/* SLCR unlock */
+	Out32(0xF8000008, 0xDF0D);
+
+	/* Configure GEM0_RCLK_CTRL */
+	Out32(0xF8000138, ((0 << 4) | (1 << 0)));
+
+	/* Set divisors for appropriate frequency in GEM0_CLK_CTRL */
+	if (link_speed == 1000)		/* 125MHz */
+		Out32(0xF8000140, ((1 << 20) | (8 << 8) | (0 << 4) | (1 << 0)));
+	else if (link_speed == 100)	/* 25 MHz */
+		Out32(0xF8000140, ((1 << 20) | (40 << 8) | (0 << 4) | (1 << 0)));
+	else				/* 2.5 MHz */
+		Out32(0xF8000140, ((10 << 20) | (40 << 8) | (0 << 4) | (1 << 0)));
+
+	/* SLCR lock */
+	Out32(0xF8000008, 0x767B);
+
+	printf("GEM link speed is %dMbps!\n", link_speed);
 
 	ethstate.initialized = 1;
 	return 0;
