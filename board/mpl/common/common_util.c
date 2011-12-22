@@ -53,13 +53,156 @@ extern int mem_test(ulong start, ulong ramsize, int quiet);
 #define I2C_BACKUP_ADDR 0x7C00		/* 0x200 bytes for backup */
 #define IMAGE_SIZE CONFIG_SYS_MONITOR_LEN	/* ugly, but it works for now */
 
-extern flash_info_t flash_info[];	/* info for FLASH chips */
+#if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
+/*-----------------------------------------------------------------------
+ * On PIP/MIP405 we have 3 (4) possible boot mode
+ *
+ * - Boot from Flash (Flash CS = CS0, MPS CS = CS1)
+ * - Boot from MPS   (Flash CS = CS1, MPS CS = CS0)
+ * - Boot from PCI with Flash map (Flash CS = CS0, MPS CS = CS1)
+ * - Boot from PCI with MPS map   (Flash CS = CS1, MPS CS = CS0)
+ * The flash init is the first board specific routine which is called
+ * after code relocation (running from SDRAM)
+ * The first thing we do is to map the Flash CS to the Flash area and
+ * the MPS CS to the MPS area. Since the flash size is unknown at this
+ * point, we use the max flash size and the lowest flash address as base.
+ *
+ * After flash detection we adjust the size of the CS area accordingly.
+ * update_flash_size() will fix in wrong values in the flash_info structure,
+ * misc_init_r() will fix the values in the board info structure
+ */
+int get_boot_mode(void)
+{
+	unsigned long pbcr;
+	int res = 0;
+	pbcr = mfdcr(CPC0_PSR);
+	if ((pbcr & PSR_ROM_WIDTH_MASK) == 0)
+		/* boot via MPS or MPS mapping */
+		res = BOOT_MPS;
+	if (pbcr & PSR_ROM_LOC)
+		/* boot via PCI.. */
+		res |= BOOT_PCI;
+	 return res;
+}
+
+/* Map the flash high (in boot area)
+   This code can only be executed from SDRAM (after relocation).
+*/
+void setup_cs_reloc(void)
+{
+	int mode;
+	/*
+	 * since we are relocated, we can set-up the CS finaly
+	 * but first of all, switch off PCI mapping (in case it
+	 * was a PCI boot)
+	 */
+	out32r(PMM0MA, 0L);
+	/* get boot mode */
+	mode = get_boot_mode();
+	/*
+	 * we map the flash high in every case
+	 * first find out to which CS the flash is attached to
+	 */
+	if (mode & BOOT_MPS) {
+		/* map flash high on CS1 and MPS on CS0 */
+		mtdcr(EBC0_CFGADDR, PB0AP);
+		mtdcr(EBC0_CFGDATA, MPS_AP);
+		mtdcr(EBC0_CFGADDR, PB0CR);
+		mtdcr(EBC0_CFGDATA, MPS_CR);
+		/*
+		 * we use the default values (max values) for the flash
+		 * because its real size is not yet known
+		 */
+		mtdcr(EBC0_CFGADDR, PB1AP);
+		mtdcr(EBC0_CFGDATA, FLASH_AP);
+		mtdcr(EBC0_CFGADDR, PB1CR);
+		mtdcr(EBC0_CFGDATA, FLASH_CR_B);
+	} else {
+		/* map flash high on CS0 and MPS on CS1 */
+		mtdcr(EBC0_CFGADDR, PB1AP);
+		mtdcr(EBC0_CFGDATA, MPS_AP);
+		mtdcr(EBC0_CFGADDR, PB1CR);
+		mtdcr(EBC0_CFGDATA, MPS_CR);
+		/*
+		 * we use the default values (max values) for the flash
+		 * because its real size is not yet known
+		 */
+		mtdcr(EBC0_CFGADDR, PB0AP);
+		mtdcr(EBC0_CFGDATA, FLASH_AP);
+		mtdcr(EBC0_CFGADDR, PB0CR);
+		mtdcr(EBC0_CFGDATA, FLASH_CR_B);
+	}
+}
+#endif /* #if defined(CONFIG_PIP405) || defined(CONFIG_MIP405) */
+
+#ifdef CONFIG_SYS_UPDATE_FLASH_SIZE
+/* adjust flash start and protection info */
+int update_flash_size(int flash_size)
+{
+	int i = 0, mode;
+	flash_info_t *info = &flash_info[0];
+	unsigned long flashcr;
+	unsigned long flash_base = (0 - flash_size) & 0xFFF00000;
+
+	if (flash_size > 128*1024*1024) {
+		printf("\n ### ERROR, wrong flash size: %X, reset board ###\n",
+		       flash_size);
+		hang();
+	}
+
+	if ((flash_size >> 20) != 0)
+		i = __ilog2(flash_size >> 20);
+
+	/* set up flash CS according to the size */
+	mode = get_boot_mode();
+	if (mode & BOOT_MPS) {
+		/* flash is on CS1 */
+		mtdcr(EBC0_CFGADDR, PB1CR);
+		flashcr = mfdcr(EBC0_CFGDATA);
+		/* we map the flash high in every case */
+		flashcr &= 0x0001FFFF; /* mask out address bits */
+		flashcr |= flash_base; /* start addr */
+		flashcr |= (i << 17); /* size addr */
+		mtdcr(EBC0_CFGADDR, PB1CR);
+		mtdcr(EBC0_CFGDATA, flashcr);
+	} else {
+		/* flash is on CS0 */
+		mtdcr(EBC0_CFGADDR, PB0CR);
+		flashcr = mfdcr(EBC0_CFGDATA);
+		/* we map the flash high in every case */
+		flashcr &= 0x0001FFFF; /* mask out address bits */
+		flashcr |= flash_base; /* start addr */
+		flashcr |= (i << 17); /* size addr */
+		mtdcr(EBC0_CFGADDR, PB0CR);
+		mtdcr(EBC0_CFGDATA, flashcr);
+	}
+
+	for (i = 0; i < info->sector_count; i++)
+		/* adjust sector start address */
+		info->start[i] = flash_base +
+				(info->start[i] - CONFIG_SYS_FLASH_BASE);
+
+	/* unprotect all sectors */
+	flash_protect(FLAG_PROTECT_CLEAR,
+		      info->start[0],
+		      0xFFFFFFFF,
+		      info);
+	flash_protect_default();
+	/* protect reset vector too*/
+	flash_protect(FLAG_PROTECT_SET,
+		      info->start[info->sector_count-1],
+		      0xFFFFFFFF,
+		      info);
+
+	return 0;
+}
+#endif
 
 static int
 mpl_prg(uchar *src, ulong size)
 {
 	ulong start;
-	flash_info_t *info;
+	flash_info_t *info = &flash_info[0];
 	int i, rc;
 #if defined(CONFIG_PATI)
 	int start_sect;
@@ -68,8 +211,6 @@ mpl_prg(uchar *src, ulong size)
 	char *copystr = (char *)src;
 	ulong *magic = (ulong *)src;
 #endif
-
-	info = &flash_info[0];
 
 #if defined(CONFIG_PIP405) || defined(CONFIG_MIP405) || defined(CONFIG_PATI)
 	if (uimage_to_cpu (magic[0]) != IH_MAGIC) {
@@ -96,12 +237,18 @@ mpl_prg(uchar *src, ulong size)
 	}
 #if !defined(CONFIG_PATI)
 	start = 0 - size;
-	for (i = info->sector_count-1; i > 0; i--) {
-		info->protect[i] = 0; /* unprotect this sector */
+
+	/* unprotect sectors used by u-boot */
+	flash_protect(FLAG_PROTECT_CLEAR,
+		      start,
+		      0xFFFFFFFF,
+		      info);
+
+	/* search start sector */
+	for (i = info->sector_count-1; i > 0; i--)
 		if (start >= info->start[i])
 			break;
-	}
-	/* set-up flash location */
+
 	/* now erase flash */
 	printf("Erasing at %lx (sector %d) (start %lx)\n",
 				start,i,info->start[i]);
@@ -114,22 +261,24 @@ mpl_prg(uchar *src, ulong size)
 #else /* #if !defined(CONFIG_PATI */
 	start = FIRM_START;
 	start_sect = -1;
-	for (i = 0; i < info->sector_count; i++) {
-		if (start < info->start[i]) {
-			start_sect = i - 1;
-			break;
-		}
-	}
 
-	info->protect[i - 1] = 0;	/* unprotect this sector */
-	for (; i < info->sector_count; i++) {
-		if ((start + size) < info->start[i])
+	/* search start sector */
+	for (i = info->sector_count-1; i > 0; i--)
+		if (start >= info->start[i])
 			break;
-		info->protect[i] = 0;	/* unprotect this sector */
-	}
 
-	i--;
-	/* set-up flash location */
+	start_sect = i;
+
+	for (i = info->sector_count-1; i > 0; i--)
+		if ((start + size) >= info->start[i])
+			break;
+
+	/* unprotect sectors used by u-boot */
+	flash_protect(FLAG_PROTECT_CLEAR,
+		      start,
+		      start + size,
+		      info);
+
 	/* now erase flash */
 	printf ("Erasing at %lx to %lx (sector %d to %d) (%lx to %lx)\n",
 		start, start + size, start_sect, i,
@@ -143,12 +292,17 @@ mpl_prg(uchar *src, ulong size)
 
 #elif defined(CONFIG_VCMA9)
 	start = 0;
-	for (i = 0; i <info->sector_count; i++) {
-		info->protect[i] = 0; /* unprotect this sector */
+
+	/* search end sector */
+	for (i = 0; i < info->sector_count; i++)
 		if (size < info->start[i])
 		    break;
-	}
-	/* set-up flash location */
+
+	flash_protect(FLAG_PROTECT_CLEAR,
+		      start,
+		      size,
+		      info);
+
 	/* now erase flash */
 	printf("Erasing at %lx (sector %d) (start %lx)\n",
 				start,0,info->start[0]);

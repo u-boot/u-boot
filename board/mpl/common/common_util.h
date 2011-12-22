@@ -30,11 +30,15 @@ typedef struct {
 	char eth_addr[21];	/* "00:60:C2:0a:00:00" */
 } backup_t;
 
+extern flash_info_t flash_info[];	/* info for FLASH chips */
+
 void get_backup_values(backup_t *buf);
 
 #if defined(CONFIG_PIP405) || defined(CONFIG_MIP405)
 #define BOOT_MPS	0x01
 #define BOOT_PCI	0x02
+int get_boot_mode(void);
+void setup_cs_reloc(void);
 #endif
 
 void check_env(void);
