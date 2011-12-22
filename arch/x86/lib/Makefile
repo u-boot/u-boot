@@ -32,6 +32,7 @@ SOBJS-$(CONFIG_SYS_X86_REALMODE)	+= realmode_switch.o
 COBJS-$(CONFIG_SYS_PC_BIOS)	+= bios_setup.o
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
+COBJS-y	+= cmd_boot.o
 COBJS-y	+= gcc.o
 COBJS-y	+= interrupts.o
 COBJS-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
