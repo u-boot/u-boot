@@ -486,10 +486,3 @@ void hang(void)
 	for (;;)
 		;
 }
-
-void setup_pcat_compatibility(void)
-	__attribute__((weak, alias("__setup_pcat_compatibility")));
-
-void __setup_pcat_compatibility(void)
-{
-}

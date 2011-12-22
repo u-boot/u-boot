@@ -314,6 +314,13 @@ void boot_zimage(void *setup_base, void *load_address)
 #endif
 }
 
+void setup_pcat_compatibility(void)
+	__attribute__((weak, alias("__setup_pcat_compatibility")));
+
+void __setup_pcat_compatibility(void)
+{
+}
+
 int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct boot_params *base_ptr;
