@@ -41,7 +41,6 @@
 #include <ide.h>
 #include <serial.h>
 #include <asm/u-boot-x86.h>
-#include <elf.h>
 #include <asm/processor.h>
 
 #ifdef CONFIG_BITBANGMII
@@ -117,9 +116,6 @@ static void display_flash_config(ulong size)
 typedef int (init_fnc_t) (void);
 
 static int calculate_relocation_address(void);
-static int copy_uboot_to_ram(void);
-static int clear_bss(void);
-static int do_elf_reloc_fixups(void);
 static int copy_gd_to_ram(void);
 
 init_fnc_t *init_sequence_f[] = {
@@ -183,59 +179,6 @@ static int calculate_relocation_address(void)
 	return 0;
 }
 
-static int copy_uboot_to_ram(void)
-{
-	size_t len = (size_t)&__data_end - (size_t)&__text_start;
-
-	memcpy((void *)gd->relocaddr, (void *)&__text_start, len);
-
-	return 0;
-}
-
-static int clear_bss(void)
-{
-	ulong dst_addr = (ulong)&__bss_start + gd->reloc_off;
-	size_t len = (size_t)&__bss_end - (size_t)&__bss_start;
-
-	memset((void *)dst_addr, 0x00, len);
-
-	return 0;
-}
-
-static int do_elf_reloc_fixups(void)
-{
-	Elf32_Rel *re_src = (Elf32_Rel *)(&__rel_dyn_start);
-	Elf32_Rel *re_end = (Elf32_Rel *)(&__rel_dyn_end);
-
-	Elf32_Addr *offset_ptr_rom;
-	Elf32_Addr *offset_ptr_ram;
-
-	/* The size of the region of u-boot that runs out of RAM. */
-	uintptr_t size = (uintptr_t)&__bss_end - (uintptr_t)&__text_start;
-
-	do {
-		/* Get the location from the relocation entry */
-		offset_ptr_rom = (Elf32_Addr *)re_src->r_offset;
-
-		/* Check that the location of the relocation is in .text */
-		if (offset_ptr_rom >= (Elf32_Addr *)CONFIG_SYS_TEXT_BASE) {
-
-			/* Switch to the in-RAM version */
-			offset_ptr_ram = (Elf32_Addr *)((ulong)offset_ptr_rom +
-							gd->reloc_off);
-
-			/* Check that the target points into .text */
-			if (*offset_ptr_ram >= CONFIG_SYS_TEXT_BASE &&
-					*offset_ptr_ram <
-					(CONFIG_SYS_TEXT_BASE + size)) {
-				*offset_ptr_ram += gd->reloc_off;
-			}
-		}
-	} while (re_src++ < re_end);
-
-	return 0;
-}
-
 /* Load U-Boot into RAM, initialize BSS, perform relocation adjustments */
 void board_init_f(ulong boot_flags)
 {
@@ -270,17 +213,9 @@ void board_init_f_r(void)
 	if (init_cache() != 0)
 		hang();
 
-	copy_uboot_to_ram();
-	clear_bss();
-	do_elf_reloc_fixups();
+	relocate_code(0, gd, 0);
 
-	/*
-	 * Transfer execution from Flash to RAM by calculating the address
-	 * of the in-RAM copy of board_init_r() and calling it
-	 */
-	(board_init_r + gd->reloc_off)(gd, gd->relocaddr);
-
-	/* NOTREACHED - board_init_r() does not return */
+	/* NOTREACHED - relocate_code() does not return */
 	while (1)
 		;
 }
