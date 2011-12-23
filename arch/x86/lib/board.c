@@ -35,7 +35,7 @@
 #include <watchdog.h>
 #include <stdio_dev.h>
 #include <asm/u-boot-x86.h>
-#include <asm/processor.h>
+#include <asm/relocate.h>
 
 #include <asm/init_helpers.h>
 #include <asm/init_wrappers.h>
@@ -43,31 +43,58 @@
 /*
  * Breath some life into the board...
  *
- * Initialize an SMC for serial comms, and carry out some hardware
- * tests.
+ * Getting the board up and running is a three-stage process:
+ *  1) Execute from Flash, SDRAM Uninitialised
+ *     At this point, there is a limited amount of non-SDRAM memory
+ *     (typically the CPU cache, but can also be SRAM or even a buffer of
+ *     of some peripheral). This limited memory is used to hold:
+ *      - The initial copy of the Global Data Structure
+ *      - A temporary stack
+ *      - A temporary x86 Global Descriptor Table
+ *      - The pre-console buffer (if enabled)
  *
- * The first part of initialization is running from Flash memory;
- * its main purpose is to initialize the RAM so that we
- * can relocate the monitor code to RAM.
+ *     The following is performed during this phase of execution:
+ *      - Core low-level CPU initialisation
+ *      - Console initialisation
+ *      - SDRAM initialisation
+ *
+ *  2) Execute from Flash, SDRAM Initialised
+ *     At this point we copy Global Data from the initial non-SDRAM
+ *     memory and set up the permanent stack in SDRAM. The CPU cache is no
+ *     longer being used as temporary memory, so we can now fully enable
+ *     it.
+ *
+ *     The following is performed during this phase of execution:
+ *      - Create final stack in SDRAM
+ *      - Copy Global Data from temporary memory to SDRAM
+ *      - Enabling of CPU cache(s),
+ *      - Copying of U-Boot code and data from Flash to RAM
+ *      - Clearing of the BSS
+ *      - ELF relocation adjustments
+ *
+ *  3) Execute from SDRAM
+ *     The following is performed during this phase of execution:
+ *      - All remaining initialisation
  */
 
 /*
- * All attempts to come up with a "common" initialization sequence
- * that works for all boards and architectures failed: some of the
- * requirements are just _too_ different. To get rid of the resulting
- * mess of board dependend #ifdef'ed code we now make the whole
- * initialization sequence configurable to the user.
- *
- * The requirements for any new initalization function is simple: it
- * receives a pointer to the "global data" structure as it's only
- * argument, and returns an integer return code, where 0 means
- * "continue" and != 0 means "fatal error, hang the system".
+ * The requirements for any new initalization function is simple: it is
+ * a function with no parameters which returns an integer return code,
+ * where 0 means "continue" and != 0 means "fatal error, hang the system"
  */
 typedef int (init_fnc_t) (void);
 
-static int calculate_relocation_address(void);
-static int copy_gd_to_ram(void);
-
+/*
+ * init_sequence_f is the list of init functions which are run when U-Boot
+ * is executing from Flash with a limited 'C' environment. The following
+ * limitations must be considered when implementing an '_f' function:
+ *  - 'static' variables are read-only
+ *  - Global Data (gd->xxx) is read/write
+ *  - Stack space is limited
+ *
+ * The '_f' sequence must, as a minimum, initialise SDRAM. It _should_
+ * also initialise the console (to provide early debug output)
+ */
 init_fnc_t *init_sequence_f[] = {
 	cpu_init_f,
 	board_early_init_f,
@@ -81,7 +108,39 @@ init_fnc_t *init_sequence_f[] = {
 	NULL,
 };
 
+/*
+ * init_sequence_f_r is the list of init functions which are run when
+ * U-Boot is executing from Flash with a semi-limited 'C' environment.
+ * The following limitations must be considered when implementing an
+ * '_f_r' function:
+ *  - 'static' variables are read-only
+ *  - Global Data (gd->xxx) is read/write
+ *
+ * The '_f_r' sequence must, as a minimum, copy U-Boot to RAM (if
+ * supported).  It _should_, if possible, copy global data to RAM and
+ * initialise the CPU caches (to speed up the relocation process)
+ */
+init_fnc_t *init_sequence_f_r[] = {
+	copy_gd_to_ram_f_r,
+	init_cache_f_r,
+	copy_uboot_to_ram,
+	clear_bss,
+	do_elf_reloc_fixups,
+
+	NULL,
+};
+
+/*
+ * init_sequence_r is the list of init functions which are run when U-Boot
+ * is executing from RAM with a full 'C' environment. There are no longer
+ * any limitations which must be considered when implementing an '_r'
+ * function, (i.e.'static' variables are read/write)
+ *
+ * If not already done, the '_r' sequence must copy global data to RAM and
+ * (should) initialise the CPU caches.
+ */
 init_fnc_t *init_sequence_r[] = {
+	set_reloc_flag_r,
 	init_bd_struct_r,
 	mem_malloc_init_r,
 	cpu_init_r,
@@ -157,43 +216,6 @@ static void do_init_loop(init_fnc_t **init_fnc_ptr)
 	}
 }
 
-static int calculate_relocation_address(void)
-{
-	ulong text_start = (ulong)&__text_start;
-	ulong bss_end = (ulong)&__bss_end;
-	ulong dest_addr;
-
-	/*
-	 * NOTE: All destination address are rounded down to 16-byte
-	 *       boundary to satisfy various worst-case alignment
-	 *       requirements
-	 */
-
-	/* Global Data is at top of available memory */
-	dest_addr = gd->ram_size;
-	dest_addr -= GENERATED_GBL_DATA_SIZE;
-	dest_addr &= ~15;
-	gd->new_gd_addr = dest_addr;
-
-	/* GDT is below Global Data */
-	dest_addr -= X86_GDT_SIZE;
-	dest_addr &= ~15;
-	gd->gdt_addr = dest_addr;
-
-	/* Stack is below GDT */
-	gd->start_addr_sp = dest_addr;
-
-	/* U-Boot is below the stack */
-	dest_addr -= CONFIG_SYS_STACK_SIZE;
-	dest_addr -= (bss_end - text_start);
-	dest_addr &= ~15;
-	gd->relocaddr = dest_addr;
-	gd->reloc_off = (dest_addr - text_start);
-
-	return 0;
-}
-
-/* Perform all steps necessary to get RAM initialised ready for relocation */
 void board_init_f(ulong boot_flags)
 {
 	gd->flags = boot_flags;
@@ -201,10 +223,9 @@ void board_init_f(ulong boot_flags)
 	do_init_loop(init_sequence_f);
 
 	/*
-	 * SDRAM is now initialised, U-Boot has been copied into SDRAM,
-	 * the BSS has been cleared etc. The final stack can now be setup
-	 * in SDRAM. Code execution will continue (momentarily) in Flash,
-	 * but with the stack in SDRAM and Global Data in temporary memory
+	 * SDRAM and console are now initialised. The final stack can now
+	 * be setup in SDRAM. Code execution will continue in Flash, but
+	 * with the stack in SDRAM and Global Data in temporary memory
 	 * (CPU cache)
 	 */
 	board_init_f_r_trampoline(gd->start_addr_sp);
@@ -216,51 +237,22 @@ void board_init_f(ulong boot_flags)
 
 void board_init_f_r(void)
 {
-	if (copy_gd_to_ram() != 0)
-		hang();
+	do_init_loop(init_sequence_f_r);
 
-	if (init_cache() != 0)
-		hang();
+	/*
+	 * U-Boot has been copied into SDRAM, the BSS has been cleared etc.
+	 * Transfer execution from Flash to RAM by calculating the address
+	 * of the in-RAM copy of board_init_r() and calling it
+	 */
+	(board_init_r + gd->reloc_off)(gd, gd->relocaddr);
 
-	relocate_code(0, gd, 0);
-
-	/* NOTREACHED - relocate_code() does not return */
+	/* NOTREACHED - board_init_r() does not return */
 	while (1)
 		;
 }
 
-static int copy_gd_to_ram(void)
-{
-	gd_t *ram_gd;
-
-	/*
-	 * Global data is still in temporary memory (the CPU cache).
-	 * calculate_relocation_address() has set gd->new_gd_addr to
-	 * where the global data lives in RAM but getting it there
-	 * safely is a bit tricky due to the 'F-Segment Hack' that
-	 * we need to use for x86
-	 */
-	ram_gd = (gd_t *)gd->new_gd_addr;
-	memcpy((void *)ram_gd, gd, sizeof(gd_t));
-
-	/*
-	 * Reload the Global Descriptor Table so FS points to the
-	 * in-RAM copy of Global Data (calculate_relocation_address()
-	 * has already calculated the in-RAM location of the GDT)
-	 */
-	ram_gd->gd_addr = (ulong)ram_gd;
-	init_gd(ram_gd, (u64 *)gd->gdt_addr);
-
-	return 0;
-}
-
 void board_init_r(gd_t *id, ulong dest_addr)
 {
-	gd->flags |= GD_FLG_RELOC;
-
-	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("" : : : "memory");
-
 	do_init_loop(init_sequence_r);
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */

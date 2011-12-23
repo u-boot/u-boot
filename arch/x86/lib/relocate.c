@@ -34,13 +34,10 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/u-boot-x86.h>
+#include <asm/relocate.h>
 #include <elf.h>
 
-static int copy_uboot_to_ram(void);
-static int clear_bss(void);
-static int do_elf_reloc_fixups(void);
-
-static int copy_uboot_to_ram(void)
+int copy_uboot_to_ram(void)
 {
 	size_t len = (size_t)&__data_end - (size_t)&__text_start;
 
@@ -49,7 +46,7 @@ static int copy_uboot_to_ram(void)
 	return 0;
 }
 
-static int clear_bss(void)
+int clear_bss(void)
 {
 	ulong dst_addr = (ulong)&__bss_start + gd->reloc_off;
 	size_t len = (size_t)&__bss_end - (size_t)&__bss_start;
@@ -59,7 +56,7 @@ static int clear_bss(void)
 	return 0;
 }
 
-static int do_elf_reloc_fixups(void)
+int do_elf_reloc_fixups(void)
 {
 	Elf32_Rel *re_src = (Elf32_Rel *)(&__rel_dyn_start);
 	Elf32_Rel *re_end = (Elf32_Rel *)(&__rel_dyn_end);
@@ -91,25 +88,4 @@ static int do_elf_reloc_fixups(void)
 	} while (re_src++ < re_end);
 
 	return 0;
-}
-
-void relocate_code(ulong dummy_1, gd_t *id, ulong dummy_2)
-{
-	/*
-	 * Copy U-Boot into RAM, clear the BSS and perform relocation
-	 * adjustments
-	 */
-	copy_uboot_to_ram();
-	clear_bss();
-	do_elf_reloc_fixups();
-
-	/*
-	 * Transfer execution from Flash to RAM by calculating the address
-	 * of the in-RAM copy of board_init_r() and calling it
-	 */
-	(board_init_r + gd->reloc_off)(gd, gd->relocaddr);
-
-	/* NOTREACHED - board_init_r() does not return */
-	while (1)
-		;
 }
