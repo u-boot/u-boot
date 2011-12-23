@@ -677,6 +677,10 @@ Kshitij Gupta <kshitij@ti.com>
 	omap1510inn	ARM925T
 	omap1610inn	ARM926EJS
 
+Stefan Herbrechtsmeier <stefan@code.herbrechtsmeier.net>
+
+	dns325		ARM926EJS (Kirkwood SoC)
+
 Vaibhav Hiremath <hvaibhav@ti.com>
 
 	am3517_evm	ARM ARMV7 (AM35x SoC)
