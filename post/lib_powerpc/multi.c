@@ -27,9 +27,9 @@
  * CPU test
  * Load/store multiple word instructions:	lmw, stmw
  *
- * 26 consecutive words are loaded from a source memory buffer
- * into GPRs r6 through r31. After that, 26 consecutive words are stored
- * from the GPRs r6 through r31 into a target memory buffer. The contents
+ * 27 consecutive words are loaded from a source memory buffer
+ * into GPRs r5 through r31. After that, 27 consecutive words are stored
+ * from the GPRs r5 through r31 into a target memory buffer. The contents
  * of the source and target buffers are then compared.
  */
 
@@ -44,7 +44,7 @@ int cpu_post_test_multi(void)
 {
 	int ret = 0;
 	unsigned int i;
-	ulong src[26], dst[26];
+	ulong src[27], dst[27];
 	int flag = disable_interrupts();
 
 	ulong code[] = {
