@@ -33,62 +33,12 @@
 
 #include <common.h>
 #include <watchdog.h>
-#include <command.h>
 #include <stdio_dev.h>
-#include <version.h>
-#include <malloc.h>
-#include <net.h>
-#include <ide.h>
-#include <serial.h>
 #include <asm/u-boot-x86.h>
 #include <asm/processor.h>
 
-#ifdef CONFIG_BITBANGMII
-#include <miiphy.h>
-#endif
-
-/************************************************************************
- * Init Utilities							*
- ************************************************************************
- * Some of this code should be moved into the core functions,
- * or dropped completely,
- * but let's get it working (again) first...
- */
-static int init_baudrate(void)
-{
-	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
-	return 0;
-}
-
-static int display_banner(void)
-{
-
-	printf("\n\n%s\n\n", version_string);
-
-	return 0;
-}
-
-static int display_dram_config(void)
-{
-	int i;
-
-	puts("DRAM Configuration:\n");
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		printf("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
-		print_size(gd->bd->bi_dram[i].size, "\n");
-	}
-
-	return 0;
-}
-
-#ifndef CONFIG_SYS_NO_FLASH
-static void display_flash_config(ulong size)
-{
-	puts("Flash: ");
-	print_size(size, "\n");
-}
-#endif
+#include <asm/init_helpers.h>
+#include <asm/init_wrappers.h>
 
 /*
  * Breath some life into the board...
@@ -122,7 +72,7 @@ init_fnc_t *init_sequence_f[] = {
 	cpu_init_f,
 	board_early_init_f,
 	env_init,
-	init_baudrate,
+	init_baudrate_f,
 	serial_init,
 	console_init_f,
 	dram_init_f,
@@ -132,16 +82,80 @@ init_fnc_t *init_sequence_f[] = {
 };
 
 init_fnc_t *init_sequence_r[] = {
-	cpu_init_r,		/* basic cpu dependent setup */
-	board_early_init_r,	/* basic board dependent setup */
-	dram_init,		/* configure available RAM banks */
-	interrupt_init,		/* set up exceptions */
+	init_bd_struct_r,
+	mem_malloc_init_r,
+	cpu_init_r,
+	board_early_init_r,
+	dram_init,
+	interrupt_init,
 	timer_init,
 	display_banner,
 	display_dram_config,
-
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize_r,
+#endif
+#ifndef CONFIG_SYS_NO_FLASH
+	flash_init_r,
+#endif
+	env_relocate_r,
+#ifdef CONFIG_CMD_NET
+	init_ip_address_r,
+#endif
+#ifdef CONFIG_PCI
+	pci_init_r,
+#endif
+	stdio_init,
+	jumptable_init_r,
+	console_init_r,
+#ifdef CONFIG_MISC_INIT_R
+	misc_init_r,
+#endif
+#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_CMD_IDE)
+	pci_init_r,
+#endif
+#if defined(CONFIG_CMD_KGDB)
+	kgdb_init_r,
+#endif
+	enable_interrupts_r,
+#ifdef CONFIG_STATUS_LED
+	status_led_set_r,
+#endif
+	set_load_addr_r,
+#if defined(CONFIG_CMD_NET)
+	set_bootfile_r,
+#endif
+#if defined(CONFIG_CMD_IDE)
+	ide_init_r,
+#endif
+#if defined(CONFIG_CMD_SCSI)
+	scsi_init_r,
+#endif
+#if defined(CONFIG_CMD_DOC)
+	doc_init_r,
+#endif
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init_r,
+#endif
+#if defined(CONFIG_CMD_NET)
+	eth_initialize_r,
+#ifdef CONFIG_RESET_PHY_R
+	reset_phy_r,
+#endif
+#endif
+#ifdef CONFIG_LAST_STAGE_INIT
+	last_stage_init,
+#endif
 	NULL,
 };
+
+static void do_init_loop(init_fnc_t **init_fnc_ptr)
+{
+	for (; *init_fnc_ptr; ++init_fnc_ptr) {
+		WATCHDOG_RESET();
+		if ((*init_fnc_ptr)() != 0)
+			hang();
+	}
+}
 
 static int calculate_relocation_address(void)
 {
@@ -179,17 +193,12 @@ static int calculate_relocation_address(void)
 	return 0;
 }
 
-/* Load U-Boot into RAM, initialize BSS, perform relocation adjustments */
+/* Perform all steps necessary to get RAM initialised ready for relocation */
 void board_init_f(ulong boot_flags)
 {
-	init_fnc_t **init_fnc_ptr;
-
 	gd->flags = boot_flags;
 
-	for (init_fnc_ptr = init_sequence_f; *init_fnc_ptr; ++init_fnc_ptr) {
-		if ((*init_fnc_ptr)() != 0)
-			hang();
-	}
+	do_init_loop(init_sequence_f);
 
 	/*
 	 * SDRAM is now initialised, U-Boot has been copied into SDRAM,
@@ -247,166 +256,12 @@ static int copy_gd_to_ram(void)
 
 void board_init_r(gd_t *id, ulong dest_addr)
 {
-#if defined(CONFIG_CMD_NET)
-	char *s;
-#endif
-#ifndef CONFIG_SYS_NO_FLASH
-	ulong size;
-#endif
-	static bd_t bd_data;
-	init_fnc_t **init_fnc_ptr;
-
-	show_boot_progress(0x21);
+	gd->flags |= GD_FLG_RELOC;
 
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("" : : : "memory");
 
-	gd->flags |= GD_FLG_RELOC;
-
-	gd->bd = &bd_data;
-	memset(gd->bd, 0, sizeof(bd_t));
-	show_boot_progress(0x22);
-
-	gd->baudrate =  CONFIG_BAUDRATE;
-
-	mem_malloc_init((((ulong)dest_addr - CONFIG_SYS_MALLOC_LEN)+3)&~3,
-			CONFIG_SYS_MALLOC_LEN);
-
-	for (init_fnc_ptr = init_sequence_r; *init_fnc_ptr; ++init_fnc_ptr) {
-		if ((*init_fnc_ptr)() != 0)
-			hang();
-	}
-	show_boot_progress(0x23);
-
-#ifdef CONFIG_SERIAL_MULTI
-	serial_initialize();
-#endif
-
-#ifndef CONFIG_SYS_NO_FLASH
-	/* configure available FLASH banks */
-	size = flash_init();
-	display_flash_config(size);
-	show_boot_progress(0x24);
-#endif
-
-	show_boot_progress(0x25);
-
-	/* initialize environment */
-	env_relocate();
-	show_boot_progress(0x26);
-
-
-#ifdef CONFIG_CMD_NET
-	/* IP Address */
-	bd_data.bi_ip_addr = getenv_IPaddr("ipaddr");
-#endif
-
-#if defined(CONFIG_PCI)
-	/*
-	 * Do pci configuration
-	 */
-	pci_init();
-#endif
-
-	show_boot_progress(0x27);
-
-
-	stdio_init();
-
-	jumptable_init();
-
-	/* Initialize the console (after the relocation and devices init) */
-	console_init_r();
-
-#ifdef CONFIG_MISC_INIT_R
-	/* miscellaneous platform dependent initialisations */
-	misc_init_r();
-#endif
-
-#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_CMD_IDE)
-	WATCHDOG_RESET();
-	puts("PCMCIA:");
-	pcmcia_init();
-#endif
-
-#if defined(CONFIG_CMD_KGDB)
-	WATCHDOG_RESET();
-	puts("KGDB:  ");
-	kgdb_init();
-#endif
-
-	/* enable exceptions */
-	enable_interrupts();
-	show_boot_progress(0x28);
-
-#ifdef CONFIG_STATUS_LED
-	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
-#endif
-
-	udelay(20);
-
-	/* Initialize from environment */
-	load_addr = getenv_ulong("loadaddr", 16, load_addr);
-#if defined(CONFIG_CMD_NET)
-	s = getenv("bootfile");
-
-	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
-#endif
-
-	WATCHDOG_RESET();
-
-#if defined(CONFIG_CMD_IDE)
-	WATCHDOG_RESET();
-	puts("IDE:   ");
-	ide_init();
-#endif
-
-#if defined(CONFIG_CMD_SCSI)
-	WATCHDOG_RESET();
-	puts("SCSI:  ");
-	scsi_init();
-#endif
-
-#if defined(CONFIG_CMD_DOC)
-	WATCHDOG_RESET();
-	puts("DOC:   ");
-	doc_init();
-#endif
-
-#ifdef CONFIG_BITBANGMII
-	bb_miiphy_init();
-#endif
-#if defined(CONFIG_CMD_NET)
-	WATCHDOG_RESET();
-	puts("Net:   ");
-	eth_initialize(gd->bd);
-#endif
-
-#if (defined(CONFIG_CMD_NET)) && (0)
-	WATCHDOG_RESET();
-# ifdef DEBUG
-	puts("Reset Ethernet PHY\n");
-# endif
-	reset_phy();
-#endif
-
-#ifdef CONFIG_LAST_STAGE_INIT
-	WATCHDOG_RESET();
-	/*
-	 * Some parts can be only initialized if all others (like
-	 * Interrupts) are up and running (i.e. the PC-style ISA
-	 * keyboard).
-	 */
-	last_stage_init();
-#endif
-
-
-#ifdef CONFIG_POST
-	post_run(NULL, POST_RAM | post_bootmode_get(0));
-#endif
-
-	show_boot_progress(0x29);
+	do_init_loop(init_sequence_r);
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;)
