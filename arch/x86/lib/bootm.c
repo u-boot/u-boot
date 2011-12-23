@@ -28,16 +28,20 @@
 #include <command.h>
 #include <image.h>
 #include <u-boot/zlib.h>
+#include <asm/bootparam.h>
 #include <asm/byteorder.h>
 #include <asm/zimage.h>
+
+#define COMMAND_LINE_OFFSET 0x9000
 
 /*cmd_boot.c*/
 int do_bootm_linux(int flag, int argc, char * const argv[],
 		bootm_headers_t *images)
 {
-	void		*base_ptr = NULL;
-	ulong		os_data, os_len;
-	image_header_t	*hdr;
+	struct boot_params *base_ptr = NULL;
+	ulong os_data, os_len;
+	image_header_t *hdr;
+	void *load_address;
 
 #if defined(CONFIG_FIT)
 	const void	*data;
@@ -74,14 +78,19 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	}
 
 #ifdef CONFIG_CMD_ZBOOT
-	base_ptr = load_zimage((void *)os_data, os_len,
-			images->rd_start, images->rd_end - images->rd_start, 0);
+	base_ptr = load_zimage((void *)os_data, os_len, &load_address);
 #endif
 
 	if (NULL == base_ptr) {
 		printf("## Kernel loading failed ...\n");
 		goto error;
+	}
 
+	if (setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
+			0, images->rd_start,
+			images->rd_end - images->rd_start)) {
+		printf("## Setting up boot parameters failed ...\n");
+		goto error;
 	}
 
 #ifdef DEBUG
@@ -92,7 +101,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	/* we assume that the kernel is in place */
 	printf("\nStarting kernel ...\n\n");
 
-	boot_zimage(base_ptr);
+	boot_zimage(base_ptr, load_address);
 	/* does not return */
 
 error:

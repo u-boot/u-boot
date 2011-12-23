@@ -127,12 +127,12 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
 		size_t len, const char *buf, char *cmp_buf, size_t *skipped)
 {
-	debug("offset=%#x, sector_size=%#x, len=%#x\n",
+	debug("offset=%#x, sector_size=%#x, len=%#zx\n",
 		offset, flash->sector_size, len);
 	if (spi_flash_read(flash, offset, len, cmp_buf))
 		return "read";
 	if (memcmp(cmp_buf, buf, len) == 0) {
-		debug("Skip region %x size %x: no change\n",
+		debug("Skip region %x size %zx: no change\n",
 			offset, len);
 		*skipped += len;
 		return NULL;

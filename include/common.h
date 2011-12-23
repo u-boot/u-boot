@@ -733,16 +733,7 @@ void uuid_str_to_bin(const char *uuid, unsigned char *out);
 int uuid_str_valid(const char *uuid);
 
 /* lib/vsprintf.c */
-ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
-int strict_strtoul(const char *cp, unsigned int base, unsigned long *res);
-unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
-long	simple_strtol(const char *cp,char **endp,unsigned int base);
-void	panic(const char *fmt, ...)
-		__attribute__ ((format (__printf__, 1, 2), noreturn));
-int	sprintf(char * buf, const char *fmt, ...)
-		__attribute__ ((format (__printf__, 2, 3)));
-int	vsprintf(char *buf, const char *fmt, va_list args);
-char *simple_itoa(ulong i);
+#include <vsprintf.h>
 
 /* lib/strmhz.c */
 char *	strmhz(char *buf, unsigned long hz);

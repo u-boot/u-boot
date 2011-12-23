@@ -39,6 +39,7 @@
 #include <sys/stat.h>
 
 #include <u-boot/crc.h>
+#include <version.h>
 
 #define CRC_SIZE sizeof(uint32_t)
 
@@ -59,6 +60,7 @@ static void usage(const char *exec_name)
 	       "\t-b : the target is big endian (default is little endian)\n"
 	       "\t-p <byte> : fill the image with <byte> bytes instead of "
 	       "0xff bytes\n"
+	       "\t-V : print version information and exit\n"
 	       "\n"
 	       "If the input file is \"-\", data is read from standard input\n",
 	       exec_name);
@@ -86,8 +88,11 @@ int main(int argc, char **argv)
 
 	prg = basename(argv[0]);
 
+	/* Turn off getopt()'s internal error message */
+	opterr = 0;
+
 	/* Parse the cmdline */
-	while ((option = getopt(argc, argv, "s:o:rbp:h")) != -1) {
+	while ((option = getopt(argc, argv, ":s:o:rbp:hV")) != -1) {
 		switch (option) {
 		case 's':
 			datasize = strtol(optarg, NULL, 0);
@@ -112,6 +117,14 @@ int main(int argc, char **argv)
 		case 'h':
 			usage(prg);
 			return EXIT_SUCCESS;
+		case 'V':
+			printf("%s version %s\n", prg, PLAIN_VERSION);
+			return EXIT_SUCCESS;
+		case ':':
+			fprintf(stderr, "Missing argument for option -%c\n",
+				option);
+			usage(argv[0]);
+			return EXIT_FAILURE;
 		default:
 			fprintf(stderr, "Wrong option -%c\n", option);
 			usage(prg);
@@ -122,7 +135,7 @@ int main(int argc, char **argv)
 	/* Check datasize and allocate the data */
 	if (datasize == 0) {
 		fprintf(stderr,
-			"Please specify the size of the envrionnment "
+			"Please specify the size of the environment "
 			"partition.\n");
 		usage(prg);
 		return EXIT_FAILURE;
@@ -188,12 +201,12 @@ int main(int argc, char **argv)
 		ret = close(txt_fd);
 	}
 	/*
-	 * The right test to do is "=>" (not ">") because of the additionnal
+	 * The right test to do is "=>" (not ">") because of the additional
 	 * ending \0. See below.
 	 */
 	if (filesize >= envsize) {
 		fprintf(stderr, "The input file is larger than the "
-				"envrionnment partition size\n");
+				"environment partition size\n");
 		return EXIT_FAILURE;
 	}
 
@@ -202,7 +215,7 @@ int main(int argc, char **argv)
 		if (filebuf[fp] == '\n') {
 			if (fp == 0) {
 				/*
-				 * Newline at the beggining of the file ?
+				 * Newline at the beginning of the file ?
 				 * Ignore it.
 				 */
 				continue;

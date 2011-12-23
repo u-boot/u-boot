@@ -24,29 +24,11 @@
 #ifndef _ASM_ZIMAGE_H_
 #define _ASM_ZIMAGE_H_
 
+#include <asm/bootparam.h>
+#include <asm/e820.h>
+
 /* linux i386 zImage/bzImage header. Offsets relative to
  * the start of the image */
-
-#define CMD_LINE_MAGIC_OFF  0x020 /* Magic 0xa33f if the offset below is valid */
-#define CMD_LINE_OFFSET_OFF 0x022 /* Offset to comandline */
-#define SETUP_SECTS_OFF     0x1F1 /* The size of the setup in sectors */
-#define ROOT_FLAGS_OFF      0x1F2 /* If set, the root is mounted readonly */
-#define VID_MODE_OFF        0x1FA /* Video mode control */
-#define ROOT_DEV_OFF        0x1FC /* Default root device number */
-#define BOOT_FLAG_OFF       0x1FE /* 0xAA55 magic number */
-#define HEADER_OFF          0x202 /* Magic signature "HdrS" */
-#define VERSION_OFF         0x206 /* Boot protocol version supported */
-#define REALMODE_SWTCH_OFF  0x208 /* Boot loader hook (see below) */
-#define START_SYS_OFF       0x20C /* Points to kernel version string */
-#define TYPE_OF_LOADER_OFF  0x210 /* Boot loader identifier */
-#define LOADFLAGS_OFF       0x211 /* Boot protocol option flags */
-#define SETUP_MOVE_SIZE_OFF 0x212 /* Move to high memory size (used with hooks) */
-#define CODE32_START_OFF    0x214 /* Boot loader hook (see below) */
-#define RAMDISK_IMAGE_OFF   0x218 /* initrd load address (set by boot loader) */
-#define RAMDISK_SIZE_OFF    0x21C /* initrd size (set by boot loader) */
-#define HEAP_END_PTR_OFF    0x224 /* Free memory after setup end */
-#define CMD_LINE_PTR_OFF    0x228 /* 32-bit pointer to the kernel command line */
-
 
 #define HEAP_FLAG           0x80
 #define BIG_KERNEL_FLAG     0x01
@@ -65,10 +47,14 @@
 #define BZIMAGE_LOAD_ADDR  0x100000
 #define ZIMAGE_LOAD_ADDR   0x10000
 
-void *load_zimage(char *image, unsigned long kernel_size,
-		  unsigned long initrd_addr, unsigned long initrd_size,
-		  int auto_boot);
+/* Implementation defined function to install an e820 map. */
+unsigned install_e820_map(unsigned max_entries, struct e820entry *);
 
-void boot_zimage(void *setup_base);
+struct boot_params *load_zimage(char *image, unsigned long kernel_size,
+				void **load_address);
+int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
+		 unsigned long initrd_addr, unsigned long initrd_size);
+
+void boot_zimage(void *setup_base, void *load_address);
 
 #endif

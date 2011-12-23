@@ -90,6 +90,7 @@ struct eth_device {
 #endif
 	int  (*write_hwaddr) (struct eth_device*);
 	struct eth_device *next;
+	int index;
 	void *priv;
 };
 

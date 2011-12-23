@@ -1,5 +1,10 @@
 /*
- * Micrel PHY drivers
+ * Copyright (c) 2011 The Chromium OS Authors.
+ * (C) Copyright 2010-2011
+ * Graeme Russ, <graeme.russ@gmail.com>
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,37 +20,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
- * Copyright 2010-2011 Freescale Semiconductor, Inc.
- * author Andy Fleming
- *
  */
-#include <phy.h>
 
-static struct phy_driver KSZ804_driver = {
-	.name = "Micrel KSZ804",
-	.uid = 0x221510,
-	.mask = 0xfffff0,
-	.features = PHY_BASIC_FEATURES,
-	.config = &genphy_config,
-	.startup = &genphy_startup,
-	.shutdown = &genphy_shutdown,
-};
+.section .text
 
-static struct phy_driver KS8721_driver = {
-	.name = "Micrel KS8721BL",
-	.uid = 0x221610,
-	.mask = 0xfffff0,
-	.features = PHY_BASIC_FEATURES,
-	.config = &genphy_config,
-	.startup = &genphy_startup,
-	.shutdown = &genphy_shutdown,
-};
-
-int phy_micrel_init(void)
-{
-	phy_register(&KSZ804_driver);
-	phy_register(&KS8721_driver);
-
-	return 0;
-}
+.globl car_init
+car_init:
+	jmp	car_init_ret

@@ -1,5 +1,10 @@
 /*
- * Micrel PHY drivers
+ * Copyright (c) 2011 The Chromium OS Authors.
+ * (C) Copyright 2008
+ * Graeme Russ, graeme.russ@gmail.com.
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,37 +20,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
- * Copyright 2010-2011 Freescale Semiconductor, Inc.
- * author Andy Fleming
- *
  */
-#include <phy.h>
 
-static struct phy_driver KSZ804_driver = {
-	.name = "Micrel KSZ804",
-	.uid = 0x221510,
-	.mask = 0xfffff0,
-	.features = PHY_BASIC_FEATURES,
-	.config = &genphy_config,
-	.startup = &genphy_startup,
-	.shutdown = &genphy_shutdown,
-};
+/*
+ * 16bit initialization code.
+ * This code have to map the area of the boot flash
+ * that is used by U-boot to its final destination.
+ */
 
-static struct phy_driver KS8721_driver = {
-	.name = "Micrel KS8721BL",
-	.uid = 0x221610,
-	.mask = 0xfffff0,
-	.features = PHY_BASIC_FEATURES,
-	.config = &genphy_config,
-	.startup = &genphy_startup,
-	.shutdown = &genphy_shutdown,
-};
+.text
+.section .start16, "ax"
+.code16
+.globl board_init16
+board_init16:
+	jmp	board_init16_ret
 
-int phy_micrel_init(void)
-{
-	phy_register(&KSZ804_driver);
-	phy_register(&KS8721_driver);
+.section .bios, "ax"
+.code16
+.globl realmode_reset
+.hidden realmode_reset
+.type realmode_reset, @function
+realmode_reset:
 
-	return 0;
-}
+1:	hlt
+	jmp	1
