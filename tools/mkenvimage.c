@@ -122,11 +122,11 @@ int main(int argc, char **argv)
 			return EXIT_SUCCESS;
 		case ':':
 			fprintf(stderr, "Missing argument for option -%c\n",
-				option);
+				optopt);
 			usage(argv[0]);
 			return EXIT_FAILURE;
 		default:
-			fprintf(stderr, "Wrong option -%c\n", option);
+			fprintf(stderr, "Wrong option -%c\n", optopt);
 			usage(prg);
 			return EXIT_FAILURE;
 		}
