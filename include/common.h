@@ -22,10 +22,10 @@
  */
 
 #ifndef __COMMON_H_
-#define __COMMON_H_	1
+#define __COMMON_H_
 
 #undef	_LINUX_CONFIG_H
-#define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
+#define _LINUX_CONFIG_H		/* avoid reading Linux autoconf.h file	*/
 
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
@@ -51,18 +51,18 @@ typedef volatile unsigned char	vu_char;
     defined(CONFIG_MPC859DSL)	|| \
     defined(CONFIG_MPC866)	|| defined(CONFIG_MPC866T)	|| \
     defined(CONFIG_MPC866P)
-# define CONFIG_MPC866_FAMILY 1
+# define CONFIG_MPC866_FAMILY
 #elif defined(CONFIG_MPC870) \
    || defined(CONFIG_MPC875) \
    || defined(CONFIG_MPC880) \
    || defined(CONFIG_MPC885)
-# define CONFIG_MPC885_FAMILY   1
+# define CONFIG_MPC885_FAMILY
 #endif
 #if   defined(CONFIG_MPC860)	   \
    || defined(CONFIG_MPC860T)	   \
    || defined(CONFIG_MPC866_FAMILY) \
    || defined(CONFIG_MPC885_FAMILY)
-# define CONFIG_MPC86x 1
+# define CONFIG_MPC86x
 #endif
 #elif defined(CONFIG_5xx)
 #include <asm/5xx_immap.h>
@@ -77,10 +77,10 @@ typedef volatile unsigned char	vu_char;
    || defined(CONFIG_MPC8248) \
    || defined(CONFIG_MPC8271) \
    || defined(CONFIG_MPC8272)
-#define CONFIG_MPC8272_FAMILY	1
+#define CONFIG_MPC8272_FAMILY
 #endif
 #if defined(CONFIG_MPC8272_FAMILY)
-#define CONFIG_MPC8260	1
+#define CONFIG_MPC8260
 #endif
 #include <asm/immap_8260.h>
 #endif
@@ -200,7 +200,7 @@ typedef void (interrupt_handler_t)(void *);
  || defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
  || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
 
-#define CONFIG_SERIAL_MULTI	1
+#define CONFIG_SERIAL_MULTI
 
 #endif
 
