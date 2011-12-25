@@ -22,7 +22,7 @@
  */
 
 #ifndef _ENVIRONMENT_H_
-#define _ENVIRONMENT_H_	1
+#define _ENVIRONMENT_H_
 
 /**************************************************************************
  *
@@ -64,10 +64,10 @@
 # if	(CONFIG_ENV_ADDR >= CONFIG_SYS_MONITOR_BASE) &&		\
 	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE) <=			\
 	(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-#  define ENV_IS_EMBEDDED	1
+#  define ENV_IS_EMBEDDED
 # endif
 # if defined(CONFIG_ENV_ADDR_REDUND) || defined(CONFIG_ENV_OFFSET_REDUND)
-#  define CONFIG_SYS_REDUNDAND_ENVIRONMENT	1
+#  define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # endif
 # ifdef CONFIG_ENV_IS_EMBEDDED
 #  error "do not define CONFIG_ENV_IS_EMBEDDED in your board config"
@@ -120,7 +120,7 @@ extern unsigned long nand_env_oob_offset;
  * calculated automatically (i.e. NAND), take the board opt-in.
  */
 #if defined(CONFIG_ENV_IS_EMBEDDED) && !defined(ENV_IS_EMBEDDED)
-# define ENV_IS_EMBEDDED 1
+# define ENV_IS_EMBEDDED
 #endif
 
 /* The build system likes to know if the env is embedded */
