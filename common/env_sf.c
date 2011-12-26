@@ -59,11 +59,6 @@ char *env_name_spec = "SPI Flash";
 
 static struct spi_flash *env_flash;
 
-uchar env_get_char_spec(int index)
-{
-	return *((uchar *)(gd->env_addr + index));
-}
-
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 int saveenv(void)
 {

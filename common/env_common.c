@@ -124,6 +124,13 @@ const uchar default_environment[] = {
 
 struct hsearch_data env_htab;
 
+static uchar __env_get_char_spec(int index)
+{
+	return *((uchar *)(gd->env_addr + index));
+}
+uchar env_get_char_spec(int)
+	__attribute__((weak, alias("__env_get_char_spec")));
+
 static uchar env_get_char_init(int index)
 {
 	/* if crc was bad, use the default environment */

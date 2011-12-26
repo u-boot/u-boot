@@ -66,11 +66,6 @@ env_t *env_ptr;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-uchar env_get_char_spec(int index)
-{
-	return *((uchar *)(gd->env_addr + index));
-}
-
 /*
  * This is called before nand_init() so we can't read NAND to
  * validate env data.

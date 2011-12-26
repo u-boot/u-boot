@@ -37,11 +37,6 @@ void env_relocate_spec(void)
 {
 }
 
-uchar env_get_char_spec(int index)
-{
-	return *((uchar *)(gd->env_addr + index));
-}
-
 /*
  * Initialize Environment use
  *

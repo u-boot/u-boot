@@ -44,11 +44,6 @@ char *env_name_spec = "OneNAND";
 
 DECLARE_GLOBAL_DATA_PTR;
 
-uchar env_get_char_spec(int index)
-{
-	return *((uchar *)(gd->env_addr + index));
-}
-
 void env_relocate_spec(void)
 {
 	struct mtd_info *mtd = &onenand_mtd;

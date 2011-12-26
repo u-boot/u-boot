@@ -54,11 +54,6 @@ static int __mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
 int mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
 	__attribute__((weak, alias("__mmc_get_env_addr")));
 
-uchar env_get_char_spec(int index)
-{
-	return *((uchar *)(gd->env_addr + index));
-}
-
 int env_init(void)
 {
 	/* use default */

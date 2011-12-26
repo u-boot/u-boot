@@ -59,18 +59,16 @@ env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 
 char *env_name_spec = "NVRAM";
 
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 uchar env_get_char_spec(int index)
 {
-#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 	uchar c;
 
 	nvram_read(&c, CONFIG_ENV_ADDR + index, 1);
 
 	return c;
-#else
-	return *((uchar *)(gd->env_addr + index));
-#endif
 }
+#endif
 
 void env_relocate_spec(void)
 {

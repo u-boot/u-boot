@@ -73,11 +73,6 @@ static ulong end_addr_new = CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1;
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
 
-uchar env_get_char_spec(int index)
-{
-	return *((uchar *)(gd->env_addr + index));
-}
-
 #ifdef CONFIG_ENV_ADDR_REDUND
 int env_init(void)
 {
