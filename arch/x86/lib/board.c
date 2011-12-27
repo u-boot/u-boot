@@ -131,16 +131,11 @@ init_fnc_t *init_sequence_f[] = {
 	console_init_f,
 	dram_init_f,
 	calculate_relocation_address,
-	copy_uboot_to_ram,
-	clear_bss,
-	do_elf_reloc_fixups,
 
 	NULL,
 };
 
 init_fnc_t *init_sequence_r[] = {
-	copy_gd_to_ram,
-	init_cache,
 	cpu_init_r,		/* basic cpu dependent setup */
 	board_early_init_r,	/* basic board dependent setup */
 	dram_init,		/* configure available RAM banks */
@@ -269,6 +264,16 @@ void board_init_f(ulong boot_flags)
 
 void board_init_f_r(void)
 {
+	if (copy_gd_to_ram() != 0)
+		hang();
+
+	if (init_cache() != 0)
+		hang();
+
+	copy_uboot_to_ram();
+	clear_bss();
+	do_elf_reloc_fixups();
+
 	/*
 	 * Transfer execution from Flash to RAM by calculating the address
 	 * of the in-RAM copy of board_init_r() and calling it
