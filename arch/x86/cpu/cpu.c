@@ -140,6 +140,14 @@ int cpu_init_f(void) __attribute__((weak, alias("x86_cpu_init_f")));
 
 int x86_cpu_init_r(void)
 {
+	/* Initialize core interrupt and exception functionality of CPU */
+	cpu_init_interrupts();
+	return 0;
+}
+int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
+
+void x86_enable_caches(void)
+{
 	const u32 nw_cd_rst = ~(X86_CR0_NW | X86_CR0_CD);
 
 	/* turn on the cache and disable write through */
@@ -147,12 +155,16 @@ int x86_cpu_init_r(void)
 	    "andl	%0, %%eax\n"
 	    "movl	%%eax, %%cr0\n"
 	    "wbinvd\n" : : "i" (nw_cd_rst) : "eax");
+}
+void enable_caches(void) __attribute__((weak, alias("x86_enable_caches")));
 
-	/* Initialize core interrupt and exception functionality of CPU */
-	cpu_init_interrupts();
+int x86_init_cache(void)
+{
+	enable_caches();
+
 	return 0;
 }
-int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
+int init_cache(void) __attribute__((weak, alias("x86_init_cache")));
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

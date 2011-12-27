@@ -140,6 +140,7 @@ init_fnc_t *init_sequence_f[] = {
 
 init_fnc_t *init_sequence_r[] = {
 	copy_gd_to_ram,
+	init_cache,
 	cpu_init_r,		/* basic cpu dependent setup */
 	board_early_init_r,	/* basic board dependent setup */
 	dram_init,		/* configure available RAM banks */

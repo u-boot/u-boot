@@ -39,6 +39,7 @@ int x86_cpu_init_f(void);
 int cpu_init_f(void);
 void init_gd(gd_t *id, u64 *gdt_addr);
 void setup_gdt(gd_t *id, u64 *gdt_addr);
+int init_cache(void);
 
 /* cpu/.../timer.c */
 void timer_isr(void *);
