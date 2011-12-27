@@ -63,6 +63,7 @@
 #define CONFIG_SYS_MONITOR_LEN	(768 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(512 * 1024)
 
+#define CONFIG_HW_WATCHDOG
 /*
  * Network Settings
  */
