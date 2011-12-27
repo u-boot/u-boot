@@ -188,26 +188,19 @@ static int calculate_relocation_address(void)
 
 static int copy_uboot_to_ram(void)
 {
-	ulong *dst_addr = (ulong *)gd->relocaddr;
-	ulong *src_addr = (ulong *)&__text_start;
-	ulong *end_addr = (ulong *)&__data_end;
+	size_t len = (size_t)&__data_end - (size_t)&__text_start;
 
-	while (src_addr < end_addr)
-		*dst_addr++ = *src_addr++;
+	memcpy((void *)gd->relocaddr, (void *)&__text_start, len);
 
 	return 0;
 }
 
 static int clear_bss(void)
 {
-	void *bss_start = &__bss_start;
-	void *bss_end = &__bss_end;
+	ulong dst_addr = (ulong)&__bss_start + gd->reloc_off;
+	size_t len = (size_t)&__bss_end - (size_t)&__bss_start;
 
-	ulong *dst_addr = (ulong *)(bss_start + gd->reloc_off);
-	ulong *end_addr = (ulong *)(bss_end + gd->reloc_off);
-
-	while (dst_addr < end_addr)
-		*dst_addr++ = 0x00000000;
+	memset((void *)dst_addr, 0x00, len);
 
 	return 0;
 }
