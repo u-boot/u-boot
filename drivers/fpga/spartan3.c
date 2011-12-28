@@ -38,7 +38,6 @@
 #endif
 
 #undef CONFIG_SYS_FPGA_CHECK_BUSY
-#undef CONFIG_SYS_FPGA_PROG_FEEDBACK
 
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
