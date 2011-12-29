@@ -582,6 +582,7 @@ Jason Liu <r64343@freescale.com>
 	mx53evk         i.MX53
 	mx53loco        i.MX53
 	mx6qarm2	i.MX6Q
+	mx6qsabrelite   i.MX6Q
 
 Enric Balletbo i Serra <eballetbo@iseebcn.com>
 
