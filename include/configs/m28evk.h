@@ -92,7 +92,14 @@
 #define	CONFIG_SYS_MEMTEST_END		0x40400000	/* 4 MB RAM test */
 #define	CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 /* Point initial SP in SRAM so SPL can use it too. */
-#define	CONFIG_SYS_INIT_SP_ADDR		0x00002000
+
+#define CONFIG_SYS_INIT_RAM_ADDR	0x00002000
+#define CONFIG_SYS_INIT_RAM_SIZE	(128 * 1024)
+
+#define CONFIG_SYS_INIT_SP_OFFSET \
+	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR \
+	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 /*
  * We need to sacrifice first 4 bytes of RAM here to avoid triggering some
  * strange BUG in ROM corrupting first 4 bytes of RAM when loading U-Boot
