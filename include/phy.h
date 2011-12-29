@@ -224,6 +224,7 @@ int phy_marvell_init(void);
 int phy_micrel_init(void);
 int phy_natsemi_init(void);
 int phy_realtek_init(void);
+int phy_smsc_init(void);
 int phy_teranetics_init(void);
 int phy_vitesse_init(void);
 
