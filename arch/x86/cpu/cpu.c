@@ -63,13 +63,13 @@ static void reload_gdt(void)
 	 */
 	static const u64 boot_gdt[] __attribute__((aligned(16))) = {
 		/* CS: code, read/execute, 4 GB, base 0 */
-		[GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff),
+		[X86_GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff),
 		/* DS: data, read/write, 4 GB, base 0 */
-		[GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff),
+		[X86_GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff),
 		/* 16-bit CS: code, read/execute, 64 kB, base 0 */
-		[GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x109b, 0, 0x0ffff),
+		[X86_GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x109b, 0, 0x0ffff),
 		/* 16-bit DS: data, read/write, 64 kB, base 0 */
-		[GDT_ENTRY_16BIT_DS] = GDT_ENTRY(0x1093, 0, 0x0ffff),
+		[X86_GDT_ENTRY_16BIT_DS] = GDT_ENTRY(0x1093, 0, 0x0ffff),
 	};
 	static struct gdt_ptr gdt;
 

@@ -29,6 +29,7 @@
 #include <config.h>
 #include <version.h>
 #include <asm/global_data.h>
+#include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <generated/asm-offsets.h>
 
@@ -58,7 +59,7 @@ _start:
 	/* This is the 32-bit cold-reset entry point */
 
 	/* Load the segement registes to match the gdt loaded in start16.S */
-	movl	$0x18, %eax
+	movl	$(X86_GDT_ENTRY_32BIT_DS * X86_GDT_ENTRY_SIZE), %eax
 	movw	%ax, %fs
 	movw	%ax, %ds
 	movw	%ax, %gs
