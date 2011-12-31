@@ -148,6 +148,7 @@
  */
 #ifndef CONFIG_SPD_EEPROM
 	#define CONFIG_SYS_SDRAM_SIZE	256		/* DDR is 256MB */
+	#define CONFIG_SYS_DDR_CONTROL	0xc300c000
 #endif
 
 #undef CONFIG_CLOCKS_IN_MHZ
