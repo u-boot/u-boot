@@ -100,6 +100,9 @@ Boot flash:
 
 Sodimm flash:
 	intel V28F128Jx, 16384x8 (4 devices) at 0xfb80_0000
+	Note that this address reflects the default setting for
+	the JTAG debugging tools, but since the alignment is
+	rather inconvenient, u-boot puts it at 0xec00_0000.
 
 
 	Jumpers:
@@ -187,8 +190,11 @@ start		end		CS<n>	width	Desc.
 0000_0000	0fff_ffff	MCS0,1	64	DDR2 (256MB)
 f000_0000	f7ff_ffff	CS3,4	32	LB SDRAM (128MB)
 f800_0000	f8b0_1fff	CS5	-	EPLD
-fb80_0000	ff7f_ffff	CS6	32	SODIMM flash (64MB)
+fb80_0000	ff7f_ffff	CS6	32	SODIMM flash (64MB) [*]
 ff80_0000	ffff_ffff	CS0	8	Boot flash (8MB)
+
+[*] fb80 represents the default programmed by WR JTAG register files,
+    but u-boot places the flash at either ec00 or fc00 based on JP12.
 
 The EPLD on CS5 demuxes the following devices at the following offsets:
 

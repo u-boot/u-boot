@@ -140,7 +140,7 @@
  * FLASH on the Local Bus
  * Two banks, one 8MB the other 64MB, using the CFI driver.
  * Boot from BR0/OR0 bank at 0xff80_0000
- * Alternate BR6/OR6 bank at 0xfb80_0000
+ * Alternate BR6/OR6 bank at 0xec00_0000
  *
  * BR0:
  *    Base address 0 = 0xff80_0000 = BR0[0:16] = 1111 1111 1000 0000 0
@@ -152,13 +152,13 @@
  * 1111 1111 1000 0000 0000 1000 0000 0001 = ff800801    BR0
  *
  * BR6:
- *    Base address 6 = 0xfb80_0000 = BR6[0:16] = 1111 1011 1000 0000 0
+ *    Base address 6 = 0xec00_0000 = BR6[0:16] = 1110 1100 0000 0000 0
  *    Port Size = 32 bits = BRx[19:20] = 11
  *    Use GPCM = BRx[24:26] = 000
  *    Valid = BRx[31] = 1
  *
  * 0    4    8    12   16   20   24   28
- * 1111 1011 1000 0000 0001 1000 0000 0001 = fb801801    BR6
+ * 1110 1100 0000 0000 0001 1000 0000 0001 = ec001801    BR6
  *
  * OR0:
  *    Addr Mask = 8M = OR1[0:16] = 1111 1111 1000 0000 0
@@ -186,11 +186,11 @@
  */
 
 #define CONFIG_SYS_BOOT_BLOCK		0xff800000	/* start of 8MB Flash */
-#define CONFIG_SYS_ALT_FLASH		0xfb800000	/* 64MB "user" flash */
+#define CONFIG_SYS_ALT_FLASH		0xec000000	/* 64MB "user" flash */
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_BOOT_BLOCK	/* start of FLASH 16M */
 
 #define CONFIG_SYS_BR0_PRELIM		0xff800801
-#define CONFIG_SYS_BR6_PRELIM		0xfb801801
+#define CONFIG_SYS_BR6_PRELIM		0xec001801
 
 #define	CONFIG_SYS_OR0_PRELIM		0xff806e65
 #define	CONFIG_SYS_OR6_PRELIM		0xfc006e65
