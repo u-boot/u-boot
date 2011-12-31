@@ -362,18 +362,25 @@
 
 /*
  * Common settings for all Local Bus SDRAM commands.
- * At run time, either BSMA1516 (for CPU 1.1)
- *                  or BSMA1617 (for CPU 1.0) (old)
- * is OR'ed in too.
  */
 #define CONFIG_SYS_LBC_LSDMR_COMMON	( LSDMR_RFCR16		\
-				| LSDMR_PRETOACT7	\
-				| LSDMR_ACTTORW7	\
+				| LSDMR_BSMA1516	\
+				| LSDMR_PRETOACT3	\
+				| LSDMR_ACTTORW3	\
+				| LSDMR_BUFCMD		\
 				| LSDMR_BL8		\
-				| LSDMR_WRC4		\
+				| LSDMR_WRC2		\
 				| LSDMR_CL3		\
-				| LSDMR_RFEN		\
 				)
+
+#define CONFIG_SYS_LBC_LSDMR_PCHALL	\
+	 (CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_PCHALL)
+#define CONFIG_SYS_LBC_LSDMR_ARFRSH	\
+	 (CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_ARFRSH)
+#define CONFIG_SYS_LBC_LSDMR_MRW	\
+	 (CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_MRW)
+#define CONFIG_SYS_LBC_LSDMR_RFEN	\
+	 (CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_RFEN)
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */

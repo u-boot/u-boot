@@ -107,13 +107,14 @@ void lbc_sdram_init(void)
 #if defined(CONFIG_SYS_LBC_SDRAM_SIZE)
 
 	uint idx;
+	const unsigned long size = CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024;
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
-	uint lsdmr_common;
+	uint *sdram_addr2 = (uint *)(CONFIG_SYS_LBC_SDRAM_BASE + size/2);
 
 	puts("    SDRAM: ");
 
-	print_size(CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+	print_size(size, "\n");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
@@ -131,47 +132,49 @@ void lbc_sdram_init(void)
 	asm("msync");
 
 	/*
-	 * MPC8548 uses "new" 15-16 style addressing.
-	 */
-	lsdmr_common = CONFIG_SYS_LBC_LSDMR_COMMON;
-	lsdmr_common |= LSDMR_BSMA1516;
-
-	/*
 	 * Issue PRECHARGE ALL command.
 	 */
-	out_be32(&lbc->lsdmr, lsdmr_common | LSDMR_OP_PCHALL);
+	out_be32(&lbc->lsdmr, CONFIG_SYS_LBC_LSDMR_PCHALL);
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
+	*sdram_addr2 = 0xff;
+	ppcDcbf((unsigned long) sdram_addr2);
 	udelay(100);
 
 	/*
 	 * Issue 8 AUTO REFRESH commands.
 	 */
 	for (idx = 0; idx < 8; idx++) {
-		out_be32(&lbc->lsdmr, lsdmr_common | LSDMR_OP_ARFRSH);
+		out_be32(&lbc->lsdmr, CONFIG_SYS_LBC_LSDMR_ARFRSH);
 		asm("sync;msync");
 		*sdram_addr = 0xff;
 		ppcDcbf((unsigned long) sdram_addr);
+		*sdram_addr2 = 0xff;
+		ppcDcbf((unsigned long) sdram_addr2);
 		udelay(100);
 	}
 
 	/*
 	 * Issue 8 MODE-set command.
 	 */
-	out_be32(&lbc->lsdmr, lsdmr_common | LSDMR_OP_MRW);
+	out_be32(&lbc->lsdmr, CONFIG_SYS_LBC_LSDMR_MRW);
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
+	*sdram_addr2 = 0xff;
+	ppcDcbf((unsigned long) sdram_addr2);
 	udelay(100);
 
 	/*
-	 * Issue NORMAL OP command.
+	 * Issue RFEN command.
 	 */
-	out_be32(&lbc->lsdmr, lsdmr_common | LSDMR_OP_NORMAL);
+	out_be32(&lbc->lsdmr, CONFIG_SYS_LBC_LSDMR_RFEN);
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
+	*sdram_addr2 = 0xff;
+	ppcDcbf((unsigned long) sdram_addr2);
 	udelay(200);    /* Overkill. Must wait > 200 bus cycles */
 
 #endif	/* enable SDRAM init */
