@@ -124,7 +124,9 @@
  * A hardware errata caused the LBC SDRAM SPD and the DDR2 SPD
  * to collide, meaning you couldn't reliably read either. So
  * physically remove the LBC PC100 SDRAM module from the board
- * before enabling the two SPD options below.
+ * before enabling the two SPD options below, or check that you
+ * have the hardware fix on your board via "i2c probe" and looking
+ * for a device at 0x53.
  */
 #undef CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #undef CONFIG_DDR_SPD
@@ -140,8 +142,13 @@
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
-/* I2C addresses of SPD EEPROMs */
+/*
+ * The hardware fix for the I2C address collision puts the DDR
+ * SPD at 0x53, but if we are running on an older board w/o the
+ * fix, it will still be at 0x51.  We check 0x53 1st.
+ */
 #define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
+#define ALT_SPD_EEPROM_ADDRESS	0x53	/* CTLR 0 DIMM 0 */
 
 /*
  * Make sure required options are set
@@ -293,11 +300,10 @@
  * Note that most boards have a hardware errata where both the
  * LBC SDRAM and the DDR2 SDRAM decode at 0x51, making it impossible
  * to use CONFIG_DDR_SPD unless you physically remove the LBC DIMM.
+ * A hardware workaround is also available, see README.sbc8548 file.
  */
-#ifndef CONFIG_DDR_SPD
 #define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
 #define CONFIG_SYS_LBC_SDRAM_SIZE	128		/* LBC SDRAM is 128MB */
-#endif
 
 /*
  * Base Register 3 and Option Register 3 configure the 1st 1/2 SDRAM.

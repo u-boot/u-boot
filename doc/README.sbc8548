@@ -71,7 +71,22 @@ EEPROM data to read what memory is installed.
 
 There is a hardware errata, which causes the older local bus SDRAM
 SPD EEPROM to land at the same address as the DDR2 SPD EEPROM, so
-that the SPD data can not be read reliably.
+that the SPD data can not be read reliably.  You can test if your
+board has the errata fix by running "i2c probe".  If you see 0x53
+as a valid device, it has been fixed.  If you only see 0x50, 0x51
+then your board does not have the fix.
+
+You can also visually inspect the board to see if this hardware
+fix has been applied:
+
+      1) Remove R314 (RES-R0174-033, 1K, 0603). R314 is located on
+         the back of the PCB behind the DDR SDRAM SODIMM connector.
+      2) Solder RES-R0174-033 (1K, 0603) resistor from R314 pin 2 pad
+         to R313 pin 2.  Pin 2 for each resistor is the end of the
+         resistor closest to the CPU.
+
+Boards without the mod will have R314 and R313 in parallel, like "||".
+After the mod, they will be touching and form an "L" shape.
 
 If you want to upgrade to larger RAM size, you can simply enable
 	#define CONFIG_SPD_EEPROM
@@ -79,7 +94,8 @@ If you want to upgrade to larger RAM size, you can simply enable
 in include/configs/sbc8548.h file.  (The lines are already there
 but listed as #undef).
 
-Note that you will have to physically remove the LBC 128MB DIMM
+If you did the i2c test, and your board does not have the errata
+fix, then you will have to physically remove the LBC 128MB DIMM
 from the board's socket to resolve the above i2c address overlap
 issue and allow SPD autodetection of RAM to work.
 

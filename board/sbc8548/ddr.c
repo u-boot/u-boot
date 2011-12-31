@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <i2c.h>
 
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
@@ -55,7 +56,35 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->half_strength_driver_enable = 0;
 }
 
-#if !defined(CONFIG_SPD_EEPROM)
+#ifdef CONFIG_SPD_EEPROM
+/*
+ * Workaround for hardware errata.  An i2c address conflict
+ * existed on earlier boards; the workaround moved the DDR
+ * SPD from 0x51 to 0x53.  So we try and read 0x53 1st, and
+ * if that fails, then fall back to reading at 0x51.
+ */
+void get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
+{
+	int ret;
+
+#ifdef ALT_SPD_EEPROM_ADDRESS
+	if (i2c_address == SPD_EEPROM_ADDRESS) {
+		ret = i2c_read(ALT_SPD_EEPROM_ADDRESS, 0, 1, (uchar *)spd,
+				sizeof(generic_spd_eeprom_t));
+		if (ret == 0)
+			return;		/* Good data at 0x53 */
+		memset(spd, 0, sizeof(generic_spd_eeprom_t));
+	}
+#endif
+	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,
+				sizeof(generic_spd_eeprom_t));
+	if (ret) {
+		printf("DDR: failed to read SPD from addr %u\n", i2c_address);
+		memset(spd, 0, sizeof(generic_spd_eeprom_t));
+	}
+}
+
+#else
 /*
  *  fixed_sdram init -- doesn't use serial presence detect.
  *  Assumes 256MB DDR2 SDRAM SODIMM, without ECC, running at DDR400 speed.
