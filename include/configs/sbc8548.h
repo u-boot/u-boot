@@ -173,7 +173,7 @@
  * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65    OR0
  *
  * OR6:
- *    Addr Mask = 64M = OR6[0:16] = 1111 1000 0000 0000 0
+ *    Addr Mask = 64M = OR6[0:16] = 1111 1100 0000 0000 0
  *    XAM = OR6[17:18] = 11
  *    CSNT = OR6[20] = 1
  *    ACS = half cycle delay = OR6[21:22] = 11
@@ -182,7 +182,7 @@
  *    EAD = use external address latch delay = OR6[31] = 1
  *
  * 0    4    8    12   16   20   24   28
- * 1111 1000 0000 0000 0110 1110 0110 0101 = f8006e65    OR6
+ * 1111 1100 0000 0000 0110 1110 0110 0101 = fc006e65    OR6
  */
 
 #define CONFIG_SYS_BOOT_BLOCK		0xff800000	/* start of 8MB Flash */
@@ -193,7 +193,7 @@
 #define CONFIG_SYS_BR6_PRELIM		0xfb801801
 
 #define	CONFIG_SYS_OR0_PRELIM		0xff806e65
-#define	CONFIG_SYS_OR6_PRELIM		0xf8006e65
+#define	CONFIG_SYS_OR6_PRELIM		0xfc006e65
 
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE, \
 					 CONFIG_SYS_ALT_FLASH}
