@@ -42,19 +42,11 @@
 #include <serial.h>
 #include <asm/u-boot-x86.h>
 #include <elf.h>
+#include <asm/processor.h>
 
 #ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
 #endif
-
-/*
- * Pointer to initial global data area
- *
- * Here we initialize it.
- */
-#undef	XTRN_DECLARE_GLOBAL_DATA_PTR
-#define XTRN_DECLARE_GLOBAL_DATA_PTR	/* empty = allocate here */
-DECLARE_GLOBAL_DATA_PTR = (gd_t *) (CONFIG_SYS_INIT_GD_ADDR);
 
 /************************************************************************
  * Init Utilities							*
@@ -128,6 +120,7 @@ static int calculate_relocation_address(void);
 static int copy_uboot_to_ram(void);
 static int clear_bss(void);
 static int do_elf_reloc_fixups(void);
+static int copy_gd_to_ram(void);
 
 init_fnc_t *init_sequence_f[] = {
 	cpu_init_f,
@@ -146,6 +139,7 @@ init_fnc_t *init_sequence_f[] = {
 };
 
 init_fnc_t *init_sequence_r[] = {
+	copy_gd_to_ram,
 	cpu_init_r,		/* basic cpu dependent setup */
 	board_early_init_r,	/* basic board dependent setup */
 	dram_init,		/* configure available RAM banks */
@@ -156,8 +150,6 @@ init_fnc_t *init_sequence_r[] = {
 
 	NULL,
 };
-
-gd_t *gd;
 
 static int calculate_relocation_address(void)
 {
@@ -171,8 +163,18 @@ static int calculate_relocation_address(void)
 	 *       requirements
 	 */
 
-	/* Stack is at top of available memory */
+	/* Global Data is at top of available memory */
 	dest_addr = gd->ram_size;
+	dest_addr -= GENERATED_GBL_DATA_SIZE;
+	dest_addr &= ~15;
+	gd->new_gd_addr = dest_addr;
+
+	/* GDT is below Global Data */
+	dest_addr -= X86_GDT_SIZE;
+	dest_addr &= ~15;
+	gd->gdt_addr = dest_addr;
+
+	/* Stack is below GDT */
 	gd->start_addr_sp = dest_addr;
 
 	/* U-Boot is below the stack */
@@ -279,6 +281,31 @@ void board_init_f_r(void)
 		;
 }
 
+static int copy_gd_to_ram(void)
+{
+	gd_t *ram_gd;
+
+	/*
+	 * Global data is still in temporary memory (the CPU cache).
+	 * calculate_relocation_address() has set gd->new_gd_addr to
+	 * where the global data lives in RAM but getting it there
+	 * safely is a bit tricky due to the 'F-Segment Hack' that
+	 * we need to use for x86
+	 */
+	ram_gd = (gd_t *)gd->new_gd_addr;
+	memcpy((void *)ram_gd, gd, sizeof(gd_t));
+
+	/*
+	 * Reload the Global Descriptor Table so FS points to the
+	 * in-RAM copy of Global Data (calculate_relocation_address()
+	 * has already calculated the in-RAM location of the GDT)
+	 */
+	ram_gd->gd_addr = (ulong)ram_gd;
+	init_gd(ram_gd, (u64 *)gd->gdt_addr);
+
+	return 0;
+}
+
 void board_init_r(gd_t *id, ulong dest_addr)
 {
 #if defined(CONFIG_CMD_NET)
@@ -288,14 +315,9 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	ulong size;
 #endif
 	static bd_t bd_data;
-	static gd_t gd_data;
 	init_fnc_t **init_fnc_ptr;
 
 	show_boot_progress(0x21);
-
-	/* Global data pointer is now writable */
-	gd = &gd_data;
-	memcpy(gd, id, sizeof(gd_t));
 
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("" : : : "memory");

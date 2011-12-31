@@ -31,7 +31,7 @@
 #include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
-#include <generated/asm-offsets.h>
+#include <generated/generic-asm-offsets.h>
 
 .section .text
 .code32
@@ -84,6 +84,12 @@ car_init_ret:
 	 * starting at CONFIG_SYS_CAR_ADDR to be used as a temporary stack
 	 */
 	movl	$CONFIG_SYS_INIT_SP_ADDR, %esp
+
+	/* Initialise the Global Data Pointer */
+	movl	$CONFIG_SYS_INIT_GD_ADDR, %eax
+	movl	%eax, %edx
+	addl	$GENERATED_GBL_DATA_SIZE, %edx
+	call	init_gd;
 
 	/* Set parameter to board_init_f() to boot flags */
 	xorl	%eax, %eax
