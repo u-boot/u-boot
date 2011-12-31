@@ -86,6 +86,33 @@ The "md" steps in the above are just a precautionary step that allow
 you to confirm the u-boot version that was downloaded, and then confirm
 that it was copied to flash.
 
+The above assumes that you are using the default board settings which
+have u-boot in the 8MB flash, tied to /CS0.
+
+If you are running the default 8MB /CS0 settings but want to store an
+image in the SODIMM that is built with CONFIG_SYS_ALT_BOOT enabled,
+(as a backup, etc) then the steps will become:
+
+	tftp u-boot.bin
+	md 200000 10
+	protect off all
+	era eff00000 efffffff
+	cp.b 200000 eff00000 100000
+	md eff00000 10
+	protect on all
+
+Finally, if you are running the alternate 64MB /CS0 settings and want
+to update the in-use u-boot image, then (again with CONFIG_SYS_ALT_BOOT
+enabled) the steps will become:
+
+	tftp u-boot.bin
+	md 200000 10
+	protect off all
+	era fff00000 ffffffff
+	cp.b 200000 fff00000 100000
+	md fff00000 10
+	protect on all
+
 
 Hardware Reference:
 ===================
@@ -127,10 +154,9 @@ JP19		PCI mode	PCI		PCI-X
 onto /CS0 and the SODIMM flash on /CS6 (default).  When JP12
 is jumpered parallel to the LBC-SDRAM, then /CS0 is for the
 SODIMM flash and /CS6 is for the boot flash.  Note that in this
-alternate setting, you also need to switch SW2.8 to ON.  Currently
-u-boot doesn't support booting off the SODIMM in this alternate
-setting without manually altering BR0/OR0 and BR6/OR6 in the
-board config file appropriately.
+alternate setting, you also need to switch SW2.8 to ON.
+See the setting CONFIG_SYS_ALT_BOOT if you want to use this setting
+and boot u-boot from the 64MB SODIMM
 
 
 	Switches:

@@ -41,13 +41,21 @@
  * 0xf8b0_0000	0xf80f_ffff	EEPROM			1M
  * 0xff80_0000	0xffff_ffff	FLASH (boot bank)	8M
  *
+ * If swapped CS0/CS6 via JP12+SW2.8:
+ * 0xef80_0000	0xefff_ffff	FLASH (2nd bank)	8M
+ * 0xfc00_0000	0xffff_ffff	FLASH (boot bank)	64M
+ *
  * Notes:
  *	CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
  *	If flash is 8M at default position (last 8M), no LAW needed.
  */
 
 struct law_entry law_table[] = {
+#ifdef CONFIG_SYS_ALT_BOOT
+	SET_LAW(CONFIG_SYS_ALT_FLASH, LAW_SIZE_8M, LAW_TRGT_IF_LBC),
+#else
 	SET_LAW(CONFIG_SYS_ALT_FLASH, LAW_SIZE_64M, LAW_TRGT_IF_LBC),
+#endif
 #ifndef CONFIG_SPD_EEPROM
 	SET_LAW(CONFIG_SYS_DDR_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_DDR),
 #endif

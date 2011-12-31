@@ -57,8 +57,18 @@
 #define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_SBC8548		1	/* SBC8548 board specific */
 
+/*
+ * If you want to boot from the SODIMM flash, instead of the soldered
+ * on flash, set this, and change JP12, SW2:8 accordingly.
+ */
+#undef CONFIG_SYS_ALT_BOOT
+
 #ifndef CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_SYS_ALT_BOOT
+#define CONFIG_SYS_TEXT_BASE	0xfff00000
+#else
 #define CONFIG_SYS_TEXT_BASE	0xfffa0000
+#endif
 #endif
 
 #undef CONFIG_RIO
@@ -139,28 +149,54 @@
 /*
  * FLASH on the Local Bus
  * Two banks, one 8MB the other 64MB, using the CFI driver.
- * Boot from BR0/OR0 bank at 0xff80_0000
- * Alternate BR6/OR6 bank at 0xec00_0000
+ * JP12+SW2.8 are used to swap CS0 and CS6, defaults are to have
+ * CS0 the 8MB boot flash, and CS6 the 64MB flash.
  *
- * BR0:
+ *	Default:
+ *	ec00_0000	efff_ffff	64MB SODIMM
+ *	ff80_0000	ffff_ffff	8MB soldered flash
+ *
+ *	Alternate:
+ *	ef80_0000	efff_ffff	8MB soldered flash
+ *	fc00_0000	ffff_ffff	64MB SODIMM
+ *
+ * BR0_8M:
  *    Base address 0 = 0xff80_0000 = BR0[0:16] = 1111 1111 1000 0000 0
  *    Port Size = 8 bits = BRx[19:20] = 01
  *    Use GPCM = BRx[24:26] = 000
  *    Valid = BRx[31] = 1
  *
- * 0    4    8    12   16   20   24   28
- * 1111 1111 1000 0000 0000 1000 0000 0001 = ff800801    BR0
- *
- * BR6:
- *    Base address 6 = 0xec00_0000 = BR6[0:16] = 1110 1100 0000 0000 0
+ * BR0_64M:
+ *    Base address 0 = 0xfc00_0000 = BR0[0:16] = 1111 1100 0000 0000 0
  *    Port Size = 32 bits = BRx[19:20] = 11
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 1111 1000 0000 0000 1000 0000 0001 = ff800801    BR0_8M
+ * 1111 1100 0000 0000 0001 1000 0000 0001 = fc001801    BR0_64M
+ */
+#define CONFIG_SYS_BR0_8M	0xff800801
+#define CONFIG_SYS_BR0_64M	0xfc001801
+
+/*
+ * BR6_8M:
+ *    Base address 6 = 0xef80_0000 = BR6[0:16] = 1110 1111 1000 0000 0
+ *    Port Size = 8 bits = BRx[19:20] = 01
  *    Use GPCM = BRx[24:26] = 000
  *    Valid = BRx[31] = 1
+
+ * BR6_64M:
+ *    Base address 6 = 0xec00_0000 = BR6[0:16] = 1110 1100 0000 0000 0
+ *    Port Size = 32 bits = BRx[19:20] = 11
  *
  * 0    4    8    12   16   20   24   28
- * 1110 1100 0000 0000 0001 1000 0000 0001 = ec001801    BR6
- *
- * OR0:
+ * 1110 1111 1000 0000 0000 1000 0000 0001 = ef800801    BR6_8M
+ * 1110 1100 0000 0000 0001 1000 0000 0001 = ec001801    BR6_64M
+ */
+#define CONFIG_SYS_BR6_8M	0xef800801
+#define CONFIG_SYS_BR6_64M	0xec001801
+
+/*
+ * OR0_8M:
  *    Addr Mask = 8M = OR1[0:16] = 1111 1111 1000 0000 0
  *    XAM = OR0[17:18] = 11
  *    CSNT = OR0[20] = 1
@@ -169,11 +205,20 @@
  *    TRLX = use relaxed timing = OR0[29] = 1
  *    EAD = use external address latch delay = OR0[31] = 1
  *
- * 0    4    8    12   16   20   24   28
- * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65    OR0
+ * OR0_64M:
+ *    Addr Mask = 64M = OR1[0:16] = 1111 1100 0000 0000 0
  *
- * OR6:
- *    Addr Mask = 64M = OR6[0:16] = 1111 1100 0000 0000 0
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65    OR0_8M
+ * 1111 1100 0000 0000 0110 1110 0110 0101 = fc006e65    OR0_64M
+ */
+#define CONFIG_SYS_OR0_8M	0xff806e65
+#define CONFIG_SYS_OR0_64M	0xfc006e65
+
+/*
+ * OR6_8M:
+ *    Addr Mask = 8M = OR6[0:16] = 1111 1111 1000 0000 0
  *    XAM = OR6[17:18] = 11
  *    CSNT = OR6[20] = 1
  *    ACS = half cycle delay = OR6[21:22] = 11
@@ -181,20 +226,37 @@
  *    TRLX = use relaxed timing = OR6[29] = 1
  *    EAD = use external address latch delay = OR6[31] = 1
  *
+ * OR6_64M:
+ *    Addr Mask = 64M = OR6[0:16] = 1111 1100 0000 0000 0
+ *
  * 0    4    8    12   16   20   24   28
- * 1111 1100 0000 0000 0110 1110 0110 0101 = fc006e65    OR6
+ * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65    OR6_8M
+ * 1111 1100 0000 0000 0110 1110 0110 0101 = fc006e65    OR6_64M
  */
+#define CONFIG_SYS_OR6_8M	0xff806e65
+#define CONFIG_SYS_OR6_64M	0xfc006e65
 
+#ifndef CONFIG_SYS_ALT_BOOT		/* JP12 in default position */
 #define CONFIG_SYS_BOOT_BLOCK		0xff800000	/* start of 8MB Flash */
 #define CONFIG_SYS_ALT_FLASH		0xec000000	/* 64MB "user" flash */
-#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_BOOT_BLOCK	/* start of FLASH 16M */
 
-#define CONFIG_SYS_BR0_PRELIM		0xff800801
-#define CONFIG_SYS_BR6_PRELIM		0xec001801
+#define CONFIG_SYS_BR0_PRELIM		CONFIG_SYS_BR0_8M
+#define CONFIG_SYS_OR0_PRELIM		CONFIG_SYS_OR0_8M
 
-#define	CONFIG_SYS_OR0_PRELIM		0xff806e65
-#define	CONFIG_SYS_OR6_PRELIM		0xfc006e65
+#define CONFIG_SYS_BR6_PRELIM		CONFIG_SYS_BR6_64M
+#define CONFIG_SYS_OR6_PRELIM		CONFIG_SYS_OR6_64M
+#else					/* JP12 in alternate position */
+#define CONFIG_SYS_BOOT_BLOCK		0xfc000000	/* start 64MB Flash */
+#define CONFIG_SYS_ALT_FLASH		0xef800000	/* 8MB soldered flash */
 
+#define CONFIG_SYS_BR0_PRELIM		CONFIG_SYS_BR0_64M
+#define CONFIG_SYS_OR0_PRELIM		CONFIG_SYS_OR0_64M
+
+#define CONFIG_SYS_BR6_PRELIM		CONFIG_SYS_BR6_8M
+#define CONFIG_SYS_OR6_PRELIM		CONFIG_SYS_OR6_8M
+#endif
+
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_BOOT_BLOCK
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE, \
 					 CONFIG_SYS_ALT_FLASH}
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
@@ -330,7 +392,7 @@
  * thing for MONITOR_LEN in both cases.
  */
 #define CONFIG_SYS_MONITOR_LEN		(~CONFIG_SYS_TEXT_BASE + 1)
-#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
+#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024) /* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX	1

@@ -104,6 +104,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 5, BOOKE_PAGESZ_16M, 1),
 
+#ifndef CONFIG_SYS_ALT_BOOT
 	/*
 	 * TLB 6:	64M	Non-cacheable, guarded
 	 * 0xec000000	64M	64MB user FLASH
@@ -111,6 +112,24 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH, CONFIG_SYS_ALT_FLASH,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 6, BOOKE_PAGESZ_64M, 1),
+#else
+	/*
+	 * TLB 6:	4M	Non-cacheable, guarded
+	 * 0xef800000	4M	1st 1/2 8MB soldered FLASH
+	 */
+	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH, CONFIG_SYS_ALT_FLASH,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 6, BOOKE_PAGESZ_4M, 1),
+
+	/*
+	 * TLB 7:	4M	Non-cacheable, guarded
+	 * 0xefc00000	4M	2nd half 8MB soldered FLASH
+	 */
+	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH + 0x400000,
+		      CONFIG_SYS_ALT_FLASH + 0x400000,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 7, BOOKE_PAGESZ_4M, 1),
+#endif
 
 };
 
