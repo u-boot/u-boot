@@ -76,11 +76,15 @@ local_bus_init(void)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
-	uint clkdiv;
+	uint clkdiv, lbc_mhz, lcrr = CONFIG_SYS_LBC_LCRR;
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
-	clkdiv = (in_be32(&lbc->lcrr) & LCRR_CLKDIV) * 2;
+
+	lbc_mhz = sysinfo.freqLocalBus / 1000000;
+	clkdiv = sysinfo.freqSystemBus / sysinfo.freqLocalBus;
+
+	debug("LCRR=0x%x, CD=%d, MHz=%d\n", lcrr, clkdiv, lbc_mhz);
 
 	out_be32(&gur->lbiuiplldcr1, 0x00078080);
 	if (clkdiv == 16) {
@@ -91,9 +95,37 @@ local_bus_init(void)
 		out_be32(&gur->lbiuiplldcr0, 0x5c0f1bf0);
 	}
 
-	setbits_be32(&lbc->lcrr, 0x00030000);
+	/*
+	 * Local Bus Clock > 83.3 MHz. According to timing
+	 * specifications set LCRR[EADC] to 2 delay cycles.
+	 */
+	if (lbc_mhz > 83) {
+		lcrr &= ~LCRR_EADC;
+		lcrr |= LCRR_EADC_2;
+	}
 
+	/*
+	 * According to MPC8548ERMAD Rev. 1.3, 13.3.1.16, 13-30
+	 * disable PLL bypass for Local Bus Clock > 83 MHz.
+	 */
+	if (lbc_mhz >= 66)
+		lcrr &= (~LCRR_DBYP);	/* DLL Enabled */
+
+	else
+		lcrr |= LCRR_DBYP;	/* DLL Bypass */
+
+	out_be32(&lbc->lcrr, lcrr);
 	asm("sync;isync;msync");
+
+	 /*
+	 * According to MPC8548ERMAD Rev.1.3 read back LCRR
+	 * and terminate with isync
+	 */
+	lcrr = in_be32(&lbc->lcrr);
+	asm ("isync;");
+
+	/* let DLL stabilize */
+	udelay(500);
 
 	out_be32(&lbc->ltesr, 0xffffffff);	/* Clear LBC error IRQs */
 	out_be32(&lbc->lteir, 0xffffffff);	/* Enable LBC error IRQs */
