@@ -59,8 +59,13 @@ struct law_entry law_table[] = {
 #ifndef CONFIG_SPD_EEPROM
 	SET_LAW(CONFIG_SYS_DDR_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_DDR),
 #endif
+#ifdef CONFIG_SYS_LBC_SDRAM_BASE
 	/* LBC window - maps 256M 0xf0000000 -> 0xffffffff */
 	SET_LAW(CONFIG_SYS_LBC_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_LBC),
+#else
+	/* LBC window - maps 128M 0xf8000000 -> 0xffffffff */
+	SET_LAW(CONFIG_SYS_EPLD_BASE, LAW_SIZE_128M, LAW_TRGT_IF_LBC),
+#endif
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);

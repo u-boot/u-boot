@@ -62,6 +62,27 @@ a 33MHz PCI configuration is currently untested.)
     02.00.00   0x1148     0x9e00     Network controller      0x00
     =>
 
+Memory Size and using SPD:
+==========================
+
+The default configuration uses hard coded memory configuration settings
+for 256MB of DDR2 @400MHz.  It does not by default use the DDR2 SPD
+EEPROM data to read what memory is installed.
+
+There is a hardware errata, which causes the older local bus SDRAM
+SPD EEPROM to land at the same address as the DDR2 SPD EEPROM, so
+that the SPD data can not be read reliably.
+
+If you want to upgrade to larger RAM size, you can simply enable
+	#define CONFIG_SPD_EEPROM
+	#define CONFIG_DDR_SPD
+in include/configs/sbc8548.h file.  (The lines are already there
+but listed as #undef).
+
+Note that you will have to physically remove the LBC 128MB DIMM
+from the board's socket to resolve the above i2c address overlap
+issue and allow SPD autodetection of RAM to work.
+
 
 Updating U-boot with U-boot:
 ============================

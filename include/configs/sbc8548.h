@@ -119,9 +119,15 @@
 /* DDR Setup */
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
+#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
+/*
+ * A hardware errata caused the LBC SDRAM SPD and the DDR2 SPD
+ * to collide, meaning you couldn't reliably read either. So
+ * physically remove the LBC PC100 SDRAM module from the board
+ * before enabling the two SPD options below.
+ */
 #undef CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #undef CONFIG_DDR_SPD
-#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
@@ -283,9 +289,14 @@
 
 /*
  * SDRAM on the Local Bus (CS3 and CS4)
+ * Note that most boards have a hardware errata where both the
+ * LBC SDRAM and the DDR2 SDRAM decode at 0x51, making it impossible
+ * to use CONFIG_DDR_SPD unless you physically remove the LBC DIMM.
  */
+#ifndef CONFIG_DDR_SPD
 #define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
 #define CONFIG_SYS_LBC_SDRAM_SIZE	128		/* LBC SDRAM is 128MB */
+#endif
 
 /*
  * Base Register 3 and Option Register 3 configure the 1st 1/2 SDRAM.

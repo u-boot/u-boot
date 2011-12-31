@@ -76,6 +76,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 2, BOOKE_PAGESZ_64M, 1),
 
+#ifdef CONFIG_SYS_LBC_SDRAM_BASE
 	/*
 	 * TLB 3:	64M	Cacheable, non-guarded
 	 * 0xf0000000	64M	LBC SDRAM First half
@@ -92,6 +93,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      CONFIG_SYS_LBC_SDRAM_BASE + 0x4000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 4, BOOKE_PAGESZ_64M, 1),
+#endif
 
 	/*
 	 * TLB 5:	16M	Cacheable, non-guarded
