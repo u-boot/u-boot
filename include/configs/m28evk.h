@@ -147,6 +147,7 @@
 /*
  * NAND
  */
+#define	CONFIG_ENV_SIZE			(16 * 1024)
 #ifdef	CONFIG_CMD_NAND
 #define	CONFIG_NAND_MXS
 #define CONFIG_APBH_DMA
@@ -157,7 +158,6 @@
 
 /* Environment is in NAND */
 #define	CONFIG_ENV_IS_IN_NAND
-#define	CONFIG_ENV_SIZE			(16 * 1024)
 #define	CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define	CONFIG_ENV_SECT_SIZE		(128 * 1024)
 #define	CONFIG_ENV_RANGE		(512 * 1024)
@@ -180,6 +180,8 @@
 		"512k(redundant-environment),"	\
 		"4m(kernel),"			\
 		"-(filesystem)"
+#else
+#define	CONFIG_ENV_IS_NOWHERE
 #endif
 
 /*
