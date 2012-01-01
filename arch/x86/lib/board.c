@@ -164,24 +164,23 @@ static int calculate_relocation_address(void)
 	ulong text_start = (ulong)&__text_start;
 	ulong bss_end = (ulong)&__bss_end;
 	ulong dest_addr;
-	ulong rel_offset;
-
-	/* Calculate destination RAM Address and relocation offset */
-	dest_addr = gd->ram_size;
-	dest_addr -= CONFIG_SYS_STACK_SIZE;
-	dest_addr -= (bss_end - text_start);
 
 	/*
-	 * Round destination address down to 16-byte boundary to keep
-	 * IDT and GDT 16-byte aligned
+	 * NOTE: All destination address are rounded down to 16-byte
+	 *       boundary to satisfy various worst-case alignment
+	 *       requirements
 	 */
+
+	/* Stack is at top of available memory */
+	dest_addr = gd->ram_size;
+	gd->start_addr_sp = dest_addr;
+
+	/* U-Boot is below the stack */
+	dest_addr -= CONFIG_SYS_STACK_SIZE;
+	dest_addr -= (bss_end - text_start);
 	dest_addr &= ~15;
-
-	rel_offset = dest_addr - text_start;
-
-	gd->start_addr_sp = gd->ram_size;
 	gd->relocaddr = dest_addr;
-	gd->reloc_off = rel_offset;
+	gd->reloc_off = (dest_addr - text_start);
 
 	return 0;
 }
