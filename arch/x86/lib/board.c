@@ -252,8 +252,6 @@ void board_init_f(ulong boot_flags)
 			hang();
 	}
 
-	gd->flags |= GD_FLG_RELOC;
-
 	/*
 	 * SDRAM is now initialised, U-Boot has been copied into SDRAM,
 	 * the BSS has been cleared etc. The final stack can now be setup
@@ -321,6 +319,8 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("" : : : "memory");
+
+	gd->flags |= GD_FLG_RELOC;
 
 	gd->bd = &bd_data;
 	memset(gd->bd, 0, sizeof(bd_t));
