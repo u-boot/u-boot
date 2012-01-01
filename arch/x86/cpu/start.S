@@ -96,32 +96,22 @@ car_init_ret:
 	movw	$0x85, %ax
 	jmp	die
 
-.globl relocate_code
-.type relocate_code, @function
-relocate_code:
+.globl board_init_f_r_trampoline
+.type board_init_f_r_trampoline, @function
+board_init_f_r_trampoline:
 	/*
 	 * SDRAM has been initialised, U-Boot code has been copied into
 	 * RAM, BSS has been cleared and relocation adjustments have been
 	 * made. It is now time to jump into the in-RAM copy of U-Boot
 	 *
-	 * %eax = Address of top of stack
-	 * %edx = Address of Global Data
-	 * %ecx = Base address of in-RAM copy of U-Boot
+	 * %eax = Address of top of new stack
 	 */
 
 	/* Setup stack in RAM */
 	movl	%eax, %esp
 
-	/* Setup call address of in-RAM copy of board_init_r() */
-	movl	$board_init_r, %ebp
-	addl	(GENERATED_GD_RELOC_OFF)(%edx), %ebp
-
-	/* Setup parameters to board_init_r() */
-	movl	%edx, %eax
-	movl	%ecx, %edx
-
-	/* Jump to in-RAM copy of board_init_r() */
-	call	*%ebp
+	/* Re-enter U-Boot by calling board_init_f_r */
+	call	board_init_f_r
 
 die:
 	hlt

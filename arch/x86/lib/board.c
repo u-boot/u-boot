@@ -253,10 +253,29 @@ void board_init_f(ulong boot_flags)
 
 	gd->flags |= GD_FLG_RELOC;
 
-	/* Enter the relocated U-Boot! */
-	relocate_code(gd->start_addr_sp, gd, gd->relocaddr);
+	/*
+	 * SDRAM is now initialised, U-Boot has been copied into SDRAM,
+	 * the BSS has been cleared etc. The final stack can now be setup
+	 * in SDRAM. Code execution will continue (momentarily) in Flash,
+	 * but with the stack in SDRAM and Global Data in temporary memory
+	 * (CPU cache)
+	 */
+	board_init_f_r_trampoline(gd->start_addr_sp);
 
-	/* NOTREACHED - relocate_code() does not return */
+	/* NOTREACHED - board_init_f_r_trampoline() does not return */
+	while (1)
+		;
+}
+
+void board_init_f_r(void)
+{
+	/*
+	 * Transfer execution from Flash to RAM by calculating the address
+	 * of the in-RAM copy of board_init_r() and calling it
+	 */
+	(board_init_r + gd->reloc_off)(gd, gd->relocaddr);
+
+	/* NOTREACHED - board_init_r() does not return */
 	while (1)
 		;
 }

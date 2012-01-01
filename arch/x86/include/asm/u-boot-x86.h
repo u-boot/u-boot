@@ -61,5 +61,7 @@ u32 isa_map_rom(u32 bus_addr, int size);
 int video_bios_init(void);
 int video_init(void);
 
+void	board_init_f_r_trampoline(ulong) __attribute__ ((noreturn));
+void	board_init_f_r(void) __attribute__ ((noreturn));
 
 #endif	/* _U_BOOT_I386_H_ */
