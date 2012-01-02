@@ -25,6 +25,10 @@
 #define EEPROM_LAYOUT_VER_OFFSET	44
 #define BOARD_SERIAL_OFFSET		20
 #define BOARD_SERIAL_OFFSET_LEGACY	8
+#define BOARD_REV_OFFSET		0
+#define BOARD_REV_OFFSET_LEGACY		6
+#define BOARD_REV_SIZE			4
+#define BOARD_REV_SIZE_LEGACY		2
 
 #define LAYOUT_INVALID	0
 #define LAYOUT_LEGACY	0xff
@@ -76,3 +80,27 @@ void get_board_serial(struct tag_serialnr *serialnr)
 		serialnr->high = serial[1];
 	}
 }
+
+/*
+ * Routine: get_board_rev
+ * Description: read system revision
+ */
+u32 get_board_rev(void)
+{
+	u32 rev = 0;
+	uint offset = BOARD_REV_OFFSET_LEGACY;
+	int len = BOARD_REV_SIZE_LEGACY;
+
+	if (eeprom_setup_layout())
+		return 0;
+
+	if (eeprom_layout != LAYOUT_LEGACY) {
+		offset = BOARD_REV_OFFSET;
+		len = BOARD_REV_SIZE;
+	}
+
+	if (cm_t3x_eeprom_read(offset, (uchar *)&rev, len))
+		return 0;
+
+	return rev;
+};
