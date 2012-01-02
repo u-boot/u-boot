@@ -249,6 +249,7 @@ int last_stage_init(void)
 	char str_serdes[] = "Start SERDES blocks";
 	char str_channels[] = "Start FPGA channels";
 	char str_locks[] = "Verify SERDES locks";
+	char str_hicb[] = "Verify HICB status";
 	char str_status[] = "Verify PHY status -";
 	char slash[] = "\\|/-\\|/-";
 
@@ -311,6 +312,21 @@ int last_stage_init(void)
 		}
 	}
 	blank_string(strlen(str_locks));
+
+	/* verify hicb_status */
+	puts(str_hicb);
+	for (fpga = 0; fpga < 2; ++fpga) {
+		u16 *ch0_hicb_status_int = &(fpga ? fpga1 : fpga0)->ch0_hicb_status_int;
+		for (k = 0; k < 32; ++k) {
+			u16 status = in_le16(ch0_hicb_status_int + 4*k);
+			if (status)
+				printf("fpga %d hicb %d: hicb status %04x\n",
+					fpga, k, status);
+			/* reset events */
+			out_le16(ch0_hicb_status_int + 4*k, status);
+		}
+	}
+	blank_string(strlen(str_hicb));
 
 	/* verify phy status */
 	puts(str_status);
