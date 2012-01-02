@@ -418,7 +418,6 @@ static int esdhc_init(struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 	int timeout = 1000;
-	int ret = 0;
 
 	/* Reset the entire host controller */
 	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
@@ -445,24 +444,19 @@ static int esdhc_init(struct mmc *mmc)
 	/* Set timout to the maximum value */
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
 
-	/* Check if there is a callback for detecting the card */
-	ret = board_mmc_getcd(mmc);
-	if (ret < 0) {
-		timeout = 1000;
-		while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) &&
-				--timeout)
-			udelay(1000);
+	return 0;
+}
 
-		if (timeout <= 0)
-			ret = NO_CARD_ERR;
-	} else {
-		if (ret == 0)
-			ret = NO_CARD_ERR;
-		else
-			ret = 0;
-	}
+static int esdhc_getcd(struct mmc *mmc)
+{
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
+	int timeout = 1000;
 
-	return ret;
+	while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) && --timeout)
+		udelay(1000);
+
+	return timeout > 0;
 }
 
 static void esdhc_reset(struct fsl_esdhc *regs)
@@ -500,6 +494,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	mmc->send_cmd = esdhc_send_cmd;
 	mmc->set_ios = esdhc_set_ios;
 	mmc->init = esdhc_init;
+	mmc->getcd = esdhc_getcd;
 
 	voltage_caps = 0;
 	caps = regs->hostcapblt;
