@@ -633,6 +633,7 @@ static dir_entry *get_dentfromdir (fsdata *mydata, int startsect,
 			}
 #ifdef CONFIG_SUPPORT_VFAT
 			if (dols && mkcksum(dentptr->name) == prevcksum) {
+				prevcksum = 0xffff;
 				dentptr++;
 				continue;
 			}
@@ -963,6 +964,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 #ifdef CONFIG_SUPPORT_VFAT
 			else if (dols == LS_ROOT &&
 				 mkcksum(dentptr->name) == prevcksum) {
+				prevcksum = 0xffff;
 				dentptr++;
 				continue;
 			}
