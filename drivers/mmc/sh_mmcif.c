@@ -598,6 +598,7 @@ int mmcif_mmc_init(void)
 	mmc->send_cmd = sh_mmcif_request;
 	mmc->set_ios = sh_mmcif_set_ios;
 	mmc->init = sh_mmcif_init;
+	mmc->getcd = NULL;
 	host->regs = (struct sh_mmcif_regs *)CONFIG_SH_MMCIF_ADDR;
 	host->clk = CONFIG_SH_MMCIF_CLK;
 	mmc->priv = host;

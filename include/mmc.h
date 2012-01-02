@@ -302,6 +302,7 @@ struct mmc {
 			struct mmc_cmd *cmd, struct mmc_data *data);
 	void (*set_ios)(struct mmc *mmc);
 	int (*init)(struct mmc *mmc);
+	int (*getcd)(struct mmc *mmc);
 	uint b_max;
 };
 
@@ -316,6 +317,7 @@ void print_mmc_devices(char separator);
 int get_mmc_num(void);
 int board_mmc_getcd(struct mmc *mmc);
 int mmc_switch_part(int dev_num, unsigned int part_num);
+int mmc_getcd(struct mmc *mmc);
 
 #ifdef CONFIG_GENERIC_MMC
 int atmel_mci_init(void *regs);

@@ -674,6 +674,18 @@ int mmc_switch_part(int dev_num, unsigned int part_num)
 			  | (part_num & PART_ACCESS_MASK));
 }
 
+int mmc_getcd(struct mmc *mmc)
+{
+	int cd;
+
+	cd = board_mmc_getcd(mmc);
+
+	if ((cd < 0) && mmc->getcd)
+		cd = mmc->getcd(mmc);
+
+	return cd;
+}
+
 int sd_switch(struct mmc *mmc, int mode, int group, u8 value, u8 *resp)
 {
 	struct mmc_cmd cmd;
@@ -1201,6 +1213,12 @@ block_dev_desc_t *mmc_get_dev(int dev)
 int mmc_init(struct mmc *mmc)
 {
 	int err;
+
+	if (mmc_getcd(mmc) == 0) {
+		mmc->has_init = 0;
+		printf("MMC: no card present\n");
+		return NO_CARD_ERR;
+	}
 
 	if (mmc->has_init)
 		return 0;

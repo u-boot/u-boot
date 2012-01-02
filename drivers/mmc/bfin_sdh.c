@@ -250,6 +250,7 @@ int bfin_mmc_init(bd_t *bis)
 	mmc->send_cmd = bfin_sdh_request;
 	mmc->set_ios = bfin_sdh_set_ios;
 	mmc->init = bfin_sdh_init;
+	mmc->getcd = NULL;
 	mmc->host_caps = MMC_MODE_4BIT;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;

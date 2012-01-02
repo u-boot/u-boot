@@ -385,6 +385,7 @@ static int arm_pl180_mmci_host_init(struct mmc *dev)
 	dev->send_cmd = host_request;
 	dev->set_ios = host_set_ios;
 	dev->init = mmc_host_reset;
+	dev->getcd = NULL;
 	dev->host_caps = 0;
 	dev->voltages = VOLTAGE_WINDOW_MMC;
 	dev->f_min = dev->clock;

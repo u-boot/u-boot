@@ -665,6 +665,7 @@ int ftsdc010_mmc_init(int dev_index)
 	mmc->send_cmd = ftsdc010_request;
 	mmc->set_ios = ftsdc010_set_ios;
 	mmc->init = ftsdc010_core_init;
+	mmc->getcd = NULL;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 

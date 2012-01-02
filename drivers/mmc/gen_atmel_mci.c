@@ -337,6 +337,7 @@ int atmel_mci_init(void *regs)
 	mmc->send_cmd = mci_send_cmd;
 	mmc->set_ios = mci_set_ios;
 	mmc->init = mci_init;
+	mmc->getcd = NULL;
 
 	/* need to be able to pass these in on a board by board basis */
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
