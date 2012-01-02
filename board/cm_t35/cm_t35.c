@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2011
- * CompuLab, Ltd. <www.compulab.co.il>
+ * (C) Copyright 2011 CompuLab, Ltd. <www.compulab.co.il>
  *
  * Authors: Mike Rapoport <mike@compulab.co.il>
  *	    Igor Grinberg <grinberg@compulab.co.il>
@@ -316,8 +315,7 @@ void set_muxconf_regs(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	omap_mmc_init(0);
-	return 0;
+	return omap_mmc_init(0);
 }
 #endif
 
@@ -370,6 +368,7 @@ static void reset_net_chip(void)
 static inline void reset_net_chip(void) {}
 #endif
 
+#ifdef CONFIG_SMC911X
 /*
  * Routine: handle_mac_address
  * Description: prepare MAC address for on-board Ethernet.
@@ -404,7 +403,6 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0, rc1 = 0;
 
-#ifdef CONFIG_SMC911X
 	setup_net_chip_gmpc();
 	reset_net_chip();
 
@@ -419,7 +417,7 @@ int board_eth_init(bd_t *bis)
 	rc1 = smc911x_initialize(1, SB_T35_SMC911X_BASE);
 	if (rc1 > 0)
 		rc++;
-#endif
 
 	return rc;
 }
+#endif
