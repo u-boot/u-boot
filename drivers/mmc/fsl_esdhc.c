@@ -419,7 +419,6 @@ static int esdhc_init(struct mmc *mmc)
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 	int timeout = 1000;
 	int ret = 0;
-	u8 card_absent;
 
 	/* Reset the entire host controller */
 	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
@@ -447,7 +446,8 @@ static int esdhc_init(struct mmc *mmc)
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
 
 	/* Check if there is a callback for detecting the card */
-	if (board_mmc_getcd(&card_absent, mmc)) {
+	ret = board_mmc_getcd(mmc);
+	if (ret < 0) {
 		timeout = 1000;
 		while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) &&
 				--timeout)
@@ -456,8 +456,10 @@ static int esdhc_init(struct mmc *mmc)
 		if (timeout <= 0)
 			ret = NO_CARD_ERR;
 	} else {
-		if (card_absent)
+		if (ret == 0)
 			ret = NO_CARD_ERR;
+		else
+			ret = 0;
 	}
 
 	return ret;

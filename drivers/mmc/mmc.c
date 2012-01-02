@@ -40,11 +40,11 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
-int __board_mmc_getcd(u8 *cd, struct mmc *mmc) {
+int __board_mmc_getcd(struct mmc *mmc) {
 	return -1;
 }
 
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)__attribute__((weak,
+int board_mmc_getcd(struct mmc *mmc)__attribute__((weak,
 	alias("__board_mmc_getcd")));
 
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)

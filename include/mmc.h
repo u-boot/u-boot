@@ -314,7 +314,7 @@ struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
 int get_mmc_num(void);
-int board_mmc_getcd(u8 *cd, struct mmc *mmc);
+int board_mmc_getcd(struct mmc *mmc);
 int mmc_switch_part(int dev_num, unsigned int part_num);
 
 #ifdef CONFIG_GENERIC_MMC
