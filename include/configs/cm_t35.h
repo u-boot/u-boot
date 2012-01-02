@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2011
- * CompuLab, Ltd.
+ * (C) Copyright 2011 CompuLab, Ltd.
  * Mike Rapoport <mike@compulab.co.il>
  * Igor Grinberg <grinberg@compulab.co.il>
  *
@@ -36,9 +35,9 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_OMAP		1	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		1	/* which is a 34XX */
-#define CONFIG_CM_T3X		1	/* working with CM-T35 and CM-T3730 */
+#define CONFIG_OMAP	/* in a TI OMAP core */
+#define CONFIG_OMAP34XX	/* which is a 34XX */
+#define CONFIG_CM_T3X	/* working with CM-T35 and CM-T3730 */
 
 #define CONFIG_SYS_TEXT_BASE	0x80008000
 
@@ -50,8 +49,8 @@
 /*
  * Display CPU and Board information
  */
-#define CONFIG_DISPLAY_CPUINFO		1
-#define CONFIG_DISPLAY_BOARDINFO	1
+#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_DISPLAY_BOARDINFO
 
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */
@@ -69,17 +68,17 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ	        0x4000
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
-#define CONFIG_REVISION_TAG		1
+#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+#define CONFIG_REVISION_TAG
 
 /*
  * Size of malloc() pool
  */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
+#define CONFIG_ENV_SIZE		(128 << 10)	/* 128 KiB */
+					/* Sector */
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (128 << 10))
 
 /*
  * Hardware drivers
@@ -107,20 +106,21 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
-#define CONFIG_GENERIC_MMC		1
-#define CONFIG_MMC			1
-#define CONFIG_OMAP_HSMMC		1
-#define CONFIG_DOS_PARTITION		1
+
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MMC
+#define CONFIG_OMAP_HSMMC
+#define CONFIG_DOS_PARTITION
 
 /* USB */
-#define CONFIG_MUSB_UDC			1
-#define CONFIG_USB_OMAP3		1
-#define CONFIG_TWL4030_USB		1
+#define CONFIG_MUSB_UDC
+#define CONFIG_USB_OMAP3
+#define CONFIG_TWL4030_USB
 
 /* USB device configuration */
-#define CONFIG_USB_DEVICE		1
-#define CONFIG_USB_TTY			1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
+#define CONFIG_USB_DEVICE
+#define CONFIG_USB_TTY
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -131,10 +131,10 @@
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:512k(x-loader),"\
-					"1920k(u-boot),128k(u-boot-env),"\
-					"4m(kernel),-(fs)"
+#define MTDIDS_DEFAULT		"nand0=nand"
+#define MTDPARTS_DEFAULT	"mtdparts=nand:512k(x-loader),"\
+				"1920k(u-boot),128k(u-boot-env),"\
+				"4m(kernel),-(fs)"
 
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
@@ -147,30 +147,30 @@
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_HARD_I2C			1
+#define CONFIG_HARD_I2C
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		1
 #define CONFIG_SYS_I2C_BUS		0
 #define CONFIG_SYS_I2C_BUS_SELECT	1
-#define CONFIG_DRIVER_OMAP34XX_I2C	1
+#define CONFIG_DRIVER_OMAP34XX_I2C
 
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_POWER		1
-#define CONFIG_TWL4030_LED		1
+#define CONFIG_TWL4030_POWER
+#define CONFIG_TWL4030_LED
 
 /*
  * Board NAND Info.
  */
-#define CONFIG_SYS_NAND_QUIET_TEST	1
+#define CONFIG_SYS_NAND_QUIET_TEST
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
 							/* to access nand at */
 							/* CS0 */
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
+#define GPMC_NAND_ECC_LP_x16_LAYOUT
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
@@ -244,7 +244,7 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_TIMESTAMP
-#define CONFIG_SYS_AUTOLOAD     "no"
+#define CONFIG_SYS_AUTOLOAD		"no"
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
@@ -308,7 +308,7 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
-#define CONFIG_ENV_IS_IN_NAND		1
+#define CONFIG_ENV_IS_IN_NAND
 #define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
@@ -333,8 +333,8 @@
 					 GENERATED_GBL_DATA_SIZE)
 
 /* Status LED */
-#define CONFIG_STATUS_LED		1 /* Status LED enabled */
-#define CONFIG_BOARD_SPECIFIC_LED	1
+#define CONFIG_STATUS_LED		/* Status LED enabled */
+#define CONFIG_BOARD_SPECIFIC_LED
 #define STATUS_LED_GREEN		0
 #define STATUS_LED_BIT			STATUS_LED_GREEN
 #define STATUS_LED_STATE		STATUS_LED_ON
@@ -344,7 +344,7 @@
 
 /* GPIO banks */
 #ifdef CONFIG_STATUS_LED
-#define CONFIG_OMAP3_GPIO_6		1 /* GPIO186 is in GPIO bank 6  */
+#define CONFIG_OMAP3_GPIO_6	/* GPIO186 is in GPIO bank 6  */
 #endif
 
 #endif /* __CONFIG_H */
