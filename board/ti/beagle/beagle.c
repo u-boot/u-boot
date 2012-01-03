@@ -71,6 +71,7 @@ extern volatile struct ehci_hcor *hcor;
 #define BBTOYS_WIFI			0x01000B00
 #define BBTOYS_VGA			0x02000B00
 #define BBTOYS_LCD			0x03000B00
+#define BCT_BRETTL3			0x01000F00
 #define BEAGLE_NO_EEPROM		0xffffffff
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -379,6 +380,9 @@ int misc_init_r(void)
 	case BBTOYS_LCD:
 		printf("Recognized BeagleBoardToys LCD board\n");
 		break;;
+	case BCT_BRETTL3:
+	    printf("Recognized bct electronic GmbH brettl3 board\n");
+	    break;
 	case BEAGLE_NO_EEPROM:
 		printf("No EEPROM on expansion board\n");
 		setenv("buddy", "none");
