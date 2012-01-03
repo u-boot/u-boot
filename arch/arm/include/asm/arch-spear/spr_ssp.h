@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2009
- * Ryan CHEN, ST Micoelectronics, ryan.chen@st.com
+ * Copyright (C) 2012 Stefan Roese <sr@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,32 +20,26 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __SYSCTRL_H
-#define __SYSCTRL_H
+#ifndef _SPR_SSP_H
+#define _SPR_SSP_H
 
-struct syscntl_regs {
-	u32 scctrl;
-	u32 scsysstat;
-	u32 scimctrl;
-	u32 scimsysstat;
-	u32 scxtalctrl;
-	u32 scpllctrl;
-	u32 scpllfctrl;
-	u32 scperctrl0;
-	u32 scperctrl1;
-	u32 scperen;
-	u32 scperdis;
-	const u32 scperclken;
-	const u32 scperstat;
+struct ssp_regs {
+	u32 sspcr0;
+	u32 sspcr1;
+	u32 sspdr;
+	u32 sspsr;
+	u32 sspcpsr;
+	u32 sspimsc;
+	u32 sspicr;
+	u32 sspdmacr;
 };
 
-#define MODE_SHIFT          0x00000003
+#define SSPCR0_FRF_MOT_SPI	0x0000
+#define SSPCR0_DSS_16BITS	0x000f
 
-#define NORMAL              0x00000004
-#define SLOW                0x00000002
-#define DOZE                0x00000001
-#define SLEEP               0x00000000
+#define SSPCR1_SSE		0x0002
 
-#define PLL_TIM             0x01FFFFFF
+#define SSPSR_TNF		0x2
+#define SSPSR_TFE		0x1
 
 #endif
