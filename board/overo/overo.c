@@ -119,7 +119,7 @@ int get_board_revision(void)
 			   gpio_get_value(113) << 1 |
 			   gpio_get_value(112);
 	} else {
-		printf("Error: unable to acquire board revision GPIOs\n");
+		puts("Error: unable to acquire board revision GPIOs\n");
 		revision = -1;
 	}
 
@@ -151,7 +151,7 @@ int get_sdio2_config(void)
 
 		gpio_direction_input(130);
 	} else {
-		printf("Error: unable to acquire sdio2 clk GPIOs\n");
+		puts("Error: unable to acquire sdio2 clk GPIOs\n");
 		sdio_direct = -1;
 	}
 
@@ -200,15 +200,15 @@ int misc_init_r(void)
 
 	switch (get_sdio2_config()) {
 	case 0:
-		printf("Tranceiver detected on mmc2\n");
+		puts("Tranceiver detected on mmc2\n");
 		MUX_OVERO_SDIO2_TRANSCEIVER();
 		break;
 	case 1:
-		printf("Direct connection on mmc2\n");
+		puts("Direct connection on mmc2\n");
 		MUX_OVERO_SDIO2_DIRECT();
 		break;
 	default:
-		printf("Unable to detect mmc2 connection type\n");
+		puts("Unable to detect mmc2 connection type\n");
 	}
 
 	switch (get_expansion_id()) {
@@ -269,10 +269,10 @@ int misc_init_r(void)
 		setenv("defaultdisplay", "dvi");
 		break;
 	case GUMSTIX_NO_EEPROM:
-		printf("No EEPROM on expansion board\n");
+		puts("No EEPROM on expansion board\n");
 		break;
 	default:
-		printf("Unrecognized expansion board\n");
+		puts("Unrecognized expansion board\n");
 	}
 
 	if (expansion_config.content == 1)
