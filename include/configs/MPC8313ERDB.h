@@ -267,7 +267,7 @@
 #define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT			"nand0=e2800000.flash"
 #define MTDPARTS_DEFAULT		\
-	"mtdparts=e0600000.flash:512k(uboot),128k(env),3m@1m(kernel),-(fs)"
+	"mtdparts=e2800000.flash:512k(uboot),128k(env),3m@1m(kernel),-(fs)"
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
