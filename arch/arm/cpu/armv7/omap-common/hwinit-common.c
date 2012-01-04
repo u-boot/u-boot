@@ -76,14 +76,14 @@ u32 cortex_rev(void)
 	return rev;
 }
 
-void omap_rev_string(char *omap_rev_string)
+void omap_rev_string(void)
 {
 	u32 omap_rev = omap_revision();
 	u32 omap_variant = (omap_rev & 0xFFFF0000) >> 16;
 	u32 major_rev = (omap_rev & 0x00000F00) >> 8;
 	u32 minor_rev = (omap_rev & 0x000000F0) >> 4;
 
-	sprintf(omap_rev_string, "OMAP%x ES%x.%x", omap_variant, major_rev,
+	printf("OMAP%x ES%x.%x\n", omap_variant, major_rev,
 		minor_rev);
 }
 
@@ -223,10 +223,8 @@ u32 get_device_type(void)
  */
 int print_cpuinfo(void)
 {
-	char rev_string_buffer[50];
-
-	omap_rev_string(rev_string_buffer);
-	printf("CPU  : %s\n", rev_string_buffer);
+	puts("CPU  : ");
+	omap_rev_string();
 
 	return 0;
 }
