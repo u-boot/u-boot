@@ -33,6 +33,11 @@ const omap3_sysinfo sysinfo = {
 #endif
 };
 
+/* overo revisions */
+#define REVISION_0	0x0
+#define REVISION_1	0x1
+#define REVISION_2	0x2
+
 /*
  * IEN  - Input Enable
  * IDIS - Input Disable

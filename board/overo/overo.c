@@ -31,6 +31,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <twl4030.h>
+#include <linux/mtd/nand.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
@@ -100,12 +101,36 @@ int board_init(void)
 }
 
 /*
+ * Routine: omap_rev_string
+ * Description: For SPL builds output board rev
+ */
+#ifdef CONFIG_SPL_BUILD
+void omap_rev_string(void)
+{
+}
+#endif
+
+/*
  * Routine: get_board_revision
  * Description: Returns the board revision
  */
 int get_board_revision(void)
 {
 	int revision;
+
+#ifdef CONFIG_DRIVER_OMAP34XX_I2C
+	unsigned char data;
+
+	/* board revisions <= R2410 connect 4030 irq_1 to gpio112             */
+	/* these boards should return a revision number of 0                  */
+	/* the code below forces a 4030 RTC irq to ensure that gpio112 is low */
+	i2c_set_bus_num(TWL4030_I2C_BUS);
+	data = 0x01;
+	i2c_write(0x4B, 0x29, 1, &data, 1);
+	data = 0x0c;
+	i2c_write(0x4B, 0x2b, 1, &data, 1);
+	i2c_read(0x4B, 0x2a, 1, &data, 1);
+#endif
 
 	if (!gpio_request(112, "") &&
 	    !gpio_request(113, "") &&
@@ -125,6 +150,44 @@ int get_board_revision(void)
 
 	return revision;
 }
+
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on both banks.
+ */
+void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
+		u32 *mr)
+{
+	*mr = MICRON_V_MR_165;
+	switch (get_board_revision()) {
+	case REVISION_0: /* Micron 1286MB/256MB, 1/2 banks of 128MB */
+		*mcfg = MICRON_V_MCFG_165(128 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		break;
+	case REVISION_1: /* Micron 256MB/512MB, 1/2 banks of 256MB */
+		*mcfg = MICRON_V_MCFG_165(256 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		break;
+	case REVISION_2: /* Hynix 256MB/512MB, 1/2 banks of 256MB */
+		*mcfg = HYNIX_V_MCFG_165(256 << 20);
+		*ctrla = HYNIX_V_ACTIMA_165;
+		*ctrlb = HYNIX_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		break;
+	default:
+		*mcfg = MICRON_V_MCFG_165(128 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	}
+}
+#endif
 
 /*
  * Routine: get_sdio2_config
@@ -337,7 +400,7 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0);
