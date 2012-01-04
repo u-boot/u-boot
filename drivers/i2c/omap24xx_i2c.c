@@ -35,10 +35,15 @@ static void wait_for_bb(void);
 static u16 wait_for_pin(void);
 static void flush_fifo(void);
 
-static struct i2c *i2c_base = (struct i2c *)I2C_DEFAULT_BASE;
-
-static unsigned int bus_initialized[I2C_BUS_MAX];
-static unsigned int current_bus;
+/*
+ * For SPL boot some boards need i2c before SDRAM is initialised so force
+ * variables to live in SRAM
+ */
+static struct i2c __attribute__((section (".data"))) *i2c_base =
+					(struct i2c *)I2C_DEFAULT_BASE;
+static unsigned int __attribute__((section (".data"))) bus_initialized[I2C_BUS_MAX] =
+					{ [0 ... (I2C_BUS_MAX-1)] = 0 };
+static unsigned int __attribute__((section (".data"))) current_bus = 0;
 
 void i2c_init(int speed, int slaveadd)
 {
