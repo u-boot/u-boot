@@ -115,8 +115,6 @@ void board_init_r(gd_t *id, ulong dummy)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
 			CONFIG_SYS_SPL_MALLOC_SIZE);
 
-	timer_init();
-
 #ifdef CONFIG_SPL_BOARD_INIT
 	spl_board_init();
 #endif

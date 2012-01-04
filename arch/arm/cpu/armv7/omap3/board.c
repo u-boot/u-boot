@@ -230,6 +230,8 @@ void s_init(void)
 
 #ifdef CONFIG_SPL_BUILD
 	preloader_console_init();
+
+	timer_init();
 #endif
 
 	if (!in_sdram)
