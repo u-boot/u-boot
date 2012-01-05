@@ -90,7 +90,6 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ 0x02000000, }
 /* socket has two chipselects, nCE0 gated by address BIT(14) */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
 
 /* SPI support */
 #define CONFIG_SPI
