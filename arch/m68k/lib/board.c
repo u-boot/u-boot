@@ -639,7 +639,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 */
 	{
 		ulong pram = 0;
-		uchar memsz[32];
+		char memsz[32];
 
 #ifdef CONFIG_PRAM
 		pram = getenv_ulong("pram", 10, CONFIG_PRAM);
