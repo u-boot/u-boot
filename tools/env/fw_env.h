@@ -22,8 +22,8 @@
  */
 
 /*
- * To build the utility with the run-time configuration
- * uncomment the next line.
+ * To build the utility with the static configuration
+ * comment out the next line.
  * See included "fw_env.config" sample file
  * for notes on configuration.
  */
