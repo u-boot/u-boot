@@ -108,7 +108,7 @@ static const struct pinmux_config gpio_pins[] = {
 #endif
 };
 
-static const struct pinmux_resource pinmuxes[] = {
+const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_DRIVER_TI_EMAC
 	PINMUX_ITEM(emac_pins_mdio),
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
@@ -134,6 +134,8 @@ static const struct pinmux_resource pinmuxes[] = {
 #endif
 	PINMUX_ITEM(gpio_pins),
 };
+
+const int pinmuxes_size = ARRAY_SIZE(pinmuxes);
 
 static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_AEMIF },	/* NAND, NOR */

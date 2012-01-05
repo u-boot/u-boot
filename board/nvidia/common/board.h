@@ -25,6 +25,6 @@
 #define _BOARD_H_
 
 void gpio_config_uart(void);
-int tegra2_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio);
+void gpio_early_init_uart(void);
 
 #endif	/* BOARD_H */

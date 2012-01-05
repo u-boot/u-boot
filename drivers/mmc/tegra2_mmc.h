@@ -127,7 +127,5 @@ struct mmc_host {
 	int cd_gpio;		/* Change Detect GPIO */
 };
 
-int tegra2_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio);
-
 #endif	/* __ASSEMBLY__ */
 #endif	/* __TEGRA2_MMC_H_ */

@@ -344,6 +344,17 @@ unsigned clock_adjust_periph_pll_div(enum periph_id periph_id,
  */
 unsigned clock_get_rate(enum clock_id clkid);
 
+/**
+ * Start up a UART using low-level calls
+ *
+ * Prior to relocation clock_start_periph_pll() cannot be called. This
+ * function provides a way to set up a UART using low-level calls which
+ * do not require BSS.
+ *
+ * @param periph_id	Peripheral ID of UART to enable (e,g, PERIPH_ID_UART1)
+ */
+void clock_ll_start_uart(enum periph_id periph_id);
+
 /*
  * Checks that clocks are valid and prints a warning if not
  *

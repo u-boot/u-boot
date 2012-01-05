@@ -29,3 +29,5 @@
 ifdef CONFIG_TEGRA2
 CFLAGS_arch/arm/lib/board.o += -march=armv4t
 endif
+
+USE_PRIVATE_LIBGCC = yes

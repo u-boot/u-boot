@@ -51,8 +51,7 @@
 #define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
 
 /* Environment */
-#define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_SIZE			0x20000	/* Total Size Environment */
+#define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
 
 /*
  * Size of malloc() pool
@@ -152,7 +151,7 @@
 #define PHYS_SDRAM_1		TEGRA2_SDRC_CS0
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512M */
 
-#define CONFIG_SYS_TEXT_BASE	0x00E08000
+#define CONFIG_SYS_TEXT_BASE	0x00108000
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_STACKBASE

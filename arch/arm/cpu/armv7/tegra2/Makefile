@@ -33,7 +33,7 @@ include $(TOPDIR)/config.mk
 LIB	=  $(obj)lib$(SOC).o
 
 SOBJS	:= lowlevel_init.o
-COBJS	:= ap20.o board.o clock.o pinmux.o sys_info.o timer.o
+COBJS	:= ap20.o board.o clock.o funcmux.o pinmux.o sys_info.o timer.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))

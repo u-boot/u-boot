@@ -904,6 +904,20 @@ static int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 	return 0;
 }
 
+void clock_ll_start_uart(enum periph_id periph_id)
+{
+	/* Assert UART reset and enable clock */
+	reset_set_enable(periph_id, 1);
+	clock_enable(periph_id);
+	clock_ll_set_source(periph_id, 0); /* UARTx_CLK_SRC = 00, PLLP_OUT0 */
+
+	/* wait for 2us */
+	udelay(2);
+
+	/* De-assert reset to UART */
+	reset_set_enable(periph_id, 0);
+}
+
 int clock_verify(void)
 {
 	struct clk_pll *pll = get_pll(CLOCK_ID_PERIPH);

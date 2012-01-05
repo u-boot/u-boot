@@ -27,10 +27,12 @@
 #include <asm/arch/tegra2.h>
 #include <asm/arch/sys_proto.h>
 
+#include <asm/arch/board.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart.h>
+#include <spi.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -48,63 +50,22 @@ int timer_init(void)
 	return 0;
 }
 
-static void enable_uart(enum periph_id pid)
-{
-	/* Assert UART reset and enable clock */
-	reset_set_enable(pid, 1);
-	clock_enable(pid);
-	clock_ll_set_source(pid, 0);	/* UARTx_CLK_SRC = 00, PLLP_OUT0 */
-
-	/* wait for 2us */
-	udelay(2);
-
-	/* De-assert reset to UART */
-	reset_set_enable(pid, 0);
-}
-
-/*
- * Routine: clock_init_uart
- * Description: init the PLL and clock for the UART(s)
- */
-static void clock_init_uart(void)
-{
-#if defined(CONFIG_TEGRA2_ENABLE_UARTA)
-	enable_uart(PERIPH_ID_UART1);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
-#if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	enable_uart(PERIPH_ID_UART4);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
-}
-
-/*
- * Routine: pin_mux_uart
- * Description: setup the pin muxes/tristate values for the UART(s)
- */
-static void pin_mux_uart(void)
-{
-#if defined(CONFIG_TEGRA2_ENABLE_UARTA)
-	pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
-	pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
-
-	pinmux_tristate_disable(PINGRP_IRRX);
-	pinmux_tristate_disable(PINGRP_IRTX);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
-#if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
-
-	pinmux_tristate_disable(PINGRP_GMC);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
-}
-
 /*
  * Routine: board_init
  * Description: Early hardware init.
  */
 int board_init(void)
 {
+	/* Do clocks and UART first so that printf() works */
 	clock_init();
 	clock_verify();
 
+#ifdef CONFIG_SPI_UART_SWITCH
+	gpio_config_uart();
+#endif
+#ifdef CONFIG_TEGRA2_SPI
+	spi_init();
+#endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
 
@@ -114,20 +75,14 @@ int board_init(void)
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	/* We didn't do this init in start.S, so do it now */
-	cpu_init_cp15();
-
-	/* Initialize essential common plls */
-	clock_early_init();
-
-	/* Initialize UART clocks */
-	clock_init_uart();
-
-	/* Initialize periph pinmuxes */
-	pin_mux_uart();
+	board_init_uart_f();
 
 	/* Initialize periph GPIOs */
+#ifdef CONFIG_SPI_UART_SWITCH
+	gpio_early_init_uart();
+#else
 	gpio_config_uart();
+#endif
 	return 0;
 }
 #endif	/* EARLY_INIT */

@@ -52,4 +52,7 @@
 #define CONFIG_EFI_PARTITION
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
+
+/* Environment not stored */
+#define CONFIG_ENV_IS_NOWHERE
 #endif /* __CONFIG_H */

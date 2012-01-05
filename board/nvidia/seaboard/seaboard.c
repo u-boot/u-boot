@@ -25,12 +25,14 @@
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/mmc.h>
 #include <asm/gpio.h>
 #ifdef CONFIG_TEGRA2_MMC
 #include <mmc.h>
 #endif
-#include "../common/board.h"
 
+/* TODO: Remove this code when the SPI switch is working */
+#ifndef CONFIG_SPI_UART_SWITCH
 /*
  * Routine: gpio_config_uart_seaboard
  * Description: Force GPIO_PI3 low on Seaboard so UART4 works.
@@ -48,6 +50,7 @@ void gpio_config_uart(void)
 		return;
 	gpio_config_uart_seaboard();
 }
+#endif
 
 #ifdef CONFIG_TEGRA2_MMC
 /*

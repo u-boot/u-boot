@@ -572,6 +572,7 @@ Stefano Babic <sbabic@denx.de>
 	mx51evk		i.MX51
 	polaris		xscale/pxa
 	trizepsiv	xscale/pxa
+	twister		omap3
  	vision2		i.MX51
 
 Jason Liu <r64343@freescale.com>
@@ -781,6 +782,11 @@ Stelian Pop <stelian@popies.net>
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
+
+Thierry Reding <thierry.reding@avionic-design.de>
+
+	plutux		Tegra2 (ARM7 & A9 Dual Core)
+	medcom		Tegra2 (ARM7 & A9 Dual Core)
 
 Tom Rini <trini@ti.com>
 

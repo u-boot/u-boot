@@ -383,65 +383,66 @@ NXTARG:		;
 		exit (EXIT_FAILURE);
 	}
 
-	if (!params.skipcpy &&
-		(params.type == IH_TYPE_MULTI ||
-			params.type == IH_TYPE_SCRIPT)) {
-		char *file = params.datafile;
-		uint32_t size;
+	if (!params.skipcpy) {
+		if (params.type == IH_TYPE_MULTI ||
+		    params.type == IH_TYPE_SCRIPT) {
+			char *file = params.datafile;
+			uint32_t size;
 
-		for (;;) {
-			char *sep = NULL;
+			for (;;) {
+				char *sep = NULL;
 
-			if (file) {
-				if ((sep = strchr(file, ':')) != NULL) {
-					*sep = '\0';
+				if (file) {
+					if ((sep = strchr(file, ':')) != NULL) {
+						*sep = '\0';
+					}
+
+					if (stat (file, &sbuf) < 0) {
+						fprintf (stderr, "%s: Can't stat %s: %s\n",
+							 params.cmdname, file, strerror(errno));
+						exit (EXIT_FAILURE);
+					}
+					size = cpu_to_uimage (sbuf.st_size);
+				} else {
+					size = 0;
 				}
 
-				if (stat (file, &sbuf) < 0) {
-					fprintf (stderr, "%s: Can't stat %s: %s\n",
-						params.cmdname, file, strerror(errno));
+				if (write(ifd, (char *)&size, sizeof(size)) != sizeof(size)) {
+					fprintf (stderr, "%s: Write error on %s: %s\n",
+						 params.cmdname, params.imagefile,
+						 strerror(errno));
 					exit (EXIT_FAILURE);
 				}
-				size = cpu_to_uimage (sbuf.st_size);
-			} else {
-				size = 0;
+
+				if (!file) {
+					break;
+				}
+
+				if (sep) {
+					*sep = ':';
+					file = sep + 1;
+				} else {
+					file = NULL;
+				}
 			}
 
-			if (write(ifd, (char *)&size, sizeof(size)) != sizeof(size)) {
-				fprintf (stderr, "%s: Write error on %s: %s\n",
-					params.cmdname, params.imagefile,
-					strerror(errno));
-				exit (EXIT_FAILURE);
-			}
+			file = params.datafile;
 
-			if (!file) {
-				break;
+			for (;;) {
+				char *sep = strchr(file, ':');
+				if (sep) {
+					*sep = '\0';
+					copy_file (ifd, file, 1);
+					*sep++ = ':';
+					file = sep;
+				} else {
+					copy_file (ifd, file, 0);
+					break;
+				}
 			}
-
-			if (sep) {
-				*sep = ':';
-				file = sep + 1;
-			} else {
-				file = NULL;
-			}
+		} else {
+			copy_file (ifd, params.datafile, 0);
 		}
-
-		file = params.datafile;
-
-		for (;;) {
-			char *sep = strchr(file, ':');
-			if (sep) {
-				*sep = '\0';
-				copy_file (ifd, file, 1);
-				*sep++ = ':';
-				file = sep;
-			} else {
-				copy_file (ifd, file, 0);
-				break;
-			}
-		}
-	} else {
-		copy_file (ifd, params.datafile, 0);
 	}
 
 	/* We're a bit of paranoid */
