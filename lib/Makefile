@@ -37,7 +37,6 @@ COBJS-$(CONFIG_BZIP2) += bzlib_huffman.o
 COBJS-$(CONFIG_USB_TTY) += circbuf.o
 COBJS-y += crc7.o
 COBJS-y += crc16.o
-COBJS-y += crc32.o
 COBJS-y += display_options.o
 COBJS-y += errno.o
 COBJS-$(CONFIG_OF_CONTROL) += fdtdec.o
@@ -60,6 +59,7 @@ endif
 ifdef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
 endif
+COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += div64.o
 COBJS-y += string.o
