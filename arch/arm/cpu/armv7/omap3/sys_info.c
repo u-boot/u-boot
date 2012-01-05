@@ -30,6 +30,7 @@
 #include <asm/arch/mem.h>	/* get mem tables */
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <linux/compiler.h>
 
 extern omap3_sysinfo sysinfo;
 static struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
@@ -197,7 +198,7 @@ u32 get_gpmc0_width(void)
  * get_board_rev() - setup to pass kernel board revision information
  * returns:(bit[0-3] sub version, higher bit[7-4] is higher version)
  *************************************************************************/
-u32 get_board_rev(void)
+u32 __weak get_board_rev(void)
 {
 	return 0x20;
 }
