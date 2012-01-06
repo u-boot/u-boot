@@ -58,9 +58,9 @@ unsigned int query_sdram_size(void)
 	case 1:
 		return 0x10000000;	/* 256 MB */
 	case 2:
+	default:
 		return 0x20000000;	/* 512 MB */
 	case 3:
-	default:
 		return 0x40000000;	/* 1GB */
 	}
 }
