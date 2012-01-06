@@ -189,6 +189,11 @@ else
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
 endif
 
+# Xilinx, added to prevent unaligned accesses which started happening
+# with GCC 4.5.2 tools
+
+CFLAGS += -mno-unaligned-access
+
 CFLAGS += $(call cc-option,-fno-stack-protector)
 
 # $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
