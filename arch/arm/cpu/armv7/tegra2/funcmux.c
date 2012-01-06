@@ -37,6 +37,18 @@ int funcmux_select(enum periph_id id, int config)
 		pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
 		pinmux_tristate_disable(PINGRP_IRRX);
 		pinmux_tristate_disable(PINGRP_IRTX);
+		/*
+		 * Tegra appears to boot with function UARTA pre-selected on
+		 * mux group SDB. If two mux groups are both set to the same
+		 * function, it's unclear which group's pins drive the RX
+		 * signals into the HW module. For UARTA, SDB certainly
+		 * overrides group IRTX in practice. To solve this, configure
+		 * some alternative function on SDB to avoid the conflict. Also,
+		 * tri-state the group to avoid driving any signal onto it until
+		 * we know what's connected.
+		 */
+		pinmux_tristate_enable(PINGRP_SDB);
+		pinmux_set_func(PINGRP_SDB,  PMUX_FUNC_SDIO3);
 		break;
 
 	case PERIPH_ID_UART2:
