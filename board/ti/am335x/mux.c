@@ -14,7 +14,7 @@
  */
 
 #include <config.h>
-#include "common_def.h"
+#include <asm/arch/common_def.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 

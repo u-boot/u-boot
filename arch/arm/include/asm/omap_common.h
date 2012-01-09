@@ -62,6 +62,11 @@ void preloader_console_init(void);
 #define BOOT_DEVICE_MMC2	5 /*emmc*/
 #define BOOT_DEVICE_MMC1	6
 #define BOOT_DEVICE_XIPWAIT	7
+#elif defined(CONFIG_AM33XX)	/* AM33XX */
+#define BOOT_DEVICE_NAND	5
+#define BOOT_DEVICE_MMC1	8
+#define BOOT_DEVICE_MMC2	0
+#define BOOT_DEVICE_UART	65
 #endif
 
 /* Boot type */

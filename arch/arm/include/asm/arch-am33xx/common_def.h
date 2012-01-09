@@ -17,8 +17,6 @@
 #define __COMMON_DEF_H__
 
 extern void enable_uart0_pin_mux(void);
-extern void configure_evm_pin_mux(unsigned char daughter_board_id,
-					unsigned short daughter_board_profile,
-					unsigned char daughter_board_flag);
+extern void enable_mmc0_pin_mux(void);
 
 #endif/*__COMMON_DEF_H__ */

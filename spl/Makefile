@@ -58,13 +58,7 @@ LIBS-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/libonenand.o
 LIBS-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/libdma.o
 LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/memory.o
 
-ifeq ($(SOC),omap3)
-LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
-endif
-ifeq ($(SOC),omap4)
-LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
-endif
-ifeq ($(SOC),omap5)
+ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
@@ -100,6 +94,11 @@ LDPPFLAGS += \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
 ifdef CONFIG_OMAP
+$(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
+	$(OBJTREE)/tools/mkimage -T omapimage \
+		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
+endif
+ifdef CONFIG_AM33XX
 $(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@

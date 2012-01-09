@@ -29,4 +29,5 @@ int print_cpuinfo(void);
 #endif
 
 u32 get_device_type(void);
+void setup_clocks_for_console(void);
 #endif

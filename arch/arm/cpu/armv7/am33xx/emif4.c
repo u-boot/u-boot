@@ -46,7 +46,7 @@ void dram_init_banksize(void)
 }
 
 
-#ifdef CONFIG_AM335X_CONFIG_DDR
+#ifdef CONFIG_SPL_BUILD
 static void data_macro_config(int dataMacroNum)
 {
 	struct ddr_data data;

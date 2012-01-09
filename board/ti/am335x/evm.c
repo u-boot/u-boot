@@ -16,7 +16,7 @@
 #include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
-#include "common_def.h"
+#include <asm/arch/common_def.h>
 #include <serial.h>
 
 DECLARE_GLOBAL_DATA_PTR;
