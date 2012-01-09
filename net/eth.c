@@ -224,6 +224,35 @@ int eth_register(struct eth_device *dev)
 	return 0;
 }
 
+int eth_unregister(struct eth_device *dev)
+{
+	struct eth_device *cur;
+
+	/* No device */
+	if (!eth_devices)
+		return -1;
+
+	for (cur = eth_devices; cur->next != eth_devices && cur->next != dev;
+	     cur = cur->next)
+		;
+
+	/* Device not found */
+	if (cur->next != dev)
+		return -1;
+
+	cur->next = dev->next;
+
+	if (eth_devices == dev)
+		eth_devices = dev->next == eth_devices ? NULL : dev->next;
+
+	if (eth_current == dev) {
+		eth_current = eth_devices;
+		eth_current_changed();
+	}
+
+	return 0;
+}
+
 int eth_initialize(bd_t *bis)
 {
 	int num_devices = 0;

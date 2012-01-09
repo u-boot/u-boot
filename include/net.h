@@ -96,6 +96,7 @@ struct eth_device {
 
 extern int eth_initialize(bd_t *bis);	/* Initialize network subsystem */
 extern int eth_register(struct eth_device* dev);/* Register network device */
+extern int eth_unregister(struct eth_device *dev);/* Remove network device */
 extern void eth_try_another(int first_restart);	/* Change the device */
 extern void eth_set_current(void);		/* set nterface to ethcur var */
 extern struct eth_device *eth_get_dev(void);	/* get the current device MAC */
