@@ -64,3 +64,10 @@ void init_timer(void)
 	/* Start the Timer */
 	writel(0x1, (&timer_base->tclr));
 }
+
+#if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
+int board_mmc_init(bd_t *bis)
+{
+	return omap_mmc_init(0);
+}
+#endif

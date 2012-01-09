@@ -108,6 +108,11 @@ static void enable_per_clocks(void)
 	writel(PRCM_MOD_EN, &cmwkup->wkup_uart0ctrl);
 	while (readl(&cmwkup->wkup_uart0ctrl) != PRCM_MOD_EN)
 		;
+
+	/* MMC0*/
+	writel(PRCM_MOD_EN, &cmper->mmc0clkctrl);
+	while (readl(&cmper->mmc0clkctrl) != PRCM_MOD_EN)
+		;
 }
 
 static void mpu_pll_config(void)

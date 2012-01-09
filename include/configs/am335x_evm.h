@@ -76,6 +76,14 @@
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 #define CONFIG_SYS_HZ			1000 /* 1ms clock */
 
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_OMAP_HSMMC
+#define CONFIG_CMD_MMC
+#define CONFIG_DOS_PARTITION
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
+
  /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1		/*  1 bank of DRAM */
 #define PHYS_DRAM_1			0x80000000	/* DRAM Bank #1 */
