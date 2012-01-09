@@ -51,7 +51,7 @@
 					| BIT(3) | BIT(4))
 
 /* Reset control */
-#ifdef CONFIG_AM335X
+#ifdef CONFIG_AM33XX
 #define PRM_RSTCTRL			0x44E00F00
 #endif
 #define PRM_RSTCTRL_RESET		0x01

@@ -16,7 +16,7 @@
 #ifndef __CONFIG_AM335X_EVM_H
 #define __CONFIG_AM335X_EVM_H
 
-#define CONFIG_AM335X
+#define CONFIG_AM33XX
 #define CONFIG_CMD_MEMORY	/* for mtest */
 #undef CONFIG_GZIP
 #undef CONFIG_ZLIB
