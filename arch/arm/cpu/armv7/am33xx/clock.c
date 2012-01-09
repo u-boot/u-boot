@@ -101,6 +101,9 @@ static void enable_per_clocks(void)
 	while (readl(&cmper->timer2clkctrl) != PRCM_MOD_EN)
 		;
 
+	/* Select the Master osc 24 MHZ as Timer2 clock source */
+	writel(0x1, &cmdpll->clktimer2clk);
+
 	/* UART0 */
 	writel(PRCM_MOD_EN, &cmwkup->wkup_uart0ctrl);
 	while (readl(&cmwkup->wkup_uart0ctrl) != PRCM_MOD_EN)

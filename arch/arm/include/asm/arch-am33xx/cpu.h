@@ -108,22 +108,36 @@ struct cm_perpll {
 	unsigned int l3sclkstctrl;	/* offset 0x04 */
 	unsigned int l4fwclkstctrl;	/* offset 0x08 */
 	unsigned int l3clkstctrl;	/* offset 0x0c */
-	unsigned int resv1[6];
+	unsigned int resv1;
+	unsigned int cpgmac0clkctrl;	/* offset 0x14 */
+	unsigned int resv2[4];
 	unsigned int emifclkctrl;	/* offset 0x28 */
 	unsigned int ocmcramclkctrl;	/* offset 0x2c */
-	unsigned int resv2[12];
+	unsigned int gpmcclkctrl;	/* offset 0x30 */
+	unsigned int resv3[2];
+	unsigned int mmc0clkctrl;	/* offset 0x3C */
+	unsigned int elmclkctrl;	/* offset 0x40 */
+	unsigned int i2c2clkctrl;	/* offset 0x44 */
+	unsigned int i2c1clkctrl;	/* offset 0x48 */
+	unsigned int spi0clkctrl;	/* offset 0x4C */
+	unsigned int spi1clkctrl;	/* offset 0x50 */
+	unsigned int resv4[3];
 	unsigned int l4lsclkctrl;	/* offset 0x60 */
 	unsigned int l4fwclkctrl;	/* offset 0x64 */
-	unsigned int resv3[6];
+	unsigned int resv5[6];
 	unsigned int timer2clkctrl;	/* offset 0x80 */
-	unsigned int resv4[19];
+	unsigned int resv6[11];
+	unsigned int gpio2clkctrl;	/* offset 0xB0 */
+	unsigned int resv7[7];
 	unsigned int emiffwclkctrl;	/* offset 0xD0 */
-	unsigned int resv5[2];
+	unsigned int resv8[2];
 	unsigned int l3instrclkctrl;	/* offset 0xDC */
 	unsigned int l3clkctrl;		/* Offset 0xE0 */
-	unsigned int resv6[14];
+	unsigned int resv9[14];
 	unsigned int l4hsclkstctrl;	/* offset 0x11C */
 	unsigned int l4hsclkctrl;	/* offset 0x120 */
+	unsigned int resv10[8];
+	unsigned int cpswclkctrl;	/* offset 0x144 */
 };
 
 /* Encapsulating Display pll registers */
@@ -158,24 +172,12 @@ struct wd_timer {
 	unsigned int wdt_unfr;	/* offset 0x100 */
 };
 
-/* Timer Registers */
-struct timer_reg {
-	unsigned int resv1[4];
-	unsigned int tiocpcfgreg;	/* offset 0x10 */
-	unsigned int resv2[9];
-	unsigned int tclrreg;		/* offset 0x38 */
-	unsigned int tcrrreg;		/* offset 0x3C */
-	unsigned int tldrreg;		/* offset 0x40 */
-	unsigned int resv3[4];
-	unsigned int tsicrreg;		/* offset 0x54 */
-};
-
 /* Timer 32 bit registers */
 struct gptimer {
 	unsigned int tidr;		/* offset 0x00 */
-	unsigned int res1[0xc];
+	unsigned char res1[12];
 	unsigned int tiocp_cfg;		/* offset 0x10 */
-	unsigned int res2[0xc];
+	unsigned char res2[12];
 	unsigned int tier;		/* offset 0x20 */
 	unsigned int tistatr;		/* offset 0x24 */
 	unsigned int tistat;		/* offset 0x28 */

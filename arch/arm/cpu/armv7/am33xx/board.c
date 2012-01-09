@@ -26,7 +26,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-struct timer_reg *timerreg = (struct timer_reg *)DM_TIMER2_BASE;
+struct gptimer *timer_base = (struct gptimer *)CONFIG_SYS_TIMERBASE;
 
 /*
  * early system init of muxing and clocks.
@@ -55,12 +55,12 @@ void s_init(u32 in_ddr)
 void init_timer(void)
 {
 	/* Reset the Timer */
-	writel(0x2, (&timerreg->tsicrreg));
+	writel(0x2, (&timer_base->tscir));
 
 	/* Wait until the reset is done */
-	while (readl(&timerreg->tiocpcfgreg) & 1)
+	while (readl(&timer_base->tiocp_cfg) & 1)
 		;
 
 	/* Start the Timer */
-	writel(0x1, (&timerreg->tclrreg));
+	writel(0x1, (&timer_base->tclr));
 }

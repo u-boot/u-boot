@@ -76,7 +76,7 @@ struct emif_regs {
 	unsigned int sdrmcsr;		/* offset 0x3C */
 	unsigned int res2[8];
 	unsigned int sdritr;		/* offset 0x60 */
-	unsigned int res3[20];
+	unsigned int res3[32];
 	unsigned int ddrphycr;		/* offset 0xE4 */
 	unsigned int ddrphycsr;		/* offset 0xE8 */
 	unsigned int ddrphycr2;		/* offset 0xEC */
@@ -161,10 +161,10 @@ struct ddr_regs {
 	unsigned int dt0wiratio1;	/* offset 0x0F4 */
 	unsigned int dt0giratio0;	/* offset 0x0FC */
 	unsigned int dt0giratio1;	/* offset 0x100 */
-	unsigned int resv6[2];
+	unsigned int resv6[1];
 	unsigned int dt0fwsratio0;	/* offset 0x108 */
 	unsigned int dt0fwsratio1;	/* offset 0x10C */
-	unsigned int resv7[5];
+	unsigned int resv7[4];
 	unsigned int dt0wrsratio0;	/* offset 0x120 */
 	unsigned int dt0wrsratio1;	/* offset 0x124 */
 	unsigned int resv8[3];
