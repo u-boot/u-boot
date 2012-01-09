@@ -87,6 +87,12 @@ static const unsigned char usb_kbd_numkey_shifted[] = {
 	'|', '~', ':', '"', '~', '<', '>', '?'
 };
 
+static const unsigned char usb_kbd_num_keypad[] = {
+	'/', '*', '-', '+', '\r',
+	'1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+	'.', 0, 0, 0, '='
+};
+
 /*
  * NOTE: It's important for the NUM, CAPS, SCROLL-lock bits to be in this
  *       order. See usb_kbd_setled() function!
@@ -217,6 +223,10 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 		else
 			keycode = usb_kbd_numkey[scancode - 0x1e];
 	}
+
+	/* Numeric keypad */
+	if ((scancode >= 0x54) && (scancode <= 0x67))
+		keycode = usb_kbd_num_keypad[scancode - 0x54];
 
 	if (data->flags & USB_KBD_CTRL)
 		keycode = scancode - 0x3;
