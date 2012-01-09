@@ -141,3 +141,11 @@ void board_init_uart_f(void)
 #endif
 	setup_uarts(uart_ids);
 }
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif
