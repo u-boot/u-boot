@@ -114,6 +114,14 @@ static void mmc_set_transfer_mode(struct mmc_host *host, struct mmc_data *data)
 	if (data->flags & MMC_DATA_READ)
 		mode |= TEGRA_MMC_TRNMOD_DATA_XFER_DIR_SEL_READ;
 
+	if (data->flags & MMC_DATA_WRITE) {
+		if ((uintptr_t)data->src & (ARCH_DMA_MINALIGN - 1))
+			printf("Warning: unaligned write to %p may fail\n",
+			       data->src);
+		flush_dcache_range((ulong)data->src, (ulong)data->src +
+			data->blocks * data->blocksize);
+	}
+
 	writew(mode, &host->reg->trnmod);
 }
 
@@ -310,6 +318,14 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			}
 		}
 		writel(mask, &host->reg->norintsts);
+		if (data->flags & MMC_DATA_READ) {
+			if ((uintptr_t)data->dest & (ARCH_DMA_MINALIGN - 1))
+				printf("Warning: unaligned read from %p "
+					"may fail\n", data->dest);
+			invalidate_dcache_range((ulong)data->dest,
+				(ulong)data->dest +
+					data->blocks * data->blocksize);
+		}
 	}
 
 	udelay(1000);
