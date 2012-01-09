@@ -3189,6 +3189,14 @@ List of environment variables (most likely not complete):
 
   fdt_high	- if set this restricts the maximum address that the
 		  flattened device tree will be copied into upon boot.
+		  For example, if you have a system with 1 GB memory
+		  at physical address 0x10000000, while Linux kernel
+		  only recognizes the first 704 MB as low memory, you
+		  may need to set fdt_high as 0x3C000000 to have the
+		  device tree blob be copied to the maximum address
+		  of the 704 MB low memory, so that Linux kernel can
+		  access it during the boot procedure.
+
 		  If this is set to the special value 0xFFFFFFFF then
 		  the fdt will not be copied at all on boot.  For this
 		  to work it must reside in writable memory, have

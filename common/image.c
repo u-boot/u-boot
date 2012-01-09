@@ -1259,16 +1259,14 @@ int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 
 		if (((ulong) desired_addr) == ~0UL) {
 			/* All ones means use fdt in place */
-			desired_addr = fdt_blob;
+			of_start = fdt_blob;
+			lmb_reserve(lmb, (ulong)of_start, of_len);
 			disable_relocation = 1;
-		}
-		if (desired_addr) {
+		} else if (desired_addr) {
 			of_start =
 			    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
-							   ((ulong)
-							    desired_addr)
-							   + of_len);
-			if (desired_addr && of_start != desired_addr) {
+							   (ulong)desired_addr);
+			if (of_start == 0) {
 				puts("Failed using fdt_high value for Device Tree");
 				goto error;
 			}
