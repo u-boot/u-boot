@@ -30,7 +30,7 @@
 #define CONFIG_AM335X_CONFIG_DDR
 #define CONFIG_ENV_SIZE			0x400
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 * 1024))
-#define CONFIG_SYS_PROMPT		"AM335X# "
+#define CONFIG_SYS_PROMPT		"U-Boot# "
 #define CONFIG_SYS_NO_FLASH
 #define MACH_TYPE_TIAM335EVM		3589	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_TIAM335EVM
@@ -48,14 +48,12 @@
 
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
-#define V_SCLK				(V_OSCK >> 1)
+#define V_SCLK				(V_OSCK)
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for
-						   initial data */
 #define CONFIG_CMD_ECHO
 
 /* max number of command args */
-#define CONFIG_SYS_MAXARGS		32
+#define CONFIG_SYS_MAXARGS		16
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
@@ -75,7 +73,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START \
 					+ (8 * 1024 * 1024))
 
-#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 #define CONFIG_SYS_HZ			1000 /* 1ms clock */
 
@@ -89,7 +86,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x1000 - \
 						GENERATED_GBL_DATA_SIZE)
  /* Platform/Board specific defs */
-#define CONFIG_SYS_CLK_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_HZ			1000
@@ -100,7 +96,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		(48000000)
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
-#define CONFIG_SYS_NS16550_COM4		0x481A6000	/* UART3 on IA BOard */
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 110, 300, 600, 1200, 2400, \
