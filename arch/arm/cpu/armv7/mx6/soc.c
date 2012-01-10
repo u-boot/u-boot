@@ -40,18 +40,35 @@ u32 get_cpu_rev(void)
 #ifdef CONFIG_ARCH_CPU_INIT
 void init_aips(void)
 {
-	u32 reg = AIPS1_BASE_ADDR;
+	struct aipstz_regs *aips1, *aips2;
+
+	aips1 = (struct aipstz_regs *)AIPS1_BASE_ADDR;
+	aips2 = (struct aipstz_regs *)AIPS2_BASE_ADDR;
 
 	/*
 	 * Set all MPROTx to be non-bufferable, trusted for R/W,
 	 * not forced to user-mode.
 	 */
-	writel(0x77777777, reg + 0x00);
-	writel(0x77777777, reg + 0x04);
+	writel(0x77777777, &aips1->mprot0);
+	writel(0x77777777, &aips1->mprot1);
+	writel(0x77777777, &aips2->mprot0);
+	writel(0x77777777, &aips2->mprot1);
 
-	reg = AIPS2_BASE_ADDR;
-	writel(0x77777777, reg + 0x00);
-	writel(0x77777777, reg + 0x04);
+	/*
+	 * Set all OPACRx to be non-bufferable, not require
+	 * supervisor privilege level for access,allow for
+	 * write access and untrusted master access.
+	 */
+	writel(0x00000000, &aips1->opacr0);
+	writel(0x00000000, &aips1->opacr1);
+	writel(0x00000000, &aips1->opacr2);
+	writel(0x00000000, &aips1->opacr3);
+	writel(0x00000000, &aips1->opacr4);
+	writel(0x00000000, &aips2->opacr0);
+	writel(0x00000000, &aips2->opacr1);
+	writel(0x00000000, &aips2->opacr2);
+	writel(0x00000000, &aips2->opacr3);
+	writel(0x00000000, &aips2->opacr4);
 }
 
 int arch_cpu_init(void)

@@ -232,5 +232,16 @@ struct fuse_bank4_regs {
 	u32	rsvd3[0x13];
 };
 
+struct aipstz_regs {
+	u32	mprot0;
+	u32	mprot1;
+	u32	rsvd[0xe];
+	u32	opacr0;
+	u32	opacr1;
+	u32	opacr2;
+	u32	opacr3;
+	u32	opacr4;
+};
+
 #endif /* __ASSEMBLER__*/
 #endif /* __ASM_ARCH_MX6_IMX_REGS_H__ */
