@@ -19,15 +19,15 @@
  * MA 02111-1307 USA
  */
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <termios.h>
-#include <unistd.h>
 #include <time.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <unistd.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <linux/types.h>
 
 #include <os.h>
