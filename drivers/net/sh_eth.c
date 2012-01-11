@@ -94,7 +94,6 @@ int sh_eth_send(struct eth_device *dev, volatile void *packet, int len)
 	if (port_info->tx_desc_cur >= port_info->tx_desc_base + NUM_TX_DESC)
 		port_info->tx_desc_cur = port_info->tx_desc_base;
 
-	return ret;
 err:
 	return ret;
 }
