@@ -44,8 +44,6 @@
 #define flush_cache_wback(...)
 #endif
 
-#define SH_ETH_PHY_DELAY 50000
-
 int sh_eth_send(struct eth_device *dev, volatile void *packet, int len)
 {
 	struct sh_eth_dev *eth = dev->priv;
