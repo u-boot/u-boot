@@ -23,6 +23,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
 #ifdef CONFIG_MXC_MMC
 #include <asm/arch/mxcmmc.h>
 #endif
@@ -34,7 +35,7 @@
  *  f = 2 * f_ref * --------------------
  *                        pd + 1
  */
-unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
+static unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
 {
 	unsigned int mfi = (pll >> 10) & 0xf;
 	unsigned int mfn = pll & 0x3ff;
@@ -64,7 +65,7 @@ static ulong clk_in_26m(void)
 	}
 }
 
-ulong imx_get_mpllclk(void)
+static ulong imx_get_mpllclk(void)
 {
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 	ulong cscr = readl(&pll->cscr);
@@ -78,7 +79,7 @@ ulong imx_get_mpllclk(void)
 	return imx_decode_pll(readl(&pll->mpctl0), fref);
 }
 
-ulong imx_get_armclk(void)
+static ulong imx_get_armclk(void)
 {
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 	ulong cscr = readl(&pll->cscr);
@@ -93,7 +94,7 @@ ulong imx_get_armclk(void)
 	return lldiv(fref, div);
 }
 
-ulong imx_get_ahbclk(void)
+static ulong imx_get_ahbclk(void)
 {
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 	ulong cscr = readl(&pll->cscr);
@@ -105,7 +106,7 @@ ulong imx_get_ahbclk(void)
 	return lldiv(fref * 2, 3 * div);
 }
 
-ulong imx_get_spllclk(void)
+static __attribute__((unused)) ulong imx_get_spllclk(void)
 {
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 	ulong cscr = readl(&pll->cscr);
@@ -124,33 +125,49 @@ static ulong imx_decode_perclk(ulong div)
 	return lldiv((imx_get_mpllclk() * 2), (div * 3));
 }
 
-ulong imx_get_perclk1(void)
+static ulong imx_get_perclk1(void)
 {
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 
 	return imx_decode_perclk((readl(&pll->pcdr1) & 0x3f) + 1);
 }
 
-ulong imx_get_perclk2(void)
+static ulong imx_get_perclk2(void)
 {
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 
 	return imx_decode_perclk(((readl(&pll->pcdr1) >> 8) & 0x3f) + 1);
 }
 
-ulong imx_get_perclk3(void)
+static __attribute__((unused)) ulong imx_get_perclk3(void)
 {
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 
 	return imx_decode_perclk(((readl(&pll->pcdr1) >> 16) & 0x3f) + 1);
 }
 
-ulong imx_get_perclk4(void)
+static __attribute__((unused)) ulong imx_get_perclk4(void)
 {
 	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 
 	return imx_decode_perclk(((readl(&pll->pcdr1) >> 24) & 0x3f) + 1);
 }
+
+unsigned int mxc_get_clock(enum mxc_clock clk)
+{
+	switch (clk) {
+	case MXC_ARM_CLK:
+		return imx_get_armclk();
+	case MXC_UART_CLK:
+		return imx_get_perclk1();
+	case MXC_FEC_CLK:
+		return imx_get_ahbclk();
+	case MXC_ESDHC_CLK:
+		return imx_get_perclk2();
+	}
+	return -1;
+}
+
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo (void)

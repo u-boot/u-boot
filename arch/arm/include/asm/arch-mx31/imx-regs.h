@@ -709,6 +709,13 @@ struct esdc_regs {
 #define MUX_CTL_CSPI3_SPI_RDY	0x0e
 #define MUX_CTL_CSPI3_MOSI		0x13
 
+#define MUX_CTL_SD1_DATA1	0x18
+#define MUX_CTL_SD1_DATA2	0x19
+#define MUX_CTL_SD1_DATA3	0x1a
+#define MUX_CTL_SD1_CMD		0x1d
+#define MUX_CTL_SD1_CLK		0x1e
+#define MUX_CTL_SD1_DATA0	0x1f
+
 #define MUX_CTL_USBH2_DATA1	0x40
 #define MUX_CTL_USBH2_DIR	0x44
 #define MUX_CTL_USBH2_STP	0x45
@@ -854,6 +861,10 @@ struct esdc_regs {
  * NAND controller
  */
 #define NFC_BASE_ADDR	0xB8000000
+
+/* SD card controller */
+#define SDHC1_BASE_ADDR	0x50004000
+#define SDHC2_BASE_ADDR	0x50008000
 
 /*
  * Internal RAM (16KB)

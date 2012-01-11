@@ -31,5 +31,5 @@ struct mxc_weimcs {
 };
 
 void mxc_setup_weimcs(int cs, const struct mxc_weimcs *weimcs);
-
+int mxc_mmc_init(bd_t *bis);
 #endif
