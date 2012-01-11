@@ -26,43 +26,53 @@
 
 int funcmux_select(enum periph_id id, int config)
 {
-	if (config != 0) {
-		debug("%s: invalid config %d for periph_id %d", __func__,
-		      config, id);
-		return -1;
-	}
+	int bad_config = config != 0;
+
 	switch (id) {
 	case PERIPH_ID_UART1:
-		pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
-		pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
-		pinmux_tristate_disable(PINGRP_IRRX);
-		pinmux_tristate_disable(PINGRP_IRTX);
-		/*
-		 * Tegra appears to boot with function UARTA pre-selected on
-		 * mux group SDB. If two mux groups are both set to the same
-		 * function, it's unclear which group's pins drive the RX
-		 * signals into the HW module. For UARTA, SDB certainly
-		 * overrides group IRTX in practice. To solve this, configure
-		 * some alternative function on SDB to avoid the conflict. Also,
-		 * tri-state the group to avoid driving any signal onto it until
-		 * we know what's connected.
-		 */
-		pinmux_tristate_enable(PINGRP_SDB);
-		pinmux_set_func(PINGRP_SDB,  PMUX_FUNC_SDIO3);
+		if (config == 0) {
+			pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
+			pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_IRRX);
+			pinmux_tristate_disable(PINGRP_IRTX);
+			/*
+			 * Tegra appears to boot with function UARTA pre-
+			 * selected on mux group SDB. If two mux groups are
+			 * both set to the same function, it's unclear which
+			 * group's pins drive the RX signals into the HW.
+			 * For UARTA, SDB certainly overrides group IRTX in
+			 * practice. To solve this, configure some alternative
+			 * function on SDB to avoid the conflict. Also, tri-
+			 * state the group to avoid driving any signal onto it
+			 * until we know what's connected.
+			 */
+			pinmux_tristate_enable(PINGRP_SDB);
+			pinmux_set_func(PINGRP_SDB,  PMUX_FUNC_SDIO3);
+		}
 		break;
 
 	case PERIPH_ID_UART2:
-		pinmux_set_func(PINGRP_UAD, PMUX_FUNC_IRDA);
-		pinmux_tristate_disable(PINGRP_UAD);
+		if (config == 0) {
+			pinmux_set_func(PINGRP_UAD, PMUX_FUNC_IRDA);
+			pinmux_tristate_disable(PINGRP_UAD);
+		}
 		break;
 
 	case PERIPH_ID_UART4:
-		pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
-		pinmux_tristate_disable(PINGRP_GMC);
+		if (config == 0) {
+			pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
+			pinmux_tristate_disable(PINGRP_GMC);
+		}
 		break;
 
 	default:
 		debug("%s: invalid periph_id %d", __func__, id);
+		return -1;
+	}
+
+	if (bad_config) {
+		debug("%s: invalid config %d for periph_id %d", __func__,
+		      config, id);
 		return -1;
 	}
 
