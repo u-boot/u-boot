@@ -44,6 +44,8 @@
 #define flush_cache_wback(...)
 #endif
 
+#define TIMEOUT_CNT 1000
+
 int sh_eth_send(struct eth_device *dev, volatile void *packet, int len)
 {
 	struct sh_eth_dev *eth = dev->priv;
@@ -78,7 +80,7 @@ int sh_eth_send(struct eth_device *dev, volatile void *packet, int len)
 		outl(EDTRR_TRNS, EDTRR(port));
 
 	/* Wait until packet is transmitted */
-	timeout = 1000;
+	timeout = TIMEOUT_CNT;
 	while (port_info->tx_desc_cur->td0 & TD_TACT && timeout--)
 		udelay(100);
 
@@ -134,7 +136,6 @@ int sh_eth_recv(struct eth_device *dev)
 	return len;
 }
 
-#define EDMR_INIT_CNT 1000
 static int sh_eth_reset(struct sh_eth_dev *eth)
 {
 	int port = eth->port;
@@ -146,13 +147,13 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 
 	/* Perform a software reset and wait for it to complete */
 	outl(EDMR_SRST, EDMR(port));
-	for (i = 0; i < EDMR_INIT_CNT; i++) {
+	for (i = 0; i < TIMEOUT_CNT ; i++) {
 		if (!(inl(EDMR(port)) & EDMR_SRST))
 			break;
 		udelay(1000);
 	}
 
-	if (i == EDMR_INIT_CNT) {
+	if (i == TIMEOUT_CNT) {
 		printf(SHETHER_NAME  ": Software reset timeout\n");
 		ret = -EIO;
 	}
