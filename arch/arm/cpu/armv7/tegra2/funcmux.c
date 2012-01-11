@@ -106,6 +106,69 @@ int funcmux_select(enum periph_id id, int config)
 		}
 		break;
 
+	case PERIPH_ID_SDMMC2:
+		if (config == FUNCMUX_SDMMC2_DTA_DTD_8BIT) {
+			pinmux_set_func(PINGRP_DTA, PMUX_FUNC_SDIO2);
+			pinmux_set_func(PINGRP_DTD, PMUX_FUNC_SDIO2);
+
+			pinmux_tristate_disable(PINGRP_DTA);
+			pinmux_tristate_disable(PINGRP_DTD);
+		}
+		break;
+
+	case PERIPH_ID_SDMMC3:
+		switch (config) {
+		case FUNCMUX_SDMMC3_SDB_SLXA_8BIT:
+			pinmux_set_func(PINGRP_SLXA, PMUX_FUNC_SDIO3);
+			pinmux_set_func(PINGRP_SLXC, PMUX_FUNC_SDIO3);
+			pinmux_set_func(PINGRP_SLXD, PMUX_FUNC_SDIO3);
+			pinmux_set_func(PINGRP_SLXK, PMUX_FUNC_SDIO3);
+
+			pinmux_tristate_disable(PINGRP_SLXA);
+			pinmux_tristate_disable(PINGRP_SLXC);
+			pinmux_tristate_disable(PINGRP_SLXD);
+			pinmux_tristate_disable(PINGRP_SLXK);
+			/* fall through */
+
+		case FUNCMUX_SDMMC3_SDB_4BIT:
+			pinmux_set_func(PINGRP_SDB, PMUX_FUNC_SDIO3);
+			pinmux_set_func(PINGRP_SDC, PMUX_FUNC_SDIO3);
+			pinmux_set_func(PINGRP_SDD, PMUX_FUNC_SDIO3);
+
+			pinmux_tristate_disable(PINGRP_SDB);
+			pinmux_tristate_disable(PINGRP_SDC);
+			pinmux_tristate_disable(PINGRP_SDD);
+			bad_config = 0;
+			break;
+		}
+		break;
+
+	case PERIPH_ID_SDMMC4:
+		switch (config) {
+		case FUNCMUX_SDMMC4_ATC_ATD_8BIT:
+			pinmux_set_func(PINGRP_ATC, PMUX_FUNC_SDIO4);
+			pinmux_set_func(PINGRP_ATD, PMUX_FUNC_SDIO4);
+
+			pinmux_tristate_disable(PINGRP_ATC);
+			pinmux_tristate_disable(PINGRP_ATD);
+			break;
+
+		case FUNCMUX_SDMMC4_ATB_GMA_GME_8_BIT:
+			pinmux_set_func(PINGRP_GME, PMUX_FUNC_SDIO4);
+			pinmux_tristate_disable(PINGRP_GME);
+			/* fall through */
+
+		case FUNCMUX_SDMMC4_ATB_GMA_4_BIT:
+			pinmux_set_func(PINGRP_ATB, PMUX_FUNC_SDIO4);
+			pinmux_set_func(PINGRP_GMA, PMUX_FUNC_SDIO4);
+
+			pinmux_tristate_disable(PINGRP_ATB);
+			pinmux_tristate_disable(PINGRP_GMA);
+			bad_config = 0;
+			break;
+		}
+		break;
+
 	default:
 		debug("%s: invalid periph_id %d", __func__, id);
 		return -1;
