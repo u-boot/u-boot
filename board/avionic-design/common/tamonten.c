@@ -32,6 +32,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart.h>
 #include <asm/arch/mmc.h>
@@ -63,14 +64,7 @@ int timer_init(void)
  */
 static void pin_mux_mmc(void)
 {
-	/* SDMMC4: config 3, x8 on 2nd set of pins */
-	pinmux_set_func(PINGRP_ATB, PMUX_FUNC_SDIO4);
-	pinmux_set_func(PINGRP_GMA, PMUX_FUNC_SDIO4);
-	pinmux_set_func(PINGRP_GME, PMUX_FUNC_SDIO4);
-
-	pinmux_tristate_disable(PINGRP_ATB);
-	pinmux_tristate_disable(PINGRP_GMA);
-	pinmux_tristate_disable(PINGRP_GME);
+	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATB_GMA_GME_8_BIT);
 }
 #endif
 
