@@ -24,6 +24,16 @@
 #ifndef __FUNCMUX_H
 #define __FUNCMUX_H
 
+/* Configs supported by the func mux */
+enum {
+	FUNCMUX_DEFAULT = 0,	/* default config */
+
+	/* UART configs */
+	FUNCMUX_UART1_IRRX_IRTX = 0,
+	FUNCMUX_UART2_IRDA = 0,
+	FUNCMUX_UART4_GMC = 0,
+};
+
 /**
  * Select a config for a particular peripheral.
  *
@@ -36,7 +46,7 @@
  * so that they operate in normal mode.
  *
  * @param id		Peripheral id
- * @param config	Configuration to use (generally 0)
+ * @param config	Configuration to use (FUNCMUX_...), 0 for default
  * @return 0 if ok, -1 on error (e.g. incorrect id or config)
  */
 int funcmux_select(enum periph_id id, int config);

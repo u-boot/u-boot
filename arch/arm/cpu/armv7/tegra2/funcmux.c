@@ -22,15 +22,16 @@
 /* Tegra2 high-level function multiplexing */
 #include <common.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 
 int funcmux_select(enum periph_id id, int config)
 {
-	int bad_config = config != 0;
+	int bad_config = config != FUNCMUX_DEFAULT;
 
 	switch (id) {
 	case PERIPH_ID_UART1:
-		if (config == 0) {
+		if (config == FUNCMUX_UART1_IRRX_IRTX) {
 			pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
 			pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
 			pinmux_tristate_disable(PINGRP_IRRX);
@@ -52,14 +53,14 @@ int funcmux_select(enum periph_id id, int config)
 		break;
 
 	case PERIPH_ID_UART2:
-		if (config == 0) {
+		if (config == FUNCMUX_UART2_IRDA) {
 			pinmux_set_func(PINGRP_UAD, PMUX_FUNC_IRDA);
 			pinmux_tristate_disable(PINGRP_UAD);
 		}
 		break;
 
 	case PERIPH_ID_UART4:
-		if (config == 0) {
+		if (config == FUNCMUX_UART4_GMC) {
 			pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
 			pinmux_tristate_disable(PINGRP_GMC);
 		}

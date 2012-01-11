@@ -120,7 +120,7 @@ static void setup_uarts(int uart_ids)
 		if (uart_ids & (1 << i)) {
 			enum periph_id id = id_for_uart[i];
 
-			funcmux_select(id, 0);
+			funcmux_select(id, FUNCMUX_DEFAULT);
 			clock_ll_start_uart(id);
 		}
 	}
