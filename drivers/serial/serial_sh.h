@@ -112,6 +112,15 @@ struct uart_port {
 # define SCSCR_INIT(port) ((port)->type == PORT_SCIFA ? \
 	0x30 /* TIE=0,RIE=0,TE=1,RE=1 */ : \
 	0x38 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */)
+#elif defined(CONFIG_CPU_SH7734)
+# define SCSPTR0 0xFFE40020
+# define SCSPTR1 0xFFE41020
+# define SCSPTR2 0xFFE42020
+# define SCSPTR3 0xFFE43020
+# define SCSPTR4 0xFFE44020
+# define SCSPTR5 0xFFE45020
+# define SCIF_ORER 0x0001  /* overrun error bit */
+# define SCSCR_INIT(port) 0x0038  /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
 #elif defined(CONFIG_CPU_SH4_202)
 # define SCSPTR2 0xffe80020 /* 16 bit SCIF */
 # define SCIF_ORER 0x0001   /* overrun error bit */
@@ -216,6 +225,7 @@ struct uart_port {
 	defined(CONFIG_CPU_SH7091)  || \
 	defined(CONFIG_CPU_SH7750R) || \
 	defined(CONFIG_CPU_SH7722)  || \
+	defined(CONFIG_CPU_SH7734)  || \
 	defined(CONFIG_CPU_SH7750S) || \
 	defined(CONFIG_CPU_SH7751)  || \
 	defined(CONFIG_CPU_SH7751R) || \
