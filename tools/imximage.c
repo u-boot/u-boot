@@ -51,6 +51,8 @@ static table_entry_t imximage_bootops[] = {
 	{FLASH_OFFSET_NAND,	"nand",		"NAND Flash",	},
 	{FLASH_OFFSET_SD,	"sd",		"SD Card",	},
 	{FLASH_OFFSET_ONENAND,	"onenand",	"OneNAND Flash",},
+	{FLASH_OFFSET_NOR,	"nor",		"NOR Flash",	},
+	{FLASH_OFFSET_SATA,	"sata",		"SATA Disk",	},
 	{-1,			"",		"Invalid",	},
 };
 
@@ -59,7 +61,7 @@ static table_entry_t imximage_bootops[] = {
  */
 static table_entry_t imximage_versions[] = {
 	{IMXIMAGE_V1,	"",	" (i.MX25/35/51 compatible)", },
-	{IMXIMAGE_V2,	"",	" (i.MX53 compatible)",       },
+	{IMXIMAGE_V2,	"",	" (i.MX53/6 compatible)",     },
 	{-1,            "",     " (Invalid)",                 },
 };
 

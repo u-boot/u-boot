@@ -2,12 +2,13 @@
 Imximage Boot Image generation using mkimage
 ---------------------------------------------
 
-This document describes how to set up a U-Boot image
-that can be booted by Freescale MX25, MX35, MX51 and MX53
-processors via internal boot mode.
+This document describes how to set up a U-Boot image that can be booted
+by Freescale MX25, MX35, MX51, MX53 and MX6 processors via internal boot
+mode.
 
 These processors can boot directly from NAND, SPI flash and SD card flash
-using its internal boot ROM support. They can boot from an internal
+using its internal boot ROM support. MX6 processors additionally support
+boot from NOR flash and SATA disks. All processors can boot from an internal
 UART, if booting from device media fails.
 Booting from NOR flash does not require to use this image type.
 
@@ -59,12 +60,12 @@ Configuration command line syntax:
 	--------------		-----------
 	IMXIMAGE_VERSION        1/2
 				1 is for mx25/mx35/mx51 compatible,
-				2 is for mx53 compatible,
+				2 is for mx53/mx6 compatible,
 				others is invalid and error is generated.
 				This command need appear the fist before
 				other valid commands in configuration file.
 
-	BOOT_FROM		nand/spi/sd/onenand
+	BOOT_FROM		nand/spi/sd/onenand/nor/sata
 				Example:
 				BOOT_FROM spi
 	DATA			type address value
