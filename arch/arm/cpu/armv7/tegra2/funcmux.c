@@ -66,6 +66,46 @@ int funcmux_select(enum periph_id id, int config)
 		}
 		break;
 
+	case PERIPH_ID_DVC_I2C:
+		/* there is only one selection, pinmux_config is ignored */
+		if (config == FUNCMUX_DVC_I2CP) {
+			pinmux_set_func(PINGRP_I2CP, PMUX_FUNC_I2C);
+			pinmux_tristate_disable(PINGRP_I2CP);
+		}
+		break;
+
+	case PERIPH_ID_I2C1:
+		/* support pinmux_config of 0 for now, */
+		if (config == FUNCMUX_I2C1_RM) {
+			pinmux_set_func(PINGRP_RM, PMUX_FUNC_I2C);
+			pinmux_tristate_disable(PINGRP_RM);
+		}
+		break;
+	case PERIPH_ID_I2C2: /* I2C2 */
+		switch (config) {
+		case FUNCMUX_I2C2_DDC:	/* DDC pin group, select I2C2 */
+			pinmux_set_func(PINGRP_DDC, PMUX_FUNC_I2C2);
+			/* PTA to HDMI */
+			pinmux_set_func(PINGRP_PTA, PMUX_FUNC_HDMI);
+			pinmux_tristate_disable(PINGRP_DDC);
+			break;
+		case FUNCMUX_I2C2_PTA:	/* PTA pin group, select I2C2 */
+			pinmux_set_func(PINGRP_PTA, PMUX_FUNC_I2C2);
+			/* set DDC_SEL to RSVDx (RSVD2 works for now) */
+			pinmux_set_func(PINGRP_DDC, PMUX_FUNC_RSVD2);
+			pinmux_tristate_disable(PINGRP_PTA);
+			bad_config = 0;
+			break;
+		}
+		break;
+	case PERIPH_ID_I2C3: /* I2C3 */
+		/* support pinmux_config of 0 for now */
+		if (config == FUNCMUX_I2C3_DTF) {
+			pinmux_set_func(PINGRP_DTF, PMUX_FUNC_I2C3);
+			pinmux_tristate_disable(PINGRP_DTF);
+		}
+		break;
+
 	default:
 		debug("%s: invalid periph_id %d", __func__, id);
 		return -1;
