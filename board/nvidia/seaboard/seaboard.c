@@ -24,6 +24,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/mmc.h>
 #include <asm/gpio.h>
@@ -59,23 +61,8 @@ void gpio_config_uart(void)
  */
 static void pin_mux_mmc(void)
 {
-	/* SDMMC4: config 3, x8 on 2nd set of pins */
-	pinmux_set_func(PINGRP_ATB, PMUX_FUNC_SDIO4);
-	pinmux_set_func(PINGRP_GMA, PMUX_FUNC_SDIO4);
-	pinmux_set_func(PINGRP_GME, PMUX_FUNC_SDIO4);
-
-	pinmux_tristate_disable(PINGRP_ATB);
-	pinmux_tristate_disable(PINGRP_GMA);
-	pinmux_tristate_disable(PINGRP_GME);
-
-	/* SDMMC3: SDIO3_CLK, SDIO3_CMD, SDIO3_DAT[3:0] */
-	pinmux_set_func(PINGRP_SDB, PMUX_FUNC_SDIO3);
-	pinmux_set_func(PINGRP_SDC, PMUX_FUNC_SDIO3);
-	pinmux_set_func(PINGRP_SDD, PMUX_FUNC_SDIO3);
-
-	pinmux_tristate_disable(PINGRP_SDC);
-	pinmux_tristate_disable(PINGRP_SDD);
-	pinmux_tristate_disable(PINGRP_SDB);
+	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATB_GMA_GME_8_BIT);
+	funcmux_select(PERIPH_ID_SDMMC3, FUNCMUX_SDMMC3_SDB_4BIT);
 
 	/* For power GPIO PI6 */
 	pinmux_tristate_disable(PINGRP_ATA);
