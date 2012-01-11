@@ -47,12 +47,12 @@ static table_entry_t imximage_cmds[] = {
  * this is needed to set the correct flash offset
  */
 static table_entry_t imximage_bootops[] = {
-	{FLASH_OFFSET_SPI,	"spi",		"SPI Flash",	},
-	{FLASH_OFFSET_NAND,	"nand",		"NAND Flash",	},
-	{FLASH_OFFSET_SD,	"sd",		"SD Card",	},
 	{FLASH_OFFSET_ONENAND,	"onenand",	"OneNAND Flash",},
+	{FLASH_OFFSET_NAND,	"nand",		"NAND Flash",	},
 	{FLASH_OFFSET_NOR,	"nor",		"NOR Flash",	},
 	{FLASH_OFFSET_SATA,	"sata",		"SATA Disk",	},
+	{FLASH_OFFSET_SD,	"sd",		"SD Card",	},
+	{FLASH_OFFSET_SPI,	"spi",		"SPI Flash",	},
 	{-1,			"",		"Invalid",	},
 };
 
