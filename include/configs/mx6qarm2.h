@@ -86,6 +86,8 @@
 	"script=boot.scr\0" \
 	"uimage=uImage\0" \
 	"console=ttymxc3\0" \
+	"fdt_high=0xffffffff\0" \
+	"initrd_high=0xffffffff\0" \
 	"mmcdev=1\0" \
 	"mmcpart=2\0" \
 	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
