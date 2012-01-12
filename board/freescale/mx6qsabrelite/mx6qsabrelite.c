@@ -29,6 +29,8 @@
 #include <asm/gpio.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <miiphy.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,6 +41,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |            \
        PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW |               \
        PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
+#define ENET_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
+	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
+	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
 
 int dram_init(void)
 {
@@ -76,6 +82,59 @@ iomux_v3_cfg_t usdhc4_pads[] = {
        MX6Q_PAD_SD4_DAT3__USDHC4_DAT3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
        MX6Q_PAD_NANDF_D6__GPIO_2_6    | MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
 };
+
+iomux_v3_cfg_t enet_pads1[] = {
+	MX6Q_PAD_ENET_MDIO__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_ENET_MDC__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_TXC__ENET_RGMII_TXC	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_TD0__ENET_RGMII_TD0	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_TD1__ENET_RGMII_TD1	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_TD2__ENET_RGMII_TD2	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_TD3__ENET_RGMII_TD3	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_TX_CTL__RGMII_TX_CTL	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_ENET_REF_CLK__ENET_TX_CLK	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	/* pin 35 - 1 (PHY_AD2) on reset */
+	MX6Q_PAD_RGMII_RXC__GPIO_6_30		| MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* pin 32 - 1 - (MODE0) all */
+	MX6Q_PAD_RGMII_RD0__GPIO_6_25		| MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* pin 31 - 1 - (MODE1) all */
+	MX6Q_PAD_RGMII_RD1__GPIO_6_27		| MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* pin 28 - 1 - (MODE2) all */
+	MX6Q_PAD_RGMII_RD2__GPIO_6_28		| MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* pin 27 - 1 - (MODE3) all */
+	MX6Q_PAD_RGMII_RD3__GPIO_6_29		| MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* pin 33 - 1 - (CLK125_EN) 125Mhz clockout enabled */
+	MX6Q_PAD_RGMII_RX_CTL__GPIO_6_24	| MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* pin 42 PHY nRST */
+	MX6Q_PAD_EIM_D23__GPIO_3_23		| MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+iomux_v3_cfg_t enet_pads2[] = {
+	MX6Q_PAD_RGMII_RXC__ENET_RGMII_RXC	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_RD0__ENET_RGMII_RD0	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_RD1__ENET_RGMII_RD1	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_RD2__ENET_RGMII_RD2	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_RD3__ENET_RGMII_RD3	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6Q_PAD_RGMII_RX_CTL__RGMII_RX_CTL	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+};
+
+static void setup_iomux_enet(void)
+{
+	gpio_direction_output(87, 0);  /* GPIO 3-23 */
+	gpio_direction_output(190, 1); /* GPIO 6-30 */
+	gpio_direction_output(185, 1); /* GPIO 6-25 */
+	gpio_direction_output(187, 1); /* GPIO 6-27 */
+	gpio_direction_output(188, 1); /* GPIO 6-28*/
+	gpio_direction_output(189, 1); /* GPIO 6-29 */
+	imx_iomux_v3_setup_multiple_pads(enet_pads1, ARRAY_SIZE(enet_pads1));
+	gpio_direction_output(184, 1); /* GPIO 6-24 */
+
+	/* Need delay 10ms according to KSZ9021 spec */
+	udelay(1000 * 10);
+	gpio_direction_output(87, 1);  /* GPIO 3-23 */
+
+	imx_iomux_v3_setup_multiple_pads(enet_pads2, ARRAY_SIZE(enet_pads2));
+}
 
 static void setup_iomux_uart(void)
 {
@@ -133,6 +192,55 @@ int board_mmc_init(bd_t *bis)
        return status;
 }
 #endif
+
+#define MII_1000BASET_CTRL		0x9
+#define MII_EXTENDED_CTRL		0xb
+#define MII_EXTENDED_DATAW		0xc
+
+int fecmxc_mii_postcall(int phy)
+{
+	/* prefer master mode */
+	miiphy_write("FEC", phy, MII_1000BASET_CTRL, 0x0f00);
+
+	/* min rx data delay */
+	miiphy_write("FEC", phy, MII_EXTENDED_CTRL, 0x8105);
+	miiphy_write("FEC", phy, MII_EXTENDED_DATAW, 0x0000);
+
+	/* max rx/tx clock delay, min rx/tx control delay */
+	miiphy_write("FEC", phy, MII_EXTENDED_CTRL, 0x8104);
+	miiphy_write("FEC", phy, MII_EXTENDED_DATAW, 0xf0f0);
+	miiphy_write("FEC", phy, MII_EXTENDED_CTRL, 0x104);
+
+	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	struct eth_device *dev;
+	int ret;
+
+	setup_iomux_enet();
+
+	ret = cpu_eth_init(bis);
+	if (ret) {
+		printf("FEC MXC: %s:failed\n", __func__);
+		return ret;
+	}
+
+	dev = eth_get_dev_by_name("FEC");
+	if (!dev) {
+		printf("FEC MXC: Unable to get FEC device entry\n");
+		return -EINVAL;
+	}
+
+	ret = fecmxc_register_mii_postcall(dev, fecmxc_mii_postcall);
+	if (ret) {
+		printf("FEC MXC: Unable to register FEC mii postcall\n");
+		return ret;
+	}
+
+	return 0;
+}
 
 int board_early_init_f(void)
 {
