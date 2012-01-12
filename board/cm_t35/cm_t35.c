@@ -33,6 +33,7 @@
 #include <net.h>
 #include <i2c.h>
 #include <twl4030.h>
+#include <linux/compiler.h>
 
 #include <asm/io.h>
 #include <asm/arch/mem.h>
@@ -421,3 +422,13 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 #endif
+
+void __weak get_board_serial(struct tag_serialnr *serialnr)
+{
+	/*
+	 * This corresponds to what happens when we can communicate with the
+	 * eeprom but don't get a valid board serial value.
+	 */
+	serialnr->low = 0;
+	serialnr->high = 0;
+};

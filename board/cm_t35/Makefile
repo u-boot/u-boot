@@ -25,7 +25,9 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= cm_t35.o leds.o
+COBJS-$(CONFIG_DRIVER_OMAP34XX_I2C) += eeprom.o
+
+COBJS	:= cm_t35.o leds.o $(COBJS-y)
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
