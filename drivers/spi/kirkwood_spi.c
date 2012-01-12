@@ -66,7 +66,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	debug("data = 0x%08x \n", data);
 
 	writel(KWSPI_SMEMRDIRQ, &spireg->irq_cause);
-	writel(KWSPI_IRQMASK, spireg->irq_mask);
+	writel(KWSPI_IRQMASK, &spireg->irq_mask);
 
 	/* program mpp registers to select  SPI_CSn */
 	if (cs) {
