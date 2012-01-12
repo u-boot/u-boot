@@ -29,6 +29,8 @@
 #define BOARD_REV_OFFSET_LEGACY		6
 #define BOARD_REV_SIZE			4
 #define BOARD_REV_SIZE_LEGACY		2
+#define MAC_ADDR_OFFSET			4
+#define MAC_ADDR_OFFSET_LEGACY		0
 
 #define LAYOUT_INVALID	0
 #define LAYOUT_LEGACY	0xff
@@ -79,6 +81,22 @@ void get_board_serial(struct tag_serialnr *serialnr)
 		serialnr->low = serial[0];
 		serialnr->high = serial[1];
 	}
+}
+
+/*
+ * Routine: cm_t3x_eeprom_read_mac_addr
+ * Description: read mac address and store it in buf.
+ */
+int cm_t3x_eeprom_read_mac_addr(uchar *buf)
+{
+	uint offset;
+
+	if (eeprom_setup_layout())
+		return 0;
+
+	offset = (eeprom_layout != LAYOUT_LEGACY) ?
+			MAC_ADDR_OFFSET : MAC_ADDR_OFFSET_LEGACY;
+	return cm_t3x_eeprom_read(offset, buf, 6);
 }
 
 /*

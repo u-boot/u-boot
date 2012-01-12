@@ -42,6 +42,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
 
+#include "eeprom.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 const omap3_sysinfo sysinfo = {
@@ -383,11 +385,9 @@ static int handle_mac_address(void)
 	if (rc)
 		return 0;
 
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
-	rc = i2c_read(0x50, 0, 1, enetaddr, 6);
+	rc = cm_t3x_eeprom_read_mac_addr(enetaddr);
 	if (rc)
 		return rc;
-#endif
 
 	if (!is_valid_ether_addr(enetaddr))
 		return -1;
