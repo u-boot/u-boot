@@ -20,8 +20,11 @@ void set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed);
 /*************************** Constant Definitions ***************************/
 
 #define EMACPSS_DEVICE_ID   0
-#define PHY_ADDR 0x7
-
+#ifdef CONFIG_EP107
+# define PHY_ADDR 0x17
+#else
+# define PHY_ADDR 0x7
+#endif
 #define RXBD_CNT       8	/* Number of RxBDs to use */
 #define TXBD_CNT       8	/* Number of TxBDs to use */
 
@@ -91,6 +94,12 @@ static void phy_rst(XEmacPss * e)
 	phy_wr(e, 0, tmp);
 
 	while (phy_rd(e, 0) & 0x8000) {
+		udelay(10000);
+		tmp++;
+		if (tmp > 1000) { /* stalled if reset unfinished after 10 seconds */
+			puts("***Error: Reset stalled...\n");
+			return -1;
+		}
 	}
 	puts("\nPHY reset complete.\n");
 }
@@ -225,16 +234,22 @@ int eth_init(bd_t * bis)
 	tmp |= (1 << 10);	/* MAC pause implemented */
 	phy_wr(EmacPssInstancePtr, 4, tmp);
 
+#ifdef CONFIG_EP107
+	/* Extended PHY specific control register */
+	tmp = phy_rd(EmacPssInstancePtr, 20);
+	tmp |= (7 << 9);	/* max number of gigabit attempts */
+	tmp |= (1 << 8);	/* enable downshift */
+	tmp |= (1 << 7);	/* RGMII receive timing internally delayed */
+	tmp |= (1 << 1);	/* RGMII transmit clock internally delayed */
+	phy_wr(EmacPssInstancePtr, 20, tmp);
+#else
 	/* Copper specific control register 1 */
 	tmp = phy_rd(EmacPssInstancePtr, 16);
 	tmp |= (7 << 12);	/* max number of gigabit attempts */
 	tmp |= (1 << 11);	/* enable downshift */
 	phy_wr(EmacPssInstancePtr, 16, tmp);
 
-#ifdef CONFIG_EP107
-	/* "add delay to RGMII rx interface" */
-	phy_wr(EmacPssInstancePtr, 20, 0xc93);
-#else
+	/* Control register - MAC */
 	phy_wr(EmacPssInstancePtr, 22, 2);	/* page 2 */
 	tmp = phy_rd(EmacPssInstancePtr, 21);
 	tmp |= (1 << 5);	/* RGMII receive timing transition when data stable */
@@ -250,7 +265,11 @@ int eth_init(bd_t * bis)
 	phy_wr(EmacPssInstancePtr, 0, tmp);
 
 	/***** Try to establish a link at the highest speed possible  *****/
+#ifdef CONFIG_EP107
+	set_eth_advertise(EmacPssInstancePtr, 100);
+#else
 	set_eth_advertise(EmacPssInstancePtr, 1000);
+#endif
 	phy_rst(EmacPssInstancePtr);
 
 	/* Attempt auto-negotiation */
@@ -310,15 +329,24 @@ int eth_init(bd_t * bis)
 	Out32(0xF8000138, ((0 << 4) | (1 << 0)));
 
 	/* Set divisors for appropriate frequency in GEM0_CLK_CTRL */
+#ifdef CONFIG_EP107
+	if (link_speed == 1000)		/* 125MHz */
+		Out32(0xF8000140, ((1 << 20) | (48 << 8) | (1 << 4) | (1 << 0)));
+	else if (link_speed == 100)	/* 25 MHz */
+		Out32(0xF8000140, ((1 << 20) | (48 << 8) | (0 << 4) | (1 << 0)));
+	else				/* 2.5 MHz */
+		Out32(0xF8000140, ((1 << 20) | (48 << 8) | (3 << 4) | (1 << 0)));
+#else
 	if (link_speed == 1000)		/* 125MHz */
 		Out32(0xF8000140, ((1 << 20) | (8 << 8) | (0 << 4) | (1 << 0)));
 	else if (link_speed == 100)	/* 25 MHz */
 		Out32(0xF8000140, ((1 << 20) | (40 << 8) | (0 << 4) | (1 << 0)));
 	else				/* 2.5 MHz */
 		Out32(0xF8000140, ((10 << 20) | (40 << 8) | (0 << 4) | (1 << 0)));
+#endif
 
 	/* SLCR lock */
-	Out32(0xF8000008, 0x767B);
+	Out32(0xF8000004, 0x767B);
 
 	printf("Link is now at %dMbps!\n", link_speed);
 
