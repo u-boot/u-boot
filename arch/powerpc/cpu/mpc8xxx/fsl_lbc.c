@@ -28,6 +28,8 @@ void print_lbc_regs(void)
 		printf("BR%d\t0x%08X\tOR%d\t0x%08X\n",
 		       i, get_lbc_br(i), i, get_lbc_or(i));
 	}
+	printf("LBCR\t0x%08X\tLCRR\t0x%08X\n",
+		       get_lbc_lbcr(), get_lbc_lcrr());
 }
 
 void init_early_memctl_regs(void)

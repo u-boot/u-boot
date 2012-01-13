@@ -62,6 +62,43 @@ a 33MHz PCI configuration is currently untested.)
     02.00.00   0x1148     0x9e00     Network controller      0x00
     =>
 
+Memory Size and using SPD:
+==========================
+
+The default configuration uses hard coded memory configuration settings
+for 256MB of DDR2 @400MHz.  It does not by default use the DDR2 SPD
+EEPROM data to read what memory is installed.
+
+There is a hardware errata, which causes the older local bus SDRAM
+SPD EEPROM to land at the same address as the DDR2 SPD EEPROM, so
+that the SPD data can not be read reliably.  You can test if your
+board has the errata fix by running "i2c probe".  If you see 0x53
+as a valid device, it has been fixed.  If you only see 0x50, 0x51
+then your board does not have the fix.
+
+You can also visually inspect the board to see if this hardware
+fix has been applied:
+
+      1) Remove R314 (RES-R0174-033, 1K, 0603). R314 is located on
+         the back of the PCB behind the DDR SDRAM SODIMM connector.
+      2) Solder RES-R0174-033 (1K, 0603) resistor from R314 pin 2 pad
+         to R313 pin 2.  Pin 2 for each resistor is the end of the
+         resistor closest to the CPU.
+
+Boards without the mod will have R314 and R313 in parallel, like "||".
+After the mod, they will be touching and form an "L" shape.
+
+If you want to upgrade to larger RAM size, you can simply enable
+	#define CONFIG_SPD_EEPROM
+	#define CONFIG_DDR_SPD
+in include/configs/sbc8548.h file.  (The lines are already there
+but listed as #undef).
+
+If you did the i2c test, and your board does not have the errata
+fix, then you will have to physically remove the LBC 128MB DIMM
+from the board's socket to resolve the above i2c address overlap
+issue and allow SPD autodetection of RAM to work.
+
 
 Updating U-boot with U-boot:
 ============================
@@ -86,6 +123,33 @@ The "md" steps in the above are just a precautionary step that allow
 you to confirm the u-boot version that was downloaded, and then confirm
 that it was copied to flash.
 
+The above assumes that you are using the default board settings which
+have u-boot in the 8MB flash, tied to /CS0.
+
+If you are running the default 8MB /CS0 settings but want to store an
+image in the SODIMM that is built with CONFIG_SYS_ALT_BOOT enabled,
+(as a backup, etc) then the steps will become:
+
+	tftp u-boot.bin
+	md 200000 10
+	protect off all
+	era eff00000 efffffff
+	cp.b 200000 eff00000 100000
+	md eff00000 10
+	protect on all
+
+Finally, if you are running the alternate 64MB /CS0 settings and want
+to update the in-use u-boot image, then (again with CONFIG_SYS_ALT_BOOT
+enabled) the steps will become:
+
+	tftp u-boot.bin
+	md 200000 10
+	protect off all
+	era fff00000 ffffffff
+	cp.b 200000 fff00000 100000
+	md fff00000 10
+	protect on all
+
 
 Hardware Reference:
 ===================
@@ -100,6 +164,9 @@ Boot flash:
 
 Sodimm flash:
 	intel V28F128Jx, 16384x8 (4 devices) at 0xfb80_0000
+	Note that this address reflects the default setting for
+	the JTAG debugging tools, but since the alignment is
+	rather inconvenient, u-boot puts it at 0xec00_0000.
 
 
 	Jumpers:
@@ -124,10 +191,9 @@ JP19		PCI mode	PCI		PCI-X
 onto /CS0 and the SODIMM flash on /CS6 (default).  When JP12
 is jumpered parallel to the LBC-SDRAM, then /CS0 is for the
 SODIMM flash and /CS6 is for the boot flash.  Note that in this
-alternate setting, you also need to switch SW2.8 to ON.  Currently
-u-boot doesn't support booting off the SODIMM in this alternate
-setting without manually altering BR0/OR0 and BR6/OR6 in the
-board config file appropriately.
+alternate setting, you also need to switch SW2.8 to ON.
+See the setting CONFIG_SYS_ALT_BOOT if you want to use this setting
+and boot u-boot from the 64MB SODIMM
 
 
 	Switches:
@@ -187,8 +253,11 @@ start		end		CS<n>	width	Desc.
 0000_0000	0fff_ffff	MCS0,1	64	DDR2 (256MB)
 f000_0000	f7ff_ffff	CS3,4	32	LB SDRAM (128MB)
 f800_0000	f8b0_1fff	CS5	-	EPLD
-fb80_0000	ff7f_ffff	CS6	32	SODIMM flash (64MB)
+fb80_0000	ff7f_ffff	CS6	32	SODIMM flash (64MB) [*]
 ff80_0000	ffff_ffff	CS0	8	Boot flash (8MB)
+
+[*] fb80 represents the default programmed by WR JTAG register files,
+    but u-boot places the flash at either ec00 or fc00 based on JP12.
 
 The EPLD on CS5 demuxes the following devices at the following offsets:
 
