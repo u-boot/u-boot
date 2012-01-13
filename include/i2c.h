@@ -78,7 +78,7 @@
 # elif (defined(CONFIG_AT91RM9200) || \
 	defined(CONFIG_AT91SAM9260) ||  defined(CONFIG_AT91SAM9261) || \
 	defined(CONFIG_AT91SAM9263)) && !defined(CONFIG_AT91_LEGACY)
-#  define I2C_SOFT_DECLARATIONS	at91_pio_t *pio	= (at91_pio_t *) AT91_PIO_BASE;
+#  define I2C_SOFT_DECLARATIONS	at91_pio_t *pio	= (at91_pio_t *) ATMEL_BASE_PIOA;
 # else
 #  define I2C_SOFT_DECLARATIONS
 # endif
