@@ -171,15 +171,9 @@ int main(int argc, char **argv)
 	memset(envptr, padbyte, envsize);
 
 	/* Open the input file ... */
-	if (optind >= argc) {
-		fprintf(stderr, "Please specify an input filename\n");
-		return EXIT_FAILURE;
-	}
-
-	txt_filename = argv[optind];
-	if (strcmp(txt_filename, "-") == 0) {
+	if (optind >= argc || strcmp(argv[optind], "-") == 0) {
 		int readbytes = 0;
-		int readlen = sizeof(*envptr) * 2048;
+		int readlen = sizeof(*envptr) * 4096;
 		txt_fd = STDIN_FILENO;
 
 		do {
@@ -198,6 +192,7 @@ int main(int argc, char **argv)
 		} while (readbytes == readlen);
 
 	} else {
+		txt_filename = argv[optind];
 		txt_fd = open(txt_filename, O_RDONLY);
 		if (txt_fd == -1) {
 			fprintf(stderr, "Can't open \"%s\": %s\n",
@@ -287,11 +282,16 @@ int main(int argc, char **argv)
 
 	memcpy(dataptr, &targetendian_crc, sizeof(uint32_t));
 
-	bin_fd = creat(bin_filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-	if (bin_fd == -1) {
-		fprintf(stderr, "Can't open output file \"%s\": %s\n",
-				bin_filename, strerror(errno));
-		return EXIT_FAILURE;
+	if (!bin_filename || strcmp(bin_filename, "-") == 0) {
+		bin_fd = STDOUT_FILENO;
+	} else {
+		bin_fd = creat(bin_filename, S_IRUSR | S_IWUSR | S_IRGRP |
+					     S_IWGRP);
+		if (bin_fd == -1) {
+			fprintf(stderr, "Can't open output file \"%s\": %s\n",
+					bin_filename, strerror(errno));
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (write(bin_fd, dataptr, sizeof(*dataptr) * datasize) !=
