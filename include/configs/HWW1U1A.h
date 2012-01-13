@@ -240,7 +240,29 @@
 /* Turn off RTC square-wave output to save battery */
 #define CONFIG_SYS_RTC_DS1337_NOOSC
 
-/* PCA9554 is at I2C1-0x3f (I know it says "PCA953X", it's a PCA9554) */
+/*
+ * AT24C128N EEPROM at I2C0-0x53.
+ *
+ * That Atmel EEPROM has 128kbit of memory (16kByte) divided into 256 pages
+ * of 64 bytes per page.  The chip uses 2-byte addresses and has a max write
+ * cycle time of 20ms according to the datasheet.
+ *
+ * NOTE: Our environment is stored on regular direct-attached FLASH, this
+ * chip is only used as a write-protected backup for certain key settings
+ * such as the serial# and macaddr values.  (EG: "env import")
+ */
+#define CONFIG_CMD_EEPROM
+#define CONFIG_ENV_EEPROM_IS_ON_I2C
+#define CONFIG_SYS_I2C_EEPROM_ADDR 0x53
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 6 /* 1 << 6 == 64 byte pages */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 21
+
+/*
+ * PCA9554 is at I2C1-0x3f (I know it says "PCA953X", it's a PCA9554).  You
+ * must first select the I2C1 bus with "i2c dev 1" or the "pca953x" command
+ * will not be able to access the chip.
+ */
 #define CONFIG_PCA953X
 #define CONFIG_CMD_PCA953X
 #define CONFIG_CMD_PCA953X_INFO
@@ -438,14 +460,20 @@ const char *hww1u1a_get_ps1(void);
 
 /* Extra environment parameters */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"preboot=setenv bootargs \"${bootargs} "CONFIG_BOOTARGS_DYNAMIC"\"\0" \
+	"ethprime=e1000#0\0"						\
+	"ethrotate=no\0"						\
+	"setbootargs=setenv bootargs "					\
+			"\"${bootargs} "CONFIG_BOOTARGS_DYNAMIC"\"\0"	\
 	"perf_mode=performance\0"					\
 	"hwconfig="	"fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1;"	\
 			"usb1:dr_mode=host,phy_type=ulpi\0"		\
-	"flkernel=0xe8020000\0"						\
+	"flkernel=0xe8000000\0"						\
 	"flinitramfs=0xe8800000\0"					\
 	"fldevicetree=0xeff20000\0"					\
 	"flbootm=bootm ${flkernel} ${flinitramfs} ${fldevicetree}\0"	\
-	"flboot=run preboot; run flbootm\0"
+	"flboot=run preboot; run flbootm\0"				\
+	"restore_eeprom=i2c dev 0 && "					\
+			"eeprom read $loadaddr 0x0000 0x2000 && "	\
+			"env import -c $loadaddr 0x2000\0"
 
 #endif	/* __CONFIG_H */

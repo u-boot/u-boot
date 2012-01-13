@@ -76,11 +76,15 @@ local_bus_init(void)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
-	uint clkdiv;
+	uint clkdiv, lbc_mhz, lcrr = CONFIG_SYS_LBC_LCRR;
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
-	clkdiv = (in_be32(&lbc->lcrr) & LCRR_CLKDIV) * 2;
+
+	lbc_mhz = sysinfo.freqLocalBus / 1000000;
+	clkdiv = sysinfo.freqSystemBus / sysinfo.freqLocalBus;
+
+	debug("LCRR=0x%x, CD=%d, MHz=%d\n", lcrr, clkdiv, lbc_mhz);
 
 	out_be32(&gur->lbiuiplldcr1, 0x00078080);
 	if (clkdiv == 16) {
@@ -91,9 +95,37 @@ local_bus_init(void)
 		out_be32(&gur->lbiuiplldcr0, 0x5c0f1bf0);
 	}
 
-	setbits_be32(&lbc->lcrr, 0x00030000);
+	/*
+	 * Local Bus Clock > 83.3 MHz. According to timing
+	 * specifications set LCRR[EADC] to 2 delay cycles.
+	 */
+	if (lbc_mhz > 83) {
+		lcrr &= ~LCRR_EADC;
+		lcrr |= LCRR_EADC_2;
+	}
 
+	/*
+	 * According to MPC8548ERMAD Rev. 1.3, 13.3.1.16, 13-30
+	 * disable PLL bypass for Local Bus Clock > 83 MHz.
+	 */
+	if (lbc_mhz >= 66)
+		lcrr &= (~LCRR_DBYP);	/* DLL Enabled */
+
+	else
+		lcrr |= LCRR_DBYP;	/* DLL Bypass */
+
+	out_be32(&lbc->lcrr, lcrr);
 	asm("sync;isync;msync");
+
+	 /*
+	 * According to MPC8548ERMAD Rev.1.3 read back LCRR
+	 * and terminate with isync
+	 */
+	lcrr = in_be32(&lbc->lcrr);
+	asm ("isync;");
+
+	/* let DLL stabilize */
+	udelay(500);
 
 	out_be32(&lbc->ltesr, 0xffffffff);	/* Clear LBC error IRQs */
 	out_be32(&lbc->lteir, 0xffffffff);	/* Enable LBC error IRQs */
@@ -107,13 +139,14 @@ void lbc_sdram_init(void)
 #if defined(CONFIG_SYS_LBC_SDRAM_SIZE)
 
 	uint idx;
+	const unsigned long size = CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024;
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
-	uint lsdmr_common;
+	uint *sdram_addr2 = (uint *)(CONFIG_SYS_LBC_SDRAM_BASE + size/2);
 
 	puts("    SDRAM: ");
 
-	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+	print_size(size, "\n");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
@@ -131,47 +164,49 @@ void lbc_sdram_init(void)
 	asm("msync");
 
 	/*
-	 * MPC8548 uses "new" 15-16 style addressing.
-	 */
-	lsdmr_common = CONFIG_SYS_LBC_LSDMR_COMMON;
-	lsdmr_common |= LSDMR_BSMA1516;
-
-	/*
 	 * Issue PRECHARGE ALL command.
 	 */
-	out_be32(&lbc->lsdmr, lsdmr_common | LSDMR_OP_PCHALL);
+	out_be32(&lbc->lsdmr, CONFIG_SYS_LBC_LSDMR_PCHALL);
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
+	*sdram_addr2 = 0xff;
+	ppcDcbf((unsigned long) sdram_addr2);
 	udelay(100);
 
 	/*
 	 * Issue 8 AUTO REFRESH commands.
 	 */
 	for (idx = 0; idx < 8; idx++) {
-		out_be32(&lbc->lsdmr, lsdmr_common | LSDMR_OP_ARFRSH);
+		out_be32(&lbc->lsdmr, CONFIG_SYS_LBC_LSDMR_ARFRSH);
 		asm("sync;msync");
 		*sdram_addr = 0xff;
 		ppcDcbf((unsigned long) sdram_addr);
+		*sdram_addr2 = 0xff;
+		ppcDcbf((unsigned long) sdram_addr2);
 		udelay(100);
 	}
 
 	/*
 	 * Issue 8 MODE-set command.
 	 */
-	out_be32(&lbc->lsdmr, lsdmr_common | LSDMR_OP_MRW);
+	out_be32(&lbc->lsdmr, CONFIG_SYS_LBC_LSDMR_MRW);
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
+	*sdram_addr2 = 0xff;
+	ppcDcbf((unsigned long) sdram_addr2);
 	udelay(100);
 
 	/*
-	 * Issue NORMAL OP command.
+	 * Issue RFEN command.
 	 */
-	out_be32(&lbc->lsdmr, lsdmr_common | LSDMR_OP_NORMAL);
+	out_be32(&lbc->lsdmr, CONFIG_SYS_LBC_LSDMR_RFEN);
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
+	*sdram_addr2 = 0xff;
+	ppcDcbf((unsigned long) sdram_addr2);
 	udelay(200);    /* Overkill. Must wait > 200 bus cycles */
 
 #endif	/* enable SDRAM init */
@@ -213,50 +248,6 @@ testdram(void)
 
 	printf("DRAM test passed.\n");
 	return 0;
-}
-#endif
-
-#if !defined(CONFIG_SPD_EEPROM)
-#define CONFIG_SYS_DDR_CONTROL 0xc300c000
-/*************************************************************************
- *  fixed_sdram init -- doesn't use serial presence detect.
- *  assumes 256MB DDR2 SDRAM SODIMM, without ECC, running at DDR400 speed.
- ************************************************************************/
-phys_size_t fixed_sdram(void)
-{
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
-
-	out_be32(&ddr->cs0_bnds, 0x0000007f);
-	out_be32(&ddr->cs1_bnds, 0x008000ff);
-	out_be32(&ddr->cs2_bnds, 0x00000000);
-	out_be32(&ddr->cs3_bnds, 0x00000000);
-	out_be32(&ddr->cs0_config, 0x80010101);
-	out_be32(&ddr->cs1_config, 0x80010101);
-	out_be32(&ddr->cs2_config, 0x00000000);
-	out_be32(&ddr->cs3_config, 0x00000000);
-	out_be32(&ddr->timing_cfg_3, 0x00000000);
-	out_be32(&ddr->timing_cfg_0, 0x00220802);
-	out_be32(&ddr->timing_cfg_1, 0x38377322);
-	out_be32(&ddr->timing_cfg_2, 0x0fa044C7);
-	out_be32(&ddr->sdram_cfg, 0x4300C000);
-	out_be32(&ddr->sdram_cfg_2, 0x24401000);
-	out_be32(&ddr->sdram_mode, 0x23C00542);
-	out_be32(&ddr->sdram_mode_2, 0x00000000);
-	out_be32(&ddr->sdram_interval, 0x05080100);
-	out_be32(&ddr->sdram_md_cntl, 0x00000000);
-	out_be32(&ddr->sdram_data_init, 0x00000000);
-	out_be32(&ddr->sdram_clk_cntl, 0x03800000);
-	asm("sync;isync;msync");
-	udelay(500);
-
-	#if defined (CONFIG_DDR_ECC)
-	  /* Enable ECC checking */
-	  out_be32(&ddr->sdram_cfg, CONFIG_SYS_DDR_CONTROL | 0x20000000);
-	#else
-	  out_be32(&ddr->sdram_cfg, CONFIG_SYS_DDR_CONTROL);
-	#endif
-
-	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }
 #endif
 

@@ -273,7 +273,7 @@ local_bus_init(void)
 		lbc->lcrr &= (~0x80000000);		/* DLL Enabled */
 
 	} else {
-		lbc->lcrr &= (~0x8000000);	/* DLL Enabled */
+		lbc->lcrr &= (~0x80000000);	/* DLL Enabled */
 		udelay(200);
 
 		/*
