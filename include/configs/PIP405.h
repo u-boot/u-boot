@@ -113,6 +113,8 @@
 #define SPD_EEPROM_ADDRESS      0x50
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_EARLY_INIT_R
+
 /**************************************************************
  * Environment definitions
  **************************************************************/
@@ -230,11 +232,17 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_UPDATE_FLASH_SIZE
+#define CONFIG_SYS_FLASH_PROTECTION
+#define CONFIG_SYS_FLASH_EMPTY_INFO
 
-#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+
+#define CONFIG_FLASH_SHOW_PROGRESS	45
+
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	256
 
 /*
  * Init Memory Controller:
