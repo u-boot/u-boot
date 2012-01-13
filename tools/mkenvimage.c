@@ -45,12 +45,9 @@
 
 static void usage(const char *exec_name)
 {
-	fprintf(stderr, "%s [-h] [-r] [-b] [-p <byte>] "
-	       "-s <environment partition size> -o <output> <input file>\n"
+	fprintf(stderr, "%s [-h] [-r] [-b] [-p <byte>] -s <environment partition size> -o <output> <input file>\n"
 	       "\n"
-	       "This tool takes a key=value input file (same as would a "
-	       "`printenv' show) and generates the corresponding environment "
-	       "image, ready to be flashed.\n"
+	       "This tool takes a key=value input file (same as would a `printenv' show) and generates the corresponding environment image, ready to be flashed.\n"
 	       "\n"
 	       "\tThe input file is in format:\n"
 	       "\t\tkey1=value1\n"
@@ -58,8 +55,7 @@ static void usage(const char *exec_name)
 	       "\t\t...\n"
 	       "\t-r : the environment has multiple copies in flash\n"
 	       "\t-b : the target is big endian (default is little endian)\n"
-	       "\t-p <byte> : fill the image with <byte> bytes instead of "
-	       "0xff bytes\n"
+	       "\t-p <byte> : fill the image with <byte> bytes instead of 0xff bytes\n"
 	       "\t-V : print version information and exit\n"
 	       "\n"
 	       "If the input file is \"-\", data is read from standard input\n",
@@ -100,8 +96,7 @@ int main(int argc, char **argv)
 		case 'o':
 			bin_filename = strdup(optarg);
 			if (!bin_filename) {
-				fprintf(stderr, "Can't strdup() the output "
-						"filename\n");
+				fprintf(stderr, "Can't strdup() the output filename\n");
 				return EXIT_FAILURE;
 			}
 			break;
@@ -134,22 +129,21 @@ int main(int argc, char **argv)
 
 	/* Check datasize and allocate the data */
 	if (datasize == 0) {
-		fprintf(stderr,
-			"Please specify the size of the environment "
-			"partition.\n");
+		fprintf(stderr, "Please specify the size of the environment partition.\n");
 		usage(prg);
 		return EXIT_FAILURE;
 	}
 
 	dataptr = malloc(datasize * sizeof(*dataptr));
 	if (!dataptr) {
-		fprintf(stderr, "Can't alloc dataptr.\n");
+		fprintf(stderr, "Can't alloc %d bytes for dataptr.\n",
+				datasize);
 		return EXIT_FAILURE;
 	}
 
 	/*
 	 * envptr points to the beginning of the actual environment (after the
-	 * crc and possible `redundant' bit
+	 * crc and possible `redundant' byte
 	 */
 	envsize = datasize - (CRC_SIZE + redundant);
 	envptr = dataptr + CRC_SIZE + redundant;
@@ -185,8 +179,8 @@ int main(int argc, char **argv)
 		/* ... and check it */
 		ret = fstat(txt_fd, &txt_file_stat);
 		if (ret == -1) {
-			fprintf(stderr, "Can't stat() on \"%s\": "
-					"%s\n", txt_filename, strerror(errno));
+			fprintf(stderr, "Can't stat() on \"%s\": %s\n",
+					txt_filename, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
@@ -200,13 +194,9 @@ int main(int argc, char **argv)
 		}
 		ret = close(txt_fd);
 	}
-	/*
-	 * The right test to do is "=>" (not ">") because of the additional
-	 * ending \0. See below.
-	 */
-	if (filesize >= envsize) {
-		fprintf(stderr, "The input file is larger than the "
-				"environment partition size\n");
+	/* The +1 is for the additionnal ending \0. See below. */
+	if (filesize + 1 > envsize) {
+		fprintf(stderr, "The input file is larger than the environment partition size\n");
 		return EXIT_FAILURE;
 	}
 
@@ -255,8 +245,7 @@ int main(int argc, char **argv)
 		 * check the env size again to make sure we have room for two \0
 		 */
 		if (ep >= envsize) {
-			fprintf(stderr, "The environment file is too large for "
-					"the target environment storage\n");
+			fprintf(stderr, "The environment file is too large for the target environment storage\n");
 			return EXIT_FAILURE;
 		}
 		envptr[ep] = '\0';
