@@ -285,7 +285,9 @@ int main(int argc, char **argv)
 	crc = crc32(0, envptr, envsize);
 	targetendian_crc = bigendian ? cpu_to_be32(crc) : cpu_to_le32(crc);
 
-	memcpy(dataptr, &targetendian_crc, sizeof(uint32_t));
+	memcpy(dataptr, &targetendian_crc, sizeof(targetendian_crc));
+	if (redundant)
+		dataptr[sizeof(targetendian_crc)] = 1;
 
 	if (!bin_filename || strcmp(bin_filename, "-") == 0) {
 		bin_fd = STDOUT_FILENO;
