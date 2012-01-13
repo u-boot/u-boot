@@ -472,6 +472,7 @@ int omap_mmc_init(int dev_index)
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_init_setup;
+	mmc->getcd = NULL;
 
 	switch (dev_index) {
 	case 0:

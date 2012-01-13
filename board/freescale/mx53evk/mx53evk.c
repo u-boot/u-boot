@@ -208,19 +208,20 @@ struct fsl_esdhc_cfg esdhc_cfg[2] = {
 	{MMC_SDHC3_BASE_ADDR, 1},
 };
 
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
+int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	int ret;
 
 	mxc_request_iomux(MX53_PIN_EIM_DA11, IOMUX_CONFIG_ALT1);
 	mxc_request_iomux(MX53_PIN_EIM_DA13, IOMUX_CONFIG_ALT1);
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*cd = gpio_get_value(77); /*GPIO3_13*/
+		ret = !gpio_get_value(77); /* GPIO3_13 */
 	else
-		*cd = gpio_get_value(75); /*GPIO3_11*/
+		ret = !gpio_get_value(75); /* GPIO3_11 */
 
-	return 0;
+	return ret;
 }
 
 int board_mmc_init(bd_t *bis)

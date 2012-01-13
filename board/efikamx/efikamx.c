@@ -314,17 +314,18 @@ static inline uint32_t efika_mmc_cd(void)
 		return MX51_PIN_EIM_CS2;
 }
 
-int board_mmc_getcd(u8 *absent, struct mmc *mmc)
+int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	uint32_t cd = efika_mmc_cd();
+	int ret;
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*absent = gpio_get_value(IOMUX_TO_GPIO(cd));
+		ret = !gpio_get_value(IOMUX_TO_GPIO(cd));
 	else
-		*absent = gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
+		ret = !gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
 
-	return 0;
+	return ret;
 }
 
 int board_mmc_init(bd_t *bis)

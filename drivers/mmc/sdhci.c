@@ -390,6 +390,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	mmc->send_cmd = sdhci_send_command;
 	mmc->set_ios = sdhci_set_ios;
 	mmc->init = sdhci_init;
+	mmc->getcd = NULL;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 #ifdef CONFIG_MMC_SDMA

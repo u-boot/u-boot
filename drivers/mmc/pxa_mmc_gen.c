@@ -411,6 +411,7 @@ int pxa_mmc_register(int card_index)
 	mmc->send_cmd	= pxa_mmc_request;
 	mmc->set_ios	= pxa_mmc_set_ios;
 	mmc->init	= pxa_mmc_init;
+	mmc->getcd	= NULL;
 
 	mmc->voltages	= MMC_VDD_32_33 | MMC_VDD_33_34;
 	mmc->f_max	= PXAMMC_MAX_SPEED;

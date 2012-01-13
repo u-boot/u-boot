@@ -474,6 +474,18 @@ static int mmc_core_init(struct mmc *mmc)
 	return 0;
 }
 
+int tegra2_mmc_getcd(struct mmc *mmc)
+{
+	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+
+	debug("tegra2_mmc_getcd called\n");
+
+	if (host->cd_gpio >= 0)
+		return !gpio_get_value(host->cd_gpio);
+
+	return 1;
+}
+
 int tegra2_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 {
 	struct mmc_host *host;
@@ -512,6 +524,7 @@ int tegra2_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_core_init;
+	mmc->getcd = tegra2_mmc_getcd;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	if (bus_width == 8)
@@ -532,25 +545,6 @@ int tegra2_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 	mmc->f_max = 48000000;
 
 	mmc_register(mmc);
-
-	return 0;
-}
-
-/* this is a weak define that we are overriding */
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
-{
-	struct mmc_host *host = (struct mmc_host *)mmc->priv;
-
-	debug("board_mmc_getcd called\n");
-
-	*cd = 1; /* Assume card is inserted, or eMMC */
-
-	if (IS_SD(mmc)) {
-		if (host->cd_gpio >= 0) {
-			if (gpio_get_value(host->cd_gpio))
-				*cd = 0;
-		}
-	}
 
 	return 0;
 }

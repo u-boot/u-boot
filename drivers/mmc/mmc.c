@@ -40,11 +40,11 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
-int __board_mmc_getcd(u8 *cd, struct mmc *mmc) {
+int __board_mmc_getcd(struct mmc *mmc) {
 	return -1;
 }
 
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)__attribute__((weak,
+int board_mmc_getcd(struct mmc *mmc)__attribute__((weak,
 	alias("__board_mmc_getcd")));
 
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
@@ -674,6 +674,18 @@ int mmc_switch_part(int dev_num, unsigned int part_num)
 			  | (part_num & PART_ACCESS_MASK));
 }
 
+int mmc_getcd(struct mmc *mmc)
+{
+	int cd;
+
+	cd = board_mmc_getcd(mmc);
+
+	if ((cd < 0) && mmc->getcd)
+		cd = mmc->getcd(mmc);
+
+	return cd;
+}
+
 int sd_switch(struct mmc *mmc, int mode, int group, u8 value, u8 *resp)
 {
 	struct mmc_cmd cmd;
@@ -783,6 +795,16 @@ retry_scr:
 
 	/* If high-speed isn't supported, we return */
 	if (!(__be32_to_cpu(switch_status[3]) & SD_HIGHSPEED_SUPPORTED))
+		return 0;
+
+	/*
+	 * If the host doesn't support SD_HIGHSPEED, do not switch card to
+	 * HIGHSPEED mode even if the card support SD_HIGHSPPED.
+	 * This can avoid furthur problem when the card runs in different
+	 * mode between the host.
+	 */
+	if (!((mmc->host_caps & MMC_MODE_HS_52MHz) &&
+		(mmc->host_caps & MMC_MODE_HS)))
 		return 0;
 
 	err = sd_switch(mmc, SD_SWITCH_SWITCH, 0, 1, (u8 *)switch_status);
@@ -1191,6 +1213,12 @@ block_dev_desc_t *mmc_get_dev(int dev)
 int mmc_init(struct mmc *mmc)
 {
 	int err;
+
+	if (mmc_getcd(mmc) == 0) {
+		mmc->has_init = 0;
+		printf("MMC: no card present\n");
+		return NO_CARD_ERR;
+	}
 
 	if (mmc->has_init)
 		return 0;

@@ -321,19 +321,20 @@ static void power_init(void)
 }
 
 #ifdef CONFIG_FSL_ESDHC
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
+int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	int ret;
 
 	mxc_request_iomux(MX51_PIN_GPIO1_0, IOMUX_CONFIG_ALT1);
 	mxc_request_iomux(MX51_PIN_GPIO1_6, IOMUX_CONFIG_ALT0);
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*cd = gpio_get_value(0);
+		ret = !gpio_get_value(0);
 	else
-		*cd = gpio_get_value(6);
+		ret = !gpio_get_value(6);
 
-	return 0;
+	return ret;
 }
 
 int board_mmc_init(bd_t *bis)
