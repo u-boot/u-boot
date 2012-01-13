@@ -258,14 +258,6 @@ int main(int argc, char **argv)
 				/* End of a variable */
 				envptr[ep++] = '\0';
 			}
-		} else if (filebuf[fp] == '#') {
-			if (fp != 0 && filebuf[fp-1] == '\n') {
-				/* This line is a comment, let's skip it */
-				while (fp < txt_file_stat.st_size && fp++ &&
-				       filebuf[fp] != '\n');
-			} else {
-				envptr[ep++] = filebuf[fp];
-			}
 		} else {
 			envptr[ep++] = filebuf[fp];
 		}
