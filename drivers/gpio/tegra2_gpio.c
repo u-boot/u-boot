@@ -49,188 +49,192 @@ static char *get_name(int i)
 	return *gpio_names[i].name ? gpio_names[i].name : "UNKNOWN";
 }
 
-/* Return config of pin 'gp' as GPIO (1) or SFPIO (0) */
-static int get_config(int gp)
+/* Return config of pin 'gpio' as GPIO (1) or SFPIO (0) */
+static int get_config(unsigned gpio)
 {
-	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
+	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(gpio)];
 	u32 u;
 	int type;
 
-	u = readl(&bank->gpio_config[GPIO_PORT(gp)]);
-	type =  (u >> GPIO_BIT(gp)) & 1;
+	u = readl(&bank->gpio_config[GPIO_PORT(gpio)]);
+	type =  (u >> GPIO_BIT(gpio)) & 1;
 
 	debug("get_config: port = %d, bit = %d is %s\n",
-		GPIO_FULLPORT(gp), GPIO_BIT(gp), type ? "GPIO" : "SFPIO");
+		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), type ? "GPIO" : "SFPIO");
 
 	return type;
 }
 
-/* Config pin 'gp' as GPIO or SFPIO, based on 'type' */
-static void set_config(int gp, int type)
+/* Config pin 'gpio' as GPIO or SFPIO, based on 'type' */
+static void set_config(unsigned gpio, int type)
 {
-	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
+	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(gpio)];
 	u32 u;
 
 	debug("set_config: port = %d, bit = %d, %s\n",
-		GPIO_FULLPORT(gp), GPIO_BIT(gp), type ? "GPIO" : "SFPIO");
+		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), type ? "GPIO" : "SFPIO");
 
-	u = readl(&bank->gpio_config[GPIO_PORT(gp)]);
+	u = readl(&bank->gpio_config[GPIO_PORT(gpio)]);
 	if (type)				/* GPIO */
-		u |= 1 << GPIO_BIT(gp);
+		u |= 1 << GPIO_BIT(gpio);
 	else
-		u &= ~(1 << GPIO_BIT(gp));
-	writel(u, &bank->gpio_config[GPIO_PORT(gp)]);
+		u &= ~(1 << GPIO_BIT(gpio));
+	writel(u, &bank->gpio_config[GPIO_PORT(gpio)]);
 }
 
-/* Return GPIO pin 'gp' direction - 0 = input or 1 = output */
-static int get_direction(int gp)
+/* Return GPIO pin 'gpio' direction - 0 = input or 1 = output */
+static int get_direction(unsigned gpio)
 {
-	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
+	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(gpio)];
 	u32 u;
 	int dir;
 
-	u = readl(&bank->gpio_dir_out[GPIO_PORT(gp)]);
-	dir =  (u >> GPIO_BIT(gp)) & 1;
+	u = readl(&bank->gpio_dir_out[GPIO_PORT(gpio)]);
+	dir =  (u >> GPIO_BIT(gpio)) & 1;
 
 	debug("get_direction: port = %d, bit = %d, %s\n",
-		GPIO_FULLPORT(gp), GPIO_BIT(gp), dir ? "OUT" : "IN");
+		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), dir ? "OUT" : "IN");
 
 	return dir;
 }
 
-/* Config GPIO pin 'gp' as input or output (OE) as per 'output' */
-static void set_direction(int gp, int output)
+/* Config GPIO pin 'gpio' as input or output (OE) as per 'output' */
+static void set_direction(unsigned gpio, int output)
 {
-	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
+	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(gpio)];
 	u32 u;
 
 	debug("set_direction: port = %d, bit = %d, %s\n",
-		GPIO_FULLPORT(gp), GPIO_BIT(gp), output ? "OUT" : "IN");
+		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), output ? "OUT" : "IN");
 
-	u = readl(&bank->gpio_dir_out[GPIO_PORT(gp)]);
+	u = readl(&bank->gpio_dir_out[GPIO_PORT(gpio)]);
 	if (output)
-		u |= 1 << GPIO_BIT(gp);
+		u |= 1 << GPIO_BIT(gpio);
 	else
-		u &= ~(1 << GPIO_BIT(gp));
-	writel(u, &bank->gpio_dir_out[GPIO_PORT(gp)]);
+		u &= ~(1 << GPIO_BIT(gpio));
+	writel(u, &bank->gpio_dir_out[GPIO_PORT(gpio)]);
 }
 
-/* set GPIO pin 'gp' output bit as 0 or 1 as per 'high' */
-static void set_level(int gp, int high)
+/* set GPIO pin 'gpio' output bit as 0 or 1 as per 'high' */
+static void set_level(unsigned gpio, int high)
 {
-	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
+	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(gpio)];
 	u32 u;
 
 	debug("set_level: port = %d, bit %d == %d\n",
-		GPIO_FULLPORT(gp), GPIO_BIT(gp), high);
+		GPIO_FULLPORT(gpio), GPIO_BIT(gpio), high);
 
-	u = readl(&bank->gpio_out[GPIO_PORT(gp)]);
+	u = readl(&bank->gpio_out[GPIO_PORT(gpio)]);
 	if (high)
-		u |= 1 << GPIO_BIT(gp);
+		u |= 1 << GPIO_BIT(gpio);
 	else
-		u &= ~(1 << GPIO_BIT(gp));
-	writel(u, &bank->gpio_out[GPIO_PORT(gp)]);
+		u &= ~(1 << GPIO_BIT(gpio));
+	writel(u, &bank->gpio_out[GPIO_PORT(gpio)]);
 }
 
 /*
  * Generic_GPIO primitives.
  */
 
-int gpio_request(int gp, const char *label)
+int gpio_request(unsigned gpio, const char *label)
 {
-	if (gp >= MAX_NUM_GPIOS)
+	if (gpio >= MAX_NUM_GPIOS)
 		return -1;
 
 	if (label != NULL) {
-		strncpy(gpio_names[gp].name, label, GPIO_NAME_SIZE);
-		gpio_names[gp].name[GPIO_NAME_SIZE - 1] = '\0';
+		strncpy(gpio_names[gpio].name, label, GPIO_NAME_SIZE);
+		gpio_names[gpio].name[GPIO_NAME_SIZE - 1] = '\0';
 	}
 
 	/* Configure as a GPIO */
-	set_config(gp, 1);
+	set_config(gpio, 1);
 
 	return 0;
 }
 
-void gpio_free(int gp)
+int gpio_free(unsigned gpio)
 {
+	if (gpio >= MAX_NUM_GPIOS)
+		return -1;
+
+	gpio_names[gpio].name[0] = '\0';
+	/* Do not configure as input or change pin mux here */
+	return 0;
 }
 
-/* read GPIO OUT value of pin 'gp' */
-static int gpio_get_output_value(int gp)
+/* read GPIO OUT value of pin 'gpio' */
+static int gpio_get_output_value(unsigned gpio)
 {
-	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
+	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(gpio)];
 	int val;
 
 	debug("gpio_get_output_value: pin = %d (port %d:bit %d)\n",
-		gp, GPIO_FULLPORT(gp), GPIO_BIT(gp));
+		gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio));
 
-	val = readl(&bank->gpio_out[GPIO_PORT(gp)]);
+	val = readl(&bank->gpio_out[GPIO_PORT(gpio)]);
 
-	return (val >> GPIO_BIT(gp)) & 1;
+	return (val >> GPIO_BIT(gpio)) & 1;
 }
 
-void gpio_toggle_value(int gp)
-{
-	gpio_set_value(gp, !gpio_get_output_value(gp));
-}
-
-/* set GPIO pin 'gp' as an input */
-int gpio_direction_input(int gp)
+/* set GPIO pin 'gpio' as an input */
+int gpio_direction_input(unsigned gpio)
 {
 	debug("gpio_direction_input: pin = %d (port %d:bit %d)\n",
-		gp, GPIO_FULLPORT(gp), GPIO_BIT(gp));
+		gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio));
 
 	/* Configure GPIO direction as input. */
-	set_direction(gp, 0);
+	set_direction(gpio, 0);
 
 	return 0;
 }
 
-/* set GPIO pin 'gp' as an output, with polarity 'value' */
-int gpio_direction_output(int gp, int value)
+/* set GPIO pin 'gpio' as an output, with polarity 'value' */
+int gpio_direction_output(unsigned gpio, int value)
 {
 	debug("gpio_direction_output: pin = %d (port %d:bit %d) = %s\n",
-		gp, GPIO_FULLPORT(gp), GPIO_BIT(gp), value ? "HIGH" : "LOW");
+		gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio),
+		value ? "HIGH" : "LOW");
 
 	/* Configure GPIO output value. */
-	set_level(gp, value);
+	set_level(gpio, value);
 
 	/* Configure GPIO direction as output. */
-	set_direction(gp, 1);
+	set_direction(gpio, 1);
 
 	return 0;
 }
 
-/* read GPIO IN value of pin 'gp' */
-int gpio_get_value(int gp)
+/* read GPIO IN value of pin 'gpio' */
+int gpio_get_value(unsigned gpio)
 {
-	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
+	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(gpio)];
 	int val;
 
 	debug("gpio_get_value: pin = %d (port %d:bit %d)\n",
-		gp, GPIO_FULLPORT(gp), GPIO_BIT(gp));
+		gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio));
 
-	val = readl(&bank->gpio_in[GPIO_PORT(gp)]);
+	val = readl(&bank->gpio_in[GPIO_PORT(gpio)]);
 
-	return (val >> GPIO_BIT(gp)) & 1;
+	return (val >> GPIO_BIT(gpio)) & 1;
 }
 
-/* write GPIO OUT value to pin 'gp' */
-void gpio_set_value(int gp, int value)
+/* write GPIO OUT value to pin 'gpio' */
+int gpio_set_value(unsigned gpio, int value)
 {
 	debug("gpio_set_value: pin = %d (port %d:bit %d), value = %d\n",
-		gp, GPIO_FULLPORT(gp), GPIO_BIT(gp), value);
+		gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio), value);
 
 	/* Configure GPIO output value. */
-	set_level(gp, value);
+	set_level(gpio, value);
+
+	return 0;
 }
 
 /*
@@ -238,7 +242,8 @@ void gpio_set_value(int gp, int value)
  */
 void gpio_info(void)
 {
-	int c, type;
+	unsigned c;
+	int type;
 
 	for (c = 0; c < MAX_NUM_GPIOS; c++) {
 		type = get_config(c);		/* GPIO, not SFPIO */

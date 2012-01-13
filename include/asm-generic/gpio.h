@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
+ * Copyright (c) 2011, NVIDIA Corp. All rights reserved.
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -18,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
+#ifndef _ASM_GENERIC_GPIO_H_
+#define _ASM_GENERIC_GPIO_H_
 
 /*
  * Generic GPIO API for U-Boot
@@ -38,37 +42,56 @@
  */
 
 /**
- * Make a GPIO an input.
+ * Request ownership of a GPIO.
  *
- * @param gp	GPIO number
+ * @param gpio	GPIO number
+ * @param label	Name given to the GPIO
  * @return 0 if ok, -1 on error
  */
-int gpio_direction_input(int gp);
+int gpio_request(unsigned gpio, const char *label);
+
+/**
+ * Stop using the GPIO.  This function should not alter pin configuration.
+ *
+ * @param gpio	GPIO number
+ * @return 0 if ok, -1 on error
+ */
+int gpio_free(unsigned gpio);
+
+/**
+ * Make a GPIO an input.
+ *
+ * @param gpio	GPIO number
+ * @return 0 if ok, -1 on error
+ */
+int gpio_direction_input(unsigned gpio);
 
 /**
  * Make a GPIO an output, and set its value.
  *
- * @param gp	GPIO number
+ * @param gpio	GPIO number
  * @param value	GPIO value (0 for low or 1 for high)
  * @return 0 if ok, -1 on error
  */
-int gpio_direction_output(int gp, int value);
+int gpio_direction_output(unsigned gpio, int value);
 
 /**
  * Get a GPIO's value. This will work whether the GPIO is an input
  * or an output.
  *
- * @param gp	GPIO number
+ * @param gpio	GPIO number
  * @return 0 if low, 1 if high, -1 on error
  */
-int gpio_get_value(int gp);
+int gpio_get_value(unsigned gpio);
 
 /**
- * Set an output GPIO's value. The GPIO must already be an output of
+ * Set an output GPIO's value. The GPIO must already be an output or
  * this function may have no effect.
  *
- * @param gp	GPIO number
+ * @param gpio	GPIO number
  * @param value	GPIO value (0 for low or 1 for high)
  * @return 0 if ok, -1 on error
  */
-int gpio_set_value(int gp, int value);
+int gpio_set_value(unsigned gpio, int value);
+
+#endif	/* _ASM_GENERIC_GPIO_H_ */

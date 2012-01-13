@@ -436,10 +436,12 @@ Heiko Schocher <hs@denx.de>
 	municse		MPC5200
 	sc3		PPC405GP
 	suvd3		MPC8321
-	tuda1		MPC8321
-	tuxa1		MPC8321
 	uc101		MPC5200
 	ve8313		MPC8313
+
+Holger Brunck <holger.brunck@keymile.com>
+	tuge1		MPC8321
+	tuxx1		MPC8321
 
 Peter De Schrijver <p2@mind.be>
 

@@ -82,7 +82,8 @@
 
 #define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
 
-#define CONFIG_BOARD_EARLY_INIT_F		/* call board_pre_init */
+#define CONFIG_BOARD_EARLY_INIT_F		/* call board_early_init_f */
+#define CONFIG_BOARD_EARLY_INIT_R		/* call board_early_init_r */
 
 #define CONFIG_SYS_IMMR		0xE0000000
 
@@ -266,7 +267,7 @@
 #define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT			"nand0=e2800000.flash"
 #define MTDPARTS_DEFAULT		\
-	"mtdparts=e0600000.flash:512k(uboot),128k(env),3m@1m(kernel),-(fs)"
+	"mtdparts=e2800000.flash:512k(uboot),128k(env),3m@1m(kernel),-(fs)"
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
@@ -362,6 +363,9 @@
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
+
+#define CONFIG_MPC83XX_GPIO 1
+#define CONFIG_CMD_GPIO 1
 
 /*
  * Serial Port
@@ -581,7 +585,8 @@
 
 /* System IO Config */
 #define CONFIG_SYS_SICRH	(SICRH_TSOBI1 | SICRH_TSOBI2)	/* RGMII */
-#define CONFIG_SYS_SICRL	SICRL_USBDR_10	/* Enable Internal USB Phy  */
+			/* Enable Internal USB Phy and GPIO on LCD Connector */
+#define CONFIG_SYS_SICRL	(SICRL_USBDR_10 | SICRL_LBC)
 
 #define CONFIG_SYS_HID0_INIT	0x000000000
 #define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
