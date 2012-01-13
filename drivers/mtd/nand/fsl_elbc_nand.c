@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <nand.h>
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
@@ -57,7 +58,6 @@ struct fsl_elbc_ctrl;
 /* mtd information per set */
 
 struct fsl_elbc_mtd {
-	struct mtd_info mtd;
 	struct nand_chip chip;
 	struct fsl_elbc_ctrl *ctrl;
 
@@ -686,10 +686,13 @@ static void fsl_elbc_ctrl_init(void)
 	elbc_ctrl->addr = NULL;
 }
 
-int board_nand_init(struct nand_chip *nand)
+static int fsl_elbc_chip_init(int devnum, u8 *addr)
 {
+	struct mtd_info *mtd = &nand_info[devnum];
+	struct nand_chip *nand;
 	struct fsl_elbc_mtd *priv;
 	uint32_t br = 0, or = 0;
+	int ret;
 
 	if (!elbc_ctrl) {
 		fsl_elbc_ctrl_init();
@@ -702,19 +705,19 @@ int board_nand_init(struct nand_chip *nand)
 		return -ENOMEM;
 
 	priv->ctrl = elbc_ctrl;
-	priv->vbase = nand->IO_ADDR_R;
+	priv->vbase = addr;
 
 	/* Find which chip select it is connected to.  It'd be nice
 	 * if we could pass more than one datum to the NAND driver...
 	 */
 	for (priv->bank = 0; priv->bank < MAX_BANKS; priv->bank++) {
-		phys_addr_t base_addr = virt_to_phys(nand->IO_ADDR_R);
+		phys_addr_t phys_addr = virt_to_phys(addr);
 
 		br = in_be32(&elbc_ctrl->regs->bank[priv->bank].br);
 		or = in_be32(&elbc_ctrl->regs->bank[priv->bank].or);
 
 		if ((br & BR_V) && (br & BR_MSEL) == BR_MS_FCM &&
-		    (br & or & BR_BA) == BR_PHYS_ADDR(base_addr))
+		    (br & or & BR_BA) == BR_PHYS_ADDR(phys_addr))
 			break;
 	}
 
@@ -723,6 +726,9 @@ int board_nand_init(struct nand_chip *nand)
 		       "chip selects\n");
 		return -ENODEV;
 	}
+
+	nand = &priv->chip;
+	mtd->priv = nand;
 
 	elbc_ctrl->chips[priv->bank] = priv;
 
@@ -794,5 +800,32 @@ int board_nand_init(struct nand_chip *nand)
 		}
 	}
 
+	ret = nand_scan_ident(mtd, 1, NULL);
+	if (ret)
+		return ret;
+
+	ret = nand_scan_tail(mtd);
+	if (ret)
+		return ret;
+
+	ret = nand_register(devnum);
+	if (ret)
+		return ret;
+
 	return 0;
+}
+
+#ifndef CONFIG_SYS_NAND_BASE_LIST
+#define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
+#endif
+
+static unsigned long base_address[CONFIG_SYS_MAX_NAND_DEVICE] =
+	CONFIG_SYS_NAND_BASE_LIST;
+
+void board_nand_init(void)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
+		fsl_elbc_chip_init(i, (u8 *)base_address[i]);
 }
