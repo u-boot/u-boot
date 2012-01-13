@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 
 #include "compiler.h"
 #include <u-boot/crc.h>
@@ -208,12 +209,24 @@ int main(int argc, char **argv)
 		}
 
 		filesize = txt_file_stat.st_size;
-		/* Read the raw input file and transform it */
-		filebuf = malloc(sizeof(*envptr) * filesize);
-		ret = read(txt_fd, filebuf, sizeof(*envptr) * filesize);
-		if (ret != sizeof(*envptr) * filesize) {
-			fprintf(stderr, "Can't read the whole input file\n");
-			return EXIT_FAILURE;
+
+		filebuf = mmap(NULL, sizeof(*envptr) * filesize, PROT_READ,
+			       MAP_PRIVATE, txt_fd, 0);
+		if (filebuf == MAP_FAILED) {
+			fprintf(stderr, "mmap (%ld bytes) failed: %s\n",
+					sizeof(*envptr) * filesize,
+					strerror(errno));
+			fprintf(stderr, "Falling back to read()\n");
+
+			filebuf = malloc(sizeof(*envptr) * filesize);
+			ret = read(txt_fd, filebuf, sizeof(*envptr) * filesize);
+			if (ret != sizeof(*envptr) * filesize) {
+				fprintf(stderr, "Can't read the whole input file (%ld bytes): %s\n",
+					sizeof(*envptr) * filesize,
+					strerror(errno));
+
+				return EXIT_FAILURE;
+			}
 		}
 		ret = close(txt_fd);
 	}
