@@ -168,11 +168,16 @@
  *
  */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS		1		/* Max number of memory banks		*/
-#define CONFIG_SYS_MAX_FLASH_SECT		128		/* Max number of sectors on one chip	*/
-#define CONFIG_SYS_FLASH_ERASE_TOUT	180000		/* Timeout for Flash Erase (in ms)	*/
-#define CONFIG_SYS_FLASH_WRITE_TOUT	600		/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_PROTECTION
+#define CONFIG_SYS_FLASH_EMPTY_INFO
 
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+
+#define CONFIG_FLASH_SHOW_PROGRESS	45
+
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	128
 
 #define	CONFIG_ENV_IS_IN_EEPROM
 #ifdef	CONFIG_ENV_IS_IN_EEPROM

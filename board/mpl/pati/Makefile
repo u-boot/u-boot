@@ -28,8 +28,8 @@ endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:=  pati.o ../common/flash.o cmd_pati.o ../common/common_util.o
-#### cmd_pati.o
+COBJS	:=  $(BOARD).o cmd_pati.o \
+		../common/common_util.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

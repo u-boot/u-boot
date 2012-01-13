@@ -566,7 +566,27 @@ int board_early_init_f (void)
 	return 0;
 }
 
+int board_early_init_r(void)
+{
+	int mode;
 
+	/*
+	 * since we are relocated, we can finally enable i-cache
+	 * and set up the flash CS correctly
+	 */
+	icache_enable();
+	setup_cs_reloc();
+	/* get and display boot mode */
+	mode = get_boot_mode();
+	if (mode & BOOT_PCI)
+		printf("PCI Boot %s Map\n", (mode & BOOT_MPS) ?
+			"MPS" : "Flash");
+	else
+		printf("%s Boot\n", (mode & BOOT_MPS) ?
+			"MPS" : "Flash");
+
+	return 0;
+}
 /* ------------------------------------------------------------------------- */
 
 /*
@@ -659,9 +679,6 @@ static int test_dram (unsigned long ramsize)
 	/* not yet implemented */
 	return (1);
 }
-
-
-extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 int misc_init_r (void)
 {

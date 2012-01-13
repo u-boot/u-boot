@@ -82,7 +82,10 @@ typedef struct ihs_fpga {
 	u16 reserved_1[502];	/* 0x0014 */
 	u16 ch0_status_int;	/* 0x0400 */
 	u16 ch0_config_int;	/* 0x0402 */
-	u16 reserved_2[7677];	/* 0x0404 */
+	u16 reserved_2[126];	/* 0x0404 */
+	u16 ch0_hicb_status_int;/* 0x0500 */
+	u16 ch0_hicb_config_int;/* 0x0502 */
+	u16 reserved_3[7549];	/* 0x0504 */
 	u16 reflection_high;	/* 0x3ffe */
 } ihs_fpga_t;
 #endif
