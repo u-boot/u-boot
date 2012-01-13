@@ -20,7 +20,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 
 #define CON_MASK(x)		(0xf << ((x) << 2))
 #define CON_SFR(x, v)		((v) << ((x) << 2))
@@ -142,46 +142,55 @@ void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode)
 	writel(value, &bank->drv);
 }
 
-struct s5p_gpio_bank *s5p_gpio_get_bank(int nr)
+struct s5p_gpio_bank *s5p_gpio_get_bank(unsigned gpio)
 {
-	int bank = nr / GPIO_PER_BANK;
+	int bank = gpio / GPIO_PER_BANK;
 	bank *= sizeof(struct s5p_gpio_bank);
 
-	return (struct s5p_gpio_bank *) (s5p_gpio_base(nr) + bank);
+	return (struct s5p_gpio_bank *) (s5p_gpio_base(gpio) + bank);
 }
 
-int s5p_gpio_get_pin(int nr)
+int s5p_gpio_get_pin(unsigned gpio)
 {
-	return nr % GPIO_PER_BANK;
+	return gpio % GPIO_PER_BANK;
 }
 
-int gpio_request(int gpio, const char *label)
+/* Common GPIO API */
+
+int gpio_request(unsigned gpio, const char *label)
 {
 	return 0;
 }
 
-int gpio_direction_input(int nr)
+int gpio_free(unsigned gpio)
 {
-	s5p_gpio_direction_input(s5p_gpio_get_bank(nr),
-				s5p_gpio_get_pin(nr));
 	return 0;
 }
 
-int gpio_direction_output(int nr, int value)
+int gpio_direction_input(unsigned gpio)
 {
-	s5p_gpio_direction_output(s5p_gpio_get_bank(nr),
-				 s5p_gpio_get_pin(nr), value);
+	s5p_gpio_direction_input(s5p_gpio_get_bank(gpio),
+				s5p_gpio_get_pin(gpio));
 	return 0;
 }
 
-int gpio_get_value(int nr)
+int gpio_direction_output(unsigned gpio, int value)
 {
-	return (int) s5p_gpio_get_value(s5p_gpio_get_bank(nr),
-				       s5p_gpio_get_pin(nr));
+	s5p_gpio_direction_output(s5p_gpio_get_bank(gpio),
+				 s5p_gpio_get_pin(gpio), value);
+	return 0;
 }
 
-void gpio_set_value(int nr, int value)
+int gpio_get_value(unsigned gpio)
 {
-	s5p_gpio_set_value(s5p_gpio_get_bank(nr),
-			  s5p_gpio_get_pin(nr), value);
+	return (int) s5p_gpio_get_value(s5p_gpio_get_bank(gpio),
+				       s5p_gpio_get_pin(gpio));
+}
+
+int gpio_set_value(unsigned gpio, int value)
+{
+	s5p_gpio_set_value(s5p_gpio_get_bank(gpio),
+			  s5p_gpio_get_pin(gpio), value);
+
+	return 0;
 }

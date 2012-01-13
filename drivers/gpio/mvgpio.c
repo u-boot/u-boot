@@ -35,81 +35,79 @@
 #define MV_MAX_GPIO	128
 #endif
 
-int gpio_request(int gp, const char *label)
+int gpio_request(unsigned gpio, const char *label)
 {
-	if (gp >= MV_MAX_GPIO) {
-		printf("%s: Invalid GPIO requested %d\n", __func__, gp);
-		return -EINVAL;
+	if (gpio >= MV_MAX_GPIO) {
+		printf("%s: Invalid GPIO requested %d\n", __func__, gpio);
+		return -1;
 	}
 	return 0;
 }
 
-void gpio_free(int gp)
+int gpio_free(unsigned gpio)
 {
-}
-
-void gpio_toggle_value(int gp)
-{
-	gpio_set_value(gp, !gpio_get_value(gp));
-}
-
-int gpio_direction_input(int gp)
-{
-	struct gpio_reg *gpio_reg_bank;
-
-	if (gp >= MV_MAX_GPIO) {
-		printf("%s: Invalid GPIO %d\n", __func__, gp);
-		return -EINVAL;
-	}
-
-	gpio_reg_bank = get_gpio_base(GPIO_TO_REG(gp));
-	writel(GPIO_TO_BIT(gp), &gpio_reg_bank->gcdr);
 	return 0;
 }
 
-int gpio_direction_output(int gp, int value)
+int gpio_direction_input(unsigned gpio)
 {
 	struct gpio_reg *gpio_reg_bank;
 
-	if (gp >= MV_MAX_GPIO) {
-		printf("%s: Invalid GPIO %d\n", __func__, gp);
-		return -EINVAL;
+	if (gpio >= MV_MAX_GPIO) {
+		printf("%s: Invalid GPIO %d\n", __func__, gpio);
+		return -1;
 	}
 
-	gpio_reg_bank = get_gpio_base(GPIO_TO_REG(gp));
-	writel(GPIO_TO_BIT(gp), &gpio_reg_bank->gsdr);
-	gpio_set_value(gp, value);
+	gpio_reg_bank = get_gpio_base(GPIO_TO_REG(gpio));
+	writel(GPIO_TO_BIT(gpio), &gpio_reg_bank->gcdr);
 	return 0;
 }
 
-int gpio_get_value(int gp)
+int gpio_direction_output(unsigned gpio, int value)
 {
 	struct gpio_reg *gpio_reg_bank;
-	u32 gp_val;
 
-	if (gp >= MV_MAX_GPIO) {
-		printf("%s: Invalid GPIO %d\n", __func__, gp);
-		return -EINVAL;
+	if (gpio >= MV_MAX_GPIO) {
+		printf("%s: Invalid GPIO %d\n", __func__, gpio);
+		return -1;
 	}
 
-	gpio_reg_bank = get_gpio_base(GPIO_TO_REG(gp));
-	gp_val = readl(&gpio_reg_bank->gplr);
-
-	return GPIO_VAL(gp, gp_val);
+	gpio_reg_bank = get_gpio_base(GPIO_TO_REG(gpio));
+	writel(GPIO_TO_BIT(gpio), &gpio_reg_bank->gsdr);
+	gpio_set_value(gpio, value);
+	return 0;
 }
 
-void gpio_set_value(int gp, int value)
+int gpio_get_value(unsigned gpio)
+{
+	struct gpio_reg *gpio_reg_bank;
+	u32 gpio_val;
+
+	if (gpio >= MV_MAX_GPIO) {
+		printf("%s: Invalid GPIO %d\n", __func__, gpio);
+		return -1;
+	}
+
+	gpio_reg_bank = get_gpio_base(GPIO_TO_REG(gpio));
+	gpio_val = readl(&gpio_reg_bank->gplr);
+
+	return GPIO_VAL(gpio, gpio_val);
+}
+
+int gpio_set_value(unsigned gpio, int value)
 {
 	struct gpio_reg *gpio_reg_bank;
 
-	if (gp >= MV_MAX_GPIO) {
-		printf("%s: Invalid GPIO %d\n", __func__, gp);
-		return;
+	if (gpio >= MV_MAX_GPIO) {
+		printf("%s: Invalid GPIO %d\n", __func__, gpio);
+		return -1;
 	}
 
-	gpio_reg_bank = get_gpio_base(GPIO_TO_REG(gp));
+	gpio_reg_bank = get_gpio_base(GPIO_TO_REG(gpio));
 	if (value)
-		writel(GPIO_TO_BIT(gp),	&gpio_reg_bank->gpsr);
+		writel(GPIO_TO_BIT(gpio), &gpio_reg_bank->gpsr);
 	else
-		writel(GPIO_TO_BIT(gp),	&gpio_reg_bank->gpcr);
+		writel(GPIO_TO_BIT(gpio), &gpio_reg_bank->gpcr);
+
+	return 0;
 }

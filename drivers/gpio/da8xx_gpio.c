@@ -23,7 +23,6 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/davinci_misc.h>
 
@@ -181,87 +180,93 @@ static const struct pinmux_config gpio_pinmux[] = {
 	{ pinmux(18), 8, 2 },
 };
 
-int gpio_request(int gp, const char *label)
+int gpio_request(unsigned gpio, const char *label)
 {
-	if (gp >= MAX_NUM_GPIOS)
+	if (gpio >= MAX_NUM_GPIOS)
 		return -1;
 
-	if (gpio_registry[gp].is_registered)
+	if (gpio_registry[gpio].is_registered)
 		return -1;
 
-	gpio_registry[gp].is_registered = 1;
-	strncpy(gpio_registry[gp].name, label, GPIO_NAME_SIZE);
-	gpio_registry[gp].name[GPIO_NAME_SIZE - 1] = 0;
+	gpio_registry[gpio].is_registered = 1;
+	strncpy(gpio_registry[gpio].name, label, GPIO_NAME_SIZE);
+	gpio_registry[gpio].name[GPIO_NAME_SIZE - 1] = 0;
 
-	davinci_configure_pin_mux(&gpio_pinmux[gp], 1);
+	davinci_configure_pin_mux(&gpio_pinmux[gpio], 1);
 
 	return 0;
 }
 
-void gpio_free(int gp)
+int gpio_free(unsigned gpio)
 {
-	gpio_registry[gp].is_registered = 0;
+	if (gpio >= MAX_NUM_GPIOS)
+		return -1;
+
+	if (!gpio_registry[gpio].is_registered)
+		return -1;
+
+	gpio_registry[gpio].is_registered = 0;
+	gpio_registry[gpio].name[0] = '\0';
+	/* Do not configure as input or change pin mux here */
+	return 0;
 }
 
-void gpio_toggle_value(int gp)
-{
-	gpio_set_value(gp, !gpio_get_value(gp));
-}
-
-int gpio_direction_input(int gp)
+int gpio_direction_input(unsigned gpio)
 {
 	struct davinci_gpio *bank;
 
-	bank = GPIO_BANK(gp);
-	setbits_le32(&bank->dir, 1U << GPIO_BIT(gp));
+	bank = GPIO_BANK(gpio);
+	setbits_le32(&bank->dir, 1U << GPIO_BIT(gpio));
 	return 0;
 }
 
-int gpio_direction_output(int gp, int value)
+int gpio_direction_output(unsigned gpio, int value)
 {
 	struct davinci_gpio *bank;
 
-	bank = GPIO_BANK(gp);
-	clrbits_le32(&bank->dir, 1U << GPIO_BIT(gp));
-	gpio_set_value(gp, value);
+	bank = GPIO_BANK(gpio);
+	clrbits_le32(&bank->dir, 1U << GPIO_BIT(gpio));
+	gpio_set_value(gpio, value);
 	return 0;
 }
 
-int gpio_get_value(int gp)
+int gpio_get_value(unsigned gpio)
 {
 	struct davinci_gpio *bank;
 	unsigned int ip;
 
-	bank = GPIO_BANK(gp);
-	ip = in_le32(&bank->in_data) & (1U << GPIO_BIT(gp));
+	bank = GPIO_BANK(gpio);
+	ip = in_le32(&bank->in_data) & (1U << GPIO_BIT(gpio));
 	return ip ? 1 : 0;
 }
 
-void gpio_set_value(int gp, int value)
+int gpio_set_value(unsigned gpio, int value)
 {
 	struct davinci_gpio *bank;
 
-	bank = GPIO_BANK(gp);
+	bank = GPIO_BANK(gpio);
 
 	if (value)
-		bank->set_data = 1U << GPIO_BIT(gp);
+		bank->set_data = 1U << GPIO_BIT(gpio);
 	else
-		bank->clr_data = 1U << GPIO_BIT(gp);
+		bank->clr_data = 1U << GPIO_BIT(gpio);
+
+	return 0;
 }
 
 void gpio_info(void)
 {
-	int gp, dir, val;
+	unsigned gpio, dir, val;
 	struct davinci_gpio *bank;
 
-	for (gp = 0; gp < MAX_NUM_GPIOS; ++gp) {
-		bank = GPIO_BANK(gp);
-		dir = in_le32(&bank->dir) & (1U << GPIO_BIT(gp));
-		val = gpio_get_value(gp);
+	for (gpio = 0; gpio < MAX_NUM_GPIOS; ++gpio) {
+		bank = GPIO_BANK(gpio);
+		dir = in_le32(&bank->dir) & (1U << GPIO_BIT(gpio));
+		val = gpio_get_value(gpio);
 
 		printf("% 4d: %s: %d [%c] %s\n",
-			gp, dir ? " in" : "out", val,
-			gpio_registry[gp].is_registered ? 'x' : ' ',
-			gpio_registry[gp].name);
+			gpio, dir ? " in" : "out", val,
+			gpio_registry[gpio].is_registered ? 'x' : ' ',
+			gpio_registry[gpio].name);
 	}
 }
