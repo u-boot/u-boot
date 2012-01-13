@@ -63,6 +63,24 @@ static void usage(const char *exec_name)
 	       exec_name);
 }
 
+long int xstrtol(const char *s)
+{
+	long int tmp;
+
+	errno = 0;
+	tmp = strtol(s, NULL, 0);
+	if (!errno)
+		return tmp;
+
+	if (errno == ERANGE)
+		fprintf(stderr, "Bad integer format: %s\n",  s);
+	else
+		fprintf(stderr, "Error while parsing %s: %s\n", s,
+				strerror(errno));
+
+	exit(EXIT_FAILURE);
+}
+
 int main(int argc, char **argv)
 {
 	uint32_t crc, targetendian_crc;
@@ -92,7 +110,7 @@ int main(int argc, char **argv)
 	while ((option = getopt(argc, argv, ":s:o:rbp:hV")) != -1) {
 		switch (option) {
 		case 's':
-			datasize = strtol(optarg, NULL, 0);
+			datasize = xstrtol(optarg);
 			break;
 		case 'o':
 			bin_filename = strdup(optarg);
@@ -108,7 +126,7 @@ int main(int argc, char **argv)
 			bigendian = 1;
 			break;
 		case 'p':
-			padbyte = strtol(optarg, NULL, 0);
+			padbyte = xstrtol(optarg);
 			break;
 		case 'h':
 			usage(prg);
@@ -166,7 +184,16 @@ int main(int argc, char **argv)
 
 		do {
 			filebuf = realloc(filebuf, readlen);
+			if (!filebuf) {
+				fprintf(stderr, "Can't realloc memory for the input file buffer\n");
+				return EXIT_FAILURE;
+			}
 			readbytes = read(txt_fd, filebuf + filesize, readlen);
+			if (errno) {
+				fprintf(stderr, "Error while reading stdin: %s\n",
+						strerror(errno));
+				return EXIT_FAILURE;
+			}
 			filesize += readbytes;
 		} while (readbytes == readlen);
 
