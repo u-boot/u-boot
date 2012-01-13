@@ -162,6 +162,12 @@ unsigned char zipitz2_spi_read(void);
 #endif
 
 /*
+ * SRAM Map
+ */
+#define	PHYS_SRAM			0x5c000000	/* SRAM Bank #1 */
+#define	PHYS_SRAM_SIZE			0x00040000	/* 256k */
+
+/*
  * DRAM Map
  */
 #define	CONFIG_NR_DRAM_BANKS		1		/* We have 1 bank of DRAM */
@@ -177,7 +183,7 @@ unsigned char zipitz2_spi_read(void);
 #define	CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_DRAM_BASE
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1 + 2048)
+#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SRAM + 2048)
 
 /*
  * NOR FLASH
