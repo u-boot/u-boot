@@ -30,7 +30,12 @@ extern void nand_init(void);
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 
+#ifdef CONFIG_SYS_NAND_SELF_INIT
+void board_nand_init(void);
+int nand_register(int devnum);
+#else
 extern int board_nand_init(struct nand_chip *nand);
+#endif
 
 typedef struct mtd_info nand_info_t;
 
