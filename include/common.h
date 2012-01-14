@@ -798,10 +798,8 @@ int	pcmcia_init (void);
 #ifdef CONFIG_STATUS_LED
 # include <status_led.h>
 #endif
-/*
- * Board-specific Platform code can reimplement show_boot_progress () if needed
- */
-void show_boot_progress(int val);
+
+#include <bootstage.h>
 
 /* Multicore arch functions */
 #ifdef CONFIG_MP
