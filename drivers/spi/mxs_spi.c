@@ -129,9 +129,15 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	int len = bitlen / 8;
 	const char *tx = dout;
 	char *rx = din;
+	char dummy;
 
-	if (bitlen == 0)
-		return 0;
+	if (bitlen == 0) {
+		if (flags & SPI_XFER_END) {
+			rx = &dummy;
+			len = 1;
+		} else
+			return 0;
+	}
 
 	if (!rx && !tx)
 		return 0;
