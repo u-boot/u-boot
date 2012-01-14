@@ -37,6 +37,9 @@ struct davinci_timer {
 	u_int32_t	wdtcr;
 };
 
+#define DV_WDT_ENABLE_SYS_RESET		0x00020000
+#define DV_WDT_TRIGGER_SYS_RESET	0x00020002
+
 #ifdef CONFIG_HW_WATCHDOG
 void davinci_hw_watchdog_enable(void);
 void davinci_hw_watchdog_reset(void);

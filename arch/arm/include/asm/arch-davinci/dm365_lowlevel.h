@@ -32,7 +32,6 @@ void dm365_waitloop(unsigned long loopcnt);
 int dm365_pll1_init(unsigned long pllmult, unsigned long prediv);
 int dm365_pll2_init(unsigned long pllm, unsigned long prediv);
 int dm365_ddr_setup(void);
-void dm365_por_reset(void);
 void dm365_psc_init(void);
 void dm365_pinmux_ctl(unsigned long offset, unsigned long mask,
 	unsigned long value);

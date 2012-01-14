@@ -587,6 +587,15 @@ static inline int get_async3_src(void)
 #include <asm/arch/psc_defs.h>
 #include <asm/arch/syscfg_defs.h>
 #include <asm/arch/timer_defs.h>
+
+#define TMPBUF			0x00017ff8
+#define TMPSTATUS		0x00017ff0
+#define DV_TMPBUF_VAL		0x591b3ed7
+#define FLAG_PORRST		0x00000001
+#define FLAG_WDTRST		0x00000002
+#define FLAG_FLGON		0x00000004
+#define FLAG_FLGOFF		0x00000010
+
 #endif
 
 struct davinci_rtc {

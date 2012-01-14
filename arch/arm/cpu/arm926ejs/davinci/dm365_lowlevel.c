@@ -254,7 +254,7 @@ int dm365_ddr_setup(void)
 	return 0;
 }
 
-void dm365_vpss_sync_reset(void)
+static void dm365_vpss_sync_reset(void)
 {
 	unsigned int PdNum = 0;
 
@@ -276,11 +276,52 @@ void dm365_vpss_sync_reset(void)
 		;
 }
 
-void dm365_por_reset(void)
+static void dm365_por_reset(void)
 {
+	struct davinci_timer *wdog =
+		(struct davinci_timer *)DAVINCI_WDOG_BASE;
+
 	if (readl(&dv_pll0_regs->rstype) &
-		(PLL_RSTYPE_POR | PLL_RSTYPE_XWRST))
+		(PLL_RSTYPE_POR | PLL_RSTYPE_XWRST)) {
 		dm365_vpss_sync_reset();
+
+		writel(DV_TMPBUF_VAL, TMPBUF);
+		setbits_le32(TMPSTATUS, FLAG_PORRST);
+		writel(DV_WDT_ENABLE_SYS_RESET, &wdog->na1);
+		writel(DV_WDT_TRIGGER_SYS_RESET, &wdog->na2);
+
+		while (1);
+	}
+}
+
+static void dm365_wdt_reset(void)
+{
+	struct davinci_timer *wdog =
+		(struct davinci_timer *)DAVINCI_WDOG_BASE;
+
+	if (readl(TMPBUF) != DV_TMPBUF_VAL) {
+		writel(DV_TMPBUF_VAL, TMPBUF);
+		setbits_le32(TMPSTATUS, FLAG_PORRST);
+		setbits_le32(TMPSTATUS, FLAG_FLGOFF);
+
+		dm365_waitloop(100);
+
+		dm365_vpss_sync_reset();
+
+		writel(DV_WDT_ENABLE_SYS_RESET, &wdog->na1);
+		writel(DV_WDT_TRIGGER_SYS_RESET, &wdog->na2);
+
+		while (1);
+	}
+}
+
+static void dm365_wdt_flag_on(void)
+{
+	/* VPSS_CLKMD 1:2 */
+	clrbits_le32(&dv_sys_module_regs->vpss_clkctl,
+		VPSS_CLK_CTL_VPSS_CLKMD);
+	writel(0, TMPBUF);
+	setbits_le32(TMPSTATUS, FLAG_FLGON);
 }
 
 void dm365_psc_init(void)
@@ -382,6 +423,9 @@ void dm36x_lowlevel_init(ulong bootflag)
 	writel(0xffffffff, &dv_aintc_regs->irq0);
 	writel(0xffffffff, &dv_aintc_regs->irq1);
 
+	dm365_por_reset();
+	dm365_wdt_reset();
+
 	/* System PSC setup - enable all */
 	dm365_psc_init();
 
@@ -417,6 +461,8 @@ void dm36x_lowlevel_init(ulong bootflag)
 
 	puts("emif init\n");
 	dm365_emif_init();
+
+	dm365_wdt_flag_on();
 
 #if defined(CONFIG_POST)
 	/*
