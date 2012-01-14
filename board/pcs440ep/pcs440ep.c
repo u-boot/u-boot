@@ -117,19 +117,19 @@ void show_boot_progress (int val)
 		status_led_set(2, STATUS_LED_ON);
 		break;
 #if 0
-		case 64:
-			/* starting Ethernet configuration */
-			status_led_set (0, STATUS_LED_OFF);
-			status_led_set (1, STATUS_LED_OFF);
-			status_led_set (2, STATUS_LED_ON);
-			break;
+	case BOOTSTAGE_ID_NET_ETH_START:
+		/* starting Ethernet configuration */
+		status_led_set(0, STATUS_LED_OFF);
+		status_led_set(1, STATUS_LED_OFF);
+		status_led_set(2, STATUS_LED_ON);
+		break;
 #endif
-		case 80:
-			/* loading Image */
-			status_led_set (0, STATUS_LED_ON);
-			status_led_set (1, STATUS_LED_OFF);
-			status_led_set (2, STATUS_LED_ON);
-			break;
+	case BOOTSTAGE_ID_NET_START:
+		/* loading Image */
+		status_led_set(0, STATUS_LED_ON);
+		status_led_set(1, STATUS_LED_OFF);
+		status_led_set(2, STATUS_LED_ON);
+		break;
 	}
 }
 #endif

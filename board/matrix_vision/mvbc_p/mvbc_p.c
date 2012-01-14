@@ -244,7 +244,7 @@ void show_boot_progress(int val)
 	case BOOTSTAGE_ID_START: /* FPGA ok */
 		setbits_be32(&gpio->simple_dvo, LED_G0);
 		break;
-	case 65:
+	case BOOTSTAGE_ID_NET_ETH_INIT:
 		setbits_be32(&gpio->simple_dvo, LED_G1);
 		break;
 	case BOOTSTAGE_ID_COPY_RAMDISK:
