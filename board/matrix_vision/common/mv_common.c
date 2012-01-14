@@ -95,7 +95,7 @@ int mv_load_fpga(void)
 
 	result = fpga_load(0, fpga_data, data_size);
 	if (!result)
-		show_boot_progress(0);
+		show_boot_progress(BOOTSTAGE_ID_START);
 
 	return result;
 }

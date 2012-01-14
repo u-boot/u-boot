@@ -348,7 +348,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 			puts("GUNZIP: uncompress, out-of-mem or overwrite "
 				"error - must RESET board to recover\n");
 			if (boot_progress)
-				show_boot_error(6);
+				show_boot_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -370,7 +370,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 			printf("BUNZIP2: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", i);
 			if (boot_progress)
-				show_boot_error(6);
+				show_boot_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -389,7 +389,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		if (ret != SZ_OK) {
 			printf("LZMA: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", ret);
-			show_boot_error(6);
+			show_boot_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 			return BOOTM_ERR_RESET;
 		}
 		*load_end = load + unc_len;
@@ -407,7 +407,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 			printf("LZO: uncompress or overwrite error %d "
 			      "- must RESET board to recover\n", ret);
 			if (boot_progress)
-				show_boot_error(6);
+				show_boot_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -423,8 +423,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 
 	puts("OK\n");
 	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, *load_end);
-	if (boot_progress)
-		show_boot_progress(7);
+	show_boot_progress(BOOTSTAGE_ID_KERNEL_LOADED);
 
 	if (!no_overlap && (load < blob_end) && (*load_end > blob_start)) {
 		debug("images.os.start = 0x%lX, images.os.end = 0x%lx\n",
@@ -656,7 +655,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (ret == BOOTM_ERR_UNIMPLEMENTED) {
 			if (iflag)
 				enable_interrupts();
-			show_boot_error(7);
+			show_boot_error(BOOTSTAGE_ID_DECOMP_UNIMPL);
 			return 1;
 		}
 	}
@@ -671,7 +670,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
-	show_boot_progress(8);
+	show_boot_progress(BOOTSTAGE_ID_CHECK_BOOT_OS);
 
 #ifdef CONFIG_SILENT_CONSOLE
 	if (images.os.os == IH_OS_LINUX)
@@ -685,7 +684,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			enable_interrupts();
 		printf("ERROR: booting os '%s' (%d) is not supported\n",
 			genimg_get_os_name(images.os.os), images.os.os);
-		show_boot_error(8);
+		show_boot_error(BOOTSTAGE_ID_CHECK_BOOT_OS);
 		return 1;
 	}
 
@@ -693,7 +692,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	boot_fn(0, argc, argv, &images);
 
-	show_boot_error(9);
+	show_boot_error(BOOTSTAGE_ID_BOOT_OS_RETURNED);
 #ifdef DEBUG
 	puts("\n## Control returned to monitor - resetting...\n");
 #endif
@@ -735,34 +734,34 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify)
 
 	if (!image_check_magic(hdr)) {
 		puts("Bad Magic Number\n");
-		show_boot_error(1);
+		show_boot_error(BOOTSTAGE_ID_CHECK_MAGIC);
 		return NULL;
 	}
-	show_boot_progress(2);
+	show_boot_progress(BOOTSTAGE_ID_CHECK_HEADER);
 
 	if (!image_check_hcrc(hdr)) {
 		puts("Bad Header Checksum\n");
-		show_boot_error(2);
+		show_boot_error(BOOTSTAGE_ID_CHECK_HEADER);
 		return NULL;
 	}
 
-	show_boot_progress(3);
+	show_boot_progress(BOOTSTAGE_ID_CHECK_CHECKSUM);
 	image_print_contents(hdr);
 
 	if (verify) {
 		puts("   Verifying Checksum ... ");
 		if (!image_check_dcrc(hdr)) {
 			printf("Bad Data CRC\n");
-			show_boot_error(3);
+			show_boot_error(BOOTSTAGE_ID_CHECK_CHECKSUM);
 			return NULL;
 		}
 		puts("OK\n");
 	}
-	show_boot_progress(4);
+	show_boot_progress(BOOTSTAGE_ID_CHECK_ARCH);
 
 	if (!image_check_target_arch(hdr)) {
 		printf("Unsupported Architecture 0x%x\n", image_get_arch(hdr));
-		show_boot_error(4);
+		show_boot_error(BOOTSTAGE_ID_CHECK_ARCH);
 		return NULL;
 	}
 	return hdr;
@@ -864,7 +863,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		debug("*  kernel: cmdline image address = 0x%08lx\n", img_addr);
 	}
 
-	show_boot_progress(1);
+	show_boot_progress(BOOTSTAGE_ID_CHECK_MAGIC);
 
 	/* copy from dataflash if needed */
 	img_addr = genimg_get_image(img_addr);
@@ -878,7 +877,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		hdr = image_get_kernel(img_addr, images->verify);
 		if (!hdr)
 			return NULL;
-		show_boot_progress(5);
+		show_boot_progress(BOOTSTAGE_ID_CHECK_IMAGETYPE);
 
 		/* get os_data and os_len */
 		switch (image_get_type(hdr)) {
@@ -897,7 +896,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		default:
 			printf("Wrong Image Type for %s command\n",
 				cmdtp->name);
-			show_boot_error(5);
+			show_boot_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
 			return NULL;
 		}
 
@@ -912,7 +911,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		images->legacy_hdr_os = hdr;
 
 		images->legacy_hdr_valid = 1;
-		show_boot_progress(6);
+		show_boot_progress(BOOTSTAGE_ID_DECOMP_IMAGE);
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:

@@ -370,7 +370,7 @@ static ulong board_init (void)
 			immr->im_ioport.iop_pcdat |= PC_REP_RES;
 		}
 	}
-	SHOW_BOOT_PROGRESS (0x00);
+	SHOW_BOOT_PROGRESS(BOOTSTAGE_ID_CHECK_MAGIC);
 
 	return ((revision << 16) | (speed & 0xFFFF));
 }

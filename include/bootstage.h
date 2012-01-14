@@ -44,6 +44,20 @@
  * error on action3
  */
 enum bootstage_id {
+	BOOTSTAGE_ID_START = 0,
+	BOOTSTAGE_ID_CHECK_MAGIC,	/* Checking image magic */
+	BOOTSTAGE_ID_CHECK_HEADER,	/* Checking image header */
+	BOOTSTAGE_ID_CHECK_CHECKSUM,	/* Checking image checksum */
+	BOOTSTAGE_ID_CHECK_ARCH,	/* Checking architecture */
+
+	BOOTSTAGE_ID_CHECK_IMAGETYPE = 5,/* Checking image type */
+	BOOTSTAGE_ID_DECOMP_IMAGE,	/* Decompressing image */
+	BOOTSTAGE_ID_KERNEL_LOADED,	/* Kernel has been loaded */
+	BOOTSTAGE_ID_DECOMP_UNIMPL = 7,	/* Odd decompression algorithm */
+	BOOTSTAGE_ID_CHECK_BOOT_OS,	/* Calling OS-specific boot function */
+	BOOTSTAGE_ID_BOOT_OS_RETURNED,	/* Tried to boot OS, but it returned */
+	BOOTSTAGE_ID_CHECK_RAMDISK = 9,	/* Checking ram disk */
+
 	BOOTSTAGE_ID_RUN_OS	= 15,	/* Exiting U-Boot, entering OS */
 };
 

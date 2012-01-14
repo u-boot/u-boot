@@ -104,17 +104,17 @@ void show_boot_progress (int val)
 		return;
 	}
 	switch (val) {
-		case 1:
-			/* validating Image */
-			status_led_set (0, STATUS_LED_OFF);
-			status_led_set (1, STATUS_LED_ON);
-			status_led_set (2, STATUS_LED_ON);
-			break;
-		case BOOTSTAGE_ID_RUN_OS:
-			status_led_set (0, STATUS_LED_ON);
-			status_led_set (1, STATUS_LED_ON);
-			status_led_set (2, STATUS_LED_ON);
-			break;
+	case BOOTSTAGE_ID_CHECK_MAGIC:
+		/* validating Image */
+		status_led_set(0, STATUS_LED_OFF);
+		status_led_set(1, STATUS_LED_ON);
+		status_led_set(2, STATUS_LED_ON);
+		break;
+	case BOOTSTAGE_ID_RUN_OS:
+		status_led_set(0, STATUS_LED_ON);
+		status_led_set(1, STATUS_LED_ON);
+		status_led_set(2, STATUS_LED_ON);
+		break;
 #if 0
 		case 64:
 			/* starting Ethernet configuration */

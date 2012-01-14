@@ -895,7 +895,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			printf("## Loading init Ramdisk from Legacy "
 					"Image at %08lx ...\n", rd_addr);
 
-			show_boot_progress(9);
+			show_boot_progress(BOOTSTAGE_ID_LOAD_RAMDISK);
 			rd_hdr = image_get_ramdisk(rd_addr, arch,
 							images->verify);
 
