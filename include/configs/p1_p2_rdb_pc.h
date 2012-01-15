@@ -630,7 +630,6 @@
 #endif
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	/* do pci plug-and-play */
 #define CONFIG_E1000	/* Defind e1000 pci Ethernet card*/
 #define CONFIG_CMD_PCI
@@ -641,11 +640,6 @@
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI
-#endif
-
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_TSEC1
 #define CONFIG_TSEC1_NAME	"eTSEC1"

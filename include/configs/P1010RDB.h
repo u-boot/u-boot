@@ -519,10 +519,6 @@ extern unsigned long get_sdram_size(void);
 #endif
 
 #if defined(CONFIG_TSEC_ENET)
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI
-#endif
-
 #define CONFIG_MII			/* MII PHY management */
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */
 #define CONFIG_TSEC1	1

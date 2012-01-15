@@ -113,7 +113,6 @@
 /*
  * Ethernet on SOC (FEC)
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE	FEC_BASE_ADDR
 #define CONFIG_PHYLIB

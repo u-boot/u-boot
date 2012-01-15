@@ -187,7 +187,6 @@
  * Ethernet on SOC (FEC)
  */
 #ifdef	CONFIG_CMD_NET
-#define	CONFIG_NET_MULTI
 #define	CONFIG_ETHPRIME			"FEC0"
 #define	CONFIG_FEC_MXC
 #define	CONFIG_FEC_MXC_MULTI

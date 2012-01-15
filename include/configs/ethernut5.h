@@ -179,7 +179,6 @@
 #endif
 
 /* Ethernet */
-#define CONFIG_NET_MULTI
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB
 #define CONFIG_RMII

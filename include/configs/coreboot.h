@@ -216,10 +216,4 @@
  */
 #define CONFIG_PCI
 
-/*-----------------------------------------------------------------------
- * Network device support
- */
-#define CONFIG_NET_MULTI
-
-
 #endif	/* __CONFIG_H */

@@ -248,7 +248,6 @@
 #if defined(CONFIG_CMD_NET)
 
 /* Ethernet (SMSC9115 from SMSC9118 family) */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_32_BIT
 #define CONFIG_SMC911X_BASE		0x2C000000
