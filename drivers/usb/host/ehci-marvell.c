@@ -30,8 +30,10 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
 
-#define rdl(off)	readl(KW_USB20_BASE + (off))
-#define wrl(off, val)	writel((val), KW_USB20_BASE + (off))
+DECLARE_GLOBAL_DATA_PTR;
+
+#define rdl(off)	readl(MVUSB0_BASE + (off))
+#define wrl(off, val)	writel((val), MVUSB0_BASE + (off))
 
 #define USB_WINDOW_CTRL(i)	(0x320 + ((i) << 4))
 #define USB_WINDOW_BASE(i)	(0x324 + ((i) << 4))
@@ -43,23 +45,23 @@
 static void usb_brg_adrdec_setup(void)
 {
 	int i;
-	u32 size, attrib;
+	u32 size, base, attrib;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 
 		/* Enable DRAM bank */
 		switch (i) {
 		case 0:
-			attrib = KWCPU_ATTR_DRAM_CS0;
+			attrib = MVUSB0_CPU_ATTR_DRAM_CS0;
 			break;
 		case 1:
-			attrib = KWCPU_ATTR_DRAM_CS1;
+			attrib = MVUSB0_CPU_ATTR_DRAM_CS1;
 			break;
 		case 2:
-			attrib = KWCPU_ATTR_DRAM_CS2;
+			attrib = MVUSB0_CPU_ATTR_DRAM_CS2;
 			break;
 		case 3:
-			attrib = KWCPU_ATTR_DRAM_CS3;
+			attrib = MVUSB0_CPU_ATTR_DRAM_CS3;
 			break;
 		default:
 			/* invalide bank, disable access */
@@ -67,15 +69,16 @@ static void usb_brg_adrdec_setup(void)
 			break;
 		}
 
-		size = kw_sdram_bs(i);
+		size = gd->bd->bi_dram[i].size;
+		base = gd->bd->bi_dram[i].start;
 		if ((size) && (attrib))
 			wrl(USB_WINDOW_CTRL(i),
-				KWCPU_WIN_CTRL_DATA(size, USB_TARGET_DRAM,
-					attrib, KWCPU_WIN_ENABLE));
+				MVCPU_WIN_CTRL_DATA(size, USB_TARGET_DRAM,
+					attrib, MVCPU_WIN_ENABLE));
 		else
-			wrl(USB_WINDOW_CTRL(i), KWCPU_WIN_DISABLE);
+			wrl(USB_WINDOW_CTRL(i), MVCPU_WIN_DISABLE);
 
-		wrl(USB_WINDOW_BASE(i), kw_sdram_bar(i));
+		wrl(USB_WINDOW_BASE(i), base);
 	}
 }
 
@@ -87,11 +90,11 @@ int ehci_hcd_init(void)
 {
 	usb_brg_adrdec_setup();
 
-	hccr = (struct ehci_hccr *)(KW_USB20_BASE + 0x100);
+	hccr = (struct ehci_hccr *)(MVUSB0_BASE + 0x100);
 	hcor = (struct ehci_hcor *)((uint32_t) hccr
 			+ HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	debug("Kirkwood-ehci: init hccr %x and hcor %x hc_length %d\n",
+	debug("ehci-marvell: init hccr %x and hcor %x hc_length %d\n",
 		(uint32_t)hccr, (uint32_t)hcor,
 		(uint32_t)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
