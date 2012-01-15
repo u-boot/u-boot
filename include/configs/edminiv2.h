@@ -134,6 +134,7 @@
 #include <config_cmd_default.h>
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_USB
 
 /*
  * Network
@@ -181,6 +182,19 @@
 #define CONFIG_SYS_ATA_IDE0_OFFSET	ORION5X_SATA_PORT1_OFFSET
 /* end of IDE defines */
 #endif /* CMD_IDE */
+
+/*
+ * Common USB/EHCI configuration
+ */
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_EHCI		/* Enable EHCI USB support */
+#define CONFIG_USB_EHCI_MARVELL
+#define ORION5X_USB20_HOST_PORT_BASE ORION5X_USB20_PORT0_BASE
+#define CONFIG_USB_STORAGE
+#define CONFIG_DOS_PARTITION
+#define CONFIG_ISO_PARTITION
+#define CONFIG_SUPPORT_VFAT
+#endif /* CONFIG_CMD_USB */
 
 /*
  * I2C related stuff
