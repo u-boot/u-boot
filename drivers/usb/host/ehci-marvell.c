@@ -28,7 +28,12 @@
 #include "ehci.h"
 #include "ehci-core.h"
 #include <asm/arch/cpu.h>
+
+#if defined(CONFIG_KIRKWOOD)
 #include <asm/arch/kirkwood.h>
+#elif defined(CONFIG_ORION5X)
+#include <asm/arch/orion5x.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
