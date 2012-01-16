@@ -222,7 +222,8 @@ static inline int menu_interactive_choice(struct menu *m, void **choice)
 
 		menu_display(m);
 
-		readret = readline_into_buffer("Enter choice: ", cbuf);
+		readret = readline_into_buffer("Enter choice: ", cbuf,
+				m->timeout);
 
 		if (readret >= 0) {
 			choice_item = menu_item_by_key(m, cbuf);

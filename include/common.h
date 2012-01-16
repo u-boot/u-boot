@@ -265,7 +265,8 @@ int	run_command	(const char *cmd, int flag);
 int run_command2(const char *cmd, int flag);
 #endif
 int	readline	(const char *const prompt);
-int	readline_into_buffer	(const char *const prompt, char * buffer);
+int	readline_into_buffer(const char *const prompt, char *buffer,
+			int timeout);
 int	parse_line (char *, char *[]);
 void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);

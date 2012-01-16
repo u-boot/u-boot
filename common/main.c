@@ -685,7 +685,8 @@ static void cread_add_str(char *str, int strsize, int insert, unsigned long *num
 	}
 }
 
-static int cread_line(const char *const prompt, char *buf, unsigned int *len)
+static int cread_line(const char *const prompt, char *buf, unsigned int *len,
+		int timeout)
 {
 	unsigned long num = 0;
 	unsigned long eol_num = 0;
@@ -695,6 +696,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 	int esc_len = 0;
 	char esc_save[8];
 	int init_len = strlen(buf);
+	int first = 1;
 
 	if (init_len)
 		cread_add_str(buf, init_len, 1, &num, &eol_num, buf, *len);
@@ -707,6 +709,16 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 			WATCHDOG_RESET();
 		}
 #endif
+		if (first && timeout) {
+			uint64_t etime = endtick(timeout);
+
+			while (!tstc()) {	/* while no incoming data */
+				if (get_ticks() >= etime)
+					return -2;	/* timed out */
+				WATCHDOG_RESET();
+			}
+			first = 0;
+		}
 
 		ichar = getcmd_getch();
 
@@ -922,11 +934,11 @@ int readline (const char *const prompt)
 	 */
 	console_buffer[0] = '\0';
 
-	return readline_into_buffer(prompt, console_buffer);
+	return readline_into_buffer(prompt, console_buffer, 0);
 }
 
 
-int readline_into_buffer (const char *const prompt, char * buffer)
+int readline_into_buffer(const char *const prompt, char *buffer, int timeout)
 {
 	char *p = buffer;
 #ifdef CONFIG_CMDLINE_EDITING
@@ -949,7 +961,7 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 		if (prompt)
 			puts (prompt);
 
-		rc = cread_line(prompt, p, &len);
+		rc = cread_line(prompt, p, &len, timeout);
 		return rc < 0 ? rc : len;
 
 	} else {
