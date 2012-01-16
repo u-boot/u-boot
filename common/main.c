@@ -41,6 +41,7 @@
 
 #include <post.h>
 #include <linux/ctype.h>
+#include <menu.h>
 
 #if defined(CONFIG_SILENT_CONSOLE) || defined(CONFIG_POST) || defined(CONFIG_CMDLINE_EDITING)
 DECLARE_GLOBAL_DATA_PTR;
@@ -372,6 +373,9 @@ void main_loop (void)
 
 	debug ("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 
+#if defined(CONFIG_MENU_SHOW)
+	bootdelay = menu_show(bootdelay);
+#endif
 # ifdef CONFIG_BOOT_RETRY_TIME
 	init_cmd_timeout ();
 # endif	/* CONFIG_BOOT_RETRY_TIME */
