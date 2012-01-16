@@ -718,6 +718,10 @@ Chander Kashyap <k.chander@samsung.com>
 	origen			ARM ARMV7 (EXYNOS4210 SoC)
 	SMDKV310		ARM ARMV7 (EXYNOS4210 SoC)
 
+Heungjun Kim <riverful.kim@samsung.com>
+
+	trats			ARM ARMV7 (EXYNOS4210 SoC)
+
 Torsten Koschorrek <koschorrek@synertronixx.de>
 	scb9328		ARM920T (i.MXL)
 
