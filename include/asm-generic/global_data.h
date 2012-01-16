@@ -85,6 +85,9 @@ typedef struct global_data {
 #ifdef CONFIG_TRACE
 	void		*trace_buff;	/* The trace buffer */
 #endif
+#if defined(CONFIG_SYS_I2C)
+	int		cur_i2c_bus;	/* current used i2c bus */
+#endif
 	struct arch_global_data arch;	/* architecture-specific data */
 } gd_t;
 #endif
