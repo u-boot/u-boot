@@ -236,8 +236,10 @@ static inline int menu_interactive_choice(struct menu *m, void **choice)
 		if (readret >= 0) {
 			choice_item = menu_item_by_key(m, cbuf);
 
-			if (!choice_item)
+			if (!choice_item) {
 				printf("%s not found\n", cbuf);
+				m->timeout = 0;
+			}
 		} else {
 			puts("^C\n");
 			return -EINTR;
