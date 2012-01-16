@@ -1944,9 +1944,77 @@ CBFS (Coreboot Filesystem) support
 		on those systems that support this (optional)
 		feature, like the TQM8xxL modules.
 
-- I2C Support:	CONFIG_HARD_I2C | CONFIG_SOFT_I2C
+- I2C Support:	CONFIG_SYS_I2C
 
-		These enable I2C serial bus commands. Defining either of
+		This enable the NEW i2c subsystem, and will allow you to use
+		i2c commands at the u-boot command line (as long as you set
+		CONFIG_CMD_I2C in CONFIG_COMMANDS) and communicate with i2c
+		based realtime clock chips or other i2c devices. See
+		common/cmd_i2c.c for a description of the command line
+		interface.
+
+		ported i2c driver to the new framework:
+
+		additional defines:
+
+		CONFIG_SYS_NUM_I2C_BUSES
+		Hold the number of i2c busses you want to use. If you
+		don't use/have i2c muxes on your i2c bus, this
+		is equal to CONFIG_SYS_NUM_I2C_ADAPTERS, and you can
+		omit this define.
+
+		CONFIG_SYS_I2C_DIRECT_BUS
+		define this, if you don't use i2c muxes on your hardware.
+		if CONFIG_SYS_I2C_MAX_HOPS is not defined or == 0 you can
+		omit this define.
+
+		CONFIG_SYS_I2C_MAX_HOPS
+		define how many muxes are maximal consecutively connected
+		on one i2c bus. If you not use i2c muxes, omit this
+		define.
+
+		CONFIG_SYS_I2C_BUSES
+		hold a list of busses you want to use, only used if
+		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
+		a board with CONFIG_SYS_I2C_MAX_HOPS = 1 and
+		CONFIG_SYS_NUM_I2C_BUSES = 9:
+
+		 CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 1}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 2}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 3}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 4}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 5}}}, \
+					{1, {I2C_NULL_HOP}}, \
+					{1, {{I2C_MUX_PCA9544, 0x72, 1}}}, \
+					{1, {{I2C_MUX_PCA9544, 0x72, 2}}}, \
+					}
+
+		which defines
+			bus 0 on adapter 0 without a mux
+			bus 1 on adapter 0 without a PCA9547 on address 0x70 port 1
+			bus 2 on adapter 0 without a PCA9547 on address 0x70 port 2
+			bus 3 on adapter 0 without a PCA9547 on address 0x70 port 3
+			bus 4 on adapter 0 without a PCA9547 on address 0x70 port 4
+			bus 5 on adapter 0 without a PCA9547 on address 0x70 port 5
+			bus 6 on adapter 1 without a mux
+			bus 7 on adapter 1 without a PCA9544 on address 0x72 port 1
+			bus 8 on adapter 1 without a PCA9544 on address 0x72 port 2
+
+		If you do not have i2c muxes on your board, omit this define.
+
+- Legacy I2C Support:	CONFIG_HARD_I2C | CONFIG_SOFT_I2C
+
+		NOTE: It is intended to move drivers to CONFIG_SYS_I2C which
+		provides the following compelling advantages:
+
+		- more than one i2c adapter is usable
+		- approved multibus support
+		- better i2c mux support
+
+		** Please consider updating your I2C driver now. **
+
+		These enable legacy I2C serial bus commands. Defining either of
 		(but not both of) CONFIG_HARD_I2C or CONFIG_SOFT_I2C will
 		include the appropriate I2C driver for the selected CPU.
 

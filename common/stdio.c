@@ -1,4 +1,8 @@
 /*
+ * Copyright (C) 2009 Sergey Kubushyn <ksi@koi8.net>
+ *
+ * Changes for multibus/multiadapter I2C support.
+ *
  * (C) Copyright 2000
  * Paolo Scaffardi, AIRVENT SAM s.p.a - RIMINI(ITALY), arsenio@tin.it
  *
@@ -30,7 +34,8 @@
 #ifdef CONFIG_LOGBUFFER
 #include <logbuff.h>
 #endif
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C) || \
+		defined(CONFIG_SYS_I2C_ADAPTERS)
 #include <i2c.h>
 #endif
 
@@ -210,8 +215,14 @@ int stdio_init (void)
 #ifdef CONFIG_ARM_DCC
 	drv_arm_dcc_init ();
 #endif
+#ifdef CONFIG_SYS_I2C
+#ifdef CONFIG_SYS_I2C_ADAPTERS
+	i2c_init_all();
+#endif
+#else
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
 #endif
 #ifdef CONFIG_LCD
 	drv_lcd_init ();

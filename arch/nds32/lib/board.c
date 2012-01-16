@@ -40,6 +40,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_SYS_I2C)
+#include <i2c.h>
+#endif
+
 ulong monitor_flash_len;
 
 /*
@@ -173,7 +177,7 @@ init_fnc_t *init_sequence[] = {
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 	checkboard,		/* display board info */
 #endif
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 	init_func_i2c,
 #endif
 	dram_init,		/* configure available RAM banks */
@@ -345,6 +349,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_GENERIC_MMC
 	puts("MMC:   ");
 	mmc_initialize(gd->bd);
+#endif
+
+#if defined(CONFIG_SYS_I2C_ADAPTERS)
+	i2c_reloc_fixup();
 #endif
 
 	/* initialize environment */

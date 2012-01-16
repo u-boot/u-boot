@@ -37,6 +37,10 @@
 int post_flag;
 #endif
 
+#if defined(CONFIG_SYS_I2C)
+#include <i2c.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 __attribute__((always_inline))
@@ -387,6 +391,9 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	mmc_initialize(bd);
 #endif
 
+#if defined(CONFIG_SYS_I2C)
+	i2c_reloc_fixup();
+#endif
 	/* relocate environment function pointers etc. */
 	env_relocate();
 

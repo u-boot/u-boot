@@ -220,15 +220,6 @@ int i2c_mux_ident_muxstring_f (uchar *buf);
 
 #ifdef CONFIG_SYS_I2C
 /*
- * Initialization, must be called once on start up, may be called
- * repeatedly to change the speed and slave addresses.
- */
-void i2c_init(unsigned int speed, int slaveaddr);
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-void i2c_init_board(void);
-#endif
-
-/*
  * i2c_get_bus_num:
  *
  *  Returns index of currently active I2C bus.  Zero-based.

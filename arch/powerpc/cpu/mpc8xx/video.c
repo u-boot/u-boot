@@ -809,7 +809,11 @@ static void video_encoder_init (void)
 
 	/* Initialize the I2C */
 	debug ("[VIDEO ENCODER] Initializing I2C bus...\n");
+#ifdef CONFIG_SYS_I2C
+	i2c_init_all();
+#else
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
 
 #ifdef CONFIG_FADS
 	/* Reset ADV7176 chip */

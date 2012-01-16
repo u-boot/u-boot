@@ -50,8 +50,13 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int old_bus;
 
 	/* switch to correct I2C bus */
+#ifdef CONFIG_SYS_I2C
+	old_bus = i2c_get_bus_num();
+	i2c_set_bus_num(CONFIG_SYS_RTC_BUS_NUM);
+#else
 	old_bus = I2C_GET_BUS();
 	I2C_SET_BUS(CONFIG_SYS_RTC_BUS_NUM);
+#endif
 
 	switch (argc) {
 	case 2:			/* set date & time */
@@ -97,7 +102,11 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* switch back to original I2C bus */
+#ifdef CONFIG_SYS_I2C
+	i2c_set_bus_num(old_bus);
+#else
 	I2C_SET_BUS(old_bus);
+#endif
 
 	return rcode;
 }
