@@ -848,6 +848,7 @@ Steve Sakoman <sakoman@gmail.com>
 Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
+	vl_ma2sc	ARM926EJS (AT91SAM9263 SoC)
 
 Heiko Schocher <hs@denx.de>
 
