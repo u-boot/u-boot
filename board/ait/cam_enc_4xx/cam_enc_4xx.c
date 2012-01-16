@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <linux/mtd/nand.h>
 #include <nand.h>
 #include <miiphy.h>
@@ -46,6 +47,12 @@ static unsigned long get_timer_val(void)
 	return now;
 }
 
+static int timer_running(void)
+{
+	return readl(&timer->tcr) &
+		(DV_TIMER_TCR_ENAMODE_MASK << DV_TIMER_TCR_ENAMODE34_SHIFT);
+}
+
 static void stop_timer(void)
 {
 	writel(0x0, &timer->tcr);
@@ -66,8 +73,43 @@ int board_init(void)
 }
 
 #ifdef CONFIG_DRIVER_TI_EMAC
+static int cam_enc_4xx_check_network(void)
+{
+	char *s;
+
+	s = getenv("ethaddr");
+	if (!s)
+		return -EINVAL;
+
+	if (!is_valid_ether_addr((const u8 *)s))
+		return -EINVAL;
+
+	s = getenv("ipaddr");
+	if (!s)
+		return -EINVAL;
+
+	s = getenv("netmask");
+	if (!s)
+		return -EINVAL;
+
+	s = getenv("serverip");
+	if (!s)
+		return -EINVAL;
+
+	s = getenv("gatewayip");
+	if (!s)
+		return -EINVAL;
+
+	return 0;
+}
 int board_eth_init(bd_t *bis)
 {
+	int ret;
+
+	ret = cam_enc_4xx_check_network();
+	if (ret)
+		return ret;
+
 	davinci_emac_initialize();
 
 	return 0;
@@ -254,8 +296,11 @@ static int nand_switch_hw_func(int mode)
 	nand = mtd->priv;
 
 	if (mode == 0) {
-		printf("switching to uboot hw functions.\n");
-		memcpy(&nand->ecc, &org_ecc, sizeof(struct nand_ecc_ctrl));
+		if (notsaved == 0) {
+			printf("switching to uboot hw functions.\n");
+			memcpy(&nand->ecc, &org_ecc,
+				sizeof(struct nand_ecc_ctrl));
+		}
 	} else {
 		/* RBL */
 		printf("switching to RBL hw functions.\n");
@@ -329,7 +374,8 @@ int board_late_init(void)
 	struct davinci_gpio *gpio = davinci_gpio_bank45;
 
 	/* 24MHz InputClock / 15 prediv -> 1.6 MHz timer running */
-	while (get_timer_val() < 0x186a00)
+	while ((get_timer_val() < CONFIG_AIT_TIMER_TIMEOUT) &&
+		timer_running())
 		;
 
 	/* 1 sec reached -> stop timer, clear all LED */
@@ -427,5 +473,620 @@ void arch_memory_failure_handle(void)
 	puts("mem failure\n");
 	while (1)
 		;
+}
+#endif
+#if defined(CONFIG_MENU)
+#include "menu.h"
+
+#define MENU_EXIT		-1
+#define MENU_EXIT_BOOTCMD	-2
+#define MENU_STAY		0
+#define MENU_MAIN		1
+#define MENU_UPDATE		2
+#define MENU_NETWORK		3
+#define MENU_LOAD		4
+
+static int menu_start;
+
+#define FIT_SUBTYPE_UNKNOWN		0
+#define FIT_SUBTYPE_UBL_HEADER		1
+#define FIT_SUBTYPE_SPL_IMAGE		2
+#define FIT_SUBTYPE_UBOOT_IMAGE		3
+#define FIT_SUBTYPE_DF_ENV_IMAGE	4
+#define FIT_SUBTYPE_RAMDISK_IMAGE	5
+
+struct fit_images_info {
+	u_int8_t type;
+	int subtype;
+	char desc[200];
+	const void *data;
+	size_t size;
+};
+
+static struct fit_images_info images[10];
+
+struct menu_display {
+	char	title[50];
+	int	timeout; /* in sec */
+	int	id; /* MENU_* */
+	char	**menulist;
+	int (*menu_evaluate)(char *choice);
+};
+
+char *menu_main[] = {
+	"(1) Boot",
+	"(2) Update Software",
+	"(3) Reset to default setting and boot",
+	"(4) Enter U-Boot console",
+	NULL
+};
+
+char *menu_update[] = {
+	"(1) Network settings",
+	"(2) load image",
+	"(3) back to main",
+	NULL
+};
+
+char *menu_load[] = {
+	"(1) install image",
+	"(2) cancel",
+	NULL
+};
+
+char *menu_network[] = {
+	"(1) ipaddr   ",
+	"(2) netmask  ",
+	"(3) serverip ",
+	"(4) gatewayip",
+	"(5) tftp image name",
+	"(6) back to update software",
+	NULL
+};
+
+static void ait_menu_print(void *data)
+{
+	printf("%s\n", (char *)data);
+	return;
+}
+
+static char *menu_handle(struct menu_display *display)
+{
+	struct menu *m;
+	int i;
+	char *choice = NULL;
+	char key[2];
+	int ret;
+	char *s;
+	char temp[6][200];
+
+	m = menu_create(display->title, display->timeout, 1, ait_menu_print);
+
+	for (i = 0; display->menulist[i]; i++) {
+		sprintf(key, "%d", i + 1);
+		if (display->id == MENU_NETWORK) {
+			switch (i) {
+			case 0:
+				s = getenv("ipaddr");
+				break;
+			case 1:
+				s = getenv("netmask");
+				break;
+			case 2:
+				s = getenv("serverip");
+				break;
+			case 3:
+				s = getenv("gatewayip");
+				break;
+			case 4:
+				s = getenv("img_file");
+				break;
+			default:
+				s = NULL;
+				break;
+			}
+			if (s) {
+				sprintf(temp[i], "%s: %s",
+					display->menulist[i], s);
+				ret = menu_item_add(m, key, temp[i]);
+			} else {
+				ret = menu_item_add(m, key,
+					display->menulist[i]);
+			}
+		} else {
+			ret = menu_item_add(m, key, display->menulist[i]);
+		}
+
+		if (ret != 1) {
+			printf("failed to add item!");
+			menu_destroy(m);
+			return NULL;
+		}
+	}
+	sprintf(key, "%d", 1);
+	menu_default_set(m, key);
+
+	if (menu_get_choice(m, (void **)&choice) != 1)
+		debug("Problem picking a choice!\n");
+
+	menu_destroy(m);
+
+	return choice;
+}
+
+static int ait_menu_show(struct menu_display *display, int bootdelay)
+{
+	int end = MENU_STAY;
+	char *choice;
+
+	if ((menu_start == 0) && (display->id == MENU_MAIN))
+		display->timeout = bootdelay;
+	else
+		display->timeout = 0;
+
+	while (end == MENU_STAY) {
+		choice = menu_handle(display);
+		if (choice)
+			end = display->menu_evaluate(choice);
+
+		if (end == display->id)
+			end = MENU_STAY;
+		if (display->id == MENU_MAIN) {
+			if (menu_start == 0)
+				end = MENU_EXIT_BOOTCMD;
+			else
+				display->timeout = 0;
+		}
+	}
+	return end;
+}
+
+static int ait_writeublheader(void)
+{
+	char s[20];
+	unsigned long i;
+	int ret;
+
+	for (i = CONFIG_SYS_NAND_BLOCK_SIZE;
+		i < CONFIG_SYS_NAND_U_BOOT_OFFS;
+		i += CONFIG_SYS_NAND_BLOCK_SIZE) {
+		sprintf(s, "%lx", i);
+		ret = setenv("header_addr", s);
+		if (ret == 0)
+			ret = run_command2("run img_writeheader", 0);
+		if (ret != 0)
+			break;
+	}
+	return ret;
+}
+
+static int ait_menu_install_images(void)
+{
+	int ret = 0;
+	int count = 0;
+	char s[100];
+	char *t;
+
+	/*
+	 * possible image types:
+	 * FIT_SUBTYPE_UNKNOWN
+	 * FIT_SUBTYPE_UBL_HEADER
+	 * FIT_SUBTYPE_SPL_IMAGE
+	 * FIT_SUBTYPE_UBOOT_IMAGE
+	 * FIT_SUBTYPE_DF_ENV_IMAGE
+	 * FIT_SUBTYPE_RAMDISK_IMAGE
+	 *
+	 * use Envvariables:
+	 * img_addr_r: image start addr
+	 * header_addr: addr where to write to UBL header
+	 * img_writeheader: write ubl header to nand
+	 * img_writespl: write spl to nand
+	 * img_writeuboot: write uboot to nand
+	 * img_writedfenv: write default environment to ubi volume
+	 * img_volume: which ubi volume should be updated with img_writeramdisk
+	 * filesize: size of data for updating ubi volume
+	 * img_writeramdisk: write ramdisk to ubi volume
+	 */
+
+	while (images[count].type != IH_TYPE_INVALID) {
+		printf("Installing %s\n",
+			genimg_get_type_name(images[count].type));
+		sprintf(s, "%p", images[count].data);
+		setenv("img_addr_r", s);
+		sprintf(s, "%lx", (unsigned long)images[count].size);
+		setenv("filesize", s);
+		switch (images[count].subtype) {
+		case FIT_SUBTYPE_DF_ENV_IMAGE:
+			ret = run_command2("run img_writedfenv", 0);
+			break;
+		case FIT_SUBTYPE_RAMDISK_IMAGE:
+			t = getenv("img_volume");
+			if (!t) {
+				ret = setenv("img_volume", "rootfs1");
+			} else {
+				/* switch to other volume */
+				if (strncmp(t, "rootfs1", 7) == 0)
+					ret = setenv("img_volume", "rootfs2");
+				else
+					ret = setenv("img_volume", "rootfs1");
+			}
+			if (ret != 0)
+				break;
+
+			ret = run_command2("run img_writeramdisk", 0);
+			break;
+		case FIT_SUBTYPE_SPL_IMAGE:
+			ret = run_command2("run img_writespl", 0);
+			break;
+		case FIT_SUBTYPE_UBL_HEADER:
+			ret = ait_writeublheader();
+			break;
+		case FIT_SUBTYPE_UBOOT_IMAGE:
+			ret = run_command2("run img_writeuboot", 0);
+			break;
+		default:
+			/* not supported type */
+			break;
+		}
+		count++;
+	}
+	/* now save dvn_* and img_volume env vars to new values */
+	if (ret == 0)
+		ret = run_command2("run savenewvers", 0);
+
+	return ret;
+}
+
+static int ait_menu_evaluate_load(char *choice)
+{
+	if (!choice)
+		return -1;
+
+	switch (choice[1]) {
+	case '1':
+		/* install image */
+		ait_menu_install_images();
+		break;
+	case '2':
+		/* cancel, back to main */
+		break;
+	}
+
+	return MENU_MAIN;
+}
+
+struct menu_display ait_load = {
+	.title = "AIT load image",
+	.timeout = 0,
+	.id = MENU_LOAD,
+	.menulist = menu_load,
+	.menu_evaluate = ait_menu_evaluate_load,
+};
+
+static void ait_menu_read_env(char *name)
+{
+	char output[CONFIG_SYS_CBSIZE];
+	char cbuf[CONFIG_SYS_CBSIZE];
+	int readret;
+	int ret;
+
+	sprintf(output, "%s old: %s value: ", name, getenv(name));
+	memset(cbuf, 0, CONFIG_SYS_CBSIZE);
+	readret = readline_into_buffer(output, cbuf, 0);
+
+	if (readret >= 0) {
+		ret = setenv(name, cbuf);
+		if (ret) {
+			printf("Error setting %s\n", name);
+			return;
+		}
+	}
+	return;
+}
+
+static int ait_menu_evaluate_network(char *choice)
+{
+	if (!choice)
+		return MENU_MAIN;
+
+	switch (choice[1]) {
+	case '1':
+		ait_menu_read_env("ipaddr");
+		break;
+	case '2':
+		ait_menu_read_env("netmask");
+		break;
+	case '3':
+		ait_menu_read_env("serverip");
+		break;
+	case '4':
+		ait_menu_read_env("gatewayip");
+		break;
+	case '5':
+		ait_menu_read_env("img_file");
+		break;
+	case '6':
+		return MENU_UPDATE;
+		break;
+	}
+
+	return MENU_STAY;
+}
+
+struct menu_display ait_network = {
+	.title = "AIT network settings",
+	.timeout = 0,
+	.id = MENU_NETWORK,
+	.menulist = menu_network,
+	.menu_evaluate = ait_menu_evaluate_network,
+};
+
+static int fit_get_subtype(const void *fit, int noffset, char **subtype)
+{
+	int len;
+
+	*subtype = (char *)fdt_getprop(fit, noffset, "subtype", &len);
+	if (*subtype == NULL)
+		return -1;
+
+	return 0;
+}
+
+static int ait_subtype_nr(char *subtype)
+{
+	int ret = FIT_SUBTYPE_UNKNOWN;
+
+	if (!strncmp("ublheader", subtype, strlen("ublheader")))
+		return FIT_SUBTYPE_UBL_HEADER;
+	if (!strncmp("splimage", subtype, strlen("splimage")))
+		return FIT_SUBTYPE_SPL_IMAGE;
+	if (!strncmp("ubootimage", subtype, strlen("ubootimage")))
+		return FIT_SUBTYPE_UBOOT_IMAGE;
+	if (!strncmp("dfenvimage", subtype, strlen("dfenvimage")))
+		return FIT_SUBTYPE_DF_ENV_IMAGE;
+
+	return ret;
+}
+
+static int ait_menu_check_image(void)
+{
+	char *s;
+	unsigned long fit_addr;
+	void *addr;
+	int format;
+	char *desc;
+	char *subtype;
+	int images_noffset;
+	int noffset;
+	int ndepth;
+	int count = 0;
+	int ret;
+	int i;
+	int found_uboot = -1;
+	int found_ramdisk = -1;
+
+	memset(images, 0, sizeof(images));
+	s = getenv("fit_addr_r");
+	fit_addr = s ? (unsigned long)simple_strtol(s, NULL, 16) : \
+			CONFIG_BOARD_IMG_ADDR_R;
+
+	addr = (void *)fit_addr;
+	/* check if it is a FIT image */
+	format = genimg_get_format(addr);
+	if (format != IMAGE_FORMAT_FIT)
+		return -EINVAL;
+
+	if (!fit_check_format(addr))
+		return -EINVAL;
+
+	/* print the FIT description */
+	ret = fit_get_desc(addr, 0, &desc);
+	printf("FIT description: ");
+	if (ret)
+		printf("unavailable\n");
+	else
+		printf("%s\n", desc);
+
+	/* find images */
+	images_noffset = fdt_path_offset(addr, FIT_IMAGES_PATH);
+	if (images_noffset < 0) {
+		printf("Can't find images parent node '%s' (%s)\n",
+			FIT_IMAGES_PATH, fdt_strerror(images_noffset));
+		return -EINVAL;
+	}
+
+	/* Process its subnodes, print out component images details */
+	for (ndepth = 0, count = 0,
+		noffset = fdt_next_node(addr, images_noffset, &ndepth);
+		(noffset >= 0) && (ndepth > 0);
+		noffset = fdt_next_node(addr, noffset, &ndepth)) {
+		if (ndepth == 1) {
+			/*
+			 * Direct child node of the images parent node,
+			 * i.e. component image node.
+			 */
+			printf("Image %u (%s)\n", count,
+					fit_get_name(addr, noffset, NULL));
+
+			fit_image_print(addr, noffset, "");
+
+			fit_image_get_type(addr, noffset,
+				&images[count].type);
+			/* Mandatory properties */
+			ret = fit_get_desc(addr, noffset, &desc);
+			printf("Description:  ");
+			if (ret)
+				printf("unavailable\n");
+			else
+				printf("%s\n", desc);
+
+			ret = fit_get_subtype(addr, noffset, &subtype);
+			printf("Subtype:  ");
+			if (ret) {
+				printf("unavailable\n");
+			} else {
+				images[count].subtype = ait_subtype_nr(subtype);
+				printf("%s %d\n", subtype,
+					images[count].subtype);
+			}
+
+			sprintf(images[count].desc, "%s", desc);
+
+			ret = fit_image_get_data(addr, noffset,
+				&images[count].data,
+				&images[count].size);
+
+			printf("Data Size:    ");
+			if (ret)
+				printf("unavailable\n");
+			else
+				genimg_print_size(images[count].size);
+			printf("Data @ %p\n", images[count].data);
+			count++;
+		}
+	}
+
+	for (i = 0; i < count; i++) {
+		if (images[i].subtype == FIT_SUBTYPE_UBOOT_IMAGE)
+			found_uboot = i;
+		if (images[i].type == IH_TYPE_RAMDISK) {
+			found_ramdisk = i;
+			images[i].subtype = FIT_SUBTYPE_RAMDISK_IMAGE;
+		}
+	}
+
+	/* dvn_* env var update, if the FIT descriptors are different */
+	if (found_uboot >= 0) {
+		s = getenv("dvn_boot_vers");
+		if (s) {
+			ret = strcmp(s, images[found_uboot].desc);
+			if (ret != 0) {
+				setenv("dvn_boot_vers",
+					images[found_uboot].desc);
+			} else {
+				found_uboot = -1;
+				printf("no new uboot version\n");
+			}
+		} else {
+			setenv("dvn_boot_vers", images[found_uboot].desc);
+		}
+	}
+	if (found_ramdisk >= 0) {
+		s = getenv("dvn_app_vers");
+		if (s) {
+			ret = strcmp(s, images[found_ramdisk].desc);
+			if (ret != 0) {
+				setenv("dvn_app_vers",
+					images[found_ramdisk].desc);
+			} else {
+				found_ramdisk = -1;
+				printf("no new ramdisk version\n");
+			}
+		} else {
+			setenv("dvn_app_vers", images[found_ramdisk].desc);
+		}
+	}
+	if ((found_uboot == -1) && (found_ramdisk == -1))
+		return -EINVAL;
+
+	return 0;
+}
+
+static int ait_menu_evaluate_update(char *choice)
+{
+	int ret;
+
+	if (!choice)
+		return MENU_MAIN;
+
+	switch (choice[1]) {
+	case '1':
+		return ait_menu_show(&ait_network, 0);
+		break;
+	case '2':
+		/* load image */
+		ret = run_command2("run load_img", 0);
+		printf("ret: %d\n", ret);
+		if (ret)
+			return MENU_UPDATE;
+
+		ret = ait_menu_check_image();
+		if (ret)
+			return MENU_UPDATE;
+
+		return ait_menu_show(&ait_load, 0);
+		break;
+	case '3':
+		return MENU_MAIN;
+		break;
+
+	}
+
+	return MENU_MAIN;
+}
+
+struct menu_display ait_update = {
+	.title = "AIT Update Software",
+	.timeout = 0,
+	.id = MENU_UPDATE,
+	.menulist = menu_update,
+	.menu_evaluate = ait_menu_evaluate_update,
+};
+
+static int ait_menu_evaluate_main(char *choice)
+{
+	if (!choice)
+		return MENU_STAY;
+
+	menu_start = 1;
+	switch (choice[1]) {
+	case '1':
+		/* run bootcmd */
+		return MENU_EXIT_BOOTCMD;
+		break;
+	case '2':
+		return ait_menu_show(&ait_update, 0);
+		break;
+	case '3':
+		/* reset to default settings */
+		setenv("app_reset", "yes");
+		return MENU_EXIT_BOOTCMD;
+		break;
+	case '4':
+		/* u-boot shell */
+		return MENU_EXIT;
+		break;
+	}
+
+	return MENU_EXIT;
+}
+
+struct menu_display ait_main = {
+	.title = "AIT Main",
+	.timeout = CONFIG_BOOTDELAY,
+	.id = MENU_MAIN,
+	.menulist = menu_main,
+	.menu_evaluate = ait_menu_evaluate_main,
+};
+
+int menu_show(int bootdelay)
+{
+	int ret;
+
+	run_command2("run saveparms", 0);
+	ret = ait_menu_show(&ait_main, bootdelay);
+	run_command2("run restoreparms", 0);
+
+	if (ret == MENU_EXIT_BOOTCMD)
+		return 0;
+
+	return MENU_EXIT;
+}
+
+void menu_display_statusline(struct menu *m)
+{
+	printf("State: dvn_boot_vers: %s dvn_app_vers: %s\n",
+		getenv("dvn_boot_vers"), getenv("dvn_app_vers"));
+	return;
 }
 #endif

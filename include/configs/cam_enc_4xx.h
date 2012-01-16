@@ -135,7 +135,9 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
+#define CONFIG_LZO
 #endif
 
 #define CONFIG_CRC32_VERIFY
@@ -153,15 +155,24 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_LONGHELP
 
+#define CONFIG_MENU
+#define CONFIG_MENU_SHOW
+#define CONFIG_FIT
+#define CONFIG_CMD_PXE
+#define CONFIG_BOARD_IMG_ADDR_R 0x80000000
+
 #ifdef CONFIG_NAND_DAVINCI
-#define CONFIG_ENV_SIZE		(256 << 10)	/* 256 KiB */
+#define CONFIG_ENV_SIZE			(16 << 10)
 #define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET	0x0
+#define CONFIG_ENV_OFFSET		0x180000
+#define CONFIG_ENV_OFFSET_REDUND	0x1c0000
+#define CONFIG_ENV_RANGE		0x020000
 #undef CONFIG_ENV_IS_IN_FLASH
 #endif
 
 #if defined(CONFIG_MMC) && !defined(CONFIG_ENV_IS_IN_NAND)
 #define CONFIG_CMD_ENV
+#define CONFIG_SYS_MMC_ENV_DEV	0
 #define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
 #define CONFIG_ENV_OFFSET	(51 << 9)	/* Sector 51 */
 #define CONFIG_ENV_IS_IN_MMC
@@ -169,6 +180,11 @@
 #endif
 
 #define CONFIG_BOOTDELAY	3
+/*
+ * 24MHz InputClock / 15 prediv -> 1.6 MHz timer running
+ * Timeout 1 second.
+ */
+#define CONFIG_AIT_TIMER_TIMEOUT	0x186a00
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_VERSION_VARIABLE
@@ -187,20 +203,17 @@
 #define CONFIG_SYS_LOAD_ADDR	0x80700000		/* kernel address */
 
 #define MTDIDS_DEFAULT		"nand0=davinci_nand.0"
+#define MTDPARTS_DEFAULT			\
+	"mtdparts="				\
+		"davinci_nand.0:"		\
+			"128k(spl),"		\
+			"384k(UBLheader),"	\
+			"1m(u-boot),"		\
+			"512k(env),"		\
+			"-(ubi)"
 
-#ifdef CONFIG_SYS_NAND_LARGEPAGE
-/*  Use same layout for 128K/256K blocks; allow some bad blocks */
-#define PART_BOOT		"2m(bootloader)ro,"
-#endif
-
-#define PART_KERNEL		"4m(kernel),"	/* kernel + initramfs */
-#define PART_REST		"-(filesystem)"
-
-#define MTDPARTS_DEFAULT	\
-	"mtdparts=davinci_nand.0:" PART_BOOT PART_KERNEL PART_REST
-
-#define CONFIG_SYS_NAND_PAGE_SIZE	(0x800)
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(0x20000)
+#define CONFIG_SYS_NAND_PAGE_SIZE	0x800
+#define CONFIG_SYS_NAND_BLOCK_SIZE	0x20000
 
 /* Defines for SPL */
 #define CONFIG_SPL
@@ -241,7 +254,6 @@
  * so we can define, how many UBL Headers
  * we can write before the real spl code
  */
-#define CONFIG_SYS_NROF_UBL_HEADER	5
 #define CONFIG_SYS_NROF_PAGES_NAND_SPL	6
 
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x81080000 /* u-boot TEXT_BASE */
@@ -258,8 +270,8 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK
 
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0xc0000
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x60000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	0xa0000
 
 /*
  * U-Boot is a 3rd stage loader and if booting with spl, cpu setup is
@@ -411,14 +423,14 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"u_boot_addr_r=" xstr(DVN4XX_UBOOT_ADDR_R_RAM) "\0"		\
 	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.ubl\0"			\
-	"load=tftp ${u_boot_addr_r} ${uboot}\0"				\
+	"load=tftp ${u_boot_addr_r} ${u-boot}\0"			\
 	"pagesz=" xstr(CONFIG_SYS_NAND_PAGE_SIZE) "\0"			\
-	"writeheader=nandrbl rbl;nand erase 80000 ${pagesz};"		\
-		"nand write ${u_boot_addr_r} 80000 ${pagesz};"		\
+	"writeheader=nandrbl rbl;nand erase 20000 ${pagesz};"		\
+		"nand write ${u_boot_addr_r} 20000 ${pagesz};"		\
 		"nandrbl uboot\0"					\
-	"writenand_spl=nandrbl rbl;nand erase a0000 3000;"		\
+	"writenand_spl=nandrbl rbl;nand erase 0 3000;"			\
 		"nand write " xstr(DVN4XX_UBOOT_ADDR_R_NAND_SPL)	\
-		" a0000 3000;nandrbl uboot\0"				\
+		" 0 3000;nandrbl uboot\0"				\
 	"writeuboot=nandrbl uboot;"					\
 		"nand erase " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "	\
 		 xstr(CONFIG_SYS_NAND_U_BOOT_SIZE)			\
@@ -426,8 +438,77 @@
 		" " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "		\
 		xstr(CONFIG_SYS_NAND_U_BOOT_SIZE) "\0"			\
 	"update=run load writenand_spl writeuboot\0"			\
-	"bootcmd=run bootcmd\0"						\
+	"bootcmd=run net_nfs\0"						\
 	"rootpath=/opt/eldk-arm/arm\0"					\
+	"mtdids=" MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"netdev=eth0\0"							\
+	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"addmisc=setenv bootargs ${bootargs} app_reset=${app_reset}\0"	\
+	"addcon=setenv bootargs ${bootargs} console=ttyS0,"		\
+		"${baudrate}n8\0"					\
+	"addip=setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off eth=${ethaddr} panic=1\0"	\
+	"rootpath=/opt/eldk-arm/arm\0"					\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage \0"			\
+	"kernel_addr_r=80600000\0"					\
+	"load_kernel=tftp ${kernel_addr_r} ${bootfile}\0"		\
+	"ubi_load_kernel=ubi part ubi 2048;ubifsmount ${img_volume};"	\
+		"ubifsload ${kernel_addr_r} boot/uImage\0"		\
+	"fit_addr_r=" xstr(CONFIG_BOARD_IMG_ADDR_R) "\0"		\
+	"img_addr_r=" xstr(CONFIG_BOARD_IMG_ADDR_R) "\0"		\
+	"img_file=" xstr(CONFIG_HOSTNAME) "/ait.itb\0"			\
+	"header_addr=20000\0"						\
+	"img_writeheader=nandrbl rbl;"					\
+		"nand erase ${header_addr} ${pagesz};"			\
+		"nand write ${img_addr_r} ${header_addr} ${pagesz};"	\
+		"nandrbl uboot\0"					\
+	"img_writespl=nandrbl rbl;nand erase 0 3000;"			\
+		"nand write ${img_addr_r} 0 3000;nandrbl uboot\0"	\
+	"img_writeuboot=nandrbl uboot;"					\
+		"nand erase " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "	\
+		 xstr(CONFIG_SYS_NAND_U_BOOT_SIZE)			\
+		";nand write ${img_addr_r} "				\
+		xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "			\
+		xstr(CONFIG_SYS_NAND_U_BOOT_SIZE) "\0"			\
+	"img_writedfenv=ubi part ubi 2048;"				\
+		"ubi write ${img_addr_r} default ${filesize}\0"		\
+	"img_volume=rootfs1\0"						\
+	"img_writeramdisk=ubi part ubi 2048;ubifsmount ${img_volume};"	\
+		"ubi write ${img_addr_r} ${img_volume} ${filesize}\0"	\
+	"load_img=tftp ${fit_addr_r} ${img_file}\0"			\
+	"net_nfs=run load_kernel; "					\
+		"run nfsargs addip addcon addmtd addmisc;"		\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_ubi=run ubi_load_kernel; "					\
+		"run ubiargs addip addcon addmtd addmisc;"		\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubiargs=setenv bootargs ubi.mtd=4,2048"			\
+		" root=ubi0:${img_volume} rw rootfstype=ubifs\0"	\
+	"app_reset=no\0"						\
+	"dvn_app_vers=void\0"						\
+	"dvn_boot_vers=void\0"						\
+	"savenewvers=run savetmpparms restoreparms; saveenv;"		\
+		"run restoretmpparms\0"					\
+	"savetmpparms=setenv y_ipaddr ${ipaddr};"			\
+		"setenv y_netmask ${netmask};"				\
+		"setenv y_serverip ${serverip};"			\
+		"setenv y_gatewayip ${gatewayip}\0"			\
+	"saveparms=setenv x_ipaddr ${ipaddr};"				\
+		"setenv x_netmask ${netmask};"				\
+		"setenv x_serverip ${serverip};"			\
+		"setenv x_gatewayip ${gatewayip}\0"			\
+	"restoreparms=setenv ipaddr ${x_ipaddr};"			\
+		"setenv netmask ${x_netmask};"				\
+		"setenv serverip ${x_serverip};"			\
+		"setenv gatewayip ${x_gatewayip}\0"			\
+	"restoretmpparms=setenv ipaddr ${y_ipaddr};"			\
+		"setenv netmask ${y_netmask};"				\
+		"setenv serverip ${y_serverip};"			\
+		"setenv gatewayip ${y_gatewayip}\0"			\
 	"\0"
 
 /* USB Configuration */
