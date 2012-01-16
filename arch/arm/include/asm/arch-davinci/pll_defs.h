@@ -68,7 +68,8 @@ struct dv_pll_regs {
 #define PLLCTL_RES_9	(1 << 8)
 #define PLLCTL_EXTCLKSRC	(1 << 9)
 
-#define PLL_POSTDEN	(1 << 15)
+#define PLL_DIVEN	(1 << 15)
+#define PLL_POSTDEN	PLL_DIVEN
 
 #define PLL_SCSCFG3_DIV45PENA	(1 << 2)
 #define PLL_SCSCFG3_EMA_CLKSRC	(1 << 1)

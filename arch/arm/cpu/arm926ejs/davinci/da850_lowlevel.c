@@ -85,6 +85,13 @@ int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 	/* Enable the PLL from Disable Mode PLLDIS bit to 0 */
 	clrbits_le32(&reg->pllctl, PLLCTL_PLLDIS);
 
+#if defined(CONFIG_SYS_DA850_PLL0_PREDIV)
+	/* program the prediv */
+	if (reg == davinci_pllc0_regs && CONFIG_SYS_DA850_PLL0_PREDIV)
+		writel((PLL_DIVEN | CONFIG_SYS_DA850_PLL0_PREDIV),
+			&reg->prediv);
+#endif
+
 	/* Program the required multiplier value in PLLM */
 	writel(pllmult, &reg->pllm);
 
