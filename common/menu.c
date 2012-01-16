@@ -113,6 +113,13 @@ static inline void *menu_item_destroy(struct menu *m,
 	return NULL;
 }
 
+void __menu_display_statusline(struct menu *m)
+{
+	return;
+}
+void menu_display_statusline(struct menu *m)
+	__attribute__ ((weak, alias("__menu_display_statusline")));
+
 /*
  * Display a menu so the user can make a choice of an item. First display its
  * title, if any, and then each item in the menu.
@@ -123,6 +130,7 @@ static inline void menu_display(struct menu *m)
 		puts(m->title);
 		putc('\n');
 	}
+	menu_display_statusline(m);
 
 	menu_items_iter(m, menu_item_print, NULL);
 }

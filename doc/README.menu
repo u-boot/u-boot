@@ -69,6 +69,11 @@ int menu_get_choice(struct menu *m, void **choice);
  */
 int menu_destroy(struct menu *m);
 
+/*
+ * menu_display_statusline(struct menu *m);
+ * shows a statusline for every menu_display call.
+ */
+void menu_display_statusline(struct menu *m);
 
 Example Code
 ------------

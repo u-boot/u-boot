@@ -26,5 +26,6 @@ int menu_default_set(struct menu *m, char *item_key);
 int menu_get_choice(struct menu *m, void **choice);
 int menu_item_add(struct menu *m, char *item_key, void *item_data);
 int menu_destroy(struct menu *m);
+void menu_display_statusline(struct menu *m);
 
 #endif /* __MENU_H__ */
