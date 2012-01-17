@@ -19,6 +19,7 @@
 #define NOR_FLASH_MODE    (0x00000002)            /**< NOR  */
 #define NAND_FLASH_MODE   (0x00000004)            /**< NAND */
 #define SD_MODE           (0x00000005)            /**< Secure Digital card */
+#define JTAG_MODE	  (0x00000000)		  /**< JTAG */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -618,6 +619,9 @@ int board_late_init (void)
 		break;
 	case SD_MODE:
 		setenv("modeboot", "run sdboot");
+		break;
+	case JTAG_MODE:
+		setenv("modeboot", "run jtagboot");
 		break;
 	default:
 		setenv("modeboot", "");
