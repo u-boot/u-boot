@@ -1423,9 +1423,14 @@ U_BOOT_CMD(
 /* helper routines */
 /*******************************************************************/
 #if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
+
+#define CONSOLE_ARG     "console="
+#define CONSOLE_ARG_LEN (sizeof(CONSOLE_ARG) - 1)
+
 static void fixup_silent_linux(void)
 {
-	char buf[256], *start, *end;
+	char *buf;
+	const char *env_val;
 	char *cmdline = getenv("bootargs");
 
 	/* Only fix cmdline when requested */
@@ -1433,25 +1438,37 @@ static void fixup_silent_linux(void)
 		return;
 
 	debug("before silent fix-up: %s\n", cmdline);
-	if (cmdline) {
-		start = strstr(cmdline, "console=");
-		if (start) {
-			end = strchr(start, ' ');
-			strncpy(buf, cmdline, (start - cmdline + 8));
-			if (end)
-				strcpy(buf + (start - cmdline + 8), end);
-			else
-				buf[start - cmdline + 8] = '\0';
-		} else {
-			strcpy(buf, cmdline);
-			strcat(buf, " console=");
+	if (cmdline && (cmdline[0] != '\0')) {
+		char *start = strstr(cmdline, CONSOLE_ARG);
+
+		/* Allocate space for maximum possible new command line */
+		buf = malloc(strlen(cmdline) + 1 + CONSOLE_ARG_LEN + 1);
+		if (!buf) {
+			debug("%s: out of memory\n", __func__);
+			return;
 		}
+
+		if (start) {
+			char *end = strchr(start, ' ');
+			int num_start_bytes = start - cmdline + CONSOLE_ARG_LEN;
+
+			strncpy(buf, cmdline, num_start_bytes);
+			if (end)
+				strcpy(buf + num_start_bytes, end);
+			else
+				buf[num_start_bytes] = '\0';
+		} else {
+			sprintf(buf, "%s %s", cmdline, CONSOLE_ARG);
+		}
+		env_val = buf;
 	} else {
-		strcpy(buf, "console=");
+		buf = NULL;
+		env_val = CONSOLE_ARG;
 	}
 
-	setenv("bootargs", buf);
-	debug("after silent fix-up: %s\n", buf);
+	setenv("bootargs", env_val);
+	debug("after silent fix-up: %s\n", env_val);
+	free(buf);
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 
