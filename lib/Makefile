@@ -40,6 +40,7 @@ COBJS-y += crc32.o
 COBJS-y += display_options.o
 COBJS-y += errno.o
 COBJS-$(CONFIG_OF_CONTROL) += fdtdec.o
+COBJS-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
 COBJS-$(CONFIG_GZIP) += gunzip.o
 COBJS-y += hashtable.o
 COBJS-$(CONFIG_LMB) += lmb.o
