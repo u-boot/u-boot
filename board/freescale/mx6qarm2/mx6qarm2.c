@@ -120,17 +120,18 @@ struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC4_BASE_ADDR, 1},
 };
 
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
+int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	int ret;
 
 	if (cfg->esdhc_base == USDHC3_BASE_ADDR) {
 		gpio_direction_input(171); /*GPIO6_11*/
-		*cd = gpio_get_value(171);
+		ret = !gpio_get_value(171);
 	} else /* Don't have the CD GPIO pin on board */
-		*cd = 0;
+		ret = 1;
 
-	return 0;
+	return ret;
 }
 
 int board_mmc_init(bd_t *bis)
