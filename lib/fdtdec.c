@@ -35,6 +35,13 @@ DECLARE_GLOBAL_DATA_PTR;
 static const char * const compat_names[COMPAT_COUNT] = {
 };
 
+const char *fdtdec_get_compatible(enum fdt_compat_id id)
+{
+	/* We allow reading of the 'unknown' ID for testing purposes */
+	assert(id >= 0 && id < COMPAT_COUNT);
+	return compat_names[id];
+}
+
 /**
  * Look in the FDT for an alias with the given name and return its node.
  *
@@ -130,6 +137,115 @@ int fdtdec_next_alias(const void *blob, const char *name,
 	if (err < 0)
 		return err;
 	return err ? -FDT_ERR_NOTFOUND : node;
+}
+
+/* TODO: Can we tighten this code up a little? */
+int fdtdec_find_aliases_for_id(const void *blob, const char *name,
+			enum fdt_compat_id id, int *node_list, int maxcount)
+{
+	int name_len = strlen(name);
+	int nodes[maxcount];
+	int num_found = 0;
+	int offset, node;
+	int alias_node;
+	int count;
+	int i, j;
+
+	/* find the alias node if present */
+	alias_node = fdt_path_offset(blob, "/aliases");
+
+	/*
+	 * start with nothing, and we can assume that the root node can't
+	 * match
+	 */
+	memset(nodes, '\0', sizeof(nodes));
+
+	/* First find all the compatible nodes */
+	for (node = count = 0; node >= 0 && count < maxcount;) {
+		node = fdtdec_next_compatible(blob, node, id);
+		if (node >= 0)
+			nodes[count++] = node;
+	}
+	if (node >= 0)
+		debug("%s: warning: maxcount exceeded with alias '%s'\n",
+		       __func__, name);
+
+	/* Now find all the aliases */
+	memset(node_list, '\0', sizeof(*node_list) * maxcount);
+
+	for (offset = fdt_first_property_offset(blob, alias_node);
+			offset > 0;
+			offset = fdt_next_property_offset(blob, offset)) {
+		const struct fdt_property *prop;
+		const char *path;
+		int number;
+		int found;
+
+		node = 0;
+		prop = fdt_get_property_by_offset(blob, offset, NULL);
+		path = fdt_string(blob, fdt32_to_cpu(prop->nameoff));
+		if (prop->len && 0 == strncmp(path, name, name_len))
+			node = fdt_path_offset(blob, prop->data);
+		if (node <= 0)
+			continue;
+
+		/* Get the alias number */
+		number = simple_strtoul(path + name_len, NULL, 10);
+		if (number < 0 || number >= maxcount) {
+			debug("%s: warning: alias '%s' is out of range\n",
+			       __func__, path);
+			continue;
+		}
+
+		/* Make sure the node we found is actually in our list! */
+		found = -1;
+		for (j = 0; j < count; j++)
+			if (nodes[j] == node) {
+				found = j;
+				break;
+			}
+
+		if (found == -1) {
+			debug("%s: warning: alias '%s' points to a node "
+				"'%s' that is missing or is not compatible "
+				" with '%s'\n", __func__, path,
+				fdt_get_name(blob, node, NULL),
+			       compat_names[id]);
+			continue;
+		}
+
+		/*
+		 * Add this node to our list in the right place, and mark
+		 * it as done.
+		 */
+		if (fdtdec_get_is_enabled(blob, node)) {
+			node_list[number] = node;
+			if (number >= num_found)
+				num_found = number + 1;
+		}
+		nodes[j] = 0;
+	}
+
+	/* Add any nodes not mentioned by an alias */
+	for (i = j = 0; i < maxcount; i++) {
+		if (!node_list[i]) {
+			for (; j < maxcount; j++)
+				if (nodes[j] &&
+					fdtdec_get_is_enabled(blob, nodes[j]))
+					break;
+
+			/* Have we run out of nodes to add? */
+			if (j == maxcount)
+				break;
+
+			assert(!node_list[i]);
+			node_list[i] = nodes[j++];
+			if (i >= num_found)
+				num_found = i + 1;
+		}
+	}
+
+	return num_found;
 }
 
 /*

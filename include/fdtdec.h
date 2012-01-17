@@ -126,3 +126,50 @@ int fdtdec_get_is_enabled(const void *blob, int node, int default_val);
  * if not.
  */
 int fdtdec_check_fdt(void);
+
+/**
+ * Find the nodes for a peripheral and return a list of them in the correct
+ * order. This is used to enumerate all the peripherals of a certain type.
+ *
+ * To use this, optionally set up a /aliases node with alias properties for
+ * a peripheral. For example, for usb you could have:
+ *
+ * aliases {
+ *		usb0 = "/ehci@c5008000";
+ *		usb1 = "/ehci@c5000000";
+ * };
+ *
+ * Pass "usb" as the name to this function and will return a list of two
+ * nodes offsets: /ehci@c5008000 and ehci@c5000000.
+ *
+ * All nodes returned will match the compatible ID, as it is assumed that
+ * all peripherals use the same driver.
+ *
+ * If no alias node is found, then the node list will be returned in the
+ * order found in the fdt. If the aliases mention a node which doesn't
+ * exist, then this will be ignored. If nodes are found with no aliases,
+ * they will be added in any order.
+ *
+ * If there is a gap in the aliases, then this function return a 0 node at
+ * that position. The return value will also count these gaps.
+ *
+ * This function checks node properties and will not return nodes which are
+ * marked disabled (status = "disabled").
+ *
+ * @param blob		FDT blob to use
+ * @param name		Root name of alias to search for
+ * @param id		Compatible ID to look for
+ * @param node_list	Place to put list of found nodes
+ * @param maxcount	Maximum number of nodes to find
+ * @return number of nodes found on success, FTD_ERR_... on error
+ */
+int fdtdec_find_aliases_for_id(const void *blob, const char *name,
+			enum fdt_compat_id id, int *node_list, int maxcount);
+
+/*
+ * Get the name for a compatible ID
+ *
+ * @param id		Compatible ID to look for
+ * @return compatible string for that id
+ */
+const char *fdtdec_get_compatible(enum fdt_compat_id id);
