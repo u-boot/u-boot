@@ -65,7 +65,13 @@
 			    nand read 0x1000000 0x700000 0x20000; \
 			    echo Copying ramdisk...; \
 			    nand read 0x800000 0x900000 ${nand_ramdisk_size}; \
+			    go 0x8000\0"\
+	"jtagboot=echo TFTPing Linux to RAM...;	\
+			    tftp 0x8000 zImage; \
+			    tftp 0x1000000 devicetree.dtb; \
+			    tftp 0x800000 ramdisk8M.image.gz; \
 			    go 0x8000\0"
+
 
 #undef CONFIG_PELE_XIL_LQSPI
 
