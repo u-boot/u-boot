@@ -180,6 +180,11 @@
 #define CONFIG_SMC911X_BASE		(CS4_BASE+0x200000)
 #define CONFIG_SMC911X_16_BIT
 
+/* mmc driver */
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MXC_MMC
+#define CONFIG_MXC_MCI_REGS_BASE       SDHC1_BASE_ADDR
 /*
  * Command definition
  */
@@ -228,6 +233,13 @@
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING
+
+/* MMC boot support */
+#define CONFIG_CMD_MMC
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
 
 #define CONFIG_NAND_MXC
 #define CONFIG_SYS_MAX_NAND_DEVICE		1

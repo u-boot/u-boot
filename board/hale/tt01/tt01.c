@@ -26,6 +26,8 @@
 #include <netdev.h>
 #include <command.h>
 #include <pmic.h>
+#include <fsl_pmic.h>
+#include <mc13783.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
@@ -175,8 +177,6 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	pmic_init();
-
 #ifdef CONFIG_HW_WATCHDOG
 	mxc_hw_watchdog_enable();
 #endif
@@ -189,6 +189,36 @@ int checkboard(void)
 	puts(BOARD_STRING "\n");
 	return 0;
 }
+
+#ifdef CONFIG_MXC_MMC
+int board_mmc_init(bd_t *bis)
+{
+	u32 val;
+	struct pmic *p;
+
+	/*
+	* this is the first driver to use the pmic, so call
+	* pmic_init() here. board_late_init() is too late for
+	* the MMC driver.
+	*/
+	pmic_init();
+	p = get_pmic();
+
+	/* configure pins for SDHC1 only */
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SD1_CLK, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SD1_CMD, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SD1_DATA0, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SD1_DATA1, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SD1_DATA2, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SD1_DATA3, MUX_CTL_FUNC));
+
+	/* turn on power V_MMC1 */
+	if (pmic_reg_read(p, REG_MODE_1, &val) < 0)
+		pmic_reg_write(p, REG_MODE_1, val | VMMC1EN);
+
+	return mxc_mmc_init(bis);
+}
+#endif
 
 int board_eth_init(bd_t *bis)
 {
