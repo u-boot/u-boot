@@ -64,6 +64,7 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_USB
 
 /*
  * Memory configurations
@@ -155,6 +156,17 @@
  */
 #ifdef	CONFIG_CMD_DATE
 #define	CONFIG_RTC_MXS
+#endif
+
+/*
+ * USB
+ */
+#ifdef	CONFIG_CMD_USB
+#define	CONFIG_USB_EHCI
+#define	CONFIG_USB_EHCI_MXS
+#define	CONFIG_EHCI_MXS_PORT 1
+#define	CONFIG_EHCI_IS_TDI
+#define	CONFIG_USB_STORAGE
 #endif
 
 /*

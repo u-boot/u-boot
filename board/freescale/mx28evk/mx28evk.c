@@ -52,6 +52,13 @@ int board_early_init_f(void)
 	/* SSP2 clock at 96MHz */
 	mx28_set_sspclk(MXC_SSPCLK2, 96000, 0);
 
+#ifdef	CONFIG_CMD_USB
+	mxs_iomux_setup_pad(MX28_PAD_SSP2_SS1__USB1_OVERCURRENT);
+	mxs_iomux_setup_pad(MX28_PAD_AUART2_RX__GPIO_3_8 |
+			MXS_PAD_4MA | MXS_PAD_3V3 | MXS_PAD_NOPULL);
+	gpio_direction_output(MX28_PAD_AUART2_RX__GPIO_3_8, 1);
+#endif
+
 	return 0;
 }
 
