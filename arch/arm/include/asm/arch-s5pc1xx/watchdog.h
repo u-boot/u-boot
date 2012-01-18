@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2011 Samsung Electronics
  * Heungjun Kim <riverful.kim@samsung.com>
+ * Minkyu Kang <mk7.kang@samsung.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
