@@ -64,6 +64,8 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
 
 /*
@@ -127,9 +129,11 @@
  * MMC Driver
  */
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_OFFSET	(256 * 1024)
-#define CONFIG_ENV_SIZE	(16 * 1024)
-#define CONFIG_SYS_MMC_ENV_DEV 0
+#ifdef CONFIG_ENV_IS_IN_MMC
+ #define CONFIG_ENV_OFFSET	(256 * 1024)
+ #define CONFIG_ENV_SIZE	(16 * 1024)
+ #define CONFIG_SYS_MMC_ENV_DEV 0
+#endif
 #define CONFIG_CMD_SAVEENV
 #ifdef	CONFIG_CMD_MMC
 #define CONFIG_MMC
@@ -167,6 +171,40 @@
 #define	CONFIG_EHCI_MXS_PORT 1
 #define	CONFIG_EHCI_IS_TDI
 #define	CONFIG_USB_STORAGE
+#endif
+
+/*
+ * SPI
+ */
+#ifdef CONFIG_CMD_SPI
+#define CONFIG_HARD_SPI
+#define CONFIG_MXS_SPI
+#define CONFIG_SPI_HALF_DUPLEX
+#define CONFIG_DEFAULT_SPI_BUS		2
+#define CONFIG_DEFAULT_SPI_MODE		SPI_MODE_0
+
+/* SPI Flash */
+#ifdef CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+/* this may vary and depends on the installed chip */
+#define CONFIG_SPI_FLASH_SST
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+#define CONFIG_SF_DEFAULT_SPEED		24000000
+
+/* (redundant) environemnt in SPI flash */
+#undef CONFIG_ENV_IS_IN_SPI_FLASH
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#define CONFIG_ENV_SIZE			0x1000		/* 4KB */
+#define CONFIG_ENV_OFFSET		0x40000		/* 256K */
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+#define CONFIG_ENV_SECT_SIZE		0x1000
+#define CONFIG_ENV_SPI_CS		0
+#define CONFIG_ENV_SPI_BUS		2
+#define CONFIG_ENV_SPI_MAX_HZ		24000000
+#define CONFIG_ENV_SPI_MODE		SPI_MODE_0
+#endif
+#endif
 #endif
 
 /*
