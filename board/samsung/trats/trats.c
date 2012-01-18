@@ -310,14 +310,6 @@ static void board_clock_init(void)
 	writel(CLK_GATE_BLOCK_VAL, (unsigned int)&clk->gate_block);
 }
 
-static void board_watchdog_disable(void)
-{
-	struct exynos4_watchdog *wd =
-		(struct exynos4_watchdog *)samsung_get_base_watchdog();
-
-	writel(~(WTCON_EN | WTCON_INT), (unsigned int)&wd->wtcon);
-}
-
 static void board_power_init(void)
 {
 	struct exynos4_power *pwr =
@@ -368,8 +360,7 @@ static void board_uart_init(void)
 
 int board_early_init_f(void)
 {
-	board_watchdog_disable();
-
+	wdt_stop();
 	pmic_reset();
 	board_clock_init();
 	board_uart_init();
