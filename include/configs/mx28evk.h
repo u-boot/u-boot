@@ -56,6 +56,7 @@
 #define CONFIG_CMD_FAT
 
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MII
@@ -147,6 +148,13 @@
 #define CONFIG_DISCOVER_PHY
 #define CONFIG_FEC_XCV_TYPE	RMII
 #define CONFIG_MX28_FEC_MAC_IN_OCOTP
+#endif
+
+/*
+ * RTC
+ */
+#ifdef	CONFIG_CMD_DATE
+#define	CONFIG_RTC_MXS
 #endif
 
 /*
