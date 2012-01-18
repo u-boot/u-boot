@@ -268,7 +268,7 @@ int eth_init(bd_t * bis)
 #ifdef CONFIG_EP107
 	set_eth_advertise(EmacPssInstancePtr, 100);
 #else
-	set_eth_advertise(EmacPssInstancePtr, 1000);
+	set_eth_advertise(EmacPssInstancePtr, 100);
 #endif
 	phy_rst(EmacPssInstancePtr);
 
