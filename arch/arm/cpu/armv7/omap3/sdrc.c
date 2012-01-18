@@ -102,7 +102,7 @@ u32 get_sdr_cs_offset(u32 cs)
 		return 0;
 
 	offset = readl(&sdrc_base->cs_cfg);
-	offset = (offset & 15) << 27 | (offset & 0x30) << 17;
+	offset = (offset & 15) << 27 | (offset & 0x300) << 17;
 
 	return offset;
 }
