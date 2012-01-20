@@ -25,6 +25,9 @@
  * This provides access to useful OS routines from the sandbox architecture
  */
 
+#ifndef __OS_H__
+#define __OS_H__
+
 /**
  * Access to the OS read() system call
  *
@@ -98,3 +101,5 @@ void os_usleep(unsigned long usec);
  * \return A monotonic increasing time scaled in nano seconds
  */
 u64 os_get_nsec(void);
+
+#endif
