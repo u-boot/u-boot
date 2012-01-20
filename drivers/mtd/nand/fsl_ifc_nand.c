@@ -1,6 +1,6 @@
 /* Integrated Flash Controller NAND Machine Driver
  *
- * Copyright (c) 2011 Freescale Semiconductor, Inc
+ * Copyright (c) 2012 Freescale Semiconductor, Inc
  *
  * Authors: Dipen Dudhat <Dipen.Dudhat@freescale.com>
  *
@@ -221,24 +221,11 @@ static int check_read_ecc(struct mtd_info *mtd, struct fsl_ifc_ctrl *ctrl,
 			  u32 *eccstat, unsigned int bufnum)
 {
 	u32 reg = eccstat[bufnum / 4];
-	int errors = (reg >> ((3 - bufnum % 4) * 8)) & 15;
+	int errors;
 
-	if (errors == 15) { /* uncorrectable */
-		/* Blank pages fail hw ECC checks */
-		if (is_blank(mtd, ctrl, bufnum))
-			return 1;
+	errors = (reg >> ((3 - bufnum % 4) * 8)) & 15;
 
-		/*
-		 * We disable ECCER reporting in hardware due to
-		 * erratum IFC-A002770 -- so report it now if we
-		 * see an uncorrectable error in ECCSTAT.
-		 */
-		ctrl->status |= IFC_NAND_EVTER_STAT_ECCER;
-	} else if (errors > 0) {
-		mtd->ecc_stats.corrected += errors;
-	}
-
-	return 0;
+	return errors;
 }
 
 /*
@@ -279,16 +266,33 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 		printf("%s: Write Protect Error\n", __func__);
 
 	if (ctrl->eccread) {
-		int bufperpage = mtd->writesize / 512;
-		int bufnum = (ctrl->page & priv->bufnum_mask) * bufperpage;
-		int bufnum_end = bufnum + bufperpage - 1;
+		int errors;
+		int bufnum = ctrl->page & priv->bufnum_mask;
+		int sector = bufnum * chip->ecc.steps;
+		int sector_end = sector + chip->ecc.steps - 1;
 
-		for (i = bufnum / 4; i <= bufnum_end / 4; i++)
+		for (i = sector / 4; i <= sector_end / 4; i++)
 			eccstat[i] = in_be32(&ifc->ifc_nand.nand_eccstat[i]);
 
-		for (i = bufnum; i <= bufnum_end; i++) {
-			if (check_read_ecc(mtd, ctrl, eccstat, i))
+		for (i = sector; i <= sector_end; i++) {
+			errors = check_read_ecc(mtd, ctrl, eccstat, i);
+
+			if (errors == 15) {
+				/*
+				 * Uncorrectable error.
+				 * OK only if the whole page is blank.
+				 *
+				 * We disable ECCER reporting due to erratum
+				 * IFC-A002770 -- so report it now if we
+				 * see an uncorrectable error in ECCSTAT.
+				 */
+				if (!is_blank(mtd, ctrl, bufnum))
+					ctrl->status |=
+						IFC_NAND_EVTER_STAT_ECCER;
 				break;
+			}
+
+			mtd->ecc_stats.corrected += errors;
 		}
 
 		ctrl->eccread = 0;
