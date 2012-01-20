@@ -291,9 +291,7 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
-	ngood = 0;
-
-	while (count-- > 0) {
+	for (ngood = 0; ngood < count; ++ngood) {
 		ulong word1, word2;
 		if (size == 4) {
 			word1 = *(ulong *)addr1;
@@ -313,12 +311,11 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			break;
 		}
 
-		ngood++;
 		addr1 += size;
 		addr2 += size;
 
 		/* reset watchdog from time to time */
-		if ((count % (64 << 10)) == 0)
+		if ((ngood % (64 << 10)) == 0)
 			WATCHDOG_RESET();
 	}
 
