@@ -258,6 +258,7 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ulong	addr1, addr2, count, ngood;
 	int	size;
 	int     rcode = 0;
+	const char *type;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -266,6 +267,7 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	*/
 	if ((size = cmd_get_data_size(argv[0], 4)) < 0)
 		return 1;
+	type = size == 4 ? "word" : size == 2 ? "halfword" : "byte";
 
 	addr1 = simple_strtoul(argv[1], NULL, 16);
 	addr1 += base_address;
@@ -292,39 +294,25 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ngood = 0;
 
 	while (count-- > 0) {
+		ulong word1, word2;
 		if (size == 4) {
-			ulong word1 = *(ulong *)addr1;
-			ulong word2 = *(ulong *)addr2;
-			if (word1 != word2) {
-				printf("word at 0x%08lx (0x%08lx) "
-					"!= word at 0x%08lx (0x%08lx)\n",
-					addr1, word1, addr2, word2);
-				rcode = 1;
-				break;
-			}
+			word1 = *(ulong *)addr1;
+			word2 = *(ulong *)addr2;
+		} else if (size == 2) {
+			word1 = *(ushort *)addr1;
+			word2 = *(ushort *)addr2;
+		} else {
+			word1 = *(u_char *)addr1;
+			word2 = *(u_char *)addr2;
 		}
-		else if (size == 2) {
-			ushort hword1 = *(ushort *)addr1;
-			ushort hword2 = *(ushort *)addr2;
-			if (hword1 != hword2) {
-				printf("halfword at 0x%08lx (0x%04x) "
-					"!= halfword at 0x%08lx (0x%04x)\n",
-					addr1, hword1, addr2, hword2);
-				rcode = 1;
-				break;
-			}
+		if (word1 != word2) {
+			printf("%s at 0x%08lx (%#0*lx) != %s at 0x%08lx (%#0*lx)\n",
+				type, addr1, size, word1,
+				type, addr2, size, word2);
+			rcode = 1;
+			break;
 		}
-		else {
-			u_char byte1 = *(u_char *)addr1;
-			u_char byte2 = *(u_char *)addr2;
-			if (byte1 != byte2) {
-				printf("byte at 0x%08lx (0x%02x) "
-					"!= byte at 0x%08lx (0x%02x)\n",
-					addr1, byte1, addr2, byte2);
-				rcode = 1;
-				break;
-			}
-		}
+
 		ngood++;
 		addr1 += size;
 		addr2 += size;
@@ -334,9 +322,7 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			WATCHDOG_RESET();
 	}
 
-	printf("Total of %ld %s%s were the same\n",
-		ngood, size == 4 ? "word" : size == 2 ? "halfword" : "byte",
-		ngood == 1 ? "" : "s");
+	printf("Total of %ld %s(s) were the same\n", ngood, type);
 	return rcode;
 }
 
