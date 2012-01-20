@@ -90,7 +90,7 @@ static void set_speed(int i2c_spd)
  *
  * Set the i2c speed.
  */
-void i2c_set_bus_speed(int speed)
+int i2c_set_bus_speed(int speed)
 {
 	if (speed >= I2C_MAX_SPEED)
 		set_speed(IC_SPEED_MODE_MAX);
@@ -98,6 +98,8 @@ void i2c_set_bus_speed(int speed)
 		set_speed(IC_SPEED_MODE_FAST);
 	else
 		set_speed(IC_SPEED_MODE_STANDARD);
+
+	return 0;
 }
 
 /*
@@ -215,10 +217,8 @@ static int check_params(uint addr, int alen, uchar *buffer, int len)
 
 static int i2c_xfer_init(uchar chip, uint addr)
 {
-	if (i2c_wait_for_bb()) {
-		printf("Timed out waiting for bus\n");
+	if (i2c_wait_for_bb())
 		return 1;
-	}
 
 	i2c_setaddress(chip);
 	writel(addr, &i2c_regs_p->ic_cmd_data);
@@ -282,7 +282,6 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 			start_time_rx = get_timer(0);
 
 		} else if (get_timer(start_time_rx) > I2C_BYTE_TO) {
-				printf("Timed out. i2c read Failed\n");
 				return 1;
 		}
 	}
@@ -334,9 +333,14 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 int i2c_probe(uchar chip)
 {
 	u32 tmp;
+	int ret;
 
 	/*
 	 * Try to read the first location of the chip.
 	 */
-	return i2c_read(chip, 0, 1, (uchar *)&tmp, 1);
+	ret = i2c_read(chip, 0, 1, (uchar *)&tmp, 1);
+	if (ret)
+		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+
+	return ret;
 }
