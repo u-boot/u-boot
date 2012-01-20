@@ -37,6 +37,10 @@
 #define CONFIG_DEFAULT_SPI_MODE SPI_MODE_0
 #endif
 
+#ifndef CONFIG_SYS_SPI_WRITE_TOUT
+#define CONFIG_SYS_SPI_WRITE_TOUT (5 * CONFIG_SYS_HZ)
+#endif
+
 ssize_t spi_read(uchar *addr, int alen, uchar *buffer, int len)
 {
 	struct spi_slave *slave;
