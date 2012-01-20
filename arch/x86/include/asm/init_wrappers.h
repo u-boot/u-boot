@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * (C) Copyright 2011
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,28 +21,22 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_PROCESSOR_H_
-#define __ASM_PROCESSOR_H_ 1
+#ifndef _INIT_WRAPPERS_H_
+#define _INIT_WRAPPERS_H_
 
-#define X86_GDT_ENTRY_SIZE	8
+int serial_initialize_r(void);
+int env_relocate_r(void);
+int pci_init_r(void);
+int jumptable_init_r(void);
+int pcmcia_init_r(void);
+int kgdb_init_r(void);
+int enable_interrupts_r(void);
+int eth_initialize_r(void);
+int reset_phy_r(void);
+int ide_init_r(void);
+int scsi_init_r(void);
+int doc_init_r(void);
+int bb_miiphy_init_r(void);
+int post_run_r(void);
 
-#ifndef __ASSEMBLY__
-
-enum {
-	X86_GDT_ENTRY_NULL = 0,
-	X86_GDT_ENTRY_UNUSED,
-	X86_GDT_ENTRY_32BIT_CS,
-	X86_GDT_ENTRY_32BIT_DS,
-	X86_GDT_ENTRY_32BIT_FS,
-	X86_GDT_ENTRY_16BIT_CS,
-	X86_GDT_ENTRY_16BIT_DS,
-	X86_GDT_NUM_ENTRIES
-};
-#else
-/* NOTE: If the above enum is modified, this define must be checked */
-#define X86_GDT_ENTRY_32BIT_DS	3
-#endif
-
-#define X86_GDT_SIZE		(X86_GDT_NUM_ENTRIES * X86_GDT_ENTRY_SIZE)
-
-#endif
+#endif	/* !_INIT_WRAPPERS_H_ */

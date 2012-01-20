@@ -36,6 +36,8 @@
 #ifndef __ASSEMBLY__
 
 typedef	struct global_data {
+	/* NOTE: gd_addr MUST be first member of struct global_data! */
+	unsigned long	gd_addr;	/* Location of Global Data */
 	bd_t		*bd;
 	unsigned long	flags;
 	unsigned long	baudrate;
@@ -51,13 +53,24 @@ typedef	struct global_data {
 	unsigned long	bus_clk;
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
+	unsigned long	gdt_addr;	/* Location of GDT */
+	unsigned long	new_gd_addr;	/* New location of Global Data */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot */
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
 } gd_t;
 
-extern gd_t *gd;
+static inline gd_t *get_fs_gd_ptr(void)
+{
+	gd_t *gd_ptr;
+
+	asm volatile("fs movl 0, %0\n" : "=r" (gd_ptr));
+
+	return gd_ptr;
+}
+
+#define gd	get_fs_gd_ptr()
 
 #endif
 
@@ -73,12 +86,6 @@ extern gd_t *gd;
 #define GD_FLG_DISABLE_CONSOLE	0x00040	/* Disable console (in & out)		*/
 #define GD_FLG_ENV_READY	0x00080	/* Environment imported into hash table	*/
 
-#if 0
 #define DECLARE_GLOBAL_DATA_PTR
-#else
-#define XTRN_DECLARE_GLOBAL_DATA_PTR    extern
-#define DECLARE_GLOBAL_DATA_PTR     XTRN_DECLARE_GLOBAL_DATA_PTR \
-gd_t *gd
-#endif
 
 #endif /* __ASM_GBL_DATA_H */

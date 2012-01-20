@@ -55,35 +55,70 @@ struct gdt_ptr {
 	u32 ptr;
 } __packed;
 
-static void reload_gdt(void)
+static void load_ds(u32 segment)
 {
-	/*
-	 * There are machines which are known to not boot with the GDT
-	 * being 8-byte unaligned.  Intel recommends 16 byte alignment
-	 */
-	static const u64 boot_gdt[] __attribute__((aligned(16))) = {
-		/* CS: code, read/execute, 4 GB, base 0 */
-		[GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff),
-		/* DS: data, read/write, 4 GB, base 0 */
-		[GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff),
-		/* 16-bit CS: code, read/execute, 64 kB, base 0 */
-		[GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x109b, 0, 0x0ffff),
-		/* 16-bit DS: data, read/write, 64 kB, base 0 */
-		[GDT_ENTRY_16BIT_DS] = GDT_ENTRY(0x1093, 0, 0x0ffff),
-	};
-	static struct gdt_ptr gdt;
+	asm volatile("movl %0, %%ds" : : "r" (segment * X86_GDT_ENTRY_SIZE));
+}
 
-	gdt.len = sizeof(boot_gdt)-1;
-	gdt.ptr = (u32)&boot_gdt;
+static void load_es(u32 segment)
+{
+	asm volatile("movl %0, %%es" : : "r" (segment * X86_GDT_ENTRY_SIZE));
+}
 
-	asm volatile("lgdtl %0\n" \
-		     "movl $((2+1)*8), %%ecx\n" \
-		     "movl %%ecx, %%ds\n" \
-		     "movl %%ecx, %%es\n" \
-		     "movl %%ecx, %%fs\n" \
-		     "movl %%ecx, %%gs\n" \
-		     "movl %%ecx, %%ss" \
-		     : : "m" (gdt) : "ecx");
+static void load_fs(u32 segment)
+{
+	asm volatile("movl %0, %%fs" : : "r" (segment * X86_GDT_ENTRY_SIZE));
+}
+
+static void load_gs(u32 segment)
+{
+	asm volatile("movl %0, %%gs" : : "r" (segment * X86_GDT_ENTRY_SIZE));
+}
+
+static void load_ss(u32 segment)
+{
+	asm volatile("movl %0, %%ss" : : "r" (segment * X86_GDT_ENTRY_SIZE));
+}
+
+static void load_gdt(const u64 *boot_gdt, u16 num_entries)
+{
+	struct gdt_ptr gdt;
+
+	gdt.len = (num_entries * 8) - 1;
+	gdt.ptr = (u32)boot_gdt;
+
+	asm volatile("lgdtl %0\n" : : "m" (gdt));
+}
+
+void init_gd(gd_t *id, u64 *gdt_addr)
+{
+	id->gd_addr = (ulong)id;
+	setup_gdt(id, gdt_addr);
+}
+
+void setup_gdt(gd_t *id, u64 *gdt_addr)
+{
+	/* CS: code, read/execute, 4 GB, base 0 */
+	gdt_addr[X86_GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff);
+
+	/* DS: data, read/write, 4 GB, base 0 */
+	gdt_addr[X86_GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff);
+
+	/* FS: data, read/write, 4 GB, base (Global Data Pointer) */
+	gdt_addr[X86_GDT_ENTRY_32BIT_FS] = GDT_ENTRY(0xc093, (ulong)id, 0xfffff);
+
+	/* 16-bit CS: code, read/execute, 64 kB, base 0 */
+	gdt_addr[X86_GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x109b, 0, 0x0ffff);
+
+	/* 16-bit DS: data, read/write, 64 kB, base 0 */
+	gdt_addr[X86_GDT_ENTRY_16BIT_DS] = GDT_ENTRY(0x1093, 0, 0x0ffff);
+
+	load_gdt(gdt_addr, X86_GDT_NUM_ENTRIES);
+	load_ds(X86_GDT_ENTRY_32BIT_DS);
+	load_es(X86_GDT_ENTRY_32BIT_DS);
+	load_gs(X86_GDT_ENTRY_32BIT_DS);
+	load_ss(X86_GDT_ENTRY_32BIT_DS);
+	load_fs(X86_GDT_ENTRY_32BIT_FS);
 }
 
 int x86_cpu_init_f(void)
@@ -105,6 +140,14 @@ int cpu_init_f(void) __attribute__((weak, alias("x86_cpu_init_f")));
 
 int x86_cpu_init_r(void)
 {
+	/* Initialize core interrupt and exception functionality of CPU */
+	cpu_init_interrupts();
+	return 0;
+}
+int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
+
+void x86_enable_caches(void)
+{
 	const u32 nw_cd_rst = ~(X86_CR0_NW | X86_CR0_CD);
 
 	/* turn on the cache and disable write through */
@@ -112,14 +155,16 @@ int x86_cpu_init_r(void)
 	    "andl	%0, %%eax\n"
 	    "movl	%%eax, %%cr0\n"
 	    "wbinvd\n" : : "i" (nw_cd_rst) : "eax");
+}
+void enable_caches(void) __attribute__((weak, alias("x86_enable_caches")));
 
-	reload_gdt();
+int x86_init_cache(void)
+{
+	enable_caches();
 
-	/* Initialize core interrupt and exception functionality of CPU */
-	cpu_init_interrupts();
 	return 0;
 }
-int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
+int init_cache(void) __attribute__((weak, alias("x86_init_cache")));
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
