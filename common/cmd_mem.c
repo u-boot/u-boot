@@ -34,12 +34,6 @@
 #endif
 #include <watchdog.h>
 
-#ifdef	CMD_MEM_DEBUG
-#define	PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTF(fmt,args...)
-#endif
-
 static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 
 /* Display values from last command.
@@ -676,7 +670,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #if defined(CONFIG_SYS_ALT_MEMTEST)
 	printf ("Testing %08x ... %08x:\n", (uint)start, (uint)end);
-	PRINTF("%s:%d: start 0x%p end 0x%p\n",
+	debug("%s:%d: start 0x%p end 0x%p\n",
 		__FUNCTION__, __LINE__, start, end);
 
 	for (;;) {
@@ -693,7 +687,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		printf("Iteration: %6d\r", iterations);
-		PRINTF("\n");
+		debug("\n");
 		iterations++;
 
 		/*
@@ -784,7 +778,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		pattern = (vu_long) 0xaaaaaaaa;
 		anti_pattern = (vu_long) 0x55555555;
 
-		PRINTF("%s:%d: length = 0x%.8lx\n",
+		debug("%s:%d: length = 0x%.8lx\n",
 			__FUNCTION__, __LINE__,
 			len);
 		/*
