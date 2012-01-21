@@ -115,9 +115,6 @@ extern void cm_remap(void);
 
 int misc_init_r (void)
 {
-#ifdef CONFIG_PCI
-	pci_init();
-#endif
 	setenv("verify", "n");
 	return (0);
 }
