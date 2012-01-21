@@ -255,6 +255,7 @@
 #else
 # define CONFIG_CMD_PING
 # define CONFIG_CMD_DHCP
+# define CONFIG_CMD_TFTPPUT
 #endif
 
 #if defined(CONFIG_SYSTEMACE)
