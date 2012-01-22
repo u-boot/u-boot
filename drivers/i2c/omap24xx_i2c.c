@@ -147,7 +147,7 @@ static void flush_fifo(void)
 		stat = readw(&i2c_base->stat);
 		if (stat == I2C_STAT_RRDY) {
 #if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
-	defined(CONFIG_OMAP44XX)
+	defined(CONFIG_OMAP44XX) || defined(CONFIG_AM33XX)
 			readb(&i2c_base->data);
 #else
 			readw(&i2c_base->data);
@@ -247,7 +247,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 			switch (alen) {
 			case 2:
 				/* Send address MSByte */
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+			defined(CONFIG_AM33XX)
 				writew(((addr >> 8) & 0xFF), &i2c_base->data);
 
 				/* Clearing XRDY event */
@@ -264,7 +265,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 				}
 #endif
 			case 1:
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+			defined(CONFIG_AM33XX)
 				/* Send address LSByte */
 				writew((addr & 0xFF), &i2c_base->data);
 #else
@@ -313,7 +315,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 			}
 
 			if (status & I2C_STAT_RRDY) {
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+			defined(CONFIG_AM33XX)
 				buffer[i] = readb(&i2c_base->data);
 #else
 				*((u16 *)&buffer[i]) =
@@ -400,7 +403,8 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	if (!i2c_error) {
 		if (status & I2C_STAT_XRDY) {
 			switch (alen) {
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+			defined(CONFIG_AM33XX)
 			case 2:
 				/* send out MSB byte */
 				writeb(((addr >> 8) & 0xFF), &i2c_base->data);
@@ -420,7 +424,8 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 					break;
 				}
 			case 1:
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+			defined(CONFIG_AM33XX)
 				/* send out MSB byte */
 				writeb((addr  & 0xFF), &i2c_base->data);
 #else
@@ -442,7 +447,8 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		if (!i2c_error) {
 			for (i = ((alen > 1) ? 0 : 1); i < len; i++) {
 				if (status & I2C_STAT_XRDY) {
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+				defined(CONFIG_AM33XX)
 					writeb((buffer[i] & 0xFF),
 						&i2c_base->data);
 #else
