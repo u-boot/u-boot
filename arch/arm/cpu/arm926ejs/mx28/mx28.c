@@ -169,7 +169,8 @@ int arch_cpu_init(void)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	printf("Freescale i.MX28 family\n");
+	printf("Freescale i.MX28 family at %d MHz\n",
+			mxc_get_clock(MXC_ARM_CLK) / 1000000);
 	return 0;
 }
 #endif
