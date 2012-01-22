@@ -95,7 +95,8 @@ struct cm_wkuppll {
 	unsigned int divm2dpllper;	/* offset 0xAC */
 	unsigned int resv11[1];
 	unsigned int wkup_uart0ctrl;	/* offset 0xB4 */
-	unsigned int resv12[8];
+	unsigned int wkup_i2c0ctrl;	/* offset 0xB8 */
+	unsigned int resv12[7];
 	unsigned int divm6dpllcore;	/* offset 0xD8 */
 };
 
