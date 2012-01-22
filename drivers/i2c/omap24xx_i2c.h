@@ -60,7 +60,9 @@
 /* I2C Buffer Configuration Register (I2C_BUF): */
 
 #define I2C_BUF_RDMA_EN		(1 << 15) /* Receive DMA channel enable */
+#define I2C_RXFIFO_CLEAR	(1 << 14) /* RX FIFO Clear */
 #define I2C_BUF_XDMA_EN		(1 << 7)  /* Transmit DMA channel enable */
+#define I2C_TXFIFO_CLEAR	(1 << 6)  /* TX FIFO clear */
 
 /* I2C Configuration Register (I2C_CON): */
 
