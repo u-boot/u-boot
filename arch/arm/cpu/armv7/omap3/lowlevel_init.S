@@ -35,15 +35,15 @@
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE	/* sdram load addr from config.mk */
 
+#ifdef CONFIG_SPL_BUILD
 .global save_boot_params
 save_boot_params:
-#ifdef CONFIG_SPL_BUILD
 	ldr	r4, =omap3_boot_device
 	ldr	r5, [r0, #0x4]
 	and	r5, r5, #0xff
 	str	r5, [r4]
-#endif
 	bx	lr
+#endif
 
 .global omap3_gp_romcode_call
 omap3_gp_romcode_call:
