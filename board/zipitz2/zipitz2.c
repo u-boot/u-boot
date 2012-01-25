@@ -79,6 +79,14 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 }
 
+#ifdef	CONFIG_CMD_MMC
+int board_mmc_init(bd_t *bis)
+{
+	pxa_mmc_register(0);
+	return 0;
+}
+#endif
+
 #ifdef	CONFIG_CMD_SPI
 
 struct {

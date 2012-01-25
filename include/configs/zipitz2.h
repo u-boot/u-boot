@@ -45,7 +45,8 @@
 #define	CONFIG_ARCH_CPU_INIT
 
 #define	CONFIG_BOOTCOMMAND						\
-	"if mmc init && fatload mmc 0 0xa0000000 uboot.script ; then "	\
+	"if mmc rescan && ext2load mmc 0 0xa0000000 boot/uboot.script ;"\
+	"then "								\
 		"source 0xa0000000; "					\
 	"else "								\
 		"bootm 0x60000; "					\
@@ -85,7 +86,8 @@
  */
 #ifdef	CONFIG_CMD_MMC
 #define	CONFIG_MMC
-#define	CONFIG_PXA_MMC
+#define	CONFIG_GENERIC_MMC
+#define	CONFIG_PXA_MMC_GENERIC
 #define	CONFIG_SYS_MMC_BASE		0xF0000000
 #define	CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
