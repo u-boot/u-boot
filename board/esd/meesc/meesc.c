@@ -73,20 +73,20 @@ static void meesc_nand_hw_init(void)
 	writel(csa, &matrix->csa[0]);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
-	writel(AT91_SMC_SETUP_NWE(1) | AT91_SMC_SETUP_NCS_WR(0) |
-		AT91_SMC_SETUP_NRD(1) | AT91_SMC_SETUP_NCS_RD(0),
+	writel(AT91_SMC_SETUP_NWE(1) | AT91_SMC_SETUP_NCS_WR(1) |
+		AT91_SMC_SETUP_NRD(2) | AT91_SMC_SETUP_NCS_RD(2),
 		&smc->cs[3].setup);
 
 	writel(AT91_SMC_PULSE_NWE(3) | AT91_SMC_PULSE_NCS_WR(3) |
 		AT91_SMC_PULSE_NRD(3) | AT91_SMC_PULSE_NCS_RD(3),
 		&smc->cs[3].pulse);
 
-	writel(AT91_SMC_CYCLE_NWE(5) | AT91_SMC_CYCLE_NRD(5),
+	writel(AT91_SMC_CYCLE_NWE(6) | AT91_SMC_CYCLE_NRD(6),
 		&smc->cs[3].cycle);
 	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
 		AT91_SMC_MODE_EXNW_DISABLE |
 		AT91_SMC_MODE_DBW_8 |
-		AT91_SMC_MODE_TDF_CYCLE(3),
+		AT91_SMC_MODE_TDF_CYCLE(12),
 		&smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
