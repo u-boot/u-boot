@@ -336,21 +336,17 @@ static void board_uart_init(void)
 		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
 	int i;
 
-	/* UART0-UART1 GPIOs (part1) : 0x22222222 */
-	for (i = 0; i < 7; i++) {
-		s5p_gpio_set_pull(&gpio1->a0, i, GPIO_PULL_NONE);
-		s5p_gpio_cfg_pin(&gpio1->a0, i, GPIO_FUNC(0x2));
-	}
-
 	/*
-	 * UART2-UART3 GPIOs (part2) : 0x00223322
-	 * GPA1CON[3] = I2C_3_SCL (3)
+	 * UART2 GPIOs
+	 * GPA1CON[0] = UART_2_RXD(2)
+	 * GPA1CON[1] = UART_2_TXD(2)
 	 * GPA1CON[2] = I2C_3_SDA (3)
+	 * GPA1CON[3] = I2C_3_SCL (3)
 	 */
-	for (i = 0; i < 5; i++) {
+
+	for (i = 0; i < 4; i++) {
 		s5p_gpio_set_pull(&gpio1->a1, i, GPIO_PULL_NONE);
-		s5p_gpio_cfg_pin(&gpio1->a1, i,
-				GPIO_FUNC((i == 2 || i == 3) ? 0x3 : 0x2));
+		s5p_gpio_cfg_pin(&gpio1->a1, i, GPIO_FUNC((i > 1) ? 0x3 : 0x2));
 	}
 
 	/* UART_SEL GPY4[7] (part2) at EXYNOS4 */
