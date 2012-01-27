@@ -166,6 +166,13 @@ void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
 			*ctrlb = NUMONYX_V_ACTIMB_165;
 			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 			break;
+		} else if (pop_mfr == NAND_MFR_MICRON && pop_id == 0xba) {
+			/* Beagleboard Rev C4, 512MB Nand/256MB DDR*/
+			*mcfg = MICRON_V_MCFG_165(128 << 20);
+			*ctrla = MICRON_V_ACTIMA_165;
+			*ctrlb = MICRON_V_ACTIMB_165;
+			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+			break;
 		} else if (pop_mfr == NAND_MFR_MICRON && pop_id == 0xbc) {
 			/* Beagleboard Rev C5, 256MB DDR */
 			*mcfg = MICRON_V_MCFG_200(256 << 20);
