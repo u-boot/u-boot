@@ -904,6 +904,7 @@ Stephen Warren <swarren@nvidia.com>
 Thomas Weber <weber@corscience.de>
 
 	devkit8000	ARM ARMV7 (OMAP3530 SoC)
+	tricorder	ARM ARMV7 (OMAP3503 SoC)
 
 Lei Wen <leiwen@marvell.com>
 
