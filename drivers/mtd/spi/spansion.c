@@ -35,16 +35,6 @@
 #define CMD_S25FLXX_SE		0xd8	/* Sector Erase */
 #define CMD_S25FLXX_BE		0xc7	/* Bulk Erase */
 
-#define SPSN_ID_S25FL008A	0x0213
-#define SPSN_ID_S25FL016A	0x0214
-#define SPSN_ID_S25FL032A	0x0215
-#define SPSN_ID_S25FL064A	0x0216
-#define SPSN_ID_S25FL128P	0x2018
-#define SPSN_EXT_ID_S25FL128P_256KB	0x0300
-#define SPSN_EXT_ID_S25FL128P_64KB	0x0301
-#define SPSN_EXT_ID_S25FL032P		0x4d00
-#define SPSN_EXT_ID_S25FL129P		0x4d01
-
 struct spansion_spi_flash_params {
 	u16 idcode1;
 	u16 idcode2;
@@ -56,7 +46,7 @@ struct spansion_spi_flash_params {
 
 static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
-		.idcode1 = SPSN_ID_S25FL008A,
+		.idcode1 = 0x0213,
 		.idcode2 = 0,
 		.page_size = 256,
 		.pages_per_sector = 256,
@@ -64,7 +54,7 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.name = "S25FL008A",
 	},
 	{
-		.idcode1 = SPSN_ID_S25FL016A,
+		.idcode1 = 0x0214,
 		.idcode2 = 0,
 		.page_size = 256,
 		.pages_per_sector = 256,
@@ -72,7 +62,7 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.name = "S25FL016A",
 	},
 	{
-		.idcode1 = SPSN_ID_S25FL032A,
+		.idcode1 = 0x0215,
 		.idcode2 = 0,
 		.page_size = 256,
 		.pages_per_sector = 256,
@@ -80,7 +70,7 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.name = "S25FL032A",
 	},
 	{
-		.idcode1 = SPSN_ID_S25FL064A,
+		.idcode1 = 0x0216,
 		.idcode2 = 0,
 		.page_size = 256,
 		.pages_per_sector = 256,
@@ -88,32 +78,32 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.name = "S25FL064A",
 	},
 	{
-		.idcode1 = SPSN_ID_S25FL128P,
-		.idcode2 = SPSN_EXT_ID_S25FL128P_64KB,
+		.idcode1 = 0x2018,
+		.idcode2 = 0x0301,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 256,
 		.name = "S25FL128P_64K",
 	},
 	{
-		.idcode1 = SPSN_ID_S25FL128P,
-		.idcode2 = SPSN_EXT_ID_S25FL128P_256KB,
+		.idcode1 = 0x2018,
+		.idcode2 = 0x0300,
 		.page_size = 256,
 		.pages_per_sector = 1024,
 		.nr_sectors = 64,
 		.name = "S25FL128P_256K",
 	},
 	{
-		.idcode1 = SPSN_ID_S25FL032A,
-		.idcode2 = SPSN_EXT_ID_S25FL032P,
+		.idcode1 = 0x0215,
+		.idcode2 = 0x4d00,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 64,
 		.name = "S25FL032P",
 	},
 	{
-		.idcode1 = SPSN_ID_S25FL128P,
-		.idcode2 = SPSN_EXT_ID_S25FL129P,
+		.idcode1 = 0x2018,
+		.idcode2 = 0x4d01,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 256,
