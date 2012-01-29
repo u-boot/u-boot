@@ -32,18 +32,8 @@
 #include "spi_flash_internal.h"
 
 /* S25FLxx-specific commands */
-#define CMD_S25FLXX_READ	0x03	/* Read Data Bytes */
-#define CMD_S25FLXX_FAST_READ	0x0b	/* Read Data Bytes at Higher Speed */
-#define CMD_S25FLXX_READID	0x90	/* Read Manufacture ID and Device ID */
-#define CMD_S25FLXX_WREN	0x06	/* Write Enable */
-#define CMD_S25FLXX_WRDI	0x04	/* Write Disable */
-#define CMD_S25FLXX_RDSR	0x05	/* Read Status Register */
-#define CMD_S25FLXX_WRSR	0x01	/* Write Status Register */
-#define CMD_S25FLXX_PP		0x02	/* Page Program */
 #define CMD_S25FLXX_SE		0xd8	/* Sector Erase */
 #define CMD_S25FLXX_BE		0xc7	/* Bulk Erase */
-#define CMD_S25FLXX_DP		0xb9	/* Deep Power-down */
-#define CMD_S25FLXX_RES		0xab	/* Release from DP, and Read Signature */
 
 #define SPSN_ID_S25FL008A	0x0213
 #define SPSN_ID_S25FL016A	0x0214
