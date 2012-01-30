@@ -191,11 +191,16 @@
 #define CONFIG_VIDEO_MX3
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
+/* splash image won't work with NAND boot, use preboot script */
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_CONSOLE_EXTRA_INFO /* display additional board info */
 #define CONFIG_VGA_AS_SINGLE_DEVICE /* display is an output only device */
+
 /* allow stdin, stdout and stderr variables to redirect output */
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SILENT_CONSOLE		/* UARTs used externally (release) */
+#define CONFIG_SYS_DEVICE_NULLDEV	/* allow console to be turned off */
+#define CONFIG_PREBOOT
 
 /* allow decompressing max. 4MB */
 #define CONFIG_VIDEO_BMP_GZIP
@@ -237,14 +242,14 @@
 "videomode=epson\0" \
 "epson=video=ctfb:x:800,y:480,depth:16,mode:0,pclk:30076," \
 	"le:215,ri:1,up:32,lo:13,hs:7,vs:10,sync:100663296,vmode:0\0" \
-"bootcmd=dhcp bootscript.$(user); source\0"
+"bootcmd=dhcp bootscript.${user}; source\0"
 
 #define CONFIG_BOOTP_SERVERIP /* tftp serverip not overruled by dhcp server */
 #define CONFIG_BOOTP_SEND_HOSTNAME /* if env-var 'hostname' is set, send it */
 
 /* Miscellaneous configurable options */
-#define CONFIG_HUSH_PARSER
-#define CONFIG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_SYS_PROMPT	"TT01> "
