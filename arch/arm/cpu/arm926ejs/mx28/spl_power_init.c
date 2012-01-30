@@ -726,7 +726,9 @@ void mx28_power_set_vddio(uint32_t new_target, uint32_t new_brownout)
 			clrsetbits_le32(&power_regs->hw_power_vddioctrl,
 				POWER_VDDIOCTRL_TRG_MASK, diff);
 
-			if (powered_by_linreg)
+			if (powered_by_linreg ||
+				(readl(&power_regs->hw_power_sts) &
+					POWER_STS_VDD5V_GT_VDDIO))
 				early_delay(1500);
 			else {
 				while (!(readl(&power_regs->hw_power_sts) &
@@ -761,7 +763,9 @@ void mx28_power_set_vddio(uint32_t new_target, uint32_t new_brownout)
 			clrsetbits_le32(&power_regs->hw_power_vddioctrl,
 				POWER_VDDIOCTRL_TRG_MASK, diff);
 
-			if (powered_by_linreg)
+			if (powered_by_linreg ||
+				(readl(&power_regs->hw_power_sts) &
+					POWER_STS_VDD5V_GT_VDDIO))
 				early_delay(1500);
 			else {
 				while (!(readl(&power_regs->hw_power_sts) &
@@ -819,7 +823,9 @@ void mx28_power_set_vddd(uint32_t new_target, uint32_t new_brownout)
 			clrsetbits_le32(&power_regs->hw_power_vdddctrl,
 				POWER_VDDDCTRL_TRG_MASK, diff);
 
-			if (powered_by_linreg)
+			if (powered_by_linreg ||
+				(readl(&power_regs->hw_power_sts) &
+					POWER_STS_VDD5V_GT_VDDIO))
 				early_delay(1500);
 			else {
 				while (!(readl(&power_regs->hw_power_sts) &
@@ -854,7 +860,9 @@ void mx28_power_set_vddd(uint32_t new_target, uint32_t new_brownout)
 			clrsetbits_le32(&power_regs->hw_power_vdddctrl,
 					POWER_VDDDCTRL_TRG_MASK, diff);
 
-			if (powered_by_linreg)
+			if (powered_by_linreg ||
+				(readl(&power_regs->hw_power_sts) &
+					POWER_STS_VDD5V_GT_VDDIO))
 				early_delay(1500);
 			else {
 				while (!(readl(&power_regs->hw_power_sts) &
