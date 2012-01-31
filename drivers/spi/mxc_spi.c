@@ -33,92 +33,11 @@
 
 #error "i.MX27 CSPI not supported due to drastic differences in register definitions" \
 "See linux mxc_spi driver from Freescale for details."
-
-#elif defined(CONFIG_MX31)
-
-#define MXC_CSPICTRL_EN		(1 << 0)
-#define MXC_CSPICTRL_MODE	(1 << 1)
-#define MXC_CSPICTRL_XCH	(1 << 2)
-#define MXC_CSPICTRL_SMC	(1 << 3)
-#define MXC_CSPICTRL_POL	(1 << 4)
-#define MXC_CSPICTRL_PHA	(1 << 5)
-#define MXC_CSPICTRL_SSCTL	(1 << 6)
-#define MXC_CSPICTRL_SSPOL	(1 << 7)
-#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 24)
-#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0x1f) << 8)
-#define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
-#define MXC_CSPICTRL_TC		(1 << 8)
-#define MXC_CSPICTRL_RXOVF	(1 << 6)
-#define MXC_CSPICTRL_MAXBITS	0x1f
-
-#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
-#define MAX_SPI_BYTES	4
-
-static unsigned long spi_bases[] = {
-	0x43fa4000,
-	0x50010000,
-	0x53f84000,
-};
-
-#elif defined(CONFIG_MX51)
-
-#define MXC_CSPICTRL_EN		(1 << 0)
-#define MXC_CSPICTRL_MODE	(1 << 1)
-#define MXC_CSPICTRL_XCH	(1 << 2)
-#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
-#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
-#define MXC_CSPICTRL_PREDIV(x)	(((x) & 0xF) << 12)
-#define MXC_CSPICTRL_POSTDIV(x)	(((x) & 0xF) << 8)
-#define MXC_CSPICTRL_SELCHAN(x)	(((x) & 0x3) << 18)
-#define MXC_CSPICTRL_MAXBITS	0xfff
-#define MXC_CSPICTRL_TC		(1 << 7)
-#define MXC_CSPICTRL_RXOVF	(1 << 6)
-
-#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
-#define MAX_SPI_BYTES	32
-
-/* Bit position inside CTRL register to be associated with SS */
-#define MXC_CSPICTRL_CHAN	18
-
-/* Bit position inside CON register to be associated with SS */
-#define MXC_CSPICON_POL		4
-#define MXC_CSPICON_PHA		0
-#define MXC_CSPICON_SSPOL	12
-
-static unsigned long spi_bases[] = {
-	CSPI1_BASE_ADDR,
-	CSPI2_BASE_ADDR,
-	CSPI3_BASE_ADDR,
-};
-
-#elif defined(CONFIG_MX35)
-
-#define MXC_CSPICTRL_EN		(1 << 0)
-#define MXC_CSPICTRL_MODE	(1 << 1)
-#define MXC_CSPICTRL_XCH	(1 << 2)
-#define MXC_CSPICTRL_SMC	(1 << 3)
-#define MXC_CSPICTRL_POL	(1 << 4)
-#define MXC_CSPICTRL_PHA	(1 << 5)
-#define MXC_CSPICTRL_SSCTL	(1 << 6)
-#define MXC_CSPICTRL_SSPOL	(1 << 7)
-#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
-#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
-#define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
-#define MXC_CSPICTRL_TC		(1 << 7)
-#define MXC_CSPICTRL_RXOVF	(1 << 6)
-#define MXC_CSPICTRL_MAXBITS	0xfff
-
-#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
-#define MAX_SPI_BYTES	4
-
-static unsigned long spi_bases[] = {
-	0x43fa4000,
-	0x50010000,
-};
-
-#else
-#error "Unsupported architecture"
 #endif
+
+static unsigned long spi_bases[] = {
+	MXC_SPI_BASE_ADDRESSES
+};
 
 #define OUT	MXC_GPIO_DIRECTION_OUT
 
@@ -129,7 +48,7 @@ struct mxc_spi_slave {
 	struct spi_slave slave;
 	unsigned long	base;
 	u32		ctrl_reg;
-#if defined(CONFIG_MX51)
+#if defined(MXC_ECSPI)
 	u32		cfg_reg;
 #endif
 	int		gpio;
@@ -167,7 +86,7 @@ u32 get_cspi_div(u32 div)
 	return i;
 }
 
-#if defined(CONFIG_MX31) || defined(CONFIG_MX35)
+#ifdef MXC_CSPI
 static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
@@ -204,7 +123,7 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 }
 #endif
 
-#if defined(CONFIG_MX51)
+#ifdef MXC_ECSPI
 static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
@@ -316,7 +235,7 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 		MXC_CSPICTRL_BITCOUNT(bitlen - 1);
 
 	reg_write(&regs->ctrl, mxcs->ctrl_reg | MXC_CSPICTRL_EN);
-#ifdef CONFIG_MX51
+#ifdef MXC_ECSPI
 	reg_write(&regs->cfg, mxcs->cfg_reg);
 #endif
 
