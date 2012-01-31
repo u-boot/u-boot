@@ -17,6 +17,12 @@
 #ifndef CONFIG_SF_DEFAULT_MODE
 # define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 #endif
+#ifndef CONFIG_SF_DEFAULT_CS
+# define CONFIG_SF_DEFAULT_CS		0
+#endif
+#ifndef CONFIG_SF_DEFAULT_BUS
+# define CONFIG_SF_DEFAULT_BUS		0
+#endif
 
 static struct spi_flash *flash;
 
@@ -63,27 +69,26 @@ static int sf_parse_len_arg(char *arg, ulong *len)
 
 static int do_spi_flash_probe(int argc, char * const argv[])
 {
-	unsigned int bus = 0;
-	unsigned int cs;
+	unsigned int bus = CONFIG_SF_DEFAULT_BUS;
+	unsigned int cs = CONFIG_SF_DEFAULT_CS;
 	unsigned int speed = CONFIG_SF_DEFAULT_SPEED;
 	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	char *endp;
 	struct spi_flash *new;
 
-	if (argc < 2)
-		return -1;
-
-	cs = simple_strtoul(argv[1], &endp, 0);
-	if (*argv[1] == 0 || (*endp != 0 && *endp != ':'))
-		return -1;
-	if (*endp == ':') {
-		if (endp[1] == 0)
+	if (argc >= 2) {
+		cs = simple_strtoul(argv[1], &endp, 0);
+		if (*argv[1] == 0 || (*endp != 0 && *endp != ':'))
 			return -1;
+		if (*endp == ':') {
+			if (endp[1] == 0)
+				return -1;
 
-		bus = cs;
-		cs = simple_strtoul(endp + 1, &endp, 0);
-		if (*endp != 0)
-			return -1;
+			bus = cs;
+			cs = simple_strtoul(endp + 1, &endp, 0);
+			if (*endp != 0)
+				return -1;
+		}
 	}
 
 	if (argc >= 3) {
@@ -299,7 +304,7 @@ usage:
 U_BOOT_CMD(
 	sf,	5,	1,	do_spi_flash,
 	"SPI flash sub-system",
-	"probe [bus:]cs [hz] [mode]	- init flash device on given SPI bus\n"
+	"probe [[bus:]cs] [hz] [mode]	- init flash device on given SPI bus\n"
 	"				  and chip select\n"
 	"sf read addr offset len 	- read `len' bytes starting at\n"
 	"				  `offset' to memory at `addr'\n"
