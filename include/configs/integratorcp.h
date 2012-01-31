@@ -31,8 +31,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/* Integrator-specific configuration */
 #define CONFIG_INTEGRATOR
-#define CONFIG_ARCH_INTEGRATOR
+#define CONFIG_ARCH_CINTEGRATOR
+#define CONFIG_CM_INIT
+#define CONFIG_CM_REMAP
+#define CONFIG_CM_SPD_DETECT
+
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -47,6 +52,7 @@
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_MISC_INIT_R		1	/* call misc_init_r during start up */
+
 /*
  * Size of malloc() pool
  */
@@ -85,32 +91,14 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_BDI
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_PING
+#include <config_cmd_default.h>
 
-
-#if 0
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS	"root=/dev/nfs nfsroot=<IP address>:/<exported rootfs>  mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0"
-#define CONFIG_BOOTCOMMAND "bootp ; bootm"
-#endif
-/* The kernel command line & boot command below are for a platform flashed with afu.axf
-
-Image 666 Block  0 End Block  0 address 0x24000000 exec 0x24000000- name u-boot
-Image 667 Block  1 End Block 13 address 0x24040000 exec 0x24040000- name u-linux
-Image 668 Block 14 End Block 33 address 0x24380000 exec 0x24380000- name rootfs
-SIB at Block62 End Block62 address 0x24f80000
-
-*/
-#define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS	"root=/dev/mtdblock2 mem=128M ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0 console=ttyAMA0"
-#define CONFIG_BOOTCOMMAND "cp 0x24080000 0x7fc0 0x100000; bootm"
+#define CONFIG_BOOTARGS	"root=/dev/mtdblock0 console=ttyAMA0 console=tty ip=dhcp netdev=27,0,0xfc800000,0xfc800010,eth0 video=clcdfb:0"
+#define CONFIG_BOOTCOMMAND "tftpboot ; bootm"
+#define CONFIG_SERVERIP 192.168.1.100
+#define CONFIG_IPADDR 192.168.1.104
+#define CONFIG_BOOTFILE "uImage"
 
 /*
  * Miscellaneous configurable options
@@ -201,15 +189,6 @@ SIB at Block62 End Block62 address 0x24f80000
 
 #define CONFIG_ENV_SECT_SIZE	0x40000		/* 256KB */
 #define CONFIG_ENV_SIZE		8192		/* 8KB */
-/*-----------------------------------------------------------------------
- * CP control registers
- */
-#define CPCR_BASE		0xCB000000	/* CP Registers*/
-#define OS_FLASHPROG		0x00000004	/* Flash register*/
-#define CPMASK_EXTRABANK	0x8
-#define CPMASK_FLASHSIZE	0x4
-#define CPMASK_FLWREN		0x2
-#define CPMASK_FLVPPEN		0x1
 
 /*
  * The ARM boot monitor initializes the board.
