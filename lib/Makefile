@@ -55,6 +55,9 @@ else
 COBJS-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += display_options.o
 endif
 
+ifdef CONFIG_SPL_BUILD
+COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
+endif
 COBJS-y += ctype.o
 COBJS-y += div64.o
 COBJS-y += string.o

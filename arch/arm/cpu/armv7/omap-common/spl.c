@@ -133,6 +133,11 @@ void board_init_r(gd_t *id, ulong dummy)
 		spl_nand_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_YMODEM_SUPPORT
+	case BOOT_DEVICE_UART:
+		spl_ymodem_load_image();
+		break;
+#endif
 	default:
 		printf("SPL: Un-supported Boot Device - %d!!!\n", boot_device);
 		hang();

@@ -185,6 +185,9 @@ COBJS-$(CONFIG_UPDATE_TFTP) += update.o
 COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 endif
 
+ifdef CONFIG_SPL_BUILD
+COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
+endif
 COBJS-y += console.o
 COBJS-y += dlmalloc.o
 COBJS-y += memsize.o

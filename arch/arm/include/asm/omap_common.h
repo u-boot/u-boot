@@ -99,6 +99,9 @@ void spl_nand_load_image(void);
 /* MMC SPL functions */
 void spl_mmc_load_image(void);
 
+/* YMODEM SPL functions */
+void spl_ymodem_load_image(void);
+
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);
 #endif
