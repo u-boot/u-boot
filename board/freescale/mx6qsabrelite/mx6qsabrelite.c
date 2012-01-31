@@ -46,6 +46,10 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
 	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
 
+#define SPI_PAD_CTRL (PAD_CTL_HYS |				\
+	PAD_CTL_PUS_100K_DOWN | PAD_CTL_SPEED_MED |		\
+	PAD_CTL_DSE_40ohm     | PAD_CTL_SRE_FAST)
+
 int dram_init(void)
 {
        gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
@@ -193,6 +197,23 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+#ifdef CONFIG_MXC_SPI
+iomux_v3_cfg_t ecspi1_pads[] = {
+	/* SS1 */
+	MX6Q_PAD_EIM_D19__GPIO_3_19   | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6Q_PAD_EIM_D17__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6Q_PAD_EIM_D18__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6Q_PAD_EIM_D16__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
+};
+
+void setup_spi(void)
+{
+	gpio_direction_output(GPIO_NUMBER(3, 19), 1);
+	imx_iomux_v3_setup_multiple_pads(ecspi1_pads,
+					 ARRAY_SIZE(ecspi1_pads));
+}
+#endif
+
 #define MII_1000BASET_CTRL		0x9
 #define MII_EXTENDED_CTRL		0xb
 #define MII_EXTENDED_DATAW		0xc
@@ -238,6 +259,10 @@ int board_eth_init(bd_t *bis)
 		printf("FEC MXC: Unable to register FEC mii postcall\n");
 		return ret;
 	}
+
+#ifdef CONFIG_MXC_SPI
+	setup_spi();
+#endif
 
 	return 0;
 }
