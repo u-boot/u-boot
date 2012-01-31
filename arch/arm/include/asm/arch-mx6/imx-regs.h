@@ -194,6 +194,50 @@ struct src {
 	u32     gpr10;
 };
 
+/* ECSPI registers */
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 cfg;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+};
+
+/*
+ * CSPI register definitions
+ */
+#define MXC_ECSPI
+#define MXC_CSPICTRL_EN		(1 << 0)
+#define MXC_CSPICTRL_MODE	(1 << 1)
+#define MXC_CSPICTRL_XCH	(1 << 2)
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
+#define MXC_CSPICTRL_PREDIV(x)	(((x) & 0xF) << 12)
+#define MXC_CSPICTRL_POSTDIV(x)	(((x) & 0xF) << 8)
+#define MXC_CSPICTRL_SELCHAN(x)	(((x) & 0x3) << 18)
+#define MXC_CSPICTRL_MAXBITS	0xfff
+#define MXC_CSPICTRL_TC		(1 << 7)
+#define MXC_CSPICTRL_RXOVF	(1 << 6)
+#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
+#define MAX_SPI_BYTES	32
+
+/* Bit position inside CTRL register to be associated with SS */
+#define MXC_CSPICTRL_CHAN	18
+
+/* Bit position inside CON register to be associated with SS */
+#define MXC_CSPICON_POL		4
+#define MXC_CSPICON_PHA		0
+#define MXC_CSPICON_SSPOL	12
+#define MXC_SPI_BASE_ADDRESSES \
+	ECSPI1_BASE_ADDR, \
+	ECSPI2_BASE_ADDR, \
+	ECSPI3_BASE_ADDR, \
+	ECSPI4_BASE_ADDR, \
+	ECSPI5_BASE_ADDR
+
 struct iim_regs {
 	u32	ctrl;
 	u32	ctrl_set;
