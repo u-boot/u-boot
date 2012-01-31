@@ -174,10 +174,22 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_ENV_OFFSET              (6 * 64 * 1024)
-#define CONFIG_ENV_SIZE                        (8 * 1024)
+#define CONFIG_ENV_SIZE			(8 * 1024)
+
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV         0
+/* #define CONFIG_ENV_IS_IN_SPI_FLASH */
+
+#if defined(CONFIG_ENV_IS_IN_MMC)
+#define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
+#define CONFIG_ENV_OFFSET		(768 * 1024)
+#define CONFIG_ENV_SECT_SIZE		(8 * 1024)
+#define CONFIG_ENV_SPI_BUS		CONFIG_SF_DEFAULT_BUS
+#define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
+#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
+#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
+#endif
 
 #define CONFIG_OF_LIBFDT
 
