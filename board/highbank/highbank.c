@@ -23,6 +23,12 @@
 #include <asm/sizes.h>
 #include <asm/io.h>
 
+#define HB_SREG_A9_PWR_REQ		0xfff3cf00
+#define HB_PWR_SUSPEND			0
+#define HB_PWR_SOFT_RESET		1
+#define HB_PWR_HARD_RESET		2
+#define HB_PWR_SHUTDOWN			3
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -68,4 +74,6 @@ void dram_init_banksize(void)
 
 void reset_cpu(ulong addr)
 {
+	writel(HB_PWR_HARD_RESET, HB_SREG_A9_PWR_REQ);
+	asm("	wfi");
 }
