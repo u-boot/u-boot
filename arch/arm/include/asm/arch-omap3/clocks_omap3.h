@@ -72,7 +72,7 @@
 #define MPU_FSEL_13_ES1		0x03
 #define MPU_M2_13_ES1		0x01
 
-#define MPU_M_13_ES2		0x1F4
+#define MPU_M_13_ES2		0x258
 #define MPU_N_13_ES2		0x0C
 #define MPU_FSEL_13_ES2		0x03
 #define MPU_M2_13_ES2		0x01
