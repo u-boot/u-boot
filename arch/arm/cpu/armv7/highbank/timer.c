@@ -66,10 +66,10 @@ static inline unsigned long long time_to_tick(unsigned long long time)
 
 static inline unsigned long long us_to_tick(unsigned long long us)
 {
-	unsigned long long tick = us << 16;
+	unsigned long long tick = us * 1000;
 	tick += NS_PER_TICK - 1;
 	do_div(tick, NS_PER_TICK);
-	return tick >> 16;
+	return tick;
 }
 
 unsigned long long get_ticks(void)
