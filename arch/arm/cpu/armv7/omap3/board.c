@@ -144,7 +144,7 @@ void secureworld_exit()
 {
 	unsigned long i;
 
-	/* configrue non-secure access control register */
+	/* configure non-secure access control register */
 	__asm__ __volatile__("mrc p15, 0, %0, c1, c1, 2":"=r"(i));
 	/* enabling co-processor CP10 and CP11 accesses in NS world */
 	__asm__ __volatile__("orr %0, %0, #0xC00":"=r"(i));
@@ -393,7 +393,7 @@ static void omap3_setup_aux_cr(void)
 {
 	/* Workaround for Cortex-A8 errata: #454179 #430973
 	 *	Set "IBE" bit
-	 *	Set "Disable Brach Size Mispredicts" bit
+	 *	Set "Disable Branch Size Mispredicts" bit
 	 * Workaround for erratum #621766
 	 *	Enable L1NEON bit
 	 * ACR |= (IBE | DBSM | L1NEON) => ACR |= 0xE0
