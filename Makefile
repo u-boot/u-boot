@@ -523,6 +523,11 @@ TAG_SUBDIRS += include
 FIND := find
 FINDFLAGS := -L
 
+checkstack:
+		$(CROSS_COMPILE)objdump -d $(obj)u-boot \
+			`$(FIND) $(obj) -name u-boot-spl -print` | \
+			perl $(src)tools/checkstack.pl $(ARCH)
+
 tags ctags:
 		ctags -w -o $(obj)ctags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
 						-name '*.[chS]' -print`
