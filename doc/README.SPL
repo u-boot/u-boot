@@ -42,8 +42,8 @@ The building of SPL images can be with:
 
 #define CONFIG_SPL
 
-Because SPL images normally have a different text base, one have to be
-configured by defining CONFIG_SPL_TEXT_BASE. The linker script have to be
+Because SPL images normally have a different text base, one has to be
+configured by defining CONFIG_SPL_TEXT_BASE. The linker script has to be
 defined with CONFIG_SPL_LDSCRIPT.
 
 To support generic U-Boot libraries and drivers in the SPL binary one can
