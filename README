@@ -420,6 +420,12 @@ The following options need to be configured:
 		XWAY SoCs for booting from NOR flash. The U-Boot image needs to
 		be swapped if a flash programmer is used.
 
+- ARM options:
+		CONFIG_SYS_EXCEPTION_VECTORS_HIGH
+
+		Select high exception vectors of the ARM core, e.g., do not
+		clear the V bit of the c1 register of CP15.
+
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
 
