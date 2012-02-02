@@ -24,6 +24,15 @@
 #ifndef __DA850_LOWLEVEL_H
 #define __DA850_LOWLEVEL_H
 
+#include <asm/arch/pinmux_defs.h>
+
+/* pinmux_resource[] vector is defined in the board specific file */
+extern const struct pinmux_resource pinmuxes[];
+extern const int pinmuxes_size;
+
+extern const struct lpsc_resource lpsc[];
+extern const int lpsc_size;
+
 /* NOR Boot Configuration Word Field Descriptions */
 #define DA850_NORBOOT_COPY_XK(X)	((X - 1) << 8)
 #define DA850_NORBOOT_METHOD_DIRECT	(1 << 4)

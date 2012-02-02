@@ -27,9 +27,32 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
+#include <asm/arch/pinmux_defs.h>
 #include <ns16550.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+const struct pinmux_resource pinmuxes[] = {
+	PINMUX_ITEM(emac_pins_mii),
+	PINMUX_ITEM(emac_pins_mdio),
+	PINMUX_ITEM(emifa_pins_cs3),
+	PINMUX_ITEM(emifa_pins_cs4),
+	PINMUX_ITEM(emifa_pins_nand),
+	PINMUX_ITEM(uart2_pins_txrx),
+	PINMUX_ITEM(uart2_pins_rtscts),
+};
+
+const int pinmuxes_size = ARRAY_SIZE(pinmuxes);
+
+const struct lpsc_resource lpsc[] = {
+	{ DAVINCI_LPSC_AEMIF },	/* NAND, NOR */
+	{ DAVINCI_LPSC_SPI1 },	/* Serial Flash */
+	{ DAVINCI_LPSC_EMAC },	/* image download */
+	{ DAVINCI_LPSC_UART2 },	/* console */
+	{ DAVINCI_LPSC_GPIO },
+};
+
+const int lpsc_size = ARRAY_SIZE(lpsc);
 
 int board_init(void)
 {

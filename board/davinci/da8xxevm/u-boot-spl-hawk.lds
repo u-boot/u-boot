@@ -34,11 +34,11 @@ SECTIONS
 	. = ALIGN(4);
 	.text      :
 	{
-	  start.o	(.text)
-	  cpu.o		(.text)
-	  nand_boot.o	(.text)
+	  arch/arm/cpu/arm926ejs/start.o		(.text)
+	  arch/arm/cpu/arm926ejs/davinci/libdavinci.o	(.text)
+	  drivers/mtd/nand/libnand.o			(.text)
 
-	  *(.text)
+	  *(.text*)
 	}
 
 	. = ALIGN(4);
@@ -68,10 +68,14 @@ SECTIONS
 
 	__got_end = .;
 
-	_end = .;
+	.bss :
+	{
+		. = ALIGN(4);
+		__bss_start = .;
+		*(.bss*)
+		. = ALIGN(4);
+		__bss_end__ = .;
+	}
 
-	. = ALIGN(4);
-	__bss_start = .;
-	.bss : { *(.bss) }
-	__bss_end__ = .;
+	_end = .;
 }

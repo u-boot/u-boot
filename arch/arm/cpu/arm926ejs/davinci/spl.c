@@ -74,12 +74,12 @@ void board_init_f(ulong dummy)
 
 void board_init_r(gd_t *id, ulong dummy)
 {
-#ifdef CONFIG_SOC_DM365
+#ifdef CONFIG_SPL_NAND_LOAD
 	nand_init();
 	puts("Nand boot...\n");
 	nand_boot();
 #endif
-#ifdef CONFIG_SOC_DA8XX
+#ifdef CONFIG_SPL_SPI_LOAD
 	mem_malloc_init(CONFIG_SYS_TEXT_BASE - CONFIG_SYS_MALLOC_LEN,
 			CONFIG_SYS_MALLOC_LEN);
 

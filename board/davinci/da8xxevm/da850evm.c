@@ -137,13 +137,15 @@ const struct pinmux_resource pinmuxes[] = {
 
 const int pinmuxes_size = ARRAY_SIZE(pinmuxes);
 
-static const struct lpsc_resource lpsc[] = {
+const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_AEMIF },	/* NAND, NOR */
 	{ DAVINCI_LPSC_SPI1 },	/* Serial Flash */
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
 };
+
+const int lpsc_size = ARRAY_SIZE(lpsc);
 
 #ifndef CONFIG_DA850_EVM_MAX_CPU_CLK
 #define CONFIG_DA850_EVM_MAX_CPU_CLK	300000000

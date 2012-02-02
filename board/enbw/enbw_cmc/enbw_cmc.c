@@ -49,7 +49,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct lpsc_resource lpsc[] = {
+const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_AEMIF },
 	{ DAVINCI_LPSC_SPI1 },
 	{ DAVINCI_LPSC_ARM_RAM_ROM },
@@ -64,6 +64,8 @@ static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_USB20 },
 	{ DAVINCI_LPSC_USB11 },
 };
+
+const int lpsc_size = ARRAY_SIZE(lpsc);
 
 static const struct pinmux_config enbw_pins[] = {
 	{ pinmux(0), 8, 0 },
@@ -547,15 +549,6 @@ ulong bootcount_load(void)
 void board_gpio_init(void)
 {
 	struct davinci_gpio *gpio = davinci_gpio_bank01;
-
-	/*
-	 * Power on required peripherals
-	 * ARM does not have access by default to PSC0 and PSC1
-	 * assuming here that the DSP bootloader has set the IOPU
-	 * such that PSC access is available to ARM
-	 */
-	if (da8xx_configure_lpsc_items(lpsc, ARRAY_SIZE(lpsc)))
-		return;
 
 	/*
 	 * set LED (gpio Interface not usable here)

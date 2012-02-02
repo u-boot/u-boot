@@ -48,6 +48,8 @@
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_DA850_LOWLEVEL
 #define CONFIG_ARCH_CPU_INIT
+#define CONFIG_SYS_DA850_PLL_INIT
+#define CONFIG_SYS_DA850_DDR_INIT
 #define CONFIG_DA8XX_GPIO
 #define CONFIG_HOSTNAME		enbw_cmc
 
@@ -82,7 +84,7 @@
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#define CONFIG_SYS_DA850_LPSC_UART	DAVINCI_LPSC_UART2
+
 /*
  * I2C Configuration
  */

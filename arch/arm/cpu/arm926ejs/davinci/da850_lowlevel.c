@@ -32,6 +32,7 @@
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/pll_defs.h>
 
+#if defined(CONFIG_SYS_DA850_PLL_INIT)
 void da850_waitloop(unsigned long loopcnt)
 {
 	unsigned long	i;
@@ -163,7 +164,9 @@ int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 
 	return 0;
 }
+#endif /* CONFIG_SYS_DA850_PLL_INIT */
 
+#if defined(CONFIG_SYS_DA850_DDR_INIT)
 int da850_ddr_setup(void)
 {
 	unsigned long	tmp;
@@ -242,16 +245,13 @@ int da850_ddr_setup(void)
 
 	return 0;
 }
+#endif /* CONFIG_SYS_DA850_DDR_INIT */
 
 __attribute__((weak))
 void board_gpio_init(void)
 {
 	return;
 }
-
-/* pinmux_resource[] vector is defined in the board specific file */
-extern const struct pinmux_resource pinmuxes[];
-extern const int pinmuxes_size;
 
 int arch_cpu_init(void)
 {
@@ -266,13 +266,11 @@ int arch_cpu_init(void)
 	if (davinci_configure_pin_mux_items(pinmuxes, pinmuxes_size))
 		return 1;
 
+#if defined(CONFIG_SYS_DA850_PLL_INIT)
 	/* PLL setup */
 	da850_pll_init(davinci_pllc0_regs, CONFIG_SYS_DA850_PLL0_PLLM);
 	da850_pll_init(davinci_pllc1_regs, CONFIG_SYS_DA850_PLL1_PLLM);
-
-	/* GPIO setup */
-	board_gpio_init();
-
+#endif
 	/* setup CSn config */
 #if defined(CONFIG_SYS_DA850_CS2CFG)
 	writel(CONFIG_SYS_DA850_CS2CFG, &davinci_emif_regs->ab1cr);
@@ -281,7 +279,12 @@ int arch_cpu_init(void)
 	writel(CONFIG_SYS_DA850_CS3CFG, &davinci_emif_regs->ab2cr);
 #endif
 
-	lpsc_on(CONFIG_SYS_DA850_LPSC_UART);
+	da8xx_configure_lpsc_items(lpsc, lpsc_size);
+
+	/* GPIO setup */
+	board_gpio_init();
+
+
 	NS16550_init((NS16550_t)(CONFIG_SYS_NS16550_COM1),
 			CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 
@@ -293,6 +296,9 @@ int arch_cpu_init(void)
 		DAVINCI_UART_PWREMU_MGMT_UTRST),
 	       &davinci_uart2_ctrl_regs->pwremu_mgmt);
 
+#if defined(CONFIG_SYS_DA850_DDR_INIT)
 	da850_ddr_setup();
+#endif
+
 	return 0;
 }
