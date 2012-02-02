@@ -536,7 +536,7 @@ static const struct venc_regs venc_config_std_tv = {
  * Configure Timings for DVI D
  */
 static const struct panel_config dvid_cfg = {
-	.timing_h	= 0x0ff03f31, /* Horizantal timing */
+	.timing_h	= 0x0ff03f31, /* Horizontal timing */
 	.timing_v	= 0x01400504, /* Vertical timing */
 	.pol_freq	= 0x00007028, /* Pol Freq */
 	.divisor	= 0x00010006, /* 72Mhz Pixel Clock */
@@ -548,7 +548,7 @@ static const struct panel_config dvid_cfg = {
 };
 
 static const struct panel_config dvid_cfg_xm = {
-	.timing_h	= 0x1a4024c9, /* Horizantal timing */
+	.timing_h	= 0x1a4024c9, /* Horizontal timing */
 	.timing_v	= 0x02c00509, /* Vertical timing */
 	.pol_freq	= 0x00007028, /* Pol Freq */
 	.divisor	= 0x00010001, /* 96MHz Pixel Clock */
