@@ -275,12 +275,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0xa0000
 
-/*
- * U-Boot is a 3rd stage loader and if booting with spl, cpu setup is
- * done in board_init_f from c code.
- */
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
 /* for UBL header */
 #define CONFIG_SYS_UBL_BLOCK		(CONFIG_SYS_NAND_PAGE_SIZE)
 
