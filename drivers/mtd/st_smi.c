@@ -362,7 +362,7 @@ static int smi_sector_erase(flash_info_t *info, unsigned int sector)
  * smi_write - Write to SMI flash
  * @src_addr:	 source buffer
  * @dst_addr:	 destination buffer
- * @length:	 length to write in words
+ * @length:	 length to write in bytes
  * @bank:	 bank base address
  *
  * Write to SMI flash
@@ -370,7 +370,10 @@ static int smi_sector_erase(flash_info_t *info, unsigned int sector)
 static int smi_write(unsigned int *src_addr, unsigned int *dst_addr,
 		     unsigned int length, ulong bank_addr)
 {
+	u8 *src_addr8 = (u8 *)src_addr;
+	u8 *dst_addr8 = (u8 *)dst_addr;
 	int banknum;
+	int i;
 
 	switch (bank_addr) {
 	case SMIBANK0_BASE:
@@ -399,7 +402,7 @@ static int smi_write(unsigned int *src_addr, unsigned int *dst_addr,
 		return -EIO;
 
 	/* Perform the write command */
-	while (length--) {
+	for (i = 0; i < length; i += 4) {
 		if (((ulong) (dst_addr) % SFLASH_PAGE_SIZE) == 0) {
 			if (smi_wait_till_ready(banknum,
 						CONFIG_SYS_FLASH_WRITE_TOUT))
@@ -409,7 +412,18 @@ static int smi_write(unsigned int *src_addr, unsigned int *dst_addr,
 				return -EIO;
 		}
 
-		*dst_addr++ = *src_addr++;
+		if (length < 4) {
+			int k;
+
+			/*
+			 * Handle special case, where length < 4 (redundant env)
+			 */
+			for (k = 0; k < length; k++)
+				*dst_addr8++ = *src_addr8++;
+		} else {
+			/* Normal 32bit write */
+			*dst_addr++ = *src_addr++;
+		}
 
 		if ((readl(&smicntl->smi_sr) & (ERF1 | ERF2)))
 			return -EIO;
@@ -435,7 +449,7 @@ static int smi_write(unsigned int *src_addr, unsigned int *dst_addr,
 int write_buff(flash_info_t *info, uchar *src, ulong dest_addr, ulong length)
 {
 	return smi_write((unsigned int *)src, (unsigned int *)dest_addr,
-		  (length + 3) / 4, info->start[0]);
+			 length, info->start[0]);
 }
 
 /*
