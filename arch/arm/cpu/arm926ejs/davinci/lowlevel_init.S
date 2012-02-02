@@ -49,6 +49,7 @@
 
 .globl	lowlevel_init
 lowlevel_init:
+#ifdef CONFIG_SOC_DM644X
 
 	/*-------------------------------------------------------*
 	 * Mask all IRQs by setting all bits in the EINT default *
@@ -707,3 +708,6 @@ DDR2_START_ADDR:
 	.word	0x80000000
 DUMMY_VAL:
 	.word	0xa55aa55a
+#else /* CONFIG_SOC_DM644X */
+	mov pc, lr
+#endif
