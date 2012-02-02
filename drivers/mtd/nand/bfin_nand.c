@@ -73,7 +73,7 @@ static void bfin_nfc_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 	SSYNC();
 }
 
-int bfin_nfc_devready(struct mtd_info *mtd)
+static int bfin_nfc_devready(struct mtd_info *mtd)
 {
 	pr_stamp();
 	return (bfin_read_NFC_STAT() & NBUSY) ? 1 : 0;
