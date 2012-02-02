@@ -59,7 +59,7 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 	}
 
 	/* packet must be a 4 byte boundary */
-	if ((int)packet & (4 - 1)) {
+	if ((int)packet & 3) {
 		printf(SHETHER_NAME ": %s: packet not 4 byte alligned\n", __func__);
 		ret = -EFAULT;
 		goto err;
@@ -138,7 +138,7 @@ int sh_eth_recv(struct eth_device *dev)
 static int sh_eth_reset(struct sh_eth_dev *eth)
 {
 	int port = eth->port;
-#if defined(CONFIG_CPU_SH7763)
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
 	int ret = 0, i;
 
 	/* Start e-dmac transmitter and receiver */
@@ -208,7 +208,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	/* Point the controller to the tx descriptor list. Must use physical
 	   addresses */
 	outl(ADDR_TO_PHY(port_info->tx_desc_base), TDLAR(port));
-#if defined(CONFIG_CPU_SH7763)
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
 	outl(ADDR_TO_PHY(port_info->tx_desc_base), TDFAR(port));
 	outl(ADDR_TO_PHY(cur_tx_desc), TDFXR(port));
 	outl(0x01, TDFFR(port));/* Last discriptor bit */
@@ -276,7 +276,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	/* Point the controller to the rx descriptor list */
 	outl(ADDR_TO_PHY(port_info->rx_desc_base), RDLAR(port));
-#if defined(CONFIG_CPU_SH7763)
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
 	outl(ADDR_TO_PHY(port_info->rx_desc_base), RDFAR(port));
 	outl(ADDR_TO_PHY(cur_rx_desc), RDFXR(port));
 	outl(RDFFR_RDLF, RDFFR(port));
@@ -346,7 +346,8 @@ static int sh_eth_phy_config(struct sh_eth_dev *eth)
 	struct eth_device *dev = port_info->dev;
 	struct phy_device *phydev;
 
-	phydev = phy_connect(miiphy_get_dev_by_name(dev->name),
+	phydev = phy_connect(
+			miiphy_get_dev_by_name(dev->name),
 			port_info->phy_addr, dev, PHY_INTERFACE_MODE_MII);
 	port_info->phydev = phydev;
 	phy_config(phydev);
@@ -398,7 +399,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(APR_AP, APR(port));
 	outl(MPR_MP, MPR(port));
 #endif
-#if defined(CONFIG_CPU_SH7763)
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
 	outl(TPAUSER_TPAUSE, TPAUSER(port));
 #elif defined(CONFIG_CPU_SH7757)
 	outl(TPAUSER_UNLIMITED, TPAUSER(port));
@@ -418,7 +419,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	/* Set the transfer speed */
 	if (phy->speed == 100) {
 		printf(SHETHER_NAME ": 100Base/");
-#ifdef CONFIG_CPU_SH7763
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
 		outl(GECMR_100B, GECMR(port));
 #elif defined(CONFIG_CPU_SH7757)
 		outl(1, RTRATE(port));
@@ -427,7 +428,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 #endif
 	} else if (phy->speed == 10) {
 		printf(SHETHER_NAME ": 10Base/");
-#ifdef CONFIG_CPU_SH7763
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
 		outl(GECMR_10B, GECMR(port));
 #elif defined(CONFIG_CPU_SH7757)
 		outl(0, RTRATE(port));
