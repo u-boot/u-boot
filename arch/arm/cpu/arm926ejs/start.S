@@ -358,14 +358,18 @@ _dynsym_start_ofs:
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 	/*
-	 * flush v4 I/D caches
+	 * flush D cache before disabling it
 	 */
 	mov	r0, #0
-	mcr	p15, 0, r0, c7, c7, 0	/* flush v3/v4 cache */
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
+flush_dcache:
+	mrc	p15, 0, r15, c7, c10, 3
+	bne	flush_dcache
+
+	mcr	p15, 0, r0, c8, c7, 0	/* invalidate TLB */
+	mcr	p15, 0, r0, c7, c5, 0	/* invalidate I Cache */
 
 	/*
-	 * disable MMU stuff and caches
+	 * disable MMU and D cache, and enable I cache
 	 */
 	mrc	p15, 0, r0, c1, c0, 0
 	bic	r0, r0, #0x00002300	/* clear bits 13, 9:8 (--V- --RS) */
