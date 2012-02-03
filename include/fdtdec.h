@@ -213,6 +213,29 @@ int fdtdec_find_aliases_for_id(const void *blob, const char *name,
 			enum fdt_compat_id id, int *node_list, int maxcount);
 
 /*
+ * This function is similar to fdtdec_find_aliases_for_id() except that it
+ * adds to the node_list that is passed in. Any 0 elements are considered
+ * available for allocation - others are considered already used and are
+ * skipped.
+ *
+ * You can use this by calling fdtdec_find_aliases_for_id() with an
+ * uninitialised array, then setting the elements that are returned to -1,
+ * say, then calling this function, perhaps with a different compat id.
+ * Any elements you get back that are >0 are new nodes added by the call
+ * to this function.
+ *
+ * Note that if you have some nodes with aliases and some without, you are
+ * sailing close to the wind. The call to fdtdec_find_aliases_for_id() with
+ * one compat_id may fill in positions for which you have aliases defined
+ * for another compat_id. When you later call *this* function with the second
+ * compat_id, the alias positions may already be used. A debug warning may
+ * be generated in this case, but it is safest to define aliases for all
+ * nodes when you care about the ordering.
+ */
+int fdtdec_add_aliases_for_id(const void *blob, const char *name,
+			enum fdt_compat_id id, int *node_list, int maxcount);
+
+/*
  * Get the name for a compatible ID
  *
  * @param id		Compatible ID to look for
