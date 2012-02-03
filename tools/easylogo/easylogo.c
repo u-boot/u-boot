@@ -305,7 +305,13 @@ int image_rgb888_to_rgb565(image_t *rgb888_image, image_t *rgb565_image)
 	return 0;
 }
 
-int use_gzip = 0;
+enum comp_t {
+	COMP_NONE,
+	COMP_GZIP,
+	COMP_LZMA,
+};
+static enum comp_t compression = COMP_NONE;
+static bool bss_storage = false;
 
 int image_save_header (image_t * image, char *filename, char *varname)
 {
@@ -329,58 +335,74 @@ int image_save_header (image_t * image, char *filename, char *varname)
 	fprintf (file, " *\t\t'x'\t\tis the horizontal position\n");
 	fprintf (file, " *\t\t'y'\t\tis the vertical position\n */\n\n");
 
-	/*  gzip compress */
-	if (use_gzip & 0x1) {
+	/* image compress */
+	if (compression != COMP_NONE) {
 		const char *errstr = NULL;
 		unsigned char *compressed;
+		const char *comp_name;
 		struct stat st;
-		FILE *gz;
-		char *gzfilename = xmalloc(strlen (filename) + 20);
-		char *gzcmd = xmalloc(strlen (filename) + 20);
+		FILE *compfp;
+		size_t filename_len = strlen(filename);
+		char *compfilename = xmalloc(filename_len + 20);
+		char *compcmd = xmalloc(filename_len + 50);
 
-		sprintf (gzfilename, "%s.gz", filename);
-		sprintf (gzcmd, "gzip > %s", gzfilename);
-		gz = popen (gzcmd, "w");
-		if (!gz) {
+		sprintf(compfilename, "%s.bin", filename);
+		switch (compression) {
+		case COMP_GZIP:
+			strcpy(compcmd, "gzip");
+			comp_name = "GZIP";
+			break;
+		case COMP_LZMA:
+			strcpy(compcmd, "lzma");
+			comp_name = "LZMA";
+			break;
+		default:
+			errstr = "\nerror: unknown compression method";
+			goto done;
+		}
+		strcat(compcmd, " > ");
+		strcat(compcmd, compfilename);
+		compfp = popen(compcmd, "w");
+		if (!compfp) {
 			errstr = "\nerror: popen() failed";
 			goto done;
 		}
-		if (fwrite (image->data, image->size, 1, gz) != 1) {
+		if (fwrite(image->data, image->size, 1, compfp) != 1) {
 			errstr = "\nerror: writing data to gzip failed";
 			goto done;
 		}
-		if (pclose (gz)) {
+		if (pclose(compfp)) {
 			errstr = "\nerror: gzip process failed";
 			goto done;
 		}
 
-		gz = fopen (gzfilename, "r");
-		if (!gz) {
+		compfp = fopen(compfilename, "r");
+		if (!compfp) {
 			errstr = "\nerror: open() on gzip data failed";
 			goto done;
 		}
-		if (stat (gzfilename, &st)) {
+		if (stat(compfilename, &st)) {
 			errstr = "\nerror: stat() on gzip file failed";
 			goto done;
 		}
-		compressed = xmalloc (st.st_size);
-		if (fread (compressed, st.st_size, 1, gz) != 1) {
+		compressed = xmalloc(st.st_size);
+		if (fread(compressed, st.st_size, 1, compfp) != 1) {
 			errstr = "\nerror: reading gzip data failed";
 			goto done;
 		}
-		fclose (gz);
+		fclose(compfp);
 
-		unlink (gzfilename);
+		unlink(compfilename);
 
 		dataptr = compressed;
 		count = st.st_size;
-		fprintf (file, "#define EASYLOGO_ENABLE_GZIP %i\n\n", count);
-		if (use_gzip & 0x2)
+		fprintf(file, "#define EASYLOGO_ENABLE_%s %i\n\n", comp_name, count);
+		if (bss_storage)
 			fprintf (file, "static unsigned char EASYLOGO_DECOMP_BUFFER[%i];\n\n", image->size);
 
  done:
-		free (gzfilename);
-		free (gzcmd);
+		free(compfilename);
+		free(compcmd);
 
 		if (errstr) {
 			perror (errstr);
@@ -466,6 +488,7 @@ static void usage (int exit_status)
 		"  -r     Output RGB888 instead of YUYV\n"
 		"  -s     Output RGB565 instead of YUYV\n"
 		"  -g     Compress with gzip\n"
+		"  -l     Compress with lzma\n"
 		"  -b     Preallocate space in bss for decompressing image\n"
 		"  -h     Help output\n"
 		"\n"
@@ -486,7 +509,7 @@ int main (int argc, char *argv[])
 
 	image_t rgb888_logo, rgb565_logo, yuyv_logo;
 
-	while ((c = getopt(argc, argv, "hrsgb")) > 0) {
+	while ((c = getopt(argc, argv, "hrsglb")) > 0) {
 		switch (c) {
 		case 'h':
 			usage (0);
@@ -500,12 +523,16 @@ int main (int argc, char *argv[])
 			puts("Using 16-bit RGB565 Output Fromat");
 			break;
 		case 'g':
-			use_gzip |= 0x1;
-			puts ("Compressing with gzip");
+			compression = COMP_GZIP;
+			puts("Compressing with gzip");
+			break;
+		case 'l':
+			compression = COMP_LZMA;
+			puts("Compressing with lzma");
 			break;
 		case 'b':
-			use_gzip |= 0x2;
-			puts ("Preallocating bss space for decompressing image");
+			bss_storage = true;
+			puts("Preallocating bss space for decompressing image");
 			break;
 		default:
 			usage (1);
