@@ -39,7 +39,7 @@
 #define NV_PA_APB_UARTD_BASE	(NV_PA_APB_MISC_BASE + 0x6300)
 #define NV_PA_APB_UARTE_BASE	(NV_PA_APB_MISC_BASE + 0x6400)
 #define TEGRA2_SPI_BASE		(NV_PA_APB_MISC_BASE + 0xC380)
-#define NV_PA_PMC_BASE		0x7000E400
+#define TEGRA2_PMC_BASE		(NV_PA_APB_MISC_BASE + 0xE400)
 #define NV_PA_CSITE_BASE	0x70040000
 #define TEGRA_USB1_BASE		0xC5000000
 #define TEGRA_USB3_BASE		0xC5008000
@@ -55,7 +55,7 @@ struct timerus {
 	unsigned int cntr_1us;
 };
 #else  /* __ASSEMBLY__ */
-#define PRM_RSTCTRL		NV_PA_PMC_BASE
+#define PRM_RSTCTRL		TEGRA2_PMC_BASE
 #endif
 
 #endif	/* TEGRA2_H */

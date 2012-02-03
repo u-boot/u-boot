@@ -47,7 +47,7 @@ enum {
 
 unsigned int query_sdram_size(void)
 {
-	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
 	u32 reg;
 
 	reg = readl(&pmc->pmc_scratch20);
