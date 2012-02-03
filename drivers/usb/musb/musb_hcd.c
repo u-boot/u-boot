@@ -824,7 +824,7 @@ static int musb_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 
 	dev->act_len = len;
 	dev->status = stat;
-	debug("dev act_len %d, status %d\n", dev->act_len, dev->status);
+	debug("dev act_len %d, status %lu\n", dev->act_len, dev->status);
 
 	return stat;
 }
