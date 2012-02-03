@@ -94,6 +94,9 @@
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_EHCI_DCACHE
 
+/* Total I2C ports on Tegra2 */
+#define TEGRA_I2C_NUM_CONTROLLERS	4
+
 /* include default commands */
 #include <config_cmd_default.h>
 
