@@ -153,6 +153,15 @@ void __udelay(unsigned long usec)
 		 /*NOP*/;
 }
 
+/*
+ * This function is derived from PowerPC code (timebase clock frequency).
+ * On ARM it returns the number of timer ticks per second.
+ */
+ulong get_tbclk(void)
+{
+	return CONFIG_MX31_CLK32;
+}
+
 void reset_cpu(ulong addr)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE;
