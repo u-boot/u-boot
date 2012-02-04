@@ -122,6 +122,7 @@
 /* Don't waste time transferring a logo over the UART */
 # if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART)
 #  define CONFIG_VIDEO
+#  define EASYLOGO_HEADER <asm/bfin_logo_230x230_gzip.h>
 # endif
 # define CONFIG_DEB_DMA_URGENT
 #endif
