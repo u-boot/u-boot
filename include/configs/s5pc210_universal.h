@@ -49,6 +49,7 @@
 
 /* input clock of PLL: Universal has 24MHz input clock at EXYNOS4210 */
 #define CONFIG_SYS_CLK_FREQ_C210	24000000
+#define CONFIG_SYS_CLK_FREQ		CONFIG_SYS_CLK_FREQ_C210
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG

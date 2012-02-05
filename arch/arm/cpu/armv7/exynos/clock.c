@@ -26,10 +26,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>
 
-#ifndef CONFIG_SYS_CLK_FREQ_C210
-#define CONFIG_SYS_CLK_FREQ_C210	24000000
-#endif
-
 /* exynos4: return pll clock frequency */
 static unsigned long exynos4_get_pll_clk(int pllreg)
 {
@@ -76,7 +72,7 @@ static unsigned long exynos4_get_pll_clk(int pllreg)
 	/* SDIV [2:0] */
 	s = r & 0x7;
 
-	freq = CONFIG_SYS_CLK_FREQ_C210;
+	freq = CONFIG_SYS_CLK_FREQ;
 
 	if (pllreg == EPLL) {
 		k = k & 0xffff;
