@@ -167,10 +167,15 @@ _reset:
 	 */
 	push	{r0-r12,r14}
 
+	/* save control register c1 */
+	mrc	p15, 0, r0, c1, c0, 0
+	push	{r0}
+
 	/*
-	 * set the cpu to SVC32 mode
+	 * set the cpu to SVC32 mode and store old CPSR register content
 	 */
 	mrs	r0,cpsr
+	push	{r0}
 	bic	r0,r0,#0x1f
 	orr	r0,r0,#0xd3
 	msr	cpsr,r0
@@ -184,6 +189,20 @@ _reset:
 #endif
 
 	bl	board_init_ll
+
+	/*
+	 * restore bootrom's cpu mode (especially FIQ)
+	 */
+	pop	{r0}
+	msr	cpsr,r0
+
+	/*
+	 * restore c1 register
+	 * (especially set exception vector location back to
+	 * bootrom space which is required by bootrom for USB boot)
+	 */
+	pop	{r0}
+	mcr	p15, 0, r0, c1, c0, 0
 
 	pop	{r0-r12,r14}
 	bx	lr
