@@ -626,6 +626,26 @@ void prcm_init(void)
 	sdelay(5000);
 }
 
+/*
+ * Enable usb ehci uhh, tll clocks
+ */
+void ehci_clocks_enable(void)
+{
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+
+	/* Enable USBHOST_L3_ICLK (USBHOST_MICLK) */
+	sr32(&prcm_base->iclken_usbhost, 0, 1, 1);
+	/*
+	 * Enable USBHOST_48M_FCLK (USBHOST_FCLK1)
+	 * and USBHOST_120M_FCLK (USBHOST_FCLK2)
+	 */
+	sr32(&prcm_base->fclken_usbhost, 0, 2, 3);
+	/* Enable USBTTL_ICLK */
+	sr32(&prcm_base->iclken3_core, 2, 1, 1);
+	/* Enable USBTTL_FCLK */
+	sr32(&prcm_base->fclken3_core, 2, 1, 1);
+}
+
 /******************************************************************************
  * peripheral_enable() - Enable the clks & power for perifs (GPT2, UART1,...)
  *****************************************************************************/

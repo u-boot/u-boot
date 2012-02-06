@@ -34,6 +34,7 @@ struct emu_hal_params {
 
 void prcm_init(void);
 void per_clocks_enable(void);
+void ehci_clocks_enable(void);
 
 void memif_init(void);
 void sdrc_init(void);

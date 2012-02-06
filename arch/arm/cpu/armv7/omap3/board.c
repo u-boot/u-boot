@@ -228,6 +228,10 @@ void s_init(void)
 
 	per_clocks_enable();
 
+#ifdef CONFIG_USB_EHCI_OMAP
+	ehci_clocks_enable();
+#endif
+
 #ifdef CONFIG_SPL_BUILD
 	preloader_console_init();
 
