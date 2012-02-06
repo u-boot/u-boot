@@ -40,13 +40,13 @@
  *
  * returns 0 on mask match, ULPI_ERROR on time out.
  */
-static int ulpi_wait(u32 ulpi_viewport, u32 mask)
+static int ulpi_wait(struct ulpi_viewport *ulpi_vp, u32 mask)
 {
 	int timeout = CONFIG_USB_ULPI_TIMEOUT;
 
 	/* Wait for the bits in mask to become zero. */
 	while (--timeout) {
-		if ((readl(ulpi_viewport) & mask) == 0)
+		if ((readl(ulpi_vp->viewport_addr) & mask) == 0)
 			return 0;
 
 		udelay(1);
@@ -60,16 +60,16 @@ static int ulpi_wait(u32 ulpi_viewport, u32 mask)
  *
  * returns 0 on success.
  */
-static int ulpi_wakeup(u32 ulpi_viewport)
+static int ulpi_wakeup(struct ulpi_viewport *ulpi_vp)
 {
 	int err;
 
-	if (readl(ulpi_viewport) & ULPI_SS)
+	if (readl(ulpi_vp->viewport_addr) & ULPI_SS)
 		return 0; /* already awake */
 
-	writel(ULPI_WU, ulpi_viewport);
+	writel(ULPI_WU, ulpi_vp->viewport_addr);
 
-	err = ulpi_wait(ulpi_viewport, ULPI_WU);
+	err = ulpi_wait(ulpi_vp, ULPI_WU);
 	if (err)
 		printf("ULPI wakeup timed out\n");
 
@@ -81,38 +81,40 @@ static int ulpi_wakeup(u32 ulpi_viewport)
  *
  * @value - the ULPI request
  */
-static int ulpi_request(u32 ulpi_viewport, u32 value)
+static int ulpi_request(struct ulpi_viewport *ulpi_vp, u32 value)
 {
 	int err;
 
-	err = ulpi_wakeup(ulpi_viewport);
+	err = ulpi_wakeup(ulpi_vp);
 	if (err)
 		return err;
 
-	writel(value, ulpi_viewport);
+	writel(value, ulpi_vp->viewport_addr);
 
-	err = ulpi_wait(ulpi_viewport, ULPI_RWRUN);
+	err = ulpi_wait(ulpi_vp, ULPI_RWRUN);
 	if (err)
 		printf("ULPI request timed out\n");
 
 	return err;
 }
 
-int ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value)
+int ulpi_write(struct ulpi_viewport *ulpi_vp, u8 *reg, u32 value)
 {
 	u32 val = ULPI_RWRUN | ULPI_RWCTRL | ((u32)reg << 16) | (value & 0xff);
 
-	return ulpi_request(ulpi_viewport, val);
+	val |= (ulpi_vp->port_num & 0x7) << 24;
+	return ulpi_request(ulpi_vp, val);
 }
 
-u32 ulpi_read(u32 ulpi_viewport, u8 *reg)
+u32 ulpi_read(struct ulpi_viewport *ulpi_vp, u8 *reg)
 {
 	int err;
 	u32 val = ULPI_RWRUN | ((u32)reg << 16);
 
-	err = ulpi_request(ulpi_viewport, val);
+	val |= (ulpi_vp->port_num & 0x7) << 24;
+	err = ulpi_request(ulpi_vp, val);
 	if (err)
 		return err;
 
-	return (readl(ulpi_viewport) >> 8) & 0xff;
+	return (readl(ulpi_vp->viewport_addr) >> 8) & 0xff;
 }

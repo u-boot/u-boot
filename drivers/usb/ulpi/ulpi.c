@@ -37,18 +37,18 @@
 
 static struct ulpi_regs *ulpi = (struct ulpi_regs *)0;
 
-static int ulpi_integrity_check(u32 ulpi_viewport)
+static int ulpi_integrity_check(struct ulpi_viewport *ulpi_vp)
 {
 	u32 val, tval = ULPI_TEST_VALUE;
 	int err, i;
 
 	/* Use the 'special' test value to check all bits */
 	for (i = 0; i < 2; i++, tval <<= 1) {
-		err = ulpi_write(ulpi_viewport, &ulpi->scratch, tval);
+		err = ulpi_write(ulpi_vp, &ulpi->scratch, tval);
 		if (err)
 			return err;
 
-		val = ulpi_read(ulpi_viewport, &ulpi->scratch);
+		val = ulpi_read(ulpi_vp, &ulpi->scratch);
 		if (val != tval) {
 			printf("ULPI integrity check failed\n");
 			return val;
@@ -58,7 +58,7 @@ static int ulpi_integrity_check(u32 ulpi_viewport)
 	return 0;
 }
 
-int ulpi_init(u32 ulpi_viewport)
+int ulpi_init(struct ulpi_viewport *ulpi_vp)
 {
 	u32 val, id = 0;
 	u8 *reg = &ulpi->product_id_high;
@@ -66,7 +66,7 @@ int ulpi_init(u32 ulpi_viewport)
 
 	/* Assemble ID from four ULPI ID registers (8 bits each). */
 	for (i = 0; i < ULPI_ID_REGS_COUNT; i++) {
-		val = ulpi_read(ulpi_viewport, reg - i);
+		val = ulpi_read(ulpi_vp, reg - i);
 		if (val == ULPI_ERROR)
 			return val;
 
@@ -76,10 +76,10 @@ int ulpi_init(u32 ulpi_viewport)
 	/* Split ID into vendor and product ID. */
 	debug("ULPI transceiver ID 0x%04x:0x%04x\n", id >> 16, id & 0xffff);
 
-	return ulpi_integrity_check(ulpi_viewport);
+	return ulpi_integrity_check(ulpi_vp);
 }
 
-int ulpi_select_transceiver(u32 ulpi_viewport, unsigned speed)
+int ulpi_select_transceiver(struct ulpi_viewport *ulpi_vp, unsigned speed)
 {
 	u32 tspeed = ULPI_FC_FULL_SPEED;
 	u32 val;
@@ -96,17 +96,18 @@ int ulpi_select_transceiver(u32 ulpi_viewport, unsigned speed)
 			"falling back to full speed\n", __func__, speed);
 	}
 
-	val = ulpi_read(ulpi_viewport, &ulpi->function_ctrl);
+	val = ulpi_read(ulpi_vp, &ulpi->function_ctrl);
 	if (val == ULPI_ERROR)
 		return val;
 
 	/* clear the previous speed setting */
 	val = (val & ~ULPI_FC_XCVRSEL_MASK) | tspeed;
 
-	return ulpi_write(ulpi_viewport, &ulpi->function_ctrl, val);
+	return ulpi_write(ulpi_vp, &ulpi->function_ctrl, val);
 }
 
-int ulpi_set_vbus(u32 ulpi_viewport, int on, int ext_power, int ext_ind)
+int ulpi_set_vbus(struct ulpi_viewport *ulpi_vp, int on, int ext_power,
+			int ext_ind)
 {
 	u32 flags = ULPI_OTG_DRVVBUS;
 	u8 *reg = on ? &ulpi->otg_ctrl_set : &ulpi->otg_ctrl_clear;
@@ -116,18 +117,18 @@ int ulpi_set_vbus(u32 ulpi_viewport, int on, int ext_power, int ext_ind)
 	if (ext_ind)
 		flags |= ULPI_OTG_EXTVBUSIND;
 
-	return ulpi_write(ulpi_viewport, reg, flags);
+	return ulpi_write(ulpi_vp, reg, flags);
 }
 
-int ulpi_set_pd(u32 ulpi_viewport, int enable)
+int ulpi_set_pd(struct ulpi_viewport *ulpi_vp, int enable)
 {
 	u32 val = ULPI_OTG_DP_PULLDOWN | ULPI_OTG_DM_PULLDOWN;
 	u8 *reg = enable ? &ulpi->otg_ctrl_set : &ulpi->otg_ctrl_clear;
 
-	return ulpi_write(ulpi_viewport, reg, val);
+	return ulpi_write(ulpi_vp, reg, val);
 }
 
-int ulpi_opmode_sel(u32 ulpi_viewport, unsigned opmode)
+int ulpi_opmode_sel(struct ulpi_viewport *ulpi_vp, unsigned opmode)
 {
 	u32 topmode = ULPI_FC_OPMODE_NORMAL;
 	u32 val;
@@ -144,17 +145,17 @@ int ulpi_opmode_sel(u32 ulpi_viewport, unsigned opmode)
 			"falling back to OpMode Normal\n", __func__, opmode);
 	}
 
-	val = ulpi_read(ulpi_viewport, &ulpi->function_ctrl);
+	val = ulpi_read(ulpi_vp, &ulpi->function_ctrl);
 	if (val == ULPI_ERROR)
 		return val;
 
 	/* clear the previous opmode setting */
 	val = (val & ~ULPI_FC_OPMODE_MASK) | topmode;
 
-	return ulpi_write(ulpi_viewport, &ulpi->function_ctrl, val);
+	return ulpi_write(ulpi_vp, &ulpi->function_ctrl, val);
 }
 
-int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode)
+int ulpi_serial_mode_enable(struct ulpi_viewport *ulpi_vp, unsigned smode)
 {
 	switch (smode) {
 	case ULPI_IFACE_6_PIN_SERIAL_MODE:
@@ -166,14 +167,14 @@ int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode)
 		return ULPI_ERROR;
 	}
 
-	return ulpi_write(ulpi_viewport, &ulpi->iface_ctrl_set, smode);
+	return ulpi_write(ulpi_vp, &ulpi->iface_ctrl_set, smode);
 }
 
-int ulpi_suspend(u32 ulpi_viewport)
+int ulpi_suspend(struct ulpi_viewport *ulpi_vp)
 {
 	int err;
 
-	err = ulpi_write(ulpi_viewport, &ulpi->function_ctrl_clear,
+	err = ulpi_write(ulpi_vp, &ulpi->function_ctrl_clear,
 			ULPI_FC_SUSPENDM);
 	if (err)
 		printf("ULPI: %s: failed writing the suspend bit\n", __func__);
@@ -186,7 +187,7 @@ int ulpi_suspend(u32 ulpi_viewport)
  * Actual wait for reset must be done in a view port specific way,
  * because it involves checking the DIR line.
  */
-static int __ulpi_reset_wait(u32 ulpi_viewport)
+static int __ulpi_reset_wait(struct ulpi_viewport *ulpi_vp)
 {
 	u32 val;
 	int timeout = CONFIG_USB_ULPI_TIMEOUT;
@@ -199,7 +200,7 @@ static int __ulpi_reset_wait(u32 ulpi_viewport)
 		 * for the error of ulpi_read(), if there is one, then
 		 * there will be a timeout.
 		 */
-		val = ulpi_read(ulpi_viewport, &ulpi->function_ctrl);
+		val = ulpi_read(ulpi_vp, &ulpi->function_ctrl);
 		if (!(val & ULPI_FC_RESET))
 			return 0;
 
@@ -210,18 +211,19 @@ static int __ulpi_reset_wait(u32 ulpi_viewport)
 
 	return ULPI_ERROR;
 }
-int ulpi_reset_wait(u32) __attribute__((weak, alias("__ulpi_reset_wait")));
+int ulpi_reset_wait(struct ulpi_viewport *ulpi_vp)
+	__attribute__((weak, alias("__ulpi_reset_wait")));
 
-int ulpi_reset(u32 ulpi_viewport)
+int ulpi_reset(struct ulpi_viewport *ulpi_vp)
 {
 	int err;
 
-	err = ulpi_write(ulpi_viewport,
+	err = ulpi_write(ulpi_vp,
 			&ulpi->function_ctrl_set, ULPI_FC_RESET);
 	if (err) {
 		printf("ULPI: %s: failed writing reset bit\n", __func__);
 		return err;
 	}
 
-	return ulpi_reset_wait(ulpi_viewport);
+	return ulpi_reset_wait(ulpi_vp);
 }

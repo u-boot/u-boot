@@ -28,12 +28,23 @@
 #endif
 
 /*
+ * ulpi view port address and
+ * Port_number that can be passed.
+ * Any additional data to be passed can
+ * be extended from this structure
+ */
+struct ulpi_viewport {
+	u32 viewport_addr;
+	u32 port_num;
+};
+
+/*
  * Initialize the ULPI transciever and check the interface integrity.
- * @ulpi_viewport -  the address of the ULPI viewport register.
+ * @ulpi_vp -  structure containing ULPI viewport data
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_init(u32 ulpi_viewport);
+int ulpi_init(struct ulpi_viewport *ulpi_vp);
 
 /*
  * Select transceiver speed.
@@ -41,7 +52,7 @@ int ulpi_init(u32 ulpi_viewport);
  *                ULPI_FC_LOW_SPEED,  ULPI_FC_FS4LS
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_select_transceiver(u32 ulpi_viewport, unsigned speed);
+int ulpi_select_transceiver(struct ulpi_viewport *ulpi_vp, unsigned speed);
 
 /*
  * Enable/disable VBUS.
@@ -50,14 +61,15 @@ int ulpi_select_transceiver(u32 ulpi_viewport, unsigned speed);
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_enable_vbus(u32 ulpi_viewport, int on, int ext_power, int ext_ind);
+int ulpi_enable_vbus(struct ulpi_viewport *ulpi_vp,
+			int on, int ext_power, int ext_ind);
 
 /*
  * Enable/disable pull-down resistors on D+ and D- USB lines.
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_set_pd(u32 ulpi_viewport, int enable);
+int ulpi_set_pd(struct ulpi_viewport *ulpi_vp, int enable);
 
 /*
  * Select OpMode.
@@ -66,7 +78,7 @@ int ulpi_set_pd(u32 ulpi_viewport, int enable);
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_opmode_sel(u32 ulpi_viewport, unsigned opmode);
+int ulpi_opmode_sel(struct ulpi_viewport *ulpi_vp, unsigned opmode);
 
 /*
  * Switch to Serial Mode.
@@ -78,7 +90,7 @@ int ulpi_opmode_sel(u32 ulpi_viewport, unsigned opmode);
  * Switches immediately to Serial Mode.
  * To return from Serial Mode, STP line needs to be asserted.
  */
-int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode);
+int ulpi_serial_mode_enable(struct ulpi_viewport *ulpi_vp, unsigned smode);
 
 /*
  * Put PHY into low power mode.
@@ -89,14 +101,14 @@ int ulpi_serial_mode_enable(u32 ulpi_viewport, unsigned smode);
  * STP line must be driven low to keep the PHY in suspend.
  * To resume the PHY, STP line needs to be asserted.
  */
-int ulpi_suspend(u32 ulpi_viewport);
+int ulpi_suspend(struct ulpi_viewport *ulpi_vp);
 
 /*
  * Reset the transceiver. ULPI interface and registers are not affected.
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_reset(u32 ulpi_viewport);
+int ulpi_reset(struct ulpi_viewport *ulpi_vp);
 
 
 /* ULPI access methods below must be implemented for each ULPI viewport. */
@@ -108,7 +120,7 @@ int ulpi_reset(u32 ulpi_viewport);
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value);
+int ulpi_write(struct ulpi_viewport *ulpi_vp, u8 *reg, u32 value);
 
 /*
  * Read the ULPI PHY register content via the viewport.
@@ -116,14 +128,14 @@ int ulpi_write(u32 ulpi_viewport, u8 *reg, u32 value);
  *
  * returns register content on success, ULPI_ERROR on failure.
  */
-u32 ulpi_read(u32 ulpi_viewport, u8 *reg);
+u32 ulpi_read(struct ulpi_viewport *ulpi_vp, u8 *reg);
 
 /*
  * Wait for the reset to complete.
  * The Link must not attempt to access the PHY until the reset has
  * completed and DIR line is de-asserted.
  */
-int ulpi_reset_wait(u32 ulpi_viewport);
+int ulpi_reset_wait(struct ulpi_viewport *ulpi_vp);
 
 /* Access Extended Register Set (indicator) */
 #define ACCESS_EXT_REGS_OFFSET	0x2f	/* read-write */

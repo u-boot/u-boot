@@ -120,6 +120,7 @@ static void efika_ehci_init(struct usb_ehci *ehci, uint32_t stp_gpio,
 {
 	int ret;
 	struct ulpi_regs *ulpi = (struct ulpi_regs *)0;
+	struct ulpi_viewport ulpi_vp;
 
 	mxc_request_iomux(stp_gpio, alt0);
 	mxc_iomux_set_pad(stp_gpio, PAD_CTL_DRV_HIGH |
@@ -133,23 +134,26 @@ static void efika_ehci_init(struct usb_ehci *ehci, uint32_t stp_gpio,
 	mxc_iomux_set_pad(stp_gpio, USB_PAD_CONFIG);
 	udelay(10000);
 
-	ret = ulpi_init((u32)&ehci->ulpi_viewpoint);
+	ulpi_vp.viewport_addr = (u32)&ehci->ulpi_viewpoint;
+	ulpi_vp.port_num = 0;
+
+	ret = ulpi_init(&ulpi_vp);
 	if (ret) {
 		printf("Efika USB ULPI initialization failed\n");
 		return;
 	}
 
 	/* ULPI set flags */
-	ulpi_write((u32)&ehci->ulpi_viewpoint, &ulpi->otg_ctrl,
+	ulpi_write(&ulpi_vp, &ulpi->otg_ctrl,
 			ULPI_OTG_DP_PULLDOWN | ULPI_OTG_DM_PULLDOWN |
 			ULPI_OTG_EXTVBUSIND);
-	ulpi_write((u32)&ehci->ulpi_viewpoint, &ulpi->function_ctrl,
+	ulpi_write(&ulpi_vp, &ulpi->function_ctrl,
 			ULPI_FC_FULL_SPEED | ULPI_FC_OPMODE_NORMAL |
 			ULPI_FC_SUSPENDM);
-	ulpi_write((u32)&ehci->ulpi_viewpoint, &ulpi->iface_ctrl, 0);
+	ulpi_write(&ulpi_vp, &ulpi->iface_ctrl, 0);
 
 	/* Set VBus */
-	ulpi_write((u32)&ehci->ulpi_viewpoint, &ulpi->otg_ctrl_set,
+	ulpi_write(&ulpi_vp, &ulpi->otg_ctrl_set,
 			ULPI_OTG_DRVVBUS | ULPI_OTG_DRVVBUS_EXT);
 
 	/*
@@ -158,8 +162,7 @@ static void efika_ehci_init(struct usb_ehci *ehci, uint32_t stp_gpio,
 	 * NOTE: This violates USB specification, but otherwise, USB on Efika
 	 * doesn't work.
 	 */
-	ulpi_write((u32)&ehci->ulpi_viewpoint, &ulpi->otg_ctrl_set,
-			ULPI_OTG_CHRGVBUS);
+	ulpi_write(&ulpi_vp, &ulpi->otg_ctrl_set, ULPI_OTG_CHRGVBUS);
 }
 
 int board_ehci_hcd_init(int port)
@@ -177,9 +180,12 @@ void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 	uint32_t port = OTG_BASE_ADDR + (0x200 * CONFIG_MXC_USB_PORT);
 	struct usb_ehci *ehci = (struct usb_ehci *)port;
 	struct ulpi_regs *ulpi = (struct ulpi_regs *)0;
+	struct ulpi_viewport ulpi_vp;
 
-	ulpi_write((u32)&ehci->ulpi_viewpoint, &ulpi->otg_ctrl_set,
-			ULPI_OTG_CHRGVBUS);
+	ulpi_vp.viewport_addr = (u32)&ehci->ulpi_viewpoint;
+	ulpi_vp.port_num = 0;
+
+	ulpi_write(&ulpi_vp, &ulpi->otg_ctrl_set, ULPI_OTG_CHRGVBUS);
 
 	wait_ms(50);
 
