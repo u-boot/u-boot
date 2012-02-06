@@ -50,6 +50,8 @@ int cleanup_before_linux (void)
 	/* turn off I/D-cache */
 	icache_disable();
 	dcache_disable();
+	l2_cache_disable();
+
 	/* flush I/D-cache */
 	cache_flush();
 
