@@ -67,15 +67,15 @@ const u32 sys_clk_array[8] = {
  * Please use this tool for creating the table for any new frequency.
  */
 
-/* dpll locked at 1840 MHz MPU clk at 920 MHz(OPP Turbo 4460) - DCC OFF */
-static const struct dpll_params mpu_dpll_params_1840mhz[NUM_SYS_CLKS] = {
-	{230, 2, 1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{920, 12, 1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{219, 3, 1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{575, 11, 1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{460, 12, 1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{920, 26, 1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{575, 23, 1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
+/* dpll locked at 1400 MHz MPU clk at 700 MHz(OPP100) - DCC OFF */
+static const struct dpll_params mpu_dpll_params_1400mhz[NUM_SYS_CLKS] = {
+	{175, 2, 1, -1, -1, -1, -1, -1},	/* 12 MHz   */
+	{700, 12, 1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{125, 2, 1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
+	{401, 10, 1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{350, 12, 1, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{700, 26, 1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{638, 34, 1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
 /* dpll locked at 1584 MHz - MPU clk at 792 MHz(OPP Turbo 4430) */
@@ -217,7 +217,7 @@ const struct dpll_params *get_mpu_dpll_params(void)
 	else if (omap_rev < OMAP4460_ES1_0)
 		return &mpu_dpll_params_1600mhz[sysclk_ind];
 	else
-		return &mpu_dpll_params_1840mhz[sysclk_ind];
+		return &mpu_dpll_params_1400mhz[sysclk_ind];
 }
 
 const struct dpll_params *get_core_dpll_params(void)
@@ -280,7 +280,7 @@ void scale_vcores(void)
 	omap_rev = omap_revision();
 	/* TPS - supplies vdd_mpu on 4460 */
 	if (omap_rev >= OMAP4460_ES1_0) {
-		volt = 1313;
+		volt = 1203;
 		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
 	}
 
