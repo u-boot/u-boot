@@ -33,6 +33,9 @@
  */
 #define CONFIG_PANDA		1	/* working with Panda */
 
+#define CONFIG_USB_ULPI
+#define CONFIG_USB_ULPI_VIEWPORT_OMAP
+
 #include <configs/omap4_common.h>
 
 /* GPIO */

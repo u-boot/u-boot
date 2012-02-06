@@ -24,6 +24,7 @@ LIB	:= $(obj)libusb_ulpi.o
 
 COBJS-$(CONFIG_USB_ULPI)		+= ulpi.o
 COBJS-$(CONFIG_USB_ULPI_VIEWPORT)	+= ulpi-viewport.o
+COBJS-$(CONFIG_USB_ULPI_VIEWPORT_OMAP)	+= omap-ulpi-viewport.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
