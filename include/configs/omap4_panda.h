@@ -31,12 +31,33 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_PANDA		1	/* working with Panda */
+#define CONFIG_PANDA	/* working with Panda */
+
+/* USB UHH support options */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_HOST
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_OMAP
+#define CONFIG_USB_STORAGE
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
+
+#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO 1
+#define CONFIG_OMAP_EHCI_PHY2_RESET_GPIO 62
+
+/* USB Networking options */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+
+#define CONFIG_UBOOT_ENABLE_PADS_ALL
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 
 #define CONFIG_USB_ULPI
 #define CONFIG_USB_ULPI_VIEWPORT_OMAP
 
 #include <configs/omap4_common.h>
+#define CONFIG_CMD_NET
 
 /* GPIO */
 #define CONFIG_CMD_GPIO
