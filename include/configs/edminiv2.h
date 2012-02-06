@@ -221,6 +221,16 @@
 #define CONFIG_SYS_RESET_ADDRESS	0xffff0000
 #define CONFIG_SYS_MAXARGS		16
 
+/* Use the HUSH parser */
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+
+/* Enable command line editing */
+#define CONFIG_CMDLINE_EDITING
+
+/* provide extensive help */
+#define CONFIG_SYS_LONGHELP
+
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_INIT_SP_ADDR	\
