@@ -45,6 +45,11 @@
 #include "beagle.h"
 #include <command.h>
 
+#ifdef CONFIG_USB_EHCI
+#include <usb.h>
+#include <asm/ehci-omap.h>
+#endif
+
 #define pr_debug(fmt, args...) debug(fmt, ##args)
 
 #define TWL4030_I2C_BUS			0
@@ -449,6 +454,23 @@ void show_boot_progress(int val)
 	if(val == 15)
 		usb_stop();
 }
+
+static struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED
+};
+
+int ehci_hcd_init(void)
+{
+	return omap_ehci_hcd_init(&usbhs_bdata);
+}
+
+int ehci_hcd_stop(void)
+{
+	return omap_ehci_hcd_stop();
+}
+
 #endif /* CONFIG_USB_EHCI */
 
 #ifndef CONFIG_SPL_BUILD

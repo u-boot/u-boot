@@ -26,8 +26,15 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/clocks.h>
 #include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 
 #include "panda_mux_data.h"
+
+#ifdef CONFIG_USB_EHCI
+#include <usb.h>
+#include <asm/arch/ehci.h>
+#include <asm/ehci-omap.h>
+#endif
 
 #define PANDA_ULPI_PHY_TYPE_GPIO       182
 
@@ -174,6 +181,37 @@ int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0);
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_USB_EHCI
+
+static struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[1] = OMAP_USBHS_PORT_MODE_UNUSED,
+	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
+};
+
+int ehci_hcd_init(void)
+{
+	int ret;
+	unsigned int utmi_clk;
+
+	/* Now we can enable our port clocks */
+	utmi_clk = readl((void *)CM_L3INIT_HSUSBHOST_CLKCTRL);
+	utmi_clk |= HSUSBHOST_CLKCTRL_CLKSEL_UTMI_P1_MASK;
+	sr32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, 0, 32, utmi_clk);
+
+	ret = omap_ehci_hcd_init(&usbhs_bdata);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
+int ehci_hcd_stop(void)
+{
+	return omap_ehci_hcd_stop();
 }
 #endif
 
