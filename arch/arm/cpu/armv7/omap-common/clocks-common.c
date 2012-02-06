@@ -251,6 +251,35 @@ void configure_mpu_dpll(void)
 	debug("MPU DPLL locked\n");
 }
 
+#ifdef CONFIG_USB_EHCI_OMAP
+static void setup_usb_dpll(void)
+{
+	const struct dpll_params *params;
+	u32 sys_clk_khz, sd_div, num, den;
+
+	sys_clk_khz = get_sys_clk_freq() / 1000;
+	/*
+	 * USB:
+	 * USB dpll is J-type. Need to set DPLL_SD_DIV for jitter correction
+	 * DPLL_SD_DIV = CEILING ([DPLL_MULT/(DPLL_DIV+1)]* CLKINP / 250)
+	 *      - where CLKINP is sys_clk in MHz
+	 * Use CLKINP in KHz and adjust the denominator accordingly so
+	 * that we have enough accuracy and at the same time no overflow
+	 */
+	params = get_usb_dpll_params();
+	num = params->m * sys_clk_khz;
+	den = (params->n + 1) * 250 * 1000;
+	num += den - 1;
+	sd_div = num / den;
+	clrsetbits_le32(&prcm->cm_clksel_dpll_usb,
+			CM_CLKSEL_DPLL_DPLL_SD_DIV_MASK,
+			sd_div << CM_CLKSEL_DPLL_DPLL_SD_DIV_SHIFT);
+
+	/* Now setup the dpll with the regular function */
+	do_setup_dpll(&prcm->cm_clkmode_dpll_usb, params, DPLL_LOCK, "usb");
+}
+#endif
+
 static void setup_dplls(void)
 {
 	u32 temp;
@@ -282,13 +311,16 @@ static void setup_dplls(void)
 
 	/* MPU dpll */
 	configure_mpu_dpll();
+
+#ifdef CONFIG_USB_EHCI_OMAP
+	setup_usb_dpll();
+#endif
 }
 
 #ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
 static void setup_non_essential_dplls(void)
 {
 	u32 sys_clk_khz, abe_ref_clk;
-	u32 sd_div, num, den;
 	const struct dpll_params *params;
 
 	sys_clk_khz = get_sys_clk_freq() / 1000;
@@ -299,26 +331,6 @@ static void setup_non_essential_dplls(void)
 
 	params = get_iva_dpll_params();
 	do_setup_dpll(&prcm->cm_clkmode_dpll_iva, params, DPLL_LOCK, "iva");
-
-	/*
-	 * USB:
-	 * USB dpll is J-type. Need to set DPLL_SD_DIV for jitter correction
-	 * DPLL_SD_DIV = CEILING ([DPLL_MULT/(DPLL_DIV+1)]* CLKINP / 250)
-	 *      - where CLKINP is sys_clk in MHz
-	 * Use CLKINP in KHz and adjust the denominator accordingly so
-	 * that we have enough accuracy and at the same time no overflow
-	 */
-	params = get_usb_dpll_params();
-	num = params->m * sys_clk_khz;
-	den = (params->n + 1) * 250 * 1000;
-	num += den - 1;
-	sd_div = num / den;
-	clrsetbits_le32(&prcm->cm_clksel_dpll_usb,
-			CM_CLKSEL_DPLL_DPLL_SD_DIV_MASK,
-			sd_div << CM_CLKSEL_DPLL_DPLL_SD_DIV_SHIFT);
-
-	/* Now setup the dpll with the regular function */
-	do_setup_dpll(&prcm->cm_clkmode_dpll_usb, params, DPLL_LOCK, "usb");
 
 	/* Configure ABE dpll */
 	params = get_abe_dpll_params();
