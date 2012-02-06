@@ -25,6 +25,8 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* offsets from PLL controller base */
 #define PLLC_PLLCTL	0x100
 #define PLLC_PLLM	0x110
@@ -186,6 +188,36 @@ unsigned int davinci_clk_get(unsigned int div)
 }
 #endif
 #endif /* !CONFIG_SOC_DA8XX */
+
+int set_cpu_clk_info(void)
+{
+#ifdef CONFIG_SOC_DA8XX
+	gd->bd->bi_arm_freq = clk_get(DAVINCI_ARM_CLKID) / 1000000;
+	/* DDR PHY uses an x2 input clock */
+	gd->bd->bi_ddr_freq = clk_get(0x10001) / 1000000;
+#else
+
+	unsigned int pllbase = DAVINCI_PLL_CNTRL0_BASE;
+#if defined(CONFIG_SOC_DM365)
+	pllbase = DAVINCI_PLL_CNTRL1_BASE;
+#endif
+	gd->bd->bi_arm_freq = pll_sysclk_mhz(pllbase, ARM_PLLDIV);
+
+#ifdef DSP_PLLDIV
+	gd->bd->bi_dsp_freq =
+		pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, DSP_PLLDIV);
+#else
+	gd->bd->bi_dsp_freq = 0;
+#endif
+
+	pllbase = DAVINCI_PLL_CNTRL1_BASE;
+#if defined(CONFIG_SOC_DM365)
+	pllbase = DAVINCI_PLL_CNTRL0_BASE;
+#endif
+	gd->bd->bi_ddr_freq = pll_sysclk_mhz(pllbase, DDR_PLLDIV) / 2;
+#endif
+	return 0;
+}
 
 /*
  * Initializes on-chip ethernet controllers.

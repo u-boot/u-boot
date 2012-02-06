@@ -152,6 +152,10 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_CMD_NAND
 #endif
 
+#ifdef CONFIG_CMD_BDI
+#define CONFIG_CLOCKS
+#endif
+
 #define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20)	/* 256 MB */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1

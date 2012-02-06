@@ -41,6 +41,9 @@ typedef struct bd_info {
     unsigned long	bi_ip_addr;	/* IP Address */
     ulong	        bi_arch_number;	/* unique id for this board */
     ulong	        bi_boot_params;	/* where this board expects params */
+	unsigned long	bi_arm_freq; /* arm frequency */
+	unsigned long	bi_dsp_freq; /* dsp core frequency */
+	unsigned long	bi_ddr_freq; /* ddr frequency */
     struct				/* RAM configuration */
     {
 	ulong start;

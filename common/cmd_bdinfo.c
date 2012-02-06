@@ -370,6 +370,15 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("irq_sp", gd->irq_sp);	/* irq stack pointer */
 	print_num("sp start ", gd->start_addr_sp);
 	print_num("FB base  ", gd->fb_base);
+	/*
+	 * TODO: Currently only support for davinci SOC's is added.
+	 * Remove this check once all the board implement this.
+	 */
+#ifdef CONFIG_CLOCKS
+	printf("ARM frequency = %ld MHz\n", gd->bd->bi_arm_freq);
+	printf("DSP frequency = %ld MHz\n", gd->bd->bi_dsp_freq);
+	printf("DDR frequency = %ld MHz\n", gd->bd->bi_ddr_freq);
+#endif
 	return 0;
 }
 

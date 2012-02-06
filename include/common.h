@@ -285,6 +285,7 @@ int	last_stage_init(void);
 extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 _binary_dt_dtb_start[];	/* embedded device tree blob */
+int set_cpu_clk_info(void);
 
 /*
  * Called when console output is requested before the console is available.

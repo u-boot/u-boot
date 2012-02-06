@@ -199,6 +199,10 @@
 #error "Either CONFIG_SYS_USE_NAND or CONFIG_SYS_USE_NOR _MUST_ be defined !!!"
 #endif
 
+#ifdef CONFIG_CMD_BDI
+#define CONFIG_CLOCKS
+#endif
+
 #define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20)	/* 256 MB */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1

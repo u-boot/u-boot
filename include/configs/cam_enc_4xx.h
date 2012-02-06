@@ -121,6 +121,10 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 
+#ifdef CONFIG_CMD_BDI
+#define CONFIG_CLOCKS
+#endif
+
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_EXT2
