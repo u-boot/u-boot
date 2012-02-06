@@ -28,7 +28,6 @@
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_SYS_USE_NAND
 #define CONFIG_SYS_USE_DSPLINK		/* don't power up the DSP. */
-#define CONFIG_DISPLAY_CPUINFO
 /* SoC Configuration */
 #define CONFIG_ARM926EJS			/* arm926ejs CPU core */
 #define CONFIG_SYS_TIMERBASE		0x01c21400	/* use timer 0 */

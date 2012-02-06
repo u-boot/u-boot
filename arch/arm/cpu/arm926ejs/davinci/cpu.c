@@ -115,20 +115,7 @@ int clk_get(enum davinci_clk_ids id)
 out:
 	return pll_out;
 }
-#ifdef CONFIG_DISPLAY_CPUINFO
-int print_cpuinfo(void)
-{
-	printf("Cores: ARM %d MHz",
-			clk_get(DAVINCI_ARM_CLKID) / 1000000);
-	printf("\nDDR:   %d MHz\n",
-			/* DDR PHY uses an x2 input clock */
-			clk_get(0x10001) / 1000000);
-	return 0;
-}
-#endif
 #else /* CONFIG_SOC_DA8XX */
-
-#ifdef CONFIG_DISPLAY_CPUINFO
 
 static unsigned pll_div(volatile void *pllbase, unsigned offset)
 {
@@ -185,36 +172,6 @@ static unsigned pll_sysclk_mhz(unsigned pll_addr, unsigned div)
 	return DIV_ROUND_UP(base, 1000 * pll_div(pllbase, div));
 }
 
-int print_cpuinfo(void)
-{
-	/* REVISIT fetch and display CPU ID and revision information
-	 * too ... that will matter as more revisions appear.
-	 */
-#if defined(CONFIG_SOC_DM365)
-	printf("Cores: ARM %d MHz",
-			pll_sysclk_mhz(DAVINCI_PLL_CNTRL1_BASE, ARM_PLLDIV));
-#else
-	printf("Cores: ARM %d MHz",
-			pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, ARM_PLLDIV));
-#endif
-
-#ifdef DSP_PLLDIV
-	printf(", DSP %d MHz",
-			pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, DSP_PLLDIV));
-#endif
-
-	printf("\nDDR:   %d MHz\n",
-			/* DDR PHY uses an x2 input clock */
-#if defined(CONFIG_SOC_DM365)
-			pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, DDR_PLLDIV)
-				/ 2);
-#else
-			pll_sysclk_mhz(DAVINCI_PLL_CNTRL1_BASE, DDR_PLLDIV)
-				/ 2);
-#endif
-	return 0;
-}
-
 #ifdef DAVINCI_DM6467EVM
 unsigned int davinci_arm_clk_get()
 {
@@ -228,7 +185,6 @@ unsigned int davinci_clk_get(unsigned int div)
 	return pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, div) * 1000000;
 }
 #endif
-#endif /* CONFIG_DISPLAY_CPUINFO */
 #endif /* !CONFIG_SOC_DA8XX */
 
 /*
