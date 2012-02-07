@@ -80,15 +80,15 @@ enum {
 #define ACTIM_CTRLA_TDPL(v)	(((v) & 0x07) << 6)	/*  8:6  */
 #define ACTIM_CTRLA_TDAL(v)	(v & 0x1F)		/*  4:0  */
 
-#define ACTIM_CTRLA(a,b,c,d,e,f,g,h)		\
-		ACTIM_CTRLA_TRFC(a)	|	\
-		ACTIM_CTRLA_TRC(b)	|	\
-		ACTIM_CTRLA_TRAS(b)	|	\
-		ACTIM_CTRLA_TRP(d)	|	\
-		ACTIM_CTRLA_TRCD(e)	|	\
-		ACTIM_CTRLA_TRRD(f)	|	\
-		ACTIM_CTRLA_TDPL(g)	|	\
-		ACTIM_CTRLA_TDAL(h)
+#define ACTIM_CTRLA(trfc, trc, tras, trp, trcd, trrd, tdpl, tdal)	\
+		ACTIM_CTRLA_TRFC(trfc)	|	\
+		ACTIM_CTRLA_TRC(trc)	|	\
+		ACTIM_CTRLA_TRAS(tras)	|	\
+		ACTIM_CTRLA_TRP(trp)	|	\
+		ACTIM_CTRLA_TRCD(trcd)	|	\
+		ACTIM_CTRLA_TRRD(trrd)	|	\
+		ACTIM_CTRLA_TDPL(tdpl)	|	\
+		ACTIM_CTRLA_TDAL(tdal)
 
 /* Helper macros to arrive at value of the SDRC_ACTIM_CTRLB register. */
 #define ACTIM_CTRLB_TWTR(v)	(((v) & 0x03) << 16)	/* 17:16 */
@@ -96,11 +96,11 @@ enum {
 #define ACTIM_CTRLB_TXP(v)	(((v) & 0x07) << 8)	/* 10:8  */
 #define ACTIM_CTRLB_TXSR(v)	(v & 0xFF)		/*  7:0  */
 
-#define ACTIM_CTRLB(a,b,c,d)			\
-		ACTIM_CTRLB_TWTR(a)	|	\
-		ACTIM_CTRLB_TCKE(b)	|	\
-		ACTIM_CTRLB_TXP(b)	|	\
-		ACTIM_CTRLB_TXSR(d)
+#define ACTIM_CTRLB(twtr, tcke, txp, txsr)		\
+		ACTIM_CTRLB_TWTR(twtr)	|	\
+		ACTIM_CTRLB_TCKE(tcke)	|	\
+		ACTIM_CTRLB_TXP(txp)	|	\
+		ACTIM_CTRLB_TXSR(txsr)
 
 /*
  * Values used in the MCFG register.  Only values we use today
@@ -110,18 +110,19 @@ enum {
 #define V_MCFG_RAMTYPE_DDR		(0x1)
 #define V_MCFG_DEEPPD_EN		(0x1 << 3)
 #define V_MCFG_B32NOT16_32		(0x1 << 4)
-#define V_MCFG_BANKALLOCATION_RBC	(0x2 << 6)	/* 6:7 */
-#define V_MCFG_RAMSIZE(a)		((((a)/(1024*1024))/2) << 8) /* 8:17 */
+#define V_MCFG_BANKALLOCATION_RBC	(0x2 << 6)		/* 6:7 */
+#define V_MCFG_RAMSIZE(ramsize)		((((ramsize) >> 20)/2) << 8) /* 8:17 */
 #define V_MCFG_ADDRMUXLEGACY_FLEX	(0x1 << 19)
-#define V_MCFG_CASWIDTH_10B		(0x5 << 20)	/* 20:22 */
-#define V_MCFG_RASWIDTH(a)		((a) << 24)	/* 24:26 */
+#define V_MCFG_CASWIDTH(caswidth)	(((caswidth)-5) << 20)	/* 20:22 */
+#define V_MCFG_CASWIDTH_10B		V_MCFG_CASWIDTH(10)
+#define V_MCFG_RASWIDTH(raswidth)	(((raswidth)-11) << 24)	/* 24:26 */
 
 /* Macro to construct MCFG */
-#define MCFG(a, b)						\
-		V_MCFG_RASWIDTH(b) | V_MCFG_CASWIDTH_10B |	\
-		V_MCFG_ADDRMUXLEGACY_FLEX | V_MCFG_RAMSIZE(a) |	\
-		V_MCFG_BANKALLOCATION_RBC |			\
-		V_MCFG_B32NOT16_32 | V_MCFG_DEEPPD_EN | V_MCFG_RAMTYPE_DDR
+#define MCFG(ramsize, raswidth)						\
+		V_MCFG_RASWIDTH(raswidth) | V_MCFG_CASWIDTH_10B |	\
+		V_MCFG_ADDRMUXLEGACY_FLEX | V_MCFG_RAMSIZE(ramsize) |	\
+		V_MCFG_BANKALLOCATION_RBC | V_MCFG_B32NOT16_32 |	\
+		V_MCFG_DEEPPD_EN | V_MCFG_RAMTYPE_DDR
 
 /* Hynix part of Overo (165MHz optimized) 6.06ns */
 #define HYNIX_TDAL_165   6
@@ -146,7 +147,7 @@ enum {
 		ACTIM_CTRLB(HYNIX_TWTR_165, HYNIX_TCKE_165,	\
 				HYNIX_TXP_165, HYNIX_XSR_165)
 
-#define HYNIX_RASWIDTH_165	0x2
+#define HYNIX_RASWIDTH_165	13
 #define HYNIX_V_MCFG_165(size)	MCFG((size), HYNIX_RASWIDTH_165)
 
 /* Hynix part of AM/DM37xEVM (200MHz optimized) */
@@ -172,7 +173,7 @@ enum {
 		ACTIM_CTRLB(HYNIX_TWTR_200, HYNIX_TCKE_200,	\
 				HYNIX_TXP_200, HYNIX_XSR_200)
 
-#define HYNIX_RASWIDTH_200	0x3
+#define HYNIX_RASWIDTH_200	14
 #define HYNIX_V_MCFG_200(size)	MCFG((size), HYNIX_RASWIDTH_200)
 
 /* Infineon part of 3430SDP (165MHz optimized) 6.06ns */
@@ -227,7 +228,7 @@ enum {
 		ACTIM_CTRLB(MICRON_TWTR_165, MICRON_TCKE_165,	\
 				MICRON_TXP_165,	MICRON_XSR_165)
 
-#define MICRON_RASWIDTH_165	0x2
+#define MICRON_RASWIDTH_165	13
 #define MICRON_V_MCFG_165(size)	MCFG((size), MICRON_RASWIDTH_165)
 
 #define MICRON_BL_165			0x2
@@ -261,7 +262,7 @@ enum {
 		ACTIM_CTRLB(MICRON_TWTR_200, MICRON_TCKE_200,	\
 				MICRON_TXP_200,	MICRON_XSR_200)
 
-#define MICRON_RASWIDTH_200	0x3
+#define MICRON_RASWIDTH_200	14
 #define MICRON_V_MCFG_200(size)	MCFG((size), MICRON_RASWIDTH_200)
 
 /* NUMONYX part of IGEP v2 (165MHz optimized) 6.06ns */
@@ -290,7 +291,7 @@ enum {
 		ACTIM_CTRLB(NUMONYX_TWTR_165, NUMONYX_TCKE_165,	\
 				NUMONYX_TXP_165, NUMONYX_XSR_165)
 
-#define NUMONYX_RASWIDTH_165		0x4
+#define NUMONYX_RASWIDTH_165		15
 #define NUMONYX_V_MCFG_165(size)	MCFG((size), NUMONYX_RASWIDTH_165)
 
 /*
