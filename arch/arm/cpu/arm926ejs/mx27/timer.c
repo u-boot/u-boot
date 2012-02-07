@@ -171,3 +171,8 @@ void __udelay(unsigned long usec)
 	while (get_ticks() < tmp)	/* loop till event */
 		 /*NOP*/;
 }
+
+ulong get_tbclk(void)
+{
+	return CONFIG_MX27_CLK32;
+}
