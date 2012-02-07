@@ -77,6 +77,8 @@
 #define	CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		6
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_MICREL
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

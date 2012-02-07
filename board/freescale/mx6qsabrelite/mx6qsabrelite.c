@@ -29,9 +29,9 @@
 #include <asm/gpio.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |            \
@@ -214,51 +214,32 @@ void setup_spi(void)
 }
 #endif
 
-#define MII_1000BASET_CTRL		0x9
-#define MII_EXTENDED_CTRL		0xb
-#define MII_EXTENDED_DATAW		0xc
-
-int fecmxc_mii_postcall(int phy)
+int board_phy_config(struct phy_device *phydev)
 {
-	/* prefer master mode */
-	miiphy_write("FEC", phy, MII_1000BASET_CTRL, 0x0f00);
-
 	/* min rx data delay */
-	miiphy_write("FEC", phy, MII_EXTENDED_CTRL, 0x8105);
-	miiphy_write("FEC", phy, MII_EXTENDED_DATAW, 0x0000);
-
-	/* max rx/tx clock delay, min rx/tx control delay */
-	miiphy_write("FEC", phy, MII_EXTENDED_CTRL, 0x8104);
-	miiphy_write("FEC", phy, MII_EXTENDED_DATAW, 0xf0f0);
-	miiphy_write("FEC", phy, MII_EXTENDED_CTRL, 0x104);
-
+	ksz9021_phy_extended_write(phydev,
+			MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW, 0x0);
+	/* min tx data delay */
+	ksz9021_phy_extended_write(phydev,
+			MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW, 0x0);
+	/* max rx/tx clock delay, min rx/tx control */
+	ksz9021_phy_extended_write(phydev,
+			MII_KSZ9021_EXT_RGMII_CLOCK_SKEW, 0xf0f0);
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
+ 
 	return 0;
 }
 
 int board_eth_init(bd_t *bis)
 {
-	struct eth_device *dev;
 	int ret;
 
 	setup_iomux_enet();
 
 	ret = cpu_eth_init(bis);
-	if (ret) {
+	if (ret)
 		printf("FEC MXC: %s:failed\n", __func__);
-		return ret;
-	}
-
-	dev = eth_get_dev_by_name("FEC");
-	if (!dev) {
-		printf("FEC MXC: Unable to get FEC device entry\n");
-		return -EINVAL;
-	}
-
-	ret = fecmxc_register_mii_postcall(dev, fecmxc_mii_postcall);
-	if (ret) {
-		printf("FEC MXC: Unable to register FEC mii postcall\n");
-		return ret;
-	}
 
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
