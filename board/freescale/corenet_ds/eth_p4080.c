@@ -96,6 +96,8 @@ struct mii_dev *mii_dev_for_muxval(u32 muxval)
 #if defined(CONFIG_SYS_P4080_ERRATUM_SERDES9) && defined(CONFIG_PHY_TERANETICS)
 int board_phy_config(struct phy_device *phydev)
 {
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
 	if (phydev->drv->uid == PHY_UID_TN2020) {
 		unsigned long timeout = 1 * 1000; /* 1 seconds */
 		enum srds_prtcl device;

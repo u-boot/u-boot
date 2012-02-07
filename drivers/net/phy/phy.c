@@ -733,6 +733,8 @@ int phy_startup(struct phy_device *phydev)
 
 static int __board_phy_config(struct phy_device *phydev)
 {
+	if (phydev->drv->config)
+		return phydev->drv->config(phydev);
 	return 0;
 }
 
@@ -741,9 +743,6 @@ int board_phy_config(struct phy_device *phydev)
 
 int phy_config(struct phy_device *phydev)
 {
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
 	/* Invoke an optional board-specific helper */
 	board_phy_config(phydev);
 

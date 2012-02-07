@@ -261,6 +261,8 @@ int board_phy_config(struct phy_device *phydev)
 	uint phyid;
 	struct mii_dev *bus = phydev->bus;
 
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
 	if (do_once)
 		return 0;
 
