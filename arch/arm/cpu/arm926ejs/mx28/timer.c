@@ -82,7 +82,7 @@ int timer_init(void)
 	return 0;
 }
 
-ulong get_timer(ulong base)
+unsigned long long get_ticks(void)
 {
 	struct mx28_timrot_regs *timrot_regs =
 		(struct mx28_timrot_regs *)MXS_TIMROT_BASE;
@@ -103,7 +103,17 @@ ulong get_timer(ulong base)
 	}
 	lastdec = now;
 
-	return tick_to_time(timestamp) - base;
+	return timestamp;
+}
+
+ulong get_timer_masked(void)
+{
+	return tick_to_time(get_ticks());
+}
+
+ulong get_timer(ulong base)
+{
+	return get_timer_masked() - base;
 }
 
 /* We use the HW_DIGCTL_MICROSECONDS register for sub-millisecond timer. */
@@ -138,4 +148,9 @@ void __udelay(unsigned long usec)
 		counter += incr;
 		old = new;
 	}
+}
+
+ulong get_tbclk(void)
+{
+	return MX28_INCREMENTER_HZ;
 }
