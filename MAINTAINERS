@@ -574,6 +574,7 @@ Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
 	flea3		i.MX35
+	mt_ventoux	omap3
 	mx35pdk		i.MX35
 	mx51evk		i.MX51
 	polaris		xscale/pxa

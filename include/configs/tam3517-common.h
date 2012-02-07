@@ -297,8 +297,8 @@
 /* Setup MTD for NAND on the SOM */
 #define MTDIDS_DEFAULT		"nand0=omap2-nand.0"
 #define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:512k(MLO)," \
-				"512k(u-boot),128k(env1)," \
-				"128k(env2),6m(kernel),-(rootfs)"
+				"1m(u-boot),256k(env1)," \
+				"256k(env2),6m(kernel),-(rootfs)"
 
 #define xstr(s)	str(s)
 #define str(s)	#s
