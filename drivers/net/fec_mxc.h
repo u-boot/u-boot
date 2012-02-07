@@ -286,7 +286,12 @@ struct fec_priv {
 	void *base_ptr;
 	int dev_id;
 	int phy_id;
+	struct mii_dev *bus;
+#ifdef CONFIG_PHYLIB
+	struct phy_device *phydev;
+#else
 	int (*mii_postcall)(int);
+#endif
 };
 
 /**
