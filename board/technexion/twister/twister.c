@@ -33,6 +33,10 @@
 #include <asm/arch/mmc_host_def.h>
 #include <i2c.h>
 #include <asm/gpio.h>
+#ifdef CONFIG_USB_EHCI
+#include <usb.h>
+#include <asm/ehci-omap.h>
+#endif
 #include "twister.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -55,6 +59,24 @@ static const u32 gpmc_XR16L2751[] = {
 	XR16L2751_GPMC_CONFIG5,
 	XR16L2751_GPMC_CONFIG6,
 };
+
+#ifdef CONFIG_USB_EHCI
+static struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
+};
+
+int ehci_hcd_init(void)
+{
+	return omap_ehci_hcd_init(&usbhs_bdata);
+}
+
+int ehci_hcd_stop(void)
+{
+	return omap_ehci_hcd_stop();
+}
+#endif
 
 int board_init(void)
 {
