@@ -929,6 +929,10 @@ Richard Woodruff <r-woodruff2@ti.com>
 
 	omap2420h4	ARM1136EJS
 
+Ilya Yanok <yanok@emcraft.com>
+
+	mcx		ARM ARMV7 (AM35x SoC)
+
 Syed Mohammed Khasim <sm.khasim@gmail.com>
 Sughosh Ganu <urwithsughosh@gmail.com>
 
