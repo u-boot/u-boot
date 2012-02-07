@@ -200,6 +200,19 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(GPMC_A3),		(IDIS | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_A4),		(IDIS | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_A5),		(IDIS | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_A6),		(IDIS | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_A7),		(IDIS | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_A8),		(IDIS | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_A9),		(IDIS | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_A10),		(IDIS | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_D0),		(IEN  | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_D1),		(IEN  | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_D2),		(IEN  | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_D3),		(IEN  | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_D4),		(IEN  | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_D5),		(IEN  | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_D6),		(IEN  | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_D7),		(IEN  | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_D8),		(IEN  | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_D9),		(IEN  | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_D10),		(IEN  | PTU | EN  | M0));
@@ -209,6 +222,8 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(GPMC_D14),		(IEN  | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_D15),		(IEN  | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_NCS0),		(IDIS | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_NCS1),		(IDIS | PTU | EN  | M0));
+	MUX_VAL(CP(GPMC_NCS2),		(IDIS | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_NCS3),		(IDIS | PTD | DIS | M0));
 	MUX_VAL(CP(GPMC_NCS5),          (IDIS | PTU | DIS | M4));
 	MUX_VAL(CP(GPMC_NCS7),		(IDIS | PTD | DIS | M1)); /*GPMC_IO_DIR*/
