@@ -163,6 +163,7 @@
 #define CHIP_REV_1_0                 0x10
 #define IRAM_SIZE                    0x00040000
 #define IMX_IIM_BASE                 OCOTP_BASE_ADDR
+#define FEC_QUIRK_ENET_MAC
 
 #define GPIO_NUMBER(port, index)		((((port)-1)*32)+((index)&31))
 #define GPIO_TO_PORT(number)		(((number)/32)+1)

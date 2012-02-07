@@ -379,13 +379,14 @@ static int fec_set_hwaddr(struct eth_device *dev)
 static int fec_open(struct eth_device *edev)
 {
 	struct fec_priv *fec = (struct fec_priv *)edev->priv;
+	int speed;
 
 	debug("fec_open: fec_open(dev)\n");
 	/* full-duplex, heartbeat disabled */
 	writel(1 << 2, &fec->eth->x_cntrl);
 	fec->rbd_index = 0;
 
-#if defined(CONFIG_MX6Q)
+#ifdef FEC_QUIRK_ENET_MAC
 	/* Enable ENET HW endian SWAP */
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_DBSWAP,
 		&fec->eth->ecntrl);
@@ -428,8 +429,24 @@ static int fec_open(struct eth_device *edev)
 #endif
 
 	miiphy_wait_aneg(edev);
-	miiphy_speed(edev->name, fec->phy_id);
+	speed = miiphy_speed(edev->name, fec->phy_id);
 	miiphy_duplex(edev->name, fec->phy_id);
+
+#ifdef FEC_QUIRK_ENET_MAC
+	{
+		u32 ecr = readl(&fec->eth->ecntrl) & ~FEC_ECNTRL_SPEED;
+		u32 rcr = (readl(&fec->eth->r_cntrl) &
+				~(FEC_RCNTRL_RMII | FEC_RCNTRL_RMII_10T)) |
+				FEC_RCNTRL_RGMII | FEC_RCNTRL_MII_MODE;
+		if (speed == _1000BASET)
+			ecr |= FEC_ECNTRL_SPEED;
+		else if (speed != _100BASET)
+			rcr |= FEC_RCNTRL_RMII_10T;
+		writel(ecr, &fec->eth->ecntrl);
+		writel(rcr, &fec->eth->r_cntrl);
+	}
+#endif
+	debug("%s:Speed=%i\n", __func__, speed);
 
 	/*
 	 * Enable SmartDMA receive task
