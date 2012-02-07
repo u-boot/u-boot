@@ -261,14 +261,14 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 }
 #endif
 
-#define	HW_DIGCTRL_SCRATCH0	0x8001c280
-#define	HW_DIGCTRL_SCRATCH1	0x8001c290
 int mx28_dram_init(void)
 {
+	struct mx28_digctl_regs *digctl_regs =
+		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
 	uint32_t sz[2];
 
-	sz[0] = readl(HW_DIGCTRL_SCRATCH0);
-	sz[1] = readl(HW_DIGCTRL_SCRATCH1);
+	sz[0] = readl(&digctl_regs->hw_digctl_scratch0);
+	sz[1] = readl(&digctl_regs->hw_digctl_scratch1);
 
 	if (sz[0] != sz[1]) {
 		printf("MX28:\n"
