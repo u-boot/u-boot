@@ -46,5 +46,6 @@ enum mxc_clock {
 u32 imx_get_uartclk(void);
 u32 imx_get_fecclk(void);
 unsigned int mxc_get_clock(enum mxc_clock clk);
+void enable_usboh3_clk(unsigned char enable);
 
 #endif /* __ASM_ARCH_CLOCK_H */

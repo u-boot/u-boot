@@ -44,6 +44,7 @@ endif
 COBJS-$(CONFIG_USB_EHCI_MXC) += ehci-mxc.o
 COBJS-$(CONFIG_USB_EHCI_MXS) += ehci-mxs.o
 COBJS-$(CONFIG_USB_EHCI_MX5) += ehci-mx5.o
+COBJS-$(CONFIG_USB_EHCI_MX6) += ehci-mx6.o
 COBJS-$(CONFIG_USB_EHCI_OMAP) += ehci-omap.o
 COBJS-$(CONFIG_USB_EHCI_PPC4XX) += ehci-ppc4xx.o
 COBJS-$(CONFIG_USB_EHCI_IXP4XX) += ehci-ixp.o

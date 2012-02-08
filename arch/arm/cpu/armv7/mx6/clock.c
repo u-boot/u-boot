@@ -36,6 +36,19 @@ enum pll_clocks {
 
 struct imx_ccm_reg *imx_ccm = (struct imx_ccm_reg *)CCM_BASE_ADDR;
 
+void enable_usboh3_clk(unsigned char enable)
+{
+	u32 reg;
+
+	reg = __raw_readl(&imx_ccm->CCGR6);
+	if (enable)
+		reg |= MXC_CCM_CCGR_CG_MASK << MXC_CCM_CCGR0_CG0_OFFSET;
+	else
+		reg &= ~(MXC_CCM_CCGR_CG_MASK << MXC_CCM_CCGR0_CG0_OFFSET);
+	__raw_writel(reg, &imx_ccm->CCGR6);
+
+}
+
 static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 {
 	u32 div;
