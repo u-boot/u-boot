@@ -140,7 +140,7 @@ int usb_host_eth_scan(int mode)
 		dev = usb_get_dev_index(i); /* get device */
 		debug("i=%d\n", i);
 		if (dev == NULL)
-			break; /* no more devices avaiable */
+			break; /* no more devices available */
 
 		/* find valid usb_ether driver for this device, if any */
 		probe_valid_drivers(dev);
