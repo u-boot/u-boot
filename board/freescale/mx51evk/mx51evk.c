@@ -327,7 +327,9 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret;
 
 	mxc_request_iomux(MX51_PIN_GPIO1_0, IOMUX_CONFIG_ALT1);
+	gpio_direction_input(0);
 	mxc_request_iomux(MX51_PIN_GPIO1_6, IOMUX_CONFIG_ALT0);
+	gpio_direction_input(6);
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
 		ret = !gpio_get_value(0);
