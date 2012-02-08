@@ -135,6 +135,7 @@ struct fsl_esdhc_cfg esdhc_cfg[1] = {
 int board_mmc_getcd(struct mmc *mmc)
 {
 	mxc_request_iomux(MX53_PIN_EIM_DA13, IOMUX_CONFIG_ALT1);
+	gpio_direction_input(77);
 	return !gpio_get_value(77); /* GPIO3_13 */
 }
 
