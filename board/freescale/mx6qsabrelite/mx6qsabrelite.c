@@ -140,11 +140,29 @@ static void setup_iomux_enet(void)
 	imx_iomux_v3_setup_multiple_pads(enet_pads2, ARRAY_SIZE(enet_pads2));
 }
 
+iomux_v3_cfg_t usb_pads[] = {
+	MX6Q_PAD_GPIO_17__GPIO_7_12 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
 static void setup_iomux_uart(void)
 {
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
        imx_iomux_v3_setup_multiple_pads(uart2_pads, ARRAY_SIZE(uart2_pads));
 }
+
+#ifdef CONFIG_USB_EHCI_MX6
+int board_ehci_hcd_init(int port)
+{
+	imx_iomux_v3_setup_multiple_pads(usb_pads, ARRAY_SIZE(usb_pads));
+
+	/* Reset USB hub */
+	gpio_direction_output(GPIO_NUMBER(7, 12), 0);
+	mdelay(2);
+	gpio_set_value(GPIO_NUMBER(7, 12), 1);
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg usdhc_cfg[2] = {
