@@ -219,6 +219,8 @@
 	"else run nandboot; fi"
 
 #define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
+
 /*
  * Miscellaneous configurable options
  */
