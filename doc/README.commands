@@ -1,19 +1,19 @@
 
 Commands are added to U-Boot by creating a new command structure.
-This is done by first including command.h
-
-Then using the U_BOOT_CMD() macro to fill in a cmd_tbl_t struct.
+This is done by first including command.h, then using the U_BOOT_CMD() macro
+to fill in a cmd_tbl_t struct.
 
 U_BOOT_CMD(name,maxargs,repeatable,command,"usage","help")
 
 name:	 is the name of the commad. THIS IS NOT a string.
-maxargs: the maximumn numbers of arguments this function takes
+maxargs: the maximum number of arguments this function takes
+repeatable: either 0 or 1 to indicate if autorepeat is allowed
 command: Function pointer (*cmd)(struct cmd_tbl_s *, int, int, char *[]);
 usage:	 Short description. This is a string
-help:	 long description. This is a string
+help:	 Long description. This is a string
 
 
-**** Behinde the scene ******
+**** Behind the scene ******
 
 The structure created is named with a special prefix (__u_boot_cmd_)
 and placed by the linker in a special section.
