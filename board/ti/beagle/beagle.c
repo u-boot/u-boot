@@ -252,6 +252,38 @@ void beagle_display_init(void)
 }
 
 /*
+ * Enable DVI power
+ */
+static void beagle_dvi_pup() {
+	uchar val;
+
+	switch (get_board_revision()) {
+	case REVISION_AXBX:
+	case REVISION_CX:
+	case REVISION_C4:
+	case REVISION_XM_A:
+		gpio_request(170, "");
+		gpio_direction_output(170, 0);
+		gpio_set_value(170, 1);
+		break;
+	case REVISION_XM_B:
+	case REVISION_XM_C:
+	default:
+		#define GPIODATADIR1 (TWL4030_BASEADD_GPIO+3)
+		#define GPIODATAOUT1 (TWL4030_BASEADD_GPIO+6)
+
+		i2c_read(TWL4030_CHIP_GPIO, GPIODATADIR1, 1, &val, 1);
+		val |= 4;
+		i2c_write(TWL4030_CHIP_GPIO, GPIODATADIR1, 1, &val, 1);
+
+		i2c_read(TWL4030_CHIP_GPIO, GPIODATAOUT1, 1, &val, 1);
+		val |= 4;
+		i2c_write(TWL4030_CHIP_GPIO, GPIODATAOUT1, 1, &val, 1);
+		break;
+	}
+}
+
+/*
  * Routine: misc_init_r
  * Description: Configure board specific parts
  */
@@ -422,6 +454,8 @@ int misc_init_r(void)
 		GPIO15 | GPIO14 | GPIO13 | GPIO12), &gpio5_base->oe);
 
 	dieid_num_r();
+
+	beagle_dvi_pup();
 	beagle_display_init();
 	omap3_dss_enable();
 
