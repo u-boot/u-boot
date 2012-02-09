@@ -25,12 +25,15 @@
 #include <i2c.h>
 #include <net.h>
 #include <netdev.h>
+#include <spi.h>
+#include <spi_flash.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/arch/pinmux_defs.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
+#include <asm/errno.h>
 #include <hwconfig.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -42,6 +45,36 @@ DECLARE_GLOBAL_DATA_PTR;
 #define HAS_RMII 0
 #endif
 #endif /* CONFIG_DRIVER_TI_EMAC */
+
+#define CFG_MAC_ADDR_SPI_BUS	0
+#define CFG_MAC_ADDR_SPI_CS	0
+#define CFG_MAC_ADDR_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
+#define CFG_MAC_ADDR_SPI_MODE	SPI_MODE_3
+
+#define CFG_MAC_ADDR_OFFSET	(flash->size - SZ_64K)
+
+#ifdef CONFIG_MAC_ADDR_IN_SPIFLASH
+static int get_mac_addr(u8 *addr)
+{
+	struct spi_flash *flash;
+	int ret;
+
+	flash = spi_flash_probe(CFG_MAC_ADDR_SPI_BUS, CFG_MAC_ADDR_SPI_CS,
+			CFG_MAC_ADDR_SPI_MAX_HZ, CFG_MAC_ADDR_SPI_MODE);
+	if (!flash) {
+		printf("Error - unable to probe SPI flash.\n");
+		return -1;
+	}
+
+	ret = spi_flash_read(flash, CFG_MAC_ADDR_OFFSET, 6, addr);
+	if (ret) {
+		printf("Error - unable to read MAC address from SPI flash.\n");
+		return -1;
+	}
+
+	return ret;
+}
+#endif
 
 void dsp_lpsc_on(unsigned domain, unsigned int id)
 {
@@ -98,6 +131,45 @@ static void dspwake(void)
 int misc_init_r(void)
 {
 	dspwake();
+
+#ifdef CONFIG_MAC_ADDR_IN_SPIFLASH
+	uchar env_enetaddr[6];
+	int enetaddr_found;
+	int spi_mac_read;
+	uchar buff[6];
+
+	enetaddr_found = eth_getenv_enetaddr("ethaddr", env_enetaddr);
+	spi_mac_read = get_mac_addr(buff);
+
+	/*
+	 * MAC address not present in the environment
+	 * try and read the MAC address from SPI flash
+	 * and set it.
+	 */
+	if (!enetaddr_found) {
+		if (!spi_mac_read) {
+			if (is_valid_ether_addr(buff)) {
+				if (eth_setenv_enetaddr("ethaddr", buff)) {
+					printf("Warning: Failed to "
+					"set MAC address from SPI flash\n");
+				}
+			} else {
+					printf("Warning: Invalid "
+					"MAC address read from SPI flash\n");
+			}
+		}
+	} else {
+		/*
+		 * MAC address present in environment compare it with
+		 * the MAC address in SPI flash and warn on mismatch
+		 */
+		if (!spi_mac_read && is_valid_ether_addr(buff) &&
+						memcmp(env_enetaddr, buff, 6))
+			printf("Warning: MAC address in SPI flash don't match "
+					"with the MAC address in the environment\n");
+			printf("Default using MAC address from environment\n");
+	}
+#endif
 	return 0;
 }
 
