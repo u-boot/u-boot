@@ -667,14 +667,6 @@ ucname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\U\1/')
 # ARM
 #========================================================================
 
-spear300_config \
-spear310_config \
-spear320_config :	unconfig
-	@$(MKCONFIG) -n $@ -t $@ spear3xx arm arm926ejs $(@:_config=) spear spear
-
-spear600_config :	unconfig
-	@$(MKCONFIG) -n $@ -t $@ spear6xx arm arm926ejs $(@:_config=) spear spear
-
 SX1_stdout_serial_config \
 SX1_config:		unconfig
 	@mkdir -p $(obj)include
