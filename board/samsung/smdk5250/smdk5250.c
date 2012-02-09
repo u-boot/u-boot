@@ -31,6 +31,91 @@
 DECLARE_GLOBAL_DATA_PTR;
 struct exynos5_gpio_part1 *gpio1;
 
+#ifdef CONFIG_SMC911X
+static void smc9115_pre_init(void)
+{
+	u32 smc_bw_conf, smc_bc_conf;
+	int i;
+
+	/*
+	 * SROM:CS1 and EBI
+	 *
+	 * GPY0[0]	SROM_CSn[0]
+	 * GPY0[1]	SROM_CSn[1](2)
+	 * GPY0[2]	SROM_CSn[2]
+	 * GPY0[3]	SROM_CSn[3]
+	 * GPY0[4]	EBI_OEn(2)
+	 * GPY0[5]	EBI_EEn(2)
+	 *
+	 * GPY1[0]	EBI_BEn[0](2)
+	 * GPY1[1]	EBI_BEn[1](2)
+	 * GPY1[2]	SROM_WAIT(2)
+	 * GPY1[3]	EBI_DATA_RDn(2)
+	 */
+	s5p_gpio_cfg_pin(&gpio1->y0, CONFIG_ENV_SROM_BANK, GPIO_FUNC(2));
+	s5p_gpio_cfg_pin(&gpio1->y0, 4, GPIO_FUNC(2));
+	s5p_gpio_cfg_pin(&gpio1->y0, 5, GPIO_FUNC(2));
+
+	for (i = 0; i < 4; i++)
+		s5p_gpio_cfg_pin(&gpio1->y1, i, GPIO_FUNC(2));
+
+	/*
+	 * EBI: 8 Addrss Lines
+	 *
+	 * GPY3[0]	EBI_ADDR[0](2)
+	 * GPY3[1]	EBI_ADDR[1](2)
+	 * GPY3[2]	EBI_ADDR[2](2)
+	 * GPY3[3]	EBI_ADDR[3](2)
+	 * GPY3[4]	EBI_ADDR[4](2)
+	 * GPY3[5]	EBI_ADDR[5](2)
+	 * GPY3[6]	EBI_ADDR[6](2)
+	 * GPY3[7]	EBI_ADDR[7](2)
+	 *
+	 * EBI: 16 Data Lines
+	 *
+	 * GPY5[0]	EBI_DATA[0](2)
+	 * GPY5[1]	EBI_DATA[1](2)
+	 * GPY5[2]	EBI_DATA[2](2)
+	 * GPY5[3]	EBI_DATA[3](2)
+	 * GPY5[4]	EBI_DATA[4](2)
+	 * GPY5[5]	EBI_DATA[5](2)
+	 * GPY5[6]	EBI_DATA[6](2)
+	 * GPY5[7]	EBI_DATA[7](2)
+	 *
+	 * GPY6[0]	EBI_DATA[8](2)
+	 * GPY6[1]	EBI_DATA[9](2)
+	 * GPY6[2]	EBI_DATA[10](2)
+	 * GPY6[3]	EBI_DATA[11](2)
+	 * GPY6[4]	EBI_DATA[12](2)
+	 * GPY6[5]	EBI_DATA[13](2)
+	 * GPY6[6]	EBI_DATA[14](2)
+	 * GPY6[7]	EBI_DATA[15](2)
+	 */
+	for (i = 0; i < 8; i++) {
+		s5p_gpio_cfg_pin(&gpio1->y3, i, GPIO_FUNC(2));
+		s5p_gpio_set_pull(&gpio1->y3, i, GPIO_PULL_UP);
+
+		s5p_gpio_cfg_pin(&gpio1->y5, i, GPIO_FUNC(2));
+		s5p_gpio_set_pull(&gpio1->y5, i, GPIO_PULL_UP);
+
+		s5p_gpio_cfg_pin(&gpio1->y6, i, GPIO_FUNC(2));
+		s5p_gpio_set_pull(&gpio1->y6, i, GPIO_PULL_UP);
+	}
+
+	/* Ethernet needs data bus width of 16 bits */
+	smc_bw_conf = SROMC_DATA16_WIDTH(CONFIG_ENV_SROM_BANK)
+			| SROMC_BYTE_ENABLE(CONFIG_ENV_SROM_BANK);
+
+	smc_bc_conf = SROMC_BC_TACS(0x01) | SROMC_BC_TCOS(0x01)
+			| SROMC_BC_TACC(0x06) | SROMC_BC_TCOH(0x01)
+			| SROMC_BC_TAH(0x0C)  | SROMC_BC_TACP(0x09)
+			| SROMC_BC_PMC(0x01);
+
+	/* Select and configure the SROMC bank */
+	s5p_config_sromc(CONFIG_ENV_SROM_BANK, smc_bw_conf, smc_bc_conf);
+}
+#endif
+
 int board_init(void)
 {
 	gpio1 = (struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
@@ -78,6 +163,15 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[7].start = PHYS_SDRAM_8;
 	gd->bd->bi_dram[7].size = get_ram_size((long *)PHYS_SDRAM_8,
 							PHYS_SDRAM_8_SIZE);
+}
+
+int board_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_SMC911X
+	smc9115_pre_init();
+	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#endif
+	return 0;
 }
 
 #ifdef CONFIG_DISPLAY_BOARDINFO

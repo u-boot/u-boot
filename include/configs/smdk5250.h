@@ -96,8 +96,7 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
+#define CONFIG_CMD_NET
 
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
@@ -190,6 +189,14 @@
 #define CONFIG_IRAM_STACK	0x02050000
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
+
+/* Ethernet Controllor Driver */
+#ifdef CONFIG_CMD_NET
+#define CONFIG_SMC911X
+#define CONFIG_SMC911X_BASE		0x5000000
+#define CONFIG_SMC911X_16_BIT
+#define CONFIG_ENV_SROM_BANK		1
+#endif /*CONFIG_CMD_NET*/
 
 /* Enable devicetree support */
 #define CONFIG_OF_LIBFDT
