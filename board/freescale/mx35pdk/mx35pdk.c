@@ -263,10 +263,6 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	struct ccm_regs *ccm =
-		(struct ccm_regs *)IMX_CCM_BASE;
-	u32 cpu_rev = get_cpu_rev();
-
 	/*
 	 * Be sure that I2C is initialized to check
 	 * the board revision
@@ -274,28 +270,7 @@ int checkboard(void)
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	/* Print board revision */
-	printf("Board: MX35 PDK %d.0 ", ((get_board_rev() >> 8) + 1) & 0x0F);
-
-	/* Print CPU revision */
-	printf("i.MX35 %d.%d [", (cpu_rev & 0xF0) >> 4, cpu_rev & 0x0F);
-
-	switch (readl(&ccm->rcsr) & 0x0F) {
-	case 0x0000:
-		puts("POR");
-		break;
-	case 0x0002:
-		puts("JTAG");
-		break;
-	case 0x0004:
-		puts("RST");
-		break;
-	case 0x0008:
-		puts("WDT");
-		break;
-	default:
-		puts("unknown");
-	}
-	puts("]\n");
+	printf("Board: MX35 PDK %d.0\n", ((get_board_rev() >> 8) + 1) & 0x0F);
 
 	return 0;
 }
