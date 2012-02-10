@@ -422,6 +422,7 @@ U_BOOT_CMD(
 	""
 );
 
+#if defined(CONFIG_DISPLAY_CPUINFO)
 static char *get_reset_cause(void)
 {
 	/* read RCSR register from CCM module */
@@ -444,7 +445,6 @@ static char *get_reset_cause(void)
 	}
 }
 
-#if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
 	u32 srev = get_cpu_rev();
