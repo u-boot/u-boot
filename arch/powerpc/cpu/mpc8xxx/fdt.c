@@ -86,30 +86,39 @@ void ft_fixup_num_cores(void *blob) {
 }
 #endif /* defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) */
 
-#ifdef CONFIG_HAS_FSL_DR_USB
+#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
 static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
 				const char *phy_type, int start_offset)
 {
-	const char *compat = "fsl-usb2-dr";
+	const char *compat_dr = "fsl-usb2-dr";
+	const char *compat_mph = "fsl-usb2-mph";
 	const char *prop_mode = "dr_mode";
 	const char *prop_type = "phy_type";
+	const char *node_type = NULL;
 	int node_offset;
 	int err;
 
 	node_offset = fdt_node_offset_by_compatible(blob,
-			start_offset, compat);
+			start_offset, compat_mph);
 	if (node_offset < 0) {
-		printf("WARNING: could not find compatible node %s: %s.\n",
-			compat, fdt_strerror(node_offset));
-		return -1;
-	}
+		node_offset = fdt_node_offset_by_compatible(blob,
+			start_offset, compat_dr);
+		if (node_offset < 0) {
+			printf("WARNING: could not find compatible"
+				" node %s or %s: %s.\n", compat_mph,
+				compat_dr, fdt_strerror(node_offset));
+			return -1;
+		} else
+			node_type = compat_dr;
+	} else
+		node_type = compat_mph;
 
 	if (mode) {
 		err = fdt_setprop(blob, node_offset, prop_mode, mode,
 				  strlen(mode) + 1);
 		if (err < 0)
 			printf("WARNING: could not set %s for %s: %s.\n",
-			       prop_mode, compat, fdt_strerror(err));
+			       prop_mode, node_type, fdt_strerror(err));
 	}
 
 	if (phy_type) {
@@ -117,7 +126,7 @@ static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
 				  strlen(phy_type) + 1);
 		if (err < 0)
 			printf("WARNING: could not set %s for %s: %s.\n",
-			       prop_type, compat, fdt_strerror(err));
+			       prop_type, node_type, fdt_strerror(err));
 	}
 
 	return node_offset;
@@ -180,7 +189,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 		fdt_fixup_usb_mode_phy_type(blob, mode, phy_type, usb_off);
 	}
 }
-#endif /* CONFIG_HAS_FSL_DR_USB */
+#endif /* defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB) */
 
 /*
  * update crypto node properties to a specified revision of the SEC
