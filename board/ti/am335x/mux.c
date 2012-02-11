@@ -272,6 +272,14 @@ static struct module_pin_mux mmc0_pin_mux[] = {
 };
 #endif
 
+static struct module_pin_mux i2c0_pin_mux[] = {
+	{OFFSET(i2c0_sda), (MODE(0) | RXACTIVE |
+			PULLUDEN | SLEWCTRL)}, /* I2C_DATA */
+	{OFFSET(i2c0_scl), (MODE(0) | RXACTIVE |
+			PULLUDEN | SLEWCTRL)}, /* I2C_SCLK */
+	{-1},
+};
+
 /*
  * Configure the pin mux for the module
  */
@@ -297,3 +305,8 @@ void enable_mmc0_pin_mux(void)
 	configure_module_pin_mux(mmc0_pin_mux);
 }
 #endif
+
+void enable_i2c0_pin_mux(void)
+{
+	configure_module_pin_mux(i2c0_pin_mux);
+}

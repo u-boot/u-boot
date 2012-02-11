@@ -18,6 +18,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/common_def.h>
 #include <serial.h>
+#include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,6 +43,12 @@ int init_basic_setup(void)
 int board_init(void)
 {
 	enable_uart0_pin_mux();
+
+#ifdef CONFIG_I2C
+	enable_i2c0_pin_mux();
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+
 	init_basic_setup();
 
 	return 0;
