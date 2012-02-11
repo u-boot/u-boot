@@ -39,8 +39,9 @@ COBJS-y += nand_bbt.o
 COBJS-y += nand_ids.o
 COBJS-y += nand_util.o
 endif
-COBJS-y += nand_ecc.o
+COBJS-$(CONFIG_MTD_ECC_SOFT) += nand_ecc.o
 COBJS-y += nand_base.o
+COBJS-$(CONFIG_NAND_ECC_BCH) += nand_bch.o
 
 COBJS-$(CONFIG_NAND_ATMEL) += atmel_nand.o
 COBJS-$(CONFIG_DRIVER_NAND_BFIN) += bfin_nand.o

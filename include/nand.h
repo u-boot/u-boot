@@ -24,13 +24,29 @@
 #ifndef _NAND_H_
 #define _NAND_H_
 
+#include <config.h>
+
+/*
+ * All boards using a given driver must convert to self-init
+ * at the same time, so do it here.  When all drivers are
+ * converted, this will go away.
+ */
+#if defined(CONFIG_NAND_FSL_ELBC)
+#define CONFIG_SYS_NAND_SELF_INIT
+#endif
+
 extern void nand_init(void);
 
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 
+#ifdef CONFIG_SYS_NAND_SELF_INIT
+void board_nand_init(void);
+int nand_register(int devnum);
+#else
 extern int board_nand_init(struct nand_chip *nand);
+#endif
 
 typedef struct mtd_info nand_info_t;
 

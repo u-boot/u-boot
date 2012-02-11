@@ -231,7 +231,6 @@
 
 #define CONFIG_NAND_MXC
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
-#define CONFIG_SYS_NAND_MAX_CHIPS		1
 
 /*
  * actually this is nothing someone wants to configure!

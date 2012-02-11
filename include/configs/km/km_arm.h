@@ -133,7 +133,6 @@
  * NAND Flash configuration
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS			1
 
 #define BOOTFLASH_START		0x0
 

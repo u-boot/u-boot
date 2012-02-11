@@ -47,6 +47,10 @@ extern char * strchr(const char *,int);
 #ifndef __HAVE_ARCH_STRRCHR
 extern char * strrchr(const char *,int);
 #endif
+extern char * skip_spaces(const char *);
+
+extern char *strim(char *);
+
 #ifndef __HAVE_ARCH_STRSTR
 extern char * strstr(const char *,const char *);
 #endif

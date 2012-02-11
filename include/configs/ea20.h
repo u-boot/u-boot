@@ -197,7 +197,6 @@
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define	CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
-#define NAND_MAX_CHIPS			1
 #define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
