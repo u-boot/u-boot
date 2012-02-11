@@ -69,6 +69,9 @@
 #define SST39SF010A	0x00B5
 #define SST39SF020A	0x00B6
 
+/* STM */
+#define STM29F400BB	0x00D6
+
 /* MXIC */
 #define MX29LV040	0x004F
 
@@ -344,6 +347,23 @@ static const struct amd_flash_info jedec_table[] = {
 			ERASEINFO(0x02000, 2),
 			ERASEINFO(0x08000, 1),
 			ERASEINFO(0x10000, 15),
+		}
+	},
+	{
+		.mfr_id		= (u16)STM_MANUFACT,
+		.dev_id		= STM29F400BB,
+		.name		= "ST Micro M29F400BB",
+		.uaddr		= {
+			[1] = MTD_UADDR_0x0555_0x02AA /* x16 */
+		},
+		.DevSize		= SIZE_512KiB,
+		.CmdSet			= CFI_CMDSET_AMD_LEGACY,
+		.NumEraseRegions	= 4,
+		.regions		= {
+			ERASEINFO(0x04000, 1),
+			ERASEINFO(0x02000, 2),
+			ERASEINFO(0x08000, 1),
+			ERASEINFO(0x10000, 7),
 		}
 	},
 #endif
