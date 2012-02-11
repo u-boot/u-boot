@@ -242,7 +242,6 @@
 #define CONFIG_SYS_NAND_BASE            0x40000000
 
 #define CONFIG_SYS_MAX_NAND_DEVICE      2
-#define NAND_MAX_CHIPS                  CONFIG_SYS_MAX_NAND_DEVICE
 #define CONFIG_SYS_NAND_SELECT_DEVICE	/* driver supports mutipl. chips */
 
 /*

@@ -69,7 +69,6 @@
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ 0x02000000, }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
 
 /* U-Boot command configuration */
 #include <config_cmd_default.h>

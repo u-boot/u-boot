@@ -90,7 +90,6 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ 0x02000000, }
 /* socket has two chipselects, nCE0 gated by address BIT(14) */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
 
 /* SPI support */
 #define CONFIG_SPI
@@ -236,9 +235,6 @@
 #define CONFIG_SYS_NAND_ECCBYTES	10
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE /	 \
-					 CONFIG_SYS_NAND_ECCSIZE)
-#define CONFIG_SYS_NAND_ECCTOTAL	(40)
 
 /*
  * RBL searches from Block n (n = 1..24)

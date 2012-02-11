@@ -70,7 +70,6 @@
 #define CONFIG_DRIVER_NAND_BFIN
 #define CONFIG_SYS_NAND_BASE		0 /* not actually used */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS		1
 #define CONFIG_CMD_NAND
 #endif
 
