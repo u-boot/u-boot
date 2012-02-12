@@ -35,7 +35,6 @@
 extern unsigned int davinci_arm_clk_get(void);
 #endif
 
-#define CFG_REFCLK_FREQ		27000000
 /* Arm Clock frequency    */
 #define CONFIG_SYS_CLK_FREQ	davinci_arm_clk_get()
 /* Timer Input clock freq */

@@ -36,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 u32 get_board_rev(void)
 {
 
-#ifdef DAVINCI_DM6467TEVM
+#ifdef CONFIG_DAVINCI_DM6467TEVM
 	return REV_DM6467TEVM;
 #else
 	return REV_DM6467EVM;

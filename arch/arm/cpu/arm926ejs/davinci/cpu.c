@@ -156,7 +156,7 @@ static unsigned pll_sysclk_mhz(unsigned pll_addr, unsigned div)
 {
 	volatile void	*pllbase = (volatile void *) pll_addr;
 #ifdef CONFIG_SOC_DM646X
-	unsigned	base = CFG_REFCLK_FREQ / 1000;
+	unsigned	base = CONFIG_REFCLK_FREQ / 1000;
 #else
 	unsigned	base = CONFIG_SYS_HZ_CLOCK / 1000;
 #endif
