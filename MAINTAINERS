@@ -767,10 +767,6 @@ Nagendra T S  <nagendra@mistralsolutions.com>
 
    am3517_crane    ARM ARMV7 (AM35x SoC)
 
-Chandan Nath <chandan.nath@ti.com>
-
-	am335x_evm	ARM ARMV7 (AM33xx Soc)
-
 Kyungmin Park <kyungmin.park@samsung.com>
 
 	apollon		ARM1136EJS
@@ -813,6 +809,7 @@ Manfred Rudigier <manfred.rudigier@omicron.at>
 
 Tom Rini <trini@ti.com>
 
+	am335x_evm	ARM ARMV7 (AM33xx Soc)
 	omap3_evm	ARM ARMV7 (OMAP3xx SoC)
 
 Tom Rix <Tom.Rix@windriver.com>
