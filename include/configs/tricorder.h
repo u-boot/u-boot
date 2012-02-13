@@ -160,6 +160,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyO2,115200n8\0" \
+	"mmcdev=0\0" \
 	"vram=12M\0" \
 	"lcdmode=800x600\0" \
 	"defaultdisplay=lcd\0" \
@@ -182,10 +183,10 @@
 		"root=ubi0:rootfs " \
 		"rootfstype=ubifs " \
 		"${kernelopts}\0" \
-	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
+	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc 0 ${loadaddr} uImage\0" \
+	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"eraseenv=nand unlock 0x260000 0x20000; nand erase 0x260000 0x20000\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
@@ -194,7 +195,7 @@
 		"run nandargs; " \
 		"nand read ${loadaddr} 280000 400000; " \
 		"bootm ${loadaddr}\0" \
-	"autoboot=if mmc init 0; then " \
+	"autoboot=if mmc rescan ${mmcdev}; then " \
 			"if run loadbootscript; then " \
 				"run bootscript; " \
 			"else " \
