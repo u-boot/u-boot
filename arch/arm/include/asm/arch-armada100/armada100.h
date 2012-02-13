@@ -43,6 +43,14 @@
 #define SSP2_APBCLK		0x01
 #define SSP2_FNCLK		0x02
 
+/* USB Clock/reset control bits */
+#define USB_SPH_AXICLK_EN	0x10
+#define USB_SPH_AXI_RST		0x02
+
+/* MPMU Clocks */
+#define APB2_26M_EN		(1 << 20)
+#define AP_26M			(1 << 4)
+
 /* Register Base Addresses */
 #define ARMD1_DRAM_BASE		0xB0000000
 #define ARMD1_FEC_BASE		0xC0800000
