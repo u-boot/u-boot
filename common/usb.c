@@ -80,10 +80,10 @@ char usb_started; /* flag for the started/stopped USB status */
 /**********************************************************************
  * some forward declerations...
  */
-void usb_scan_devices(void);
+static void usb_scan_devices(void);
 
-int usb_hub_probe(struct usb_device *dev, int ifnum);
-void usb_hub_reset(void);
+static int usb_hub_probe(struct usb_device *dev, int ifnum);
+static void usb_hub_reset(void);
 static int hub_port_reset(struct usb_device *dev, int port,
 			  unsigned short *portstat);
 
@@ -316,7 +316,7 @@ usb_set_maxpacket_ep(struct usb_device *dev, int if_idx, int ep_idx)
 /*
  * set the max packed value of all endpoints in the given configuration
  */
-int usb_set_maxpacket(struct usb_device *dev)
+static int usb_set_maxpacket(struct usb_device *dev)
 {
 	int i, ii;
 
@@ -331,7 +331,8 @@ int usb_set_maxpacket(struct usb_device *dev)
  * Parse the config, located in buffer, and fills the dev->config structure.
  * Note that all little/big endian swapping are done automatically.
  */
-int usb_parse_config(struct usb_device *dev, unsigned char *buffer, int cfgno)
+static int usb_parse_config(struct usb_device *dev,
+			unsigned char *buffer, int cfgno)
 {
 	struct usb_descriptor_header *head;
 	int index, ifno, epno, curr_if_num;
@@ -450,7 +451,7 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 /**********************************************************************
  * get_descriptor type
  */
-int usb_get_descriptor(struct usb_device *dev, unsigned char type,
+static int usb_get_descriptor(struct usb_device *dev, unsigned char type,
 			unsigned char index, void *buf, int size)
 {
 	int res;
@@ -500,7 +501,7 @@ int usb_get_configuration_no(struct usb_device *dev,
  * set address of a device to the value in dev->devnum.
  * This can only be done by addressing the device via the default address (0)
  */
-int usb_set_address(struct usb_device *dev)
+static int usb_set_address(struct usb_device *dev)
 {
 	int res;
 
@@ -553,7 +554,7 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate)
 /********************************************************************
  * set configuration number to configuration
  */
-int usb_set_configuration(struct usb_device *dev, int configuration)
+static int usb_set_configuration(struct usb_device *dev, int configuration)
 {
 	int res;
 	USB_PRINTF("set configuration %d\n", configuration);
@@ -616,7 +617,7 @@ int usb_get_class_descriptor(struct usb_device *dev, int ifnum,
 /********************************************************************
  * get string index in buffer
  */
-int usb_get_string(struct usb_device *dev, unsigned short langid,
+static int usb_get_string(struct usb_device *dev, unsigned short langid,
 		   unsigned char index, void *buf, int size)
 {
 	int i;
@@ -764,7 +765,7 @@ struct usb_device *usb_get_dev_index(int index)
 /* returns a pointer of a new device structure or NULL, if
  * no device struct is available
  */
-struct usb_device *usb_alloc_new_device(void)
+static struct usb_device *usb_alloc_new_device(void)
 {
 	int i;
 	USB_PRINTF("New Device %d\n", dev_index);
@@ -790,7 +791,7 @@ struct usb_device *usb_alloc_new_device(void)
  *
  * Returns 0 for success, != 0 for error.
  */
-int usb_new_device(struct usb_device *dev)
+static int usb_new_device(struct usb_device *dev)
 {
 	int addr, err;
 	int tmp;
@@ -954,7 +955,7 @@ int usb_new_device(struct usb_device *dev)
 }
 
 /* build device Tree  */
-void usb_scan_devices(void)
+static void usb_scan_devices(void)
 {
 	int i;
 	struct usb_device *dev;
@@ -988,42 +989,42 @@ static struct usb_hub_device hub_dev[USB_MAX_HUB];
 static int usb_hub_index;
 
 
-int usb_get_hub_descriptor(struct usb_device *dev, void *data, int size)
+static int usb_get_hub_descriptor(struct usb_device *dev, void *data, int size)
 {
 	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 		USB_REQ_GET_DESCRIPTOR, USB_DIR_IN | USB_RT_HUB,
 		USB_DT_HUB << 8, 0, data, size, USB_CNTL_TIMEOUT);
 }
 
-int usb_clear_hub_feature(struct usb_device *dev, int feature)
+static int usb_clear_hub_feature(struct usb_device *dev, int feature)
 {
 	return usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 				USB_REQ_CLEAR_FEATURE, USB_RT_HUB, feature,
 				0, NULL, 0, USB_CNTL_TIMEOUT);
 }
 
-int usb_clear_port_feature(struct usb_device *dev, int port, int feature)
+static int usb_clear_port_feature(struct usb_device *dev, int port, int feature)
 {
 	return usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 				USB_REQ_CLEAR_FEATURE, USB_RT_PORT, feature,
 				port, NULL, 0, USB_CNTL_TIMEOUT);
 }
 
-int usb_set_port_feature(struct usb_device *dev, int port, int feature)
+static int usb_set_port_feature(struct usb_device *dev, int port, int feature)
 {
 	return usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 				USB_REQ_SET_FEATURE, USB_RT_PORT, feature,
 				port, NULL, 0, USB_CNTL_TIMEOUT);
 }
 
-int usb_get_hub_status(struct usb_device *dev, void *data)
+static int usb_get_hub_status(struct usb_device *dev, void *data)
 {
 	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 			USB_REQ_GET_STATUS, USB_DIR_IN | USB_RT_HUB, 0, 0,
 			data, sizeof(struct usb_hub_status), USB_CNTL_TIMEOUT);
 }
 
-int usb_get_port_status(struct usb_device *dev, int port, void *data)
+static int usb_get_port_status(struct usb_device *dev, int port, void *data)
 {
 	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 			USB_REQ_GET_STATUS, USB_DIR_IN | USB_RT_PORT, 0, port,
@@ -1046,12 +1047,12 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	}
 }
 
-void usb_hub_reset(void)
+static void usb_hub_reset(void)
 {
 	usb_hub_index = 0;
 }
 
-struct usb_hub_device *usb_hub_allocate(void)
+static struct usb_hub_device *usb_hub_allocate(void)
 {
 	if (usb_hub_index < USB_MAX_HUB)
 		return &hub_dev[usb_hub_index++];
@@ -1187,7 +1188,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 }
 
 
-int usb_hub_configure(struct usb_device *dev)
+static int usb_hub_configure(struct usb_device *dev)
 {
 	int i;
 	unsigned char buffer[USB_BUFSIZ], *bitmap;
@@ -1370,7 +1371,7 @@ int usb_hub_configure(struct usb_device *dev)
 	return 0;
 }
 
-int usb_hub_probe(struct usb_device *dev, int ifnum)
+static int usb_hub_probe(struct usb_device *dev, int ifnum)
 {
 	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
