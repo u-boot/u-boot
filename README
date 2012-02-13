@@ -2261,6 +2261,31 @@ The following options need to be configured:
 		example, some LED's) on your board. At the moment,
 		the following checkpoints are implemented:
 
+- Detailed boot stage timing
+		CONFIG_BOOTSTAGE
+		Define this option to get detailed timing of each stage
+		of the boot process.
+
+		CONFIG_BOOTSTAGE_USER_COUNT
+		This is the number of available user bootstage records.
+		Each time you call bootstage_mark(BOOTSTAGE_ID_ALLOC, ...)
+		a new ID will be allocated from this stash. If you exceed
+		the limit, recording will stop.
+
+		CONFIG_BOOTSTAGE_REPORT
+		Define this to print a report before boot, similar to this:
+
+		Timer summary in microseconds:
+		       Mark    Elapsed  Stage
+			  0          0  reset
+		  3,575,678  3,575,678  board_init_f start
+		  3,575,695         17  arch_cpu_init A9
+		  3,575,777         82  arch_cpu_init done
+		  3,659,598     83,821  board_init_r start
+		  3,910,375    250,777  main_loop
+		 29,916,167 26,005,792  bootm_start
+		 30,361,327    445,160  start_kernel
+
 Legacy uImage format:
 
   Arg	Where			When

@@ -26,6 +26,11 @@
 #ifndef _BOOTSTAGE_H
 #define _BOOTSTAGE_H
 
+/* The number of boot stage records available for the user */
+#ifndef CONFIG_BOOTSTAGE_USER_COUNT
+#define CONFIG_BOOTSTAGE_USER_COUNT	20
+#endif
+
 /*
  * A list of boot stages that we know about. Each of these indicates the
  * state that we are at, and the action that we are about to perform. For
@@ -169,6 +174,33 @@ enum bootstage_id {
 
 	BOOTSTAGE_ID_NAND_FIT_READ = 150,
 	BOOTSTAGE_ID_NAND_FIT_READ_OK,
+
+	/*
+	 * These boot stages are new, higher level, and not directly related
+	 * to the old boot progress numbers. They are useful for recording
+	 * rough boot timing information.
+	 */
+	BOOTSTAGE_ID_AWAKE,
+	BOOTSTAGE_ID_START_UBOOT_F,
+	BOOTSTAGE_ID_START_UBOOT_R,
+	BOOTSTAGE_ID_USB_START,
+	BOOTSTAGE_ID_ETH_START,
+	BOOTSTAGE_ID_BOOTP_START,
+	BOOTSTAGE_ID_BOOTP_STOP,
+	BOOTSTAGE_ID_BOOTM_START,
+	BOOTSTAGE_ID_BOOTM_HANDOFF,
+	BOOTSTAGE_ID_MAIN_LOOP,
+	BOOTSTAGE_KERNELREAD_START,
+	BOOTSTAGE_KERNELREAD_STOP,
+
+	BOOTSTAGE_ID_CPU_AWAKE,
+	BOOTSTAGE_ID_MAIN_CPU_AWAKE,
+	BOOTSTAGE_ID_MAIN_CPU_READY,
+
+	/* a few spare for the user, from here */
+	BOOTSTAGE_ID_USER,
+	BOOTSTAGE_ID_COUNT = BOOTSTAGE_ID_USER + CONFIG_BOOTSTAGE_USER_COUNT,
+	BOOTSTAGE_ID_ALLOC,
 };
 
 /*
@@ -189,6 +221,11 @@ ulong bootstage_mark(enum bootstage_id id);
 
 ulong bootstage_error(enum bootstage_id id);
 
+ulong bootstage_mark_name(enum bootstage_id id, const char *name);
+
+/* Print a report about boot time */
+void bootstage_report(void);
+
 #else
 /*
  * This is a dummy implementation which just calls show_boot_progress(),
@@ -206,6 +243,12 @@ static inline ulong bootstage_error(enum bootstage_id id)
 	show_boot_progress(-id);
 	return 0;
 }
+
+static inline ulong bootstage_mark_name(enum bootstage_id id, const char *name)
+{
+	return 0;
+}
+
 
 #endif /* CONFIG_BOOTSTAGE */
 
