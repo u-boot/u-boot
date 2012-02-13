@@ -83,6 +83,10 @@ void arch_lmb_reserve(struct lmb *lmb)
 static void announce_and_cleanup(void)
 {
 	printf("\nStarting kernel ...\n\n");
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
+#ifdef CONFIG_BOOTSTAGE_REPORT
+	bootstage_report();
+#endif
 
 #ifdef CONFIG_USB_DEVICE
 	{
