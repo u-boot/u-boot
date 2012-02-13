@@ -815,6 +815,7 @@ The following options need to be configured:
 					  (requires CONFIG_CMD_I2C)
 		CONFIG_CMD_SETGETDCR	  Support for DCR Register access
 					  (4xx only)
+		CONFIG_CMD_SF		* Read/write/erase SPI NOR flash
 		CONFIG_CMD_SHA1SUM	  print sha1 memory digest
 					  (requires CONFIG_CMD_MEMORY)
 		CONFIG_CMD_SOURCE	  "source" command Support
@@ -2196,6 +2197,25 @@ The following options need to be configured:
 		Defining this option enables DataFlash features and
 		allows to read/write in Dataflash via the standard
 		commands cp, md...
+
+- Serial Flash support
+		CONFIG_CMD_SF
+
+		Defining this option enables SPI flash commands
+		'sf probe/read/write/erase/update'.
+
+		Usage requires an initial 'probe' to define the serial
+		flash parameters, followed by read/write/erase/update
+		commands.
+
+		The following defaults may be provided by the platform
+		to handle the common case when only a single serial
+		flash is present on the system.
+
+		CONFIG_SF_DEFAULT_BUS		Bus identifier
+		CONFIG_SF_DEFAULT_CS		Chip-select
+		CONFIG_SF_DEFAULT_MODE 		(see include/spi.h)
+		CONFIG_SF_DEFAULT_SPEED		in Hz
 
 - SystemACE Support:
 		CONFIG_SYSTEMACE
