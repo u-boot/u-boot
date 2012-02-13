@@ -27,7 +27,7 @@
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 # include <status_led.h>
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
+# define SHOW_BOOT_PROGRESS(arg)	bootstage_mark(arg)
 #else
 # define SHOW_BOOT_PROGRESS(arg)
 #endif

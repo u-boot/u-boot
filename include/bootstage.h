@@ -178,9 +178,35 @@ enum bootstage_id {
  *		has occurred.
  */
 void show_boot_progress(int val);
-static inline void show_boot_error(int val)
+
+#ifdef CONFIG_BOOTSTAGE
+/* This is the full bootstage implementation */
+
+/*
+ * Mark a time stamp for the current boot stage.
+ */
+ulong bootstage_mark(enum bootstage_id id);
+
+ulong bootstage_error(enum bootstage_id id);
+
+#else
+/*
+ * This is a dummy implementation which just calls show_boot_progress(),
+ * and won't even do that unless CONFIG_SHOW_BOOT_PROGRESS is defined
+ */
+
+static inline ulong bootstage_mark(enum bootstage_id id)
 {
-	show_boot_progress(-val);
+	show_boot_progress(id);
+	return 0;
 }
+
+static inline ulong bootstage_error(enum bootstage_id id)
+{
+	show_boot_progress(-id);
+	return 0;
+}
+
+#endif /* CONFIG_BOOTSTAGE */
 
 #endif

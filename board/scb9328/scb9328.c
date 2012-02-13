@@ -23,12 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# define SHOW_BOOT_PROGRESS(arg)        show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
-
 int board_init (void)
 {
 	gd->bd->bi_arch_number = MACH_TYPE_SCB9328;

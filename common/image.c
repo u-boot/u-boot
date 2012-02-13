@@ -373,37 +373,37 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 
 	if (!image_check_magic(rd_hdr)) {
 		puts("Bad Magic Number\n");
-		show_boot_error(BOOTSTAGE_ID_RD_MAGIC);
+		bootstage_error(BOOTSTAGE_ID_RD_MAGIC);
 		return NULL;
 	}
 
 	if (!image_check_hcrc(rd_hdr)) {
 		puts("Bad Header Checksum\n");
-		show_boot_error(BOOTSTAGE_ID_RD_HDR_CHECKSUM);
+		bootstage_error(BOOTSTAGE_ID_RD_HDR_CHECKSUM);
 		return NULL;
 	}
 
-	show_boot_progress(BOOTSTAGE_ID_RD_MAGIC);
+	bootstage_mark(BOOTSTAGE_ID_RD_MAGIC);
 	image_print_contents(rd_hdr);
 
 	if (verify) {
 		puts("   Verifying Checksum ... ");
 		if (!image_check_dcrc(rd_hdr)) {
 			puts("Bad Data CRC\n");
-			show_boot_error(BOOTSTAGE_ID_RD_CHECKSUM);
+			bootstage_error(BOOTSTAGE_ID_RD_CHECKSUM);
 			return NULL;
 		}
 		puts("OK\n");
 	}
 
-	show_boot_progress(BOOTSTAGE_ID_RD_HDR_CHECKSUM);
+	bootstage_mark(BOOTSTAGE_ID_RD_HDR_CHECKSUM);
 
 	if (!image_check_os(rd_hdr, IH_OS_LINUX) ||
 	    !image_check_arch(rd_hdr, arch) ||
 	    !image_check_type(rd_hdr, IH_TYPE_RAMDISK)) {
 		printf("No Linux %s Ramdisk Image\n",
 				genimg_get_arch_name(arch));
-		show_boot_error(BOOTSTAGE_ID_RAMDISK);
+		bootstage_error(BOOTSTAGE_ID_RAMDISK);
 		return NULL;
 	}
 
@@ -895,7 +895,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			printf("## Loading init Ramdisk from Legacy "
 					"Image at %08lx ...\n", rd_addr);
 
-			show_boot_progress(BOOTSTAGE_ID_CHECK_RAMDISK);
+			bootstage_mark(BOOTSTAGE_ID_CHECK_RAMDISK);
 			rd_hdr = image_get_ramdisk(rd_addr, arch,
 							images->verify);
 
@@ -912,14 +912,14 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			printf("## Loading init Ramdisk from FIT "
 					"Image at %08lx ...\n", rd_addr);
 
-			show_boot_progress(BOOTSTAGE_ID_FIT_RD_FORMAT);
+			bootstage_mark(BOOTSTAGE_ID_FIT_RD_FORMAT);
 			if (!fit_check_format(fit_hdr)) {
 				puts("Bad FIT ramdisk image format!\n");
-				show_boot_error(
+				bootstage_error(
 					BOOTSTAGE_ID_FIT_RD_FORMAT);
 				return 1;
 			}
-			show_boot_progress(BOOTSTAGE_ID_FIT_RD_FORMAT_OK);
+			bootstage_mark(BOOTSTAGE_ID_FIT_RD_FORMAT_OK);
 
 			if (!fit_uname_ramdisk) {
 				/*
@@ -927,14 +927,14 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 				 * node first. If config unit node name is NULL
 				 * fit_conf_get_node() will try to find default config node
 				 */
-				show_boot_progress(
+				bootstage_mark(
 					BOOTSTAGE_ID_FIT_RD_NO_UNIT_NAME);
 				cfg_noffset = fit_conf_get_node(fit_hdr,
 							fit_uname_config);
 				if (cfg_noffset < 0) {
 					puts("Could not find configuration "
 						"node\n");
-					show_boot_error(
+					bootstage_error(
 					BOOTSTAGE_ID_FIT_RD_NO_UNIT_NAME);
 					return 1;
 				}
@@ -949,21 +949,21 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 							rd_noffset, NULL);
 			} else {
 				/* get ramdisk component image node offset */
-				show_boot_progress(
+				bootstage_mark(
 					BOOTSTAGE_ID_FIT_RD_UNIT_NAME);
 				rd_noffset = fit_image_get_node(fit_hdr,
 						fit_uname_ramdisk);
 			}
 			if (rd_noffset < 0) {
 				puts("Could not find subimage node\n");
-				show_boot_error(BOOTSTAGE_ID_FIT_RD_SUBNODE);
+				bootstage_error(BOOTSTAGE_ID_FIT_RD_SUBNODE);
 				return 1;
 			}
 
 			printf("   Trying '%s' ramdisk subimage\n",
 				fit_uname_ramdisk);
 
-			show_boot_progress(BOOTSTAGE_ID_FIT_RD_CHECK);
+			bootstage_mark(BOOTSTAGE_ID_FIT_RD_CHECK);
 			if (!fit_check_ramdisk(fit_hdr, rd_noffset, arch,
 						images->verify))
 				return 1;
@@ -972,10 +972,10 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			if (fit_image_get_data(fit_hdr, rd_noffset, &data,
 						&size)) {
 				puts("Could not find ramdisk subimage data!\n");
-				show_boot_error(BOOTSTAGE_ID_FIT_RD_GET_DATA);
+				bootstage_error(BOOTSTAGE_ID_FIT_RD_GET_DATA);
 				return 1;
 			}
-			show_boot_progress(BOOTSTAGE_ID_FIT_RD_GET_DATA_OK);
+			bootstage_mark(BOOTSTAGE_ID_FIT_RD_GET_DATA_OK);
 
 			rd_data = (ulong)data;
 			rd_len = size;
@@ -983,10 +983,10 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			if (fit_image_get_load(fit_hdr, rd_noffset, &rd_load)) {
 				puts("Can't get ramdisk subimage load "
 					"address!\n");
-				show_boot_error(BOOTSTAGE_ID_FIT_RD_LOAD);
+				bootstage_error(BOOTSTAGE_ID_FIT_RD_LOAD);
 				return 1;
 			}
-			show_boot_progress(BOOTSTAGE_ID_FIT_RD_LOAD);
+			bootstage_mark(BOOTSTAGE_ID_FIT_RD_LOAD);
 
 			images->fit_hdr_rd = fit_hdr;
 			images->fit_uname_rd = fit_uname_ramdisk;
@@ -1006,7 +1006,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		 * Now check if we have a legacy mult-component image,
 		 * get second entry data start address and len.
 		 */
-		show_boot_progress(BOOTSTAGE_ID_RAMDISK);
+		bootstage_mark(BOOTSTAGE_ID_RAMDISK);
 		printf("## Loading init Ramdisk from multi component "
 				"Legacy Image at %08lx ...\n",
 				(ulong)images->legacy_hdr_os);
@@ -1016,7 +1016,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		/*
 		 * no initrd image
 		 */
-		show_boot_progress(BOOTSTAGE_ID_NO_RAMDISK);
+		bootstage_mark(BOOTSTAGE_ID_NO_RAMDISK);
 		rd_len = rd_data = 0;
 	}
 
@@ -1100,7 +1100,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 				puts("ramdisk - allocation error\n");
 				goto error;
 			}
-			show_boot_progress(BOOTSTAGE_ID_COPY_RAMDISK);
+			bootstage_mark(BOOTSTAGE_ID_COPY_RAMDISK);
 
 			*initrd_end = *initrd_start + rd_len;
 			printf("   Loading Ramdisk to %08lx, end %08lx ... ",
@@ -3180,23 +3180,23 @@ static int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
 		puts("   Verifying Hash Integrity ... ");
 		if (!fit_image_check_hashes(fit, rd_noffset)) {
 			puts("Bad Data Hash\n");
-			show_boot_error(BOOTSTAGE_ID_FIT_RD_HASH);
+			bootstage_error(BOOTSTAGE_ID_FIT_RD_HASH);
 			return 0;
 		}
 		puts("OK\n");
 	}
 
-	show_boot_progress(BOOTSTAGE_ID_FIT_RD_CHECK_ALL);
+	bootstage_mark(BOOTSTAGE_ID_FIT_RD_CHECK_ALL);
 	if (!fit_image_check_os(fit, rd_noffset, IH_OS_LINUX) ||
 	    !fit_image_check_arch(fit, rd_noffset, arch) ||
 	    !fit_image_check_type(fit, rd_noffset, IH_TYPE_RAMDISK)) {
 		printf("No Linux %s Ramdisk Image\n",
 				genimg_get_arch_name(arch));
-		show_boot_error(BOOTSTAGE_ID_FIT_RD_CHECK_ALL);
+		bootstage_error(BOOTSTAGE_ID_FIT_RD_CHECK_ALL);
 		return 0;
 	}
 
-	show_boot_progress(BOOTSTAGE_ID_FIT_RD_CHECK_ALL_OK);
+	bootstage_mark(BOOTSTAGE_ID_FIT_RD_CHECK_ALL_OK);
 	return 1;
 }
 #endif /* USE_HOSTCC */

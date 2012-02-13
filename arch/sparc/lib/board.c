@@ -426,7 +426,7 @@ void hang(void)
 {
 	puts("### ERROR ### Please RESET the board ###\n");
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
-	show_boot_error(BOOTSTAGE_ID_NEED_RESET);
+	bootstage_error(BOOTSTAGE_ID_NEED_RESET);
 #endif
 	for (;;) ;
 }

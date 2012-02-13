@@ -256,7 +256,7 @@ int eth_initialize(bd_t *bis)
 	eth_devices = NULL;
 	eth_current = NULL;
 
-	show_boot_progress(BOOTSTAGE_ID_NET_ETH_START);
+	bootstage_mark(BOOTSTAGE_ID_NET_ETH_START);
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_init();
 #endif
@@ -280,12 +280,12 @@ int eth_initialize(bd_t *bis)
 
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
-		show_boot_error(BOOTSTAGE_ID_NET_ETH_START);
+		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
 	} else {
 		struct eth_device *dev = eth_devices;
 		char *ethprime = getenv ("ethprime");
 
-		show_boot_progress(BOOTSTAGE_ID_NET_ETH_INIT);
+		bootstage_mark(BOOTSTAGE_ID_NET_ETH_INIT);
 		do {
 			if (dev->index)
 				puts (", ");

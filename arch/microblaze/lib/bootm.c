@@ -59,7 +59,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	if (ret)
 		return 1;
 
-	show_boot_progress(BOOTSTAGE_ID_RUN_OS);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	if (!of_flat_tree && argc > 3)
 		of_flat_tree = (char *)simple_strtoul(argv[3], NULL, 16);
