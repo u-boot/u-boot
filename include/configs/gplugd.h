@@ -73,6 +73,8 @@
 #define CONFIG_CMD_AUTOSCRIPT
 #undef CONFIG_CMD_FPGA
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
 
 /* Disable DCACHE */
 #define CONFIG_SYS_DCACHE_OFF
