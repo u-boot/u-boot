@@ -594,10 +594,6 @@ Enric Balletbo i Serra <eballetbo@iseebcn.com>
 	igep0020	ARM ARMV7 (OMAP3xx SoC)
 	igep0030	ARM ARMV7 (OMAP3xx SoC)
 
-Dirk Behme <dirk.behme@gmail.com>
-
-	omap3_beagle	ARM ARMV7 (OMAP3530 SoC)
-
 Eric Benard <eric@eukrea.com>
 
 	cpuat91		ARM920T
@@ -810,6 +806,7 @@ Manfred Rudigier <manfred.rudigier@omicron.at>
 Tom Rini <trini@ti.com>
 
 	am335x_evm	ARM ARMV7 (AM33xx Soc)
+	omap3_beagle	ARM ARMV7 (OMAP3xx SoC)
 	omap3_evm	ARM ARMV7 (OMAP3xx SoC)
 
 Tom Rix <Tom.Rix@windriver.com>
