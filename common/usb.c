@@ -73,7 +73,6 @@ static struct usb_device usb_dev[USB_MAX_DEVICE];
 static int dev_index;
 static int running;
 static int asynch_allowed;
-static struct devrequest setup_packet;
 
 char usb_started; /* flag for the started/stopped USB status */
 
@@ -180,6 +179,8 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 			unsigned short value, unsigned short index,
 			void *data, unsigned short size, int timeout)
 {
+	struct devrequest setup_packet;
+
 	if ((timeout == 0) && (!asynch_allowed)) {
 		/* request for a asynch control pipe is not allowed */
 		return -1;
