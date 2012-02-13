@@ -224,11 +224,51 @@ static void board_uart_init(void)
 		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
 	int i;
 
-	/* UART1 GPIOs (part1) : GPA0CON[7:4] 0x2222 */
-	for (i = 4; i < 8; i++) {
+	/*
+	 * UART0 GPIOs : GPA0CON[3:0] 0x2222
+	 * Must set CFG17 switches to select UART0 to use.
+	 */
+	for (i = 0; i <= 3; i++) {
 		s5p_gpio_set_pull(&gpio1->a0, i, GPIO_PULL_NONE);
 		s5p_gpio_cfg_pin(&gpio1->a0, i, GPIO_FUNC(0x2));
 	}
+
+	/*
+	 * UART1 GPIOs : GPA0CON[5:4] 0x22
+	 * Must set CFG17 switches to select UART1 to use.
+	 *
+	 * This only sets RXD/TXD, as RTS/CTS need a resistor soldered down
+	 * in order to use them (so that those pins can be used for I2C).
+	 */
+	for (i = 4; i <= 5; i++) {
+		s5p_gpio_set_pull(&gpio1->a0, i, GPIO_PULL_NONE);
+		s5p_gpio_cfg_pin(&gpio1->a0, i, GPIO_FUNC(0x2));
+	}
+
+	/*
+	 * UART2 GPIOs : GPA1CON[1:0] 0x22
+	 * Must set CFG17 switches to select UART2 to use.
+	 *
+	 * This only sets RXD/TXD, as RTS/CTS need a resistor soldered down
+	 * in order to use them (so that those pins can be used for I2C).
+	 */
+	for (i = 0; i <= 1; i++) {
+		s5p_gpio_set_pull(&gpio1->a1, i, GPIO_PULL_NONE);
+		s5p_gpio_cfg_pin(&gpio1->a1, i, GPIO_FUNC(0x2));
+	}
+
+	/*
+	 * UART3 GPIOs : GPA1CON[5:4] 0x22
+	 * Must set CFG16 switches to select UART3 to use.
+	 */
+	for (i = 4; i <= 5; i++) {
+		s5p_gpio_set_pull(&gpio1->a1, i, GPIO_PULL_NONE);
+		s5p_gpio_cfg_pin(&gpio1->a1, i, GPIO_FUNC(0x2));
+	}
+
+	/*
+	 * There's no mux for UART4--it's internal only
+	 */
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
