@@ -537,7 +537,7 @@ static int label_localboot(struct pxe_label *label)
 
 	printf("running: %s\n", dupcmd);
 
-	ret = run_command2(dupcmd, 0);
+	ret = run_command(dupcmd, 0);
 
 	free(dupcmd);
 
