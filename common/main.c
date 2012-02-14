@@ -1132,6 +1132,7 @@ int parse_line (char *line, char *argv[])
 
 /****************************************************************************/
 
+#ifndef CONFIG_SYS_HUSH_PARSER
 static void process_macros (const char *input, char *output)
 {
 	char c, prev;
@@ -1382,6 +1383,7 @@ static int builtin_run_command(const char *cmd, int flag)
 
 	return rc ? rc : repeatable;
 }
+#endif
 
 /*
  * Run a command using the selected parser.
