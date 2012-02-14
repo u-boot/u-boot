@@ -92,9 +92,9 @@ void spl_parse_image_header(const struct image_header *header)
 	}
 }
 
-static void jump_to_image_no_args(void)
+static void __noreturn jump_to_image_no_args(void)
 {
-	typedef void (*image_entry_noargs_t)(u32 *)__attribute__ ((noreturn));
+	typedef void __noreturn (*image_entry_noargs_t)(u32 *);
 	image_entry_noargs_t image_entry =
 			(image_entry_noargs_t) spl_image.entry_point;
 
@@ -107,7 +107,6 @@ static void jump_to_image_no_args(void)
 	image_entry((u32 *)boot_params_ptr_addr);
 }
 
-void jump_to_image_no_args(void) __attribute__ ((noreturn));
 void board_init_r(gd_t *id, ulong dummy)
 {
 	u32 boot_device;
