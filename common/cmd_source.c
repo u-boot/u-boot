@@ -179,7 +179,7 @@ source (ulong addr, const char *fit_uname)
 				if (*line) {
 					debug ("** exec: \"%s\"\n",
 						line);
-					if (builtin_run_command(line, 0) < 0) {
+					if (run_command(line, 0) < 0) {
 						rcode = 1;
 						break;
 					}
@@ -189,7 +189,7 @@ source (ulong addr, const char *fit_uname)
 			++next;
 		}
 		if (rcode == 0 && *line)
-			rcode = (builtin_run_command(line, 0) >= 0);
+			rcode = (run_command(line, 0) >= 0);
 	}
 #endif
 	free (cmd);

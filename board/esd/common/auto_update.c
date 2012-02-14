@@ -169,7 +169,7 @@ int au_do_update(int i, long sz)
 				k++;
 			}
 
-			builtin_run_command(addr, 0);
+			run_command(addr, 0);
 			return 0;
 		}
 

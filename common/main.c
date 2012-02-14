@@ -267,26 +267,6 @@ int abortboot(int bootdelay)
 # endif	/* CONFIG_AUTOBOOT_KEYED */
 #endif	/* CONFIG_BOOTDELAY >= 0  */
 
-/*
- * Return 0 on success, or != 0 on error.
- */
-int run_command(const char *cmd, int flag)
-{
-#ifndef CONFIG_SYS_HUSH_PARSER
-	/*
-	 * builtin_run_command can return 0 or 1 for success, so clean up
-	 * its result.
-	 */
-	if (builtin_run_command(cmd, flag) == -1)
-		return 1;
-
-	return 0;
-#else
-	return parse_string_outer(cmd,
-			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
-#endif
-}
-
 /****************************************************************************/
 
 void main_loop (void)
@@ -458,7 +438,7 @@ void main_loop (void)
 		if (len == -1)
 			puts ("<INTERRUPT>\n");
 		else
-			rc = builtin_run_command(lastcommand, flag);
+			rc = run_command(lastcommand, flag);
 
 		if (rc <= 0) {
 			/* invalid command or not repeatable, forget it */
@@ -1278,8 +1258,7 @@ static void process_macros (const char *input, char *output)
  * the environment data, which may change magicly when the command we run
  * creates or modifies environment variables (like "bootp" does).
  */
-
-int builtin_run_command(const char *cmd, int flag)
+static int builtin_run_command(const char *cmd, int flag)
 {
 	cmd_tbl_t *cmdtp;
 	char cmdbuf[CONFIG_SYS_CBSIZE];	/* working copy of cmd		*/
@@ -1402,6 +1381,30 @@ int builtin_run_command(const char *cmd, int flag)
 	}
 
 	return rc ? rc : repeatable;
+}
+
+/*
+ * Run a command using the selected parser.
+ *
+ * @param cmd	Command to run
+ * @param flag	Execution flags (CMD_FLAG_...)
+ * @return 0 on success, or != 0 on error.
+ */
+int run_command(const char *cmd, int flag)
+{
+#ifndef CONFIG_SYS_HUSH_PARSER
+	/*
+	 * builtin_run_command can return 0 or 1 for success, so clean up
+	 * its result.
+	 */
+	if (builtin_run_command(cmd, flag) == -1)
+		return 1;
+
+	return 0;
+#else
+	return parse_string_outer(cmd,
+			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+#endif
 }
 
 /****************************************************************************/
