@@ -236,6 +236,7 @@ int do_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				printf("log_start    =  %08lx\n",
 					log->v2.start);
 				printf("log_end      =  %08lx\n", log->v2.end);
+				printf("log_con      =  %08lx\n", log->v2.con);
 				printf("logged_chars =  %08lx\n",
 					log->v2.chars);
 			}
