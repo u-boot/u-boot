@@ -112,6 +112,8 @@ static inline int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd)
 #endif
 extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
+int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+
 #endif	/* __ASSEMBLY__ */
 
 /*
@@ -150,4 +152,5 @@ extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
 #endif
+
 #endif	/* __COMMAND_H */

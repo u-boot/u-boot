@@ -487,3 +487,24 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
 	}
 }
 #endif
+
+/**
+ * Call a command function. This should be the only route in U-Boot to call
+ * a command, so that we can track whether we are waiting for input or
+ * executing a command.
+ *
+ * @param cmdtp		Pointer to the command to execute
+ * @param flag		Some flags normally 0 (see CMD_FLAG_.. above)
+ * @param argc		Number of arguments (arg 0 must be the command text)
+ * @param argv		Arguments
+ * @return 0 if command succeeded, else non-zero (CMD_RET_...)
+ */
+int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int result;
+
+	result = (cmdtp->cmd)(cmdtp, flag, argc, argv);
+	if (result)
+		debug("Command failed, result=%d", result);
+	return result;
+}
