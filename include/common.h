@@ -261,9 +261,7 @@ int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 /* common/main.c */
 void	main_loop	(void);
 int	run_command	(const char *cmd, int flag);
-#ifdef CONFIG_CMD_PXE
 int run_command2(const char *cmd, int flag);
-#endif
 int	readline	(const char *const prompt);
 int	readline_into_buffer(const char *const prompt, char *buffer,
 			int timeout);

@@ -270,9 +270,6 @@ int abortboot(int bootdelay)
 /*
  * Return 0 on success, or != 0 on error.
  */
-#ifndef CONFIG_CMD_PXE
-static inline
-#endif
 int run_command2(const char *cmd, int flag)
 {
 #ifndef CONFIG_SYS_HUSH_PARSER
