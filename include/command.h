@@ -112,7 +112,34 @@ static inline int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd)
 #endif
 extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
-int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+/*
+ * Error codes that commands return to cmd_process(). We use the standard 0
+ * and 1 for success and failure, but add one more case - failure with a
+ * request to call cmd_usage(). But the cmd_process() function handles
+ * CMD_RET_USAGE itself and after calling cmd_usage() it will return 1.
+ * This is just a convenience for commands to avoid them having to call
+ * cmd_usage() all over the place.
+ */
+enum command_ret_t {
+	CMD_RET_SUCCESS,	/* 0 = Success */
+	CMD_RET_FAILURE,	/* 1 = Failure */
+	CMD_RET_USAGE = -1,	/* Failure, please report 'usage' error */
+};
+
+/**
+ * Process a command with arguments. We look up the command and execute it
+ * if valid. Otherwise we print a usage message.
+ *
+ * @param flag		Some flags normally 0 (see CMD_FLAG_.. above)
+ * @param argc		Number of arguments (arg 0 must be the command text)
+ * @param argv		Arguments
+ * @param repeatable	This function sets this to 0 if the command is not
+ *			repeatable. If the command is repeatable, the value
+ *			is left unchanged.
+ * @return 0 if the command succeeded, 1 if it failed
+ */
+int cmd_process(int flag, int argc, char * const argv[],
+			       int *repeatable);
 
 #endif	/* __ASSEMBLY__ */
 

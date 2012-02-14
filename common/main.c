@@ -1261,7 +1261,6 @@ static void process_macros (const char *input, char *output)
  */
 static int builtin_run_command(const char *cmd, int flag)
 {
-	cmd_tbl_t *cmdtp;
 	char cmdbuf[CONFIG_SYS_CBSIZE];	/* working copy of cmd		*/
 	char *token;			/* start of token in cmdbuf	*/
 	char *sep;			/* end of token (separator) in cmdbuf */
@@ -1339,41 +1338,7 @@ static int builtin_run_command(const char *cmd, int flag)
 			continue;
 		}
 
-		/* Look up command in command table */
-		if ((cmdtp = find_cmd(argv[0])) == NULL) {
-			printf ("Unknown command '%s' - try 'help'\n", argv[0]);
-			rc = -1;	/* give up after bad command */
-			continue;
-		}
-
-		/* found - check max args */
-		if (argc > cmdtp->maxargs) {
-			cmd_usage(cmdtp);
-			rc = -1;
-			continue;
-		}
-
-#if defined(CONFIG_CMD_BOOTD)
-		/* avoid "bootd" recursion */
-		if (cmdtp->cmd == do_bootd) {
-#ifdef DEBUG_PARSER
-			printf ("[%s]\n", finaltoken);
-#endif
-			if (flag & CMD_FLAG_BOOTD) {
-				puts ("'bootd' recursion detected\n");
-				rc = -1;
-				continue;
-			} else {
-				flag |= CMD_FLAG_BOOTD;
-			}
-		}
-#endif
-
-		/* OK - call function to do the command */
-		if (cmd_call(cmdtp, flag, argc, argv) != 0)
-			rc = -1;
-
-		repeatable &= cmdtp->repeatable;
+		rc = cmd_process(flag, argc, argv, &repeatable);
 
 		/* Did the user stop this? */
 		if (had_ctrlc ())

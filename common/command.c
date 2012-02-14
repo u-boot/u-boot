@@ -499,7 +499,7 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
  * @param argv		Arguments
  * @return 0 if command succeeded, else non-zero (CMD_RET_...)
  */
-int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int result;
 
@@ -507,4 +507,43 @@ int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (result)
 		debug("Command failed, result=%d", result);
 	return result;
+}
+
+enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
+			       int *repeatable)
+{
+	enum command_ret_t rc = CMD_RET_SUCCESS;
+	cmd_tbl_t *cmdtp;
+
+	/* Look up command in command table */
+	cmdtp = find_cmd(argv[0]);
+	if (cmdtp == NULL) {
+		printf("Unknown command '%s' - try 'help'\n", argv[0]);
+		return 1;
+	}
+
+	/* found - check max args */
+	if (argc > cmdtp->maxargs)
+		rc = CMD_RET_USAGE;
+
+#if defined(CONFIG_CMD_BOOTD)
+	/* avoid "bootd" recursion */
+	else if (cmdtp->cmd == do_bootd) {
+		if (flag & CMD_FLAG_BOOTD) {
+			puts("'bootd' recursion detected\n");
+			rc = CMD_RET_FAILURE;
+		} else {
+			flag |= CMD_FLAG_BOOTD;
+		}
+	}
+#endif
+
+	/* If OK so far, then do the command */
+	if (!rc) {
+		rc = cmd_call(cmdtp, flag, argc, argv);
+		*repeatable &= cmdtp->repeatable;
+	}
+	if (rc == CMD_RET_USAGE)
+		rc = cmd_usage(cmdtp);
+	return rc;
 }

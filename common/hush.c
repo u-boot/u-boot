@@ -1538,7 +1538,6 @@ static int run_pipe_real(struct pipe *pi)
 	int nextin;
 	int flag = do_repeat ? CMD_FLAG_REPEAT : 0;
 	struct child_prog *child;
-	cmd_tbl_t *cmdtp;
 	char *p;
 # if __GNUC__
 	/* Avoid longjmp clobbering */
@@ -1652,47 +1651,20 @@ static int run_pipe_real(struct pipe *pi)
 			return rcode;
 		}
 #else
-			/* check ";", because ,example , argv consist from
-			 * "help;flinfo" must not execute
-			 */
-			if (strchr(child->argv[i], ';')) {
-				printf ("Unknown command '%s' - try 'help' or use 'run' command\n",
-					child->argv[i]);
-				return -1;
-			}
-			/* Look up command in command table */
-
-
-			if ((cmdtp = find_cmd(child->argv[i])) == NULL) {
-				printf ("Unknown command '%s' - try 'help'\n", child->argv[i]);
-				return -1;	/* give up after bad command */
-			} else {
-				int rcode;
-#if defined(CONFIG_CMD_BOOTD)
-				/* avoid "bootd" recursion */
-				if (cmdtp->cmd == do_bootd) {
-					if (flag & CMD_FLAG_BOOTD) {
-						printf ("'bootd' recursion detected\n");
-						return -1;
-					}
-				else
-					flag |= CMD_FLAG_BOOTD;
-				}
-#endif
-				/* found - check max args */
-				if ((child->argc - i) > cmdtp->maxargs)
-					return cmd_usage(cmdtp);
-#endif
-				/* OK - call function to do the command */
-				rcode = cmd_call(cmdtp, flag,  child->argc,
-						 child->argv);
-				if (!cmdtp->repeatable)
-					flag_repeat = 0;
-				return rcode;
-			}
+		/* check ";", because ,example , argv consist from
+		 * "help;flinfo" must not execute
+		 */
+		if (strchr(child->argv[i], ';')) {
+			printf("Unknown command '%s' - try 'help' or use "
+					"'run' command\n", child->argv[i]);
+			return -1;
 		}
-#ifndef __U_BOOT__
+		/* Process the command */
+		return cmd_process(flag, child->argc, child->argv,
+				   &flag_repeat);
+#endif
 	}
+#ifndef __U_BOOT__
 
 	for (i = 0; i < pi->num_progs; i++) {
 		child = & (pi->progs[i]);
