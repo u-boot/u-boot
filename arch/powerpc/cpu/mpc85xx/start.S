@@ -179,6 +179,11 @@ l2_disabled:
 	andi.	r1,r3,L1CSR0_DCE@l
 	beq	2b
 
+/*
+ * Ne need to setup interrupt vector for NAND SPL
+ * because NAND SPL never compiles it.
+ */
+#if !defined(CONFIG_NAND_SPL)
 	/* Setup interrupt vectors */
 	lis	r1,CONFIG_SYS_MONITOR_BASE@h
 	mtspr	IVPR,r1
@@ -217,6 +222,7 @@ l2_disabled:
 	mtspr	IVOR14,r4	/* 14: Instruction TLB error */
 	addi	r4,r3,DebugBreakpoint - _start + _START_OFFSET
 	mtspr	IVOR15,r4	/* 15: Debug */
+#endif
 
 	/* Clear and set up some registers. */
 	li      r0,0x0000
