@@ -227,7 +227,7 @@ static void kw_sysrst_action(void)
 
 	debug("Starting %s process...\n", __FUNCTION__);
 #if !defined(CONFIG_SYS_HUSH_PARSER)
-	ret = run_command (s, 0);
+	ret = builtin_run_command(s, 0);
 #else
 	ret = parse_string_outer(s, FLAG_PARSE_SEMICOLON
 				  | FLAG_EXIT_FROM_LOOP);

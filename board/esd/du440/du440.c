@@ -831,7 +831,7 @@ int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	*d = '\0';
 
 	start = get_ticks();
-	ret = run_command (cmd, 0);
+	ret = builtin_run_command(cmd, 0);
 	end = get_ticks();
 
 	printf("ticks=%ld\n", (ulong)(end - start));

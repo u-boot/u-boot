@@ -1046,7 +1046,7 @@ int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int rcode = 0;
 
 #ifndef CONFIG_SYS_HUSH_PARSER
-	if (run_command(getenv("bootcmd"), flag) < 0)
+	if (builtin_run_command(getenv("bootcmd"), flag) < 0)
 		rcode = 1;
 #else
 	if (parse_string_outer(getenv("bootcmd"),

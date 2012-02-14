@@ -274,9 +274,10 @@ int run_command2(const char *cmd, int flag)
 {
 #ifndef CONFIG_SYS_HUSH_PARSER
 	/*
-	 * run_command can return 0 or 1 for success, so clean up its result.
+	 * builtin_run_command can return 0 or 1 for success, so clean up
+	 * its result.
 	 */
-	if (run_command(cmd, flag) == -1)
+	if (builtin_run_command(cmd, flag) == -1)
 		return 1;
 
 	return 0;
@@ -457,7 +458,7 @@ void main_loop (void)
 		if (len == -1)
 			puts ("<INTERRUPT>\n");
 		else
-			rc = run_command (lastcommand, flag);
+			rc = builtin_run_command(lastcommand, flag);
 
 		if (rc <= 0) {
 			/* invalid command or not repeatable, forget it */
@@ -1278,7 +1279,7 @@ static void process_macros (const char *input, char *output)
  * creates or modifies environment variables (like "bootp" does).
  */
 
-int run_command (const char *cmd, int flag)
+int builtin_run_command(const char *cmd, int flag)
 {
 	cmd_tbl_t *cmdtp;
 	char cmdbuf[CONFIG_SYS_CBSIZE];	/* working copy of cmd		*/
