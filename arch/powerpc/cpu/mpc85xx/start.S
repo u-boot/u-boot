@@ -1493,6 +1493,39 @@ trap_init:
 	cmplw	0,r7,r8
 	blt	2b
 
+	/* Update IVORs as per relocated vector table address */
+	li	r7,0x0100
+	mtspr	IVOR0,r7	/* 0: Critical input */
+	li	r7,0x0200
+	mtspr	IVOR1,r7	/* 1: Machine check */
+	li	r7,0x0300
+	mtspr	IVOR2,r7	/* 2: Data storage */
+	li	r7,0x0400
+	mtspr	IVOR3,r7	/* 3: Instruction storage */
+	li	r7,0x0500
+	mtspr	IVOR4,r7	/* 4: External interrupt */
+	li	r7,0x0600
+	mtspr	IVOR5,r7	/* 5: Alignment */
+	li	r7,0x0700
+	mtspr	IVOR6,r7	/* 6: Program check */
+	li	r7,0x0800
+	mtspr	IVOR7,r7	/* 7: floating point unavailable */
+	li	r7,0x0900
+	mtspr	IVOR8,r7	/* 8: System call */
+	/* 9: Auxiliary processor unavailable(unsupported) */
+	li	r7,0x0a00
+	mtspr	IVOR10,r7	/* 10: Decrementer */
+	li	r7,0x0b00
+	mtspr	IVOR11,r7	/* 11: Interval timer */
+	li	r7,0x0c00
+	mtspr	IVOR12,r7	/* 12: Watchdog timer */
+	li	r7,0x0d00
+	mtspr	IVOR13,r7	/* 13: Data TLB error */
+	li	r7,0x0e00
+	mtspr	IVOR14,r7	/* 14: Instruction TLB error */
+	li	r7,0x0f00
+	mtspr	IVOR15,r7	/* 15: Debug */
+
 	lis	r7,0x0
 	mtspr	IVPR,r7
 
