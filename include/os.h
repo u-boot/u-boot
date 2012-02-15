@@ -27,6 +27,8 @@
 #ifndef __OS_H__
 #define __OS_H__
 
+struct sandbox_state;
+
 /**
  * Access to the OS read() system call
  *
@@ -121,5 +123,17 @@ void os_usleep(unsigned long usec);
  * \return A monotonic increasing time scaled in nano seconds
  */
 u64 os_get_nsec(void);
+
+/**
+ * Parse arguments and update sandbox state.
+ *
+ * @param state		Sandbox state to update
+ * @param argc		Argument count
+ * @param argv		Argument vector
+ * @return 0 if ok, and program should continue;
+ *	1 if ok, but program should stop;
+ *	-1 on error: program should terminate.
+ */
+int os_parse_args(struct sandbox_state *state, int argc, char *argv[]);
 
 #endif

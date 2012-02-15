@@ -28,6 +28,10 @@ SECTIONS
 	_u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;
 
+	__u_boot_sandbox_option_start = .;
+	_u_boot_sandbox_getopt : { *(.u_boot_sandbox_getopt) }
+	__u_boot_sandbox_option_end = .;
+
 	__bss_start = .;
 }
 

@@ -22,6 +22,8 @@
 #ifndef __SANDBOX_STATE_H
 #define __SANDBOX_STATE_H
 
+#include <config.h>
+
 /* How we exited U-Boot */
 enum exit_type_id {
 	STATE_EXIT_NORMAL,
@@ -33,6 +35,9 @@ enum exit_type_id {
 struct sandbox_state {
 	const char *cmd;		/* Command to execute */
 	enum exit_type_id exit_type;	/* How we exited U-Boot */
+	const char *parse_err;		/* Error to report from parsing */
+	int argc;			/* Program arguments */
+	char **argv;
 };
 
 /**

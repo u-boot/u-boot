@@ -134,6 +134,7 @@ init_fnc_t *init_sequence[] = {
 	env_init,		/* initialize environment */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */
+	sandbox_early_getopt_check,	/* process command line flags (err/help) */
 	display_banner,		/* say that we are here */
 #if defined(CONFIG_DISPLAY_CPUINFO)
 	print_cpuinfo,		/* display cpu info (and speed) */
