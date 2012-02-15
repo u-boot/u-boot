@@ -45,6 +45,7 @@ typedef	struct global_data {
 	unsigned long	fb_base;	/* base address of frame buffer */
 	u8		*ram_buf;	/* emulated RAM buffer */
 	phys_size_t	ram_size;	/* RAM size */
+	const void	*fdt_blob;	/* Our device tree, NULL if none */
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
 } gd_t;

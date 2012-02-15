@@ -156,6 +156,14 @@ void board_init_f(ulong bootflag)
 
 	memset((void *)gd, 0, sizeof(gd_t));
 
+#if defined(CONFIG_OF_EMBED)
+	/* Get a pointer to the FDT */
+	gd->fdt_blob = _binary_dt_dtb_start;
+#elif defined(CONFIG_OF_SEPARATE)
+	/* FDT is at end of image */
+	gd->fdt_blob = (void *)(_end_ofs + _TEXT_BASE);
+#endif
+
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0)
 			hang();
