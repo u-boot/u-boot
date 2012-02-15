@@ -34,6 +34,10 @@
 
 #define CONFIG_SYS_VSNPRINTF
 
+#define CONFIG_CMD_GPIO
+#define CONFIG_SANDBOX_GPIO
+#define CONFIG_SANDBOX_GPIO_COUNT	20
+
 /*
  * Size of malloc() pool, although we don't actually use this yet.
  */
