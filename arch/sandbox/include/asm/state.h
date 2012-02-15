@@ -19,20 +19,39 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/state.h>
+#ifndef __SANDBOX_STATE_H
+#define __SANDBOX_STATE_H
 
-int main(int argc, char *argv[])
-{
-	int err;
+/* How we exited U-Boot */
+enum exit_type_id {
+	STATE_EXIT_NORMAL,
+	STATE_EXIT_COLD_REBOOT,
+	STATE_EXIT_POWER_OFF,
+};
 
-	err = state_init();
-	if (err)
-		return err;
+/* The complete state of the test system */
+struct sandbox_state {
+	const char *cmd;		/* Command to execute */
+	enum exit_type_id exit_type;	/* How we exited U-Boot */
+};
 
-	/*
-	 * Do pre- and post-relocation init, then start up U-Boot. This will
-	 * never return.
-	 */
-	board_init_f(0);
-}
+/**
+ * Record the exit type to be reported by the test program.
+ *
+ * @param exit_type	Exit type to record
+ */
+void state_record_exit(enum exit_type_id exit_type);
+
+/**
+ * Gets a pointer to the current state.
+ *
+ * @return pointer to state
+ */
+struct sandbox_state *state_get_current(void);
+
+/**
+ * Initialize the test system state
+ */
+int state_init(void);
+
+#endif

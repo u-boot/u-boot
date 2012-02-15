@@ -22,17 +22,30 @@
 #include <common.h>
 #include <asm/state.h>
 
-int main(int argc, char *argv[])
-{
-	int err;
+/* Main state record for the sandbox */
+static struct sandbox_state main_state;
+static struct sandbox_state *state;	/* Pointer to current state record */
 
-	err = state_init();
-	if (err)
-		return err;
+void state_record_exit(enum exit_type_id exit_type)
+{
+	state->exit_type = exit_type;
+}
+
+struct sandbox_state *state_get_current(void)
+{
+	assert(state);
+	return state;
+}
+
+int state_init(void)
+{
+	state = &main_state;
 
 	/*
-	 * Do pre- and post-relocation init, then start up U-Boot. This will
-	 * never return.
+	 * Example of how to use GPIOs:
+	 *
+	 * sandbox_gpio_set_direction(170, 0);
+	 * sandbox_gpio_set_value(170, 0);
 	 */
-	board_init_f(0);
+	return 0;
 }
