@@ -185,6 +185,23 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MXC_MMC
 #define CONFIG_MXC_MCI_REGS_BASE       SDHC1_BASE_ADDR
+
+/* video support */
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_MX3
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_CONSOLE_EXTRA_INFO /* display additional board info */
+#define CONFIG_VGA_AS_SINGLE_DEVICE /* display is an output only device */
+/* allow stdin, stdout and stderr variables to redirect output */
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+
+/* allow decompressing max. 4MB */
+#define CONFIG_VIDEO_BMP_GZIP
+/* this is not only used by cfb_console.c for the logo, but also in cmd_bmp.c */
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE (4*1024*1024)
+
 /*
  * Command definition
  */
@@ -201,6 +218,7 @@
  * the NAND_CMD_LOCK_STATUS command, however the NFC of i.MX31 supports
  * a software locking scheme.
  */
+#define CONFIG_CMD_BMP
 
 #define CONFIG_BOOTDELAY	3
 
@@ -208,9 +226,18 @@
  * currently a default setting for booting via script is implemented
  *   set user to login name and serverip to tftp host, define your
  *   boot behaviour in bootscript.loginname
+ *
+ * TT-01 board specific TFT setup (used by drivers/video/mx3fb.c)
+ *
+ *  This set-up is for the L5F30947T04 by Epson, which is
+ *   800x480, 33MHz pixel clock, 60Hz vsync, 31.6kHz hsync
+ *  sync must be set to: DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL
  */
 #define	CONFIG_EXTRA_ENV_SETTINGS \
-	"bootcmd=dhcp bootscript.$(user); source\0"
+"videomode=epson\0" \
+"epson=video=ctfb:x:800,y:480,depth:16,mode:0,pclk:30076," \
+	"le:215,ri:1,up:32,lo:13,hs:7,vs:10,sync:100663296,vmode:0\0" \
+"bootcmd=dhcp bootscript.$(user); source\0"
 
 #define CONFIG_BOOTP_SERVERIP /* tftp serverip not overruled by dhcp server */
 #define CONFIG_BOOTP_SEND_HOSTNAME /* if env-var 'hostname' is set, send it */
