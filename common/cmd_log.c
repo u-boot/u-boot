@@ -219,7 +219,9 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				start = log->v1.start;
 				size = log->v1.size;
 			}
-			for (i=0; i < (size&LOGBUFF_MASK); i++) {
+			if (size > LOGBUFF_LEN)
+				size = LOGBUFF_LEN;
+			for (i = 0; i < size; i++) {
 				s = lbuf+((start+i)&LOGBUFF_MASK);
 				putc (*s);
 			}
