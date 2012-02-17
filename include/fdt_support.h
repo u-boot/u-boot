@@ -61,11 +61,11 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 			 const void *val, int len, int create);
 void fdt_fixup_qe_firmware(void *fdt);
 
-#ifdef CONFIG_HAS_FSL_DR_USB
+#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
 void fdt_fixup_dr_usb(void *blob, bd_t *bd);
 #else
 static inline void fdt_fixup_dr_usb(void *blob, bd_t *bd) {}
-#endif /* CONFIG_HAS_FSL_DR_USB */
+#endif /* defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB) */
 
 #if defined(CONFIG_SYS_FSL_SEC_COMPAT)
 void fdt_fixup_crypto_node(void *blob, int sec_rev);
