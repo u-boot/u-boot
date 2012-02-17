@@ -198,9 +198,10 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	ulong start;
 
 	start = get_timer(0);
-	while ((readl(&mmc_base->pstate) & DATI_MASK) == DATI_CMDDIS) {
+	while ((readl(&mmc_base->pstate) & (DATI_MASK | CMDI_MASK)) != 0) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
-			printf("%s: timedout waiting for cmddis!\n", __func__);
+			printf("%s: timedout waiting on cmd inhibit to clear\n",
+					__func__);
 			return TIMEOUT;
 		}
 	}

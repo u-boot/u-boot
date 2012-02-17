@@ -108,7 +108,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 int mmc_send_status(struct mmc *mmc, int timeout)
 {
 	struct mmc_cmd cmd;
-	int err;
+	int err, retries = 5;
 #ifdef CONFIG_MMC_TRACE
 	int status;
 #endif
@@ -121,17 +121,21 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 
 	do {
 		err = mmc_send_cmd(mmc, &cmd, NULL);
-		if (err)
+		if (!err) {
+			if ((cmd.response[0] & MMC_STATUS_RDY_FOR_DATA) &&
+			    (cmd.response[0] & MMC_STATUS_CURR_STATE) !=
+			     MMC_STATE_PRG)
+				break;
+			else if (cmd.response[0] & MMC_STATUS_MASK) {
+				printf("Status Error: 0x%08X\n",
+					cmd.response[0]);
+				return COMM_ERR;
+			}
+		} else if (--retries < 0)
 			return err;
-		else if (cmd.response[0] & MMC_STATUS_RDY_FOR_DATA)
-			break;
 
 		udelay(1000);
 
-		if (cmd.response[0] & MMC_STATUS_MASK) {
-			printf("Status Error: 0x%08X\n", cmd.response[0]);
-			return COMM_ERR;
-		}
 	} while (timeout--);
 
 #ifdef CONFIG_MMC_TRACE
@@ -305,10 +309,11 @@ mmc_write_blocks(struct mmc *mmc, ulong start, lbaint_t blkcnt, const void*src)
 			printf("mmc fail to send stop cmd\n");
 			return 0;
 		}
-
-		/* Waiting for the ready status */
-		mmc_send_status(mmc, timeout);
 	}
+
+	/* Waiting for the ready status */
+	if (mmc_send_status(mmc, timeout))
+		return 0;
 
 	return blkcnt;
 }
@@ -341,7 +346,6 @@ int mmc_read_blocks(struct mmc *mmc, void *dst, ulong start, lbaint_t blkcnt)
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
-	int timeout = 1000;
 
 	if (blkcnt > 1)
 		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
@@ -373,9 +377,6 @@ int mmc_read_blocks(struct mmc *mmc, void *dst, ulong start, lbaint_t blkcnt)
 			printf("mmc fail to send stop cmd\n");
 			return 0;
 		}
-
-		/* Waiting for the ready status */
-		mmc_send_status(mmc, timeout);
 	}
 
 	return blkcnt;
@@ -610,7 +611,8 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 	ret = mmc_send_cmd(mmc, &cmd, NULL);
 
 	/* Waiting for the ready status */
-	mmc_send_status(mmc, timeout);
+	if (!ret)
+		ret = mmc_send_status(mmc, timeout);
 
 	return ret;
 

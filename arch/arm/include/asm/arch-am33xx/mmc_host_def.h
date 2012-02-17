@@ -97,7 +97,7 @@ typedef struct hsmmc {
 #define INDEX_MASK			(0x3f << 24)
 #define INDEX(i)			(i << 24)
 #define DATI_MASK			(0x1 << 1)
-#define DATI_CMDDIS			(0x1 << 1)
+#define CMDI_MASK			(0x1 << 0)
 #define DTW_1_BITMODE			(0x0 << 1)
 #define DTW_4_BITMODE			(0x1 << 1)
 #define DTW_8_BITMODE                   (0x1 << 5) /* CON[DW8]*/
