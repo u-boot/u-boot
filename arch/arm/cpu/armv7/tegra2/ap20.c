@@ -298,11 +298,11 @@ void tegra2_start(void)
 		writel(0xC0, &pmt->pmt_cfg_ctl);
 
 		/*
-		* If we are ARM7 - give it a different stack. We are about to
-		* start up the A9 which will want to use this one.
-		*/
-		asm volatile("ldr	sp, =%c0\n"
-			: : "i"(AVP_EARLY_BOOT_STACK_LIMIT));
+		 * If we are ARM7 - give it a different stack. We are about to
+		 * start up the A9 which will want to use this one.
+		 */
+		asm volatile("mov	sp, %0\n"
+			: : "r"(AVP_EARLY_BOOT_STACK_LIMIT));
 
 		start_cpu((u32)_start);
 		halt_avp();
