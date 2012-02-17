@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * (C) Copyright 2011
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,28 +21,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_PROCESSOR_H_
-#define __ASM_PROCESSOR_H_ 1
+#ifndef _RELOCATE_H_
+#define _RELOCATE_H_
 
-#define X86_GDT_ENTRY_SIZE	8
+#include <common.h>
 
-#ifndef __ASSEMBLY__
+int copy_uboot_to_ram(void);
+int clear_bss(void);
+int do_elf_reloc_fixups(void);
 
-enum {
-	X86_GDT_ENTRY_NULL = 0,
-	X86_GDT_ENTRY_UNUSED,
-	X86_GDT_ENTRY_32BIT_CS,
-	X86_GDT_ENTRY_32BIT_DS,
-	X86_GDT_ENTRY_32BIT_FS,
-	X86_GDT_ENTRY_16BIT_CS,
-	X86_GDT_ENTRY_16BIT_DS,
-	X86_GDT_NUM_ENTRIES
-};
-#else
-/* NOTE: If the above enum is modified, this define must be checked */
-#define X86_GDT_ENTRY_32BIT_DS	3
-#endif
-
-#define X86_GDT_SIZE		(X86_GDT_NUM_ENTRIES * X86_GDT_ENTRY_SIZE)
-
-#endif
+#endif	/* !_RELOCATE_H_ */

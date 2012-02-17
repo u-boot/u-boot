@@ -29,8 +29,9 @@
 #include <config.h>
 #include <version.h>
 #include <asm/global_data.h>
+#include <asm/processor.h>
 #include <asm/processor-flags.h>
-#include <generated/asm-offsets.h>
+#include <generated/generic-asm-offsets.h>
 
 .section .text
 .code32
@@ -58,7 +59,7 @@ _start:
 	/* This is the 32-bit cold-reset entry point */
 
 	/* Load the segement registes to match the gdt loaded in start16.S */
-	movl	$0x18, %eax
+	movl	$(X86_GDT_ENTRY_32BIT_DS * X86_GDT_ENTRY_SIZE), %eax
 	movw	%ax, %fs
 	movw	%ax, %ds
 	movw	%ax, %gs
@@ -84,6 +85,12 @@ car_init_ret:
 	 */
 	movl	$CONFIG_SYS_INIT_SP_ADDR, %esp
 
+	/* Initialise the Global Data Pointer */
+	movl	$CONFIG_SYS_INIT_GD_ADDR, %eax
+	movl	%eax, %edx
+	addl	$GENERATED_GBL_DATA_SIZE, %edx
+	call	init_gd;
+
 	/* Set parameter to board_init_f() to boot flags */
 	xorl	%eax, %eax
 	movw	%bx, %ax
@@ -95,32 +102,22 @@ car_init_ret:
 	movw	$0x85, %ax
 	jmp	die
 
-.globl relocate_code
-.type relocate_code, @function
-relocate_code:
+.globl board_init_f_r_trampoline
+.type board_init_f_r_trampoline, @function
+board_init_f_r_trampoline:
 	/*
 	 * SDRAM has been initialised, U-Boot code has been copied into
 	 * RAM, BSS has been cleared and relocation adjustments have been
 	 * made. It is now time to jump into the in-RAM copy of U-Boot
 	 *
-	 * %eax = Address of top of stack
-	 * %edx = Address of Global Data
-	 * %ecx = Base address of in-RAM copy of U-Boot
+	 * %eax = Address of top of new stack
 	 */
 
 	/* Setup stack in RAM */
 	movl	%eax, %esp
 
-	/* Setup call address of in-RAM copy of board_init_r() */
-	movl	$board_init_r, %ebp
-	addl	(GENERATED_GD_RELOC_OFF)(%edx), %ebp
-
-	/* Setup parameters to board_init_r() */
-	movl	%edx, %eax
-	movl	%ecx, %edx
-
-	/* Jump to in-RAM copy of board_init_r() */
-	call	*%ebp
+	/* Re-enter U-Boot by calling board_init_f_r */
+	call	board_init_f_r
 
 die:
 	hlt

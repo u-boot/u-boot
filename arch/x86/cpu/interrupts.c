@@ -174,7 +174,7 @@ struct desc_ptr {
 	unsigned short segment;
 } __packed;
 
-struct idt_entry idt[256] __attribute__((aligned(16)));
+struct idt_entry idt[256] __aligned(16);
 
 struct desc_ptr idt_ptr;
 

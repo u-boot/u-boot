@@ -37,6 +37,9 @@ int x86_cpu_init_r(void);
 int cpu_init_r(void);
 int x86_cpu_init_f(void);
 int cpu_init_f(void);
+void init_gd(gd_t *id, u64 *gdt_addr);
+void setup_gdt(gd_t *id, u64 *gdt_addr);
+int init_cache(void);
 
 /* cpu/.../timer.c */
 void timer_isr(void *);
@@ -61,5 +64,7 @@ u32 isa_map_rom(u32 bus_addr, int size);
 int video_bios_init(void);
 int video_init(void);
 
+void	board_init_f_r_trampoline(ulong) __attribute__ ((noreturn));
+void	board_init_f_r(void) __attribute__ ((noreturn));
 
 #endif	/* _U_BOOT_I386_H_ */
