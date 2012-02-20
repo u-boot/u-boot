@@ -511,8 +511,12 @@ build_target() {
 
 	TOTAL_CNT=$((TOTAL_CNT + 1))
 
-	${CROSS_COMPILE}size ${BUILD_DIR}/u-boot \
-				| tee -a ${LOG_DIR}/$target.MAKELOG
+	OBJS=${BUILD_DIR}/u-boot
+	if [ -e ${BUILD_DIR}/spl/u-boot-spl ]; then
+		OBJS="${OBJS} ${BUILD_DIR}/spl/u-boot-spl"
+	fi
+
+	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
 }
 build_targets() {
 	for t in "$@" ; do
