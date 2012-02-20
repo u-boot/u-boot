@@ -232,6 +232,10 @@ CFLAGS_WARN := $(call cc-option,-Wno-format-nonliteral) \
 	       $(call cc-option,-Wno-format-security)
 CFLAGS += $(CFLAGS_WARN)
 
+# Report stack usage if supported
+CFLAGS_STACK := $(call cc-option,-fstack-usage)
+CFLAGS += $(CFLAGS_STACK)
+
 # $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
 AFLAGS_DEBUG :=
