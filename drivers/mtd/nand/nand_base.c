@@ -479,6 +479,11 @@ static int nand_block_checkbad(struct mtd_info *mtd, loff_t ofs, int getchip,
 {
 	struct nand_chip *chip = mtd->priv;
 
+	if (!(chip->options & NAND_BBT_SCANNED)) {
+		chip->options |= NAND_BBT_SCANNED;
+		chip->scan_bbt(mtd);
+	}
+
 	if (!chip->bbt)
 		return chip->block_bad(mtd, ofs, getchip);
 
@@ -3166,10 +3171,9 @@ int nand_scan_tail(struct mtd_info *mtd)
 
 	/* Check, if we should skip the bad block table scan */
 	if (chip->options & NAND_SKIP_BBTSCAN)
-		return 0;
+		chip->options |= NAND_BBT_SCANNED;
 
-	/* Build bad block table */
-	return chip->scan_bbt(mtd);
+	return 0;
 }
 
 /**

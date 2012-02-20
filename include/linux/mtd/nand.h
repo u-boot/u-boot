@@ -232,6 +232,8 @@ typedef enum {
 #define NAND_CREATE_EMPTY_BBT		0x01000000
 
 /* Options set by nand scan */
+/* bbt has already been read */
+#define NAND_BBT_SCANNED	0x40000000
 /* Nand scan has allocated controller struct */
 #define NAND_CONTROLLER_ALLOC	0x80000000
 
