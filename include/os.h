@@ -1,4 +1,9 @@
 /*
+ * Operating System Interface
+ *
+ * This provides access to useful OS routines for the sandbox architecture.
+ * They are kept in a separate file so we can include system headers.
+ *
  * Copyright (c) 2011 The Chromium OS Authors.
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -17,12 +22,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- */
-
-/*
- * Operating System Interface
- *
- * This provides access to useful OS routines from the sandbox architecture
  */
 
 #ifndef __OS_H__
@@ -71,6 +70,12 @@ off_t os_lseek(int fd, off_t offset, int whence);
  * \return file descriptor, or -1 on error
  */
 int os_open(const char *pathname, int flags);
+
+#define OS_O_RDONLY	0
+#define OS_O_WRONLY	1
+#define OS_O_RDWR	2
+#define OS_O_MASK	3	/* Mask for read/write flags */
+#define OS_O_CREAT	0100
 
 /**
  * Access to the OS close() system call

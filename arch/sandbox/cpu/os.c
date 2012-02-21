@@ -58,9 +58,29 @@ off_t os_lseek(int fd, off_t offset, int whence)
 	return lseek(fd, offset, whence);
 }
 
-int os_open(const char *pathname, int flags)
+int os_open(const char *pathname, int os_flags)
 {
-	return open(pathname, flags);
+	int flags;
+
+	switch (os_flags & OS_O_MASK) {
+	case OS_O_RDONLY:
+	default:
+		flags = O_RDONLY;
+		break;
+
+	case OS_O_WRONLY:
+		flags = O_WRONLY;
+		break;
+
+	case OS_O_RDWR:
+		flags = O_RDWR;
+		break;
+	}
+
+	if (os_flags & OS_O_CREAT)
+		flags |= O_CREAT;
+
+	return open(pathname, flags, 0777);
 }
 
 int os_close(int fd)
