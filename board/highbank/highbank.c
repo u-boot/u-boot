@@ -17,6 +17,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <netdev.h>
 #include <scsi.h>
 
 #include <asm/sizes.h>
