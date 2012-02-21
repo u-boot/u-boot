@@ -121,3 +121,8 @@ ulong get_timer_masked(void)
 {
 	return tick_to_time(get_ticks());
 }
+
+ulong get_tbclk(void)
+{
+	return CONFIG_SYS_HZ;
+}
