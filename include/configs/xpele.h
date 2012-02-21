@@ -181,6 +181,12 @@
 #define CONFIG_TTC0	1
 #define CONFIG_GEM0	1
 
+#ifdef CONFIG_EP107
+# define CONFIG_XGMAC_PHY_ADDR 0x17
+#else
+# define CONFIG_XGMAC_PHY_ADDR 0x7
+#endif
+
 #define TIMER_INPUT_CLOCK               XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ / 2
 #define CONFIG_TIMER_PRESCALE           255
 #define TIMER_TICK_HZ                   (TIMER_INPUT_CLOCK / CONFIG_TIMER_PRESCALE)

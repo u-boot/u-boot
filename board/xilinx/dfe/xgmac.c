@@ -20,11 +20,6 @@ void set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed);
 /*************************** Constant Definitions ***************************/
 
 #define EMACPSS_DEVICE_ID   0
-#ifdef CONFIG_EP107
-# define PHY_ADDR 0x17
-#else
-# define PHY_ADDR 0x7
-#endif
 #define RXBD_CNT       8	/* Number of RxBDs to use */
 #define TXBD_CNT       8	/* Number of TxBDs to use */
 
@@ -72,7 +67,7 @@ static u32 phy_rd(XEmacPss * e, u32 a)
 	u16 PhyData;
 
 	phy_spinwait(e);
-	XEmacPss_PhyRead(e, PHY_ADDR, a, &PhyData);
+	XEmacPss_PhyRead(e, CONFIG_XGMAC_PHY_ADDR, a, &PhyData);
 	phy_spinwait(e);
 	return PhyData;
 }
@@ -80,7 +75,7 @@ static u32 phy_rd(XEmacPss * e, u32 a)
 static void phy_wr(XEmacPss * e, u32 a, u32 v)
 {
 	phy_spinwait(e);
-	XEmacPss_PhyWrite(e, PHY_ADDR, a, v);
+	XEmacPss_PhyWrite(e, CONFIG_XGMAC_PHY_ADDR, a, v);
 	phy_spinwait(e);
 }
 
