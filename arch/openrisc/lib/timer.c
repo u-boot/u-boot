@@ -86,6 +86,16 @@ void set_timer(ulong t)
 	timestamp = t;
 }
 
+unsigned long long get_ticks(void)
+{
+	return get_timer(0);
+}
+
+ulong get_tbclk(void)
+{
+	return CONFIG_SYS_HZ;
+}
+
 void __udelay(ulong usec)
 {
 	ulong elapsed = 0;
