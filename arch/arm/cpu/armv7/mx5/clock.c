@@ -380,6 +380,8 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_FEC_CLK:
 		return decode_pll(mxc_plls[PLL1_CLOCK],
 				    CONFIG_SYS_MX5_HCLK);
+	case MXC_SATA_CLK:
+		return get_ahb_clk();
 	default:
 		break;
 	}

@@ -32,6 +32,7 @@ enum mxc_clock {
 	MXC_UART_CLK,
 	MXC_CSPI_CLK,
 	MXC_FEC_CLK,
+	MXC_SATA_CLK,
 };
 
 unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref);

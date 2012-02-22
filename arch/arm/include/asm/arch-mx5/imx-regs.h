@@ -43,6 +43,7 @@
 #define NFC_BASE_ADDR_AXI       0xF7FF0000
 #define IRAM_BASE_ADDR          0xF8000000
 #define CS1_BASE_ADDR           0xF4000000
+#define SATA_BASE_ADDR		0x10000000
 #else
 #error "CPU_TYPE not defined"
 #endif
