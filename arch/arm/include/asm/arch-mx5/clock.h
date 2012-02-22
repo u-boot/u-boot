@@ -45,5 +45,6 @@ void set_usb_phy2_clk(void);
 void enable_usb_phy2_clk(unsigned char enable);
 void set_usboh3_clk(void);
 void enable_usboh3_clk(unsigned char enable);
+void mxc_set_sata_internal_clock(void);
 
 #endif /* __ASM_ARCH_CLOCK_H */

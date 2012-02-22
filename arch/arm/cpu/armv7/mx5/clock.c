@@ -399,6 +399,30 @@ u32 imx_get_fecclk(void)
 	return mxc_get_clock(MXC_IPG_CLK);
 }
 
+#ifdef CONFIG_MX53
+/*
+ * The clock for the external interface can be set to use internal clock
+ * if fuse bank 4, row 3, bit 2 is set.
+ * This is an undocumented feature and it was confirmed by Freescale's support:
+ * Fuses (but not pins) may be used to configure SATA clocks.
+ * Particularly the i.MX53 Fuse_Map contains the next information
+ * about configuring SATA clocks :  SATA_ALT_REF_CLK[1:0] (offset 0x180C)
+ * '00' - 100MHz (External)
+ * '01' - 50MHz (External)
+ * '10' - 120MHz, internal (USB PHY)
+ * '11' - Reserved
+*/
+void mxc_set_sata_internal_clock(void)
+{
+	u32 *tmp_base =
+		(u32 *)(IIM_BASE_ADDR + 0x180c);
+
+	set_usb_phy1_clk();
+
+	writel((readl(tmp_base) & (~0x7)) | 0x4, tmp_base);
+}
+#endif
+
 /*
  * Dump some core clockes.
  */
