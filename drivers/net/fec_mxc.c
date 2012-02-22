@@ -187,9 +187,10 @@ int fec_phy_write(struct mii_dev *bus, int phyAddr, int dev_addr, int regAddr,
 #ifndef CONFIG_PHYLIB
 static int miiphy_restart_aneg(struct eth_device *dev)
 {
+	int ret = 0;
+#if !defined(CONFIG_FEC_MXC_NO_ANEG)
 	struct fec_priv *fec = (struct fec_priv *)dev->priv;
 	struct ethernet_regs *eth = fec->bus->priv;
-	int ret = 0;
 
 	/*
 	 * Wake up from sleep if necessary
@@ -213,6 +214,7 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	if (fec->mii_postcall)
 		ret = fec->mii_postcall(fec->phy_id);
 
+#endif
 	return ret;
 }
 
