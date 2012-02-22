@@ -56,6 +56,7 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
@@ -192,5 +193,15 @@
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #define CONFIG_OF_LIBFDT
+
+#define CONFIG_CMD_SATA
+#ifdef CONFIG_CMD_SATA
+	#define CONFIG_DWC_AHSATA
+	#define CONFIG_SYS_SATA_MAX_DEVICE      1
+	#define CONFIG_DWC_AHSATA_PORT_ID       0
+	#define CONFIG_DWC_AHSATA_BASE_ADDR     SATA_BASE_ADDR
+	#define CONFIG_LBA48
+	#define CONFIG_LIBATA
+#endif
 
 #endif				/* __CONFIG_H */

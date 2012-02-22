@@ -27,6 +27,7 @@
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/clock.h>
 #include <asm/errno.h>
@@ -301,6 +302,8 @@ int board_early_init_f(void)
 int board_init(void)
 {
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+	mxc_set_sata_internal_clock();
 
 	return 0;
 }
