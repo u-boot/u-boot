@@ -216,8 +216,12 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	dcd_v1_t *dcd_v1 = &hdr_v1->dcd_table;
 	uint32_t base_offset;
 
-	/* Set default offset */
-	imxhdr->flash_offset = FLASH_OFFSET_STANDARD;
+	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
+	if(imxhdr->flash_offset == FLASH_OFFSET_UNDEFINED) {
+		fprintf(stderr, "Error: Header v1: No BOOT_FROM tag in %s\n",
+			params->imagename);
+		exit(EXIT_FAILURE);
+	}
 
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
@@ -253,8 +257,12 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 	imx_header_v2_t *hdr_v2 = &imxhdr->header.hdr_v2;
 	flash_header_v2_t *fhdr_v2 = &hdr_v2->fhdr;
 
-	/* Set default offset */
-	imxhdr->flash_offset = FLASH_OFFSET_STANDARD;
+	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
+	if(imxhdr->flash_offset == FLASH_OFFSET_UNDEFINED) {
+		fprintf(stderr, "Error: Header v2: No BOOT_FROM tag in %s\n",
+			params->imagename);
+		exit(EXIT_FAILURE);
+	}
 
 	/* Set magic number */
 	fhdr_v2->header.tag = IVT_HEADER_TAG; /* 0xD1 */
@@ -525,6 +533,8 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	 * set up function ptr group to V1 by default.
 	 */
 	imximage_version = IMXIMAGE_V1;
+	/* Be able to detect if the cfg file has no BOOT_FROM tag */
+	imxhdr->flash_offset = FLASH_OFFSET_UNDEFINED;
 	set_hdr_func(imxhdr);
 
 	/* Parse dcd configuration file */
