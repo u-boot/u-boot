@@ -2,20 +2,21 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <net.h>
 
 #include "xemacpss.h"
 
 /************************ Forward function declaration **********************/
 
-int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr);
-int Xgmac_init_rxq(XEmacPss * EmacPssInstancePtr, void *bd_start, int num_elem);
-int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
+static int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr);
+static int Xgmac_init_rxq(XEmacPss * EmacPssInstancePtr, void *bd_start, int num_elem);
+static int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
 			  u32 rx_buffsize);
-int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr);
-int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
+static int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr);
+static int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
 
-void set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed);
+static void Xgmac_set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed);
 
 /*************************** Constant Definitions ***************************/
 
@@ -93,7 +94,7 @@ static void phy_rst(XEmacPss * e)
 		tmp++;
 		if (tmp > 1000) { /* stalled if reset unfinished after 10 seconds */
 			puts("***Error: Reset stalled...\n");
-			return -1;
+			return;
 		}
 	}
 	puts("\nPHY reset complete.\n");
@@ -107,12 +108,7 @@ static void Out32(u32 OutAddress, u32 Value)
 
 /*****************************************************************************/
 
-void eth_halt(void)
-{
-	return;
-}
-
-int eth_init(bd_t * bis)
+int Xgmac_one_time_init(void)
 {
 	int tmp;
 	int link_speed;
@@ -121,11 +117,8 @@ int eth_init(bd_t * bis)
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
 	XEmacPss_Bd BdTemplate;
 
-	if (ethstate.initialized) {
+	if (ethstate.initialized)
 		return 1;
-	}
-
-	ethstate.initialized = 0;
 
 	Config = XEmacPss_LookupConfig(EMACPSS_DEVICE_ID);
 
@@ -261,9 +254,10 @@ int eth_init(bd_t * bis)
 
 	/***** Try to establish a link at the highest speed possible  *****/
 #ifdef CONFIG_EP107
-	set_eth_advertise(EmacPssInstancePtr, 100);
+	Xgmac_set_eth_advertise(EmacPssInstancePtr, 100);
 #else
-	set_eth_advertise(EmacPssInstancePtr, 100);
+	/* Could be 1000 if an unknown bug is fixed */
+	Xgmac_set_eth_advertise(EmacPssInstancePtr, 100);
 #endif
 	phy_rst(EmacPssInstancePtr);
 
@@ -349,7 +343,17 @@ int eth_init(bd_t * bis)
 	return 0;
 }
 
-int eth_send(volatile void *ptr, int len)
+int Xgmac_init(struct eth_device *dev, bd_t * bis)
+{
+	return 0;
+}
+
+void Xgmac_halt(struct eth_device *dev)
+{
+	return;
+}
+
+int Xgmac_send(struct eth_device *dev, volatile void *packet, int length)
 {
 	volatile int Status;
 	XEmacPss_Bd *BdPtr;
@@ -371,8 +375,8 @@ int eth_send(volatile void *ptr, int len)
 	/*
 	 * Setup TxBD
 	 */
-	XEmacPss_BdSetAddressTx(BdPtr, (u32) ptr);
-	XEmacPss_BdSetLength(BdPtr, len);
+	XEmacPss_BdSetAddressTx(BdPtr, (u32)packet);
+	XEmacPss_BdSetLength(BdPtr, length);
 	XEmacPss_BdClearTxUsed(BdPtr);
 	XEmacPss_BdSetLast(BdPtr);
 
@@ -432,7 +436,7 @@ int eth_send(volatile void *ptr, int len)
 
 }
 
-int eth_rx(void)
+int Xgmac_rx(struct eth_device *dev)
 {
 	u32 status, retval;
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
@@ -455,6 +459,32 @@ int eth_rx(void)
 	                  XEMACPSS_RXSR_OFFSET, status);
 	
 	return 1;
+}
+
+int Xgmac_register(bd_t * bis)
+{
+	struct eth_device *dev;
+	dev = malloc(sizeof(*dev));
+	if (dev == NULL) {
+		return 1;
+	}
+	memset(dev, 0, sizeof(*dev));
+	sprintf(dev->name, "xgmac");
+
+	if (Xgmac_one_time_init() < 0) {
+		printf("xgmac init failed!");
+		return -1;
+	}
+	dev->iobase = EmacPssInstance.Config.BaseAddress;
+	dev->priv = &EmacPssInstance;
+	dev->init = Xgmac_init;
+	dev->halt = Xgmac_halt;
+	dev->send = Xgmac_send;
+	dev->recv = Xgmac_rx;
+
+	eth_register(dev);
+
+	return 0;
 }
 
 /*=============================================================================
@@ -614,7 +644,7 @@ int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr)
 	return 0;
 }
 
-void set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed) {
+void Xgmac_set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed) {
 
 	int tmp;
 

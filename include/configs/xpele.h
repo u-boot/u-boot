@@ -180,6 +180,7 @@
 #endif
 #define CONFIG_TTC0	1
 #define CONFIG_GEM0	1
+#define CONFIG_NET_MULTI
 
 #ifdef CONFIG_EP107
 # define CONFIG_XGMAC_PHY_ADDR 0x17

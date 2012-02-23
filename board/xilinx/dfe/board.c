@@ -627,6 +627,16 @@ int board_late_init (void)
 		setenv("modeboot", "");
 		break;
 	}
+
+	return 0;
+}
+
+extern int Xgmac_register(bd_t *bis);
+
+int board_eth_init(bd_t *bis)
+{
+	Xgmac_register(bis);
+
 	return 0;
 }
 
