@@ -3,8 +3,8 @@
  */
 
 #include <common.h>
-#include <xparameters.h>
 #include "ps7_init_hw.h"
+#include "xparameters.h"
 
 #define PARPORT_CRTL_BASEADDR                   XPSS_CRTL_PARPORT_BASEADDR
 #define NOR_FLASH_BASEADDR                      XPSS_PARPORT0_BASEADDR
@@ -48,10 +48,11 @@ static u8 In8(u32 InAddress)
     return *(u8 *) InAddress;
 }
 
+#ifndef CONFIG_SYS_NO_FLASH
 /*
  * init_nor_flash init the parameters of pl353 for the M29EW Flash
  */
-void init_nor_flash()
+void init_nor_flash(void)
 {
   /* Init variables */
 
@@ -95,6 +96,7 @@ void init_nor_flash()
   Out8(NOR_FLASH_BASEADDR + 0x555, 0x55);
   Out8(NOR_FLASH_BASEADDR,         0xF0);
 }
+#endif
 
 #define Xil_Out32 Out32
 #define Xil_In32 In32
@@ -362,25 +364,6 @@ void memtest_mio_init(void)
 
 }
 
-void memtest_pll_init(void)
-{
-	/* SLCR unlock */
-	Xil_Out32(SLCR_UNLOCK, 0xDF0D);
-
-	/* ARM PLL initialization */
-	memtest_arm_pll_init();
-
-	/* DDR PLL initialization */
-//	memtest_ddr_pll_init();
-
-	/* IO PLL initialization */
-	memtest_io_pll_init();
-
-	/* SLCR lock */
-	Xil_Out32(SLCR_LOCK, 0x767B);
-
-}
-
 void memtest_arm_pll_init(void)
 {
 	unsigned int RegVal=0;
@@ -495,6 +478,25 @@ void memtest_io_pll_init(void)
 }
 
 
+void memtest_pll_init(void)
+{
+	/* SLCR unlock */
+	Xil_Out32(SLCR_UNLOCK, 0xDF0D);
+
+	/* ARM PLL initialization */
+	memtest_arm_pll_init();
+
+	/* DDR PLL initialization */
+//	memtest_ddr_pll_init();
+
+	/* IO PLL initialization */
+	memtest_io_pll_init();
+
+	/* SLCR lock */
+	Xil_Out32(SLCR_LOCK, 0x767B);
+
+}
+
 void memtest_clock_init(void)
 {
 
@@ -565,7 +567,7 @@ void memtest_clock_init(void)
 	Xil_Out32(SLCR_LOCK, 0x767B);
 }
 
-int from_burst_main()
+void from_burst_main(void)
 {
 #ifdef CONFIG_ZYNQ_MIO_INIT
 	memtest_mio_init();
@@ -597,7 +599,9 @@ int board_init(void)
 	Xil_Out32(0xe000a040, 0x80);
 
 	icache_enable();
+#ifndef CONFIG_SYS_NO_FLASH
 	init_nor_flash();
+#endif
 
 	return 0;
 }
