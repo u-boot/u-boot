@@ -3,6 +3,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <miiphy.h>
 #include <net.h>
 
 #include "xemacpss.h"
@@ -62,6 +63,26 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr)
 		 (EmacPssInstancePtr->Config.BaseAddress, XEMACPSS_NWSR_OFFSET)
 		 & XEMACPSS_NWSR_MDIOIDLE_MASK) == XEMACPSS_NWSR_MDIOIDLE_MASK);
 }
+
+#if defined(CONFIG_CMD_MII) && !defined(CONFIG_BITBANGMII)
+static int Xgmac_mii_read(const char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value)
+{
+	phy_spinwait(&EmacPssInstance);
+	XEmacPss_PhyRead(&EmacPssInstance, addr, reg, value);
+	phy_spinwait(&EmacPssInstance);
+	return 0;
+}
+
+static int Xgmac_mii_write(const char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
+{
+	phy_spinwait(&EmacPssInstance);
+	XEmacPss_PhyWrite(&EmacPssInstance, addr, reg, value);
+	phy_spinwait(&EmacPssInstance);
+	return 0;
+}
+#endif
 
 static u32 phy_rd(XEmacPss * e, u32 a)
 {
@@ -484,6 +505,9 @@ int Xgmac_register(bd_t * bis)
 
 	eth_register(dev);
 
+#if defined(CONFIG_CMD_MII) && !defined(CONFIG_BITBANGMII)
+	miiphy_register(dev->name, Xgmac_mii_read, Xgmac_mii_write);
+#endif
 	return 0;
 }
 
