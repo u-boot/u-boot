@@ -39,10 +39,10 @@ int board_mmc_init(bd_t *bis)
 {
 	switch (omap_boot_device()) {
 	case BOOT_DEVICE_MMC1:
-		omap_mmc_init(0);
+		omap_mmc_init(0, 0, 0);
 		break;
 	case BOOT_DEVICE_MMC2:
-		omap_mmc_init(1);
+		omap_mmc_init(1, 0, 0);
 		break;
 	}
 	return 0;

@@ -80,6 +80,11 @@ unsigned char mmc_board_init(struct mmc *mmc)
 	writel(readl(&t2_base->devconf1) | MMCSDIO2ADPCLKISEL,
 		&t2_base->devconf1);
 
+	/* Change from default of 52MHz to 26MHz if necessary */
+	if (!(mmc->host_caps & MMC_MODE_HS_52MHz))
+		writel(readl(&t2_base->ctl_prog_io1) & ~CTLPROGIO1SPEEDCTRL,
+			&t2_base->ctl_prog_io1);
+
 	writel(readl(&prcm_base->fclken1_core) |
 		EN_MMC1 | EN_MMC2 | EN_MMC3,
 		&prcm_base->fclken1_core);
@@ -463,7 +468,7 @@ static void mmc_set_ios(struct mmc *mmc)
 	writel(readl(&mmc_base->sysctl) | CEN_ENABLE, &mmc_base->sysctl);
 }
 
-int omap_mmc_init(int dev_index)
+int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max)
 {
 	struct mmc *mmc;
 
@@ -494,11 +499,22 @@ int omap_mmc_init(int dev_index)
 		return 1;
 	}
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
-				MMC_MODE_HC;
+	mmc->host_caps = (MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
+				MMC_MODE_HC) & ~host_caps_mask;
 
 	mmc->f_min = 400000;
-	mmc->f_max = 52000000;
+
+	if (f_max != 0)
+		mmc->f_max = f_max;
+	else {
+		if (mmc->host_caps & MMC_MODE_HS) {
+			if (mmc->host_caps & MMC_MODE_HS_52MHz)
+				mmc->f_max = 52000000;
+			else
+				mmc->f_max = 26000000;
+		} else
+			mmc->f_max = 20000000;
+	}
 
 	mmc->b_max = 0;
 
