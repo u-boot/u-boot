@@ -155,8 +155,6 @@ void interrupt_handler (void)
 #endif
 	struct irq_action *act = vecs + irqs;
 
-	intc->iar = mask << irqs;
-
 #ifdef DEBUG_INT
 	printf
 	    ("Jumping to interrupt handler rutine addr %x,count %x,arg %x\n",
@@ -164,6 +162,8 @@ void interrupt_handler (void)
 #endif
 	act->handler (act->arg);
 	act->count++;
+
+	intc->iar = mask << irqs;
 
 #ifdef DEBUG_INT
 	printf ("Dump INTC reg, isr %x, ier %x, iar %x, mer %x\n", intc->isr,
