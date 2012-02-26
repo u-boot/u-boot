@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __SPR_I2C_H_
-#define __SPR_I2C_H_
+#ifndef __DW_I2C_H_
+#define __DW_I2C_H_
 
 struct i2c_regs {
 	u32 ic_con;
@@ -143,4 +143,4 @@ struct i2c_regs {
 #define I2C_FAST_SPEED		400000
 #define I2C_STANDARD_SPEED	100000
 
-#endif /* __SPR_I2C_H_ */
+#endif /* __DW_I2C_H_ */

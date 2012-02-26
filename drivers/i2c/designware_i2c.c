@@ -24,7 +24,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/spr_i2c.h>
+#include "designware_i2c.h"
 
 static struct i2c_regs *const i2c_regs_p =
     (struct i2c_regs *)CONFIG_SYS_I2C_BASE;
@@ -113,7 +113,7 @@ int i2c_get_bus_speed(void)
 /*
  * i2c_init - Init function
  * @speed:	required i2c speed
- * @slaveadd:	slave address for the spear device
+ * @slaveadd:	slave address for the device
  *
  * Initialization function.
  */
