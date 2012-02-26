@@ -259,10 +259,6 @@ int board_eth_init(bd_t *bis)
 	if (ret)
 		printf("FEC MXC: %s:failed\n", __func__);
 
-#ifdef CONFIG_MXC_SPI
-	setup_spi();
-#endif
-
 	return 0;
 }
 
@@ -277,6 +273,10 @@ int board_init(void)
 {
        /* address of boot parameters */
        gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+#ifdef CONFIG_MXC_SPI
+	setup_spi();
+#endif
 
        return 0;
 }
