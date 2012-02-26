@@ -95,7 +95,7 @@ int os_close(int fd);
  *
  * @param exit_code	exit code for U-Boot
  */
-void os_exit(int exit_code);
+void os_exit(int exit_code) __attribute__((noreturn));
 
 /**
  * Put tty into raw mode to mimic serial console better
