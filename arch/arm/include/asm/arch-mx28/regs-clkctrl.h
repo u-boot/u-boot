@@ -56,8 +56,8 @@ struct mx28_clkctrl_regs {
 
 	uint32_t	reserved[16];
 
-	mx28_reg_32(hw_clkctrl_frac0)		/* 0x1b0 */
-	mx28_reg_32(hw_clkctrl_frac1)		/* 0x1c0 */
+	mx28_reg_8(hw_clkctrl_frac0)		/* 0x1b0 */
+	mx28_reg_8(hw_clkctrl_frac1)		/* 0x1c0 */
 	mx28_reg_32(hw_clkctrl_clkseq)		/* 0x1d0 */
 	mx28_reg_32(hw_clkctrl_reset)		/* 0x1e0 */
 	mx28_reg_32(hw_clkctrl_status)		/* 0x1f0 */
@@ -248,35 +248,17 @@ struct mx28_clkctrl_regs {
 #define	CLKCTRL_FLEXCAN_STOP_CAN1		(1 << 28)
 #define	CLKCTRL_FLEXCAN_CAN1_STATUS		(1 << 27)
 
-#define	CLKCTRL_FRAC0_CLKGATEIO0		(1 << 31)
-#define	CLKCTRL_FRAC0_IO0_STABLE		(1 << 30)
-#define	CLKCTRL_FRAC0_IO0FRAC_MASK		(0x3f << 24)
-#define	CLKCTRL_FRAC0_IO0FRAC_OFFSET		24
-#define	CLKCTRL_FRAC0_CLKGATEIO1		(1 << 23)
-#define	CLKCTRL_FRAC0_IO1_STABLE		(1 << 22)
-#define	CLKCTRL_FRAC0_IO1FRAC_MASK		(0x3f << 16)
-#define	CLKCTRL_FRAC0_IO1FRAC_OFFSET		16
-#define	CLKCTRL_FRAC0_CLKGATEEMI		(1 << 15)
-#define	CLKCTRL_FRAC0_EMI_STABLE		(1 << 14)
-#define	CLKCTRL_FRAC0_EMIFRAC_MASK		(0x3f << 8)
-#define	CLKCTRL_FRAC0_EMIFRAC_OFFSET		8
-#define	CLKCTRL_FRAC0_CLKGATECPU		(1 << 7)
-#define	CLKCTRL_FRAC0_CPU_STABLE		(1 << 6)
-#define	CLKCTRL_FRAC0_CPUFRAC_MASK		0x3f
-#define	CLKCTRL_FRAC0_CPUFRAC_OFFSET		0
-
-#define	CLKCTRL_FRAC1_CLKGATEGPMI		(1 << 23)
-#define	CLKCTRL_FRAC1_GPMI_STABLE		(1 << 22)
-#define	CLKCTRL_FRAC1_GPMIFRAC_MASK		(0x3f << 16)
-#define	CLKCTRL_FRAC1_GPMIFRAC_OFFSET		16
-#define	CLKCTRL_FRAC1_CLKGATEHSADC		(1 << 15)
-#define	CLKCTRL_FRAC1_HSADC_STABLE		(1 << 14)
-#define	CLKCTRL_FRAC1_HSADCFRAC_MASK		(0x3f << 8)
-#define	CLKCTRL_FRAC1_HSADCFRAC_OFFSET		8
-#define	CLKCTRL_FRAC1_CLKGATEPIX		(1 << 7)
-#define	CLKCTRL_FRAC1_PIX_STABLE		(1 << 6)
-#define	CLKCTRL_FRAC1_PIXFRAC_MASK		0x3f
-#define	CLKCTRL_FRAC1_PIXFRAC_OFFSET		0
+#define	CLKCTRL_FRAC_CLKGATE			(1 << 7)
+#define	CLKCTRL_FRAC_STABLE			(1 << 6)
+#define	CLKCTRL_FRAC_FRAC_MASK			0x3f
+#define	CLKCTRL_FRAC_FRAC_OFFSET		0
+#define	CLKCTRL_FRAC0_CPU			0
+#define	CLKCTRL_FRAC0_EMI			1
+#define	CLKCTRL_FRAC0_IO1			2
+#define	CLKCTRL_FRAC0_IO0			3
+#define	CLKCTRL_FRAC1_PIX			0
+#define	CLKCTRL_FRAC1_HSADC			1
+#define	CLKCTRL_FRAC1_GPMI			2
 
 #define	CLKCTRL_CLKSEQ_BYPASS_CPU		(1 << 18)
 #define	CLKCTRL_CLKSEQ_BYPASS_DIS_LCDIF		(1 << 14)
