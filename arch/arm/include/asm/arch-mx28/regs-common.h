@@ -47,15 +47,31 @@
  *
  */
 
+#define	__mx28_reg_8(name)		\
+	uint8_t	name[4];		\
+	uint8_t	name##_set[4];		\
+	uint8_t	name##_clr[4];		\
+	uint8_t	name##_tog[4];		\
+
 #define	__mx28_reg_32(name)		\
 	uint32_t name;			\
 	uint32_t name##_set;		\
 	uint32_t name##_clr;		\
 	uint32_t name##_tog;
 
+struct mx28_register_8 {
+	__mx28_reg_8(reg)
+};
+
 struct mx28_register_32 {
 	__mx28_reg_32(reg)
 };
+
+#define	mx28_reg_8(name)				\
+	union {						\
+		struct { __mx28_reg_8(name) };		\
+		struct mx28_register_32 name##_reg;	\
+	};
 
 #define	mx28_reg_32(name)				\
 	union {						\
