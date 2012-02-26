@@ -27,20 +27,20 @@
 
 #ifndef	__ASSEMBLY__
 struct mx28_rtc_regs {
-	mx28_reg(hw_rtc_ctrl)
-	mx28_reg(hw_rtc_stat)
-	mx28_reg(hw_rtc_milliseconds)
-	mx28_reg(hw_rtc_seconds)
-	mx28_reg(hw_rtc_rtc_alarm)
-	mx28_reg(hw_rtc_watchdog)
-	mx28_reg(hw_rtc_persistent0)
-	mx28_reg(hw_rtc_persistent1)
-	mx28_reg(hw_rtc_persistent2)
-	mx28_reg(hw_rtc_persistent3)
-	mx28_reg(hw_rtc_persistent4)
-	mx28_reg(hw_rtc_persistent5)
-	mx28_reg(hw_rtc_debug)
-	mx28_reg(hw_rtc_version)
+	mx28_reg_32(hw_rtc_ctrl)
+	mx28_reg_32(hw_rtc_stat)
+	mx28_reg_32(hw_rtc_milliseconds)
+	mx28_reg_32(hw_rtc_seconds)
+	mx28_reg_32(hw_rtc_rtc_alarm)
+	mx28_reg_32(hw_rtc_watchdog)
+	mx28_reg_32(hw_rtc_persistent0)
+	mx28_reg_32(hw_rtc_persistent1)
+	mx28_reg_32(hw_rtc_persistent2)
+	mx28_reg_32(hw_rtc_persistent3)
+	mx28_reg_32(hw_rtc_persistent4)
+	mx28_reg_32(hw_rtc_persistent5)
+	mx28_reg_32(hw_rtc_debug)
+	mx28_reg_32(hw_rtc_version)
 };
 #endif
 

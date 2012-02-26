@@ -223,7 +223,7 @@ void mx28_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal)
 		return;
 
 	clkreg = (uint32_t)(&clkctrl_regs->hw_clkctrl_ssp0) +
-			(ssp * sizeof(struct mx28_register));
+			(ssp * sizeof(struct mx28_register_32));
 
 	clrbits_le32(clkreg, CLKCTRL_SSP_CLKGATE);
 	while (readl(clkreg) & CLKCTRL_SSP_CLKGATE)
@@ -272,7 +272,7 @@ static uint32_t mx28_get_sspclk(enum mxs_sspclock ssp)
 		return XTAL_FREQ_KHZ;
 
 	clkreg = (uint32_t)(&clkctrl_regs->hw_clkctrl_ssp0) +
-			(ssp * sizeof(struct mx28_register));
+			(ssp * sizeof(struct mx28_register_32));
 
 	tmp = readl(clkreg) & CLKCTRL_SSP_DIV_MASK;
 
