@@ -22,6 +22,11 @@
 #include <common.h>
 #include <asm/state.h>
 
+int sandbox_main_loop_init(void)
+{
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	int err;

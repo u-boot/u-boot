@@ -269,6 +269,8 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	post_run(NULL, POST_RAM | post_bootmode_get(0));
 #endif
 
+	sandbox_main_loop_init();
+
 	/*
 	 * For now, run the main loop. Later we might let this be done
 	 * in the main program.

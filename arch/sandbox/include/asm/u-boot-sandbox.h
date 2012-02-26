@@ -35,4 +35,7 @@
 int board_init(void);
 int dram_init(void);
 
+/* start.c */
+int sandbox_main_loop_init(void);
+
 #endif	/* _U_BOOT_SANDBOX_H_ */
