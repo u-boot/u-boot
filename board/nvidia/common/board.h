@@ -27,4 +27,10 @@
 void gpio_config_uart(void);
 void gpio_early_init_uart(void);
 
+/*
+ * Set up any pin muxing needed for USB (for now, since fdt doesn't support
+ * it). Boards can overwrite the default fucction which does nothing.
+ */
+void pin_mux_usb(void);
+
 #endif	/* BOARD_H */
