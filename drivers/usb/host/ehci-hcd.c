@@ -255,6 +255,13 @@ static int ehci_reset(void)
 #endif
 		ehci_writel(reg_ptr, tmp);
 	}
+
+#ifdef CONFIG_USB_EHCI_TXFIFO_THRESH
+	cmd = ehci_readl(&hcor->or_txfilltuning);
+	cmd &= ~TXFIFO_THRESH(0x3f);
+	cmd |= TXFIFO_THRESH(CONFIG_USB_EHCI_TXFIFO_THRESH);
+	ehci_writel(&hcor->or_txfilltuning, cmd);
+#endif
 out:
 	return ret;
 }

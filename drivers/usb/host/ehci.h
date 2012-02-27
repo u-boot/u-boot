@@ -80,7 +80,11 @@ struct ehci_hcor {
 	uint32_t or_ctrldssegment;
 	uint32_t or_periodiclistbase;
 	uint32_t or_asynclistaddr;
-	uint32_t _reserved_[9];
+	uint32_t _reserved_0_;
+	uint32_t or_burstsize;
+	uint32_t or_txfilltuning;
+#define TXFIFO_THRESH(p)		((p & 0x3f) << 16)
+	uint32_t _reserved_1_[6];
 	uint32_t or_configflag;
 #define FLAG_CF		(1 << 0)	/* true:  we'll support "high speed" */
 	uint32_t or_portsc[CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS];

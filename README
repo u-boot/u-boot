@@ -1125,6 +1125,9 @@ The following options need to be configured:
 				May be defined to allow interrupt polling
 				instead of using asynchronous interrupts
 
+		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
+		txfilltuning field in the EHCI controller on reset.
+
 - USB Device:
 		Define the below if you wish to use the USB console.
 		Once firmware is rebuilt from a serial console issue the
