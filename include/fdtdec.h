@@ -188,3 +188,42 @@ int fdtdec_find_aliases_for_id(const void *blob, const char *name,
  * @return compatible string for that id
  */
 const char *fdtdec_get_compatible(enum fdt_compat_id id);
+
+/* Look up a phandle and follow it to its node. Then return the offset
+ * of that node.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @return node offset if found, -ve error code on error
+ */
+int fdtdec_lookup_phandle(const void *blob, int node, const char *prop_name);
+
+/**
+ * Look up a property in a node and return its contents in an integer
+ * array of given length. The property must have at least enough data for
+ * the array (4*count bytes). It may have more, but this will be ignored.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param array		array to fill with data
+ * @param count		number of array elements
+ * @return 0 if ok, or -FDT_ERR_NOTFOUND if the property is not found,
+ *		or -FDT_ERR_BADLAYOUT if not enough data
+ */
+int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
+		u32 *array, int count);
+
+/**
+ * Look up a boolean property in a node and return it.
+ *
+ * A boolean properly is true if present in the device tree and false if not
+ * present, regardless of its value.
+ *
+ * @param blob	FDT blob
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @return 1 if the properly is present; 0 if it isn't present
+ */
+int fdtdec_get_bool(const void *blob, int node, const char *prop_name);

@@ -271,3 +271,70 @@ int fdtdec_check_fdt(void)
 			"binary or define CONFIG_OF_EMBED\n");
 	return 0;
 }
+
+int fdtdec_lookup_phandle(const void *blob, int node, const char *prop_name)
+{
+	const u32 *phandle;
+	int lookup;
+
+	phandle = fdt_getprop(blob, node, prop_name, NULL);
+	if (!phandle)
+		return -FDT_ERR_NOTFOUND;
+
+	lookup = fdt_node_offset_by_phandle(blob, fdt32_to_cpu(*phandle));
+	return lookup;
+}
+
+/**
+ * Look up a property in a node and check that it has a minimum length.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param min_len	minimum property length in bytes
+ * @param err		0 if ok, or -FDT_ERR_NOTFOUND if the property is not
+			found, or -FDT_ERR_BADLAYOUT if not enough data
+ * @return pointer to cell, which is only valid if err == 0
+ */
+static const void *get_prop_check_min_len(const void *blob, int node,
+		const char *prop_name, int min_len, int *err)
+{
+	const void *cell;
+	int len;
+
+	debug("%s: %s\n", __func__, prop_name);
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (!cell)
+		*err = -FDT_ERR_NOTFOUND;
+	else if (len < min_len)
+		*err = -FDT_ERR_BADLAYOUT;
+	else
+		*err = 0;
+	return cell;
+}
+
+int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
+		u32 *array, int count)
+{
+	const u32 *cell;
+	int i, err = 0;
+
+	debug("%s: %s\n", __func__, prop_name);
+	cell = get_prop_check_min_len(blob, node, prop_name,
+				      sizeof(u32) * count, &err);
+	if (!err) {
+		for (i = 0; i < count; i++)
+			array[i] = fdt32_to_cpu(cell[i]);
+	}
+	return err;
+}
+
+int fdtdec_get_bool(const void *blob, int node, const char *prop_name)
+{
+	const s32 *cell;
+	int len;
+
+	debug("%s: %s\n", __func__, prop_name);
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	return cell != NULL;
+}
