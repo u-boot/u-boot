@@ -24,6 +24,9 @@
 #include <libfdt.h>
 #include <fdtdec.h>
 
+/* we need the generic GPIO interface here */
+#include <asm-generic/gpio.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -337,4 +340,80 @@ int fdtdec_get_bool(const void *blob, int node, const char *prop_name)
 	debug("%s: %s\n", __func__, prop_name);
 	cell = fdt_getprop(blob, node, prop_name, &len);
 	return cell != NULL;
+}
+
+/**
+ * Decode a list of GPIOs from an FDT. This creates a list of GPIOs with no
+ * terminating item.
+ *
+ * @param blob		FDT blob to use
+ * @param node		Node to look at
+ * @param prop_name	Node property name
+ * @param gpio		Array of gpio elements to fill from FDT. This will be
+ *			untouched if either 0 or an error is returned
+ * @param max_count	Maximum number of elements allowed
+ * @return number of GPIOs read if ok, -FDT_ERR_BADLAYOUT if max_count would
+ * be exceeded, or -FDT_ERR_NOTFOUND if the property is missing.
+ */
+static int fdtdec_decode_gpios(const void *blob, int node,
+		const char *prop_name, struct fdt_gpio_state *gpio,
+		int max_count)
+{
+	const struct fdt_property *prop;
+	const u32 *cell;
+	const char *name;
+	int len, i;
+
+	debug("%s: %s\n", __func__, prop_name);
+	assert(max_count > 0);
+	prop = fdt_get_property(blob, node, prop_name, &len);
+	if (!prop) {
+		debug("FDT: %s: property '%s' missing\n", __func__, prop_name);
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	/* We will use the name to tag the GPIO */
+	name = fdt_string(blob, fdt32_to_cpu(prop->nameoff));
+	cell = (u32 *)prop->data;
+	len /= sizeof(u32) * 3;		/* 3 cells per GPIO record */
+	if (len > max_count) {
+		debug("FDT: %s: too many GPIOs / cells for "
+			"property '%s'\n", __func__, prop_name);
+		return -FDT_ERR_BADLAYOUT;
+	}
+
+	/* Read out the GPIO data from the cells */
+	for (i = 0; i < len; i++, cell += 3) {
+		gpio[i].gpio = fdt32_to_cpu(cell[1]);
+		gpio[i].flags = fdt32_to_cpu(cell[2]);
+		gpio[i].name = name;
+	}
+
+	return len;
+}
+
+int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
+		struct fdt_gpio_state *gpio)
+{
+	int err;
+
+	debug("%s: %s\n", __func__, prop_name);
+	gpio->gpio = FDT_GPIO_NONE;
+	gpio->name = NULL;
+	err = fdtdec_decode_gpios(blob, node, prop_name, gpio, 1);
+	return err == 1 ? 0 : err;
+}
+
+int fdtdec_setup_gpio(struct fdt_gpio_state *gpio)
+{
+	/*
+	 * Return success if there is no GPIO defined. This is used for
+	 * optional GPIOs)
+	 */
+	if (!fdt_gpio_isvalid(gpio))
+		return 0;
+
+	if (gpio_request(gpio->gpio, gpio->name))
+		return -1;
+	return 0;
 }

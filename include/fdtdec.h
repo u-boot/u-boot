@@ -61,6 +61,23 @@ enum fdt_compat_id {
 	COMPAT_COUNT,
 };
 
+/* GPIOs are numbered from 0 */
+enum {
+	FDT_GPIO_NONE = -1U,	/* an invalid GPIO used to end our list */
+
+	FDT_GPIO_ACTIVE_LOW = 1 << 0,	/* input is active low (else high) */
+};
+
+/* This is the state of a GPIO pin as defined by the fdt */
+struct fdt_gpio_state {
+	const char *name;	/* name of the fdt property defining this */
+	uint gpio;		/* GPIO number, or FDT_GPIO_NONE if none */
+	u8 flags;		/* FDT_GPIO_... flags */
+};
+
+/* This tells us whether a fdt_gpio_state record is valid or not */
+#define fdt_gpio_isvalid(x) ((x)->gpio != FDT_GPIO_NONE)
+
 /**
  * Find the next numbered alias for a peripheral. This is used to enumerate
  * all the peripherals of a certain type.
@@ -227,3 +244,31 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
  * @return 1 if the properly is present; 0 if it isn't present
  */
 int fdtdec_get_bool(const void *blob, int node, const char *prop_name);
+
+/**
+ * Decode a single GPIOs from an FDT.
+ *
+ * If the property is not found, then the GPIO structure will still be
+ * initialised, with gpio set to FDT_GPIO_NONE. This makes it easy to
+ * provide optional GPIOs.
+ *
+ * @param blob		FDT blob to use
+ * @param node		Node to look at
+ * @param prop_name	Node property name
+ * @param gpio		gpio elements to fill from FDT
+ * @return 0 if ok, -FDT_ERR_NOTFOUND if the property is missing.
+ */
+int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
+		struct fdt_gpio_state *gpio);
+
+/**
+ * Set up a GPIO pin according to the provided gpio information. At present this
+ * just requests the GPIO.
+ *
+ * If the gpio is FDT_GPIO_NONE, no action is taken. This makes it easy to
+ * deal with optional GPIOs.
+ *
+ * @param gpio		GPIO info to use for set up
+ * @return 0 if all ok or gpio was FDT_GPIO_NONE; -1 on error
+ */
+int fdtdec_setup_gpio(struct fdt_gpio_state *gpio);
