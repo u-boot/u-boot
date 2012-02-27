@@ -148,4 +148,6 @@
  */
 #define CONFIG_DISPLAY_CPUINFO
 
+#define CONFIG_OF_LIBFDT
+
 #endif /* _CONFIG_DREAMPLUG_H */
