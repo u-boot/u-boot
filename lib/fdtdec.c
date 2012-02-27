@@ -33,6 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #define COMPAT(id, name) name
 static const char * const compat_names[COMPAT_COUNT] = {
+	COMPAT(UNKNOWN, "<none>"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -91,14 +92,21 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 	return default_val;
 }
 
-int fdtdec_get_is_enabled(const void *blob, int node, int default_val)
+int fdtdec_get_is_enabled(const void *blob, int node)
 {
 	const char *cell;
 
+	/*
+	 * It should say "okay", so only allow that. Some fdts use "ok" but
+	 * this is a bug. Please fix your device tree source file. See here
+	 * for discussion:
+	 *
+	 * http://www.mail-archive.com/u-boot@lists.denx.de/msg71598.html
+	 */
 	cell = fdt_getprop(blob, node, "status", NULL);
 	if (cell)
-		return 0 == strcmp(cell, "ok");
-	return default_val;
+		return 0 == strcmp(cell, "okay");
+	return 1;
 }
 
 enum fdt_compat_id fd_dec_lookup(const void *blob, int node)
@@ -129,14 +137,16 @@ int fdtdec_next_alias(const void *blob, const char *name,
 	/* snprintf() is not available */
 	assert(strlen(name) < MAX_STR_LEN);
 	sprintf(str, "%.*s%d", MAX_STR_LEN, name, *upto);
-	(*upto)++;
 	node = find_alias_node(blob, str);
 	if (node < 0)
 		return node;
 	err = fdt_node_check_compatible(blob, node, compat_names[id]);
 	if (err < 0)
 		return err;
-	return err ? -FDT_ERR_NOTFOUND : node;
+	if (err)
+		return -FDT_ERR_NOTFOUND;
+	(*upto)++;
+	return node;
 }
 
 /* TODO: Can we tighten this code up a little? */
@@ -256,7 +266,7 @@ int fdtdec_find_aliases_for_id(const void *blob, const char *name,
 int fdtdec_check_fdt(void)
 {
 	/* We must have an fdt */
-	if (fdt_check_header(gd->fdt_blob))
+	if (((uintptr_t)gd->fdt_blob & 3) || fdt_check_header(gd->fdt_blob))
 		panic("No valid fdt found - please append one to U-Boot\n"
 			"binary or define CONFIG_OF_EMBED\n");
 	return 0;

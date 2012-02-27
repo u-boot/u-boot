@@ -82,6 +82,21 @@ int fdtdec_next_alias(const void *blob, const char *name,
 		enum fdt_compat_id id, int *upto);
 
 /**
+ * Find the next compatible node for a peripheral.
+ *
+ * Do the first call with node = 0. This function will return a pointer to
+ * the next compatible node. Next time you call this function, pass the
+ * value returned, and the next node will be provided.
+ *
+ * @param blob		FDT blob to use
+ * @param node		Start node for search
+ * @param id		Compatible ID to look for (enum fdt_compat_id)
+ * @return offset of next compatible node, or -FDT_ERR_NOTFOUND if no more
+ */
+int fdtdec_next_compatible(const void *blob, int node,
+		enum fdt_compat_id id);
+
+/**
  * Look up an address property in a node and return it as an address.
  * The property must hold either one address with no trailing data or
  * one address with a length. This is only tested on 32-bit machines.
@@ -112,14 +127,14 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
  * Checks whether a node is enabled.
  * This looks for a 'status' property. If this exists, then returns 1 if
  * the status is 'ok' and 0 otherwise. If there is no status property,
- * it returns the default value.
+ * it returns 1 on the assumption that anything mentioned should be enabled
+ * by default.
  *
  * @param blob	FDT blob
  * @param node	node to examine
- * @param default_val	default value to return if no 'status' property exists
- * @return integer value 0/1, if found, or default_val if not
+ * @return integer value 0 (not enabled) or 1 (enabled)
  */
-int fdtdec_get_is_enabled(const void *blob, int node, int default_val);
+int fdtdec_get_is_enabled(const void *blob, int node);
 
 /**
  * Checks whether we have a valid fdt available to control U-Boot, and panic
