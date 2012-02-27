@@ -37,6 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define COMPAT(id, name) name
 static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(UNKNOWN, "<none>"),
+	COMPAT(NVIDIA_TEGRA20_USB, "nvidia,tegra20-ehci"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
