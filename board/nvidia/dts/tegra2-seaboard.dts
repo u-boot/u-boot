@@ -11,6 +11,12 @@
 		bootargs = "vmalloc=192M video=tegrafb console=ttyS0,115200n8 root=/dev/mmcblk1p3 rw rootwait";
 	};
 
+	aliases {
+		/* This defines the order of our USB ports */
+		usb0 = "/usb@c5008000";
+		usb1 = "/usb@c5000000";
+	};
+
 	memory {
 		device_type = "memory";
 		reg = < 0x00000000 0x40000000 >;
@@ -59,5 +65,10 @@
 
 	usb@c5000000 {
 		nvidia,vbus-gpio = <&gpio 24 0>; /* PD0 */
+		dr_mode = "otg";
+	};
+
+	usb@c5004000 {
+		status = "disabled";
 	};
 };
