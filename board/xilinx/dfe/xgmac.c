@@ -132,14 +132,10 @@ static void Out32(u32 OutAddress, u32 Value)
 int Xgmac_one_time_init(void)
 {
 	int tmp;
-	int link_speed;
 	int Status;
 	XEmacPss_Config *Config;
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
 	XEmacPss_Bd BdTemplate;
-
-	if (ethstate.initialized)
-		return 1;
 
 	Config = XEmacPss_LookupConfig(EMACPSS_DEVICE_ID);
 
@@ -187,19 +183,31 @@ int Xgmac_one_time_init(void)
 				  XEMACPSS_BD_ALIGNMENT, TXBD_CNT);
 	if (Status != 0) {
 		puts("Error setting up TxBD space, BdRingCreate");
-		return 0;
+		return -1;
 	}
 
 	Status = XEmacPss_BdRingClone(&(XEmacPss_GetTxRing(EmacPssInstancePtr)),
 				      &BdTemplate, XEMACPSS_SEND);
 	if (Status != 0) {
 		puts("Error setting up TxBD space, BdRingClone");
-		return 0;
+		return -1;
 	}
 
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_TXQBASE_OFFSET,
 			  EmacPssInstancePtr->TxBdRing.BaseBdAddr);
+
+	return 0;
+}
+
+int Xgmac_init(struct eth_device *dev, bd_t * bis)
+{
+	int tmp;
+	int link_speed;
+	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
+
+	if (ethstate.initialized)
+		return 1;
 
 	/*
 	 * Setup the ethernet.
@@ -278,7 +286,7 @@ int Xgmac_one_time_init(void)
 	Xgmac_set_eth_advertise(EmacPssInstancePtr, 100);
 #else
 	/* Could be 1000 if an unknown bug is fixed */
-	Xgmac_set_eth_advertise(EmacPssInstancePtr, 100);
+	Xgmac_set_eth_advertise(EmacPssInstancePtr, 1000);
 #endif
 	phy_rst(EmacPssInstancePtr);
 
@@ -361,11 +369,6 @@ int Xgmac_one_time_init(void)
 	printf("Link is now at %dMbps!\n", link_speed);
 
 	ethstate.initialized = 1;
-	return 0;
-}
-
-int Xgmac_init(struct eth_device *dev, bd_t * bis)
-{
 	return 0;
 }
 
