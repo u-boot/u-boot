@@ -216,7 +216,10 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	/* Write the register address */
 	Xsetbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_CLR_FIFO |
 		ZYNQ_I2C_CONTROL_HOLD);
-	Xclrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_RW);
+	/* Temporarily disable restart (by clearing hold)... */
+	/* It doesn't seem to work. */
+	Xclrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_RW |
+		ZYNQ_I2C_CONTROL_HOLD);
 	Xout_le32(&zynq_i2c->interrupt_status, 0xFF);
 	while (alen--)
 		Xout_le32(&zynq_i2c->data, addr >> (8*alen));
