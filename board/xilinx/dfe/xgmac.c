@@ -245,6 +245,11 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 
 	phy_wr(EmacPssInstancePtr, 22, 0);	/* page 0 */
 
+	tmp = phy_rd(EmacPssInstancePtr, 2);
+	printf("Phy ID: %04X", tmp);
+	tmp = phy_rd(EmacPssInstancePtr, 3);
+	printf("%04X\n", tmp);
+
 	/* Auto-negotiation advertisement register */
 	tmp = phy_rd(EmacPssInstancePtr, 4);
 	tmp |= (1 << 11);	/* asymmetric pause */
