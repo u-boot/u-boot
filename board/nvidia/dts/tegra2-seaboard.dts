@@ -16,6 +16,33 @@
 		reg = < 0x00000000 0x40000000 >;
 	};
 
+	/* This is not used in U-Boot, but is expected to be in kernel .dts */
+	i2c@7000d000 {
+		pmic@34 {
+			compatible = "ti,tps6586x";
+			reg = <0x34>;
+
+			clk_32k: clock {
+				compatible = "fixed-clock";
+				/*
+				 * leave out for now due to CPP:
+				 * #clock-cells = <0>;
+				 */
+				clock-frequency = <32768>;
+			};
+		};
+	};
+
+	clocks {
+		osc {
+			clock-frequency = <12000000>;
+		};
+	};
+
+	clock@60006000 {
+		clocks = <&clk_32k &osc>;
+	};
+
 	serial@70006300 {
 		clock-frequency = < 216000000 >;
 	};
