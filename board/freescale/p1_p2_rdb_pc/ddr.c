@@ -15,7 +15,7 @@
 #include <asm/io.h>
 #include <asm/fsl_law.h>
 
-#ifdef CONFIG_DDR_RAW_TIMING
+#ifdef CONFIG_SYS_DDR_RAW_TIMING
 #if	defined(CONFIG_P1020RDB_PROTO) || \
 	defined(CONFIG_P1021RDB) || \
 	defined(CONFIG_P1020UTM)
@@ -204,7 +204,7 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 
 	return 0;
 }
-#endif /* CONFIG_DDR_RAW_TIMING */
+#endif /* CONFIG_SYS_DDR_RAW_TIMING */
 
 /* Fixed sdram init -- doesn't use serial presence detect. */
 phys_size_t fixed_sdram(void)

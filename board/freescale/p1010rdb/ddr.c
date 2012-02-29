@@ -31,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_DDR_RAW_TIMING
+#ifndef CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_SYS_DRAM_SIZE	1024
 
 fsl_ddr_cfg_regs_t ddr_cfg_regs_800 = {
@@ -165,7 +165,7 @@ phys_size_t fixed_sdram(void)
 	return ddr_size;
 }
 
-#else /* CONFIG_DDR_RAW_TIMING */
+#else /* CONFIG_SYS_DDR_RAW_TIMING */
 /*
  * Samsung K4B2G0846C-HCF8
  * The following timing are for "downshift"
@@ -247,4 +247,4 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	}
 }
 
-#endif /* CONFIG_DDR_RAW_TIMING */
+#endif /* CONFIG_SYS_DDR_RAW_TIMING */
