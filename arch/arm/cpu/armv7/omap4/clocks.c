@@ -281,7 +281,8 @@ void scale_vcores(void)
 	/* TPS - supplies vdd_mpu on 4460 */
 	if (omap_rev >= OMAP4460_ES1_0) {
 		volt = 1203;
-		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
+		do_scale_tps62361(TPS62361_VSEL0_GPIO,
+				  TPS62361_REG_ADDR_SET1, volt);
 	}
 
 	/*

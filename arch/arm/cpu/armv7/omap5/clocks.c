@@ -247,7 +247,7 @@ void scale_vcores(void)
 
 	/* Enable 1.22V from TPS for vdd_mpu */
 	volt = 1220;
-	do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
+	do_scale_tps62361(-1, TPS62361_REG_ADDR_SET1, volt);
 
 	/* VCORE 1 - for vdd_core */
 	volt = 1000;

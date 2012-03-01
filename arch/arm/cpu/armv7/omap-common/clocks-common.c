@@ -360,9 +360,22 @@ static void setup_non_essential_dplls(void)
 }
 #endif
 
-void do_scale_tps62361(u32 reg, u32 volt_mv)
+void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv)
 {
 	u32 step;
+	int ret = 0;
+
+	/* See if we can first get the GPIO if needed */
+	if (gpio >= 0)
+		ret = gpio_request(gpio, "TPS62361_VSEL0_GPIO");
+	if (ret < 0) {
+		printf("%s: gpio %d request failed %d\n", __func__, gpio, ret);
+		gpio = -1;
+	}
+
+	/* Pull the GPIO low to select SET0 register, while we program SET1 */
+	if (gpio >= 0)
+		gpio_direction_output(gpio, 0);
 
 	step = volt_mv - TPS62361_BASE_VOLT_MV;
 	step /= 10;
@@ -370,6 +383,10 @@ void do_scale_tps62361(u32 reg, u32 volt_mv)
 	debug("do_scale_tps62361: volt - %d step - 0x%x\n", volt_mv, step);
 	if (omap_vc_bypass_send_value(TPS62361_I2C_SLAVE_ADDR, reg, step))
 		puts("Scaling voltage failed for vdd_mpu from TPS\n");
+
+	/* Pull the GPIO high to select SET1 register */
+	if (gpio >= 0)
+		gpio_direction_output(gpio, 1);
 }
 
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
