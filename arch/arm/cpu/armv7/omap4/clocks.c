@@ -278,44 +278,51 @@ void scale_vcores(void)
 	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
 	omap_rev = omap_revision();
-	/* TPS - supplies vdd_mpu on 4460 */
-	if (omap_rev >= OMAP4460_ES1_0) {
+
+	/*
+	 * Scale Voltage rails:
+	 * 1. VDD_CORE
+	 * 3. VDD_MPU
+	 * 3. VDD_IVA
+	 */
+	if (omap_rev < OMAP4460_ES1_0) {
+		/*
+		 * OMAP4430:
+		 * VDD_CORE = TWL6030 VCORE3
+		 * VDD_MPU = TWL6030 VCORE1
+		 * VDD_IVA = TWL6030 VCORE2
+		 */
+		volt = 1200;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE3, volt);
+
+		/*
+		 * note on VDD_MPU:
+		 * Setting a high voltage for Nitro mode as smart reflex is not
+		 * enabled. We use the maximum possible value in the AVS range
+		 * because the next higher voltage in the discrete range
+		 * (code >= 0b111010) is way too high.
+		 */
+		volt = 1325;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+		volt = 1200;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
+
+	} else {
+		/*
+		 * OMAP4460:
+		 * VDD_CORE = TWL6030 VCORE1
+		 * VDD_MPU = TPS62361
+		 * VDD_IVA = TWL6030 VCORE2
+		 */
+		volt = 1200;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+		/* TPS62361 */
 		volt = 1203;
 		do_scale_tps62361(TPS62361_VSEL0_GPIO,
 				  TPS62361_REG_ADDR_SET1, volt);
-	}
-
-	/*
-	 * VCORE 1
-	 *
-	 * 4430 : supplies vdd_mpu
-	 * Setting a high voltage for Nitro mode as smart reflex is not enabled.
-	 * We use the maximum possible value in the AVS range because the next
-	 * higher voltage in the discrete range (code >= 0b111010) is way too
-	 * high
-	 *
-	 * 4460 : supplies vdd_core
-	 */
-	if (omap_rev < OMAP4460_ES1_0) {
-		volt = 1325;
-		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
-	} else {
+		/* VCORE 2 - supplies vdd_iva */
 		volt = 1200;
-		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
-	}
-
-	/* VCORE 2 - supplies vdd_iva */
-	volt = 1200;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
-
-	/*
-	 * VCORE 3
-	 * 4430 : supplies vdd_core
-	 * 4460 : not connected
-	 */
-	if (omap_rev < OMAP4460_ES1_0) {
-		volt = 1200;
-		do_scale_vcore(SMPS_REG_ADDR_VCORE3, volt);
+		do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
 	}
 }
 
