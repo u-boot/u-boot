@@ -243,7 +243,7 @@ void scale_vcores(void)
 {
 	u32 volt;
 
-	setup_sri2c();
+	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
 	/* Enable 1.22V from TPS for vdd_mpu */
 	volt = 1220;

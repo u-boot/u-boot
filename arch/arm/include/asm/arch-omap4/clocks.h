@@ -652,22 +652,8 @@ struct omap4_scrm_regs {
 #define OMAP_SYS_CLK_IND_38_4_MHZ	6
 #define OMAP_32K_CLK_FREQ		32768
 
-/* PRM_VC_CFG_I2C_CLK */
-#define PRM_VC_CFG_I2C_CLK_SCLH_SHIFT		0
-#define PRM_VC_CFG_I2C_CLK_SCLH_MASK		0xFF
-#define PRM_VC_CFG_I2C_CLK_SCLL_SHIFT		8
-#define PRM_VC_CFG_I2C_CLK_SCLL_MASK		(0xFF << 8)
-
 /* PRM_VC_VAL_BYPASS */
 #define PRM_VC_I2C_CHANNEL_FREQ_KHZ	400
-
-#define PRM_VC_VAL_BYPASS_VALID_BIT	0x1000000
-#define PRM_VC_VAL_BYPASS_SLAVEADDR_SHIFT	0
-#define PRM_VC_VAL_BYPASS_SLAVEADDR_MASK	0x7F
-#define PRM_VC_VAL_BYPASS_REGADDR_SHIFT		8
-#define PRM_VC_VAL_BYPASS_REGADDR_MASK		0xFF
-#define PRM_VC_VAL_BYPASS_DATA_SHIFT		16
-#define PRM_VC_VAL_BYPASS_DATA_MASK		0xFF
 
 /* SMPS */
 #define SMPS_I2C_SLAVE_ADDR	0x12
@@ -757,7 +743,6 @@ void scale_vcores(void);
 void do_scale_tps62361(u32 reg, u32 volt_mv);
 u32 omap_ddr_clk(void);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv);
-void setup_sri2c(void);
 void setup_post_dividers(u32 *const base, const struct dpll_params *params);
 u32 get_sys_clk_index(void);
 void enable_basic_clocks(void);

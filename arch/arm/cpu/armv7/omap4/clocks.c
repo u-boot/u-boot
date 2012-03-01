@@ -275,7 +275,7 @@ void scale_vcores(void)
 {
 	u32 volt, omap_rev;
 
-	setup_sri2c();
+	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
 	omap_rev = omap_revision();
 	/* TPS - supplies vdd_mpu on 4460 */
