@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 		case ':':
 			fprintf(stderr, "Missing argument for option -%c\n",
 				optopt);
-			usage(argv[0]);
+			usage(prg);
 			return EXIT_FAILURE;
 		default:
 			fprintf(stderr, "Wrong option -%c\n", optopt);
