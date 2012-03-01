@@ -108,14 +108,9 @@ int timer_init (void)
 unsigned long long get_ticks (void)
 {
 	unsigned long tcnt = 0 - readl(TCNT0);
-	unsigned long ticks;
 
-	if (last_tcnt > tcnt) { /* overflow */
+	if (last_tcnt > tcnt) /* overflow */
 		overflow_ticks++;
-		ticks = (0xffffffff - last_tcnt) + tcnt;
-	} else {
-		ticks = tcnt;
-	}
 	last_tcnt = tcnt;
 
 	return (overflow_ticks << 32) | tcnt;
