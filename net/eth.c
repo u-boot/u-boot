@@ -81,7 +81,6 @@ static int __def_eth_init(bd_t *bis)
 int cpu_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
 int board_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
 
-extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
 
 #ifdef CONFIG_API
@@ -281,9 +280,6 @@ int eth_initialize(bd_t *bis)
 	} else
 		printf("Net Initialization Skipped\n");
 
-#if defined(CONFIG_DB64360) || defined(CONFIG_CPCI750)
-	mv6436x_eth_initialize(bis);
-#endif
 #if defined(CONFIG_DB64460) || defined(CONFIG_P3Mx)
 	mv6446x_eth_initialize(bis);
 #endif

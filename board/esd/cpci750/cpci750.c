@@ -1101,3 +1101,8 @@ U_BOOT_CMD(
 	pldver, 1, 1, do_pldver,
 	"Show PLD version",
 	"Show PLD version)");
+
+int board_eth_init(bd_t *bis)
+{
+	return mv6436x_eth_initialize(bis);
+}
