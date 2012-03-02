@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <netdev.h>
+#include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,6 +56,24 @@ int board_init(void)
 	if (r & MSTPSR1_GETHER)
 		writel((r & ~MSTPSR1_GETHER), MSTPCR1);
 #endif
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+	u8 mac[6];
+
+	/* Read Mac Address and set*/
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(CONFIG_SYS_I2C_MODULE);
+
+	/* Read MAC address */
+	i2c_read(0x50, 0x10, 0, mac, 6);
+
+	if (is_valid_ether_addr(mac))
+		eth_setenv_enetaddr("ethaddr", mac);
+
 	return 0;
 }
 
@@ -75,4 +94,3 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 #endif
-
