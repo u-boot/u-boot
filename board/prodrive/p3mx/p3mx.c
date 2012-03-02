@@ -851,3 +851,8 @@ void my_remap_gt_regs_bootm (u32 cur_loc, u32 new_loc)
 	       != temp);
 
 }
+
+int board_eth_init(bd_t *bis)
+{
+	return mv6446x_eth_initialize(bis);
+}

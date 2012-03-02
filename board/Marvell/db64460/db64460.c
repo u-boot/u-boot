@@ -934,5 +934,9 @@ void board_prebootm_init ()
 
 int board_eth_init(bd_t *bis)
 {
-	return pci_eth_init(bis);
+	int ret;
+	ret = pci_eth_init(bis);
+	if (!ret)
+		ret = mv6446x_eth_initialize(bis);
+	return ret;
 }
