@@ -527,6 +527,7 @@ extern void pciauto_setup_device(struct pci_controller *hose,
 				 struct pci_region *mem,
 				 struct pci_region *prefetch,
 				 struct pci_region *io);
+extern void pciauto_config_init(struct pci_controller *hose);
 int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 
 extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int index);

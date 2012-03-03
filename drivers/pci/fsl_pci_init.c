@@ -51,7 +51,6 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
 void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
-void pciauto_config_init(struct pci_controller *hose);
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS 0

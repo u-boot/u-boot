@@ -516,7 +516,6 @@ void pci_cfgfunc_do_nothing(struct pci_controller *hose,
  * to get the correct result when scanning bridges
  */
 extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
-extern void pciauto_config_init(struct pci_controller *hose);
 
 #if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI_SCAN_SHOW)
 const char * pci_class_str(u8 class)
