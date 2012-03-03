@@ -283,17 +283,14 @@ struct pci_controller integrator_hose = {
 
 void pci_init_board(void)
 {
-	volatile int i, j;
 	struct pci_controller *hose = &integrator_hose;
 	u16 val;
 
 	/* setting this register will take the V3 out of reset */
 	__raw_writel(SC_PCI_PCIEN, SC_PCI);
 
-	/* wait a few usecs to settle the device and the PCI bus */
-
-	for (i = 0; i < 100; i++)
-		j = i + 1;
+	/* Wait for 230 ms (from spec) before accessing any V3 registers */
+	mdelay(230);
 
 	/* Now write the Base I/O Address Word to PHYS_PCI_V3_BASE + 0x6E */
 	v3_writew(V3_LB_IO_BASE, (PHYS_PCI_V3_BASE >> 16));
