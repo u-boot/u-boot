@@ -479,6 +479,11 @@ static int nand_block_checkbad(struct mtd_info *mtd, loff_t ofs, int getchip,
 {
 	struct nand_chip *chip = mtd->priv;
 
+	if (!(chip->options & NAND_BBT_SCANNED)) {
+		chip->options |= NAND_BBT_SCANNED;
+		chip->scan_bbt(mtd);
+	}
+
 	if (!chip->bbt)
 		return chip->block_bad(mtd, ofs, getchip);
 
@@ -3028,10 +3033,6 @@ int nand_scan_tail(struct mtd_info *mtd)
 		chip->ecc.mode = NAND_ECC_SOFT;
 
 	case NAND_ECC_SOFT:
-		if (!mtd_nand_has_ecc_soft()) {
-			printk(KERN_WARNING "CONFIG_MTD_ECC_SOFT not enabled\n");
-			return -EINVAL;
-		}
 		chip->ecc.calculate = nand_calculate_ecc;
 		chip->ecc.correct = nand_correct_data;
 		chip->ecc.read_page = nand_read_page_swecc;
@@ -3170,10 +3171,9 @@ int nand_scan_tail(struct mtd_info *mtd)
 
 	/* Check, if we should skip the bad block table scan */
 	if (chip->options & NAND_SKIP_BBTSCAN)
-		return 0;
+		chip->options |= NAND_BBT_SCANNED;
 
-	/* Build bad block table */
-	return chip->scan_bbt(mtd);
+	return 0;
 }
 
 /**

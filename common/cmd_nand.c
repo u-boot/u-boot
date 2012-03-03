@@ -48,7 +48,7 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 
 	last = off;
 
-	datbuf = malloc(nand->writesize + nand->oobsize);
+	datbuf = malloc(nand->writesize);
 	oobbuf = malloc(nand->oobsize);
 	if (!datbuf || !oobbuf) {
 		puts("No memory for page buffer\n");
@@ -59,7 +59,7 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 	struct mtd_oob_ops ops;
 	memset(&ops, 0, sizeof(ops));
 	ops.datbuf = datbuf;
-	ops.oobbuf = oobbuf; /* must exist, but oob data will be appended to ops.datbuf */
+	ops.oobbuf = oobbuf;
 	ops.len = nand->writesize;
 	ops.ooblen = nand->oobsize;
 	ops.mode = MTD_OOB_RAW;
@@ -85,6 +85,7 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 	}
 	puts("OOB:\n");
 	i = nand->oobsize >> 3;
+	p = oobbuf;
 	while (i--) {
 		printf("\t%02x %02x %02x %02x %02x %02x %02x %02x\n",
 		       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
