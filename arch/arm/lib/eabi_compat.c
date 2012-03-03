@@ -13,7 +13,8 @@
 
 int raise (int signum)
 {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+	/* Even if printf() is available, it's large. Punt it for SPL builds */
+#if !defined(CONFIG_SPL_BUILD)
 	printf("raise: Signal # %d caught\n", signum);
 #endif
 	return 0;
