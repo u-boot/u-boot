@@ -28,6 +28,8 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+#define CONFIG_MACH_TYPE	3769
+
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_CMDLINE_TAG
