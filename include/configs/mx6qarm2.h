@@ -169,4 +169,6 @@
 
 #define CONFIG_OF_LIBFDT
 
+#define CONFIG_SYS_DCACHE_OFF
+
 #endif				/* __CONFIG_H */
