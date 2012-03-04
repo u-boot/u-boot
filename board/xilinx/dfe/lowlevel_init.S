@@ -6,6 +6,7 @@
  */
 
 #include <xparameters.h>
+#include <configs/xpele.h>
 
 
 .globl lowlevel_init
