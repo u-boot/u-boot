@@ -214,4 +214,8 @@
 
 #define CONFIG_SYS_DCACHE_OFF
 
+#ifndef CONFIG_SYS_DCACHE_OFF
+#define CONFIG_CMD_CACHE
+#endif
+
 #endif                         /* __CONFIG_H */
