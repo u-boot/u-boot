@@ -46,9 +46,6 @@ static unsigned long old_val = 0;
  */
 int board_init(void)
 {
-	/* arch number of PDNB3 */
-	gd->bd->bi_arch_number = MACH_TYPE_PDNB3;
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 

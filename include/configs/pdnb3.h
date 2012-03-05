@@ -33,6 +33,8 @@
 #define CONFIG_IXP425		1       /* This is an IXP425 CPU	*/
 #define CONFIG_PDNB3		1       /* on an PDNB3 board		*/
 
+#define	CONFIG_MACH_TYPE	1002
+
 #define CONFIG_DISPLAY_CPUINFO	1	/* display cpu info (and speed)	*/
 #define CONFIG_DISPLAY_BOARDINFO 1	/* display board info		*/
 
