@@ -190,8 +190,7 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 		CMD_READ_STATUS, STATUS_WIP);
 }
 
-int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
-			u32 offset, size_t len)
+int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	u32 start, end, erase_size;
 	int ret;
@@ -209,7 +208,10 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
 		return ret;
 	}
 
-	cmd[0] = erase_cmd;
+	if (erase_size == 4096)
+		cmd[0] = CMD_ERASE_4K;
+	else
+		cmd[0] = CMD_ERASE_64K;
 	start = offset;
 	end = start + len;
 

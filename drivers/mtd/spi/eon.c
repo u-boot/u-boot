@@ -10,10 +10,6 @@
 
 #include "spi_flash_internal.h"
 
-/* EN25Q128-specific commands */
-#define CMD_EN25Q128_SE		0x20    /* Sector Erase */
-#define CMD_EN25Q128_BE		0xd8    /* Block Erase */
-
 struct eon_spi_flash_params {
 	u8 idcode1;
 	u16 nr_sectors;
@@ -37,11 +33,6 @@ static const struct eon_spi_flash_params eon_spi_flash_table[] = {
 		.name = "EN25Q32B",
 	},
 };
-
-static int eon_erase(struct spi_flash *flash, u32 offset, size_t len)
-{
-	return spi_flash_cmd_erase(flash, CMD_EN25Q128_BE, offset, len);
-}
 
 struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 {
@@ -70,7 +61,7 @@ struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 	flash->name = params->name;
 
 	flash->write = spi_flash_cmd_write_multi;
-	flash->erase = eon_erase;
+	flash->erase = spi_flash_cmd_erase;
 	flash->read = spi_flash_cmd_read_fast;
 	flash->page_size = 256;
 	flash->sector_size = 256 * 16 * 16;

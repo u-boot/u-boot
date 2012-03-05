@@ -20,7 +20,6 @@
 
 #define CMD_SST_BP		0x02	/* Byte Program */
 #define CMD_SST_AAI_WP		0xAD	/* Auto Address Increment Word Program */
-#define CMD_SST_SE		0x20	/* Sector Erase */
 
 #define SST_SR_WIP		(1 << 0)	/* Write-in-Progress */
 #define SST_SR_WEL		(1 << 1)	/* Write enable */
@@ -45,13 +44,6 @@ struct sst_spi_flash {
 	const struct sst_spi_flash_params *params;
 };
 
-static inline struct sst_spi_flash *to_sst_spi_flash(struct spi_flash *flash)
-{
-	return container_of(flash, struct sst_spi_flash, flash);
-}
-
-#define SST_SECTOR_SIZE (4 * 1024)
-#define SST_PAGE_SIZE   256
 static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 	{
 		.idcode1 = 0x8d,
@@ -211,11 +203,6 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	return ret;
 }
 
-static int sst_erase(struct spi_flash *flash, u32 offset, size_t len)
-{
-	return spi_flash_cmd_erase(flash, CMD_SST_SE, offset, len);
-}
-
 static int
 sst_unlock(struct spi_flash *flash)
 {
@@ -269,10 +256,10 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 		stm->flash.write = sst_write_wp;
 	else
 		stm->flash.write = spi_flash_cmd_write_multi;
-	stm->flash.erase = sst_erase;
+	stm->flash.erase = spi_flash_cmd_erase;
 	stm->flash.read = spi_flash_cmd_read_fast;
-	stm->flash.page_size = SST_PAGE_SIZE;
-	stm->flash.sector_size = SST_SECTOR_SIZE;
+	stm->flash.page_size = 256;
+	stm->flash.sector_size = 4096;
 	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
 
 	/* Flash powers up read-only, so clear BP# bits */

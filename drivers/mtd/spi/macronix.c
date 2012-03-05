@@ -35,11 +35,6 @@
 
 #include "spi_flash_internal.h"
 
-/* MX25xx-specific commands */
-#define CMD_MX25XX_SE		0x20	/* Sector Erase */
-#define CMD_MX25XX_BE		0xD8	/* Block Erase */
-#define CMD_MX25XX_CE		0xc7	/* Chip Erase */
-
 struct macronix_spi_flash_params {
 	u16 idcode;
 	u16 nr_blocks;
@@ -123,11 +118,6 @@ static int macronix_unlock(struct spi_flash *flash)
 	return ret;
 }
 
-static int macronix_erase(struct spi_flash *flash, u32 offset, size_t len)
-{
-	return spi_flash_cmd_erase(flash, CMD_MX25XX_BE, offset, len);
-}
-
 struct spi_flash *spi_flash_probe_macronix(struct spi_slave *spi, u8 *idcode)
 {
 	const struct macronix_spi_flash_params *params;
@@ -156,7 +146,7 @@ struct spi_flash *spi_flash_probe_macronix(struct spi_slave *spi, u8 *idcode)
 	flash->name = params->name;
 
 	flash->write = spi_flash_cmd_write_multi;
-	flash->erase = macronix_erase;
+	flash->erase = spi_flash_cmd_erase;
 	flash->read = spi_flash_cmd_read_fast;
 	flash->page_size = 256;
 	flash->sector_size = 256 * 16 * 16;

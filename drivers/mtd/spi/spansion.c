@@ -31,10 +31,6 @@
 
 #include "spi_flash_internal.h"
 
-/* S25FLxx-specific commands */
-#define CMD_S25FLXX_SE		0xd8	/* Sector Erase */
-#define CMD_S25FLXX_BE		0xc7	/* Bulk Erase */
-
 struct spansion_spi_flash_params {
 	u16 idcode1;
 	u16 idcode2;
@@ -102,11 +98,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	},
 };
 
-static int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
-{
-	return spi_flash_cmd_erase(flash, CMD_S25FLXX_SE, offset, len);
-}
-
 struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 {
 	const struct spansion_spi_flash_params *params;
@@ -140,7 +131,7 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	flash->name = params->name;
 
 	flash->write = spi_flash_cmd_write_multi;
-	flash->erase = spansion_erase;
+	flash->erase = spi_flash_cmd_erase;
 	flash->read = spi_flash_cmd_read_fast;
 	flash->page_size = 256;
 	flash->sector_size = 256 * params->pages_per_sector;
