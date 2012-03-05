@@ -40,7 +40,6 @@
 
 struct stmicro_spi_flash_params {
 	u8 idcode1;
-	u16 page_size;
 	u16 pages_per_sector;
 	u16 nr_sectors;
 	const char *name;
@@ -49,56 +48,48 @@ struct stmicro_spi_flash_params {
 static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 	{
 		.idcode1 = 0x11,
-		.page_size = 256,
 		.pages_per_sector = 128,
 		.nr_sectors = 4,
 		.name = "M25P10",
 	},
 	{
 		.idcode1 = 0x15,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 32,
 		.name = "M25P16",
 	},
 	{
 		.idcode1 = 0x12,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 4,
 		.name = "M25P20",
 	},
 	{
 		.idcode1 = 0x16,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 64,
 		.name = "M25P32",
 	},
 	{
 		.idcode1 = 0x13,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 8,
 		.name = "M25P40",
 	},
 	{
 		.idcode1 = 0x17,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 128,
 		.name = "M25P64",
 	},
 	{
 		.idcode1 = 0x14,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 16,
 		.name = "M25P80",
 	},
 	{
 		.idcode1 = 0x18,
-		.page_size = 256,
 		.pages_per_sector = 1024,
 		.nr_sectors = 64,
 		.name = "M25P128",
@@ -153,8 +144,8 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	flash->write = spi_flash_cmd_write_multi;
 	flash->erase = stmicro_erase;
 	flash->read = spi_flash_cmd_read_fast;
-	flash->page_size = params->page_size;
-	flash->sector_size = params->page_size * params->pages_per_sector;
+	flash->page_size = 256;
+	flash->sector_size = 256 * params->pages_per_sector;
 	flash->size = flash->sector_size * params->nr_sectors;
 
 	return flash;

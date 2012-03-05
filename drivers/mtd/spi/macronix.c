@@ -42,9 +42,6 @@
 
 struct macronix_spi_flash_params {
 	u16 idcode;
-	u16 page_size;
-	u16 pages_per_sector;
-	u16 sectors_per_block;
 	u16 nr_blocks;
 	const char *name;
 };
@@ -52,57 +49,36 @@ struct macronix_spi_flash_params {
 static const struct macronix_spi_flash_params macronix_spi_flash_table[] = {
 	{
 		.idcode = 0x2013,
-		.page_size = 256,
-		.pages_per_sector = 16,
-		.sectors_per_block = 16,
 		.nr_blocks = 8,
 		.name = "MX25L4005",
 	},
 	{
 		.idcode = 0x2014,
-		.page_size = 256,
-		.pages_per_sector = 16,
-		.sectors_per_block = 16,
 		.nr_blocks = 16,
 		.name = "MX25L8005",
 	},
 	{
 		.idcode = 0x2015,
-		.page_size = 256,
-		.pages_per_sector = 16,
-		.sectors_per_block = 16,
 		.nr_blocks = 32,
 		.name = "MX25L1605D",
 	},
 	{
 		.idcode = 0x2016,
-		.page_size = 256,
-		.pages_per_sector = 16,
-		.sectors_per_block = 16,
 		.nr_blocks = 64,
 		.name = "MX25L3205D",
 	},
 	{
 		.idcode = 0x2017,
-		.page_size = 256,
-		.pages_per_sector = 16,
-		.sectors_per_block = 16,
 		.nr_blocks = 128,
 		.name = "MX25L6405D",
 	},
 	{
 		.idcode = 0x2018,
-		.page_size = 256,
-		.pages_per_sector = 16,
-		.sectors_per_block = 16,
 		.nr_blocks = 256,
 		.name = "MX25L12805D",
 	},
 	{
 		.idcode = 0x2618,
-		.page_size = 256,
-		.pages_per_sector = 16,
-		.sectors_per_block = 16,
 		.nr_blocks = 256,
 		.name = "MX25L12855E",
 	},
@@ -182,9 +158,8 @@ struct spi_flash *spi_flash_probe_macronix(struct spi_slave *spi, u8 *idcode)
 	flash->write = spi_flash_cmd_write_multi;
 	flash->erase = macronix_erase;
 	flash->read = spi_flash_cmd_read_fast;
-	flash->page_size = params->page_size;
-	flash->sector_size = params->page_size * params->pages_per_sector
-		* params->sectors_per_block;
+	flash->page_size = 256;
+	flash->sector_size = 256 * 16 * 16;
 	flash->size = flash->sector_size * params->nr_blocks;
 
 	/* Clear BP# bits for read-only flash */
