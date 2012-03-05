@@ -497,7 +497,7 @@ static void r8a66597_check_syssts(struct r8a66597 *r8a66597, int port)
 
 	old_syssts = r8a66597_read(r8a66597, get_syssts_reg(port) & LNST);
 	while (count > 0) {
-		wait_ms(R8A66597_RH_POLL_TIME);
+		mdelay(R8A66597_RH_POLL_TIME);
 
 		syssts = r8a66597_read(r8a66597, get_syssts_reg(port) & LNST);
 		if (syssts == old_syssts) {
@@ -511,11 +511,11 @@ static void r8a66597_check_syssts(struct r8a66597 *r8a66597, int port)
 
 static void r8a66597_bus_reset(struct r8a66597 *r8a66597, int port)
 {
-	wait_ms(10);
+	mdelay(10);
 	r8a66597_mdfy(r8a66597, USBRST, USBRST | UACT, get_dvstctr_reg(port));
-	wait_ms(50);
+	mdelay(50);
 	r8a66597_mdfy(r8a66597, UACT, USBRST | UACT, get_dvstctr_reg(port));
-	wait_ms(50);
+	mdelay(50);
 }
 
 static int check_usb_device_connecting(struct r8a66597 *r8a66597)
@@ -823,7 +823,7 @@ static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 		stat = USB_ST_STALLED;
 	}
 
-	wait_ms(1);
+	mdelay(1);
 
 	len = min_t(int, len, leni);
 
@@ -918,7 +918,7 @@ int usb_lowlevel_init(void)
 	r8a66597->reg = CONFIG_R8A66597_BASE_ADDR;
 
 	disable_controller(r8a66597);
-	wait_ms(100);
+	mdelay(100);
 
 	enable_controller(r8a66597);
 	r8a66597_port_power(r8a66597, 0 , 1);
@@ -926,7 +926,7 @@ int usb_lowlevel_init(void)
 	/* check usb device */
 	check_usb_device_connecting(r8a66597);
 
-	wait_ms(50);
+	mdelay(50);
 
 	return 0;
 }

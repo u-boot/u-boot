@@ -1279,7 +1279,7 @@ static int ohci_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 pkt_print(NULL, dev, pipe, buffer, transfer_len,
 	  cmd, "SUB(rh)", usb_pipein(pipe));
 #else
-	wait_ms(1);
+	mdelay(1);
 #endif
 	if (usb_pipeint(pipe)) {
 		info("Root-Hub submit IRQ: NOT implemented");
@@ -1360,7 +1360,7 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 			OK(0);
 		case (RH_PORT_POWER):
 			WR_RH_PORTSTAT(RH_PS_PPS);
-			wait_ms(100);
+			mdelay(100);
 			OK(0);
 		case (RH_PORT_ENABLE): /* BUG IN HUP CODE *********/
 			if (RD_RH_PORTSTAT & RH_PS_CCS)
@@ -1465,7 +1465,7 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 #ifdef	DEBUG
 	ohci_dump_roothub(&gohci, 1);
 #else
-	wait_ms(1);
+	mdelay(1);
 #endif
 
 	len = min_t(int, len, leni);
@@ -1478,7 +1478,7 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 	pkt_print(NULL, dev, pipe, buffer,
 		  transfer_len, cmd, "RET(rh)", 0/*usb_pipein(pipe)*/);
 #else
-	wait_ms(1);
+	mdelay(1);
 #endif
 
 	return stat;
@@ -1516,7 +1516,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	pkt_print(urb, dev, pipe, buffer, transfer_len,
 		  setup, "SUB", usb_pipein(pipe));
 #else
-	wait_ms(1);
+	mdelay(1);
 #endif
 	if (!maxsize) {
 		err("submit_common_message: pipesize for pipe %lx is zero",
@@ -1530,7 +1530,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 #if 0
-	wait_ms(10);
+	mdelay(10);
 	/* ohci_dump_status(&gohci); */
 #endif
 
@@ -1560,7 +1560,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		}
 
 		if (--timeout) {
-			wait_ms(1);
+			mdelay(1);
 			if (!urb->finished)
 				dbg("*");
 
@@ -1580,7 +1580,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	pkt_print(urb, dev, pipe, buffer, transfer_len,
 		  setup, "RET(ctlr)", usb_pipein(pipe));
 #else
-	wait_ms(1);
+	mdelay(1);
 #endif
 
 	/* free TDs in urb_priv */
@@ -1607,7 +1607,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	pkt_print(NULL, dev, pipe, buffer, transfer_len,
 		  setup, "SUB", usb_pipein(pipe));
 #else
-	wait_ms(1);
+	mdelay(1);
 #endif
 	if (!maxsize) {
 		err("submit_control_message: pipesize for pipe %lx is zero",
@@ -1677,7 +1677,7 @@ static int hc_reset(ohci_t *ohci)
 		ohci_writel(OHCI_OCR, &ohci->regs->cmdstatus);
 		info("USB HC TakeOver from SMM");
 		while (ohci_readl(&ohci->regs->control) & OHCI_CTRL_IR) {
-			wait_ms(10);
+			mdelay(10);
 			if (--smm_timeout == 0) {
 				err("USB HC TakeOver failed!");
 				return -1;
@@ -1813,7 +1813,7 @@ static int hc_interrupt(void)
 #ifdef	DEBUG
 		ohci_dump(ohci, 1);
 #else
-		wait_ms(1);
+		mdelay(1);
 #endif
 		/* FIXME: be optimistic, hope that bug won't repeat often. */
 		/* Make some non-interrupt context restart the controller. */
@@ -1824,7 +1824,7 @@ static int hc_interrupt(void)
 	}
 
 	if (ints & OHCI_INTR_WDH) {
-		wait_ms(1);
+		mdelay(1);
 		ohci_writel(OHCI_INTR_WDH, &regs->intrdisable);
 		(void)ohci_readl(&regs->intrdisable); /* flush */
 		stat = dl_done_list(&gohci);
@@ -1841,7 +1841,7 @@ static int hc_interrupt(void)
 	/* FIXME:  this assumes SOF (1/ms) interrupts don't get lost... */
 	if (ints & OHCI_INTR_SF) {
 		unsigned int frame = m16_swap(ohci->hcca->frame_no) & 1;
-		wait_ms(1);
+		mdelay(1);
 		ohci_writel(OHCI_INTR_SF, &regs->intrdisable);
 		if (ohci->ed_rm_list[frame] != NULL)
 			ohci_writel(OHCI_INTR_SF, &regs->intrenable);
@@ -1973,7 +1973,7 @@ int usb_lowlevel_init(void)
 #ifdef	DEBUG
 	ohci_dump(&gohci, 1);
 #else
-	wait_ms(1);
+	mdelay(1);
 #endif
 	ohci_inited = 1;
 	return 0;

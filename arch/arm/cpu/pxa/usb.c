@@ -48,7 +48,7 @@ int usb_cpu_init(void)
 #endif
 
 	writel(readl(UHCHR) | UHCHR_FHR, UHCHR);
-	wait_ms(11);
+	mdelay(11);
 	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
 	writel(readl(UHCHR) | UHCHR_FSBIR, UHCHR);

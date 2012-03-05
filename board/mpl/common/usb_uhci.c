@@ -435,9 +435,9 @@ void reset_hc(void)
 	out16r( usb_base_addr + USBCMD,USBCMD_GRESET | USBCMD_RS);
 	/* Turn off all interrupts */
 	out16r(usb_base_addr + USBINTR,0);
-	wait_ms(50);
+	mdelay(50);
 	out16r( usb_base_addr + USBCMD,0);
-	wait_ms(10);
+	mdelay(10);
 }
 
 void start_hc(void)
@@ -926,13 +926,13 @@ int uhci_submit_rh_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			status = in16r(usb_base_addr+USBPORTSC1+2*(wIndex-1));
 			status = (status & 0xfff5) | USBPORTSC_PR;
 			out16r(usb_base_addr+USBPORTSC1+2*(wIndex-1),status);
-			wait_ms(10);
+			mdelay(10);
 			status = (status & 0xfff5) & ~USBPORTSC_PR;
 			out16r(usb_base_addr+USBPORTSC1+2*(wIndex-1),status);
 			udelay(10);
 			status = (status & 0xfff5) | USBPORTSC_PE;
 			out16r(usb_base_addr+USBPORTSC1+2*(wIndex-1),status);
-			wait_ms(10);
+			mdelay(10);
 			status = (status & 0xfff5) | 0xa;
 			out16r(usb_base_addr+USBPORTSC1+2*(wIndex-1),status);
 			len=0;

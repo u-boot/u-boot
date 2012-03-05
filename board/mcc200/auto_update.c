@@ -284,7 +284,7 @@ int au_do_update(int idx, long sz)
 	 */
 	debug ("flash_sect_erase(%lx, %lx);\n", start, end);
 	flash_sect_erase(start, end);
-	wait_ms(100);
+	mdelay(100);
 #ifdef CONFIG_PROGRESSBAR
 	show_progress(end - start, totsize);
 #endif
@@ -352,7 +352,7 @@ int do_auto_update(void)
 	 * Read keypad status
 	 */
 	i2c_read(I2C_PSOC_KEYPAD_ADDR, 0, 0, keypad_status1, 2);
-	wait_ms(500);
+	mdelay(500);
 	i2c_read(I2C_PSOC_KEYPAD_ADDR, 0, 0, keypad_status2, 2);
 
 	/*

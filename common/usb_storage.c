@@ -438,19 +438,19 @@ static int usb_stor_BBB_reset(struct us_data *us)
 	}
 
 	/* long wait for reset */
-	wait_ms(150);
+	mdelay(150);
 	USB_STOR_PRINTF("BBB_reset result %d: status %lX reset\n", result,
 			us->pusb_dev->status);
 	pipe = usb_rcvbulkpipe(us->pusb_dev, us->ep_in);
 	result = usb_clear_halt(us->pusb_dev, pipe);
 	/* long wait for reset */
-	wait_ms(150);
+	mdelay(150);
 	USB_STOR_PRINTF("BBB_reset result %d: status %lX clearing IN endpoint\n",
 			result, us->pusb_dev->status);
 	/* long wait for reset */
 	pipe = usb_sndbulkpipe(us->pusb_dev, us->ep_out);
 	result = usb_clear_halt(us->pusb_dev, pipe);
-	wait_ms(150);
+	mdelay(150);
 	USB_STOR_PRINTF("BBB_reset result %d: status %lX"
 			" clearing OUT endpoint\n", result,
 			us->pusb_dev->status);
@@ -478,7 +478,7 @@ static int usb_stor_CB_reset(struct us_data *us)
 				 USB_CNTL_TIMEOUT * 5);
 
 	/* long wait for reset */
-	wait_ms(1500);
+	mdelay(1500);
 	USB_STOR_PRINTF("CB_reset result %d: status %lX"
 			" clearing endpoint halt\n", result,
 			us->pusb_dev->status);
@@ -621,7 +621,7 @@ int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
 	while (timeout--) {
 		if ((volatile int *) us->ip_wanted == 0)
 			break;
-		wait_ms(10);
+		mdelay(10);
 	}
 	if (us->ip_wanted) {
 		printf("	Did not get interrupt on CBI\n");
@@ -692,7 +692,7 @@ int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 		usb_stor_BBB_reset(us);
 		return USB_STOR_TRANSPORT_FAILED;
 	}
-	wait_ms(5);
+	mdelay(5);
 	pipein = usb_rcvbulkpipe(us->pusb_dev, us->ep_in);
 	pipeout = usb_sndbulkpipe(us->pusb_dev, us->ep_out);
 	/* DATA phase + error handling */
@@ -884,7 +884,7 @@ do_retry:
 				srb->sense_buf[12], srb->sense_buf[13]);
 			return USB_STOR_TRANSPORT_FAILED;
 		} else {
-			wait_ms(100);
+			mdelay(100);
 			goto do_retry;
 		}
 		break;
@@ -960,7 +960,7 @@ static int usb_test_unit_ready(ccb *srb, struct us_data *ss)
 		if (ss->transport(srb, ss) == USB_STOR_TRANSPORT_GOOD)
 			return 0;
 		usb_request_sense(srb, ss);
-		wait_ms(100);
+		mdelay(100);
 	} while (retries--);
 
 	return -1;

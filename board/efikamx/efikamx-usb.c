@@ -187,7 +187,7 @@ void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 
 	ulpi_write(&ulpi_vp, &ulpi->otg_ctrl_set, ULPI_OTG_CHRGVBUS);
 
-	wait_ms(50);
+	mdelay(50);
 
 	/* terminate the reset */
 	*reg = ehci_readl(status_reg);

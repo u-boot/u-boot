@@ -776,7 +776,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		goto unknown;
 	}
 
-	wait_ms(1);
+	mdelay(1);
 	len = min3(srclen, le16_to_cpu(req->length), length);
 	if (srcptr != NULL && len > 0)
 		memcpy(buffer, srcptr, len);
@@ -857,7 +857,7 @@ int usb_lowlevel_init(void)
 	ehci_writel(&hcor->or_configflag, cmd);
 	/* unblock posted write */
 	cmd = ehci_readl(&hcor->or_usbcmd);
-	wait_ms(5);
+	mdelay(5);
 	reg = HC_VERSION(ehci_readl(&hccr->cr_capbase));
 	printf("USB EHCI %x.%02x\n", reg >> 8, reg & 0xff);
 
