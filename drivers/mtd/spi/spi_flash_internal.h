@@ -74,6 +74,9 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 	return spi_flash_cmd(flash->spi, CMD_WRITE_DISABLE, NULL, 0);
 }
 
+/* Program the status register. */
+int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
+
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
  * bus. Used as common part of the ->read() operation.

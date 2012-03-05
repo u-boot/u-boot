@@ -185,27 +185,6 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	return ret;
 }
 
-static int
-sst_unlock(struct spi_flash *flash)
-{
-	int ret;
-	u8 cmd, status;
-
-	ret = spi_flash_cmd_write_enable(flash);
-	if (ret)
-		return ret;
-
-	cmd = CMD_WRITE_STATUS;
-	status = 0;
-	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &status, 1);
-	if (ret)
-		debug("SF: Unable to set status byte\n");
-
-	debug("SF: sst: status = %x\n", spi_w8r8(flash->spi, CMD_READ_STATUS));
-
-	return ret;
-}
-
 struct spi_flash *
 spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 {
@@ -245,7 +224,7 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
 
 	/* Flash powers up read-only, so clear BP# bits */
-	sst_unlock(&stm->flash);
+	spi_flash_cmd_write_status(&stm->flash, 0);
 
 	return &stm->flash;
 }

@@ -242,6 +242,33 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	return ret;
 }
 
+int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
+{
+	u8 cmd;
+	int ret;
+
+	ret = spi_flash_cmd_write_enable(flash);
+	if (ret < 0) {
+		debug("SF: enabling write failed\n");
+		return ret;
+	}
+
+	cmd = CMD_WRITE_STATUS;
+	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &sr, 1);
+	if (ret) {
+		debug("SF: fail to write status register\n");
+		return ret;
+	}
+
+	ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+	if (ret < 0) {
+		debug("SF: write status register timed out\n");
+		return ret;
+	}
+
+	return 0;
+}
+
 /*
  * The following table holds all device probe functions
  *
