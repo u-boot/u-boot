@@ -965,17 +965,20 @@ int XEmacPss_PhyWrite(XEmacPss *InstancePtr, u32 PhyAddress,
 }
 
 /* Data Memory Barrier */
+
 #define dmb() __asm__ __volatile__ ("dmb" : : : "memory")
 #define SYNCHRONIZE_IO dmb()
 
 void XIo_Out32(u32 OutAddress, u32 Value)
 {
-    SYNCHRONIZE_IO;
     *(volatile u32 *) OutAddress = Value;
+    SYNCHRONIZE_IO;
 }
 
 u32 XIo_In32(u32 InAddress)
 {
-    return *(volatile u32 *) InAddress;
+    volatile u32 * temp = *(volatile u32 *)InAddress;
     SYNCHRONIZE_IO;
+    return temp;
 }
+

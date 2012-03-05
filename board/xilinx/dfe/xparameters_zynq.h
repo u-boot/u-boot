@@ -51,7 +51,10 @@
 #define XPAR_XUARTPSS_0_INTR		51
 #define XPAR_XUARTPSS_1_DEVICE_ID	1
 #define XPAR_XUARTPSS_1_BASEADDR	XPSS_UART1_BASEADDR
-#define XPAR_XUARTPSS_1_CLOCK_HZ	13756480
+//#define XPAR_XUARTPSS_1_CLOCK_HZ	13756480
+#define XPAR_XUARTPSS_1_CLOCK_HZ	50000000	
+//#define XPAR_XUARTPSS_1_CLOCK_HZ	15873020
+	
 #define XPAR_XUARTPSS_1_INTR		75
 #define XPAR_XUARTPSS_NUM_INSTANCES	2
 
@@ -128,6 +131,8 @@
 #define XPSS_WDT_DEVICE_ID		0
 
 /******************************************************************/
-#define XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ	216664500
+//#define XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ	216664500
+#define XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ	800000000
+
 /******************************************************************/
 #endif /*_XPARAMETERS_PSS_H_*/

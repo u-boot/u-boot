@@ -13,16 +13,11 @@
 
 /* Select board: comment out all but one. */
 
-#define CONFIG_EP107		1
-//#define CONFIG_ZC770_XM010
+#define CONFIG_ZC770_XM010
 //#define CONFIG_ZC770_XM011
 //#define CONFIG_ZC770_XM010_XM011
 
-#ifdef CONFIG_EP107
-# include "../board/xilinx/dfe/xparameters.h"
-#else
 # include "../board/xilinx/dfe/xparameters_zynq.h"
-#endif
 
 /*
  * Open Firmware flat tree
@@ -166,11 +161,7 @@
 #define CONFIG_XDF_UART	1
 #define CONFIG_XDF_ETH	1
 #define CONFIG_XDF_RTC	1
-#ifdef CONFIG_EP107
-# define CONFIG_UART0	1
-#else
 # define CONFIG_UART1	1
-#endif
 #define CONFIG_TTC0	1
 #define CONFIG_GEM0	1
 
@@ -219,7 +210,7 @@
 /*
  * NAND Flash settings
  */
-#if defined(CONFIG_ZC770_XM011) || defined(CONFIG_ZC770_XM010_XM011) || defined (CONFIG_EP107)
+#if defined(CONFIG_ZC770_XM011) || defined(CONFIG_ZC770_XM010_XM011)
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
