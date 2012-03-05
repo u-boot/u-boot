@@ -98,5 +98,5 @@ alias i2c            uboot, hs
 alias mmc            uboot, afleming
 alias nand           uboot, scottwood
 alias net            uboot, wd
-alias usb            uboot, rbohmer
+alias usb            uboot, marex
 alias video          uboot, ag
