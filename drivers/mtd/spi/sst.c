@@ -94,24 +94,6 @@ static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 };
 
 static int
-sst_enable_writing(struct spi_flash *flash)
-{
-	int ret = spi_flash_cmd_write_enable(flash);
-	if (ret)
-		debug("SF: Enabling Write failed\n");
-	return ret;
-}
-
-static int
-sst_disable_writing(struct spi_flash *flash)
-{
-	int ret = spi_flash_cmd_write_disable(flash);
-	if (ret)
-		debug("SF: Disabling Write failed\n");
-	return ret;
-}
-
-static int
 sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 {
 	int ret;
@@ -125,7 +107,7 @@ sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 	debug("BP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
 		spi_w8r8(flash->spi, CMD_READ_STATUS), buf, cmd[0], offset);
 
-	ret = sst_enable_writing(flash);
+	ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
 		return ret;
 
@@ -158,7 +140,7 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	}
 	offset += actual;
 
-	ret = sst_enable_writing(flash);
+	ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
 		goto done;
 
@@ -189,7 +171,7 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	}
 
 	if (!ret)
-		ret = sst_disable_writing(flash);
+		ret = spi_flash_cmd_write_disable(flash);
 
 	/* If there is a single trailing byte, write it out */
 	if (!ret && actual != len)
@@ -209,7 +191,7 @@ sst_unlock(struct spi_flash *flash)
 	int ret;
 	u8 cmd, status;
 
-	ret = sst_enable_writing(flash);
+	ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
 		return ret;
 
