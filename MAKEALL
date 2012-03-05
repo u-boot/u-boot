@@ -17,6 +17,8 @@ usage()
 	  -v VENDOR, --vendor VENDOR   Build all boards with vendor VENDOR
 	  -s SOC,    --soc SOC         Build all boards with soc SOC
 	  -l,        --list            List all targets to be built
+	  -m,        --maintainers     List all targets and maintainer email
+	  -M,        --mails           List all targets and all affilated emails
 	  -h,        --help            This help output
 
 	Selections by these options are logically ANDed; if the same option
@@ -48,8 +50,8 @@ usage()
 	exit ${ret}
 }
 
-SHORT_OPTS="ha:c:v:s:l"
-LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list"
+SHORT_OPTS="ha:c:v:s:lmM"
+LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list,maintainers,mails"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
@@ -67,6 +69,8 @@ eval set -- "$TEMP"
 
 SELECTED=''
 ONLY_LIST=''
+PRINT_MAINTS=''
+MAINTAINERS_ONLY=''
 
 while true ; do
 	case "$1" in
@@ -108,6 +112,15 @@ while true ; do
 		shift 2 ;;
 	-l|--list)
 		ONLY_LIST='y'
+		shift ;;
+	-m|--maintainers)
+		ONLY_LIST='y'
+		PRINT_MAINTS='y'
+		MAINTAINERS_ONLY='y'
+		shift ;;
+	-M|--mails)
+		ONLY_LIST='y'
+		PRINT_MAINTS='y'
 		shift ;;
 	-h|--help)
 		usage ;;
@@ -483,11 +496,107 @@ LIST_nds32="$(boards_by_arch nds32)"
 
 #-----------------------------------------------------------------------
 
+get_target_location() {
+	local target=$1
+	local BOARD_NAME=""
+	local CONFIG_NAME=""
+	local board=""
+	local vendor=""
+
+	# Automatic mode
+	local line=`egrep -i "^[[:space:]]*${target}[[:space:]]" boards.cfg`
+
+	if [ -z "${line}" ] ; then echo "" ; return ; fi
+
+	set ${line}
+
+	# add default board name if needed
+	[ $# = 3 ] && set ${line} ${1}
+
+	CONFIG_NAME="${1%_config}"
+
+	[ "${BOARD_NAME}" ] || BOARD_NAME="${1%_config}"
+
+	if [ "$4" = "-" ] ; then
+		board=${BOARD_NAME}
+	else
+		board="$4"
+	fi
+
+	[ $# -gt 4 ] && [ "$5" != "-" ] && vendor="$5"
+	[ $# -gt 6 ] && [ "$7" != "-" ] && {
+		tmp="${7%:*}"
+		if [ "$tmp" ] ; then
+			CONFIG_NAME="$tmp"
+		fi
+	}
+
+	# Assign board directory to BOARDIR variable
+	if [ -z "${vendor}" ] ; then
+	    BOARDDIR=${board}
+	else
+	    BOARDDIR=${vendor}/${board}
+	fi
+
+	echo "${CONFIG_NAME}:${BOARDDIR}"
+}
+
+get_target_maintainers() {
+	local name=`echo $1 | cut -d : -f 1`
+
+	if ! grep -qsi "[[:blank:]]${name}[[:blank:]]" MAINTAINERS ; then
+		echo ""
+		return ;
+	fi
+
+	local line=`tac MAINTAINERS | grep -ni "[[:blank:]]${name}[[:blank:]]" | cut -d : -f 1`
+	local mail=`tac MAINTAINERS | tail -n +${line} | \
+		sed -n ":start /.*@.*/ { b mail } ; n ; b start ; :mail /.*@.*/ { p ; n ; b mail } ; q" | \
+		sed "s/^.*<//;s/>.*$//"`
+	echo "$mail"
+}
+
+list_target() {
+	if [ "$PRINT_MAINTS" != 'y' ] ; then
+		echo "$1"
+		return
+	fi
+
+	echo -n "$1:"
+
+	local loc=`get_target_location $1`
+
+	if [ -z "${loc}" ] ; then echo "ERROR" ; return ; fi
+
+	local maintainers_result=`get_target_maintainers ${loc} | tr " " "\n"`
+
+	if [ "$MAINTAINERS_ONLY" != 'y' ] ; then
+
+		local dir=`echo ${loc} | cut -d ":" -f 2`
+		local cfg=`echo ${loc} | cut -d ":" -f 1`
+		local git_result=`git log --format=%aE board/${dir} \
+				include/configs/${cfg}.h | grep "@"`
+		local git_result_recent=`echo ${git_result} | tr " " "\n" | \
+						head -n 3`
+		local git_result_top=`echo ${git_result} | tr " " "\n" | \
+			sort | uniq -c | sort -nr | head -n 3 | \
+			sed "s/^ \+[0-9]\+ \+//"`
+
+		echo -e "$git_result_recent\n$git_result_top\n$maintainers_result" | \
+			sort -u | tr "\n" " " | sed "s/ $//" ;
+	else
+		echo -e "$maintainers_result" | sort -u | tr "\n" " " | \
+						sed "s/ $//" ;
+	fi
+
+	echo ""
+}
+
 build_target() {
 	target=$1
 
 	if [ "$ONLY_LIST" == 'y' ] ; then
-		echo "$target"
+		list_target ${target}
 		return
 	fi
 
