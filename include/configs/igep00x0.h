@@ -1,5 +1,7 @@
 /*
- * (C) Copyright 2010
+ * Common configuration settings for IGEP technology based boards
+ *
+ * (C) Copyright 2012
  * ISEE 2007 SL, <www.iseebcn.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -18,8 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __IGEP00X0_H
+#define __IGEP00X0_H
+
 #include <asm/sizes.h>
 
 /*
@@ -27,7 +30,6 @@
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
-#define CONFIG_OMAP3_IGEP0030	1	/* working with IGEP0030 */
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
@@ -72,7 +74,8 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, 115200}
+#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
+					115200}
 #define CONFIG_GENERIC_MMC		1
 #define CONFIG_MMC			1
 #define CONFIG_OMAP_HSMMC		1
@@ -103,11 +106,13 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_ONENAND	/* ONENAND support		*/
+#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands	*/
 #define CONFIG_MTD_DEVICE
 
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#undef CONFIG_CMD_NFS		/* nfs				*/
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
 
@@ -251,6 +256,15 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 
+/*
+ * SMSC911x Ethernet
+ */
+#if defined(CONFIG_CMD_NET)
+#define CONFIG_SMC911X
+#define CONFIG_SMC911X_32_BIT
+#define CONFIG_SMC911X_BASE	0x2C000000
+#endif /* (CONFIG_CMD_NET) */
+
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
@@ -258,4 +272,4 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 
-#endif /* __CONFIG_H */
+#endif /* __IGEP00X0_H */
