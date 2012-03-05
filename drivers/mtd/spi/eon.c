@@ -27,11 +27,6 @@ static const struct eon_spi_flash_params eon_spi_flash_table[] = {
 		.nr_sectors = 4096,
 		.name = "EN25Q128",
 	},
-	{
-		.idcode1 = 0x16,
-		.nr_sectors = 1024,
-		.name = "EN25Q32B",
-	},
 };
 
 struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
