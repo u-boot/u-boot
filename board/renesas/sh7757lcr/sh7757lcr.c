@@ -263,6 +263,11 @@ int dram_init(void)
 	return 0;
 }
 
+int board_mmc_init(bd_t *bis)
+{
+	return mmcif_mmc_init();
+}
+
 static int get_sh_eth_mac_raw(unsigned char *buf, int size)
 {
 	struct spi_flash *spi;

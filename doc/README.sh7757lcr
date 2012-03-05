@@ -12,6 +12,7 @@ The R0P7757LC0030RL(board config name:sh7757lcr) has the following device:
  - SPI ROM 8MB
  - 2D Graphic controller
  - Ethernet controller
+ - eMMC 2GB
 
 
 configuration for This board:
