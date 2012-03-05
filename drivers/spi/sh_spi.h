@@ -60,10 +60,12 @@ struct sh_spi_regs {
 #define SH_SPI_TBFI	0x40
 #define SH_SPI_RBEI	0x20
 #define SH_SPI_RBFI	0x10
+#define SH_SPI_SSS1	0x08
 #define SH_SPI_WPABRT	0x04
-#define SH_SPI_SSS	0x01
+#define SH_SPI_SSS0	0x01
 
 #define SH_SPI_FIFO_SIZE	32
+#define SH_SPI_NUM_CS		4
 
 struct sh_spi {
 	struct spi_slave	slave;
