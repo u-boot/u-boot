@@ -34,6 +34,8 @@
 		compatible = "nvidia,tegra20-i2c";
 		reg = <0x7000C000 0x100>;
 		interrupts = < 70 >;
+		/* PERIPH_ID_I2C1, PLL_P_OUT3 */
+		clocks = <&tegra_car 12>, <&tegra_car 124>;
 	};
 
 	i2c@7000c400 {
@@ -42,6 +44,8 @@
 		compatible = "nvidia,tegra20-i2c";
 		reg = <0x7000C400 0x100>;
 		interrupts = < 116 >;
+		/* PERIPH_ID_I2C2, PLL_P_OUT3 */
+		clocks = <&tegra_car 54>, <&tegra_car 124>;
 	};
 
 	i2c@7000c500 {
@@ -50,14 +54,18 @@
 		compatible = "nvidia,tegra20-i2c";
 		reg = <0x7000C500 0x100>;
 		interrupts = < 124 >;
+		/* PERIPH_ID_I2C3, PLL_P_OUT3 */
+		clocks = <&tegra_car 67>, <&tegra_car 124>;
 	};
 
 	i2c@7000d000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "nvidia,tegra20-i2c";
+		compatible = "nvidia,tegra20-i2c-dvc";
 		reg = <0x7000D000 0x200>;
 		interrupts = < 85 >;
+		/* PERIPH_ID_DVC_I2C, PLL_P_OUT3 */
+		clocks = <&tegra_car 47>, <&tegra_car 124>;
 	};
 
 	i2s@70002800 {
