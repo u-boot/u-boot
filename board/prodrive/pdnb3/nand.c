@@ -96,16 +96,8 @@ static void pdnb3_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	int i;
 
-	if (len % 4) {
-		for (i = 0; i < len; i++)
-			buf[i] = readb(&(pdnb3_ndfc->data));
-	} else {
-		ulong *ptr = (ulong *)buf;
-		int count = len >> 2;
-
-		for (i = 0; i < count; i++)
-			*ptr++ = readl(&(pdnb3_ndfc->data));
-	}
+	for (i = 0; i < len; i++)
+		buf[i] = readb(&(pdnb3_ndfc->data));
 }
 
 static int pdnb3_nand_verify_buf(struct mtd_info *mtd, const u_char *buf, int len)
@@ -121,12 +113,10 @@ static int pdnb3_nand_verify_buf(struct mtd_info *mtd, const u_char *buf, int le
 
 static int pdnb3_nand_dev_ready(struct mtd_info *mtd)
 {
-	volatile u_char val;
-
 	/*
 	 * Blocking read to wait for NAND to be ready
 	 */
-	val = readb(&(pdnb3_ndfc->wait));
+	readb(&(pdnb3_ndfc->wait));
 
 	/*
 	 * Return always true
