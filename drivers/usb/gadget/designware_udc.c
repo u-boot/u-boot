@@ -497,16 +497,24 @@ static void dw_udc_epn_tx(int ep)
 {
 	struct usb_endpoint_instance *endpoint = dw_find_ep(ep);
 
+	if (!endpoint)
+		return;
+
 	/*
 	 * We need to transmit a terminating zero-length packet now if
 	 * we have sent all of the data in this URB and the transfer
 	 * size was an exact multiple of the packet size.
 	 */
-	if (endpoint && endpoint->tx_urb && endpoint->tx_urb->actual_length) {
-		if (endpoint->last == endpoint->tx_packetSize) {
-			/* handle zero length packet here */
-			writel(0x0, &inep_regs_p[ep].write_done);
-		}
+	if (endpoint->tx_urb &&
+	    (endpoint->last == endpoint->tx_packetSize) &&
+	    (endpoint->tx_urb->actual_length - endpoint->sent -
+	     endpoint->last == 0)) {
+		/* handle zero length packet here */
+		writel(0x0, &inep_regs_p[ep].write_done);
+
+	}
+
+	if (endpoint->tx_urb && endpoint->tx_urb->actual_length) {
 		/* retire the data that was just sent */
 		usbd_tx_complete(endpoint);
 		/*
@@ -548,8 +556,6 @@ int udc_init(void)
 
 	readl(&plug_regs_p->plug_pending);
 
-	udc_disconnect();
-
 	for (i = 0; i < UDC_INIT_MDELAY; i++)
 		udelay(1000);
 
@@ -561,10 +567,9 @@ int udc_init(void)
 	writel(~0x0, &udc_regs_p->endp_int_mask);
 
 	writel(DEV_CONF_FS_SPEED | DEV_CONF_REMWAKEUP | DEV_CONF_SELFPOW |
-	       /* Dev_Conf_SYNCFRAME | */
 	       DEV_CONF_PHYINT_16, &udc_regs_p->dev_conf);
 
-	writel(0x0, &udc_regs_p->dev_cntl);
+	writel(DEV_CNTL_SOFTDISCONNECT, &udc_regs_p->dev_cntl);
 
 	/* Clear all interrupts pending */
 	writel(DEV_INT_MSK, &udc_regs_p->dev_int);
@@ -587,6 +592,9 @@ void udc_setup_ep(struct usb_device_instance *device,
 	int attributes;
 	char *tt;
 	u32 endp_intmask;
+
+	if ((ep != 0) && (udc_device->device_state < STATE_ADDRESSED))
+		return;
 
 	tt = getenv("usbtty");
 	if (!tt)
@@ -647,9 +655,6 @@ void udc_setup_ep(struct usb_device_instance *device,
 		writel(packet_size | ((buffer_size / sizeof(int)) << 16),
 		       &out_p->endp_maxpacksize);
 
-		writel((packet_size << 19) | ENDP_EPTYPE_CNTL,
-		       &udc_regs_p->udc_endp_reg[ep_num]);
-
 	} else if ((ep_addr & USB_ENDPOINT_DIR_MASK) == USB_DIR_IN) {
 		/* Setup the IN endpoint */
 		writel(0x0, &in_p->endp_status);
@@ -708,7 +713,17 @@ void udc_setup_ep(struct usb_device_instance *device,
 /* Turn on the USB connection by enabling the pullup resistor */
 void udc_connect(void)
 {
-	u32 plug_st;
+	u32 plug_st, dev_cntl;
+
+	dev_cntl = readl(&udc_regs_p->dev_cntl);
+	dev_cntl |= DEV_CNTL_SOFTDISCONNECT;
+	writel(dev_cntl, &udc_regs_p->dev_cntl);
+
+	udelay(1000);
+
+	dev_cntl = readl(&udc_regs_p->dev_cntl);
+	dev_cntl &= ~DEV_CNTL_SOFTDISCONNECT;
+	writel(dev_cntl, &udc_regs_p->dev_cntl);
 
 	plug_st = readl(&plug_regs_p->plug_state);
 	plug_st &= ~(PLUG_STATUS_PHY_RESET | PLUG_STATUS_PHY_MODE);
@@ -719,6 +734,8 @@ void udc_connect(void)
 void udc_disconnect(void)
 {
 	u32 plug_st;
+
+	writel(DEV_CNTL_SOFTDISCONNECT, &udc_regs_p->dev_cntl);
 
 	plug_st = readl(&plug_regs_p->plug_state);
 	plug_st |= (PLUG_STATUS_PHY_RESET | PLUG_STATUS_PHY_MODE);
@@ -789,11 +806,6 @@ void dw_udc_plug_irq(void)
 		UDCDBG("device attached and powered");
 		udc_state_transition(udc_device->device_state, STATE_POWERED);
 	} else {
-		/*
-		 * USB cable detached
-		 * Reset the PHY and switch the mode.
-		 */
-		udc_disconnect();
 		writel(~0x0, &udc_regs_p->dev_int_mask);
 
 		UDCDBG("device detached or unpowered");
@@ -809,12 +821,17 @@ void dw_udc_dev_irq(void)
 	if (readl(&udc_regs_p->dev_int) & DEV_INT_USBRESET) {
 		writel(~0x0, &udc_regs_p->endp_int_mask);
 
-		udc_connect();
-
 		writel(readl(&inep_regs_p[0].endp_cntl) | ENDP_CNTL_FLUSH,
 		       &inep_regs_p[0].endp_cntl);
 
 		writel(DEV_INT_USBRESET, &udc_regs_p->dev_int);
+
+		/*
+		 * This endpoint0 specific register can be programmed only
+		 * after the phy clock is initialized
+		 */
+		writel((EP0_MAX_PACKET_SIZE << 19) | ENDP_EPTYPE_CNTL,
+				&udc_regs_p->udc_endp_reg[0]);
 
 		UDCDBG("device reset in progess");
 		udc_state_transition(udc_device->device_state, STATE_DEFAULT);
@@ -902,7 +919,7 @@ void dw_udc_endpoint_irq(void)
 		writel(ENDP0_INT_CTRLIN, &udc_regs_p->endp_int);
 	}
 
-	while (readl(&udc_regs_p->endp_int) & ENDP_INT_NONISOOUT_MSK) {
+	if (readl(&udc_regs_p->endp_int) & ENDP_INT_NONISOOUT_MSK) {
 		u32 epnum = 0;
 		u32 ep_int = readl(&udc_regs_p->endp_int) &
 		    ENDP_INT_NONISOOUT_MSK;
