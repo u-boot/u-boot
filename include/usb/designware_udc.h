@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __SPR_UDC_H
-#define __SPR_UDC_H
+#ifndef __DW_UDC_H
+#define __DW_UDC_H
 
 /*
  * Defines for  USBD
@@ -227,4 +227,4 @@ void udc_startup_events(struct usb_device_instance *device);
 void udc_setup_ep(struct usb_device_instance *device, unsigned int ep,
 		  struct usb_endpoint_instance *endpoint);
 
-#endif /* __SPR_UDC_H */
+#endif /* __DW_UDC_H */
