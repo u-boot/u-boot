@@ -28,6 +28,7 @@
 #include <asm/arch/tegra2.h>
 #include <common.h>
 #include <div64.h>
+#include <fdtdec.h>
 
 /*
  * This is our record of the current clock rate of each clock. We don't
@@ -917,6 +918,63 @@ void clock_ll_start_uart(enum periph_id periph_id)
 	/* De-assert reset to UART */
 	reset_set_enable(periph_id, 0);
 }
+
+#ifdef CONFIG_OF_CONTROL
+/*
+ * Convert a device tree clock ID to our peripheral ID. They are mostly
+ * the same but we are very cautious so we check that a valid clock ID is
+ * provided.
+ *
+ * @param clk_id	Clock ID according to tegra2 device tree binding
+ * @return peripheral ID, or PERIPH_ID_NONE if the clock ID is invalid
+ */
+static enum periph_id clk_id_to_periph_id(int clk_id)
+{
+	if (clk_id > 95)
+		return PERIPH_ID_NONE;
+
+	switch (clk_id) {
+	case 1:
+	case 2:
+	case 7:
+	case 10:
+	case 20:
+	case 30:
+	case 35:
+	case 49:
+	case 56:
+	case 74:
+	case 76:
+	case 77:
+	case 78:
+	case 79:
+	case 80:
+	case 81:
+	case 82:
+	case 83:
+	case 91:
+	case 95:
+		return PERIPH_ID_NONE;
+	default:
+		return clk_id;
+	}
+}
+
+int clock_decode_periph_id(const void *blob, int node)
+{
+	enum periph_id id;
+	u32 cell[2];
+	int err;
+
+	err = fdtdec_get_int_array(blob, node, "clocks", cell,
+				   ARRAY_SIZE(cell));
+	if (err)
+		return -1;
+	id = clk_id_to_periph_id(cell[1]);
+	assert(clock_periph_id_isvalid(id));
+	return id;
+}
+#endif /* CONFIG_OF_CONTROL */
 
 int clock_verify(void)
 {

@@ -177,6 +177,7 @@ enum periph_id {
 	PERIPH_ID_CRAM2,
 
 	PERIPH_ID_COUNT,
+	PERIPH_ID_NONE = -1,
 };
 
 /* Converts a clock number to a clock register: 0=L, 1=H, 2=U */
@@ -354,6 +355,18 @@ unsigned clock_get_rate(enum clock_id clkid);
  * @param periph_id	Peripheral ID of UART to enable (e,g, PERIPH_ID_UART1)
  */
 void clock_ll_start_uart(enum periph_id periph_id);
+
+/**
+ * Decode a peripheral ID from a device tree node.
+ *
+ * This works by looking up the peripheral's 'clocks' node and reading out
+ * the second cell, which is the clock number / peripheral ID.
+ *
+ * @param blob		FDT blob to use
+ * @param node		Node to look at
+ * @return peripheral ID, or PERIPH_ID_NONE if none
+ */
+enum periph_id clock_decode_periph_id(const void *blob, int node);
 
 /*
  * Checks that clocks are valid and prints a warning if not
