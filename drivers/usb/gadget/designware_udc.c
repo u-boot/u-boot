@@ -202,6 +202,7 @@ static int usbgetpckfromfifo(int epNum, u8 *bufp, u32 len)
 	u32 i, nw, nb;
 	u32 *wrdp;
 	u8 *bytp;
+	u32 tmp[128];
 
 	if (readl(&udc_regs_p->dev_stat) & DEV_STAT_RXFIFO_EMPTY)
 		return -1;
@@ -209,7 +210,12 @@ static int usbgetpckfromfifo(int epNum, u8 *bufp, u32 len)
 	nw = len / sizeof(u32);
 	nb = len % sizeof(u32);
 
-	wrdp = (u32 *)bufp;
+	/* use tmp buf if bufp is not word aligned */
+	if ((int)bufp & 0x3)
+		wrdp = (u32 *)&tmp[0];
+	else
+		wrdp = (u32 *)bufp;
+
 	for (i = 0; i < nw; i++) {
 		writel(readl(fifo_ptr), wrdp);
 		wrdp++;
@@ -222,6 +228,10 @@ static int usbgetpckfromfifo(int epNum, u8 *bufp, u32 len)
 		bytp++;
 	}
 	readl(&outep_regs_p[epNum].write_done);
+
+	/* copy back tmp buffer to bufp if bufp is not word aligned */
+	if ((int)bufp & 0x3)
+		memcpy(bufp, tmp, len);
 
 	return 0;
 }
