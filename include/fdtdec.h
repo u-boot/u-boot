@@ -58,6 +58,8 @@ struct fdt_memory {
 enum fdt_compat_id {
 	COMPAT_UNKNOWN,
 	COMPAT_NVIDIA_TEGRA20_USB,	/* Tegra2 USB port */
+	COMPAT_NVIDIA_TEGRA20_I2C,	/* Tegra2 i2c */
+	COMPAT_NVIDIA_TEGRA20_DVC,	/* Tegra2 dvc (really just i2c) */
 
 	COMPAT_COUNT,
 };

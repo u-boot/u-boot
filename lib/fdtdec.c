@@ -38,6 +38,8 @@ DECLARE_GLOBAL_DATA_PTR;
 static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(UNKNOWN, "<none>"),
 	COMPAT(NVIDIA_TEGRA20_USB, "nvidia,tegra20-ehci"),
+	COMPAT(NVIDIA_TEGRA20_I2C, "nvidia,tegra20-i2c"),
+	COMPAT(NVIDIA_TEGRA20_DVC, "nvidia,tegra20-i2c-dvc"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
