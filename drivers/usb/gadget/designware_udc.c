@@ -802,7 +802,7 @@ void udc_startup_events(struct usb_device_instance *device)
 /*
  * Plug detection interrupt handling
  */
-void dw_udc_plug_irq(void)
+static void dw_udc_plug_irq(void)
 {
 	if (readl(&plug_regs_p->plug_state) & PLUG_STATUS_ATTACHED) {
 		/*
@@ -826,7 +826,7 @@ void dw_udc_plug_irq(void)
 /*
  * Device interrupt handling
  */
-void dw_udc_dev_irq(void)
+static void dw_udc_dev_irq(void)
 {
 	if (readl(&udc_regs_p->dev_int) & DEV_INT_USBRESET) {
 		writel(~0x0, &udc_regs_p->endp_int_mask);
@@ -896,7 +896,7 @@ void dw_udc_dev_irq(void)
 /*
  * Endpoint interrupt handling
  */
-void dw_udc_endpoint_irq(void)
+static void dw_udc_endpoint_irq(void)
 {
 	while (readl(&udc_regs_p->endp_int) & ENDP0_INT_CTRLOUT) {
 
