@@ -102,7 +102,7 @@ PUBLIC IxEthAccStatus ixEthAccInit()
   /*
    * Initialize Control plane
    */
-  if (ixEthDBInit() != IX_ETH_ACC_SUCCESS)
+  if (ixEthDBInit() != IX_ETH_DB_SUCCESS)
   {
       IX_ETH_ACC_WARNING_LOG("ixEthAccInit: EthDB init failed\n", 0, 0, 0, 0, 0, 0);
 
