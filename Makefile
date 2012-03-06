@@ -677,18 +677,6 @@ SX1_config:		unconfig
 	@$(MKCONFIG) -n $@ SX1 arm arm925t sx1
 
 #########################################################################
-## XScale Systems
-#########################################################################
-
-pdnb3_config \
-scpu_config:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring scpu_,$@)" ] ; then \
-		echo "#define CONFIG_SCPU"	>>$(obj)include/config.h ; \
-	fi
-	@$(MKCONFIG) -n $@ -a pdnb3 arm ixp pdnb3 prodrive
-
-#########################################################################
 ## ARM1176 Systems
 #########################################################################
 smdk6400_noUSB_config	\
