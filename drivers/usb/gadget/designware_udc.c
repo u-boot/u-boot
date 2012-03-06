@@ -566,8 +566,13 @@ int udc_init(void)
 	writel(~0x0, &udc_regs_p->dev_int_mask);
 	writel(~0x0, &udc_regs_p->endp_int_mask);
 
+#ifndef CONFIG_USBD_HS
 	writel(DEV_CONF_FS_SPEED | DEV_CONF_REMWAKEUP | DEV_CONF_SELFPOW |
 	       DEV_CONF_PHYINT_16, &udc_regs_p->dev_conf);
+#else
+	writel(DEV_CONF_HS_SPEED | DEV_CONF_REMWAKEUP | DEV_CONF_SELFPOW |
+			DEV_CONF_PHYINT_16, &udc_regs_p->dev_conf);
+#endif
 
 	writel(DEV_CNTL_SOFTDISCONNECT, &udc_regs_p->dev_cntl);
 
@@ -575,6 +580,11 @@ int udc_init(void)
 	writel(DEV_INT_MSK, &udc_regs_p->dev_int);
 
 	return 0;
+}
+
+int is_usbd_high_speed(void)
+{
+	return (readl(&udc_regs_p->dev_stat) & DEV_STAT_ENUM) ? 0 : 1;
 }
 
 /*
