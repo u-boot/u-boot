@@ -161,15 +161,14 @@
 #define CONFIG_MENU
 #define CONFIG_MENU_SHOW
 #define CONFIG_FIT
-#define CONFIG_CMD_PXE
 #define CONFIG_BOARD_IMG_ADDR_R 0x80000000
 
 #ifdef CONFIG_NAND_DAVINCI
 #define CONFIG_ENV_SIZE			(16 << 10)
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x180000
+#define CONFIG_ENV_RANGE		0x040000
 #define CONFIG_ENV_OFFSET_REDUND	0x1c0000
-#define CONFIG_ENV_RANGE		0x020000
 #undef CONFIG_ENV_IS_IN_FLASH
 #endif
 
@@ -220,6 +219,7 @@
 
 /* Defines for SPL */
 #define CONFIG_SPL
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_NAND_LOAD
@@ -229,7 +229,7 @@
 #define CONFIG_SPL_LDSCRIPT		"$(BOARDDIR)/u-boot-spl.lds"
 #define CONFIG_SPL_STACK		(0x00010000 + 0x7f00)
 
-#define CONFIG_SPL_TEXT_BASE		0x0000020 /*CONFIG_SYS_SRAM_START*/
+#define CONFIG_SPL_TEXT_BASE		0x00000020 /*CONFIG_SYS_SRAM_START*/
 #define CONFIG_SPL_MAX_SIZE		12320
 
 #ifndef CONFIG_SPL_BUILD
@@ -274,6 +274,7 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0xa0000
+#define CONFIG_SYS_NAND_U_BOOT_ERA_SIZE	0x100000
 
 /* for UBL header */
 #define CONFIG_SYS_UBL_BLOCK		(CONFIG_SYS_NAND_PAGE_SIZE)
@@ -429,7 +430,7 @@
 		" 0 3000;nandrbl uboot\0"				\
 	"writeuboot=nandrbl uboot;"					\
 		"nand erase " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "	\
-		 xstr(CONFIG_SYS_NAND_U_BOOT_SIZE)			\
+		 xstr(CONFIG_SYS_NAND_U_BOOT_ERA_SIZE)			\
 		";nand write " xstr(DVN4XX_UBOOT_ADDR_R_UBOOT)		\
 		" " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "		\
 		xstr(CONFIG_SYS_NAND_U_BOOT_SIZE) "\0"			\
@@ -466,14 +467,14 @@
 		"nand write ${img_addr_r} 0 3000;nandrbl uboot\0"	\
 	"img_writeuboot=nandrbl uboot;"					\
 		"nand erase " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "	\
-		 xstr(CONFIG_SYS_NAND_U_BOOT_SIZE)			\
+		 xstr(CONFIG_SYS_NAND_U_BOOT_ERA_SIZE)			\
 		";nand write ${img_addr_r} "				\
 		xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "			\
 		xstr(CONFIG_SYS_NAND_U_BOOT_SIZE) "\0"			\
 	"img_writedfenv=ubi part ubi 2048;"				\
 		"ubi write ${img_addr_r} default ${filesize}\0"		\
 	"img_volume=rootfs1\0"						\
-	"img_writeramdisk=ubi part ubi 2048;ubifsmount ${img_volume};"	\
+	"img_writeramdisk=ubi part ubi 2048;"				\
 		"ubi write ${img_addr_r} ${img_volume} ${filesize}\0"	\
 	"load_img=tftp ${fit_addr_r} ${img_file}\0"			\
 	"net_nfs=run load_kernel; "					\

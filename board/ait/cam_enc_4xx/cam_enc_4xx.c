@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <hush.h>
 #include <linux/mtd/nand.h>
 #include <nand.h>
 #include <miiphy.h>
@@ -554,7 +555,7 @@ static char *menu_handle(struct menu_display *display)
 {
 	struct menu *m;
 	int i;
-	char *choice = NULL;
+	void *choice = NULL;
 	char key[2];
 	int ret;
 	char *s;
@@ -606,7 +607,7 @@ static char *menu_handle(struct menu_display *display)
 	sprintf(key, "%d", 1);
 	menu_default_set(m, key);
 
-	if (menu_get_choice(m, (void **)&choice) != 1)
+	if (menu_get_choice(m, &choice) != 1)
 		debug("Problem picking a choice!\n");
 
 	menu_destroy(m);
@@ -653,7 +654,7 @@ static int ait_writeublheader(void)
 		sprintf(s, "%lx", i);
 		ret = setenv("header_addr", s);
 		if (ret == 0)
-			ret = run_command2("run img_writeheader", 0);
+			ret = run_command("run img_writeheader", 0);
 		if (ret != 0)
 			break;
 	}
@@ -697,7 +698,7 @@ static int ait_menu_install_images(void)
 		setenv("filesize", s);
 		switch (imgs[count].subtype) {
 		case FIT_SUBTYPE_DF_ENV_IMAGE:
-			ret = run_command2("run img_writedfenv", 0);
+			ret = run_command("run img_writedfenv", 0);
 			break;
 		case FIT_SUBTYPE_RAMDISK_IMAGE:
 			t = getenv("img_volume");
@@ -713,16 +714,16 @@ static int ait_menu_install_images(void)
 			if (ret != 0)
 				break;
 
-			ret = run_command2("run img_writeramdisk", 0);
+			ret = run_command("run img_writeramdisk", 0);
 			break;
 		case FIT_SUBTYPE_SPL_IMAGE:
-			ret = run_command2("run img_writespl", 0);
+			ret = run_command("run img_writespl", 0);
 			break;
 		case FIT_SUBTYPE_UBL_HEADER:
 			ret = ait_writeublheader();
 			break;
 		case FIT_SUBTYPE_UBOOT_IMAGE:
-			ret = run_command2("run img_writeuboot", 0);
+			ret = run_command("run img_writeuboot", 0);
 			break;
 		default:
 			/* not supported type */
@@ -731,8 +732,19 @@ static int ait_menu_install_images(void)
 		count++;
 	}
 	/* now save dvn_* and img_volume env vars to new values */
-	if (ret == 0)
-		ret = run_command2("run savenewvers", 0);
+	if (ret == 0) {
+		t = getenv("x_dvn_boot_vers");
+		if (t)
+			setenv("dvn_boot_vers", t);
+
+		t = getenv("x_dvn_app_vers");
+		if (t)
+			setenv("dvn_boot_vers", t);
+
+		setenv("x_dvn_boot_vers", NULL);
+		setenv("x_dvn_app_vers", NULL);
+		ret = run_command("run savenewvers", 0);
+	}
 
 	return ret;
 }
@@ -749,6 +761,8 @@ static int ait_menu_evaluate_load(char *choice)
 		break;
 	case '2':
 		/* cancel, back to main */
+		setenv("x_dvn_boot_vers", NULL);
+		setenv("x_dvn_app_vers", NULL);
 		break;
 	}
 
@@ -961,7 +975,7 @@ static int ait_menu_check_image(void)
 		if (s) {
 			ret = strcmp(s, imgs[found_uboot].desc);
 			if (ret != 0) {
-				setenv("dvn_boot_vers",
+				setenv("x_dvn_boot_vers",
 					imgs[found_uboot].desc);
 			} else {
 				found_uboot = -1;
@@ -976,7 +990,7 @@ static int ait_menu_check_image(void)
 		if (s) {
 			ret = strcmp(s, imgs[found_ramdisk].desc);
 			if (ret != 0) {
-				setenv("dvn_app_vers",
+				setenv("x_dvn_app_vers",
 					imgs[found_ramdisk].desc);
 			} else {
 				found_ramdisk = -1;
@@ -1005,7 +1019,7 @@ static int ait_menu_evaluate_update(char *choice)
 		break;
 	case '2':
 		/* load image */
-		ret = run_command2("run load_img", 0);
+		ret = run_command("run load_img", 0);
 		printf("ret: %d\n", ret);
 		if (ret)
 			return MENU_UPDATE;
@@ -1073,9 +1087,9 @@ int menu_show(int bootdelay)
 {
 	int ret;
 
-	run_command2("run saveparms", 0);
+	run_command("run saveparms", 0);
 	ret = ait_menu_show(&ait_main, bootdelay);
-	run_command2("run restoreparms", 0);
+	run_command("run restoreparms", 0);
 
 	if (ret == MENU_EXIT_BOOTCMD)
 		return 0;
@@ -1085,8 +1099,17 @@ int menu_show(int bootdelay)
 
 void menu_display_statusline(struct menu *m)
 {
-	printf("State: dvn_boot_vers: %s dvn_app_vers: %s\n",
-		getenv("dvn_boot_vers"), getenv("dvn_app_vers"));
+	char *s1, *s2;
+
+	s1 = getenv("x_dvn_boot_vers");
+	if (!s1)
+		s1 = getenv("dvn_boot_vers");
+
+	s2 = getenv("x_dvn_app_vers");
+	if (!s2)
+		s2 = getenv("dvn_app_vers");
+
+	printf("State: dvn_boot_vers: %s dvn_app_vers: %s\n", s1, s2);
 	return;
 }
 #endif
