@@ -32,6 +32,7 @@
 #undef	CONFIG_BOARD_LATE_INIT
 #undef	CONFIG_USE_IRQ
 #undef	CONFIG_SKIP_LOWLEVEL_INIT
+#define	CONFIG_PREBOOT
 
 /*
  * Environment settings
