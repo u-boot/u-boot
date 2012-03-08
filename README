@@ -3462,6 +3462,12 @@ within that device.
 	Specifies that QE/FMAN firmware is located on the primary SPI
 	device.  CONFIG_SYS_FMAN_FW_ADDR is the byte offset on that device.
 
+- CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
+	Specifies that QE/FMAN firmware is located in the remote (master)
+	memory space.	CONFIG_SYS_FMAN_FW_ADDR is a virtual address which
+	can be mapped from slave TLB->slave LAW->slave SRIO outbound window
+	->master inbound window->master LAW->the ucode address in master's
+	NOR flash.
 
 Building the Software:
 ======================
