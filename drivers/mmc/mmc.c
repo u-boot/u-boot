@@ -179,7 +179,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			for (i = 0; i < 4; i++) {
 				int j;
 				printf("\t\t\t\t\t%03d - ", i*4);
-				ptr = &cmd->response[i];
+				ptr = (u8 *)&cmd->response[i];
 				ptr += 3;
 				for (j = 0; j < 4; j++)
 					printf("%02X ", *ptr--);
