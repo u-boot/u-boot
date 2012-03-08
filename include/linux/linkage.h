@@ -44,8 +44,13 @@
 #define SYMBOL_NAME_LABEL(X)	X:
 #endif
 
+#ifndef __ALIGN
 #define __ALIGN .align		4
+#endif
+
+#ifndef __ALIGN_STR
 #define __ALIGN_STR		".align 4"
+#endif
 
 #ifdef __ASSEMBLY__
 
@@ -67,7 +72,7 @@
 
 #ifndef ENDPROC
 #define ENDPROC(name) \
-	.type name, @function; \
+	.type name STT_FUNC; \
 	END(name)
 #endif
 
