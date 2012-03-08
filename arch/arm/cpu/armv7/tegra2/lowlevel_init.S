@@ -25,10 +25,10 @@
 
 #include <config.h>
 #include <version.h>
+#include <linux/linkage.h>
 
 	.align	5
-.global reset_cpu
-reset_cpu:
+ENTRY(reset_cpu)
 	ldr	r1, rstctl			@ get addr for global reset
 						@ reg
 	ldr	r3, [r1]
@@ -39,3 +39,4 @@ _loop_forever:
 	b	_loop_forever
 rstctl:
 	.word	PRM_RSTCTRL
+ENDPROC(reset_cpu)

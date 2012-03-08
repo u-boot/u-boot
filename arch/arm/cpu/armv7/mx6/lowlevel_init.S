@@ -18,7 +18,8 @@
  */
 .section ".text.init", "x"
 
-.globl lowlevel_init
-lowlevel_init:
+#include <linux/linkage.h>
 
+ENTRY(lowlevel_init)
 	mov pc, lr
+ENDPROC(lowlevel_init)

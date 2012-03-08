@@ -31,22 +31,22 @@
 #include <version.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/clocks_omap3.h>
+#include <linux/linkage.h>
 
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE	/* sdram load addr from config.mk */
 
 #ifdef CONFIG_SPL_BUILD
-.global save_boot_params
-save_boot_params:
+ENTRY(save_boot_params)
 	ldr	r4, =omap3_boot_device
 	ldr	r5, [r0, #0x4]
 	and	r5, r5, #0xff
 	str	r5, [r4]
 	bx	lr
+ENDPROC(save_boot_params)
 #endif
 
-.global omap3_gp_romcode_call
-omap3_gp_romcode_call:
+ENTRY(omap3_gp_romcode_call)
 	PUSH {r4-r12, lr} @ Save all registers from ROM code!
 	MOV r12, r0	@ Copy the Service ID in R12
 	MOV r0, r1	@ Copy parameter to R0
@@ -55,6 +55,7 @@ omap3_gp_romcode_call:
 	.word	0xe1600070	@ SMC #0 to enter monitor - hand assembled
 				@ because we use -march=armv5
 	POP {r4-r12, pc}
+ENDPROC(omap3_gp_romcode_call)
 
 /*
  * Funtion for making PPA HAL API calls in secure devices
@@ -62,8 +63,7 @@ omap3_gp_romcode_call:
  *	R0 - Service ID
  *	R1 - paramer list
  */
-.global do_omap3_emu_romcode_call
-do_omap3_emu_romcode_call:
+ENTRY(do_omap3_emu_romcode_call)
 	PUSH {r4-r12, lr} @ Save all registers from ROM code!
 	MOV r12, r0	@ Copy the Secure Service ID in R12
 	MOV r3, r1	@ Copy the pointer to va_list in R3
@@ -76,14 +76,14 @@ do_omap3_emu_romcode_call:
 	.word	0xe1600071	@ SMC #1 to call PPA service - hand assembled
 				@ because we use -march=armv5
 	POP {r4-r12, pc}
+ENDPROC(do_omap3_emu_romcode_call)
 
 #if !defined(CONFIG_SYS_NAND_BOOT) && !defined(CONFIG_SYS_NAND_BOOT)
 /**************************************************************************
  * cpy_clk_code: relocates clock code into SRAM where its safer to execute
  * R1 = SRAM destination address.
  *************************************************************************/
-.global cpy_clk_code
- cpy_clk_code:
+ENTRY(cpy_clk_code)
 	/* Copy DPLL code into SRAM */
 	adr	r0, go_to_speed		/* get addr of clock setting code */
 	mov	r2, #384		/* r2 size to copy (div by 32 bytes) */
@@ -95,6 +95,7 @@ next2:
 	cmp	r0, r2			/* until source end address [r2] */
 	bne	next2
 	mov	pc, lr			/* back to caller */
+ENDPROC(cpy_clk_code)
 
 /* ***************************************************************************
  *  go_to_speed: -Moves to bypass, -Commits clock dividers, -puts dpll at speed
@@ -109,8 +110,7 @@ next2:
  *        L3 when its not in self refresh seems bad for it.  Normally, this
  *	  code runs from flash before SDR is init so that should be ok.
  ****************************************************************************/
-.global go_to_speed
- go_to_speed:
+ENTRY(go_to_speed)
 	stmfd sp!, {r4 - r6}
 
 	/* move into fast relock bypass */
@@ -171,6 +171,7 @@ wait2:
 	nop
 	ldmfd	sp!, {r4 - r6}
 	mov	pc, lr		/* back to caller, locked */
+ENDPROC(go_to_speed)
 
 _go_to_speed: .word go_to_speed
 
@@ -211,8 +212,7 @@ pll_div_val5:
 
 #endif
 
-.globl lowlevel_init
-lowlevel_init:
+ENTRY(lowlevel_init)
 	ldr	sp, SRAM_STACK
 	str	ip, [sp]	/* stash old link register */
 	mov	ip, lr		/* save link reg across call */
@@ -230,6 +230,7 @@ lowlevel_init:
 
 	/* back to arch calling code */
 	mov	pc, lr
+ENDPROC(lowlevel_init)
 
 	/* the literal pools origin */
 	.ltorg
@@ -480,22 +481,22 @@ per_36x_dpll_param:
 .word 26000,    432,   12,     9,      16,     9,     4,      3,      1
 .word 38400,    360,   15,     9,      16,     5,     4,      3,      1
 
-.globl get_36x_mpu_dpll_param
-get_36x_mpu_dpll_param:
+ENTRY(get_36x_mpu_dpll_param)
 	adr	r0, mpu_36x_dpll_param
 	mov	pc, lr
+ENDPROC(get_36x_mpu_dpll_param)
 
-.globl get_36x_iva_dpll_param
-get_36x_iva_dpll_param:
+ENTRY(get_36x_iva_dpll_param)
 	adr	r0, iva_36x_dpll_param
 	mov	pc, lr
+ENDPROC(get_36x_iva_dpll_param)
 
-.globl get_36x_core_dpll_param
-get_36x_core_dpll_param:
+ENTRY(get_36x_core_dpll_param)
 	adr	r0, core_36x_dpll_param
 	mov	pc, lr
+ENDPROC(get_36x_core_dpll_param)
 
-.globl get_36x_per_dpll_param
-get_36x_per_dpll_param:
+ENTRY(get_36x_per_dpll_param)
 	adr	r0, per_36x_dpll_param
 	mov	pc, lr
+ENDPROC(get_36x_per_dpll_param)
