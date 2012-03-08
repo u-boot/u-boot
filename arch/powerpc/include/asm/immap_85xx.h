@@ -1353,171 +1353,235 @@ typedef struct ccsr_cpm {
 } ccsr_cpm_t;
 #endif
 
-/* RapidIO Registers */
-typedef struct ccsr_rio {
-	u32	didcar;		/* Device Identity Capability */
-	u32	dicar;		/* Device Information Capability */
-	u32	aidcar;		/* Assembly Identity Capability */
-	u32	aicar;		/* Assembly Information Capability */
-	u32	pefcar;		/* Processing Element Features Capability */
-	u32	spicar;		/* Switch Port Information Capability */
-	u32	socar;		/* Source Operations Capability */
-	u32	docar;		/* Destination Operations Capability */
+#ifdef CONFIG_SYS_SRIO
+/* Architectural regsiters */
+struct rio_arch {
+	u32	didcar;	/* Device Identity CAR */
+	u32	dicar;	/* Device Information CAR */
+	u32	aidcar;	/* Assembly Identity CAR */
+	u32	aicar;	/* Assembly Information CAR */
+	u32	pefcar;	/* Processing Element Features CAR */
+	u8	res0[4];
+	u32	socar;	/* Source Operations CAR */
+	u32	docar;	/* Destination Operations CAR */
 	u8	res1[32];
-	u32	msr;		/* Mailbox Cmd And Status */
-	u32	pwdcsr;		/* Port-Write & Doorbell Cmd And Status */
+	u32	mcsr;	/* Mailbox CSR */
+	u32	pwdcsr;	/* Port-Write and Doorbell CSR */
 	u8	res2[4];
 	u32	pellccsr;	/* Processing Element Logic Layer CCSR */
 	u8	res3[12];
-	u32	lcsbacsr;	/* Local Cfg Space Base Addr Cmd & Status */
-	u32	bdidcsr;	/* Base Device ID Cmd & Status */
+	u32	lcsbacsr;	/* Local Configuration Space BACSR */
+	u32	bdidcsr;	/* Base Device ID CSR */
 	u8	res4[4];
-	u32	hbdidlcsr;	/* Host Base Device ID Lock Cmd & Status */
-	u32	ctcsr;		/* Component Tag Cmd & Status */
-	u8	res5[144];
-	u32	pmbh0csr;	/* Port Maint. Block Hdr 0 Cmd & Status */
-	u8	res6[28];
-	u32	pltoccsr;	/* Port Link Time-out Ctrl Cmd & Status */
-	u32	prtoccsr;	/* Port Response Time-out Ctrl Cmd & Status */
-	u8	res7[20];
-	u32	pgccsr;		/* Port General Cmd & Status */
-	u32	plmreqcsr;	/* Port Link Maint. Request Cmd & Status */
-	u32	plmrespcsr;	/* Port Link Maint. Response Cmd & Status */
-	u32	plascsr;	/* Port Local Ackid Status Cmd & Status */
-	u8	res8[12];
-	u32	pescsr;		/* Port Error & Status Cmd & Status */
-	u32	pccsr;		/* Port Control Cmd & Status */
-	u8	res9[65184];
-	u32	cr;		/* Port Control Cmd & Status */
-	u8	res10[12];
-	u32	pcr;		/* Port Configuration */
-	u32	peir;		/* Port Error Injection */
-	u8	res11[3048];
-	u32	rowtar0;	/* RIO Outbound Window Translation Addr 0 */
-	u8	res12[12];
-	u32	rowar0;		/* RIO Outbound Attrs 0 */
-	u8	res13[12];
-	u32	rowtar1;	/* RIO Outbound Window Translation Addr 1 */
-	u8	res14[4];
-	u32	rowbar1;	/* RIO Outbound Window Base Addr 1 */
-	u8	res15[4];
-	u32	rowar1;		/* RIO Outbound Attrs 1 */
-	u8	res16[12];
-	u32	rowtar2;	/* RIO Outbound Window Translation Addr 2 */
-	u8	res17[4];
-	u32	rowbar2;	/* RIO Outbound Window Base Addr 2 */
-	u8	res18[4];
-	u32	rowar2;		/* RIO Outbound Attrs 2 */
-	u8	res19[12];
-	u32	rowtar3;	/* RIO Outbound Window Translation Addr 3 */
-	u8	res20[4];
-	u32	rowbar3;	/* RIO Outbound Window Base Addr 3 */
-	u8	res21[4];
-	u32	rowar3;		/* RIO Outbound Attrs 3 */
-	u8	res22[12];
-	u32	rowtar4;	/* RIO Outbound Window Translation Addr 4 */
-	u8	res23[4];
-	u32	rowbar4;	/* RIO Outbound Window Base Addr 4 */
-	u8	res24[4];
-	u32	rowar4;		/* RIO Outbound Attrs 4 */
-	u8	res25[12];
-	u32	rowtar5;	/* RIO Outbound Window Translation Addr 5 */
-	u8	res26[4];
-	u32	rowbar5;	/* RIO Outbound Window Base Addr 5 */
-	u8	res27[4];
-	u32	rowar5;		/* RIO Outbound Attrs 5 */
-	u8	res28[12];
-	u32	rowtar6;	/* RIO Outbound Window Translation Addr 6 */
-	u8	res29[4];
-	u32	rowbar6;	/* RIO Outbound Window Base Addr 6 */
-	u8	res30[4];
-	u32	rowar6;		/* RIO Outbound Attrs 6 */
-	u8	res31[12];
-	u32	rowtar7;	/* RIO Outbound Window Translation Addr 7 */
-	u8	res32[4];
-	u32	rowbar7;	/* RIO Outbound Window Base Addr 7 */
-	u8	res33[4];
-	u32	rowar7;		/* RIO Outbound Attrs 7 */
-	u8	res34[12];
-	u32	rowtar8;	/* RIO Outbound Window Translation Addr 8 */
-	u8	res35[4];
-	u32	rowbar8;	/* RIO Outbound Window Base Addr 8 */
-	u8	res36[4];
-	u32	rowar8;		/* RIO Outbound Attrs 8 */
-	u8	res37[76];
-	u32	riwtar4;	/* RIO Inbound Window Translation Addr 4 */
-	u8	res38[4];
-	u32	riwbar4;	/* RIO Inbound Window Base Addr 4 */
-	u8	res39[4];
-	u32	riwar4;		/* RIO Inbound Attrs 4 */
-	u8	res40[12];
-	u32	riwtar3;	/* RIO Inbound Window Translation Addr 3 */
-	u8	res41[4];
-	u32	riwbar3;	/* RIO Inbound Window Base Addr 3 */
-	u8	res42[4];
-	u32	riwar3;		/* RIO Inbound Attrs 3 */
-	u8	res43[12];
-	u32	riwtar2;	/* RIO Inbound Window Translation Addr 2 */
-	u8	res44[4];
-	u32	riwbar2;	/* RIO Inbound Window Base Addr 2 */
-	u8	res45[4];
-	u32	riwar2;		/* RIO Inbound Attrs 2 */
-	u8	res46[12];
-	u32	riwtar1;	/* RIO Inbound Window Translation Addr 1 */
-	u8	res47[4];
-	u32	riwbar1;	/* RIO Inbound Window Base Addr 1 */
-	u8	res48[4];
-	u32	riwar1;		/* RIO Inbound Attrs 1 */
-	u8	res49[12];
-	u32	riwtar0;	/* RIO Inbound Window Translation Addr 0 */
-	u8	res50[12];
-	u32	riwar0;		/* RIO Inbound Attrs 0 */
-	u8	res51[12];
-	u32	pnfedr;		/* Port Notification/Fatal Error Detect */
-	u32	pnfedir;	/* Port Notification/Fatal Error Detect */
-	u32	pnfeier;	/* Port Notification/Fatal Error IRQ Enable */
-	u32	pecr;		/* Port Error Control */
-	u32	pepcsr0;	/* Port Error Packet/Control Symbol 0 */
-	u32	pepr1;		/* Port Error Packet 1 */
-	u32	pepr2;		/* Port Error Packet 2 */
-	u8	res52[4];
-	u32	predr;		/* Port Recoverable Error Detect */
-	u8	res53[4];
-	u32	pertr;		/* Port Error Recovery Threshold */
-	u32	prtr;		/* Port Retry Threshold */
-	u8	res54[464];
-	u32	omr;		/* Outbound Mode */
-	u32	osr;		/* Outbound Status */
-	u32	eodqtpar;	/* Extended Outbound Desc Queue Tail Ptr Addr */
-	u32	odqtpar;	/* Outbound Desc Queue Tail Ptr Addr */
-	u32	eosar;		/* Extended Outbound Unit Source Addr */
-	u32	osar;		/* Outbound Unit Source Addr */
-	u32	odpr;		/* Outbound Destination Port */
-	u32	odatr;		/* Outbound Destination Attrs */
-	u32	odcr;		/* Outbound Doubleword Count */
-	u32	eodqhpar;	/* Extended Outbound Desc Queue Head Ptr Addr */
-	u32	odqhpar;	/* Outbound Desc Queue Head Ptr Addr */
-	u8	res55[52];
-	u32	imr;		/* Outbound Mode */
-	u32	isr;		/* Inbound Status */
-	u32	eidqtpar;	/* Extended Inbound Desc Queue Tail Ptr Addr */
-	u32	idqtpar;	/* Inbound Desc Queue Tail Ptr Addr */
-	u32	eifqhpar;	/* Extended Inbound Frame Queue Head Ptr Addr */
-	u32	ifqhpar;	/* Inbound Frame Queue Head Ptr Addr */
-	u8	res56[1000];
-	u32	dmr;		/* Doorbell Mode */
-	u32	dsr;		/* Doorbell Status */
-	u32	edqtpar;	/* Extended Doorbell Queue Tail Ptr Addr */
-	u32	dqtpar;		/* Doorbell Queue Tail Ptr Addr */
-	u32	edqhpar;	/* Extended Doorbell Queue Head Ptr Addr */
-	u32	dqhpar;		/* Doorbell Queue Head Ptr Addr */
-	u8	res57[104];
-	u32	pwmr;		/* Port-Write Mode */
-	u32	pwsr;		/* Port-Write Status */
-	u32	epwqbar;	/* Extended Port-Write Queue Base Addr */
-	u32	pwqbar;		/* Port-Write Queue Base Addr */
-	u8	res58[60176];
-} ccsr_rio_t;
+	u32	hbdidlcsr;	/* Host Base Device ID Lock CSR */
+	u32	ctcsr;	/* Component Tag CSR */
+};
+
+/* Extended Features Space: 1x/4x LP-Serial Port registers */
+struct rio_lp_serial_port {
+	u32	plmreqcsr;	/* Port Link Maintenance Request CSR */
+	u32	plmrespcsr;	/* Port Link Maintenance Response CS */
+	u32	plascsr;	/* Port Local Ackid Status CSR */
+	u8	res0[12];
+	u32	pescsr;	/* Port Error and Status CSR */
+	u32	pccsr;	/* Port Control CSR */
+};
+
+/* Extended Features Space: 1x/4x LP-Serial registers */
+struct rio_lp_serial {
+	u32	pmbh0csr;	/* Port Maintenance Block Header 0 CSR */
+	u8	res0[28];
+	u32	pltoccsr;	/* Port Link Time-out CCSR */
+	u32	prtoccsr;	/* Port Response Time-out CCSR */
+	u8	res1[20];
+	u32	pgccsr;	/* Port General CSR */
+	struct rio_lp_serial_port	port[CONFIG_SYS_FSL_SRIO_MAX_PORTS];
+};
+
+/* Logical error reporting registers */
+struct rio_logical_err {
+	u32	erbh;	/* Error Reporting Block Header Register */
+	u8	res0[4];
+	u32	ltledcsr;	/* Logical/Transport layer error DCSR */
+	u32	ltleecsr;	/* Logical/Transport layer error ECSR */
+	u8	res1[4];
+	u32	ltlaccsr;	/* Logical/Transport layer ACCSR */
+	u32	ltldidccsr;	/* Logical/Transport layer DID CCSR */
+	u32	ltlcccsr;	/* Logical/Transport layer control CCSR */
+};
+
+/* Physical error reporting port registers */
+struct rio_phys_err_port {
+	u32	edcsr;	/* Port error detect CSR */
+	u32	erecsr;	/* Port error rate enable CSR */
+	u32	ecacsr;	/* Port error capture attributes CSR */
+	u32	pcseccsr0;	/* Port packet/control symbol ECCSR 0 */
+	u32	peccsr[3];	/* Port error capture CSR */
+	u8	res0[12];
+	u32	ercsr;	/* Port error rate CSR */
+	u32	ertcsr;	/* Port error rate threshold CSR */
+	u8	res1[16];
+};
+
+/* Physical error reporting registers */
+struct rio_phys_err {
+	struct rio_phys_err_port	port[CONFIG_SYS_FSL_SRIO_MAX_PORTS];
+};
+
+/* Implementation Space: General Port-Common */
+struct rio_impl_common {
+	u8	res0[4];
+	u32	llcr;	/* Logical Layer Configuration Register */
+	u8	res1[8];
+	u32	epwisr;	/* Error / Port-Write Interrupt SR */
+	u8	res2[12];
+	u32	lretcr;	/* Logical Retry Error Threshold CR */
+	u8	res3[92];
+	u32	pretcr;	/* Physical Retry Erorr Threshold CR */
+	u8	res4[124];
+};
+
+/* Implementation Space: Port Specific */
+struct rio_impl_port_spec {
+	u32	adidcsr;	/* Port Alt. Device ID CSR */
+	u8	res0[28];
+	u32	ptaacr;	/* Port Pass-Through/Accept-All CR */
+	u32	lopttlcr;
+	u8	res1[8];
+	u32	iecsr;	/* Port Implementation Error CSR */
+	u8	res2[12];
+	u32	pcr;		/* Port Phsyical Configuration Register */
+	u8	res3[20];
+	u32	slcsr;	/* Port Serial Link CSR */
+	u8	res4[4];
+	u32	sleicr;	/* Port Serial Link Error Injection */
+	u32	a0txcr;	/* Port Arbitration 0 Tx CR */
+	u32	a1txcr;	/* Port Arbitration 1 Tx CR */
+	u32	a2txcr;	/* Port Arbitration 2 Tx CR */
+	u32	mreqtxbacr[3];	/* Port Request Tx Buffer ACR */
+	u32	mrspfctxbacr;	/* Port Response/Flow Control Tx Buffer ACR */
+};
+
+/* Implementation Space: register */
+struct rio_implement {
+	struct rio_impl_common	com;
+	struct rio_impl_port_spec	port[CONFIG_SYS_FSL_SRIO_MAX_PORTS];
+};
+
+/* Revision Control Register */
+struct rio_rev_ctrl {
+	u32	ipbrr[2];	/* IP Block Revision Register */
+};
+
+struct rio_atmu_row {
+	u32	rowtar; /* RapidIO Outbound Window TAR */
+	u32	rowtear; /* RapidIO Outbound Window TEAR */
+	u32	rowbar;
+	u8	res0[4];
+	u32	rowar; /* RapidIO Outbound Attributes Register */
+	u32	rowsr[3]; /* Port RapidIO outbound window segment register */
+};
+
+struct rio_atmu_riw {
+	u32	riwtar; /* RapidIO Inbound Window Translation AR */
+	u8	res0[4];
+	u32	riwbar; /* RapidIO Inbound Window Base AR */
+	u8	res1[4];
+	u32	riwar; /* RapidIO Inbound Attributes Register */
+	u8	res2[12];
+};
+
+/* ATMU window registers */
+struct rio_atmu_win {
+	struct rio_atmu_row	outbw[CONFIG_SYS_FSL_SRIO_OB_WIN_NUM];
+	u8	res0[64];
+	struct rio_atmu_riw	inbw[CONFIG_SYS_FSL_SRIO_IB_WIN_NUM];
+};
+
+struct rio_atmu {
+	struct rio_atmu_win	port[CONFIG_SYS_FSL_SRIO_MAX_PORTS];
+};
+
+#ifdef CONFIG_SYS_FSL_RMU
+struct rio_msg {
+	u32	omr; /* Outbound Mode Register */
+	u32	osr; /* Outbound Status Register */
+	u32	eodqdpar; /* Extended Outbound DQ DPAR */
+	u32	odqdpar; /* Outbound Descriptor Queue DPAR */
+	u32	eosar; /* Extended Outbound Unit Source AR */
+	u32	osar; /* Outbound Unit Source AR */
+	u32	odpr; /* Outbound Destination Port Register */
+	u32	odatr; /* Outbound Destination Attributes Register */
+	u32	odcr; /* Outbound Doubleword Count Register */
+	u32	eodqepar; /* Extended Outbound DQ EPAR */
+	u32	odqepar; /* Outbound Descriptor Queue EPAR */
+	u32	oretr; /* Outbound Retry Error Threshold Register */
+	u32	omgr; /* Outbound Multicast Group Register */
+	u32	omlr; /* Outbound Multicast List Register */
+	u8	res0[40];
+	u32	imr;	 /* Outbound Mode Register */
+	u32	isr; /* Inbound Status Register */
+	u32	eidqdpar; /* Extended Inbound Descriptor Queue DPAR */
+	u32	idqdpar; /* Inbound Descriptor Queue DPAR */
+	u32	eifqepar; /* Extended Inbound Frame Queue EPAR */
+	u32	ifqepar; /* Inbound Frame Queue EPAR */
+	u32	imirir; /* Inbound Maximum Interrutp RIR */
+	u8	res1[4];
+	u32 eihqepar; /* Extended inbound message header queue EPAR */
+	u32 ihqepar; /* Inbound message header queue EPAR */
+	u8	res2[120];
+};
+
+struct rio_dbell {
+	u32	odmr; /* Outbound Doorbell Mode Register */
+	u32	odsr; /* Outbound Doorbell Status Register */
+	u8	res0[16];
+	u32	oddpr; /* Outbound Doorbell Destination Port */
+	u32	oddatr; /* Outbound Doorbell Destination AR */
+	u8	res1[12];
+	u32	oddretr; /* Outbound Doorbell Retry Threshold CR */
+	u8	res2[48];
+	u32	idmr; /* Inbound Doorbell Mode Register */
+	u32	idsr;	 /* Inbound Doorbell Status Register */
+	u32	iedqdpar; /* Extended Inbound Doorbell Queue DPAR */
+	u32	iqdpar; /* Inbound Doorbell Queue DPAR */
+	u32	iedqepar; /* Extended Inbound Doorbell Queue EPAR */
+	u32	idqepar; /* Inbound Doorbell Queue EPAR */
+	u32	idmirir; /* Inbound Doorbell Max Interrupt RIR */
+};
+
+struct rio_pw {
+	u32	pwmr; /* Port-Write Mode Register */
+	u32	pwsr; /* Port-Write Status Register */
+	u32	epwqbar; /* Extended Port-Write Queue BAR */
+	u32	pwqbar; /* Port-Write Queue Base Address Register */
+};
+#endif
+
+/* RapidIO Registers */
+struct ccsr_rio {
+	struct rio_arch	arch;
+	u8	res0[144];
+	struct rio_lp_serial	lp_serial;
+	u8	res1[1152];
+	struct rio_logical_err	logical_err;
+	u8	res2[32];
+	struct rio_phys_err	phys_err;
+	u8	res3[63808];
+	struct rio_implement	impl;
+	u8	res4[2552];
+	struct rio_rev_ctrl	rev;
+	struct rio_atmu	atmu;
+#ifdef CONFIG_SYS_FSL_RMU
+	u8	res5[8192];
+	struct rio_msg	msg[CONFIG_SYS_FSL_SRIO_MSG_UNIT_NUM];
+	u8	res6[512];
+	struct rio_dbell	dbell;
+	u8	res7[100];
+	struct rio_pw	pw;
+#endif
+};
+#endif
 
 /* Quick Engine Block Pin Muxing Registers */
 typedef struct par_io {
