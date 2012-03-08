@@ -57,5 +57,8 @@ enum atmu_size {
 extern void srio_init(void);
 #ifdef CONFIG_SRIOBOOT_MASTER
 extern void srio_boot_master(void);
+#ifdef CONFIG_SRIOBOOT_SLAVE_HOLDOFF
+extern void srio_boot_master_release_slave(void);
+#endif
 #endif
 #endif

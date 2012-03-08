@@ -444,6 +444,9 @@ skip_l2:
 	srio_init();
 #ifdef CONFIG_SRIOBOOT_MASTER
 	srio_boot_master();
+#ifdef CONFIG_SRIOBOOT_SLAVE_HOLDOFF
+	srio_boot_master_release_slave();
+#endif
 #endif
 #endif
 
