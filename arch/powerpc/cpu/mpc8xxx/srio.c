@@ -150,5 +150,22 @@ void srio_boot_master(void)
 			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[2].riwar,
 			SRIO_IB_ATMU_AR
 			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_UCODE_SIZE));
+
+	/* configure inbound window for slave's ENV */
+	debug("SRIOBOOT - MASTER: Inbound window for slave's ENV; "
+			"Local = 0x%llx, Siro = 0x%llx, Size = 0x%x\n",
+			CONFIG_SRIOBOOT_SLAVE_ENV_LAW_PHYS,
+			CONFIG_SRIOBOOT_SLAVE_ENV_SRIO_PHYS,
+			CONFIG_SRIOBOOT_SLAVE_ENV_SIZE);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[3].riwtar,
+			CONFIG_SRIOBOOT_SLAVE_ENV_LAW_PHYS >> 12);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[3].riwbar,
+			CONFIG_SRIOBOOT_SLAVE_ENV_SRIO_PHYS >> 12);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[3].riwar,
+			SRIO_IB_ATMU_AR
+			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_ENV_SIZE));
 }
 #endif
