@@ -21,6 +21,10 @@
 #include <config.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
+#include <asm/fsl_srio.h>
+
+#define SRIO_PORT_ACCEPT_ALL 0x10000001
+#define SRIO_IB_ATMU_AR 0x80f55000
 
 #if defined(CONFIG_FSL_CORENET)
 	#define _DEVDISR_SRIO1 FSL_CORENET_DEVDISR_SRIO1
@@ -84,3 +88,50 @@ void srio_init(void)
 		setbits_be32(&gur->devdisr, _DEVDISR_RMU);
 	}
 }
+
+#ifdef CONFIG_SRIOBOOT_MASTER
+void srio_boot_master(void)
+{
+	struct ccsr_rio *srio = (void *)CONFIG_SYS_FSL_SRIO_ADDR;
+
+	/* set port accept-all */
+	out_be32((void *)&srio->impl.port[CONFIG_SRIOBOOT_MASTER_PORT].ptaacr,
+				SRIO_PORT_ACCEPT_ALL);
+
+	debug("SRIOBOOT - MASTER: Master port [ %d ] for srio boot.\n",
+			CONFIG_SRIOBOOT_MASTER_PORT);
+	/* configure inbound window5 for slave's u-boot image */
+	debug("SRIOBOOT - MASTER: Inbound window 5 for slave's image; "
+			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
+			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS1,
+			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS1,
+			CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[0].riwtar,
+			CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS1 >> 12);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[0].riwbar,
+			CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS1 >> 12);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[0].riwar,
+			SRIO_IB_ATMU_AR
+			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE));
+
+	/* configure inbound window4 for slave's u-boot image */
+	debug("SRIOBOOT - MASTER: Inbound window 4 for slave's image; "
+			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
+			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS2,
+			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS2,
+			CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[1].riwtar,
+			CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS2 >> 12);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[1].riwbar,
+			CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS2 >> 12);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[1].riwar,
+			SRIO_IB_ATMU_AR
+			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE));
+}
+#endif

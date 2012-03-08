@@ -37,6 +37,7 @@
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
+#include <asm/fsl_srio.h>
 #include <linux/compiler.h>
 #include "mp.h"
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
@@ -47,8 +48,6 @@
 #include "../../../../drivers/block/fsl_sata.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-extern void srio_init(void);
 
 #ifdef CONFIG_QE
 extern qe_iop_conf_t qe_iop_conf_tab[];
@@ -443,6 +442,9 @@ skip_l2:
 
 #ifdef CONFIG_SYS_SRIO
 	srio_init();
+#ifdef CONFIG_SRIOBOOT_MASTER
+	srio_boot_master();
+#endif
 #endif
 
 #if defined(CONFIG_MP)

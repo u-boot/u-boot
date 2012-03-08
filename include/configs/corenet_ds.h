@@ -375,6 +375,24 @@
 #define CONFIG_SYS_SRIO2_MEM_SIZE	0x10000000	/* 256M */
 
 /*
+ * SRIOBOOT - MASTER
+ */
+#ifdef CONFIG_SRIOBOOT_MASTER
+/* master port for srioboot*/
+#define CONFIG_SRIOBOOT_MASTER_PORT 0
+/* #define CONFIG_SRIOBOOT_MASTER_PORT 1 */
+/*
+ * for slave u-boot IMAGE instored in master memory space,
+ * PHYS must be aligned based on the SIZE
+ */
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS1 0xfef080000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS1 0xfff80000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE 0x80000	/* 512K */
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS2 0xfef080000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS2 0x3fff80000ull
+#endif
+
+/*
  * eSPI - Enhanced SPI
  */
 #define CONFIG_FSL_ESPI
