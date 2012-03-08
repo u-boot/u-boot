@@ -100,8 +100,8 @@ void srio_boot_master(void)
 
 	debug("SRIOBOOT - MASTER: Master port [ %d ] for srio boot.\n",
 			CONFIG_SRIOBOOT_MASTER_PORT);
-	/* configure inbound window5 for slave's u-boot image */
-	debug("SRIOBOOT - MASTER: Inbound window 5 for slave's image; "
+	/* configure inbound window for slave's u-boot image */
+	debug("SRIOBOOT - MASTER: Inbound window for slave's image; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
 			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS1,
 			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS1,
@@ -117,8 +117,8 @@ void srio_boot_master(void)
 			SRIO_IB_ATMU_AR
 			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE));
 
-	/* configure inbound window4 for slave's u-boot image */
-	debug("SRIOBOOT - MASTER: Inbound window 4 for slave's image; "
+	/* configure inbound window for slave's u-boot image */
+	debug("SRIOBOOT - MASTER: Inbound window for slave's image; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
 			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS2,
 			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS2,
@@ -133,5 +133,22 @@ void srio_boot_master(void)
 			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[1].riwar,
 			SRIO_IB_ATMU_AR
 			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE));
+
+	/* configure inbound window for slave's ucode */
+	debug("SRIOBOOT - MASTER: Inbound window for slave's ucode; "
+			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
+			(u64)CONFIG_SRIOBOOT_SLAVE_UCODE_LAW_PHYS,
+			(u64)CONFIG_SRIOBOOT_SLAVE_UCODE_SRIO_PHYS,
+			CONFIG_SRIOBOOT_SLAVE_UCODE_SIZE);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[2].riwtar,
+			CONFIG_SRIOBOOT_SLAVE_UCODE_LAW_PHYS >> 12);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[2].riwbar,
+			CONFIG_SRIOBOOT_SLAVE_UCODE_SRIO_PHYS >> 12);
+	out_be32((void *)&srio->atmu
+			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[2].riwar,
+			SRIO_IB_ATMU_AR
+			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_UCODE_SIZE));
 }
 #endif
