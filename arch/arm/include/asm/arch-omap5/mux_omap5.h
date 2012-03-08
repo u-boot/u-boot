@@ -34,7 +34,7 @@ struct pad_conf_entry {
 
 	u16 val;
 
-} __attribute__ ((__packed__));
+};
 
 #ifdef CONFIG_OFF_PADCONF
 #define OFF_PD          (1 << 12)
