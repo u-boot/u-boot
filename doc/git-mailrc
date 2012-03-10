@@ -51,7 +51,7 @@ alias tegra          uboot, Simon Glass <sjg@chromium.org>, Tom Warren <twarren@
 alias tegra2         tegra
 alias ti             uboot, Sandeep Paulraj <s-paulraj@ti.com>, Tom Rini <trini@ti.com>
 
-alias avr32          uboot, reinhardm
+alias avr32          uboot, Andreas Bießmann <andreas.devel@googlemail.com>
 
 alias bfin           uboot, vapier
 alias blackfin       bfin
