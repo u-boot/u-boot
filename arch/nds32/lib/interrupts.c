@@ -91,7 +91,7 @@ void show_regs(struct pt_regs *regs)
 	printf("D1H: %08lx  D1L: %08lx  D0H: %08lx  D0L: %08lx\n",
 		regs->d1hi, regs->d1lo, regs->d0hi, regs->d0lo);
 	printf("r27: %08lx  r26: %08lx  r25: %08lx  r24: %08lx\n",
-		regs->r[27], regs->r[26], regs->r[25], regs->r[24]);
+		regs->p1, regs->p0, regs->r[25], regs->r[24]);
 	printf("r23: %08lx  r22: %08lx  r21: %08lx  r20: %08lx\n",
 		regs->r[23], regs->r[22], regs->r[21], regs->r[20]);
 	printf("r19: %08lx  r18: %08lx  r17: %08lx  r16: %08lx\n",

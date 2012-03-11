@@ -38,6 +38,8 @@ struct pt_regs {
 	NDS32_REG d1hi;
 	NDS32_REG d1lo;
 	NDS32_REG r[26];	/* r0 - r25 */
+	NDS32_REG p0;		/* r26 - used by OS */
+	NDS32_REG p1;		/* r27 - used by OS */
 	NDS32_REG fp;		/* r28 */
 	NDS32_REG gp;		/* r29 */
 	NDS32_REG lp;		/* r30 */
