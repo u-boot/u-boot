@@ -48,31 +48,76 @@
  */
 
 #ifdef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
-
-const struct emif_regs emif_regs_elpida_532_mhz_1cs = {
-	.sdram_config_init		= 0x80801aB2,
-	.sdram_config			= 0x808022B2,
+const struct emif_regs emif_regs_elpida_532_mhz_2cs = {
+	.sdram_config_init		= 0x80800EBA,
+	.sdram_config			= 0x808022BA,
 	.ref_ctrl			= 0x0000081A,
 	.sdram_tim1			= 0x772F6873,
-	.sdram_tim2			= 0x304A129A,
-	.sdram_tim3			= 0x02F7E45F,
+	.sdram_tim2			= 0x304a129a,
+	.sdram_tim3			= 0x02f7e45f,
 	.read_idle_ctrl			= 0x00050000,
-	.zq_config			= 0x000B3215,
-	.temp_alert_config		= 0x08000A05,
-	.emif_ddr_phy_ctlr_1_init	= 0x0E38200D,
-	.emif_ddr_phy_ctlr_1		= 0x0E38200D
+	.zq_config			= 0x000b3215,
+	.temp_alert_config		= 0x08000a05,
+	.emif_ddr_phy_ctlr_1_init	= 0x0E28420d,
+	.emif_ddr_phy_ctlr_1		= 0x0E28420d,
+	.emif_ddr_ext_phy_ctrl_1	= 0x04020080,
+	.emif_ddr_ext_phy_ctrl_2	= 0x28C518A3,
+	.emif_ddr_ext_phy_ctrl_3	= 0x518A3146,
+	.emif_ddr_ext_phy_ctrl_4	= 0x0014628C,
+	.emif_ddr_ext_phy_ctrl_5	= 0x04010040
 };
 
-const struct dmm_lisa_map_regs lisa_map_4G_x_1_x_2 = {
-	.dmm_lisa_map_0 = 0xFF020100,
+const struct emif_regs emif_regs_elpida_266_mhz_2cs = {
+	.sdram_config_init		= 0x80800EBA,
+	.sdram_config			= 0x808022BA,
+	.ref_ctrl			= 0x0000040D,
+	.sdram_tim1			= 0x2A86B419,
+	.sdram_tim2			= 0x1025094A,
+	.sdram_tim3			= 0x026BA22F,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x000b3215,
+	.temp_alert_config		= 0x08000a05,
+	.emif_ddr_phy_ctlr_1_init	= 0x0E28420d,
+	.emif_ddr_phy_ctlr_1		= 0x0E28420d,
+	.emif_ddr_ext_phy_ctrl_1	= 0x04020080,
+	.emif_ddr_ext_phy_ctrl_2	= 0x0A414829,
+	.emif_ddr_ext_phy_ctrl_3	= 0x14829052,
+	.emif_ddr_ext_phy_ctrl_4	= 0x000520A4,
+	.emif_ddr_ext_phy_ctrl_5	= 0x04010040
+};
+
+const struct dmm_lisa_map_regs lisa_map_4G_x_2_x_2 = {
+	.dmm_lisa_map_0 = 0x0,
 	.dmm_lisa_map_1 = 0,
 	.dmm_lisa_map_2 = 0,
-	.dmm_lisa_map_3 = 0x80640300
+	.dmm_lisa_map_3 = 0x80740300
+};
+
+const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
+	0x01004010,
+	0x00001004,
+	0x04010040,
+	0x01004010,
+	0x00001004,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x80080080,
+	0x00800800,
+	0x08102040,
+	0x00000001,
+	0x540A8150,
+	0xA81502a0,
+	0x002A0540,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000077
 };
 
 static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 {
-	*regs = &emif_regs_elpida_532_mhz_1cs;
+	*regs = &emif_regs_elpida_532_mhz_2cs;
 }
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 	__attribute__((weak, alias("emif_get_reg_dump_sdp")));
@@ -80,7 +125,7 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 static void emif_get_dmm_regs_sdp(const struct dmm_lisa_map_regs
 						**dmm_lisa_regs)
 {
-	*dmm_lisa_regs = &lisa_map_4G_x_1_x_2;
+	*dmm_lisa_regs = &lisa_map_4G_x_2_x_2;
 }
 
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
@@ -101,9 +146,7 @@ static void emif_get_device_details_sdp(u32 emif_nr,
 {
 	/* EMIF1 & EMIF2 have identical configuration */
 	*cs0_device_details = elpida_4G_S4_details;
-
-	/* Nothing is conected on cs1 */
-	cs1_device_details = NULL;
+	*cs1_device_details = elpida_4G_S4_details;
 }
 
 void emif_get_device_details(u32 emif_nr,
@@ -167,7 +210,7 @@ void emif_get_device_timings_sdp(u32 emif_nr,
 {
 	/* Identical devices on EMIF1 & EMIF2 */
 	*cs0_device_timings = &elpida_4G_S4_timings;
-	*cs1_device_timings = NULL;
+	*cs1_device_timings = &elpida_4G_S4_timings;
 }
 
 void emif_get_device_timings(u32 emif_nr,

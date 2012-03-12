@@ -459,6 +459,7 @@ void freq_update_core(void)
 {
 	u32 freq_config1 = 0;
 	const struct dpll_params *core_dpll_params;
+	u32 omap_rev = omap_revision();
 
 	core_dpll_params = get_core_dpll_params();
 	/* Put EMIF clock domain in sw wakeup mode */
@@ -484,11 +485,18 @@ void freq_update_core(void)
 		hang();
 	}
 
-	/* Put EMIF clock domain back in hw auto mode */
-	enable_clock_domain(&prcm->cm_memif_clkstctrl,
-				CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
-	wait_for_clk_enable(&prcm->cm_memif_emif_1_clkctrl);
-	wait_for_clk_enable(&prcm->cm_memif_emif_2_clkctrl);
+	/*
+	 * Putting EMIF in HW_AUTO is seen to be causing issues with
+	 * EMIF clocks and the master DLL. Put EMIF in SW_WKUP
+	 * in OMAP5430 ES1.0 silicon
+	 */
+	if (omap_rev != OMAP5430_ES1_0) {
+		/* Put EMIF clock domain back in hw auto mode */
+		enable_clock_domain(&prcm->cm_memif_clkstctrl,
+					CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
+		wait_for_clk_enable(&prcm->cm_memif_emif_1_clkctrl);
+		wait_for_clk_enable(&prcm->cm_memif_emif_2_clkctrl);
+	}
 }
 
 void bypass_dpll(u32 *const base)

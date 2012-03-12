@@ -530,6 +530,8 @@
 	(DMM_SDRC_INTL_NONE << EMIF_SDRC_INTL_SHIFT)|\
 	(0xFF << EMIF_SYS_ADDR_SHIFT))
 
+#define EMIF_EXT_PHY_CTRL_TIMING_REG	0x5
+#define EMIF_EXT_PHY_CTRL_CONST_REG	0x13
 
 /* Reg mapping structure */
 struct emif_reg_struct {
@@ -580,10 +582,64 @@ struct emif_reg_struct {
 	u32 emif_zq_config;
 	u32 emif_temp_alert_config;
 	u32 emif_l3_err_log;
-	u32 padding6[4];
+	u32 emif_rd_wr_lvl_rmp_win;
+	u32 emif_rd_wr_lvl_rmp_ctl;
+	u32 emif_rd_wr_lvl_ctl;
+	u32 padding6[1];
 	u32 emif_ddr_phy_ctrl_1;
 	u32 emif_ddr_phy_ctrl_1_shdw;
 	u32 emif_ddr_phy_ctrl_2;
+	u32 padding7[12];
+	u32 emif_rd_wr_exec_thresh;
+	u32 padding8[55];
+	u32 emif_ddr_ext_phy_ctrl_1;
+	u32 emif_ddr_ext_phy_ctrl_1_shdw;
+	u32 emif_ddr_ext_phy_ctrl_2;
+	u32 emif_ddr_ext_phy_ctrl_2_shdw;
+	u32 emif_ddr_ext_phy_ctrl_3;
+	u32 emif_ddr_ext_phy_ctrl_3_shdw;
+	u32 emif_ddr_ext_phy_ctrl_4;
+	u32 emif_ddr_ext_phy_ctrl_4_shdw;
+	u32 emif_ddr_ext_phy_ctrl_5;
+	u32 emif_ddr_ext_phy_ctrl_5_shdw;
+	u32 emif_ddr_ext_phy_ctrl_6;
+	u32 emif_ddr_ext_phy_ctrl_6_shdw;
+	u32 emif_ddr_ext_phy_ctrl_7;
+	u32 emif_ddr_ext_phy_ctrl_7_shdw;
+	u32 emif_ddr_ext_phy_ctrl_8;
+	u32 emif_ddr_ext_phy_ctrl_8_shdw;
+	u32 emif_ddr_ext_phy_ctrl_9;
+	u32 emif_ddr_ext_phy_ctrl_9_shdw;
+	u32 emif_ddr_ext_phy_ctrl_10;
+	u32 emif_ddr_ext_phy_ctrl_10_shdw;
+	u32 emif_ddr_ext_phy_ctrl_11;
+	u32 emif_ddr_ext_phy_ctrl_11_shdw;
+	u32 emif_ddr_ext_phy_ctrl_12;
+	u32 emif_ddr_ext_phy_ctrl_12_shdw;
+	u32 emif_ddr_ext_phy_ctrl_13;
+	u32 emif_ddr_ext_phy_ctrl_13_shdw;
+	u32 emif_ddr_ext_phy_ctrl_14;
+	u32 emif_ddr_ext_phy_ctrl_14_shdw;
+	u32 emif_ddr_ext_phy_ctrl_15;
+	u32 emif_ddr_ext_phy_ctrl_15_shdw;
+	u32 emif_ddr_ext_phy_ctrl_16;
+	u32 emif_ddr_ext_phy_ctrl_16_shdw;
+	u32 emif_ddr_ext_phy_ctrl_17;
+	u32 emif_ddr_ext_phy_ctrl_17_shdw;
+	u32 emif_ddr_ext_phy_ctrl_18;
+	u32 emif_ddr_ext_phy_ctrl_18_shdw;
+	u32 emif_ddr_ext_phy_ctrl_19;
+	u32 emif_ddr_ext_phy_ctrl_19_shdw;
+	u32 emif_ddr_ext_phy_ctrl_20;
+	u32 emif_ddr_ext_phy_ctrl_20_shdw;
+	u32 emif_ddr_ext_phy_ctrl_21;
+	u32 emif_ddr_ext_phy_ctrl_21_shdw;
+	u32 emif_ddr_ext_phy_ctrl_22;
+	u32 emif_ddr_ext_phy_ctrl_22_shdw;
+	u32 emif_ddr_ext_phy_ctrl_23;
+	u32 emif_ddr_ext_phy_ctrl_23_shdw;
+	u32 emif_ddr_ext_phy_ctrl_24;
+	u32 emif_ddr_ext_phy_ctrl_24_shdw;
 };
 
 struct dmm_lisa_map_regs {
@@ -592,6 +648,8 @@ struct dmm_lisa_map_regs {
 	u32 dmm_lisa_map_2;
 	u32 dmm_lisa_map_3;
 };
+
+extern const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
 
 #define CS0	0
 #define CS1	1
@@ -748,7 +806,11 @@ struct dmm_lisa_map_regs {
 #define DPD_ENABLE	1
 
 /* Maximum delay before Low Power Modes */
+#ifndef CONFIG_OMAP54XX
 #define REG_CS_TIM		0xF
+#else
+#define REG_CS_TIM		0x0
+#endif
 #define REG_SR_TIM		0xF
 #define REG_PD_TIM		0xF
 
@@ -776,7 +838,7 @@ struct dmm_lisa_map_regs {
 /* EMIF_L3_CONFIG register value */
 #define EMIF_L3_CONFIG_VAL_SYS_10_LL_0	0x0A0000FF
 #define EMIF_L3_CONFIG_VAL_SYS_10_MPU_3_LL_0	0x0A300000
-#define EMIF_L3_CONFIG_VAL_SYS_10_MPU_5_LL_0	0x0A300000
+#define EMIF_L3_CONFIG_VAL_SYS_10_MPU_5_LL_0	0x0A500000
 
 /*
  * Value of bits 12:31 of DDR_PHY_CTRL_1 register:
@@ -798,6 +860,7 @@ struct dmm_lisa_map_regs {
 *		: So nWR is don't care
 */
 #define MR1_BL_8_BT_SEQ_WRAP_EN_NWR_3	0x23
+#define MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8	0xc3
 
 /* MR2 */
 #define MR2_RL3_WL1			1
@@ -1005,6 +1068,11 @@ struct emif_regs {
 	u32 temp_alert_config;
 	u32 emif_ddr_phy_ctlr_1_init;
 	u32 emif_ddr_phy_ctlr_1;
+	u32 emif_ddr_ext_phy_ctrl_1;
+	u32 emif_ddr_ext_phy_ctrl_2;
+	u32 emif_ddr_ext_phy_ctrl_3;
+	u32 emif_ddr_ext_phy_ctrl_4;
+	u32 emif_ddr_ext_phy_ctrl_5;
 };
 
 /* assert macros */
