@@ -32,7 +32,7 @@ COBJS-$(CONFIG_POST_STD_LIST)	+= tests.o
 SPLIB-$(CONFIG_HAS_POST) = drivers/libpostdrivers.o
 SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d lib_$(ARCH) ]; then echo \
 			    "lib_$(ARCH)/libpost$(ARCH).o"; fi)
-SPLIB-$(CONFIG_SYS_POST_FPU) += $(shell if [ -d lib_$(ARCH)/fpu ]; then echo \
+SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d lib_$(ARCH)/fpu ]; then echo \
 			    "lib_$(ARCH)/fpu/libpost$(ARCH)fpu.o"; fi)
 SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d cpu/$(CPU) ]; then echo \
 			    "cpu/$(CPU)/libpost$(CPU).o"; fi)
