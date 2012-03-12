@@ -34,7 +34,32 @@ int twl6035_i2c_read_u8(u8 chip_no, u8 *val, u8 reg)
 	return i2c_read(chip_no, reg, 1, val, 1);
 }
 
+/* To align with i2c mw/mr address, reg, val command syntax */
+static inline int palmas_write_u8(u8 chip_no, u8 reg, u8 val)
+{
+	return i2c_write(chip_no, reg, 1, &val, 1);
+}
+
+static inline int palmas_read_u8(u8 chip_no, u8 reg, u8 *val)
+{
+	return i2c_read(chip_no, reg, 1, val, 1);
+}
+
 void twl6035_init_settings(void)
 {
+	return;
+}
+
+void twl6035_mmc1_poweron_ldo(void)
+{
+	u8 val = 0;
+
+	/* set LDO9 TWL6035 to 3V */
+	val = 0x2b; /* (3 -.9)*28 +1 */
+	palmas_write_u8(0x48, LDO9_VOLTAGE, val);
+
+	/* TURN ON LDO9 */
+	val = LDO_ON | LDO_MODE_SLEEP | LDO_MODE_ACTIVE;
+	palmas_write_u8(0x48, LDO9_CTRL, val);
 	return;
 }
