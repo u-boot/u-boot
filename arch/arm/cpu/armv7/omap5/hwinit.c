@@ -160,3 +160,17 @@ void init_omap_revision(void)
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;
 	}
 }
+
+void reset_cpu(ulong ignored)
+{
+	u32 omap_rev = omap_revision();
+
+	/*
+	 * WARM reset is not functional in case of OMAP5430 ES1.0 soc.
+	 * So use cold reset in case instead.
+	 */
+	if (omap_rev == OMAP5430_ES1_0)
+		writel(PRM_RSTCTRL_RESET << 0x1, PRM_RSTCTRL);
+	else
+		writel(PRM_RSTCTRL_RESET, PRM_RSTCTRL);
+}
