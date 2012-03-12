@@ -59,8 +59,8 @@ void do_io_settings(void)
 	u32 lpddr2io;
 	struct control_lpddr2io_regs *lpddr2io_regs =
 		(struct control_lpddr2io_regs *)LPDDR2_IO_REGS_BASE;
-	struct omap4_sys_ctrl_regs *const ctrl =
-		(struct omap4_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
+	struct omap_sys_ctrl_regs *const ctrl =
+		(struct omap_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
 
 	u32 omap4_rev = omap_revision();
 

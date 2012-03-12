@@ -45,8 +45,8 @@ static struct mmc hsmmc_dev[2];
 static void omap4_vmmc_pbias_config(struct mmc *mmc)
 {
 	u32 value = 0;
-	struct omap4_sys_ctrl_regs *const ctrl =
-		(struct omap4_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
+	struct omap_sys_ctrl_regs *const ctrl =
+		(struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
 
 
 	value = readl(&ctrl->control_pbiaslite);

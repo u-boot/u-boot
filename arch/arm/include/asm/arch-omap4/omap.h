@@ -139,18 +139,20 @@ struct s32ktimer {
 	unsigned int s32k_cr;	/* 0x10 */
 };
 
-struct omap4_sys_ctrl_regs {
+struct omap_sys_ctrl_regs {
 	unsigned int pad1[129];
 	unsigned int control_id_code;			/* 0x4A002204 */
 	unsigned int pad11[22];
 	unsigned int control_std_fuse_opp_bgap;		/* 0x4a002260 */
-	unsigned int pad2[47];
+	unsigned int pad2[24];				/* 0x4a002264 */
+	unsigned int control_status;			/* 0x4a0022c4 */
+	unsigned int pad3[22];				/* 0x4a0022c8 */
 	unsigned int control_ldosram_iva_voltage_ctrl;	/* 0x4A002320 */
 	unsigned int control_ldosram_mpu_voltage_ctrl;	/* 0x4A002324 */
 	unsigned int control_ldosram_core_voltage_ctrl;	/* 0x4A002328 */
-	unsigned int pad3[260277];
+	unsigned int pad4[260277];
 	unsigned int control_pbiaslite;                 /* 0x4A100600 */
-	unsigned int pad4[63];
+	unsigned int pad5[63];
 	unsigned int control_efuse_1;			/* 0x4A100700 */
 	unsigned int control_efuse_2;			/* 0x4A100704 */
 };

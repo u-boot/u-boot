@@ -136,9 +136,10 @@ struct s32ktimer {
 	unsigned int s32k_cr;	/* 0x10 */
 };
 
-#define OMAP5_IOREGS_BASE	0x4A002DA0
-
-struct omap5_sys_ctrl_regs {
+struct omap_sys_ctrl_regs {
+	u32 pad0[77]; /* 0x4A002000 */
+	u32 control_status; /* 0x4A002134 */
+	u32 pad1[794]; /* 0x4A002138 */
 	u32 control_paconf_global; /* 0x4A002DA0 */
 	u32 control_paconf_mode;  /* 0x4A002DA4 */
 	u32 control_smart1io_padconf_0; /* 0x4A002DA8 */
@@ -149,7 +150,7 @@ struct omap5_sys_ctrl_regs {
 	u32 control_smart2io_padconf_2; /* 0x4A002DBC */
 	u32 control_smart3io_padconf_0; /* 0x4A002DC0 */
 	u32 control_smart3io_padconf_1; /* 0x4A002DC4 */
-	u32 pad1[14];
+	u32 pad2[14];
 	u32 control_pbias; /* 0x4A002E00 */
 	u32 control_i2c_0; /* 0x4A002E04 */
 	u32 control_camera_rx; /* 0x4A002E08 */
@@ -160,7 +161,7 @@ struct omap5_sys_ctrl_regs {
 	u32 control_usb2phycore; /* 0x4A002E1C */
 	u32 control_hdmi_1; /*0x4A002E20*/
 	u32 control_hsi; /*0x4A002E24*/
-	u32 pad2[2];
+	u32 pad3[2];
 	u32 control_ddr3ch1_0; /*0x4A002E30*/
 	u32 control_ddr3ch2_0; /*0x4A002E34*/
 	u32 control_ddrch1_0;	/*0x4A002E38*/
@@ -183,7 +184,7 @@ struct omap5_sys_ctrl_regs {
 	u32 control_srcomp_east_side; /*0x4A002E7C*/
 	u32 control_srcomp_west_side; /*0x4A002E80*/
 	u32 control_srcomp_code_latch; /*0x4A002E84*/
-	u32 pad3[3680198];
+	u32 pad4[3680198];
 	u32 control_smart1nopmio_padconf_0; /* 0x4AE0CDA0 */
 	u32 control_smart1nopmio_padconf_1; /* 0x4AE0CDA4 */
 	u32 control_padconf_mode; /* 0x4AE0CDA8 */

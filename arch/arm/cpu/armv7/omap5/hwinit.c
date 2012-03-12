@@ -58,8 +58,8 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
 void do_io_settings(void)
 {
 	u32 io_settings = 0, mask = 0;
-	struct omap5_sys_ctrl_regs *ioregs_base =
-			(struct omap5_sys_ctrl_regs *) OMAP5_IOREGS_BASE;
+	struct omap_sys_ctrl_regs *ioregs_base =
+		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
 
 	/* Impedance settings EMMC, C2C 1,2, hsi2 */
 	mask = (ds_mask << 2) | (ds_mask << 8) |
