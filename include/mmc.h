@@ -47,6 +47,9 @@
 #define MMC_MODE_SPI		0x400
 #define MMC_MODE_HC		0x800
 
+#define MMC_MODE_MASK_WIDTH_BITS (MMC_MODE_4BIT | MMC_MODE_8BIT)
+#define MMC_MODE_WIDTH_BITS_SHIFT 8
+
 #define SD_DATA_4BIT	0x00040000
 
 #define IS_SD(x) (x->version & SD_VERSION_SD)
