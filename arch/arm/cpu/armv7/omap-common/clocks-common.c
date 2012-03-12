@@ -245,6 +245,11 @@ void configure_mpu_dpll(void)
 			CM_CLKSEL_DCC_EN_MASK);
 	}
 
+	setbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+		MPU_CLKCTRL_CLKSEL_EMIF_DIV_MODE_MASK);
+	setbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+		MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK);
+
 	params = get_mpu_dpll_params();
 
 	do_setup_dpll(&prcm->cm_clkmode_dpll_mpu, params, DPLL_LOCK, "mpu");
