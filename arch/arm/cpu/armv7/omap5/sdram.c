@@ -1,5 +1,5 @@
 /*
- * Timing and Organization details of the Elpida parts used in OMAP5
+ * Timing and Organization details of the ddr device parts used in OMAP5
  * EVM
  *
  * (C) Copyright 2010
@@ -48,7 +48,7 @@
  */
 
 #ifdef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
-const struct emif_regs emif_regs_elpida_532_mhz_2cs = {
+const struct emif_regs emif_regs_532_mhz_2cs = {
 	.sdram_config_init		= 0x80800EBA,
 	.sdram_config			= 0x808022BA,
 	.ref_ctrl			= 0x0000081A,
@@ -67,7 +67,7 @@ const struct emif_regs emif_regs_elpida_532_mhz_2cs = {
 	.emif_ddr_ext_phy_ctrl_5	= 0x04010040
 };
 
-const struct emif_regs emif_regs_elpida_266_mhz_2cs = {
+const struct emif_regs emif_regs_266_mhz_2cs = {
 	.sdram_config_init		= 0x80800EBA,
 	.sdram_config			= 0x808022BA,
 	.ref_ctrl			= 0x0000040D,
@@ -117,7 +117,7 @@ const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
 
 static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 {
-	*regs = &emif_regs_elpida_532_mhz_2cs;
+	*regs = &emif_regs_532_mhz_2cs;
 }
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 	__attribute__((weak, alias("emif_get_reg_dump_sdp")));
@@ -133,11 +133,11 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 
 #else
 
-static const struct lpddr2_device_details elpida_4G_S4_details = {
+static const struct lpddr2_device_details dev_4G_S4_details = {
 	.type		= LPDDR2_TYPE_S4,
 	.density	= LPDDR2_DENSITY_4Gb,
 	.io_width	= LPDDR2_IO_WIDTH_32,
-	.manufacturer	= LPDDR2_MANUFACTURER_ELPIDA
+	.manufacturer	= LPDDR2_MANUFACTURER_SAMSUNG
 };
 
 static void emif_get_device_details_sdp(u32 emif_nr,
@@ -145,8 +145,8 @@ static void emif_get_device_details_sdp(u32 emif_nr,
 		struct lpddr2_device_details *cs1_device_details)
 {
 	/* EMIF1 & EMIF2 have identical configuration */
-	*cs0_device_details = elpida_4G_S4_details;
-	*cs1_device_details = elpida_4G_S4_details;
+	*cs0_device_details = dev_4G_S4_details;
+	*cs1_device_details = dev_4G_S4_details;
 }
 
 void emif_get_device_details(u32 emif_nr,
@@ -180,7 +180,7 @@ static const struct lpddr2_ac_timings timings_jedec_532_mhz = {
 	.tFAW		= 50
 };
 
-static const struct lpddr2_min_tck min_tck_elpida = {
+static const struct lpddr2_min_tck min_tck = {
 	.tRL		= 3,
 	.tRP_AB		= 3,
 	.tRCD		= 3,
@@ -195,13 +195,13 @@ static const struct lpddr2_min_tck min_tck_elpida = {
 	.tFAW		= 8
 };
 
-static const struct lpddr2_ac_timings *elpida_ac_timings[MAX_NUM_SPEEDBINS] = {
+static const struct lpddr2_ac_timings *ac_timings[MAX_NUM_SPEEDBINS] = {
 	&timings_jedec_532_mhz
 };
 
-static const struct lpddr2_device_timings elpida_4G_S4_timings = {
-	.ac_timings	= elpida_ac_timings,
-	.min_tck	= &min_tck_elpida,
+static const struct lpddr2_device_timings dev_4G_S4_timings = {
+	.ac_timings	= ac_timings,
+	.min_tck	= &min_tck,
 };
 
 void emif_get_device_timings_sdp(u32 emif_nr,
@@ -209,8 +209,8 @@ void emif_get_device_timings_sdp(u32 emif_nr,
 		const struct lpddr2_device_timings **cs1_device_timings)
 {
 	/* Identical devices on EMIF1 & EMIF2 */
-	*cs0_device_timings = &elpida_4G_S4_timings;
-	*cs1_device_timings = &elpida_4G_S4_timings;
+	*cs0_device_timings = &dev_4G_S4_timings;
+	*cs1_device_timings = &dev_4G_S4_timings;
 }
 
 void emif_get_device_timings(u32 emif_nr,
