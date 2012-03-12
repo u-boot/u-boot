@@ -49,8 +49,10 @@
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* Clock Defines */
-#define V_OSCK	38400000 /* Clock output from T2 */
+#define V_OSCK			19200000	/* Clock output from T2 */
 #define V_SCLK	V_OSCK
+#define CONFIG_SYS_CLOCKS_ENABLE_ALL	1	/* Enable all clocks */
+#define CONFIG_SYS_ENABLE_PADS_ALL	1	/* Enable all PADS for now */
 
 #undef CONFIG_USE_IRQ	/* no support for IRQs */
 #define CONFIG_MISC_INIT_R
@@ -97,10 +99,6 @@
 #define CONFIG_DRIVER_OMAP34XX_I2C
 #define CONFIG_I2C_MULTI_BUS
 
-/* TWL6030 */
-#define CONFIG_TWL6030_POWER
-#define CONFIG_CMD_BAT
-
 /* MMC */
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC
@@ -112,13 +110,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
 #define CONFIG_ENV_OFFSET		0xE0000
 
-/* USB */
-#define CONFIG_MUSB_UDC
-#define CONFIG_USB_OMAP3
-
-/* USB device configuration */
-#define CONFIG_USB_DEVICE
-#define CONFIG_USB_TTY
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* Flash */
@@ -154,7 +145,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
-	"console=ttyS2,115200n8\0" \
+	"console=ttyO2,115200n8\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
 	"mmcdev=0\0" \
@@ -250,8 +241,8 @@
 
 /* Defines for SPL */
 #define CONFIG_SPL
-#define CONFIG_SPL_TEXT_BASE		0x40304350
-#define CONFIG_SPL_MAX_SIZE		0x1E000	/* 120K */
+#define CONFIG_SPL_TEXT_BASE		0x40300350
+#define CONFIG_SPL_MAX_SIZE		0x19000	/* 100K */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
