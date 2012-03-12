@@ -226,8 +226,8 @@
 #define EMIF_REG_CS_TIM_MASK			(0xf << 0)
 
 /* PWR_MGMT_CTRL_SHDW */
-#define EMIF_REG_PD_TIM_SHDW_SHIFT			8
-#define EMIF_REG_PD_TIM_SHDW_MASK			(0xf << 8)
+#define EMIF_REG_PD_TIM_SHDW_SHIFT			12
+#define EMIF_REG_PD_TIM_SHDW_MASK			(0xf << 12)
 #define EMIF_REG_SR_TIM_SHDW_SHIFT			4
 #define EMIF_REG_SR_TIM_SHDW_MASK			(0xf << 4)
 #define EMIF_REG_CS_TIM_SHDW_SHIFT			0
