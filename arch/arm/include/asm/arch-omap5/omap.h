@@ -249,7 +249,7 @@ struct omap5_sys_ctrl_regs {
  * Non-secure RAM starts at 0x40300000 for GP devices. But we keep SRAM_BASE
  * at 0x40304000(EMU base) so that our code works for both EMU and GP
  */
-#define NON_SECURE_SRAM_START	0x40304000
+#define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40320000	/* Not inclusive */
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4031F000
