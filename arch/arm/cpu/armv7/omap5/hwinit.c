@@ -155,6 +155,7 @@ void init_omap_revision(void)
 	switch (rev) {
 	case MIDR_CORTEX_A15_R0P0:
 		*omap5_revision = OMAP5430_ES1_0;
+		break;
 	default:
 		*omap5_revision = OMAP5430_SILICON_ID_INVALID;
 	}
