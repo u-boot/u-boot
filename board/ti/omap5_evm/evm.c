@@ -23,7 +23,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include <twl6030.h>
+#include <twl6035.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 
@@ -63,8 +63,8 @@ int board_eth_init(bd_t *bis)
  */
 int misc_init_r(void)
 {
-#ifdef CONFIG_TWL6030_POWER
-	twl6030_init_battery_charging();
+#ifdef CONFIG_TWL6035_POWER
+	twl6035_init_settings();
 #endif
 	return 0;
 }
