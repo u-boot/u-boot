@@ -1316,7 +1316,7 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 	/* cope with automagic for some standard requests. */
 	dev->req_std = (usb_ctrl->bRequestType & USB_TYPE_MASK)
 		== USB_TYPE_STANDARD;
-	dev->req_config = 0;
+
 	dev->req_pending = 1;
 
 	/* Handle some SETUP packets ourselves */
@@ -1337,10 +1337,9 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 			DEBUG_SETUP("%s: USB_REQ_SET_CONFIGURATION (%d)\n",
 					__func__, usb_ctrl->wValue);
 
-			if (usb_ctrl->bRequestType == USB_RECIP_DEVICE) {
+			if (usb_ctrl->bRequestType == USB_RECIP_DEVICE)
 				reset_available = 1;
-				dev->req_config = 1;
-			}
+
 			break;
 
 		case USB_REQ_GET_DESCRIPTOR:
@@ -1352,10 +1351,9 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 			DEBUG_SETUP("%s: *** USB_REQ_SET_INTERFACE (%d)\n",
 					__func__, usb_ctrl->wValue);
 
-			if (usb_ctrl->bRequestType == USB_RECIP_INTERFACE) {
+			if (usb_ctrl->bRequestType == USB_RECIP_INTERFACE)
 				reset_available = 1;
-				dev->req_config = 1;
-			}
+
 			break;
 
 		case USB_REQ_GET_CONFIGURATION:
@@ -1404,12 +1402,6 @@ void s3c_ep0_setup(struct s3c_udc *dev)
 		spin_lock(&dev->lock);
 
 		if (i < 0) {
-			if (dev->req_config) {
-				DEBUG_SETUP("\tconfig change 0x%02x fail %d?\n",
-					(u32)usb_ctrl->bRequest, i);
-				return;
-			}
-
 			/* setup processing failed, force stall */
 			s3c_udc_ep0_set_stall(ep);
 			dev->ep0state = WAIT_FOR_SETUP;

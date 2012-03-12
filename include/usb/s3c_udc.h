@@ -102,7 +102,7 @@ struct s3c_udc {
 
 	unsigned char usb_address;
 
-	unsigned req_pending:1, req_std:1, req_config:1;
+	unsigned req_pending:1, req_std:1;
 };
 
 extern struct s3c_udc *the_controller;
