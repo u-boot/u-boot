@@ -474,12 +474,11 @@ struct prm {
 	u8 res3[0x1c];
 	u32 clksrc_ctrl;	/* 0x1270 */
 };
-#else /* __ASSEMBLY__ */
-#define PRM_RSTCTRL		0x48307250
-#define PRM_RSTCTRL_RESET	0x04
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 
+#define PRM_RSTCTRL		0x48307250
+#define PRM_RSTCTRL_RESET	0x04
 #define SYSCLKDIV_1		(0x1 << 6)
 #define SYSCLKDIV_2		(0x1 << 7)
 

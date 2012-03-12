@@ -1,6 +1,11 @@
 /*
- * Copyright (c) 2009 Samsung Electronics.
- * Minkyu Kang <mk7.kang@samsung.com>
+ *
+ * Common layer for reset related functionality of OMAP based socs.
+ *
+ * (C) Copyright 2012
+ * Texas Instruments, <www.ti.com>
+ *
+ * Sricharan R <r.sricharan@ti.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,19 +25,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
 #include <config.h>
+#include <asm/io.h>
+#include <asm/arch/cpu.h>
+#include <linux/compiler.h>
 
-.global reset_cpu
-reset_cpu:
-	ldr	r1, rstctl			@ get addr for global reset
-						@ reg
-	ldr	r3, rstbit			@ sw reset bit
-	str	r3, [r1]			@ force reset
-	mov	r0, r0
-_loop_forever:
-	b	_loop_forever
-rstctl:
-	.word	PRM_RSTCTRL
-rstbit:
-	.word	PRM_RSTCTRL_RESET
+void __weak reset_cpu(unsigned long ignored)
+{
+	writel(PRM_RSTCTRL_RESET, PRM_RSTCTRL);
+}

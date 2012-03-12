@@ -101,17 +101,6 @@
 #define TCLR_AR			(0x1 << 1)
 #define TCLR_PRE		(0x1 << 5)
 
-/*
- * PRCM
- */
-
-/* PRM */
-#define PRM_BASE		0x4A306000
-#define PRM_DEVICE_BASE		(PRM_BASE + 0x1B00)
-
-#define PRM_RSTCTRL		PRM_DEVICE_BASE
-#define PRM_RSTCTRL_RESET	0x01
-
 /* Control Module */
 #define LDOSRAM_ACTMODE_VSET_IN_MASK	(0x1F << 5)
 #define LDOSRAM_VOLT_CTRL_OVERRIDE	0x0401040f
