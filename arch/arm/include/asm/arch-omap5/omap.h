@@ -136,6 +136,10 @@ struct s32ktimer {
 	unsigned int s32k_cr;	/* 0x10 */
 };
 
+#define DEVICE_TYPE_SHIFT 0x6
+#define DEVICE_TYPE_MASK (0x7 << DEVICE_TYPE_SHIFT)
+#define DEVICE_GP 0x3
+
 struct omap_sys_ctrl_regs {
 	u32 pad0[77]; /* 0x4A002000 */
 	u32 control_status; /* 0x4A002134 */
