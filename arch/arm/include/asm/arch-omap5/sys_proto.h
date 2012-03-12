@@ -115,10 +115,4 @@ static inline u32 omap_hw_init_context(void)
 #endif
 }
 
-static inline u32 omap_revision(void)
-{
-	extern u32 *const omap5_revision;
-	return *omap5_revision;
-}
-
 #endif

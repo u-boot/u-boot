@@ -38,7 +38,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u32 *const omap5_revision = (u32 *)OMAP5_SRAM_SCRATCH_OMAP5_REV;
+u32 *const omap_si_rev = (u32 *)OMAP5_SRAM_SCRATCH_OMAP5_REV;
 
 static struct gpio_bank gpio_bank_54xx[6] = {
 	{ (void *)OMAP54XX_GPIO1_BASE, METHOD_GPIO_24XX },
@@ -154,9 +154,9 @@ void init_omap_revision(void)
 
 	switch (rev) {
 	case MIDR_CORTEX_A15_R0P0:
-		*omap5_revision = OMAP5430_ES1_0;
+		*omap_si_rev = OMAP5430_ES1_0;
 		break;
 	default:
-		*omap5_revision = OMAP5430_SILICON_ID_INVALID;
+		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;
 	}
 }
