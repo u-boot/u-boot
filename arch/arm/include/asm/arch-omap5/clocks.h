@@ -633,12 +633,17 @@ struct omap5_prcm_regs {
 
 /* SMPS */
 #define SMPS_I2C_SLAVE_ADDR	0x12
-#define SMPS_REG_ADDR_VCORE1	0x55
-#define SMPS_REG_ADDR_VCORE2	0x5B
-#define SMPS_REG_ADDR_VCORE3	0x61
+#define SMPS_REG_ADDR_12_MPU	0x23
+#define SMPS_REG_ADDR_45_IVA	0x2B
+#define SMPS_REG_ADDR_8_CORE	0x37
 
-#define PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV		607700
-#define PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV	709000
+/* PALMAS VOLTAGE SETTINGS in mv for OPP_NOMINAL */
+#define VDD_MPU		1000
+#define VDD_MM		1000
+#define VDD_CORE	1040
+
+/* Standard offset is 0.5v expressed in uv */
+#define PALMAS_SMPS_BASE_VOLT_UV 500000
 
 /* TPS */
 #define TPS62361_I2C_SLAVE_ADDR		0x60
@@ -700,6 +705,7 @@ extern const u32 sys_clk_array[8];
 
 void scale_vcores(void);
 void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv);
+u32 get_offset_code(u32 offset);
 u32 omap_ddr_clk(void);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv);
 void setup_post_dividers(u32 *const base, const struct dpll_params *params);

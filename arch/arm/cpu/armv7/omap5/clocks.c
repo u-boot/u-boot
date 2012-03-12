@@ -264,17 +264,31 @@ void scale_vcores(void)
 
 	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
-	/* Enable 1.22V from TPS for vdd_mpu */
-	volt = 1220;
-	do_scale_tps62361(-1, TPS62361_REG_ADDR_SET1, volt);
+	/* Palmas settings */
+	volt = VDD_CORE;
+	do_scale_vcore(SMPS_REG_ADDR_8_CORE, volt);
 
-	/* VCORE 1 - for vdd_core */
-	volt = 1000;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+	volt = VDD_MPU;
+	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt);
 
-	/* VCORE 2 - for vdd_MM */
-	volt = 1125;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
+	volt = VDD_MM;
+	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt);
+
+}
+
+u32 get_offset_code(u32 volt_offset)
+{
+	u32 offset_code, step = 10000; /* 10 mV represented in uV */
+
+	volt_offset -= PALMAS_SMPS_BASE_VOLT_UV;
+
+	offset_code = (volt_offset + step - 1) / step;
+
+	/*
+	 * Offset codes 1-6 all give the base voltage in Palmas
+	 * Offset code 0 switches OFF the SMPS
+	 */
+	return offset_code + 6;
 }
 
 /*

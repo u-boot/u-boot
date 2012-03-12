@@ -326,6 +326,21 @@ void scale_vcores(void)
 	}
 }
 
+u32 get_offset_code(u32 offset)
+{
+	u32 offset_code, step = 12660; /* 12.66 mV represented in uV */
+
+	if (omap_revision() == OMAP4430_ES1_0)
+		offset -= PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV;
+	else
+		offset -= PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV;
+
+	offset_code = (offset + step - 1) / step;
+
+	/* The code starts at 1 not 0 */
+	return ++offset_code;
+}
+
 /*
  * Enable essential clock domains, modules and
  * do some additional special settings needed

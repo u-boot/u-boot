@@ -741,6 +741,7 @@ extern const u32 sys_clk_array[8];
 
 void scale_vcores(void);
 void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv);
+u32 get_offset_code(u32 offset);
 u32 omap_ddr_clk(void);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv);
 void setup_post_dividers(u32 *const base, const struct dpll_params *params);

@@ -397,23 +397,16 @@ void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv)
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
 {
 	u32 offset_code;
-	u32 step = 12660; /* 12.66 mV represented in uV */
 	u32 offset = volt_mv;
 
 	/* convert to uV for better accuracy in the calculations */
 	offset *= 1000;
 
-	if (omap_revision() == OMAP4430_ES1_0)
-		offset -= PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV;
-	else
-		offset -= PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV;
-
-	offset_code = (offset + step - 1) / step;
-	/* The code starts at 1 not 0 */
-	offset_code++;
+	offset_code = get_offset_code(offset);
 
 	debug("do_scale_vcore: volt - %d offset_code - 0x%x\n", volt_mv,
 		offset_code);
+
 	if (omap_vc_bypass_send_value(SMPS_I2C_SLAVE_ADDR,
 				vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
