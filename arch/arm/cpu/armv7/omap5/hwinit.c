@@ -57,6 +57,89 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
  */
 void do_io_settings(void)
 {
+	u32 io_settings = 0, mask = 0;
+	struct omap5_sys_ctrl_regs *ioregs_base =
+			(struct omap5_sys_ctrl_regs *) OMAP5_IOREGS_BASE;
+
+	/* Impedance settings EMMC, C2C 1,2, hsi2 */
+	mask = (ds_mask << 2) | (ds_mask << 8) |
+		(ds_mask << 16) | (ds_mask << 18);
+	io_settings = readl(&(ioregs_base->control_smart1io_padconf_0)) &
+				(~mask);
+	io_settings |= (ds_60_ohm << 8) | (ds_45_ohm << 16) |
+			(ds_45_ohm << 18) | (ds_60_ohm << 2);
+	writel(io_settings, &(ioregs_base->control_smart1io_padconf_0));
+
+	/* Impedance settings Mcspi2 */
+	mask = (ds_mask << 30);
+	io_settings = readl(&(ioregs_base->control_smart1io_padconf_1)) &
+			(~mask);
+	io_settings |= (ds_60_ohm << 30);
+	writel(io_settings, &(ioregs_base->control_smart1io_padconf_1));
+
+	/* Impedance settings C2C 3,4 */
+	mask = (ds_mask << 14) | (ds_mask << 16);
+	io_settings = readl(&(ioregs_base->control_smart1io_padconf_2)) &
+			(~mask);
+	io_settings |= (ds_45_ohm << 14) | (ds_45_ohm << 16);
+	writel(io_settings, &(ioregs_base->control_smart1io_padconf_2));
+
+	/* Slew rate settings EMMC, C2C 1,2 */
+	mask = (sc_mask << 8) | (sc_mask << 16) | (sc_mask << 18);
+	io_settings = readl(&(ioregs_base->control_smart2io_padconf_0)) &
+			(~mask);
+	io_settings |= (sc_fast << 8) | (sc_na << 16) | (sc_na << 18);
+	writel(io_settings, &(ioregs_base->control_smart2io_padconf_0));
+
+	/* Slew rate settings hsi2, Mcspi2 */
+	mask = (sc_mask << 24) | (sc_mask << 28);
+	io_settings = readl(&(ioregs_base->control_smart2io_padconf_1)) &
+			(~mask);
+	io_settings |= (sc_fast << 28) | (sc_fast << 24);
+	writel(io_settings, &(ioregs_base->control_smart2io_padconf_1));
+
+	/* Slew rate settings C2C 3,4 */
+	mask = (sc_mask << 16) | (sc_mask << 18);
+	io_settings = readl(&(ioregs_base->control_smart2io_padconf_2)) &
+			(~mask);
+	io_settings |= (sc_na << 16) | (sc_na << 18);
+	writel(io_settings, &(ioregs_base->control_smart2io_padconf_2));
+
+	/* impedance and slew rate settings for usb */
+	mask = (usb_i_mask << 29) | (usb_i_mask << 26) | (usb_i_mask << 23) |
+		(usb_i_mask << 20) | (usb_i_mask << 17) | (usb_i_mask << 14);
+	io_settings = readl(&(ioregs_base->control_smart3io_padconf_1)) &
+			(~mask);
+	io_settings |= (ds_60_ohm << 29) | (ds_60_ohm << 26) |
+		       (ds_60_ohm << 23) | (sc_fast << 20) |
+		       (sc_fast << 17) | (sc_fast << 14);
+	writel(io_settings, &(ioregs_base->control_smart3io_padconf_1));
+
+	/* LPDDR2 io settings */
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+					&(ioregs_base->control_ddrch1_0));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+					&(ioregs_base->control_ddrch1_1));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+					&(ioregs_base->control_ddrch2_0));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+					&(ioregs_base->control_ddrch2_1));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
+					&(ioregs_base->control_lpddr2ch1_0));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
+					&(ioregs_base->control_lpddr2ch1_1));
+	writel(DDR_IO_0_DDR2_DQ_INT_EN_ALL_DDR3_CA_DIS_ALL,
+					&(ioregs_base->control_ddrio_0));
+	writel(DDR_IO_1_DQ_OUT_EN_ALL_DQ_INT_EN_ALL,
+					&(ioregs_base->control_ddrio_1));
+	writel(DDR_IO_2_CA_OUT_EN_ALL_CA_INT_EN_ALL,
+					&(ioregs_base->control_ddrio_2));
+
+	/* Efuse settings */
+	writel(EFUSE_1, &(ioregs_base->control_efuse_1));
+	writel(EFUSE_2, &(ioregs_base->control_efuse_2));
+	writel(EFUSE_3, &(ioregs_base->control_efuse_3));
+	writel(EFUSE_4, &(ioregs_base->control_efuse_4));
 }
 #endif
 

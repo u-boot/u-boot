@@ -136,32 +136,112 @@ struct s32ktimer {
 	unsigned int s32k_cr;	/* 0x10 */
 };
 
-struct omap4_sys_ctrl_regs {
-	unsigned int pad1[129];
-	unsigned int control_id_code;			/* 0x4A002204 */
-	unsigned int pad11[22];
-	unsigned int control_std_fuse_opp_bgap;		/* 0x4a002260 */
-	unsigned int pad2[47];
-	unsigned int control_ldosram_iva_voltage_ctrl;	/* 0x4A002320 */
-	unsigned int control_ldosram_mpu_voltage_ctrl;	/* 0x4A002324 */
-	unsigned int control_ldosram_core_voltage_ctrl;	/* 0x4A002328 */
-	unsigned int pad3[260277];
-	unsigned int control_pbiaslite;			/* 0x4A100600 */
-	unsigned int pad4[63];
-	unsigned int control_efuse_1;			/* 0x4A100700 */
-	unsigned int control_efuse_2;			/* 0x4A100704 */
+#define OMAP5_IOREGS_BASE	0x4A002DA0
+
+struct omap5_sys_ctrl_regs {
+	u32 control_paconf_global; /* 0x4A002DA0 */
+	u32 control_paconf_mode;  /* 0x4A002DA4 */
+	u32 control_smart1io_padconf_0; /* 0x4A002DA8 */
+	u32 control_smart1io_padconf_1; /* 0x4A002DAC */
+	u32 control_smart1io_padconf_2; /* 0x4A002DB0 */
+	u32 control_smart2io_padconf_0; /* 0x4A002DB4 */
+	u32 control_smart2io_padconf_1; /* 0x4A002DB8 */
+	u32 control_smart2io_padconf_2; /* 0x4A002DBC */
+	u32 control_smart3io_padconf_0; /* 0x4A002DC0 */
+	u32 control_smart3io_padconf_1; /* 0x4A002DC4 */
+	u32 pad1[14];
+	u32 control_pbias; /* 0x4A002E00 */
+	u32 control_i2c_0; /* 0x4A002E04 */
+	u32 control_camera_rx; /* 0x4A002E08 */
+	u32 control_hdmi_tx_phy; /* 0x4A002E0C */
+	u32 control_uniportm; /* 0x4A002E10 */
+	u32 control_dsiphy; /* 0x4A002E14 */
+	u32 control_mcbsplp; /* 0x4A002E18 */
+	u32 control_usb2phycore; /* 0x4A002E1C */
+	u32 control_hdmi_1; /*0x4A002E20*/
+	u32 control_hsi; /*0x4A002E24*/
+	u32 pad2[2];
+	u32 control_ddr3ch1_0; /*0x4A002E30*/
+	u32 control_ddr3ch2_0; /*0x4A002E34*/
+	u32 control_ddrch1_0;	/*0x4A002E38*/
+	u32 control_ddrch1_1;	/*0x4A002E3C*/
+	u32 control_ddrch2_0;	/*0x4A002E40*/
+	u32 control_ddrch2_1;	/*0x4A002E44*/
+	u32 control_lpddr2ch1_0; /*0x4A002E48*/
+	u32 control_lpddr2ch1_1; /*0x4A002E4C*/
+	u32 control_ddrio_0;  /*0x4A002E50*/
+	u32 control_ddrio_1;  /*0x4A002E54*/
+	u32 control_ddrio_2;  /*0x4A002E58*/
+	u32 control_hyst_1; /*0x4A002E5C*/
+	u32 control_usbb_hsic_control; /*0x4A002E60*/
+	u32 control_c2c; /*0x4A002E64*/
+	u32 control_core_control_spare_rw; /*0x4A002E68*/
+	u32 control_core_control_spare_r; /*0x4A002E6C*/
+	u32 control_core_control_spare_r_c0; /*0x4A002E70*/
+	u32 control_srcomp_north_side; /*0x4A002E74*/
+	u32 control_srcomp_south_side; /*0x4A002E78*/
+	u32 control_srcomp_east_side; /*0x4A002E7C*/
+	u32 control_srcomp_west_side; /*0x4A002E80*/
+	u32 control_srcomp_code_latch; /*0x4A002E84*/
+	u32 pad3[3680198];
+	u32 control_smart1nopmio_padconf_0; /* 0x4AE0CDA0 */
+	u32 control_smart1nopmio_padconf_1; /* 0x4AE0CDA4 */
+	u32 control_padconf_mode; /* 0x4AE0CDA8 */
+	u32 control_xtal_oscillator; /* 0x4AE0CDAC */
+	u32 control_i2c_2; /* 0x4AE0CDB0 */
+	u32 control_ckobuffer; /* 0x4AE0CDB4 */
+	u32 control_wkup_control_spare_rw; /* 0x4AE0CDB8 */
+	u32 control_wkup_control_spare_r; /* 0x4AE0CDBC */
+	u32 control_wkup_control_spare_r_c0; /* 0x4AE0CDC0 */
+	u32 control_srcomp_east_side_wkup; /* 0x4AE0CDC4 */
+	u32 control_efuse_1; /* 0x4AE0CDC8 */
+	u32 control_efuse_2; /* 0x4AE0CDCC */
+	u32 control_efuse_3; /* 0x4AE0CDD0 */
+	u32 control_efuse_4; /* 0x4AE0CDD4 */
+	u32 control_efuse_5; /* 0x4AE0CDD8 */
+	u32 control_efuse_6; /* 0x4AE0CDDC */
+	u32 control_efuse_7; /* 0x4AE0CDE0 */
+	u32 control_efuse_8; /* 0x4AE0CDE4 */
+	u32 control_efuse_9; /* 0x4AE0CDE8 */
+	u32 control_efuse_10; /* 0x4AE0CDEC */
+	u32 control_efuse_11; /* 0x4AE0CDF0 */
+	u32 control_efuse_12; /* 0x4AE0CDF4 */
+	u32 control_efuse_13; /* 0x4AE0CDF8 */
 };
 
-struct control_lpddr2io_regs {
-	unsigned int control_lpddr2io1_0;
-	unsigned int control_lpddr2io1_1;
-	unsigned int control_lpddr2io1_2;
-	unsigned int control_lpddr2io1_3;
-	unsigned int control_lpddr2io2_0;
-	unsigned int control_lpddr2io2_1;
-	unsigned int control_lpddr2io2_2;
-	unsigned int control_lpddr2io2_3;
-};
+/* Output impedance control */
+#define ds_120_ohm	0x0
+#define ds_60_ohm	0x1
+#define ds_45_ohm	0x2
+#define ds_30_ohm	0x3
+#define ds_mask		0x3
+
+/* Slew rate control */
+#define sc_slow		0x0
+#define sc_medium	0x1
+#define sc_fast		0x2
+#define sc_na		0x3
+#define sc_mask		0x3
+
+/* Target capacitance control */
+#define lb_5_12_pf	0x0
+#define lb_12_25_pf	0x1
+#define lb_25_50_pf	0x2
+#define lb_50_80_pf	0x3
+#define lb_mask		0x3
+
+#define usb_i_mask	0x7
+
+#define DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN   0x80828082
+#define DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN 0x82828200
+#define DDR_IO_0_DDR2_DQ_INT_EN_ALL_DDR3_CA_DIS_ALL 0x8421
+#define DDR_IO_1_DQ_OUT_EN_ALL_DQ_INT_EN_ALL 0x8421084
+#define DDR_IO_2_CA_OUT_EN_ALL_CA_INT_EN_ALL 0x8421000
+
+#define EFUSE_1 0x45145100
+#define EFUSE_2 0x45145100
+#define EFUSE_3 0x45145100
+#define EFUSE_4 0x45145100
 #endif /* __ASSEMBLY__ */
 
 /*
