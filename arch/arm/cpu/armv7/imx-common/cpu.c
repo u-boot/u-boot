@@ -44,6 +44,7 @@ static char *get_reset_cause(void)
 
 	switch (cause) {
 	case 0x00001:
+	case 0x00011:
 		return "POR";
 	case 0x00004:
 		return "CSU";
