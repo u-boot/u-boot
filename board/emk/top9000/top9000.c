@@ -29,6 +29,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <mmc.h>
+#include <atmel_mci.h>
 #include <i2c.h>
 #include <spi.h>
 #include <asm/io.h>
