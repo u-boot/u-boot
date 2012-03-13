@@ -56,30 +56,6 @@ typedef struct atmel_mci {
 
 #endif /* __ASSEMBLY__ */
 
-/*
- * NOTICE: Use of registers offsets is depreciated.
- * These defines will be removed once the old driver
- * is taken out of commision.
- *
- * Atmel MultiMedia Card Interface (MCI) registers
- */
-#define MMCI_CR					0x0000
-#define MMCI_MR					0x0004
-#define MMCI_DTOR				0x0008
-#define MMCI_SDCR				0x000c
-#define MMCI_ARGR				0x0010
-#define MMCI_CMDR				0x0014
-#define MMCI_RSPR				0x0020
-#define MMCI_RSPR1				0x0024
-#define MMCI_RSPR2				0x0028
-#define MMCI_RSPR3				0x002c
-#define MMCI_RDR				0x0030
-#define MMCI_TDR				0x0034
-#define MMCI_SR					0x0040
-#define MMCI_IER				0x0044
-#define MMCI_IDR				0x0048
-#define MMCI_IMR				0x004c
-
 /* Bitfields in CR */
 #define MMCI_MCIEN_OFFSET			0
 #define MMCI_MCIEN_SIZE				1
@@ -231,17 +207,5 @@ typedef struct atmel_mci {
 	(((old) & ~(((1 << MMCI_##name##_SIZE) - 1)	\
 		    << MMCI_##name##_OFFSET))		\
 	 | MMCI_BF(name,value))
-
-/*
- * NOTICE: Use of registers offsets is depreciated.
- * These defines will be removed once the old driver
- * is taken out of commision.
- *
- * Register access macros
- */
-#define mmci_readl(reg)					\
-	readl((void *)ATMEL_BASE_MMCI + MMCI_##reg)
-#define mmci_writel(reg,value)				\
-	writel((value), (void *)ATMEL_BASE_MMCI + MMCI_##reg)
 
 #endif /* __ATMEL_MCI_H__ */
