@@ -3609,6 +3609,7 @@ go	- start application at address 'addr'
 run	- run commands in an environment variable
 bootm	- boot application image from memory
 bootp	- boot image via network using BootP/TFTP protocol
+bootz   - boot zImage from memory
 tftpboot- boot image via network using TFTP protocol
 	       and env variables "ipaddr" and "serverip"
 	       (and eventually "gatewayip")
@@ -4428,6 +4429,13 @@ U-Boot supports the following image types:
 	U-Boot's command interpreter; this feature is especially
 	useful when you configure U-Boot to use a real shell (hush)
 	as command interpreter.
+
+Booting the Linux zImage:
+-------------------------
+
+On some platforms, it's possible to boot Linux zImage. This is done
+using the "bootz" command. The syntax of "bootz" command is the same
+as the syntax of "bootm" command.
 
 
 Standalone HOWTO:

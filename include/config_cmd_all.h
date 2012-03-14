@@ -20,6 +20,7 @@
 #define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
 #define CONFIG_CMD_BMP		/* BMP support			*/
 #define CONFIG_CMD_BOOTD	/* bootd			*/
+#define CONFIG_CMD_BOOTZ	/* boot zImage			*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
 #define CONFIG_CMD_CACHE	/* icache, dcache		*/
 #define CONFIG_CMD_CDP		/* Cisco Discovery Protocol	*/

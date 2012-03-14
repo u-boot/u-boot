@@ -169,25 +169,25 @@ void arch_preboot_os(void) __attribute__((weak, alias("__arch_preboot_os")));
 
 #define IH_INITRD_ARCH IH_ARCH_DEFAULT
 
-static void bootm_start_lmb(void)
-{
 #ifdef CONFIG_LMB
+static void boot_start_lmb(bootm_headers_t *images)
+{
 	ulong		mem_start;
 	phys_size_t	mem_size;
 
-	lmb_init(&images.lmb);
+	lmb_init(&images->lmb);
 
 	mem_start = getenv_bootm_low();
 	mem_size = getenv_bootm_size();
 
-	lmb_add(&images.lmb, (phys_addr_t)mem_start, mem_size);
+	lmb_add(&images->lmb, (phys_addr_t)mem_start, mem_size);
 
-	arch_lmb_reserve(&images.lmb);
-	board_lmb_reserve(&images.lmb);
-#else
-# define lmb_reserve(lmb, base, size)
-#endif
+	arch_lmb_reserve(&images->lmb);
+	board_lmb_reserve(&images->lmb);
 }
+#else
+static inline void boot_start_lmb(bootm_headers_t *images) { }
+#endif
 
 static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -197,7 +197,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = getenv_yesno("verify");
 
-	bootm_start_lmb();
+	boot_start_lmb(&images);
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_START, "bootm_start");
 
@@ -1518,3 +1518,126 @@ static int do_bootm_integrity(int flag, int argc, char * const argv[],
 	return 1;
 }
 #endif
+
+#ifdef CONFIG_CMD_BOOTZ
+
+static int __bootz_setup(void *image, void **start, void **end)
+{
+	/* Please define bootz_setup() for your platform */
+
+	puts("Your platform's zImage format isn't supported yet!\n");
+	return -1;
+}
+int bootz_setup(void *image, void **start, void **end)
+	__attribute__((weak, alias("__bootz_setup")));
+
+/*
+ * zImage booting support
+ */
+static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[], bootm_headers_t *images)
+{
+	int ret;
+	void *zi_start, *zi_end;
+
+	memset(images, 0, sizeof(bootm_headers_t));
+
+	boot_start_lmb(images);
+
+	/* Setup Linux kernel zImage entry point */
+	if (argc < 2) {
+		images->ep = load_addr;
+		debug("*  kernel: default image load address = 0x%08lx\n",
+				load_addr);
+	} else {
+		images->ep = simple_strtoul(argv[1], NULL, 16);
+		debug("*  kernel: cmdline image address = 0x%08lx\n",
+			images->ep);
+	}
+
+	ret = bootz_setup((void *)images->ep, &zi_start, &zi_end);
+	if (ret != 0)
+		return 1;
+
+	lmb_reserve(&images->lmb, images->ep, zi_end - zi_start);
+
+	/* Find ramdisk */
+	ret = boot_get_ramdisk(argc, argv, images, IH_INITRD_ARCH,
+			&images->rd_start, &images->rd_end);
+	if (ret) {
+		puts("Ramdisk image is corrupt or invalid\n");
+		return 1;
+	}
+
+#if defined(CONFIG_OF_LIBFDT)
+	/* find flattened device tree */
+	ret = boot_get_fdt(flag, argc, argv, images,
+			   &images->ft_addr, &images->ft_len);
+	if (ret) {
+		puts("Could not find a valid device tree\n");
+		return 1;
+	}
+
+	set_working_fdt_addr(images->ft_addr);
+#endif
+
+	return 0;
+}
+
+static int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	ulong		iflag;
+	bootm_headers_t	images;
+
+	if (bootz_start(cmdtp, flag, argc, argv, &images))
+		return 1;
+
+	/*
+	 * We have reached the point of no return: we are going to
+	 * overwrite all exception vector code, so we cannot easily
+	 * recover from any failures any more...
+	 */
+	iflag = disable_interrupts();
+
+#if defined(CONFIG_CMD_USB)
+	/*
+	 * turn off USB to prevent the host controller from writing to the
+	 * SDRAM while Linux is booting. This could happen (at least for OHCI
+	 * controller), because the HCCA (Host Controller Communication Area)
+	 * lies within the SDRAM and the host controller writes continously to
+	 * this area (as busmaster!). The HccaFrameNumber is for example
+	 * updated every 1 ms within the HCCA structure in SDRAM! For more
+	 * details see the OpenHCI specification.
+	 */
+	usb_stop();
+#endif
+
+#ifdef CONFIG_SILENT_CONSOLE
+	fixup_silent_linux();
+#endif
+	arch_preboot_os();
+
+	do_bootm_linux(0, argc, argv, &images);
+#ifdef DEBUG
+	puts("\n## Control returned to monitor - resetting...\n");
+#endif
+	do_reset(cmdtp, flag, argc, argv);
+
+	return 1;
+}
+
+U_BOOT_CMD(
+	bootz,	CONFIG_SYS_MAXARGS,	1,	do_bootz,
+	"boot Linux zImage image from memory",
+	"[addr [initrd] [fdt]]\n    - boot Linux zImage stored in memory\n"
+	"\tThe argument 'initrd' is optional and specifies the address\n"
+	"\tof the initrd in memory.\n"
+#if defined(CONFIG_OF_LIBFDT)
+	"\tWhen booting a Linux kernel which requires a flat device-tree\n"
+	"\ta third argument is required which is the address of the\n"
+	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
+	"\tuse a '-' for the second argument. If you do not pass a third\n"
+	"\ta bd_info struct will be passed instead\n"
+#endif
+);
+#endif	/* CONFIG_CMD_BOOTZ */
