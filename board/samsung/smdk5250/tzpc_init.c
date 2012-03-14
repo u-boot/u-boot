@@ -28,7 +28,7 @@
 /* Setting TZPC[TrustZone Protection Controller] */
 void tzpc_init(void)
 {
-	struct exynos5_tzpc *tzpc;
+	struct exynos_tzpc *tzpc;
 	unsigned int addr;
 
 	for (addr = TZPC0_BASE; addr <= TZPC9_BASE; addr += TZPC_BASE_OFFSET) {
