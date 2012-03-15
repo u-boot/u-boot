@@ -63,6 +63,16 @@ void reset_cpu(ulong ignored)
 		;
 }
 
+void enable_caches(void)
+{
+#ifndef CONFIG_SYS_ICACHE_OFF
+	icache_enable();
+#endif
+#ifndef CONFIG_SYS_DCACHE_OFF
+	dcache_enable();
+#endif
+}
+
 int mx28_wait_mask_set(struct mx28_register_32 *reg, uint32_t mask, int timeout)
 {
 	while (--timeout) {
