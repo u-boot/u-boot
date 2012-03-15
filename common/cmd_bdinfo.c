@@ -119,6 +119,14 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("pevfreq",		bd->bi_pevfreq);
 #endif
 
+#ifdef CONFIG_ENABLE_36BIT_PHYS
+#ifdef CONFIG_PHYS_64BIT
+	puts("addressing  = 36-bit\n");
+#else
+	puts("addressing  = 32-bit\n");
+#endif
+#endif
+
 	print_eth(0);
 #if defined(CONFIG_HAS_ETH1)
 	print_eth(1);
