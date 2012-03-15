@@ -101,7 +101,7 @@ void spl_parse_image_header(const struct image_header *header)
 		/* Signature not found - assume u-boot.bin */
 		printf("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
-		puts("Assuming u-boot.bin ..\n");
+		debug("Assuming u-boot.bin ..\n");
 		/* Let's assume U-Boot will not be more than 200 KB */
 		spl_image.size = 200 * 1024;
 		spl_image.entry_point = CONFIG_SYS_TEXT_BASE;
