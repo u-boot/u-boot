@@ -92,6 +92,7 @@ u32 omap_boot_mode(void);
 /* SPL common function s*/
 void spl_parse_image_header(const struct image_header *header);
 void omap_rev_string(void);
+void spl_board_prepare_for_linux(void);
 
 /* NAND SPL functions */
 void spl_nand_load_image(void);

@@ -73,6 +73,13 @@ int board_init(void)
 	return 0;
 }
 
+/* Configure GPMC registers for DM9000 */
+static void gpmc_dm9000_config(void)
+{
+	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[6],
+		CONFIG_DM9000_BASE, GPMC_SIZE_16M);
+}
+
 /*
  * Routine: misc_init_r
  * Description: Configure board specific parts
@@ -142,6 +149,18 @@ int board_eth_init(bd_t *bis)
 {
 	return dm9000_initialize(bis);
 }
+#endif
+
+#ifdef CONFIG_SPL_OS_BOOT
+/*
+ * Do board specific preperation before SPL
+ * Linux boot
+ */
+void spl_board_prepare_for_linux(void)
+{
+	gpmc_dm9000_config();
+}
+
 #endif
 
 /*
