@@ -41,6 +41,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/dma.h>
 
 struct mxsmmc_priv {
 	int			id;
@@ -49,6 +50,7 @@ struct mxsmmc_priv {
 	uint32_t		*clkctrl_ssp;
 	uint32_t		buswidth;
 	int			(*mmc_is_wp)(int);
+	struct mxs_dma_desc	*desc;
 };
 
 #define	MXSMMC_MAX_TIMEOUT	10000
@@ -64,8 +66,7 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	struct mx28_ssp_regs *ssp_regs = priv->regs;
 	uint32_t reg;
 	int timeout;
-	uint32_t data_count;
-	uint32_t *data_ptr;
+	uint32_t data_count, cache_data_count;
 	uint32_t ctrl0;
 
 	debug("MMC%d: CMD%d\n", mmc->block_dev.dev, cmd->cmdidx);
@@ -183,38 +184,39 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	if (!data)
 		return 0;
 
-	/* Process the data */
 	data_count = data->blocksize * data->blocks;
-	timeout = MXSMMC_MAX_TIMEOUT;
+
+	if (data_count % ARCH_DMA_MINALIGN)
+		cache_data_count = roundup(data_count, ARCH_DMA_MINALIGN);
+	else
+		cache_data_count = data_count;
+
 	if (data->flags & MMC_DATA_READ) {
-		data_ptr = (uint32_t *)data->dest;
-		while (data_count && --timeout) {
-			reg = readl(&ssp_regs->hw_ssp_status);
-			if (!(reg & SSP_STATUS_FIFO_EMPTY)) {
-				*data_ptr++ = readl(&ssp_regs->hw_ssp_data);
-				data_count -= 4;
-				timeout = MXSMMC_MAX_TIMEOUT;
-			} else
-				udelay(1000);
-		}
+		priv->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_WRITE;
+		priv->desc->cmd.address = (dma_addr_t)data->dest;
 	} else {
-		data_ptr = (uint32_t *)data->src;
-		timeout *= 100;
-		while (data_count && --timeout) {
-			reg = readl(&ssp_regs->hw_ssp_status);
-			if (!(reg & SSP_STATUS_FIFO_FULL)) {
-				writel(*data_ptr++, &ssp_regs->hw_ssp_data);
-				data_count -= 4;
-				timeout = MXSMMC_MAX_TIMEOUT;
-			} else
-				udelay(1000);
-		}
+		priv->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_READ;
+		priv->desc->cmd.address = (dma_addr_t)data->src;
+
+		/* Flush data to DRAM so DMA can pick them up */
+		flush_dcache_range((uint32_t)priv->desc->cmd.address,
+			(uint32_t)(priv->desc->cmd.address + cache_data_count));
 	}
 
-	if (!timeout) {
-		printf("MMC%d: Data timeout with command %d (status 0x%08x)!\n",
-			mmc->block_dev.dev, cmd->cmdidx, reg);
+	priv->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
+				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
+
+
+	mxs_dma_desc_append(MXS_DMA_CHANNEL_AHB_APBH_SSP0, priv->desc);
+	if (mxs_dma_go(MXS_DMA_CHANNEL_AHB_APBH_SSP0)) {
+		printf("MMC%d: DMA transfer failed\n", mmc->block_dev.dev);
 		return COMM_ERR;
+	}
+
+	/* The data arrived into DRAM, invalidate cache over them */
+	if (data->flags & MMC_DATA_READ) {
+		invalidate_dcache_range((uint32_t)priv->desc->cmd.address,
+			(uint32_t)(priv->desc->cmd.address + cache_data_count));
 	}
 
 	/* Check data errors */
@@ -270,7 +272,8 @@ static int mxsmmc_init(struct mmc *mmc)
 	/* 8 bits word length in MMC mode */
 	clrsetbits_le32(&ssp_regs->hw_ssp_ctrl1,
 		SSP_CTRL1_SSP_MODE_MASK | SSP_CTRL1_WORD_LENGTH_MASK,
-		SSP_CTRL1_SSP_MODE_SD_MMC | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS);
+		SSP_CTRL1_SSP_MODE_SD_MMC | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS |
+		SSP_CTRL1_DMA_ENABLE);
 
 	/* Set initial bit clock 400 KHz */
 	mx28_set_ssp_busclock(priv->id, 400);
@@ -296,6 +299,13 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 
 	priv = malloc(sizeof(struct mxsmmc_priv));
 	if (!priv) {
+		free(mmc);
+		return -ENOMEM;
+	}
+
+	priv->desc = mxs_dma_desc_alloc();
+	if (!priv->desc) {
+		free(priv);
 		free(mmc);
 		return -ENOMEM;
 	}
@@ -345,7 +355,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 	 */
 	mmc->f_min = 400000;
 	mmc->f_max = mxc_get_clock(MXC_SSP0_CLK + id) * 1000 / 2;
-	mmc->b_max = 0;
+	mmc->b_max = 0x40;
 
 	mmc_register(mmc);
 	return 0;
