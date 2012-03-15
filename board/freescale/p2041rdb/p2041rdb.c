@@ -54,10 +54,6 @@ int checkboard(void)
 	sw = CPLD_READ(fbank_sel);
 	printf("vBank: %d\n", sw & 0x1);
 
-#ifdef CONFIG_PHYS_64BIT
-	puts("36-bit Addressing\n");
-#endif
-
 	/*
 	 * Display the RCW, so that no one gets confused as to what RCW
 	 * we're actually using for this boot.

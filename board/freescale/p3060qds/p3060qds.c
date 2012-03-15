@@ -68,9 +68,6 @@ int checkboard(void)
 	else
 		printf("invalid setting of SW%u\n", PIXIS_LBMAP_SWITCH);
 
-#ifdef CONFIG_PHYS_64BIT
-	puts("36-bit Addressing\n");
-#endif
 	puts("Reset Configuration Word (RCW):");
 	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
 		u32 rcw = in_be32(&gur->rcwsr[i]);
