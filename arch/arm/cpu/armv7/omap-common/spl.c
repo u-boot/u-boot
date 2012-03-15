@@ -124,7 +124,7 @@ static void __noreturn jump_to_image_linux(void *arg)
 		__attribute__ ((noreturn));
 	image_entry_arg_t image_entry =
 		(image_entry_arg_t) spl_image.entry_point;
-	/* cleanup_before_linux(); */ /*write SPL function for that*/
+	cleanup_before_linux();
 	image_entry(0, CONFIG_MACH_TYPE, arg);
 }
 #endif
