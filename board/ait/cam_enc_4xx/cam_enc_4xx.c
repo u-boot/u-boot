@@ -503,7 +503,7 @@ struct fit_images_info {
 	size_t size;
 };
 
-static struct fit_images_info images[10];
+static struct fit_images_info imgs[10];
 
 struct menu_display {
 	char	title[50];
@@ -688,14 +688,14 @@ static int ait_menu_install_images(void)
 	 * img_writeramdisk: write ramdisk to ubi volume
 	 */
 
-	while (images[count].type != IH_TYPE_INVALID) {
+	while (imgs[count].type != IH_TYPE_INVALID) {
 		printf("Installing %s\n",
-			genimg_get_type_name(images[count].type));
-		sprintf(s, "%p", images[count].data);
+			genimg_get_type_name(imgs[count].type));
+		sprintf(s, "%p", imgs[count].data);
 		setenv("img_addr_r", s);
-		sprintf(s, "%lx", (unsigned long)images[count].size);
+		sprintf(s, "%lx", (unsigned long)imgs[count].size);
 		setenv("filesize", s);
-		switch (images[count].subtype) {
+		switch (imgs[count].subtype) {
 		case FIT_SUBTYPE_DF_ENV_IMAGE:
 			ret = run_command2("run img_writedfenv", 0);
 			break;
@@ -865,7 +865,7 @@ static int ait_menu_check_image(void)
 	int found_uboot = -1;
 	int found_ramdisk = -1;
 
-	memset(images, 0, sizeof(images));
+	memset(imgs, 0, sizeof(imgs));
 	s = getenv("fit_addr_r");
 	fit_addr = s ? (unsigned long)simple_strtol(s, NULL, 16) : \
 			CONFIG_BOARD_IMG_ADDR_R;
@@ -911,7 +911,7 @@ static int ait_menu_check_image(void)
 			fit_image_print(addr, noffset, "");
 
 			fit_image_get_type(addr, noffset,
-				&images[count].type);
+				&imgs[count].type);
 			/* Mandatory properties */
 			ret = fit_get_desc(addr, noffset, &desc);
 			printf("Description:  ");
@@ -925,33 +925,33 @@ static int ait_menu_check_image(void)
 			if (ret) {
 				printf("unavailable\n");
 			} else {
-				images[count].subtype = ait_subtype_nr(subtype);
+				imgs[count].subtype = ait_subtype_nr(subtype);
 				printf("%s %d\n", subtype,
-					images[count].subtype);
+					imgs[count].subtype);
 			}
 
-			sprintf(images[count].desc, "%s", desc);
+			sprintf(imgs[count].desc, "%s", desc);
 
 			ret = fit_image_get_data(addr, noffset,
-				&images[count].data,
-				&images[count].size);
+				&imgs[count].data,
+				&imgs[count].size);
 
 			printf("Data Size:    ");
 			if (ret)
 				printf("unavailable\n");
 			else
-				genimg_print_size(images[count].size);
-			printf("Data @ %p\n", images[count].data);
+				genimg_print_size(imgs[count].size);
+			printf("Data @ %p\n", imgs[count].data);
 			count++;
 		}
 	}
 
 	for (i = 0; i < count; i++) {
-		if (images[i].subtype == FIT_SUBTYPE_UBOOT_IMAGE)
+		if (imgs[i].subtype == FIT_SUBTYPE_UBOOT_IMAGE)
 			found_uboot = i;
-		if (images[i].type == IH_TYPE_RAMDISK) {
+		if (imgs[i].type == IH_TYPE_RAMDISK) {
 			found_ramdisk = i;
-			images[i].subtype = FIT_SUBTYPE_RAMDISK_IMAGE;
+			imgs[i].subtype = FIT_SUBTYPE_RAMDISK_IMAGE;
 		}
 	}
 
@@ -959,31 +959,31 @@ static int ait_menu_check_image(void)
 	if (found_uboot >= 0) {
 		s = getenv("dvn_boot_vers");
 		if (s) {
-			ret = strcmp(s, images[found_uboot].desc);
+			ret = strcmp(s, imgs[found_uboot].desc);
 			if (ret != 0) {
 				setenv("dvn_boot_vers",
-					images[found_uboot].desc);
+					imgs[found_uboot].desc);
 			} else {
 				found_uboot = -1;
 				printf("no new uboot version\n");
 			}
 		} else {
-			setenv("dvn_boot_vers", images[found_uboot].desc);
+			setenv("dvn_boot_vers", imgs[found_uboot].desc);
 		}
 	}
 	if (found_ramdisk >= 0) {
 		s = getenv("dvn_app_vers");
 		if (s) {
-			ret = strcmp(s, images[found_ramdisk].desc);
+			ret = strcmp(s, imgs[found_ramdisk].desc);
 			if (ret != 0) {
 				setenv("dvn_app_vers",
-					images[found_ramdisk].desc);
+					imgs[found_ramdisk].desc);
 			} else {
 				found_ramdisk = -1;
 				printf("no new ramdisk version\n");
 			}
 		} else {
-			setenv("dvn_app_vers", images[found_ramdisk].desc);
+			setenv("dvn_app_vers", imgs[found_ramdisk].desc);
 		}
 	}
 	if ((found_uboot == -1) && (found_ramdisk == -1))
