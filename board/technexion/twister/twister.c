@@ -136,3 +136,26 @@ int board_mmc_init(bd_t *bis)
 	return omap_mmc_init(0);
 }
 #endif
+
+#ifdef CONFIG_SPL_OS_BOOT
+/*
+ * Do board specific preperation before SPL
+ * Linux boot
+ */
+void spl_board_prepare_for_linux(void)
+{
+	/* init cs for extern lan */
+	enable_gpmc_cs_config(gpmc_smc911, &gpmc_cfg->cs[5],
+		CONFIG_SMC911X_BASE, GPMC_SIZE_16M);
+}
+int spl_start_uboot(void)
+{
+	int val = 0;
+	if (!gpio_request(CONFIG_SPL_OS_BOOT_KEY, "U-Boot key")) {
+		gpio_direction_input(CONFIG_SPL_OS_BOOT_KEY);
+		val = gpio_get_value(CONFIG_SPL_OS_BOOT_KEY);
+		gpio_free(CONFIG_SPL_OS_BOOT_KEY);
+	}
+	return val;
+}
+#endif
