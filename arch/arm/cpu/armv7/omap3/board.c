@@ -92,7 +92,9 @@ u32 omap_boot_device(void)
 
 void spl_board_init(void)
 {
+#ifdef CONFIG_SPL_I2C_SUPPORT
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
 }
 #endif /* CONFIG_SPL_BUILD */
 
