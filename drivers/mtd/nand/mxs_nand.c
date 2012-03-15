@@ -50,6 +50,7 @@ struct mxs_nand_info {
 	int		cur_chip;
 
 	uint32_t	cmd_queue_len;
+	uint32_t	data_buf_size;
 
 	uint8_t		*cmd_buf;
 	uint8_t		*data_buf;
@@ -72,6 +73,36 @@ struct mxs_nand_info {
 };
 
 struct nand_ecclayout fake_ecc_layout;
+
+/*
+ * Cache management functions
+ */
+#ifndef	CONFIG_SYS_DCACHE_OFF
+static void mxs_nand_flush_data_buf(struct mxs_nand_info *info)
+{
+	uint32_t addr = (uint32_t)info->data_buf;
+
+	flush_dcache_range(addr, addr + info->data_buf_size);
+}
+
+static void mxs_nand_inval_data_buf(struct mxs_nand_info *info)
+{
+	uint32_t addr = (uint32_t)info->data_buf;
+
+	invalidate_dcache_range(addr, addr + info->data_buf_size);
+}
+
+static void mxs_nand_flush_cmd_buf(struct mxs_nand_info *info)
+{
+	uint32_t addr = (uint32_t)info->cmd_buf;
+
+	flush_dcache_range(addr, addr + MXS_NAND_COMMAND_BUFFER_SIZE);
+}
+#else
+static inline void mxs_nand_flush_data_buf(struct mxs_nand_info *info) {}
+static inline void mxs_nand_inval_data_buf(struct mxs_nand_info *info) {}
+static inline void mxs_nand_flush_cmd_buf(struct mxs_nand_info *info) {}
+#endif
 
 static struct mxs_dma_desc *mxs_nand_get_dma_desc(struct mxs_nand_info *info)
 {
@@ -286,6 +317,9 @@ static void mxs_nand_cmd_ctrl(struct mtd_info *mtd, int data, unsigned int ctrl)
 
 	mxs_dma_desc_append(channel, d);
 
+	/* Flush caches */
+	mxs_nand_flush_cmd_buf(nand_info);
+
 	/* Execute the DMA chain. */
 	ret = mxs_dma_go(channel);
 	if (ret)
@@ -435,6 +469,9 @@ static void mxs_nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int length)
 		goto rtn;
 	}
 
+	/* Invalidate caches */
+	mxs_nand_inval_data_buf(nand_info);
+
 	memcpy(buf, nand_info->data_buf, length);
 
 rtn:
@@ -483,6 +520,9 @@ static void mxs_nand_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 		length;
 
 	mxs_dma_desc_append(channel, d);
+
+	/* Flush caches */
+	mxs_nand_flush_data_buf(nand_info);
 
 	/* Execute the DMA chain. */
 	ret = mxs_dma_go(channel);
@@ -600,6 +640,9 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 		goto rtn;
 	}
 
+	/* Invalidate caches */
+	mxs_nand_inval_data_buf(nand_info);
+
 	/* Read DMA completed, now do the mark swapping. */
 	mxs_nand_swap_block_mark(mtd, nand_info->data_buf, nand_info->oob_buf);
 
@@ -686,6 +729,9 @@ static void mxs_nand_ecc_write_page(struct mtd_info *mtd,
 	d->cmd.pio_words[5] = (dma_addr_t)nand_info->oob_buf;
 
 	mxs_dma_desc_append(channel, d);
+
+	/* Flush caches */
+	mxs_nand_flush_data_buf(nand_info);
 
 	/* Execute the DMA chain. */
 	ret = mxs_dma_go(channel);
@@ -978,18 +1024,19 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
 	uint8_t *buf;
 	const int size = NAND_MAX_PAGESIZE + NAND_MAX_OOBSIZE;
 
+	nand_info->data_buf_size = roundup(size, MXS_DMA_ALIGNMENT);
+
 	/* DMA buffers */
-	buf = memalign(MXS_DMA_ALIGNMENT, size);
+	buf = memalign(MXS_DMA_ALIGNMENT, nand_info->data_buf_size);
 	if (!buf) {
 		printf("MXS NAND: Error allocating DMA buffers\n");
 		return -ENOMEM;
 	}
 
-	memset(buf, 0, size);
+	memset(buf, 0, nand_info->data_buf_size);
 
 	nand_info->data_buf = buf;
 	nand_info->oob_buf = buf + NAND_MAX_PAGESIZE;
-
 	/* Command buffers */
 	nand_info->cmd_buf = memalign(MXS_DMA_ALIGNMENT,
 				MXS_NAND_COMMAND_BUFFER_SIZE);
