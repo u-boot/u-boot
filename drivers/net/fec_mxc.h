@@ -234,22 +234,6 @@ struct ethernet_regs {
 #endif
 
 /**
- * @brief Descriptor buffer alignment
- *
- * i.MX27 requires a 16 byte alignment (but for the first element only)
- */
-#define DB_ALIGNMENT		16
-
-/**
- * @brief Data buffer alignment
- *
- * i.MX27 requires a four byte alignment for transmit and 16 bits
- * alignment for receive so take 16
- * Note: Valid for member data_pointer in struct buffer_descriptor
- */
-#define DB_DATA_ALIGNMENT	16
-
-/**
  * @brief Receive & Transmit Buffer Descriptor definitions
  *
  * Note: The first BD must be aligned (see DB_ALIGNMENT)
@@ -282,8 +266,7 @@ struct fec_priv {
 	struct fec_bd *tbd_base;	/* TBD ring */
 	int tbd_index;			/* next transmit BD to write */
 	bd_t *bd;
-	void *rdb_ptr;
-	void *base_ptr;
+	uint8_t *tdb_ptr;
 	int dev_id;
 	int phy_id;
 	struct mii_dev *bus;
