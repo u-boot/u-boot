@@ -93,6 +93,21 @@ static int mxs_dma_read_semaphore(int channel)
 	return tmp;
 }
 
+#ifndef	CONFIG_SYS_DCACHE_OFF
+void mxs_dma_flush_desc(struct mxs_dma_desc *desc)
+{
+	uint32_t addr;
+	uint32_t size;
+
+	addr = (uint32_t)desc;
+	size = roundup(sizeof(struct mxs_dma_desc), MXS_DMA_ALIGNMENT);
+
+	flush_dcache_range(addr, addr + size);
+}
+#else
+inline void mxs_dma_flush_desc(struct mxs_dma_desc *desc) {}
+#endif
+
 /*
  * Enable a DMA channel.
  *
@@ -329,8 +344,10 @@ static int mxs_dma_release(int channel)
 struct mxs_dma_desc *mxs_dma_desc_alloc(void)
 {
 	struct mxs_dma_desc *pdesc;
+	uint32_t size;
 
-	pdesc = memalign(MXS_DMA_ALIGNMENT, sizeof(struct mxs_dma_desc));
+	size = roundup(sizeof(struct mxs_dma_desc), MXS_DMA_ALIGNMENT);
+	pdesc = memalign(MXS_DMA_ALIGNMENT, size);
 
 	if (pdesc == NULL)
 		return NULL;
@@ -415,11 +432,15 @@ int mxs_dma_desc_append(int channel, struct mxs_dma_desc *pdesc)
 
 		last->cmd.next = mxs_dma_cmd_address(pdesc);
 		last->cmd.data |= MXS_DMA_DESC_CHAIN;
+
+		mxs_dma_flush_desc(last);
 	}
 	pdesc->flags |= MXS_DMA_DESC_READY;
 	if (pdesc->flags & MXS_DMA_DESC_FIRST)
 		pchan->pending_num++;
 	list_add_tail(&pdesc->node, &pchan->active);
+
+	mxs_dma_flush_desc(pdesc);
 
 	return ret;
 }
