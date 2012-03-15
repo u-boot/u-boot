@@ -3499,7 +3499,7 @@ is done by typing:
 	make NAME_config
 
 where "NAME_config" is the name of one of the existing configu-
-rations; see the main Makefile for supported names.
+rations; see boards.cfg for supported names.
 
 Note: for some board special configuration names may exist; check if
       additional information is available from the board vendor; for
@@ -3554,10 +3554,8 @@ to port U-Boot to your hardware platform. To do this, follow these
 steps:
 
 1.  Add a new configuration option for your board to the toplevel
-    "Makefile" and to the "MAKEALL" script, using the existing
-    entries as examples. Note that here and at many other places
-    boards and other names are listed in alphabetical sort order. Please
-    keep this order.
+    "boards.cfg" file, using the existing entries as examples.
+    Follow the instructions there to keep the boards in order.
 2.  Create a new directory to hold your board specific code. Add any
     files you need. In your board directory, you will need at least
     the "Makefile", a "<board>.c", "flash.c" and "u-boot.lds".
