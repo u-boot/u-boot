@@ -35,7 +35,7 @@
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_DEVKIT8000	1	/* working with DevKit8000 */
-
+#define CONFIG_MACH_TYPE	MACH_TYPE_DEVKIT8000
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
  * 64 bytes before this address should be set aside for u-boot.img's
@@ -327,7 +327,7 @@
 #define CONFIG_SPL_MAX_SIZE		0xB400  /* 45 K */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
-#define CONFIG_SPL_BSS_START_ADDR	0x80000000 /*CONFIG_SYS_SDRAM_BASE*/
+#define CONFIG_SPL_BSS_START_ADDR       0x80000500 /* leave space for bootargs*/
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 /* NAND boot config */
@@ -352,6 +352,9 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
 
 /* SPL OS boot options */
+#define CONFIG_SPL_OS_BOOT
+#define CONFIG_SPL_OS_BOOT_KEY	26
+
 #define CONFIG_CMD_SPL
 #define CONFIG_CMD_SPL_WRITE_SIZE       0x400 /* 1024 byte */
 #define CONFIG_CMD_SPL_NAND_OFS (CONFIG_SYS_NAND_SPL_KERNEL_OFFS+\

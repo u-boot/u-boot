@@ -41,6 +41,7 @@
 #include <asm/arch/mem.h>
 #include <asm/mach-types.h>
 #include "devkit8000.h"
+#include <asm/gpio.h>
 #ifdef CONFIG_DRIVER_DM9000
 #include <net.h>
 #include <netdev.h>
@@ -161,6 +162,23 @@ void spl_board_prepare_for_linux(void)
 	gpmc_dm9000_config();
 }
 
+/*
+ * devkit8000 specific implementation of spl_start_uboot()
+ *
+ * RETURN
+ * 0 if the button is not pressed
+ * 1 if the button is pressed
+ */
+int spl_start_uboot(void)
+{
+	int val = 0;
+	if (!gpio_request(CONFIG_SPL_OS_BOOT_KEY, "U-Boot key")) {
+		gpio_direction_input(CONFIG_SPL_OS_BOOT_KEY);
+		val = gpio_get_value(CONFIG_SPL_OS_BOOT_KEY);
+		gpio_free(CONFIG_SPL_OS_BOOT_KEY);
+	}
+	return !val;
+}
 #endif
 
 /*
