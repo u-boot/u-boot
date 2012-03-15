@@ -29,7 +29,6 @@
 #include <version.h>
 #include <asm/omap_common.h>
 
-
 void spl_nand_load_image(void)
 {
 	struct image_header *header;
@@ -50,7 +49,7 @@ void spl_nand_load_image(void)
 	/*use CONFIG_SYS_TEXT_BASE as temporary storage area */
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
 #ifdef CONFIG_SPL_OS_BOOT
-	if (!spl_uboot_key()) {
+	if (!spl_start_uboot()) {
 		/*
 		 * load parameter image
 		 * load to temp position since nand_spl_load_image reads
@@ -74,31 +73,39 @@ void spl_nand_load_image(void)
 		nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
 			CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
 		spl_parse_image_header(header);
-		nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
-			spl_image.size, (void *)spl_image.load_addr);
-	} else
-#endif
-	{
-#ifdef CONFIG_NAND_ENV_DST
-		nand_spl_load_image(CONFIG_ENV_OFFSET,
-			CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
-		spl_parse_image_header(header);
-		nand_spl_load_image(CONFIG_ENV_OFFSET, spl_image.size,
-			(void *)spl_image.load_addr);
-#ifdef CONFIG_ENV_OFFSET_REDUND
-		nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND,
-			CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
-		spl_parse_image_header(header);
-		nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, spl_image.size,
-			(void *)spl_image.load_addr);
-#endif
-#endif
-		/* Load u-boot */
-		nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-			CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
-		spl_parse_image_header(header);
-		nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-			spl_image.size, (void *)spl_image.load_addr);
+		if (header->ih_os == IH_OS_LINUX) {
+			/* happy - was a linux */
+			nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
+				spl_image.size, (void *)spl_image.load_addr);
+			nand_deselect();
+			return;
+		} else {
+			printf("The Expected Linux image was not"
+				"found. Please check your NAND"
+				"configuration.\n");
+			printf("Trying to start u-boot now...\n");
+		}
 	}
+#endif
+#ifdef CONFIG_NAND_ENV_DST
+	nand_spl_load_image(CONFIG_ENV_OFFSET,
+		CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
+	spl_parse_image_header(header);
+	nand_spl_load_image(CONFIG_ENV_OFFSET, spl_image.size,
+		(void *)spl_image.load_addr);
+#ifdef CONFIG_ENV_OFFSET_REDUND
+	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND,
+		CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
+	spl_parse_image_header(header);
+	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, spl_image.size,
+		(void *)spl_image.load_addr);
+#endif
+#endif
+	/* Load u-boot */
+	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+		CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
+	spl_parse_image_header(header);
+	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+		spl_image.size, (void *)spl_image.load_addr);
 	nand_deselect();
 }
