@@ -173,22 +173,18 @@ void mx28_mem_setup_vddd(void)
 		&power_regs->hw_power_vdddctrl);
 }
 
-void data_abort_memdetect_handler(void) __attribute__((naked));
-void data_abort_memdetect_handler(void)
-{
-	asm volatile("subs pc, r14, #4");
-}
-
 void mx28_mem_get_size(void)
 {
 	struct mx28_digctl_regs *digctl_regs =
 		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
 	uint32_t sz, da;
 	uint32_t *vt = (uint32_t *)0x20;
+	/* The following is "subs pc, r14, #4", used as return from DABT. */
+	const uint32_t data_abort_memdetect_handler = 0xe25ef004;
 
 	/* Replace the DABT handler. */
 	da = vt[4];
-	vt[4] = (uint32_t)&data_abort_memdetect_handler;
+	vt[4] = data_abort_memdetect_handler;
 
 	sz = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
 	writel(sz, &digctl_regs->hw_digctl_scratch0);
