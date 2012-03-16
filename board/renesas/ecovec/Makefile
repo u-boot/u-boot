@@ -25,8 +25,12 @@ LIB = $(obj)lib$(BOARD).o
 COBJS   := ecovec.o
 SOBJS   := lowlevel_init.o
 
-$(LIB): $(obj).depend $(COBJS) $(SOBJS)
-		$(call cmd_link_o_target, $(COBJS) $(SOBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB): $(OBJS) $(SOBJS)
+		$(call cmd_link_o_target, $(OBJS) $(SOBJS))
 
 #########################################################################
 
