@@ -47,6 +47,9 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 	case 1:
 		buf[0] = val & 0xff;
 		break;
+	default:
+		printf("%s: invalid tx_num: %d", __func__, pmic_i2c_tx_num);
+		return -1;
 	}
 
 	if (i2c_write(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num))
@@ -73,6 +76,9 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 	case 1:
 		ret_val = buf[0];
 		break;
+	default:
+		printf("%s: invalid tx_num: %d", __func__, pmic_i2c_tx_num);
+		return -1;
 	}
 	memcpy(val, &ret_val, sizeof(ret_val));
 
