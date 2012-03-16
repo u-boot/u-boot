@@ -44,6 +44,11 @@ PF_CPPFLAGS_ARM := $(call cc-option,-marm,) \
 		$(call cc-option,-mno-thumb-interwork,)
 endif
 
+# Only test once
+ifneq ($(CONFIG_SPL_BUILD),y)
+ALL-$(CONFIG_SYS_THUMB_BUILD)	+= checkthumb
+endif
+
 # Try if EABI is supported, else fall back to old API,
 # i. e. for example:
 # - with ELDK 4.2 (EABI supported), use:
