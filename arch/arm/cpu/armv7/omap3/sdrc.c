@@ -180,7 +180,7 @@ void do_sdrc_init(u32 cs, u32 early)
 		write_sdrc_timings(CS0, sdrc_actim_base0, mcfg, ctrla, ctrlb,
 				rfr_ctrl, mr);
 		make_cs1_contiguous();
-		write_sdrc_timings(CS0, sdrc_actim_base1, mcfg, ctrla, ctrlb,
+		write_sdrc_timings(CS1, sdrc_actim_base1, mcfg, ctrla, ctrlb,
 				rfr_ctrl, mr);
 #endif
 
