@@ -134,6 +134,7 @@ init_fnc_t *init_sequence[] = {
 	env_init,		/* initialize environment */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */
+	sandbox_early_getopt_check,	/* process command line flags (err/help) */
 	display_banner,		/* say that we are here */
 #if defined(CONFIG_DISPLAY_CPUINFO)
 	print_cpuinfo,		/* display cpu info (and speed) */
@@ -155,6 +156,14 @@ void board_init_f(ulong bootflag)
 	assert(gd);
 
 	memset((void *)gd, 0, sizeof(gd_t));
+
+#if defined(CONFIG_OF_EMBED)
+	/* Get a pointer to the FDT */
+	gd->fdt_blob = _binary_dt_dtb_start;
+#elif defined(CONFIG_OF_SEPARATE)
+	/* FDT is at end of image */
+	gd->fdt_blob = (void *)(_end_ofs + _TEXT_BASE);
+#endif
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0)
@@ -260,6 +269,8 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_POST
 	post_run(NULL, POST_RAM | post_bootmode_get(0));
 #endif
+
+	sandbox_main_loop_init();
 
 	/*
 	 * For now, run the main loop. Later we might let this be done

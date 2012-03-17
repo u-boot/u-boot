@@ -1,14 +1,5 @@
 /*
- * Copyright (c) 2011 The Chromium OS Authors.
- *
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
- *
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Alex Zuepke <azu@sysgo.de>
- *
+ * Copyright (c) 2011-2012 The Chromium OS Authors.
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -28,15 +19,33 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _U_BOOT_SANDBOX_H_
-#define _U_BOOT_SANDBOX_H_
+#include <common.h>
+#include <asm/state.h>
 
-/* board/.../... */
-int board_init(void);
-int dram_init(void);
+/* Main state record for the sandbox */
+static struct sandbox_state main_state;
+static struct sandbox_state *state;	/* Pointer to current state record */
 
-/* start.c */
-int sandbox_early_getopt_check(void);
-int sandbox_main_loop_init(void);
+void state_record_exit(enum exit_type_id exit_type)
+{
+	state->exit_type = exit_type;
+}
 
-#endif	/* _U_BOOT_SANDBOX_H_ */
+struct sandbox_state *state_get_current(void)
+{
+	assert(state);
+	return state;
+}
+
+int state_init(void)
+{
+	state = &main_state;
+
+	/*
+	 * Example of how to use GPIOs:
+	 *
+	 * sandbox_gpio_set_direction(170, 0);
+	 * sandbox_gpio_set_value(170, 0);
+	 */
+	return 0;
+}
