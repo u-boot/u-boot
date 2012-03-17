@@ -196,7 +196,7 @@ void at91_macb_hw_init(void)
 }
 #endif
 
-#if defined(CONFIG_ATMEL_MCI) || defined(CONFIG_GENERIC_ATMEL_MCI)
+#if defined(CONFIG_GENERIC_ATMEL_MCI)
 void at91_mci_hw_init(void)
 {
 	at91_set_a_periph(AT91_PIO_PORTA, 8, 1);	/* MCCK */

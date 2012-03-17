@@ -100,7 +100,7 @@
 	"console=ttyS0 root=/dev/mmcblk0p1 rootwait"
 
 #define CONFIG_BOOTCOMMAND						\
-	"mmcinit; ext2load mmc 0:1 0x10400000 /boot/uImage; bootm"
+	"mmc rescan; ext2load mmc 0:1 0x10400000 /boot/uImage; bootm"
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
@@ -135,7 +135,9 @@
 #define CONFIG_PORTMUX_PIO
 #define CONFIG_SYS_HSDRAMC
 #define CONFIG_MMC
-#define CONFIG_ATMEL_MCI
+#define CONFIG_GENERIC_ATMEL_MCI
+#define CONFIG_GENERIC_MMC
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
 
 #define CONFIG_SYS_DCACHE_LINESZ		32
 #define CONFIG_SYS_ICACHE_LINESZ		32

@@ -322,7 +322,6 @@ int mmc_switch_part(int dev_num, unsigned int part_num);
 int mmc_getcd(struct mmc *mmc);
 
 #ifdef CONFIG_GENERIC_MMC
-int atmel_mci_init(void *regs);
 #define mmc_host_is_spi(mmc)	((mmc)->host_caps & MMC_MODE_SPI)
 struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 #else
