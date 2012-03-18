@@ -1629,9 +1629,11 @@ static int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	bootz,	CONFIG_SYS_MAXARGS,	1,	do_bootz,
 	"boot Linux zImage image from memory",
-	"[addr [initrd] [fdt]]\n    - boot Linux zImage stored in memory\n"
+	"[addr [initrd[:size]] [fdt]]\n"
+	"    - boot Linux zImage stored in memory\n"
 	"\tThe argument 'initrd' is optional and specifies the address\n"
-	"\tof the initrd in memory.\n"
+	"\tof the initrd in memory. The optional argument ':size' allows\n"
+	"\tspecifying the size of RAW initrd.\n"
 #if defined(CONFIG_OF_LIBFDT)
 	"\tWhen booting a Linux kernel which requires a flat device-tree\n"
 	"\ta third argument is required which is the address of the\n"

@@ -4437,6 +4437,11 @@ On some platforms, it's possible to boot Linux zImage. This is done
 using the "bootz" command. The syntax of "bootz" command is the same
 as the syntax of "bootm" command.
 
+Note, defining the CONFIG_SUPPORT_INITRD_RAW allows user to supply
+kernel with raw initrd images. The syntax is slightly different, the
+address of the initrd must be augmented by it's size, in the following
+format: "<initrd addres>:<initrd size>".
+
 
 Standalone HOWTO:
 =================

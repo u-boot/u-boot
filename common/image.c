@@ -797,6 +797,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
 	const image_header_t *rd_hdr;
+	char *end;
 #if defined(CONFIG_FIT)
 	void		*fit_hdr;
 	const char	*fit_uname_config = NULL;
@@ -994,9 +995,17 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			break;
 #endif
 		default:
-			puts("Wrong Ramdisk Image Format\n");
-			rd_data = rd_len = rd_load = 0;
-			return 1;
+#ifdef CONFIG_SUPPORT_RAW_INITRD
+			if (argc >= 3 && (end = strchr(argv[2], ':'))) {
+				rd_len = simple_strtoul(++end, NULL, 16);
+				rd_data = rd_addr;
+			} else
+#endif
+			{
+				puts("Wrong Ramdisk Image Format\n");
+				rd_data = rd_len = rd_load = 0;
+				return 1;
+			}
 		}
 	} else if (images->legacy_hdr_valid &&
 			image_check_type(&images->legacy_hdr_os_copy,
