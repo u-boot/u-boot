@@ -36,7 +36,6 @@ SECTIONS
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
     net/libnet.o			(.text*)
     arch/powerpc/cpu/mpc8xx/libmpc8xx.o	(.text*)
-    *(.text.printf)
     *(.text.vsprintf)
 
     . = env_offset;
