@@ -46,13 +46,9 @@
 #define USBPHY_CTRL_ENUTMILEVEL3		0x00008000
 #define USBPHY_CTRL_ENUTMILEVEL2		0x00004000
 
-#define ANADIG_USB2_CHRG_DETECT			0x00000210
 #define ANADIG_USB2_CHRG_DETECT_EN_B		0x00100000
 #define ANADIG_USB2_CHRG_DETECT_CHK_CHRG_B	0x00080000
 
-#define ANADIG_USB2_PLL_480_CTRL		0x00000020
-#define ANADIG_USB2_PLL_480_CTRL_SET		0x00000024
-#define ANADIG_USB2_PLL_480_CTRL_CLR		0x00000028
 #define ANADIG_USB2_PLL_480_CTRL_BYPASS		0x00010000
 #define ANADIG_USB2_PLL_480_CTRL_ENABLE		0x00002000
 #define ANADIG_USB2_PLL_480_CTRL_POWER		0x00001000
@@ -77,8 +73,7 @@ static void usbh1_internal_phy_clock_gate(int on)
 
 static void usbh1_power_config(void)
 {
-	void __iomem *anatop_base = (void __iomem *)ANATOP_BASE_ADDR;
-
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
 	/*
 	 * Some phy and power's special controls for host1
 	 * 1. The external charger detector needs to be disabled
@@ -89,15 +84,15 @@ static void usbh1_power_config(void)
 	 */
 	__raw_writel(ANADIG_USB2_CHRG_DETECT_EN_B |
 		     ANADIG_USB2_CHRG_DETECT_CHK_CHRG_B,
-		     anatop_base + ANADIG_USB2_CHRG_DETECT);
+		     &anatop->usb2_chrg_detect);
 
 	__raw_writel(ANADIG_USB2_PLL_480_CTRL_BYPASS,
-		     anatop_base + ANADIG_USB2_PLL_480_CTRL_CLR);
+		     &anatop->usb2_pll_480_ctrl);
 
 	__raw_writel(ANADIG_USB2_PLL_480_CTRL_ENABLE |
 		     ANADIG_USB2_PLL_480_CTRL_POWER |
 		     ANADIG_USB2_PLL_480_CTRL_EN_USB_CLKS,
-		     anatop_base + ANADIG_USB2_PLL_480_CTRL_SET);
+		     &anatop->usb2_pll_480_ctrl_set);
 }
 
 static int usbh1_phy_enable(void)
