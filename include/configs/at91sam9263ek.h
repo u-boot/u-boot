@@ -33,7 +33,11 @@
  */
 #include <asm/hardware.h>
 
+#ifndef CONFIG_SYS_USE_BOOT_NORFLASH
 #define CONFIG_SYS_TEXT_BASE		0x21F00000
+#else
+#define CONFIG_SYS_TEXT_BASE		0x0000000
+#endif
 
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16367660 /* 16.367 MHz crystal */
@@ -147,11 +151,11 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN	(256 << 10)
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x007FE000)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x007E0000)
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SIZE)
 
 /* Address and size of Primary Environment Sector */
-#define CONFIG_ENV_SIZE		0x2000
+#define CONFIG_ENV_SIZE		0x10000
 
 #define xstr(s)   str(s)
 #define str(s)	#s
