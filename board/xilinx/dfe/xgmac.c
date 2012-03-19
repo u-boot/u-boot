@@ -490,6 +490,14 @@ int Xgmac_rx(struct eth_device *dev)
 	return 1;
 }
 
+static int Xgmac_write_hwaddr(struct eth_device *dev)
+{
+	/* Initialize the first MAC filter with our address */
+	XEmacPss_SetMacAddress((XEmacPss *)dev->priv, dev->enetaddr, 1);
+
+	return 0;
+}
+
 int Xgmac_register(bd_t * bis)
 {
 	struct eth_device *dev;
@@ -510,6 +518,7 @@ int Xgmac_register(bd_t * bis)
 	dev->halt = Xgmac_halt;
 	dev->send = Xgmac_send;
 	dev->recv = Xgmac_rx;
+	dev->write_hwaddr = Xgmac_write_hwaddr;
 
 	eth_register(dev);
 
