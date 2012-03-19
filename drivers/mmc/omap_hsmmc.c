@@ -215,7 +215,8 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	start = get_timer(0);
 	while (readl(&mmc_base->stat)) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
-			printf("%s: timedout waiting for stat!\n", __func__);
+			printf("%s: timedout waiting for STAT (%x) to clear\n",
+				__func__, readl(&mmc_base->stat));
 			return TIMEOUT;
 		}
 	}
