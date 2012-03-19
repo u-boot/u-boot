@@ -62,15 +62,21 @@ static void omap4_vmmc_pbias_config(struct mmc *mmc)
 
 unsigned char mmc_board_init(struct mmc *mmc)
 {
-#if defined(CONFIG_TWL4030_POWER)
-	twl4030_power_mmc_init();
-#endif
-
 #if defined(CONFIG_OMAP34XX)
 	t2_t *t2_base = (t2_t *)T2_BASE;
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	u32 pbias_lite;
 
-	writel(readl(&t2_base->pbias_lite) | PBIASLITEPWRDNZ1 |
+	pbias_lite = readl(&t2_base->pbias_lite);
+	pbias_lite &= ~(PBIASLITEPWRDNZ1 | PBIASLITEPWRDNZ0);
+	writel(pbias_lite, &t2_base->pbias_lite);
+#endif
+#if defined(CONFIG_TWL4030_POWER)
+	twl4030_power_mmc_init();
+	mdelay(100);	/* ramp-up delay from Linux code */
+#endif
+#if defined(CONFIG_OMAP34XX)
+	writel(pbias_lite | PBIASLITEPWRDNZ1 |
 		PBIASSPEEDCTRL0 | PBIASLITEPWRDNZ0,
 		&t2_base->pbias_lite);
 
