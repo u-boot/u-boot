@@ -30,6 +30,8 @@
  * Open Firmware flat tree
  */
 #define CONFIG_OF_LIBFDT                1
+/* TODO: After upgrade to v2011.09, remove this and set fdt_high env var instead */
+#define CONFIG_SYS_BOOTMAPSZ	(16 << 20) /* Initial Memory map for Linux*/
 
 /* Default environment */
 #define CONFIG_IPADDR   10.10.70.102
