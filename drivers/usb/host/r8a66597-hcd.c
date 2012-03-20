@@ -31,9 +31,6 @@
 #endif
 
 static const char hcd_name[] = "r8a66597_hcd";
-static unsigned short clock = CONFIG_R8A66597_XTAL;
-static unsigned short vif = CONFIG_R8A66597_LDRV;
-static unsigned short endian = CONFIG_R8A66597_ENDIAN;
 static struct r8a66597 gr8a66597;
 
 static void get_hub_data(struct usb_device *dev, u16 *hub_devnum, u16 *hubport)
@@ -96,7 +93,7 @@ static int r8a66597_clock_enable(struct r8a66597 *r8a66597)
 		}
 	} while ((tmp & USBE) != USBE);
 	r8a66597_bclr(r8a66597, USBE, SYSCFG0);
-	r8a66597_mdfy(r8a66597, clock, XTAL, SYSCFG0);
+	r8a66597_mdfy(r8a66597, CONFIG_R8A66597_XTAL, XTAL, SYSCFG0);
 
 	i = 0;
 	r8a66597_bset(r8a66597, XCKE, SYSCFG0);
@@ -162,7 +159,7 @@ static int enable_controller(struct r8a66597 *r8a66597)
 	if (ret < 0)
 		return ret;
 
-	r8a66597_bset(r8a66597, vif & LDRV, PINCFG);
+	r8a66597_bset(r8a66597, CONFIG_R8A66597_LDRV & LDRV, PINCFG);
 	r8a66597_bset(r8a66597, USBE, SYSCFG0);
 
 	r8a66597_bset(r8a66597, INTL, SOFCFG);
@@ -170,9 +167,9 @@ static int enable_controller(struct r8a66597 *r8a66597)
 	r8a66597_write(r8a66597, 0, INTENB1);
 	r8a66597_write(r8a66597, 0, INTENB2);
 
-	r8a66597_bset(r8a66597, endian & BIGEND, CFIFOSEL);
-	r8a66597_bset(r8a66597, endian & BIGEND, D0FIFOSEL);
-	r8a66597_bset(r8a66597, endian & BIGEND, D1FIFOSEL);
+	r8a66597_bset(r8a66597, CONFIG_R8A66597_ENDIAN & BIGEND, CFIFOSEL);
+	r8a66597_bset(r8a66597, CONFIG_R8A66597_ENDIAN & BIGEND, D0FIFOSEL);
+	r8a66597_bset(r8a66597, CONFIG_R8A66597_ENDIAN & BIGEND, D1FIFOSEL);
 	r8a66597_bset(r8a66597, TRNENSEL, SOFCFG);
 
 	for (port = 0; port < R8A66597_MAX_ROOT_HUB; port++)
@@ -673,7 +670,6 @@ static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	int stat = 0;
 	__u16 bmRType_bReq;
 	__u16 wValue;
-	__u16 wIndex;
 	__u16 wLength;
 	unsigned char data[32];
 
@@ -686,7 +682,6 @@ static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 
 	bmRType_bReq  = cmd->requesttype | (cmd->request << 8);
 	wValue	      = cpu_to_le16 (cmd->value);
-	wIndex	      = cpu_to_le16 (cmd->index);
 	wLength	      = cpu_to_le16 (cmd->length);
 
 	switch (bmRType_bReq) {
