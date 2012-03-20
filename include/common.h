@@ -291,13 +291,6 @@ int mac_read_from_eeprom(void);
 extern u8 _binary_dt_dtb_start[];	/* embedded device tree blob */
 int set_cpu_clk_info(void);
 
-/*
- * Called when console output is requested before the console is available.
- * The board should do its best to get the character out to the user any way
- * it can.
- */
-void board_pre_console_putc(int ch);
-
 /* common/flash.c */
 void flash_perror (int);
 

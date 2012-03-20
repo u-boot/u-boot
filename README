@@ -644,23 +644,6 @@ The following options need to be configured:
 		'Sane' compilers will generate smaller code if
 		CONFIG_PRE_CON_BUF_SZ is a power of 2
 
-- Pre-console putc():
-		Prior to the console being initialised, console output is
-		normally silently discarded. This can be annoying if a
-		panic() happens in this time.
-
-		If the CONFIG_PRE_CONSOLE_PUTC option is defined, then
-		U-Boot will call board_pre_console_putc() for each output
-		character in this case, This function should try to output
-		the character if possible, perhaps on all available UARTs
-		(it will need to do this directly, since the console code
-		is not functional yet). Note that if the panic happens
-		early enough, then it is possible that board_init_f()
-		(or even arch_cpu_init() on ARM) has not been called yet.
-		You should init all clocks, GPIOs, etc. that are needed
-		to get the character out. Baud rates will need to default
-		to something sensible.
-
 - Safe printf() functions
 		Define CONFIG_SYS_VSNPRINTF to compile in safe versions of
 		the printf() functions. These are defined in
