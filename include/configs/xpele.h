@@ -24,6 +24,8 @@
 # include "../board/xilinx/dfe/xparameters_zynq.h"
 #endif
 
+#define CONFIG_SYS_TEXT_BASE 0x04000000
+
 /*
  * Open Firmware flat tree
  */
