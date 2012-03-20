@@ -89,8 +89,9 @@ int timer_init()
 	/* Enable the decrementer */
 	val |= XSCUTIMER_CONTROL_ENABLE_MASK;
 	XScuTimer_WriteReg(XSCUTIMER_CONTROL_OFFSET, val);
-	
-	reset_timer_masked();
+
+	/* This must not be called before relocation */
+	/*reset_timer_masked();*/
 
 	return 0;
 }
@@ -133,7 +134,7 @@ ulong get_tbclk(void)
 void reset_timer_masked(void)
 {
 	/* reset time */
-	lastdec = XScuTimer_GetCounterValue() /  (TIMER_TICK_HZ/CONFIG_SYS_HZ);
+	lastdec = XScuTimer_GetCounterValue() / (TIMER_TICK_HZ/CONFIG_SYS_HZ);
 	timestamp = 0;
 }
 
