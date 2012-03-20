@@ -32,7 +32,13 @@
 
 u32 get_cpu_rev(void)
 {
-	int system_rev = 0x61000 | CHIP_REV_1_0;
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	int reg = readl(&anatop->digprog);
+
+	/* Read mx6 variant: quad, dual or solo */
+	int system_rev = (reg >> 4) & 0xFF000;
+	/* Read mx6 silicon revision */
+	system_rev |= (reg & 0xFF) + 0x10;
 
 	return system_rev;
 }
