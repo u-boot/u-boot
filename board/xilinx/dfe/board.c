@@ -653,8 +653,3 @@ void reset_cpu(ulong addr)
 
 	while(1) {;}
 }
-
-void do_reset(void)
-{
-	reset_cpu(0);
-}
