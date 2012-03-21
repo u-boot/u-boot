@@ -204,7 +204,7 @@ int fixed_sdram(void)
 	u32 ddr_size_log2;
 
 	out_be32(&im->sysconf.ddrlaw[0].ar, (LAWAR_EN | 0x1e));
-	out_be32(&im->ddr.csbnds[0].csbnds, CONFIG_SYS_DDR_CS0_BNDS);
+	out_be32(&im->ddr.csbnds[0].csbnds, (CONFIG_SYS_DDR_CS0_BNDS) | 0x7f);
 	out_be32(&im->ddr.cs_config[0], CONFIG_SYS_DDR_CS0_CONFIG);
 	out_be32(&im->ddr.timing_cfg_0, CONFIG_SYS_DDR_TIMING_0);
 	out_be32(&im->ddr.timing_cfg_1, CONFIG_SYS_DDR_TIMING_1);
