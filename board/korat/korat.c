@@ -29,9 +29,9 @@
 #include <fdt_support.h>
 #include <i2c.h>
 #include <libfdt.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <asm/bitops.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/io.h>
 #include <asm/ppc4xx-uic.h>
 #include <asm/processor.h>
@@ -553,8 +553,8 @@ int misc_init_r(void)
 	 * This fix will make the MAL burst disabling patch for the Linux
 	 * EMAC driver obsolete.
 	 */
-	reg = mfdcr(PLB4_ACR) & ~PLB4_ACR_WRP;
-	mtdcr(PLB4_ACR, reg);
+	reg = mfdcr(PLB4A0_ACR) & ~PLB4Ax_ACR_WRP_MASK;
+	mtdcr(PLB4A0_ACR, reg);
 
 	set_serial_number();
 	set_mac_addresses();

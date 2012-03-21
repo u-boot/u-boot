@@ -29,6 +29,7 @@
 #include <common.h>
 #include <compiler.h>
 #include <asm/unaligned.h>
+#include <watchdog.h>
 #include "u-boot/zlib.h"
 #undef	OFF				/* avoid conflicts */
 
@@ -1075,8 +1076,7 @@ z_streamp strm;
     state->hold = 0;
     state->bits = 0;
     state->lencode = state->distcode = state->next = state->codes;
-    if (strm->outcb != Z_NULL)
-	(*strm->outcb)(Z_NULL, 0);
+    WATCHDOG_RESET();
     Tracev((stderr, "inflate: reset\n"));
     return Z_OK;
 }
@@ -1599,6 +1599,7 @@ int flush;
             strm->adler = state->check = adler32(0L, Z_NULL, 0);
             state->mode = TYPE;
         case TYPE:
+	    WATCHDOG_RESET();
             if (flush == Z_BLOCK) goto inf_leave;
         case TYPEDO:
             if (state->last) {
@@ -1776,8 +1777,7 @@ int flush;
             Tracev((stderr, "inflate:       codes ok\n"));
             state->mode = LEN;
         case LEN:
-            if (strm->outcb != Z_NULL) /* for watchdog (U-Boot) */
-                (*strm->outcb)(Z_NULL, 0);
+	    WATCHDOG_RESET();
             if (have >= 6 && left >= 258) {
                 RESTORE();
                 inflate_fast(strm, out);
@@ -1990,8 +1990,7 @@ z_streamp strm;
         return Z_STREAM_ERROR;
     state = (struct inflate_state FAR *)strm->state;
     if (state->window != Z_NULL) {
-	if (strm->outcb != Z_NULL)
-		(*strm->outcb)(Z_NULL, 0);
+	WATCHDOG_RESET();
 	ZFREE(strm, state->window);
     }
     ZFREE(strm, strm->state);

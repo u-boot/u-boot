@@ -141,7 +141,7 @@ int fec_send(struct eth_device *dev, volatile void *packet, int length)
 	int j, rc;
 	u16 phyStatus;
 
-	miiphy_read(dev->name, info->phy_addr, PHY_BMSR, &phyStatus);
+	miiphy_read(dev->name, info->phy_addr, MII_BMSR, &phyStatus);
 
 	/* section 16.9.23.3
 	 * Wait for ready

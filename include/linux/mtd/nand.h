@@ -33,11 +33,13 @@
 
 
 struct mtd_info;
+struct nand_flash_dev;
 /* Scan and identify a NAND device */
 extern int nand_scan (struct mtd_info *mtd, int max_chips);
 /* Separate phases of nand_scan(), allowing board driver to intervene
  * and override command or ECC setup according to flash type */
-extern int nand_scan_ident(struct mtd_info *mtd, int max_chips);
+extern int nand_scan_ident(struct mtd_info *mtd, int max_chips,
+			   const struct nand_flash_dev *table);
 extern int nand_scan_tail(struct mtd_info *mtd);
 
 /* Free resources held by the NAND device */
@@ -84,6 +86,7 @@ extern void nand_wait_ready(struct mtd_info *mtd);
 #define NAND_CMD_SEQIN		0x80
 #define NAND_CMD_RNDIN		0x85
 #define NAND_CMD_READID		0x90
+#define NAND_CMD_PARAM		0xec
 #define NAND_CMD_ERASE2		0xd0
 #define NAND_CMD_PARAM		0xec
 #define NAND_CMD_RESET		0xff
@@ -538,8 +541,8 @@ struct nand_manufacturers {
 	char * name;
 };
 
-extern struct nand_flash_dev nand_flash_ids[];
-extern struct nand_manufacturers nand_manuf_ids[];
+extern const struct nand_flash_dev nand_flash_ids[];
+extern const struct nand_manufacturers nand_manuf_ids[];
 
 extern int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd);
 extern int nand_update_bbt(struct mtd_info *mtd, loff_t offs);

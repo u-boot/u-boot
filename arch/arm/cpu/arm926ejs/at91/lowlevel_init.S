@@ -43,7 +43,7 @@
 #endif
 
 _TEXT_BASE:
-	.word	TEXT_BASE
+	.word	CONFIG_SYS_TEXT_BASE
 
 .globl lowlevel_init
 .type lowlevel_init,function
@@ -54,7 +54,7 @@ POS1:
 	ldr	r0, =POS1	/* r0 = POS1 compile */
 	ldr	r2, _TEXT_BASE
 	sub	r0, r0, r2	/* r0 = POS1-_TEXT_BASE (POS1 relative) */
-	sub	r5, r5, r0	/* r0 = TEXT_BASE-1 */
+	sub	r5, r5, r0	/* r0 = CONFIG_SYS_TEXT_BASE-1 */
 	sub	r5, r5, #4	/* r1 = text base - current */
 
 	/* memory control configuration 1 */

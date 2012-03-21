@@ -35,7 +35,7 @@
 #include <linux/mtd/nand_ecc.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 
 /*
  * We need to store the info, which chip-select (CS) is used for the
@@ -201,6 +201,8 @@ int board_nand_init(struct nand_chip *nand)
 #ifndef CONFIG_NAND_SPL
 	nand->write_buf  = ndfc_write_buf;
 	nand->verify_buf = ndfc_verify_buf;
+
+	chip++;
 #else
 	/*
 	 * Setup EBC (CS0 only right now)
@@ -210,8 +212,6 @@ int board_nand_init(struct nand_chip *nand)
 	mtebc(PB0CR, CONFIG_SYS_EBC_PB0CR);
 	mtebc(PB0AP, CONFIG_SYS_EBC_PB0AP);
 #endif
-
-	chip++;
 
 	return 0;
 }

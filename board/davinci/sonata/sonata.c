@@ -28,7 +28,7 @@
 #include <nand.h>
 #include <asm/arch/nand_defs.h>
 #include <asm/arch/hardware.h>
-#include "../common/misc.h"
+#include <asm/arch/davinci_misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -70,7 +70,7 @@ int misc_init_r(void)
 
 	/* Read Ethernet MAC address from EEPROM if available. */
 	if (dvevm_read_mac_address(eeprom_enetaddr))
-		dv_configure_mac_address(eeprom_enetaddr);
+		davinci_sync_env_enetaddr(eeprom_enetaddr);
 
 	return(0);
 }

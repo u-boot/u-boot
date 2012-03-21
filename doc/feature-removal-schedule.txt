@@ -1,7 +1,7 @@
 The following is a list of files and features that are going to be
 removed from the U-Boot source tree.  Every entry should contain what
 exactly is going away, when it will be gone, why it is being removed,
-and who is going to be doing the work.  When the feature is removed
+and who is going to be doing the work.	When the feature is removed
 from U-Boot, its corresponding entry should also be removed from this
 file.
 

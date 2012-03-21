@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libmtd.a
+LIB	:= $(obj)libmtd.o
 
 COBJS-$(CONFIG_MTD_DEVICE) += mtdcore.o
 COBJS-$(CONFIG_MTD_PARTITIONS) += mtdpart.o
@@ -43,7 +43,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

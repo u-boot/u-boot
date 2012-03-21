@@ -28,6 +28,7 @@
 #include <asm/arch/pxa-regs.h>
 #include <common.h>
 #include <netdev.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -92,8 +93,8 @@ set_led (int led, int color)
 	int shift = led * 2;
 	unsigned long mask = 0x3 << shift;
 
-	CRADLE_LED_CLR_REG = mask;	/* clear bits */
-	CRADLE_LED_SET_REG = (color << shift);	/* set bits */
+	writel(mask, GPCR2);	/* clear bits */
+	writel((color << shift), GPSR2);	/* set bits */
 	udelay (5000);
 }
 
@@ -184,6 +185,10 @@ int
 board_init (void)
 /**********************************************************/
 {
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
+
 	led_code (0xf, YELLOW);
 
 	/* arch number of HHP Cradle */
@@ -205,24 +210,18 @@ board_init (void)
 	return 1;
 }
 
-int
-/**********************************************************/
-dram_init (void)
-/**********************************************************/
+extern void pxa_dram_init(void);
+int dram_init(void)
+{
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
+	return 0;
+}
+
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size  = PHYS_SDRAM_1_SIZE;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size  = PHYS_SDRAM_2_SIZE;
-	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
-	gd->bd->bi_dram[2].size  = PHYS_SDRAM_3_SIZE;
-	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
-	gd->bd->bi_dram[3].size  = PHYS_SDRAM_4_SIZE;
-
-	return (PHYS_SDRAM_1_SIZE +
-		PHYS_SDRAM_2_SIZE +
-		PHYS_SDRAM_3_SIZE +
-		PHYS_SDRAM_4_SIZE );
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 }
 
 #ifdef CONFIG_CMD_NET

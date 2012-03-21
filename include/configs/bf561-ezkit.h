@@ -11,7 +11,6 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_CPU             bf561-0.3
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
 
 
@@ -96,15 +95,10 @@
  * it linked after the configuration sector.
  */
 # define LDS_BOARD_TEXT \
-	arch/blackfin/cpu/traps.o		(.text .text.*); \
-	arch/blackfin/cpu/interrupt.o	(.text .text.*); \
-	arch/blackfin/cpu/serial.o		(.text .text.*); \
-	common/dlmalloc.o		(.text .text.*); \
-	lib/crc32.o		(.text .text.*); \
-	lib/zlib.o		(.text .text.*); \
-	board/bf561-ezkit/bf561-ezkit.o	(.text .text.*); \
+	arch/blackfin/lib/libblackfin.o (.text*); \
+	arch/blackfin/cpu/libblackfin.o (.text*); \
 	. = DEFINED(env_offset) ? env_offset : .; \
-	common/env_embedded.o		(.text .text.*);
+	common/env_embedded.o (.text*);
 #endif
 
 

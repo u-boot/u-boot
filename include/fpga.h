@@ -61,6 +61,7 @@ typedef enum {			/* typedef fpga_type */
 	fpga_min_type,		/* range check value */
 	fpga_xilinx,		/* Xilinx Family) */
 	fpga_altera,		/* unimplemented */
+	fpga_lattice,		/* Lattice family */
 	fpga_undefined		/* invalid range check value */
 } fpga_type;			/* end, typedef fpga_type */
 

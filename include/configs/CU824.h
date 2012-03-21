@@ -45,6 +45,7 @@
 #define CONFIG_MPC8240		1
 #define CONFIG_CU824		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		9600
@@ -114,7 +115,7 @@
 
 #define CONFIG_SYS_EUMB_ADDR	    0xFCE00000
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_MONITOR_LEN	    (256 << 10) /* Reserve 256 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN	    (128 << 10) /* Reserve 128 kB for malloc()	*/
@@ -140,11 +141,10 @@
 
 	/* Size in bytes reserved for initial data
 	 */
-#define CONFIG_SYS_GBL_DATA_SIZE    128
 
 #define CONFIG_SYS_INIT_RAM_ADDR     0x40000000
-#define CONFIG_SYS_INIT_RAM_END      0x1000
-#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE      0x1000
+#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
  * NS16550 Configuration
@@ -289,14 +289,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff

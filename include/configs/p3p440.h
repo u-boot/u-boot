@@ -39,6 +39,9 @@
 #define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #define CONFIG_MISC_INIT_R	1	    /* Call misc_init_r		*/
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
 
 /*-----------------------------------------------------------------------
@@ -49,7 +52,6 @@
 #define CONFIG_SYS_FLASH_BASE	    0xff800000	    /* start of FLASH		*/
 #define CONFIG_SYS_MONITOR_BASE    0xfffc0000	    /* start of monitor		*/
 #define CONFIG_SYS_PCI_MEMBASE	    0x80000000	    /* mapped pci memory	*/
-#define CONFIG_SYS_PERIPHERAL_BASE 0xe0000000	    /* internal peripherals	*/
 #define CONFIG_SYS_ISRAM_BASE	    0xc0000000	    /* internal SRAM		*/
 #define CONFIG_SYS_PCI_BASE	    0xd0000000	    /* internal PCI regs	*/
 
@@ -59,10 +61,9 @@
  * Initial RAM & stack pointer (placed in internal SRAM)
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_ISRAM_BASE  /* Initial RAM address	*/
-#define CONFIG_SYS_INIT_RAM_END	0x2000	    /* End of used area in RAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	128	    /* num bytes initial data	*/
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000	    /* Size of used area in RAM	*/
 
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon*/
@@ -80,6 +81,12 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 #undef CONFIG_SYS_EXT_SERIAL_CLOCK
 #define CONFIG_BAUDRATE		115200
 
@@ -312,14 +319,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

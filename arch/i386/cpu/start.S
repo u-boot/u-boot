@@ -25,6 +25,8 @@
 
 #include <config.h>
 #include <version.h>
+#include <asm/global_data.h>
+#include <asm/processor-flags.h>
 
 
 .section .text
@@ -45,174 +47,87 @@ _i386boot_start:
 
 	/* Turn of cache (this might require a 486-class CPU) */
 	movl	%cr0, %eax
-	orl	$0x60000000,%eax
+	orl	$(X86_CR0_NW | X86_CR0_CD), %eax
 	movl	%eax, %cr0
 	wbinvd
 
 	/* Tell 32-bit code it is being entered from an in-RAM copy */
-	movw	$0x0000, %bx
+	movw	$GD_FLG_WARM_BOOT, %bx
 _start:
 	/* This is the 32-bit cold-reset entry point */
 
-	movl    $0x18,%eax	/* Load our segement registes, the
+	movl	$0x18, %eax	/* Load our segement registes, the
 				 * gdt have already been loaded by start16.S */
-	movw    %ax,%fs
-	movw	%ax,%ds
-	movw    %ax,%gs
-	movw    %ax,%es
-	movw    %ax,%ss
+	movw	%ax, %fs
+	movw	%ax, %ds
+	movw	%ax, %gs
+	movw	%ax, %es
+	movw	%ax, %ss
 
 	/* Clear the interupt vectors */
 	lidt	blank_idt_ptr
 
-	/*
-	 * Skip low-level board and memory initialization if not starting
-	 * from cold-reset. This allows us to do a fail safe boot-strap
-	 * into a new build of U-Boot from a known-good boot flash
-	 */
-	movw	$0x0001, %ax
-	cmpw	%ax, %bx
-	jne	mem_init_ret
-
-	/* We call a few functions in the board support package
-	 * since we have no stack yet we'll have to use %ebp
-	 * to store the return address */
-
 	/* Early platform init (setup gpio, etc ) */
-	mov     $early_board_init_ret, %ebp
 	jmp	early_board_init
+.globl early_board_init_ret
 early_board_init_ret:
 
-	/* The __port80 entry-point should be usabe by now */
-	/* so we try to indicate progress */
-	movw	$0x01, %ax
-	movl	$.progress0, %ebp
-	jmp	show_boot_progress_asm
-.progress0:
-
-	/* size memory */
-	mov	$mem_init_ret, %ebp
-	jmp     mem_init
-mem_init_ret:
-
-	/* fetch memory size (into %eax) */
-	mov	$get_mem_size_ret, %ebp
-	jmp     get_mem_size
-get_mem_size_ret:
-
+	/* Initialise Cache-As-RAM */
+	jmp	car_init
+.globl car_init_ret
+car_init_ret:
 	/*
-	 * We are now in 'Flat Protected Mode' and we know how much memory
-	 * the board has. The (temporary) Global Descriptor Table is not
-	 * in a 'Safe' place (it is either in Flash which can be erased or
-	 * reprogrammed or in a fail-safe boot-strap image which could be
-	 * over-written).
-	 *
-	 * Move the final gdt to a safe place (top of RAM) and load it.
-	 * This is not a trivial excercise - the lgdt instruction does not
-	 * have a register operand (memory only) and we may well be
-	 * running from Flash, so self modifying code will not work here.
-	 * To overcome this, we copy a stub into upper memory along with
-	 * the GDT.
+	 * We now have CONFIG_SYS_CAR_SIZE bytes of Cache-As-RAM (or SRAM,
+	 * or fully initialised SDRAM - we really don't care which)
+	 * starting at CONFIG_SYS_CAR_ADDR to be used as a temporary stack
 	 */
+	movl	$CONFIG_SYS_INIT_SP_ADDR, %esp
+	movl	$CONFIG_SYS_INIT_GD_ADDR, %ebp
 
-	/* Reduce upper memory limit by (Stub + GDT Pointer + GDT) */
-	subl	$(end_gdt_setup - start_gdt_setup), %eax
+	/* Set Boot Flags in Global Data */
+	movl	%ebx, (GD_FLAGS * 4)(%ebp)
 
-	/* Copy the GDT and Stub */
-	movl	$start_gdt_setup, %esi
-	movl	%eax, %edi
-	movl	$(end_gdt_setup - start_gdt_setup), %ecx
-	shrl	$2, %ecx
-	cld
-	rep	movsl
+	/* Determine our load offset (and put in Global Data) */
+	call	1f
+1:	popl	%ecx
+	subl	$1b, %ecx
+	movl	%ecx, (GD_LOAD_OFF * 4)(%ebp)
 
-	/* write the lgdt 'parameter' */
-	subl	$(jmp_instr - start_gdt_setup - 4), %ebp
-	addl	%eax, %ebp
-	movl	$(gdt_ptr - start_gdt_setup), %ebx
-	addl	%eax, %ebx
-	movl	%ebx, (%ebp)
+	/* Set parameter to board_init_f() to boot flags */
+	movl	(GD_FLAGS * 4)(%ebp), %eax
 
-	/* write the gdt address into the pointer */
-	movl	$(gdt_addr - start_gdt_setup), %ebp
-	addl	%eax, %ebp
-	movl	$(gdt - start_gdt_setup), %ebx
-	addl	%eax, %ebx
-	movl	%ebx, (%ebp)
-
-	/* Save the return address */
-	movl	$load_gdt_ret, %ebp
-
-	/* Load the new (safe) Global Descriptor Table */
-	jmp	*%eax
-
-load_gdt_ret:
-	/* Check we have enough memory for stack */
-	movl	$CONFIG_SYS_STACK_SIZE, %ecx
-	cmpl	%ecx, %eax
-	jae	mem_ok
-
-	/* indicate (lack of) progress */
-	movw	$0x81, %ax
-	movl	$.progress0a, %ebp
-	jmp	show_boot_progress_asm
-.progress0a:
-	jmp	die
-mem_ok:
-	/* Set stack pointer to upper memory limit*/
-	movl    %eax, %esp
-
-	/* indicate progress */
-	movw	$0x02, %ax
-	movl	$.progress1, %ebp
-	jmp	show_boot_progress_asm
-.progress1:
-
-	/* Test the stack */
-	pushl	$0
-	popl	%eax
-	cmpl	$0, %eax
-	jne	no_stack
-	push	$0x55aa55aa
-	popl	%ebx
-	cmpl	$0x55aa55aa, %ebx
-	je	stack_ok
-
-no_stack:
-	/* indicate (lack of) progress */
-	movw	$0x82, %ax
-	movl	$.progress1a, %ebp
-	jmp	show_boot_progress_asm
-.progress1a:
-	jmp die
-
-
-stack_ok:
-	/* indicate progress */
-	movw	$0x03, %ax
-	movl	$.progress2, %ebp
-	jmp	show_boot_progress_asm
-.progress2:
-
-	wbinvd
-
-	/* Get upper memory limit */
-	movl %esp, %ecx
-	subl $CONFIG_SYS_STACK_SIZE, %ecx
-
-	/* Create a Stack Frame */
-	pushl %ebp
-	movl %esp, %ebp
-
-	/* stack_limit parameter */
-	pushl	%ecx
 	call	board_init_f	/* Enter, U-boot! */
 
 	/* indicate (lack of) progress */
 	movw	$0x85, %ax
-	movl	$.progress4a, %ebp
-	jmp	show_boot_progress_asm
-.progress4a:
+	jmp	die
+
+.globl relocate_code
+.type relocate_code, @function
+relocate_code:
+	/*
+	 * SDRAM has been initialised, U-Boot code has been copied into
+	 * RAM, BSS has been cleared and relocation adjustments have been
+	 * made. It is now time to jump into the in-RAM copy of U-Boot
+	 *
+	 * %eax = Address of top of stack
+	 * %edx = Address of Global Data
+	 * %ecx = Base address of in-RAM copy of U-Boot
+	 */
+
+	/* Setup stack in RAM */
+	movl	%eax, %esp
+
+	/* Setup call address of in-RAM copy of board_init_r() */
+	movl	$board_init_r, %ebp
+	addl	(GD_RELOC_OFF * 4)(%edx), %ebp
+
+	/* Setup parameters to board_init_r() */
+	movl	%edx, %eax
+	movl	%ecx, %edx
+
+	/* Jump to in-RAM copy of board_init_r() */
+	call	*%ebp
 
 die:	hlt
 	jmp	die
@@ -221,52 +136,3 @@ die:	hlt
 blank_idt_ptr:
 	.word	0		/* limit */
 	.long	0		/* base */
-
-.align 4
-start_gdt_setup:
-	lgdt	gdt_ptr
-jmp_instr:
-	jmp	*%ebp
-
-.align 4
-gdt_ptr:
-	.word	0x30		/* limit (48 bytes = 6 GDT entries) */
-gdt_addr:
-	.long	gdt		/* base */
-
-	/* The GDT table ...
-	 *
-	 *	 Selector	Type
-	 *	 0x00		NULL
-	 *	 0x08		Unused
-	 *	 0x10		32bit code
-	 *	 0x18		32bit data/stack
-	 *	 0x20		16bit code
-	 *	 0x28		16bit data/stack
-	 */
-
-.align 4
-gdt:
-	.word	0, 0, 0, 0	/* NULL  */
-	.word	0, 0, 0, 0	/* unused */
-
-	.word	0xFFFF		/* 4Gb - (0x100000*0x1000 = 4Gb) */
-	.word	0		/* base address = 0 */
-	.word	0x9B00		/* code read/exec */
-	.word	0x00CF		/* granularity = 4096, 386 (+5th nibble of limit) */
-
-	.word	0xFFFF		/* 4Gb - (0x100000*0x1000 = 4Gb) */
-	.word	0x0		/* base address = 0 */
-	.word	0x9300		/* data read/write */
-	.word	0x00CF		/* granularity = 4096, 386 (+5th nibble of limit) */
-
-	.word	0xFFFF		/* 64kb */
-	.word	0		/* base address = 0 */
-	.word	0x9b00		/* data read/write */
-	.word	0x0010		/* granularity = 1  (+5th nibble of limit) */
-
-	.word	0xFFFF		/* 64kb */
-	.word	0		/* base address = 0 */
-	.word	0x9300		/* data read/write */
-	.word	0x0010		/* granularity = 1 (+5th nibble of limit) */
-end_gdt_setup:

@@ -36,6 +36,8 @@
 #define CONFIG_MPC850		1	/* This is a MPC850 CPU		*/
 #define CONFIG_ESTEEM192E	1	/* ...on a EST ESTEEM192E	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_FLASH_16BIT	1	/* Rom 16 bit data bus		*/
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
@@ -118,9 +120,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 
@@ -309,23 +310,5 @@
 /* 8 column SDRAM */
 #define CONFIG_SYS_MAMR_8COL	0x18803112
 #define CONFIG_SYS_MAMR_9COL	0x18803112	/* same as 8 column because its just easier to port with*/
-
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

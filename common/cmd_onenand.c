@@ -112,8 +112,32 @@ static int onenand_block_read(loff_t from, size_t len,
 	return 0;
 }
 
+static int onenand_write_oneblock_withoob(loff_t to, const u_char * buf,
+					  size_t *retlen)
+{
+	struct mtd_oob_ops ops = {
+		.len = mtd->writesize,
+		.ooblen = mtd->oobsize,
+		.mode = MTD_OOB_AUTO,
+	};
+	int page, ret = 0;
+	for (page = 0; page < (mtd->erasesize / mtd->writesize); page ++) {
+		ops.datbuf = (u_char *)buf;
+		buf += mtd->writesize;
+		ops.oobbuf = (u_char *)buf;
+		buf += mtd->oobsize;
+		ret = mtd->write_oob(mtd, to, &ops);
+		if (ret)
+			break;
+		to += mtd->writesize;
+	}
+
+	*retlen = (ret) ? 0 : mtd->erasesize;
+	return ret;
+}
+
 static int onenand_block_write(loff_t to, size_t len,
-			       size_t *retlen, const u_char * buf)
+			       size_t *retlen, const u_char * buf, int withoob)
 {
 	struct onenand_chip *this = mtd->priv;
 	int blocks = len >> this->erase_shift;
@@ -140,7 +164,10 @@ static int onenand_block_write(loff_t to, size_t len,
 			goto next;
 		}
 
-		ret = mtd->write(mtd, ofs, blocksize, &_retlen, buf);
+		if (!withoob)
+			ret = mtd->write(mtd, ofs, blocksize, &_retlen, buf);
+		else
+			ret = onenand_write_oneblock_withoob(ofs, buf, &_retlen);
 		if (ret) {
 			printk("Write failed 0x%x, %d", (u32)ofs, ret);
 			skip_ofs += blocksize;
@@ -293,7 +320,7 @@ static int onenand_dump(struct mtd_info *mtd, ulong off, int only_oob)
 	addr = (loff_t) off;
 	memset(&ops, 0, sizeof(ops));
 	ops.datbuf = datbuf;
-	ops.oobbuf = oobbuf; /* must exist, but oob data will be appended to ops.datbuf */
+	ops.oobbuf = oobbuf;
 	ops.len = mtd->writesize;
 	ops.ooblen = mtd->oobsize;
 	ops.retlen = 0;
@@ -319,6 +346,8 @@ static int onenand_dump(struct mtd_info *mtd, ulong off, int only_oob)
 	}
 	puts("OOB:\n");
 	i = mtd->oobsize >> 3;
+	p = oobbuf;
+
 	while (i--) {
 		printf("\t%02x %02x %02x %02x %02x %02x %02x %02x\n",
 		       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
@@ -384,11 +413,14 @@ static int do_onenand_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 {
 	ulong addr, ofs;
 	size_t len;
-	int ret = 0;
+	int ret = 0, withoob = 0;
 	size_t retlen = 0;
 
 	if (argc < 3)
 		return cmd_usage(cmdtp);
+
+	if (strncmp(argv[0] + 6, "yaffs", 5) == 0)
+		withoob = 1;
 
 	addr = (ulong)simple_strtoul(argv[1], NULL, 16);
 
@@ -396,7 +428,7 @@ static int do_onenand_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	if (arg_off_size(argc - 2, argv + 2, &ofs, &len) != 0)
 		return 1;
 
-	ret = onenand_block_write(ofs, len, &retlen, (u8 *)addr);
+	ret = onenand_block_write(ofs, len, &retlen, (u8 *)addr, withoob);
 
 	printf(" %d bytes written: %s\n", retlen, ret ? "ERROR" : "OK");
 
@@ -519,15 +551,25 @@ static cmd_tbl_t cmd_onenand_sub[] = {
 	U_BOOT_CMD_MKENT(bad, 1, 0, do_onenand_bad, "", ""),
 	U_BOOT_CMD_MKENT(read, 4, 0, do_onenand_read, "", ""),
 	U_BOOT_CMD_MKENT(write, 4, 0, do_onenand_write, "", ""),
+	U_BOOT_CMD_MKENT(write.yaffs, 4, 0, do_onenand_write, "", ""),
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_onenand_erase, "", ""),
 	U_BOOT_CMD_MKENT(test, 3, 0, do_onenand_test, "", ""),
 	U_BOOT_CMD_MKENT(dump, 2, 0, do_onenand_dump, "", ""),
 	U_BOOT_CMD_MKENT(markbad, CONFIG_SYS_MAXARGS, 0, do_onenand_markbad, "", ""),
 };
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+void onenand_reloc(void) {
+	fixup_cmdtable(cmd_onenand_sub, ARRAY_SIZE(cmd_onenand_sub));
+}
+#endif
+
 static int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
+
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	mtd = &onenand_mtd;
 
@@ -549,7 +591,7 @@ U_BOOT_CMD(
 	"info - show available OneNAND devices\n"
 	"onenand bad - show bad blocks\n"
 	"onenand read[.oob] addr off size\n"
-	"onenand write addr off size\n"
+	"onenand write[.yaffs] addr off size\n"
 	"    read/write 'size' bytes starting at offset 'off'\n"
 	"    to/from memory address 'addr', skipping bad blocks.\n"
 	"onenand erase [force] [off size] - erase 'size' bytes from\n"

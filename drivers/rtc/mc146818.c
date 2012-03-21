@@ -31,6 +31,12 @@
 #include <command.h>
 #include <rtc.h>
 
+#ifdef __I386__
+#include <asm/io.h>
+#define in8(p) inb(p)
+#define out8(p, v) outb(v, p)
+#endif
+
 #if defined(CONFIG_CMD_DATE)
 
 static uchar rtc_read  (uchar reg);

@@ -36,8 +36,10 @@ static struct gpt_regs *const gpt_regs_p =
 static struct misc_regs *const misc_regs_p =
     (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
 
-static ulong timestamp;
-static ulong lastdec;
+DECLARE_GLOBAL_DATA_PTR;
+
+#define timestamp gd->tbl
+#define lastdec gd->lastinc
 
 int timer_init(void)
 {

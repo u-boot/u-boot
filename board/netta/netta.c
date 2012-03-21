@@ -436,13 +436,13 @@ void reset_phys(void)
 	mii_init();
 
 	for (phyno = 0; phyno < 32; ++phyno) {
-		fec8xx_miiphy_read(NULL, phyno, PHY_PHYIDR1, &v);
+		fec8xx_miiphy_read(NULL, phyno, MII_PHYSID1, &v);
 		if (v == 0xFFFF)
 			continue;
-		fec8xx_miiphy_write(NULL, phyno, PHY_BMCR, PHY_BMCR_POWD);
+		fec8xx_miiphy_write(NULL, phyno, MII_BMCR, BMCR_PDOWN);
 		udelay(10000);
-		fec8xx_miiphy_write(NULL, phyno, PHY_BMCR,
-				PHY_BMCR_RESET | PHY_BMCR_AUTON);
+		fec8xx_miiphy_write(NULL, phyno, MII_BMCR,
+				BMCR_RESET | BMCR_ANENABLE);
 		udelay(10000);
 	}
 }

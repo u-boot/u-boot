@@ -22,14 +22,26 @@
 
 /* Spectrum Digital TMS320DM6467 EVM board */
 #define DAVINCI_DM6467EVM
+#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_SYS_USE_NAND
+#define CONFIG_SYS_NAND_SMALLPAGE
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT
 
 /* SoC Configuration */
 #define CONFIG_ARM926EJS				/* arm926ejs CPU */
+
+/* Clock rates detection */
+#ifndef __ASSEMBLY__
+extern unsigned int davinci_arm_clk_get(void);
+#endif
+
+#define CFG_REFCLK_FREQ		27000000
+/* Arm Clock frequency    */
+#define CONFIG_SYS_CLK_FREQ	davinci_arm_clk_get()
+/* Timer Input clock freq */
+#define CONFIG_SYS_HZ_CLOCK		(CONFIG_SYS_CLK_FREQ/2)
 #define CONFIG_SYS_TIMERBASE		0x01c21400	/* use timer 0 */
-#define CONFIG_SYS_HZ_CLOCK		27000000
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SOC_DM646X
 
@@ -41,7 +53,6 @@
 
 /* Memory Info */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* 1 MiB */
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* initial data */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x81000000	/* 16MB RAM test */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -70,6 +81,18 @@
 #define CONFIG_DRIVER_DAVINCI_I2C
 #define CONFIG_SYS_I2C_SPEED		80000
 #define CONFIG_SYS_I2C_SLAVE		10
+
+/* Network & Ethernet Configuration */
+#define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_EMAC_MDIO_PHY_NUM	1
+#define CONFIG_MII
+#define CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_NET_RETRY_COUNT	10
+#define CONFIG_NET_MULTI
+#define CONFIG_CMD_NET
 
 /* Flash & Environment */
 #define CONFIG_SYS_NO_FLASH
@@ -118,7 +141,8 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 #undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_SETGETDCR
@@ -127,5 +151,13 @@
 #undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_NAND
 #endif
+
+#define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20)	/* 256 MB */
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + \
+					 CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */

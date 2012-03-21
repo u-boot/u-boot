@@ -47,7 +47,6 @@
 
 #if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT
 #endif
 
 /*
@@ -55,7 +54,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(2*CONFIG_ENV_SIZE + 2 * 128 * 1024)
 /* Bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Hardware drivers
@@ -67,13 +65,13 @@
 #define CONFIG_HARD_SPI		1
 #define CONFIG_MXC_SPI		1
 #define CONFIG_DEFAULT_SPI_BUS	1
-#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 
 #define CONFIG_FSL_PMIC
 #define CONFIG_FSL_PMIC_BUS	1
 #define CONFIG_FSL_PMIC_CS	2
 #define CONFIG_FSL_PMIC_CLK	1000000
-#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 #define CONFIG_RTC_MC13783	1
 
 /* allow to overwrite serial and ethaddr */
@@ -156,6 +154,13 @@
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
+#define CONFIG_BOARD_EARLY_INIT_F	1
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization

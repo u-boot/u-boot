@@ -33,13 +33,19 @@
 #define CONFIG_MPC5200		1	/* especially an MPC5200 */
 #define CONFIG_JUPITER		1	/* ... on Jupiter board */
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFFF00000	boot high (standard configuration)
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define CONFIG_BOARD_EARLY_INIT_R	1
 #define CONFIG_BOARD_EARLY_INIT_F	1
-
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
@@ -184,7 +190,7 @@
 
 #define CONFIG_SYS_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 
-#define CONFIG_ENV_ADDR		(TEXT_BASE + 0x40000) /* third sector */
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_TEXT_BASE + 0x40000) /* third sector */
 
 #define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
@@ -219,14 +225,13 @@
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

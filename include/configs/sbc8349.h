@@ -32,21 +32,6 @@
 #define __CONFIG_H
 
 /*
- * Top level Makefile configuration choices
- */
-#ifdef CONFIG_MK_PCI
-#define CONFIG_PCI
-#endif
-
-#ifdef CONFIG_MK_66
-#define PCI_66M
-#endif
-
-#ifdef CONFIG_MK_33
-#define PCI_33M
-#endif
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
@@ -54,6 +39,8 @@
 #define CONFIG_MPC834x		1	/* MPC834x family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_SBC8349		1	/* WRS SBC8349 board specific */
+
+#define	CONFIG_SYS_TEXT_BASE	0xFF800000
 
 /* Don't enable PCI2 on sbc834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
@@ -64,14 +51,14 @@
  * physically empty.  The board will automatically (i.e w/o jumpers)
  * clock down to 33MHz if you insert a 33MHz PCI card.
  */
-#ifdef PCI_33M
+#ifdef CONFIG_PCI_33M
 #define CONFIG_83XX_CLKIN	33000000	/* in Hz */
 #else	/* 66M */
 #define CONFIG_83XX_CLKIN	66000000	/* in Hz */
 #endif
 
 #ifndef CONFIG_SYS_CLK_FREQ
-#ifdef PCI_33M
+#ifdef CONFIG_PCI_33M
 #define CONFIG_SYS_CLK_FREQ	33000000
 #define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_8X1
 #else	/* 66M */
@@ -172,7 +159,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT
@@ -182,10 +169,9 @@
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFD000000		/* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_END	0x1000			/* End of used area in RAM*/
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000			/* Size of used area in RAM*/
 
-#define CONFIG_SYS_GBL_DATA_SIZE	0x100			/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)		/* Reserve 256 kB for Mon */
@@ -270,7 +256,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX     1
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE    1
@@ -465,10 +450,10 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)	/* Initial Memory map for Linux*/
 
 #define CONFIG_SYS_RCWH_PCIHOST 0x80000000 /* PCIHOST  */
 
@@ -612,14 +597,6 @@
 #define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
 #define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
 #define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02	/* Software reboot */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */

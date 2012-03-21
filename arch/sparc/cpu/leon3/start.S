@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <asm/asmmacro.h>
 #include <asm/winmacro.h>
@@ -369,8 +370,8 @@ snoop_detect:
 	sethi	%hi(0x00800000), %o0
 	lda	[%g0] 2, %o1
 	and	%o0, %o1, %o0
-	sethi	%hi(leon3_snooping_avail+CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE), %o1
-	st	%o0, [%lo(leon3_snooping_avail+CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE)+%o1]
+	sethi	%hi(leon3_snooping_avail+CONFIG_SYS_RELOC_MONITOR_BASE-CONFIG_SYS_TEXT_BASE), %o1
+	st	%o0, [%lo(leon3_snooping_avail+CONFIG_SYS_RELOC_MONITOR_BASE-CONFIG_SYS_TEXT_BASE)+%o1]
 
 /*	call	relocate*/
 	nop
@@ -410,7 +411,7 @@ _irq_entry:
 	WRITE_PAUSE
 	mov	%l7, %o0		! irq level
 	set	handler_irq, %o1
-	set	(CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE), %o2
+	set	(CONFIG_SYS_RELOC_MONITOR_BASE-CONFIG_SYS_TEXT_BASE), %o2
 	add	%o1, %o2, %o1
 	call	%o1
 	add	%sp, SF_REGS_SZ, %o1	! pt_regs ptr

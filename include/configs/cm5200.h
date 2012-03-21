@@ -31,6 +31,8 @@
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
 #define CONFIG_CM5200		1	/* ... on CM5200 platform */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfc000000
+
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /*
@@ -78,7 +80,9 @@
 #define CONFIG_POST		(CONFIG_SYS_POST_MEMORY | CONFIG_SYS_POST_CPU | CONFIG_SYS_POST_I2C)
 #define MPC5XXX_SRAM_POST_SIZE	(MPC5XXX_SRAM_SIZE - 4)
 /* List of I2C addresses to be verified by POST */
-#define I2C_ADDR_LIST		{ CONFIG_SYS_I2C_SLAVE, CONFIG_SYS_I2C_IO, CONFIG_SYS_I2C_EEPROM }
+#define CONFIG_SYS_POST_I2C_ADDRS	{CONFIG_SYS_I2C_SLAVE,	\
+					 CONFIG_SYS_I2C_IO,	\
+					 CONFIG_SYS_I2C_EEPROM}
 
 /* display image timestamps */
 #define CONFIG_TIMESTAMP	1
@@ -158,18 +162,17 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #ifdef CONFIG_POST
 /* preserve space for the post_word at end of on-chip SRAM */
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_POST_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_POST_SIZE
 #else
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE
 #endif
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_BOARD_TYPES	1	/* we use board_type */
 
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(384 << 10)	/* 384 kB for Monitor */
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* 256 kB for malloc() */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* initial mem map for Linux */
@@ -316,9 +319,6 @@
  */
 #define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
 #define CONFIG_SYS_HID0_FINAL		HID0_ICE
-
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 #define CONFIG_SYS_XLB_PIPELINING	1	/* enable transaction pipeling */
 

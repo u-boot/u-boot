@@ -39,6 +39,8 @@
 #define CONFIG_RPXLITE		1	/* RMU is the RPXlite clone */
 #define CONFIG_RMU			1
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
@@ -152,9 +154,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -169,7 +170,7 @@
 #else
 #define	CONFIG_SYS_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
 #endif
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
 /*
@@ -189,7 +190,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		((TEXT_BASE) + 0x40000)
+#define CONFIG_ENV_ADDR		((CONFIG_SYS_TEXT_BASE) + 0x40000)
 #define	CONFIG_ENV_SECT_SIZE	0x40000		/* Total Size of Environment Sector	*/
 #define	CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE	/* Used size for environment	*/
 
@@ -379,14 +380,6 @@
 #define CONFIG_SYS_MAMR_9COL	((CONFIG_SYS_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_16X | MAMR_WLFA_16X | MAMR_TLFA_16X)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02	/* Software reboot			*/
 
 /*
  * BCSRx

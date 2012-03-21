@@ -54,11 +54,14 @@ int designware_initialize(u32 id, ulong base_addr, u32 phy_addr);
 int dnet_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int e1000_initialize(bd_t *bis);
 int eepro100_initialize(bd_t *bis);
+int enc28j60_initialize(unsigned int bus, unsigned int cs,
+	unsigned int max_hz, unsigned int mode);
 int ep93xx_eth_initialize(u8 dev_num, int base_addr);
 int ethoc_initialize(u8 dev_num, int base_addr);
 int eth_3com_initialize (bd_t * bis);
 int fec_initialize (bd_t *bis);
 int fecmxc_initialize (bd_t *bis);
+int ftgmac100_initialize(bd_t *bits);
 int ftmac100_initialize(bd_t *bits);
 int greth_initialize(bd_t *bis);
 void gt6426x_eth_initialize(bd_t *bis);
@@ -85,11 +88,12 @@ int skge_initialize(bd_t *bis);
 int smc911x_initialize(u8 dev_num, int base_addr);
 int smc91111_initialize(u8 dev_num, int base_addr);
 int tsi108_eth_initialize(bd_t *bis);
-int uec_initialize(int index);
 int uec_standard_init(bd_t *bis);
 int uli526x_initialize(bd_t *bis);
+int xilinx_emaclite_initialize (bd_t *bis, int base_addr);
 int sh_eth_initialize(bd_t *bis);
 int dm9000_initialize(bd_t *bis);
+int fecmxc_initialize(bd_t *bis);
 
 /* Boards with PCI network controllers can call this from their board_eth_init()
  * function to initialize whatever's on board.

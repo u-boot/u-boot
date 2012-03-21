@@ -33,6 +33,8 @@
 #define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 #define CONFIG_MPC8308RDB	1 /* MPC8308RDB board specific */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define CONFIG_MISC_INIT_R
 
 /*
@@ -85,10 +87,27 @@
 /*
  * System IO Config
  */
-#define CONFIG_SYS_SICRH	0x01b7d103
-#define CONFIG_SYS_SICRL	0x00000040 /* 3.3V, no delay */
-
-#define CONFIG_BOARD_EARLY_INIT_F /* call board_pre_init */
+#define CONFIG_SYS_SICRH (\
+	SICRH_ESDHC_A_SD |\
+	SICRH_ESDHC_B_SD |\
+	SICRH_ESDHC_C_SD |\
+	SICRH_GPIO_A_TSEC2 |\
+	SICRH_GPIO_B_TSEC2_GTX_CLK125 |\
+	SICRH_IEEE1588_A_GPIO |\
+	SICRH_USB |\
+	SICRH_GTM_GPIO |\
+	SICRH_IEEE1588_B_GPIO |\
+	SICRH_ETSEC2_CRS |\
+	SICRH_GPIOSEL_1 |\
+	SICRH_TMROBI_V3P3 |\
+	SICRH_TSOBI1_V2P5 |\
+	SICRH_TSOBI2_V2P5)	/* 0x01b7d103 */
+#define CONFIG_SYS_SICRL (\
+	SICRL_SPI_PF0 |\
+	SICRL_UART_PF0 |\
+	SICRL_IRQ_PF0 |\
+	SICRL_I2C2_PF0 |\
+	SICRL_ETSEC1_GTX_CLK125)	/* 0x00000040 */
 
 /*
  * IMMR new address
@@ -183,7 +202,7 @@
 /*
  * The reserved memory
  */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE /* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor */
 
 #define CONFIG_SYS_MONITOR_LEN	(384 * 1024) /* Reserve 384 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN	(512 * 1024) /* Reserved for malloc */
@@ -193,10 +212,9 @@
  */
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_END		0x1000 /* End of used area in RAM */
-#define CONFIG_SYS_GBL_DATA_SIZE	0x100 /* num bytes initial data */
+#define CONFIG_SYS_INIT_RAM_SIZE		0x1000 /* Size of used area in RAM */
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
-	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
  * Local Bus Configuration & Clock Setup
@@ -218,7 +236,7 @@
 
 /* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000016 /* 8MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_8MB)
 
 #define CONFIG_SYS_BR0_PRELIM	(\
 		CONFIG_SYS_FLASH_BASE	/* Flash Base address */	|\
@@ -260,7 +278,7 @@
 				/* 0xFFFF8396 */
 
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000000E	/* 32KB  */
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
 #ifdef CONFIG_VSC7385_ENET
 #define CONFIG_TSEC2
@@ -270,7 +288,7 @@
 /* Access window base at VSC7385 base */
 #define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VSC7385_BASE
 /* Access window size 128K */
-#define CONFIG_SYS_LBLAWAR2_PRELIM	0x80000010
+#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
 /* The flash address and size of the VSC7385 firmware image */
 #define CONFIG_VSC7385_IMAGE		0xFE7FE000
 #define CONFIG_VSC7385_IMAGE_SIZE	8192
@@ -279,7 +297,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -336,19 +353,8 @@
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xB1000000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00800000
 
-/*
- * Fake PCIE2 definitions: there is no PCIE2 on this board but the code
- * in arch/powerpc/cpu/mpc83xx/pcie.c doesn't compile without this
- */
-#define CONFIG_SYS_PCIE2_BASE		0xC0000000
-#define CONFIG_SYS_PCIE2_MEM_BASE	0xC0000000
-#define CONFIG_SYS_PCIE2_MEM_PHYS	0xC0000000
-#define CONFIG_SYS_PCIE2_MEM_SIZE	0x10000000
-#define CONFIG_SYS_PCIE2_CFG_BASE	0xD0000000
-#define CONFIG_SYS_PCIE2_CFG_SIZE	0x01000000
-#define CONFIG_SYS_PCIE2_IO_BASE	0x00000000
-#define CONFIG_SYS_PCIE2_IO_PHYS	0xD1000000
-#define CONFIG_SYS_PCIE2_IO_SIZE	0x00800000
+/* enable PCIE clock */
+#define CONFIG_SYS_SCCR_PCIEXP1CM	1
 
 #define CONFIG_PCI
 #define CONFIG_PCIE
@@ -439,10 +445,10 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Initial Memory map for Linux */
 
 /*
  * Core HID Setup
@@ -489,14 +495,6 @@
 					BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT3L	CONFIG_SYS_IBAT3L
 #define CONFIG_SYS_DBAT3U	CONFIG_SYS_IBAT3U
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01 /* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02 /* Software reboot */
 
 /*
  * Environment Configuration

@@ -91,29 +91,48 @@ struct mvsata_port_registers {
 #define MVSATA_SSTATUS_DET_DEVCOMM		0x00000003
 
 /*
+ * Status codes to return to client callers. Currently, callers ignore
+ * exact value and only care for zero or nonzero, so no need to make this
+ * public, it is only #define'd for clarity.
+ * If/when standard negative codes are implemented in U-boot, then these
+ * #defines should be moved to, or replaced by ones from, the common list
+ * of status codes.
+ */
+
+#define MVSATA_STATUS_OK	0
+#define MVSATA_STATUS_TIMEOUT	-1
+
+/*
  * Initialize one MVSATAHC port: set SControl's IPM to "always active"
  * and DET to "reset", then wait for SStatus's DET to become "device and
  * comm ok" (or time out after 50 us if no device), then set SControl's
  * DET back to "no action".
  */
 
-static void mvsata_ide_initialize_port(struct mvsata_port_registers *port)
+static int mvsata_ide_initialize_port(struct mvsata_port_registers *port)
 {
 	u32 control;
 	u32 status;
-	u32 tout = 50; /* wait at most 50 us for SATA reset to complete */
+	u32 timeleft = 10000; /* wait at most 10 ms for SATA reset to complete */
 
+	/* Set control IPM to 3 (no low power) and DET to 1 (initialize) */
 	control = readl(&port->scontrol);
 	control = (control & ~MVSATA_SCONTROL_MASK) | MVSATA_PORT_INIT;
 	writel(control, &port->scontrol);
-	while (--tout) {
+	/* Toggle control DET back to 0 (normal operation) */
+	control = (control & ~MVSATA_SCONTROL_MASK) | MVSATA_PORT_USE;
+	writel(control, &port->scontrol);
+	/* wait for status DET to become 3 (device and communication OK) */
+	while (--timeleft) {
 		status = readl(&port->sstatus) & MVSATA_SSTATUS_DET_MASK;
 		if (status == MVSATA_SSTATUS_DET_DEVCOMM)
 			break;
 		udelay(1);
 	}
-	control = (control & ~MVSATA_SCONTROL_MASK) | MVSATA_PORT_USE;
-	writel(control, &port->scontrol);
+	/* return success or time-out error depending on time left */
+	if (!timeleft)
+		return MVSATA_STATUS_TIMEOUT;
+	return MVSATA_STATUS_OK;
 }
 
 /*
@@ -123,18 +142,23 @@ static void mvsata_ide_initialize_port(struct mvsata_port_registers *port)
 
 int ide_preinit(void)
 {
+	int status;
 	/* Enable ATA port 0 (could be SATA port 0 or 1) if declared */
 #if defined(CONFIG_SYS_ATA_IDE0_OFFSET)
-	mvsata_ide_initialize_port(
+	status = mvsata_ide_initialize_port(
 		(struct mvsata_port_registers *)
 		(CONFIG_SYS_ATA_BASE_ADDR + CONFIG_SYS_ATA_IDE0_OFFSET));
+	if (status)
+		return status;
 #endif
 	/* Enable ATA port 1 (could be SATA port 0 or 1) if declared */
 #if defined(CONFIG_SYS_ATA_IDE1_OFFSET)
-	mvsata_ide_initialize_port(
+	status = mvsata_ide_initialize_port(
 		(struct mvsata_port_registers *)
 		(CONFIG_SYS_ATA_BASE_ADDR + CONFIG_SYS_ATA_IDE1_OFFSET));
+	if (status)
+		return status;
 #endif
-	/* return 0 as we always succeed */
-	return 0;
+	/* return success if all ports initializations succeeded */
+	return MVSATA_STATUS_OK;
 }

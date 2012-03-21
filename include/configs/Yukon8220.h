@@ -31,15 +31,15 @@
 #define CONFIG_MPC8220		1
 #define CONFIG_YUKON8220	1	/* ... on Yukon board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
+#define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* Input clock running at 30Mhz, read Hid1 for the CPU multiplier to
    determine the CPU speed. */
 #define CONFIG_SYS_MPC8220_CLKIN	30000000/* ... running at 30MHz */
 #define CONFIG_SYS_MPC8220_SYSPLL_VCO_MULTIPLIER 16 /* VCO multiplier can't be read from any register */
-
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	*/
 
 /*
  * Serial console configuration
@@ -257,13 +257,12 @@
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_MBAR + 0x20000)
-#define CONFIG_SYS_INIT_RAM_END	0x8000	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* Size of used area in DPRAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

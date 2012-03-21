@@ -28,7 +28,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)libfdos.a
+LIB	= $(obj)libfdos.o
 
 AOBJS	=
 COBJS-$(CONFIG_CMD_FDOS) := fat.o vfat.o dev.o fdos.o fs.o subdir.o
@@ -41,7 +41,7 @@ OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS-y))
 all:	$(LIB) $(AOBJS)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 
 #########################################################################

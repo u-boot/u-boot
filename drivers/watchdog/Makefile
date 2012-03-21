@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libwatchdog.a
+LIB	:= $(obj)libwatchdog.o
 
 COBJS-$(CONFIG_AT91SAM9_WATCHDOG) += at91sam9_wdt.o
 
@@ -34,7 +34,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

@@ -48,9 +48,9 @@ static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.
  */
-uint	dp_last_addr, dp_last_size;
-uint	dp_last_length = 0x40;
-uint	mm_last_addr, mm_last_size;
+static uint	dp_last_addr, dp_last_size;
+static uint	dp_last_length = 0x40;
+static uint	mm_last_addr, mm_last_size;
 
 static	ulong	base_address = 0;
 
@@ -337,6 +337,10 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		ngood++;
 		addr1 += size;
 		addr2 += size;
+
+		/* reset watchdog from time to time */
+		if ((count % (64 << 10)) == 0)
+			WATCHDOG_RESET();
 	}
 
 	printf("Total of %ld %s%s were the same\n",
@@ -447,6 +451,10 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			*((u_char *)dest) = *((u_char *)addr);
 		addr += size;
 		dest += size;
+
+		/* reset watchdog from time to time */
+		if ((count % (64 << 10)) == 0)
+			WATCHDOG_RESET();
 	}
 	return 0;
 }
@@ -1176,7 +1184,7 @@ int do_md5sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif
 
-#ifdef CONFIG_CMD_SHA1
+#ifdef CONFIG_CMD_SHA1SUM
 int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr, len;
@@ -1204,6 +1212,7 @@ int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long src, dst;
 	unsigned long src_len = ~0UL, dst_len = ~0UL;
+	char buf[32];
 
 	switch (argc) {
 		case 4:
@@ -1217,7 +1226,14 @@ int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return cmd_usage(cmdtp);
 	}
 
-	return !!gunzip((void *) dst, dst_len, (void *) src, &src_len);
+	if (gunzip((void *) dst, dst_len, (void *) src, &src_len) != 0)
+		return 1;
+
+	printf("Uncompressed size: %ld = 0x%lX\n", src_len, src_len);
+	sprintf(buf, "%lX", src_len);
+	setenv("filesize", buf);
+
+	return 0;
 }
 #endif /* CONFIG_CMD_UNZIP */
 
@@ -1335,7 +1351,7 @@ U_BOOT_CMD(
 	"compute SHA1 message digest",
 	"address count"
 );
-#endif /* CONFIG_CMD_SHA1 */
+#endif /* CONFIG_CMD_SHA1SUM */
 
 #ifdef CONFIG_CMD_UNZIP
 U_BOOT_CMD(

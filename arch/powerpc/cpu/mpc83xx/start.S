@@ -27,6 +27,7 @@
  *  U-Boot - Startup Code for MPC83xx PowerPC based Embedded Boards
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc83xx.h>
 #include <timestamp.h>
@@ -40,6 +41,7 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/u-boot.h>
 
 #ifndef  CONFIG_IDENT_STRING
 #define  CONFIG_IDENT_STRING "MPC83XX"
@@ -70,7 +72,7 @@
 	START_GOT
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(__bss_start)
-	GOT_ENTRY(_end)
+	GOT_ENTRY(__bss_end__)
 
 #ifndef CONFIG_NAND_SPL
 	GOT_ENTRY(_FIXUP_TABLE_)
@@ -183,22 +185,9 @@ ppcDWload:
 
 	.globl	_start
 _start: /* time t 0 */
-	li	r21, BOOTFLAG_COLD  /* Normal Power-On: Boot from FLASH*/
-	nop
-	b	boot_cold
-
-	. = EXC_OFF_SYS_RESET + 0x10
-
-	.globl	_start_warm
-_start_warm:
-	li	r21, BOOTFLAG_WARM	/* Software reboot	*/
-	b	boot_warm
-
-
-boot_cold: /* time t 3 */
 	lis	r4, CONFIG_DEFAULT_IMMR@h
 	nop
-boot_warm: /* time t 5 */
+
 	mfmsr	r5			/* save msr contents	*/
 
 	/* 83xx manuals prescribe a specific sequence for updating IMMRBAR. */
@@ -302,10 +291,10 @@ in_flash:
 	/* run low-level CPU init code (in Flash)*/
 	bl	cpu_init_f
 
-	/* r3: BOOTFLAG */
-	mr	r3, r21
 	/* run 1st part of board init code (in Flash)*/
 	bl	board_init_f
+
+	/* NOTREACHED - board_init_f() does not return */
 
 #ifndef CONFIG_NAND_SPL
 /*
@@ -964,10 +953,12 @@ in_ram:
 	beq	4f
 3:	lwzu	r4,4(r3)
 	lwzux	r0,r4,r11
+	cmpwi	r0,0
 	add	r0,r0,r11
-	stw	r10,0(r3)
+	stw	r4,0(r3)
+	beq-	5f
 	stw	r0,0(r4)
-	bdnz	3b
+5:	bdnz	3b
 4:
 #endif
 
@@ -986,7 +977,7 @@ clear_bss:
 	 */
 	lwz	r4,GOT(environment)
 #else
-	lwz	r4,GOT(_end)
+	lwz	r4,GOT(__bss_end__)
 #endif
 
 	cmplw	0, r3, r4
@@ -1082,7 +1073,7 @@ lock_ram_in_cache:
 	 */
 	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
 	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CONFIG_SYS_INIT_RAM_END & ~31) + \
+	li	r4, ((CONFIG_SYS_INIT_RAM_SIZE & ~31) + \
 		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:
@@ -1104,7 +1095,7 @@ unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
 	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
 	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CONFIG_SYS_INIT_RAM_END & ~31) + \
+	li	r4, ((CONFIG_SYS_INIT_RAM_SIZE & ~31) + \
 		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:	icbi	r0, r3
@@ -1167,6 +1158,10 @@ map_flash_by_law1:
 	bne 1b
 
 	stw r4, LBLAWAR1(r3) /* LBLAWAR1 <= 8MB Flash Size */
+	/* Wait for HW to catch up */
+	lwz r4, LBLAWAR1(r3)
+	twi 0,r4,0
+	isync
 	blr
 
 	/* Though all the LBIU Local Access Windows and LBC Banks will be
@@ -1205,5 +1200,9 @@ remap_flash_by_law0:
 	xor r4, r4, r4
 	stw r4, LBLAWBAR1(r3)
 	stw r4, LBLAWAR1(r3) /* Off LBIU LAW1 */
+	/* Wait for HW to catch up */
+	lwz r4, LBLAWAR1(r3)
+	twi 0,r4,0
+	isync
 	blr
 #endif /* CONFIG_SYS_FLASHBOOT */

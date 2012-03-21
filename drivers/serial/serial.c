@@ -29,9 +29,12 @@
 #endif
 #ifdef CONFIG_KIRKWOOD
 #include <asm/arch/kirkwood.h>
-#endif
-#ifdef CONFIG_ORION5X
+#elif defined(CONFIG_ORION5X)
 #include <asm/arch/orion5x.h>
+#elif defined(CONFIG_ARMADA100)
+#include <asm/arch/armada100.h>
+#elif defined(CONFIG_PANTHEON)
+#include <asm/arch/pantheon.h>
 #endif
 
 #if defined (CONFIG_SERIAL_MULTI)

@@ -27,6 +27,8 @@
 #include <asm/arch/clk.h>
 #include <serial.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static inline struct s5p_uart *s5p_get_base_uart(int dev_index)
 {
 	u32 offset = dev_index * sizeof(struct s5p_uart);
@@ -61,7 +63,6 @@ static const int udivslot[] = {
 
 void serial_setbrg_dev(const int dev_index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	struct s5p_uart *const uart = s5p_get_base_uart(dev_index);
 	u32 uclk = get_uart_clk(dev_index);
 	u32 baudrate = gd->baudrate;
@@ -70,7 +71,11 @@ void serial_setbrg_dev(const int dev_index)
 	val = uclk / baudrate;
 
 	writel(val / 16 - 1, &uart->ubrdiv);
-	writew(udivslot[val % 16], &uart->udivslot);
+
+	if (s5p_uart_divslot())
+		writew(udivslot[val % 16], &uart->rest.slot);
+	else
+		writeb(val % 16, &uart->rest.value);
 }
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
@@ -64,11 +64,15 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(8569, 8569_E, 1),
 	CPU_TYPE_ENTRY(8572, 8572, 2),
 	CPU_TYPE_ENTRY(8572, 8572_E, 2),
+	CPU_TYPE_ENTRY(P1010, P1010, 1),
+	CPU_TYPE_ENTRY(P1010, P1010_E, 1),
 	CPU_TYPE_ENTRY(P1011, P1011, 1),
 	CPU_TYPE_ENTRY(P1011, P1011_E, 1),
 	CPU_TYPE_ENTRY(P1012, P1012, 1),
 	CPU_TYPE_ENTRY(P1012, P1012_E, 1),
 	CPU_TYPE_ENTRY(P1013, P1013, 1),
+	CPU_TYPE_ENTRY(P1014, P1014_E, 1),
+	CPU_TYPE_ENTRY(P1014, P1014, 1),
 	CPU_TYPE_ENTRY(P1013, P1013_E, 1),
 	CPU_TYPE_ENTRY(P1020, P1020, 2),
 	CPU_TYPE_ENTRY(P1020, P1020_E, 2),
@@ -80,6 +84,8 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(P2010, P2010_E, 1),
 	CPU_TYPE_ENTRY(P2020, P2020, 2),
 	CPU_TYPE_ENTRY(P2020, P2020_E, 2),
+	CPU_TYPE_ENTRY(P2040, P2040, 4),
+	CPU_TYPE_ENTRY(P2040, P2040_E, 4),
 	CPU_TYPE_ENTRY(P3041, P3041, 4),
 	CPU_TYPE_ENTRY(P3041, P3041_E, 4),
 	CPU_TYPE_ENTRY(P4040, P4040, 4),

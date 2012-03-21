@@ -244,7 +244,7 @@ void board_init_f(ulong bootflag)
 	printf("CONFIG_SYS_PROM_OFFSET:        0x%lx (%d)\n", CONFIG_SYS_PROM_OFFSET,
 	       CONFIG_SYS_PROM_SIZE);
 	printf("CONFIG_SYS_GBL_DATA_OFFSET:    0x%lx (%d)\n", CONFIG_SYS_GBL_DATA_OFFSET,
-	       CONFIG_SYS_GBL_DATA_SIZE);
+	       GENERATED_GBL_DATA_SIZE);
 #endif
 
 #ifdef CONFIG_POST
@@ -252,33 +252,13 @@ void board_init_f(ulong bootflag)
 	post_run(NULL, POST_ROM | post_bootmode_get(0));
 #endif
 
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/*
 	 * We have to relocate the command table manually
 	 */
-	for (cmdtp = &__u_boot_cmd_start; cmdtp != &__u_boot_cmd_end; cmdtp++) {
-		ulong addr;
-		addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
-#if DEBUG_COMMANDS
-		printf("Command \"%s\": 0x%08lx => 0x%08lx\n",
-		       cmdtp->name, (ulong) (cmdtp->cmd), addr);
-#endif
-		cmdtp->cmd =
-		    (int (*)(struct cmd_tbl_s *, int, int, char *[]))addr;
-
-		addr = (ulong) (cmdtp->name) + gd->reloc_off;
-		cmdtp->name = (char *)addr;
-
-		if (cmdtp->usage) {
-			addr = (ulong) (cmdtp->usage) + gd->reloc_off;
-			cmdtp->usage = (char *)addr;
-		}
-#ifdef	CONFIG_SYS_LONGHELP
-		if (cmdtp->help) {
-			addr = (ulong) (cmdtp->help) + gd->reloc_off;
-			cmdtp->help = (char *)addr;
-		}
-#endif
-	}
+	fixup_cmdtable(&__u_boot_cmd_start,
+		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
+#endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
 
 #if defined(CONFIG_CMD_AMBAPP) && defined(CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP)
 	puts("AMBA:\n");
@@ -304,7 +284,7 @@ void board_init_f(ulong bootflag)
 	malloc_bin_reloc();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
-	puts("FLASH: ");
+	puts("Flash: ");
 
 	if ((flash_size = flash_init()) > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM
@@ -378,10 +358,6 @@ void board_init_f(ulong bootflag)
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
-
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-	serial_buffered_init();
-#endif
 
 #ifdef CONFIG_STATUS_LED
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);

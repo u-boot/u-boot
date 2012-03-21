@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2008
+# (C) Copyright 2008-2010
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,12 +24,6 @@
 # AMCC 460EX/460GT Evaluation Board (Canyonlands) board
 #
 
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
-
-ifndef TEXT_BASE
-TEXT_BASE = 0xFFFA0000
-endif
-
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
 ifeq ($(debug),1)
@@ -40,6 +34,9 @@ ifeq ($(dbcr),1)
 PLATFORM_CPPFLAGS += -DCONFIG_SYS_INIT_DBCR=0x8cff0000
 endif
 
-ifdef CONFIG_NAND_U_BOOT
+ifdef CONFIG_SYS_LDSCRIPT
+# need to strip off double quotes
+LDSCRIPT := $(subst ",,$(CONFIG_SYS_LDSCRIPT))
+else ifdef CONFIG_NAND_U_BOOT
 LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
 endif

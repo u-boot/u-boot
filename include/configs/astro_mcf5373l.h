@@ -69,17 +69,17 @@
 #include <config_cmd_default.h>
 
 /*
- * CONFIG_MK_RAM defines if u-boot is loaded via BDM (or started from
+ * CONFIG_RAM defines if u-boot is loaded via BDM (or started from
  * a different bootloader that has already performed RAM setup) or
  * started directly from flash, which is the regular case for production
  * boards.
  */
-#ifdef CONFIG_MK_RAM
+#ifdef CONFIG_RAM
 #define CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_TEXT_BASE		0x40020000
+#define CONFIG_SYS_TEXT_BASE		0x40020000
 #define ENABLE_JFFS	0
 #else
-#define CONFIG_TEXT_BASE		0x00000000
+#define CONFIG_SYS_TEXT_BASE		0x00000000
 #define ENABLE_JFFS	1
 #endif
 
@@ -300,11 +300,10 @@
  * Definitions for initial stack pointer and data area (in internal SRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
-#define CONFIG_SYS_INIT_RAM_END		0x8000
+#define CONFIG_SYS_INIT_RAM_SIZE		0x8000
 #define CONFIG_SYS_INIT_RAM_CTRL	0x221
-#define CONFIG_SYS_GBL_DATA_SIZE	128
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - \
-					 CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
@@ -343,7 +342,7 @@
 #define CONFIG_SYS_FLASH_BASE		0x00000000
 
 #ifdef	CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #else
 /* This is mainly used during relocation in start.S */
 #define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_FLASH_BASE + 0x400)
@@ -387,9 +386,9 @@
 #define CONFIG_SYS_CACHELINE_SIZE	16
 
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_END - 8)
+					 CONFIG_SYS_INIT_RAM_SIZE - 8)
 #define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_END - 4)
+					 CONFIG_SYS_INIT_RAM_SIZE - 4)
 #define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINVA)
 #define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_SDRAM_BASE | \
 					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \

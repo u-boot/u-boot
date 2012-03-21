@@ -35,6 +35,9 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_440		1		/* ... PPC440 family	*/
 #define CONFIG_440SPE		1		/* Specifc SPe support	*/
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFFA0000
+
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
 #define CONFIG_SYS_4xx_RESET_TYPE 0x2	/* use chip reset on this board	*/
 
@@ -52,7 +55,6 @@
  * actual resources get mapped (not physical addresses)
  */
 #define CONFIG_SYS_FLASH_BASE	0xfc000000	/* later mapped to this addr */
-#define CONFIG_SYS_PERIPHERAL_BASE 0xa0000000	/* internal peripherals	*/
 #define CONFIG_SYS_ISRAM_BASE	0x90000000	/* internal SRAM	*/
 
 #define CONFIG_SYS_PCI_MEMBASE	0x80000000	/* mapped PCI memory	*/
@@ -95,17 +97,16 @@
 #define CONFIG_SYS_TEMP_STACK_OCM	1
 #define CONFIG_SYS_OCM_DATA_ADDR	CONFIG_SYS_ISRAM_BASE
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_ISRAM_BASE	/* Init RAM */
-#define CONFIG_SYS_INIT_RAM_END		0x2000		/* end used area */
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* sizeof init data */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000		/* size of used area */
 
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - \
-					 CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 /*
  * Serial Port
  */
-#undef CONFIG_UART1_CONSOLE
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 #undef CONFIG_SYS_EXT_SERIAL_CLOCK
 
 /*

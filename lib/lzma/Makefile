@@ -26,7 +26,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)liblzma.a
+LIB	= $(obj)liblzma.o
 
 SOBJS	=
 
@@ -39,7 +39,7 @@ SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

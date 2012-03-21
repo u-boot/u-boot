@@ -56,7 +56,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#if (TEXT_BASE == 0xFE000000)
+#if (CONFIG_SYS_TEXT_BASE == 0xFE000000)
 #define CONFIG_SYS_LOWBOOT
 #endif
 
@@ -66,6 +66,10 @@
 #define CONFIG_MPC83xx		1
 #define CONFIG_MPC834x		/* MPC834x family (8343, 8347, 8349) */
 #define CONFIG_MPC8349		/* MPC8349 specific */
+
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFEF00000
+#endif
 
 #define CONFIG_SYS_IMMR		0xE0000000	/* The IMMR is relocated to here */
 
@@ -292,7 +296,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * U-Boot memory configuration
  */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT
@@ -302,10 +306,9 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFD000000	/* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_END	0x1000		/* End of used area in RAM*/
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000		/* Size of used area in RAM*/
 
-#define CONFIG_SYS_GBL_DATA_SIZE	0x100		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
@@ -329,7 +332,6 @@ boards, we say we have two, but don't display a message if we find only one. */
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -395,8 +397,8 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #endif
 
-#define PCI_66M
-#ifdef PCI_66M
+#define CONFIG_PCI_66M
+#ifdef CONFIG_PCI_66M
 #define CONFIG_83XX_CLKIN	66666666	/* in Hz */
 #else
 #define CONFIG_83XX_CLKIN	33333333	/* in Hz */
@@ -539,10 +541,10 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)	/* Initial Memory map for Linux*/
 
 #define CONFIG_SYS_HRCW_LOW (\
 	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
@@ -661,14 +663,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
 #define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02	/* Software reboot */
-
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
@@ -717,11 +711,11 @@ boards, we say we have two, but don't display a message if we find only one. */
 	"netdev=" MK_STR(CONFIG_NETDEV) "\0"				\
 	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
 	"tftpflash=tftpboot $loadaddr $uboot; "				\
-		"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-		"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-		"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+		"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+		"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+		"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
+		"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+		"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
 	"fdtaddr=780000\0"						\
 	"fdtfile=" MK_STR(CONFIG_FDTFILE) "\0"
 

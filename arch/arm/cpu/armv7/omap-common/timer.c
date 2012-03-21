@@ -35,8 +35,8 @@
 #include <common.h>
 #include <asm/io.h>
 
-static ulong timestamp;
-static ulong lastinc;
+DECLARE_GLOBAL_DATA_PTR;
+
 static struct gptimer *timer_base = (struct gptimer *)CONFIG_SYS_TIMERBASE;
 
 /*
@@ -74,7 +74,7 @@ ulong get_timer(ulong base)
 
 void set_timer(ulong t)
 {
-	timestamp = t;
+	gd->tbl = t;
 }
 
 /* delay x useconds */
@@ -96,8 +96,8 @@ void __udelay(unsigned long usec)
 void reset_timer_masked(void)
 {
 	/* reset time, capture current incrementer value time */
-	lastinc = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
-	timestamp = 0;		/* start "advancing" time stamp from 0 */
+	gd->lastinc = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
+	gd->tbl = 0;		/* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked(void)
@@ -105,14 +105,14 @@ ulong get_timer_masked(void)
 	/* current tick value */
 	ulong now = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
 
-	if (now >= lastinc)	/* normal mode (non roll) */
+	if (now >= gd->lastinc)	/* normal mode (non roll) */
 		/* move stamp fordward with absoulte diff ticks */
-		timestamp += (now - lastinc);
+		gd->tbl += (now - gd->lastinc);
 	else	/* we have rollover of incrementer */
-		timestamp += ((TIMER_LOAD_VAL / (TIMER_CLOCK / CONFIG_SYS_HZ))
-				- lastinc) + now;
-	lastinc = now;
-	return timestamp;
+		gd->tbl += ((TIMER_LOAD_VAL / (TIMER_CLOCK / CONFIG_SYS_HZ))
+			     - gd->lastinc) + now;
+	gd->lastinc = now;
+	return gd->tbl;
 }
 
 /*

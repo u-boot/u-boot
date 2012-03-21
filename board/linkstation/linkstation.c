@@ -32,11 +32,12 @@
 #include <pci.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern void init_AVR_DUART(void);
 
 int checkboard (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	char *p;
 	bd_t *bd = gd->bd;
 

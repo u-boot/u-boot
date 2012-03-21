@@ -44,6 +44,7 @@
 
 #define CONFIG_MMC		1
 #define BOARD_LATE_INIT		1
+#define	CONFIG_SYS_TEXT_BASE	0x0
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
@@ -56,7 +57,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	    (CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -211,6 +211,9 @@
 #define CONFIG_SYS_DRAM_SIZE		0x04000000
 
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1)
 
 /*
  * GPIO settings

@@ -80,7 +80,9 @@
 #include <net.h>
 #include "bootp.h"
 #include "tftp.h"
+#ifdef CONFIG_CMD_RARP
 #include "rarp.h"
+#endif
 #include "nfs.h"
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
@@ -401,11 +403,13 @@ restart:
 			BootpRequest ();
 			break;
 
+#if defined(CONFIG_CMD_RARP)
 		case RARP:
 			RarpTry = 0;
 			NetOurIP = 0;
 			RarpRequest ();
 			break;
+#endif
 #if defined(CONFIG_CMD_PING)
 		case PING:
 			PingStart();
@@ -1492,6 +1496,7 @@ NetReceive(volatile uchar * inpkt, int len)
 		}
 		break;
 
+#ifdef CONFIG_CMD_RARP
 	case PROT_RARP:
 		debug("Got RARP\n");
 		arp = (ARP_t *)ip;
@@ -1515,7 +1520,7 @@ NetReceive(volatile uchar * inpkt, int len)
 			(*packetHandler)(0,0,0,0);
 		}
 		break;
-
+#endif
 	case PROT_IP:
 		debug("Got IP\n");
 		/* Before we start poking the header, make sure it is there */
@@ -1729,10 +1734,12 @@ static int net_check_prereq (proto_t protocol)
 		}
 		/* Fall through */
 
-	case DHCP:
+#ifdef CONFIG_CMD_RARP
 	case RARP:
+#endif
 	case BOOTP:
 	case CDP:
+	case DHCP:
 		if (memcmp (NetOurEther, "\0\0\0\0\0\0", 6) == 0) {
 #ifdef CONFIG_NET_MULTI
 			extern int eth_get_dev_index (void);
@@ -1858,7 +1865,7 @@ NetSetIP(volatile uchar * xip, IPaddr_t dest, int dport, int sport, int len)
 	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
 }
 
-void copy_filename (char *dst, char *src, int size)
+void copy_filename (char *dst, const char *src, int size)
 {
 	if (*src && (*src == '"')) {
 		++src;
@@ -1906,7 +1913,7 @@ void VLAN_to_string(ushort x, char *s)
 		sprintf(s, "%d", x & VLAN_IDMASK);
 }
 
-ushort string_to_VLAN(char *s)
+ushort string_to_VLAN(const char *s)
 {
 	ushort id;
 

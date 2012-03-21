@@ -184,7 +184,6 @@ void pci_init_board(void)
 	volatile clk83xx_t *clk = (volatile clk83xx_t *)&immr->clk;
 	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
 	struct pci_region *reg[] = { pci_regions };
-	int warmboot;
 
 	/* Enable all 3 PCI_CLK_OUTPUTs. */
 	setbits_be32(&clk->occr, 0xe0000000);
@@ -198,9 +197,7 @@ void pci_init_board(void)
 	out_be32(&pci_law[1].bar, CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR);
 	out_be32(&pci_law[1].ar, LBLAWAR_EN | LBLAWAR_1MB);
 
-	warmboot = gd->bd->bi_bootflags & BOOTFLAG_WARM;
-
-	mpc83xx_pci_init(1, reg, warmboot);
+	mpc83xx_pci_init(1, reg);
 }
 #endif
 

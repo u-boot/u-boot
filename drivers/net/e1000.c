@@ -5018,6 +5018,7 @@ TRANSMIT - Transmit a frame
 static int
 e1000_transmit(struct eth_device *nic, volatile void *packet, int length)
 {
+	void * nv_packet = (void *)packet;
 	struct e1000_hw *hw = nic->priv;
 	struct e1000_tx_desc *txp;
 	int i = 0;
@@ -5025,7 +5026,7 @@ e1000_transmit(struct eth_device *nic, volatile void *packet, int length)
 	txp = tx_base + tx_tail;
 	tx_tail = (tx_tail + 1) % 8;
 
-	txp->buffer_addr = cpu_to_le64(virt_to_bus(hw->pdev, packet));
+	txp->buffer_addr = cpu_to_le64(virt_to_bus(hw->pdev, nv_packet));
 	txp->lower.data = cpu_to_le32(hw->txd_cmd | length);
 	txp->upper.data = 0;
 	E1000_WRITE_REG(hw, TDT, tx_tail);
@@ -5177,7 +5178,21 @@ e1000_initialize(bd_t * bis)
 		}
 
 		nic = (struct eth_device *) malloc(sizeof (*nic));
+		if (!nic) {
+			printf("Error: e1000 - Can not alloc memory\n");
+			return 0;
+		}
+
 		hw = (struct e1000_hw *) malloc(sizeof (*hw));
+		if (!hw) {
+			free(nic);
+			printf("Error: e1000 - Can not alloc memory\n");
+			return 0;
+		}
+
+		memset(nic, 0, sizeof(*nic));
+		memset(hw, 0, sizeof(*hw));
+
 		hw->pdev = devno;
 		nic->priv = hw;
 

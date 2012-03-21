@@ -32,6 +32,11 @@
 #define CONFIG_UC101		1	/* UC101 board		*/
 #define CONFIG_HOSTNAME		uc101
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000
+#endif
+#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc5xxx/u-boot-customlayout.lds"
+
 #include "manroland/common.h"
 #include "manroland/mpc5200-common.h"
 
@@ -65,9 +70,7 @@
 #define CONFIG_SYS_IB_EPLD		0xc0500000	/* CS 7 */
 
 /* SRAM */
-#define SRAM_BASE		CONFIG_SYS_SRAM_BASE
-#define SRAM_LEN		0x1fffff
-#define SRAM_END		(SRAM_BASE + SRAM_LEN)
+#define CONFIG_SYS_SRAM_SIZE	0x200000
 
 /*
  * GPIO configuration

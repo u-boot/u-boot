@@ -33,6 +33,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <command.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,8 +43,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init (void)
 {
-	/* memory and cpu-speed are setup before relocation */
-	/* so we do _nothing_ here */
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
 
 	/* arch number of Lubbock-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_PXA_IDP;
@@ -56,14 +58,14 @@ int board_init (void)
 
 	/* set PWM for LCD */
 	/* a value that works is 60Hz, 77% duty cycle */
-	CKEN |= CKEN0_PWM0;
-	PWM_CTRL0 = 0x3f;
-	PWM_PERVAL0 = 0x3ff;
-	PWM_PWDUTY0 = 792;
+	writel(readl(CKEN) | CKEN0_PWM0, CKEN);
+	writel(0x3f, PWM_CTRL0);
+	writel(0x3ff, PWM_PERVAL0);
+	writel(792, PWM_PWDUTY0);
 
 	/* clear reset to AC97 codec */
-	CKEN |= CKEN2_AC97;
-	GCR = GCR_COLD_RST;
+	writel(readl(CKEN) | CKEN2_AC97, CKEN);
+	writel(GCR_COLD_RST, GCR);
 
 	/* enable LCD backlight */
 	/* *(volatile unsigned int *)(PXA_CS5_PHYS + 0x03C00030) = 0x7; */
@@ -81,32 +83,30 @@ int board_late_init(void)
 	return 0;
 }
 
-
-int dram_init (void)
+extern void pxa_dram_init(void);
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
-	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
-	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
-	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
-	gd->bd->bi_dram[3].size = PHYS_SDRAM_4_SIZE;
-
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }
 
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+}
 
 #ifdef DEBUG_BLINKC_ENABLE
 
 void delay_c(void)
 {
 	/* reset OSCR to 0 */
-	OSCR = 0;
-	while(OSCR > 0x10000)
+	writel(0, OSCR);
+	while (readl(OSCR) > 0x10000)
 		;
 
-	while(OSCR < 0xd4000)
+	while (readl(OSCR) < 0xd4000)
 		;
 }
 
@@ -114,12 +114,12 @@ void blink_c(void)
 {
 	int led_bit = (1<<10);
 
-	GPDR0 = led_bit;
-	GPCR0 = led_bit;
+	writel(led_bit, GPDR0);
+	writel(led_bit, GPCR0);
 	delay_c();
-	GPSR0 = led_bit;
+	writel(led_bit, GPSR0);
 	delay_c();
-	GPCR0 = led_bit;
+	writel(led_bit, GPCR0);
 }
 
 int do_idpcmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

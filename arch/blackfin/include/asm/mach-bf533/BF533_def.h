@@ -6,9 +6,7 @@
 #ifndef __BFIN_DEF_ADSP_BF533_proc__
 #define __BFIN_DEF_ADSP_BF533_proc__
 
-#include "../mach-common/ADSP-EDN-core_def.h"
-
-#include "../mach-common/ADSP-EDN-extended_def.h"
+#include "BF532_def.h"
 
 #define L1_DATA_A_SRAM 0xFF800000 /* 0xFF800000 -> 0xFF803FFF Data Bank A SRAM */
 #define L1_DATA_A_SRAM_SIZE (0xFF803FFF - 0xFF800000 + 1)

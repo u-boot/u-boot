@@ -2213,6 +2213,7 @@ char *onenand_print_device_info(int device, int version)
 }
 
 static const struct onenand_manufacturers onenand_manuf_ids[] = {
+	{ONENAND_MFR_NUMONYX, "Numonyx"},
 	{ONENAND_MFR_SAMSUNG, "Samsung"},
 };
 

@@ -35,7 +35,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 
 extern int denali_wait_for_dlllock(void);
 extern void denali_core_search_data_eye(void);

@@ -33,8 +33,10 @@
 #define TIMER_LOAD_VAL	0xffffffff
 #define TIMER_FREQ	(CONFIG_MB86R0x_IOCLK  / 256)
 
-static unsigned long long timestamp;
-static ulong lastdec;
+DECLARE_GLOBAL_DATA_PTR;
+
+#define timestamp gd->tbl
+#define lastdec gd->lastinc
 
 static inline unsigned long long tick_to_time(unsigned long long tick)
 {

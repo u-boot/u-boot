@@ -32,6 +32,8 @@
 #define CONFIG_4xx		1	/*  member of PPC4xx family */
 #define CONFIG_TAIHU	        1	/*  on a taihu board */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 /*
  * Include common defines/options for all AMCC eval boards
  */
@@ -127,11 +129,10 @@
  * If CONFIG_SYS_405_UART_ERRATA_59 and 200MHz CPU clock,
  * set Linux BASE_BAUD to 403200.
  */
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
+#define CONFIG_CONS_INDEX	2	/* Use UART1			*/
 #undef  CONFIG_SYS_EXT_SERIAL_CLOCK           /* external serial clock */
 #undef  CONFIG_SYS_405_UART_ERRATA_59         /* 405GP/CR Rev. D silicon */
 #define CONFIG_SYS_BASE_BAUD		691200
-#define CONFIG_UART1_CONSOLE	1
 
 /*-----------------------------------------------------------------------
  * I2C stuff
@@ -287,10 +288,9 @@ unsigned char spi_read(void);
 #define CONFIG_SYS_OCM_DATA_ADDR	0xF8000000
 #define CONFIG_SYS_OCM_DATA_SIZE	0x1000
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of SDRAM		*/
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM	*/
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE /* Size of used area in RAM	*/
 
-#define CONFIG_SYS_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET      CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------

@@ -96,7 +96,6 @@ static void pm9g45_nand_hw_init(void)
 static void pm9g45_macb_hw_init(void)
 {
 	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
-	at91_pio_t	*pio	= (at91_pio_t *) AT91_PIO_BASE;
 
 	/*
 	 * PD2 enables the 50MHz oscillator for Ethernet PHY
@@ -160,9 +159,16 @@ int board_init(void)
 
 int dram_init(void)
 {
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM,
+				PHYS_SDRAM_SIZE);
+	return 0;
+}
+
+void dram_init_banksize(void)
+{
 	gd->bd->bi_dram[0].start = PHYS_SDRAM;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
-	return 0;
 }
 
 #ifdef CONFIG_RESET_PHY_R

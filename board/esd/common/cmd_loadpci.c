@@ -29,7 +29,6 @@
 
 #if defined(CONFIG_CMD_BSP)
 
-extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 extern int do_source (cmd_tbl_t *, int, int, char *[]);
 
 #define ADDRMASK 0xfffff000

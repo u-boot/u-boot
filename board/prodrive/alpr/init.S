@@ -21,9 +21,11 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <ppc_asm.tmpl>
 #include <asm/mmu.h>
 #include <config.h>
+#include <asm/ppc4xx.h>
 
 /**************************************************************************
  * TLB TABLE

@@ -32,10 +32,9 @@
 #define CONFIG_MPC5200
 #define CONFIG_O2DNT		1	/* ... on O2DNT board */
 
-#define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000	/* boot low for 16 MiB boards */
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
+#define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
@@ -102,10 +101,10 @@
 #define CONFIG_CMD_PCI
 
 
-#if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
+#if (CONFIG_SYS_TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
 #   define CONFIG_SYS_LOWBOOT		1
 #else
-#   error "TEXT_BASE must be 0xFF000000"
+#   error "CONFIG_SYS_TEXT_BASE must be 0xFF000000"
 #endif
 
 /*
@@ -215,14 +214,13 @@
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */

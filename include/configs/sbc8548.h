@@ -32,20 +32,19 @@
 /*
  * Top level Makefile configuration choices
  */
-#ifdef CONFIG_MK_PCI
-#define CONFIG_PCI
+#ifdef CONFIG_PCI
 #define CONFIG_PCI1
 #endif
 
-#ifdef CONFIG_MK_66
+#ifdef CONFIG_66
 #define CONFIG_SYS_CLK_DIV 1
 #endif
 
-#ifdef CONFIG_MK_33
+#ifdef CONFIG_33
 #define CONFIG_SYS_CLK_DIV 2
 #endif
 
-#ifdef CONFIG_MK_PCIE
+#ifdef CONFIG_PCIE
 #define CONFIG_PCIE1
 #endif
 
@@ -57,6 +56,10 @@
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41/48 */
 #define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_SBC8548		1	/* SBC8548 board specific */
+
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xfffa0000
+#endif
 
 #undef CONFIG_RIO
 
@@ -206,7 +209,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -318,27 +321,25 @@
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
 
 #define CONFIG_SYS_INIT_L2_ADDR	0xf8f80000	/* relocate boot L2SRAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * For soldered on flash, (128kB/sector) we use 2 sectors for u-boot and
- * one for env+bootpg (TEXT_BASE=0xfffa_0000, 384kB total).  For SODIMM
+ * one for env+bootpg (CONFIG_SYS_TEXT_BASE=0xfffa_0000, 384kB total).  For SODIMM
  * flash (512kB/sector) we use 1 sector for u-boot, and one for env+bootpg
- * (TEXT_BASE=0xfff0_0000, 1MB total).  This dynamically sets the right
+ * (CONFIG_SYS_TEXT_BASE=0xfff0_0000, 1MB total).  This dynamically sets the right
  * thing for MONITOR_LEN in both cases.
  */
-#define CONFIG_SYS_MONITOR_LEN		(~TEXT_BASE + 1)
+#define CONFIG_SYS_MONITOR_LEN		(~CONFIG_SYS_TEXT_BASE + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX	1
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -452,10 +453,10 @@
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SIZE		0x2000
-#if TEXT_BASE == 0xfff00000	/* Boot from 64MB SODIMM */
+#if CONFIG_SYS_TEXT_BASE == 0xfff00000	/* Boot from 64MB SODIMM */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x80000)
 #define CONFIG_ENV_SECT_SIZE	0x80000	/* 512K(one sector) for env */
-#elif TEXT_BASE == 0xfffa0000	/* Boot from 8MB soldered flash */
+#elif CONFIG_SYS_TEXT_BASE == 0xfffa0000	/* Boot from 8MB soldered flash */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
 #else
@@ -517,14 +518,6 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
-
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
@@ -564,11 +557,11 @@
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
+	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
  "consoledev=ttyS0\0"				\
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=uRamdisk\0"			\

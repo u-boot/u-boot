@@ -28,7 +28,7 @@ $(shell mkdir -p $(obj)../common)
 $(shell mkdir -p $(obj)../../tqc/tqm8xx)
 endif
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
 COBJS	= scm.o flash.o fpga_scm.o ../common/fpga.o \
 	  ../../tqc/tqm8xx/load_sernum_ethaddr.o
@@ -38,7 +38,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

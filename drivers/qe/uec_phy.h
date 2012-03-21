@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 Freescale Semiconductor, Inc.
+ * Copyright (C) 2005, 2011 Freescale Semiconductor, Inc.
  *
  * Author: Shlomi Gridish <gridish@freescale.com>
  *
@@ -23,16 +23,6 @@
 #define MIIMIND_NOTVALID	0x00000004
 
 #define UGETH_AN_TIMEOUT	2000
-
-/* 1000BT control (Marvell & BCM54xx at least) */
-#define MII_1000BASETCONTROL		      0x09
-#define MII_1000BASETCONTROL_FULLDUPLEXCAP    0x0200
-#define MII_1000BASETCONTROL_HALFDUPLEXCAP    0x0100
-
-/* 1000BT status */
-#define MII_1000BASETSTATUS	0x0a
-#define LPA_1000FULL		0x0400
-#define LPA_1000HALF		0x0200
 
 /* Cicada Extended Control Register 1 */
 #define MII_CIS8201_EXT_CON1	    0x17
@@ -168,24 +158,6 @@
 #define ADVERTISED_FIBRE		(1 << 10)
 #define ADVERTISED_BNC			(1 << 11)
 #define ADVERTISED_10000baseT_Full	(1 << 12)
-
-/* Advertisement control register. */
-#define ADVERTISE_SLCT		0x001f	/* Selector bits	       */
-#define ADVERTISE_CSMA		0x0001	/* Only selector supported     */
-#define ADVERTISE_10HALF	0x0020	/* Try for 10mbps half-duplex  */
-#define ADVERTISE_10FULL	0x0040	/* Try for 10mbps full-duplex  */
-#define ADVERTISE_100HALF	0x0080	/* Try for 100mbps half-duplex */
-#define ADVERTISE_100FULL	0x0100	/* Try for 100mbps full-duplex */
-#define ADVERTISE_100BASE4	0x0200	/* Try for 100mbps 4k packets  */
-#define ADVERTISE_RESV		0x1c00	/* Unused...		       */
-#define ADVERTISE_RFAULT	0x2000	/* Say we can detect faults    */
-#define ADVERTISE_LPACK		0x4000	/* Ack link partners response  */
-#define ADVERTISE_NPAGE		0x8000	/* Next page bit	       */
-
-#define ADVERTISE_FULL (ADVERTISE_100FULL | ADVERTISE_10FULL | \
-			ADVERTISE_CSMA)
-#define ADVERTISE_ALL (ADVERTISE_10HALF | ADVERTISE_10FULL | \
-		       ADVERTISE_100HALF | ADVERTISE_100FULL)
 
 /* Taken from mii_if_info and sungem_phy.h */
 struct uec_mii_info {

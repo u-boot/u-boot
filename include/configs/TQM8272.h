@@ -37,6 +37,8 @@
 #define CONFIG_MPC8272_FAMILY   1
 #define CONFIG_TQM8272		1
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define	CONFIG_GET_CPU_STR_F	1	/* Get the CPU ID STR */
 #define CONFIG_BOARD_GET_CPU_CLK_F	1 /* Get the CLKIN from board fct */
 
@@ -357,7 +359,7 @@
 
 
 /* What should the base address of the main FLASH be and how big is
- * it (in MBytes)? This must contain TEXT_BASE from board/tqm8272/config.mk
+ * it (in MBytes)? This must contain CONFIG_SYS_TEXT_BASE from board/tqm8272/config.mk
  * The main FLASH is whichever is connected to *CS0.
  */
 #define CONFIG_SYS_FLASH0_BASE 0x40000000
@@ -486,9 +488,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x2000  /* End of used area in DPRAM    */
-#define CONFIG_SYS_GBL_DATA_SIZE	128 /* size in bytes reserved for initial data*/
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000  /* Size of used area in DPRAM    */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -498,17 +499,9 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_FLASH0_BASE
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor */
 #define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()*/
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot                 */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

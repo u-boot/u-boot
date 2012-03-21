@@ -281,7 +281,7 @@ static inline u32 get_part_sector_size_nor(struct mtdids *id, struct part_info *
 	flash = &flash_info[id->num];
 
 	start_phys = flash->start[0] + part->offset;
-	end_phys = start_phys + part->size;
+	end_phys = start_phys + part->size - 1;
 
 	for (i = 0; i < flash->sector_count; i++) {
 		if (flash->start[i] >= end_phys)

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2010
  * Murray Jensen <Murray.Jensen@cmst.csiro.au>
  *
  * See file CREDITS for list of people who contributed to this
@@ -35,6 +35,8 @@
 
 #define CONFIG_MPC860		1	/* This is an MPC860 CPU	*/
 #define CONFIG_COGENT		1	/* using Cogent Modular Architecture */
+
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
 
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 #define	CONFIG_MISC_INIT_R		/* Use misc_init_r()		*/
@@ -78,7 +80,7 @@
 #define CONFIG_CMD_I2C
 
 #undef CONFIG_CMD_NET
-
+#undef CONFIG_CMD_NFS
 
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
@@ -169,9 +171,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -185,7 +186,7 @@
 #else
 #define CONFIG_SYS_FLASH_BASE		CMA_MB_FLASH_BASE	/* flash on m/b */
 #endif
-#define	CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
 #define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
@@ -310,7 +311,7 @@
  * (the *_SIZE vars must be a power of 2)
  */
 
-#define CONFIG_SYS_CMA_CS0_BASE	TEXT_BASE		/* EPROM */
+#define CONFIG_SYS_CMA_CS0_BASE	CONFIG_SYS_TEXT_BASE		/* EPROM */
 #define CONFIG_SYS_CMA_CS0_SIZE	(1 << 20)
 #define CONFIG_SYS_CMA_CS1_BASE	CMA_MB_RAM_BASE		/* RAM + I/O SLOT 1 */
 #define CONFIG_SYS_CMA_CS1_SIZE	(64 << 20)
@@ -364,13 +365,4 @@
 #define CONFIG_SYS_OR3_PRELIM	((~(CONFIG_SYS_CMA_CS3_SIZE-1)&OR_AM_MSK)|OR_BI|OR_SETA)
 
 #endif
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

@@ -77,8 +77,18 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->write_data_delay = 2;
 
 	/*
-	 * Factors to consider for half-strength driver enable:
-	 *	- number of DIMMs installed
+	 * Enable half drive strength
 	 */
-	popts->half_strength_driver_enable = 0;
+	popts->half_strength_driver_enable = 1;
+
+	/* Write leveling override */
+	popts->wrlvl_en = 1;
+	popts->wrlvl_override = 1;
+	popts->wrlvl_sample = 0xa;
+	popts->wrlvl_start = 0x4;
+
+	/* Rtt and Rtt_W override */
+	popts->rtt_override = 1;
+	popts->rtt_override_value = DDR3_RTT_60_OHM;
+	popts->rtt_wr_override_value = 0; /* Rtt_WR= dynamic ODT off */
 }

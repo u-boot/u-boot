@@ -64,6 +64,8 @@
 #define CONFIG_MPC860T		1
 #define CONFIG_MPC855T		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xF8000000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_SCC1
@@ -203,9 +205,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -371,13 +372,6 @@
 #define DUART_BR_VALUE (BR_MS_UPMB | BR_PS_8 | BR_V)
 #define DUART_BR5_VALUE ((CONFIG_SYS_DUARTA_BASE & BR_BA_MSK ) | DUART_BR_VALUE)
 #define DUART_BR6_VALUE ((CONFIG_SYS_DUARTB_BASE & BR_BA_MSK ) | DUART_BR_VALUE)
-
-/**********************************************************
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #define CONFIG_RESET_ON_PANIC		/* reset if system panic() */
 

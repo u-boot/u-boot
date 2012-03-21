@@ -30,8 +30,8 @@
 #define ETH_ZLEN	60
 
 struct ftmac100_data {
-	volatile struct ftmac100_txdes txdes[1];
-	volatile struct ftmac100_rxdes rxdes[PKTBUFSRX];
+	struct ftmac100_txdes txdes[1];
+	struct ftmac100_rxdes rxdes[PKTBUFSRX];
 	int rx_index;
 };
 
@@ -88,8 +88,8 @@ static int ftmac100_init (struct eth_device *dev, bd_t *bd)
 {
 	struct ftmac100 *ftmac100 = (struct ftmac100 *)dev->iobase;
 	struct ftmac100_data *priv = dev->priv;
-	volatile struct ftmac100_txdes *txdes = priv->txdes;
-	volatile struct ftmac100_rxdes *rxdes = priv->rxdes;
+	struct ftmac100_txdes *txdes = priv->txdes;
+	struct ftmac100_rxdes *rxdes = priv->rxdes;
 	unsigned int maccr;
 	int i;
 
@@ -153,7 +153,7 @@ static int ftmac100_init (struct eth_device *dev, bd_t *bd)
 static int ftmac100_recv (struct eth_device *dev)
 {
 	struct ftmac100_data *priv = dev->priv;
-	volatile struct ftmac100_rxdes *curr_des;
+	struct ftmac100_rxdes *curr_des;
 	unsigned short rxlen;
 
 	curr_des = &priv->rxdes[priv->rx_index];
@@ -195,8 +195,8 @@ ftmac100_send (struct eth_device *dev, volatile void *packet, int length)
 {
 	struct ftmac100 *ftmac100 = (struct ftmac100 *)dev->iobase;
 	struct ftmac100_data *priv = dev->priv;
-	volatile struct ftmac100_txdes *curr_des = priv->txdes;
-	int tmo;
+	struct ftmac100_txdes *curr_des = priv->txdes;
+	ulong start;
 
 	if (curr_des->txdes0 & FTMAC100_TXDES0_TXDMA_OWN) {
 		debug ("%s(): no TX descriptor available\n", __func__);
@@ -224,9 +224,9 @@ ftmac100_send (struct eth_device *dev, volatile void *packet, int length)
 
 	/* wait for transfer to succeed */
 
-	tmo = get_timer (0) + 5 * CONFIG_SYS_HZ;
+	start = get_timer(0);
 	while (curr_des->txdes0 & FTMAC100_TXDES0_TXDMA_OWN) {
-		if (get_timer (0) >= tmo) {
+		if (get_timer(start) >= 5) {
 			debug ("%s(): timed out\n", __func__);
 			return -1;
 		}

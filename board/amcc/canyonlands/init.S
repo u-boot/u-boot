@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <ppc_asm.tmpl>
 #include <config.h>
 #include <asm/mmu.h>
@@ -79,7 +80,7 @@ tlbtab:
 
 #if !defined(CONFIG_ARCHES)
 	/* TLB-entry for NAND */
-	tlbentry(CONFIG_SYS_NAND_ADDR, SZ_16M, CONFIG_SYS_NAND_ADDR, 4, AC_RWX | SA_IG)
+	tlbentry(CONFIG_SYS_NAND_ADDR, SZ_1K, CONFIG_SYS_NAND_ADDR, 4, AC_RWX | SA_IG)
 
 	/* TLB-entry for CPLD */
 	tlbentry(CONFIG_SYS_BCSR_BASE, SZ_1K, CONFIG_SYS_BCSR_BASE, 4, AC_RW | SA_IG)

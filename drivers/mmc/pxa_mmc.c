@@ -27,6 +27,7 @@
 #include <asm/errno.h>
 #include <asm/arch/hardware.h>
 #include <part.h>
+#include <asm/io.h>
 
 #include "pxa_mmc.h"
 
@@ -59,18 +60,20 @@ mmc_cmd(ushort cmd, ushort argh, ushort argl, ushort cmdat)
 
 	debug("mmc_cmd %u 0x%04x 0x%04x 0x%04x\n", cmd, argh, argl,
 	      cmdat | wide);
-	MMC_STRPCL = MMC_STRPCL_STOP_CLK;
-	MMC_I_MASK = ~MMC_I_MASK_CLK_IS_OFF;
-	while (!(MMC_I_REG & MMC_I_REG_CLK_IS_OFF)) ;
-	MMC_CMD = cmd;
-	MMC_ARGH = argh;
-	MMC_ARGL = argl;
-	MMC_CMDAT = cmdat | wide;
-	MMC_I_MASK = ~MMC_I_MASK_END_CMD_RES;
-	MMC_STRPCL = MMC_STRPCL_START_CLK;
-	while (!(MMC_I_REG & MMC_I_REG_END_CMD_RES)) ;
+	writel(MMC_STRPCL_STOP_CLK, MMC_STRPCL);
+	writel(~MMC_I_MASK_CLK_IS_OFF, MMC_I_MASK);
+	while (!(readl(MMC_I_REG) & MMC_I_REG_CLK_IS_OFF))
+		;
+	writel(cmd, MMC_CMD);
+	writel(argh, MMC_ARGH);
+	writel(argl, MMC_ARGL);
+	writel(cmdat | wide, MMC_CMDAT);
+	writel(~MMC_I_MASK_END_CMD_RES, MMC_I_MASK);
+	writel(MMC_STRPCL_START_CLK, MMC_STRPCL);
+	while (!(readl(MMC_I_REG) & MMC_I_REG_END_CMD_RES))
+		;
 
-	status = MMC_STAT;
+	status = readl(MMC_STAT);
 	debug("MMC status 0x%08x\n", status);
 	if (status & MMC_STAT_TIME_OUT_RESPONSE) {
 		return 0;
@@ -80,10 +83,10 @@ mmc_cmd(ushort cmd, ushort argh, ushort argl, ushort cmdat)
 	 * Did I mention this is Sick.  We always need to
 	 * discard the upper 8 bits of the first 16-bit word.
 	 */
-	a = (MMC_RES & 0xffff);
+	a = (readl(MMC_RES) & 0xffff);
 	for (i = 0; i < 4; i++) {
-		b = (MMC_RES & 0xffff);
-		c = (MMC_RES & 0xffff);
+		b = (readl(MMC_RES) & 0xffff);
+		c = (readl(MMC_RES) & 0xffff);
 		resp[i] = (a << 24) | (b << 8) | (c >> 8);
 		a = c;
 		debug("MMC resp[%d] = %#08x\n", i, resp[i]);
@@ -115,37 +118,38 @@ mmc_block_read(uchar * dst, ulong src, ulong len)
 	/* send read command */
 	argh = src >> 16;
 	argl = src & 0xffff;
-	MMC_STRPCL = MMC_STRPCL_STOP_CLK;
-	MMC_RDTO = 0xffff;
-	MMC_NOB = 1;
-	MMC_BLKLEN = len;
+	writel(MMC_STRPCL_STOP_CLK, MMC_STRPCL);
+	writel(0xffff, MMC_RDTO);
+	writel(1, MMC_NOB);
+	writel(len, MMC_BLKLEN);
 	mmc_cmd(MMC_CMD_READ_SINGLE_BLOCK, argh, argl,
 		MMC_CMDAT_R1 | MMC_CMDAT_READ | MMC_CMDAT_BLOCK |
 		MMC_CMDAT_DATA_EN);
 
-	MMC_I_MASK = ~MMC_I_MASK_RXFIFO_RD_REQ;
+	writel(~MMC_I_MASK_RXFIFO_RD_REQ, MMC_I_MASK);
 	while (len) {
-		if (MMC_I_REG & MMC_I_REG_RXFIFO_RD_REQ) {
+		if (readl(MMC_I_REG) & MMC_I_REG_RXFIFO_RD_REQ) {
 #if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 			int i;
 			for (i = min(len, 32); i; i--) {
-				*dst++ = *((volatile uchar *)&MMC_RXFIFO);
+				*dst++ = readb(MMC_RXFIFO);
 				len--;
 			}
 #else
-			*dst++ = MMC_RXFIFO;
+			*dst++ = readb(MMC_RXFIFO);
 			len--;
 #endif
 		}
-		status = MMC_STAT;
+		status = readl(MMC_STAT);
 		if (status & MMC_STAT_ERRORS) {
 			printf("MMC_STAT error %lx\n", status);
 			return -1;
 		}
 	}
-	MMC_I_MASK = ~MMC_I_MASK_DATA_TRAN_DONE;
-	while (!(MMC_I_REG & MMC_I_REG_DATA_TRAN_DONE)) ;
-	status = MMC_STAT;
+	writel(~MMC_I_MASK_DATA_TRAN_DONE, MMC_I_MASK);
+	while (!(readl(MMC_I_REG) & MMC_I_REG_DATA_TRAN_DONE))
+		;
+	status = readl(MMC_STAT);
 	if (status & MMC_STAT_ERRORS) {
 		printf("MMC_STAT error %lx\n", status);
 		return -1;
@@ -176,37 +180,39 @@ mmc_block_write(ulong dst, uchar * src, int len)
 	/* send write command */
 	argh = dst >> 16;
 	argl = dst & 0xffff;
-	MMC_STRPCL = MMC_STRPCL_STOP_CLK;
-	MMC_NOB = 1;
-	MMC_BLKLEN = len;
+	writel(MMC_STRPCL_STOP_CLK, MMC_STRPCL);
+	writel(1, MMC_NOB);
+	writel(len, MMC_BLKLEN);
 	mmc_cmd(MMC_CMD_WRITE_SINGLE_BLOCK, argh, argl,
 		MMC_CMDAT_R1 | MMC_CMDAT_WRITE | MMC_CMDAT_BLOCK |
 		MMC_CMDAT_DATA_EN);
 
-	MMC_I_MASK = ~MMC_I_MASK_TXFIFO_WR_REQ;
+	writel(~MMC_I_MASK_TXFIFO_WR_REQ, MMC_I_MASK);
 	while (len) {
-		if (MMC_I_REG & MMC_I_REG_TXFIFO_WR_REQ) {
+		if (readl(MMC_I_REG) & MMC_I_REG_TXFIFO_WR_REQ) {
 			int i, bytes = min(32, len);
 
 			for (i = 0; i < bytes; i++) {
-				MMC_TXFIFO = *src++;
+				writel(*src++, MMC_TXFIFO);
 			}
 			if (bytes < 32) {
-				MMC_PRTBUF = MMC_PRTBUF_BUF_PART_FULL;
+				writel(MMC_PRTBUF_BUF_PART_FULL, MMC_PRTBUF);
 			}
 			len -= bytes;
 		}
-		status = MMC_STAT;
+		status = readl(MMC_STAT);
 		if (status & MMC_STAT_ERRORS) {
 			printf("MMC_STAT error %lx\n", status);
 			return -1;
 		}
 	}
-	MMC_I_MASK = ~MMC_I_MASK_DATA_TRAN_DONE;
-	while (!(MMC_I_REG & MMC_I_REG_DATA_TRAN_DONE)) ;
-	MMC_I_MASK = ~MMC_I_MASK_PRG_DONE;
-	while (!(MMC_I_REG & MMC_I_REG_PRG_DONE)) ;
-	status = MMC_STAT;
+	writel(~MMC_I_MASK_DATA_TRAN_DONE, MMC_I_MASK);
+	while (!(readl(MMC_I_REG) & MMC_I_REG_DATA_TRAN_DONE))
+		;
+	writel(~MMC_I_MASK_PRG_DONE, MMC_I_MASK);
+	while (!(readl(MMC_I_REG) & MMC_I_REG_PRG_DONE))
+		;
+	status = readl(MMC_STAT);
 	if (status & MMC_STAT_ERRORS) {
 		printf("MMC_STAT error %lx\n", status);
 		return -1;
@@ -559,13 +565,13 @@ mmc_legacy_init(int verbose)
 	set_GPIO_mode(GPIO8_MMCCS0_MD);
 #endif
 #ifdef CONFIG_CPU_MONAHANS	/* pxa3xx */
-	CKENA |= CKENA_12_MMC0 | CKENA_13_MMC1;
+	writel(readl(CKENA) | CKENA_12_MMC0 | CKENA_13_MMC1, CKENA);
 #else	/* pxa2xx */
-	CKEN |= CKEN12_MMC;	/* enable MMC unit clock */
+	writel(readl(CKEN) | CKEN12_MMC, CKEN);	/* enable MMC unit clock */
 #endif
-	MMC_CLKRT = MMC_CLKRT_0_3125MHZ;
-	MMC_RESTO = MMC_RES_TO_MAX;
-	MMC_SPI = MMC_SPI_DISABLE;
+	writel(MMC_CLKRT_0_3125MHZ, MMC_CLKRT);
+	writel(MMC_RES_TO_MAX, MMC_RESTO);
+	writel(MMC_SPI_DISABLE, MMC_SPI);
 
 	/* reset */
 	mmc_cmd(MMC_CMD_GO_IDLE_STATE, 0, 0, MMC_CMDAT_INIT | MMC_CMDAT_R0);
@@ -624,7 +630,7 @@ mmc_legacy_init(int verbose)
 		mmc_decode_cid(cid_resp);
 	}
 
-	MMC_CLKRT = 0;		/* 20 MHz */
+	writel(0, MMC_CLKRT);		/* 20 MHz */
 	resp = mmc_cmd(MMC_CMD_SELECT_CARD, rca, 0, MMC_CMDAT_R1);
 
 #if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)

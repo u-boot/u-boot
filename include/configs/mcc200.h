@@ -33,12 +33,19 @@
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU		*/
 #define CONFIG_MCC200		1	/* ... on MCC200 board			*/
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFC000000	boot low (standard configuration)
+ * 0xFFF00000	boot high
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFC000000
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33MHz		*/
 
 #define CONFIG_MISC_INIT_R
-
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported			*/
 
@@ -114,7 +121,7 @@
 #define CONFIG_CMD_USB
 
 #undef	CONFIG_CMD_NET
-
+#undef	CONFIG_CMD_NFS
 
 /*
  * Autobooting
@@ -169,7 +176,7 @@
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/" CONFIG_SYS__BOARDNAME "/uImage\0"		\
 	"load=tftp 200000 /tftpboot/" CONFIG_SYS__BOARDNAME "/u-boot.bin\0"	\
-	"text_base=" MK_STR(TEXT_BASE) "\0"				\
+	"text_base=" MK_STR(CONFIG_SYS_TEXT_BASE) "\0"				\
 	"kernel_addr=0xFC0C0000\0"					\
 	"update=protect off ${text_base} +${filesize};"			\
 		"era ${text_base} +${filesize};"			\
@@ -239,7 +246,7 @@
 
 #define CONFIG_ENV_OVERWRITE	1	/* allow modification of vendor params */
 
-#if TEXT_BASE == CONFIG_SYS_FLASH_BASE
+#if CONFIG_SYS_TEXT_BASE == CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LOWBOOT	1
 #endif
 
@@ -252,14 +259,13 @@
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

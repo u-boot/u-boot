@@ -279,12 +279,11 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
-#define CONFIG_SYS_INIT_RAM_END		0x8000	/* End of used area in internal SRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE		0x8000	/* Size of used area in internal SRAM */
 #define CONFIG_SYS_INIT_RAM_CTRL	0x221
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	((CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE) - 32)
+#define CONFIG_SYS_GBL_DATA_OFFSET	((CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE) - 32)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
-#define CONFIG_SYS_SBFHDR_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - 32)
+#define CONFIG_SYS_SBFHDR_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - 32)
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -305,7 +304,7 @@
 #define CONFIG_SYS_MEMTEST_END		((CONFIG_SYS_SDRAM_SIZE - 3) << 20)
 
 #ifdef CONFIG_CF_SBF
-#	define CONFIG_SYS_MONITOR_BASE	(TEXT_BASE + 0x400)
+#	define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE + 0x400)
 #else
 #	define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
 #endif
@@ -409,9 +408,9 @@
 #define CONFIG_SYS_CACHELINE_SIZE		16
 
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_END - 8)
+					 CONFIG_SYS_INIT_RAM_SIZE - 8)
 #define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_END - 4)
+					 CONFIG_SYS_INIT_RAM_SIZE - 4)
 #define CONFIG_SYS_ICACHE_INV		(CF_CACR_BCINVA + CF_CACR_ICINVA)
 #define CONFIG_SYS_DCACHE_INV		(CF_CACR_DCINVA)
 #define CONFIG_SYS_CACHE_ACR2		(CONFIG_SYS_SDRAM_BASE | \

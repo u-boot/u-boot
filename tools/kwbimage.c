@@ -33,7 +33,7 @@
  * Supported commands for configuration file
  */
 static table_entry_t kwbimage_cmds[] = {
-	{CMD_BOOT_FROM,		"BOOT_FROM",		"boot comand",	},
+	{CMD_BOOT_FROM,		"BOOT_FROM",		"boot command",	},
 	{CMD_NAND_ECC_MODE,	"NAND_ECC_MODE",	"NAND mode",	},
 	{CMD_NAND_PAGE_SIZE,	"NAND_PAGE_SIZE",	"NAND size",	},
 	{CMD_SATA_PIO_MODE,	"SATA_PIO_MODE",	"SATA mode",	},

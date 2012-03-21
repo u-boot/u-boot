@@ -26,7 +26,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= netstar.o
 SOBJS	:= setup.o
@@ -43,7 +43,7 @@ all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin \
 		$(obj)crcek.srec $(obj)crcek.bin $(obj)crcit
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $^
+	$(call cmd_link_o_target, $^)
 
 $(obj)eeprom_start.o:
 	echo "b eeprom" | $(CC) $(AFLAGS) -c -x assembler -o $@ -

@@ -41,18 +41,41 @@ SECTIONS
 	.rodata : { *(.rodata) }
 
 	. = ALIGN(4);
-	.data : { *(.data) }
+	.data : {
+		*(.data)
+	}
 
 	. = ALIGN(4);
-	.got : { *(.got) }
-
-	. = .;
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;
 
 	. = ALIGN(4);
-	__bss_start = .;
-	.bss : { *(.bss) }
-	_end = .;
+
+	.rel.dyn : {
+		__rel_dyn_start = .;
+		*(.rel*)
+		__rel_dyn_end = .;
+	}
+
+	.dynsym : {
+		__dynsym_start = .;
+		*(.dynsym)
+	}
+
+	.bss __rel_dyn_start (OVERLAY) : {
+		__bss_start = .;
+		*(.bss)
+		 . = ALIGN(4);
+		__bss_end__ = .;
+	}
+
+	/DISCARD/ : { *(.bss*) }
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynsym*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.hash*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 }

@@ -23,14 +23,16 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libnet.a
+LIB	:= $(obj)libnet.o
 
 COBJS-$(CONFIG_DRIVER_3C589) += 3c589.o
 COBJS-$(CONFIG_PPC4xx_EMAC) += 4xx_enet.o
 COBJS-$(CONFIG_ALTERA_TSE) += altera_tse.o
 COBJS-$(CONFIG_DRIVER_AT91EMAC) += at91_emac.o
 COBJS-$(CONFIG_DRIVER_AX88180) += ax88180.o
-COBJS-$(CONFIG_BCM570x) += bcm570x.o bcm570x_autoneg.o 5701rls.o
+COBJS-$(CONFIG_BCM570x) += bcm570x.o
+COBJS-$(CONFIG_BCM570x) += bcm570x_autoneg.o
+COBJS-$(CONFIG_BCM570x) += 5701rls.o
 COBJS-$(CONFIG_BFIN_MAC) += bfin_mac.o
 COBJS-$(CONFIG_CS8900) += cs8900.o
 COBJS-$(CONFIG_TULIP) += dc2114x.o
@@ -40,10 +42,12 @@ COBJS-$(CONFIG_DNET) += dnet.o
 COBJS-$(CONFIG_E1000) += e1000.o
 COBJS-$(CONFIG_EEPRO100) += eepro100.o
 COBJS-$(CONFIG_ENC28J60) += enc28j60.o
+COBJS-$(CONFIG_ENC28J60_LPC2292) += enc28j60_lpc2292.o
 COBJS-$(CONFIG_EP93XX) += ep93xx_eth.o
 COBJS-$(CONFIG_ETHOC) += ethoc.o
 COBJS-$(CONFIG_FEC_MXC) += fec_mxc.o
 COBJS-$(CONFIG_FSLDMAFEC) += fsl_mcdmafec.o mcfmii.o
+COBJS-$(CONFIG_FTGMAC100) += ftgmac100.o
 COBJS-$(CONFIG_FTMAC100) += ftmac100.o
 COBJS-$(CONFIG_GRETH) += greth.o
 COBJS-$(CONFIG_INCA_IP_SWITCH) += inca-ip_sw.o
@@ -71,7 +75,9 @@ COBJS-$(CONFIG_DRIVER_S3C4510_ETH) += s3c4510b_eth.o
 COBJS-$(CONFIG_SH_ETHER) += sh_eth.o
 COBJS-$(CONFIG_SMC91111) += smc91111.o
 COBJS-$(CONFIG_SMC911X) += smc911x.o
-COBJS-$(CONFIG_TIGON3) += tigon3.o bcm570x_autoneg.o 5701rls.o
+COBJS-$(CONFIG_TIGON3) += tigon3.o
+COBJS-$(CONFIG_TIGON3) += bcm570x_autoneg.o
+COBJS-$(CONFIG_TIGON3) += 5701rls.o
 COBJS-$(CONFIG_DRIVER_TI_EMAC) += davinci_emac.o
 COBJS-$(CONFIG_TSEC_ENET) += tsec.o
 COBJS-$(CONFIG_TSI108_ETH) += tsi108_eth.o
@@ -79,14 +85,14 @@ COBJS-$(CONFIG_ULI526X) += uli526x.o
 COBJS-$(CONFIG_VSC7385_ENET) += vsc7385.o
 COBJS-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
 
-COBJS	:= $(COBJS-y)
+COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

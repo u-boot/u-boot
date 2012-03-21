@@ -659,12 +659,19 @@ not need any modifications for porting them to another board/CPU.
 2.2.2.1. I2C test
 
 For verifying the I2C bus, a full I2C bus scanning will be performed
-using the i2c_probe() routine. If any I2C device is found, the test
-will be considered as passed, otherwise failed. This particular way
-will be used because it provides the most common method of testing.
-For example, using the internal loopback mode of the CPM I2C
-controller for testing would not work on boards where the software
-I2C driver (also known as bit-banged driver) is used.
+using the i2c_probe() routine. If a board defines
+CONFIG_SYS_POST_I2C_ADDRS the I2C test will pass if all devices
+listed in CONFIG_SYS_POST_I2C_ADDRS are found, and no additional
+devices are detected.  If CONFIG_SYS_POST_I2C_ADDRS is not defined
+the test will pass if any I2C device is found.
+
+The CONFIG_SYS_POST_I2C_IGNORES define can be used to list I2C
+devices which may or may not be present when using
+CONFIG_SYS_POST_I2C_ADDRS.  The I2C POST test will pass regardless
+if the devices in CONFIG_SYS_POST_I2C_IGNORES are found or not.
+This is useful in cases when I2C devices are optional (eg on a
+daughtercard that may or may not be present) or not critical
+to board operation.
 
 2.2.2.2. Watchdog timer test
 

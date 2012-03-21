@@ -66,7 +66,7 @@ int board_init(void)
 
 	gd->bd->bi_arch_number = MACH_TYPE_EB_CPUX9K2;
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_STATUS_LED
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
@@ -134,9 +134,8 @@ void reset_phy(void)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM;
-	gd->bd->bi_dram[0].size =
-		get_ram_size((volatile long *) PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	gd->ram_size = get_ram_size((volatile long *)CONFIG_SYS_SDRAM_BASE,
+			CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }
 

@@ -33,6 +33,8 @@
 #define CONFIG_ISPAN			/* ...on one of Interphase iSPAN boards */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE7A0000
+
 /*-----------------------------------------------------------------------
  * Select serial console configuration
  *
@@ -171,7 +173,7 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor   */
 #ifdef CONFIG_BZIP2
 #define CONFIG_SYS_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()    */
@@ -229,18 +231,9 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in DPRAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* Size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
-
-/*-----------------------------------------------------------------------
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from flash	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

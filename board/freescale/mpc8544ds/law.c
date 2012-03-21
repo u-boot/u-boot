@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008, 2010 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -28,15 +28,7 @@
 #include <asm/mmu.h>
 
 struct law_entry law_table[] = {
-	SET_LAW(CONFIG_SYS_PCI1_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_PCI),
-	SET_LAW(CONFIG_SYS_PCI1_IO_PHYS, LAW_SIZE_64K, LAW_TRGT_IF_PCI),
 	SET_LAW(CONFIG_SYS_LBC_NONCACHE_BASE, LAW_SIZE_128M, LAW_TRGT_IF_LBC),
-	SET_LAW(CONFIG_SYS_PCIE1_MEM_PHYS, LAW_SIZE_256M, LAW_TRGT_IF_PCIE_1),
-	SET_LAW(CONFIG_SYS_PCIE1_IO_PHYS, LAW_SIZE_64K, LAW_TRGT_IF_PCIE_1),
-	SET_LAW(CONFIG_SYS_PCIE2_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_PCIE_2),
-	SET_LAW(CONFIG_SYS_PCIE2_IO_PHYS, LAW_SIZE_64K, LAW_TRGT_IF_PCIE_2),
-	/* contains both PCIE3 MEM & IO space */
-	SET_LAW(CONFIG_SYS_PCIE3_MEM_PHYS, LAW_SIZE_4M, LAW_TRGT_IF_PCIE_3),
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);

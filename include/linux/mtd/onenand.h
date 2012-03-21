@@ -154,6 +154,7 @@ struct onenand_chip {
 /*
  * OneNAND Flash Manufacturer ID Codes
  */
+#define ONENAND_MFR_NUMONYX	0x20
 #define ONENAND_MFR_SAMSUNG	0xec
 
 /**

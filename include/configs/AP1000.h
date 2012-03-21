@@ -27,6 +27,14 @@
 
 #define CONFIG_AP1000	1		/* ...on an AP1000 board    */
 
+/*
+ * Start at bottom of RAM, but at an aliased address so that it looks
+ * like it's not in RAM.  This is a bit of voodoo to allow it to be
+ * run from RAM instead of Flash.
+ */
+#define	CONFIG_SYS_TEXT_BASE	0x08000000
+#define CONFIG_SYS_LDSCRIPT	"board/amirix/ap1000/u-boot.lds"
+
 #define CONFIG_PCI	1
 
 #define CONFIG_SYS_HUSH_PARSER 1		/* use "hush" command parser	*/
@@ -51,12 +59,6 @@
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds */
 
 #define CONFIG_BOOTCOMMAND	""	/* autoboot command */
-
-/* Size (bytes) of interrupt driven serial port buffer.
- * Set to 0 to use polling instead of interrupts.
- * Setting to 0 will also disable RTS/CTS handshaking.
- */
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 
 #define CONFIG_BOOTARGS		"console=ttyS0,57600"
 
@@ -91,6 +93,14 @@
 #define CONFIG_SYS_CLK_FREQ	30000000
 
 #define CONFIG_SPD_EEPROM	1	/* use SPD EEPROM for setup    */
+
+/*
+ * I2C
+ */
+#define CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
+#define CONFIG_SYS_I2C_SLAVE	0x7F
+#define CONFIG_SYS_I2C_SPEED	400000
 
 /*
  * Miscellaneous configurable options
@@ -147,7 +157,7 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0x20000000
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 * 1024)	/* Reserve 196 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
@@ -208,9 +218,8 @@
  */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x400000  /* inside of SDRAM			 */
-#define CONFIG_SYS_INIT_RAM_END	0x2000	/* End of used area in RAM	       */
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000	/* Size of used area in RAM	       */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -218,14 +227,6 @@
  * (to get SDRAM settings)
  */
 #define SPD_EEPROM_ADDRESS	0x50
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

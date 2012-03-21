@@ -36,6 +36,12 @@
 #ifndef CONFIG_SH_ETHER_PHY_ADDR
 # error "Please define CONFIG_SH_ETHER_PHY_ADDR"
 #endif
+#ifdef CONFIG_SH_ETHER_CACHE_WRITEBACK
+#define flush_cache_wback(addr, len)	\
+			dcache_wback_range((u32)addr, (u32)(addr + len - 1))
+#else
+#define flush_cache_wback(...)
+#endif
 
 #define SH_ETH_PHY_DELAY 50000
 
@@ -197,6 +203,7 @@ int sh_eth_send(struct eth_device *dev, volatile void *packet, int len)
 	}
 
 	/* Update tx descriptor */
+	flush_cache_wback(packet, len);
 	port_info->tx_desc_cur->td2 = ADDR_TO_PHY(packet);
 	port_info->tx_desc_cur->td1 = len << 16;
 	/* Must preserve the end of descriptor list indication */
@@ -270,6 +277,7 @@ int sh_eth_recv(struct eth_device *dev)
 static int sh_eth_reset(struct sh_eth_dev *eth)
 {
 	int port = eth->port;
+#if defined(CONFIG_CPU_SH7763)
 	int ret = 0, i;
 
 	/* Start e-dmac transmitter and receiver */
@@ -289,6 +297,13 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 	}
 
 	return ret;
+#else
+	outl(inl(EDMR(port)) | EDMR_SRST, EDMR(port));
+	udelay(3000);
+	outl(inl(EDMR(port)) & ~EDMR_SRST, EDMR(port));
+
+	return 0;
+#endif
 }
 
 static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
@@ -312,6 +327,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 
 	tmp_addr = (u32) (((int)port_info->tx_desc_malloc + TX_DESC_SIZE - 1) &
 			  ~(TX_DESC_SIZE - 1));
+	flush_cache_wback(tmp_addr, NUM_TX_DESC * sizeof(struct tx_desc_s));
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->tx_desc_base = (struct tx_desc_s *)ADDR_TO_P2(tmp_addr);
 	port_info->tx_desc_cur = port_info->tx_desc_base;
@@ -331,9 +347,11 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	/* Point the controller to the tx descriptor list. Must use physical
 	   addresses */
 	outl(ADDR_TO_PHY(port_info->tx_desc_base), TDLAR(port));
+#if defined(CONFIG_CPU_SH7763)
 	outl(ADDR_TO_PHY(port_info->tx_desc_base), TDFAR(port));
 	outl(ADDR_TO_PHY(cur_tx_desc), TDFXR(port));
 	outl(0x01, TDFFR(port));/* Last discriptor bit */
+#endif
 
 err:
 	return ret;
@@ -361,6 +379,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	tmp_addr = (u32) (((int)port_info->rx_desc_malloc + RX_DESC_SIZE - 1) &
 			  ~(RX_DESC_SIZE - 1));
+	flush_cache_wback(tmp_addr, NUM_RX_DESC * sizeof(struct rx_desc_s));
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->rx_desc_base = (struct rx_desc_s *)ADDR_TO_P2(tmp_addr);
 
@@ -396,9 +415,11 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	/* Point the controller to the rx descriptor list */
 	outl(ADDR_TO_PHY(port_info->rx_desc_base), RDLAR(port));
+#if defined(CONFIG_CPU_SH7763)
 	outl(ADDR_TO_PHY(port_info->rx_desc_base), RDFAR(port));
 	outl(ADDR_TO_PHY(cur_rx_desc), RDFXR(port));
 	outl(RDFFR_RDLF, RDFFR(port));
+#endif
 
 	return ret;
 
@@ -523,11 +544,18 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(0, TFTR(port));
 	outl((FIFO_SIZE_T | FIFO_SIZE_R), FDR(port));
 	outl(RMCR_RST, RMCR(port));
+#ifndef CONFIG_CPU_SH7757
 	outl(0, RPADIR(port));
+#endif
 	outl((FIFO_F_D_RFF | FIFO_F_D_RFD), FCFTR(port));
 
 	/* Configure e-mac registers */
+#if defined(CONFIG_CPU_SH7757)
+	outl(ECSIPR_BRCRXIP | ECSIPR_PSRTOIP | ECSIPR_LCHNGIP |
+		ECSIPR_MPDIP | ECSIPR_ICDIP, ECSIPR(port));
+#else
 	outl(0, ECSIPR(port));
+#endif
 
 	/* Set Mac address */
 	val = dev->enetaddr[0] << 24 | dev->enetaddr[1] << 16 |
@@ -538,11 +566,16 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(val, MALR(port));
 
 	outl(RFLR_RFL_MIN, RFLR(port));
+#ifndef CONFIG_CPU_SH7757
 	outl(0, PIPR(port));
+#endif
 	outl(APR_AP, APR(port));
 	outl(MPR_MP, MPR(port));
+#ifdef CONFIG_CPU_SH7757
+	outl(TPAUSER_UNLIMITED, TPAUSER(port));
+#else
 	outl(TPAUSER_TPAUSE, TPAUSER(port));
-
+#endif
 	/* Configure phy */
 	ret = sh_eth_phy_config(eth);
 	if (ret) {
@@ -553,6 +586,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	phy_status = sh_eth_mii_read_phy_reg(port, port_info->phy_addr, 1);
 
 	/* Set the transfer speed */
+#ifdef CONFIG_CPU_SH7763
 	if (phy_status & (PHY_S_100X_F|PHY_S_100X_H)) {
 		printf(SHETHER_NAME ": 100Base/");
 		outl(GECMR_100B, GECMR(port));
@@ -560,6 +594,16 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 		printf(SHETHER_NAME ": 10Base/");
 		outl(GECMR_10B, GECMR(port));
 	}
+#endif
+#if defined(CONFIG_CPU_SH7757)
+	if (phy_status & (PHY_S_100X_F|PHY_S_100X_H)) {
+		printf("100Base/");
+		outl(1, RTRATE(port));
+	} else {
+		printf("10Base/");
+		outl(0, RTRATE(port));
+	}
+#endif
 
 	/* Check if full duplex mode is supported by the phy */
 	if (phy_status & (PHY_S_100X_F|PHY_S_10T_F)) {

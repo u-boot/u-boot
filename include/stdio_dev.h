@@ -93,10 +93,10 @@ int	stdio_register (struct stdio_dev * dev);
 int	stdio_init (void);
 void	stdio_print_current_devices(void);
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-int	stdio_deregister(char *devname);
+int	stdio_deregister(const char *devname);
 #endif
 struct list_head* stdio_get_list(void);
-struct stdio_dev* stdio_get_by_name(char* name);
+struct stdio_dev* stdio_get_by_name(const char* name);
 struct stdio_dev* stdio_clone(struct stdio_dev *dev);
 
 #ifdef CONFIG_ARM_DCC_MULTI

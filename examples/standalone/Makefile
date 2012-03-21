@@ -50,7 +50,7 @@ BIN  = $(addsuffix .bin,$(ELF))
 
 COBJS	:= $(ELF:=.o)
 
-LIB	= $(obj)libstubs.a
+LIB	= $(obj)libstubs.o
 
 LIBAOBJS-$(ARCH)     :=
 LIBAOBJS-$(CPU)      :=
@@ -82,11 +82,16 @@ CFLAGS := $(filter-out $(RELFLAGS),$(CFLAGS))
 CPPFLAGS := $(filter-out $(RELFLAGS),$(CPPFLAGS))
 endif
 
+# We don't want gcc reordering functions if possible.  This ensures that an
+# application's entry point will be the first function in the application's
+# source file.
+CFLAGS += $(call cc-option,-fno-toplevel-reorder)
+
 all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN) $(ELF)
 
 #########################################################################
 $(LIB):	$(obj).depend $(LIBOBJS)
-		$(AR) $(ARFLAGS) $@ $(LIBOBJS)
+	$(call cmd_link_o_target, $(LIBOBJS))
 
 $(ELF):
 $(obj)%:	$(obj)%.o $(LIB)

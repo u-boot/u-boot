@@ -43,6 +43,6 @@ extern int cd_count[MAX_FILES];
 
 int iomux_doenv(const int, const char *);
 void iomux_printdevs(const int);
-struct stdio_dev *search_device(int, char *);
+struct stdio_dev *search_device(int, const char *);
 
 #endif /* _IO_MUX_H */

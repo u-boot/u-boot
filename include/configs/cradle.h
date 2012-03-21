@@ -39,12 +39,11 @@
 
 /* we will never enable dcache, because we have to setup MMU first */
 #define CONFIG_SYS_NO_DCACHE
-
+#define	CONFIG_SYS_TEXT_BASE		0x0
 /*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -126,15 +125,9 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS    4          /* we have 2 banks of DRAM */
+#define CONFIG_NR_DRAM_BANKS    1          /* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1            0xa0000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE       0x01000000 /* 64 MB */
-#define PHYS_SDRAM_2            0xa4000000 /* SDRAM Bank #2 */
-#define PHYS_SDRAM_2_SIZE       0x00000000 /* 0 MB */
-#define PHYS_SDRAM_3            0xa8000000 /* SDRAM Bank #3 */
-#define PHYS_SDRAM_3_SIZE       0x00000000 /* 0 MB */
-#define PHYS_SDRAM_4            0xac000000 /* SDRAM Bank #4 */
-#define PHYS_SDRAM_4_SIZE       0x00000000 /* 0 MB */
 
 #define PHYS_FLASH_1            0x00000000 /* Flash Bank #1 */
 #define PHYS_FLASH_2            0x04000000 /* Flash Bank #1 */
@@ -144,6 +137,9 @@
 #define CONFIG_SYS_DRAM_SIZE           0x04000000
 
 #define CONFIG_SYS_FLASH_BASE          PHYS_FLASH_1
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1)
 
 /*
  * FLASH and environment organization
@@ -286,9 +282,9 @@
  * Clocks, power control and interrupts
  */
 #define CONFIG_SYS_PSSR_VAL        0x00000020
-#define CONFIG_SYS_CCCR_VAL        0x00000141  /* 100 MHz memory, 200 MHz CPU  */
-#define CONFIG_SYS_CKEN_VAL        0x00000060  /* FFUART and STUART enabled    */
-#define CONFIG_SYS_ICMR_VAL        0x00000000  /* No interrupts enabled        */
+#define CONFIG_SYS_CCCR        0x00000141  /* 100 MHz memory, 200 MHz CPU  */
+#define CONFIG_SYS_CKEN        0x00000060  /* FFUART and STUART enabled    */
+#define CONFIG_SYS_ICMR        0x00000000  /* No interrupts enabled        */
 
 /* FIXME
  *
@@ -316,6 +312,8 @@
 #define CONFIG_SYS_MDMRS_VAL       0x00000000
 #define CONFIG_SYS_MDREFR_VAL      0x00403018  /* Initial setting, individual bits set in lowlevel_init.S */
 #endif
+#define	CONFIG_SYS_FLYCNFG_VAL		0x00000000
+#define	CONFIG_SYS_SXCNFG_VAL		0x00000000
 
 /*
  * PCMCIA and CF Interfaces (NOT USED, these values from lubbock init)
@@ -339,8 +337,6 @@
 #define LED_IRDA1 2
 #define LED_IRDA2 4
 #define LED_IRDA3 6
-#define CRADLE_LED_SET_REG GPSR2
-#define CRADLE_LED_CLR_REG GPCR2
 
 /* SuperIO defines */
 #define CRADLE_SIO_INDEX      0x2e

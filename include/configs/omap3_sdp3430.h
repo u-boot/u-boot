@@ -78,7 +78,6 @@
  */
 #define CONFIG_ENV_SIZE			(256 << 10)
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (256 << 10))
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 
 /*--------------------------------------------------------------------------*/
@@ -159,10 +158,6 @@
 #define CONFIG_SYS_FLASH_CFI_WIDTH	2
 #define PHYS_FLASH_SIZE			(128 << 20)
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* max sectors on one chip */
-
-/* timeout values are in milliseconds */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
 
 /* OMITTED:  single 2 Gbit KFM2G16 OneNAND flash */
 
@@ -314,6 +309,12 @@
 #define CONFIG_STACKSIZE_FIQ	(4 << 10) /* FIQ stack */
 #endif
 
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
+#define CONFIG_SYS_INIT_RAM_SIZE	0x800
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
 /*
  * SDRAM Memory Map
  */
@@ -338,9 +339,6 @@
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
-
-#define CONFIG_SYS_JFFS2_FIRST_BANK	CONFIG_SYS_MAX_FLASH_BANKS
-#define CONFIG_SYS_JFFS2_NUM_BANKS	1
 
 /*
  * NAND FLASH usage ... default nCS1:

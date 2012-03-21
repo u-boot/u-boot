@@ -1,6 +1,9 @@
 /*
  * Copyright (C) 2004-2006 Atmel Corporation
  *
+ * Modified to support C structur SoC access by
+ * Andreas Bießmann <biessmann@corscience.de>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,10 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <common.h>
-#ifndef CONFIG_AT91_LEGACY
-#define CONFIG_AT91_LEGACY
-#warning Please update to use C structur SoC access !
-#endif
 #include <watchdog.h>
 
 #include <asm/io.h>
@@ -46,6 +45,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void serial_setbrg(void)
 {
+	atmel_usart3_t *usart = (atmel_usart3_t*)USART_BASE;
 	unsigned long divisor;
 	unsigned long usart_hz;
 
@@ -56,32 +56,37 @@ void serial_setbrg(void)
 	 */
 	usart_hz = get_usart_clk_rate(USART_ID);
 	divisor = (usart_hz / 16 + gd->baudrate / 2) / gd->baudrate;
-	usart3_writel(BRGR, USART3_BF(CD, divisor));
+	writel(USART3_BF(CD, divisor), &usart->brgr);
 }
 
 int serial_init(void)
 {
-	usart3_writel(CR, USART3_BIT(RSTRX) | USART3_BIT(RSTTX));
+	atmel_usart3_t *usart = (atmel_usart3_t*)USART_BASE;
+
+	writel(USART3_BIT(RSTRX) | USART3_BIT(RSTTX), &usart->cr);
 
 	serial_setbrg();
 
-	usart3_writel(CR, USART3_BIT(RXEN) | USART3_BIT(TXEN));
-	usart3_writel(MR, (USART3_BF(USART_MODE, USART3_USART_MODE_NORMAL)
+	writel(USART3_BIT(RXEN) | USART3_BIT(TXEN), &usart->cr);
+	writel((USART3_BF(USART_MODE, USART3_USART_MODE_NORMAL)
 			   | USART3_BF(USCLKS, USART3_USCLKS_MCK)
 			   | USART3_BF(CHRL, USART3_CHRL_8)
 			   | USART3_BF(PAR, USART3_PAR_NONE)
-			   | USART3_BF(NBSTOP, USART3_NBSTOP_1)));
+			   | USART3_BF(NBSTOP, USART3_NBSTOP_1)),
+			   &usart->mr);
 
 	return 0;
 }
 
 void serial_putc(char c)
 {
+	atmel_usart3_t *usart = (atmel_usart3_t*)USART_BASE;
+
 	if (c == '\n')
 		serial_putc('\r');
 
-	while (!(usart3_readl(CSR) & USART3_BIT(TXRDY))) ;
-	usart3_writel(THR, c);
+	while (!(readl(&usart->csr) & USART3_BIT(TXRDY)));
+	writel(c, &usart->thr);
 }
 
 void serial_puts(const char *s)
@@ -92,12 +97,15 @@ void serial_puts(const char *s)
 
 int serial_getc(void)
 {
-	while (!(usart3_readl(CSR) & USART3_BIT(RXRDY)))
+	atmel_usart3_t *usart = (atmel_usart3_t*)USART_BASE;
+
+	while (!(readl(&usart->csr) & USART3_BIT(RXRDY)))
 		 WATCHDOG_RESET();
-	return usart3_readl(RHR);
+	return readl(&usart->rhr);
 }
 
 int serial_tstc(void)
 {
-	return (usart3_readl(CSR) & USART3_BIT(RXRDY)) != 0;
+	atmel_usart3_t *usart = (atmel_usart3_t*)USART_BASE;
+	return (readl(&usart->csr) & USART3_BIT(RXRDY)) != 0;
 }

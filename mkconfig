@@ -5,7 +5,7 @@
 #
 # Parameters:  Target  Architecture  CPU  Board [VENDOR] [SOC]
 #
-# (C) 2002-2006 DENX Software Engineering, Wolfgang Denk <wd@denx.de>
+# (C) 2002-2010 DENX Software Engineering, Wolfgang Denk <wd@denx.de>
 #
 
 APPEND=no	# Default: Create new config file
@@ -17,6 +17,7 @@ cpu=""
 board=""
 vendor=""
 soc=""
+options=""
 
 if [ \( $# -eq 2 \) -a \( "$1" = "-A" \) ] ; then
 	# Automatic mode
@@ -41,11 +42,12 @@ while [ $# -gt 0 ] ; do
 done
 
 [ $# -lt 4 ] && exit 1
-[ $# -gt 6 ] && exit 1
+[ $# -gt 7 ] && exit 1
 
+# Strip all options and/or _config suffixes
 CONFIG_NAME="${1%_config}"
 
-[ "${BOARD_NAME}" ] || BOARD_NAME="${CONFIG_NAME}"
+[ "${BOARD_NAME}" ] || BOARD_NAME="${1%_config}"
 
 arch="$2"
 cpu="$3"
@@ -56,13 +58,34 @@ else
 fi
 [ $# -gt 4 ] && [ "$5" != "-" ] && vendor="$5"
 [ $# -gt 5 ] && [ "$6" != "-" ] && soc="$6"
+[ $# -gt 6 ] && [ "$7" != "-" ] && {
+	# check if we have a board config name in the options field
+	# the options field mave have a board config name and a list
+	# of options, both separated by a colon (':'); the options are
+	# separated by commas (',').
+	#
+	# Check for board name
+	tmp="${7%:*}"
+	if [ "$tmp" ] ; then
+		CONFIG_NAME="$tmp"
+	fi
+	# Check if we only have a colon...
+	if [ "${tmp}" != "$7" ] ; then
+		options=${7#*:}
+		TARGETS="`echo ${options} | sed 's:,: :g'` ${TARGETS}"
+	fi
+}
 
 if [ "${ARCH}" -a "${ARCH}" != "${arch}" ]; then
 	echo "Failed: \$ARCH=${ARCH}, should be '${arch}' for ${BOARD_NAME}" 1>&2
 	exit 1
 fi
 
-echo "Configuring for ${BOARD_NAME} board..."
+if [ "$options" ] ; then
+	echo "Configuring for ${BOARD_NAME} - Board: ${CONFIG_NAME}, Options: ${options}"
+else
+	echo "Configuring for ${BOARD_NAME} board..."
+fi
 
 #
 # Create link to architecture specific headers
@@ -75,8 +98,7 @@ if [ "$SRCTREE" != "$OBJTREE" ] ; then
 	ln -s ${SRCTREE}/arch/${arch}/include/asm asm
 	LNPREFIX=${SRCTREE}/arch/${arch}/include/asm/
 	cd ../include
-	rm -f asm
-	ln -s ${SRCTREE}/arch/${arch}/include/asm asm
+	mkdir -p asm
 else
 	cd ./include
 	rm -f asm
@@ -126,11 +148,13 @@ fi
 echo "/* Automatically generated - do not edit */" >>config.h
 
 for i in ${TARGETS} ; do
-	echo "#define CONFIG_MK_${i} 1" >>config.h ;
+	i="`echo ${i} | sed '/=/ {s/=/\t/;q } ; { s/$/\t1/ }'`"
+	echo "#define CONFIG_${i}" >>config.h ;
 done
 
 cat << EOF >> config.h
 #define CONFIG_BOARDDIR board/$BOARDDIR
+#include <config_cmd_defaults.h>
 #include <config_defaults.h>
 #include <configs/${CONFIG_NAME}.h>
 #include <asm/config.h>

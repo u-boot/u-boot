@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright 2004-2009 Freescale Semiconductor, Inc.
+ * Copyright 2004-2010 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
@@ -292,13 +292,12 @@ static uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs,
 
 /* By default force the TBI PHY into 1000Mbps full duplex when in SGMII mode */
 #ifndef CONFIG_TSEC_TBICR_SETTINGS
-#define TBICR_SETTINGS ( \
+#define CONFIG_TSEC_TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \
+		| TBICR_ANEG_ENABLE \
 		| TBICR_FULL_DUPLEX \
 		| TBICR_SPEED1_SET \
 		)
-#else
-#define TBICR_SETTINGS CONFIG_TSEC_TBICR_SETTINGS
 #endif /* CONFIG_TSEC_TBICR_SETTINGS */
 
 /* Configure the TBI for SGMII operation */
@@ -311,7 +310,7 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_TBICON,
 			TBICON_CLK_SELECT);
 	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_CR,
-			TBICR_SETTINGS);
+			CONFIG_TSEC_TBICR_SETTINGS);
 }
 
 /* Discover which PHY is attached to the device, and configure it
@@ -378,11 +377,11 @@ static uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 	 * (ie - we're capable and it's not done)
 	 */
 	mii_reg = read_phy_reg(priv, MIIM_STATUS);
-	if ((mii_reg & PHY_BMSR_AUTN_ABLE) && !(mii_reg & PHY_BMSR_AUTN_COMP)) {
+	if ((mii_reg & BMSR_ANEGCAPABLE) && !(mii_reg & BMSR_ANEGCOMPLETE)) {
 		int i = 0;
 
 		puts("Waiting for PHY auto negotiation to complete");
-		while (!(mii_reg & PHY_BMSR_AUTN_COMP)) {
+		while (!(mii_reg & BMSR_ANEGCOMPLETE)) {
 			/*
 			 * Timeout reached ?
 			 */
@@ -428,17 +427,17 @@ static uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 static uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
 {
 	/* We're using autonegotiation */
-	if (mii_reg & PHY_BMSR_AUTN_ABLE) {
+	if (mii_reg & BMSR_ANEGCAPABLE) {
 		uint lpa = 0;
 		uint gblpa = 0;
 
 		/* Check for gigabit capability */
-		if (mii_reg & PHY_BMSR_EXT) {
+		if (mii_reg & BMSR_ERCAP) {
 			/* We want a list of states supported by
 			 * both PHYs in the link
 			 */
-			gblpa = read_phy_reg(priv, PHY_1000BTSR);
-			gblpa &= read_phy_reg(priv, PHY_1000BTCR) << 2;
+			gblpa = read_phy_reg(priv, MII_STAT1000);
+			gblpa &= read_phy_reg(priv, MII_CTRL1000) << 2;
 		}
 
 		/* Set the baseline so we only have to set them
@@ -458,29 +457,29 @@ static uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
 			return 0;
 		}
 
-		lpa = read_phy_reg(priv, PHY_ANAR);
-		lpa &= read_phy_reg(priv, PHY_ANLPAR);
+		lpa = read_phy_reg(priv, MII_ADVERTISE);
+		lpa &= read_phy_reg(priv, MII_LPA);
 
-		if (lpa & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX)) {
+		if (lpa & (LPA_100FULL | LPA_100HALF)) {
 			priv->speed = 100;
 
-			if (lpa & PHY_ANLPAR_TXFD)
+			if (lpa & LPA_100FULL)
 				priv->duplexity = 1;
 
-		} else if (lpa & PHY_ANLPAR_10FD)
+		} else if (lpa & LPA_10FULL)
 			priv->duplexity = 1;
 	} else {
-		uint bmcr = read_phy_reg(priv, PHY_BMCR);
+		uint bmcr = read_phy_reg(priv, MII_BMCR);
 
 		priv->speed = 10;
 		priv->duplexity = 0;
 
-		if (bmcr & PHY_BMCR_DPLX)
+		if (bmcr & BMCR_FULLDPLX)
 			priv->duplexity = 1;
 
-		if (bmcr & PHY_BMCR_1000_MBPS)
+		if (bmcr & BMCR_SPEED1000)
 			priv->speed = 1000;
-		else if (bmcr & PHY_BMCR_100_MBPS)
+		else if (bmcr & BMCR_SPEED100)
 			priv->speed = 100;
 	}
 
@@ -1646,14 +1645,14 @@ static struct phy_info phy_info_ksz804 =  {
 	"Micrel KSZ804 PHY",
 	4,
 	(struct phy_cmd[]) { /* config */
-		{PHY_BMCR, PHY_BMCR_RESET, NULL},
-		{PHY_BMCR, PHY_BMCR_AUTON|PHY_BMCR_RST_NEG, NULL},
+		{MII_BMCR, BMCR_RESET, NULL},
+		{MII_BMCR, BMCR_ANENABLE|BMCR_ANRESTART, NULL},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* startup */
-		{PHY_BMSR, miim_read, NULL},
-		{PHY_BMSR, miim_read, &mii_parse_sr},
-		{PHY_BMSR, miim_read, &mii_parse_link},
+		{MII_BMSR, miim_read, NULL},
+		{MII_BMSR, miim_read, &mii_parse_sr},
+		{MII_BMSR, miim_read, &mii_parse_link},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* shutdown */
@@ -1667,14 +1666,14 @@ static struct phy_info phy_info_generic =  {
 	"Unknown/Generic PHY",
 	32,
 	(struct phy_cmd[]) { /* config */
-		{PHY_BMCR, PHY_BMCR_RESET, NULL},
-		{PHY_BMCR, PHY_BMCR_AUTON|PHY_BMCR_RST_NEG, NULL},
+		{MII_BMCR, BMCR_RESET, NULL},
+		{MII_BMCR, BMCR_ANENABLE|BMCR_ANRESTART, NULL},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* startup */
-		{PHY_BMSR, miim_read, NULL},
-		{PHY_BMSR, miim_read, &mii_parse_sr},
-		{PHY_BMSR, miim_read, &mii_parse_link},
+		{MII_BMSR, miim_read, NULL},
+		{MII_BMSR, miim_read, &mii_parse_sr},
+		{MII_BMSR, miim_read, &mii_parse_link},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* shutdown */

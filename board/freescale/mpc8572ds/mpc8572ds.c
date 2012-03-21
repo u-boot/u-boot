@@ -30,6 +30,7 @@
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/io.h>
+#include <asm/fsl_serdes.h>
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -37,8 +38,6 @@
 #include <netdev.h>
 
 #include "../common/sgmii_riser.h"
-
-long int fixed_sdram(void);
 
 int checkboard (void)
 {
@@ -73,23 +72,6 @@ int checkboard (void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
-{
-	phys_size_t dram_size = 0;
-
-	puts("Initializing....");
-
-#ifdef CONFIG_SPD_EEPROM
-	dram_size = fsl_ddr_sdram();
-#else
-	dram_size = fixed_sdram();
-#endif
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-
-	puts("    DDR: ");
-	return dram_size;
-}
 
 #if !defined(CONFIG_SPD_EEPROM)
 /*
@@ -147,116 +129,34 @@ phys_size_t fixed_sdram (void)
 
 #endif
 
-#ifdef CONFIG_PCIE1
-static struct pci_controller pcie1_hose;
-#endif
-
-#ifdef CONFIG_PCIE2
-static struct pci_controller pcie2_hose;
-#endif
-
-#ifdef CONFIG_PCIE3
-static struct pci_controller pcie3_hose;
-#endif
-
 #ifdef CONFIG_PCI
 void pci_init_board(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	struct fsl_pci_info pci_info[3];
-	u32 devdisr, pordevsr, io_sel, temp32;
-	int first_free_busno = 0;
-	int num = 0;
+	struct pci_controller *hose;
 
-	int pcie_ep, pcie_configured;
+	fsl_pcie_init_board(0);
 
-	devdisr = in_be32(&gur->devdisr);
-	pordevsr = in_be32(&gur->pordevsr);
-	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
+	hose = find_hose_by_cfg_addr((void *)(CONFIG_SYS_PCIE3_ADDR));
 
-	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
+	if (hose) {
+		u32 temp32;
+		u8 uli_busno = hose->first_busno + 2;
 
-	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII1_DIS))
-		printf ("    eTSEC1 is in sgmii mode.\n");
-	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
-		printf ("    eTSEC2 is in sgmii mode.\n");
-	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
-		printf ("    eTSEC3 is in sgmii mode.\n");
-	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII4_DIS))
-		printf ("    eTSEC4 is in sgmii mode.\n");
-
-	puts("\n");
-#ifdef CONFIG_PCIE3
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_3, io_sel);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
-		SET_STD_PCIE_INFO(pci_info[num], 3);
-		pcie_ep = fsl_setup_hose(&pcie3_hose, pci_info[num].regs);
-		printf ("    PCIE3 connected to ULI as %s (base addr %lx)\n",
-				pcie_ep ? "Endpoint" : "Root Complex",
-				pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie3_hose, first_free_busno);
 		/*
 		 * Activate ULI1575 legacy chip by performing a fake
 		 * memory access.  Needed to make ULI RTC work.
 		 * Device 1d has the first on-board memory BAR.
 		 */
-		pci_hose_read_config_dword(&pcie3_hose, PCI_BDF(2, 0x1d, 0),
+		pci_hose_read_config_dword(hose, PCI_BDF(uli_busno, 0x1d, 0),
 				PCI_BASE_ADDRESS_1, &temp32);
+
 		if (temp32 >= CONFIG_SYS_PCIE3_MEM_BUS) {
-			void *p = pci_mem_to_virt(PCI_BDF(2, 0x1d, 0),
+			void *p = pci_mem_to_virt(PCI_BDF(uli_busno, 0x1d, 0),
 					temp32, 4, 0);
 			debug(" uli1572 read to %p\n", p);
 			in_be32(p);
 		}
-	} else {
-		printf ("    PCIE3: disabled\n");
 	}
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE3); /* disable */
-#endif
-
-#ifdef CONFIG_PCIE2
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
-		SET_STD_PCIE_INFO(pci_info[num], 2);
-		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
-		printf ("    PCIE2 connected to Slot 1 as %s (base addr %lx)\n",
-				pcie_ep ? "Endpoint" : "Root Complex",
-				pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie2_hose, first_free_busno);
-	} else {
-		printf ("    PCIE2: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE2); /* disable */
-#endif
-
-#ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
-		SET_STD_PCIE_INFO(pci_info[num], 1);
-		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf ("    PCIE1 connected to Slot 2 as %s (base addr %lx)\n",
-				pcie_ep ? "Endpoint" : "Root Complex",
-				pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
-	} else {
-		printf ("    PCIE1: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
-#endif
 }
 #endif
 
@@ -288,31 +188,38 @@ int board_early_init_r(void)
 int board_eth_init(bd_t *bis)
 {
 	struct tsec_info_struct tsec_info[4];
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int num = 0;
 
 #ifdef CONFIG_TSEC1
 	SET_STD_TSEC_INFO(tsec_info[num], 1);
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII1_DIS))
+	if (is_serdes_configured(SGMII_TSEC1)) {
+		puts("eTSEC1 is in sgmii mode.\n");
 		tsec_info[num].flags |= TSEC_SGMII;
+	}
 	num++;
 #endif
 #ifdef CONFIG_TSEC2
 	SET_STD_TSEC_INFO(tsec_info[num], 2);
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
+	if (is_serdes_configured(SGMII_TSEC2)) {
+		puts("eTSEC2 is in sgmii mode.\n");
 		tsec_info[num].flags |= TSEC_SGMII;
+	}
 	num++;
 #endif
 #ifdef CONFIG_TSEC3
 	SET_STD_TSEC_INFO(tsec_info[num], 3);
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
+	if (is_serdes_configured(SGMII_TSEC3)) {
+		puts("eTSEC3 is in sgmii mode.\n");
 		tsec_info[num].flags |= TSEC_SGMII;
+	}
 	num++;
 #endif
 #ifdef CONFIG_TSEC4
 	SET_STD_TSEC_INFO(tsec_info[num], 4);
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII4_DIS))
+	if (is_serdes_configured(SGMII_TSEC4)) {
+		puts("eTSEC4 is in sgmii mode.\n");
 		tsec_info[num].flags |= TSEC_SGMII;
+	}
 	num++;
 #endif
 

@@ -10,4 +10,4 @@
 # bootp;tftp;bootm, repeat, etc.,.
 #
 
-TEXT_BASE = 0xc8f00000
+CONFIG_SYS_TEXT_BASE = 0xc8f00000

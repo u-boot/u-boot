@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -38,6 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern void ft_qe_setup(void *blob);
 extern void ft_fixup_num_cores(void *blob);
+extern void ft_srio_setup(void *blob);
 
 #ifdef CONFIG_MP
 #include "mp.h"
@@ -48,6 +49,7 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 	ulong spin_tbl_addr = get_spin_phys_addr();
 	u32 bootpg = determine_mp_bootpg();
 	u32 id = get_my_id();
+	const char *enable_method;
 
 	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
 	while (off != -FDT_ERR_NOTFOUND) {
@@ -63,10 +65,25 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 				fdt_setprop_string(blob, off, "status",
 								"disabled");
 			}
+
+			if (hold_cores_in_reset(0)) {
+#ifdef CONFIG_FSL_CORENET
+				/* Cores held in reset, use BRR to release */
+				enable_method = "fsl,brr-holdoff";
+#else
+				/* Cores held in reset, use EEBPCR to release */
+				enable_method = "fsl,eebpcr-holdoff";
+#endif
+			} else {
+				/* Cores out of reset and in a spin-loop */
+				enable_method = "spin-table";
+
+				fdt_setprop(blob, off, "cpu-release-addr",
+						&val, sizeof(val));
+			}
+
 			fdt_setprop_string(blob, off, "enable-method",
-							"spin-table");
-			fdt_setprop(blob, off, "cpu-release-addr",
-					&val, sizeof(val));
+							enable_method);
 		} else {
 			printf ("cpu NULL\n");
 		}
@@ -461,5 +478,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			CONFIG_SYS_QMAN_MEM_SIZE);
 
 	fdt_fixup_qportals(blob);
+#endif
+
+#ifdef CONFIG_SYS_SRIO
+	ft_srio_setup(blob);
 #endif
 }

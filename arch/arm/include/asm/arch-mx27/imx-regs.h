@@ -34,6 +34,7 @@ extern void mx27_uart_init_pins(void);
 
 #ifdef CONFIG_FEC_MXC
 extern void mx27_fec_init_pins(void);
+extern void imx_get_mac_from_fuse(unsigned char *mac);
 #endif /* CONFIG_FEC_MXC */
 
 #ifdef CONFIG_MXC_MMC
@@ -202,9 +203,19 @@ struct iim_regs {
 	u32 iim_scs1;
 	u32 iim_scs2;
 	u32 iim_scs3;
-	u32 res[0x1F0];
-	u32 iim_bank_area0[0x100];
+	u32 res[0x1f1];
+	struct fuse_bank {
+		u32 fuse_regs[0x20];
+		u32 fuse_rsvd[0xe0];
+	} bank[1];
 };
+
+struct fuse_bank0_regs {
+	u32 fuse0_3[5];
+	u32 mac_addr[6];
+	u32 fuse10_31[0x16];
+};
+
 #endif
 
 #define IMX_IO_BASE		0x10000000
@@ -511,10 +522,5 @@ struct iim_regs {
 #define IIM_ERR_WLRE	(1 << 3)
 #define IIM_ERR_SNSE	(1 << 2)
 #define IIM_ERR_PARITYE	(1 << 1)
-
-/* Definitions for i.MX27 TO2 */
-#define IIM0_MAC		5
-#define IIM0_SCC_KEY		11
-#define IIM1_SUID		1
 
 #endif				/* _IMX_REGS_H */

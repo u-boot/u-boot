@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,7 +29,7 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_MK_36BIT
+#ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif
 
@@ -40,6 +40,18 @@
 #define CONFIG_P2020		1
 #define CONFIG_P2020DS		1
 #define CONFIG_MP		1	/* support multiple processors */
+
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#endif
+
+#ifndef CONFIG_RESET_VECTOR_ADDRESS
+#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#endif
+
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
+#define CONFIG_SRIO2			/* SRIO port 2 */
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
@@ -73,8 +85,9 @@
 #define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
 #endif
 
-#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x7fffffff
+#define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
+#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x00400000
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
@@ -92,7 +105,7 @@
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM
-#ifdef CONFIG_MK_DDR2
+#ifdef CONFIG_DDR2
 #define CONFIG_FSL_DDR2
 #else
 #define CONFIG_FSL_DDR3		1
@@ -224,7 +237,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -267,10 +280,9 @@
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW CONFIG_SYS_INIT_RAM_ADDR_PHYS
 #endif
-#define CONFIG_SYS_INIT_RAM_END	0x00004000	/* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x00004000	/* Size of used area in RAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
@@ -337,7 +349,6 @@
  * shorted - index 1
  */
 #define CONFIG_CONS_INDEX	1
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -391,6 +402,7 @@
  */
 
 /* controller 3, Slot 1, tgtid 3, Base address b000 */
+#define CONFIG_SYS_PCIE3_NAME		"Slot 1"
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
@@ -410,6 +422,7 @@
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 2, direct to uli, tgtid 2, Base address 9000 */
+#define CONFIG_SYS_PCIE2_NAME		"ULI"
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
@@ -429,6 +442,7 @@
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 1, Slot 2, tgtid 1, Base address a000 */
+#define CONFIG_SYS_PCIE1_NAME		"Slot 2"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xc0000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
@@ -465,6 +479,24 @@
 /*#define CONFIG_CONSOLE_CURSOR*/
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
 #endif
+
+/* SRIO1 uses the same window as PCIE2 mem window */
+#define CONFIG_SYS_SRIO1_MEM_VIRT	0xa0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_SRIO1_MEM_PHYS	0xc20000000ull
+#else
+#define CONFIG_SYS_SRIO1_MEM_PHYS	0xa0000000
+#endif
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
+
+/* SRIO2 uses the same window as PCIE1 mem window */
+#define CONFIG_SYS_SRIO2_MEM_VIRT	0xc0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_SRIO2_MEM_PHYS	0xc40000000ull
+#else
+#define CONFIG_SYS_SRIO2_MEM_PHYS	0xc0000000
+#endif
+#define CONFIG_SYS_SRIO2_MEM_SIZE	0x20000000	/* 512M */
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
@@ -605,14 +637,7 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
+#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
@@ -660,11 +685,11 @@
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
+	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
  "consoledev=ttyS0\0"				\
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=p2020ds/ramdisk.uboot\0"		\

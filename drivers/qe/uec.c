@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006-2010 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  *
@@ -324,9 +324,9 @@ static int uec_set_mac_duplex(uec_private_t *uec, int duplex)
 }
 
 static int uec_set_mac_if_mode(uec_private_t *uec,
-		enet_interface_type_e if_mode, int speed)
+		enum fsl_phy_enet_if if_mode, int speed)
 {
-	enet_interface_type_e	enet_if_mode;
+	enum fsl_phy_enet_if	enet_if_mode;
 	uec_info_t		*uec_info;
 	uec_t			*uec_regs;
 	u32			upsmr;
@@ -521,7 +521,7 @@ static void adjust_link(struct eth_device *dev)
 	struct uec_mii_info	*mii_info = uec->mii_info;
 
 	extern void change_phy_interface_mode(struct eth_device *dev,
-				 enet_interface_type_e mode, int speed);
+				 enum fsl_phy_enet_if mode, int speed);
 	uec_regs = uec->uec_regs;
 
 	if (mii_info->link) {
@@ -539,7 +539,7 @@ static void adjust_link(struct eth_device *dev)
 		}
 
 		if (mii_info->speed != uec->oldspeed) {
-			enet_interface_type_e	mode = \
+			enum fsl_phy_enet_if	mode = \
 				uec->uec_info->enet_interface_type;
 			if (uec->uec_info->uf_info.eth_type == GIGA_ETH) {
 				switch (mii_info->speed) {
@@ -1223,8 +1223,10 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 		i = 50;
 		do {
 			err = curphy->read_status(uec->mii_info);
+			if (!(((i-- > 0) && !uec->mii_info->link) || err))
+				break;
 			udelay(100000);
-		} while (((i-- > 0) && !uec->mii_info->link) || err);
+		} while (1);
 
 		if (err || i <= 0)
 			printf("warning: %s: timeout on PHY link\n", dev->name);

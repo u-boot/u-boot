@@ -89,9 +89,9 @@ please first check:
 	=> u-boot as single bootloader starting from flash
 
 
-	in board/cobra5272/config.mk TEXT_BASE should be
+	in board/cobra5272/config.mk CONFIG_SYS_TEXT_BASE should be
 
-		TEXT_BASE = 0xffe00000
+		CONFIG_SYS_TEXT_BASE = 0xffe00000
 
 	=> linking address for u-boot as single bootloader stored in flash
 
@@ -128,9 +128,9 @@ please modify the settings:
 	=> u-boot as RAM version, chainloaded by another bootloader or using bdm cable
 
 
-	in board/cobra5272/config.mk TEXT_BASE should be
+	in board/cobra5272/config.mk CONFIG_SYS_TEXT_BASE should be
 
-		TEXT_BASE = 0x00020000
+		CONFIG_SYS_TEXT_BASE = 0x00020000
 
 	=> target linking address for RAM
 

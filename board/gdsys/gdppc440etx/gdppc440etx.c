@@ -26,7 +26,7 @@
  */
 
 #include <common.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/4xx_pci.h>

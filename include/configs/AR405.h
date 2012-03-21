@@ -37,6 +37,8 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_AR405		1	/* ...on a AR405 board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFA0000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 
 #define CONFIG_SYS_CLK_FREQ	33000000 /* external frequency to pll	*/
@@ -127,6 +129,12 @@
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	14745600 /* use external serial clock	*/
 
 /* The following table includes the supported baudrates */
@@ -176,8 +184,8 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_MONITOR_BASE
-#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
-#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(~(CONFIG_SYS_TEXT_BASE) + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
 /*
@@ -258,17 +266,8 @@
 #define CONFIG_SYS_INIT_DCACHE_CS	7	/* use cs # 7 for data cache memory    */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000  /* use data cache		       */
-#define CONFIG_SYS_INIT_RAM_END	0x2000	/* End of used area in RAM	       */
-#define CONFIG_SYS_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000	/* Size of used area in RAM	       */
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

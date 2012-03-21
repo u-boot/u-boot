@@ -362,11 +362,40 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
 	do_fixup_by_compat(fdt, compat, prop, &val, 4, create);
 }
 
-int fdt_fixup_memory(void *blob, u64 start, u64 size)
+/*
+ * Get cells len in bytes
+ *     if #NNNN-cells property is 2 then len is 8
+ *     otherwise len is 4
+ */
+static int get_cells_len(void *blob, char *nr_cells_name)
 {
-	int err, nodeoffset, len = 0;
-	u8 tmp[16];
-	const u32 *addrcell, *sizecell;
+	const u32 *cell;
+
+	cell = fdt_getprop(blob, 0, nr_cells_name, NULL);
+	if (cell && *cell == 2)
+		return 8;
+
+	return 4;
+}
+
+/*
+ * Write a 4 or 8 byte big endian cell
+ */
+static void write_cell(u8 *addr, u64 val, int size)
+{
+	int shift = (size - 1) * 8;
+	while (size-- > 0) {
+		*addr++ = (val >> shift) & 0xff;
+		shift -= 8;
+	}
+}
+
+int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
+{
+	int err, nodeoffset;
+	int addr_cell_len, size_cell_len, len;
+	u8 tmp[banks * 8];
+	int bank;
 
 	err = fdt_check_header(blob);
 	if (err < 0) {
@@ -391,44 +420,15 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size)
 		return err;
 	}
 
-	addrcell = fdt_getprop(blob, 0, "#address-cells", NULL);
-	/* use shifts and mask to ensure endianness */
-	if ((addrcell) && (*addrcell == 2)) {
-		tmp[0] = (start >> 56) & 0xff;
-		tmp[1] = (start >> 48) & 0xff;
-		tmp[2] = (start >> 40) & 0xff;
-		tmp[3] = (start >> 32) & 0xff;
-		tmp[4] = (start >> 24) & 0xff;
-		tmp[5] = (start >> 16) & 0xff;
-		tmp[6] = (start >>  8) & 0xff;
-		tmp[7] = (start      ) & 0xff;
-		len = 8;
-	} else {
-		tmp[0] = (start >> 24) & 0xff;
-		tmp[1] = (start >> 16) & 0xff;
-		tmp[2] = (start >>  8) & 0xff;
-		tmp[3] = (start      ) & 0xff;
-		len = 4;
-	}
+	addr_cell_len = get_cells_len(blob, "#address-cells");
+	size_cell_len = get_cells_len(blob, "#size-cells");
 
-	sizecell = fdt_getprop(blob, 0, "#size-cells", NULL);
-	/* use shifts and mask to ensure endianness */
-	if ((sizecell) && (*sizecell == 2)) {
-		tmp[0+len] = (size >> 56) & 0xff;
-		tmp[1+len] = (size >> 48) & 0xff;
-		tmp[2+len] = (size >> 40) & 0xff;
-		tmp[3+len] = (size >> 32) & 0xff;
-		tmp[4+len] = (size >> 24) & 0xff;
-		tmp[5+len] = (size >> 16) & 0xff;
-		tmp[6+len] = (size >>  8) & 0xff;
-		tmp[7+len] = (size      ) & 0xff;
-		len += 8;
-	} else {
-		tmp[0+len] = (size >> 24) & 0xff;
-		tmp[1+len] = (size >> 16) & 0xff;
-		tmp[2+len] = (size >>  8) & 0xff;
-		tmp[3+len] = (size      ) & 0xff;
-		len += 4;
+	for (bank = 0, len = 0; bank < banks; bank++) {
+		write_cell(tmp + len, start[bank], addr_cell_len);
+		len += addr_cell_len;
+
+		write_cell(tmp + len, size[bank], size_cell_len);
+		len += size_cell_len;
 	}
 
 	err = fdt_setprop(blob, nodeoffset, "reg", tmp, len);
@@ -438,6 +438,11 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size)
 		return err;
 	}
 	return 0;
+}
+
+int fdt_fixup_memory(void *blob, u64 start, u64 size)
+{
+	return fdt_fixup_memory_banks(blob, &start, &size, 1);
 }
 
 void fdt_fixup_ethernet(void *fdt)
@@ -620,7 +625,7 @@ int fdt_fixup_nor_flash_size(void *blob)
 	int off;
 	int len;
 	struct fdt_property *prop;
-	u32 *reg;
+	u32 *reg, *reg2;
 	int i;
 
 	for (i = 0; i < 2; i++) {
@@ -640,18 +645,21 @@ int fdt_fixup_nor_flash_size(void *blob)
 				 * There might be multiple reg-tuples,
 				 * so loop through them all
 				 */
-				len /= tuple_size;
-				reg = (u32 *)&prop->data[0];
-				for (idx = 0; idx < len; idx++) {
+				reg = reg2 = (u32 *)&prop->data[0];
+				for (idx = 0; idx < (len / tuple_size); idx++) {
 					/*
 					 * Update size in reg property
 					 */
 					reg[2] = flash_get_bank_size(reg[0],
 								     idx);
-					fdt_setprop(blob, off, "reg", reg,
-						    tuple_size);
-					reg += tuple_size;
+
+					/*
+					 * Point to next reg tuple
+					 */
+					reg += 3;
 				}
+
+				fdt_setprop(blob, off, "reg", reg2, len);
 			}
 
 			/* Move to next compatible node */
@@ -663,6 +671,16 @@ int fdt_fixup_nor_flash_size(void *blob)
 	return 0;
 }
 #endif
+
+int fdt_increase_size(void *fdt, int add_len)
+{
+	int newlen;
+
+	newlen = fdt_totalsize(fdt) + add_len;
+
+	/* Open in place with a new len */
+	return fdt_open_into(fdt, fdt, newlen);
+}
 
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
 #include <jffs2/load_kernel.h>
@@ -696,16 +714,6 @@ int fdt_del_subnodes(const void *blob, int parent_offset)
 		}
 	}
 	return 0;
-}
-
-int fdt_increase_size(void *fdt, int add_len)
-{
-	int newlen;
-
-	newlen = fdt_totalsize(fdt) + add_len;
-
-	/* Open in place with a new len */
-	return fdt_open_into(fdt, fdt, newlen);
 }
 
 int fdt_del_partitions(void *blob, int parent_offset)
@@ -946,7 +954,7 @@ static void of_bus_default_count_cells(void *blob, int parentoffset,
 	if (addrc) {
 		prop = fdt_getprop(blob, parentoffset, "#address-cells", NULL);
 		if (prop)
-			*addrc = be32_to_cpup(prop);
+			*addrc = be32_to_cpup((u32 *)prop);
 		else
 			*addrc = 2;
 	}
@@ -954,7 +962,7 @@ static void of_bus_default_count_cells(void *blob, int parentoffset,
 	if (sizec) {
 		prop = fdt_getprop(blob, parentoffset, "#size-cells", NULL);
 		if (prop)
-			*sizec = be32_to_cpup(prop);
+			*sizec = be32_to_cpup((u32 *)prop);
 		else
 			*sizec = 1;
 	}
@@ -1186,3 +1194,32 @@ int fdt_alloc_phandle(void *blob)
 
 	return phandle + 1;
 }
+
+#if defined(CONFIG_VIDEO)
+int fdt_add_edid(void *blob, const char *compat, unsigned char *edid_buf)
+{
+	int noff;
+	int ret;
+
+	noff = fdt_node_offset_by_compatible(blob, -1, compat);
+	if (noff != -FDT_ERR_NOTFOUND) {
+		debug("%s: %s\n", fdt_get_name(blob, noff, 0), compat);
+add_edid:
+		ret = fdt_setprop(blob, noff, "edid", edid_buf, 128);
+		if (ret == -FDT_ERR_NOSPACE) {
+			ret = fdt_increase_size(blob, 512);
+			if (!ret)
+				goto add_edid;
+			else
+				goto err_size;
+		} else if (ret < 0) {
+			printf("Can't add property: %s\n", fdt_strerror(ret));
+			return ret;
+		}
+	}
+	return 0;
+err_size:
+	printf("Can't increase blob size: %s\n", fdt_strerror(ret));
+	return ret;
+}
+#endif

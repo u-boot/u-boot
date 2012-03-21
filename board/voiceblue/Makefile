@@ -24,7 +24,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= voiceblue.o
 SOBJS	:= setup.o
@@ -40,7 +40,7 @@ LOAD_ADDR = 0x10400000
 all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $^
+	$(call cmd_link_o_target, $^)
 
 $(obj)eeprom_start.o:
 	echo "b eeprom" | $(CC) $(AFLAGS) -c -x assembler -o $@ -

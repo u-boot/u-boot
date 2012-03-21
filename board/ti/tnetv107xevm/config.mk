@@ -17,4 +17,4 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-TEXT_BASE = 0x83FC0000
+CONFIG_SYS_TEXT_BASE = 0x83FC0000

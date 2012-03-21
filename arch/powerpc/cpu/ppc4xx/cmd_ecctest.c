@@ -23,7 +23,7 @@
  */
 
 #include <common.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/cache.h>
@@ -190,15 +190,13 @@ static int do_ecctest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int error;
 
 	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	ptr = (u32 *)simple_strtoul(argv[1], NULL, 16);
 	error = simple_strtoul(argv[2], NULL, 16);
 	if ((error < 1) || (error > 2)) {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	printf("Using address %p for %d bit ECC error injection\n",

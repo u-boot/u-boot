@@ -27,7 +27,7 @@ $(shell mkdir -p $(obj)drivers/epic)
 $(shell mkdir -p $(obj)drivers/i2c)
 endif
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(CPU).o
 
 START	= start.o
 COBJS	= traps.o cpu.o cpu_init.o interrupts.o speed.o \
@@ -41,7 +41,7 @@ START	:= $(addprefix $(obj),$(START))
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 $(obj)bedbug_603e.c:
 	ln -sf $(src)../mpc8260/bedbug_603e.c $(obj)bedbug_603e.c

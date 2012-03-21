@@ -23,7 +23,10 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <asm/arch/kirkwood.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define KW_REG_CPUCS_WIN_BAR(x)		(KW_REGISTER(0x1500) + (x * 0x08))
 #define KW_REG_CPUCS_WIN_SZ(x)		(KW_REGISTER(0x1504) + (x * 0x08))
@@ -56,3 +59,47 @@ u32 kw_sdram_bs(enum memory_bank bank)
 	result += 0x01000000;
 	return result;
 }
+
+#ifndef CONFIG_SYS_BOARD_DRAM_INIT
+int dram_init(void)
+{
+	int i;
+
+	gd->ram_size = 0;
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		gd->bd->bi_dram[i].start = kw_sdram_bar(i);
+		gd->bd->bi_dram[i].size = kw_sdram_bs(i);
+		/*
+		 * It is assumed that all memory banks are consecutive
+		 * and without gaps.
+		 * If the gap is found, ram_size will be reported for
+		 * consecutive memory only
+		 */
+		if (gd->bd->bi_dram[i].start != gd->ram_size)
+			break;
+
+		gd->ram_size += gd->bd->bi_dram[i].size;
+
+	}
+
+	for (; i < CONFIG_NR_DRAM_BANKS; i++) {
+		/* If above loop terminated prematurely, we need to set
+		 * remaining banks' start address & size as 0. Otherwise other
+		 * u-boot functions and Linux kernel gets wrong values which
+		 * could result in crash */
+		gd->bd->bi_dram[i].start = 0;
+		gd->bd->bi_dram[i].size = 0;
+	}
+
+	return 0;
+}
+
+/*
+ * If this function is not defined here,
+ * board.c alters dram bank zero configuration defined above.
+ */
+void dram_init_banksize(void)
+{
+	dram_init();
+}
+#endif /* CONFIG_SYS_BOARD_DRAM_INIT */

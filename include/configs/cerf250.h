@@ -38,6 +38,7 @@
 #define CONFIG_CERF250		1	/* on Cerf PXA Board	    */
 #define BOARD_LATE_INIT		1
 #define CONFIG_BAUDRATE		38400
+#define	CONFIG_SYS_TEXT_BASE	0x0
 
 #undef	CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
@@ -48,7 +49,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	    (CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -140,15 +140,9 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	4			/* we have 2 banks of DRAM */
+#define CONFIG_NR_DRAM_BANKS		1		/* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1			0xa0000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE		0x04000000	/* 64 MB */
-#define PHYS_SDRAM_2			0xa4000000	/* SDRAM Bank #2 */
-#define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 MB */
-#define PHYS_SDRAM_3			0xa8000000	/* SDRAM Bank #3 */
-#define PHYS_SDRAM_3_SIZE		0x00000000	/* 0 MB */
-#define PHYS_SDRAM_4			0xac000000	/* SDRAM Bank #4 */
-#define PHYS_SDRAM_4_SIZE		0x00000000	/* 0 MB */
 
 #define PHYS_FLASH_1			0x00000000	/* Flash Bank #1 */
 #define PHYS_FLASH_2			0x04000000	/* Flash Bank #2 */
@@ -160,6 +154,9 @@
 #define CONFIG_SYS_DRAM_SIZE			0x04000000
 
 #define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1)
 
 /*
  * GPIO settings
@@ -184,6 +181,9 @@
 
 #define CONFIG_SYS_PSSR_VAL		0x20
 
+#define	CONFIG_SYS_CCCR			CCCR_L27|CCCR_M2|CCCR_N10
+#define	CONFIG_SYS_CKEN			0x0
+
 /*
  * Memory settings
  */
@@ -193,6 +193,8 @@
 #define CONFIG_SYS_MDCNFG_VAL		0x00001AC9
 #define CONFIG_SYS_MDREFR_VAL		0x03CDC017
 #define CONFIG_SYS_MDMRS_VAL		0x00000000
+#define	CONFIG_SYS_FLYCNFG_VAL		0x00000000
+#define	CONFIG_SYS_SXCNFG_VAL		0x00000000
 
 /*
  * PCMCIA and CF Interfaces

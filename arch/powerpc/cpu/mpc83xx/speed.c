@@ -161,7 +161,7 @@ int get_clocks(void)
 #endif
 	}
 
-	spmf = ((im->reset.rcwl & HRCWL_SPMF) >> HRCWL_SPMF_SHIFT);
+	spmf = (im->clk.spmr & SPMR_SPMF) >> SPMR_SPMF_SHIFT;
 	csb_clk = pci_sync_in * (1 + clkin_div) * spmf;
 
 	sccr = im->clk.sccr;
@@ -392,7 +392,7 @@ int get_clocks(void)
 #endif
 
 	lbiu_clk = csb_clk *
-	           (1 + ((im->reset.rcwl & HRCWL_LBIUCM) >> HRCWL_LBIUCM_SHIFT));
+		   (1 + ((im->clk.spmr & SPMR_LBIUCM) >> SPMR_LBIUCM_SHIFT));
 	lcrr = (im->im_lbc.lcrr & LCRR_CLKDIV) >> LCRR_CLKDIV_SHIFT;
 	switch (lcrr) {
 	case 2:
@@ -406,11 +406,12 @@ int get_clocks(void)
 	}
 
 	mem_clk = csb_clk *
-		  (1 + ((im->reset.rcwl & HRCWL_DDRCM) >> HRCWL_DDRCM_SHIFT));
-	corepll = (im->reset.rcwl & HRCWL_COREPLL) >> HRCWL_COREPLL_SHIFT;
+		  (1 + ((im->clk.spmr & SPMR_DDRCM) >> SPMR_DDRCM_SHIFT));
+	corepll = (im->clk.spmr & SPMR_COREPLL) >> SPMR_COREPLL_SHIFT;
+
 #if defined(CONFIG_MPC8360)
 	mem_sec_clk = csb_clk * (1 +
-		       ((im->reset.rcwl & HRCWL_LBIUCM) >> HRCWL_LBIUCM_SHIFT));
+		       ((im->clk.spmr & SPMR_LBIUCM) >> SPMR_LBIUCM_SHIFT));
 #endif
 
 	corecnf_tab_index = ((corepll & 0x1F) << 2) | ((corepll & 0x60) >> 5);
@@ -442,8 +443,8 @@ int get_clocks(void)
 	}
 
 #if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832x)
-	qepmf = (im->reset.rcwl & HRCWL_CEPMF) >> HRCWL_CEPMF_SHIFT;
-	qepdf = (im->reset.rcwl & HRCWL_CEPDF) >> HRCWL_CEPDF_SHIFT;
+	qepmf = (im->clk.spmr & SPMR_CEPMF) >> SPMR_CEPMF_SHIFT;
+	qepdf = (im->clk.spmr & SPMR_CEPDF) >> SPMR_CEPDF_SHIFT;
 	qe_clk = (pci_sync_in * qepmf) / (1 + qepdf);
 	brg_clk = qe_clk / 2;
 #endif

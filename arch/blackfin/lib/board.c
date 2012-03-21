@@ -237,12 +237,12 @@ void board_init_f(ulong bootflag)
 #endif
 
 #ifdef DEBUG
-	if (CONFIG_SYS_GBL_DATA_SIZE < sizeof(*gd))
+	if (GENERATED_GBL_DATA_SIZE < sizeof(*gd))
 		hang();
 #endif
 	serial_early_puts("Init global data\n");
 	gd = (gd_t *) (CONFIG_SYS_GBL_DATA_ADDR);
-	memset((void *)gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
+	memset((void *)gd, 0, GENERATED_GBL_DATA_SIZE);
 
 	/* Board data initialization */
 	addr = (CONFIG_SYS_GBL_DATA_ADDR + sizeof(gd_t));
@@ -254,7 +254,7 @@ void board_init_f(ulong bootflag)
 	memset((void *)bd, 0, sizeof(bd_t));
 
 	bd->bi_r_version = version_string;
-	bd->bi_cpu = MK_STR(CONFIG_BFIN_CPU);
+	bd->bi_cpu = BFIN_CPU;
 	bd->bi_board_name = BFIN_BOARD_NAME;
 	bd->bi_vco = get_vco();
 	bd->bi_cclk = get_cclk();
@@ -351,7 +351,7 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #endif
 
 #ifdef CONFIG_GENERIC_MMC
-	puts("MMC:  ");
+	puts("MMC:   ");
 	mmc_initialize(bd);
 #endif
 

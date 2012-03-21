@@ -23,14 +23,14 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(ARCH).a
+LIB	= $(obj)lib$(ARCH).o
 
 SOBJS-y	+= ppccache.o
 SOBJS-y	+= ppcstring.o
 SOBJS-y	+= ticks.o
 SOBJS-y	+= reloc.o
 
-COBJS-y	+= bat_rw.o
+COBJS-$(CONFIG_BAT_RW) += bat_rw.o
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
 COBJS-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount.o
@@ -63,7 +63,7 @@ $(LIB):	$(obj).depend $(OBJS)
 		echo "       Upgrade to a recent toolchain."; \
 		exit 1; \
 	fi;
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

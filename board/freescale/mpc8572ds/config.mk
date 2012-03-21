@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2008 Freescale Semiconductor, Inc.
+# Copyright 2007-2008,2010-2011 Freescale Semiconductor, Inc.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -23,8 +23,8 @@
 #
 # mpc8572ds board
 #
-ifndef TEXT_BASE
-TEXT_BASE = 0xeff80000
+ifndef NAND_SPL
+ifeq ($(CONFIG_NAND), y)
+LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
 endif
-
-RESET_VECTOR_ADDRESS = 0xeffffffc
+endif

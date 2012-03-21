@@ -14,4 +14,4 @@
 # we load ourself to c1f8'0000, the upper 1 MB of the first (only) bank
 #
 
-TEXT_BASE = 0xc1f80000
+CONFIG_SYS_TEXT_BASE = 0xc1f80000

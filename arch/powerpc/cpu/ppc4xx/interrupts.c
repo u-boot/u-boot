@@ -36,7 +36,7 @@
 #include <command.h>
 #include <asm/processor.h>
 #include <asm/interrupt.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <ppc_asm.tmpl>
 #include <commproc.h>
 
@@ -66,13 +66,6 @@ static __inline__ void set_pit(unsigned long val)
 {
 	asm volatile("mtpit %0" : : "r" (val));
 }
-
-
-static __inline__ void set_tcr(unsigned long val)
-{
-	asm volatile("mttcr %0" : : "r" (val));
-}
-
 
 static __inline__ void set_evpr(unsigned long val)
 {

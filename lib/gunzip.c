@@ -96,11 +96,6 @@ int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 
 	s.zalloc = zalloc;
 	s.zfree = zfree;
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	s.outcb = (cb_func)WATCHDOG_RESET;
-#else
-	s.outcb = Z_NULL;
-#endif	/* CONFIG_HW_WATCHDOG */
 
 	r = inflateInit2(&s, -MAX_WBITS);
 	if (r != Z_OK) {

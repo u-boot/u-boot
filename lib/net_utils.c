@@ -28,7 +28,7 @@
 
 #include <common.h>
 
-IPaddr_t string_to_ip(char *s)
+IPaddr_t string_to_ip(const char *s)
 {
 	IPaddr_t addr;
 	char *e;

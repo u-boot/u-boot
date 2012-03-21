@@ -25,6 +25,7 @@
 /*
  *  U-Boot - Startup Code for MPC8220 CPUs
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc8220.h>
 #include <timestamp.h>
@@ -37,6 +38,7 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/u-boot.h>
 
 #ifndef	 CONFIG_IDENT_STRING
 #define	 CONFIG_IDENT_STRING ""
@@ -67,7 +69,7 @@
 	GOT_ENTRY(transfer_to_handler)
 
 	GOT_ENTRY(__init_end)
-	GOT_ENTRY(_end)
+	GOT_ENTRY(__bss_end__)
 	GOT_ENTRY(__bss_start)
 	END_GOT
 
@@ -88,19 +90,6 @@ version_string:
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
 _start:
-	li	r21, BOOTFLAG_COLD  /* Normal Power-On	    */
-	nop
-	b	boot_cold
-
-	. = EXC_OFF_SYS_RESET + 0x10
-
-	.globl	_start_warm
-_start_warm:
-	li	r21, BOOTFLAG_WARM  /* Software reboot	    */
-	b	boot_warm
-
-boot_cold:
-boot_warm:
 	mfmsr	r5		    /* save msr contents    */
 
 	/* replace default MBAR base address from 0x80000000
@@ -144,9 +133,9 @@ boot_warm:
 	/* r3: IMMR */
 	bl	cpu_init_f	/* run low-level CPU init code (in Flash)*/
 
-	mr	r3, r21
-	/* r3: BOOTFLAG */
 	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
+
+	/* NOTREACHED - board_init_f() does not return */
 
 /*
  * Vector Table
@@ -653,17 +642,19 @@ in_ram:
 	beq	4f
 3:	lwzu	r4,4(r3)
 	lwzux	r0,r4,r11
+	cmpwi	r0,0
 	add	r0,r0,r11
-	stw	r10,0(r3)
+	stw	r4,0(r3)
+	beq-	5f
 	stw	r0,0(r4)
-	bdnz	3b
+5:	bdnz	3b
 4:
 clear_bss:
 	/*
 	 * Now clear BSS segment
 	 */
 	lwz	r3,GOT(__bss_start)
-	lwz	r4,GOT(_end)
+	lwz	r4,GOT(__bss_end__)
 
 	cmplw	0, r3, r4
 	beq	6f

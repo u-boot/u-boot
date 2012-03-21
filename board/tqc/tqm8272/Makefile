@@ -26,7 +26,7 @@ ifneq ($(OBJTREE),$(SRCTREE))
 $(shell mkdir -p $(obj)../tqm8xx/)
 endif
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
 COBJS	= $(BOARD).o ../tqm8xx/load_sernum_ethaddr.o nand.o
 
@@ -35,7 +35,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

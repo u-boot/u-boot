@@ -26,9 +26,9 @@ ifneq ($(OBJTREE),$(SRCTREE))
 $(shell mkdir -p $(obj)../common)
 endif
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:=  pati.o ../common/flash.o ../common/memtst.o cmd_pati.o ../common/common_util.o
+COBJS	:=  pati.o ../common/flash.o cmd_pati.o ../common/common_util.o
 #### cmd_pati.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
@@ -36,7 +36,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

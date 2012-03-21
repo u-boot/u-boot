@@ -41,6 +41,8 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_HOSTNAME		hcu5
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFB0000
+
 /*
  * Include common defines/options for all boards produced by Netstal Maschinen
  */
@@ -61,7 +63,7 @@
 #define CONFIG_SYS_BOOT_BASE_ADDR	0xfff00000
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CONFIG_SYS_FLASH_BASE		0xfff80000	/* start of FLASH	*/
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_OCM_BASE		0xe0010000      /* ocm			*/
 #define CONFIG_SYS_OCM_DATA_ADDR	CONFIG_SYS_OCM_BASE
 #define CONFIG_SYS_PCI_BASE		0xe0000000      /* Internal PCI regs	*/
@@ -69,9 +71,6 @@
 #define CONFIG_SYS_PCI_MEMBASE1	CONFIG_SYS_PCI_MEMBASE  + 0x10000000
 #define CONFIG_SYS_PCI_MEMBASE2	CONFIG_SYS_PCI_MEMBASE1 + 0x10000000
 #define CONFIG_SYS_PCI_MEMBASE3	CONFIG_SYS_PCI_MEMBASE2 + 0x10000000
-
-/* Don't change either of these */
-#define CONFIG_SYS_PERIPHERAL_BASE	0xef600000	/* internal peripherals	*/
 
 #define CONFIG_SYS_USB2D0_BASE		0xe0000100
 #define CONFIG_SYS_USB_DEVICE		0xe0000000
@@ -83,9 +82,8 @@
 /* 440EPx/440GRx have 16KB of internal SRAM, so no need for D-Cache	*/
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_BASE	/* OCM			*/
 
-#define CONFIG_SYS_INIT_RAM_END	(4 << 10)
-#define CONFIG_SYS_GBL_DATA_SIZE	256		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	(4 << 10)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 /*-----------------------------------------------------------------------
@@ -93,8 +91,6 @@
  *----------------------------------------------------------------------*/
 #undef CONFIG_SYS_EXT_SERIAL_CLOCK	       /* external serial clock */
 #define CONFIG_BAUDRATE		115200
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
-#undef CONFIG_UART1_CONSOLE
 
 /*-----------------------------------------------------------------------
  * Environment
@@ -213,7 +209,7 @@
 				 CONFIG_SYS_POST_ETHER	   | \
 				 CONFIG_SYS_POST_SPR)
 
-#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE}
+#define CONFIG_SYS_POST_UART_TABLE	{ CONFIG_SYS_NS16550_COM1 }
 #define CONFIG_SYS_POST_CACHE_ADDR	0x7fff0000 /* free virtual address	*/
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 

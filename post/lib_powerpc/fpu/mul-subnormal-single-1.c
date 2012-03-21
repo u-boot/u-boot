@@ -30,9 +30,9 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CONFIG_SYS_POST_FPU
-
 GNU_FPOST_ATTR
+
+#if CONFIG_POST & CONFIG_SYS_POST_FPU
 
 union uf
 {

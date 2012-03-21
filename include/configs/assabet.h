@@ -48,7 +48,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN          (CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE       128	/* size rsrvd for initial data */
 
 /*
  * Hardware drivers
@@ -140,7 +139,7 @@
 #define PHYS_FLASH_BANK_SIZE    0x01000000	/* 16 MB Banks */
 #define PHYS_FLASH_SECT_SIZE    0x00040000	/* 256 KB sectors (x2) */
 
-#define CONFIG_SYS_MONITOR_BASE        TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE        CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN         (256 * 1024)	/* Reserve 256 KB for Monitor */
 
 #if CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE

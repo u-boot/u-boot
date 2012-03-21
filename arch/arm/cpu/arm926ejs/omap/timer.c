@@ -42,8 +42,10 @@
 /* macro to read the 32 bit timer */
 #define READ_TIMER (*(volatile ulong *)(CONFIG_SYS_TIMERBASE+8))
 
-static ulong timestamp;
-static ulong lastdec;
+DECLARE_GLOBAL_DATA_PTR;
+
+#define timestamp gd->tbl
+#define lastdec gd->lastinc
 
 int timer_init (void)
 {

@@ -367,7 +367,6 @@ typedef struct  {
 
 int davinci_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data);
 int davinci_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data);
-void davinci_eth_set_mac_addr(const u_int8_t *addr);
 
 typedef struct
 {
@@ -389,5 +388,8 @@ int dp83848_is_phy_connected(int phy_addr);
 int dp83848_get_link_speed(int phy_addr);
 int dp83848_init_phy(int phy_addr);
 int dp83848_auto_negotiate(int phy_addr);
+
+#define PHY_ET1011C	(0x282f013)
+int et1011c_get_link_speed(int phy_addr);
 
 #endif  /* _DM644X_EMAC_H_ */

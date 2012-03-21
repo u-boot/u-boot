@@ -888,14 +888,14 @@ static int mii_discover_phy(struct eth_device *dev)
 			udelay(10000);	/* wait 10ms */
 		}
 		for (phyno = 0; phyno < 32 && phyaddr < 0; ++phyno) {
-			phytype = mii_send(mk_mii_read(phyno, PHY_PHYIDR2));
+			phytype = mii_send(mk_mii_read(phyno, MII_PHYSID2));
 #ifdef ET_DEBUG
 			printf("PHY type 0x%x pass %d type ", phytype, pass);
 #endif
 			if (phytype != 0xffff) {
 				phyaddr = phyno;
 				phytype |= mii_send(mk_mii_read(phyno,
-								PHY_PHYIDR1)) << 16;
+								MII_PHYSID1)) << 16;
 
 #ifdef ET_DEBUG
 				printf("PHY @ 0x%x pass %d type ",phyno,pass);

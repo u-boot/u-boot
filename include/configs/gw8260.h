@@ -50,6 +50,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 /* Enable debug prints */
 #undef DEBUG_BOOTP_EXT        /* Debug received vendor fields */
 
@@ -83,7 +85,7 @@
 #define CONFIG_SYS_SBC_BOOT_LOW 1
 
 /* What should the base address of the main FLASH be and how big is
- * it (in MBytes)? This must contain TEXT_BASE from board/sbc8260/config.mk
+ * it (in MBytes)? This must contain CONFIG_SYS_TEXT_BASE from board/sbc8260/config.mk
  * The main FLASH is whichever is connected to *CS0. U-Boot expects
  * this to be the SIMM.
  */
@@ -436,9 +438,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR    CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END     0x4000  /* End of used area in DPRAM    */
-#define CONFIG_SYS_GBL_DATA_SIZE   128 /* bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE     0x4000  /* Size of used area in DPRAM    */
+#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET   CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -819,13 +820,4 @@
 			    ORxG_SCY_11_CLK            |\
 			    ORxG_EHTR)
 #endif /* CONFIG_SYS_IO_BASE */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD   0x01    /* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM   0x02    /* Software reboot           */
-
 #endif  /* __CONFIG_H */

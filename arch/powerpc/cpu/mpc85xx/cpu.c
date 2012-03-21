@@ -1,5 +1,5 @@
 /*
- * Copyright 2004,2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2004,2007-2011 Freescale Semiconductor, Inc.
  * (C) Copyright 2002, 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -34,6 +34,10 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include <asm/fsl_lbc.h>
+#include <post.h>
+#include <asm/processor.h>
+#include <asm/fsl_ddr_sdram.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -162,12 +166,14 @@ int checkcpu (void)
 	}
 #endif
 
+#if defined(CONFIG_FSL_LBC)
 	if (sysinfo.freqLocalBus > LCRR_CLKDIV) {
 		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
 	} else {
 		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
 		       sysinfo.freqLocalBus);
 	}
+#endif
 
 #ifdef CONFIG_CPM2
 	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
@@ -196,7 +202,7 @@ int checkcpu (void)
 
 /* ------------------------------------------------------------------------- */
 
-int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char * const argv[])
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 /* Everything after the first generation of PQ3 parts has RSTCR */
 #if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
@@ -280,5 +286,277 @@ void mpc85xx_reginfo(void)
 {
 	print_tlbcam();
 	print_laws();
+#if defined(CONFIG_FSL_LBC)
 	print_lbc_regs();
+#endif
+
 }
+
+/* Common ddr init for non-corenet fsl 85xx platforms */
+#ifndef CONFIG_FSL_CORENET
+phys_size_t initdram(int board_type)
+{
+	phys_size_t dram_size = 0;
+
+#if defined(CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN)
+	{
+		ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+		unsigned int x = 10;
+		unsigned int i;
+
+		/*
+		 * Work around to stabilize DDR DLL
+		 */
+		out_be32(&gur->ddrdllcr, 0x81000000);
+		asm("sync;isync;msync");
+		udelay(200);
+		while (in_be32(&gur->ddrdllcr) != 0x81000100) {
+			setbits_be32(&gur->devdisr, 0x00010000);
+			for (i = 0; i < x; i++)
+				;
+			clrbits_be32(&gur->devdisr, 0x00010000);
+			x++;
+		}
+	}
+#endif
+
+#if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD)
+	dram_size = fsl_ddr_sdram();
+#else
+	dram_size = fixed_sdram();
+#endif
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
+
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+	/*
+	 * Initialize and enable DDR ECC.
+	 */
+	ddr_enable_ecc(dram_size);
+#endif
+
+#if defined(CONFIG_FSL_LBC)
+	/* Some boards also have sdram on the lbc */
+	lbc_sdram_init();
+#endif
+
+	puts("DDR: ");
+	return dram_size;
+}
+#endif
+
+#if CONFIG_POST & CONFIG_SYS_POST_MEMORY
+
+/* Board-specific functions defined in each board's ddr.c */
+void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
+	unsigned int ctrl_num);
+void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
+		       phys_addr_t *rpn);
+unsigned int
+	setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg);
+
+static void dump_spd_ddr_reg(void)
+{
+	int i, j, k, m;
+	u8 *p_8;
+	u32 *p_32;
+	ccsr_ddr_t *ddr[CONFIG_NUM_DDR_CONTROLLERS];
+	generic_spd_eeprom_t
+		spd[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR];
+
+	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
+		fsl_ddr_get_spd(spd[i], i);
+
+	puts("SPD data of all dimms (zero vaule is omitted)...\n");
+	puts("Byte (hex)  ");
+	k = 1;
+	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+		for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++)
+			printf("Dimm%d ", k++);
+	}
+	puts("\n");
+	for (k = 0; k < sizeof(generic_spd_eeprom_t); k++) {
+		m = 0;
+		printf("%3d (0x%02x)  ", k, k);
+		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+			for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++) {
+				p_8 = (u8 *) &spd[i][j];
+				if (p_8[k]) {
+					printf("0x%02x  ", p_8[k]);
+					m++;
+				} else
+					puts("      ");
+			}
+		}
+		if (m)
+			puts("\n");
+		else
+			puts("\r");
+	}
+
+	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+		switch (i) {
+		case 0:
+			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+			break;
+#ifdef CONFIG_SYS_MPC85xx_DDR2_ADDR
+		case 1:
+			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
+			break;
+#endif
+		default:
+			printf("%s unexpected controller number = %u\n",
+				__func__, i);
+			return;
+		}
+	}
+	printf("DDR registers dump for all controllers "
+		"(zero vaule is omitted)...\n");
+	puts("Offset (hex)   ");
+	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
+		printf("     Base + 0x%04x", (u32)ddr[i] & 0xFFFF);
+	puts("\n");
+	for (k = 0; k < sizeof(ccsr_ddr_t)/4; k++) {
+		m = 0;
+		printf("%6d (0x%04x)", k * 4, k * 4);
+		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+			p_32 = (u32 *) ddr[i];
+			if (p_32[k]) {
+				printf("        0x%08x", p_32[k]);
+				m++;
+			} else
+				puts("                  ");
+		}
+		if (m)
+			puts("\n");
+		else
+			puts("\r");
+	}
+	puts("\n");
+}
+
+/* invalid the TLBs for DDR and setup new ones to cover p_addr */
+static int reset_tlb(phys_addr_t p_addr, u32 size, phys_addr_t *phys_offset)
+{
+	u32 vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+	unsigned long epn;
+	u32 tsize, valid, ptr;
+	phys_addr_t rpn = 0;
+	int ddr_esel;
+
+	ptr = vstart;
+
+	while (ptr < (vstart + size)) {
+		ddr_esel = find_tlb_idx((void *)ptr, 1);
+		if (ddr_esel != -1) {
+			read_tlbcam_entry(ddr_esel, &valid, &tsize, &epn, &rpn);
+			disable_tlb(ddr_esel);
+		}
+		ptr += TSIZE_TO_BYTES(tsize);
+	}
+
+	/* Setup new tlb to cover the physical address */
+	setup_ddr_tlbs_phys(p_addr, size>>20);
+
+	ptr = vstart;
+	ddr_esel = find_tlb_idx((void *)ptr, 1);
+	if (ddr_esel != -1) {
+		read_tlbcam_entry(ddr_esel, &valid, &tsize, &epn, phys_offset);
+	} else {
+		printf("TLB error in function %s\n", __func__);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ * slide the testing window up to test another area
+ * for 32_bit system, the maximum testable memory is limited to
+ * CONFIG_MAX_MEM_MAPPED
+ */
+int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	phys_addr_t test_cap, p_addr;
+	phys_size_t p_size = min(gd->ram_size, CONFIG_MAX_MEM_MAPPED);
+
+#if !defined(CONFIG_PHYS_64BIT) || \
+    !defined(CONFIG_SYS_INIT_RAM_ADDR_PHYS) || \
+	(CONFIG_SYS_INIT_RAM_ADDR_PHYS < 0x100000000ull)
+		test_cap = p_size;
+#else
+		test_cap = gd->ram_size;
+#endif
+	p_addr = (*vstart) + (*size) + (*phys_offset);
+	if (p_addr < test_cap - 1) {
+		p_size = min(test_cap - p_addr, CONFIG_MAX_MEM_MAPPED);
+		if (reset_tlb(p_addr, p_size, phys_offset) == -1)
+			return -1;
+		*vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+		*size = (u32) p_size;
+		printf("Testing 0x%08llx - 0x%08llx\n",
+			(u64)(*vstart) + (*phys_offset),
+			(u64)(*vstart) + (*phys_offset) + (*size) - 1);
+	} else
+		return 1;
+
+	return 0;
+}
+
+/* initialization for testing area */
+int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	phys_size_t p_size = min(gd->ram_size, CONFIG_MAX_MEM_MAPPED);
+
+	*vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+	*size = (u32) p_size;	/* CONFIG_MAX_MEM_MAPPED < 4G */
+	*phys_offset = 0;
+
+#if !defined(CONFIG_PHYS_64BIT) || \
+    !defined(CONFIG_SYS_INIT_RAM_ADDR_PHYS) || \
+	(CONFIG_SYS_INIT_RAM_ADDR_PHYS < 0x100000000ull)
+		if (gd->ram_size > CONFIG_MAX_MEM_MAPPED) {
+			puts("Cannot test more than ");
+			print_size(CONFIG_MAX_MEM_MAPPED,
+				" without proper 36BIT support.\n");
+		}
+#endif
+	printf("Testing 0x%08llx - 0x%08llx\n",
+		(u64)(*vstart) + (*phys_offset),
+		(u64)(*vstart) + (*phys_offset) + (*size) - 1);
+
+	return 0;
+}
+
+/* invalid TLBs for DDR and remap as normal after testing */
+int arch_memory_test_cleanup(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	unsigned long epn;
+	u32 tsize, valid, ptr;
+	phys_addr_t rpn = 0;
+	int ddr_esel;
+
+	/* disable the TLBs for this testing */
+	ptr = *vstart;
+
+	while (ptr < (*vstart) + (*size)) {
+		ddr_esel = find_tlb_idx((void *)ptr, 1);
+		if (ddr_esel != -1) {
+			read_tlbcam_entry(ddr_esel, &valid, &tsize, &epn, &rpn);
+			disable_tlb(ddr_esel);
+		}
+		ptr += TSIZE_TO_BYTES(tsize);
+	}
+
+	puts("Remap DDR ");
+	setup_ddr_tlbs(gd->ram_size>>20);
+	puts("\n");
+
+	return 0;
+}
+
+void arch_memory_failure_handle(void)
+{
+	dump_spd_ddr_reg();
+}
+#endif

@@ -28,6 +28,7 @@
 #include <common.h>             /* core U-Boot definitions */
 #include <xilinx.h>             /* xilinx specific definitions */
 #include <altera.h>             /* altera specific definitions */
+#include <lattice.h>
 
 #if 0
 #define FPGA_DEBUG              /* define FPGA_DEBUG to get debug messages */
@@ -139,6 +140,14 @@ static int fpga_dev_info( int devnum )
 			fpga_no_sup( (char *)__FUNCTION__, "Altera devices" );
 #endif
 			break;
+		case fpga_lattice:
+#if defined(CONFIG_FPGA_LATTICE)
+			printf("Lattice Device\nDescriptor @ 0x%p\n", desc);
+			ret_val = lattice_info(desc->devdesc);
+#else
+			fpga_no_sup( (char *)__FUNCTION__, "Lattice devices" );
+#endif
+			break;
 		default:
 			printf( "%s: Invalid or unsupported device type %d\n",
 					__FUNCTION__, desc->devtype );
@@ -224,6 +233,13 @@ int fpga_load( int devnum, void *buf, size_t bsize )
 			fpga_no_sup( (char *)__FUNCTION__, "Altera devices" );
 #endif
 			break;
+		case fpga_lattice:
+#if defined(CONFIG_FPGA_LATTICE)
+			ret_val = lattice_load(desc->devdesc, buf, bsize);
+#else
+			fpga_no_sup( (char *)__FUNCTION__, "Lattice devices" );
+#endif
+			break;
 		default:
 			printf( "%s: Invalid or unsupported device type %d\n",
 				__FUNCTION__, desc->devtype );
@@ -255,6 +271,13 @@ int fpga_dump( int devnum, void *buf, size_t bsize )
 			ret_val = altera_dump( desc->devdesc, buf, bsize );
 #else
 			fpga_no_sup( (char *)__FUNCTION__, "Altera devices" );
+#endif
+			break;
+		case fpga_lattice:
+#if defined(CONFIG_FPGA_LATTICE)
+			ret_val = lattice_dump(desc->devdesc, buf, bsize);
+#else
+			fpga_no_sup( (char *)__FUNCTION__, "Lattice devices" );
 #endif
 			break;
 		default:

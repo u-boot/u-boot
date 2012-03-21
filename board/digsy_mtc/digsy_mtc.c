@@ -39,11 +39,29 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include "eeprom.h"
+#if defined(CONFIG_DIGSY_REV5)
+#include "is45s16800a2.h"
+#include <mtd/cfi_flash.h>
+#else
 #include "is42s16800a-7t.h"
+#endif
+#include <libfdt.h>
+#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int usb_cpu_init(void);
+
+#if defined(CONFIG_DIGSY_REV5)
+/*
+ * The M29W128GH needs a specail reset command function,
+ * details see the doc/README.cfi file
+ */
+void flash_cmd_reset(flash_info_t *info)
+{
+	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+}
+#endif
 
 #ifndef CONFIG_SYS_RAMBOOT
 static void sdram_start(int hi_addr)
@@ -175,6 +193,9 @@ int checkboard(void)
 	char *s = getenv("serial#");
 
 	puts ("Board: InterControl digsyMTC");
+#if defined(CONFIG_DIGSY_REV5)
+	puts (" rev5");
+#endif
 	if (s != NULL) {
 		puts(", ");
 		puts(s);
@@ -305,12 +326,101 @@ void ide_set_reset(int idereset)
 	setbits_be32((void *)MPC5XXX_WU_GPIO_ENABLE, (1 << 25));
 }
 #endif /* CONFIG_IDE_RESET */
+#endif /* CONFIG_CMD_IDE */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+static void ft_delete_node(void *fdt, const char *compat)
+{
+	int off = -1;
+	int ret;
+
+	off = fdt_node_offset_by_compatible(fdt, -1, compat);
+	if (off < 0) {
+		printf("Could not find %s node.\n", compat);
+		return;
+	}
+
+	ret = fdt_del_node(fdt, off);
+	if (ret < 0)
+		printf("Could not delete %s node.\n", compat);
+}
+#if defined(CONFIG_SYS_UPDATE_FLASH_SIZE)
+static void ft_adapt_flash_base(void *blob)
+{
+	flash_info_t	*dev = &flash_info[0];
+	int off;
+	struct fdt_property *prop;
+	int len;
+	u32 *reg, *reg2;
+
+	off = fdt_node_offset_by_compatible(blob, -1, "fsl,mpc5200b-lpb");
+	if (off < 0) {
+		printf("Could not find fsl,mpc5200b-lpb node.\n");
+		return;
+	}
+
+	/* found compatible property */
+	prop = fdt_get_property_w(blob, off, "ranges", &len);
+	if (prop) {
+		reg = reg2 = (u32 *)&prop->data[0];
+
+		reg[2] = dev->start[0];
+		reg[3] = dev->size;
+		fdt_setprop(blob, off, "ranges", reg2, len);
+	} else
+		printf("Could not find ranges\n");
+}
+
+extern ulong flash_get_size (phys_addr_t base, int banknum);
+
+/* Update the Flash Baseaddr settings */
+int update_flash_size (int flash_size)
+{
+	volatile struct mpc5xxx_mmap_ctl *mm =
+		(struct mpc5xxx_mmap_ctl *) CONFIG_SYS_MBAR;
+	flash_info_t	*dev;
+	int	i;
+	int size = 0;
+	unsigned long base = 0x0;
+	u32 *cs_reg = (u32 *)&mm->cs0_start;
+
+	for (i = 0; i < 2; i++) {
+		dev = &flash_info[i];
+
+		if (dev->size) {
+			/* calculate new base addr for this chipselect */
+			base -= dev->size;
+			out_be32(cs_reg, START_REG(base));
+			cs_reg++;
+			out_be32(cs_reg, STOP_REG(base, dev->size));
+			cs_reg++;
+			/* recalculate the sectoraddr in the cfi driver */
+			size += flash_get_size(base, i);
+		}
+	}
+	gd->bd->bi_flashstart = base;
+	return 0;
+}
+#endif /* defined(CONFIG_SYS_UPDATE_FLASH_SIZE) */
+
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+	/*
+	 * There are 2 RTC nodes in the DTS, so remove
+	 * the unneeded node here.
+	 */
+#if defined(CONFIG_DIGSY_REV5)
+	ft_delete_node(blob, "dallas,ds1339");
+#else
+	ft_delete_node(blob, "mc,rv3029c2");
+#endif
+#if defined(CONFIG_SYS_UPDATE_FLASH_SIZE)
+#ifdef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
+	/* Update reg property in all nor flash nodes too */
+	fdt_fixup_nor_flash_size(blob);
+#endif
+	ft_adapt_flash_base(blob);
+#endif
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
-
-#endif /* CONFIG_CMD_IDE */

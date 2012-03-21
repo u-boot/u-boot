@@ -60,6 +60,7 @@
 /* check for keypress on bootdelay==0 */
 /*#define CONFIG_ZERO_BOOTDELAY_CHECK*/
 
+#define CONFIG_SYS_TEXT_BASE		0x0FFC0000
 #define CONFIG_SYS_SDRAM_BASE		(0x08000000)
 #define CONFIG_SYS_SDRAM_SIZE		(128 * 1024 * 1024)
 
@@ -73,7 +74,7 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 57600, 38400, 19200, 9600 }
 
 #define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE)
-#define CONFIG_SYS_MEMTEST_END		(TEXT_BASE - 0x100000)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_TEXT_BASE - 0x100000)
 
 /* Flash board support */
 #define CONFIG_SYS_FLASH_BASE		(0xA0000000)
@@ -101,7 +102,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(1204 * 1024)
 
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 #define CONFIG_SYS_RX_ETH_BUFFER	(8)
 
@@ -155,7 +155,6 @@
 #define CONFIG_RTL8169
 */
 /* AX88796L Support(NE2000 base chip) */
-#define CONFIG_DRIVER_NE2000
 #define CONFIG_DRIVER_AX88796L
 #define CONFIG_DRIVER_NE2000_BASE	0xA4100000
 #endif

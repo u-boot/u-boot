@@ -54,6 +54,48 @@ DECLARE_GLOBAL_DATA_PTR;
 void ps2mult_early_init(void);
 #endif
 
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) && \
+    defined(CONFIG_VIDEO)
+/*
+ * EDID block has been generated using Phoenix EDID Designer 1.3.
+ * This tool creates a text file containing:
+ *
+ * EDID BYTES:
+ *
+ * 0x   00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+ *     ------------------------------------------------
+ *     00 | 00 FF FF FF FF FF FF 00 04 21 00 00 00 00 00 00
+ *     10 | 01 00 01 03 00 00 00 00 00 00 00 00 00 00 00 00
+ *     20 | 00 00 00 21 00 00 01 01 01 01 01 01 01 01 01 01
+ *     30 | 01 01 01 01 01 01 64 00 00 00 00 00 00 00 00 00
+ *     40 | 00 00 00 00 00 00 00 00 00 00 00 10 00 00 00 00
+ *     50 | 00 00 00 00 00 00 00 00 00 00 00 00 00 10 00 00
+ *     60 | 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 10
+ *     70 | 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 17
+ *
+ * Then this data has been manually converted to the char
+ * array below.
+ */
+static unsigned char edid_buf[128] = {
+	0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
+	0x04, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x01, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x64, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17,
+};
+#endif
+
 #ifndef CONFIG_SYS_RAMBOOT
 static void sdram_start (int hi_addr)
 {
@@ -251,6 +293,8 @@ int checkboard (void)
 # define CARRIER_NAME	"CAM5200"
 #elif defined(CONFIG_FO300)
 # define CARRIER_NAME	"FO300"
+#elif defined(CONFIG_CHARON)
+# define CARRIER_NAME	"CHARON"
 #else
 # error "UNKNOWN"
 #endif
@@ -429,6 +473,111 @@ int board_early_init_f (void)
 }
 #endif	/* CONFIG_FO300 */
 
+#if defined(CONFIG_CHARON)
+#include <i2c.h>
+#include <asm/io.h>
+
+/* The TFP410 registers */
+#define TFP410_REG_VEN_ID_L 0x00
+#define TFP410_REG_VEN_ID_H 0x01
+#define TFP410_REG_DEV_ID_L 0x02
+#define TFP410_REG_DEV_ID_H 0x03
+#define TFP410_REG_REV_ID 0x04
+
+#define TFP410_REG_CTL_1_MODE 0x08
+#define TFP410_REG_CTL_2_MODE 0x09
+#define TFP410_REG_CTL_3_MODE 0x0A
+
+#define TFP410_REG_CFG 0x0B
+
+#define TFP410_REG_DE_DLY 0x32
+#define TFP410_REG_DE_CTL 0x33
+#define TFP410_REG_DE_TOP 0x34
+#define TFP410_REG_DE_CNT_L 0x36
+#define TFP410_REG_DE_CNT_H 0x37
+#define TFP410_REG_DE_LIN_L 0x38
+#define TFP410_REG_DE_LIN_H 0x39
+
+#define TFP410_REG_H_RES_L 0x3A
+#define TFP410_REG_H_RES_H 0x3B
+#define TFP410_REG_V_RES_L 0x3C
+#define TFP410_REG_V_RES_H 0x3D
+
+static int tfp410_read_reg(int reg, uchar *buf)
+{
+	if (i2c_read(CONFIG_SYS_TFP410_ADDR, reg, 1, buf, 1) != 0) {
+		puts ("Error reading the chip.\n");
+		return 1;
+	}
+	return 0;
+}
+
+static int tfp410_write_reg(int reg, uchar buf)
+{
+	if (i2c_write(CONFIG_SYS_TFP410_ADDR, reg, 1, &buf, 1) != 0) {
+		puts ("Error writing the chip.\n");
+		return 1;
+	}
+	return 0;
+}
+
+typedef struct _tfp410_config {
+	int	reg;
+	uchar	val;
+}TFP410_CONFIG;
+
+static TFP410_CONFIG tfp410_configtbl[] = {
+	{TFP410_REG_CTL_1_MODE, 0x37},
+	{TFP410_REG_CTL_2_MODE, 0x20},
+	{TFP410_REG_CTL_3_MODE, 0x80},
+	{TFP410_REG_DE_DLY, 0x90},
+	{TFP410_REG_DE_CTL, 0x00},
+	{TFP410_REG_DE_TOP, 0x23},
+	{TFP410_REG_DE_CNT_H, 0x02},
+	{TFP410_REG_DE_CNT_L, 0x80},
+	{TFP410_REG_DE_LIN_H, 0x01},
+	{TFP410_REG_DE_LIN_L, 0xe0},
+	{-1, 0},
+};
+
+static int charon_last_stage_init(void)
+{
+	volatile struct mpc5xxx_lpb *lpb =
+		(struct mpc5xxx_lpb *) MPC5XXX_LPB;
+	int	oldbus = i2c_get_bus_num();
+	uchar	buf;
+	int	i = 0;
+
+	i2c_set_bus_num(CONFIG_SYS_TFP410_BUS);
+
+	/* check version */
+	if (tfp410_read_reg(TFP410_REG_DEV_ID_H, &buf) != 0)
+		return -1;
+	if (!(buf & 0x04))
+		return -1;
+	if (tfp410_read_reg(TFP410_REG_DEV_ID_L, &buf) != 0)
+		return -1;
+	if (!(buf & 0x10))
+		return -1;
+	/* OK, now init the chip */
+	while (tfp410_configtbl[i].reg != -1) {
+		int ret;
+
+		ret = tfp410_write_reg(tfp410_configtbl[i].reg,
+				tfp410_configtbl[i].val);
+		if (ret != 0)
+			return -1;
+		i++;
+	}
+	printf("TFP410 initialized.\n");
+	i2c_set_bus_num(oldbus);
+
+	/* set deadcycle for cs3 to 0 */
+	setbits_be32(&lpb->cs_deadcycle, 0xffffcfff);
+	return 0;
+}
+#endif
+
 int last_stage_init (void)
 {
 	/*
@@ -530,6 +679,9 @@ int last_stage_init (void)
 #endif
 #endif /* !CONFIG_TQM5200S */
 
+#if defined(CONFIG_CHARON)
+	charon_last_stage_init();
+#endif
 	return 0;
 }
 
@@ -625,8 +777,12 @@ void video_get_info_str (int line_number, char *info)
 {
 	if (line_number == 1) {
 	strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
-#if defined (CONFIG_STK52XX) || defined (CONFIG_TB5200) || defined(CONFIG_FO300)
+#if defined (CONFIG_CHARON) || defined (CONFIG_FO300) || \
+	defined(CONFIG_STK52XX) || defined(CONFIG_TB5200)
 	} else if (line_number == 2) {
+#if defined (CONFIG_CHARON)
+		strcpy (info, "        on a CHARON carrier board");
+#endif
 #if defined (CONFIG_STK52XX)
 		strcpy (info, "        on a STK52xx carrier board");
 #endif
@@ -726,8 +882,21 @@ int board_get_height (void)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+#if defined(CONFIG_VIDEO)
+	fdt_add_edid(blob, "smi,sm501", edid_buf);
+#endif
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+
+#if defined(CONFIG_RESET_PHY_R)
+#include <miiphy.h>
+
+void reset_phy(void)
+{
+	/* init Micrel KSZ8993 PHY */
+	miiphy_write("FEC", CONFIG_PHY_ADDR, 0x01, 0x09);
+}
+#endif
 
 int board_eth_init(bd_t *bis)
 {

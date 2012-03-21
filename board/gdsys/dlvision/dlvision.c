@@ -25,7 +25,7 @@
 #include <command.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 enum {
 	HWTYPE_DLVISION_CPU = 0,

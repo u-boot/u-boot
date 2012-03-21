@@ -41,9 +41,6 @@
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
-
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /*
@@ -176,7 +173,7 @@
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
-#if (TEXT_BASE == 0xFC000000)		/* Boot low */
+#if (CONFIG_SYS_TEXT_BASE == 0xFC000000)		/* Boot low */
 #   define CONFIG_SYS_LOWBOOT		1
 #endif
 
@@ -274,16 +271,16 @@
 
 /* List of I2C addresses to be verified by POST */
 #if defined (CONFIG_MINIFAP)
-#undef I2C_ADDR_LIST
-#define I2C_ADDR_LIST	{	CONFIG_SYS_I2C_EEPROM_ADDR,	\
-				CONFIG_SYS_I2C_HWMON_ADDR,	\
-				CONFIG_SYS_I2C_SLAVE }
+#undef CONFIG_SYS_POST_I2C_ADDRS
+#define CONFIG_SYS_POST_I2C_ADDRS	{CONFIG_SYS_I2C_EEPROM_ADDR,	\
+					 CONFIG_SYS_I2C_HWMON_ADDR,	\
+					 CONFIG_SYS_I2C_SLAVE}
 #endif
 
 /*
  * Flash configuration
  */
-#define CONFIG_SYS_FLASH_BASE		TEXT_BASE /* 0xFC000000 */
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_TEXT_BASE /* 0xFC000000 */
 
 /* use CFI flash driver if no module variant is spezified */
 #define CONFIG_SYS_FLASH_CFI		1	/* Flash is CFI conformant */
@@ -325,17 +322,16 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #ifdef CONFIG_POST
 /* preserve space for the post_word at end of on-chip SRAM */
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_POST_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_POST_SIZE
 #else
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE
 #endif
 
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

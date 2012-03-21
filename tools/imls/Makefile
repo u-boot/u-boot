@@ -67,7 +67,7 @@ $(obj)imls:	$(obj)imls.o $(obj)crc32.o $(obj)image.o $(obj)md5.o \
 	$(CC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(STRIP) $@
 
-# Some files complain if compiled with -pedantic, use FIT_CFLAGS
+# Some files complain if compiled with -pedantic, use HOSTCFLAGS_NOPED
 $(obj)image.o: $(SRCTREE)/common/image.c
 	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 

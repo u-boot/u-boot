@@ -39,14 +39,14 @@ int usb_cpu_init(void)
 	 * Set the 48 MHz UPLL clocking. Values are taken from
 	 * "PLL value selection guide", 6-23, s3c2400_UM.pdf.
 	 */
-	writel((40 << 12) + (1 << 4) + 2, &clk_power->UPLLCON);
+	writel((40 << 12) + (1 << 4) + 2, &clk_power->upllcon);
 	/* 1 = use pads related USB for USB host */
-	writel(readl(&gpio->MISCCR) | 0x8, &gpio->MISCCR);
+	writel(readl(&gpio->misccr) | 0x8, &gpio->misccr);
 
 	/*
 	 * Enable USB host clock.
 	 */
-	writel(readl(&clk_power->CLKCON) | (1 << 4), &clk_power->CLKCON);
+	writel(readl(&clk_power->clkcon) | (1 << 4), &clk_power->clkcon);
 
 	return 0;
 }
@@ -55,14 +55,14 @@ int usb_cpu_stop(void)
 {
 	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
 	/* may not want to do this */
-	writel(readl(&clk_power->CLKCON) & ~(1 << 4), &clk_power->CLKCON);
+	writel(readl(&clk_power->clkcon) & ~(1 << 4), &clk_power->clkcon);
 	return 0;
 }
 
 int usb_cpu_init_fail(void)
 {
 	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
-	writel(readl(&clk_power->CLKCON) & ~(1 << 4), &clk_power->CLKCON);
+	writel(readl(&clk_power->clkcon) & ~(1 << 4), &clk_power->clkcon);
 	return 0;
 }
 

@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libblock.a
+LIB	:= $(obj)libblock.o
 
 COBJS-$(CONFIG_SCSI_AHCI) += ahci.o
 COBJS-$(CONFIG_ATA_PIIX) += ata_piix.o
@@ -31,6 +31,7 @@ COBJS-$(CONFIG_FSL_SATA) += fsl_sata.o
 COBJS-$(CONFIG_LIBATA) += libata.o
 COBJS-$(CONFIG_CMD_MG_DISK) += mg_disk.o
 COBJS-$(CONFIG_MVSATA_IDE) += mvsata_ide.o
+COBJS-$(CONFIG_MX51_PATA) += mxc_ata.o
 COBJS-$(CONFIG_PATA_BFIN) += pata_bfin.o
 COBJS-$(CONFIG_SATA_DWC) += sata_dwc.o
 COBJS-$(CONFIG_SATA_SIL3114) += sata_sil3114.o
@@ -45,7 +46,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

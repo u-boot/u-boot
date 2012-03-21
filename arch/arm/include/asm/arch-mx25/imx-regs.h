@@ -36,6 +36,7 @@
 #ifndef __ASSEMBLY__
 #ifdef CONFIG_FEC_MXC
 extern void mx25_fec_init_pins(void);
+extern void imx_get_mac_from_fuse(unsigned char *mac);
 #endif
 
 /* Clock Control Module (CCM) registers */
@@ -108,11 +109,11 @@ struct gpt_regs {
 
 /* Watchdog Timer (WDOG) registers */
 struct wdog_regs {
-	u32 wcr;	/* Control */
-	u32 wsr;	/* Service */
-	u32 wrsr;	/* Reset Status */
-	u32 wicr;	/* Interrupt Control */
-	u32 wmcr;	/* Misc Control */
+	u16 wcr;	/* Control */
+	u16 wsr;	/* Service */
+	u16 wrsr;	/* Reset Status */
+	u16 wicr;	/* Interrupt Control */
+	u16 wmcr;	/* Misc Control */
 };
 
 /* IIM control registers */
@@ -129,12 +130,17 @@ struct iim_regs {
 	u32 iim_srev;
 	u32 iim_prog_p;
 	u32 res1[0x1f5];
-	u32 iim_bank_area0[0x20];
-	u32 res2[0xe0];
-	u32 iim_bank_area1[0x20];
-	u32 res3[0xe0];
-	u32 iim_bank_area2[0x20];
+	struct fuse_bank {
+		u32 fuse_regs[0x20];
+		u32 fuse_rsvd[0xe0];
+	} bank[3];
 };
+
+struct fuse_bank0_regs {
+	u32 fuse0_25[0x1a];
+	u32 mac_addr[6];
+};
+
 #endif
 
 /* AIPS 1 */
@@ -308,9 +314,8 @@ struct iim_regs {
 #define GPT_CTRL_TEN		1		/* Timer enable	*/
 
 /* WDOG enable */
-#define WCR_WDE 0x04
-
-/* FUSE bank offsets */
-#define IIM0_MAC		0x1a
+#define WCR_WDE 		0x04
+#define WSR_UNLOCK1		0x5555
+#define WSR_UNLOCK2		0xAAAA
 
 #endif				/* _IMX_REGS_H */

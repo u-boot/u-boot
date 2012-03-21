@@ -1,7 +1,7 @@
 /*
  * MPC85xx Internal Memory Map
  *
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * Copyright(c) 2002,2003 Motorola Inc.
  * Xianghua Xiao (x.xiao@motorola.com)
@@ -222,25 +222,8 @@ typedef struct ccsr_ddr {
 	u32	capture_ext_address;	/* Error Extended Addr Capture */
 	u32	err_sbe;		/* Single-Bit ECC Error Management */
 	u8	res11[164];
-	u32	debug_1;
-	u32	debug_2;
-	u32	debug_3;
-	u32	debug_4;
-	u32	debug_5;
-	u32	debug_6;
-	u32	debug_7;
-	u32	debug_8;
-	u32	debug_9;
-	u32	debug_10;
-	u32	debug_11;
-	u32	debug_12;
-	u32	debug_13;
-	u32	debug_14;
-	u32	debug_15;
-	u32	debug_16;
-	u32	debug_17;
-	u32	debug_18;
-	u8	res12[184];
+	u32	debug[32];		/* debug_1 to debug_32 */
+	u8	res12[128];
 } ccsr_ddr_t;
 
 #define DDR_EOR_RD_BDW_OPT_DIS	0x80000000 /* Read BDW Opt. disable */
@@ -1589,7 +1572,9 @@ typedef struct cpc_corenet {
 	u32	cpcerreaddr;	/* error extended address */
 	u32	cpcerraddr;	/* error address */
 	u32	cpcerrctl;	/* error control */
-	u32	res9[105];	/* pad out to 4k */
+	u32	res9[41];	/* pad out to 4k */
+	u32	cpchdbcr0;	/* hardware debug control register 0 */
+	u32	res10[63];	/* pad out to 4k */
 } cpc_corenet_t;
 
 #define CPC_CSR0_CE	0x80000000	/* Cache Enable */
@@ -1616,6 +1601,9 @@ typedef struct cpc_corenet {
 #define CPC_SRCR0_SRAMSZ_32_WAY	0x0000000a
 #define CPC_SRCR0_SRAMEN	0x00000001
 #define	CPC_ERRDIS_TMHITDIS  	0x00000080	/* multi-way hit disable */
+#define CPC_HDBCR0_CDQ_SPEC_DIS	0x08000000
+#define CPC_HDBCR0_TAG_ECC_SCRUB_DIS	0x01000000
+#define CPC_HDBCR0_DATA_ECC_SCRUB_DIS	0x00400000
 #endif /* CONFIG_SYS_FSL_CPC */
 
 /* Global Utilities Block */
@@ -2304,7 +2292,7 @@ typedef struct ccsr_pme {
 #define CONFIG_SYS_MPC85xx_CPM_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_CPM_OFFSET)
 #define CONFIG_SYS_MPC85xx_SERDES1_ADDR \
-	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
+	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES1_OFFSET)
 #define CONFIG_SYS_MPC85xx_SERDES2_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
 #define CONFIG_SYS_FSL_CORENET_SERDES_ADDR \

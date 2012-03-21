@@ -153,10 +153,9 @@
  *-----------------------------------------------------------------------*/
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
-#define CONFIG_SYS_INIT_RAM_END		0x10000
-#define CONFIG_SYS_GBL_DATA_SIZE	64
+#define CONFIG_SYS_INIT_RAM_SIZE		0x10000
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
-	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -173,10 +172,10 @@
 
 /* If M5282 port is fully implemented the monitor base will be behind
  * the vector table. */
-#if (TEXT_BASE !=  CONFIG_SYS_INT_FLASH_BASE)
-#define CONFIG_SYS_MONITOR_BASE	(TEXT_BASE + 0x400)
+#if (CONFIG_SYS_TEXT_BASE !=  CONFIG_SYS_INT_FLASH_BASE)
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE + 0x400)
 #else
-#define CONFIG_SYS_MONITOR_BASE	(TEXT_BASE + 0x418) /* 24 Byte for CFM-Config */
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE + 0x418) /* 24 Byte for CFM-Config */
 #endif
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
@@ -209,9 +208,9 @@
 #define CONFIG_SYS_CACHELINE_SIZE	16
 
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_END - 8)
+					 CONFIG_SYS_INIT_RAM_SIZE - 8)
 #define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_END - 4)
+					 CONFIG_SYS_INIT_RAM_SIZE - 4)
 #define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINV + CF_CACR_DCM)
 #define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_SDRAM_BASE | \
 					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \

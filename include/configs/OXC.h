@@ -39,6 +39,8 @@
 #define CONFIG_MPC8240		1
 #define CONFIG_OXC		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
 #define CONFIG_IDENT_STRING     " [oxc] "
@@ -136,7 +138,7 @@
 
 #define CONFIG_SYS_RESET_ADDRESS	0xFFF00100
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		0x00030000
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_PRELIMBASE)
@@ -146,10 +148,9 @@
 #endif
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_END	0x1000
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MALLOC_LEN		(512 << 10)	/* Reserve 512 kB for malloc()	*/
@@ -314,13 +315,4 @@
 #if defined(CONFIG_CMD_KGDB)
 #  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

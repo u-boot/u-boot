@@ -37,6 +37,8 @@
 #define CONFIG_440		1
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external freq to pll	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFB0000
+
 /*
  * Include common defines/options for all AMCC eval boards
  */
@@ -53,11 +55,10 @@
 #define CONFIG_SYS_LARGE_FLASH		0xffc00000	/* 4MB flash address CS0 */
 #define CONFIG_SYS_SMALL_FLASH		0xff900000	/* 1MB flash address CS2 */
 #define CONFIG_SYS_SRAM_BASE		0xff800000	/* 1MB SRAM  address CS2 */
+#define CONFIG_SYS_SRAM_SIZE		(1 << 20)
 #define CONFIG_SYS_EPLD_BASE		0xff000000	/* EPLD and FRAM     CS1 */
 
 #define CONFIG_SYS_ISRAM_BASE	        0xf8000000	/* internal 8k SRAM (L2 cache) */
-
-#define CONFIG_SYS_PERIPHERAL_BASE     0xf0000000	/* internal peripherals */
 
 #define CONFIG_SYS_PCI_MEMBASE		0x80000000	/* mapped pci memory */
 #define CONFIG_SYS_PCI_BASE		0xd0000000	/* internal PCI regs */
@@ -79,16 +80,15 @@
  * Initial RAM & stack pointer (placed in SDRAM)
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_ISRAM_BASE
-#define CONFIG_SYS_INIT_RAM_END	(8 << 10)
-#define CONFIG_SYS_GBL_DATA_SIZE	256		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	(8 << 10)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	11059200 /* external 11.059MHz clk */
-#undef  CONFIG_UART1_CONSOLE		/* define if you want console on UART1 */
 
 /*-----------------------------------------------------------------------
  * Environment

@@ -56,6 +56,10 @@ int
 board_init (void)
 /**********************************************************/
 {
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
+
 	/* arch number of MicroSys XM250 */
 	gd->bd->bi_arch_number = MACH_TYPE_XM250;
 
@@ -65,21 +69,18 @@ board_init (void)
 	return 0;
 }
 
-int
-/**********************************************************/
-dram_init (void)
-/**********************************************************/
+extern void pxa_dram_init(void);
+int dram_init(void)
+{
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
+	return 0;
+}
+
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size  = PHYS_SDRAM_1_SIZE;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size  = PHYS_SDRAM_2_SIZE;
-	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
-	gd->bd->bi_dram[2].size  = PHYS_SDRAM_3_SIZE;
-	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
-	gd->bd->bi_dram[3].size  = PHYS_SDRAM_4_SIZE;
-
-	return (0);
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 }
 
 #ifdef CONFIG_CMD_NET

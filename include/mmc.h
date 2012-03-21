@@ -1,5 +1,5 @@
 /*
- * Copyright 2008, Freescale Semiconductor, Inc
+ * Copyright 2008,2010 Freescale Semiconductor, Inc
  * Andy Fleming
  *
  * Based (loosely) on the Linux code
@@ -274,12 +274,16 @@ struct mmc {
 			struct mmc_cmd *cmd, struct mmc_data *data);
 	void (*set_ios)(struct mmc *mmc);
 	int (*init)(struct mmc *mmc);
+#ifdef CONFIG_MMC_MBLOCK
+	uint b_max;
+#endif
 };
 
 int mmc_register(struct mmc *mmc);
 int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
+void mmc_set_clock(struct mmc *mmc, uint clock);
 struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);

@@ -26,7 +26,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <spd_sdram.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-emac.h>
 #include <miiphy.h>
 #include <asm/processor.h>
 #include <asm/4xx_pci.h>

@@ -52,8 +52,8 @@ unsigned int lxt972_IsPhyConnected (AT91PS_EMAC p_mac)
 	unsigned short Id1, Id2;
 
 	at91rm9200_EmacEnableMDIO (p_mac);
-	at91rm9200_EmacReadPhy(p_mac, PHY_PHYIDR1, &Id1);
-	at91rm9200_EmacReadPhy(p_mac, PHY_PHYIDR2, &Id2);
+	at91rm9200_EmacReadPhy(p_mac, MII_PHYSID1, &Id1);
+	at91rm9200_EmacReadPhy(p_mac, MII_PHYSID2, &Id2);
 	at91rm9200_EmacDisableMDIO (p_mac);
 
 	if ((Id1 == (0x0013)) && ((Id2  & 0xFFF0) == 0x78E0))
@@ -170,18 +170,18 @@ UCHAR lxt972_AutoNegotiate (AT91PS_EMAC p_mac, int *status)
 	unsigned short value;
 
 	/* Set lxt972 control register */
-	if (!at91rm9200_EmacReadPhy (p_mac, PHY_BMCR, &value))
+	if (!at91rm9200_EmacReadPhy (p_mac, MII_BMCR, &value))
 		return FALSE;
 
 	/* Restart Auto_negotiation  */
-	value |= PHY_BMCR_RST_NEG;
-	if (!at91rm9200_EmacWritePhy (p_mac, PHY_BMCR, &value))
+	value |= BMCR_ANRESTART;
+	if (!at91rm9200_EmacWritePhy (p_mac, MII_BMCR, &value))
 		return FALSE;
 
 	/*check AutoNegotiate complete */
 	udelay (10000);
-	at91rm9200_EmacReadPhy(p_mac, PHY_BMSR, &value);
-	if (!(value & PHY_BMSR_AUTN_COMP))
+	at91rm9200_EmacReadPhy(p_mac, MII_BMSR, &value);
+	if (!(value & BMSR_ANEGCOMPLETE))
 		return FALSE;
 
 	return (lxt972_GetLinkSpeed (p_mac));

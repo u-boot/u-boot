@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -98,7 +98,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	unsigned int tDQSQ_max_ps = 0;
 	unsigned int tQHS_ps = 0;
 
-	unsigned int temp1, temp2, temp3;
+	unsigned int temp1, temp2;
 	unsigned int additive_latency = 0;
 #if !defined(CONFIG_FSL_DDR3)
 	const unsigned int mclk_ps = get_memory_clk_period_ps();
@@ -215,18 +215,14 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	}
 
 	outpdimm->all_DIMMs_registered = 0;
+	outpdimm->all_DIMMs_unbuffered = 0;
 	if (temp1 && !temp2) {
 		outpdimm->all_DIMMs_registered = 1;
-	}
-
-	outpdimm->all_DIMMs_unbuffered = 0;
-	if (!temp1 && temp2) {
+		printf("Detected RDIMM(s)\n");
+	} else if (!temp1 && temp2) {
 		outpdimm->all_DIMMs_unbuffered = 1;
-	}
-
-	/* CHECKME: */
-	if (!outpdimm->all_DIMMs_registered
-	    && !outpdimm->all_DIMMs_unbuffered) {
+		printf("Detected UDIMM(s)\n");
+	} else {
 		printf("ERROR:  Mix of registered buffered and unbuffered "
 				"DIMMs detected!\n");
 	}
@@ -237,7 +233,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 			outpdimm->rcw[j] = dimm_params[0].rcw[j];
 			for (i = 1; i < number_of_dimms; i++)
 				if (dimm_params[i].rcw[j] != dimm_params[0].rcw[j]) {
-					temp3 = 1;
+					temp1 = 1;
 					break;
 				}
 		}
@@ -371,7 +367,8 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	/* Determine if all DIMMs ECC capable. */
 	temp1 = 1;
 	for (i = 0; i < number_of_dimms; i++) {
-		if (dimm_params[i].n_ranks && dimm_params[i].edc_config != 2) {
+		if (dimm_params[i].n_ranks &&
+			!(dimm_params[i].edc_config & EDC_ECC)) {
 			temp1 = 0;
 			break;
 		}

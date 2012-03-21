@@ -1,7 +1,7 @@
 /*
  * gpio_cfi_flash.c - GPIO-assisted Flash Chip Support
  *
- * Copyright (c) 2009 Analog Devices Inc.
+ * Copyright (c) 2009-2010 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */
@@ -12,9 +12,22 @@
 #include <asm/io.h>
 #include "gpio_cfi_flash.h"
 
+/* Allow this driver to be shared among boards */
+#ifndef GPIO_PIN_1
 #define GPIO_PIN_1  GPIO_PF4
+#endif
 #define GPIO_MASK_1 (1 << 21)
-#define GPIO_MASK   (GPIO_MASK_1)
+#ifndef GPIO_PIN_2
+#define GPIO_MASK_2 (0)
+#else
+#define GPIO_MASK_2 (1 << 22)
+#endif
+#ifndef GPIO_PIN_3
+#define GPIO_MASK_3 (0)
+#else
+#define GPIO_MASK_3 (1 << 23)
+#endif
+#define GPIO_MASK   (GPIO_MASK_1 | GPIO_MASK_2 | GPIO_MASK_3)
 
 void *gpio_cfi_flash_swizzle(void *vaddr)
 {
@@ -22,11 +35,16 @@ void *gpio_cfi_flash_swizzle(void *vaddr)
 
 	gpio_set_value(GPIO_PIN_1, addr & GPIO_MASK_1);
 
-#ifdef GPIO_MASK_2
+#ifdef GPIO_PIN_2
 	gpio_set_value(GPIO_PIN_2, addr & GPIO_MASK_2);
 #endif
 
+#ifdef GPIO_PIN_3
+	gpio_set_value(GPIO_PIN_3, addr & GPIO_MASK_3);
+#endif
+
 	SSYNC();
+	udelay(1);
 
 	return (void *)(addr & ~GPIO_MASK);
 }
@@ -51,8 +69,13 @@ MAKE_FLASH(64, q) /* flash_write64() flash_read64() */
 void gpio_cfi_flash_init(void)
 {
 	gpio_request(GPIO_PIN_1, "gpio_cfi_flash");
-#ifdef GPIO_MASK_2
+	gpio_direction_output(GPIO_PIN_1, 0);
+#ifdef GPIO_PIN_2
 	gpio_request(GPIO_PIN_2, "gpio_cfi_flash");
+	gpio_direction_output(GPIO_PIN_2, 0);
 #endif
-	gpio_cfi_flash_swizzle((void *)CONFIG_SYS_FLASH_BASE);
+#ifdef GPIO_PIN_3
+	gpio_request(GPIO_PIN_3, "gpio_cfi_flash");
+	gpio_direction_output(GPIO_PIN_3, 0);
+#endif
 }

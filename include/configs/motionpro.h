@@ -37,6 +37,8 @@
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 /*
  * BOOTP options
  */
@@ -45,29 +47,27 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_IMMAP
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_BEDBUG
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DTT
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_IMMAP
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_IDE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_DATE
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_DTT
-
+#define CONFIG_CMD_REGINFO
 
 /*
  * Serial console configuration
@@ -76,7 +76,6 @@
 #define CONFIG_NETCONSOLE	1	/* network console */
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
-
 
 /*
  * Ethernet configuration
@@ -99,10 +98,13 @@
 #define CONFIG_AUTOBOOT_PROMPT	"Autobooting in %d seconds, "		\
 				"press \"<Esc><Esc>\" to stop\n", bootdelay
 
+#define CONFIG_CMDLINE_EDITING		1	/* add command line history	*/
+#define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
+#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+
 #define CONFIG_ETHADDR		00:50:C2:40:10:00
 #define CONFIG_OVERWRITE_ETHADDR_ONCE	1
 #define CONFIG_VERSION_VARIABLE	1	/* include version env variable */
-
 
 /*
  * Default environment settings
@@ -115,21 +117,22 @@
 	"serverip=192.168.1.1\0"					\
 	"gatewayip=192.168.1.1\0"					\
 	"console=ttyPSC0,115200\0"					\
-	"u-boot_addr=100000\0"						\
-	"kernel_addr=200000\0"						\
-	"fdt_addr=400000\0"						\
-	"ramdisk_addr=500000\0"						\
+	"u-boot_addr=400000\0"						\
+	"kernel_addr=400000\0"						\
+	"fdt_addr=700000\0"						\
+	"ramdisk_addr=800000\0"						\
 	"multi_image_addr=800000\0"					\
-	"rootpath=/opt/eldk-4.1/ppc_6xx\0"				\
-	"u-boot=/tftpboot/motionpro/u-boot.bin\0"			\
-	"bootfile=/tftpboot/motionpro/uImage\0"				\
-	"fdt_file=/tftpboot/motionpro/motionpro.dtb\0"			\
-	"ramdisk_file=/tftpboot/motionpro/uRamdisk\0"			\
+	"rootpath=/opt/eldk/ppc_6xx\0"					\
+	"u-boot=motionpro/u-boot.bin\0"					\
+	"bootfile=motionpro/uImage\0"					\
+	"fdt_file=motionpro/motionpro.dtb\0"				\
+	"ramdisk_file=motionpro/uRamdisk\0"				\
 	"multi_image_file=kernel+initrd+dtb.img\0"			\
 	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
-	"update=prot off fff00000 fff3ffff; era fff00000 fff3ffff; "	\
+	"update=prot off fff00000 +${filesize};"			\
+		"era fff00000 +${filesize}; "				\
 		"cp.b ${u-boot_addr} fff00000 ${filesize};"		\
-		"prot on fff00000 fff3ffff\0"				\
+		"prot on fff00000 +${filesize}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
@@ -158,23 +161,19 @@
  */
 #define CONFIG_BOARD_EARLY_INIT_R	1
 
-
 /*
  * Low level configuration
  */
-
 
 /*
  * Clock configuration: SYS_XTALIN = 33MHz
  */
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000
 
-
 /*
  * Set IPB speed to 100MHz
  */
 #define CONFIG_SYS_IPBCLK_EQUALS_XLBCLK
-
 
 /*
  * Memory map
@@ -184,7 +183,7 @@
  * Setting MBAR to otherwise will cause system hang when using SmartDMA such
  * as network commands.
  */
-#define CONFIG_SYS_MBAR		0xf0000000
+#define CONFIG_SYS_MBAR			0xf0000000
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 
 /*
@@ -192,22 +191,21 @@
  * (e.g., by the BDI). Otherwise we must specify the default boot-up value of
  * MBAR, as given in the doccumentation.
  */
-#if TEXT_BASE == 0x00100000
+#if CONFIG_SYS_TEXT_BASE == 0x00100000
 #define CONFIG_SYS_DEFAULT_MBAR	0xf0000000
-#else /* TEXT_BASE != 0x00100000 */
+#else /* CONFIG_SYS_TEXT_BASE != 0x00100000 */
 #define CONFIG_SYS_DEFAULT_MBAR	0x80000000
 #define CONFIG_SYS_LOWBOOT		1
-#endif /* TEXT_BASE == 0x00100000 */
+#endif /* CONFIG_SYS_TEXT_BASE == 0x00100000 */
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT		1
 #endif
@@ -215,7 +213,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 kB for Monitor */
 #define CONFIG_SYS_MALLOC_LEN		(1024 << 10)	/* 1 MiB for malloc() */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* initial mem map for Linux */
-
 
 /*
  * Chip selects configuration
@@ -249,7 +246,6 @@
 #define CONFIG_SYS_CS_BURST		0x00000000
 #define CONFIG_SYS_CS_DEADCYCLE	0x22222222
 
-
 /*
  * SDRAM configuration
  */
@@ -258,7 +254,6 @@
 #define SDRAM_CONFIG2		0x88c70000
 #define SDRAM_CONTROL		0x504f0000
 #define SDRAM_MODE		0x00cd0000
-
 
 /*
  * Flash configuration
@@ -297,7 +292,6 @@
 #define CONFIG_SYS_ATA_STRIDE		4
 #define CONFIG_DOS_PARTITION
 
-
 /*
  * I2C configuration
  */
@@ -305,7 +299,6 @@
 #define CONFIG_SYS_I2C_MODULE		2	/* select I2C module #2 */
 #define CONFIG_SYS_I2C_SPEED		100000	/* 100 kHz */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
-
 
 /*
  * EEPROM configuration
@@ -315,13 +308,11 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5	/* 2ms/cycle + 3ms extra */
 #define CONFIG_SYS_I2C_MULTI_EEPROMS		1	/* 2 EEPROMs (addr:50,52) */
 
-
 /*
  * RTC configuration
  */
 #define CONFIG_RTC_DS1337	1
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
-
 
 /*
  * Status LED configuration
@@ -344,13 +335,11 @@ extern void __led_toggle(led_id_t id);
 extern void __led_set(led_id_t id, int state);
 #endif /* __ASSEMBLY__ */
 
-
 /*
  * Temperature sensor
  */
 #define CONFIG_DTT_LM75		1
 #define CONFIG_DTT_SENSORS	{ 0x49 }
-
 
 /*
  * Environment settings
@@ -379,12 +368,10 @@ extern void __led_set(led_id_t id, int state);
  */
 #define CONFIG_SYS_GPS_PORT_CONFIG	0x1105a004
 
-
 /*
  * Motion-PRO's CPLD revision control register
  */
 #define CPLD_REV_REGISTER	(CONFIG_SYS_CS2_START + 0x06)
-
 
 /*
  * Miscellaneous configurable options
@@ -404,18 +391,13 @@ extern void __led_set(led_id_t id, int state);
 
 #define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-
 /*
  * Various low-level settings
  */
 #define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
 #define CONFIG_SYS_HID0_FINAL		HID0_ICE
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
-
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
-
 
 /* Not needed for MPC 5xxx U-Boot, but used by tools/updater */
 #define CONFIG_SYS_RESET_ADDRESS	0xfff00100

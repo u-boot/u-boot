@@ -53,6 +53,10 @@ int ehci_hcd_init(void)
 	hcor = (struct ehci_hcor *)((uint32_t) hccr +
 			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
+	debug("EHCI-PCI init hccr 0x%x and hcor 0x%x hc_length %d\n",
+			(uint32_t)hccr, (uint32_t)hcor,
+			(uint32_t)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+
 	return 0;
 }
 

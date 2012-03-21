@@ -42,7 +42,7 @@
 #define CONFIG_MISC_INIT_R
 
 /*--------------------------------------------------------------------------*/
-
+#define CONFIG_SYS_TEXT_BASE 		0x00000000
 #define CONFIG_SYS_LOAD_ADDR		0x21000000  /* default load address */
 
 #define CONFIG_SYS_BOOT_SIZE		0x00 /* 0 KBytes */
@@ -91,19 +91,20 @@
  */
 
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 520*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * sdram
  */
 
 #define CONFIG_NR_DRAM_BANKS		1
-#define PHYS_SDRAM 			0x20000000
-#define PHYS_SDRAM_SIZE			0x04000000  /* 64 megs */
 
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM
+#define CONFIG_SYS_SDRAM_BASE		0x20000000
+#define CONFIG_SYS_SDRAM_SIZE		0x04000000  /* 64 megs */
+#define CONFIG_SYS_INIT_SP_ADDR		0x00204000  /* use internal SRAM */
+
+#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
-					PHYS_SDRAM_SIZE - 0x00400000 - \
+					CONFIG_SYS_SDRAM_SIZE - 0x00400000 - \
 					CONFIG_SYS_MALLOC_LEN)
 
 #define CONFIG_SYS_PIOC_ASR_VAL		0xFFFF0000 /* PIOC as D16/D31 */
@@ -249,6 +250,7 @@
 /* FLASH organization */
 
 /*  NOR-FLASH */
+#define CONFIG_FLASH_SHOW_PROGRESS	45
 
 #define CONFIG_FLASH_CFI_DRIVER	1
 
@@ -396,16 +398,6 @@
 	"nandboot=run bootargsdefaults;"				\
 		"set bootargs $(bootargs) root=initramfs boot=nand "	\
 		";bootm $(kerneladdr)\0"				\
-	"uu=run update_uboot\0"						\
-	"ur=run update_root;run nk\0"					\
-	"nk=run bootargsdefaults;set bootargs $(bootargs) root=initramfs " \
-		"boot=local "						\
-		";echo $(bootargs)"					\
-		";dhcp uImage_cpux9k2;bootm\0"				\
-	"nn=run bootargsdefaults;set bootargs $(bootargs) root=initramfs " \
-		"boot=nand "						\
-		";echo $(bootargs)"					\
-		";dhcp uImage_cpux9k2;bootm\0"				\
 	" "
 
 /*--------------------------------------------------------------------------*/

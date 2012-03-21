@@ -498,7 +498,6 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Check if we should attempt an auto-start */
 	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
 		char *local_args[2];
-		extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
 		local_args[0] = argv[0];
 		local_args[1] = NULL;
@@ -812,13 +811,14 @@ set_pcmcia_timing (int pmode)
 
 /* We only need to swap data if we are running on a big endian cpu. */
 /* But Au1x00 cpu:s already swaps data in big endian mode! */
-#if defined(__LITTLE_ENDIAN) || ( defined(CONFIG_AU1X00) && !defined(CONFIG_GTH2) )
+#if defined(__LITTLE_ENDIAN) || \
+   (defined(CONFIG_SOC_AU1X00) && !defined(CONFIG_GTH2))
 #define input_swap_data(x,y,z) input_data(x,y,z)
 #else
 static void
 input_swap_data(int dev, ulong *sect_buf, int words)
 {
-#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
+#if defined(CONFIG_CPC45)
 	uchar i;
 	volatile uchar *pbuf_even = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_EVEN);
 	volatile uchar *pbuf_odd  = (uchar *)(ATA_CURR_BASE(dev)+ATA_DATA_ODD);
@@ -858,7 +858,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
-#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
+#if defined(CONFIG_CPC45)
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -910,7 +910,7 @@ output_data(int dev, ulong *sect_buf, int words)
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
-#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
+#if defined(CONFIG_CPC45)
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -1544,7 +1544,6 @@ static void ide_reset (void)
 
 #if defined(CONFIG_IDE_LED)	&& \
    !defined(CONFIG_CPC45)	&& \
-   !defined(CONFIG_HMI10)	&& \
    !defined(CONFIG_KUP4K)	&& \
    !defined(CONFIG_KUP4X)
 
@@ -1586,7 +1585,7 @@ int ide_device_present(int dev)
 static void
 output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
+#if defined(CONFIG_CPC45)
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;
@@ -1618,7 +1617,7 @@ output_data_shorts(int dev, ushort *sect_buf, int shorts)
 static void
 input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#if defined(CONFIG_HMI10) || defined(CONFIG_CPC45)
+#if defined(CONFIG_CPC45)
 	uchar	*dbuf;
 	volatile uchar	*pbuf_even;
 	volatile uchar	*pbuf_odd;

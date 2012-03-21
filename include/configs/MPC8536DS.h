@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009,2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2009,2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,24 +29,43 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_MK_36BIT
+#ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT	1
 #endif
 
-#ifdef CONFIG_MK_NAND
+#ifdef CONFIG_NAND
 #define CONFIG_NAND_U_BOOT		1
 #define CONFIG_RAMBOOT_NAND		1
-#define CONFIG_RAMBOOT_TEXT_BASE	0xf8f82000
+#ifdef CONFIG_NAND_SPL
+#define CONFIG_SYS_TEXT_BASE_SPL 0xfff00000
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE_SPL /* start of monitor */
+#else
+#define CONFIG_SYS_TEXT_BASE	0xf8f82000
+#endif /* CONFIG_NAND_SPL */
 #endif
 
-#ifdef CONFIG_MK_SDCARD
+#ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD		1
-#define CONFIG_RAMBOOT_TEXT_BASE	0xf8f80000
+#define CONFIG_SYS_TEXT_BASE	0xf8f80000
+#define CONFIG_RESET_VECTOR_ADDRESS	0xf8fffffc
 #endif
 
-#ifdef CONFIG_MK_SPIFLASH
+#ifdef CONFIG_SPIFLASH
 #define CONFIG_RAMBOOT_SPIFLASH		1
-#define CONFIG_RAMBOOT_TEXT_BASE	0xf8f80000
+#define CONFIG_SYS_TEXT_BASE	0xf8f80000
+#define CONFIG_RESET_VECTOR_ADDRESS	0xf8fffffc
+#endif
+
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#endif
+
+#ifndef	CONFIG_RESET_VECTOR_ADDRESS
+#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#endif
+
+#ifndef CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
 /* High Level Configuration Options */
@@ -65,7 +84,6 @@
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_SYS_HAS_SERDES		/* has SERDES */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 #define CONFIG_E1000		1	/* Defind e1000 pci Ethernet card*/
@@ -132,7 +150,6 @@
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
-#undef CONFIG_DDR_DLL
 
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
@@ -229,11 +246,10 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
-
-#if defined(CONFIG_SYS_SPL) || defined(CONFIG_RAMBOOT_NAND) \
-	|| defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
+#if defined(CONFIG_RAMBOOT_NAND) || defined(CONFIG_RAMBOOT_SDCARD) || \
+    defined(CONFIG_RAMBOOT_SPIFLASH)
 #define CONFIG_SYS_RAMBOOT
+#define CONFIG_SYS_EXTRA_ENV_RELOC
 #else
 #undef CONFIG_SYS_RAMBOOT
 #endif
@@ -295,15 +311,14 @@
 /* old pixis referenced names */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
-#define CONFIG_SYS_PIXIS_VBOOT_MASK	0xc0
+#define CONFIG_SYS_PIXIS_VBOOT_MASK	0x4e
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000	/* Initial L1 address */
-#define CONFIG_SYS_INIT_RAM_END	0x00004000	/* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x00004000	/* Size of used area in RAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* num bytes initial data */
 #define CONFIG_SYS_GBL_DATA_OFFSET \
-		(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+		(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024) /* Reserve 256 kB for Mon */
@@ -400,7 +415,6 @@
  * shorted - index 1
  */
 #define CONFIG_CONS_INDEX	1
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -476,6 +490,7 @@
 #define CONFIG_SYS_PCI1_IO_SIZE		0x00010000	/* 64k */
 
 /* controller 1, Slot 1, tgtid 1, Base address a000 */
+#define CONFIG_SYS_PCIE1_NAME		"Slot 1"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x90000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xf8000000
@@ -495,6 +510,7 @@
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 2, Slot 2, tgtid 2, Base address 9000 */
+#define CONFIG_SYS_PCIE2_NAME		"Slot 2"
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0x98000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xf8000000
@@ -514,6 +530,7 @@
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 3, direct to uli, tgtid 3, Base address 8000 */
+#define CONFIG_SYS_PCIE3_NAME		"Slot 3"
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
@@ -707,14 +724,7 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(16 << 20) /* Initial Memory map for Linux */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
+#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
@@ -760,11 +770,11 @@
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
+	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
  "consoledev=ttyS0\0"				\
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=8536ds/ramdisk.uboot\0"		\
