@@ -55,7 +55,6 @@ int board_late_init(void)
 {
 	u8 mac[6];
 	char env_mac[17];
-	int i;
 
 	udelay(1000);
 
