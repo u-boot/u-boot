@@ -84,6 +84,9 @@
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC
 
+/* Uncomment it if you don't want Flash */
+//#define CONFIG_SYS_NO_FLASH	
+
 #include <config_cmd_default.h>	
 #define CONFIG_CMD_DATE		/* RTC? */
 #define CONFIG_CMD_PING		/* Might be useful for debugging */
@@ -105,9 +108,6 @@
 #define CONFIG_SYS_PROMPT	"pele-boot> "
 
 #undef CONFIG_SKIP_RELOCATE_UBOOT	
-
-/* Uncomment it if you don't want Flash */
-//#define CONFIG_SYS_NO_FLASH	
 
 #define CONFIG_SYS_SDRAM_BASE	0
 
