@@ -25,6 +25,7 @@
 #include <version.h>
 #include <watchdog.h>
 #include <net.h>
+#include <mmc.h>
 #include <environment.h>
 
 #ifdef CONFIG_BITBANGMII
