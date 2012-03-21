@@ -85,7 +85,7 @@
 #define	CONFIG_RTC_XPSSRTC
 
 /* Uncomment it if you don't want Flash */
-//#define CONFIG_SYS_NO_FLASH	
+#define CONFIG_SYS_NO_FLASH
 
 #include <config_cmd_default.h>	
 #define CONFIG_CMD_DATE		/* RTC? */
@@ -225,7 +225,7 @@
 #endif
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
-#define CONFIG_PELE_XILINX_FLASH_HEADER
+//#define CONFIG_PELE_XILINX_FLASH_HEADER
 
 #ifdef CONFIG_PELE_XILINX_FLASH_HEADER
 /* Address Xilinx boot rom should use to launch u-boot */
