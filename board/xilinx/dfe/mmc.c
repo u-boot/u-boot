@@ -1,5 +1,6 @@
 #include <common.h>
 #include <asm/errno.h>
+#include <malloc.h>
 #include <mmc.h>
 
 #include "sd_hardware.h"
@@ -212,7 +213,7 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	 * buffer because the controller can't DMA into the first 512K
 	 * of DDR.
 	 */
-	sd_out32(SD_DMA_ADDR_R, sd_dma_buffer);
+	sd_out32(SD_DMA_ADDR_R, (u32)sd_dma_buffer);
 
 	/* 512 bytes 
 	 * This is only relevant for data commands.
@@ -248,7 +249,7 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 #else
 			if (cmd->cmdidx == CMD17) {
 				printf("MMC: Error reading sector %d (0x%08x)\n",
-					cmd->cmdarg);
+					cmd->cmdarg, cmd->cmdarg);
 			}
 #endif
 			sd_out8(SD_SOFT_RST_R,
