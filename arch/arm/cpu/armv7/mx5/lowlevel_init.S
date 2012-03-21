@@ -284,10 +284,24 @@
 	ldr r1, =0x00C30321
 	str r1, [r0, #CLKCTL_CSCDR1]
 #elif defined(CONFIG_MX53)
+	/* Switch peripheral to PLL2 */
+	ldr r0, =CCM_BASE_ADDR
+	ldr r1, =0x00808145
+	orr r1, r1, #(2 << 10)
+	orr r1, r1, #(0 << 16)
+	orr r1, r1, #(1 << 19)
+	str r1, [r0, #CLKCTL_CBCDR]
+
+	ldr r1, =0x00016154
+	str r1, [r0, #CLKCTL_CBCMR]
+	/* Change uart clk parent to pll2*/
+	ldr r1, [r0, #CLKCTL_CSCMR1]
+	and r1, r1, #0xfcffffff
+	orr r1, r1, #0x01000000
+	str r1, [r0, #CLKCTL_CSCMR1]
 	ldr r1, [r0, #CLKCTL_CSCDR1]
-	orr r1, r1, #0x3f
-	eor r1, r1, #0x3f
-	orr r1, r1, #0x21
+	and r1, r1, #0xffffffc0
+	orr r1, r1, #0x0a
 	str r1, [r0, #CLKCTL_CSCDR1]
 #endif
 	/* make sure divider effective */
