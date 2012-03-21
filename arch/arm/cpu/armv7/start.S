@@ -44,6 +44,9 @@ _start: b	reset
 	ldr	pc, _fiq
 
 #ifdef CONFIG_PELE_XILINX_FLASH_HEADER
+#if !defined(CONFIG_PELE_XIP_START) || CONFIG_PELE_XIP_START == 0
+#error CONFIG_PELE_XIP_START must be defined for CONFIG_PELE_XILINX_FLASH_HEADER
+#else
 /* These fields MUST immediately follow the vectors */
 #define HDR_20 0xAA995566
 #define HDR_24 0x584C4E58
@@ -73,6 +76,7 @@ _start: b	reset
 .word   0,0,0,0,0
 .word   0xFFFFFFFF      /* 0xA0 */
 .word   0x00000000
+#endif
 #endif
 
 _undefined_instruction: .word undefined_instruction
