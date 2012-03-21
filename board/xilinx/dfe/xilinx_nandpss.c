@@ -1117,11 +1117,7 @@ int board_nand_init(struct nand_chip *nand_chip)
 	xnandpss_init_nand_flash(xnand->smc_regs, nand_chip->options);
 
 	/* first scan to find the device and get the page size */
-#ifdef LINUX_ONLY_NOT_UBOOT
 	if (nand_scan_ident(mtd, 1, NULL)) {
-#else
-	if (nand_scan_ident(mtd, 1)) {
-#endif
 		err = -ENXIO;
 		dev_err(&pdev->dev, "nand_scan_ident for NAND failed\n");
 		goto out_unmap_all_mem;
