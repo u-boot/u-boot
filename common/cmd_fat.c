@@ -184,3 +184,60 @@ U_BOOT_CMD(
 	"<interface> <dev[:part]>\n"
 	"    - print information about filesystem from 'dev' on 'interface'"
 );
+
+#ifdef CONFIG_FAT_WRITE
+static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
+		int argc, char * const argv[])
+{
+	long size;
+	unsigned long addr;
+	unsigned long count;
+	block_dev_desc_t *dev_desc = NULL;
+	int dev = 0;
+	int part = 1;
+	char *ep;
+
+	if (argc < 5)
+		return cmd_usage(cmdtp);
+
+	dev = (int)simple_strtoul(argv[2], &ep, 16);
+	dev_desc = get_dev(argv[1], dev);
+	if (dev_desc == NULL) {
+		puts("\n** Invalid boot device **\n");
+		return 1;
+	}
+	if (*ep) {
+		if (*ep != ':') {
+			puts("\n** Invalid boot device, use `dev[:part]' **\n");
+			return 1;
+		}
+		part = (int)simple_strtoul(++ep, NULL, 16);
+	}
+	if (fat_register_device(dev_desc, part) != 0) {
+		printf("\n** Unable to use %s %d:%d for fatwrite **\n",
+			argv[1], dev, part);
+		return 1;
+	}
+	addr = simple_strtoul(argv[3], NULL, 16);
+	count = simple_strtoul(argv[5], NULL, 16);
+
+	size = file_fat_write(argv[4], (void *)addr, count);
+	if (size == -1) {
+		printf("\n** Unable to write \"%s\" from %s %d:%d **\n",
+			argv[4], argv[1], dev, part);
+		return 1;
+	}
+
+	printf("%ld bytes written\n", size);
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	fatwrite,	6,	0,	do_fat_fswrite,
+	"write file into a dos filesystem",
+	"<interface> <dev[:part]> <addr> <filename> <bytes>\n"
+	"    - write file 'filename' from the address 'addr' in RAM\n"
+	"      to 'dev' on 'interface'"
+);
+#endif
