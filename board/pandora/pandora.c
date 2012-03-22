@@ -32,6 +32,7 @@
 #include <common.h>
 #include <twl4030.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/gpio.h>
@@ -44,6 +45,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define TWL4030_BB_CFG_BBCHEN		(1 << 4)
 #define TWL4030_BB_CFG_BBSEL_3200MV	(3 << 2)
 #define TWL4030_BB_CFG_BBISEL_500UA	2
+
+#define CONTROL_WKUP_CTRL		0x48002a5c
+#define GPIO_IO_PWRDNZ			(1 << 6)
+#define PBIASLITEVMODE1			(1 << 8)
 
 /*
  * Routine: board_init
@@ -60,29 +65,52 @@ int board_init(void)
 	return 0;
 }
 
+static void set_output_gpio(unsigned int gpio, int value)
+{
+	int ret;
+
+	ret = gpio_request(gpio, "");
+	if (ret != 0) {
+		printf("could not request GPIO %u\n", gpio);
+		return;
+	}
+	ret = gpio_direction_output(gpio, value);
+	if (ret != 0)
+		printf("could not set GPIO %u to %d\n", gpio, value);
+}
+
 /*
  * Routine: misc_init_r
  * Description: Configure board specific parts
  */
 int misc_init_r(void)
 {
-	struct gpio *gpio1_base = (struct gpio *)OMAP34XX_GPIO1_BASE;
-	struct gpio *gpio4_base = (struct gpio *)OMAP34XX_GPIO4_BASE;
-	struct gpio *gpio5_base = (struct gpio *)OMAP34XX_GPIO5_BASE;
-	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
+	t2_t *t2_base = (t2_t *)T2_BASE;
+	u32 pbias_lite;
 
 	twl4030_led_init(TWL4030_LED_LEDEN_LEDBON);
 
-	/* Configure GPIOs to output */
-	writel(~(GPIO14 | GPIO15 | GPIO16 | GPIO23), &gpio1_base->oe);
-	writel(~GPIO22, &gpio4_base->oe);	/* 118 */
-	writel(~(GPIO0 | GPIO1 | GPIO28 | GPIO29 | GPIO30 | GPIO31),
-		&gpio5_base->oe);	/* 128, 129, 156-159 */
-	writel(~GPIO4, &gpio6_base->oe);	/* 164 */
+	/* set up dual-voltage GPIOs to 1.8V */
+	pbias_lite = readl(&t2_base->pbias_lite);
+	pbias_lite &= ~PBIASLITEVMODE1;
+	pbias_lite |= PBIASLITEPWRDNZ1;
+	writel(pbias_lite, &t2_base->pbias_lite);
+	if (get_cpu_family() == CPU_OMAP36XX)
+		writel(readl(CONTROL_WKUP_CTRL) | GPIO_IO_PWRDNZ,
+			CONTROL_WKUP_CTRL);
 
-	/* Set GPIOs */
-	writel(GPIO28, &gpio5_base->setdataout);
-	writel(GPIO4, &gpio6_base->setdataout);
+	/* make sure audio and BT chips are in powerdown state */
+	set_output_gpio(14, 0);
+	set_output_gpio(15, 0);
+	set_output_gpio(118, 0);
+
+	/* enable USB supply */
+	set_output_gpio(164, 1);
+
+	/* wifi needs a short pulse to enter powersave state */
+	set_output_gpio(23, 1);
+	udelay(5000);
+	gpio_direction_output(23, 0);
 
 	/* Enable battery backup capacitor (3.2V, 0.5mA charge current) */
 	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
