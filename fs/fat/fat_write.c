@@ -41,23 +41,19 @@ static void uppercase(char *str, int len)
 }
 
 static int total_sector;
-static int disk_write(__u32 startblock, __u32 getsize, __u8 *bufptr)
+static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 {
-	if (cur_dev == NULL)
+	if (!cur_dev || !cur_dev->block_write)
 		return -1;
 
-	if (startblock + getsize > total_sector) {
+	if (cur_part_info.start + block + nr_blocks >
+		cur_part_info.start + total_sector) {
 		printf("error: overflow occurs\n");
 		return -1;
 	}
 
-	startblock += part_offset;
-
-	if (cur_dev->block_read) {
-		return cur_dev->block_write(cur_dev->dev, startblock, getsize,
-					   (unsigned long *) bufptr);
-	}
-	return -1;
+	return cur_dev->block_write(cur_dev->dev,
+			cur_part_info.start + block, nr_blocks,	buf);
 }
 
 /*
@@ -797,7 +793,7 @@ static int check_overflow(fsdata *mydata, __u32 clustnum, unsigned long size)
 	if (size % mydata->sect_size)
 		sect_num++;
 
-	if (startsect + sect_num > total_sector)
+	if (startsect + sect_num > cur_part_info.start + total_sector)
 		return -1;
 
 	return 0;
@@ -947,7 +943,7 @@ static int do_fat_write(const char *filename, void *buffer,
 
 	total_sector = bs.total_sect;
 	if (total_sector == 0)
-		total_sector = part_size;
+		total_sector = cur_part_info.size;
 
 	root_cluster = bs.root_cluster;
 
