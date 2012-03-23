@@ -68,15 +68,17 @@ _start:	j	reset
 	j	tlb_not_present
 	j	tlb_misc
 	j	tlb_vlpt_miss
-	j	cache_parity_error
+	j	machine_error
 	j	debug
 	j	general_exception
+	j	syscall
 	j	internal_interrupt		! H0I
 	j	internal_interrupt		! H1I
 	j	internal_interrupt		! H2I
 	j	internal_interrupt		! H3I
 	j	internal_interrupt		! H4I
 	j	internal_interrupt		! H5I
+	j	software_interrupt		! S0I
 
 	.balign 16
 
@@ -477,7 +479,7 @@ tlb_vlpt_miss:
 	bal	do_interruption
 
 	.align	5
-cache_parity_error:
+machine_error:
 	SAVE_ALL
 	move	$r0, $sp			! To get the kernel stack
 	li	$r1, 5				! Determine interruption type
@@ -498,10 +500,24 @@ general_exception:
 	bal	do_interruption
 
 	.align	5
-internal_interrupt:
+syscall:
 	SAVE_ALL
 	move	$r0, $sp			! To get the kernel stack
 	li	$r1, 8				! Determine interruption type
+	bal	do_interruption
+
+	.align	5
+internal_interrupt:
+	SAVE_ALL
+	move	$r0, $sp			! To get the kernel stack
+	li	$r1, 9				! Determine interruption type
+	bal	do_interruption
+
+	.align	5
+software_interrupt:
+	SAVE_ALL
+	move	$r0, $sp			! To get the kernel stack
+	li	$r1, 10				! Determine interruption type
 	bal	do_interruption
 
 	.align	5
