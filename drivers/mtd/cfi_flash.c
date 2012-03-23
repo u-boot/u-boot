@@ -873,7 +873,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	void *src = cp;
 	void *dst = (void *)dest;
 	void *dst2 = dst;
-	int flag = 0;
+	int flag = 1;
 	uint offset = 0;
 	unsigned int shift;
 	uchar write_cmd;
@@ -898,7 +898,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 
 	cnt = len >> shift;
 
-	while ((cnt-- > 0) && (flag == 0)) {
+	while ((cnt-- > 0) && (flag == 1)) {
 		switch (info->portwidth) {
 		case FLASH_CFI_8BIT:
 			flag = ((flash_read8(dst2) & flash_read8(src)) ==
