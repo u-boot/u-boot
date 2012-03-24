@@ -250,7 +250,7 @@ print [c<n>] [d<n>] [spd] [dimmparms] [commonparms] [opts] [addresses] [regs]
 	c<n>		- the controller number, eg. c0, c1
 	d<n>		- the DIMM number, eg. d0, d1
 	spd		- print SPD data
-	dimmparms	- DIMM paramaters, calcualted from SPD
+	dimmparms	- DIMM parameters, calculated from SPD
 	commonparms	- lowest common parameters for all DIMMs
 	opts		- options
 	addresses	- address assignment (not implemented yet)
@@ -260,7 +260,7 @@ edit <c#> <d#> <spd|dimmparms|commonparms|opts|addresses|regs> <element> <value>
 	c<n>		- the controller number, eg. c0, c1
 	d<n>		- the DIMM number, eg. d0, d1
 	spd		- print SPD data
-	dimmparms	- DIMM paramaters, calcualted from SPD
+	dimmparms	- DIMM parameters, calculated from SPD
 	commonparms	- lowest common parameters for all DIMMs
 	opts		- options
 	addresses	- address assignment (not implemented yet)

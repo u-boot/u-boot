@@ -6,7 +6,7 @@ syncronize RTC of the board. This command needs the command line
 parameter of server's IP address or environment variable
 "ntpserverip". The network time is sent as UTC. So if you want to
 set local time to RTC, set the offset in second from UTC to the
-enviroment variable "time offset".
+environment variable "time offset".
 
 If the DHCP server provides time server's IP or time offset, you
 don't need to set the above environment variables yourself.

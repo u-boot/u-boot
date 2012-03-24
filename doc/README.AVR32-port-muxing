@@ -91,7 +91,7 @@ of the flags are the same on all implementations.
 	PORTMUX_DIR_OUTPUT
 	PORTMUX_DIR_INPUT
 
-These mutually-exlusive flags configure the initial direction of the
+These mutually-exclusive flags configure the initial direction of the
 pins. PORTMUX_DIR_OUTPUT means that the pins are driven by the CPU,
 while PORTMUX_DIR_INPUT means that the pins are tristated by the CPU.
 These flags are ignored by portmux_select_peripheral().
@@ -125,7 +125,7 @@ PORTMUX_PULL_UP.
 	PORTMUX_DRIVE_HIGH
 	PORTMUX_DRIVE_MAX
 
-These mutually-exlusive flags determine the drive strength of the
+These mutually-exclusive flags determine the drive strength of the
 pins. PORTMUX_DRIVE_MIN will give low power-consumption, but may cause
 corruption of high-speed signals. PORTMUX_DRIVE_MAX will give high
 power-consumption, but may be necessary on pins toggling at very high

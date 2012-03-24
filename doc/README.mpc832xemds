@@ -15,7 +15,7 @@ Freescale MPC832XEMDS Board
 		"On"  == 0
 
 	SW3 is switch 18 as silk-screened onto the board.
-	SW4[8] is the bit labled 8 on Switch 4.
+	SW4[8] is the bit labeled 8 on Switch 4.
 	SW5[1:6] refers to bits labeled 1 through 6 in order on switch 5.
 	SW6[7:1] refers to bits labeled 7 through 1 in order on switch 6.
 	SW7[1:8]= 0000_0001 refers to bits labeled 1 through 6 is set as "On"
