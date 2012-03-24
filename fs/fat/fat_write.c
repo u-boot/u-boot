@@ -823,7 +823,6 @@ static dir_entry *empty_dentptr;
 static dir_entry *find_directory_entry(fsdata *mydata, int startsect,
 	char *filename, dir_entry *retdent, __u32 start)
 {
-	__u16 prevcksum = 0xffff;
 	__u32 curclust = (startsect - mydata->data_begin) / mydata->clust_size;
 
 	debug("get_dentfromdir: %s\n", filename);
@@ -857,8 +856,6 @@ static dir_entry *find_directory_entry(fsdata *mydata, int startsect,
 #ifdef CONFIG_SUPPORT_VFAT
 				if ((dentptr->attr & ATTR_VFAT) &&
 				    (dentptr->name[0] & LAST_LONG_ENTRY_MASK)) {
-					prevcksum =
-					((dir_slot *)dentptr)->alias_checksum;
 					get_long_file_name(mydata, curclust,
 						     get_dentfromdir_block,
 						     &dentptr, l_name);
@@ -922,7 +919,6 @@ static int do_fat_write(const char *filename, void *buffer,
 	unsigned long size)
 {
 	dir_entry *dentptr, *retdent;
-	dir_slot *slotptr;
 	__u32 startsect;
 	__u32 start_cluster;
 	boot_sector bs;
@@ -930,7 +926,7 @@ static int do_fat_write(const char *filename, void *buffer,
 	fsdata datablock;
 	fsdata *mydata = &datablock;
 	int cursect;
-	int root_cluster, ret = -1, name_len;
+	int ret = -1, name_len;
 	char l_filename[VFAT_MAXLEN_BYTES];
 	int write_size = size;
 
@@ -944,8 +940,6 @@ static int do_fat_write(const char *filename, void *buffer,
 	total_sector = bs.total_sect;
 	if (total_sector == 0)
 		total_sector = cur_part_info.size;
-
-	root_cluster = bs.root_cluster;
 
 	if (mydata->fatsize == 32)
 		mydata->fatlength = bs.fat32_length;
@@ -1047,8 +1041,6 @@ static int do_fat_write(const char *filename, void *buffer,
 			goto exit;
 		}
 	} else {
-		slotptr = (dir_slot *)empty_dentptr;
-
 		/* Set short name to set alias checksum field in dir_slot */
 		set_name(empty_dentptr, filename);
 		fill_dir_slot(mydata, &empty_dentptr, filename);
