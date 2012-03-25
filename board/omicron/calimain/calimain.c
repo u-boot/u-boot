@@ -166,7 +166,7 @@ void bootcount_store(ulong a)
 
 	/*
 	 * write RTC kick register to enable write
-	 * for RTC Scratch registers. Cratch0 and 1 are
+	 * for RTC Scratch registers. Scratch0 and 1 are
 	 * used for bootcount values.
 	 */
 	writel(RTC_KICK0R_WE, &reg->kick0r);
