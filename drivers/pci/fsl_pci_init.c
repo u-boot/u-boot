@@ -47,11 +47,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FSL_PCIE_CFG_RDY	0x4b0
 #define FSL_PROG_IF_AGENT	0x1
 
-void pciauto_prescan_setup_bridge(struct pci_controller *hose,
-				pci_dev_t dev, int sub_bus);
-void pciauto_postscan_setup_bridge(struct pci_controller *hose,
-				pci_dev_t dev, int sub_bus);
-
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS 0
 #endif
