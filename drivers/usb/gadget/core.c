@@ -212,7 +212,6 @@ struct usb_device_descriptor *usbd_device_device_descriptor (struct usb_device_i
 	return (device->device_descriptor);
 }
 
-
 /**
  * usbd_device_configuration_descriptor
  * @device: which device
