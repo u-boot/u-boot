@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,6 +27,7 @@
 #include <config.h>
 #include <common.h>
 #include <asm/immap.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,7 +40,7 @@ int checkboard(void)
 
 phys_size_t initdram(int board_type)
 {
-	volatile sdram_t *sdram = (volatile sdram_t *)(MMAP_SDRAM);
+	sdram_t *sdram = (sdram_t *)(MMAP_SDRAM);
 	u32 dramsize, i;
 
 	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000;
@@ -50,29 +51,30 @@ phys_size_t initdram(int board_type)
 	}
 	i--;
 
-	sdram->cs0 = (CONFIG_SYS_SDRAM_BASE | i);
-	sdram->cfg1 = CONFIG_SYS_SDRAM_CFG1;
-	sdram->cfg2 = CONFIG_SYS_SDRAM_CFG2;
+	out_be32(&sdram->cs0, CONFIG_SYS_SDRAM_BASE | i);
+	out_be32(&sdram->cfg1, CONFIG_SYS_SDRAM_CFG1);
+	out_be32(&sdram->cfg2, CONFIG_SYS_SDRAM_CFG2);
 
 	/* Issue PALL */
-	sdram->ctrl = CONFIG_SYS_SDRAM_CTRL | 2;
+	out_be32(&sdram->ctrl, CONFIG_SYS_SDRAM_CTRL | 2);
 
 	/* Issue LEMR */
-	sdram->mode = CONFIG_SYS_SDRAM_EMOD;
-	sdram->mode = (CONFIG_SYS_SDRAM_MODE | 0x04000000);
+	out_be32(&sdram->mode, CONFIG_SYS_SDRAM_EMOD);
+	out_be32(&sdram->mode, CONFIG_SYS_SDRAM_MODE | 0x04000000);
 
 	udelay(500);
 
 	/* Issue PALL */
-	sdram->ctrl = (CONFIG_SYS_SDRAM_CTRL | 2);
+	out_be32(&sdram->ctrl, CONFIG_SYS_SDRAM_CTRL | 2);
 
 	/* Perform two refresh cycles */
-	sdram->ctrl = CONFIG_SYS_SDRAM_CTRL | 4;
-	sdram->ctrl = CONFIG_SYS_SDRAM_CTRL | 4;
+	out_be32(&sdram->ctrl, CONFIG_SYS_SDRAM_CTRL | 4);
+	out_be32(&sdram->ctrl, CONFIG_SYS_SDRAM_CTRL | 4);
 
-	sdram->mode = CONFIG_SYS_SDRAM_MODE;
+	out_be32(&sdram->mode, CONFIG_SYS_SDRAM_MODE);
 
-	sdram->ctrl = (CONFIG_SYS_SDRAM_CTRL & ~0x80000000) | 0x10000c00;
+	out_be32(&sdram->ctrl,
+		(CONFIG_SYS_SDRAM_CTRL & ~0x80000000) | 0x10000c00);
 
 	udelay(100);
 

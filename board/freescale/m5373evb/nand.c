@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -68,21 +68,21 @@ static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 
 int board_nand_init(struct nand_chip *nand)
 {
-	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
+	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+	fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
 
-	fbcs->csmr2 &= ~FBCS_CSMR_WP;
+	clrbits_be32(&fbcs->csmr2, FBCS_CSMR_WP);
 
 	/*
 	 * set up pin configuration - enabled 2nd output buffer's signals
 	 * (nand_ngpio - nCE USB1/2_PWR_EN, LATCH_GPIOs, LCD_VEEEN, etc)
 	 * to use nCE signal
 	 */
-	gpio->par_timer &= ~GPIO_PAR_TIN3_TIN3;
-	gpio->pddr_timer |= 0x08;
-	gpio->ppd_timer |= 0x08;
-	gpio->pclrr_timer = 0;
-	gpio->podr_timer = 0;
+	clrbits_8(&gpio->par_timer, GPIO_PAR_TIN3_TIN3);
+	setbits_8(&gpio->pddr_timer, 0x08);
+	setbits_8(&gpio->ppd_timer, 0x08);
+	out_8(&gpio->pclrr_timer, 0);
+	out_8(&gpio->podr_timer, 0);
 
 	nand->chip_delay = 60;
 	nand->ecc.mode = NAND_ECC_SOFT;
