@@ -58,12 +58,12 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
-	check_hw_revision();
-	printf("HW Revision:\t0x%x\n", board_rev);
-
 #if defined(CONFIG_PMIC)
 	pmic_init();
 #endif
+
+	check_hw_revision();
+	printf("HW Revision:\t0x%x\n", board_rev);
 
 	return 0;
 }
@@ -109,9 +109,26 @@ static unsigned short get_adc_value(int channel)
 	return ret;
 }
 
+static int adc_power_control(int on)
+{
+	int ret;
+	struct pmic *p = get_pmic();
+
+	if (pmic_probe(p))
+		return -1;
+
+	ret = pmic_set_output(p,
+			      MAX8998_REG_ONOFF1,
+			      MAX8998_LDO4, !!on);
+
+	return ret;
+}
+
 static unsigned int get_hw_revision(void)
 {
 	int hwrev, mode0, mode1;
+
+	adc_power_control(1);
 
 	mode0 = get_adc_value(1);		/* HWREV_MODE0 */
 	mode1 = get_adc_value(2);		/* HWREV_MODE1 */
@@ -134,6 +151,8 @@ static unsigned int get_hw_revision(void)
 #undef IS_RANGE
 
 	debug("mode0: %d, mode1: %d, hwrev 0x%x\n", mode0, mode1, hwrev);
+
+	adc_power_control(0);
 
 	return hwrev;
 }
