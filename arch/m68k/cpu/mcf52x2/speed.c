@@ -2,7 +2,7 @@
  * (C) Copyright 2003
  * Josef Baumgartner <josef.baumgartner@telex.de>
  *
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007, 2012 Freescale Semiconductor, Inc.
  * Hayden Fraser (Hayden.Fraser@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,6 +27,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/immap.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -34,10 +35,10 @@ DECLARE_GLOBAL_DATA_PTR;
 int get_clocks (void)
 {
 #if defined(CONFIG_M5208)
-	volatile pll_t *pll = (pll_t *) MMAP_PLL;
+	pll_t *pll = (pll_t *) MMAP_PLL;
 
-	pll->odr = CONFIG_SYS_PLL_ODR;
-	pll->fdr = CONFIG_SYS_PLL_FDR;
+	out_8(&pll->odr, CONFIG_SYS_PLL_ODR);
+	out_8(&pll->fdr, CONFIG_SYS_PLL_FDR);
 #endif
 
 #if defined(CONFIG_M5249) || defined(CONFIG_M5253)
@@ -70,14 +71,14 @@ int get_clocks (void)
 #endif				/* CONFIG_M5249 || CONFIG_M5253 */
 
 #if defined(CONFIG_M5275)
-	volatile pll_t *pll = (volatile pll_t *)(MMAP_PLL);
+	pll_t *pll = (pll_t *)(MMAP_PLL);
 
 	/* Setup PLL */
-	pll->syncr = 0x01080000;
-	while (!(pll->synsr & FMPLL_SYNSR_LOCK))
+	out_be32(&pll->syncr, 0x01080000);
+	while (!(in_be32(&pll->synsr) & FMPLL_SYNSR_LOCK))
 		;
-	pll->syncr = 0x01000000;
-	while (!(pll->synsr & FMPLL_SYNSR_LOCK))
+	out_be32(&pll->syncr, 0x01000000);
+	while (!(in_be32(&pll->synsr) & FMPLL_SYNSR_LOCK))
 		;
 #endif
 
