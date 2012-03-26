@@ -399,8 +399,7 @@ static int configure_phy(struct eth_device *dev)
 		return -1;
 
 #if defined(CONFIG_DW_AUTONEG)
-	bmcr = BMCR_ANENABLE | BMCR_ANRESTART | BMCR_SPEED100 | \
-	       BMCR_FULLDPLX | BMCR_SPEED1000;
+	bmcr = BMCR_ANENABLE | BMCR_ANRESTART;
 #else
 	bmcr = BMCR_SPEED100 | BMCR_FULLDPLX;
 
@@ -428,23 +427,39 @@ static int configure_phy(struct eth_device *dev)
 	eth_mdio_read(dev, phy_addr, MII_STAT1000, &btsr);
 
 	if (bmsr & BMSR_ANEGCOMPLETE) {
-		if (btsr & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD)) {
+		if (btsr & PHY_1000BTSR_1000FD) {
 			priv->speed = SPEED_1000M;
-			if (btsr & PHY_1000BTSR_1000FD)
-				priv->duplex = FULL_DUPLEX;
-			else
-				priv->duplex = HALF_DUPLEX;
+			bmcr |= BMCR_SPEED1000;
+			priv->duplex = FULL_DUPLEX;
+			bmcr |= BMCR_FULLDPLX;
+		} else if (btsr & PHY_1000BTSR_1000HD) {
+			priv->speed = SPEED_1000M;
+			bmcr |= BMCR_SPEED1000;
+			priv->duplex = HALF_DUPLEX;
+			bmcr &= ~BMCR_FULLDPLX;
+		} else if (anlpar & LPA_100FULL) {
+			priv->speed = SPEED_100M;
+			bmcr |= BMCR_SPEED100;
+			priv->duplex = FULL_DUPLEX;
+			bmcr |= BMCR_FULLDPLX;
+		} else if (anlpar & LPA_100HALF) {
+			priv->speed = SPEED_100M;
+			bmcr |= BMCR_SPEED100;
+			priv->duplex = HALF_DUPLEX;
+			bmcr &= ~BMCR_FULLDPLX;
+		} else if (anlpar & LPA_10FULL) {
+			priv->speed = SPEED_10M;
+			bmcr &= ~BMCR_SPEED100;
+			priv->duplex = FULL_DUPLEX;
+			bmcr |= BMCR_FULLDPLX;
 		} else {
-			if (anlpar & LPA_100)
-				priv->speed = SPEED_100M;
-			else
 				priv->speed = SPEED_10M;
-
-			if (anlpar & (LPA_10FULL | LPA_100FULL))
-				priv->duplex = FULL_DUPLEX;
-			else
+				bmcr &= ~BMCR_SPEED100;
 				priv->duplex = HALF_DUPLEX;
+				bmcr &= ~BMCR_FULLDPLX;
 		}
+		if (eth_mdio_write(dev, phy_addr, MII_BMCR, bmcr) < 0)
+			return -1;
 	} else
 		return -1;
 #else
