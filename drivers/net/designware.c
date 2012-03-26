@@ -175,8 +175,7 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 	writel(readl(&dma_p->opmode) | RXSTART, &dma_p->opmode);
 	writel(readl(&dma_p->opmode) | TXSTART, &dma_p->opmode);
 
-	writel(readl(&mac_p->conf) | RXENABLE, &mac_p->conf);
-	writel(readl(&mac_p->conf) | TXENABLE, &mac_p->conf);
+	writel(readl(&mac_p->conf) | RXENABLE | TXENABLE, &mac_p->conf);
 
 	return 0;
 }
