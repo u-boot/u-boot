@@ -32,6 +32,8 @@
 #include <asm/io.h>
 #include "designware.h"
 
+static int configure_phy(struct eth_device *dev);
+
 static void tx_descs_init(struct eth_device *dev)
 {
 	struct dw_eth_dev *priv = dev->priv;
@@ -143,6 +145,9 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
 	u32 conf;
+
+	if (priv->phy_configured != 1)
+		configure_phy(dev);
 
 	/* Reset ethernet hardware */
 	if (mac_reset(dev) < 0)
@@ -422,23 +427,26 @@ static int configure_phy(struct eth_device *dev)
 	eth_mdio_read(dev, phy_addr, MII_LPA, &anlpar);
 	eth_mdio_read(dev, phy_addr, MII_STAT1000, &btsr);
 
-	if (btsr & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD)) {
-		priv->speed = SPEED_1000M;
-		if (btsr & PHY_1000BTSR_1000FD)
-			priv->duplex = FULL_DUPLEX;
-		else
-			priv->duplex = HALF_DUPLEX;
-	} else {
-		if (anlpar & LPA_100)
-			priv->speed = SPEED_100M;
-		else
-			priv->speed = SPEED_10M;
+	if (bmsr & BMSR_ANEGCOMPLETE) {
+		if (btsr & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD)) {
+			priv->speed = SPEED_1000M;
+			if (btsr & PHY_1000BTSR_1000FD)
+				priv->duplex = FULL_DUPLEX;
+			else
+				priv->duplex = HALF_DUPLEX;
+		} else {
+			if (anlpar & LPA_100)
+				priv->speed = SPEED_100M;
+			else
+				priv->speed = SPEED_10M;
 
-		if (anlpar & (LPA_10FULL | LPA_100FULL))
-			priv->duplex = FULL_DUPLEX;
-		else
-			priv->duplex = HALF_DUPLEX;
-	}
+			if (anlpar & (LPA_10FULL | LPA_100FULL))
+				priv->duplex = FULL_DUPLEX;
+			else
+				priv->duplex = HALF_DUPLEX;
+		}
+	} else
+		return -1;
 #else
 	if (eth_mdio_read(dev, phy_addr, MII_BMCR, &ctrl) < 0)
 		return -1;
@@ -455,6 +463,8 @@ static int configure_phy(struct eth_device *dev)
 	else
 		priv->speed = SPEED_10M;
 #endif
+	priv->phy_configured = 1;
+
 	return 0;
 }
 
@@ -515,14 +525,12 @@ int designware_initialize(u32 id, ulong base_addr, u32 phy_addr)
 	priv->dma_regs_p = (struct eth_dma_regs *)(base_addr +
 			DW_DMA_BASE_OFFSET);
 	priv->address = phy_addr;
+	priv->phy_configured = 0;
 
 	if (mac_reset(dev) < 0)
 		return -1;
 
-	if (configure_phy(dev) < 0) {
-		printf("Phy could not be configured\n");
-		return -1;
-	}
+	configure_phy(dev);
 
 	dev->init = dw_eth_init;
 	dev->send = dw_eth_send;
