@@ -108,16 +108,20 @@ static int mac_reset(struct eth_device *dev)
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
 
+	ulong start;
 	int timeout = CONFIG_MACRESET_TIMEOUT;
 
 	writel(DMAMAC_SRST, &dma_p->busmode);
 	writel(MII_PORTSELECT, &mac_p->conf);
 
-	do {
+	start = get_timer(0);
+	while (get_timer(start) < timeout) {
 		if (!(readl(&dma_p->busmode) & DMAMAC_SRST))
 			return 0;
-		udelay(1000);
-	} while (timeout--);
+
+		/* Try again after 10usec */
+		udelay(10);
+	};
 
 	return -1;
 }
@@ -273,6 +277,7 @@ static int eth_mdio_read(struct eth_device *dev, u8 addr, u8 reg, u16 *val)
 {
 	struct dw_eth_dev *priv = dev->priv;
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
+	ulong start;
 	u32 miiaddr;
 	int timeout = CONFIG_MDIO_TIMEOUT;
 
@@ -281,13 +286,16 @@ static int eth_mdio_read(struct eth_device *dev, u8 addr, u8 reg, u16 *val)
 
 	writel(miiaddr | MII_CLKRANGE_150_250M | MII_BUSY, &mac_p->miiaddr);
 
-	do {
+	start = get_timer(0);
+	while (get_timer(start) < timeout) {
 		if (!(readl(&mac_p->miiaddr) & MII_BUSY)) {
 			*val = readl(&mac_p->miidata);
 			return 0;
 		}
-		udelay(1000);
-	} while (timeout--);
+
+		/* Try again after 10usec */
+		udelay(10);
+	};
 
 	return -1;
 }
@@ -296,6 +304,7 @@ static int eth_mdio_write(struct eth_device *dev, u8 addr, u8 reg, u16 val)
 {
 	struct dw_eth_dev *priv = dev->priv;
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
+	ulong start;
 	u32 miiaddr;
 	int ret = -1, timeout = CONFIG_MDIO_TIMEOUT;
 	u16 value;
@@ -306,13 +315,16 @@ static int eth_mdio_write(struct eth_device *dev, u8 addr, u8 reg, u16 val)
 
 	writel(miiaddr | MII_CLKRANGE_150_250M | MII_BUSY, &mac_p->miiaddr);
 
-	do {
+	start = get_timer(0);
+	while (get_timer(start) < timeout) {
 		if (!(readl(&mac_p->miiaddr) & MII_BUSY)) {
 			ret = 0;
 			break;
 		}
-		udelay(1000);
-	} while (timeout--);
+
+		/* Try again after 10usec */
+		udelay(10);
+	};
 
 	/* Needed as a fix for ST-Phy */
 	eth_mdio_read(dev, addr, reg, &value);
@@ -353,18 +365,23 @@ static int dw_reset_phy(struct eth_device *dev)
 {
 	struct dw_eth_dev *priv = dev->priv;
 	u16 ctrl;
+	ulong start;
 	int timeout = CONFIG_PHYRESET_TIMEOUT;
 	u32 phy_addr = priv->address;
 
 	eth_mdio_write(dev, phy_addr, MII_BMCR, BMCR_RESET);
-	do {
+
+	start = get_timer(0);
+	while (get_timer(start) < timeout) {
 		eth_mdio_read(dev, phy_addr, MII_BMCR, &ctrl);
 		if (!(ctrl & BMCR_RESET))
 			break;
-		udelay(1000);
-	} while (timeout--);
 
-	if (timeout < 0)
+		/* Try again after 10usec */
+		udelay(10);
+	};
+
+	if (get_timer(start) >= CONFIG_PHYRESET_TIMEOUT)
 		return -1;
 
 #ifdef CONFIG_PHY_RESET_DELAY
@@ -381,6 +398,7 @@ static int configure_phy(struct eth_device *dev)
 #if defined(CONFIG_DW_AUTONEG)
 	u16 bmsr;
 	u32 timeout;
+	ulong start;
 	u16 anlpar, btsr;
 #else
 	u16 ctrl;
@@ -419,12 +437,16 @@ static int configure_phy(struct eth_device *dev)
 	/* Read the phy status register and populate priv structure */
 #if defined(CONFIG_DW_AUTONEG)
 	timeout = CONFIG_AUTONEG_TIMEOUT;
-	do {
+	start = get_timer(0);
+
+	while (get_timer(start) < timeout) {
 		eth_mdio_read(dev, phy_addr, MII_BMSR, &bmsr);
 		if (bmsr & BMSR_ANEGCOMPLETE)
 			break;
-		udelay(1000);
-	} while (timeout--);
+
+		/* Try again after 10usec */
+		udelay(10);
+	};
 
 	eth_mdio_read(dev, phy_addr, MII_LPA, &anlpar);
 	eth_mdio_read(dev, phy_addr, MII_STAT1000, &btsr);
