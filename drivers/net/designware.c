@@ -148,6 +148,9 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 	if (mac_reset(dev) < 0)
 		return -1;
 
+	/* Resore the HW MAC address as it has been lost during MAC reset */
+	dw_write_hwaddr(dev);
+
 	writel(FIXEDBURST | PRIORXTX_41 | BURST_16,
 			&dma_p->busmode);
 
@@ -300,8 +303,10 @@ static int eth_mdio_write(struct eth_device *dev, u8 addr, u8 reg, u16 val)
 	writel(miiaddr | MII_CLKRANGE_150_250M | MII_BUSY, &mac_p->miiaddr);
 
 	do {
-		if (!(readl(&mac_p->miiaddr) & MII_BUSY))
+		if (!(readl(&mac_p->miiaddr) & MII_BUSY)) {
 			ret = 0;
+			break;
+		}
 		udelay(1000);
 	} while (timeout--);
 
