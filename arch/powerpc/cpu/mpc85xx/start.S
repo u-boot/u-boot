@@ -443,13 +443,15 @@ create_ccsr_new_tlb:
 	ori     r2, r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR, (MAS2_I|MAS2_G))@l
 	lis     r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@h
 	ori     r3, r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@l
+#ifdef CONFIG_ENABLE_36BIT_PHYS
 	lis	r7, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
 	ori	r7, r7, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	mtspr   MAS7, r7
+#endif
 	mtspr   MAS0, r0
 	mtspr   MAS1, r1
 	mtspr   MAS2, r2
 	mtspr   MAS3, r3
-	mtspr   MAS7, r7
 	isync
 	msync
 	tlbwe
@@ -465,12 +467,14 @@ create_ccsr_old_tlb:
 	ori     r2, r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR + 0x1000, (MAS2_I|MAS2_G))@l
 	lis     r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_DEFAULT, 0, (MAS3_SW|MAS3_SR))@h
 	ori     r3, r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_DEFAULT, 0, (MAS3_SW|MAS3_SR))@l
+#ifdef CONFIG_ENABLE_36BIT_PHYS
 	li	r7, 0	/* The default CCSR address is always a 32-bit number */
+	mtspr   MAS7, r7
+#endif
 	mtspr   MAS0, r0
 	/* MAS1 is the same as above */
 	mtspr   MAS2, r2
 	mtspr   MAS3, r3
-	mtspr   MAS7, r7
 	isync
 	msync
 	tlbwe
