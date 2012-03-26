@@ -384,7 +384,7 @@ static int configure_phy(struct eth_device *dev)
 
 #if defined(CONFIG_DW_SEARCH_PHY)
 	phy_addr = find_phy(dev);
-	if (phy_addr > 0)
+	if (phy_addr >= 0)
 		priv->address = phy_addr;
 	else
 		return -1;
