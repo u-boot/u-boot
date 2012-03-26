@@ -399,6 +399,9 @@ static int configure_phy(struct eth_device *dev)
 		return -1;
 
 #if defined(CONFIG_DW_AUTONEG)
+	/* Set Auto-Neg Advertisement capabilities to 10/100 half/full */
+	eth_mdio_write(dev, phy_addr, MII_ADVERTISE, 0x1E1);
+
 	bmcr = BMCR_ANENABLE | BMCR_ANRESTART;
 #else
 	bmcr = BMCR_SPEED100 | BMCR_FULLDPLX;
