@@ -121,7 +121,7 @@ struct eth_dma_regs {
 #define RXSTART			(1 << 1)
 
 /* Descriptior related definitions */
-#define MAC_MAX_FRAME_SZ	(2048)
+#define MAC_MAX_FRAME_SZ	(1600)
 
 struct dmamacdescr {
 	u32 txrx_status;
