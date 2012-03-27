@@ -320,10 +320,8 @@ static void setup_dplls(void)
 #ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
 static void setup_non_essential_dplls(void)
 {
-	u32 sys_clk_khz, abe_ref_clk;
+	u32 abe_ref_clk;
 	const struct dpll_params *params;
-
-	sys_clk_khz = get_sys_clk_freq() / 1000;
 
 	/* IVA */
 	clrsetbits_le32(&prcm->cm_bypclk_dpll_iva,
