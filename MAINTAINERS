@@ -792,6 +792,10 @@ Stelian Pop <stelian@popies.net>
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
 
+Dave Purdy <david.c.purdy@gmail.com>
+
+	pogo_e02	ARM926EJS (Kirkwood SoC)
+
 Thierry Reding <thierry.reding@avionic-design.de>
 
 	plutux		Tegra2 (ARM7 & A9 Dual Core)
