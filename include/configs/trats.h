@@ -53,7 +53,6 @@
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -174,9 +173,9 @@
 /* TRATS has 2 banks of DRAM */
 #define CONFIG_NR_DRAM_BANKS	2
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* LDDDR2 DMC 0 */
-#define PHYS_SDRAM_1_SIZE	(256 << 20)		/* 256 MB in CS 0 */
+#define PHYS_SDRAM_1_SIZE	(512 << 20)		/* 512 MB in CS 0 */
 #define PHYS_SDRAM_2		0x50000000		/* LPDDR2 DMC 1 */
-#define PHYS_SDRAM_2_SIZE	(256 << 20)		/* 256 MB in CS 0 */
+#define PHYS_SDRAM_2_SIZE	(512 << 20)		/* 512 MB in CS 0 */
 
 #define CONFIG_SYS_MEM_TOP_HIDE		(1 << 20)	/* ram console */
 
