@@ -436,5 +436,14 @@ struct anatop_regs {
 	u32	digprog;		/* 0x260 */
 };
 
+struct iomuxc_base_regs {
+	u32     gpr[14];        /* 0x000 */
+	u32     obsrv[5];       /* 0x038 */
+	u32     swmux_ctl[197]; /* 0x04c */
+	u32     swpad_ctl[250]; /* 0x360 */
+	u32     swgrp[26];      /* 0x748 */
+	u32     daisy[104];     /* 0x7b0..94c */
+};
+
 #endif /* __ASSEMBLER__*/
 #endif /* __ASM_ARCH_MX6_IMX_REGS_H__ */

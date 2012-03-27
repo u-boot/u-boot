@@ -292,6 +292,37 @@ u32 imx_get_fecclk(void)
 	return decode_pll(PLL_ENET, CONFIG_SYS_MX6_HCLK);
 }
 
+int enable_sata_clock(void)
+{
+	u32 reg = 0;
+	s32 timeout = 100000;
+	struct mxc_ccm_reg *const imx_ccm
+		= (struct mxc_ccm_reg *) CCM_BASE_ADDR;
+
+	/* Enable sata clock */
+	reg = readl(&imx_ccm->CCGR5); /* CCGR5 */
+	reg |= MXC_CCM_CCGR5_CG2_MASK;
+	writel(reg, &imx_ccm->CCGR5);
+
+	/* Enable PLLs */
+	reg = readl(&imx_ccm->analog_pll_enet);
+	reg &= ~BM_ANADIG_PLL_SYS_POWERDOWN;
+	writel(reg, &imx_ccm->analog_pll_enet);
+	reg |= BM_ANADIG_PLL_SYS_ENABLE;
+	while (timeout--) {
+		if (readl(&imx_ccm->analog_pll_enet) & BM_ANADIG_PLL_SYS_LOCK)
+			break;
+	}
+	if (timeout <= 0)
+		return -EIO;
+	reg &= ~BM_ANADIG_PLL_SYS_BYPASS;
+	writel(reg, &imx_ccm->analog_pll_enet);
+	reg |= BM_ANADIG_PLL_ENET_ENABLE_SATA;
+	writel(reg, &imx_ccm->analog_pll_enet);
+
+	return 0 ;
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
