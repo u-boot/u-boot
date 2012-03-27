@@ -254,7 +254,8 @@ void beagle_display_init(void)
 /*
  * Enable DVI power
  */
-static void beagle_dvi_pup() {
+static void beagle_dvi_pup(void)
+{
 	uchar val;
 
 	switch (get_board_revision()) {
