@@ -60,6 +60,3 @@ void __attribute__((noreturn)) hang(void)
 	for (;;)
 		;
 }
-
-void icache_disable(void) {}
-void dcache_disable(void) {}
