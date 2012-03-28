@@ -129,7 +129,7 @@ static void mmc_bounce_buffer_stop(struct mmc_data *backup,
 }
 #else
 static inline int mmc_bounce_buffer_start(struct mmc_data *backup,
-					struct mmc_data *orig) { }
+					struct mmc_data *orig) { return 0; }
 static inline void mmc_bounce_buffer_stop(struct mmc_data *backup,
 					struct mmc_data *orig) { }
 #endif
