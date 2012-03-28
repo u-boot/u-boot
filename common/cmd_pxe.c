@@ -409,6 +409,7 @@ static int get_relfile_envaddr(char *file_path, char *envaddr_name)
  */
 struct pxe_label {
 	char *name;
+	char *menu;
 	char *kernel;
 	char *append;
 	char *initrd;
@@ -491,17 +492,18 @@ static void label_destroy(struct pxe_label *label)
 static void label_print(void *data)
 {
 	struct pxe_label *label = data;
+	const char *c = label->menu ? label->menu : label->kernel;
 
-	printf("Label: %s\n", label->name);
+	printf("%s:\t%s\n", label->name, c);
 
 	if (label->kernel)
-		printf("\tkernel: %s\n", label->kernel);
+		printf("\t\tkernel: %s\n", label->kernel);
 
 	if (label->append)
-		printf("\tappend: %s\n", label->append);
+		printf("\t\tappend: %s\n", label->append);
 
 	if (label->initrd)
-		printf("\tinitrd: %s\n", label->initrd);
+		printf("\t\tinitrd: %s\n", label->initrd);
 }
 
 /*
@@ -969,6 +971,9 @@ static int parse_label_menu(char **c, struct pxe_menu *cfg,
 		if (!cfg->default_label)
 			return -ENOMEM;
 
+		break;
+	case T_LABEL:
+		parse_sliteral(c, &label->menu);
 		break;
 	default:
 		printf("Ignoring malformed menu command: %.*s\n",
