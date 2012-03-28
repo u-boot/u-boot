@@ -96,24 +96,24 @@ static int format_mac_pxe(char *outbuf, size_t outbuf_len)
  * in. If bootfile isn't defined in the environment, return NULL, which should
  * be interpreted as "don't prepend anything to paths".
  */
-static int get_bootfile_path(char *bootfile_path, size_t bootfile_path_size)
+static int get_bootfile_path(const char *file_path, char *bootfile_path,
+			     size_t bootfile_path_size)
 {
 	char *bootfile, *last_slash;
-	size_t path_len;
+	size_t path_len = 0;
+
+	if (file_path[0] == '/')
+		goto ret;
 
 	bootfile = from_env("bootfile");
 
-	if (!bootfile) {
-		bootfile_path[0] = '\0';
-		return 1;
-	}
+	if (!bootfile)
+		goto ret;
 
 	last_slash = strrchr(bootfile, '/');
 
-	if (last_slash == NULL) {
-		bootfile_path[0] = '\0';
-		return 1;
-	}
+	if (last_slash == NULL)
+		goto ret;
 
 	path_len = (last_slash - bootfile) + 1;
 
@@ -126,6 +126,7 @@ static int get_bootfile_path(char *bootfile_path, size_t bootfile_path_size)
 
 	strncpy(bootfile_path, bootfile, path_len);
 
+ ret:
 	bootfile_path[path_len] = '\0';
 
 	return 1;
@@ -147,7 +148,7 @@ static int get_relfile(char *file_path, void *file_addr)
 	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
 	int err;
 
-	err = get_bootfile_path(relfile, sizeof(relfile));
+	err = get_bootfile_path(file_path, relfile, sizeof(relfile));
 
 	if (err < 0)
 		return err;
