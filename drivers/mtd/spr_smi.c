@@ -322,24 +322,19 @@ static int smi_write(unsigned int *src_addr, unsigned int *dst_addr,
 		     unsigned int length, ulong bank_addr)
 {
 	int banknum;
-	unsigned int WM;
 
 	switch (bank_addr) {
 	case SMIBANK0_BASE:
 		banknum = BANK0;
-		WM = WM0;
 		break;
 	case SMIBANK1_BASE:
 		banknum = BANK1;
-		WM = WM1;
 		break;
 	case SMIBANK2_BASE:
 		banknum = BANK2;
-		WM = WM2;
 		break;
 	case SMIBANK3_BASE:
 		banknum = BANK3;
-		WM = WM3;
 		break;
 	default:
 		return -1;
