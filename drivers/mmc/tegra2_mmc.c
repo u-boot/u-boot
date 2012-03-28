@@ -162,7 +162,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	struct mmc_host *host = (struct mmc_host *)mmc->priv;
 	int flags, i;
 	int result;
-	unsigned int mask;
+	unsigned int mask = 0;
 	unsigned int retry = 0x100000;
 	debug(" mmc_send_cmd called\n");
 
