@@ -999,6 +999,7 @@ static int parse_label_menu(char **c, struct pxe_menu *cfg,
 static int parse_label(char **c, struct pxe_menu *cfg)
 {
 	struct token t;
+	int len;
 	char *s = *c;
 	struct pxe_label *label;
 	int err;
@@ -1033,10 +1034,22 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 
 		case T_APPEND:
 			err = parse_sliteral(c, &label->append);
+			if (label->initrd)
+				break;
+			s = strstr(label->append, "initrd=");
+			if (!s)
+				break;
+			s += 7;
+			len = (int)(strchr(s, ' ') - s);
+			label->initrd = malloc(len + 1);
+			strncpy(label->initrd, s, len);
+			label->initrd[len] = '\0';
+
 			break;
 
 		case T_INITRD:
-			err = parse_sliteral(c, &label->initrd);
+			if (!label->initrd)
+				err = parse_sliteral(c, &label->initrd);
 			break;
 
 		case T_LOCALBOOT:
