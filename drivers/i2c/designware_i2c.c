@@ -40,6 +40,13 @@ static void set_speed(int i2c_spd)
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
 	unsigned int high, low;
+	unsigned int enbl;
+
+	/* to set speed cltr must be disabled */
+	enbl = readl(&i2c_regs_p->ic_enable);
+	enbl &= ~IC_ENABLE_0B;
+	writel(enbl, &i2c_regs_p->ic_enable);
+
 
 	cntl = (readl(&i2c_regs_p->ic_con) & (~IC_CON_SPD_MSK));
 
@@ -71,6 +78,10 @@ static void set_speed(int i2c_spd)
 
 	lcnt = (IC_CLK * low) / NANO_TO_MICRO;
 	writel(lcnt, &i2c_regs_p->ic_fs_scl_lcnt);
+
+	/* re-enable i2c ctrl back now that speed is set */
+	enbl |= IC_ENABLE_0B;
+	writel(enbl, &i2c_regs_p->ic_enable);
 }
 
 /*
