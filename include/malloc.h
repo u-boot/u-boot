@@ -487,7 +487,7 @@ do {                                                                          \
 ***/
 #undef	HAVE_MREMAP	/* Not available for U-Boot */
 
-#if HAVE_MMAP
+#ifdef HAVE_MMAP
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -587,7 +587,7 @@ do {                                                                          \
 
 /* #define HAVE_USR_INCLUDE_MALLOC_H */
 
-#if HAVE_USR_INCLUDE_MALLOC_H
+#ifdef HAVE_USR_INCLUDE_MALLOC_H
 #include "/usr/include/malloc.h"
 #else
 
@@ -754,7 +754,7 @@ struct mallinfo {
 
 
 #ifndef DEFAULT_MMAP_MAX
-#if HAVE_MMAP
+#ifdef HAVE_MMAP
 #define DEFAULT_MMAP_MAX       (64)
 #else
 #define DEFAULT_MMAP_MAX       (0)
