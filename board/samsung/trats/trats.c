@@ -32,7 +32,7 @@
 #include <asm/arch/power.h>
 #include <pmic.h>
 #include <usb/s3c_udc.h>
-#include <max8998_pmic.h>
+#include <max8997_pmic.h>
 
 #include "setup.h"
 
@@ -216,26 +216,19 @@ static int s5pc210_phy_control(int on)
 		return -1;
 
 	if (on) {
-		ret |= pmic_set_output(p,
-				       MAX8998_REG_BUCK_ACTIVE_DISCHARGE3,
-				       MAX8998_SAFEOUT1, LDO_ON);
-		ret |= pmic_set_output(p, MAX8998_REG_ONOFF1,
-				      MAX8998_LDO3, LDO_ON);
-		ret |= pmic_set_output(p, MAX8998_REG_ONOFF2,
-				      MAX8998_LDO8, LDO_ON);
-
+		ret |= pmic_set_output(p, MAX8997_REG_SAFEOUTCTRL,
+				      ENSAFEOUT1, LDO_ON);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, EN_LDO);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, EN_LDO);
 	} else {
-		ret |= pmic_set_output(p, MAX8998_REG_ONOFF2,
-				      MAX8998_LDO8, LDO_OFF);
-		ret |= pmic_set_output(p, MAX8998_REG_ONOFF1,
-				      MAX8998_LDO3, LDO_OFF);
-		ret |= pmic_set_output(p,
-				       MAX8998_REG_BUCK_ACTIVE_DISCHARGE3,
-				       MAX8998_SAFEOUT1, LDO_OFF);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, DIS_LDO);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, DIS_LDO);
+		ret |= pmic_set_output(p, MAX8997_REG_SAFEOUTCTRL,
+				      ENSAFEOUT1, LDO_OFF);
 	}
 
 	if (ret) {
-		puts("MAX8998 LDO setting error!\n");
+		puts("MAX8997 LDO setting error!\n");
 		return -1;
 	}
 
