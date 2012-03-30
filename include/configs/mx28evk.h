@@ -126,6 +126,11 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
+ * DMA
+ */
+#define CONFIG_APBH_DMA
+
+/*
  * MMC Driver
  */
 #define CONFIG_ENV_IS_IN_MMC
