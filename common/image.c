@@ -797,7 +797,9 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
 	const image_header_t *rd_hdr;
+#ifdef CONFIG_SUPPORT_RAW_INITRD
 	char *end;
+#endif
 #if defined(CONFIG_FIT)
 	void		*fit_hdr;
 	const char	*fit_uname_config = NULL;
