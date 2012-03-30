@@ -39,9 +39,6 @@
 #if defined(CONFIG_8xx)
 #include <mpc8xx.h>
 #endif
-#ifdef CONFIG_SYS_HUSH_PARSER
-#include <hush.h>
-#endif
 
 int
 source (ulong addr, const char *fit_uname)
@@ -49,8 +46,6 @@ source (ulong addr, const char *fit_uname)
 	ulong		len;
 	image_header_t	*hdr;
 	ulong		*data;
-	char		*cmd;
-	int		rcode = 0;
 	int		verify;
 #if defined(CONFIG_FIT)
 	const void*	fit_hdr;
@@ -151,49 +146,7 @@ source (ulong addr, const char *fit_uname)
 	}
 
 	debug ("** Script length: %ld\n", len);
-
-	if ((cmd = malloc (len + 1)) == NULL) {
-		return 1;
-	}
-
-	/* make sure cmd is null terminated */
-	memmove (cmd, (char *)data, len);
-	*(cmd + len) = 0;
-
-#ifdef CONFIG_SYS_HUSH_PARSER /*?? */
-	rcode = parse_string_outer (cmd, FLAG_PARSE_SEMICOLON);
-#else
-	{
-		char *line = cmd;
-		char *next = cmd;
-
-		/*
-		 * break into individual lines,
-		 * and execute each line;
-		 * terminate on error.
-		 */
-		while (*next) {
-			if (*next == '\n') {
-				*next = '\0';
-				/* run only non-empty commands */
-				if (*line) {
-					debug ("** exec: \"%s\"\n",
-						line);
-					if (run_command(line, 0) < 0) {
-						rcode = 1;
-						break;
-					}
-				}
-				line = next + 1;
-			}
-			++next;
-		}
-		if (rcode == 0 && *line)
-			rcode = (run_command(line, 0) >= 0);
-	}
-#endif
-	free (cmd);
-	return rcode;
+	return run_command_list((char *)data, len, 0);
 }
 
 /**************************************************/

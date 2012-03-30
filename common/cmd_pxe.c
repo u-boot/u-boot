@@ -554,33 +554,19 @@ static void label_print(void *data)
  */
 static int label_localboot(struct pxe_label *label)
 {
-	char *localcmd, *dupcmd;
-	int ret;
+	char *localcmd;
 
 	localcmd = from_env("localcmd");
 
 	if (!localcmd)
 		return -ENOENT;
 
-	/*
-	 * dup the command to avoid any issues with the version of it existing
-	 * in the environment changing during the execution of the command.
-	 */
-	dupcmd = strdup(localcmd);
-
-	if (!dupcmd)
-		return -ENOMEM;
-
 	if (label->append)
 		setenv("bootargs", label->append);
 
-	printf("running: %s\n", dupcmd);
+	debug("running: %s\n", localcmd);
 
-	ret = run_command(dupcmd, 0);
-
-	free(dupcmd);
-
-	return ret;
+	return run_command_list(localcmd, strlen(localcmd), 0);
 }
 
 /*
