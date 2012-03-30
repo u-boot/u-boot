@@ -19,7 +19,7 @@ Booting is always from the boot bank at 0xec00_0000.
 Memory Map
 ----------
 
-0xe800_0000 - 0xebff_ffff	Alernate bank		64MB
+0xe800_0000 - 0xebff_ffff	Alternate bank		64MB
 0xec00_0000 - 0xefff_ffff	Boot bank		64MB
 
 0xebf8_0000 - 0xebff_ffff	Alternate u-boot address	512KB
@@ -115,7 +115,7 @@ Implementing AMP(Asymmetric MultiProcessing)
 	   - Select "Advanced setup" -> " Prompt for advanced kernel
 	     configuration options"
 		- Select "Set physical address where the kernel is loaded" and
-		  set it to 0x20000000, asssuming core1 will start from 512MB.
+		  set it to 0x20000000, assuming core1 will start from 512MB.
 		- Select "Set custom page offset address"
 		- Select "Set custom kernel base address"
 		- Select "Set maximum low memory"

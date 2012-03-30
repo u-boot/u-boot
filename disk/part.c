@@ -80,6 +80,9 @@ block_dev_desc_t *get_dev(char* ifname, int dev)
 	block_dev_desc_t* (*reloc_get_dev)(int dev);
 	char *name;
 
+	if (!ifname)
+		return NULL;
+
 	name = drvr->name;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	name += gd->reloc_off;

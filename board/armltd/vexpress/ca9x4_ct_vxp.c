@@ -226,3 +226,13 @@ void lowlevel_init(void)
 ulong get_board_rev(void){
 	return readl((u32 *)SYS_ID);
 }
+
+unsigned long long get_ticks(void)
+{
+	return get_timer(0);
+}
+
+ulong get_tbclk (void)
+{
+	return (ulong)CONFIG_SYS_HZ;
+}

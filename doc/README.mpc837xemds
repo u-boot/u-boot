@@ -14,7 +14,7 @@ Freescale MPC837xEMDS Board
 		"Off" == 1
 		"On"  == 0
 
-	SW4[8] is the bit labled 8 on Switch 4.
+	SW4[8] is the bit labeled 8 on Switch 4.
 	SW2[1:6] refers to bits labeled 1 through 6 in order on switch 2.
 	SW2[1:8]= 0000_0001 refers to bits labeled 1 through 7 is set as "On"
 		and bits labeled 8 is set as "Off".

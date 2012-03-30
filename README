@@ -1236,8 +1236,12 @@ The following options need to be configured:
 
 - FAT(File Allocation Table) filesystem write function support:
 		CONFIG_FAT_WRITE
-		Support for saving memory data as a file
-		in FAT formatted partition
+
+		Define this to enable support for saving memory data as a
+		file in FAT formatted partition.
+
+		This will also enable the command "fatwrite" enabling the
+		user to write files to FAT.
 
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD

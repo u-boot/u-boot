@@ -31,13 +31,15 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include <compiler.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 
+#include "compiler.h"
 #include <u-boot/crc.h>
 #include <version.h>
 
@@ -45,12 +47,9 @@
 
 static void usage(const char *exec_name)
 {
-	fprintf(stderr, "%s [-h] [-r] [-b] [-p <byte>] "
-	       "-s <environment partition size> -o <output> <input file>\n"
+	fprintf(stderr, "%s [-h] [-r] [-b] [-p <byte>] -s <environment partition size> -o <output> <input file>\n"
 	       "\n"
-	       "This tool takes a key=value input file (same as would a "
-	       "`printenv' show) and generates the corresponding environment "
-	       "image, ready to be flashed.\n"
+	       "This tool takes a key=value input file (same as would a `printenv' show) and generates the corresponding environment image, ready to be flashed.\n"
 	       "\n"
 	       "\tThe input file is in format:\n"
 	       "\t\tkey1=value1\n"
@@ -58,12 +57,29 @@ static void usage(const char *exec_name)
 	       "\t\t...\n"
 	       "\t-r : the environment has multiple copies in flash\n"
 	       "\t-b : the target is big endian (default is little endian)\n"
-	       "\t-p <byte> : fill the image with <byte> bytes instead of "
-	       "0xff bytes\n"
+	       "\t-p <byte> : fill the image with <byte> bytes instead of 0xff bytes\n"
 	       "\t-V : print version information and exit\n"
 	       "\n"
 	       "If the input file is \"-\", data is read from standard input\n",
 	       exec_name);
+}
+
+long int xstrtol(const char *s)
+{
+	long int tmp;
+
+	errno = 0;
+	tmp = strtol(s, NULL, 0);
+	if (!errno)
+		return tmp;
+
+	if (errno == ERANGE)
+		fprintf(stderr, "Bad integer format: %s\n",  s);
+	else
+		fprintf(stderr, "Error while parsing %s: %s\n", s,
+				strerror(errno));
+
+	exit(EXIT_FAILURE);
 }
 
 int main(int argc, char **argv)
@@ -95,13 +111,12 @@ int main(int argc, char **argv)
 	while ((option = getopt(argc, argv, ":s:o:rbp:hV")) != -1) {
 		switch (option) {
 		case 's':
-			datasize = strtol(optarg, NULL, 0);
+			datasize = xstrtol(optarg);
 			break;
 		case 'o':
 			bin_filename = strdup(optarg);
 			if (!bin_filename) {
-				fprintf(stderr, "Can't strdup() the output "
-						"filename\n");
+				fprintf(stderr, "Can't strdup() the output filename\n");
 				return EXIT_FAILURE;
 			}
 			break;
@@ -112,7 +127,7 @@ int main(int argc, char **argv)
 			bigendian = 1;
 			break;
 		case 'p':
-			padbyte = strtol(optarg, NULL, 0);
+			padbyte = xstrtol(optarg);
 			break;
 		case 'h':
 			usage(prg);
@@ -123,7 +138,7 @@ int main(int argc, char **argv)
 		case ':':
 			fprintf(stderr, "Missing argument for option -%c\n",
 				optopt);
-			usage(argv[0]);
+			usage(prg);
 			return EXIT_FAILURE;
 		default:
 			fprintf(stderr, "Wrong option -%c\n", optopt);
@@ -134,22 +149,21 @@ int main(int argc, char **argv)
 
 	/* Check datasize and allocate the data */
 	if (datasize == 0) {
-		fprintf(stderr,
-			"Please specify the size of the environment "
-			"partition.\n");
+		fprintf(stderr, "Please specify the size of the environment partition.\n");
 		usage(prg);
 		return EXIT_FAILURE;
 	}
 
 	dataptr = malloc(datasize * sizeof(*dataptr));
 	if (!dataptr) {
-		fprintf(stderr, "Can't alloc dataptr.\n");
+		fprintf(stderr, "Can't alloc %d bytes for dataptr.\n",
+				datasize);
 		return EXIT_FAILURE;
 	}
 
 	/*
 	 * envptr points to the beginning of the actual environment (after the
-	 * crc and possible `redundant' bit
+	 * crc and possible `redundant' byte
 	 */
 	envsize = datasize - (CRC_SIZE + redundant);
 	envptr = dataptr + CRC_SIZE + redundant;
@@ -158,24 +172,28 @@ int main(int argc, char **argv)
 	memset(envptr, padbyte, envsize);
 
 	/* Open the input file ... */
-	if (optind >= argc) {
-		fprintf(stderr, "Please specify an input filename\n");
-		return EXIT_FAILURE;
-	}
-
-	txt_filename = argv[optind];
-	if (strcmp(txt_filename, "-") == 0) {
+	if (optind >= argc || strcmp(argv[optind], "-") == 0) {
 		int readbytes = 0;
-		int readlen = sizeof(*envptr) * 2048;
+		int readlen = sizeof(*envptr) * 4096;
 		txt_fd = STDIN_FILENO;
 
 		do {
 			filebuf = realloc(filebuf, readlen);
+			if (!filebuf) {
+				fprintf(stderr, "Can't realloc memory for the input file buffer\n");
+				return EXIT_FAILURE;
+			}
 			readbytes = read(txt_fd, filebuf + filesize, readlen);
+			if (errno) {
+				fprintf(stderr, "Error while reading stdin: %s\n",
+						strerror(errno));
+				return EXIT_FAILURE;
+			}
 			filesize += readbytes;
 		} while (readbytes == readlen);
 
 	} else {
+		txt_filename = argv[optind];
 		txt_fd = open(txt_filename, O_RDONLY);
 		if (txt_fd == -1) {
 			fprintf(stderr, "Can't open \"%s\": %s\n",
@@ -185,28 +203,36 @@ int main(int argc, char **argv)
 		/* ... and check it */
 		ret = fstat(txt_fd, &txt_file_stat);
 		if (ret == -1) {
-			fprintf(stderr, "Can't stat() on \"%s\": "
-					"%s\n", txt_filename, strerror(errno));
+			fprintf(stderr, "Can't stat() on \"%s\": %s\n",
+					txt_filename, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
 		filesize = txt_file_stat.st_size;
-		/* Read the raw input file and transform it */
-		filebuf = malloc(sizeof(*envptr) * filesize);
-		ret = read(txt_fd, filebuf, sizeof(*envptr) * filesize);
-		if (ret != sizeof(*envptr) * filesize) {
-			fprintf(stderr, "Can't read the whole input file\n");
-			return EXIT_FAILURE;
+
+		filebuf = mmap(NULL, sizeof(*envptr) * filesize, PROT_READ,
+			       MAP_PRIVATE, txt_fd, 0);
+		if (filebuf == MAP_FAILED) {
+			fprintf(stderr, "mmap (%ld bytes) failed: %s\n",
+					sizeof(*envptr) * filesize,
+					strerror(errno));
+			fprintf(stderr, "Falling back to read()\n");
+
+			filebuf = malloc(sizeof(*envptr) * filesize);
+			ret = read(txt_fd, filebuf, sizeof(*envptr) * filesize);
+			if (ret != sizeof(*envptr) * filesize) {
+				fprintf(stderr, "Can't read the whole input file (%ld bytes): %s\n",
+					sizeof(*envptr) * filesize,
+					strerror(errno));
+
+				return EXIT_FAILURE;
+			}
 		}
 		ret = close(txt_fd);
 	}
-	/*
-	 * The right test to do is "=>" (not ">") because of the additional
-	 * ending \0. See below.
-	 */
-	if (filesize >= envsize) {
-		fprintf(stderr, "The input file is larger than the "
-				"environment partition size\n");
+	/* The +1 is for the additionnal ending \0. See below. */
+	if (filesize + 1 > envsize) {
+		fprintf(stderr, "The input file is larger than the environment partition size\n");
 		return EXIT_FAILURE;
 	}
 
@@ -232,14 +258,6 @@ int main(int argc, char **argv)
 				/* End of a variable */
 				envptr[ep++] = '\0';
 			}
-		} else if (filebuf[fp] == '#') {
-			if (fp != 0 && filebuf[fp-1] == '\n') {
-				/* This line is a comment, let's skip it */
-				while (fp < txt_file_stat.st_size && fp++ &&
-				       filebuf[fp] != '\n');
-			} else {
-				envptr[ep++] = filebuf[fp];
-			}
 		} else {
 			envptr[ep++] = filebuf[fp];
 		}
@@ -255,8 +273,7 @@ int main(int argc, char **argv)
 		 * check the env size again to make sure we have room for two \0
 		 */
 		if (ep >= envsize) {
-			fprintf(stderr, "The environment file is too large for "
-					"the target environment storage\n");
+			fprintf(stderr, "The environment file is too large for the target environment storage\n");
 			return EXIT_FAILURE;
 		}
 		envptr[ep] = '\0';
@@ -268,13 +285,20 @@ int main(int argc, char **argv)
 	crc = crc32(0, envptr, envsize);
 	targetendian_crc = bigendian ? cpu_to_be32(crc) : cpu_to_le32(crc);
 
-	memcpy(dataptr, &targetendian_crc, sizeof(uint32_t));
+	memcpy(dataptr, &targetendian_crc, sizeof(targetendian_crc));
+	if (redundant)
+		dataptr[sizeof(targetendian_crc)] = 1;
 
-	bin_fd = creat(bin_filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-	if (bin_fd == -1) {
-		fprintf(stderr, "Can't open output file \"%s\": %s\n",
-				bin_filename, strerror(errno));
-		return EXIT_FAILURE;
+	if (!bin_filename || strcmp(bin_filename, "-") == 0) {
+		bin_fd = STDOUT_FILENO;
+	} else {
+		bin_fd = creat(bin_filename, S_IRUSR | S_IWUSR | S_IRGRP |
+					     S_IWGRP);
+		if (bin_fd == -1) {
+			fprintf(stderr, "Can't open output file \"%s\": %s\n",
+					bin_filename, strerror(errno));
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (write(bin_fd, dataptr, sizeof(*dataptr) * datasize) !=
