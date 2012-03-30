@@ -1151,6 +1151,14 @@ The following options need to be configured:
 			Define this to have a tty type of device available to
 			talk to the UDC device
 
+			CONFIG_USBD_HS
+			Define this to enable the high speed support for usb
+			device and usbtty. If this feature is enabled, a routine
+			int is_usbd_high_speed(void)
+			also needs to be defined by the driver to dynamically poll
+			whether the enumeration has succeded at high speed or full
+			speed.
+
 			CONFIG_SYS_CONSOLE_IS_IN_ENV
 			Define this if you want stdin, stdout &/or stderr to
 			be set to usbtty.
