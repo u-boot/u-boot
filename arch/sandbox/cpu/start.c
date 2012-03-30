@@ -90,13 +90,7 @@ int sandbox_main_loop_init(void)
 
 	/* Execute command if required */
 	if (state->cmd) {
-		/* TODO: redo this when cmd tidy-up series lands */
-#ifdef CONFIG_SYS_HUSH_PARSER
 		run_command(state->cmd, 0);
-#else
-		parse_string_outer(state->cmd, FLAG_PARSE_SEMICOLON |
-				    FLAG_EXIT_FROM_LOOP);
-#endif
 		os_exit(state->exit_type);
 	}
 
