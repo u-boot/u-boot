@@ -63,7 +63,17 @@ void reset_cpu(ulong ignored)
 		;
 }
 
-int mx28_wait_mask_set(struct mx28_register *reg, uint32_t mask, int timeout)
+void enable_caches(void)
+{
+#ifndef CONFIG_SYS_ICACHE_OFF
+	icache_enable();
+#endif
+#ifndef CONFIG_SYS_DCACHE_OFF
+	dcache_enable();
+#endif
+}
+
+int mx28_wait_mask_set(struct mx28_register_32 *reg, uint32_t mask, int timeout)
 {
 	while (--timeout) {
 		if ((readl(&reg->reg) & mask) == mask)
@@ -74,7 +84,7 @@ int mx28_wait_mask_set(struct mx28_register *reg, uint32_t mask, int timeout)
 	return !timeout;
 }
 
-int mx28_wait_mask_clr(struct mx28_register *reg, uint32_t mask, int timeout)
+int mx28_wait_mask_clr(struct mx28_register_32 *reg, uint32_t mask, int timeout)
 {
 	while (--timeout) {
 		if ((readl(&reg->reg) & mask) == 0)
@@ -85,7 +95,7 @@ int mx28_wait_mask_clr(struct mx28_register *reg, uint32_t mask, int timeout)
 	return !timeout;
 }
 
-int mx28_reset_block(struct mx28_register *reg)
+int mx28_reset_block(struct mx28_register_32 *reg)
 {
 	/* Clear SFTRST */
 	writel(MX28_BLOCK_SFTRST, &reg->reg_clr);
@@ -261,14 +271,14 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 }
 #endif
 
-#define	HW_DIGCTRL_SCRATCH0	0x8001c280
-#define	HW_DIGCTRL_SCRATCH1	0x8001c290
 int mx28_dram_init(void)
 {
+	struct mx28_digctl_regs *digctl_regs =
+		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
 	uint32_t sz[2];
 
-	sz[0] = readl(HW_DIGCTRL_SCRATCH0);
-	sz[1] = readl(HW_DIGCTRL_SCRATCH1);
+	sz[0] = readl(&digctl_regs->hw_digctl_scratch0);
+	sz[1] = readl(&digctl_regs->hw_digctl_scratch1);
 
 	if (sz[0] != sz[1]) {
 		printf("MX28:\n"

@@ -1,6 +1,8 @@
 /*
- * (C) Copyright 2002-2004
- * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ * Copyright (c) 2004-2008 Texas Instruments
+ *
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -12,7 +14,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -31,7 +33,8 @@ SECTIONS
 	. = ALIGN(4);
 	.text :
 	{
-		arch/arm/cpu/arm926ejs/start.o	(.text)
+		__image_copy_start = .;
+		CPUDIR/start.o (.text)
 		*(.text)
 	}
 
@@ -52,6 +55,8 @@ SECTIONS
 
 	. = ALIGN(4);
 
+	__image_copy_end = .;
+
 	.rel.dyn : {
 		__rel_dyn_start = .;
 		*(.rel*)
@@ -64,6 +69,15 @@ SECTIONS
 	}
 
 	_end = .;
+
+	/*
+	 * Deprecated: this MMU section is used by pxa at present but
+	 * should not be used by new boards/CPUs.
+	 */
+	. = ALIGN(4096);
+	.mmutable : {
+		*(.mmutable)
+	}
 
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;

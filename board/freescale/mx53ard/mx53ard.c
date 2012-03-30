@@ -287,7 +287,7 @@ int board_init(void)
 
 int board_eth_init(bd_t *bis)
 {
-	int rc = 0;
+	int rc = -ENODEV;
 
 	weim_smc911x_iomux();
 	weim_cs1_settings();

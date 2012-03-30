@@ -75,3 +75,13 @@ void __udelay(unsigned long usec)
 	while ((signed)(end - READ_TIMER()) > 0)
 		;
 }
+
+unsigned long long get_ticks(void)
+{
+	return get_timer(0);
+}
+
+ulong get_tbclk(void)
+{
+	return CONFIG_SYS_HZ;
+}

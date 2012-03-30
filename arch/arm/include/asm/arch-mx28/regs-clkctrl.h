@@ -30,38 +30,38 @@
 
 #ifndef	__ASSEMBLY__
 struct mx28_clkctrl_regs {
-	mx28_reg(hw_clkctrl_pll0ctrl0)		/* 0x00 */
-	mx28_reg(hw_clkctrl_pll0ctrl1)		/* 0x10 */
-	mx28_reg(hw_clkctrl_pll1ctrl0)		/* 0x20 */
-	mx28_reg(hw_clkctrl_pll1ctrl1)		/* 0x30 */
-	mx28_reg(hw_clkctrl_pll2ctrl0)		/* 0x40 */
-	mx28_reg(hw_clkctrl_cpu)		/* 0x50 */
-	mx28_reg(hw_clkctrl_hbus)		/* 0x60 */
-	mx28_reg(hw_clkctrl_xbus)		/* 0x70 */
-	mx28_reg(hw_clkctrl_xtal)		/* 0x80 */
-	mx28_reg(hw_clkctrl_ssp0)		/* 0x90 */
-	mx28_reg(hw_clkctrl_ssp1)		/* 0xa0 */
-	mx28_reg(hw_clkctrl_ssp2)		/* 0xb0 */
-	mx28_reg(hw_clkctrl_ssp3)		/* 0xc0 */
-	mx28_reg(hw_clkctrl_gpmi)		/* 0xd0 */
-	mx28_reg(hw_clkctrl_spdif)		/* 0xe0 */
-	mx28_reg(hw_clkctrl_emi)		/* 0xf0 */
-	mx28_reg(hw_clkctrl_saif0)		/* 0x100 */
-	mx28_reg(hw_clkctrl_saif1)		/* 0x110 */
-	mx28_reg(hw_clkctrl_lcdif)		/* 0x120 */
-	mx28_reg(hw_clkctrl_etm)		/* 0x130 */
-	mx28_reg(hw_clkctrl_enet)		/* 0x140 */
-	mx28_reg(hw_clkctrl_hsadc)		/* 0x150 */
-	mx28_reg(hw_clkctrl_flexcan)		/* 0x160 */
+	mx28_reg_32(hw_clkctrl_pll0ctrl0)	/* 0x00 */
+	mx28_reg_32(hw_clkctrl_pll0ctrl1)	/* 0x10 */
+	mx28_reg_32(hw_clkctrl_pll1ctrl0)	/* 0x20 */
+	mx28_reg_32(hw_clkctrl_pll1ctrl1)	/* 0x30 */
+	mx28_reg_32(hw_clkctrl_pll2ctrl0)	/* 0x40 */
+	mx28_reg_32(hw_clkctrl_cpu)		/* 0x50 */
+	mx28_reg_32(hw_clkctrl_hbus)		/* 0x60 */
+	mx28_reg_32(hw_clkctrl_xbus)		/* 0x70 */
+	mx28_reg_32(hw_clkctrl_xtal)		/* 0x80 */
+	mx28_reg_32(hw_clkctrl_ssp0)		/* 0x90 */
+	mx28_reg_32(hw_clkctrl_ssp1)		/* 0xa0 */
+	mx28_reg_32(hw_clkctrl_ssp2)		/* 0xb0 */
+	mx28_reg_32(hw_clkctrl_ssp3)		/* 0xc0 */
+	mx28_reg_32(hw_clkctrl_gpmi)		/* 0xd0 */
+	mx28_reg_32(hw_clkctrl_spdif)		/* 0xe0 */
+	mx28_reg_32(hw_clkctrl_emi)		/* 0xf0 */
+	mx28_reg_32(hw_clkctrl_saif0)		/* 0x100 */
+	mx28_reg_32(hw_clkctrl_saif1)		/* 0x110 */
+	mx28_reg_32(hw_clkctrl_lcdif)		/* 0x120 */
+	mx28_reg_32(hw_clkctrl_etm)		/* 0x130 */
+	mx28_reg_32(hw_clkctrl_enet)		/* 0x140 */
+	mx28_reg_32(hw_clkctrl_hsadc)		/* 0x150 */
+	mx28_reg_32(hw_clkctrl_flexcan)		/* 0x160 */
 
 	uint32_t	reserved[16];
 
-	mx28_reg(hw_clkctrl_frac0)		/* 0x1b0 */
-	mx28_reg(hw_clkctrl_frac1)		/* 0x1c0 */
-	mx28_reg(hw_clkctrl_clkseq)		/* 0x1d0 */
-	mx28_reg(hw_clkctrl_reset)		/* 0x1e0 */
-	mx28_reg(hw_clkctrl_status)		/* 0x1f0 */
-	mx28_reg(hw_clkctrl_version)		/* 0x200 */
+	mx28_reg_8(hw_clkctrl_frac0)		/* 0x1b0 */
+	mx28_reg_8(hw_clkctrl_frac1)		/* 0x1c0 */
+	mx28_reg_32(hw_clkctrl_clkseq)		/* 0x1d0 */
+	mx28_reg_32(hw_clkctrl_reset)		/* 0x1e0 */
+	mx28_reg_32(hw_clkctrl_status)		/* 0x1f0 */
+	mx28_reg_32(hw_clkctrl_version)		/* 0x200 */
 };
 #endif
 
@@ -248,35 +248,17 @@ struct mx28_clkctrl_regs {
 #define	CLKCTRL_FLEXCAN_STOP_CAN1		(1 << 28)
 #define	CLKCTRL_FLEXCAN_CAN1_STATUS		(1 << 27)
 
-#define	CLKCTRL_FRAC0_CLKGATEIO0		(1 << 31)
-#define	CLKCTRL_FRAC0_IO0_STABLE		(1 << 30)
-#define	CLKCTRL_FRAC0_IO0FRAC_MASK		(0x3f << 24)
-#define	CLKCTRL_FRAC0_IO0FRAC_OFFSET		24
-#define	CLKCTRL_FRAC0_CLKGATEIO1		(1 << 23)
-#define	CLKCTRL_FRAC0_IO1_STABLE		(1 << 22)
-#define	CLKCTRL_FRAC0_IO1FRAC_MASK		(0x3f << 16)
-#define	CLKCTRL_FRAC0_IO1FRAC_OFFSET		16
-#define	CLKCTRL_FRAC0_CLKGATEEMI		(1 << 15)
-#define	CLKCTRL_FRAC0_EMI_STABLE		(1 << 14)
-#define	CLKCTRL_FRAC0_EMIFRAC_MASK		(0x3f << 8)
-#define	CLKCTRL_FRAC0_EMIFRAC_OFFSET		8
-#define	CLKCTRL_FRAC0_CLKGATECPU		(1 << 7)
-#define	CLKCTRL_FRAC0_CPU_STABLE		(1 << 6)
-#define	CLKCTRL_FRAC0_CPUFRAC_MASK		0x3f
-#define	CLKCTRL_FRAC0_CPUFRAC_OFFSET		0
-
-#define	CLKCTRL_FRAC1_CLKGATEGPMI		(1 << 23)
-#define	CLKCTRL_FRAC1_GPMI_STABLE		(1 << 22)
-#define	CLKCTRL_FRAC1_GPMIFRAC_MASK		(0x3f << 16)
-#define	CLKCTRL_FRAC1_GPMIFRAC_OFFSET		16
-#define	CLKCTRL_FRAC1_CLKGATEHSADC		(1 << 15)
-#define	CLKCTRL_FRAC1_HSADC_STABLE		(1 << 14)
-#define	CLKCTRL_FRAC1_HSADCFRAC_MASK		(0x3f << 8)
-#define	CLKCTRL_FRAC1_HSADCFRAC_OFFSET		8
-#define	CLKCTRL_FRAC1_CLKGATEPIX		(1 << 7)
-#define	CLKCTRL_FRAC1_PIX_STABLE		(1 << 6)
-#define	CLKCTRL_FRAC1_PIXFRAC_MASK		0x3f
-#define	CLKCTRL_FRAC1_PIXFRAC_OFFSET		0
+#define	CLKCTRL_FRAC_CLKGATE			(1 << 7)
+#define	CLKCTRL_FRAC_STABLE			(1 << 6)
+#define	CLKCTRL_FRAC_FRAC_MASK			0x3f
+#define	CLKCTRL_FRAC_FRAC_OFFSET		0
+#define	CLKCTRL_FRAC0_CPU			0
+#define	CLKCTRL_FRAC0_EMI			1
+#define	CLKCTRL_FRAC0_IO1			2
+#define	CLKCTRL_FRAC0_IO0			3
+#define	CLKCTRL_FRAC1_PIX			0
+#define	CLKCTRL_FRAC1_HSADC			1
+#define	CLKCTRL_FRAC1_GPMI			2
 
 #define	CLKCTRL_CLKSEQ_BYPASS_CPU		(1 << 18)
 #define	CLKCTRL_CLKSEQ_BYPASS_DIS_LCDIF		(1 << 14)

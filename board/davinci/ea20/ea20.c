@@ -35,7 +35,7 @@
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/da8xx-fb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -172,37 +172,24 @@ static const struct lpsc_resource lpsc[] = {
 
 int board_early_init_f(void)
 {
-	struct davinci_gpio *gpio6_base =
-			(struct davinci_gpio *)DAVINCI_GPIO_BANK67;
-
 	/* PinMux for GPIO */
 	if (davinci_configure_pin_mux(gpio_pins, ARRAY_SIZE(gpio_pins)) != 0)
 		return 1;
 
 	/* Set the RESETOUTn low */
-	writel((readl(&gpio6_base->set_data) & ~(1 << 15)),
-		&gpio6_base->set_data);
-	writel((readl(&gpio6_base->dir) & ~(1 << 15)), &gpio6_base->dir);
+	gpio_direction_output(111, 0);
 
 	/* Set U0_SW0 low for UART0 as console*/
-	writel((readl(&gpio6_base->set_data) & ~(1 << 10)),
-		&gpio6_base->set_data);
-	writel((readl(&gpio6_base->dir) & ~(1 << 10)), &gpio6_base->dir);
+	gpio_direction_output(106, 0);
 
 	/* Set U0_SW1 low for UART0 as console*/
-	writel((readl(&gpio6_base->set_data) & ~(1 << 12)),
-		&gpio6_base->set_data);
-	writel((readl(&gpio6_base->dir) & ~(1 << 12)), &gpio6_base->dir);
+	gpio_direction_output(108, 0);
 
 	/* Set LCD_B_PWR low to power down LCD Backlight*/
-	writel((readl(&gpio6_base->set_data) & ~(1 << 6)),
-		&gpio6_base->set_data);
-	writel((readl(&gpio6_base->dir) & ~(1 << 6)), &gpio6_base->dir);
+	gpio_direction_output(102, 0);
 
 	/* Set DISP_ON low to disable LCD output*/
-	writel((readl(&gpio6_base->set_data) & ~(1 << 1)),
-		&gpio6_base->set_data);
-	writel((readl(&gpio6_base->dir) & ~(1 << 1)), &gpio6_base->dir);
+	gpio_direction_output(97, 0);
 
 #ifndef CONFIG_USE_IRQ
 	irq_init();
@@ -264,12 +251,10 @@ int board_early_init_f(void)
 	       &davinci_syscfg_regs->mstpri[2]);
 
 	/* Set LCD_B_PWR low to power up LCD Backlight*/
-	writel((readl(&gpio6_base->set_data)  | (1 << 6)),
-		&gpio6_base->set_data);
+	gpio_set_value(102, 1);
 
 	/* Set DISP_ON low to disable LCD output*/
-	writel((readl(&gpio6_base->set_data) | (1 << 1)),
-		&gpio6_base->set_data);
+	gpio_set_value(97, 1);
 
 	return 0;
 }
@@ -291,17 +276,12 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	struct davinci_gpio *gpio8_base =
-			(struct davinci_gpio *)DAVINCI_GPIO_BANK8;
-
 	/* PinMux for HALTEN */
 	if (davinci_configure_pin_mux(halten_pin, ARRAY_SIZE(halten_pin)) != 0)
 		return 1;
 
 	/* Set HALTEN to high */
-	writel((readl(&gpio8_base->set_data) | (1 << 6)),
-		&gpio8_base->set_data);
-	writel((readl(&gpio8_base->dir) & ~(1 << 6)), &gpio8_base->dir);
+	gpio_direction_output(134, 1);
 
 	setenv("stdout", "serial");
 

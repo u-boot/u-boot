@@ -27,20 +27,20 @@
 
 #ifndef	__ASSEMBLY__
 struct mx28_i2c_regs {
-	mx28_reg(hw_i2c_ctrl0)
-	mx28_reg(hw_i2c_timing0)
-	mx28_reg(hw_i2c_timing1)
-	mx28_reg(hw_i2c_timing2)
-	mx28_reg(hw_i2c_ctrl1)
-	mx28_reg(hw_i2c_stat)
-	mx28_reg(hw_i2c_queuectrl)
-	mx28_reg(hw_i2c_queuestat)
-	mx28_reg(hw_i2c_queuecmd)
-	mx28_reg(hw_i2c_queuedata)
-	mx28_reg(hw_i2c_data)
-	mx28_reg(hw_i2c_debug0)
-	mx28_reg(hw_i2c_debug1)
-	mx28_reg(hw_i2c_version)
+	mx28_reg_32(hw_i2c_ctrl0)
+	mx28_reg_32(hw_i2c_timing0)
+	mx28_reg_32(hw_i2c_timing1)
+	mx28_reg_32(hw_i2c_timing2)
+	mx28_reg_32(hw_i2c_ctrl1)
+	mx28_reg_32(hw_i2c_stat)
+	mx28_reg_32(hw_i2c_queuectrl)
+	mx28_reg_32(hw_i2c_queuestat)
+	mx28_reg_32(hw_i2c_queuecmd)
+	mx28_reg_32(hw_i2c_queuedata)
+	mx28_reg_32(hw_i2c_data)
+	mx28_reg_32(hw_i2c_debug0)
+	mx28_reg_32(hw_i2c_debug1)
+	mx28_reg_32(hw_i2c_version)
 };
 #endif
 

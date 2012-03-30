@@ -210,6 +210,8 @@ static char *get_reset_cause(void)
 		return "WDOG";
 	case 0x0006:
 		return "JTAG";
+	case 0x0007:
+		return "ARM11P power gating";
 	default:
 		return "unknown reset";
 	}

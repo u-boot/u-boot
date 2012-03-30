@@ -1,7 +1,5 @@
-/*
- * (C) Copyright 2000-2004
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- * 2004 (c) MontaVista Software, Inc.
+/* Copyright (C) 2011
+ * Corscience GmbH & Co. KG - Simon Schwarz <schwarz@corscience.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,38 +19,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#ifndef _NAND_SPL_H_
+#define	_NAND_SPL_H_
 
-OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-OUTPUT_ARCH(arm)
-ENTRY(_start)
-SECTIONS
-{
-	. = 0x00000000;
+#define SPL_EXPORT	(0x00000001)
 
-	. = ALIGN(4);
-	.text :
-	{
-		cpu/sa1100/start.o	(.text)
-		*(.text)
-	}
+#define SPL_EXPORT_FDT		(0x00000001)
+#define SPL_EXPORT_ATAGS	(0x00000002)
+#define SPL_EXPORT_LAST		SPL_EXPORT_ATAGS
 
-	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
-
-	. = ALIGN(4);
-	.data : { *(.data) }
-
-	. = ALIGN(4);
-	.got : { *(.got) }
-
-
-	. = .;
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
-	__u_boot_cmd_end = .;
-
-	. = ALIGN(4);
-	__bss_start = .;
-	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
-	__bss_end__ = .;
-}
+#endif /* _NAND_SPL_H_ */

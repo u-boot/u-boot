@@ -108,13 +108,12 @@ HOSTCFLAGS	+= -pedantic
 # only supported compiler options are used
 #
 CC_OPTIONS_CACHE_FILE := $(OBJTREE)/include/generated/cc_options.mk
-
-$(if $(wildcard $(CC_OPTIONS_CACHE_FILE)),,\
-	$(shell mkdir -p $(dir $(CC_OPTIONS_CACHE_FILE))))
+CC_TEST_OFILE := $(OBJTREE)/include/generated/cc_test_file.o
 
 -include $(CC_OPTIONS_CACHE_FILE)
 
-cc-option-sys = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+cc-option-sys = $(shell mkdir -p $(dir $(CC_TEST_OFILE)); \
+		if $(CC) $(CFLAGS) $(1) -S -xc /dev/null -o $(CC_TEST_OFILE) \
 		> /dev/null 2>&1; then \
 		echo 'CC_OPTIONS += $(strip $1)' >> $(CC_OPTIONS_CACHE_FILE); \
 		echo "$(1)"; fi)
@@ -232,6 +231,10 @@ CFLAGS += $(CFLAGS_SSP)
 CFLAGS_WARN := $(call cc-option,-Wno-format-nonliteral) \
 	       $(call cc-option,-Wno-format-security)
 CFLAGS += $(CFLAGS_WARN)
+
+# Report stack usage if supported
+CFLAGS_STACK := $(call cc-option,-fstack-usage)
+CFLAGS += $(CFLAGS_STACK)
 
 # $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.

@@ -30,129 +30,129 @@
 
 #ifndef	__ASSEMBLY__
 struct mx28_pinctrl_regs {
-	mx28_reg(hw_pinctrl_ctrl)		/* 0x0 */
+	mx28_reg_32(hw_pinctrl_ctrl)		/* 0x0 */
 
 	uint32_t	reserved1[60];
 
-	mx28_reg(hw_pinctrl_muxsel0)		/* 0x100 */
-	mx28_reg(hw_pinctrl_muxsel1)		/* 0x110 */
-	mx28_reg(hw_pinctrl_muxsel2)		/* 0x120 */
-	mx28_reg(hw_pinctrl_muxsel3)		/* 0x130 */
-	mx28_reg(hw_pinctrl_muxsel4)		/* 0x140 */
-	mx28_reg(hw_pinctrl_muxsel5)		/* 0x150 */
-	mx28_reg(hw_pinctrl_muxsel6)		/* 0x160 */
-	mx28_reg(hw_pinctrl_muxsel7)		/* 0x170 */
-	mx28_reg(hw_pinctrl_muxsel8)		/* 0x180 */
-	mx28_reg(hw_pinctrl_muxsel9)		/* 0x190 */
-	mx28_reg(hw_pinctrl_muxsel10)		/* 0x1a0 */
-	mx28_reg(hw_pinctrl_muxsel11)		/* 0x1b0 */
-	mx28_reg(hw_pinctrl_muxsel12)		/* 0x1c0 */
-	mx28_reg(hw_pinctrl_muxsel13)		/* 0x1d0 */
+	mx28_reg_32(hw_pinctrl_muxsel0)		/* 0x100 */
+	mx28_reg_32(hw_pinctrl_muxsel1)		/* 0x110 */
+	mx28_reg_32(hw_pinctrl_muxsel2)		/* 0x120 */
+	mx28_reg_32(hw_pinctrl_muxsel3)		/* 0x130 */
+	mx28_reg_32(hw_pinctrl_muxsel4)		/* 0x140 */
+	mx28_reg_32(hw_pinctrl_muxsel5)		/* 0x150 */
+	mx28_reg_32(hw_pinctrl_muxsel6)		/* 0x160 */
+	mx28_reg_32(hw_pinctrl_muxsel7)		/* 0x170 */
+	mx28_reg_32(hw_pinctrl_muxsel8)		/* 0x180 */
+	mx28_reg_32(hw_pinctrl_muxsel9)		/* 0x190 */
+	mx28_reg_32(hw_pinctrl_muxsel10)	/* 0x1a0 */
+	mx28_reg_32(hw_pinctrl_muxsel11)	/* 0x1b0 */
+	mx28_reg_32(hw_pinctrl_muxsel12)	/* 0x1c0 */
+	mx28_reg_32(hw_pinctrl_muxsel13)	/* 0x1d0 */
 
 	uint32_t	reserved2[72];
 
-	mx28_reg(hw_pinctrl_drive0)		/* 0x300 */
-	mx28_reg(hw_pinctrl_drive1)		/* 0x310 */
-	mx28_reg(hw_pinctrl_drive2)		/* 0x320 */
-	mx28_reg(hw_pinctrl_drive3)		/* 0x330 */
-	mx28_reg(hw_pinctrl_drive4)		/* 0x340 */
-	mx28_reg(hw_pinctrl_drive5)		/* 0x350 */
-	mx28_reg(hw_pinctrl_drive6)		/* 0x360 */
-	mx28_reg(hw_pinctrl_drive7)		/* 0x370 */
-	mx28_reg(hw_pinctrl_drive8)		/* 0x380 */
-	mx28_reg(hw_pinctrl_drive9)		/* 0x390 */
-	mx28_reg(hw_pinctrl_drive10)		/* 0x3a0 */
-	mx28_reg(hw_pinctrl_drive11)		/* 0x3b0 */
-	mx28_reg(hw_pinctrl_drive12)		/* 0x3c0 */
-	mx28_reg(hw_pinctrl_drive13)		/* 0x3d0 */
-	mx28_reg(hw_pinctrl_drive14)		/* 0x3e0 */
-	mx28_reg(hw_pinctrl_drive15)		/* 0x3f0 */
-	mx28_reg(hw_pinctrl_drive16)		/* 0x400 */
-	mx28_reg(hw_pinctrl_drive17)		/* 0x410 */
-	mx28_reg(hw_pinctrl_drive18)		/* 0x420 */
-	mx28_reg(hw_pinctrl_drive19)		/* 0x430 */
+	mx28_reg_32(hw_pinctrl_drive0)		/* 0x300 */
+	mx28_reg_32(hw_pinctrl_drive1)		/* 0x310 */
+	mx28_reg_32(hw_pinctrl_drive2)		/* 0x320 */
+	mx28_reg_32(hw_pinctrl_drive3)		/* 0x330 */
+	mx28_reg_32(hw_pinctrl_drive4)		/* 0x340 */
+	mx28_reg_32(hw_pinctrl_drive5)		/* 0x350 */
+	mx28_reg_32(hw_pinctrl_drive6)		/* 0x360 */
+	mx28_reg_32(hw_pinctrl_drive7)		/* 0x370 */
+	mx28_reg_32(hw_pinctrl_drive8)		/* 0x380 */
+	mx28_reg_32(hw_pinctrl_drive9)		/* 0x390 */
+	mx28_reg_32(hw_pinctrl_drive10)		/* 0x3a0 */
+	mx28_reg_32(hw_pinctrl_drive11)		/* 0x3b0 */
+	mx28_reg_32(hw_pinctrl_drive12)		/* 0x3c0 */
+	mx28_reg_32(hw_pinctrl_drive13)		/* 0x3d0 */
+	mx28_reg_32(hw_pinctrl_drive14)		/* 0x3e0 */
+	mx28_reg_32(hw_pinctrl_drive15)		/* 0x3f0 */
+	mx28_reg_32(hw_pinctrl_drive16)		/* 0x400 */
+	mx28_reg_32(hw_pinctrl_drive17)		/* 0x410 */
+	mx28_reg_32(hw_pinctrl_drive18)		/* 0x420 */
+	mx28_reg_32(hw_pinctrl_drive19)		/* 0x430 */
 
 	uint32_t	reserved3[112];
 
-	mx28_reg(hw_pinctrl_pull0)		/* 0x600 */
-	mx28_reg(hw_pinctrl_pull1)		/* 0x610 */
-	mx28_reg(hw_pinctrl_pull2)		/* 0x620 */
-	mx28_reg(hw_pinctrl_pull3)		/* 0x630 */
-	mx28_reg(hw_pinctrl_pull4)		/* 0x640 */
-	mx28_reg(hw_pinctrl_pull5)		/* 0x650 */
-	mx28_reg(hw_pinctrl_pull6)		/* 0x660 */
+	mx28_reg_32(hw_pinctrl_pull0)		/* 0x600 */
+	mx28_reg_32(hw_pinctrl_pull1)		/* 0x610 */
+	mx28_reg_32(hw_pinctrl_pull2)		/* 0x620 */
+	mx28_reg_32(hw_pinctrl_pull3)		/* 0x630 */
+	mx28_reg_32(hw_pinctrl_pull4)		/* 0x640 */
+	mx28_reg_32(hw_pinctrl_pull5)		/* 0x650 */
+	mx28_reg_32(hw_pinctrl_pull6)		/* 0x660 */
 
 	uint32_t	reserved4[36];
 
-	mx28_reg(hw_pinctrl_dout0)		/* 0x700 */
-	mx28_reg(hw_pinctrl_dout1)		/* 0x710 */
-	mx28_reg(hw_pinctrl_dout2)		/* 0x720 */
-	mx28_reg(hw_pinctrl_dout3)		/* 0x730 */
-	mx28_reg(hw_pinctrl_dout4)		/* 0x740 */
+	mx28_reg_32(hw_pinctrl_dout0)		/* 0x700 */
+	mx28_reg_32(hw_pinctrl_dout1)		/* 0x710 */
+	mx28_reg_32(hw_pinctrl_dout2)		/* 0x720 */
+	mx28_reg_32(hw_pinctrl_dout3)		/* 0x730 */
+	mx28_reg_32(hw_pinctrl_dout4)		/* 0x740 */
 
 	uint32_t	reserved5[108];
 
-	mx28_reg(hw_pinctrl_din0)		/* 0x900 */
-	mx28_reg(hw_pinctrl_din1)		/* 0x910 */
-	mx28_reg(hw_pinctrl_din2)		/* 0x920 */
-	mx28_reg(hw_pinctrl_din3)		/* 0x930 */
-	mx28_reg(hw_pinctrl_din4)		/* 0x940 */
+	mx28_reg_32(hw_pinctrl_din0)		/* 0x900 */
+	mx28_reg_32(hw_pinctrl_din1)		/* 0x910 */
+	mx28_reg_32(hw_pinctrl_din2)		/* 0x920 */
+	mx28_reg_32(hw_pinctrl_din3)		/* 0x930 */
+	mx28_reg_32(hw_pinctrl_din4)		/* 0x940 */
 
 	uint32_t	reserved6[108];
 
-	mx28_reg(hw_pinctrl_doe0)		/* 0xb00 */
-	mx28_reg(hw_pinctrl_doe1)		/* 0xb10 */
-	mx28_reg(hw_pinctrl_doe2)		/* 0xb20 */
-	mx28_reg(hw_pinctrl_doe3)		/* 0xb30 */
-	mx28_reg(hw_pinctrl_doe4)		/* 0xb40 */
+	mx28_reg_32(hw_pinctrl_doe0)		/* 0xb00 */
+	mx28_reg_32(hw_pinctrl_doe1)		/* 0xb10 */
+	mx28_reg_32(hw_pinctrl_doe2)		/* 0xb20 */
+	mx28_reg_32(hw_pinctrl_doe3)		/* 0xb30 */
+	mx28_reg_32(hw_pinctrl_doe4)		/* 0xb40 */
 
 	uint32_t	reserved7[300];
 
-	mx28_reg(hw_pinctrl_pin2irq0)		/* 0x1000 */
-	mx28_reg(hw_pinctrl_pin2irq1)		/* 0x1010 */
-	mx28_reg(hw_pinctrl_pin2irq2)		/* 0x1020 */
-	mx28_reg(hw_pinctrl_pin2irq3)		/* 0x1030 */
-	mx28_reg(hw_pinctrl_pin2irq4)		/* 0x1040 */
+	mx28_reg_32(hw_pinctrl_pin2irq0)	/* 0x1000 */
+	mx28_reg_32(hw_pinctrl_pin2irq1)	/* 0x1010 */
+	mx28_reg_32(hw_pinctrl_pin2irq2)	/* 0x1020 */
+	mx28_reg_32(hw_pinctrl_pin2irq3)	/* 0x1030 */
+	mx28_reg_32(hw_pinctrl_pin2irq4)	/* 0x1040 */
 
 	uint32_t	reserved8[44];
 
-	mx28_reg(hw_pinctrl_irqen0)		/* 0x1100 */
-	mx28_reg(hw_pinctrl_irqen1)		/* 0x1110 */
-	mx28_reg(hw_pinctrl_irqen2)		/* 0x1120 */
-	mx28_reg(hw_pinctrl_irqen3)		/* 0x1130 */
-	mx28_reg(hw_pinctrl_irqen4)		/* 0x1140 */
+	mx28_reg_32(hw_pinctrl_irqen0)		/* 0x1100 */
+	mx28_reg_32(hw_pinctrl_irqen1)		/* 0x1110 */
+	mx28_reg_32(hw_pinctrl_irqen2)		/* 0x1120 */
+	mx28_reg_32(hw_pinctrl_irqen3)		/* 0x1130 */
+	mx28_reg_32(hw_pinctrl_irqen4)		/* 0x1140 */
 
 	uint32_t	reserved9[44];
 
-	mx28_reg(hw_pinctrl_irqlevel0)		/* 0x1200 */
-	mx28_reg(hw_pinctrl_irqlevel1)		/* 0x1210 */
-	mx28_reg(hw_pinctrl_irqlevel2)		/* 0x1220 */
-	mx28_reg(hw_pinctrl_irqlevel3)		/* 0x1230 */
-	mx28_reg(hw_pinctrl_irqlevel4)		/* 0x1240 */
+	mx28_reg_32(hw_pinctrl_irqlevel0)	/* 0x1200 */
+	mx28_reg_32(hw_pinctrl_irqlevel1)	/* 0x1210 */
+	mx28_reg_32(hw_pinctrl_irqlevel2)	/* 0x1220 */
+	mx28_reg_32(hw_pinctrl_irqlevel3)	/* 0x1230 */
+	mx28_reg_32(hw_pinctrl_irqlevel4)	/* 0x1240 */
 
 	uint32_t	reserved10[44];
 
-	mx28_reg(hw_pinctrl_irqpol0)		/* 0x1300 */
-	mx28_reg(hw_pinctrl_irqpol1)		/* 0x1310 */
-	mx28_reg(hw_pinctrl_irqpol2)		/* 0x1320 */
-	mx28_reg(hw_pinctrl_irqpol3)		/* 0x1330 */
-	mx28_reg(hw_pinctrl_irqpol4)		/* 0x1340 */
+	mx28_reg_32(hw_pinctrl_irqpol0)		/* 0x1300 */
+	mx28_reg_32(hw_pinctrl_irqpol1)		/* 0x1310 */
+	mx28_reg_32(hw_pinctrl_irqpol2)		/* 0x1320 */
+	mx28_reg_32(hw_pinctrl_irqpol3)		/* 0x1330 */
+	mx28_reg_32(hw_pinctrl_irqpol4)		/* 0x1340 */
 
 	uint32_t	reserved11[44];
 
-	mx28_reg(hw_pinctrl_irqstat0)		/* 0x1400 */
-	mx28_reg(hw_pinctrl_irqstat1)		/* 0x1410 */
-	mx28_reg(hw_pinctrl_irqstat2)		/* 0x1420 */
-	mx28_reg(hw_pinctrl_irqstat3)		/* 0x1430 */
-	mx28_reg(hw_pinctrl_irqstat4)		/* 0x1440 */
+	mx28_reg_32(hw_pinctrl_irqstat0)	/* 0x1400 */
+	mx28_reg_32(hw_pinctrl_irqstat1)	/* 0x1410 */
+	mx28_reg_32(hw_pinctrl_irqstat2)	/* 0x1420 */
+	mx28_reg_32(hw_pinctrl_irqstat3)	/* 0x1430 */
+	mx28_reg_32(hw_pinctrl_irqstat4)	/* 0x1440 */
 
 	uint32_t	reserved12[380];
 
-	mx28_reg(hw_pinctrl_emi_odt_ctrl)	/* 0x1a40 */
+	mx28_reg_32(hw_pinctrl_emi_odt_ctrl)	/* 0x1a40 */
 
 	uint32_t	reserved13[76];
 
-	mx28_reg(hw_pinctrl_emi_ds_ctrl)	/* 0x1b80 */
+	mx28_reg_32(hw_pinctrl_emi_ds_ctrl)	/* 0x1b80 */
 };
 #endif
 

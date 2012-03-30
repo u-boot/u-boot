@@ -27,9 +27,7 @@ LIB	= $(obj)lib$(CPU).o
 
 START	:= start.o
 
-ifndef CONFIG_SPL_BUILD
 COBJS	+= cache_v7.o
-endif
 
 COBJS	+= cpu.o
 COBJS	+= syslib.o

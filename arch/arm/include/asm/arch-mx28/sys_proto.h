@@ -23,9 +23,13 @@
 #ifndef __MX28_H__
 #define __MX28_H__
 
-int mx28_reset_block(struct mx28_register *reg);
-int mx28_wait_mask_set(struct mx28_register *reg, uint32_t mask, int timeout);
-int mx28_wait_mask_clr(struct mx28_register *reg, uint32_t mask, int timeout);
+int mx28_reset_block(struct mx28_register_32 *reg);
+int mx28_wait_mask_set(struct mx28_register_32 *reg,
+		       uint32_t mask,
+		       int timeout);
+int mx28_wait_mask_clr(struct mx28_register_32 *reg,
+		       uint32_t mask,
+		       int timeout);
 
 int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int));
 

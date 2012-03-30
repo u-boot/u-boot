@@ -44,6 +44,7 @@ static char *get_reset_cause(void)
 
 	switch (cause) {
 	case 0x00001:
+	case 0x00011:
 		return "POR";
 	case 0x00004:
 		return "CSU";
@@ -63,13 +64,33 @@ static char *get_reset_cause(void)
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
+
+static char *get_imx_type(u32 imxtype)
+{
+	switch (imxtype) {
+	case 0x63:
+		return "6Q";	/* Quad-core version of the mx6 */
+	case 0x61:
+		return "6DS";	/* Dual/Solo version of the mx6 */
+	case 0x60:
+		return "6SL";	/* Solo-Lite version of the mx6 */
+	case 0x51:
+		return "51";
+	case 0x53:
+		return "53";
+	default:
+		return "unknown";
+	}
+}
+
 int print_cpuinfo(void)
 {
 	u32 cpurev;
 
 	cpurev = get_cpu_rev();
-	printf("CPU:   Freescale i.MX%x family rev%d.%d at %d MHz\n",
-		(cpurev & 0xFF000) >> 12,
+
+	printf("CPU:   Freescale i.MX%s rev%d.%d at %d MHz\n",
+		get_imx_type((cpurev & 0xFF000) >> 12),
 		(cpurev & 0x000F0) >> 4,
 		(cpurev & 0x0000F) >> 0,
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);

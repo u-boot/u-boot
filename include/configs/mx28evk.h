@@ -138,6 +138,7 @@
 #ifdef	CONFIG_CMD_MMC
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
+#define CONFIG_MMC_BOUNCE_BUFFER
 #define CONFIG_MXS_MMC
 #endif
 
@@ -186,6 +187,8 @@
 /* SPI Flash */
 #ifdef CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
+#define CONFIG_SF_DEFAULT_BUS	2
+#define CONFIG_SF_DEFAULT_CS	0
 /* this may vary and depends on the installed chip */
 #define CONFIG_SPI_FLASH_SST
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0

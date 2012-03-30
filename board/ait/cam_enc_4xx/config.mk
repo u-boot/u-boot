@@ -12,4 +12,11 @@ PAD_TO	:= 12320
 UBL_CONFIG = $(SRCTREE)/board/$(BOARDDIR)/ublimage.cfg
 ifndef CONFIG_SPL_BUILD
 ALL-y += $(obj)u-boot.ubl
+else
+# as SPL_TEXT_BASE is not page-aligned, we need for some
+# linkers the -n flag (Do not page align data), to prevent
+# the following error message:
+# arm-linux-ld: u-boot-spl: Not enough room for program headers, try linking
+# with -N
+LDFLAGS_u-boot-spl += -n
 endif

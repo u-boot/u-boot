@@ -52,7 +52,9 @@ int cleanup_before_linux(void)
 	 *
 	 * we turn off caches etc ...
 	 */
+#ifndef CONFIG_SPL_BUILD
 	disable_interrupts();
+#endif
 
 	/*
 	 * Turn off I-cache and invalidate it

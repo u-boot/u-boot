@@ -65,6 +65,25 @@ void board_init_f(ulong dummy)
 	relocate_code(CONFIG_SPL_STACK, &gdata, CONFIG_SPL_TEXT_BASE);
 }
 
+/*
+ * Default function to determine if u-boot or the OS should
+ * be started. This implementation always returns 1.
+ *
+ * Please implement your own board specific funcion to do this.
+ *
+ * RETURN
+ * 0 to not start u-boot
+ * positive if u-boot should start
+ */
+#ifdef CONFIG_SPL_OS_BOOT
+__weak int spl_start_uboot(void)
+{
+	printf("SPL: Please implement spl_start_uboot() for your board\n");
+	printf("SPL: Direct Linux boot not active!\n");
+	return 1;
+}
+#endif
+
 void spl_parse_image_header(const struct image_header *header)
 {
 	u32 header_size = sizeof(struct image_header);
@@ -82,7 +101,7 @@ void spl_parse_image_header(const struct image_header *header)
 		/* Signature not found - assume u-boot.bin */
 		printf("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
-		puts("Assuming u-boot.bin ..\n");
+		debug("Assuming u-boot.bin ..\n");
 		/* Let's assume U-Boot will not be more than 200 KB */
 		spl_image.size = 200 * 1024;
 		spl_image.entry_point = CONFIG_SYS_TEXT_BASE;
@@ -92,9 +111,27 @@ void spl_parse_image_header(const struct image_header *header)
 	}
 }
 
-static void jump_to_image_no_args(void)
+/*
+ * This function jumps to an image with argument. Normally an FDT or ATAGS
+ * image.
+ * arg: Pointer to paramter image in RAM
+ */
+#ifdef CONFIG_SPL_OS_BOOT
+static void __noreturn jump_to_image_linux(void *arg)
 {
-	typedef void (*image_entry_noargs_t)(u32 *)__attribute__ ((noreturn));
+	debug("Entering kernel arg pointer: 0x%p\n", arg);
+	typedef void (*image_entry_arg_t)(int, int, void *)
+		__attribute__ ((noreturn));
+	image_entry_arg_t image_entry =
+		(image_entry_arg_t) spl_image.entry_point;
+	cleanup_before_linux();
+	image_entry(0, CONFIG_MACH_TYPE, arg);
+}
+#endif
+
+static void __noreturn jump_to_image_no_args(void)
+{
+	typedef void __noreturn (*image_entry_noargs_t)(u32 *);
 	image_entry_noargs_t image_entry =
 			(image_entry_noargs_t) spl_image.entry_point;
 
@@ -107,7 +144,6 @@ static void jump_to_image_no_args(void)
 	image_entry((u32 *)boot_params_ptr_addr);
 }
 
-void jump_to_image_no_args(void) __attribute__ ((noreturn));
 void board_init_r(gd_t *id, ulong dummy)
 {
 	u32 boot_device;
@@ -134,6 +170,11 @@ void board_init_r(gd_t *id, ulong dummy)
 		spl_nand_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_YMODEM_SUPPORT
+	case BOOT_DEVICE_UART:
+		spl_ymodem_load_image();
+		break;
+#endif
 	default:
 		printf("SPL: Un-supported Boot Device - %d!!!\n", boot_device);
 		hang();
@@ -145,6 +186,13 @@ void board_init_r(gd_t *id, ulong dummy)
 		debug("Jumping to U-Boot\n");
 		jump_to_image_no_args();
 		break;
+#ifdef CONFIG_SPL_OS_BOOT
+	case IH_OS_LINUX:
+		debug("Jumping to Linux\n");
+		spl_board_prepare_for_linux();
+		jump_to_image_linux((void *)CONFIG_SYS_SPL_ARGS_ADDR);
+		break;
+#endif
 	default:
 		puts("Unsupported OS image.. Jumping nevertheless..\n");
 		jump_to_image_no_args();

@@ -46,8 +46,8 @@ static uint32_t mx28_get_pclk(void)
 	struct mx28_clkctrl_regs *clkctrl_regs =
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
-	uint32_t clkctrl, clkseq, clkfrac;
-	uint32_t frac, div;
+	uint32_t clkctrl, clkseq, div;
+	uint8_t clkfrac, frac;
 
 	clkctrl = readl(&clkctrl_regs->hw_clkctrl_cpu);
 
@@ -67,8 +67,8 @@ static uint32_t mx28_get_pclk(void)
 	}
 
 	/* REF Path */
-	clkfrac = readl(&clkctrl_regs->hw_clkctrl_frac0);
-	frac = clkfrac & CLKCTRL_FRAC0_CPUFRAC_MASK;
+	clkfrac = readb(&clkctrl_regs->hw_clkctrl_frac0[CLKCTRL_FRAC0_CPU]);
+	frac = clkfrac & CLKCTRL_FRAC_FRAC_MASK;
 	div = clkctrl & CLKCTRL_CPU_DIV_CPU_MASK;
 	return (PLL_FREQ_MHZ * PLL_FREQ_COEF / frac) / div;
 }
@@ -96,8 +96,8 @@ static uint32_t mx28_get_emiclk(void)
 	struct mx28_clkctrl_regs *clkctrl_regs =
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
-	uint32_t frac, div;
-	uint32_t clkctrl, clkseq, clkfrac;
+	uint32_t clkctrl, clkseq, div;
+	uint8_t clkfrac, frac;
 
 	clkseq = readl(&clkctrl_regs->hw_clkctrl_clkseq);
 	clkctrl = readl(&clkctrl_regs->hw_clkctrl_emi);
@@ -109,11 +109,9 @@ static uint32_t mx28_get_emiclk(void)
 		return XTAL_FREQ_MHZ / div;
 	}
 
-	clkfrac = readl(&clkctrl_regs->hw_clkctrl_frac0);
-
 	/* REF Path */
-	frac = (clkfrac & CLKCTRL_FRAC0_EMIFRAC_MASK) >>
-		CLKCTRL_FRAC0_EMIFRAC_OFFSET;
+	clkfrac = readb(&clkctrl_regs->hw_clkctrl_frac0[CLKCTRL_FRAC0_EMI]);
+	frac = clkfrac & CLKCTRL_FRAC_FRAC_MASK;
 	div = clkctrl & CLKCTRL_EMI_DIV_EMI_MASK;
 	return (PLL_FREQ_MHZ * PLL_FREQ_COEF / frac) / div;
 }
@@ -123,8 +121,8 @@ static uint32_t mx28_get_gpmiclk(void)
 	struct mx28_clkctrl_regs *clkctrl_regs =
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
-	uint32_t frac, div;
-	uint32_t clkctrl, clkseq, clkfrac;
+	uint32_t clkctrl, clkseq, div;
+	uint8_t clkfrac, frac;
 
 	clkseq = readl(&clkctrl_regs->hw_clkctrl_clkseq);
 	clkctrl = readl(&clkctrl_regs->hw_clkctrl_gpmi);
@@ -135,11 +133,9 @@ static uint32_t mx28_get_gpmiclk(void)
 		return XTAL_FREQ_MHZ / div;
 	}
 
-	clkfrac = readl(&clkctrl_regs->hw_clkctrl_frac1);
-
 	/* REF Path */
-	frac = (clkfrac & CLKCTRL_FRAC1_GPMIFRAC_MASK) >>
-		CLKCTRL_FRAC1_GPMIFRAC_OFFSET;
+	clkfrac = readb(&clkctrl_regs->hw_clkctrl_frac1[CLKCTRL_FRAC1_GPMI]);
+	frac = clkfrac & CLKCTRL_FRAC_FRAC_MASK;
 	div = clkctrl & CLKCTRL_GPMI_DIV_MASK;
 	return (PLL_FREQ_MHZ * PLL_FREQ_COEF / frac) / div;
 }
@@ -152,11 +148,12 @@ void mx28_set_ioclk(enum mxs_ioclock io, uint32_t freq)
 	struct mx28_clkctrl_regs *clkctrl_regs =
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	uint32_t div;
+	int io_reg;
 
 	if (freq == 0)
 		return;
 
-	if (io > MXC_IOCLK1)
+	if ((io < MXC_IOCLK0) || (io > MXC_IOCLK1))
 		return;
 
 	div = (PLL_FREQ_KHZ * PLL_FREQ_COEF) / freq;
@@ -167,23 +164,13 @@ void mx28_set_ioclk(enum mxs_ioclock io, uint32_t freq)
 	if (div > 35)
 		div = 35;
 
-	if (io == MXC_IOCLK0) {
-		writel(CLKCTRL_FRAC0_CLKGATEIO0,
-			&clkctrl_regs->hw_clkctrl_frac0_set);
-		clrsetbits_le32(&clkctrl_regs->hw_clkctrl_frac0,
-				CLKCTRL_FRAC0_IO0FRAC_MASK,
-				div << CLKCTRL_FRAC0_IO0FRAC_OFFSET);
-		writel(CLKCTRL_FRAC0_CLKGATEIO0,
-			&clkctrl_regs->hw_clkctrl_frac0_clr);
-	} else {
-		writel(CLKCTRL_FRAC0_CLKGATEIO1,
-			&clkctrl_regs->hw_clkctrl_frac0_set);
-		clrsetbits_le32(&clkctrl_regs->hw_clkctrl_frac0,
-				CLKCTRL_FRAC0_IO1FRAC_MASK,
-				div << CLKCTRL_FRAC0_IO1FRAC_OFFSET);
-		writel(CLKCTRL_FRAC0_CLKGATEIO1,
-			&clkctrl_regs->hw_clkctrl_frac0_clr);
-	}
+	io_reg = CLKCTRL_FRAC0_IO0 - io;	/* Register order is reversed */
+	writeb(CLKCTRL_FRAC_CLKGATE,
+		&clkctrl_regs->hw_clkctrl_frac0_set[io_reg]);
+	writeb(CLKCTRL_FRAC_CLKGATE | (div & CLKCTRL_FRAC_FRAC_MASK),
+		&clkctrl_regs->hw_clkctrl_frac0[io_reg]);
+	writeb(CLKCTRL_FRAC_CLKGATE,
+		&clkctrl_regs->hw_clkctrl_frac0_clr[io_reg]);
 }
 
 /*
@@ -193,19 +180,16 @@ static uint32_t mx28_get_ioclk(enum mxs_ioclock io)
 {
 	struct mx28_clkctrl_regs *clkctrl_regs =
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
-	uint32_t tmp, ret;
+	uint8_t ret;
+	int io_reg;
 
-	if (io > MXC_IOCLK1)
+	if ((io < MXC_IOCLK0) || (io > MXC_IOCLK1))
 		return 0;
 
-	tmp = readl(&clkctrl_regs->hw_clkctrl_frac0);
+	io_reg = CLKCTRL_FRAC0_IO0 - io;	/* Register order is reversed */
 
-	if (io == MXC_IOCLK0)
-		ret = (tmp & CLKCTRL_FRAC0_IO0FRAC_MASK) >>
-			CLKCTRL_FRAC0_IO0FRAC_OFFSET;
-	else
-		ret = (tmp & CLKCTRL_FRAC0_IO1FRAC_MASK) >>
-			CLKCTRL_FRAC0_IO1FRAC_OFFSET;
+	ret = readb(&clkctrl_regs->hw_clkctrl_frac0[io_reg]) &
+		CLKCTRL_FRAC_FRAC_MASK;
 
 	return (PLL_FREQ_KHZ * PLL_FREQ_COEF) / ret;
 }
@@ -223,7 +207,7 @@ void mx28_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal)
 		return;
 
 	clkreg = (uint32_t)(&clkctrl_regs->hw_clkctrl_ssp0) +
-			(ssp * sizeof(struct mx28_register));
+			(ssp * sizeof(struct mx28_register_32));
 
 	clrbits_le32(clkreg, CLKCTRL_SSP_CLKGATE);
 	while (readl(clkreg) & CLKCTRL_SSP_CLKGATE)
@@ -272,7 +256,7 @@ static uint32_t mx28_get_sspclk(enum mxs_sspclock ssp)
 		return XTAL_FREQ_KHZ;
 
 	clkreg = (uint32_t)(&clkctrl_regs->hw_clkctrl_ssp0) +
-			(ssp * sizeof(struct mx28_register));
+			(ssp * sizeof(struct mx28_register_32));
 
 	tmp = readl(clkreg) & CLKCTRL_SSP_DIV_MASK;
 

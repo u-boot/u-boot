@@ -16,6 +16,7 @@
 #include <commproc.h>
 #endif	/* CONFIG_8xx */
 
+#include <asm/cache.h>
 #include <asm/byteorder.h>	/* for nton* / ntoh* stuff */
 
 
@@ -31,7 +32,7 @@
 # define PKTBUFSRX	4
 #endif
 
-#define PKTALIGN	32
+#define PKTALIGN	ARCH_DMA_MINALIGN
 
 /* IPv4 addresses are always 32 bits in size */
 typedef u32		IPaddr_t;

@@ -268,6 +268,8 @@ typedef struct bootm_headers {
 #endif
 } bootm_headers_t;
 
+extern bootm_headers_t images;
+
 /*
  * Some systems (for example LWMON) have very short watchdog periods;
  * we must make sure to split long operations like memmove() or

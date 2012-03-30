@@ -72,7 +72,7 @@
  * Use gpio 4 pin 25 as chip select for SPI flash
  * This corresponds to gpio 121
  */
-#define CONFIG_SPI_FLASH_CS	(1 | (121 << 8))
+#define CONFIG_SF_DEFAULT_CS	(1 | (121 << 8))
 #define CONFIG_SF_DEFAULT_MODE   SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED  25000000
 

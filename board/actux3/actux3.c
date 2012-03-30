@@ -57,8 +57,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_ACTUX3;
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 

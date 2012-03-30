@@ -1,0 +1,92 @@
+/dts-v1/;
+
+/memreserve/ 0x1c000000 0x04000000;
+/include/ ARCH_CPU_DTS
+
+/ {
+	model = "NVIDIA Seaboard";
+	compatible = "nvidia,seaboard", "nvidia,tegra20";
+
+	chosen {
+		bootargs = "vmalloc=192M video=tegrafb console=ttyS0,115200n8 root=/dev/mmcblk1p3 rw rootwait";
+	};
+
+	aliases {
+		/* This defines the order of our USB ports */
+		usb0 = "/usb@c5008000";
+		usb1 = "/usb@c5000000";
+
+		i2c0 = "/i2c@7000d000";
+		i2c1 = "/i2c@7000c000";
+		i2c2 = "/i2c@7000c400";
+		i2c3 = "/i2c@7000c500";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = < 0x00000000 0x40000000 >;
+	};
+
+	/* This is not used in U-Boot, but is expected to be in kernel .dts */
+	i2c@7000d000 {
+		clock-frequency = <100000>;
+		pmic@34 {
+			compatible = "ti,tps6586x";
+			reg = <0x34>;
+
+			clk_32k: clock {
+				compatible = "fixed-clock";
+				/*
+				 * leave out for now due to CPP:
+				 * #clock-cells = <0>;
+				 */
+				clock-frequency = <32768>;
+			};
+		};
+	};
+
+	clocks {
+		osc {
+			clock-frequency = <12000000>;
+		};
+	};
+
+	clock@60006000 {
+		clocks = <&clk_32k &osc>;
+	};
+
+	serial@70006300 {
+		clock-frequency = < 216000000 >;
+	};
+
+	sdhci@c8000400 {
+		cd-gpios = <&gpio 69 0>; /* gpio PI5 */
+		wp-gpios = <&gpio 57 0>; /* gpio PH1 */
+		power-gpios = <&gpio 70 0>; /* gpio PI6 */
+	};
+
+	sdhci@c8000600 {
+		support-8bit;
+	};
+
+	usb@c5000000 {
+		nvidia,vbus-gpio = <&gpio 24 0>; /* PD0 */
+		dr_mode = "otg";
+	};
+
+	usb@c5004000 {
+		status = "disabled";
+	};
+
+	i2c@7000c000 {
+		clock-frequency = <100000>;
+	};
+
+	i2c@7000c400 {
+		status = "disabled";
+	};
+
+	i2c@7000c500 {
+		clock-frequency = <100000>;
+	};
+};

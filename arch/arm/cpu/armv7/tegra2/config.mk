@@ -31,3 +31,5 @@ CFLAGS_arch/arm/lib/board.o += -march=armv4t
 endif
 
 USE_PRIVATE_LIBGCC = yes
+
+CONFIG_ARCH_DEVICE_TREE := tegra20

@@ -96,7 +96,7 @@ $(LIB):	$(obj).depend $(LIBOBJS)
 
 $(ELF):
 $(obj)%:	$(obj)%.o $(LIB)
-		$(LD) -g -Ttext $(CONFIG_STANDALONE_LOAD_ADDR) \
+		$(LD) $(LDFLAGS) -g -Ttext $(CONFIG_STANDALONE_LOAD_ADDR) \
 			-o $@ -e $(SYM_PREFIX)$(notdir $(<:.o=)) $< $(LIB) \
 			-L$(gcclibdir) -lgcc
 

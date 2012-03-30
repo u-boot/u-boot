@@ -105,14 +105,14 @@ static void enable_cpu_clock(int enable)
 
 static int is_cpu_powered(void)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
 
 	return (readl(&pmc->pmc_pwrgate_status) & CPU_PWRED) ? 1 : 0;
 }
 
 static void remove_cpu_io_clamps(void)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
 	u32 reg;
 
 	/* Remove the clamps on the CPU I/O signals */
@@ -126,7 +126,7 @@ static void remove_cpu_io_clamps(void)
 
 static void powerup_cpu(void)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
 	u32 reg;
 	int timeout = IO_STABILIZATION_DELAY;
 
@@ -157,7 +157,7 @@ static void powerup_cpu(void)
 
 static void enable_cpu_power_rail(void)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
 	u32 reg;
 
 	reg = readl(&pmc->pmc_cntrl);
@@ -277,7 +277,7 @@ void enable_scu(void)
 
 void init_pmc_scratch(void)
 {
-	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
 	int i;
 
 	/* SCRATCH0 is initialized by the boot ROM and shouldn't be cleared */
@@ -298,11 +298,11 @@ void tegra2_start(void)
 		writel(0xC0, &pmt->pmt_cfg_ctl);
 
 		/*
-		* If we are ARM7 - give it a different stack. We are about to
-		* start up the A9 which will want to use this one.
-		*/
-		asm volatile("ldr	sp, =%c0\n"
-			: : "i"(AVP_EARLY_BOOT_STACK_LIMIT));
+		 * If we are ARM7 - give it a different stack. We are about to
+		 * start up the A9 which will want to use this one.
+		 */
+		asm volatile("mov	sp, %0\n"
+			: : "r"(AVP_EARLY_BOOT_STACK_LIMIT));
 
 		start_cpu((u32)_start);
 		halt_avp();

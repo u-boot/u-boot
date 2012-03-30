@@ -90,3 +90,9 @@ int board_mmc_init(bd_t *bd)
 	return 0;
 }
 #endif
+
+void pin_mux_usb(void)
+{
+	/* For USB's GPIO PD0. For now, since we have no pinmux in fdt */
+	pinmux_tristate_disable(PINGRP_SLXK);
+}

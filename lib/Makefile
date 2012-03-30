@@ -40,6 +40,7 @@ COBJS-y += crc32.o
 COBJS-y += display_options.o
 COBJS-y += errno.o
 COBJS-$(CONFIG_OF_CONTROL) += fdtdec.o
+COBJS-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
 COBJS-$(CONFIG_GZIP) += gunzip.o
 COBJS-y += hashtable.o
 COBJS-$(CONFIG_LMB) += lmb.o
@@ -55,6 +56,9 @@ else
 COBJS-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += display_options.o
 endif
 
+ifdef CONFIG_SPL_BUILD
+COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
+endif
 COBJS-y += ctype.o
 COBJS-y += div64.o
 COBJS-y += string.o

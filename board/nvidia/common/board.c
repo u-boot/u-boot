@@ -33,6 +33,8 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart.h>
 #include <spi.h>
+#include <asm/arch/usb.h>
+#include <i2c.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -49,6 +51,12 @@ int timer_init(void)
 {
 	return 0;
 }
+
+void __pin_mux_usb(void)
+{
+}
+
+void pin_mux_usb(void) __attribute__((weak, alias("__pin_mux_usb")));
 
 /*
  * Routine: board_init
@@ -68,6 +76,17 @@ int board_init(void)
 #endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
+#ifdef CONFIG_TEGRA_I2C
+#ifndef CONFIG_SYS_I2C_INIT_BOARD
+#error "You must define CONFIG_SYS_I2C_INIT_BOARD to use i2c on Nvidia boards"
+#endif
+	i2c_init_board();
+#endif
+
+#ifdef CONFIG_USB_EHCI_TEGRA
+	pin_mux_usb();
+	board_usb_init(gd->fdt_blob);
+#endif
 
 	return 0;
 }

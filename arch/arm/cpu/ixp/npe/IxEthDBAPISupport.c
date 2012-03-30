@@ -630,7 +630,6 @@ IX_ETH_DB_PUBLIC
 IxEthDBStatus ixEthDBPortAddressSet(IxEthDBPortId portID, IxEthDBMacAddr *macAddr)
 {
     IxNpeMhMessage message;
-    IxOsalMutex *ackPortAddressLock;
     IX_STATUS result;
 
     /* use this macro instead CHECK_PORT
@@ -643,8 +642,6 @@ IxEthDBStatus ixEthDBPortAddressSet(IxEthDBPortId portID, IxEthDBMacAddr *macAdd
     {
         return IX_ETH_DB_PORT_UNINITIALIZED;
     }
-
-    ackPortAddressLock = &ixEthDBPortInfo[portID].npeAckLock;
 
     /* Operation stops here when Ethernet Learning is not enabled */
     if(IX_FEATURE_CTRL_SWCONFIG_DISABLED ==

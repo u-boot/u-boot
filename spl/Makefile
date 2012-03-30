@@ -81,6 +81,9 @@ ifeq ($(wildcard $(LDSCRIPT)),)
 	LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
+	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
+endif
+ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
 endif
 
@@ -90,6 +93,7 @@ endif
 LDPPFLAGS += \
 	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
 	-include $(OBJTREE)/include/config.h \
+	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 

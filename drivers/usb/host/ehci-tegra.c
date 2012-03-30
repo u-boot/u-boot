@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2000-2005
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * Copyright (c) 2009 NVIDIA Corporation
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,36 +20,43 @@
  * MA 02111-1307 USA
  */
 
-OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-OUTPUT_ARCH(arm)
-ENTRY(_start)
-SECTIONS
+#include <common.h>
+#include <usb.h>
+
+#include "ehci.h"
+#include "ehci-core.h"
+
+#include <asm/errno.h>
+#include <asm/arch/usb.h>
+
+
+/*
+ * Create the appropriate control structures to manage
+ * a new EHCI host controller.
+ */
+int ehci_hcd_init(void)
 {
-	. = 0x00000000;
+	u32 our_hccr, our_hcor;
 
-	. = ALIGN(4);
-	.text      :
-	{
-	  cpu/pxa/start.o	(.text)
-	  *(.text)
-	}
+	/*
+	 * Select the first port, as we don't have a way of selecting others
+	 * yet
+	 */
+	if (tegrausb_start_port(0, &our_hccr, &our_hcor))
+		return -1;
 
-	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+	hccr = (struct ehci_hccr *)our_hccr;
+	hcor = (struct ehci_hcor *)our_hcor;
 
-	. = ALIGN(4);
-	.data : { *(.data) }
+	return 0;
+}
 
-	. = ALIGN(4);
-	.got : { *(.got) }
-
-	. = .;
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
-	__u_boot_cmd_end = .;
-
-	. = ALIGN(4);
-	__bss_start = .;
-	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
-	__bss_end__ = .;
+/*
+ * Destroy the appropriate control structures corresponding
+ * the the EHCI host controller.
+ */
+int ehci_hcd_stop(void)
+{
+	tegrausb_stop_port();
+	return 0;
 }
