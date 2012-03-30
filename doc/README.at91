@@ -62,16 +62,16 @@ Environment variables
 	U-Boot environment variables can be stored at different places:
 		- Dataflash on SPI chip select 0 (dataflash card)
 		- Nand flash.
-		- Nor falsh (not populate by default)
+		- Nor flash (not populate by default)
 
 	You can choose your storage location at config step (here for at91sam9260ek) :
 		make at91sam9263ek_config		- use data flash (spi cs0) (default)
 		make at91sam9263ek_nandflash_config	- use nand flash
 		make at91sam9263ek_dataflash_cs0_config	- use data flash (spi cs0)
-		make at91sam9263ek_norflash_config	- use nor falsh
+		make at91sam9263ek_norflash_config	- use nor flash
 
 	You can choose to boot directly from U-Boot at config step
-		make at91sam9263ek_norflash_boot_config	- boot from nor falsh
+		make at91sam9263ek_norflash_boot_config	- boot from nor flash
 
 
 ------------------------------------------------------------------------------

@@ -40,10 +40,10 @@ Matrix Vision mvBlueLYNX-M7 (mvBL-M7)
 		MAX5381 DAC @ 0x60 for 1st digital input threshold.
 		LM75 @ 0x90 for temperature monitoring.
 		EEPROM @ 0xA0 for system setup (HRCW etc.) + vendor specifics.
-		1st image sensor interface (slave adresses depend on sensor)
+		1st image sensor interface (slave addresses depend on sensor)
 	Bus2:
 		MAX5381 DAC @ 0x60 for 2nd digital input threshold.
-		2nd image sensor interface (slave adresses depend on sensor)
+		2nd image sensor interface (slave addresses depend on sensor)
 
 3	Flash layout.
 

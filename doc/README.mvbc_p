@@ -33,7 +33,7 @@ Matrix Vision mvBlueCOUGAR-P (mvBC-P)
 2.4	I2C
 	LM75 @ 0x90 for temperature monitoring.
 	EEPROM @ 0xA0 for vendor specifics.
-	image sensor interface (slave adresses depend on sensor)
+	image sensor interface (slave addresses depend on sensor)
 
 3	Flash layout.
 

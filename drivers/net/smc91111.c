@@ -1169,17 +1169,6 @@ static void smc_write_phy_register (struct eth_device *dev, byte phyreg,
 
 
 /*------------------------------------------------------------
- . Waits the specified number of milliseconds - kernel friendly
- .-------------------------------------------------------------*/
-#ifndef CONFIG_SMC91111_EXT_PHY
-static void smc_wait_ms(unsigned int ms)
-{
-	udelay(ms*1000);
-}
-#endif /* !CONFIG_SMC91111_EXT_PHY */
-
-
-/*------------------------------------------------------------
  . Configures the specified PHY using Autonegotiation. Calls
  . smc_phy_fixed() if the user has requested a certain config.
  .-------------------------------------------------------------*/
@@ -1205,7 +1194,7 @@ static void smc_phy_configure (struct eth_device *dev)
 			break;
 		}
 
-		smc_wait_ms (500);	/* wait 500 millisecs */
+		mdelay(500);	/* wait 500 millisecs */
 	}
 
 	if (timeout < 1) {
@@ -1270,7 +1259,7 @@ static void smc_phy_configure (struct eth_device *dev)
 			break;
 		}
 
-		smc_wait_ms (500);	/* wait 500 millisecs */
+		mdelay(500);	/* wait 500 millisecs */
 
 		/* Restart auto-negotiation if remote fault */
 		if (status & PHY_STAT_REM_FLT) {

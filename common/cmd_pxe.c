@@ -318,7 +318,7 @@ static int
 do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *pxefile_addr_str;
-	void *pxefile_addr_r;
+	unsigned long pxefile_addr_r;
 	int err;
 
 	if (argc != 1)
@@ -339,10 +339,10 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * Keep trying paths until we successfully get a file we're looking
 	 * for.
 	 */
-	if (pxe_uuid_path(pxefile_addr_r) > 0
-		|| pxe_mac_path(pxefile_addr_r) > 0
-		|| pxe_ipaddr_paths(pxefile_addr_r) > 0
-		|| get_pxelinux_path("default", pxefile_addr_r) > 0) {
+	if (pxe_uuid_path((void *)pxefile_addr_r) > 0
+		|| pxe_mac_path((void *)pxefile_addr_r) > 0
+		|| pxe_ipaddr_paths((void *)pxefile_addr_r) > 0
+		|| get_pxelinux_path("default", (void *)pxefile_addr_r) > 0) {
 
 		printf("Config file found\n");
 
@@ -363,7 +363,7 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 static int get_relfile_envaddr(char *file_path, char *envaddr_name)
 {
-	void *file_addr;
+	unsigned long file_addr;
 	char *envaddr;
 
 	envaddr = from_env(envaddr_name);
@@ -371,10 +371,10 @@ static int get_relfile_envaddr(char *file_path, char *envaddr_name)
 	if (!envaddr)
 		return -ENOENT;
 
-	if (strict_strtoul(envaddr, 16, (unsigned long *)&file_addr) < 0)
+	if (strict_strtoul(envaddr, 16, &file_addr) < 0)
 		return -EINVAL;
 
-	return get_relfile(file_path, file_addr);
+	return get_relfile(file_path, (void *)file_addr);
 }
 
 /*
