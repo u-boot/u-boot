@@ -334,7 +334,7 @@ void main_loop (void)
 		int prev = disable_ctrlc(1);	/* disable Control C checking */
 # endif
 
-		run_command(p, 0);
+		run_command_list(p, -1, 0);
 
 # ifdef CONFIG_AUTOBOOT_KEYED
 		disable_ctrlc(prev);	/* restore Control C checking */
@@ -382,7 +382,7 @@ void main_loop (void)
 		int prev = disable_ctrlc(1);	/* disable Control C checking */
 # endif
 
-		run_command(s, 0);
+		run_command_list(s, -1, 0);
 
 # ifdef CONFIG_AUTOBOOT_KEYED
 		disable_ctrlc(prev);	/* restore Control C checking */
@@ -393,7 +393,7 @@ void main_loop (void)
 	if (menukey == CONFIG_MENUKEY) {
 		s = getenv("menucmd");
 		if (s)
-			run_command(s, 0);
+			run_command_list(s, -1, 0);
 	}
 #endif /* CONFIG_MENUKEY */
 #endif /* CONFIG_BOOTDELAY */
