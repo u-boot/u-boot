@@ -38,7 +38,6 @@
  */
 /*#include <config_cmd_default.h>*/
 
-#define CONFIG_CMD_DFL
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_SAVEENV
 

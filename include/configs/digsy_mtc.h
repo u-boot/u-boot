@@ -119,7 +119,6 @@
 #ifdef CONFIG_VIDEO
 #define CONFIG_CMD_BMP
 #endif
-#define CONFIG_CMD_DFL
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
