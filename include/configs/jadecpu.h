@@ -130,7 +130,6 @@
 #undef CONFIG_CMD_XIMG
 
 #define CONFIG_CMD_BMP
-#define CONFIG_CMD_CAN
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
