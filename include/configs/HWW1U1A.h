@@ -422,7 +422,7 @@ const char *hww1u1a_get_ps1(void);
 #define CONFIG_MD5
 #define CONFIG_SHA1
 #define CONFIG_CMD_MD5SUM
-#define CONFIG_CMD_SHA1
+#define CONFIG_CMD_SHA1SUM
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_SETEXPR
 
