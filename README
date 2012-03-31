@@ -814,7 +814,7 @@ The following options need to be configured:
 		CONFIG_CMD_TIME		* run command and report execution time
 		CONFIG_CMD_USB		* USB support
 		CONFIG_CMD_CDP		* Cisco Discover Protocol support
-		CONFIG_CMD_FSL		* Microblaze FSL support
+		CONFIG_CMD_MFSL		* Microblaze FSL support
 
 
 		EXAMPLE: If you want all functions except of network
