@@ -95,7 +95,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EMMC
 #define CONFIG_CMD_SOURCE
 #define CONFIG_CMD_I2C
 
