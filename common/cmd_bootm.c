@@ -186,6 +186,7 @@ static void boot_start_lmb(bootm_headers_t *images)
 	board_lmb_reserve(&images->lmb);
 }
 #else
+#define lmb_reserve(lmb, base, size)
 static inline void boot_start_lmb(bootm_headers_t *images) { }
 #endif
 
