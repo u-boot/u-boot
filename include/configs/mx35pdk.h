@@ -38,6 +38,7 @@
 
 /* Set TEXT at the beginning of the NOR flash */
 #define CONFIG_SYS_TEXT_BASE	0xA0000000
+#define CONFIG_SYS_CACHELINE_SIZE	32
 
 #define CONFIG_SYS_64BIT_VSPRINTF
 
@@ -106,6 +107,7 @@
 #define CONFIG_BOOTP_DNS
 
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_CACHE
 
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_SPI
