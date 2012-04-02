@@ -117,6 +117,23 @@ int fdtdec_next_compatible(const void *blob, int node,
 		enum fdt_compat_id id);
 
 /**
+ * Find the next compatible subnode for a peripheral.
+ *
+ * Do the first call with node set to the parent and depth = 0. This
+ * function will return the offset of the next compatible node. Next time
+ * you call this function, pass the node value returned last time, with
+ * depth unchanged, and the next node will be provided.
+ *
+ * @param blob		FDT blob to use
+ * @param node		Start node for search
+ * @param id		Compatible ID to look for (enum fdt_compat_id)
+ * @param depthp	Current depth (set to 0 before first call)
+ * @return offset of next compatible node, or -FDT_ERR_NOTFOUND if no more
+ */
+int fdtdec_next_compatible_subnode(const void *blob, int node,
+		enum fdt_compat_id id, int *depthp);
+
+/**
  * Look up an address property in a node and return it as an address.
  * The property must hold either one address with no trailing data or
  * one address with a length. This is only tested on 32-bit machines.

@@ -133,6 +133,21 @@ int fdtdec_next_compatible(const void *blob, int node,
 	return fdt_node_offset_by_compatible(blob, node, compat_names[id]);
 }
 
+int fdtdec_next_compatible_subnode(const void *blob, int node,
+		enum fdt_compat_id id, int *depthp)
+{
+	do {
+		node = fdt_next_node(blob, node, depthp);
+	} while (*depthp > 1);
+
+	/* If this is a direct subnode, and compatible, return it */
+	if (*depthp == 1 && 0 == fdt_node_check_compatible(
+						blob, node, compat_names[id]))
+		return node;
+
+	return -FDT_ERR_NOTFOUND;
+}
+
 int fdtdec_next_alias(const void *blob, const char *name,
 		enum fdt_compat_id id, int *upto)
 {
