@@ -26,6 +26,14 @@
 #include <asm/sizes.h>
 
 /*
+ * QUOTE(m) will evaluate to a string version of the value of the macro m
+ * passed in.  The extra level of indirection here is to first evaluate the
+ * macro m before applying the quoting operator.
+ */
+#define QUOTE_(m)       #m
+#define QUOTE(m)        QUOTE_(m)
+
+/*
  * High Level Configuration Options
  */
 #define CONFIG_ARMCORTEXA9		/* This is an ARM V7 CPU core */
@@ -49,6 +57,15 @@
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
+
+#ifdef CONFIG_TEGRA2_LP0
+#define TEGRA_LP0_ADDR			0x1C406000
+#define TEGRA_LP0_SIZE			0x2000
+#define TEGRA_LP0_VEC \
+	"lp0_vec=" QUOTE(TEGRA_LP0_SIZE) "@" QUOTE(TEGRA_LP0_ADDR) " "
+#else
+#define TEGRA_LP0_VEC
+#endif
 
 /* Environment */
 #define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
