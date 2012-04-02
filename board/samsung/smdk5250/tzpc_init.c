@@ -32,7 +32,7 @@ void tzpc_init(void)
 	unsigned int addr;
 
 	for (addr = TZPC0_BASE; addr <= TZPC9_BASE; addr += TZPC_BASE_OFFSET) {
-		tzpc = (struct exynos5_tzpc *)addr;
+		tzpc = (struct exynos_tzpc *)addr;
 
 		if (addr == TZPC0_BASE)
 			writel(R0SIZE, &tzpc->r0size);
