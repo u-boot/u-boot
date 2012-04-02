@@ -31,6 +31,8 @@
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/pmc.h>
+#include <asm/arch/pmu.h>
 #include <asm/arch/uart.h>
 #include <spi.h>
 #include <asm/arch/usb.h>
@@ -81,6 +83,10 @@ int board_init(void)
 #error "You must define CONFIG_SYS_I2C_INIT_BOARD to use i2c on Nvidia boards"
 #endif
 	i2c_init_board();
+# ifdef CONFIG_TEGRA_PMU
+	if (pmu_set_nominal())
+		debug("Failed to select nominal voltages\n");
+# endif
 #endif
 
 #ifdef CONFIG_USB_EHCI_TEGRA
