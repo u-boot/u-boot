@@ -62,6 +62,21 @@ void __pin_mux_usb(void)
 void pin_mux_usb(void) __attribute__((weak, alias("__pin_mux_usb")));
 
 /*
+ * Routine: power_det_init
+ * Description: turn off power detects
+ */
+static void power_det_init(void)
+{
+#if defined(CONFIG_TEGRA2)
+	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
+
+	/* turn off power detects */
+	writel(0, &pmc->pmc_pwr_det_latch);
+	writel(0, &pmc->pmc_pwr_det);
+#endif
+}
+
+/*
  * Routine: board_init
  * Description: Early hardware init.
  */
@@ -79,6 +94,9 @@ int board_init(void)
 #endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
+
+	power_det_init();
+
 #ifdef CONFIG_TEGRA_I2C
 #ifndef CONFIG_SYS_I2C_INIT_BOARD
 #error "You must define CONFIG_SYS_I2C_INIT_BOARD to use i2c on Nvidia boards"
