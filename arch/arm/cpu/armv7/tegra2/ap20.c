@@ -21,9 +21,9 @@
 * MA 02111-1307 USA
 */
 
-#include "ap20.h"
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
+#include <asm/arch/ap20.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pmc.h>
