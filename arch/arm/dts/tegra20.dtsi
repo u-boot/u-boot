@@ -193,4 +193,11 @@
 		clocks = <&tegra_car 59>;	/* PERIPH_ID_USB3 */
 	};
 
+	emc@7000f400 {
+		#address-cells = < 1 >;
+		#size-cells = < 0 >;
+		compatible = "nvidia,tegra20-emc";
+		reg = <0x7000f400 0x200>;
+	};
+
 };
