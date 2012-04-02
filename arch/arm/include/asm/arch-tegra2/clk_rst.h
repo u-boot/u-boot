@@ -117,6 +117,7 @@ struct clk_rst_ctlr {
 #define PLL_CPCON_MASK		(15U << PLL_CPCON_SHIFT)
 
 #define PLL_LFCON_SHIFT		4
+#define PLL_LFCON_MASK		(15U << PLL_LFCON_SHIFT)
 
 #define PLLU_VCO_FREQ_SHIFT	20
 #define PLLU_VCO_FREQ_MASK	(1U << PLLU_VCO_FREQ_SHIFT)
@@ -124,6 +125,8 @@ struct clk_rst_ctlr {
 /* CLK_RST_CONTROLLER_OSC_CTRL_0 */
 #define OSC_FREQ_SHIFT		30
 #define OSC_FREQ_MASK		(3U << OSC_FREQ_SHIFT)
+#define OSC_XOBP_SHIFT		1
+#define OSC_XOBP_MASK		(1U << OSC_XOBP_SHIFT)
 
 /*
  * CLK_RST_CONTROLLER_CLK_SOURCE_x_OUT_0 - the mask here is normally 8 bits
