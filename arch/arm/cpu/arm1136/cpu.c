@@ -75,3 +75,98 @@ static void cache_flush(void)
 	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));  /* invalidate both caches and flush btb */
 	asm ("mcr p15, 0, %0, c7, c10, 4": :"r" (i)); /* mem barrier to sync things */
 }
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+
+#ifndef CONFIG_SYS_CACHELINE_SIZE
+#define CONFIG_SYS_CACHELINE_SIZE	32
+#endif
+
+void invalidate_dcache_all(void)
+{
+	asm ("mcr p15, 0, %0, c7, c6, 0" : : "r" (0));
+}
+
+void flush_dcache_all(void)
+{
+	asm ("mcr p15, 0, %0, c7, c10, 0" : : "r" (0));
+	asm ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
+}
+
+static inline int bad_cache_range(unsigned long start, unsigned long stop)
+{
+	int ok = 1;
+
+	if (start & (CONFIG_SYS_CACHELINE_SIZE - 1))
+		ok = 0;
+
+	if (stop & (CONFIG_SYS_CACHELINE_SIZE - 1))
+		ok = 0;
+
+	if (!ok)
+		debug("CACHE: Misaligned operation at range [%08lx, %08lx]\n",
+			start, stop);
+
+	return ok;
+}
+
+void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+	if (bad_cache_range(start, stop))
+		return;
+
+	while (start < stop) {
+		asm ("mcr p15, 0, %0, c7, c6, 1" : : "r" (start));
+		start += CONFIG_SYS_CACHELINE_SIZE;
+	}
+}
+
+void flush_dcache_range(unsigned long start, unsigned long stop)
+{
+	if (bad_cache_range(start, stop))
+		return;
+
+	while (start < stop) {
+		asm ("mcr p15, 0, %0, c7, c14, 1" : : "r" (start));
+		start += CONFIG_SYS_CACHELINE_SIZE;
+	}
+
+	asm ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
+}
+
+void flush_cache(unsigned long start, unsigned long size)
+{
+	flush_dcache_range(start, start + size);
+}
+
+void enable_caches(void)
+{
+#ifndef CONFIG_SYS_ICACHE_OFF
+	icache_enable();
+#endif
+#ifndef CONFIG_SYS_DCACHE_OFF
+	dcache_enable();
+#endif
+}
+
+#else /* #ifndef CONFIG_SYS_DCACHE_OFF */
+void invalidate_dcache_all(void)
+{
+}
+
+void flush_dcache_all(void)
+{
+}
+
+void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+}
+
+void flush_dcache_range(unsigned long start, unsigned long stop)
+{
+}
+
+void flush_cache(unsigned long start, unsigned long size)
+{
+}
+#endif /* #ifndef CONFIG_SYS_DCACHE_OFF */
