@@ -26,10 +26,46 @@
 #include <asm/arch/ap20.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/fuse.h>
+#include <asm/arch/gp_padctrl.h>
 #include <asm/arch/pmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/scu.h>
 #include <common.h>
+
+int tegra_get_chip_type(void)
+{
+	struct apb_misc_gp_ctlr *gp;
+	struct fuse_regs *fuse = (struct fuse_regs *)TEGRA2_FUSE_BASE;
+	uint tegra_sku_id, rev;
+
+	/*
+	 * This is undocumented, Chip ID is bits 15:8 of the register
+	 * APB_MISC + 0x804, and has value 0x20 for Tegra20, 0x30 for
+	 * Tegra30
+	 */
+	gp = (struct apb_misc_gp_ctlr *)TEGRA2_APB_MISC_GP_BASE;
+	rev = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK) >> HIDREV_CHIPID_SHIFT;
+
+	tegra_sku_id = readl(&fuse->sku_info) & 0xff;
+
+	switch (rev) {
+	case CHIPID_TEGRA2:
+		switch (tegra_sku_id) {
+		case SKU_ID_T20:
+			return TEGRA_SOC_T20;
+		case SKU_ID_T25SE:
+		case SKU_ID_AP25:
+		case SKU_ID_T25:
+		case SKU_ID_AP25E:
+		case SKU_ID_T25E:
+			return TEGRA_SOC_T25;
+		}
+		break;
+	}
+	/* unknown sku id */
+	return TEGRA_SOC_UNKNOWN;
+}
 
 /* Returns 1 if the current CPU executing is a Cortex-A9, else 0 */
 static int ap20_cpu_is_cortexa9(void)
