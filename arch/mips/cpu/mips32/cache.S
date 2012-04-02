@@ -30,6 +30,10 @@
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
 
+#ifndef CONFIG_SYS_MIPS_CACHE_MODE
+#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
+#endif
+
 #define RA		t8
 
 /*
@@ -224,7 +228,7 @@ LEAF(dcache_enable)
 	mfc0	t0, CP0_CONFIG
 	ori	t0, CONF_CM_CMASK
 	xori	t0, CONF_CM_CMASK
-	ori	t0, CONF_CM_CACHABLE_NONCOHERENT
+	ori	t0, CONFIG_SYS_MIPS_CACHE_MODE
 	mtc0	t0, CP0_CONFIG
 	jr	ra
 	END(dcache_enable)
