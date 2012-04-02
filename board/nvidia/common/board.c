@@ -34,6 +34,7 @@
 #include <asm/arch/pmc.h>
 #include <asm/arch/pmu.h>
 #include <asm/arch/uart.h>
+#include <asm/arch/warmboot.h>
 #include <spi.h>
 #include <asm/arch/usb.h>
 #include <i2c.h>
@@ -92,6 +93,11 @@ int board_init(void)
 #ifdef CONFIG_USB_EHCI_TEGRA
 	pin_mux_usb();
 	board_usb_init(gd->fdt_blob);
+#endif
+
+#ifdef CONFIG_TEGRA2_LP0
+	/* prepare the WB code to LP0 location */
+	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif
 
 	return 0;
