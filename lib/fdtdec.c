@@ -363,6 +363,17 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 	return err;
 }
 
+const u32 *fdtdec_locate_array(const void *blob, int node,
+			       const char *prop_name, int count)
+{
+	const u32 *cell;
+	int err;
+
+	cell = get_prop_check_min_len(blob, node, prop_name,
+				      sizeof(u32) * count, &err);
+	return err ? NULL : cell;
+}
+
 int fdtdec_get_bool(const void *blob, int node, const char *prop_name)
 {
 	const s32 *cell;

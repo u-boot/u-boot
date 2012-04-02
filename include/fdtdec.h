@@ -272,6 +272,25 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 		u32 *array, int count);
 
 /**
+ * Look up a property in a node and return a pointer to its contents as a
+ * unsigned int array of given length. The property must have at least enough
+ * data for the array ('count' cells). It may have more, but this will be
+ * ignored. The data is not copied.
+ *
+ * Note that you must access elements of the array with fdt32_to_cpu(),
+ * since the elements will be big endian even on a little endian machine.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param count		number of array elements
+ * @return pointer to array if found, or NULL if the property is not
+ *		found or there is not enough data
+ */
+const u32 *fdtdec_locate_array(const void *blob, int node,
+			       const char *prop_name, int count);
+
+/**
  * Look up a boolean property in a node and return it.
  *
  * A boolean properly is true if present in the device tree and false if not
