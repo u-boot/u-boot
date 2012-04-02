@@ -567,3 +567,17 @@ int i2c_set_bus_num(unsigned int bus)
 	return 0;
 }
 #endif
+
+int tegra_i2c_get_dvc_bus_num(void)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_SYS_MAX_I2C_BUS; i++) {
+		struct i2c_bus *bus = &i2c_controllers[i];
+
+		if (bus->inited && bus->is_dvc)
+			return i;
+	}
+
+	return -1;
+}
