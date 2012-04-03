@@ -71,7 +71,7 @@
 /* Size of malloc() pool */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (512 << 10))
+#define CONFIG_SYS_MALLOC_LEN		(1024*1024)
 
 /* Hardware drivers */
 
@@ -139,7 +139,9 @@
 #define CONFIG_CMD_MTDPARTS		/* Enable MTD parts commands */
 #define CONFIG_CMD_NAND			/* NAND support */
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands */
-#define CONFIG_CMD_UBI			/* UBIFS commands */
+#define CONFIG_CMD_UBI			/* UBI commands */
+#define CONFIG_CMD_UBIFS		/* UBIFS commands */
+#define CONFIG_LZO			/* LZO is needed for UBIFS */
 
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
