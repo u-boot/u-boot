@@ -182,7 +182,8 @@
 		"setenv bootargs ${bootargs} " \
 		"omapfb.mode=lcd:${lcdmode} " \
 		"omapdss.def_disp=${defaultdisplay} " \
-		"root=ubi0:rootfs " \
+		"root=ubi0:root " \
+		"ubi.mtd=4 " \
 		"rootfstype=ubifs " \
 		"${kernelopts}\0" \
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
@@ -193,9 +194,13 @@
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
+	"loaduimage_ubi=mtd default; " \
+		"ubi part fs; " \
+		"ubifsmount root; " \
+		"ubifsload ${loadaddr} /boot/uImage\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} 280000 400000; " \
+		"run loaduimage_ubi; " \
 		"bootm ${loadaddr}\0" \
 	"autoboot=if mmc rescan ${mmcdev}; then " \
 			"if run loadbootscript; then " \
