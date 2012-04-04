@@ -319,13 +319,8 @@ static void board_net_init_r(bd_t *bd)
 	bb_miiphy_init();
 #endif
 #ifdef CONFIG_CMD_NET
-	char *s;
-
-	if ((s = getenv("bootfile")) != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
-
 	printf("Net:   ");
-	eth_initialize(gd->bd);
+	eth_initialize(bd);
 #endif
 }
 

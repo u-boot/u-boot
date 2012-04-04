@@ -188,18 +188,6 @@ int status_led_set_r(void)
 }
 #endif
 
-int set_bootfile_r(void)
-{
-	char *s;
-
-	s = getenv("bootfile");
-
-	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
-
-	return 0;
-}
-
 int set_load_addr_r(void)
 {
 	/* Initialize from environment */

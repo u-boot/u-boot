@@ -357,11 +357,6 @@ void board_init_f(ulong bootflag)
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
-#if defined(CONFIG_CMD_NET)
-	if ((s = getenv("bootfile")) != NULL) {
-		copy_filename(BootFile, s, sizeof(BootFile));
-	}
-#endif /* CONFIG_CMD_NET */
 
 	WATCHDOG_RESET();
 

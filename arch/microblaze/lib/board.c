@@ -182,10 +182,6 @@ void board_init (void)
 	uchar enetaddr[6];
 	eth_getenv_enetaddr("ethaddr", enetaddr);
 	printf("MAC:   %pM\n", enetaddr);
-
-	s = getenv("bootfile");
-	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
 #endif
 
 	/* main_loop */

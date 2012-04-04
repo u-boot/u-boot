@@ -37,7 +37,6 @@ int mem_malloc_init_r(void);
 int init_bd_struct_r(void);
 int flash_init_r(void);
 int status_led_set_r(void);
-int set_bootfile_r(void);
 int set_load_addr_r(void);
 
 #endif	/* !_INIT_HELPERS_H_ */

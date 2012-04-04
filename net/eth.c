@@ -245,6 +245,14 @@ int eth_unregister(struct eth_device *dev)
 	return 0;
 }
 
+static void eth_env_init(bd_t *bis)
+{
+	const char *s;
+
+	if ((s = getenv("bootfile")) != NULL)
+		copy_filename(BootFile, s, sizeof(BootFile));
+}
+
 int eth_initialize(bd_t *bis)
 {
 	int num_devices = 0;
@@ -259,6 +267,8 @@ int eth_initialize(bd_t *bis)
 #ifdef CONFIG_PHYLIB
 	phy_init();
 #endif
+
+	eth_env_init(bis);
 
 	/*
 	 * If board-specific initialization exists, call it.

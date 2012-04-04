@@ -190,15 +190,8 @@ void sh_generic_init(void)
 	bb_miiphy_init();
 #endif
 #if defined(CONFIG_CMD_NET)
-	{
-		char *s;
-		puts("Net:   ");
-		eth_initialize(gd->bd);
-
-		s = getenv("bootfile");
-		if (s != NULL)
-			copy_filename(BootFile, s, sizeof(BootFile));
-	}
+	puts("Net:   ");
+	eth_initialize(gd->bd);
 #endif /* CONFIG_CMD_NET */
 
 	while (1) {

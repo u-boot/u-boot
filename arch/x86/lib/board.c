@@ -177,9 +177,6 @@ init_fnc_t *init_sequence_r[] = {
 	status_led_set_r,
 #endif
 	set_load_addr_r,
-#if defined(CONFIG_CMD_NET)
-	set_bootfile_r,
-#endif
 #if defined(CONFIG_CMD_IDE)
 	ide_init_r,
 #endif

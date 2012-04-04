@@ -399,12 +399,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
-#if defined(CONFIG_CMD_NET)
-	s = getenv("bootfile");
-	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
-#endif
-
 #ifdef BOARD_LATE_INIT
 	board_late_init();
 #endif
