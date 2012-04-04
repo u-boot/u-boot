@@ -877,9 +877,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 #endif /* CONFIG_CMD_NET */
 
-	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 	WATCHDOG_RESET();
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_SYS_EARLY_PCI_INIT)

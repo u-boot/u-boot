@@ -100,14 +100,6 @@ static int sh_mem_env_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_CMD_NET)
-static int sh_net_init(void)
-{
-	gd->bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_CMD_MMC)
 static int sh_mmc_init(void)
 {
@@ -144,9 +136,6 @@ init_fnc_t *init_sequence[] =
 	interrupt_init,
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
-#endif
-#if defined(CONFIG_CMD_NET)
-	sh_net_init,		/* SH specific eth init */
 #endif
 #if defined(CONFIG_CMD_MMC)
 	sh_mmc_init,

@@ -320,9 +320,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* relocate environment function pointers etc. */
 	env_relocate();
 
-	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 #if defined(CONFIG_PCI)
 	/*
 	 * Do pci configuration

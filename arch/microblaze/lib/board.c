@@ -176,9 +176,6 @@ void board_init (void)
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
 #if defined(CONFIG_CMD_NET)
-	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 	printf("Net:   ");
 	eth_initialize(gd->bd);
 

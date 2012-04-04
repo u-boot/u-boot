@@ -235,9 +235,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* initialize environment */
 	env_relocate();
 
-	/* IP Address */
-	gd->bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 	stdio_init();	/* get the devices list going. */
 
 	jumptable_init();

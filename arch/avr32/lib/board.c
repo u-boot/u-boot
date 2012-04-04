@@ -316,8 +316,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	/* initialize environment */
 	env_relocate();
 
-	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
-
 	stdio_init();
 	jumptable_init();
 	console_init_r();

@@ -86,7 +86,6 @@ static void display_global_data(void)
 	printf(" |-jt(%p): %p\n", gd->jt, *(gd->jt));
 	printf(" \\-bd: %p\n", gd->bd);
 	printf("   |-bi_baudrate: %x\n", bd->bi_baudrate);
-	printf("   |-bi_ip_addr: %lx\n", bd->bi_ip_addr);
 	printf("   |-bi_boot_params: %lx\n", bd->bi_boot_params);
 	printf("   |-bi_memstart: %lx\n", bd->bi_memstart);
 	printf("   |-bi_memsize: %lx\n", bd->bi_memsize);
@@ -324,8 +323,6 @@ static void board_net_init_r(bd_t *bd)
 
 	if ((s = getenv("bootfile")) != NULL)
 		copy_filename(BootFile, s, sizeof(BootFile));
-
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
 
 	printf("Net:   ");
 	eth_initialize(gd->bd);

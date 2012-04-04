@@ -157,9 +157,6 @@ init_fnc_t *init_sequence_r[] = {
 	flash_init_r,
 #endif
 	env_relocate_r,
-#ifdef CONFIG_CMD_NET
-	init_ip_address_r,
-#endif
 #ifdef CONFIG_PCI
 	pci_init_r,
 #endif

@@ -333,8 +333,6 @@ void board_init_f(ulong bootflag)
 	mac_read_from_eeprom();
 #endif
 
-	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
 #if defined(CONFIG_PCI)
 	/*
 	 * Do pci configuration

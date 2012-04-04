@@ -338,13 +338,11 @@ void net_auto_load(void)
 static void NetInitLoop(enum proto_t protocol)
 {
 	static int env_changed_id;
-	bd_t *bd = gd->bd;
 	int env_id = get_env_id();
 
 	/* update only when the environment has changed */
 	if (env_changed_id != env_id) {
 		NetOurIP = getenv_IPaddr("ipaddr");
-		NetCopyIP(&bd->bi_ip_addr, &NetOurIP);
 		NetOurGatewayIP = getenv_IPaddr("gatewayip");
 		NetOurSubnetMask = getenv_IPaddr("netmask");
 		NetServerIP = getenv_IPaddr("serverip");

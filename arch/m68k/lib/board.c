@@ -507,15 +507,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* relocate environment function pointers etc. */
 	env_relocate ();
 
-	/*
-	 * Fill in missing fields of bd_info.
-	 * We do this here, where we have "normal" access to the
-	 * environment; we used to do this still running from ROM,
-	 * where had to use getenv_f(), which can be pretty slow when
-	 * the environment is in EEPROM.
-	 */
-	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
-
 	WATCHDOG_RESET ();
 
 #if defined(CONFIG_PCI)

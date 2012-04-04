@@ -555,9 +555,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	arm_pci_init();
 #endif
 
-	/* IP Address */
-	gd->bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 	stdio_init();	/* get the devices list going. */
 
 	jumptable_init();
