@@ -47,6 +47,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <linux/compiler.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -261,7 +262,7 @@ int usb_maxpacket(struct usb_device *dev, unsigned long pipe)
  *
  * NOTE: Similar behaviour was observed with GCC4.6 on ARMv5.
  */
-static void  __attribute__((noinline))
+static void noinline
 usb_set_maxpacket_ep(struct usb_device *dev, int if_idx, int ep_idx)
 {
 	int b;
