@@ -18,6 +18,7 @@ alias gruss          Graeme Russ <graeme.russ@gmail.com>
 alias hs             Heiko Schocher <hs@denx.de>
 alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 alias jasonjin       Jason Jin <jason.jin@freescale.com>
+alias jhersh         Joe Hershberger <joe.hershberger@gmail.com>
 alias kimphill       Kim Phillips <kim.phillips@freescale.com>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marek.vasut@gmail.com>
@@ -97,6 +98,6 @@ alias fdt            uboot, Jerry Van Baren <vanbaren@cideas.com>
 alias i2c            uboot, hs
 alias mmc            uboot, afleming
 alias nand           uboot, scottwood
-alias net            uboot, wd
+alias net            uboot, jhersh
 alias usb            uboot, marex
 alias video          uboot, ag
