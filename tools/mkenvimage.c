@@ -213,7 +213,7 @@ int main(int argc, char **argv)
 		filebuf = mmap(NULL, sizeof(*envptr) * filesize, PROT_READ,
 			       MAP_PRIVATE, txt_fd, 0);
 		if (filebuf == MAP_FAILED) {
-			fprintf(stderr, "mmap (%ld bytes) failed: %s\n",
+			fprintf(stderr, "mmap (%zu bytes) failed: %s\n",
 					sizeof(*envptr) * filesize,
 					strerror(errno));
 			fprintf(stderr, "Falling back to read()\n");
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
 			filebuf = malloc(sizeof(*envptr) * filesize);
 			ret = read(txt_fd, filebuf, sizeof(*envptr) * filesize);
 			if (ret != sizeof(*envptr) * filesize) {
-				fprintf(stderr, "Can't read the whole input file (%ld bytes): %s\n",
+				fprintf(stderr, "Can't read the whole input file (%zu bytes): %s\n",
 					sizeof(*envptr) * filesize,
 					strerror(errno));
 
