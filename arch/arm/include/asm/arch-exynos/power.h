@@ -227,4 +227,10 @@ struct exynos4_power {
 };
 #endif	/* __ASSEMBLY__ */
 
+void set_mipi_phy_ctrl(unsigned int dev_index, unsigned int enable);
+
+#define EXYNOS_MIPI_PHY_ENABLE		(1 << 0)
+#define EXYNOS_MIPI_PHY_SRESETN		(1 << 1)
+#define EXYNOS_MIPI_PHY_MRESETN		(1 << 2)
+
 #endif
