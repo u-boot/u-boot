@@ -204,6 +204,13 @@ enum bootstage_id {
 };
 
 /*
+ * Return the time since boot in microseconds, This is needed for bootstage
+ * and should be defined in CPU- or board-specific code. If undefined then
+ * millisecond resolution will be used (the standard get_timer()).
+ */
+ulong timer_get_boot_us(void);
+
+/*
  * Board code can implement show_boot_progress() if needed.
  *
  * @param val	Progress state (enum bootstage_id), or -id if an error

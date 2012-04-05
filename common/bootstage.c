@@ -156,3 +156,20 @@ void bootstage_report(void)
 			"- please increase CONFIG_BOOTSTAGE_USER_COUNT\n",
 		       next_id - BOOTSTAGE_ID_COUNT);
 }
+
+ulong __timer_get_boot_us(void)
+{
+	static ulong base_time;
+
+	/*
+	 * We can't implement this properly. Return 0 on the first call and
+	 * larger values after that.
+	 */
+	if (base_time)
+		return get_timer(base_time) * 1000;
+	base_time = get_timer(0);
+	return 0;
+}
+
+ulong timer_get_boot_us(void)
+	__attribute__((weak, alias("__timer_get_boot_us")));

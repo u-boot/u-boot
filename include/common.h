@@ -207,13 +207,6 @@ typedef void (interrupt_handler_t)(void *);
 #endif /* CONFIG_SERIAL_MULTI */
 
 /*
- * Return the time since boot in microseconds, This is needed for bootstage
- * and should be defined in CPU- or board-specific code. If undefined then
- * millisecond resolution will be used (the standard get_timer()).
- */
-ulong timer_get_boot_us(void);
-
-/*
  * General Purpose Utilities
  */
 #define min(X, Y)				\
