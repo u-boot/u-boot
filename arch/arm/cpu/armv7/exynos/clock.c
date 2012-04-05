@@ -414,6 +414,170 @@ static void exynos5_set_mmc_clk(int dev_index, unsigned int div)
 	writel(val, addr);
 }
 
+/* get_lcd_clk: return lcd clock frequency */
+static unsigned long exynos4_get_lcd_clk(void)
+{
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
+	unsigned long pclk, sclk;
+	unsigned int sel;
+	unsigned int ratio;
+
+	/*
+	 * CLK_SRC_LCD0
+	 * FIMD0_SEL [3:0]
+	 */
+	sel = readl(&clk->src_lcd0);
+	sel = sel & 0xf;
+
+	/*
+	 * 0x6: SCLK_MPLL
+	 * 0x7: SCLK_EPLL
+	 * 0x8: SCLK_VPLL
+	 */
+	if (sel == 0x6)
+		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x7)
+		sclk = get_pll_clk(EPLL);
+	else if (sel == 0x8)
+		sclk = get_pll_clk(VPLL);
+	else
+		return 0;
+
+	/*
+	 * CLK_DIV_LCD0
+	 * FIMD0_RATIO [3:0]
+	 */
+	ratio = readl(&clk->div_lcd0);
+	ratio = ratio & 0xf;
+
+	pclk = sclk / (ratio + 1);
+
+	return pclk;
+}
+
+void exynos4_set_lcd_clk(void)
+{
+	struct exynos4_clock *clk =
+	    (struct exynos4_clock *)samsung_get_base_clock();
+	unsigned int cfg = 0;
+
+	/*
+	 * CLK_GATE_BLOCK
+	 * CLK_CAM	[0]
+	 * CLK_TV	[1]
+	 * CLK_MFC	[2]
+	 * CLK_G3D	[3]
+	 * CLK_LCD0	[4]
+	 * CLK_LCD1	[5]
+	 * CLK_GPS	[7]
+	 */
+	cfg = readl(&clk->gate_block);
+	cfg |= 1 << 4;
+	writel(cfg, &clk->gate_block);
+
+	/*
+	 * CLK_SRC_LCD0
+	 * FIMD0_SEL		[3:0]
+	 * MDNIE0_SEL		[7:4]
+	 * MDNIE_PWM0_SEL	[8:11]
+	 * MIPI0_SEL		[12:15]
+	 * set lcd0 src clock 0x6: SCLK_MPLL
+	 */
+	cfg = readl(&clk->src_lcd0);
+	cfg &= ~(0xf);
+	cfg |= 0x6;
+	writel(cfg, &clk->src_lcd0);
+
+	/*
+	 * CLK_GATE_IP_LCD0
+	 * CLK_FIMD0		[0]
+	 * CLK_MIE0		[1]
+	 * CLK_MDNIE0		[2]
+	 * CLK_DSIM0		[3]
+	 * CLK_SMMUFIMD0	[4]
+	 * CLK_PPMULCD0		[5]
+	 * Gating all clocks for FIMD0
+	 */
+	cfg = readl(&clk->gate_ip_lcd0);
+	cfg |= 1 << 0;
+	writel(cfg, &clk->gate_ip_lcd0);
+
+	/*
+	 * CLK_DIV_LCD0
+	 * FIMD0_RATIO		[3:0]
+	 * MDNIE0_RATIO		[7:4]
+	 * MDNIE_PWM0_RATIO	[11:8]
+	 * MDNIE_PWM_PRE_RATIO	[15:12]
+	 * MIPI0_RATIO		[19:16]
+	 * MIPI0_PRE_RATIO	[23:20]
+	 * set fimd ratio
+	 */
+	cfg &= ~(0xf);
+	cfg |= 0x1;
+	writel(cfg, &clk->div_lcd0);
+}
+
+void exynos4_set_mipi_clk(void)
+{
+	struct exynos4_clock *clk =
+	    (struct exynos4_clock *)samsung_get_base_clock();
+	unsigned int cfg = 0;
+
+	/*
+	 * CLK_SRC_LCD0
+	 * FIMD0_SEL		[3:0]
+	 * MDNIE0_SEL		[7:4]
+	 * MDNIE_PWM0_SEL	[8:11]
+	 * MIPI0_SEL		[12:15]
+	 * set mipi0 src clock 0x6: SCLK_MPLL
+	 */
+	cfg = readl(&clk->src_lcd0);
+	cfg &= ~(0xf << 12);
+	cfg |= (0x6 << 12);
+	writel(cfg, &clk->src_lcd0);
+
+	/*
+	 * CLK_SRC_MASK_LCD0
+	 * FIMD0_MASK		[0]
+	 * MDNIE0_MASK		[4]
+	 * MDNIE_PWM0_MASK	[8]
+	 * MIPI0_MASK		[12]
+	 * set src mask mipi0 0x1: Unmask
+	 */
+	cfg = readl(&clk->src_mask_lcd0);
+	cfg |= (0x1 << 12);
+	writel(cfg, &clk->src_mask_lcd0);
+
+	/*
+	 * CLK_GATE_IP_LCD0
+	 * CLK_FIMD0		[0]
+	 * CLK_MIE0		[1]
+	 * CLK_MDNIE0		[2]
+	 * CLK_DSIM0		[3]
+	 * CLK_SMMUFIMD0	[4]
+	 * CLK_PPMULCD0		[5]
+	 * Gating all clocks for MIPI0
+	 */
+	cfg = readl(&clk->gate_ip_lcd0);
+	cfg |= 1 << 3;
+	writel(cfg, &clk->gate_ip_lcd0);
+
+	/*
+	 * CLK_DIV_LCD0
+	 * FIMD0_RATIO		[3:0]
+	 * MDNIE0_RATIO		[7:4]
+	 * MDNIE_PWM0_RATIO	[11:8]
+	 * MDNIE_PWM_PRE_RATIO	[15:12]
+	 * MIPI0_RATIO		[19:16]
+	 * MIPI0_PRE_RATIO	[23:20]
+	 * set mipi ratio
+	 */
+	cfg &= ~(0xf << 16);
+	cfg |= (0x1 << 16);
+	writel(cfg, &clk->div_lcd0);
+}
+
 unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5())
@@ -452,4 +616,24 @@ void set_mmc_clk(int dev_index, unsigned int div)
 		exynos5_set_mmc_clk(dev_index, div);
 	else
 		exynos4_set_mmc_clk(dev_index, div);
+}
+
+unsigned long get_lcd_clk(void)
+{
+	if (cpu_is_exynos4())
+		return exynos4_get_lcd_clk();
+	else
+		return 0;
+}
+
+void set_lcd_clk(void)
+{
+	if (cpu_is_exynos4())
+		exynos4_set_lcd_clk();
+}
+
+void set_mipi_clk(void)
+{
+	if (cpu_is_exynos4())
+		exynos4_set_mipi_clk();
 }
