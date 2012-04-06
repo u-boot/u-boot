@@ -82,7 +82,7 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 		start += CONFIG_SYS_CACHELINE_SIZE;
 	}
 
-	asm("mcr p15, 0, %0, c7, c10, 4\n"::"r"(0));
+	asm volatile("mcr p15, 0, %0, c7, c10, 4\n"::"r"(0));
 }
 
 void flush_cache(unsigned long start, unsigned long size)
