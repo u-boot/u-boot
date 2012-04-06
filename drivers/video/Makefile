@@ -32,6 +32,7 @@ COBJS-$(CONFIG_EXYNOS_FB) += exynos_fb.o exynos_fimd.o
 COBJS-$(CONFIG_EXYNOS_MIPI_DSIM) += exynos_mipi_dsi.o exynos_mipi_dsi_common.o \
 				exynos_mipi_dsi_lowlevel.o
 COBJS-$(CONFIG_FSL_DIU_FB) += fsl_diu_fb.o videomodes.o
+COBJS-$(CONFIG_S6E8AX0) += s6e8ax0.o
 COBJS-$(CONFIG_S6E63D6) += s6e63d6.o
 COBJS-$(CONFIG_SED156X) += sed156x.o
 COBJS-$(CONFIG_VIDEO_AMBA) += amba.o
