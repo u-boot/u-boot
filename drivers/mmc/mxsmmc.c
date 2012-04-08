@@ -338,6 +338,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	struct mmc *mmc = NULL;
 	struct mxsmmc_priv *priv = NULL;
+	int ret;
 
 	mmc = malloc(sizeof(struct mmc));
 	if (!mmc)
@@ -355,6 +356,10 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 		free(mmc);
 		return -ENOMEM;
 	}
+
+	ret = mxs_dma_init_channel(id);
+	if (ret)
+		return ret;
 
 	priv->mmc_is_wp = wp;
 	priv->id = id;
