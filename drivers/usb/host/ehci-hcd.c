@@ -234,6 +234,16 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	toggle = usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe));
 
+	/*
+	 * Setup QH (3.6 in ehci-r10.pdf)
+	 *
+	 *   qh_link ................. 03-00 H
+	 *   qh_endpt1 ............... 07-04 H
+	 *   qh_endpt2 ............... 0B-08 H
+	 * - qh_curtd
+	 *   qh_overlay.qt_next ...... 13-10 H
+	 * - qh_overlay.qt_altnext
+	 */
 	qh.qh_link = cpu_to_hc32((uint32_t)&qh_list | QH_LINK_TYPE_QH);
 	c = (usb_pipespeed(pipe) != USB_SPEED_HIGH &&
 	     usb_pipeendpoint(pipe) == 0) ? 1 : 0;
@@ -255,6 +265,15 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	tdp = &qh.qh_overlay.qt_next;
 
 	if (req != NULL) {
+		/*
+		 * Setup request qTD (3.5 in ehci-r10.pdf)
+		 *
+		 *   qt_next ................ 03-00 H
+		 *   qt_altnext ............. 07-04 H
+		 *   qt_token ............... 0B-08 H
+		 *
+		 *   [ buffer, buffer_hi ] loaded with "req".
+		 */
 		qtd[qtd_counter].qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 		qtd[qtd_counter].qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 		token = (0 << 31) |
@@ -265,12 +284,22 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			debug("unable construct SETUP td\n");
 			goto fail;
 		}
+		/* Update previous qTD! */
 		*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
 		tdp = &qtd[qtd_counter++].qt_next;
 		toggle = 1;
 	}
 
 	if (length > 0 || req == NULL) {
+		/*
+		 * Setup request qTD (3.5 in ehci-r10.pdf)
+		 *
+		 *   qt_next ................ 03-00 H
+		 *   qt_altnext ............. 07-04 H
+		 *   qt_token ............... 0B-08 H
+		 *
+		 *   [ buffer, buffer_hi ] loaded with "buffer".
+		 */
 		qtd[qtd_counter].qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 		qtd[qtd_counter].qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 		token = (toggle << 31) |
@@ -284,11 +313,19 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			debug("unable construct DATA td\n");
 			goto fail;
 		}
+		/* Update previous qTD! */
 		*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
 		tdp = &qtd[qtd_counter++].qt_next;
 	}
 
 	if (req != NULL) {
+		/*
+		 * Setup request qTD (3.5 in ehci-r10.pdf)
+		 *
+		 *   qt_next ................ 03-00 H
+		 *   qt_altnext ............. 07-04 H
+		 *   qt_token ............... 0B-08 H
+		 */
 		qtd[qtd_counter].qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 		qtd[qtd_counter].qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 		token = (toggle << 31) |
@@ -298,6 +335,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		    (3 << 10) |
 		    ((usb_pipein(pipe) ? 0 : 1) << 8) | (0x80 << 0);
 		qtd[qtd_counter].qt_token = cpu_to_hc32(token);
+		/* Update previous qTD! */
 		*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
 		tdp = &qtd[qtd_counter++].qt_next;
 	}
