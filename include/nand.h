@@ -37,7 +37,7 @@
 
 extern void nand_init(void);
 
-#include <linux/mtd/compat.h>
+#include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 
