@@ -102,6 +102,18 @@ int xilinx_axiemac_initialize(bd_t *bis, unsigned long base_addr,
 							unsigned long dma_addr);
 int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 							int txpp, int rxpp);
+int xilinx_ll_temac_eth_init(bd_t *bis, unsigned long base_addr, int flags,
+						unsigned long ctrl_addr);
+
+/*
+ * As long as the Xilinx xps_ll_temac ethernet driver has not its own interface
+ * exported by a public hader file, we need a global definition at this point.
+ */
+#if defined(CONFIG_XILINX_LL_TEMAC)
+#define XILINX_LL_TEMAC_M_FIFO		0	/* use FIFO Ctrl */
+#define XILINX_LL_TEMAC_M_SDMA_PLB	(1 << 0)/* use SDMA Ctrl via PLB */
+#define XILINX_LL_TEMAC_M_SDMA_DCR	(1 << 1)/* use SDMA Ctrl via DCR */
+#endif
 
 /* Boards with PCI network controllers can call this from their board_eth_init()
  * function to initialize whatever's on board.

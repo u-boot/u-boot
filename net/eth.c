@@ -172,8 +172,7 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 	unsigned char env_enetaddr[6];
 	int ret = 0;
 
-	if (!eth_getenv_enetaddr_by_index(base_name, eth_number, env_enetaddr))
-		return -1;
+	eth_getenv_enetaddr_by_index(base_name, eth_number, env_enetaddr);
 
 	if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6)) {
 		if (memcmp(dev->enetaddr, "\0\0\0\0\0\0", 6) &&
