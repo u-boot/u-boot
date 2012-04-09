@@ -178,11 +178,6 @@ void show_boot_progress(int val)
 
 int last_stage_init(void)
 {
-	int minor;
-	int major;
-
-	major = minor = 0;
-
 	outb(0x00, LED_LATCH_ADDRESS);
 
 	register_timer_isr(enet_timer_isr);
