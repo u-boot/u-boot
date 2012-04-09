@@ -127,5 +127,7 @@ struct samsung_onenand {
 
 /* common initialize function */
 extern void s3c_onenand_init(struct mtd_info *);
+extern int s5pc110_chip_probe(struct mtd_info *);
+extern int s5pc210_chip_probe(struct mtd_info *);
 
 #endif
