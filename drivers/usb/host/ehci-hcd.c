@@ -108,99 +108,6 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
-#if defined(CONFIG_EHCI_DCACHE)
-/*
- * Routines to handle (flush/invalidate) the dcache for the QH and qTD
- * structures and data buffers. This is needed on platforms using this
- * EHCI support with dcache enabled.
- */
-static void flush_invalidate(u32 addr, int size, int flush)
-{
-	if (flush)
-		flush_dcache_range(addr, addr + size);
-	else
-		invalidate_dcache_range(addr, addr + size);
-}
-
-static void cache_qtd(struct qTD *qtd, int flush)
-{
-	u32 *ptr = (u32 *)qtd->qt_buffer[0];
-	int len = (qtd->qt_token & 0x7fff0000) >> 16;
-
-	flush_invalidate((u32)qtd, sizeof(struct qTD), flush);
-	if (ptr && len)
-		flush_invalidate((u32)ptr, len, flush);
-}
-
-
-static inline struct QH *qh_addr(struct QH *qh)
-{
-	return (struct QH *)((u32)qh & 0xffffffe0);
-}
-
-static void cache_qh(struct QH *qh, int flush)
-{
-	struct qTD *qtd;
-	struct qTD *next;
-	static struct qTD *first_qtd;
-
-	/*
-	 * Walk the QH list and flush/invalidate all entries
-	 */
-	while (1) {
-		flush_invalidate((u32)qh_addr(qh), sizeof(struct QH), flush);
-		if ((u32)qh & QH_LINK_TYPE_QH)
-			break;
-		qh = qh_addr(qh);
-		qh = (struct QH *)qh->qh_link;
-	}
-	qh = qh_addr(qh);
-
-	/*
-	 * Save first qTD pointer, needed for invalidating pass on this QH
-	 */
-	if (flush)
-		first_qtd = qtd = (struct qTD *)(*(u32 *)&qh->qh_overlay &
-						 0xffffffe0);
-	else
-		qtd = first_qtd;
-
-	/*
-	 * Walk the qTD list and flush/invalidate all entries
-	 */
-	while (1) {
-		if (qtd == NULL)
-			break;
-		cache_qtd(qtd, flush);
-		next = (struct qTD *)((u32)qtd->qt_next & 0xffffffe0);
-		if (next == qtd)
-			break;
-		qtd = next;
-	}
-}
-
-static inline void ehci_flush_dcache(struct QH *qh)
-{
-	cache_qh(qh, 1);
-}
-
-static inline void ehci_invalidate_dcache(struct QH *qh)
-{
-	cache_qh(qh, 0);
-}
-#else /* CONFIG_EHCI_DCACHE */
-/*
- *
- */
-static inline void ehci_flush_dcache(struct QH *qh)
-{
-}
-
-static inline void ehci_invalidate_dcache(struct QH *qh)
-{
-}
-#endif /* CONFIG_EHCI_DCACHE */
-
 void __ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 {
 	mdelay(50);
@@ -263,12 +170,20 @@ out:
 
 static int ehci_td_buffer(struct qTD *td, void *buf, size_t sz)
 {
-	uint32_t addr, delta, next;
+	uint32_t delta, next;
+	uint32_t addr = (uint32_t)buf;
+	size_t rsz = roundup(sz, 32);
 	int idx;
 
-	addr = (uint32_t) buf;
+	if (sz != rsz)
+		debug("EHCI-HCD: Misaligned buffer size (%08x)\n", sz);
+
+	if (addr & 31)
+		debug("EHCI-HCD: Misaligned buffer address (%p)\n", buf);
+
 	idx = 0;
 	while (idx < 5) {
+		flush_dcache_range(addr, addr + rsz);
 		td->qt_buffer[idx] = cpu_to_hc32(addr);
 		td->qt_buffer_hi[idx] = 0;
 		next = (addr + 4096) & ~4095;
@@ -317,6 +232,8 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	memset(&qh, 0, sizeof(struct QH));
 	memset(qtd, 0, sizeof(qtd));
 
+	toggle = usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe));
+
 	qh.qh_link = cpu_to_hc32((uint32_t)&qh_list | QH_LINK_TYPE_QH);
 	c = (usb_pipespeed(pipe) != USB_SPEED_HIGH &&
 	     usb_pipeendpoint(pipe) == 0) ? 1 : 0;
@@ -336,9 +253,6 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	qh.qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 
 	tdp = &qh.qh_overlay.qt_next;
-
-	toggle =
-	    usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe));
 
 	if (req != NULL) {
 		qtd[qtd_counter].qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
@@ -391,7 +305,10 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	qh_list.qh_link = cpu_to_hc32((uint32_t)&qh | QH_LINK_TYPE_QH);
 
 	/* Flush dcache */
-	ehci_flush_dcache(&qh_list);
+	flush_dcache_range((uint32_t)&qh_list,
+		(uint32_t)&qh_list + sizeof(struct QH));
+	flush_dcache_range((uint32_t)&qh, (uint32_t)&qh + sizeof(struct QH));
+	flush_dcache_range((uint32_t)qtd, (uint32_t)qtd + sizeof(qtd));
 
 	usbsts = ehci_readl(&hcor->or_usbsts);
 	ehci_writel(&hcor->or_usbsts, (usbsts & 0x3f));
@@ -414,12 +331,22 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	timeout = USB_TIMEOUT_MS(pipe);
 	do {
 		/* Invalidate dcache */
-		ehci_invalidate_dcache(&qh_list);
+		invalidate_dcache_range((uint32_t)&qh_list,
+			(uint32_t)&qh_list + sizeof(struct QH));
+		invalidate_dcache_range((uint32_t)&qh,
+			(uint32_t)&qh + sizeof(struct QH));
+		invalidate_dcache_range((uint32_t)qtd,
+			(uint32_t)qtd + sizeof(qtd));
+
 		token = hc32_to_cpu(vtd->qt_token);
 		if (!(token & 0x80))
 			break;
 		WATCHDOG_RESET();
 	} while (get_timer(ts) < timeout);
+
+	/* Invalidate the memory area occupied by buffer */
+	invalidate_dcache_range(((uint32_t)buffer & ~31),
+		((uint32_t)buffer & ~31) + roundup(length, 32));
 
 	/* Check that the TD processing happened */
 	if (token & 0x80) {
