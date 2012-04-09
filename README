@@ -374,6 +374,12 @@ The following options need to be configured:
 		Defines the string to utilize when trying to match PCIe device
 		tree nodes for the given platform.
 
+- Generic CPU options:
+		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
+
+		Defines the endianess of the CPU. Implementation of those
+		values is arch specific.
+
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
 
