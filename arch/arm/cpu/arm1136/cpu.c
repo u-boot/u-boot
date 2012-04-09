@@ -70,10 +70,12 @@ int cleanup_before_linux (void)
 static void cache_flush(void)
 {
 	unsigned long i = 0;
-
-	asm ("mcr p15, 0, %0, c7, c10, 0": :"r" (i)); /* clean entire data cache */
-	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));  /* invalidate both caches and flush btb */
-	asm ("mcr p15, 0, %0, c7, c10, 4": :"r" (i)); /* mem barrier to sync things */
+	/* clean entire data cache */
+	asm volatile("mcr p15, 0, %0, c7, c10, 0" : : "r" (i));
+	/* invalidate both caches and flush btb */
+	asm volatile("mcr p15, 0, %0, c7, c7, 0" : : "r" (i));
+	/* mem barrier to sync things */
+	asm volatile("mcr p15, 0, %0, c7, c10, 4" : : "r" (i));
 }
 
 #ifndef CONFIG_SYS_DCACHE_OFF
@@ -84,13 +86,13 @@ static void cache_flush(void)
 
 void invalidate_dcache_all(void)
 {
-	asm ("mcr p15, 0, %0, c7, c6, 0" : : "r" (0));
+	asm volatile("mcr p15, 0, %0, c7, c6, 0" : : "r" (0));
 }
 
 void flush_dcache_all(void)
 {
-	asm ("mcr p15, 0, %0, c7, c10, 0" : : "r" (0));
-	asm ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
+	asm volatile("mcr p15, 0, %0, c7, c10, 0" : : "r" (0));
+	asm volatile("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
 }
 
 static inline int bad_cache_range(unsigned long start, unsigned long stop)
@@ -116,7 +118,7 @@ void invalidate_dcache_range(unsigned long start, unsigned long stop)
 		return;
 
 	while (start < stop) {
-		asm ("mcr p15, 0, %0, c7, c6, 1" : : "r" (start));
+		asm volatile("mcr p15, 0, %0, c7, c6, 1" : : "r" (start));
 		start += CONFIG_SYS_CACHELINE_SIZE;
 	}
 }
@@ -127,11 +129,11 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 		return;
 
 	while (start < stop) {
-		asm ("mcr p15, 0, %0, c7, c14, 1" : : "r" (start));
+		asm volatile("mcr p15, 0, %0, c7, c14, 1" : : "r" (start));
 		start += CONFIG_SYS_CACHELINE_SIZE;
 	}
 
-	asm ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
+	asm volatile("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
 }
 
 void flush_cache(unsigned long start, unsigned long size)
