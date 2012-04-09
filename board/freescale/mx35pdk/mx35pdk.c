@@ -258,17 +258,6 @@ int board_late_init(void)
 	val |= 0x80;
 	mc9sdz60_reg_write(MC9SDZ60_REG_RESET_1, val);
 
-	return 0;
-}
-
-int checkboard(void)
-{
-	/*
-	 * Be sure that I2C is initialized to check
-	 * the board revision
-	 */
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
 	/* Print board revision */
 	printf("Board: MX35 PDK %d.0\n", ((get_board_rev() >> 8) + 1) & 0x0F);
 

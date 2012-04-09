@@ -34,7 +34,6 @@
 #define CONFIG_MX35_HCLK_FREQ	24000000
 
 #define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* Set TEXT at the beginning of the NOR flash */
 #define CONFIG_SYS_TEXT_BASE	0xA0000000
