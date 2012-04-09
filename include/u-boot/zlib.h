@@ -691,6 +691,9 @@ ZEXTERN int ZEXPORT inflateInit2_ OF((z_streamp strm, int  windowBits,
 	struct internal_state {int dummy;}; /* hack for buggy compilers */
 #endif
 
+extern void *gzalloc(void *, unsigned, unsigned);
+extern void gzfree(void *, void *, unsigned);
+
 #ifdef __cplusplus
 }
 #endif
