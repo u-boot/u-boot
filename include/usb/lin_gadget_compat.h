@@ -52,7 +52,6 @@
 
 #define kmalloc(size, type) memalign(CONFIG_SYS_CACHELINE_SIZE, size)
 #define kfree(addr) free(addr)
-#define mdelay(n) ({unsigned long msec = (n); while (msec--) udelay(1000); })
 
 #define __iomem
 #define min_t min
