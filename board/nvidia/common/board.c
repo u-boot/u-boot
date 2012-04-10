@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <ns16550.h>
+#include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/sys_proto.h>
@@ -30,6 +31,7 @@
 #include <asm/arch/board.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/emc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/pmc.h>
 #include <asm/arch/pmu.h>
@@ -39,6 +41,7 @@
 #include <asm/arch/usb.h>
 #include <i2c.h>
 #include "board.h"
+#include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -82,6 +85,8 @@ static void power_det_init(void)
  */
 int board_init(void)
 {
+	__maybe_unused int err;
+
 	/* Do clocks and UART first so that printf() works */
 	clock_init();
 	clock_verify();
@@ -105,8 +110,13 @@ int board_init(void)
 # ifdef CONFIG_TEGRA_PMU
 	if (pmu_set_nominal())
 		debug("Failed to select nominal voltages\n");
-# endif
-#endif
+#  ifdef CONFIG_TEGRA_CLOCK_SCALING
+	err = board_emc_init();
+	if (err)
+		debug("Memory controller init failed: %d\n", err);
+#  endif
+# endif /* CONFIG_TEGRA_PMU */
+#endif /* CONFIG_TEGRA_I2C */
 
 #ifdef CONFIG_USB_EHCI_TEGRA
 	pin_mux_usb();
