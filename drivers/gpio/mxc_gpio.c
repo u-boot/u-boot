@@ -145,6 +145,5 @@ int gpio_direction_output(unsigned gpio, int value)
 	if (ret < 0)
 		return ret;
 
-	gpio_set_value(gpio, value);
-	return 0;
+	return gpio_set_value(gpio, value);
 }
