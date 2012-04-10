@@ -34,6 +34,7 @@ enum mxc_gpio_direction {
 	MXC_GPIO_DIRECTION_OUT,
 };
 
+#define GPIO_TO_PORT(n)		(n / 32)
 
 /* GPIO port description */
 static unsigned long gpio_ports[] = {
