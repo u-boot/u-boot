@@ -54,7 +54,7 @@ static unsigned long gpio_ports[] = {
 static int mxc_gpio_direction(unsigned int gpio,
 	enum mxc_gpio_direction direction)
 {
-	unsigned int port = gpio >> 5;
+	unsigned int port = GPIO_TO_PORT(gpio);
 	struct gpio_regs *regs;
 	u32 l;
 
@@ -81,7 +81,7 @@ static int mxc_gpio_direction(unsigned int gpio,
 
 int gpio_set_value(unsigned gpio, int value)
 {
-	unsigned int port = gpio >> 5;
+	unsigned int port = GPIO_TO_PORT(gpio);
 	struct gpio_regs *regs;
 	u32 l;
 
@@ -104,7 +104,7 @@ int gpio_set_value(unsigned gpio, int value)
 
 int gpio_get_value(unsigned gpio)
 {
-	unsigned int port = gpio >> 5;
+	unsigned int port = GPIO_TO_PORT(gpio);
 	struct gpio_regs *regs;
 	u32 val;
 
@@ -122,7 +122,7 @@ int gpio_get_value(unsigned gpio)
 
 int gpio_request(unsigned gpio, const char *label)
 {
-	unsigned int port = gpio >> 5;
+	unsigned int port = GPIO_TO_PORT(gpio);
 	if (port >= ARRAY_SIZE(gpio_ports))
 		return -1;
 	return 0;
