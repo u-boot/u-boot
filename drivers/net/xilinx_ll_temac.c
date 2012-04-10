@@ -298,9 +298,9 @@ int xilinx_ll_temac_initialize(bd_t *bis, struct ll_temac_info *devinf)
 
 	/* use given name or generate its own unique name */
 	if (devinf->devname) {
-		strncpy(dev->name, devinf->devname, NAMESIZE);
+		strncpy(dev->name, devinf->devname, sizeof(dev->name));
 	} else {
-		snprintf(dev->name, NAMESIZE, "lltemac.%lx", devinf->base_addr);
+		snprintf(dev->name, sizeof(dev->name), "lltemac.%lx", devinf->base_addr);
 		devinf->devname = dev->name;
 	}
 
