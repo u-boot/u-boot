@@ -775,6 +775,7 @@ int board_nand_init(struct nand_chip *nand)
 	if (priv->bank >= MAX_BANKS) {
 		printf("%s: address did not match any "
 		       "chip selects\n", __func__);
+		kfree(priv);
 		return -ENODEV;
 	}
 
