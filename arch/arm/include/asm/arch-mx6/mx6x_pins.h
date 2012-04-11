@@ -48,8 +48,8 @@
 #define PAD_CTL_SRE_FAST	(1 << 0)
 #define PAD_CTL_SRE_SLOW	(0 << 0)
 
-#define NO_MUX_I		0x3FF
-#define NO_PAD_I		0x7FF
+#define NO_MUX_I                0
+#define NO_PAD_I                0
 
 enum {
 	MX6Q_PAD_SD2_DAT1__USDHC2_DAT1		= IOMUX_PAD(0x0360, 0x004C, 0, 0x0000, 0, 0),
