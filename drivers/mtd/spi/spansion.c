@@ -70,6 +70,7 @@ struct spansion_spi_flash_params {
 struct spansion_spi_flash {
 	struct spi_flash flash;
 	const struct spansion_spi_flash_params *params;
+	unsigned addr_width;
 };
 
 static inline struct spansion_spi_flash *to_spansion_spi_flash(struct spi_flash
@@ -132,8 +133,13 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.idcode2 = SPSN_EXT_ID_S25FL129P_64KB,
 		.page_size = 256,
 		.pages_per_sector = 256,
+#ifndef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
 		.nr_sectors = 256,
 		.name = "S25FL129P_64K",
+#else
+		.nr_sectors = 512,
+		.name = "S25FL129P_64Kx2",
+#endif
 	},
 	{
 		.idcode1 = SPSN_ID_S25FL129P,
@@ -144,6 +150,27 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.name = "S25FL129P_256K",
 	},
 };
+
+static inline void span_addr2cmd(struct spansion_spi_flash *spsn,
+			unsigned page_addr, unsigned byte_addr, u8 *cmd)
+{
+	/* opcode is in cmd[0] */
+	if (spsn->addr_width == 4) {
+		cmd[1] = page_addr >> 16;
+		cmd[2] = page_addr >> 8;
+		cmd[3] = page_addr;
+		cmd[4] = byte_addr;
+	} else {
+		cmd[1] = page_addr >> 8;
+		cmd[2] = page_addr;
+		cmd[3] = byte_addr;
+	}
+}
+
+static inline int span_cmdsz(struct spansion_spi_flash *flash)
+{
+	return 1 + flash->addr_width;
+}
 
 static int spansion_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
@@ -177,22 +204,20 @@ static int spansion_read_fast(struct spi_flash *flash,
 	struct spansion_spi_flash *spsn = to_spansion_spi_flash(flash);
 	unsigned long page_addr;
 	unsigned long page_size;
-	u8 cmd[5];
+	u8 cmd[6];
 
 	page_size = spsn->params->page_size;
 	page_addr = offset / page_size;
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
-	cmd[1] = page_addr >> 8;
-	cmd[2] = page_addr;
-	cmd[3] = offset % page_size;
-	cmd[4] = 0x00;
+	span_addr2cmd(spsn, page_addr, offset % page_size, cmd);
+	cmd[span_cmdsz(spsn)] = 0x00;
 
 	debug
 		("READ: 0x%x => cmd = { 0x%02x 0x%02x%02x%02x%02x } len = 0x%x\n",
 		 offset, cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], len);
 
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
+	return spi_flash_read_common(flash, cmd, span_cmdsz(spsn)+1, buf, len);
 }
 
 static int spansion_write(struct spi_flash *flash,
@@ -205,7 +230,7 @@ static int spansion_write(struct spi_flash *flash,
 	size_t chunk_len;
 	size_t actual;
 	int ret;
-	u8 cmd[4];
+	u8 cmd[5];
 
 	page_size = spsn->params->page_size;
 	page_addr = offset / page_size;
@@ -222,9 +247,7 @@ static int spansion_write(struct spi_flash *flash,
 		chunk_len = min(len - actual, page_size - byte_addr);
 
 		cmd[0] = CMD_S25FLXX_PP;
-		cmd[1] = page_addr >> 8;
-		cmd[2] = page_addr;
-		cmd[3] = byte_addr;
+		span_addr2cmd(spsn, page_addr, byte_addr, cmd);
 
 		debug
 		    ("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %d\n",
@@ -236,7 +259,7 @@ static int spansion_write(struct spi_flash *flash,
 			break;
 		}
 
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
+		ret = spi_flash_cmd_write(flash->spi, cmd, span_cmdsz(spsn),
 					  buf + actual, chunk_len);
 		if (ret < 0) {
 			debug("SF: SPANSION Page Program failed\n");
@@ -266,7 +289,7 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 	unsigned long sector_size;
 	size_t actual;
 	int ret;
-	u8 cmd[4];
+	u8 cmd[5];
 
 	/*
 	 * This function currently uses sector erase only.
@@ -283,8 +306,6 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	len /= sector_size;
 	cmd[0] = CMD_S25FLXX_SE;
-	cmd[2] = 0x00;
-	cmd[3] = 0x00;
 
 	ret = spi_claim_bus(flash->spi);
 	if (ret) {
@@ -294,7 +315,12 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	ret = 0;
 	for (actual = 0; actual < len; actual++) {
-		cmd[1] = (offset / sector_size) + actual;
+		unsigned page_addr;
+
+		page_addr = offset / spsn->params->page_size;
+		span_addr2cmd(spsn, page_addr, 0, cmd);
+
+		offset += sector_size;
 
 		ret = spi_flash_cmd(flash->spi, CMD_S25FLXX_WREN, NULL, 0);
 		if (ret < 0) {
@@ -302,7 +328,8 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 			break;
 		}
 
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
+		ret = spi_flash_cmd_write(flash->spi, cmd,
+					span_cmdsz(spsn), NULL, 0);
 		if (ret < 0) {
 			debug("SF: SPANSION page erase failed\n");
 			break;
@@ -361,6 +388,12 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	spsn->flash.read = spansion_read_fast;
 	spsn->flash.size = params->page_size * params->pages_per_sector
 	    * params->nr_sectors;
+
+	/* increase addr width by +1, if > 16MB flash */
+	if (spsn->flash.size > 0x1000000)
+		spsn->addr_width = 4;
+	else
+		spsn->addr_width = 3;
 
 	printf("SF: Detected %s with page size %u, total ",
 	       params->name, params->page_size);
