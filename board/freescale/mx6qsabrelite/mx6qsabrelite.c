@@ -135,7 +135,7 @@ static void setup_iomux_enet(void)
 
 	/* Need delay 10ms according to KSZ9021 spec */
 	udelay(1000 * 10);
-	gpio_direction_output(87, 1);  /* GPIO 3-23 */
+	gpio_set_value(87, 1);  /* GPIO 3-23 */
 
 	imx_iomux_v3_setup_multiple_pads(enet_pads2, ARRAY_SIZE(enet_pads2));
 }
