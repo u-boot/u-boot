@@ -16,6 +16,9 @@
 *.patch
 *.bin
 
+# Build tree
+/build-*
+
 #
 # Top-level generic files
 #
@@ -39,6 +42,7 @@
 /u-boot.ais
 /u-boot.dtb
 /u-boot.sb
+/u-boot.geany
 
 #
 # Generated files
