@@ -153,7 +153,6 @@
 #define CONFIG_SYS_NAND_BASE		0xd8000000
 #define CONFIG_JFFS2_NAND
 #define CONFIG_MXC_NAND_HWECC
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 /*
  * SD/MMC

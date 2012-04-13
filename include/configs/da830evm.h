@@ -111,7 +111,6 @@
 #define CONFIG_SYS_NAND_CS		3
 #define CONFIG_SYS_NAND_BASE		DAVINCI_ASYNC_EMIF_DATA_CE3_BASE
 #define CONFIG_SYS_NAND_PAGE_2K
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #define CONFIG_SYS_CLE_MASK		0x10
 #define CONFIG_SYS_ALE_MASK		0x8
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */

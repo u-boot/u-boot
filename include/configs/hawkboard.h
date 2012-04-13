@@ -127,7 +127,6 @@
 #define CFG_DAVINCI_STD_NAND_LAYOUT
 #define CONFIG_SYS_NAND_CS		3
 #define CONFIG_SYS_NAND_PAGE_2K
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 /* Max number of NAND devices */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE_LIST	{ 0x62000000, }

@@ -310,7 +310,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_OF_STDOUT_VIA_ALIAS
 
-#define CONFIG_SYS_64BIT_VSPRINTF
 #define CONFIG_SYS_64BIT_STRTOUL
 
 /* new uImage format support */

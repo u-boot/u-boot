@@ -215,7 +215,6 @@
 # define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
 # define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIO_PORTD, 15
 # define CONFIG_SYS_NAND_READY_PIN		AT91_PIO_PORTA, 22
-# define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #endif
 
 /* Ethernet */

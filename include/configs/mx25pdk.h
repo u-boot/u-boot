@@ -65,7 +65,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_64BIT_VSPRINTF
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_PROMPT	"MX25PDK U-Boot > "

@@ -48,8 +48,6 @@
 /* Set TEXT at the beginning of the NOR flash */
 #define CONFIG_SYS_TEXT_BASE	0xA0000000
 
-#define CONFIG_SYS_64BIT_VSPRINTF
-
 /* This is required to setup the ESDC controller */
 #define CONFIG_BOARD_EARLY_INIT_F
 

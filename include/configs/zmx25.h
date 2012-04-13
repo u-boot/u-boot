@@ -93,8 +93,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_CACHE
 
-#define CONFIG_SYS_64BIT_VSPRINTF
-
 /*
  * Additional command
  */
