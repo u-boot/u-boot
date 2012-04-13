@@ -38,7 +38,6 @@
 #define CONFIG_OMAP54XX	/* which is a 54XX */
 #define CONFIG_OMAP5430	/* which is in a 5430 */
 #define CONFIG_5430EVM	/* working with EVM */
-#define CONFIG_ARCH_CPU_INIT
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>

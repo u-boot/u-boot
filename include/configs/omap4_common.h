@@ -35,7 +35,6 @@
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP44XX		1	/* which is a 44XX */
 #define CONFIG_OMAP4430		1	/* which is in a 4430 */
-#define CONFIG_ARCH_CPU_INIT
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>

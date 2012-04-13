@@ -203,16 +203,6 @@ int checkboard(void)
 }
 
 /*
-* This function is called by start_armboot. You can reliably use static
-* data. Any boot-time function that require static data should be
-* called from here
-*/
-int arch_cpu_init(void)
-{
-	return 0;
-}
-
-/*
  *  get_device_type(): tell if GP/HS/EMU/TST
  */
 u32 get_device_type(void)
