@@ -196,13 +196,6 @@ int board_init(void)
 	return 0;
 }
 
-int misc_init_r(void)
-{
-	dieid_num_r();
-
-	return 0;
-}
-
 /*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the

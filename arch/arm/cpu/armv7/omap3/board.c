@@ -41,6 +41,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/omap_common.h>
 #include <i2c.h>
+#include <linux/compiler.h>
 
 /* Declarations */
 extern omap3_sysinfo sysinfo;
@@ -242,6 +243,17 @@ void s_init(void)
 
 	if (!in_sdram)
 		mem_init();
+}
+
+/*
+ * Routine: misc_init_r
+ * Description: A basic misc_init_r that just displays the die ID
+ */
+int __weak misc_init_r(void)
+{
+	dieid_num_r();
+
+	return 0;
 }
 
 /******************************************************************************

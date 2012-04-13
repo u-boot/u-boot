@@ -69,17 +69,6 @@ int board_init(void)
 }
 
 /*
- * Routine: misc_init_r
- * Description: late init.
- */
-int misc_init_r(void)
-{
-	dieid_num_r();
-
-	return 0;
-}
-
-/*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the
  *		hardware. Many pins need to be moved from protect to primary

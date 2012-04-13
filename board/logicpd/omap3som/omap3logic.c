@@ -144,17 +144,6 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-/*
- * Routine: misc_init_r
- * Description: display die ID register
- */
-int misc_init_r(void)
-{
-	dieid_num_r();
-
-	return 0;
-}
-
 #ifdef CONFIG_SMC911X
 /* GPMC CS1 settings for Logic SOM LV/Torpedo LAN92xx Ethernet chip */
 static const u32 gpmc_lan92xx_config[] = {
