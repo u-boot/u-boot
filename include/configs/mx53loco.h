@@ -62,7 +62,6 @@
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
 #define CONFIG_MII
-#define CONFIG_DISCOVER_PHY
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE	FEC_BASE_ADDR

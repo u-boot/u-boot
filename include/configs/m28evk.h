@@ -194,7 +194,6 @@
 #define	CONFIG_FEC_MXC
 #define	CONFIG_FEC_MXC_MULTI
 #define	CONFIG_MII
-#define	CONFIG_DISCOVER_PHY
 #define	CONFIG_FEC_XCV_TYPE		RMII
 #endif
 
