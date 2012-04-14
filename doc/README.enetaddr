@@ -32,7 +32,11 @@ Correct flow of setting up the MAC address (summarized):
 
 1. Read from hardware in initialize() function
 2. Read from environment in net/eth.c after initialize()
-3. Give priority to the value in the environment if a conflict
+3. The environment variable will be compared to the driver initialized
+   struct eth_device->enetaddr. If they differ, a warning is printed, and the
+   environment variable will be used unchanged.
+   If the environment variable is not set, it will be initialized from
+   eth_device->enetaddr, and a warning will be printed.
 4. Program the address into hardware if the following conditions are met:
 	a) The relevant driver has a 'write_addr' function
 	b) The user hasn't set an 'ethmacskip' environment variable
