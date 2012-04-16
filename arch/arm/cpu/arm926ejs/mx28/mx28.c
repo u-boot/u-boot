@@ -30,6 +30,7 @@
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/dma.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
@@ -171,6 +172,11 @@ int arch_cpu_init(void)
 	 * Configure GPIO unit
 	 */
 	mxs_gpio_init();
+
+#ifdef	CONFIG_APBH_DMA
+	/* Start APBH DMA */
+	mxs_dma_init();
+#endif
 
 	return 0;
 }

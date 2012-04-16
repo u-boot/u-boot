@@ -116,7 +116,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
        "script=boot.scr\0" \
        "uimage=uImage\0" \
-       "console=ttymxc3\0" \
+	"console=ttymxc1\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"initrd_high=0xffffffff\0" \
        "mmcdev=0\0" \
@@ -211,5 +211,11 @@
 #endif
 
 #define CONFIG_OF_LIBFDT
+
+#define CONFIG_SYS_DCACHE_OFF
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+#define CONFIG_CMD_CACHE
+#endif
 
 #endif                         /* __CONFIG_H */

@@ -1058,7 +1058,7 @@ int mxs_nand_init(struct mxs_nand_info *info)
 {
 	struct mx28_gpmi_regs *gpmi_regs =
 		(struct mx28_gpmi_regs *)MXS_GPMI_BASE;
-	int i = 0;
+	int i = 0, j;
 
 	info->desc = malloc(sizeof(struct mxs_dma_desc *) *
 				MXS_NAND_DMA_DESCRIPTOR_COUNT);
@@ -1073,7 +1073,11 @@ int mxs_nand_init(struct mxs_nand_info *info)
 	}
 
 	/* Init the DMA controller. */
-	mxs_dma_init();
+	for (j = MXS_DMA_CHANNEL_AHB_APBH_GPMI0;
+		j <= MXS_DMA_CHANNEL_AHB_APBH_GPMI7; j++) {
+		if (mxs_dma_init_channel(j))
+			goto err3;
+	}
 
 	/* Reset the GPMI block. */
 	mx28_reset_block(&gpmi_regs->hw_gpmi_ctrl0_reg);
@@ -1089,6 +1093,9 @@ int mxs_nand_init(struct mxs_nand_info *info)
 
 	return 0;
 
+err3:
+	for (--j; j >= 0; j--)
+		mxs_dma_release(j);
 err2:
 	free(info->desc);
 err1:

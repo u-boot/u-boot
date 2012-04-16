@@ -316,7 +316,7 @@ static int mxs_dma_request(int channel)
  * The channel will NOT be released if it's marked "busy" (see
  * mxs_dma_enable()).
  */
-static int mxs_dma_release(int channel)
+int mxs_dma_release(int channel)
 {
 	struct mxs_dma_chan *pchan;
 	int ret;
@@ -552,12 +552,10 @@ int mxs_dma_go(int chan)
 /*
  * Initialize the DMA hardware
  */
-int mxs_dma_init(void)
+void mxs_dma_init(void)
 {
 	struct mx28_apbh_regs *apbh_regs =
 		(struct mx28_apbh_regs *)MXS_APBH_BASE;
-	struct mxs_dma_chan *pchan;
-	int ret, channel;
 
 	mx28_reset_block(&apbh_regs->hw_apbh_ctrl0_reg);
 
@@ -576,28 +574,26 @@ int mxs_dma_init(void)
 	writel(APBH_CTRL0_APB_BURST_EN,
 		&apbh_regs->hw_apbh_ctrl0_clr);
 #endif
+}
 
-	for (channel = 0; channel < MXS_MAX_DMA_CHANNELS; channel++) {
-		pchan = mxs_dma_channels + channel;
-		pchan->flags = MXS_DMA_FLAGS_VALID;
+int mxs_dma_init_channel(int channel)
+{
+	struct mxs_dma_chan *pchan;
+	int ret;
 
-		ret = mxs_dma_request(channel);
+	pchan = mxs_dma_channels + channel;
+	pchan->flags = MXS_DMA_FLAGS_VALID;
 
-		if (ret) {
-			printf("MXS DMA: Can't acquire DMA channel %i\n",
-				channel);
+	ret = mxs_dma_request(channel);
 
-			goto err;
-		}
-
-		mxs_dma_reset(channel);
-		mxs_dma_ack_irq(channel);
+	if (ret) {
+		printf("MXS DMA: Can't acquire DMA channel %i\n",
+			channel);
+		return ret;
 	}
 
-	return 0;
+	mxs_dma_reset(channel);
+	mxs_dma_ack_irq(channel);
 
-err:
-	while (--channel >= 0)
-		mxs_dma_release(channel);
-	return ret;
+	return 0;
 }

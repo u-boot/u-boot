@@ -84,8 +84,6 @@
 					GPIO_NUM_PIN) + ((pin >> MUX_IO_I) &\
 					((1 << (MUX_IO_P - MUX_IO_I)) - 1)))
 #define IOMUX_TO_IRQ(pin)       (MXC_GPIO_INT_BASE + IOMUX_TO_GPIO(pin))
-#define GPIO_TO_PORT(n)         (n / GPIO_NUM_PIN)
-#define GPIO_TO_INDEX(n)        (n % GPIO_NUM_PIN)
 
 #define NON_GPIO_I	0x7
 #define PIN_TO_MUX_MASK	((1<<(PAD_I - MUX_I)) - 1)

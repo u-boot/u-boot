@@ -71,18 +71,10 @@ int board_early_init_f(void)
 	return 0;
 }
 
-void enable_caches(void)
-{
-	icache_enable();
-	dcache_enable();
-}
-
 int board_init(void)
 {
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
-
-	enable_caches();
 
 	return 0;
 }

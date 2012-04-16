@@ -31,7 +31,8 @@ Note: Replace sXx with the device representing the SD card in your system.
 Note: This writes SD card loader at address 0
 
 2. Put this SD card into the slot for the large SD card (SD3 on the bottom of
-the board)
+the board). Make sure SW1 switch is at position "00", so that it can boot
+from the fuses.
 
 3. Power-up the SabreLite, press 'space' to enter command mode in the U-Boot
 (the default one the board is shipped with, starting from the SPI NOR) and

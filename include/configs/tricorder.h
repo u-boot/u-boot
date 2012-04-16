@@ -71,7 +71,7 @@
 /* Size of malloc() pool */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (512 << 10))
+#define CONFIG_SYS_MALLOC_LEN		(1024*1024)
 
 /* Hardware drivers */
 
@@ -139,7 +139,9 @@
 #define CONFIG_CMD_MTDPARTS		/* Enable MTD parts commands */
 #define CONFIG_CMD_NAND			/* NAND support */
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands */
-#define CONFIG_CMD_UBI			/* UBIFS commands */
+#define CONFIG_CMD_UBI			/* UBI commands */
+#define CONFIG_CMD_UBIFS		/* UBIFS commands */
+#define CONFIG_LZO			/* LZO is needed for UBIFS */
 
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
@@ -180,7 +182,8 @@
 		"setenv bootargs ${bootargs} " \
 		"omapfb.mode=lcd:${lcdmode} " \
 		"omapdss.def_disp=${defaultdisplay} " \
-		"root=ubi0:rootfs " \
+		"root=ubi0:root " \
+		"ubi.mtd=4 " \
 		"rootfstype=ubifs " \
 		"${kernelopts}\0" \
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
@@ -191,9 +194,13 @@
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
+	"loaduimage_ubi=mtd default; " \
+		"ubi part fs; " \
+		"ubifsmount root; " \
+		"ubifsload ${loadaddr} /boot/uImage\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} 280000 400000; " \
+		"run loaduimage_ubi; " \
 		"bootm ${loadaddr}\0" \
 	"autoboot=if mmc rescan ${mmcdev}; then " \
 			"if run loadbootscript; then " \

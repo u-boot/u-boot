@@ -356,16 +356,17 @@ static void reset_net_chip(void)
 {
 	/* Set GPIO1 of TPS65930 as output */
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-			     TWL4030_BASEADD_GPIO+0x03);
+				TWL4030_BASEADD_GPIO + 0x03);
 	/* Send a pulse on the GPIO pin */
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-			     TWL4030_BASEADD_GPIO+0x0C);
+				TWL4030_BASEADD_GPIO + 0x0C);
 	udelay(1);
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-			     TWL4030_BASEADD_GPIO+0x09);
-	udelay(1);
+				TWL4030_BASEADD_GPIO + 0x09);
+	mdelay(40);
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-			     TWL4030_BASEADD_GPIO+0x0C);
+				TWL4030_BASEADD_GPIO + 0x0C);
+	mdelay(1);
 }
 #else
 static inline void reset_net_chip(void) {}

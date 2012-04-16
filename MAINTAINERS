@@ -669,10 +669,6 @@ Igor Grinberg <grinberg@compulab.co.il>
 
 	cm-t35		ARM ARMV7 (OMAP3xx Soc)
 
-Kshitij Gupta <kshitij@ti.com>
-
-	omap1510inn	ARM925T
-
 Stefan Herbrechtsmeier <stefan@code.herbrechtsmeier.net>
 
 	dns325		ARM926EJS (Kirkwood SoC)
@@ -941,6 +937,9 @@ Sughosh Ganu <urwithsughosh@gmail.com>
 Unknown / orphaned boards:
  	Board		CPU	Last known maintainer / Comment
 .........................................................................
+
+	omap1510inn	ARM925T         Kshitij Gupta <kshitij@ti.com>
+
 	lubbock		xscale/pxa	Kyle Harris <kharris@nexus-tech.net> / dead address
 
 	imx31_phycore_eet i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned

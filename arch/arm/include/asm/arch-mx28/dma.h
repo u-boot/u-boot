@@ -140,6 +140,8 @@ void mxs_dma_desc_free(struct mxs_dma_desc *);
 int mxs_dma_desc_append(int channel, struct mxs_dma_desc *pdesc);
 
 int mxs_dma_go(int chan);
-int mxs_dma_init(void);
+void mxs_dma_init(void);
+int mxs_dma_init_channel(int chan);
+int mxs_dma_release(int chan);
 
 #endif	/* __DMA_H__ */
