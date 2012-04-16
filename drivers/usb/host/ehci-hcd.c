@@ -912,4 +912,3 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	      dev, pipe, buffer, length, interval);
 	return ehci_submit_async(dev, pipe, buffer, length, NULL);
 }
-

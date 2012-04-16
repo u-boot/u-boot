@@ -11,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -34,16 +34,16 @@
 #include <netdev.h>
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |            \
-       PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
+#define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |	       \
+       PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |	       \
        PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |            \
-       PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW |               \
+#define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |	       \
+       PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW |	       \
        PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
 #define ENET_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
-	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
+	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED	  |		\
 	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
 
 #define SPI_PAD_CTRL (PAD_CTL_HYS |				\
@@ -176,11 +176,11 @@ int board_mmc_getcd(struct mmc *mmc)
        int ret;
 
        if (cfg->esdhc_base == USDHC3_BASE_ADDR) {
-               gpio_direction_input(192); /*GPIO7_0*/
-               ret = !gpio_get_value(192);
+	       gpio_direction_input(192); /*GPIO7_0*/
+	       ret = !gpio_get_value(192);
        } else {
-               gpio_direction_input(38); /*GPIO2_6*/
-               ret = !gpio_get_value(38);
+	       gpio_direction_input(38); /*GPIO2_6*/
+	       ret = !gpio_get_value(38);
        }
 
        return ret;
@@ -192,23 +192,23 @@ int board_mmc_init(bd_t *bis)
        u32 index = 0;
 
        for (index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
-               switch (index) {
-               case 0:
-                       imx_iomux_v3_setup_multiple_pads(
-                               usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-                       break;
-               case 1:
-                       imx_iomux_v3_setup_multiple_pads(
-                               usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
-                       break;
-               default:
-                       printf("Warning: you configured more USDHC controllers"
-                               "(%d) then supported by the board (%d)\n",
-                               index + 1, CONFIG_SYS_FSL_USDHC_NUM);
-                       return status;
-               }
+	       switch (index) {
+	       case 0:
+		       imx_iomux_v3_setup_multiple_pads(
+			       usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
+		       break;
+	       case 1:
+		       imx_iomux_v3_setup_multiple_pads(
+			       usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
+		       break;
+	       default:
+		       printf("Warning: you configured more USDHC controllers"
+			       "(%d) then supported by the board (%d)\n",
+			       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
+		       return status;
+	       }
 
-               status |= fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
+	       status |= fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
        }
 
        return status;
@@ -250,7 +250,7 @@ int board_phy_config(struct phy_device *phydev)
 			MII_KSZ9021_EXT_RGMII_CLOCK_SKEW, 0xf0f0);
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
- 
+
 	return 0;
 }
 

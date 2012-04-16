@@ -15,4 +15,3 @@
 int mmcif_mmc_init(void);
 
 #endif /* _SH_MMC_H_ */
-
