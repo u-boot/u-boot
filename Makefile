@@ -2175,6 +2175,10 @@ zynq_zc770_config:		unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/dfe
 	@$(MKCONFIG) $(@:_config=) arm armv7 dfe xilinx pele
 
+zynq_zc770_XM013_config:	unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/dfe
+	@$(MKCONFIG) $(@:_config=) arm armv7 dfe xilinx pele
+
 zynq_zc702_config:		unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/dfe
 	@$(MKCONFIG) $(@:_config=) arm armv7 dfe xilinx pele
