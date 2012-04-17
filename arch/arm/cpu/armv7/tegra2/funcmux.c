@@ -169,6 +169,22 @@ int funcmux_select(enum periph_id id, int config)
 		}
 		break;
 
+	case PERIPH_ID_KBC:
+		if (config == FUNCMUX_DEFAULT) {
+			enum pmux_pingrp grp[] = {PINGRP_KBCA, PINGRP_KBCB,
+				PINGRP_KBCC, PINGRP_KBCD, PINGRP_KBCE,
+				PINGRP_KBCF};
+			int i;
+
+			for (i = 0; i < ARRAY_SIZE(grp); i++) {
+				pinmux_tristate_disable(grp[i]);
+				pinmux_set_func(grp[i], PMUX_FUNC_KBC);
+				pinmux_set_pullupdown(grp[i], PMUX_PULL_UP);
+			}
+
+			break;
+		}
+
 	default:
 		debug("%s: invalid periph_id %d", __func__, id);
 		return -1;
