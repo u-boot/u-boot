@@ -100,4 +100,12 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
+/* Enable keyboard */
+#define CONFIG_TEGRA2_KEYBOARD
+#define CONFIG_KEYBOARD
+
+#undef TEGRA2_DEVICE_SETTINGS
+#define TEGRA2_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
+					"stdout=serial\0" \
+					"stderr=serial\0"
 #endif /* __CONFIG_H */
