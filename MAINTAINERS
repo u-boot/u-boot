@@ -777,6 +777,10 @@ Linus Walleij <linus.walleij@linaro.org>
 	integratorap	various
 	integratorcp	various
 
+Luka Perkov <uboot@lukaperkov.net>
+
+	ib62x0		ARM926EJS
+
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
