@@ -200,4 +200,8 @@
 		reg = <0x7000f400 0x200>;
 	};
 
+	kbc@7000e200 {
+		compatible = "nvidia,tegra20-kbc";
+		reg = <0x7000e200 0x0078>;
+	};
 };
