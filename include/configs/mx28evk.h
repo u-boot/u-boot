@@ -149,6 +149,16 @@
 #endif
 
 /*
+ * NAND Driver
+ */
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_NAND_MXS
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		0x60000000
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#endif
+
+/*
  * Ethernet on SOC (FEC)
  */
 #ifdef	CONFIG_CMD_NET
