@@ -349,3 +349,35 @@ int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
  * @return 0 if all ok or gpio was FDT_GPIO_NONE; -1 on error
  */
 int fdtdec_setup_gpio(struct fdt_gpio_state *gpio);
+
+/*
+ * Look up a property in a node and return its contents in a byte
+ * array of given length. The property must have at least enough data for
+ * the array (count bytes). It may have more, but this will be ignored.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param array		array to fill with data
+ * @param count		number of array elements
+ * @return 0 if ok, or -FDT_ERR_MISSING if the property is not found,
+ *		or -FDT_ERR_BADLAYOUT if not enough data
+ */
+int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
+		u8 *array, int count);
+
+/**
+ * Look up a property in a node and return a pointer to its contents as a
+ * byte array of given length. The property must have at least enough data
+ * for the array (count bytes). It may have more, but this will be ignored.
+ * The data is not copied.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param count		number of array elements
+ * @return pointer to byte array if found, or NULL if the property is not
+ *		found or there is not enough data
+ */
+const u8 *fdtdec_locate_byte_array(const void *blob, int node,
+			     const char *prop_name, int count);

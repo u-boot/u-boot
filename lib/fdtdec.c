@@ -476,3 +476,27 @@ int fdtdec_setup_gpio(struct fdt_gpio_state *gpio)
 		return -1;
 	return 0;
 }
+
+int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
+		u8 *array, int count)
+{
+	const u8 *cell;
+	int err;
+
+	cell = get_prop_check_min_len(blob, node, prop_name, count, &err);
+	if (!err)
+		memcpy(array, cell, count);
+	return err;
+}
+
+const u8 *fdtdec_locate_byte_array(const void *blob, int node,
+			     const char *prop_name, int count)
+{
+	const u8 *cell;
+	int err;
+
+	cell = get_prop_check_min_len(blob, node, prop_name, count, &err);
+	if (err)
+		return NULL;
+	return cell;
+}
