@@ -132,11 +132,18 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-/* Environment information */
+/* Environment information, boards can override if required */
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define TEGRA2_DEVICE_SETTINGS	"stdin=serial\0" \
+					"stdout=serial\0" \
+					"stderr=serial\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttyS0,115200n8\0" \
 	"mem=" TEGRA2_SYSMEM "\0" \
 	"smpflag=smp\0" \
+	TEGRA2_DEVICE_SETTINGS
 
 #define CONFIG_LOADADDR		0x408000	/* def. location for kernel */
 #define CONFIG_BOOTDELAY	2		/* -1 to disable auto boot */
