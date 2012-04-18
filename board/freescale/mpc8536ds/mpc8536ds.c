@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010, 2011 Freescale Semiconductor, Inc.
+ * Copyright 2008-2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -290,5 +290,10 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_FSL_SGMII_RISER
 	fsl_sgmii_riser_fdt_fixup(blob);
 #endif
+
+#ifdef CONFIG_HAS_FSL_MPH_USB
+	fdt_fixup_dr_usb(blob, bd);
+#endif
+
 }
 #endif
