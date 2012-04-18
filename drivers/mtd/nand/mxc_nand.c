@@ -1302,11 +1302,44 @@ static void mxc_setup_config1(void)
 #define mxc_setup_config1()
 #endif
 
+#ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
+
+static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
+static u8 mirror_pattern[] = {'1', 't', 'b', 'B' };
+
+static struct nand_bbt_descr bbt_main_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		   NAND_BBT_2BIT | NAND_BBT_VERSION | NAND_BBT_PERCHIP,
+	.offs =	0,
+	.len = 4,
+	.veroffs = 4,
+	.maxblocks = 4,
+	.pattern = bbt_pattern,
+};
+
+static struct nand_bbt_descr bbt_mirror_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		   NAND_BBT_2BIT | NAND_BBT_VERSION | NAND_BBT_PERCHIP,
+	.offs =	0,
+	.len = 4,
+	.veroffs = 4,
+	.maxblocks = 4,
+	.pattern = mirror_pattern,
+};
+
+#endif
+
 int board_nand_init(struct nand_chip *this)
 {
 	struct mtd_info *mtd;
 	uint16_t tmp;
 	int err = 0;
+
+#ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
+	this->options |= NAND_USE_FLASH_BBT;
+	this->bbt_td = &bbt_main_descr;
+	this->bbt_md = &bbt_mirror_descr;
+#endif
 
 	/* structures must be linked */
 	mtd = &host->mtd;
