@@ -200,12 +200,12 @@ int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata)
 		if (is_ehci_phy_mode(usbhs_pdata->port_mode[1]))
 			clrbits_le32(&reg, OMAP_UHH_HOSTCONFIG_ULPI_P2_BYPASS);
 		else
-			setbits_le32(&reg, OMAP_UHH_HOSTCONFIG_ULPI_P1_BYPASS);
+			setbits_le32(&reg, OMAP_UHH_HOSTCONFIG_ULPI_P2_BYPASS);
 
 		if (is_ehci_phy_mode(usbhs_pdata->port_mode[2]))
 			clrbits_le32(&reg, OMAP_UHH_HOSTCONFIG_ULPI_P3_BYPASS);
 		else
-			setbits_le32(&reg, OMAP_UHH_HOSTCONFIG_ULPI_P1_BYPASS);
+			setbits_le32(&reg, OMAP_UHH_HOSTCONFIG_ULPI_P3_BYPASS);
 	} else if (rev == OMAP_USBHS_REV2) {
 		clrsetbits_le32(&reg, (OMAP_P1_MODE_CLEAR | OMAP_P2_MODE_CLEAR),
 					OMAP4_UHH_HOSTCONFIG_APP_START_CLK);
