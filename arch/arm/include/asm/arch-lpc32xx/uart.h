@@ -22,6 +22,66 @@
 
 #include <asm/types.h>
 
+/* 14-clock UART Registers */
+struct hsuart_regs {
+	union {
+		u32 rx;		/* Receiver FIFO		*/
+		u32 tx;		/* Transmitter FIFO		*/
+	};
+	u32 level;		/* FIFO Level Register		*/
+	u32 iir;		/* Interrupt ID Register	*/
+	u32 ctrl;		/* Control Register		*/
+	u32 rate;		/* Rate Control Register	*/
+};
+
+/* 14-clock UART Receiver FIFO Register bits */
+#define HSUART_RX_BREAK			(1 << 10)
+#define HSUART_RX_ERROR			(1 << 9)
+#define HSUART_RX_EMPTY			(1 << 8)
+#define HSUART_RX_DATA			(0xff << 0)
+
+/* 14-clock UART Level Register bits */
+#define HSUART_LEVEL_TX			(0xff << 8)
+#define HSUART_LEVEL_RX			(0xff << 0)
+
+/* 14-clock UART Interrupt Identification Register bits */
+#define HSUART_IIR_TX_INT_SET		(1 << 6)
+#define HSUART_IIR_RX_OE		(1 << 5)
+#define HSUART_IIR_BRK			(1 << 4)
+#define HSUART_IIR_FE			(1 << 3)
+#define HSUART_IIR_RX_TIMEOUT		(1 << 2)
+#define HSUART_IIR_RX_TRIG		(1 << 1)
+#define HSUART_IIR_TX			(1 << 0)
+
+/* 14-clock UART Control Register bits */
+#define HSUART_CTRL_HRTS_INV		(1 << 21)
+#define HSUART_CTRL_HRTS_TRIG_48	(0x3 << 19)
+#define HSUART_CTRL_HRTS_TRIG_32	(0x2 << 19)
+#define HSUART_CTRL_HRTS_TRIG_16	(0x1 << 19)
+#define HSUART_CTRL_HRTS_TRIG_8		(0x0 << 19)
+#define HSUART_CTRL_HRTS_EN		(1 << 18)
+#define HSUART_CTRL_TMO_16		(0x3 << 16)
+#define HSUART_CTRL_TMO_8		(0x2 << 16)
+#define HSUART_CTRL_TMO_4		(0x1 << 16)
+#define HSUART_CTRL_TMO_DISABLED	(0x0 << 16)
+#define HSUART_CTRL_HCTS_INV		(1 << 15)
+#define HSUART_CTRL_HCTS_EN		(1 << 14)
+#define HSUART_CTRL_HSU_OFFSET(n)	((n) << 9)
+#define HSUART_CTRL_HSU_BREAK		(1 << 8)
+#define HSUART_CTRL_HSU_ERR_INT_EN	(1 << 7)
+#define HSUART_CTRL_HSU_RX_INT_EN	(1 << 6)
+#define HSUART_CTRL_HSU_TX_INT_EN	(1 << 5)
+#define HSUART_CTRL_HSU_RX_TRIG_48	(0x5 << 2)
+#define HSUART_CTRL_HSU_RX_TRIG_32	(0x4 << 2)
+#define HSUART_CTRL_HSU_RX_TRIG_16	(0x3 << 2)
+#define HSUART_CTRL_HSU_RX_TRIG_8	(0x2 << 2)
+#define HSUART_CTRL_HSU_RX_TRIG_4	(0x1 << 2)
+#define HSUART_CTRL_HSU_RX_TRIG_1	(0x0 << 2)
+#define HSUART_CTRL_HSU_TX_TRIG_16	(0x3 << 0)
+#define HSUART_CTRL_HSU_TX_TRIG_8	(0x2 << 0)
+#define HSUART_CTRL_HSU_TX_TRIG_4	(0x1 << 0)
+#define HSUART_CTRL_HSU_TX_TRIG_0	(0x0 << 0)
+
 /* UART Control Registers */
 struct uart_ctrl_regs {
 	u32 ctrl;		/* Control Register		*/
