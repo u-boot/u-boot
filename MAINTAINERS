@@ -932,6 +932,10 @@ Sughosh Ganu <urwithsughosh@gmail.com>
 
 	hawkboard	ARM926EJS (OMAP-L138)
 
+Vladimir Zapolskiy <vz@mleia.com>
+
+	devkit3250	lpc32xx
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
