@@ -186,8 +186,9 @@ enum periph_id {
 /* Mask value for a clock (within PERIPH_REG(id)) */
 #define PERIPH_MASK(id) (1 << ((id) & 0x1f))
 
-/* return 1 if a PLL ID is in range */
-#define clock_id_isvalid(id) ((id) >= CLOCK_ID_FIRST && (id) < CLOCK_ID_COUNT)
+/* return 1 if a PLL ID is in range, and not a simple PLL */
+#define clock_id_is_pll(id) ((id) >= CLOCK_ID_FIRST && \
+		(id) < CLOCK_ID_FIRST_SIMPLE)
 
 /* PLL stabilization delay in usec */
 #define CLOCK_PLL_STABLE_DELAY_US 300

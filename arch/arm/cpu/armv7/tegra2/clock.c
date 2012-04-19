@@ -426,7 +426,7 @@ static struct clk_pll *get_pll(enum clock_id clkid)
 	struct clk_rst_ctlr *clkrst =
 			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 
-	assert(clock_id_isvalid(clkid));
+	assert(clock_id_is_pll(clkid));
 	return &clkrst->crc_pll[clkid];
 }
 
@@ -439,7 +439,7 @@ int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
 	assert(clkid != CLOCK_ID_USB);
 
 	/* Safety check, adds to code size but is small */
-	if (!clock_id_isvalid(clkid) || clkid == CLOCK_ID_USB)
+	if (!clock_id_is_pll(clkid) || clkid == CLOCK_ID_USB)
 		return -1;
 	data = readl(&pll->pll_base);
 	*divm = (data & PLL_DIVM_MASK) >> PLL_DIVM_SHIFT;
