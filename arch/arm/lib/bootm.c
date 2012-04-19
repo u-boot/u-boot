@@ -317,6 +317,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 	unsigned long machid = gd->bd->bi_arch_number;
 	char *s;
 	void (*kernel_entry)(int zero, int arch, uint params);
+	unsigned long r2;
 
 	kernel_entry = (void (*)(int, int, uint))images->ep;
 
@@ -330,7 +331,15 @@ static void boot_jump_linux(bootm_headers_t *images)
 		"...\n", (ulong) kernel_entry);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 	announce_and_cleanup();
-	kernel_entry(0, machid, gd->bd->bi_boot_params);
+
+#ifdef CONFIG_OF_LIBFDT
+	if (images->ft_len)
+		r2 = (unsigned long)images->ft_addr;
+	else
+#endif
+		r2 = gd->bd->bi_boot_params;
+
+	kernel_entry(0, machid, r2);
 }
 
 /* Main Entry point for arm bootm implementation
