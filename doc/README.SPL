@@ -66,3 +66,15 @@ CONFIG_SPL_DMA_SUPPORT (drivers/dma/libdma.o)
 CONFIG_SPL_POST_MEM_SUPPORT (post/drivers/memory.o)
 CONFIG_SPL_NAND_LOAD (drivers/mtd/nand/nand_spl_load.o)
 CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
+
+
+Normally CPU is assumed to be the same between the SPL and normal
+u-boot build.  However it is possible to specify a different CPU for
+the SPL build for cases where the SPL is expected to run on a
+different CPU model from the main u-boot.  This is done by specifying
+an SPL CPU in boards.cfg as follows:
+
+	normal_cpu:spl_cpu
+
+This this case CPU will be set to "normal_cpu" during the main u-boot
+build and "spl_cpu" during the SPL build.

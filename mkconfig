@@ -60,6 +60,11 @@ CONFIG_NAME="${1%_config}"
 
 arch="$2"
 cpu="$3"
+tmp="${cpu#*:}"
+if [ "$tmp" != "$cpu" ] ; then
+	spl_cpu=$tmp
+	cpu="${cpu%:*}"
+fi
 if [ "$4" = "-" ] ; then
 	board=${BOARD_NAME}
 else
@@ -131,7 +136,15 @@ fi
 # Create include file for Make
 #
 echo "ARCH   = ${arch}"  >  config.mk
-echo "CPU    = ${cpu}"   >> config.mk
+if [ ! -z "$spl_cpu" ] ; then
+	echo 'ifeq ($(CONFIG_SPL_BUILD),y)' >> config.mk
+	echo "CPU    = ${spl_cpu}" >> config.mk
+	echo "else" >> config.mk
+	echo "CPU    = ${cpu}"   >> config.mk
+	echo "endif" >> config.mk
+else
+	echo "CPU    = ${cpu}"   >> config.mk
+fi
 echo "BOARD  = ${board}" >> config.mk
 
 [ "${vendor}" ] && echo "VENDOR = ${vendor}" >> config.mk
