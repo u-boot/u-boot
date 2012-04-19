@@ -215,7 +215,7 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 	printf("Trying to set up GEM link...\n");
 
 	/*************************** MAC Setup ***************************/
-	tmp = (2 << 18);	/* MDC clock division (32 for up to 80MHz) */
+	tmp = (3 << 18);	/* MDC clock division (48 for up to 120MHz) */
 	tmp |= (1 << 17);	/* set for FCS removal */
 	tmp |= (1 << 10);	/* enable gigabit */
 	tmp |= (1 << 4);	/* copy all frames */
