@@ -52,6 +52,20 @@ static u8 sd_in8(u32 InAddress)
 	return *(volatile u8 *) InAddress;
 }
 
+static void connect_test_mode(void)
+{
+	volatile unsigned  statusreg;
+
+	/* Fake out the card detect since it is also NAND CS */
+	sd_out8(SD_HOST_CTRL_R, SD_CD_TEST | SD_CD_TEST_INS);
+
+	/* Wait for card detected */
+	statusreg = sd_in32(SD_PRES_STATE_R);
+	while ( (!(statusreg & SD_CARD_DPL)) || (!(statusreg & SD_CARD_DB)) || (!(statusreg & SD_CARD_INS)) ) {
+		statusreg = sd_in32(SD_PRES_STATE_R);
+	}
+}
+
 /* Initialize the SD controller */
 static void init_port(void)
 {
@@ -72,6 +86,8 @@ static void init_port(void)
 
 	/* Power on the card */
 	sd_out8(SD_PWR_CTRL_R, SD_POWER_33|SD_POWER_ON);
+
+	connect_test_mode();
 
 	/* Enable Internal clock and wait for it to stablilize */
 	clk = (0x4 << SD_DIV_SHIFT) | SD_CLK_INT_EN;
