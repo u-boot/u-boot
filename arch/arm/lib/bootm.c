@@ -256,6 +256,7 @@ static int create_fdt(bootm_headers_t *images)
 
 	fdt_chosen(*of_flat_tree, 1);
 	fixup_memory_node(*of_flat_tree);
+	fdt_fixup_ethernet(*of_flat_tree);
 	fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
 
 	return 0;
