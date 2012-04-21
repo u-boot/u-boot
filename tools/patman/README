@@ -10,7 +10,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -116,68 +116,68 @@ To make this script useful you must add tags like the following into any
 commit. Most can only appear once in the whole series.
 
 Series-to: email / alias
-        Email address / alias to send patch series to (you can add this
-        multiple times)
+	Email address / alias to send patch series to (you can add this
+	multiple times)
 
 Series-cc: email / alias, ...
-        Email address / alias to Cc patch series to (you can add this
-        multiple times)
+	Email address / alias to Cc patch series to (you can add this
+	multiple times)
 
 Series-version: n
-        Sets the version number of this patch series
+	Sets the version number of this patch series
 
 Series-prefix: prefix
-        Sets the subject prefix. Normally empty but it can be RFC for
-        RFC patches, or RESEND if you are being ignored.
+	Sets the subject prefix. Normally empty but it can be RFC for
+	RFC patches, or RESEND if you are being ignored.
 
 Cover-letter:
 This is the patch set title
 blah blah
 more blah blah
 END
-        Sets the cover letter contents for the series. The first line
-        will become the subject of the cover letter
+	Sets the cover letter contents for the series. The first line
+	will become the subject of the cover letter
 
 Series-notes:
 blah blah
 blah blah
 more blah blah
 END
-        Sets some notes for the patch series, which you don't want in
-        the commit messages, but do want to send, The notes are joined
-        together and put after the cover letter. Can appear multiple
-        times.
+	Sets some notes for the patch series, which you don't want in
+	the commit messages, but do want to send, The notes are joined
+	together and put after the cover letter. Can appear multiple
+	times.
 
  Signed-off-by: Their Name <email>
-        A sign-off is added automatically to your patches (this is
-        probably a bug). If you put this tag in your patches, it will
-        override the default signoff that patman automatically adds.
+	A sign-off is added automatically to your patches (this is
+	probably a bug). If you put this tag in your patches, it will
+	override the default signoff that patman automatically adds.
 
  Tested-by: Their Name <email>
  Acked-by: Their Name <email>
-        These indicate that someone has acked or tested your patch.
-        When you get this reply on the mailing list, you can add this
-        tag to the relevant commit and the script will include it when
-        you send out the next version. If 'Tested-by:' is set to
-        yourself, it will be removed. No one will believe you.
+	These indicate that someone has acked or tested your patch.
+	When you get this reply on the mailing list, you can add this
+	tag to the relevant commit and the script will include it when
+	you send out the next version. If 'Tested-by:' is set to
+	yourself, it will be removed. No one will believe you.
 
 Series-changes: n
 - Guinea pig moved into its cage
 - Other changes ending with a blank line
 <blank line>
-        This can appear in any commit. It lists the changes for a
-        particular version n of that commit. The change list is
-        created based on this information. Each commit gets its own
-        change list and also the whole thing is repeated in the cover
-        letter (where duplicate change lines are merged).
+	This can appear in any commit. It lists the changes for a
+	particular version n of that commit. The change list is
+	created based on this information. Each commit gets its own
+	change list and also the whole thing is repeated in the cover
+	letter (where duplicate change lines are merged).
 
-        By adding your change lists into your commits it is easier to
-        keep track of what happened. When you amend a commit, remember
-        to update the log there and then, knowing that the script will
-        do the rest.
+	By adding your change lists into your commits it is easier to
+	keep track of what happened. When you amend a commit, remember
+	to update the log there and then, knowing that the script will
+	do the rest.
 
 Cc: Their Name <email>
-        This copies a single patch to another email address.
+	This copies a single patch to another email address.
 
 Various other tags are silently removed, like these Chrome OS and
 Gerrit tags:
@@ -205,7 +205,7 @@ subject are also picked up to Cc patches. For example, a commit like this:
 >>>>
 commit 10212537b85ff9b6e09c82045127522c0f0db981
 Author: Mike Frysinger <vapier@gentoo.org>
-Date:   Mon Nov 7 23:18:44 2011 -0500
+Date:	Mon Nov 7 23:18:44 2011 -0500
 
     x86: arm: add a git mailrc file for maintainers
 
@@ -304,7 +304,7 @@ Let's say one person sent comments and you get an Acked-by: on one patch.
 Also, the patch on the list that you were waiting for has been merged,
 so you can drop your wip commit. So you resync with upstream:
 
-    git fetch origin            (or whatever upstream is called)
+    git fetch origin		(or whatever upstream is called)
     git rebase origin/master
 
 and use git rebase -i to edit the commits, dropping the wip one. You add
