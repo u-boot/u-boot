@@ -1338,7 +1338,8 @@ static int builtin_run_command(const char *cmd, int flag)
 			continue;
 		}
 
-		rc = cmd_process(flag, argc, argv, &repeatable);
+		if (cmd_process(flag, argc, argv, &repeatable))
+			rc = -1;
 
 		/* Did the user stop this? */
 		if (had_ctrlc ())
