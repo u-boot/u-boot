@@ -531,9 +531,9 @@ static inline int image_check_target_arch(const image_header_t *hdr)
 #define FIT_MAX_HASH_LEN	20	/* max(crc32_len(4), sha1_len(20)) */
 
 /* cmdline argument format parsing */
-inline int fit_parse_conf(const char *spec, ulong addr_curr,
+int fit_parse_conf(const char *spec, ulong addr_curr,
 		ulong *addr, const char **conf_name);
-inline int fit_parse_subimage(const char *spec, ulong addr_curr,
+int fit_parse_subimage(const char *spec, ulong addr_curr,
 		ulong *addr, const char **image_name);
 
 void fit_print_contents(const void *fit);
