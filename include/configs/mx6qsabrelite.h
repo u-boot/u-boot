@@ -211,6 +211,7 @@
 #endif
 
 #define CONFIG_OF_LIBFDT
+#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_SYS_DCACHE_OFF
 
