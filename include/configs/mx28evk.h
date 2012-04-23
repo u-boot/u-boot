@@ -225,6 +225,7 @@
 #define CONFIG_BOOTCOMMAND	"run bootcmd_net"
 #define CONFIG_LOADADDR	0x42000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+#define CONFIG_OF_LIBFDT
 
 /*
  * Extra Environments
