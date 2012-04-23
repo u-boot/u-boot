@@ -467,7 +467,7 @@ void init_panel_info(vidinfo_t *vid)
 	vid->vl_vsp	= CONFIG_SYS_LOW;
 	vid->vl_dp	= CONFIG_SYS_LOW;
 
-	vid->vl_bpix	= 32;
+	vid->vl_bpix	= 5;
 	vid->dual_lcd_enabled = 0;
 
 	/* s6e8ax0 Panel */

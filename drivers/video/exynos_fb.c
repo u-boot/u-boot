@@ -52,7 +52,7 @@ static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
 	unsigned long palette_size;
 	unsigned int fb_size;
 
-	fb_size = vid->vl_row * vid->vl_col * (vid->vl_bpix >> 3);
+	fb_size = vid->vl_row * vid->vl_col * (NBITS(vid->vl_bpix) >> 3);
 
 	lcd_base = lcdbase;
 

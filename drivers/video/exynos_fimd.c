@@ -110,7 +110,7 @@ static void exynos_fimd_set_buffer_address(unsigned int win_id)
 		(struct exynos4_fb *)samsung_get_base_fimd();
 
 	start_addr = (unsigned long)lcd_base_addr;
-	end_addr = start_addr + ((pvid->vl_col * (pvid->vl_bpix / 8)) *
+	end_addr = start_addr + ((pvid->vl_col * (NBITS(pvid->vl_bpix) / 8)) *
 				pvid->vl_row);
 
 	writel(start_addr, (unsigned int)&fimd_ctrl->vidw00add0b0 +
@@ -331,7 +331,7 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 	exynos_fimd_set_buffer_address(pvid->win_id);
 
 	/* set buffer size */
-	cfg = EXYNOS_VIDADDR_PAGEWIDTH(pvid->vl_col * pvid->vl_bpix / 8);
+	cfg = EXYNOS_VIDADDR_PAGEWIDTH(pvid->vl_col * NBITS(pvid->vl_bpix) / 8);
 	writel(cfg, (unsigned int)&fimd_ctrl->vidw00add2 +
 					EXYNOS_BUFFER_SIZE(pvid->win_id));
 
@@ -350,5 +350,5 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 
 unsigned long exynos_fimd_calc_fbsize(void)
 {
-	return pvid->vl_col * pvid->vl_row * (pvid->vl_bpix / 8);
+	return pvid->vl_col * pvid->vl_row * (NBITS(pvid->vl_bpix) / 8);
 }
