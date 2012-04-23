@@ -67,6 +67,7 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_BOOTZ
 
 /*
  * Memory configurations
