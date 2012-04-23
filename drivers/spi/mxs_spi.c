@@ -51,14 +51,23 @@ void spi_init(void)
 {
 }
 
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	/* MXS SPI: 4 ports and 3 chip selects maximum */
+	if (bus > 3 || cs > 2)
+		return 0;
+	else
+		return 1;
+}
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				  unsigned int max_hz, unsigned int mode)
 {
 	struct mxs_spi_slave *mxs_slave;
 	uint32_t addr;
 
-	if (bus > 3) {
-		printf("MXS SPI: Max bus number is 3\n");
+	if (!spi_cs_is_valid(bus, cs)) {
+		printf("mxs_spi: invalid bus %d / chip select %d\n", bus, cs);
 		return NULL;
 	}
 
