@@ -128,6 +128,7 @@ int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	int trans_bytes = 0, is_aligned = 1;
 	u32 mask, flags, mode;
 	unsigned int timeout, start_addr = 0;
+	unsigned int retry = 10000;
 
 	/* Wait max 10 ms */
 	timeout = 10;
@@ -210,7 +211,18 @@ int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		stat = sdhci_readl(host, SDHCI_INT_STATUS);
 		if (stat & SDHCI_INT_ERROR)
 			break;
+		if (--retry == 0)
+			break;
 	} while ((stat & mask) != mask);
+
+	if (retry == 0) {
+		if (host->quirks & SDHCI_QUIRK_BROKEN_R1B)
+			return 0;
+		else {
+			printf("Timeout for status update!\n");
+			return TIMEOUT;
+		}
+	}
 
 	if ((stat & (SDHCI_INT_ERROR | mask)) == mask) {
 		sdhci_cmd_done(host, cmd);
