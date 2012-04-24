@@ -53,7 +53,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_HARD_I2C
 #define CONFIG_I2C_MXC
-#define CONFIG_SYS_I2C_MX53_PORT2       1
+#define CONFIG_SYS_I2C_BASE		I2C2_BASE_ADDR
 #define CONFIG_SYS_I2C_SPEED            100000
 
 /* PMIC Configs */
