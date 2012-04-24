@@ -34,6 +34,7 @@ usage()
 	  CROSS_COMPILE    cross-compiler toolchain prefix (default: "")
 	  MAKEALL_LOGDIR   output all logs to here (default: ./LOG/)
 	  BUILD_DIR        output build directory (default: ./)
+	  BUILD_NBUILDS	   number of parallel targets (default: 1)
 
 	Examples:
 	  - build all Power Architecture boards:
@@ -178,11 +179,22 @@ else
 	LOG_DIR="LOG"
 fi
 
-if [ ! "${BUILD_DIR}" ] ; then
-	BUILD_DIR="."
+: ${BUILD_NBUILDS:=1}
+BUILD_MANY=0
+
+if [ "${BUILD_NBUILDS}" -gt 1 ] ; then
+	BUILD_MANY=1
+	: ${BUILD_DIR:=./build}
+	mkdir -p "${BUILD_DIR}/ERR"
+	find "${BUILD_DIR}/ERR/" -type f -exec rm -f {} +
 fi
 
-[ -d ${LOG_DIR} ] || mkdir ${LOG_DIR} || exit 1
+: ${BUILD_DIR:=.}
+
+OUTPUT_PREFIX="${BUILD_DIR}"
+
+[ -d ${LOG_DIR} ] || mkdir "${LOG_DIR}" || exit 1
+find "${LOG_DIR}/" -type f -exec rm -f {} +
 
 LIST=""
 
@@ -190,6 +202,8 @@ LIST=""
 ERR_CNT=0
 ERR_LIST=""
 TOTAL_CNT=0
+CURRENT_CNT=0
+OLDEST_IDX=1
 RC=0
 
 # Helper funcs for parsing boards.cfg
@@ -592,8 +606,26 @@ list_target() {
 	echo ""
 }
 
+# Each finished build will have a file called ${donep}${n},
+# where n is the index of the build. Each build
+# we've already noted as finished will have ${skipp}${n}.
+# The code managing the build process will use this information
+# to ensure that only BUILD_NBUILDS builds are in flight at once
+donep="${LOG_DIR}/._done_"
+skipp="${LOG_DIR}/._skip_"
+
 build_target() {
 	target=$1
+	build_idx=$2
+
+	if [ $BUILD_MANY == 1 ] ; then
+		output_dir="${OUTPUT_PREFIX}/${target}"
+		mkdir -p "${output_dir}"
+	else
+		output_dir="${OUTPUT_PREFIX}"
+	fi
+
+	export BUILD_DIR="${output_dir}"
 
 	if [ "$ONLY_LIST" == 'y' ] ; then
 		list_target ${target}
@@ -603,30 +635,75 @@ build_target() {
 	${MAKE} distclean >/dev/null
 	${MAKE} -s ${target}_config
 
-	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
-				| tee ${LOG_DIR}/$target.ERR
+	${MAKE} ${JOBS} all \
+		>${LOG_DIR}/$target.MAKELOG 2> ${LOG_DIR}/$target.ERR
 
 	# Check for 'make' errors
 	if [ ${PIPESTATUS[0]} -ne 0 ] ; then
 		RC=1
 	fi
 
-	if [ -s ${LOG_DIR}/$target.ERR ] ; then
-		ERR_CNT=$((ERR_CNT + 1))
-		ERR_LIST="${ERR_LIST} $target"
+	if [ $BUILD_MANY == 1 ] ; then
+		${MAKE} tidy
+
+		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
+			touch ${OUTPUT_PREFIX}/ERR/${target}
+		else
+			rm ${LOG_DIR}/${target}.ERR
+		fi
 	else
-		rm ${LOG_DIR}/$target.ERR
+		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
+			: $(( ERR_CNT += 1 ))
+			ERR_LIST="${ERR_LIST} $target"
+		else
+			rm ${LOG_DIR}/${target}.ERR
+		fi
 	fi
 
-	TOTAL_CNT=$((TOTAL_CNT + 1))
-
-	OBJS=${BUILD_DIR}/u-boot
-	if [ -e ${BUILD_DIR}/spl/u-boot-spl ]; then
-		OBJS="${OBJS} ${BUILD_DIR}/spl/u-boot-spl"
+	OBJS=${output_dir}/u-boot
+	if [ -e ${output_dir}/spl/u-boot-spl ]; then
+		OBJS="${OBJS} ${output_dir}/spl/u-boot-spl"
 	fi
 
 	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
+
+	[ -e "${LOG_DIR}/${target}.ERR" ] && cat "${LOG_DIR}/${target}.ERR"
+
+	#echo "Writing ${donep}${build_idx}"
+	touch "${donep}${build_idx}"
 }
+
+manage_builds() {
+	search_idx=${OLDEST_IDX}
+	#echo "Searching ${OLDEST_IDX} to ${TOTAL_CNT}"
+	while true; do
+		if [ -e "${donep}${search_idx}" ] ; then
+	#		echo "Found ${donep}${search_idx}"
+			: $(( CURRENT_CNT-- ))
+			[ ${OLDEST_IDX} -eq ${search_idx} ] &&
+				: $(( OLDEST_IDX++ ))
+
+			# Only want to count it once
+			rm -f "${donep}${search_idx}"
+			touch "${skipp}${search_idx}"
+		elif [ -e "${skipp}${search_idx}" ] ; then
+			[ ${OLDEST_IDX} -eq ${search_idx} ] &&
+				: $(( OLDEST_IDX++ ))
+		fi
+		#echo "Checking search ${search_idx} vs ${TOTAL_CNT}"
+		: $(( search_idx++ ))
+		if [ ${search_idx} -gt ${TOTAL_CNT} ] ; then
+			#echo "Checking current ${CURRENT_CNT} vs ${BUILD_NBUILDS}"
+			if [ ${CURRENT_CNT} -ge ${BUILD_NBUILDS} ] ; then
+				search_idx=${OLDEST_IDX}
+				sleep 1
+			else
+				break
+			fi
+		fi
+	done
+}
+
 build_targets() {
 	for t in "$@" ; do
 		# If a LIST_xxx var exists, use it.  But avoid variable
@@ -639,7 +716,26 @@ build_targets() {
 		if [ -n "${list}" ] ; then
 			build_targets ${list}
 		else
-			build_target ${t}
+			: $((TOTAL_CNT += 1))
+			: $((CURRENT_CNT += 1))
+			rm -f "${donep}${TOTAL_CNT}"
+			rm -f "${skipp}${TOTAL_CNT}"
+			build_target ${t} ${TOTAL_CNT} &
+		fi
+
+		# We maintain a running count of all the builds we have done.
+		# Each finished build will have a file called ${donep}${n},
+		# where n is the index of the build. Each build
+		# we've already noted as finished will have ${skipp}${n}.
+		# We track the current index via TOTAL_CNT, and the oldest
+		# index. When we exceed the maximum number of parallel builds,
+		# We look from oldest to current for builds that have completed,
+		# and update the current count and oldest index as appropriate.
+		# If we've gone through the entire list, wait a second, and
+		# reprocess the entire list until we find a build that has
+		# completed
+		if [ ${CURRENT_CNT} -ge ${BUILD_NBUILDS} ] ; then
+			manage_builds
 		fi
 	done
 }
@@ -648,6 +744,16 @@ build_targets() {
 
 print_stats() {
 	if [ "$ONLY_LIST" == 'y' ] ; then return ; fi
+
+	rm -f ${donep}* ${skipp}*
+
+	if [ $BUILD_MANY == 1 ] && [ -e "${OUTPUT_PREFIX}/ERR" ] ; then
+		ERR_LIST=$(ls ${OUTPUT_PREFIX}/ERR/)
+		ERR_CNT=`ls -1 ${OUTPUT_PREFIX}/ERR/ | wc | awk '{print $1}'`
+	else
+		ERR_CNT=0
+	fi
+
 	echo ""
 	echo "--------------------- SUMMARY ----------------------------"
 	echo "Boards compiled: ${TOTAL_CNT}"
@@ -666,3 +772,4 @@ set -- ${SELECTED} "$@"
 # run PowerPC by default
 [ $# = 0 ] && set -- powerpc
 build_targets "$@"
+wait
