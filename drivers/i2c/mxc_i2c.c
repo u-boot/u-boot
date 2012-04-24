@@ -231,12 +231,6 @@ int i2c_imx_start(void)
 	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
 	unsigned int temp = 0;
 	int result;
-	int speed = i2c_get_bus_speed();
-	u8 clk_idx = i2c_imx_get_clk(speed);
-	u8 idx = i2c_clk_div[clk_idx][1];
-
-	/* Store divider value */
-	writeb(idx, &i2c_regs->ifdr);
 
 	/* Enable I2C controller */
 	writeb(0, &i2c_regs->i2sr);
