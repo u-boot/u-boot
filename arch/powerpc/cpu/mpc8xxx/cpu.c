@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Freescale Semiconductor, Inc.
+ * Copyright 2009-2012 Freescale Semiconductor, Inc.
  *
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
@@ -113,6 +113,10 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(P5010, P5010_E, 1),
 	CPU_TYPE_ENTRY(P5020, P5020, 2),
 	CPU_TYPE_ENTRY(P5020, P5020_E, 2),
+	CPU_TYPE_ENTRY(BSC9130, 9130, 1),
+	CPU_TYPE_ENTRY(BSC9130, 9130_E, 1),
+	CPU_TYPE_ENTRY(BSC9131, 9131, 1),
+	CPU_TYPE_ENTRY(BSC9131, 9131_E, 1),
 #elif defined(CONFIG_MPC86xx)
 	CPU_TYPE_ENTRY(8610, 8610, 1),
 	CPU_TYPE_ENTRY(8641, 8641, 2),

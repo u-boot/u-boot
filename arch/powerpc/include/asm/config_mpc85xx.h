@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -504,6 +504,18 @@
 #define CONFIG_SYS_FSL_SRIO_MAX_PORTS	2
 #define CONFIG_SYS_FSL_SRIO_OB_WIN_NUM	9
 #define CONFIG_SYS_FSL_SRIO_IB_WIN_NUM	5
+
+#elif defined(CONFIG_BSC9131)
+#define CONFIG_MAX_CPUS			1
+#define CONFIG_FSL_SDHC_V2_3
+#define CONFIG_SYS_FSL_NUM_LAWS		12
+#define CONFIG_TSECV2
+#define CONFIG_SYS_FSL_SEC_COMPAT	4
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000
+#define CONFIG_NAND_FSL_IFC
+#define CONFIG_SYS_FSL_ERRATUM_IFC_A003399
+#define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 
 #else
 #error Processor type not defined for this platform

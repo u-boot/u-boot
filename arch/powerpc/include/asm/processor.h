@@ -1136,6 +1136,11 @@
 #define SVR_8641	0x809000
 #define SVR_8641D	0x809001
 
+#define SVR_9130	0x860001
+#define SVR_9130_E	0x860801
+#define SVR_9131	0x860000
+#define SVR_9131_E	0x860800
+
 #define SVR_Unknown	0xFFFFFF
 
 #define _GLOBAL(n)\
