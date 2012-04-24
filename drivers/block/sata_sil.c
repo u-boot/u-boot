@@ -30,7 +30,6 @@
 
 /* Convert sectorsize to wordsize */
 #define ATA_SECTOR_WORDS (ATA_SECT_SIZE/2)
-#define mdelay(n)   udelay((n)*1000)
 #define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
 
 static struct sata_info sata_info;
