@@ -42,6 +42,7 @@
 
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_MISC_INIT_R
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_UART
@@ -109,6 +110,8 @@
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY	       3
+
+#define CONFIG_PREBOOT                 ""
 
 #define CONFIG_LOADADDR			       0x10800000
 #define CONFIG_SYS_TEXT_BASE	       0x17800000
