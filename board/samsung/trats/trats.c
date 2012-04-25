@@ -220,6 +220,7 @@ int board_mmc_init(bd_t *bis)
 static int s5pc210_phy_control(int on)
 {
 	int ret = 0;
+	u32 val = 0;
 	struct pmic *p = get_pmic();
 
 	if (pmic_probe(p))
@@ -228,11 +229,17 @@ static int s5pc210_phy_control(int on)
 	if (on) {
 		ret |= pmic_set_output(p, MAX8997_REG_SAFEOUTCTRL,
 				      ENSAFEOUT1, LDO_ON);
-		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, EN_LDO);
-		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, EN_LDO);
+		ret |= pmic_reg_read(p, MAX8997_REG_LDO3CTRL, &val);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, EN_LDO | val);
+
+		ret |= pmic_reg_read(p, MAX8997_REG_LDO8CTRL, &val);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, EN_LDO | val);
 	} else {
-		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, DIS_LDO);
-		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, DIS_LDO);
+		ret |= pmic_reg_read(p, MAX8997_REG_LDO8CTRL, &val);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, DIS_LDO | val);
+
+		ret |= pmic_reg_read(p, MAX8997_REG_LDO3CTRL, &val);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, DIS_LDO | val);
 		ret |= pmic_set_output(p, MAX8997_REG_SAFEOUTCTRL,
 				      ENSAFEOUT1, LDO_OFF);
 	}
