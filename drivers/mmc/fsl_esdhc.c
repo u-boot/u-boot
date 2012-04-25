@@ -190,6 +190,10 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 		esdhc_write32(&regs->dsaddr, (u32)data->dest);
 	} else {
+		flush_dcache_range((ulong)data->src,
+				   (ulong)data->src+data->blocks
+					 *data->blocksize);
+
 		if (wml_value > WML_WR_WML_MAX)
 			wml_value = WML_WR_WML_MAX_VAL;
 		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
@@ -249,7 +253,15 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	return 0;
 }
 
-
+static void check_and_invalidate_dcache_range
+	(struct mmc_cmd *cmd,
+	 struct mmc_data *data) {
+	unsigned start = (unsigned)data->dest ;
+	unsigned size = roundup(ARCH_DMA_MINALIGN,
+				data->blocks*data->blocksize);
+	unsigned end = start+size ;
+	invalidate_dcache_range(start, end);
+}
 /*
  * Sends a command out on the bus.  Takes the mmc pointer,
  * a command pointer, and an optional data pointer.
@@ -314,6 +326,9 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	/* Wait for the command to complete */
 	while (!(esdhc_read32(&regs->irqstat) & (IRQSTAT_CC | IRQSTAT_CTOE)))
 		;
+
+	if (data && (data->flags & MMC_DATA_READ))
+		check_and_invalidate_dcache_range(cmd, data);
 
 	irqstat = esdhc_read32(&regs->irqstat);
 	esdhc_write32(&regs->irqstat, irqstat);
