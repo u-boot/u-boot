@@ -44,9 +44,6 @@ short console_row;
 
 static unsigned int panel_width, panel_height;
 
-/* LCD Panel data */
-vidinfo_t panel_info;
-
 static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
 {
 	unsigned long palette_size;

@@ -461,42 +461,44 @@ static int mipi_power(void)
 	return 0;
 }
 
+vidinfo_t panel_info = {
+	.vl_freq	= 60,
+	.vl_col		= 720,
+	.vl_row		= 1280,
+	.vl_width	= 720,
+	.vl_height	= 1280,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_LOW,
+	.vl_vsp		= CONFIG_SYS_LOW,
+	.vl_dp		= CONFIG_SYS_LOW,
+	.vl_bpix	= 5,	/* Bits per pixel, 2^5 = 32 */
+
+	/* s6e8ax0 Panel infomation */
+	.vl_hspw	= 5,
+	.vl_hbpd	= 10,
+	.vl_hfpd	= 10,
+
+	.vl_vspw	= 2,
+	.vl_vbpd	= 1,
+	.vl_vfpd	= 13,
+	.vl_cmd_allow_len = 0xf,
+
+	.win_id		= 3,
+	.cfg_gpio	= NULL,
+	.backlight_on	= NULL,
+	.lcd_power_on	= NULL,	/* lcd_power_on in mipi dsi driver */
+	.reset_lcd	= lcd_reset,
+	.dual_lcd_enabled = 0,
+
+	.init_delay	= 0,
+	.power_on_delay = 0,
+	.reset_delay	= 0,
+	.interface_mode = FIMD_RGB_INTERFACE,
+	.mipi_enabled	= 1,
+};
+
 void init_panel_info(vidinfo_t *vid)
 {
-	vid->vl_freq	= 60;
-	vid->vl_col	= 720;
-	vid->vl_row	= 1280;
-	vid->vl_width	= 720;
-	vid->vl_height	= 1280;
-	vid->vl_clkp	= CONFIG_SYS_HIGH;
-	vid->vl_hsp	= CONFIG_SYS_LOW;
-	vid->vl_vsp	= CONFIG_SYS_LOW;
-	vid->vl_dp	= CONFIG_SYS_LOW;
-
-	vid->vl_bpix	= 5;
-	vid->dual_lcd_enabled = 0;
-
-	/* s6e8ax0 Panel */
-	vid->vl_hspw	= 5;
-	vid->vl_hbpd	= 10;
-	vid->vl_hfpd	= 10;
-
-	vid->vl_vspw	= 2;
-	vid->vl_vbpd	= 1;
-	vid->vl_vfpd	= 13;
-	vid->vl_cmd_allow_len = 0xf;
-
-	vid->win_id = 3;
-	vid->cfg_gpio = NULL;
-	vid->backlight_on = NULL;
-	vid->lcd_power_on = NULL;	/* lcd_power_on in mipi dsi driver */
-	vid->reset_lcd = lcd_reset;
-
-	vid->init_delay = 0;
-	vid->power_on_delay = 0;
-	vid->reset_delay = 0;
-	vid->interface_mode = FIMD_RGB_INTERFACE;
-	vid->mipi_enabled = 1;
 	vid->logo_on	= 1,
 	vid->resolution	= HD_RESOLUTION,
 	vid->rgb_mode	= MODE_RGB_P,
