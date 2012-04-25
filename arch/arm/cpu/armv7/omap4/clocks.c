@@ -452,10 +452,6 @@ void enable_non_essential_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_non_essential[] = {
-		&prcm->cm_mpu_m3_mpu_m3_clkctrl,
-		&prcm->cm_ivahd_ivahd_clkctrl,
-		&prcm->cm_ivahd_sl2_clkctrl,
-		&prcm->cm_dsp_dsp_clkctrl,
 		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_l3instr_l3_3_clkctrl,
 		&prcm->cm_l3instr_l3_instr_clkctrl,
