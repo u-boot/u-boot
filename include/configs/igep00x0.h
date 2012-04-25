@@ -161,9 +161,9 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source ${loadaddr}\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t $loadaddr $filesize\0" \
 	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
@@ -175,15 +175,19 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan ${mmcdev}; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"else run nandboot; " \
-			"fi; " \
-		"fi; " \
-	"else run nandboot; fi"
+		"echo SD/MMC found on device ${mmcdev};" \
+		"if run loadbootenv; then " \
+			"run importbootenv;" \
+		"fi;" \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...;" \
+			"run uenvcmd;" \
+		"fi;" \
+		"if run loaduimage; then " \
+			"run mmcboot;" \
+		"fi;" \
+	"fi;" \
+	"run nandboot;" \
 
 #define CONFIG_AUTO_COMPLETE		1
 
