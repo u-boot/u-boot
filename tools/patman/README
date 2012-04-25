@@ -197,7 +197,7 @@ patch series and see how the patches turn out.
 Where Patches Are Sent
 ======================
 
-Once the patches are created, patman sends them using gti send-email. The
+Once the patches are created, patman sends them using git send-email. The
 whole series is sent to the recipients in Series-to: and Series-cc.
 You can Cc individual patches to other people with the Cc: tag. Tags in the
 subject are also picked up to Cc patches. For example, a commit like this:
