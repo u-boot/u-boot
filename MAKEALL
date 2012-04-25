@@ -365,10 +365,7 @@ LIST_at91="$(boards_by_soc at91)"
 
 LIST_pxa="$(boards_by_cpu pxa)"
 
-LIST_ixp="$(boards_by_cpu ixp)
-	pdnb3		\
-	scpu		\
-"
+LIST_ixp="$(boards_by_cpu ixp)"
 
 #########################################################################
 ## ARM groups
