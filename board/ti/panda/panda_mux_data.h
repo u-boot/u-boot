@@ -168,10 +168,10 @@ const struct pad_conf_entry core_padconf_array_non_essential[] = {
 	{ABE_DMIC_DIN1, (IEN | M0)},					/* abe_dmic_din1 */
 	{ABE_DMIC_DIN2, (PTU | IEN | M3)},				/* gpio_121 */
 	{ABE_DMIC_DIN3, (IEN | M0)},					/* abe_dmic_din3 */
-	{UART2_CTS, (PTU | IEN | M0)},					/* uart2_cts */
-	{UART2_RTS, (M0)},						/* uart2_rts */
-	{UART2_RX, (PTU | IEN | M0)},					/* uart2_rx */
-	{UART2_TX, (M0)},						/* uart2_tx */
+	{UART2_CTS, (PTU | IEN | M7)},					/* uart2_cts */
+	{UART2_RTS, (M7)},						/* uart2_rts */
+	{UART2_RX, (PTU | IEN | M7)},					/* uart2_rx */
+	{UART2_TX, (M7)},						/* uart2_tx */
 	{HDQ_SIO, (M3)},						/* gpio_127 */
 	{MCSPI1_CLK, (IEN | OFF_EN | OFF_PD | OFF_IN | M0)},		/* mcspi1_clk */
 	{MCSPI1_SOMI, (IEN | OFF_EN | OFF_PD | OFF_IN | M0)},		/* mcspi1_somi */
