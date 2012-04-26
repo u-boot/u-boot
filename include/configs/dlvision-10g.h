@@ -39,6 +39,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
+#define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll   */
@@ -81,6 +82,7 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
 
 /*

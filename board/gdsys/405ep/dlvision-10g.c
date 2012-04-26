@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/ppc4xx-gpio.h>
+#include <dtt.h>
 
 #include "405ep.h"
 #include <gdsys_fpga.h>
@@ -67,6 +68,14 @@ enum {
 	RAM_DDR2_32 = 1,
 	RAM_DDR2_64 = 2,
 };
+
+int misc_init_r(void)
+{
+	/* startup fans */
+	dtt_init();
+
+	return 0;
+}
 
 static unsigned int get_hwver(void)
 {
@@ -226,23 +235,18 @@ static void print_fpga_info(unsigned dev)
  */
 int checkboard(void)
 {
-	char buf[64];
-	int i = getenv_f("serial#", buf, sizeof(buf));
+	char *s = getenv("serial#");
 
-	printf("Board: ");
+	puts("Board: ");
 
-	printf("DLVision 10G");
+	puts("DLVision 10G");
 
-	if (i > 0) {
+	if (s != NULL) {
 		puts(", serial# ");
-		puts(buf);
+		puts(s);
 	}
 
 	puts("\n");
-
-	print_fpga_info(0);
-	if (get_mc2_present())
-		print_fpga_info(1);
 
 	return 0;
 }
@@ -251,6 +255,10 @@ int last_stage_init(void)
 {
 	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
 	u16 versions = in_le16(&fpga->versions);
+
+	print_fpga_info(0);
+	if (get_mc2_present())
+		print_fpga_info(1);
 
 	if (((versions >> 4) & 0x000f) != UNITTYPE_MAIN_USER)
 		return 0;

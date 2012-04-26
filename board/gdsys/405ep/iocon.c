@@ -74,8 +74,24 @@ enum {
  */
 int checkboard(void)
 {
-	char buf[64];
-	int i = getenv_f("serial#", buf, sizeof(buf));
+	char *s = getenv("serial#");
+
+	puts("Board: ");
+
+	puts("IoCon");
+
+	if (s != NULL) {
+		puts(", serial# ");
+		puts(s);
+	}
+
+	puts("\n");
+
+	return 0;
+}
+
+static void print_fpga_info(void)
+{
 	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
@@ -99,16 +115,6 @@ int checkboard(void)
 	feature_ramconfig = (fpga_features & 0x0060) >> 5;
 	feature_carriers = (fpga_features & 0x000c) >> 2;
 	feature_video_channels = fpga_features & 0x0003;
-
-	printf("Board: ");
-
-	printf("IoCon");
-
-	if (i > 0) {
-		puts(", serial# ");
-		puts(buf);
-	}
-	puts("\n       ");
 
 	switch (unit_type) {
 	case UNITTYPE_MAIN_USER:
@@ -210,12 +216,12 @@ int checkboard(void)
 	printf(", %d carrier(s)", feature_carriers);
 
 	printf(", %d video channel(s)\n", feature_video_channels);
-
-	return 0;
 }
 
 int last_stage_init(void)
 {
+	print_fpga_info();
+
 	return osd_probe(0);
 }
 

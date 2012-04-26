@@ -27,6 +27,7 @@
 #include <asm/io.h>
 #include <asm/ppc4xx-gpio.h>
 
+#include <dtt.h>
 #include <miiphy.h>
 
 #include "405ep.h"
@@ -51,6 +52,14 @@ enum {
 	HWVER_121 = 2,
 	HWVER_122 = 3,
 };
+
+int misc_init_r(void)
+{
+	/* startup fans */
+	dtt_init();
+
+	return 0;
+}
 
 int configure_gbit_phy(unsigned char addr)
 {
@@ -92,8 +101,22 @@ err_out:
  */
 int checkboard(void)
 {
-	char buf[64];
-	int i = getenv_f("serial#", buf, sizeof(buf));
+	char *s = getenv("serial#");
+
+	puts("Board: CATCenter Io");
+
+	if (s != NULL) {
+		puts(", serial# ");
+		puts(s);
+	}
+
+	puts("\n");
+
+	return 0;
+}
+
+static void print_fpga_info(void)
+{
 	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
@@ -108,15 +131,7 @@ int checkboard(void)
 	feature_channels = fpga_features & 0x007f;
 	feature_expansion = fpga_features & (1<<15);
 
-	printf("Board: ");
-
-	printf("CATCenter Io");
-
-	if (i > 0) {
-		puts(", serial# ");
-		puts(buf);
-	}
-	puts("\n       ");
+	puts("FPGA:  ");
 
 	switch (unit_type) {
 	case UNITTYPE_CCD_SWITCH:
@@ -157,8 +172,6 @@ int checkboard(void)
 	printf(" %d channel(s)", feature_channels);
 
 	printf(", expansion %ssupported\n", feature_expansion ? "" : "un");
-
-	return 0;
 }
 
 /*
@@ -168,6 +181,8 @@ int last_stage_init(void)
 {
 	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
 	unsigned int k;
+
+	print_fpga_info();
 
 	miiphy_register(CONFIG_SYS_GBIT_MII_BUSNAME,
 		bb_miiphy_read, bb_miiphy_write);
