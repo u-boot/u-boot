@@ -50,6 +50,8 @@ enum {
 enum {
 	HWVER_101 = 0,
 	HWVER_110 = 1,
+	HWVER_120 = 2,
+	HWVER_130 = 3,
 };
 
 enum {
@@ -158,7 +160,15 @@ static void print_fpga_info(unsigned dev)
 		break;
 
 	case HWVER_110:
-		printf(" HW-Ver 1.10\n");
+		printf(" HW-Ver 1.10-1.12\n");
+		break;
+
+	case HWVER_120:
+		printf(" HW-Ver 1.20\n");
+		break;
+
+	case HWVER_130:
+		printf(" HW-Ver 1.30\n");
 		break;
 
 	default:

@@ -34,7 +34,7 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		dlvsion-10g
-#define CONFIG_IDENT_STRING	" dlvision-10g 0.02"
+#define CONFIG_IDENT_STRING	" dlvision-10g 0.03"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -118,7 +118,7 @@
 
 /* Temp sensor/hwmon/dtt */
 #define CONFIG_DTT_LM63		1	/* National LM63	*/
-#define CONFIG_DTT_SENSORS	{ 0x4c, 0x4e }	/* Sensor addresses	*/
+#define CONFIG_DTT_SENSORS	{ 0x4c, 0x4e, 0x18 } /* Sensor addresses */
 #define CONFIG_DTT_PWM_LOOKUPTABLE	\
 		{ { 46, 10 }, { 48, 14 }, { 50, 19 }, { 52, 23 },\
 		  { 54, 27 }, { 56, 31 }, { 58, 36 }, { 60, 40 } }
