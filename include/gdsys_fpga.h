@@ -115,7 +115,7 @@ typedef struct ihs_fpga {
 	u16 reserved_2[93];	/* 0x0044 */
 	u16 reflection_high;	/* 0x00fe */
 	ihs_osd_t osd;		/* 0x0100 */
-	u16 reserved_3[88];	/* 0x010e */
+	u16 reserved_3[889];	/* 0x010e */
 	u16 videomem;		/* 0x0800 */
 } ihs_fpga_t;
 #endif
