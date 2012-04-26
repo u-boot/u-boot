@@ -23,6 +23,8 @@
 #ifndef __LIN_COMPAT_H__
 #define __LIN_COMPAT_H__
 
+#include <linux/compat.h>
+
 /* common */
 #define spin_lock_init(...)
 #define spin_lock(...)
@@ -36,25 +38,12 @@
 #define mutex_lock(...)
 #define mutex_unlock(...)
 
-#define WARN_ON(x) if (x) {printf("WARNING in %s line %d\n" \
-				  , __FILE__, __LINE__); }
-
-#define KERN_WARNING
-#define KERN_ERR
-#define KERN_NOTICE
-#define KERN_DEBUG
-
 #define GFP_KERNEL	0
 
 #define IRQ_HANDLED	1
 
 #define ENOTSUPP	524	/* Operation is not supported */
 
-#define kmalloc(size, type) memalign(CONFIG_SYS_CACHELINE_SIZE, size)
-#define kfree(addr) free(addr)
-
-#define __iomem
-#define min_t min
 #define dma_cache_maint(addr, size, mode) cache_flush()
 void cache_flush(void);
 

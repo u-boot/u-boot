@@ -168,7 +168,7 @@ int setdma_tx(struct s3c_ep *ep, struct s3c_request *req)
 	length = req->req.length - req->req.actual;
 
 	if (ep_num == EP0_CON)
-		length = min_t(length, (u32)ep_maxpacket(ep));
+		length = min(length, (u32)ep_maxpacket(ep));
 
 	ep->len = length;
 	ep->dma_buf = buf;

@@ -671,7 +671,7 @@ static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
 
 	debug("%s: %s %p\n", __func__, ep->name, ep);
 
-	req = kmalloc(sizeof *req, gfp_flags);
+	req = memalign(CONFIG_SYS_CACHELINE_SIZE, sizeof(*req));
 	if (!req)
 		return 0;
 
@@ -865,7 +865,8 @@ int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 	the_controller = dev;
 
 	for (i = 0; i < S3C_MAX_ENDPOINTS+1; i++) {
-		dev->dma_buf[i] = kmalloc(DMA_BUFFER_SIZE, GFP_KERNEL);
+		dev->dma_buf[i] = memalign(CONFIG_SYS_CACHELINE_SIZE,
+					   DMA_BUFFER_SIZE);
 		dev->dma_addr[i] = (dma_addr_t) dev->dma_buf[i];
 		invalidate_dcache_range((unsigned long) dev->dma_buf[i],
 					(unsigned long) (dev->dma_buf[i]
