@@ -58,6 +58,17 @@ typedef struct ihs_osd {
 	u16 y_pos;
 } ihs_osd_t;
 
+#ifdef CONFIG_NEO
+typedef struct ihs_fpga {
+	u16 reflection_low;	/* 0x0000 */
+	u16 versions;		/* 0x0002 */
+	u16 fpga_features;	/* 0x0004 */
+	u16 fpga_version;	/* 0x0006 */
+	u16 reserved_0[8187];	/* 0x0008 */
+	u16 reflection_high;	/* 0x3ffe */
+} ihs_fpga_t;
+#endif
+
 #ifdef CONFIG_IO
 typedef struct ihs_fpga {
 	u16 reflection_low;	/* 0x0000 */

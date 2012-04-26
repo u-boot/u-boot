@@ -27,14 +27,17 @@
 #include <asm/io.h>
 #include <asm/ppc4xx-gpio.h>
 
+#include "405ep.h"
 #include <gdsys_fpga.h>
 
 #include "../common/osd.h"
 
+#define LATCH0_BASE (CONFIG_SYS_LATCH_BASE)
+#define LATCH1_BASE (CONFIG_SYS_LATCH_BASE + 0x100)
 #define LATCH2_BASE (CONFIG_SYS_LATCH_BASE + 0x200)
-#define LATCH2_MC2_PRESENT_N 0x0080
-
 #define LATCH3_BASE (CONFIG_SYS_LATCH_BASE + 0x300)
+
+#define LATCH2_MC2_PRESENT_N 0x0080
 
 enum {
 	UNITTYPE_VIDEO_USER = 0,
@@ -260,4 +263,33 @@ int last_stage_init(void)
 		osd_probe(1);
 
 	return 0;
+}
+
+void gd405ep_init(void)
+{
+}
+
+void gd405ep_set_fpga_reset(unsigned state)
+{
+	if (state) {
+		out_le16((void *)LATCH0_BASE, CONFIG_SYS_LATCH0_RESET);
+		out_le16((void *)LATCH1_BASE, CONFIG_SYS_LATCH1_RESET);
+	} else {
+		out_le16((void *)LATCH0_BASE, CONFIG_SYS_LATCH0_BOOT);
+		out_le16((void *)LATCH1_BASE, CONFIG_SYS_LATCH1_BOOT);
+	}
+}
+
+void gd405ep_setup_hw(void)
+{
+	/*
+	 * set "startup-finished"-gpios
+	 */
+	gpio_write_bit(21, 0);
+	gpio_write_bit(22, 1);
+}
+
+int gd405ep_get_fpga_done(unsigned fpga)
+{
+	return in_le16((void *)LATCH2_BASE) & CONFIG_SYS_FPGA_DONE(fpga);
 }
