@@ -114,6 +114,11 @@ int abortboot(int bootdelay)
 	u_int presskey_max = 0;
 	u_int i;
 
+#ifndef CONFIG_ZERO_BOOTDELAY_CHECK
+	if (bootdelay == 0)
+		return 0;
+#endif
+
 #  ifdef CONFIG_AUTOBOOT_PROMPT
 	printf(CONFIG_AUTOBOOT_PROMPT);
 #  endif
