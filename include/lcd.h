@@ -55,6 +55,7 @@ extern void lcd_initcolregs (void);
 
 /* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
 extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
+extern int bmp_display(ulong addr, int x, int y);
 
 #if defined CONFIG_MPC823
 /*
