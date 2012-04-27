@@ -325,7 +325,6 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SNTP
 
-#undef CONFIG_CMD_DCR
 #undef CONFIG_CMD_XIMG
 
 /* Where do the internal registers live? */

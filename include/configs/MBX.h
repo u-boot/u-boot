@@ -87,7 +87,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMD_NET
-#define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_PCMCIA
 #define CONFIG_CMD_IDE

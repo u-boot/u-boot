@@ -54,7 +54,7 @@ void spl_nand_load_image(void)
 		 * load parameter image
 		 * load to temp position since nand_spl_load_image reads
 		 * a whole block which is typically larger than
-		 * CONFIG_CMD_SAVEBP_WRITE_SIZE therefore may overwrite
+		 * CONFIG_CMD_SPL_WRITE_SIZE therefore may overwrite
 		 * following sections like BSS
 		 */
 		nand_spl_load_image(CONFIG_CMD_SPL_NAND_OFS,
