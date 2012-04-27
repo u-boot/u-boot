@@ -93,17 +93,17 @@ How to run it
 
 First do a dry run:
 
-$ ./tools/scripts/patman/patman -n
+$ ./tools/patman/patman -n
 
 If it can't detect the upstream branch, try telling it how many patches
 there are in your series:
 
-$ ./tools/scripts/patman/patman -n -c5
+$ ./tools/patman/patman -n -c5
 
 This will create patch files in your current directory and tell you who
 it is thinking of sending them to. Take a look at the patch files.
 
-$ ./tools/scripts/patman/patman -n -c5 -s1
+$ ./tools/patman/patman -n -c5 -s1
 
 Similar to the above, but skip the first commit and take the next 5. This
 is useful if your top commit is for setting up testing.
