@@ -105,7 +105,8 @@ int board_early_init_r(void)
 	gd405ep_set_fpga_reset(0);
 
 	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k) {
-		ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(k);
+		struct ihs_fpga *fpga =
+			(struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(k);
 #ifdef CONFIG_SYS_FPGA_NO_RFL_HI
 		u16 *reflection_target = &fpga->reflection_low;
 #else

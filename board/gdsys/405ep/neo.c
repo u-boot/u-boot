@@ -70,7 +70,7 @@ int checkboard(void)
 
 static void print_fpga_info(void)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
+	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
 	u16 fpga_features = in_le16(&fpga->fpga_features);

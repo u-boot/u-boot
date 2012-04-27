@@ -95,7 +95,7 @@ static unsigned int get_mc2_present(void)
 
 static void print_fpga_info(unsigned dev)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(dev);
+	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(dev);
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
 	u16 fpga_features = in_le16(&fpga->fpga_features);
@@ -263,7 +263,7 @@ int checkboard(void)
 
 int last_stage_init(void)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
+	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
 	u16 versions = in_le16(&fpga->versions);
 
 	print_fpga_info(0);
