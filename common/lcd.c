@@ -594,6 +594,8 @@ void bitmap_plot (int x, int y)
 
 	WATCHDOG_RESET();
 }
+#else
+static inline void bitmap_plot(int x, int y) {}
 #endif /* CONFIG_LCD_LOGO */
 
 /*----------------------------------------------------------------------*/
@@ -839,9 +841,7 @@ static void *lcd_logo (void)
 	}
 #endif /* CONFIG_SPLASH_SCREEN */
 
-#ifdef CONFIG_LCD_LOGO
-	bitmap_plot (0, 0);
-#endif /* CONFIG_LCD_LOGO */
+	bitmap_plot(0, 0);
 
 #ifdef CONFIG_LCD_INFO
 	console_col = LCD_INFO_X / VIDEO_FONT_WIDTH;
