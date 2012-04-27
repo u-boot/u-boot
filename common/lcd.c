@@ -216,6 +216,10 @@ static void lcd_drawchars (ushort x, ushort y, uchar *str, int count)
 	uchar *dest;
 	ushort row;
 
+#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
+	y += BMP_LOGO_HEIGHT;
+#endif
+
 #if LCD_BPP == LCD_MONOCHROME
 	ushort off  = x * (1 << LCD_BPP) % 8;
 #endif
@@ -271,22 +275,14 @@ static void lcd_drawchars (ushort x, ushort y, uchar *str, int count)
 
 static inline void lcd_puts_xy (ushort x, ushort y, uchar *s)
 {
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-	lcd_drawchars (x, y+BMP_LOGO_HEIGHT, s, strlen ((char *)s));
-#else
-	lcd_drawchars (x, y, s, strlen ((char *)s));
-#endif
+	lcd_drawchars(x, y, s, strlen((char *)s));
 }
 
 /*----------------------------------------------------------------------*/
 
 static inline void lcd_putc_xy (ushort x, ushort y, uchar c)
 {
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-	lcd_drawchars (x, y+BMP_LOGO_HEIGHT, &c, 1);
-#else
-	lcd_drawchars (x, y, &c, 1);
-#endif
+	lcd_drawchars(x, y, &c, 1);
 }
 
 /************************************************************************/
