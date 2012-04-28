@@ -683,6 +683,41 @@ static void memcpyl(int *d, int *s, int c)
 }
 #endif
 
+static void console_clear_line(int line, int begin, int end)
+{
+#ifdef VIDEO_HW_RECTFILL
+	video_hw_rectfill(VIDEO_PIXEL_SIZE,		/* bytes per pixel */
+			  VIDEO_FONT_WIDTH * begin,	/* dest pos x */
+			  video_logo_height +
+			  VIDEO_FONT_HEIGHT * line,	/* dest pos y */
+			  VIDEO_FONT_WIDTH * (end - begin + 1), /* fr. width */
+			  VIDEO_FONT_HEIGHT,		/* frame height */
+			  bgx				/* fill color */
+		);
+#else
+	if (begin == 0 && (end + 1) == CONSOLE_COLS) {
+		memsetl(CONSOLE_ROW_FIRST +
+			CONSOLE_ROW_SIZE * line,	/* offset of row */
+			CONSOLE_ROW_SIZE >> 2,		/* length of row */
+			bgx				/* fill color */
+		);
+	} else {
+		void *offset;
+		int i, size;
+
+		offset = CONSOLE_ROW_FIRST +
+			 CONSOLE_ROW_SIZE * line +	/* offset of row */
+			 VIDEO_FONT_WIDTH *
+			 VIDEO_PIXEL_SIZE * begin;	/* offset of col */
+		size = VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE * (end - begin + 1);
+		size >>= 2; /* length to end for memsetl() */
+		/* fill at col offset of i'th line using bgx as fill color */
+		for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
+			memsetl(offset + i * VIDEO_LINE_LEN, size, bgx);
+	}
+#endif
+}
+
 static void console_scrollup(void)
 {
 	/* copy up rows ignoring the first one */
@@ -703,20 +738,8 @@ static void console_scrollup(void)
 	memcpyl(CONSOLE_ROW_FIRST, CONSOLE_ROW_SECOND,
 		CONSOLE_SCROLL_SIZE >> 2);
 #endif
-
 	/* clear the last one */
-#ifdef VIDEO_HW_RECTFILL
-	video_hw_rectfill(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
-			  0,			/* dest pos x */
-			  VIDEO_VISIBLE_ROWS
-			  - VIDEO_FONT_HEIGHT,	/* dest pos y */
-			  VIDEO_VISIBLE_COLS,	/* frame width */
-			  VIDEO_FONT_HEIGHT,	/* frame height */
-			  CONSOLE_BG_COL	/* fill color */
-		);
-#else
-	memsetl(CONSOLE_ROW_LAST, CONSOLE_ROW_SIZE >> 2, CONSOLE_BG_COL);
-#endif
+	console_clear_line(CONSOLE_ROWS - 1, 0, CONSOLE_COLS - 1);
 }
 
 static void console_back(void)
