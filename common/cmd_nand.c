@@ -191,7 +191,7 @@ static int arg_off_size(int argc, char *const argv[], int *idx,
 			loff_t *off, loff_t *size)
 {
 	int ret;
-	loff_t maxsize;
+	loff_t maxsize = 0;
 
 	if (argc == 0) {
 		*off = 0;
