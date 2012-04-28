@@ -721,7 +721,6 @@ static void console_scrollup(void)
 
 static void console_back(void)
 {
-	CURSOR_OFF;
 	console_col--;
 
 	if (console_col < 0) {
@@ -730,7 +729,6 @@ static void console_back(void)
 		if (console_row < 0)
 			console_row = 0;
 	}
-	CURSOR_SET;
 }
 
 static void console_newline(void)
