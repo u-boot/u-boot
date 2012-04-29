@@ -537,7 +537,7 @@ void arch_preboot_os(void)
 	 * disabled by the time we get called.
 	 */
 	msr = mfmsr();
-	msr &= ~(MSR_ME|MSR_CE|MSR_DE);
+	msr &= ~(MSR_ME|MSR_CE);
 	mtmsr(msr);
 
 	setup_ivors();
