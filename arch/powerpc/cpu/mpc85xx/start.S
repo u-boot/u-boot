@@ -182,7 +182,7 @@ l2_disabled:
 	andi.	r1,r3,L1CSR0_DCE@l
 	beq	2b
 
-#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB)
+#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(CONFIG_NAND_SPL)
 /*
  * TLB entry for debuggging in AS1
  * Create temporary TLB entry in AS0 to handle debug exception
