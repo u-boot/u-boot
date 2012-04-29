@@ -24,8 +24,9 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/ccm_regs.h>
+#include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
 
 enum pll_clocks {
 	PLL_SYS,	/* System PLL */
@@ -34,7 +35,7 @@ enum pll_clocks {
 	PLL_ENET,	/* ENET PLL */
 };
 
-struct imx_ccm_reg *imx_ccm = (struct imx_ccm_reg *)CCM_BASE_ADDR;
+struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
 void enable_usboh3_clk(unsigned char enable)
 {
@@ -92,7 +93,7 @@ static u32 get_mcu_main_clk(void)
 	return freq / (reg + 1);
 }
 
-static u32 get_periph_clk(void)
+u32 get_periph_clk(void)
 {
 	u32 reg, freq = 0;
 
@@ -137,18 +138,6 @@ static u32 get_periph_clk(void)
 	}
 
 	return freq;
-}
-
-
-static u32 get_ahb_clk(void)
-{
-	u32 reg, ahb_podf;
-
-	reg = __raw_readl(&imx_ccm->cbcdr);
-	reg &= MXC_CCM_CBCDR_AHB_PODF_MASK;
-	ahb_podf = reg >> MXC_CCM_CBCDR_AHB_PODF_OFFSET;
-
-	return get_periph_clk() / (ahb_podf + 1);
 }
 
 static u32 get_ipg_clk(void)

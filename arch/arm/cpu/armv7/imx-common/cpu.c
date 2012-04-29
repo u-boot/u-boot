@@ -29,6 +29,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/crm_regs.h>
 
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
@@ -126,4 +127,16 @@ int cpu_mmc_init(bd_t *bis)
 void reset_cpu(ulong addr)
 {
 	__raw_writew(4, WDOG1_BASE_ADDR);
+}
+
+u32 get_ahb_clk(void)
+{
+	struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 reg, ahb_podf;
+
+	reg = __raw_readl(&imx_ccm->cbcdr);
+	reg &= MXC_CCM_CBCDR_AHB_PODF_MASK;
+	ahb_podf = reg >> MXC_CCM_CBCDR_AHB_PODF_OFFSET;
+
+	return get_periph_clk() / (ahb_podf + 1);
 }

@@ -20,7 +20,7 @@
 #ifndef __ARCH_ARM_MACH_MX6_CCM_REGS_H__
 #define __ARCH_ARM_MACH_MX6_CCM_REGS_H__
 
-struct imx_ccm_reg {
+struct mxc_ccm_reg {
 	u32 ccr;	/* 0x0000 */
 	u32 ccdr;
 	u32 csr;

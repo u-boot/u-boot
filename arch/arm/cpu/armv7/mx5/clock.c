@@ -30,6 +30,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <div64.h>
+#include <asm/arch/sys_proto.h>
 
 enum pll_clocks {
 	PLL1_CLOCK = 0,
@@ -192,7 +193,7 @@ u32 get_mcu_main_clk(void)
 /*
  * Get the rate of peripheral's root clock.
  */
-static u32 get_periph_clk(void)
+u32 get_periph_clk(void)
 {
 	u32 reg;
 
@@ -210,22 +211,6 @@ static u32 get_periph_clk(void)
 		return 0;
 	}
 	/* NOTREACHED */
-}
-
-/*
- * Get the rate of ahb clock.
- */
-static u32 get_ahb_clk(void)
-{
-	uint32_t freq, div, reg;
-
-	freq = get_periph_clk();
-
-	reg = __raw_readl(&mxc_ccm->cbcdr);
-	div = ((reg & MXC_CCM_CBCDR_AHB_PODF_MASK) >>
-			MXC_CCM_CBCDR_AHB_PODF_OFFSET) + 1;
-
-	return freq / div;
 }
 
 /*
