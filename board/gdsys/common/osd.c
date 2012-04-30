@@ -70,8 +70,8 @@ enum {
 #if defined(CONFIG_SYS_ICS8N3QV01) || defined(CONFIG_SYS_SIL1178)
 static void fpga_iic_write(unsigned screen, u8 slave, u8 reg, u8 data)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(screen);
-	ihs_i2c_t *i2c = &fpga->i2c;
+	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
+	struct ihs_i2c *i2c = &fpga->i2c;
 
 	while (in_le16(&fpga->extended_interrupt) & (1 << 12))
 		;
@@ -81,8 +81,8 @@ static void fpga_iic_write(unsigned screen, u8 slave, u8 reg, u8 data)
 
 static u8 fpga_iic_read(unsigned screen, u8 slave, u8 reg)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(screen);
-	ihs_i2c_t *i2c = &fpga->i2c;
+	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
+	struct ihs_i2c *i2c = &fpga->i2c;
 	unsigned int ctr = 0;
 
 	while (in_le16(&fpga->extended_interrupt) & (1 << 12))
@@ -129,7 +129,7 @@ static void mpc92469ac_calc_parameters(unsigned int fout,
 
 static void mpc92469ac_set(unsigned screen, unsigned int fout)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(screen);
+	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
 	unsigned int n;
 	unsigned int m;
 	unsigned int bitval = 0;
@@ -265,8 +265,8 @@ static void ics8n3qv01_set(unsigned screen, unsigned int fout)
 static int osd_write_videomem(unsigned screen, unsigned offset,
 	u16 *data, size_t charcount)
 {
-	ihs_fpga_t *fpga =
-		(ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(screen);
+	struct ihs_fpga *fpga =
+		(struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(screen);
 	unsigned int k;
 
 	for (k = 0; k < charcount; ++k) {
@@ -318,8 +318,8 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int osd_probe(unsigned screen)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(screen);
-	ihs_osd_t *osd = &fpga->osd;
+	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
+	struct ihs_osd *osd = &fpga->osd;
 	u16 version = in_le16(&osd->version);
 	u16 features = in_le16(&osd->features);
 	unsigned width;

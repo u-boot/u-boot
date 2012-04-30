@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010
+ * (C) Copyright 2011
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  *
  * See file CREDITS for list of people who contributed to this
@@ -26,9 +26,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/ppc4xx-gpio.h>
-
 #include <dtt.h>
-#include <miiphy.h>
 
 #include "405ep.h"
 #include <gdsys_fpga.h>
@@ -37,20 +35,13 @@
 #define LATCH1_BASE (CONFIG_SYS_LATCH_BASE + 0x100)
 #define LATCH2_BASE (CONFIG_SYS_LATCH_BASE + 0x200)
 
-#define PHYREG_CONTROL				0
-#define PHYREG_PAGE_ADDRESS			22
-#define PHYREG_PG0_COPPER_SPECIFIC_CONTROL_1	16
-#define PHYREG_PG2_COPPER_SPECIFIC_CONTROL_2	26
-
 enum {
-	UNITTYPE_CCD_SWITCH = 1,
+	UNITTYPE_CCX16 = 1,
+	UNITTYPE_CCIP216 = 2,
 };
 
 enum {
-	HWVER_100 = 0,
-	HWVER_110 = 1,
-	HWVER_121 = 2,
-	HWVER_122 = 3,
+	HWVER_300 = 3,
 };
 
 int misc_init_r(void)
@@ -61,49 +52,11 @@ int misc_init_r(void)
 	return 0;
 }
 
-int configure_gbit_phy(unsigned char addr)
-{
-	unsigned short value;
-
-	/* select page 2 */
-	if (miiphy_write(CONFIG_SYS_GBIT_MII_BUSNAME, addr,
-		PHYREG_PAGE_ADDRESS, 0x0002))
-		goto err_out;
-	/* disable SGMII autonegotiation */
-	if (miiphy_write(CONFIG_SYS_GBIT_MII_BUSNAME, addr,
-		PHYREG_PG2_COPPER_SPECIFIC_CONTROL_2, 0x800a))
-		goto err_out;
-	/* select page 0 */
-	if (miiphy_write(CONFIG_SYS_GBIT_MII_BUSNAME, addr,
-		PHYREG_PAGE_ADDRESS, 0x0000))
-		goto err_out;
-	/* switch from powerdown to normal operation */
-	if (miiphy_read(CONFIG_SYS_GBIT_MII_BUSNAME, addr,
-		PHYREG_PG0_COPPER_SPECIFIC_CONTROL_1, &value))
-		goto err_out;
-	if (miiphy_write(CONFIG_SYS_GBIT_MII_BUSNAME, addr,
-		PHYREG_PG0_COPPER_SPECIFIC_CONTROL_1, value & ~0x0004))
-		goto err_out;
-	/* reset phy so settings take effect */
-	if (miiphy_write(CONFIG_SYS_GBIT_MII_BUSNAME, addr,
-		PHYREG_CONTROL, 0x9140))
-		goto err_out;
-
-	return 0;
-
-err_out:
-	printf("Error writing to the PHY addr=%02x\n", addr);
-	return -1;
-}
-
-/*
- * Check Board Identity:
- */
 int checkboard(void)
 {
 	char *s = getenv("serial#");
 
-	puts("Board: CATCenter Io");
+	puts("Board: CATCenter Neo");
 
 	if (s != NULL) {
 		puts(", serial# ");
@@ -121,21 +74,29 @@ static void print_fpga_info(void)
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
 	u16 fpga_features = in_le16(&fpga->fpga_features);
+	int fpga_state = get_fpga_state(0);
 	unsigned unit_type;
 	unsigned hardware_version;
 	unsigned feature_channels;
-	unsigned feature_expansion;
+
+	puts("FPGA:  ");
+	if (fpga_state & FPGA_STATE_DONE_FAILED) {
+		printf(" done timed out\n");
+		return;
+	}
+
+	if (fpga_state & FPGA_STATE_REFLECTION_FAILED) {
+		printf(" refelectione test failed\n");
+		return;
+	}
 
 	unit_type = (versions & 0xf000) >> 12;
 	hardware_version = versions & 0x000f;
 	feature_channels = fpga_features & 0x007f;
-	feature_expansion = fpga_features & (1<<15);
-
-	puts("FPGA:  ");
 
 	switch (unit_type) {
-	case UNITTYPE_CCD_SWITCH:
-		printf("CCD-Switch");
+	case UNITTYPE_CCX16:
+		printf("CCX-Switch");
 		break;
 
 	default:
@@ -144,20 +105,8 @@ static void print_fpga_info(void)
 	}
 
 	switch (hardware_version) {
-	case HWVER_100:
-		printf(" HW-Ver 1.00\n");
-		break;
-
-	case HWVER_110:
-		printf(" HW-Ver 1.10\n");
-		break;
-
-	case HWVER_121:
-		printf(" HW-Ver 1.21\n");
-		break;
-
-	case HWVER_122:
-		printf(" HW-Ver 1.22\n");
+	case HWVER_300:
+		printf(" HW-Ver 3.00-3.12\n");
 		break;
 
 	default:
@@ -169,29 +118,12 @@ static void print_fpga_info(void)
 	printf("       FPGA V %d.%02d, features:",
 		fpga_version / 100, fpga_version % 100);
 
-	printf(" %d channel(s)", feature_channels);
-
-	printf(", expansion %ssupported\n", feature_expansion ? "" : "un");
+	printf(" %d channel(s)\n", feature_channels);
 }
 
-/*
- * setup Gbit PHYs
- */
 int last_stage_init(void)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
-	unsigned int k;
-
 	print_fpga_info();
-
-	miiphy_register(CONFIG_SYS_GBIT_MII_BUSNAME,
-		bb_miiphy_read, bb_miiphy_write);
-
-	for (k = 0; k < 32; ++k)
-		configure_gbit_phy(k);
-
-	/* take fpga serdes blocks out of reset */
-	out_le16(&fpga->quad_serdes_reset, 0);
 
 	return 0;
 }
@@ -222,5 +154,8 @@ void gd405ep_setup_hw(void)
 
 int gd405ep_get_fpga_done(unsigned fpga)
 {
-	return in_le16((void *)LATCH2_BASE) & CONFIG_SYS_FPGA_DONE(fpga);
+	/*
+	 * Neo hardware has no FPGA-DONE GPIO
+	 */
+	return 1;
 }

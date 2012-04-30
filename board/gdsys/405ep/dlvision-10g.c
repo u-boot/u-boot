@@ -26,15 +26,19 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/ppc4xx-gpio.h>
+#include <dtt.h>
 
+#include "405ep.h"
 #include <gdsys_fpga.h>
 
 #include "../common/osd.h"
 
+#define LATCH0_BASE (CONFIG_SYS_LATCH_BASE)
+#define LATCH1_BASE (CONFIG_SYS_LATCH_BASE + 0x100)
 #define LATCH2_BASE (CONFIG_SYS_LATCH_BASE + 0x200)
-#define LATCH2_MC2_PRESENT_N 0x0080
-
 #define LATCH3_BASE (CONFIG_SYS_LATCH_BASE + 0x300)
+
+#define LATCH2_MC2_PRESENT_N 0x0080
 
 enum {
 	UNITTYPE_VIDEO_USER = 0,
@@ -46,6 +50,8 @@ enum {
 enum {
 	HWVER_101 = 0,
 	HWVER_110 = 1,
+	HWVER_120 = 2,
+	HWVER_130 = 3,
 };
 
 enum {
@@ -65,6 +71,14 @@ enum {
 	RAM_DDR2_64 = 2,
 };
 
+int misc_init_r(void)
+{
+	/* startup fans */
+	dtt_init();
+
+	return 0;
+}
+
 static unsigned int get_hwver(void)
 {
 	u16 latch3 = in_le16((void *)LATCH3_BASE);
@@ -81,7 +95,7 @@ static unsigned int get_mc2_present(void)
 
 static void print_fpga_info(unsigned dev)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(dev);
+	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(dev);
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
 	u16 fpga_features = in_le16(&fpga->fpga_features);
@@ -146,7 +160,15 @@ static void print_fpga_info(unsigned dev)
 		break;
 
 	case HWVER_110:
-		printf(" HW-Ver 1.10\n");
+		printf(" HW-Ver 1.10-1.12\n");
+		break;
+
+	case HWVER_120:
+		printf(" HW-Ver 1.20\n");
+		break;
+
+	case HWVER_130:
+		printf(" HW-Ver 1.30\n");
 		break;
 
 	default:
@@ -223,31 +245,30 @@ static void print_fpga_info(unsigned dev)
  */
 int checkboard(void)
 {
-	char buf[64];
-	int i = getenv_f("serial#", buf, sizeof(buf));
+	char *s = getenv("serial#");
 
-	printf("Board: ");
+	puts("Board: ");
 
-	printf("DLVision 10G");
+	puts("DLVision 10G");
 
-	if (i > 0) {
+	if (s != NULL) {
 		puts(", serial# ");
-		puts(buf);
+		puts(s);
 	}
 
 	puts("\n");
-
-	print_fpga_info(0);
-	if (get_mc2_present())
-		print_fpga_info(1);
 
 	return 0;
 }
 
 int last_stage_init(void)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
+	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
 	u16 versions = in_le16(&fpga->versions);
+
+	print_fpga_info(0);
+	if (get_mc2_present())
+		print_fpga_info(1);
 
 	if (((versions >> 4) & 0x000f) != UNITTYPE_MAIN_USER)
 		return 0;
@@ -260,4 +281,33 @@ int last_stage_init(void)
 		osd_probe(1);
 
 	return 0;
+}
+
+void gd405ep_init(void)
+{
+}
+
+void gd405ep_set_fpga_reset(unsigned state)
+{
+	if (state) {
+		out_le16((void *)LATCH0_BASE, CONFIG_SYS_LATCH0_RESET);
+		out_le16((void *)LATCH1_BASE, CONFIG_SYS_LATCH1_RESET);
+	} else {
+		out_le16((void *)LATCH0_BASE, CONFIG_SYS_LATCH0_BOOT);
+		out_le16((void *)LATCH1_BASE, CONFIG_SYS_LATCH1_BOOT);
+	}
+}
+
+void gd405ep_setup_hw(void)
+{
+	/*
+	 * set "startup-finished"-gpios
+	 */
+	gpio_write_bit(21, 0);
+	gpio_write_bit(22, 1);
+}
+
+int gd405ep_get_fpga_done(unsigned fpga)
+{
+	return in_le16((void *)LATCH2_BASE) & CONFIG_SYS_FPGA_DONE(fpga);
 }
