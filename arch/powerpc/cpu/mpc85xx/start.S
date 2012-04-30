@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007-2011 Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007-2012 Freescale Semiconductor, Inc.
  * Copyright (C) 2003  Motorola,Inc.
  *
  * See file CREDITS for list of people who contributed to this
@@ -179,41 +179,50 @@ l2_disabled:
 	andi.	r1,r3,L1CSR0_DCE@l
 	beq	2b
 
+/*
+ * Ne need to setup interrupt vector for NAND SPL
+ * because NAND SPL never compiles it.
+ */
+#if !defined(CONFIG_NAND_SPL)
 	/* Setup interrupt vectors */
 	lis	r1,CONFIG_SYS_MONITOR_BASE@h
 	mtspr	IVPR,r1
 
-	li	r1,0x0100
-	mtspr	IVOR0,r1	/* 0: Critical input */
-	li	r1,0x0200
-	mtspr	IVOR1,r1	/* 1: Machine check */
-	li	r1,0x0300
-	mtspr	IVOR2,r1	/* 2: Data storage */
-	li	r1,0x0400
-	mtspr	IVOR3,r1	/* 3: Instruction storage */
-	li	r1,0x0500
-	mtspr	IVOR4,r1	/* 4: External interrupt */
-	li	r1,0x0600
-	mtspr	IVOR5,r1	/* 5: Alignment */
-	li	r1,0x0700
-	mtspr	IVOR6,r1	/* 6: Program check */
-	li	r1,0x0800
-	mtspr	IVOR7,r1	/* 7: floating point unavailable */
-	li	r1,0x0900
-	mtspr	IVOR8,r1	/* 8: System call */
+	lis	r3,(CONFIG_SYS_MONITOR_BASE & 0xffff)@h
+	ori	r3,r3,(CONFIG_SYS_MONITOR_BASE & 0xffff)@l
+
+	addi	r4,r3,CriticalInput - _start + _START_OFFSET
+	mtspr	IVOR0,r4	/* 0: Critical input */
+	addi	r4,r3,MachineCheck - _start + _START_OFFSET
+	mtspr	IVOR1,r4	/* 1: Machine check */
+	addi	r4,r3,DataStorage - _start + _START_OFFSET
+	mtspr	IVOR2,r4	/* 2: Data storage */
+	addi	r4,r3,InstStorage - _start + _START_OFFSET
+	mtspr	IVOR3,r4	/* 3: Instruction storage */
+	addi	r4,r3,ExtInterrupt - _start + _START_OFFSET
+	mtspr	IVOR4,r4	/* 4: External interrupt */
+	addi	r4,r3,Alignment - _start + _START_OFFSET
+	mtspr	IVOR5,r4	/* 5: Alignment */
+	addi	r4,r3,ProgramCheck - _start + _START_OFFSET
+	mtspr	IVOR6,r4	/* 6: Program check */
+	addi	r4,r3,FPUnavailable - _start + _START_OFFSET
+	mtspr	IVOR7,r4	/* 7: floating point unavailable */
+	addi	r4,r3,SystemCall - _start + _START_OFFSET
+	mtspr	IVOR8,r4	/* 8: System call */
 	/* 9: Auxiliary processor unavailable(unsupported) */
-	li	r1,0x0a00
-	mtspr	IVOR10,r1	/* 10: Decrementer */
-	li	r1,0x0b00
-	mtspr	IVOR11,r1	/* 11: Interval timer */
-	li	r1,0x0c00
-	mtspr	IVOR12,r1	/* 12: Watchdog timer */
-	li	r1,0x0d00
-	mtspr	IVOR13,r1	/* 13: Data TLB error */
-	li	r1,0x0e00
-	mtspr	IVOR14,r1	/* 14: Instruction TLB error */
-	li	r1,0x0f00
-	mtspr	IVOR15,r1	/* 15: Debug */
+	addi	r4,r3,Decrementer - _start + _START_OFFSET
+	mtspr	IVOR10,r4	/* 10: Decrementer */
+	addi	r4,r3,IntervalTimer - _start + _START_OFFSET
+	mtspr	IVOR11,r4	/* 11: Interval timer */
+	addi	r4,r3,WatchdogTimer - _start + _START_OFFSET
+	mtspr	IVOR12,r4	/* 12: Watchdog timer */
+	addi	r4,r3,DataTLBError - _start + _START_OFFSET
+	mtspr	IVOR13,r4	/* 13: Data TLB error */
+	addi	r4,r3,InstructionTLBError - _start + _START_OFFSET
+	mtspr	IVOR14,r4	/* 14: Instruction TLB error */
+	addi	r4,r3,DebugBreakpoint - _start + _START_OFFSET
+	mtspr	IVOR15,r4	/* 15: Debug */
+#endif
 
 	/* Clear and set up some registers. */
 	li      r0,0x0000
@@ -434,13 +443,15 @@ create_ccsr_new_tlb:
 	ori     r2, r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR, (MAS2_I|MAS2_G))@l
 	lis     r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@h
 	ori     r3, r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@l
+#ifdef CONFIG_ENABLE_36BIT_PHYS
 	lis	r7, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
 	ori	r7, r7, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	mtspr   MAS7, r7
+#endif
 	mtspr   MAS0, r0
 	mtspr   MAS1, r1
 	mtspr   MAS2, r2
 	mtspr   MAS3, r3
-	mtspr   MAS7, r7
 	isync
 	msync
 	tlbwe
@@ -456,12 +467,14 @@ create_ccsr_old_tlb:
 	ori     r2, r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR + 0x1000, (MAS2_I|MAS2_G))@l
 	lis     r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_DEFAULT, 0, (MAS3_SW|MAS3_SR))@h
 	ori     r3, r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_DEFAULT, 0, (MAS3_SW|MAS3_SR))@l
+#ifdef CONFIG_ENABLE_36BIT_PHYS
 	li	r7, 0	/* The default CCSR address is always a 32-bit number */
+	mtspr   MAS7, r7
+#endif
 	mtspr   MAS0, r0
 	/* MAS1 is the same as above */
 	mtspr   MAS2, r2
 	mtspr   MAS3, r3
-	mtspr   MAS7, r7
 	isync
 	msync
 	tlbwe
@@ -1489,6 +1502,39 @@ trap_init:
 	addi	r7,r7,0x100		/* next exception vector	*/
 	cmplw	0,r7,r8
 	blt	2b
+
+	/* Update IVORs as per relocated vector table address */
+	li	r7,0x0100
+	mtspr	IVOR0,r7	/* 0: Critical input */
+	li	r7,0x0200
+	mtspr	IVOR1,r7	/* 1: Machine check */
+	li	r7,0x0300
+	mtspr	IVOR2,r7	/* 2: Data storage */
+	li	r7,0x0400
+	mtspr	IVOR3,r7	/* 3: Instruction storage */
+	li	r7,0x0500
+	mtspr	IVOR4,r7	/* 4: External interrupt */
+	li	r7,0x0600
+	mtspr	IVOR5,r7	/* 5: Alignment */
+	li	r7,0x0700
+	mtspr	IVOR6,r7	/* 6: Program check */
+	li	r7,0x0800
+	mtspr	IVOR7,r7	/* 7: floating point unavailable */
+	li	r7,0x0900
+	mtspr	IVOR8,r7	/* 8: System call */
+	/* 9: Auxiliary processor unavailable(unsupported) */
+	li	r7,0x0a00
+	mtspr	IVOR10,r7	/* 10: Decrementer */
+	li	r7,0x0b00
+	mtspr	IVOR11,r7	/* 11: Interval timer */
+	li	r7,0x0c00
+	mtspr	IVOR12,r7	/* 12: Watchdog timer */
+	li	r7,0x0d00
+	mtspr	IVOR13,r7	/* 13: Data TLB error */
+	li	r7,0x0e00
+	mtspr	IVOR14,r7	/* 14: Instruction TLB error */
+	li	r7,0x0f00
+	mtspr	IVOR15,r7	/* 15: Debug */
 
 	lis	r7,0x0
 	mtspr	IVPR,r7

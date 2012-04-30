@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009-2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -87,7 +87,7 @@ SECTIONS
 
   .bootpg ADDR(.text) - 0x1000 :
   {
-    arch/powerpc/cpu/mpc85xx/start.o	KEEP(*(.bootpg))
+    KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
   } :text = 0xffff
 
   . = ADDR(.text) + 0x80000;

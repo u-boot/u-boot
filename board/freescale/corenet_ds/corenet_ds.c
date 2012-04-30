@@ -62,10 +62,6 @@ int checkboard (void)
 	else
 		printf("invalid setting of SW%u\n", PIXIS_LBMAP_SWITCH);
 
-#ifdef CONFIG_PHYS_64BIT
-	puts("36-bit Addressing\n");
-#endif
-
 	/* Display the RCW, so that no one gets confused as to what RCW
 	 * we're actually using for this boot.
 	 */

@@ -197,6 +197,12 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 
+	/* By default NOR is on, and NAND is disabled */
+#ifdef CONFIG_NAND_U_BOOT
+	do_fixup_by_path_string(blob, "nor_flash", "status", "disabled");
+	do_fixup_by_path_string(blob, "nand_flash", "status", "okay");
+#endif
+
 	fdt_fixup_fman_ethernet(blob);
 }
 #endif

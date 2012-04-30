@@ -165,11 +165,7 @@ int checkboard(void)
 	struct cpu_type *cpu;
 
 	cpu = gd->cpu;
-	printf("Board: %sRDB ", cpu->name);
-#ifdef CONFIG_PHYS_64BIT
-	puts("(36-bit addrmap)");
-#endif
-	puts("\n");
+	printf("Board: %sRDB\n", cpu->name);
 
 	return 0;
 }

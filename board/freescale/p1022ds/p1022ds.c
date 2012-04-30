@@ -56,12 +56,8 @@ int checkboard(void)
 {
 	u8 sw;
 
-	puts("Board: P1022DS ");
-#ifdef CONFIG_PHYS_64BIT
-	puts("(36-bit addrmap) ");
-#endif
-
-	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+	printf("Board: P1022DS Sys ID: 0x%02x, "
+	       "Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
 		in_8(&pixis->id), in_8(&pixis->arch), in_8(&pixis->scver));
 
 	sw = in_8(&PIXIS_SW(PIXIS_LBMAP_SWITCH));
