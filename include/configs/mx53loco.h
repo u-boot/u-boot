@@ -41,6 +41,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_UART
@@ -84,6 +85,19 @@
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
+
+/* I2C Configs */
+#define CONFIG_HARD_I2C
+#define CONFIG_I2C_MXC
+#define CONFIG_SYS_I2C_MX53_PORT1
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_SLAVE		0xfe
+
+/* PMIC Controller */
+#define CONFIG_PMIC
+#define CONFIG_PMIC_I2C
+#define CONFIG_DIALOG_PMIC
+#define CONFIG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

@@ -36,6 +36,8 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
+#include <pmic.h>
+#include <dialog_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -291,6 +293,71 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+static void setup_iomux_i2c(void)
+{
+	/* I2C1 SDA */
+	mxc_request_iomux(MX53_PIN_CSI0_D8,
+		IOMUX_CONFIG_ALT5 | IOMUX_CONFIG_SION);
+	mxc_iomux_set_input(MX53_I2C1_IPP_SDA_IN_SELECT_INPUT,
+		INPUT_CTL_PATH0);
+	mxc_iomux_set_pad(MX53_PIN_CSI0_D8,
+		PAD_CTL_SRE_FAST | PAD_CTL_DRV_HIGH |
+		PAD_CTL_100K_PU | PAD_CTL_PKE_ENABLE |
+		PAD_CTL_PUE_PULL |
+		PAD_CTL_ODE_OPENDRAIN_ENABLE);
+	/* I2C1 SCL */
+	mxc_request_iomux(MX53_PIN_CSI0_D9,
+		IOMUX_CONFIG_ALT5 | IOMUX_CONFIG_SION);
+	mxc_iomux_set_input(MX53_I2C1_IPP_SCL_IN_SELECT_INPUT,
+		INPUT_CTL_PATH0);
+	mxc_iomux_set_pad(MX53_PIN_CSI0_D9,
+		PAD_CTL_SRE_FAST | PAD_CTL_DRV_HIGH |
+		PAD_CTL_100K_PU | PAD_CTL_PKE_ENABLE |
+		PAD_CTL_PUE_PULL |
+		PAD_CTL_ODE_OPENDRAIN_ENABLE);
+}
+
+static int power_init(void)
+{
+	unsigned int val, ret;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
+
+	/* Set VDDA to 1.25V */
+	val = DA9052_BUCKCORE_BCOREEN | DA_BUCKCORE_VBCORE_1_250V;
+	ret = pmic_reg_write(p, DA9053_BUCKCORE_REG, val);
+
+	ret |= pmic_reg_read(p, DA9053_SUPPLY_REG, &val);
+	val |= DA9052_SUPPLY_VBCOREGO;
+	ret |= pmic_reg_write(p, DA9053_SUPPLY_REG, val);
+
+	/* Set Vcc peripheral to 1.35V */
+	ret |= pmic_reg_write(p, DA9053_BUCKPRO_REG, 0x62);
+	ret |= pmic_reg_write(p, DA9053_SUPPLY_REG, 0x62);
+
+	return ret;
+}
+
+static void clock_1GHz(void)
+{
+	int ret;
+	u32 ref_clk = CONFIG_SYS_MX5_HCLK;
+	/*
+	 * After increasing voltage to 1.25V, we can switch
+	 * CPU clock to 1GHz and DDR to 400MHz safely
+	 */
+	ret = mxc_set_clock(ref_clk, 1000, MXC_ARM_CLK);
+	if (ret)
+		printf("CPU:   Switch CPU clock to 1GHZ failed\n");
+
+	ret = mxc_set_clock(ref_clk, 400, MXC_PERIPH_CLK);
+	ret |= mxc_set_clock(ref_clk, 400, MXC_DDR_CLK);
+	if (ret)
+		printf("CPU:   Switch DDR clock to 400MHz failed\n");
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -316,7 +383,11 @@ int print_cpuinfo(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	setup_iomux_i2c();
+	if (!power_init())
+		clock_1GHz();
 	print_cpuinfo();
+
 	return 0;
 }
 #endif
