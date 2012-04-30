@@ -110,9 +110,7 @@ int checkboard (void)
 
 	cpu = gd->cpu;
 	printf ("Board: %sRDB Rev%c\n", cpu->name, board_rev);
-#ifdef CONFIG_PHYS_64BIT
-	puts ("(36-bit addrmap) \n");
-#endif
+
 	setbits_be32(&pgpio->gpdir, GPIO_DIR);
 
 /*

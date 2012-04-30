@@ -33,6 +33,15 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #endif
 
+#ifdef CONFIG_SRIOBOOT_SLAVE
+/* Set 1M boot space */
+#define CONFIG_SYS_SRIOBOOT_SLAVE_ADDR (CONFIG_SYS_TEXT_BASE & 0xfff00000)
+#define CONFIG_SYS_SRIOBOOT_SLAVE_ADDR_PHYS \
+		(0x300000000ull | CONFIG_SYS_SRIOBOOT_SLAVE_ADDR)
+#define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
+#define CONFIG_SYS_NO_FLASH
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
 #define CONFIG_E500			/* BOOKE e500 family */
@@ -68,7 +77,9 @@
 #define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_SYS_NO_FLASH
+#ifndef CONFIG_SRIOBOOT_SLAVE
 #define CONFIG_ENV_IS_NOWHERE
+#endif
 #else
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -97,6 +108,12 @@
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
 #define CONFIG_ENV_OFFSET		(5 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#elif defined(CONFIG_SRIOBOOT_SLAVE)
+#define CONFIG_ENV_IS_IN_REMOTE
+#define CONFIG_ENV_ADDR		0xffe20000
+#define CONFIG_ENV_SIZE		0x2000
+#elif defined(CONFIG_ENV_IS_NOWHERE)
+#define CONFIG_ENV_SIZE		0x2000
 #else
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
@@ -373,6 +390,54 @@
 #define CONFIG_SYS_SRIO2_MEM_SIZE	0x10000000	/* 256M */
 
 /*
+ * SRIOBOOT - MASTER
+ */
+#ifdef CONFIG_SRIOBOOT_MASTER
+/* master port for srioboot*/
+#define CONFIG_SRIOBOOT_MASTER_PORT 0
+/* #define CONFIG_SRIOBOOT_MASTER_PORT 1 */
+/*
+ * for slave u-boot IMAGE instored in master memory space,
+ * PHYS must be aligned based on the SIZE
+ */
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS1 0xfef080000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS1 0xfff80000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE 0x80000	/* 512K */
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS2 0xfef080000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS2 0x3fff80000ull
+/*
+ * for slave UCODE instored in master memory space,
+ * PHYS must be aligned based on the SIZE
+ */
+#define CONFIG_SRIOBOOT_SLAVE_UCODE_LAW_PHYS 0xfef020000ull
+#define CONFIG_SRIOBOOT_SLAVE_UCODE_SRIO_PHYS 0x3ffe00000ull
+#define CONFIG_SRIOBOOT_SLAVE_UCODE_SIZE 0x10000	/* 64K */
+/*
+ * for slave ENV instored in master memory space,
+ * PHYS must be aligned based on the SIZE
+ */
+#define CONFIG_SRIOBOOT_SLAVE_ENV_LAW_PHYS 0xfef060000ull
+#define CONFIG_SRIOBOOT_SLAVE_ENV_SRIO_PHYS 0x3ffe20000ull
+#define CONFIG_SRIOBOOT_SLAVE_ENV_SIZE 0x20000	/* 128K */
+/* slave core release by master*/
+#define CONFIG_SRIOBOOT_SLAVE_HOLDOFF
+#define CONFIG_SRIOBOOT_SLAVE_BRR_OFFSET 0xe00e4
+#define CONFIG_SRIOBOOT_SLAVE_RELEASE_MASK 0x00000001 /* release core 0 */
+#endif
+
+/*
+ * SRIOBOOT - SLAVE
+ */
+#ifdef CONFIG_SRIOBOOT_SLAVE
+/* slave port for srioboot */
+#define CONFIG_SRIOBOOT_SLAVE_PORT0
+/* #define CONFIG_SRIOBOOT_SLAVE_PORT1 */
+#define CONFIG_SYS_SRIOBOOT_UCODE_ENV_ADDR 0xFFE00000
+#define CONFIG_SYS_SRIOBOOT_UCODE_ENV_ADDR_PHYS \
+		(0x300000000ull | CONFIG_SYS_SRIOBOOT_UCODE_ENV_ADDR)
+#endif
+
+/*
  * eSPI - Enhanced SPI
  */
 #define CONFIG_FSL_ESPI
@@ -492,6 +557,16 @@
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#elif defined(CONFIG_SRIOBOOT_SLAVE)
+/*
+ * Slave has no ucode locally, it can fetch this from remote. When implementing
+ * in two corenet boards, slave's ucode could be stored in master's memory
+ * space, the address can be mapped from slave TLB->slave LAW->
+ * slave SRIO outbound window->master inbound window->master LAW->
+ * the ucode address in master's NOR flash.
+ */
+#define CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_QE_FMAN_FW_ADDR		0xEF000000

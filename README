@@ -3026,6 +3026,24 @@ to save the current settings.
 	  environment area within the total memory of your DataFlash placed
 	  at the specified address.
 
+- CONFIG_ENV_IS_IN_REMOTE:
+
+	Define this if you have a remote memory space which you
+	want to use for the local device's environment.
+
+	- CONFIG_ENV_ADDR:
+	- CONFIG_ENV_SIZE:
+
+	  These two #defines specify the address and size of the
+	  environment area within the remote memory space. The
+	  local device can get the environment from remote memory
+	  space by SRIO or other links.
+
+BE CAREFUL! For some special cases, the local device can not use
+"saveenv" command. For example, the local device will get the
+environment stored in a remote NOR flash by SRIO link, but it can
+not erase, write this NOR flash by SRIO interface.
+
 - CONFIG_ENV_IS_IN_NAND:
 
 	Define this if you have a NAND device which you want to use
@@ -3462,6 +3480,12 @@ within that device.
 	Specifies that QE/FMAN firmware is located on the primary SPI
 	device.  CONFIG_SYS_FMAN_FW_ADDR is the byte offset on that device.
 
+- CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
+	Specifies that QE/FMAN firmware is located in the remote (master)
+	memory space.	CONFIG_SYS_FMAN_FW_ADDR is a virtual address which
+	can be mapped from slave TLB->slave LAW->slave SRIO outbound window
+	->master inbound window->master LAW->the ucode address in master's
+	NOR flash.
 
 Building the Software:
 ======================

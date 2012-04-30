@@ -408,6 +408,8 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 		/* flush cache after read */
 		flush_cache((ulong)addr, cnt * 512);
 	}
+#elif defined(CONFIG_SYS_QE_FMAN_FW_IN_REMOTE)
+	void *addr = (void *)CONFIG_SYS_QE_FMAN_FW_ADDR;
 #endif
 
 	/* Upload the Fman microcode if it's present */

@@ -45,11 +45,7 @@ int checkboard (void)
 	u8 vboot;
 	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	puts ("Board: MPC8572DS ");
-#ifdef CONFIG_PHYS_64BIT
-	puts ("(36-bit addrmap) ");
-#endif
-	printf ("Sys ID: 0x%02x, "
+	printf("Board: MPC8572DS Sys ID: 0x%02x, "
 		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
 		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
 		in_8(pixis_base + PIXIS_PVER));
