@@ -35,7 +35,7 @@
 #include <fsl_esdhc.h>
 #endif
 
-static char *get_reset_cause(void)
+char *get_reset_cause(void)
 {
 	u32 cause;
 	struct src *src_regs = (struct src *)SRC_BASE_ADDR;

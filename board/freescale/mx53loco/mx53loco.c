@@ -299,6 +299,28 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int print_cpuinfo(void)
+{
+	u32 cpurev;
+
+	cpurev = get_cpu_rev();
+	printf("CPU:   Freescale i.MX%x family rev%d.%d at %d MHz\n",
+		(cpurev & 0xFF000) >> 12,
+		(cpurev & 0x000F0) >> 4,
+		(cpurev & 0x0000F) >> 0,
+		mxc_get_clock(MXC_ARM_CLK) / 1000000);
+	printf("Reset cause: %s\n", get_reset_cause());
+	return 0;
+}
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	print_cpuinfo();
+	return 0;
+}
+#endif
+
 int board_init(void)
 {
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
