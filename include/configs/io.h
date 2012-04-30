@@ -34,11 +34,13 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		io
-#define CONFIG_IDENT_STRING	" io 0.04"
+#define CONFIG_IDENT_STRING	" io 0.05"
 #include "amcc-common.h"
 
-#define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f */
-#define CONFIG_LAST_STAGE_INIT		/* call last_stage_init */
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_EARLY_INIT_R
+#define CONFIG_MISC_INIT_R
+#define CONFIG_LAST_STAGE_INIT
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll   */
 
@@ -47,6 +49,10 @@
  */
 #define PLLMR0_DEFAULT PLLMR0_266_133_66
 #define PLLMR1_DEFAULT PLLMR1_266_133_66
+
+#undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
+#define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
+#define CONFIG_AUTOBOOT_STOP_STR " "
 
 /* new uImage format support */
 #define CONFIG_FIT
@@ -76,6 +82,7 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
 
 /*

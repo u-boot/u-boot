@@ -100,7 +100,7 @@ int misc_init_r(void)
 
 static void print_fpga_info(unsigned dev)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(dev);
+	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(dev);
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
 	u16 fpga_features = in_le16(&fpga->fpga_features);
@@ -242,8 +242,8 @@ int last_stage_init(void)
 {
 	unsigned int k;
 	unsigned int fpga;
-	ihs_fpga_t *fpga0 = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
-	ihs_fpga_t *fpga1 = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(1);
+	struct ihs_fpga *fpga0 = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
+	struct ihs_fpga *fpga1 = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(1);
 	int failed = 0;
 	char str_phys[] = "Setup PHYs -";
 	char str_serdes[] = "Start SERDES blocks";
