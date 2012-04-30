@@ -24,7 +24,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/spr_i2c.h>
+#include "designware_i2c.h"
 
 static struct i2c_regs *const i2c_regs_p =
     (struct i2c_regs *)CONFIG_SYS_I2C_BASE;
@@ -40,6 +40,13 @@ static void set_speed(int i2c_spd)
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
 	unsigned int high, low;
+	unsigned int enbl;
+
+	/* to set speed cltr must be disabled */
+	enbl = readl(&i2c_regs_p->ic_enable);
+	enbl &= ~IC_ENABLE_0B;
+	writel(enbl, &i2c_regs_p->ic_enable);
+
 
 	cntl = (readl(&i2c_regs_p->ic_con) & (~IC_CON_SPD_MSK));
 
@@ -71,6 +78,10 @@ static void set_speed(int i2c_spd)
 
 	lcnt = (IC_CLK * low) / NANO_TO_MICRO;
 	writel(lcnt, &i2c_regs_p->ic_fs_scl_lcnt);
+
+	/* re-enable i2c ctrl back now that speed is set */
+	enbl |= IC_ENABLE_0B;
+	writel(enbl, &i2c_regs_p->ic_enable);
 }
 
 /*
@@ -113,7 +124,7 @@ int i2c_get_bus_speed(void)
 /*
  * i2c_init - Init function
  * @speed:	required i2c speed
- * @slaveadd:	slave address for the spear device
+ * @slaveadd:	slave address for the device
  *
  * Initialization function.
  */

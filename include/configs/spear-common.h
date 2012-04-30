@@ -41,7 +41,7 @@
 
 /* I2C driver configuration */
 #define CONFIG_HARD_I2C
-#define CONFIG_SPEAR_I2C
+#define CONFIG_DW_I2C
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
 
