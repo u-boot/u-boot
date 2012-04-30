@@ -1191,6 +1191,7 @@ Macpaul Lin <macpaul@andestech.com>
 
 	ADP-AG101	N1213 (AG101 SoC)
 	ADP-AG101P	N1213 (AG101P XC5 FPGA)
+	ADP-AG102	N1213f (AG102 SoC with FPU)
 
 #########################################################################
 # OpenRISC Systems:							#
