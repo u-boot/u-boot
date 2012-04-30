@@ -29,7 +29,7 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ecc.h>
-#include <linux/mtd/compat.h>
+#include <linux/compat.h>
 
 #include <asm/errno.h>
 #include <asm/io.h>

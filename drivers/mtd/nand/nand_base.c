@@ -39,7 +39,7 @@
 #include <malloc.h>
 #include <watchdog.h>
 #include <linux/err.h>
-#include <linux/mtd/compat.h>
+#include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ecc.h>

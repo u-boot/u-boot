@@ -27,9 +27,6 @@
 
 static z_stream stream;
 
-void *zalloc(void *, unsigned, unsigned);
-void zfree(void *, void *, unsigned);
-
 /* Returns length of decompressed data. */
 int cramfs_uncompress_block (void *dst, void *src, int srclen)
 {
@@ -59,8 +56,8 @@ int cramfs_uncompress_init (void)
 {
 	int err;
 
-	stream.zalloc = zalloc;
-	stream.zfree = zfree;
+	stream.zalloc = gzalloc;
+	stream.zfree = gzfree;
 	stream.next_in = 0;
 	stream.avail_in = 0;
 
