@@ -289,6 +289,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"update_nand_full_filename=u-boot.nand\0"			\
 	"update_nand_firmware_filename=u-boot.sb\0"			\
+	"update_sd_firmware_filename=u-boot.sd\0"			\
 	"update_nand_firmware_maxsz=0x100000\0"				\
 	"update_nand_stride=0x40\0"	/* MX28 datasheet ch. 12.12 */	\
 	"update_nand_count=0x4\0"	/* MX28 datasheet ch. 12.12 */	\
@@ -315,6 +316,14 @@
 		"nand erase ${fcb_sz} ${fw_sz} ; "			\
 		"nand write ${loadaddr} ${fcb_sz} ${filesize} ; "	\
 		"nand write ${loadaddr} ${fw_off} ${filesize} ; "	\
+		"fi\0"							\
+	"update_sd_firmware="		/* Update the SD firmware partition */ \
+		"if mmc rescan ; then "					\
+		"if tftp ${update_sd_firmware_filename} ; then "	\
+		"setexpr fw_sz ${filesize} / 0x200 ; "	/* SD block size */ \
+		"setexpr fw_sz ${fw_sz} + 1 ; "				\
+		"mmc write ${loadaddr} 0x800 ${fw_sz} ; "		\
+		"fi ; "							\
 		"fi\0"
 
 #endif /* __M28_H__ */
