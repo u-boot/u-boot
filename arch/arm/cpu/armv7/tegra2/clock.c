@@ -1059,7 +1059,10 @@ void clock_early_init(void)
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 26, 0, 8);
 		break;
 
-	case CLOCK_OSC_FREQ_13_0:
+	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
+		clock_set_rate(CLOCK_ID_PERIPH, 432, 13, 1, 8);
+		clock_set_rate(CLOCK_ID_CGENERAL, 600, 13, 0, 8);
+		break;
 	case CLOCK_OSC_FREQ_19_2:
 	default:
 		/*
