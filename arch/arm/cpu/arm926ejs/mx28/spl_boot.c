@@ -28,6 +28,7 @@
 #include <asm/io.h>
 #include <asm/arch/iomux-mx28.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 
 #include "mx28_init.h"
 
@@ -49,9 +50,15 @@ void early_delay(int delay)
 void mx28_common_spl_init(const iomux_cfg_t *iomux_setup,
 			const unsigned int iomux_size)
 {
+	struct mx28_spl_data *data = (struct mx28_spl_data *)
+		((CONFIG_SYS_TEXT_BASE - sizeof(struct mx28_spl_data)) & ~0xf);
+
 	mxs_iomux_setup_multiple_pads(iomux_setup, iomux_size);
 	mx28_power_init();
+
 	mx28_mem_init();
+	data->mem_dram_size = mx28_mem_get_size();
+
 	mx28_power_wait_pswitch();
 }
 

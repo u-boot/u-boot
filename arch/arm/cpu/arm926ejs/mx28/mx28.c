@@ -279,22 +279,16 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 
 int mx28_dram_init(void)
 {
-	struct mx28_digctl_regs *digctl_regs =
-		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
-	uint32_t sz[2];
+	struct mx28_spl_data *data = (struct mx28_spl_data *)
+		((CONFIG_SYS_TEXT_BASE - sizeof(struct mx28_spl_data)) & ~0xf);
 
-	sz[0] = readl(&digctl_regs->hw_digctl_scratch0);
-	sz[1] = readl(&digctl_regs->hw_digctl_scratch1);
-
-	if (sz[0] != sz[1]) {
+	if (data->mem_dram_size == 0) {
 		printf("MX28:\n"
-			"Error, the RAM size in HW_DIGCTRL_SCRATCH0 and\n"
-			"HW_DIGCTRL_SCRATCH1 is not the same. Please\n"
-			"verify these two registers contain valid RAM size!\n");
+			"Error, the RAM size passed up from SPL is 0!\n");
 		hang();
 	}
 
-	gd->ram_size = sz[0];
+	gd->ram_size = data->mem_dram_size;
 	return 0;
 }
 

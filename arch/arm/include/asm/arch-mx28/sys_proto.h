@@ -39,6 +39,10 @@ void mx28_common_spl_init(const iomux_cfg_t *iomux_setup,
 			const unsigned int iomux_size);
 #endif
 
+struct mx28_spl_data {
+	uint32_t	mem_dram_size;
+};
+
 int mx28_dram_init(void);
 
 #endif	/* __MX28_H__ */

@@ -37,5 +37,6 @@ static inline void mx28_power_wait_pswitch(void) { }
 #endif
 
 void mx28_mem_init(void);
+uint32_t mx28_mem_get_size(void);
 
 #endif	/* __M28_INIT_H__ */
