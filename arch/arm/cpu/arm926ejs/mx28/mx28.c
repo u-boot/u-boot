@@ -51,9 +51,16 @@ void reset_cpu(ulong ignored) __attribute__((noreturn));
 
 void reset_cpu(ulong ignored)
 {
-
 	struct mx28_rtc_regs *rtc_regs =
 		(struct mx28_rtc_regs *)MXS_RTC_BASE;
+	struct mx28_lcdif_regs *lcdif_regs =
+		(struct mx28_lcdif_regs *)MXS_LCDIF_BASE;
+
+	/*
+	 * Shut down the LCD controller as it interferes with BootROM boot mode
+	 * pads sampling.
+	 */
+	writel(LCDIF_CTRL_RUN, &lcdif_regs->hw_lcdif_ctrl_clr);
 
 	/* Wait 1 uS before doing the actual watchdog reset */
 	writel(1, &rtc_regs->hw_rtc_watchdog);
