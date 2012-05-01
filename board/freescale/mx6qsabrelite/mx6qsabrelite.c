@@ -25,6 +25,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6x_pins.h>
 #include <asm/arch/iomux-v3.h>
+#include <asm/arch/clock.h>
 #include <asm/errno.h>
 #include <asm/gpio.h>
 #include <mmc.h>
@@ -293,6 +294,32 @@ static void setup_buttons(void)
 					 ARRAY_SIZE(button_pads));
 }
 
+#ifdef CONFIG_CMD_SATA
+
+int setup_sata(void)
+{
+	struct iomuxc_base_regs *const iomuxc_regs
+		= (struct iomuxc_base_regs *) IOMUXC_BASE_ADDR;
+	int ret = enable_sata_clock();
+	if (ret)
+		return ret;
+
+	clrsetbits_le32(&iomuxc_regs->gpr[13],
+			IOMUXC_GPR13_SATA_MASK,
+			IOMUXC_GPR13_SATA_PHY_8_RXEQ_3P0DB
+			|IOMUXC_GPR13_SATA_PHY_7_SATA2M
+			|IOMUXC_GPR13_SATA_SPEED_3G
+			|(3<<IOMUXC_GPR13_SATA_PHY_6_SHIFT)
+			|IOMUXC_GPR13_SATA_SATA_PHY_5_SS_DISABLED
+			|IOMUXC_GPR13_SATA_SATA_PHY_4_ATTEN_9_16
+			|IOMUXC_GPR13_SATA_PHY_3_TXBOOST_0P00_DB
+			|IOMUXC_GPR13_SATA_PHY_2_TX_1P104V
+			|IOMUXC_GPR13_SATA_PHY_1_SLOW);
+
+	return 0;
+}
+#endif
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -308,6 +335,10 @@ int board_init(void)
 
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
+#endif
+
+#ifdef CONFIG_CMD_SATA
+	setup_sata();
 #endif
 
        return 0;
