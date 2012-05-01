@@ -29,6 +29,7 @@
 #include <asm/arch/iomux-mx28.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
 
 #include "mx28_init.h"
 
@@ -47,17 +48,64 @@ void early_delay(int delay)
 		;
 }
 
+#define	MUX_CONFIG_BOOTMODE_PAD	(MXS_PAD_3V3 | MXS_PAD_4MA | MXS_PAD_NOPULL)
+const iomux_cfg_t iomux_boot[] = {
+	MX28_PAD_LCD_D00__GPIO_1_0 | MUX_CONFIG_BOOTMODE_PAD,
+	MX28_PAD_LCD_D01__GPIO_1_1 | MUX_CONFIG_BOOTMODE_PAD,
+	MX28_PAD_LCD_D02__GPIO_1_2 | MUX_CONFIG_BOOTMODE_PAD,
+	MX28_PAD_LCD_D03__GPIO_1_3 | MUX_CONFIG_BOOTMODE_PAD,
+	MX28_PAD_LCD_D04__GPIO_1_4 | MUX_CONFIG_BOOTMODE_PAD,
+	MX28_PAD_LCD_D05__GPIO_1_5 | MUX_CONFIG_BOOTMODE_PAD,
+};
+
+uint8_t mx28_get_bootmode_index(void)
+{
+	uint8_t bootmode = 0;
+	int i;
+	uint8_t masked;
+
+	/* Setup IOMUX of bootmode pads to GPIO */
+	mxs_iomux_setup_multiple_pads(iomux_boot, ARRAY_SIZE(iomux_boot));
+
+	/* Setup bootmode pins as GPIO input */
+	gpio_direction_input(MX28_PAD_LCD_D00__GPIO_1_0);
+	gpio_direction_input(MX28_PAD_LCD_D01__GPIO_1_1);
+	gpio_direction_input(MX28_PAD_LCD_D02__GPIO_1_2);
+	gpio_direction_input(MX28_PAD_LCD_D03__GPIO_1_3);
+	gpio_direction_input(MX28_PAD_LCD_D04__GPIO_1_4);
+	gpio_direction_input(MX28_PAD_LCD_D05__GPIO_1_5);
+
+	/* Read bootmode pads */
+	bootmode |= (gpio_get_value(MX28_PAD_LCD_D00__GPIO_1_0) ? 1 : 0) << 0;
+	bootmode |= (gpio_get_value(MX28_PAD_LCD_D01__GPIO_1_1) ? 1 : 0) << 1;
+	bootmode |= (gpio_get_value(MX28_PAD_LCD_D02__GPIO_1_2) ? 1 : 0) << 2;
+	bootmode |= (gpio_get_value(MX28_PAD_LCD_D03__GPIO_1_3) ? 1 : 0) << 3;
+	bootmode |= (gpio_get_value(MX28_PAD_LCD_D04__GPIO_1_4) ? 1 : 0) << 4;
+	bootmode |= (gpio_get_value(MX28_PAD_LCD_D05__GPIO_1_5) ? 1 : 0) << 5;
+
+	for (i = 0; i < ARRAY_SIZE(mx28_boot_modes); i++) {
+		masked = bootmode & mx28_boot_modes[i].boot_mask;
+		if (masked == mx28_boot_modes[i].boot_pads)
+			break;
+	}
+
+	return i;
+}
+
 void mx28_common_spl_init(const iomux_cfg_t *iomux_setup,
 			const unsigned int iomux_size)
 {
 	struct mx28_spl_data *data = (struct mx28_spl_data *)
 		((CONFIG_SYS_TEXT_BASE - sizeof(struct mx28_spl_data)) & ~0xf);
+	uint8_t bootmode = mx28_get_bootmode_index();
 
 	mxs_iomux_setup_multiple_pads(iomux_setup, iomux_size);
 	mx28_power_init();
 
 	mx28_mem_init();
 	data->mem_dram_size = mx28_mem_get_size();
+
+	data->boot_mode_idx = bootmode;
 
 	mx28_power_wait_pswitch();
 }

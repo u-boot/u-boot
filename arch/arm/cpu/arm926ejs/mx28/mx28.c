@@ -185,8 +185,12 @@ int arch_cpu_init(void)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
+	struct mx28_spl_data *data = (struct mx28_spl_data *)
+		((CONFIG_SYS_TEXT_BASE - sizeof(struct mx28_spl_data)) & ~0xf);
+
 	printf("Freescale i.MX28 family at %d MHz\n",
 			mxc_get_clock(MXC_ARM_CLK) / 1000000);
+	printf("BOOT:  %s\n", mx28_boot_modes[data->boot_mode_idx].mode);
 	return 0;
 }
 #endif
