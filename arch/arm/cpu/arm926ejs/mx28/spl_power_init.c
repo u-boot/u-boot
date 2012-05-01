@@ -883,6 +883,13 @@ void mx28_power_set_vddd(uint32_t new_target, uint32_t new_brownout)
 			new_brownout << POWER_VDDDCTRL_BO_OFFSET_OFFSET);
 }
 
+void mx28_setup_batt_detect(void)
+{
+	mx28_lradc_init();
+	mx28_lradc_enable_batt_measurement();
+	early_delay(10);
+}
+
 void mx28_power_init(void)
 {
 	struct mx28_power_regs *power_regs =
@@ -892,6 +899,9 @@ void mx28_power_init(void)
 	mx28_power_clear_auto_restart();
 	mx28_power_set_linreg();
 	mx28_power_setup_5v_detect();
+
+	mx28_setup_batt_detect();
+
 	mx28_power_configure_power_source();
 	mx28_enable_output_rail_protection();
 
