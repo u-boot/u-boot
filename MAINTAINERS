@@ -1052,6 +1052,10 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 
 	TASREG		MCF5249
 
+Jens Scharsig <esw@bus-elektronik.de>
+
+	eb_cpu5282	mfc5282
+
 TsiChung Liew <Tsi-Chung.Liew@freescale.com>
 
 	M52277EVB	mcf5227x

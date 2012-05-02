@@ -1,5 +1,5 @@
 /*
- * Configuation settings for the BuS EB+MCF-EV123 boards.
+ * Configuation settings for the BuS EB+CPU5283 boards (aka EB+MCF-EV123)
  *
  * (C) Copyright 2005-2009 BuS Elektronik GmbH & Co.KG <esw@bus-elektonik.de>
  *
@@ -22,8 +22,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _CONFIG_EB_MCF_EV123_H_
-#define _CONFIG_EB_MCF_EV123_H_
+#ifndef _CONFIG_EB_CPU5282_H_
+#define _CONFIG_EB_CPU5282_H_
 
 #undef CONFIG_SYS_HALT_BEFOR_RAM_JUMP
 
@@ -33,7 +33,6 @@
 
 #define	CONFIG_MCF52x2			/* define processor family */
 #define CONFIG_M5282			/* define processor type */
-#define CONFIG_EB_MCF_EV123
 
 #define CONFIG_MISC_INIT_R
 
@@ -90,7 +89,8 @@
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT	"\nEV123 U-Boot> "
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_PROMPT	"\nEB+CPU5282> "
 #define	CONFIG_SYS_LONGHELP	1
 
 #if defined(CONFIG_CMD_KGDB)
