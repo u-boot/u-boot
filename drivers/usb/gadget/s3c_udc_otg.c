@@ -30,7 +30,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
+#undef DEBUG
 #include <common.h>
 #include <asm/errno.h>
 #include <linux/list.h>
@@ -124,6 +124,19 @@ static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed);
 static void nuke(struct s3c_ep *ep, int status);
 static int s3c_udc_set_halt(struct usb_ep *_ep, int value);
 static void s3c_udc_set_nak(struct s3c_ep *ep);
+
+void set_udc_gadget_private_data(void *p)
+{
+	debug_cond(DEBUG_SETUP != 0,
+		   "%s: the_controller: 0x%p, p: 0x%p\n", __func__,
+		   the_controller, p);
+	the_controller->gadget.dev.device_data = p;
+}
+
+void *get_udc_gadget_private_data(struct usb_gadget *gadget)
+{
+	return gadget->dev.device_data;
+}
 
 static struct usb_ep_ops s3c_ep_ops = {
 	.enable = s3c_ep_enable,
