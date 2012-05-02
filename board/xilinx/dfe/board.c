@@ -595,6 +595,8 @@ int board_init(void)
 	Xil_Out32(0xe000a204, 0x80);
 	Xil_Out32(0xe000a208, 0x80);
 	Xil_Out32(0xe000a040, 0x80);
+	Xil_Out32(0xe000a040, 0x00);
+	Xil_Out32(0xe000a040, 0x80);
 
 	icache_enable();
 	init_nor_flash();
