@@ -54,19 +54,11 @@
 
 #define OTG_DMA_MODE		1
 
-#undef DEBUG_S3C_UDC_SETUP
-#undef DEBUG_S3C_UDC_EP0
-#undef DEBUG_S3C_UDC_ISR
-#undef DEBUG_S3C_UDC_OUT_EP
-#undef DEBUG_S3C_UDC_IN_EP
-#undef DEBUG_S3C_UDC
-
-/* #define DEBUG_S3C_UDC_SETUP */
-/* #define DEBUG_S3C_UDC_EP0 */
-/* #define DEBUG_S3C_UDC_ISR */
-/* #define DEBUG_S3C_UDC_OUT_EP */
-/* #define DEBUG_S3C_UDC_IN_EP */
-/* #define DEBUG_S3C_UDC */
+#define DEBUG_SETUP 0
+#define DEBUG_EP0 0
+#define DEBUG_ISR 0
+#define DEBUG_OUT_EP 0
+#define DEBUG_IN_EP 0
 
 #include <usb/s3c_udc.h>
 
@@ -217,7 +209,7 @@ void otg_phy_off(struct s3c_udc *dev)
  */
 static void udc_disable(struct s3c_udc *dev)
 {
-	DEBUG_SETUP("%s: %p\n", __func__, dev);
+	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
 	udc_set_address(dev, 0);
 
@@ -235,7 +227,7 @@ static void udc_reinit(struct s3c_udc *dev)
 {
 	unsigned int i;
 
-	DEBUG_SETUP("%s: %p\n", __func__, dev);
+	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
 	/* device/ep0 records init */
 	INIT_LIST_HEAD(&dev->gadget.ep_list);
@@ -266,12 +258,13 @@ static void udc_reinit(struct s3c_udc *dev)
  */
 static int udc_enable(struct s3c_udc *dev)
 {
-	DEBUG_SETUP("%s: %p\n", __func__, dev);
+	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
 	otg_phy_init(dev);
 	reconfig_usbd();
 
-	DEBUG_SETUP("S3C USB 2.0 OTG Controller Core Initialized : 0x%x\n",
+	debug_cond(DEBUG_SETUP != 0,
+		   "S3C USB 2.0 OTG Controller Core Initialized : 0x%x\n",
 		    readl(&reg->gintmsk));
 
 	dev->gadget.speed = USB_SPEED_UNKNOWN;
@@ -288,7 +281,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	int retval = 0;
 	unsigned long flags;
 
-	DEBUG_SETUP("%s: %s\n", __func__, "no name");
+	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
 
 	if (!driver
 	    || (driver->speed != USB_SPEED_FULL
@@ -312,7 +305,8 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	retval = driver->bind(&dev->gadget);
 	if (retval) {
-		DEBUG_SETUP("%s: bind to driver --> error %d\n",
+		debug_cond(DEBUG_SETUP != 0,
+			   "%s: bind to driver --> error %d\n",
 			    dev->gadget.name, retval);
 		dev->driver = 0;
 		return retval;
@@ -320,7 +314,8 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	enable_irq(IRQ_OTG);
 
-	DEBUG_SETUP("Registered gadget driver %s\n", dev->gadget.name);
+	debug_cond(DEBUG_SETUP != 0,
+		   "Registered gadget driver %s\n", dev->gadget.name);
 	udc_enable(dev);
 
 	return 0;
@@ -378,7 +373,7 @@ static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
 	/* don't modify queue heads during completion callback */
 	ep->stopped = 1;
 
-#ifdef DEBUG_S3C_UDC
+#ifdef DEBUG
 	printf("calling complete callback\n");
 	{
 		int i, len = req->req.length;
