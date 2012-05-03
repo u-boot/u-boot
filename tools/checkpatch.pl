@@ -3139,6 +3139,12 @@ sub process {
 			 "Statements terminations use 1 semicolon\n" . $herecurr);
 		}
 
+# check for whitespace before semicolon - not allowed at end-of-line
+		if ($line =~ /\s+;$/) {
+		    WARN("SPACEBEFORE_SEMICOLON",
+			 "Whitespace before semicolon\n" . $herecurr);
+		}
+
 # check for gcc specific __FUNCTION__
 		if ($line =~ /__FUNCTION__/) {
 			WARN("USE_FUNC",
