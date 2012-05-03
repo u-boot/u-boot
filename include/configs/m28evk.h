@@ -43,6 +43,8 @@
 #define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_ARCH_MISC_INIT
 
+#define CONFIG_OF_LIBFDT
+
 /*
  * SPL
  */
