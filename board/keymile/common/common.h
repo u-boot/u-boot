@@ -32,7 +32,11 @@ struct km_bec_fpga {
 	unsigned char	res1[3];
 	unsigned char	bprth;
 	unsigned char	bprtl;
-	unsigned char	res2[6];
+	unsigned char	gprt3;
+	unsigned char	gprt2;
+	unsigned char	gprt1;
+	unsigned char	gprt0;
+	unsigned char	res2[2];
 	unsigned char	prst;
 	unsigned char	res3[0xfff0];
 	unsigned char	pgy_id;

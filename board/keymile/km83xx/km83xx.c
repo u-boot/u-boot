@@ -27,6 +27,7 @@
 #include <asm/processor.h>
 #include <pci.h>
 #include <libfdt.h>
+#include <post.h>
 
 #include "../common/common.h"
 
@@ -285,6 +286,42 @@ void ft_board_setup(void *blob, bd_t *bd)
 int hush_init_var(void)
 {
 	ivm_read_eeprom();
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_POST)
+int post_hotkeys_pressed(void)
+{
+	int testpin = 0;
+	struct km_bec_fpga *base =
+		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
+	int testpin_reg = in_8(&base->CONFIG_TESTPIN_REG);
+	testpin = (testpin_reg & CONFIG_TESTPIN_MASK) != 0;
+	debug("post_hotkeys_pressed: %d\n", !testpin);
+	return testpin;
+}
+
+ulong post_word_load(void)
+{
+	void* addr = (ulong *) (CPM_POST_WORD_ADDR);
+	debug("post_word_load 0x%08lX:  0x%08X\n", (ulong)addr, in_le32(addr));
+	return in_le32(addr);
+
+}
+void post_word_store(ulong value)
+{
+	void* addr = (ulong *) (CPM_POST_WORD_ADDR);
+	debug("post_word_store 0x%08lX: 0x%08lX\n", (ulong)addr, value);
+	out_le32(addr, value);
+}
+
+int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	*vstart = CONFIG_SYS_MEMTEST_START;
+	*size = CONFIG_SYS_MEMTEST_END - CONFIG_SYS_MEMTEST_START;
+	debug("arch_memory_test_prepare 0x%08X 0x%08X\n", *vstart, *size);
+
 	return 0;
 }
 #endif

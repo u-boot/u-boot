@@ -266,6 +266,14 @@
 	BATU_BL_256M |\
 	BATU_VS |\
 	BATU_VP)
+/* enable POST tests */
+#define CONFIG_POST (CONFIG_SYS_POST_MEMORY|CONFIG_SYS_POST_MEM_REGIONS)
+#define CONFIG_POST_EXTERNAL_WORD_FUNCS /* use own functions, not generic */
+#define CPM_POST_WORD_ADDR  CONFIG_SYS_MEMTEST_END
+#define CONFIG_TESTPIN_REG  gprt3	/* for kmcoge5ne */
+#define CONFIG_TESTPIN_MASK 0x20	/* for kmcoge5ne */
+#define CONFIG_CMD_DIAG	/* so that testpin is inquired for POST test */
+
 #else
 #define CONFIG_SYS_IBAT6L	(0)
 #define CONFIG_SYS_IBAT6U	(0)
