@@ -195,6 +195,17 @@ int misc_init_r(void)
 
 int last_stage_init(void)
 {
+#if defined(CONFIG_KMCOGE5NE)
+	struct bfticu_iomap *base =
+		(struct bfticu_iomap *)CONFIG_SYS_BFTIC3_BASE;
+	u8 dip_switch = in_8((u8 *)&(base->mswitch)) & BFTICU_DIPSWITCH_MASK;
+
+	if (dip_switch != 0) {
+		/* start bootloader */
+		puts("DIP:   Enabled\n");
+		setenv("actual_bank", "0");
+	}
+#endif
 	set_km_env();
 	return 0;
 }
