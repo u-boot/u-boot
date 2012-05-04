@@ -245,7 +245,9 @@
 	CONFIG_KM_DEF_ENV_CONSTANTS					\
 	"altbootcmd=run bootcmd\0"					\
 	"bootcmd=km_checkbidhwk &&  "					\
-	"	setenv bootcmd \'setenv boot_bank ${actual_bank}; "	\
+		"setenv bootcmd \'if km_checktestboot; then; "          \
+				"setenv boot_bank ${test_bank}; else; " \
+				"setenv boot_bank ${actual_bank}; fi;"  \
 			"run ${subbootcmds}; reset\' && "		\
 		"setenv altbootcmd \'setenv boot_bank ${backup_bank}; "	\
 			"run ${subbootcmds}; reset\' && "		\
