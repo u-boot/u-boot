@@ -20,7 +20,7 @@
 #ifndef __FMAN_BOARD_HELPER__
 #define __FMAN_BOARD_HELPER__
 
-void fdt_set_phy_handle(void *fdt, char *compat, phys_addr_t addr,
+int fdt_set_phy_handle(void *fdt, char *compat, phys_addr_t addr,
 			const char *alias);
 
 #endif
