@@ -490,35 +490,30 @@
 #define CONFIG_LOADADDR		1000000
 
 #define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
-#define CONFIG_BOOTARGS
 
 #define CONFIG_BAUDRATE	115200
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"perf_mode=stable\0"						\
-	"memctl_intlv_ctl=2\0"						\
-	"netdev=eth0\0"							\
-	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
-	"tftpflash=tftpboot $loadaddr $uboot; "				\
-		"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-		"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
-		"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
-		"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
-		"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
-	"consoledev=ttyS0\0"						\
-	"ramdiskaddr=2000000\0"						\
-	"ramdiskfile=uramdisk\0"  		      	        	\
-	"fdtaddr=c00000\0"	  			      		\
-	"fdtfile=p1022ds.dtb\0"	  					\
-	"bdev=sda3\0"		  			      		\
-	"diuregs=md e002c000 1d\0"			 		\
-	"dium=mw e002c01c\0" 						\
-	"diuerr=md e002c014 1\0" 					\
+#define	CONFIG_EXTRA_ENV_SETTINGS				\
+	"netdev=eth0\0"						\
+	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"			\
+	"ubootaddr=" MK_STR(CONFIG_SYS_TEXT_BASE) "\0"		\
+	"tftpflash=tftpboot $loadaddr $uboot && "		\
+		"protect off $ubootaddr +$filesize && "		\
+		"erase $ubootaddr +$filesize && "		\
+		"cp.b $loadaddr $ubootaddr $filesize && "	\
+		"protect on $ubootaddr +$filesize && "		\
+		"cmp.b $loadaddr $ubootaddr $filesize\0"	\
+	"consoledev=ttyS0\0"					\
+	"ramdiskaddr=2000000\0"					\
+	"ramdiskfile=rootfs.ext2.gz.uboot\0"			\
+	"fdtaddr=c00000\0"	  			      	\
+	"fdtfile=p1022ds.dtb\0"	  				\
+	"bdev=sda3\0"		  			      	\
 	"hwconfig=esdhc;audclk:12\0"
 
 #define CONFIG_HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\
-	"console=$consoledev,$baudrate $othbootargs;"	\
+	"console=$consoledev,$baudrate $othbootargs $videobootargs;"	\
 	"tftp $loadaddr $bootfile;"			\
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr - $fdtaddr"
@@ -527,14 +522,14 @@
 	"setenv bootargs root=/dev/nfs rw "				\
 	"nfsroot=$serverip:$rootpath "					\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-	"console=$consoledev,$baudrate $othbootargs;"			\
+	"console=$consoledev,$baudrate $othbootargs $videobootargs;"	\
 	"tftp $loadaddr $bootfile;"					\
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND						\
 	"setenv bootargs root=/dev/ram rw "				\
-	"console=$consoledev,$baudrate $othbootargs;"			\
+	"console=$consoledev,$baudrate $othbootargs $videobootargs;"	\
 	"tftp $ramdiskaddr $ramdiskfile;"				\
 	"tftp $loadaddr $bootfile;"					\
 	"tftp $fdtaddr $fdtfile;"					\
