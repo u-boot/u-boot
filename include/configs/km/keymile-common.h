@@ -250,7 +250,7 @@
 		"setenv altbootcmd \'setenv boot_bank ${backup_bank}; "	\
 			"run ${subbootcmds}; reset\' && "		\
 		"saveenv && saveenv && boot\0"				\
-	"bootlimit=2\0"							\
+	"bootlimit=3\0"							\
 	"init=/sbin/init-overlay.sh\0"					\
 	"load_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"			\
 	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\
