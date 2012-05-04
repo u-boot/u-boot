@@ -149,6 +149,8 @@ void mx28_mem_setup_cpu_and_hbus(void)
 	/* Disable CPU bypass */
 	writel(CLKCTRL_CLKSEQ_BYPASS_CPU,
 		&clkctrl_regs->hw_clkctrl_clkseq_clr);
+
+	early_delay(15000);
 }
 
 void mx28_mem_setup_vdda(void)
