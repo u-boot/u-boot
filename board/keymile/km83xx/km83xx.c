@@ -173,6 +173,8 @@ int board_early_init_r(void)
 	setbits_8(&base->pgy_eth, 0x01);
 	/* enable the Unit LED (green) */
 	setbits_8(&base->oprth, WRL_BOOT);
+	/* enable Application Buffer */
+	setbits_8(&base->oprtl, OPRTL_XBUFENA);
 
 #if defined(CONFIG_SUVD3)
 	/* configure UPMA for APP1 */

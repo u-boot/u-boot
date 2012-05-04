@@ -16,6 +16,8 @@
 #define WRG_LED		0x02
 #define WRL_BOOT	0x01
 
+#define OPRTL_XBUFENA	0x20
+
 #define H_OPORTS_SCC4_ENA	0x10
 #define H_OPORTS_SCC4_FD_ENA	0x04
 #define H_OPORTS_FCC1_PW_DWN	0x01
