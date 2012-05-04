@@ -37,7 +37,7 @@ struct winbond_spi_flash_params {
 	uint8_t		l2_page_size;
 	uint16_t	pages_per_sector;
 	uint16_t	sectors_per_block;
-	uint8_t		nr_blocks;
+	uint16_t	nr_blocks;
 	const char	*name;
 };
 
@@ -45,6 +45,7 @@ struct winbond_spi_flash_params {
 struct winbond_spi_flash {
 	struct spi_flash flash;
 	const struct winbond_spi_flash_params *params;
+	unsigned addr_width;
 };
 
 static inline struct winbond_spi_flash *
@@ -83,8 +84,13 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 		.l2_page_size           = 8,
 		.pages_per_sector       = 16,
 		.sectors_per_block      = 16,
+#ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
+		.nr_blocks              = 256,
+		.name                   = "W25Q64DWx2",
+#else
 		.nr_blocks              = 128,
 		.name                   = "W25Q64DW",
+#endif
 	},
 };
 
@@ -145,22 +151,54 @@ static void winbond_build_address(struct winbond_spi_flash *stm, u8 *cmd, u32 of
 	page_addr = offset / page_size;
 	byte_addr = offset % page_size;
 
-	cmd[0] = page_addr >> (16 - page_shift);
-	cmd[1] = page_addr << (page_shift - 8) | (byte_addr >> 8);
-	cmd[2] = byte_addr;
+	if (stm->addr_width == 4) {
+		cmd[0] = page_addr >> (24 - page_shift);
+		cmd[1] = page_addr >> (16 - page_shift);
+		cmd[2] = page_addr << (page_shift - 8) | (byte_addr >> 8);
+		cmd[3] = byte_addr;
+	} else	{
+		cmd[0] = page_addr >> (16 - page_shift);
+		cmd[1] = page_addr << (page_shift - 8) | (byte_addr >> 8);
+		cmd[2] = byte_addr;
+	}
+}
+
+static inline void winbond_write_addr2cmd(struct winbond_spi_flash *stm,
+		unsigned long page_addr, unsigned long byte_addr, u8 *cmd)
+{
+	unsigned int page_shift;
+
+	page_shift = stm->params->l2_page_size;
+
+	if (stm->addr_width == 4) {
+		cmd[1] = page_addr >> (24 - page_shift);
+		cmd[2] = page_addr >> (16 - page_shift);
+		cmd[3] = page_addr << (page_shift - 8) | (byte_addr >> 8);
+		cmd[4] = byte_addr;
+	} else {
+		cmd[1] = page_addr >> (16 - page_shift);
+		cmd[2] = page_addr << (page_shift - 8) | (byte_addr >> 8);
+		cmd[3] = byte_addr;
+	}
+}
+
+static inline int winbond_cmdsz(struct winbond_spi_flash *flash)
+{
+	return 1 + flash->addr_width;
 }
 
 static int winbond_read_fast(struct spi_flash *flash,
 		u32 offset, size_t len, void *buf)
 {
 	struct winbond_spi_flash *stm = to_winbond_spi_flash(flash);
-	u8 cmd[5];
+	u8 cmd[6];
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
 	winbond_build_address(stm, cmd + 1, offset);
-	cmd[4] = 0x00;
+	cmd[winbond_cmdsz(stm)] = 0x00;
 
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
+	return spi_flash_read_common(flash, cmd,
+			winbond_cmdsz(stm)+1, buf, len);
 }
 
 static int winbond_write(struct spi_flash *flash,
@@ -174,7 +212,7 @@ static int winbond_write(struct spi_flash *flash,
 	size_t chunk_len;
 	size_t actual;
 	int ret;
-	u8 cmd[4];
+	u8 cmd[5];
 
 	page_shift = stm->params->l2_page_size;
 	page_size = (1 << page_shift);
@@ -191,9 +229,8 @@ static int winbond_write(struct spi_flash *flash,
 		chunk_len = min(len - actual, page_size - byte_addr);
 
 		cmd[0] = CMD_W25_PP;
-		cmd[1] = page_addr >> (16 - page_shift);
-		cmd[2] = page_addr << (page_shift - 8) | (byte_addr >> 8);
-		cmd[3] = byte_addr;
+		winbond_write_addr2cmd(stm, page_addr, byte_addr, cmd);
+
 		debug("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %d\n",
 			buf + actual,
 			cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
@@ -204,7 +241,7 @@ static int winbond_write(struct spi_flash *flash,
 			goto out;
 		}
 
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
+		ret = spi_flash_cmd_write(flash->spi, cmd, winbond_cmdsz(stm),
 				buf + actual, chunk_len);
 		if (ret < 0) {
 			debug("SF: Winbond Page Program failed\n");
@@ -237,7 +274,7 @@ int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
 	unsigned int page_shift;
 	size_t actual;
 	int ret;
-	u8 cmd[4];
+	u8 cmd[5];
 
 	/*
 	 * This function currently uses sector erase only.
@@ -264,8 +301,9 @@ int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	for (actual = 0; actual < len; actual++) {
 		winbond_build_address(stm, &cmd[1], offset + actual * sector_size);
-		printf("Erase: %02x %02x %02x %02x\n",
-				cmd[0], cmd[1], cmd[2], cmd[3]);
+
+		printf("Erase: %02x %02x %02x %02x %02x\n",
+				cmd[0], cmd[1], cmd[2], cmd[3], cmd[4]);
 
 		ret = spi_flash_cmd(flash->spi, CMD_W25_WREN, NULL, 0);
 		if (ret < 0) {
@@ -273,7 +311,8 @@ int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
 			goto out;
 		}
 
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
+		ret = spi_flash_cmd_write(flash->spi, cmd,
+				winbond_cmdsz(stm), NULL, 0);
 		if (ret < 0) {
 			debug("SF: Winbond sector erase failed\n");
 			goto out;
@@ -333,6 +372,11 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 	stm->flash.size = page_size * params->pages_per_sector
 				* params->sectors_per_block
 				* params->nr_blocks;
+
+	if (stm->flash.size > 0x800000)
+		stm->addr_width = 4;
+	else
+		stm->addr_width = 3;
 
 	printf("SF: Detected %s with page size %u, total ",
 	       params->name, page_size);
