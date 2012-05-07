@@ -76,6 +76,10 @@ int misc_init_r(void)
 	setenv("stdin", "usbtty");
 	setenv("stdout", "usbtty");
 	setenv("stderr", "usbtty");
+
+#ifndef CONFIG_SYS_NO_DCACHE
+	dcache_enable();
+#endif
 #endif
 	return 0;
 }
