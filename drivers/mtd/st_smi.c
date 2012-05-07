@@ -102,11 +102,15 @@ static struct flash_device flash_devices[] = {
  */
 static int smi_wait_xfer_finish(int timeout)
 {
-	do {
+	ulong start = get_timer(0);
+
+	while (get_timer(start) < timeout) {
 		if (readl(&smicntl->smi_sr) & TFF)
 			return 0;
-		udelay(1000);
-	} while (timeout--);
+
+		/* Try after 10 ms */
+		udelay(10);
+	};
 
 	return -1;
 }
@@ -219,16 +223,17 @@ static int smi_read_sr(int bank)
 static int smi_wait_till_ready(int bank, int timeout)
 {
 	int sr;
+	ulong start = get_timer(0);
 
 	/* One chip guarantees max 5 msec wait here after page writes,
 	   but potentially three seconds (!) after page erase. */
-	do {
+	while (get_timer(start) < timeout) {
 		sr = smi_read_sr(bank);
 		if ((sr >= 0) && (!(sr & WIP_BIT)))
 			return 0;
 
-		/* Try again after 1m-sec */
-		udelay(1000);
+		/* Try again after 10 usec */
+		udelay(10);
 	} while (timeout--);
 
 	printf("SMI controller is still in wait, timeout=%d\n", timeout);
@@ -245,6 +250,7 @@ static int smi_wait_till_ready(int bank, int timeout)
 static int smi_write_enable(int bank)
 {
 	u32 ctrlreg1;
+	u32 start;
 	int timeout = WMODE_TOUT;
 	int sr;
 
@@ -263,14 +269,15 @@ static int smi_write_enable(int bank)
 	/* Restore the CTRL REG1 state */
 	writel(ctrlreg1, &smicntl->smi_cr1);
 
-	do {
+	start = get_timer(0);
+	while (get_timer(start) < timeout) {
 		sr = smi_read_sr(bank);
 		if ((sr >= 0) && (sr & (1 << (bank + WM_SHIFT))))
 			return 0;
 
-		/* Try again after 1m-sec */
-		udelay(1000);
-	} while (timeout--);
+		/* Try again after 10 usec */
+		udelay(10);
+	};
 
 	return -1;
 }
