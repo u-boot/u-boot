@@ -58,13 +58,15 @@ static struct flash_dev flash_ids[] = {
  *
  * Wait until TFF is set in status register
  */
-static void smi_wait_xfer_finish(int timeout)
+static int smi_wait_xfer_finish(int timeout)
 {
-	while (timeout--) {
+	do {
 		if (readl(&smicntl->smi_sr) & TFF)
-			break;
+			return 0;
 		udelay(1000);
-	}
+	} while (timeout--);
+
+	return -1;
 }
 
 /*
@@ -83,7 +85,8 @@ static unsigned int smi_read_id(flash_info_t *info, int banknum)
 	writel((banknum << BANKSEL_SHIFT) | SEND | TX_LEN_1 | RX_LEN_3,
 	       &smicntl->smi_cr2);
 
-	smi_wait_xfer_finish(XFER_FINISH_TOUT);
+	if (smi_wait_xfer_finish(XFER_FINISH_TOUT))
+		return -EIO;
 
 	value = (readl(&smicntl->smi_rr) & 0x00FFFFFF);
 
@@ -151,7 +154,8 @@ static unsigned int smi_read_sr(int bank)
 	/* Performing a RSR instruction in HW mode */
 	writel((bank << BANKSEL_SHIFT) | RD_STATUS_REG, &smicntl->smi_cr2);
 
-	smi_wait_xfer_finish(XFER_FINISH_TOUT);
+	if (smi_wait_xfer_finish(XFER_FINISH_TOUT))
+		return -1;
 
 	/* Restore the CTRL REG1 state */
 	writel(ctrlreg1, &smicntl->smi_cr1);
@@ -211,7 +215,8 @@ static int smi_write_enable(int bank)
 	/* Give the Flash, Write Enable command */
 	writel((bank << BANKSEL_SHIFT) | WE, &smicntl->smi_cr2);
 
-	smi_wait_xfer_finish(XFER_FINISH_TOUT);
+	if (smi_wait_xfer_finish(XFER_FINISH_TOUT))
+		return -1;
 
 	/* Restore the CTRL REG1 state */
 	writel(ctrlreg1, &smicntl->smi_cr1);
@@ -292,7 +297,8 @@ static int smi_sector_erase(flash_info_t *info, unsigned int sector)
 		writel(instruction, &smicntl->smi_tr);
 		writel((bank << BANKSEL_SHIFT) | SEND | TX_LEN_4,
 		       &smicntl->smi_cr2);
-		smi_wait_xfer_finish(XFER_FINISH_TOUT);
+		if (smi_wait_xfer_finish(XFER_FINISH_TOUT))
+			return -EIO;
 
 		if (smi_wait_till_ready(bank, CONFIG_SYS_FLASH_ERASE_TOUT))
 			return -EBUSY;
