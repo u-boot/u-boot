@@ -20,13 +20,13 @@
 #include <pmic.h>
 #include <dialog_pmic.h>
 
-int pmic_init(void)
+int pmic_dialog_init(void)
 {
 	struct pmic *p = get_pmic();
 	static const char name[] = "DIALOG_PMIC";
 
 	p->name = name;
-	p->number_of_regs = PMIC_NUM_OF_REGS;
+	p->number_of_regs = DIALOG_NUM_OF_REGS;
 
 	p->interface = PMIC_I2C;
 	p->hw.i2c.addr = CONFIG_SYS_DIALOG_PMIC_I2C_ADDR;

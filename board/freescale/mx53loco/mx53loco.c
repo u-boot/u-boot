@@ -322,7 +322,7 @@ static int power_init(void)
 	unsigned int val, ret;
 	struct pmic *p;
 
-	pmic_init();
+	pmic_dialog_init();
 	p = get_pmic();
 
 	/* Set VDDA to 1.25V */
