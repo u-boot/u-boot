@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <miiphy.h>
 #include <netdev.h>
 #include <nand.h>
 #include <asm/io.h>
@@ -68,25 +69,27 @@ int board_eth_init(bd_t *bis)
 	int ret = 0;
 
 #if defined(CONFIG_DESIGNWARE_ETH)
-	if (designware_initialize(0, CONFIG_SPEAR_ETHBASE, CONFIG_DW0_PHY) < 0)
-		ret += -1;
+	u32 interface = PHY_INTERFACE_MODE_MII;
+	if (designware_initialize(0, CONFIG_SPEAR_ETHBASE, CONFIG_DW0_PHY,
+				interface) >= 0)
+		ret++;
 #endif
 #if defined(CONFIG_MACB)
 	if (macb_eth_initialize(0, (void *)CONFIG_SYS_MACB0_BASE,
-				CONFIG_MACB0_PHY) < 0)
-		ret += -1;
+				CONFIG_MACB0_PHY) >= 0)
+		ret++;
 
 	if (macb_eth_initialize(1, (void *)CONFIG_SYS_MACB1_BASE,
-				CONFIG_MACB1_PHY) < 0)
-		ret += -1;
+				CONFIG_MACB1_PHY) >= 0)
+		ret++;
 
 	if (macb_eth_initialize(2, (void *)CONFIG_SYS_MACB2_BASE,
-				CONFIG_MACB2_PHY) < 0)
-		ret += -1;
+				CONFIG_MACB2_PHY) >= 0)
+		ret++;
 
 	if (macb_eth_initialize(3, (void *)CONFIG_SYS_MACB3_BASE,
-				CONFIG_MACB3_PHY) < 0)
-		ret += -1;
+				CONFIG_MACB3_PHY) >= 0)
+		ret++;
 #endif
 	return ret;
 }

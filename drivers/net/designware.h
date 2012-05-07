@@ -234,6 +234,7 @@ struct dmamacdescr {
 
 struct dw_eth_dev {
 	u32 address;
+	u32 interface;
 	u32 speed;
 	u32 duplex;
 	u32 tx_currdescnum;

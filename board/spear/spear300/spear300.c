@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <miiphy.h>
 #include <netdev.h>
 #include <nand.h>
 #include <asm/io.h>
@@ -64,9 +65,13 @@ void board_nand_init()
 
 int board_eth_init(bd_t *bis)
 {
+	int ret = 0;
+
 #if defined(CONFIG_DESIGNWARE_ETH)
-	return designware_initialize(0, CONFIG_SPEAR_ETHBASE, CONFIG_DW0_PHY);
-#else
-	return -1;
+	u32 interface = PHY_INTERFACE_MODE_MII;
+	if (designware_initialize(0, CONFIG_SPEAR_ETHBASE, CONFIG_DW0_PHY,
+				interface) >= 0)
+		ret++;
 #endif
+	return ret;
 }
