@@ -28,7 +28,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_SPEAR600				1
+#define CONFIG_SPEAR600
 
 #if defined(CONFIG_usbtty)
 #define CONFIG_SPEAR_USBTTY

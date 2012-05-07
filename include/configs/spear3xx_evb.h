@@ -29,14 +29,14 @@
  * (easy to change)
  */
 #if defined(CONFIG_spear300)
-#define CONFIG_SPEAR3XX				1
-#define CONFIG_SPEAR300				1
+#define CONFIG_SPEAR3XX
+#define CONFIG_SPEAR300
 #elif defined(CONFIG_spear310)
-#define CONFIG_SPEAR3XX				1
-#define CONFIG_SPEAR310				1
+#define CONFIG_SPEAR3XX
+#define CONFIG_SPEAR310
 #elif defined(CONFIG_spear320)
-#define CONFIG_SPEAR3XX				1
-#define CONFIG_SPEAR320				1
+#define CONFIG_SPEAR3XX
+#define CONFIG_SPEAR320
 #endif
 
 #if defined(CONFIG_usbtty)
@@ -52,17 +52,17 @@
 #include <configs/spear-common.h>
 
 /* Ethernet driver configuration */
-#define CONFIG_DW_ALTDESCRIPTOR			1
+#define CONFIG_DW_ALTDESCRIPTOR
 
 #if defined(CONFIG_SPEAR310)
-#define CONFIG_MACB				1
+#define CONFIG_MACB
 #define CONFIG_MACB0_PHY			0x01
 #define CONFIG_MACB1_PHY			0x03
 #define CONFIG_MACB2_PHY			0x05
 #define CONFIG_MACB3_PHY			0x07
 
 #elif defined(CONFIG_SPEAR320)
-#define CONFIG_MACB				1
+#define CONFIG_MACB
 #define CONFIG_MACB0_PHY			0x01
 
 #endif
@@ -141,7 +141,7 @@
 #endif
 
 #define CONFIG_SYS_MAX_FLASH_SECT		(127 + 8)
-#define CONFIG_SYS_FLASH_QUIET_TEST		1
+#define CONFIG_SYS_FLASH_QUIET_TEST
 
 #endif
 
