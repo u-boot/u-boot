@@ -27,6 +27,14 @@
  * Common configurations used for both spear3xx as well as spear6xx
  */
 
+/* Ethernet driver configuration */
+#define CONFIG_MII
+#define CONFIG_DESIGNWARE_ETH
+#define CONFIG_DW_SEARCH_PHY
+#define CONFIG_DW0_PHY				1
+#define CONFIG_NET_MULTI
+#define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
+
 /* USBD driver configuration */
 #define CONFIG_DW_UDC
 #define CONFIG_USB_DEVICE
@@ -104,11 +112,13 @@
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_SAVES
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 
 /* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include <config_cmd_default.h>
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 
 /*
  * Default Environment Varible definitions

@@ -41,6 +41,9 @@
 
 #include <configs/spear-common.h>
 
+/* Ethernet driver configuration */
+#define CONFIG_DW_ALTDESCRIPTOR			1
+
 /* Serial Configuration (PL011) */
 #define CONFIG_SYS_SERIAL0			0xD0000000
 
