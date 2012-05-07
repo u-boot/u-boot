@@ -162,8 +162,7 @@
 						"0x4C0000; bootm 0x1600000"
 #endif
 
-#define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_FLASH_BASE
-#define CONFIG_ENV_ADDR				(CONFIG_SYS_MONITOR_BASE + \
+#define CONFIG_ENV_ADDR				(CONFIG_SYS_FLASH_BASE + \
 						CONFIG_SYS_MONITOR_LEN)
 #elif defined(CONFIG_ENV_IS_IN_NAND)
 /*
@@ -200,6 +199,7 @@
 
 
 #define CONFIG_ENV_SIZE				0x02000
+#define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_TEXT_BASE
 
 /* Miscellaneous configurable options */
 #define CONFIG_ARCH_CPU_INIT
