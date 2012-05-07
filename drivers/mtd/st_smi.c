@@ -148,7 +148,7 @@ static ulong flash_get_size(ulong base, int banknum)
  */
 static int smi_read_sr(int bank)
 {
-	u32 ctrlreg1;
+	u32 ctrlreg1, val;
 
 	/* store the CTRL REG1 state */
 	ctrlreg1 = readl(&smicntl->smi_cr1);
@@ -163,10 +163,12 @@ static int smi_read_sr(int bank)
 	if (smi_wait_xfer_finish(XFER_FINISH_TOUT))
 		return -1;
 
+	val = readl(&smicntl->smi_sr);
+
 	/* Restore the CTRL REG1 state */
 	writel(ctrlreg1, &smicntl->smi_cr1);
 
-	return readl(&smicntl->smi_sr);
+	return val;
 }
 
 /*
