@@ -37,17 +37,61 @@ static ulong bank_base[CONFIG_SYS_MAX_FLASH_BANKS] =
     CONFIG_SYS_FLASH_ADDR_BASE;
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
-static struct flash_dev flash_ids[] = {
-	{0x10, 0x10000, 2},	/* 64K Byte */
-	{0x11, 0x20000, 4},	/* 128K Byte */
-	{0x12, 0x40000, 4},	/* 256K Byte */
-	{0x13, 0x80000, 8},	/* 512K Byte */
-	{0x14, 0x100000, 16},	/* 1M Byte */
-	{0x15, 0x200000, 32},	/* 2M Byte */
-	{0x16, 0x400000, 64},	/* 4M Byte */
-	{0x17, 0x800000, 128},	/* 8M Byte */
-	{0x18, 0x1000000, 64},	/* 16M Byte */
-	{0x00,}
+/* data structure to maintain flash ids from different vendors */
+struct flash_device {
+	char *name;
+	u8 erase_cmd;
+	u32 device_id;
+	u32 pagesize;
+	unsigned long sectorsize;
+	unsigned long size_in_bytes;
+};
+
+#define FLASH_ID(n, es, id, psize, ssize, size)	\
+{				\
+	.name = n,		\
+	.erase_cmd = es,	\
+	.device_id = id,	\
+	.pagesize = psize,	\
+	.sectorsize = ssize,	\
+	.size_in_bytes = size	\
+}
+
+/*
+ * List of supported flash devices.
+ * Currently the erase_cmd field is not used in this driver.
+ */
+static struct flash_device flash_devices[] = {
+	FLASH_ID("st m25p16"     , 0xd8, 0x00152020, 0x100, 0x10000, 0x200000),
+	FLASH_ID("st m25p32"     , 0xd8, 0x00162020, 0x100, 0x10000, 0x400000),
+	FLASH_ID("st m25p64"     , 0xd8, 0x00172020, 0x100, 0x10000, 0x800000),
+	FLASH_ID("st m25p128"    , 0xd8, 0x00182020, 0x100, 0x40000, 0x1000000),
+	FLASH_ID("st m25p05"     , 0xd8, 0x00102020, 0x80 , 0x8000 , 0x10000),
+	FLASH_ID("st m25p10"     , 0xd8, 0x00112020, 0x80 , 0x8000 , 0x20000),
+	FLASH_ID("st m25p20"     , 0xd8, 0x00122020, 0x100, 0x10000, 0x40000),
+	FLASH_ID("st m25p40"     , 0xd8, 0x00132020, 0x100, 0x10000, 0x80000),
+	FLASH_ID("st m25p80"     , 0xd8, 0x00142020, 0x100, 0x10000, 0x100000),
+	FLASH_ID("st m45pe10"    , 0xd8, 0x00114020, 0x100, 0x10000, 0x20000),
+	FLASH_ID("st m45pe20"    , 0xd8, 0x00124020, 0x100, 0x10000, 0x40000),
+	FLASH_ID("st m45pe40"    , 0xd8, 0x00134020, 0x100, 0x10000, 0x80000),
+	FLASH_ID("st m45pe80"    , 0xd8, 0x00144020, 0x100, 0x10000, 0x100000),
+	FLASH_ID("sp s25fl004"   , 0xd8, 0x00120201, 0x100, 0x10000, 0x80000),
+	FLASH_ID("sp s25fl008"   , 0xd8, 0x00130201, 0x100, 0x10000, 0x100000),
+	FLASH_ID("sp s25fl016"   , 0xd8, 0x00140201, 0x100, 0x10000, 0x200000),
+	FLASH_ID("sp s25fl032"   , 0xd8, 0x00150201, 0x100, 0x10000, 0x400000),
+	FLASH_ID("sp s25fl064"   , 0xd8, 0x00160201, 0x100, 0x10000, 0x800000),
+	FLASH_ID("mac 25l512"    , 0xd8, 0x001020C2, 0x010, 0x10000, 0x10000),
+	FLASH_ID("mac 25l1005"   , 0xd8, 0x001120C2, 0x010, 0x10000, 0x20000),
+	FLASH_ID("mac 25l2005"   , 0xd8, 0x001220C2, 0x010, 0x10000, 0x40000),
+	FLASH_ID("mac 25l4005"   , 0xd8, 0x001320C2, 0x010, 0x10000, 0x80000),
+	FLASH_ID("mac 25l4005a"  , 0xd8, 0x001320C2, 0x010, 0x10000, 0x80000),
+	FLASH_ID("mac 25l8005"   , 0xd8, 0x001420C2, 0x010, 0x10000, 0x100000),
+	FLASH_ID("mac 25l1605"   , 0xd8, 0x001520C2, 0x100, 0x10000, 0x200000),
+	FLASH_ID("mac 25l1605a"  , 0xd8, 0x001520C2, 0x010, 0x10000, 0x200000),
+	FLASH_ID("mac 25l3205"   , 0xd8, 0x001620C2, 0x100, 0x10000, 0x400000),
+	FLASH_ID("mac 25l3205a"  , 0xd8, 0x001620C2, 0x100, 0x10000, 0x400000),
+	FLASH_ID("mac 25l6405"   , 0xd8, 0x001720C2, 0x100, 0x10000, 0x800000),
+	FLASH_ID("wbd w25q128" , 0xd8, 0x001840EF, 0x1000, 0x10000, 0x1000000),
 };
 
 /*
@@ -105,9 +149,7 @@ static unsigned int smi_read_id(flash_info_t *info, int banknum)
 static ulong flash_get_size(ulong base, int banknum)
 {
 	flash_info_t *info = &flash_info[banknum];
-	struct flash_dev *dev;
 	int value;
-	unsigned int density;
 	int i;
 
 	value = smi_read_id(info, banknum);
@@ -117,24 +159,20 @@ static ulong flash_get_size(ulong base, int banknum)
 		return 0;
 	}
 
-	density = (value >> 16) & 0xff;
+	/* Matches chip-id to entire list of 'serial-nor flash' ids */
+	for (i = 0; i < ARRAY_SIZE(flash_devices); i++) {
+		if (flash_devices[i].device_id == value) {
+			info->size = flash_devices[i].size_in_bytes;
+			info->flash_id = value;
+			info->start[0] = base;
+			info->sector_count =
+					info->size/flash_devices[i].sectorsize;
 
-	for (i = 0, dev = &flash_ids[0]; dev->density != 0x0;
-	     i++, dev = &flash_ids[i]) {
-		if (dev->density == density) {
-			info->size = dev->size;
-			info->sector_count = dev->sector_count;
-			break;
+			return info->size;
 		}
 	}
 
-	if (dev->density == 0x0)
-		return 0;
-
-	info->flash_id = value & 0xffff;
-	info->start[0] = base;
-
-	return info->size;
+	return 0;
 }
 
 /*
