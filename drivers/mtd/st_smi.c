@@ -471,8 +471,13 @@ void flash_print_info(flash_info_t *info)
 		puts("missing or unknown FLASH type\n");
 		return;
 	}
-	printf("  Size: %ld MB in %d Sectors\n",
-	       info->size >> 20, info->sector_count);
+
+	if (info->size >= 0x100000)
+		printf("  Size: %ld MB in %d Sectors\n",
+		       info->size >> 20, info->sector_count);
+	else
+		printf("  Size: %ld KB in %d Sectors\n",
+		       info->size >> 10, info->sector_count);
 
 	puts("  Sector Start Addresses:");
 	for (i = 0; i < info->sector_count; ++i) {
