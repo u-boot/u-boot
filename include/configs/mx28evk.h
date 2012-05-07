@@ -68,6 +68,7 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_CMD_I2C
 
 /*
  * Memory configurations
@@ -186,6 +187,13 @@
 #define	CONFIG_EHCI_MXS_PORT 1
 #define	CONFIG_EHCI_IS_TDI
 #define	CONFIG_USB_STORAGE
+#endif
+
+/* I2C */
+#ifdef CONFIG_CMD_I2C
+#define CONFIG_I2C_MXS
+#define CONFIG_HARD_I2C
+#define CONFIG_SYS_I2C_SPEED	400000
 #endif
 
 /*
