@@ -26,6 +26,13 @@
 
 .section ".text.init", "x"
 
+.macro init_arm_erratum
+	/* ARM erratum ID #468414 */
+	mrc 15, 0, r1, c1, c0, 1
+	orr r1, r1, #(1 << 5)    /* enable L1NEON bit */
+	mcr 15, 0, r1, c1, c0, 1
+.endm
+
 /*
  * L2CC Cache setup/invalidation/disable
  */
@@ -398,6 +405,8 @@ ENTRY(lowlevel_init)
 	orr r1, r1, #1 << 23
 	str r1, [r0, #0x4]
 #endif
+
+	init_arm_erratum
 
 	init_l2cc
 
