@@ -308,8 +308,14 @@ int cpu_init_r(void)
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 #endif
 
-#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
-	if (SVR_MAJ(svr) < 3) {
+#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
+	/*
+	 * CPU22 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * NMG_CPU_A011 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * also applies to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1
+	 */
+	if (SVR_SOC_VER(svr) != SVR_P4080 || SVR_MAJ(svr) < 3) {
 		flush_dcache();
 		mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
 		sync();

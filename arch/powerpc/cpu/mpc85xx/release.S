@@ -143,17 +143,29 @@ __secondary_start_page:
 	mtspr	L1CSR2,r8
 #endif
 
-#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
-	/* apply to P4080 rev 1 and rev 2 */
+#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
+	/*
+	 * CPU22 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * NMG_CPU_A011 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * also appleis to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1
+	 */
 	mfspr   r3,SPRN_SVR
-	rlwinm  r3,r3,0,0xf0
-	li      r4,0x30
-	cmpw    r3,r4
-	bge     2f
+	rlwinm	r6,r3,24,~0x800		/* clear E bit */
 
-	mfspr	r8,L1CSR2
-	oris	r8,r8,(L1CSR2_DCWS)@h
-	mtspr	L1CSR2,r8
+	lis	r5,SVR_P4080@h
+	ori	r5,r5,SVR_P4080@l
+	cmpw	r6,r5
+	bne	1f
+
+	rlwinm  r3,r3,0,0xf0
+	li      r5,0x30
+	cmpw    r3,r5
+	bge     2f
+1:
+	mfspr	r3,L1CSR2
+	oris	r3,r3,(L1CSR2_DCWS)@h
+	mtspr	L1CSR2,r3
 2:
 #endif
 
