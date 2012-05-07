@@ -53,4 +53,7 @@
 #define CONFIG_SYS_FSMC_NAND_8BIT
 #define CONFIG_SYS_NAND_BASE			(0xD2000000)
 
+/* Environment Settings */
+#define CONFIG_EXTRA_ENV_SETTINGS              CONFIG_EXTRA_ENV_USBTTY
+
 #endif  /* __CONFIG_H */

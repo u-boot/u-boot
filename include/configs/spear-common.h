@@ -46,9 +46,7 @@
 #define CONFIG_USBD_PRODUCT_NAME		"SPEAr SoC"
 #define CONFIG_USBD_MANUFACTURER		"ST Microelectronics"
 
-#if defined(CONFIG_USB_TTY)
 #define CONFIG_EXTRA_ENV_USBTTY			"usbtty=cdc_acm\0"
-#endif
 
 /* I2C driver configuration */
 #define CONFIG_HARD_I2C
@@ -143,7 +141,7 @@
  */
 #define CONFIG_SYS_MONITOR_LEN			0x00040000
 #define CONFIG_ENV_SECT_SIZE			0x00010000
-#define CONFIG_FSMTDBLK				"/dev/mtdblock8 "
+#define CONFIG_FSMTDBLK				"/dev/mtdblock3 "
 
 #define CONFIG_BOOTCOMMAND			"bootm 0xf8050000"
 
@@ -169,18 +167,32 @@
 
 #define CONFIG_ENV_OFFSET			0x60000
 #define CONFIG_ENV_RANGE			0x10000
-#define CONFIG_FSMTDBLK				"/dev/mtdblock12 "
+#define CONFIG_FSMTDBLK				"/dev/mtdblock7 "
 
 #define CONFIG_BOOTCOMMAND			"nand read.jffs2 0x1600000 " \
 						"0x80000 0x4C0000; " \
 						"bootm 0x1600000"
 #endif
 
-#define CONFIG_BOOTARGS_NFS			"root=/dev/nfs ip=dhcp " \
-						"console=ttyS0 init=/bin/sh"
-#define CONFIG_BOOTARGS				"console=ttyS0 mem=128M "  \
+#define CONFIG_BOOTARGS				"console=ttyAMA0,115200 " \
+						"mem=128M " \
 						"root="CONFIG_FSMTDBLK \
 						"rootfstype=jffs2"
+
+#define CONFIG_NFSBOOTCOMMAND						\
+	"bootp; "							\
+	"setenv bootargs root=/dev/nfs rw "				\
+	"nfsroot=$(serverip):$(rootpath) "				\
+	"ip=$(ipaddr):$(serverip):$(gatewayip):"			\
+			"$(netmask):$(hostname):$(netdev):off "		\
+			"console=ttyAMA0,115200 $(othbootargs);"	\
+	"bootm; "
+
+#define CONFIG_RAMBOOTCOMMAND						\
+	"setenv bootargs root=/dev/ram rw "				\
+		"console=ttyAMA0,115200 $(othbootargs);"		\
+	CONFIG_BOOTCOMMAND
+
 
 #define CONFIG_ENV_SIZE				0x02000
 
@@ -211,8 +223,6 @@
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 #define CONFIG_SYS_CONSOLE_INFO_QUIET		1
-
-#define CONFIG_EXTRA_ENV_SETTINGS		CONFIG_EXTRA_ENV_USBTTY
 
 /* Stack sizes */
 #define CONFIG_STACKSIZE			(128*1024)

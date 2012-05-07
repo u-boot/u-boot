@@ -158,4 +158,14 @@
 
 #endif
 
+/* Environment Settings */
+#if defined(CONFIG_SPEAR300)
+#define CONFIG_EXTRA_ENV_SETTINGS              CONFIG_EXTRA_ENV_USBTTY
+
+#elif defined(CONFIG_SPEAR310) || defined(CONFIG_SPEAR320)
+#define CONFIG_EXTRA_ENV_UNLOCK                        "unlock=yes\0"
+#define CONFIG_EXTRA_ENV_SETTINGS              CONFIG_EXTRA_ENV_USBTTY \
+						CONFIG_EXTRA_ENV_UNLOCK
+#endif
+
 #endif  /* __CONFIG_H */
