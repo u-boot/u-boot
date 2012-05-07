@@ -144,9 +144,17 @@ __secondary_start_page:
 #endif
 
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
+	/* apply to P4080 rev 1 and rev 2 */
+	mfspr   r3,SPRN_SVR
+	rlwinm  r3,r3,0,0xf0
+	li      r4,0x30
+	cmpw    r3,r4
+	bge     2f
+
 	mfspr	r8,L1CSR2
 	oris	r8,r8,(L1CSR2_DCWS)@h
 	mtspr	L1CSR2,r8
+2:
 #endif
 
 #ifdef CONFIG_BACKSIDE_L2_CACHE

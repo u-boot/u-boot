@@ -309,9 +309,11 @@ int cpu_init_r(void)
 #endif
 
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
-	flush_dcache();
-	mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
-	sync();
+	if (SVR_MAJ(svr) < 3) {
+		flush_dcache();
+		mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
+		sync();
+	}
 #endif
 
 	puts ("L2:    ");
