@@ -37,8 +37,6 @@ static ulong bank_base[CONFIG_SYS_MAX_FLASH_BANKS] =
     CONFIG_SYS_FLASH_ADDR_BASE;
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
-#define ST_M25Pxx_ID		0x00002020
-
 static struct flash_dev flash_ids[] = {
 	{0x10, 0x10000, 2},	/* 64K Byte */
 	{0x11, 0x20000, 4},	/* 128K Byte */
@@ -287,39 +285,32 @@ static int smi_sector_erase(flash_info_t *info, unsigned int sector)
 
 	writel(readl(&smicntl->smi_sr) & ~(ERF1 | ERF2), &smicntl->smi_sr);
 
-	if (info->flash_id == ST_M25Pxx_ID) {
-		/* Wait until finished previous write command. */
-		if (smi_wait_till_ready(bank, CONFIG_SYS_FLASH_ERASE_TOUT))
-			return -EBUSY;
+	/* Wait until finished previous write command. */
+	if (smi_wait_till_ready(bank, CONFIG_SYS_FLASH_ERASE_TOUT))
+		return -EBUSY;
 
-		/* Send write enable, before erase commands. */
-		if (smi_write_enable(bank))
-			return -EIO;
+	/* Send write enable, before erase commands. */
+	if (smi_write_enable(bank))
+		return -EIO;
 
-		/* Put SMI in SW mode */
-		writel(readl(&smicntl->smi_cr1) | SW_MODE, &smicntl->smi_cr1);
+	/* Put SMI in SW mode */
+	writel(readl(&smicntl->smi_cr1) | SW_MODE, &smicntl->smi_cr1);
 
-		/* Send Sector Erase command in SW Mode */
-		writel(instruction, &smicntl->smi_tr);
-		writel((bank << BANKSEL_SHIFT) | SEND | TX_LEN_4,
+	/* Send Sector Erase command in SW Mode */
+	writel(instruction, &smicntl->smi_tr);
+	writel((bank << BANKSEL_SHIFT) | SEND | TX_LEN_4,
 		       &smicntl->smi_cr2);
-		if (smi_wait_xfer_finish(XFER_FINISH_TOUT))
-			return -EIO;
+	if (smi_wait_xfer_finish(XFER_FINISH_TOUT))
+		return -EIO;
 
-		if (smi_wait_till_ready(bank, CONFIG_SYS_FLASH_ERASE_TOUT))
-			return -EBUSY;
+	if (smi_wait_till_ready(bank, CONFIG_SYS_FLASH_ERASE_TOUT))
+		return -EBUSY;
 
-		/* Put SMI in HW mode */
-		writel(readl(&smicntl->smi_cr1) & ~SW_MODE,
+	/* Put SMI in HW mode */
+	writel(readl(&smicntl->smi_cr1) & ~SW_MODE,
 		       &smicntl->smi_cr1);
 
-		return 0;
-	} else {
-		/* Put SMI in HW mode */
-		writel(readl(&smicntl->smi_cr1) & ~SW_MODE,
-		       &smicntl->smi_cr1);
-		return -EINVAL;
-	}
+	return 0;
 }
 
 /*
@@ -495,11 +486,6 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 	int rcode = 0;
 	int prot = 0;
 	flash_sect_t sect;
-
-	if (info->flash_id != ST_M25Pxx_ID) {
-		puts("Can't erase unknown flash type - aborted\n");
-		return 1;
-	}
 
 	if ((s_first < 0) || (s_first > s_last)) {
 		puts("- no sectors to erase\n");
