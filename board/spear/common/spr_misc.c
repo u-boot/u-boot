@@ -28,7 +28,6 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_emi.h>
-#include <asm/arch/spr_xloader_table.h>
 #include <asm/arch/spr_defs.h>
 
 #define CPU		0
@@ -36,7 +35,6 @@
 #define SRAM_REL	0xD2801000
 
 DECLARE_GLOBAL_DATA_PTR;
-static struct chip_data chip_data;
 
 int dram_init(void)
 {
@@ -127,24 +125,10 @@ void spear_emi_init(void)
 
 int spear_board_init(ulong mach_type)
 {
-	struct xloader_table *xloader_tb =
-	    (struct xloader_table *)XLOADER_TABLE_ADDRESS;
-	struct xloader_table_1_2 *table_1_2;
-	struct chip_data *chip = &chip_data;
-
 	gd->bd->bi_arch_number = mach_type;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_BOOT_PARAMS_ADDR;
-
-	/* CPU is initialized to work at 333MHz in Xloader */
-	chip->cpufreq = 333;
-
-	if (XLOADER_TABLE_VERSION_1_2 == xloader_tb->table_version) {
-		table_1_2 = &xloader_tb->table.table_1_2;
-		memcpy(chip->version, table_1_2->version,
-		       sizeof(chip->version));
-	}
 
 #ifdef CONFIG_SPEAR_EMI
 	spear_emi_init();
@@ -195,7 +179,6 @@ static int write_mac(uchar *mac)
 int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	void (*sram_setfreq) (unsigned int, unsigned int);
-	struct chip_data *chip = &chip_data;
 	unsigned char mac[6];
 	unsigned int reg, frequency;
 	char *s, *e;
@@ -218,13 +201,9 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!strcmp(argv[1], "cpufreq")) {
 			sram_setfreq(CPU, frequency);
 			printf("CPU frequency changed to %u\n", frequency);
-
-			chip->cpufreq = frequency;
 		} else {
 			sram_setfreq(DDR, frequency);
 			printf("DDR frequency changed to %u\n", frequency);
-
-			chip->dramfreq = frequency;
 		}
 
 		return 0;
@@ -240,32 +219,12 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		return 0;
 	} else if (!strcmp(argv[1], "print")) {
-
-		if (chip->cpufreq == -1)
-			printf("CPU Freq    = Not Known\n");
-		else
-			printf("CPU Freq    = %d MHz\n", chip->cpufreq);
-
-		if (chip->dramfreq == -1)
-			printf("DDR Freq    = Not Known\n");
-		else
-			printf("DDR Freq    = %d MHz\n", chip->dramfreq);
-
-		if (chip->dramtype == DDRMOBILE)
-			printf("DDR Type    = MOBILE\n");
-		else if (chip->dramtype == DDR2)
-			printf("DDR Type    = DDR2\n");
-		else
-			printf("DDR Type    = Not Known\n");
-
 		if (!i2c_read_mac(mac)) {
 			sprintf(i2c_mac, "%pM", mac);
 			printf("Ethaddr (from i2c mem) = %s\n", i2c_mac);
 		} else {
 			printf("Ethaddr (from i2c mem) = Not set\n");
 		}
-
-		printf("Xloader Rev = %s\n", chip->version);
 
 		return 0;
 	}
