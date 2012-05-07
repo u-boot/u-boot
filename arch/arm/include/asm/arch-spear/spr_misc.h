@@ -110,6 +110,8 @@ struct misc_regs {
 /* PERIPH_CLK_CFG value */
 #define MISC_GPT3SYNTH			0x00000400
 #define MISC_GPT4SYNTH			0x00000800
+#define CONFIG_SPEAR_UART48M		0
+#define CONFIG_SPEAR_UARTCLKMSK		(0x1 << 4)
 
 /* PRSC_CLK_CFG value */
 /*

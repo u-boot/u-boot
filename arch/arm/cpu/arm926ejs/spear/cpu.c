@@ -30,7 +30,7 @@ int arch_cpu_init(void)
 {
 	struct misc_regs *const misc_p =
 	    (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
-	u32 periph1_clken;
+	u32 periph1_clken, periph_clk_cfg;
 
 	periph1_clken = readl(&misc_p->periph1_clken);
 
@@ -42,6 +42,11 @@ int arch_cpu_init(void)
 
 #if defined(CONFIG_PL011_SERIAL)
 	periph1_clken |= MISC_UART0ENB;
+
+	periph_clk_cfg = readl(&misc_p->periph_clk_cfg);
+	periph_clk_cfg &= ~CONFIG_SPEAR_UARTCLKMSK;
+	periph_clk_cfg |= CONFIG_SPEAR_UART48M;
+	writel(periph_clk_cfg, &misc_p->periph_clk_cfg);
 #endif
 #if defined(CONFIG_DESIGNWARE_ETH)
 	periph1_clken |= MISC_ETHENB;
