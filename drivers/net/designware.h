@@ -240,6 +240,7 @@ struct dw_eth_dev {
 	u32 tx_currdescnum;
 	u32 rx_currdescnum;
 	u32 phy_configured;
+	int link_printed;
 	u32 padding;
 
 	struct dmamacdescr tx_mac_descrtable[CONFIG_TX_DESCR_NUM];

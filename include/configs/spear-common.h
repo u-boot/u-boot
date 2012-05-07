@@ -38,6 +38,7 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 #define CONFIG_DW_AUTONEG
+#define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 
 /* USBD driver configuration */
 #if defined(CONFIG_SPEAR_USBTTY)
