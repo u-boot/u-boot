@@ -41,6 +41,7 @@
 /* USBD driver configuration */
 #define CONFIG_DW_UDC
 #define CONFIG_USB_DEVICE
+#define CONFIG_USBD_HS
 #define CONFIG_USB_TTY
 
 #define CONFIG_USBD_PRODUCT_NAME		"SPEAr SoC"
