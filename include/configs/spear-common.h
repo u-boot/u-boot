@@ -55,10 +55,10 @@
 #if defined(CONFIG_FLASH_PNOR)
 #define CONFIG_SPEAR_EMI			1
 #else
-#define CONFIG_SPEARSMI				1
+#define CONFIG_ST_SMI
 #endif
 
-#if defined(CONFIG_SPEARSMI)
+#if defined(CONFIG_ST_SMI)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS		2
 #define CONFIG_SYS_FLASH_BASE			(0xF8000000)
@@ -125,7 +125,7 @@
  * U-Boot Environment placing definitions.
  */
 #if defined(CONFIG_ENV_IS_IN_FLASH)
-#ifdef CONFIG_SPEARSMI
+#ifdef CONFIG_ST_SMI
 /*
  * Environment is in serial NOR flash
  */

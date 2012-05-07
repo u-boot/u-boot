@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2009
- * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
+ * Vipin Kumar, ST Microelectronics, vipin.kumar@st.com.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,10 +24,10 @@
 #include <common.h>
 #include <flash.h>
 #include <linux/err.h>
+#include <linux/mtd/st_smi.h>
 
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/spr_smi.h>
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 
@@ -82,6 +82,7 @@ static unsigned int smi_read_id(flash_info_t *info, int banknum)
 	writel(READ_ID, &smicntl->smi_tr);
 	writel((banknum << BANKSEL_SHIFT) | SEND | TX_LEN_1 | RX_LEN_3,
 	       &smicntl->smi_cr2);
+
 	smi_wait_xfer_finish(XFER_FINISH_TOUT);
 
 	value = (readl(&smicntl->smi_rr) & 0x00FFFFFF);
@@ -232,7 +233,7 @@ static int smi_write_enable(int bank)
  *
  * SMI initialization routine. Sets SMI control register1.
  */
-static void smi_init(void)
+void smi_init(void)
 {
 	/* Setting the fast mode values. SMI working at 166/4 = 41.5 MHz */
 	writel(HOLD1 | FAST_MODE | BANK_EN | DSEL_TIME | PRESCAL4,

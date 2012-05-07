@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef SPR_SMI_H
-#define SPR_SMI_H
+#ifndef ST_SMI_H
+#define ST_SMI_H
 
 /* 0xF800.0000 . 0xFBFF.FFFF	64MB	SMI (Serial Flash Mem) */
 /* 0xFC00.0000 . 0xFC1F.FFFF	2MB	SMI (Serial Flash Reg.) */
@@ -111,5 +111,7 @@ struct flash_dev {
 #define SFLASH_PAGE_SIZE	0x100	/* flash page size */
 #define XFER_FINISH_TOUT	2	/* xfer finish timeout */
 #define WMODE_TOUT		2	/* write enable timeout */
+
+extern void smi_init(void);
 
 #endif
