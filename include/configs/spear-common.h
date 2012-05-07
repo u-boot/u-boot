@@ -27,6 +27,9 @@
  * Common configurations used for both spear3xx as well as spear6xx
  */
 
+/* U-boot Load Address */
+#define CONFIG_SYS_TEXT_BASE			0x00700000
+
 /* Ethernet driver configuration */
 #define CONFIG_MII
 #define CONFIG_DESIGNWARE_ETH

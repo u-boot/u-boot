@@ -39,6 +39,16 @@
 #define CONFIG_SPEAR320				1
 #endif
 
+#if defined(CONFIG_usbtty)
+#define CONFIG_SPEAR_USBTTY
+#endif
+
+#if defined(CONFIG_nand)
+#define CONFIG_ENV_IS_IN_NAND
+#else
+#define CONFIG_ENV_IS_IN_FLASH
+#endif
+
 #include <configs/spear-common.h>
 
 /* Ethernet driver configuration */
