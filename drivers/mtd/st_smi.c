@@ -188,9 +188,7 @@ static int smi_wait_till_ready(int bank, int timeout)
 	   but potentially three seconds (!) after page erase. */
 	do {
 		sr = smi_read_sr(bank);
-		if (sr < 0)
-			continue;	/* try until timeout */
-		else if (!(sr & WIP_BIT))
+		if ((sr >= 0) && (!(sr & WIP_BIT)))
 			return 0;
 
 		/* Try again after 1m-sec */
@@ -231,9 +229,7 @@ static int smi_write_enable(int bank)
 
 	do {
 		sr = smi_read_sr(bank);
-		if (sr < 0)
-			break;
-		else if (sr & (1 << (bank + WM_SHIFT)))
+		if ((sr >= 0) && (sr & (1 << (bank + WM_SHIFT))))
 			return 0;
 
 		/* Try again after 1m-sec */
