@@ -40,26 +40,8 @@ static struct chip_data chip_data;
 
 int dram_init(void)
 {
-	struct xloader_table *xloader_tb =
-	    (struct xloader_table *)XLOADER_TABLE_ADDRESS;
-	struct xloader_table_1_1 *table_1_1;
-	struct xloader_table_1_2 *table_1_2;
-	struct chip_data *chip = &chip_data;
-
+	/* Store complete RAM size and return */
 	gd->ram_size = get_ram_size(PHYS_SDRAM_1, PHYS_SDRAM_1_MAXSIZE);
-
-	if (XLOADER_TABLE_VERSION_1_1 == xloader_tb->table_version) {
-		table_1_1 = &xloader_tb->table.table_1_1;
-		chip->dramfreq = table_1_1->ddrfreq;
-		chip->dramtype = table_1_1->ddrtype;
-
-	} else if (XLOADER_TABLE_VERSION_1_2 == xloader_tb->table_version) {
-		table_1_2 = &xloader_tb->table.table_1_2;
-		chip->dramfreq = table_1_2->ddrfreq;
-		chip->dramtype = table_1_2->ddrtype;
-	} else {
-		chip->dramfreq = -1;
-	}
 
 	return 0;
 }
