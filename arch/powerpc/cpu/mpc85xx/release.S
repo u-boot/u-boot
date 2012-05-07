@@ -171,15 +171,12 @@ __secondary_start_page:
 
 #ifdef CONFIG_BACKSIDE_L2_CACHE
 	/* skip L2 setup on P2040/P2040E as they have no L2 */
-	mfspr	r2,SPRN_SVR
+	mfspr	r3,SPRN_SVR
+	rlwinm	r6,r3,24,~0x800		/* clear E bit of SVR */
+
 	lis	r3,SVR_P2040@h
 	ori	r3,r3,SVR_P2040@l
-	cmpw	r2,r3
-	beq 3f
-
-	lis	r3,SVR_P2040_E@h
-	ori	r3,r3,SVR_P2040_E@l
-	cmpw	r2,r3
+	cmpw	r6,r3
 	beq 3f
 
 	/* Enable/invalidate the L2 cache */
