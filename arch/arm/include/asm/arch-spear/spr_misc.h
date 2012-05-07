@@ -37,7 +37,7 @@ struct misc_regs {
 	u32 amba_clk_cfg;	/* 0x24 */
 	u32 periph_clk_cfg;	/* 0x28 */
 	u32 periph1_clken;	/* 0x2C */
-	u32 periph2_clken;	/* 0x30 */
+	u32 soc_core_id;	/* 0x30 */
 	u32 ras_clken;		/* 0x34 */
 	u32 periph1_rst;	/* 0x38 */
 	u32 periph2_rst;	/* 0x3C */
