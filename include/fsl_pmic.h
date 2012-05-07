@@ -122,4 +122,14 @@ enum {
 /* Interrupt status 1 */
 #define RTCRSTI		(1 << 7)
 
+/* MC34708 Definitions */
+#define SWx_VOLT_MASK_MC34708	0x3F
+#define SWx_1_250V_MC34708	0x30
+#define SWx_1_300V_MC34708	0x34
+#define TIMER_MASK_MC34708	0x300
+#define TIMER_4S_MC34708	0x100
+#define VUSBSEL_MC34708		(1 << 2)
+#define VUSBEN_MC34708		(1 << 3)
+#define SWBST_CTRL		31
+
 #endif

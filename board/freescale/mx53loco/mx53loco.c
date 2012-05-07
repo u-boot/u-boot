@@ -38,6 +38,7 @@
 #include <asm/gpio.h>
 #include <pmic.h>
 #include <dialog_pmic.h>
+#include <fsl_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -319,23 +320,46 @@ static void setup_iomux_i2c(void)
 
 static int power_init(void)
 {
-	unsigned int val, ret;
+	unsigned int val;
+	int ret = -1;
 	struct pmic *p;
 
-	pmic_dialog_init();
-	p = get_pmic();
+	if (!i2c_probe(CONFIG_SYS_DIALOG_PMIC_I2C_ADDR)) {
+		pmic_dialog_init();
+		p = get_pmic();
 
-	/* Set VDDA to 1.25V */
-	val = DA9052_BUCKCORE_BCOREEN | DA_BUCKCORE_VBCORE_1_250V;
-	ret = pmic_reg_write(p, DA9053_BUCKCORE_REG, val);
+		/* Set VDDA to 1.25V */
+		val = DA9052_BUCKCORE_BCOREEN | DA_BUCKCORE_VBCORE_1_250V;
+		ret = pmic_reg_write(p, DA9053_BUCKCORE_REG, val);
 
-	ret |= pmic_reg_read(p, DA9053_SUPPLY_REG, &val);
-	val |= DA9052_SUPPLY_VBCOREGO;
-	ret |= pmic_reg_write(p, DA9053_SUPPLY_REG, val);
+		ret |= pmic_reg_read(p, DA9053_SUPPLY_REG, &val);
+		val |= DA9052_SUPPLY_VBCOREGO;
+		ret |= pmic_reg_write(p, DA9053_SUPPLY_REG, val);
 
-	/* Set Vcc peripheral to 1.35V */
-	ret |= pmic_reg_write(p, DA9053_BUCKPRO_REG, 0x62);
-	ret |= pmic_reg_write(p, DA9053_SUPPLY_REG, 0x62);
+		/* Set Vcc peripheral to 1.30V */
+		ret |= pmic_reg_write(p, DA9053_BUCKPRO_REG, 0x62);
+		ret |= pmic_reg_write(p, DA9053_SUPPLY_REG, 0x62);
+	}
+
+	if (!i2c_probe(CONFIG_SYS_FSL_PMIC_I2C_ADDR)) {
+		pmic_init();
+		p = get_pmic();
+
+		/* Set VDDGP to 1.25V for 1GHz on SW1 */
+		pmic_reg_read(p, REG_SW_0, &val);
+		val = (val & ~SWx_VOLT_MASK_MC34708) | SWx_1_250V_MC34708;
+		ret = pmic_reg_write(p, REG_SW_0, val);
+
+		/* Set VCC as 1.30V on SW2 */
+		pmic_reg_read(p, REG_SW_1, &val);
+		val = (val & ~SWx_VOLT_MASK_MC34708) | SWx_1_300V_MC34708;
+		ret |= pmic_reg_write(p, REG_SW_1, val);
+
+		/* Set global reset timer to 4s */
+		pmic_reg_read(p, REG_POWER_CTL2, &val);
+		val = (val & ~TIMER_MASK_MC34708) | TIMER_4S_MC34708;
+		ret |= pmic_reg_write(p, REG_POWER_CTL2, val);
+	}
 
 	return ret;
 }
