@@ -359,6 +359,15 @@ static int power_init(void)
 		pmic_reg_read(p, REG_POWER_CTL2, &val);
 		val = (val & ~TIMER_MASK_MC34708) | TIMER_4S_MC34708;
 		ret |= pmic_reg_write(p, REG_POWER_CTL2, val);
+
+		/* Set VUSBSEL and VUSBEN for USB PHY supply*/
+		pmic_reg_read(p, REG_MODE_0, &val);
+		val |= (VUSBSEL_MC34708 | VUSBEN_MC34708);
+		ret |= pmic_reg_write(p, REG_MODE_0, val);
+
+		/* Set SWBST to 5V in auto mode */
+		val = SWBST_AUTO;
+		ret |= pmic_reg_write(p, SWBST_CTRL, val);
 	}
 
 	return ret;

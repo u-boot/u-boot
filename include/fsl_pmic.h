@@ -131,5 +131,6 @@ enum {
 #define VUSBSEL_MC34708		(1 << 2)
 #define VUSBEN_MC34708		(1 << 3)
 #define SWBST_CTRL		31
+#define SWBST_AUTO		0x8
 
 #endif
