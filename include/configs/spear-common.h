@@ -198,6 +198,7 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_ARCH_CPU_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_BOOT_PARAMS_ADDR			0x00000100
 #define CONFIG_CMDLINE_TAG			1
