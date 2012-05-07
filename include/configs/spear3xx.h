@@ -44,6 +44,19 @@
 /* Ethernet driver configuration */
 #define CONFIG_DW_ALTDESCRIPTOR			1
 
+#if defined(CONFIG_SPEAR310)
+#define CONFIG_MACB				1
+#define CONFIG_MACB0_PHY			0x01
+#define CONFIG_MACB1_PHY			0x03
+#define CONFIG_MACB2_PHY			0x05
+#define CONFIG_MACB3_PHY			0x07
+
+#elif defined(CONFIG_SPEAR320)
+#define CONFIG_MACB				1
+#define CONFIG_MACB0_PHY			0x01
+
+#endif
+
 /* Serial Configuration (PL011) */
 #define CONFIG_SYS_SERIAL0			0xD0000000
 
