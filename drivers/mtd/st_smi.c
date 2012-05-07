@@ -187,7 +187,7 @@ static int smi_wait_till_ready(int bank, int timeout)
 	do {
 		sr = smi_read_sr(bank);
 		if (sr < 0)
-			break;
+			continue;	/* try until timeout */
 		else if (!(sr & WIP_BIT))
 			return 0;
 
