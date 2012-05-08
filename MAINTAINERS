@@ -796,6 +796,12 @@ Dave Purdy <david.c.purdy@gmail.com>
 
 	pogo_e02	ARM926EJS (Kirkwood SoC)
 
+Sricharan R <r.sricharan@ti.com>
+
+	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
+	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
+	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
+
 Thierry Reding <thierry.reding@avionic-design.de>
 
 	plutux		Tegra2 (ARM7 & A9 Dual Core)
@@ -867,12 +873,6 @@ Greg Ungerer <greg.ungerer@opengear.com>
 	cm4008		ks8695p
 	cm4116		ks8695p
 	cm4148		ks8695p
-
-Aneesh V <aneesh@ti.com>
-
-	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
-	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
-	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
 
 Marek Vasut <marek.vasut@gmail.com>
 
