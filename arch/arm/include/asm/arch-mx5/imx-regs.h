@@ -491,6 +491,11 @@ struct iim_regs {
 	} bank[4];
 };
 
+struct fuse_bank0_regs {
+	u32	fuse0_23[24];
+	u32	gp[8];
+};
+
 struct fuse_bank1_regs {
 	u32	fuse0_8[9];
 	u32	mac_addr[6];

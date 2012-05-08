@@ -62,6 +62,18 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
 }
 
+u32 get_board_rev(void)
+{
+	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
+	struct fuse_bank *bank = &iim->bank[0];
+	struct fuse_bank0_regs *fuse =
+		(struct fuse_bank0_regs *)bank->fuse_regs;
+
+	int rev = readl(&fuse->gp[6]);
+
+	return (get_cpu_rev() & ~(0xF << 8)) | (rev & 0xF) << 8;
+}
+
 static void setup_iomux_uart(void)
 {
 	/* UART1 RXD */
