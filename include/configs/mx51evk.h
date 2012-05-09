@@ -51,7 +51,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 #define CONFIG_BOARD_LATE_INIT
 
@@ -122,6 +122,17 @@
 #define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	PORT_PTS_ULPI
 #define CONFIG_MXC_USB_FLAGS	MXC_EHCI_POWER_PINS_ENABLED
+
+/* Framebuffer and LCD */
+#define CONFIG_PREBOOT
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_MX5
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_LOGO
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
