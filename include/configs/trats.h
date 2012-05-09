@@ -34,6 +34,7 @@
 #define CONFIG_S5P		/* which is in a S5P Family */
 #define CONFIG_EXYNOS4210	/* which is in a EXYNOS4210 */
 #define CONFIG_TRATS		/* working with TRATS */
+#define CONFIG_TIZEN		/* TIZEN lib */
 
 #include <asm/arch/cpu.h>	/* get chip and board defs */
 
@@ -217,9 +218,12 @@
 /* LCD */
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_32BPP
 #define CONFIG_FB_ADDR		0x52504000
 #define CONFIG_S6E8AX0
 #define CONFIG_EXYNOS_MIPI_DSIM
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(1280 * 720 * 4)
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 120 * 4) + (1 << 12))
 
 #endif	/* __CONFIG_H */

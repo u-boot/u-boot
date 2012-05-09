@@ -27,13 +27,6 @@
 
 #define MAX_CLOCK	(86 * 1000000)
 
-enum exynos_fb_rgb_mode_t {
-	MODE_RGB_P = 0,
-	MODE_BGR_P = 1,
-	MODE_RGB_S = 2,
-	MODE_BGR_S = 3,
-};
-
 enum exynos_cpu_auto_cmd_rate {
 	DISABLE_AUTO_FRM,
 	PER_TWO_FRM,

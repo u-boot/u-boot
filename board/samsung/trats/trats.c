@@ -37,6 +37,7 @@
 #include <pmic.h>
 #include <usb/s3c_udc.h>
 #include <max8997_pmic.h>
+#include <libtizen.h>
 
 #include "setup.h"
 
@@ -496,6 +497,13 @@ void init_panel_info(vidinfo_t *vid)
 	vid->reset_delay = 0;
 	vid->interface_mode = FIMD_RGB_INTERFACE;
 	vid->mipi_enabled = 1;
+	vid->logo_on	= 1,
+	vid->resolution	= HD_RESOLUTION,
+	vid->rgb_mode	= MODE_RGB_P,
+
+#ifdef CONFIG_TIZEN
+	get_tizen_logo_info(vid);
+#endif
 
 	if (hwrevision(2))
 		mipi_lcd_device.reverse_panel = 1;

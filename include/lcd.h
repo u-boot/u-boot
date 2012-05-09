@@ -191,6 +191,13 @@ enum {
 	FIMD_CPU_INTERFACE = 2,
 };
 
+enum exynos_fb_rgb_mode_t {
+	MODE_RGB_P = 0,
+	MODE_BGR_P = 1,
+	MODE_RGB_S = 2,
+	MODE_BGR_S = 3,
+};
+
 typedef struct vidinfo {
 	ushort vl_col;		/* Number of columns (i.e. 640) */
 	ushort vl_row;		/* Number of rows (i.e. 480) */
@@ -236,6 +243,12 @@ typedef struct vidinfo {
 	unsigned int wr_setup;
 	unsigned int wr_act;
 	unsigned int wr_hold;
+	unsigned int logo_on;
+	unsigned int logo_width;
+	unsigned int logo_height;
+	unsigned long logo_addr;
+	unsigned int rgb_mode;
+	unsigned int resolution;
 
 	/* parent clock name(MPLL, EPLL or VPLL) */
 	unsigned int pclk_name;

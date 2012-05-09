@@ -67,6 +67,18 @@ static void exynos_lcd_init(vidinfo_t *vid)
 	exynos_fimd_lcd_init(vid);
 }
 
+static void draw_logo(void)
+{
+	int x, y;
+	ulong addr;
+
+	x = ((panel_width - panel_info.logo_width) >> 1);
+	y = ((panel_height - panel_info.logo_height) >> 1) - 4;
+
+	addr = panel_info.logo_addr;
+	bmp_display(addr, x, y);
+}
+
 static void lcd_panel_on(vidinfo_t *vid)
 {
 	udelay(vid->init_delay);
@@ -118,6 +130,13 @@ void lcd_ctrl_init(void *lcdbase)
 
 void lcd_enable(void)
 {
+	if (panel_info.logo_on) {
+		memset(lcd_base, 0, panel_width * panel_height *
+				(NBITS(panel_info.vl_bpix) >> 3));
+
+		draw_logo();
+	}
+
 	lcd_panel_on(&panel_info);
 }
 
