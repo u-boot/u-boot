@@ -1,7 +1,7 @@
 /*
  * YAFFS: Yet another Flash File System . A NAND-flash specific file system.
  *
- * Copyright (C) 2002-2007 Aleph One Ltd.
+ * Copyright (C) 2002-2011 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
  *
  * Created by Charles Manning <charles@aleph1.co.uk>
@@ -13,11 +13,12 @@
  * Note: Only YAFFS headers are LGPL, YAFFS C code is covered by GPL.
  */
 
+#ifndef __YAFFS_HWEIGHT_H__
+#define __YAFFS_HWEIGHT_H__
 
-#ifndef __YAFFS_QSORT_H__
-#define __YAFFS_QSORT_H__
+#include "yportenv.h"
 
-extern void yaffs_qsort (void *const base, size_t total_elems, size_t size,
-		   int (*cmp)(const void *, const void *));
+int yaffs_hweight8(u8 x);
+int yaffs_hweight32(u32 x);
 
 #endif

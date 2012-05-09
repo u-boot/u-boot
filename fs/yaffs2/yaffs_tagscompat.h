@@ -1,7 +1,7 @@
 /*
  * YAFFS: Yet another Flash File System . A NAND-flash specific file system.
  *
- * Copyright (C) 2002-2007 Aleph One Ltd.
+ * Copyright (C) 2002-2011 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
  *
  * Created by Charles Manning <charles@aleph1.co.uk>
@@ -17,24 +17,20 @@
 #define __YAFFS_TAGSCOMPAT_H__
 
 #include "yaffs_guts.h"
-int yaffs_TagsCompatabilityWriteChunkWithTagsToNAND(yaffs_Device * dev,
-						    int chunkInNAND,
-						    const __u8 * data,
-						    const yaffs_ExtendedTags *
-						    tags);
-int yaffs_TagsCompatabilityReadChunkWithTagsFromNAND(yaffs_Device * dev,
-						     int chunkInNAND,
-						     __u8 * data,
-						     yaffs_ExtendedTags *
-						     tags);
-int yaffs_TagsCompatabilityMarkNANDBlockBad(struct yaffs_DeviceStruct *dev,
-					    int blockNo);
-int yaffs_TagsCompatabilityQueryNANDBlock(struct yaffs_DeviceStruct *dev,
-					  int blockNo, yaffs_BlockState *
-					  state, int *sequenceNumber);
+int yaffs_tags_compat_wr(struct yaffs_dev *dev,
+			 int nand_chunk,
+			 const u8 *data, const struct yaffs_ext_tags *tags);
+int yaffs_tags_compat_rd(struct yaffs_dev *dev,
+			 int nand_chunk,
+			 u8 *data, struct yaffs_ext_tags *tags);
+int yaffs_tags_compat_mark_bad(struct yaffs_dev *dev, int block_no);
+int yaffs_tags_compat_query_block(struct yaffs_dev *dev,
+				  int block_no,
+				  enum yaffs_block_state *state,
+				  u32 *seq_number);
 
-void yaffs_CalcTagsECC(yaffs_Tags * tags);
-int yaffs_CheckECCOnTags(yaffs_Tags * tags);
-int yaffs_CountBits(__u8 byte);
+void yaffs_calc_tags_ecc(struct yaffs_tags *tags);
+int yaffs_check_tags_ecc(struct yaffs_tags *tags);
+int yaffs_count_bits(u8 byte);
 
 #endif

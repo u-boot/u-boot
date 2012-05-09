@@ -17,13 +17,14 @@
 #define __YAFFS_MTDIF2_H__
 
 #include "yaffs_guts.h"
-int nandmtd2_WriteChunkWithTagsToNAND(yaffs_Device * dev, int chunkInNAND,
-				      const __u8 * data,
-				      const yaffs_ExtendedTags * tags);
-int nandmtd2_ReadChunkWithTagsFromNAND(yaffs_Device * dev, int chunkInNAND,
-				       __u8 * data, yaffs_ExtendedTags * tags);
-int nandmtd2_MarkNANDBlockBad(struct yaffs_DeviceStruct *dev, int blockNo);
-int nandmtd2_QueryNANDBlock(struct yaffs_DeviceStruct *dev, int blockNo,
-			    yaffs_BlockState * state, int *sequenceNumber);
+
+int nandmtd2_write_chunk_tags(struct yaffs_dev *dev, int chunkInNAND,
+				      const u8 *data,
+				      const struct yaffs_ext_tags *tags);
+int nandmtd2_read_chunk_tags(struct yaffs_dev *dev, int chunkInNAND,
+				       u8 *data, struct yaffs_ext_tags *tags);
+int nandmtd2_MarkNANDBlockBad(struct yaffs_dev *dev, int blockNo);
+int nandmtd2_QueryNANDBlock(struct yaffs_dev *dev, int blockNo,
+			    enum yaffs_block_state *state, u32 *sequenceNumber);
 
 #endif

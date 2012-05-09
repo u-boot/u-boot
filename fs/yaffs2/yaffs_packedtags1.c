@@ -1,7 +1,7 @@
 /*
  * YAFFS: Yet Another Flash File System. A NAND-flash specific file system.
  *
- * Copyright (C) 2002-2007 Aleph One Ltd.
+ * Copyright (C) 2002-2011 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
  *
  * Created by Charles Manning <charles@aleph1.co.uk>
@@ -11,45 +11,46 @@
  * published by the Free Software Foundation.
  */
 
-/* XXX U-BOOT XXX */
-#include <common.h>
-
 #include "yaffs_packedtags1.h"
 #include "yportenv.h"
 
-void yaffs_PackTags1(yaffs_PackedTags1 * pt, const yaffs_ExtendedTags * t)
-{
-	pt->chunkId = t->chunkId;
-	pt->serialNumber = t->serialNumber;
-	pt->byteCount = t->byteCount;
-	pt->objectId = t->objectId;
-	pt->ecc = 0;
-	pt->deleted = (t->chunkDeleted) ? 0 : 1;
-	pt->unusedStuff = 0;
-	pt->shouldBeFF = 0xFFFFFFFF;
+static const u8 all_ff[20] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0xff, 0xff
+};
 
+void yaffs_pack_tags1(struct yaffs_packed_tags1 *pt,
+		      const struct yaffs_ext_tags *t)
+{
+	pt->chunk_id = t->chunk_id;
+	pt->serial_number = t->serial_number;
+	pt->n_bytes = t->n_bytes;
+	pt->obj_id = t->obj_id;
+	pt->ecc = 0;
+	pt->deleted = (t->is_deleted) ? 0 : 1;
+	pt->unused_stuff = 0;
+	pt->should_be_ff = 0xffffffff;
 }
 
-void yaffs_UnpackTags1(yaffs_ExtendedTags * t, const yaffs_PackedTags1 * pt)
+void yaffs_unpack_tags1(struct yaffs_ext_tags *t,
+			const struct yaffs_packed_tags1 *pt)
 {
-	static const __u8 allFF[] =
-	    { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-0xff };
 
-	if (memcmp(allFF, pt, sizeof(yaffs_PackedTags1))) {
-		t->blockBad = 0;
-		if (pt->shouldBeFF != 0xFFFFFFFF) {
-			t->blockBad = 1;
-		}
-		t->chunkUsed = 1;
-		t->objectId = pt->objectId;
-		t->chunkId = pt->chunkId;
-		t->byteCount = pt->byteCount;
-		t->eccResult = YAFFS_ECC_RESULT_NO_ERROR;
-		t->chunkDeleted = (pt->deleted) ? 0 : 1;
-		t->serialNumber = pt->serialNumber;
+	if (memcmp(all_ff, pt, sizeof(struct yaffs_packed_tags1))) {
+		t->block_bad = 0;
+		if (pt->should_be_ff != 0xffffffff)
+			t->block_bad = 1;
+		t->chunk_used = 1;
+		t->obj_id = pt->obj_id;
+		t->chunk_id = pt->chunk_id;
+		t->n_bytes = pt->n_bytes;
+		t->ecc_result = YAFFS_ECC_RESULT_NO_ERROR;
+		t->is_deleted = (pt->deleted) ? 0 : 1;
+		t->serial_number = pt->serial_number;
 	} else {
-		memset(t, 0, sizeof(yaffs_ExtendedTags));
-
+		memset(t, 0, sizeof(struct yaffs_ext_tags));
 	}
 }

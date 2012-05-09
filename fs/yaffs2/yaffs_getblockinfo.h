@@ -13,26 +13,23 @@
  * Note: Only YAFFS headers are LGPL, YAFFS C code is covered by GPL.
  */
 
-/*
- * Header file for using yaffs in an application via
- * a direct interface.
- */
+#ifndef __YAFFS_GETBLOCKINFO_H__
+#define __YAFFS_GETBLOCKINFO_H__
 
+#include "yaffs_guts.h"
+#include "yaffs_trace.h"
 
-#ifndef __YAFFSCFG_H__
-#define __YAFFSCFG_H__
-
-
-#include "yportenv.h"
-
-#define YAFFSFS_N_HANDLES	100
-#define YAFFSFS_N_DSC		20
-
-
-struct yaffsfs_DeviceConfiguration {
-	const YCHAR *prefix;
-	struct yaffs_dev *dev;
-};
-
+/* Function to manipulate block info */
+static inline struct yaffs_block_info *yaffs_get_block_info(struct yaffs_dev
+							      *dev, int blk)
+{
+	if (blk < dev->internal_start_block || blk > dev->internal_end_block) {
+		yaffs_trace(YAFFS_TRACE_ERROR,
+			"**>> yaffs: get_block_info block %d is not valid",
+			blk);
+		BUG();
+	}
+	return &dev->block_info[blk - dev->internal_start_block];
+}
 
 #endif

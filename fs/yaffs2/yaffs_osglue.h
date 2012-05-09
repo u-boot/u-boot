@@ -1,7 +1,7 @@
 /*
  * YAFFS: Yet another Flash File System . A NAND-flash specific file system.
  *
- * Copyright (C) 2002-2007 Aleph One Ltd.
+ * Copyright (C) 2002-2011 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
  *
  * Created by Charles Manning <charles@aleph1.co.uk>
@@ -13,9 +13,29 @@
  * Note: Only YAFFS headers are LGPL, YAFFS C code is covered by GPL.
  */
 
-#ifndef __YAFFSINTERFACE_H__
-#define __YAFFSINTERFACE_H__
+/*
+ * Header file for using yaffs in an application via
+ * a direct interface.
+ */
 
-int yaffs_Initialise(unsigned nBlocks);
+
+#ifndef __YAFFS_OSGLUE_H__
+#define __YAFFS_OSGLUE_H__
+
+
+#include "yportenv.h"
+
+void yaffsfs_Lock(void);
+void yaffsfs_Unlock(void);
+
+u32 yaffsfs_CurrentTime(void);
+
+void yaffsfs_SetError(int err);
+
+void *yaffsfs_malloc(size_t size);
+void yaffsfs_free(void *ptr);
+
+void yaffsfs_OSInitialisation(void);
+
 
 #endif

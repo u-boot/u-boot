@@ -1,8 +1,7 @@
-#ifndef __YAFFS_MALLOC_H__
 /*
  * YAFFS: Yet another Flash File System . A NAND-flash specific file system.
  *
- * Copyright (C) 2002-2007 Aleph One Ltd.
+ * Copyright (C) 2002-2011 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
  *
  * Created by Charles Manning <charles@aleph1.co.uk>
@@ -14,12 +13,10 @@
  * Note: Only YAFFS headers are LGPL, YAFFS C code is covered by GPL.
  */
 
-/* XXX U-BOOT XXX */
-#if 0
-#include <stdlib.h>
-#endif
+#ifndef __YAFFS_YAFFS1_H__
+#define __YAFFS_YAFFS1_H__
 
-void *yaffs_malloc(size_t size);
-void yaffs_free(void *ptr);
+#include "yaffs_guts.h"
+int yaffs1_scan(struct yaffs_dev *dev);
 
 #endif

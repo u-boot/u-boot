@@ -1,7 +1,7 @@
 /*
  * YAFFS: Yet another Flash File System . A NAND-flash specific file system.
  *
- * Copyright (C) 2002-2007 Aleph One Ltd.
+ * Copyright (C) 2002-2011 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
  *
  * Created by Charles Manning <charles@aleph1.co.uk>
@@ -18,17 +18,16 @@
 
 #include "yaffs_guts.h"
 
-int yaffs_CheckpointOpen(yaffs_Device *dev, int forWriting);
+int yaffs2_checkpt_open(struct yaffs_dev *dev, int writing);
 
-int yaffs_CheckpointWrite(yaffs_Device *dev,const void *data, int nBytes);
+int yaffs2_checkpt_wr(struct yaffs_dev *dev, const void *data, int n_bytes);
 
-int yaffs_CheckpointRead(yaffs_Device *dev,void *data, int nBytes);
+int yaffs2_checkpt_rd(struct yaffs_dev *dev, void *data, int n_bytes);
 
-int yaffs_GetCheckpointSum(yaffs_Device *dev, __u32 *sum);
+int yaffs2_get_checkpt_sum(struct yaffs_dev *dev, u32 * sum);
 
-int yaffs_CheckpointClose(yaffs_Device *dev);
+int yaffs_checkpt_close(struct yaffs_dev *dev);
 
-int yaffs_CheckpointInvalidateStream(yaffs_Device *dev);
-
+int yaffs2_checkpt_invalidate_stream(struct yaffs_dev *dev);
 
 #endif
