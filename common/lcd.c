@@ -643,14 +643,14 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 
 	bpix = NBITS(panel_info.vl_bpix);
 
-	if ((bpix != 1) && (bpix != 8) && (bpix != 16)) {
+	if ((bpix != 1) && (bpix != 8) && (bpix != 16) && (bpix != 32)) {
 		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
 			bpix, bmp_bpix);
 		return 1;
 	}
 
 	/* We support displaying 8bpp BMPs on 16bpp LCDs */
-	if (bpix != bmp_bpix && (bmp_bpix != 8 || bpix != 16)) {
+	if (bpix != bmp_bpix && (bmp_bpix != 8 || bpix != 16 || bpix != 32)) {
 		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
 			bpix,
 			le16_to_cpu(bmp->header.bit_count));
@@ -667,7 +667,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		cmap = (ushort *)fbi->palette;
 #elif defined(CONFIG_MPC823)
 		cmap = (ushort *)&(cp->lcd_cmap[255*sizeof(ushort)]);
-#elif !defined(CONFIG_ATMEL_LCD)
+#elif !defined(CONFIG_ATMEL_LCD) && !defined(CONFIG_EXYNOS_FB)
 		cmap = panel_info.cmap;
 #endif
 
@@ -789,6 +789,19 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		break;
 #endif /* CONFIG_BMP_16BPP */
 
+#if defined(CONFIG_BMP_32BPP)
+	case 32:
+		for (i = 0; i < height; ++i) {
+			for (j = 0; j < width; j++) {
+				*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
+			}
+			fb  -= (lcd_line_length + width * (bpix / 8));
+		}
+		break;
+#endif /* CONFIG_BMP_32BPP */
 	default:
 		break;
 	};
