@@ -340,12 +340,7 @@ LIST_ARM9="$(boards_by_cpu arm920t)	\
 #########################################################################
 ## ARM11 Systems
 #########################################################################
-LIST_ARM11="$(boards_by_cpu arm1136)	\
-	imx31_phycore		\
-	imx31_phycore_eet	\
-	mx31pdk			\
-	smdk6400		\
-"
+LIST_ARM11="$(boards_by_cpu arm1136)"
 
 #########################################################################
 ## ARMV7 Systems
@@ -615,6 +610,11 @@ build_target() {
 	target=$1
 	build_idx=$2
 
+	if [ "$ONLY_LIST" == 'y' ] ; then
+		list_target ${target}
+		return
+	fi
+
 	if [ $BUILD_MANY == 1 ] ; then
 		output_dir="${OUTPUT_PREFIX}/${target}"
 		mkdir -p "${output_dir}"
@@ -623,11 +623,6 @@ build_target() {
 	fi
 
 	export BUILD_DIR="${output_dir}"
-
-	if [ "$ONLY_LIST" == 'y' ] ; then
-		list_target ${target}
-		return
-	fi
 
 	${MAKE} distclean >/dev/null
 	${MAKE} -s ${target}_config
@@ -666,16 +661,15 @@ build_target() {
 
 	[ -e "${LOG_DIR}/${target}.ERR" ] && cat "${LOG_DIR}/${target}.ERR"
 
-	#echo "Writing ${donep}${build_idx}"
 	touch "${donep}${build_idx}"
 }
 
 manage_builds() {
 	search_idx=${OLDEST_IDX}
-	#echo "Searching ${OLDEST_IDX} to ${TOTAL_CNT}"
+	if [ "$ONLY_LIST" == 'y' ] ; then return ; fi
+
 	while true; do
 		if [ -e "${donep}${search_idx}" ] ; then
-	#		echo "Found ${donep}${search_idx}"
 			: $(( CURRENT_CNT-- ))
 			[ ${OLDEST_IDX} -eq ${search_idx} ] &&
 				: $(( OLDEST_IDX++ ))
@@ -687,10 +681,8 @@ manage_builds() {
 			[ ${OLDEST_IDX} -eq ${search_idx} ] &&
 				: $(( OLDEST_IDX++ ))
 		fi
-		#echo "Checking search ${search_idx} vs ${TOTAL_CNT}"
 		: $(( search_idx++ ))
 		if [ ${search_idx} -gt ${TOTAL_CNT} ] ; then
-			#echo "Checking current ${CURRENT_CNT} vs ${BUILD_NBUILDS}"
 			if [ ${CURRENT_CNT} -ge ${BUILD_NBUILDS} ] ; then
 				search_idx=${OLDEST_IDX}
 				sleep 1
@@ -739,6 +731,12 @@ build_targets() {
 
 #-----------------------------------------------------------------------
 
+kill_children() {
+	kill -- "-$1"
+
+	exit
+}
+
 print_stats() {
 	if [ "$ONLY_LIST" == 'y' ] ; then return ; fi
 
@@ -758,6 +756,10 @@ print_stats() {
 		echo "Boards with warnings or errors: ${ERR_CNT} (${ERR_LIST} )"
 	fi
 	echo "----------------------------------------------------------"
+
+	if [ $BUILD_MANY == 1 ] ; then
+		kill_children $$ &
+	fi
 
 	exit $RC
 }
