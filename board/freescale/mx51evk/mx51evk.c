@@ -502,7 +502,7 @@ void lcd_iomux(void)
 
 void lcd_enable(void)
 {
-	int ret = mx51_fb_init(&claa_wvga, 1, IPU_PIX_FMT_RGB565);
+	int ret = ipuv3_fb_init(&claa_wvga, 1, IPU_PIX_FMT_RGB565);
 	if (ret)
 		printf("LCD cannot be configured: %d\n", ret);
 }

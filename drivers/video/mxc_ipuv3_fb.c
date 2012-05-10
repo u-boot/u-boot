@@ -599,7 +599,7 @@ void video_set_lut(unsigned int index, /* color number */
 	return;
 }
 
-int mx51_fb_init(struct fb_videomode *mode, uint8_t disp, uint32_t pixfmt)
+int ipuv3_fb_init(struct fb_videomode *mode, uint8_t disp, uint32_t pixfmt)
 {
 	gmode = mode;
 	gdisp = disp;
