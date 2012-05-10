@@ -46,8 +46,6 @@
 #define puts(s)
 #endif
 
-#define abs(x) (((x) < 0) ? ((x)*-1) : (x))
-
 struct omap4_prcm_regs *const prcm = (struct omap4_prcm_regs *)0x4A004100;
 
 const u32 sys_clk_array[8] = {
