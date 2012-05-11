@@ -843,7 +843,7 @@ void mxc_set_sata_internal_clock(void)
 
 	set_usb_phy1_clk();
 
-	writel((readl(tmp_base) & (~0x7)) | 0x4, tmp_base);
+	writel((readl(tmp_base) & (~0x6)) | 0x4, tmp_base);
 }
 #endif
 
