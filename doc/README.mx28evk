@@ -17,7 +17,7 @@ Jumper configuration
 To boot MX28EVK from an SD card, set the boot mode DIP switches as:
 
    * Boot Mode Select: 1 0 0 1 (Boot from SD card Slot 0 - U42)
-   * JTAG PSWITCH RESET: To the left (reset enabled)
+   * JTAG PSWITCH RESET: To the right (reset disabled)
    * Battery Source: Down
    * Wall 5V: Up
    * VDD 5V: To the left (off)
