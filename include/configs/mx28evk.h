@@ -16,8 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  */
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __MX28EVK_CONFIG_H__
+#define __MX28EVK_CONFIG_H__
 
 #include <asm/arch/regs-base.h>
 
@@ -250,4 +250,4 @@
 		"run netargs; " \
 		"dhcp ${uimage}; bootm\0" \
 
-#endif /* __CONFIG_H */
+#endif /* __MX28EVK_CONFIG_H__ */
