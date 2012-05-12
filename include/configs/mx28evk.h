@@ -54,11 +54,11 @@
 #include <config_cmd_default.h>
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_FAT
 
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
