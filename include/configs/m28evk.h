@@ -17,8 +17,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef __M28_H__
-#define __M28_H__
+#ifndef __M28EVK_CONFIG_H__
+#define __M28EVK_CONFIG_H__
 
 #include <asm/arch/regs-base.h>
 
@@ -325,4 +325,4 @@
 		"fi ; "							\
 		"fi\0"
 
-#endif /* __M28_H__ */
+#endif /* __M28EVK_CONFIG_H__ */
