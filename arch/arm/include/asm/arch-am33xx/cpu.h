@@ -213,8 +213,6 @@ struct ctrl_stat {
 	unsigned int resv1[16];
 	unsigned int statusreg;		/* ofset 0x40 */
 };
-
-void init_timer(void);
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 

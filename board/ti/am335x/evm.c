@@ -29,17 +29,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Basic board specific setup
  */
-int init_basic_setup(void)
-{
-	/* Initialize the Timer */
-	init_timer();
-
-	/* address of boot parameters */
-	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
-
-	return 0;
-}
-
 int board_init(void)
 {
 	enable_uart0_pin_mux();
@@ -49,7 +38,7 @@ int board_init(void)
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 
-	init_basic_setup();
+	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
 
 	return 0;
 }
