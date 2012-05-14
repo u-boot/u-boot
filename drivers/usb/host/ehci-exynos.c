@@ -25,6 +25,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/ehci.h>
 #include <asm/arch/system.h>
+#include <asm/arch/power.h>
 #include "ehci.h"
 #include "ehci-core.h"
 
@@ -32,6 +33,8 @@
 static void setup_usb_phy(struct exynos_usb_phy *usb)
 {
 	set_usbhost_mode(USB20_PHY_CFG_HOST_LINK_EN);
+
+	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_EN);
 
 	clrbits_le32(&usb->usbphyctrl0,
 			HOST_CTRL0_FSEL_MASK |
@@ -73,6 +76,8 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
 			HOST_CTRL0_SIDDQ |
 			HOST_CTRL0_FORCESUSPEND |
 			HOST_CTRL0_FORCESLEEP);
+
+	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_DISABLE);
 }
 
 /*
