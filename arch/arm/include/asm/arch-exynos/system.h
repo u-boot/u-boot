@@ -42,6 +42,7 @@ struct exynos5_sysreg {
 	unsigned int	reserved;
 	unsigned int	ispblk_cfg;
 	unsigned int	usb20phy_cfg;
+	unsigned char	res2[0x29c];
 	unsigned int	mipi_dphy;
 	unsigned int	dptx_dphy;
 	unsigned int	phyclk_sel;
