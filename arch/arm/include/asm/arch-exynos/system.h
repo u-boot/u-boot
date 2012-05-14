@@ -49,6 +49,9 @@ struct exynos5_sysreg {
 };
 #endif
 
+#define USB20_PHY_CFG_HOST_LINK_EN	(1 << 0)
+
+void set_usbhost_mode(unsigned int mode);
 void set_system_display_ctrl(void);
 
 #endif	/* _EXYNOS4_SYSTEM_H */

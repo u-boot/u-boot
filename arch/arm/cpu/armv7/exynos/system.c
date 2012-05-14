@@ -25,6 +25,28 @@
 #include <asm/io.h>
 #include <asm/arch/system.h>
 
+static void exynos5_set_usbhost_mode(unsigned int mode)
+{
+	struct exynos5_sysreg *sysreg =
+		(struct exynos5_sysreg *)samsung_get_base_sysreg();
+	unsigned int phy_cfg;
+
+	/* Setting USB20PHY_CONFIG register to USB 2.0 HOST link */
+	if (mode == USB20_PHY_CFG_HOST_LINK_EN) {
+		setbits_le32(&sysreg->usb20phy_cfg,
+				USB20_PHY_CFG_HOST_LINK_EN);
+	} else {
+		clrbits_le32(&sysreg->usb20phy_cfg,
+				USB20_PHY_CFG_HOST_LINK_EN);
+	}
+}
+
+void set_usbhost_mode(unsigned int mode)
+{
+	if (cpu_is_exynos5())
+		exynos5_set_usbhost_mode(mode);
+}
+
 static void exynos4_set_system_display(void)
 {
 	struct exynos4_sysreg *sysreg =

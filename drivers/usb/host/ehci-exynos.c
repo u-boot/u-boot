@@ -24,12 +24,15 @@
 #include <usb.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/ehci.h>
+#include <asm/arch/system.h>
 #include "ehci.h"
 #include "ehci-core.h"
 
 /* Setup the EHCI host controller. */
 static void setup_usb_phy(struct exynos_usb_phy *usb)
 {
+	set_usbhost_mode(USB20_PHY_CFG_HOST_LINK_EN);
+
 	clrbits_le32(&usb->usbphyctrl0,
 			HOST_CTRL0_FSEL_MASK |
 			HOST_CTRL0_COMMONON_N |
