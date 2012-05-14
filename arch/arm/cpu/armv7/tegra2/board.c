@@ -101,6 +101,18 @@ int arch_cpu_init(void)
 }
 #endif
 
+static int uart_configs[] = {
+#ifdef CONFIG_TEGRA2_UARTA_UAA_UAB
+	FUNCMUX_UART1_UAA_UAB,
+#else
+	FUNCMUX_UART1_IRRX_IRTX,
+#endif
+	FUNCMUX_UART2_IRDA,
+	-1,
+	FUNCMUX_UART4_GMC,
+	-1,
+};
+
 /**
  * Set up the specified uarts
  *
@@ -120,7 +132,7 @@ static void setup_uarts(int uart_ids)
 		if (uart_ids & (1 << i)) {
 			enum periph_id id = id_for_uart[i];
 
-			funcmux_select(id, FUNCMUX_DEFAULT);
+			funcmux_select(id, uart_configs[i]);
 			clock_ll_start_uart(id);
 		}
 	}

@@ -31,11 +31,22 @@ int funcmux_select(enum periph_id id, int config)
 
 	switch (id) {
 	case PERIPH_ID_UART1:
-		if (config == FUNCMUX_UART1_IRRX_IRTX) {
+		switch (config) {
+		case FUNCMUX_UART1_IRRX_IRTX:
 			pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
 			pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
 			pinmux_tristate_disable(PINGRP_IRRX);
 			pinmux_tristate_disable(PINGRP_IRTX);
+			break;
+		case FUNCMUX_UART1_UAA_UAB:
+			pinmux_set_func(PINGRP_UAA, PMUX_FUNC_UARTA);
+			pinmux_set_func(PINGRP_UAB, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_UAA);
+			pinmux_tristate_disable(PINGRP_UAB);
+			bad_config = 0;
+			break;
+		}
+		if (!bad_config) {
 			/*
 			 * Tegra appears to boot with function UARTA pre-
 			 * selected on mux group SDB. If two mux groups are
