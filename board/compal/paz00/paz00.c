@@ -55,8 +55,8 @@ static void pin_mux_mmc(void)
 
 	/* For power GPIO PV1 */
 	pinmux_tristate_disable(PINGRP_UAC);
-	/* For CD GPIO PI5 */
-	pinmux_tristate_disable(PINGRP_ATC);
+	/* For CD GPIO PV5 */
+	pinmux_tristate_disable(PINGRP_GPV);
 }
 
 /* this is a weak define that we are overriding */
@@ -74,7 +74,7 @@ int board_mmc_init(bd_t *bd)
 
 	debug("board_mmc_init: init SD slot\n");
 	/* init dev 3, SD slot, with 4-bit bus */
-	tegra2_mmc_init(3, 4, GPIO_PV1, GPIO_PI5);
+	tegra2_mmc_init(3, 4, GPIO_PV1, GPIO_PV5);
 
 	return 0;
 }
