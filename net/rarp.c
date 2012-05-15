@@ -58,21 +58,21 @@ static void
 RarpTimeout(void)
 {
 	if (RarpTry >= TIMEOUT_COUNT) {
-		puts ("\nRetry count exceeded; starting again\n");
-		NetStartAgain ();
+		puts("\nRetry count exceeded; starting again\n");
+		NetStartAgain();
 	} else {
-		NetSetTimeout (TIMEOUT, RarpTimeout);
-		RarpRequest ();
+		NetSetTimeout(TIMEOUT, RarpTimeout);
+		RarpRequest();
 	}
 }
 
 
 void
-RarpRequest (void)
+RarpRequest(void)
 {
 	int i;
 	uchar *pkt;
-	ARP_t *	rarp;
+	ARP_t *rarp;
 
 	printf("RARP broadcast %d\n", ++RarpTry);
 	pkt = NetTxPacket;
@@ -81,18 +81,18 @@ RarpRequest (void)
 
 	rarp = (ARP_t *)pkt;
 
-	rarp->ar_hrd = htons (ARP_ETHER);
-	rarp->ar_pro = htons (PROT_IP);
+	rarp->ar_hrd = htons(ARP_ETHER);
+	rarp->ar_pro = htons(PROT_IP);
 	rarp->ar_hln = 6;
 	rarp->ar_pln = 4;
-	rarp->ar_op  = htons (RARPOP_REQUEST);
-	memcpy (&rarp->ar_data[0],  NetOurEther, 6);	/* source ET addr */
-	memcpy (&rarp->ar_data[6],  &NetOurIP,   4);	/* source IP addr */
-	memcpy (&rarp->ar_data[10], NetOurEther, 6);	/* dest ET addr = source ET addr ??*/
+	rarp->ar_op  = htons(RARPOP_REQUEST);
+	memcpy(&rarp->ar_data[0],  NetOurEther, 6);	/* source ET addr */
+	memcpy(&rarp->ar_data[6],  &NetOurIP,   4);	/* source IP addr */
+	/* dest ET addr = source ET addr ??*/
+	memcpy(&rarp->ar_data[10], NetOurEther, 6);
 	/* dest. IP addr set to broadcast */
-	for (i = 0; i <= 3; i++) {
+	for (i = 0; i <= 3; i++)
 		rarp->ar_data[16 + i] = 0xff;
-	}
 
 	NetSendPacket(NetTxPacket, (pkt - NetTxPacket) + ARP_HDR_SIZE);
 
