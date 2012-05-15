@@ -29,7 +29,7 @@
  * time! If the board file provides this, the board config will declare it.
  * Let this be a lesson for others.
  */
-void pinmux_select_uart(NS16550_t regs);
+void pinmux_select_uart(void);
 
 /*
  * Signal that we are about the use the SPI bus.
@@ -38,7 +38,7 @@ void pinmux_select_spi(void);
 
 #else /* not CONFIG_SPI_UART_SWITCH */
 
-static inline void pinmux_select_uart(NS16550_t regs) {}
+static inline void pinmux_select_uart(void) {}
 static inline void pinmux_select_spi(void) {}
 
 #endif

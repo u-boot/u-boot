@@ -21,7 +21,6 @@
  */
 
 #include <common.h>
-#include <ns16550.h>
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart-spi-switch.h>
@@ -40,7 +39,6 @@ enum spi_uart_switch {
 /* Information about the spi/uart switch */
 struct spi_uart {
 	int gpio;                       /* GPIO to control switch */
-	NS16550_t regs;                 /* Address of UART affected */
 	u32 port;                       /* Port number of UART affected */
 };
 
@@ -52,7 +50,6 @@ static void get_config(struct spi_uart *config)
 {
 #if defined CONFIG_SPI_CORRUPTS_UART
 	config->gpio = CONFIG_UART_DISABLE_GPIO;
-	config->regs = (NS16550_t)CONFIG_SPI_CORRUPTS_UART;
 	config->port = CONFIG_SPI_CORRUPTS_UART_NR;
 #else
 	config->gpio = -1;
@@ -101,34 +98,24 @@ static void spi_uart_switch(struct spi_uart *config,
 	if (switch_pos == SWITCH_BOTH || new_pos == switch_pos)
 		return;
 
-	/* if the UART was selected, allow it to drain */
-	if (switch_pos == SWITCH_UART)
-		NS16550_drain(config->regs, config->port);
+	/* pre-delay, allow SPI/UART to settle, FIFO to empty, etc. */
+	udelay(CONFIG_SPI_CORRUPTS_UART_DLY);
 
 	/* We need to dynamically change the pinmux, shared w/UART RXD/CTS */
 	pinmux_set_func(PINGRP_GMC, new_pos == SWITCH_SPI ?
 				PMUX_FUNC_SFLASH : PMUX_FUNC_UARTD);
 
 	/*
-	* On Seaboard, MOSI/MISO are shared w/UART.
-	* Use GPIO I3 (UART_DISABLE) to tristate UART during SPI activity.
-	* Enable UART later (cs_deactivate) so we can use it for U-Boot comms.
-	*/
+	 * On Seaboard, MOSI/MISO are shared w/UART.
+	 * Use GPIO I3 (UART_DISABLE) to tristate UART during SPI activity.
+	 * Enable UART later (cs_deactivate) so we can use it for U-Boot comms.
+	 */
 	gpio_direction_output(config->gpio, new_pos == SWITCH_SPI);
 	switch_pos = new_pos;
-
-	/* if the SPI was selected, clear any junk bytes in the UART */
-	if (switch_pos == SWITCH_UART) {
-		/* TODO: What if it is part-way through clocking in junk? */
-		udelay(100);
-		NS16550_clear(config->regs, config->port);
-	}
 }
 
-void pinmux_select_uart(NS16550_t regs)
+void pinmux_select_uart(void)
 {
-	/* Also prevents calling spi_uart_switch() before relocation */
-	if (regs == local.regs)
 		spi_uart_switch(&local, SWITCH_UART);
 }
 

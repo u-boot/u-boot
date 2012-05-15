@@ -28,12 +28,17 @@
 #include <spi.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <ns16550.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart-spi-switch.h>
 #include <asm/arch/tegra2_spi.h>
+
+#if defined(CONFIG_SPI_CORRUPTS_UART)
+ #define corrupt_delay()	udelay(CONFIG_SPI_CORRUPTS_UART_DLY);
+#else
+ #define corrupt_delay()
+#endif
 
 struct tegra_spi_slave {
 	struct spi_slave slave;
@@ -161,14 +166,20 @@ void spi_cs_activate(struct spi_slave *slave)
 
 	/* CS is negated on Tegra, so drive a 1 to get a 0 */
 	setbits_le32(&spi->regs->command, SPI_CMD_CS_VAL);
+
+	corrupt_delay();		/* Let UART settle */
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 
+	pinmux_select_uart();
+
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */
 	clrbits_le32(&spi->regs->command, SPI_CMD_CS_VAL);
+
+	corrupt_delay();		/* Let SPI settle */
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
