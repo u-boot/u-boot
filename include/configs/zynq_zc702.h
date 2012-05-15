@@ -29,11 +29,11 @@
 #define CONFIG_ETHADDR  00:0a:35:00:01:22
 #define CONFIG_SERVERIP 10.10.70.101
 
-#define CONFIG_EXTRA_ENV_SETTINGS 	\
-	"kernel_size=0x140000\0" 	\
-	"ramdisk_size=0x200000\0" 	\
-	"nand_kernel_size=0x400000\0" 	\
-	"nand_ramdisk_size=0x400000\0" 	\
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"kernel_size=0x140000\0"	\
+	"ramdisk_size=0x200000\0"	\
+	"nand_kernel_size=0x400000\0"	\
+	"nand_ramdisk_size=0x400000\0"	\
 	"bootcmd=run modeboot\0"	\
 	"norboot=echo Copying Linux from NOR flash to RAM...; \
 			    cp 0xE2100000 0x8000 ${kernel_size}; \
@@ -80,7 +80,7 @@
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC
 
-#include <config_cmd_default.h>	
+#include <config_cmd_default.h>
 #define CONFIG_CMD_DATE		/* RTC? */
 #define CONFIG_CMD_PING		/* Might be useful for debugging */
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
@@ -97,12 +97,12 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_CMDLINE_EDITING	1
 
-#define CONFIG_SYS_PROMPT	"pele-boot> "
+#define CONFIG_SYS_PROMPT	"zynq-uboot> "
 
-#undef CONFIG_SKIP_RELOCATE_UBOOT	
+#undef CONFIG_SKIP_RELOCATE_UBOOT
 
 /* Uncomment it if you don't want Flash */
-//#define CONFIG_SYS_NO_FLASH	
+/*#define CONFIG_SYS_NO_FLASH	*/
 
 #define CONFIG_SYS_SDRAM_BASE	0
 
@@ -115,7 +115,7 @@
 #ifndef CONFIG_SYS_NO_FLASH
 
 /* FLASH organization */
-#define CONFIG_SYS_FLASH_BASE           0xE2000000 
+#define CONFIG_SYS_FLASH_BASE           0xE2000000
 #define CONFIG_SYS_FLASH_SIZE           (16*1024*1024)  /* i.e. 16MB */
 #define CONFIG_SYS_MAX_FLASH_BANKS      1       /* max number of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT       512     /* max number of sectors/blocks on one chip */
@@ -126,13 +126,13 @@
 
 #define CONFIG_SYS_FLASH_CFI            1
 // #define CONFIG_SYS_FLASH_EMPTY_INFO     0
-#define CONFIG_FLASH_CFI_DRIVER 	1
+#define CONFIG_FLASH_CFI_DRIVER		1
 
 #define CONFIG_SYS_FLASH_PROTECTION     0       /* use hardware protection           */
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE       /* use buffered writes (20x faster)  */
-//#define CONFIG_ENV_ADDR         	(CONFIG_SYS_FLASH_BASE + 0x00000000)
+/*#define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + 0x00000000)	*/
 #define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
-#define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
+#define CONFIG_ENV_SECT_SIZE		0x20000		/*128 KB*/
 #ifdef CONFIG_EP107
 # define CONFIG_ENV_IS_IN_FLASH		1
 #else
@@ -153,7 +153,7 @@
 /* CONFIG_SYS_GLOBAL_DATA_OFFSET? */
 
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
-//#define CONFIG_SKIP_LOWLEVEL_INIT	
+/*#define CONFIG_SKIP_LOWLEVEL_INIT	*/
 
 
 /* HW to use */
