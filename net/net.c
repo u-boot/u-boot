@@ -77,6 +77,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <linux/compiler.h>
 #include <net.h>
 #include "bootp.h"
 #include "tftp.h"
@@ -201,11 +202,6 @@ static void CDPStart(void);
 IPaddr_t	NetNtpServerIP;
 /* offset time from UTC */
 int		NetTimeOffset;
-#endif
-
-#ifdef CONFIG_NETCONSOLE
-void NcStart(void);
-int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len);
 #endif
 
 uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
@@ -527,10 +523,7 @@ restart:
 	for (;;) {
 		WATCHDOG_RESET();
 #ifdef CONFIG_SHOW_ACTIVITY
-		{
-			extern void show_activity(int arg);
-			show_activity(1);
-		}
+		show_activity(1);
 #endif
 		/*
 		 *	Check the ethernet for a new packet.  The ethernet
@@ -1103,8 +1096,8 @@ CDPHandler(const uchar *pkt, unsigned len)
 	 * output a warning
 	 */
 	if (pkt[0] != 0x02)
-		printf("** WARNING: CDP packet received with a protocol version %d > 2\n",
-				pkt[0] & 0xff);
+		printf("**WARNING: CDP packet received with a protocol version "
+				"%d > 2\n", pkt[0] & 0xff);
 
 	if (CDP_compute_csum(pkt, len) != 0)
 		return;
@@ -1239,7 +1232,7 @@ struct hole {
 
 static IP_t *__NetDefragment(IP_t *ip, int *lenp)
 {
-	static uchar pkt_buff[IP_PKTSIZE] __attribute__((aligned(PKTALIGN)));
+	static uchar pkt_buff[IP_PKTSIZE] __aligned(PKTALIGN);
 	static u16 first_hole, total_len;
 	struct hole *payload, *thisfrag, *h, *newh;
 	IP_t *localip = (IP_t *)pkt_buff;
@@ -1611,6 +1604,7 @@ NetReceive(uchar *inpkt, int len)
 			/* matched waiting packet's address */
 			if (tmp == NetArpWaitReplyIP) {
 				debug("Got it\n");
+
 				/* save address for later use */
 				memcpy(NetArpWaitPacketMAC,
 				       &arp->ar_data[0], 6);
@@ -1619,7 +1613,8 @@ NetReceive(uchar *inpkt, int len)
 				(*packetHandler)(0, 0, 0, 0, 0);
 #endif
 				/* modify header, and transmit it */
-				memcpy(((Ethernet_t *)NetArpWaitTxPacket)->et_dest, NetArpWaitPacketMAC, 6);
+				memcpy(((Ethernet_t *)NetArpWaitTxPacket)->
+					et_dest, NetArpWaitPacketMAC, 6);
 				(void) eth_send(NetArpWaitTxPacket,
 						NetArpWaitTxPacketSize);
 
@@ -1856,7 +1851,6 @@ common:
 	case CDP:
 	case DHCP:
 		if (memcmp(NetOurEther, "\0\0\0\0\0\0", 6) == 0) {
-			extern int eth_get_dev_index(void);
 			int num = eth_get_dev_index();
 
 			switch (num) {

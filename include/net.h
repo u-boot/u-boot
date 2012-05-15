@@ -433,6 +433,11 @@ extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
 /* Processes a received packet */
 extern void NetReceive(uchar *, int);
 
+#ifdef CONFIG_NETCONSOLE
+void NcStart(void);
+int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len);
+#endif
+
 /*
  * Check if autoload is enabled. If so, use either NFS or TFTP to download
  * the boot file.
