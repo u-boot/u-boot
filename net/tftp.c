@@ -11,6 +11,9 @@
 #include <net.h>
 #include "tftp.h"
 #include "bootp.h"
+#ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
+#include <flash.h>
+#endif
 
 /* Well known TFTP port # */
 #define WELL_KNOWN_PORT	69
@@ -112,10 +115,6 @@ static char default_filename[DEFAULT_NAME_LEN];
 
 static char tftp_filename[MAX_LEN];
 
-#ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
-extern flash_info_t flash_info[];
-#endif
-
 /* 512 is poor choice for ethernet, MTU is typically 1500.
  * Minus eth.hdrs thats 1468.  Can get 2x better throughput with
  * almost-MTU block sizes.  At least try... fall back to 512 if need be.
@@ -137,7 +136,6 @@ static unsigned *Bitmap;
 static int PrevBitmapHole, Mapsize = MTFTP_BITMAPSIZE;
 static uchar ProhibitMcast, MasterClient;
 static uchar Multicast;
-extern IPaddr_t Mcast_addr;
 static int Mcast_port;
 static ulong TftpEndingBlock; /* can get 'last' block before done..*/
 
@@ -157,7 +155,7 @@ mcast_cleanup(void)
 
 #endif	/* CONFIG_MCAST_TFTP */
 
-static __inline__ void
+static inline void
 store_block(unsigned block, uchar *src, unsigned len)
 {
 	ulong offset = block * TftpBlkSize + TftpBlockWrapOffset;
@@ -182,8 +180,7 @@ store_block(unsigned block, uchar *src, unsigned len)
 			NetState = NETLOOP_FAIL;
 			return;
 		}
-	}
-	else
+	} else
 #endif /* CONFIG_SYS_DIRECT_FLASH_TFTP */
 	{
 		(void)memcpy((void *)(load_addr + offset), src, len);
@@ -357,12 +354,14 @@ TftpSend(void)
 				0, TftpBlkSizeOption, 0);
 #ifdef CONFIG_MCAST_TFTP
 		/* Check all preconditions before even trying the option */
-		if (!ProhibitMcast
-		 && (Bitmap = malloc(Mapsize))
-		 && eth_get_dev()->mcast) {
-			free(Bitmap);
-			Bitmap = NULL;
-			pkt += sprintf((char *)pkt, "multicast%c%c", 0, 0);
+		if (!ProhibitMcast) {
+			Bitmap = malloc(Mapsize);
+			if (Bitmap && eth_get_dev()->mcast) {
+				free(Bitmap);
+				Bitmap = NULL;
+				pkt += sprintf((char *)pkt, "multicast%c%c",
+					0, 0);
+			}
 		}
 #endif /* CONFIG_MCAST_TFTP */
 		len = pkt - xp;
@@ -630,8 +629,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 				mcast_cleanup();
 				NetState = NETLOOP_SUCCESS;
 			}
-		}
-		else
+		} else
 #endif
 		if (len < TftpBlkSize)
 			tftp_complete();

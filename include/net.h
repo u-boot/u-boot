@@ -396,6 +396,10 @@ extern IPaddr_t	NetNtpServerIP;			/* the ip address to NTP */
 extern int NetTimeOffset;			/* offset time from UTC */
 #endif
 
+#if defined(CONFIG_MCAST_TFTP)
+extern IPaddr_t Mcast_addr;
+#endif
+
 /* Initialize the network adapter */
 extern int NetLoop(enum proto_t);
 
