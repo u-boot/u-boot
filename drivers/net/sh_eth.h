@@ -225,6 +225,7 @@ struct sh_eth_dev {
 #define GECMR(port)		(BASE_IO_ADDR + 0x05b0)
 #define MAHR(port)		(BASE_IO_ADDR + 0x05C0)
 #define MALR(port)		(BASE_IO_ADDR + 0x05C8)
+#define RMII_MII(port)  (BASE_IO_ADDR + 0x0790)
 
 #endif
 

@@ -348,7 +348,7 @@ static int sh_eth_phy_config(struct sh_eth_dev *eth)
 
 	phydev = phy_connect(
 			miiphy_get_dev_by_name(dev->name),
-			port_info->phy_addr, dev, PHY_INTERFACE_MODE_MII);
+			port_info->phy_addr, dev, CONFIG_SH_ETHER_PHY_MODE);
 	port_info->phydev = phydev;
 	phy_config(phydev);
 
@@ -405,6 +405,9 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(TPAUSER_UNLIMITED, TPAUSER(port));
 #endif
 
+#if defined(CONFIG_CPU_SH7734)
+	outl(CONFIG_SH_ETHER_SH7734_MII, RMII_MII(port));
+#endif
 	/* Configure phy */
 	ret = sh_eth_phy_config(eth);
 	if (ret) {
@@ -434,6 +437,12 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 		outl(0, RTRATE(port));
 #endif
 	}
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+	else if (phy->speed == 1000) {
+		printf(SHETHER_NAME ": 1000Base/");
+		outl(GECMR_1000B, GECMR(port));
+	}
+#endif
 
 	/* Check if full duplex mode is supported by the phy */
 	if (phy->duplex) {
