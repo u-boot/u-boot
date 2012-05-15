@@ -25,7 +25,8 @@
 
 #if defined(CONFIG_MX51)
 #define IRAM_BASE_ADDR		0x1FFE0000	/* internal ram */
-#define IPU_CTRL_BASE_ADDR	0x40000000
+#define IPU_SOC_BASE_ADDR	0x40000000
+#define IPU_SOC_OFFSET		0x1E000000
 #define SPBA0_BASE_ADDR         0x70000000
 #define AIPS1_BASE_ADDR         0x73F00000
 #define AIPS2_BASE_ADDR         0x83F00000
@@ -34,7 +35,8 @@
 #define NFC_BASE_ADDR_AXI       0xCFFF0000
 #define CS1_BASE_ADDR           0xB8000000
 #elif defined(CONFIG_MX53)
-#define IPU_CTRL_BASE_ADDR      0x18000000
+#define IPU_SOC_BASE_ADDR	0x18000000
+#define IPU_SOC_OFFSET		0x06000000
 #define SPBA0_BASE_ADDR         0x50000000
 #define AIPS1_BASE_ADDR         0x53F00000
 #define AIPS2_BASE_ADDR         0x63F00000
@@ -47,6 +49,8 @@
 #else
 #error "CPU_TYPE not defined"
 #endif
+
+#define IPU_CTRL_BASE_ADDR	IPU_SOC_BASE_ADDR + IPU_SOC_OFFSET
 
 #define IRAM_SIZE		0x00020000	/* 128 KB */
 
