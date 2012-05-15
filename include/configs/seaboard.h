@@ -52,6 +52,15 @@
 
 /* On Seaboard: GPIO_PI3 = Port I = 8, bit = 3 */
 #define CONFIG_UART_DISABLE_GPIO	GPIO_PI3
+/*
+ * On Seaboard, SPIFLASH is muxed with UART4. The next 5 defines are
+ * needed to work around that design error.
+ */
+#define CONFIG_SPI_UART_SWITCH
+#define CONFIG_SPI_CORRUPTS_UART	NV_PA_APB_UARTD_BASE
+#define CONFIG_SPI_CORRUPTS_UART_NR	3
+#define CONFIG_SPI_CORRUPTS_UART_DLY	2500
+#undef CONFIG_CMDLINE_EDITING		/* avoid NUL in input buffer */
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
 #define CONFIG_SYS_BOARD_ODMDATA	0x300d8011 /* lp1, 1GB */
