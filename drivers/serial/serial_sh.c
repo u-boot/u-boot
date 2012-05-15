@@ -35,6 +35,10 @@
 # define SCIF_BASE	SCIF4_BASE
 #elif defined(CONFIG_CONS_SCIF5)
 # define SCIF_BASE	SCIF5_BASE
+#elif defined(CONFIG_CONS_SCIF6)
+# define SCIF_BASE	SCIF6_BASE
+#elif defined(CONFIG_CONS_SCIF7)
+# define SCIF_BASE	SCIF7_BASE
 #else
 # error "Default SCIF doesn't set....."
 #endif
