@@ -152,7 +152,7 @@ IPaddr_t	NetOurIP;
 /* Server IP addr (0 = unknown) */
 IPaddr_t	NetServerIP;
 /* Current receive packet */
-volatile uchar *NetRxPacket;
+uchar *NetRxPacket;
 /* Current rx packet length */
 int		NetRxPacketLen;
 /* IP packet ID */
@@ -161,7 +161,7 @@ unsigned	NetIPID;
 uchar		NetBcastAddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 uchar		NetEtherNullAddr[6];
 #ifdef CONFIG_API
-void		(*push_packet)(volatile void *, int len) = 0;
+void		(*push_packet)(void *, int len) = 0;
 #endif
 #if defined(CONFIG_CMD_CDP)
 /* Ethernet bcast address */
@@ -208,10 +208,10 @@ void NcStart(void);
 int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len);
 #endif
 
-volatile uchar	PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
+uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
 
 /* Receive packet */
-volatile uchar *NetRxPackets[PKTBUFSRX];
+uchar *NetRxPackets[PKTBUFSRX];
 
 /* Current RX packet handler */
 static rxhand_f *packetHandler;
@@ -225,7 +225,7 @@ static ulong	timeStart;
 /* Current timeout value */
 static ulong	timeDelta;
 /* THE transmit packet */
-volatile uchar *NetTxPacket;
+uchar *NetTxPacket;
 
 static int net_check_prereq(enum proto_t protocol);
 
@@ -246,7 +246,7 @@ int		NetArpWaitTry;
 
 void ArpRequest(void)
 {
-	volatile uchar *pkt;
+	uchar *pkt;
 	ARP_t *arp;
 
 	debug("ARP broadcast %d\n", NetArpWaitTry);
@@ -705,7 +705,7 @@ NetSetTimeout(ulong iv, thand_f *f)
 
 
 void
-NetSendPacket(volatile uchar *pkt, int len)
+NetSendPacket(uchar *pkt, int len)
 {
 	(void) eth_send(pkt, len);
 }
@@ -768,8 +768,8 @@ static ushort PingSeqNo;
 int PingSend(void)
 {
 	static uchar mac[6];
-	volatile IP_t *ip;
-	volatile ushort *s;
+	IP_t *ip;
+	ushort *s;
 	uchar *pkt;
 
 	/* XXX always send arp request */
@@ -784,7 +784,7 @@ int PingSend(void)
 	pkt = NetArpWaitTxPacket;
 	pkt += NetSetEther(pkt, mac, PROT_IP);
 
-	ip = (volatile IP_t *)pkt;
+	ip = (IP_t *)pkt;
 
 	/*
 	 * Construct an IP and ICMP header.
@@ -936,9 +936,9 @@ static ushort CDP_compute_csum(const uchar *buff, ushort len)
 
 int CDPSendTrigger(void)
 {
-	volatile uchar *pkt;
-	volatile ushort *s;
-	volatile ushort *cp;
+	uchar *pkt;
+	ushort *s;
+	ushort *cp;
 	Ethernet_t *et;
 	int len;
 	ushort chksum;
@@ -965,7 +965,7 @@ int CDPSendTrigger(void)
 	/* CDP header */
 	*pkt++ = 0x02;				/* CDP version 2 */
 	*pkt++ = 180;				/* TTL */
-	s = (volatile ushort *)pkt;
+	s = (ushort *)pkt;
 	cp = s;
 	/* checksum (0 for later calculation) */
 	*s++ = htons(0);
@@ -1439,7 +1439,7 @@ static void receive_icmp(IP_t *ip, int len, IPaddr_t src_ip, Ethernet_t *et)
 }
 
 void
-NetReceive(volatile uchar *inpkt, int len)
+NetReceive(uchar *inpkt, int len)
 {
 	Ethernet_t *et;
 	IP_t	*ip;
@@ -1918,7 +1918,7 @@ NetEthHdrSize(void)
 }
 
 int
-NetSetEther(volatile uchar *xet, uchar * addr, uint prot)
+NetSetEther(uchar *xet, uchar * addr, uint prot)
 {
 	Ethernet_t *et = (Ethernet_t *)xet;
 	ushort myvlanid;
@@ -1943,7 +1943,7 @@ NetSetEther(volatile uchar *xet, uchar * addr, uint prot)
 }
 
 void
-NetSetIP(volatile uchar *xip, IPaddr_t dest, int dport, int sport, int len)
+NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 {
 	IP_t *ip = (IP_t *)xip;
 

@@ -71,7 +71,7 @@ void
 RarpRequest (void)
 {
 	int i;
-	volatile uchar *pkt;
+	uchar *pkt;
 	ARP_t *	rarp;
 
 	printf("RARP broadcast %d\n", ++RarpTry);

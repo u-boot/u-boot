@@ -310,9 +310,9 @@ static void
 TftpSend(void)
 {
 	uchar *pkt;
-	volatile uchar *xp;
-	int		len = 0;
-	volatile ushort *s;
+	uchar *xp;
+	int len = 0;
+	ushort *s;
 
 #ifdef CONFIG_MCAST_TFTP
 	/* Multicast TFTP.. non-MasterClients do not ACK data. */

@@ -81,7 +81,7 @@ struct eth_device {
 	int state;
 
 	int  (*init) (struct eth_device*, bd_t*);
-	int  (*send) (struct eth_device*, volatile void* packet, int length);
+	int  (*send) (struct eth_device*, void *packet, int length);
 	int  (*recv) (struct eth_device*);
 	void (*halt) (struct eth_device*);
 #ifdef CONFIG_MCAST_TFTP
@@ -120,10 +120,11 @@ extern int eth_getenv_enetaddr_by_index(const char *base_name, int index,
 
 extern int usb_eth_initialize(bd_t *bi);
 extern int eth_init(bd_t *bis);			/* Initialize the device */
-extern int eth_send(volatile void *packet, int length);	   /* Send a packet */
+extern int eth_send(void *packet, int length);	   /* Send a packet */
 
 #ifdef CONFIG_API
-extern int eth_receive(volatile void *packet, int length); /* Receive a packet*/
+extern int eth_receive(void *packet, int length); /* Receive a packet*/
+extern void (*push_packet)(void *packet, int length);
 #endif
 extern int eth_rx(void);			/* Check for received packets */
 extern void eth_halt(void);			/* stop SCC */
@@ -342,9 +343,9 @@ extern uchar		NetOurEther[6];		/* Our ethernet address		*/
 extern uchar		NetServerEther[6];	/* Boot server enet address	*/
 extern IPaddr_t		NetOurIP;		/* Our    IP addr (0 = unknown)	*/
 extern IPaddr_t		NetServerIP;		/* Server IP addr (0 = unknown)	*/
-extern volatile uchar * NetTxPacket;		/* THE transmit packet		*/
-extern volatile uchar * NetRxPackets[PKTBUFSRX];/* Receive packets		*/
-extern volatile uchar * NetRxPacket;		/* Current receive packet	*/
+extern uchar		*NetTxPacket;		/* THE transmit packet */
+extern uchar		*NetRxPackets[PKTBUFSRX];/* Receive packets */
+extern uchar		*NetRxPacket;		/* Current receive packet */
 extern int		NetRxPacketLen;		/* Current rx packet length	*/
 extern unsigned		NetIPID;		/* IP ID (counting)		*/
 extern uchar		NetBcastAddr[6];	/* Ethernet boardcast address	*/
@@ -408,10 +409,10 @@ extern void	NetStartAgain(void);
 extern int	NetEthHdrSize(void);
 
 /* Set ethernet header; returns the size of the header */
-extern int	NetSetEther(volatile uchar *, uchar *, uint);
+extern int NetSetEther(uchar *, uchar *, uint);
 
 /* Set IP header */
-extern void	NetSetIP(volatile uchar *, IPaddr_t, int, int, int);
+extern void NetSetIP(uchar *, IPaddr_t, int, int, int);
 
 /* Checksum */
 extern int	NetCksumOk(uchar *, int);	/* Return true if cksum OK	*/
@@ -423,13 +424,13 @@ extern void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
 extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler		*/
 
 /* Transmit "NetTxPacket" */
-extern void	NetSendPacket(volatile uchar *, int);
+extern void NetSendPacket(uchar *, int);
 
 /* Transmit UDP packet, performing ARP request if needed */
 extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len);
 
 /* Processes a received packet */
-extern void	NetReceive(volatile uchar *, int);
+extern void NetReceive(uchar *, int);
 
 /*
  * Check if autoload is enabled. If so, use either NFS or TFTP to download
@@ -445,7 +446,7 @@ void net_auto_load(void);
  * footprint in our tests.
  */
 /* return IP *in network byteorder* */
-static inline IPaddr_t NetReadIP(volatile void *from)
+static inline IPaddr_t NetReadIP(void *from)
 {
 	IPaddr_t ip;
 	memcpy((void*)&ip, (void*)from, sizeof(ip));
@@ -467,7 +468,7 @@ static inline void NetWriteIP(void *to, IPaddr_t ip)
 }
 
 /* copy IP */
-static inline void NetCopyIP(volatile void *to, void *from)
+static inline void NetCopyIP(void *to, void *from)
 {
 	memcpy((void*)to, from, sizeof(IPaddr_t));
 }

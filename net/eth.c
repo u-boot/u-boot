@@ -82,8 +82,6 @@ int cpu_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
 int board_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
 
 #ifdef CONFIG_API
-extern void (*push_packet)(volatile void *, int);
-
 static struct {
 	uchar data[PKTSIZE];
 	int length;
@@ -407,7 +405,7 @@ void eth_halt(void)
 	eth_current->state = ETH_STATE_PASSIVE;
 }
 
-int eth_send(volatile void *packet, int length)
+int eth_send(void *packet, int length)
 {
 	if (!eth_current)
 		return -1;
@@ -424,9 +422,9 @@ int eth_rx(void)
 }
 
 #ifdef CONFIG_API
-static void eth_save_packet(volatile void *packet, int length)
+static void eth_save_packet(void *packet, int length)
 {
-	volatile char *p = packet;
+	char *p = packet;
 	int i;
 
 	if ((eth_rcv_last+1) % PKTBUFSRX == eth_rcv_current)
@@ -442,9 +440,9 @@ static void eth_save_packet(volatile void *packet, int length)
 	eth_rcv_last = (eth_rcv_last + 1) % PKTBUFSRX;
 }
 
-int eth_receive(volatile void *packet, int length)
+int eth_receive(void *packet, int length)
 {
-	volatile char *p = packet;
+	char *p = packet;
 	void *pp = push_packet;
 	int i;
 
