@@ -29,7 +29,6 @@
 #include "tegra2-common.h"
 
 /* High-level configuration options */
-#define TEGRA2_SYSMEM			"mem=384M@0M nvmem=128M@384M"
 #define V_PROMPT			"Tegra2 (Plutux) # "
 #define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Plutux"
 #define CONFIG_SYS_BOARD_ODMDATA	0x2b2d8011

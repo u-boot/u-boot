@@ -33,7 +33,6 @@
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define TEGRA2_SYSMEM		"mem=512M@0M"
 #define V_PROMPT		"Tegra2 (Whistler) # "
 #define CONFIG_TEGRA2_BOARD_STRING	"NVIDIA Whistler"
 

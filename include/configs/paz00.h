@@ -21,7 +21,6 @@
 #include "tegra2-common.h"
 
 /* High-level configuration options */
-#define TEGRA2_SYSMEM		"mem=512M@0M"
 #define V_PROMPT		"Tegra2 (Paz00) MOD # "
 #define CONFIG_TEGRA2_BOARD_STRING	"Compal Paz00"
 

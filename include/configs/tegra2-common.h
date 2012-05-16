@@ -140,9 +140,6 @@
 					"stderr=serial\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=ttyS0,115200n8\0" \
-	"mem=" TEGRA2_SYSMEM "\0" \
-	"smpflag=smp\0" \
 	TEGRA2_DEVICE_SETTINGS
 
 #define CONFIG_LOADADDR		0x408000	/* def. location for kernel */
