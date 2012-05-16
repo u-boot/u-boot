@@ -48,10 +48,10 @@ static void pin_mux_mmc(void)
 	pinmux_tristate_disable(PINGRP_GMA);
 	pinmux_tristate_disable(PINGRP_GME);
 
-	/* SDMMC1: SDIO1_CLK, SDIO1_CMD, SDIO1_DAT[3:0] */
-	pinmux_set_func(PINGRP_SDMMC1, PMUX_FUNC_SDIO1);
+	/* SDIO1: SDIO1_CLK, SDIO1_CMD, SDIO1_DAT[3:0] */
+	pinmux_set_func(PINGRP_SDIO1, PMUX_FUNC_SDIO1);
 
-	pinmux_tristate_disable(PINGRP_SDMMC1);
+	pinmux_tristate_disable(PINGRP_SDIO1);
 
 	/* For power GPIO PV1 */
 	pinmux_tristate_disable(PINGRP_UAC);
