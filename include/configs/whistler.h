@@ -86,4 +86,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 
+#include "tegra2-common-post.h"
+
 #endif /* __CONFIG_H */

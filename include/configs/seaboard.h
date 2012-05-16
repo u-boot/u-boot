@@ -116,4 +116,7 @@
 #define TEGRA2_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"
+
+#include "tegra2-common-post.h"
+
 #endif /* __CONFIG_H */

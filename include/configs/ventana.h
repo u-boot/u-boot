@@ -59,4 +59,7 @@
 
 /* Environment not stored */
 #define CONFIG_ENV_IS_NOWHERE
+
+#include "tegra2-common-post.h"
+
 #endif /* __CONFIG_H */

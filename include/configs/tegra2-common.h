@@ -139,9 +139,6 @@
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	TEGRA2_DEVICE_SETTINGS
-
 #define CONFIG_LOADADDR		0x408000	/* def. location for kernel */
 #define CONFIG_BOOTDELAY	2		/* -1 to disable auto boot */
 
