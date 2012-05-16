@@ -127,6 +127,13 @@ int funcmux_select(enum periph_id id, int config)
 		}
 		break;
 
+	case PERIPH_ID_SDMMC1:
+		if (config == FUNCMUX_SDMMC1_SDIO1_4BIT) {
+			pinmux_set_func(PINGRP_SDIO1, PMUX_FUNC_SDIO1);
+			pinmux_tristate_disable(PINGRP_SDIO1);
+		}
+		break;
+
 	case PERIPH_ID_SDMMC2:
 		if (config == FUNCMUX_SDMMC2_DTA_DTD_8BIT) {
 			pinmux_set_func(PINGRP_DTA, PMUX_FUNC_SDIO2);
