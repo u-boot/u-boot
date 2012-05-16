@@ -108,6 +108,15 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
+/* USB networking support */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+#define CONFIG_USB_ETHER_ASIX
+
+/* General networking support */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+
 /* Enable keyboard */
 #define CONFIG_TEGRA2_KEYBOARD
 #define CONFIG_KEYBOARD
