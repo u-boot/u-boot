@@ -45,6 +45,11 @@ int funcmux_select(enum periph_id id, int config)
 			pinmux_tristate_disable(PINGRP_UAB);
 			bad_config = 0;
 			break;
+		case FUNCMUX_UART1_GPU:
+			pinmux_set_func(PINGRP_GPU, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_GPU);
+			bad_config = 0;
+			break;
 		}
 		if (!bad_config) {
 			/*

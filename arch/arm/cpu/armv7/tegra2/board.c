@@ -102,8 +102,10 @@ int arch_cpu_init(void)
 #endif
 
 static int uart_configs[] = {
-#ifdef CONFIG_TEGRA2_UARTA_UAA_UAB
+#if defined(CONFIG_TEGRA2_UARTA_UAA_UAB)
 	FUNCMUX_UART1_UAA_UAB,
+#elif defined(CONFIG_TEGRA2_UARTA_GPU)
+	FUNCMUX_UART1_GPU,
 #else
 	FUNCMUX_UART1_IRRX_IRTX,
 #endif
