@@ -106,6 +106,8 @@ static int uart_configs[] = {
 	FUNCMUX_UART1_UAA_UAB,
 #elif defined(CONFIG_TEGRA2_UARTA_GPU)
 	FUNCMUX_UART1_GPU,
+#elif defined(CONFIG_TEGRA2_UARTA_SDIO1)
+	FUNCMUX_UART1_SDIO1,
 #else
 	FUNCMUX_UART1_IRRX_IRTX,
 #endif
