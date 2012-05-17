@@ -333,6 +333,7 @@ mmc_berase(int dev_num, unsigned long start, lbaint_t blkcnt)
 	int err = 0;
 	struct mmc *mmc = find_mmc_device(dev_num);
 	lbaint_t blk = 0, blk_r = 0;
+	int timeout = 1000;
 
 	if (!mmc)
 		return -1;
@@ -352,6 +353,10 @@ mmc_berase(int dev_num, unsigned long start, lbaint_t blkcnt)
 			break;
 
 		blk += blk_r;
+
+		/* Waiting for the ready status */
+		if (mmc_send_status(mmc, timeout))
+			return 0;
 	}
 
 	return blk;
