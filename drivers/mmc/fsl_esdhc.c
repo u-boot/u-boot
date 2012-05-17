@@ -543,6 +543,9 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	/* First reset the eSDHC controller */
 	esdhc_reset(regs);
 
+	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_HCKEN
+				| SYSCTL_IPGEN | SYSCTL_CKEN);
+
 	mmc->priv = cfg;
 	mmc->send_cmd = esdhc_send_cmd;
 	mmc->set_ios = esdhc_set_ios;
