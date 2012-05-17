@@ -1161,6 +1161,9 @@ void sdram_init(void)
 	/* Do some testing after the init */
 	if (!in_sdram) {
 		size_prog = omap_sdram_size();
+		size_prog = log_2_n_round_down(size_prog);
+		size_prog = (1 << size_prog);
+
 		size_detect = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 						size_prog);
 		/* Compare with the size programmed */
