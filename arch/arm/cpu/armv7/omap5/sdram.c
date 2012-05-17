@@ -88,9 +88,9 @@ const struct emif_regs emif_regs_266_mhz_2cs = {
 
 const struct dmm_lisa_map_regs lisa_map_4G_x_2_x_2 = {
 	.dmm_lisa_map_0 = 0x0,
-	.dmm_lisa_map_1 = 0,
-	.dmm_lisa_map_2 = 0,
-	.dmm_lisa_map_3 = 0x80740300
+	.dmm_lisa_map_1 = 0x0,
+	.dmm_lisa_map_2 = 0x80740300,
+	.dmm_lisa_map_3 = 0xFF020100
 };
 
 const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
