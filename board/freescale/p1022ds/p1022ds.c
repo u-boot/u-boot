@@ -39,6 +39,10 @@ int board_early_init_f(void)
 
 	/* Set pmuxcr to allow both i2c1 and i2c2 */
 	setbits_be32(&gur->pmuxcr, 0x1000);
+#ifdef CONFIG_SYS_RAMBOOT
+	setbits_be32(&gur->pmuxcr,
+		in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_DATA);
+#endif
 
 	/* Read back the register to synchronize the write. */
 	in_be32(&gur->pmuxcr);
