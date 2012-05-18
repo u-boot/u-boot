@@ -31,12 +31,18 @@
 /*
  * DSS Base Registers
  */
-#define OMAP3_DSS_BASE		0x48050040
-#define OMAP3_DISPC_BASE	0x48050440
+#define OMAP3_DSS_BASE		0x48050000
+#define OMAP3_DISPC_BASE	0x48050400
 #define OMAP3_VENC_BASE		0x48050C00
 
 /* DSS Registers */
 struct dss_regs {
+	u32 revision;				/* 0x00 */
+	u8 res1[12];				/* 0x04 */
+	u32 sysconfig;				/* 0x10 */
+	u32 sysstatus;				/* 0x14 */
+	u32 irqstatus;				/* 0x18 */
+	u8 res2[36];				/* 0x1C */
 	u32 control;				/* 0x40 */
 	u32 sdi_control;			/* 0x44 */
 	u32 pll_control;			/* 0x48 */
@@ -44,6 +50,13 @@ struct dss_regs {
 
 /* DISPC Registers */
 struct dispc_regs {
+	u32 revision;				/* 0x00 */
+	u8 res1[12];				/* 0x04 */
+	u32 sysconfig;				/* 0x10 */
+	u32 sysstatus;				/* 0x14 */
+	u32 irqstatus;				/* 0x18 */
+	u32 irqenable;				/* 0x1C */
+	u8 res2[32];				/* 0x20 */
 	u32 control;				/* 0x40 */
 	u32 config;				/* 0x44 */
 	u32 reserve_2;				/* 0x48 */
@@ -60,6 +73,18 @@ struct dispc_regs {
 	u32 global_alpha;			/* 0x74 */
 	u32 size_dig;				/* 0x78 */
 	u32 size_lcd;				/* 0x7C */
+	u32 gfx_ba0;				/* 0x80 */
+	u32 gfx_ba1;				/* 0x84 */
+	u32 gfx_position;			/* 0x88 */
+	u32 gfx_size;				/* 0x8C */
+	u8 unused[16];				/* 0x90 */
+	u32 gfx_attributes;			/* 0xA0 */
+	u32 gfx_fifo_threshold;			/* 0xA4 */
+	u32 gfx_fifo_size_status;		/* 0xA8 */
+	u32 gfx_row_inc;			/* 0xAC */
+	u32 gfx_pixel_inc;			/* 0xB0 */
+	u32 gfx_window_skip;			/* 0xB4 */
+	u32 gfx_table_ba;			/* 0xB8 */
 };
 
 /* VENC Registers */
@@ -123,6 +148,13 @@ struct venc_regs {
 #define TFTSTN_SHIFT				3
 #define DATALINES_SHIFT				8
 
+#define GFX_ENABLE				1
+#define GFX_FORMAT_SHIFT			1
+#define LOADMODE_SHIFT				1
+
+#define DSS_SOFTRESET				(1 << 1)
+#define DSS_RESETDONE				1
+
 /* Enabling Display controller */
 #define LCD_ENABLE				1
 #define DIG_ENABLE				(1 << 1)
@@ -161,6 +193,7 @@ struct panel_config {
 	u32 data_lines;
 	u32 load_mode;
 	u32 panel_color;
+	void *frame_buffer;
 };
 
 /*
