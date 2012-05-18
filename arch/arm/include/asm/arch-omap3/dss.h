@@ -28,9 +28,7 @@
 #ifndef DSS_H
 #define DSS_H
 
-/*
- * DSS Base Registers
- */
+/* DSS Base Registers */
 #define OMAP3_DSS_BASE		0x48050000
 #define OMAP3_DISPC_BASE	0x48050400
 #define OMAP3_VENC_BASE		0x48050C00
@@ -163,26 +161,14 @@ struct venc_regs {
 #define GP_OUT0					(1 << 15)
 #define GP_OUT1					(1 << 16)
 
-#define DISPC_ENABLE				(LCD_ENABLE | \
-						 DIG_ENABLE | \
-						 GO_LCD | \
-						 GO_DIG | \
-						 GP_OUT0| \
-						 GP_OUT1)
-
 /* Configure VENC DSS Params */
 #define VENC_CLK_ENABLE				(1 << 3)
 #define DAC_DEMEN				(1 << 4)
 #define DAC_POWERDN				(1 << 5)
 #define VENC_OUT_SEL				(1 << 6)
 #define DIG_LPP_SHIFT				16
-#define VENC_DSS_CONFIG				(VENC_CLK_ENABLE | \
-						 DAC_DEMEN | \
-						 DAC_POWERDN | \
-						 VENC_OUT_SEL)
-/*
- * Panel Configuration
- */
+
+/* Panel Configuration */
 struct panel_config {
 	u32 timing_h;
 	u32 timing_v;
@@ -196,9 +182,7 @@ struct panel_config {
 	void *frame_buffer;
 };
 
-/*
- * Generic DSS Functions
- */
+/* Generic DSS Functions */
 void omap3_dss_venc_config(const struct venc_regs *venc_cfg,
 			u32 height, u32 width);
 void omap3_dss_panel_config(const struct panel_config *panel_cfg);
