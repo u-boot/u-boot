@@ -36,7 +36,7 @@ typedef struct block_dev_desc {
 #ifdef CONFIG_LBA48
 	unsigned char	lba48;		/* device can use 48bit addr (ATA/ATAPI v7) */
 #endif
-	lbaint_t		lba;		/* number of blocks */
+	lbaint_t	lba;		/* number of blocks */
 	unsigned long	blksz;		/* block size */
 	char		vendor [40+1];	/* IDE model, SCSI Vendor */
 	char		product[20+1];	/* IDE Serial no, SCSI product */
