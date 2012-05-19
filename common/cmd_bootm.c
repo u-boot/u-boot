@@ -1587,7 +1587,6 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 
 static int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong		iflag;
 	bootm_headers_t	images;
 
 	if (bootz_start(cmdtp, flag, argc, argv, &images))
@@ -1598,7 +1597,7 @@ static int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * overwrite all exception vector code, so we cannot easily
 	 * recover from any failures any more...
 	 */
-	iflag = disable_interrupts();
+	disable_interrupts();
 
 #if defined(CONFIG_CMD_USB)
 	/*
