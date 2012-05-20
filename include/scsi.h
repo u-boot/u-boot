@@ -26,7 +26,9 @@
 
 typedef struct SCSI_cmd_block{
 	unsigned char		cmd[16];					/* command				   */
-	unsigned char		sense_buf[64];		/* for request sense */
+	/* for request sense */
+	unsigned char		sense_buf[64]
+		__attribute__((aligned(ARCH_DMA_MINALIGN)));
 	unsigned char		status;						/* SCSI Status			 */
 	unsigned char		target;						/* Target ID				 */
 	unsigned char		lun;							/* Target LUN        */

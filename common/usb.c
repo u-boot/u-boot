@@ -47,6 +47,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <linux/compiler.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -169,7 +170,7 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 			unsigned short value, unsigned short index,
 			void *data, unsigned short size, int timeout)
 {
-	struct devrequest setup_packet;
+	ALLOC_CACHE_ALIGN_BUFFER(struct devrequest, setup_packet, 1);
 
 	if ((timeout == 0) && (!asynch_allowed)) {
 		/* request for a asynch control pipe is not allowed */
@@ -177,17 +178,17 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 	}
 
 	/* set setup command */
-	setup_packet.requesttype = requesttype;
-	setup_packet.request = request;
-	setup_packet.value = cpu_to_le16(value);
-	setup_packet.index = cpu_to_le16(index);
-	setup_packet.length = cpu_to_le16(size);
+	setup_packet->requesttype = requesttype;
+	setup_packet->request = request;
+	setup_packet->value = cpu_to_le16(value);
+	setup_packet->index = cpu_to_le16(index);
+	setup_packet->length = cpu_to_le16(size);
 	USB_PRINTF("usb_control_msg: request: 0x%X, requesttype: 0x%X, " \
 		   "value 0x%X index 0x%X length 0x%X\n",
 		   request, requesttype, value, index, size);
 	dev->status = USB_ST_NOT_PROC; /*not yet processed */
 
-	submit_control_msg(dev, pipe, data, size, &setup_packet);
+	submit_control_msg(dev, pipe, data, size, setup_packet);
 	if (timeout == 0)
 		return (int)size;
 
@@ -261,7 +262,7 @@ int usb_maxpacket(struct usb_device *dev, unsigned long pipe)
  *
  * NOTE: Similar behaviour was observed with GCC4.6 on ARMv5.
  */
-static void  __attribute__((noinline))
+static void noinline
 usb_set_maxpacket_ep(struct usb_device *dev, int if_idx, int ep_idx)
 {
 	int b;
@@ -681,7 +682,7 @@ static int usb_string_sub(struct usb_device *dev, unsigned int langid,
  */
 int usb_string(struct usb_device *dev, int index, char *buf, size_t size)
 {
-	unsigned char mybuf[USB_BUFSIZ];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, mybuf, USB_BUFSIZ);
 	unsigned char *tbuf;
 	int err;
 	unsigned int u, idx;
@@ -781,7 +782,7 @@ int usb_new_device(struct usb_device *dev)
 {
 	int addr, err;
 	int tmp;
-	unsigned char tmpbuf[USB_BUFSIZ];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
 
 	/* We still haven't set the Address yet */
 	addr = dev->devnum;
@@ -908,8 +909,8 @@ int usb_new_device(struct usb_device *dev)
 	le16_to_cpus(&dev->descriptor.idProduct);
 	le16_to_cpus(&dev->descriptor.bcdDevice);
 	/* only support for one config for now */
-	usb_get_configuration_no(dev, &tmpbuf[0], 0);
-	usb_parse_config(dev, &tmpbuf[0], 0);
+	usb_get_configuration_no(dev, tmpbuf, 0);
+	usb_parse_config(dev, tmpbuf, 0);
 	usb_set_maxpacket(dev);
 	/* we set the default configuration here */
 	if (usb_set_configuration(dev, dev->config.desc.bConfigurationValue)) {
