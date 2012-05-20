@@ -406,7 +406,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 	 */
 	mmc->f_min = 400000;
 	mmc->f_max = mxc_get_clock(MXC_SSP0_CLK + id) * 1000 / 2;
-	mmc->b_max = 0x40;
+	mmc->b_max = 0x20;
 
 	mmc_register(mmc);
 	return 0;

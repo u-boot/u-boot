@@ -307,18 +307,55 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 #else
 	esdhc_write32(&regs->xfertyp, xfertyp);
 #endif
+
+	/* Mask all irqs */
+	esdhc_write32(&regs->irqsigen, 0);
+
 	/* Wait for the command to complete */
-	while (!(esdhc_read32(&regs->irqstat) & IRQSTAT_CC))
+	while (!(esdhc_read32(&regs->irqstat) & (IRQSTAT_CC | IRQSTAT_CTOE)))
 		;
 
 	irqstat = esdhc_read32(&regs->irqstat);
 	esdhc_write32(&regs->irqstat, irqstat);
+
+	/* Reset CMD and DATA portions on error */
+	if (irqstat & (CMD_ERR | IRQSTAT_CTOE)) {
+		esdhc_write32(&regs->sysctl, esdhc_read32(&regs->sysctl) |
+			      SYSCTL_RSTC);
+		while (esdhc_read32(&regs->sysctl) & SYSCTL_RSTC)
+			;
+
+		if (data) {
+			esdhc_write32(&regs->sysctl,
+				      esdhc_read32(&regs->sysctl) |
+				      SYSCTL_RSTD);
+			while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTD))
+				;
+		}
+	}
 
 	if (irqstat & CMD_ERR)
 		return COMM_ERR;
 
 	if (irqstat & IRQSTAT_CTOE)
 		return TIMEOUT;
+
+	/* Workaround for ESDHC errata ENGcm03648 */
+	if (!data && (cmd->resp_type & MMC_RSP_BUSY)) {
+		int timeout = 2500;
+
+		/* Poll on DATA0 line for cmd with busy signal for 250 ms */
+		while (timeout > 0 && !(esdhc_read32(&regs->prsstat) &
+					PRSSTAT_DAT0)) {
+			udelay(100);
+			timeout--;
+		}
+
+		if (timeout <= 0) {
+			printf("Timeout waiting for DAT0 to go high!\n");
+			return TIMEOUT;
+		}
+	}
 
 	/* Copy the response to the response buffer */
 	if (cmd->resp_type & MMC_RSP_136) {

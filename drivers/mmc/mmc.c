@@ -1199,7 +1199,9 @@ int mmc_startup(struct mmc *mmc)
 		else
 			mmc_set_clock(mmc, 25000000);
 	} else {
-		for (width = EXT_CSD_BUS_WIDTH_8; width >= 0; width--) {
+		width = ((mmc->host_caps & MMC_MODE_MASK_WIDTH_BITS) >>
+			 MMC_MODE_WIDTH_BITS_SHIFT);
+		for (; width >= 0; width--) {
 			/* Set the card to use 4 bit*/
 			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 					EXT_CSD_BUS_WIDTH, width);

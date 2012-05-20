@@ -33,6 +33,10 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 
+/* common definitions for all OMAPs */
+#define SYSCTL_SRC	(1 << 25)
+#define SYSCTL_SRD	(1 << 26)
+
 /* If we fail after 1 second wait, something is really bad */
 #define MAX_RETRY_MS	1000
 
@@ -62,15 +66,21 @@ static void omap4_vmmc_pbias_config(struct mmc *mmc)
 
 unsigned char mmc_board_init(struct mmc *mmc)
 {
-#if defined(CONFIG_TWL4030_POWER)
-	twl4030_power_mmc_init();
-#endif
-
 #if defined(CONFIG_OMAP34XX)
 	t2_t *t2_base = (t2_t *)T2_BASE;
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	u32 pbias_lite;
 
-	writel(readl(&t2_base->pbias_lite) | PBIASLITEPWRDNZ1 |
+	pbias_lite = readl(&t2_base->pbias_lite);
+	pbias_lite &= ~(PBIASLITEPWRDNZ1 | PBIASLITEPWRDNZ0);
+	writel(pbias_lite, &t2_base->pbias_lite);
+#endif
+#if defined(CONFIG_TWL4030_POWER)
+	twl4030_power_mmc_init();
+	mdelay(100);	/* ramp-up delay from Linux code */
+#endif
+#if defined(CONFIG_OMAP34XX)
+	writel(pbias_lite | PBIASLITEPWRDNZ1 |
 		PBIASSPEEDCTRL0 | PBIASLITEPWRDNZ0,
 		&t2_base->pbias_lite);
 
@@ -189,6 +199,27 @@ static int mmc_init_setup(struct mmc *mmc)
 	return 0;
 }
 
+/*
+ * MMC controller internal finite state machine reset
+ *
+ * Used to reset command or data internal state machines, using respectively
+ * SRC or SRD bit of SYSCTL register
+ */
+static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
+{
+	ulong start;
+
+	mmc_reg_out(&mmc_base->sysctl, bit, bit);
+
+	start = get_timer(0);
+	while ((readl(&mmc_base->sysctl) & bit) != 0) {
+		if (get_timer(0) - start > MAX_RETRY_MS) {
+			printf("%s: timedout waiting for sysctl %x to clear\n",
+				__func__, bit);
+			return;
+		}
+	}
+}
 
 static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
@@ -209,7 +240,8 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	start = get_timer(0);
 	while (readl(&mmc_base->stat)) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
-			printf("%s: timedout waiting for stat!\n", __func__);
+			printf("%s: timedout waiting for STAT (%x) to clear\n",
+				__func__, readl(&mmc_base->stat));
 			return TIMEOUT;
 		}
 	}
@@ -277,9 +309,10 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	} while (!mmc_stat);
 
-	if ((mmc_stat & IE_CTO) != 0)
+	if ((mmc_stat & IE_CTO) != 0) {
+		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
 		return TIMEOUT;
-	else if ((mmc_stat & ERRI_MASK) != 0)
+	} else if ((mmc_stat & ERRI_MASK) != 0)
 		return -1;
 
 	if (mmc_stat & CC_MASK) {
@@ -329,6 +362,9 @@ static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size)
 				return TIMEOUT;
 			}
 		} while (mmc_stat == 0);
+
+		if ((mmc_stat & (IE_DTO | IE_DCRC | IE_DEB)) != 0)
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
 
 		if ((mmc_stat & ERRI_MASK) != 0)
 			return 1;
@@ -381,6 +417,9 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 				return TIMEOUT;
 			}
 		} while (mmc_stat == 0);
+
+		if ((mmc_stat & (IE_DTO | IE_DCRC | IE_DEB)) != 0)
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
 
 		if ((mmc_stat & ERRI_MASK) != 0)
 			return 1;
