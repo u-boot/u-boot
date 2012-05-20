@@ -394,7 +394,6 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 			int read)
 {
 	int ret = 0;
-	size_t rwsize;
 
 	while (count--) {
 		/* Raw access */
@@ -406,7 +405,6 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 			.mode = MTD_OOB_RAW
 		};
 
-		rwsize = nand->writesize + nand->oobsize;
 		if (read)
 			ret = nand->read_oob(nand, off, &ops);
 		else
