@@ -707,7 +707,7 @@ static void rfifo_print(char *devname, mpc5xxx_fec_priv *fec)
 
 /********************************************************************/
 
-static int mpc5xxx_fec_send(struct eth_device *dev, volatile void *eth_data,
+static int mpc5xxx_fec_send(struct eth_device *dev, void *eth_data,
 		int data_length)
 {
 	/*
