@@ -819,6 +819,10 @@ int	pcmcia_init (void);
 
 #include <bootstage.h>
 
+#ifdef CONFIG_SHOW_ACTIVITY
+void show_activity(int arg);
+#endif
+
 /* Multicore arch functions */
 #ifdef CONFIG_MP
 int cpu_status(int nr);

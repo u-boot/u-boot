@@ -179,14 +179,6 @@ int flash_init_r(void)
 }
 #endif
 
-int init_ip_address_r(void)
-{
-	/* IP Address */
-	bd_data.bi_ip_addr = getenv_IPaddr("ipaddr");
-
-	return 0;
-}
-
 #ifdef CONFIG_STATUS_LED
 int status_led_set_r(void)
 {
@@ -195,18 +187,6 @@ int status_led_set_r(void)
 	return 0;
 }
 #endif
-
-int set_bootfile_r(void)
-{
-	char *s;
-
-	s = getenv("bootfile");
-
-	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
-
-	return 0;
-}
 
 int set_load_addr_r(void)
 {

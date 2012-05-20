@@ -320,9 +320,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* relocate environment function pointers etc. */
 	env_relocate();
 
-	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 #if defined(CONFIG_PCI)
 	/*
 	 * Do pci configuration
@@ -342,14 +339,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
-#if defined(CONFIG_CMD_NET)
-	{
-		char *s = getenv("bootfile");
-
-		if (s != NULL)
-			copy_filename(BootFile, s, sizeof(BootFile));
-	}
-#endif
 
 #ifdef CONFIG_CMD_SPI
 	puts("SPI:   ");

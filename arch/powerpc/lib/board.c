@@ -877,9 +877,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 #endif /* CONFIG_CMD_NET */
 
-	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 	WATCHDOG_RESET();
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
@@ -935,14 +932,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
-#if defined(CONFIG_CMD_NET)
-	{
-		char *s = getenv("bootfile");
-
-		if (s != NULL)
-			copy_filename(BootFile, s, sizeof(BootFile));
-	}
-#endif
 
 	WATCHDOG_RESET();
 

@@ -80,14 +80,14 @@ struct eth_device {
 	int iobase;
 	int state;
 
-	int  (*init) (struct eth_device*, bd_t*);
-	int  (*send) (struct eth_device*, volatile void* packet, int length);
-	int  (*recv) (struct eth_device*);
-	void (*halt) (struct eth_device*);
+	int  (*init) (struct eth_device *, bd_t *);
+	int  (*send) (struct eth_device *, void *packet, int length);
+	int  (*recv) (struct eth_device *);
+	void (*halt) (struct eth_device *);
 #ifdef CONFIG_MCAST_TFTP
-	int (*mcast) (struct eth_device*, u32 ip, u8 set);
+	int (*mcast) (struct eth_device *, u32 ip, u8 set);
 #endif
-	int  (*write_hwaddr) (struct eth_device*);
+	int  (*write_hwaddr) (struct eth_device *);
 	struct eth_device *next;
 	int index;
 	void *priv;
@@ -101,7 +101,7 @@ extern void eth_set_current(void);		/* set nterface to ethcur var */
 extern struct eth_device *eth_get_dev(void);	/* get the current device MAC */
 extern struct eth_device *eth_get_dev_by_name(const char *devname);
 extern struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
-extern int eth_get_dev_index (void);		/* get the device index */
+extern int eth_get_dev_index(void);		/* get the device index */
 extern void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
 extern int eth_getenv_enetaddr(char *name, uchar *enetaddr);
 extern int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
@@ -120,10 +120,11 @@ extern int eth_getenv_enetaddr_by_index(const char *base_name, int index,
 
 extern int usb_eth_initialize(bd_t *bi);
 extern int eth_init(bd_t *bis);			/* Initialize the device */
-extern int eth_send(volatile void *packet, int length);	   /* Send a packet */
+extern int eth_send(void *packet, int length);	   /* Send a packet */
 
 #ifdef CONFIG_API
-extern int eth_receive(volatile void *packet, int length); /* Receive a packet*/
+extern int eth_receive(void *packet, int length); /* Receive a packet*/
+extern void (*push_packet)(void *packet, int length);
 #endif
 extern int eth_rx(void);			/* Check for received packets */
 extern void eth_halt(void);			/* stop SCC */
@@ -142,8 +143,8 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		     int eth_number);
 
 #ifdef CONFIG_MCAST_TFTP
-int eth_mcast_join( IPaddr_t mcast_addr, u8 join);
-u32 ether_crc (size_t len, unsigned char const *p);
+int eth_mcast_join(IPaddr_t mcast_addr, u8 join);
+u32 ether_crc(size_t len, unsigned char const *p);
 #endif
 
 
@@ -218,8 +219,8 @@ typedef struct {
 #define IP_FLAGS_DFRAG	0x4000 /* don't fragments */
 #define IP_FLAGS_MFRAG	0x2000 /* more fragments */
 
-#define IP_HDR_SIZE_NO_UDP	(sizeof (IP_t) - 8)
-#define IP_HDR_SIZE		(sizeof (IP_t))
+#define IP_HDR_SIZE_NO_UDP	(sizeof(IP_t) - 8)
+#define IP_HDR_SIZE		(sizeof(IP_t))
 
 
 /*
@@ -326,46 +327,46 @@ typedef struct icmphdr {
 
 /* net.c */
 /** BOOTP EXTENTIONS **/
-extern IPaddr_t		NetOurGatewayIP;	/* Our gateway IP addresse	*/
-extern IPaddr_t		NetOurSubnetMask;	/* Our subnet mask (0 = unknown)*/
-extern IPaddr_t		NetOurDNSIP;	 /* Our Domain Name Server (0 = unknown)*/
+extern IPaddr_t NetOurGatewayIP;	/* Our gateway IP address */
+extern IPaddr_t NetOurSubnetMask;	/* Our subnet mask (0 = unknown) */
+extern IPaddr_t NetOurDNSIP;	/* Our Domain Name Server (0 = unknown) */
 #if defined(CONFIG_BOOTP_DNS2)
-extern IPaddr_t		NetOurDNS2IP;	 /* Our 2nd Domain Name Server (0 = unknown)*/
+extern IPaddr_t NetOurDNS2IP;	/* Our 2nd Domain Name Server (0 = unknown) */
 #endif
-extern char		NetOurNISDomain[32];	/* Our NIS domain		*/
-extern char		NetOurHostName[32];	/* Our hostname			*/
-extern char		NetOurRootPath[64];	/* Our root path		*/
-extern ushort		NetBootFileSize;	/* Our boot file size in blocks	*/
+extern char	NetOurNISDomain[32];	/* Our NIS domain */
+extern char	NetOurHostName[32];	/* Our hostname */
+extern char	NetOurRootPath[64];	/* Our root path */
+extern ushort	NetBootFileSize;	/* Our boot file size in blocks */
 /** END OF BOOTP EXTENTIONS **/
-extern ulong		NetBootFileXferSize;	/* size of bootfile in bytes	*/
-extern uchar		NetOurEther[6];		/* Our ethernet address		*/
-extern uchar		NetServerEther[6];	/* Boot server enet address	*/
-extern IPaddr_t		NetOurIP;		/* Our    IP addr (0 = unknown)	*/
-extern IPaddr_t		NetServerIP;		/* Server IP addr (0 = unknown)	*/
-extern volatile uchar * NetTxPacket;		/* THE transmit packet		*/
-extern volatile uchar * NetRxPackets[PKTBUFSRX];/* Receive packets		*/
-extern volatile uchar * NetRxPacket;		/* Current receive packet	*/
-extern int		NetRxPacketLen;		/* Current rx packet length	*/
-extern unsigned		NetIPID;		/* IP ID (counting)		*/
-extern uchar		NetBcastAddr[6];	/* Ethernet boardcast address	*/
+extern ulong		NetBootFileXferSize;	/* size of bootfile in bytes */
+extern uchar		NetOurEther[6];		/* Our ethernet address */
+extern uchar		NetServerEther[6];	/* Boot server enet address */
+extern IPaddr_t		NetOurIP;	/* Our    IP addr (0 = unknown) */
+extern IPaddr_t		NetServerIP;	/* Server IP addr (0 = unknown) */
+extern uchar		*NetTxPacket;		/* THE transmit packet */
+extern uchar		*NetRxPackets[PKTBUFSRX]; /* Receive packets */
+extern uchar		*NetRxPacket;		/* Current receive packet */
+extern int		NetRxPacketLen;		/* Current rx packet length */
+extern unsigned		NetIPID;		/* IP ID (counting) */
+extern uchar		NetBcastAddr[6];	/* Ethernet boardcast address */
 extern uchar		NetEtherNullAddr[6];
 
-#define VLAN_NONE	4095			/* untagged			*/
-#define VLAN_IDMASK	0x0fff			/* mask of valid vlan id	*/
-extern ushort		NetOurVLAN;		/* Our VLAN			*/
-extern ushort		NetOurNativeVLAN;	/* Our Native VLAN		*/
+#define VLAN_NONE	4095			/* untagged */
+#define VLAN_IDMASK	0x0fff			/* mask of valid vlan id */
+extern ushort		NetOurVLAN;		/* Our VLAN */
+extern ushort		NetOurNativeVLAN;	/* Our Native VLAN */
 
-extern uchar		NetCDPAddr[6];		/* Ethernet CDP address		*/
-extern ushort		CDPNativeVLAN;		/* CDP returned native VLAN	*/
-extern ushort		CDPApplianceVLAN;	/* CDP returned appliance VLAN	*/
+extern uchar	NetCDPAddr[6];		/* Ethernet CDP address */
+extern ushort	CDPNativeVLAN;		/* CDP returned native VLAN */
+extern ushort	CDPApplianceVLAN;	/* CDP returned appliance VLAN */
 
-extern int		NetState;		/* Network loop state		*/
+extern int		NetState;		/* Network loop state */
 #define NETLOOP_CONTINUE	1
 #define NETLOOP_RESTART		2
 #define NETLOOP_SUCCESS		3
 #define NETLOOP_FAIL		4
 
-extern int		NetRestartWrap;		/* Tried all network devices	*/
+extern int		NetRestartWrap;		/* Tried all network devices */
 
 enum proto_t {
 	BOOTP, RARP, ARP, TFTPGET, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP,
@@ -373,7 +374,7 @@ enum proto_t {
 };
 
 /* from net/net.c */
-extern char	BootFile[128];			/* Boot File name		*/
+extern char	BootFile[128];			/* Boot File name */
 
 #if defined(CONFIG_CMD_DNS)
 extern char *NetDNSResolve;		/* The host to resolve  */
@@ -381,7 +382,7 @@ extern char *NetDNSenvvar;		/* the env var to put the ip into */
 #endif
 
 #if defined(CONFIG_CMD_PING)
-extern IPaddr_t	NetPingIP;			/* the ip address to ping		*/
+extern IPaddr_t	NetPingIP;			/* the ip address to ping */
 #endif
 
 #if defined(CONFIG_CMD_CDP)
@@ -391,8 +392,12 @@ extern ushort CDPApplianceVLAN;
 #endif
 
 #if defined(CONFIG_CMD_SNTP)
-extern IPaddr_t	NetNtpServerIP;			/* the ip address to NTP	*/
-extern int NetTimeOffset;			/* offset time from UTC		*/
+extern IPaddr_t	NetNtpServerIP;			/* the ip address to NTP */
+extern int NetTimeOffset;			/* offset time from UTC */
+#endif
+
+#if defined(CONFIG_MCAST_TFTP)
+extern IPaddr_t Mcast_addr;
 #endif
 
 /* Initialize the network adapter */
@@ -408,28 +413,34 @@ extern void	NetStartAgain(void);
 extern int	NetEthHdrSize(void);
 
 /* Set ethernet header; returns the size of the header */
-extern int	NetSetEther(volatile uchar *, uchar *, uint);
+extern int NetSetEther(uchar *, uchar *, uint);
 
 /* Set IP header */
-extern void	NetSetIP(volatile uchar *, IPaddr_t, int, int, int);
+extern void NetSetIP(uchar *, IPaddr_t, int, int, int);
 
 /* Checksum */
-extern int	NetCksumOk(uchar *, int);	/* Return true if cksum OK	*/
-extern uint	NetCksum(uchar *, int);		/* Calculate the checksum	*/
+extern int	NetCksumOk(uchar *, int);	/* Return true if cksum OK */
+extern uint	NetCksum(uchar *, int);		/* Calculate the checksum */
 
 /* Set callbacks */
-extern void	NetSetHandler(rxhand_f *);	/* Set RX packet handler	*/
+extern void	NetSetHandler(rxhand_f *);	/* Set RX packet handler */
 extern void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
-extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler		*/
+extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */
 
 /* Transmit "NetTxPacket" */
-extern void	NetSendPacket(volatile uchar *, int);
+extern void NetSendPacket(uchar *, int);
 
 /* Transmit UDP packet, performing ARP request if needed */
-extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len);
+extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
+			int sport, int len);
 
 /* Processes a received packet */
-extern void	NetReceive(volatile uchar *, int);
+extern void NetReceive(uchar *, int);
+
+#ifdef CONFIG_NETCONSOLE
+void NcStart(void);
+int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len);
+#endif
 
 /*
  * Check if autoload is enabled. If so, use either NFS or TFTP to download
@@ -445,10 +456,11 @@ void net_auto_load(void);
  * footprint in our tests.
  */
 /* return IP *in network byteorder* */
-static inline IPaddr_t NetReadIP(volatile void *from)
+static inline IPaddr_t NetReadIP(void *from)
 {
 	IPaddr_t ip;
-	memcpy((void*)&ip, (void*)from, sizeof(ip));
+
+	memcpy((void *)&ip, (void *)from, sizeof(ip));
 	return ip;
 }
 
@@ -456,26 +468,27 @@ static inline IPaddr_t NetReadIP(volatile void *from)
 static inline ulong NetReadLong(ulong *from)
 {
 	ulong l;
-	memcpy((void*)&l, (void*)from, sizeof(l));
+
+	memcpy((void *)&l, (void *)from, sizeof(l));
 	return l;
 }
 
 /* write IP *in network byteorder* */
 static inline void NetWriteIP(void *to, IPaddr_t ip)
 {
-	memcpy(to, (void*)&ip, sizeof(ip));
+	memcpy(to, (void *)&ip, sizeof(ip));
 }
 
 /* copy IP */
-static inline void NetCopyIP(volatile void *to, void *from)
+static inline void NetCopyIP(void *to, void *from)
 {
-	memcpy((void*)to, from, sizeof(IPaddr_t));
+	memcpy((void *)to, from, sizeof(IPaddr_t));
 }
 
 /* copy ulong */
 static inline void NetCopyLong(ulong *to, ulong *from)
 {
-	memcpy((void*)to, (void*)from, sizeof(ulong));
+	memcpy((void *)to, (void *)from, sizeof(ulong));
 }
 
 /**
@@ -498,7 +511,7 @@ static inline int is_zero_ether_addr(const u8 *addr)
  */
 static inline int is_multicast_ether_addr(const u8 *addr)
 {
-	return (0x01 & addr[0]);
+	return 0x01 & addr[0];
 }
 
 /*
@@ -509,7 +522,8 @@ static inline int is_multicast_ether_addr(const u8 *addr)
  */
 static inline int is_broadcast_ether_addr(const u8 *addr)
 {
-	return (addr[0] & addr[1] & addr[2] & addr[3] & addr[4] & addr[5]) == 0xff;
+	return (addr[0] & addr[1] & addr[2] & addr[3] & addr[4] & addr[5]) ==
+		0xff;
 }
 
 /*
@@ -529,13 +543,13 @@ static inline int is_valid_ether_addr(const u8 *addr)
 }
 
 /* Convert an IP address to a string */
-extern void	ip_to_string (IPaddr_t x, char *s);
+extern void ip_to_string(IPaddr_t x, char *s);
 
 /* Convert a string to ip address */
 extern IPaddr_t string_to_ip(const char *s);
 
 /* Convert a VLAN id to a string */
-extern void	VLAN_to_string (ushort x, char *s);
+extern void VLAN_to_string(ushort x, char *s);
 
 /* Convert a string to a vlan id */
 extern ushort string_to_VLAN(const char *s);
@@ -544,7 +558,7 @@ extern ushort string_to_VLAN(const char *s);
 extern ushort getenv_VLAN(char *);
 
 /* copy a filename (allow for "..." notation, limit length) */
-extern void	copy_filename (char *dst, const char *src, int size);
+extern void copy_filename(char *dst, const char *src, int size);
 
 /* get a random source port */
 extern unsigned int random_port(void);

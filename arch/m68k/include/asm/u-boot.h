@@ -47,7 +47,6 @@ typedef struct bd_info {
 	unsigned long bi_mbar_base;	/* base of internal registers */
 	unsigned long bi_bootflags;	/* boot / reboot flag (for LynxOS) */
 	unsigned long bi_boot_params;	/* where this board expects params */
-	unsigned long bi_ip_addr;	/* IP Address */
 	unsigned short bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long bi_busfreq;	/* Bus Freq, in MHz */

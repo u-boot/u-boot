@@ -77,6 +77,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <linux/compiler.h>
 #include <net.h>
 #include "bootp.h"
 #include "tftp.h"
@@ -152,7 +153,7 @@ IPaddr_t	NetOurIP;
 /* Server IP addr (0 = unknown) */
 IPaddr_t	NetServerIP;
 /* Current receive packet */
-volatile uchar *NetRxPacket;
+uchar *NetRxPacket;
 /* Current rx packet length */
 int		NetRxPacketLen;
 /* IP packet ID */
@@ -161,7 +162,7 @@ unsigned	NetIPID;
 uchar		NetBcastAddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 uchar		NetEtherNullAddr[6];
 #ifdef CONFIG_API
-void		(*push_packet)(volatile void *, int len) = 0;
+void		(*push_packet)(void *, int len) = 0;
 #endif
 #if defined(CONFIG_CMD_CDP)
 /* Ethernet bcast address */
@@ -203,15 +204,10 @@ IPaddr_t	NetNtpServerIP;
 int		NetTimeOffset;
 #endif
 
-#ifdef CONFIG_NETCONSOLE
-void NcStart(void);
-int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len);
-#endif
-
-volatile uchar	PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
+uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
 
 /* Receive packet */
-volatile uchar *NetRxPackets[PKTBUFSRX];
+uchar *NetRxPackets[PKTBUFSRX];
 
 /* Current RX packet handler */
 static rxhand_f *packetHandler;
@@ -225,7 +221,7 @@ static ulong	timeStart;
 /* Current timeout value */
 static ulong	timeDelta;
 /* THE transmit packet */
-volatile uchar *NetTxPacket;
+uchar *NetTxPacket;
 
 static int net_check_prereq(enum proto_t protocol);
 
@@ -246,7 +242,7 @@ int		NetArpWaitTry;
 
 void ArpRequest(void)
 {
-	volatile uchar *pkt;
+	uchar *pkt;
 	ARP_t *arp;
 
 	debug("ARP broadcast %d\n", NetArpWaitTry);
@@ -342,13 +338,11 @@ void net_auto_load(void)
 static void NetInitLoop(enum proto_t protocol)
 {
 	static int env_changed_id;
-	bd_t *bd = gd->bd;
 	int env_id = get_env_id();
 
 	/* update only when the environment has changed */
 	if (env_changed_id != env_id) {
 		NetOurIP = getenv_IPaddr("ipaddr");
-		NetCopyIP(&bd->bi_ip_addr, &NetOurIP);
 		NetOurGatewayIP = getenv_IPaddr("gatewayip");
 		NetOurSubnetMask = getenv_IPaddr("netmask");
 		NetServerIP = getenv_IPaddr("serverip");
@@ -527,10 +521,7 @@ restart:
 	for (;;) {
 		WATCHDOG_RESET();
 #ifdef CONFIG_SHOW_ACTIVITY
-		{
-			extern void show_activity(int arg);
-			show_activity(1);
-		}
+		show_activity(1);
 #endif
 		/*
 		 *	Check the ethernet for a new packet.  The ethernet
@@ -705,7 +696,7 @@ NetSetTimeout(ulong iv, thand_f *f)
 
 
 void
-NetSendPacket(volatile uchar *pkt, int len)
+NetSendPacket(uchar *pkt, int len)
 {
 	(void) eth_send(pkt, len);
 }
@@ -768,8 +759,8 @@ static ushort PingSeqNo;
 int PingSend(void)
 {
 	static uchar mac[6];
-	volatile IP_t *ip;
-	volatile ushort *s;
+	IP_t *ip;
+	ushort *s;
 	uchar *pkt;
 
 	/* XXX always send arp request */
@@ -784,7 +775,7 @@ int PingSend(void)
 	pkt = NetArpWaitTxPacket;
 	pkt += NetSetEther(pkt, mac, PROT_IP);
 
-	ip = (volatile IP_t *)pkt;
+	ip = (IP_t *)pkt;
 
 	/*
 	 * Construct an IP and ICMP header.
@@ -936,9 +927,9 @@ static ushort CDP_compute_csum(const uchar *buff, ushort len)
 
 int CDPSendTrigger(void)
 {
-	volatile uchar *pkt;
-	volatile ushort *s;
-	volatile ushort *cp;
+	uchar *pkt;
+	ushort *s;
+	ushort *cp;
 	Ethernet_t *et;
 	int len;
 	ushort chksum;
@@ -965,7 +956,7 @@ int CDPSendTrigger(void)
 	/* CDP header */
 	*pkt++ = 0x02;				/* CDP version 2 */
 	*pkt++ = 180;				/* TTL */
-	s = (volatile ushort *)pkt;
+	s = (ushort *)pkt;
 	cp = s;
 	/* checksum (0 for later calculation) */
 	*s++ = htons(0);
@@ -1103,8 +1094,8 @@ CDPHandler(const uchar *pkt, unsigned len)
 	 * output a warning
 	 */
 	if (pkt[0] != 0x02)
-		printf("** WARNING: CDP packet received with a protocol version %d > 2\n",
-				pkt[0] & 0xff);
+		printf("**WARNING: CDP packet received with a protocol version "
+				"%d > 2\n", pkt[0] & 0xff);
 
 	if (CDP_compute_csum(pkt, len) != 0)
 		return;
@@ -1239,7 +1230,7 @@ struct hole {
 
 static IP_t *__NetDefragment(IP_t *ip, int *lenp)
 {
-	static uchar pkt_buff[IP_PKTSIZE] __attribute__((aligned(PKTALIGN)));
+	static uchar pkt_buff[IP_PKTSIZE] __aligned(PKTALIGN);
 	static u16 first_hole, total_len;
 	struct hole *payload, *thisfrag, *h, *newh;
 	IP_t *localip = (IP_t *)pkt_buff;
@@ -1439,7 +1430,7 @@ static void receive_icmp(IP_t *ip, int len, IPaddr_t src_ip, Ethernet_t *et)
 }
 
 void
-NetReceive(volatile uchar *inpkt, int len)
+NetReceive(uchar *inpkt, int len)
 {
 	Ethernet_t *et;
 	IP_t	*ip;
@@ -1611,6 +1602,7 @@ NetReceive(volatile uchar *inpkt, int len)
 			/* matched waiting packet's address */
 			if (tmp == NetArpWaitReplyIP) {
 				debug("Got it\n");
+
 				/* save address for later use */
 				memcpy(NetArpWaitPacketMAC,
 				       &arp->ar_data[0], 6);
@@ -1619,7 +1611,8 @@ NetReceive(volatile uchar *inpkt, int len)
 				(*packetHandler)(0, 0, 0, 0, 0);
 #endif
 				/* modify header, and transmit it */
-				memcpy(((Ethernet_t *)NetArpWaitTxPacket)->et_dest, NetArpWaitPacketMAC, 6);
+				memcpy(((Ethernet_t *)NetArpWaitTxPacket)->
+					et_dest, NetArpWaitPacketMAC, 6);
 				(void) eth_send(NetArpWaitTxPacket,
 						NetArpWaitTxPacketSize);
 
@@ -1856,7 +1849,6 @@ common:
 	case CDP:
 	case DHCP:
 		if (memcmp(NetOurEther, "\0\0\0\0\0\0", 6) == 0) {
-			extern int eth_get_dev_index(void);
 			int num = eth_get_dev_index();
 
 			switch (num) {
@@ -1918,7 +1910,7 @@ NetEthHdrSize(void)
 }
 
 int
-NetSetEther(volatile uchar *xet, uchar * addr, uint prot)
+NetSetEther(uchar *xet, uchar * addr, uint prot)
 {
 	Ethernet_t *et = (Ethernet_t *)xet;
 	ushort myvlanid;
@@ -1943,7 +1935,7 @@ NetSetEther(volatile uchar *xet, uchar * addr, uint prot)
 }
 
 void
-NetSetIP(volatile uchar *xip, IPaddr_t dest, int dport, int sport, int len)
+NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 {
 	IP_t *ip = (IP_t *)xip;
 

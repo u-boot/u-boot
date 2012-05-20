@@ -19,7 +19,7 @@
 void TftpStart(enum proto_t protocol);	/* Begin TFTP get/put */
 
 #ifdef CONFIG_CMD_TFTPSRV
-extern void	TftpStartServer(void);	/* Wait for incoming TFTP put */
+extern void TftpStartServer(void);	/* Wait for incoming TFTP put */
 #endif
 
 /**********************************************************************/
