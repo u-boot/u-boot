@@ -564,7 +564,7 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 				ops.oobbuf = ops.datbuf + pagesize;
 
 				rval = nand->write_oob(nand, offset, &ops);
-				if (!rval)
+				if (rval != 0)
 					break;
 
 				offset += pagesize;
