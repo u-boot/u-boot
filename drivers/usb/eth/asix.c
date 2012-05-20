@@ -419,7 +419,7 @@ out_err:
 	return -1;
 }
 
-static int asix_send(struct eth_device *eth, volatile void *packet, int length)
+static int asix_send(struct eth_device *eth, void *packet, int length)
 {
 	struct ueth_data *dev = (struct ueth_data *)eth->priv;
 	int err;
