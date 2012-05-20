@@ -139,7 +139,7 @@ typedef volatile struct CommonBufferDescriptor {
 
 static RTXBD *rtx = NULL;
 
-static int fec_send(struct eth_device* dev, volatile void *packet, int length);
+static int fec_send(struct eth_device *dev, void *packet, int length);
 static int fec_recv(struct eth_device* dev);
 static int fec_init(struct eth_device* dev, bd_t * bd);
 static void fec_halt(struct eth_device* dev);
@@ -193,7 +193,7 @@ int fec_initialize(bd_t *bis)
 	return 1;
 }
 
-static int fec_send(struct eth_device* dev, volatile void *packet, int length)
+static int fec_send(struct eth_device *dev, void *packet, int length)
 {
 	int j, rc;
 	struct ether_fcc_info_s *efis = dev->priv;
@@ -267,7 +267,7 @@ static int fec_recv (struct eth_device *dev)
 				rtx->rxbd[rxIdx].cbd_sc);
 #endif
 		} else {
-			volatile uchar *rx = NetRxPackets[rxIdx];
+			uchar *rx = NetRxPackets[rxIdx];
 
 			length -= 4;
 
