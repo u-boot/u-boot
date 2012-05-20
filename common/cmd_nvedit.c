@@ -204,7 +204,6 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
  */
 int _do_env_set(int flag, int argc, char * const argv[])
 {
-	bd_t  *bd = gd->bd;
 	int   i, len;
 	int   console = -1;
 	char  *name, *value, *s;
