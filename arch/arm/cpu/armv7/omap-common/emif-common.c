@@ -90,20 +90,33 @@ static void do_lpddr2_init(u32 base, u32 cs)
 	 * tZQINIT = 1 us
 	 * Enough loops assuming a maximum of 2GHz
 	 */
+
 	sdelay(2000);
-	set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_3);
+
+	if (omap_revision() >= OMAP5430_ES1_0)
+		set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8);
+	else
+		set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_3);
+
 	set_mr(base, cs, LPDDR2_MR16, MR16_REF_FULL_ARRAY);
+
 	/*
 	 * Enable refresh along with writing MR2
 	 * Encoding of RL in MR2 is (RL - 2)
 	 */
 	mr_addr = LPDDR2_MR2 | EMIF_REG_REFRESH_EN_MASK;
 	set_mr(base, cs, mr_addr, RL_FINAL - 2);
+
+	if (omap_revision() >= OMAP5430_ES1_0)
+		set_mr(base, cs, LPDDR2_MR3, 0x1);
 }
 
 static void lpddr2_init(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+	u32 *ext_phy_ctrl_base = 0;
+	u32 *emif_ext_phy_ctrl_base = 0;
+	u32 i = 0;
 
 	/* Not NVM */
 	clrbits_le32(&emif->emif_lpddr2_nvm_config, EMIF_REG_CS1NVMEN_MASK);
@@ -119,7 +132,31 @@ static void lpddr2_init(u32 base, const struct emif_regs *regs)
 	 * un-locked frequency & default RL
 	 */
 	writel(regs->sdram_config_init, &emif->emif_sdram_config);
-	writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
+	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);
+
+	ext_phy_ctrl_base = (u32 *) &(regs->emif_ddr_ext_phy_ctrl_1);
+	emif_ext_phy_ctrl_base = (u32 *) &(emif->emif_ddr_ext_phy_ctrl_1);
+
+	if (omap_revision() >= OMAP5430_ES1_0) {
+		/* Configure external phy control timing registers */
+		for (i = 0; i < EMIF_EXT_PHY_CTRL_TIMING_REG; i++) {
+			writel(*ext_phy_ctrl_base, emif_ext_phy_ctrl_base++);
+			/* Update shadow registers */
+			writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
+		}
+
+		/*
+		 * external phy 6-24 registers do not change with
+		 * ddr frequency
+		 */
+		for (i = 0; i < EMIF_EXT_PHY_CTRL_CONST_REG; i++) {
+			writel(ext_phy_ctrl_const_base[i],
+						emif_ext_phy_ctrl_base++);
+			/* Update shadow registers */
+			writel(ext_phy_ctrl_const_base[i],
+						emif_ext_phy_ctrl_base++);
+		}
+	}
 
 	do_lpddr2_init(base, CS0);
 	if (regs->sdram_config & EMIF_REG_EBANK_MASK)

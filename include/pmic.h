@@ -55,6 +55,7 @@ struct pmic {
 };
 
 int pmic_init(void);
+int pmic_dialog_init(void);
 int check_reg(u32 reg);
 struct pmic *get_pmic(void);
 int pmic_probe(struct pmic *p);

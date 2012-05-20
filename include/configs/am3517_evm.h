@@ -173,8 +173,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
 							/* NAND devices */
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
-
 #define CONFIG_JFFS2_NAND
 /* nand device jffs2 lives on */
 #define CONFIG_JFFS2_DEV		"nand0"
@@ -326,7 +324,7 @@
 #define CONFIG_SPL
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_TEXT_BASE		0x40200800
-#define CONFIG_SPL_MAX_SIZE		(45 * 1024)
+#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000

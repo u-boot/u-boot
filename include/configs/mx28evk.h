@@ -46,6 +46,7 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mx28/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_GPIO_SUPPORT
 
 /*
  * U-Boot Commands
@@ -67,6 +68,7 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_BOOTZ
 
 /*
  * Memory configurations
@@ -148,6 +150,16 @@
 #endif
 
 /*
+ * NAND Driver
+ */
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_NAND_MXS
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		0x60000000
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#endif
+
+/*
  * Ethernet on SOC (FEC)
  */
 #ifdef	CONFIG_CMD_NET
@@ -225,6 +237,7 @@
 #define CONFIG_BOOTCOMMAND	"run bootcmd_net"
 #define CONFIG_LOADADDR	0x42000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+#define CONFIG_OF_LIBFDT
 
 /*
  * Extra Environments

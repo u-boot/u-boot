@@ -26,6 +26,14 @@
 #include <asm/sizes.h>
 
 /*
+ * QUOTE(m) will evaluate to a string version of the value of the macro m
+ * passed in.  The extra level of indirection here is to first evaluate the
+ * macro m before applying the quoting operator.
+ */
+#define QUOTE_(m)       #m
+#define QUOTE(m)        QUOTE_(m)
+
+/*
  * High Level Configuration Options
  */
 #define CONFIG_ARMCORTEXA9		/* This is an ARM V7 CPU core */
@@ -49,6 +57,15 @@
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
+
+#ifdef CONFIG_TEGRA2_LP0
+#define TEGRA_LP0_ADDR			0x1C406000
+#define TEGRA_LP0_SIZE			0x2000
+#define TEGRA_LP0_VEC \
+	"lp0_vec=" QUOTE(TEGRA_LP0_SIZE) "@" QUOTE(TEGRA_LP0_ADDR) " "
+#else
+#define TEGRA_LP0_VEC
+#endif
 
 /* Environment */
 #define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
@@ -115,11 +132,18 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-/* Environment information */
+/* Environment information, boards can override if required */
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define TEGRA2_DEVICE_SETTINGS	"stdin=serial\0" \
+					"stdout=serial\0" \
+					"stderr=serial\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttyS0,115200n8\0" \
 	"mem=" TEGRA2_SYSMEM "\0" \
 	"smpflag=smp\0" \
+	TEGRA2_DEVICE_SETTINGS
 
 #define CONFIG_LOADADDR		0x408000	/* def. location for kernel */
 #define CONFIG_BOOTDELAY	2		/* -1 to disable auto boot */

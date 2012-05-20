@@ -66,8 +66,8 @@ typedef enum iomux_pad_config {
 	PAD_CTL_HYS_ENABLE = 0x1 << 8,	/* Hysteresis enabled */
 	PAD_CTL_DDR_INPUT_CMOS = 0x0 << 9,/* DDR input CMOS */
 	PAD_CTL_DDR_INPUT_DDR = 0x1 << 9,/* DDR input DDR */
-	PAD_CTL_DRV_VOT_LOW = 0x0 << 13, /* Low voltage mode */
-	PAD_CTL_DRV_VOT_HIGH = 0x1 << 13,/* High voltage mode */
+	PAD_CTL_DRV_VOT_LOW = 0x1 << 13, /* Low voltage mode */
+	PAD_CTL_DRV_VOT_HIGH = 0x0 << 13,/* High voltage mode */
 } iomux_pad_config_t;
 
 /* various IOMUX input functions */

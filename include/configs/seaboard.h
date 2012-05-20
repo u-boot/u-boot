@@ -25,6 +25,14 @@
 #define __CONFIG_H
 
 #include <asm/sizes.h>
+
+/* LP0 suspend / resume */
+#define CONFIG_TEGRA2_LP0
+#define CONFIG_AES
+#define CONFIG_TEGRA_PMU
+#define CONFIG_TPS6586X_POWER
+#define CONFIG_TEGRA_CLOCK_SCALING
+
 #include "tegra2-common.h"
 
 /* Enable fdt support for Seaboard. Flash the image in u-boot-dtb.bin */
@@ -92,4 +100,12 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
+/* Enable keyboard */
+#define CONFIG_TEGRA2_KEYBOARD
+#define CONFIG_KEYBOARD
+
+#undef TEGRA2_DEVICE_SETTINGS
+#define TEGRA2_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
+					"stdout=serial\0" \
+					"stderr=serial\0"
 #endif /* __CONFIG_H */

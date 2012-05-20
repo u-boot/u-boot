@@ -777,6 +777,10 @@ Linus Walleij <linus.walleij@linaro.org>
 	integratorap	various
 	integratorcp	various
 
+Luka Perkov <uboot@lukaperkov.net>
+
+	ib62x0		ARM926EJS
+
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
@@ -787,6 +791,16 @@ Stelian Pop <stelian@popies.net>
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
+
+Dave Purdy <david.c.purdy@gmail.com>
+
+	pogo_e02	ARM926EJS (Kirkwood SoC)
+
+Sricharan R <r.sricharan@ti.com>
+
+	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
+	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
+	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
 
 Thierry Reding <thierry.reding@avionic-design.de>
 
@@ -860,12 +874,6 @@ Greg Ungerer <greg.ungerer@opengear.com>
 	cm4116		ks8695p
 	cm4148		ks8695p
 
-Aneesh V <aneesh@ti.com>
-
-	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
-	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
-	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
-
 Marek Vasut <marek.vasut@gmail.com>
 
 	balloon3	xscale/pxa
@@ -931,6 +939,10 @@ Syed Mohammed Khasim <sm.khasim@gmail.com>
 Sughosh Ganu <urwithsughosh@gmail.com>
 
 	hawkboard	ARM926EJS (OMAP-L138)
+
+Vladimir Zapolskiy <vz@mleia.com>
+
+	devkit3250	lpc32xx
 
 -------------------------------------------------------------------------
 

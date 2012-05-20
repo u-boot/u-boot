@@ -46,8 +46,6 @@
 #define puts(s)
 #endif
 
-#define abs(x) (((x) < 0) ? ((x)*-1) : (x))
-
 struct omap4_prcm_regs *const prcm = (struct omap4_prcm_regs *)0x4A004100;
 
 const u32 sys_clk_array[8] = {
@@ -275,47 +273,70 @@ void scale_vcores(void)
 {
 	u32 volt, omap_rev;
 
-	setup_sri2c();
+	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
 	omap_rev = omap_revision();
-	/* TPS - supplies vdd_mpu on 4460 */
-	if (omap_rev >= OMAP4460_ES1_0) {
-		volt = 1203;
-		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
-	}
 
 	/*
-	 * VCORE 1
-	 *
-	 * 4430 : supplies vdd_mpu
-	 * Setting a high voltage for Nitro mode as smart reflex is not enabled.
-	 * We use the maximum possible value in the AVS range because the next
-	 * higher voltage in the discrete range (code >= 0b111010) is way too
-	 * high
-	 *
-	 * 4460 : supplies vdd_core
+	 * Scale Voltage rails:
+	 * 1. VDD_CORE
+	 * 3. VDD_MPU
+	 * 3. VDD_IVA
 	 */
 	if (omap_rev < OMAP4460_ES1_0) {
-		volt = 1325;
-		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
-	} else {
-		volt = 1200;
-		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
-	}
-
-	/* VCORE 2 - supplies vdd_iva */
-	volt = 1200;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
-
-	/*
-	 * VCORE 3
-	 * 4430 : supplies vdd_core
-	 * 4460 : not connected
-	 */
-	if (omap_rev < OMAP4460_ES1_0) {
+		/*
+		 * OMAP4430:
+		 * VDD_CORE = TWL6030 VCORE3
+		 * VDD_MPU = TWL6030 VCORE1
+		 * VDD_IVA = TWL6030 VCORE2
+		 */
 		volt = 1200;
 		do_scale_vcore(SMPS_REG_ADDR_VCORE3, volt);
+
+		/*
+		 * note on VDD_MPU:
+		 * Setting a high voltage for Nitro mode as smart reflex is not
+		 * enabled. We use the maximum possible value in the AVS range
+		 * because the next higher voltage in the discrete range
+		 * (code >= 0b111010) is way too high.
+		 */
+		volt = 1325;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+		volt = 1200;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
+
+	} else {
+		/*
+		 * OMAP4460:
+		 * VDD_CORE = TWL6030 VCORE1
+		 * VDD_MPU = TPS62361
+		 * VDD_IVA = TWL6030 VCORE2
+		 */
+		volt = 1200;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+		/* TPS62361 */
+		volt = 1203;
+		do_scale_tps62361(TPS62361_VSEL0_GPIO,
+				  TPS62361_REG_ADDR_SET1, volt);
+		/* VCORE 2 - supplies vdd_iva */
+		volt = 1200;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
 	}
+}
+
+u32 get_offset_code(u32 offset)
+{
+	u32 offset_code, step = 12660; /* 12.66 mV represented in uV */
+
+	if (omap_revision() == OMAP4430_ES1_0)
+		offset -= PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV;
+	else
+		offset -= PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV;
+
+	offset_code = (offset + step - 1) / step;
+
+	/* The code starts at 1 not 0 */
+	return ++offset_code;
 }
 
 /*
@@ -355,7 +376,6 @@ void enable_basic_clocks(void)
 		&prcm->cm_l4per_gptimer2_clkctrl,
 		&prcm->cm_wkup_wdtimer2_clkctrl,
 		&prcm->cm_l4per_uart3_clkctrl,
-		&prcm->cm_l3init_fsusb_clkctrl,
 		&prcm->cm_l3init_hsusbhost_clkctrl,
 		0
 	};
@@ -432,10 +452,6 @@ void enable_non_essential_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_non_essential[] = {
-		&prcm->cm_mpu_m3_mpu_m3_clkctrl,
-		&prcm->cm_ivahd_ivahd_clkctrl,
-		&prcm->cm_ivahd_sl2_clkctrl,
-		&prcm->cm_dsp_dsp_clkctrl,
 		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_l3instr_l3_3_clkctrl,
 		&prcm->cm_l3instr_l3_instr_clkctrl,
@@ -482,7 +498,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_dss_dss_clkctrl,
 		&prcm->cm_sgx_sgx_clkctrl,
 		&prcm->cm_l3init_hsusbhost_clkctrl,
-		&prcm->cm_l3init_fsusb_clkctrl,
 		0
 	};
 

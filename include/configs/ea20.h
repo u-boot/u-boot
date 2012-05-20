@@ -31,7 +31,7 @@
 #define	CONFIG_SYS_USE_NAND
 #define CONFIG_DRIVER_TI_EMAC_USE_RMII
 #define CONFIG_BOARD_EARLY_INIT_F
-#define BOARD_LATE_INIT
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_VIDEO
 #define CONFIG_PREBOOT
 
@@ -203,7 +203,6 @@
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define	CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 /* SPI Flash */

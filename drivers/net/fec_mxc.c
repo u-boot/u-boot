@@ -187,9 +187,10 @@ int fec_phy_write(struct mii_dev *bus, int phyAddr, int dev_addr, int regAddr,
 #ifndef CONFIG_PHYLIB
 static int miiphy_restart_aneg(struct eth_device *dev)
 {
+	int ret = 0;
+#if !defined(CONFIG_FEC_MXC_NO_ANEG)
 	struct fec_priv *fec = (struct fec_priv *)dev->priv;
 	struct ethernet_regs *eth = fec->bus->priv;
-	int ret = 0;
 
 	/*
 	 * Wake up from sleep if necessary
@@ -213,6 +214,7 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	if (fec->mii_postcall)
 		ret = fec->mii_postcall(fec->phy_id);
 
+#endif
 	return ret;
 }
 
@@ -398,6 +400,42 @@ static void fec_eth_phy_config(struct eth_device *dev)
 #endif
 }
 
+/*
+ * Do initial configuration of the FEC registers
+ */
+static void fec_reg_setup(struct fec_priv *fec)
+{
+	uint32_t rcntrl;
+
+	/*
+	 * Set interrupt mask register
+	 */
+	writel(0x00000000, &fec->eth->imask);
+
+	/*
+	 * Clear FEC-Lite interrupt event register(IEVENT)
+	 */
+	writel(0xffffffff, &fec->eth->ievent);
+
+
+	/*
+	 * Set FEC-Lite receive control register(R_CNTRL):
+	 */
+
+	/* Start with frame length = 1518, common for all modes. */
+	rcntrl = PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT;
+	if (fec->xcv_type == SEVENWIRE)
+		rcntrl |= FEC_RCNTRL_FCE;
+	else if (fec->xcv_type == RGMII)
+		rcntrl |= FEC_RCNTRL_RGMII;
+	else if (fec->xcv_type == RMII)
+		rcntrl |= FEC_RCNTRL_RMII;
+	else	/* MII mode */
+		rcntrl |= FEC_RCNTRL_FCE | FEC_RCNTRL_MII_MODE;
+
+	writel(rcntrl, &fec->eth->r_cntrl);
+}
+
 /**
  * Start the FEC engine
  * @param[in] dev Our device to handle
@@ -512,7 +550,6 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 {
 	struct fec_priv *fec = (struct fec_priv *)dev->priv;
 	uint32_t mib_ptr = (uint32_t)&fec->eth->rmon_t_drop;
-	uint32_t rcntrl;
 	uint32_t size;
 	int i, ret;
 
@@ -560,33 +597,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 				   (unsigned)fec->rbd_base + size);
 	}
 
-	/*
-	 * Set interrupt mask register
-	 */
-	writel(0x00000000, &fec->eth->imask);
-
-	/*
-	 * Clear FEC-Lite interrupt event register(IEVENT)
-	 */
-	writel(0xffffffff, &fec->eth->ievent);
-
-
-	/*
-	 * Set FEC-Lite receive control register(R_CNTRL):
-	 */
-
-	/* Start with frame length = 1518, common for all modes. */
-	rcntrl = PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT;
-	if (fec->xcv_type == SEVENWIRE)
-		rcntrl |= FEC_RCNTRL_FCE;
-	else if (fec->xcv_type == RGMII)
-		rcntrl |= FEC_RCNTRL_RGMII;
-	else if (fec->xcv_type == RMII)
-		rcntrl |= FEC_RCNTRL_RMII;
-	else	/* MII mode */
-		rcntrl |= FEC_RCNTRL_FCE | FEC_RCNTRL_MII_MODE;
-
-	writel(rcntrl, &fec->eth->r_cntrl);
+	fec_reg_setup(fec);
 
 	if (fec->xcv_type == MII10 || fec->xcv_type == MII100)
 		fec_mii_setspeed(fec);
@@ -933,24 +944,7 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 		udelay(10);
 	}
 
-	/*
-	 * Set interrupt mask register
-	 */
-	writel(0x00000000, &fec->eth->imask);
-
-	/*
-	 * Clear FEC-Lite interrupt event register(IEVENT)
-	 */
-	writel(0xffffffff, &fec->eth->ievent);
-
-	/*
-	 * Set FEC-Lite receive control register(R_CNTRL):
-	 */
-	/*
-	 * Frame length=1518; MII mode;
-	 */
-	writel((PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT) | FEC_RCNTRL_FCE |
-		FEC_RCNTRL_MII_MODE, &fec->eth->r_cntrl);
+	fec_reg_setup(fec);
 	fec_mii_setspeed(fec);
 
 	if (dev_id == -1) {

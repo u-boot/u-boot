@@ -76,6 +76,9 @@ struct mxc_ccm_reg {
 	u32 CCGR4;
 	u32 CCGR5;
 	u32 CCGR6;	/* 0x0080 */
+#ifdef CONFIG_MX53
+	u32 CCGR7;      /* 0x0084 */
+#endif
 	u32 cmeor;
 };
 
@@ -84,6 +87,9 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CACRR_ARM_PODF_MASK		0x7
 
 /* Define the bits in register CBCDR */
+#define MXC_CCM_CBCDR_DDR_HIFREQ_SEL		(0x1 << 30)
+#define MXC_CCM_CBCDR_DDR_PODF_MASK		(0x7 << 27)
+#define MXC_CCM_CBCDR_DDR_PODF_OFFSET		27
 #define MXC_CCM_CBCDR_EMI_CLK_SEL		(0x1 << 26)
 #define MXC_CCM_CBCDR_PERIPH_CLK_SEL		(0x1 << 25)
 #define MXC_CCM_CBCDR_EMI_PODF_OFFSET		22

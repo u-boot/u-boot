@@ -100,3 +100,10 @@ void tegra2_start(void);
 
 /* This is the main entry into U-Boot, used by the Cortex-A9 */
 extern void _start(void);
+
+/**
+ * Works out the SOC type used for clocks settings
+ *
+ * @return	SOC type - see TEGRA_SOC...
+ */
+int tegra_get_chip_type(void);

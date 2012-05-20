@@ -35,7 +35,6 @@
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP44XX		1	/* which is a 44XX */
 #define CONFIG_OMAP4430		1	/* which is in a 4430 */
-#define CONFIG_ARCH_CPU_INIT
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>
@@ -106,7 +105,6 @@
 #define CONFIG_GENERIC_MMC		1
 #define CONFIG_MMC			1
 #define CONFIG_OMAP_HSMMC		1
-#define CONFIG_SYS_MMC_SET_DEV		1
 #define CONFIG_DOS_PARTITION		1
 
 
@@ -151,6 +149,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyO2,115200n8\0" \
+	"fdt_high=0xffffffff\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
 	"mmcdev=0\0" \
@@ -286,5 +285,7 @@
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/omap-common/u-boot-spl.lds"
 
 #define CONFIG_SYS_ENABLE_PADS_ALL
+
+#define CONFIG_SYS_THUMB_BUILD
 
 #endif /* __CONFIG_OMAP4_COMMON_H */

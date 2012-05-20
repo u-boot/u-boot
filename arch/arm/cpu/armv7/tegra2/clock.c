@@ -410,6 +410,16 @@ enum clock_osc_freq clock_get_osc_freq(void)
 	return (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
 }
 
+int clock_get_osc_bypass(void)
+{
+	struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 reg;
+
+	reg = readl(&clkrst->crc_osc_ctrl);
+	return (reg & OSC_XOBP_MASK) >> OSC_XOBP_SHIFT;
+}
+
 /* Returns a pointer to the registers of the given pll */
 static struct clk_pll *get_pll(enum clock_id clkid)
 {
@@ -418,6 +428,28 @@ static struct clk_pll *get_pll(enum clock_id clkid)
 
 	assert(clock_id_isvalid(clkid));
 	return &clkrst->crc_pll[clkid];
+}
+
+int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
+		u32 *divp, u32 *cpcon, u32 *lfcon)
+{
+	struct clk_pll *pll = get_pll(clkid);
+	u32 data;
+
+	assert(clkid != CLOCK_ID_USB);
+
+	/* Safety check, adds to code size but is small */
+	if (!clock_id_isvalid(clkid) || clkid == CLOCK_ID_USB)
+		return -1;
+	data = readl(&pll->pll_base);
+	*divm = (data & PLL_DIVM_MASK) >> PLL_DIVM_SHIFT;
+	*divn = (data & PLL_DIVN_MASK) >> PLL_DIVN_SHIFT;
+	*divp = (data & PLL_DIVP_MASK) >> PLL_DIVP_SHIFT;
+	data = readl(&pll->pll_misc);
+	*cpcon = (data & PLL_CPCON_MASK) >> PLL_CPCON_SHIFT;
+	*lfcon = (data & PLL_LFCON_MASK) >> PLL_LFCON_SHIFT;
+
+	return 0;
 }
 
 unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
@@ -1027,7 +1059,10 @@ void clock_early_init(void)
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 26, 0, 8);
 		break;
 
-	case CLOCK_OSC_FREQ_13_0:
+	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
+		clock_set_rate(CLOCK_ID_PERIPH, 432, 13, 1, 8);
+		clock_set_rate(CLOCK_ID_CGENERAL, 600, 13, 0, 8);
+		break;
 	case CLOCK_OSC_FREQ_19_2:
 	default:
 		/*

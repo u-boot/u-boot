@@ -101,17 +101,6 @@
 #define TCLR_AR			(0x1 << 1)
 #define TCLR_PRE		(0x1 << 5)
 
-/*
- * PRCM
- */
-
-/* PRM */
-#define PRM_BASE		0x4A306000
-#define PRM_DEVICE_BASE		(PRM_BASE + 0x1B00)
-
-#define PRM_RSTCTRL		PRM_DEVICE_BASE
-#define PRM_RSTCTRL_RESET	0x01
-
 /* Control Module */
 #define LDOSRAM_ACTMODE_VSET_IN_MASK	(0x1F << 5)
 #define LDOSRAM_VOLT_CTRL_OVERRIDE	0x0401040f
@@ -139,18 +128,24 @@ struct s32ktimer {
 	unsigned int s32k_cr;	/* 0x10 */
 };
 
-struct omap4_sys_ctrl_regs {
+#define DEVICE_TYPE_SHIFT (0x8)
+#define DEVICE_TYPE_MASK (0x7 << DEVICE_TYPE_SHIFT)
+#define DEVICE_GP 0x3
+
+struct omap_sys_ctrl_regs {
 	unsigned int pad1[129];
 	unsigned int control_id_code;			/* 0x4A002204 */
 	unsigned int pad11[22];
 	unsigned int control_std_fuse_opp_bgap;		/* 0x4a002260 */
-	unsigned int pad2[47];
+	unsigned int pad2[24];				/* 0x4a002264 */
+	unsigned int control_status;			/* 0x4a0022c4 */
+	unsigned int pad3[22];				/* 0x4a0022c8 */
 	unsigned int control_ldosram_iva_voltage_ctrl;	/* 0x4A002320 */
 	unsigned int control_ldosram_mpu_voltage_ctrl;	/* 0x4A002324 */
 	unsigned int control_ldosram_core_voltage_ctrl;	/* 0x4A002328 */
-	unsigned int pad3[260277];
+	unsigned int pad4[260277];
 	unsigned int control_pbiaslite;                 /* 0x4A100600 */
-	unsigned int pad4[63];
+	unsigned int pad5[63];
 	unsigned int control_efuse_1;			/* 0x4A100700 */
 	unsigned int control_efuse_2;			/* 0x4A100704 */
 };

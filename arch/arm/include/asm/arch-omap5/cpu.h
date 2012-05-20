@@ -172,4 +172,15 @@ struct watchdog {
 #define OMAP_GPIO_CLEARDATAOUT		0x0190
 #define OMAP_GPIO_SETDATAOUT		0x0194
 
+/*
+ * PRCM
+ */
+
+/* PRM */
+#define PRM_BASE		0x4AE06000
+#define PRM_DEVICE_BASE		(PRM_BASE + 0x1B00)
+
+#define PRM_RSTCTRL		PRM_DEVICE_BASE
+#define PRM_RSTCTRL_RESET	0x01
+
 #endif /* _CPU_H */

@@ -1,5 +1,7 @@
 /*
- * (C) Copyright 2010
+ * Common configuration settings for IGEP technology based boards
+ *
+ * (C) Copyright 2012
  * ISEE 2007 SL, <www.iseebcn.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -18,8 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __IGEP00X0_H
+#define __IGEP00X0_H
+
 #include <asm/sizes.h>
 
 /*
@@ -27,7 +30,6 @@
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
-#define CONFIG_OMAP3_IGEP0030	1	/* working with IGEP0030 */
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
@@ -72,7 +74,8 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, 115200}
+#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
+					115200}
 #define CONFIG_GENERIC_MMC		1
 #define CONFIG_MMC			1
 #define CONFIG_OMAP_HSMMC		1
@@ -103,11 +106,13 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_ONENAND	/* ONENAND support		*/
+#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands	*/
 #define CONFIG_MTD_DEVICE
 
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#undef CONFIG_CMD_NFS		/* nfs				*/
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
 
@@ -131,7 +136,7 @@
 	"loadaddr=0x82000000\0" \
 	"usbtty=cdc_acm\0" \
 	"console=ttyS2,115200n8\0" \
-	"mpurate=500\0" \
+	"mpurate=auto\0" \
 	"vram=12M\0" \
 	"dvimode=1024x768MR-16@60\0" \
 	"defaultdisplay=dvi\0" \
@@ -156,9 +161,9 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source ${loadaddr}\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t $loadaddr $filesize\0" \
 	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
@@ -170,15 +175,19 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan ${mmcdev}; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"else run nandboot; " \
-			"fi; " \
-		"fi; " \
-	"else run nandboot; fi"
+		"echo SD/MMC found on device ${mmcdev};" \
+		"if run loadbootenv; then " \
+			"run importbootenv;" \
+		"fi;" \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...;" \
+			"run uenvcmd;" \
+		"fi;" \
+		"if run loaduimage; then " \
+			"run mmcboot;" \
+		"fi;" \
+	"fi;" \
+	"run nandboot;" \
 
 #define CONFIG_AUTO_COMPLETE		1
 
@@ -251,6 +260,15 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 
+/*
+ * SMSC911x Ethernet
+ */
+#if defined(CONFIG_CMD_NET)
+#define CONFIG_SMC911X
+#define CONFIG_SMC911X_32_BIT
+#define CONFIG_SMC911X_BASE	0x2C000000
+#endif /* (CONFIG_CMD_NET) */
+
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
@@ -258,4 +276,4 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 
-#endif /* __CONFIG_H */
+#endif /* __IGEP00X0_H */

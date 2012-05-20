@@ -90,6 +90,8 @@ int board_mmc_init(bd_t *bis)
 {
 	/* Configure WP as input. */
 	gpio_direction_input(MX28_PAD_AUART2_CTS__GPIO_3_10);
+	/* Turn on the power to the card. */
+	gpio_direction_output(MX28_PAD_PWM3__GPIO_3_28, 0);
 
 	return mxsmmc_initialize(bis, 0, m28_mmc_wp);
 }
@@ -103,10 +105,18 @@ int board_mmc_init(bd_t *bis)
 
 int fecmxc_mii_postcall(int phy)
 {
+#if	defined(CONFIG_DENX_M28_V11) || defined(CONFIG_DENX_M28_V10)
+	/* KZ8031 PHY on old boards. */
+	const uint32_t freq = 0x0080;
+#else
+	/* KZ8021 PHY on new boards. */
+	const uint32_t freq = 0x0000;
+#endif
+
 	miiphy_write("FEC1", phy, MII_BMCR, 0x9000);
 	miiphy_write("FEC1", phy, MII_OPMODE_STRAP_OVERRIDE, 0x0202);
 	if (phy == 3)
-		miiphy_write("FEC1", 3, MII_PHY_CTRL2, 0x8180);
+		miiphy_write("FEC1", 3, MII_PHY_CTRL2, 0x8100 | freq);
 	return 0;
 }
 
@@ -122,6 +132,14 @@ int board_eth_init(bd_t *bis)
 	clrsetbits_le32(&clkctrl_regs->hw_clkctrl_enet,
 		CLKCTRL_ENET_TIME_SEL_MASK | CLKCTRL_ENET_CLK_OUT_EN,
 		CLKCTRL_ENET_TIME_SEL_RMII_CLK);
+
+#if !defined(CONFIG_DENX_M28_V11) && !defined(CONFIG_DENX_M28_V10)
+	/* Reset the new PHY */
+	gpio_direction_output(MX28_PAD_AUART2_RTS__GPIO_3_11, 0);
+	udelay(10000);
+	gpio_set_value(MX28_PAD_AUART2_RTS__GPIO_3_11, 1);
+	udelay(10000);
+#endif
 
 	ret = fecmxc_initialize_multi(bis, 0, 0, MXS_ENET0_BASE);
 	if (ret) {

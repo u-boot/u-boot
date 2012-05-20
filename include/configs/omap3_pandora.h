@@ -174,8 +174,7 @@
 	"usbtty=cdc_acm\0" \
 	"loadaddr=0x82000000\0" \
 	"bootargs=ubi.mtd=4 ubi.mtd=3 root=ubi0:rootfs rootfstype=ubifs " \
-	"rw rootflags=bulk_read console=ttyS0,115200n8 " \
-	"vram=6272K omapfb.vram=0:3000K\0" \
+		"rw rootflags=bulk_read vram=6272K omapfb.vram=0:3000K\0" \
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 
 #define CONFIG_BOOTCOMMAND \

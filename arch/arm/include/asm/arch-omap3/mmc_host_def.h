@@ -33,7 +33,9 @@ typedef struct t2 {
 	unsigned int devconf0;		/* 0x274 */
 	unsigned char res2[0x060];	/* 0x278 */
 	unsigned int devconf1;		/* 0x2D8 */
-	unsigned char res3[0x244];	/* 0x2DC */
+	unsigned char res3[0x16C];	/* 0x2DC */
+	unsigned int ctl_prog_io1;	/* 0x448 */
+	unsigned char res4[0x0D4];	/* 0x44C */
 	unsigned int pbias_lite;	/* 0x520 */
 } t2_t;
 
@@ -47,6 +49,8 @@ typedef struct t2 {
 #define PBIASLITEPWRDNZ0		(1 << 1)
 #define PBIASSPEEDCTRL0			(1 << 2)
 #define PBIASLITEPWRDNZ1		(1 << 9)
+
+#define CTLPROGIO1SPEEDCTRL		(1 << 20)
 
 /*
  * OMAP HSMMC register definitions
@@ -191,6 +195,6 @@ struct hsmmc {
 #define mmc_reg_out(addr, mask, val)\
 	writel((readl(addr) & (~(mask))) | ((val) & (mask)), (addr))
 
-int omap_mmc_init(int dev_index);
+int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max);
 
 #endif /* MMC_HOST_DEF_H */

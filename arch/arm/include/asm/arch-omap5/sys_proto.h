@@ -55,6 +55,8 @@ u32 omap_sdram_size(void);
 u32 cortex_rev(void);
 void init_omap_revision(void);
 void do_io_settings(void);
+void omap_vc_init(u16 speed_khz);
+int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data);
 
 /*
  * This is used to verify if the configuration header
@@ -111,12 +113,6 @@ static inline u32 omap_hw_init_context(void)
 	else
 		return OMAP_INIT_CONTEXT_UBOOT_FROM_NOR;
 #endif
-}
-
-static inline u32 omap_revision(void)
-{
-	extern u32 *const omap5_revision;
-	return *omap5_revision;
 }
 
 #endif

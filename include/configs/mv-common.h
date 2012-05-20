@@ -132,7 +132,6 @@
  */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
-#define CONFIG_SYS_64BIT_VSPRINTF      /* needed for nand_util.c */
 #endif
 
 /*

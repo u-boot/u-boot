@@ -196,13 +196,6 @@ int board_init(void)
 	return 0;
 }
 
-int misc_init_r(void)
-{
-	dieid_num_r();
-
-	return 0;
-}
-
 /*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the
@@ -228,6 +221,6 @@ int board_eth_init(bd_t *bis)
 	!defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0);
+	return omap_mmc_init(0, 0, 0);
 }
 #endif

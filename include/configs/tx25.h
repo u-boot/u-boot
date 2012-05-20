@@ -117,8 +117,6 @@
 #define CONFIG_MXC_NAND_HWECC
 #define CONFIG_SYS_NAND_LARGEPAGE
 
-#define CONFIG_SYS_64BIT_VSPRINTF
-
 /* U-Boot general configuration */
 #define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */

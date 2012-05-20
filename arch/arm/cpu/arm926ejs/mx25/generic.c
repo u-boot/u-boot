@@ -28,8 +28,13 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/imx25-pinmux.h>
+#include <asm/arch/clock.h>
 #ifdef CONFIG_MXC_MMC
 #include <asm/arch/mxcmmc.h>
+#endif
+
+#ifdef CONFIG_FSL_ESDHC
+DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 /*
@@ -103,6 +108,20 @@ ulong imx_get_perclk(int clk)
 	div = ((div >> CCM_PERCLK_SHIFT(clk)) & CCM_PERCLK_MASK) + 1;
 
 	return lldiv(fref, div);
+}
+
+unsigned int mxc_get_clock(enum mxc_clock clk)
+{
+	if (clk >= MXC_CLK_NUM)
+		return -1;
+	switch (clk) {
+	case MXC_ARM_CLK:
+		return imx_get_armclk();
+	case MXC_FEC_CLK:
+		return imx_get_ahbclk();
+	default:
+		return imx_get_perclk(clk);
+	}
 }
 
 u32 get_cpu_rev(void)
@@ -180,6 +199,14 @@ int cpu_eth_init(bd_t *bis)
 #else
 	return 0;
 #endif
+}
+
+int get_clocks(void)
+{
+#ifdef CONFIG_FSL_ESDHC
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+#endif
+	return 0;
 }
 
 /*

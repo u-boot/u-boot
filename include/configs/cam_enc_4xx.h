@@ -37,7 +37,7 @@
 
 #define CONFIG_HOSTNAME			cam_enc_4xx
 
-#define	BOARD_LATE_INIT
+#define	CONFIG_BOARD_LATE_INIT
 #define CONFIG_CAM_ENC_LED_MASK		0x0fc00000
 
 /* Memory Info */

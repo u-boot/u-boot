@@ -125,11 +125,7 @@ int ehci_hcd_init(void)
 	hcor = (struct ehci_hcor *)((uint32_t) hccr +
 			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 	setbits_le32(&ehci->usbmode, CM_HOST);
-#ifdef CONFIG_MX31
-	setbits_le32(&ehci->control, USB_EN);
-
 	__raw_writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
-#endif
 	mxc_set_usbcontrol(CONFIG_MXC_USB_PORT, CONFIG_MXC_USB_FLAGS);
 
 	udelay(10000);

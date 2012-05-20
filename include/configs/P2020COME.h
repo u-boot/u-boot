@@ -416,8 +416,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 
 /* Misc Extra Settings */
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
 #define CONFIG_CMD_DHCP			1
 
 #define CONFIG_CMD_DATE			1
