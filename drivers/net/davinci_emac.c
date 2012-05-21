@@ -637,7 +637,7 @@ static int tx_send_loop = 0;
  * positive number (number of bytes transmitted) or negative for error
  */
 static int davinci_eth_send_packet (struct eth_device *dev,
-					volatile void *packet, int length)
+					void *packet, int length)
 {
 	int ret_status = -1;
 	int index;
