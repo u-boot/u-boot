@@ -202,7 +202,7 @@ static int i2c_read_byte(u8 devaddr, u8 regoffset, u8 *value)
 		}
 		if (status & I2C_STAT_RRDY) {
 #if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
-	defined(CONFIG_OMAP44XX)
+	defined(CONFIG_OMAP44XX) || defined(CONFIG_AM33XX)
 			*value = readb(&i2c_base->data);
 #else
 			*value = readw(&i2c_base->data);
@@ -232,7 +232,7 @@ static void flush_fifo(void)
 		stat = readw(&i2c_base->stat);
 		if (stat == I2C_STAT_RRDY) {
 #if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
-	defined(CONFIG_OMAP44XX)
+	defined(CONFIG_OMAP44XX) || defined(CONFIG_AM33XX)
 			readb(&i2c_base->data);
 #else
 			readw(&i2c_base->data);
@@ -282,7 +282,7 @@ int i2c_probe(uchar chip)
 		if (status & I2C_STAT_RRDY) {
 			res = 0;
 #if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
-    defined(CONFIG_OMAP44XX)
+    defined(CONFIG_OMAP44XX) || defined(CONFIG_AM33XX)
 			readb(&i2c_base->data);
 #else
 			readw(&i2c_base->data);
