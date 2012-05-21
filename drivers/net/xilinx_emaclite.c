@@ -244,6 +244,18 @@ static int setup_phy(struct eth_device *dev)
 			SUPPORTED_100baseT_Half |
 			SUPPORTED_100baseT_Full;
 
+	if (emaclite->phyaddr != -1 ) {
+		phyread(dev, emaclite->phyaddr, PHY_DETECT_REG, &phyreg);
+		if ((phyreg != 0xFFFF) &&
+		((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+			/* Found a valid PHY address */
+			debug("Default phy address %d is valid\n", emaclite->phyaddr);
+		} else {
+			debug("PHY address is not setup correctly %d\n", emaclite->phyaddr);
+			emaclite->phyaddr = -1;
+		}
+	}
+
 	if (emaclite->phyaddr == -1) {
 		/* detect the PHY address */
 		for (i = 31; i >= 0; i--) {
