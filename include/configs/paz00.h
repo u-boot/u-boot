@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010,2011, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2012 NVIDIA CORPORATION.  All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -19,6 +19,11 @@
 
 #include <asm/sizes.h>
 #include "tegra2-common.h"
+
+/* Enable fdt support for Paz00. Flash the image in u-boot-dtb.bin */
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-paz00
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
 #define V_PROMPT		"Tegra2 (Paz00) MOD # "
@@ -47,6 +52,21 @@
 
 /* Environment not stored */
 #define CONFIG_ENV_IS_NOWHERE
+
+/* USB Host support */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_TEGRA
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_USB
+
+/* USB networking support */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+#define CONFIG_USB_ETHER_ASIX
+
+/* General networking support */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
 
 #include "tegra2-common-post.h"
 
