@@ -242,8 +242,7 @@ static void purge_tx_ring (struct eth_device *dev);
 static void read_hw_addr (struct eth_device *dev, bd_t * bis);
 
 static int eepro100_init (struct eth_device *dev, bd_t * bis);
-static int eepro100_send (struct eth_device *dev, volatile void *packet,
-						  int length);
+static int eepro100_send(struct eth_device *dev, void *packet, int length);
 static int eepro100_recv (struct eth_device *dev);
 static void eepro100_halt (struct eth_device *dev);
 
@@ -608,7 +607,7 @@ static int eepro100_init (struct eth_device *dev, bd_t * bis)
 	return status;
 }
 
-static int eepro100_send (struct eth_device *dev, volatile void *packet, int length)
+static int eepro100_send(struct eth_device *dev, void *packet, int length)
 {
 	int i, status = -1;
 	int tx_cur;
@@ -691,7 +690,7 @@ static int eepro100_recv (struct eth_device *dev)
 			/* Pass the packet up to the protocol
 			 * layers.
 			 */
-			NetReceive (rx_ring[rx_next].data, length);
+			NetReceive((u8 *)rx_ring[rx_next].data, length);
 		} else {
 			/* There was an error.
 			 */
