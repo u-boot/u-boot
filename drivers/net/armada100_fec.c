@@ -558,8 +558,7 @@ static void armdfec_halt(struct eth_device *dev)
 	clrbits_le32(&regs->pconf, PCR_EN);
 }
 
-static int armdfec_send(struct eth_device *dev, volatile void *dataptr,
-		    int datasize)
+static int armdfec_send(struct eth_device *dev, void *dataptr, int datasize)
 {
 	struct armdfec_device *darmdfec = to_darmdfec(dev);
 	struct armdfec_reg *regs = darmdfec->regs;
