@@ -1,5 +1,5 @@
 /*
- * SAMSUNG S5P USB HOST EHCI Controller
+ * SAMSUNG EXYNOS USB HOST EHCI Controller
  *
  * Copyright (C) 2012 Samsung Electronics Co.Ltd
  *	Vivek Gautam <gautam.vivek@samsung.com>
@@ -20,8 +20,8 @@
  * MA 02110-1301 USA
  */
 
-#ifndef __ASM_ARM_ARCH_EXYNOS5_EHCI_S5P_H__
-#define __ASM_ARM_ARCH_EXYNOS5_EHCI_S5P_H__
+#ifndef __ASM_ARM_ARCH_EHCI_H__
+#define __ASM_ARM_ARCH_EHCI_H__
 
 #define CLK_24MHZ		5
 
@@ -43,7 +43,7 @@
 #define EHCICTRL_ENAINCR16			(1 << 26)
 
 /* Register map for PHY control */
-struct s5p_usb_phy {
+struct exynos_usb_phy {
 	unsigned int usbphyctrl0;
 	unsigned int usbphytune0;
 	unsigned int reserved1[2];
@@ -63,4 +63,4 @@ struct s5p_usb_phy {
 /* Switch on the VBUS power. */
 int board_usb_vbus_init(void);
 
-#endif /* __ASM_ARM_ARCH_EXYNOS5_EHCI_S5P_H__ */
+#endif /* __ASM_ARM_ARCH_EHCI_H__ */
