@@ -201,6 +201,8 @@ LIST=""
 # Keep track of the number of builds and errors
 ERR_CNT=0
 ERR_LIST=""
+WRN_CNT=0
+WRN_LIST=""
 TOTAL_CNT=0
 CURRENT_CNT=0
 OLDEST_IDX=1
@@ -639,14 +641,19 @@ build_target() {
 		${MAKE} tidy
 
 		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
-			touch ${OUTPUT_PREFIX}/ERR/${target}
+			cp ${LOG_DIR}/${target}.ERR ${OUTPUT_PREFIX}/ERR/${target}
 		else
 			rm ${LOG_DIR}/${target}.ERR
 		fi
 	else
 		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
-			: $(( ERR_CNT += 1 ))
-			ERR_LIST="${ERR_LIST} $target"
+			if grep -iw error ${LOG_DIR}/${target}.ERR ; then
+				: $(( ERR_CNT += 1 ))
+				ERR_LIST="${ERR_LIST} $target"
+			else
+				: $(( WRN_CNT += 1 ))
+				WRN_LIST="${WRN_LIST} $target"
+			fi
 		else
 			rm ${LOG_DIR}/${target}.ERR
 		fi
@@ -747,15 +754,22 @@ print_stats() {
 	rm -f ${donep}* ${skipp}*
 
 	if [ $BUILD_MANY == 1 ] && [ -e "${OUTPUT_PREFIX}/ERR" ] ; then
-		ERR_LIST=$(ls ${OUTPUT_PREFIX}/ERR/)
-		ERR_CNT=`ls -1 ${OUTPUT_PREFIX}/ERR/ | wc | awk '{print $1}'`
+		ERR_LIST=`grep -iwl error ${OUTPUT_PREFIX}/ERR/*`
+		ERR_LIST=`for f in $ERR_LIST ; do echo -n " $(basename $f)" ; done`
+		ERR_CNT=`echo $ERR_LIST | wc -w | awk '{print $1}'`
+		WRN_LIST=`grep -iwL error ${OUTPUT_PREFIX}/ERR/*`
+		WRN_LIST=`for f in $WRN_LIST ; do echo -n " $(basename $f)" ; done`
+		WRN_CNT=`echo $WRN_LIST | wc -w | awk '{print $1}'`
 	fi
 
 	echo ""
 	echo "--------------------- SUMMARY ----------------------------"
 	echo "Boards compiled: ${TOTAL_CNT}"
 	if [ ${ERR_CNT} -gt 0 ] ; then
-		echo "Boards with warnings or errors: ${ERR_CNT} (${ERR_LIST} )"
+		echo "Boards with errors: ${ERR_CNT} (${ERR_LIST} )"
+	fi
+	if [ ${WRN_CNT} -gt 0 ] ; then
+		echo "Boards with warnings but no errors: ${WRN_CNT} (${WRN_LIST} )"
 	fi
 	echo "----------------------------------------------------------"
 
