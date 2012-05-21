@@ -190,8 +190,7 @@ static int ks8695_eth_recv(struct eth_device *dev)
 
 /****************************************************************************/
 
-static int ks8695_eth_send(struct eth_device *dev, volatile void *packet,
-	int len)
+static int ks8695_eth_send(struct eth_device *dev, void *packet, int len)
 {
 	volatile struct ks8695_txdesc *dp;
 	static int next = 0;
