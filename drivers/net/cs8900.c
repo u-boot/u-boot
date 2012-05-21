@@ -215,8 +215,7 @@ static int cs8900_recv(struct eth_device *dev)
 }
 
 /* Send a data block via Ethernet. */
-static int cs8900_send(struct eth_device *dev,
-			volatile void *packet, int length)
+static int cs8900_send(struct eth_device *dev, void *packet, int length)
 {
 	volatile u16 *addr;
 	int tmo;
