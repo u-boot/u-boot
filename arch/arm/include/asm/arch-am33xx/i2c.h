@@ -76,6 +76,6 @@ struct i2c {
 };
 
 #define I2C_IP_CLK			48000000
-#define I2C_INTERNAL_SAMLPING_CLK	12000000
+#define I2C_INTERNAL_SAMPLING_CLK	12000000
 
 #endif /* _I2C_H_ */
