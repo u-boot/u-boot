@@ -44,8 +44,7 @@ static RTXBD rtx __attribute__ ((aligned(8)));
 #error "rtx must be 64-bit aligned"
 #endif
 
-static int tsec_send(struct eth_device *dev,
-	volatile void *packet, int length);
+static int tsec_send(struct eth_device *dev, void *packet, int length);
 
 /* Default initializations for TSEC controllers. */
 
@@ -377,7 +376,7 @@ static void startup_tsec(struct eth_device *dev)
  * do the same.	 Presumably, this would be zero if there were no
  * errors
  */
-static int tsec_send(struct eth_device *dev, volatile void *packet, int length)
+static int tsec_send(struct eth_device *dev, void *packet, int length)
 {
 	int i;
 	int result = 0;
