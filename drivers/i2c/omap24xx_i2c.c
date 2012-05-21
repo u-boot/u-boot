@@ -255,23 +255,43 @@ int i2c_probe(uchar chip)
 	/* wait until bus not busy */
 	wait_for_bb();
 
-	/* try to write one byte */
+	/* try to read one byte */
 	writew(1, &i2c_base->cnt);
 	/* set slave address */
 	writew(chip, &i2c_base->sa);
 	/* stop bit needed here */
-	writew(I2C_CON_EN | I2C_CON_MST | I2C_CON_STT | I2C_CON_TRX |
-	       I2C_CON_STP, &i2c_base->con);
+	writew (I2C_CON_EN | I2C_CON_MST | I2C_CON_STT | I2C_CON_STP, &i2c_base->con);
 
-	status = wait_for_pin();
+	while (1) {
+		status = wait_for_pin();
+		if (status == 0 || status & I2C_STAT_AL) {
+			res = 1;
+			goto probe_exit;
+		}
+		if (status & I2C_STAT_NACK) {
+			res = 1;
+			writew(0xff, &i2c_base->stat);
+			writew (readw (&i2c_base->con) | I2C_CON_STP, &i2c_base->con);
+			wait_for_bb ();
+			break;
+		}
+		if (status & I2C_STAT_ARDY) {
+			writew(I2C_STAT_ARDY, &i2c_base->stat);
+			break;
+		}
+		if (status & I2C_STAT_RRDY) {
+			res = 0;
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+    defined(CONFIG_OMAP44XX)
+			readb(&i2c_base->data);
+#else
+			readw(&i2c_base->data);
+#endif
+			writew(I2C_STAT_RRDY, &i2c_base->stat);
+		}
+	}
 
-	/* check for ACK (!NAK) */
-	if (!(status & I2C_STAT_NACK))
-		res = 0;
-
-	/* abort transfer (force idle state) */
-	writew(0, &i2c_base->con);
-
+probe_exit:
 	flush_fifo();
 	/* don't allow any more data in... we don't want it. */
 	writew(0, &i2c_base->cnt);
