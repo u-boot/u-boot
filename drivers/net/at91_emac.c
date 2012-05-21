@@ -415,8 +415,7 @@ static void at91emac_halt(struct eth_device *netdev)
 	debug_cond(DEBUG_AT91EMAC, "halt MAC\n");
 }
 
-static int at91emac_send(struct eth_device *netdev, volatile void *packet,
-		     int length)
+static int at91emac_send(struct eth_device *netdev, void *packet, int length)
 {
 	at91_emac_t *emac;
 
