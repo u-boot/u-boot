@@ -50,7 +50,10 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			csn = i;
 			csn_bnds_backup = regs->cs[i].bnds;
 			csn_bnds_t = (unsigned int *) &regs->cs[i].bnds;
-			*csn_bnds_t = regs->cs[i].bnds ^ 0x0F000F00;
+			if (cs_ea > 0xeff)
+				*csn_bnds_t = regs->cs[i].bnds + 0x01000000;
+			else
+				*csn_bnds_t = regs->cs[i].bnds + 0x01000100;
 			debug("Found cs%d_bns (0x%08x) covering 0xff000000, "
 				"change it to 0x%x\n",
 				csn, csn_bnds_backup, regs->cs[i].bnds);
@@ -310,9 +313,15 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	/* 7. Wait for 400ms/GB */
 	total_gb_size_per_controller = 0;
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-		total_gb_size_per_controller +=
+		if (i == csn) {
+			total_gb_size_per_controller +=
+				((csn_bnds_backup & 0xFFFF) >> 6)
+				- (csn_bnds_backup >> 22) + 1;
+		} else {
+			total_gb_size_per_controller +=
 				((regs->cs[i].bnds & 0xFFFF) >> 6)
 				- (regs->cs[i].bnds >> 22) + 1;
+		}
 	}
 	if (in_be32(&ddr->sdram_cfg) & 0x80000)
 		total_gb_size_per_controller <<= 1;
