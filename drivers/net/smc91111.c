@@ -426,8 +426,7 @@ static void smc_halt(struct eth_device *dev)
  .	Enable the transmit interrupt, so I know if it failed
  .	Free the kernel data if I actually sent it.
 */
-static int smc_send(struct eth_device *dev, volatile void *packet,
-	int packet_length)
+static int smc_send(struct eth_device *dev, void *packet, int packet_length)
 {
 	byte packet_no;
 	byte *buf;
