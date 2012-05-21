@@ -130,8 +130,7 @@ static u16 dnet_mdio_read(struct dnet_device *dnet, u8 reg)
 	return value;
 }
 
-static int dnet_send(struct eth_device *netdev, volatile void *packet,
-		     int length)
+static int dnet_send(struct eth_device *netdev, void *packet, int length)
 {
 	struct dnet_device *dnet = to_dnet(netdev);
 	int i, wrsz;
