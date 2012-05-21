@@ -875,7 +875,7 @@ static int enc_recv(struct eth_device *dev)
  */
 static int enc_send(
 	struct eth_device *dev,
-	volatile void *packet,
+	void *packet,
 	int length)
 {
 	enc_dev_t *enc = dev->priv;
