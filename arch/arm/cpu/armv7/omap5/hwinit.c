@@ -52,6 +52,81 @@ static struct gpio_bank gpio_bank_54xx[6] = {
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
 
 #ifdef CONFIG_SPL_BUILD
+/* LPDDR2 specific IO settings */
+static void io_settings_lpddr2(void)
+{
+	struct omap_sys_ctrl_regs *ioregs_base =
+		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
+
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+				&(ioregs_base->control_ddrch1_0));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+				&(ioregs_base->control_ddrch1_1));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+				&(ioregs_base->control_ddrch2_0));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+				&(ioregs_base->control_ddrch2_1));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
+				&(ioregs_base->control_lpddr2ch1_0));
+	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
+				&(ioregs_base->control_lpddr2ch1_1));
+	writel(DDR_IO_0_DDR2_DQ_INT_EN_ALL_DDR3_CA_DIS_ALL,
+				&(ioregs_base->control_ddrio_0));
+	writel(DDR_IO_1_DQ_OUT_EN_ALL_DQ_INT_EN_ALL,
+				&(ioregs_base->control_ddrio_1));
+	writel(DDR_IO_2_CA_OUT_EN_ALL_CA_INT_EN_ALL,
+				&(ioregs_base->control_ddrio_2));
+}
+
+/* DDR3 specific IO settings */
+static void io_settings_ddr3(void)
+{
+	u32 io_settings = 0;
+	struct omap_sys_ctrl_regs *ioregs_base =
+		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
+
+	writel(DDR_IO_I_40OHM_SR_SLOWEST_WD_DQ_NO_PULL_DQS_NO_PULL,
+				&(ioregs_base->control_ddr3ch1_0));
+	writel(DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
+				&(ioregs_base->control_ddrch1_0));
+	writel(DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
+				&(ioregs_base->control_ddrch1_1));
+
+	writel(DDR_IO_I_40OHM_SR_SLOWEST_WD_DQ_NO_PULL_DQS_NO_PULL,
+				&(ioregs_base->control_ddr3ch2_0));
+	writel(DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
+				&(ioregs_base->control_ddrch2_0));
+	writel(DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
+				&(ioregs_base->control_ddrch2_1));
+
+	writel(DDR_IO_0_VREF_CELLS_DDR3_VALUE,
+				&(ioregs_base->control_ddrio_0));
+	writel(DDR_IO_1_VREF_CELLS_DDR3_VALUE,
+				&(ioregs_base->control_ddrio_1));
+	writel(DDR_IO_2_VREF_CELLS_DDR3_VALUE,
+				&(ioregs_base->control_ddrio_2));
+
+	/* omap5432 does not use lpddr2 */
+	writel(0x0, &(ioregs_base->control_lpddr2ch1_0));
+	writel(0x0, &(ioregs_base->control_lpddr2ch1_1));
+
+	writel(SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
+			&(ioregs_base->control_emif1_sdram_config_ext));
+	writel(SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
+			&(ioregs_base->control_emif2_sdram_config_ext));
+
+	/* Disable DLL select */
+	io_settings = (readl(&(ioregs_base->control_port_emif1_sdram_config))
+							& 0xFFEFFFFF);
+	writel(io_settings,
+		&(ioregs_base->control_port_emif1_sdram_config));
+
+	io_settings = (readl(&(ioregs_base->control_port_emif2_sdram_config))
+							& 0xFFEFFFFF);
+	writel(io_settings,
+		&(ioregs_base->control_port_emif2_sdram_config));
+}
+
 /*
  * Some tuning of IOs for optimal power and performance
  */
@@ -115,25 +190,10 @@ void do_io_settings(void)
 		       (sc_fast << 17) | (sc_fast << 14);
 	writel(io_settings, &(ioregs_base->control_smart3io_padconf_1));
 
-	/* LPDDR2 io settings */
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
-					&(ioregs_base->control_ddrch1_0));
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
-					&(ioregs_base->control_ddrch1_1));
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
-					&(ioregs_base->control_ddrch2_0));
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
-					&(ioregs_base->control_ddrch2_1));
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
-					&(ioregs_base->control_lpddr2ch1_0));
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
-					&(ioregs_base->control_lpddr2ch1_1));
-	writel(DDR_IO_0_DDR2_DQ_INT_EN_ALL_DDR3_CA_DIS_ALL,
-					&(ioregs_base->control_ddrio_0));
-	writel(DDR_IO_1_DQ_OUT_EN_ALL_DQ_INT_EN_ALL,
-					&(ioregs_base->control_ddrio_1));
-	writel(DDR_IO_2_CA_OUT_EN_ALL_CA_INT_EN_ALL,
-					&(ioregs_base->control_ddrio_2));
+	if (omap_revision() <= OMAP5430_ES1_0)
+		io_settings_lpddr2();
+	else
+		io_settings_ddr3();
 
 	/* Efuse settings */
 	writel(EFUSE_1, &(ioregs_base->control_efuse_1));
