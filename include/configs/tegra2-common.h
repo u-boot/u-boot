@@ -68,6 +68,7 @@
 #endif
 
 /* Environment */
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
 
 /*
