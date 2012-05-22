@@ -5031,10 +5031,9 @@ e1000_poll(struct eth_device *nic)
 /**************************************************************************
 TRANSMIT - Transmit a frame
 ***************************************************************************/
-static int
-e1000_transmit(struct eth_device *nic, volatile void *packet, int length)
+static int e1000_transmit(struct eth_device *nic, void *packet, int length)
 {
-	void * nv_packet = (void *)packet;
+	void *nv_packet = (void *)packet;
 	struct e1000_hw *hw = nic->priv;
 	struct e1000_tx_desc *txp;
 	int i = 0;
