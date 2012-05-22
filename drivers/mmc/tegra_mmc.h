@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2009 SAMSUNG Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
- * Portions Copyright (C) 2011 NVIDIA Corporation
+ * Portions Copyright (C) 2011-2012 NVIDIA Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef __TEGRA2_MMC_H_
-#define __TEGRA2_MMC_H_
+#ifndef __TEGRA_MMC_H_
+#define __TEGRA_MMC_H_
 
 #define TEGRA2_SDMMC1_BASE	0xC8000000
 #define TEGRA2_SDMMC2_BASE	0xC8000200
@@ -128,4 +128,4 @@ struct mmc_host {
 };
 
 #endif	/* __ASSEMBLY__ */
-#endif	/* __TEGRA2_MMC_H_ */
+#endif	/* __TEGRA_MMC_H_ */
