@@ -525,6 +525,11 @@ struct omap4_scrm_regs {
 
 #define DPLL_CLKOUT_DIV_MASK	0x1F /* post-divider mask */
 
+/* CM_DLL_CTRL */
+#define CM_DLL_CTRL_OVERRIDE_SHIFT	0
+#define CM_DLL_CTRL_OVERRIDE_MASK	(1 << 0)
+#define CM_DLL_CTRL_NO_OVERRIDE		0
+
 /* CM_CLKMODE_DPLL */
 #define CM_CLKMODE_DPLL_REGM4XEN_SHIFT		11
 #define CM_CLKMODE_DPLL_REGM4XEN_MASK		(1 << 11)

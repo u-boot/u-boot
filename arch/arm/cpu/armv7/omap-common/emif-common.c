@@ -1232,6 +1232,7 @@ void dmm_init(u32 base)
 void sdram_init(void)
 {
 	u32 in_sdram, size_prog, size_detect;
+	u32 omap_rev = omap_revision();
 
 	debug(">>sdram_init()\n");
 
@@ -1241,9 +1242,12 @@ void sdram_init(void)
 	in_sdram = running_from_sdram();
 	debug("in_sdram = %d\n", in_sdram);
 
-	if (!in_sdram)
-		bypass_dpll(&prcm->cm_clkmode_dpll_core);
-
+	if (!in_sdram) {
+		if (omap_rev != OMAP5432_ES1_0)
+			bypass_dpll(&prcm->cm_clkmode_dpll_core);
+		else
+			writel(CM_DLL_CTRL_NO_OVERRIDE, &prcm->cm_dll_ctrl);
+	}
 
 	do_sdram_init(EMIF1_BASE);
 	do_sdram_init(EMIF2_BASE);
@@ -1255,7 +1259,8 @@ void sdram_init(void)
 	}
 
 	/* for the shadow registers to take effect */
-	freq_update_core();
+	if (omap_rev != OMAP5432_ES1_0)
+		freq_update_core();
 
 	/* Do some testing after the init */
 	if (!in_sdram) {
