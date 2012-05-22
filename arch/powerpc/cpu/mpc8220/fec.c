@@ -624,7 +624,7 @@ static void rfifo_print (char *devname, mpc8220_fec_priv * fec)
 
 /********************************************************************/
 
-static int mpc8220_fec_send (struct eth_device *dev, volatile void *eth_data,
+static int mpc8220_fec_send(struct eth_device *dev, void *eth_data,
 			     int data_length)
 {
 	/*
@@ -787,8 +787,7 @@ static int mpc8220_fec_recv (struct eth_device *dev)
 			 */
 /*			memcpy(buff, frame->head, 14);
 			memcpy(buff + 14, frame->data, frame_length);*/
-			NetReceive ((volatile uchar *) pRbd->dataPointer,
-				    frame_length);
+			NetReceive((uchar *)pRbd->dataPointer, frame_length);
 			len = frame_length;
 		}
 		/*
