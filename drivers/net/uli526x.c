@@ -168,8 +168,7 @@ static char buf_pool[TX_BUF_ALLOC * TX_DESC_CNT + 4];
 static int mode = 8;
 
 /* function declaration -- */
-static int uli526x_start_xmit(struct eth_device *dev,
-				volatile void *packet, int length);
+static int uli526x_start_xmit(struct eth_device *dev, void *packet, int length);
 static const struct ethtool_ops netdev_ethtool_ops;
 static u16 read_srom_word(long, int);
 static void uli526x_descriptor_init(struct uli526x_board_info *, unsigned long);
@@ -443,8 +442,7 @@ static void uli526x_init(struct eth_device *dev)
  *	Send a packet to media from the upper layer.
  */
 
-static int uli526x_start_xmit(struct eth_device *dev,
-				volatile void *packet, int length)
+static int uli526x_start_xmit(struct eth_device *dev, void *packet, int length)
 {
 	struct uli526x_board_info *db = dev->priv;
 	struct tx_desc *txptr;
