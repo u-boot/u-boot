@@ -109,8 +109,6 @@ int phy_setup_aneg (char *devname, unsigned char addr);
 #ifndef	 UPDATE_STATS_BY_SOFTWARE
 static void mv64460_eth_print_stat (struct eth_device *dev);
 #endif
-/* Processes a received packet */
-extern void NetReceive (volatile uchar *, int);
 
 extern unsigned int INTERNAL_REG_BASE_ADDR;
 
