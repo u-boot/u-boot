@@ -464,7 +464,7 @@ static int rtl_recv(struct eth_device *dev)
 /**************************************************************************
 SEND - Transmit a frame
 ***************************************************************************/
-static int rtl_send(struct eth_device *dev, volatile void *packet, int length)
+static int rtl_send(struct eth_device *dev, void *packet, int length)
 {
 	/* send the packet to destination */
 
