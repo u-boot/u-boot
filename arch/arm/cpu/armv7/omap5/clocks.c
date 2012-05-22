@@ -260,20 +260,31 @@ const struct dpll_params *get_abe_dpll_params(void)
  */
 void scale_vcores(void)
 {
-	u32 volt;
+	u32 volt_core, volt_mpu, volt_mm;
 
 	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
 	/* Palmas settings */
-	volt = VDD_CORE;
-	do_scale_vcore(SMPS_REG_ADDR_8_CORE, volt);
+	if (omap_revision() != OMAP5432_ES1_0) {
+		volt_core = VDD_CORE;
+		volt_mpu = VDD_MPU;
+		volt_mm = VDD_MM;
+	} else {
+		volt_core = VDD_CORE_5432;
+		volt_mpu = VDD_MPU_5432;
+		volt_mm = VDD_MM_5432;
+	}
 
-	volt = VDD_MPU;
-	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt);
+	do_scale_vcore(SMPS_REG_ADDR_8_CORE, volt_core);
+	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt_mpu);
+	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt_mm);
 
-	volt = VDD_MM;
-	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt);
-
+	if (omap_revision() == OMAP5432_ES1_0) {
+		/* Configure LDO SRAM "magic" bits */
+		writel(2, &prcm->prm_sldo_core_setup);
+		writel(2, &prcm->prm_sldo_mpu_setup);
+		writel(2, &prcm->prm_sldo_mm_setup);
+	}
 }
 
 u32 get_offset_code(u32 volt_offset)
