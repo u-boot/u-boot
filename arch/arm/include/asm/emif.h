@@ -650,6 +650,7 @@ struct dmm_lisa_map_regs {
 };
 
 extern const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
+extern const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
 
 #define CS0	0
 #define CS1	1
@@ -1073,6 +1074,10 @@ struct emif_regs {
 	u32 emif_ddr_ext_phy_ctrl_3;
 	u32 emif_ddr_ext_phy_ctrl_4;
 	u32 emif_ddr_ext_phy_ctrl_5;
+	u32 emif_rd_wr_lvl_rmp_win;
+	u32 emif_rd_wr_lvl_rmp_ctl;
+	u32 emif_rd_wr_lvl_ctl;
+	u32 emif_rd_wr_exec_thresh;
 };
 
 /* assert macros */

@@ -92,6 +92,7 @@ const struct emif_regs emif_regs_elpida_400_mhz_2cs = {
 
 /* Dummy registers for OMAP44xx */
 const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
+const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
 
 const struct dmm_lisa_map_regs lisa_map_2G_x_1_x_2 = {
 	.dmm_lisa_map_0 = 0xFF020100,
