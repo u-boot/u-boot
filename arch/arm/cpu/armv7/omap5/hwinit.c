@@ -35,6 +35,7 @@
 #include <asm/sizes.h>
 #include <asm/utils.h>
 #include <asm/arch/gpio.h>
+#include <asm/emif.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -202,6 +203,20 @@ void do_io_settings(void)
 	writel(EFUSE_4, &(ioregs_base->control_efuse_4));
 }
 #endif
+
+void config_data_eye_leveling_samples(u32 emif_base)
+{
+	struct omap_sys_ctrl_regs *ioregs_base =
+		(struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
+
+	/*EMIF_SDRAM_CONFIG_EXT-Read data eye leveling no of samples =4*/
+	if (emif_base == EMIF1_BASE)
+		writel(SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES,
+			&(ioregs_base->control_emif1_sdram_config_ext));
+	else if (emif_base == EMIF2_BASE)
+		writel(SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES,
+			&(ioregs_base->control_emif2_sdram_config_ext));
+}
 
 void init_omap_revision(void)
 {
