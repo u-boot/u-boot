@@ -420,7 +420,7 @@ static void fm_eth_halt(struct eth_device *dev)
 	phy_shutdown(fm_eth->phydev);
 }
 
-static int fm_eth_send(struct eth_device *dev, volatile void *buf, int len)
+static int fm_eth_send(struct eth_device *dev, void *buf, int len)
 {
 	struct fm_eth *fm_eth;
 	struct fm_port_global_pram *pram;
