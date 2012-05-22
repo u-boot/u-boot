@@ -38,6 +38,9 @@
 #define CONFIG_PL01x_PORTS			{ (void *)CONFIG_SYS_SERIAL0, \
 						(void *)CONFIG_SYS_SERIAL1 }
 
+/* NAND flash configuration */
+#define CONFIG_SYS_FSMC_NAND_SP
+#define CONFIG_SYS_FSMC_NAND_8BIT
 #define CONFIG_SYS_NAND_BASE			(0xD2000000)
 
 #endif  /* __CONFIG_H */

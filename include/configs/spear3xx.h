@@ -117,6 +117,10 @@
 
 #endif
 
+/* NAND flash configuration */
+#define CONFIG_SYS_FSMC_NAND_SP
+#define CONFIG_SYS_FSMC_NAND_8BIT
+
 #if defined(CONFIG_SPEAR300)
 #define CONFIG_SYS_NAND_BASE			(0x80000000)
 
