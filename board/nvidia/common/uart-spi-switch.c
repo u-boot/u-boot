@@ -25,7 +25,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart-spi-switch.h>
 #include <asm/arch/tegra2.h>
-#include <asm/arch/tegra2_spi.h>
+#include <asm/arch/tegra_spi.h>
 
 
 /* position of the UART/SPI select switch */

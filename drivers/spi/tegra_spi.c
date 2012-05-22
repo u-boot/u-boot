@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2011 NVIDIA Corporation
+ * Copyright (c) 2010-2012 NVIDIA Corporation
  * With help from the mpc8xxx SPI driver
  * With more help from omap3_spi SPI driver
  *
@@ -32,7 +32,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart-spi-switch.h>
-#include <asm/arch/tegra2_spi.h>
+#include <asm/arch/tegra_spi.h>
 
 #if defined(CONFIG_SPI_CORRUPTS_UART)
  #define corrupt_delay()	udelay(CONFIG_SPI_CORRUPTS_UART_DLY);

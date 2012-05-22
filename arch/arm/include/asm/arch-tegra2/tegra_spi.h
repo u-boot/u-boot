@@ -1,7 +1,7 @@
 /*
  * NVIDIA Tegra2 SPI-FLASH controller
  *
- * Copyright 2010-2011 NVIDIA Corporation
+ * Copyright 2010-2012 NVIDIA Corporation
  *
  * This software may be used and distributed according to the
  * terms of the GNU Public License, Version 2, incorporated
@@ -22,8 +22,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _TEGRA2_SPI_H_
-#define _TEGRA2_SPI_H_
+#ifndef _TEGRA_SPI_H_
+#define _TEGRA_SPI_H_
 
 #include <asm/types.h>
 
@@ -72,5 +72,4 @@ struct spi_tegra {
 #define SPI_TIMEOUT		1000
 #define TEGRA2_SPI_MAX_FREQ	52000000
 
-
-#endif	/* _TEGRA2_SPI_H_ */
+#endif	/* _TEGRA_SPI_H_ */
