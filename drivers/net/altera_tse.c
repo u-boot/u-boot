@@ -257,8 +257,7 @@ static int tse_adjust_link(struct altera_tse_priv *priv)
 	return 0;
 }
 
-static int tse_eth_send(struct eth_device *dev,
-			volatile void *packet, int length)
+static int tse_eth_send(struct eth_device *dev, void *packet, int length)
 {
 	struct altera_tse_priv *priv = dev->priv;
 	volatile struct alt_sgdma_registers *tx_sgdma = priv->sgdma_tx;

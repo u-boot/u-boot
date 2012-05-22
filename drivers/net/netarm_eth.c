@@ -300,7 +300,7 @@ extern int eth_rx (void)
 }
 
 /* Send a data block via Ethernet. */
-extern int eth_send (volatile void *packet, int length)
+extern int eth_send(void *packet, int length)
 {
 	int i, length32;
 	char *pa;

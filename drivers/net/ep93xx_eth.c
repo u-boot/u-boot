@@ -380,7 +380,7 @@ static int ep93xx_eth_rcv_packet(struct eth_device *dev)
  * Send a block of data via ethernet.
  */
 static int ep93xx_eth_send_packet(struct eth_device *dev,
-				volatile void * const packet, int const length)
+				void * const packet, int const length)
 {
 	struct mac_regs *mac = GET_REGS(dev);
 	struct ep93xx_priv *priv = GET_PRIV(dev);

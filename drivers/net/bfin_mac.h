@@ -58,7 +58,7 @@ static ADI_ETHER_BUFFER *SetupTxBuffer(int no);
 
 static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd);
 static void bfin_EMAC_halt(struct eth_device *dev);
-static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet, int length);
+static int bfin_EMAC_send(struct eth_device *dev, void *packet, int length);
 static int bfin_EMAC_recv(struct eth_device *dev);
 static int bfin_EMAC_setup_addr(struct eth_device *dev);
 

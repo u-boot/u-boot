@@ -46,7 +46,7 @@
 
 #define TIMEOUT_CNT 1000
 
-int sh_eth_send(struct eth_device *dev, volatile void *packet, int len)
+int sh_eth_send(struct eth_device *dev, void *packet, int len)
 {
 	struct sh_eth_dev *eth = dev->priv;
 	int port = eth->port, ret = 0, timeout;
@@ -103,15 +103,15 @@ int sh_eth_recv(struct eth_device *dev)
 	struct sh_eth_dev *eth = dev->priv;
 	int port = eth->port, len = 0;
 	struct sh_eth_info *port_info = &eth->port_info[port];
-	volatile u8 *packet;
+	uchar *packet;
 
 	/* Check if the rx descriptor is ready */
 	if (!(port_info->rx_desc_cur->rd0 & RD_RACT)) {
 		/* Check for errors */
 		if (!(port_info->rx_desc_cur->rd0 & RD_RFE)) {
 			len = port_info->rx_desc_cur->rd1 & 0xffff;
-			packet = (volatile u8 *)
-			    ADDR_TO_P2(port_info->rx_desc_cur->rd2);
+			packet = (uchar *)
+				ADDR_TO_P2(port_info->rx_desc_cur->rd2);
 			NetReceive(packet, len);
 		}
 

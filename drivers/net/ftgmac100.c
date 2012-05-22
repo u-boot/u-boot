@@ -480,8 +480,7 @@ static int ftgmac100_recv(struct eth_device *dev)
 /*
  * Send a data block via Ethernet
  */
-static int
-ftgmac100_send(struct eth_device *dev, void *packet, int length)
+static int ftgmac100_send(struct eth_device *dev, void *packet, int length)
 {
 	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
 	struct ftgmac100_data *priv = dev->priv;

@@ -403,7 +403,7 @@ void greth_halt(struct eth_device *dev)
 	}
 }
 
-int greth_send(struct eth_device *dev, volatile void *eth_data, int data_length)
+int greth_send(struct eth_device *dev, void *eth_data, int data_length)
 {
 	greth_priv *greth = dev->priv;
 	greth_regs *regs = greth->regs;

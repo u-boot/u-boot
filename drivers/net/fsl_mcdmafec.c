@@ -116,7 +116,7 @@ struct fec_info_dma fec_info[] = {
 #endif
 };
 
-static int fec_send(struct eth_device *dev, volatile void *packet, int length);
+static int fec_send(struct eth_device *dev, void *packet, int length);
 static int fec_recv(struct eth_device *dev);
 static int fec_init(struct eth_device *dev, bd_t * bd);
 static void fec_halt(struct eth_device *dev);
@@ -194,7 +194,7 @@ static void set_fec_duplex_speed(volatile fecdma_t * fecp, bd_t * bd,
 	}
 }
 
-static int fec_send(struct eth_device *dev, volatile void *packet, int length)
+static int fec_send(struct eth_device *dev, void *packet, int length)
 {
 	struct fec_info_dma *info = dev->priv;
 	cbd_t *pTbd, *pUsedTbd;
@@ -301,8 +301,7 @@ static int fec_recv(struct eth_device *dev)
 			frame_length = pRbd->cbd_datlen - 4;
 
 			/* Fill the buffer and pass it to upper layers */
-			NetReceive((volatile uchar *)pRbd->cbd_bufaddr,
-				   frame_length);
+			NetReceive((uchar *)pRbd->cbd_bufaddr, frame_length);
 			len = frame_length;
 		}
 

@@ -189,8 +189,7 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 	return 0;
 }
 
-static int dw_eth_send(struct eth_device *dev, volatile void *packet,
-		int length)
+static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 {
 	struct dw_eth_dev *priv = dev->priv;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
@@ -203,7 +202,7 @@ static int dw_eth_send(struct eth_device *dev, volatile void *packet,
 		return -1;
 	}
 
-	memcpy((void *)desc_p->dmamac_addr, (void *)packet, length);
+	memcpy((void *)desc_p->dmamac_addr, packet, length);
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 	desc_p->txrx_status |= DESC_TXSTS_TXFIRST | DESC_TXSTS_TXLAST;

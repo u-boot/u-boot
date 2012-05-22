@@ -525,8 +525,7 @@ static int mvgbe_write_hwaddr(struct eth_device *dev)
 	return 0;
 }
 
-static int mvgbe_send(struct eth_device *dev, void *dataptr,
-		      int datasize)
+static int mvgbe_send(struct eth_device *dev, void *dataptr, int datasize)
 {
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;

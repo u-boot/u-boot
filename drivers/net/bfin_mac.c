@@ -118,8 +118,7 @@ int bfin_EMAC_initialize(bd_t *bis)
 	return 0;
 }
 
-static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet,
-			  int length)
+static int bfin_EMAC_send(struct eth_device *dev, void *packet, int length)
 {
 	int i;
 	int result = 0;
@@ -471,7 +470,7 @@ int ether_post_test(int flags)
 	for (i = 0; i < 42; i++)
 		buf[i + 22] = i;
 	printf("--------Send 64 bytes......\n");
-	bfin_EMAC_send(NULL, (volatile void *)buf, 64);
+	bfin_EMAC_send(NULL, buf, 64);
 	for (i = 0; i < 100; i++) {
 		udelay(10000);
 		if ((rxbuf[rxIdx]->StatusWord & RX_COMP) != 0) {

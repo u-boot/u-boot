@@ -414,7 +414,7 @@ static void ethoc_tx(struct eth_device *dev)
 		(void)ethoc_update_tx_stats(&bd);
 }
 
-static int ethoc_send(struct eth_device *dev, volatile void *packet, int length)
+static int ethoc_send(struct eth_device *dev, void *packet, int length)
 {
 	struct ethoc *priv = (struct ethoc *)dev->priv;
 	struct ethoc_bd bd;

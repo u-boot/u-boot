@@ -147,7 +147,8 @@ int  au1x00_miiphy_write(const char *devname, unsigned char addr,
 }
 #endif
 
-static int au1x00_send(struct eth_device* dev, volatile void *packet, int length){
+static int au1x00_send(struct eth_device *dev, void *packet, int length)
+{
 	volatile mac_fifo_t *fifo_tx =
 		(volatile mac_fifo_t*)(MAC0_TX_DMA_ADDR+MAC_TX_BUFF0_STATUS);
 	int i;
