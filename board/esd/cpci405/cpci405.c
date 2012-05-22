@@ -697,7 +697,6 @@ U_BOOT_CMD(
  */
 int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	bd_t *bd = gd->bd;
 	char *buf;
 	ulong crc;
 	char str[32];
@@ -730,11 +729,7 @@ int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/*
 		 * Update whole ip-addr
 		 */
-		sprintf(str, "%ld.%ld.%ld.%ld",
-			(ipaddr & 0xff000000) >> 24,
-			(ipaddr & 0x00ff0000) >> 16,
-			(ipaddr & 0x0000ff00) >> 8,
-			(ipaddr & 0x000000ff));
+		sprintf(str, "%pI4", &ipaddr);
 		setenv("ipaddr", str);
 		printf("Updated ip_addr from bp_eeprom to %s!\n", str);
 	}
