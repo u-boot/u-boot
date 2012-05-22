@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2010,2011
+ *  (C) Copyright 2010-2012
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -190,6 +190,6 @@
 						CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_TEGRA2_GPIO
+#define CONFIG_TEGRA_GPIO
 #define CONFIG_CMD_GPIO
 #endif /* __TEGRA2_COMMON_H */
