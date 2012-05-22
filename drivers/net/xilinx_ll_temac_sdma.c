@@ -324,8 +324,7 @@ int ll_temac_recv_sdma(struct eth_device *dev)
 	return 0;
 }
 
-int ll_temac_send_sdma(struct eth_device *dev, volatile void *packet,
-							int length)
+int ll_temac_send_sdma(struct eth_device *dev, void *packet, int length)
 {
 	unsigned timeout = 50;	/* 1usec * 50 = 50usec */
 	struct cdmac_bd *tx_dp = &cdmac_bd.tx[tx_idx];
