@@ -848,10 +848,10 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
 	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 
-	debug("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
 #ifdef CONFIG_BOOTP_DHCP_REQUEST_DELAY
 	udelay(CONFIG_BOOTP_DHCP_REQUEST_DELAY);
 #endif	/* CONFIG_BOOTP_DHCP_REQUEST_DELAY */
+	debug("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
 	NetSendPacket(NetTxPacket, pktlen);
 }
 
