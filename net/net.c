@@ -1099,7 +1099,7 @@ NetReceive(uchar *inpkt, int len)
 
 #if defined(CONFIG_CMD_CDP)
 	/* keep track if packet is CDP */
-	iscdp = memcmp(et->et_dest, NetCDPAddr, 6) == 0;
+	iscdp = is_cdp_packet(et->et_dest);
 #endif
 
 	myvlanid = ntohs(NetOurVLAN);

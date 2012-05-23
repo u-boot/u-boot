@@ -356,8 +356,6 @@ extern uchar		NetEtherNullAddr[6];
 extern ushort		NetOurVLAN;		/* Our VLAN */
 extern ushort		NetOurNativeVLAN;	/* Our Native VLAN */
 
-extern const uchar	NetCDPAddr[6];		/* Ethernet CDP address */
-
 extern int		NetState;		/* Network loop state */
 #define NETLOOP_CONTINUE	1
 #define NETLOOP_RESTART		2
@@ -387,6 +385,16 @@ extern IPaddr_t	NetPingIP;			/* the ip address to ping */
 /* when CDP completes these hold the return values */
 extern ushort CDPNativeVLAN;		/* CDP returned native VLAN */
 extern ushort CDPApplianceVLAN;		/* CDP returned appliance VLAN */
+
+/*
+ * Check for a CDP packet by examining the received MAC address field
+ */
+static inline int is_cdp_packet(const uchar *et_addr)
+{
+	extern const uchar NetCDPAddr[6];
+
+	return memcmp(et_addr, NetCDPAddr, 6) == 0;
+}
 #endif
 
 #if defined(CONFIG_CMD_SNTP)
