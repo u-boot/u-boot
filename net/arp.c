@@ -48,7 +48,8 @@ void ArpInit(void)
 	NetArpTxPacket -= (ulong)NetArpTxPacket % PKTALIGN;
 }
 
-void ArpRequest(void)
+void arp_raw_request(IPaddr_t sourceIP, const uchar *targetEther,
+	IPaddr_t targetIP)
 {
 	uchar *pkt;
 	struct arp_hdr *arp;
@@ -69,12 +70,16 @@ void ArpRequest(void)
 	arp->ar_pln = ARP_PLEN;
 	arp->ar_op = htons(ARPOP_REQUEST);
 
-	/* source ET addr */
-	memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);
-	/* source IP addr */
-	NetWriteIP(&arp->ar_spa, NetOurIP);
-	/* dest ET addr = 0 */
-	memset(&arp->ar_tha, 0, ARP_HLEN);
+	memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);	/* source ET addr */
+	NetWriteIP(&arp->ar_spa, sourceIP);		/* source IP addr */
+	memcpy(&arp->ar_tha, targetEther, ARP_HLEN);	/* target ET addr */
+	NetWriteIP(&arp->ar_tpa, targetIP);		/* target IP addr */
+
+	NetSendPacket(NetArpTxPacket, eth_hdr_size + ARP_HDR_SIZE);
+}
+
+void ArpRequest(void)
+{
 	if ((NetArpWaitPacketIP & NetOurSubnetMask) !=
 	    (NetOurIP & NetOurSubnetMask)) {
 		if (NetOurGatewayIP == 0) {
@@ -87,8 +92,7 @@ void ArpRequest(void)
 		NetArpWaitReplyIP = NetArpWaitPacketIP;
 	}
 
-	NetWriteIP(&arp->ar_tpa, NetArpWaitReplyIP);
-	NetSendPacket(NetArpTxPacket, eth_hdr_size + ARP_HDR_SIZE);
+	arp_raw_request(NetOurIP, NetEtherNullAddr, NetArpWaitReplyIP);
 }
 
 void ArpTimeoutCheck(void)
