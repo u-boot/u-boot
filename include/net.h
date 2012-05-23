@@ -472,7 +472,10 @@ extern void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
 extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */
 
 /* Transmit "NetTxPacket" */
-extern void NetSendPacket(uchar *, int);
+static inline void NetSendPacket(uchar *pkt, int len)
+{
+	(void) eth_send(pkt, len);
+}
 
 /*
  * Transmit UDP packet, performing ARP request if needed

@@ -112,8 +112,7 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		icmph->checksum = 0;
 		icmph->checksum = ~NetCksum((uchar *)icmph,
 			(len - IP_HDR_SIZE) >> 1);
-		(void) eth_send((uchar *)et,
-				ETHER_HDR_SIZE + len);
+		NetSendPacket((uchar *)et, ETHER_HDR_SIZE + len);
 		return;
 /*	default:
 		return;*/

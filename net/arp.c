@@ -88,7 +88,7 @@ void ArpRequest(void)
 	}
 
 	NetWriteIP(&arp->ar_tpa, NetArpWaitReplyIP);
-	(void) eth_send(NetTxPacket, eth_hdr_size + ARP_HDR_SIZE);
+	NetSendPacket(NetTxPacket, eth_hdr_size + ARP_HDR_SIZE);
 }
 
 void ArpTimeoutCheck(void)
@@ -165,7 +165,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		NetCopyIP(&arp->ar_tpa, &arp->ar_spa);
 		memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);
 		NetCopyIP(&arp->ar_spa, &NetOurIP);
-		(void) eth_send((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
+		NetSendPacket((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
 		return;
 
 	case ARPOP_REPLY:		/* arp reply */
@@ -198,7 +198,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 			/* modify header, and transmit it */
 			memcpy(((struct ethernet_hdr *)NetArpWaitTxPacket)->
 				et_dest, NetArpWaitPacketMAC, ARP_HLEN);
-			(void) eth_send(NetArpWaitTxPacket,
+			NetSendPacket(NetArpWaitTxPacket,
 					NetArpWaitTxPacketSize);
 
 			/* no arp request pending now */

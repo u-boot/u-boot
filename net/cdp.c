@@ -216,7 +216,7 @@ CDPSendTrigger(void)
 		chksum = 0xFFFF;
 	*cp = htons(chksum);
 
-	(void) eth_send(NetTxPacket, (uchar *)s - NetTxPacket);
+	NetSendPacket(NetTxPacket, (uchar *)s - NetTxPacket);
 	return 0;
 }
 

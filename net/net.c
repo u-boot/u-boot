@@ -584,13 +584,6 @@ NetSetTimeout(ulong iv, thand_f *f)
 	}
 }
 
-
-void
-NetSendPacket(uchar *pkt, int len)
-{
-	(void) eth_send(pkt, len);
-}
-
 int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 		int payload_len)
 {
@@ -646,7 +639,7 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 		return 1;	/* waiting */
 	} else {
 		debug("sending UDP to %pI4/%pM\n", &dest, ether);
-		eth_send(NetTxPacket, pkt_hdr_size + payload_len);
+		NetSendPacket(NetTxPacket, pkt_hdr_size + payload_len);
 		return 0;	/* transmitted */
 	}
 }
