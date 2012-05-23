@@ -75,27 +75,27 @@
 
 
 #include <common.h>
-#include <watchdog.h>
 #include <command.h>
-#include <linux/compiler.h>
 #include <net.h>
+#if defined(CONFIG_STATUS_LED)
+#include <miiphy.h>
+#include <status_led.h>
+#endif
+#include <watchdog.h>
+#include <linux/compiler.h>
 #include "arp.h"
 #include "bootp.h"
-#include "tftp.h"
-#include "rarp.h"
-#include "nfs.h"
-#ifdef CONFIG_STATUS_LED
-#include <status_led.h>
-#include <miiphy.h>
-#endif
-#if defined(CONFIG_CMD_SNTP)
-#include "sntp.h"
-#endif
 #include "cdp.h"
 #if defined(CONFIG_CMD_DNS)
 #include "dns.h"
 #endif
+#include "nfs.h"
 #include "ping.h"
+#include "rarp.h"
+#if defined(CONFIG_CMD_SNTP)
+#include "sntp.h"
+#endif
+#include "tftp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
