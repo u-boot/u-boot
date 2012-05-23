@@ -581,7 +581,8 @@ BootpRequest(void)
 {
 	uchar *pkt, *iphdr;
 	struct Bootp_t *bp;
-	int ext_len, pktlen, iplen;
+	int extlen, pktlen, iplen;
+	int eth_hdr_size;
 #ifdef CONFIG_BOOTP_RANDOM_DELAY
 	ulong i, rand_ms;
 #endif
@@ -610,7 +611,8 @@ BootpRequest(void)
 	pkt = NetTxPacket;
 	memset((void *)pkt, 0, PKTSIZE);
 
-	pkt += NetSetEther(pkt, NetBcastAddr, PROT_IP);
+	eth_hdr_size = NetSetEther(pkt, NetBcastAddr, PROT_IP);
+	pkt += eth_hdr_size;
 
 	/*
 	 * Next line results in incorrect packet size being transmitted,
@@ -639,9 +641,9 @@ BootpRequest(void)
 
 	/* Request additional information from the BOOTP/DHCP server */
 #if defined(CONFIG_CMD_DHCP)
-	ext_len = DhcpExtended((u8 *)bp->bp_vend, DHCP_DISCOVER, 0, 0);
+	extlen = DhcpExtended((u8 *)bp->bp_vend, DHCP_DISCOVER, 0, 0);
 #else
-	ext_len = BootpExtended((u8 *)bp->bp_vend);
+	extlen = BootpExtended((u8 *)bp->bp_vend);
 #endif
 
 	/*
@@ -660,9 +662,8 @@ BootpRequest(void)
 	 * Calculate proper packet lengths taking into account the
 	 * variable size of the options field
 	 */
-	pktlen = ((int)(pkt-NetTxPacket)) + BOOTP_HDR_SIZE -
-		sizeof(bp->bp_vend) + ext_len;
-	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + ext_len;
+	iplen = BOOTP_HDR_SIZE - OPT_FIELD_SIZE + extlen;
+	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
 	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 	NetSetTimeout(SELECT_TIMEOUT, BootpTimeout);
 
@@ -798,13 +799,15 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	uchar *pkt, *iphdr;
 	struct Bootp_t *bp;
 	int pktlen, iplen, extlen;
+	int eth_hdr_size;
 	IPaddr_t OfferedIP;
 
 	debug("DhcpSendRequestPkt: Sending DHCPREQUEST\n");
 	pkt = NetTxPacket;
 	memset((void *)pkt, 0, PKTSIZE);
 
-	pkt += NetSetEther(pkt, NetBcastAddr, PROT_IP);
+	eth_hdr_size = NetSetEther(pkt, NetBcastAddr, PROT_IP);
+	pkt += eth_hdr_size;
 
 	iphdr = pkt;	/* We'll need this later to set proper pkt size */
 	pkt += IP_UDP_HDR_SIZE;
@@ -841,9 +844,8 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	extlen = DhcpExtended((u8 *)bp->bp_vend, DHCP_REQUEST,
 		NetDHCPServerIP, OfferedIP);
 
-	pktlen = ((int)(pkt-NetTxPacket)) + BOOTP_HDR_SIZE -
-		sizeof(bp->bp_vend) + extlen;
-	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + extlen;
+	iplen = BOOTP_HDR_SIZE - OPT_FIELD_SIZE + extlen;
+	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
 	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 
 	debug("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
