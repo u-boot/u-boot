@@ -356,9 +356,7 @@ extern uchar		NetEtherNullAddr[6];
 extern ushort		NetOurVLAN;		/* Our VLAN */
 extern ushort		NetOurNativeVLAN;	/* Our Native VLAN */
 
-extern uchar	NetCDPAddr[6];		/* Ethernet CDP address */
-extern ushort	CDPNativeVLAN;		/* CDP returned native VLAN */
-extern ushort	CDPApplianceVLAN;	/* CDP returned appliance VLAN */
+extern const uchar	NetCDPAddr[6];		/* Ethernet CDP address */
 
 extern int		NetState;		/* Network loop state */
 #define NETLOOP_CONTINUE	1
@@ -387,8 +385,8 @@ extern IPaddr_t	NetPingIP;			/* the ip address to ping */
 
 #if defined(CONFIG_CMD_CDP)
 /* when CDP completes these hold the return values */
-extern ushort CDPNativeVLAN;
-extern ushort CDPApplianceVLAN;
+extern ushort CDPNativeVLAN;		/* CDP returned native VLAN */
+extern ushort CDPApplianceVLAN;		/* CDP returned appliance VLAN */
 #endif
 
 #if defined(CONFIG_CMD_SNTP)
