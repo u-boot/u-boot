@@ -298,7 +298,7 @@ struct arp_hdr {
 /* Codes for NOT_REACH */
 #define ICMP_NOT_REACH_PORT	3	/* Port unreachable		*/
 
-typedef struct icmphdr {
+struct icmp_hdr {
 	uchar		type;
 	uchar		code;
 	ushort		checksum;
@@ -314,8 +314,10 @@ typedef struct icmphdr {
 		} frag;
 		uchar data[0];
 	} un;
-} ICMP_t;
+};
 
+#define ICMP_HDR_SIZE		(sizeof(struct icmp_hdr))
+#define IP_ICMP_HDR_SIZE	(IP_HDR_SIZE + ICMP_HDR_SIZE)
 
 /*
  * Maximum packet size; used to allocate packet storage.

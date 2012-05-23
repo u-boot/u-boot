@@ -825,7 +825,7 @@ static inline struct ip_udp_hdr *NetDefragment(struct ip_udp_hdr *ip, int *lenp)
 static void receive_icmp(struct ip_udp_hdr *ip, int len,
 			IPaddr_t src_ip, struct ethernet_hdr *et)
 {
-	ICMP_t *icmph = (ICMP_t *)&ip->udp_src;
+	struct icmp_hdr *icmph = (struct icmp_hdr *)&ip->udp_src;
 
 	switch (icmph->type) {
 	case ICMP_REDIRECT:
