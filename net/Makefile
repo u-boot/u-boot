@@ -32,15 +32,17 @@ COBJS-$(CONFIG_CMD_NET)  += bootp.o
 COBJS-$(CONFIG_CMD_CDP)  += cdp.o
 COBJS-$(CONFIG_CMD_DNS)  += dns.o
 COBJS-$(CONFIG_CMD_NET)  += eth.o
+COBJS-$(CONFIG_CMD_LINK_LOCAL) += link_local.o
 COBJS-$(CONFIG_CMD_NET)  += net.o
 COBJS-$(CONFIG_BOOTP_RANDOM_DELAY) += net_rand.o
+COBJS-$(CONFIG_CMD_LINK_LOCAL) += net_rand.o
 COBJS-$(CONFIG_CMD_NFS)  += nfs.o
 COBJS-$(CONFIG_CMD_PING) += ping.o
 COBJS-$(CONFIG_CMD_RARP) += rarp.o
 COBJS-$(CONFIG_CMD_SNTP) += sntp.o
 COBJS-$(CONFIG_CMD_NET)  += tftp.o
 
-COBJS	:= $(COBJS-y)
+COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

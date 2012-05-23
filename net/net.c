@@ -23,6 +23,12 @@
  *			- name of bootfile
  *	Next step:	ARP
  *
+ * LINK_LOCAL:
+ *
+ *	Prerequisites:	- own ethernet address
+ *	We want:	- own IP address
+ *	Next step:	ARP
+ *
  * RARP:
  *
  *	Prerequisites:	- own ethernet address
@@ -89,6 +95,7 @@
 #if defined(CONFIG_CMD_DNS)
 #include "dns.h"
 #endif
+#include "link_local.h"
 #include "nfs.h"
 #include "ping.h"
 #include "rarp.h"
@@ -400,6 +407,11 @@ restart:
 #if defined(CONFIG_CMD_DNS)
 		case DNS:
 			DnsStart();
+			break;
+#endif
+#if defined(CONFIG_CMD_LINK_LOCAL)
+		case LINKLOCAL:
+			link_local_start();
 			break;
 #endif
 		default:
@@ -1194,6 +1206,7 @@ common:
 	case BOOTP:
 	case CDP:
 	case DHCP:
+	case LINKLOCAL:
 		if (memcmp(NetOurEther, "\0\0\0\0\0\0", 6) == 0) {
 			int num = eth_get_dev_index();
 

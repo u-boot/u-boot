@@ -785,6 +785,8 @@ The following options need to be configured:
 		CONFIG_CMD_JFFS2	* JFFS2 Support
 		CONFIG_CMD_KGDB		* kgdb
 		CONFIG_CMD_LDRINFO	  ldrinfo (display Blackfin loader)
+		CONFIG_CMD_LINK_LOCAL	* link-local IP address auto-configuration
+					  (169.254.*.*)
 		CONFIG_CMD_LOADB	  loadb
 		CONFIG_CMD_LOADS	  loads
 		CONFIG_CMD_MD5SUM	  print md5 message digest
@@ -1632,6 +1634,14 @@ The following options need to be configured:
 		that one of the retries will be successful but note that
 		the DHCP timeout and retry process takes a longer than
 		this delay.
+
+ - Link-local IP address negotiation:
+		Negotiate with other link-local clients on the local network
+		for an address that doesn't require explicit configuration.
+		This is especially useful if a DHCP server cannot be guaranteed
+		to exist in all environments that the device must operate.
+
+		See doc/README.link-local for more information.
 
  - CDP Options:
 		CONFIG_CDP_DEVICE_ID
