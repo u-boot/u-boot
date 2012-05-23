@@ -24,7 +24,7 @@ import os
 import re
 
 import command
-
+import gitutil
 
 def ReadGitAliases(fname):
     """Read a git alias file. This is in the form used by git:
@@ -61,6 +61,33 @@ def ReadGitAliases(fname):
 
     fd.close()
 
+def CreatePatmanConfigFile(config_fname):
+    """Creates a config file under $(HOME)/.patman if it can't find one.
+
+    Args:
+        config_fname: Default config filename i.e., $(HOME)/.patman
+
+    Returns:
+        None
+    """
+    name = gitutil.GetDefaultUserName()
+    if name == None:
+        name = raw_input("Enter name: ")
+
+    email = gitutil.GetDefaultUserEmail()
+
+    if email == None:
+        email = raw_input("Enter email: ")
+
+    try:
+        f = open(config_fname, 'w')
+    except IOError:
+        print "Couldn't create patman config file\n"
+        raise
+
+    print >>f, "[alias]\nme: %s <%s>" % (name, email)
+    f.close();
+
 def Setup(config_fname=''):
     """Set up the settings module by reading config files.
 
@@ -70,8 +97,12 @@ def Setup(config_fname=''):
     settings = ConfigParser.SafeConfigParser()
     if config_fname == '':
         config_fname = '%s/.patman' % os.getenv('HOME')
-    if config_fname:
-        settings.read(config_fname)
+
+    if not os.path.exists(config_fname):
+        print "No config file found ~/.patman\nCreating one...\n"
+        CreatePatmanConfigFile(config_fname)
+
+    settings.read(config_fname)
 
     for name, value in settings.items('alias'):
         alias[name] = value.split(',')

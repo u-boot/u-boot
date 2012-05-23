@@ -357,6 +357,24 @@ def GetAliasFile():
         fname = os.path.join(GetTopLevel(), fname.strip())
     return fname
 
+def GetDefaultUserName():
+    """Gets the user.name from .gitconfig file.
+
+    Returns:
+        User name found in .gitconfig file, or None if none
+    """
+    uname = command.OutputOneLine('git', 'config', '--global', 'user.name')
+    return uname
+
+def GetDefaultUserEmail():
+    """Gets the user.email from the global .gitconfig file.
+
+    Returns:
+        User's email found in .gitconfig file, or None if none
+    """
+    uemail = command.OutputOneLine('git', 'config', '--global', 'user.email')
+    return uemail
+
 def Setup():
     """Set up git utils, by reading the alias files."""
     settings.Setup('')

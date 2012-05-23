@@ -68,6 +68,9 @@ How to configure it
 For most cases patman will locate and use the file 'doc/git-mailrc' in
 your U-Boot directory. This contains most of the aliases you will need.
 
+During the first run patman creates a config file for you by taking the default
+user name and email address from the global .gitconfig file.
+
 To add your own, create a file ~/.patman like this:
 
 >>>>
