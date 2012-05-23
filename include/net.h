@@ -179,11 +179,11 @@ struct e802_hdr {
 	ushort		et_prot;	/* 802 protocol			*/
 };
 
-/* 802 ethernet header size */
+/* 802 + SNAP + ethernet header size */
 #define E802_HDR_SIZE	(sizeof(struct e802_hdr))
 
 /*
- *	Ethernet header
+ *	Virtual LAN Ethernet header
  */
 struct vlan_ethernet_hdr {
 	uchar		vet_dest[6];	/* Destination node		*/

@@ -898,7 +898,8 @@ NetReceive(uchar *inpkt, int len)
 	if (x < 1514) {
 		struct e802_hdr *et802 = (struct e802_hdr *)et;
 		/*
-		 *	Got a 802 packet.  Check the other protocol field.
+		 *	Got a 802.2 packet.  Check the other protocol field.
+		 *	XXX VLAN over 802.2+SNAP not implemented!
 		 */
 		x = ntohs(et802->et_prot);
 
