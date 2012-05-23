@@ -28,7 +28,7 @@
 #include "tegra2-common.h"
 
 /* Enable fdt support for Ventana. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-seaboard
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-ventana
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
@@ -59,6 +59,20 @@
 
 /* Environment not stored */
 #define CONFIG_ENV_IS_NOWHERE
+
+/* USB Host support */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_TEGRA
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_USB
+
+/* USB networking support */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+
+/* General networking support */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
 
 #include "tegra2-common-post.h"
 
