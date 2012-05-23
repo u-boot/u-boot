@@ -265,6 +265,31 @@ static void net_cleanup_loop(void)
 	net_clear_handlers();
 }
 
+void net_init(void)
+{
+	static int first_call = 1;
+
+	if (first_call) {
+		/*
+		 *	Setup packet buffers, aligned correctly.
+		 */
+		int i;
+
+		NetTxPacket = &PktBuf[0] + (PKTALIGN - 1);
+		NetTxPacket -= (ulong)NetTxPacket % PKTALIGN;
+		for (i = 0; i < PKTBUFSRX; i++)
+			NetRxPackets[i] = NetTxPacket + (i + 1) * PKTSIZE_ALIGN;
+
+		ArpInit();
+		net_clear_handlers();
+
+		/* Only need to setup buffer pointers once. */
+		first_call = 0;
+	}
+
+	NetInitLoop();
+}
+
 /**********************************************************************/
 /*
  *	Main network processing loop.
@@ -272,28 +297,15 @@ static void net_cleanup_loop(void)
 
 int NetLoop(enum proto_t protocol)
 {
-	int	i;
 	bd_t *bd = gd->bd;
 	int ret = -1;
 
 	NetRestarted = 0;
 	NetDevExists = 0;
-
-	NetTxPacket = NULL;
 	NetTryCount = 1;
 
-	ArpInit();
-	net_clear_handlers();
-
-	/*
-	 *	Setup packet buffers, aligned correctly.
-	 */
-	NetTxPacket = &PktBuf[0] + (PKTALIGN - 1);
-	NetTxPacket -= (ulong)NetTxPacket % PKTALIGN;
-	for (i = 0; i < PKTBUFSRX; i++)
-		NetRxPackets[i] = NetTxPacket + (i+1)*PKTSIZE_ALIGN;
-
 	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
+	net_init();
 	eth_halt();
 	eth_set_current();
 	if (eth_init(bd) < 0) {
@@ -623,6 +635,11 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 	int need_arp = 0;
 	int eth_hdr_size;
 	int pkt_hdr_size;
+
+	/* make sure the NetTxPacket is initialized (NetInit() was called) */
+	assert(NetTxPacket != NULL);
+	if (NetTxPacket == NULL)
+		return -1;
 
 	/* convert to new style broadcast */
 	if (dest == 0)

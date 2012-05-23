@@ -436,6 +436,7 @@ extern IPaddr_t Mcast_addr;
 #endif
 
 /* Initialize the network adapter */
+extern void net_init(void);
 extern int NetLoop(enum proto_t);
 
 /* Shutdown adapters and cleanup */
