@@ -245,8 +245,7 @@ CDPDummyHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 	/* nothing */
 }
 
-void
-CDPHandler(const uchar *pkt, unsigned len)
+void cdp_receive(const uchar *pkt, unsigned len)
 {
 	const uchar *t;
 	const ushort *ss;

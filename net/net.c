@@ -940,7 +940,7 @@ NetReceive(uchar *inpkt, int len)
 
 #if defined(CONFIG_CMD_CDP)
 	if (iscdp) {
-		CDPHandler((uchar *)ip, len);
+		cdp_receive((uchar *)ip, len);
 		return;
 	}
 #endif
