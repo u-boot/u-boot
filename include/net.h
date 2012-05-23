@@ -428,7 +428,8 @@ extern void NetSetIP(uchar *, IPaddr_t, int, int, int);
 extern int	NetCksumOk(uchar *, int);	/* Return true if cksum OK */
 extern uint	NetCksum(uchar *, int);		/* Calculate the checksum */
 
-/* Set callbacks */
+/* Callbacks */
+extern rxhand_f *NetGetHandler(void);		/* Get RX packet handler */
 extern void	NetSetHandler(rxhand_f *);	/* Set RX packet handler */
 extern void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
 extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */

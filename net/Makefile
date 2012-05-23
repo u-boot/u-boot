@@ -27,6 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libnet.o
 
+COBJS-$(CONFIG_CMD_NET)  += arp.o
 COBJS-$(CONFIG_CMD_NET)  += bootp.o
 COBJS-$(CONFIG_CMD_CDP)  += cdp.o
 COBJS-$(CONFIG_CMD_DNS)  += dns.o
