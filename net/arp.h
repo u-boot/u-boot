@@ -16,8 +16,6 @@
 extern IPaddr_t	NetArpWaitPacketIP;
 /* MAC address of waiting packet's destination */
 extern uchar *NetArpWaitPacketMAC;
-/* THE transmit packet */
-extern uchar *NetArpWaitTxPacket;
 extern int NetArpWaitTxPacketSize;
 extern ulong NetArpWaitTimerStart;
 extern int NetArpWaitTry;

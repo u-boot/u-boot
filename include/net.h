@@ -483,14 +483,14 @@ static inline void net_set_state(enum net_loop_state state)
 	net_state = state;
 }
 
-/* Transmit "NetTxPacket" */
+/* Transmit a packet */
 static inline void NetSendPacket(uchar *pkt, int len)
 {
 	(void) eth_send(pkt, len);
 }
 
 /*
- * Transmit UDP packet, performing ARP request if needed
+ * Transmit "NetTxPacket" as UDP packet, performing ARP request if needed
  *  (ether will be populated)
  *
  * @param ether Raw packet buffer
@@ -499,7 +499,7 @@ static inline void NetSendPacket(uchar *pkt, int len)
  * @param sport Source UDP port
  * @param payload_len Length of data after the UDP header
  */
-extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
+extern int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
 			int sport, int payload_len);
 
 /* Processes a received packet */

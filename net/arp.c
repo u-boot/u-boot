@@ -30,12 +30,12 @@ IPaddr_t	NetArpWaitPacketIP;
 IPaddr_t	NetArpWaitReplyIP;
 /* MAC address of waiting packet's destination */
 uchar	       *NetArpWaitPacketMAC;
-/* THE transmit packet */
-uchar	       *NetArpWaitTxPacket;
 int		NetArpWaitTxPacketSize;
-uchar		NetArpWaitPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
 ulong		NetArpWaitTimerStart;
 int		NetArpWaitTry;
+
+uchar	       *NetArpTxPacket;	/* THE ARP transmit packet */
+uchar		NetArpPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
 
 void ArpInit(void)
 {
@@ -43,9 +43,9 @@ void ArpInit(void)
 	NetArpWaitPacketMAC = NULL;
 	NetArpWaitPacketIP = 0;
 	NetArpWaitReplyIP = 0;
-	NetArpWaitTxPacket = &NetArpWaitPacketBuf[0] + (PKTALIGN - 1);
-	NetArpWaitTxPacket -= (ulong)NetArpWaitTxPacket % PKTALIGN;
 	NetArpWaitTxPacketSize = 0;
+	NetArpTxPacket = &NetArpPacketBuf[0] + (PKTALIGN - 1);
+	NetArpTxPacket -= (ulong)NetArpTxPacket % PKTALIGN;
 }
 
 void ArpRequest(void)
@@ -56,7 +56,7 @@ void ArpRequest(void)
 
 	debug("ARP broadcast %d\n", NetArpWaitTry);
 
-	pkt = NetTxPacket;
+	pkt = NetArpTxPacket;
 
 	eth_hdr_size = NetSetEther(pkt, NetBcastAddr, PROT_ARP);
 	pkt += eth_hdr_size;
@@ -88,7 +88,7 @@ void ArpRequest(void)
 	}
 
 	NetWriteIP(&arp->ar_tpa, NetArpWaitReplyIP);
-	NetSendPacket(NetTxPacket, eth_hdr_size + ARP_HDR_SIZE);
+	NetSendPacket(NetArpTxPacket, eth_hdr_size + ARP_HDR_SIZE);
 }
 
 void ArpTimeoutCheck(void)
@@ -196,11 +196,11 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 			net_get_arp_handler()((uchar *)arp, 0, reply_ip_addr,
 				0, len);
 
-			/* modify header, and transmit it */
-			memcpy(((struct ethernet_hdr *)NetArpWaitTxPacket)->
-				et_dest, &arp->ar_sha, ARP_HLEN);
-			NetSendPacket(NetArpWaitTxPacket,
-					NetArpWaitTxPacketSize);
+			/* set the mac address in the waiting packet's header
+			   and transmit it */
+			memcpy(((struct ethernet_hdr *)NetTxPacket)->et_dest,
+				&arp->ar_sha, ARP_HLEN);
+			NetSendPacket(NetTxPacket, NetArpWaitTxPacketSize);
 
 			/* no arp request pending now */
 			NetArpWaitPacketIP = 0;

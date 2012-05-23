@@ -442,6 +442,9 @@ restart:
 		 *	Abort if ctrl-c was pressed.
 		 */
 		if (ctrlc()) {
+			/* cancel any ARP that may not have completed */
+			NetArpWaitPacketIP = 0;
+
 			net_cleanup_loop();
 			eth_halt();
 			puts("\nAbort\n");
@@ -632,7 +635,6 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 		int payload_len)
 {
 	uchar *pkt;
-	int need_arp = 0;
 	int eth_hdr_size;
 	int pkt_hdr_size;
 
@@ -649,34 +651,20 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 	if (dest == 0xFFFFFFFF)
 		ether = NetBcastAddr;
 
-	/*
-	 * if MAC address was not discovered yet, save the packet and do
-	 * an ARP request
-	 */
-	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
-		need_arp = 1;
-		pkt = NetArpWaitTxPacket;
-	} else
-		pkt = (uchar *)NetTxPacket;
+	pkt = (uchar *)NetTxPacket;
 
 	eth_hdr_size = NetSetEther(pkt, ether, PROT_IP);
 	pkt += eth_hdr_size;
 	net_set_udp_header(pkt, dest, dport, sport, payload_len);
 	pkt_hdr_size = eth_hdr_size + IP_UDP_HDR_SIZE;
 
-	if (need_arp) {
+	/* if MAC address was not discovered yet, do an ARP request */
+	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
 		debug("sending ARP for %pI4\n", &dest);
 
 		/* save the ip and eth addr for the packet to send after arp */
 		NetArpWaitPacketIP = dest;
 		NetArpWaitPacketMAC = ether;
-
-		/*
-		 * Copy the packet data from the NetTxPacket into the
-		 *   NetArpWaitTxPacket to send after arp
-		 */
-		memcpy(pkt + IP_UDP_HDR_SIZE, (uchar *)NetTxPacket +
-			pkt_hdr_size, payload_len);
 
 		/* size of the waiting packet */
 		NetArpWaitTxPacketSize = pkt_hdr_size + payload_len;

@@ -49,9 +49,8 @@ static int ping_send(void)
 
 	NetArpWaitPacketIP = NetPingIP;
 
-	eth_hdr_size = NetSetEther(NetArpWaitTxPacket, NetEtherNullAddr,
-		PROT_IP);
-	pkt = NetArpWaitTxPacket + eth_hdr_size;
+	eth_hdr_size = NetSetEther(NetTxPacket, NetEtherNullAddr, PROT_IP);
+	pkt = (uchar *)NetTxPacket + eth_hdr_size;
 
 	set_icmp_header(pkt, NetPingIP);
 
