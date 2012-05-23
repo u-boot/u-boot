@@ -259,7 +259,9 @@ struct arp_hdr {
 #   define ARP_ETHER	    1		/* Ethernet  hardware address	*/
 	ushort		ar_pro;		/* Format of protocol address	*/
 	uchar		ar_hln;		/* Length of hardware address	*/
+#   define ARP_HLEN	6
 	uchar		ar_pln;		/* Length of protocol address	*/
+#   define ARP_PLEN	4
 	ushort		ar_op;		/* Operation			*/
 #   define ARPOP_REQUEST    1		/* Request  to resolve  address	*/
 #   define ARPOP_REPLY	    2		/* Response to previous request	*/
@@ -273,6 +275,10 @@ struct arp_hdr {
 	 * specific hardware/protocol combinations.
 	 */
 	uchar		ar_data[0];
+#define ar_sha		ar_data[0]
+#define ar_spa		ar_data[ARP_HLEN]
+#define ar_tha		ar_data[ARP_HLEN + ARP_PLEN]
+#define ar_tpa		ar_data[ARP_HLEN + ARP_PLEN + ARP_HLEN]
 #if 0
 	uchar		ar_sha[];	/* Sender hardware address	*/
 	uchar		ar_spa[];	/* Sender protocol address	*/
