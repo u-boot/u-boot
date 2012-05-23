@@ -466,9 +466,17 @@ extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */
 /* Transmit "NetTxPacket" */
 extern void NetSendPacket(uchar *, int);
 
-/* Transmit UDP packet, performing ARP request if needed */
+/*
+ * Transmit UDP packet, performing ARP request if needed
+ *
+ * @param ether Raw packet buffer
+ * @param dest IP address to send the datagram to
+ * @param dport Destination UDP port
+ * @param sport Source UDP port
+ * @param payload_len Length of data after the UDP header
+ */
 extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
-			int sport, int len);
+			int sport, int payload_len);
 
 /* Processes a received packet */
 extern void NetReceive(uchar *, int);

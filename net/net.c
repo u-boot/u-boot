@@ -591,8 +591,8 @@ NetSendPacket(uchar *pkt, int len)
 	(void) eth_send(pkt, len);
 }
 
-int
-NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
+int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
+		int payload_len)
 {
 	uchar *pkt;
 
@@ -618,14 +618,14 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 		pkt = NetArpWaitTxPacket;
 		pkt += NetSetEther(pkt, NetArpWaitPacketMAC, PROT_IP);
 
-		NetSetIP(pkt, dest, dport, sport, len);
+		NetSetIP(pkt, dest, dport, sport, payload_len);
 		memcpy(pkt + IP_UDP_HDR_SIZE, (uchar *)NetTxPacket +
 		       (pkt - (uchar *)NetArpWaitTxPacket) +
-		       IP_UDP_HDR_SIZE, len);
+		       IP_UDP_HDR_SIZE, payload_len);
 
 		/* size of the waiting packet */
 		NetArpWaitTxPacketSize = (pkt - NetArpWaitTxPacket) +
-			IP_UDP_HDR_SIZE + len;
+			IP_UDP_HDR_SIZE + payload_len;
 
 		/* and do the ARP request */
 		NetArpWaitTry = 1;
@@ -638,8 +638,9 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 
 	pkt = (uchar *)NetTxPacket;
 	pkt += NetSetEther(pkt, ether, PROT_IP);
-	NetSetIP(pkt, dest, dport, sport, len);
-	eth_send(NetTxPacket, (pkt - NetTxPacket) + IP_UDP_HDR_SIZE + len);
+	NetSetIP(pkt, dest, dport, sport, payload_len);
+	eth_send(NetTxPacket, (pkt - NetTxPacket) + IP_UDP_HDR_SIZE +
+		payload_len);
 
 	return 0;	/* transmitted */
 }
