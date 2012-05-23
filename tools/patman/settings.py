@@ -69,7 +69,7 @@ def Setup(config_fname=''):
     """
     settings = ConfigParser.SafeConfigParser()
     if config_fname == '':
-        config_fname = '%s/.config/patman' % os.getenv('HOME')
+        config_fname = '%s/.patman' % os.getenv('HOME')
     if config_fname:
         settings.read(config_fname)
 

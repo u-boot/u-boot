@@ -68,7 +68,7 @@ How to configure it
 For most cases patman will locate and use the file 'doc/git-mailrc' in
 your U-Boot directory. This contains most of the aliases you will need.
 
-To add your own, create a file ~/.config/patman directory like this:
+To add your own, create a file ~/.patman like this:
 
 >>>>
 # patman alias file
