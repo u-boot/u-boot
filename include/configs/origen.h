@@ -83,7 +83,7 @@
 /* Command definition*/
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_PING
+#undef CONFIG_CMD_PING
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MMC
