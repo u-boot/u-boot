@@ -854,9 +854,9 @@ NetReceive(uchar *inpkt, int len)
 {
 	struct ethernet_hdr *et;
 	struct ip_udp_hdr *ip;
-	IPaddr_t tmp;
+	IPaddr_t dst_ip;
 	IPaddr_t src_ip;
-	int	x;
+	int eth_proto;
 #if defined(CONFIG_CMD_CDP)
 	int iscdp;
 #endif
@@ -891,22 +891,22 @@ NetReceive(uchar *inpkt, int len)
 	if (mynvlanid == (ushort)-1)
 		mynvlanid = VLAN_NONE;
 
-	x = ntohs(et->et_protlen);
+	eth_proto = ntohs(et->et_protlen);
 
 	debug("packet received\n");
 
-	if (x < 1514) {
+	if (eth_proto < 1514) {
 		struct e802_hdr *et802 = (struct e802_hdr *)et;
 		/*
 		 *	Got a 802.2 packet.  Check the other protocol field.
 		 *	XXX VLAN over 802.2+SNAP not implemented!
 		 */
-		x = ntohs(et802->et_prot);
+		eth_proto = ntohs(et802->et_prot);
 
 		ip = (struct ip_udp_hdr *)(inpkt + E802_HDR_SIZE);
 		len -= E802_HDR_SIZE;
 
-	} else if (x != PROT_VLAN) {	/* normal packet */
+	} else if (eth_proto != PROT_VLAN) {	/* normal packet */
 		ip = (struct ip_udp_hdr *)(inpkt + ETHER_HDR_SIZE);
 		len -= ETHER_HDR_SIZE;
 
@@ -930,13 +930,13 @@ NetReceive(uchar *inpkt, int len)
 
 		cti = ntohs(vet->vet_tag);
 		vlanid = cti & VLAN_IDMASK;
-		x = ntohs(vet->vet_type);
+		eth_proto = ntohs(vet->vet_type);
 
 		ip = (struct ip_udp_hdr *)(inpkt + VLAN_ETHER_HDR_SIZE);
 		len -= VLAN_ETHER_HDR_SIZE;
 	}
 
-	debug("Receive from protocol 0x%x\n", x);
+	debug("Receive from protocol 0x%x\n", eth_proto);
 
 #if defined(CONFIG_CMD_CDP)
 	if (iscdp) {
@@ -953,7 +953,7 @@ NetReceive(uchar *inpkt, int len)
 			return;
 	}
 
-	switch (x) {
+	switch (eth_proto) {
 
 	case PROT_ARP:
 		ArpReceive(et, ip, len);
@@ -992,10 +992,10 @@ NetReceive(uchar *inpkt, int len)
 			return;
 		}
 		/* If it is not for us, ignore it */
-		tmp = NetReadIP(&ip->ip_dst);
-		if (NetOurIP && tmp != NetOurIP && tmp != 0xFFFFFFFF) {
+		dst_ip = NetReadIP(&ip->ip_dst);
+		if (NetOurIP && dst_ip != NetOurIP && dst_ip != 0xFFFFFFFF) {
 #ifdef CONFIG_MCAST_TFTP
-			if (Mcast_addr != tmp)
+			if (Mcast_addr != dst_ip)
 #endif
 				return;
 		}
