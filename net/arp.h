@@ -25,6 +25,6 @@ extern int NetArpWaitTry;
 void ArpInit(void);
 void ArpRequest(void);
 void ArpTimeoutCheck(void);
-void ArpReceive(Ethernet_t *et, IP_t *ip, int len);
+void ArpReceive(Ethernet_t *et, struct ip_udp_hdr *ip, int len);
 
 #endif /* __ARP_H__ */

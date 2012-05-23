@@ -322,7 +322,7 @@ TftpSend(void)
 	 *	We will always be sending some sort of packet, so
 	 *	cobble together the packet headers now.
 	 */
-	pkt = (uchar *)(NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE);
+	pkt = NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
 
 	switch (TftpState) {
 	case STATE_SEND_RRQ:

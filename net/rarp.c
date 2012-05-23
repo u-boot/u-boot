@@ -41,7 +41,7 @@ int RarpTry;
 /*
  *	Handle a RARP received packet.
  */
-void rarp_receive(IP_t *ip, unsigned len)
+void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 {
 	ARP_t *arp;
 

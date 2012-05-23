@@ -194,9 +194,9 @@ typedef struct {
 #define IPPROTO_UDP	17	/* User Datagram Protocol		*/
 
 /*
- *	Internet Protocol (IP) header.
+ *	Internet Protocol (IP) + UDP header.
  */
-typedef struct {
+struct ip_udp_hdr {
 	uchar		ip_hl_v;	/* header length and version	*/
 	uchar		ip_tos;		/* type of service		*/
 	ushort		ip_len;		/* total length			*/
@@ -211,7 +211,7 @@ typedef struct {
 	ushort		udp_dst;	/* UDP destination port		*/
 	ushort		udp_len;	/* Length of UDP packet		*/
 	ushort		udp_xsum;	/* Checksum			*/
-} IP_t;
+};
 
 #define IP_OFFS		0x1fff /* ip offset *= 8 */
 #define IP_FLAGS	0xe000 /* first 3 bits */
@@ -219,9 +219,10 @@ typedef struct {
 #define IP_FLAGS_DFRAG	0x4000 /* don't fragments */
 #define IP_FLAGS_MFRAG	0x2000 /* more fragments */
 
-#define IP_HDR_SIZE_NO_UDP	(sizeof(IP_t) - 8)
-#define IP_HDR_SIZE		(sizeof(IP_t))
+#define IP_HDR_SIZE_NO_UDP	(sizeof(struct ip_udp_hdr) - 8)
 
+#define IP_UDP_HDR_SIZE		(sizeof(struct ip_udp_hdr))
+#define UDP_HDR_SIZE		(IP_UDP_HDR_SIZE - IP_HDR_SIZE_NO_UDP)
 
 /*
  *	Address Resolution Protocol (ARP) header.

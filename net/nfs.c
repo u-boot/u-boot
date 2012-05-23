@@ -189,7 +189,7 @@ rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 
 	pktlen = (char *)p + datalen*sizeof(uint32_t) - (char *)&pkt;
 
-	memcpy((char *)NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE,
+	memcpy((char *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE,
 		(char *)&pkt, pktlen);
 
 	if (rpc_prog == PROG_PORTMAP)

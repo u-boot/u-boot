@@ -19,7 +19,7 @@ IPaddr_t NetPingIP;
 static int ping_send(void)
 {
 	static uchar mac[6];
-	IP_t *ip;
+	struct ip_udp_hdr *ip;
 	ushort *s;
 	uchar *pkt;
 
@@ -35,7 +35,7 @@ static int ping_send(void)
 	pkt = NetArpWaitTxPacket;
 	pkt += NetSetEther(pkt, mac, PROT_IP);
 
-	ip = (IP_t *)pkt;
+	ip = (struct ip_udp_hdr *)pkt;
 
 	/*
 	 * Construct an IP and ICMP header.
@@ -98,7 +98,7 @@ void ping_start(void)
 	ping_send();
 }
 
-void ping_receive(Ethernet_t *et, IP_t *ip, int len)
+void ping_receive(Ethernet_t *et, struct ip_udp_hdr *ip, int len)
 {
 	ICMP_t *icmph = (ICMP_t *)&(ip->udp_src);
 	IPaddr_t src_ip;

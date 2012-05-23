@@ -45,7 +45,7 @@ DnsSend(void)
 	enum dns_query_type qtype = DNS_A_RECORD;
 
 	name = NetDNSResolve;
-	pkt = p = (uchar *)(NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE);
+	pkt = p = (uchar *)(NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE);
 
 	/* Prepare DNS packet header */
 	header           = (struct header *) pkt;

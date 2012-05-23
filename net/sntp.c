@@ -31,7 +31,7 @@ SntpSend(void)
 	pkt.vn = NTP_VERSION;
 	pkt.mode = NTP_MODE_CLIENT;
 
-	memcpy((char *)NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE,
+	memcpy((char *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE,
 		(char *)&pkt, pktlen);
 
 	SntpOurPort = 10000 + (get_timer(0) % 4096);

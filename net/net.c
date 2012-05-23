@@ -619,12 +619,13 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 		pkt += NetSetEther(pkt, NetArpWaitPacketMAC, PROT_IP);
 
 		NetSetIP(pkt, dest, dport, sport, len);
-		memcpy(pkt + IP_HDR_SIZE, (uchar *)NetTxPacket +
-		       (pkt - (uchar *)NetArpWaitTxPacket) + IP_HDR_SIZE, len);
+		memcpy(pkt + IP_UDP_HDR_SIZE, (uchar *)NetTxPacket +
+		       (pkt - (uchar *)NetArpWaitTxPacket) +
+		       IP_UDP_HDR_SIZE, len);
 
 		/* size of the waiting packet */
 		NetArpWaitTxPacketSize = (pkt - NetArpWaitTxPacket) +
-			IP_HDR_SIZE + len;
+			IP_UDP_HDR_SIZE + len;
 
 		/* and do the ARP request */
 		NetArpWaitTry = 1;
@@ -638,7 +639,7 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 	pkt = (uchar *)NetTxPacket;
 	pkt += NetSetEther(pkt, ether, PROT_IP);
 	NetSetIP(pkt, dest, dport, sport, len);
-	(void) eth_send(NetTxPacket, (pkt - NetTxPacket) + IP_HDR_SIZE + len);
+	eth_send(NetTxPacket, (pkt - NetTxPacket) + IP_UDP_HDR_SIZE + len);
 
 	return 0;	/* transmitted */
 }
@@ -676,12 +677,12 @@ struct hole {
 	u16 unused;
 };
 
-static IP_t *__NetDefragment(IP_t *ip, int *lenp)
+static struct ip_udp_hdr *__NetDefragment(struct ip_udp_hdr *ip, int *lenp)
 {
 	static uchar pkt_buff[IP_PKTSIZE] __aligned(PKTALIGN);
 	static u16 first_hole, total_len;
 	struct hole *payload, *thisfrag, *h, *newh;
-	IP_t *localip = (IP_t *)pkt_buff;
+	struct ip_udp_hdr *localip = (struct ip_udp_hdr *)pkt_buff;
 	uchar *indata = (uchar *)ip;
 	int offset8, start, len, done = 0;
 	u16 ip_off = ntohs(ip->ip_off);
@@ -796,7 +797,7 @@ static IP_t *__NetDefragment(IP_t *ip, int *lenp)
 	return localip;
 }
 
-static inline IP_t *NetDefragment(IP_t *ip, int *lenp)
+static inline struct ip_udp_hdr *NetDefragment(struct ip_udp_hdr *ip, int *lenp)
 {
 	u16 ip_off = ntohs(ip->ip_off);
 	if (!(ip_off & (IP_OFFS | IP_FLAGS_MFRAG)))
@@ -806,7 +807,7 @@ static inline IP_t *NetDefragment(IP_t *ip, int *lenp)
 
 #else /* !CONFIG_IP_DEFRAG */
 
-static inline IP_t *NetDefragment(IP_t *ip, int *lenp)
+static inline struct ip_udp_hdr *NetDefragment(struct ip_udp_hdr *ip, int *lenp)
 {
 	u16 ip_off = ntohs(ip->ip_off);
 	if (!(ip_off & (IP_OFFS | IP_FLAGS_MFRAG)))
@@ -821,7 +822,8 @@ static inline IP_t *NetDefragment(IP_t *ip, int *lenp)
  *
  * @parma ip	IP packet containing the ICMP
  */
-static void receive_icmp(IP_t *ip, int len, IPaddr_t src_ip, Ethernet_t *et)
+static void receive_icmp(struct ip_udp_hdr *ip, int len,
+			IPaddr_t src_ip, Ethernet_t *et)
 {
 	ICMP_t *icmph = (ICMP_t *)&ip->udp_src;
 
@@ -850,7 +852,7 @@ void
 NetReceive(uchar *inpkt, int len)
 {
 	Ethernet_t *et;
-	IP_t	*ip;
+	struct ip_udp_hdr *ip;
 	IPaddr_t tmp;
 	IPaddr_t src_ip;
 	int	x;
@@ -898,11 +900,11 @@ NetReceive(uchar *inpkt, int len)
 		 */
 		x = ntohs(et->et_prot);
 
-		ip = (IP_t *)(inpkt + E802_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(inpkt + E802_HDR_SIZE);
 		len -= E802_HDR_SIZE;
 
 	} else if (x != PROT_VLAN) {	/* normal packet */
-		ip = (IP_t *)(inpkt + ETHER_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(inpkt + ETHER_HDR_SIZE);
 		len -= ETHER_HDR_SIZE;
 
 	} else {			/* VLAN packet */
@@ -926,7 +928,7 @@ NetReceive(uchar *inpkt, int len)
 		vlanid = cti & VLAN_IDMASK;
 		x = ntohs(vet->vet_type);
 
-		ip = (IP_t *)(inpkt + VLAN_ETHER_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(inpkt + VLAN_ETHER_HDR_SIZE);
 		len -= VLAN_ETHER_HDR_SIZE;
 	}
 
@@ -961,8 +963,9 @@ NetReceive(uchar *inpkt, int len)
 	case PROT_IP:
 		debug("Got IP\n");
 		/* Before we start poking the header, make sure it is there */
-		if (len < IP_HDR_SIZE) {
-			debug("len bad %d < %lu\n", len, (ulong)IP_HDR_SIZE);
+		if (len < IP_UDP_HDR_SIZE) {
+			debug("len bad %d < %lu\n", len,
+				(ulong)IP_UDP_HDR_SIZE);
 			return;
 		}
 		/* Check the packet length */
@@ -1074,19 +1077,19 @@ NetReceive(uchar *inpkt, int len)
 
 
 #ifdef CONFIG_NETCONSOLE
-		nc_input_packet((uchar *)ip + IP_HDR_SIZE,
-						ntohs(ip->udp_dst),
-						ntohs(ip->udp_src),
-						ntohs(ip->udp_len) - 8);
+		nc_input_packet((uchar *)ip + IP_UDP_HDR_SIZE,
+					ntohs(ip->udp_dst),
+					ntohs(ip->udp_src),
+					ntohs(ip->udp_len) - UDP_HDR_SIZE);
 #endif
 		/*
 		 *	IP header OK.  Pass the packet to the current handler.
 		 */
-		(*packetHandler)((uchar *)ip + IP_HDR_SIZE,
-						ntohs(ip->udp_dst),
-						src_ip,
-						ntohs(ip->udp_src),
-						ntohs(ip->udp_len) - 8);
+		(*packetHandler)((uchar *)ip + IP_UDP_HDR_SIZE,
+					ntohs(ip->udp_dst),
+					src_ip,
+					ntohs(ip->udp_src),
+					ntohs(ip->udp_len) - UDP_HDR_SIZE);
 		break;
 	}
 }
@@ -1237,10 +1240,9 @@ NetSetEther(uchar *xet, uchar * addr, uint prot)
 	}
 }
 
-void
-NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
+void NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 {
-	IP_t *ip = (IP_t *)xip;
+	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)xip;
 
 	/*
 	 *	If the data is an odd number of bytes, zero the
@@ -1248,7 +1250,7 @@ NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 	 *	will work.
 	 */
 	if (len & 1)
-		xip[IP_HDR_SIZE + len] = 0;
+		xip[IP_UDP_HDR_SIZE + len] = 0;
 
 	/*
 	 *	Construct an IP and UDP header.
@@ -1257,7 +1259,7 @@ NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 	/* IP_HDR_SIZE / 4 (not including UDP) */
 	ip->ip_hl_v  = 0x45;
 	ip->ip_tos   = 0;
-	ip->ip_len   = htons(IP_HDR_SIZE + len);
+	ip->ip_len   = htons(IP_UDP_HDR_SIZE + len);
 	ip->ip_id    = htons(NetIPID++);
 	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
 	ip->ip_ttl   = 255;
@@ -1269,7 +1271,7 @@ NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 	NetCopyIP((void *)&ip->ip_dst, &dest);
 	ip->udp_src  = htons(sport);
 	ip->udp_dst  = htons(dport);
-	ip->udp_len  = htons(8 + len);
+	ip->udp_len  = htons(UDP_HDR_SIZE + len);
 	ip->udp_xsum = 0;
 	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
 }

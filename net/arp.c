@@ -113,7 +113,7 @@ void ArpTimeoutCheck(void)
 	}
 }
 
-void ArpReceive(Ethernet_t *et, IP_t *ip, int len)
+void ArpReceive(Ethernet_t *et, struct ip_udp_hdr *ip, int len)
 {
 	ARP_t *arp;
 	IPaddr_t tmp;

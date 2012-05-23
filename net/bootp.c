@@ -622,7 +622,7 @@ BootpRequest(void)
 	/* NetSetIP(pkt, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC,
 		sizeof (struct Bootp_t)); */
 	iphdr = pkt;	/* We need this later for NetSetIP() */
-	pkt += IP_HDR_SIZE;
+	pkt += IP_UDP_HDR_SIZE;
 
 	bp = (struct Bootp_t *)pkt;
 	bp->bp_op = OP_BOOTREQUEST;
@@ -807,7 +807,7 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	pkt += NetSetEther(pkt, NetBcastAddr, PROT_IP);
 
 	iphdr = pkt;	/* We'll need this later to set proper pkt size */
-	pkt += IP_HDR_SIZE;
+	pkt += IP_UDP_HDR_SIZE;
 
 	bp = (struct Bootp_t *)pkt;
 	bp->bp_op = OP_BOOTREQUEST;

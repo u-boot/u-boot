@@ -36,7 +36,7 @@
 extern int RarpTry;
 
 /* Process the receipt of a RARP packet */
-extern void rarp_receive(IP_t *ip, unsigned len);
+extern void rarp_receive(struct ip_udp_hdr *ip, unsigned len);
 extern void RarpRequest(void);	/* Send a RARP request */
 
 /**********************************************************************/

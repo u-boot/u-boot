@@ -69,7 +69,7 @@ void NcStart(void)
 		/* send arp request */
 		uchar *pkt;
 		NetSetHandler(nc_wait_arp_handler);
-		pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE;
+		pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
 		memcpy(pkt, output_packet, output_packet_len);
 		NetSendUDPPacket(nc_ether, nc_ip, nc_port, nc_port,
 			output_packet_len);
@@ -131,7 +131,7 @@ static void nc_send_packet(const char *buf, int len)
 			return;
 		inited = 1;
 	}
-	pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE;
+	pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
 	memcpy(pkt, buf, len);
 	ether = nc_ether;
 	ip = nc_ip;
