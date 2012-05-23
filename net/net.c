@@ -231,7 +231,7 @@ void net_auto_load(void)
 	TftpStart(TFTPGET);
 }
 
-static void NetInitLoop(enum proto_t protocol)
+static void NetInitLoop(void)
 {
 	static int env_changed_id;
 	int env_id = get_env_id();
@@ -311,7 +311,7 @@ restart:
 	 *	here on, this code is a state machine driven by received
 	 *	packets and timer events.
 	 */
-	NetInitLoop(protocol);
+	NetInitLoop();
 
 	switch (net_check_prereq(protocol)) {
 	case 1:
