@@ -20,13 +20,13 @@
  */
 #if defined(CONFIG_CMD_DHCP)
 /* Minimum DHCP Options size per RFC2131 - results in 576 byte pkt */
-#define OPT_SIZE 312
+#define OPT_FIELD_SIZE 312
 #if defined(CONFIG_BOOTP_VENDOREX)
 extern u8 *dhcp_vendorex_prep(u8 *e); /*rtn new e after add own opts. */
 extern u8 *dhcp_vendorex_proc(u8 *e); /*rtn next e if mine,else NULL  */
 #endif
 #else
-#define OPT_SIZE 64
+#define OPT_FIELD_SIZE 64
 #endif
 
 struct Bootp_t {
@@ -48,11 +48,10 @@ struct Bootp_t {
 	uchar		bp_chaddr[16];	/* Client hardware address	*/
 	char		bp_sname[64];	/* Server host name		*/
 	char		bp_file[128];	/* Boot file name		*/
-	char		bp_vend[OPT_SIZE];	/* Vendor information	*/
+	char		bp_vend[OPT_FIELD_SIZE]; /* Vendor information	*/
 };
 
 #define BOOTP_HDR_SIZE	sizeof(struct Bootp_t)
-#define BOOTP_SIZE	(ETHER_HDR_SIZE + IP_UDP_HDR_SIZE + BOOTP_HDR_SIZE)
 
 /**********************************************************************/
 /*

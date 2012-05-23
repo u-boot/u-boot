@@ -71,7 +71,7 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 
 	if (dest != PORT_BOOTPC || src != PORT_BOOTPS)
 		retval = -1;
-	else if (len < sizeof(struct Bootp_t) - OPT_SIZE)
+	else if (len < sizeof(struct Bootp_t) - OPT_FIELD_SIZE)
 		retval = -2;
 	else if (bp->bp_op != OP_BOOTREQUEST &&
 			bp->bp_op != OP_BOOTREPLY &&
@@ -368,8 +368,8 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID,
 
 	*e++ = 57;		/* Maximum DHCP Message Size */
 	*e++ = 2;
-	*e++ = (576 - 312 + OPT_SIZE) >> 8;
-	*e++ = (576 - 312 + OPT_SIZE) & 0xff;
+	*e++ = (576 - 312 + OPT_FIELD_SIZE) >> 8;
+	*e++ = (576 - 312 + OPT_FIELD_SIZE) & 0xff;
 
 	if (ServerID) {
 		int tmp = ntohl(ServerID);
@@ -519,8 +519,8 @@ static int BootpExtended(u8 *e)
 
 	*e++ = 57;		/* Maximum DHCP Message Size */
 	*e++ = 2;
-	*e++ = (576 - 312 + OPT_SIZE) >> 16;
-	*e++ = (576 - 312 + OPT_SIZE) & 0xff;
+	*e++ = (576 - 312 + OPT_FIELD_SIZE) >> 16;
+	*e++ = (576 - 312 + OPT_FIELD_SIZE) & 0xff;
 #endif
 
 #if defined(CONFIG_BOOTP_SUBNETMASK)
