@@ -909,7 +909,8 @@ NetReceive(uchar *inpkt, int len)
 		len -= ETHER_HDR_SIZE;
 
 	} else {			/* VLAN packet */
-		VLAN_Ethernet_t *vet = (VLAN_Ethernet_t *)et;
+		struct vlan_ethernet_hdr *vet =
+			(struct vlan_ethernet_hdr *)et;
 
 		debug("VLAN packet received\n");
 
@@ -1232,7 +1233,8 @@ NetSetEther(uchar *xet, uchar * addr, uint prot)
 		et->et_protlen = htons(prot);
 		return ETHER_HDR_SIZE;
 	} else {
-		VLAN_Ethernet_t *vet = (VLAN_Ethernet_t *)xet;
+		struct vlan_ethernet_hdr *vet =
+			(struct vlan_ethernet_hdr *)xet;
 
 		vet->vet_vlan_type = htons(PROT_VLAN);
 		vet->vet_tag = htons((0 << 5) | (myvlanid & VLAN_IDMASK));

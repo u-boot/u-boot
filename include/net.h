@@ -185,15 +185,16 @@ struct e802_hdr {
 /*
  *	Ethernet header
  */
-typedef struct {
+struct vlan_ethernet_hdr {
 	uchar		vet_dest[6];	/* Destination node		*/
 	uchar		vet_src[6];	/* Source node			*/
 	ushort		vet_vlan_type;	/* PROT_VLAN			*/
 	ushort		vet_tag;	/* TAG of VLAN			*/
 	ushort		vet_type;	/* protocol type		*/
-} VLAN_Ethernet_t;
+};
 
-#define VLAN_ETHER_HDR_SIZE	18	/* VLAN Ethernet header size	*/
+/* VLAN Ethernet header size */
+#define VLAN_ETHER_HDR_SIZE	(sizeof(struct vlan_ethernet_hdr))
 
 #define PROT_IP		0x0800		/* IP protocol			*/
 #define PROT_ARP	0x0806		/* IP ARP protocol		*/
