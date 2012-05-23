@@ -1276,6 +1276,29 @@ NetSetEther(uchar *xet, uchar * addr, uint prot)
 	}
 }
 
+int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot)
+{
+	ushort protlen;
+
+	memcpy(et->et_dest, addr, 6);
+	memcpy(et->et_src, NetOurEther, 6);
+	protlen = ntohs(et->et_protlen);
+	if (protlen == PROT_VLAN) {
+		struct vlan_ethernet_hdr *vet =
+			(struct vlan_ethernet_hdr *)et;
+		vet->vet_type = htons(prot);
+		return VLAN_ETHER_HDR_SIZE;
+	} else if (protlen > 1514) {
+		et->et_protlen = htons(prot);
+		return ETHER_HDR_SIZE;
+	} else {
+		/* 802.2 + SNAP */
+		struct e802_hdr *et802 = (struct e802_hdr *)et;
+		et802->et_prot = htons(prot);
+		return E802_HDR_SIZE;
+	}
+}
+
 void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source)
 {
 	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)pkt;

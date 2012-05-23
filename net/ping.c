@@ -87,6 +87,7 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 {
 	struct icmp_hdr *icmph = (struct icmp_hdr *)&ip->udp_src;
 	IPaddr_t src_ip;
+	int eth_hdr_size;
 
 	switch (icmph->type) {
 	case ICMP_ECHO_REPLY:
@@ -95,11 +96,10 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 			net_set_state(NETLOOP_SUCCESS);
 		return;
 	case ICMP_ECHO_REQUEST:
-		debug("Got ICMP ECHO REQUEST, return "
-			"%d bytes\n", ETHER_HDR_SIZE + len);
+		eth_hdr_size = net_update_ether(et, et->et_src, PROT_IP);
 
-		memcpy(&et->et_dest[0], &et->et_src[0], 6);
-		memcpy(&et->et_src[0], NetOurEther, 6);
+		debug("Got ICMP ECHO REQUEST, return "
+			"%d bytes\n", eth_hdr_size + len);
 
 		ip->ip_sum = 0;
 		ip->ip_off = 0;
@@ -112,7 +112,7 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		icmph->checksum = 0;
 		icmph->checksum = ~NetCksum((uchar *)icmph,
 			(len - IP_HDR_SIZE) >> 1);
-		NetSendPacket((uchar *)et, ETHER_HDR_SIZE + len);
+		NetSendPacket((uchar *)et, eth_hdr_size + len);
 		return;
 /*	default:
 		return;*/

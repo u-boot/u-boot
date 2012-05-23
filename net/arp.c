@@ -158,7 +158,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		/* reply with our IP address */
 		debug("Got ARP REQUEST, return our IP\n");
 		pkt = (uchar *)et;
-		eth_hdr_size = NetSetEther(pkt, et->et_src, PROT_ARP);
+		eth_hdr_size = net_update_ether(et, et->et_src, PROT_ARP);
 		pkt += eth_hdr_size;
 		arp->ar_op = htons(ARPOP_REPLY);
 		memcpy(&arp->ar_tha, &arp->ar_sha, ARP_HLEN);

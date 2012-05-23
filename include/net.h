@@ -449,6 +449,7 @@ extern int	NetEthHdrSize(void);
 
 /* Set ethernet header; returns the size of the header */
 extern int NetSetEther(uchar *, uchar *, uint);
+extern int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
 
 /* Set IP header */
 extern void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source);
