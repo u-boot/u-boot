@@ -43,10 +43,10 @@ int RarpTry;
  */
 void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 {
-	ARP_t *arp;
+	struct arp_hdr *arp;
 
 	debug("Got RARP\n");
-	arp = (ARP_t *)ip;
+	arp = (struct arp_hdr *)ip;
 	if (len < ARP_HDR_SIZE) {
 		printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
 		return;
@@ -87,14 +87,14 @@ static void RarpTimeout(void)
 void RarpRequest(void)
 {
 	uchar *pkt;
-	ARP_t *rarp;
+	struct arp_hdr *rarp;
 
 	printf("RARP broadcast %d\n", ++RarpTry);
 	pkt = NetTxPacket;
 
 	pkt += NetSetEther(pkt, NetBcastAddr, PROT_RARP);
 
-	rarp = (ARP_t *)pkt;
+	rarp = (struct arp_hdr *)pkt;
 
 	rarp->ar_hrd = htons(ARP_ETHER);
 	rarp->ar_pro = htons(PROT_IP);

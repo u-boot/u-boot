@@ -254,8 +254,7 @@ struct ip_udp_hdr {
 /*
  *	Address Resolution Protocol (ARP) header.
  */
-typedef struct
-{
+struct arp_hdr {
 	ushort		ar_hrd;		/* Format of hardware address	*/
 #   define ARP_ETHER	    1		/* Ethernet  hardware address	*/
 	ushort		ar_pro;		/* Format of protocol address	*/
@@ -280,7 +279,7 @@ typedef struct
 	uchar		ar_tha[];	/* Target hardware address	*/
 	uchar		ar_tpa[];	/* Target protocol address	*/
 #endif /* 0 */
-} ARP_t;
+};
 
 #define ARP_HDR_SIZE	(8+20)		/* Size assuming ethernet	*/
 

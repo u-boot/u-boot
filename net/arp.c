@@ -51,7 +51,7 @@ void ArpInit(void)
 void ArpRequest(void)
 {
 	uchar *pkt;
-	ARP_t *arp;
+	struct arp_hdr *arp;
 
 	debug("ARP broadcast %d\n", NetArpWaitTry);
 
@@ -59,7 +59,7 @@ void ArpRequest(void)
 
 	pkt += NetSetEther(pkt, NetBcastAddr, PROT_ARP);
 
-	arp = (ARP_t *) pkt;
+	arp = (struct arp_hdr *) pkt;
 
 	arp->ar_hrd = htons(ARP_ETHER);
 	arp->ar_pro = htons(PROT_IP);
@@ -115,7 +115,7 @@ void ArpTimeoutCheck(void)
 
 void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 {
-	ARP_t *arp;
+	struct arp_hdr *arp;
 	IPaddr_t tmp;
 	uchar *pkt;
 
@@ -130,7 +130,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	 */
 	debug("Got ARP\n");
 
-	arp = (ARP_t *)ip;
+	arp = (struct arp_hdr *)ip;
 	if (len < ARP_HDR_SIZE) {
 		printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
 		return;
