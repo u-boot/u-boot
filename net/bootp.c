@@ -12,6 +12,7 @@
 #include <command.h>
 #include <net.h>
 #include "bootp.h"
+#include "net_rand.h"
 #include "tftp.h"
 #include "nfs.h"
 #ifdef CONFIG_STATUS_LED
@@ -37,9 +38,6 @@
 
 ulong		BootpID;
 int		BootpTry;
-#ifdef CONFIG_BOOTP_RANDOM_DELAY
-ulong		seed1, seed2;
-#endif
 
 #if defined(CONFIG_CMD_DHCP)
 dhcp_state_t dhcp_state = INIT;
@@ -584,6 +582,9 @@ BootpRequest(void)
 	uchar *pkt, *iphdr;
 	struct Bootp_t *bp;
 	int ext_len, pktlen, iplen;
+#ifdef CONFIG_BOOTP_RANDOM_DELAY
+	ulong i, rand_ms;
+#endif
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_START, "bootp_start");
 #if defined(CONFIG_CMD_DHCP)
@@ -591,60 +592,16 @@ BootpRequest(void)
 #endif
 
 #ifdef CONFIG_BOOTP_RANDOM_DELAY		/* Random BOOTP delay */
-	unsigned char bi_enetaddr[6];
-	int   reg;
-	ulong tst1, tst2, sum, m_mask, m_value = 0;
+	if (BootpTry == 0)
+		srand_mac();
 
-	if (BootpTry == 0) {
-		/* get our mac */
-		eth_getenv_enetaddr("ethaddr", bi_enetaddr);
+	if (BootpTry <= 2)	/* Start with max 1024 * 1ms */
+		rand_ms = rand() >> (22 - BootpTry);
+	else		/* After 3rd BOOTP request max 8192 * 1ms */
+		rand_ms = rand() >> 19;
 
-		debug("BootpRequest => Our Mac: ");
-		for (reg = 0; reg < 6; reg++)
-			debug("%x%c", bi_enetaddr[reg], reg == 5 ? '\n' : ':');
-
-		/* Mac-Manipulation 2 get seed1 */
-		tst1 = 0;
-		tst2 = 0;
-		for (reg = 2; reg < 6; reg++) {
-			tst1 = tst1 << 8;
-			tst1 = tst1 | bi_enetaddr[reg];
-		}
-		for (reg = 0; reg < 2; reg++) {
-			tst2 = tst2 | bi_enetaddr[reg];
-			tst2 = tst2 << 8;
-		}
-
-		seed1 = tst1^tst2;
-
-		/* Mirror seed1*/
-		m_mask = 0x1;
-		for (reg = 1; reg <= 32; reg++) {
-			m_value |= (m_mask & seed1);
-			seed1 = seed1 >> 1;
-			m_value = m_value << 1;
-		}
-		seed1 = m_value;
-		seed2 = 0xB78D0945;
-	}
-
-	/* Random Number Generator */
-	for (reg = 0; reg <= 0; reg++) {
-		sum = seed1 + seed2;
-		if (sum < seed1 || sum < seed2)
-			sum++;
-		seed2 = seed1;
-		seed1 = sum;
-
-		if (BootpTry <= 2) {	/* Start with max 1024 * 1ms */
-			sum = sum >> (22-BootpTry);
-		} else {	/*After 3rd BOOTP request max 8192 * 1ms */
-			sum = sum >> 19;
-		}
-	}
-
-	printf("Random delay: %ld ms...\n", sum);
-	for (reg = 0; reg < sum; reg++)
+	printf("Random delay: %ld ms...\n", rand_ms);
+	for (i = 0; i < rand_ms; i++)
 		udelay(1000); /*Wait 1ms*/
 
 #endif	/* CONFIG_BOOTP_RANDOM_DELAY */

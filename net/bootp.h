@@ -63,9 +63,6 @@ struct Bootp_t {
 extern ulong	BootpID;		/* ID of cur BOOTP request	*/
 extern char	BootFile[128];		/* Boot file name		*/
 extern int	BootpTry;
-#ifdef CONFIG_BOOTP_RANDOM_DELAY
-extern ulong	seed1, seed2;		/* seed for random BOOTP delay	*/
-#endif
 
 
 /* Send a BOOTP request */
