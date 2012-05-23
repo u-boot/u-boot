@@ -40,22 +40,18 @@ static void set_icmp_header(uchar *pkt, IPaddr_t dest)
 
 static int ping_send(void)
 {
-	static uchar mac[6];
 	uchar *pkt;
 	int eth_hdr_size;
 
 	/* XXX always send arp request */
 
-	memcpy(mac, NetEtherNullAddr, 6);
-
 	debug("sending ARP for %pI4\n", &NetPingIP);
 
 	NetArpWaitPacketIP = NetPingIP;
-	NetArpWaitPacketMAC = mac;
 
-	pkt = NetArpWaitTxPacket;
-	eth_hdr_size = NetSetEther(pkt, mac, PROT_IP);
-	pkt += eth_hdr_size;
+	eth_hdr_size = NetSetEther(NetArpWaitTxPacket, NetEtherNullAddr,
+		PROT_IP);
+	pkt = NetArpWaitTxPacket + eth_hdr_size;
 
 	set_icmp_header(pkt, NetPingIP);
 

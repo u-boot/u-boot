@@ -170,7 +170,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 
 	case ARPOP_REPLY:		/* arp reply */
 		/* are we waiting for a reply */
-		if (!NetArpWaitPacketIP || !NetArpWaitPacketMAC)
+		if (!NetArpWaitPacketIP)
 			break;
 
 #ifdef CONFIG_KEEP_SERVERADDR
@@ -189,15 +189,16 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 				arp->ar_data);
 
 			/* save address for later use */
-			memcpy(NetArpWaitPacketMAC,
-				&arp->ar_sha, ARP_HLEN);
+			if (NetArpWaitPacketMAC != NULL)
+				memcpy(NetArpWaitPacketMAC,
+				       &arp->ar_sha, ARP_HLEN);
 
 			net_get_arp_handler()((uchar *)arp, 0, reply_ip_addr,
 				0, len);
 
 			/* modify header, and transmit it */
 			memcpy(((struct ethernet_hdr *)NetArpWaitTxPacket)->
-				et_dest, NetArpWaitPacketMAC, ARP_HLEN);
+				et_dest, &arp->ar_sha, ARP_HLEN);
 			NetSendPacket(NetArpWaitTxPacket,
 					NetArpWaitTxPacketSize);
 
