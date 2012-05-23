@@ -169,6 +169,12 @@ static int nc_start(void)
 	else
 		memset(nc_ether, 0, sizeof(nc_ether));	/* force arp request */
 
+	/*
+	 * Initialize the static IP settings and buffer pointers
+	 * incase we call NetSendUDPPacket before NetLoop
+	 */
+	net_init();
+
 	return 0;
 }
 
