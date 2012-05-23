@@ -18,7 +18,6 @@
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
-#include <linux/compiler.h>
 
 #define BOOTP_VENDOR_MAGIC	0x63825363	/* RFC1048 Magic Cookie */
 
@@ -96,15 +95,15 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
  */
 static void BootpCopyNetParams(struct Bootp_t *bp)
 {
-	__maybe_unused IPaddr_t tmp_ip;
-
-	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
 #if !defined(CONFIG_BOOTP_SERVERIP)
+	IPaddr_t tmp_ip;
+
 	NetCopyIP(&tmp_ip, &bp->bp_siaddr);
 	if (tmp_ip != 0)
 		NetCopyIP(&NetServerIP, &bp->bp_siaddr);
 	memcpy(NetServerEther, ((struct ethernet_hdr *)NetRxPacket)->et_src, 6);
 #endif
+	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
 	if (strlen(bp->bp_file) > 0)
 		copy_filename(BootFile, bp->bp_file, sizeof(BootFile));
 
