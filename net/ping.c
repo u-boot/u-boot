@@ -75,20 +75,10 @@ static void ping_timeout(void)
 	NetState = NETLOOP_FAIL;	/* we did not get the reply */
 }
 
-static void ping_handler(uchar *pkt, unsigned dest, IPaddr_t sip,
-	    unsigned src, unsigned len)
-{
-	if (sip != NetPingIP)
-		return;
-
-	NetState = NETLOOP_SUCCESS;
-}
-
 void ping_start(void)
 {
 	printf("Using %s device\n", eth_get_name());
 	NetSetTimeout(10000UL, ping_timeout);
-	NetSetHandler(ping_handler);
 
 	ping_send();
 }
@@ -100,13 +90,9 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 
 	switch (icmph->type) {
 	case ICMP_ECHO_REPLY:
-		/*
-		 * IP header OK.  Pass the packet to the
-		 * current handler.
-		 */
-		/* XXX point to ip packet */
 		src_ip = NetReadIP((void *)&ip->ip_src);
-		NetGetHandler()((uchar *)ip, 0, src_ip, 0, 0);
+		if (src_ip == NetPingIP)
+			NetState = NETLOOP_SUCCESS;
 		return;
 	case ICMP_ECHO_REQUEST:
 		debug("Got ICMP ECHO REQUEST, return "
