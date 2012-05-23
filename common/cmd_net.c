@@ -153,12 +153,16 @@ static void netboot_update_env (void)
 		ip_to_string (NetOurIP, tmp);
 		setenv ("ipaddr", tmp);
 	}
-
+#if !defined(CONFIG_BOOTP_SERVERIP)
+	/*
+	 * Only attempt to change serverip if net/bootp.c:BootpCopyNetParams()
+	 * could have set it
+	 */
 	if (NetServerIP) {
 		ip_to_string (NetServerIP, tmp);
 		setenv ("serverip", tmp);
 	}
-
+#endif
 	if (NetOurDNSIP) {
 		ip_to_string (NetOurDNSIP, tmp);
 		setenv ("dnsip", tmp);
