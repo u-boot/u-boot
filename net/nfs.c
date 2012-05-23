@@ -41,7 +41,7 @@ static int nfs_len;
 static char dirfh[NFS_FHSIZE];	/* file handle of directory */
 static char filefh[NFS_FHSIZE]; /* file handle of kernel image */
 
-static int	NfsDownloadState;
+static enum net_loop_state nfs_download_state;
 static IPaddr_t NfsServerIP;
 static int	NfsSrvMountPort;
 static int	NfsSrvNfsPort;
@@ -613,10 +613,10 @@ NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 	case STATE_UMOUNT_REQ:
 		if (nfs_umountall_reply(pkt, len)) {
 			puts("*** ERROR: Cannot umount\n");
-			NetState = NETLOOP_FAIL;
+			net_set_state(NETLOOP_FAIL);
 		} else {
 			puts("\ndone\n");
-			NetState = NfsDownloadState;
+			net_set_state(nfs_download_state);
 		}
 		break;
 
@@ -660,7 +660,7 @@ NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 			NfsSend();
 		} else {
 			if (!rlen)
-				NfsDownloadState = NETLOOP_SUCCESS;
+				nfs_download_state = NETLOOP_SUCCESS;
 			NfsState = STATE_UMOUNT_REQ;
 			NfsSend();
 		}
@@ -673,13 +673,13 @@ void
 NfsStart(void)
 {
 	debug("%s\n", __func__);
-	NfsDownloadState = NETLOOP_FAIL;
+	nfs_download_state = NETLOOP_FAIL;
 
 	NfsServerIP = NetServerIP;
 	nfs_path = (char *)nfs_path_buff;
 
 	if (nfs_path == NULL) {
-		NetState = NETLOOP_FAIL;
+		net_set_state(NETLOOP_FAIL);
 		puts("*** ERROR: Fail allocate memory\n");
 		return;
 	}

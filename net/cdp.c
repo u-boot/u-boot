@@ -235,7 +235,7 @@ CDPTimeout(void)
 	if (!CDPOK)
 		NetStartAgain();
 	else
-		NetState = NETLOOP_SUCCESS;
+		net_set_state(NETLOOP_SUCCESS);
 }
 
 static void

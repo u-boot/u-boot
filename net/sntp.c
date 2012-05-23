@@ -45,7 +45,7 @@ static void
 SntpTimeout(void)
 {
 	puts("Timeout\n");
-	NetState = NETLOOP_FAIL;
+	net_set_state(NETLOOP_FAIL);
 	return;
 }
 
@@ -76,7 +76,7 @@ SntpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		tm.tm_year, tm.tm_mon, tm.tm_mday,
 		tm.tm_hour, tm.tm_min, tm.tm_sec);
 
-	NetState = NETLOOP_SUCCESS;
+	net_set_state(NETLOOP_SUCCESS);
 }
 
 void

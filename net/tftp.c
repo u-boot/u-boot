@@ -177,7 +177,7 @@ store_block(unsigned block, uchar *src, unsigned len)
 		rc = flash_write((char *)src, (ulong)(load_addr+offset), len);
 		if (rc) {
 			flash_perror(rc);
-			NetState = NETLOOP_FAIL;
+			net_set_state(NETLOOP_FAIL);
 			return;
 		}
 	} else
@@ -300,7 +300,7 @@ static void tftp_complete(void)
 	}
 #endif
 	puts("\ndone\n");
-	NetState = NETLOOP_SUCCESS;
+	net_set_state(NETLOOP_SUCCESS);
 }
 
 static void
@@ -627,7 +627,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			if (MasterClient && (TftpBlock >= TftpEndingBlock)) {
 				puts("\nMulticast tftp done\n");
 				mcast_cleanup();
-				NetState = NETLOOP_SUCCESS;
+				net_set_state(NETLOOP_SUCCESS);
 			}
 		} else
 #endif
@@ -644,7 +644,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		case TFTP_ERR_ACCESS_DENIED:
 			puts("Not retrying...\n");
 			eth_halt();
-			NetState = NETLOOP_FAIL;
+			net_set_state(NETLOOP_FAIL);
 			break;
 		case TFTP_ERR_UNDEFINED:
 		case TFTP_ERR_DISK_FULL:

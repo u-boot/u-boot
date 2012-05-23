@@ -149,7 +149,7 @@ uchar		NetEtherNullAddr[6];
 void		(*push_packet)(void *, int len) = 0;
 #endif
 /* Network loop state */
-int		NetState;
+enum net_loop_state net_state;
 /* Tried all network devices */
 int		NetRestartWrap;
 /* Network loop restarted */
@@ -212,7 +212,7 @@ void net_auto_load(void)
 			 * Just use BOOTP/RARP to configure system;
 			 * Do not use TFTP to load the bootfile.
 			 */
-			NetState = NETLOOP_SUCCESS;
+			net_set_state(NETLOOP_SUCCESS);
 			return;
 		}
 #if defined(CONFIG_CMD_NFS)
@@ -290,7 +290,7 @@ int NetLoop(enum proto_t protocol)
 restart:
 	memcpy(NetOurEther, eth_get_dev()->enetaddr, 6);
 
-	NetState = NETLOOP_CONTINUE;
+	net_set_state(NETLOOP_CONTINUE);
 
 	/*
 	 *	Start the ball rolling with the given start function.  From
@@ -399,7 +399,7 @@ restart:
 
 	/*
 	 *	Main packet reception loop.  Loop receiving packets until
-	 *	someone sets `NetState' to a state that terminates.
+	 *	someone sets `net_state' to a state that terminates.
 	 */
 	for (;;) {
 		WATCHDOG_RESET();
@@ -451,7 +451,7 @@ restart:
 		}
 
 
-		switch (NetState) {
+		switch (net_state) {
 
 		case NETLOOP_RESTART:
 			NetRestarted = 1;
@@ -475,6 +475,9 @@ restart:
 
 		case NETLOOP_FAIL:
 			goto done;
+
+		case NETLOOP_CONTINUE:
+			continue;
 		}
 	}
 
@@ -492,7 +495,7 @@ done:
 static void
 startAgainTimeout(void)
 {
-	NetState = NETLOOP_RESTART;
+	net_set_state(NETLOOP_RESTART);
 }
 
 static void
@@ -523,7 +526,7 @@ void NetStartAgain(void)
 
 	if ((!retry_forever) && (NetTryCount >= retrycnt)) {
 		eth_halt();
-		NetState = NETLOOP_FAIL;
+		net_set_state(NETLOOP_FAIL);
 		return;
 	}
 
@@ -540,10 +543,10 @@ void NetStartAgain(void)
 			NetSetTimeout(10000UL, startAgainTimeout);
 			NetSetHandler(startAgainHandler);
 		} else {
-			NetState = NETLOOP_FAIL;
+			net_set_state(NETLOOP_FAIL);
 		}
 	} else {
-		NetState = NETLOOP_RESTART;
+		net_set_state(NETLOOP_RESTART);
 	}
 }
 

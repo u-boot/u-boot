@@ -72,7 +72,7 @@ static int ping_send(void)
 static void ping_timeout(void)
 {
 	eth_halt();
-	NetState = NETLOOP_FAIL;	/* we did not get the reply */
+	net_set_state(NETLOOP_FAIL);	/* we did not get the reply */
 }
 
 void ping_start(void)
@@ -92,7 +92,7 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	case ICMP_ECHO_REPLY:
 		src_ip = NetReadIP((void *)&ip->ip_src);
 		if (src_ip == NetPingIP)
-			NetState = NETLOOP_SUCCESS;
+			net_set_state(NETLOOP_SUCCESS);
 		return;
 	case ICMP_ECHO_REQUEST:
 		debug("Got ICMP ECHO REQUEST, return "

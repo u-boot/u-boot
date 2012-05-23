@@ -44,19 +44,19 @@ static void nc_wait_arp_handler(uchar *pkt, unsigned dest,
 				 IPaddr_t sip, unsigned src,
 				 unsigned len)
 {
-	NetState = NETLOOP_SUCCESS; /* got arp reply - quit net loop */
+	net_set_state(NETLOOP_SUCCESS); /* got arp reply - quit net loop */
 }
 
 static void nc_handler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			unsigned len)
 {
 	if (input_size)
-		NetState = NETLOOP_SUCCESS; /* got input - quit net loop */
+		net_set_state(NETLOOP_SUCCESS); /* got input - quit net loop */
 }
 
 static void nc_timeout(void)
 {
-	NetState = NETLOOP_SUCCESS;
+	net_set_state(NETLOOP_SUCCESS);
 }
 
 void NcStart(void)

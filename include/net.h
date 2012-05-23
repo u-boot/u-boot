@@ -391,12 +391,6 @@ extern uchar		NetEtherNullAddr[6];
 extern ushort		NetOurVLAN;		/* Our VLAN */
 extern ushort		NetOurNativeVLAN;	/* Our Native VLAN */
 
-extern int		NetState;		/* Network loop state */
-#define NETLOOP_CONTINUE	1
-#define NETLOOP_RESTART		2
-#define NETLOOP_SUCCESS		3
-#define NETLOOP_FAIL		4
-
 extern int		NetRestartWrap;		/* Tried all network devices */
 
 enum proto_t {
@@ -470,6 +464,20 @@ extern rxhand_f *NetGetHandler(void);		/* Get RX packet handler */
 extern void	NetSetHandler(rxhand_f *);	/* Set RX packet handler */
 extern void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
 extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */
+
+/* Network loop state */
+enum net_loop_state {
+	NETLOOP_CONTINUE,
+	NETLOOP_RESTART,
+	NETLOOP_SUCCESS,
+	NETLOOP_FAIL
+};
+static inline void net_set_state(enum net_loop_state state)
+{
+	extern enum net_loop_state net_state;
+
+	net_state = state;
+}
 
 /* Transmit "NetTxPacket" */
 static inline void NetSendPacket(uchar *pkt, int len)
