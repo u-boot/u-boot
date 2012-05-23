@@ -169,6 +169,20 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		NetCopyIP(&arp->ar_tpa, &arp->ar_spa);
 		memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);
 		NetCopyIP(&arp->ar_spa, &NetOurIP);
+
+#ifdef CONFIG_CMD_LINK_LOCAL
+		/*
+		 * Work-around for brain-damaged Cisco equipment with
+		 *   arp-proxy enabled.
+		 *
+		 *   If the requesting IP is not on our subnet, wait 5ms to
+		 *   reply to ARP request so that our reply will overwrite
+		 *   the arp-proxy's instead of the other way around.
+		 */
+		if ((NetReadIP(&arp->ar_tpa) & NetOurSubnetMask) !=
+		    (NetReadIP(&arp->ar_spa) & NetOurSubnetMask))
+			udelay(5000);
+#endif
 		NetSendPacket((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
 		return;
 
