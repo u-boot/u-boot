@@ -595,6 +595,9 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 		int payload_len)
 {
 	uchar *pkt;
+	int need_arp = 0;
+	int eth_hdr_size;
+	int pkt_hdr_size;
 
 	/* convert to new style broadcast */
 	if (dest == 0)
@@ -609,40 +612,43 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 	 * an ARP request
 	 */
 	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
+		need_arp = 1;
+		pkt = NetArpWaitTxPacket;
+	} else
+		pkt = (uchar *)NetTxPacket;
 
-		debug("sending ARP for %08x\n", dest);
+	eth_hdr_size = NetSetEther(pkt, ether, PROT_IP);
+	pkt += eth_hdr_size;
+	net_set_udp_header(pkt, dest, dport, sport, payload_len);
+	pkt_hdr_size = eth_hdr_size + IP_UDP_HDR_SIZE;
 
+	if (need_arp) {
+		debug("sending ARP for %pI4\n", &dest);
+
+		/* save the ip and eth addr for the packet to send after arp */
 		NetArpWaitPacketIP = dest;
 		NetArpWaitPacketMAC = ether;
 
-		pkt = NetArpWaitTxPacket;
-		pkt += NetSetEther(pkt, NetArpWaitPacketMAC, PROT_IP);
-
-		net_set_udp_header(pkt, dest, dport, sport, payload_len);
+		/*
+		 * Copy the packet data from the NetTxPacket into the
+		 *   NetArpWaitTxPacket to send after arp
+		 */
 		memcpy(pkt + IP_UDP_HDR_SIZE, (uchar *)NetTxPacket +
-		       (pkt - (uchar *)NetArpWaitTxPacket) +
-		       IP_UDP_HDR_SIZE, payload_len);
+			pkt_hdr_size, payload_len);
 
 		/* size of the waiting packet */
-		NetArpWaitTxPacketSize = (pkt - NetArpWaitTxPacket) +
-			IP_UDP_HDR_SIZE + payload_len;
+		NetArpWaitTxPacketSize = pkt_hdr_size + payload_len;
 
 		/* and do the ARP request */
 		NetArpWaitTry = 1;
 		NetArpWaitTimerStart = get_timer(0);
 		ArpRequest();
 		return 1;	/* waiting */
+	} else {
+		debug("sending UDP to %pI4/%pM\n", &dest, ether);
+		eth_send(NetTxPacket, pkt_hdr_size + payload_len);
+		return 0;	/* transmitted */
 	}
-
-	debug("sending UDP to %08x/%pM\n", dest, ether);
-
-	pkt = (uchar *)NetTxPacket;
-	pkt += NetSetEther(pkt, ether, PROT_IP);
-	net_set_udp_header(pkt, dest, dport, sport, payload_len);
-	eth_send(NetTxPacket, (pkt - NetTxPacket) + IP_UDP_HDR_SIZE +
-		payload_len);
-
-	return 0;	/* transmitted */
 }
 
 #ifdef CONFIG_IP_DEFRAG
