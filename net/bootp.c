@@ -103,7 +103,7 @@ static void BootpCopyNetParams(struct Bootp_t *bp)
 	NetCopyIP(&tmp_ip, &bp->bp_siaddr);
 	if (tmp_ip != 0)
 		NetCopyIP(&NetServerIP, &bp->bp_siaddr);
-	memcpy(NetServerEther, ((Ethernet_t *)NetRxPacket)->et_src, 6);
+	memcpy(NetServerEther, ((struct ethernet_hdr *)NetRxPacket)->et_src, 6);
 #endif
 	if (strlen(bp->bp_file) > 0)
 		copy_filename(BootFile, bp->bp_file, sizeof(BootFile));

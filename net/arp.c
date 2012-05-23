@@ -113,7 +113,7 @@ void ArpTimeoutCheck(void)
 	}
 }
 
-void ArpReceive(Ethernet_t *et, struct ip_udp_hdr *ip, int len)
+void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 {
 	ARP_t *arp;
 	IPaddr_t tmp;
@@ -193,7 +193,7 @@ void ArpReceive(Ethernet_t *et, struct ip_udp_hdr *ip, int len)
 			NetGetHandler()(0, 0, 0, 0, 0);
 #endif
 			/* modify header, and transmit it */
-			memcpy(((Ethernet_t *)NetArpWaitTxPacket)->
+			memcpy(((struct ethernet_hdr *)NetArpWaitTxPacket)->
 				et_dest, NetArpWaitPacketMAC, 6);
 			(void) eth_send(NetArpWaitTxPacket,
 					NetArpWaitTxPacketSize);

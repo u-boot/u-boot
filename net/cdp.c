@@ -109,7 +109,7 @@ CDPSendTrigger(void)
 	uchar *pkt;
 	ushort *s;
 	ushort *cp;
-	Ethernet_t *et;
+	struct ethernet_hdr *et;
 	int len;
 	ushort chksum;
 #if	defined(CONFIG_CDP_DEVICE_ID) || defined(CONFIG_CDP_PORT_ID)   || \
@@ -118,7 +118,7 @@ CDPSendTrigger(void)
 #endif
 
 	pkt = NetTxPacket;
-	et = (Ethernet_t *)pkt;
+	et = (struct ethernet_hdr *)pkt;
 
 	/* NOTE: trigger sent not on any VLAN */
 

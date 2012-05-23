@@ -28,7 +28,7 @@ void ping_start(void);
  * @param ip IP header in the same packet
  * @param len Packet length
  */
-void ping_receive(Ethernet_t *et, struct ip_udp_hdr *ip, int len);
+void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len);
 
 #endif /* __PING_H__ */
 #endif

@@ -823,7 +823,7 @@ static inline struct ip_udp_hdr *NetDefragment(struct ip_udp_hdr *ip, int *lenp)
  * @parma ip	IP packet containing the ICMP
  */
 static void receive_icmp(struct ip_udp_hdr *ip, int len,
-			IPaddr_t src_ip, Ethernet_t *et)
+			IPaddr_t src_ip, struct ethernet_hdr *et)
 {
 	ICMP_t *icmph = (ICMP_t *)&ip->udp_src;
 
@@ -851,7 +851,7 @@ static void receive_icmp(struct ip_udp_hdr *ip, int len,
 void
 NetReceive(uchar *inpkt, int len)
 {
-	Ethernet_t *et;
+	struct ethernet_hdr *et;
 	struct ip_udp_hdr *ip;
 	IPaddr_t tmp;
 	IPaddr_t src_ip;
@@ -865,7 +865,7 @@ NetReceive(uchar *inpkt, int len)
 
 	NetRxPacket = inpkt;
 	NetRxPacketLen = len;
-	et = (Ethernet_t *)inpkt;
+	et = (struct ethernet_hdr *)inpkt;
 
 	/* too small packet? */
 	if (len < ETHER_HDR_SIZE)
@@ -895,10 +895,11 @@ NetReceive(uchar *inpkt, int len)
 	debug("packet received\n");
 
 	if (x < 1514) {
+		struct e802_hdr *et802 = (struct e802_hdr *)et;
 		/*
 		 *	Got a 802 packet.  Check the other protocol field.
 		 */
-		x = ntohs(et->et_prot);
+		x = ntohs(et802->et_prot);
 
 		ip = (struct ip_udp_hdr *)(inpkt + E802_HDR_SIZE);
 		len -= E802_HDR_SIZE;
@@ -1218,7 +1219,7 @@ NetEthHdrSize(void)
 int
 NetSetEther(uchar *xet, uchar * addr, uint prot)
 {
-	Ethernet_t *et = (Ethernet_t *)xet;
+	struct ethernet_hdr *et = (struct ethernet_hdr *)xet;
 	ushort myvlanid;
 
 	myvlanid = ntohs(NetOurVLAN);

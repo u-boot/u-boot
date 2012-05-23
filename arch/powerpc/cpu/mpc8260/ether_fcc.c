@@ -1049,11 +1049,11 @@ eth_loopback_test (void)
 					}
 					else {
 						ushort datlen = bdp->cbd_datlen;
-						Ethernet_t *ehp;
+						struct ethernet_hdr *ehp;
 						ushort prot;
 						int ours, tb, n, nbytes;
 
-						ehp = (Ethernet_t *) \
+						ehp = (struct ethernet_hdr *) \
 							&ecp->rxbufs[i][0];
 
 						ours = memcmp (ehp->et_src, \
@@ -1063,9 +1063,8 @@ eth_loopback_test (void)
 						tb = prot & 0x8000;
 						n = prot & 0x7fff;
 
-						nbytes = ELBT_BUFSZ - \
-							offsetof (Ethernet_t, \
-								et_dsap) - \
+						nbytes = ELBT_BUFSZ -
+							ETHER_HDR_SIZE -
 							ELBT_CRCSZ;
 
 						/* check the frame is correct */
@@ -1080,10 +1079,10 @@ eth_loopback_test (void)
 								patwords[n];
 							uint nbb;
 
-							nbb = badbits ( \
-								&ehp->et_dsap, \
-								nbytes, \
-								patword);
+							nbb = badbits(
+							    ((uchar *)&ehp) +
+							    ETHER_HDR_SIZE,
+							    nbytes, patword);
 
 							ecp->rxeacc.badbit += \
 								nbb;

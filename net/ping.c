@@ -98,7 +98,7 @@ void ping_start(void)
 	ping_send();
 }
 
-void ping_receive(Ethernet_t *et, struct ip_udp_hdr *ip, int len)
+void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 {
 	ICMP_t *icmph = (ICMP_t *)&(ip->udp_src);
 	IPaddr_t src_ip;

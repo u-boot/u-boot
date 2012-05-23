@@ -156,7 +156,17 @@ u32 ether_crc(size_t len, unsigned char const *p);
 /*
  *	Ethernet header
  */
-typedef struct {
+
+struct ethernet_hdr {
+	uchar		et_dest[6];	/* Destination node		*/
+	uchar		et_src[6];	/* Source node			*/
+	ushort		et_protlen;	/* Protocol or length		*/
+};
+
+/* Ethernet header size */
+#define ETHER_HDR_SIZE	(sizeof(struct ethernet_hdr))
+
+struct e802_hdr {
 	uchar		et_dest[6];	/* Destination node		*/
 	uchar		et_src[6];	/* Source node			*/
 	ushort		et_protlen;	/* Protocol or length		*/
@@ -167,10 +177,10 @@ typedef struct {
 	uchar		et_snap2;
 	uchar		et_snap3;
 	ushort		et_prot;	/* 802 protocol			*/
-} Ethernet_t;
+};
 
-#define ETHER_HDR_SIZE	14		/* Ethernet header size		*/
-#define E802_HDR_SIZE	22		/* 802 ethernet header size	*/
+/* 802 ethernet header size */
+#define E802_HDR_SIZE	(sizeof(struct e802_hdr))
 
 /*
  *	Ethernet header
