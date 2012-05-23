@@ -460,8 +460,10 @@ extern int	NetCksumOk(uchar *, int);	/* Return true if cksum OK */
 extern uint	NetCksum(uchar *, int);		/* Calculate the checksum */
 
 /* Callbacks */
-extern rxhand_f *NetGetHandler(void);		/* Get RX packet handler */
-extern void	NetSetHandler(rxhand_f *);	/* Set RX packet handler */
+extern rxhand_f *net_get_udp_handler(void);	/* Get UDP RX packet handler */
+extern void net_set_udp_handler(rxhand_f *);	/* Set UDP RX packet handler */
+extern rxhand_f *net_get_arp_handler(void);	/* Get ARP RX packet handler */
+extern void net_set_arp_handler(rxhand_f *);	/* Set ARP RX packet handler */
 extern void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
 extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */
 
@@ -487,6 +489,7 @@ static inline void NetSendPacket(uchar *pkt, int len)
 
 /*
  * Transmit UDP packet, performing ARP request if needed
+ *  (ether will be populated)
  *
  * @param ether Raw packet buffer
  * @param dest IP address to send the datagram to

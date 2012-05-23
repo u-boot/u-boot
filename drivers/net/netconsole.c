@@ -63,12 +63,12 @@ void NcStart(void)
 {
 	if (!output_packet_len || memcmp(nc_ether, NetEtherNullAddr, 6)) {
 		/* going to check for input packet */
-		NetSetHandler(nc_handler);
+		net_set_udp_handler(nc_handler);
 		NetSetTimeout(net_timeout, nc_timeout);
 	} else {
 		/* send arp request */
 		uchar *pkt;
-		NetSetHandler(nc_wait_arp_handler);
+		net_set_arp_handler(nc_wait_arp_handler);
 		pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
 		memcpy(pkt, output_packet, output_packet_len);
 		NetSendUDPPacket(nc_ether, nc_ip, nc_port, nc_port,

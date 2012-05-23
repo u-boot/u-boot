@@ -200,7 +200,7 @@ DnsStart(void)
 	debug("%s\n", __func__);
 
 	NetSetTimeout(DNS_TIMEOUT, DnsTimeout);
-	NetSetHandler(DnsHandler);
+	net_set_udp_handler(DnsHandler);
 
 	DnsSend();
 }

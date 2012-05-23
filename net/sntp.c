@@ -85,7 +85,7 @@ SntpStart(void)
 	debug("%s\n", __func__);
 
 	NetSetTimeout(SNTP_TIMEOUT, SntpTimeout);
-	NetSetHandler(SntpHandler);
+	net_set_udp_handler(SntpHandler);
 	memset(NetServerEther, 0, sizeof(NetServerEther));
 
 	SntpSend();

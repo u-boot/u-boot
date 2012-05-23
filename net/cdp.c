@@ -238,13 +238,6 @@ CDPTimeout(void)
 		net_set_state(NETLOOP_SUCCESS);
 }
 
-static void
-CDPDummyHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
-		unsigned len)
-{
-	/* nothing */
-}
-
 void cdp_receive(const uchar *pkt, unsigned len)
 {
 	const uchar *t;
@@ -368,7 +361,6 @@ CDPStart(void)
 	CDPApplianceVLAN = htons(-1);
 
 	NetSetTimeout(CDP_TIMEOUT, CDPTimeout);
-	NetSetHandler(CDPDummyHandler);
 
 	CDPSendTrigger();
 }

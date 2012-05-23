@@ -669,9 +669,9 @@ BootpRequest(void)
 
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = SELECTING;
-	NetSetHandler(DhcpHandler);
+	net_set_udp_handler(DhcpHandler);
 #else
-	NetSetHandler(BootpHandler);
+	net_set_udp_handler(BootpHandler);
 #endif
 	NetSendPacket(NetTxPacket, pktlen);
 }

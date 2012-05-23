@@ -192,9 +192,9 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 			memcpy(NetArpWaitPacketMAC,
 				&arp->ar_sha, ARP_HLEN);
 
-#ifdef CONFIG_NETCONSOLE
-			NetGetHandler()(0, 0, 0, 0, 0);
-#endif
+			net_get_arp_handler()((uchar *)arp, 0, reply_ip_addr,
+				0, len);
+
 			/* modify header, and transmit it */
 			memcpy(((struct ethernet_hdr *)NetArpWaitTxPacket)->
 				et_dest, NetArpWaitPacketMAC, ARP_HLEN);

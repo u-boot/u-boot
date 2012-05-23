@@ -735,7 +735,7 @@ NfsStart(void)
 		"Loading: *\b", load_addr);
 
 	NetSetTimeout(NFS_TIMEOUT, NfsTimeout);
-	NetSetHandler(NfsHandler);
+	net_set_udp_handler(NfsHandler);
 
 	NfsTimeoutCount = 0;
 	NfsState = STATE_PRCLOOKUP_PROG_MOUNT_REQ;

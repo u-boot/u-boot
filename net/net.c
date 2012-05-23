@@ -178,10 +178,13 @@ uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
 /* Receive packet */
 uchar *NetRxPackets[PKTBUFSRX];
 
-/* Current RX packet handler */
-static rxhand_f *packetHandler;
+/* Current UDP RX packet handler */
+static rxhand_f *udp_packet_handler;
+/* Current ARP RX packet handler */
+static rxhand_f *arp_packet_handler;
 #ifdef CONFIG_CMD_TFTPPUT
-static rxhand_icmp_f *packet_icmp_handler;	/* Current ICMP rx handler */
+/* Current ICMP rx handler */
+static rxhand_icmp_f *packet_icmp_handler;
 #endif
 /* Current timeout handler */
 static thand_f *timeHandler;
@@ -250,6 +253,18 @@ static void NetInitLoop(enum proto_t protocol)
 	return;
 }
 
+static void net_clear_handlers(void)
+{
+	net_set_udp_handler(NULL);
+	net_set_arp_handler(NULL);
+	NetSetTimeout(0, NULL);
+}
+
+static void net_cleanup_loop(void)
+{
+	net_clear_handlers();
+}
+
 /**********************************************************************/
 /*
  *	Main network processing loop.
@@ -257,6 +272,7 @@ static void NetInitLoop(enum proto_t protocol)
 
 int NetLoop(enum proto_t protocol)
 {
+	int	i;
 	bd_t *bd = gd->bd;
 	int ret = -1;
 
@@ -267,17 +283,15 @@ int NetLoop(enum proto_t protocol)
 	NetTryCount = 1;
 
 	ArpInit();
+	net_clear_handlers();
 
-	if (!NetTxPacket) {
-		int	i;
-		/*
-		 *	Setup packet buffers, aligned correctly.
-		 */
-		NetTxPacket = &PktBuf[0] + (PKTALIGN - 1);
-		NetTxPacket -= (ulong)NetTxPacket % PKTALIGN;
-		for (i = 0; i < PKTBUFSRX; i++)
-			NetRxPackets[i] = NetTxPacket + (i+1)*PKTSIZE_ALIGN;
-	}
+	/*
+	 *	Setup packet buffers, aligned correctly.
+	 */
+	NetTxPacket = &PktBuf[0] + (PKTALIGN - 1);
+	NetTxPacket -= (ulong)NetTxPacket % PKTALIGN;
+	for (i = 0; i < PKTBUFSRX; i++)
+		NetRxPackets[i] = NetTxPacket + (i+1)*PKTSIZE_ALIGN;
 
 	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
 	eth_halt();
@@ -416,6 +430,7 @@ restart:
 		 *	Abort if ctrl-c was pressed.
 		 */
 		if (ctrlc()) {
+			net_cleanup_loop();
 			eth_halt();
 			puts("\nAbort\n");
 			goto done;
@@ -458,6 +473,7 @@ restart:
 			goto restart;
 
 		case NETLOOP_SUCCESS:
+			net_cleanup_loop();
 			if (NetBootFileXferSize > 0) {
 				char buf[20];
 				printf("Bytes transferred = %ld (%lx hex)\n",
@@ -474,6 +490,7 @@ restart:
 			goto done;
 
 		case NETLOOP_FAIL:
+			net_cleanup_loop();
 			goto done;
 
 		case NETLOOP_CONTINUE:
@@ -484,7 +501,7 @@ restart:
 done:
 #ifdef CONFIG_CMD_TFTPPUT
 	/* Clear out the handlers */
-	NetSetHandler(NULL);
+	net_set_udp_handler(NULL);
 	net_set_icmp_handler(NULL);
 #endif
 	return ret;
@@ -496,13 +513,6 @@ static void
 startAgainTimeout(void)
 {
 	net_set_state(NETLOOP_RESTART);
-}
-
-static void
-startAgainHandler(uchar *pkt, unsigned dest, IPaddr_t sip,
-		  unsigned src, unsigned len)
-{
-	/* Totally ignore the packet */
 }
 
 void NetStartAgain(void)
@@ -541,7 +551,7 @@ void NetStartAgain(void)
 		NetRestartWrap = 0;
 		if (NetDevExists) {
 			NetSetTimeout(10000UL, startAgainTimeout);
-			NetSetHandler(startAgainHandler);
+			net_set_udp_handler(NULL);
 		} else {
 			net_set_state(NETLOOP_FAIL);
 		}
@@ -555,17 +565,36 @@ void NetStartAgain(void)
  *	Miscelaneous bits.
  */
 
-rxhand_f *
-NetGetHandler(void)
+static void dummy_handler(uchar *pkt, unsigned dport,
+			IPaddr_t sip, unsigned sport,
+			unsigned len)
 {
-	return packetHandler;
 }
 
-
-void
-NetSetHandler(rxhand_f *f)
+rxhand_f *net_get_udp_handler(void)
 {
-	packetHandler = f;
+	return udp_packet_handler;
+}
+
+void net_set_udp_handler(rxhand_f *f)
+{
+	if (f == NULL)
+		udp_packet_handler = dummy_handler;
+	else
+		udp_packet_handler = f;
+}
+
+rxhand_f *net_get_arp_handler(void)
+{
+	return arp_packet_handler;
+}
+
+void net_set_arp_handler(rxhand_f *f)
+{
+	if (f == NULL)
+		arp_packet_handler = dummy_handler;
+	else
+		arp_packet_handler = f;
 }
 
 #ifdef CONFIG_CMD_TFTPPUT
@@ -1091,11 +1120,11 @@ NetReceive(uchar *inpkt, int len)
 		/*
 		 *	IP header OK.  Pass the packet to the current handler.
 		 */
-		(*packetHandler)((uchar *)ip + IP_UDP_HDR_SIZE,
-					ntohs(ip->udp_dst),
-					src_ip,
-					ntohs(ip->udp_src),
-					ntohs(ip->udp_len) - UDP_HDR_SIZE);
+		(*udp_packet_handler)((uchar *)ip + IP_UDP_HDR_SIZE,
+				ntohs(ip->udp_dst),
+				src_ip,
+				ntohs(ip->udp_src),
+				ntohs(ip->udp_len) - UDP_HDR_SIZE);
 		break;
 	}
 }

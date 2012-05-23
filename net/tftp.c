@@ -778,7 +778,7 @@ void TftpStart(enum proto_t protocol)
 	TftpTimeoutCountMax = TftpRRQTimeoutCountMax;
 
 	NetSetTimeout(TftpTimeoutMSecs, TftpTimeout);
-	NetSetHandler(TftpHandler);
+	net_set_udp_handler(TftpHandler);
 #ifdef CONFIG_CMD_TFTPPUT
 	net_set_icmp_handler(icmp_handler);
 #endif
@@ -840,7 +840,7 @@ TftpStartServer(void)
 #endif
 
 	TftpState = STATE_RECV_WRQ;
-	NetSetHandler(TftpHandler);
+	net_set_udp_handler(TftpHandler);
 }
 #endif /* CONFIG_CMD_TFTPSRV */
 
