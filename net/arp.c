@@ -116,7 +116,7 @@ void ArpTimeoutCheck(void)
 void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 {
 	struct arp_hdr *arp;
-	IPaddr_t tmp;
+	IPaddr_t reply_ip_addr;
 	uchar *pkt;
 
 	/*
@@ -178,10 +178,10 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		}
 #endif
 
-		tmp = NetReadIP(&arp->ar_data[6]);
+		reply_ip_addr = NetReadIP(&arp->ar_data[6]);
 
 		/* matched waiting packet's address */
-		if (tmp == NetArpWaitReplyIP) {
+		if (reply_ip_addr == NetArpWaitReplyIP) {
 			debug("Got ARP REPLY, set eth addr (%pM)\n",
 				arp->ar_data);
 
