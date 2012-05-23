@@ -97,6 +97,7 @@
 #if defined(CONFIG_CMD_DNS)
 #include "dns.h"
 #endif
+#include "ping.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -166,13 +167,6 @@ ushort		NetOurNativeVLAN = 0xFFFF;
 
 /* Boot File name */
 char		BootFile[128];
-
-#if defined(CONFIG_CMD_PING)
-/* the ip address to ping */
-IPaddr_t	NetPingIP;
-
-static void PingStart(void);
-#endif
 
 #if defined(CONFIG_CMD_SNTP)
 /* NTP server IP address */
@@ -356,7 +350,7 @@ restart:
 #endif
 #if defined(CONFIG_CMD_PING)
 		case PING:
-			PingStart();
+			ping_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_NFS)
@@ -651,94 +645,6 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 	return 0;	/* transmitted */
 }
 
-#if defined(CONFIG_CMD_PING)
-static ushort PingSeqNo;
-
-int PingSend(void)
-{
-	static uchar mac[6];
-	IP_t *ip;
-	ushort *s;
-	uchar *pkt;
-
-	/* XXX always send arp request */
-
-	memcpy(mac, NetEtherNullAddr, 6);
-
-	debug("sending ARP for %08x\n", NetPingIP);
-
-	NetArpWaitPacketIP = NetPingIP;
-	NetArpWaitPacketMAC = mac;
-
-	pkt = NetArpWaitTxPacket;
-	pkt += NetSetEther(pkt, mac, PROT_IP);
-
-	ip = (IP_t *)pkt;
-
-	/*
-	 * Construct an IP and ICMP header.
-	 * (need to set no fragment bit - XXX)
-	 */
-	/* IP_HDR_SIZE / 4 (not including UDP) */
-	ip->ip_hl_v  = 0x45;
-	ip->ip_tos   = 0;
-	ip->ip_len   = htons(IP_HDR_SIZE_NO_UDP + 8);
-	ip->ip_id    = htons(NetIPID++);
-	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
-	ip->ip_ttl   = 255;
-	ip->ip_p     = 0x01;		/* ICMP */
-	ip->ip_sum   = 0;
-	/* already in network byte order */
-	NetCopyIP((void *)&ip->ip_src, &NetOurIP);
-	/* - "" - */
-	NetCopyIP((void *)&ip->ip_dst, &NetPingIP);
-	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
-
-	s = &ip->udp_src;		/* XXX ICMP starts here */
-	s[0] = htons(0x0800);		/* echo-request, code */
-	s[1] = 0;			/* checksum */
-	s[2] = 0;			/* identifier */
-	s[3] = htons(PingSeqNo++);	/* sequence number */
-	s[1] = ~NetCksum((uchar *)s, 8/2);
-
-	/* size of the waiting packet */
-	NetArpWaitTxPacketSize =
-		(pkt - NetArpWaitTxPacket) + IP_HDR_SIZE_NO_UDP + 8;
-
-	/* and do the ARP request */
-	NetArpWaitTry = 1;
-	NetArpWaitTimerStart = get_timer(0);
-	ArpRequest();
-	return 1;	/* waiting */
-}
-
-static void
-PingTimeout(void)
-{
-	eth_halt();
-	NetState = NETLOOP_FAIL;	/* we did not get the reply */
-}
-
-static void
-PingHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
-	    unsigned len)
-{
-	if (sip != NetPingIP)
-		return;
-
-	NetState = NETLOOP_SUCCESS;
-}
-
-static void PingStart(void)
-{
-	printf("Using %s device\n", eth_get_name());
-	NetSetTimeout(10000UL, PingTimeout);
-	NetSetHandler(PingHandler);
-
-	PingSend();
-}
-#endif
-
 #ifdef CONFIG_IP_DEFRAG
 /*
  * This function collects fragments in a single packet, according
@@ -928,41 +834,10 @@ static void receive_icmp(IP_t *ip, int len, IPaddr_t src_ip, Ethernet_t *et)
 		printf(" ICMP Host Redirect to %pI4 ",
 			&icmph->un.gateway);
 		break;
-#if defined(CONFIG_CMD_PING)
-	case ICMP_ECHO_REPLY:
-		/*
-			* IP header OK.  Pass the packet to the
-			* current handler.
-			*/
-		/*
-		 * XXX point to ip packet - should this use
-		 * packet_icmp_handler?
-		 */
-		(*packetHandler)((uchar *)ip, 0, src_ip, 0, 0);
-		break;
-	case ICMP_ECHO_REQUEST:
-		debug("Got ICMP ECHO REQUEST, return %d bytes\n",
-			ETHER_HDR_SIZE + len);
-
-		memcpy(&et->et_dest[0], &et->et_src[0], 6);
-		memcpy(&et->et_src[0], NetOurEther, 6);
-
-		ip->ip_sum = 0;
-		ip->ip_off = 0;
-		NetCopyIP((void *)&ip->ip_dst, &ip->ip_src);
-		NetCopyIP((void *)&ip->ip_src, &NetOurIP);
-		ip->ip_sum = ~NetCksum((uchar *)ip,
-					IP_HDR_SIZE_NO_UDP >> 1);
-
-		icmph->type = ICMP_ECHO_REPLY;
-		icmph->checksum = 0;
-		icmph->checksum = ~NetCksum((uchar *)icmph,
-			(len - IP_HDR_SIZE_NO_UDP) >> 1);
-		(void) eth_send((uchar *)et,
-				ETHER_HDR_SIZE + len);
-		break;
-#endif
 	default:
+#if defined(CONFIG_CMD_PING)
+		ping_receive(et, ip, len);
+#endif
 #ifdef CONFIG_CMD_TFTPPUT
 		if (packet_icmp_handler)
 			packet_icmp_handler(icmph->type, icmph->code,
