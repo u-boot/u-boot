@@ -82,9 +82,7 @@
 #include "arp.h"
 #include "bootp.h"
 #include "tftp.h"
-#ifdef CONFIG_CMD_RARP
 #include "rarp.h"
-#endif
 #include "nfs.h"
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
@@ -853,9 +851,6 @@ NetReceive(uchar *inpkt, int len)
 {
 	Ethernet_t *et;
 	IP_t	*ip;
-#ifdef CONFIG_CMD_RARP
-	ARP_t	*arp;
-#endif
 	IPaddr_t tmp;
 	IPaddr_t src_ip;
 	int	x;
@@ -960,27 +955,7 @@ NetReceive(uchar *inpkt, int len)
 
 #ifdef CONFIG_CMD_RARP
 	case PROT_RARP:
-		debug("Got RARP\n");
-		arp = (ARP_t *)ip;
-		if (len < ARP_HDR_SIZE) {
-			printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
-			return;
-		}
-
-		if ((ntohs(arp->ar_op) != RARPOP_REPLY) ||
-			(ntohs(arp->ar_hrd) != ARP_ETHER)   ||
-			(ntohs(arp->ar_pro) != PROT_IP)     ||
-			(arp->ar_hln != 6) || (arp->ar_pln != 4)) {
-
-			puts("invalid RARP header\n");
-		} else {
-			NetCopyIP(&NetOurIP, &arp->ar_data[16]);
-			if (NetServerIP == 0)
-				NetCopyIP(&NetServerIP, &arp->ar_data[6]);
-			memcpy(NetServerEther, &arp->ar_data[0], 6);
-
-			(*packetHandler)(0, 0, 0, 0, 0);
-		}
+		rarp_receive(ip, len);
 		break;
 #endif
 	case PROT_IP:

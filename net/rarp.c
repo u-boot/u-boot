@@ -29,33 +29,50 @@
 #include "rarp.h"
 #include "tftp.h"
 
-#define TIMEOUT		5000UL	/* Milliseconds before trying BOOTP again */
+#define TIMEOUT 5000UL /* Milliseconds before trying BOOTP again */
 #ifndef	CONFIG_NET_RETRY_COUNT
-# define TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
+#define TIMEOUT_COUNT 5 /* # of timeouts before giving up  */
 #else
-# define TIMEOUT_COUNT  (CONFIG_NET_RETRY_COUNT)
+#define TIMEOUT_COUNT (CONFIG_NET_RETRY_COUNT)
 #endif
 
-
-int		RarpTry;
+int RarpTry;
 
 /*
  *	Handle a RARP received packet.
  */
-static void
-RarpHandler(uchar *dummi0, unsigned dummi1, IPaddr_t sip, unsigned dummi2,
-	    unsigned dummi3)
+void rarp_receive(IP_t *ip, unsigned len)
 {
-	debug("Got good RARP\n");
-	net_auto_load();
+	ARP_t *arp;
+
+	debug("Got RARP\n");
+	arp = (ARP_t *)ip;
+	if (len < ARP_HDR_SIZE) {
+		printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
+		return;
+	}
+
+	if ((ntohs(arp->ar_op) != RARPOP_REPLY) ||
+		(ntohs(arp->ar_hrd) != ARP_ETHER)   ||
+		(ntohs(arp->ar_pro) != PROT_IP)     ||
+		(arp->ar_hln != 6) || (arp->ar_pln != 4)) {
+
+		puts("invalid RARP header\n");
+	} else {
+		NetCopyIP(&NetOurIP, &arp->ar_data[16]);
+		if (NetServerIP == 0)
+			NetCopyIP(&NetServerIP, &arp->ar_data[6]);
+		memcpy(NetServerEther, &arp->ar_data[0], 6);
+		debug("Got good RARP\n");
+		net_auto_load();
+	}
 }
 
 
 /*
  *	Timeout on BOOTP request.
  */
-static void
-RarpTimeout(void)
+static void RarpTimeout(void)
 {
 	if (RarpTry >= TIMEOUT_COUNT) {
 		puts("\nRetry count exceeded; starting again\n");
@@ -67,10 +84,8 @@ RarpTimeout(void)
 }
 
 
-void
-RarpRequest(void)
+void RarpRequest(void)
 {
-	int i;
 	uchar *pkt;
 	ARP_t *rarp;
 
@@ -90,12 +105,10 @@ RarpRequest(void)
 	memcpy(&rarp->ar_data[6],  &NetOurIP,   4);	/* source IP addr */
 	/* dest ET addr = source ET addr ??*/
 	memcpy(&rarp->ar_data[10], NetOurEther, 6);
-	/* dest. IP addr set to broadcast */
-	for (i = 0; i <= 3; i++)
-		rarp->ar_data[16 + i] = 0xff;
+	/* dest IP addr set to broadcast */
+	memset(&rarp->ar_data[16], 0xff,        4);
 
 	NetSendPacket(NetTxPacket, (pkt - NetTxPacket) + ARP_HDR_SIZE);
 
 	NetSetTimeout(TIMEOUT, RarpTimeout);
-	NetSetHandler(RarpHandler);
 }
