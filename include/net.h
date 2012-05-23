@@ -194,6 +194,30 @@ typedef struct {
 #define IPPROTO_UDP	17	/* User Datagram Protocol		*/
 
 /*
+ *	Internet Protocol (IP) header.
+ */
+struct ip_hdr {
+	uchar		ip_hl_v;	/* header length and version	*/
+	uchar		ip_tos;		/* type of service		*/
+	ushort		ip_len;		/* total length			*/
+	ushort		ip_id;		/* identification		*/
+	ushort		ip_off;		/* fragment offset field	*/
+	uchar		ip_ttl;		/* time to live			*/
+	uchar		ip_p;		/* protocol			*/
+	ushort		ip_sum;		/* checksum			*/
+	IPaddr_t	ip_src;		/* Source IP address		*/
+	IPaddr_t	ip_dst;		/* Destination IP address	*/
+};
+
+#define IP_OFFS		0x1fff /* ip offset *= 8 */
+#define IP_FLAGS	0xe000 /* first 3 bits */
+#define IP_FLAGS_RES	0x8000 /* reserved */
+#define IP_FLAGS_DFRAG	0x4000 /* don't fragments */
+#define IP_FLAGS_MFRAG	0x2000 /* more fragments */
+
+#define IP_HDR_SIZE		(sizeof(struct ip_hdr))
+
+/*
  *	Internet Protocol (IP) + UDP header.
  */
 struct ip_udp_hdr {
@@ -213,16 +237,8 @@ struct ip_udp_hdr {
 	ushort		udp_xsum;	/* Checksum			*/
 };
 
-#define IP_OFFS		0x1fff /* ip offset *= 8 */
-#define IP_FLAGS	0xe000 /* first 3 bits */
-#define IP_FLAGS_RES	0x8000 /* reserved */
-#define IP_FLAGS_DFRAG	0x4000 /* don't fragments */
-#define IP_FLAGS_MFRAG	0x2000 /* more fragments */
-
-#define IP_HDR_SIZE_NO_UDP	(sizeof(struct ip_udp_hdr) - 8)
-
 #define IP_UDP_HDR_SIZE		(sizeof(struct ip_udp_hdr))
-#define UDP_HDR_SIZE		(IP_UDP_HDR_SIZE - IP_HDR_SIZE_NO_UDP)
+#define UDP_HDR_SIZE		(IP_UDP_HDR_SIZE - IP_HDR_SIZE)
 
 /*
  *	Address Resolution Protocol (ARP) header.

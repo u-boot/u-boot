@@ -663,7 +663,7 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 static struct rpc_t rpc_specimen;
 #define IP_PKTSIZE (CONFIG_NET_MAXDEFRAG + sizeof(rpc_specimen.u.reply))
 
-#define IP_MAXUDP (IP_PKTSIZE - IP_HDR_SIZE_NO_UDP)
+#define IP_MAXUDP (IP_PKTSIZE - IP_HDR_SIZE)
 
 /*
  * this is the packet being assembled, either data or frag control.
@@ -688,11 +688,11 @@ static struct ip_udp_hdr *__NetDefragment(struct ip_udp_hdr *ip, int *lenp)
 	u16 ip_off = ntohs(ip->ip_off);
 
 	/* payload starts after IP header, this fragment is in there */
-	payload = (struct hole *)(pkt_buff + IP_HDR_SIZE_NO_UDP);
+	payload = (struct hole *)(pkt_buff + IP_HDR_SIZE);
 	offset8 =  (ip_off & IP_OFFS);
 	thisfrag = payload + offset8;
 	start = offset8 * 8;
-	len = ntohs(ip->ip_len) - IP_HDR_SIZE_NO_UDP;
+	len = ntohs(ip->ip_len) - IP_HDR_SIZE;
 
 	if (start + len > IP_MAXUDP) /* fragment extends too far */
 		return NULL;
@@ -705,7 +705,7 @@ static struct ip_udp_hdr *__NetDefragment(struct ip_udp_hdr *ip, int *lenp)
 		payload[0].prev_hole = 0;
 		first_hole = 0;
 		/* any IP header will work, copy the first we received */
-		memcpy(localip, ip, IP_HDR_SIZE_NO_UDP);
+		memcpy(localip, ip, IP_HDR_SIZE);
 	}
 
 	/*
@@ -788,12 +788,12 @@ static struct ip_udp_hdr *__NetDefragment(struct ip_udp_hdr *ip, int *lenp)
 	}
 
 	/* finally copy this fragment and possibly return whole packet */
-	memcpy((uchar *)thisfrag, indata + IP_HDR_SIZE_NO_UDP, len);
+	memcpy((uchar *)thisfrag, indata + IP_HDR_SIZE, len);
 	if (!done)
 		return NULL;
 
 	localip->ip_len = htons(total_len);
-	*lenp = total_len + IP_HDR_SIZE_NO_UDP;
+	*lenp = total_len + IP_HDR_SIZE;
 	return localip;
 }
 
@@ -983,7 +983,7 @@ NetReceive(uchar *inpkt, int len)
 		if ((ip->ip_hl_v & 0x0f) > 0x05)
 			return;
 		/* Check the Checksum of the header */
-		if (!NetCksumOk((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2)) {
+		if (!NetCksumOk((uchar *)ip, IP_HDR_SIZE / 2)) {
 			puts("checksum bad\n");
 			return;
 		}
@@ -1273,7 +1273,7 @@ void NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 	ip->udp_dst  = htons(dport);
 	ip->udp_len  = htons(UDP_HDR_SIZE + len);
 	ip->udp_xsum = 0;
-	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
+	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE / 2);
 }
 
 void copy_filename(char *dst, const char *src, int size)

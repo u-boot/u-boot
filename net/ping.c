@@ -44,7 +44,7 @@ static int ping_send(void)
 	/* IP_HDR_SIZE / 4 (not including UDP) */
 	ip->ip_hl_v  = 0x45;
 	ip->ip_tos   = 0;
-	ip->ip_len   = htons(IP_HDR_SIZE_NO_UDP + 8);
+	ip->ip_len   = htons(IP_HDR_SIZE + 8);
 	ip->ip_id    = htons(NetIPID++);
 	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
 	ip->ip_ttl   = 255;
@@ -54,7 +54,7 @@ static int ping_send(void)
 	NetCopyIP((void *)&ip->ip_src, &NetOurIP);
 	/* - "" - */
 	NetCopyIP((void *)&ip->ip_dst, &NetPingIP);
-	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
+	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE / 2);
 
 	s = &ip->udp_src;		/* XXX ICMP starts here */
 	s[0] = htons(0x0800);		/* echo-request, code */
@@ -65,7 +65,7 @@ static int ping_send(void)
 
 	/* size of the waiting packet */
 	NetArpWaitTxPacketSize =
-		(pkt - NetArpWaitTxPacket) + IP_HDR_SIZE_NO_UDP + 8;
+		(pkt - NetArpWaitTxPacket) + IP_HDR_SIZE + 8;
 
 	/* and do the ARP request */
 	NetArpWaitTry = 1;
@@ -125,12 +125,12 @@ void ping_receive(Ethernet_t *et, struct ip_udp_hdr *ip, int len)
 		NetCopyIP((void *)&ip->ip_dst, &ip->ip_src);
 		NetCopyIP((void *)&ip->ip_src, &NetOurIP);
 		ip->ip_sum = ~NetCksum((uchar *)ip,
-				       IP_HDR_SIZE_NO_UDP >> 1);
+				       IP_HDR_SIZE >> 1);
 
 		icmph->type = ICMP_ECHO_REPLY;
 		icmph->checksum = 0;
 		icmph->checksum = ~NetCksum((uchar *)icmph,
-			(len - IP_HDR_SIZE_NO_UDP) >> 1);
+			(len - IP_HDR_SIZE) >> 1);
 		(void) eth_send((uchar *)et,
 				ETHER_HDR_SIZE + len);
 		return;
