@@ -619,9 +619,9 @@ BootpRequest(void)
 	 * determined.
 	 * C. Hallinan, DS4.COM, Inc.
 	 */
-	/* NetSetIP(pkt, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC,
+	/* net_set_udp_header(pkt, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC,
 		sizeof (struct Bootp_t)); */
-	iphdr = pkt;	/* We need this later for NetSetIP() */
+	iphdr = pkt;	/* We need this later for net_set_udp_header() */
 	pkt += IP_UDP_HDR_SIZE;
 
 	bp = (struct Bootp_t *)pkt;
@@ -663,7 +663,7 @@ BootpRequest(void)
 	pktlen = ((int)(pkt-NetTxPacket)) + BOOTP_HDR_SIZE -
 		sizeof(bp->bp_vend) + ext_len;
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + ext_len;
-	NetSetIP(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
+	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 	NetSetTimeout(SELECT_TIMEOUT, BootpTimeout);
 
 #if defined(CONFIG_CMD_DHCP)
@@ -844,7 +844,7 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	pktlen = ((int)(pkt-NetTxPacket)) + BOOTP_HDR_SIZE -
 		sizeof(bp->bp_vend) + extlen;
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + extlen;
-	NetSetIP(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
+	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 
 	debug("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
 #ifdef CONFIG_BOOTP_DHCP_REQUEST_DELAY

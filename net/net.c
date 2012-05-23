@@ -618,7 +618,7 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 		pkt = NetArpWaitTxPacket;
 		pkt += NetSetEther(pkt, NetArpWaitPacketMAC, PROT_IP);
 
-		NetSetIP(pkt, dest, dport, sport, payload_len);
+		net_set_udp_header(pkt, dest, dport, sport, payload_len);
 		memcpy(pkt + IP_UDP_HDR_SIZE, (uchar *)NetTxPacket +
 		       (pkt - (uchar *)NetArpWaitTxPacket) +
 		       IP_UDP_HDR_SIZE, payload_len);
@@ -638,7 +638,7 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 
 	pkt = (uchar *)NetTxPacket;
 	pkt += NetSetEther(pkt, ether, PROT_IP);
-	NetSetIP(pkt, dest, dport, sport, payload_len);
+	net_set_udp_header(pkt, dest, dport, sport, payload_len);
 	eth_send(NetTxPacket, (pkt - NetTxPacket) + IP_UDP_HDR_SIZE +
 		payload_len);
 
@@ -1245,9 +1245,31 @@ NetSetEther(uchar *xet, uchar * addr, uint prot)
 	}
 }
 
-void NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
+void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source)
 {
-	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)xip;
+	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)pkt;
+
+	/*
+	 *	Construct an IP header.
+	 */
+	/* IP_HDR_SIZE / 4 (not including UDP) */
+	ip->ip_hl_v  = 0x45;
+	ip->ip_tos   = 0;
+	ip->ip_len   = htons(IP_HDR_SIZE);
+	ip->ip_id    = htons(NetIPID++);
+	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
+	ip->ip_ttl   = 255;
+	ip->ip_sum   = 0;
+	/* already in network byte order */
+	NetCopyIP((void *)&ip->ip_src, &source);
+	/* already in network byte order */
+	NetCopyIP((void *)&ip->ip_dst, &dest);
+}
+
+void net_set_udp_header(uchar *pkt, IPaddr_t dest, int dport, int sport,
+			int len)
+{
+	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)pkt;
 
 	/*
 	 *	If the data is an odd number of bytes, zero the
@@ -1255,30 +1277,17 @@ void NetSetIP(uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 	 *	will work.
 	 */
 	if (len & 1)
-		xip[IP_UDP_HDR_SIZE + len] = 0;
+		pkt[IP_UDP_HDR_SIZE + len] = 0;
 
-	/*
-	 *	Construct an IP and UDP header.
-	 *	(need to set no fragment bit - XXX)
-	 */
-	/* IP_HDR_SIZE / 4 (not including UDP) */
-	ip->ip_hl_v  = 0x45;
-	ip->ip_tos   = 0;
+	net_set_ip_header(pkt, dest, NetOurIP);
 	ip->ip_len   = htons(IP_UDP_HDR_SIZE + len);
-	ip->ip_id    = htons(NetIPID++);
-	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
-	ip->ip_ttl   = 255;
-	ip->ip_p     = 17;		/* UDP */
-	ip->ip_sum   = 0;
-	/* already in network byte order */
-	NetCopyIP((void *)&ip->ip_src, &NetOurIP);
-	/* - "" - */
-	NetCopyIP((void *)&ip->ip_dst, &dest);
+	ip->ip_p     = IPPROTO_UDP;
+	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE >> 1);
+
 	ip->udp_src  = htons(sport);
 	ip->udp_dst  = htons(dport);
 	ip->udp_len  = htons(UDP_HDR_SIZE + len);
 	ip->udp_xsum = 0;
-	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE / 2);
 }
 
 void copy_filename(char *dst, const char *src, int size)

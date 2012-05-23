@@ -457,7 +457,9 @@ extern int	NetEthHdrSize(void);
 extern int NetSetEther(uchar *, uchar *, uint);
 
 /* Set IP header */
-extern void NetSetIP(uchar *, IPaddr_t, int, int, int);
+extern void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source);
+extern void net_set_udp_header(uchar *pkt, IPaddr_t dest, int dport,
+				int sport, int len);
 
 /* Checksum */
 extern int	NetCksumOk(uchar *, int);	/* Return true if cksum OK */

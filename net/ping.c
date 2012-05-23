@@ -16,11 +16,31 @@ static ushort PingSeqNo;
 /* The ip address to ping */
 IPaddr_t NetPingIP;
 
+static void set_icmp_header(uchar *pkt, IPaddr_t dest)
+{
+	/*
+	 *	Construct an IP and ICMP header.
+	 */
+	struct ip_hdr *ip = (struct ip_hdr *)pkt;
+	struct icmp_hdr *icmp = (struct icmp_hdr *)(pkt + IP_HDR_SIZE);
+
+	net_set_ip_header(pkt, dest, NetOurIP);
+
+	ip->ip_len   = htons(IP_ICMP_HDR_SIZE);
+	ip->ip_p     = IPPROTO_ICMP;
+	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE >> 1);
+
+	icmp->type = ICMP_ECHO_REQUEST;
+	icmp->code = 0;
+	icmp->checksum = 0;
+	icmp->un.echo.id = 0;
+	icmp->un.echo.sequence = htons(PingSeqNo++);
+	icmp->checksum = ~NetCksum((uchar *)icmp, ICMP_HDR_SIZE	>> 1);
+}
+
 static int ping_send(void)
 {
 	static uchar mac[6];
-	struct ip_udp_hdr *ip;
-	ushort *s;
 	uchar *pkt;
 
 	/* XXX always send arp request */
@@ -35,33 +55,7 @@ static int ping_send(void)
 	pkt = NetArpWaitTxPacket;
 	pkt += NetSetEther(pkt, mac, PROT_IP);
 
-	ip = (struct ip_udp_hdr *)pkt;
-
-	/*
-	 * Construct an IP and ICMP header.
-	 * (need to set no fragment bit - XXX)
-	 */
-	/* IP_HDR_SIZE / 4 (not including UDP) */
-	ip->ip_hl_v  = 0x45;
-	ip->ip_tos   = 0;
-	ip->ip_len   = htons(IP_HDR_SIZE + 8);
-	ip->ip_id    = htons(NetIPID++);
-	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
-	ip->ip_ttl   = 255;
-	ip->ip_p     = 0x01;		/* ICMP */
-	ip->ip_sum   = 0;
-	/* already in network byte order */
-	NetCopyIP((void *)&ip->ip_src, &NetOurIP);
-	/* - "" - */
-	NetCopyIP((void *)&ip->ip_dst, &NetPingIP);
-	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE / 2);
-
-	s = &ip->udp_src;		/* XXX ICMP starts here */
-	s[0] = htons(0x0800);		/* echo-request, code */
-	s[1] = 0;			/* checksum */
-	s[2] = 0;			/* identifier */
-	s[3] = htons(PingSeqNo++);	/* sequence number */
-	s[1] = ~NetCksum((uchar *)s, 8/2);
+	set_icmp_header(pkt, NetPingIP);
 
 	/* size of the waiting packet */
 	NetArpWaitTxPacketSize =
