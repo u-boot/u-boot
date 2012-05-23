@@ -45,7 +45,7 @@ void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 {
 	struct arp_hdr *arp;
 
-	debug("Got RARP\n");
+	debug_cond(DEBUG_NET_PKT, "Got RARP\n");
 	arp = (struct arp_hdr *)ip;
 	if (len < ARP_HDR_SIZE) {
 		printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
@@ -63,7 +63,7 @@ void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 		if (NetServerIP == 0)
 			NetCopyIP(&NetServerIP, &arp->ar_data[6]);
 		memcpy(NetServerEther, &arp->ar_data[0], 6);
-		debug("Got good RARP\n");
+		debug_cond(DEBUG_DEV_PKT, "Got good RARP\n");
 		net_auto_load();
 	}
 }

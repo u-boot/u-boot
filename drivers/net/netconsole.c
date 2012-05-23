@@ -83,6 +83,8 @@ int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 	if (dest != nc_port || !len)
 		return 0; /* not for us */
 
+	debug_cond(DEBUG_DEV_PKT, "input: \"%*.*s\"\n", len, len, pkt);
+
 	if (input_size == sizeof(input_buffer))
 		return 1; /* no space */
 	if (len > sizeof(input_buffer) - input_size)
@@ -111,6 +113,8 @@ static void nc_send_packet(const char *buf, int len)
 	uchar *pkt;
 	uchar *ether;
 	IPaddr_t ip;
+
+	debug_cond(DEBUG_DEV_PKT, "output: \"%*.*s\"\n", len, len, buf);
 
 	eth = eth_get_dev();
 	if (eth == NULL)

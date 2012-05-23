@@ -729,13 +729,6 @@ int gunzip(void *, int, unsigned char *, unsigned long *);
 int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 						int stoponerr, int offset);
 
-/* lib/net_utils.c */
-#include <net.h>
-static inline IPaddr_t getenv_IPaddr (char *var)
-{
-	return (string_to_ip(getenv(var)));
-}
-
 /* lib/qsort.c */
 void qsort(void *base, size_t nmemb, size_t size,
 	   int(*compar)(const void *, const void *));
@@ -803,6 +796,13 @@ void	fputs(int file, const char *s);
 void	fputc(int file, const char c);
 int	ftstc(int file);
 int	fgetc(int file);
+
+/* lib/net_utils.c */
+#include <net.h>
+static inline IPaddr_t getenv_IPaddr(char *var)
+{
+	return string_to_ip(getenv(var));
+}
 
 /*
  * CONSOLE multiplexing.

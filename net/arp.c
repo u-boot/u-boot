@@ -55,7 +55,7 @@ void arp_raw_request(IPaddr_t sourceIP, const uchar *targetEther,
 	struct arp_hdr *arp;
 	int eth_hdr_size;
 
-	debug("ARP broadcast %d\n", NetArpWaitTry);
+	debug_cond(DEBUG_DEV_PKT, "ARP broadcast %d\n", NetArpWaitTry);
 
 	pkt = NetArpTxPacket;
 
@@ -135,7 +135,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	 *   address; so if we receive such a packet, we set
 	 *   the server ethernet address
 	 */
-	debug("Got ARP\n");
+	debug_cond(DEBUG_NET_PKT, "Got ARP\n");
 
 	arp = (struct arp_hdr *)ip;
 	if (len < ARP_HDR_SIZE) {
@@ -160,7 +160,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	switch (ntohs(arp->ar_op)) {
 	case ARPOP_REQUEST:
 		/* reply with our IP address */
-		debug("Got ARP REQUEST, return our IP\n");
+		debug_cond(DEBUG_DEV_PKT, "Got ARP REQUEST, return our IP\n");
 		pkt = (uchar *)et;
 		eth_hdr_size = net_update_ether(et, et->et_src, PROT_ARP);
 		pkt += eth_hdr_size;
@@ -203,7 +203,8 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 
 		/* matched waiting packet's address */
 		if (reply_ip_addr == NetArpWaitReplyIP) {
-			debug("Got ARP REPLY, set eth addr (%pM)\n",
+			debug_cond(DEBUG_DEV_PKT,
+				"Got ARP REPLY, set eth addr (%pM)\n",
 				arp->ar_data);
 
 			/* save address for later use */

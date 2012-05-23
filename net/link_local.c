@@ -93,7 +93,7 @@ static void configure_wait(void)
 	/* set deadline_ms to the point in time when we timeout */
 	deadline_ms = MONOTONIC_MS() + timeout_ms;
 
-	debug("...wait %d %s nprobes=%u, nclaims=%u\n",
+	debug_cond(DEBUG_DEV_PKT, "...wait %d %s nprobes=%u, nclaims=%u\n",
 			timeout_ms, eth_get_name(), nprobes, nclaims);
 
 	NetSetTimeout(timeout_ms, link_local_timeout);
@@ -131,7 +131,7 @@ static void link_local_timeout(void)
 		   have been received, so we can progress through the states */
 		if (nprobes < PROBE_NUM) {
 			nprobes++;
-			debug("probe/%u %s@%pI4\n",
+			debug_cond(DEBUG_LL_STATE, "probe/%u %s@%pI4\n",
 					nprobes, eth_get_name(), &ip);
 			arp_raw_request(0, NetEtherNullAddr, ip);
 			timeout_ms = PROBE_MIN * 1000;
@@ -140,7 +140,7 @@ static void link_local_timeout(void)
 			/* Switch to announce state */
 			state = ANNOUNCE;
 			nclaims = 0;
-			debug("announce/%u %s@%pI4\n",
+			debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
 					nclaims, eth_get_name(), &ip);
 			arp_raw_request(ip, NetOurEther, ip);
 			timeout_ms = ANNOUNCE_INTERVAL * 1000;
@@ -152,7 +152,7 @@ static void link_local_timeout(void)
 		   to the announce state */
 		state = ANNOUNCE;
 		nclaims = 0;
-		debug("announce/%u %s@%pI4\n",
+		debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
 				nclaims, eth_get_name(), &ip);
 		arp_raw_request(ip, NetOurEther, ip);
 		timeout_ms = ANNOUNCE_INTERVAL * 1000;
@@ -163,7 +163,7 @@ static void link_local_timeout(void)
 		   the states */
 		if (nclaims < ANNOUNCE_NUM) {
 			nclaims++;
-			debug("announce/%u %s@%pI4\n",
+			debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
 					nclaims, eth_get_name(), &ip);
 			arp_raw_request(ip, NetOurEther, ip);
 			timeout_ms = ANNOUNCE_INTERVAL * 1000;
@@ -216,10 +216,11 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 		if ((int)(diff) < 0) {
 			/* Current time is greater than the expected timeout
 			   time. This should never happen */
-			debug("missed an expected timeout\n");
+			debug_cond(DEBUG_LL_STATE,
+				"missed an expected timeout\n");
 			timeout_ms = 0;
 		} else {
-			debug("adjusting timeout\n");
+			debug_cond(DEBUG_INT_STATE, "adjusting timeout\n");
 			timeout_ms = diff | 1; /* never 0 */
 		}
 	}
@@ -239,13 +240,13 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 	}
 */
 
-	debug("%s recv arp type=%d, op=%d,\n",
+	debug_cond(DEBUG_INT_STATE, "%s recv arp type=%d, op=%d,\n",
 		eth_get_name(), ntohs(arp->ar_pro),
 		ntohs(arp->ar_op));
-	debug("\tsource=%pM %pI4\n",
+	debug_cond(DEBUG_INT_STATE, "\tsource=%pM %pI4\n",
 		&arp->ar_sha,
 		&arp->ar_spa);
-	debug("\ttarget=%pM %pI4\n",
+	debug_cond(DEBUG_INT_STATE, "\ttarget=%pM %pI4\n",
 		&arp->ar_tha,
 		&arp->ar_tpa);
 
@@ -271,8 +272,9 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 		target_ip_conflict = 1;
 	}
 
-	debug("state = %d, source ip conflict = %d, target ip conflict = %d\n",
-		state, source_ip_conflict, target_ip_conflict);
+	debug_cond(DEBUG_NET_PKT,
+		"state = %d, source ip conflict = %d, target ip conflict = "
+		"%d\n", state, source_ip_conflict, target_ip_conflict);
 	switch (state) {
 	case PROBE:
 	case ANNOUNCE:

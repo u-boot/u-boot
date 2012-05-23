@@ -310,6 +310,7 @@ int NetLoop(enum proto_t protocol)
 	NetRestarted = 0;
 	NetDevExists = 0;
 	NetTryCount = 1;
+	debug_cond(DEBUG_INT_STATE, "--- NetLoop Entry\n");
 
 	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
 	net_init();
@@ -330,6 +331,7 @@ restart:
 	 *	here on, this code is a state machine driven by received
 	 *	packets and timer events.
 	 */
+	debug_cond(DEBUG_INT_STATE, "--- NetLoop Init\n");
 	NetInitLoop();
 
 	switch (net_check_prereq(protocol)) {
@@ -460,6 +462,9 @@ restart:
 			net_cleanup_loop();
 			eth_halt();
 			puts("\nAbort\n");
+			/* include a debug print as well incase the debug
+			   messages are directed to stderr */
+			debug_cond(DEBUG_INT_STATE, "--- NetLoop Abort!\n");
 			goto done;
 		}
 
@@ -487,6 +492,7 @@ restart:
 			}
 #endif /* CONFIG_SYS_FAULT_ECHO_LINK_DOWN, ... */
 #endif /* CONFIG_MII, ... */
+			debug_cond(DEBUG_INT_STATE, "--- NetLoop timeout\n");
 			x = timeHandler;
 			timeHandler = (thand_f *)0;
 			(*x)();
@@ -514,10 +520,12 @@ restart:
 			}
 			eth_halt();
 			ret = NetBootFileXferSize;
+			debug_cond(DEBUG_INT_STATE, "--- NetLoop Success!\n");
 			goto done;
 
 		case NETLOOP_FAIL:
 			net_cleanup_loop();
+			debug_cond(DEBUG_INT_STATE, "--- NetLoop Fail!\n");
 			goto done;
 
 		case NETLOOP_CONTINUE:
@@ -605,6 +613,7 @@ rxhand_f *net_get_udp_handler(void)
 
 void net_set_udp_handler(rxhand_f *f)
 {
+	debug_cond(DEBUG_INT_STATE, "--- NetLoop UDP handler set (%p)\n", f);
 	if (f == NULL)
 		udp_packet_handler = dummy_handler;
 	else
@@ -618,6 +627,7 @@ rxhand_f *net_get_arp_handler(void)
 
 void net_set_arp_handler(rxhand_f *f)
 {
+	debug_cond(DEBUG_INT_STATE, "--- NetLoop ARP handler set (%p)\n", f);
 	if (f == NULL)
 		arp_packet_handler = dummy_handler;
 	else
@@ -635,8 +645,12 @@ void
 NetSetTimeout(ulong iv, thand_f *f)
 {
 	if (iv == 0) {
+		debug_cond(DEBUG_INT_STATE,
+			"--- NetLoop timeout handler cancelled\n");
 		timeHandler = (thand_f *)0;
 	} else {
+		debug_cond(DEBUG_INT_STATE,
+			"--- NetLoop timeout handler set (%p)\n", f);
 		timeHandler = f;
 		timeStart = get_timer(0);
 		timeDelta = iv;
@@ -672,7 +686,7 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 
 	/* if MAC address was not discovered yet, do an ARP request */
 	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
-		debug("sending ARP for %pI4\n", &dest);
+		debug_cond(DEBUG_DEV_PKT, "sending ARP for %pI4\n", &dest);
 
 		/* save the ip and eth addr for the packet to send after arp */
 		NetArpWaitPacketIP = dest;
@@ -687,7 +701,8 @@ int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
 		ArpRequest();
 		return 1;	/* waiting */
 	} else {
-		debug("sending UDP to %pI4/%pM\n", &dest, ether);
+		debug_cond(DEBUG_DEV_PKT, "sending UDP to %pI4/%pM\n",
+			&dest, ether);
 		NetSendPacket(NetTxPacket, pkt_hdr_size + payload_len);
 		return 0;	/* transmitted */
 	}
@@ -910,7 +925,7 @@ NetReceive(uchar *inpkt, int len)
 #endif
 	ushort cti = 0, vlanid = VLAN_NONE, myvlanid, mynvlanid;
 
-	debug("packet received\n");
+	debug_cond(DEBUG_NET_PKT, "packet received\n");
 
 	NetRxPacket = inpkt;
 	NetRxPacketLen = len;
@@ -941,8 +956,6 @@ NetReceive(uchar *inpkt, int len)
 
 	eth_proto = ntohs(et->et_protlen);
 
-	debug("packet received\n");
-
 	if (eth_proto < 1514) {
 		struct e802_hdr *et802 = (struct e802_hdr *)et;
 		/*
@@ -962,7 +975,7 @@ NetReceive(uchar *inpkt, int len)
 		struct vlan_ethernet_hdr *vet =
 			(struct vlan_ethernet_hdr *)et;
 
-		debug("VLAN packet received\n");
+		debug_cond(DEBUG_NET_PKT, "VLAN packet received\n");
 
 		/* too small packet? */
 		if (len < VLAN_ETHER_HDR_SIZE)
@@ -984,7 +997,7 @@ NetReceive(uchar *inpkt, int len)
 		len -= VLAN_ETHER_HDR_SIZE;
 	}
 
-	debug("Receive from protocol 0x%x\n", eth_proto);
+	debug_cond(DEBUG_NET_PKT, "Receive from protocol 0x%x\n", eth_proto);
 
 #if defined(CONFIG_CMD_CDP)
 	if (iscdp) {
@@ -1013,7 +1026,7 @@ NetReceive(uchar *inpkt, int len)
 		break;
 #endif
 	case PROT_IP:
-		debug("Got IP\n");
+		debug_cond(DEBUG_NET_PKT, "Got IP\n");
 		/* Before we start poking the header, make sure it is there */
 		if (len < IP_UDP_HDR_SIZE) {
 			debug("len bad %d < %lu\n", len,
@@ -1022,11 +1035,12 @@ NetReceive(uchar *inpkt, int len)
 		}
 		/* Check the packet length */
 		if (len < ntohs(ip->ip_len)) {
-			printf("len bad %d < %d\n", len, ntohs(ip->ip_len));
+			debug("len bad %d < %d\n", len, ntohs(ip->ip_len));
 			return;
 		}
 		len = ntohs(ip->ip_len);
-		debug("len=%d, v=%02x\n", len, ip->ip_hl_v & 0xff);
+		debug_cond(DEBUG_NET_PKT, "len=%d, v=%02x\n",
+			len, ip->ip_hl_v & 0xff);
 
 		/* Can't deal with anything except IPv4 */
 		if ((ip->ip_hl_v & 0xf0) != 0x40)
@@ -1036,7 +1050,7 @@ NetReceive(uchar *inpkt, int len)
 			return;
 		/* Check the Checksum of the header */
 		if (!NetCksumOk((uchar *)ip, IP_HDR_SIZE / 2)) {
-			puts("checksum bad\n");
+			debug("checksum bad\n");
 			return;
 		}
 		/* If it is not for us, ignore it */
@@ -1084,6 +1098,10 @@ NetReceive(uchar *inpkt, int len)
 		} else if (ip->ip_p != IPPROTO_UDP) {	/* Only UDP packets */
 			return;
 		}
+
+		debug_cond(DEBUG_DEV_PKT,
+			"received UDP (to=%pI4, from=%pI4, len=%d)\n",
+			&dst_ip, &src_ip, len);
 
 #ifdef CONFIG_UDP_CHECKSUM
 		if (ip->udp_xsum != 0) {

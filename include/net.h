@@ -19,6 +19,10 @@
 #include <asm/cache.h>
 #include <asm/byteorder.h>	/* for nton* / ntoh* stuff */
 
+#define DEBUG_LL_STATE 0	/* Link local state machine changes */
+#define DEBUG_DEV_PKT 0		/* Packets or info directed to the device */
+#define DEBUG_NET_PKT 0		/* Packets on info on the network at large */
+#define DEBUG_INT_STATE 0	/* Internal network state changes */
 
 /*
  *	The number of receive packet buffers, and the required packet buffer
@@ -480,6 +484,7 @@ static inline void net_set_state(enum net_loop_state state)
 {
 	extern enum net_loop_state net_state;
 
+	debug_cond(DEBUG_INT_STATE, "--- NetState set to %d\n", state);
 	net_state = state;
 }
 

@@ -45,7 +45,7 @@ static int ping_send(void)
 
 	/* XXX always send arp request */
 
-	debug("sending ARP for %pI4\n", &NetPingIP);
+	debug_cond(DEBUG_DEV_PKT, "sending ARP for %pI4\n", &NetPingIP);
 
 	NetArpWaitPacketIP = NetPingIP;
 
@@ -93,7 +93,7 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	case ICMP_ECHO_REQUEST:
 		eth_hdr_size = net_update_ether(et, et->et_src, PROT_IP);
 
-		debug("Got ICMP ECHO REQUEST, return "
+		debug_cond(DEBUG_DEV_PKT, "Got ICMP ECHO REQUEST, return "
 			"%d bytes\n", eth_hdr_size + len);
 
 		ip->ip_sum = 0;
