@@ -52,12 +52,14 @@ void ArpRequest(void)
 {
 	uchar *pkt;
 	struct arp_hdr *arp;
+	int eth_hdr_size;
 
 	debug("ARP broadcast %d\n", NetArpWaitTry);
 
 	pkt = NetTxPacket;
 
-	pkt += NetSetEther(pkt, NetBcastAddr, PROT_ARP);
+	eth_hdr_size = NetSetEther(pkt, NetBcastAddr, PROT_ARP);
+	pkt += eth_hdr_size;
 
 	arp = (struct arp_hdr *) pkt;
 
@@ -86,7 +88,7 @@ void ArpRequest(void)
 	}
 
 	NetWriteIP(&arp->ar_tpa, NetArpWaitReplyIP);
-	(void) eth_send(NetTxPacket, (pkt - NetTxPacket) + ARP_HDR_SIZE);
+	(void) eth_send(NetTxPacket, eth_hdr_size + ARP_HDR_SIZE);
 }
 
 void ArpTimeoutCheck(void)
@@ -118,6 +120,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	struct arp_hdr *arp;
 	IPaddr_t reply_ip_addr;
 	uchar *pkt;
+	int eth_hdr_size;
 
 	/*
 	 * We have to deal with two types of ARP packets:
@@ -155,14 +158,14 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		/* reply with our IP address */
 		debug("Got ARP REQUEST, return our IP\n");
 		pkt = (uchar *)et;
-		pkt += NetSetEther(pkt, et->et_src, PROT_ARP);
+		eth_hdr_size = NetSetEther(pkt, et->et_src, PROT_ARP);
+		pkt += eth_hdr_size;
 		arp->ar_op = htons(ARPOP_REPLY);
 		memcpy(&arp->ar_tha, &arp->ar_sha, ARP_HLEN);
 		NetCopyIP(&arp->ar_tpa, &arp->ar_spa);
 		memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);
 		NetCopyIP(&arp->ar_spa, &NetOurIP);
-		(void) eth_send((uchar *)et,
-				(pkt - (uchar *)et) + ARP_HDR_SIZE);
+		(void) eth_send((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
 		return;
 
 	case ARPOP_REPLY:		/* arp reply */

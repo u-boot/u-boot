@@ -42,6 +42,7 @@ static int ping_send(void)
 {
 	static uchar mac[6];
 	uchar *pkt;
+	int eth_hdr_size;
 
 	/* XXX always send arp request */
 
@@ -53,13 +54,13 @@ static int ping_send(void)
 	NetArpWaitPacketMAC = mac;
 
 	pkt = NetArpWaitTxPacket;
-	pkt += NetSetEther(pkt, mac, PROT_IP);
+	eth_hdr_size = NetSetEther(pkt, mac, PROT_IP);
+	pkt += eth_hdr_size;
 
 	set_icmp_header(pkt, NetPingIP);
 
 	/* size of the waiting packet */
-	NetArpWaitTxPacketSize =
-		(pkt - NetArpWaitTxPacket) + IP_HDR_SIZE + 8;
+	NetArpWaitTxPacketSize = eth_hdr_size + IP_ICMP_HDR_SIZE;
 
 	/* and do the ARP request */
 	NetArpWaitTry = 1;
