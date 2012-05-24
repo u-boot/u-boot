@@ -105,6 +105,7 @@ int cm_t3x_eeprom_read_mac_addr(uchar *buf)
 u32 get_board_rev(void)
 {
 	u32 rev = 0;
+	char str[5]; /* Legacy representation can contain at most 4 digits */
 	uint offset = BOARD_REV_OFFSET_LEGACY;
 
 	if (eeprom_setup_layout())
@@ -115,6 +116,15 @@ u32 get_board_rev(void)
 
 	if (cm_t3x_eeprom_read(offset, (uchar *)&rev, BOARD_REV_SIZE))
 		return 0;
+
+	/*
+	 * Convert legacy syntactic representation to semantic
+	 * representation. i.e. for rev 1.00: 0x100 --> 0x64
+	 */
+	if (eeprom_layout == LAYOUT_LEGACY) {
+		sprintf(str, "%x", rev);
+		rev = simple_strtoul(str, NULL, 10);
+	}
 
 	return rev;
 };
