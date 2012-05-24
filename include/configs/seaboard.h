@@ -51,29 +51,11 @@
 
 /* On Seaboard: GPIO_PI3 = Port I = 8, bit = 3 */
 #define CONFIG_UART_DISABLE_GPIO	GPIO_PI3
-/*
- * On Seaboard, SPIFLASH is muxed with UART4. The next 5 defines are
- * needed to work around that design error.
- */
-#define CONFIG_SPI_UART_SWITCH
-#define CONFIG_SPI_CORRUPTS_UART	NV_PA_APB_UARTD_BASE
-#define CONFIG_SPI_CORRUPTS_UART_NR	3
-#define CONFIG_SPI_CORRUPTS_UART_DLY	2500
-#undef CONFIG_CMDLINE_EDITING		/* avoid NUL in input buffer */
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
 #define CONFIG_SYS_BOARD_ODMDATA	0x300d8011 /* lp1, 1GB */
 
 #define CONFIG_BOARD_EARLY_INIT_F
-
-/* SPI */
-#define CONFIG_TEGRA_SPI
-#define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_WINBOND
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_SIZE		(4 << 20)
 
 /* I2C */
 #define CONFIG_TEGRA_I2C
@@ -94,13 +76,10 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 
-/* Environment in SPI */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SPI_MAX_HZ		48000000
-#define CONFIG_ENV_SPI_MODE		SPI_MODE_0
-
-#define CONFIG_ENV_SECT_SIZE    CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET       (CONFIG_SPI_FLASH_SIZE - CONFIG_ENV_SECT_SIZE)
+/* Environment in eMMC, at the end of 2nd "boot sector" */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET ((2 * 512 * 1024) - CONFIG_ENV_SIZE)
+#define CONFIG_SYS_MMC_ENV_DEV 0
 
 /* USB Host support */
 #define CONFIG_USB_EHCI
