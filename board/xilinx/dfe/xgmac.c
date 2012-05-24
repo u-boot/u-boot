@@ -197,6 +197,24 @@ int Xgmac_one_time_init(void)
 			  XEMACPSS_TXQBASE_OFFSET,
 			  EmacPssInstancePtr->TxBdRing.BaseBdAddr);
 
+	/*************************** MAC Setup ***************************/
+	tmp = (3 << 18);	/* MDC clock division (48 for up to 120MHz) */
+	tmp |= (1 << 17);	/* set for FCS removal */
+	tmp |= (1 << 10);	/* enable gigabit */
+	tmp |= (1 << 4);	/* copy all frames */
+	tmp |= (1 << 1);	/* enable full duplex */
+
+	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
+			  XEMACPSS_NWCFG_OFFSET, tmp);
+
+	/* MDIO enable */
+	tmp =
+	    XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
+			     XEMACPSS_NWCTRL_OFFSET);
+	tmp |= XEMACPSS_NWCTRL_MDEN_MASK;
+	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
+			  XEMACPSS_NWCTRL_OFFSET, tmp);
+
 	return 0;
 }
 
@@ -214,16 +232,7 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 	 */
 	printf("Trying to set up GEM link...\n");
 
-	/*************************** MAC Setup ***************************/
-	tmp = (3 << 18);	/* MDC clock division (48 for up to 120MHz) */
-	tmp |= (1 << 17);	/* set for FCS removal */
-	tmp |= (1 << 10);	/* enable gigabit */
-	tmp |= (1 << 4);	/* copy all frames */
-	tmp |= (1 << 1);	/* enable full duplex */
-
-	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
-			  XEMACPSS_NWCFG_OFFSET, tmp);
-
+	/* Configure DMA */
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_DMACR_OFFSET, 0x00180704);
 
@@ -231,13 +240,11 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_IDR_OFFSET, 0xFFFFFFFF);
 
-	/* MDIO, Rx and Tx enable */
+	/* Rx and Tx enable */
 	tmp =
 	    XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
 			     XEMACPSS_NWCTRL_OFFSET);
-	tmp |=
-	    XEMACPSS_NWCTRL_MDEN_MASK | XEMACPSS_NWCTRL_RXEN_MASK |
-	    XEMACPSS_NWCTRL_TXEN_MASK;
+	tmp |= XEMACPSS_NWCTRL_RXEN_MASK | XEMACPSS_NWCTRL_TXEN_MASK;
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_NWCTRL_OFFSET, tmp);
 
