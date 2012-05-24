@@ -57,8 +57,10 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 
-/* Environment not stored */
-#define CONFIG_ENV_IS_NOWHERE
+/* Environment in eMMC, at the end of 2nd "boot sector" */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET ((2 * 1024 * 1024) - CONFIG_ENV_SIZE)
+#define CONFIG_SYS_MMC_ENV_DEV 0
 
 /* USB Host support */
 #define CONFIG_USB_EHCI
