@@ -99,10 +99,10 @@ int cm_t3x_eeprom_read_mac_addr(uchar *buf)
 }
 
 /*
- * Routine: get_board_rev
- * Description: read system revision
+ * Routine: cm_t3x_eeprom_get_board_rev
+ * Description: read system revision from eeprom
  */
-u32 get_board_rev(void)
+u32 cm_t3x_eeprom_get_board_rev(void)
 {
 	u32 rev = 0;
 	char str[5]; /* Legacy representation can contain at most 4 digits */
