@@ -47,6 +47,14 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
+/* SPI */
+#define CONFIG_TEGRA_SPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
+
 /* I2C */
 #define CONFIG_TEGRA_I2C
 #define CONFIG_SYS_I2C_INIT_BOARD
@@ -66,8 +74,12 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 
-/* Environment not stored */
-#define CONFIG_ENV_IS_NOWHERE
+/* Environment in SPI */
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SPI_MAX_HZ		48000000
+#define CONFIG_ENV_SPI_MODE		SPI_MODE_0
+#define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
+#define CONFIG_ENV_OFFSET		(512 * 1024)
 
 /* USB Host support */
 #define CONFIG_USB_EHCI
