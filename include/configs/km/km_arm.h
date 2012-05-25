@@ -164,7 +164,6 @@
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
-#define CONFIG_RESET_PHY_R	/* use reset_phy() to init 88E1118 PHY */
 
 /*
  * UBI related stuff
