@@ -241,7 +241,7 @@ int get_scl(void);
 
 #define	CONFIG_KM_UPDATE_UBOOT						\
 	"update="							\
-		"spi on;sf probe 0;sf erase 0 50000;"			\
+		"spi on;sf probe 0;sf erase 0 +${filesize};"		\
 		"sf write ${load_addr_r} 0 ${filesize};"		\
 		"spi off\0"
 
