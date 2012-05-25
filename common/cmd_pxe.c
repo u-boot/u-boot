@@ -1110,6 +1110,11 @@ static int parse_pxefile_top(char *p, struct pxe_menu *cfg, int nest_level)
 
 			break;
 
+		case T_INCLUDE:
+			err = handle_include(&p, b + ALIGN(strlen(b), 4), cfg,
+							nest_level + 1);
+			break;
+
 		case T_PROMPT:
 			err = parse_integer(&p, &cfg->prompt);
 			break;
