@@ -325,6 +325,12 @@ void	doc_probe(unsigned long physadr);
 /* common/cmd_net.c */
 int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
+/* common/cmd_fat.c */
+int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
+
+/* common/cmd_ext2.c */
+int do_ext2load(cmd_tbl_t *, int, int, char * const []);
+
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);

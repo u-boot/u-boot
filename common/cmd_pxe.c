@@ -132,6 +132,51 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 	return 1;
 }
 
+static int (*do_getfile)(char *file_path, char *file_addr);
+
+static int do_get_tftp(char *file_path, char *file_addr)
+{
+	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
+
+	tftp_argv[1] = file_addr;
+	tftp_argv[2] = file_path;
+
+	if (do_tftpb(NULL, 0, 3, tftp_argv))
+		return -ENOENT;
+
+	return 1;
+}
+
+static char *fs_argv[5];
+
+static int do_get_ext2(char *file_path, char *file_addr)
+{
+#ifdef CONFIG_CMD_EXT2
+	fs_argv[0] = "ext2load";
+	fs_argv[3] = file_addr;
+	fs_argv[4] = file_path;
+
+	if (!do_ext2load(NULL, 0, 5, fs_argv))
+		return 1;
+#endif
+	return -ENOENT;
+}
+
+static int do_get_fat(char *file_path, char *file_addr)
+{
+#ifdef CONFIG_CMD_FAT
+	fs_argv[0] = "fatload";
+	fs_argv[3] = file_addr;
+	fs_argv[4] = file_path;
+
+	if (!do_fat_fsload(NULL, 0, 5, fs_argv))
+		return 1;
+#endif
+	return -ENOENT;
+}
+
+
+
 /*
  * As in pxelinux, paths to files referenced from files we retrieve are
  * relative to the location of bootfile. get_relfile takes such a path and
@@ -145,7 +190,6 @@ static int get_relfile(char *file_path, void *file_addr)
 	size_t path_len;
 	char relfile[MAX_TFTP_PATH_LEN+1];
 	char addr_buf[10];
-	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
 	int err;
 
 	err = get_bootfile_path(file_path, relfile, sizeof(relfile));
@@ -170,13 +214,7 @@ static int get_relfile(char *file_path, void *file_addr)
 
 	sprintf(addr_buf, "%p", file_addr);
 
-	tftp_argv[1] = addr_buf;
-	tftp_argv[2] = relfile;
-
-	if (do_tftpb(NULL, 0, 3, tftp_argv))
-		return -ENOENT;
-
-	return 1;
+	return do_getfile(relfile, addr_buf);
 }
 
 /*
@@ -321,6 +359,8 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *pxefile_addr_str;
 	unsigned long pxefile_addr_r;
 	int err;
+
+	do_getfile = do_get_tftp;
 
 	if (argc != 1)
 		return CMD_RET_USAGE;
@@ -1331,6 +1371,8 @@ do_pxe_boot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct pxe_menu *cfg;
 	char *pxefile_addr_str;
 
+	do_getfile = do_get_tftp;
+
 	if (argc == 1) {
 		pxefile_addr_str = from_env("pxefile_addr_r");
 		if (!pxefile_addr_str)
@@ -1390,4 +1432,87 @@ U_BOOT_CMD(
 	"commands to get and boot from pxe files",
 	"get - try to retrieve a pxe file using tftp\npxe "
 	"boot [pxefile_addr_r] - boot from the pxe file at pxefile_addr_r\n"
+);
+
+/*
+ * Boots a system using a local disk syslinux/extlinux file
+ *
+ * Returns 0 on success, 1 on error.
+ */
+int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned long pxefile_addr_r;
+	struct pxe_menu *cfg;
+	char *pxefile_addr_str;
+	char *filename;
+	int prompt = 0;
+
+	if (strstr(argv[1], "-p")) {
+		prompt = 1;
+		argc--;
+		argv++;
+	}
+
+	if (argc < 4)
+		return cmd_usage(cmdtp);
+
+	if (argc < 5) {
+		pxefile_addr_str = from_env("pxefile_addr_r");
+		if (!pxefile_addr_str)
+			return 1;
+	} else {
+		pxefile_addr_str = argv[4];
+	}
+
+	if (argc < 6)
+		filename = getenv("bootfile");
+	else {
+		filename = argv[5];
+		setenv("bootfile", filename);
+	}
+
+	if (strstr(argv[3], "ext2"))
+		do_getfile = do_get_ext2;
+	else if (strstr(argv[3], "fat"))
+		do_getfile = do_get_fat;
+	else {
+		printf("Invalid filesystem: %s\n", argv[3]);
+		return 1;
+	}
+	fs_argv[1] = argv[1];
+	fs_argv[2] = argv[2];
+
+	if (strict_strtoul(pxefile_addr_str, 16, &pxefile_addr_r) < 0) {
+		printf("Invalid pxefile address: %s\n", pxefile_addr_str);
+		return 1;
+	}
+
+	if (get_pxe_file(filename, (void *)pxefile_addr_r) < 0) {
+		printf("Error reading config file\n");
+		return 1;
+	}
+
+	cfg = parse_pxefile((char *)(pxefile_addr_r));
+
+	if (cfg == NULL) {
+		printf("Error parsing config file\n");
+		return 1;
+	}
+
+	if (prompt)
+		cfg->prompt = 1;
+
+	handle_pxe_menu(cfg);
+
+	destroy_pxe_menu(cfg);
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	sysboot, 7, 1, do_sysboot,
+	"command to get and boot from syslinux files",
+	"[-p] <interface> <dev[:part]> <ext2|fat> [addr] [filename]\n"
+	"    - load and parse syslinux menu file 'filename' from ext2 or fat\n"
+	"      filesystem on 'dev' on 'interface' to address 'addr'"
 );
