@@ -81,7 +81,7 @@
 	"boot=bootm ${load_addr_r} - -\0"				\
 	"cramfsloadfdt=true\0"						\
 	"u-boot="xstr(CONFIG_HOSTNAME) "/u-boot.kwb\0"			\
-	CONFIG_KM_DEF_ENV_UPDATE					\
+	CONFIG_KM_UPDATE_UBOOT						\
 	""
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
@@ -239,7 +239,7 @@ int get_scl(void);
 		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"
 #endif /* MTDPARTS_DEFAULT */
 
-#define	CONFIG_KM_DEF_ENV_UPDATE					\
+#define	CONFIG_KM_UPDATE_UBOOT						\
 	"update="							\
 		"spi on;sf probe 0;sf erase 0 50000;"			\
 		"sf write ${load_addr_r} 0 ${filesize};"		\
