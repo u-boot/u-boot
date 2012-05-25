@@ -42,10 +42,10 @@
 /*
  * Version number information
  */
-#ifdef CONFIG_KM_DISABLE_PCI
+#if defined(CONFIG_KM_KIRKWOOD)
 #define CONFIG_IDENT_STRING	"\nKeymile Kirkwood"
 #undef  CONFIG_KIRKWOOD_PCIE_INIT
-#else
+#elif defined(CONFIG_KM_KIRKWOOD_PCI)
 #define CONFIG_IDENT_STRING	"\nKeymile Kirkwood PCI"
 #endif
 
