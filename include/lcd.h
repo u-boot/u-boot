@@ -158,7 +158,7 @@ typedef struct vidinfo {
 	struct	pxafb_info pxa;
 } vidinfo_t;
 
-#elif defined(CONFIG_ATMEL_LCD)
+#elif defined(CONFIG_ATMEL_LCD) || defined(CONFIG_ATMEL_HLCD)
 
 typedef struct vidinfo {
 	ushort vl_col;		/* Number of columns (i.e. 640) */
@@ -170,6 +170,7 @@ typedef struct vidinfo {
 	u_long vl_bpix;		/* Bits per pixel, 0 = 1, 1 = 2, 2 = 4, 3 = 8, 4 = 16 */
 	u_long vl_tft;		/* 0 = passive, 1 = TFT */
 	u_long vl_cont_pol_low;	/* contrast polarity is low */
+	u_long vl_clk_pol;	/* clock polarity */
 
 	/* Horizontal control register. */
 	u_long vl_hsync_len;	/* Length of horizontal sync */

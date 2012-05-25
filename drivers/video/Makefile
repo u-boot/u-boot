@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libvideo.o
 
 COBJS-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o
+COBJS-$(CONFIG_ATMEL_HLCD) += atmel_hlcdfb.o
 COBJS-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o
 COBJS-$(CONFIG_CFB_CONSOLE) += cfb_console.o
 COBJS-$(CONFIG_EXYNOS_FB) += exynos_fb.o exynos_fimd.o
