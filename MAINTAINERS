@@ -740,6 +740,7 @@ Sergey Lapin <slapin@ossfans.org>
 Valentin Longchamp <valentin.longchamp@keymile.com>
 
 	km_kirkwood	ARM926EJS (Kirkwood SoC)
+	mgcoge3un	ARM926EJS (Kirkwood SoC)
 	portl2		ARM926EJS (Kirkwood SoC)
 
 Nishanth Menon <nm@ti.com>
@@ -850,7 +851,6 @@ Heiko Schocher <hs@denx.de>
 
 	enbw_cmc	ARM926EJS (AM1808 SoC)
 	magnesium	i.MX27
-	mgcoge3un	ARM926EJS (Kirkwood SoC)
 
 Michael Schwingen <michael@schwingen.org>
 
