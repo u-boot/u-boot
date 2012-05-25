@@ -410,7 +410,7 @@ const ulong patterns[]      = {	0x00000000,
 				0xFF00FF00,
 				0x0F0F0F0F,
 				0xF0F0F0F0};
-const ulong NBR_OF_PATTERNS = sizeof(patterns)/sizeof(*patterns);
+const ulong NBR_OF_PATTERNS = ARRAY_SIZE(patterns);
 const ulong OFFS_PATTERN    = 3;
 const ulong REPEAT_PATTERN  = 1000;
 
