@@ -117,6 +117,18 @@ extern block_dev_desc_t *ext4_dev_desc;
 extern struct ext2_data *ext4fs_root;
 extern struct ext2fs_node *ext4fs_file;
 
+#if defined(CONFIG_CMD_EXT4_WRITE)
+extern struct ext2_inode *g_parent_inode;
+extern int gd_index;
+extern int gindex;
+
+int ext4fs_init(void);
+void ext4fs_deinit(void);
+int ext4fs_filename_check(char *filename);
+int ext4fs_write(const char *fname, unsigned char *buffer,
+				unsigned long sizebytes);
+#endif
+
 struct ext_filesystem *get_fs(void);
 int init_fs(block_dev_desc_t *dev_desc);
 void deinit_fs(block_dev_desc_t *dev_desc);

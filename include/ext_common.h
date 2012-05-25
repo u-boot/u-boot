@@ -191,6 +191,8 @@ int do_ext2load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,
 					char *const argv[]);
 int do_ext4_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
+				char *const argv[]);
 int do_ext_load(cmd_tbl_t *cmdtp, int flag, int argc,
 					char *const argv[]);
 int do_ext_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);

@@ -34,6 +34,7 @@ COBJS-$(CONFIG_CMD_EXT4) := ext4fs.o ext4_common.o dev.o
 ifndef CONFIG_CMD_EXT4
 COBJS-$(CONFIG_CMD_EXT2) := ext4fs.o ext4_common.o dev.o
 endif
+COBJS-$(CONFIG_CMD_EXT4_WRITE) += ext4_journal.o crc16.o
 
 SRCS	:= $(AOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS-y))
