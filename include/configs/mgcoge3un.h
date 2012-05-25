@@ -77,6 +77,7 @@
 	MVGBE_SET_MII_SPEED_TO_100)
 
 #define CONFIG_KM_BOARD_EXTRA_ENV	"waitforne=true\0"
+#define CONFIG_PIGGY_MAC_ADRESS_OFFSET  3
 
 /*
  * PCIe port not used on mgcoge3un
