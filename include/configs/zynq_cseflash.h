@@ -20,9 +20,9 @@
 //#define CONFIG_ZC770_XM010_XM011
 
 #ifdef CONFIG_EP107
-# include "../board/xilinx/dfe/xparameters.h"
+# include "../board/xilinx/zynq_common/xparameters.h"
 #else
-# include "../board/xilinx/dfe/xparameters_zynq.h"
+# include "../board/xilinx/zynq_common/xparameters_zynq.h"
 #endif
 
 /*

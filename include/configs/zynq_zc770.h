@@ -11,7 +11,7 @@
 #define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
 #define CONFIG_PELE		1 /* SoC? */
 
-#include "../board/xilinx/dfe/xparameters_zynq.h"
+#include "../board/xilinx/zynq_common/xparameters_zynq.h"
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000
 
