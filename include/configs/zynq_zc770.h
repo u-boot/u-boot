@@ -11,13 +11,7 @@
 #define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
 #define CONFIG_PELE		1 /* SoC? */
 
-/* Select board: comment out all but one. */
-
-#define CONFIG_ZC770_XM010
-//#define CONFIG_ZC770_XM011
-//#define CONFIG_ZC770_XM010_XM011
-
-# include "../board/xilinx/dfe/xparameters_zynq.h"
+#include "../board/xilinx/dfe/xparameters_zynq.h"
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000
 
@@ -72,8 +66,6 @@
 			    go 0x8000\0"
 
 
-#undef CONFIG_PELE_XIL_LQSPI
-
 /* default boot is according to the bootmode switch settings */
 #define CONFIG_BOOTCOMMAND "run modeboot"
 
@@ -84,8 +76,11 @@
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC
 
-/* Uncomment it if you don't want Flash */
-//#define CONFIG_SYS_NO_FLASH	
+#if defined(CONFIG_ZC770_XM012)
+#undef CONFIG_SYS_NO_FLASH
+#else
+#define CONFIG_SYS_NO_FLASH
+#endif
 
 #include <config_cmd_default.h>	
 #define CONFIG_CMD_DATE		/* RTC? */
@@ -116,6 +111,10 @@
 //#define CONFIG_PELE_INIT_GEM	//this is to initialize GEM at uboot start
 #define CONFIG_PELE_IP_ENV	//this is to set ipaddr, ethaddr and serverip env variables.
 
+#if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM012)
+/* Place a Xilinx Boot ROM header in u-boot image? */
+#define CONFIG_PELE_XILINX_FLASH_HEADER
+#endif
 
 #ifndef CONFIG_SYS_NO_FLASH
 
@@ -143,6 +142,9 @@
 #else
 # define CONFIG_ENV_IS_NOWHERE		1
 #endif
+#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
+#define CONFIG_PELE_XIP_START CONFIG_SYS_FLASH_BASE
+#endif
 #else
 
 #define CONFIG_ENV_IS_NOWHERE	1
@@ -168,11 +170,6 @@
 #define CONFIG_XDF_UART	1
 #define CONFIG_XDF_ETH	1
 #define CONFIG_XDF_RTC	1
-# define CONFIG_UART1	1
-#define CONFIG_TTC0	1
-#define CONFIG_GEM0	1
-#define CONFIG_NET_MULTI
-#define CONFIG_XGMAC_PHY_ADDR 0x7
 
 #define TIMER_INPUT_CLOCK               XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ / 2
 #define CONFIG_TIMER_PRESCALE           255
@@ -199,26 +196,50 @@
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* phycore */
 
+#if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM011) \
+	|| defined(CONFIG_ZC770_XM012)
+#define CONFIG_UART1			1
+#else
+#define CONFIG_UART0			1
+#endif
+
 /*
  * SPI Settings
  */
+#if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM013)
 #define CONFIG_CMD_SPI
 #define CONFIG_ENV_SPI_MAX_HZ   30000000
 #define CONFIG_SF_DEFAULT_SPEED 30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
-/* #define CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH */
-#ifdef NOTOW_BHILL
-#define CONFIG_SPI_FLASH_ATMEL
-#define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_SPI_FLASH_WINBOND
+
+#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
+/* Address Xilinx boot rom should use to launch u-boot */
+#define CONFIG_PELE_XIP_START XPSS_QSPI_LIN_BASEADDR
 #endif
+
+/* common net settings	*/
+#define CONFIG_NET_MULTI
+#define CONFIG_XGMAC_PHY_ADDR 0x7
+#endif
+
+#if defined(CONFIG_ZC770_XM013)
+#define CONFIG_GEM1			1
+#define CONFIG_TTC1			1
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
+#endif
+
+#if defined(CONFIG_ZC770_XM010)
+#define CONFIG_GEM0			1
+#define CONFIG_TTC0			1
 #define CONFIG_SPI_FLASH_STMICRO
+#endif
 
 /*
  * NAND Flash settings
  */
-#if defined(CONFIG_ZC770_XM011) || defined(CONFIG_ZC770_XM010_XM011)
+#if defined(CONFIG_ZC770_XM011)
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
@@ -226,19 +247,7 @@
 #define CONFIG_MTD_DEVICE
 #endif
 
-/* Place a Xilinx Boot ROM header in u-boot image? */
-#define CONFIG_PELE_XILINX_FLASH_HEADER
-
-#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
-/* Address Xilinx boot rom should use to launch u-boot */
-#ifdef CONFIG_PELE_XIL_LQSPI
-#define CONFIG_PELE_XIP_START XPSS_QSPI_LIN_BASEADDR
-#else
-/* NOR */
-#define CONFIG_PELE_XIP_START CONFIG_SYS_FLASH_BASE
-#endif
-#endif
-
+#if defined(CONFIG_ZC770_XM010)
 /* Secure Digital */
 #define CONFIG_MMC     1
 
@@ -248,6 +257,7 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
+#endif
 #endif
 
 #define BOARD_LATE_INIT	1

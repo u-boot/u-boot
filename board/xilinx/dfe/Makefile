@@ -31,12 +31,11 @@ LIB	= $(obj)lib$(BOARD).o
 COBJS-y	:= board.o \
 	   xemacpss_g.o xemacpss_control.o xemacpss_sinit.o \
 	   xemacpss_bdring.o xemacpss.o xgmac.o \
-	   xilinx_qspipss.o \
-	   pele_qspi.o \
-	   mmc.o \
 	   ../common/xbasic_types.o
 
+COBJS-$(CONFIG_CMD_SPI) += pele_qspi.o xilinx_qspipss.o
 COBJS-$(CONFIG_CMD_NAND) += xilinx_nandpss.o
+COBJS-$(CONFIG_CMD_MMC) += mmc.o
 
 COBJS	:= $(sort $(COBJS-y))
 
