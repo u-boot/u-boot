@@ -4,10 +4,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/*
+ * High Level Configuration Options
+ */
 #define CONFIG_ARM1176		1 /* CPU */
-#define CONFIG_XDF		1 /* Board */
-#define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
 #define CONFIG_ZYNQ		1 /* SoC? */
+#define CONFIG_ZC770		1 /* Board */
+#define CONFIG_ZC770_XM010	1 /* Board sub-type ("flavor"?) */
 
 #define CONFIG_ARM_DCC  1 /* enable dcc channel */
 #define CONFIG_CPU_V6   1
@@ -190,9 +193,6 @@
 
 
 /* HW to use */
-#define CONFIG_XDF_UART	1
-//#define CONFIG_XDF_ETH	1
-//#define CONFIG_XDF_RTC	1
 #ifdef CONFIG_EP107
 # define CONFIG_UART0	1
 #else
