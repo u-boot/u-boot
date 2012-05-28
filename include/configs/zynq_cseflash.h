@@ -15,13 +15,6 @@
 #define CONFIG_ARM_DCC  1 /* enable dcc channel */
 #define CONFIG_CPU_V6   1
 
-/* Select board: comment out all but one. */
-
-//#define CONFIG_EP107		1
-#define CONFIG_ZC770_XM010
-//#define CONFIG_ZC770_XM011
-//#define CONFIG_ZC770_XM010_XM011
-
 #ifdef CONFIG_EP107
 # include "../board/xilinx/zynq_common/xparameters.h"
 #else

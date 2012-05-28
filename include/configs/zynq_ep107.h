@@ -13,13 +13,6 @@
 #define CONFIG_ZYNQ		1 /* SoC? */
 #define CONFIG_EP107		1 /* Board */
 
-/* Select board: comment out all but one. */
-
-#define CONFIG_EP107		1
-//#define CONFIG_ZC770_XM010
-//#define CONFIG_ZC770_XM011
-//#define CONFIG_ZC770_XM010_XM011
-
 #ifdef CONFIG_EP107
 # include "../board/xilinx/zynq_common/xparameters.h"
 #else

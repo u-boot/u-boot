@@ -13,12 +13,6 @@
 #define CONFIG_ZYNQ		1 /* SoC? */
 #define CONFIG_ZC702		1 /* Board */
 
-/* Select board: comment out all but one. */
-
-#define CONFIG_ZC770_XM010
-//#define CONFIG_ZC770_XM011
-//#define CONFIG_ZC770_XM010_XM011
-
 # include "../board/xilinx/zynq_common/xparameters_zynq.h"
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000
