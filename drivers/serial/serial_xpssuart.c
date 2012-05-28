@@ -28,11 +28,11 @@ void serial_setbrg(void)
 	/* Find acceptable values for baud generation. */
 	for (bdiv = 4; bdiv < 255; bdiv++) {
 
-		bgen = XDFUART_MASTER / (baud * (bdiv + 1));
+		bgen = XZYNQUART_MASTER / (baud * (bdiv + 1));
 		if (bgen < 2 || bgen > 65535)
 			continue;
 
-		calc_baud = XDFUART_MASTER / (bgen * (bdiv + 1));
+		calc_baud = XZYNQUART_MASTER / (bgen * (bdiv + 1));
 
 		/* Use first calculated baudrate with an acceptable
 		 * (<3%) error.
@@ -62,10 +62,12 @@ int serial_init(void)
 /* Write a char to the Tx buffer */
 void serial_putc(char c)
 {
-	while ((xdfuart_readl(SR) & XDFUART_SR_TXFULL) != 0);
+	while ((xdfuart_readl(SR) & XZYNQUART_SR_TXFULL) != 0)
+		;
 	if (c == '\n') {
 		xdfuart_writel(FIFO,'\r');
-		while ((xdfuart_readl(SR) & XDFUART_SR_TXFULL) != 0);
+		while ((xdfuart_readl(SR) & XZYNQUART_SR_TXFULL) != 0)
+			;
 	}
 	xdfuart_writel(FIFO,c);
 }
@@ -87,5 +89,5 @@ int serial_getc(void)
 /* Test character presence in Rx buffer */
 int serial_tstc(void)
 {
-	return (xdfuart_readl(SR) & XDFUART_SR_RXEMPTY) == 0;
+	return (xdfuart_readl(SR) & XZYNQUART_SR_RXEMPTY) == 0;
 }
