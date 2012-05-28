@@ -726,7 +726,7 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this)
 		}
 
 /* HACK FIXME BHILL */
-#ifndef CONFIG_PELE
+#ifndef CONFIG_ZYNQ
 		if (this->dev_ready) {
 			if (this->dev_ready(mtd))
 				break;
@@ -734,7 +734,7 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this)
 #endif
 			if (this->read_byte(mtd) & NAND_STATUS_READY)
 				break;
-#ifndef CONFIG_PELE
+#ifndef CONFIG_ZYNQ
 		}
 #endif
 	}

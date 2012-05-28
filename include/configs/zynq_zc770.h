@@ -9,7 +9,7 @@
 #define CONFIG_ARM1176		1 /* CPU */
 #define CONFIG_XDF		1 /* Board */
 #define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
-#define CONFIG_PELE		1 /* SoC? */
+#define CONFIG_ZYNQ		1 /* SoC? */
 
 #include "../board/xilinx/zynq_common/xparameters_zynq.h"
 
@@ -107,12 +107,14 @@
 
 #define CONFIG_L2_OFF
 
-//#define CONFIG_PELE_INIT_GEM	//this is to initialize GEM at uboot start
-#define CONFIG_PELE_IP_ENV	//this is to set ipaddr, ethaddr and serverip env variables.
+/* this is to initialize GEM at uboot start */
+/* #define CONFIG_ZYNQ_INIT_GEM	*/
+/* this is to set ipaddr, ethaddr and serverip env variables. */
+#define CONFIG_ZYNQ_IP_ENV
 
 #if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM012)
 /* Place a Xilinx Boot ROM header in u-boot image? */
-#define CONFIG_PELE_XILINX_FLASH_HEADER
+#define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #endif
 
 #ifndef CONFIG_SYS_NO_FLASH
@@ -141,8 +143,8 @@
 #else
 # define CONFIG_ENV_IS_NOWHERE		1
 #endif
-#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
-#define CONFIG_PELE_XIP_START CONFIG_SYS_FLASH_BASE
+#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
+#define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
 #endif
 #else
 
@@ -225,9 +227,9 @@
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
 
-#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
+#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
 /* Address Xilinx boot rom should use to launch u-boot */
-#define CONFIG_PELE_XIP_START XPSS_QSPI_LIN_BASEADDR
+#define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
 #endif
 #endif
 

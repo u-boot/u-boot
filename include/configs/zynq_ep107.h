@@ -9,7 +9,7 @@
 #define CONFIG_ARM1176		1 /* CPU */
 #define CONFIG_XDF		1 /* Board */
 #define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
-#define CONFIG_PELE		1 /* SoC? */
+#define CONFIG_ZYNQ		1 /* SoC? */
 
 /* Select board: comment out all but one. */
 
@@ -77,7 +77,7 @@
 			    go 0x8000\0"
 
 
-#undef CONFIG_PELE_XIL_LQSPI
+#undef CONFIG_ZYNQ_XIL_LQSPI
 
 /* default boot is according to the bootmode switch settings */
 #define CONFIG_BOOTCOMMAND "run modeboot"
@@ -118,8 +118,10 @@
 
 #define CONFIG_L2_OFF
 
-//#define CONFIG_PELE_INIT_GEM	//this is to initialize GEM at uboot start
-#define CONFIG_PELE_IP_ENV	//this is to set ipaddr, ethaddr and serverip env variables.
+/* this is to initialize GEM at uboot start */
+/* #define CONFIG_ZYNQ_INIT_GEM	*/
+/* this is to set ipaddr, ethaddr and serverip env variables. */
+#define CONFIG_ZYNQ_IP_ENV
 
 
 #ifndef CONFIG_SYS_NO_FLASH
@@ -240,15 +242,15 @@
 #endif
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
-#define CONFIG_PELE_XILINX_FLASH_HEADER
+#define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 
-#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
+#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
 /* Address Xilinx boot rom should use to launch u-boot */
-#ifdef CONFIG_PELE_XIL_LQSPI
-#define CONFIG_PELE_XIP_START XPSS_QSPI_LIN_BASEADDR
+#ifdef CONFIG_ZYNQ_XIL_LQSPI
+#define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
 #else
 /* NOR */
-#define CONFIG_PELE_XIP_START CONFIG_SYS_FLASH_BASE
+#define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
 #endif
 #endif
 

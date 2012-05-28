@@ -43,9 +43,9 @@ _start: b	reset
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
-#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
-#if !defined(CONFIG_PELE_XIP_START) || CONFIG_PELE_XIP_START == 0
-#error CONFIG_PELE_XIP_START must be defined for CONFIG_PELE_XILINX_FLASH_HEADER
+#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
+#if !defined(CONFIG_ZYNQ_XIP_START) || CONFIG_ZYNQ_XIP_START == 0
+#error CONFIG_ZYNQ_XIP_START must be defined for CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #else
 /* These fields MUST immediately follow the vectors */
 #define HDR_20 0xAA995566
@@ -55,7 +55,7 @@ _start: b	reset
 #define HDR_30 0x00000120
 #define HDR_34 0x00000000
 #define HDR_38 0x00000000
-#define HDR_3C CONFIG_PELE_XIP_START
+#define HDR_3C CONFIG_ZYNQ_XIP_START
 #define HDR_40 0x00000000
 #define HDR_44 0x00000001
 #define HDR_CSUM (~(HDR_20+HDR_24+HDR_28+HDR_2C+HDR_30+HDR_34+HDR_38+HDR_3C+HDR_40+HDR_44))
