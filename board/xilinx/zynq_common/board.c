@@ -637,6 +637,7 @@ int board_late_init (void)
 	return 0;
 }
 
+#ifdef CONFIG_CMD_NET
 extern int Xgmac_register(bd_t *bis);
 
 int board_eth_init(bd_t *bis)
@@ -645,6 +646,7 @@ int board_eth_init(bd_t *bis)
 
 	return 0;
 }
+#endif
 
 int dram_init(void)
 {

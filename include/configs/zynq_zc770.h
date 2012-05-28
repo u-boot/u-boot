@@ -84,7 +84,6 @@
 
 #include <config_cmd_default.h>	
 #define CONFIG_CMD_DATE		/* RTC? */
-#define CONFIG_CMD_PING		/* Might be useful for debugging */
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
@@ -203,6 +202,19 @@
 #define CONFIG_UART0			1
 #endif
 
+ /*
+ * Ethernet Settings
+ */
+#if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM013)
+#define CONFIG_CMD_PING                /* Might be useful for debugging */
+#define CONFIG_NET_MULTI
+#define CONFIG_XGMAC_PHY_ADDR 0x7
+#else
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
+#undef CONFIG_BOOTM_NETBSD
+#endif
+
 /*
  * SPI Settings
  */
@@ -217,10 +229,6 @@
 /* Address Xilinx boot rom should use to launch u-boot */
 #define CONFIG_PELE_XIP_START XPSS_QSPI_LIN_BASEADDR
 #endif
-
-/* common net settings	*/
-#define CONFIG_NET_MULTI
-#define CONFIG_XGMAC_PHY_ADDR 0x7
 #endif
 
 #if defined(CONFIG_ZC770_XM013)
