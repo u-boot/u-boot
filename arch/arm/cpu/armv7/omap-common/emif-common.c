@@ -990,7 +990,7 @@ struct lpddr2_device_details *emif_get_device_details(u32 emif_nr, u8 cs,
 		return NULL;
 
 	/* Do the minimum init for mode register accesses */
-	if (!running_from_sdram()) {
+	if (!(running_from_sdram() || warm_reset())) {
 		phy = get_ddr_phy_ctrl_1(get_sys_clk_freq() / 2, RL_BOOT);
 		writel(phy, &emif->emif_ddr_phy_ctrl_1);
 	}
@@ -1070,7 +1070,7 @@ static void do_sdram_init(u32 base)
 	 * Changing the timing registers in EMIF can happen(going from one
 	 * OPP to another)
 	 */
-	if (!in_sdram) {
+	if (!(in_sdram || warm_reset())) {
 		if (omap_revision() != OMAP5432_ES1_0)
 			lpddr2_init(base, regs);
 		else
@@ -1242,7 +1242,7 @@ void sdram_init(void)
 	in_sdram = running_from_sdram();
 	debug("in_sdram = %d\n", in_sdram);
 
-	if (!in_sdram) {
+	if (!(in_sdram || warm_reset())) {
 		if (omap_rev != OMAP5432_ES1_0)
 			bypass_dpll(&prcm->cm_clkmode_dpll_core);
 		else
@@ -1252,8 +1252,10 @@ void sdram_init(void)
 	do_sdram_init(EMIF1_BASE);
 	do_sdram_init(EMIF2_BASE);
 
-	if (!in_sdram) {
+	if (!in_sdram)
 		dmm_init(DMM_BASE);
+
+	if (!(in_sdram || warm_reset())) {
 		emif_post_init_config(EMIF1_BASE);
 		emif_post_init_config(EMIF2_BASE);
 	}
