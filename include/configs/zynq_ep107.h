@@ -102,7 +102,7 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_CMDLINE_EDITING	1
 
-#define CONFIG_SYS_PROMPT	"pele-boot> "
+#define CONFIG_SYS_PROMPT	"zynq-uboot> "
 
 #undef CONFIG_SKIP_RELOCATE_UBOOT	
 
