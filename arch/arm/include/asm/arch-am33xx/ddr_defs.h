@@ -56,33 +56,6 @@
 #define DDR_IOCTRL_VALUE	0x18B
 
 /**
- * This structure represents the EMIF registers on AM33XX devices.
- */
-struct emif_regs {
-	unsigned int sdrrev;		/* offset 0x00 */
-	unsigned int sdrstat;		/* offset 0x04 */
-	unsigned int sdrcr;		/* offset 0x08 */
-	unsigned int sdrcr2;		/* offset 0x0C */
-	unsigned int sdrrcr;		/* offset 0x10 */
-	unsigned int sdrrcsr;		/* offset 0x14 */
-	unsigned int sdrtim1;		/* offset 0x18 */
-	unsigned int sdrtim1sr;		/* offset 0x1C */
-	unsigned int sdrtim2;		/* offset 0x20 */
-	unsigned int sdrtim2sr;		/* offset 0x24 */
-	unsigned int sdrtim3;		/* offset 0x28 */
-	unsigned int sdrtim3sr;		/* offset 0x2C */
-	unsigned int res1[2];
-	unsigned int sdrmcr;		/* offset 0x38 */
-	unsigned int sdrmcsr;		/* offset 0x3C */
-	unsigned int res2[8];
-	unsigned int sdritr;		/* offset 0x60 */
-	unsigned int res3[32];
-	unsigned int ddrphycr;		/* offset 0xE4 */
-	unsigned int ddrphycsr;		/* offset 0xE8 */
-	unsigned int ddrphycr2;		/* offset 0xEC */
-};
-
-/**
  * Encapsulates DDR PHY control and corresponding shadow registers.
  */
 struct ddr_phy_control {

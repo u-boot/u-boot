@@ -18,12 +18,13 @@ http://www.ti.com/
 #include <asm/arch/cpu.h>
 #include <asm/arch/ddr_defs.h>
 #include <asm/io.h>
+#include <asm/emif.h>
 
 /**
  * Base address for EMIF instances
  */
-static struct emif_regs *emif_reg = {
-				(struct emif_regs *)EMIF4_0_CFG_BASE};
+static struct emif_reg_struct *emif_reg = {
+				(struct emif_reg_struct *)EMIF4_0_CFG_BASE};
 
 /**
  * Base address for DDR instance
@@ -48,10 +49,10 @@ static struct ddr_cmdtctrl *ioctrl_reg = {
  */
 int config_sdram(struct sdram_config *cfg)
 {
-	writel(cfg->sdrcr, &emif_reg->sdrcr);
-	writel(cfg->sdrcr2, &emif_reg->sdrcr2);
-	writel(cfg->refresh, &emif_reg->sdrrcr);
-	writel(cfg->refresh_sh, &emif_reg->sdrrcsr);
+	writel(cfg->sdrcr, &emif_reg->emif_sdram_config);
+	writel(cfg->sdrcr2, &emif_reg->emif_lpddr2_nvm_config);
+	writel(cfg->refresh, &emif_reg->emif_sdram_ref_ctrl);
+	writel(cfg->refresh_sh, &emif_reg->emif_sdram_ref_ctrl_shdw);
 
 	return 0;
 }
@@ -61,12 +62,12 @@ int config_sdram(struct sdram_config *cfg)
  */
 int set_sdram_timings(struct sdram_timing *t)
 {
-	writel(t->time1, &emif_reg->sdrtim1);
-	writel(t->time1_sh, &emif_reg->sdrtim1sr);
-	writel(t->time2, &emif_reg->sdrtim2);
-	writel(t->time2_sh, &emif_reg->sdrtim2sr);
-	writel(t->time3, &emif_reg->sdrtim3);
-	writel(t->time3_sh, &emif_reg->sdrtim3sr);
+	writel(t->time1, &emif_reg->emif_sdram_tim_1);
+	writel(t->time1_sh, &emif_reg->emif_sdram_tim_1_shdw);
+	writel(t->time2, &emif_reg->emif_sdram_tim_2);
+	writel(t->time2_sh, &emif_reg->emif_sdram_tim_2_shdw);
+	writel(t->time3, &emif_reg->emif_sdram_tim_3);
+	writel(t->time3_sh, &emif_reg->emif_sdram_tim_3_shdw);
 
 	return 0;
 }
@@ -76,8 +77,8 @@ int set_sdram_timings(struct sdram_timing *t)
  */
 int config_ddr_phy(struct ddr_phy_control *p)
 {
-	writel(p->reg, &emif_reg->ddrphycr);
-	writel(p->reg_sh, &emif_reg->ddrphycsr);
+	writel(p->reg, &emif_reg->emif_ddr_phy_ctrl_1);
+	writel(p->reg_sh, &emif_reg->emif_ddr_phy_ctrl_1_shdw);
 
 	return 0;
 }
