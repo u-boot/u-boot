@@ -32,6 +32,27 @@
 #include <asm/omap_common.h>
 #include <asm/utils.h>
 
+void set_lpmode_selfrefresh(u32 base)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+	u32 reg;
+
+	reg = readl(&emif->emif_pwr_mgmt_ctrl);
+	reg &= ~EMIF_REG_LP_MODE_MASK;
+	reg |= LP_MODE_SELF_REFRESH << EMIF_REG_LP_MODE_SHIFT;
+	reg &= ~EMIF_REG_SR_TIM_MASK;
+	writel(reg, &emif->emif_pwr_mgmt_ctrl);
+
+	/* dummy read for the new SR_TIM to be loaded */
+	readl(&emif->emif_pwr_mgmt_ctrl);
+}
+
+void force_emif_self_refresh()
+{
+	set_lpmode_selfrefresh(EMIF1_BASE);
+	set_lpmode_selfrefresh(EMIF2_BASE);
+}
+
 inline u32 emif_num(u32 base)
 {
 	if (base == EMIF1_BASE)

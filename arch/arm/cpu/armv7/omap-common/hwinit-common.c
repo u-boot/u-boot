@@ -111,6 +111,10 @@ static void init_boot_params(void)
 void s_init(void)
 {
 	init_omap_revision();
+#ifdef CONFIG_SPL_BUILD
+	if (warm_reset() && (omap_revision() <= OMAP5430_ES1_0))
+		force_emif_self_refresh();
+#endif
 	watchdog_init();
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
