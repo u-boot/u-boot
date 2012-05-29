@@ -116,7 +116,6 @@
 /* IPADDR, SERVERIP */
 /* Need I2C for RTC? */
 
-#define CONFIG_IDENT_STRING	"\nXilinx Pele Emulation Platform"
 #define CONFIG_PANIC_HANG	1 /* For development/debugging */
 
 //#define CONFIG_AUTO_COMPLETE	1
