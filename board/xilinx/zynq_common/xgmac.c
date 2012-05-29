@@ -6,7 +6,7 @@
 #include <miiphy.h>
 #include <net.h>
 
-#include "xemacpss.h"
+#include "xemacps.h"
 
 /************************ Forward function declaration **********************/
 

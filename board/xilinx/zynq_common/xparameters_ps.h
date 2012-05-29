@@ -1,4 +1,3 @@
-/* $Id: xparameters_pss.h,v 1.1.2.3 2009/07/01 21:42:22 meinelte Exp $ */
 /******************************************************************************
 *
 * (c) Copyright 2009 Xilinx, Inc. All rights reserved.
@@ -40,7 +39,7 @@
 ******************************************************************************/
 /*****************************************************************************/
 /**
-* @file xparameters_pss.h
+* @file xparameters_ps.h
 *
 * This file contains the address definitions for the hard peripherals
 * attached to the Cortex A9 core.

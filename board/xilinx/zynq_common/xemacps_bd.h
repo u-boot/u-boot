@@ -1,4 +1,3 @@
-/* $Id: xemacpss_bd.h,v 1.1.2.1 2009/06/17 16:10:26 wyang Exp $ */
 /******************************************************************************
 *
 * (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
@@ -42,7 +41,7 @@
 /*****************************************************************************/
 /**
  *
- * @file xemacpss_bd.h
+ * @file xemacps_bd.h
  *
  * This header provides operations to manage buffer descriptors in support
  * of scatter-gather DMA.

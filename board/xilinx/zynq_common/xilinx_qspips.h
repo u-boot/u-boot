@@ -6,7 +6,7 @@
 typedef unsigned int bool;
 #endif
 
-struct xqspipss {
+struct xqspips {
         u8 queue_state;
         void *regs;
         u32 input_clk_hz;
@@ -20,13 +20,13 @@ struct xqspipss {
         u8 dev_busy;
         int done;
 
-        struct xqspipss_inst_format *curr_inst;
+	struct xqspips_inst_format *curr_inst;
         u8 inst_response;
         bool is_inst;
 };
 
 struct spi_device {
-        struct xqspipss master;
+	struct xqspips master;
         u32             max_speed_hz;
         u8              chip_select;
         u8              mode;
@@ -45,10 +45,10 @@ struct spi_transfer {
 };
 
 /**************************************************************************/
-extern void xqspipss_init_hw(void *regs_base);
-extern int  xqspipss_setup_transfer(struct spi_device   *qspi,
+extern void xqspips_init_hw(void *regs_base);
+extern int  xqspips_setup_transfer(struct spi_device   *qspi,
                                     struct spi_transfer *transfer);
-extern int  xqspipss_transfer(struct spi_device   *qspi,
+extern int  xqspips_transfer(struct spi_device   *qspi,
                               struct spi_transfer *transfer);
 
 /**************************************************************************/

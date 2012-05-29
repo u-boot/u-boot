@@ -1,7 +1,7 @@
 #ifndef _XPARAMETERS_H_
 #define _XPARAMETERS_H_
 
-#include "xparameters_pss_zynq.h"
+#include "xparameters_ps_zynq.h"
 
 #define STDIN_BASEADDRESS		XPAR_XUARTPSS_0_BASEADDR
 #define STDOUT_BASEADDRESS		XPAR_XUARTPSS_0_BASEADDR

@@ -1,4 +1,3 @@
-/* $Id: xemacpss_bdring.c,v 1.1.2.2 2009/08/04 23:30:32 wyang Exp $ */
 /******************************************************************************
 *
 * (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
@@ -42,7 +41,7 @@
 /*****************************************************************************/
 /**
 *
-* @file xemacpss_bdring.c
+* @file xemacps_bdring.c
 *
 * This file implements buffer descriptor ring related functions.
 *
@@ -59,9 +58,9 @@
 
 #include "xstatus.h"
 //#include "xcache.h"
-#include "xemacpss_hw.h"
-#include "xemacpss_bd.h"
-#include "xemacpss_bdring.h"
+#include "xemacps_hw.h"
+#include "xemacps_bd.h"
+#include "xemacps_bdring.h"
 
 /************************** Constant Definitions *****************************/
 
@@ -416,7 +415,7 @@ int XEmacPss_BdRingClone(XEmacPss_BdRing * RingPtr, XEmacPss_Bd * SrcBdPtr,
  *        XEmacPss_BdRingToHw(MyRingPtr, NumBd1, MySet1);
  * </pre>
  *
- * Use the API defined in xemacpss_bd.h to modify individual BDs. Traversal
+ * Use the API defined in xemacps_bd.h to modify individual BDs. Traversal
  * of the BD set can be done using XEmacPss_BdRingNext() and
  * XEmacPss_BdRingPrev().
  *

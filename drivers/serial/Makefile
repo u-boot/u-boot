@@ -57,7 +57,7 @@ COBJS-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
 COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
 COBJS-$(CONFIG_TEGRA2) += serial_tegra2.o
 COBJS-$(CONFIG_USB_TTY) += usbtty.o
-COBJS-$(CONFIG_PSS_SERIAL) += serial_xpssuart.o
+COBJS-$(CONFIG_PSS_SERIAL) += serial_xpsuart.o
 
 COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)

@@ -1,4 +1,3 @@
-/* $Id: xemacpss_control.c,v 1.1.2.2 2009/07/07 22:54:36 wyang Exp $ */
 /******************************************************************************
 *
 * (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
@@ -42,10 +41,10 @@
 /*****************************************************************************/
 /**
  *
- * @file xemacpss_control.c
+ * @file xemacps_control.c
  *
  * Functions in this file implement general purpose command and control related
- * functionality. See xemacpss.h for a detailed description of the driver.
+ * functionality. See xemacps.h for a detailed description of the driver.
  *
  * <pre>
  * MODIFICATION HISTORY:
@@ -58,7 +57,7 @@
 
 /***************************** Include Files *********************************/
 
-#include "xemacpss.h"
+#include "xemacps.h"
 
 /************************** Constant Definitions *****************************/
 
@@ -372,7 +371,7 @@ int XEmacPss_SetTypeIdCheck(XEmacPss *InstancePtr, u32 Id_Check, u8 Index)
  * - XST_DEVICE_IS_STARTED if the device has not yet been stopped
  *
  * @note
- * See xemacpss.h for a description of the available options.
+ * See xemacps.h for a description of the available options.
  *
  *****************************************************************************/
 int XEmacPss_SetOptions(XEmacPss *InstancePtr, u32 Options)
@@ -507,7 +506,7 @@ int XEmacPss_SetOptions(XEmacPss *InstancePtr, u32 Options)
  * - XST_DEVICE_IS_STARTED if the device has not yet been stopped
  *
  * @note
- * See xemacpss.h for a description of the available options.
+ * See xemacps.h for a description of the available options.
  *
  *****************************************************************************/
 int XEmacPss_ClearOptions(XEmacPss *InstancePtr, u32 Options)
@@ -639,7 +638,7 @@ int XEmacPss_ClearOptions(XEmacPss *InstancePtr, u32 Options)
  * as a set opion.
  *
  * @note
- * See xemacpss.h for a description of the available options.
+ * See xemacps.h for a description of the available options.
  *
  *****************************************************************************/
 u32 XEmacPss_GetOptions(XEmacPss *InstancePtr)

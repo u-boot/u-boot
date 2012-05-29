@@ -12,7 +12,7 @@
 
 #include <xparameters.h>
 
-#include "xilinx_qspipss.h"
+#include "xilinx_qspips.h"
 
 struct pele_spi_slave {
 	struct spi_slave  slave;
@@ -64,7 +64,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		bus, cs, max_hz, mode);
 #endif
 
-	xqspipss_init_hw((void*)XPSS_QSPI_BASEADDR);
+	xqspips_init_hw((void *)XPSS_QSPI_BASEADDR);
 
 	pspi = malloc(sizeof(struct pele_spi_slave));
 	if (!pspi) {
@@ -80,7 +80,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	pspi->qspi.mode = mode;
 	pspi->qspi.chip_select = 0;
 	pspi->qspi.bits_per_word = 32;
-	xqspipss_setup_transfer(&pspi->qspi, NULL);
+	xqspips_setup_transfer(&pspi->qspi, NULL);
 
 	return &pspi->slave;
 }
@@ -155,7 +155,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	transfer.bits_per_word = 32;
 	transfer.speed_hz = pspi->qspi.max_speed_hz;
 
-	xqspipss_transfer(&pspi->qspi, &transfer);
+	xqspips_transfer(&pspi->qspi, &transfer);
 
 	return 0;
 }

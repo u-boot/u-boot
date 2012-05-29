@@ -1,4 +1,3 @@
-/* $Id: xemacpss.c,v 1.1.2.2 2009/07/07 22:54:36 wyang Exp $ */
 /******************************************************************************
 *
 * (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
@@ -42,10 +41,10 @@
 /*****************************************************************************/
 /**
 *
-* @file xemacpss.c
+* @file xemacps.c
 *
 * The XEmacPss driver. Functions in this file are the minimum required functions
-* for this driver. See xemacpss.h for a detailed description of the driver.
+* for this driver. See xemacps.h for a detailed description of the driver.
 *
 * <pre>
 * MODIFICATION HISTORY:
@@ -58,7 +57,7 @@
 
 /***************************** Include Files *********************************/
 
-#include "xemacpss.h"
+#include "xemacps.h"
 
 /************************** Constant Definitions *****************************/
 

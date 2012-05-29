@@ -1,4 +1,3 @@
-/* $Id: xemacpss_g.c,v 1.1.2.1 2009/06/17 16:10:26 wyang Exp $ */
 /******************************************************************************
 *
 * (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
@@ -42,34 +41,29 @@
 /*****************************************************************************/
 /**
 *
-* @file xemacpss_g.c
+* @file xemacps_sinit.c
 *
-* This file contains a configuration table that specifies the configuration of
-* ethernet devices in the system.
+* This file contains lookup method by device ID when success, it returns
+* pointer to config table to be used to initialize the device.
 *
 * <pre>
 * MODIFICATION HISTORY:
 *
 * Ver   Who  Date     Changes
-* ----- ---- -------- -----------------------------------------------
-* 1.00a wsy  06/01/09 First release
+* ----- ---- -------- -------------------------------------------------------
+* 1.00a wsy  06/01/09 New
 * </pre>
-*
-* @internal
-*
-* This configuration table contains entries that are modified at runtime by the
-* driver. This table reflects only the hardware configuration of the device.
-* This emac configuration table contains software information in addition to
-* hardware configuration.
 *
 ******************************************************************************/
 
 /***************************** Include Files *********************************/
 
 //#include "xparameters.h"
-#include "xemacpss.h"
+#include "xemacps.h"
 
 /************************** Constant Definitions *****************************/
+
+/**************************** Type Definitions *******************************/
 
 
 /***************** Macros (Inline Functions) Definitions *********************/
@@ -77,20 +71,30 @@
 
 /************************** Function Prototypes ******************************/
 
+/*****************************************************************************/
+/**
+* Lookup the device configuration based on the unique device ID.  The table
+* contains the configuration info for each device in the system.
+*
+* @param DeviceId is the unique device ID of the device being looked up.
+*
+* @return
+* A pointer to the configuration table entry corresponding to the given
+* device ID, or NULL if no match is found.
+*
+******************************************************************************/
+XEmacPss_Config *XEmacPss_LookupConfig(u16 DeviceId)
+{
+	extern XEmacPss_Config XEmacPss_ConfigTable[];
+	XEmacPss_Config *CfgPtr = NULL;
+	int i;
 
-/************************** Variable Prototypes ******************************/
-
-/*
- * The configuration table for emacpss device
- */
-
-XEmacPss_Config XEmacPss_ConfigTable[XPAR_XEMACPSS_NUM_INSTANCES] = {
-	{
-	 XPAR_XEMACPSS_0_DEVICE_ID,  /* Device ID */
-	 XPAR_XEMACPSS_0_BASEADDR    /* Device base address */
-	},
-	{
-	 XPAR_XEMACPSS_1_DEVICE_ID,  /* Device ID */
-	 XPAR_XEMACPSS_1_BASEADDR    /* Device base address */
+	for (i = 0; i < XPAR_XEMACPSS_NUM_INSTANCES; i++) {
+		if (XEmacPss_ConfigTable[i].DeviceId == DeviceId) {
+			CfgPtr = &XEmacPss_ConfigTable[i];
+			break;
+		}
 	}
-};
+
+	return (CfgPtr);
+}

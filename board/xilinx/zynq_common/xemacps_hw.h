@@ -1,4 +1,3 @@
-/* $Id: xemacpss_hw.h,v 1.1.2.1 2009/06/17 16:10:26 wyang Exp $ */
 /******************************************************************************
 *
 * (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
@@ -42,11 +41,11 @@
 /*****************************************************************************/
 /**
 *
-* @file xemacpss_hw.h
+* @file xemacps_hw.h
 *
 * This header file contains identifiers and low-level driver functions (or
 * macros) that can be used to access the PSS Ethernet MAC (XEmacPss) device.
-* High-level driver functions are defined in xemacpss.h.
+* High-level driver functions are defined in xemacps.h.
 *
 * @note
 *
@@ -529,7 +528,7 @@ typedef enum { XMDC_DIV_8 = 0, XMDC_DIV_16, XMDC_DIV_32, XMDC_DIV_48,
  * Define appropriate I/O access method to mempry mapped I/O or other
  * intarfce if necessary.
  */
-/* Defined in xemacpss_control.c*/
+/* Defined in xemacps_control.c*/
 void XIo_Out32(u32 OutAddress, u32 Value);
 u32 XIo_In32(u32 InAddress);
 
