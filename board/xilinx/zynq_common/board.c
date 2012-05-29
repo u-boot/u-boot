@@ -48,6 +48,24 @@ static u8 In8(u32 InAddress)
     return *(u8 *) InAddress;
 }
 
+/* Common IO for xgmac and xnand */
+/* Data Memory Barrier */
+#define dmb() __asm__ __volatile__ ("dmb" : : : "memory")
+#define SYNCHRONIZE_IO dmb()
+
+void XIo_Out32(u32 OutAddress, u32 Value)
+{
+	*(volatile u32 *) OutAddress = Value;
+	SYNCHRONIZE_IO;
+}
+
+u32 XIo_In32(u32 InAddress)
+{
+	volatile u32 * temp = *(volatile u32 *)InAddress;
+	SYNCHRONIZE_IO;
+	return temp;
+}
+
 #ifndef CONFIG_SYS_NO_FLASH
 /*
  * init_nor_flash init the parameters of pl353 for the M29EW Flash
