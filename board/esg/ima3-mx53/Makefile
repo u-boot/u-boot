@@ -25,7 +25,7 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= ima3-mx53.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
