@@ -182,5 +182,7 @@ struct watchdog {
 
 #define PRM_RSTCTRL		PRM_DEVICE_BASE
 #define PRM_RSTCTRL_RESET	0x01
+#define PRM_RSTST		(PRM_DEVICE_BASE + 0x4)
+#define PRM_RSTST_WARM_RESET_MASK	0x7FEA
 
 #endif /* _CPU_H */

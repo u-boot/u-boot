@@ -53,8 +53,10 @@
 /* Reset control */
 #ifdef CONFIG_AM33XX
 #define PRM_RSTCTRL			0x44E00F00
+#define PRM_RSTST			0x44E00F08
 #endif
 #define PRM_RSTCTRL_RESET		0x01
+#define PRM_RSTST_WARM_RESET_MASK	0x232
 
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
