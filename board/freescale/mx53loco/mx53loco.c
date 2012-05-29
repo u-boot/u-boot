@@ -75,6 +75,9 @@ u32 get_board_rev(void)
 
 	int rev = readl(&fuse->gp[6]);
 
+	if (!i2c_probe(CONFIG_SYS_DIALOG_PMIC_I2C_ADDR))
+		rev = 0;
+
 	return (get_cpu_rev() & ~(0xF << 8)) | (rev & 0xF) << 8;
 }
 
@@ -495,11 +498,6 @@ int print_cpuinfo(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-	setup_iomux_i2c();
-	if (!power_init())
-		clock_1GHz();
-	print_cpuinfo();
-
 	setenv("stdout", "serial");
 
 	return 0;
@@ -511,6 +509,10 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	mxc_set_sata_internal_clock();
+	setup_iomux_i2c();
+	if (!power_init())
+		clock_1GHz();
+	print_cpuinfo();
 
 	lcd_enable();
 
