@@ -30,6 +30,10 @@
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 
+#if defined(CONFIG_CMD_BOOTB)
+#include <asm/icap.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
@@ -88,3 +92,62 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 
 	return 1;
 }
+
+#if defined(CONFIG_CMD_BOOTB)
+int do_bootb_kintex7(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	u32 FrameBuffer[8];
+    u32 BootAddress = simple_strtoul(argv[1], NULL, 16);
+	u32 Index = 0;
+    u32 Count;
+    
+    if (argc < 2)
+		return -1;
+    
+    if ((BootAddress <  CONFIG_SYS_FLASH_BASE) || (BootAddress > (CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_SIZE)))
+    {
+        return -1;
+    }
+
+    /*
+	 * Create the data to be written to the ICAP.
+	 */
+	FrameBuffer[Index++] = XHI_DUMMY_PACKET;
+	FrameBuffer[Index++] = XHI_SYNC_PACKET;
+	FrameBuffer[Index++] = XHI_NOOP_PACKET;
+    FrameBuffer[Index++] = 0x30020001;                        /* Type 1 write to WBSTAR */
+    FrameBuffer[Index++] = BootAddress;
+    FrameBuffer[Index++] = 0x30008001;                        /* Type 1 Write to CMD */
+    FrameBuffer[Index++] = XHI_CMD_IPROG;
+	FrameBuffer[Index++] = XHI_NOOP_PACKET;
+
+     /*
+	  * Fill the FIFO with as many words as it will take (or as many as we have to send).
+	  */
+	while(Index > XHwIcap_GetWrFifoVacancy(HWICAP_BASEADDR));
+	for (Count = 0; Count < Index; Count++)
+    {
+    	XHwIcap_FifoWrite(HWICAP_BASEADDR, FrameBuffer[Count]);
+	}
+
+    /*
+	 * Start the transfer of the data from the FIFO to the ICAP device.
+	 */
+	XHwIcap_StartConfig(HWICAP_BASEADDR);
+
+	while ((XHwIcap_ReadReg(HWICAP_BASEADDR,XHI_CR_OFFSET)) & XHI_CR_WRITE_MASK);
+    
+	while (XHwIcap_IsDeviceBusy(HWICAP_BASEADDR) != 0);
+	while (XHwIcap_ReadReg(HWICAP_BASEADDR, XHI_CR_OFFSET) & XHI_CR_WRITE_MASK);
+    
+    /* The code should never get here sice the FPGA should reset */
+    return -1;
+}
+
+U_BOOT_CMD(
+	bootb, 2, 1,	do_bootb_kintex7,
+	"reprogram the fpga with a new image",
+	"<address> - Program the FPGA with the data starting at the given address"
+);
+
+#endif
