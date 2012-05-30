@@ -947,7 +947,7 @@ static u8 is_lpddr2_sdram_present(u32 base, u32 cs,
 	}
 
 	mr = get_mr(base, cs, LPDDR2_MR5);
-	if (mr >= 0xFF) {
+	if (mr > 0xFF) {
 		/* Mode register value bigger than 8 bit */
 		return 0;
 	}
