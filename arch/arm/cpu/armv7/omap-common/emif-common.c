@@ -77,7 +77,12 @@ static inline u32 get_mr(u32 base, u32 cs, u32 mr_addr)
 		mr = readl(&emif->emif_lpddr2_mode_reg_data);
 	debug("get_mr: EMIF%d cs %d mr %08x val 0x%x\n", emif_num(base),
 	      cs, mr_addr, mr);
-	return mr;
+	if (((mr & 0x0000ff00) >>  8) == (mr & 0xff) &&
+	    ((mr & 0x00ff0000) >> 16) == (mr & 0xff) &&
+	    ((mr & 0xff000000) >> 24) == (mr & 0xff))
+		return mr & 0xff;
+	else
+		return mr;
 }
 
 static inline void set_mr(u32 base, u32 cs, u32 mr_addr, u32 mr_val)
