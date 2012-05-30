@@ -857,6 +857,8 @@ John Rigby <jcrigby@gmail.com>
 
 Stefan Roese <sr@denx.de>
 
+	x600		ARM926EJS (spear600 Soc)
+
 	pdnb3		xscale/ixp
 	scpu		xscale/ixp
 
