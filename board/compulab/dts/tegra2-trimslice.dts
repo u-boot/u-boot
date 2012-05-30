@@ -47,7 +47,7 @@
 		status = "disabled";
 	};
 
-	usb@c5004000 {
+	usb@c5000000 {
 		status = "disabled";
 	};
 

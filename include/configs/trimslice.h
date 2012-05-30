@@ -34,7 +34,7 @@
 
 /* High-level configuration options */
 #define V_PROMPT		"Tegra2 (TrimSlice) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"NVIDIA Trimslice"
+#define CONFIG_TEGRA2_BOARD_STRING	"Compulab Trimslice"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
