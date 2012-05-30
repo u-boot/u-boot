@@ -314,9 +314,28 @@ void enable_scu(void)
 	writel(reg, &scu->scu_ctrl);
 }
 
+static u32 get_odmdata(void)
+{
+	/*
+	 * ODMDATA is stored in the BCT in IRAM by the BootROM.
+	 * The BCT start and size are stored in the BIT in IRAM.
+	 * Read the data @ bct_start + (bct_size - 12). This works
+	 * on T20 and T30 BCTs, which are locked down. If this changes
+	 * in new chips (T114, etc.), we can revisit this algorithm.
+	 */
+
+	u32 bct_start, odmdata;
+
+	bct_start = readl(AP20_BASE_PA_SRAM + NVBOOTINFOTABLE_BCTPTR);
+	odmdata = readl(bct_start + BCT_ODMDATA_OFFSET);
+
+	return odmdata;
+}
+
 void init_pmc_scratch(void)
 {
 	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
+	u32 odmdata;
 	int i;
 
 	/* SCRATCH0 is initialized by the boot ROM and shouldn't be cleared */
@@ -324,7 +343,8 @@ void init_pmc_scratch(void)
 		writel(0, &pmc->pmc_scratch1+i);
 
 	/* ODMDATA is for kernel use to determine RAM size, LP config, etc. */
-	writel(CONFIG_SYS_BOARD_ODMDATA, &pmc->pmc_scratch20);
+	odmdata = get_odmdata();
+	writel(odmdata, &pmc->pmc_scratch20);
 
 #ifdef CONFIG_TEGRA2_LP0
 	/* save Sdram params to PMC 2, 4, and 24 for WB0 */

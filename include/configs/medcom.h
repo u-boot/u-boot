@@ -31,7 +31,6 @@
 /* High-level configuration options */
 #define V_PROMPT			"Tegra2 (Medcom) # "
 #define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Medcom"
-#define CONFIG_SYS_BOARD_ODMDATA	0x2b0d8011
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
