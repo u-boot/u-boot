@@ -401,6 +401,7 @@ void ipu_reset(void)
 int ipu_probe(void)
 {
 	unsigned long ipu_base;
+#if defined CONFIG_MX51
 	u32 temp;
 
 	u32 *reg_hsc_mcd = (u32 *)MIPI_HSC_BASE_ADDR;
@@ -414,6 +415,7 @@ int ipu_probe(void)
 
 	temp = __raw_readl(reg_hsc_mxt_conf);
 	__raw_writel(temp | 0x10000, reg_hsc_mxt_conf);
+#endif
 
 	ipu_base = IPU_CTRL_BASE_ADDR;
 	ipu_cpmem_base = (u32 *)(ipu_base + IPU_CPMEM_REG_BASE);
