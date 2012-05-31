@@ -214,7 +214,6 @@ struct mmc_cmd {
 	uint resp_type;
 	uint cmdarg;
 	uint response[4];
-	uint flags;
 };
 
 struct mmc_data {

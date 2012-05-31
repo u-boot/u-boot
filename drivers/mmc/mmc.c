@@ -151,7 +151,6 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	printf("CMD_SEND:%d\n", cmd->cmdidx);
 	printf("\t\tARG\t\t\t 0x%08X\n", cmd->cmdarg);
-	printf("\t\tFLAG\t\t\t %d\n", cmd->flags);
 	ret = mmc->send_cmd(mmc, cmd, data);
 	switch (cmd->resp_type) {
 		case MMC_RSP_NONE:
@@ -213,7 +212,6 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 	cmd.resp_type = MMC_RSP_R1;
 	if (!mmc_host_is_spi(mmc))
 		cmd.cmdarg = mmc->rca << 16;
-	cmd.flags = 0;
 
 	do {
 		err = mmc_send_cmd(mmc, &cmd, NULL);
@@ -253,7 +251,6 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 	cmd.cmdidx = MMC_CMD_SET_BLOCKLEN;
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.cmdarg = len;
-	cmd.flags = 0;
 
 	return mmc_send_cmd(mmc, &cmd, NULL);
 }
@@ -299,7 +296,6 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 	cmd.cmdidx = start_cmd;
 	cmd.cmdarg = start;
 	cmd.resp_type = MMC_RSP_R1;
-	cmd.flags = 0;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
 	if (err)
@@ -386,7 +382,6 @@ mmc_write_blocks(struct mmc *mmc, ulong start, lbaint_t blkcnt, const void*src)
 		cmd.cmdarg = start * mmc->write_bl_len;
 
 	cmd.resp_type = MMC_RSP_R1;
-	cmd.flags = 0;
 
 	data.src = src;
 	data.blocks = blkcnt;
@@ -405,7 +400,6 @@ mmc_write_blocks(struct mmc *mmc, ulong start, lbaint_t blkcnt, const void*src)
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
-		cmd.flags = 0;
 		if (mmc_send_cmd(mmc, &cmd, NULL)) {
 			printf("mmc fail to send stop cmd\n");
 			return 0;
@@ -459,7 +453,6 @@ int mmc_read_blocks(struct mmc *mmc, void *dst, ulong start, lbaint_t blkcnt)
 		cmd.cmdarg = start * mmc->read_bl_len;
 
 	cmd.resp_type = MMC_RSP_R1;
-	cmd.flags = 0;
 
 	data.dest = dst;
 	data.blocks = blkcnt;
@@ -473,7 +466,6 @@ int mmc_read_blocks(struct mmc *mmc, void *dst, ulong start, lbaint_t blkcnt)
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
-		cmd.flags = 0;
 		if (mmc_send_cmd(mmc, &cmd, NULL)) {
 			printf("mmc fail to send stop cmd\n");
 			return 0;
@@ -525,7 +517,6 @@ int mmc_go_idle(struct mmc* mmc)
 	cmd.cmdidx = MMC_CMD_GO_IDLE_STATE;
 	cmd.cmdarg = 0;
 	cmd.resp_type = MMC_RSP_NONE;
-	cmd.flags = 0;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -548,7 +539,6 @@ sd_send_op_cond(struct mmc *mmc)
 		cmd.cmdidx = MMC_CMD_APP_CMD;
 		cmd.resp_type = MMC_RSP_R1;
 		cmd.cmdarg = 0;
-		cmd.flags = 0;
 
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -589,7 +579,6 @@ sd_send_op_cond(struct mmc *mmc)
 		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
 		cmd.resp_type = MMC_RSP_R3;
 		cmd.cmdarg = 0;
-		cmd.flags = 0;
 
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -618,7 +607,6 @@ int mmc_send_op_cond(struct mmc *mmc)
  	cmd.cmdidx = MMC_CMD_SEND_OP_COND;
  	cmd.resp_type = MMC_RSP_R3;
  	cmd.cmdarg = 0;
- 	cmd.flags = 0;
 
  	err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -638,8 +626,6 @@ int mmc_send_op_cond(struct mmc *mmc)
 		if (mmc->host_caps & MMC_MODE_HC)
 			cmd.cmdarg |= OCR_HCS;
 
-		cmd.flags = 0;
-
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 
 		if (err)
@@ -655,7 +641,6 @@ int mmc_send_op_cond(struct mmc *mmc)
 		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
 		cmd.resp_type = MMC_RSP_R3;
 		cmd.cmdarg = 0;
-		cmd.flags = 0;
 
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -683,7 +668,6 @@ int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
 	cmd.cmdidx = MMC_CMD_SEND_EXT_CSD;
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.cmdarg = 0;
-	cmd.flags = 0;
 
 	data.dest = ext_csd;
 	data.blocks = 1;
@@ -707,7 +691,6 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 	cmd.cmdarg = (MMC_SWITCH_MODE_WRITE_BYTE << 24) |
 				 (index << 16) |
 				 (value << 8);
-	cmd.flags = 0;
 
 	ret = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -800,7 +783,6 @@ int sd_switch(struct mmc *mmc, int mode, int group, u8 value, u8 *resp)
 	cmd.cmdarg = (mode << 31) | 0xffffff;
 	cmd.cmdarg &= ~(0xf << (group * 4));
 	cmd.cmdarg |= value << (group * 4);
-	cmd.flags = 0;
 
 	data.dest = (char *)resp;
 	data.blocksize = 64;
@@ -829,7 +811,6 @@ int sd_change_freq(struct mmc *mmc)
 	cmd.cmdidx = MMC_CMD_APP_CMD;
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.cmdarg = mmc->rca << 16;
-	cmd.flags = 0;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -839,7 +820,6 @@ int sd_change_freq(struct mmc *mmc)
 	cmd.cmdidx = SD_CMD_APP_SEND_SCR;
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.cmdarg = 0;
-	cmd.flags = 0;
 
 	timeout = 3;
 
@@ -992,7 +972,6 @@ int mmc_startup(struct mmc *mmc)
 		cmd.cmdidx = MMC_CMD_SPI_CRC_ON_OFF;
 		cmd.resp_type = MMC_RSP_R1;
 		cmd.cmdarg = 1;
-		cmd.flags = 0;
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 
 		if (err)
@@ -1005,7 +984,6 @@ int mmc_startup(struct mmc *mmc)
 		MMC_CMD_ALL_SEND_CID; /* cmd not supported in spi */
 	cmd.resp_type = MMC_RSP_R2;
 	cmd.cmdarg = 0;
-	cmd.flags = 0;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -1023,7 +1001,6 @@ int mmc_startup(struct mmc *mmc)
 		cmd.cmdidx = SD_CMD_SEND_RELATIVE_ADDR;
 		cmd.cmdarg = mmc->rca << 16;
 		cmd.resp_type = MMC_RSP_R6;
-		cmd.flags = 0;
 
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -1038,7 +1015,6 @@ int mmc_startup(struct mmc *mmc)
 	cmd.cmdidx = MMC_CMD_SEND_CSD;
 	cmd.resp_type = MMC_RSP_R2;
 	cmd.cmdarg = mmc->rca << 16;
-	cmd.flags = 0;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
 
@@ -1115,7 +1091,6 @@ int mmc_startup(struct mmc *mmc)
 		cmd.cmdidx = MMC_CMD_SELECT_CARD;
 		cmd.resp_type = MMC_RSP_R1;
 		cmd.cmdarg = mmc->rca << 16;
-		cmd.flags = 0;
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 
 		if (err)
@@ -1182,7 +1157,6 @@ int mmc_startup(struct mmc *mmc)
 			cmd.cmdidx = MMC_CMD_APP_CMD;
 			cmd.resp_type = MMC_RSP_R1;
 			cmd.cmdarg = mmc->rca << 16;
-			cmd.flags = 0;
 
 			err = mmc_send_cmd(mmc, &cmd, NULL);
 			if (err)
@@ -1191,7 +1165,6 @@ int mmc_startup(struct mmc *mmc)
 			cmd.cmdidx = SD_CMD_APP_SET_BUS_WIDTH;
 			cmd.resp_type = MMC_RSP_R1;
 			cmd.cmdarg = 2;
-			cmd.flags = 0;
 			err = mmc_send_cmd(mmc, &cmd, NULL);
 			if (err)
 				return err;
@@ -1273,7 +1246,6 @@ int mmc_send_if_cond(struct mmc *mmc)
 	/* We set the bit if the host supports voltages between 2.7 and 3.6 V */
 	cmd.cmdarg = ((mmc->voltages & 0xff8000) != 0) << 8 | 0xaa;
 	cmd.resp_type = MMC_RSP_R7;
-	cmd.flags = 0;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
 
