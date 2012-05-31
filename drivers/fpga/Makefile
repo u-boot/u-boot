@@ -30,6 +30,7 @@ COBJS-y += fpga.o
 COBJS-$(CONFIG_FPGA_SPARTAN2) += spartan2.o
 COBJS-$(CONFIG_FPGA_SPARTAN3) += spartan3.o
 COBJS-$(CONFIG_FPGA_VIRTEX2) += virtex2.o
+COBJS-$(CONFIG_FPGA_ZYNQPL) += zynqpl.o
 COBJS-$(CONFIG_FPGA_XILINX) += xilinx.o
 COBJS-$(CONFIG_FPGA_LATTICE) += ivm_core.o lattice.o
 ifdef CONFIG_FPGA_ALTERA

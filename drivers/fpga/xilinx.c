@@ -31,6 +31,7 @@
 #include <virtex2.h>
 #include <spartan2.h>
 #include <spartan3.h>
+#include <zynqpl.h>
 
 #if 0
 #define FPGA_DEBUG
@@ -86,6 +87,16 @@ int xilinx_load (Xilinx_desc * desc, void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
+		case Xilinx_Zynq:
+#if defined(CONFIG_FPGA_ZYNQPL)
+			PRINTF("%s: Launching the Zynq PL Loader...\n",
+					__func__);
+			ret_val = zynq_load(desc, buf, bsize);
+#else
+			printf("%s: No support for Zynq devices.\n",
+					__func__);
+#endif
+			break;
 
 		default:
 			printf ("%s: Unsupported family type, %d\n",
@@ -133,6 +144,16 @@ int xilinx_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
+		case Xilinx_Zynq:
+#if defined(CONFIG_FPGA_ZYNQPL)
+			PRINTF("%s: Launching the Zynq PL Reader...\n",
+					__func__);
+			ret_val = zynq_dump(desc, buf, bsize);
+#else
+			printf("%s: No support for Zynq devices.\n",
+					__func__);
+#endif
+			break;
 
 		default:
 			printf ("%s: Unsupported family type, %d\n",
@@ -158,6 +179,9 @@ int xilinx_info (Xilinx_desc * desc)
 		case Xilinx_Virtex2:
 			printf ("Virtex-II\n");
 			break;
+		case Xilinx_Zynq:
+			printf("Zynq PL\n");
+			break;
 			/* Add new family types here */
 		default:
 			printf ("Unknown family type, %d\n", desc->family);
@@ -182,6 +206,9 @@ int xilinx_info (Xilinx_desc * desc)
 			break;
 		case master_selectmap:
 			printf ("Master SelectMap Mode\n");
+			break;
+		case devcfg:
+			printf("Device configuration interface (Zynq)\n");
 			break;
 			/* Add new interface types here */
 		default:
@@ -222,6 +249,14 @@ int xilinx_info (Xilinx_desc * desc)
 						__FUNCTION__);
 #endif
 				break;
+			case Xilinx_Zynq:
+#if defined(CONFIG_FPGA_ZYNQPL)
+				zynq_info(desc);
+#else
+				/* just in case */
+				printf("%s: No support for Zynq devices.\n",
+						__func__);
+#endif
 				/* Add new family types here */
 			default:
 				/* we don't need a message here - we give one up above */
