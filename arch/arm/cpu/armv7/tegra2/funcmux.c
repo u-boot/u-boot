@@ -209,9 +209,20 @@ int funcmux_select(enum periph_id id, int config)
 				pinmux_set_func(grp[i], PMUX_FUNC_KBC);
 				pinmux_set_pullupdown(grp[i], PMUX_PULL_UP);
 			}
-
-			break;
 		}
+		break;
+
+	case PERIPH_ID_USB2:
+		if (config == FUNCMUX_USB2_ULPI) {
+			pinmux_set_func(PINGRP_UAA, PMUX_FUNC_ULPI);
+			pinmux_set_func(PINGRP_UAB, PMUX_FUNC_ULPI);
+			pinmux_set_func(PINGRP_UDA, PMUX_FUNC_ULPI);
+
+			pinmux_tristate_disable(PINGRP_UAA);
+			pinmux_tristate_disable(PINGRP_UAB);
+			pinmux_tristate_disable(PINGRP_UDA);
+		}
+		break;
 
 	default:
 		debug("%s: invalid periph_id %d", __func__, id);
