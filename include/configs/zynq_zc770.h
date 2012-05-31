@@ -1,10 +1,12 @@
 /*
  * Hacked together,
  * hopefully functional.
+ *
+ * See zynq_common.h for Zynq common configs
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __CONFIG_ZYNQ_ZC770_H
+#define __CONFIG_ZYNQ_ZC770_H
 
 /*
  * High Level Configuration Options
@@ -13,68 +15,7 @@
 #define CONFIG_ZYNQ		1 /* SoC? */
 #define CONFIG_ZC770		1 /* Board */
 
-#include "../board/xilinx/zynq_common/xparameters_zynq.h"
-
-#define CONFIG_SYS_TEXT_BASE 0x04000000
-
-/*
- * Open Firmware flat tree
- */
-#define CONFIG_OF_LIBFDT                1
-/* TODO: After upgrade to v2011.09, remove this and set fdt_high env var instead */
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20) /* Initial Memory map for Linux*/
-
-/* Default environment */
-#define CONFIG_IPADDR   10.10.70.102
-#define CONFIG_ETHADDR  00:0a:35:00:01:22
-#define CONFIG_SERVERIP 10.10.70.101
-
-#define CONFIG_EXTRA_ENV_SETTINGS 	\
-	"kernel_size=0x140000\0" 	\
-	"ramdisk_size=0x200000\0" 	\
-	"nand_kernel_size=0x400000\0" 	\
-	"nand_ramdisk_size=0x400000\0" 	\
-	"bootcmd=run modeboot\0"	\
-	"norboot=echo Copying Linux from NOR flash to RAM...; \
-			    cp 0xE2100000 0x8000 ${kernel_size}; \
-			    cp 0xE2600000 0x1000000 0x8000; \
-			    echo Copying ramdisk...; \
-			    cp 0xE3000000 0x800000 ${ramdisk_size}; \
-			    go 0x8000\0" \
-	"qspiboot=echo Copying Linux from QSPI flash to RAM...; \
-			    cp 0xFC100000 0x8000 ${kernel_size}; \
-			    cp 0xFC600000 0x1000000 0x8000; \
-			    echo Copying ramdisk...; \
-			    cp 0xFC800000 0x800000 ${ramdisk_size};\
-			    go 0x8000\0" \
-	"sdboot=echo Copying Linux from SD to RAM...; \
-			mmcinfo; \
-			fatload mmc 0 0x8000 zImage; \
-			fatload mmc 0 0x1000000 devicetree.dtb; \
-			fatload mmc 0 0x800000 ramdisk8M.image.gz; \
-			    go 0x8000\0" \
-	"nandboot=echo Copying Linux from NAND flash to RAM...;	\
-			    nand read 0x8000 0x200000 ${nand_kernel_size}; \
-			    nand read 0x1000000 0x700000 0x20000; \
-			    echo Copying ramdisk...; \
-			    nand read 0x800000 0x900000 ${nand_ramdisk_size}; \
-			    go 0x8000\0"\
-	"jtagboot=echo TFTPing Linux to RAM...;	\
-			    tftp 0x8000 zImage; \
-			    tftp 0x1000000 devicetree.dtb; \
-			    tftp 0x800000 ramdisk8M.image.gz; \
-			    go 0x8000\0"
-
-
-/* default boot is according to the bootmode switch settings */
-#define CONFIG_BOOTCOMMAND "run modeboot"
-
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
-#define CONFIG_BOOTDELAY	3 /* -1 to Disable autoboot */
-
-#define	CONFIG_PSS_SERIAL
-#define	CONFIG_RTC_XPSSRTC
+#include <configs/zynq_common.h>
 
 #if defined(CONFIG_ZC770_XM012)
 #undef CONFIG_SYS_NO_FLASH
@@ -97,8 +38,6 @@
 
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_CMDLINE_EDITING	1
-
-#define CONFIG_SYS_PROMPT	"zynq-uboot> "
 
 #undef CONFIG_SKIP_RELOCATE_UBOOT	
 
@@ -150,36 +89,6 @@
 #define CONFIG_ENV_IS_NOWHERE	1
 
 #endif
-
-/* CONFIG_SYS_MONITOR_BASE? */
-/* CONFIG_SYS_MONITOR_LEN? */
-
-#define CONFIG_SYS_CACHELINE_SIZE	32 /* Assuming bytes? */
-
-#define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					CONFIG_SYS_INIT_RAM_SIZE - \
-					GENERATED_GBL_DATA_SIZE)
-
-/* Because (at least at first) we're going to be loaded via JTAG_Tcl */
-//#define CONFIG_SKIP_LOWLEVEL_INIT	
-
-
-/* HW to use */
-#define TIMER_INPUT_CLOCK               XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ / 2
-#define CONFIG_TIMER_PRESCALE           255
-#define TIMER_TICK_HZ                   (TIMER_INPUT_CLOCK / CONFIG_TIMER_PRESCALE)
-#define CONFIG_SYS_HZ                   1000
-
-/* And here... */
-#define CONFIG_SYS_LOAD_ADDR	0 /* default? */
-/* Semi-educated guess based on p.48 of DF Arch spec */
-#define PHYS_SDRAM_1		(256 * 1024)
-#define PHYS_SDRAM_1_SIZE	(256 * 1024 * 1024) /* Cameron guessed 256 or 512 MB */
-
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000)
 
 /*
  * These were lifted straight from imx31_phycore, and may well be very wrong.
@@ -267,4 +176,4 @@
 
 #define BOARD_LATE_INIT	1
 
-#endif /* __CONFIG_H */
+#endif /* __CONFIG_ZYNQ_ZC770_H */
