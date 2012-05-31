@@ -24,15 +24,12 @@
 #include <common.h>
 #include "du405.h"
 #include <asm/processor.h>
-#include <ppc4xx.h>
-#include <4xx_i2c.h>
+#include <asm/ppc4xx.h>
+#include <asm/ppc4xx-i2c.h>
 #include <command.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*cmd_boot.c*/
-
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 extern void lxt971_no_sleep(void);
 
 

@@ -29,6 +29,9 @@
 #define CONFIG_MPC5xxx			1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200			1	/* This is an MPC5200 CPU */
 #define CONFIG_V38B			1	/* ...on V38B board */
+
+#define	CONFIG_SYS_TEXT_BASE		0xFF000000
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000	/* ...running at 33.000000MHz */
 
 #define CONFIG_RTC_PCF8563		1	/* has PCF8563 RTC */
@@ -43,9 +46,6 @@
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_SYS_XLB_PIPELINING		1	/* gives better performance */
-
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
@@ -227,13 +227,12 @@
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

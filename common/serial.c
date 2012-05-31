@@ -30,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct serial_device *serial_devices = NULL;
 static struct serial_device *serial_current = NULL;
 
-#if !defined(CONFIG_LWMON) && !defined(CONFIG_PXA27X)
+#if !defined(CONFIG_LWMON) && !defined(CONFIG_PXA250) && !defined(CONFIG_PXA27X)
 struct serial_device *__default_serial_console (void)
 {
 #if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
@@ -38,11 +38,11 @@ struct serial_device *__default_serial_console (void)
 #elif defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
    || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
 	return &serial_scc_device;
-#elif defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
-   || defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX) \
+#elif defined(CONFIG_4xx) \
    || defined(CONFIG_MB86R0x) || defined(CONFIG_MPC5xxx) \
    || defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) \
-   || defined(CONFIG_MPC86xx) || defined(CONFIG_SYS_SC520)
+   || defined(CONFIG_MPC86xx) || defined(CONFIG_SYS_SC520) \
+   || defined(CONFIG_TEGRA2)
 #if defined(CONFIG_CONS_INDEX) && defined(CONFIG_SYS_NS16550_SERIAL)
 #if (CONFIG_CONS_INDEX==1)
 	return &eserial1_device;
@@ -55,10 +55,8 @@ struct serial_device *__default_serial_console (void)
 #else
 #error "Bad CONFIG_CONS_INDEX."
 #endif
-#elif defined(CONFIG_UART1_CONSOLE)
-		return &serial1_device;
 #else
-		return &serial0_device;
+	return &serial0_device;
 #endif
 #elif defined(CONFIG_MPC512X)
 #if (CONFIG_PSC_CONSOLE == 3)
@@ -102,7 +100,7 @@ struct serial_device *default_serial_console(void) __attribute__((weak, alias("_
 
 int serial_register (struct serial_device *dev)
 {
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 	dev->init += gd->reloc_off;
 	dev->setbrg += gd->reloc_off;
 	dev->getc += gd->reloc_off;
@@ -125,13 +123,6 @@ void serial_initialize (void)
 #if defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
  || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
 	serial_register (&serial_scc_device);
-#endif
-
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
- || defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX) \
- || defined(CONFIG_MPC5xxx)
-	serial_register(&serial0_device);
-	serial_register(&serial1_device);
 #endif
 
 #if defined(CONFIG_SYS_NS16550_SERIAL)

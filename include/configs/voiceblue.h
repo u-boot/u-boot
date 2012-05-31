@@ -71,7 +71,6 @@
 /*
  * Size of malloc() pool and stack
  */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 #define CONFIG_STACKSIZE		(1 * 1024 * 1024)
 

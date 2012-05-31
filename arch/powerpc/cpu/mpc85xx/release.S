@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc85xx.h>
 #include <version.h>

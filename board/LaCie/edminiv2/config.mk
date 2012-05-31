@@ -24,4 +24,5 @@
 # MA 02110-1301 USA
 #
 
-TEXT_BASE = 0x00100000
+# TEXT_BASE must equal the intended FLASH location of u-boot.
+CONFIG_SYS_TEXT_BASE = 0xfff90000

@@ -42,6 +42,8 @@
 #define CONFIG_MPC860           1
 #define CONFIG_RPXCLASSIC		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xff000000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
@@ -181,9 +183,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x3000	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x3000	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -441,15 +442,6 @@
 #define CONFIG_SYS_MAMR_10COL	((CONFIG_SYS_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
 			 MAMR_AMA_TYPE_2 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A12 |	\
 			 MAMR_GPL_A4DIS | MAMR_RLFA_4X | MAMR_WLFA_3X | MAMR_TLFA_16X)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% */
 /* Configuration variable added by yooth. */

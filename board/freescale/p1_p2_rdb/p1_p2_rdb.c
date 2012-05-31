@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -26,6 +26,7 @@
 #include <asm/mmu.h>
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
+#include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <libfdt.h>
@@ -33,6 +34,7 @@
 #include <tsec.h>
 #include <vsc7385.h>
 #include <netdev.h>
+#include <rtc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -156,6 +158,7 @@ int board_early_init_r(void)
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, flash_esel, BOOKE_PAGESZ_16M, 1);
+	rtc_reset();
 	return 0;
 }
 
@@ -164,10 +167,8 @@ int board_early_init_r(void)
 int board_eth_init(bd_t *bis)
 {
 	struct tsec_info_struct tsec_info[4];
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int num = 0;
 	char *tmp;
-	u32 pordevsr;
 	unsigned int vscfw_addr;
 
 #ifdef CONFIG_TSEC1
@@ -180,9 +181,10 @@ int board_eth_init(bd_t *bis)
 #endif
 #ifdef CONFIG_TSEC3
 	SET_STD_TSEC_INFO(tsec_info[num], 3);
-	pordevsr = in_be32(&gur->pordevsr);
-	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
+	if (is_serdes_configured(SGMII_TSEC3)) {
+		puts("eTSEC3 is in sgmii mode.\n");
 		tsec_info[num].flags |= TSEC_SGMII;
+	}
 	num++;
 #endif
 	if (!num) {
@@ -220,7 +222,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 	base = getenv_bootm_low();
 	size = getenv_bootm_size();
 
+#if defined(CONFIG_PCI)
 	ft_pci_board_setup(blob);
+#endif /* #if defined(CONFIG_PCI) */
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 }

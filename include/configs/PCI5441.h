@@ -60,12 +60,11 @@
  *	-The stack is placed below global data (&grows down).
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_MONITOR_LEN		(128 * 1024)	/* Reserve 128k		*/
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* Global data size rsvd*/
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_MALLOC_BASE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_MALLOC_BASE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP		CONFIG_SYS_GBL_DATA_OFFSET
 
 /*------------------------------------------------------------------------

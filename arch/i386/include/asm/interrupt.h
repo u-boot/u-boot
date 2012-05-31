@@ -27,6 +27,8 @@
 #ifndef __ASM_INTERRUPT_H_
 #define __ASM_INTERRUPT_H_ 1
 
+#include <asm/types.h>
+
 /* arch/i386/cpu/interrupts.c */
 void set_vector(u8 intnum, void *routine);
 
@@ -40,7 +42,5 @@ void unmask_irq(int irq);
 void specific_eoi(int irq);
 
 extern char exception_stack[];
-
-#define __isr__ void __attribute__ ((regparm(0)))
 
 #endif

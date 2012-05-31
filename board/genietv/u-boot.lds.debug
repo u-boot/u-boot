@@ -136,6 +136,6 @@ SECTIONS
   {
     common/env_embedded.o (.ppcenv)
   }
-  _end = . ;
+  __bss_end__ = . ;
   PROVIDE (end = .);
 }

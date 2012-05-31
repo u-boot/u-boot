@@ -17,6 +17,9 @@
 #define MII_ADVERTISE	    0x04	/* Advertisement control reg   */
 #define MII_LPA		    0x05	/* Link partner ability reg    */
 #define MII_EXPANSION	    0x06	/* Expansion register	       */
+#define MII_CTRL1000	    0x09	/* 1000BASE-T control	       */
+#define MII_STAT1000	    0x0a	/* 1000BASE-T status	       */
+#define MII_ESTATUS	    0x0f	/* Extended Status */
 #define MII_DCOUNTER	    0x12	/* Disconnect counter	       */
 #define MII_FCSCOUNTER	    0x13	/* False carrier counter       */
 #define MII_NWAYTEST	    0x14	/* N-way auto-neg test reg     */
@@ -49,7 +52,10 @@
 #define BMSR_ANEGCAPABLE	0x0008	/* Able to do auto-negotiation */
 #define BMSR_RFAULT		0x0010	/* Remote fault detected       */
 #define BMSR_ANEGCOMPLETE	0x0020	/* Auto-negotiation complete   */
-#define BMSR_RESV		0x07c0	/* Unused...		       */
+#define BMSR_RESV		0x00c0	/* Unused...		       */
+#define BMSR_ESTATEN		0x0100	/* Extended Status in R15 */
+#define BMSR_100HALF2		0x0200	/* Can do 100BASE-T2 HDX */
+#define BMSR_100FULL2		0x0400	/* Can do 100BASE-T2 FDX */
 #define BMSR_10HALF		0x0800	/* Can do 10mbps, half-duplex  */
 #define BMSR_10FULL		0x1000	/* Can do 10mbps, full-duplex  */
 #define BMSR_100HALF		0x2000	/* Can do 100mbps, half-duplex */
@@ -60,11 +66,17 @@
 #define ADVERTISE_SLCT		0x001f	/* Selector bits	       */
 #define ADVERTISE_CSMA		0x0001	/* Only selector supported     */
 #define ADVERTISE_10HALF	0x0020	/* Try for 10mbps half-duplex  */
+#define ADVERTISE_1000XFULL	0x0020	/* Try for 1000BASE-X full-duplex */
 #define ADVERTISE_10FULL	0x0040	/* Try for 10mbps full-duplex  */
+#define ADVERTISE_1000XHALF	0x0040	/* Try for 1000BASE-X half-duplex */
 #define ADVERTISE_100HALF	0x0080	/* Try for 100mbps half-duplex */
+#define ADVERTISE_1000XPAUSE	0x0080	/* Try for 1000BASE-X pause    */
 #define ADVERTISE_100FULL	0x0100	/* Try for 100mbps full-duplex */
+#define ADVERTISE_1000XPSE_ASYM 0x0100	/* Try for 1000BASE-X asym pause */
 #define ADVERTISE_100BASE4	0x0200	/* Try for 100mbps 4k packets  */
-#define ADVERTISE_RESV		0x1c00	/* Unused...		       */
+#define ADVERTISE_PAUSE_CAP	0x0400	/* Try for pause	       */
+#define ADVERTISE_PAUSE_ASYM	0x0800	/* Try for asymetric pause     */
+#define ADVERTISE_RESV		0x1000	/* Unused...		       */
 #define ADVERTISE_RFAULT	0x2000	/* Say we can detect faults    */
 #define ADVERTISE_LPACK		0x4000	/* Ack link partners response  */
 #define ADVERTISE_NPAGE		0x8000	/* Next page bit	       */
@@ -77,11 +89,17 @@
 /* Link partner ability register. */
 #define LPA_SLCT		0x001f	/* Same as advertise selector  */
 #define LPA_10HALF		0x0020	/* Can do 10mbps half-duplex   */
+#define LPA_1000XFULL		0x0020	/* Can do 1000BASE-X full-duplex */
 #define LPA_10FULL		0x0040	/* Can do 10mbps full-duplex   */
+#define LPA_1000XHALF		0x0040	/* Can do 1000BASE-X half-duplex */
 #define LPA_100HALF		0x0080	/* Can do 100mbps half-duplex  */
+#define LPA_1000XPAUSE		0x0080	/* Can do 1000BASE-X pause     */
 #define LPA_100FULL		0x0100	/* Can do 100mbps full-duplex  */
+#define LPA_1000XPAUSE_ASYM	0x0100	/* Can do 1000BASE-X pause asym*/
 #define LPA_100BASE4		0x0200	/* Can do 100mbps 4k packets   */
-#define LPA_RESV		0x1c00	/* Unused...		       */
+#define LPA_PAUSE_CAP		0x0400	/* Can pause		       */
+#define LPA_PAUSE_ASYM		0x0800	/* Can pause asymetrically     */
+#define LPA_RESV		0x1000	/* Unused...		       */
 #define LPA_RFAULT		0x2000	/* Link partner faulted        */
 #define LPA_LPACK		0x4000	/* Link partner acked us       */
 #define LPA_NPAGE		0x8000	/* Next page bit	       */
@@ -97,11 +115,27 @@
 #define EXPANSION_MFAULTS	0x0010	/* Multiple faults detected    */
 #define EXPANSION_RESV		0xffe0	/* Unused...		       */
 
+#define ESTATUS_1000_TFULL	0x2000	/* Can do 1000BT Full */
+#define ESTATUS_1000_THALF	0x1000	/* Can do 1000BT Half */
+
 /* N-way test register. */
 #define NWAYTEST_RESV1		0x00ff	/* Unused...		       */
 #define NWAYTEST_LOOPBACK	0x0100	/* Enable loopback for N-way   */
 #define NWAYTEST_RESV2		0xfe00	/* Unused...		       */
 
+/* 1000BASE-T Control register */
+#define ADVERTISE_1000FULL	0x0200	/* Advertise 1000BASE-T full duplex */
+#define ADVERTISE_1000HALF	0x0100	/* Advertise 1000BASE-T half duplex */
+
+/* 1000BASE-T Status register */
+#define LPA_1000LOCALRXOK	0x2000	/* Link partner local receiver status */
+#define LPA_1000REMRXOK		0x1000	/* Link partner remote receiver status */
+#define LPA_1000FULL		0x0800	/* Link partner 1000BASE-T full duplex */
+#define LPA_1000HALF		0x0400	/* Link partner 1000BASE-T half duplex */
+
+/* Flow control flags */
+#define FLOW_CTRL_TX		0x01
+#define FLOW_CTRL_RX		0x02
 
 /**
  * mii_nway_result
@@ -114,7 +148,7 @@
  *
  * The one exception to IEEE 802.3u is that 100baseT4 is placed
  * between 100T-full and 100T-half.  If your phy does not support
- * 100T4 this is fine.	If your phy places 100T4 elsewhere in the
+ * 100T4 this is fine. If your phy places 100T4 elsewhere in the
  * priority order, you will need to roll your own function.
  */
 static inline unsigned int mii_nway_result (unsigned int negotiated)
@@ -153,6 +187,5 @@ static inline unsigned int mii_duplex (unsigned int duplex_lock,
 		return 1;
 	return 0;
 }
-
 
 #endif /* __LINUX_MII_H__ */

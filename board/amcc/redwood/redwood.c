@@ -26,7 +26,7 @@
 
 #include <common.h>
 #include "redwood.h"
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
 #include <i2c.h>
 #include <asm/io.h>

@@ -103,11 +103,11 @@ static void smc911x_phy_configure(struct eth_device *dev)
 
 	smc911x_phy_reset(dev);
 
-	smc911x_miiphy_write(dev, 1, PHY_BMCR, PHY_BMCR_RESET);
+	smc911x_miiphy_write(dev, 1, MII_BMCR, BMCR_RESET);
 	mdelay(1);
-	smc911x_miiphy_write(dev, 1, PHY_ANAR, 0x01e1);
-	smc911x_miiphy_write(dev, 1, PHY_BMCR, PHY_BMCR_AUTON |
-				PHY_BMCR_RST_NEG);
+	smc911x_miiphy_write(dev, 1, MII_ADVERTISE, 0x01e1);
+	smc911x_miiphy_write(dev, 1, MII_BMCR, BMCR_ANENABLE |
+				BMCR_ANRESTART);
 
 	timeout = 5000;
 	do {
@@ -115,9 +115,9 @@ static void smc911x_phy_configure(struct eth_device *dev)
 		if ((timeout--) == 0)
 			goto err_out;
 
-		if (smc911x_miiphy_read(dev, 1, PHY_BMSR, &status) != 0)
+		if (smc911x_miiphy_read(dev, 1, MII_BMSR, &status) != 0)
 			goto err_out;
-	} while (!(status & PHY_BMSR_LS));
+	} while (!(status & BMSR_LSTATUS));
 
 	printf(DRIVERNAME ": phy initialized\n");
 

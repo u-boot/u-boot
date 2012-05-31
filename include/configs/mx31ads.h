@@ -51,7 +51,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -63,13 +62,13 @@
 #define CONFIG_HARD_SPI		1
 #define CONFIG_MXC_SPI		1
 #define CONFIG_DEFAULT_SPI_BUS	1
-#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 
 #define CONFIG_FSL_PMIC
 #define CONFIG_FSL_PMIC_BUS	1
 #define CONFIG_FSL_PMIC_CS	0
 #define CONFIG_FSL_PMIC_CLK	1000000
-#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 #define CONFIG_RTC_MC13783	1
 
 /* allow to overwrite serial and ethaddr */

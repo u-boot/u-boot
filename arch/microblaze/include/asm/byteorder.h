@@ -50,6 +50,10 @@ static __inline__ __u16 ___arch__swab16 (__u16 half_word)
 
 #endif /* __GNUC__ */
 
+#ifdef __MICROBLAZEEL__
+#include <linux/byteorder/little_endian.h>
+#else
 #include <linux/byteorder/big_endian.h>
+#endif
 
 #endif /* __MICROBLAZE_BYTEORDER_H__ */

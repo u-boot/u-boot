@@ -255,5 +255,6 @@ void reset_cpu(unsigned long ignored);
 u32 orion5x_device_id(void);
 u32 orion5x_device_rev(void);
 unsigned int orion5x_winctrl_calcsize(unsigned int sizeval);
+void timer_init_r(void);
 #endif /* __ASSEMBLY__ */
 #endif /* _ORION5X_CPU_H */

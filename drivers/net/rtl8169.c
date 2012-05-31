@@ -894,7 +894,12 @@ int rtl8169_initialize(bd_t *bis)
 		debug ("rtl8169: REALTEK RTL8169 @0x%x\n", iobase);
 
 		dev = (struct eth_device *)malloc(sizeof *dev);
+		if (!dev) {
+			printf("Can not allocate memory of rtl8169\n");
+			break;
+		}
 
+		memset(dev, 0, sizeof(*dev));
 		sprintf (dev->name, "RTL8169#%d", card_number);
 
 		dev->priv = (void *) devno;

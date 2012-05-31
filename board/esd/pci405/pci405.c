@@ -34,7 +34,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Prototypes */
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 unsigned long fpga_done_state(void);
 unsigned long fpga_init_state(void);
 
@@ -281,7 +280,6 @@ int misc_init_r (void)
 #define PCI0_BRDGOPT1 0x4a
 	pci_write_config_word(PCIDEVID_405GP, PCI0_BRDGOPT1, 0x3f20);
 
-#define PLB0_ACR      0x87
 	/*
 	 * Enable fairness and high bus utilization
 	 */

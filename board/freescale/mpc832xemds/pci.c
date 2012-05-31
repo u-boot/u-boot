@@ -68,9 +68,6 @@ static struct pci_region pci2_regions[] = {
 };
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
-
 void pci_init_board(void)
 #ifdef CONFIG_PCISLAVE
 {
@@ -86,7 +83,7 @@ void pci_init_board(void)
 	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_4M;
 
-	mpc83xx_pci_init(1, reg, 0);
+	mpc83xx_pci_init(1, reg);
 
 	/*
 	 * Configure PCI Inbound Translation Windows
@@ -124,10 +121,10 @@ void pci_init_board(void)
 	/* initialize the PCA9555PW IO expander on the PIB board */
 	pib_init();
 
-#if defined(PCI_66M)
+#if defined(CONFIG_PCI_66M)
 	clk->occr = OCCR_PCICOE0 | OCCR_PCICOE1 | OCCR_PCICOE2;
 	printf("PCI clock is 66MHz\n");
-#elif defined(PCI_33M)
+#elif defined(CONFIG_PCI_33M)
 	clk->occr = OCCR_PCICOE0 | OCCR_PCICOE1 | OCCR_PCICOE2 |
 	    OCCR_PCICD0 | OCCR_PCICD1 | OCCR_PCICD2 | OCCR_PCICR;
 	printf("PCI clock is 33MHz\n");
@@ -147,9 +144,9 @@ void pci_init_board(void)
 	udelay(2000);
 
 #ifndef CONFIG_MPC83XX_PCI2
-	mpc83xx_pci_init(1, reg, 0);
+	mpc83xx_pci_init(1, reg);
 #else
-	mpc83xx_pci_init(2, reg, 0);
+	mpc83xx_pci_init(2, reg);
 #endif
 }
 #endif				/* CONFIG_PCISLAVE */

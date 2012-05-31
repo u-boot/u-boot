@@ -127,13 +127,19 @@ void at91emac_DisableMDIO(at91_emac_t *at91mac)
 int  at91emac_read(at91_emac_t *at91mac, unsigned char addr,
 		unsigned char reg, unsigned short *value)
 {
+	unsigned long netstat;
 	at91emac_EnableMDIO(at91mac);
 
 	writel(AT91_EMAC_MAN_HIGH | AT91_EMAC_MAN_RW_R |
 		AT91_EMAC_MAN_REGA(reg) | AT91_EMAC_MAN_CODE_802_3 |
 		AT91_EMAC_MAN_PHYA(addr),
 		&at91mac->man);
-	udelay(10000);
+
+	do {
+		netstat = readl(&at91mac->sr);
+		DEBUG_AT91PHY("poll SR %08lx\n", netstat);
+	} while (!(netstat & AT91_EMAC_SR_IDLE));
+
 	*value = readl(&at91mac->man) & AT91_EMAC_MAN_DATA_MASK;
 
 	at91emac_DisableMDIO(at91mac);
@@ -146,6 +152,7 @@ int  at91emac_read(at91_emac_t *at91mac, unsigned char addr,
 int  at91emac_write(at91_emac_t *at91mac, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
+	unsigned long netstat;
 	DEBUG_AT91PHY("AT91PHY write %x REG(%d)=%x\n", at91mac, reg, &value)
 
 	at91emac_EnableMDIO(at91mac);
@@ -154,9 +161,14 @@ int  at91emac_write(at91_emac_t *at91mac, unsigned char addr,
 		AT91_EMAC_MAN_REGA(reg) | AT91_EMAC_MAN_CODE_802_3 |
 		AT91_EMAC_MAN_PHYA(addr) | (value & AT91_EMAC_MAN_DATA_MASK),
 		&at91mac->man);
-	udelay(10000);
+
+	do {
+		netstat = readl(&at91mac->sr);
+		DEBUG_AT91PHY("poll SR %08lx\n", netstat);
+	} while (!(netstat & AT91_EMAC_SR_IDLE));
 
 	at91emac_DisableMDIO(at91mac);
+
 	return 0;
 }
 
@@ -208,7 +220,7 @@ static int at91emac_phy_reset(struct eth_device *netdev)
 	at91emac_write(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR, MII_BMCR,
 		(BMCR_ANENABLE | BMCR_ANRESTART));
 
-	for (i = 0; i < 100000 / 100; i++) {
+	for (i = 0; i < 30000; i++) {
 		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
 			MII_BMSR, &status);
 		if (status & BMSR_ANEGCOMPLETE)
@@ -221,7 +233,7 @@ static int at91emac_phy_reset(struct eth_device *netdev)
 	} else {
 		printf("%s: Autonegotiation timed out (status=0x%04x)\n",
 		       netdev->name, status);
-		return 1;
+		return -1;
 	}
 	return 0;
 }
@@ -240,7 +252,7 @@ static int at91emac_phy_init(struct eth_device *netdev)
 		MII_PHYSID1, &phy_id);
 	if (phy_id == 0xffff) {
 		printf("%s: No PHY present\n", netdev->name);
-		return 1;
+		return -1;
 	}
 
 	at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
@@ -249,7 +261,7 @@ static int at91emac_phy_init(struct eth_device *netdev)
 	if (!(status & BMSR_LSTATUS)) {
 		/* Try to re-negotiate if we don't have link already. */
 		if (at91emac_phy_reset(netdev))
-			return 2;
+			return -2;
 
 		for (i = 0; i < 100000 / 100; i++) {
 			at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
@@ -261,7 +273,7 @@ static int at91emac_phy_init(struct eth_device *netdev)
 	}
 	if (!(status & BMSR_LSTATUS)) {
 		VERBOSEP("%s: link down\n", netdev->name);
-		return 3;
+		return -3;
 	} else {
 		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
 			MII_ADVERTISE, &adv);
@@ -286,7 +298,7 @@ int at91emac_UpdateLinkSpeed(at91_emac_t *emac)
 	at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR, MII_BMSR, &stat1);
 
 	if (!(stat1 & BMSR_LSTATUS))	/* link status up? */
-		return 1;
+		return -1;
 
 	if (stat1 & BMSR_100FULL) {
 		/*set Emac for 100BaseTX and Full Duplex  */
@@ -321,7 +333,7 @@ int at91emac_UpdateLinkSpeed(at91_emac_t *emac)
 			&emac->cfg);
 		return 0;
 	}
-	return 1;
+	return 0;
 }
 
 static int at91emac_init(struct eth_device *netdev, bd_t *bd)
@@ -387,7 +399,7 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 		at91emac_UpdateLinkSpeed(emac);
 		return 0;
 	}
-	return 1;
+	return -1;
 }
 
 static void at91emac_halt(struct eth_device *netdev)
@@ -489,22 +501,18 @@ int at91emac_register(bd_t *bis, unsigned long iobase)
 		iobase = AT91_EMAC_BASE;
 	emac = malloc(sizeof(*emac)+512);
 	if (emac == NULL)
-		return 1;
+		return -1;
 	dev = malloc(sizeof(*dev));
 	if (dev == NULL) {
 		free(emac);
-		return 1;
+		return -1;
 	}
 	/* alignment as per Errata (64 bytes) is insufficient! */
 	emacfix = (emac_device *) (((unsigned long) emac + 0x1ff) & 0xFFFFFE00);
 	memset(emacfix, 0, sizeof(emac_device));
 
 	memset(dev, 0, sizeof(*dev));
-#ifndef CONFIG_RMII
-	sprintf(dev->name, "AT91 EMAC");
-#else
-	sprintf(dev->name, "AT91 EMAC RMII");
-#endif
+	sprintf(dev->name, "emac");
 	dev->iobase = iobase;
 	dev->priv = emacfix;
 	dev->init = at91emac_init;

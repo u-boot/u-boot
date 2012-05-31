@@ -29,7 +29,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 extern void board_pll_init_f(void);
 

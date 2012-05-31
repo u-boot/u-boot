@@ -47,14 +47,18 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC512X		1	/* MPC512X family */
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
-#undef CONFIG_FSL_DIU_LOGO_BMP		/* Don't include FSL DIU binary bmp */
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 /* video */
 #undef CONFIG_VIDEO
 
-#if defined(CONFIG_VIDEO)
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
 #endif
 
 /* CONFIG_PCI is defined at config time */
@@ -266,13 +270,12 @@
 
 /* Use SRAM for initial stack */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_SRAM_BASE		/* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_SRAM_SIZE		/* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_SRAM_SIZE		/* Size of used area in RAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	0x100			/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE		/* Start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE		/* Start of monitor */
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)		/* Reserve 512 kB for Mon */
 #ifdef	CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_MALLOC_LEN		(6 * 1024 * 1024)	/* Reserved for malloc */
@@ -284,7 +287,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX     1
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 
 /*
  * Serial console configuration
@@ -374,6 +376,20 @@
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68	/* at address 0x68		*/
 
 /*
+ * USB  Support
+ */
+#define CONFIG_CMD_USB
+
+#if defined(CONFIG_CMD_USB)
+#define CONFIG_USB_EHCI				/* Enable EHCI Support	*/
+#define CONFIG_USB_EHCI_FSL			/* On a FSL platform	*/
+#define CONFIG_EHCI_MMIO_BIG_ENDIAN		/* With big-endian regs	*/
+#define CONFIG_EHCI_DESC_BIG_ENDIAN
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_STORAGE
+#endif
+
+/*
  * Environment
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
@@ -441,10 +457,15 @@
 					"mpc5121.nand:-(data)"
 
 
-#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2)
+#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2) || defined(CONFIG_CMD_USB)
+
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION
+
+#define CONFIG_CMD_FAT
+#define CONFIG_SUPPORT_VFAT
+
 #endif /* defined(CONFIG_CMD_IDE) */
 
 /*
@@ -477,10 +498,10 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)	/* Initial Memory map for Linux*/
 
 /* Cache Configuration */
 #define CONFIG_SYS_DCACHE_SIZE		32768
@@ -494,14 +515,6 @@
 #define CONFIG_SYS_HID2	HID2_HBE
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */

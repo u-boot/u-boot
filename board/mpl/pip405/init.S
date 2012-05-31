@@ -39,8 +39,6 @@
  *	Bank 6 - used to switch on the 12V for the Multipurpose socket
  *	Bank 7 - Config Register
  *-----------------------------------------------------------------------------*/
-#include <ppc4xx.h>
-
 #define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
 
 #include <configs/PIP405.h>
@@ -49,6 +47,7 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/ppc4xx.h>
 #include "pip405.h"
 
   .globl ext_bus_cntlr_init

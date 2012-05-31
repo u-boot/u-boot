@@ -117,11 +117,7 @@ int pcmcia_hardware_enable (int slot)
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 	       __LINE__,__FUNCTION__,
 	       &(pcmp->pcmc_pipr),pcmp->pcmc_pipr);
-#ifndef CONFIG_HMI10
-	if (pcmp->pcmc_pipr & (0x18000000 >> (slot << 4))) {
-#else
 	if (pcmp->pcmc_pipr & (0x10000000 >> (slot << 4))) {
-#endif	/* CONFIG_HMI10 */
 		printf ("   No Card found\n");
 		return (1);
 	}

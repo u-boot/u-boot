@@ -28,8 +28,8 @@
 #define CONFIG_MPC83xx		1	/* MPC83xx family */
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 #define CONFIG_MPC832XEMDS	1	/* MPC832XEMDS board specific */
-#undef CONFIG_PQ_MDS_PIB /* POWERQUICC MDS Platform IO Board */
-#undef CONFIG_PQ_MDS_PIB_ATM	/* QOC3 ATM card */
+
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
 /*
  * System Clock Setup
@@ -135,7 +135,7 @@
 /*
  * The reserved memory
  */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT
@@ -152,9 +152,8 @@
  */
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000	/* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_END	0x1000		/* End of used area in RAM */
-#define CONFIG_SYS_GBL_DATA_SIZE	0x100		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000		/* Size of used area in RAM */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
  * Local Bus Configuration & Clock Setup
@@ -273,7 +272,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -447,10 +445,10 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)	/* Initial Memory map for Linux */
 
 /*
  * Core HID Setup
@@ -526,14 +524,6 @@
 #define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
 #define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
 #endif
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02	/* Software reboot */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */

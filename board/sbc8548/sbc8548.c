@@ -32,6 +32,7 @@
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_serdes.h>
 #include <spd_sdram.h>
 #include <netdev.h>
 #include <tsec.h>
@@ -42,8 +43,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 void local_bus_init(void);
-void sdram_init(void);
-long int fixed_sdram (void);
 
 int board_early_init_f (void)
 {
@@ -66,47 +65,6 @@ int checkboard (void)
 	out_be32(&ecm->eedr, 0xffffffff);	/* clear ecm errors */
 	out_be32(&ecm->eeer, 0xffffffff);	/* enable ecm errors */
 	return 0;
-}
-
-phys_size_t
-initdram(int board_type)
-{
-	long dram_size = 0;
-
-	puts("Initializing\n");
-
-#if defined(CONFIG_DDR_DLL)
-	{
-		/*
-		 * Work around to stabilize DDR DLL MSYNC_IN.
-		 * Errata DDR9 seems to have been fixed.
-		 * This is now the workaround for Errata DDR11:
-		 *    Override DLL = 1, Course Adj = 1, Tap Select = 0
-		 */
-
-		volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-
-		out_be32(&gur->ddrdllcr, 0x81000000);
-		asm("sync;isync;msync");
-		udelay(200);
-	}
-#endif
-
-#if defined(CONFIG_SPD_EEPROM)
-	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-#else
-	dram_size = fixed_sdram ();
-#endif
-
-	/*
-	 * SDRAM Initialization
-	 */
-	sdram_init();
-
-	puts("    DDR: ");
-	return dram_size;
 }
 
 /*
@@ -146,8 +104,7 @@ local_bus_init(void)
 /*
  * Initialize SDRAM memory on the Local Bus.
  */
-void
-sdram_init(void)
+void lbc_sdram_init(void)
 {
 #if defined(CONFIG_SYS_LBC_SDRAM_SIZE)
 
@@ -267,7 +224,7 @@ testdram(void)
  *  fixed_sdram init -- doesn't use serial presence detect.
  *  assumes 256MB DDR2 SDRAM SODIMM, without ECC, running at DDR400 speed.
  ************************************************************************/
-long int fixed_sdram (void)
+phys_size_t fixed_sdram(void)
 {
 	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 
@@ -309,51 +266,42 @@ long int fixed_sdram (void)
 static struct pci_controller pci1_hose;
 #endif	/* CONFIG_PCI1 */
 
-#ifdef CONFIG_PCIE1
-static struct pci_controller pcie1_hose;
-#endif	/* CONFIG_PCIE1 */
-
-
 #ifdef CONFIG_PCI
 void
 pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	struct fsl_pci_info pci_info[2];
-	u32 devdisr, pordevsr, porpllsr, io_sel;
 	int first_free_busno = 0;
-	int num = 0;
-
-#ifdef CONFIG_PCIE1
-	int pcie_configured;
-#endif
-
-	devdisr = in_be32(&gur->devdisr);
-	pordevsr = in_be32(&gur->pordevsr);
-	porpllsr = in_be32(&gur->porpllsr);
-	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-
-	debug("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
 #ifdef CONFIG_PCI1
+	struct fsl_pci_info pci_info;
+	u32 devdisr = in_be32(&gur->devdisr);
+	u32 pordevsr = in_be32(&gur->pordevsr);
+	u32 porpllsr = in_be32(&gur->porpllsr);
+
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
 		uint pci_32 = pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;
 		uint pci_arb = pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;
 		uint pci_clk_sel = porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;
 		uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* get_clock_freq() */
 
-		printf ("    PCI host: %d bit, %s MHz, %s, %s\n",
+		printf("PCI: Host, %d bit, %s MHz, %s, %s\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33000000) ? "33" :
 			(pci_speed == 66000000) ? "66" : "unknown",
 			pci_clk_sel ? "sync" : "async",
 			pci_arb ? "arbiter" : "external-arbiter");
 
-		SET_STD_PCI_INFO(pci_info[num], 1);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+		SET_STD_PCI_INFO(pci_info, 1);
+		set_next_law(pci_info.mem_phys,
+			law_size_bits(pci_info.mem_size), pci_info.law);
+		set_next_law(pci_info.io_phys,
+			law_size_bits(pci_info.io_size), pci_info.law);
+
+		first_free_busno = fsl_pci_init_port(&pci_info,
 					&pci1_hose, first_free_busno);
 	} else {
-		printf ("    PCI: disabled\n");
+		printf("PCI: disabled\n");
 	}
 
 	puts("\n");
@@ -363,22 +311,7 @@ pci_init_board(void)
 
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCI2); /* disable PCI2 */
 
-#ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
-		SET_STD_PCIE_INFO(pci_info[num], 1);
-		printf ("    PCIE at base address %lx\n", pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
-	} else {
-		printf ("    PCIE: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
-#endif
+	fsl_pcie_init_board(first_free_busno);
 }
 #endif
 

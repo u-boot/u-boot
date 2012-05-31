@@ -27,7 +27,7 @@
 #include <version.h>
 
 _TEXT_BASE:
-	.word	TEXT_BASE	/* SDRAM load addr from config.mk */
+	.word	CONFIG_SYS_TEXT_BASE	/* SDRAM load addr from config.mk */
 
 OMAP5910_LPG1_BASE:		.word 0xfffbd000
 OMAP5910_TIPB_SWITCHES_BASE:	.word 0xfffbc800

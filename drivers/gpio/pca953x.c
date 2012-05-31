@@ -17,8 +17,8 @@
  */
 
 /*
- * Driver for NXP's 4 and 8 bit I2C gpio expanders (eg pca9537, pca9557, etc)
- * TODO: support additional devices with more than 8-bits GPIO
+ * Driver for NXP's 4, 8 and 16 bit I2C gpio expanders (eg pca9537, pca9557,
+ * pca9539, etc)
  */
 
 #include <common.h>
@@ -38,20 +38,81 @@ enum {
 	PCA953X_CMD_INVERT,
 };
 
+#ifdef CONFIG_SYS_I2C_PCA953X_WIDTH
+struct pca953x_chip_ngpio {
+	uint8_t chip;
+	uint8_t ngpio;
+};
+
+static struct pca953x_chip_ngpio pca953x_chip_ngpios[] =
+    CONFIG_SYS_I2C_PCA953X_WIDTH;
+
+#define NUM_CHIP_GPIOS (sizeof(pca953x_chip_ngpios) / \
+			sizeof(struct pca953x_chip_ngpio))
+
+/*
+ * Determine the number of GPIO pins supported. If we don't know we assume
+ * 8 pins.
+ */
+static int pca953x_ngpio(uint8_t chip)
+{
+	int i;
+
+	for (i = 0; i < NUM_CHIP_GPIOS; i++)
+		if (pca953x_chip_ngpios[i].chip == chip)
+			return pca953x_chip_ngpios[i].ngpio;
+
+	return 8;
+}
+#else
+static int pca953x_ngpio(uint8_t chip)
+{
+	return 8;
+}
+#endif
+
 /*
  * Modify masked bits in register
  */
 static int pca953x_reg_write(uint8_t chip, uint addr, uint mask, uint data)
 {
-	uint8_t val;
+	uint8_t valb;
+	uint16_t valw;
 
-	if (i2c_read(chip, addr, 1, &val, 1))
-		return -1;
+	if (pca953x_ngpio(chip) <= 8) {
+		if (i2c_read(chip, addr, 1, &valb, 1))
+			return -1;
 
-	val &= ~mask;
-	val |= data;
+		valb &= ~mask;
+		valb |= data;
 
-	return i2c_write(chip, addr, 1, &val, 1);
+		return i2c_write(chip, addr, 1, &valb, 1);
+	} else {
+		if (i2c_read(chip, addr << 1, 1, (u8*)&valw, 2))
+			return -1;
+
+		valw &= ~mask;
+		valw |= data;
+
+		return i2c_write(chip, addr << 1, 1, (u8*)&valw, 2);
+	}
+}
+
+static int pca953x_reg_read(uint8_t chip, uint addr, uint *data)
+{
+	uint8_t valb;
+	uint16_t valw;
+
+	if (pca953x_ngpio(chip) <= 8) {
+		if (i2c_read(chip, addr, 1, &valb, 1))
+			return -1;
+		*data = (int)valb;
+	} else {
+		if (i2c_read(chip, addr << 1, 1, (u8*)&valw, 2))
+			return -1;
+		*data = (int)valw;
+	}
+	return 0;
 }
 
 /*
@@ -86,9 +147,9 @@ int pca953x_set_dir(uint8_t chip, uint mask, uint data)
  */
 int pca953x_get_val(uint8_t chip)
 {
-	uint8_t val;
+	uint val;
 
-	if (i2c_read(chip, 0, 1, &val, 1))
+	if (pca953x_reg_read(chip, PCA953X_IN, &val) < 0)
 		return -1;
 
 	return (int)val;
@@ -102,37 +163,44 @@ int pca953x_get_val(uint8_t chip)
 static int pca953x_info(uint8_t chip)
 {
 	int i;
-	uint8_t data;
+	uint data;
+	int nr_gpio = pca953x_ngpio(chip);
+	int msb = nr_gpio - 1;
 
-	printf("pca953x@ 0x%x:\n\n", chip);
-	printf("gpio pins: 76543210\n");
-	printf("-------------------\n");
+	printf("pca953x@ 0x%x (%d pins):\n\n", chip, nr_gpio);
+	printf("gpio pins: ");
+	for (i = msb; i >= 0; i--)
+		printf("%x", i);
+	printf("\n");
+	for (i = 11 + nr_gpio; i > 0; i--)
+		printf("-");
+	printf("\n");
 
-	if (i2c_read(chip, PCA953X_CONF, 1, &data, 1))
+	if (pca953x_reg_read(chip, PCA953X_CONF, &data) < 0)
 		return -1;
 	printf("conf:      ");
-	for (i = 7; i >= 0; i--)
+	for (i = msb; i >= 0; i--)
 		printf("%c", data & (1 << i) ? 'i' : 'o');
 	printf("\n");
 
-	if (i2c_read(chip, PCA953X_POL, 1, &data, 1))
+	if (pca953x_reg_read(chip, PCA953X_POL, &data) < 0)
 		return -1;
 	printf("invert:    ");
-	for (i = 7; i >= 0; i--)
+	for (i = msb; i >= 0; i--)
 		printf("%c", data & (1 << i) ? '1' : '0');
 	printf("\n");
 
-	if (i2c_read(chip, PCA953X_IN, 1, &data, 1))
+	if (pca953x_reg_read(chip, PCA953X_IN, &data) < 0)
 		return -1;
 	printf("input:     ");
-	for (i = 7; i >= 0; i--)
+	for (i = msb; i >= 0; i--)
 		printf("%c", data & (1 << i) ? '1' : '0');
 	printf("\n");
 
-	if (i2c_read(chip, PCA953X_OUT, 1, &data, 1))
+	if (pca953x_reg_read(chip, PCA953X_OUT, &data) < 0)
 		return -1;
 	printf("output:    ");
-	for (i = 7; i >= 0; i--)
+	for (i = msb; i >= 0; i--)
 		printf("%c", data & (1 << i) ? '1' : '0');
 	printf("\n");
 

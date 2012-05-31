@@ -42,7 +42,5 @@ typedef struct bd_info {
 	unsigned long	bi_flashsize;	/* size  of FLASH memory */
 	unsigned long	bi_flashoffset;	/* reserved area for startup monitor */
 } bd_t;
-#define bi_env_data bi_env->data
-#define bi_env_crc  bi_env->crc
 
 #endif	/* _U_BOOT_H_ */

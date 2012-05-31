@@ -22,6 +22,8 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/global_data.h>
+#include <asm/processor-flags.h>
 
 #define BOOT_SEG	0xffff0000	/* linear segment of boot code */
 #define a32		.byte 0x67;
@@ -31,16 +33,20 @@
 .code16
 .globl start16
 start16:
-	/* First we let the BSP do some early initialization
+	/* Set the Cold Boot / Hard Reset flag */
+	movl	$GD_FLG_COLD_BOOT, %ebx
+
+	/*
+	 * First we let the BSP do some early initialization
 	 * this code have to map the flash to its final position
 	 */
-	mov	$board_init16_ret, %bp
 	jmp	board_init16
+.globl board_init16_ret
 board_init16_ret:
 
 	/* Turn of cache (this might require a 486-class CPU) */
 	movl	%cr0, %eax
-	orl	$0x60000000,%eax
+	orl	$(X86_CR0_NW & X86_CR0_CD), %eax
 	movl	%eax, %cr0
 	wbinvd
 
@@ -50,18 +56,15 @@ o32 cs	lgdt	gdt_ptr
 
 	/* Now, we enter protected mode */
 	movl	%cr0, %eax
-	orl	$1,%eax
+	orl	$X86_CR0_PE, %eax
 	movl	%eax, %cr0
 
 	/* Flush the prefetch queue */
 	jmp	ff
 ff:
-	/* Tell 32-bit code it is being entered from hard-reset */
-	movw	$0x0001, %bx
-
 	/* Finally jump to the 32bit initialization code */
 	movw	$code32start, %ax
-	movw	%ax,%bp
+	movw	%ax, %bp
 o32 cs	ljmp	*(%bp)
 
 	/* 48-bit far pointer */

@@ -24,7 +24,6 @@
 /* CPU Options
  * Be sure to set the Silicon Revision Correctly
  */
-#define CONFIG_BFIN_CPU		bf532-0.5
 #define CONFIG_BFIN_BOOT_MODE	BFIN_BOOT_SPI_MASTER
 
 /*

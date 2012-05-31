@@ -41,8 +41,10 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 
-static ulong timestamp;
-static ulong lastinc;
+DECLARE_GLOBAL_DATA_PTR;
+
+#define timestamp gd->tbl
+#define lastinc gd->lastinc
 
 /*
  * "time" is measured in 1 / CONFIG_SYS_HZ seconds,

@@ -34,7 +34,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char * const argv[])
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile rcm_t *rcm = (rcm_t *) (MMAP_RCM);
 

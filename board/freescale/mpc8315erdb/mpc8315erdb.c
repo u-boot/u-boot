@@ -140,7 +140,6 @@ void pci_init_board(void)
 	volatile law83xx_t *pcie_law = sysconf->pcielaw;
 	struct pci_region *reg[] = { pci_regions };
 	struct pci_region *pcie_reg[] = { pcie_regions_0, pcie_regions_1, };
-	int warmboot;
 
 	/* Enable all 3 PCI_CLK_OUTPUTs. */
 	clk->occr |= 0xe0000000;
@@ -154,10 +153,7 @@ void pci_init_board(void)
 	pci_law[1].bar = CONFIG_SYS_PCI_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LBLAWAR_EN | LBLAWAR_1MB;
 
-	warmboot = gd->bd->bi_bootflags & BOOTFLAG_WARM;
-	warmboot |= immr->pmc.pmccr1 & PMCCR1_POWER_OFF;
-
-	mpc83xx_pci_init(1, reg, warmboot);
+	mpc83xx_pci_init(1, reg);
 
 	/* Configure the clock for PCIE controller */
 	clrsetbits_be32(&clk->sccr, SCCR_PCIEXP1CM | SCCR_PCIEXP2CM,
@@ -175,7 +171,7 @@ void pci_init_board(void)
 	out_be32(&pcie_law[1].bar, CONFIG_SYS_PCIE2_BASE & LAWBAR_BAR);
 	out_be32(&pcie_law[1].ar, LBLAWAR_EN | LBLAWAR_512MB);
 
-	mpc83xx_pcie_init(2, pcie_reg, warmboot);
+	mpc83xx_pcie_init(2, pcie_reg);
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)

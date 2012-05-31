@@ -3,6 +3,9 @@
  *
  * Copyright (C) 2005-2006 Atmel Corporation
  *
+ * Modified to support C structure SoC access by
+ * Andreas Bießmann <biessmann@corscience.de>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,32 +23,27 @@
 #ifndef __DRIVERS_ATMEL_USART_H__
 #define __DRIVERS_ATMEL_USART_H__
 
-/* USART3 register offsets */
-#define USART3_CR				0x0000
-#define USART3_MR				0x0004
-#define USART3_IER				0x0008
-#define USART3_IDR				0x000c
-#define USART3_IMR				0x0010
-#define USART3_CSR				0x0014
-#define USART3_RHR				0x0018
-#define USART3_THR				0x001c
-#define USART3_BRGR				0x0020
-#define USART3_RTOR				0x0024
-#define USART3_TTGR				0x0028
-#define USART3_FIDI				0x0040
-#define USART3_NER				0x0044
-#define USART3_XXR				0x0048
-#define USART3_IFR				0x004c
-#define USART3_RPR				0x0100
-#define USART3_RCR				0x0104
-#define USART3_TPR				0x0108
-#define USART3_TCR				0x010c
-#define USART3_RNPR				0x0110
-#define USART3_RNCR				0x0114
-#define USART3_TNPR				0x0118
-#define USART3_TNCR				0x011c
-#define USART3_PTCR				0x0120
-#define USART3_PTSR				0x0124
+/* USART3 register footprint */
+typedef struct atmel_usart3 {
+	u32	cr;
+	u32	mr;
+	u32	ier;
+	u32	idr;
+	u32	imr;
+	u32	csr;
+	u32	rhr;
+	u32	thr;
+	u32	brgr;
+	u32	rtor;
+	u32	ttgr;
+	u32	reserved0[5];
+	u32	fidi;
+	u32	ner;
+	u32	reserved1;
+	u32	ifr;
+	u32	man;
+	u32	reserved2[54]; /* version and PDC not needed */
+} atmel_usart3_t;
 
 /* Bitfields in CR */
 #define USART3_RSTRX_OFFSET			2
@@ -304,11 +302,5 @@
 	(((old) & ~(((1 << USART3_##name##_SIZE) - 1)	\
 		    << USART3_##name##_OFFSET))		\
 	 | USART3_BF(name,value))
-
-/* Register access macros */
-#define usart3_readl(reg)				\
-	readl((void *)USART_BASE + USART3_##reg)
-#define usart3_writel(reg,value)			\
-	writel((value), (void *)USART_BASE + USART3_##reg)
 
 #endif /* __DRIVERS_ATMEL_USART_H__ */

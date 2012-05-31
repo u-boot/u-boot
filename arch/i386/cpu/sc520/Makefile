@@ -29,14 +29,15 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)lib$(SOC).a
+LIB	:= $(obj)lib$(SOC).o
 
 COBJS-$(CONFIG_SYS_SC520) += sc520.o
+COBJS-$(CONFIG_PCI) += sc520_pci.o
+COBJS-$(CONFIG_SYS_SC520) += sc520_sdram.o
 COBJS-$(CONFIG_SYS_SC520_SSI) += sc520_ssi.o
 COBJS-$(CONFIG_SYS_SC520_TIMER) += sc520_timer.o
-COBJS-$(CONFIG_PCI) += sc520_pci.o
 
-SOBJS-$(CONFIG_SYS_SC520) += sc520_asm.o
+SOBJS-$(CONFIG_SYS_SC520) += sc520_car.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
@@ -44,7 +45,7 @@ OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 all: $(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

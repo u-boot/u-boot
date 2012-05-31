@@ -916,6 +916,7 @@
 #define PVR_460SX_RA_V1 0x13541801 /* 460SX rev A Variant 1 Security disabled */
 #define PVR_460GX_RA    0x13541802 /* 460GX rev A                   */
 #define PVR_460GX_RA_V1 0x13541803 /* 460GX rev A Variant 1 Security disabled */
+#define PVR_APM821XX_RA 0x12C41C80 /* APM821XX rev A */
 #define PVR_601		0x00010000
 #define PVR_602		0x00050000
 #define PVR_603		0x00030000
@@ -1029,20 +1030,24 @@
 #define SVR_8555	0x807100
 #define SVR_8555_E	0x807900
 #define SVR_8560	0x807000
-#define SVR_8567	0x807600
-#define SVR_8567_E	0x807E00
+#define SVR_8567	0x807501
+#define SVR_8567_E	0x807D01
 #define SVR_8568	0x807500
 #define SVR_8568_E	0x807D00
 #define SVR_8569	0x808000
 #define SVR_8569_E	0x808800
 #define SVR_8572	0x80E000
 #define SVR_8572_E	0x80E800
+#define SVR_P1010	0x80F100
+#define SVR_P1010_E	0x80F900
 #define SVR_P1011	0x80E500
 #define SVR_P1011_E	0x80ED00
 #define SVR_P1012	0x80E501
 #define SVR_P1012_E	0x80ED01
 #define SVR_P1013	0x80E700
 #define SVR_P1013_E	0x80EF00
+#define SVR_P1014	0x80F101
+#define SVR_P1014_E	0x80F901
 #define SVR_P1020	0x80E400
 #define SVR_P1020_E	0x80EC00
 #define SVR_P1021	0x80E401
@@ -1053,6 +1058,8 @@
 #define SVR_P2010_E	0x80EB00
 #define SVR_P2020	0x80E200
 #define SVR_P2020_E	0x80EA00
+#define SVR_P2040	0x821000
+#define SVR_P2040_E	0x821800
 #define SVR_P3041	0x821103
 #define SVR_P3041_E	0x821903
 #define SVR_P4040	0x820100

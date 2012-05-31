@@ -56,8 +56,8 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     arch/m68k/cpu/mcf532x/start.o		(.text)
-    arch/m68k/cpu/mcf532x/libmcf532x.a	(.text)
-    arch/m68k/lib/libm68k.a		(.text)
+    arch/m68k/cpu/mcf532x/libmcf532x.o	(.text)
+    arch/m68k/lib/libm68k.o		(.text)
     common/dlmalloc.o		(.text)
     lib/zlib.o		(.text)
 
@@ -137,6 +137,6 @@ SECTIONS
    . = ALIGN(4);
    _ebss = .;
   }
-  _end = . ;
+  __bss_end__ = . ;
   PROVIDE (end = .);
 }

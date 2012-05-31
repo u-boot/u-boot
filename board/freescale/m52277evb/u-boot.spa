@@ -56,9 +56,9 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     arch/m68k/cpu/mcf5227x/start.o	(.text)
-    arch/m68k/cpu/mcf5227x/libmcf5227x.a	(.text)
-    arch/m68k/lib/libm68k.a		(.text)
-    lib/libgeneric.a	(.text)
+    arch/m68k/cpu/mcf5227x/libmcf5227x.o	(.text)
+    arch/m68k/lib/libm68k.o		(.text)
+    lib/libgeneric.o	(.text)
     common/cmd_mem.o		(.text)
     common/main.o		(.text)
 
@@ -139,6 +139,6 @@ SECTIONS
    . = ALIGN(4);
    _ebss = .;
   }
-  _end = . ;
+  __bss_end__ = . ;
   PROVIDE (end = .);
 }

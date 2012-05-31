@@ -1,5 +1,5 @@
 #
-# Copyright 2008 Freescale Semiconductor.
+# Copyright 2008, 2011 Freescale Semiconductor.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -24,26 +24,7 @@
 # mpc8536ds board
 #
 ifndef NAND_SPL
-ifeq ($(CONFIG_MK_NAND), y)
-TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
+ifeq ($(CONFIG_NAND), y)
 LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
 endif
-endif
-
-ifeq ($(CONFIG_MK_SDCARD), y)
-TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
-RESET_VECTOR_ADDRESS = 0xf8fffffc
-endif
-
-ifeq ($(CONFIG_MK_SPIFLASH), y)
-TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
-RESET_VECTOR_ADDRESS = 0xf8fffffc
-endif
-
-ifndef TEXT_BASE
-TEXT_BASE = 0xeff80000
-endif
-
-ifndef RESET_VECTOR_ADDRESS
-RESET_VECTOR_ADDRESS = 0xeffffffc
 endif

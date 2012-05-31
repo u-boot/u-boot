@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * (C) Copyright 2007-2009 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * (C) Copyright 2007 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,9 @@
 #define CACHE_OC_NUM_ENTRIES	256
 #define CACHE_OC_ENTRY_SHIFT	4
 
-#if defined(CONFIG_CPU_SH7710)
+#if defined(CONFIG_CPU_SH7706)
+#include <asm/cpu_sh7706.h>
+#elif defined(CONFIG_CPU_SH7710)
 #include <asm/cpu_sh7710.h>
 #elif defined(CONFIG_CPU_SH7720)
 #include <asm/cpu_sh7720.h>

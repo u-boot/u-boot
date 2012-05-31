@@ -31,7 +31,6 @@
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
 #undef CONFIG_SKIP_LOWLEVEL_INIT
-#undef CONFIG_SKIP_RELOCATE_UBOOT
 
 /*
  * High Level Configuration Options
@@ -48,7 +47,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -198,6 +196,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_MMC			1
 /* we use this ethernet chip */
-#define CONFIG_ENC28J60
+#define CONFIG_ENC28J60_LPC2292
 
 #endif	/* __CONFIG_H */

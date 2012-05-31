@@ -19,15 +19,16 @@
  */
 
 #include <common.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <i2c.h>
+#include <mtd/cfi_flash.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/4xx_pcie.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 int board_early_init_f(void)
 {
@@ -190,4 +191,41 @@ static struct sdram_timing board_scan_options[] = {
 struct sdram_timing *ddr_scan_option(struct sdram_timing *default_val)
 {
 	return board_scan_options;
+}
+
+/*
+ * Accessor functions replacing the "weak" functions in
+ * drivers/mtd/cfi_flash.c
+ *
+ * The NOR flash devices "behind" the FPGA's (Xilinx DS617)
+ * can only be read correctly in 16bit mode. We need to emulate
+ * 8bit and 32bit reads here in the board specific code.
+ */
+u8 flash_read8(void *addr)
+{
+	u16 val = __raw_readw((void *)((u32)addr & ~1));
+
+	if ((u32)addr & 1)
+		return val;
+
+	return val >> 8;
+}
+
+u32 flash_read32(void *addr)
+{
+	return (__raw_readw(addr) << 16) | __raw_readw((void *)((u32)addr + 2));
+}
+
+void flash_cmd_reset(flash_info_t *info)
+{
+	/*
+	 * FLASH at address CONFIG_SYS_FLASH_BASE is a Spansion chip and
+	 * needs the Spansion type reset commands. The other flash chip
+	 * is located behind a FPGA (Xilinx DS617) and needs the Intel type
+	 * reset command.
+	 */
+	if (info->start[0] == CONFIG_SYS_FLASH_BASE)
+		flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	else
+		flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 }

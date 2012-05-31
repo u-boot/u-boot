@@ -39,14 +39,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
-      (CONFIG_ENV_ADDR >= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)) ) || \
-    defined(CONFIG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
-#else
-#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
-#endif
-
 #undef DEBUG
 
 extern int timer_init(void);
@@ -284,7 +276,6 @@ void board_init_f(ulong bootflag)
 
 void board_init_r (gd_t *id, ulong dest_addr)
 {
-	cmd_tbl_t *cmdtp;
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong size;
 #endif
@@ -304,34 +295,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	monitor_flash_len = (ulong)&uboot_end_data - dest_addr;
 
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/*
 	 * We have to relocate the command table manually
 	 */
-	for (cmdtp = &__u_boot_cmd_start; cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
-		ulong addr;
+	fixup_cmdtable(&__u_boot_cmd_start,
+		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
+#endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
 
-		addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
-#if 0
-		printf ("Command \"%s\": 0x%08lx => 0x%08lx\n",
-				cmdtp->name, (ulong) (cmdtp->cmd), addr);
-#endif
-		cmdtp->cmd =
-			(int (*)(struct cmd_tbl_s *, int, int, char *[]))addr;
-
-		addr = (ulong)(cmdtp->name) + gd->reloc_off;
-		cmdtp->name = (char *)addr;
-
-		if (cmdtp->usage) {
-			addr = (ulong)(cmdtp->usage) + gd->reloc_off;
-			cmdtp->usage = (char *)addr;
-		}
-#ifdef	CONFIG_SYS_LONGHELP
-		if (cmdtp->help) {
-			addr = (ulong)(cmdtp->help) + gd->reloc_off;
-			cmdtp->help = (char *)addr;
-		}
-#endif
-	}
 	/* there are some other pointer constants we must deal with */
 #ifndef CONFIG_ENV_IS_NOWHERE
 	env_name_spec += gd->reloc_off;

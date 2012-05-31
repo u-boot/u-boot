@@ -32,11 +32,35 @@
 #include <common.h>
 #include <twl4030.h>
 #include <asm/io.h>
+#include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/gpio.h>
 #include <asm/mach-types.h>
 #include "beagle.h"
+
+#define TWL4030_I2C_BUS			0
+#define EXPANSION_EEPROM_I2C_BUS	1
+#define EXPANSION_EEPROM_I2C_ADDRESS	0x50
+
+#define TINCANTOOLS_ZIPPY		0x01000100
+#define TINCANTOOLS_ZIPPY2		0x02000100
+#define TINCANTOOLS_TRAINER		0x04000100
+#define TINCANTOOLS_SHOWDOG		0x03000100
+#define KBADC_BEAGLEFPGA		0x01000600
+
+#define BEAGLE_NO_EEPROM		0xffffffff
+
+DECLARE_GLOBAL_DATA_PTR;
+
+static struct {
+	unsigned int device_vendor;
+	unsigned char revision;
+	unsigned char content;
+	char fab_revision[8];
+	char env_var[16];
+	char env_setting[64];
+} expansion_config;
 
 /*
  * Routine: board_init
@@ -44,8 +68,6 @@
  */
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 	/* board id for Linux */
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP3_BEAGLE;
@@ -91,6 +113,31 @@ int get_board_revision(void)
 	}
 
 	return revision;
+}
+
+/*
+ * Routine: get_expansion_id
+ * Description: This function checks for expansion board by checking I2C
+ *		bus 1 for the availability of an AT24C01B serial EEPROM.
+ *		returns the device_vendor field from the EEPROM
+ */
+unsigned int get_expansion_id(void)
+{
+	i2c_set_bus_num(EXPANSION_EEPROM_I2C_BUS);
+
+	/* return BEAGLE_NO_EEPROM if eeprom doesn't respond */
+	if (i2c_probe(EXPANSION_EEPROM_I2C_ADDRESS) == 1) {
+		i2c_set_bus_num(TWL4030_I2C_BUS);
+		return BEAGLE_NO_EEPROM;
+	}
+
+	/* read configuration data */
+	i2c_read(EXPANSION_EEPROM_I2C_ADDRESS, 0, 1, (u8 *)&expansion_config,
+		 sizeof(expansion_config));
+
+	i2c_set_bus_num(TWL4030_I2C_BUS);
+
+	return expansion_config.device_vendor;
 }
 
 /*
@@ -140,6 +187,55 @@ int misc_init_r(void)
 		printf("Beagle unknown 0x%02x\n", get_board_revision());
 	}
 
+	switch (get_expansion_id()) {
+	case TINCANTOOLS_ZIPPY:
+		printf("Recognized Tincantools Zippy board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		MUX_TINCANTOOLS_ZIPPY();
+		setenv("buddy", "zippy");
+		break;
+	case TINCANTOOLS_ZIPPY2:
+		printf("Recognized Tincantools Zippy2 board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		MUX_TINCANTOOLS_ZIPPY();
+		setenv("buddy", "zippy2");
+		break;
+	case TINCANTOOLS_TRAINER:
+		printf("Recognized Tincantools Trainer board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		MUX_TINCANTOOLS_ZIPPY();
+		MUX_TINCANTOOLS_TRAINER();
+		setenv("buddy", "trainer");
+		break;
+	case TINCANTOOLS_SHOWDOG:
+		printf("Recognized Tincantools Showdow board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		/* Place holder for DSS2 definition for showdog lcd */
+		setenv("defaultdisplay", "showdoglcd");
+		setenv("buddy", "showdog");
+		break;
+	case KBADC_BEAGLEFPGA:
+		printf("Recognized KBADC Beagle FPGA board\n");
+		MUX_KBADC_BEAGLEFPGA();
+		setenv("buddy", "beaglefpga");
+		break;
+	case BEAGLE_NO_EEPROM:
+		printf("No EEPROM on expansion board\n");
+		setenv("buddy", "none");
+		break;
+	default:
+		printf("Unrecognized expansion board: %x\n",
+			expansion_config.device_vendor);
+		setenv("buddy", "unknown");
+	}
+
+	if (expansion_config.content == 1)
+		setenv(expansion_config.env_var, expansion_config.env_setting);
+
 	twl4030_power_init();
 	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
 
@@ -169,3 +265,11 @@ void set_muxconf_regs(void)
 {
 	MUX_BEAGLE();
 }
+
+#ifdef CONFIG_GENERIC_MMC
+int board_mmc_init(bd_t *bis)
+{
+	omap_mmc_init(0);
+	return 0;
+}
+#endif

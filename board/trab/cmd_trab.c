@@ -637,28 +637,28 @@ static int adc_read (unsigned int channel)
 
 	adc_init ();
 
-	padc->ADCCON &= ~ADC_STDBM; /* select normal mode */
-	padc->ADCCON &= ~(0x7 << 3); /* clear the channel bits */
-	padc->ADCCON |= ((channel << 3) | ADC_ENABLE_START);
+	padc->adccon &= ~ADC_STDBM; /* select normal mode */
+	padc->adccon &= ~(0x7 << 3); /* clear the channel bits */
+	padc->adccon |= ((channel << 3) | ADC_ENABLE_START);
 
 	while (j--) {
-		if ((padc->ADCCON & ADC_ENABLE_START) == 0)
+		if ((padc->adccon & ADC_ENABLE_START) == 0)
 			break;
 		udelay (1);
 	}
 
 	if (j == 0) {
 		printf("%s: ADC timeout\n", __FUNCTION__);
-		padc->ADCCON |= ADC_STDBM; /* select standby mode */
+		padc->adccon |= ADC_STDBM; /* select standby mode */
 		return -1;
 	}
 
-	result = padc->ADCDAT & 0x3FF;
+	result = padc->adcdat & 0x3FF;
 
-	padc->ADCCON |= ADC_STDBM; /* select standby mode */
+	padc->adccon |= ADC_STDBM; /* select standby mode */
 
 	debug ("%s: channel %d, result[DIGIT]=%d\n", __FUNCTION__,
-	       (padc->ADCCON >> 3) & 0x7, result);
+	       (padc->adccon >> 3) & 0x7, result);
 
 	/*
 	 * Wait for ADC to be ready for next conversion. This delay value was
@@ -676,8 +676,8 @@ static void adc_init (void)
 
 	padc = s3c2400_get_base_adc();
 
-	padc->ADCCON &= ~(0xff << 6); /* clear prescaler bits */
-	padc->ADCCON |= ((65 << 6) | ADC_PRSCEN); /* set prescaler */
+	padc->adccon &= ~(0xff << 6); /* clear prescaler bits */
+	padc->adccon |= ((65 << 6) | ADC_PRSCEN); /* set prescaler */
 
 	/*
 	 * Wait some time to avoid problem with very first call of
@@ -699,10 +699,10 @@ static void led_set (unsigned int state)
 
 	switch (state) {
 	case 0: /* turn LED off */
-		gpio->PADAT |= (1 << 12);
+		gpio->padat |= (1 << 12);
 		break;
 	case 1: /* turn LED on */
-		gpio->PADAT &= ~(1 << 12);
+		gpio->padat &= ~(1 << 12);
 		break;
 	default:
 		break;
@@ -729,8 +729,8 @@ static void led_init (void)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* configure GPA12 as output and set to High -> LED off */
-	gpio->PACON &= ~(1 << 12);
-	gpio->PADAT |= (1 << 12);
+	gpio->pacon &= ~(1 << 12);
+	gpio->padat |= (1 << 12);
 }
 
 

@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(CPU).o
 
 START	= start.o
 SOBJS-y	= cache.o
@@ -41,7 +41,7 @@ START	:= $(addprefix $(obj),$(START))
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

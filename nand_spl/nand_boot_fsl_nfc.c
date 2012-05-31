@@ -34,7 +34,7 @@
 #include <asm/io.h>
 #include <fsl_nfc.h>
 
-struct fsl_nfc_regs *nfc;
+static struct fsl_nfc_regs *const nfc = (void *)NFC_BASE_ADDR;
 
 static void nfc_wait_ready(void)
 {
@@ -228,8 +228,6 @@ static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
 	unsigned int maxpages = CONFIG_SYS_NAND_SIZE /
 				CONFIG_SYS_NAND_PAGE_SIZE;
 
-	nfc = (void *)NFC_BASE_ADDR;
-
 	nfc_nand_init();
 
 	/* Convert to page number */
@@ -265,6 +263,14 @@ static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
 	return 0;
 }
 
+#if defined(CONFIG_ARM)
+void board_init_f (ulong bootflag)
+{
+	relocate_code (CONFIG_SYS_TEXT_BASE - TOTAL_MALLOC_LEN, NULL,
+		       CONFIG_SYS_TEXT_BASE);
+}
+#endif
+
 /*
  * The main entry for NAND booting. It's necessary that SDRAM is already
  * configured and available since this code loads the main U-Boot image
@@ -273,8 +279,6 @@ static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
 void nand_boot(void)
 {
 	__attribute__((noreturn)) void (*uboot)(void);
-
-	nfc = (void *)NFC_BASE_ADDR;
 
 	/*
 	 * CONFIG_SYS_NAND_U_BOOT_OFFS and CONFIG_SYS_NAND_U_BOOT_SIZE must

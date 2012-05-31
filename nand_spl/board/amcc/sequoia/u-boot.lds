@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006-2010
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -26,7 +26,7 @@ SECTIONS
 {
   .resetvec 0xE0013FFC :
   {
-    *(.resetvec)
+    KEEP(*(.resetvec))
   } = 0xffff
 
   .text      :
@@ -62,5 +62,5 @@ SECTIONS
    . = ALIGN(4);
   }
 
-  _end = . ;
+  __bss_end__ = . ;
 }

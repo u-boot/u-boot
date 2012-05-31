@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB := $(obj)libnpe.a
+LIB := $(obj)libnpe.o
 
 LOCAL_CFLAGS  += -I$(TOPDIR)/arch/arm/cpu/ixp/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB -D__linux
 CFLAGS  += $(LOCAL_CFLAGS)
@@ -86,7 +86,7 @@ SOBJS	:= $(addprefix $(obj),$(SOBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

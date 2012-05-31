@@ -26,19 +26,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
-
-#ifdef CONFIG_FSL_DIU_FB
-
-#include "../common/fsl_diu_fb.h"
-
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-#include <stdio_dev.h>
-#include <video_fb.h>
-#endif
-
-extern unsigned int FSL_Logo_BMP[];
-
-static int xres, yres;
+#include <fsl_diu_fb.h>
 
 void diu_set_pixel_clock(unsigned int pixclock)
 {
@@ -61,7 +49,7 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
 }
 
-void mpc8610hpcd_diu_init(void)
+int platform_diu_init(unsigned int *xres, unsigned int *yres)
 {
 	char *monitor_port;
 	int gamma_fix;
@@ -75,8 +63,8 @@ void mpc8610hpcd_diu_init(void)
 
 	monitor_port = getenv("monitor");
 	if (!strncmp(monitor_port, "0", 1)) {	/* 0 - DVI */
-		xres = 1280;
-		yres = 1024;
+		*xres = 1280;
+		*yres = 1024;
 		if (pixis_arch == 0x01)
 			pixel_format = 0x88882317;
 		else
@@ -85,102 +73,26 @@ void mpc8610hpcd_diu_init(void)
 		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
 
 	} else if (!strncmp(monitor_port, "1", 1)) { /* 1 - Single link LVDS */
-		xres = 1024;
-		yres = 768;
+		*xres = 1024;
+		*yres = 768;
 		pixel_format = 0x88883316;
 		gamma_fix = 0;
 		out_8(pixis_base + PIXIS_BRDCFG0, (tmp_val & 0xf7) | 0x10);
 
 	} else if (!strncmp(monitor_port, "2", 1)) { /* 2 - Double link LVDS */
-		xres = 1280;
-		yres = 1024;
+		*xres = 1280;
+		*yres = 1024;
 		pixel_format = 0x88883316;
 		gamma_fix = 1;
 		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val & 0xe7);
 
 	} else {	/* DVI */
-		xres = 1280;
-		yres = 1024;
+		*xres = 1280;
+		*yres = 1024;
 		pixel_format = 0x88882317;
 		gamma_fix = 0;
 		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
 	}
 
-	fsl_diu_init(xres, pixel_format, gamma_fix,
-		     (unsigned char *)FSL_Logo_BMP);
+	return fsl_diu_init(*xres, pixel_format, gamma_fix);
 }
-
-int mpc8610diu_init_show_bmp(cmd_tbl_t *cmdtp,
-			     int flag, int argc, char * const argv[])
-{
-	unsigned int addr;
-
-	if (argc < 2)
-		return cmd_usage(cmdtp);
-
-	if (!strncmp(argv[1],"init",4)) {
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-		fsl_diu_clear_screen();
-		drv_video_init();
-#else
-		mpc8610hpcd_diu_init();
-#endif
-	} else {
-		addr = simple_strtoul(argv[1], NULL, 16);
-		fsl_diu_clear_screen();
-		fsl_diu_display_bmp((unsigned char *)addr, 0, 0, 0);
-	}
-
-	return 0;
-}
-
-U_BOOT_CMD(
-	diufb, CONFIG_SYS_MAXARGS, 1, mpc8610diu_init_show_bmp,
-	"Init or Display BMP file",
-	"init\n    - initialize DIU\n"
-	"addr\n    - display bmp at address 'addr'"
-);
-
-
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-
-/*
- * The Graphic Device
- */
-GraphicDevice ctfb;
-void *video_hw_init(void)
-{
-	GraphicDevice *pGD = (GraphicDevice *) &ctfb;
-	struct fb_info *info;
-
-	mpc8610hpcd_diu_init();
-
-	/* fill in Graphic device struct */
-	sprintf(pGD->modeIdent,
-		"%dx%dx%d %ldkHz %ldHz",
-		xres, yres, 32, 64, 60);
-
-	pGD->frameAdrs = (unsigned int)fsl_fb_open(&info);
-	pGD->winSizeX = xres;
-	pGD->winSizeY = yres - info->logo_height;
-	pGD->plnSizeX = pGD->winSizeX;
-	pGD->plnSizeY = pGD->winSizeY;
-
-	pGD->gdfBytesPP = 4;
-	pGD->gdfIndex = GDF_32BIT_X888RGB;
-
-	pGD->isaBase = 0;
-	pGD->pciBase = 0;
-	pGD->memSize = info->screen_size - info->logo_size;
-
-	/* Cursor Start Address */
-	pGD->dprBase = 0;
-	pGD->vprBase = 0;
-	pGD->cprBase = 0;
-
-	return (void *)pGD;
-}
-
-#endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */
-
-#endif /* CONFIG_FSL_DIU_FB */

@@ -24,7 +24,7 @@
 #include <asm/bitops.h>
 #include <command.h>
 #include <i2c.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include "du440.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -265,8 +265,8 @@ int misc_init_r(void)
 	 * This fix will make the MAL burst disabling patch for the Linux
 	 * EMAC driver obsolete.
 	 */
-	reg = mfdcr(PLB4_ACR) & ~PLB4_ACR_WRP;
-	mtdcr(PLB4_ACR, reg);
+	reg = mfdcr(PLB4A0_ACR) & ~PLB4Ax_ACR_WRP_MASK;
+	mtdcr(PLB4A0_ACR, reg);
 
 	/*
 	 * release IO-RST#

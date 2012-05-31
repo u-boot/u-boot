@@ -42,6 +42,8 @@
 #define CONFIG_P3G4		1	/* this is a P3G4  board	*/
 #define CONFIG_SYS_GT_6426x        GT_64260 /* with a 64260 system controller */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115200	*/
 
 #undef	CONFIG_ECC			/* enable ECC support */
@@ -183,9 +185,8 @@
  * Definitions for initial stack pointer and data area
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define	CONFIG_SYS_INIT_RAM_END	0x1000
-#define	CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for init data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_RAM_LOCK
 
 
@@ -198,7 +199,7 @@
 #define CONFIG_SYS_FLASH_BASE		0xff000000
 #define CONFIG_SYS_RESET_ADDRESS	0xfff00100
 #define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc */
 
 /* areas to map different things with the GT in physical space */
@@ -420,14 +421,6 @@
 			 L2CR_L2OH_5 | L2CR_L2CTL | L2CR_L2WT)
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		    */
 
 #define CONFIG_SYS_BOARD_ASM_INIT      1
 

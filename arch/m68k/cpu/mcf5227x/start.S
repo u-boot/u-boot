@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <timestamp.h>
 #include "version.h"
@@ -44,8 +45,8 @@
 	rte;
 
 #if defined(CONFIG_CF_SBF)
-#define ASM_DRAMINIT	(asm_dram_init - TEXT_BASE + CONFIG_SYS_INIT_RAM_ADDR)
-#define ASM_SBF_IMG_HDR	(asm_sbf_img_hdr - TEXT_BASE + CONFIG_SYS_INIT_RAM_ADDR)
+#define ASM_DRAMINIT	(asm_dram_init - CONFIG_SYS_TEXT_BASE + CONFIG_SYS_INIT_RAM_ADDR)
+#define ASM_SBF_IMG_HDR	(asm_sbf_img_hdr - CONFIG_SYS_TEXT_BASE + CONFIG_SYS_INIT_RAM_ADDR)
 #endif
 
 .text
@@ -138,7 +139,7 @@ vector192_255:
 asm_sbf_img_hdr:
 	.long	0x00000000	/* checksum, not yet implemented */
 	.long	0x00020000	/* image length */
-	.long	TEXT_BASE	/* image to be relocated at */
+	.long	CONFIG_SYS_TEXT_BASE	/* image to be relocated at */
 
 asm_dram_init:
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_CTRL), %d0
@@ -330,7 +331,7 @@ asm_dspi_rd_loop2:
 	jsr	asm_dspi_rd_status
 
 	/* jump to memory and execute */
-	move.l	#(TEXT_BASE + 0x400), %a0
+	move.l	#(CONFIG_SYS_TEXT_BASE + 0x400), %a0
 	move.l	%a0, (%a1)
 	jmp	(%a0)
 
@@ -364,7 +365,7 @@ _start:
 
 	/* Set vector base register at the beginning of the Flash */
 #if defined(CONFIG_CF_SBF)
-	move.l	#TEXT_BASE, %d0
+	move.l	#CONFIG_SYS_TEXT_BASE, %d0
 	movec	%d0, %VBR
 #else
 	move.l	#CONFIG_SYS_FLASH_BASE, %d0

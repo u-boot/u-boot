@@ -44,8 +44,6 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 
 
 void local_bus_init(void);
-void sdram_init(void);
-long int fixed_sdram(void);
 
 
 /*
@@ -239,10 +237,10 @@ void reset_phy (void)
 	miiphy_reset("FCC1", 0x0);
 
 	/* change PHY address to 0x02 */
-	bb_miiphy_write(NULL, 0, PHY_MIPSCR, 0xf028);
+	bb_miiphy_write(NULL, 0, MII_MIPSCR, 0xf028);
 
-	bb_miiphy_write(NULL, 0x02, PHY_BMCR,
-			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	bb_miiphy_write(NULL, 0x02, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART);
 #endif /* CONFIG_MII */
 }
 
@@ -252,10 +250,10 @@ int checkboard (void)
 	puts("Board: ADS\n");
 
 #ifdef CONFIG_PCI
-	printf("    PCI1: 32 bit, %d MHz (compiled)\n",
+	printf("PCI1: 32 bit, %d MHz (compiled)\n",
 	       CONFIG_SYS_CLK_FREQ / 1000000);
 #else
-	printf("    PCI1: disabled\n");
+	printf("PCI1: disabled\n");
 #endif
 
 	/*
@@ -265,54 +263,6 @@ int checkboard (void)
 
 	return 0;
 }
-
-
-phys_size_t
-initdram(int board_type)
-{
-	long dram_size = 0;
-
-	puts("Initializing\n");
-
-#if defined(CONFIG_DDR_DLL)
-	{
-	    volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	    uint temp_ddrdll = 0;
-
-	    /*
-	     * Work around to stabilize DDR DLL
-	     */
-	    temp_ddrdll = gur->ddrdllcr;
-	    gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
-	    asm("sync;isync;msync");
-	}
-#endif
-
-#ifdef CONFIG_SPD_EEPROM
-	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-
-	dram_size *= 0x100000;
-#else
-	dram_size = fixed_sdram();
-#endif
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
-#endif
-
-	/*
-	 * Initialize SDRAM.
-	 */
-	sdram_init();
-
-	puts("    DDR: ");
-	return dram_size;
-}
-
 
 /*
  * Initialize Local Bus
@@ -377,15 +327,14 @@ local_bus_init(void)
 /*
  * Initialize SDRAM memory on the Local Bus.
  */
-
-void
-sdram_init(void)
+void lbc_sdram_init(void)
 {
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 
-	puts("    SDRAM: ");
-	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+	puts("LBC SDRAM: ");
+	print_size(CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024,
+		   "\n       ");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
@@ -437,7 +386,7 @@ sdram_init(void)
 /*************************************************************************
  *  fixed sdram init -- doesn't use serial presence detect.
  ************************************************************************/
-long int fixed_sdram (void)
+phys_size_t fixed_sdram(void)
 {
   #ifndef CONFIG_SYS_RAMBOOT
 	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);

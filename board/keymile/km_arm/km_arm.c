@@ -143,7 +143,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-int board_init(void)
+int board_early_init_f(void)
 {
 	u32 tmp;
 
@@ -160,14 +160,6 @@ int board_init(void)
 	writel(tmp & (~FLASH_GPIO_PIN) , KW_GPIO0_BASE + 4);
 	printf("KM: setting NAND mode\n");
 
-	/*
-	 * arch number of board
-	 */
-	gd->bd->bi_arch_number = MACH_TYPE_SUEN3;
-
-	/* address of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
-
 #if defined(CONFIG_SOFT_I2C)
 	/* init the GPIO for I2C Bitbang driver */
 	kw_gpio_set_valid(SUEN3_SDA_PIN, 1);
@@ -179,6 +171,20 @@ int board_init(void)
 	kw_gpio_set_valid(SUEN3_ENV_WP, 38);
 	kw_gpio_direction_output(SUEN3_ENV_WP, 1);
 #endif
+
+	return 0;
+}
+
+int board_init(void)
+{
+	/*
+	 * arch number of board
+	 */
+	gd->bd->bi_arch_number = MACH_TYPE_SUEN3;
+
+	/* address of boot parameters */
+	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+
 	return 0;
 }
 
@@ -227,14 +233,23 @@ U_BOOT_CMD(
 
 int dram_init(void)
 {
+	/* dram_init must store complete ramsize in gd->ram_size */
+	/* Fix this */
+	gd->ram_size = get_ram_size((volatile void *)kw_sdram_bar(0),
+				kw_sdram_bs(0));
+	return 0;
+}
+
+void dram_init_banksize(void)
+{
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		gd->bd->bi_dram[i].start = kw_sdram_bar(i);
+		gd->bd->bi_dram[i].size = kw_sdram_bs(i);
 		gd->bd->bi_dram[i].size = get_ram_size((long *)kw_sdram_bar(i),
 						       kw_sdram_bs(i));
 	}
-	return 0;
 }
 
 /* Configure and enable MV88E1118 PHY */

@@ -118,7 +118,7 @@ static int display_banner (void)
 	printf ("\n\n%s\n\n", version_string);
 	printf ("U-Boot code: %08lx -> %08lx  data: %08lx -> %08lx\n",
 		(unsigned long)_text, (unsigned long)_etext,
-		(unsigned long)_data, (unsigned long)_end);
+		(unsigned long)_data, (unsigned long)__bss_end__);
 	return 0;
 }
 
@@ -190,7 +190,7 @@ void board_init_f(ulong board_type)
 	 *  - stack
 	 */
 	addr = CONFIG_SYS_SDRAM_BASE + sdram_size;
-	monitor_len = _end - _text;
+	monitor_len = __bss_end__ - _text;
 
 	/*
 	 * Reserve memory for u-boot code, data and bss.
@@ -257,7 +257,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	extern char * env_name_spec;
 #endif
 	char *s;
-	cmd_tbl_t *cmdtp;
 	bd_t *bd;
 
 	gd = new_gd;
@@ -273,30 +272,13 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 
 	monitor_flash_len = _edata - _text;
 
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/*
 	 * We have to relocate the command table manually
 	 */
-	for (cmdtp = &__u_boot_cmd_start;
-	     cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
-		unsigned long addr;
-
-		addr = (unsigned long)cmdtp->cmd + gd->reloc_off;
-		cmdtp->cmd = (typeof(cmdtp->cmd))addr;
-
-		addr = (unsigned long)cmdtp->name + gd->reloc_off;
-		cmdtp->name = (typeof(cmdtp->name))addr;
-
-		if (cmdtp->usage) {
-			addr = (unsigned long)cmdtp->usage + gd->reloc_off;
-			cmdtp->usage = (typeof(cmdtp->usage))addr;
-		}
-#ifdef CONFIG_SYS_LONGHELP
-		if (cmdtp->help) {
-			addr = (unsigned long)cmdtp->help + gd->reloc_off;
-			cmdtp->help = (typeof(cmdtp->help))addr;
-		}
-#endif
-	}
+	fixup_cmdtable(&__u_boot_cmd_start,
+		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
+#endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
 
 	/* there are some other pointer constants we must deal with */
 #ifndef CONFIG_ENV_IS_NOWHERE

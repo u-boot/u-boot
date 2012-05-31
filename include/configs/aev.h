@@ -41,10 +41,18 @@
 #define CONFIG_AEVFIFO		1
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
-#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFC000000	boot low (standard configuration with room for
+ *		max 64 MByte Flash ROM)
+ * 0xFFF00000	boot high (for a backup copy of U-Boot)
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFC000000
+#endif
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /*
  * Serial console configuration
@@ -128,7 +136,7 @@
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
-#if (TEXT_BASE == 0xFC000000)		/* Boot low */
+#if (CONFIG_SYS_TEXT_BASE == 0xFC000000)		/* Boot low */
 #   define CONFIG_SYS_LOWBOOT		1
 #endif
 
@@ -221,7 +229,7 @@
 /*
  * Flash configuration
  */
-#define CONFIG_SYS_FLASH_BASE		TEXT_BASE /* 0xFC000000 */
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_TEXT_BASE /* 0xFC000000 */
 
 /* use CFI flash driver if no module variant is spezified */
 #define CONFIG_SYS_FLASH_CFI		1	/* Flash is CFI conformant */
@@ -263,17 +271,16 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #ifdef CONFIG_POST
 /* preserve space for the post_word at end of on-chip SRAM */
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_POST_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_POST_SIZE
 #else
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE
 #endif
 
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif
@@ -286,10 +293,11 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
+#define CONFIG_MPC5xxx_FEC_MII100
 /*
- * Define CONFIG_FEC_10MBIT to force FEC at 10Mb
+ * Define CONFIG_MPC5xxx_FEC_MII10 to force FEC at 10Mb
  */
-/* #define CONFIG_FEC_10MBIT 1 */
+/* #define CONFIG_MPC5xxx_FEC_MII10 */
 #define CONFIG_PHY_ADDR		0x00
 
 /*

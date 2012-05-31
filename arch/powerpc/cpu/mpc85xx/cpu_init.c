@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2003 Motorola Inc.
  * Modified by Xianghua Xiao, X.Xiao@motorola.com
@@ -39,6 +39,8 @@
 #include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+extern void srio_init(void);
 
 #ifdef CONFIG_QE
 extern qe_iop_conf_t qe_iop_conf_tab[];
@@ -140,6 +142,13 @@ static void enable_cpc(void)
 		u32 cpccfg0 = in_be32(&cpc->cpccfg0);
 		size += CPC_CFG0_SZ_K(cpccfg0);
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A002
+		setbits_be32(&cpc->cpchdbcr0, CPC_HDBCR0_TAG_ECC_SCRUB_DIS);
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A003
+		setbits_be32(&cpc->cpchdbcr0, CPC_HDBCR0_DATA_ECC_SCRUB_DIS);
+#endif
+
 		out_be32(&cpc->cpccsr0, CPC_CSR0_CE | CPC_CSR0_PE);
 		/* Read back to sync write */
 		in_be32(&cpc->cpccsr0);
@@ -232,6 +241,12 @@ void cpu_init_f (void)
 	invalidate_cpc();
 }
 
+/* Implement a dummy function for those platforms w/o SERDES */
+static void __fsl_serdes__init(void)
+{
+	return ;
+}
+__attribute__((weak, alias("__fsl_serdes__init"))) void fsl_serdes_init(void);
 
 /*
  * Initialize L2 as cache.
@@ -327,7 +342,7 @@ int cpu_init_r(void)
 	if (l2cache->l2ctl & MPC85xx_L2CTL_L2E) {
 		puts("already enabled");
 		l2srbar = l2cache->l2srbar0;
-#ifdef CONFIG_SYS_INIT_L2_ADDR
+#if defined(CONFIG_SYS_INIT_L2_ADDR) && defined(CONFIG_SYS_FLASH_BASE)
 		if (l2cache->l2ctl & MPC85xx_L2CTL_L2SRAM_ENTIRE
 				&& l2srbar >= CONFIG_SYS_FLASH_BASE) {
 			l2srbar = CONFIG_SYS_INIT_L2_ADDR;
@@ -375,13 +390,23 @@ int cpu_init_r(void)
 	qe_reset();
 #endif
 
-#if defined(CONFIG_SYS_HAS_SERDES)
 	/* needs to be in ram since code uses global static vars */
 	fsl_serdes_init();
+
+#ifdef CONFIG_SYS_SRIO
+	srio_init();
 #endif
 
 #if defined(CONFIG_MP)
 	setup_mp();
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC136
+	{
+		void *p;
+		p = (void *)CONFIG_SYS_DCSRBAR + 0x20520;
+		setbits_be32(p, 1 << (31 - 14));
+	}
 #endif
 
 #ifdef CONFIG_SYS_LBC_LCRR

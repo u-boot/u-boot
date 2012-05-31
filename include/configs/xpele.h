@@ -24,10 +24,14 @@
 # include "../board/xilinx/dfe/xparameters_zynq.h"
 #endif
 
+#define CONFIG_SYS_TEXT_BASE 0x04000000
+
 /*
  * Open Firmware flat tree
  */
 #define CONFIG_OF_LIBFDT                1
+/* TODO: After upgrade to v2011.09, remove this and set fdt_high env var instead */
+#define CONFIG_SYS_BOOTMAPSZ	(16 << 20) /* Initial Memory map for Linux*/
 
 /* Default environment */
 #define CONFIG_IPADDR   10.10.70.102
@@ -85,6 +89,9 @@
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC
 
+/* Uncomment it if you don't want Flash */
+//#define CONFIG_SYS_NO_FLASH	
+
 #include <config_cmd_default.h>	
 #define CONFIG_CMD_DATE		/* RTC? */
 #define CONFIG_CMD_PING		/* Might be useful for debugging */
@@ -106,9 +113,6 @@
 #define CONFIG_SYS_PROMPT	"pele-boot> "
 
 #undef CONFIG_SKIP_RELOCATE_UBOOT	
-
-/* Uncomment it if you don't want Flash */
-//#define CONFIG_SYS_NO_FLASH	
 
 #define CONFIG_SYS_SDRAM_BASE	0
 
@@ -155,8 +159,11 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32 /* Assuming bytes? */
 
-/* CONFIG_SYS_INIT_RAM_ADDR? */
-/* CONFIG_SYS_GLOBAL_DATA_OFFSET? */
+#define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
+					CONFIG_SYS_INIT_RAM_SIZE - \
+					GENERATED_GBL_DATA_SIZE)
 
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 //#define CONFIG_SKIP_LOWLEVEL_INIT	
@@ -173,6 +180,13 @@
 #endif
 #define CONFIG_TTC0	1
 #define CONFIG_GEM0	1
+#define CONFIG_NET_MULTI
+
+#ifdef CONFIG_EP107
+# define CONFIG_XGMAC_PHY_ADDR 0x17
+#else
+# define CONFIG_XGMAC_PHY_ADDR 0x7
+#endif
 
 #define TIMER_INPUT_CLOCK               XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ / 2
 #define CONFIG_TIMER_PRESCALE           255
@@ -195,7 +209,6 @@
 #define CONFIG_ENV_SIZE			0x10000
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_MALLOC_LEN		0x400000
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* phycore */

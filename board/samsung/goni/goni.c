@@ -43,14 +43,20 @@ int board_init(void)
 
 int dram_init(void)
 {
+	gd->ram_size = PHYS_SDRAM_1_SIZE + PHYS_SDRAM_2_SIZE +
+			PHYS_SDRAM_3_SIZE;
+
+	return 0;
+}
+
+void dram_init_banksize(void)
+{
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
 	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
 	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
 	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
-
-	return 0;
 }
 
 #ifdef CONFIG_DISPLAY_BOARDINFO
@@ -87,6 +93,6 @@ int board_mmc_init(bd_t *bis)
 		gpio_set_drv(&s5pc110_gpio->g0, i, GPIO_DRV_4X);
 	}
 
-	return s5p_mmc_init(0);
+	return s5p_mmc_init(0, 4);
 }
 #endif

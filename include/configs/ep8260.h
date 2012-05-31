@@ -48,6 +48,8 @@
 #define CONFIG_SYS_EP8260_H2	1
 /* #undef CONFIG_SYS_EP8260_H2  */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /* What is the oscillator's (UX2) frequency in Hz? */
@@ -97,7 +99,7 @@
 #define CONFIG_SYS_RESET_ADDRESS	0xFFF00100
 
 /* What should the base address of the main FLASH be and how big is
- * it (in MBytes)? This must contain TEXT_BASE from board/ep8260/config.mk
+ * it (in MBytes)? This must contain CONFIG_SYS_TEXT_BASE from board/ep8260/config.mk
  * The main FLASH is whichever is connected to *CS0. U-Boot expects
  * this to be the SIMM.
  */
@@ -427,9 +429,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR       CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END        0x4000  /* End of used area in DPRAM    */
-#define CONFIG_SYS_GBL_DATA_SIZE      128     /* bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE        0x4000  /* Size of used area in DPRAM    */
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET      CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -438,7 +439,7 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  * Note also that the logic that sets CONFIG_SYS_RAMBOOT is platform dependent.
  */
-#define CONFIG_SYS_MONITOR_BASE          TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE          CONFIG_SYS_TEXT_BASE
 
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
@@ -744,14 +745,6 @@
 			   ORxG_SETA                   |\
 			   ORxG_SCY_10_CLK)
 #endif
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD   0x01    /* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM   0x02    /* Software reboot                   */
 
 /*
  * JFFS2 partitions

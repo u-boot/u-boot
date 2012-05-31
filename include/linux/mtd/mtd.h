@@ -208,10 +208,6 @@ struct mtd_info {
 	int (*lock) (struct mtd_info *mtd, loff_t ofs, uint64_t len);
 	int (*unlock) (struct mtd_info *mtd, loff_t ofs, uint64_t len);
 
-	/* Power Management functions */
-	int (*suspend) (struct mtd_info *mtd);
-	void (*resume) (struct mtd_info *mtd);
-
 	/* Bad block management functions */
 	int (*block_isbad) (struct mtd_info *mtd, loff_t ofs);
 	int (*block_markbad) (struct mtd_info *mtd, loff_t ofs);
@@ -259,7 +255,9 @@ extern struct mtd_info *get_mtd_device(struct mtd_info *mtd, int num);
 extern struct mtd_info *get_mtd_device_nm(const char *name);
 
 extern void put_mtd_device(struct mtd_info *mtd);
-
+extern void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
+				 const uint64_t length, uint64_t *len_incl_bad,
+				 int *truncated);
 /* XXX U-BOOT XXX */
 #if 0
 struct mtd_notifier {

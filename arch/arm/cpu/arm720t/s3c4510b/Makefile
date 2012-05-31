@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).a
+LIB	= $(obj)lib$(SOC).o
 
 COBJS-y	+= cache.o
 
@@ -33,7 +33,7 @@ OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

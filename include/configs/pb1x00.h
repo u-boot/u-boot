@@ -104,7 +104,7 @@
 #define PHYS_FLASH_2		0xbfc00000 /* Flash Bank #2 */
 
 /* The following #defines are needed to get flash environment right */
-#define	CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
 #define CONFIG_SYS_INIT_SP_OFFSET	0x4000000

@@ -42,6 +42,12 @@
 
 #define USB_CNTL_TIMEOUT 100 /* 100ms timeout */
 
+/*
+ * This is the timeout to allow for submitting an urb in ms. We allow more
+ * time for a BULK device to react - some are slow.
+ */
+#define USB_TIMEOUT_MS(pipe) (usb_pipebulk(pipe) ? 5000 : 100)
+
 /* device request (setup) */
 struct devrequest {
 	unsigned char	requesttype;
@@ -162,6 +168,13 @@ int usb_stor_info(void);
 
 #endif
 
+#ifdef CONFIG_USB_HOST_ETHER
+
+#define USB_MAX_ETH_DEV 5
+int usb_host_eth_scan(int mode);
+
+#endif
+
 #ifdef CONFIG_USB_KEYBOARD
 
 int drv_usb_kbd_init(void);
@@ -185,7 +198,7 @@ int usb_bulk_msg(struct usb_device *dev, unsigned int pipe,
 			void *data, int len, int *actual_length, int timeout);
 int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int transfer_len, int interval);
-void usb_disable_asynch(int disable);
+int usb_disable_asynch(int disable);
 int usb_maxpacket(struct usb_device *dev, unsigned long pipe);
 inline void wait_ms(unsigned long ms);
 int usb_get_configuration_no(struct usb_device *dev, unsigned char *buffer,

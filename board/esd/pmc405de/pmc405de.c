@@ -26,7 +26,7 @@
 #include <fdt_support.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/4xx_pci.h>
 #include <command.h>
 #include <malloc.h>

@@ -29,7 +29,7 @@
 #include <asm/io.h>
 #include <spi.h>
 #include <netdev.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 extern int lcd_init(void);
 

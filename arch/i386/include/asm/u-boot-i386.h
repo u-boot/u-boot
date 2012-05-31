@@ -25,7 +25,9 @@
 #define _U_BOOT_I386_H_	1
 
 /* cpu/.../cpu.c */
+int x86_cpu_init_r(void);
 int cpu_init_r(void);
+int x86_cpu_init_f(void);
 int cpu_init_f(void);
 
 /* cpu/.../timer.c */
@@ -35,6 +37,7 @@ int register_timer_isr (timer_fnc_t *isr_func);
 
 /* Architecture specific - can be in arch/i386/cpu/, arch/i386/lib/, or $(BOARD)/ */
 int timer_init(void);
+int dram_init_f(void);
 
 /* cpu/.../interrupts.c */
 int cpu_init_interrupts(void);

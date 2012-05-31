@@ -40,6 +40,8 @@
 #define CONFIG_MPC8245		1
 #define CONFIG_EXALION		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #if defined (CONFIG_MPC8240)
     /* #warning	 ---------- eXalion with MPC8240 --------------- */
 #elif defined (CONFIG_MPC8245)
@@ -109,7 +111,7 @@
 
 #undef	CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	    */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area
@@ -117,11 +119,10 @@
 #define CONFIG_SYS_INIT_DATA_SIZE	128
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_END	0x1000
-#define CONFIG_SYS_INIT_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_INIT_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_INIT_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_INIT_DATA_SIZE)
 
-#define CONFIG_SYS_GBL_DATA_SIZE	 256	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 
@@ -411,16 +412,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
-
-
-/*-----------------------------------------------------------------------
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
 
 /* values according to the manual */
 #define CONFIG_DRAM_50MHZ	1

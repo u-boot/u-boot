@@ -37,12 +37,11 @@
 #define CONFIG_MPC5200_DDR	1	/* ... use DDR RAM */
 #define CONFIG_IPEK01           	/* Motherboard is ipek01 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfc000000
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33MHz */
 
 #define CONFIG_MISC_INIT_R
-
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 #define CONFIG_SYS_CACHELINE_SIZE	32 /* For MPC5xxx CPUs */
 #ifdef CONFIG_CMD_KGDB
@@ -265,16 +264,15 @@
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 /* End of used area in DPRAM */
-#define CONFIG_SYS_INIT_RAM_END		MPC5XXX_SRAM_SIZE
+#define CONFIG_SYS_INIT_RAM_SIZE		MPC5XXX_SRAM_SIZE
 
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - \
-					 CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

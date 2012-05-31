@@ -27,6 +27,7 @@ _depend:	$(obj).depend
 
 $(obj).depend:	$(src)Makefile $(TOPDIR)/config.mk $(SRCS) $(HOSTSRCS)
 		@rm -f $@
+		@touch $@
 		@for f in $(SRCS); do \
 			g=`basename $$f | sed -e 's/\(.*\)\.\w/\1.o/'`; \
 			$(CC) -M $(CPPFLAGS) -MQ $(obj)$$g $$f >> $@ ; \

@@ -39,7 +39,6 @@
  * we use lowlevel_init (!CONFIG_SKIP_LOWLEVEL_INIT) to remedy that problem.
  */
 #undef  CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT	1
 
 /*
  * High Level Configuration Options
@@ -60,7 +59,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN          (CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE       128     /* size rsrvd for initial data */
 
 
 /*

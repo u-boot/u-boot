@@ -147,7 +147,7 @@ struct ethernet_regs {
 
 	uint32_t res14[7];		/* MBAR_ETH + 0x2E4-2FC */
 
-#ifdef CONFIG_MX25
+#if defined(CONFIG_MX25) || defined(CONFIG_MX53)
 	uint16_t miigsk_cfgr;		/* MBAR_ETH + 0x300 */
 	uint16_t res15[3];		/* MBAR_ETH + 0x302-306 */
 	uint16_t miigsk_enr;		/* MBAR_ETH + 0x308 */
@@ -204,7 +204,7 @@ struct ethernet_regs {
 #define FEC_ECNTRL_RESET		0x00000001	/* reset the FEC */
 #define FEC_ECNTRL_ETHER_EN		0x00000002	/* enable the FEC */
 
-#ifdef CONFIG_MX25
+#if defined(CONFIG_MX25) || defined(CONFIG_MX53)
 /* defines for MIIGSK */
 /* RMII frequency control: 0=50MHz, 1=5MHz */
 #define MIIGSK_CFGR_FRCONT		(1 << 6)

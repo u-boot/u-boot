@@ -40,6 +40,8 @@
 
 #define CONFIG_UC100		1	/* ...on a UC100 module	        */
 
+#define	CONFIG_SYS_TEXT_BASE	0x40700000
+
 #define MPC8XX_FACT		4		/* Multiply by 4	*/
 #define MPC8XX_XIN		25000000	/* 25.0 MHz in		*/
 #define CONFIG_8xx_GCLK_FREQ	(MPC8XX_FACT * MPC8XX_XIN)
@@ -198,9 +200,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -498,14 +499,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* takes up to 10 msec	*/
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #define	CONFIG_FEC_ENET		1	/* use FEC ethernet  */
 #define FEC_ENET

@@ -95,7 +95,7 @@ void board_init (void)
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-	memset( gd, 0, CONFIG_SYS_GBL_DATA_SIZE );
+	memset( gd, 0, GENERATED_GBL_DATA_SIZE );
 
 	gd->bd = (bd_t *)(gd+1);	/* At end of global data */
 	gd->baudrate = CONFIG_BAUDRATE;

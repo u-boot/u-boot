@@ -36,6 +36,8 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_DU405		1	/* ...on a DU405 board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFD0000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R      1       /* call misc_init_r()           */
 
@@ -73,6 +75,11 @@
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_EDITENV
+#undef CONFIG_CMD_IMLS
+#undef CONFIG_CMD_CONSOLE
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_LOADS
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_MII
@@ -109,6 +116,12 @@
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	11059200  /* use external serial clock	*/
 
 /* The following table includes the supported baudrates */
@@ -124,32 +137,6 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
-
-/*-----------------------------------------------------------------------
- * PCI stuff
- *-----------------------------------------------------------------------
- */
-#define PCI_HOST_ADAPTER 0		/* configure ar pci adapter	*/
-#define PCI_HOST_FORCE	1		/* configure as pci host	*/
-#define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
-
-#define CONFIG_PCI			/* include pci support		*/
-#define CONFIG_PCI_HOST PCI_HOST_AUTO	/* select pci host function	*/
-#define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
-					/* resource configuration	*/
-
-#define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
-
-#define CONFIG_PCI_BOOTDELAY	0	/* enable pci bootdelay variable*/
-
-#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh	*/
-#define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0x0404	/* PCI Device ID: CPCI-ISER4	*/
-#define CONFIG_SYS_PCI_PTM1LA	0x00000000	/* point to sdram		*/
-#define CONFIG_SYS_PCI_PTM1MS	0xff000001	/* 16MB, enable hard-wired to 1 */
-#define CONFIG_SYS_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
-#define CONFIG_SYS_PCI_PTM2LA	0xffe00000	/* point to flash		*/
-#define CONFIG_SYS_PCI_PTM2MS	0xffe00001	/* 2MB, enable			*/
-#define CONFIG_SYS_PCI_PTM2PCI 0x04000000	/* Host: use this pci address	*/
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff
@@ -299,18 +286,8 @@
 #define CONFIG_SYS_OCM_DATA_SIZE	0x1000
 
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of SDRAM		*/
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE /* Size of used area in RAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
-
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

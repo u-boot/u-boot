@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007 Freescale Semiconductor.
+ * Copyright 2004, 2007, 2010-2011 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -36,10 +36,16 @@
 #define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_MPC8548CDS	1	/* MPC8548CDS board specific */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xfff80000
+#endif
+
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
+
 #define CONFIG_PCI		/* enable any pci type devices */
 #define CONFIG_PCI1		/* PCI controller 1 */
 #define CONFIG_PCIE1		/* PCIE controler 1 (slot 1) */
-#undef CONFIG_RIO
 #undef CONFIG_PCI2
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
@@ -85,7 +91,7 @@ extern unsigned long get_clock_freq(void);
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_SPD
-#define CONFIG_DDR_DLL			/* possible DLL fix needed */
+#define CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN	/* possible DLL fix needed */
 
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
@@ -157,7 +163,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -269,12 +275,11 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
 
 #define CONFIG_SYS_INIT_L2_ADDR	0xf8f80000	/* relocate boot L2SRAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
@@ -282,7 +287,6 @@ extern unsigned long get_clock_freq(void);
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX	2
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -351,6 +355,7 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #ifdef CONFIG_PCIE1
+#define CONFIG_SYS_PCIE1_NAME		"Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
@@ -361,14 +366,13 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
 #endif
 
-#ifdef CONFIG_RIO
 /*
  * RapidIO MMU
  */
-#define CONFIG_SYS_RIO_MEM_VIRT	0xC0000000
-#define CONFIG_SYS_RIO_MEM_BUS	0xC0000000
-#define CONFIG_SYS_RIO_MEM_SIZE	0x20000000	/* 512M */
-#endif
+#define CONFIG_SYS_SRIO1_MEM_VIRT	0xC0000000
+#define CONFIG_SYS_SRIO1_MEM_BUS	0xC0000000
+#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BUS
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
 #ifdef CONFIG_LEGACY
 #define BRIDGE_ID 17
@@ -491,14 +495,7 @@ extern unsigned long get_clock_freq(void);
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
+#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
@@ -543,11 +540,11 @@ extern unsigned long get_clock_freq(void);
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
+	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
  "consoledev=ttyS1\0"				\
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=ramdisk.uboot\0"			\

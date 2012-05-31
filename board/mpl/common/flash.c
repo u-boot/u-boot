@@ -38,7 +38,7 @@
 #include <common.h>
 
 #if !defined(CONFIG_PATI)
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
 #include "common_util.h"
 #if defined(CONFIG_MIP405)

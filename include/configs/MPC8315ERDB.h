@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright (C) 2007-2010 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  *
@@ -25,9 +25,26 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_MK_NAND
-#define CONFIG_NAND_U_BOOT		1
-#define CONFIG_RAMBOOT_TEXT_BASE	0x00100000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE  (512 << 10)
+#define CONFIG_SYS_NAND_U_BOOT_DST   0x00100000
+#define CONFIG_SYS_NAND_U_BOOT_START 0x00100100
+#define CONFIG_SYS_NAND_U_BOOT_OFFS  16384
+#define CONFIG_SYS_NAND_U_BOOT_RELOC 0x00010000
+
+#ifdef CONFIG_NAND_U_BOOT
+#define CONFIG_SYS_TEXT_BASE	0x00100000 /* CONFIG_SYS_NAND_U_BOOT_DST */
+#define CONFIG_SYS_TEXT_BASE_SPL 0xfff00000
+#ifdef CONFIG_NAND_SPL
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE_SPL /* start of monitor */
+#endif /* CONFIG_NAND_SPL */
+#endif /* CONFIG_NAND_U_BOOT */
+
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFE000000
+#endif
+
+#ifndef CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
 /*
@@ -177,8 +194,6 @@
 /*
  * The reserved memory
  */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE /* start of monitor */
-
 #define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve 384 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024) /* Reserved for malloc */
 
@@ -187,9 +202,8 @@
  */
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_END	0x1000 /* End of used area in RAM */
-#define CONFIG_SYS_GBL_DATA_SIZE	0x100 /* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
  * Local Bus Configuration & Clock Setup
@@ -242,6 +256,13 @@
 #else
 #define CONFIG_SYS_NAND_BASE		0xE0600000
 #endif
+
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITION
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nand0=e0600000.flash"
+#define MTDPARTS_DEFAULT 		\
+	"mtdparts=e0600000.flash:512k(uboot),128k(env),3m@1m(kernel),-(fs)"
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE	1
@@ -298,7 +319,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -529,10 +549,10 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ		(8 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(256 << 20) /* Initial Memory map for Linux */
 
 /*
  * Core HID Setup
@@ -597,14 +617,6 @@
 #define CONFIG_SYS_IBAT7U	0
 #define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
 #define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01 /* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02 /* Software reboot */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */

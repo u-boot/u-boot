@@ -37,6 +37,8 @@
 #define CONFIG_HYMOD		1	/* ...on a Hymod board		*/
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 
 #define CONFIG_BOARD_POSTCLK_INIT	/* have board_postclk_init() function */
@@ -375,9 +377,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x4000	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x4000	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -386,8 +387,8 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
 #define	CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_FLASH_BASE		TEXT_BASE
-#define	CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_TEXT_BASE
+#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_FPGA_BASE		0x80000000
 /*
  * unfortunately, CONFIG_SYS_MONITOR_LEN must include the
@@ -726,14 +727,6 @@
  * FPGA Interrupt configuration
  */
 #define FPGA_MAIN_IRQ		SIU_INT_IRQ2
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot		*/
 
 /*
  * JFFS2 partitions

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -46,6 +46,40 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
 	puts("Work-around for Erratum CPU22 enabled\n");
+#endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN)
+	puts("Work-around for DDR MSYNC_IN Erratum enabled\n");
+#endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC111)
+	puts("Work-around for Erratum ESDHC111 enabled\n");
+#endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC135)
+	puts("Work-around for Erratum ESDHC135 enabled\n");
+#endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC136)
+	puts("Work-around for Erratum ESDHC136 enabled\n");
+#endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC_A001)
+	puts("Work-around for Erratum ESDHC-A001 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A002
+	puts("Work-around for Erratum CPC-A002 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A003
+	puts("Work-around for Erratum CPC-A003 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_ELBC_A001
+	puts("Work-around for Erratum ELBC-A001 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003
+	puts("Work-around for Erratum DDR-A003 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR_115
+	puts("Work-around for Erratum DDR115 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	puts("Work-around for Erratum DDR111 enabled\n");
+	puts("Work-around for Erratum DDR134 enabled\n");
 #endif
 	return 0;
 }

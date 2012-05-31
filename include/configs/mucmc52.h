@@ -35,6 +35,10 @@
 #define	CONFIG_MUCMC52		1	/* MUCMC52 board	*/
 #define	CONFIG_HOSTNAME		mucmc52
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000
+#endif
+
 #include "manroland/common.h"
 #include "manroland/mpc5200-common.h"
 
@@ -79,6 +83,8 @@
 /* 8Mbit SRAM @0x80100000 */
 #define	CONFIG_SYS_CS1_SIZE		0x00100000
 #define	CONFIG_SYS_CS1_CFG		0x00019B00
+
+#define CONFIG_SYS_SRAM_SIZE		CONFIG_SYS_CS1_SIZE
 
 /* FRAM 32Kbyte @0x80700000 */
 #define	CONFIG_SYS_CS2_START		0x80700000

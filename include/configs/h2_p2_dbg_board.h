@@ -31,7 +31,7 @@
 #ifndef __INCLUDED_H2_P2_DBH_BOARD_H
 #define __INCLUDED_H2_P2_DBH_BOARD_H
 
-#include <asm/arch/sizes.h>
+#include <asm/sizes.h>
 
 /*
  * The Debug board is designed to function with the P2 Sample, H2

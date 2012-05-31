@@ -40,8 +40,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#undef CONFIG_SKIP_RELOCATE_UBOOT
-
 /* input clock of PLL: has 24MHz input clock at S5PC110 */
 #define CONFIG_SYS_CLK_FREQ_C110	24000000
 
@@ -58,7 +56,6 @@
  * 1MB = 0x100000, 0x100000 = 1024 * 1024
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes for */
 						/* initial data */
 /*
  * select serial console configuration
@@ -71,6 +68,9 @@
 #define CONFIG_GENERIC_MMC		1
 #define CONFIG_MMC			1
 #define CONFIG_S5P_MMC			1
+
+/* PWM */
+#define CONFIG_PWM			1
 
 /* It should define before config_cmd_default.h */
 #define CONFIG_SYS_NO_FLASH		1
@@ -219,5 +219,7 @@
 #define CONFIG_SYS_ONENAND_BASE		0xB0000000
 
 #define CONFIG_DOS_PARTITION		1
+
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
 #endif	/* __CONFIG_H */

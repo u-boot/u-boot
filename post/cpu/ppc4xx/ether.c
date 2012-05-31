@@ -34,7 +34,10 @@
  * are transmitted. The configurable test parameters are:
  *   MIN_PACKET_LENGTH - minimum size of packet to transmit
  *   MAX_PACKET_LENGTH - maximum size of packet to transmit
- *   TEST_NUM - number of tests
+ *   CONFIG_SYS_POST_ETH_LOOPS - Number of test loops. Each loop
+ *     is tested with a different frame length. Starting with
+ *     MAX_PACKET_LENGTH and going down to MIN_PACKET_LENGTH.
+ *     Defaults to 10 and can be overriden in the board config header.
  */
 
 #include <post.h>
@@ -44,8 +47,8 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/processor.h>
-#include <405_mal.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-mal.h>
+#include <asm/ppc4xx-emac.h>
 #include <malloc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -77,8 +80,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #define MIN_PACKET_LENGTH	64
-#define MAX_PACKET_LENGTH	256
-#define TEST_NUM		1
+#define MAX_PACKET_LENGTH	1514
+#ifndef CONFIG_SYS_POST_ETH_LOOPS
+#define CONFIG_SYS_POST_ETH_LOOPS	10
+#endif
+#define PACKET_INCR	((MAX_PACKET_LENGTH - MIN_PACKET_LENGTH) / \
+			 CONFIG_SYS_POST_ETH_LOOPS)
 
 static volatile mal_desc_t tx __cacheline_aligned;
 static volatile mal_desc_t rx __cacheline_aligned;
@@ -361,29 +368,27 @@ static int packet_check (char *packet, int length)
 	return 0;
 }
 
+	char packet_send[MAX_PACKET_LENGTH];
+	char packet_recv[MAX_PACKET_LENGTH];
 static int test_ctlr (int devnum, int hw_addr)
 {
 	int res = -1;
-	char packet_send[MAX_PACKET_LENGTH];
-	char packet_recv[MAX_PACKET_LENGTH];
 	int length;
-	int i;
 	int l;
 
 	ether_post_init (devnum, hw_addr);
 
-	for (i = 0; i < TEST_NUM; i++) {
-		for (l = MIN_PACKET_LENGTH; l <= MAX_PACKET_LENGTH; l++) {
-			packet_fill (packet_send, l);
+	for (l = MAX_PACKET_LENGTH; l >= MIN_PACKET_LENGTH;
+	     l -= PACKET_INCR) {
+		packet_fill (packet_send, l);
 
-			ether_post_send (devnum, hw_addr, packet_send, l);
+		ether_post_send (devnum, hw_addr, packet_send, l);
 
-			length = ether_post_recv (devnum, hw_addr, packet_recv,
-						  sizeof (packet_recv));
+		length = ether_post_recv (devnum, hw_addr, packet_recv,
+					  sizeof (packet_recv));
 
-			if (length != l || packet_check (packet_recv, length) < 0) {
-				goto Done;
-			}
+		if (length != l || packet_check (packet_recv, length) < 0) {
+			goto Done;
 		}
 	}
 

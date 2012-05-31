@@ -67,7 +67,6 @@
  */
 #define CONFIG_ENV_SIZE			(256 << 10)
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (256 << 10))
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 /* Vector Base */
 #define CONFIG_SYS_CA9_VECTOR_BASE	SRAM_ROM_VECT_BASE
@@ -89,7 +88,6 @@
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 
 #define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
@@ -107,8 +105,9 @@
 #define CONFIG_TWL6030_POWER		1
 
 /* MMC */
+#define CONFIG_GENERIC_MMC		1
 #define CONFIG_MMC			1
-#define CONFIG_OMAP3_MMC		1
+#define CONFIG_OMAP_HSMMC		1
 #define CONFIG_SYS_MMC_SET_DEV		1
 #define CONFIG_DOS_PARTITION		1
 
@@ -120,11 +119,6 @@
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
-/* Change these to suit your needs */
-#define CONFIG_USBD_VENDORID		0x0451
-#define CONFIG_USBD_PRODUCTID		0x5678
-#define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
-#define CONFIG_USBD_PRODUCT_NAME	"OMAP4 Panda"
 
 /* Flash */
 #define CONFIG_SYS_NO_FLASH	1
@@ -140,14 +134,9 @@
 
 /* Disabled commands */
 #undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support   */
 #undef CONFIG_CMD_IMLS		/* List all found images        */
-
-/*
- * Enabling relocation of u-boot by default
- * Relocation can be skipped if u-boot is copied to the TEXT_BASE
- */
-#undef CONFIG_SKIP_RELOCATE_UBOOT
 
 /*
  * Environment setup
@@ -155,7 +144,6 @@
 
 #define CONFIG_BOOTDELAY	3
 
-/* allow overwriting serial config and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -163,7 +151,7 @@
 	"console=ttyS2,115200n8\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
-	"mmcdev=1\0" \
+	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
@@ -179,7 +167,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc init ${mmcdev}; then " \
+	"if mmc rescan ${mmcdev}; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
@@ -238,5 +226,12 @@
  * is mapped to one contiguous block
  */
 #define CONFIG_NR_DRAM_BANKS	1
+
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_INIT_RAM_ADDR	0x4030D800
+#define CONFIG_SYS_INIT_RAM_SIZE	0x800
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */

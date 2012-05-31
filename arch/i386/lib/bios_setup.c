@@ -45,8 +45,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BIOS_BASE        ((char*)0xf0000)
 #define BIOS_CS          0xf000
 
-extern ulong _i386boot_bios;
-extern ulong _i386boot_bios_size;
+extern ulong __bios_start;
+extern ulong __bios_size;
 
 /* these are defined in a 16bit segment and needs
  * to be accessed with the RELOC_16_xxxx() macros below
@@ -141,8 +141,8 @@ static void setvector(int vector, u16 segment, void *handler)
 
 int bios_setup(void)
 {
-	ulong i386boot_bios      = (ulong)&_i386boot_bios + gd->reloc_off;
-	ulong i386boot_bios_size = (ulong)&_i386boot_bios_size;
+	ulong bios_start = (ulong)&__bios_start + gd->reloc_off;
+	ulong bios_size = (ulong)&__bios_size;
 
 	static int done=0;
 	int vector;
@@ -154,13 +154,13 @@ int bios_setup(void)
 	}
 	done = 1;
 
-	if (i386boot_bios_size > 65536) {
+	if (bios_size > 65536) {
 		printf("BIOS too large (%ld bytes, max is 65536)\n",
-		       i386boot_bios_size);
+		       bios_size);
 		return -1;
 	}
 
-	memcpy(BIOS_BASE, (void*)i386boot_bios, i386boot_bios_size);
+	memcpy(BIOS_BASE, (void*)bios_start, bios_size);
 
 	/* clear bda */
 	memset(BIOS_DATA, 0, BIOS_DATA_SIZE);

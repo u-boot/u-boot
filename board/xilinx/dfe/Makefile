@@ -26,16 +26,19 @@ ifneq ($(OBJTREE),$(SRCTREE))
 $(shell mkdir -p $(obj)../common)
 endif
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= board.o \
+COBJS-y	:= board.o \
 	   xemacpss_g.o xemacpss_control.o xemacpss_sinit.o \
 	   xemacpss_bdring.o xemacpss.o xgmac.o \
-	   xilinx_nandpss.o \
 	   xilinx_qspipss.o \
 	   pele_qspi.o \
 	   mmc.o \
 	   ../common/xbasic_types.o
+
+COBJS-$(CONFIG_CMD_NAND) += xilinx_nandpss.o
+
+COBJS	:= $(sort $(COBJS-y))
 
 SOBJS	:= lowlevel_init.o
 
@@ -44,7 +47,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
+	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

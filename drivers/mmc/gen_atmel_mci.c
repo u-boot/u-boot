@@ -308,6 +308,7 @@ static int mci_init(struct mmc *mmc)
 	writel(MMCI_BIT(SWRST), &mci->cr);	/* soft reset */
 	writel(MMCI_BIT(PWSDIS), &mci->cr);	/* disable power save */
 	writel(MMCI_BIT(MCIEN), &mci->cr);	/* enable mci */
+	writel(MMCI_BF(SCDSEL, MCI_BUS), &mci->sdcr);	/* select port */
 
 	/* Initial Time-outs */
 	writel(0x5f, &mci->dtor);

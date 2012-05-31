@@ -25,6 +25,15 @@
 #include <asm/system.h>
 
 #if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
+
+#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
+#define CACHE_SETUP	0x1a
+#else
+#define CACHE_SETUP	0x1e
+#endif
+
+DECLARE_GLOBAL_DATA_PTR;
+
 static void cp_delay (void)
 {
 	volatile int i;
@@ -32,6 +41,48 @@ static void cp_delay (void)
 	/* copro seems to need some delay between reading and writing */
 	for (i = 0; i < 100; i++)
 		nop();
+	asm volatile("" : : : "memory");
+}
+
+static inline void dram_bank_mmu_setup(int bank)
+{
+	u32 *page_table = (u32 *)gd->tlb_addr;
+	bd_t *bd = gd->bd;
+	int	i;
+
+	debug("%s: bank: %d\n", __func__, bank);
+	for (i = bd->bi_dram[bank].start >> 20;
+	     i < (bd->bi_dram[bank].start + bd->bi_dram[bank].size) >> 20;
+	     i++) {
+		page_table[i] = i << 20 | (3 << 10) | CACHE_SETUP;
+	}
+}
+
+/* to activate the MMU we need to set up virtual memory: use 1M areas */
+static inline void mmu_setup(void)
+{
+	u32 *page_table = (u32 *)gd->tlb_addr;
+	int i;
+	u32 reg;
+
+	/* Set up an identity-mapping for all 4GB, rw for everyone */
+	for (i = 0; i < 4096; i++)
+		page_table[i] = i << 20 | (3 << 10) | 0x12;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		dram_bank_mmu_setup(i);
+	}
+
+	/* Copy the page table address to cp15 */
+	asm volatile("mcr p15, 0, %0, c2, c0, 0"
+		     : : "r" (page_table) : "memory");
+	/* Set the access control to all-supervisor */
+	asm volatile("mcr p15, 0, %0, c3, c0, 0"
+		     : : "r" (~0));
+	/* and enable the mmu */
+	reg = get_cr();	/* get control reg. */
+	cp_delay();
+	set_cr(reg | CR_M);
 }
 
 /* cache_bit must be either CR_I or CR_C */
@@ -39,6 +90,9 @@ static void cache_enable(uint32_t cache_bit)
 {
 	uint32_t reg;
 
+	/* The data cache is not active unless the mmu is enabled too */
+	if (cache_bit == CR_C)
+		mmu_setup();
 	reg = get_cr();	/* get control reg. */
 	cp_delay();
 	set_cr(reg | cache_bit);
@@ -49,6 +103,15 @@ static void cache_disable(uint32_t cache_bit)
 {
 	uint32_t reg;
 
+	if (cache_bit == CR_C) {
+		/* if cache isn;t enabled no need to disable */
+		reg = get_cr();
+		if ((reg & CR_C) != CR_C)
+			return;
+		/* if disabling data cache, disable mmu too */
+		cache_bit |= CR_M;
+		flush_cache(0, ~0);
+	}
 	reg = get_cr();
 	cp_delay();
 	set_cr(reg & ~cache_bit);

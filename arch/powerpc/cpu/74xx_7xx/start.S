@@ -32,6 +32,7 @@
  *  board_init lies at a quite high address and when the cpu has
  *  jumped there, everything is ok.
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <74xx_7xx.h>
 #include <timestamp.h>
@@ -42,6 +43,7 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/u-boot.h>
 
 #if !defined(CONFIG_DB64360) && \
     !defined(CONFIG_DB64460) && \
@@ -75,7 +77,7 @@
 	GOT_ENTRY(transfer_to_handler)
 
 	GOT_ENTRY(__init_end)
-	GOT_ENTRY(_end)
+	GOT_ENTRY(__bss_end__)
 	GOT_ENTRY(__bss_start)
 	END_GOT
 
@@ -94,17 +96,7 @@ version_string:
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
 _start:
-	li	r21, BOOTFLAG_COLD	/* Normal Power-On: Boot from FLASH */
 	b	boot_cold
-	sync
-
-	. = EXC_OFF_SYS_RESET + 0x10
-
-	.globl	_start_warm
-_start_warm:
-	li	r21, BOOTFLAG_WARM	/* Software reboot		*/
-	b	boot_warm
-	sync
 
 	/* the boot code is located below the exception table */
 
@@ -188,7 +180,6 @@ _end_of_vectors:
 	. = 0x2000
 
 boot_cold:
-boot_warm:
 	/* disable everything */
 	li	r0, 0
 	mtspr	HID0, r0
@@ -288,14 +279,11 @@ in_flash:
 	bl	cpu_init_f
 	sync
 
-	mr	r3, r21
-
-	/* r3: BOOTFLAG */
 	/* run 1st part of board init code (from Flash)   */
 	bl	board_init_f
 	sync
 
-	/* NOTREACHED */
+	/* NOTREACHED - board_init_f() does not return */
 
 	.globl	invalidate_bats
 invalidate_bats:
@@ -722,17 +710,19 @@ in_ram:
 	beq	4f
 3:	lwzu	r4,4(r3)
 	lwzux	r0,r4,r11
+	cmpwi	r0,0
 	add	r0,r0,r11
-	stw	r10,0(r3)
+	stw	r4,0(r3)
+	beq-	5f
 	stw	r0,0(r4)
-	bdnz	3b
+5:	bdnz	3b
 4:
 /* clear_bss: */
 	/*
 	 * Now clear BSS segment
 	 */
 	lwz	r3,GOT(__bss_start)
-	lwz	r4,GOT(_end)
+	lwz	r4,GOT(__bss_end__)
 
 	cmplw	0, r3, r4
 	beq	6f
@@ -830,7 +820,7 @@ lock_ram_in_cache:
 	 */
 	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
 	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CONFIG_SYS_INIT_RAM_END & ~31) + \
+	li	r4, ((CONFIG_SYS_INIT_RAM_SIZE & ~31) + \
 		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:
@@ -851,7 +841,7 @@ unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
 	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
 	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CONFIG_SYS_INIT_RAM_END & ~31) + \
+	li	r4, ((CONFIG_SYS_INIT_RAM_SIZE & ~31) + \
 		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:	icbi	r0, r3

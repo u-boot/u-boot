@@ -30,9 +30,7 @@
 #include <ioports.h>
 #include <asm/io.h>
 #endif
-#if defined(CONFIG_AT91RM9200) || \
-	defined(CONFIG_AT91SAM9260) ||  defined(CONFIG_AT91SAM9261) || \
-	defined(CONFIG_AT91SAM9263)
+#if defined(CONFIG_AT91FAMILY)
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pio.h>

@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)libjffs2.a
+LIB	= $(obj)libjffs2.o
 
 AOBJS	=
 ifdef CONFIG_CMD_JFFS2
@@ -44,7 +44,7 @@ OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 all:	$(LIB) $(AOBJS)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 
 #########################################################################

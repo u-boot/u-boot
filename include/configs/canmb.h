@@ -33,10 +33,14 @@
 #define CONFIG_MPC5200		1	/* More exactly a MPC5200 */
 #define CONFIG_CANMB		1	/* ... on canmb board - we need this for FEC.C */
 
-#define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
+/*
+ * allowed and functional CONFIG_SYS_TEXT_BASE values:
+ * 0xfe000000	low boot at 0x00000100 (default board setting)
+ * 0x00100000	RAM load and test
+ */
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
+#define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define CONFIG_BOARD_EARLY_INIT_R
 
@@ -77,11 +81,11 @@
 /*
  * MUST be low boot - HIGHBOOT is not supported anymore
  */
-#if (TEXT_BASE == 0xFE000000)		/* Boot low with 32 MB Flash */
+#if (CONFIG_SYS_TEXT_BASE == 0xFE000000)		/* Boot low with 32 MB Flash */
 #   define CONFIG_SYS_LOWBOOT		1
 #   define CONFIG_SYS_LOWBOOT16	1
 #else
-#   error "TEXT_BASE must be 0xFE000000"
+#   error "CONFIG_SYS_TEXT_BASE must be 0xFE000000"
 #endif
 
 /*
@@ -153,14 +157,13 @@
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

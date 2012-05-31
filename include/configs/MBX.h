@@ -46,6 +46,8 @@
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
 #define CONFIG_MBX		1	/* ...on an MBX module		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfe000000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
@@ -142,9 +144,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x2f00	/* End of used area in DPRAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2f00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_VPD_SIZE	256 /* size in bytes reserved for vpd buffer */
 #define CONFIG_SYS_INIT_VPD_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - CONFIG_SYS_INIT_VPD_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_VPD_OFFSET-8)
@@ -309,13 +310,5 @@
  *
  */
 #define CONFIG_SYS_DER 0
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

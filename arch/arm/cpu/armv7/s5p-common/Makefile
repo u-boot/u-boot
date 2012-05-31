@@ -23,10 +23,11 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)libs5p-common.a
+LIB	= $(obj)libs5p-common.o
 
 COBJS-y		+= cpu_info.o
 COBJS-y		+= timer.o
+COBJS-$(CONFIG_PWM)		+= pwm.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS))
@@ -34,7 +35,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS))
 all:	 $(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

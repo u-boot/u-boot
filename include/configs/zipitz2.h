@@ -27,9 +27,9 @@
  */
 #define	CONFIG_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_ZIPITZ2		1	/* Zipit Z2 board */
+#define	CONFIG_SYS_TEXT_BASE	0x0
 
 #undef	BOARD_LATE_INIT
-#undef	CONFIG_SKIP_RELOCATE_UBOOT
 #undef	CONFIG_USE_IRQ
 #undef	CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -41,8 +41,8 @@
 #define CONFIG_ENV_ADDR			0x40000
 #define CONFIG_ENV_SIZE			0x20000
 
-#define	CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + CONFIG_STACKSIZE)
-#define	CONFIG_SYS_GBL_DATA_SIZE	512
+#define	CONFIG_SYS_MALLOC_LEN		(128*1024)
+#define	CONFIG_ARCH_CPU_INIT
 
 #define	CONFIG_BOOTCOMMAND						\
 	"if mmc init && fatload mmc 0 0xa0000000 uboot.script ; then "	\
@@ -56,7 +56,7 @@
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
-
+#define	CONFIG_SYS_TEXT_BASE		0x0
 #define	CONFIG_LZMA			/* LZMA compression support */
 
 /*
@@ -74,6 +74,7 @@
 #include <config_cmd_default.h>
 
 #undef	CONFIG_CMD_NET
+#undef	CONFIG_CMD_NFS
 #define	CONFIG_CMD_ENV
 #undef	CONFIG_CMD_IMLS
 #define	CONFIG_CMD_MMC
@@ -175,6 +176,9 @@ unsigned char zipitz2_spi_read(void);
 
 #define	CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_DRAM_BASE
 
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1 + 2048)
+
 /*
  * NOR FLASH
  */
@@ -218,7 +222,7 @@ unsigned char zipitz2_spi_read(void);
 #define CONFIG_SYS_GPCR3_VAL	0x00000000
 #define CONFIG_SYS_GPDR0_VAL	0xdafcee00
 #define CONFIG_SYS_GPDR1_VAL	0xffa3aaab
-#define CONFIG_SYS_GPDR2_VAL	0x8fe1ffff
+#define CONFIG_SYS_GPDR2_VAL	0x8fe9ffff
 #define CONFIG_SYS_GPDR3_VAL	0x001b1f8a
 #define CONFIG_SYS_GPSR0_VAL	0x06080400
 #define CONFIG_SYS_GPSR1_VAL	0x007f0000

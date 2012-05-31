@@ -45,10 +45,11 @@
 #define CONFIG_CPCI5200		1	/* ... on CPCI5200  board */
 #define CONFIG_MPC5200_DDR	1	/* ... use DDR RAM	  */
 
-#define CONFIG_SYS_MPC5XXX_CLKIN	33000000	/* ... running at 33.000000MHz */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000	/* Standard: boot high */
+#endif
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
+#define CONFIG_SYS_MPC5XXX_CLKIN	33000000	/* ... running at 33.000000MHz */
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported 	  */
 
@@ -126,11 +127,11 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_DATE
 
-#if (TEXT_BASE == 0xFF000000)	/* Boot low with 16 MB Flash */
+#if (CONFIG_SYS_TEXT_BASE == 0xFF000000)	/* Boot low with 16 MB Flash */
 #   define CONFIG_SYS_LOWBOOT		1
 #   define CONFIG_SYS_LOWBOOT16	1
 #endif
-#if (TEXT_BASE == 0xFF800000)	/* Boot low with  8 MB Flash */
+#if (CONFIG_SYS_TEXT_BASE == 0xFF800000)	/* Boot low with  8 MB Flash */
 #   define CONFIG_SYS_LOWBOOT		1
 #   define CONFIG_SYS_LOWBOOT08	1
 #endif
@@ -234,13 +235,12 @@
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

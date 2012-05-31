@@ -19,22 +19,25 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
-
-# NOBJS : Netstal common objects
-NOBJS	= nm_bsp.o
-COBJS	= $(BOARD).o sdram.o
+COBJS	= $(BOARD).o \
+	sdram.o \
+	../common/nm_bsp.o
 SOBJS	= init.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) $(addprefix ../common/,$(NOBJS:.o=.c))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
-NOBJS	:= $(addprefix $(obj)../common/,$(NOBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(OBJS) $(SOBJS) $(NOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS) $(NOBJS)
+all:	$(LIB) $(SOBJS)
+
+$(LIB):	$(OBJS)
+	$(call cmd_link_o_target, $^)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

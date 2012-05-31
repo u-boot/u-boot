@@ -72,7 +72,6 @@
  */
 #define CONFIG_ENV_SIZE             SZ_128K     /* Total Size of Environment Sector */
 #define CONFIG_SYS_MALLOC_LEN           (CONFIG_ENV_SIZE + SZ_128K)
-#define CONFIG_SYS_GBL_DATA_SIZE        128  /* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers

@@ -24,9 +24,13 @@
 #define serial_in(y) 	readb(y)
 #endif
 
+#ifndef CONFIG_SYS_NS16550_IER
+#define CONFIG_SYS_NS16550_IER  0x00
+#endif /* CONFIG_SYS_NS16550_IER */
+
 void NS16550_init (NS16550_t com_port, int baud_divisor)
 {
-	serial_out(0x00, &com_port->ier);
+	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
 #if defined(CONFIG_OMAP) && !defined(CONFIG_OMAP3_ZOOM2)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
@@ -52,7 +56,7 @@ void NS16550_init (NS16550_t com_port, int baud_divisor)
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS
 void NS16550_reinit (NS16550_t com_port, int baud_divisor)
 {
-	serial_out(0x00, &com_port->ier);
+	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
 	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
 	serial_out(0, &com_port->dll);
 	serial_out(0, &com_port->dlm);
@@ -70,6 +74,15 @@ void NS16550_putc (NS16550_t com_port, char c)
 {
 	while ((serial_in(&com_port->lsr) & UART_LSR_THRE) == 0);
 	serial_out(c, &com_port->thr);
+
+	/*
+	 * Call watchdog_reset() upon newline. This is done here in putc
+	 * since the environment code uses a single puts() to print the complete
+	 * environment upon "printenv". So we can't put this watchdog call
+	 * in puts().
+	 */
+	if (c == '\n')
+		WATCHDOG_RESET();
 }
 
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS

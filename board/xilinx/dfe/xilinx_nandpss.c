@@ -1117,11 +1117,7 @@ int board_nand_init(struct nand_chip *nand_chip)
 	xnandpss_init_nand_flash(xnand->smc_regs, nand_chip->options);
 
 	/* first scan to find the device and get the page size */
-#ifdef LINUX_ONLY_NOT_UBOOT
 	if (nand_scan_ident(mtd, 1, NULL)) {
-#else
-	if (nand_scan_ident(mtd, 1)) {
-#endif
 		err = -ENXIO;
 		dev_err(&pdev->dev, "nand_scan_ident for NAND failed\n");
 		goto out_unmap_all_mem;
@@ -1141,7 +1137,6 @@ int board_nand_init(struct nand_chip *nand_chip)
 				(dev_id == 0xdc) || (dev_id == 0xcc) ||
 				(dev_id == 0xa3) || (dev_id == 0xb3) ||
 				(dev_id == 0xd3) || (dev_id == 0xc3))) {
-		printf("OnDie ECC flash\n");
 		nand_chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES,
 						ONDIE_ECC_FEATURE_ADDR, -1);
 		nand_chip->write_buf(mtd, set_feature, 4);
@@ -1150,8 +1145,10 @@ int board_nand_init(struct nand_chip *nand_chip)
 						ONDIE_ECC_FEATURE_ADDR, -1);
 		nand_chip->read_buf(mtd, get_feature, 4);
 
-		if (get_feature[0] & 0x08)
+		if (get_feature[0] & 0x08) {
+			printf("OnDie ECC flash: ");
 			ondie_ecc_enabled = 1;
+		}
 	} else if ((nand_chip->onfi_version == 23) &&
 				(nand_chip->onfi_params.features & (1 << 9))) {
 		ez_nand_supported = 1;

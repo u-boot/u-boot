@@ -64,8 +64,9 @@
 /* List of legal baudrate settings for this board */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 57600, 38400, 19200, 9600 }
 
+#define CONFIG_SYS_TEXT_BASE		0x8FFC0000
 #define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE)
-#define CONFIG_SYS_MEMTEST_END		(TEXT_BASE - 0x100000)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_TEXT_BASE - 0x100000)
 
 /* NOR Flash */
 /* #define CONFIG_SYS_FLASH_BASE		(0xA1000000)*/
@@ -81,7 +82,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(128 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(256 * 1024)		/* Size of DRAM reserved for malloc() use */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)			/* size in bytes reserved for initial data */
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 #define CONFIG_SYS_RX_ETH_BUFFER	(8)
 

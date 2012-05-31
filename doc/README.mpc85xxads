@@ -144,8 +144,8 @@ Updated 13-July-2004 Jon Loeliger
 			    also manual config the DDR after undef this
 			    definition.
     CONFIG_DDR_ECC	    only for ECC DDR module
-    CONFIG_DDR_DLL	    DLL fix on some ADS boards needed for more
-			    stability.
+    CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN	    DLL fix on some ADS boards needed
+			    for more stability.
     CONFIG_HAS_FEC	    If an FEC is on chip, set to 1, else 0.
 
 Other than the above definitions, the rest in the config files are

@@ -42,6 +42,8 @@
 #define CONFIG_MPC8245		1
 #define CONFIG_HIDDEN_DRAGON	1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #if 0
 #define USE_DINK32		1
 #else
@@ -124,20 +126,18 @@
 #define CONFIG_SYS_MONITOR_BASE	0x00090000
 #define CONFIG_SYS_RAMBOOT		1
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_SYS_INIT_RAM_END	0x10000
-#define CONFIG_SYS_GBL_DATA_SIZE	256  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x10000
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 #else
 #undef	CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_MONITOR_LEN		0x00030000
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 #define CONFIG_SYS_INIT_RAM_ADDR     0x40000000
-#define CONFIG_SYS_INIT_RAM_END      0x1000
-#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE      0x1000
+#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 #endif
 
@@ -199,7 +199,7 @@
  */
 
 
-#define CONFIG_WINBOND_83C553	1	/*has a winbond bridge			*/
+/* #define CONFIG_WINBOND_83C553	1	/ *has a winbond bridge			*/
 #define CONFIG_SYS_USE_WINBOND_IDE	0	/*use winbond 83c553 internal IDE ctrlr */
 #define CONFIG_SYS_WINBOND_ISA_CFG_ADDR    0x80005800	/*pci-isa bridge config addr	*/
 #define CONFIG_SYS_WINBOND_IDE_CFG_ADDR    0x80005900	/*ide config addr		*/
@@ -375,14 +375,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
 /* values according to the manual */
 #define CONFIG_DRAM_50MHZ	1

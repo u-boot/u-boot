@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <timestamp.h>
 #include "version.h"
@@ -57,8 +58,8 @@
 _vectors:
 
 .long	0x00000000		/* Flash offset is 0 until we setup CS0 */
-#if defined(CONFIG_M5282) && (TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
-.long	_start - TEXT_BASE
+#if defined(CONFIG_M5282) && (CONFIG_SYS_TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
+.long	_start - CONFIG_SYS_TEXT_BASE
 #else
 .long	_START
 #endif
@@ -106,7 +107,7 @@ _vectors:
 
 #if defined(CONFIG_SYS_INT_FLASH_BASE) && \
     (defined(CONFIG_M5282) || defined(CONFIG_M5281))
-	#if (TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
+	#if (CONFIG_SYS_TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
 		.long	0x55AA55AA,0xAA55AA55 /* CFM Backdoorkey */
 		.long	0xFFFFFFFF /* all sectors protected */
 		.long	0x00000000 /* supervisor/User restriction */
@@ -150,7 +151,7 @@ _start:
 	movec	%d0, %RAMBAR1
 
 #if defined(CONFIG_M5282)
-#if (TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
+#if (CONFIG_SYS_TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
 	/* Setup code in SRAM to initialize FLASHBAR, if start from internal Flash */
 
 	move.l #(_flashbar_setup-CONFIG_SYS_INT_FLASH_BASE), %a0
@@ -174,7 +175,7 @@ _after_flashbar_copy:
 	/* Setup code to initialize FLASHBAR, if start from external Memory */
 	move.l	#(CONFIG_SYS_INT_FLASH_BASE + CONFIG_SYS_INT_FLASH_ENABLE), %d0
 	movec	%d0, %FLASHBAR
-#endif /* (TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE) */
+#endif /* (CONFIG_SYS_TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE) */
 
 #endif
 #endif
@@ -182,7 +183,7 @@ _after_flashbar_copy:
 	 * therefore no VBR to set
 	 */
 #if !defined(CONFIG_MONITOR_IS_IN_RAM)
-#if defined(CONFIG_M5282) && (TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
+#if defined(CONFIG_M5282) && (CONFIG_SYS_TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
 	move.l	#CONFIG_SYS_INT_FLASH_BASE, %d0
 #else
 	move.l	#CONFIG_SYS_FLASH_BASE, %d0
@@ -297,7 +298,7 @@ clear_bss:
 	/* set parameters for board_init_r */
 	move.l %a0,-(%sp)		/* dest_addr */
 	move.l %d0,-(%sp)		/* gd */
-#if defined(DEBUG) && (TEXT_BASE != CONFIG_SYS_INT_FLASH_BASE) && \
+#if defined(DEBUG) && (CONFIG_SYS_TEXT_BASE != CONFIG_SYS_INT_FLASH_BASE) && \
     defined(CONFIG_SYS_HALT_BEFOR_RAM_JUMP)
 	halt
 #endif

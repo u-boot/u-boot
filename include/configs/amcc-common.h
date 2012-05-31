@@ -24,15 +24,19 @@
 #define __AMCC_COMMON_H
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* Start of U-Boot	*/
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* Start of U-Boot	*/
 #define CONFIG_SYS_MONITOR_LEN		(0xFFFFFFFF - CONFIG_SYS_MONITOR_BASE + 1)
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* Reserved for malloc	*/
 
 /*
  * UART
  */
-#define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
@@ -76,17 +80,6 @@
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_SYS_RAMBOOT)
-/*
- * Disable NOR FLASH commands on RAM-booting version. One main reason for this
- * RAM-booting version is boards with NAND and without NOR. This image can
- * be used for initial NAND programming.
- */
-#define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
-#endif
 
 /*
  * Miscellaneous configurable options
@@ -278,13 +271,13 @@
 	"load=tftp 200000 ${u-boot}\0"					\
 	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
 		"era " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"		\
-		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize}" \
+		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0" \
 	"upd=run load update\0"						\
 
 #define CONFIG_AMCC_DEF_ENV_NAND_UPD					\
 	"u-boot-nand=" xstr(CONFIG_HOSTNAME) "/u-boot-nand.bin\0"	\
 	"nload=tftp 200000 ${u-boot-nand}\0"				\
-	"nupdate=nand erase 0 100000;nand write 200000 0 100000"	\
+	"nupdate=nand erase 0 100000;nand write 200000 0 100000\0"	\
 	"nupd=run nload nupdate\0"
 
 #endif /* __AMCC_COMMON_H */

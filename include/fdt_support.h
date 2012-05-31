@@ -48,6 +48,7 @@ void do_fixup_by_compat(void *fdt, const char *compat,
 void do_fixup_by_compat_u32(void *fdt, const char *compat,
 			    const char *prop, u32 val, int create);
 int fdt_fixup_memory(void *blob, u64 start, u64 size);
+int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks);
 void fdt_fixup_ethernet(void *fdt);
 int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 			 const void *val, int len, int create);
@@ -87,6 +88,7 @@ u64 fdt_translate_address(void *blob, int node_offset, const u32 *in_addr);
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off);
 int fdt_alloc_phandle(void *blob);
+int fdt_add_edid(void *blob, const char *compat, unsigned char *buf);
 
 #endif /* ifdef CONFIG_OF_LIBFDT */
 #endif /* ifndef __FDT_SUPPORT_H */

@@ -31,7 +31,7 @@
 #include <asm/arch/clocks.h>
 
 _TEXT_BASE:
-	.word	TEXT_BASE	/* sdram load addr from config.mk */
+	.word	CONFIG_SYS_TEXT_BASE	/* sdram load addr from config.mk */
 
 /**************************************************************************
  * cpy_clk_code: relocates clock code into SRAM where its safer to execute

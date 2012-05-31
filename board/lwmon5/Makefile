@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
 COBJS	= $(BOARD).o kbd.o sdram.o
 SOBJS	= init.o
@@ -32,8 +32,10 @@ SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
+all:	$(LIB) $(SOBJS)
+
+$(LIB):	$(OBJS)
+	$(call cmd_link_o_target, $^)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

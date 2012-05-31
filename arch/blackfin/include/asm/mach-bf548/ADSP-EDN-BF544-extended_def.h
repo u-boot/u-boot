@@ -694,10 +694,6 @@
 #define TIMER_ENABLE1                  0xFFC00640 /* Timer Group of 3 Enable Register */
 #define TIMER_DISABLE1                 0xFFC00644 /* Timer Group of 3 Disable Register */
 #define TIMER_STATUS1                  0xFFC00648 /* Timer Group of 3 Status Register */
-#define TCNTL                          0xFFE03000 /* Core Timer Control Register */
-#define TCOUNT                         0xFFE0300C /* Core Timer Count Register */
-#define TPERIOD                        0xFFE03004 /* Core Timer Period Register */
-#define TSCALE                         0xFFE03008 /* Core Timer Scale Register */
 #define WDOG_CTL                       0xFFC00200 /* Watchdog Control Register */
 #define WDOG_CNT                       0xFFC00204 /* Watchdog Count Register */
 #define WDOG_STAT                      0xFFC00208 /* Watchdog Status Register */

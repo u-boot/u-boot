@@ -22,10 +22,6 @@ N: Guillaume Alexandre
 E: guillaume.alexandre@gespac.ch
 D: Add PCIPPC6 configuration
 
-N: Swen Anderson
-E: sand@peppercon.de
-D: ERIC Support
-
 N: Pantelis Antoniou
 E: panto@intracom.gr
 D: NETVIA & NETPHONE board support, ARTOS support.
@@ -200,10 +196,6 @@ N: Andreas Heppel
 E: aheppel@sysgo.de
 D: CPU Support for MPC 75x; board support for Eltec BAB750 [obsolete!]
 
-N: August Hoeraendl
-E: august.hoerandl@gmx.at
-D: Support for the logodl board (PXA2xx)
-
 N: Josh Huber
 E: huber@alum.wpi.edu
 D: Port to the Galileo Evaluation Board, and the MPC74xx cpu series.
@@ -285,11 +277,6 @@ D  Support for Intrinsyc CERF PXA250 board.
 N: Thomas Lange
 E: thomas@corelatus.se
 D: Support for GTH, GTH2 and dbau1x00 boards; lots of PCMCIA fixes
-
-N: Marc Leeman
-E: marc.leeman@barco.com
-D: Support for Barco Streaming Video Card (SVC) and Sample Compress Network (SCN)
-W: www.barco.com
 
 N: The LEOX team
 E: team@leox.org
@@ -441,7 +428,7 @@ D: Support for Matrix Vision boards (MVBLM7/MVBC_P/MVSMR)
 
 N: Robert Schwebel
 E: r.schwebel@pengutronix.de
-D: Support for csb226, logodl and innokom boards (PXA2xx)
+D: Support for csb226 and innokom boards (PXA2xx)
 
 N: Aaron Sells
 E: sellsa@embeddedplanet.com

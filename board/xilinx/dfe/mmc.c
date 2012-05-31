@@ -1,5 +1,6 @@
 #include <common.h>
 #include <asm/errno.h>
+#include <malloc.h>
 #include <mmc.h>
 
 #include "sd_hardware.h"
@@ -51,6 +52,20 @@ static u8 sd_in8(u32 InAddress)
 	return *(volatile u8 *) InAddress;
 }
 
+static void connect_test_mode(void)
+{
+	volatile unsigned  statusreg;
+
+	/* Fake out the card detect since it is also NAND CS */
+	sd_out8(SD_HOST_CTRL_R, SD_CD_TEST | SD_CD_TEST_INS);
+
+	/* Wait for card detected */
+	statusreg = sd_in32(SD_PRES_STATE_R);
+	while ( (!(statusreg & SD_CARD_DPL)) || (!(statusreg & SD_CARD_DB)) || (!(statusreg & SD_CARD_INS)) ) {
+		statusreg = sd_in32(SD_PRES_STATE_R);
+	}
+}
+
 /* Initialize the SD controller */
 static void init_port(void)
 {
@@ -71,6 +86,8 @@ static void init_port(void)
 
 	/* Power on the card */
 	sd_out8(SD_PWR_CTRL_R, SD_POWER_33|SD_POWER_ON);
+
+	connect_test_mode();
 
 	/* Enable Internal clock and wait for it to stablilize */
 	clk = (0x4 << SD_DIV_SHIFT) | SD_CLK_INT_EN;
@@ -160,13 +177,13 @@ make_command (unsigned cmd)
 	case CMD12:
 	case ACMD13:
 	case CMD16:
+	case CMD23:
 		retval |= RSP_R1;
 		break;
 	case CMD17:
+	case CMD18:
 		retval |= RSP_R1|SD_CMD_DATA;
 		break;
-	case CMD18:
-	case CMD23:
 	case ACMD23:
 	case CMD24:
 	case CMD25:
@@ -182,6 +199,9 @@ make_command (unsigned cmd)
 		break;
 	case CMD58:
 		break;
+	default:
+		printf("Unknown command\n");
+		break;
 	}
 
 	return retval;
@@ -192,6 +212,7 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 {
 	u32 status;
 	u16 cmdreg;
+	u16 modereg;
 	int result = 0;
 
 #ifdef DEBUG_VERBOSE
@@ -200,42 +221,71 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 #endif
 
 	cmd->response[0] = 0;
+	cmdreg = make_command(cmd->cmdidx);
 
 	/* Wait until the device is willing to accept commands */
 	do {
 		status = sd_in32(SD_PRES_STATE_R);
 	} while (status & (SD_CMD_INHIBIT|SD_DATA_INHIBIT));
 
-	/* Set the DMA address to the DMA buffer.
+	/*
+	 * Set the DMA address to the DMA buffer.
 	 * This is only relevant for data commands.
 	 * u-boot performs a copy rather than DMA directly into the user
 	 * buffer because the controller can't DMA into the first 512K
 	 * of DDR.
 	 */
-	sd_out32(SD_DMA_ADDR_R, sd_dma_buffer);
+#ifdef DEBUG_VERBOSE
+	printf("data->dest = %p (%d) (%d * %d)\n", data->dest,
+		(cmdreg & SD_CMD_DATA) ? data->blocks : 0, data->blocks,
+		data->blocksize);
+#endif
 
-	/* 512 bytes 
+#ifdef CONFIG_ZYNQ_SD_DIRECT_DMA
+	/*
+	 * Added based on above comment.
+	 * No evidence in the TRM supports this that I could find, though
+	 */
+	if (data->dest < 0x80000) {
+		printf("Cannot DMA to lowest 512k of DDR\n");
+		return COMM_ERR;
+	}
+	sd_out32(SD_DMA_ADDR_R, (u32)data->dest);
+#else
+	if ((cmdreg & SD_CMD_DATA) && data->blocksize * data->blocks > 512) {
+		printf("MMC driver buffer too small\n");
+		return COMM_ERR;
+	}
+	sd_out32(SD_DMA_ADDR_R, (u32)sd_dma_buffer);
+#endif
+
+	/*
+	 * 512 bytes
 	 * This is only relevant for data commands.
 	 */
-	sd_out16(SD_BLOCK_SZ_R, 0x200);
-	sd_out16(SD_BLOCK_CNT_R, 1);
+	if (cmdreg & SD_CMD_DATA) {
+		sd_out16(SD_BLOCK_SZ_R, data->blocksize);
+		sd_out16(SD_BLOCK_CNT_R, data->blocks);
+	}
 
 	sd_out8(SD_TIMEOUT_CTL_R, 0xA);
 
 	sd_out32(SD_ARG_R, cmd->cmdarg);
 
-	/* Set the transfer mode to read, simple DMA, single block
+	/*
+	 * Set the transfer mode to read, simple DMA, single block
 	 * (applicable only to data commands)
 	 * This is all that this software supports.
 	 */
-	sd_out16(SD_TRNS_MODE_R,
-		SD_TRNS_BLK_CNT_EN|SD_TRNS_READ|SD_TRNS_DMA);
+	modereg = SD_TRNS_BLK_CNT_EN | SD_TRNS_READ | SD_TRNS_DMA;
+	if (data->blocks > 1)
+		modereg |= SD_TRNS_MULTI;
+	sd_out16(SD_TRNS_MODE_R, modereg);
 
 	/* Clear all pending interrupt status */
 	sd_out32(SD_INT_STAT_R, 0xFFFFFFFF);
 
 	/* Initiate the command */
-	cmdreg = make_command(cmd->cmdidx);
 	sd_out16(SD_CMD_R, cmdreg);
 
 	/* Poll until operation complete */
@@ -248,7 +298,7 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 #else
 			if (cmd->cmdidx == CMD17) {
 				printf("MMC: Error reading sector %d (0x%08x)\n",
-					cmd->cmdarg);
+					cmd->cmdarg, cmd->cmdarg);
 			}
 #endif
 			sd_out8(SD_SOFT_RST_R,
@@ -290,9 +340,11 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 		cmd->response[0] = sd_in32(SD_RSP_R);
 	}
 
+#ifndef CONFIG_ZYNQ_SD_DIRECT_DMA
 	if (cmdreg & SD_CMD_DATA) {
-		memcpy(data->dest, sd_dma_buffer, 512);
+		memcpy(data->dest, sd_dma_buffer, data->blocks * data->blocksize);
 	}
+#endif
 
 exit:
 	/* Clear all pending interrupt status */

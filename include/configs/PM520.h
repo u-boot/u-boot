@@ -33,12 +33,11 @@
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_PM520		1	/* ... on PM520 board */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33MHz */
 
 #define CONFIG_MISC_INIT_R
-
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
@@ -234,14 +233,13 @@
 
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used area in DPRAM */
 
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

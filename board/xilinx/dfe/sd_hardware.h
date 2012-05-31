@@ -40,8 +40,13 @@
 #define  SD_WRITE_ACTIVE     0x00000100
 #define  SD_READ_ACTIVE      0x00000200
 #define  SD_CARD_INS         0x00010000
+#define  SD_CARD_DB          0x00020000
+#define  SD_CARD_DPL         0x00040000
+#define  SD_CARD_WP          0x00080000
 
 #define SD_HOST_CTRL_R       0x28
+#define  SD_CD_TEST_INS      0x40
+#define  SD_CD_TEST          0x80
 
 #define SD_PWR_CTRL_R     0x29
 #define  SD_POWER_ON         0x01

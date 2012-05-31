@@ -43,6 +43,8 @@
 #define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #ifdef RUN_DIAG
 #define CONFIG_SYS_DIAG_ADDR        0xff800000
 #endif
@@ -55,6 +57,9 @@
  */
 #define CONFIG_SYS_SCRATCH_VA	0xe8000000
 
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
+
 #define CONFIG_PCI		1	/* Enable PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
 #define CONFIG_PCIE2		1	/* PCIE controler 2 (slot 2) */
@@ -64,6 +69,7 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 
 #undef CONFIG_SPD_EEPROM		/* Do not use SPD EEPROM for DDR setup*/
@@ -229,7 +235,7 @@
 #undef	CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #define CONFIG_SYS_MONITOR_BASE_EARLY   0xfff00000	/* early monitor loc */
 
 #define CONFIG_FLASH_CFI_DRIVER
@@ -246,10 +252,9 @@
 #else
 #define CONFIG_SYS_INIT_RAM_ADDR	0xf8400000	/* Initial RAM address */
 #endif
-#define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)    /* Reserve 256 kB for Mon */
@@ -257,7 +262,6 @@
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX     1
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE    1
@@ -296,9 +300,9 @@
 /*
  * RapidIO MMU
  */
-#define CONFIG_SYS_RIO_MEM_BASE	0xc0000000	/* base address */
-#define CONFIG_SYS_RIO_MEM_PHYS	CONFIG_SYS_RIO_MEM_BASE
-#define CONFIG_SYS_RIO_MEM_SIZE	0x20000000	/* 128M */
+#define CONFIG_SYS_SRIO1_MEM_BASE	0xc0000000	/* base address */
+#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BASE
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 128M */
 
 /*
  * General PCI
@@ -416,10 +420,10 @@
  * BAT2         512M   Cache-inhibited, guarded
  * 0xc000_0000  512M   RapidIO Memory
  */
-#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_RIO_MEM_BASE | BATL_PP_RW \
+#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_SRIO1_MEM_BASE | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_RIO_MEM_BASE | BATU_BL_512M | BATU_VS | BATU_VP)
-#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_RIO_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_SRIO1_MEM_BASE | BATU_BL_512M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_SRIO1_MEM_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT2U	CONFIG_SYS_DBAT2U
 
 /*
@@ -477,7 +481,7 @@
 /* Map the last 1M of flash where we're running from reset */
 #define CONFIG_SYS_DBAT6L_EARLY	(CONFIG_SYS_MONITOR_BASE_EARLY | BATL_PP_RW \
 				 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT6U_EARLY	(TEXT_BASE | BATU_BL_1M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT6U_EARLY	(CONFIG_SYS_TEXT_BASE | BATU_BL_1M | BATU_VS | BATU_VP)
 #define CONFIG_SYS_IBAT6L_EARLY	(CONFIG_SYS_MONITOR_BASE_EARLY | BATL_PP_RW \
 				 | BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT6U_EARLY	CONFIG_SYS_DBAT6U_EARLY
@@ -540,14 +544,6 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CACHELINE_SHIFT	5	/*log base 2 of the above value*/
 #endif
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

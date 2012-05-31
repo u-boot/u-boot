@@ -52,7 +52,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -183,7 +182,7 @@
 #ifdef CONFIG_IMX31_PHYCORE_EET
 #define BOARD_LATE_INIT
 
-#define CONFIG_MX31_GPIO			1
+#define CONFIG_MXC_GPIO
 
 #define CONFIG_HARD_SPI				1
 #define CONFIG_MXC_SPI				1

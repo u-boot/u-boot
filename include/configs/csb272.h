@@ -40,6 +40,8 @@
 #define CONFIG_LAST_STAGE_INIT	1	/* Call last_stage_init()	*/
 #define CONFIG_SYS_CLK_FREQ     33000000 /* external frequency to pll   */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 /*
  * OS Bootstrap configuration
  *
@@ -160,6 +162,12 @@
  * UART configuration
  *
  */
+#define CONFIG_CONS_INDEX		1	/* Use UART0		*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	3868400	/* use external serial clock */
 #undef  CONFIG_SYS_BASE_BAUD
 #define CONFIG_BAUDRATE		38400	/* Default baud rate */
@@ -245,7 +253,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xFE000000
 #define CONFIG_SYS_FLASH_SIZE		0x02000000
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 KB for Monitor */
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024) /* Reserve 128 KB for malloc() */
 
@@ -285,9 +293,8 @@
  *
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of on-chip SRAM */
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM */
-#define CONFIG_SYS_GBL_DATA_SIZE	128 /* byte size reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE /* Size of used area in RAM */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
@@ -296,14 +303,5 @@
  */
 #define CONFIG_SYS_I2C_PLL_ADDR	0x58	/* I2C address of AMIS FS6377-01 PLL */
 #define CONFIG_I2CFAST		1	/* enable "i2cfast" env. setting     */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- *
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 #endif	/* __CONFIG_H */

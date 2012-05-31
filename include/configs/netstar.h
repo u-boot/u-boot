@@ -72,7 +72,6 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /*
@@ -119,9 +118,6 @@
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
-/*#define CONFIG_SKIP_RELOCATE_UBOOT*/
-/*#define CONFIG_SKIP_LOWLEVEL_INIT */
 
 /*
  * Partitions (mtdparts command line support)

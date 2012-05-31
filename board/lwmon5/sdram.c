@@ -35,7 +35,7 @@
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <asm/cache.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <watchdog.h>
 
 /*
@@ -45,10 +45,10 @@
  * memory.
  *
  * If at some time this restriction doesn't apply anymore, just define
- * CONFIG_SYS_ENABLE_SDRAM_CACHE in the board config file and this code should setup
+ * CONFIG_4xx_DCACHE in the board config file and this code should setup
  * everything correctly.
  */
-#ifdef CONFIG_SYS_ENABLE_SDRAM_CACHE
+#ifdef CONFIG_4xx_DCACHE
 #define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
 #else
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
@@ -220,18 +220,32 @@ phys_size_t initdram (int board_type)
 	program_tlb(0, CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MBYTES_SDRAM << 20,
 		    MY_TLB_WORD2_I_ENABLE);
 
+#if defined(CONFIG_DDR_ECC)
+#if defined(CONFIG_4xx_DCACHE)
+	/*
+	 * If ECC is enabled, initialize the parity bits.
+	 */
+	program_ecc(0, CONFIG_SYS_MBYTES_SDRAM << 20, 0);
+#else /* CONFIG_4xx_DCACHE */
 	/*
 	 * Setup 2nd TLB with same physical address but different virtual address
 	 * with cache enabled. This is done for fast ECC generation.
 	 */
 	program_tlb(0, CONFIG_SYS_DDR_CACHED_ADDR, CONFIG_SYS_MBYTES_SDRAM << 20, 0);
 
-#ifdef CONFIG_DDR_ECC
 	/*
 	 * If ECC is enabled, initialize the parity bits.
 	 */
 	program_ecc(CONFIG_SYS_DDR_CACHED_ADDR, CONFIG_SYS_MBYTES_SDRAM << 20, 0);
-#endif
+
+	/*
+	 * Now after initialization (auto-calibration and ECC generation)
+	 * remove the TLB entries with caches enabled and program again with
+	 * desired cache functionality
+	 */
+	remove_tlb(CONFIG_SYS_DDR_CACHED_ADDR, CONFIG_SYS_MBYTES_SDRAM << 20);
+#endif /* CONFIG_4xx_DCACHE */
+#endif /* CONFIG_DDR_ECC */
 
 	/*
 	 * Clear possible errors resulting from data-eye-search.

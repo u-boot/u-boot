@@ -34,7 +34,7 @@
 #if CONFIG_POST & CONFIG_SYS_POST_WATCHDOG
 
 #include <watchdog.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/io.h>
 
 static uint watchdog_magic_read(void)
@@ -57,8 +57,11 @@ int sysmon1_post_test(int flags)
 		 * 3.1. GPIO62 is low
 		 * Assuming system voltage failure.
 		 */
-		post_log("Abnormal voltage detected (GPIO62)\n");
+		post_log("sysmon1 Abnormal voltage detected (GPIO62)\n");
+		post_log("POST sysmon1 FAILED\n");
 		return 1;
+	} else {
+		post_log("sysmon1 PASSED\n");
 	}
 
 	return 0;
@@ -117,10 +120,16 @@ int lwmon5_watchdog_post_test(int flags)
 		ulong time;
 		/* 3.3.1. So, the test succeed, save measured time to syslog. */
 		time = in_be32((void *)CONFIG_SYS_WATCHDOG_TIME_ADDR);
-		post_log("hw watchdog time : %u ms, passed ", time);
-		/* 3.3.2. Set scratch register 1 to 0x0000xxxx */
-		watchdog_magic_write(0);
-		return 0;
+		if (time > 90 ) { /* ms*/
+			post_log("hw watchdog time : %u ms, passed ", time);
+			/* 3.3.2. Set scratch register 1 to 0x0000xxxx */
+			watchdog_magic_write(0);
+			return 0;
+		} else {
+			/*test minimum watchdogtime */
+			post_log("hw watchdog time : %u ms, failed ", time);
+			return 2;
+		}
 	}
 	return -1;
 }

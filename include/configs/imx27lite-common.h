@@ -89,7 +89,6 @@
 /* malloc() len */
 #define CONFIG_SYS_MALLOC_LEN		(0x10000 + 512 * 1024)
 /* reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 /* memtest start address */
 #define CONFIG_SYS_MEMTEST_START	0xA0000000
 #define CONFIG_SYS_MEMTEST_END		0xA1000000	/* 16MB RAM test */
@@ -188,6 +187,7 @@
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_FAT
@@ -234,4 +234,8 @@
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
 
+/* additions for new relocation code, must be added to all boards */
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
+					GENERATED_GBL_DATA_SIZE)
 #endif /* __IMX27LITE_COMMON_CONFIG_H */

@@ -2,25 +2,25 @@
 Table of interleaving modes supported in cpu/8xxx/ddr/
 ======================================================
   +-------------+---------------------------------------------------------+
-  |             |                   Rank Interleaving                     |
-  |             +--------+-----------+-----------+------------+-----------+
-  |Memory       |        |           |           |    2x2     |    4x1    |
-  |Controller   |  None  | 2x1 lower | 2x1 upper | {CS0+CS1}, | {CS0+CS1+ |
-  |Interleaving |        | {CS0+CS1} | {CS2+CS3} | {CS2+CS3}  |  CS2+CS3} |
+  |		|		    Rank Interleaving			  |
+  |		+--------+-----------+-----------+------------+-----------+
+  |Memory	|	 |	     |		 |    2x2     |    4x1	  |
+  |Controller	|  None  | 2x1 lower | 2x1 upper | {CS0+CS1}, | {CS0+CS1+ |
+  |Interleaving |	 | {CS0+CS1} | {CS2+CS3} | {CS2+CS3}  |  CS2+CS3} |
   +-------------+--------+-----------+-----------+------------+-----------+
-  |None         |  Yes   | Yes       | Yes       | Yes        | Yes       |
+  |None		|  Yes	 | Yes	     | Yes	 | Yes	      | Yes	  |
   +-------------+--------+-----------+-----------+------------+-----------+
-  |Cacheline    |  Yes   | Yes       | No        | No, Only(*)| Yes       |
-  |             |CS0 Only|           |           | {CS0+CS1}  |           |
+  |Cacheline	|  Yes	 | Yes	     | No	 | No, Only(*)| Yes	  |
+  |		|CS0 Only|	     |		 | {CS0+CS1}  |		  |
   +-------------+--------+-----------+-----------+------------+-----------+
-  |Page         |  Yes   | Yes       | No        | No, Only(*)| Yes       |
-  |             |CS0 Only|           |           | {CS0+CS1}  |           |
+  |Page		|  Yes	 | Yes	     | No	 | No, Only(*)| Yes	  |
+  |		|CS0 Only|	     |		 | {CS0+CS1}  |		  |
   +-------------+--------+-----------+-----------+------------+-----------+
-  |Bank         |  Yes   | Yes       | No        | No, Only(*)| Yes       |
-  |             |CS0 Only|           |           | {CS0+CS1}  |           |
+  |Bank		|  Yes	 | Yes	     | No	 | No, Only(*)| Yes	  |
+  |		|CS0 Only|	     |		 | {CS0+CS1}  |		  |
   +-------------+--------+-----------+-----------+------------+-----------+
-  |Superbank    |  No    | Yes       | No        | No, Only(*)| Yes       |
-  |             |        |           |           | {CS0+CS1}  |           |
+  |Superbank	|  No	 | Yes	     | No	 | No, Only(*)| Yes	  |
+  |		|	 |	     |		 | {CS0+CS1}  |		  |
   +-------------+--------+-----------+-----------+------------+-----------+
  (*) Although the hardware can be configured with memory controller
  interleaving using "2x2" rank interleaving, it only interleaves {CS0+CS1}
@@ -78,9 +78,95 @@ If the DDR controller supports address hashing, it can be enabled by hwconfig.
 Syntax is:
 hwconfig=fsl_ddr:addr_hash=true
 
+Memory controller ECC on/off
+============================
+If ECC is enabled in board configuratoin file, i.e. #define CONFIG_DDR_ECC,
+ECC can be turned on/off by hwconfig.
+
+Syntax is
+hwconfig=fsl_ddr:ecc=off
+
+Memory testing options for mpc85xx
+==================================
+1. Memory test can be done once U-boot prompt comes up using mtest, or
+2. Memory test can be done with Power-On-Self-Test function, activated at
+   compile time.
+
+   In order to enable the POST memory test, CONFIG_POST needs to be
+   defined in board configuraiton header file. By default, POST memory test
+   performs a fast test. A slow test can be enabled by changing the flag at
+   compiling time. To test memory bigger than 2GB, 36BIT support is needed.
+   Memory is tested within a 2GB window. TLBs are used to map the virtual 2GB
+   window to physical address so that all physical memory can be tested.
+
 Combination of hwconfig
 =======================
 Hwconfig can be combined with multiple parameters, for example, on a supported
 platform
 
-hwconfig=fsl_ddr:addr_hash=true,ctlr_intlv=cacheline,bank_intlv=cs0_cs1_cs2_cs3
+hwconfig=fsl_ddr:addr_hash=true,ctlr_intlv=cacheline,bank_intlv=cs0_cs1_cs2_cs3,ecc=on
+
+Table for dynamic ODT for DDR3
+==============================
+For single-slot system with quad-rank DIMM and dual-slot system, dynamic ODT may
+be needed, depending on the configuration. The numbers in the following tables are
+in Ohms.
+
+* denotes dynamic ODT
+
+Two slots system
++-----------------------+----------+---------------+-----------------------------+-----------------------------+
+|     Configuration	|	   |DRAM controller|	       Slot 1		 |	      Slot 2	       |
++-----------+-----------+----------+-------+-------+--------------+--------------+--------------+--------------+
+|	    |		|	   |	   |	   |	 Rank 1   |	Rank 2	 |   Rank 1	|    Rank 2    |
++  Slot 1   |	Slot 2	|Write/Read| Write | Read  |-------+------+-------+------+-------+------+-------+------+
+|	    |		|	   |	   |	   | Write | Read | Write | Read | Write | Read | Write | Read |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	    |		|  Slot 1  |  off  | 75    | 120   | off  | off   | off  | off	 | off	| 30	| 30   |
+| Dual Rank | Dual Rank |----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	    |		|  Slot 2  |  off  | 75    | off   | off  | 30	  | 30	 | 120	 | off	| off	| off  |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	    |		|  Slot 1  |  off  | 75    | 120   | off  | off   | off  | 20	 | 20	|	|      |
+| Dual Rank |Single Rank|----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	    |		|  Slot 2  |  off  | 75    | off   | off  | 20	  | 20	 | 120	*| off	|	|      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	    |		|  Slot 1  |  off  | 75    | 120  *| off  |	  |	 | off	 | off	| 20	| 20   |
+|Single Rank| Dual Rank |----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	    |		|  Slot 2  |  off  | 75    | 20    | 20   |	  |	 | 120	 | off	| off	| off  |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	    |		|  Slot 1  |  off  | 75    | 120  *| off  |	  |	 | 30	 | 30	|	|      |
+|Single Rank|Single Rank|----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	    |		|  Slot 2  |  off  | 75    | 30    | 30   |	  |	 | 120	*| off	|	|      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+| Dual Rank |	Empty	|  Slot 1  |  off  | 75    | 40    | off  | off   | off  |	 |	|	|      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|   Empty   | Dual Rank |  Slot 2  |  off  | 75    |	   |	  |	  |	 | 40	 | off	| off	| off  |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|Single Rank|	Empty	|  Slot 1  |  off  | 75    | 40    | off  |	  |	 |	 |	|	|      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|   Empty   |Single Rank|  Slot 2  |  off  | 75    |	   |	  |	  |	 | 40	 | off	|	|      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+
+Single slot system
++-------------+------------+---------------+-----------------------------+-----------------------------+
+|	      |		   |DRAM controller|	 Rank 1   |    Rank 2	 |    Rank 3	|    Rank 4    |
+|Configuration| Write/Read |-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	      |		   | Write | Read  | Write | Read | Write | Read | Write | Read | Write | Read |
++-------------+------------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	      |   R1	   | off   | 75    | 120  *| off  | off   | off  | 20	 | 20	| off	| off  |
+|	      |------------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	      |   R2	   | off   | 75    | off   | 20   | 120   | off  | 20	 | 20	| off	| off  |
+|  Quad Rank  |------------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	      |   R3	   | off   | 75    | 20    | 20   | off   | off  | 120	*| off	| off	| off  |
+|	      |------------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	      |   R4	   | off   | 75    | 20    | 20   | off   | off  | off	 | 20	| 120	| off  |
++-------------+------------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|	      |   R1	   | off   | 75    | 40    | off  | off   | off  |
+|  Dual Rank  |------------+-------+-------+-------+------+-------+------+
+|	      |   R2	   | off   | 75    | 40    | off  | off   | off  |
++-------------+------------+-------+-------+-------+------+-------+------+
+| Single Rank |   R1	   | off   | 75    | 40    | off  |
++-------------+------------+-------+-------+-------+------+
+
+Reference http://www.xrosstalkmag.com/mag_issues/xrosstalk_oct08_final.pdf
+	  http://download.micron.com/pdf/technotes/ddr3/tn4108_ddr3_design_guide.pdf

@@ -26,6 +26,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -68,8 +69,9 @@ int misc_init_r(void)
 
 int board_init (void)
 {
-	/* memory and cpu-speed are setup before relocation */
-	/* so we do _nothing_ here */
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
 
 	/* arch number of CSB226 board */
 	gd->bd->bi_arch_number = MACH_TYPE_CSB226;
@@ -81,20 +83,19 @@ int board_init (void)
 }
 
 
-/**
- * dram_init: - setup dynamic RAM
- *
- * @return: 0 in case of success
- */
-
-int dram_init (void)
+extern void pxa_dram_init(void);
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }
 
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+}
 
 /**
  * csb226_set_led: - switch LEDs on or off
@@ -108,23 +109,23 @@ void csb226_set_led(int led, int state)
 	switch(led) {
 
 		case 0: if (state==1) {
-				GPCR0 |= CSB226_USER_LED0;
+				writel(readl(GPCR0) | CSB226_USER_LED0, GPCR0);
 			} else if (state==0) {
-				GPSR0 |= CSB226_USER_LED0;
+				writel(readl(GPSR0) | CSB226_USER_LED0, GPSR0);
 			}
 			break;
 
 		case 1: if (state==1) {
-				GPCR0 |= CSB226_USER_LED1;
+				writel(readl(GPCR0) | CSB226_USER_LED1, GPCR0);
 			} else if (state==0) {
-				GPSR0 |= CSB226_USER_LED1;
+				writel(readl(GPSR0) | CSB226_USER_LED1, GPSR0);
 			}
 			break;
 
 		case 2: if (state==1) {
-				GPCR0 |= CSB226_USER_LED2;
+				writel(readl(GPCR0) | CSB226_USER_LED2, GPCR0);
 			} else if (state==0) {
-				GPSR0 |= CSB226_USER_LED2;
+				writel(readl(GPSR0) | CSB226_USER_LED2, GPSR0);
 			}
 			break;
 	}

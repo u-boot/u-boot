@@ -31,6 +31,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 /* Custom configuration */
 /* SC823,SC850,SC860SAR, FEL8xx-AT(823/850/860) */
 /* SC85T,SC860T, FEL8xx-AT(855T/860T) */
@@ -191,9 +193,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -464,14 +465,5 @@
 #define CONFIG_SYS_DOC_SUPPORT_2000
 #define CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 #define CONFIG_SYS_DOC_BASE 0x80000000
-
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

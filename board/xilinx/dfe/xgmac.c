@@ -2,29 +2,26 @@
  */
 
 #include <common.h>
+#include <malloc.h>
+#include <miiphy.h>
 #include <net.h>
 
 #include "xemacpss.h"
 
 /************************ Forward function declaration **********************/
 
-int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr);
-int Xgmac_init_rxq(XEmacPss * EmacPssInstancePtr, void *bd_start, int num_elem);
-int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
+static int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr);
+static int Xgmac_init_rxq(XEmacPss * EmacPssInstancePtr, void *bd_start, int num_elem);
+static int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
 			  u32 rx_buffsize);
-int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr);
-int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
+static int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr);
+static int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
 
-void set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed);
+static void Xgmac_set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed);
 
 /*************************** Constant Definitions ***************************/
 
 #define EMACPSS_DEVICE_ID   0
-#ifdef CONFIG_EP107
-# define PHY_ADDR 0x17
-#else
-# define PHY_ADDR 0x7
-#endif
 #define RXBD_CNT       8	/* Number of RxBDs to use */
 #define TXBD_CNT       8	/* Number of TxBDs to use */
 
@@ -67,12 +64,32 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr)
 		 & XEMACPSS_NWSR_MDIOIDLE_MASK) == XEMACPSS_NWSR_MDIOIDLE_MASK);
 }
 
+#if defined(CONFIG_CMD_MII) && !defined(CONFIG_BITBANGMII)
+static int Xgmac_mii_read(const char *devname, unsigned char addr,
+		unsigned char reg, unsigned short *value)
+{
+	phy_spinwait(&EmacPssInstance);
+	XEmacPss_PhyRead(&EmacPssInstance, addr, reg, value);
+	phy_spinwait(&EmacPssInstance);
+	return 0;
+}
+
+static int Xgmac_mii_write(const char *devname, unsigned char addr,
+		unsigned char reg, unsigned short value)
+{
+	phy_spinwait(&EmacPssInstance);
+	XEmacPss_PhyWrite(&EmacPssInstance, addr, reg, value);
+	phy_spinwait(&EmacPssInstance);
+	return 0;
+}
+#endif
+
 static u32 phy_rd(XEmacPss * e, u32 a)
 {
 	u16 PhyData;
 
 	phy_spinwait(e);
-	XEmacPss_PhyRead(e, PHY_ADDR, a, &PhyData);
+	XEmacPss_PhyRead(e, CONFIG_XGMAC_PHY_ADDR, a, &PhyData);
 	phy_spinwait(e);
 	return PhyData;
 }
@@ -80,7 +97,7 @@ static u32 phy_rd(XEmacPss * e, u32 a)
 static void phy_wr(XEmacPss * e, u32 a, u32 v)
 {
 	phy_spinwait(e);
-	XEmacPss_PhyWrite(e, PHY_ADDR, a, v);
+	XEmacPss_PhyWrite(e, CONFIG_XGMAC_PHY_ADDR, a, v);
 	phy_spinwait(e);
 }
 
@@ -98,7 +115,7 @@ static void phy_rst(XEmacPss * e)
 		tmp++;
 		if (tmp > 1000) { /* stalled if reset unfinished after 10 seconds */
 			puts("***Error: Reset stalled...\n");
-			return -1;
+			return;
 		}
 	}
 	puts("\nPHY reset complete.\n");
@@ -112,25 +129,13 @@ static void Out32(u32 OutAddress, u32 Value)
 
 /*****************************************************************************/
 
-void eth_halt(void)
-{
-	return;
-}
-
-int eth_init(bd_t * bis)
+int Xgmac_one_time_init(void)
 {
 	int tmp;
-	int link_speed;
 	int Status;
 	XEmacPss_Config *Config;
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
 	XEmacPss_Bd BdTemplate;
-
-	if (ethstate.initialized) {
-		return 1;
-	}
-
-	ethstate.initialized = 0;
 
 	Config = XEmacPss_LookupConfig(EMACPSS_DEVICE_ID);
 
@@ -178,27 +183,22 @@ int eth_init(bd_t * bis)
 				  XEMACPSS_BD_ALIGNMENT, TXBD_CNT);
 	if (Status != 0) {
 		puts("Error setting up TxBD space, BdRingCreate");
-		return 0;
+		return -1;
 	}
 
 	Status = XEmacPss_BdRingClone(&(XEmacPss_GetTxRing(EmacPssInstancePtr)),
 				      &BdTemplate, XEMACPSS_SEND);
 	if (Status != 0) {
 		puts("Error setting up TxBD space, BdRingClone");
-		return 0;
+		return -1;
 	}
 
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_TXQBASE_OFFSET,
 			  EmacPssInstancePtr->TxBdRing.BaseBdAddr);
 
-	/*
-	 * Setup the ethernet.
-	 */
-	printf("Trying to set up GEM link...\n");
-
 	/*************************** MAC Setup ***************************/
-	tmp = (2 << 18);	/* MDC clock division (32 for up to 80MHz) */
+	tmp = (3 << 18);	/* MDC clock division (48 for up to 120MHz) */
 	tmp |= (1 << 17);	/* set for FCS removal */
 	tmp |= (1 << 10);	/* enable gigabit */
 	tmp |= (1 << 4);	/* copy all frames */
@@ -207,6 +207,32 @@ int eth_init(bd_t * bis)
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_NWCFG_OFFSET, tmp);
 
+	/* MDIO enable */
+	tmp =
+	    XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
+			     XEMACPSS_NWCTRL_OFFSET);
+	tmp |= XEMACPSS_NWCTRL_MDEN_MASK;
+	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
+			  XEMACPSS_NWCTRL_OFFSET, tmp);
+
+	return 0;
+}
+
+int Xgmac_init(struct eth_device *dev, bd_t * bis)
+{
+	int tmp;
+	int link_speed;
+	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
+
+	if (ethstate.initialized)
+		return 1;
+
+	/*
+	 * Setup the ethernet.
+	 */
+	printf("Trying to set up GEM link...\n");
+
+	/* Configure DMA */
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_DMACR_OFFSET, 0x00180704);
 
@@ -214,19 +240,22 @@ int eth_init(bd_t * bis)
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_IDR_OFFSET, 0xFFFFFFFF);
 
-	/* MDIO, Rx and Tx enable */
+	/* Rx and Tx enable */
 	tmp =
 	    XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
 			     XEMACPSS_NWCTRL_OFFSET);
-	tmp |=
-	    XEMACPSS_NWCTRL_MDEN_MASK | XEMACPSS_NWCTRL_RXEN_MASK |
-	    XEMACPSS_NWCTRL_TXEN_MASK;
+	tmp |= XEMACPSS_NWCTRL_RXEN_MASK | XEMACPSS_NWCTRL_TXEN_MASK;
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_NWCTRL_OFFSET, tmp);
 
 	/*************************** PHY Setup ***************************/
 
 	phy_wr(EmacPssInstancePtr, 22, 0);	/* page 0 */
+
+	tmp = phy_rd(EmacPssInstancePtr, 2);
+	printf("Phy ID: %04X", tmp);
+	tmp = phy_rd(EmacPssInstancePtr, 3);
+	printf("%04X\n", tmp);
 
 	/* Auto-negotiation advertisement register */
 	tmp = phy_rd(EmacPssInstancePtr, 4);
@@ -266,9 +295,10 @@ int eth_init(bd_t * bis)
 
 	/***** Try to establish a link at the highest speed possible  *****/
 #ifdef CONFIG_EP107
-	set_eth_advertise(EmacPssInstancePtr, 100);
+	Xgmac_set_eth_advertise(EmacPssInstancePtr, 100);
 #else
-	set_eth_advertise(EmacPssInstancePtr, 100);
+	/* Could be 1000 if an unknown bug is fixed */
+	Xgmac_set_eth_advertise(EmacPssInstancePtr, 1000);
 #endif
 	phy_rst(EmacPssInstancePtr);
 
@@ -354,7 +384,12 @@ int eth_init(bd_t * bis)
 	return 0;
 }
 
-int eth_send(volatile void *ptr, int len)
+void Xgmac_halt(struct eth_device *dev)
+{
+	return;
+}
+
+int Xgmac_send(struct eth_device *dev, volatile void *packet, int length)
 {
 	volatile int Status;
 	XEmacPss_Bd *BdPtr;
@@ -376,8 +411,8 @@ int eth_send(volatile void *ptr, int len)
 	/*
 	 * Setup TxBD
 	 */
-	XEmacPss_BdSetAddressTx(BdPtr, (u32) ptr);
-	XEmacPss_BdSetLength(BdPtr, len);
+	XEmacPss_BdSetAddressTx(BdPtr, (u32)packet);
+	XEmacPss_BdSetLength(BdPtr, length);
 	XEmacPss_BdClearTxUsed(BdPtr);
 	XEmacPss_BdSetLast(BdPtr);
 
@@ -437,7 +472,7 @@ int eth_send(volatile void *ptr, int len)
 
 }
 
-int eth_rx(void)
+int Xgmac_rx(struct eth_device *dev)
 {
 	u32 status, retval;
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
@@ -460,6 +495,44 @@ int eth_rx(void)
 	                  XEMACPSS_RXSR_OFFSET, status);
 	
 	return 1;
+}
+
+static int Xgmac_write_hwaddr(struct eth_device *dev)
+{
+	/* Initialize the first MAC filter with our address */
+	XEmacPss_SetMacAddress((XEmacPss *)dev->priv, dev->enetaddr, 1);
+
+	return 0;
+}
+
+int Xgmac_register(bd_t * bis)
+{
+	struct eth_device *dev;
+	dev = malloc(sizeof(*dev));
+	if (dev == NULL) {
+		return 1;
+	}
+	memset(dev, 0, sizeof(*dev));
+	sprintf(dev->name, "xgmac");
+
+	if (Xgmac_one_time_init() < 0) {
+		printf("xgmac init failed!");
+		return -1;
+	}
+	dev->iobase = EmacPssInstance.Config.BaseAddress;
+	dev->priv = &EmacPssInstance;
+	dev->init = Xgmac_init;
+	dev->halt = Xgmac_halt;
+	dev->send = Xgmac_send;
+	dev->recv = Xgmac_rx;
+	dev->write_hwaddr = Xgmac_write_hwaddr;
+
+	eth_register(dev);
+
+#if defined(CONFIG_CMD_MII) && !defined(CONFIG_BITBANGMII)
+	miiphy_register(dev->name, Xgmac_mii_read, Xgmac_mii_write);
+#endif
+	return 0;
 }
 
 /*=============================================================================
@@ -619,7 +692,7 @@ int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr)
 	return 0;
 }
 
-void set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed) {
+void Xgmac_set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed) {
 
 	int tmp;
 

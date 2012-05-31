@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
 #include <asm/ppc4xx-isram.h>
 #include <spd_sdram.h>

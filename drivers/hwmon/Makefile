@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 
 #CFLAGS += -DDEBUG
 
-LIB	= $(obj)libhwmon.a
+LIB	= $(obj)libhwmon.o
 
 COBJS-$(CONFIG_DTT_ADM1021) += adm1021.o
 COBJS-$(CONFIG_DTT_ADT7460) += adt7460.o
@@ -47,7 +47,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

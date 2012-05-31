@@ -39,6 +39,8 @@
 #define CPU_ID_STR		"MPC8247"
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 #define	CONFIG_BOOTCOUNT_LIMIT
@@ -227,9 +229,9 @@
 #define CONFIG_SYS_FLASH_CFI				/* The flash is CFI compatible  */
 #define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver        */
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ 0xFF800000 }
-#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT	1
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks	      */
 /* What should the base address of the main FLASH be and how big is
- * it (in MBytes)? This must contain TEXT_BASE from board/ids8247/config.mk
+ * it (in MBytes)? This must contain CONFIG_SYS_TEXT_BASE from board/ids8247/config.mk
  * The main FLASH is whichever is connected to *CS0.
  */
 #define CONFIG_SYS_FLASH0_BASE 0xFFF00000
@@ -242,7 +244,6 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks      */
 #define CONFIG_SYS_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 
 #define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
@@ -292,9 +293,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x2000  /* End of used area in DPRAM    */
-#define CONFIG_SYS_GBL_DATA_SIZE	128 /* size in bytes reserved for initial data*/
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000  /* Size of used area in DPRAM    */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -306,18 +306,9 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_FLASH0_BASE
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()*/
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot                 */
-
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

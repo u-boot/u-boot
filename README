@@ -319,6 +319,11 @@ The following options need to be configured:
 			CONFIG_SYS_PQ2FADS	- PQ2FADS-ZU or PQ2FADS-VR
 			CONFIG_SYS_8272ADS	- MPC8272ADS
 
+- Marvell Family Member
+		CONFIG_SYS_MVFS		- define it if you want to enable
+					  multiple fs option at one time
+					  for marvell soc family
+
 - MPC824X Family Member (if CONFIG_MPC824X is defined)
 		Define exactly one of
 		CONFIG_MPC8240, CONFIG_MPC8245
@@ -536,25 +541,6 @@ The following options need to be configured:
 		must be defined, to setup the maximum idle timeout for
 		the SMC.
 
-- Interrupt driven serial port input:
-		CONFIG_SERIAL_SOFTWARE_FIFO
-
-		PPC405GP only.
-		Use an interrupt handler for receiving data on the
-		serial port. It also enables using hardware handshake
-		(RTS/CTS) and UART's built-in FIFO. Set the number of
-		bytes the interrupt driven input buffer should have.
-
-		Leave undefined to disable this feature, including
-		disable the buffer and hardware handshake.
-
-- Console UART Number:
-		CONFIG_UART1_CONSOLE
-
-		AMCC PPC4xx only.
-		If defined internal UART1 (and not UART0) is used
-		as default U-Boot console.
-
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
 		set to -1 to disable autoboot.
@@ -694,7 +680,7 @@ The following options need to be configured:
 					  (requires CONFIG_CMD_I2C)
 		CONFIG_CMD_SETGETDCR	  Support for DCR Register access
 					  (4xx only)
-		CONFIG_CMD_SHA1		  print sha1 memory digest
+		CONFIG_CMD_SHA1SUM	  print sha1 memory digest
 					  (requires CONFIG_CMD_MEMORY)
 		CONFIG_CMD_SOURCE	  "source" command Support
 		CONFIG_CMD_SPI		* SPI serial bus support
@@ -764,6 +750,10 @@ The following options need to be configured:
 - GPIO Support:
 		CONFIG_PCA953X		- use NXP's PCA953X series I2C GPIO
 		CONFIG_PCA953X_INFO	- enable pca953x info command
+
+		The CONFIG_SYS_I2C_PCA953X_WIDTH option specifies a list of
+		chip-ngpio pairs that tell the PCA953X driver the number of
+		pins supported by a particular chip.
 
 		Note that if the GPIO device uses I2C, then the I2C interface
 		must also be configured. See I2C Support, below.
@@ -880,6 +870,18 @@ The following options need to be configured:
 			Define this to use i/o functions instead of macros
 			(some hardware wont work with macros)
 
+		CONFIG_FTGMAC100
+		Support for Faraday's FTGMAC100 Gigabit SoC Ethernet
+
+			CONFIG_FTGMAC100_EGIGA
+			Define this to use GE link update with gigabit PHY.
+			Define this if FTGMAC100 is connected to gigabit PHY.
+			If your system has 10/100 PHY only, it might not occur
+			wrong behavior. Because PHY usually return timeout or
+			useless data when polling gigabit status and gigabit
+			control registers. This behavior won't affect the
+			correctnessof 10/100 link speed update.
+
 		CONFIG_SMC911X
 		Support for SMSC's LAN911x and LAN921x chips
 
@@ -894,6 +896,18 @@ The following options need to be configured:
 			Define this if data bus is 16 bits. If your processor
 			automatically converts one 32 bit word to two 16 bit
 			words you may also try CONFIG_SMC911X_32_BIT.
+
+		CONFIG_SH_ETHER
+		Support for Renesas on-chip Ethernet controller
+
+			CONFIG_SH_ETHER_USE_PORT
+			Define the number of ports to be used
+
+			CONFIG_SH_ETHER_PHY_ADDR
+			Define the ETH PHY's address
+
+			CONFIG_SH_ETHER_CACHE_WRITEBACK
+			If this option is set, the driver enables cache flush.
 
 - USB Support:
 		At the moment only the UHCI host controller is
@@ -1651,6 +1665,11 @@ The following options need to be configured:
 		SPI EEPROM, also an instance works with Crystal A/D and
 		D/As on the SACSng board)
 
+		CONFIG_SH_SPI
+
+		Enables the driver for SPI controller on SuperH. Currently
+		only SH7757 is supported.
+
 		CONFIG_SPI_X
 
 		Enables extended (16-bit) SPI EEPROM addressing.
@@ -1800,7 +1819,7 @@ The following options need to be configured:
 
 			ETX094, IVMS8, IVML24, SPD8xx, TQM8xxL,
 			HERMES, IP860, RPXlite, LWMON, LANTEC,
-			PCU_E, FLAGADM, TQM8260
+			FLAGADM, TQM8260
 
 - Error Recovery:
 		CONFIG_PANIC_HANG
@@ -2267,7 +2286,7 @@ Configuration Settings:
 - CONFIG_SYS_MONITOR_BASE:
 		Physical start address of boot monitor code (set by
 		make config files to be same as the text base address
-		(TEXT_BASE) used when linking) - same as
+		(CONFIG_SYS_TEXT_BASE) used when linking) - same as
 		CONFIG_SYS_FLASH_BASE when booting from flash.
 
 - CONFIG_SYS_MONITOR_LEN:
@@ -2293,6 +2312,19 @@ Configuration Settings:
 		enviroment variable is defined and non-zero. In such case
 		all data for the Linux kernel must be between "bootm_low"
 		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.
+
+- CONFIG_SYS_BOOT_RAMDISK_HIGH:
+		Enable initrd_high functionality.  If defined then the
+		initrd_high feature is enabled and the bootm ramdisk subcommand
+		is enabled.
+
+- CONFIG_SYS_BOOT_GET_CMDLINE:
+		Enables allocating and saving kernel cmdline in space between
+		"bootm_low" and "bootm_low" + BOOTMAPSZ.
+
+- CONFIG_SYS_BOOT_GET_KBD:
+		Enables allocating and saving a kernel copy of the bd_info in
+		space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
 
 - CONFIG_SYS_MAX_FLASH_BANKS:
 		Max number of Flash memory banks
@@ -2367,6 +2399,14 @@ Configuration Settings:
 		buffers can be full shortly after enabling the interface
 		on high Ethernet traffic.
 		Defaults to 4 if not defined.
+
+- CONFIG_ENV_MAX_ENTRIES
+
+	Maximum number of entries in the hash table that is used
+	internally to store the environment settings. The default
+	setting is supposed to be generous and should work in most
+	cases. This setting can be used to tune behaviour; see
+	lib/hashtable.c for details.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
@@ -2545,18 +2585,32 @@ to save the current settings.
 	- CONFIG_ENV_SIZE:
 
 	  These two #defines specify the offset and size of the environment
-	  area within the first NAND device.
+	  area within the first NAND device.  CONFIG_ENV_OFFSET must be
+	  aligned to an erase block boundary.
 
-	- CONFIG_ENV_OFFSET_REDUND
+	- CONFIG_ENV_OFFSET_REDUND (optional):
 
 	  This setting describes a second storage area of CONFIG_ENV_SIZE
-	  size used to hold a redundant copy of the environment data,
-	  so that there is a valid backup copy in case there is a
-	  power failure during a "saveenv" operation.
+	  size used to hold a redundant copy of the environment data, so
+	  that there is a valid backup copy in case there is a power failure
+	  during a "saveenv" operation.  CONFIG_ENV_OFFSET_RENDUND must be
+	  aligned to an erase block boundary.
 
-	Note: CONFIG_ENV_OFFSET and CONFIG_ENV_OFFSET_REDUND must be aligned
-	to a block boundary, and CONFIG_ENV_SIZE must be a multiple of
-	the NAND devices block size.
+	- CONFIG_ENV_RANGE (optional):
+
+	  Specifies the length of the region in which the environment
+	  can be written.  This should be a multiple of the NAND device's
+	  block size.  Specifying a range with more erase blocks than
+	  are needed to hold CONFIG_ENV_SIZE allows bad blocks within
+	  the range to be avoided.
+
+	- CONFIG_ENV_OFFSET_OOB (optional):
+
+	  Enables support for dynamically retrieving the offset of the
+	  environment from block zero's out-of-band data.  The
+	  "nand env.oob" command can be used to record this offset.
+	  Currently, CONFIG_ENV_OFFSET_REDUND is not supported when
+	  using CONFIG_ENV_OFFSET_OOB.
 
 - CONFIG_NAND_ENV_DST
 
@@ -2670,7 +2724,7 @@ Low Level (hardware related) configuration options:
 		area defined by CONFIG_SYS_INIT_RAM_ADDR. Usually
 		CONFIG_SYS_GBL_DATA_OFFSET is chosen such that the initial
 		data is located at the end of the available space
-		(sometimes written as (CONFIG_SYS_INIT_RAM_END -
+		(sometimes written as (CONFIG_SYS_INIT_RAM_SIZE -
 		CONFIG_SYS_INIT_DATA_SIZE), and the initial stack is just
 		below that area (growing from (CONFIG_SYS_INIT_RAM_ADDR +
 		CONFIG_SYS_GBL_DATA_OFFSET) downward.
@@ -2755,6 +2809,24 @@ Low Level (hardware related) configuration options:
 		Disable PCI-Express on systems where it is supported but not
 		required.
 
+- CONFIG_SYS_SRIO:
+		Chip has SRIO or not
+
+- CONFIG_SRIO1:
+		Board has SRIO 1 port available
+
+- CONFIG_SRIO2:
+		Board has SRIO 2 port available
+
+- CONFIG_SYS_SRIOn_MEM_VIRT:
+		Virtual Address of SRIO port 'n' memory region
+
+- CONFIG_SYS_SRIOn_MEM_PHYS:
+		Physical Address of SRIO port 'n' memory region
+
+- CONFIG_SYS_SRIOn_MEM_SIZE:
+		Size of SRIO port 'n' memory region
+
 - CONFIG_SPD_EEPROM
 		Get DDR timing information from an I2C EEPROM. Common
 		with pluggable memory modules such as SODIMMs
@@ -2820,19 +2892,17 @@ Low Level (hardware related) configuration options:
 		globally (CONFIG_CMD_MEM).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
-- CONFIG_SKIP_RELOCATE_UBOOT
+		[ARM only] If this variable is defined, then certain
+		low level initializations (like setting up the memory
+		controller) are omitted and/or U-Boot does not
+		relocate itself into RAM.
 
-		[ARM only] If these variables are defined, then
-		certain low level initializations (like setting up
-		the memory controller) are omitted and/or U-Boot does
-		not relocate itself into RAM.
-		Normally these variables MUST NOT be defined. The
-		only exception is when U-Boot is loaded (to RAM) by
-		some other boot loader or by a debugger which
-		performs these initializations itself.
+		Normally this variable MUST NOT be defined. The only
+		exception is when U-Boot is loaded (to RAM) by some
+		other boot loader or by a debugger which performs
+		these initializations itself.
 
 - CONFIG_PRELOADER
-
 		Modifies the behaviour of start.S when compiling a loader
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.
