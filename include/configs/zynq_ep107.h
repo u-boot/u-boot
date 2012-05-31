@@ -72,11 +72,7 @@
 //#define CONFIG_ENV_ADDR         	(CONFIG_SYS_FLASH_BASE + 0x00000000)
 #define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
 #define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
-#ifdef CONFIG_EP107
-# define CONFIG_ENV_IS_IN_FLASH		1
-#else
-# define CONFIG_ENV_IS_NOWHERE		1
-#endif
+#define CONFIG_ENV_IS_IN_FLASH		1
 #else
 
 #define CONFIG_ENV_IS_NOWHERE	1
@@ -84,20 +80,11 @@
 #endif
 
 /* HW to use */
-#ifdef CONFIG_EP107
 # define CONFIG_UART0	1
-#else
-# define CONFIG_UART1	1
-#endif
 #define CONFIG_TTC0	1
 #define CONFIG_GEM0	1
 #define CONFIG_NET_MULTI
-
-#ifdef CONFIG_EP107
-# define CONFIG_XGMAC_PHY_ADDR 0x17
-#else
-# define CONFIG_XGMAC_PHY_ADDR 0x7
-#endif
+#define CONFIG_XGMAC_PHY_ADDR 0x17
 
 /*
  * These were lifted straight from imx31_phycore, and may well be very wrong.
@@ -118,23 +105,18 @@
 #define CONFIG_SF_DEFAULT_SPEED 30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
-/* #ifdef NOTOW_BHILL */
-/* #define CONFIG_SPI_FLASH_ATMEL */
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_SPI_FLASH_WINBOND
-/* #endif */
 #define CONFIG_SPI_FLASH_STMICRO
 
 /*
  * NAND Flash settings
  */
-#if defined(CONFIG_ZC770_XM011) || defined(CONFIG_ZC770_XM010_XM011) || defined (CONFIG_EP107)
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 #define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
 #define CONFIG_MTD_DEVICE
-#endif
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
