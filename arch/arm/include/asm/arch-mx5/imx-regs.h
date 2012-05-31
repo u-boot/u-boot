@@ -50,8 +50,6 @@
 #error "CPU_TYPE not defined"
 #endif
 
-#define IPU_CTRL_BASE_ADDR	IPU_SOC_BASE_ADDR + IPU_SOC_OFFSET
-
 #define IRAM_SIZE		0x00020000	/* 128 KB */
 
 /*
