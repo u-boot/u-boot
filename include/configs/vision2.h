@@ -219,5 +219,6 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
+#define CONFIG_IPUV3_CLK	133000000
 
 #endif				/* __CONFIG_H */
