@@ -3,6 +3,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include "ps7_init_hw.h"
 #include "xparameters.h"
 
@@ -656,13 +657,9 @@ int board_late_init (void)
 }
 
 #ifdef CONFIG_CMD_NET
-extern int Xgmac_register(bd_t *bis);
-
 int board_eth_init(bd_t *bis)
 {
-	Xgmac_register(bis);
-
-	return 0;
+	return Xgmac_register(bis);
 }
 #endif
 

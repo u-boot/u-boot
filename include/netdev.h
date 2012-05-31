@@ -94,6 +94,7 @@ int xilinx_emaclite_initialize (bd_t *bis, int base_addr);
 int sh_eth_initialize(bd_t *bis);
 int dm9000_initialize(bd_t *bis);
 int fecmxc_initialize(bd_t *bis);
+int Xgmac_register(bd_t *bis);
 
 /* Boards with PCI network controllers can call this from their board_eth_init()
  * function to initialize whatever's on board.
