@@ -116,4 +116,11 @@
 
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */
 
+/* Enable the PL to be downloaded */
+
+#define CONFIG_FPGA
+#define CONFIG_FPGA_XILINX
+#define CONFIG_FPGA_ZYNQPL
+#define CONFIG_CMD_FPGA
+
 #endif /* __CONFIG_ZYNQ_COMMON_H */
