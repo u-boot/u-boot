@@ -290,7 +290,7 @@ static int init_usb_controller(struct fdt_usb *config,
 			break;
 		udelay(1);
 	}
-	if (loop_count == 100000)
+	if (!loop_count)
 		return -1;
 
 	return 0;
