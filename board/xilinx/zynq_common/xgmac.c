@@ -10,14 +10,15 @@
 
 /************************ Forward function declaration **********************/
 
-static int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr);
-static int Xgmac_init_rxq(XEmacPss * EmacPssInstancePtr, void *bd_start, int num_elem);
-static int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
-			  u32 rx_buffsize);
-static int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr);
-static int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
-
-static void Xgmac_set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed);
+static int Xgmac_process_rx(XEmacPss *EmacPssInstancePtr);
+static int Xgmac_init_rxq(XEmacPss *EmacPssInstancePtr,
+			void *bd_start, int num_elem);
+static int Xgmac_make_rxbuff_mem(XEmacPss *EmacPssInstancePtr,
+			void *rx_buf_start, u32 rx_buffsize);
+static int Xgmac_next_rx_buf(XEmacPss *EmacPssInstancePtr);
+static int Xgmac_phy_mgmt_idle(XEmacPss *EmacPssInstancePtr);
+static void Xgmac_set_eth_advertise(XEmacPss *EmacPssInstancePtr,
+			int link_speed);
 
 /*************************** Constant Definitions ***************************/
 
@@ -507,13 +508,13 @@ static int Xgmac_write_hwaddr(struct eth_device *dev)
 	return 0;
 }
 
-int Xgmac_register(bd_t * bis)
+int Xgmac_register(bd_t *bis)
 {
 	struct eth_device *dev;
 	dev = malloc(sizeof(*dev));
-	if (dev == NULL) {
+	if (dev == NULL)
 		return 1;
-	}
+
 	memset(dev, 0, sizeof(*dev));
 	sprintf(dev->name, "xgmac");
 
@@ -694,8 +695,8 @@ int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr)
 	return 0;
 }
 
-void Xgmac_set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed) {
-
+void Xgmac_set_eth_advertise(XEmacPss *EmacPssInstancePtr, int link_speed)
+{
 	int tmp;
 
 	/* MAC setup */
