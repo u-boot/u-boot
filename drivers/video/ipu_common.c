@@ -163,6 +163,7 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 
 static int clk_ipu_enable(struct clk *clk)
 {
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	u32 reg;
 
 	reg = __raw_readl(clk->enable_reg);
@@ -178,12 +179,13 @@ static int clk_ipu_enable(struct clk *clk)
 	reg = __raw_readl(&mxc_ccm->clpcr);
 	reg &= ~MXC_CCM_CLPCR_BYPASS_IPU_LPM_HS;
 	__raw_writel(reg, &mxc_ccm->clpcr);
-
+#endif
 	return 0;
 }
 
 static void clk_ipu_disable(struct clk *clk)
 {
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	u32 reg;
 
 	reg = __raw_readl(clk->enable_reg);
@@ -202,6 +204,7 @@ static void clk_ipu_disable(struct clk *clk)
 	reg = __raw_readl(&mxc_ccm->clpcr);
 	reg |= MXC_CCM_CLPCR_BYPASS_IPU_LPM_HS;
 	__raw_writel(reg, &mxc_ccm->clpcr);
+#endif
 }
 
 
