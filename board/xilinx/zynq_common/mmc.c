@@ -61,9 +61,10 @@ static void connect_test_mode(void)
 
 	/* Wait for card detected */
 	statusreg = sd_in32(SD_PRES_STATE_R);
-	while ( (!(statusreg & SD_CARD_DPL)) || (!(statusreg & SD_CARD_DB)) || (!(statusreg & SD_CARD_INS)) ) {
+	while ((!(statusreg & SD_CARD_DPL))
+		|| (!(statusreg & SD_CARD_DB))
+		|| (!(statusreg & SD_CARD_INS)))
 		statusreg = sd_in32(SD_PRES_STATE_R);
-	}
 }
 
 /* Initialize the SD controller */
@@ -342,7 +343,8 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 
 #ifndef CONFIG_ZYNQ_SD_DIRECT_DMA
 	if (cmdreg & SD_CMD_DATA) {
-		memcpy(data->dest, sd_dma_buffer, data->blocks * data->blocksize);
+		memcpy(data->dest, sd_dma_buffer,
+			data->blocks * data->blocksize);
 	}
 #endif
 
