@@ -211,7 +211,7 @@ static void clk_ipu_disable(struct clk *clk)
 static struct clk ipu_clk = {
 	.name = "ipu_clk",
 	.rate = 133000000,
-	.enable_reg = (u32 *)(MXC_CCM_BASE +
+	.enable_reg = (u32 *)(CCM_BASE_ADDR +
 		offsetof(struct mxc_ccm_reg, CCGR5)),
 	.enable_shift = MXC_CCM_CCGR5_CG5_OFFSET,
 	.enable = clk_ipu_enable,
