@@ -87,6 +87,11 @@ void spi_free_slave(struct spi_slave *slave)
 u32 spi_mpp_backup[4];
 #endif
 
+__attribute__((weak)) int board_spi_claim_bus(struct spi_slave *slave)
+{
+	return 0;
+}
+
 int spi_claim_bus(struct spi_slave *slave)
 {
 #if defined(CONFIG_SYS_KW_SPI_MPP)
@@ -118,7 +123,11 @@ int spi_claim_bus(struct spi_slave *slave)
 
 #endif
 
-	return 0;
+	return board_spi_claim_bus(slave);
+}
+
+__attribute__((weak)) void board_spi_release_bus(struct spi_slave *slave)
+{
 }
 
 void spi_release_bus(struct spi_slave *slave)
@@ -126,6 +135,8 @@ void spi_release_bus(struct spi_slave *slave)
 #if defined(CONFIG_SYS_KW_SPI_MPP)
 	kirkwood_mpp_conf(spi_mpp_backup, NULL);
 #endif
+
+	board_spi_release_bus(slave);
 }
 
 #ifndef CONFIG_SPI_CS_IS_VALID
