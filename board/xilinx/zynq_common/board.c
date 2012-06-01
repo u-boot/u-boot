@@ -4,6 +4,8 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <xparameters.h>
+#include <zynqpl.h>
 #include "ps7_init_hw.h"
 #include "xparameters.h"
 
@@ -599,6 +601,10 @@ void from_burst_main(void)
 #endif
 }
 
+#ifdef CONFIG_FPGA
+Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
+#endif
+
 int board_init(void)
 {
 	/* taken from burst, some DDR/MIO/Clock setup hacked in */
@@ -622,6 +628,11 @@ int board_init(void)
 	icache_enable();
 #ifndef CONFIG_SYS_NO_FLASH
 	init_nor_flash();
+#endif
+
+#ifdef CONFIG_FPGA
+	fpga_init();
+	fpga_add(fpga_xilinx, &fpga);
 #endif
 
 	return 0;
