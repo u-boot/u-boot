@@ -83,13 +83,49 @@ void spi_free_slave(struct spi_slave *slave)
 	free(slave);
 }
 
+#if defined(CONFIG_SYS_KW_SPI_MPP)
+u32 spi_mpp_backup[4];
+#endif
+
 int spi_claim_bus(struct spi_slave *slave)
 {
+#if defined(CONFIG_SYS_KW_SPI_MPP)
+	u32 config;
+	u32 spi_mpp_config[4];
+
+	config = CONFIG_SYS_KW_SPI_MPP;
+
+	if (config & MOSI_MPP6)
+		spi_mpp_config[0] = MPP6_SPI_MOSI;
+	else
+		spi_mpp_config[0] = MPP1_SPI_MOSI;
+
+	if (config & SCK_MPP10)
+		spi_mpp_config[1] = MPP10_SPI_SCK;
+	else
+		spi_mpp_config[1] = MPP2_SPI_SCK;
+
+	if (config & MISO_MPP11)
+		spi_mpp_config[2] = MPP11_SPI_MISO;
+	else
+		spi_mpp_config[2] = MPP3_SPI_MISO;
+
+	spi_mpp_config[3] = 0;
+	spi_mpp_backup[3] = 0;
+
+	/* set new spi mpp and save current mpp config */
+	kirkwood_mpp_conf(spi_mpp_config, spi_mpp_backup);
+
+#endif
+
 	return 0;
 }
 
 void spi_release_bus(struct spi_slave *slave)
 {
+#if defined(CONFIG_SYS_KW_SPI_MPP)
+	kirkwood_mpp_conf(spi_mpp_backup, NULL);
+#endif
 }
 
 #ifndef CONFIG_SPI_CS_IS_VALID
