@@ -312,6 +312,6 @@
 
 #define MPP_MAX			49
 
-void kirkwood_mpp_conf(unsigned int *mpp_list);
+void kirkwood_mpp_conf(u32 *mpp_list, u32 *mpp_save);
 
 #endif
