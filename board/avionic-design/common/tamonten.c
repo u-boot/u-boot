@@ -37,7 +37,7 @@
 #include <asm/arch/uart.h>
 #include <asm/arch/mmc.h>
 
-#ifdef CONFIG_TEGRA2_MMC
+#ifdef CONFIG_TEGRA_MMC
 #include <mmc.h>
 #endif
 
@@ -57,7 +57,7 @@ void gpio_early_init(void)
 }
 #endif
 
-#ifdef CONFIG_TEGRA2_MMC
+#ifdef CONFIG_TEGRA_MMC
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)

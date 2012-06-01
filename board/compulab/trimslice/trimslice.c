@@ -30,7 +30,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/mmc.h>
 #include <asm/gpio.h>
-#ifdef CONFIG_TEGRA2_MMC
+#ifdef CONFIG_TEGRA_MMC
 #include <mmc.h>
 #endif
 

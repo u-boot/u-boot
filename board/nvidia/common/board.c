@@ -94,7 +94,7 @@ int board_init(void)
 #ifdef CONFIG_SPI_UART_SWITCH
 	gpio_config_uart();
 #endif
-#ifdef CONFIG_TEGRA2_SPI
+#ifdef CONFIG_TEGRA_SPI
 	spi_init();
 #endif
 	/* boot param addr */
