@@ -22,8 +22,10 @@ void set_eth_advertise(XEmacPss * EmacPssInstancePtr, int link_speed);
 #define EMACPSS_DEVICE_ID   0
 #ifdef CONFIG_EP107
 # define PHY_ADDR 0x17
+#elif defined(CONFIG_ZED)
+# define PHY_ADDR 0x00
 #else
-# define PHY_ADDR 0x7
+# define PHY_ADDR 0x07
 #endif
 #define RXBD_CNT       8	/* Number of RxBDs to use */
 #define TXBD_CNT       8	/* Number of TxBDs to use */
