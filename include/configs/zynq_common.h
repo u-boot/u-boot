@@ -123,4 +123,8 @@
 #define CONFIG_FPGA_ZYNQPL
 #define CONFIG_CMD_FPGA
 
+/* For now, use only single block reads for the MMC */
+
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
+
 #endif /* __CONFIG_ZYNQ_COMMON_H */
