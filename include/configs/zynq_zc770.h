@@ -39,12 +39,6 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_CMDLINE_EDITING	1
 
-#undef CONFIG_SKIP_RELOCATE_UBOOT	
-
-#define CONFIG_SYS_SDRAM_BASE	0
-
-#define CONFIG_L2_OFF
-
 /* this is to initialize GEM at uboot start */
 /* #define CONFIG_ZYNQ_INIT_GEM	*/
 /* this is to set ipaddr, ethaddr and serverip env variables. */
@@ -55,39 +49,32 @@
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #endif
 
+/*
+ * NOR Flash Settings
+ */
 #ifndef CONFIG_SYS_NO_FLASH
-
-/* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE           0xE2000000 
 #define CONFIG_SYS_FLASH_SIZE           (16*1024*1024)  /* i.e. 16MB */
 #define CONFIG_SYS_MAX_FLASH_BANKS      1       /* max number of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT       512     /* max number of sectors/blocks on one chip */
 #define CONFIG_SYS_FLASH_ERASE_TOUT     1000
 #define CONFIG_SYS_FLASH_WRITE_TOUT     5000
-
 #define CONFIG_FLASH_SHOW_PROGRESS	10
 
 #define CONFIG_SYS_FLASH_CFI            1
 // #define CONFIG_SYS_FLASH_EMPTY_INFO     0
 #define CONFIG_FLASH_CFI_DRIVER 	1
-
 #define CONFIG_SYS_FLASH_PROTECTION     0       /* use hardware protection           */
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE       /* use buffered writes (20x faster)  */
 //#define CONFIG_ENV_ADDR         	(CONFIG_SYS_FLASH_BASE + 0x00000000)
 #define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
 #define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
-#ifdef CONFIG_EP107
-# define CONFIG_ENV_IS_IN_FLASH		1
-#else
-# define CONFIG_ENV_IS_NOWHERE		1
-#endif
+#define CONFIG_ENV_IS_IN_FLASH		1
 #ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
 #endif
 #else
-
 #define CONFIG_ENV_IS_NOWHERE	1
-
 #endif
 
 /*
@@ -95,7 +82,6 @@
  */
 //#define CONFIG_ENV_SIZE			4096
 #define CONFIG_ENV_SIZE			0x10000
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_MALLOC_LEN		0x400000
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_CBSIZE		256
@@ -108,7 +94,7 @@
 #define CONFIG_UART0			1
 #endif
 
- /*
+/*
  * Ethernet Settings
  */
 #if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM013)

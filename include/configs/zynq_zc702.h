@@ -40,12 +40,6 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_CMDLINE_EDITING	1
 
-#undef CONFIG_SKIP_RELOCATE_UBOOT
-
-#define CONFIG_SYS_SDRAM_BASE	0
-
-#define CONFIG_L2_OFF
-
 /* this is to initialize GEM at uboot start */
 /* #define CONFIG_ZYNQ_INIT_GEM	*/
 /* this is to set ipaddr, ethaddr and serverip env variables. */
@@ -63,7 +57,6 @@
  */
 //#define CONFIG_ENV_SIZE			4096
 #define CONFIG_ENV_SIZE			0x10000
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_MALLOC_LEN		0x400000
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_CBSIZE		256

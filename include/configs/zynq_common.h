@@ -47,14 +47,12 @@
 			    "cp 0xFC600000 0x1000000 0x8000;" \
 			    "echo Copying ramdisk...;" \
 			    "cp 0xFC800000 0x800000 ${ramdisk_size};" \
-			    "ping 10.10.70.101;" \
 			    "go 0x8000\0" \
 	"sdboot=echo Copying Linux from SD to RAM...;" \
 			    "mmcinfo;" \
 			    "fatload mmc 0 0x8000 zImage;" \
 			    "fatload mmc 0 0x1000000 devicetree.dtb;" \
 			    "fatload mmc 0 0x800000 ramdisk8M.image.gz;" \
-			    "ping 10.10.70.101;" \
 			    "go 0x8000\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM...;" \
 			    "nand read 0x8000 0x200000 ${nand_kernel_size};" \
@@ -67,7 +65,6 @@
 			    "tftp 0x1000000 devicetree.dtb;" \
 			    "tftp 0x800000 ramdisk8M.image.gz;" \
 			    "go 0x8000\0"
-
 
 /* default boot is according to the bootmode switch settings */
 #define CONFIG_BOOTCOMMAND "run modeboot"
@@ -84,14 +81,30 @@
 /* CONFIG_SYS_MONITOR_BASE? */
 /* CONFIG_SYS_MONITOR_LEN? */
 
+/* Keep L2 Cache Disabled */
+#define CONFIG_L2_OFF			1		
 #define CONFIG_SYS_CACHELINE_SIZE	32 /* Assuming bytes? */
 
+/*
+ * Physical Memory map
+ */
+#define CONFIG_NR_DRAM_BANKS    	1
+/* Semi-educated guess based on p.48 of DF Arch spec */
+#define PHYS_SDRAM_1            	(256 * 1024)
+/* Cameron guessed 256 or 512 MB */
+#define PHYS_SDRAM_1_SIZE       	(256 * 1024 * 1024)
+
+#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000)
+
+#define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					CONFIG_SYS_INIT_RAM_SIZE - \
 					GENERATED_GBL_DATA_SIZE)
 
+#undef CONFIG_SKIP_RELOCATE_UBOOT
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 /* #define CONFIG_SKIP_LOWLEVEL_INIT */
 
@@ -101,14 +114,6 @@
 #define TIMER_TICK_HZ		(TIMER_INPUT_CLOCK / CONFIG_TIMER_PRESCALE)
 #define CONFIG_SYS_HZ		1000
 
-/* And here... */
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */
-/* Semi-educated guess based on p.48 of DF Arch spec */
-#define PHYS_SDRAM_1		(256 * 1024)
-/* Cameron guessed 256 or 512 MB */
-#define PHYS_SDRAM_1_SIZE	(256 * 1024 * 1024)
-
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000)
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */
