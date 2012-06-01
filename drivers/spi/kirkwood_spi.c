@@ -34,16 +34,14 @@
 
 static struct kwspi_registers *spireg = (struct kwspi_registers *)KW_SPI_BASE;
 
+u32 cs_spi_mpp_back[2];
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				unsigned int max_hz, unsigned int mode)
 {
 	struct spi_slave *slave;
 	u32 data;
-	u32 kwspi_mpp_config[] = {
-		MPP0_GPIO,
-		MPP7_SPI_SCn,
-		0
-	};
+	u32 kwspi_mpp_config[] = { 0, 0 };
 
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
@@ -70,19 +68,18 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	/* program mpp registers to select  SPI_CSn */
 	if (cs) {
-		kwspi_mpp_config[0] = MPP0_GPIO;
-		kwspi_mpp_config[1] = MPP7_SPI_SCn;
+		kwspi_mpp_config[0] = MPP7_SPI_SCn;
 	} else {
 		kwspi_mpp_config[0] = MPP0_SPI_SCn;
-		kwspi_mpp_config[1] = MPP7_GPO;
 	}
-	kirkwood_mpp_conf(kwspi_mpp_config);
+	kirkwood_mpp_conf(kwspi_mpp_config, cs_spi_mpp_back);
 
 	return slave;
 }
 
 void spi_free_slave(struct spi_slave *slave)
 {
+	kirkwood_mpp_conf(cs_spi_mpp_back, NULL);
 	free(slave);
 }
 
