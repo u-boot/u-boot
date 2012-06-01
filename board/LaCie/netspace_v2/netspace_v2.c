@@ -73,7 +73,7 @@ int board_early_init_f(void)
 		MPP33_GPIO,		/* Fan speed (bit 2) */
 		0
 	};
-	kirkwood_mpp_conf(kwmpp_config);
+	kirkwood_mpp_conf(kwmpp_config, NULL);
 
 	return 0;
 }

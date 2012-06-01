@@ -66,7 +66,7 @@ int board_early_init_f(void)
 		MPP29_GPIO,     /* USB Copy button */
 		0
 	};
-	kirkwood_mpp_conf(kwmpp_config);
+	kirkwood_mpp_conf(kwmpp_config, NULL);
 	return 0;
 }
 

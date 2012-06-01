@@ -244,7 +244,7 @@ int board_early_init_f(void)
 {
 	u32 tmp;
 
-	kirkwood_mpp_conf(kwmpp_config);
+	kirkwood_mpp_conf(kwmpp_config, NULL);
 
 	/*
 	 * The FLASH_GPIO_PIN switches between using a
@@ -299,7 +299,7 @@ int do_spi_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		kwmpp_config[2] = MPP2_NF_IO4;
 		kwmpp_config[3] = MPP3_NF_IO5;
 
-		kirkwood_mpp_conf(kwmpp_config);
+		kirkwood_mpp_conf(kwmpp_config, NULL);
 		tmp = readl(KW_GPIO0_BASE);
 		writel(tmp | FLASH_GPIO_PIN , KW_GPIO0_BASE);
 	} else if ((strcmp(argv[1], "on") == 0)) {
@@ -310,7 +310,7 @@ int do_spi_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		kwmpp_config[2] = MPP2_SPI_SCK;
 		kwmpp_config[3] = MPP3_SPI_MISO;
 
-		kirkwood_mpp_conf(kwmpp_config);
+		kirkwood_mpp_conf(kwmpp_config, NULL);
 		tmp = readl(KW_GPIO0_BASE);
 		writel(tmp & (~FLASH_GPIO_PIN) , KW_GPIO0_BASE);
 	} else {

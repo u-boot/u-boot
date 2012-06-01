@@ -97,7 +97,7 @@ int board_early_init_f(void)
 		MPP49_GPIO,		/* thermal sensor */
 		0
 	};
-	kirkwood_mpp_conf(kwmpp_config);
+	kirkwood_mpp_conf(kwmpp_config, NULL);
 
 	kw_gpio_set_blink(DNS325_GPIO_LED_POWER , 1);
 
