@@ -91,7 +91,6 @@
 #define CONFIG_I2C_MXC
 #define CONFIG_SYS_I2C_MX53_PORT1
 #define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0xfe
 
 /* PMIC Controller */
 #define CONFIG_PMIC
