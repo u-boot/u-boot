@@ -236,7 +236,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 	status = (cmd.response[0] & MMC_STATUS_CURR_STATE) >> 9;
 	printf("CURR STATE:%d\n", status);
 #endif
-	if (!timeout) {
+	if (timeout <= 0) {
 		printf("Timeout waiting card ready\n");
 		return TIMEOUT;
 	}
