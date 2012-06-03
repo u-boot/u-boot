@@ -389,7 +389,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 {
 	char *s;
 	bd_t *bd;
-	extern void malloc_bin_reloc (void);
 
 #ifndef CONFIG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
