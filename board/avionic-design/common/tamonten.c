@@ -65,6 +65,8 @@ void gpio_early_init(void)
 static void pin_mux_mmc(void)
 {
 	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATB_GMA_GME_8_BIT);
+	/* for write-protect GPIO PI6 */
+	pinmux_tristate_disable(PINGRP_ATA);
 	/* for CD GPIO PH2 */
 	pinmux_tristate_disable(PINGRP_ATD);
 }
@@ -76,7 +78,7 @@ int board_mmc_init(bd_t *bd)
 	pin_mux_mmc();
 
 	/* init dev 0, SD slot, with 4-bit bus */
-	tegra2_mmc_init(0, 4, -1, GPIO_PH2);
+	tegra2_mmc_init(0, 4, GPIO_PI6, GPIO_PH2);
 
 	return 0;
 }
