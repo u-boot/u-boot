@@ -1,7 +1,7 @@
 #
 #  (C) Copyright 2010,2011
 #  NVIDIA Corporation <www.nvidia.com>
-#  (C) Copyright 2011
+#  (C) Copyright 2011,2012
 #  Avionic Design GmbH <www.avionic-design.de>
 #
 #  See file CREDITS for list of people who contributed to this
@@ -26,12 +26,12 @@
 include $(TOPDIR)/config.mk
 
 ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
+$(shell mkdir -p $(obj)../common $(obj)../../nvidia/common)
 endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= $(BOARD).o
+COBJS	:= ../../nvidia/common/board.o
 COBJS	+= ../common/tamonten.o
 
 SRCS	:= $(COBJS:.o=.c)
