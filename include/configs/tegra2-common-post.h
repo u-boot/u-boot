@@ -58,24 +58,33 @@
 #endif
 
 #ifdef CONFIG_CMD_USB
+#define BOOTCMD_INIT_USB "run usb_init; "
 #define BOOTCMDS_USB \
+	"usb_init=" \
+		"if ${usb_need_init}; then " \
+			"set usb_need_init false; " \
+			"usb start 0; " \
+		"fi\0" \
+	\
 	"usb_boot=" \
 		"setenv devtype usb; " \
+		BOOTCMD_INIT_USB \
 		"if usb dev ${devnum}; then " \
 			"run scan_boot; " \
 		"fi\0" \
+	\
 	"bootcmd_usb0=setenv devnum 0; run usb_boot;\0"
 #define BOOT_TARGETS_USB "usb0"
-#define BOOTCMD_INIT_USB "usb start 0; "
 #else
+#define BOOTCMD_INIT_USB ""
 #define BOOTCMDS_USB ""
 #define BOOT_TARGETS_USB ""
-#define BOOTCMD_INIT_USB ""
 #endif
 
 #ifdef CONFIG_CMD_DHCP
 #define BOOTCMDS_DHCP \
 	"bootcmd_dhcp=" \
+		BOOTCMD_INIT_USB \
 		"if dhcp ${scriptaddr} boot.scr.uimg; then "\
 			"source ${scriptaddr}; " \
 		"fi\0"
@@ -127,7 +136,6 @@
 	BOOTCMDS_DHCP
 
 #define CONFIG_BOOTCOMMAND \
-	BOOTCMD_INIT_USB \
 	"for target in ${boot_targets}; do run bootcmd_${target}; done"
 
 #endif
