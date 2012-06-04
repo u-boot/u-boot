@@ -22,6 +22,7 @@
 #include <asm/arch/omap.h>
 #include <asm/arch/ddr_defs.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/common_def.h>
 #include <asm/io.h>
@@ -32,6 +33,15 @@ DECLARE_GLOBAL_DATA_PTR;
 struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
 struct gptimer *timer_base = (struct gptimer *)CONFIG_SYS_TIMERBASE;
 struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
+
+static const struct gpio_bank gpio_bank_am33xx[4] = {
+	{ (void *)AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
+	{ (void *)AM33XX_GPIO1_BASE, METHOD_GPIO_24XX },
+	{ (void *)AM33XX_GPIO2_BASE, METHOD_GPIO_24XX },
+	{ (void *)AM33XX_GPIO3_BASE, METHOD_GPIO_24XX },
+};
+
+const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
 
 /* UART Defines */
 #ifdef CONFIG_SPL_BUILD

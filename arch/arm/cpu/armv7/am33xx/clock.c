@@ -118,6 +118,21 @@ static void enable_per_clocks(void)
 	writel(PRCM_MOD_EN, &cmwkup->wkup_i2c0ctrl);
 	while (readl(&cmwkup->wkup_i2c0ctrl) != PRCM_MOD_EN)
 		;
+
+	/* gpio1 module */
+	writel(PRCM_MOD_EN, &cmper->gpio1clkctrl);
+	while (readl(&cmper->gpio1clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* gpio2 module */
+	writel(PRCM_MOD_EN, &cmper->gpio2clkctrl);
+	while (readl(&cmper->gpio2clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* gpio3 module */
+	writel(PRCM_MOD_EN, &cmper->gpio3clkctrl);
+	while (readl(&cmper->gpio3clkctrl) != PRCM_MOD_EN)
+		;
 }
 
 static void mpu_pll_config(void)

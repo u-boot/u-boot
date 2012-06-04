@@ -29,7 +29,7 @@ SOBJS	:= reset.o
 
 COBJS	:= timer.o
 COBJS	+= utils.o
-ifdef CONFIG_OMAP
+ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP),)
 COBJS	+= gpio.o
 endif
 
