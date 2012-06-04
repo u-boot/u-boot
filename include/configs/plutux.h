@@ -1,7 +1,7 @@
 /*
  *  (C) Copyright 2010,2011
  *  NVIDIA Corporation <www.nvidia.com>
- *  (C) Copyright 2011
+ *  (C) Copyright 2011-2012
  *  Avionic Design GmbH <www.avionic-design.de>
  *
  * See file CREDITS for list of people who contributed to this
@@ -28,6 +28,11 @@
 
 #include "tegra2-common.h"
 
+/* Enable fdt support for Plutux. Flash the image in u-boot-dtb.bin */
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-plutux
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_SEPARATE
+
 /* High-level configuration options */
 #define V_PROMPT			"Tegra2 (Plutux) # "
 #define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Plutux"
@@ -46,6 +51,20 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
 #define CONFIG_CMD_MMC
+
+/* USB host support */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_TEGRA
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_USB
+
+/* USB networking support */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+
+/* General networking support */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
