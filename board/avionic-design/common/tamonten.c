@@ -49,6 +49,14 @@ void gpio_config_uart(void)
 {
 }
 
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+void gpio_early_init(void)
+{
+	gpio_request(GPIO_PI4, NULL);
+	gpio_direction_output(GPIO_PI4, 1);
+}
+#endif
+
 #ifdef CONFIG_TEGRA2_MMC
 /*
  * Routine: pin_mux_mmc
