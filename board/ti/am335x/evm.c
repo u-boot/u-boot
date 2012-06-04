@@ -17,14 +17,9 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/common_def.h>
-#include <serial.h>
 #include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define UART_RESET		(0x1 << 1)
-#define UART_CLK_RUNNING_MASK	0x1
-#define UART_SMART_IDLE_EN	(0x1 << 0x3)
 
 /*
  * Basic board specific setup
