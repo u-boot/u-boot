@@ -132,11 +132,18 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
+static void __gpio_early_init(void)
+{
+}
+
+void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
+
 int board_early_init_f(void)
 {
 	board_init_uart_f();
 
 	/* Initialize periph GPIOs */
+	gpio_early_init();
 #ifdef CONFIG_SPI_UART_SWITCH
 	gpio_early_init_uart();
 #else
