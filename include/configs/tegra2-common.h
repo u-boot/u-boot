@@ -193,4 +193,5 @@
 
 #define CONFIG_TEGRA_GPIO
 #define CONFIG_CMD_GPIO
+#define CONFIG_CMD_ENTERRCM
 #endif /* __TEGRA2_COMMON_H */
