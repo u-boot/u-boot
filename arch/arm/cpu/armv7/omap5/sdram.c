@@ -204,6 +204,37 @@ void emif_get_device_details(u32 emif_nr,
 
 #endif /* CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS */
 
+void do_ext_phy_settings(u32 base, const struct emif_regs *regs)
+{
+	u32 *ext_phy_ctrl_base = 0;
+	u32 *emif_ext_phy_ctrl_base = 0;
+	u32 i = 0;
+
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+
+	ext_phy_ctrl_base = (u32 *) &(regs->emif_ddr_ext_phy_ctrl_1);
+	emif_ext_phy_ctrl_base = (u32 *) &(emif->emif_ddr_ext_phy_ctrl_1);
+
+	/* Configure external phy control timing registers */
+	for (i = 0; i < EMIF_EXT_PHY_CTRL_TIMING_REG; i++) {
+		writel(*ext_phy_ctrl_base, emif_ext_phy_ctrl_base++);
+		/* Update shadow registers */
+		writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
+	}
+
+	/*
+	 * external phy 6-24 registers do not change with
+	 * ddr frequency
+	 */
+	for (i = 0; i < EMIF_EXT_PHY_CTRL_CONST_REG; i++) {
+		writel(ext_phy_ctrl_const_base[i],
+					emif_ext_phy_ctrl_base++);
+		/* Update shadow registers */
+		writel(ext_phy_ctrl_const_base[i],
+					emif_ext_phy_ctrl_base++);
+	}
+}
+
 #ifndef CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
 static const struct lpddr2_ac_timings timings_jedec_532_mhz = {
 	.max_freq	= 532000000,

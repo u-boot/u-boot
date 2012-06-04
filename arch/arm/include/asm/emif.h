@@ -1141,6 +1141,8 @@ void emif_get_device_timings(u32 emif_nr,
 		const struct lpddr2_device_timings **cs1_device_timings);
 #endif
 
+void do_ext_phy_settings(u32 base, const struct emif_regs *regs);
+
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 extern u32 *const T_num;
 extern u32 *const T_den;
