@@ -40,12 +40,12 @@ static u32 In32(u32 InAddress)
     return temp;
 }
 
-static void Out8(u32 OutAddress, u8 Value)
+static inline void Out8(u32 OutAddress, u8 Value)
 {
     *(volatile u8 *) OutAddress = Value;
 }
 
-static u8 In8(u32 InAddress)
+static inline u8 In8(u32 InAddress)
 {
     return *(u8 *) InAddress;
 }
@@ -63,7 +63,7 @@ void XIo_Out32(u32 OutAddress, u32 Value)
 
 u32 XIo_In32(u32 InAddress)
 {
-	volatile u32 * temp = *(volatile u32 *)InAddress;
+	volatile u32 temp = *(volatile u32 *)InAddress;
 	SYNCHRONIZE_IO;
 	return temp;
 }
