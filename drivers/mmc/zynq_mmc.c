@@ -1,10 +1,11 @@
 #include <common.h>
+#include <asm/arch/mmc.h>
 #include <asm/arch/xparameters.h>
 #include <asm/errno.h>
 #include <malloc.h>
 #include <mmc.h>
 
-#include "sd_hardware.h"
+#include "zynq_mmc.h"
 
 #define SD_BASEADDR XPSS_SDIO0_BASEADDR
 
@@ -368,7 +369,7 @@ static int pele_sdh_init(struct mmc *mmc)
 	return 0;
 }
 
-int board_mmc_init(bd_t *bd)
+int zynq_mmc_init(bd_t *bd)
 {
 	struct mmc *mmc;
 

@@ -3,6 +3,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/mmc.h>
 #include <asm/arch/xparameters.h>
 #include <netdev.h>
 #include <zynqpl.h>
@@ -670,6 +671,13 @@ int board_late_init (void)
 int board_eth_init(bd_t *bis)
 {
 	return Xgmac_register(bis);
+}
+#endif
+
+#ifdef CONFIG_CMD_MMC
+int board_mmc_init(bd_t *bd)
+{
+	return zynq_mmc_init(bd);
 }
 #endif
 
