@@ -15,11 +15,7 @@
 #define CONFIG_ARM_DCC  1 /* enable dcc channel */
 #define CONFIG_CPU_V6   1
 
-#ifdef CONFIG_EP107
-# include "../board/xilinx/zynq_common/xparameters.h"
-#else
-# include "../board/xilinx/zynq_common/xparameters_zynq.h"
-#endif
+#include "../board/xilinx/zynq_common/xparameters.h"
 
 /*
  * Open Firmware flat tree

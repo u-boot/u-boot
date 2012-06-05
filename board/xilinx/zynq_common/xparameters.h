@@ -128,6 +128,10 @@
 #define XPSS_WDT_DEVICE_ID		0
 
 /******************************************************************/
+#ifdef CONFIG_EP107
 #define XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ	12500000
+#else
+#define XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ	800000000
+#endif
 /******************************************************************/
 #endif /*_XPARAMETERS_PSS_H_*/
