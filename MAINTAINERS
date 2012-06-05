@@ -904,6 +904,11 @@ Prafulla Wadaskar <prafulla@marvell.com>
 	rd6281a		ARM926EJS (Kirkwood SoC)
 	sheevaplug	ARM926EJS (Kirkwood SoC)
 
+Michael Walle <michael@walle.cc>
+
+	lschlv2		ARM926EJS (Kirkwood SoC)
+	lsxhl		ARM926EJS (Kirkwood SoC)
+
 Tom Warren <twarren@nvidia.com>
 
 	harmony		Tegra2 (ARM7 & A9 Dual Core)
