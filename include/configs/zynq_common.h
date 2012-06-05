@@ -6,7 +6,7 @@
 #ifndef __CONFIG_ZYNQ_COMMON_H
 #define __CONFIG_ZYNQ_COMMON_H
 
-#include "../board/xilinx/zynq_common/xparameters.h"
+#include <asm/arch/xparameters.h>
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000
 

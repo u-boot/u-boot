@@ -3,11 +3,10 @@
  */
 
 #include <common.h>
+#include <asm/arch/xparameters.h>
 #include <netdev.h>
-#include <xparameters.h>
 #include <zynqpl.h>
 #include "ps7_init_hw.h"
-#include "xparameters.h"
 
 #define PARPORT_CRTL_BASEADDR                   XPSS_CRTL_PARPORT_BASEADDR
 #define NOR_FLASH_BASEADDR                      XPSS_PARPORT0_BASEADDR

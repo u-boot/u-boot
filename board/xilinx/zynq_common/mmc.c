@@ -1,10 +1,10 @@
 #include <common.h>
+#include <asm/arch/xparameters.h>
 #include <asm/errno.h>
 #include <malloc.h>
 #include <mmc.h>
 
 #include "sd_hardware.h"
-#include "xparameters.h"
 
 #define SD_BASEADDR XPSS_SDIO0_BASEADDR
 

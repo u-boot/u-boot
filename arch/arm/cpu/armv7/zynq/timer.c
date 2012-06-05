@@ -39,10 +39,10 @@
  */
 
 #include <common.h>
-#include <asm/proc-armv/ptrace.h>
+#include <asm/proc/ptrace.h>
+#include <asm/arch/xparameters.h>
 #include <div64.h>
 
-#include "xparameters.h"
 #include "xscutimer_hw.h"
 
 #define TIMER_LOAD_VAL 0xFFFFFFFF

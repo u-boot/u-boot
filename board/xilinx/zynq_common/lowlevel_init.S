@@ -5,7 +5,7 @@
  * It needs lots of love and attention some day.
  */
 
-#include <xparameters.h>
+#include <asm/arch/xparameters.h>
 #include <config.h>
 
 

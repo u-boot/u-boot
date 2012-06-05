@@ -65,7 +65,6 @@
 
 /***************************** Include Files *********************************/
 
-//#include "xparameters.h"
 #include "xemacps.h"
 
 /************************** Constant Definitions *****************************/

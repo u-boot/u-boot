@@ -285,12 +285,13 @@ extern "C" {
 
 /***************************** Include Files ********************************/
 
+#include <asm/arch/xparameters.h>
+
 #include "xbasic_types.h"
 #include "xstatus.h"
 #include "xemacps_hw.h"
 #include "xemacps_bd.h"
 #include "xemacps_bdring.h"
-#include "xparameters.h"
 
 /************************** Constant Definitions ****************************/
 

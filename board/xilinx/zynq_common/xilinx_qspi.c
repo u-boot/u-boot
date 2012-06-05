@@ -10,7 +10,7 @@
 #include <malloc.h>
 #include <spi.h>
 
-#include <xparameters.h>
+#include <asm/arch/xparameters.h>
 
 #include "xilinx_qspips.h"
 
