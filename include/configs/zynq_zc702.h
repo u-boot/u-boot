@@ -74,7 +74,7 @@
 #define CONFIG_SPI_FLASH_STMICRO
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
-#undef CONFIG_ZYNQ_XILINX_FLASH_HEADER */
+#undef CONFIG_ZYNQ_XILINX_FLASH_HEADER
 
 #ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
 /* Address Xilinx boot rom should use to launch u-boot */
