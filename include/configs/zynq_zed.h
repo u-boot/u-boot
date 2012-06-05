@@ -14,7 +14,6 @@
 //#define CONFIG_ZC770_XM010_XM011
 
 #include <configs/zynq_common.h>
-#include "../board/xilinx/zynq_common/xparameters_zynq.h"
 
 #define CONFIG_XGMAC_PHY_ADDR 0
 #define CONFIG_NET_MULTI
