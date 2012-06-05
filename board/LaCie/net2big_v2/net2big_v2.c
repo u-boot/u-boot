@@ -109,7 +109,7 @@ int misc_init_r(void)
 /* Configure and initialize PHY */
 void reset_phy(void)
 {
-	mv_phy_88e1116_init("egiga0");
+	mv_phy_88e1116_init("egiga0", 8);
 }
 #endif
 

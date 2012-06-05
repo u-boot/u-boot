@@ -11,7 +11,7 @@
 #define _LACIE_COMMON_H
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_RESET_PHY_R)
-void mv_phy_88e1116_init(const char *name);
+void mv_phy_88e1116_init(const char *name, u16 phyaddr);
 #endif
 #if defined(CONFIG_CMD_I2C) && defined(CONFIG_SYS_I2C_EEPROM_ADDR)
 int lacie_read_mac_address(uchar *mac);
