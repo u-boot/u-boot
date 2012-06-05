@@ -97,13 +97,6 @@ void spi_free_slave(struct spi_slave *slave)
 	free(pspi);
 }
 
-static void spi_portmux(struct spi_slave *slave)
-{
-#ifdef DEBUG
-	printf("spi_portmux: slave: 0x%08x\n", (u32)slave);
-#endif
-}
-
 int spi_claim_bus(struct spi_slave *slave)
 {
 #ifdef DEBUG

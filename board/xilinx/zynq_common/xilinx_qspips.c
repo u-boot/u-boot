@@ -51,22 +51,23 @@
 
 #define spin_lock_irqsave(__X__, flags) \
 		flags = 0;
-#define spin_unlock_irqrestore(__X__, __Y__)
+#define spin_unlock_irqrestore(__X__, flags) \
+		flags |= 0;
 #define MODULE_ALIAS(__X__)
 
-#define dev_dbg(dev, format, arg...)            \
+#define dev_dbg(dev, format, arg...) \
         printf(format , ## arg)
 
-#define dev_err(dev, format, arg...)            \
+#define dev_err(dev, format, arg...) \
         printf(format , ## arg)
 
-#define wait_for_completion(__X__)			\
-	{										\
-		u32 data;							\
-											\
-		do {								\
-			data = xqspips_irq_poll(xqspi);\
-		} while (data == 0);	\
+#define wait_for_completion(__X__) \
+	{ \
+		u32 data; \
+\
+		do { \
+			data = xqspips_irq_poll(xqspi); \
+		} while (data == 0); \
 	}
 
 #define __devinit
@@ -579,6 +580,7 @@ int xqspips_setup_transfer(struct spi_device *qspi,
 	return 0;
 }
 
+#ifdef LINUX_ONLY_NOT_UBOOT
 /**
  * xqspips_setup - Configure the QSPI controller
  * @qspi:	Pointer to the spi_device structure
@@ -602,6 +604,7 @@ static int xqspips_setup(struct spi_device *qspi)
 
 	return xqspips_setup_transfer(qspi, NULL);
 }
+#endif
 
 /**
  * xqspips_fill_tx_fifo - Fills the TX FIFO with as many bytes as possible
