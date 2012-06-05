@@ -70,7 +70,7 @@
 
 #ifdef CONFIG_INETSPACE_V2
 /* Different SDRAM configuration and size for Internet Space v2 */
-#define CONFIG_SYS_KWD_CONFIG ($(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg)
+#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg
 #endif
 
 /*
