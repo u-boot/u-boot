@@ -28,9 +28,6 @@
 #define CONFIG_SYS_BOOTMAPSZ	(16 << 20)
 
 /* Default environment */
-#define CONFIG_IPADDR   10.10.70.102
-#define CONFIG_SERVERIP 10.10.70.101
-
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
 	"kernel_size=0x140000\0"	\
@@ -91,13 +88,11 @@
  * Physical Memory map
  */
 #define CONFIG_NR_DRAM_BANKS    	1
-/* Semi-educated guess based on p.48 of DF Arch spec */
-#define PHYS_SDRAM_1            	(256 * 1024)
-/* Cameron guessed 256 or 512 MB */
-#define PHYS_SDRAM_1_SIZE       	(256 * 1024 * 1024)
+#define PHYS_SDRAM_1            	0
 
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000)
+#define CONFIG_SYS_MEMTEST_START PHYS_SDRAM_1
+#define CONFIG_SYS_MEMTEST_END (CONFIG_SYS_MEMTEST_START + \
+				    PHYS_SDRAM_1_SIZE - (16 * 1024 * 1024))
 
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000

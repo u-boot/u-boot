@@ -15,6 +15,10 @@
 
 #include <configs/zynq_common.h>
 
+/* Default environment */
+#define CONFIG_IPADDR   10.10.70.102
+#define CONFIG_SERVERIP 10.10.70.101
+
 #undef CONFIG_ZYNQ_XIL_LQSPI
 
 /* no NOR on zc702 */
@@ -51,8 +55,9 @@
 #define CONFIG_XGMAC_PHY_ADDR	0x7
 
 /*
- * These were lifted straight from imx31_phycore, and may well be very wrong.
+ * Physical Memory map
  */
+#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
 
 /*
  * SPI Settings

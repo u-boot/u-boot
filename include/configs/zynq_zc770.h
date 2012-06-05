@@ -15,6 +15,10 @@
 
 #include <configs/zynq_common.h>
 
+/* Default environment */
+#define CONFIG_IPADDR   10.10.70.102
+#define CONFIG_SERVERIP 10.10.70.101
+
 #if defined(CONFIG_ZC770_XM012)
 #undef CONFIG_SYS_NO_FLASH
 #else
@@ -76,8 +80,9 @@
 #endif
 
 /*
- * These were lifted straight from imx31_phycore, and may well be very wrong.
+ * Physical Memory map
  */
+#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
 
 #if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM011) \
 	|| defined(CONFIG_ZC770_XM012)

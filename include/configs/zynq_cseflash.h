@@ -10,6 +10,10 @@
 
 #include <configs/zynq_common.h>
 
+/* Default environment */
+#define CONFIG_IPADDR   10.10.70.102
+#define CONFIG_SERVERIP 10.10.70.101
+
 #define CONFIG_ARM_DCC
 #define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
 
@@ -113,8 +117,10 @@
 //#define CONFIG_GEM0	1
 
 /*
- * These were lifted straight from imx31_phycore, and may well be very wrong.
+ * Physical Memory map
  */
+#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
+
 //#define CONFIG_ENV_SIZE			4096
 #define CONFIG_ENV_SIZE			    896
 #define CONFIG_SYS_GBL_DATA_SIZE	128

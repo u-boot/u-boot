@@ -9,10 +9,9 @@
 #define CONFIG_NET_MULTI
 
 /* Default environment */
-#undef CONFIG_IPADDR
 #define CONFIG_IPADDR   192.168.1.10
+/* ETHADDR should pretty much never be in the default env */
 #define CONFIG_ETHADDR  00:0a:35:00:01:22
-#undef CONFIG_SERVERIP
 #define CONFIG_SERVERIP 192.168.1.50
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
@@ -97,8 +96,9 @@
 #define CONFIG_GEM0	1
 
 /*
- * These were lifted straight from imx31_phycore, and may well be very wrong.
+ * Physical Memory map
  */
+#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
 #define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
