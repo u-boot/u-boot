@@ -11,7 +11,7 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_ZC702		1 /* Board */
+#define CONFIG_ZC702 /* Board */
 
 #include <configs/zynq_common.h>
 
@@ -23,7 +23,7 @@
 
 /* no NOR on zc702 */
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_NOWHERE	1
+#define CONFIG_ENV_IS_NOWHERE
 
 #include <config_cmd_default.h>	
 #define CONFIG_CMD_DATE		/* RTC? */
@@ -34,13 +34,10 @@
 
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
 
-/* IPADDR, SERVERIP */
-/* Need I2C for RTC? */
+#define CONFIG_PANIC_HANG /* For development/debugging */
 
-#define CONFIG_PANIC_HANG	1 /* For development/debugging */
-
-#define CONFIG_AUTO_COMPLETE	1
-#define CONFIG_CMDLINE_EDITING	1
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
 
 /* this is to initialize GEM at uboot start */
 /* #define CONFIG_ZYNQ_INIT_GEM	*/
@@ -48,11 +45,11 @@
 #define CONFIG_ZYNQ_IP_ENV
 
 /* HW to use */
-#define CONFIG_UART1		1
-#define CONFIG_TTC0		1
-#define CONFIG_GEM0		1
+#define CONFIG_UART1
+#define CONFIG_TTC0
+#define CONFIG_GEM0
 #define CONFIG_NET_MULTI
-#define CONFIG_XGMAC_PHY_ADDR	0x7
+#define CONFIG_XGMAC_PHY_ADDR 0x7
 
 /*
  * Physical Memory map
@@ -63,7 +60,6 @@
  * SPI Settings
  */
 #define CONFIG_CMD_SPI
-#define CONFIG_ENV_SPI_MAX_HZ   30000000
 #define CONFIG_SF_DEFAULT_SPEED 30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
@@ -81,7 +77,7 @@
 #endif
 
 /* Secure Digital */
-#define CONFIG_MMC     1
+#define CONFIG_MMC
 
 #ifdef CONFIG_MMC
 #define CONFIG_GENERIC_MMC

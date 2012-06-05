@@ -1,12 +1,12 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ZED		1 /* Community Board */
+/*
+ * High Level Configuration Options
+ */
+#define CONFIG_ZED /* Community Board */
 
 #include <configs/zynq_common.h>
-
-#define CONFIG_XGMAC_PHY_ADDR 0
-#define CONFIG_NET_MULTI
 
 /* Default environment */
 #define CONFIG_IPADDR   192.168.1.10
@@ -18,13 +18,27 @@
 #define CONFIG_EXTRA_ENV_SETTINGS 	\
 	"kernel_size=0x140000\0" 	\
 	"ramdisk_size=0x200000\0" 	\
-	"bootcmd=run modeboot\0"	\
-	"qspiboot=sf probe 0 0 0; sf read 0x8000 0x100000 0x2c0000; sf read 0x1000000 0x3c0000 0x40000; sf read 0x800000 0x400000 0x800000; go 0x8000\0" \
-	"sdboot=echo Copying Linux from SD to RAM...; mmcinfo; fatload mmc 0 0x8000 zImage; fatload mmc 0 0x1000000 devicetree.dtb; fatload mmc 0 0x800000 ramdisk8M.image.gz;go 0x8000\0" \
-	"jtagboot=echo TFTPing Linux to RAM...;	tftp 0x8000 zImage; tftp 0x1000000 devicetree.dtb; tftp 0x800000 ramdisk8M.image.gz; go 0x8000\0"
-
+	"qspiboot=sf probe 0 0 0;" \
+		"sf read 0x8000 0x100000 0x2c0000; " \
+		"sf read 0x1000000 0x3c0000 0x40000; " \
+		"sf read 0x800000 0x400000 0x800000; " \
+		"go 0x8000\0" \
+	"sdboot=echo Copying Linux from SD to RAM...; " \
+		"mmcinfo; " \
+		"fatload mmc 0 0x8000 zImage; " \
+		"fatload mmc 0 0x1000000 devicetree.dtb; " \
+		"fatload mmc 0 0x800000 ramdisk8M.image.gz; " \
+		"go 0x8000\0" \
+	"jtagboot=echo TFTPing Linux to RAM...; " \
+		"tftp 0x8000 zImage; " \
+		"tftp 0x1000000 devicetree.dtb; " \
+		"tftp 0x800000 ramdisk8M.image.gz; " \
+		"go 0x8000\0"
 
 #undef CONFIG_PELE_XIL_LQSPI
+
+#undef CONFIG_SYS_NO_FLASH
+#define CONFIG_ENV_IS_NOWHERE
 
 #include <config_cmd_default.h>
 #define CONFIG_CMD_DATE		/* RTC? */
@@ -35,86 +49,57 @@
 
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
 
-/* IPADDR, SERVERIP */
-/* Need I2C for RTC? */
+#define CONFIG_PANIC_HANG /* For development/debugging */
 
-#define CONFIG_PANIC_HANG	1 /* For development/debugging */
-
-#define CONFIG_AUTO_COMPLETE	1
-#define CONFIG_CMDLINE_EDITING	1
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
 
 #undef CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT	"zed-boot> "
-
-#undef CONFIG_SKIP_RELOCATE_UBOOT
-
-/* Uncomment it if you don't want Flash */
-/*#define CONFIG_SYS_NO_FLASH	*/
-
-//#define CONFIG_PELE_INIT_GEM	//this is to initialize GEM at uboot start
-#define CONFIG_PELE_IP_ENV	//this is to set ipaddr, ethaddr and serverip env variables.
-
 
 #ifndef CONFIG_SYS_NO_FLASH
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE           0xE2000000
-#define CONFIG_SYS_FLASH_SIZE           (16*1024*1024)  /* i.e. 16MB */
-#define CONFIG_SYS_MAX_FLASH_BANKS      1       /* max number of memory banks */
-#define CONFIG_SYS_MAX_FLASH_SECT       512     /* max number of sectors/blocks on one chip */
+#define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
+#define CONFIG_SYS_MAX_FLASH_BANKS      1
+/* max number of sectors/blocks on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT       512
 #define CONFIG_SYS_FLASH_ERASE_TOUT     1000
 #define CONFIG_SYS_FLASH_WRITE_TOUT     5000
 
 #define CONFIG_FLASH_SHOW_PROGRESS	10
 
-#define CONFIG_SYS_FLASH_CFI            1
-// #define CONFIG_SYS_FLASH_EMPTY_INFO     0
-#define CONFIG_FLASH_CFI_DRIVER		1
+#define CONFIG_SYS_FLASH_CFI
+#undef CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_FLASH_CFI_DRIVER
 
-#define CONFIG_SYS_FLASH_PROTECTION     0       /* use hardware protection           */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE       /* use buffered writes (20x faster)  */
-/*#define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + 0x00000000)	*/
-#define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
-#define CONFIG_ENV_SECT_SIZE		0x20000		/*128 KB*/
-#ifdef CONFIG_EP107
-# define CONFIG_ENV_IS_IN_FLASH		1
-#else
-# define CONFIG_ENV_IS_NOWHERE		1
-#endif
-#else
-
-#define CONFIG_ENV_IS_NOWHERE	1
-
+#undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
 #endif
 
 /* HW to use */
-#define CONFIG_XDF_UART	1
-#define CONFIG_XDF_ETH	1
-#define CONFIG_XDF_RTC	1
-# define CONFIG_UART1	1
-#define CONFIG_TTC0	1
-#define CONFIG_GEM0	1
+#define CONFIG_XDF_UART
+#define CONFIG_XDF_ETH
+#define CONFIG_XDF_RTC
+# define CONFIG_UART1
+#define CONFIG_TTC0
+#define CONFIG_GEM0
+#define CONFIG_XGMAC_PHY_ADDR 0
+#define CONFIG_NET_MULTI
 
 /*
  * Physical Memory map
  */
 #define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * SPI Settings
  */
 #define CONFIG_CMD_SPI
-#define CONFIG_ENV_SPI_MAX_HZ   30000000
 #define CONFIG_SF_DEFAULT_SPEED 30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
-/* #define CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH */
-#ifdef NOTOW_BHILL
-#define CONFIG_SPI_FLASH_ATMEL
-#define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_SPI_FLASH_WINBOND
-#endif
 #define CONFIG_SPI_FLASH_SPANSION
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
@@ -131,7 +116,7 @@
 #endif
 
 /* Secure Digital */
-#define CONFIG_MMC     1
+#define CONFIG_MMC
 
 #ifdef CONFIG_MMC
 #define CONFIG_GENERIC_MMC

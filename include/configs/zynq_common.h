@@ -19,7 +19,8 @@
 /*
  * Open Firmware flat tree
  */
-#define CONFIG_OF_LIBFDT                1
+#define CONFIG_OF_LIBFDT
+
 /* TODO: After upgrade to v2011.09,
  * remove this and set fdt_high env var instead
  *
@@ -34,7 +35,6 @@
 	"ramdisk_size=0x200000\0"	\
 	"nand_kernel_size=0x400000\0"	\
 	"nand_ramdisk_size=0x400000\0"	\
-	"bootcmd=run modeboot\0"	\
 	"norboot=echo Copying Linux from NOR flash to RAM...;" \
 			    "cp 0xE2100000 0x8000 ${kernel_size};" \
 			    "cp 0xE2600000 0x1000000 0x8000;" \
@@ -81,8 +81,8 @@
 /* CONFIG_SYS_MONITOR_LEN? */
 
 /* Keep L2 Cache Disabled */
-#define CONFIG_L2_OFF			1		
-#define CONFIG_SYS_CACHELINE_SIZE	32 /* Assuming bytes? */
+#define CONFIG_L2_OFF
+#define CONFIG_SYS_CACHELINE_SIZE	32
 
 /*
  * Physical Memory map
@@ -108,8 +108,6 @@
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #undef CONFIG_SKIP_RELOCATE_UBOOT
-/* Because (at least at first) we're going to be loaded via JTAG_Tcl */
-/* #define CONFIG_SKIP_LOWLEVEL_INIT */
 
 /* HW to use */
 #define TIMER_INPUT_CLOCK	(XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ / 2)

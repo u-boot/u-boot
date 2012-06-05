@@ -7,6 +7,7 @@
 /*
  * High Level Configuration Options
  */
+#define CONFIG_CSEFLASH /* Board */
 
 #include <configs/zynq_common.h>
 
@@ -25,6 +26,9 @@
 #undef CONFIG_ZYNQ_XIL_LQSPI
 #undef CONFIG_PSS_SERIAL
 #undef CONFIG_RTC_XPSSRTC
+
+#undef CONFIG_SYS_NO_FLASH
+#define CONFIG_ENV_IS_NOWHERE
 
 #include <config_cmd_default.h>
 #undef CONFIG_CMD_DATE		/* RTC? */
@@ -64,18 +68,12 @@
 
 //#define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
 
-/* IPADDR, SERVERIP */
-/* Need I2C for RTC? */
+#define CONFIG_PANIC_HANG /* For development/debugging */
 
-#define CONFIG_PANIC_HANG	1 /* For development/debugging */
-
-//#define CONFIG_AUTO_COMPLETE	1
-#define CONFIG_CMDLINE_EDITING	1
+//#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_SKIP_RELOCATE_UBOOT
-
-/* Uncomment it if you don't want Flash */
-//#define CONFIG_SYS_NO_FLASH
 
 /* this is to initialize GEM at uboot start */
 /* #define CONFIG_ZYNQ_INIT_GEM	*/
@@ -87,49 +85,44 @@
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE           0xE2000000
-#define CONFIG_SYS_FLASH_SIZE           (16*1024*1024)  /* i.e. 16MB */
-#define CONFIG_SYS_MAX_FLASH_BANKS      1       /* max number of memory banks */
-#define CONFIG_SYS_MAX_FLASH_SECT       512     /* max number of sectors/blocks on one chip */
+#define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
+#define CONFIG_SYS_MAX_FLASH_BANKS      1
+/* max number of sectors/blocks on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT       512
 #define CONFIG_SYS_FLASH_ERASE_TOUT     1000
 #define CONFIG_SYS_FLASH_WRITE_TOUT     5000
 
 #define CONFIG_FLASH_SHOW_PROGRESS	10
 
-#define CONFIG_SYS_FLASH_CFI            1
-// #define CONFIG_SYS_FLASH_EMPTY_INFO     0
-#define CONFIG_FLASH_CFI_DRIVER 	1
+#define CONFIG_SYS_FLASH_CFI
+#undef CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_FLASH_CFI_DRIVER
 
-#define CONFIG_SYS_FLASH_PROTECTION     0       /* use hardware protection           */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE       /* use buffered writes (20x faster)  */
-//#define CONFIG_ENV_ADDR         	(CONFIG_SYS_FLASH_BASE + 0x00000000)
-#define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
-#define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
+#undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
 #endif
-
-#define CONFIG_ENV_IS_NOWHERE	1
 
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* HW to use */
-#define CONFIG_UART1	1
-#define CONFIG_TTC0	1
-//#define CONFIG_GEM0	1
+#define CONFIG_UART1
+#define CONFIG_TTC0
+//#define CONFIG_GEM0
 
 /*
  * Physical Memory map
  */
 #define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
 
-//#define CONFIG_ENV_SIZE			4096
-#define CONFIG_ENV_SIZE			    896
-#define CONFIG_SYS_GBL_DATA_SIZE	128
+/* Why? */
+#undef CONFIG_ENV_SIZE
+#define CONFIG_ENV_SIZE 896
 
 /*
  * SPI Settings
  */
 #define CONFIG_CMD_SPI
-#define CONFIG_ENV_SPI_MAX_HZ   30000000
 #define CONFIG_SF_DEFAULT_SPEED 30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
@@ -150,17 +143,6 @@
 /* NOR */
 #define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
 #endif
-#endif
-
-/* Secure Digital */
-//#define CONFIG_MMC     1
-
-#ifdef CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_DOS_PARTITION
 #endif
 
 #endif /* __CONFIG_H */
