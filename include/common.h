@@ -760,6 +760,14 @@ char *	strmhz(char *buf, unsigned long hz);
 /* lib/crc32.c */
 #include <u-boot/crc.h>
 
+/* lib/rand.c */
+#ifdef CONFIG_RANDOM_MACADDR
+#define RAND_MAX -1U
+void srand(unsigned int seed);
+unsigned int rand(void);
+unsigned int rand_r(unsigned int *seedp);
+#endif
+
 /* common/console.c */
 int	console_init_f(void);	/* Before relocation; uses the serial  stuff	*/
 int	console_init_r(void);	/* After  relocation; uses the console stuff	*/
