@@ -7,8 +7,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_ARM1176 /* CPU */
-#define CONFIG_ZYNQ /* SoC? */
 
 #include <configs/zynq_common.h>
 
@@ -119,11 +117,7 @@
  */
 //#define CONFIG_ENV_SIZE			4096
 #define CONFIG_ENV_SIZE			    896
-#define CONFIG_SYS_MALLOC_LEN		0x4000 // 16KB
 #define CONFIG_SYS_GBL_DATA_SIZE	128
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_CBSIZE		256
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* phycore */
 
 /*
  * SPI Settings
@@ -162,7 +156,5 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 #endif
-
-#define BOARD_LATE_INIT	1
 
 #endif /* __CONFIG_H */

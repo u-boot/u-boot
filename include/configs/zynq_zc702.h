@@ -11,8 +11,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_ARM1176		1 /* CPU */
-#define CONFIG_ZYNQ		1 /* SoC? */
 #define CONFIG_ZC702		1 /* Board */
 
 #include <configs/zynq_common.h>
@@ -55,12 +53,6 @@
 /*
  * These were lifted straight from imx31_phycore, and may well be very wrong.
  */
-//#define CONFIG_ENV_SIZE			4096
-#define CONFIG_ENV_SIZE			0x10000
-#define CONFIG_SYS_MALLOC_LEN		0x400000
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_CBSIZE		256
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* phycore */
 
 /*
  * SPI Settings
@@ -93,7 +85,5 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 #endif
-
-#define BOARD_LATE_INIT	1
 
 #endif /* __CONFIG_ZYNQ_ZC702_H */

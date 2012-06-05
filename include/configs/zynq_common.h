@@ -6,6 +6,12 @@
 #ifndef __CONFIG_ZYNQ_COMMON_H
 #define __CONFIG_ZYNQ_COMMON_H
 
+/*
+ * High Level Configuration Options
+ */
+#define CONFIG_ARMV7 /* CPU */
+#define CONFIG_ZYNQ /* SoC */
+
 #include <asm/arch/xparameters.h>
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000
@@ -100,6 +106,12 @@
 					CONFIG_SYS_INIT_RAM_SIZE - \
 					GENERATED_GBL_DATA_SIZE)
 
+#define CONFIG_ENV_SIZE 0x10000
+#define CONFIG_SYS_MALLOC_LEN 0x400000
+#define CONFIG_SYS_MAXARGS 16
+#define CONFIG_SYS_CBSIZE 2048
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+
 #undef CONFIG_SKIP_RELOCATE_UBOOT
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 /* #define CONFIG_SKIP_LOWLEVEL_INIT */
@@ -122,5 +134,7 @@
 /* For now, use only single block reads for the MMC */
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
+
+#define BOARD_LATE_INIT
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */
