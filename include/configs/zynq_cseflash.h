@@ -73,8 +73,6 @@
 //#define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_SKIP_RELOCATE_UBOOT
-
 /* this is to initialize GEM at uboot start */
 /* #define CONFIG_ZYNQ_INIT_GEM	*/
 /* this is to set ipaddr, ethaddr and serverip env variables. */
