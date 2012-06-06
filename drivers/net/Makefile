@@ -84,6 +84,8 @@ COBJS-$(CONFIG_TSI108_ETH) += tsi108_eth.o
 COBJS-$(CONFIG_ULI526X) += uli526x.o
 COBJS-$(CONFIG_VSC7385_ENET) += vsc7385.o
 COBJS-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
+COBJS-$(CONFIG_ZYNQ_GEM) += zynq_gem.o zynq_gem_bdring.o zynq_gem_control.o \
+			zynq_gem_g.o zynq_gem_sinit.o zynq_gem_wrap.o
 
 COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)

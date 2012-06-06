@@ -671,7 +671,7 @@ int board_late_init (void)
 #ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)
 {
-	return Xgmac_register(bis);
+	return zynq_gem_initialize(bis);
 }
 #endif
 

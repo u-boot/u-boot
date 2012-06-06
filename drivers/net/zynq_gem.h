@@ -41,7 +41,7 @@
 /****************************************************************************/
 /**
  *
- * @file xemacps.h
+ * @file zynq_gem.h
  *
  * The Xilinx Embedded Processor Block Ethernet driver.
  *
@@ -117,7 +117,7 @@
  *
  * This API requires the user to understand how the DMA operates. The
  * following paragraphs provide some explanation, but the user is encouraged
- * to read documentation in xemacps_bdring.h as well as study example code
+ * to read documentation in zynq_gem_bdring.h as well as study example code
  * that accompanies this driver.
  *
  * The API is designed to get BDs to and from the DMA engine in the most
@@ -174,7 +174,7 @@
  * <b>Alignment & Data Cache Restrictions</b>
  *
  * Due to the design of the hardware, all RX buffers, BDs need to be 4-byte
- * aligned. Please reference xemacps_bd.h for cache related macros.
+ * aligned. Please reference zynq_gem_bd.h for cache related macros.
  *
  * DMA Tx:
  *
@@ -289,9 +289,9 @@ extern "C" {
 
 #include "xbasic_types.h"
 #include "xstatus.h"
-#include "xemacps_hw.h"
-#include "xemacps_bd.h"
-#include "xemacps_bdring.h"
+#include "zynq_gem_hw.h"
+#include "zynq_gem_bd.h"
+#include "zynq_gem_bdring.h"
 
 /************************** Constant Definitions ****************************/
 
@@ -430,7 +430,7 @@ extern "C" {
  * @param CallBackRef is user data assigned when the callback was set.
  *
  * @note
- * See xemacps_hw.h for bitmasks definitions and the device hardware spec for
+ * See zynq_gem_hw.h for bitmasks definitions and the device hardware spec for
  * further information on their meaning.
  *
  */
@@ -632,7 +632,7 @@ typedef struct XEmacPss {
 /************************** Function Prototypes *****************************/
 
 /*
- * Initialization functions in xemacps.c
+ * Initialization functions in zynq_gem.c
  */
 int XEmacPss_CfgInitialize(XEmacPss *InstancePtr, XEmacPss_Config *CfgPtr,
 			   u32 EffectiveAddress);
@@ -641,7 +641,7 @@ void XEmacPss_Stop(XEmacPss *InstancePtr);
 void XEmacPss_Reset(XEmacPss *InstancePtr);
 
 /*
- * Lookup configuration in xemacps_sinit.c
+ * Lookup configuration in zynq_gem_sinit.c
  */
 XEmacPss_Config *XEmacPss_LookupConfig(u16 DeviceId);
 
@@ -654,7 +654,7 @@ int XEmacPss_SetHandler(XEmacPss *InstancePtr, u32 HandlerType,
 void XEmacPss_IntrHandler(void *InstancePtr);
 
 /*
- * MAC configuration/control functions in XEmacPss_control.c
+ * MAC configuration/control functions in zynq_gem_control.c
  */
 int XEmacPss_SetOptions(XEmacPss *InstancePtr, u32 Options);
 int XEmacPss_ClearOptions(XEmacPss *InstancePtr, u32 Options);

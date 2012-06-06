@@ -85,8 +85,9 @@
 # define CONFIG_UART1
 #define CONFIG_TTC0
 #define CONFIG_GEM0
-#define CONFIG_XGMAC_PHY_ADDR 0
+#define CONFIG_ZYNQ_GEM
 #define CONFIG_NET_MULTI
+#define CONFIG_XGMAC_PHY_ADDR 0
 
 /*
  * Physical Memory map

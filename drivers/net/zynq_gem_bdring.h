@@ -41,7 +41,7 @@
 /*****************************************************************************/
 /**
 *
-* @file xemacps_bdring.h
+* @file zynq_gem_bdring.h
 *
 * The Xiline EmacPss Buffer Descriptor ring driver. This is part of EmacPss
 * DMA functionalities.
@@ -213,7 +213,7 @@ typedef struct {
 /************************** Function Prototypes ******************************/
 
 /*
- * Scatter gather DMA related functions in xemacps_bdring.c
+ * Scatter gather DMA related functions in zynq_gem_bdring.c
  */
 int XEmacPss_BdRingCreate(XEmacPss_BdRing * RingPtr, u32 PhysAddr,
 			  u32 VirtAddr, u32 Alignment, unsigned BdCount);

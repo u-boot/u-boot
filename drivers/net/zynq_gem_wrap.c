@@ -6,7 +6,7 @@
 #include <miiphy.h>
 #include <net.h>
 
-#include "xemacps.h"
+#include "zynq_gem.h"
 
 /************************ Forward function declaration **********************/
 
@@ -58,7 +58,7 @@ XEmacPss EmacPssInstance;
 /*
 *	Following are the supporting functions to read and write GEM PHY registers.
 */
-int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr)
+static int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr)
 {
 	return ((XEmacPss_ReadReg
 		 (EmacPssInstancePtr->Config.BaseAddress, XEMACPSS_NWSR_OFFSET)
@@ -508,7 +508,7 @@ static int Xgmac_write_hwaddr(struct eth_device *dev)
 	return 0;
 }
 
-int Xgmac_register(bd_t *bis)
+int zynq_gem_initialize(bd_t *bis)
 {
 	struct eth_device *dev;
 	dev = malloc(sizeof(*dev));
@@ -516,10 +516,10 @@ int Xgmac_register(bd_t *bis)
 		return 1;
 
 	memset(dev, 0, sizeof(*dev));
-	sprintf(dev->name, "xgmac");
+	sprintf(dev->name, "zynq_gem");
 
 	if (Xgmac_one_time_init() < 0) {
-		printf("xgmac init failed!");
+		printf("zynq_gem init failed!");
 		return -1;
 	}
 	dev->iobase = EmacPssInstance.Config.BaseAddress;

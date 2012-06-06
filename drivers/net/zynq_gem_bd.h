@@ -41,7 +41,7 @@
 /*****************************************************************************/
 /**
  *
- * @file xemacps_bd.h
+ * @file zynq_gem_bd.h
  *
  * This header provides operations to manage buffer descriptors in support
  * of scatter-gather DMA.

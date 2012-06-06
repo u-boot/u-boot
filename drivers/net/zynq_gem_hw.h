@@ -41,11 +41,11 @@
 /*****************************************************************************/
 /**
 *
-* @file xemacps_hw.h
+* @file zynq_gem_hw.h
 *
 * This header file contains identifiers and low-level driver functions (or
 * macros) that can be used to access the PSS Ethernet MAC (XEmacPss) device.
-* High-level driver functions are defined in xemacps.h.
+* High-level driver functions are defined in zynq_gem.h.
 *
 * @note
 *
@@ -528,7 +528,7 @@ typedef enum { XMDC_DIV_8 = 0, XMDC_DIV_16, XMDC_DIV_32, XMDC_DIV_48,
  * Define appropriate I/O access method to mempry mapped I/O or other
  * intarfce if necessary.
  */
-/* Defined in xemacps_control.c*/
+/* Defined in zynq_gem_control.c*/
 void XIo_Out32(u32 OutAddress, u32 Value);
 u32 XIo_In32(u32 InAddress);
 

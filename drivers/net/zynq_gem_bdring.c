@@ -41,7 +41,7 @@
 /*****************************************************************************/
 /**
 *
-* @file xemacps_bdring.c
+* @file zynq_gem_bdring.c
 *
 * This file implements buffer descriptor ring related functions.
 *
@@ -58,9 +58,9 @@
 
 #include "xstatus.h"
 //#include "xcache.h"
-#include "xemacps_hw.h"
-#include "xemacps_bd.h"
-#include "xemacps_bdring.h"
+#include "zynq_gem_hw.h"
+#include "zynq_gem_bd.h"
+#include "zynq_gem_bdring.h"
 
 /************************** Constant Definitions *****************************/
 
@@ -415,7 +415,7 @@ int XEmacPss_BdRingClone(XEmacPss_BdRing * RingPtr, XEmacPss_Bd * SrcBdPtr,
  *        XEmacPss_BdRingToHw(MyRingPtr, NumBd1, MySet1);
  * </pre>
  *
- * Use the API defined in xemacps_bd.h to modify individual BDs. Traversal
+ * Use the API defined in zynq_gem_bd.h to modify individual BDs. Traversal
  * of the BD set can be done using XEmacPss_BdRingNext() and
  * XEmacPss_BdRingPrev().
  *

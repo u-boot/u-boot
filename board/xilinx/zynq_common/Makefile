@@ -31,10 +31,6 @@ LIB	= $(obj)lib$(BOARD).o
 COBJS-y	:= board.o \
 	   ../common/xbasic_types.o
 
-COBJS-$(CONFIG_CMD_NET) += xemacps_g.o xemacps_control.o \
-		xemacps_sinit.o xemacps_bdring.o \
-		xemacps.o xgmac.o
-
 COBJS	:= $(sort $(COBJS-y))
 
 SOBJS	:= lowlevel_init.o

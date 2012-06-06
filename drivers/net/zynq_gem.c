@@ -41,10 +41,10 @@
 /*****************************************************************************/
 /**
 *
-* @file xemacps.c
+* @file zynq_gem.c
 *
 * The XEmacPss driver. Functions in this file are the minimum required functions
-* for this driver. See xemacps.h for a detailed description of the driver.
+* for this driver. See zynq_gem.h for a detailed description of the driver.
 *
 * <pre>
 * MODIFICATION HISTORY:
@@ -57,7 +57,7 @@
 
 /***************************** Include Files *********************************/
 
-#include "xemacps.h"
+#include "zynq_gem.h"
 
 /************************** Constant Definitions *****************************/
 
