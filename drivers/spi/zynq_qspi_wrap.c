@@ -12,7 +12,7 @@
 
 #include <asm/arch/xparameters.h>
 
-#include "xilinx_qspips.h"
+#include "zynq_qspi.h"
 
 struct pele_spi_slave {
 	struct spi_slave  slave;

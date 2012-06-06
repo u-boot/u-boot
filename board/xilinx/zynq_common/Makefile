@@ -34,7 +34,6 @@ COBJS-y	:= board.o \
 COBJS-$(CONFIG_CMD_NET) += xemacps_g.o xemacps_control.o \
 		xemacps_sinit.o xemacps_bdring.o \
 		xemacps.o xgmac.o
-COBJS-$(CONFIG_CMD_SPI) += xilinx_qspi.o xilinx_qspips.o
 
 COBJS	:= $(sort $(COBJS-y))
 

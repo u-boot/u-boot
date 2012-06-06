@@ -38,7 +38,7 @@
 #include <ubi_uboot.h>
 #include <spi.h>
 
-#include "xilinx_qspips.h"
+#include "zynq_qspi.h"
 
 #define DEBUG
 #define DEBUG_REG

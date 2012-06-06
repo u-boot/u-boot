@@ -59,6 +59,7 @@
 /*
  * SPI Settings
  */
+#define CONFIG_ZYNQ_SPI
 #define CONFIG_CMD_SPI
 #define CONFIG_SF_DEFAULT_SPEED 30000000
 #define CONFIG_SPI_FLASH
