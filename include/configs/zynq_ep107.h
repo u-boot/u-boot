@@ -95,6 +95,7 @@
 /*
  * NAND Flash settings
  */
+#define CONFIG_NAND_ZYNQ
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_SYS_MAX_NAND_DEVICE 1

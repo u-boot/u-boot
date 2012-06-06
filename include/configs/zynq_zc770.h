@@ -134,6 +134,7 @@
  * NAND Flash settings
  */
 #if defined(CONFIG_ZC770_XM011)
+#define CONFIG_NAND_ZYNQ
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_SYS_MAX_NAND_DEVICE 1

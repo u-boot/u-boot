@@ -39,12 +39,13 @@
 #include <common.h>
 #include <malloc.h>
 
+#include <asm/arch/nand.h>
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/nand_ecc.h>
-#include "xilinx_nand_smc.h"
+#include "zynq_nand.h"
 
 /********** stubs - Make Linux code compile in this environment **************/
 #define EIO              5
@@ -985,7 +986,7 @@ static int xnandps_device_ready(struct mtd_info *mtd)
 #ifdef LINUX_ONLY_NOT_UBOOT
 static int __init xnandps_probe(struct platform_device *pdev)
 #else
-int board_nand_init(struct nand_chip *nand_chip)
+int zynq_nand_init(struct nand_chip *nand_chip)
 #endif
 {
 	struct xnandps_info *xnand;

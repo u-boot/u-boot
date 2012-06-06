@@ -4,6 +4,7 @@
 
 #include <common.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/nand.h>
 #include <asm/arch/xparameters.h>
 #include <netdev.h>
 #include <zynqpl.h>
@@ -678,6 +679,13 @@ int board_eth_init(bd_t *bis)
 int board_mmc_init(bd_t *bd)
 {
 	return zynq_mmc_init(bd);
+}
+#endif
+
+#ifdef CONFIG_CMD_NAND
+int board_nand_init(struct nand_chip *nand_chip)
+{
+	return zynq_nand_init(nand_chip);
 }
 #endif
 
