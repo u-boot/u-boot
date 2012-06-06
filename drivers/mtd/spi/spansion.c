@@ -344,7 +344,10 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	ret = 0;
 	for (actual = 0; actual < len; actual += sector_size) {
-		cmd[1] = (offset + actual) >> 16;
+		unsigned page_addr;
+
+		page_addr = (offset + actual) / spsn->params->page_size;
+		span_addr2cmd(spsn, page_addr, 0, cmd);
 
 		ret = spi_flash_cmd(flash->spi, CMD_S25FLXX_WREN, NULL, 0);
 		if (ret < 0) {
