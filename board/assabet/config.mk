@@ -4,4 +4,4 @@
 # The Intel Assabet 1 bank of 32 MiB SDRAM
 #
 
-TEXT_BASE = 0xc1f00000
+CONFIG_SYS_TEXT_BASE = 0xc1f00000

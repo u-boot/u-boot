@@ -37,6 +37,8 @@
 #define CONFIG_4xx   1
 #define CONFIG_HOSTNAME		mcu25
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFB0000
+
 /*
  * Include common defines/options for all boards produced by Netstal Maschinen
  */
@@ -57,7 +59,7 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CONFIG_SYS_FLASH_BASE		0xfff80000	/* start of FLASH	*/
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
 /* ... with on-chip memory here (4KBytes) */
 #define CONFIG_SYS_OCM_DATA_ADDR	0xF4000000
@@ -69,9 +71,8 @@
 #define CONFIG_SYS_TEMP_STACK_OCM	1
 
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR	/* OCM		*/
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE
-#define CONFIG_SYS_GBL_DATA_SIZE	256		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 /*-----------------------------------------------------------------------
@@ -86,15 +87,8 @@
  * If CONFIG_SYS_405_UART_ERRATA_59 and 200MHz CPU clock,
  * set Linux BASE_BAUD to 403200.
  */
-/* needed to be able to define CONFIG_SERIAL_SOFTWARE_FIFO */
 #undef	CONFIG_SYS_405_UART_ERRATA_59	       /* 405GP/CR Rev. D silicon */
 #define CONFIG_SYS_BASE_BAUD	    691200
-
-/* Size (bytes) of interrupt driven serial port buffer.
- * Set to 0 to use polling instead of interrupts.
- * Setting to 0 will also disable RTS/CTS handshaking.
- */
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 
 /* Set console baudrate to 9600 */
 #define CONFIG_BAUDRATE		9600
@@ -199,7 +193,7 @@
 				 CONFIG_SYS_POST_ETHER	   | \
 				 CONFIG_SYS_POST_SPR)
 
-#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE}
+#define CONFIG_SYS_POST_UART_TABLE	{ CONFIG_SYS_NS16550_COM1 }
 #undef  CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */

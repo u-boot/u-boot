@@ -27,27 +27,27 @@
 #include <asm/realmode.h>
 
 
-#define REALMODE_BASE    ((char*)0x7c0)
 #define REALMODE_MAILBOX ((char*)0xe00)
 
 
-extern ulong _i386boot_realmode;
-extern ulong _i386boot_realmode_size;
+extern ulong __realmode_start;
+extern ulong __realmode_size;
 extern char realmode_enter;
 
 int realmode_setup(void)
 {
-	ulong i386boot_realmode      = (ulong)&_i386boot_realmode + gd->reloc_off;
-	ulong i386boot_realmode_size = (ulong)&_i386boot_realmode_size;
+	ulong realmode_start = (ulong)&__realmode_start + gd->reloc_off;
+	ulong realmode_size = (ulong)&__realmode_size;
 
 	/* copy the realmode switch code */
-	if (i386boot_realmode_size > (REALMODE_MAILBOX-REALMODE_BASE)) {
+	if (realmode_size > (REALMODE_MAILBOX - (char *)REALMODE_BASE)) {
 		printf("realmode switch too large (%ld bytes, max is %d)\n",
-		       i386boot_realmode_size, (REALMODE_MAILBOX-REALMODE_BASE));
+		       realmode_size,
+		       (REALMODE_MAILBOX - (char *)REALMODE_BASE));
 		return -1;
 	}
 
-	memcpy(REALMODE_BASE, (void*)i386boot_realmode, i386boot_realmode_size);
+	memcpy((char *)REALMODE_BASE, (void *)realmode_start, realmode_size);
 	asm("wbinvd\n");
 
 	return 0;

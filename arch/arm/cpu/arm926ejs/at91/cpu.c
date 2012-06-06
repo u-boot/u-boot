@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2010
+ * Reinhard Meyer, reinhard.meyer@emk-elektronik.de
  * (C) Copyright 2009
  * Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
  *
@@ -22,12 +24,11 @@
  */
 
 #include <common.h>
-#ifdef CONFIG_AT91_LEGACY
-#warning Your board is using legacy SoC access. Please update!
-#endif
 
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91_pit.h>
+#include <asm/arch/at91_gpbr.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/io.h>
 
@@ -35,16 +36,24 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK 0
 #endif
 
-/*
- * The at91sam9260 has 4 GPBR (0-3), we'll use the last one, nr 3,
- * to keep track of the bootcount.
- */
-#define AT91_GPBR_BOOTCOUNT_REGISTER 3
-#define AT91_BOOTCOUNT_ADDRESS (AT91_GPBR + 4*AT91_GPBR_BOOTCOUNT_REGISTER)
-
 int arch_cpu_init(void)
 {
 	return at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
+}
+
+void arch_preboot_os(void)
+{
+	ulong cpiv;
+	at91_pit_t *pit = (at91_pit_t *) AT91_PIT_BASE;
+
+	cpiv = AT91_PIT_MR_PIV_MASK(readl(&pit->piir));
+
+	/*
+	 * Disable PITC
+	 * Add 0x1000 to current counter to stop it faster
+	 * without waiting for wrapping back to 0
+	 */
+	writel(cpiv + 0x1000, &pit->mr);
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
@@ -66,27 +75,26 @@ int print_cpuinfo(void)
 
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 /*
- * Just as the mpc5xxx, we combine the BOOTCOUNT_MAGIC and boocount
- * in one 32-bit register. This is done, as the AT91SAM9260 only has
- * 4 GPBR.
+ * We combine the BOOTCOUNT_MAGIC and bootcount in one 32-bit register.
+ * This is done so we need to use only one of the four GPBR registers.
  */
 void bootcount_store (ulong a)
 {
-	volatile ulong *save_addr =
-		(volatile ulong *)(AT91_BASE_SYS + AT91_BOOTCOUNT_ADDRESS);
+	at91_gpbr_t *gpbr = (at91_gpbr_t *) AT91_GPR_BASE;
 
-	*save_addr = (BOOTCOUNT_MAGIC & 0xffff0000) | (a & 0x0000ffff);
+	writel((BOOTCOUNT_MAGIC & 0xffff0000) | (a & 0x0000ffff),
+		&gpbr->reg[AT91_GPBR_INDEX_BOOTCOUNT]);
 }
 
 ulong bootcount_load (void)
 {
-	volatile ulong *save_addr =
-		(volatile ulong *)(AT91_BASE_SYS + AT91_BOOTCOUNT_ADDRESS);
+	at91_gpbr_t *gpbr = (at91_gpbr_t *) AT91_GPR_BASE;
 
-	if ((*save_addr & 0xffff0000) != (BOOTCOUNT_MAGIC & 0xffff0000))
+	ulong val = readl(&gpbr->reg[AT91_GPBR_INDEX_BOOTCOUNT]);
+	if ((val & 0xffff0000) != (BOOTCOUNT_MAGIC & 0xffff0000))
 		return 0;
 	else
-		return (*save_addr & 0x0000ffff);
+		return val & 0x0000ffff;
 }
 
 #endif /* CONFIG_BOOTCOUNT_LIMIT */

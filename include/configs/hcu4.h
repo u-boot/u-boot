@@ -37,6 +37,8 @@
 #define CONFIG_4xx   1
 #define CONFIG_HOSTNAME		hcu4
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFB0000
+
 /*
  * Include common defines/options for all boards produced by Netstal Maschinen
  */
@@ -57,7 +59,7 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CONFIG_SYS_FLASH_BASE		0xfff80000	/* start of FLASH	*/
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
 /* ... with on-chip memory here (4KBytes) */
 #define CONFIG_SYS_OCM_DATA_ADDR 0xF4000000
@@ -69,9 +71,8 @@
 #define CONFIG_SYS_TEMP_STACK_OCM 1
 
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR	/* OCM		*/
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE
-#define CONFIG_SYS_GBL_DATA_SIZE	256		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 /*-----------------------------------------------------------------------
@@ -191,7 +192,7 @@
 				 CONFIG_SYS_POST_ETHER	   | \
 				 CONFIG_SYS_POST_SPR)
 
-#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE}
+#define CONFIG_SYS_POST_UART_TABLE	{ CONFIG_SYS_NS16550_COM1 }
 #undef  CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */

@@ -29,7 +29,6 @@
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_law.h>
-#include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
@@ -46,6 +45,8 @@ int checkboard (void)
 {
 	u8 sw;
 	struct cpu_type *cpu = gd->cpu;
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	unsigned int i;
 
 	printf("Board: %sDS, ", cpu->name);
 	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
@@ -66,6 +67,19 @@ int checkboard (void)
 #ifdef CONFIG_PHYS_64BIT
 	puts("36-bit Addressing\n");
 #endif
+
+	/* Display the RCW, so that no one gets confused as to what RCW
+	 * we're actually using for this boot.
+	 */
+	puts("Reset Configuration Word (RCW):");
+	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
+		u32 rcw = in_be32(&gur->rcwsr[i]);
+
+		if ((i % 4) == 0)
+			printf("\n       %08x:", i * 4);
+		printf(" %08x", rcw);
+	}
+	puts("\n");
 
 	/* Display the actual SERDES reference clocks as configured by the
 	 * dip switches on the board.  Note that the SWx registers could
@@ -143,33 +157,9 @@ static const char *serdes_clock_to_string(u32 clock)
 int misc_init_r(void)
 {
 	serdes_corenet_t *srds_regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
-	__maybe_unused ccsr_gur_t *gur;
 	u32 actual[NUM_SRDS_BANKS];
 	unsigned int i;
 	u8 sw3;
-
-	gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-#ifdef CONFIG_SRIO1
-	if (is_serdes_configured(SRIO1)) {
-		set_next_law(CONFIG_SYS_RIO1_MEM_PHYS, LAW_SIZE_256M,
-				LAW_TRGT_IF_RIO_1);
-	} else {
-		printf ("    SRIO1: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO1); /* disable */
-#endif
-
-#ifdef CONFIG_SRIO2
-	if (is_serdes_configured(SRIO2)) {
-		set_next_law(CONFIG_SYS_RIO2_MEM_PHYS, LAW_SIZE_256M,
-				LAW_TRGT_IF_RIO_2);
-	} else {
-		printf ("    SRIO2: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO2); /* disable */
-#endif
 
 	/* Warn if the expected SERDES reference clocks don't match the
 	 * actual reference clocks.  This needs to be done after calling
@@ -196,20 +186,6 @@ int misc_init_r(void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
-{
-	phys_size_t dram_size;
-
-	puts("Initializing....\n");
-
-	dram_size = fsl_ddr_sdram();
-
-	setup_ddr_tlbs(dram_size / 0x100000);
-
-	puts("    DDR: ");
-	return dram_size;
-}
-
 #ifdef CONFIG_MP
 void board_lmb_reserve(struct lmb *lmb)
 {
@@ -217,32 +193,12 @@ void board_lmb_reserve(struct lmb *lmb)
 }
 #endif
 
-void ft_srio_setup(void *blob)
-{
-#ifdef CONFIG_SRIO1
-	if (!is_serdes_configured(SRIO1)) {
-		fdt_del_node_and_alias(blob, "rio0");
-	}
-#else
-	fdt_del_node_and_alias(blob, "rio0");
-#endif
-#ifdef CONFIG_SRIO2
-	if (!is_serdes_configured(SRIO2)) {
-		fdt_del_node_and_alias(blob, "rio1");
-	}
-#else
-	fdt_del_node_and_alias(blob, "rio1");
-#endif
-}
-
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
 
 	ft_cpu_setup(blob, bd);
-
-	ft_srio_setup(blob);
 
 	base = getenv_bootm_low();
 	size = getenv_bootm_size();

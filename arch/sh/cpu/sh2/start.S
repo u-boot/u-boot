@@ -18,6 +18,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
 
@@ -25,7 +26,7 @@
 	.align	2
 
 	.global	_start
-_start:
+_sh_start:
 	.long 0x00000010	/* Ppower ON reset PC*/
 	.long 0x00000000
 	.long 0x00000010	/* Manual reset PC */
@@ -38,7 +39,7 @@ _init:
 	nop
 1:	sts	pr, r5
 	mov.l	._reloc_dst, r4
-	add	#(_start-1b), r5
+	add	#(_sh_start-1b), r5
 	mov.l	._reloc_dst_end, r6
 
 2:	mov.l	@r5+, r1
@@ -73,6 +74,6 @@ loop:
 ._reloc_dst_end:	.long	reloc_dst_end
 ._bss_start:		.long	bss_start
 ._bss_end:		.long	bss_end
-._gd_init:		.long	(_start - CONFIG_SYS_GBL_DATA_SIZE)
-._stack_init:	.long	(_start - CONFIG_SYS_GBL_DATA_SIZE - CONFIG_SYS_MALLOC_LEN - 16)
+._gd_init:		.long	(_sh_start - GENERATED_GBL_DATA_SIZE)
+._stack_init:	.long	(_sh_start - GENERATED_GBL_DATA_SIZE - CONFIG_SYS_MALLOC_LEN - 16)
 ._sh_generic_init:	.long	sh_generic_init

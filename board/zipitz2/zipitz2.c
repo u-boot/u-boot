@@ -28,6 +28,7 @@
 #include <serial.h>
 #include <asm/arch/hardware.h>
 #include <spi.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -43,10 +44,11 @@ inline void lcd_start(void) {};
 
 int board_init (void)
 {
-	/* memory and cpu-speed are setup before relocation */
-	/* so we do _nothing_ here */
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
 
-	/* arch number of Lubbock-Board */
+	/* arch number of Z2 */
 	gd->bd->bi_arch_number = MACH_TYPE_ZIPIT2;
 
 	/* adress of boot parameters */
@@ -58,24 +60,23 @@ int board_init (void)
 	return 0;
 }
 
-int board_late_init(void)
-{
-	setenv("stdout", "serial");
-	setenv("stderr", "serial");
-	return 0;
-}
-
 struct serial_device *default_serial_console (void)
 {
 	return &serial_stuart_device;
 }
 
-int dram_init (void)
+extern void pxa_dram_init(void);
+int dram_init(void)
+{
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
+	return 0;
+}
+
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return 0;
 }
 
 #ifdef	CONFIG_CMD_SPI
@@ -129,24 +130,24 @@ void zipitz2_spi_sda(int set)
 {
 	/* GPIO 13 */
 	if (set)
-		GPSR0 = (1 << 13);
+		writel((1 << 13), GPSR0);
 	else
-		GPCR0 = (1 << 13);
+		writel((1 << 13), GPCR0);
 }
 
 void zipitz2_spi_scl(int set)
 {
 	/* GPIO 22 */
 	if (set)
-		GPCR0 = (1 << 22);
+		writel((1 << 22), GPCR0);
 	else
-		GPSR0 = (1 << 22);
+		writel((1 << 22), GPSR0);
 }
 
 unsigned char zipitz2_spi_read(void)
 {
 	/* GPIO 40 */
-	return !!(GPLR1 & (1 << 8));
+	return !!(readl(GPLR1) & (1 << 8));
 }
 
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
@@ -158,13 +159,13 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 void spi_cs_activate(struct spi_slave *slave)
 {
 	/* GPIO 88 low */
-	GPCR2 = (1 << 24);
+	writel((1 << 24), GPCR2);
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	/* GPIO 88 high */
-	GPSR2 = (1 << 24);
+	writel((1 << 24), GPSR2);
 
 }
 
@@ -176,20 +177,20 @@ void lcd_start(void)
 	unsigned char dummy[3] = { 0, 0, 0 };
 
 	/* PWM2 AF */
-	GAFR0_L |= 0x00800000;
+	writel(readl(GAFR0_L) | 0x00800000, GAFR0_L);
 	/* Enable clock to all PWM */
-	CKEN |= 0x3;
+	writel(readl(CKEN) | 0x3, CKEN);
 	/* Configure PWM2 */
-	PWM_CTRL2 = 0x4f;
-	PWM_PWDUTY2 = 0x2ff;
-	PWM_PERVAL2 = 792;
+	writel(0x4f, PWM_CTRL2);
+	writel(0x2ff, PWM_PWDUTY2);
+	writel(792, PWM_PERVAL2);
 
 	/* Toggle the reset pin to reset the LCD */
-	GPSR0 = (1 << 19);
+	writel((1 << 19), GPSR0);
 	udelay(100000);
-	GPCR0 = (1 << 19);
+	writel((1 << 19), GPCR0);
 	udelay(20000);
-	GPSR0 = (1 << 19);
+	writel((1 << 19), GPSR0);
 	udelay(20000);
 
 	/* Program the LCD init sequence */
@@ -208,6 +209,6 @@ void lcd_start(void)
 			udelay(lcd_data[i].mdelay * 1000);
 	}
 
-	GPSR0 = (1 << 11);
+	writel((1 << 11), GPSR0);
 }
 #endif

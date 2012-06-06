@@ -136,6 +136,6 @@ SECTIONS
    . = ALIGN(4);
    _ebss = .;
   }
-  _end = . ;
+  __bss_end__ = . ;
   PROVIDE (end = .);
 }

@@ -1,4 +1,12 @@
-  NOTE! This copyright does *not* cover the so-called "standalone"
+  U-Boot is Free Software.  It is copyrighted by Wolfgang Denk and
+many others who contributed code (see the actual source code for
+details).  You can redistribute U-Boot and/or modify it under the
+terms of version 2 of the GNU General Public License as published by
+the Free Software Foundation.  Most of it can also be distributed,
+at your option, under any later version of the GNU General Public
+License -- see individual files for exceptions.
+
+  NOTE! This license does *not* cover the so-called "standalone"
 applications that use U-Boot services by means of the jump table
 provided by U-Boot exactly for this purpose - this is merely
 considered normal use of U-Boot, and does *not* fall under the

@@ -22,15 +22,13 @@
 #define __FSL_PCI_H_
 
 #include <asm/fsl_law.h>
-
-int is_fsl_pci_cfg(enum law_trgt_if trgt, u32 io_sel);
+#include <asm/fsl_serdes.h>
+#include <pci.h>
 
 int fsl_setup_hose(struct pci_controller *hose, unsigned long addr);
 int fsl_is_pci_agent(struct pci_controller *hose);
-void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data);
 void fsl_pci_config_unlock(struct pci_controller *hose);
-void ft_fsl_pci_setup(void *blob, const char *pci_compat,
-			struct pci_controller *hose, unsigned long ctrl_addr);
+void ft_fsl_pci_setup(void *blob, const char *compat, unsigned long ctrl_addr);
 
 /*
  * Common PCI/PCIE Register structure for mpc85xx and mpc86xx
@@ -173,8 +171,12 @@ struct fsl_pci_info {
 	int pci_num;
 };
 
+void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info);
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 				struct pci_controller *hose, int busno);
+int fsl_pcie_init_ctrl(int busno, u32 devdisr, enum srds_prtcl dev,
+			struct fsl_pci_info *pci_info);
+int fsl_pcie_init_board(int busno);
 
 #define SET_STD_PCI_INFO(x, num) \
 {			\
@@ -203,54 +205,18 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 }
 
 #define __FT_FSL_PCI_SETUP(blob, compat, num) \
-	ft_fsl_pci_setup(blob, compat, &pci##num##_hose, \
-			 CONFIG_SYS_PCI##num##_ADDR)
-
-#define __FT_FSL_PCI_DEL(blob, compat, num) \
-	ft_fsl_pci_setup(blob, compat, NULL, CONFIG_SYS_PCI##num##_ADDR)
+	ft_fsl_pci_setup(blob, compat, CONFIG_SYS_PCI##num##_ADDR)
 
 #define __FT_FSL_PCIE_SETUP(blob, compat, num) \
-	ft_fsl_pci_setup(blob, compat, &pcie##num##_hose, \
-			 CONFIG_SYS_PCIE##num##_ADDR)
+	ft_fsl_pci_setup(blob, compat, CONFIG_SYS_PCIE##num##_ADDR)
 
-#define __FT_FSL_PCIE_DEL(blob, compat, num) \
-	ft_fsl_pci_setup(blob, compat, NULL, CONFIG_SYS_PCIE##num##_ADDR)
-
-#ifdef CONFIG_PCI1
 #define FT_FSL_PCI1_SETUP __FT_FSL_PCI_SETUP(blob, FSL_PCI_COMPAT, 1)
-#else
-#define FT_FSL_PCI1_SETUP __FT_FSL_PCI_DEL(blob, FSL_PCI_COMPAT, 1)
-#endif
-
-#ifdef CONFIG_PCI2
 #define FT_FSL_PCI2_SETUP __FT_FSL_PCI_SETUP(blob, FSL_PCI_COMPAT, 2)
-#else
-#define FT_FSL_PCI2_SETUP __FT_FSL_PCI_DEL(blob, FSL_PCI_COMPAT, 2)
-#endif
 
-#ifdef CONFIG_PCIE1
 #define FT_FSL_PCIE1_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 1)
-#else
-#define FT_FSL_PCIE1_SETUP __FT_FSL_PCIE_DEL(blob, FSL_PCIE_COMPAT, 1)
-#endif
-
-#ifdef CONFIG_PCIE2
 #define FT_FSL_PCIE2_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 2)
-#else
-#define FT_FSL_PCIE2_SETUP __FT_FSL_PCIE_DEL(blob, FSL_PCIE_COMPAT, 2)
-#endif
-
-#ifdef CONFIG_PCIE3
 #define FT_FSL_PCIE3_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 3)
-#else
-#define FT_FSL_PCIE3_SETUP __FT_FSL_PCIE_DEL(blob, FSL_PCIE_COMPAT, 3)
-#endif
-
-#ifdef CONFIG_PCIE4
 #define FT_FSL_PCIE4_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 4)
-#else
-#define FT_FSL_PCIE4_SETUP __FT_FSL_PCIE_DEL(blob, FSL_PCIE_COMPAT, 4)
-#endif
 
 #if defined(CONFIG_FSL_CORENET)
 #define FSL_PCIE_COMPAT	"fsl,p4080-pcie"
@@ -259,12 +225,17 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	FT_FSL_PCIE2_SETUP; \
 	FT_FSL_PCIE3_SETUP; \
 	FT_FSL_PCIE4_SETUP;
+#define FT_FSL_PCIE_SETUP FT_FSL_PCI_SETUP
 #elif defined(CONFIG_MPC85xx)
 #define FSL_PCI_COMPAT	"fsl,mpc8540-pci"
 #define FSL_PCIE_COMPAT	"fsl,mpc8548-pcie"
 #define FT_FSL_PCI_SETUP \
 	FT_FSL_PCI1_SETUP; \
 	FT_FSL_PCI2_SETUP; \
+	FT_FSL_PCIE1_SETUP; \
+	FT_FSL_PCIE2_SETUP; \
+	FT_FSL_PCIE3_SETUP;
+#define FT_FSL_PCIE_SETUP \
 	FT_FSL_PCIE1_SETUP; \
 	FT_FSL_PCIE2_SETUP; \
 	FT_FSL_PCIE3_SETUP;

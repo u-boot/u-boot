@@ -21,6 +21,7 @@
 static void fsl_upm_start_pattern(struct fsl_upm *upm, u32 pat_offset)
 {
 	clrsetbits_be32(upm->mxmr, MxMR_MAD_MSK, MxMR_OP_RUNP | pat_offset);
+	(void)in_be32(upm->mxmr);
 }
 
 static void fsl_upm_end_pattern(struct fsl_upm *upm)
@@ -35,6 +36,7 @@ static void fsl_upm_run_pattern(struct fsl_upm *upm, int width,
 				void __iomem *io_addr, u32 mar)
 {
 	out_be32(upm->mar, mar);
+	(void)in_be32(upm->mar);
 	switch (width) {
 	case 8:
 		out_8(io_addr, 0x0);

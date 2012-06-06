@@ -24,10 +24,11 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
 COBJS-y	+= $(BOARD).o
-COBJS-$(CONFIG_DDR_SPD)	+= ddr.o
+COBJS-y	+= ddr.o
+COBJS-$(CONFIG_P4080DS)	+= p4080ds_ddr.o
 COBJS-$(CONFIG_PCI)	+= pci.o
 COBJS-y	+= law.o
 COBJS-y	+= tlb.o
@@ -37,7 +38,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 clean:
 	rm -f $(OBJS) $(SOBJS)

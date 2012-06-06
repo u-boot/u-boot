@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 #CFLAGS += -DET_DEBUG -DDEBUG
 
-LIB	= $(obj)libdisk.a
+LIB	= $(obj)libdisk.o
 
 COBJS-y += part.o
 COBJS-$(CONFIG_MAC_PARTITION)   += part_mac.o
@@ -41,7 +41,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

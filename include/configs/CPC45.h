@@ -45,6 +45,7 @@
 #define CONFIG_MPC8245		1
 #define CONFIG_CPC45		1
 
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		9600
@@ -126,7 +127,7 @@
 
 #define CONFIG_SYS_EUMB_ADDR		0xFCE00000
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
@@ -152,11 +153,10 @@
 
 /* Size in bytes reserved for initial data
  */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_END	0x1000
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
  * NS16550 Configuration
@@ -338,22 +338,11 @@
 #  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
-
-#define SRAM_BASE		0x80000000	/* SRAM base address	*/
-#define SRAM_END		0x801FFFFF
-
 /*----------------------------------------------------------------------*/
 /* CPC45 Memory Map							*/
 /*----------------------------------------------------------------------*/
 #define SRAM_BASE	0x80000000	/* SRAM base address		*/
+#define SRAM_END	0x801FFFFF
 #define ST16552_A_BASE	0x80200000	/* ST16552 channel A		*/
 #define ST16552_B_BASE	0x80400000	/* ST16552 channel A		*/
 #define BCSR_BASE	0x80600000	/* board control / status registers */
@@ -361,6 +350,8 @@
 #define PCMCIA_MEM_BASE 0x83000000	/* PCMCIA memory window base	*/
 #define PCMCIA_IO_BASE	0xFE000000	/* PCMCIA IO window base	*/
 
+#define	CONFIG_SYS_SRAM_BASE	SRAM_BASE
+#define	CONFIG_SYS_SRAM_SIZE	(SRAM_END - SRAM_BASE + 1)
 
 /*---------------------------------------------------------------------*/
 /* CPC45 Control/Status Registers				       */
@@ -466,6 +457,7 @@
  *-----------------------------------------------------------------------
  */
 #define CONFIG_PCI			/* include pci support			*/
+#define CONFIG_SYS_EARLY_PCI_INIT
 #undef	CONFIG_PCI_PNP
 #undef	CONFIG_PCI_SCAN_SHOW
 

@@ -55,7 +55,7 @@
 lowlevel_init:
 
 #if defined(CONFIG_MODNET50)
-	ldr	pc, =(_jump_to_high + NETARM_MMAP_CS0_BASE - TEXT_BASE)
+	ldr	pc, =(_jump_to_high + NETARM_MMAP_CS0_BASE - CONFIG_SYS_TEXT_BASE)
 
 _jump_to_high:
 	/*

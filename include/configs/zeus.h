@@ -34,6 +34,8 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_405EP		1		/* Specifc 405EP support*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 #define CONFIG_SYS_CLK_FREQ     33000000 /* external frequency to pll   */
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
@@ -94,7 +96,7 @@
 #define CONFIG_SYS_POST_ETHER_EXT_LOOPBACK	/* eth POST using ext loopack connector	*/
 
 /* Define here the base-addresses of the UARTs to test in POST */
-#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE}
+#define CONFIG_SYS_POST_UART_TABLE	{ CONFIG_SYS_NS16550_COM1 }
 
 #define CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
@@ -122,14 +124,18 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	1
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK			/* external serial clock */
-#define CONFIG_SYS_BASE_BAUD		691200
+#define CONFIG_SYS_BASE_BAUD	691200
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI
 
-/* The following table includes the supported baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	\
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
+#define CONFIG_SYS_BAUDRATE_TABLE  \
+    {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /*-----------------------------------------------------------------------
  * Miscellaneous configurable options
@@ -247,10 +253,9 @@
 #define CONFIG_SYS_OCM_DATA_ADDR	0xF8000000
 #define CONFIG_SYS_OCM_DATA_SIZE	0x1000
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of OCM		*/
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM	*/
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE /* Size of used area in RAM	*/
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 /* reserve some memory for POST and BOOT limit info */
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 16)
 
@@ -280,12 +285,12 @@
  * GPIO0[28-29] - UART1 data signal input/output
  * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs
  */
-#define CONFIG_SYS_GPIO0_OSRH		0x15555550	/* Chip selects */
-#define CONFIG_SYS_GPIO0_OSRL		0x00000110	/* UART_DTR-pin 27 alt out */
-#define CONFIG_SYS_GPIO0_ISR1H		0x10000041	/* Pin 2, 12 is input */
-#define CONFIG_SYS_GPIO0_ISR1L		0x15505440	/* OUT: LEDs 22/23; IN: pin12,2, NVALID# */
-#define CONFIG_SYS_GPIO0_TSRH		0x00000000
+#define CONFIG_SYS_GPIO0_OSRL		0x15555550	/* Chip selects */
+#define CONFIG_SYS_GPIO0_OSRH		0x00000110	/* UART_DTR-pin 27 alt out */
+#define CONFIG_SYS_GPIO0_ISR1L		0x10000041	/* Pin 2, 12 is input */
+#define CONFIG_SYS_GPIO0_ISR1H		0x15505440	/* OUT: LEDs 22/23; IN: pin12,2, NVALID# */
 #define CONFIG_SYS_GPIO0_TSRL		0x00000000
+#define CONFIG_SYS_GPIO0_TSRH		0x00000000
 #define CONFIG_SYS_GPIO0_TCR		0xBFF68317	/* 3-state OUT: 22/23/29; 12,2 is not 3-state */
 #define CONFIG_SYS_GPIO0_ODR		0x00000000
 
@@ -297,14 +302,6 @@
 /* Time in milli-seconds */
 #define CONFIG_SYS_TIME_POST		5000
 #define CONFIG_SYS_TIME_FACTORY_RESET	10000
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02		/* Software reboot			*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */

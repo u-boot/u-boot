@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -36,6 +36,27 @@ u32 get_my_id()
 	return mfspr(SPRN_PIR);
 }
 
+/*
+ * Determine if U-Boot should keep secondary cores in reset, or let them out
+ * of reset and hold them in a spinloop
+ */
+int hold_cores_in_reset(int verbose)
+{
+	const char *s = getenv("mp_holdoff");
+
+	/* Default to no, overriden by 'y', 'yes', 'Y', 'Yes', or '1' */
+	if (s && (*s == 'y' || *s == 'Y' || *s == '1')) {
+		if (verbose) {
+			puts("Secondary cores are being held in reset.\n");
+			puts("See 'mp_holdoff' environment variable\n");
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
 int cpu_reset(int nr)
 {
 	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
@@ -50,6 +71,9 @@ int cpu_reset(int nr)
 int cpu_status(int nr)
 {
 	u32 *table, id = get_my_id();
+
+	if (hold_cores_in_reset(1))
+		return 0;
 
 	if (nr == id) {
 		table = (u32 *)get_spin_virt_addr();
@@ -132,6 +156,9 @@ int cpu_release(int nr, int argc, char * const argv[])
 {
 	u32 i, val, *table = (u32 *)get_spin_virt_addr() + nr * NUM_BOOT_ENTRY;
 	u64 boot_addr;
+
+	if (hold_cores_in_reset(1))
+		return 0;
 
 	if (nr == get_my_id()) {
 		printf("Invalid to release the boot core.\n\n");
@@ -249,8 +276,13 @@ static void plat_mp_up(unsigned long bootpg)
 
 	/* enable time base at the platform */
 	out_be32(&rcpm->ctbenrl, 0);
+
+	/* readback to sync write */
+	in_be32(&rcpm->ctbenrl);
+
 	mtspr(SPRN_TBWU, 0);
 	mtspr(SPRN_TBWL, 0);
+
 	out_be32(&rcpm->ctbenrl, (1 << nr_cpus) - 1);
 
 #ifdef CONFIG_MPC8xxx_DISABLE_BPTR
@@ -261,7 +293,7 @@ static void plat_mp_up(unsigned long bootpg)
 	 * unusable for normal operation but it does allow OSes to easily
 	 * reset a processor core to put it back into U-Boot's spinloop.
 	 */
-	clrbits_be32(&ecm->bptr, 0x80000000);
+	clrbits_be32(&ccm->bstrar, LAW_EN);
 #endif
 }
 #else
@@ -320,6 +352,10 @@ static void plat_mp_up(unsigned long bootpg)
 	else
 		devdisr |= MPC85xx_DEVDISR_TB0;
 	out_be32(&gur->devdisr, devdisr);
+
+	/* readback to sync write */
+	in_be32(&gur->devdisr);
+
 	mtspr(SPRN_TBWU, 0);
 	mtspr(SPRN_TBWL, 0);
 
@@ -352,6 +388,10 @@ void setup_mp(void)
 	extern ulong __bootpg_addr;
 	ulong fixup = (ulong)&__secondary_start_page;
 	u32 bootpg = determine_mp_bootpg();
+
+	/* Some OSes expect secondary cores to be held in reset */
+	if (hold_cores_in_reset(0))
+		return;
 
 	/* Store the bootpg's SDRAM address for use by secondary CPU cores */
 	__bootpg_addr = bootpg;

@@ -20,4 +20,4 @@
 #
 # we load ourself to 8400'0000 to provide at least 32MB spacing
 # between us and the Integrity kernel image
-TEXT_BASE = 0x84000000
+CONFIG_SYS_TEXT_BASE = 0x84000000

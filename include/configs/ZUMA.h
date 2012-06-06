@@ -41,6 +41,8 @@
 #define CONFIG_EVB64260		1	/* this is an EVB64260 board	*/
 #define CONFIG_ZUMA_V2		1	/* always define this for ZUMA v2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 /* #define CONFIG_ZUMA_V2_OLD	1 */	/* backwards compat for old V2 board */
 
 #define CONFIG_BAUDRATE		38400	/* console baudrate = 38400	*/
@@ -178,9 +180,8 @@
  * Definitions for initial stack pointer and data area
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_END	0x1000
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for init data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_RAM_LOCK
 
 
@@ -386,13 +387,5 @@
  * Galileo I2C driver
  */
 #define CONFIG_GT_I2C
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		    */
 
 #endif	/* __CONFIG_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -233,7 +233,8 @@ int step_assign_addresses(fsl_ddr_info_t *pinfo,
 }
 
 unsigned long long
-fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step)
+fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
+				       unsigned int size_only)
 {
 	unsigned int i, j;
 	unsigned int all_controllers_memctl_interleaving = 0;
@@ -338,7 +339,8 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step)
 					&pinfo->memctl_opts[i],
 					&ddr_reg[i], &timing_params[i],
 					pinfo->dimm_params[i],
-					dbw_capacity_adjust[i]);
+					dbw_capacity_adjust[i],
+					size_only);
 		}
 
 	default:
@@ -405,7 +407,7 @@ phys_size_t fsl_ddr_sdram(void)
 	memset(&info, 0, sizeof(fsl_ddr_info_t));
 
 	/* Compute it once normally. */
-	total_memory = fsl_ddr_compute(&info, STEP_GET_SPD);
+	total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 0);
 
 	/* Check for memory controller interleaving. */
 	memctl_interleaved = 0;
@@ -430,7 +432,8 @@ phys_size_t fsl_ddr_sdram(void)
 				info.memctl_opts[i].memctl_interleaving = 0;
 			debug("Recomputing with memctl_interleaving off.\n");
 			total_memory = fsl_ddr_compute(&info,
-						       STEP_ASSIGN_ADDRESSES);
+						       STEP_ASSIGN_ADDRESSES,
+						       0);
 		}
 	}
 
@@ -469,11 +472,30 @@ phys_size_t fsl_ddr_sdram(void)
 	/* Check for 4G or more.  Bad. */
 	if (total_memory >= (1ull << 32)) {
 		printf("Detected %lld MB of memory\n", total_memory >> 20);
-		printf("This U-Boot only supports < 4G of DDR\n");
-		printf("You could rebuild it with CONFIG_PHYS_64BIT\n");
+		printf("       This U-Boot only supports < 4G of DDR\n");
+		printf("       You could rebuild it with CONFIG_PHYS_64BIT\n");
+		printf("       "); /* re-align to match init_func_ram print */
 		total_memory = CONFIG_MAX_MEM_MAPPED;
 	}
 #endif
+
+	return total_memory;
+}
+
+/*
+ * fsl_ddr_sdram_size() - This function only returns the size of the total
+ * memory without setting ddr control registers.
+ */
+phys_size_t
+fsl_ddr_sdram_size(void)
+{
+	fsl_ddr_info_t  info;
+	unsigned long long total_memory = 0;
+
+	memset(&info, 0 , sizeof(fsl_ddr_info_t));
+
+	/* Compute it once normally. */
+	total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 1);
 
 	return total_memory;
 }

@@ -80,40 +80,40 @@ int board_init (void)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* to reduce PLL lock time, adjust the LOCKTIME register */
-	clk_power->LOCKTIME = 0xFFFFFF;
+	clk_power->locktime = 0xFFFFFF;
 
 	/* configure MPLL */
-	clk_power->MPLLCON = ((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV);
+	clk_power->mpllcon = ((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV);
 
 	/* some delay between MPLL and UPLL */
 	delay (4000);
 
 	/* configure UPLL */
-	clk_power->UPLLCON = ((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV);
+	clk_power->upllcon = ((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV);
 
 	/* some delay between MPLL and UPLL */
 	delay (8000);
 
 	/* set up the I/O ports */
-	gpio->GPACON = 0x007FFFFF;
-	gpio->GPBCON = 0x00044556;
-	gpio->GPBUP = 0x000007FF;
-	gpio->GPCCON = 0xAAAAAAAA;
-	gpio->GPCUP = 0x0000FFFF;
-	gpio->GPDCON = 0xAAAAAAAA;
-	gpio->GPDUP = 0x0000FFFF;
-	gpio->GPECON = 0xAAAAAAAA;
-	gpio->GPEUP = 0x0000FFFF;
-	gpio->GPFCON = 0x000055AA;
-	gpio->GPFUP = 0x000000FF;
-	gpio->GPGCON = 0xFF95FF3A;
-	gpio->GPGUP = 0x0000FFFF;
-	gpio->GPHCON = 0x0016FAAA;
-	gpio->GPHUP = 0x000007FF;
+	gpio->gpacon = 0x007FFFFF;
+	gpio->gpbcon = 0x00044556;
+	gpio->gpbup = 0x000007FF;
+	gpio->gpccon = 0xAAAAAAAA;
+	gpio->gpcup = 0x0000FFFF;
+	gpio->gpdcon = 0xAAAAAAAA;
+	gpio->gpdup = 0x0000FFFF;
+	gpio->gpecon = 0xAAAAAAAA;
+	gpio->gpeup = 0x0000FFFF;
+	gpio->gpfcon = 0x000055AA;
+	gpio->gpfup = 0x000000FF;
+	gpio->gpgcon = 0xFF95FF3A;
+	gpio->gpgup = 0x0000FFFF;
+	gpio->gphcon = 0x0016FAAA;
+	gpio->gphup = 0x000007FF;
 
-	gpio->EXTINT0=0x22222222;
-	gpio->EXTINT1=0x22222222;
-	gpio->EXTINT2=0x22222222;
+	gpio->extint0 = 0x22222222;
+	gpio->extint1 = 0x22222222;
+	gpio->extint2 = 0x22222222;
 
 	/* arch number of SMDK2410-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_SMDK2410;

@@ -28,7 +28,8 @@ USB Support for PIP405 and MIP405 (UHCI)
 The USB support is implemented on the base of the UHCI Host
 controller.
 
-Currently supported are USB Hubs, USB Keyboards and USB Floppys.
+Currently supported are USB Hubs, USB Keyboards, USB Floppys, USB
+flash sticks and USB network adaptors.
 Tested with a TEAC Floppy TEAC FD-05PUB and Chicony KU-8933 Keyboard.
 
 How it works:
@@ -78,3 +79,4 @@ CONFIG_USB_UHCI	    defines the lowlevel part.A lowlevel part must be defined
 		    if using CONFIG_CMD_USB
 CONFIG_USB_KEYBOARD enables the USB Keyboard
 CONFIG_USB_STORAGE  enables the USB storage devices
+CONFIG_USB_HOST_ETHER	enables USB ethernet dongle support

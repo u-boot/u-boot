@@ -243,8 +243,8 @@ void reset_phy (void)
 	 * Enable autonegotiation.
 	 */
 	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, 16, 0x610);
-	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, PHY_BMCR,
-			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART);
 #else
 	/*
 	 * Ethernet PHY is configured (by means of configuration pins)
@@ -254,13 +254,13 @@ void reset_phy (void)
 	 */
 
 	/* Advertise all capabilities */
-	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, PHY_ANAR, 0x01E1);
+	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, MII_ADVERTISE, 0x01E1);
 
 	/* Do not bypass Rx/Tx (de)scrambler */
-	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, PHY_DCR,  0x0000);
+	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, MII_FCSCOUNTER,  0x0000);
 
-	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, PHY_BMCR,
-			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART);
 #endif /* CONFIG_ADSTYPE == CONFIG_SYS_PQ2FADS */
 #endif /* CONFIG_MII */
 }

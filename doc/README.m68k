@@ -72,7 +72,7 @@ For the preloader, please see
 http://mailman.uclinux.org/pipermail/uclinux-dev/2003-December/023384.html
 
 U-boot is configured to run at 0x20000 at default. This can be configured by
-change TEXT_BASE in board/m5282evb/config.mk and CONFIG_SYS_MONITOR_BASE in
+change CONFIG_SYS_TEXT_BASE in board/m5282evb/config.mk and CONFIG_SYS_MONITOR_BASE in
 include/configs/M5282EVB.h.
 
 3.2 BuS EB+MCF-EV123
@@ -96,7 +96,7 @@ CONFIG_MONITOR_IS_IN_RAM must be defined. If it is defined the
 initial vector table and basic processor initialization will not
 be compiled in. The start address of u-boot must be adjusted in
 the boards config header file (CONFIG_SYS_MONITOR_BASE) and Makefile
-(TEXT_BASE) to the load address.
+(CONFIG_SYS_TEXT_BASE) to the load address.
 
 4.1 MCF5272 specific Options/Settings
 -------------------------------------

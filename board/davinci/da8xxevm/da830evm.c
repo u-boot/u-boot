@@ -40,8 +40,7 @@
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
-#include "../common/misc.h"
-#include "common.h"
+#include <asm/arch/davinci_misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -196,18 +195,16 @@ int board_eth_init(bd_t *bis)
 {
 	u_int8_t mac_addr[6];
 	u_int8_t switch_start_cmd[2] = { 0x01, 0x23 };
+	struct eth_device *dev;
 
 	/* Read Ethernet MAC address from EEPROM */
 	if (dvevm_read_mac_address(mac_addr))
 		/* set address env if not already set */
-		dv_configure_mac_address(mac_addr);
+		davinci_sync_env_enetaddr(mac_addr);
 
 	/* read the address back from env */
 	if (!eth_getenv_enetaddr("ethaddr", mac_addr))
 		return -1;
-
-	/* provide the resulting addr to the driver */
-	davinci_eth_set_mac_addr(mac_addr);
 
 	/* enable the Ethernet switch in the 3 port PHY */
 	if (i2c_write(PHY_SW_I2C_ADDR, 0, 0,
@@ -221,6 +218,12 @@ int board_eth_init(bd_t *bis)
 		printf("Error: Ethernet init failed!\n");
 		return -1;
 	}
+
+	dev = eth_get_dev();
+
+	/* provide the resulting addr to the driver */
+	memcpy(dev->enetaddr, mac_addr, 6);
+	dev->write_hwaddr(dev);
 
 	return 0;
 }

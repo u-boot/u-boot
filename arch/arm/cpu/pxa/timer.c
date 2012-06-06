@@ -26,8 +26,9 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
+#include <common.h>
 #include <div64.h>
 
 #ifdef CONFIG_USE_IRQ
@@ -86,7 +87,7 @@ void __udelay (unsigned long usec)
 
 void reset_timer_masked (void)
 {
-	OSCR = 0;
+	writel(0, OSCR);
 }
 
 ulong get_timer_masked (void)
@@ -113,7 +114,7 @@ void udelay_masked (unsigned long usec)
  */
 unsigned long long get_ticks(void)
 {
-	return OSCR;
+	return readl(OSCR);
 }
 
 /*

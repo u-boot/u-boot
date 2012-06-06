@@ -39,6 +39,9 @@
 #define CONFIG_RSD_PROTO	1	/* on a R&S Protocol Board      */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xff000000
+#define	CONFIG_SYS_LDSCRIPT	"board/rsdproto/u-boot.lds"
+
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 
 /*
@@ -251,9 +254,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x4000	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x4000	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -418,13 +420,5 @@
 #define CONFIG_SYS_BR5_PRELIM	(PHYS_DPRAM_SHARC | BRx_V)
 #define CONFIG_SYS_OR5_PRELIM	(P2SZ_TO_AM(PHYS_DPRAM_SHARC_SIZE) | \
 			 ORxG_ACS_DIV4)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

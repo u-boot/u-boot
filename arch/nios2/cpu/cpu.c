@@ -40,7 +40,7 @@ int checkcpu (void)
 	return (0);
 }
 
-int do_reset(void)
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	disable_interrupts();
 	/* indirect call to go beyond 256MB limitation of toolchain */

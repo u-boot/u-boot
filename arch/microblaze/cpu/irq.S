@@ -60,7 +60,6 @@ _interrupt_handler:
 	addik	r1, r1, -124
 	brlid	r15, interrupt_handler
 	nop
-	nop
 	addik	r1, r1, 124
 	lwi	r31, r1, -120
 	lwi	r30, r1, -116
@@ -93,22 +92,6 @@ _interrupt_handler:
 	lwi	r3, r1, -8
 	lwi	r2, r1, -4
 
-	/* enable_interrupt */
-#ifdef XILINX_USE_MSR_INSTR
-	msrset	r0, 2
-#else
-	/* FIXME unstable in stressed mode - two irqs */
-	nop
-	addi	r1, r1, -4
-	swi	r12, r1, 0
-	mfs	r12, rmsr
-	ori	r12, r12, 2
-	mts	rmsr, r12
-	lwi	r12, r1, 0
-	addi	r1, r1, 4
-	nop
-#endif
-	bra	r14
-	nop
+	rtid	r14, 0
 	nop
 	.size _interrupt_handler,.-_interrupt_handler

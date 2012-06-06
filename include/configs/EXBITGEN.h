@@ -165,7 +165,7 @@
 #define CONFIG_SYS_FLASH1_SIZE		0x02000000
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_FLASH0_BASE
 #define CONFIG_SYS_FLASH_SIZE		CONFIG_SYS_FLASH0_SIZE
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 * 1024)	/* Reserve 196 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
@@ -200,18 +200,9 @@
 
 /* Global info and initial stack */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of on-chip SRAM	*/
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	128 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE /* Size of used area in RAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

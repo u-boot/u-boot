@@ -36,8 +36,8 @@ sufficient that the upgradable U-Boot can be started by a branch to 0xF7FBFFFC.
 
 The build sequence:
 
-	make korat_config
-	make all perm=1
+	make korat_perm_config
+	make all
 
 builds the permanent U-Boot by selecting loader file "u-boot.lds" and defining
 preprocessor symbol "CONFIG_KORAT_PERMANENT".  The default build:
@@ -45,7 +45,7 @@ preprocessor symbol "CONFIG_KORAT_PERMANENT".  The default build:
 	make korat_config
 	make all
 
-creates the upgradable U-Boot but selecting loader file "u-boot-F7FC.lds" and
+creates the upgradable U-Boot by selecting loader file "u-boot-F7FC.lds" and
 leaving preprocessor symbol "CONFIG_KORAT_PERMANENT" undefined.
 
 2008-02-22, Larry Johnson <lrj@acm.org>

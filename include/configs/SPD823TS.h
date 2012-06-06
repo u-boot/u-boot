@@ -36,6 +36,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_SPD823TS		1	/* ...on a SPD823TS board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000
+
 #define CONFIG_RESET_PHY_R	1	/* Call reset_phy()		*/
 
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
@@ -135,9 +137,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -416,13 +417,5 @@
 #define CONFIG_SYS_MBMR_8COL	((CONFIG_SYS_MBMR_PTB << MBMR_PTB_SHIFT)  | \
 			 MBMR_AMB_TYPE_0 | MBMR_DSB_1_CYCL | MBMR_G0CLB_A11 |	\
 			 MBMR_RLFB_1X	 | MBMR_WLFB_1X	   | MBMR_TLFB_4X)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #endif	/* __CONFIG_H */

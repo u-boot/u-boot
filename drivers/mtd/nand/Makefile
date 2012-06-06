@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libnand.a
+LIB	:= $(obj)libnand.o
 
 ifdef CONFIG_CMD_NAND
 COBJS-y += nand.o
@@ -50,6 +50,7 @@ COBJS-$(CONFIG_NAND_S3C64XX) += s3c64xx.o
 COBJS-$(CONFIG_NAND_SPEAR) += spr_nand.o
 COBJS-$(CONFIG_NAND_OMAP_GPMC) += omap_gpmc.o
 COBJS-$(CONFIG_NAND_PLAT) += nand_plat.o
+COBJS-$(CONFIG_NAND_ZYNQ) += zynq_nand.o
 endif
 
 COBJS	:= $(COBJS-y)
@@ -59,7 +60,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

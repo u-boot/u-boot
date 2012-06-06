@@ -1,6 +1,6 @@
 include $(TOPDIR)/config.mk
 
-LIB := $(obj)libatibiosemu.a
+LIB := $(obj)libatibiosemu.o
 
 X86DIR  = x86emu
 
@@ -28,7 +28,7 @@ CPPFLAGS += $(EXTRA_CFLAGS)
 all:	$(LIB)
 
 $(LIB): $(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

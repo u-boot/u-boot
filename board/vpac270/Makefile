@@ -1,10 +1,7 @@
-
 #
-# (C) Copyright 2000
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Voipac PXA270 Support
 #
-# See file CREDITS for list of people who contributed to this
-# project.
+# Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,20 +21,18 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= vpac270.o
-SOBJS	:= lowlevel_init.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 clean:
-	rm -f $(SOBJS) $(OBJS)
+	rm -f $(OBJS)
 
 distclean:	clean
 	rm -f $(LIB) core *.bak $(obj).depend

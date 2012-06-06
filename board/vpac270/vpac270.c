@@ -1,16 +1,7 @@
 /*
- * (C) Copyright 2004
- * Robert Whaley, Applied Data Systems, Inc. rwhaley@applieddata.net
+ * Voipac PXA270 Support
  *
- * (C) Copyright 2002
- * Kyle Harris, Nexus Technologies, Inc. kharris@nexus-tech.net
- *
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
- *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,29 +22,24 @@
 #include <common.h>
 #include <asm/arch/hardware.h>
 #include <netdev.h>
+#include <serial.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-/* ------------------------------------------------------------------------- */
 
 /*
  * Miscelaneous platform dependent initialisations
  */
-extern struct serial_device serial_ffuart_device;
-extern struct serial_device serial_btuart_device;
-extern struct serial_device serial_stuart_device;
-
-struct serial_device *default_serial_console (void)
+int board_init(void)
 {
-	return &serial_ffuart_device;
-}
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
 
-int board_init (void)
-{
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
-	/* arch number of vpac270 */
+	/* Arch number of vpac270 */
 	gd->bd->bi_arch_number = MACH_TYPE_VPAC270;
 
 	/* adress of boot parameters */
@@ -62,41 +48,58 @@ int board_init (void)
 	return 0;
 }
 
-int dram_init (void)
+struct serial_device *default_serial_console(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	return &serial_ffuart_device;
+}
 
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
-
+extern void pxa_dram_init(void);
+int dram_init(void)
+{
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }
 
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+
+#ifdef	CONFIG_RAM_256M
+	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
+#endif
+}
+
+#ifdef	CONFIG_CMD_USB
 int usb_board_init(void)
 {
-	UHCHR = (UHCHR | UHCHR_PCPL | UHCHR_PSPL) &
-		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE);
+	writel((UHCHR | UHCHR_PCPL | UHCHR_PSPL) &
+		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE),
+		UHCHR);
 
-	UHCHR |= UHCHR_FSBIR;
+	writel(readl(UHCHR) | UHCHR_FSBIR, UHCHR);
 
-	while (UHCHR & UHCHR_FSBIR);
+	while (readl(UHCHR) & UHCHR_FSBIR)
+		;
 
-	UHCHR &= ~UHCHR_SSE;
-	UHCHIE = (UHCHIE_UPRIE | UHCHIE_RWIE);
+	writel(readl(UHCHR) & ~UHCHR_SSE, UHCHR);
+	writel((UHCHIE_UPRIE | UHCHIE_RWIE), UHCHIE);
 
 	/* Clear any OTG Pin Hold */
-	if (PSSR & PSSR_OTGPH)
-		PSSR |= PSSR_OTGPH;
+	if (readl(PSSR) & PSSR_OTGPH)
+		writel(readl(PSSR) | PSSR_OTGPH, PSSR);
 
-	UHCRHDA &= ~(0x200);
-	UHCRHDA |= 0x100;
+	writel(readl(UHCRHDA) & ~(0x200), UHCRHDA);
+	writel(readl(UHCRHDA) | 0x100, UHCRHDA);
 
 	/* Set port power control mask bits, only 3 ports. */
-	UHCRHDB |= (0x7<<17);
+	writel(readl(UHCRHDB) | (0x7<<17), UHCRHDB);
 
 	/* enable port 2 */
-	UP2OCR |= UP2OCR_HXOE | UP2OCR_HXS | UP2OCR_DMPDE | UP2OCR_DPPDE;
+	writel(readl(UP2OCR) | UP2OCR_HXOE | UP2OCR_HXS |
+		UP2OCR_DMPDE | UP2OCR_DPPDE, UP2OCR);
 
 	return 0;
 }
@@ -108,17 +111,18 @@ void usb_board_init_fail(void)
 
 void usb_board_stop(void)
 {
-	UHCHR |= UHCHR_FHR;
+	writel(readl(UHCHR) | UHCHR_FHR, UHCHR);
 	udelay(11);
-	UHCHR &= ~UHCHR_FHR;
+	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
-	UHCCOMS |= 1;
+	writel(readl(UHCCOMS) | 1, UHCCOMS);
 	udelay(10);
 
-	CKEN &= ~CKEN10_USBHOST;
+	writel(readl(CKEN) & ~CKEN10_USBHOST, CKEN);
 
 	return;
 }
+#endif
 
 #ifdef CONFIG_DRIVER_DM9000
 int board_eth_init(bd_t *bis)

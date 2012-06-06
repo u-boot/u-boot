@@ -83,6 +83,7 @@
 #define IH_OS_ARTOS		19	/* ARTOS	*/
 #define IH_OS_UNITY		20	/* Unity OS	*/
 #define IH_OS_INTEGRITY		21	/* INTEGRITY	*/
+#define IH_OS_OSE		22	/* OSE		*/
 
 /*
  * CPU Architecture Codes (supported by Linux)
@@ -299,14 +300,14 @@ typedef struct table_entry {
  * entry that matches the given short name. If a matching entry is
  * found, it's id is returned to the caller.
  */
-int get_table_entry_id (table_entry_t *table,
+int get_table_entry_id(const table_entry_t *table,
 		const char *table_name, const char *name);
 /*
  * get_table_entry_name() scans the translation table trying to find
  * an entry that matches the given id. If a matching entry is found,
  * its long name is returned to the caller.
  */
-char *get_table_entry_name (table_entry_t *table, char *msg, int id);
+char *get_table_entry_name(const table_entry_t *table, char *msg, int id);
 
 const char *genimg_get_os_name (uint8_t os);
 const char *genimg_get_arch_name (uint8_t arch);
@@ -339,14 +340,17 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		char **of_flat_tree, ulong *of_size);
 #endif
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
 int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 		  ulong *initrd_start, ulong *initrd_end);
-
+#endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
+#ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 			ulong bootmap_base);
+#endif /* CONFIG_SYS_BOOT_GET_CMDLINE */
+#ifdef CONFIG_SYS_BOOT_GET_KBD
 int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base);
-#endif /* CONFIG_PPC || CONFIG_M68K */
+#endif /* CONFIG_SYS_BOOT_GET_KBD */
 #endif /* !USE_HOSTCC */
 
 /*******************************************************************/

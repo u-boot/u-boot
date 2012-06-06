@@ -23,7 +23,10 @@
 
 #ifndef __ASM_PROCESSOR_H_
 #define __ASM_PROCESSOR_H_ 1
-/* Currently this header is unused in the i386 port
- * but some generic files #include <asm/processor.h>
- * so this file is a placeholder. */
+
+#define GDT_ENTRY_32BIT_CS	2
+#define GDT_ENTRY_32BIT_DS	(GDT_ENTRY_32BIT_CS + 1)
+#define GDT_ENTRY_16BIT_CS	(GDT_ENTRY_32BIT_DS + 1)
+#define GDT_ENTRY_16BIT_DS	(GDT_ENTRY_16BIT_CS + 1)
+
 #endif

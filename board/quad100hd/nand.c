@@ -24,7 +24,7 @@
 #include <common.h>
 #include <config.h>
 #if defined(CONFIG_CMD_NAND)
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/io.h>
 #include <nand.h>
 

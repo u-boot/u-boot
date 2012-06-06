@@ -33,7 +33,7 @@
 
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

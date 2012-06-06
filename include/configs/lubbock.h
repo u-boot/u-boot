@@ -43,7 +43,7 @@
 #define CONFIG_MMC
 #define BOARD_LATE_INIT		1
 #define CONFIG_DOS_PARTITION
-
+#define	CONFIG_SYS_TEXT_BASE	0x0
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
 /* we will never enable dcache, because we have to setup MMU first */
@@ -53,7 +53,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	    (CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -176,6 +175,9 @@
 
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1)
+
 #define FPGA_REGS_BASE_PHYSICAL 0x08000000
 
 /*
@@ -199,6 +201,9 @@
 
 #define CONFIG_SYS_PSSR_VAL		0x20
 
+#define	CONFIG_SYS_CCCR			CCCR_L27|CCCR_M2|CCCR_N10
+#define	CONFIG_SYS_CKEN			0x0
+
 /*
  * Memory settings
  */
@@ -208,6 +213,9 @@
 #define CONFIG_SYS_MDCNFG_VAL		0x00001AC9
 #define CONFIG_SYS_MDREFR_VAL		0x00018018
 #define CONFIG_SYS_MDMRS_VAL		0x00000000
+
+#define	CONFIG_SYS_FLYCNFG_VAL		0x00000000
+#define	CONFIG_SYS_SXCNFG_VAL		0x00000000
 
 /*
  * PCMCIA and CF Interfaces

@@ -83,8 +83,10 @@ struct kwtmr_registers *kwtmr_regs = (struct kwtmr_registers *)KW_TIMER_BASE;
 #define READ_TIMER			(readl(CNTMR_VAL_REG(UBOOT_CNTR)) /	\
 					 (CONFIG_SYS_TCLK / 1000))
 
-static ulong timestamp;
-static ulong lastdec;
+DECLARE_GLOBAL_DATA_PTR;
+
+#define timestamp gd->tbl
+#define lastdec gd->lastinc
 
 void reset_timer_masked(void)
 {

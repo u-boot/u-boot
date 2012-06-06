@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006-2010 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  * based on source code of Shlomi Gridish
@@ -25,6 +25,7 @@
 
 #include "qe.h"
 #include "uccf.h"
+#include <asm/fsl_enet.h>
 
 #define MAX_TX_THREADS				8
 #define MAX_RX_THREADS				8
@@ -660,21 +661,6 @@ typedef enum uec_num_of_threads {
 	UEC_NUM_OF_THREADS_8  = 0x4   /* 8 */
 } uec_num_of_threads_e;
 
-/* UEC ethernet interface type
-*/
-typedef enum enet_interface_type {
-	MII,
-	RMII,
-	RGMII,
-	GMII,
-	RGMII_ID,
-	RGMII_RXID,
-	RGMII_TXID,
-	TBI,
-	RTBI,
-	SGMII
-} enet_interface_type_e;
-
 /* UEC initialization info struct
 */
 #define STD_UEC_INFO(num) \
@@ -705,7 +691,7 @@ typedef struct uec_info {
 	u16				rx_bd_ring_len;
 	u16				tx_bd_ring_len;
 	u8				phy_address;
-	enet_interface_type_e		enet_interface_type;
+	enum fsl_phy_enet_if		enet_interface_type;
 	int				speed;
 } uec_info_t;
 

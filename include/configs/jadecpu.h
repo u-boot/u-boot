@@ -146,6 +146,9 @@
 #define PHYS_SDRAM		0x40000000	/* Start address of DDRRAM */
 #define PHYS_SDRAM_SIZE	0x08000000	/* 128 megs */
 
+#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM
+#define CONFIG_SYS_INIT_SP_ADDR	0x01008000
+
 /*
  * FLASH and environment organization
  */
@@ -194,7 +197,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(0x400000 - 0x8000)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* 128 bytes for initial data */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 

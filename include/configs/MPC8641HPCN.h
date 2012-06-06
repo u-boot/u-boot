@@ -1,5 +1,5 @@
 /*
- * Copyright 2006, 2010 Freescale Semiconductor.
+ * Copyright 2006, 2010-2011 Freescale Semiconductor.
  *
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -41,6 +41,12 @@
 /*#define CONFIG_PHYS_64BIT	1*/	/* Place devices in 36-bit space */
 #define CONFIG_ADDR_MAP		1	/* Use addr map */
 
+/*
+ * default CCSRBAR is at 0xff700000
+ * assume U-Boot is less than 0.5MB
+ */
+#define	CONFIG_SYS_TEXT_BASE	0xeff00000
+
 #ifdef RUN_DIAG
 #define CONFIG_SYS_DIAG_ADDR	     CONFIG_SYS_FLASH_BASE
 #endif
@@ -51,23 +57,20 @@
  */
 #define CONFIG_SYS_SCRATCH_VA	0xe0000000
 
-/*
- * set this to enable Rapid IO.  PCI and RIO are mutually exclusive
- */
-/*#define CONFIG_RIO		1*/
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
 
-#ifndef CONFIG_RIO			/* RIO/PCI are mutually exclusive */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (ULI bridge) */
 #define CONFIG_PCIE2		1	/* PCIE controler 2 (slot) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#endif
 #define CONFIG_FSL_LAW		1	/* Use common FSL law init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 #define CONFIG_SYS_NUM_ADDR_MAP 8	/* Number of addr map slots = 8 dbats */
 
@@ -238,7 +241,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #undef	CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #define CONFIG_SYS_MONITOR_BASE_EARLY   0xfff00000	/* early monitor loc */
 
 #define CONFIG_FLASH_CFI_DRIVER
@@ -264,10 +267,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #else
 #define CONFIG_SYS_INIT_RAM_ADDR	0xf8400000	/* Initial RAM address */
 #endif
-#define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
@@ -275,7 +277,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX     1
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -314,19 +315,20 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * RapidIO MMU
  */
-#define CONFIG_SYS_RIO_MEM_BASE	0x80000000	/* base address */
+#define CONFIG_SYS_SRIO1_MEM_BASE	0x80000000	/* base address */
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_RIO_MEM_PHYS  0x0000000c00000000ULL
+#define CONFIG_SYS_SRIO1_MEM_PHYS  0x0000000c00000000ULL
 #else
-#define CONFIG_SYS_RIO_MEM_PHYS	CONFIG_SYS_RIO_MEM_BASE
+#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BASE
 #endif
-#define CONFIG_SYS_RIO_MEM_SIZE	0x20000000	/* 128M */
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 128M */
 
 /*
  * General PCI
  * Addresses are mapped 1-1.
  */
 
+#define CONFIG_SYS_PCIE1_NAME		"ULI"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
@@ -508,18 +510,18 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 				 | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT2U	CONFIG_SYS_DBAT2U
 #else /* CONFIG_RIO */
-#define CONFIG_SYS_DBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_RIO_MEM_PHYS) \
+#define CONFIG_SYS_DBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_SRIO1_MEM_PHYS) \
 				 | BATL_PP_RW | BATL_CACHEINHIBIT | \
 				 BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_RIO_MEM_BASE | BATU_BL_512M \
+#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_SRIO1_MEM_BASE | BATU_BL_512M \
 				 | BATU_VS | BATU_VP)
-#define CONFIG_SYS_IBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_RIO_MEM_PHYS) \
+#define CONFIG_SYS_IBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_SRIO1_MEM_PHYS) \
 				 | BATL_PP_RW | BATL_CACHEINHIBIT)
 
-#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_RIO_MEM_PHYS | BATL_PP_RW \
+#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_SRIO1_MEM_PHYS | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_RIO_MEM_PHYS | BATU_BL_512M | BATU_VS | BATU_VP)
-#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_RIO_MEM_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_SRIO1_MEM_PHYS | BATU_BL_512M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_SRIO1_MEM_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT2U	CONFIG_SYS_DBAT2U
 #endif
 
@@ -587,7 +589,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /* Map the last 1M of flash where we're running from reset */
 #define CONFIG_SYS_DBAT6L_EARLY	(CONFIG_SYS_MONITOR_BASE_EARLY | BATL_PP_RW \
 				 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT6U_EARLY	(TEXT_BASE | BATU_BL_1M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT6U_EARLY	(CONFIG_SYS_TEXT_BASE | BATU_BL_1M | BATU_VS | BATU_VP)
 #define CONFIG_SYS_IBAT6L_EARLY	(CONFIG_SYS_MONITOR_BASE_EARLY | BATL_PP_RW \
 				 | BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT6U_EARLY	CONFIG_SYS_DBAT6U_EARLY
@@ -675,14 +677,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
-
 #if defined(CONFIG_CMD_KGDB)
     #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
     #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
@@ -728,11 +722,11 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 	"netdev=eth0\0"							\
 	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
 	"tftpflash=tftpboot $loadaddr $uboot; "				\
-		"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-		"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-		"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+		"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+		"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+		"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
+		"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+		"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
 	"consoledev=ttyS0\0"						\
 	"ramdiskaddr=2000000\0"						\
 	"ramdiskfile=your.ramdisk.u-boot\0"				\

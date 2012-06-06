@@ -35,6 +35,7 @@ typedef volatile unsigned short vu_short;
 typedef volatile unsigned char	vu_char;
 
 #include <config.h>
+#include <asm-offsets.h>
 #include <linux/bitops.h>
 #include <linux/types.h>
 #include <linux/string.h>
@@ -96,7 +97,7 @@ typedef volatile unsigned char	vu_char;
 #include <asm/immap_83xx.h>
 #endif
 #ifdef	CONFIG_4xx
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #endif
 #ifdef CONFIG_HYMOD
 #include <board/hymod/hymod.h>
@@ -189,6 +190,15 @@ typedef void (interrupt_handler_t)(void *);
 #define MIN(x, y)  min(x, y)
 #define MAX(x, y)  max(x, y)
 
+#if defined(CONFIG_ENV_IS_EMBEDDED)
+#define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
+#elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
+	(CONFIG_ENV_ADDR >= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)) ) || \
+      defined(CONFIG_ENV_IS_IN_NVRAM)
+#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
+#else
+#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
+#endif
 
 /**
  * container_of - cast a member of a structure out to the containing structure
@@ -204,14 +214,6 @@ typedef void (interrupt_handler_t)(void *);
 /*
  * Function Prototypes
  */
-
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-void	serial_buffered_init (void);
-void	serial_buffered_putc (const char);
-void	serial_buffered_puts (const char *);
-int	serial_buffered_getc (void);
-int	serial_buffered_tstc (void);
-#endif /* CONFIG_SERIAL_SOFTWARE_FIFO */
 
 void	hang		(void) __attribute__ ((noreturn));
 
@@ -262,9 +264,6 @@ int	saveenv	     (void);
 int inline setenv   (char *, char *);
 #else
 int	setenv	     (char *, char *);
-#ifdef CONFIG_HAS_UID
-void	forceenv     (char *, char *);
-#endif
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
@@ -529,6 +528,7 @@ ulong get_PERCLK2(void);
 ulong get_PERCLK3(void);
 #endif
 ulong	get_bus_freq  (ulong);
+int get_serial_clock(void);
 
 #if defined(CONFIG_MPC85xx)
 typedef MPC85xx_SYS_INFO sys_info_t;
@@ -629,6 +629,11 @@ static inline IPaddr_t getenv_IPaddr (char *var)
 	return (string_to_ip(getenv(var)));
 }
 
+/* lib/qsort.c */
+void qsort(void *base, size_t nmemb, size_t size,
+	   int(*compar)(const void *, const void *));
+int strcmp_compar(const void *, const void *);
+
 /* lib/time.c */
 void	udelay        (unsigned long);
 
@@ -643,7 +648,7 @@ int	sprintf(char * buf, const char *fmt, ...)
 int	vsprintf(char *buf, const char *fmt, va_list args);
 
 /* lib/strmhz.c */
-char *	strmhz(char *buf, long hz);
+char *	strmhz(char *buf, unsigned long hz);
 
 /* lib/crc32.c */
 #include <u-boot/crc.h>
@@ -651,7 +656,7 @@ char *	strmhz(char *buf, long hz);
 /* common/console.c */
 int	console_init_f(void);	/* Before relocation; uses the serial  stuff	*/
 int	console_init_r(void);	/* After  relocation; uses the console stuff	*/
-int	console_assign (int file, char *devname);	/* Assign the console	*/
+int	console_assign(int file, const char *devname);	/* Assign the console	*/
 int	ctrlc (void);
 int	had_ctrlc (void);	/* have we had a Control-C since last clear? */
 void	clear_ctrlc (void);	/* clear the Control-C condition */

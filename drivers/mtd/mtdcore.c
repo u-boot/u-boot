@@ -142,3 +142,47 @@ void put_mtd_device(struct mtd_info *mtd)
 	c = --mtd->usecount;
 	BUG_ON(c < 0);
 }
+
+#if defined(CONFIG_CMD_MTDPARTS_SPREAD)
+/**
+ * mtd_get_len_incl_bad
+ *
+ * Check if length including bad blocks fits into device.
+ *
+ * @param mtd an MTD device
+ * @param offset offset in flash
+ * @param length image length
+ * @return image length including bad blocks in *len_incl_bad and whether or not
+ *         the length returned was truncated in *truncated
+ */
+void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
+			  const uint64_t length, uint64_t *len_incl_bad,
+			  int *truncated)
+{
+	*truncated = 0;
+	*len_incl_bad = 0;
+
+	if (!mtd->block_isbad) {
+		*len_incl_bad = length;
+		return;
+	}
+
+	uint64_t len_excl_bad = 0;
+	uint64_t block_len;
+
+	while (len_excl_bad < length) {
+		if (offset >= mtd->size) {
+			*truncated = 1;
+			return;
+		}
+
+		block_len = mtd->erasesize - (offset & (mtd->erasesize - 1));
+
+		if (!mtd->block_isbad(mtd, offset & ~(mtd->erasesize - 1)))
+			len_excl_bad += block_len;
+
+		*len_incl_bad += block_len;
+		offset       += block_len;
+	}
+}
+#endif /* defined(CONFIG_CMD_MTDPARTS_SPREAD) */

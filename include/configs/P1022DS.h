@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * Authors: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
  *          Timur Tabi <timur@freescale.com>
  *
@@ -22,6 +22,14 @@
 #define CONFIG_P1022DS
 #define CONFIG_MP			/* support multiple processors */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#endif
+
+#ifndef CONFIG_RESET_VECTOR_ADDRESS
+#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#endif
+
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
 #define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCIE1			/* PCIE controler 1 (slot 1) */
@@ -30,7 +38,6 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET		/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-#define CONFIG_SYS_HAS_SERDES		/* has SERDES */
 
 #define CONFIG_PHYS_64BIT
 #define CONFIG_ENABLE_36BIT_PHYS
@@ -125,7 +132,7 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	2
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
 
-#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -134,6 +141,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
+#define CONFIG_HWCONFIG
 
 #define CONFIG_FSL_NGPIXIS
 #define PIXIS_BASE		0xffdf0000	/* PIXIS registers */
@@ -143,16 +151,15 @@
 #define CONFIG_SYS_OR2_PRELIM	(OR_AM_32KB | 0x6ff7)
 
 #define PIXIS_LBMAP_SWITCH	7
-#define PIXIS_LBMAP_MASK	0xE0
+#define PIXIS_LBMAP_MASK	0xF0
 #define PIXIS_LBMAP_ALTBANK	0x20
 
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* Initial L1 address */
-#define CONFIG_SYS_INIT_RAM_END		0x00004000 /* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE		0x00004000 /* Size of used area in RAM */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* num bytes initial data */
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
-	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
@@ -177,14 +184,23 @@
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
-#define CONFIG_FSL_DIU_FB
-#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
-
 /* Video */
-/* #define CONFIG_VIDEO */
-#ifdef CONFIG_VIDEO
+#undef CONFIG_FSL_DIU_FB
+
+#ifdef CONFIG_FSL_DIU_FB
+#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
+#define CONFIG_VIDEO
+#define CONFIG_CMD_BMP
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+/*
+ * With CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS, flash I/O is really slow, so
+ * disable empty flash sector detection, which is I/O-intensive.
+ */
+#undef CONFIG_SYS_FLASH_EMPTY_INFO
 #endif
 
 /*
@@ -257,11 +273,13 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
+#define CONFIG_E1000			/* Define e1000 pci Ethernet card */
 #endif
 
 /* SATA */
 #define CONFIG_LIBATA
 #define CONFIG_FSL_SATA
+#define CONFIG_FSL_SATA_V2
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1
@@ -342,6 +360,7 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SETEXPR
+#define CONFIG_CMD_REGINFO
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
@@ -386,14 +405,7 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
+#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
 
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
@@ -422,11 +434,11 @@
 	"netdev=eth0\0"							\
 	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
 	"tftpflash=tftpboot $loadaddr $uboot; "				\
-		"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-		"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-		"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+		"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+		"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+		"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
+		"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+		"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
 	"consoledev=ttyS0\0"						\
 	"ramdiskaddr=2000000\0"						\
 	"ramdiskfile=uramdisk\0"  		      	        	\

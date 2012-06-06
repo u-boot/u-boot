@@ -30,6 +30,7 @@
  *
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc5xx.h>
 #include <timestamp.h>
@@ -43,6 +44,7 @@
 
 #include <linux/config.h>
 #include <asm/processor.h>
+#include <asm/u-boot.h>
 
 #ifndef  CONFIG_IDENT_STRING
 #define  CONFIG_IDENT_STRING ""
@@ -68,7 +70,7 @@
 	GOT_ENTRY(transfer_to_handler)
 
 	GOT_ENTRY(__init_end)
-	GOT_ENTRY(_end)
+	GOT_ENTRY(__bss_end__)
 	GOT_ENTRY(__bss_start)
 	END_GOT
 
@@ -91,18 +93,6 @@ _start:
 	li	r4, CONFIG_SYS_ISB			/* Set ISB bit */
 	or	r3, r3, r4
 	mtspr	638, r3
-	li	r21, BOOTFLAG_COLD		/* Normal Power-On: Boot from FLASH	*/
-	b	boot_cold
-
-	. = EXC_OFF_SYS_RESET + 0x20
-
-	.globl	_start_warm
-_start_warm:
-	li	r21, BOOTFLAG_WARM		/* Software reboot */
-	b	boot_warm
-
-boot_cold:
-boot_warm:
 
 	/* Initialize machine status; enable machine check interrupt		*/
 	/*----------------------------------------------------------------------*/
@@ -188,9 +178,9 @@ in_flash:
 	/* r3: IMMR */
 	bl	cpu_init_f	/* run low-level CPU init code     (from Flash)	*/
 
-	mr	r3, r21
-	/* r3: BOOTFLAG */
 	bl	board_init_f	/* run 1st part of board init code (from Flash) */
+
+	/* NOTREACHED - board_init_f() does not return */
 
 
 	.globl	_start_of_vectors
@@ -464,17 +454,19 @@ in_ram:
 	beq	4f
 3:	lwzu	r4,4(r3)
 	lwzux	r0,r4,r11
+	cmpwi	r0,0
 	add	r0,r0,r11
-	stw	r10,0(r3)
+	stw	r4,0(r3)
+	beq-	5f
 	stw	r0,0(r4)
-	bdnz	3b
+5:	bdnz	3b
 4:
 clear_bss:
 	/*
 	 * Now clear BSS segment
 	 */
 	lwz	r3,GOT(__bss_start)
-	lwz	r4,GOT(_end)
+	lwz	r4,GOT(__bss_end__)
 	cmplw	0, r3, r4
 	beq	6f
 

@@ -40,7 +40,7 @@ int ehci_hcd_init(void)
 {
 	struct usb_ehci *ehci;
 
-	ehci = (struct usb_ehci *)CONFIG_SYS_MPC8xxx_USB_ADDR;
+	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
 	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
 	hcor = (struct ehci_hcor *)((uint32_t) hccr +
 			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));

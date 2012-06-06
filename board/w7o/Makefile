@@ -26,7 +26,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).o
 
 COBJS	= $(BOARD).o flash.o fpga.o fsboot.o post2.o vpd.o cmd_vpd.o \
 	  watchdog.o
@@ -37,7 +37,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $^
+	$(call cmd_link_o_target, $^)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

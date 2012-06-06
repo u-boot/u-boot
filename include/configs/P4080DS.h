@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -26,14 +26,7 @@
 #define CONFIG_P4080DS
 #define CONFIG_PHYS_64BIT
 #define CONFIG_PPC_P4080
-#define CONFIG_SYS_NUM_FMAN		2
-#define CONFIG_SYS_NUM_FM1_DTSEC	4
-#define CONFIG_SYS_NUM_FM2_DTSEC	4
-#define CONFIG_SYS_NUM_FM1_10GEC	1
-#define CONFIG_SYS_NUM_FM2_10GEC	1
-#define CONFIG_NUM_DDR_CONTROLLERS	2
 
-#define CONFIG_SYS_P4080_ERRATUM_CPU22
-#define CONFIG_SYS_P4080_ERRATUM_SERDES8
+#define CONFIG_ICS307_REFCLK_HZ		33333000  /* ICS307 ref clk freq */
 
 #include "corenet_ds.h"

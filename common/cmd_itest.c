@@ -46,7 +46,7 @@ struct op_tbl_s {
 
 typedef struct op_tbl_s op_tbl_t;
 
-op_tbl_t op_table [] = {
+static const op_tbl_t op_table [] = {
 	{ "-lt", LT },
 	{ "<"  , LT },
 	{ "-gt", GT },
@@ -61,8 +61,6 @@ op_tbl_t op_table [] = {
 	{ "-le", LE },
 	{ "<=" , LE },
 };
-
-#define op_tbl_size (sizeof(op_table)/sizeof(op_table[0]))
 
 static long evalexp(char *s, int w)
 {
@@ -96,16 +94,13 @@ static char * evalstr(char *s)
 
 static int stringcomp(char *s, char *t, int op)
 {
-	int n, p;
+	int p;
 	char *l, *r;
 
 	l = evalstr(s);
 	r = evalstr(t);
 
-	/* we'll do a compare based on the length of the shortest string */
-	n = min(strlen(l), strlen(r));
-
-	p = strncmp(l, r, n);
+	p = strcmp(l, r);
 	switch (op) {
 	case EQ: return (p == 0);
 	case NE: return (p != 0);
@@ -138,12 +133,12 @@ static int arithcomp (char *s, char *t, int op, int w)
 int binary_test (char *op, char *arg1, char *arg2, int w)
 {
 	int len, i;
-	op_tbl_t *optp;
+	const op_tbl_t *optp;
 
 	len = strlen(op);
 
 	for (optp = (op_tbl_t *)&op_table, i = 0;
-	     i < op_tbl_size;
+	     i < ARRAY_SIZE(op_table);
 	     optp++, i++) {
 
 		if ((strncmp (op, optp->op, len) == 0) && (len == strlen (optp->op))) {

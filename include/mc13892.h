@@ -29,24 +29,24 @@
 
 /* REG_CHARGE */
 
-#define VCHRG0		0
+#define VCHRG0		(1 << 0)
 #define VCHRG1		(1 << 1)
 #define VCHRG2		(1 << 2)
 #define ICHRG0		(1 << 3)
 #define ICHRG1		(1 << 4)
 #define ICHRG2		(1 << 5)
 #define ICHRG3		(1 << 6)
-#define ICHRGTR0	(1 << 7)
-#define ICHRGTR1	(1 << 8)
-#define ICHRGTR2	(1 << 9)
+#define TREN		(1 << 7)
+#define ACKLPB		(1 << 8)
+#define THCHKB		(1 << 9)
 #define FETOVRD		(1 << 10)
 #define FETCTRL		(1 << 11)
 #define RVRSMODE	(1 << 13)
-#define OVCTRL0		(1 << 15)
-#define OVCTRL1		(1 << 16)
-#define UCHEN		(1 << 17)
+#define PLIM0		(1 << 15)
+#define PLIM1		(1 << 16)
+#define PLIMDIS		(1 << 17)
 #define CHRGLEDEN	(1 << 18)
-#define CHRGRAWPDEN	(1 << 19)
+#define CHGTMRRST	(1 << 19)
 #define CHGRESTART	(1 << 20)
 #define CHGAUTOB	(1 << 21)
 #define CYCLB		(1 << 22)
@@ -156,5 +156,52 @@
 #define VSDEN		(1 << 18)
 #define VSDSTBY		(1 << 19)
 #define VSDMODE		(1 << 20)
+
+/* Reg Power Control 2*/
+#define WDIRESET	(1 << 12)
+
+/* SWx Output Volts */
+#define SWX_OUT_MASK	0x1F
+#define SWX_OUT_1_25	0x1A
+#define SWX_OUT_1_30    0X1C
+
+/* Buck Switchers (SW1,2,3,4) Output Voltage */
+/*
+ * NOTE: These values are for SWxHI = 0,
+ * SWxHI = 1 adds 0.5V to the desired voltage
+ */
+#define SWx_0_600V	0
+#define SWx_0_625V	1
+#define SWx_0_650V	2
+#define SWx_0_675V	3
+#define SWx_0_700V	4
+#define SWx_0_725V	5
+#define SWx_0_750V	6
+#define SWx_0_775V	7
+#define SWx_0_800V	8
+#define SWx_0_825V	9
+#define SWx_0_850V	10
+#define SWx_0_875V	11
+#define SWx_0_900V	12
+#define SWx_0_925V	13
+#define SWx_0_950V	14
+#define SWx_0_975V	15
+#define SWx_1_000V	16
+#define SWx_1_025V	17
+#define SWx_1_050V	18
+#define SWx_1_075V	19
+#define SWx_1_100V	20
+#define SWx_1_125V	21
+#define SWx_1_150V	22
+#define SWx_1_175V	23
+#define SWx_1_200V	24
+#define SWx_1_225V	25
+#define SWx_1_250V	26
+#define SWx_1_275V	27
+#define SWx_1_300V	28
+#define SWx_1_325V	29
+#define SWx_1_350V	30
+#define SWx_1_375V	31
+#define SWx_VOLT_MASK	0x1F
 
 #endif

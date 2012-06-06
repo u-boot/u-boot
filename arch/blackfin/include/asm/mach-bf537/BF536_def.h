@@ -6,9 +6,7 @@
 #ifndef __BFIN_DEF_ADSP_BF536_proc__
 #define __BFIN_DEF_ADSP_BF536_proc__
 
-#include "../mach-common/ADSP-EDN-core_def.h"
-
-#include "ADSP-EDN-BF534-extended_def.h"
+#include "BF534_def.h"
 
 #define EMAC_OPMODE                    0xFFC03000 /* Operating Mode Register */
 #define EMAC_ADDRLO                    0xFFC03004 /* Address Low (32 LSBs) Register */
@@ -89,14 +87,5 @@
 #define EMAC_TXC_LT1024                0xFFC031D0 /* Good TX Frame Count - Byte Count 512 <= x < 1024 */
 #define EMAC_TXC_GE1024                0xFFC031D4 /* Good TX Frame Count - Byte Count x >= 1024 */
 #define EMAC_TXC_ABORT                 0xFFC031D8 /* Total TX Frames Aborted Count */
-#define L1_INST_SRAM 0xFFA00000 /* 0xFFA00000 -> 0xFFA07FFF Instruction Bank A SRAM */
-#define L1_INST_SRAM_SIZE (0xFFA07FFF - 0xFFA00000 + 1)
-#define L1_INST_SRAM_END (L1_INST_SRAM + L1_INST_SRAM_SIZE)
-#define L1_SRAM_SCRATCH 0xFFB00000 /* 0xFFB00000 -> 0xFFB00FFF Scratchpad SRAM */
-#define L1_SRAM_SCRATCH_SIZE (0xFFB00FFF - 0xFFB00000 + 1)
-#define L1_SRAM_SCRATCH_END (L1_SRAM_SCRATCH + L1_SRAM_SCRATCH_SIZE)
-#define SYSMMR_BASE 0xFFC00000 /* 0xFFC00000 -> 0xFFFFFFFF MMR registers */
-#define SYSMMR_BASE_SIZE (0xFFFFFFFF - 0xFFC00000 + 1)
-#define SYSMMR_BASE_END (SYSMMR_BASE + SYSMMR_BASE_SIZE)
 
 #endif /* __BFIN_DEF_ADSP_BF536_proc__ */

@@ -49,6 +49,7 @@
 #undef	CONFIG_ALTIVEC
 #define CONFIG_BUS_CLK	66000000
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 /*
  * Monitor configuration
@@ -240,7 +241,7 @@
  * CONFIG_SYS_MALLOC_LEN		- Size of malloc pool (128KB)
  */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MALLOC_LEN		0x20000
 
 
@@ -296,15 +297,14 @@
  * copied to top of RAM by the init code.
  *
  * CONFIG_SYS_INIT_RAM_ADDR		- Address of Init RAM, above exception vect
- * CONFIG_SYS_INIT_RAM_END		- Size of Init RAM
- * CONFIG_SYS_GBL_DATA_SIZE		- Ammount of RAM to reserve for global data
+ * CONFIG_SYS_INIT_RAM_SIZE		- Size of Init RAM
+ * GENERATED_GBL_DATA_SIZE		- Ammount of RAM to reserve for global data
  * CONFIG_SYS_GBL_DATA_OFFSET		- Start of global data, top of stack
  */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x4000)
-#define CONFIG_SYS_INIT_RAM_END	0x4000
-#define CONFIG_SYS_GBL_DATA_SIZE	128
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 
 /*
@@ -413,17 +413,5 @@
  */
 
 #define CONFIG_SYS_BOARD_ASM_INIT
-
-
-/*
- * Boot flags
- *
- * BOOTFLAG_COLD		- Indicates a power-on boot
- * BOOTFLAG_WARM		- Indicates a software reset
- */
-
-#define BOOTFLAG_COLD		0x01
-#define BOOTFLAG_WARM		0x02
-
 
 #endif /* __CONFIG_H */

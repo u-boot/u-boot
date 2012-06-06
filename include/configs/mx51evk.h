@@ -24,19 +24,18 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-
  /* High Level Configuration Options */
 
 #define CONFIG_MX51	/* in a mx51 */
-#define CONFIG_SKIP_RELOCATE_UBOOT
 
-#define CONFIG_MX51_HCLK_FREQ		24000000	/* RedBoot says 26MHz */
-#define CONFIG_MX51_CLK32		32768
+#define CONFIG_SYS_MX5_HCLK	24000000
+#define CONFIG_SYS_MX5_CLK32		32768
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_L2_OFF
 
+#include <asm/arch/imx-regs.h>
 /*
  * Disabled for now due to build problems under Debian and a significant
  * increase in the final file size: 144260 vs. 109536 Bytes.
@@ -51,8 +50,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
-/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 #define BOARD_LATE_INIT
 
@@ -73,7 +70,7 @@
 #define CONFIG_FSL_PMIC_BUS	0
 #define CONFIG_FSL_PMIC_CS	0
 #define CONFIG_FSL_PMIC_CLK	2500000
-#define CONFIG_FSL_PMIC_MODE	(SPI_CPOL | SPI_CS_HIGH)
+#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 
 /*
  * MMC Configs
@@ -126,18 +123,42 @@
 
 #define CONFIG_LOADADDR		0x90800000	/* loadaddr env var */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
-		"netdev=eth0\0"						\
-		"uboot_addr=0xa0000000\0"				\
-		"uboot=u-boot.bin\0"			\
-		"loadaddr=0x90800000\0"			\
-		"bootargs_base=setenv bootargs console=tty "\
-			"console=ttymxc0,${baudrate}\0"\
-		"bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs "\
-			"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0"\
-		"bootcmd=run bootcmd_net\0"				\
-		"bootcmd_net=run bootargs_base bootargs_nfs; "		\
-			"tftpboot ${loadaddr} ${kernel}; bootm\0"
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"script=boot.scr\0" \
+	"uimage=uImage\0" \
+	"mmcdev=0\0" \
+	"mmcpart=2\0" \
+	"mmcroot=/dev/mmcblk0p3 rw\0" \
+	"mmcrootfstype=ext3 rootwait\0" \
+	"mmcargs=setenv bootargs console=ttymxc0,${baudrate} " \
+		"root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype}\0" \
+	"loadbootscript=" \
+		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+	"bootscript=echo Running bootscript from mmc ...; " \
+		"source\0" \
+	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"bootm\0" \
+	"netargs=setenv bootargs console=ttymxc0,${baudrate} " \
+		"root=/dev/nfs " \
+		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
+	"netboot=echo Booting from net ...; " \
+		"run netargs; " \
+		"dhcp ${uimage}; bootm\0" \
+
+#define CONFIG_BOOTCOMMAND \
+	"if mmc rescan ${mmcdev}; then " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
+			"if run loaduimage; then " \
+				"run mmcboot; " \
+			"else run netboot; " \
+			"fi; " \
+		"fi; " \
+	"else run netboot; fi"
 
 #define CONFIG_ARP_TIMEOUT	200UL
 
@@ -145,6 +166,8 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
+#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"MX51EVK U-Boot > "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
@@ -175,6 +198,17 @@
 #define PHYS_SDRAM_1		CSD0_BASE_ADDR
 #define PHYS_SDRAM_1_SIZE	(512 * 1024 * 1024)
 
+#define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
+#define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
+#define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+
+#define CONFIG_BOARD_EARLY_INIT_F
+
+#define CONFIG_SYS_INIT_SP_OFFSET \
+	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR \
+	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
+
 #define CONFIG_SYS_DDR_CLKSEL	0
 #define CONFIG_SYS_CLKTL_CBCDR	0x59E35100
 
@@ -183,8 +217,9 @@
  */
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_ENV_SECT_SIZE    (128 * 1024)
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
+#define CONFIG_ENV_SIZE        (8 * 1024)
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV 0
 
 #endif

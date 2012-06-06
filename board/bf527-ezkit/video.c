@@ -24,7 +24,7 @@
 #define LCD_Y_RES		240	/* Vertical Resolution */
 #define DMA_BUS_SIZE		16
 
-#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1 /* lq035q1 */
+#ifdef CONFIG_BF527_EZKIT_REV_2_1 /* lq035q1 */
 
 #if !defined(CONFIG_LQ035Q1_USE_RGB888_8_BIT_PPI) && \
     !defined(CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI)
@@ -125,7 +125,7 @@
 #define PPI_PACK_EN		0x80
 #define PPI_POLS_1		0x8000
 
-#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+#ifdef CONFIG_BF527_EZKIT_REV_2_1
 static struct spi_slave *slave;
 static int lq035q1_control(unsigned char reg, unsigned short value)
 {
@@ -162,12 +162,12 @@ static int lq035q1_control(unsigned char reg, unsigned short value)
 /* enable and disable PPI functions */
 void EnablePPI(void)
 {
-	*pPPI_CONTROL |= PORT_EN;
+	bfin_write_PPI_CONTROL(bfin_read_PPI_CONTROL() | PORT_EN);
 }
 
 void DisablePPI(void)
 {
-	*pPPI_CONTROL &= ~PORT_EN;
+	bfin_write_PPI_CONTROL(bfin_read_PPI_CONTROL() & ~PORT_EN);
 }
 
 void Init_Ports(void)
@@ -182,126 +182,130 @@ void Init_Ports(void)
 void Init_PPI(void)
 {
 
-	*pPPI_DELAY = H_START;
-	*pPPI_COUNT = (H_ACTPIX-1);
-	*pPPI_FRAME = V_LINES;
+	bfin_write_PPI_DELAY(H_START);
+	bfin_write_PPI_COUNT(H_ACTPIX - 1);
+	bfin_write_PPI_FRAME(V_LINES);
 
 	/* PPI control, to be replaced with definitions */
-	*pPPI_CONTROL = PPI_TX_MODE		|	/* output mode , PORT_DIR */
+	bfin_write_PPI_CONTROL(
+			PPI_TX_MODE		|	/* output mode , PORT_DIR */
 			PPI_XFER_TYPE_11	|	/* sync mode XFR_TYPE */
 			PPI_PORT_CFG_01		|	/* two frame sync PORT_CFG */
 			PPI_PACK_EN		|	/* packing enabled PACK_EN */
-			PPI_POLS_1;			/* faling edge syncs POLS */
+			PPI_POLS_1			/* faling edge syncs POLS */
+	);
 }
 
 void Init_DMA(void *dst)
 {
-	*pDMA0_START_ADDR = dst;
+	bfin_write_DMA0_START_ADDR(dst);
 
 	/* X count */
-	*pDMA0_X_COUNT = H_ACTPIX / 2;
-	*pDMA0_X_MODIFY = DMA_BUS_SIZE / 8;
+	bfin_write_DMA0_X_COUNT(H_ACTPIX / 2);
+	bfin_write_DMA0_X_MODIFY(DMA_BUS_SIZE / 8);
 
 	/* Y count */
-	*pDMA0_Y_COUNT = V_LINES;
-	*pDMA0_Y_MODIFY = DMA_BUS_SIZE / 8;
+	bfin_write_DMA0_Y_COUNT(V_LINES);
+	bfin_write_DMA0_Y_MODIFY(DMA_BUS_SIZE / 8);
 
 	/* DMA Config */
-	*pDMA0_CONFIG =
+	bfin_write_DMA0_CONFIG(
 		WDSIZE_16	|	/* 16 bit DMA */
 		DMA2D 		|	/* 2D DMA */
-		FLOW_AUTO;		/* autobuffer mode */
+		FLOW_AUTO		/* autobuffer mode */
+	);
 }
-
 
 void EnableDMA(void)
 {
-	*pDMA0_CONFIG |= DMAEN;
+	bfin_write_DMA0_CONFIG(bfin_read_DMA0_CONFIG() | DMAEN);
 }
 
 void DisableDMA(void)
 {
-	*pDMA0_CONFIG &= ~DMAEN;
+	bfin_write_DMA0_CONFIG(bfin_read_DMA0_CONFIG() & ~DMAEN);
 }
-
 
 /* Init TIMER0 as Frame Sync 1 generator */
 void InitTIMER0(void)
 {
-	*pTIMER_DISABLE |= TIMDIS0;			/* disable Timer */
+	bfin_write_TIMER_DISABLE(TIMDIS0);			/* disable Timer */
 	SSYNC();
-	*pTIMER_STATUS  |= TIMIL0 | TOVF_ERR0 | TRUN0;	/* clear status */
-	SSYNC();
-
-	*pTIMER0_PERIOD  = H_PERIOD;
-	SSYNC();
-	*pTIMER0_WIDTH   = H_PULSE;
+	bfin_write_TIMER_STATUS(TIMIL0 | TOVF_ERR0 | TRUN0);	/* clear status */
 	SSYNC();
 
-	*pTIMER0_CONFIG  = PWM_OUT |
+	bfin_write_TIMER0_PERIOD(H_PERIOD);
+	SSYNC();
+	bfin_write_TIMER0_WIDTH(H_PULSE);
+	SSYNC();
+
+	bfin_write_TIMER0_CONFIG(
+				PWM_OUT |
 				PERIOD_CNT   |
 				TIN_SEL      |
 				CLK_SEL      |
-				EMU_RUN;
+				EMU_RUN
+	);
 	SSYNC();
 }
 
 void EnableTIMER0(void)
 {
-	*pTIMER_ENABLE  |= TIMEN0;
+	bfin_write_TIMER_ENABLE(TIMEN0);
 	SSYNC();
 }
 
 void DisableTIMER0(void)
 {
-	*pTIMER_DISABLE  |= TIMDIS0;
+	bfin_write_TIMER_DISABLE(TIMDIS0);
 	SSYNC();
 }
 
 
 void InitTIMER1(void)
 {
-	*pTIMER_DISABLE |= TIMDIS1;			/* disable Timer */
+	bfin_write_TIMER_DISABLE(TIMDIS1);			/* disable Timer */
 	SSYNC();
-	*pTIMER_STATUS  |= TIMIL1 | TOVF_ERR1 | TRUN1;	/* clear status */
-	SSYNC();
-
-
-	*pTIMER1_PERIOD  = V_PERIOD;
-	SSYNC();
-	*pTIMER1_WIDTH   = V_PULSE;
+	bfin_write_TIMER_STATUS(TIMIL1 | TOVF_ERR1 | TRUN1);	/* clear status */
 	SSYNC();
 
-	*pTIMER1_CONFIG  = PWM_OUT |
+	bfin_write_TIMER1_PERIOD(V_PERIOD);
+	SSYNC();
+	bfin_write_TIMER1_WIDTH(V_PULSE);
+	SSYNC();
+
+	bfin_write_TIMER1_CONFIG(
+				PWM_OUT |
 				PERIOD_CNT   |
 				TIN_SEL      |
 				CLK_SEL      |
-				EMU_RUN;
+				EMU_RUN
+	);
 	SSYNC();
 }
 
 void EnableTIMER1(void)
 {
-	*pTIMER_ENABLE  |= TIMEN1;
+	bfin_write_TIMER_ENABLE(TIMEN1);
 	SSYNC();
 }
 
 void DisableTIMER1(void)
 {
-	*pTIMER_DISABLE  |= TIMDIS1;
+	bfin_write_TIMER_DISABLE(TIMDIS1);
 	SSYNC();
 }
 
 void EnableTIMER12(void)
 {
-	*pTIMER_ENABLE |= TIMEN1 | TIMEN0;
+	bfin_write_TIMER_ENABLE(TIMEN1 | TIMEN0);
 	SSYNC();
 }
 
 int video_init(void *dst)
 {
 
-#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+#ifdef CONFIG_BF527_EZKIT_REV_2_1
 	lq035q1_control(LQ035_SHUT_CTL, LQ035_ON);
 	lq035q1_control(LQ035_DRIVER_OUTPUT_CTL, (CONFIG_LQ035Q1_LCD_MODE &
 		LQ035_DRIVER_OUTPUT_MASK) | LQ035_DRIVER_OUTPUT_DEFAULT);
@@ -314,7 +318,7 @@ int video_init(void *dst)
 	Init_PPI();
 	EnablePPI();
 
-#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+#ifdef CONFIG_BF527_EZKIT_REV_2_1
 	EnableTIMER12();
 #else
 	/* Frame sync 2 (VS) needs to start at least one PPI clk earlier */
@@ -384,7 +388,7 @@ void video_stop(void)
 	DisableDMA();
 	DisableTIMER0();
 	DisableTIMER1();
-#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+#ifdef CONFIG_BF527_EZKIT_REV_2_1
 	lq035q1_control(LQ035_SHUT_CTL, LQ035_SHUT);
 #endif
 }

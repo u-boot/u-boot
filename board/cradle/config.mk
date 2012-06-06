@@ -1,2 +1,0 @@
-TEXT_BASE = 0xa0f80000
-#TEXT_BASE = 0

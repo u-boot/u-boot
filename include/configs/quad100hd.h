@@ -34,6 +34,8 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_405EP		1		/* Specifc 405EP support*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 #define CONFIG_SYS_CLK_FREQ     33333333 /* external frequency to pll   */
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
@@ -105,6 +107,11 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK			/* external serial clock */
 #define CONFIG_SYS_BASE_BAUD		691200
 #define CONFIG_BAUDRATE		115200
@@ -170,7 +177,7 @@
 #define CONFIG_SYS_FLASH_BASE		0xFFC00000
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
-#define CONFIG_SYS_MONITOR_BASE	(TEXT_BASE)
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE)
 
 /*
  * For booting Linux, the board info and command line data
@@ -202,7 +209,7 @@
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
 /* the environment is located before u-boot */
-#define CONFIG_ENV_ADDR		(TEXT_BASE - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_TEXT_BASE - CONFIG_ENV_SECT_SIZE)
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
@@ -240,10 +247,9 @@
 #define CONFIG_SYS_OCM_DATA_ADDR	0xF8000000
 #define CONFIG_SYS_OCM_DATA_SIZE	0x1000
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of OCM		*/
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM	*/
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE /* Size of used area in RAM	*/
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET      CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -270,12 +276,12 @@
  * Taken in part from PPCBoot board/icecube/icecube.h
  */
 /* see ./arch/powerpc/cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/start.S */
-#define CONFIG_SYS_GPIO0_OSRH		0x55555550
-#define CONFIG_SYS_GPIO0_OSRL		0x00000110
-#define CONFIG_SYS_GPIO0_ISR1H		0x00000000
-#define CONFIG_SYS_GPIO0_ISR1L		0x15555445
-#define CONFIG_SYS_GPIO0_TSRH		0x00000000
+#define CONFIG_SYS_GPIO0_OSRL		0x55555550
+#define CONFIG_SYS_GPIO0_OSRH		0x00000110
+#define CONFIG_SYS_GPIO0_ISR1L		0x00000000
+#define CONFIG_SYS_GPIO0_ISR1H		0x15555445
 #define CONFIG_SYS_GPIO0_TSRL		0x00000000
+#define CONFIG_SYS_GPIO0_TSRH		0x00000000
 #define CONFIG_SYS_GPIO0_TCR		0xFFFF8097
 #define CONFIG_SYS_GPIO0_ODR		0x00000000
 

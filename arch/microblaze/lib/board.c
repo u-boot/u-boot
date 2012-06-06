@@ -31,6 +31,7 @@
 #include <version.h>
 #include <watchdog.h>
 #include <stdio_dev.h>
+#include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,6 +43,7 @@ extern int gpio_init (void);
 #ifdef CONFIG_SYS_INTC_0
 extern int interrupts_init (void);
 #endif
+
 #if defined(CONFIG_CMD_NET)
 extern int eth_init (bd_t * bis);
 #endif
@@ -88,16 +90,18 @@ void board_init (void)
 {
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	gd = (gd_t *) CONFIG_SYS_GBL_DATA_OFFSET;
+	gd = (gd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET);
+	bd = (bd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET \
+						- GENERATED_BD_INFO_SIZE);
 	char *s;
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
 	asm ("nop");	/* FIXME gd is not initialize - wait */
-	memset ((void *)gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
-	gd->bd = (bd_t *) (gd + 1);	/* At end of global data */
+	memset ((void *)gd, 0, GENERATED_GBL_DATA_SIZE);
+	memset ((void *)bd, 0, GENERATED_BD_INFO_SIZE);
+	gd->bd = bd;
 	gd->baudrate = CONFIG_BAUDRATE;
-	bd = gd->bd;
 	bd->bi_baudrate = CONFIG_BAUDRATE;
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
@@ -120,10 +124,10 @@ void board_init (void)
 	puts ("SDRAM :\n");
 	printf ("\t\tIcache:%s\n", icache_status() ? "ON" : "OFF");
 	printf ("\t\tDcache:%s\n", dcache_status() ? "ON" : "OFF");
-	printf ("\tU-Boot Start:0x%08x\n", TEXT_BASE);
+	printf ("\tU-Boot Start:0x%08x\n", CONFIG_SYS_TEXT_BASE);
 
 #if defined(CONFIG_CMD_FLASH)
-	puts ("FLASH: ");
+	puts ("Flash: ");
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
 	if (0 < (flash_size = flash_init ())) {
 		bd->bi_flashsize = flash_size;
@@ -165,8 +169,14 @@ void board_init (void)
 
 #if defined(CONFIG_CMD_NET)
 	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
-	eth_init (bd);
+	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
+
+	printf("Net:   ");
+	eth_initialize(gd->bd);
+
+	uchar enetaddr[6];
+	eth_getenv_enetaddr("ethaddr", enetaddr);
+	printf("MAC:   %pM\n", enetaddr);
 #endif
 
 	/* main_loop */

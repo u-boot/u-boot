@@ -119,11 +119,6 @@ int misc_init_r(void)
 		 tmp & 0x000000FF
 	);
 
-#ifdef CONFIG_FSL_DIU_FB
-# if	!(defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE))
-	mpc5121_diu_init();
-# endif
-#endif
 	return 0;
 }
 

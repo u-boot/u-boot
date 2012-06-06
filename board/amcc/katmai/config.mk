@@ -25,8 +25,6 @@
 # AMCC 440SPe Evaluation (Katmai) board
 #
 
-TEXT_BASE = 0xFFFA0000
-
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
 ifeq ($(debug),1)

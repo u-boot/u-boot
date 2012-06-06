@@ -38,6 +38,8 @@
 #define CONFIG_OMAP3430		1	/* which is in a 3430 */
 #define CONFIG_OMAP3_DEVKIT8000	1	/* working with DevKit8000 */
 
+#define	CONFIG_SYS_TEXT_BASE	0x80008000
+
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
@@ -63,7 +65,6 @@
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 
 /* Hardware drivers */
@@ -305,5 +306,12 @@ extern unsigned int boot_flash_off;
 extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
+
+#define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR        0x4020f800
+#define CONFIG_SYS_INIT_RAM_SIZE        0x800
+#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_INIT_RAM_ADDR + \
+		                                         CONFIG_SYS_INIT_RAM_SIZE - \
+		                                         GENERATED_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */

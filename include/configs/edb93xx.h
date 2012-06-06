@@ -5,21 +5,21 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_MK_edb9301
+#ifdef CONFIG_edb9301
 #define CONFIG_EDB9301
-#elif defined(CONFIG_MK_edb9302)
+#elif defined(CONFIG_edb9302)
 #define CONFIG_EDB9302
-#elif defined(CONFIG_MK_edb9302a)
+#elif defined(CONFIG_edb9302a)
 #define CONFIG_EDB9302A
-#elif defined(CONFIG_MK_edb9307)
+#elif defined(CONFIG_edb9307)
 #define CONFIG_EDB9307
-#elif defined(CONFIG_MK_edb9307a)
+#elif defined(CONFIG_edb9307a)
 #define CONFIG_EDB9307A
-#elif defined(CONFIG_MK_edb9312)
+#elif defined(CONFIG_edb9312)
 #define CONFIG_EDB9312
-#elif defined(CONFIG_MK_edb9315)
+#elif defined(CONFIG_edb9315)
 #define CONFIG_EDB9315
-#elif defined(CONFIG_MK_edb9315a)
+#elif defined(CONFIG_edb9315a)
 #define CONFIG_EDB9315A
 #else
 #error "no board defined"
@@ -218,7 +218,6 @@
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 
 /* Run-time memory allocatons */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 #define CONFIG_STACKSIZE		(128 * 1024)
 
 #if defined(CONFIG_USE_IRQ)

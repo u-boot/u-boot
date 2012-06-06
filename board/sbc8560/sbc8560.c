@@ -38,8 +38,6 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 
-long int fixed_sdram (void);
-
 /*
  * I/O Port configuration table
  *
@@ -228,10 +226,10 @@ void reset_phy (void)
 	miiphy_reset("FCC1", 0x0);
 
 	/* change PHY address to 0x02 */
-	bb_miiphy_write(NULL, 0, PHY_MIPSCR, 0xf028);
+	bb_miiphy_write(NULL, 0, MII_MIPSCR, 0xf028);
 
-	bb_miiphy_write(NULL, 0x02, PHY_BMCR,
-			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	bb_miiphy_write(NULL, 0x02, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART);
 #endif /* CONFIG_MII */
 }
 
@@ -260,95 +258,6 @@ int checkboard (void)
 	printf("\tCPM: %s MHz\n", strmhz(buf, sysinfo.freqSystemBus));
 	printf("L1 D-cache 32KB, L1 I-cache 32KB enabled.\n");
 	return (0);
-}
-
-
-phys_size_t initdram (int board_type)
-{
-	long dram_size = 0;
-
-#if 0
-#if !defined(CONFIG_RAM_AS_FLASH)
-	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
-	sys_info_t sysinfo;
-	uint temp_lbcdll = 0;
-#endif
-#endif /* 0 */
-#if !defined(CONFIG_RAM_AS_FLASH) || defined(CONFIG_DDR_DLL)
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-#endif
-#if defined(CONFIG_DDR_DLL)
-	uint temp_ddrdll = 0;
-
-	/* Work around to stabilize DDR DLL */
-	temp_ddrdll = gur->ddrdllcr;
-	gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
-	asm("sync;isync;msync");
-#endif
-
-#if defined(CONFIG_SPD_EEPROM)
-	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-#else
-	dram_size = fixed_sdram ();
-#endif
-
-#if 0
-#if !defined(CONFIG_RAM_AS_FLASH) /* LocalBus SDRAM is not emulating flash */
-	get_sys_info(&sysinfo);
-	/* if localbus freq is less than 66MHz,we use bypass mode,otherwise use DLL */
-	if(sysinfo.freqSystemBus/(CONFIG_SYS_LBC_LCRR & 0x0f) < 66000000) {
-		lbc->lcrr = (CONFIG_SYS_LBC_LCRR & 0x0fffffff)| 0x80000000;
-	} else {
-#if defined(CONFIG_MPC85xx_REV1) /* need change CLKDIV before enable DLL */
-		lbc->lcrr = 0x10000004; /* default CLKDIV is 8, change it to 4 temporarily */
-#endif
-		lbc->lcrr = CONFIG_SYS_LBC_LCRR & 0x7fffffff;
-		udelay(200);
-		temp_lbcdll = gur->lbcdllcr;
-		gur->lbcdllcr = ((temp_lbcdll & 0xff) << 16 ) | 0x80000000;
-		asm("sync;isync;msync");
-	}
-	set_lbc_or(2, CONFIG_SYS_OR2_PRELIM); /* 64MB SDRAM */
-	set_lbc_br(2, CONFIG_SYS_BR2_PRELIM);
-	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_1;
-	asm("sync");
-	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_2;
-	asm("sync");
-	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_3;
-	asm("sync");
-	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_4;
-	asm("sync");
-	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_5;
-	asm("sync");
-	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
-	asm("sync");
-	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
-	asm("sync");
-#endif
-#endif
-
-#if defined(CONFIG_DDR_ECC)
-	{
-		/* Initialize all of memory for ECC, then
-		 * enable errors */
-		volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
-
-		dma_meminit(CONFIG_MEM_INIT_VALUE, dram_size);
-
-		/* Enable errors for ECC */
-		ddr->err_disable = 0x00000000;
-		asm("sync;isync;msync");
-	}
-#endif
-
-	return dram_size;
 }
 
 
@@ -390,7 +299,7 @@ int testdram (void)
 /*************************************************************************
  *  fixed sdram init -- doesn't use serial presence detect.
  ************************************************************************/
-long int fixed_sdram (void)
+phys_size_t fixed_sdram(void)
 {
 
 #define CONFIG_SYS_DDR_CONTROL 0xc2000000

@@ -60,9 +60,6 @@
 
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 
-
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-
 /*
  *  CS8900 Ethernet drivers
  */
@@ -80,7 +77,6 @@
 
 #define CONFIG_BAUDRATE		115200
 
-
 /*
  * BOOTP options
  */
@@ -88,7 +84,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -98,7 +93,6 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ELF
-
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"root=/dev/msdk mem=48M"

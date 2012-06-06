@@ -63,6 +63,8 @@
 #define AP325RXA_FLASH_BASE_1		(0xA0000000)
 #define AP325RXA_FLASH_BANK_SIZE	(128 * 1024 * 1024)
 
+#define CONFIG_SYS_TEXT_BASE	0x8FFC0000
+
 /* undef to save memory	*/
 #define CONFIG_SYS_LONGHELP
 /* Monitor Command Prompt */
@@ -112,7 +114,6 @@
 /* Size of DRAM reserved for malloc() use */
 #define CONFIG_SYS_MALLOC_LEN	(256 * 1024)
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)
 #define CONFIG_SYS_BOOTMAPSZ	(8 * 1024 * 1024)
 
 /* FLASH */

@@ -57,6 +57,8 @@
 
 #define CONFIG_CPCI750		1	/* this is an CPCI750 board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BAUDRATE		9600	/* console baudrate = 9600	*/
 
 #define CONFIG_MV64360_ECC		/* enable ECC support */
@@ -264,9 +266,8 @@
 /* #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000*/ /* unused memory region */
 /* #define CONFIG_SYS_INIT_RAM_ADDR	0xfba00000*/ /* unused memory region */
 #define CONFIG_SYS_INIT_RAM_ADDR	0xf1080000 /* unused memory region */
-#define CONFIG_SYS_INIT_RAM_END	0x1000
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for init data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 #define RELOCATE_INTERNAL_RAM_ADDR
 #ifdef RELOCATE_INTERNAL_RAM_ADDR
@@ -615,14 +616,6 @@
 #endif
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		    */
 
 #define CONFIG_SYS_BOARD_ASM_INIT	1
 

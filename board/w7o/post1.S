@@ -27,7 +27,7 @@
  *	Routine to exercise memory for the bringing up of our boards.
  */
 #include <config.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 
 #define _LINUX_CONFIG_H 1       /* avoid reading Linux autoconf.h file  */
 

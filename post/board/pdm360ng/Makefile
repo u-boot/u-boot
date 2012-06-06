@@ -22,7 +22,7 @@
 #
 include $(OBJTREE)/include/autoconf.mk
 
-LIB	= libpostpdm360ng.a
+LIB	= libpostpdm360ng.o
 
 COBJS-$(CONFIG_HAS_POST)	+= coproc_com.o
 

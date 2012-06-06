@@ -45,6 +45,8 @@
 #define CONFIG_PM9261		1	/* on a Ronetix PM9261 Board	*/
 #define CONFIG_ARCH_CPU_INIT
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
+#define CONFIG_SYS_TEXT_BASE	0
+#define CONFIG_AT91FAMILY
 
 /* clocks */
 /* CKGR_MOR - enable main osc. */
@@ -152,7 +154,6 @@
 #define CONFIG_INITRD_TAG	1
 
 #undef CONFIG_SKIP_LOWLEVEL_INIT
-#undef CONFIG_SKIP_RELOCATE_UBOOT
 
 /*
  * Hardware drivers
@@ -202,6 +203,7 @@
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_IMLS
 
+#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PING		1
 #define CONFIG_CMD_DHCP		1
 #define CONFIG_CMD_NAND		1
@@ -370,7 +372,10 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		\
 		ROUND(3 * CONFIG_ENV_SIZE + 128 * 1024, 0x1000)
-#define CONFIG_SYS_GBL_DATA_SIZE	128
+
+#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x1000 - \
+				GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_STACKSIZE		(32 * 1024)	/* regular stack */
 

@@ -51,13 +51,8 @@ DECLARE_GLOBAL_DATA_PTR;
 }
 
 
-#ifndef CONFIG_UART1_CONSOLE
 volatile netarm_serial_channel_t *serial_reg_ch1 = get_serial_channel(0);
 volatile netarm_serial_channel_t *serial_reg_ch2 = get_serial_channel(1);
-#else
-volatile netarm_serial_channel_t *serial_reg_ch1 = get_serial_channel(1);
-volatile netarm_serial_channel_t *serial_reg_ch2 = get_serial_channel(0);
-#endif
 
 extern void _netarm_led_FAIL1(void);
 

@@ -110,7 +110,6 @@
 /*-----------------------------------------------------------------------
  * size in bytes reserved for initial data
 */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*-----------------------------------------------------------------------
  * SDRAM controller configuration
@@ -139,15 +138,21 @@
 #define PHYS_SDRAM_1		0x10000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x04000000	/* 64 MB */
 
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - \
+					GENERATED_GBL_DATA_SIZE)
+
 /*
  * Load address and memory test area should agree with
  * board/faraday/a320/config.mk. Be careful not to overwrite U-boot itself.
  */
-#define CONFIG_SYS_LOAD_ADDR		0x12000000
+#define CONFIG_SYS_LOAD_ADDR		(PHYS_SDRAM_1 + 0x2000000)
 
 /* memtest works on 63 MB in DRAM */
-#define CONFIG_SYS_MEMTEST_START	0x10000000
-#define CONFIG_SYS_MEMTEST_END		0x13F00000
+#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
+#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + 0x3F00000)
+
+#define CONFIG_SYS_TEXT_BASE		0
 
 /*-----------------------------------------------------------------------
  * Static memory controller configuration
@@ -216,7 +221,7 @@
 
 /* environments */
 #define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_ADDR			0x00060000
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)
 #define CONFIG_ENV_SIZE			0x20000
 
 #endif	/* __CONFIG_H */

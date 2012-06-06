@@ -19,7 +19,7 @@
  */
 
 #include <common.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <i2c.h>
@@ -27,23 +27,23 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/4xx_pcie.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/errno.h>
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 DECLARE_GLOBAL_DATA_PTR;
 
-	struct board_bcsr {
-		u8	board_id;
-		u8	cpld_rev;
-		u8	led_user;
-		u8	board_status;
-		u8	reset_ctrl;
-		u8	flash_ctrl;
-		u8	eth_ctrl;
-		u8	usb_ctrl;
-		u8	irq_ctrl;
+struct board_bcsr {
+	u8	board_id;
+	u8	cpld_rev;
+	u8	led_user;
+	u8	board_status;
+	u8	reset_ctrl;
+	u8	flash_ctrl;
+	u8	eth_ctrl;
+	u8	usb_ctrl;
+	u8	irq_ctrl;
 };
 
 #define BOARD_CANYONLANDS_PCIE	1
@@ -195,16 +195,6 @@ int board_early_init_f(void)
 	mtdcr(AHB_TOP, 0x8000004B);
 	mtdcr(AHB_BOT, 0x8000004B);
 
-	if (pvr_460ex()) {
-		/*
-		 * Configure USB-STP pins as alternate and not GPIO
-		 * It seems to be neccessary to configure the STP pins as GPIO
-		 * input at powerup (perhaps while USB reset is asserted). So
-		 * we configure those pins to their "real" function now.
-		 */
-		gpio_config(16, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
-		gpio_config(19, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
-	}
 #endif
 
 	return 0;
@@ -222,6 +212,15 @@ int usb_board_init(void)
 	val &= ~(BCSR_USBCTRL_OTG_RST | BCSR_USBCTRL_HOST_RST);
 	out_8(&bcsr_data->usb_ctrl, val);
 
+	/*
+	 * Configure USB-STP pins as alternate and not GPIO
+	 * It seems to be neccessary to configure the STP pins as GPIO
+	 * input at powerup (perhaps while USB reset is asserted). So
+	 * we configure those pins to their "real" function now.
+	 */
+	gpio_config(16, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
+	gpio_config(19, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
+
 	return 0;
 }
 
@@ -235,6 +234,10 @@ int usb_board_stop(void)
 	val = in_8(&bcsr_data->usb_ctrl);
 	val |= (BCSR_USBCTRL_OTG_RST | BCSR_USBCTRL_HOST_RST);
 	out_8(&bcsr_data->usb_ctrl, val);
+
+	/* Reconfigure USB-STP pins as input */
+	gpio_config(16, GPIO_IN , GPIO_SEL, GPIO_OUT_0);
+	gpio_config(19, GPIO_IN , GPIO_SEL, GPIO_OUT_0);
 
 	return 0;
 }
@@ -359,18 +362,6 @@ int checkboard(void)
 	return 0;
 }
 #endif	/* !defined(CONFIG_ARCHES) */
-
-#if defined(CONFIG_NAND_U_BOOT)
-/*
- * NAND booting U-Boot version uses a fixed initialization, since the whole
- * I2C SPD DIMM autodetection/calibration doesn't fit into the 4k of boot
- * code.
- */
-phys_size_t initdram(int board_type)
-{
-	return CONFIG_SYS_MBYTES_SDRAM << 20;
-}
-#endif
 
 #if defined(CONFIG_PCI)
 int board_pcie_first(void)

@@ -37,6 +37,8 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_VOH405		1	/* ...on a VOH405 board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF80000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
 
@@ -133,9 +135,14 @@
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
+#define CONFIG_CONS_INDEX	2	/* Use UART1			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 #undef  CONFIG_SYS_EXT_SERIAL_CLOCK           /* no external serial clock used */
 #define CONFIG_SYS_BASE_BAUD       691200
-#define CONFIG_UART1_CONSOLE            /* define for uart1 as console  */
 
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	\
@@ -252,7 +259,7 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xFFF80000
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(2 * 1024*1024)	/* Reserve 2 MB for malloc()	*/
 
@@ -370,10 +377,9 @@
 #define CONFIG_SYS_OCM_DATA_ADDR	0xF8000000
 #define CONFIG_SYS_OCM_DATA_SIZE	0x1000
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of SDRAM		*/
-#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM	*/
+#define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_OCM_DATA_SIZE /* Size of used area in RAM	*/
 
-#define CONFIG_SYS_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -388,12 +394,12 @@
  * GPIO0[28-29] - UART1 data signal input/output
  * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs -> GPIO
  */
-#define CONFIG_SYS_GPIO0_OSRH		0x00000550
-#define CONFIG_SYS_GPIO0_OSRL		0x00000110
-#define CONFIG_SYS_GPIO0_ISR1H		0x00000000
-#define CONFIG_SYS_GPIO0_ISR1L		0x15555440
-#define CONFIG_SYS_GPIO0_TSRH		0x00000000
+#define CONFIG_SYS_GPIO0_OSRL		0x00000550
+#define CONFIG_SYS_GPIO0_OSRH		0x00000110
+#define CONFIG_SYS_GPIO0_ISR1L		0x00000000
+#define CONFIG_SYS_GPIO0_ISR1H		0x15555440
 #define CONFIG_SYS_GPIO0_TSRL		0x00000000
+#define CONFIG_SYS_GPIO0_TSRH		0x00000000
 #define CONFIG_SYS_GPIO0_TCR		0x777E0017
 
 #define CONFIG_SYS_DUART_RST		(0x80000000 >> 14)
@@ -402,14 +408,6 @@
 #define CONFIG_SYS_LCD0_RST		(0x80000000 >> 30)
 #define CONFIG_SYS_LCD1_RST		(0x80000000 >> 31)
 #define CONFIG_SYS_EEPROM_WP		(0x80000000 >> 0)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 /*
  * Default speed selection (cpu_plb_opb_ebc) in mhz.

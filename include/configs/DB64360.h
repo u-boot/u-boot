@@ -120,6 +120,8 @@ if we use PCI it has its own MAC addr */
 
 #define CONFIG_DB64360		1	/* this is an DB64360 board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115000	*/
 /*ronen - we don't use the global CONFIG_ECC, since in the global ecc we initialize the
 	DRAM for ECC in the phase we are relocating to it, which isn't so sufficient.
@@ -350,9 +352,8 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 */
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000 /* unused memory region */
-#define CONFIG_SYS_INIT_RAM_END	0x1000
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for init data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 #define RELOCATE_INTERNAL_RAM_ADDR
 #ifdef RELOCATE_INTERNAL_RAM_ADDR
@@ -592,14 +593,6 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 #endif
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		    */
 
 #define CONFIG_SYS_BOARD_ASM_INIT	1
 

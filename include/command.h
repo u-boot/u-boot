@@ -74,7 +74,7 @@ cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
 extern int cmd_usage(cmd_tbl_t *cmdtp);
 
 #ifdef CONFIG_AUTO_COMPLETE
-extern void install_auto_complete(void);
+extern int var_complete(int argc, char * const argv[], char last_char, int maxv, char *cmdv[]);
 extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp);
 #endif
 
@@ -86,8 +86,6 @@ extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *
  * void function (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  */
 
-typedef	void	command_t (cmd_tbl_t *, int, int, char *[]);
-
 #if defined(CONFIG_CMD_MEMORY)		\
     || defined(CONFIG_CMD_I2C)		\
     || defined(CONFIG_CMD_ITEST)	\
@@ -96,6 +94,12 @@ typedef	void	command_t (cmd_tbl_t *, int, int, char *[]);
 #define CMD_DATA_SIZE
 extern int cmd_get_data_size(char* arg, int default_size);
 #endif
+
+#ifdef CONFIG_CMD_BOOTD
+extern int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+#endif
+extern int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 #endif	/* __ASSEMBLY__ */
 
@@ -107,22 +111,31 @@ extern int cmd_get_data_size(char* arg, int default_size);
 
 #define Struct_Section  __attribute__ ((unused,section (".u_boot_cmd")))
 
-#ifdef  CONFIG_SYS_LONGHELP
+#ifdef CONFIG_AUTO_COMPLETE
+# define _CMD_COMPLETE(x) x,
+#else
+# define _CMD_COMPLETE(x)
+#endif
+#ifdef CONFIG_SYS_LONGHELP
+# define _CMD_HELP(x) x,
+#else
+# define _CMD_HELP(x)
+#endif
 
-#define U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \
-cmd_tbl_t __u_boot_cmd_##name Struct_Section = {#name, maxargs, rep, cmd, usage, help}
+#define U_BOOT_CMD_MKENT_COMPLETE(name,maxargs,rep,cmd,usage,help,comp) \
+	{#name, maxargs, rep, cmd, usage, _CMD_HELP(help) _CMD_COMPLETE(comp)}
 
 #define U_BOOT_CMD_MKENT(name,maxargs,rep,cmd,usage,help) \
-{#name, maxargs, rep, cmd, usage, help}
+	U_BOOT_CMD_MKENT_COMPLETE(name,maxargs,rep,cmd,usage,help,NULL)
 
-#else	/* no long help info */
+#define U_BOOT_CMD_COMPLETE(name,maxargs,rep,cmd,usage,help,comp) \
+	cmd_tbl_t __u_boot_cmd_##name Struct_Section = \
+		U_BOOT_CMD_MKENT_COMPLETE(name,maxargs,rep,cmd,usage,help,comp)
 
 #define U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \
-cmd_tbl_t __u_boot_cmd_##name Struct_Section = {#name, maxargs, rep, cmd, usage}
+	U_BOOT_CMD_COMPLETE(name,maxargs,rep,cmd,usage,help,NULL)
 
-#define U_BOOT_CMD_MKENT(name,maxargs,rep,cmd,usage,help) \
-{#name, maxargs, rep, cmd, usage}
-
-#endif	/* CONFIG_SYS_LONGHELP */
-
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
+#endif
 #endif	/* __COMMAND_H */

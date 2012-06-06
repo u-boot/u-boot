@@ -58,6 +58,8 @@ typedef struct {
 #endif
 } flash_info_t;
 
+extern flash_info_t flash_info[]; /* info for FLASH chips	*/
+
 typedef unsigned long flash_sect_t;
 
 /*

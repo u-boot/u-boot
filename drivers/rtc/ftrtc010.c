@@ -34,6 +34,13 @@ struct ftrtc010 {
 	unsigned int alarm_hour;	/* 0x18 */
 	unsigned int record;		/* 0x1c */
 	unsigned int cr;		/* 0x20 */
+	unsigned int wsec;		/* 0x24 */
+	unsigned int wmin;		/* 0x28 */
+	unsigned int whour;		/* 0x2c */
+	unsigned int wday;		/* 0x30 */
+	unsigned int intr;		/* 0x34 */
+	unsigned int div;		/* 0x38 */
+	unsigned int rev;		/* 0x3c */
 };
 
 /*
@@ -85,7 +92,11 @@ int rtc_get(struct rtc_time *tmp)
 	debug("%s(): record register: %x\n",
 	      __func__, readl(&rtc->record));
 
+#ifdef CONFIG_FTRTC010_PCLK
+	now = (ftrtc010_time() + readl(&rtc->record)) / RTC_DIV_COUNT;
+#else /* CONFIG_FTRTC010_EXTCLK */
 	now = ftrtc010_time() + readl(&rtc->record);
+#endif
 
 	to_tm(now, tmp);
 

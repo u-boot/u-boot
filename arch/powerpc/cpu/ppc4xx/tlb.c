@@ -25,7 +25,7 @@
 
 #if defined(CONFIG_440)
 
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/mmu.h>

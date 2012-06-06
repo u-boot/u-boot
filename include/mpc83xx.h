@@ -319,6 +319,54 @@
 #define SICRH_GPIO2_H			0x00000030
 #define SICRH_SPI			0x00000003
 #define SICRH_SPI_SD			0x00000001
+
+#elif defined(CONFIG_MPC8308)
+/* SICRL bits - MPC8308 specific */
+#define SICRL_SPI_PF0			(0 << 28)
+#define SICRL_SPI_PF1			(1 << 28)
+#define SICRL_SPI_PF3			(3 << 28)
+#define SICRL_UART_PF0			(0 << 26)
+#define SICRL_UART_PF1			(1 << 26)
+#define SICRL_UART_PF3			(3 << 26)
+#define SICRL_IRQ_PF0			(0 << 24)
+#define SICRL_IRQ_PF1			(1 << 24)
+#define SICRL_I2C2_PF0			(0 << 20)
+#define SICRL_I2C2_PF1			(1 << 20)
+#define SICRL_ETSEC1_TX_CLK		(0 << 6)
+#define SICRL_ETSEC1_GTX_CLK125		(1 << 6)
+
+/* SICRH bits - MPC8308 specific */
+#define SICRH_ESDHC_A_SD		(0 << 30)
+#define SICRH_ESDHC_A_GTM		(1 << 30)
+#define SICRH_ESDHC_A_GPIO		(3 << 30)
+#define SICRH_ESDHC_B_SD		(0 << 28)
+#define SICRH_ESDHC_B_GTM		(1 << 28)
+#define SICRH_ESDHC_B_GPIO		(3 << 28)
+#define SICRH_ESDHC_C_SD		(0 << 26)
+#define SICRH_ESDHC_C_GTM		(1 << 26)
+#define SICRH_ESDHC_C_GPIO		(3 << 26)
+#define SICRH_GPIO_A_GPIO		(0 << 24)
+#define SICRH_GPIO_A_TSEC2		(1 << 24)
+#define SICRH_GPIO_B_GPIO		(0 << 22)
+#define SICRH_GPIO_B_TSEC2_TX_CLK	(1 << 22)
+#define SICRH_GPIO_B_TSEC2_GTX_CLK125	(2 << 22)
+#define SICRH_IEEE1588_A_TMR		(1 << 20)
+#define SICRH_IEEE1588_A_GPIO		(3 << 20)
+#define SICRH_USB			(1 << 18)
+#define SICRH_GTM_GTM			(1 << 16)
+#define SICRH_GTM_GPIO			(3 << 16)
+#define SICRH_IEEE1588_B_TMR		(1 << 14)
+#define SICRH_IEEE1588_B_GPIO		(3 << 14)
+#define SICRH_ETSEC2_CRS		(1 << 12)
+#define SICRH_ETSEC2_GPIO		(3 << 12)
+#define SICRH_GPIOSEL_0			(0 << 8)
+#define SICRH_GPIOSEL_1			(1 << 8)
+#define SICRH_TMROBI_V3P3		(0 << 4)
+#define SICRH_TMROBI_V2P5		(1 << 4)
+#define SICRH_TSOBI1_V3P3		(0 << 1)
+#define SICRH_TSOBI1_V2P5		(1 << 1)
+#define SICRH_TSOBI2_V3P3		(0 << 0)
+#define SICRH_TSOBI2_V2P5		(1 << 0)
 #endif
 
 /* SWCRR - System Watchdog Control Register
@@ -646,14 +694,21 @@
 /* SPMR - System PLL Mode Register
  */
 #define SPMR_LBIUCM			0x80000000
+#define SPMR_LBIUCM_SHIFT		31
 #define SPMR_DDRCM			0x40000000
+#define SPMR_DDRCM_SHIFT		30
 #define SPMR_SPMF			0x0F000000
+#define SPMR_SPMF_SHIFT		24
 #define SPMR_CKID			0x00800000
 #define SPMR_CKID_SHIFT			23
 #define SPMR_COREPLL			0x007F0000
+#define SPMR_COREPLL_SHIFT		16
 #define SPMR_CEVCOD			0x000000C0
+#define SPMR_CEVCOD_SHIFT		6
 #define SPMR_CEPDF			0x00000020
+#define SPMR_CEPDF_SHIFT		5
 #define SPMR_CEPMF			0x0000001F
+#define SPMR_CEPMF_SHIFT		0
 
 /* OCCR - Output Clock Control Register
  */
@@ -1216,9 +1271,9 @@
 
 #ifndef __ASSEMBLY__
 struct pci_region;
-void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot);
+void mpc83xx_pci_init(int num_buses, struct pci_region **reg);
 void mpc83xx_pcislave_unlock(int bus);
-void mpc83xx_pcie_init(int num_buses, struct pci_region **reg, int warmboot);
+void mpc83xx_pcie_init(int num_buses, struct pci_region **reg);
 #endif
 
 #endif	/* __MPC83XX_H__ */

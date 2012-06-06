@@ -35,6 +35,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #undef DEBUG_BOOTP_EXT	      /* Debug received vendor fields */
 
 #undef CONFIG_LOGBUFFER       /* External logbuffer support */
@@ -85,7 +87,7 @@
 #define CONFIG_SYS_SBC_BOOT_LOW 1
 
 /* What should the base address of the main FLASH be and how big is
- * it (in MBytes)?  This must contain TEXT_BASE from board/sacsng/config.mk
+ * it (in MBytes)?  This must contain CONFIG_SYS_TEXT_BASE from board/sacsng/config.mk
  * The main FLASH is whichever is connected to *CS0.
  */
 #define CONFIG_SYS_FLASH0_BASE 0x40000000
@@ -671,9 +673,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x4000	/* End of used area in DPRAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -1061,13 +1062,5 @@
 			   ORxG_TRLX		       |\
 			   ORxG_EHTR)
 #endif /* (defined(CONFIG_SYS_FLASH1_BASE) && defined(CONFIG_SYS_FLASH1_SIZE)) */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM	0x02	/* Software reboot		     */
 
 #endif	/* __CONFIG_H */

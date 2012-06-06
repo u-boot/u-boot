@@ -239,19 +239,6 @@ phys_size_t fixed_sdram (void)
 
 	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0);
 
+	set_ddr_laws(0, ddr_size, LAW_TRGT_IF_DDR_1);
 	return ddr_size;
-}
-
-phys_size_t initdram(int board_type)
-{
-	phys_size_t dram_size = 0;
-
-	dram_size = fixed_sdram();
-	set_ddr_laws(0, dram_size, LAW_TRGT_IF_DDR_1);
-
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-
-	puts("DDR: ");
-	return dram_size;
 }

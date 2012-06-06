@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libi2c.a
+LIB	:= $(obj)libi2c.o
 
 COBJS-$(CONFIG_BFIN_TWI_I2C) += bfin-twi_i2c.o
 COBJS-$(CONFIG_DRIVER_DAVINCI_I2C) += davinci_i2c.o
@@ -40,6 +40,7 @@ COBJS-$(CONFIG_S3C44B0_I2C) += s3c44b0_i2c.o
 COBJS-$(CONFIG_SOFT_I2C) += soft_i2c.o
 COBJS-$(CONFIG_SPEAR_I2C) += spr_i2c.o
 COBJS-$(CONFIG_TSI108_I2C) += tsi108_i2c.o
+COBJS-$(CONFIG_ZYNQ_I2C) += zynq_i2c.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
@@ -48,7 +49,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

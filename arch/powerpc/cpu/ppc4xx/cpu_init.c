@@ -23,10 +23,10 @@
 
 #include <common.h>
 #include <watchdog.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-emac.h>
 #include <asm/processor.h>
-#include <asm/gpio.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx-gpio.h>
+#include <asm/ppc4xx.h>
 
 #if defined(CONFIG_405GP)  || defined(CONFIG_405EP)
 DECLARE_GLOBAL_DATA_PTR;
@@ -237,7 +237,8 @@ cpu_init_f (void)
 
 	reconfigure_pll(CONFIG_SYS_PLL_RECONFIG);
 
-#if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && !defined(CONFIG_SYS_4xx_GPIO_TABLE)
+#if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && \
+    !defined(CONFIG_APM821XX) &&!defined(CONFIG_SYS_4xx_GPIO_TABLE)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
@@ -266,7 +267,7 @@ cpu_init_f (void)
 	/*
 	 * Set EMAC noise filter bits
 	 */
-	mtdcr(CPC0_EPCTL, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
+	mtdcr(CPC0_EPCTL, CPC0_EPCTL_E0NFE | CPC0_EPCTL_E1NFE);
 #endif /* CONFIG_405EP */
 
 #if defined(CONFIG_SYS_4xx_GPIO_TABLE)
@@ -341,7 +342,7 @@ cpu_init_f (void)
 #endif
 
 #if defined(CONFIG_WATCHDOG)
-	val = mfspr(tcr);
+	val = mfspr(SPRN_TCR);
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
 	val |= 0xb8000000;      /* generate system reset after 1.34 seconds */
 #elif defined(CONFIG_440EPX)
@@ -353,11 +354,11 @@ cpu_init_f (void)
 	val &= ~0x30000000;			/* clear WRC bits */
 	val |= CONFIG_SYS_4xx_RESET_TYPE << 28;	/* set board specific WRC type */
 #endif
-	mtspr(tcr, val);
+	mtspr(SPRN_TCR, val);
 
-	val = mfspr(tsr);
+	val = mfspr(SPRN_TSR);
 	val |= 0x80000000;      /* enable watchdog timer */
-	mtspr(tsr, val);
+	mtspr(SPRN_TSR, val);
 
 	reset_4xx_watchdog();
 #endif /* CONFIG_WATCHDOG */
@@ -393,14 +394,14 @@ cpu_init_f (void)
 #if defined(CONFIG_405EX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)  || \
-    defined(CONFIG_460SX)
+    defined(CONFIG_460SX) || defined(CONFIG_APM821XX)
 	/*
 	 * Set PLB4 arbiter (Segment 0 and 1) to 4 deep pipeline read
 	 */
-	mtdcr(PLB0_ACR, (mfdcr(PLB0_ACR) & ~PLB0_ACR_RDP_MASK) |
-	      PLB0_ACR_RDP_4DEEP);
-	mtdcr(PLB1_ACR, (mfdcr(PLB1_ACR) & ~PLB1_ACR_RDP_MASK) |
-	      PLB1_ACR_RDP_4DEEP);
+	mtdcr(PLB4A0_ACR, (mfdcr(PLB4A0_ACR) & ~PLB4Ax_ACR_RDP_MASK) |
+	      PLB4Ax_ACR_RDP_4DEEP);
+	mtdcr(PLB4A1_ACR, (mfdcr(PLB4A1_ACR) & ~PLB4Ax_ACR_RDP_MASK) |
+	      PLB4Ax_ACR_RDP_4DEEP);
 #endif /* CONFIG_440SP/SPE || CONFIG_460EX/GT || CONFIG_405EX */
 }
 

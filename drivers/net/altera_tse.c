@@ -475,12 +475,12 @@ static uint mii_parse_sr(uint mii_reg, struct altera_tse_priv *priv)
 	 */
 	mii_reg = tse_mdio_read(priv, MIIM_STATUS);
 
-	if (!(mii_reg & MIIM_STATUS_LINK) && (mii_reg & PHY_BMSR_AUTN_ABLE)
-	    && !(mii_reg & PHY_BMSR_AUTN_COMP)) {
+	if (!(mii_reg & MIIM_STATUS_LINK) && (mii_reg & BMSR_ANEGCAPABLE)
+	    && !(mii_reg & BMSR_ANEGCOMPLETE)) {
 		int i = 0;
 
 		puts("Waiting for PHY auto negotiation to complete");
-		while (!(mii_reg & PHY_BMSR_AUTN_COMP)) {
+		while (!(mii_reg & BMSR_ANEGCOMPLETE)) {
 			/*
 			 * Timeout reached ?
 			 */
@@ -643,13 +643,13 @@ static struct phy_info phy_info_generic = {
 	"Unknown/Generic PHY",
 	32,
 	(struct phy_cmd[]){	/* config */
-			   {PHY_BMCR, PHY_BMCR_RESET, NULL},
-			   {PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG, NULL},
+			   {MII_BMCR, BMCR_RESET, NULL},
+			   {MII_BMCR, BMCR_ANENABLE | BMCR_ANRESTART, NULL},
 			   {miim_end,}
 			   },
 	(struct phy_cmd[]){	/* startup */
-			   {PHY_BMSR, miim_read, NULL},
-			   {PHY_BMSR, miim_read, &mii_parse_sr},
+			   {MII_BMSR, miim_read, NULL},
+			   {MII_BMSR, miim_read, &mii_parse_sr},
 			   {miim_end,}
 			   },
 	(struct phy_cmd[]){	/* shutdown */

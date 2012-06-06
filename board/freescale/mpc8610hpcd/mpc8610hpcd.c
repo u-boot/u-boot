@@ -27,6 +27,7 @@
 #include <asm/immap_86xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_serdes.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <libfdt.h>
@@ -36,7 +37,7 @@
 
 void sdram_init(void);
 phys_size_t fixed_sdram(void);
-void mpc8610hpcd_diu_init(void);
+int mpc8610hpcd_diu_init(void);
 
 
 /* called before any console output */
@@ -83,10 +84,6 @@ int misc_init_r(void)
 	tmp_val = 0;
 	i2c_read(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
 	debug("DVI Encoder Read: 0x%02lx\n",tmp_val);
-
-#ifdef CONFIG_FSL_DIU_FB
-	mpc8610hpcd_diu_init();
-#endif
 
 	return 0;
 }
@@ -216,91 +213,45 @@ config_table:pci_mpc86xxcts_config_table
 };
 #endif /* CONFIG_PCI */
 
-#ifdef CONFIG_PCIE1
-static struct pci_controller pcie1_hose;
-#endif
-
-#ifdef CONFIG_PCIE2
-static struct pci_controller pcie2_hose;
-#endif
-
 void pci_init_board(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
-	struct fsl_pci_info pci_info[3];
-	u32 devdisr, pordevsr, io_sel;
-	int first_free_busno = 0;
-	int num = 0;
-
-	int pci_agent, pcie_ep, pcie_configured;
+	struct fsl_pci_info pci_info;
+	u32 devdisr, pordevsr;
+	int first_free_busno;
+	int pci_agent;
 
 	devdisr = in_be32(&gur->devdisr);
 	pordevsr = in_be32(&gur->pordevsr);
-	io_sel = (pordevsr & MPC8610_PORDEVSR_IO_SEL)
-			>> MPC8610_PORDEVSR_IO_SEL_SHIFT;
 
-	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
-
-#ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
-
-	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE1)){
-		SET_STD_PCIE_INFO(pci_info[num], 1);
-		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf ("    PCIE1 connected to ULI as %s (base addr %lx)\n",
-				pcie_ep ? "Endpoint" : "Root Complex",
-				pci_info[num].regs);
-
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
-	} else {
-		printf ("    PCIE1: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC86xx_DEVDISR_PCIE1); /* disable */
-#endif
-
-#ifdef CONFIG_PCIE2
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
-
-	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE2)){
-		SET_STD_PCIE_INFO(pci_info[num], 2);
-		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
-		printf ("    PCIE2 connected to Slot as %s (base addr %lx)\n",
-				pcie_ep ? "Endpoint" : "Root Complex",
-				pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie2_hose, first_free_busno);
-	} else {
-		printf ("    PCIE2: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC86xx_DEVDISR_PCIE2); /* disable */
-#endif
+	first_free_busno = fsl_pcie_init_board(0);
 
 #ifdef CONFIG_PCI1
 	if (!(devdisr & MPC86xx_DEVDISR_PCI1)) {
-		SET_STD_PCI_INFO(pci_info[num], 1);
-		pci_agent = fsl_setup_hose(&pci1_hose, pci_info[num].regs);
-		printf(" PCI connected to PCI slots as %s" \
+		SET_STD_PCI_INFO(pci_info, 1);
+		set_next_law(pci_info.mem_phys,
+			law_size_bits(pci_info.mem_size), pci_info.law);
+		set_next_law(pci_info.io_phys,
+			law_size_bits(pci_info.io_size), pci_info.law);
+
+		pci_agent = fsl_setup_hose(&pci1_hose, pci_info.regs);
+		printf("PCI: connected to PCI slots as %s" \
 			" (base address %lx)\n",
 			pci_agent ? "Agent" : "Host",
-			pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+			pci_info.regs);
+		first_free_busno = fsl_pci_init_port(&pci_info,
 					&pci1_hose, first_free_busno);
 	} else {
-		printf ("    PCI: disabled\n");
+		printf("PCI: disabled\n");
 	}
 
 	puts("\n");
 #else
 	setbits_be32(&gur->devdisr, MPC86xx_DEVDISR_PCI1); /* disable */
 #endif
+
+	fsl_pcie_init_board(first_free_busno);
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)

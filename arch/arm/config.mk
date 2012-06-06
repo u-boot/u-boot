@@ -64,3 +64,8 @@ PLATFORM_LIBS += $(OBJTREE)/arch/arm/lib/eabi_compat.o
 endif
 endif
 LDSCRIPT := $(SRCTREE)/$(CPUDIR)/u-boot.lds
+
+# needed for relocation
+ifndef CONFIG_NAND_SPL
+LDFLAGS_u-boot += -pie
+endif

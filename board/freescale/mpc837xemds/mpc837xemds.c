@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2007,2010 Freescale Semiconductor, Inc.
  * Dave Liu <daveliu@freescale.com>
  *
  * CREDITS: Kim Phillips contribute to LIBFDT code
@@ -15,6 +15,7 @@
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/fsl_mpc83xx_serdes.h>
+#include <asm/fsl_enet.h>
 #include <spd_sdram.h>
 #include <tsec.h>
 #include <libfdt.h>
@@ -136,7 +137,6 @@ int board_eth_init(bd_t *bd)
 static void __ft_tsec_fixup(void *blob, bd_t *bd, const char *alias,
 			    int phy_addr)
 {
-	const char *phy_type = "sgmii";
 	const u32 *ph;
 	int off;
 	int err;
@@ -148,8 +148,8 @@ static void __ft_tsec_fixup(void *blob, bd_t *bd, const char *alias,
 		return;
 	}
 
-	err = fdt_setprop(blob, off, "phy-connection-type", phy_type,
-			  strlen(phy_type) + 1);
+	err = fdt_fixup_phy_connection(blob, off, SGMII);
+
 	if (err) {
 		printf("WARNING: could not set phy-connection-type for %s: "
 			"%s.\n", alias, fdt_strerror(err));

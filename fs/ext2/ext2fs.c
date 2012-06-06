@@ -749,7 +749,7 @@ int ext2fs_find_file
 }
 
 
-int ext2fs_ls (char *dirname) {
+int ext2fs_ls (const char *dirname) {
 	ext2fs_node_t dirnode;
 	int status;
 
@@ -769,7 +769,7 @@ int ext2fs_ls (char *dirname) {
 }
 
 
-int ext2fs_open (char *filename) {
+int ext2fs_open (const char *filename) {
 	ext2fs_node_t fdiro = NULL;
 	int status;
 	int len;

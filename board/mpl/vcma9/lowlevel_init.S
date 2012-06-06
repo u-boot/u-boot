@@ -128,7 +128,7 @@
 /**************************************/
 
 _TEXT_BASE:
-	.word	TEXT_BASE
+	.word	CONFIG_SYS_TEXT_BASE
 
 .globl lowlevel_init
 lowlevel_init:

@@ -2,7 +2,7 @@
  * esd vme8349 U-Boot configuration file
  * Copyright (c) 2008, 2009 esd gmbh Hannover Germany
  *
- * (C) Copyright 2006
+ * (C) Copyright 2006-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * reinhard.arlt@esd-electronics.de
@@ -37,7 +37,7 @@
 /*
  * Top level Makefile configuration choices
  */
-#ifdef CONFIG_MK_caddy2
+#ifdef CONFIG_CADDY2
 #define VME_CADDY2
 #endif
 
@@ -50,21 +50,23 @@
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_VME8349		1	/* ESD VME8349 board specific */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_PCI
 /* Don't enable PCI2 on vme834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
-#define PCI_66M
-#ifdef PCI_66M
+#define CONFIG_PCI_66M
+#ifdef CONFIG_PCI_66M
 #define CONFIG_83XX_CLKIN	66000000	/* in Hz */
 #else
 #define CONFIG_83XX_CLKIN	33000000	/* in Hz */
 #endif
 
 #ifndef CONFIG_SYS_CLK_FREQ
-#ifdef PCI_66M
+#ifdef CONFIG_PCI_66M
 #define CONFIG_SYS_CLK_FREQ	66000000
 #define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_4X1
 #else
@@ -149,7 +151,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase TO (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write TO (ms) */
 
-#define CONFIG_SYS_MONITOR_BASE	        TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	        CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT
@@ -159,11 +161,10 @@
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xF7000000	/* Initial RAM addr */
-#define CONFIG_SYS_INIT_RAM_END		0x1000		/* size */
+#define CONFIG_SYS_INIT_RAM_SIZE		0x1000		/* size */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	0x100		/* size init data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - \
-					 CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB */
@@ -184,7 +185,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -402,10 +402,10 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Init Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)	/* Init Memory map for Linux*/
 
 #define CONFIG_SYS_RCWH_PCIHOST 0x80000000 /* PCIHOST  */
 
@@ -538,14 +538,6 @@
 #define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
 #define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
 #define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02	/* Software reboot */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */

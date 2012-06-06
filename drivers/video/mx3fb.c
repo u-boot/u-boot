@@ -85,7 +85,7 @@ void lcd_panel_disable(void)
 #define V_END_WIDTH	(7 + 3)	/* lower_margin + vsync_len */
 #define SIG_POL		(DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL)
 #define IF_CONF		0
-#define IF_CLK_DIV	0x175
+#define IF_CLK_DIV	0x55
 #else
 #define XRES		240
 #define YRES		320
@@ -333,37 +333,6 @@ enum ipu_panel {
 #define IOMUX_PIN(gpionum, padnum) ((padnum) & IOMUX_PADNUM_MASK)
 
 #define IOMUX_MODE_L(pin, mode) IOMUX_MODE(((pin) + 0xc) ^ 3, mode)
-
-enum lcd_pin {
-	MX31_PIN_D3_SPL		= IOMUX_PIN(0xff,  19),
-	MX31_PIN_D3_CLS		= IOMUX_PIN(0xff,  20),
-	MX31_PIN_D3_REV		= IOMUX_PIN(0xff,  21),
-	MX31_PIN_CONTRAST	= IOMUX_PIN(0xff,  22),
-	MX31_PIN_VSYNC3		= IOMUX_PIN(0xff,  23),
-
-	MX31_PIN_DRDY0		= IOMUX_PIN(0xff,  33),
-	MX31_PIN_FPSHIFT	= IOMUX_PIN(0xff,  34),
-	MX31_PIN_HSYNC		= IOMUX_PIN(0xff,  35),
-
-	MX31_PIN_LD17		= IOMUX_PIN(0xff,  37),
-	MX31_PIN_LD16		= IOMUX_PIN(0xff,  38),
-	MX31_PIN_LD15		= IOMUX_PIN(0xff,  39),
-	MX31_PIN_LD14		= IOMUX_PIN(0xff,  40),
-	MX31_PIN_LD13		= IOMUX_PIN(0xff,  41),
-	MX31_PIN_LD12		= IOMUX_PIN(0xff,  42),
-	MX31_PIN_LD11		= IOMUX_PIN(0xff,  43),
-	MX31_PIN_LD10		= IOMUX_PIN(0xff,  44),
-	MX31_PIN_LD9		= IOMUX_PIN(0xff,  45),
-	MX31_PIN_LD8		= IOMUX_PIN(0xff,  46),
-	MX31_PIN_LD7		= IOMUX_PIN(0xff,  47),
-	MX31_PIN_LD6		= IOMUX_PIN(0xff,  48),
-	MX31_PIN_LD5		= IOMUX_PIN(0xff,  49),
-	MX31_PIN_LD4		= IOMUX_PIN(0xff,  50),
-	MX31_PIN_LD3		= IOMUX_PIN(0xff,  51),
-	MX31_PIN_LD2		= IOMUX_PIN(0xff,  52),
-	MX31_PIN_LD1		= IOMUX_PIN(0xff,  53),
-	MX31_PIN_LD0		= IOMUX_PIN(0xff,  54),
-};
 
 struct chan_param_mem_planar {
 	/* Word 0 */

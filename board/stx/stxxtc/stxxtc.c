@@ -481,12 +481,12 @@ void reset_phys(void)
 	mii_init();
 
 	for (phyno = 0; phyno < 32; ++phyno) {
-		miiphy_read("FEC", phyno, PHY_PHYIDR1, &v);
+		miiphy_read("FEC", phyno, MII_PHYSID1, &v);
 		if (v == 0xFFFF)
 			continue;
-		miiphy_write("FEC", phyno, PHY_BMCR, PHY_BMCR_POWD);
+		miiphy_write("FEC", phyno, MII_BMCR, BMCR_PDOWN);
 		udelay(10000);
-		miiphy_write("FEC", phyno, PHY_BMCR, PHY_BMCR_RESET | PHY_BMCR_AUTON);
+		miiphy_write("FEC", phyno, MII_BMCR, BMCR_RESET | BMCR_ANENABLE);
 		udelay(10000);
 	}
 }

@@ -140,8 +140,8 @@ void reset_phy (void)
 	/* initialize the PHY */
 	miiphy_reset ("NPE0", CONFIG_PHY_ADDR);
 
-	miiphy_read ("NPE0", CONFIG_PHY_ADDR, PHY_PHYIDR1, &id1);
-	miiphy_read ("NPE0", CONFIG_PHY_ADDR, PHY_PHYIDR2, &id2);
+	miiphy_read ("NPE0", CONFIG_PHY_ADDR, MII_PHYSID1, &id1);
+	miiphy_read ("NPE0", CONFIG_PHY_ADDR, MII_PHYSID2, &id2);
 
 	id2 &= 0xFFF0;		/* mask out revision bits */
 

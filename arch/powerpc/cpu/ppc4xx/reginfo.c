@@ -28,7 +28,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/ppc4xx-uic.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-emac.h>
 
 enum REGISTER_TYPE {
 	IDCR1,	/* Indirectly Accessed DCR via SDRAM0_CFGADDR/SDRAM0_CFGDATA */
@@ -108,9 +108,9 @@ const struct cpu_register ppc4xx_reg[] = {
 	{"SDR0_SDSTP3",		IDCR6,	SDR0_SDSTP3},
 	{"SDR0_CUST0",		IDCR6,	SDR0_CUST0},
 	{"SDR0_CUST1",		IDCR6,	SDR0_CUST1},
-	{"SDR0_EBC0",		IDCR6,	SDR0_EBC0},
-	{"SDR0_AMP0",		IDCR6,	SD0_AMP0},
-	{"SDR0_AMP1",		IDCR6,	SD0_AMP1},
+	{"SDR0_EBC",		IDCR6,	SDR0_EBC},
+	{"SDR0_AMP0",		IDCR6,	SDR0_AMP0},
+	{"SDR0_AMP1",		IDCR6,	SDR0_AMP1},
 	{"SDR0_CP440",		IDCR6,	SDR0_CP440},
 	{"SDR0_CRYP0",		IDCR6,	SDR0_CRYP0},
 	{"SDR0_DDRCFG",		IDCR6,	SDR0_DDRCFG},

@@ -31,7 +31,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 
 /*-----------------------------------------------------------------------------+
  * Prototypes

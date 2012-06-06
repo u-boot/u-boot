@@ -34,42 +34,16 @@ SECTIONS
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
   .interp : { *(.interp) }
-  .hash          : { *(.hash)		}
-  .dynsym        : { *(.dynsym)		}
-  .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)		}
-  .rela.text     : { *(.rela.text)	}
-  .rel.data      : { *(.rel.data)		}
-  .rela.data     : { *(.rela.data)	}
-  .rel.rodata    : { *(.rel.rodata)	}
-  .rela.rodata   : { *(.rela.rodata)	}
-  .rel.got       : { *(.rel.got)		}
-  .rela.got      : { *(.rela.got)		}
-  .rel.ctors     : { *(.rel.ctors)	}
-  .rela.ctors    : { *(.rela.ctors)	}
-  .rel.dtors     : { *(.rel.dtors)	}
-  .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)		}
-  .rela.bss      : { *(.rela.bss)		}
-  .rel.plt       : { *(.rel.plt)		}
-  .rela.plt      : { *(.rela.plt)		}
-  .init          : { *(.init)	}
-  .plt : { *(.plt) }
   .text      :
   {
-    *(.text)
-    *(.got1)
+    *(.text*)
    } :text
     _etext = .;
     PROVIDE (etext = .);
     .rodata    :
    {
-    *(.eh_frame)
     *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
   } :text
-  .fini      : { *(.fini)    } =0
-  .ctors     : { *(.ctors)   }
-  .dtors     : { *(.dtors)   }
 
   /* Read-write section, merged into data segment: */
   . = (. + 0x00FF) & 0xFFFFFF00;
@@ -77,23 +51,19 @@ SECTIONS
   PROVIDE (erotext = .);
   .reloc   :
   {
-    *(.got)
+    KEEP(*(.got))
     _GOT2_TABLE_ = .;
-    *(.got2)
+    KEEP(*(.got2))
     _FIXUP_TABLE_ = .;
-    *(.fixup)
+    KEEP(*(.fixup))
   }
   __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >> 2;
   __fixup_entries = (. - _FIXUP_TABLE_) >> 2;
 
   .data    :
   {
-    *(.data)
-    *(.data1)
-    *(.sdata)
-    *(.sdata2)
-    *(.dynamic)
-    CONSTRUCTORS
+    *(.data*)
+    *(.sdata*)
   }
   _edata  =  .;
   PROVIDE (edata = .);
@@ -117,7 +87,7 @@ SECTIONS
 
   .bootpg ADDR(.text) - 0x1000 :
   {
-    arch/powerpc/cpu/mpc85xx/start.o	(.bootpg)
+    arch/powerpc/cpu/mpc85xx/start.o	KEEP(*(.bootpg))
   } :text = 0xffff
 
   . = ADDR(.text) + 0x80000;
@@ -125,13 +95,12 @@ SECTIONS
   __bss_start = .;
   .bss (NOLOAD)       :
   {
-   *(.sbss) *(.scommon)
-   *(.dynbss)
-   *(.bss)
+   *(.sbss*)
+   *(.bss*)
    *(COMMON)
   } :bss
 
   . = ALIGN(4);
-  _end = . ;
+  __bss_end__ = . ;
   PROVIDE (end = .);
 }

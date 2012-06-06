@@ -165,6 +165,9 @@ struct post_test post_list[] =
     },
 #endif
 #if CONFIG_POST & CONFIG_SYS_POST_UART
+#if defined(CONFIG_POST_UART)
+	CONFIG_POST_UART,
+#else
     {
 	"UART test",
 	"uart",
@@ -175,6 +178,7 @@ struct post_test post_list[] =
 	NULL,
 	CONFIG_SYS_POST_UART
     },
+#endif /* CONFIG_POST_UART */
 #endif
 #if CONFIG_POST & CONFIG_SYS_POST_ETHER
     {

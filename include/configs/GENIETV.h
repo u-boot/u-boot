@@ -38,6 +38,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0x00000000
+
 #define	CONFIG_ETHADDR		08:00:22:50:70:63	/* Ethernet address */
 #define CONFIG_ENV_OVERWRITE	1	/* Overwrite the environment */
 
@@ -159,9 +161,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -330,14 +331,6 @@
 #define CONFIG_SYS_MBMR_8COL	((CONFIG_SYS_MBMR_PTB << MAMR_PTA_SHIFT)  | MAMR_PTAE | \
 			MAMR_G0CLA_A11 | MAMR_RLFA_1X | MAMR_WLFA_1X \
 			| MAMR_TLFA_4X)	/* 0x5d802114 */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD			0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM			0x02		/* Software reboot			*/
 
 /* values according to the manual */
 

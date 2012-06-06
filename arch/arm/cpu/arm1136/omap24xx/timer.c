@@ -39,8 +39,7 @@
 /* macro to read the 32 bit timer */
 #define READ_TIMER (*((volatile ulong *)(CONFIG_SYS_TIMERBASE+TCRR)))
 
-static ulong timestamp;
-static ulong lastinc;
+DECLARE_GLOBAL_DATA_PTR;
 
 int timer_init (void)
 {
@@ -70,7 +69,7 @@ ulong get_timer (ulong base)
 
 void set_timer (ulong t)
 {
-	timestamp = t;
+	gd->tbl	= t;
 }
 
 /* delay x useconds AND preserve advance timestamp value */
@@ -99,20 +98,20 @@ void __udelay (unsigned long usec)
 void reset_timer_masked (void)
 {
 	/* reset time */
-	lastinc = READ_TIMER;		/* capture current incrementer value time */
-	timestamp = 0;			/* start "advancing" time stamp from 0 */
+	gd->lastinc = READ_TIMER;	/* capture current incrementer value time */
+	gd->tbl = 0;			/* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked (void)
 {
 	ulong now = READ_TIMER;		/* current tick value */
 
-	if (now >= lastinc)		/* normal mode (non roll) */
-		timestamp += (now - lastinc); /* move stamp fordward with absoulte diff ticks */
+	if (now >= gd->lastinc)		/* normal mode (non roll) */
+		gd->tbl += (now - gd->lastinc); /* move stamp fordward with absoulte diff ticks */
 	else				/* we have rollover of incrementer */
-		timestamp += (0xFFFFFFFF - lastinc) + now;
-	lastinc = now;
-	return timestamp;
+		gd->tbl += (0xFFFFFFFF - gd->lastinc) + now;
+	gd->lastinc = now;
+	return gd->tbl;
 }
 
 /* waits specified delay value and resets timestamp */

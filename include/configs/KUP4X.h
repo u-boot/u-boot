@@ -38,6 +38,8 @@
 #define CONFIG_MPC859T		1	/* This is a MPC859T CPU	*/
 #define CONFIG_KUP4X		1	/* ...on a KUP4X module		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
@@ -147,9 +149,9 @@
 
 /* List of I2C addresses to be verified by POST */
 
-#define I2C_ADDR_LIST	{CONFIG_SYS_I2C_PICIO_ADDR,	\
-			CONFIG_SYS_I2C_RTC_ADDR,	\
-			}
+#define CONFIG_SYS_POST_I2C_ADDRS	{CONFIG_SYS_I2C_PICIO_ADDR,	\
+					 CONFIG_SYS_I2C_RTC_ADDR,	\
+					}
 
 
 #define CONFIG_RTC_PCF8563		/* use Philips PCF8563 RTC	*/
@@ -225,9 +227,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	64	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -445,15 +446,6 @@
 #define CONFIG_SYS_BR4 0x90000401
 
 #define LATCH_ADDR 0x90000200
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot	*/
 

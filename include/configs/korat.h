@@ -38,6 +38,12 @@
 #define CONFIG_4xx		1	/* ... PPC4xx family		*/
 #define CONFIG_SYS_CLK_FREQ	33333333
 
+#ifdef CONFIG_KORAT_PERMANENT
+#define CONFIG_SYS_TEXT_BASE	0xFFFA0000
+#else
+#define	CONFIG_SYS_TEXT_BASE	0xF7F60000
+#endif
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
 
@@ -64,15 +70,12 @@
 #define CONFIG_SYS_FLASH1_MAX_SIZE	0x08000000
 #define CONFIG_SYS_FLASH1_ADDR		(CONFIG_SYS_FLASH1_TOP - CONFIG_SYS_FLASH1_MAX_SIZE)
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_FLASH1_ADDR	/* start of FLASH	*/
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_OCM_BASE		0xe0010000	/* ocm			*/
 #define CONFIG_SYS_OCM_DATA_ADDR	CONFIG_SYS_OCM_BASE
 #define CONFIG_SYS_PCI_BASE		0xe0000000	/* Internal PCI regs	*/
 #define CONFIG_SYS_PCI_MEMBASE		0x80000000	/* mapped pci memory	*/
 #define CONFIG_SYS_PCI_MEMBASE2		(CONFIG_SYS_PCI_MEMBASE + 0x20000000)
-
-/* Don't change either of these */
-#define CONFIG_SYS_PERIPHERAL_BASE	0xef600000	/* internal peripherals	*/
 
 #define CONFIG_SYS_USB2D0_BASE		0xe0000100
 #define CONFIG_SYS_USB_DEVICE		0xe0000000
@@ -85,19 +88,21 @@
 /* 440EPx has 16KB of internal SRAM, so no need for D-Cache		*/
 #undef CONFIG_SYS_INIT_RAM_DCACHE
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_BASE	/* OCM			*/
-#define CONFIG_SYS_INIT_RAM_END	(4 << 10)
-#define CONFIG_SYS_GBL_DATA_SIZE	256	/* num bytes initial data	*/
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	(4 << 10)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 /*
  * Serial Port
  */
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	11059200	/* ext. 11.059MHz clk	*/
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI	1
-/* define this if you want console on UART1 */
-#undef CONFIG_UART1_CONSOLE
 
 #define CONFIG_SYS_BAUDRATE_TABLE						\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
@@ -551,14 +556,6 @@
 {GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO63  Unselect via TraceSelect Bit	*/	\
 }											\
 }
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02	/* Software reboot			*/
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400 /* speed to run kgdb serial port	*/

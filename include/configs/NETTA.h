@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2004
+ * (C) Copyright 2000-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -36,6 +36,8 @@
 
 #define CONFIG_MPC885		1	/* This is a MPC885 CPU		*/
 #define CONFIG_NETTA		1	/* ...on a NetTA board		*/
+
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
@@ -183,9 +185,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define	CONFIG_SYS_INIT_RAM_END	0x3000	/* End of used area in DPRAM	*/
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_RAM_SIZE	0x3000	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -223,11 +224,9 @@
 #define CONFIG_ENV_SECT_SIZE	0x10000
 
 #define	CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x60000)
-#define CONFIG_ENV_OFFSET		0
 #define	CONFIG_ENV_SIZE		0x4000
 
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_SYS_FLASH_BASE + 0x70000)
-#define CONFIG_ENV_OFFSET_REDUND	0
 #define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*-----------------------------------------------------------------------
@@ -486,14 +485,6 @@
 #define CONFIG_SYS_MAMR_9COL	((CONFIG_SYS_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 #define CONFIG_LAST_STAGE_INIT		/* needed to reset the damn phys */
 

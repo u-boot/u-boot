@@ -48,23 +48,26 @@
  *-------------------------------------------------------------------------------
  */
 
-/*  U-Boot - Startup Code for AMCC 4xx PowerPC based Embedded Boards
+/*
+ * Startup code for IBM/AMCC PowerPC 4xx (PPC4xx) based boards
  *
+ * The following description only applies to the NOR flash style booting.
+ * NAND booting is different. For more details about NAND booting on 4xx
+ * take a look at doc/README.nand-boot-ppc440.
  *
- *  The processor starts at 0xfffffffc and the code is executed
- *  from flash/rom.
- *  in memory, but as long we don't jump around before relocating.
- *  board_init lies at a quite high address and when the cpu has
- *  jumped there, everything is ok.
- *  This works because the cpu gives the FLASH (CS0) the whole
- *  address space at startup, and board_init lies as a echo of
- *  the flash somewhere up there in the memorymap.
- *
- *  board_init will change CS0 to be positioned at the correct
- *  address and (s)dram will be positioned at address 0
+ * The CPU starts at address 0xfffffffc (last word in the address space).
+ * The U-Boot image therefore has to be located in the "upper" area of the
+ * flash (e.g. 512MiB - 0xfff80000 ... 0xffffffff). The default value for
+ * the boot chip-select (CS0) is quite big and covers this area. On the
+ * 405EX this is for example 0xffe00000 ... 0xffffffff. U-Boot will
+ * reconfigure this CS0 (and other chip-selects as well when configured
+ * this way) in the boot process to the "correct" values matching the
+ * board layout.
  */
+
+#include <asm-offsets.h>
 #include <config.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <timestamp.h>
 #include <version.h>
 
@@ -182,8 +185,8 @@
 # endif
 #endif /* CONFIG_SYS_INIT_DCACHE_CS */
 
-#if (defined(CONFIG_SYS_INIT_RAM_DCACHE) && (CONFIG_SYS_INIT_RAM_END > (4 << 10)))
-#error Only 4k of init-ram is supported - please adjust CONFIG_SYS_INIT_RAM_END!
+#if (defined(CONFIG_SYS_INIT_RAM_DCACHE) && (CONFIG_SYS_INIT_RAM_SIZE > (4 << 10)))
+#error Only 4k of init-ram is supported - please adjust CONFIG_SYS_INIT_RAM_SIZE!
 #endif
 
 /*
@@ -245,7 +248,7 @@
 	GOT_ENTRY(transfer_to_handler)
 
 	GOT_ENTRY(__init_end)
-	GOT_ENTRY(_end)
+	GOT_ENTRY(__bss_end__)
 	GOT_ENTRY(__bss_start)
 	END_GOT
 #endif /* CONFIG_NAND_SPL */
@@ -261,9 +264,10 @@
 	GET_GOT
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
+	/* NOTREACHED - board_init_f() does not return */
 #endif
 
-#if defined(CONFIG_SYS_RAMBOOT)
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_BOOT_FROM_XMD)
 	/*
 	 * 4xx RAM-booting U-Boot image is started from offset 0
 	 */
@@ -340,6 +344,9 @@ _start_440:
 	mfspr	r1,SPRN_DBCR0
 	andis.	r1, r1, 0x8000	/* test DBCR0[EDM] bit			*/
 	bne	skip_debug_init	/* if set, don't clear debug register	*/
+	mfspr	r1,SPRN_CCR0
+	ori	r1,r1,CCR0_DTB@l /* Disable Trace Broadcast */
+	mtspr	SPRN_CCR0,r1
 	mtspr	SPRN_DBCR0,r0
 	mtspr	SPRN_DBCR1,r0
 	mtspr	SPRN_DBCR2,r0
@@ -652,8 +659,8 @@ _start:
 	/* Clear Dcache to use as RAM */
 	addis	r3,r0,CONFIG_SYS_INIT_RAM_ADDR@h
 	ori	r3,r3,CONFIG_SYS_INIT_RAM_ADDR@l
-	addis	r4,r0,CONFIG_SYS_INIT_RAM_END@h
-	ori	r4,r4,CONFIG_SYS_INIT_RAM_END@l
+	addis	r4,r0,CONFIG_SYS_INIT_RAM_SIZE@h
+	ori	r4,r4,CONFIG_SYS_INIT_RAM_SIZE@l
 	rlwinm. r5,r4,0,27,31
 	rlwinm	r5,r4,27,5,31
 	beq	..d_ran
@@ -700,7 +707,8 @@ _start:
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460SX)
 	mtdcr	L2_CACHE_CFG,r0		/* Ensure L2 Cache is off */
-#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+      defined(CONFIG_APM821XX)
 	lis	r1, 0x0000
 	ori	r1,r1,0x0008		/* Set L2_CACHE_CFG[RDBW]=1 */
 	mtdcr	L2_CACHE_CFG,r1
@@ -728,7 +736,8 @@ _start:
 	lis	r1, 0x8003
 	ori	r1,r1, 0x0980		/* fourth 64k */
 	mtdcr	ISRAM0_SB3CR,r1
-#elif defined(CONFIG_440SPE) || defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#elif defined(CONFIG_440SPE) || defined(CONFIG_460EX) || \
+      defined(CONFIG_460GT) || defined(CONFIG_APM821XX)
 	lis	r1,0x0000		/* BAS = X_0000_0000 */
 	ori	r1,r1,0x0984		/* first 64k */
 	mtdcr	ISRAM0_SB0CR,r1
@@ -741,7 +750,8 @@ _start:
 	lis	r1, 0x0003
 	ori	r1,r1, 0x0984		/* fourth 64k */
 	mtdcr	ISRAM0_SB3CR,r1
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_APM821XX)
 	lis	r2,0x7fff
 	ori	r2,r2,0xffff
 	mfdcr	r1,ISRAM1_DPC
@@ -752,7 +762,7 @@ _start:
 	mtdcr	ISRAM1_PMEG,r1
 
 	lis	r1,0x0004		/* BAS = 4_0004_0000 */
-	ori	r1,r1,0x0984		/* 64k */
+	ori     r1,r1,ISRAM1_SIZE       /* ocm size */
 	mtdcr	ISRAM1_SB0CR,r1
 #endif
 #elif defined(CONFIG_460SX)
@@ -797,6 +807,7 @@ _start:
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
+	/* NOTREACHED - board_init_f() does not return */
 #endif
 
 #endif /* CONFIG_440 */
@@ -905,6 +916,7 @@ _start:
 	GET_GOT			/* initialize GOT access			*/
 
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
+	/* NOTREACHED - board_init_f() does not return */
 
 #endif	/* CONFIG_IOP480 */
 
@@ -1082,8 +1094,8 @@ _start:
 	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
 	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
 
-	lis	r4, CONFIG_SYS_INIT_RAM_END@h
-	ori	r4, r4, CONFIG_SYS_INIT_RAM_END@l
+	lis	r4, CONFIG_SYS_INIT_RAM_SIZE@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_SIZE@l
 
 	/*
 	 * Convert the size, in bytes, to the number of cache lines/blocks
@@ -1110,12 +1122,12 @@ _start:
 	lis	r1, CONFIG_SYS_INIT_RAM_ADDR@h
 	ori	r1, r1, CONFIG_SYS_INIT_SP_OFFSET@l
 
-	lis	r4, (CONFIG_SYS_INIT_RAM_END >> 2)@h
-	ori	r4, r4, (CONFIG_SYS_INIT_RAM_END >> 2)@l
+	lis	r4, (CONFIG_SYS_INIT_RAM_SIZE >> 2)@h
+	ori	r4, r4, (CONFIG_SYS_INIT_RAM_SIZE >> 2)@l
 	mtctr	r4
 
 	lis	r2, CONFIG_SYS_INIT_RAM_ADDR@h
-	ori	r2, r2, CONFIG_SYS_INIT_RAM_END@l
+	ori	r2, r2, CONFIG_SYS_INIT_RAM_SIZE@l
 
 	lis	r4, CONFIG_SYS_INIT_RAM_PATTERN@h
 	ori	r4, r4, CONFIG_SYS_INIT_RAM_PATTERN@l
@@ -1174,8 +1186,9 @@ _start:
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 
-	/* NEVER RETURNS! */
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
+	/* NOTREACHED - board_init_f() does not return */
+
 #endif /* CONFIG_NAND_SPL */
 
 #endif	/* CONFIG_405GP || CONFIG_405CR || CONFIG_405 || CONFIG_405EP */
@@ -1378,8 +1391,8 @@ in32r:
 relocate_code:
 #if defined(CONFIG_4xx_DCACHE) || defined(CONFIG_SYS_INIT_DCACHE_CS)
 	/*
-	 * We need to flush the initial global data (gd_t) before the dcache
-	 * will be invalidated.
+	 * We need to flush the initial global data (gd_t) and bd_info
+	 * before the dcache will be invalidated.
 	 */
 
 	/* Save registers */
@@ -1387,10 +1400,11 @@ relocate_code:
 	mr	r10, r4
 	mr	r11, r5
 
-	/* Flush initial global data range */
-	mr	r3, r4
-	addi	r4, r4, CONFIG_SYS_GBL_DATA_SIZE@l
-	bl	flush_dcache_range
+	/*
+	 * Flush complete dcache, this is faster than flushing the
+	 * ranges for global_data and bd_info instead.
+	 */
+	bl	flush_dcache
 
 #if defined(CONFIG_SYS_INIT_DCACHE_CS)
 	/*
@@ -1404,8 +1418,8 @@ relocate_code:
 	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
 	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
 
-	lis	r4, CONFIG_SYS_INIT_RAM_END@h
-	ori	r4, r4, CONFIG_SYS_INIT_RAM_END@l
+	lis	r4, CONFIG_SYS_INIT_RAM_SIZE@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_SIZE@l
 	add	r4, r4, r3
 
 	bl	invalidate_dcache_range
@@ -1598,17 +1612,19 @@ in_ram:
 	beq	4f
 3:	lwzu	r4,4(r3)
 	lwzux	r0,r4,r11
+	cmpwi	r0,0
 	add	r0,r0,r11
-	stw	r10,0(r3)
+	stw	r4,0(r3)
+	beq-	5f
 	stw	r0,0(r4)
-	bdnz	3b
+5:	bdnz	3b
 4:
 clear_bss:
 	/*
 	 * Now clear BSS segment
 	 */
 	lwz	r3,GOT(__bss_start)
-	lwz	r4,GOT(_end)
+	lwz	r4,GOT(__bss_end__)
 
 	cmplw	0, r3, r4
 	beq	7f

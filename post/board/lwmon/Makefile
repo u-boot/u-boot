@@ -22,7 +22,7 @@
 #
 include $(OBJTREE)/include/autoconf.mk
 
-LIB	= libpostlwmon.a
+LIB	= libpostlwmon.o
 
 COBJS-$(CONFIG_HAS_POST)	+= sysmon.o
 

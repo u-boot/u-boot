@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/arch/mx31-regs.h>
+#include <asm/io.h>
 
 static u32 mx31_decode_pll(u32 reg, u32 infreq)
 {
@@ -88,6 +89,21 @@ void mx31_gpio_mux(unsigned long mode)
 	tmp &= ~(0xff << shift);
 	tmp |= ((mode >> IOMUX_MODE_POS) & 0xff) << shift;
 	__REG(reg) = tmp;
+}
+
+void mx31_set_pad(enum iomux_pins pin, u32 config)
+{
+	u32 field, l, reg;
+
+	pin &= IOMUX_PADNUM_MASK;
+	reg = (IOMUXC_BASE + 0x154) + (pin + 2) / 3 * 4;
+	field = (pin + 2) % 3;
+
+	l = __REG(reg);
+	l &= ~(0x1ff << (field * 10));
+	l |= config << (field * 10);
+	__REG(reg) = l;
+
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)

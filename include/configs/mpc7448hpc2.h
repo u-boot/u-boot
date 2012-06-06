@@ -42,6 +42,8 @@
 #define CONFIG_HIGH_BATS	/* High BATs supported */
 #define CONFIG_ALTIVEC		/* undef to disable */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000
+
 #define CONFIG_SYS_BOARD_NAME		"MPC7448 HPC II"
 #define CONFIG_IDENT_STRING	" Freescale MPC7448 HPC II"
 
@@ -219,10 +221,9 @@
  */
 #undef  CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0x07d00000	/* unused memory region */
-#define CONFIG_SYS_INIT_RAM_END	0x4000/* larger space - we have SDRAM initialized */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000/* larger space - we have SDRAM initialized */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128/* size in bytes reserved for init data */
-#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -251,7 +252,7 @@
 
 #define CONFIG_SYS_RESET_ADDRESS	0x3fffff00
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* u-boot code base */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* u-boot code base */
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc */
 
 /* Peripheral Device section */
@@ -399,13 +400,5 @@
 
 #define L2_INIT		0
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02	/* Software reboot */
 #define CONFIG_SYS_SERIAL_HANG_IN_EXCEPTION
 #endif	/* __CONFIG_H */

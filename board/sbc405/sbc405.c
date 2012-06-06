@@ -96,13 +96,6 @@ int checkboard (void)
 
 /* ------------------------------------------------------------------------- */
 
-phys_size_t initdram (int board_type)
-{
-	return  spd_sdram ();
-}
-
-/* ------------------------------------------------------------------------- */
-
 int testdram (void)
 {
 	/* TODO: XXX XXX XXX */

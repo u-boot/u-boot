@@ -430,29 +430,6 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_PS2MULT
-
-#ifdef CONFIG_HMI10
-#define BASE_BAUD ( 1843200 / 16 )
-struct serial_state rs_table[] = {
-	{ BASE_BAUD, 4,  (void*)0xec140000 },
-	{ BASE_BAUD, 2,  (void*)0xec150000 },
-	{ BASE_BAUD, 6,  (void*)0xec160000 },
-	{ BASE_BAUD, 10, (void*)0xec170000 },
-};
-
-#ifdef CONFIG_BOARD_EARLY_INIT_R
-int board_early_init_r (void)
-{
-	ps2mult_early_init();
-	return (0);
-}
-#endif
-#endif /* CONFIG_HMI10 */
-
-#endif /* CONFIG_PS2MULT */
-
-
 #ifdef CONFIG_MISC_INIT_R
 extern void load_sernum_ethaddr(void);
 int misc_init_r (void)
@@ -745,15 +722,15 @@ int last_stage_init(void)
 		return 0;
 
 	for (i = 0; i < 2; i++) {
-		ret = miiphy_read("FEC", phy[i], PHY_BMCR, &reg);
+		ret = miiphy_read("FEC", phy[i], MII_BMCR, &reg);
 		if (ret) {
 			printf("Cannot read BMCR on PHY %d\n", phy[i]);
 			return 0;
 		}
 		/* Auto-negotiation off, hard set full duplex, 100Mbps */
 		ret = miiphy_write("FEC", phy[i],
-				   PHY_BMCR, (reg | PHY_BMCR_100MB |
-					      PHY_BMCR_DPLX) & ~PHY_BMCR_AUTON);
+				   MII_BMCR, (reg | BMCR_SPEED100 |
+					      BMCR_FULLDPLX) & ~BMCR_ANENABLE);
 		if (ret) {
 			printf("Cannot write BMCR on PHY %d\n", phy[i]);
 			return 0;

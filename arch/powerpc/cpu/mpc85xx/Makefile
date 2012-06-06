@@ -26,7 +26,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(CPU).o
 
 START	= start.o resetvec.o
 SOBJS-$(CONFIG_MP)	+= release.o
@@ -50,9 +50,11 @@ COBJS-$(CONFIG_MPC8544) += ddr-gen2.o
 COBJS-$(CONFIG_MPC8572) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8536) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8569)	+= ddr-gen3.o
+COBJS-$(CONFIG_P1010)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1011)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1012)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1013)	+= ddr-gen3.o
+COBJS-$(CONFIG_P1014)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1020)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1021)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1022)	+= ddr-gen3.o
@@ -66,18 +68,36 @@ COBJS-$(CONFIG_CPM2)	+= ether_fcc.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 COBJS-$(CONFIG_FSL_CORENET) += liodn.o
 COBJS-$(CONFIG_MP)	+= mp.o
-COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
-COBJS-$(CONFIG_P1022)	+= p1022_serdes.o
 COBJS-$(CONFIG_PCI)	+= pci.o
 COBJS-$(CONFIG_FSL_CORENET) += portals.o
 
 # various SoC specific assignments
+COBJS-$(CONFIG_PPC_P3041) += p3041_ids.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_ids.o
+COBJS-$(CONFIG_PPC_P5020) += p5020_ids.o
 
 COBJS-$(CONFIG_QE)	+= qe_io.o
 COBJS-$(CONFIG_CPM2)	+= serial_scc.o
 COBJS-$(CONFIG_FSL_CORENET) += fsl_corenet_serdes.o
+
+# SoC specific SERDES support
+COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
+COBJS-$(CONFIG_MPC8544) += mpc8544_serdes.o
+COBJS-$(CONFIG_MPC8548) += mpc8548_serdes.o
+COBJS-$(CONFIG_MPC8568) += mpc8568_serdes.o
+COBJS-$(CONFIG_MPC8569) += mpc8569_serdes.o
+COBJS-$(CONFIG_MPC8572) += mpc8572_serdes.o
+COBJS-$(CONFIG_P1011)	+= p1021_serdes.o
+COBJS-$(CONFIG_P1012)	+= p1021_serdes.o
+COBJS-$(CONFIG_P1013)	+= p1022_serdes.o
+COBJS-$(CONFIG_P1020)	+= p1021_serdes.o
+COBJS-$(CONFIG_P1021)	+= p1021_serdes.o
+COBJS-$(CONFIG_P1022)	+= p1022_serdes.o
+COBJS-$(CONFIG_P2010)	+= p2020_serdes.o
+COBJS-$(CONFIG_P2020)	+= p2020_serdes.o
+COBJS-$(CONFIG_PPC_P3041) += p3041_serdes.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_serdes.o
+COBJS-$(CONFIG_PPC_P5020) += p5020_serdes.o
 
 COBJS	= $(COBJS-y)
 COBJS	+= cpu.o
@@ -95,7 +115,7 @@ START	:= $(addprefix $(obj),$(START))
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

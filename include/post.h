@@ -57,8 +57,14 @@
 #define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
 
 #elif defined (CONFIG_MPC85xx)
-#include <asm/cpm_85xx.h>
-#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
+#include <asm/immap_85xx.h>
+#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PIC_OFFSET + \
+				offsetof(ccsr_pic_t, tfrr))
+
+#elif defined (CONFIG_MPC86xx)
+#include <asm/immap_86xx.h>
+#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC86xx_PIC_OFFSET + \
+				offsetof(ccsr_pic_t, tfrr))
 
 #elif defined (CONFIG_4xx)
 #define _POST_WORD_ADDR \
@@ -133,7 +139,7 @@ void post_output_backlog ( void );
 int post_run (char *name, int flags);
 int post_info (char *name);
 int post_log (char *format, ...);
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 void post_reloc (void);
 #endif
 unsigned long post_time_ms (unsigned long base);

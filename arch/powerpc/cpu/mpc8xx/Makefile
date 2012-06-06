@@ -25,10 +25,10 @@ include $(TOPDIR)/config.mk
 
 # CFLAGS += -DET_DEBUG
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(CPU).o
 
-START-y	+= start.o
-START-y	+= kgdb.o
+SSTART-y += start.o
+CSTART-y += traps.o
 COBJS-y	+= bedbug_860.o
 COBJS-y	+= commproc.o
 COBJS-y	+= cpu.o
@@ -42,19 +42,19 @@ COBJS-y	+= scc.o
 COBJS-y	+= serial.o
 COBJS-y	+= speed.o
 COBJS-y	+= spi.o
-COBJS-y	+= traps.o
 COBJS-y	+= upatch.o
 COBJS-y	+= video.o
+SOBJS-y	+= kgdb.o
 SOBJS-y	+= plprcr_write.o
 
-SRCS	:= $(START-y:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+SRCS	:= $(SSTART-y:.o=.S) $(CSTART-y:.o=.c) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
-START	:= $(addprefix $(obj),$(START-y))
+START	:= $(addprefix $(obj),$(SSTART-y) $(CSTART-y))
 
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(obj)kgdb.o
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

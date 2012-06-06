@@ -11,7 +11,6 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_CPU             bf527-0.0
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_PARA
 
 
@@ -155,7 +154,7 @@
 /*
  * Video Settings
  */
-#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+#ifdef CONFIG_BF527_EZKIT_REV_2_1
 # define CONFIG_LQ035Q1_SPI_BUS	0
 # define CONFIG_LQ035Q1_SPI_CS	7
 #endif

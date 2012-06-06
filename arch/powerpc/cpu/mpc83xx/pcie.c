@@ -30,13 +30,44 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define PCIE_MAX_BUSES 2
 
+static struct {
+	u32 base;
+	u32 size;
+} mpc83xx_pcie_cfg_space[] = {
+	{
+		.base = CONFIG_SYS_PCIE1_CFG_BASE,
+		.size = CONFIG_SYS_PCIE1_CFG_SIZE,
+	},
+#if defined(CONFIG_SYS_PCIE2_CFG_BASE) && defined(CONFIG_SYS_PCIE2_CFG_SIZE)
+	{
+		.base = CONFIG_SYS_PCIE2_CFG_BASE,
+		.size = CONFIG_SYS_PCIE2_CFG_SIZE,
+	},
+#endif
+};
+
 #ifdef CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES
+
+/* private structure for mpc83xx pcie hose */
+static struct mpc83xx_pcie_priv {
+	u8 index;
+} pcie_priv[PCIE_MAX_BUSES] = {
+	{
+		/* pcie controller 1 */
+		.index = 0,
+	},
+	{
+		/* pcie controller 2 */
+		.index = 1,
+	},
+};
 
 static int mpc83xx_pcie_remap_cfg(struct pci_controller *hose, pci_dev_t dev)
 {
 	int bus = PCI_BUS(dev) - hose->first_busno;
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-	pex83xx_t *pex = &immr->pciexp[bus];
+	struct mpc83xx_pcie_priv *pcie_priv = hose->priv_data;
+	pex83xx_t *pex = &immr->pciexp[pcie_priv->index];
 	struct pex_outbound_window *out_win = &pex->bridge.pex_outbound_win[0];
 	u8 devfn = PCI_DEV(dev) << 3 | PCI_FUNC(dev);
 	u32 dev_base = bus << 24 | devfn << 16;
@@ -124,10 +155,9 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	hose->first_busno = pci_last_busno() + 1;
 	hose->last_busno = 0xff;
 
-	if (bus == 0)
-		hose->cfg_addr = (unsigned int *)CONFIG_SYS_PCIE1_CFG_BASE;
-	else
-		hose->cfg_addr = (unsigned int *)CONFIG_SYS_PCIE2_CFG_BASE;
+	hose->cfg_addr = (unsigned int *)mpc83xx_pcie_cfg_space[bus].base;
+
+	hose->priv_data = &pcie_priv[bus];
 
 	pci_set_ops(hose,
 			pcie_read_config_byte,
@@ -182,30 +212,24 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
 		PEX_CSB_OBCTRL_CFGWE);
 
 	out_win = &pex->bridge.pex_outbound_win[0];
-	if (bus) {
-		out_le32(&out_win->ar, PEX_OWAR_EN | PEX_OWAR_TYPE_CFG |
-			CONFIG_SYS_PCIE2_CFG_SIZE);
-		out_le32(&out_win->bar, CONFIG_SYS_PCIE2_CFG_BASE);
-	} else {
-		out_le32(&out_win->ar, PEX_OWAR_EN | PEX_OWAR_TYPE_CFG |
-			CONFIG_SYS_PCIE1_CFG_SIZE);
-		out_le32(&out_win->bar, CONFIG_SYS_PCIE1_CFG_BASE);
-	}
+	out_le32(&out_win->ar, PEX_OWAR_EN | PEX_OWAR_TYPE_CFG |
+			mpc83xx_pcie_cfg_space[bus].size);
+	out_le32(&out_win->bar, mpc83xx_pcie_cfg_space[bus].base);
 	out_le32(&out_win->tarl, 0);
 	out_le32(&out_win->tarh, 0);
 
-	for (i = 0; i < 2; i++, reg++) {
+	for (i = 0; i < 2; i++) {
 		u32 ar;
 
-		if (reg->size == 0)
+		if (reg[i].size == 0)
 			break;
 
 		out_win = &pex->bridge.pex_outbound_win[i + 1];
-		out_le32(&out_win->bar, reg->phys_start);
-		out_le32(&out_win->tarl, reg->bus_start);
+		out_le32(&out_win->bar, reg[i].phys_start);
+		out_le32(&out_win->tarl, reg[i].bus_start);
 		out_le32(&out_win->tarh, 0);
-		ar = PEX_OWAR_EN | (reg->size & PEX_OWAR_SIZE);
-		if (reg->flags & PCI_REGION_IO)
+		ar = PEX_OWAR_EN | (reg[i].size & PEX_OWAR_SIZE);
+		if (reg[i].flags & PCI_REGION_IO)
 			ar |= PEX_OWAR_TYPE_IO;
 		else
 			ar |= PEX_OWAR_TYPE_MEM;
@@ -301,16 +325,21 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
  * The caller must have already set SCCR, SERDES and the PCIE_LAW BARs
  * must have been set to cover all of the requested regions.
  */
-void mpc83xx_pcie_init(int num_buses, struct pci_region **reg, int warmboot)
+void mpc83xx_pcie_init(int num_buses, struct pci_region **reg)
 {
 	int i;
 
 	/*
 	 * Release PCI RST Output signal.
 	 * Power on to RST high must be at least 100 ms as per PCI spec.
-	 * On warm boots only 1 ms is required.
+	 * On warm boots only 1 ms is required, but we play it safe.
 	 */
-	udelay(warmboot ? 1000 : 100000);
+	udelay(100000);
+
+	if (num_buses > ARRAY_SIZE(mpc83xx_pcie_cfg_space)) {
+		printf("Second PCIE host contoller not configured!\n");
+		num_buses = ARRAY_SIZE(mpc83xx_pcie_cfg_space);
+	}
 
 	for (i = 0; i < num_buses; i++)
 		mpc83xx_pcie_init_bus(i, reg[i]);

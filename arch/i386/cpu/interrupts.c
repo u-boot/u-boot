@@ -29,6 +29,8 @@
 
 #include <common.h>
 #include <asm/interrupt.h>
+#include <asm/io.h>
+#include <asm/processor-flags.h>
 
 #define DECLARE_INTERRUPT(x) \
 	".globl irq_"#x"\n" \
@@ -104,10 +106,11 @@ static inline unsigned long get_debugreg(int regno)
 	return val;
 }
 
-void dump_regs(struct pt_regs *regs)
+void dump_regs(struct irq_regs *regs)
 {
 	unsigned long cr0 = 0L, cr2 = 0L, cr3 = 0L, cr4 = 0L;
 	unsigned long d0, d1, d2, d3, d6, d7;
+	unsigned long sp;
 
 	printf("EIP: %04x:[<%08lx>] EFLAGS: %08lx\n",
 			(u16)regs->xcs, regs->eip, regs->eflags);
@@ -139,6 +142,20 @@ void dump_regs(struct pt_regs *regs)
 	d7 = get_debugreg(7);
 	printf("DR6: %08lx DR7: %08lx\n",
 			d6, d7);
+
+	printf("Stack:\n");
+	sp = regs->esp;
+
+	sp += 64;
+
+	while (sp > (regs->esp - 16)) {
+		if (sp == regs->esp)
+			printf("--->");
+		else
+			printf("    ");
+		printf("0x%8.8lx : 0x%8.8lx\n", sp, (ulong)readl(sp));
+		sp -= 4;
+	}
 }
 
 struct idt_entry {
@@ -221,11 +238,11 @@ int disable_interrupts(void)
 
 	asm volatile ("pushfl ; popl %0 ; cli\n" : "=g" (flags) : );
 
-	return (flags&0x200); /* IE flags is bit 9 */
+	return flags & X86_EFLAGS_IF; /* IE flags is bit 9 */
 }
 
 /* IRQ Low-Level Service Routine */
-__isr__ irq_llsr(struct pt_regs *regs)
+void irq_llsr(struct irq_regs *regs)
 {
 	/*
 	 * For detailed description of each exception, refer to:
@@ -234,7 +251,7 @@ __isr__ irq_llsr(struct pt_regs *regs)
 	 * Order Number: 253665-029US, November 2008
 	 * Table 6-1. Exceptions and Interrupts
 	 */
-	switch (regs->orig_eax) {
+	switch (regs->irq_id) {
 	case 0x00:
 		printf("Divide Error (Division by zero)\n");
 		dump_regs(regs);
@@ -340,7 +357,7 @@ __isr__ irq_llsr(struct pt_regs *regs)
 
 	default:
 		/* Hardware or User IRQ */
-		do_irq(regs->orig_eax);
+		do_irq(regs->irq_id);
 	}
 }
 
@@ -352,16 +369,29 @@ __isr__ irq_llsr(struct pt_regs *regs)
  *  Interrupt entries are now very small (a push and a jump) but they are
  *  now slower (all registers pushed on stack which provides complete
  *  crash dumps in the low level handlers
+ *
+ * Interrupt Entry Point:
+ *  - Interrupt has caused eflags, CS and EIP to be pushed
+ *  - Interrupt Vector Handler has pushed orig_eax
+ *  - pt_regs.esp needs to be adjusted by 40 bytes:
+ *      12 bytes pushed by CPU (EFLAGSF, CS, EIP)
+ *      4 bytes pushed by vector handler (irq_id)
+ *      24 bytes pushed before SP (SS, GS, FS, ES, DS, EAX)
+ *      NOTE: Only longs are pushed on/popped off the stack!
  */
 asm(".globl irq_common_entry\n" \
 	".hidden irq_common_entry\n" \
 	".type irq_common_entry, @function\n" \
 	"irq_common_entry:\n" \
 	"cld\n" \
+	"pushl %ss\n" \
 	"pushl %gs\n" \
 	"pushl %fs\n" \
 	"pushl %es\n" \
 	"pushl %ds\n" \
+	"pushl %eax\n" \
+	"movl  %esp, %eax\n" \
+	"addl  $40, %eax\n" \
 	"pushl %eax\n" \
 	"pushl %ebp\n" \
 	"pushl %edi\n" \
@@ -370,12 +400,7 @@ asm(".globl irq_common_entry\n" \
 	"pushl %ecx\n" \
 	"pushl %ebx\n" \
 	"mov   %esp, %eax\n" \
-	"pushl %ebp\n" \
-	"movl %esp,%ebp\n" \
-	"pushl %eax\n" \
 	"call irq_llsr\n" \
-	"popl %eax\n" \
-	"leave\n"\
 	"popl %ebx\n" \
 	"popl %ecx\n" \
 	"popl %edx\n" \
@@ -383,10 +408,12 @@ asm(".globl irq_common_entry\n" \
 	"popl %edi\n" \
 	"popl %ebp\n" \
 	"popl %eax\n" \
+	"popl %eax\n" \
 	"popl %ds\n" \
 	"popl %es\n" \
 	"popl %fs\n" \
 	"popl %gs\n" \
+	"popl %ss\n" \
 	"add  $4, %esp\n" \
 	"iret\n" \
 	DECLARE_INTERRUPT(0) \

@@ -43,6 +43,8 @@
 
 #define CONFIG_PCIPPC2		1	/* this is a PCIPPC2 board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1
 #define CONFIG_MISC_INIT_R	1
 
@@ -119,7 +121,7 @@
 
 #define CONFIG_SYS_RESET_ADDRESS   0xFFF00100
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_MONITOR_LEN	    (256 << 10) /* Reserve 256 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN	    (128 << 10) /* Reserve 128 kB for malloc()	*/
@@ -140,11 +142,10 @@
 
 /* Size in bytes reserved for initial data
  */
-#define CONFIG_SYS_GBL_DATA_SIZE    128
 
 #define CONFIG_SYS_INIT_RAM_ADDR     0x40000000
-#define CONFIG_SYS_INIT_RAM_END      0x8000
-#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE      0x8000
+#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET    CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_INIT_RAM_LOCK
@@ -239,14 +240,6 @@
 #define L2_INIT	  (L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
 		   L2CR_L2OH_5 | L2CR_L2CTL | L2CR_L2WT)
 #define L2_ENABLE (L2_INIT | L2CR_L2E)
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
 /*-----------------------------------------------------------------------
   RTC m48t59

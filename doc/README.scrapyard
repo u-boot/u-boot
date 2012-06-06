@@ -1,0 +1,32 @@
+Over time, support for more and more boards gets added to U-Boot -
+while other board support code dies a silent death caused by
+negligence in combination with ordinary bitrot.  Sometimes this goes
+by unnoticed, but often build errors will result.  If nobody cares any
+more to resolve such problems, then the code is really dead and will
+be removed from the U-Boot source tree.  The remainders rest in piece
+in the imperishable depths of the git history.  This document tries to
+maintain a list of such former fellows, so archeologists can check
+easily if here is something they might want to dig for...
+
+
+Board	Arch	CPU	removed	    Commit	last known maintainer/contact
+=============================================================================
+barco	powerpc	MPC8245	-	  2010-11-23	Marc Leeman <marc.leeman@barco.com>
+ERIC	powerpc	405GP	d9ba451	  2010-11-21	Swen Anderson <sand@peppercon.de>
+VoVPN-GW_100MHz	powerpc	MPC8260 26fe3d2 2010-10-24	Juergen Selent <j.selent@elmeg.de>
+NC650	powerpc	MPC852	333d86d   2010-10-19	Wolfgang Denk <wd@denx.de>
+CP850	powerpc	MPC852	333d86d   2010-10-19	Wolfgang Denk <wd@denx.de>
+logodl	ARM	PXA2xx	059e778   2010-10-18	August Hoeraendl <august.hoerandl@gmx.at>
+CCM	powerpc	MPC860	dff07e1   2010-10-06	Wolfgang Grandegger <wg@denx.de>
+PCU_E	powerpc	MPC860T	544d97e   2010-10-06	Wolfgang Denk <wd@denx.de>
+spieval	powerpc	MPC5200	69434e4   2010-09-19
+smmaco4	powerpc	MPC5200	9ddc3af   2010-09-19
+HMI10	powerpc	MPC823	77efe35   2010-09-19	Wolfgang Denk <wd@denx.de>
+GTH	powerpc	MPC860	0fe247b   2010-07-17	Thomas Lange <thomas@corelatus.se>
+AmigaOneG3SE		953b7e6   2010-06-23
+suzaku	microblaze	4f18060   2009-10-03	Yasushi Shoji <yashi@atmark-techno.com>
+XUPV2P	microblaze	8fab49e   2008-12-10	Michal Simek <monstr@monstr.eu>
+MVS1	powerpc	MPC823	306620b   2008-08-26	Andre Schwarz <andre.schwarz@matrix-vision.de>
+adsvix	ARM	PXA27x	7610db1   2008-07-30	Adrian Filipi <adrian.filipi@eurotech.com>
+R5200	ColdFire	48ead7a   2008-03-31	Zachary P. Landau <zachary.landau@labxtechnologies.com>
+CPCI440	powerpc	440GP	b568fd2   2007-12-27	Matthias Fuchs <matthias.fuchs@esd-electronics.com>

@@ -173,7 +173,7 @@ void pci_init_board(void)
 	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LBLAWAR_EN | LBLAWAR_1MB;
 
-	mpc83xx_pci_init(1, reg, 0);
+	mpc83xx_pci_init(1, reg);
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)

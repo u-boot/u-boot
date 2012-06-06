@@ -24,6 +24,12 @@
 TOOLSUBDIRS =
 
 #
+# Include this after HOSTOS HOSTARCH check
+# so that we can act intelligently.
+#
+include $(TOPDIR)/config.mk
+
+#
 # toolchains targeting win32 generate .exe files
 #
 ifneq (,$(findstring WIN32 ,$(shell $(HOSTCC) -E -dM -xc /dev/null)))
@@ -32,15 +38,10 @@ else
 SFX =
 endif
 
-#
-# Include this after HOSTOS HOSTARCH check
-# so that we can act intelligently.
-#
-include $(TOPDIR)/config.mk
-
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
 CONFIG_LCD_LOGO = y
+CONFIG_CMD_LOADS = y
 CONFIG_CMD_NET = y
 CONFIG_INCA_IP = y
 CONFIG_NETCONSOLE = y
@@ -115,6 +116,9 @@ endif
 ifeq ($(VENDOR),esd)
 LOGO_BMP= logos/esd.bmp
 endif
+ifeq ($(VENDOR),freescale)
+LOGO_BMP= logos/freescale.bmp
+endif
 ifeq ($(VENDOR),ronetix)
 LOGO_BMP= logos/ronetix.bmp
 endif
@@ -141,7 +145,8 @@ HOSTCPPFLAGS =	-idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include \
 	        -I $(SRCTREE)/lib/libfdt \
 		-I $(SRCTREE)/tools \
-		-DTEXT_BASE=$(TEXT_BASE) -DUSE_HOSTCC \
+		-DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
+		-DUSE_HOSTCC \
 		-D__KERNEL_STRICT_NAMES
 
 

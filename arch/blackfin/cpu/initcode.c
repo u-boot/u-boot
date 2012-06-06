@@ -391,7 +391,9 @@ program_clocks(ADI_BOOT_DATA *bs, bool put_into_srfs)
 
 		/* Always programming PLL_LOCKCNT avoids Anomaly 05000430 */
 		ADI_SYSCTRL_VALUES memory_settings;
-		uint32_t actions = SYSCTRL_WRITE | SYSCTRL_PLLCTL | SYSCTRL_PLLDIV | SYSCTRL_LOCKCNT;
+		uint32_t actions = SYSCTRL_WRITE | SYSCTRL_PLLCTL | SYSCTRL_LOCKCNT;
+		if (!ANOMALY_05000440)
+			actions |= SYSCTRL_PLLDIV;
 		if (CONFIG_HAS_VR) {
 			actions |= SYSCTRL_VRCTL;
 			if (CONFIG_VR_CTL_VAL & FREQ_MASK)
@@ -410,6 +412,8 @@ program_clocks(ADI_BOOT_DATA *bs, bool put_into_srfs)
 		serial_putc('e');
 		bfrom_SysControl(actions, &memory_settings, NULL);
 		serial_putc('f');
+		if (ANOMALY_05000440)
+			bfin_write_PLL_DIV(CONFIG_PLL_DIV_VAL);
 #if ANOMALY_05000432
 		bfin_write_SIC_IWR1(-1);
 #endif

@@ -29,6 +29,8 @@
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <search.h>
+#include <errno.h>
 
 /* references to names in env_common.c */
 extern uchar default_environment[];
@@ -96,13 +98,23 @@ inline int write_env(struct mmc *mmc, unsigned long size,
 
 int saveenv(void)
 {
+	env_t	env_new;
+	ssize_t	len;
+	char	*res;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 
 	if (init_mmc_for_env(mmc))
 		return 1;
 
+	res = (char *)&env_new.data;
+	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE);
+	if (len < 0) {
+		error("Cannot export environment: errno = %d\n", errno);
+		return 1;
+	}
+	env_new.crc   = crc32(0, env_new.data, ENV_SIZE);
 	printf("Writing to MMC(%d)... ", CONFIG_SYS_MMC_ENV_DEV);
-	if (write_env(mmc, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, env_ptr)) {
+	if (write_env(mmc, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, (u_char *)&env_new)) {
 		puts("failed\n");
 		return 1;
 	}
@@ -129,25 +141,27 @@ inline int read_env(struct mmc *mmc, unsigned long size,
 void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
+       char buf[CONFIG_ENV_SIZE];
+
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 
-	if (init_mmc_for_env(mmc))
+	if (init_mmc_for_env(mmc)) {
+		use_default();
 		return;
+	}
 
-	if (read_env(mmc, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, env_ptr))
-		return use_default();
+	if (read_env(mmc, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, buf)) {
+		use_default();
+		return;
+	}
 
-	if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc)
-		return use_default();
-
-	gd->env_valid = 1;
+	env_import(buf, 1);
 #endif
 }
 
 #if !defined(ENV_IS_EMBEDDED)
 static void use_default()
 {
-	puts ("*** Warning - bad CRC or MMC, using default environment\n\n");
-	set_default_env();
+	set_default_env(NULL);
 }
 #endif

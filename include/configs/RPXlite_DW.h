@@ -51,6 +51,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823e CPU. */
 #define CONFIG_RPXLITE		1	/* RPXlite DW version board */
 
+#define	CONFIG_SYS_TEXT_BASE	0xff000000
+
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
 #define CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 #endif
@@ -192,9 +194,8 @@
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x2F00		/* End of used area in DPRAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	64		/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2F00		/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
@@ -413,14 +414,6 @@
 #define CONFIG_SYS_MAMR_9COL  ((CONFIG_SYS_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE | \
 			MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10)
 /* CONFIG_SYS_MAMR_9COL:0x20904000 @ 64MHz */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% */
 /* Configuration variable added by yooth. */

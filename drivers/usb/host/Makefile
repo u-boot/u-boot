@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libusb_host.a
+LIB	:= $(obj)libusb_host.o
 
 # ohci
 COBJS-$(CONFIG_USB_OHCI_NEW) += ohci-hcd.o
@@ -35,7 +35,12 @@ COBJS-$(CONFIG_USB_SL811HS) += sl811-hcd.o
 
 # echi
 COBJS-$(CONFIG_USB_EHCI) += ehci-hcd.o
+ifdef CONFIG_MPC512X
+COBJS-$(CONFIG_USB_EHCI_FSL) += ehci-mpc512x.o
+else
 COBJS-$(CONFIG_USB_EHCI_FSL) += ehci-fsl.o
+endif
+COBJS-$(CONFIG_USB_EHCI_MXC) += ehci-mxc.o
 COBJS-$(CONFIG_USB_EHCI_PPC4XX) += ehci-ppc4xx.o
 COBJS-$(CONFIG_USB_EHCI_IXP4XX) += ehci-ixp.o
 COBJS-$(CONFIG_USB_EHCI_KIRKWOOD) += ehci-kirkwood.o
@@ -49,7 +54,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

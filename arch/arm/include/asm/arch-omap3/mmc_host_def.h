@@ -102,12 +102,14 @@ typedef struct hsmmc {
 #define NBLK_STPCNT			(0x0 << 16)
 #define DE_DISABLE			(0x0 << 0)
 #define BCE_DISABLE			(0x0 << 1)
+#define BCE_ENABLE			(0x1 << 1)
 #define ACEN_DISABLE			(0x0 << 2)
 #define DDIR_OFFSET			(4)
 #define DDIR_MASK			(0x1 << 4)
 #define DDIR_WRITE			(0x0 << 4)
 #define DDIR_READ			(0x1 << 4)
 #define MSBS_SGLEBLK			(0x0 << 5)
+#define MSBS_MULTIBLK			(0x1 << 5)
 #define RSP_TYPE_OFFSET			(16)
 #define RSP_TYPE_MASK			(0x3 << 16)
 #define RSP_TYPE_NORSP			(0x0 << 16)
@@ -130,6 +132,7 @@ typedef struct hsmmc {
 #define DATI_CMDDIS			(0x1 << 1)
 #define DTW_1_BITMODE			(0x0 << 1)
 #define DTW_4_BITMODE			(0x1 << 1)
+#define DTW_8_BITMODE                   (0x1 << 5) /* CON[DW8]*/
 #define SDBP_PWROFF			(0x0 << 8)
 #define SDBP_PWRON			(0x1 << 8)
 #define SDVS_1V8			(0x5 << 9)
@@ -186,8 +189,15 @@ typedef struct {
 	unsigned int size;
 	unsigned int RCA;
 } mmc_card_data;
+#define RSP_TYPE_NONE	(RSP_TYPE_NORSP   | CCCE_NOCHECK | CICE_NOCHECK)
+#define MMC_CMD0	(INDEX(0)  | RSP_TYPE_NONE | DP_NO_DATA | DDIR_WRITE)
+
+/* Clock Configurations and Macros */
+#define MMC_CLOCK_REFERENCE	96 /* MHz */
 
 #define mmc_reg_out(addr, mask, val)\
 	writel((readl(addr) & (~(mask))) | ((val) & (mask)), (addr))
+
+int omap_mmc_init(int dev_index);
 
 #endif /* MMC_HOST_DEF_H */

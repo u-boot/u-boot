@@ -66,5 +66,5 @@ SECTIONS
 		*(.bss.*)
 	}
 	. = ALIGN(8);
-	_end = .;
+	__bss_end__ = .;
 }

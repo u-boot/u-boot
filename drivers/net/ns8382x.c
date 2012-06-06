@@ -340,6 +340,11 @@ ns8382x_initialize(bd_t * bis)
 		}
 
 		dev = (struct eth_device *) malloc(sizeof *dev);
+		if (!dev) {
+			printf("ns8382x: Can not allocate memory\n");
+			break;
+		}
+		memset(dev, 0, sizeof(*dev));
 
 		sprintf(dev->name, "dp8382x#%d", card_number);
 		dev->iobase = bus_to_phys(iobase);

@@ -33,10 +33,12 @@
 #define CONFIG_SYS_VIRTEX_E			CONFIG_SYS_FPGA_DEV( 0x2 )
 #define CONFIG_SYS_VIRTEX2			CONFIG_SYS_FPGA_DEV( 0x4 )
 #define CONFIG_SYS_SPARTAN3			CONFIG_SYS_FPGA_DEV( 0x8 )
+#define CONFIG_SYS_ZYNQ				CONFIG_SYS_FPGA_DEV(0x10)
 #define CONFIG_SYS_XILINX_SPARTAN2	(CONFIG_SYS_FPGA_XILINX | CONFIG_SYS_SPARTAN2)
 #define CONFIG_SYS_XILINX_VIRTEX_E	(CONFIG_SYS_FPGA_XILINX | CONFIG_SYS_VIRTEX_E)
 #define CONFIG_SYS_XILINX_VIRTEX2	(CONFIG_SYS_FPGA_XILINX | CONFIG_SYS_VIRTEX2)
 #define CONFIG_SYS_XILINX_SPARTAN3	(CONFIG_SYS_FPGA_XILINX | CONFIG_SYS_SPARTAN3)
+#define CONFIG_SYS_XILINX_ZYNQ	(CONFIG_SYS_FPGA_XILINX | CONFIG_SYS_ZYNQ)
 /* XXX - Add new models here */
 
 
@@ -59,6 +61,7 @@ typedef enum {			/* typedef Xilinx_iface */
 	jtag_mode,		/* jtag/tap serial (not used ) */
 	master_selectmap,	/* master SelectMap (virtex2)           */
 	slave_selectmap,	/* slave SelectMap (virtex2)            */
+	devcfg,			/* devcfg interface (zynq) */
 	max_xilinx_iface_type	/* insert all new types before this */
 } Xilinx_iface;			/* end, typedef Xilinx_iface */
 
@@ -68,6 +71,7 @@ typedef enum {			/* typedef Xilinx_Family */
 	Xilinx_VirtexE,		/* Virtex-E Family */
 	Xilinx_Virtex2,		/* Virtex2 Family */
 	Xilinx_Spartan3,	/* Spartan-III Family */
+	Xilinx_Zynq,		/* Zynq Family */
 	max_xilinx_type		/* insert all new types before this */
 } Xilinx_Family;		/* end, typedef Xilinx_Family */
 

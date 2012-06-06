@@ -41,9 +41,18 @@ High Level Configuration Options
 #define CONFIG_MPC5200_DDR	1	/* (with DDR-SDRAM) */
 #define CONFIG_PHYCORE_MPC5200B_TINY 1	/* phyCORE-MPC5200B -> */
 					/* FEC configuration and IDE */
+
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFFF00000	boot high (standard configuration)
+ * 0xFF000000	boot low
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN 33333333 /* ... running at 33.333333MHz */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 /*-----------------------------------------------------------------------------
 Serial console configuration
@@ -71,7 +80,7 @@ Serial console configuration
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
-#if (TEXT_BASE == 0xFF000000)	/* Boot low */
+#if (CONFIG_SYS_TEXT_BASE == 0xFF000000)	/* Boot low */
 #define CONFIG_SYS_LOWBOOT 1
 #endif
 /* RAMBOOT will be defined automatically in memory section */
@@ -214,15 +223,14 @@ RTC configuration
 #define CONFIG_SYS_DEFAULT_MBAR		0x80000000
 /* Use SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CONFIG_SYS_INIT_RAM_END		MPC5XXX_SRAM_SIZE	/* End of used */
+#define CONFIG_SYS_INIT_RAM_SIZE	MPC5XXX_SRAM_SIZE	/* Size of used */
 								/* area in DPRAM */
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes */
 						/* reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - \
-						CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+						GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #	define CONFIG_SYS_RAMBOOT		1
 #endif

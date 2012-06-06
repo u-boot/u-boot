@@ -20,7 +20,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <asm/io.h>
 #include <asm/4xx_pci.h>
 
@@ -327,7 +327,7 @@ int board_with_pci(void)
 	u32 reg;
 
 	mfsdr(SDR0_PCI0, reg);
-	return (reg & SDR0_XCR_PAE_MASK);
+	return (reg & SDR0_PCI0_PAE_MASK);
 }
 
 /*
@@ -352,28 +352,28 @@ int pci_pre_init(struct pci_controller *hose)
 	 * Set priority for all PLB3 devices to 0.
 	 * Set PLB3 arbiter to fair mode.
 	 */
-	mfsdr(SD0_AMP1, addr);
-	mtsdr(SD0_AMP1, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(PLB3_ACR);
-	mtdcr(PLB3_ACR, addr | 0x80000000); /* Sequoia */
+	mfsdr(SDR0_AMP1, addr);
+	mtsdr(SDR0_AMP1, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB3A0_ACR);
+	mtdcr(PLB3A0_ACR, addr | 0x80000000); /* Sequoia */
 
 	/*
 	 * Set priority for all PLB4 devices to 0.
 	 */
-	mfsdr(SD0_AMP0, addr);
-	mtsdr(SD0_AMP0, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(PLB4_ACR) | 0xa0000000;	/* Was 0x8---- */
-	mtdcr(PLB4_ACR, addr);  /* Sequoia */
+	mfsdr(SDR0_AMP0, addr);
+	mtsdr(SDR0_AMP0, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB4A0_ACR) | 0xa0000000;	/* Was 0x8---- */
+	mtdcr(PLB4A0_ACR, addr);  /* Sequoia */
 
 	/*
 	 * As of errata version 0.4, CHIP_8: Incorrect Write to DDR SDRAM.
 	 * Workaround: Disable write pipelining to DDR SDRAM by setting
-	 * PLB0_ACR[WRP] = 0.
+	 * PLB4A0_ACR[WRP] = 0.
 	 */
-	mtdcr(PLB0_ACR, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
+	mtdcr(PLB4A0_ACR, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
 
 	/* Segment1 */
-	mtdcr(PLB1_ACR, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
+	mtdcr(PLB4A1_ACR, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
 
 	return board_with_pci();
 }

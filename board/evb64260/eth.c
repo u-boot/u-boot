@@ -422,24 +422,24 @@ gt6426x_dump_mii(bd_t *bis, unsigned short phy)
 static void
 check_phy_state(struct eth_dev_s *p)
 {
-	int bmsr = miiphy_read_ret(ether_port_phy_addr[p->dev], PHY_BMSR);
+	int bmsr = miiphy_read_ret(ether_port_phy_addr[p->dev], MII_BMSR);
 	int psr = GTREGREAD(ETHERNET0_PORT_STATUS_REGISTER + p->reg_base);
 
-	if ((psr & 1<<3) && (bmsr & PHY_BMSR_LS)) {
-		int nego = miiphy_read_ret(ether_port_phy_addr[p->dev], PHY_ANAR) &
-				miiphy_read_ret(ether_port_phy_addr[p->dev], PHY_ANLPAR);
+	if ((psr & 1<<3) && (bmsr & BMSR_LSTATUS)) {
+		int nego = miiphy_read_ret(ether_port_phy_addr[p->dev], MII_ADVERTISE) &
+				miiphy_read_ret(ether_port_phy_addr[p->dev], MII_LPA);
 		int want;
 
-		if (nego & PHY_ANLPAR_TXFD) {
+		if (nego & LPA_100FULL) {
 			want = 0x3;
 			printf("MII: 100Base-TX, Full Duplex\n");
-		} else if (nego & PHY_ANLPAR_TX) {
+		} else if (nego & LPA_100HALF) {
 			want = 0x1;
 			printf("MII: 100Base-TX, Half Duplex\n");
-		} else if (nego & PHY_ANLPAR_10FD) {
+		} else if (nego & LPA_10FULL) {
 			want = 0x2;
 			printf("MII: 10Base-T, Full Duplex\n");
-		} else if (nego & PHY_ANLPAR_10) {
+		} else if (nego & LPA_10HALF) {
 			want = 0x0;
 			printf("MII: 10Base-T, Half Duplex\n");
 		} else {

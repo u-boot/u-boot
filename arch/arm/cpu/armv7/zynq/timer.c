@@ -1,0 +1,174 @@
+/*
+ * (C) Copyright 2003
+ * Texas Instruments <www.ti.com>
+ *
+ * (C) Copyright 2002
+ * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
+ * Marius Groeger <mgroeger@sysgo.de>
+ *
+ * (C) Copyright 2002
+ * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
+ * Alex Zuepke <azu@sysgo.de>
+ *
+ * (C) Copyright 2002-2004
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ *
+ * (C) Copyright 2004
+ * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>
+ *
+ * (C) Copyright 2008
+ * Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+#include <common.h>
+#include <asm/proc/ptrace.h>
+#include <asm/arch/xparameters.h>
+#include <div64.h>
+
+#include "xscutimer_hw.h"
+
+#define TIMER_LOAD_VAL 0xFFFFFFFF
+
+/* Internal tick units */
+/* Last decremneter snapshot */
+static unsigned long lastdec;
+/* Monotonic incrementing timer */
+static unsigned long long timestamp;
+
+static void XScuTimer_WriteReg (u32 Reg, u32 Data)
+{
+	*(volatile u32 *) (XPAR_SCUTIMER_BASEADDR + Reg) = Data;
+}
+
+static u32 XScuTimer_ReadReg (u32 Reg)
+{
+	return *(u32 *) (XPAR_SCUTIMER_BASEADDR + Reg);
+}
+
+#define XScuTimer_GetCounterValue()                          \
+        XScuTimer_ReadReg(XSCUTIMER_COUNTER_OFFSET)
+
+
+int timer_init()
+{
+	u32 val;
+
+	/*
+	 * Load the timer counter register.
+	 */
+	XScuTimer_WriteReg(XSCUTIMER_LOAD_OFFSET, 0xFFFFFFFF);
+
+	/*
+	 * Start the A9Timer device.
+	 */
+	val = XScuTimer_ReadReg(XSCUTIMER_CONTROL_OFFSET);
+	/* Enable Auto reload mode.  */
+	val |= XSCUTIMER_CONTROL_AUTO_RELOAD_MASK;
+	/* Clear prescaler control bits */
+	val &= ~XSCUTIMER_CONTROL_PRESCALER_MASK;
+	/* Set prescaler value */
+	val |= (CONFIG_TIMER_PRESCALE << XSCUTIMER_CONTROL_PRESCALER_SHIFT);
+	/* Enable the decrementer */
+	val |= XSCUTIMER_CONTROL_ENABLE_MASK;
+	XScuTimer_WriteReg(XSCUTIMER_CONTROL_OFFSET, val);
+
+	/* This must not be called before relocation */
+	/*reset_timer_masked();*/
+
+	return 0;
+}
+
+/*
+ * timer without interrupts
+ */
+
+/*
+ * This function is derived from PowerPC code (read timebase as long long).
+ * On ARM it just returns the timer value.
+ */
+unsigned long long get_ticks(void)
+{
+	ulong now;
+
+	now = XScuTimer_GetCounterValue() /  (TIMER_TICK_HZ/CONFIG_SYS_HZ);
+
+	if (lastdec >= now) {
+		/* normal mode */
+		timestamp += lastdec - now;
+	} else {
+		/* we have an overflow ... */
+		timestamp += lastdec + TIMER_LOAD_VAL - now;
+	}
+	lastdec = now;
+
+	return timestamp;
+}
+
+/*
+ * This function is derived from PowerPC code (timebase clock frequency).
+ * On ARM it returns the number of timer ticks per second.
+ */
+ulong get_tbclk(void)
+{
+	return (ulong)CONFIG_SYS_HZ;
+}
+
+void reset_timer_masked(void)
+{
+	/* reset time */
+	lastdec = XScuTimer_GetCounterValue() / (TIMER_TICK_HZ/CONFIG_SYS_HZ);
+	timestamp = 0;
+}
+
+void reset_timer(void)
+{
+	reset_timer_masked();
+}
+
+ulong get_timer_masked(void)
+{
+	unsigned long long res = get_ticks();
+	return res;
+}
+
+ulong get_timer(ulong base)
+{
+	return get_timer_masked() - base;
+}
+
+void set_timer(ulong t)
+{
+	timestamp = t;
+}
+
+void __udelay(unsigned long usec)
+{
+	unsigned long long tmp;
+	ulong tmo;
+
+	tmo = usec / (1000000 / CONFIG_SYS_HZ);
+	tmp = get_ticks() + tmo;	/* get current timestamp */
+
+	while (get_ticks() < tmp) { /* loop till event */ 
+		 /*NOP*/;
+	}
+}
+

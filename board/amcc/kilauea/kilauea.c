@@ -22,8 +22,8 @@
  */
 
 #include <common.h>
-#include <ppc4xx.h>
-#include <ppc405.h>
+#include <asm/ppc4xx.h>
+#include <asm/ppc405.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/processor.h>

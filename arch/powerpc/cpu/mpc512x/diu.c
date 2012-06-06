@@ -27,22 +27,9 @@
 #include <command.h>
 #include <asm/io.h>
 
-#include "../../../../board/freescale/common/fsl_diu_fb.h"
-
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-#include <stdio_dev.h>
-#include <video_fb.h>
-#endif
+#include <fsl_diu_fb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#ifdef CONFIG_FSL_DIU_LOGO_BMP
-extern unsigned int FSL_Logo_BMP[];
-#else
-#define FSL_Logo_BMP NULL
-#endif
-
-static int xres, yres;
 
 void diu_set_pixel_clock(unsigned int pixclock)
 {
@@ -64,117 +51,20 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", in_be32(clkdvdr));
 }
 
-char *valid_bmp(char *addr)
-{
-	unsigned long h_addr;
-	bd_t *bd = gd->bd;
-
-	h_addr = simple_strtoul(addr, NULL, 16);
-	if (h_addr < bd->bi_flashstart ||
-	    h_addr >= (bd->bi_flashstart + bd->bi_flashsize - 1)) {
-		printf("bmp addr %lx is not a valid flash address\n", h_addr);
-		return 0;
-	} else if ((*(char *)(h_addr) != 'B') || (*(char *)(h_addr+1) != 'M')) {
-		printf("bmp addr is not a bmp\n");
-		return 0;
-	} else
-		return (char *)h_addr;
-}
-
-int mpc5121_diu_init(void)
+int platform_diu_init(unsigned int *xres, unsigned int *yres)
 {
 	unsigned int pixel_format;
-	char *bmp = NULL;
-	char *bmp_env;
 
 #if defined(CONFIG_VIDEO_XRES) & defined(CONFIG_VIDEO_YRES)
-	xres = CONFIG_VIDEO_XRES;
-	yres = CONFIG_VIDEO_YRES;
+	*xres = CONFIG_VIDEO_XRES;
+	*yres = CONFIG_VIDEO_YRES;
 #else
-	xres = 1024;
-	yres = 768;
+	*xres = 1024;
+	*yres = 768;
 #endif
 	pixel_format = 0x88883316;
 
 	debug("mpc5121_diu_init\n");
-	bmp_env = getenv("diu_bmp_addr");
-	if (bmp_env) {
-		bmp = valid_bmp(bmp_env);
-	}
-	if (!bmp)
-		bmp = (char *)FSL_Logo_BMP;
-	return fsl_diu_init(xres, pixel_format, 0, (unsigned char *)bmp);
+
+	return fsl_diu_init(*xres, pixel_format, 0);
 }
-
-int mpc5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
-			     int flag, int argc, char * const argv[])
-{
-	unsigned int addr;
-
-	if (argc < 2)
-		return cmd_usage(cmdtp);
-
-	if (!strncmp(argv[1], "init", 4)) {
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-		fsl_diu_clear_screen();
-		drv_video_init();
-#else
-		return mpc5121_diu_init();
-#endif
-	} else {
-		addr = simple_strtoul(argv[1], NULL, 16);
-		fsl_diu_clear_screen();
-		fsl_diu_display_bmp((unsigned char *)addr, 0, 0, 0);
-	}
-
-	return 0;
-}
-
-U_BOOT_CMD(
-	diufb, CONFIG_SYS_MAXARGS, 1, mpc5121diu_init_show_bmp,
-	"Init or Display BMP file",
-	"init\n    - initialize DIU\n"
-	"addr\n    - display bmp at address 'addr'"
-	);
-
-
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-
-/*
- * The Graphic Device
- */
-GraphicDevice ctfb;
-void *video_hw_init(void)
-{
-	GraphicDevice *pGD = (GraphicDevice *) &ctfb;
-	struct fb_info *info;
-
-	if (mpc5121_diu_init() < 0)
-		return NULL;
-
-	/* fill in Graphic device struct */
-	sprintf(pGD->modeIdent, "%dx%dx%d %dkHz %dHz",
-		xres, yres, 32, 64, 60);
-
-	pGD->frameAdrs = (unsigned int)fsl_fb_open(&info);
-	pGD->winSizeX = xres;
-	pGD->winSizeY = yres - info->logo_height;
-	pGD->plnSizeX = pGD->winSizeX;
-	pGD->plnSizeY = pGD->winSizeY;
-
-	pGD->gdfBytesPP = 4;
-	pGD->gdfIndex = GDF_32BIT_X888RGB;
-
-	pGD->isaBase = 0;
-	pGD->pciBase = 0;
-	pGD->memSize = info->screen_size - info->logo_size;
-
-	/* Cursor Start Address */
-	pGD->dprBase = 0;
-	pGD->vprBase = 0;
-	pGD->cprBase = 0;
-
-	return (void *)pGD;
-}
-
-#endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */

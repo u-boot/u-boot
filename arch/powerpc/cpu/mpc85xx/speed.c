@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao, (X.Xiao@motorola.com)
@@ -131,7 +131,9 @@ void get_sys_info (sys_info_t * sysInfo)
 
 #else
 	uint plat_ratio,e500_ratio,half_freqSystemBus;
+#if defined(CONFIG_FSL_LBC)
 	uint lcrr_div;
+#endif
 	int i;
 #ifdef CONFIG_QE
 	u32 qe_ratio;
@@ -168,6 +170,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->freqQE = qe_ratio * CONFIG_SYS_CLK_FREQ;
 #endif
 
+#if defined(CONFIG_FSL_LBC)
 #if defined(CONFIG_SYS_LBC_LCRR)
 	/* We will program LCRR to this value later */
 	lcrr_div = CONFIG_SYS_LBC_LCRR & LCRR_CLKDIV;
@@ -193,6 +196,7 @@ void get_sys_info (sys_info_t * sysInfo)
 		/* In case anyone cares what the unknown value is */
 		sysInfo->freqLocalBus = lcrr_div;
 	}
+#endif
 }
 
 

@@ -481,7 +481,8 @@ static int nand_davinci_4bit_correct_data(struct mtd_info *mtd, uint8_t *dat,
 	 * Set the addr_calc_st bit(bit no 13) in the NAND Flash Control
 	 * register to 1.
 	 */
-	__raw_writel(1 << 13, &davinci_emif_regs->nandfcr);
+	__raw_writel(DAVINCI_NANDFCR_4BIT_CALC_START,
+			&davinci_emif_regs->nandfcr);
 
 	/*
 	 * Wait for the corr_state field (bits 8 to 11) in the

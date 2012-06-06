@@ -31,6 +31,10 @@
 #define CONFIG_440		1
 #define CONFIG_4xx		1	/* ... PPC4xx family */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFFA0000
+#endif
+
 #define CONFIG_HOSTNAME		t3corp
 
 /*
@@ -86,24 +90,22 @@
 
 #define CONFIG_SYS_OCM_BASE		0xE7000000	/* OCM: 64k */
 #define CONFIG_SYS_SRAM_BASE		0xE8000000	/* SRAM: 256k */
+#define CONFIG_SYS_SRAM_SIZE		(256 << 10)
 #define CONFIG_SYS_LOCAL_CONF_REGS	0xEF000000
-
-#define CONFIG_SYS_PERIPHERAL_BASE	0xEF600000	/* internal periph. */
 
 /*
  * Initial RAM & stack pointer (placed in OCM)
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_BASE	/* OCM */
-#define CONFIG_SYS_INIT_RAM_END	(4 << 10)
-#define CONFIG_SYS_GBL_DATA_SIZE	256	/* num bytes initial data */
+#define CONFIG_SYS_INIT_RAM_SIZE	(4 << 10)
 #define CONFIG_SYS_GBL_DATA_OFFSET \
-	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Serial Port
  */
-#undef CONFIG_UART1_CONSOLE	/* define this if you want console on UART1 */
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 
 /*
  * Environment
@@ -118,11 +120,16 @@
  */
 #define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
-#define CONFIG_SYS_FLASH_CFI_AMD_RESET	1	/* Use AMD reset cmd */
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
 #define CONFIG_SYS_CFI_FLASH_STATUS_POLL /* use status poll method	*/
+#define CONFIG_SYS_FLASH_PROTECTION	/* use hardware flash protection */
 
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks */
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE, \
+			(CONFIG_SYS_FPGA1_BASE + 0x01000000) }
+#define CONFIG_SYS_CFI_FLASH_CONFIG_REGS { 0xffff,	/* don't set	*/ \
+			0xbddf }		/* set async read mode	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max num of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* max num of sectors p. chip*/
 
 #define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase/ms*/
@@ -353,6 +360,7 @@
 	"ramdisk_addr=fc200000\0"					\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP\0"						\
+	"unlock=yes\0"							\
 	""
 
 /*
@@ -421,7 +429,7 @@
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
-				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_RE_ENABLED		|	\
 				 EBC_BXAP_SOR_DELAYED		|	\
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)
@@ -438,7 +446,7 @@
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
-				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_RE_ENABLED		|	\
 				 EBC_BXAP_SOR_DELAYED		|	\
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)
@@ -455,7 +463,7 @@
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
-				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_RE_ENABLED		|	\
 				 EBC_BXAP_SOR_DELAYED		|	\
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)

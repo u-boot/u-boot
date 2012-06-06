@@ -22,11 +22,9 @@
 #
 
 #
-# CU824 board
+# BMW board
 #
 
-TEXT_BASE = 0xFFF00000
 # NOTE: The flags below affect how the BCM570x driver is compiled
 PLATFORM_CPPFLAGS += -DEMBEDDED -DBIG_ENDIAN_HOST -DINCLUDE_5701_AX_FIX=1\
-		     -DDBG=0 -DT3_JUMBO_RCV_RCB_ENTRY_COUNT=256\
-		     -DTEXT_BASE=$(TEXT_BASE)
+		     -DDBG=0 -DT3_JUMBO_RCV_RCB_ENTRY_COUNT=256

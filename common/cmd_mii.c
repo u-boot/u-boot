@@ -34,13 +34,13 @@ typedef struct _MII_reg_desc_t {
 	char * name;
 } MII_reg_desc_t;
 
-MII_reg_desc_t reg_0_5_desc_tbl[] = {
-	{ 0,   "PHY control register"                },
-	{ 1,   "PHY status register"                 },
-	{ 2,   "PHY ID 1 register"                   },
-	{ 3,   "PHY ID 2 register"                   },
-	{ 4,   "Autonegotiation advertisement register" },
-	{ 5,   "Autonegotiation partner abilities register" },
+static const MII_reg_desc_t reg_0_5_desc_tbl[] = {
+	{ MII_BMCR,      "PHY control register" },
+	{ MII_BMSR,      "PHY status register" },
+	{ MII_PHYSID1,   "PHY ID 1 register" },
+	{ MII_PHYSID2,   "PHY ID 2 register" },
+	{ MII_ADVERTISE, "Autonegotiation advertisement register" },
+	{ MII_LPA,       "Autonegotiation partner abilities register" },
 };
 
 typedef struct _MII_field_desc_t {
@@ -50,7 +50,7 @@ typedef struct _MII_field_desc_t {
 	char * name;
 } MII_field_desc_t;
 
-MII_field_desc_t reg_0_desc_tbl[] = {
+static const MII_field_desc_t reg_0_desc_tbl[] = {
 	{ 15, 15, 0x01, "reset"                        },
 	{ 14, 14, 0x01, "loopback"                     },
 	{ 13,  6, 0x81, "speed selection"              }, /* special */
@@ -63,7 +63,7 @@ MII_field_desc_t reg_0_desc_tbl[] = {
 	{  5,  0, 0x3f, "(reserved)"                   }
 };
 
-MII_field_desc_t reg_1_desc_tbl[] = {
+static const MII_field_desc_t reg_1_desc_tbl[] = {
 	{ 15, 15, 0x01, "100BASE-T4 able"              },
 	{ 14, 14, 0x01, "100BASE-X  full duplex able"  },
 	{ 13, 13, 0x01, "100BASE-X  half duplex able"  },
@@ -82,17 +82,17 @@ MII_field_desc_t reg_1_desc_tbl[] = {
 	{  0,  0, 0x01, "extended capabilities"        },
 };
 
-MII_field_desc_t reg_2_desc_tbl[] = {
+static const MII_field_desc_t reg_2_desc_tbl[] = {
 	{ 15,  0, 0xffff, "OUI portion"                },
 };
 
-MII_field_desc_t reg_3_desc_tbl[] = {
+static const MII_field_desc_t reg_3_desc_tbl[] = {
 	{ 15, 10, 0x3f, "OUI portion"                },
 	{  9,  4, 0x3f, "manufacturer part number"   },
 	{  3,  0, 0x0f, "manufacturer rev. number"   },
 };
 
-MII_field_desc_t reg_4_desc_tbl[] = {
+static const MII_field_desc_t reg_4_desc_tbl[] = {
 	{ 15, 15, 0x01, "next page able"               },
 	{ 14, 14, 0x01, "reserved"                     },
 	{ 13, 13, 0x01, "remote fault"                 },
@@ -107,7 +107,7 @@ MII_field_desc_t reg_4_desc_tbl[] = {
 	{  4,  0, 0x1f, "xxx to do"                    },
 };
 
-MII_field_desc_t reg_5_desc_tbl[] = {
+static const MII_field_desc_t reg_5_desc_tbl[] = {
 	{ 15, 15, 0x01, "next page able"               },
 	{ 14, 14, 0x01, "acknowledge"                  },
 	{ 13, 13, 0x01, "remote fault"                 },
@@ -121,39 +121,31 @@ MII_field_desc_t reg_5_desc_tbl[] = {
 	{  5,  5, 0x01, "10BASE-T able"                },
 	{  4,  0, 0x1f, "xxx to do"                    },
 };
-
-#define DESC0LEN (sizeof(reg_0_desc_tbl)/sizeof(reg_0_desc_tbl[0]))
-#define DESC1LEN (sizeof(reg_1_desc_tbl)/sizeof(reg_1_desc_tbl[0]))
-#define DESC2LEN (sizeof(reg_2_desc_tbl)/sizeof(reg_2_desc_tbl[0]))
-#define DESC3LEN (sizeof(reg_3_desc_tbl)/sizeof(reg_3_desc_tbl[0]))
-#define DESC4LEN (sizeof(reg_4_desc_tbl)/sizeof(reg_4_desc_tbl[0]))
-#define DESC5LEN (sizeof(reg_5_desc_tbl)/sizeof(reg_5_desc_tbl[0]))
-
 typedef struct _MII_field_desc_and_len_t {
-	MII_field_desc_t * pdesc;
+	const MII_field_desc_t *pdesc;
 	ushort len;
 } MII_field_desc_and_len_t;
 
-MII_field_desc_and_len_t desc_and_len_tbl[] = {
-	{ reg_0_desc_tbl, DESC0LEN },
-	{ reg_1_desc_tbl, DESC1LEN },
-	{ reg_2_desc_tbl, DESC2LEN },
-	{ reg_3_desc_tbl, DESC3LEN },
-	{ reg_4_desc_tbl, DESC4LEN },
-	{ reg_5_desc_tbl, DESC5LEN },
+static const MII_field_desc_and_len_t desc_and_len_tbl[] = {
+	{ reg_0_desc_tbl, ARRAY_SIZE(reg_0_desc_tbl)   },
+	{ reg_1_desc_tbl, ARRAY_SIZE(reg_1_desc_tbl)   },
+	{ reg_2_desc_tbl, ARRAY_SIZE(reg_2_desc_tbl)   },
+	{ reg_3_desc_tbl, ARRAY_SIZE(reg_3_desc_tbl)   },
+	{ reg_4_desc_tbl, ARRAY_SIZE(reg_4_desc_tbl)   },
+	{ reg_5_desc_tbl, ARRAY_SIZE(reg_5_desc_tbl)   },
 };
 
 static void dump_reg(
 	ushort             regval,
-	MII_reg_desc_t   * prd,
-	MII_field_desc_and_len_t * pdl);
+	const MII_reg_desc_t *prd,
+	const MII_field_desc_and_len_t *pdl);
 
 static int special_field(
 	ushort regno,
-	MII_field_desc_t * pdesc,
+	const MII_field_desc_t *pdesc,
 	ushort regval);
 
-void MII_dump_0_to_5(
+static void MII_dump_0_to_5(
 	ushort regvals[6],
 	uchar reglo,
 	uchar reghi)
@@ -169,12 +161,12 @@ void MII_dump_0_to_5(
 
 static void dump_reg(
 	ushort             regval,
-	MII_reg_desc_t   * prd,
-	MII_field_desc_and_len_t * pdl)
+	const MII_reg_desc_t *prd,
+	const MII_field_desc_and_len_t *pdl)
 {
 	ulong i;
 	ushort mask_in_place;
-	MII_field_desc_t * pdesc;
+	const MII_field_desc_t *pdesc;
 
 	printf("%u.     (%04hx)                 -- %s --\n",
 		prd->regno, regval, prd->name);
@@ -217,23 +209,22 @@ static void dump_reg(
 
 static int special_field(
 	ushort regno,
-	MII_field_desc_t * pdesc,
+	const MII_field_desc_t *pdesc,
 	ushort regval)
 {
-	if ((regno == 0) && (pdesc->lo == 6)) {
-		ushort speed_bits = regval & PHY_BMCR_SPEED_MASK;
+	if ((regno == MII_BMCR) && (pdesc->lo == 6)) {
+		ushort speed_bits = regval & (BMCR_SPEED1000 | BMCR_SPEED100);
 		printf("%2u,%2u =   b%u%u    speed selection = %s Mbps",
 			6, 13,
 			(regval >>  6) & 1,
 			(regval >> 13) & 1,
-			speed_bits == PHY_BMCR_1000_MBPS ? "1000" :
-			speed_bits == PHY_BMCR_100_MBPS  ? "100" :
-			speed_bits == PHY_BMCR_10_MBPS   ? "10" :
-			"???");
+			speed_bits == BMCR_SPEED1000 ? "1000" :
+			speed_bits == BMCR_SPEED100  ? "100" :
+			"10");
 		return 1;
 	}
 
-	else if ((regno == 0) && (pdesc->lo == 8)) {
+	else if ((regno == MII_BMCR) && (pdesc->lo == 8)) {
 		printf("%2u    = %5u    duplex = %s",
 			pdesc->lo,
 			(regval >>  pdesc->lo) & 1,
@@ -241,7 +232,7 @@ static int special_field(
 		return 1;
 	}
 
-	else if ((regno == 4) && (pdesc->lo == 0)) {
+	else if ((regno == MII_ADVERTISE) && (pdesc->lo == 0)) {
 		ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
 		printf("%2u-%2u = %5u    selector = %s",
 			pdesc->hi, pdesc->lo, sel_bits,
@@ -253,7 +244,7 @@ static int special_field(
 		return 1;
 	}
 
-	else if ((regno == 5) && (pdesc->lo == 0)) {
+	else if ((regno == MII_LPA) && (pdesc->lo == 0)) {
 		ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
 		printf("%2u-%2u =     %u    selector = %s",
 			pdesc->hi, pdesc->lo, sel_bits,
@@ -268,12 +259,12 @@ static int special_field(
 	return 0;
 }
 
-char last_op[2];
-uint last_data;
-uint last_addr_lo;
-uint last_addr_hi;
-uint last_reg_lo;
-uint last_reg_hi;
+static char last_op[2];
+static uint last_data;
+static uint last_addr_lo;
+static uint last_addr_hi;
+static uint last_reg_lo;
+static uint last_reg_hi;
 
 static void extract_range(
 	char * input,
@@ -292,7 +283,7 @@ static void extract_range(
 }
 
 /* ---------------------------------------------------------------- */
-int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char		op[2];
 	unsigned char	addrlo, addrhi, reglo, reghi;

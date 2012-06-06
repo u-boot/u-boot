@@ -23,17 +23,17 @@
 #
 # Samsung S3C64xx Reference Platform (smdk6400) board
 
-# TEXT_BASE for SPL:
+# CONFIG_SYS_TEXT_BASE for SPL:
 #
 # On S3C64xx platforms the SPL is located in SRAM at 0.
 #
-# TEXT_BASE = 0
+# CONFIG_SYS_TEXT_BASE = 0
 
 include $(TOPDIR)/board/$(BOARDDIR)/config.mk
 
 # PAD_TO used to generate a 4kByte binary needed for the combined image
-# -> PAD_TO = TEXT_BASE + 4096
-PAD_TO	:= $(shell expr $$[$(TEXT_BASE) + 4096])
+# -> PAD_TO = CONFIG_SYS_TEXT_BASE + 4096
+PAD_TO	:= $(shell expr $$[$(CONFIG_SYS_TEXT_BASE) + 4096])
 
 ifeq ($(debug),1)
 PLATFORM_CPPFLAGS += -DDEBUG

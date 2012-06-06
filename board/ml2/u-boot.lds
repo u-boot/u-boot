@@ -22,68 +22,21 @@
  */
 
 OUTPUT_ARCH(powerpc)
-/* Do we need any of these for elf?
-   __DYNAMIC = 0;    */
+
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
-  .interp : { *(.interp) }
-  .hash          : { *(.hash)		}
-  .dynsym        : { *(.dynsym)		}
-  .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)		}
-  .rela.text     : { *(.rela.text)	}
-  .rel.data      : { *(.rel.data)		}
-  .rela.data     : { *(.rela.data)	}
-  .rel.rodata    : { *(.rel.rodata)	}
-  .rela.rodata   : { *(.rela.rodata)	}
-  .rel.got       : { *(.rel.got)		}
-  .rela.got      : { *(.rela.got)		}
-  .rel.ctors     : { *(.rel.ctors)	}
-  .rela.ctors    : { *(.rela.ctors)	}
-  .rel.dtors     : { *(.rel.dtors)	}
-  .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)		}
-  .rela.bss      : { *(.rela.bss)		}
-  .rel.plt       : { *(.rel.plt)		}
-  .rela.plt      : { *(.rela.plt)		}
-  .init          : { *(.init)	}
-  .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
-
-    arch/powerpc/cpu/ppc4xx/start.o	(.text)
-    board/ml2/init.o	(.text)
-    arch/powerpc/cpu/ppc4xx/kgdb.o	(.text)
-    arch/powerpc/cpu/ppc4xx/traps.o	(.text)
-    arch/powerpc/cpu/ppc4xx/interrupts.o	(.text)
-    arch/powerpc/cpu/ppc4xx/4xx_uart.o	(.text)
-    arch/powerpc/cpu/ppc4xx/cpu_init.o	(.text)
-    arch/powerpc/cpu/ppc4xx/speed.o	(.text)
-    common/dlmalloc.o	(.text)
-    lib/crc32.o		(.text)
-    arch/powerpc/lib/extable.o	(.text)
-    lib/zlib.o		(.text)
-
-/*    . = env_offset;*/
-/*    common/env_embedded.o(.text)*/
-
-    *(.text)
-    *(.got1)
+    *(.text*)
   }
   _etext = .;
   PROVIDE (etext = .);
   .rodata    :
   {
-    *(.eh_frame)
     *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
   }
-  .fini      : { *(.fini)    } =0
-  .ctors     : { *(.ctors)   }
-  .dtors     : { *(.dtors)   }
 
   /* Read-write section, merged into data segment: */
   . = (. + 0x00FF) & 0xFFFFFF00;
@@ -91,22 +44,19 @@ SECTIONS
   PROVIDE (erotext = .);
   .reloc   :
   {
-    *(.got)
+    KEEP(*(.got))
     _GOT2_TABLE_ = .;
-    *(.got2)
+    KEEP(*(.got2))
     _FIXUP_TABLE_ = .;
-    *(.fixup)
+    KEEP(*(.fixup))
   }
   __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
   __fixup_entries = (. - _FIXUP_TABLE_)>>2;
 
   .data    :
   {
-    *(.data)
-    *(.data1)
-    *(.sdata)
-    *(.sdata2)
-    *(.dynamic)
+    *(.data*)
+    *(.sdata*)
     CONSTRUCTORS
   }
   _edata  =  .;
@@ -133,12 +83,11 @@ SECTIONS
   __bss_start = .;
   .bss (NOLOAD)       :
   {
-   *(.sbss) *(.scommon)
-   *(.dynbss)
-   *(.bss)
+   *(.bss*)
+   *(.sbss*)
    *(COMMON)
    . = ALIGN(4);
   }
-  _end = . ;
+  __bss_end__ = . ;
   PROVIDE (end = .);
 }

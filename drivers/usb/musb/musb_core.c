@@ -76,7 +76,7 @@ void musb_start(void)
  * epinfo	- Pointer to EP configuration table
  * cnt		- Number of entries in the EP conf table.
  */
-void musb_configure_ep(struct musb_epinfo *epinfo, u8 cnt)
+void musb_configure_ep(const struct musb_epinfo *epinfo, u8 cnt)
 {
 	u16 csr;
 	u16 fifoaddr = 64; /* First 64 bytes of FIFO reserved for EP0 */

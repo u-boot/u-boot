@@ -33,6 +33,8 @@
 #define CONFIG_MPC8260		1
 #define CONFIG_MUAS3001		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000
+
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /* Do boardspecific init */
@@ -225,7 +227,7 @@
 
 #define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT
 #endif
@@ -258,9 +260,8 @@
 #define CONFIG_SYS_DEFAULT_IMMR	0x0F010000
 
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
-#define CONFIG_SYS_INIT_RAM_END	0x2000	/* End of used area in DPRAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000	/* Size of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /* Hard reset configuration word */
@@ -274,9 +275,6 @@
 #define CONFIG_SYS_HRCW_SLAVE5 	0
 #define CONFIG_SYS_HRCW_SLAVE6 	0
 #define CONFIG_SYS_HRCW_SLAVE7 	0
-
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot                  */
 
 #define CONFIG_SYS_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */

@@ -359,15 +359,15 @@ static int npe_init(struct eth_device *dev, bd_t * bis)
 
 	debug("%s: 1\n", __FUNCTION__);
 
-	miiphy_read (dev->name, p_npe->phy_no, PHY_BMSR, &reg_short);
+	miiphy_read (dev->name, p_npe->phy_no, MII_BMSR, &reg_short);
 
 	/*
 	 * Wait if PHY is capable of autonegotiation and autonegotiation is not complete
 	 */
-	if ((reg_short & PHY_BMSR_AUTN_ABLE) && !(reg_short & PHY_BMSR_AUTN_COMP)) {
+	if ((reg_short & BMSR_ANEGCAPABLE) && !(reg_short & BMSR_ANEGCOMPLETE)) {
 		puts ("Waiting for PHY auto negotiation to complete");
 		i = 0;
-		while (!(reg_short & PHY_BMSR_AUTN_COMP)) {
+		while (!(reg_short & BMSR_ANEGCOMPLETE)) {
 			/*
 			 * Timeout reached ?
 			 */
@@ -378,7 +378,7 @@ static int npe_init(struct eth_device *dev, bd_t * bis)
 
 			if ((i++ % 1000) == 0) {
 				putc ('.');
-				miiphy_read (dev->name, p_npe->phy_no, PHY_BMSR, &reg_short);
+				miiphy_read (dev->name, p_npe->phy_no, MII_BMSR, &reg_short);
 			}
 			udelay (1000);	/* 1 ms */
 		}

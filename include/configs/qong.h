@@ -43,7 +43,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Hardware drivers
@@ -52,22 +51,25 @@
 #define CONFIG_MXC_UART	1
 #define CONFIG_SYS_MX31_UART1	1
 
-#define CONFIG_MX31_GPIO
+#define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_SPI
 #define CONFIG_DEFAULT_SPI_BUS	1
-#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 #define CONFIG_RTC_MC13783
 
 #define CONFIG_FSL_PMIC
 #define CONFIG_FSL_PMIC_BUS	1
 #define CONFIG_FSL_PMIC_CS	0
 #define CONFIG_FSL_PMIC_CLK	100000
-#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 
 /* FPGA */
+#define CONFIG_FPGA
 #define CONFIG_QONG_FPGA	1
 #define CONFIG_FPGA_BASE	(CS1_BASE)
+#define CONFIG_FPGA_LATTICE
+#define CONFIG_FPGA_COUNT	1
 
 #ifdef CONFIG_QONG_FPGA
 /* Ethernet */
@@ -85,6 +87,23 @@
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #define CONFIG_DISPLAY_COM57H5M10XRC
+
+/* USB */
+#define CONFIG_CMD_USB
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_EHCI			/* Enable EHCI USB support */
+#define CONFIG_USB_EHCI_MXC
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#define CONFIG_MXC_USB_PORT	2
+#define CONFIG_MXC_USB_PORTSC	(MXC_EHCI_MODE_ULPI | MXC_EHCI_UTMI_8BIT)
+#define CONFIG_MXC_USB_FLAGS	MXC_EHCI_POWER_PINS_ENABLED
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_STORAGE
+#define CONFIG_DOS_PARTITION
+#define CONFIG_SUPPORT_VFAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#endif /* CONFIG_CMD_USB */
 
 /*
  * Reducing the ARP timeout from default 5 seconds to 200ms we speed up the
@@ -104,25 +123,17 @@
 
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_PING
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_SPI
-#define CONFIG_CMD_DATE
-#define BOARD_LATE_INIT
 
-/*
- * You can compile in a MAC address and your custom net settings by using
- * the following syntax.
- *
- * #define CONFIG_ETHADDR		xx:xx:xx:xx:xx:xx
- * #define CONFIG_SERVERIP		<server ip>
- * #define CONFIG_IPADDR		<board ip>
- * #define CONFIG_GATEWAYIP		<gateway ip>
- * #define CONFIG_NETMASK		<your netmask>
- */
+#define BOARD_LATE_INIT
 
 #define CONFIG_BOOTDELAY	5
 
@@ -144,7 +155,7 @@
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addmisc=setenv bootargs ${bootargs}\0"				\
 	"uboot_addr=A0000000\0"						\
-	"kernel_addr=A00A0000\0"					\
+	"kernel_addr=A00C0000\0"					\
 	"ramdisk_addr=A0300000\0"					\
 	"u-boot=qong/u-boot.bin\0"					\
 	"kernel_addr_r=80800000\0"					\
@@ -246,7 +257,7 @@ extern int qong_nand_rdy(void *chip);
 #define	CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x60000)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x80000)
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
@@ -276,9 +287,22 @@ extern int qong_nand_rdy(void *chip);
 #define CONFIG_LZO
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
+#define MTDIDS_DEFAULT		"nor0=physmap-flash.0,"		\
+				"nand0=gen_nand"
 #define MTDPARTS_DEFAULT	\
-	"mtdparts=physmap-flash.0:384k(U-Boot),128k(env1),"	\
-	"128k(env2),2432k(kernel),13m(ramdisk),-(user)"
+	"mtdparts=physmap-flash.0:"				\
+			"512k(U-Boot),128k(env1),128k(env2),"	\
+			"2304k(kernel),13m(ramdisk),-(user);"	\
+		"gen_nand:"					\
+			"128m(nand)"
+
+/* additions for new relocation code, must be added to all boards */
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CONFIG_SYS_INIT_RAM_SIZE		IRAM_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)
+
+#define CONFIG_BOARD_EARLY_INIT_F	1
 
 #endif /* __CONFIG_H */

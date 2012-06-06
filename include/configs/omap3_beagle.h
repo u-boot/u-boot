@@ -55,6 +55,15 @@
 #undef CONFIG_USE_IRQ				/* no support for IRQs */
 #define CONFIG_MISC_INIT_R
 
+#define CONFIG_OF_LIBFDT		1
+/*
+ * The early kernel mapping on ARM currently only maps from the base of DRAM
+ * to the end of the kernel image.  The kernel is loaded at DRAM base + 0x8000.
+ * The early kernel pagetable uses DRAM base + 0x4000 to DRAM base + 0x8000,
+ * so that leaves DRAM base to DRAM base + 0x4000 available.
+ */
+#define CONFIG_SYS_BOOTMAPSZ	        0x4000
+
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
@@ -66,7 +75,6 @@
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 
 /*
@@ -95,8 +103,9 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
+#define CONFIG_GENERIC_MMC		1
 #define CONFIG_MMC			1
-#define CONFIG_OMAP3_MMC		1
+#define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
 
 /* DDR - I use Micron DDR */
@@ -111,15 +120,11 @@
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
-/* Change these to suit your needs */
-#define CONFIG_USBD_VENDORID		0x0451
-#define CONFIG_USBD_PRODUCTID		0x5678
-#define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
-#define CONFIG_USBD_PRODUCT_NAME	"Beagle"
 
 /* commands to include */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
@@ -147,6 +152,7 @@
 #define CONFIG_SYS_I2C_SLAVE		1
 #define CONFIG_SYS_I2C_BUS		0
 #define CONFIG_SYS_I2C_BUS_SELECT	1
+#define CONFIG_I2C_MULTI_BUS		1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
 /*
@@ -188,6 +194,7 @@
 	"vram=12M\0" \
 	"dvimode=1024x768MR-16@60\0" \
 	"defaultdisplay=dvi\0" \
+	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
 	"nandroot=/dev/mtdblock4 rw\0" \
@@ -208,10 +215,10 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
+	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc 0 ${loadaddr} uImage\0" \
+	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
@@ -221,7 +228,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc init; then " \
+	"if mmc rescan ${mmcdev}; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
@@ -297,9 +304,6 @@
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
 #define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
 
-#define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors on */
-						/* one chip */
-#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #define CONFIG_SYS_FLASH_BASE		boot_flash_base
@@ -316,21 +320,6 @@
 #define CONFIG_ENV_OFFSET		boot_flash_off
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
 
-/*-----------------------------------------------------------------------
- * CFI FLASH driver setup
- */
-/* timeout values are in ticks */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
-
-/* Flash banks JFFS2 should use */
-#define CONFIG_SYS_MAX_MTD_BANKS	(CONFIG_SYS_MAX_FLASH_BANKS + \
-					CONFIG_SYS_MAX_NAND_DEVICE)
-#define CONFIG_SYS_JFFS2_MEM_NAND
-/* use flash_info[2] */
-#define CONFIG_SYS_JFFS2_FIRST_BANK	CONFIG_SYS_MAX_FLASH_BANKS
-#define CONFIG_SYS_JFFS2_NUM_BANKS	1
-
 #ifndef __ASSEMBLY__
 extern unsigned int boot_flash_base;
 extern volatile unsigned int boot_flash_env_addr;
@@ -338,5 +327,14 @@ extern unsigned int boot_flash_off;
 extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
+#define CONFIG_SYS_INIT_RAM_SIZE	0x800
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
+
+#define CONFIG_OMAP3_SPI
 
 #endif /* __CONFIG_H */

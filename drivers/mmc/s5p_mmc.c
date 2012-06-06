@@ -51,7 +51,7 @@ static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
 	writeb(ctrl, &host->reg->hostctl);
 
 	/* We do not handle DMA boundaries, so set it to max (512 KiB) */
-	writew((7 << 12) | (512 << 0), &host->reg->blksize);
+	writew((7 << 12) | (data->blocksize & 0xFFF), &host->reg->blksize);
 	writew(data->blocks, &host->reg->blkcnt);
 }
 
@@ -352,11 +352,16 @@ static void mmc_set_ios(struct mmc *mmc)
 	ctrl = readb(&host->reg->hostctl);
 
 	/*
+	 * WIDE8[5]
+	 * 0 = Depend on WIDE4
+	 * 1 = 8-bit mode
 	 * WIDE4[1]
 	 * 1 = 4-bit mode
 	 * 0 = 1-bit mode
 	 */
-	if (mmc->bus_width == 4)
+	if (mmc->bus_width == 8)
+		ctrl |= (1 << 5);
+	else if (mmc->bus_width == 4)
 		ctrl |= (1 << 1);
 	else
 		ctrl &= ~(1 << 1);
@@ -437,7 +442,7 @@ static int mmc_core_init(struct mmc *mmc)
 	return 0;
 }
 
-static int s5p_mmc_initialize(int dev_index)
+static int s5p_mmc_initialize(int dev_index, int bus_width)
 {
 	struct mmc *mmc;
 
@@ -450,7 +455,11 @@ static int s5p_mmc_initialize(int dev_index)
 	mmc->init = mmc_core_init;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS;
+	if (bus_width == 8)
+		mmc->host_caps = MMC_MODE_8BIT;
+	else
+		mmc->host_caps = MMC_MODE_4BIT;
+	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	mmc->f_min = 400000;
 	mmc->f_max = 52000000;
@@ -462,7 +471,7 @@ static int s5p_mmc_initialize(int dev_index)
 	return 0;
 }
 
-int s5p_mmc_init(int dev_index)
+int s5p_mmc_init(int dev_index, int bus_width)
 {
-	return s5p_mmc_initialize(dev_index);
+	return s5p_mmc_initialize(dev_index, bus_width);
 }

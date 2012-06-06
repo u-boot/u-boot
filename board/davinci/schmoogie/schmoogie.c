@@ -27,7 +27,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/arch/hardware.h>
-#include "../common/misc.h"
+#include <asm/arch/davinci_misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -107,12 +107,12 @@ int misc_init_r(void)
 	/* Set serial number from UID chip */
 	if (i2c_read(CONFIG_SYS_UID_ADDR, 0, 1, buf, 8)) {
 		printf("\nUID @ 0x%02x read FAILED!!!\n", CONFIG_SYS_UID_ADDR);
-		forceenv("serial#", "FAILED");
+		setenv("serial#", "FAILED");
 	} else {
 		if (buf[0] != 0x70) {
 			/* Device Family Code */
 			printf("\nUID @ 0x%02x read FAILED!!!\n", CONFIG_SYS_UID_ADDR);
-			forceenv("serial#", "FAILED");
+			setenv("serial#", "FAILED");
 		}
 	}
 	/* Now check CRC */
@@ -122,12 +122,12 @@ int misc_init_r(void)
 
 	if (tmp[0] != 0) {
 		printf("\nUID @ 0x%02x - BAD CRC!!!\n", CONFIG_SYS_UID_ADDR);
-		forceenv("serial#", "FAILED");
+		setenv("serial#", "FAILED");
 	} else {
 		/* CRC OK, set "serial" env variable */
 		sprintf((char *)&tmp[0], "%02x%02x%02x%02x%02x%02x",
 			buf[6], buf[5], buf[4], buf[3], buf[2], buf[1]);
-		forceenv("serial#", (char *)&tmp[0]);
+		setenv("serial#", (char *)&tmp[0]);
 	}
 
 	return(0);

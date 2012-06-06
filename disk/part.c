@@ -78,13 +78,20 @@ block_dev_desc_t *get_dev(char* ifname, int dev)
 {
 	const struct block_drvr *drvr = block_drvr;
 	block_dev_desc_t* (*reloc_get_dev)(int dev);
+	char *name;
 
-	while (drvr->name) {
+	name = drvr->name;
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	name += gd->reloc_off;
+#endif
+	while (name) {
+		name = drvr->name;
 		reloc_get_dev = drvr->get_dev;
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+		name += gd->reloc_off;
 		reloc_get_dev += gd->reloc_off;
 #endif
-		if (strncmp(ifname, drvr->name, strlen(drvr->name)) == 0)
+		if (strncmp(ifname, name, strlen(name)) == 0)
 			return reloc_get_dev(dev);
 		drvr++;
 	}

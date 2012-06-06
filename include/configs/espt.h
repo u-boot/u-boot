@@ -56,6 +56,7 @@
 #define CONFIG_BAUDRATE         115200
 #define CONFIG_CONS_SCIF0		1
 
+#define CONFIG_SYS_TEXT_BASE	0x8FFC0000
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		256	/* Buffer size for input from the Console */
@@ -85,7 +86,6 @@
 /* Size of DRAM reserved for malloc() use */
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 #define CONFIG_SYS_FLASH_CFI

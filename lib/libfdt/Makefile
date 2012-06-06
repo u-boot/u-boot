@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)libfdt.a
+LIB	= $(obj)libfdt.o
 
 SOBJS	=
 
@@ -38,7 +38,7 @@ SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

@@ -34,8 +34,6 @@
 
 #if defined(CONFIG_CMD_BSP)
 
-extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
-
 /*
  * Command loadpci: wait for signal from host and boot image.
  */
