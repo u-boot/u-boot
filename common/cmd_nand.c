@@ -617,7 +617,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 		s = strchr(cmd, '.');
 
-		if (!strcmp(s, ".raw")) {
+		if (s && !strcmp(s, ".raw")) {
 			raw = 1;
 
 			if (arg_off(argv[3], &dev, &off, &size))
