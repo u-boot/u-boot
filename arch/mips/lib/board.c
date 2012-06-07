@@ -38,13 +38,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int timer_init(void);
-
-extern int incaip_set_cpuclk(void);
-
-extern ulong uboot_end_data;
-extern ulong uboot_end;
-
 ulong monitor_flash_len;
 
 static char *failed = "*** failed ***\n";
