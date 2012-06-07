@@ -68,7 +68,6 @@
 /* Eth Configs */
 #define CONFIG_HAS_ETH1
 #define CONFIG_MII
-#define CONFIG_MII_GASKET
 #define CONFIG_DISCOVER_PHY
 
 #define CONFIG_CMD_PING
