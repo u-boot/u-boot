@@ -1,8 +1,6 @@
 /*
- * Configuation settings for the Renesas Solutions ECOVEC board
+ * Configuation settings for the Renesas Solutions r0p7734 board
  *
- * Copyright (C) 2009 - 2011 Renesas Solutions Corp.
- * Copyright (C) 2009 Kuninori Morimoto <morimoto.kuninori@renesas.com>
  * Copyright (C) 2010, 2011 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -24,29 +22,19 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ECOVEC_H
-#define __ECOVEC_H
-
-/*
- *  Address      Interface        BusWidth
- *-----------------------------------------
- *  0x0000_0000  U-Boot           16bit
- *  0x0004_0000  Linux romImage   16bit
- *  0x0014_0000  MTD for Linux    16bit
- *  0x0400_0000  Internal I/O     16/32bit
- *  0x0800_0000  DRAM             32bit
- *  0x1800_0000  MFI              16bit
- */
+#ifndef __R0P7734_H
+#define __R0P7734_H
 
 #undef DEBUG
 #define CONFIG_SH		1
 #define CONFIG_SH4		1
 #define CONFIG_SH4A		1
-#define CONFIG_CPU_SH7724	1
-#define CONFIG_BOARD_LATE_INIT		1
-#define CONFIG_ECOVEC		1
+#define CONFIG_CPU_SH7734	1
+#define CONFIG_R0P7734		1
+#define CONFIG_400MHZ_MODE	1
+/* #define CONFIG_533MHZ_MODE	1 */
 
-#define CONFIG_ECOVEC_ROMIMAGE_ADDR 0xA0040000
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_SYS_TEXT_BASE 0x8FFC0000
 
 #define CONFIG_CMD_FLASH
@@ -57,53 +45,46 @@
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_SAVEENV
-
-#define CONFIG_USB_STORAGE
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS		"console=ttySC0,115200"
+#define CONFIG_BOOTARGS		"console=ttySC3,115200"
 
 #define CONFIG_VERSION_VARIABLE
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
-/* I2C */
-#define CONFIG_CMD_I2C
-#define CONFIG_SH_I2C 1
-#define CONFIG_HARD_I2C		1
-#define CONFIG_I2C_MULTI_BUS	1
-#define CONFIG_SYS_MAX_I2C_BUS	2
-#define CONFIG_SYS_I2C_MODULE	1
-#define CONFIG_SYS_I2C_SPEED	100000 /* 100 kHz */
-#define CONFIG_SYS_I2C_SLAVE	0x7F
-#define CONFIG_SH_I2C_DATA_HIGH	4
-#define CONFIG_SH_I2C_DATA_LOW 	5
-#define CONFIG_SH_I2C_CLOCK  	41666666
-#define CONFIG_SH_I2C_BASE0		0xA4470000
-#define CONFIG_SH_I2C_BASE1		0xA4750000
-
 /* Ether */
 #define CONFIG_SH_ETHER 1
 #define CONFIG_SH_ETHER_USE_PORT (0)
-#define CONFIG_SH_ETHER_PHY_ADDR (0x1f)
-#define CONFIG_PHY_SMSC 1
+#define CONFIG_SH_ETHER_PHY_ADDR (0x0)
 #define CONFIG_PHYLIB
+#define CONFIG_PHY_SMSC 1
 #define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
+#define CONFIG_SH_ETHER_SH7734_MII (0x00) /* MII */
 #define CONFIG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_MII
+#ifndef CONFIG_SH_ETHER
+# define CONFIG_SMC911X
+# define CONFIG_SMC911X_16_BIT
+# define CONFIG_SMC911X_BASE (0x84000000)
+#endif
 
-/* USB / R8A66597 */
-#define CONFIG_USB_R8A66597_HCD
-#define CONFIG_R8A66597_BASE_ADDR   0xA4D80000
-#define CONFIG_R8A66597_XTAL        0x0000  /* 12MHz */
-#define CONFIG_R8A66597_LDRV        0x8000  /* 3.3V */
-#define CONFIG_R8A66597_ENDIAN      0x0000  /* little */
-#define CONFIG_SUPERH_ON_CHIP_R8A66597
+
+/* I2C */
+#define CONFIG_CMD_I2C
+#define CONFIG_SH_SH7734_I2C	1
+#define CONFIG_HARD_I2C			1
+#define CONFIG_I2C_MULTI_BUS	1
+#define CONFIG_SYS_MAX_I2C_BUS	2
+#define CONFIG_SYS_I2C_MODULE	0
+#define CONFIG_SYS_I2C_SPEED	100000 /* 100 kHz */
+#define CONFIG_SYS_I2C_SLAVE	0x50
+#define CONFIG_SH_I2C_DATA_HIGH	4
+#define CONFIG_SH_I2C_DATA_LOW	5
+#define CONFIG_SH_I2C_CLOCK		500000000
+#define CONFIG_SH_I2C_BASE0		0xFFC70000
+#define CONFIG_SH_I2C_BASE1		0xFFC7100
 
 /* undef to save memory	*/
 #define CONFIG_SYS_LONGHELP
@@ -122,8 +103,8 @@
 
 /* SCIF */
 #define CONFIG_SCIF_CONSOLE	1
-#define CONFIG_SCIF		1
-#define CONFIG_CONS_SCIF0	1
+#define CONFIG_SCIF			1
+#define CONFIG_CONS_SCIF3	1
 
 /* Suppress display of console information at boot */
 #undef  CONFIG_SYS_CONSOLE_INFO_QUIET
@@ -132,11 +113,11 @@
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE	(0x88000000)
-#define CONFIG_SYS_SDRAM_SIZE	(256 * 1024 * 1024)
+#define CONFIG_SYS_SDRAM_SIZE	(128 * 1024 * 1024)
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 * 1024)
 
 #define CONFIG_SYS_MEMTEST_START (CONFIG_SYS_SDRAM_BASE)
-#define CONFIG_SYS_MEMTEST_END	 (CONFIG_SYS_MEMTEST_START + 200 * 1024 * 1024)
+#define CONFIG_SYS_MEMTEST_END	 (CONFIG_SYS_MEMTEST_START + 100 * 1024 * 1024)
 /* Enable alternate, more extensive, memory test */
 #undef  CONFIG_SYS_ALT_MEMTEST
 /* Scratch address used by the alternate memory test */
@@ -194,8 +175,12 @@
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SECT_SIZE)
 
 /* Board Clock */
-#define CONFIG_SYS_CLK_FREQ 41666666
+#if defined(CONFIG_400MHZ_MODE)
+#define CONFIG_SYS_CLK_FREQ 50000000
+#else
+#define CONFIG_SYS_CLK_FREQ 44444444
+#endif
 #define CONFIG_SYS_TMU_CLK_DIV      4
 #define CONFIG_SYS_HZ       1000
 
-#endif	/* __ECOVEC_H */
+#endif	/* __R0P7734_H */
