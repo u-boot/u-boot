@@ -273,7 +273,7 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 	/* store panel info to global variable */
 	pvid = vid;
 
-	rgb_mode = MODE_RGB_P;
+	rgb_mode = vid->rgb_mode;
 
 	if (vid->interface_mode == FIMD_RGB_INTERFACE) {
 		cfg |= EXYNOS_VIDCON0_VIDOUT_RGB;

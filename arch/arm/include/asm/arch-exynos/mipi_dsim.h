@@ -329,6 +329,7 @@ struct mipi_dsim_lcd_device {
 	char			*name;
 	int			id;
 	int			bus_id;
+	int			reverse_panel;
 
 	struct mipi_dsim_device *master;
 	void			*platform_data;

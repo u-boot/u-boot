@@ -229,6 +229,9 @@ LIBS  = lib/libgeneric.o
 LIBS += lib/lzma/liblzma.o
 LIBS += lib/lzo/liblzo.o
 LIBS += lib/zlib/libz.o
+ifeq ($(CONFIG_TIZEN),y)
+LIBS += lib/tizen/libtizen.o
+endif
 LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
 	"board/$(VENDOR)/common/lib$(VENDOR).o"; fi)
 LIBS += $(CPUDIR)/lib$(CPU).o

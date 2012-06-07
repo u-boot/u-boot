@@ -55,6 +55,7 @@ extern void lcd_initcolregs (void);
 
 /* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
 extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
+extern int bmp_display(ulong addr, int x, int y);
 
 #if defined CONFIG_MPC823
 /*
@@ -157,7 +158,7 @@ typedef struct vidinfo {
 	struct	pxafb_info pxa;
 } vidinfo_t;
 
-#elif defined(CONFIG_ATMEL_LCD)
+#elif defined(CONFIG_ATMEL_LCD) || defined(CONFIG_ATMEL_HLCD)
 
 typedef struct vidinfo {
 	ushort vl_col;		/* Number of columns (i.e. 640) */
@@ -169,6 +170,7 @@ typedef struct vidinfo {
 	u_long vl_bpix;		/* Bits per pixel, 0 = 1, 1 = 2, 2 = 4, 3 = 8, 4 = 16 */
 	u_long vl_tft;		/* 0 = passive, 1 = TFT */
 	u_long vl_cont_pol_low;	/* contrast polarity is low */
+	u_long vl_clk_pol;	/* clock polarity */
 
 	/* Horizontal control register. */
 	u_long vl_hsync_len;	/* Length of horizontal sync */
@@ -188,6 +190,13 @@ typedef struct vidinfo {
 enum {
 	FIMD_RGB_INTERFACE = 1,
 	FIMD_CPU_INTERFACE = 2,
+};
+
+enum exynos_fb_rgb_mode_t {
+	MODE_RGB_P = 0,
+	MODE_BGR_P = 1,
+	MODE_RGB_S = 2,
+	MODE_BGR_S = 3,
 };
 
 typedef struct vidinfo {
@@ -235,6 +244,12 @@ typedef struct vidinfo {
 	unsigned int wr_setup;
 	unsigned int wr_act;
 	unsigned int wr_hold;
+	unsigned int logo_on;
+	unsigned int logo_width;
+	unsigned int logo_height;
+	unsigned long logo_addr;
+	unsigned int rgb_mode;
+	unsigned int resolution;
 
 	/* parent clock name(MPLL, EPLL or VPLL) */
 	unsigned int pclk_name;

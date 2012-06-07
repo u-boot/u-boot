@@ -604,7 +604,7 @@ void lcd_enable(void)
 	gpio_set_value(2, 1);
 	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT0);
 
-	ret = mx51_fb_init(&nec_nl6448bc26_09c, 0, IPU_PIX_FMT_RGB666);
+	ret = ipuv3_fb_init(&nec_nl6448bc26_09c, 0, IPU_PIX_FMT_RGB666);
 	if (ret)
 		puts("LCD cannot be configured\n");
 }

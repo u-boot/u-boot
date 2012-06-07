@@ -28,15 +28,19 @@
 #ifndef DSS_H
 #define DSS_H
 
-/*
- * DSS Base Registers
- */
-#define OMAP3_DSS_BASE		0x48050040
-#define OMAP3_DISPC_BASE	0x48050440
+/* DSS Base Registers */
+#define OMAP3_DSS_BASE		0x48050000
+#define OMAP3_DISPC_BASE	0x48050400
 #define OMAP3_VENC_BASE		0x48050C00
 
 /* DSS Registers */
 struct dss_regs {
+	u32 revision;				/* 0x00 */
+	u8 res1[12];				/* 0x04 */
+	u32 sysconfig;				/* 0x10 */
+	u32 sysstatus;				/* 0x14 */
+	u32 irqstatus;				/* 0x18 */
+	u8 res2[36];				/* 0x1C */
 	u32 control;				/* 0x40 */
 	u32 sdi_control;			/* 0x44 */
 	u32 pll_control;			/* 0x48 */
@@ -44,6 +48,13 @@ struct dss_regs {
 
 /* DISPC Registers */
 struct dispc_regs {
+	u32 revision;				/* 0x00 */
+	u8 res1[12];				/* 0x04 */
+	u32 sysconfig;				/* 0x10 */
+	u32 sysstatus;				/* 0x14 */
+	u32 irqstatus;				/* 0x18 */
+	u32 irqenable;				/* 0x1C */
+	u8 res2[32];				/* 0x20 */
 	u32 control;				/* 0x40 */
 	u32 config;				/* 0x44 */
 	u32 reserve_2;				/* 0x48 */
@@ -60,6 +71,18 @@ struct dispc_regs {
 	u32 global_alpha;			/* 0x74 */
 	u32 size_dig;				/* 0x78 */
 	u32 size_lcd;				/* 0x7C */
+	u32 gfx_ba0;				/* 0x80 */
+	u32 gfx_ba1;				/* 0x84 */
+	u32 gfx_position;			/* 0x88 */
+	u32 gfx_size;				/* 0x8C */
+	u8 unused[16];				/* 0x90 */
+	u32 gfx_attributes;			/* 0xA0 */
+	u32 gfx_fifo_threshold;			/* 0xA4 */
+	u32 gfx_fifo_size_status;		/* 0xA8 */
+	u32 gfx_row_inc;			/* 0xAC */
+	u32 gfx_pixel_inc;			/* 0xB0 */
+	u32 gfx_window_skip;			/* 0xB4 */
+	u32 gfx_table_ba;			/* 0xB8 */
 };
 
 /* VENC Registers */
@@ -123,6 +146,13 @@ struct venc_regs {
 #define TFTSTN_SHIFT				3
 #define DATALINES_SHIFT				8
 
+#define GFX_ENABLE				1
+#define GFX_FORMAT_SHIFT			1
+#define LOADMODE_SHIFT				1
+
+#define DSS_SOFTRESET				(1 << 1)
+#define DSS_RESETDONE				1
+
 /* Enabling Display controller */
 #define LCD_ENABLE				1
 #define DIG_ENABLE				(1 << 1)
@@ -131,26 +161,14 @@ struct venc_regs {
 #define GP_OUT0					(1 << 15)
 #define GP_OUT1					(1 << 16)
 
-#define DISPC_ENABLE				(LCD_ENABLE | \
-						 DIG_ENABLE | \
-						 GO_LCD | \
-						 GO_DIG | \
-						 GP_OUT0| \
-						 GP_OUT1)
-
 /* Configure VENC DSS Params */
 #define VENC_CLK_ENABLE				(1 << 3)
 #define DAC_DEMEN				(1 << 4)
 #define DAC_POWERDN				(1 << 5)
 #define VENC_OUT_SEL				(1 << 6)
 #define DIG_LPP_SHIFT				16
-#define VENC_DSS_CONFIG				(VENC_CLK_ENABLE | \
-						 DAC_DEMEN | \
-						 DAC_POWERDN | \
-						 VENC_OUT_SEL)
-/*
- * Panel Configuration
- */
+
+/* Panel Configuration */
 struct panel_config {
 	u32 timing_h;
 	u32 timing_v;
@@ -161,11 +179,10 @@ struct panel_config {
 	u32 data_lines;
 	u32 load_mode;
 	u32 panel_color;
+	void *frame_buffer;
 };
 
-/*
- * Generic DSS Functions
- */
+/* Generic DSS Functions */
 void omap3_dss_venc_config(const struct venc_regs *venc_cfg,
 			u32 height, u32 width);
 void omap3_dss_panel_config(const struct panel_config *panel_cfg);
