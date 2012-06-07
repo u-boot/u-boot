@@ -254,7 +254,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 #ifndef CONFIG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
 #endif
-	char *s;
 	bd_t *bd;
 
 	gd = new_gd;
