@@ -51,7 +51,7 @@ $(DT_BIN): $(TOPDIR)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
 		{ { $(DTC) -R 4 -p 0x1000 -O dtb -o ${DT_BIN} - 2>&1 ; \
 		    echo $$? >&3 ; } | \
 		  grep -v '^DTC: dts->dtb  on file' ; \
-	        } 3>&1 ) ; \
+	        } 3>&1 1>&2 ) ; \
 	exit $$rc
 
 process_lds = \
