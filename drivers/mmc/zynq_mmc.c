@@ -113,6 +113,7 @@ static void init_port(void)
 #define CMD2    (2)		/* SEND_CID */
 #define CMD3    (3)		/* RELATIVE_ADDR */
 #define CMD5	(5)			/* SLEEP_WAKE (SDC) */
+#define CMD6	(6)		/* SWITCH_FUNC */
 #define CMD7	(7)			/* SELECT */
 #define CMD8	(8)			/* SEND_IF_COND */
 #define CMD9	(9)			/* SEND_CSD */
@@ -200,6 +201,7 @@ make_command (unsigned cmd)
 		retval |= RSP_R1;
 		break;
 	case CMD58:
+	case CMD6:
 		break;
 	default:
 		printf("Unknown command\n");
