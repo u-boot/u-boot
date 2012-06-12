@@ -54,6 +54,9 @@ enum {
 
 	/* USB configs */
 	FUNCMUX_USB2_ULPI = 0,
+
+	/* Serial Flash configs */
+	FUNCMUX_SPI1_GMC_GMD = 0,
 };
 
 /**

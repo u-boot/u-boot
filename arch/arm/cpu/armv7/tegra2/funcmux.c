@@ -224,6 +224,16 @@ int funcmux_select(enum periph_id id, int config)
 		}
 		break;
 
+	case PERIPH_ID_SPI1:
+		if (config == FUNCMUX_SPI1_GMC_GMD) {
+			pinmux_set_func(PINGRP_GMC, PMUX_FUNC_SFLASH);
+			pinmux_set_func(PINGRP_GMD, PMUX_FUNC_SFLASH);
+
+			pinmux_tristate_disable(PINGRP_GMC);
+			pinmux_tristate_disable(PINGRP_GMD);
+		}
+		break;
+
 	default:
 		debug("%s: invalid periph_id %d", __func__, id);
 		return -1;
