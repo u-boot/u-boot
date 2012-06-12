@@ -17,10 +17,6 @@
 #define __CONFIG_AM335X_EVM_H
 
 #define CONFIG_AM33XX
-#define CONFIG_CMD_MEMORY	/* for mtest */
-#undef CONFIG_GZIP
-#undef CONFIG_ZLIB
-#undef CONFIG_SYS_HUSH_PARSER
 
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -28,23 +24,77 @@
 #define CONFIG_DMA_COHERENT
 #define CONFIG_DMA_COHERENT_SIZE	(1 << 20)
 
-#define CONFIG_ENV_SIZE			0x400
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 * 1024))
+#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
+#define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
+#define CONFIG_SYS_LONGHELP		/* undef to save memory */
+#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT		"U-Boot# "
 #define CONFIG_SYS_NO_FLASH
 #define MACH_TYPE_TIAM335EVM		3589	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_TIAM335EVM
+
+#define CONFIG_OF_LIBFDT
+#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+
+/* commands to include */
+#include <config_cmd_default.h>
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_VERSION_VARIABLE
 
 /* set to negative value for no autoboot */
 #define CONFIG_BOOTDELAY		3
-#define CONFIG_SYS_AUTOLOAD		"no"
-#define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"verify=yes\0" \
-	"ramdisk_file=ramdisk.gz\0" \
+	"loadaddr=0x80200000\0" \
+	"fdtaddr=0x80F80000\0" \
+	"rdaddr=0x81000000\0" \
+	"bootfile=/boot/uImage\0" \
+	"console=ttyO0,115200n8\0" \
+	"optargs=\0" \
+	"mmcdev=0\0" \
+	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcrootfstype=ext4 rootwait\0" \
+	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
+	"ramrootfstype=ext2\0" \
+	"mmcargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype}\0" \
+	"bootenv=uEnv.txt\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t $loadaddr $filesize\0" \
+	"ramargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${ramroot} " \
+		"rootfstype=${ramrootfstype}\0" \
+	"loadramdisk=fatload mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
+	"loaduimagefat=fatload mmc ${mmcdev} ${loadaddr} ${bootfile}\0" \
+	"loaduimage=ext2load mmc ${mmcdev}:2 ${loadaddr} ${bootfile}\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"bootm ${loadaddr}\0" \
+	"ramboot=echo Booting from ramdisk ...; " \
+		"run ramargs; " \
+		"bootm ${loadaddr}\0" \
+
+#define CONFIG_BOOTCOMMAND \
+	"if mmc rescan ${mmcdev}; then " \
+		"echo SD/MMC found on device ${mmcdev};" \
+		"if run loadbootenv; then " \
+			"echo Loaded environment from ${bootenv};" \
+			"run importbootenv;" \
+		"fi;" \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...;" \
+			"run uenvcmd;" \
+		"fi;" \
+		"if run loaduimage; then " \
+			"run mmcboot;" \
+		"fi;" \
+	"fi;" \
 
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
