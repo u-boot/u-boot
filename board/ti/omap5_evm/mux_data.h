@@ -47,6 +47,15 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{SDCARD_DATA3, (PTU | IEN | M0)}, /*  SDCARD_DATA3*/
 	{UART3_RX_IRRX, (PTU | IEN | M0)}, /*  UART3_RX_IRRX    */
 	{UART3_TX_IRTX, (M0)},    /*  UART3_TX_IRTX    */
+	{USBB1_HSIC_STROBE, (PTU | IEN | M0)},    /*  USBB1_HSIC_STROBE */
+	{USBB1_HSIC_DATA, (PTU | IEN | M0)},    /*  USBB1_HSIC_DATA */
+	{USBB2_HSIC_STROBE, (PTU | IEN | M0)},    /*  USBB2_HSIC_STROBE */
+	{USBB2_HSIC_DATA, (PTU | IEN | M0)},    /*  USBB2_HSIC_DATA  */
+	{USBB3_HSIC_STROBE, (PTU | IEN | M0)},    /*  USBB3_HSIC_STROBE*/
+	{USBB3_HSIC_DATA, (PTU | IEN | M0)},    /*  USBB3_HSIC_DATA  */
+	{USBD0_HS_DP, (IEN | M0)},	/*  USBD0_HS_DP */
+	{USBD0_HS_DM, (IEN | M0)},	/*  USBD0_HS_DM */
+	{USBD0_SS_RX, (IEN | M0)},	/*  USBD0_SS_RX */
 
 };
 
@@ -114,10 +123,6 @@ const struct pad_conf_entry core_padconf_array_non_essential[] = {
 	{UART2_CTS, (IEN | M1)},    /*  MCSPI3_CS0   */
 	{UART2_RX, (IEN | M1)},    /*  MCSPI3_SIMO  */
 	{UART2_TX, (IEN | M1)},    /*  MCSPI3_CLK   */
-	{USBB1_HSIC_STROBE, (PTU | IEN | M0)},    /*  USBB1_HSIC_STROBE */
-	{USBB1_HSIC_DATA, (PTU | IEN | M0)},    /*  USBB1_HSIC_DATA */
-	{USBB2_HSIC_STROBE, (PTU | IEN | M0)},    /*  USBB2_HSIC_STROBE */
-	{USBB2_HSIC_DATA, (PTU | IEN | M0)},    /*  USBB2_HSIC_DATA  */
 	{TIMER10_PWM_EVT, (IEN | M0)},    /*  TIMER10_PWM_EVT  */
 	{DSIPORTA_TE0, (IEN | M0)},    /*  DSIPORTA_TE0     */
 	{DSIPORTA_LANE0X, (IEN | M0)},    /*  DSIPORTA_LANE0X  */
@@ -254,11 +259,6 @@ const struct pad_conf_entry core_padconf_array_non_essential[] = {
 	{UART6_RTS, (PTU | M0)},    /*  UART6_RTS   */
 	{UART3_CTS_RCTX, (PTU | IEN | M6)},    /*  GPIO5_153   */
 	{UART3_RTS_IRSD, (PTU | IEN | M1)},    /*  HDQ_SIO     */
-	{USBB3_HSIC_STROBE, (PTU | IEN | M0)},    /*  USBB3_HSIC_STROBE*/
-	{USBB3_HSIC_DATA, (PTU | IEN | M0)},    /*  USBB3_HSIC_DATA  */
-	{USBD0_HS_DP, (IEN | M0)},    /*  USBD0_HS_DP */
-	{USBD0_HS_DM, (IEN | M0)},    /*  USBD0_HS_DM */
-	{USBD0_SS_RX, (IEN | M0)},    /*  USBD0_SS_RX */
 	{I2C1_PMIC_SCL, (PTU | IEN | M0)},    /*  I2C1_PMIC_SCL  */
 	{I2C1_PMIC_SDA, (PTU | IEN | M0)},    /*  I2C1_PMIC_SDA  */
 
