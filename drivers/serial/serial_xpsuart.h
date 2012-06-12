@@ -1,7 +1,5 @@
 /*
- * Adapted from:
- * df_arm/trunk/ep3_1/sw/standalone/drivers/uart_v1_00_a/src/xuartepb_hw.h
- * as of svn rev 1377.
+ * Xilinx Zynq Serial PS driver, headers
  */
 
 #ifndef __XILINX_ZYNQ_UART_H__

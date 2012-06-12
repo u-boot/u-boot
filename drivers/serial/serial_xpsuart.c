@@ -1,5 +1,5 @@
 /*
- * U-boot driver for Xilinx Dragonfire UART.
+ * Xilinx Zynq Serial PS driver
  * Based on existing U-boot serial drivers.
  */
 

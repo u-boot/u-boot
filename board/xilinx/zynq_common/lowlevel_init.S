@@ -1,7 +1,7 @@
 
 /*
- * This black box is a direct translation of init_ddrc.tcl. The Pele DDR controller
- * is initialized herein.
+ * This black box is a direct translation of init_ddrc.tcl.
+ * The Zynq DDR controller is initialized herein.
  * It needs lots of love and attention some day.
  */
 

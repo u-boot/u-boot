@@ -211,7 +211,7 @@ make_command (unsigned cmd)
 	return retval;
 }
 
-static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
+static int zynq_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
                 struct mmc_data *data)
 {
 	u32 status;
@@ -220,7 +220,7 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	int result = 0;
 
 #ifdef DEBUG_VERBOSE
-	printf("pele_sdh_request: cmdidx: %d arg: 0x%x\n",
+	printf("zynq_sdh_request: cmdidx: %d arg: 0x%x\n",
 	    cmd->cmdidx, cmd->cmdarg);
 #endif
 
@@ -358,14 +358,14 @@ exit:
 	return result;
 }
 
-static void pele_sdh_set_ios(struct mmc *mmc)
+static void zynq_sdh_set_ios(struct mmc *mmc)
 {
 #ifdef DEBUG
 	printf("%s: voltages: 0x%x clock: 0x%x bus_width: 0x%x\n", __FUNCTION__,
 		mmc->voltages, mmc->clock, mmc->bus_width);
 #endif
 }
-static int pele_sdh_init(struct mmc *mmc)
+static int zynq_sdh_init(struct mmc *mmc)
 {
 	init_port();
 	return 0;
@@ -385,9 +385,9 @@ int zynq_mmc_init(bd_t *bd)
 		return -ENOMEM;
 	}
 	sprintf(mmc->name, "SDHCI");
-	mmc->send_cmd = pele_sdh_request;
-	mmc->set_ios = pele_sdh_set_ios;
-	mmc->init = pele_sdh_init;
+	mmc->send_cmd = zynq_sdh_request;
+	mmc->set_ios = zynq_sdh_set_ios;
+	mmc->init = zynq_sdh_init;
 
 	mmc->host_caps = MMC_MODE_4BIT;
 

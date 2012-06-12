@@ -14,12 +14,12 @@
 
 #include "zynq_qspi.h"
 
-struct pele_spi_slave {
+struct zynq_spi_slave {
 	struct spi_slave  slave;
 	struct spi_device qspi;
 };
 
-#define to_pele_spi_slave(s) container_of(s, struct pele_spi_slave, slave)
+#define to_zynq_spi_slave(s) container_of(s, struct zynq_spi_slave, slave)
 
 __attribute__((weak))
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
@@ -57,7 +57,7 @@ void spi_init()
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
-	struct pele_spi_slave *pspi;
+	struct zynq_spi_slave *pspi;
 
 #ifdef DEBUG
 	printf("spi_setup_slave: bus: %d cs: %d max_hz: %d mode: %d\n",
@@ -66,7 +66,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	xqspips_init_hw((void *)XPSS_QSPI_BASEADDR);
 
-	pspi = malloc(sizeof(struct pele_spi_slave));
+	pspi = malloc(sizeof(struct zynq_spi_slave));
 	if (!pspi) {
 		return NULL;
 	}
@@ -87,13 +87,13 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 void spi_free_slave(struct spi_slave *slave)
 {
-	struct pele_spi_slave *pspi;
+	struct zynq_spi_slave *pspi;
 
 #ifdef DEBUG
 	printf("spi_free_slave: slave: 0x%08x\n", (u32)slave);
 #endif
 
-	pspi = to_pele_spi_slave(slave);
+	pspi = to_zynq_spi_slave(slave);
 	free(pspi);
 }
 
@@ -115,7 +115,7 @@ void spi_release_bus(struct spi_slave *slave)
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags)
 {
-	struct pele_spi_slave *pspi;
+	struct zynq_spi_slave *pspi;
 	struct spi_transfer transfer;
 
 #ifdef DEBUG
@@ -123,7 +123,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		(u32)slave, bitlen, (u32)dout, (u32)din, flags);
 #endif
 
-	pspi = (struct pele_spi_slave *)slave;
+	pspi = (struct zynq_spi_slave *)slave;
 	transfer.tx_buf = dout;
 	transfer.rx_buf = din;
 	transfer.len = bitlen / 8;
