@@ -394,6 +394,9 @@ void enable_basic_uboot_clocks(void)
 		&prcm->cm_l4per_i2c2_clkctrl,
 		&prcm->cm_l4per_i2c3_clkctrl,
 		&prcm->cm_l4per_i2c4_clkctrl,
+		&prcm->cm_l3init_hsusbtll_clkctrl,
+		&prcm->cm_l3init_hsusbhost_clkctrl,
+		&prcm->cm_l3init_fsusb_clkctrl,
 		0
 	};
 
@@ -432,7 +435,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_l3instr_l3_instr_clkctrl,
 		&prcm->cm_l3instr_intrconn_wp1_clkctrl,
 		&prcm->cm_l3init_hsi_clkctrl,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
 		&prcm->cm_l4per_hdq1w_clkctrl,
 		0
 	};
@@ -471,8 +473,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_cam_fdif_clkctrl,
 		&prcm->cm_dss_dss_clkctrl,
 		&prcm->cm_sgx_sgx_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
-		&prcm->cm_l3init_fsusb_clkctrl,
 		0
 	};
 

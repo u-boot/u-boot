@@ -364,9 +364,6 @@ void enable_basic_clocks(void)
 		&prcm->cm_l4per_gpio4_clkctrl,
 		&prcm->cm_l4per_gpio5_clkctrl,
 		&prcm->cm_l4per_gpio6_clkctrl,
-		&prcm->cm_l3init_usbphy_clkctrl,
-		&prcm->cm_clksel_usb_60mhz,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
 		0
 	};
 
@@ -377,7 +374,6 @@ void enable_basic_clocks(void)
 		&prcm->cm_l4per_gptimer2_clkctrl,
 		&prcm->cm_wkup_wdtimer2_clkctrl,
 		&prcm->cm_l4per_uart3_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
 		0
 	};
 
@@ -414,6 +410,9 @@ void enable_basic_uboot_clocks(void)
 	u32 *const clk_modules_hw_auto_essential[] = {
 		&prcm->cm_l3init_hsusbotg_clkctrl,
 		&prcm->cm_l3init_usbphy_clkctrl,
+		&prcm->cm_l3init_usbphy_clkctrl,
+		&prcm->cm_clksel_usb_60mhz,
+		&prcm->cm_l3init_hsusbtll_clkctrl,
 		0
 	};
 
@@ -423,6 +422,7 @@ void enable_basic_uboot_clocks(void)
 		&prcm->cm_l4per_i2c2_clkctrl,
 		&prcm->cm_l4per_i2c3_clkctrl,
 		&prcm->cm_l4per_i2c4_clkctrl,
+		&prcm->cm_l3init_hsusbhost_clkctrl,
 		0
 	};
 
@@ -457,7 +457,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_l3instr_l3_instr_clkctrl,
 		&prcm->cm_l3instr_intrconn_wp1_clkctrl,
 		&prcm->cm_l3init_hsi_clkctrl,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
 		0
 	};
 
@@ -497,7 +496,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_cam_fdif_clkctrl,
 		&prcm->cm_dss_dss_clkctrl,
 		&prcm->cm_sgx_sgx_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
 		0
 	};
 
