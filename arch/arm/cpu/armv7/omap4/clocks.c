@@ -354,6 +354,7 @@ void enable_basic_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_essential[] = {
+		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_memif_emif_1_clkctrl,
 		&prcm->cm_memif_emif_2_clkctrl,
 		&prcm->cm_l4cfg_l4_cfg_clkctrl,
@@ -452,7 +453,6 @@ void enable_non_essential_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_non_essential[] = {
-		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_l3instr_l3_3_clkctrl,
 		&prcm->cm_l3instr_l3_instr_clkctrl,
 		&prcm->cm_l3instr_intrconn_wp1_clkctrl,
