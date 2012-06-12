@@ -64,6 +64,12 @@ void __pin_mux_usb(void)
 
 void pin_mux_usb(void) __attribute__((weak, alias("__pin_mux_usb")));
 
+void __pin_mux_spi(void)
+{
+}
+
+void pin_mux_spi(void) __attribute__((weak, alias("__pin_mux_spi")));
+
 /*
  * Routine: power_det_init
  * Description: turn off power detects
@@ -95,6 +101,7 @@ int board_init(void)
 	gpio_config_uart();
 #endif
 #ifdef CONFIG_TEGRA_SPI
+	pin_mux_spi();
 	spi_init();
 #endif
 	/* boot param addr */
