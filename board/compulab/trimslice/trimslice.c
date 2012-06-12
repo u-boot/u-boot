@@ -42,6 +42,11 @@ void gpio_config_uart(void)
 {
 }
 
+void pin_mux_spi(void)
+{
+	funcmux_select(PERIPH_ID_SPI1, FUNCMUX_SPI1_GMC_GMD);
+}
+
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)
