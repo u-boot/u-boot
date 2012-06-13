@@ -30,6 +30,7 @@
 
 #define MACH_TYPE_MCX			3656
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX
+#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
@@ -140,6 +141,7 @@
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_CMD_GPIO
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
