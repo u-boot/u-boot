@@ -183,38 +183,95 @@
 
 #define CONFIG_BOOTFILE		"uImage"
 
+#define xstr(s)	str(s)
+#define str(s)	#s
+
+/* Setup MTD for NAND on the SOM */
+#define MTDIDS_DEFAULT		"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:512k(MLO),"	\
+				"1m(u-boot),256k(env1),"		\
+				"256k(env2),6m(kernel),6m(k_recovery),"	\
+				"8m(fs_recovery),-(common_data)"
+
+#define CONFIG_HOSTNAME mcx
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x82000000\0" \
-	"console=ttyO2,115200n8\0" \
-	"mmcargs=setenv bootargs console=${console} " \
-		"root=/dev/mmcblk0p2 rw " \
-		"rootfstype=ext3 rootwait\0" \
-	"nandargs=setenv bootargs console=${console} " \
-		"root=/dev/mtdblock4 rw " \
-		"rootfstype=jffs2\0" \
-	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc 0 ${loadaddr} uImage\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"bootm ${loadaddr}\0" \
-	"nandboot=echo Booting from nand ...; " \
-		"run nandargs; " \
-		"nand read ${loadaddr} 280000 400000; " \
-		"bootm ${loadaddr}\0" \
+	"adddbg=setenv bootargs ${bootargs} trace_buf_size=64M\0"	\
+	"adddebug=setenv bootargs ${bootargs} earlyprintk=serial\0"	\
+	"addeth=setenv bootargs ${bootargs} ethaddr=${ethaddr}\0"	\
+	"addfb=setenv bootargs ${bootargs} vram=6M "			\
+		"omapfb.vram=1:2M,2:2M,3:2M omapdss.def_disp=lcd\0"	\
+	"addip_sta=setenv bootargs ${bootargs} "			\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
+		"${netmask}:${hostname}:eth0:off\0"			\
+	"addip_dyn=setenv bootargs ${bootargs} ip=dhcp\0"		\
+	"addip=if test -n ${ipdyn};then run addip_dyn;"			\
+		"else run addip_sta;fi\0"				\
+	"addmisc=setenv bootargs ${bootargs} ${misc}\0"			\
+	"addtty=setenv bootargs ${bootargs} "				\
+		"console=${consoledev},${baudrate}\0"			\
+	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"baudrate=115200\0"						\
+	"consoledev=ttyO2\0"						\
+	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
+	"loadaddr=0x82000000\0"						\
+	"load=tftp ${loadaddr} ${u-boot}\0"				\
+	"load_k=tftp ${loadaddr} ${bootfile}\0"				\
+	"loaduimage=fatload mmc 0 ${loadaddr} uImage\0"			\
+	"loadmlo=tftp ${loadaddr} ${mlo}\0"				\
+	"mlo=" xstr(CONFIG_HOSTNAME) "/MLO\0"				\
+	"mmcargs=root=/dev/mmcblk0p2 rw "				\
+		"rootfstype=ext3 rootwait\0"				\
+	"mmcboot=echo Booting from mmc ...; "				\
+		"run mmcargs; "						\
+		"run addip addtty addmtd addfb addeth addmisc;"		\
+		"run loaduimage; "					\
+		"bootm ${loadaddr}\0"					\
+	"net_nfs=run load_k; "						\
+		"run nfsargs; "						\
+		"run addip addtty addmtd addfb addeth addmisc;"		\
+		"bootm ${loadaddr}\0"					\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.img\0"			\
+	"uboot_addr=0x80000\0"						\
+	"update=nandecc sw;nand erase ${uboot_addr} 100000;"		\
+		"nand write ${loadaddr} ${uboot_addr} 80000\0"		\
+	"updatemlo=nandecc hw;nand erase 0 20000;"			\
+		"nand write ${loadaddr} 0 20000\0"			\
+	"upd=if run load;then echo Updating u-boot;if run update;"	\
+		"then echo U-Boot updated;"				\
+			"else echo Error updating u-boot !;"		\
+			"echo Board without bootloader !!;"		\
+		"fi;"							\
+		"else echo U-Boot not downloaded..exiting;fi\0"		\
+	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0"		\
+	"bootscript=echo Running bootscript from mmc ...; "		\
+		"source ${loadaddr}\0"					\
+	"nandargs=setenv bootargs ubi.mtd=7 "				\
+		"root=ubi0:rootfs rootfstype=ubifs\0"			\
+	"nandboot=echo Booting from nand ...; "				\
+		"run nandargs; "					\
+		"ubi part nand0,4;"					\
+		"ubi readvol ${loadaddr} kernel;"			\
+		"run addip addtty addmtd addfb addeth addmisc;"		\
+		"bootm ${loadaddr}\0"					\
+	"swupdate_args=setenv bootargs ubi.mtd=6 root=ubi0:fs_recovery "\
+		"rootfstype=ubifs quiet loglevel=1 "			\
+			"consoleblank=0 ${swupdate_misc}\0"		\
+	"swupdate=echo Running Sw-Update...;"				\
+		"if printenv mtdparts;then echo Starting SwUpdate...; "	\
+		"else mtdparts default;fi; "				\
+		"ubi part nand0,5;"					\
+		"ubi readvol 0x82000000 kernel_recovery;"		\
+		"run swupdate_args; "					\
+		"setenv bootargs ${bootargs} "				\
+			"${mtdparts} "					\
+			"vram=6M omapfb.vram=1:2M,2:2M,3:2M "		\
+			"omapdss.def_disp=lcd;"				\
+		"bootm ${loadaddr}\0"
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc init; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"else run nandboot; " \
-			"fi; " \
-		"fi; " \
-	"else run nandboot; fi"
+	"run nandboot"
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
@@ -279,18 +336,15 @@
 #define CONFIG_NAND_OMAP_GPMC
 #define GPMC_NAND_ECC_LP_x16_LAYOUT
 #define CONFIG_ENV_IS_IN_NAND
-#define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
+#define SMNAND_ENV_OFFSET		0x180000 /* environment starts here */
 
+/* Redundant Environment */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
-
-/*
- * CFI FLASH driver setup
- */
-/* timeout values are in ticks */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
+						2 * CONFIG_SYS_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 
 /* Flash banks JFFS2 should use */
 #define CONFIG_SYS_MAX_MTD_BANKS	(CONFIG_SYS_MAX_FLASH_BANKS + \
