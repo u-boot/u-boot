@@ -33,6 +33,7 @@
 #include <nand.h>
 #include <netdev.h>
 #include <miiphy.h>
+#include <spi.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
@@ -284,48 +285,17 @@ int board_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_CMD_SF)
-int do_spi_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int board_spi_claim_bus(struct spi_slave *slave)
 {
-	u32 tmp;
-	if (argc < 2)
-		return cmd_usage(cmdtp);
-
-	if ((strcmp(argv[1], "off") == 0)) {
-		printf("SPI FLASH disabled, NAND enabled\n");
-		/* Multi-Purpose Pins Functionality configuration */
-		kwmpp_config[0] = MPP0_NF_IO2;
-		kwmpp_config[1] = MPP1_NF_IO3;
-		kwmpp_config[2] = MPP2_NF_IO4;
-		kwmpp_config[3] = MPP3_NF_IO5;
-
-		kirkwood_mpp_conf(kwmpp_config, NULL);
-		tmp = readl(KW_GPIO0_BASE);
-		writel(tmp | FLASH_GPIO_PIN , KW_GPIO0_BASE);
-	} else if ((strcmp(argv[1], "on") == 0)) {
-		printf("SPI FLASH enabled, NAND disabled\n");
-		/* Multi-Purpose Pins Functionality configuration */
-		kwmpp_config[0] = MPP0_SPI_SCn;
-		kwmpp_config[1] = MPP1_SPI_MOSI;
-		kwmpp_config[2] = MPP2_SPI_SCK;
-		kwmpp_config[3] = MPP3_SPI_MISO;
-
-		kirkwood_mpp_conf(kwmpp_config, NULL);
-		tmp = readl(KW_GPIO0_BASE);
-		writel(tmp & (~FLASH_GPIO_PIN) , KW_GPIO0_BASE);
-	} else {
-		return cmd_usage(cmdtp);
-	}
+	kw_gpio_set_value(KM_FLASH_GPIO_PIN, 0);
 
 	return 0;
 }
 
-U_BOOT_CMD(
-	spitoggle,	2,	0,	do_spi_toggle,
-	"En-/disable SPI FLASH access",
-	"<on|off> - Enable (on) or disable (off) SPI FLASH access\n"
-	);
-#endif
+void board_spi_release_bus(struct spi_slave *slave)
+{
+	kw_gpio_set_value(KM_FLASH_GPIO_PIN, 1);
+}
 
 int dram_init(void)
 {

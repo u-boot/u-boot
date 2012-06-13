@@ -227,7 +227,11 @@ int get_scl(void);
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
+/* SPI bus claim MPP configuration */
+#define CONFIG_SYS_KW_SPI_MPP	0x0
+
 #define FLASH_GPIO_PIN			0x00010000
+#define KM_FLASH_GPIO_PIN	16
 
 #ifndef MTDIDS_DEFAULT
 # define MTDIDS_DEFAULT		"nand0=orion_nand"
@@ -241,9 +245,8 @@ int get_scl(void);
 
 #define	CONFIG_KM_UPDATE_UBOOT						\
 	"update="							\
-		"spi on;sf probe 0;sf erase 0 +${filesize};"		\
-		"sf write ${load_addr_r} 0 ${filesize};"		\
-		"spi off\0"
+		"sf probe 0;sf erase 0 +${filesize};"			\
+		"sf write ${load_addr_r} 0 ${filesize};\0"
 
 /*
  * Default environment variables
