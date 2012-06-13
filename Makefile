@@ -438,7 +438,8 @@ $(obj)u-boot.ubl:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		rm $(obj)spl/u-boot-spl-pad.bin
 
 $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
-		$(obj)tools/mkimage -s -n /dev/null -T aisimage \
+		$(obj)tools/mkimage -s -n $(if $(CONFIG_AIS_CONFIG_FILE),$(CONFIG_AIS_CONFIG_FILE),"/dev/null") \
+			-T aisimage \
 			-e $(CONFIG_SPL_TEXT_BASE) \
 			-d $(obj)spl/u-boot-spl.bin \
 			$(obj)spl/u-boot-spl.ais
@@ -447,7 +448,6 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 			$(obj)spl/u-boot-spl.ais $(obj)spl/u-boot-spl-pad.ais
 		cat $(obj)spl/u-boot-spl-pad.ais $(obj)u-boot.bin > \
 			$(obj)u-boot.ais
-		rm $(obj)spl/u-boot-spl{,-pad}.ais
 
 $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
 		elftosb -zdf imx28 -c $(TOPDIR)/board/$(BOARDDIR)/u-boot.bd \
@@ -797,6 +797,7 @@ clobber:	tidy
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
 	@rm -f $(obj)dts/*.tmp
+	@rm -f $(obj)spl/u-boot-spl{,-pad}.ais
 
 mrproper \
 distclean:	clobber unconfig
