@@ -999,10 +999,6 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 #endif
 	unsigned long ecc_page_size;
 	int err = 0;
-#ifdef CONFIG_MTD_PARTITIONS
-	int  nr_parts;
-	static const char *part_probe_types[] = {"cmdlinepart", NULL};
-#endif
 	u8 maf_id, dev_id;
 	u8 get_feature[4];
 	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
@@ -1253,29 +1249,6 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 		goto out_unmap_all_mem;
 	}
 
-#ifdef CONFIG_MTD_PARTITIONS
-#ifdef CONFIG_MTD_CMDLINE_PARTS
-	/* Get the partition information from command line argument */
-	nr_parts = parse_mtd_partitions(mtd, part_probe_types,
-					&xnand->parts, 0);
-	if (nr_parts > 0) {
-		dev_info(&pdev->dev, "found %d partitions in command line",
-				nr_parts);
-		add_mtd_partitions(mtd, xnand->parts, nr_parts);
-		return 0;
-	} else if (pdata->parts)
-		add_mtd_partitions(&xnand->mtd, pdata->parts, pdata->nr_parts);
-	else {
-#endif
-		dev_info(&pdev->dev,
-			"Command line partition table is not available\n"
-			"or command line partition option is not enabled\n"
-			"creating single partition on flash\n");
-#endif
-		err = add_mtd_device(mtd);
-#ifdef CONFIG_MTD_CMDLINE_PARTS
-	}
-#endif
 	if (!err) {
 #ifdef LINUX_ONLY_NOT_UBOOT
 		dev_info(&pdev->dev, "at 0x%08X mapped to 0x%08X\n",
