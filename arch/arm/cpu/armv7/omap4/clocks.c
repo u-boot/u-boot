@@ -146,7 +146,7 @@ static const struct dpll_params iva_dpll_params_1862mhz[NUM_SYS_CLKS] = {
 	{727, 14, -1, -1, 4, 7, -1, -1},	/* 19.2 MHz */
 	{931, 25, -1, -1, 4, 7, -1, -1},	/* 26 MHz   */
 	{931, 26, -1, -1, 4, 7, -1, -1},	/* 27 MHz   */
-	{412, 16, -1, -1, 4, 7, -1, -1}		/* 38.4 MHz */
+	{291, 11, -1, -1, 4, 7, -1, -1}		/* 38.4 MHz */
 };
 
 /* ABE M & N values with sys_clk as source */
