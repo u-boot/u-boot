@@ -185,7 +185,8 @@
 			"ext2load mmc1 0 ${loadaddr} autoboot.scr; then " \
 		"source ${loadaddr}; " \
 	"fi; " \
-	"ubi part boot && ubifsmount boot && ubifsload ${loadaddr} uImage && bootm ${loadaddr}"
+	"ubi part boot && ubifsmount ubi:boot && " \
+	"ubifsload ${loadaddr} uImage && bootm ${loadaddr}"
 
 #define CONFIG_AUTO_COMPLETE	1
 /*
