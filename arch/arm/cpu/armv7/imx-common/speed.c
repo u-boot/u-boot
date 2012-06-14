@@ -35,7 +35,11 @@ DECLARE_GLOBAL_DATA_PTR;
 int get_clocks(void)
 {
 #ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_USDHC
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+#else
 	gd->sdhc_clk = mxc_get_clock(MXC_IPG_PERCLK);
+#endif
 #endif
 	return 0;
 }
