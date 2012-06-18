@@ -517,6 +517,13 @@ static int xnandps_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	return 0;
 }
 
+static int xnandps_read_page_raw_nooob(struct mtd_info *mtd, struct nand_chip *chip,
+					uint8_t *buf, int page)
+{
+	chip->read_buf(mtd, buf, mtd->writesize);
+	return 0;
+}
+
 static int xnandps_read_subpage_raw(struct mtd_info *mtd, struct nand_chip *chip,
 					uint32_t data_offs, uint32_t readlen, uint8_t *buf)
 {
@@ -1211,7 +1218,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 		/* The software ECC routines won't work with the
 				SMC controller */
 		nand_chip->ecc.mode = NAND_ECC_HW;
-		nand_chip->ecc.read_page = xnandps_read_page_raw;
+		nand_chip->ecc.read_page = xnandps_read_page_raw_nooob;
 		nand_chip->ecc.read_subpage = xnandps_read_subpage_raw;
 		nand_chip->ecc.write_page = xnandps_write_page_raw;
 		nand_chip->ecc.read_page_raw = xnandps_read_page_raw;
