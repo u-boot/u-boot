@@ -1177,7 +1177,7 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 			if (unlikely(ops->mode == MTD_OOB_RAW))
 				ret = chip->ecc.read_page_raw(mtd, chip,
 						bufpoi, page);
-			else if (!aligned && NAND_SUBPAGE_READ(chip) && !oob)
+			else if (!aligned && NAND_HAS_SUBPAGE_READ(chip) && !oob)
 				ret = chip->ecc.read_subpage(mtd, chip, col, bytes, bufpoi);
 			else
 				ret = chip->ecc.read_page(mtd, chip, bufpoi,
@@ -1187,7 +1187,7 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 
 			/* Transfer not aligned data */
 			if (!aligned) {
-				if (!NAND_SUBPAGE_READ(chip) && !oob)
+				if (!NAND_HAS_SUBPAGE_READ(chip) && !oob)
 					chip->pagebuf = realpage;
 				memcpy(buf, chip->buffers->databuf + col, bytes);
 			}
@@ -2939,6 +2939,10 @@ int nand_scan_tail(struct mtd_info *mtd)
 
 	/* Invalidate the pagebuffer reference */
 	chip->pagebuf = -1;
+
+	/* Large page NAND with SOFT_ECC should support subpage reads */
+	if ((chip->ecc.mode == NAND_ECC_SOFT) && (chip->page_shift > 9))
+		chip->options |= NAND_SUBPAGE_READ;
 
 	/* Fill in remaining MTD driver data */
 	mtd->type = MTD_NANDFLASH;
