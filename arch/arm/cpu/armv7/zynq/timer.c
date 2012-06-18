@@ -40,7 +40,6 @@
 
 #include <common.h>
 #include <asm/proc/ptrace.h>
-#include <asm/arch/xparameters.h>
 #include <div64.h>
 
 #include "xscutimer_hw.h"

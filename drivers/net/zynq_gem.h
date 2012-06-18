@@ -285,8 +285,6 @@ extern "C" {
 
 /***************************** Include Files ********************************/
 
-#include <asm/arch/xparameters.h>
-
 #include "xbasic_types.h"
 #include "xstatus.h"
 #include "zynq_gem_hw.h"

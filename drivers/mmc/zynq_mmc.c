@@ -1,6 +1,5 @@
 #include <common.h>
 #include <asm/arch/mmc.h>
-#include <asm/arch/xparameters.h>
 #include <asm/errno.h>
 #include <malloc.h>
 #include <mmc.h>

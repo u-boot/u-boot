@@ -10,8 +10,6 @@
 #include <malloc.h>
 #include <spi.h>
 
-#include <asm/arch/xparameters.h>
-
 #include "zynq_qspi.h"
 
 struct zynq_spi_slave {

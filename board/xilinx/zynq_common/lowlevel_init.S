@@ -5,9 +5,7 @@
  * It needs lots of love and attention some day.
  */
 
-#include <asm/arch/xparameters.h>
 #include <config.h>
-
 
 .globl lowlevel_init
 lowlevel_init:
