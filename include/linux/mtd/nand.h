@@ -194,7 +194,7 @@ typedef enum {
 #define NAND_HAS_SUBPAGE_READ(chip) ((chip->options & NAND_SUBPAGE_READ))
 
 /* Mask to zero out the chip options, which come from the id table */
-#define NAND_CHIPOPTIONS_MSK	(0x0000ffff & ~NAND_NO_AUTOINCR)
+#define NAND_CHIPOPTIONS_MSK	(0x0000efff & ~NAND_NO_AUTOINCR)
 
 /* Non chip related options */
 /* Use a flash based bad block table. This option is passed to the
