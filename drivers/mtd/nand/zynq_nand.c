@@ -40,6 +40,7 @@
 #include <malloc.h>
 
 #include <asm/arch/nand.h>
+#include <asm/io.h>
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
@@ -146,8 +147,6 @@ extern u32  XIo_In32(u32 InAddress);
 
 #define xnandps_read32(addr)       XIo_In32((u32)(addr))
 #define xnandps_write32(addr, val)	XIo_Out32((u32)(addr), (val))
-#define readl(addr)                 XIo_In32((u32)(addr))
-#define writel(val, addr)           XIo_Out32((u32)(addr), (val))
 
 
 /**
@@ -894,15 +893,48 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
  * @len:        number of bytes to read
  *
  */
-void xnandps_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
+static void xnandps_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
-	int i;
 	struct nand_chip *chip = mtd->priv;
-	unsigned long *ptr = (unsigned long *)buf;
+	const u32 *nand = chip->IO_ADDR_R;
 
-	len >>= 2;
-	for (i = 0; i < len; i++)
-		ptr[i] = readl(chip->IO_ADDR_R);
+	/* Make sure that buf is 32 bit aligned */
+	if (((int)buf & 0x3) != 0) {
+		if (((int)buf & 0x1) != 0) {
+			if (len) {
+				*buf = readb(nand);
+				buf += 1;
+				len--;
+			}
+		}
+
+		if (((int)buf & 0x3) != 0) {
+			if (len >= 2) {
+				*(u16 *)buf = readw(nand);
+				buf += 2;
+				len -= 2;
+			}
+		}
+	}
+
+	/* copy aligned data */
+	while (len >= 4) {
+		*(u32 *)buf = readl(nand);
+		buf += 4;
+		len -= 4;
+	}
+
+	/* mop up any remaining bytes */
+	if (len) {
+		if (len >= 2) {
+			*(u16 *)buf = readw(nand);
+			buf += 2;
+			len -= 2;
+		}
+
+		if (len)
+			*buf = readb(nand);
+	}
 }
 
 /**
@@ -912,43 +944,48 @@ void xnandps_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
  * @len:        number of bytes to write
  *
  */
-void xnandps_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
+static void xnandps_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 {
-	int i;
 	struct nand_chip *chip = mtd->priv;
-	unsigned long *ptr = (unsigned long *)buf;
-	len >>= 2;
+	const u32 *nand = chip->IO_ADDR_W;
 
-	for (i = 0; i < len; i++)
-		writel(ptr[i], chip->IO_ADDR_W);
-}
+	/* Make sure that buf is 32 bit aligned */
+	if (((int)buf & 0x3) != 0) {
+		if (((int)buf & 0x1) != 0) {
+			if (len) {
+				writeb(*buf, nand);
+				buf += 1;
+				len--;
+			}
+		}
 
-/**
- * xnandps_verify_buf - Verify chip data against buffer
- * @mtd:        MTD device structure
- * @buf:        buffer containing the data to compare
- * @len:        number of bytes to compare
- *
- */
-static int xnandps_verify_buf(struct mtd_info *mtd, const uint8_t *buf,
-				int len)
-{
-	int i;
-	struct nand_chip *chip = mtd->priv;
-	unsigned long *ptr = (unsigned long *)buf;
-	unsigned long addr;
-
-	len >>= 2;
-	for (i = 0; i < (len - 1); i++) {
-		if (ptr[i] != readl(chip->IO_ADDR_R))
-			return -EFAULT;
+		if (((int)buf & 0x3) != 0) {
+			if (len >= 2) {
+				writew(*(u16 *)buf, nand);
+				buf += 2;
+				len -= 2;
+			}
+		}
 	}
-	addr = (unsigned long __force)chip->IO_ADDR_R;
-	addr |= XNANDPSS_CLEAR_CS;
-	chip->IO_ADDR_R = (void __iomem *__force)addr;
-	if (ptr[i] != readl(chip->IO_ADDR_R))
-		return -EFAULT;
-	return 0;
+
+	/* copy aligned data */
+	while (len >= 4) {
+		writel(*(u32 *)buf, nand);
+		buf += 4;
+		len -= 4;
+	}
+
+	/* mop up any remaining bytes */
+	if (len) {
+		if (len >= 2) {
+			writew(*(u16 *)buf, nand);
+			buf += 2;
+			len -= 2;
+		}
+
+		if (len)
+			writeb(*buf, nand);
+	}
 }
 
 /**
@@ -1096,7 +1133,6 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	/* Buffer read/write routines */
 	nand_chip->read_buf = xnandps_read_buf;
 	nand_chip->write_buf = xnandps_write_buf;
-	nand_chip->verify_buf = xnandps_verify_buf;
 
 	/* Set the device option and flash width */
 #ifdef LINUX_ONLY_NOT_UBOOT
