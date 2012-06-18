@@ -296,8 +296,10 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 
 	/***** Try to establish a link at the highest speed possible  *****/
 #ifdef CONFIG_EP107
-	/* CR-659040 */
-	Xgmac_set_eth_advertise(EmacPssInstancePtr, 1000);
+	/* CR-659040:
+	 * Advertise link speed as 100Mbps for ep107 targets
+	 */
+	Xgmac_set_eth_advertise(EmacPssInstancePtr, 100);
 #else
 	/* CR-659040 */
 	/* Could be 1000 if an unknown bug is fixed */
