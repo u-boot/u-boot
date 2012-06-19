@@ -210,9 +210,6 @@
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser */
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #define CONFIG_MISC_INIT_R
 /*-----------------------------------------------------------------------

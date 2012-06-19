@@ -176,9 +176,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/

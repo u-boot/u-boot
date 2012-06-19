@@ -146,7 +146,6 @@ CONFIG_SPI
 #define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt */
 
 #define CONFIG_SYS_HUSH_PARSER		1		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size */

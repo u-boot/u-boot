@@ -93,7 +93,6 @@
 #define CONFIG_SYS_LONGHELP	/* undef to save memory	    */
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT	"Integrator-AP # "	/* Monitor Command Prompt   */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"# "
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size  */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)

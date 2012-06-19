@@ -152,7 +152,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"TRATS # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		384	/* Print Buffer Size */

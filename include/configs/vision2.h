@@ -176,7 +176,6 @@
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"Vision II U-boot > "
 
 /*
  * Stack sizes

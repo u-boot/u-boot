@@ -162,9 +162,6 @@
 #if 0
 #define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
 #endif
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/

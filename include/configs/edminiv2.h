@@ -237,7 +237,6 @@
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /* Enable command line editing */
 #define CONFIG_CMDLINE_EDITING

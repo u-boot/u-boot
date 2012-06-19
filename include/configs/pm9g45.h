@@ -177,7 +177,6 @@
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * Size of malloc() pool

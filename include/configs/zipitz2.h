@@ -132,7 +132,6 @@ unsigned char zipitz2_spi_read(void);
  * HUSH Shell Configuration
  */
 #define	CONFIG_SYS_HUSH_PARSER		1
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
 #ifdef	CONFIG_SYS_HUSH_PARSER

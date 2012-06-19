@@ -158,7 +158,6 @@
 #define	CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
 #ifdef  CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
 #endif
 
 #if defined(CONFIG_CMD_KGDB)

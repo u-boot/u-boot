@@ -411,7 +411,6 @@
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_SYS_PROMPT	"=> "
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT "autoboot in %d seconds\n", bootdelay

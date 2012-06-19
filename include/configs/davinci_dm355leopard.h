@@ -107,7 +107,6 @@
 		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_LONGHELP
 
 #ifdef CONFIG_NAND_DAVINCI

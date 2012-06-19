@@ -109,7 +109,6 @@
  * HUSH Shell Configuration
  */
 #define	CONFIG_SYS_HUSH_PARSER		1
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define	CONFIG_SYS_LONGHELP
 #ifdef	CONFIG_SYS_HUSH_PARSER

@@ -282,7 +282,6 @@
  * Use the "hush" command parser
  */
 #define	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * Set buffer size for console I/O

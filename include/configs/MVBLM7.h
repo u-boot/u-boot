@@ -294,7 +294,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE	/* add autocompletion support   */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000

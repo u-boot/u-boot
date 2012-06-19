@@ -159,7 +159,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /* U-Boot memory settings */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)

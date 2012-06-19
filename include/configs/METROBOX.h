@@ -288,7 +288,6 @@
 #define CONFIG_SYS_PROMPT	      "MetroBox=> "  /* Monitor Command Prompt	*/
 
 #define CONFIG_SYS_HUSH_PARSER	       1	     /* HUSH for ext'd cli	*/
-#define CONFIG_SYS_PROMPT_HUSH_PS2    "> "
 
 
 /*-----------------------------------------------------------------------

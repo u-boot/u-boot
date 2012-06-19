@@ -189,7 +189,6 @@
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
 #define CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * IPB Bus clocking configuration.

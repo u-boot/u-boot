@@ -143,7 +143,6 @@
  * Use the HUSH parser
  */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * Console configuration

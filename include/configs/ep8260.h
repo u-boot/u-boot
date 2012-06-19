@@ -290,7 +290,6 @@
    with a somewhat smapper memory footprint.
 */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 
 /*

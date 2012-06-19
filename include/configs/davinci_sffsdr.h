@@ -104,7 +104,6 @@
 #define CONFIG_AUTO_COMPLETE		/* Won't work with hush so far,
 					 * may be later */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY

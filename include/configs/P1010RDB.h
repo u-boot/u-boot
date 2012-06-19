@@ -464,9 +464,6 @@ extern unsigned long get_sdram_size(void);
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
 
 /*
  * Pass open firmware flat tree

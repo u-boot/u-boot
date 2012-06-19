@@ -102,7 +102,6 @@
 #define CONFIG_CMD_USB
 
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 /*
  * USB

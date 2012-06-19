@@ -85,7 +85,6 @@
 #define CONFIG_CMD_LOADB
 #define CONFIG_CMDLINE_EDITING	1 /* enables command line history */
 #define CONFIG_SYS_HUSH_PARSER /* Use the HUSH parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC

@@ -172,7 +172,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
 #define CONFIG_SYS_PROMPT	       "MX6QSABRELITE U-Boot > "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	       256

@@ -498,7 +498,6 @@
 
 #undef  CONFIG_SYS_HUSH_PARSER
 #ifdef  CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
 #endif
 
 /* When CONFIG_TIMESTAMP is selected, the timestamp (date and time)

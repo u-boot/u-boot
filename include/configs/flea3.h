@@ -130,7 +130,6 @@
 #define CONFIG_SYS_PROMPT	"flea3 U-Boot > "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_HUSH_PARSER	/* Use the HUSH parser */
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */

@@ -204,9 +204,6 @@
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT                1
