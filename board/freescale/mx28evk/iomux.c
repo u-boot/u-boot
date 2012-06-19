@@ -161,6 +161,20 @@ const iomux_cfg_t iomux_setup[] = {
 		(MXS_PAD_3V3 | MXS_PAD_8MA | MXS_PAD_PULLUP),
 };
 
+#define HW_DRAM_CTL29	(0x74 >> 2)
+#define CS_MAP		0xf
+#define COLUMN_SIZE	0x2
+#define ADDR_PINS	0x1
+#define APREBIT		0xa
+
+#define HW_DRAM_CTL29_CONFIG	(CS_MAP << 24 | COLUMN_SIZE << 16 | \
+					ADDR_PINS << 8 | APREBIT)
+
+void mx28_adjust_memory_params(uint32_t *dram_vals)
+{
+	dram_vals[HW_DRAM_CTL29] = HW_DRAM_CTL29_CONFIG;
+}
+
 void board_init_ll(void)
 {
 	mx28_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
