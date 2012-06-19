@@ -40,7 +40,6 @@
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 #define CONFIG_BAUDRATE 9600
-#define CONFIG_SYS_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
 
 #undef	CONFIG_MONITOR_IS_IN_RAM		/* starts uboot direct */
 

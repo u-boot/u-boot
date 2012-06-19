@@ -64,16 +64,6 @@
 #define CONFIG_BAUDRATE			38400
 
 /*
- * Set allowable console baud rates
- */
-#define CONFIG_SYS_BAUDRATE_TABLE		{ 9600,		\
-					  19200,	\
-					  38400,	\
-					  57600,	\
-					  115200,	\
-					}
-
-/*
  * Print console information
  */
 #undef	 CONFIG_SYS_CONSOLE_INFO_QUIET

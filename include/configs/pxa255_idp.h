@@ -246,9 +246,6 @@
 
 #define RTC	1				/* enable 32KHz osc */
 
-						/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 #ifdef CONFIG_MMC
 #define CONFIG_PXA_MMC
 #define CONFIG_CMD_MMC

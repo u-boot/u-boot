@@ -73,7 +73,6 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_SYS_NS16550_CLK		24000000
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* I2C Configuration */
 #define CONFIG_HARD_I2C

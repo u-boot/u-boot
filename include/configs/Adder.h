@@ -101,8 +101,6 @@
 
 #define CONFIG_SYS_HZ			1000		/* Decrementer freq: 1 ms ticks	*/
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 /*-----------------------------------------------------------------------
  * RAM configuration (note that CONFIG_SYS_SDRAM_BASE must be zero)
  */

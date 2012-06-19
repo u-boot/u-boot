@@ -226,7 +226,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* takes up to 10 msec		*/
 
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #define CONFIG_SYS_FLASH_BANKS		{ FLASH_BASE0_PRELIM , FLASH_BASE1_PRELIM }
 
 /*-----------------------------------------------------------------------

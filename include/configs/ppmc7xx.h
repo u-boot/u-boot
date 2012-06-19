@@ -368,7 +368,6 @@
 /*
  * Serial port config
  *
- * CONFIG_SYS_BAUDRATE_TABLE		- List of valid baud rates
  * CONFIG_SYS_NS16550			- Include the NS16550 driver
  * CONFIG_SYS_NS16550_SERIAL		- Include the serial (wrapper) driver
  * CONFIG_SYS_NS16550_CLK		- Frequency of reference clock
@@ -376,7 +375,6 @@
  * CONFIG_SYS_NS16550_COM1		- Base address of 1st serial port
  */
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_CLK		3686400

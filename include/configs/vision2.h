@@ -136,7 +136,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX			3
 #define CONFIG_BAUDRATE				115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /***********************************************************
  * Command definition

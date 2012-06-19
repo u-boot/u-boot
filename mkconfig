@@ -167,6 +167,7 @@ cat << EOF >> config.h
 #include <config_defaults.h>
 #include <configs/${CONFIG_NAME}.h>
 #include <asm/config.h>
+#include <config_fallbacks.h>
 EOF
 
 exit 0

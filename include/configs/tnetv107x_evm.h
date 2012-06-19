@@ -71,7 +71,6 @@
 #define CONFIG_SYS_NS16550_CLK		clk_get_rate(TNETV107X_LPSC_UART1)
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* Flash and environment info */
 #define CONFIG_SYS_NO_FLASH

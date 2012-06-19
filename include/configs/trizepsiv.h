@@ -172,9 +172,6 @@
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED		0x207		/* need to look more closely, I think this is Turbo = 2x, L=91Mhz */
 
-						/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 #ifdef CONFIG_MMC
 #define CONFIG_PXA_MMC
 #define CONFIG_CMD_MMC

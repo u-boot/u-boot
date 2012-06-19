@@ -243,8 +243,6 @@
  */
 #ifdef CONFIG_WATCHDOG
 #define CONFIG_SYS_BAUDRATE_TABLE	{		38400, 57600, 115200 }
-#else
-#define CONFIG_SYS_BAUDRATE_TABLE	{  9600, 19200, 38400, 57600, 115200 }
 #endif
 
 /*----------------------------------------------------------------------*/

@@ -175,8 +175,6 @@
 
 #define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks	*/
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 #define CONFIG_SYS_RESET_ADDRESS	0x04400000
 
 #define CONFIG_MISC_INIT_R	1	/* We need misc_init_r()	*/

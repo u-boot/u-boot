@@ -620,9 +620,6 @@
 #define CONFIG_SYS_MEMTEST_END		( CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 \
 				- CONFIG_SYS_MEM_END_USAGE )
 
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)

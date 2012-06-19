@@ -140,8 +140,6 @@
 					   1MB - 64K FLASH0 SEG =960K
 					   (size=0xf0000)*/
 
-#define CONFIG_SYS_BAUDRATE_TABLE  { 9600, 19200, 38400, 57600, 115200 }
-
 /*
  * NS16550 Configuration
  */
