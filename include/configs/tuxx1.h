@@ -11,7 +11,7 @@
  * (C) Copyright 2008
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
- * (C) Copyright 2010-2011
+ * (C) Copyright 2010-2012
  * Lukas Roggli, KEYMILE Ltd, lukas.roggli@keymile.com
  * Holger Brunck,  Keymile GmbH, holger.bruncl@keymile.com
  *
@@ -27,12 +27,16 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_TUXXX		/* TUXX1 board (tuxa1/tuda1) specific */
-#define CONFIG_HOSTNAME		tuxx1
-#ifdef CONFIG_KM_DISABLE_APP2
-#define CONFIG_KM_BOARD_NAME   "tuge1"
+#ifdef CONFIG_KMSUPX5
+#define CONFIG_KM_BOARD_NAME	"kmsupx5"
+#define CONFIG_HOSTNAME		kmsupx5
+#elif defined CONFIG_TUGE1
+#define CONFIG_KM_BOARD_NAME	"tuge1"
+#define CONFIG_HOSTNAME		tuge1
 #else
-#define CONFIG_KM_BOARD_NAME   "tuxx1"
+#define CONFIG_TUXXX		/* TUXX1 board (tuxa1/tuda1) specific */
+#define CONFIG_KM_BOARD_NAME	"tuxx1"
+#define CONFIG_HOSTNAME		tuxx1
 #endif
 
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
@@ -50,10 +54,10 @@
 /*
  * Init Local Bus Memory Controller:
  *
- * Bank Bus     Machine PortSz  Size  Device on TUDA1  TUXA1  TUGE1
- * ---- ---     ------- ------  -----  ----------------------------
- *  2   Local   GPCM    8 bit  256MB	         PAXG  LPXF   PAXI
- *  3   Local   GPCM    8 bit  256MB	         PINC3 PINC2  unused
+ * Bank Bus     Machine PortSz  Size  Device on TUDA1  TUXA1  TUGE1   KMSUPX4
+ * ---- ---     ------- ------  -----  ---------------------------------------
+ *  2   Local   GPCM    8 bit  256MB	         PAXG  LPXF   PAXI     LPXF
+ *  3   Local   GPCM    8 bit  256MB	         PINC3 PINC2  unused   unused
  *
  */
 

@@ -66,6 +66,13 @@ Oliver Brown <obrown@adventnetworks.com>
 
 	gw8260		MPC8260
 
+Holger Brunck <holger.brunck@keymile.com>
+
+	kmeter1		MPC8360
+	kmcoge5ne	MPC8360
+	tuge1		MPC8321
+	tuxx1		MPC8321
+
 Cyril Chemparathy <cyril@ti.com>
 
 	tnetv107x_evm	tnetv107x
@@ -431,7 +438,6 @@ Heiko Schocher <hs@denx.de>
 	charon		MPC5200
 	ids8247		MPC8247
 	jupiter		MPC5200
-	kmeter1		MPC8360
 	kmsupx5		MPC8321
 	mgcoge		MPC8247
 	mgcoge3ne	MPC8247
@@ -442,10 +448,6 @@ Heiko Schocher <hs@denx.de>
 	suvd3		MPC8321
 	uc101		MPC5200
 	ve8313		MPC8313
-
-Holger Brunck <holger.brunck@keymile.com>
-	tuge1		MPC8321
-	tuxx1		MPC8321
 
 Peter De Schrijver <p2@mind.be>
 

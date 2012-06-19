@@ -229,11 +229,15 @@ int get_scl(void);
 
 #define FLASH_GPIO_PIN			0x00010000
 
-#define MTDIDS_DEFAULT		"nand0=orion_nand"
-/* test-only: partitioning needs some tuning, this is just for tests */
-#define MTDPARTS_DEFAULT	"mtdparts="				\
-	"orion_nand:"							\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME ")"
+#ifndef MTDIDS_DEFAULT
+# define MTDIDS_DEFAULT		"nand0=orion_nand"
+#endif /* MTDIDS_DEFAULT */
+
+#ifndef MTDPARTS_DEFAULT
+# define MTDPARTS_DEFAULT	"mtdparts="			\
+	"orion_nand:"						\
+		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"
+#endif /* MTDPARTS_DEFAULT */
 
 #define	CONFIG_KM_DEF_ENV_UPDATE					\
 	"update="							\
@@ -257,7 +261,6 @@ int get_scl(void);
 	""
 
 #if defined(CONFIG_SYS_NO_FLASH)
-#define CONFIG_KM_UBI_PARTITION_NAME   "ubi0"
 #undef	CONFIG_FLASH_CFI_MTD
 #undef	CONFIG_JFFS2_CMDLINE
 #endif

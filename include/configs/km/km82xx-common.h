@@ -73,7 +73,7 @@
 		"128k(env),"						\
 		"128k(envred),"						\
 		"3072k(free),"						\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME ")"
+		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ")"
 
 /*
  * Default environment settings
