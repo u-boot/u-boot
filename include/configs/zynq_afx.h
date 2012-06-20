@@ -1,0 +1,108 @@
+/*
+ * (C) Copyright 2012
+ * Xilinx, Inc. All rights reserved.
+ * Jagan <jaganna@xilinx.com>
+ *
+ * Configuration settings for the Xilinx Zynq AFX board.
+ * See zynq_common.h for Zynq common configs
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+#ifndef __CONFIG_ZYNQ_AFX_H
+#define __CONFIG_ZYNQ_AFX_H
+
+/*
+ * High Level Configuration Options
+ */
+#define CONFIG_AFX /* Board */
+
+#include <configs/zynq_common.h>
+
+#if defined(CONFIG_AFX_NOR)
+#undef CONFIG_SYS_NO_FLASH
+#else
+#define CONFIG_SYS_NO_FLASH
+#endif
+
+#include <config_cmd_default.h>
+#define CONFIG_CMD_DATE		/* RTC? */
+#define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
+#define CONFIG_REGINFO		/* Again, debugging */
+#undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
+#define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
+#define CONFIG_PANIC_HANG /* For development/debugging */
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
+
+/* this is to set ipaddr, ethaddr and serverip env variables. */
+#define CONFIG_ZYNQ_IP_ENV
+
+#if defined(CONFIG_AFX_NOR)
+/* Place a Xilinx Boot ROM header in u-boot image? */
+#define CONFIG_ZYNQ_XILINX_FLASH_HEADER
+#endif
+
+/*
+ * NOR Flash Settings
+ */
+#ifndef CONFIG_SYS_NO_FLASH
+#define CONFIG_SYS_FLASH_BASE           0xE2000000
+#define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
+#define CONFIG_SYS_MAX_FLASH_BANKS      1
+
+/* max number of sectors/blocks on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT       512
+#define CONFIG_SYS_FLASH_ERASE_TOUT     1000
+#define CONFIG_SYS_FLASH_WRITE_TOUT     5000
+#define CONFIG_FLASH_SHOW_PROGRESS	10
+
+#define CONFIG_SYS_FLASH_CFI
+#undef CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_FLASH_CFI_DRIVER
+#undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
+#define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
+#define CONFIG_ENV_SECT_SIZE		0x20000		/*128 KB*/
+#define CONFIG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
+#define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
+#endif
+#else
+#define CONFIG_ENV_IS_NOWHERE
+#endif
+
+/*
+ * Physical Memory map
+ */
+#define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
+
+/*
+ * UART Settings
+ */
+#define CONFIG_UART1
+
+/*
+ * Ethernet Settings
+ */
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
+#undef CONFIG_BOOTM_NETBSD
+
+#endif /* __CONFIG_ZYNQ_AFX_H */
