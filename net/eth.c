@@ -500,10 +500,7 @@ int eth_receive(void *packet, int length)
 			return -1;
 	}
 
-	if (length < eth_rcv_bufs[eth_rcv_current].length)
-		return -1;
-
-	length = eth_rcv_bufs[eth_rcv_current].length;
+	length = min(eth_rcv_bufs[eth_rcv_current].length, length);
 
 	for (i = 0; i < length; i++)
 		p[i] = eth_rcv_bufs[eth_rcv_current].data[i];
