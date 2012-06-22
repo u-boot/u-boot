@@ -30,6 +30,7 @@ int board_init(void)
 
 #ifdef CONFIG_I2C
 	enable_i2c0_pin_mux();
+	enable_i2c1_pin_mux();
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 
