@@ -28,6 +28,7 @@
 #include <ns16550.h>
 #include <malloc.h>
 #include <spi_flash.h>
+#include <mmc.h>
 
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 
@@ -95,5 +96,9 @@ void board_init_r(gd_t *id, ulong dummy)
 #ifdef CONFIG_SPL_SPI_LOAD
 	puts("SPI boot...\n");
 	spi_boot();
+#endif
+#ifdef CONFIG_SPL_MMC_LOAD
+	puts("MMC boot...\n");
+	spl_mmc_load();
 #endif
 }

@@ -350,6 +350,17 @@
 #define CONFIG_SPL_TEXT_BASE	0x80000000
 #define CONFIG_SPL_MAX_SIZE	32768
 
+
+/* Load U-Boot Image From MMC */
+#ifdef CONFIG_SPL_MMC_LOAD
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SYS_MMC_U_BOOT_OFFS	0x75
+#define CONFIG_SYS_MMC_U_BOOT_SIZE	0x30000
+#undef CONFIG_SPL_SPI_LOAD
+#endif
+
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
