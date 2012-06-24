@@ -27,7 +27,10 @@
  * Board
  */
 #define CONFIG_DRIVER_TI_EMAC
+/* check if direct NOR boot config is used */
+#ifndef CONFIG_DIRECT_NOR_BOOT
 #define CONFIG_USE_SPIFLASH
+#endif
 
 
 /*
@@ -43,9 +46,18 @@
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 #define CONFIG_SYS_HZ			1000
-#define CONFIG_SYS_TEXT_BASE		0xc1080000
 #define CONFIG_SYS_DA850_PLL_INIT
 #define CONFIG_SYS_DA850_DDR_INIT
+
+#ifdef CONFIG_DIRECT_NOR_BOOT
+#define CONFIG_ARCH_CPU_INIT
+#define CONFIG_DA8XX_GPIO
+#define CONFIG_SYS_TEXT_BASE		0x60000000
+#define CONFIG_SYS_DV_NOR_BOOT_CFG	(0x11)
+#define CONFIG_DA850_LOWLEVEL
+#else
+#define CONFIG_SYS_TEXT_BASE		0xc1080000
+#endif
 
 /*
  * Memory Info
@@ -366,6 +378,7 @@
 #define CONFIG_CMD_MMC
 #endif
 
+#ifndef CONFIG_DIRECT_NOR_BOOT
 /* defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_SERIAL_SUPPORT
@@ -375,7 +388,7 @@
 #define CONFIG_SPL_STACK	0x8001ff00
 #define CONFIG_SPL_TEXT_BASE	0x80000000
 #define CONFIG_SPL_MAX_SIZE	32768
-
+#endif
 
 /* Load U-Boot Image From MMC */
 #ifdef CONFIG_SPL_MMC_LOAD
@@ -389,6 +402,11 @@
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
+
+#ifdef CONFIG_DIRECT_NOR_BOOT
+#define CONFIG_SYS_INIT_SP_ADDR		0x8001ff00
+#else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
 					GENERATED_GBL_DATA_SIZE)
+#endif /* CONFIG_DIRECT_NOR_BOOT */
 #endif /* __CONFIG_H */
