@@ -36,6 +36,11 @@
 #include <asm/errno.h>
 #include <hwconfig.h>
 
+#ifdef CONFIG_DAVINCI_MMC
+#include <mmc.h>
+#include <asm/arch/sdmmc_defs.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_DRIVER_TI_EMAC
@@ -204,10 +209,31 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifdef CONFIG_DAVINCI_MMC
+static struct davinci_mmc mmc_sd0 = {
+	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
+	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */
+	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
+	.version = MMC_CTLR_VERSION_2,
+};
+
+int board_mmc_init(bd_t *bis)
+{
+	mmc_sd0.input_clk = clk_get(DAVINCI_MMCSD_CLKID);
+
+	/* Add slot-0 to mmc subsystem */
+	return davinci_mmc_init(bis, &mmc_sd0);
+}
+#endif
+
 static const struct pinmux_config gpio_pins[] = {
 #ifdef CONFIG_USE_NOR
 	/* GP0[11] is required for NOR to work on Rev 3 EVMs */
 	{ pinmux(0), 8, 4 },	/* GP0[11] */
+#endif
+#ifdef CONFIG_DAVINCI_MMC
+	/* GP0[11] is required for SD to work on Rev 3 EVMs */
+	{ pinmux(0),  8, 4 },	/* GP0[11] */
 #endif
 };
 
@@ -236,6 +262,9 @@ const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(emifa_pins_nor),
 #endif
 	PINMUX_ITEM(gpio_pins),
+#ifdef CONFIG_DAVINCI_MMC
+	PINMUX_ITEM(mmc0_pins),
+#endif
 };
 
 const int pinmuxes_size = ARRAY_SIZE(pinmuxes);
@@ -246,6 +275,9 @@ const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
+#ifdef CONFIG_DAVINCI_MMC
+	{ DAVINCI_LPSC_MMC_SD },
+#endif
 };
 
 const int lpsc_size = ARRAY_SIZE(lpsc);

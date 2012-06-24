@@ -446,6 +446,7 @@ struct davinci_pllc_regs {
 #define DAVINCI_SPI1_CLKID  (cpu_is_da830() ? 2 : ASYNC3)
 /* Clock IDs */
 enum davinci_clk_ids {
+	DAVINCI_MMCSD_CLKID = 2,
 	DAVINCI_SPI0_CLKID = 2,
 	DAVINCI_UART2_CLKID = 2,
 	DAVINCI_MMC_CLKID = 2,

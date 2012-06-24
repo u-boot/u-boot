@@ -169,3 +169,14 @@ const struct pinmux_config emifa_pins_nor[] = {
 	{ pinmux(12), 1, 6 }, /* EMA_A[1] */
 	{ pinmux(12), 1, 7 }, /* EMA_A[0] */
 };
+
+/* MMC0 pin muxer settings */
+const struct pinmux_config mmc0_pins[] = {
+	{ pinmux(10), 2, 0 },	/* MMCSD0_CLK */
+	{ pinmux(10), 2, 1 },	/* MMCSD0_CMD */
+	{ pinmux(10), 2, 2 },	/* MMCSD0_DAT_0 */
+	{ pinmux(10), 2, 3 },	/* MMCSD0_DAT_1 */
+	{ pinmux(10), 2, 4 },	/* MMCSD0_DAT_2 */
+	{ pinmux(10), 2, 5 },	/* MMCSD0_DAT_3 */
+	/* DA850 supports only 4-bit mode, remaining pins are not configured */
+};

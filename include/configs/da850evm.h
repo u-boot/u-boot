@@ -311,6 +311,23 @@
 #undef CONFIG_CMD_ENV
 #endif
 
+/* SD/MMC configuration */
+#define CONFIG_MMC
+#define CONFIG_DAVINCI_MMC_SD1
+#define CONFIG_GENERIC_MMC
+#define CONFIG_DAVINCI_MMC
+
+/*
+ * Enable MMC commands only when
+ * MMC support is present
+ */
+#ifdef CONFIG_MMC
+#define CONFIG_DOS_PARTITION
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_MMC
+#endif
+
 /* defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_SPI_SUPPORT

@@ -48,4 +48,7 @@ extern const struct pinmux_config emifa_pins_cs4[1];
 extern const struct pinmux_config emifa_pins_nand[12];
 extern const struct pinmux_config emifa_pins_nor[43];
 
+/* MMC pin muxer settings */
+extern const struct pinmux_config mmc0_pins[6];
+
 #endif
