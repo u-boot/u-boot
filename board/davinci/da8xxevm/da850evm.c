@@ -335,7 +335,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_USE_NOR
+#if defined(CONFIG_USE_NOR) || defined(CONFIG_DAVINCI_MMC)
 	u32 val;
 #endif
 
@@ -384,6 +384,16 @@ int board_init(void)
 	val = readl(GPIO_BANK0_REG_SET_ADDR);
 	val |= (0x01 << 11);
 	writel(val, GPIO_BANK0_REG_CLR_ADDR);
+#endif
+
+#ifdef CONFIG_DAVINCI_MMC
+	/* Set the GPIO direction as output */
+	clrbits_le32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
+
+	/* Set the output as high */
+	val = readl(GPIO_BANK0_REG_SET_ADDR);
+	val |= (0x01 << 11);
+	writel(val, GPIO_BANK0_REG_SET_ADDR);
 #endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
