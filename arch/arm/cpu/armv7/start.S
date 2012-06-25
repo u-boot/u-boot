@@ -277,6 +277,18 @@ jump_2_ram:
 	mcr     p15, 0, r0, c7, c10, 4	@ DSB
 	mcr     p15, 0, r0, c7, c5, 4	@ ISB
 #endif
+/*
+ * Move vector table
+ */
+#if !defined(CONFIG_TEGRA2)
+#if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD))
+	/* Set vector address in CP15 VBAR register */
+	ldr     r0, =_start
+	add     r0, r0, r9
+	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
+#endif
+#endif /* !Tegra2 */
+
 	ldr	r0, _board_init_r_ofs
 	adr	r1, _start
 	add	lr, r0, r1
