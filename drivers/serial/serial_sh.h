@@ -46,7 +46,8 @@ struct uart_port {
 	defined(CONFIG_ARCH_SH7367) || \
 	defined(CONFIG_ARCH_SH7377) || \
 	defined(CONFIG_ARCH_SH7372) || \
-	defined(CONFIG_SH73A0)
+	defined(CONFIG_SH73A0) || \
+	defined(CONFIG_R8A7740)
 # define SCSCR_INIT(port)  0x0030 /* TIE=0,RIE=0,TE=1,RE=1 */
 # define PORT_PTCR	   0xA405011EUL
 # define PORT_PVCR	   0xA4050122UL
@@ -284,7 +285,8 @@ struct uart_port {
 	defined(CONFIG_ARCH_SH7367) || \
 	defined(CONFIG_ARCH_SH7377) || \
 	defined(CONFIG_ARCH_SH7372) || \
-	defined(CONFIG_SH73A0)
+	defined(CONFIG_SH73A0) || \
+	defined(CONFIG_R8A7740)
 # define SCIF_ORER    0x0200
 # define SCIF_ERRORS (SCIF_PER | SCIF_FER | SCIF_ER | SCIF_BRK | SCIF_ORER)
 # define SCIF_RFDC_MASK 0x007f
@@ -329,7 +331,8 @@ struct uart_port {
 	defined(CONFIG_ARCH_SH7367) || \
 	defined(CONFIG_ARCH_SH7377) || \
 	defined(CONFIG_ARCH_SH7372) || \
-	defined(CONFIG_SH73A0)
+	defined(CONFIG_SH73A0) || \
+	defined(CONFIG_R8A7740)
 # define SCxSR_RDxF_CLEAR(port)	 (sci_in(port, SCxSR) & 0xfffc)
 # define SCxSR_ERROR_CLEAR(port) (sci_in(port, SCxSR) & 0xfd73)
 # define SCxSR_TDxE_CLEAR(port)	 (sci_in(port, SCxSR) & 0xffdf)
@@ -424,7 +427,8 @@ static inline void sci_##name##_out(struct uart_port *port,\
 	defined(CONFIG_ARCH_SH7367) || \
 	defined(CONFIG_ARCH_SH7377) || \
 	defined(CONFIG_ARCH_SH7372) || \
-	defined(CONFIG_SH73A0)
+	defined(CONFIG_SH73A0) || \
+	defined(CONFIG_R8A7740)
 #if defined(CONFIG_CPU_SH7710) || defined(CONFIG_CPU_SH7712)
 #define SCIx_FNS(name, sh3_sci_offset, sh3_sci_size,\
 				sh4_sci_offset, sh4_sci_size, \
@@ -444,7 +448,8 @@ static inline void sci_##name##_out(struct uart_port *port,\
 	defined(CONFIG_SH73A0)
 #define SCIF_FNS(name, scif_offset, scif_size) \
 	CPU_SCIF_FNS(name, scif_offset, scif_size)
-#elif defined(CONFIG_ARCH_SH7372)
+#elif defined(CONFIG_ARCH_SH7372) || \
+	defined(CONFIG_R8A7740)
 #define SCIx_FNS(name, sh4_scifa_offset, sh4_scifa_size,\
 				sh4_scifb_offset, sh4_scifb_size) \
 	CPU_SCIx_FNS(name, sh4_scifa_offset, sh4_scifa_size,\
@@ -511,7 +516,8 @@ SCIF_FNS(SCFDR,  0x1c, 16)
 SCIF_FNS(SCxTDR, 0x20,  8)
 SCIF_FNS(SCxRDR, 0x24,  8)
 SCIF_FNS(SCLSR,  0x00,  0)
-#elif defined(CONFIG_ARCH_SH7372)
+#elif defined(CONFIG_ARCH_SH7372) || \
+	defined(CONFIG_R8A7740)
 SCIF_FNS(SCSMR,  0x00, 16)
 SCIF_FNS(SCBRR,  0x04,  8)
 SCIF_FNS(SCSCR,  0x08, 16)
@@ -699,7 +705,8 @@ static inline int sci_rxd_in(struct uart_port *port)
 	defined(CONFIG_ARCH_SH7367) || \
 	defined(CONFIG_ARCH_SH7377) || \
 	defined(CONFIG_ARCH_SH7372) || \
-	defined(CONFIG_SH73A0)
+	defined(CONFIG_SH73A0) || \
+	defined(CONFIG_R8A7740)
 #define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
 #elif defined(CONFIG_CPU_SH7723) ||\
 	defined(CONFIG_CPU_SH7724)
