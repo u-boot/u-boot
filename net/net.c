@@ -652,7 +652,7 @@ NetSetTimeout(ulong iv, thand_f *f)
 			"--- NetLoop timeout handler set (%p)\n", f);
 		timeHandler = f;
 		timeStart = get_timer(0);
-		timeDelta = iv;
+		timeDelta = iv * CONFIG_SYS_HZ / 1000;
 	}
 }
 
