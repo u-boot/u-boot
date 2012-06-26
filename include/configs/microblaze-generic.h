@@ -31,6 +31,15 @@
 #define	CONFIG_MICROBLAZE	1
 #define	MICROBLAZE_V5		1
 
+/* linear flash memory */
+#ifdef XILINX_FLASH_START
+#define	FLASH
+#undef	RAMENV	/* hold environment in flash */
+#else
+#undef	FLASH
+#define	RAMENV	/* hold environment in RAM */
+#endif
+
 /* uart */
 #ifdef XILINX_UARTLITE_BASEADDR
 # define CONFIG_XILINX_UARTLITE
@@ -163,9 +172,6 @@
 
 /* stack */
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_MALLOC_BASE
-
-/*#define	RAMENV */
-#define	FLASH
 
 #ifdef FLASH
 # define CONFIG_SYS_FLASH_BASE		XILINX_FLASH_START
