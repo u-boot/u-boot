@@ -200,8 +200,6 @@
 # define CONFIG_ENV_IS_NOWHERE	1
 # define CONFIG_ENV_SIZE	0x1000
 # define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
-/* hardware flash protection */
-# define CONFIG_SYS_FLASH_PROTECTION
 #endif /* !FLASH */
 
 /* system ace */
