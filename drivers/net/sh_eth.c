@@ -376,12 +376,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl((FIFO_F_D_RFF | FIFO_F_D_RFD), FCFTR(port));
 
 	/* Configure e-mac registers */
-#if defined(CONFIG_CPU_SH7757)
-	outl(ECSIPR_BRCRXIP | ECSIPR_PSRTOIP | ECSIPR_LCHNGIP |
-		ECSIPR_MPDIP | ECSIPR_ICDIP, ECSIPR(port));
-#else
 	outl(0, ECSIPR(port));
-#endif
 
 	/* Set Mac address */
 	val = dev->enetaddr[0] << 24 | dev->enetaddr[1] << 16 |
@@ -395,14 +390,12 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 #if !defined(CONFIG_CPU_SH7757) && !defined(CONFIG_CPU_SH7724)
 	outl(0, PIPR(port));
 #endif
-#if !defined(CONFIG_CPU_SH7724)
+#if !defined(CONFIG_CPU_SH7724) && !defined(CONFIG_CPU_SH7757)
 	outl(APR_AP, APR(port));
 	outl(MPR_MP, MPR(port));
 #endif
 #if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
 	outl(TPAUSER_TPAUSE, TPAUSER(port));
-#elif defined(CONFIG_CPU_SH7757)
-	outl(TPAUSER_UNLIMITED, TPAUSER(port));
 #endif
 
 #if defined(CONFIG_CPU_SH7734)
