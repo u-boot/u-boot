@@ -282,8 +282,13 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 #define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xfee00000
 #elif defined(CONFIG_CPU_SH7757)
+#if defined(CONFIG_SH_ETHER_USE_GETHER)
+#define SH_ETH_TYPE_GETHER
+#define BASE_IO_ADDR	0xfee00000
+#else
 #define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xfef00000
+#endif
 #elif defined(CONFIG_CPU_SH7724)
 #define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xA4600000
@@ -331,7 +336,11 @@ enum DMAC_T_BIT {
 
 /* GECMR */
 enum GECMR_BIT {
+#if defined(CONFIG_CPU_SH7757)
+	GECMR_1000B = 0x20, GECMR_100B = 0x01, GECMR_10B = 0x00,
+#else
 	GECMR_1000B = 0x01, GECMR_100B = 0x04, GECMR_10B = 0x00,
+#endif
 };
 
 /* EDRRR*/
