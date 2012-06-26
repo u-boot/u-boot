@@ -166,7 +166,7 @@
 			- CONFIG_SYS_MONITOR_LEN - GENERATED_BD_INFO_SIZE)
 #define	CONFIG_SYS_MONITOR_END \
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-#define	CONFIG_SYS_MALLOC_LEN		SIZE
+#define	CONFIG_SYS_MALLOC_LEN		(SIZE * 3)
 #define	CONFIG_SYS_MALLOC_BASE \
 			(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
 
@@ -273,6 +273,8 @@
 # define CONFIG_CMD_FLASH
 # define CONFIG_CMD_IMLS
 # define CONFIG_CMD_JFFS2
+# define CONFIG_CMD_UBI
+# undef CONFIG_CMD_UBIFS
 
 # if !defined(RAMENV)
 #  define CONFIG_CMD_SAVEENV
@@ -285,7 +287,21 @@
 #endif
 
 #if defined(CONFIG_CMD_JFFS2)
-/* JFFS2 partitions */
+# define CONFIG_MTD_PARTITIONS
+#endif
+
+#if defined(CONFIG_CMD_UBIFS)
+# define CONFIG_CMD_UBI
+# define CONFIG_LZO
+#endif
+
+#if defined(CONFIG_CMD_UBI)
+# define CONFIG_MTD_PARTITIONS
+# define CONFIG_RBTREE
+#endif
+
+#if defined(CONFIG_MTD_PARTITIONS)
+/* MTD partitions */
 #define CONFIG_CMD_MTDPARTS	/* mtdparts command line support */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
