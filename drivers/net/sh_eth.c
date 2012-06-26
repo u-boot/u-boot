@@ -1,5 +1,5 @@
 /*
- * sh_eth.c - Driver for Renesas SH7763's ethernet controler.
+ * sh_eth.c - Driver for Renesas ethernet controler.
  *
  * Copyright (C) 2008, 2011 Renesas Solutions Corp.
  * Copyright (c) 2008, 2011 Nobuhiro Iwamatsu
@@ -138,7 +138,7 @@ int sh_eth_recv(struct eth_device *dev)
 static int sh_eth_reset(struct sh_eth_dev *eth)
 {
 	int port = eth->port;
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	int ret = 0, i;
 
 	/* Start e-dmac transmitter and receiver */
@@ -208,7 +208,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	/* Point the controller to the tx descriptor list. Must use physical
 	   addresses */
 	outl(ADDR_TO_PHY(port_info->tx_desc_base), TDLAR(port));
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	outl(ADDR_TO_PHY(port_info->tx_desc_base), TDFAR(port));
 	outl(ADDR_TO_PHY(cur_tx_desc), TDFXR(port));
 	outl(0x01, TDFFR(port));/* Last discriptor bit */
@@ -276,7 +276,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	/* Point the controller to the rx descriptor list */
 	outl(ADDR_TO_PHY(port_info->rx_desc_base), RDLAR(port));
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	outl(ADDR_TO_PHY(port_info->rx_desc_base), RDFAR(port));
 	outl(ADDR_TO_PHY(cur_rx_desc), RDFXR(port));
 	outl(RDFFR_RDLF, RDFFR(port));
@@ -370,7 +370,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(0, TFTR(port));
 	outl((FIFO_SIZE_T | FIFO_SIZE_R), FDR(port));
 	outl(RMCR_RST, RMCR(port));
-#if !defined(CONFIG_CPU_SH7757) && !defined(CONFIG_CPU_SH7724)
+#if defined(SH_ETH_TYPE_GETHER)
 	outl(0, RPADIR(port));
 #endif
 	outl((FIFO_F_D_RFF | FIFO_F_D_RFD), FCFTR(port));
@@ -387,14 +387,10 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(val, MALR(port));
 
 	outl(RFLR_RFL_MIN, RFLR(port));
-#if !defined(CONFIG_CPU_SH7757) && !defined(CONFIG_CPU_SH7724)
+#if defined(SH_ETH_TYPE_GETHER)
 	outl(0, PIPR(port));
-#endif
-#if !defined(CONFIG_CPU_SH7724) && !defined(CONFIG_CPU_SH7757)
 	outl(APR_AP, APR(port));
 	outl(MPR_MP, MPR(port));
-#endif
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
 	outl(TPAUSER_TPAUSE, TPAUSER(port));
 #endif
 
@@ -419,7 +415,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	/* Set the transfer speed */
 	if (phy->speed == 100) {
 		printf(SHETHER_NAME ": 100Base/");
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 		outl(GECMR_100B, GECMR(port));
 #elif defined(CONFIG_CPU_SH7757)
 		outl(1, RTRATE(port));
@@ -428,13 +424,13 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 #endif
 	} else if (phy->speed == 10) {
 		printf(SHETHER_NAME ": 10Base/");
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 		outl(GECMR_10B, GECMR(port));
 #elif defined(CONFIG_CPU_SH7757)
 		outl(0, RTRATE(port));
 #endif
 	}
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	else if (phy->speed == 1000) {
 		printf(SHETHER_NAME ": 1000Base/");
 		outl(GECMR_1000B, GECMR(port));

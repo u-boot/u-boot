@@ -99,6 +99,7 @@ struct sh_eth_dev {
 
 /* Register Address */
 #ifdef CONFIG_CPU_SH7763
+#define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xfee00000
 
 #define EDSR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0000)
@@ -137,6 +138,7 @@ struct sh_eth_dev {
 #define MAHR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x05c0)
 
 #elif defined(CONFIG_CPU_SH7757)
+#define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xfef00000
 
 #define TDLAR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0018)
@@ -164,6 +166,7 @@ struct sh_eth_dev {
 #define RTRATE(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x01fc)
 
 #elif defined(CONFIG_CPU_SH7724)
+#define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xA4600000
 
 #define TDLAR(port)		(BASE_IO_ADDR + 0x0018)
@@ -190,6 +193,7 @@ struct sh_eth_dev {
 #define MALR(port)		(BASE_IO_ADDR + 0x01c8)
 
 #elif defined(CONFIG_CPU_SH7734)
+#define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xFEE00000
 
 #define EDSR(port)		(BASE_IO_ADDR)
@@ -233,7 +237,7 @@ struct sh_eth_dev {
  * Register's bits
  * Copy from Linux driver source code
  */
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 /* EDSR */
 enum EDSR_BIT {
 	EDSR_ENT = 0x01, EDSR_ENR = 0x02,
@@ -244,15 +248,15 @@ enum EDSR_BIT {
 /* EDMR */
 enum DMAC_M_BIT {
 	EDMR_DL1 = 0x20, EDMR_DL0 = 0x10,
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	EDMR_SRST	= 0x03, /* Receive/Send reset */
 	EMDR_DESC_R	= 0x30, /* Descriptor reserve size */
 	EDMR_EL		= 0x40, /* Litte endian */
-#elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7724)
+#elif defined(SH_ETH_TYPE_ETHER)
 	EDMR_SRST	= 0x01,
 	EMDR_DESC_R	= 0x30, /* Descriptor reserve size */
 	EDMR_EL		= 0x40, /* Litte endian */
-#else /* CONFIG_CPU_SH7763 */
+#else
 	EDMR_SRST = 0x01,
 #endif
 };
@@ -262,7 +266,7 @@ enum DMAC_M_BIT {
 
 /* EDTRR */
 enum DMAC_T_BIT {
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	EDTRR_TRNS = 0x03,
 #else
 	EDTRR_TRNS = 0x01,
@@ -302,7 +306,7 @@ enum PHY_STATUS_BIT { PHY_ST_LINK = 0x01, };
 /* EESR */
 enum EESR_BIT {
 
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	EESR_TWB  = 0x40000000,
 #else
 	EESR_TWB  = 0xC0000000,
@@ -312,14 +316,14 @@ enum EESR_BIT {
 #endif
 	EESR_TABT = 0x04000000,
 	EESR_RABT = 0x02000000, EESR_RFRMER = 0x01000000,
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	EESR_ADE  = 0x00800000,
 #endif
 	EESR_ECI  = 0x00400000,
 	EESR_FTC  = 0x00200000, EESR_TDE  = 0x00100000,
 	EESR_TFE  = 0x00080000, EESR_FRC  = 0x00040000,
 	EESR_RDE  = 0x00020000, EESR_RFE  = 0x00010000,
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	EESR_CND  = 0x00000800,
 #endif
 	EESR_DLC  = 0x00000400,
@@ -331,7 +335,7 @@ enum EESR_BIT {
 };
 
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 # define TX_CHECK (EESR_TC1 | EESR_FTC)
 # define EESR_ERR_CHECK	(EESR_TWB | EESR_TABT | EESR_RABT | EESR_RDE \
 		| EESR_RFRMER | EESR_TFE | EESR_TDE | EESR_ECI)
@@ -391,8 +395,7 @@ enum FCFTR_BIT {
 
 /* Transfer descriptor bit */
 enum TD_STS_BIT {
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7757) \
-		|| defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_ETHER)
 	TD_TACT = 0x80000000,
 #else
 	TD_TACT = 0x7fffffff,
@@ -408,7 +411,7 @@ enum TD_STS_BIT {
 enum RECV_RST_BIT { RMCR_RST = 0x01, };
 /* ECMR */
 enum FELIC_MODE_BIT {
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	ECMR_TRCCM=0x04000000, ECMR_RCSC= 0x00800000, ECMR_DPAD= 0x00200000,
 	ECMR_RZPF = 0x00100000,
 #endif
@@ -423,10 +426,10 @@ enum FELIC_MODE_BIT {
 
 };
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 #define ECMR_CHG_DM	(ECMR_TRCCM | ECMR_RZPF | ECMR_ZPF | ECMR_PFR | ECMR_RXF | \
 						ECMR_TXF | ECMR_MCT)
-#elif CONFIG_CPU_SH7724 || CONFIG_CPU_SH7757
+#elif defined(SH_ETH_TYPE_ETHER)
 #define ECMR_CHG_DM (ECMR_ZPF | ECMR_PFR | ECMR_RXF | ECMR_TXF)
 #else
 #define ECMR_CHG_DM	(ECMR_ZPF | ECMR_PFR | ECMR_RXF | ECMR_TXF | ECMR_MCT)
@@ -434,14 +437,14 @@ enum FELIC_MODE_BIT {
 
 /* ECSR */
 enum ECSR_STATUS_BIT {
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	ECSR_BRCRX = 0x20, ECSR_PSRTO = 0x10,
 #endif
 	ECSR_LCHNG = 0x04,
 	ECSR_MPD = 0x02, ECSR_ICD = 0x01,
 };
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 # define ECSR_INIT (ECSR_ICD | ECSIPR_MPDIP)
 #else
 # define ECSR_INIT (ECSR_BRCRX | ECSR_PSRTO | \
@@ -450,10 +453,10 @@ enum ECSR_STATUS_BIT {
 
 /* ECSIPR */
 enum ECSIPR_STATUS_MASK_BIT {
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	ECSIPR_BRCRXIP = 0x20,
 	ECSIPR_PSRTOIP = 0x10,
-#elif defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#elif defined(SH_ETY_TYPE_GETHER)
 	ECSIPR_PSRTOIP = 0x10,
 	ECSIPR_PHYIP = 0x08,
 #endif
@@ -462,7 +465,7 @@ enum ECSIPR_STATUS_MASK_BIT {
 	ECSIPR_ICDIP = 0x01,
 };
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 # define ECSIPR_INIT (ECSIPR_LCHNGIP | ECSIPR_ICDIP | ECSIPR_MPDIP)
 #else
 # define ECSIPR_INIT (ECSIPR_BRCRXIP | ECSIPR_PSRTOIP | ECSIPR_LCHNGIP | \
@@ -493,7 +496,7 @@ enum RPADIR_BIT {
 	RPADIR_PADR = 0x0003f,
 };
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 # define RPADIR_INIT (0x00)
 #else
 # define RPADIR_INIT (RPADIR_PADS1)
