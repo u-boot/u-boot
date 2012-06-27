@@ -30,14 +30,14 @@ is the "mxsboot" tool found in U-Boot source tree.
 
 Firstly, obtain the elftosb archive from the following location:
 
-	http://foss.doredevelopment.dk/mirrors/imx/elftosb-10.12.01.tar.gz
+	ftp://ftp.denx.de/pub/tools/elftosb-10.12.01.tar.gz
 
 We use a $VER variable here to denote the current version. At the time of
 writing of this document, that is "10.12.01". To obtain the file from command
 line, use:
 
 	$ VER="10.12.01"
-	$ wget http://foss.doredevelopment.dk/mirrors/imx/elftosb-${VER}.tar.gz
+	$ wget ftp://ftp.denx.de/pub/tools/elftosb-${VER}.tar.gz
 
 Extract the file:
 
