@@ -366,7 +366,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 			}
 		}
 
-#else
+#elif defined(CONFIG_SYS_DDR_RAW_TIMING)
 	case STEP_COMPUTE_DIMM_PARMS:
 		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 			for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++) {
