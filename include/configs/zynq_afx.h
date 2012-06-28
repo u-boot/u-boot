@@ -124,4 +124,16 @@
 #endif
 #endif
 
+/*
+ * NAND Flash settings
+ */
+#if defined(CONFIG_AFX_NAND)
+#define CONFIG_NAND_ZYNQ
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NAND_LOCK_UNLOCK
+#define CONFIG_SYS_MAX_NAND_DEVICE 1
+#define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
+#define CONFIG_MTD_DEVICE
+#endif
+
 #endif /* __CONFIG_ZYNQ_AFX_H */
