@@ -90,7 +90,7 @@ int checkboard(void)
 /* IPSR11 */
 #define ET0_ERXD4	(0x4 <<  4)
 #define ET0_ERXD5	(0x4 <<  7)
-#define ET0_ERXD6	(0x4 <<  4)
+#define ET0_ERXD6	(0x3 << 10)
 #define ET0_TX_EN	(0x2 << 19)
 #define ET0_TX_ER	(0x2 << 21)
 #define ET0_TX_CLK_A (0x4 << 23)
@@ -99,7 +99,7 @@ int checkboard(void)
 	(ET0_ERXD4 | ET0_ERXD5 | ET0_ERXD6 | ET0_TX_EN | ET0_TX_ER | \
 	ET0_TX_CLK_A | ET0_RX_CLK_A)
 
-#define GPSR1_INIT (0xFFBF7FFF)
+#define GPSR1_INIT (0xFFFF7FFF)
 #define GPSR2_INIT (0x4005FEFF)
 #define GPSR3_INIT (0x2EFFFFFF)
 #define GPSR4_INIT (0xC7000000)
