@@ -34,6 +34,7 @@
 #include <net.h>
 #include <asm/processor.h>
 #include <asm/microblaze_intc.h>
+#include <fdtdec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,6 +64,9 @@ typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
 	env_init,
+#ifdef CONFIG_OF_CONTROL
+	fdtdec_check_fdt,
+#endif
 	serial_init,
 	console_init_f,
 #ifdef CONFIG_SYS_GPIO_0
@@ -103,6 +107,17 @@ void board_init (void)
 
 	monitor_flash_len = __end - __text_start;
 
+#ifdef CONFIG_OF_EMBED
+	/* Get a pointer to the FDT */
+	gd->fdt_blob = _binary_dt_dtb_start;
+#elif defined CONFIG_OF_SEPARATE
+	/* FDT is at end of image */
+	gd->fdt_blob = (void *)__end;
+#endif
+	/* Allow the early environment to override the fdt address */
+	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
+						(uintptr_t)gd->fdt_blob);
+
 	/*
 	 * The Malloc area is immediately below the monitor copy in DRAM
 	 * aka CONFIG_SYS_MONITOR_BASE - Note there is no need for reloc_off
@@ -120,6 +135,15 @@ void board_init (void)
 			hang ();
 		}
 	}
+
+#ifdef CONFIG_OF_CONTROL
+	/* For now, put this check after the console is ready */
+	if (fdtdec_prepare_fdt()) {
+		panic("** CONFIG_OF_CONTROL defined but no FDT - please see "
+			"doc/README.fdt-control");
+	} else
+		printf("DTB: 0x%x\n", (u32)gd->fdt_blob);
+#endif
 
 	puts ("SDRAM :\n");
 	printf ("\t\tIcache:%s\n", icache_status() ? "ON" : "OFF");
