@@ -68,6 +68,7 @@
 #define BBTOYS_VGA			0x02000B00
 #define BBTOYS_LCD			0x03000B00
 #define BCT_BRETTL3			0x01000F00
+#define BCT_BRETTL4			0x02000F00
 #define BEAGLE_NO_EEPROM		0xffffffff
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -417,8 +418,11 @@ int misc_init_r(void)
 		printf("Recognized BeagleBoardToys LCD board\n");
 		break;;
 	case BCT_BRETTL3:
-	    printf("Recognized bct electronic GmbH brettl3 board\n");
-	    break;
+		printf("Recognized bct electronic GmbH brettl3 board\n");
+		break;
+	case BCT_BRETTL4:
+		printf("Recognized bct electronic GmbH brettl4 board\n");
+		break;
 	case BEAGLE_NO_EEPROM:
 		printf("No EEPROM on expansion board\n");
 		setenv("buddy", "none");
