@@ -46,7 +46,7 @@ int ehci_hcd_init(void)
 	start_time = get_timer(0);
 	/* Enable UTMI PLL */
 	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
-	while (readl(&pmc->sr) & AT91_PMC_LOCKU != AT91_PMC_LOCKU) {
+	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) != AT91_PMC_LOCKU) {
 		WATCHDOG_RESET();
 		tmp_time = get_timer(0);
 		if ((tmp_time - start_time) > EN_UPLL_TIMEOUT) {
@@ -76,7 +76,7 @@ int ehci_hcd_stop(void)
 	start_time = get_timer(0);
 	/* Disable UTMI PLL */
 	writel(readl(&pmc->uckr) & ~AT91_PMC_UPLLEN, &pmc->uckr);
-	while (readl(&pmc->sr) & AT91_PMC_LOCKU == AT91_PMC_LOCKU) {
+	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) == AT91_PMC_LOCKU) {
 		WATCHDOG_RESET();
 		tmp_time = get_timer(0);
 		if ((tmp_time - start_time) > EN_UPLL_TIMEOUT) {
