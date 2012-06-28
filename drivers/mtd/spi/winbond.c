@@ -103,8 +103,13 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 		.l2_page_size		= 8,
 		.pages_per_sector	= 16,
 		.sectors_per_block	= 16,
+#ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
+		.nr_blocks		= 512,
+		.name			= "W25Q128x2",
+#else
 		.nr_blocks		= 256,
 		.name			= "W25Q128",
+#endif
 	},
 	{
 		.id                     = 0x6017,
