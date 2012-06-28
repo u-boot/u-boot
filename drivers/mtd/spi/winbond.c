@@ -400,10 +400,11 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 				* params->sectors_per_block
 				* params->nr_blocks;
 
-	if (stm->flash.size > 0x800000)
-		stm->addr_width = 4;
-	else
-		stm->addr_width = 3;
+#ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
+	stm->addr_width = 4;
+#else
+	stm->addr_width = 3;
+#endif
 
 	printf("SF: Detected %s with page size %u, total ",
 	       params->name, page_size);
