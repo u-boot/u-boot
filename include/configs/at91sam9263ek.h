@@ -164,7 +164,7 @@
 	"update=" \
 		"protect off ${monitor_base} +${filesize};" \
 		"erase ${monitor_base} +${filesize};" \
-		"cp.b ${load_addr} ${monitor_base} ${filesize};" \
+		"cp.b ${fileaddr} ${monitor_base} ${filesize};" \
 		"protect on ${monitor_base} +${filesize}\0"
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
