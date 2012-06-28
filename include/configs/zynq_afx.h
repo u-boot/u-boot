@@ -54,7 +54,7 @@
 /* this is to set ipaddr, ethaddr and serverip env variables. */
 #define CONFIG_ZYNQ_IP_ENV
 
-#if defined(CONFIG_AFX_NOR)
+#if defined(CONFIG_AFX_NOR) || defined(CONFIG_AFX_QSPI)
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #endif
@@ -104,5 +104,24 @@
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 #undef CONFIG_BOOTM_NETBSD
+
+/*
+ * SPI Settings
+ */
+#if defined(CONFIG_AFX_QSPI)
+#define CONFIG_ZYNQ_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_SF_DEFAULT_SPEED 30000000
+#define CONFIG_SPI_FLASH
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SPI_FLASH_SPANSION
+
+#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
+/* Address Xilinx boot rom should use to launch u-boot */
+#define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
+#endif
+#endif
 
 #endif /* __CONFIG_ZYNQ_AFX_H */
