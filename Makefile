@@ -225,106 +225,106 @@ endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
 
-LIBS += lib/libgeneric.o
-LIBS += lib/lzma/liblzma.o
-LIBS += lib/lzo/liblzo.o
-LIBS += lib/zlib/libz.o
+LIBS-y += lib/libgeneric.o
+LIBS-y += lib/lzma/liblzma.o
+LIBS-y += lib/lzo/liblzo.o
+LIBS-y += lib/zlib/libz.o
 ifeq ($(CONFIG_TIZEN),y)
-LIBS += lib/tizen/libtizen.o
+LIBS-y += lib/tizen/libtizen.o
 endif
-LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
+LIBS-y += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
 	"board/$(VENDOR)/common/lib$(VENDOR).o"; fi)
-LIBS += $(CPUDIR)/lib$(CPU).o
+LIBS-y += $(CPUDIR)/lib$(CPU).o
 ifdef SOC
-LIBS += $(CPUDIR)/$(SOC)/lib$(SOC).o
+LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
 endif
 ifeq ($(CPU),ixp)
-LIBS += arch/arm/cpu/ixp/npe/libnpe.o
+LIBS-y += arch/arm/cpu/ixp/npe/libnpe.o
 endif
 ifeq ($(CONFIG_OF_EMBED),y)
-LIBS += dts/libdts.o
+LIBS-y += dts/libdts.o
 endif
-LIBS += arch/$(ARCH)/lib/lib$(ARCH).o
-LIBS += fs/cramfs/libcramfs.o fs/fat/libfat.o fs/fdos/libfdos.o fs/jffs2/libjffs2.o \
+LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
+LIBS-y += fs/cramfs/libcramfs.o fs/fat/libfat.o fs/fdos/libfdos.o fs/jffs2/libjffs2.o \
 	fs/reiserfs/libreiserfs.o fs/ext2/libext2fs.o fs/yaffs2/libyaffs2.o \
 	fs/ubifs/libubifs.o fs/zfs/libzfs.o
-LIBS += net/libnet.o
-LIBS += disk/libdisk.o
-LIBS += drivers/bios_emulator/libatibiosemu.o
-LIBS += drivers/block/libblock.o
-LIBS += drivers/dma/libdma.o
-LIBS += drivers/fpga/libfpga.o
-LIBS += drivers/gpio/libgpio.o
-LIBS += drivers/hwmon/libhwmon.o
-LIBS += drivers/i2c/libi2c.o
-LIBS += drivers/input/libinput.o
-LIBS += drivers/misc/libmisc.o
-LIBS += drivers/mmc/libmmc.o
-LIBS += drivers/mtd/libmtd.o
-LIBS += drivers/mtd/nand/libnand.o
-LIBS += drivers/mtd/onenand/libonenand.o
-LIBS += drivers/mtd/ubi/libubi.o
-LIBS += drivers/mtd/spi/libspi_flash.o
-LIBS += drivers/net/libnet.o
-LIBS += drivers/net/phy/libphy.o
-LIBS += drivers/pci/libpci.o
-LIBS += drivers/pcmcia/libpcmcia.o
-LIBS += drivers/power/libpower.o
-LIBS += drivers/spi/libspi.o
+LIBS-y += net/libnet.o
+LIBS-y += disk/libdisk.o
+LIBS-y += drivers/bios_emulator/libatibiosemu.o
+LIBS-y += drivers/block/libblock.o
+LIBS-y += drivers/dma/libdma.o
+LIBS-y += drivers/fpga/libfpga.o
+LIBS-y += drivers/gpio/libgpio.o
+LIBS-y += drivers/hwmon/libhwmon.o
+LIBS-y += drivers/i2c/libi2c.o
+LIBS-y += drivers/input/libinput.o
+LIBS-y += drivers/misc/libmisc.o
+LIBS-y += drivers/mmc/libmmc.o
+LIBS-y += drivers/mtd/libmtd.o
+LIBS-y += drivers/mtd/nand/libnand.o
+LIBS-y += drivers/mtd/onenand/libonenand.o
+LIBS-y += drivers/mtd/ubi/libubi.o
+LIBS-y += drivers/mtd/spi/libspi_flash.o
+LIBS-y += drivers/net/libnet.o
+LIBS-y += drivers/net/phy/libphy.o
+LIBS-y += drivers/pci/libpci.o
+LIBS-y += drivers/pcmcia/libpcmcia.o
+LIBS-y += drivers/power/libpower.o
+LIBS-y += drivers/spi/libspi.o
 ifeq ($(CPU),mpc83xx)
-LIBS += drivers/qe/libqe.o
-LIBS += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+LIBS-y += drivers/qe/libqe.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 ifeq ($(CPU),mpc85xx)
-LIBS += drivers/qe/libqe.o
-LIBS += drivers/net/fm/libfm.o
-LIBS += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+LIBS-y += drivers/qe/libqe.o
+LIBS-y += drivers/net/fm/libfm.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 ifeq ($(CPU),mpc86xx)
-LIBS += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
-LIBS += drivers/rtc/librtc.o
-LIBS += drivers/serial/libserial.o
+LIBS-y += drivers/rtc/librtc.o
+LIBS-y += drivers/serial/libserial.o
 ifeq ($(CONFIG_GENERIC_LPC_TPM),y)
-LIBS += drivers/tpm/libtpm.o
+LIBS-y += drivers/tpm/libtpm.o
 endif
-LIBS += drivers/twserial/libtws.o
-LIBS += drivers/usb/eth/libusb_eth.o
-LIBS += drivers/usb/gadget/libusb_gadget.o
-LIBS += drivers/usb/host/libusb_host.o
-LIBS += drivers/usb/musb/libusb_musb.o
-LIBS += drivers/usb/phy/libusb_phy.o
-LIBS += drivers/usb/ulpi/libusb_ulpi.o
-LIBS += drivers/video/libvideo.o
-LIBS += drivers/watchdog/libwatchdog.o
-LIBS += common/libcommon.o
-LIBS += lib/libfdt/libfdt.o
-LIBS += api/libapi.o
-LIBS += post/libpost.o
-LIBS += test/libtest.o
+LIBS-y += drivers/twserial/libtws.o
+LIBS-y += drivers/usb/eth/libusb_eth.o
+LIBS-y += drivers/usb/gadget/libusb_gadget.o
+LIBS-y += drivers/usb/host/libusb_host.o
+LIBS-y += drivers/usb/musb/libusb_musb.o
+LIBS-y += drivers/usb/phy/libusb_phy.o
+LIBS-y += drivers/usb/ulpi/libusb_ulpi.o
+LIBS-y += drivers/video/libvideo.o
+LIBS-y += drivers/watchdog/libwatchdog.o
+LIBS-y += common/libcommon.o
+LIBS-y += lib/libfdt/libfdt.o
+LIBS-y += api/libapi.o
+LIBS-y += post/libpost.o
+LIBS-y += test/libtest.o
 
 ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
-LIBS += $(CPUDIR)/omap-common/libomap-common.o
+LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
 ifeq ($(SOC),mx5)
-LIBS += $(CPUDIR)/imx-common/libimx-common.o
+LIBS-y += $(CPUDIR)/imx-common/libimx-common.o
 endif
 ifeq ($(SOC),mx6)
-LIBS += $(CPUDIR)/imx-common/libimx-common.o
+LIBS-y += $(CPUDIR)/imx-common/libimx-common.o
 endif
 
 ifeq ($(SOC),s5pc1xx)
-LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
+LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
 ifeq ($(SOC),exynos)
-LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
+LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
 
-LIBS := $(addprefix $(obj),$(sort $(LIBS)))
+LIBS := $(addprefix $(obj),$(sort $(LIBS-y)))
 .PHONY : $(LIBS)
 
 LIBBOARD = board/$(BOARDDIR)/lib$(BOARD).o
