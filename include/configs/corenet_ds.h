@@ -77,7 +77,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_SYS_NO_FLASH
-#ifndef CONFIG_SRIOBOOT_SLAVE
+#if !defined(CONFIG_SRIOBOOT_SLAVE) && !defined(CONFIG_RAMBOOT_PBL)
 #define CONFIG_ENV_IS_NOWHERE
 #endif
 #else
