@@ -1445,6 +1445,7 @@ int i2c_mux_ident_muxstring_f (uchar *buf)
 		oldpos = pos;
 
 	}
+	i2c_init_board();
 
 	return 0;
 }
