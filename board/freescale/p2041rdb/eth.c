@@ -136,6 +136,11 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 }
 #endif /* #ifdef CONFIG_FMAN_ENET */
 
+#define CPLD_LANE_A_SEL	0x1
+#define CPLD_LANE_G_SEL	0x2
+#define CPLD_LANE_C_SEL	0x4
+#define CPLD_LANE_D_SEL	0x8
+
 int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_FMAN_ENET
@@ -143,6 +148,10 @@ int board_eth_init(bd_t *bis)
 	struct tgec_mdio_info tgec_mdio_info;
 	unsigned int i, slot;
 	int lane;
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	int srds_prtcl = (in_be32(&gur->rcwsr[4]) &
+				FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
+	u8 mux = CPLD_READ(serdes_mux);
 
 	printf("Initializing Fman\n");
 
@@ -171,6 +180,36 @@ int board_eth_init(bd_t *bis)
 	fm_info_set_phy_address(FM1_DTSEC1, CONFIG_SYS_FM1_DTSEC1_PHY_ADDR);
 	fm_info_set_phy_address(FM1_DTSEC2, CONFIG_SYS_FM1_DTSEC2_PHY_ADDR);
 	fm_info_set_phy_address(FM1_DTSEC3, CONFIG_SYS_FM1_DTSEC3_PHY_ADDR);
+
+	mux &= ~(CPLD_LANE_A_SEL | CPLD_LANE_C_SEL | CPLD_LANE_D_SEL);
+	switch (srds_prtcl) {
+	case 0x2:
+	case 0xf:
+		mux &= ~CPLD_LANE_G_SEL;
+		break;
+	case 0x5:
+	case 0x9:
+	case 0xa:
+	case 0x17:
+		mux |= CPLD_LANE_G_SEL;
+		break;
+	case 0x14:
+		mux = (mux & (~CPLD_LANE_G_SEL)) | CPLD_LANE_A_SEL;
+		break;
+	case 0x8:
+	case 0x16:
+	case 0x19:
+	case 0x1a:
+		mux |= CPLD_LANE_G_SEL | CPLD_LANE_C_SEL | CPLD_LANE_D_SEL;
+		break;
+	case 0x1c:
+		mux |= CPLD_LANE_G_SEL | CPLD_LANE_A_SEL;
+		break;
+	default:
+		printf("Fman:Unsupported SerDes Protocol 0x%02x\n", srds_prtcl);
+		break;
+	}
+	CPLD_WRITE(serdes_mux, mux);
 
 	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++) {
 		int idx = i - FM1_DTSEC1;
