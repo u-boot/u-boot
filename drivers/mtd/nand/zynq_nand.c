@@ -1159,9 +1159,13 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	/* Set the device option and flash width */
 #ifdef LINUX_ONLY_NOT_UBOOT
 	nand_chip->options = *((u32 *)pdev->dev.platform_data);
-#else
+#endif
+
+#ifndef CONFIG_XILINX_ZYNQ_NAND_BUSWIDTH_16
 	/* arch/arm/mach-xilinx/devices.c */
 	nand_chip->options = NAND_NO_AUTOINCR | NAND_USE_FLASH_BBT;
+#else
+	nand_chip->options = NAND_BUSWIDTH_16;
 #endif
 
 #ifdef LINUX_ONLY_NOT_UBOOT
