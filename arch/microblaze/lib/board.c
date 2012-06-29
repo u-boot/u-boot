@@ -32,6 +32,7 @@
 #include <stdio_dev.h>
 #include <serial.h>
 #include <net.h>
+#include <linux/compiler.h>
 #include <asm/processor.h>
 #include <asm/microblaze_intc.h>
 #include <fdtdec.h>
@@ -91,7 +92,7 @@ void board_init (void)
 	gd = (gd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET);
 	bd = (bd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET \
 						- GENERATED_BD_INFO_SIZE);
-	char *s;
+	__maybe_unused char *s;
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
