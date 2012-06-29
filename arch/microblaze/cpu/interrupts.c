@@ -32,15 +32,12 @@
 
 #undef DEBUG_INT
 
-extern void microblaze_disable_interrupts (void);
-extern void microblaze_enable_interrupts (void);
-
-void enable_interrupts (void)
+void enable_interrupts(void)
 {
 	MSRSET(0x2);
 }
 
-int disable_interrupts (void)
+int disable_interrupts(void)
 {
 	unsigned int msr;
 
@@ -58,20 +55,21 @@ microblaze_intc_t *intc;
 /* default handler */
 static void def_hdlr(void)
 {
-	puts ("def_hdlr\n");
+	puts("def_hdlr\n");
 }
 
 static void enable_one_interrupt(int irq)
 {
 	int mask;
 	int offset = 1;
+
 	offset <<= irq;
 	mask = intc->ier;
 	intc->ier = (mask | offset);
 #ifdef DEBUG_INT
-	printf ("Enable one interrupt irq %x - mask %x,ier %x\n", offset, mask,
+	printf("Enable one interrupt irq %x - mask %x,ier %x\n", offset, mask,
 		intc->ier);
-	printf ("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
+	printf("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
 		intc->iar, intc->mer);
 #endif
 }
@@ -80,13 +78,14 @@ static void disable_one_interrupt(int irq)
 {
 	int mask;
 	int offset = 1;
+
 	offset <<= irq;
 	mask = intc->ier;
 	intc->ier = (mask & ~offset);
 #ifdef DEBUG_INT
-	printf ("Disable one interrupt irq %x - mask %x,ier %x\n", irq, mask,
+	printf("Disable one interrupt irq %x - mask %x,ier %x\n", irq, mask,
 		intc->ier);
-	printf ("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
+	printf("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
 		intc->iar, intc->mer);
 #endif
 }
@@ -94,9 +93,10 @@ static void disable_one_interrupt(int irq)
 int install_interrupt_handler(int irq, interrupt_handler_t *hdlr, void *arg)
 {
 	struct irq_action *act;
+
 	/* irq out of range */
 	if ((irq < 0) || (irq > irq_no)) {
-		puts ("IRQ out of range\n");
+		puts("IRQ out of range\n");
 		return -1;
 	}
 	act = &vecs[irq];
@@ -124,7 +124,7 @@ static void intc_init(void)
 	/* XIntc_Start - hw_interrupt enable and all interrupt enable */
 	intc->mer = 0x3;
 #ifdef DEBUG_INT
-	printf ("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
+	printf("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
 		intc->iar, intc->mer);
 #endif
 }
@@ -159,7 +159,7 @@ int interrupts_init(void)
 	return 0;
 }
 
-void interrupt_handler (void)
+void interrupt_handler(void)
 {
 	int irqs = intc->ivr;	/* find active interrupt */
 	int mask = 1;
