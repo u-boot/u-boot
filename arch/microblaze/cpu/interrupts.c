@@ -91,14 +91,13 @@ static void disable_one_interrupt(int irq)
 #endif
 }
 
-/* adding new handler for interrupt */
-void install_interrupt_handler (int irq, interrupt_handler_t * hdlr, void *arg)
+int install_interrupt_handler(int irq, interrupt_handler_t *hdlr, void *arg)
 {
 	struct irq_action *act;
 	/* irq out of range */
 	if ((irq < 0) || (irq > irq_no)) {
 		puts ("IRQ out of range\n");
-		return;
+		return -1;
 	}
 	act = &vecs[irq];
 	if (hdlr) {		/* enable */
@@ -106,11 +105,14 @@ void install_interrupt_handler (int irq, interrupt_handler_t * hdlr, void *arg)
 		act->arg = arg;
 		act->count = 0;
 		enable_one_interrupt (irq);
-	} else {		/* disable */
-		act->handler = (interrupt_handler_t *) def_hdlr;
-		act->arg = (void *)irq;
-		disable_one_interrupt (irq);
+		return 0;
 	}
+
+	/* Disable */
+	act->handler = (interrupt_handler_t *) def_hdlr;
+	act->arg = (void *)irq;
+	disable_one_interrupt(irq);
+	return 1;
 }
 
 /* initialization interrupt controller - hardware */
