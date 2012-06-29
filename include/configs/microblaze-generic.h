@@ -306,6 +306,8 @@
 # undef CONFIG_CMD_IMLS
 # undef CONFIG_CMD_FLASH
 # undef CONFIG_CMD_JFFS2
+# undef CONFIG_CMD_UBI
+# undef CONFIG_CMD_UBIFS
 #endif
 
 #if defined(CONFIG_CMD_JFFS2)
