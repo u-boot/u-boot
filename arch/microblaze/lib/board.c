@@ -41,10 +41,6 @@ extern int gpio_init (void);
 #ifdef CONFIG_SYS_INTC_0
 extern int interrupts_init (void);
 #endif
-
-#if defined(CONFIG_CMD_NET)
-extern int eth_init (bd_t * bis);
-#endif
 #ifdef CONFIG_SYS_TIMER_0
 extern int timer_init (void);
 #endif
