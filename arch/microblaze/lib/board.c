@@ -42,9 +42,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SYS_GPIO_0
 extern int gpio_init (void);
 #endif
-#ifdef CONFIG_SYS_TIMER_0
-extern int timer_init (void);
-#endif
 #ifdef CONFIG_SYS_FSL_2
 extern void fsl_init2 (void);
 #endif
@@ -74,9 +71,7 @@ init_fnc_t *init_sequence[] = {
 	gpio_init,
 #endif
 	interrupts_init,
-#ifdef CONFIG_SYS_TIMER_0
 	timer_init,
-#endif
 #ifdef CONFIG_SYS_FSL_2
 	fsl_init2,
 #endif
