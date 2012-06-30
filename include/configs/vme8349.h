@@ -198,7 +198,7 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB */
-#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Malloc size */
+#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)	/* Malloc size */
 
 /*
  * Local Bus LCRR and LBCR regs
