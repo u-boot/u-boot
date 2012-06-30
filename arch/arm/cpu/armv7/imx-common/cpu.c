@@ -66,7 +66,7 @@ char *get_reset_cause(void)
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 
-static char *get_imx_type(u32 imxtype)
+static const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
 	case 0x63:
@@ -80,7 +80,7 @@ static char *get_imx_type(u32 imxtype)
 	case 0x53:
 		return "53";
 	default:
-		return "unknown";
+		return "??";
 	}
 }
 
