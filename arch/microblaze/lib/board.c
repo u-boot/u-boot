@@ -30,6 +30,7 @@
 #include <version.h>
 #include <watchdog.h>
 #include <stdio_dev.h>
+#include <serial.h>
 #include <net.h>
 #include <asm/processor.h>
 
@@ -112,6 +113,10 @@ void board_init (void)
 	 * as our monitory code is run from SDRAM
 	 */
 	mem_malloc_init (CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
+
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET ();
