@@ -240,6 +240,7 @@ typedef struct vidinfo {
 	unsigned int reset_delay;
 	unsigned int interface_mode;
 	unsigned int mipi_enabled;
+	unsigned int dp_enabled;
 	unsigned int cs_setup;
 	unsigned int wr_setup;
 	unsigned int wr_act;
