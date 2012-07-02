@@ -31,6 +31,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+unsigned long get_current_tick(void);
+
 /* macro to read the 16 bit timer */
 static inline struct s5p_timer *s5p_get_base_timer(void)
 {
@@ -43,6 +45,8 @@ int timer_init(void)
 	pwm_init(4, MUX_DIV_2, 0);
 	pwm_config(4, 0, 0);
 	pwm_enable(4);
+
+	reset_timer_masked();
 
 	return 0;
 }
@@ -72,16 +76,16 @@ void __udelay(unsigned long usec)
 		 * 3. finish normalize.
 		 */
 		tmo = usec / 1000;
-		tmo *= (CONFIG_SYS_HZ * count_value / 10);
+		tmo *= (CONFIG_SYS_HZ * count_value);
 		tmo /= 1000;
 	} else {
 		/* else small number, don't kill it prior to HZ multiply */
-		tmo = usec * CONFIG_SYS_HZ * count_value / 10;
+		tmo = usec * CONFIG_SYS_HZ * count_value;
 		tmo /= (1000 * 1000);
 	}
 
 	/* get current timestamp */
-	tmp = get_timer(0);
+	tmp = get_current_tick();
 
 	/* if setting this fordward will roll time stamp */
 	/* reset "advancing" timestamp to 0, set lastinc value */
@@ -92,7 +96,7 @@ void __udelay(unsigned long usec)
 		tmo += tmp;
 
 	/* loop till event */
-	while (get_timer_masked() < tmo)
+	while (get_current_tick() < tmo)
 		;	/* nop */
 }
 
@@ -106,6 +110,14 @@ void reset_timer_masked(void)
 }
 
 unsigned long get_timer_masked(void)
+{
+	struct s5p_timer *const timer = s5p_get_base_timer();
+	unsigned long count_value = readl(&timer->tcntb4);
+
+	return get_current_tick() / count_value;
+}
+
+unsigned long get_current_tick(void)
 {
 	struct s5p_timer *const timer = s5p_get_base_timer();
 	unsigned long now = readl(&timer->tcnto4);

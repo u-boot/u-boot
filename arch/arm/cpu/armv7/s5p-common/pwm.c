@@ -170,7 +170,7 @@ int pwm_init(int pwm_id, int div, int invert)
 	timer_rate_hz = get_pwm_clk() / ((prescaler + 1) *
 			(div + 1));
 
-	timer_rate_hz = timer_rate_hz / 100;
+	timer_rate_hz = timer_rate_hz / CONFIG_SYS_HZ;
 
 	/* set count value */
 	offset = pwm_id * 3;
