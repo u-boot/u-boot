@@ -50,8 +50,6 @@
 #include <asm/ehci-omap.h>
 #endif
 
-#define pr_debug(fmt, args...) debug(fmt, ##args)
-
 #define TWL4030_I2C_BUS			0
 #define EXPANSION_EEPROM_I2C_BUS	1
 #define EXPANSION_EEPROM_I2C_ADDRESS	0x50
