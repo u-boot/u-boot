@@ -151,6 +151,8 @@ struct exynos_fb {
 
 	unsigned char res15[156];
 	unsigned int dualrgb;
+	unsigned char res16[16];
+	unsigned int dp_mie_clkcon;
 };
 #endif
 

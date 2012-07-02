@@ -57,6 +57,19 @@ static void exynos_fimd_set_dualrgb(unsigned int enabled)
 	writel(cfg, &fimd_ctrl->dualrgb);
 }
 
+static void exynos_fimd_set_dp_clkcon(unsigned int enabled)
+{
+
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
+	unsigned int cfg = 0;
+
+	if (enabled)
+		cfg = EXYNOS_DP_CLK_ENABLE;
+
+	writel(cfg, &fimd_ctrl->dp_mie_clkcon);
+}
+
 static void exynos_fimd_set_par(unsigned int win_id)
 {
 	unsigned int cfg = 0;
@@ -356,6 +369,8 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 
 	/* window on */
 	exynos_fimd_window_on(pvid->win_id);
+
+	exynos_fimd_set_dp_clkcon(pvid->dp_enabled);
 }
 
 unsigned long exynos_fimd_calc_fbsize(void)
