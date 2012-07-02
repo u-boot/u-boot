@@ -224,7 +224,7 @@
 	"bootfile=uImage.beagle\0" \
 	"console=ttyO2,115200n8\0" \
 	"mpurate=auto\0" \
-	"buddy=none "\
+	"buddy=none\0" \
 	"optargs=\0" \
 	"camera=none\0" \
 	"vram=12M\0" \
