@@ -529,9 +529,66 @@ enum {
 	SETUP_ERR_ZQ_CALIBRATION_FAILURE = -2,
 };
 
+/*
+ * Memory variant specific initialization code
+ *
+ * @param mem		Memory timings for this memory type.
+ * @param mem_iv_size	Memory interleaving size is a configurable parameter
+ *			which the DMC uses to decide how to split a memory
+ *			chunk into smaller chunks to support concurrent
+ *			accesses; may vary across boards.
+ * @return 0 if ok, SETUP_ERR_... if there is a problem
+ */
+int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size);
+
+/*
+ * Configure ZQ I/O interface
+ *
+ * @param mem		Memory timings for this memory type.
+ * @param phy0_ctrl	Pointer to struct containing PHY0 control reg
+ * @param phy1_ctrl	Pointer to struct containing PHY1 control reg
+ * @return 0 if ok, -1 on error
+ */
+int dmc_config_zq(struct mem_timings *mem,
+		  struct exynos5_phy_control *phy0_ctrl,
+		  struct exynos5_phy_control *phy1_ctrl);
+
+/*
+ * Send NOP and MRS/EMRS Direct commands
+ *
+ * @param mem		Memory timings for this memory type.
+ * @param dmc		Pointer to struct of DMC registers
+ */
+void dmc_config_mrs(struct mem_timings *mem, struct exynos5_dmc *dmc);
+
+/*
+ * Send PALL Direct commands
+ *
+ * @param mem		Memory timings for this memory type.
+ * @param dmc		Pointer to struct of DMC registers
+ */
+void dmc_config_prech(struct mem_timings *mem, struct exynos5_dmc *dmc);
+
+/*
+ * Configure the memconfig and membaseconfig registers
+ *
+ * @param mem		Memory timings for this memory type.
+ * @param exynos5_dmc	Pointer to struct of DMC registers
+ */
+void dmc_config_memory(struct mem_timings *mem, struct exynos5_dmc *dmc);
+
+/*
+ * Reset the DLL. This function is common between DDR3 and LPDDR2.
+ * However, the reset value is different. So we are passing a flag
+ * ddr_mode to distinguish between LPDDR2 and DDR3.
+ *
+ * @param exynos5_dmc	Pointer to struct of DMC registers
+ * @param ddr_mode	Type of DDR memory
+ */
+void update_reset_dll(struct exynos5_dmc *, enum ddr_mode);
+
 void sdelay(unsigned long);
 void mem_ctrl_init(void);
 void system_clock_init(void);
 void tzpc_init(void);
-
 #endif
