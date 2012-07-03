@@ -599,4 +599,6 @@ struct exynos5_clock {
 
 #define MPLL_FOUT_SEL_SHIFT	4
 #define MPLL_FOUT_SEL_MASK	0x1
+#define BPLL_FOUT_SEL_SHIFT	0
+#define BPLL_FOUT_SEL_MASK	0x1
 #endif
