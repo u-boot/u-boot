@@ -27,6 +27,7 @@
 #include <asm/arch/common_def.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>
+#include <asm/emif.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -107,7 +108,7 @@ void s_init(void)
 
 	preloader_console_init();
 
-	config_ddr();
+	config_ddr(EMIF_REG_SDRAM_TYPE_DDR2);
 #endif
 
 	/* Enable MMC0 */

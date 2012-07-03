@@ -232,6 +232,6 @@ struct ddr_ctrl {
 	unsigned int ddrckectrl;
 };
 
-void config_ddr(void);
+void config_ddr(short ddr_type);
 
 #endif  /* _DDR_DEFS_H */

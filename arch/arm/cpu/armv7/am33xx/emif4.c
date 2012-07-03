@@ -22,13 +22,13 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>
+#include <asm/emif.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct ddr_regs *ddrregs = (struct ddr_regs *)DDR_PHY_BASE_ADDR;
 struct vtp_reg *vtpreg = (struct vtp_reg *)VTP0_CTRL_ADDR;
 struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
-
 
 int dram_init(void)
 {
@@ -143,33 +143,37 @@ static void config_emif_ddr2(void)
 		printf("Couldn't configure SDRAM\n");
 }
 
-void config_ddr(void)
+void config_ddr(short ddr_type)
 {
 	struct ddr_ioctrl ioctrl;
 
 	enable_emif_clocks();
 
-	config_vtp();
+	if (ddr_type == EMIF_REG_SDRAM_TYPE_DDR2) {
+		config_vtp();
 
-	config_cmd_ctrl(&ddr2_cmd_ctrl_data);
+		config_cmd_ctrl(&ddr2_cmd_ctrl_data);
 
-	config_ddr_data(0, &ddr2_data);
-	config_ddr_data(1, &ddr2_data);
+		config_ddr_data(0, &ddr2_data);
+		config_ddr_data(1, &ddr2_data);
 
-	writel(PHY_RANK0_DELAY, &ddrregs->dt0rdelays0);
-	writel(PHY_RANK0_DELAY, &ddrregs->dt1rdelays0);
+		writel(PHY_RANK0_DELAY, &ddrregs->dt0rdelays0);
+		writel(PHY_RANK0_DELAY, &ddrregs->dt1rdelays0);
 
-	ioctrl.cmd1ctl = DDR_IOCTRL_VALUE;
-	ioctrl.cmd2ctl = DDR_IOCTRL_VALUE;
-	ioctrl.cmd3ctl = DDR_IOCTRL_VALUE;
-	ioctrl.data1ctl = DDR_IOCTRL_VALUE;
-	ioctrl.data2ctl = DDR_IOCTRL_VALUE;
+		ioctrl.cmd1ctl = DDR_IOCTRL_VALUE;
+		ioctrl.cmd2ctl = DDR_IOCTRL_VALUE;
+		ioctrl.cmd3ctl = DDR_IOCTRL_VALUE;
+		ioctrl.data1ctl = DDR_IOCTRL_VALUE;
+		ioctrl.data2ctl = DDR_IOCTRL_VALUE;
 
-	config_io_ctrl(&ioctrl);
+		config_io_ctrl(&ioctrl);
 
-	writel(readl(&ddrctrl->ddrioctrl) & 0xefffffff, &ddrctrl->ddrioctrl);
-	writel(readl(&ddrctrl->ddrckectrl) | 0x00000001, &ddrctrl->ddrckectrl);
+		writel(readl(&ddrctrl->ddrioctrl) & 0xefffffff,
+				&ddrctrl->ddrioctrl);
+		writel(readl(&ddrctrl->ddrckectrl) | 0x00000001,
+				&ddrctrl->ddrckectrl);
 
-	config_emif_ddr2();
+		config_emif_ddr2();
+	}
 }
 #endif
