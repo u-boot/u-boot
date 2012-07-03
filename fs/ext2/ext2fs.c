@@ -438,7 +438,7 @@ int ext2fs_read_file
 		}
 
 		/* grab middle blocks in one go */
-		if (i != pos / blocksize && i != blockcnt - 1 && blockcnt > 3) {
+		if (i != pos / blocksize && i < blockcnt - 1 && blockcnt > 3) {
 			int oldblk = blknr;
 			int blocknxt;
 			while (i < blockcnt - 1) {
