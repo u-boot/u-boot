@@ -100,7 +100,9 @@ struct exynos5_gpio_part1 {
 	struct s5p_gpio_bank y4;
 	struct s5p_gpio_bank y5;
 	struct s5p_gpio_bank y6;
-	struct s5p_gpio_bank res1[0x980];
+	struct s5p_gpio_bank res1[0x3];
+	struct s5p_gpio_bank c4;
+	struct s5p_gpio_bank res2[0x48];
 	struct s5p_gpio_bank x0;
 	struct s5p_gpio_bank x1;
 	struct s5p_gpio_bank x2;
@@ -122,9 +124,10 @@ struct exynos5_gpio_part2 {
 struct exynos5_gpio_part3 {
 	struct s5p_gpio_bank v0;
 	struct s5p_gpio_bank v1;
+	struct s5p_gpio_bank res1[0x1];
 	struct s5p_gpio_bank v2;
 	struct s5p_gpio_bank v3;
-	struct s5p_gpio_bank res1[0x20];
+	struct s5p_gpio_bank res2[0x1];
 	struct s5p_gpio_bank v4;
 };
 

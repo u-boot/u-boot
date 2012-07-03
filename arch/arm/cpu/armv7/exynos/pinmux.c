@@ -40,8 +40,8 @@ static void exynos5_uart_config(int peripheral)
 		count = 4;
 		break;
 	case PERIPH_ID_UART1:
-		bank = &gpio1->a0;
-		start = 4;
+		bank = &gpio1->d0;
+		start = 0;
 		count = 4;
 		break;
 	case PERIPH_ID_UART2:
@@ -66,23 +66,27 @@ static int exynos5_mmc_config(int peripheral, int flags)
 	struct exynos5_gpio_part1 *gpio1 =
 		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
 	struct s5p_gpio_bank *bank, *bank_ext;
-	int i;
+	int i, start, gpio_func;
 
 	switch (peripheral) {
 	case PERIPH_ID_SDMMC0:
 		bank = &gpio1->c0;
 		bank_ext = &gpio1->c1;
+		start = 0;
+		gpio_func = GPIO_FUNC(0x2);
 		break;
 	case PERIPH_ID_SDMMC1:
-		bank = &gpio1->c1;
+		bank = &gpio1->c2;
 		bank_ext = NULL;
 		break;
 	case PERIPH_ID_SDMMC2:
-		bank = &gpio1->c2;
-		bank_ext = &gpio1->c3;
+		bank = &gpio1->c3;
+		bank_ext = &gpio1->c4;
+		start = 3;
+		gpio_func = GPIO_FUNC(0x3);
 		break;
 	case PERIPH_ID_SDMMC3:
-		bank = &gpio1->c3;
+		bank = &gpio1->c4;
 		bank_ext = NULL;
 		break;
 	}
@@ -92,8 +96,8 @@ static int exynos5_mmc_config(int peripheral, int flags)
 		return -1;
 	}
 	if (flags & PINMUX_FLAG_8BIT_MODE) {
-		for (i = 3; i <= 6; i++) {
-			s5p_gpio_cfg_pin(bank_ext, i, GPIO_FUNC(0x3));
+		for (i = start; i <= (start + 3); i++) {
+			s5p_gpio_cfg_pin(bank_ext, i, gpio_func);
 			s5p_gpio_set_pull(bank_ext, i, GPIO_PULL_UP);
 			s5p_gpio_set_drv(bank_ext, i, GPIO_DRV_4X);
 		}
