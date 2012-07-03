@@ -2149,6 +2149,13 @@ The following options need to be configured:
 
 		Timeout waiting for an ARP reply in milliseconds.
 
+		CONFIG_NFS_TIMEOUT
+
+		Timeout in milliseconds used in NFS protocol.
+		If you encounter "ERROR: Cannot umount" in nfs command,
+		try longer timeout such as
+		#define CONFIG_NFS_TIMEOUT 10000UL
+
 - Command Interpreter:
 		CONFIG_AUTO_COMPLETE
 
