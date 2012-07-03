@@ -131,13 +131,13 @@ int board_mmc_init(bd_t *bis)
 {
 	int err;
 
-	err = exynos_pinmux_config(PERIPH_ID_SDMMC2, PINMUX_FLAG_NONE);
+	err = exynos_pinmux_config(PERIPH_ID_SDMMC0, PINMUX_FLAG_8BIT_MODE);
 	if (err) {
-		debug("SDMMC2 not configured\n");
+		debug("SDMMC0 not configured\n");
 		return err;
 	}
 
-	err = s5p_mmc_init(2, 4);
+	err = s5p_mmc_init(0, 8);
 	return err;
 }
 #endif

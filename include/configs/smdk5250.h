@@ -69,7 +69,7 @@
 
 /* select serial console configuration */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_SERIAL1			/* use SERIAL 1 */
+#define CONFIG_SERIAL3			/* use SERIAL 3 */
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
 
