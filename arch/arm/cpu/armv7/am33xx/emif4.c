@@ -21,6 +21,7 @@
 #include <asm/arch/ddr_defs.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <asm/emif.h>
 
@@ -150,6 +151,7 @@ void config_ddr(short ddr_type)
 	enable_emif_clocks();
 
 	if (ddr_type == EMIF_REG_SDRAM_TYPE_DDR2) {
+		ddr_pll_config(266);
 		config_vtp();
 
 		config_cmd_ctrl(&ddr2_cmd_ctrl_data);

@@ -246,7 +246,7 @@ static void per_pll_config(void)
 		;
 }
 
-static void ddr_pll_config(void)
+void ddr_pll_config(unsigned int ddrpll_m)
 {
 	u32 clkmode, clksel, div_m2;
 
@@ -264,7 +264,7 @@ static void ddr_pll_config(void)
 		;
 
 	clksel = clksel & (~CLK_SEL_MASK);
-	clksel = clksel | ((DDRPLL_M << CLK_SEL_SHIFT) | DDRPLL_N);
+	clksel = clksel | ((ddrpll_m << CLK_SEL_SHIFT) | DDRPLL_N);
 	writel(clksel, &cmwkup->clkseldpllddr);
 
 	div_m2 = div_m2 & CLK_DIV_SEL;
@@ -298,7 +298,6 @@ void pll_init()
 	mpu_pll_config();
 	core_pll_config();
 	per_pll_config();
-	ddr_pll_config();
 
 	/* Enable the required interconnect clocks */
 	enable_interface_clocks();
