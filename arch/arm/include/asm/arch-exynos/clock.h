@@ -596,4 +596,7 @@ struct exynos5_clock {
 	unsigned char	res123[0xf5d8];
 };
 #endif
+
+#define MPLL_FOUT_SEL_SHIFT	4
+#define MPLL_FOUT_SEL_MASK	0x1
 #endif

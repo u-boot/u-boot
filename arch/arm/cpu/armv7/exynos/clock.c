@@ -98,7 +98,7 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 	struct exynos5_clock *clk =
 		(struct exynos5_clock *)samsung_get_base_clock();
 	unsigned long r, m, p, s, k = 0, mask, fout;
-	unsigned int freq;
+	unsigned int freq, pll_div2_sel,  mpll_fout_sel;
 
 	switch (pllreg) {
 	case APLL:
@@ -153,6 +153,16 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 			s = 1;
 		/* FOUT = MDIV * FIN / (PDIV * 2^(SDIV - 1)) */
 		fout = m * (freq / (p * (1 << (s - 1))));
+	}
+
+	/* According to the user manual, in EVT1 MPLL always gives
+	 * 1.6GHz clock, so divide by 2 to get 800MHz MPLL clock.*/
+	if (pllreg == MPLL) {
+		pll_div2_sel = readl(&clk->pll_div2_sel);
+		mpll_fout_sel = (pll_div2_sel >> MPLL_FOUT_SEL_SHIFT)
+				& MPLL_FOUT_SEL_MASK;
+		if (mpll_fout_sel == 0)
+			fout /= 2;
 	}
 
 	return fout;
