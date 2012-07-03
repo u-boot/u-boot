@@ -190,12 +190,12 @@ struct ddr_data {
 /**
  * Configure DDR CMD control registers
  */
-int config_cmd_ctrl(struct cmd_control *cmd);
+int config_cmd_ctrl(const struct cmd_control *cmd);
 
 /**
  * Configure DDR DATA registers
  */
-int config_ddr_data(int data_macrono, struct ddr_data *data);
+int config_ddr_data(int data_macrono, const struct ddr_data *data);
 
 /**
  * This structure represents the DDR io control on AM33XX devices.

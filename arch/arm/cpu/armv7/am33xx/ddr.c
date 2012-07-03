@@ -85,7 +85,7 @@ int config_ddr_phy(struct ddr_phy_control *p)
 /**
  * Configure DDR CMD control registers
  */
-int config_cmd_ctrl(struct cmd_control *cmd)
+int config_cmd_ctrl(const struct cmd_control *cmd)
 {
 	writel(cmd->cmd0csratio, &ddr_reg[0]->cm0csratio);
 	writel(cmd->cmd0csforce, &ddr_reg[0]->cm0csforce);
@@ -111,7 +111,7 @@ int config_cmd_ctrl(struct cmd_control *cmd)
 /**
  * Configure DDR DATA registers
  */
-int config_ddr_data(int macrono, struct ddr_data *data)
+int config_ddr_data(int macrono, const struct ddr_data *data)
 {
 	writel(data->datardsratio0, &ddr_reg[macrono]->dt0rdsratio0);
 	writel(data->datardsratio1, &ddr_reg[macrono]->dt0rdsratio1);
