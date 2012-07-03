@@ -285,11 +285,6 @@ void enable_emif_clocks(void)
 	writel(PRCM_MOD_EN, &cmper->emiffwclkctrl);
 	/* Enable EMIF0 Clock */
 	writel(PRCM_MOD_EN, &cmper->emifclkctrl);
-	/* Poll for emif_gclk  & L3_G clock  are active */
-	while ((readl(&cmper->l3clkstctrl) & (PRCM_EMIF_CLK_ACTIVITY |
-			PRCM_L3_GCLK_ACTIVITY)) != (PRCM_EMIF_CLK_ACTIVITY |
-			PRCM_L3_GCLK_ACTIVITY))
-		;
 	/* Poll if module is functional */
 	while ((readl(&cmper->emifclkctrl)) != PRCM_MOD_EN)
 		;
