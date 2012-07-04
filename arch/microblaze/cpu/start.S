@@ -149,7 +149,7 @@ clear_bss:
 	cmp     r6, r5, r4 /* check if we have reach the end */
 	bnei    r6, 2b
 3:	/* jumping to board_init */
-	brai	board_init
+	brai	board_init_f
 1:	bri	1b
 
 /*

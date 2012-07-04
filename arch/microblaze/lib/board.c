@@ -39,13 +39,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SYS_GPIO_0
-extern int gpio_init (void);
-#endif
-#ifdef CONFIG_SYS_FSL_2
-extern void fsl_init2 (void);
-#endif
-
 /*
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the
@@ -67,20 +60,14 @@ init_fnc_t *init_sequence[] = {
 #endif
 	serial_init,
 	console_init_f,
-#ifdef CONFIG_SYS_GPIO_0
-	gpio_init,
-#endif
 	interrupts_init,
 	timer_init,
-#ifdef CONFIG_SYS_FSL_2
-	fsl_init2,
-#endif
 	NULL,
 };
 
 unsigned long monitor_flash_len;
 
-void board_init (void)
+void board_init_f(ulong not_used)
 {
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
@@ -188,6 +175,8 @@ void board_init (void)
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
+
+	board_init();
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
