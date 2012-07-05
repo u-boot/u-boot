@@ -875,6 +875,9 @@ Michael Schwingen <michael@schwingen.org>
 	actux4		xscale/ixp
 	dvlhost		xscale/ixp
 
+Bo Shen <voice.shen@atmel.com>
+	at91sam9x5ek		ARM926EJS (AT91SAM9G15,G25,G35,X25,X35 SoC)
+
 Nick Thompson <nick.thompson@gefanuc.com>
 
 	da830evm	ARM926EJS (DA830/OMAP-L137)
