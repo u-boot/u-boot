@@ -171,8 +171,5 @@
 #undef  CONFIG_KIRKWOOD_PCIE_INIT
 #endif
 
-#ifndef CONFIG_KM_FPGA_CONFIG
-#undef  BOARD_LATE_INIT
-#endif
 
 #endif /* _CONFIG_KM_KIRKWOOD */
