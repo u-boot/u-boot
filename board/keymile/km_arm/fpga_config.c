@@ -96,11 +96,42 @@ static int boco_set_bits(u8 reg, u8 flags)
 #define SPI_REG		0x06
 #define CFG_EEPROM	0x02
 #define FPGA_PROG	0x04
+#define FPGA_INIT_B	0x10
 #define FPGA_DONE	0x20
+
+static int fpga_done()
+{
+	int ret = 0;
+	u8 regval;
+
+	/* this is only supported with the boco2 design */
+	if (!check_boco2())
+		return 0;
+
+	ret = i2c_read(BOCO_ADDR, SPI_REG, 1, &regval, 1);
+	if (ret) {
+		printf("%s: error reading the BOCO @%#x !!\n",
+			__func__, SPI_REG);
+		return 0;
+	}
+
+	return regval & FPGA_DONE ? 1 : 0;
+}
+
+int skip;
 
 int trigger_fpga_config(void)
 {
 	int ret = 0;
+
+	/* if the FPGA is already configured, we do not want to
+	 * reconfigure it */
+	skip = 0;
+	if (fpga_done()) {
+		printf("PCIe FPGA config: skipped\n");
+		skip = 1;
+		return 0;
+	}
 
 	if (check_boco2()) {
 		/* we have a BOCO2, this has to be triggered here */
@@ -111,7 +142,7 @@ int trigger_fpga_config(void)
 			return ret;
 
 		/* trigger the config start */
-		ret = boco_clear_bits(SPI_REG, FPGA_PROG);
+		ret = boco_clear_bits(SPI_REG, FPGA_PROG | FPGA_INIT_B);
 		if (ret)
 			return ret;
 
@@ -120,6 +151,11 @@ int trigger_fpga_config(void)
 
 		/* up signal for pulse end */
 		ret = boco_set_bits(SPI_REG, FPGA_PROG);
+		if (ret)
+			return ret;
+
+		/* finally, raise INIT_B to remove the config delay */
+		ret = boco_set_bits(SPI_REG, FPGA_INIT_B);
 		if (ret)
 			return ret;
 
@@ -140,6 +176,9 @@ int wait_for_fpga_config(void)
 	int ret = 0;
 	u8 spictrl;
 	u32 timeout = 20000;
+
+	if (skip)
+		return 0;
 
 	if (!check_boco2()) {
 		/* we do not have BOCO2, this is not really used */
