@@ -114,7 +114,7 @@ u32 kwmpp_config[] = {
 	0
 };
 
-#if defined(CONFIG_MGCOGE3UN)
+#if defined(CONFIG_KM_MGCOGE3UN)
 /*
  * Wait for startup OK from mgcoge3ne
  */
@@ -134,8 +134,7 @@ int startup_allowed(void)
 }
 #endif
 
-#if (defined(CONFIG_MGCOGE3UN)|defined(CONFIG_PORTL2)| \
-	defined(CONFIG_KM_PIGGY4_88E6352))
+#if (defined(CONFIG_KM_PIGGY4_88E6061)|defined(CONFIG_KM_PIGGY4_88E6352))
 /*
  * All boards with PIGGY4 connected via a simple switch have ethernet always
  * present.
@@ -203,7 +202,7 @@ int misc_init_r(void)
 		printf("Overwriting MACH_TYPE with %d!!!\n", mach_type);
 		gd->bd->bi_arch_number = mach_type;
 	}
-#if defined(CONFIG_MGCOGE3UN)
+#if defined(CONFIG_KM_MGCOGE3UN)
 	char *wait_for_ne;
 	wait_for_ne = getenv("waitforne");
 	if (wait_for_ne != NULL) {
@@ -318,7 +317,7 @@ void dram_init_banksize(void)
 	}
 }
 
-#if (defined(CONFIG_MGCOGE3UN)|defined(CONFIG_PORTL2))
+#if (defined(CONFIG_KM_MGCOGE3UN)|defined(CONFIG_PORTL2))
 
 #define	PHY_LED_SEL	0x18
 #define PHY_LED0_LINK	(0x5)

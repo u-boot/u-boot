@@ -58,6 +58,20 @@
 #define CONFIG_KM_FPGA_CONFIG
 #define CONFIG_KM_PIGGY4_88E6352
 
+/* KM_MGCOGE3UN */
+#elif defined(CONFIG_KM_MGCOGE3UN)
+#define CONFIG_IDENT_STRING		"\nKeymile COGE3UN"
+#define CONFIG_HOSTNAME			mgcoge3un
+#define KM_IVM_BUS			"pca9547:70:9" /* I2C2 (Mux-Port 1)*/
+#undef CONFIG_SYS_KWD_CONFIG
+#define CONFIG_SYS_KWD_CONFIG \
+		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
+#define CONFIG_KM_BOARD_EXTRA_ENV	"waitforne=true\0"
+#define CONFIG_PIGGY_MAC_ADRESS_OFFSET  3
+#define CONFIG_KM_DISABLE_PCIE
+#define CONFIG_KM_PIGGY4_88E6061
+
+/* KMCOGE5UN */
 #elif defined(CONFIG_KM_COGE5UN)
 #define CONFIG_IDENT_STRING		"\nKeymile COGE5UN"
 #define KM_IVM_BUS			"pca9547:70:9"	/* I2C2 (Mux-Port 1)*/
@@ -111,7 +125,39 @@
 
 #endif
 
+#ifdef CONFIG_KM_PIGGY4_88E6061
+/*
+ * Some keymile boards like mgcoge3un have their PIGGY4 connected via
+ * an Marvell 88E6061 simple switch.
+ * In this case we have to change the default settings for the
+ * ethernet phy connected to the kirkwood.
+ * In this case 100MB full duplex and autoneg off
+ */
+#define PORT_SERIAL_CONTROL_VALUE		( \
+	MVGBE_FORCE_LINK_PASS			| \
+	MVGBE_DIS_AUTO_NEG_FOR_DUPLX		| \
+	MVGBE_DIS_AUTO_NEG_FOR_FLOW_CTRL	| \
+	MVGBE_ADV_NO_FLOW_CTRL			| \
+	MVGBE_FORCE_FC_MODE_NO_PAUSE_DIS_TX	| \
+	MVGBE_FORCE_BP_MODE_NO_JAM		| \
+	(1 << 9) /* Reserved bit has to be 1 */	| \
+	MVGBE_DO_NOT_FORCE_LINK_FAIL		| \
+	MVGBE_DIS_AUTO_NEG_SPEED_GMII		| \
+	MVGBE_DTE_ADV_0				| \
+	MVGBE_MIIPHY_MAC_MODE			| \
+	MVGBE_AUTO_NEG_NO_CHANGE		| \
+	MVGBE_MAX_RX_PACKET_1552BYTE		| \
+	MVGBE_CLR_EXT_LOOPBACK			| \
+	MVGBE_SET_FULL_DUPLEX_MODE		| \
+	MVGBE_DIS_FLOW_CTRL_TX_RX_IN_FULL_DUPLEX	|\
+	MVGBE_SET_GMII_SPEED_TO_10_100	|\
+	MVGBE_SET_MII_SPEED_TO_100)
+#endif
+
 /* GPIO Pin from kirkwood connected to PROGRAM_B pin of the xilinx FPGA */
 #define KM_XLX_PROGRAM_B_PIN    39
 
+#ifdef CONFIG_KM_DISABLE_PCI
+#undef  CONFIG_KIRKWOOD_PCIE_INIT
+#endif
 #endif /* _CONFIG_KM_KIRKWOOD */
