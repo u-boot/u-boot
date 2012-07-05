@@ -6,8 +6,9 @@
  * (C) Copyright 2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * (C) Copyright 2011
- * Holger Brunck, Keymile GmbH Hannover, holger.brunck@keymile.de
+ * (C) Copyright 2011-2012
+ * Holger Brunck, Keymile GmbH Hannover, holger.brunck@keymile.com
+ * Valentin Longchamp, Keymile AG, valentin.longchamp@keymile.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -36,23 +37,67 @@
 #ifndef _CONFIG_KM_KIRKWOOD_H
 #define _CONFIG_KM_KIRKWOOD_H
 
+#if defined(CONFIG_KM_KIRKWOOD)
+#define CONFIG_IDENT_STRING		"\nKeymile Kirkwood"
+#undef  CONFIG_KIRKWOOD_PCIE_INIT
+#define KM_IVM_BUS			"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
+#elif defined(CONFIG_KM_KIRKWOOD_PCI)
+#define CONFIG_IDENT_STRING		"\nKeymile Kirkwood PCI"
+#define KM_IVM_BUS			"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
+/* KM_NUSA */
+#elif defined(CONFIG_KM_NUSA)
+#define KM_IVM_BUS			"pca9547:70:9"	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_IDENT_STRING		"\nKeymile NUSA"
+#undef CONFIG_SYS_KWD_CONFIG
+#define CONFIG_SYS_KWD_CONFIG \
+		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
+#define CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_KM_FPGA_CONFIG
+#define CONFIG_KM_PIGGY4_88E6352
+
+#else
+#error ("Board unsupported")
+#endif
+
 /* include common defines/options for all arm based Keymile boards */
 #include "km/km_arm.h"
 
-/*
- * Version number information
- */
-#if defined(CONFIG_KM_KIRKWOOD)
-#define CONFIG_IDENT_STRING	"\nKeymile Kirkwood"
-#undef  CONFIG_KIRKWOOD_PCIE_INIT
-#elif defined(CONFIG_KM_KIRKWOOD_PCI)
-#define CONFIG_IDENT_STRING	"\nKeymile Kirkwood PCI"
-#endif
-
 #define CONFIG_HOSTNAME			km_kirkwood
 
-#define KM_IVM_BUS	"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
+#ifndef CONFIG_KM_ENV_IS_IN_SPI_NOR
 #define KM_ENV_BUS	"pca9544a:70:d"	/* I2C2 (Mux-Port 5)*/
+#endif
+
+#if defined(CONFIG_KM_PIGGY4_88E6352)
+/*
+ * Some keymile boards like mgcoge5un & nusa1 have their PIGGY4 connected via
+ * an Marvell 88E6352 simple switch.
+ * In this case we have to change the default settings for the etherent mac.
+ * There is NO ethernet phy. The ARM and Switch are conencted directly over
+ * RGMII in MAC-MAC mode
+ * In this case 1GBit full duplex and autoneg off
+ */
+#define PORT_SERIAL_CONTROL_VALUE		( \
+	MVGBE_FORCE_LINK_PASS			    | \
+	MVGBE_DIS_AUTO_NEG_FOR_DUPLX		| \
+	MVGBE_DIS_AUTO_NEG_FOR_FLOW_CTRL	| \
+	MVGBE_ADV_NO_FLOW_CTRL			    | \
+	MVGBE_FORCE_FC_MODE_NO_PAUSE_DIS_TX	| \
+	MVGBE_FORCE_BP_MODE_NO_JAM		    | \
+	(1 << 9) /* Reserved bit has to be 1 */	| \
+	MVGBE_DO_NOT_FORCE_LINK_FAIL		| \
+	MVGBE_DIS_AUTO_NEG_SPEED_GMII		| \
+	MVGBE_DTE_ADV_0				        | \
+	MVGBE_MIIPHY_MAC_MODE			    | \
+	MVGBE_AUTO_NEG_NO_CHANGE		    | \
+	MVGBE_MAX_RX_PACKET_1552BYTE		| \
+	MVGBE_CLR_EXT_LOOPBACK			    | \
+	MVGBE_SET_FULL_DUPLEX_MODE		    | \
+	MVGBE_EN_FLOW_CTRL_TX_RX_IN_FULL_DUPLEX	|\
+	MVGBE_SET_GMII_SPEED_TO_1000	    |\
+	MVGBE_SET_MII_SPEED_TO_100)
+
+#endif
 
 /* GPIO Pin from kirkwood connected to PROGRAM_B pin of the xilinx FPGA */
 #define KM_XLX_PROGRAM_B_PIN    39

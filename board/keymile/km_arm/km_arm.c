@@ -134,10 +134,11 @@ int startup_allowed(void)
 }
 #endif
 
-#if (defined(CONFIG_MGCOGE3UN)|defined(CONFIG_PORTL2))
+#if (defined(CONFIG_MGCOGE3UN)|defined(CONFIG_PORTL2)| \
+	defined(CONFIG_KM_PIGGY4_88E6352))
 /*
- * These two boards have always ethernet present. Its connected to the mv
- * switch.
+ * All boards with PIGGY4 connected via a simple switch have ethernet always
+ * present.
  */
 int ethernet_present(void)
 {

@@ -57,6 +57,13 @@
 #define CONFIG_CMD_SF
 #define CONFIG_SOFT_I2C		/* I2C bit-banged	*/
 
+#if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+#define CONFIG_ENV_SPI_MAX_HZ		5000000
+#define CONFIG_ENV_SPI_MODE		SPI_MODE_3
+#endif
+
 #include "asm/arch/config.h"
 
 #define CONFIG_SYS_TEXT_BASE	0x07d00000	/* code address before reloc */
@@ -211,6 +218,15 @@ int get_scl(void);
 /*
  *  Environment variables configurations
  */
+#if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_ENV_IS_IN_SPI_FLASH  /* use SPI-Flash for environment vars */
+#define CONFIG_ENV_OFFSET		0xc0000     /* no bracets! */
+#define CONFIG_ENV_SIZE			0x02000     /* Size of Environment */
+#define CONFIG_ENV_SECT_SIZE		0x10000
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
+					CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_TOTAL_SIZE		0x20000     /* no bracets! */
+#else
 #define CONFIG_ENV_IS_IN_EEPROM		/* use EEPROM for environment vars */
 #define CONFIG_SYS_DEF_EEPROM_ADDR	0x50
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
@@ -218,11 +234,11 @@ int get_scl(void);
 #define CONFIG_ENV_OFFSET		0x0 /* no bracets! */
 #define CONFIG_ENV_SIZE			(0x2000 - CONFIG_ENV_OFFSET)
 #define CONFIG_I2C_ENV_EEPROM_BUS	KM_ENV_BUS "\0"
-
-/* offset redund: (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) */
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_OFFSET_REDUND	0x2000 /* no bracets! */
 #define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
+#endif
+
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
@@ -248,17 +264,27 @@ int get_scl(void);
 		"sf probe 0;sf erase 0 +${filesize};"			\
 		"sf write ${load_addr_r} 0 ${filesize};\0"
 
-/*
- * Default environment variables
- */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_KM_DEF_ENV						\
+#if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_KM_NEW_ENV						\
+	"newenv=sf probe 0;"						\
+		"sf erase " xstr(CONFIG_ENV_OFFSET) " "			\
+		xstr(CONFIG_ENV_TOTAL_SIZE)"\0"
+#else
+#define CONFIG_KM_NEW_ENV						\
 	"newenv=setenv addr 0x100000 && "				\
 		"i2c dev 1; mw.b ${addr} 0 4 && "			\
 		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
 		" ${addr} " xstr(CONFIG_ENV_OFFSET) " 4 && "		\
 		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
-		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"	\
+		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"
+#endif
+
+/*
+ * Default environment variables
+ */
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_KM_DEF_ENV						\
+	CONFIG_KM_NEW_ENV						\
 	"arch=arm\0"							\
 	"EEprom_ivm=" KM_IVM_BUS "\0"					\
 	""
