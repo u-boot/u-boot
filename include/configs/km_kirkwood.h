@@ -83,6 +83,14 @@
 #define CONFIG_HOSTNAME			kmcoge5un
 #define CONFIG_KM_DISABLE_PCIE
 #define CONFIG_KM_PIGGY4_88E6352
+
+/* KM_PORTL2 */
+#elif defined(CONFIG_KM_PORTL2)
+#define CONFIG_IDENT_STRING		"\nKeymile Port-L2"
+#define CONFIG_HOSTNAME			portl2
+#define KM_IVM_BUS			"pca9544a:70:9" /* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_PIGGY4_88E6061
+
 #else
 #error ("Board unsupported")
 #endif

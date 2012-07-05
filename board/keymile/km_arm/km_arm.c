@@ -317,7 +317,7 @@ void dram_init_banksize(void)
 	}
 }
 
-#if (defined(CONFIG_KM_MGCOGE3UN)|defined(CONFIG_PORTL2))
+#if (defined(CONFIG_KM_PIGGY4_88E6061))
 
 #define	PHY_LED_SEL	0x18
 #define PHY_LED0_LINK	(0x5)
