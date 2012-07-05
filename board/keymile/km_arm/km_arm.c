@@ -268,12 +268,6 @@ int board_early_init_f(void)
 	kw_gpio_set_valid(KM_KIRKWOOD_ENV_WP, 38);
 	kw_gpio_direction_output(KM_KIRKWOOD_ENV_WP, 1);
 #endif
-#if defined(CONFIG_KM_RECONFIG_XLX)
-	/* trigger the reconfiguration of the xilinx fpga */
-	kw_gpio_set_valid(KM_XLX_PROGRAM_B_PIN, 1);
-	kw_gpio_direction_output(KM_XLX_PROGRAM_B_PIN, 0);
-	kw_gpio_direction_input(KM_XLX_PROGRAM_B_PIN);
-#endif
 	return 0;
 }
 
@@ -281,6 +275,21 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+
+#if defined(CONFIG_KM_FPGA_CONFIG)
+	trigger_fpga_config();
+#endif
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+#if defined(CONFIG_KM_FPGA_CONFIG)
+	wait_for_fpga_config();
+	fpga_reset();
+	toggle_eeprom_spi_bus();
+#endif
 
 	return 0;
 }

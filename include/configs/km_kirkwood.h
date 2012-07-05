@@ -162,10 +162,12 @@
 	MVGBE_SET_MII_SPEED_TO_100)
 #endif
 
-/* GPIO Pin from kirkwood connected to PROGRAM_B pin of the xilinx FPGA */
-#define KM_XLX_PROGRAM_B_PIN    39
-
 #ifdef CONFIG_KM_DISABLE_PCI
 #undef  CONFIG_KIRKWOOD_PCIE_INIT
 #endif
+
+#ifndef CONFIG_KM_FPGA_CONFIG
+#undef  BOARD_LATE_INIT
+#endif
+
 #endif /* _CONFIG_KM_KIRKWOOD */

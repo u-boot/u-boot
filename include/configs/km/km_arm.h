@@ -313,4 +313,7 @@ int get_scl(void);
 #define CONFIG_POST_EXTERNAL_WORD_FUNCS
 #define CONFIG_CMD_DIAG
 
+/* we do the whole PCIe FPGA config stuff here */
+#define	BOARD_LATE_INIT
+
 #endif /* _CONFIG_KM_ARM_H */
