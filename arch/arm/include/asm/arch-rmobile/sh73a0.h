@@ -228,7 +228,9 @@ struct sh73a0_sbsc_cpg {
 	u32 smstpcr3;
 	u32 smstpcr4;
 	u32 smstpcr5;
-	u32 dummy11[10]; /* 0x148 .. 0x16c */
+	u32 dummy11[2]; /* 0x148 .. 0x14c */
+	u32 cpgxxcs4;
+	u32 dummy12[7]; /* 0x154 .. 0x16c */
 	u32 dvfscr2;
 	u32 dvfscr3;
 	u32 dvfscr4;

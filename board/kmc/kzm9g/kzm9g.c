@@ -163,6 +163,7 @@ void s_init(void)
 	#define LIFEC_SEC_SRC_BIT	(1 << 15)
 	writel(readl(LIFEC_SEC_SRC) & ~LIFEC_SEC_SRC_BIT, LIFEC_SEC_SRC);
 
+	clrbits_le32(&cpg->smstpcr3, (1 << 15));
 	clrbits_le32(&cpg_srcr->srcr3, (1 << 15));
 	clrbits_le32(&cpg->smstpcr2, (1 << 18));
 	clrbits_le32(&cpg_srcr->srcr2, (1 << 18));
@@ -266,6 +267,7 @@ void s_init(void)
 
 	writel(0x00000b0b, &cpg->frqcrd);
 	cmp_loop(&cpg->frqcrd, 0x80000000, 0x0);
+	writel(0xfffffffc, &cpg->cpgxxcs4);
 }
 
 int board_early_init_f(void)
