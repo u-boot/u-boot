@@ -723,10 +723,13 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 	return phydev;
 }
 
+/*
+ * Start the PHY.  Returns 0 on success, or a negative error code.
+ */
 int phy_startup(struct phy_device *phydev)
 {
 	if (phydev->drv->startup)
-		phydev->drv->startup(phydev);
+		return phydev->drv->startup(phydev);
 
 	return 0;
 }
