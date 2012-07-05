@@ -49,7 +49,7 @@ wait_interrupt:
 	str     r2, [r1]
 
 wait_loop:
-	wfi
+	.long	0xE320F003 /* wfi */
 
 	ldr		r2, [r1, #0xC]
 	str		r2, [r1, #0x10]
