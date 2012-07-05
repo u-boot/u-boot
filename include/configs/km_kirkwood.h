@@ -37,15 +37,20 @@
 #ifndef _CONFIG_KM_KIRKWOOD_H
 #define _CONFIG_KM_KIRKWOOD_H
 
+/* KM_KIRKWOOD */
 #if defined(CONFIG_KM_KIRKWOOD)
 #define CONFIG_IDENT_STRING		"\nKeymile Kirkwood"
 #define CONFIG_HOSTNAME			km_kirkwood
-#undef  CONFIG_KIRKWOOD_PCIE_INIT
+#define CONFIG_KM_DISABLE_PCIE
 #define KM_IVM_BUS			"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
+
+/* KM_KIRKWOOD_PCI */
 #elif defined(CONFIG_KM_KIRKWOOD_PCI)
 #define CONFIG_IDENT_STRING		"\nKeymile Kirkwood PCI"
 #define CONFIG_HOSTNAME			km_kirkwood_pci
 #define KM_IVM_BUS			"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_FPGA_CONFIG
+
 /* KM_NUSA */
 #elif defined(CONFIG_KM_NUSA)
 #define KM_IVM_BUS			"pca9547:70:9"	/* I2C2 (Mux-Port 1)*/
