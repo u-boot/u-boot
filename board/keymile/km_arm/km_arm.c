@@ -243,38 +243,51 @@ int misc_init_r(void)
 
 int board_early_init_f(void)
 {
+#if defined(CONFIG_SOFT_I2C)
 	u32 tmp;
 
-	kirkwood_mpp_conf(kwmpp_config, NULL);
-
-	/*
-	 * The FLASH_GPIO_PIN switches between using a
-	 * NAND or a SPI FLASH. Set this pin on start
-	 * to NAND mode.
-	 */
-	tmp = readl(KW_GPIO0_BASE);
-	writel(tmp | FLASH_GPIO_PIN , KW_GPIO0_BASE);
+	/* set the 2 bitbang i2c pins as output gpios */
 	tmp = readl(KW_GPIO0_BASE + 4);
-	writel(tmp & (~FLASH_GPIO_PIN) , KW_GPIO0_BASE + 4);
+	writel(tmp & (~KM_KIRKWOOD_SOFT_I2C_GPIOS) , KW_GPIO0_BASE + 4);
+#endif
 
-#if defined(CONFIG_SOFT_I2C)
-	/* init the GPIO for I2C Bitbang driver */
-	kw_gpio_set_valid(KM_KIRKWOOD_SDA_PIN, 1);
-	kw_gpio_set_valid(KM_KIRKWOOD_SCL_PIN, 1);
-	kw_gpio_direction_output(KM_KIRKWOOD_SDA_PIN, 0);
-	kw_gpio_direction_output(KM_KIRKWOOD_SCL_PIN, 0);
-#endif
-#if defined(CONFIG_SYS_EEPROM_WREN)
-	kw_gpio_set_valid(KM_KIRKWOOD_ENV_WP, 38);
-	kw_gpio_direction_output(KM_KIRKWOOD_ENV_WP, 1);
-#endif
+	kirkwood_mpp_conf(kwmpp_config, NULL);
 	return 0;
 }
 
 int board_init(void)
 {
+	/*
+	 * arch number of board
+	 */
+	gd->bd->bi_arch_number = MACH_TYPE_KM_KIRKWOOD;
+
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+
+	/*
+	 * The KM_FLASH_GPIO_PIN switches between using a
+	 * NAND or a SPI FLASH. Set this pin on start
+	 * to NAND mode.
+	 */
+	kw_gpio_set_valid(KM_FLASH_GPIO_PIN, 1);
+	kw_gpio_direction_output(KM_FLASH_GPIO_PIN, 1);
+
+#if defined(CONFIG_SOFT_I2C)
+	/*
+	 * Reinit the GPIO for I2C Bitbang driver so that the now
+	 * available gpio framework is consistent. The calls to
+	 * direction output in are not necessary, they are already done in
+	 * board_early_init_f
+	 */
+	kw_gpio_set_valid(KM_KIRKWOOD_SDA_PIN, 1);
+	kw_gpio_set_valid(KM_KIRKWOOD_SCL_PIN, 1);
+#endif
+
+#if defined(CONFIG_SYS_EEPROM_WREN)
+	kw_gpio_set_valid(KM_KIRKWOOD_ENV_WP, 38);
+	kw_gpio_direction_output(KM_KIRKWOOD_ENV_WP, 1);
+#endif
 
 #if defined(CONFIG_KM_FPGA_CONFIG)
 	trigger_fpga_config();

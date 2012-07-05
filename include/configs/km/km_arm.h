@@ -192,6 +192,7 @@ int get_sda(void);
 int get_scl(void);
 #define KM_KIRKWOOD_SDA_PIN	8
 #define KM_KIRKWOOD_SCL_PIN	9
+#define KM_KIRKWOOD_SOFT_I2C_GPIOS	0x0300
 #define KM_KIRKWOOD_ENV_WP	38
 
 #define I2C_ACTIVE	__set_direction(KM_KIRKWOOD_SDA_PIN, 0)
