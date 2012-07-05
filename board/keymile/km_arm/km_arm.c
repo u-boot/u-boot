@@ -328,13 +328,13 @@ void dram_init_banksize(void)
 
 #if (defined(CONFIG_KM_PIGGY4_88E6061))
 
-#define	PHY_LED_SEL	0x18
-#define PHY_LED0_LINK	(0x5)
-#define PHY_LED1_ACT	(0x8<<4)
-#define PHY_LED2_INT	(0xe<<8)
-#define	PHY_SPEC_CTRL	0x1c
+#define	PHY_LED_SEL_REG		0x18
+#define PHY_LED0_LINK		(0x5)
+#define PHY_LED1_ACT		(0x8<<4)
+#define PHY_LED2_INT		(0xe<<8)
+#define	PHY_SPEC_CTRL_REG	0x1c
 #define PHY_RGMII_CLK_STABLE	(0x1<<10)
-#define PHY_CLSA	(0x1<<1)
+#define PHY_CLSA		(0x1<<1)
 
 /* Configure and enable MV88E3018 PHY */
 void reset_phy(void)
@@ -346,15 +346,15 @@ void reset_phy(void)
 		return;
 
 	/* RGMII clk transition on data stable */
-	if (miiphy_read(name, CONFIG_PHY_BASE_ADR, PHY_SPEC_CTRL, &reg) != 0)
+	if (!miiphy_read(name, CONFIG_PHY_BASE_ADR, PHY_SPEC_CTRL_REG, &reg))
 		printf("Error reading PHY spec ctrl reg\n");
-	if (miiphy_write(name, CONFIG_PHY_BASE_ADR, PHY_SPEC_CTRL,
-		reg | PHY_RGMII_CLK_STABLE | PHY_CLSA) != 0)
+	if (!miiphy_write(name, CONFIG_PHY_BASE_ADR, PHY_SPEC_CTRL_REG,
+		reg | PHY_RGMII_CLK_STABLE | PHY_CLSA))
 		printf("Error writing PHY spec ctrl reg\n");
 
 	/* leds setup */
-	if (miiphy_write(name, CONFIG_PHY_BASE_ADR, PHY_LED_SEL,
-		PHY_LED0_LINK | PHY_LED1_ACT | PHY_LED2_INT) != 0)
+	if (!miiphy_write(name, CONFIG_PHY_BASE_ADR, PHY_LED_SEL_REG,
+		PHY_LED0_LINK | PHY_LED1_ACT | PHY_LED2_INT))
 		printf("Error writing PHY LED reg\n");
 
 	/* reset the phy */
