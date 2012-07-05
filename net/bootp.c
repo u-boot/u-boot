@@ -12,11 +12,13 @@
 #include <command.h>
 #include <net.h>
 #include "bootp.h"
-#include "net_rand.h"
 #include "tftp.h"
 #include "nfs.h"
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
+#endif
+#ifdef CONFIG_BOOTP_RANDOM_DELAY
+#include "net_rand.h"
 #endif
 
 #define BOOTP_VENDOR_MAGIC	0x63825363	/* RFC1048 Magic Cookie */
