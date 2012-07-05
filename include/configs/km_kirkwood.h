@@ -39,15 +39,18 @@
 
 #if defined(CONFIG_KM_KIRKWOOD)
 #define CONFIG_IDENT_STRING		"\nKeymile Kirkwood"
+#define CONFIG_HOSTNAME			km_kirkwood
 #undef  CONFIG_KIRKWOOD_PCIE_INIT
 #define KM_IVM_BUS			"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
 #elif defined(CONFIG_KM_KIRKWOOD_PCI)
 #define CONFIG_IDENT_STRING		"\nKeymile Kirkwood PCI"
+#define CONFIG_HOSTNAME			km_kirkwood_pci
 #define KM_IVM_BUS			"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
 /* KM_NUSA */
 #elif defined(CONFIG_KM_NUSA)
 #define KM_IVM_BUS			"pca9547:70:9"	/* I2C2 (Mux-Port 1)*/
 #define CONFIG_IDENT_STRING		"\nKeymile NUSA"
+#define CONFIG_HOSTNAME			kmnusa
 #undef CONFIG_SYS_KWD_CONFIG
 #define CONFIG_SYS_KWD_CONFIG \
 		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
@@ -55,14 +58,23 @@
 #define CONFIG_KM_FPGA_CONFIG
 #define CONFIG_KM_PIGGY4_88E6352
 
+#elif defined(CONFIG_KM_COGE5UN)
+#define CONFIG_IDENT_STRING		"\nKeymile COGE5UN"
+#define KM_IVM_BUS			"pca9547:70:9"	/* I2C2 (Mux-Port 1)*/
+#undef	CONFIG_SYS_KWD_CONFIG
+#define CONFIG_SYS_KWD_CONFIG \
+		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_256M8_1.cfg
+#define CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_PIGGY_MAC_ADRESS_OFFSET	3
+#define CONFIG_HOSTNAME			kmcoge5un
+#define CONFIG_KM_DISABLE_PCIE
+#define CONFIG_KM_PIGGY4_88E6352
 #else
 #error ("Board unsupported")
 #endif
 
 /* include common defines/options for all arm based Keymile boards */
 #include "km/km_arm.h"
-
-#define CONFIG_HOSTNAME			km_kirkwood
 
 #ifndef CONFIG_KM_ENV_IS_IN_SPI_NOR
 #define KM_ENV_BUS	"pca9544a:70:d"	/* I2C2 (Mux-Port 5)*/
