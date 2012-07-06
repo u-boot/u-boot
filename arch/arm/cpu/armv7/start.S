@@ -305,6 +305,20 @@ ENDPROC(relocate_code)
 
 /*************************************************************************
  *
+ * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+ *	__attribute__((weak));
+ *
+ * Stack pointer is not yet initialized at this moment
+ * Don't save anything to stack even if compiled with -O0
+ *
+ *************************************************************************/
+ENTRY(save_boot_params)
+	bx	lr			@ back to my caller
+ENDPROC(save_boot_params)
+	.weak	save_boot_params
+
+/*************************************************************************
+ *
  * cpu_init_cp15
  *
  * Setup CP15 registers (cache, MMU, TLBs). The I-cache is turned on unless
