@@ -82,10 +82,10 @@ void lbc_sdram_init(void);
 
 /* Convert an address into the right format for the BR registers */
 #if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_FSL_ELBC)
-#define BR_PHYS_ADDR(x)	((unsigned long)((x & 0x0ffff8000ULL) | \
-					 ((x & 0x300000000ULL) >> 19)))
+#define BR_PHYS_ADDR(x)	\
+	((u32)(((x) & 0x0ffff8000ULL) | (((x) & 0x300000000ULL) >> 19)))
 #else
-#define BR_PHYS_ADDR(x) (x & 0xffff8000)
+#define BR_PHYS_ADDR(x) ((u32)(x) & 0xffff8000)
 #endif
 
 /* OR - Option Registers
