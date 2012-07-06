@@ -62,6 +62,85 @@ struct mxsmmc_priv {
 
 #define	MXSMMC_MAX_TIMEOUT	10000
 
+#ifndef CONFIG_MXS_MMC_DMA
+static int mxsmmc_send_cmd_pio(struct mxsmmc_priv *priv, struct mmc_data *data)
+{
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
+	uint32_t *data_ptr;
+	int timeout = MXSMMC_MAX_TIMEOUT;
+	uint32_t reg;
+	uint32_t data_count = data->blocksize * data->blocks;
+
+	if (data->flags & MMC_DATA_READ) {
+		data_ptr = (uint32_t *)data->dest;
+		while (data_count && --timeout) {
+			reg = readl(&ssp_regs->hw_ssp_status);
+			if (!(reg & SSP_STATUS_FIFO_EMPTY)) {
+				*data_ptr++ = readl(&ssp_regs->hw_ssp_data);
+				data_count -= 4;
+				timeout = MXSMMC_MAX_TIMEOUT;
+			} else
+				udelay(1000);
+		}
+	} else {
+		data_ptr = (uint32_t *)data->src;
+		timeout *= 100;
+		while (data_count && --timeout) {
+			reg = readl(&ssp_regs->hw_ssp_status);
+			if (!(reg & SSP_STATUS_FIFO_FULL)) {
+				writel(*data_ptr++, &ssp_regs->hw_ssp_data);
+				data_count -= 4;
+				timeout = MXSMMC_MAX_TIMEOUT;
+			} else
+				udelay(1000);
+		}
+	}
+
+	return timeout ? 0 : COMM_ERR;
+}
+#else
+static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
+{
+	uint32_t data_count = data->blocksize * data->blocks;
+	uint32_t cache_data_count;
+	int dmach;
+
+	if (data_count % ARCH_DMA_MINALIGN)
+		cache_data_count = roundup(data_count, ARCH_DMA_MINALIGN);
+	else
+		cache_data_count = data_count;
+
+	if (data->flags & MMC_DATA_READ) {
+		priv->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_WRITE;
+		priv->desc->cmd.address = (dma_addr_t)data->dest;
+	} else {
+		priv->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_READ;
+		priv->desc->cmd.address = (dma_addr_t)data->src;
+
+		/* Flush data to DRAM so DMA can pick them up */
+		flush_dcache_range((uint32_t)priv->desc->cmd.address,
+			(uint32_t)(priv->desc->cmd.address + cache_data_count));
+	}
+
+	priv->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
+				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
+
+
+	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + priv->id;
+	mxs_dma_desc_append(dmach, priv->desc);
+	if (mxs_dma_go(dmach))
+		return COMM_ERR;
+
+	/* The data arrived into DRAM, invalidate cache over them */
+	if (data->flags & MMC_DATA_READ) {
+		invalidate_dcache_range((uint32_t)priv->desc->cmd.address,
+			(uint32_t)(priv->desc->cmd.address + cache_data_count));
+	}
+
+	return 0;
+}
+#endif
+
 /*
  * Sends a command out on the bus.  Takes the mmc pointer,
  * a command pointer, and an optional data pointer.
@@ -73,14 +152,8 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
 	uint32_t reg;
 	int timeout;
-	uint32_t data_count;
 	uint32_t ctrl0;
-#ifndef CONFIG_MXS_MMC_DMA
-	uint32_t *data_ptr;
-#else
-	uint32_t cache_data_count;
-	int dmach;
-#endif
+	int ret;
 
 	debug("MMC%d: CMD%d\n", mmc->block_dev.dev, cmd->cmdidx);
 
@@ -198,77 +271,22 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	if (!data)
 		return 0;
 
-	data_count = data->blocksize * data->blocks;
-	timeout = MXSMMC_MAX_TIMEOUT;
-
 #ifdef CONFIG_MXS_MMC_DMA
 	writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_set);
 
-	if (data_count % ARCH_DMA_MINALIGN)
-		cache_data_count = roundup(data_count, ARCH_DMA_MINALIGN);
-	else
-		cache_data_count = data_count;
-
-	if (data->flags & MMC_DATA_READ) {
-		priv->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_WRITE;
-		priv->desc->cmd.address = (dma_addr_t)data->dest;
-	} else {
-		priv->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_READ;
-		priv->desc->cmd.address = (dma_addr_t)data->src;
-
-		/* Flush data to DRAM so DMA can pick them up */
-		flush_dcache_range((uint32_t)priv->desc->cmd.address,
-			(uint32_t)(priv->desc->cmd.address + cache_data_count));
-	}
-
-	priv->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
-				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
-
-
-	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + priv->id;
-	mxs_dma_desc_append(dmach, priv->desc);
-	if (mxs_dma_go(dmach)) {
+	ret = mxsmmc_send_cmd_dma(priv, data);
+	if (ret) {
 		printf("MMC%d: DMA transfer failed\n", mmc->block_dev.dev);
-		return COMM_ERR;
-	}
-
-	/* The data arrived into DRAM, invalidate cache over them */
-	if (data->flags & MMC_DATA_READ) {
-		invalidate_dcache_range((uint32_t)priv->desc->cmd.address,
-			(uint32_t)(priv->desc->cmd.address + cache_data_count));
+		return ret;
 	}
 #else
 	writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_clr);
 
-	if (data->flags & MMC_DATA_READ) {
-		data_ptr = (uint32_t *)data->dest;
-		while (data_count && --timeout) {
-			reg = readl(&ssp_regs->hw_ssp_status);
-			if (!(reg & SSP_STATUS_FIFO_EMPTY)) {
-				*data_ptr++ = readl(&ssp_regs->hw_ssp_data);
-				data_count -= 4;
-				timeout = MXSMMC_MAX_TIMEOUT;
-			} else
-				udelay(1000);
-		}
-	} else {
-		data_ptr = (uint32_t *)data->src;
-		timeout *= 100;
-		while (data_count && --timeout) {
-			reg = readl(&ssp_regs->hw_ssp_status);
-			if (!(reg & SSP_STATUS_FIFO_FULL)) {
-				writel(*data_ptr++, &ssp_regs->hw_ssp_data);
-				data_count -= 4;
-				timeout = MXSMMC_MAX_TIMEOUT;
-			} else
-				udelay(1000);
-		}
-	}
-
-	if (!timeout) {
+	ret = mxsmmc_send_cmd_pio(priv, data);
+	if (ret) {
 		printf("MMC%d: Data timeout with command %d (status 0x%08x)!\n",
 			mmc->block_dev.dev, cmd->cmdidx, reg);
-		return COMM_ERR;
+		return ret;
 	}
 #endif
 
