@@ -43,13 +43,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/dma.h>
 
-/*
- * CONFIG_MXS_MMC_DMA: This feature is highly experimental and has no
- *                     performance benefit unless you operate the platform with
- *                     data cache enabled. This is disabled by default, enable
- *                     only if you know what you're doing.
- */
-
 struct mxsmmc_priv {
 	int			id;
 	struct mxs_ssp_regs	*regs;
@@ -61,8 +54,8 @@ struct mxsmmc_priv {
 };
 
 #define	MXSMMC_MAX_TIMEOUT	10000
+#define MXSMMC_SMALL_TRANSFER	512
 
-#ifndef CONFIG_MXS_MMC_DMA
 static int mxsmmc_send_cmd_pio(struct mxsmmc_priv *priv, struct mmc_data *data)
 {
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
@@ -98,7 +91,7 @@ static int mxsmmc_send_cmd_pio(struct mxsmmc_priv *priv, struct mmc_data *data)
 
 	return timeout ? 0 : COMM_ERR;
 }
-#else
+
 static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 {
 	uint32_t data_count = data->blocksize * data->blocks;
@@ -139,7 +132,6 @@ static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 
 	return 0;
 }
-#endif
 
 /*
  * Sends a command out on the bus.  Takes the mmc pointer,
@@ -271,24 +263,26 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	if (!data)
 		return 0;
 
-#ifdef CONFIG_MXS_MMC_DMA
-	writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_set);
+	if (data->blocksize * data->blocks < MXSMMC_SMALL_TRANSFER) {
+		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_set);
 
-	ret = mxsmmc_send_cmd_dma(priv, data);
-	if (ret) {
-		printf("MMC%d: DMA transfer failed\n", mmc->block_dev.dev);
-		return ret;
-	}
-#else
-	writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_clr);
+		ret = mxsmmc_send_cmd_dma(priv, data);
+		if (ret) {
+			printf("MMC%d: DMA transfer failed\n",
+				mmc->block_dev.dev);
+			return ret;
+		}
+	} else {
+		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_clr);
 
-	ret = mxsmmc_send_cmd_pio(priv, data);
-	if (ret) {
-		printf("MMC%d: Data timeout with command %d (status 0x%08x)!\n",
-			mmc->block_dev.dev, cmd->cmdidx, reg);
-		return ret;
+		ret = mxsmmc_send_cmd_pio(priv, data);
+		if (ret) {
+			printf("MMC%d: Data timeout with command %d "
+				"(status 0x%08x)!\n",
+				mmc->block_dev.dev, cmd->cmdidx, reg);
+			return ret;
+		}
 	}
-#endif
 
 	/* Check data errors */
 	reg = readl(&ssp_regs->hw_ssp_status);
