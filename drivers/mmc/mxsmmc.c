@@ -79,6 +79,7 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	uint32_t *data_ptr;
 #else
 	uint32_t cache_data_count;
+	int dmach;
 #endif
 
 	debug("MMC%d: CMD%d\n", mmc->block_dev.dev, cmd->cmdidx);
@@ -201,6 +202,8 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	timeout = MXSMMC_MAX_TIMEOUT;
 
 #ifdef CONFIG_MXS_MMC_DMA
+	writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_set);
+
 	if (data_count % ARCH_DMA_MINALIGN)
 		cache_data_count = roundup(data_count, ARCH_DMA_MINALIGN);
 	else
@@ -222,8 +225,9 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
 
 
-	mxs_dma_desc_append(MXS_DMA_CHANNEL_AHB_APBH_SSP0, priv->desc);
-	if (mxs_dma_go(MXS_DMA_CHANNEL_AHB_APBH_SSP0)) {
+	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + priv->id;
+	mxs_dma_desc_append(dmach, priv->desc);
+	if (mxs_dma_go(dmach)) {
 		printf("MMC%d: DMA transfer failed\n", mmc->block_dev.dev);
 		return COMM_ERR;
 	}
@@ -234,6 +238,8 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			(uint32_t)(priv->desc->cmd.address + cache_data_count));
 	}
 #else
+	writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_clr);
+
 	if (data->flags & MMC_DATA_READ) {
 		data_ptr = (uint32_t *)data->dest;
 		while (data_count && --timeout) {
