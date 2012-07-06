@@ -33,9 +33,7 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (IS_SVR_REV(svr, 1, 0)) {
 		switch (SVR_SOC_VER(svr)) {
 		case SVR_P1013:
-		case SVR_P1013_E:
 		case SVR_P1022:
-		case SVR_P1022_E:
 			puts("Work-around for Erratum SATA A001 enabled\n");
 		}
 	}

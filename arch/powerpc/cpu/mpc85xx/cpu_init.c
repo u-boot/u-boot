@@ -356,8 +356,7 @@ int cpu_init_r(void)
 		break;
 	case 0x1:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
-		    ver == SVR_8541 || ver == SVR_8541_E ||
-		    ver == SVR_8555 || ver == SVR_8555_E) {
+		    ver == SVR_8541 || ver == SVR_8555) {
 			puts("128 KB ");
 			/* set L2E=1, L2I=1, & L2BLKSZ=1 (128 Kbyte) */
 			cache_ctl = 0xc4000000;
@@ -368,8 +367,7 @@ int cpu_init_r(void)
 		break;
 	case 0x2:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
-		    ver == SVR_8541 || ver == SVR_8541_E ||
-		    ver == SVR_8555 || ver == SVR_8555_E) {
+		    ver == SVR_8541 || ver == SVR_8555) {
 			puts("256 KB ");
 			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 Kbyte) */
 			cache_ctl = 0xc8000000;
@@ -405,8 +403,7 @@ int cpu_init_r(void)
 		puts("enabled\n");
 	}
 #elif defined(CONFIG_BACKSIDE_L2_CACHE)
-	if ((SVR_SOC_VER(svr) == SVR_P2040) ||
-	    (SVR_SOC_VER(svr) == SVR_P2040_E)) {
+	if (SVR_SOC_VER(svr) == SVR_P2040) {
 		puts("N/A\n");
 		goto skip_l2;
 	}
@@ -508,9 +505,7 @@ skip_l2:
 	 */
 	if (IS_SVR_REV(svr, 1, 0) &&
 	    ((SVR_SOC_VER(svr) == SVR_P1022) ||
-	     (SVR_SOC_VER(svr) == SVR_P1022_E) ||
-	     (SVR_SOC_VER(svr) == SVR_P1013) ||
-	     (SVR_SOC_VER(svr) == SVR_P1013_E))) {
+	     (SVR_SOC_VER(svr) == SVR_P1013))) {
 		fsl_sata_reg_t *reg;
 
 		/* first SATA controller */

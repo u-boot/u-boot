@@ -190,7 +190,7 @@ int board_eth_init(bd_t *bis)
 #endif
 #ifdef CONFIG_TSEC3
 	/* P1014 and it's derivatives do not support eTSEC3 */
-	if (cpu->soc_ver != SVR_P1014 && cpu->soc_ver != SVR_P1014_E) {
+	if (cpu->soc_ver != SVR_P1014) {
 		SET_STD_TSEC_INFO(tsec_info[num], 3);
 		num++;
 	}
@@ -301,7 +301,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 
        /* P1014 and it's derivatives don't support CAN and eTSEC3 */
-	if (cpu->soc_ver == SVR_P1014 || cpu->soc_ver == SVR_P1014_E) {
+	if (cpu->soc_ver == SVR_P1014) {
 		fdt_del_flexcan(blob);
 		fdt_del_node_and_alias(blob, "ethernet2");
 	}
