@@ -97,6 +97,10 @@ static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 	uint32_t data_count = data->blocksize * data->blocks;
 	uint32_t cache_data_count;
 	int dmach;
+	struct mxs_dma_desc *desc = priv->desc;
+
+	memset(desc, 0, sizeof(struct mxs_dma_desc));
+	desc->address = (dma_addr_t)desc;
 
 	if (data_count % ARCH_DMA_MINALIGN)
 		cache_data_count = roundup(data_count, ARCH_DMA_MINALIGN);
@@ -117,7 +121,6 @@ static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 
 	priv->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
 				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
-
 
 	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + priv->id;
 	mxs_dma_desc_append(dmach, priv->desc);
@@ -182,6 +185,11 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		ctrl0 |= SSP_CTRL0_GET_RESP;
 	if (cmd->resp_type & MMC_RSP_136)	/* It's a 136 bits response */
 		ctrl0 |= SSP_CTRL0_LONG_RESP;
+
+	if (data && (data->blocksize * data->blocks < MXSMMC_SMALL_TRANSFER))
+		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_clr);
+	else
+		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_set);
 
 	/* Command index */
 	reg = readl(&ssp_regs->hw_ssp_cmd0);
@@ -264,22 +272,18 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		return 0;
 
 	if (data->blocksize * data->blocks < MXSMMC_SMALL_TRANSFER) {
-		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_set);
-
-		ret = mxsmmc_send_cmd_dma(priv, data);
-		if (ret) {
-			printf("MMC%d: DMA transfer failed\n",
-				mmc->block_dev.dev);
-			return ret;
-		}
-	} else {
-		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_clr);
-
 		ret = mxsmmc_send_cmd_pio(priv, data);
 		if (ret) {
 			printf("MMC%d: Data timeout with command %d "
 				"(status 0x%08x)!\n",
 				mmc->block_dev.dev, cmd->cmdidx, reg);
+			return ret;
+		}
+	} else {
+		ret = mxsmmc_send_cmd_dma(priv, data);
+		if (ret) {
+			printf("MMC%d: DMA transfer failed\n",
+				mmc->block_dev.dev);
 			return ret;
 		}
 	}
@@ -336,9 +340,9 @@ static int mxsmmc_init(struct mmc *mmc)
 
 	/* 8 bits word length in MMC mode */
 	clrsetbits_le32(&ssp_regs->hw_ssp_ctrl1,
-		SSP_CTRL1_SSP_MODE_MASK | SSP_CTRL1_WORD_LENGTH_MASK,
-		SSP_CTRL1_SSP_MODE_SD_MMC | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS |
-		SSP_CTRL1_DMA_ENABLE);
+		SSP_CTRL1_SSP_MODE_MASK | SSP_CTRL1_WORD_LENGTH_MASK |
+		SSP_CTRL1_DMA_ENABLE,
+		SSP_CTRL1_SSP_MODE_SD_MMC | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS);
 
 	/* Set initial bit clock 400 KHz */
 	mx28_set_ssp_busclock(priv->id, 400);
