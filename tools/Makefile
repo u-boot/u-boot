@@ -196,7 +196,8 @@ $(obj)xway-swap-bytes$(SFX):	$(obj)xway-swap-bytes.o
 	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(HOSTSTRIP) $@
 
-$(obj)mkenvimage$(SFX):	$(obj)crc32.o $(obj)mkenvimage.o
+$(obj)mkenvimage$(SFX):	$(obj)crc32.o $(obj)mkenvimage.o \
+	$(obj)os_support.o
 	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(HOSTSTRIP) $@
 
