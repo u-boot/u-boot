@@ -351,11 +351,12 @@ clear_bss:
 	add	r1, r1, r4
 	mov	r2, #0x00000000		/* clear			    */
 
-clbss_l:str	r2, [r0]		/* clear loop...		    */
+clbss_l:cmp	r0, r1			/* clear loop... */
+	bhs	clbss_e			/* if reached end of bss, exit */
+	str	r2, [r0]
 	add	r0, r0, #4
-	cmp	r0, r1
-	bne	clbss_l
-
+	b	clbss_l
+clbss_e:
 #ifndef CONFIG_NAND_SPL
 	bl coloured_LED_init
 	bl red_led_on
