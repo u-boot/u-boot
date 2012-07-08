@@ -35,6 +35,8 @@
 #include <mmc.h>
 #include <net.h>
 #include <netdev.h>
+#include <spi.h>
+#include <linux/ctype.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/da850_lowlevel.h>
@@ -86,16 +88,22 @@ static const struct pinmux_config enbw_pins[] = {
 	{ pinmux(5), 1, 0 },
 	{ pinmux(5), 1, 3 },
 	{ pinmux(5), 1, 7 },
-	{ pinmux(6), 1, 0 },
-	{ pinmux(6), 1, 1 },
+	{ pinmux(5), 1, 5 },
+	{ pinmux(5), 1, 4 },
+	{ pinmux(5), 1, 3 },
+	{ pinmux(5), 1, 2 },
+	{ pinmux(5), 1, 1 },
+	{ pinmux(5), 1, 0 },
+	{ pinmux(6), 8, 0 },
+	{ pinmux(6), 8, 1 },
 	{ pinmux(6), 8, 2 },
 	{ pinmux(6), 8, 3 },
-	{ pinmux(6), 1, 4 },
+	{ pinmux(6), 8, 4 },
 	{ pinmux(6), 8, 5 },
 	{ pinmux(6), 1, 7 },
 	{ pinmux(7), 8, 2 },
 	{ pinmux(7), 1, 3 },
-	{ pinmux(7), 1, 6 },
+	{ pinmux(7), 8, 6 },
 	{ pinmux(7), 1, 7 },
 	{ pinmux(13), 8, 2 },
 	{ pinmux(13), 8, 3 },
@@ -163,24 +171,37 @@ struct gpio_config {
 	unsigned char value;
 };
 
-static const struct gpio_config enbw_gpio_config[] = {
+static const struct gpio_config enbw_gpio_config_hut[] = {
+	{ "RS485 enable",	8, 11, 1, 0 },
+	{ "RS485 iso",		8, 10, 1, 1 },
+	{ "W2HUT RS485 Rx ena",	8,  9, 1, 0 },
+	{ "W2HUT RS485 iso",	8,  8, 1, 1 },
+};
+
+static const struct gpio_config enbw_gpio_config_w[] = {
 	{ "RS485 enable",	8, 11, 1, 0 },
 	{ "RS485 iso",		8, 10, 1, 0 },
 	{ "W2HUT RS485 Rx ena",	8,  9, 1, 0 },
 	{ "W2HUT RS485 iso",	8,  8, 1, 0 },
+};
+
+static const struct gpio_config enbw_gpio_config[] = {
 	{ "LAN reset",		7, 15, 1, 1 },
 	{ "ena 11V PLC",	7, 14, 1, 0 },
 	{ "ena 1.5V PLC",	7, 13, 1, 0 },
 	{ "disable VBUS",	7, 12, 1, 1 },
-	{ "PLC reset",		6, 13, 1, 1 },
+	{ "PLC reset",		6, 13, 1, 0 },
 	{ "LCM RS",		6, 12, 1, 0 },
 	{ "LCM R/W",		6, 11, 1, 0 },
 	{ "PLC pairing",	6, 10, 1, 1 },
 	{ "PLC MDIO CLK",	6,  9, 1, 0 },
 	{ "HK218",		6,  8, 1, 0 },
 	{ "HK218 Rx",		6,  1, 1, 1 },
-	{ "TPM reset",		6,  0, 1, 1 },
-	{ "LCM E",		2,  2, 1, 1 },
+	{ "TPM reset",		6,  0, 1, 0 },
+	{ "Board-Type",		3,  9, 0, 0 },
+	{ "HW-ID0",		2,  7, 0, 0 },
+	{ "HW-ID1",		2,  6, 0, 0 },
+	{ "HW-ID2",		2,  3, 0, 0 },
 	{ "PV-IF RxD ena",	0, 15, 1, 1 },
 	{ "LED1",		1, 15, 1, 1 },
 	{ "LED2",		0,  1, 1, 1 },
@@ -229,9 +250,34 @@ static void enbw_cmc_switch(int port, int on)
 	}
 }
 
-int board_init(void)
+static int enbw_cmc_init_gpio(const struct gpio_config *conf, int sz)
 {
 	int i, ret;
+
+	for (i = 0; i < sz; i++) {
+		int gpio = conf[i].bank * 16 +
+			conf[i].gpio;
+
+		ret = gpio_request(gpio, conf[i].name);
+		if (ret) {
+			printf("%s: Could not get %s gpio\n", __func__,
+				conf[i].name);
+			return ret;
+		}
+
+		if (conf[i].out)
+			gpio_direction_output(gpio,
+				conf[i].value);
+		else
+			gpio_direction_input(gpio);
+	}
+
+	return 0;
+}
+
+int board_init(void)
+{
+	int board_type, hw_id;
 
 #ifndef CONFIG_USE_IRQ
 	irq_init();
@@ -239,23 +285,21 @@ int board_init(void)
 	/* address of boot parameters, not used as booting with DTT */
 	gd->bd->bi_boot_params = 0;
 
-	for (i = 0; i < ARRAY_SIZE(enbw_gpio_config); i++) {
-		int gpio = enbw_gpio_config[i].bank * 16 +
-			enbw_gpio_config[i].gpio;
+	enbw_cmc_init_gpio(enbw_gpio_config, ARRAY_SIZE(enbw_gpio_config));
 
-		ret = gpio_request(gpio, enbw_gpio_config[i].name);
-		if (ret) {
-			printf("%s: Could not get %s gpio\n", __func__,
-				enbw_gpio_config[i].name);
-			return -1;
-		}
-
-		if (enbw_gpio_config[i].out)
-			gpio_direction_output(gpio,
-				enbw_gpio_config[i].value);
-		else
-			gpio_direction_input(gpio);
-	}
+	/* detect HW version */
+	board_type = gpio_get_value(CONFIG_ENBW_CMC_BOARD_TYPE);
+	hw_id = gpio_get_value(CONFIG_ENBW_CMC_HW_ID_BIT0) +
+		(gpio_get_value(CONFIG_ENBW_CMC_HW_ID_BIT1) << 1) +
+		(gpio_get_value(CONFIG_ENBW_CMC_HW_ID_BIT2) << 2);
+	printf("BOARD: CMC-%s hw id: %d\n", (board_type ? "w2" : "hut"),
+		hw_id);
+	if (board_type)
+		enbw_cmc_init_gpio(enbw_gpio_config_w,
+			ARRAY_SIZE(enbw_gpio_config_w));
+	else
+		enbw_cmc_init_gpio(enbw_gpio_config_hut,
+			ARRAY_SIZE(enbw_gpio_config_hut));
 
 	/* setup the SUSPSRC for ARM to control emulation suspend */
 	clrbits_le32(&davinci_syscfg_regs->suspsrc,
@@ -267,14 +311,231 @@ int board_init(void)
 }
 
 #ifdef CONFIG_DRIVER_TI_EMAC
+
+#define KSZ_CMD_READ	0x03
+#define KSZ_CMD_WRITE	0x02
+#define KSZ_ID		0x95
+
+static int enbw_cmc_switch_read(struct spi_slave *spi, u8 reg, u8 *val)
+{
+	unsigned long flags = SPI_XFER_BEGIN;
+	int ret;
+	int cmd_len;
+	u8 cmd[2];
+
+	cmd[0] = KSZ_CMD_READ;
+	cmd[1] = reg;
+	cmd_len = 2;
+
+	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags);
+	if (ret) {
+		debug("Failed to send command (%zu bytes): %d\n",
+				cmd_len, ret);
+		return -EINVAL;
+	}
+	flags |= SPI_XFER_END;
+	*val = 0;
+	cmd_len = 1;
+	ret = spi_xfer(spi, cmd_len * 8, NULL, val, flags);
+	if (ret) {
+		debug("Failed to read (%zu bytes): %d\n",
+				cmd_len, ret);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int enbw_cmc_switch_read_ident(struct spi_slave *spi)
+{
+	int ret;
+	u8 val;
+
+	ret = enbw_cmc_switch_read(spi, 0, &val);
+	if (ret) {
+		debug("Failed to read\n");
+		return -EINVAL;
+	}
+
+	if (val != KSZ_ID)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int enbw_cmc_switch_write(struct spi_slave *spi, unsigned long reg,
+		unsigned long val)
+{
+	unsigned long flags = SPI_XFER_BEGIN;
+	int ret;
+	int cmd_len;
+	u8 cmd[3];
+
+	cmd[0] = KSZ_CMD_WRITE;
+	cmd[1] = reg;
+	cmd[2] = val;
+	cmd_len = 3;
+	flags |= SPI_XFER_END;
+
+	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags);
+	if (ret) {
+		debug("Failed to send command (%zu bytes): %d\n",
+				cmd_len, ret);
+		return -EINVAL;
+	}
+
+	udelay(1000);
+	ret = enbw_cmc_switch_read(spi, reg, &cmd[0]);
+	if (ret) {
+		debug("Failed to read\n");
+		return -EINVAL;
+	}
+	if (val != cmd[0])
+		debug("warning: reg: %lx va: %x soll: %lx\n",
+			reg, cmd[0], val);
+
+	return 0;
+}
+
+static int enbw_cmc_eof(unsigned char *ptr)
+{
+	if (*ptr == 0xff)
+		return 1;
+
+	return 0;
+}
+
+static char *enbw_cmc_getnewline(char *ptr)
+{
+	while (*ptr != 0x0a) {
+		ptr++;
+		if (enbw_cmc_eof((unsigned char *)ptr))
+			return NULL;
+	}
+
+	ptr++;
+	return ptr;
+}
+
+static char *enbw_cmc_getvalue(char *ptr, int *value)
+{
+	int	end = 0;
+
+	*value = -EINVAL;
+
+	if (!isxdigit(*ptr))
+		end = 1;
+
+	while (end) {
+		if ((*ptr == '#') || (*ptr == ';')) {
+			ptr = enbw_cmc_getnewline(ptr);
+			return ptr;
+		}
+		if (ptr != NULL) {
+			if (isxdigit(*ptr)) {
+				end = 0;
+			} else if (*ptr == 0x0a) {
+				ptr++;
+				return ptr;
+			} else {
+				ptr++;
+				if (enbw_cmc_eof((unsigned char *)ptr))
+					return NULL;
+			}
+		} else {
+			return NULL;
+		}
+	}
+	*value = (int)simple_strtoul((const char *)ptr, &ptr, 16);
+	ptr++;
+	return ptr;
+}
+
+static int enbw_cmc_config_switch(unsigned long addr)
+{
+	struct spi_slave *spi;
+	char *ptr = (char *)addr;
+	int value, reg;
+	int ret;
+	int bus, cs, max_hz, spi_mode;
+
+	debug("configure switch with file on addr: 0x%lx\n", addr);
+
+	bus = 0;
+	cs = 0;
+	max_hz = 1000000;
+	spi_mode = 0;
+
+	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
+	if (!spi) {
+		printf("Failed to set up slave\n");
+		return -EINVAL;
+	}
+
+	ret = spi_claim_bus(spi);
+	if (ret) {
+		debug("Failed to claim SPI bus: %d\n", ret);
+		goto err_claim_bus;
+	}
+
+	ret = enbw_cmc_switch_read_ident(spi);
+	if (ret)
+		goto err_claim_bus;
+
+	ptr = (char *)addr;
+	while (ptr != NULL) {
+		ptr = enbw_cmc_getvalue(ptr, &reg);
+		if (ptr != NULL) {
+			ptr = enbw_cmc_getvalue(ptr, &value);
+			if ((ptr != NULL) && (value >= 0))
+				if (enbw_cmc_switch_write(spi, reg, value))
+					goto err_read;
+		}
+	}
+	return 0;
+
+err_read:
+	spi_release_bus(spi);
+err_claim_bus:
+	spi_free_slave(spi);
+	return -EINVAL;
+}
+
+static int do_switch(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	unsigned long addr;
+
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
+	addr = simple_strtoul(argv[1], NULL, 16);
+	enbw_cmc_config_switch(addr);
+
+	return 0;
+}
+
+U_BOOT_CMD(switch, 3, 1, do_switch,
+	"switch addr",
+	"[addr]"
+);
+
 /*
  * Initializes on-board ethernet controllers.
  */
 int board_eth_init(bd_t *bis)
 {
-#ifdef CONFIG_DRIVER_TI_EMAC
+	const char *s;
+	size_t len;
+
 	davinci_emac_mii_mode_sel(0);
-#endif /* CONFIG_DRIVER_TI_EMAC */
+
+	/* send a config file to the switch */
+	s = hwconfig_subarg("switch", "config", &len);
+	if (len) {
+		unsigned long addr = simple_strtoul(s, NULL, 16);
+
+		enbw_cmc_config_switch(addr);
+	}
 
 	if (!davinci_emac_initialize()) {
 		printf("Error: Ethernet init failed!\n");
@@ -546,6 +807,29 @@ ulong bootcount_load(void)
 }
 #endif
 
+ulong post_word_load(void)
+{
+	struct davinci_rtc *reg =
+		(struct davinci_rtc *)CONFIG_SYS_POST_WORD_ADDR;
+
+	return in_be32(&reg->scratch2);
+}
+
+void post_word_store(ulong value)
+{
+	struct davinci_rtc *reg =
+		(struct davinci_rtc *)CONFIG_SYS_POST_WORD_ADDR;
+
+	/*
+	 * write RTC kick register to enable write
+	 * for RTC Scratch registers. Cratch0 and 1 are
+	 * used for bootcount values.
+	 */
+	writel(RTC_KICK0R_WE, &reg->kick0r);
+	writel(RTC_KICK1R_WE, &reg->kick1r);
+	out_be32(&reg->scratch2, value);
+}
+
 void board_gpio_init(void)
 {
 	struct davinci_gpio *gpio = davinci_gpio_bank01;
@@ -558,6 +842,19 @@ void board_gpio_init(void)
 	clrbits_le32(&gpio->out_data, 0x8000407e);
 	/* set LED 1 - 5 to state on */
 	setbits_le32(&gpio->out_data, 0x8000001e);
+
+	/*
+	 * set some gpio pins to low, this is needed early,
+	 * so we have no gpio Interface here
+	 * gpios:
+	 * 8[8]  Mode PV select  low
+	 * 8[9]  Debug Rx Enable low
+	 * 8[10] Mode Select PV  low
+	 * 8[11] Counter Interface RS485 Rx-Enable low
+	 */
+	gpio = davinci_gpio_bank8;
+	clrbits_le32(&gpio->dir, 0x00000f00);
+	clrbits_le32(&gpio->out_data, 0x0f00);
 }
 
 int board_late_init(void)

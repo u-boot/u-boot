@@ -299,8 +299,12 @@ static void setup_dplls(void)
 	 * Core DPLL will be locked after setting up EMIF
 	 * using the FREQ_UPDATE method(freq_update_core())
 	 */
-	do_setup_dpll(&prcm->cm_clkmode_dpll_core, params, DPLL_NO_LOCK,
-								"core");
+	if (omap_revision() != OMAP5432_ES1_0)
+		do_setup_dpll(&prcm->cm_clkmode_dpll_core, params,
+							DPLL_NO_LOCK, "core");
+	else
+		do_setup_dpll(&prcm->cm_clkmode_dpll_core, params,
+							DPLL_LOCK, "core");
 	/* Set the ratios for CORE_CLK, L3_CLK, L4_CLK */
 	temp = (CLKSEL_CORE_X2_DIV_1 << CLKSEL_CORE_SHIFT) |
 	    (CLKSEL_L3_CORE_DIV_2 << CLKSEL_L3_SHIFT) |

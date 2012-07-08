@@ -16,8 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  */
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __MX28EVK_CONFIG_H__
+#define __MX28EVK_CONFIG_H__
 
 #include <asm/arch/regs-base.h>
 
@@ -34,7 +34,6 @@
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_ARCH_MISC_INIT
 
 /*
@@ -54,11 +53,11 @@
 #include <config_cmd_default.h>
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_FAT
 
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
@@ -250,4 +249,4 @@
 		"run netargs; " \
 		"dhcp ${uimage}; bootm\0" \
 
-#endif /* __CONFIG_H */
+#endif /* __MX28EVK_CONFIG_H__ */

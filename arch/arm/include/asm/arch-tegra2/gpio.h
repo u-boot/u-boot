@@ -2,6 +2,7 @@
  * Copyright (c) 2011, Google Inc. All rights reserved.
  * See file CREDITS for list of people who contributed to this
  * project.
+ * Portions Copyright 2011-2012 NVIDIA Corporation
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _TEGRA2_GPIO_H_
-#define _TEGRA2_GPIO_H_
+#ifndef _TEGRA_GPIO_H_
+#define _TEGRA_GPIO_H_
 
 /*
  * The Tegra 2x GPIO controller has 224 GPIOs arranged in 7 banks of 4 ports,
@@ -286,4 +287,4 @@ enum gpio_pin {
 void gpio_info(void);
 
 #define gpio_status()	gpio_info()
-#endif	/* TEGRA2_GPIO_H_ */
+#endif	/* TEGRA_GPIO_H_ */

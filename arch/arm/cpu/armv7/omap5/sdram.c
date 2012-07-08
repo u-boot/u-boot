@@ -86,11 +86,34 @@ const struct emif_regs emif_regs_266_mhz_2cs = {
 	.emif_ddr_ext_phy_ctrl_5	= 0x04010040
 };
 
+const struct emif_regs emif_regs_ddr3_532_mhz_1cs = {
+	.sdram_config_init		= 0x61851B32,
+	.sdram_config			= 0x61851B32,
+	.ref_ctrl			= 0x00001035,
+	.sdram_tim1			= 0xCCCF36B3,
+	.sdram_tim2			= 0x308F7FDA,
+	.sdram_tim3			= 0x027F88A8,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x0007190B,
+	.temp_alert_config		= 0x00000000,
+	.emif_ddr_phy_ctlr_1_init	= 0x0020420A,
+	.emif_ddr_phy_ctlr_1		= 0x0024420A,
+	.emif_ddr_ext_phy_ctrl_1	= 0x04040100,
+	.emif_ddr_ext_phy_ctrl_2	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_3	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_4	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_5	= 0x04010040,
+	.emif_rd_wr_lvl_rmp_win		= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x80000000,
+	.emif_rd_wr_lvl_ctl		= 0x00000000,
+	.emif_rd_wr_exec_thresh		= 0x00000305
+};
+
 const struct dmm_lisa_map_regs lisa_map_4G_x_2_x_2 = {
 	.dmm_lisa_map_0 = 0x0,
-	.dmm_lisa_map_1 = 0,
-	.dmm_lisa_map_2 = 0,
-	.dmm_lisa_map_3 = 0x80740300
+	.dmm_lisa_map_1 = 0x0,
+	.dmm_lisa_map_2 = 0x80740300,
+	.dmm_lisa_map_3 = 0xFF020100
 };
 
 const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
@@ -115,9 +138,34 @@ const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
 	0x00000077
 };
 
+const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
+	0x01004010,
+	0x00001004,
+	0x04010040,
+	0x01004010,
+	0x00001004,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x80080080,
+	0x00800800,
+	0x08102040,
+	0x00000002,
+	0x0,
+	0x0,
+	0x0,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000057
+};
+
 static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 {
-	*regs = &emif_regs_532_mhz_2cs;
+	if (omap_revision() == OMAP5432_ES1_0)
+		*regs = &emif_regs_ddr3_532_mhz_1cs;
+	else
+		*regs = &emif_regs_532_mhz_2cs;
 }
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 	__attribute__((weak, alias("emif_get_reg_dump_sdp")));
@@ -155,6 +203,37 @@ void emif_get_device_details(u32 emif_nr,
 	__attribute__((weak, alias("emif_get_device_details_sdp")));
 
 #endif /* CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS */
+
+void do_ext_phy_settings(u32 base, const struct emif_regs *regs)
+{
+	u32 *ext_phy_ctrl_base = 0;
+	u32 *emif_ext_phy_ctrl_base = 0;
+	u32 i = 0;
+
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+
+	ext_phy_ctrl_base = (u32 *) &(regs->emif_ddr_ext_phy_ctrl_1);
+	emif_ext_phy_ctrl_base = (u32 *) &(emif->emif_ddr_ext_phy_ctrl_1);
+
+	/* Configure external phy control timing registers */
+	for (i = 0; i < EMIF_EXT_PHY_CTRL_TIMING_REG; i++) {
+		writel(*ext_phy_ctrl_base, emif_ext_phy_ctrl_base++);
+		/* Update shadow registers */
+		writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
+	}
+
+	/*
+	 * external phy 6-24 registers do not change with
+	 * ddr frequency
+	 */
+	for (i = 0; i < EMIF_EXT_PHY_CTRL_CONST_REG; i++) {
+		writel(ext_phy_ctrl_const_base[i],
+					emif_ext_phy_ctrl_base++);
+		/* Update shadow registers */
+		writel(ext_phy_ctrl_const_base[i],
+					emif_ext_phy_ctrl_base++);
+	}
+}
 
 #ifndef CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
 static const struct lpddr2_ac_timings timings_jedec_532_mhz = {

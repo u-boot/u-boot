@@ -29,10 +29,8 @@
 #include "tegra2-common.h"
 
 /* High-level configuration options */
-#define TEGRA2_SYSMEM			"mem=384M@0M nvmem=128M@384M"
 #define V_PROMPT			"Tegra2 (Plutux) # "
 #define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Plutux"
-#define CONFIG_SYS_BOARD_ODMDATA	0x2b2d8011
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
@@ -46,7 +44,7 @@
 /* SD/MMC */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_TEGRA2_MMC
+#define CONFIG_TEGRA_MMC
 #define CONFIG_CMD_MMC
 
 #define CONFIG_DOS_PARTITION
@@ -60,5 +58,7 @@
 	"mmc rescan;"					\
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
+
+#include "tegra2-common-post.h"
 
 #endif /* __CONFIG_H */

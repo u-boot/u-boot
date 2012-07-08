@@ -49,6 +49,7 @@ COBJS-$(CONFIG_NAND_DAVINCI) += davinci_nand.o
 COBJS-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_nand.o
 COBJS-$(CONFIG_NAND_FSL_IFC) += fsl_ifc_nand.o
 COBJS-$(CONFIG_NAND_FSL_UPM) += fsl_upm.o
+COBJS-$(CONFIG_NAND_FSMC) += fsmc_nand.o
 COBJS-$(CONFIG_NAND_JZ4740) += jz4740_nand.o
 COBJS-$(CONFIG_NAND_KB9202) += kb9202_nand.o
 COBJS-$(CONFIG_NAND_KIRKWOOD) += kirkwood_nand.o

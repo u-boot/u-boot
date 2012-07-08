@@ -742,6 +742,9 @@ Sergey Lapin <slapin@ossfans.org>
 Valentin Longchamp <valentin.longchamp@keymile.com>
 
 	km_kirkwood	ARM926EJS (Kirkwood SoC)
+	kmnusa		ARM926EJS (Kirkwood SoC)
+	mgcoge3un	ARM926EJS (Kirkwood SoC)
+	kmcoge5un	ARM926EJS (Kirkwood SoC)
 	portl2		ARM926EJS (Kirkwood SoC)
 
 Nishanth Menon <nm@ti.com>
@@ -847,12 +850,12 @@ Steve Sakoman <sakoman@gmail.com>
 Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
+	vl_ma2sc	ARM926EJS (AT91SAM9263 SoC)
 
 Heiko Schocher <hs@denx.de>
 
 	enbw_cmc	ARM926EJS (AM1808 SoC)
 	magnesium	i.MX27
-	mgcoge3un	ARM926EJS (Kirkwood SoC)
 
 Michael Schwingen <michael@schwingen.org>
 
@@ -906,6 +909,11 @@ Prafulla Wadaskar <prafulla@marvell.com>
 	rd6281a		ARM926EJS (Kirkwood SoC)
 	sheevaplug	ARM926EJS (Kirkwood SoC)
 
+Michael Walle <michael@walle.cc>
+
+	lschlv2		ARM926EJS (Kirkwood SoC)
+	lsxhl		ARM926EJS (Kirkwood SoC)
+
 Tom Warren <twarren@nvidia.com>
 
 	harmony		Tegra2 (ARM7 & A9 Dual Core)
@@ -916,6 +924,8 @@ Stephen Warren <swarren@nvidia.com>
 
 	ventana		Tegra2 (ARM7 & A9 Dual Core)
 	paz00		Tegra2 (ARM7 & A9 Dual Core)
+	trimslice	Tegra2 (ARM7 & A9 Dual Core)
+	whistler	Tegra2 (ARM7 & A9 Dual Core)
 
 Thomas Weber <weber@corscience.de>
 

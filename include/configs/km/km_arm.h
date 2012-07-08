@@ -57,6 +57,13 @@
 #define CONFIG_CMD_SF
 #define CONFIG_SOFT_I2C		/* I2C bit-banged	*/
 
+#if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+#define CONFIG_ENV_SPI_MAX_HZ		5000000
+#define CONFIG_ENV_SPI_MODE		SPI_MODE_3
+#endif
+
 #include "asm/arch/config.h"
 
 #define CONFIG_SYS_TEXT_BASE	0x07d00000	/* code address before reloc */
@@ -81,7 +88,7 @@
 	"boot=bootm ${load_addr_r} - -\0"				\
 	"cramfsloadfdt=true\0"						\
 	"u-boot="xstr(CONFIG_HOSTNAME) "/u-boot.kwb\0"			\
-	CONFIG_KM_DEF_ENV_UPDATE					\
+	CONFIG_KM_UPDATE_UBOOT						\
 	""
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
@@ -159,12 +166,12 @@
  */
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_MII		/* expose smi ove miiphy interface */
+#define CONFIG_CMD_MII		/* to debug mdio phy config */
 #define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
-#define CONFIG_RESET_PHY_R	/* use reset_phy() to init 88E1118 PHY */
 
 /*
  * UBI related stuff
@@ -185,6 +192,7 @@ int get_sda(void);
 int get_scl(void);
 #define KM_KIRKWOOD_SDA_PIN	8
 #define KM_KIRKWOOD_SCL_PIN	9
+#define KM_KIRKWOOD_SOFT_I2C_GPIOS	0x0300
 #define KM_KIRKWOOD_ENV_WP	38
 
 #define I2C_ACTIVE	__set_direction(KM_KIRKWOOD_SDA_PIN, 0)
@@ -211,6 +219,15 @@ int get_scl(void);
 /*
  *  Environment variables configurations
  */
+#if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_ENV_IS_IN_SPI_FLASH  /* use SPI-Flash for environment vars */
+#define CONFIG_ENV_OFFSET		0xc0000     /* no bracets! */
+#define CONFIG_ENV_SIZE			0x02000     /* Size of Environment */
+#define CONFIG_ENV_SECT_SIZE		0x10000
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
+					CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_TOTAL_SIZE		0x20000     /* no bracets! */
+#else
 #define CONFIG_ENV_IS_IN_EEPROM		/* use EEPROM for environment vars */
 #define CONFIG_SYS_DEF_EEPROM_ADDR	0x50
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
@@ -218,16 +235,20 @@ int get_scl(void);
 #define CONFIG_ENV_OFFSET		0x0 /* no bracets! */
 #define CONFIG_ENV_SIZE			(0x2000 - CONFIG_ENV_OFFSET)
 #define CONFIG_I2C_ENV_EEPROM_BUS	KM_ENV_BUS "\0"
-
-/* offset redund: (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) */
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_OFFSET_REDUND	0x2000 /* no bracets! */
 #define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
+#endif
+
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
+/* SPI bus claim MPP configuration */
+#define CONFIG_SYS_KW_SPI_MPP	0x0
+
 #define FLASH_GPIO_PIN			0x00010000
+#define KM_FLASH_GPIO_PIN	16
 
 #ifndef MTDIDS_DEFAULT
 # define MTDIDS_DEFAULT		"nand0=orion_nand"
@@ -239,23 +260,32 @@ int get_scl(void);
 		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"
 #endif /* MTDPARTS_DEFAULT */
 
-#define	CONFIG_KM_DEF_ENV_UPDATE					\
+#define	CONFIG_KM_UPDATE_UBOOT						\
 	"update="							\
-		"spi on;sf probe 0;sf erase 0 50000;"			\
-		"sf write ${load_addr_r} 0 ${filesize};"		\
-		"spi off\0"
+		"sf probe 0;sf erase 0 +${filesize};"			\
+		"sf write ${load_addr_r} 0 ${filesize};\0"
+
+#if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_KM_NEW_ENV						\
+	"newenv=sf probe 0;"						\
+		"sf erase " xstr(CONFIG_ENV_OFFSET) " "			\
+		xstr(CONFIG_ENV_TOTAL_SIZE)"\0"
+#else
+#define CONFIG_KM_NEW_ENV						\
+	"newenv=setenv addr 0x100000 && "				\
+		"i2c dev 1; mw.b ${addr} 0 4 && "			\
+		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
+		" ${addr} " xstr(CONFIG_ENV_OFFSET) " 4 && "		\
+		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
+		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"
+#endif
 
 /*
  * Default environment variables
  */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_KM_DEF_ENV						\
-	"newenv=setenv addr 0x100000 && "				\
-		"i2c dev 1; mw.b ${addr} 0 4 && "			\
-		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
-		" ${addr} " xstr(CONFIG_ENV_OFFSET) " 4 && "		\
-		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
-		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"	\
+	CONFIG_KM_NEW_ENV						\
 	"arch=arm\0"							\
 	"EEprom_ivm=" KM_IVM_BUS "\0"					\
 	""
@@ -283,5 +313,8 @@ int get_scl(void);
 #define CONFIG_POST_SKIP_ENV_FLAGS
 #define CONFIG_POST_EXTERNAL_WORD_FUNCS
 #define CONFIG_CMD_DIAG
+
+/* we do the whole PCIe FPGA config stuff here */
+#define	BOARD_LATE_INIT
 
 #endif /* _CONFIG_KM_ARM_H */

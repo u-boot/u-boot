@@ -66,15 +66,11 @@
 /*
  * SDRAM configuration
  */
-#if defined(CONFIG_NET2BIG_V2)
-#define CONFIG_NR_DRAM_BANKS		2
-#else
 #define CONFIG_NR_DRAM_BANKS		1
-#endif
 
 #ifdef CONFIG_INETSPACE_V2
 /* Different SDRAM configuration and size for Internet Space v2 */
-#define CONFIG_SYS_KWD_CONFIG ($(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg)
+#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg
 #endif
 
 /*

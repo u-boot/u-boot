@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010,2011, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2012 NVIDIA CORPORATION.  All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,8 +20,12 @@
 #include <asm/sizes.h>
 #include "tegra2-common.h"
 
+/* Enable fdt support for Paz00. Flash the image in u-boot-dtb.bin */
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-paz00
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_SEPARATE
+
 /* High-level configuration options */
-#define TEGRA2_SYSMEM		"mem=512M@0M"
 #define V_PROMPT		"Tegra2 (Paz00) MOD # "
 #define CONFIG_TEGRA2_BOARD_STRING	"Compal Paz00"
 
@@ -31,14 +35,13 @@
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_PAZ00
-#define CONFIG_SYS_BOARD_ODMDATA	0x800c0085 /* lp1, 512MB */
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* SD/MMC */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_TEGRA2_MMC
+#define CONFIG_TEGRA_MMC
 #define CONFIG_CMD_MMC
 
 #define CONFIG_DOS_PARTITION
@@ -46,6 +49,25 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 
-/* Environment not stored */
-#define CONFIG_ENV_IS_NOWHERE
+/* Environment in eMMC, at the end of 2nd "boot sector" */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET ((2 * 1024 * 1024) - CONFIG_ENV_SIZE)
+#define CONFIG_SYS_MMC_ENV_DEV 0
+
+/* USB Host support */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_TEGRA
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_USB
+
+/* USB networking support */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+
+/* General networking support */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+
+#include "tegra2-common-post.h"
+
 #endif /* __CONFIG_H */

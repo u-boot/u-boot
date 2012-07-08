@@ -40,7 +40,7 @@
 #define OMAP54XX_L4_PER_BASE	0x48000000
 
 #define OMAP54XX_DRAM_ADDR_SPACE_START	0x80000000
-#define OMAP54XX_DRAM_ADDR_SPACE_END	0xD0000000
+#define OMAP54XX_DRAM_ADDR_SPACE_END	0xFFFFFFFF
 #define DRAM_ADDR_SPACE_START	OMAP54XX_DRAM_ADDR_SPACE_START
 #define DRAM_ADDR_SPACE_END	OMAP54XX_DRAM_ADDR_SPACE_END
 
@@ -56,7 +56,8 @@
 #define CONTROL_ID_CODE		(CTRL_BASE + 0x204)
 
 /* To be verified */
-#define OMAP5_CONTROL_ID_CODE_ES1_0	0x0B85202F
+#define OMAP5430_CONTROL_ID_CODE_ES1_0		0x0B94202F
+#define OMAP5432_CONTROL_ID_CODE_ES1_0		0x0B99802F
 
 /* STD_FUSE_PROD_ID_1 */
 #define STD_FUSE_PROD_ID_1		(CTRL_BASE + 0x218)
@@ -178,7 +179,14 @@ struct omap_sys_ctrl_regs {
 	u32 control_srcomp_east_side; /*0x4A002E7C*/
 	u32 control_srcomp_west_side; /*0x4A002E80*/
 	u32 control_srcomp_code_latch; /*0x4A002E84*/
-	u32 pad4[3680198];
+	u32 pad4[3679394];
+	u32 control_port_emif1_sdram_config;		/*0x4AE0C110*/
+	u32 control_port_emif1_lpddr2_nvm_config;	/*0x4AE0C114*/
+	u32 control_port_emif2_sdram_config;		/*0x4AE0C118*/
+	u32 pad5[10];
+	u32 control_emif1_sdram_config_ext;		/* 0x4AE0C144 */
+	u32 control_emif2_sdram_config_ext;		/* 0x4AE0C148 */
+	u32 pad6[789];
 	u32 control_smart1nopmio_padconf_0; /* 0x4AE0CDA0 */
 	u32 control_smart1nopmio_padconf_1; /* 0x4AE0CDA4 */
 	u32 control_padconf_mode; /* 0x4AE0CDA8 */
@@ -232,6 +240,12 @@ struct omap_sys_ctrl_regs {
 #define DDR_IO_0_DDR2_DQ_INT_EN_ALL_DDR3_CA_DIS_ALL 0x8421
 #define DDR_IO_1_DQ_OUT_EN_ALL_DQ_INT_EN_ALL 0x8421084
 #define DDR_IO_2_CA_OUT_EN_ALL_CA_INT_EN_ALL 0x8421000
+
+#define DDR_IO_I_40OHM_SR_SLOWEST_WD_DQ_NO_PULL_DQS_NO_PULL	0x7C7C7C6C
+#define DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL	0x64646464
+#define DDR_IO_0_VREF_CELLS_DDR3_VALUE				0xBAE8C631
+#define DDR_IO_1_VREF_CELLS_DDR3_VALUE				0xBC6318DC
+#define DDR_IO_2_VREF_CELLS_DDR3_VALUE				0x0
 
 #define EFUSE_1 0x45145100
 #define EFUSE_2 0x45145100

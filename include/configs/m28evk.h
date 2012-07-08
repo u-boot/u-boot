@@ -17,8 +17,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef __M28_H__
-#define __M28_H__
+#ifndef __M28EVK_CONFIG_H__
+#define __M28EVK_CONFIG_H__
 
 #include <asm/arch/regs-base.h>
 
@@ -40,10 +40,7 @@
 #define	CONFIG_SYS_ICACHE_OFF
 #define	CONFIG_SYS_DCACHE_OFF
 #define	CONFIG_BOARD_EARLY_INIT_F
-#define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_ARCH_MISC_INIT
-
-#define CONFIG_OF_LIBFDT
 
 /*
  * SPL
@@ -88,7 +85,7 @@
 #define	CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
 #define	PHYS_SDRAM_1			0x40000000	/* Base address */
 #define	PHYS_SDRAM_1_SIZE		0x20000000	/* Max 512 MB RAM */
-#define	CONFIG_STACKSIZE		0x00010000	/* 128 KB stack */
+#define	CONFIG_STACKSIZE		(128 * 1024)	/* 128 KB stack */
 #define	CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */
 #define	CONFIG_SYS_GBL_DATA_SIZE	128		/* Initial data */
 #define	CONFIG_SYS_MEMTEST_START	0x40000000	/* Memtest start adr */
@@ -325,4 +322,4 @@
 		"fi ; "							\
 		"fi\0"
 
-#endif /* __M28_H__ */
+#endif /* __M28EVK_CONFIG_H__ */

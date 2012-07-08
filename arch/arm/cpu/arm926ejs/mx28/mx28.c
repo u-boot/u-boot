@@ -153,7 +153,6 @@ int arch_misc_init(void)
 }
 #endif
 
-#ifdef	CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)
 {
 	struct mx28_clkctrl_regs *clkctrl_regs =
@@ -187,7 +186,6 @@ int arch_cpu_init(void)
 
 	return 0;
 }
-#endif
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)

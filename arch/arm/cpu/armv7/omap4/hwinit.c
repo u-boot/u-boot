@@ -118,6 +118,11 @@ void do_io_settings(void)
 }
 #endif
 
+/* dummy fuction for omap4 */
+void config_data_eye_leveling_samples(u32 emif_base)
+{
+}
+
 void init_omap_revision(void)
 {
 	/*

@@ -131,6 +131,11 @@ struct bfticu_iomap {
 int ethernet_present(void);
 int ivm_read_eeprom(void);
 
+int trigger_fpga_config(void);
+int wait_for_fpga_config(void);
+int fpga_reset(void);
+int toggle_eeprom_spi_bus(void);
+
 int set_km_env(void);
 int fdt_set_node_and_value(void *blob,
 			char *nodename,

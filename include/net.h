@@ -122,6 +122,23 @@ extern int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
 extern int eth_getenv_enetaddr_by_index(const char *base_name, int index,
 					uchar *enetaddr);
 
+#ifdef CONFIG_RANDOM_MACADDR
+/*
+ * The u-boot policy does not allow hardcoded ethernet addresses. Under the
+ * following circumstances a random generated address is allowed:
+ *  - in emergency cases, where you need a working network connection to set
+ *    the ethernet address.
+ *    Eg. you want a rescue boot and don't have a serial port to access the
+ *    CLI to set environment variables.
+ *
+ * In these cases, we generate a random locally administered ethernet address.
+ *
+ * Args:
+ *  enetaddr - returns 6 byte hardware address
+ */
+extern void eth_random_enetaddr(uchar *enetaddr);
+#endif
+
 extern int usb_eth_initialize(bd_t *bi);
 extern int eth_init(bd_t *bis);			/* Initialize the device */
 extern int eth_send(void *packet, int length);	   /* Send a packet */

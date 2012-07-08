@@ -41,7 +41,6 @@
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define TEGRA2_SYSMEM		"mem=384M@0M nvmem=128M@384M mem=512M@512M"
 #define V_PROMPT		"Tegra2 (SeaBoard) # "
 #define CONFIG_TEGRA2_BOARD_STRING	"NVIDIA Seaboard"
 
@@ -54,18 +53,8 @@
 #define CONFIG_UART_DISABLE_GPIO	GPIO_PI3
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
-#define CONFIG_SYS_BOARD_ODMDATA	0x300d8011 /* lp1, 1GB */
 
 #define CONFIG_BOARD_EARLY_INIT_F
-
-/* SPI */
-#define CONFIG_TEGRA2_SPI
-#define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_WINBOND
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define CONFIG_CMD_SPI
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_SIZE		(4 << 20)
 
 /* I2C */
 #define CONFIG_TEGRA_I2C
@@ -78,7 +67,7 @@
 /* SD/MMC */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_TEGRA2_MMC
+#define CONFIG_TEGRA_MMC
 #define CONFIG_CMD_MMC
 
 #define CONFIG_DOS_PARTITION
@@ -86,19 +75,24 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 
-/* Environment in SPI */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SPI_MAX_HZ		48000000
-#define CONFIG_ENV_SPI_MODE		SPI_MODE_0
-
-#define CONFIG_ENV_SECT_SIZE    CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET       (CONFIG_SPI_FLASH_SIZE - CONFIG_ENV_SECT_SIZE)
+/* Environment in eMMC, at the end of 2nd "boot sector" */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET ((2 * 512 * 1024) - CONFIG_ENV_SIZE)
+#define CONFIG_SYS_MMC_ENV_DEV 0
 
 /* USB Host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
+
+/* USB networking support */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+
+/* General networking support */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
 
 /* Enable keyboard */
 #define CONFIG_TEGRA2_KEYBOARD
@@ -108,4 +102,7 @@
 #define TEGRA2_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"
+
+#include "tegra2-common-post.h"
+
 #endif /* __CONFIG_H */

@@ -31,11 +31,32 @@ int funcmux_select(enum periph_id id, int config)
 
 	switch (id) {
 	case PERIPH_ID_UART1:
-		if (config == FUNCMUX_UART1_IRRX_IRTX) {
+		switch (config) {
+		case FUNCMUX_UART1_IRRX_IRTX:
 			pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
 			pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
 			pinmux_tristate_disable(PINGRP_IRRX);
 			pinmux_tristate_disable(PINGRP_IRTX);
+			break;
+		case FUNCMUX_UART1_UAA_UAB:
+			pinmux_set_func(PINGRP_UAA, PMUX_FUNC_UARTA);
+			pinmux_set_func(PINGRP_UAB, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_UAA);
+			pinmux_tristate_disable(PINGRP_UAB);
+			bad_config = 0;
+			break;
+		case FUNCMUX_UART1_GPU:
+			pinmux_set_func(PINGRP_GPU, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_GPU);
+			bad_config = 0;
+			break;
+		case FUNCMUX_UART1_SDIO1:
+			pinmux_set_func(PINGRP_SDIO1, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_SDIO1);
+			bad_config = 0;
+			break;
+		}
+		if (!bad_config) {
 			/*
 			 * Tegra appears to boot with function UARTA pre-
 			 * selected on mux group SDB. If two mux groups are
@@ -103,6 +124,13 @@ int funcmux_select(enum periph_id id, int config)
 		if (config == FUNCMUX_I2C3_DTF) {
 			pinmux_set_func(PINGRP_DTF, PMUX_FUNC_I2C3);
 			pinmux_tristate_disable(PINGRP_DTF);
+		}
+		break;
+
+	case PERIPH_ID_SDMMC1:
+		if (config == FUNCMUX_SDMMC1_SDIO1_4BIT) {
+			pinmux_set_func(PINGRP_SDIO1, PMUX_FUNC_SDIO1);
+			pinmux_tristate_disable(PINGRP_SDIO1);
 		}
 		break;
 

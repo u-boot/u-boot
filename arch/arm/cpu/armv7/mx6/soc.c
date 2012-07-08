@@ -43,7 +43,6 @@ u32 get_cpu_rev(void)
 	return system_rev;
 }
 
-#ifdef CONFIG_ARCH_CPU_INIT
 void init_aips(void)
 {
 	struct aipstz_regs *aips1, *aips2;
@@ -113,7 +112,6 @@ int arch_cpu_init(void)
 
 	return 0;
 }
-#endif
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)

@@ -260,20 +260,31 @@ const struct dpll_params *get_abe_dpll_params(void)
  */
 void scale_vcores(void)
 {
-	u32 volt;
+	u32 volt_core, volt_mpu, volt_mm;
 
 	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
 	/* Palmas settings */
-	volt = VDD_CORE;
-	do_scale_vcore(SMPS_REG_ADDR_8_CORE, volt);
+	if (omap_revision() != OMAP5432_ES1_0) {
+		volt_core = VDD_CORE;
+		volt_mpu = VDD_MPU;
+		volt_mm = VDD_MM;
+	} else {
+		volt_core = VDD_CORE_5432;
+		volt_mpu = VDD_MPU_5432;
+		volt_mm = VDD_MM_5432;
+	}
 
-	volt = VDD_MPU;
-	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt);
+	do_scale_vcore(SMPS_REG_ADDR_8_CORE, volt_core);
+	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt_mpu);
+	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt_mm);
 
-	volt = VDD_MM;
-	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt);
-
+	if (omap_revision() == OMAP5432_ES1_0) {
+		/* Configure LDO SRAM "magic" bits */
+		writel(2, &prcm->prm_sldo_core_setup);
+		writel(2, &prcm->prm_sldo_mpu_setup);
+		writel(2, &prcm->prm_sldo_mm_setup);
+	}
 }
 
 u32 get_offset_code(u32 volt_offset)
@@ -306,6 +317,7 @@ void enable_basic_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_essential[] = {
+		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_memif_emif_1_clkctrl,
 		&prcm->cm_memif_emif_2_clkctrl,
 		&prcm->cm_l4cfg_l4_cfg_clkctrl,
@@ -382,6 +394,9 @@ void enable_basic_uboot_clocks(void)
 		&prcm->cm_l4per_i2c2_clkctrl,
 		&prcm->cm_l4per_i2c3_clkctrl,
 		&prcm->cm_l4per_i2c4_clkctrl,
+		&prcm->cm_l3init_hsusbtll_clkctrl,
+		&prcm->cm_l3init_hsusbhost_clkctrl,
+		&prcm->cm_l3init_fsusb_clkctrl,
 		0
 	};
 
@@ -416,12 +431,10 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_ivahd_ivahd_clkctrl,
 		&prcm->cm_ivahd_sl2_clkctrl,
 		&prcm->cm_dsp_dsp_clkctrl,
-		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_l3instr_l3_3_clkctrl,
 		&prcm->cm_l3instr_l3_instr_clkctrl,
 		&prcm->cm_l3instr_intrconn_wp1_clkctrl,
 		&prcm->cm_l3init_hsi_clkctrl,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
 		&prcm->cm_l4per_hdq1w_clkctrl,
 		0
 	};
@@ -460,8 +473,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_cam_fdif_clkctrl,
 		&prcm->cm_dss_dss_clkctrl,
 		&prcm->cm_sgx_sgx_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
-		&prcm->cm_l3init_fsusb_clkctrl,
 		0
 	};
 

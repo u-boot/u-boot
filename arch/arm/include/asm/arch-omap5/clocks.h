@@ -480,6 +480,13 @@ struct omap5_prcm_regs {
 	u32 pad217[4];
 	u32 prm_vc_cfg_i2c_mode;		/* 4ae07bb4 */
 	u32 prm_vc_cfg_i2c_clk;			/* 4ae07bb8 */
+	u32 pad218[2];
+	u32 prm_sldo_core_setup;		/* 4ae07bc4 */
+	u32 prm_sldo_core_ctrl;			/* 4ae07bc8 */
+	u32 prm_sldo_mpu_setup;			/* 4ae07bcc */
+	u32 prm_sldo_mpu_ctrl;			/* 4ae07bd0 */
+	u32 prm_sldo_mm_setup;			/* 4ae07bd4 */
+	u32 prm_sldo_mm_ctrl;			/* 4ae07bd8 */
 };
 
 /* DPLL register offsets */
@@ -489,6 +496,11 @@ struct omap5_prcm_regs {
 #define CM_CLKSEL_DPLL		0xC
 
 #define DPLL_CLKOUT_DIV_MASK	0x1F /* post-divider mask */
+
+/* CM_DLL_CTRL */
+#define CM_DLL_CTRL_OVERRIDE_SHIFT		0
+#define CM_DLL_CTRL_OVERRIDE_MASK		(1 << 0)
+#define CM_DLL_CTRL_NO_OVERRIDE			0
 
 /* CM_CLKMODE_DPLL */
 #define CM_CLKMODE_DPLL_REGM4XEN_SHIFT		11
@@ -641,6 +653,9 @@ struct omap5_prcm_regs {
 #define VDD_MPU		1000
 #define VDD_MM		1000
 #define VDD_CORE	1040
+#define VDD_MPU_5432	1150
+#define VDD_MM_5432	1150
+#define VDD_CORE_5432	1150
 
 /* Standard offset is 0.5v expressed in uv */
 #define PALMAS_SMPS_BASE_VOLT_UV 500000

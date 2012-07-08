@@ -42,6 +42,8 @@
  */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_ASKENV
+
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
@@ -134,7 +136,7 @@
  * Default environment
  * -----------------------------------------------------------------------------
  */
-#define CONFIG_BOOTDELAY	10
+#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \

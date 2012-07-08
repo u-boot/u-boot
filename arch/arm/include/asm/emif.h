@@ -471,6 +471,49 @@
 #define EMIF_REG_DDR_PHY_CTRL_2_SHIFT		0
 #define EMIF_REG_DDR_PHY_CTRL_2_MASK		(0xffffffff << 0)
 
+/*EMIF_READ_WRITE_LEVELING_CONTROL*/
+#define EMIF_REG_RDWRLVLFULL_START_SHIFT	31
+#define EMIF_REG_RDWRLVLFULL_START_MASK		(1 << 31)
+#define EMIF_REG_RDWRLVLINC_PRE_SHIFT		24
+#define EMIF_REG_RDWRLVLINC_PRE_MASK		(0x7F << 24)
+#define EMIF_REG_RDLVLINC_INT_SHIFT		16
+#define EMIF_REG_RDLVLINC_INT_MASK		(0xFF << 16)
+#define EMIF_REG_RDLVLGATEINC_INT_SHIFT		8
+#define EMIF_REG_RDLVLGATEINC_INT_MASK		(0xFF << 8)
+#define EMIF_REG_WRLVLINC_INT_SHIFT		0
+#define EMIF_REG_WRLVLINC_INT_MASK		(0xFF << 0)
+
+/*EMIF_READ_WRITE_LEVELING_RAMP_CONTROL*/
+#define EMIF_REG_RDWRLVL_EN_SHIFT		31
+#define EMIF_REG_RDWRLVL_EN_MASK		(1 << 31)
+#define EMIF_REG_RDWRLVLINC_RMP_PRE_SHIFT	24
+#define EMIF_REG_RDWRLVLINC_RMP_PRE_MASK	(0x7F << 24)
+#define EMIF_REG_RDLVLINC_RMP_INT_SHIFT		16
+#define EMIF_REG_RDLVLINC_RMP_INT_MASK		(0xFF << 16)
+#define EMIF_REG_RDLVLGATEINC_RMP_INT_SHIFT	8
+#define EMIF_REG_RDLVLGATEINC_RMP_INT_MASK	(0xFF << 8)
+#define EMIF_REG_WRLVLINC_RMP_INT_SHIFT		0
+#define EMIF_REG_WRLVLINC_RMP_INT_MASK		(0xFF << 0)
+
+/*EMIF_READ_WRITE_LEVELING_RAMP_WINDOW*/
+#define EMIF_REG_RDWRLVLINC_RMP_WIN_SHIFT	0
+#define EMIF_REG_RDWRLVLINC_RMP_WIN_MASK	(0x1FFF << 0)
+
+/*Leveling Fields */
+#define DDR3_WR_LVL_INT		0x73
+#define DDR3_RD_LVL_INT		0x33
+#define DDR3_RD_LVL_GATE_INT	0x59
+#define RD_RW_LVL_INC_PRE	0x0
+#define DDR3_FULL_LVL		(1 << EMIF_REG_RDWRLVL_EN_SHIFT)
+
+#define DDR3_INC_LVL	((DDR3_WR_LVL_INT << EMIF_REG_WRLVLINC_INT_SHIFT)   \
+		| (DDR3_RD_LVL_GATE_INT << EMIF_REG_RDLVLGATEINC_INT_SHIFT) \
+		| (DDR3_RD_LVL_INT << EMIF_REG_RDLVLINC_RMP_INT_SHIFT)      \
+		| (RD_RW_LVL_INC_PRE << EMIF_REG_RDWRLVLINC_RMP_PRE_SHIFT))
+
+#define SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES	0x0000C1A7
+#define SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES	0x000001A7
+
 /* DMM */
 #define DMM_BASE			0x4E000040
 
@@ -650,6 +693,7 @@ struct dmm_lisa_map_regs {
 };
 
 extern const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
+extern const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
 
 #define CS0	0
 #define CS1	1
@@ -1073,6 +1117,10 @@ struct emif_regs {
 	u32 emif_ddr_ext_phy_ctrl_3;
 	u32 emif_ddr_ext_phy_ctrl_4;
 	u32 emif_ddr_ext_phy_ctrl_5;
+	u32 emif_rd_wr_lvl_rmp_win;
+	u32 emif_rd_wr_lvl_rmp_ctl;
+	u32 emif_rd_wr_lvl_ctl;
+	u32 emif_rd_wr_exec_thresh;
 };
 
 /* assert macros */
@@ -1093,11 +1141,13 @@ void emif_get_device_timings(u32 emif_nr,
 		const struct lpddr2_device_timings **cs1_device_timings);
 #endif
 
+void do_ext_phy_settings(u32 base, const struct emif_regs *regs);
+
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 extern u32 *const T_num;
 extern u32 *const T_den;
 extern u32 *const emif_sizes;
 #endif
 
-
+void config_data_eye_leveling_samples(u32 emif_base);
 #endif

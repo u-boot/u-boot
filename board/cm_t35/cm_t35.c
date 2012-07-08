@@ -99,6 +99,39 @@ int board_init(void)
 	return 0;
 }
 
+static u32 cm_t3x_rev;
+
+/*
+ * Routine: get_board_rev
+ * Description: read system revision
+ */
+u32 get_board_rev(void)
+{
+	if (!cm_t3x_rev)
+		cm_t3x_rev = cm_t3x_eeprom_get_board_rev();
+
+	return cm_t3x_rev;
+};
+
+/*
+ * Routine: misc_init_r
+ * Description: display die ID
+ */
+int misc_init_r(void)
+{
+	u32 board_rev = get_board_rev();
+	u32 rev_major = board_rev / 100;
+	u32 rev_minor = board_rev - (rev_major * 100);
+
+	if ((rev_minor / 10) * 10 == rev_minor)
+		rev_minor = rev_minor / 10;
+
+	printf("PCB:   %u.%u\n", rev_major, rev_minor);
+	dieid_num_r();
+
+	return 0;
+}
+
 /*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the

@@ -146,7 +146,7 @@ static const struct dpll_params iva_dpll_params_1862mhz[NUM_SYS_CLKS] = {
 	{727, 14, -1, -1, 4, 7, -1, -1},	/* 19.2 MHz */
 	{931, 25, -1, -1, 4, 7, -1, -1},	/* 26 MHz   */
 	{931, 26, -1, -1, 4, 7, -1, -1},	/* 27 MHz   */
-	{412, 16, -1, -1, 4, 7, -1, -1}		/* 38.4 MHz */
+	{291, 11, -1, -1, 4, 7, -1, -1}		/* 38.4 MHz */
 };
 
 /* ABE M & N values with sys_clk as source */
@@ -354,6 +354,7 @@ void enable_basic_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_essential[] = {
+		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_memif_emif_1_clkctrl,
 		&prcm->cm_memif_emif_2_clkctrl,
 		&prcm->cm_l4cfg_l4_cfg_clkctrl,
@@ -363,9 +364,6 @@ void enable_basic_clocks(void)
 		&prcm->cm_l4per_gpio4_clkctrl,
 		&prcm->cm_l4per_gpio5_clkctrl,
 		&prcm->cm_l4per_gpio6_clkctrl,
-		&prcm->cm_l3init_usbphy_clkctrl,
-		&prcm->cm_clksel_usb_60mhz,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
 		0
 	};
 
@@ -376,7 +374,6 @@ void enable_basic_clocks(void)
 		&prcm->cm_l4per_gptimer2_clkctrl,
 		&prcm->cm_wkup_wdtimer2_clkctrl,
 		&prcm->cm_l4per_uart3_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
 		0
 	};
 
@@ -413,6 +410,9 @@ void enable_basic_uboot_clocks(void)
 	u32 *const clk_modules_hw_auto_essential[] = {
 		&prcm->cm_l3init_hsusbotg_clkctrl,
 		&prcm->cm_l3init_usbphy_clkctrl,
+		&prcm->cm_l3init_usbphy_clkctrl,
+		&prcm->cm_clksel_usb_60mhz,
+		&prcm->cm_l3init_hsusbtll_clkctrl,
 		0
 	};
 
@@ -422,6 +422,7 @@ void enable_basic_uboot_clocks(void)
 		&prcm->cm_l4per_i2c2_clkctrl,
 		&prcm->cm_l4per_i2c3_clkctrl,
 		&prcm->cm_l4per_i2c4_clkctrl,
+		&prcm->cm_l3init_hsusbhost_clkctrl,
 		0
 	};
 
@@ -452,12 +453,10 @@ void enable_non_essential_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_non_essential[] = {
-		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_l3instr_l3_3_clkctrl,
 		&prcm->cm_l3instr_l3_instr_clkctrl,
 		&prcm->cm_l3instr_intrconn_wp1_clkctrl,
 		&prcm->cm_l3init_hsi_clkctrl,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
 		0
 	};
 
@@ -497,7 +496,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_cam_fdif_clkctrl,
 		&prcm->cm_dss_dss_clkctrl,
 		&prcm->cm_sgx_sgx_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
 		0
 	};
 

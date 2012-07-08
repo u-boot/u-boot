@@ -60,6 +60,10 @@ struct timerus {
 /* Address at which WB code runs, it must not overlap Bootrom's IRAM usage */
 #define AP20_WB_RUN_ADDRESS	0x40020000
 
+#define NVBOOTINFOTABLE_BCTSIZE	0x38	/* BCT size in BIT in IRAM */
+#define NVBOOTINFOTABLE_BCTPTR	0x3C	/* BCT pointer in BIT in IRAM */
+#define BCT_ODMDATA_OFFSET	4068	/* 12 bytes from end of BCT */
+
 /* These are the available SKUs (product types) for Tegra */
 enum {
 	SKU_ID_T20		= 0x8,

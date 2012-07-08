@@ -56,6 +56,7 @@ static unsigned conflicts;
 static unsigned nprobes;
 static unsigned nclaims;
 static int ready;
+static unsigned int seed;
 
 static void link_local_timeout(void);
 
@@ -68,7 +69,7 @@ static IPaddr_t pick(void)
 	unsigned tmp;
 
 	do {
-		tmp = rand() & IN_CLASSB_HOST;
+		tmp = rand_r(&seed) & IN_CLASSB_HOST;
 	} while (tmp > (IN_CLASSB_HOST - 0x0200));
 	return (IPaddr_t) htonl((LINKLOCAL_ADDR + 0x0100) + tmp);
 }
@@ -78,7 +79,7 @@ static IPaddr_t pick(void)
  */
 static inline unsigned random_delay_ms(unsigned secs)
 {
-	return rand() % (secs * 1000);
+	return rand_r(&seed) % (secs * 1000);
 }
 
 static void configure_wait(void)
@@ -109,7 +110,7 @@ void link_local_start(void)
 	}
 	NetOurSubnetMask = IN_CLASSB_NET;
 
-	srand_mac();
+	seed = seed_mac();
 	if (ip == 0)
 		ip = pick();
 

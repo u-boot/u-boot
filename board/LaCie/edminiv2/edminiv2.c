@@ -96,6 +96,6 @@ int board_init(void)
 /* Configure and enable MV88E1116 PHY */
 void reset_phy(void)
 {
-	mv_phy_88e1116_init("egiga0");
+	mv_phy_88e1116_init("egiga0", 8);
 }
 #endif /* CONFIG_RESET_PHY_R */

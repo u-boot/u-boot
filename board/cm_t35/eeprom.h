@@ -23,10 +23,15 @@
 
 #ifdef CONFIG_DRIVER_OMAP34XX_I2C
 int cm_t3x_eeprom_read_mac_addr(uchar *buf);
+u32 cm_t3x_eeprom_get_board_rev(void);
 #else
 static inline int cm_t3x_eeprom_read_mac_addr(uchar *buf)
 {
 	return 1;
+}
+static inline u32 cm_t3x_eeprom_get_board_rev(void)
+{
+	return 0;
 }
 #endif
 

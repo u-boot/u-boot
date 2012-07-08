@@ -82,9 +82,15 @@
 #ifdef CONFIG_CMD_SF
 #define CONFIG_HARD_SPI			1
 #define CONFIG_KIRKWOOD_SPI		1
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		50000000	/*50Mhz */
+#ifndef CONFIG_ENV_SPI_BUS
+# define CONFIG_ENV_SPI_BUS		0
+#endif
+#ifndef CONFIG_ENV_SPI_CS
+# define CONFIG_ENV_SPI_CS		0
+#endif
+#ifndef CONFIG_ENV_SPI_MAX_HZ
+# define CONFIG_ENV_SPI_MAX_HZ		50000000
+#endif
 #endif
 
 /*

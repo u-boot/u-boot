@@ -36,9 +36,15 @@
 #include <asm/system.h>
 #include <asm/cache.h>
 #include <asm/armv7.h>
+#include <linux/compiler.h>
 
-void save_boot_params_default(u32 r0, u32 r1, u32 r2, u32 r3)
+void __naked save_boot_params_default(u32 r0, u32 r1, u32 r2, u32 r3)
 {
+	/*
+	 * Stack pointer is not yet initialized
+	 * Don't save anything to stack even if compiled with -O0
+	 */
+	asm("bx lr");
 }
 
 void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)

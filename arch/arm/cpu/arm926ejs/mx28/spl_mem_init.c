@@ -82,9 +82,17 @@ uint32_t dram_vals[] = {
 	0x00000000, 0x00010001
 };
 
+void __mx28_adjust_memory_params(uint32_t *dram_vals)
+{
+}
+void mx28_adjust_memory_params(uint32_t *dram_vals)
+	__attribute__((weak, alias("__mx28_adjust_memory_params")));
+
 void init_m28_200mhz_ddr2(void)
 {
 	int i;
+
+	mx28_adjust_memory_params(dram_vals);
 
 	for (i = 0; i < ARRAY_SIZE(dram_vals); i++)
 		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));

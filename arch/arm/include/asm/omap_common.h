@@ -136,4 +136,5 @@ static inline u32 omap_revision(void)
 /* omap5 */
 #define OMAP5430_SILICON_ID_INVALID	0
 #define OMAP5430_ES1_0	0x54300100
+#define OMAP5432_ES1_0	0x54320100
 #endif /* _OMAP_COMMON_H_ */

@@ -24,6 +24,7 @@
 
 #define DEVICE_NOT_AVAILABLE		0
 
+#define EXYNOS_CPU_NAME			"Exynos"
 #define EXYNOS4_ADDR_BASE		0x10000000
 
 /* EXYNOS4 */
@@ -93,29 +94,42 @@ static inline int s5p_get_cpu_rev(void)
 
 static inline void s5p_set_cpu_id(void)
 {
-	s5p_cpu_id = readl(EXYNOS4_PRO_ID);
-	s5p_cpu_id = (0xC000 | ((s5p_cpu_id & 0x00FFF000) >> 12));
+	unsigned int pro_id = (readl(EXYNOS4_PRO_ID) & 0x00FFF000) >> 12;
 
-	/*
-	 * 0xC200: EXYNOS4210 EVT0
-	 * 0xC210: EXYNOS4210 EVT1
-	 */
-	if (s5p_cpu_id == 0xC200) {
-		s5p_cpu_id |= 0x10;
+	switch (pro_id) {
+	case 0x200:
+		/* Exynos4210 EVT0 */
+		s5p_cpu_id = 0x4210;
 		s5p_cpu_rev = 0;
-	} else if (s5p_cpu_id == 0xC210) {
-		s5p_cpu_rev = 1;
+		break;
+	case 0x210:
+		/* Exynos4210 EVT1 */
+		s5p_cpu_id = 0x4210;
+		break;
+	case 0x412:
+		/* Exynos4412 */
+		s5p_cpu_id = 0x4412;
+		break;
+	case 0x520:
+		/* Exynos5250 */
+		s5p_cpu_id = 0x5250;
+		break;
 	}
+}
+
+static inline char *s5p_get_cpu_name(void)
+{
+	return EXYNOS_CPU_NAME;
 }
 
 #define IS_SAMSUNG_TYPE(type, id)			\
 static inline int cpu_is_##type(void)			\
 {							\
-	return s5p_cpu_id == id ? 1 : 0;		\
+	return (s5p_cpu_id >> 12) == id;		\
 }
 
-IS_SAMSUNG_TYPE(exynos4, 0xc210)
-IS_SAMSUNG_TYPE(exynos5, 0xc520)
+IS_SAMSUNG_TYPE(exynos4, 0x4)
+IS_SAMSUNG_TYPE(exynos5, 0x5)
 
 #define SAMSUNG_BASE(device, base)				\
 static inline unsigned int samsung_get_base_##device(void)	\

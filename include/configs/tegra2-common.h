@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2010,2011
+ *  (C) Copyright 2010-2012
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -139,12 +139,6 @@
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=ttyS0,115200n8\0" \
-	"mem=" TEGRA2_SYSMEM "\0" \
-	"smpflag=smp\0" \
-	TEGRA2_DEVICE_SETTINGS
-
 #define CONFIG_LOADADDR		0x408000	/* def. location for kernel */
 #define CONFIG_BOOTDELAY	2		/* -1 to disable auto boot */
 
@@ -196,6 +190,6 @@
 						CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_TEGRA2_GPIO
+#define CONFIG_TEGRA_GPIO
 #define CONFIG_CMD_GPIO
 #endif /* __TEGRA2_COMMON_H */

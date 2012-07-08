@@ -34,16 +34,14 @@
 
 static struct kwspi_registers *spireg = (struct kwspi_registers *)KW_SPI_BASE;
 
+u32 cs_spi_mpp_back[2];
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				unsigned int max_hz, unsigned int mode)
 {
 	struct spi_slave *slave;
 	u32 data;
-	u32 kwspi_mpp_config[] = {
-		MPP0_GPIO,
-		MPP7_SPI_SCn,
-		0
-	};
+	u32 kwspi_mpp_config[] = { 0, 0 };
 
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
@@ -70,29 +68,75 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	/* program mpp registers to select  SPI_CSn */
 	if (cs) {
-		kwspi_mpp_config[0] = MPP0_GPIO;
-		kwspi_mpp_config[1] = MPP7_SPI_SCn;
+		kwspi_mpp_config[0] = MPP7_SPI_SCn;
 	} else {
 		kwspi_mpp_config[0] = MPP0_SPI_SCn;
-		kwspi_mpp_config[1] = MPP7_GPO;
 	}
-	kirkwood_mpp_conf(kwspi_mpp_config);
+	kirkwood_mpp_conf(kwspi_mpp_config, cs_spi_mpp_back);
 
 	return slave;
 }
 
 void spi_free_slave(struct spi_slave *slave)
 {
+	kirkwood_mpp_conf(cs_spi_mpp_back, NULL);
 	free(slave);
 }
 
-int spi_claim_bus(struct spi_slave *slave)
+#if defined(CONFIG_SYS_KW_SPI_MPP)
+u32 spi_mpp_backup[4];
+#endif
+
+__attribute__((weak)) int board_spi_claim_bus(struct spi_slave *slave)
 {
 	return 0;
 }
 
+int spi_claim_bus(struct spi_slave *slave)
+{
+#if defined(CONFIG_SYS_KW_SPI_MPP)
+	u32 config;
+	u32 spi_mpp_config[4];
+
+	config = CONFIG_SYS_KW_SPI_MPP;
+
+	if (config & MOSI_MPP6)
+		spi_mpp_config[0] = MPP6_SPI_MOSI;
+	else
+		spi_mpp_config[0] = MPP1_SPI_MOSI;
+
+	if (config & SCK_MPP10)
+		spi_mpp_config[1] = MPP10_SPI_SCK;
+	else
+		spi_mpp_config[1] = MPP2_SPI_SCK;
+
+	if (config & MISO_MPP11)
+		spi_mpp_config[2] = MPP11_SPI_MISO;
+	else
+		spi_mpp_config[2] = MPP3_SPI_MISO;
+
+	spi_mpp_config[3] = 0;
+	spi_mpp_backup[3] = 0;
+
+	/* set new spi mpp and save current mpp config */
+	kirkwood_mpp_conf(spi_mpp_config, spi_mpp_backup);
+
+#endif
+
+	return board_spi_claim_bus(slave);
+}
+
+__attribute__((weak)) void board_spi_release_bus(struct spi_slave *slave)
+{
+}
+
 void spi_release_bus(struct spi_slave *slave)
 {
+#if defined(CONFIG_SYS_KW_SPI_MPP)
+	kirkwood_mpp_conf(spi_mpp_backup, NULL);
+#endif
+
+	board_spi_release_bus(slave);
 }
 
 #ifndef CONFIG_SPI_CS_IS_VALID

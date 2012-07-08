@@ -479,6 +479,8 @@ struct prm {
 
 #define PRM_RSTCTRL		0x48307250
 #define PRM_RSTCTRL_RESET	0x04
+#define PRM_RSTST			0x48307258
+#define PRM_RSTST_WARM_RESET_MASK	0x7D2
 #define SYSCLKDIV_1		(0x1 << 6)
 #define SYSCLKDIV_2		(0x1 << 7)
 

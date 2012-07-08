@@ -9,18 +9,35 @@
 #ifndef __NET_RAND_H__
 #define __NET_RAND_H__
 
-#define RAND_MAX 0xffffffff
+#include <common.h>
 
 /*
- * Seed the random number generator using the eth0 MAC address
+ * Return a seed for the PRNG derived from the eth0 MAC address.
  */
-void srand_mac(void);
+static inline unsigned int seed_mac(void)
+{
+	unsigned char enetaddr[6];
+	unsigned int seed;
+
+	/* get our mac */
+	eth_getenv_enetaddr("ethaddr", enetaddr);
+
+	seed = enetaddr[5];
+	seed ^= enetaddr[4] << 8;
+	seed ^= enetaddr[3] << 16;
+	seed ^= enetaddr[2] << 24;
+	seed ^= enetaddr[1];
+	seed ^= enetaddr[0] << 8;
+
+	return seed;
+}
 
 /*
- * Get a random number (after seeding with MAC address)
- *
- * @return random number
+ * Seed the random number generator using the eth0 MAC address.
  */
-unsigned long rand(void);
+static inline void srand_mac(void)
+{
+	srand(seed_mac());
+}
 
 #endif /* __NET_RAND_H__ */

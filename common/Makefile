@@ -31,7 +31,6 @@ COBJS-y += main.o
 COBJS-y += command.o
 COBJS-y += exports.o
 COBJS-$(CONFIG_SYS_HUSH_PARSER) += hush.o
-COBJS-y += image.o
 COBJS-y += s_record.o
 COBJS-$(CONFIG_SERIAL_MULTI) += serial.o
 COBJS-y += xyzModem.o
@@ -191,6 +190,7 @@ COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 endif
 COBJS-y += console.o
 COBJS-y += dlmalloc.o
+COBJS-y += image.o
 COBJS-y += memsize.o
 COBJS-y += stdio.o
 
