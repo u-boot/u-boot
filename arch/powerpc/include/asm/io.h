@@ -295,7 +295,7 @@ static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
 #ifdef CONFIG_ADDR_MAP
-	return (void *)(addrmap_phys_to_virt(paddr));
+	return addrmap_phys_to_virt(paddr);
 #else
 	return (void *)((unsigned long)paddr);
 #endif

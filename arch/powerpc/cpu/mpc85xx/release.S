@@ -143,23 +143,40 @@ __secondary_start_page:
 	mtspr	L1CSR2,r8
 #endif
 
-#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
-	mfspr	r8,L1CSR2
-	oris	r8,r8,(L1CSR2_DCWS)@h
-	mtspr	L1CSR2,r8
+#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
+	/*
+	 * CPU22 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * NMG_CPU_A011 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * also appleis to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1
+	 */
+	mfspr   r3,SPRN_SVR
+	rlwinm	r6,r3,24,~0x800		/* clear E bit */
+
+	lis	r5,SVR_P4080@h
+	ori	r5,r5,SVR_P4080@l
+	cmpw	r6,r5
+	bne	1f
+
+	rlwinm  r3,r3,0,0xf0
+	li      r5,0x30
+	cmpw    r3,r5
+	bge     2f
+1:
+	mfspr	r3,L1CSR2
+	oris	r3,r3,(L1CSR2_DCWS)@h
+	mtspr	L1CSR2,r3
+2:
 #endif
 
 #ifdef CONFIG_BACKSIDE_L2_CACHE
 	/* skip L2 setup on P2040/P2040E as they have no L2 */
-	mfspr	r2,SPRN_SVR
+	mfspr	r3,SPRN_SVR
+	rlwinm	r6,r3,24,~0x800		/* clear E bit of SVR */
+
 	lis	r3,SVR_P2040@h
 	ori	r3,r3,SVR_P2040@l
-	cmpw	r2,r3
-	beq 3f
-
-	lis	r3,SVR_P2040_E@h
-	ori	r3,r3,SVR_P2040_E@l
-	cmpw	r2,r3
+	cmpw	r6,r3
 	beq 3f
 
 	/* Enable/invalidate the L2 cache */

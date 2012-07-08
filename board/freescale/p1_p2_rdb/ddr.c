@@ -204,8 +204,7 @@ phys_size_t fixed_sdram (void)
 
 	cpu = gd->cpu;
 	/* P1020 and it's derivatives support max 32bit DDR width */
-	if (cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1020_E ||
-		cpu->soc_ver == SVR_P1011 || cpu->soc_ver == SVR_P1011_E) {
+	if (cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1011) {
 		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);
 	} else {
 		ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
@@ -232,8 +231,7 @@ phys_size_t fixed_sdram (void)
 					strmhz(buf, ddr_freq));
 
 	/* P1020 and it's derivatives support max 32bit DDR width */
-	if(cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1020_E ||
-		cpu->soc_ver == SVR_P1011 || cpu->soc_ver == SVR_P1011_E) {
+	if (cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1011) {
 		ddr_cfg_regs.ddr_sdram_cfg |= SDRAM_CFG_32_BE;
 		ddr_cfg_regs.cs[0].bnds = 0x0000001F;
 	}

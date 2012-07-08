@@ -82,6 +82,9 @@
 	.globl _start_e500
 
 _start_e500:
+/* Enable debug exception */
+	li	r1,MSR_DE
+	mtmsr 	r1
 
 #if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_E500MC)
 	/* ISBC uses L2 as stack.
@@ -178,6 +181,72 @@ l2_disabled:
 	mfspr	r3,SPRN_L1CSR0
 	andi.	r1,r3,L1CSR0_DCE@l
 	beq	2b
+
+#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(CONFIG_NAND_SPL)
+/*
+ * TLB entry for debuggging in AS1
+ * Create temporary TLB entry in AS0 to handle debug exception
+ * As on debug exception MSR is cleared i.e. Address space is changed
+ * to 0. A TLB entry (in AS0) is required to handle debug exception generated
+ * in AS1.
+ */
+
+	lis     r6,FSL_BOOKE_MAS0(1,
+			CONFIG_SYS_PPC_E500_DEBUG_TLB, 0)@h
+	ori     r6,r6,FSL_BOOKE_MAS0(1,
+			CONFIG_SYS_PPC_E500_DEBUG_TLB, 0)@l
+
+#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
+/*
+ * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
+ * bacause flash's virtual address maps to 0xff800000 - 0xffffffff.
+ * and this window is outside of 4K boot window.
+ */
+	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_4M)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_4M)@l
+
+	lis     r8,FSL_BOOKE_MAS2(CONFIG_SYS_MONITOR_BASE & 0xffc00000,
+							(MAS2_I|MAS2_G))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CONFIG_SYS_MONITOR_BASE & 0xffc00000,
+							(MAS2_I|MAS2_G))@l
+
+	/* The 85xx has the default boot window 0xff800000 - 0xffffffff */
+	lis     r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+#elif !defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
+	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1M)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1M)@l
+
+	lis     r8,FSL_BOOKE_MAS2(CONFIG_SYS_MONITOR_BASE,(MAS2_I|MAS2_G))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CONFIG_SYS_MONITOR_BASE,(MAS2_I|MAS2_G))@l
+
+	lis     r9,FSL_BOOKE_MAS3(CONFIG_SYS_PBI_FLASH_WINDOW, 0,
+						(MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(CONFIG_SYS_PBI_FLASH_WINDOW, 0,
+						(MAS3_SX|MAS3_SW|MAS3_SR))@l
+#else
+/*
+ * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
+ * because "nexti" will resize TLB to 4K
+ */
+	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256K)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_256K)@l
+
+	lis     r8,FSL_BOOKE_MAS2(CONFIG_SYS_MONITOR_BASE, (MAS2_I))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CONFIG_SYS_MONITOR_BASE,
+							(MAS2_I))@l
+	lis     r9,FSL_BOOKE_MAS3(CONFIG_SYS_MONITOR_BASE, 0,
+						(MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(CONFIG_SYS_MONITOR_BASE, 0,
+						(MAS3_SX|MAS3_SW|MAS3_SR))@l
+#endif
+	mtspr   MAS0,r6
+	mtspr   MAS1,r7
+	mtspr   MAS2,r8
+	mtspr   MAS3,r9
+	tlbwe
+	isync
+#endif
 
 /*
  * Ne need to setup interrupt vector for NAND SPL
@@ -733,8 +802,8 @@ create_init_ram_area:
 	msync
 	tlbwe
 
-	lis	r6,MSR_IS|MSR_DS@h
-	ori	r6,r6,MSR_IS|MSR_DS@l
+	lis	r6,MSR_IS|MSR_DS|MSR_DE@h
+	ori	r6,r6,MSR_IS|MSR_DS|MSR_DE@l
 	lis	r7,switch_as@h
 	ori	r7,r7,switch_as@l
 
@@ -1372,17 +1441,24 @@ relocate_code:
 7:	sync			/* Wait for all icbi to complete on bus */
 	isync
 
-	/*
-	 * Re-point the IVPR at RAM
-	 */
-	mtspr	IVPR,r10
-
 /*
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.
  */
 
 	addi	r0,r10,in_ram - _start + _START_OFFSET
+
+	/*
+	 * As IVPR is going to point RAM address,
+	 * Make sure IVOR15 has valid opcode to support debugger
+	 */
+	mtspr	IVOR15,r0
+
+	/*
+	 * Re-point the IVPR at RAM
+	 */
+	mtspr	IVPR,r10
+
 	mtlr	r0
 	blr				/* NEVER RETURNS! */
 	.globl	in_ram

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011-2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -570,11 +570,17 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 /*
 * USB
 */
+#define CONFIG_HAS_FSL_DR_USB
+#define CONFIG_HAS_FSL_MPH_USB
+
+#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#endif
+
 #define CONFIG_CMD_EXT2
 
 #define CONFIG_MMC

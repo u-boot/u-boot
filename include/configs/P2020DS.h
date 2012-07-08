@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2011 Freescale Semiconductor, Inc.
+ * Copyright 2007-2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -128,7 +128,6 @@
 #else
 #define CONFIG_FSL_DDR3		1
 #endif
-#undef CONFIG_FSL_DDR_INTERACTIVE
 
 /* ECC will be enabled based on perf_mode environment variable */
 /* #define	CONFIG_DDR_ECC */
@@ -207,8 +206,6 @@
  *
  */
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Memory map
  *
@@ -251,7 +248,6 @@
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024		/* sectors per device */
-#undef	CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
 
@@ -373,7 +369,7 @@
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
 
 #define CONFIG_SYS_BAUDRATE_TABLE	\
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
+	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
@@ -391,7 +387,6 @@
 /* I2C */
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
-#undef	CONFIG_SOFT_I2C		/* I2C bit-banged */
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
@@ -526,17 +521,6 @@
 #define CONFIG_SYS_SRIO2_MEM_SIZE	0x20000000	/* 512M */
 
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
-#undef CONFIG_EEPRO100
-#undef CONFIG_TULIP
-#define CONFIG_RTL8139
-
-#ifndef CONFIG_PCI_PNP
-	#define PCI_ENET0_IOADDR	CONFIG_SYS_PCIE3_IO_BUS
-	#define PCI_ENET0_MEMADDR	CONFIG_SYS_PCIE3_IO_BUS
-	#define PCI_IDSEL_NUMBER	0x11	/* IDSEL = AD11 */
-#endif
-
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SCSI_AHCI
@@ -563,7 +547,6 @@
 #define CONFIG_TSEC3	1
 #define CONFIG_TSEC3_NAME	"eTSEC3"
 
-#define CONFIG_PIXIS_SGMII_CMD
 #define CONFIG_FSL_SGMII_RISER	1
 #define SGMII_RISER_PHY_OFFSET	0x1b
 
@@ -643,6 +626,8 @@
 /*
  * USB
  */
+#define CONFIG_HAS_FSL_DR_USB
+#ifdef CONFIG_HAS_FSL_DR_USB
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
@@ -651,8 +636,7 @@
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif
-
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
+#endif
 
 /*
  * SDHC/MMC
@@ -729,7 +713,6 @@
 #define CONFIG_LOADADDR		1000000
 
 #define CONFIG_BOOTDELAY 10	/* -1 disables auto-boot */
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_BAUDRATE	115200
 
