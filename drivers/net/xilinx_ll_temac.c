@@ -232,6 +232,7 @@ static void ll_temac_halt(struct eth_device *dev)
 static int ll_temac_init(struct eth_device *dev, bd_t *bis)
 {
 	struct ll_temac *ll_temac = dev->priv;
+	int ret;
 
 	printf("%s: Xilinx XPS LocalLink Tri-Mode Ether MAC #%d at 0x%08X.\n",
 		dev->name, dev->index, dev->iobase);
@@ -240,7 +241,12 @@ static int ll_temac_init(struct eth_device *dev, bd_t *bis)
 		return -1;
 
 	/* Start up the PHY */
-	phy_startup(ll_temac->phydev);
+	ret = phy_startup(ll_temac->phydev);
+	if (ret) {
+		printf("%s: Could not initialize PHY %s\n",
+		       dev->name, ll_temac->phydev->dev->name);
+		return ret;
+	}
 
 	if (!ll_temac_adjust_link(dev)) {
 		ll_temac_halt(dev);

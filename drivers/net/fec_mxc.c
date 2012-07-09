@@ -510,7 +510,13 @@ static int fec_open(struct eth_device *edev)
 		fec_eth_phy_config(edev);
 	if (fec->phydev) {
 		/* Start up the PHY */
-		phy_startup(fec->phydev);
+		int ret = phy_startup(fec->phydev);
+
+		if (ret) {
+			printf("Could not initialize PHY %s\n",
+			       fec->phydev->dev->name);
+			return ret;
+		}
 		speed = fec->phydev->speed;
 	} else {
 		speed = _100BASET;

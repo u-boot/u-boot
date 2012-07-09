@@ -415,7 +415,11 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 		goto err_phy_cfg;
 	}
 	phy = port_info->phydev;
-	phy_startup(phy);
+	ret = phy_startup(phy);
+	if (ret) {
+		printf(SHETHER_NAME ": phy startup failure\n");
+		return ret;
+	}
 
 	val = 0;
 

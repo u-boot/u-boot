@@ -480,6 +480,7 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	tsec_t *regs = priv->regs;
+	int ret;
 
 	/* Make sure the controller is stopped */
 	tsec_halt(dev);
@@ -511,7 +512,12 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	startup_tsec(dev);
 
 	/* Start up the PHY */
-	phy_startup(priv->phydev);
+	ret = phy_startup(priv->phydev);
+	if (ret) {
+		printf("Could not initialize PHY %s\n",
+		       priv->phydev->dev->name);
+		return ret;
+	}
 
 	adjust_link(priv, priv->phydev);
 
