@@ -146,20 +146,32 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
 	struct mx28_ssp_regs *ssp_regs = mxs_slave->regs;
 	int len = bitlen / 8;
-	const char *tx = dout;
-	char *rx = din;
 	char dummy;
+	int write = 0;
+	char *data = NULL;
 
 	if (bitlen == 0) {
 		if (flags & SPI_XFER_END) {
-			rx = &dummy;
+			din = (void *)&dummy;
 			len = 1;
 		} else
 			return 0;
 	}
 
-	if (!rx && !tx)
+	/* Half-duplex only */
+	if (din && dout)
+		return -EINVAL;
+	/* No data */
+	if (!din && !dout)
 		return 0;
+
+	if (dout) {
+		data = (char *)dout;
+		write = 1;
+	} else if (din) {
+		data = (char *)din;
+		write = 0;
+	}
 
 	if (flags & SPI_XFER_BEGIN)
 		mxs_spi_start_xfer(ssp_regs);
@@ -171,7 +183,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		if ((flags & SPI_XFER_END) && !len)
 			mxs_spi_end_xfer(ssp_regs);
 
-		if (tx)
+		if (write)
 			writel(SSP_CTRL0_READ, &ssp_regs->hw_ssp_ctrl0_clr);
 		else
 			writel(SSP_CTRL0_READ, &ssp_regs->hw_ssp_ctrl0_set);
@@ -184,20 +196,20 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			return -ETIMEDOUT;
 		}
 
-		if (tx)
-			writel(*tx++, &ssp_regs->hw_ssp_data);
+		if (write)
+			writel(*data++, &ssp_regs->hw_ssp_data);
 
 		writel(SSP_CTRL0_DATA_XFER, &ssp_regs->hw_ssp_ctrl0_set);
 
-		if (rx) {
+		if (!write) {
 			if (mx28_wait_mask_clr(&ssp_regs->hw_ssp_status_reg,
 				SSP_STATUS_FIFO_EMPTY, MXS_SPI_MAX_TIMEOUT)) {
 				printf("MXS SPI: Timeout waiting for data\n");
 				return -ETIMEDOUT;
 			}
 
-			*rx = readl(&ssp_regs->hw_ssp_data);
-			rx++;
+			*data = readl(&ssp_regs->hw_ssp_data);
+			data++;
 		}
 
 		if (mx28_wait_mask_clr(&ssp_regs->hw_ssp_ctrl0_reg,
