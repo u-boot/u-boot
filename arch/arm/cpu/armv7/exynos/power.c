@@ -52,3 +52,25 @@ void set_mipi_phy_ctrl(unsigned int dev_index, unsigned int enable)
 	if (cpu_is_exynos4())
 		exynos4_mipi_phy_control(dev_index, enable);
 }
+
+void exynos5_set_usbhost_phy_ctrl(unsigned int enable)
+{
+	struct exynos5_power *power =
+		(struct exynos5_power *)samsung_get_base_power();
+
+	if (enable) {
+		/* Enabling USBHOST_PHY */
+		setbits_le32(&power->usbhost_phy_control,
+				POWER_USB_HOST_PHY_CTRL_EN);
+	} else {
+		/* Disabling USBHOST_PHY */
+		clrbits_le32(&power->usbhost_phy_control,
+				POWER_USB_HOST_PHY_CTRL_EN);
+	}
+}
+
+void set_usbhost_phy_ctrl(unsigned int enable)
+{
+	if (cpu_is_exynos5())
+		exynos5_set_usbhost_phy_ctrl(enable);
+}

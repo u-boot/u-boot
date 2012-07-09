@@ -42,12 +42,16 @@ struct exynos5_sysreg {
 	unsigned int	reserved;
 	unsigned int	ispblk_cfg;
 	unsigned int	usb20phy_cfg;
+	unsigned char	res2[0x29c];
 	unsigned int	mipi_dphy;
 	unsigned int	dptx_dphy;
 	unsigned int	phyclk_sel;
 };
 #endif
 
+#define USB20_PHY_CFG_HOST_LINK_EN	(1 << 0)
+
+void set_usbhost_mode(unsigned int mode);
 void set_system_display_ctrl(void);
 
 #endif	/* _EXYNOS4_SYSTEM_H */

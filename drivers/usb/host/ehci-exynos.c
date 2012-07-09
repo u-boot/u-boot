@@ -1,5 +1,5 @@
 /*
- * SAMSUNG S5P USB HOST EHCI Controller
+ * SAMSUNG EXYNOS USB HOST EHCI Controller
  *
  * Copyright (C) 2012 Samsung Electronics Co.Ltd
  *	Vivek Gautam <gautam.vivek@samsung.com>
@@ -23,13 +23,19 @@
 #include <common.h>
 #include <usb.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/ehci-s5p.h>
+#include <asm/arch/ehci.h>
+#include <asm/arch/system.h>
+#include <asm/arch/power.h>
 #include "ehci.h"
 #include "ehci-core.h"
 
 /* Setup the EHCI host controller. */
-static void setup_usb_phy(struct s5p_usb_phy *usb)
+static void setup_usb_phy(struct exynos_usb_phy *usb)
 {
+	set_usbhost_mode(USB20_PHY_CFG_HOST_LINK_EN);
+
+	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_EN);
+
 	clrbits_le32(&usb->usbphyctrl0,
 			HOST_CTRL0_FSEL_MASK |
 			HOST_CTRL0_COMMONON_N |
@@ -61,7 +67,7 @@ static void setup_usb_phy(struct s5p_usb_phy *usb)
 }
 
 /* Reset the EHCI host controller. */
-static void reset_usb_phy(struct s5p_usb_phy *usb)
+static void reset_usb_phy(struct exynos_usb_phy *usb)
 {
 	/* HOST_PHY reset */
 	setbits_le32(&usb->usbphyctrl0,
@@ -70,6 +76,8 @@ static void reset_usb_phy(struct s5p_usb_phy *usb)
 			HOST_CTRL0_SIDDQ |
 			HOST_CTRL0_FORCESUSPEND |
 			HOST_CTRL0_FORCESLEEP);
+
+	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_DISABLE);
 }
 
 /*
@@ -79,12 +87,12 @@ static void reset_usb_phy(struct s5p_usb_phy *usb)
  */
 int ehci_hcd_init(void)
 {
-	struct s5p_usb_phy *usb;
+	struct exynos_usb_phy *usb;
 
-	usb = (struct s5p_usb_phy *)samsung_get_base_usb_phy();
+	usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
 	setup_usb_phy(usb);
 
-	hccr = (struct ehci_hccr *)(EXYNOS5_USB_HOST_EHCI_BASE);
+	hccr = (struct ehci_hccr *)samsung_get_base_usb_ehci();
 	hcor = (struct ehci_hcor *)((uint32_t) hccr
 				+ HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
@@ -101,9 +109,9 @@ int ehci_hcd_init(void)
  */
 int ehci_hcd_stop()
 {
-	struct s5p_usb_phy *usb;
+	struct exynos_usb_phy *usb;
 
-	usb = (struct s5p_usb_phy *)samsung_get_base_usb_phy();
+	usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
 	reset_usb_phy(usb);
 
 	return 0;
