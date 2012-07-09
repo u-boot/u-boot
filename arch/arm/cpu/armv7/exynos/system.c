@@ -29,7 +29,6 @@ static void exynos5_set_usbhost_mode(unsigned int mode)
 {
 	struct exynos5_sysreg *sysreg =
 		(struct exynos5_sysreg *)samsung_get_base_sysreg();
-	unsigned int phy_cfg;
 
 	/* Setting USB20PHY_CONFIG register to USB 2.0 HOST link */
 	if (mode == USB20_PHY_CFG_HOST_LINK_EN) {
