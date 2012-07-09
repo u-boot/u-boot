@@ -66,7 +66,7 @@ static int exynos5_mmc_config(int peripheral, int flags)
 	struct exynos5_gpio_part1 *gpio1 =
 		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
 	struct s5p_gpio_bank *bank, *bank_ext;
-	int i, start, gpio_func;
+	int i, start = 0, gpio_func = 0;
 
 	switch (peripheral) {
 	case PERIPH_ID_SDMMC0:

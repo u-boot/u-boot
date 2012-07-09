@@ -173,6 +173,9 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 			fout_sel = (pll_div2_sel >> BPLL_FOUT_SEL_SHIFT)
 					& BPLL_FOUT_SEL_MASK;
 			break;
+		default:
+			fout_sel = -1;
+			break;
 		}
 
 		if (fout_sel == 0)
