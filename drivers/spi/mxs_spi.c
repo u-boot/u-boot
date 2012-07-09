@@ -31,17 +31,32 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/dma.h>
 
 #define	MXS_SPI_MAX_TIMEOUT	1000000
 #define	MXS_SPI_PORT_OFFSET	0x2000
 #define MXS_SSP_CHIPSELECT_MASK		0x00300000
 #define MXS_SSP_CHIPSELECT_SHIFT	20
 
+#define MXSSSP_SMALL_TRANSFER	512
+
+/*
+ * CONFIG_MXS_SPI_DMA_ENABLE: Experimental mixed PIO/DMA support for MXS SPI
+ *                            host. Use with utmost caution!
+ *
+ *                            Enabling this is not yet recommended since this
+ *                            still doesn't support transfers to/from unaligned
+ *                            addresses. Therefore this driver will not work
+ *                            for example with saving environment. This is
+ *                            caused by DMA alignment constraints on MXS.
+ */
+
 struct mxs_spi_slave {
 	struct spi_slave	slave;
 	uint32_t		max_khz;
 	uint32_t		mode;
 	struct mx28_ssp_regs	*regs;
+	struct mxs_dma_desc	*desc;
 };
 
 static inline struct mxs_spi_slave *to_mxs_slave(struct spi_slave *slave)
@@ -69,6 +84,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	uint32_t addr;
 	struct mx28_ssp_regs *ssp_regs;
 	int reg;
+	struct mxs_dma_desc *desc;
 
 	if (!spi_cs_is_valid(bus, cs)) {
 		printf("mxs_spi: invalid bus %d / chip select %d\n", bus, cs);
@@ -79,6 +95,13 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!mxs_slave)
 		return NULL;
 
+	desc = mxs_dma_desc_alloc();
+	if (!desc)
+		goto err_desc;
+
+	if (mxs_dma_init_channel(bus))
+		goto err_init;
+
 	addr = MXS_SSP0_BASE + (bus * MXS_SPI_PORT_OFFSET);
 
 	mxs_slave->slave.bus = bus;
@@ -86,6 +109,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxs_slave->max_khz = max_hz / 1000;
 	mxs_slave->mode = mode;
 	mxs_slave->regs = (struct mx28_ssp_regs *)addr;
+	mxs_slave->desc = desc;
 	ssp_regs = mxs_slave->regs;
 
 	reg = readl(&ssp_regs->hw_ssp_ctrl0);
@@ -94,11 +118,18 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	writel(reg, &ssp_regs->hw_ssp_ctrl0);
 	return &mxs_slave->slave;
+
+err_init:
+	mxs_dma_desc_free(desc);
+err_desc:
+	free(mxs_slave);
+	return NULL;
 }
 
 void spi_free_slave(struct spi_slave *slave)
 {
 	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
+	mxs_dma_desc_free(mxs_slave->desc);
 	free(mxs_slave);
 }
 
@@ -195,14 +226,80 @@ static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 
 }
 
+static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
+			char *data, int length, int write, unsigned long flags)
+{
+	struct mxs_dma_desc *desc = slave->desc;
+	struct mx28_ssp_regs *ssp_regs = slave->regs;
+	uint32_t ctrl0 = SSP_CTRL0_DATA_XFER;
+	uint32_t cache_data_count;
+	int dmach;
+
+	memset(desc, 0, sizeof(struct mxs_dma_desc));
+	desc->address = (dma_addr_t)desc;
+
+	if (flags & SPI_XFER_BEGIN)
+		ctrl0 |= SSP_CTRL0_LOCK_CS;
+	if (flags & SPI_XFER_END)
+		ctrl0 |= SSP_CTRL0_IGNORE_CRC;
+	if (!write)
+		ctrl0 |= SSP_CTRL0_READ;
+
+	writel(length, &ssp_regs->hw_ssp_xfer_size);
+
+	if (length % ARCH_DMA_MINALIGN)
+		cache_data_count = roundup(length, ARCH_DMA_MINALIGN);
+	else
+		cache_data_count = length;
+
+	if (!write) {
+		slave->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_WRITE;
+		slave->desc->cmd.address = (dma_addr_t)data;
+	} else {
+		slave->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_READ;
+		slave->desc->cmd.address = (dma_addr_t)data;
+
+		/* Flush data to DRAM so DMA can pick them up */
+		flush_dcache_range((uint32_t)data,
+			(uint32_t)(data + cache_data_count));
+	}
+
+	slave->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
+				(length << MXS_DMA_DESC_BYTES_OFFSET) |
+				(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
+				MXS_DMA_DESC_WAIT4END;
+
+	slave->desc->cmd.pio_words[0] = ctrl0;
+
+	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + slave->slave.bus;
+	mxs_dma_desc_append(dmach, slave->desc);
+	if (mxs_dma_go(dmach))
+		return -EINVAL;
+
+	/* The data arrived into DRAM, invalidate cache over them */
+	if (!write) {
+		invalidate_dcache_range((uint32_t)data,
+			(uint32_t)(data + cache_data_count));
+	}
+
+	return 0;
+}
+
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
 	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
+	struct mx28_ssp_regs *ssp_regs = mxs_slave->regs;
 	int len = bitlen / 8;
 	char dummy;
 	int write = 0;
 	char *data = NULL;
+
+#ifdef CONFIG_MXS_SPI_DMA_ENABLE
+	int dma = 1;
+#else
+	int dma = 0;
+#endif
 
 	if (bitlen == 0) {
 		if (flags & SPI_XFER_END) {
@@ -227,5 +324,23 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		write = 0;
 	}
 
-	return mxs_spi_xfer_pio(mxs_slave, data, len, write, flags);
+	/*
+	 * Check for alignment, if the buffer is aligned, do DMA transfer,
+	 * PIO otherwise. This is a temporary workaround until proper bounce
+	 * buffer is in place.
+	 */
+	if (dma) {
+		if (((uint32_t)data) & (ARCH_DMA_MINALIGN - 1))
+			dma = 0;
+		if (((uint32_t)len) & (ARCH_DMA_MINALIGN - 1))
+			dma = 0;
+	}
+
+	if (!dma || (len < MXSSSP_SMALL_TRANSFER)) {
+		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_clr);
+		return mxs_spi_xfer_pio(mxs_slave, data, len, write, flags);
+	} else {
+		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_set);
+		return mxs_spi_xfer_dma(mxs_slave, data, len, write, flags);
+	}
 }
