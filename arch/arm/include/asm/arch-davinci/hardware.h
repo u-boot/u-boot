@@ -506,6 +506,7 @@ struct davinci_syscfg1_regs {
 	((struct davinci_syscfg1_regs *)DAVINCI_SYSCFG1_BASE)
 
 #define DDR_SLEW_CMOSEN_BIT	4
+#define DDR_SLEW_DDR_PDENA_BIT	5
 
 #define VTP_POWERDWN		(1 << 6)
 #define VTP_LOCK		(1 << 7)
