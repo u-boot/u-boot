@@ -1232,7 +1232,9 @@ int mmc_startup(struct mmc *mmc)
 			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
 	sprintf(mmc->block_dev.revision, "%d.%d", mmc->cid[2] >> 28,
 			(mmc->cid[2] >> 24) & 0xf);
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
 	init_part(&mmc->block_dev);
+#endif
 
 	return 0;
 }
