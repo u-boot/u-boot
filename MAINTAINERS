@@ -796,6 +796,10 @@ Linus Walleij <linus.walleij@linaro.org>
 	integratorap	various
 	integratorcp	various
 
+Veli-Pekka Peltola <veli-pekka.peltola@bluegiga.com>
+
+	apx4devkit	i.MX28
+
 Luka Perkov <uboot@lukaperkov.net>
 
 	ib62x0		ARM926EJS
