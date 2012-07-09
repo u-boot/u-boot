@@ -140,47 +140,19 @@ static void mxs_spi_end_xfer(struct mx28_ssp_regs *ssp_regs)
 	writel(SSP_CTRL0_IGNORE_CRC, &ssp_regs->hw_ssp_ctrl0_set);
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
+static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
+			char *data, int length, int write, unsigned long flags)
 {
-	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
-	struct mx28_ssp_regs *ssp_regs = mxs_slave->regs;
-	int len = bitlen / 8;
-	char dummy;
-	int write = 0;
-	char *data = NULL;
-
-	if (bitlen == 0) {
-		if (flags & SPI_XFER_END) {
-			din = (void *)&dummy;
-			len = 1;
-		} else
-			return 0;
-	}
-
-	/* Half-duplex only */
-	if (din && dout)
-		return -EINVAL;
-	/* No data */
-	if (!din && !dout)
-		return 0;
-
-	if (dout) {
-		data = (char *)dout;
-		write = 1;
-	} else if (din) {
-		data = (char *)din;
-		write = 0;
-	}
+	struct mx28_ssp_regs *ssp_regs = slave->regs;
 
 	if (flags & SPI_XFER_BEGIN)
 		mxs_spi_start_xfer(ssp_regs);
 
-	while (len--) {
+	while (length--) {
 		/* We transfer 1 byte */
 		writel(1, &ssp_regs->hw_ssp_xfer_size);
 
-		if ((flags & SPI_XFER_END) && !len)
+		if ((flags & SPI_XFER_END) && !length)
 			mxs_spi_end_xfer(ssp_regs);
 
 		if (write)
@@ -220,4 +192,40 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	}
 
 	return 0;
+
+}
+
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+		const void *dout, void *din, unsigned long flags)
+{
+	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
+	int len = bitlen / 8;
+	char dummy;
+	int write = 0;
+	char *data = NULL;
+
+	if (bitlen == 0) {
+		if (flags & SPI_XFER_END) {
+			din = (void *)&dummy;
+			len = 1;
+		} else
+			return 0;
+	}
+
+	/* Half-duplex only */
+	if (din && dout)
+		return -EINVAL;
+	/* No data */
+	if (!din && !dout)
+		return 0;
+
+	if (dout) {
+		data = (char *)dout;
+		write = 1;
+	} else if (din) {
+		data = (char *)din;
+		write = 0;
+	}
+
+	return mxs_spi_xfer_pio(mxs_slave, data, len, write, flags);
 }
