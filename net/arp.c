@@ -194,7 +194,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 #ifdef CONFIG_KEEP_SERVERADDR
 		if (NetServerIP == NetArpWaitPacketIP) {
 			char buf[20];
-			sprintf(buf, "%pM", arp->ar_sha);
+			sprintf(buf, "%pM", &arp->ar_sha);
 			setenv("serveraddr", buf);
 		}
 #endif
