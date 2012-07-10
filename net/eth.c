@@ -62,7 +62,7 @@ int eth_getenv_enetaddr_by_index(const char *base_name, int index,
 	return eth_getenv_enetaddr(enetvar, enetaddr);
 }
 
-int eth_setenv_enetaddr_by_index(const char *base_name, int index,
+static inline int eth_setenv_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr)
 {
 	char enetvar[32];
