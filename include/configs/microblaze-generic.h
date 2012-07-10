@@ -102,7 +102,6 @@
 
 /* interrupt controller */
 #ifdef XILINX_INTC_BASEADDR
-# define CONFIG_SYS_INTC_0		1
 # define CONFIG_SYS_INTC_0_ADDR		XILINX_INTC_BASEADDR
 # define CONFIG_SYS_INTC_0_NUM		XILINX_INTC_NUM_INTR_INPUTS
 #endif

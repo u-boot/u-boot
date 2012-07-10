@@ -40,7 +40,6 @@ ulong get_timer (ulong base)
 }
 #endif
 
-#ifdef CONFIG_SYS_INTC_0
 #ifdef CONFIG_SYS_TIMER_0
 void __udelay(unsigned long usec)
 {
@@ -79,7 +78,6 @@ int timer_init (void)
 	install_interrupt_handler (CONFIG_SYS_TIMER_0_IRQ, timer_isr, (void *)tmr);
 	return 0;
 }
-#endif
 #endif
 
 /*

@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <malloc.h>
 #include <asm/microblaze_intc.h>
 #include <asm/asm.h>
 
@@ -48,20 +49,19 @@ int disable_interrupts (void)
 	return (msr & 0x2) != 0;
 }
 
-#ifdef CONFIG_SYS_INTC_0
-
-static struct irq_action vecs[CONFIG_SYS_INTC_0_NUM];
+static struct irq_action *vecs;
+static u32 irq_no;
 
 /* mapping structure to interrupt controller */
-microblaze_intc_t *intc = (microblaze_intc_t *) (CONFIG_SYS_INTC_0_ADDR);
+microblaze_intc_t *intc;
 
 /* default handler */
-void def_hdlr (void)
+static void def_hdlr(void)
 {
 	puts ("def_hdlr\n");
 }
 
-void enable_one_interrupt (int irq)
+static void enable_one_interrupt(int irq)
 {
 	int mask;
 	int offset = 1;
@@ -76,7 +76,7 @@ void enable_one_interrupt (int irq)
 #endif
 }
 
-void disable_one_interrupt (int irq)
+static void disable_one_interrupt(int irq)
 {
 	int mask;
 	int offset = 1;
@@ -96,7 +96,7 @@ void install_interrupt_handler (int irq, interrupt_handler_t * hdlr, void *arg)
 {
 	struct irq_action *act;
 	/* irq out of range */
-	if ((irq < 0) || (irq > CONFIG_SYS_INTC_0_NUM)) {
+	if ((irq < 0) || (irq > irq_no)) {
 		puts ("IRQ out of range\n");
 		return;
 	}
@@ -114,7 +114,7 @@ void install_interrupt_handler (int irq, interrupt_handler_t * hdlr, void *arg)
 }
 
 /* initialization interrupt controller - hardware */
-void intc_init (void)
+static void intc_init(void)
 {
 	intc->mer = 0;
 	intc->ier = 0;
@@ -127,18 +127,33 @@ void intc_init (void)
 #endif
 }
 
-int interrupts_init (void)
+int interrupts_init(void)
 {
 	int i;
-	/* initialize irq list */
-	for (i = 0; i < CONFIG_SYS_INTC_0_NUM; i++) {
-		vecs[i].handler = (interrupt_handler_t *) def_hdlr;
-		vecs[i].arg = (void *)i;
-		vecs[i].count = 0;
+
+#if defined(CONFIG_SYS_INTC_0_ADDR) && defined(CONFIG_SYS_INTC_0_NUM)
+	intc = (microblaze_intc_t *) (CONFIG_SYS_INTC_0_ADDR);
+	irq_no = CONFIG_SYS_INTC_0_NUM;
+#endif
+	if (irq_no) {
+		vecs = calloc(1, sizeof(struct irq_action) * irq_no);
+		if (vecs == NULL) {
+			puts("Interrupt vector allocation failed\n");
+			return -1;
+		}
+
+		/* initialize irq list */
+		for (i = 0; i < irq_no; i++) {
+			vecs[i].handler = (interrupt_handler_t *) def_hdlr;
+			vecs[i].arg = (void *)i;
+			vecs[i].count = 0;
+		}
+		/* initialize intc controller */
+		intc_init();
+		enable_interrupts();
+	} else {
+		puts("Undefined interrupt controller\n");
 	}
-	/* initialize intc controller */
-	intc_init ();
-	enable_interrupts ();
 	return 0;
 }
 
@@ -172,33 +187,30 @@ void interrupt_handler (void)
 	printf ("Interrupt handler on %x line, r14 %x\n", irqs, value);
 #endif
 }
-#endif
 
 #if defined(CONFIG_CMD_IRQ)
-#ifdef CONFIG_SYS_INTC_0
-int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, const char *argv[])
 {
 	int i;
 	struct irq_action *act = vecs;
 
-	puts ("\nInterrupt-Information:\n\n"
-	      "Nr  Routine   Arg       Count\n"
-	      "-----------------------------\n");
+	if (irq_no) {
+		puts("\nInterrupt-Information:\n\n"
+		      "Nr  Routine   Arg       Count\n"
+		      "-----------------------------\n");
 
-	for (i = 0; i < CONFIG_SYS_INTC_0_NUM; i++) {
-		if (act->handler != (interrupt_handler_t*) def_hdlr) {
-			printf ("%02d  %08x  %08x  %d\n", i,
-				(int)act->handler, (int)act->arg, act->count);
+		for (i = 0; i < irq_no; i++) {
+			if (act->handler != (interrupt_handler_t *) def_hdlr) {
+				printf("%02d  %08x  %08x  %d\n", i,
+					(int)act->handler, (int)act->arg,
+								act->count);
+			}
+			act++;
 		}
-		act++;
+		puts("\n");
+	} else {
+		puts("Undefined interrupt controller\n");
 	}
-	puts ("\n");
-	return (0);
+	return 0;
 }
-#else
-int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
-{
-	puts ("Undefined interrupt controller\n");
-}
-#endif
 #endif

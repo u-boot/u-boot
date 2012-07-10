@@ -33,14 +33,12 @@
 #include <serial.h>
 #include <net.h>
 #include <asm/processor.h>
+#include <asm/microblaze_intc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SYS_GPIO_0
 extern int gpio_init (void);
-#endif
-#ifdef CONFIG_SYS_INTC_0
-extern int interrupts_init (void);
 #endif
 #ifdef CONFIG_SYS_TIMER_0
 extern int timer_init (void);
@@ -70,9 +68,7 @@ init_fnc_t *init_sequence[] = {
 #ifdef CONFIG_SYS_GPIO_0
 	gpio_init,
 #endif
-#ifdef CONFIG_SYS_INTC_0
 	interrupts_init,
-#endif
 #ifdef CONFIG_SYS_TIMER_0
 	timer_init,
 #endif
