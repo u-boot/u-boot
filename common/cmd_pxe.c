@@ -26,7 +26,6 @@
 
 #define MAX_TFTP_PATH_LEN 127
 
-
 /*
  * Like getenv, but prints an error if envvar isn't defined in the
  * environment.  It always returns what getenv does, so it can be used in
@@ -174,8 +173,6 @@ static int do_get_fat(char *file_path, char *file_addr)
 #endif
 	return -ENOENT;
 }
-
-
 
 /*
  * As in pxelinux, paths to files referenced from files we retrieve are
@@ -364,7 +361,6 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc != 1)
 		return CMD_RET_USAGE;
-
 
 	pxefile_addr_str = from_env("pxefile_addr_r");
 

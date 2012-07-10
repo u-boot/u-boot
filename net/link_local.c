@@ -229,8 +229,9 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
  * XXX Don't bother with ethernet link just yet
 	if ((fds[0].revents & POLLIN) == 0) {
 		if (fds[0].revents & POLLERR) {
-			// FIXME: links routinely go down;
-			// this shouldn't necessarily exit.
+			/*
+			 * FIXME: links routinely go down;
+			 */
 			bb_error_msg("iface %s is down", eth_get_name());
 			if (ready) {
 				run(argv, "deconfig", &ip);

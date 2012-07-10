@@ -253,4 +253,3 @@ int toggle_eeprom_spi_bus(void)
 
 	return 0;
 }
-

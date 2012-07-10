@@ -73,4 +73,3 @@ If both fail or are disabled, static settings are used.
 			"setenv netmask $snetmask; "			\
 			"setenv gatewayip $sgatewayip; "		\
 		"fi;\0"							\
-
