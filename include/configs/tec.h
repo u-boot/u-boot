@@ -28,14 +28,15 @@
 
 #include "tegra2-common.h"
 
-/* Enable fdt support for Plutux. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-plutux
+/* Enable fdt support for TEC. Flash the image in u-boot-dtb.bin */
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-tec
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define V_PROMPT			"Tegra2 (Plutux) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Plutux"
+#define V_PROMPT			"Tegra2 (TEC) # "
+#define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Tamonten Evaluation Carrier"
+#define CONFIG_SYS_BOARD_ODMDATA	0x2b0d8011
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
@@ -77,7 +78,5 @@
 	"mmc rescan;"					\
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
-
-#include "tegra2-common-post.h"
 
 #endif /* __CONFIG_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 NVIDIA Corporation
+ * Copyright (c) 2009-2012 NVIDIA Corporation
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,6 +29,22 @@
 #include <asm/errno.h>
 #include <asm/arch/usb.h>
 
+/*
+ * A known hardware issue where Connect Status Change bit of PORTSC register
+ * of USB1 controller will be set after Port Reset.
+ * We have to clear it in order for later device enumeration to proceed.
+ * This ehci_powerup_fixup overrides the weak function ehci_powerup_fixup
+ * in "ehci-hcd.c".
+ */
+void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+{
+	mdelay(50);
+	if (((u32) status_reg & TEGRA_USB_ADDR_MASK) != TEGRA_USB1_BASE)
+		return;
+	/* For EHCI_PS_CSC to be cleared in ehci_hcd.c */
+	if (ehci_readl(status_reg) & EHCI_PS_CSC)
+		*reg |= EHCI_PS_CSC;
+}
 
 /*
  * Create the appropriate control structures to manage

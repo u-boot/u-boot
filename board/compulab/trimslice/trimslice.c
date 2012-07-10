@@ -30,7 +30,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/mmc.h>
 #include <asm/gpio.h>
-#ifdef CONFIG_TEGRA2_MMC
+#ifdef CONFIG_TEGRA_MMC
 #include <mmc.h>
 #endif
 
@@ -40,6 +40,11 @@
  */
 void gpio_config_uart(void)
 {
+}
+
+void pin_mux_spi(void)
+{
+	funcmux_select(PERIPH_ID_SPI1, FUNCMUX_SPI1_GMC_GMD);
 }
 
 /*

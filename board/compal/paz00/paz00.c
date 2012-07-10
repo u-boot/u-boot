@@ -20,7 +20,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/mmc.h>
 #include <asm/gpio.h>
-#ifdef CONFIG_TEGRA2_MMC
+#ifdef CONFIG_TEGRA_MMC
 #include <mmc.h>
 #endif
 
@@ -32,7 +32,7 @@ void gpio_config_uart(void)
 {
 }
 
-#ifdef CONFIG_TEGRA2_MMC
+#ifdef CONFIG_TEGRA_MMC
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)

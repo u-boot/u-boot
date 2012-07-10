@@ -813,6 +813,7 @@ Thierry Reding <thierry.reding@avionic-design.de>
 
 	plutux		Tegra2 (ARM7 & A9 Dual Core)
 	medcom		Tegra2 (ARM7 & A9 Dual Core)
+	tec		Tegra2 (ARM7 & A9 Dual Core)
 
 Christian Riesch <christian.riesch@omicron.at>
 Manfred Rudigier <manfred.rudigier@omicron.at>

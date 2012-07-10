@@ -64,6 +64,12 @@ void __pin_mux_usb(void)
 
 void pin_mux_usb(void) __attribute__((weak, alias("__pin_mux_usb")));
 
+void __pin_mux_spi(void)
+{
+}
+
+void pin_mux_spi(void) __attribute__((weak, alias("__pin_mux_spi")));
+
 /*
  * Routine: power_det_init
  * Description: turn off power detects
@@ -94,7 +100,8 @@ int board_init(void)
 #ifdef CONFIG_SPI_UART_SWITCH
 	gpio_config_uart();
 #endif
-#ifdef CONFIG_TEGRA2_SPI
+#ifdef CONFIG_TEGRA_SPI
+	pin_mux_spi();
 	spi_init();
 #endif
 	/* boot param addr */
@@ -132,11 +139,18 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
+static void __gpio_early_init(void)
+{
+}
+
+void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
+
 int board_early_init_f(void)
 {
 	board_init_uart_f();
 
 	/* Initialize periph GPIOs */
+	gpio_early_init();
 #ifdef CONFIG_SPI_UART_SWITCH
 	gpio_early_init_uart();
 #else

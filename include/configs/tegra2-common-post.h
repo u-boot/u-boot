@@ -31,15 +31,15 @@
 #else
 
 #ifdef CONFIG_CMD_EXT2
-#define BOOTCMD_FS_EXT2 "ext2 "
+#define BOOT_FSTYPE_EXT2 "ext2 "
 #else
-#define BOOTCMD_FS_EXT2 ""
+#define BOOT_FSTYPE_EXT2 ""
 #endif
 
 #ifdef CONFIG_CMD_FAT
-#define BOOTCMD_FS_FAT "fat"
+#define BOOT_FSTYPE_FAT "fat"
 #else
-#define BOOTCMD_FS_FAT ""
+#define BOOT_FSTYPE_FAT ""
 #endif
 
 #ifdef CONFIG_CMD_MMC
@@ -47,71 +47,103 @@
 	"mmc_boot=" \
 		"setenv devtype mmc; " \
 		"if mmc dev ${devnum}; then " \
-			"run script_boot; " \
+			"run scan_boot; " \
 		"fi\0" \
-	"mmc0_boot=setenv devnum 0; run mmc_boot;\0" \
-	"mmc1_boot=setenv devnum 1; run mmc_boot;\0" \
-	"bootcmd_mmc=run mmc1_boot; run mmc0_boot\0"
-#define BOOTCMD_MMC "run bootcmd_mmc; "
+	"bootcmd_mmc0=setenv devnum 0; run mmc_boot;\0" \
+	"bootcmd_mmc1=setenv devnum 1; run mmc_boot;\0"
+#define BOOT_TARGETS_MMC "mmc1 mmc0"
 #else
 #define BOOTCMDS_MMC ""
-#define BOOTCMD_MMC ""
+#define BOOT_TARGETS_MMC ""
 #endif
 
 #ifdef CONFIG_CMD_USB
+#define BOOTCMD_INIT_USB "run usb_init; "
 #define BOOTCMDS_USB \
+	"usb_init=" \
+		"if ${usb_need_init}; then " \
+			"set usb_need_init false; " \
+			"usb start 0; " \
+		"fi\0" \
+	\
 	"usb_boot=" \
 		"setenv devtype usb; " \
+		BOOTCMD_INIT_USB \
 		"if usb dev ${devnum}; then " \
-			"run script_boot; " \
+			"run scan_boot; " \
 		"fi\0" \
-	"usb0_boot=setenv devnum 0; run usb_boot;\0" \
-	"bootcmd_usb=run usb0_boot\0"
-#define BOOTCMD_USB "run bootcmd_usb; "
-#define BOOTCMD_INIT_USB "usb start 0; "
+	\
+	"bootcmd_usb0=setenv devnum 0; run usb_boot;\0"
+#define BOOT_TARGETS_USB "usb0"
 #else
-#define BOOTCMDS_USB ""
-#define BOOTCMD_USB ""
 #define BOOTCMD_INIT_USB ""
+#define BOOTCMDS_USB ""
+#define BOOT_TARGETS_USB ""
 #endif
 
 #ifdef CONFIG_CMD_DHCP
 #define BOOTCMDS_DHCP \
 	"bootcmd_dhcp=" \
+		BOOTCMD_INIT_USB \
 		"if dhcp ${scriptaddr} boot.scr.uimg; then "\
 			"source ${scriptaddr}; " \
 		"fi\0"
-#define BOOTCMD_DHCP "run bootcmd_dhcp; "
+#define BOOT_TARGETS_DHCP "dhcp"
 #else
 #define BOOTCMDS_DHCP ""
-#define BOOTCMD_DHCP ""
+#define BOOT_TARGETS_DHCP ""
 #endif
 
 #define BOOTCMDS_COMMON \
 	"scriptaddr=0x400000\0" \
+	\
 	"rootpart=1\0" \
-	"script_boot="													\
-		"for fs in " BOOTCMD_FS_EXT2 BOOTCMD_FS_FAT "; do "							\
-		    "for prefix in / /boot/; do "									\
-			"for script in boot.scr.uimg boot.scr; do "							\
-			    "echo Scanning ${devtype} ${devnum}:${rootpart} ${fs} ${prefix}${script} ...; "		\
-			    "if ${fs}load ${devtype} ${devnum}:${rootpart} ${scriptaddr} ${prefix}${script}; then "	\
-				"echo ${script} found! Executing ...;"							\
-				"source ${scriptaddr};"									\
-			    "fi; "											\
-			"done; "											\
-		    "done; "												\
-		"done;\0"												\
+	\
+	"script_boot="                                                    \
+		"if ${fs}load ${devtype} ${devnum}:${rootpart} "          \
+				"${scriptaddr} ${prefix}${script}; then " \
+			"echo ${script} found! Executing ...;"            \
+			"source ${scriptaddr};"                           \
+		"fi;\0"                                                   \
+	\
+	"scan_boot="                                                      \
+		"echo Scanning ${devtype} ${devnum}...; "                 \
+		"for fs in ${boot_fstypes}; do "                          \
+			"for prefix in ${boot_prefixes}; do "             \
+				"for script in ${boot_scripts}; do "      \
+					"run script_boot; "               \
+				"done; "                                  \
+			"done; "                                          \
+		"done;\0"                                                 \
+	\
+	"boot_targets=" \
+		BOOT_TARGETS_MMC " " \
+		BOOT_TARGETS_USB " " \
+		BOOT_TARGETS_DHCP " " \
+		"\0" \
+	\
+	"boot_fstypes=" \
+		BOOT_FSTYPE_EXT2 " " \
+		BOOT_FSTYPE_FAT " " \
+		"\0" \
+	\
+	"boot_prefixes=/ /boot/\0" \
+	\
+	"boot_scripts=boot.scr.uimg boot.scr\0" \
+	\
 	BOOTCMDS_MMC \
 	BOOTCMDS_USB \
 	BOOTCMDS_DHCP
 
-#define CONFIG_BOOTCOMMAND BOOTCMD_INIT_USB BOOTCMD_USB BOOTCMD_MMC BOOTCMD_DHCP
+#define CONFIG_BOOTCOMMAND \
+	"for target in ${boot_targets}; do run bootcmd_${target}; done"
 
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA2_DEVICE_SETTINGS \
+	"fdt_load=0x01000000\0" \
+	"fdt_high=01100000\0" \
 	BOOTCMDS_COMMON
 
 #endif /* __TEGRA2_COMMON_POST_H */

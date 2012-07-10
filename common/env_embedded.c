@@ -179,6 +179,17 @@ env_t environment __PPCENV__ = {
 #if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
 	"pcidelay="	MK_STR(CONFIG_PCI_BOOTDELAY)	"\0"
 #endif
+#ifdef	CONFIG_ENV_VARS_UBOOT_CONFIG
+	"arch="		CONFIG_SYS_ARCH			"\0"
+	"cpu="		CONFIG_SYS_CPU			"\0"
+	"board="	CONFIG_SYS_BOARD		"\0"
+#ifdef CONFIG_SYS_VENDOR
+	"vendor="	CONFIG_SYS_VENDOR		"\0"
+#endif
+#ifdef CONFIG_SYS_SOC
+	"soc="		CONFIG_SYS_SOC			"\0"
+#endif
+#endif
 #ifdef	CONFIG_EXTRA_ENV_SETTINGS
 	CONFIG_EXTRA_ENV_SETTINGS
 #endif

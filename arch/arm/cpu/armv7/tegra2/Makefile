@@ -39,6 +39,7 @@ COBJS-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 COBJS-$(CONFIG_TEGRA_PMU) += pmu.o
 COBJS-$(CONFIG_USB_EHCI_TEGRA) += usb.o
 COBJS-$(CONFIG_TEGRA2_LP0) += crypto.o warmboot.o warmboot_avp.o
+COBJS-$(CONFIG_CMD_ENTERRCM) += cmd_enterrcm.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)

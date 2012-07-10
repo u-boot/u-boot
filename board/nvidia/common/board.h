@@ -25,6 +25,7 @@
 #define _BOARD_H_
 
 void gpio_config_uart(void);
+void gpio_early_init(void);
 void gpio_early_init_uart(void);
 
 /*

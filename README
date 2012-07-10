@@ -2229,6 +2229,20 @@ The following options need to be configured:
 		the environment like the "source" command or the
 		boot command first.
 
+		CONFIG_ENV_VARS_UBOOT_CONFIG
+
+		Define this in order to add variables describing the
+		U-Boot build configuration to the default environment.
+		These will be named arch, cpu, board, vendor, and soc.
+
+		Enabling this option will cause the following to be defined:
+
+		- CONFIG_SYS_ARCH
+		- CONFIG_SYS_CPU
+		- CONFIG_SYS_BOARD
+		- CONFIG_SYS_VENDOR
+		- CONFIG_SYS_SOC
+
 - DataFlash Support:
 		CONFIG_HAS_DATAFLASH
 

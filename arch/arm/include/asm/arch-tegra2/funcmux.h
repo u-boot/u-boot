@@ -51,6 +51,12 @@ enum {
 	FUNCMUX_SDMMC4_ATC_ATD_8BIT = 0,
 	FUNCMUX_SDMMC4_ATB_GMA_4_BIT,
 	FUNCMUX_SDMMC4_ATB_GMA_GME_8_BIT,
+
+	/* USB configs */
+	FUNCMUX_USB2_ULPI = 0,
+
+	/* Serial Flash configs */
+	FUNCMUX_SPI1_GMC_GMD = 0,
 };
 
 /**
