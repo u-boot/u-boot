@@ -136,9 +136,8 @@ void board_init_f(ulong not_used)
 #if defined(CONFIG_CMD_FLASH)
 	puts ("Flash: ");
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
-	if (0 < (flash_size = flash_init ())) {
-		bd->bi_flashsize = flash_size;
-		bd->bi_flashoffset = CONFIG_SYS_FLASH_BASE + flash_size;
+	flash_size = flash_init();
+	if (bd->bi_flashstart && flash_size > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM
 		print_size (flash_size, "");
 		/*
@@ -149,13 +148,16 @@ void board_init_f(ulong not_used)
 		s = getenv ("flashchecksum");
 		if (s && (*s == 'y')) {
 			printf ("  CRC: %08X",
-				crc32 (0, (const unsigned char *) CONFIG_SYS_FLASH_BASE, flash_size)
+				crc32(0, (const u8 *)bd->bi_flashstart,
+							flash_size)
 			);
 		}
 		putc ('\n');
 # else	/* !CONFIG_SYS_FLASH_CHECKSUM */
 		print_size (flash_size, "\n");
 # endif /* CONFIG_SYS_FLASH_CHECKSUM */
+		bd->bi_flashsize = flash_size;
+		bd->bi_flashoffset = bd->bi_flashstart + flash_size;
 	} else {
 		puts ("Flash init FAILED");
 		bd->bi_flashstart = 0;
