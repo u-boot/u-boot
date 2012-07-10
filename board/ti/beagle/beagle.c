@@ -228,6 +228,7 @@ static unsigned int get_expansion_id(void)
 	return expansion_config.device_vendor;
 }
 
+#ifdef CONFIG_VIDEO_OMAP3
 /*
  * Configure DSS to display background color on DVID
  * Configure VENC to display color bar on S-Video
@@ -282,6 +283,7 @@ static void beagle_dvi_pup(void)
 		break;
 	}
 }
+#endif
 
 /*
  * Routine: misc_init_r
@@ -458,9 +460,11 @@ int misc_init_r(void)
 
 	dieid_num_r();
 
+#ifdef CONFIG_VIDEO_OMAP3
 	beagle_dvi_pup();
 	beagle_display_init();
 	omap3_dss_enable();
+#endif
 
 	return 0;
 }
