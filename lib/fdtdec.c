@@ -24,8 +24,7 @@
 #include <libfdt.h>
 #include <fdtdec.h>
 
-/* we need the generic GPIO interface here */
-#include <asm-generic/gpio.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
