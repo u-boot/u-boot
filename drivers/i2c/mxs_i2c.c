@@ -97,7 +97,7 @@ void mxs_i2c_write(uchar chip, uint addr, int alen,
 
 	for (i = 0; i < alen; i++) {
 		data >>= 8;
-		data |= ((char *)&addr)[i] << 24;
+		data |= ((char *)&addr)[alen - i - 1] << 24;
 		if ((i & 3) == 2)
 			writel(data, &i2c_regs->hw_i2c_data);
 	}

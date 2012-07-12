@@ -39,7 +39,7 @@
 #define MAX_BASE_ADDR           0x43F04000
 #define EVTMON_BASE_ADDR        0x43F08000
 #define CLKCTL_BASE_ADDR        0x43F0C000
-#define I2C_BASE_ADDR           0x43F80000
+#define I2C1_BASE_ADDR		0x43F80000
 #define I2C3_BASE_ADDR          0x43F84000
 #define ATA_BASE_ADDR           0x43F8C000
 #define UART1_BASE		0x43F90000
