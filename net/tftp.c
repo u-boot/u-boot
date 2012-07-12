@@ -156,7 +156,7 @@ mcast_cleanup(void)
 #endif	/* CONFIG_MCAST_TFTP */
 
 static inline void
-store_block(unsigned block, uchar *src, unsigned len)
+store_block(int block, uchar *src, unsigned len)
 {
 	ulong offset = block * TftpBlkSize + TftpBlockWrapOffset;
 	ulong newsize = offset + len;
