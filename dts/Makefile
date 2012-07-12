@@ -67,8 +67,9 @@ $(obj)dt.o: $(DT_BIN)
 	# We look in the LDSCRIPT first.
 	# Then try the linker which should give us the answer.
 	# Then check it worked.
-	oformat=`$(call process_lds,cat $(LDSCRIPT),FORMAT)` ;\
-	oarch=`$(call process_lds,cat $(LDSCRIPT),ARCH)` ;\
+	[ -n "$(LDSCRIPT)" ] && \
+		oformat=`$(call process_lds,cat $(LDSCRIPT),FORMAT)` && \
+		oarch=`$(call process_lds,cat $(LDSCRIPT),ARCH)` ;\
 	\
 	[ -z $${oformat} ] && \
 		oformat=`$(call process_lds,$(GET_LDS),FORMAT)` ;\
