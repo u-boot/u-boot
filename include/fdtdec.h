@@ -19,6 +19,8 @@
  * MA 02111-1307 USA
  */
 
+#ifndef __fdtdec_h
+#define __fdtdec_h
 
 /*
  * This file contains convenience functions for decoding useful and
@@ -382,3 +384,4 @@ int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
  */
 const u8 *fdtdec_locate_byte_array(const void *blob, int node,
 			     const char *prop_name, int count);
+#endif
