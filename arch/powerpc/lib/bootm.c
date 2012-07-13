@@ -249,7 +249,7 @@ static int boot_body_linux(bootm_headers_t *images)
 	if (ret)
 		return ret;
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_SYS_BOOTMAPSZ)
+#if defined(CONFIG_OF_LIBFDT)
 	ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
 	if (ret)
 		return ret;
@@ -288,7 +288,7 @@ static int boot_body_linux(bootm_headers_t *images)
 		if (*initrd_start && *initrd_end)
 			fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
 	}
-#endif	/* CONFIG_OF_LIBFDT && CONFIG_SYS_BOOTMAPSZ */
+#endif	/* CONFIG_OF_LIBFDT */
 	return 0;
 }
 

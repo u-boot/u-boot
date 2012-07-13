@@ -544,7 +544,7 @@ int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		}
 			break;
 #endif
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_SYS_BOOTMAPSZ)
+#if defined(CONFIG_OF_LIBFDT)
 		case BOOTM_STATE_FDT:
 		{
 			ret = boot_relocate_fdt(&images.lmb,

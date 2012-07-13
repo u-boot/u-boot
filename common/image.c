@@ -1202,7 +1202,7 @@ static int fit_check_fdt (const void *fit, int fdt_noffset, int verify)
  *      0 - success
  *      1 - failure
  */
-#if defined(CONFIG_SYS_BOOTMAPSZ)
+#if defined(CONFIG_OF_LIBFDT)
 int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
 	void	*fdt_blob = *of_flat_tree;
@@ -1252,7 +1252,7 @@ int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 error:
 	return 1;
 }
-#endif /* CONFIG_SYS_BOOTMAPSZ */
+#endif /* CONFIG_OF_LIBFDT */
 
 /**
  * boot_get_fdt - main fdt handling routine
