@@ -21,13 +21,6 @@
  */
 #define CONFIG_OF_LIBFDT
 
-/* TODO: After upgrade to v2011.09,
- * remove this and set fdt_high env var instead
- *
- * Initial Memory map for Linux
- */
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)
-
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
