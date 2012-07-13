@@ -86,9 +86,6 @@
 /* default load address, 1MB up the road */
 #define CONFIG_SYS_LOAD_ADDR		(PHYS_SDRAM_1+0x100000)
 
-/* The stack sizes are set up in start.S using the settings below */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
-
 /* Size of malloc() pool, make sure possible frame buffer fits */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 10*1024*1024)
 

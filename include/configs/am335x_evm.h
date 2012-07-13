@@ -233,9 +233,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING

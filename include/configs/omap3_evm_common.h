@@ -29,8 +29,6 @@
 #define CONFIG_OMAP3_EVM		/* This is a OMAP3 EVM */
 #define CONFIG_TWL4030_POWER		/* with TWL4030 PMIC */
 
-#undef CONFIG_USE_IRQ			/* no support for IRQs */
-
 /*
  * Clock related definitions
  */
@@ -51,12 +49,6 @@
 
 /* Size of malloc pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-
-/*
- * Stack sizes
- * These values are used in start.S
- */
-#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 
 /*
  * Physical Memory Map

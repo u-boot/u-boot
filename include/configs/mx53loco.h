@@ -175,9 +175,6 @@
 #define CONFIG_SYS_HZ		1000
 #define CONFIG_CMDLINE_EDITING
 
-/* Stack sizes */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS	2
 #define PHYS_SDRAM_1		CSD0_BASE_ADDR

@@ -105,13 +105,6 @@
 #define LINUX_BOOT_PARAM_ADDR		0x60000200
 #define CONFIG_BOOTDELAY		2
 
-/* Stack sizes are set up in start.S using the settings below */
-#define CONFIG_STACKSIZE		(128 * 1024)	/* regular stack */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ		(4 * 1024)	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ		(4 * 1024)	/* FIQ stack */
-#endif
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			0x60000000	/* SDRAM Bank #1 */

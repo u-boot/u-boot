@@ -189,9 +189,6 @@
 
 #define CONFIG_SYS_HZ			1000
 
-/* Stack sizes */
-#define CONFIG_STACKSIZE	(256 << 10)	/* 256 KiB */
-
 /* Goni has 3 banks of DRAM, but swap the bank */
 #define CONFIG_NR_DRAM_BANKS	3
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */

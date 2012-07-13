@@ -178,16 +178,6 @@
 
 #define CONFIG_SYS_I2C_GPIOE_ADDR	0x42	/* GPIO expander chip addr */
 #define CONFIG_TC35892_GPIO
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ		(4*1024)	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ		(4*1024)	/* FIQ stack */
-#endif
 
 /*
  * Physical Memory Map

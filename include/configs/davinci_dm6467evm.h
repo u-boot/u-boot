@@ -54,7 +54,6 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x81000000	/* 16MB RAM test */
 #define CONFIG_NR_DRAM_BANKS		1
-#define CONFIG_STACKSIZE		(256 << 10)	/* 256 KiB */
 #define PHYS_SDRAM_1			0x80000000	/* DDR Start */
 #define PHYS_SDRAM_1_SIZE		(256 << 20)	/* DDR size 256MB */
 
@@ -108,7 +107,6 @@ extern unsigned int davinci_arm_clk_get(void);
 #endif
 
 /* U-Boot general configuration */
-#undef CONFIG_USE_IRQ				/* No IRQ/FIQ in U-Boot */
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */
 #define CONFIG_SYS_PROMPT	"DM6467 EVM > "	/* Monitor Command Prompt */

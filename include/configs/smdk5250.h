@@ -133,9 +133,6 @@
 
 #define CONFIG_RD_LVL
 
-/* Stack sizes */
-#define CONFIG_STACKSIZE		(256 << 10)	/* 256KB */
-
 #define CONFIG_NR_DRAM_BANKS	8
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE

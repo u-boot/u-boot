@@ -130,15 +130,6 @@
 #define	CONFIG_SYS_CPUSPEED		0x210		/* 416MHz ; N=2,L=16 */
 
 /*
- * Stack sizes
- */
-#define	CONFIG_STACKSIZE		(128*1024)	/* regular stack */
-#ifdef	CONFIG_USE_IRQ
-#define	CONFIG_STACKSIZE_IRQ		(4*1024)	/* IRQ stack */
-#define	CONFIG_STACKSIZE_FIQ		(4*1024)	/* FIQ stack */
-#endif
-
-/*
  * DRAM Map
  */
 #define	CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */

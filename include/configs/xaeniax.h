@@ -44,11 +44,7 @@
 #define CONFIG_XAENIAX		1	/* on a xaeniax board	    */
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
-
 #define CONFIG_BOARD_LATE_INIT
-
-
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
 /* we will never enable dcache, because we have to setup MMU first */
 #define CONFIG_SYS_DCACHE_OFF
@@ -180,17 +176,6 @@
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + 0x40000)/* Addr of Environment Sector	*/
 #define CONFIG_ENV_SIZE		0x40000			/* Total Size of Environment Sector	*/
-
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128*1024)	/* regular stack */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4*1024)	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ	(4*1024)	/* FIQ stack */
-#endif
 
 /*
  * SMSC91C111 Network Card

@@ -61,8 +61,6 @@
 #define CONFIG_SYS_PBSIZE	\
 	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 
-#define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
-
 /*
  * ARM asynchronous clock
  */

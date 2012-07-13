@@ -146,14 +146,6 @@
 
 #define CONFIG_SYS_HZ				1000
 
-
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
-
 /*
  * Physical Memory Map
  */

@@ -35,7 +35,6 @@
 #define CONFIG_ARM920T		1	/* This is an ARM920T Core		*/
 #define CONFIG_IMX		1	/* It's a Motorola MC9328 SoC		*/
 #define CONFIG_MX1ADS		1	/* on a Motorola MX1ADS Board		*/
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff		*/
 
 /*
  * Select serial console configuration
@@ -131,17 +130,6 @@
 /*#define	CONFIG_SYS_HZ			1000 */
 #define CONFIG_SYS_HZ			3686400
 #define CONFIG_SYS_CPUSPEED		0x141
-
-/*-----------------------------------------------------------------------
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128*1024)	/* regular stack */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4*1024)	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ	(4*1024)	/* FIQ stack */
-#endif
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

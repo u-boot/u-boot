@@ -163,13 +163,7 @@
 #define CONFIG_SYS_LOAD_ADDR		(0xA00800)	/* default */
 #define CONFIG_SYS_HZ			1000
 
-/*-----------------------------------------------------------------------
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
 #define CONFIG_STACKBASE	0x2800000	/* 40MB */
-#define CONFIG_STACKSIZE	0x20000		/* 128K regular stack*/
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

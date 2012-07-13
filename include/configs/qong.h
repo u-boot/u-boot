@@ -212,12 +212,6 @@
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser */
 
 #define CONFIG_MISC_INIT_R
-/*-----------------------------------------------------------------------
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

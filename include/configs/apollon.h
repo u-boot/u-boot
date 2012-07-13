@@ -66,7 +66,6 @@
 /* the OMAP2420 H4 has 12MHz, 13MHz, or 19.2Mhz crystal input */
 #define	CONFIG_SYS_CLK_FREQ	V_SCLK
 
-#undef	CONFIG_USE_IRQ	/* no support for IRQs */
 #define	CONFIG_MISC_INIT_R
 
 #define	CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs */
@@ -205,13 +204,6 @@
 #define	CONFIG_SYS_TIMERBASE	OMAP2420_GPT2
 #define	CONFIG_SYS_PTV		7	/* 2^(PTV+1) */
 #define	CONFIG_SYS_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
-
-/*-----------------------------------------------------------------------
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define	CONFIG_STACKSIZE SZ_128K	/* regular stack */
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

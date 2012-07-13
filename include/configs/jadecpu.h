@@ -32,7 +32,6 @@
 #define CONFIG_SYS_TEXT_BASE	0x10000000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
 #define CONFIG_USE_ARCH_MEMCPY
 #define CONFIG_USE_ARCH_MEMSET
@@ -204,8 +203,6 @@
 #define CONFIG_SYS_MALLOC_LEN	(10 << 20)
 #define CONFIG_SYS_MEM_TOP_HIDE	(4 << 20)
 
-#define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
-
 /*
  * Clock reset generator init
  */
@@ -291,9 +288,5 @@
 /* EMR(1) command */
 #define CONFIG_SYS_DDR2_INIT_DRIC1_10	0x0005
 #define CONFIG_SYS_DDR2_INIT_DRIC2_10	0x0002
-
-#ifdef CONFIG_USE_IRQ
-#error CONFIG_USE_IRQ not supported
-#endif
 
 #endif	/* __CONFIG_H */

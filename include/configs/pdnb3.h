@@ -118,17 +118,6 @@
 #define CONFIG_IXP425_TIMER_CLK		66666666
 #define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE        (128*1024)      /* regular stack */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ    (4*1024)        /* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ    (4*1024)        /* FIQ stack */
-#endif
-
 /***************************************************************
  * Platform/Board specific defines start here.
  ***************************************************************/

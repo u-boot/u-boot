@@ -104,13 +104,6 @@
 					  115200, 230400 }
 #define CONFIG_SERIAL_RTS_ACTIVE	1
 
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE		(128*1024)	/* regular stack */
-
 /* Expansion bus settings */
 #define CONFIG_SYS_EXP_CS0		0xbd113442
 

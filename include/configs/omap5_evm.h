@@ -52,7 +52,6 @@
 #define V_OSCK			19200000	/* Clock output from T2 */
 #define V_SCLK	V_OSCK
 
-#undef CONFIG_USE_IRQ	/* no support for IRQs */
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_OF_LIBFDT
@@ -208,17 +207,6 @@
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_HZ			1000
-
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 << 10)	/* Regular stack */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack */
-#endif
 
 /*
  * SDRAM Memory Map

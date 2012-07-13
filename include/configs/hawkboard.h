@@ -87,7 +87,6 @@
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + 16*1024*1024)
 
 #define CONFIG_NR_DRAM_BANKS		1 /* we have 1 bank of DRAM */
-#define CONFIG_STACKSIZE		(256*1024) /* regular stack */
 
 /*
  * Serial Driver info

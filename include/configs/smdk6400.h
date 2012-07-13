@@ -141,13 +141,6 @@
 
 #define CONFIG_SYS_HZ			1000
 
-/*-----------------------------------------------------------------------
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	0x40000		/* regular stack 256KB */
-
 /**********************************
  Support Clock Settings
  **********************************

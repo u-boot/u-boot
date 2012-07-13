@@ -224,7 +224,4 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_4K \
 					- GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_STACKSIZE		SZ_32K	/* regular stack */
-#define CONFIG_STACKSIZE_IRQ		SZ_4K	/* Unsure if to big or to small*/
-#define CONFIG_STACKSIZE_FIQ		SZ_4K	/* Unsure if to big or to small*/
 #endif /* __AT91RM9200EK_CONFIG_H__ */

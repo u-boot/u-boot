@@ -59,7 +59,6 @@
 #define V_OSCK				26000000	/* Clock output from T2 */
 #define V_SCLK				(V_OSCK >> 1)
 
-#undef CONFIG_USE_IRQ			/* no support for IRQs */
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
@@ -275,9 +274,6 @@
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
 #define CONFIG_SYS_PTV			2 /* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_HZ			1000
-
-/* The stack sizes are set up in start.S using the settings below */
-#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 
 /*  Physical Memory Map  */
 #define CONFIG_NR_DRAM_BANKS		2 /* CS1 may or may not be populated */

@@ -171,6 +171,5 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(0x400000 - 0x8000)
-#define CONFIG_STACKSIZE		(32*1024)	/* regular stack */
 
 #endif	/* __CONFIG_H */

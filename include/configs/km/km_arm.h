@@ -158,7 +158,6 @@
 #define CONFIG_ARCH_MISC_INIT		/* call arch_misc_init() */
 #define CONFIG_DISPLAY_CPUINFO		/* Display cpu info */
 #define CONFIG_NR_DRAM_BANKS	4
-#define CONFIG_STACKSIZE	0x00100000	/* regular stack- 1M */
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
 /*

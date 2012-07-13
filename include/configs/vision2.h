@@ -177,11 +177,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 /*
- * Stack sizes
- */
-#define CONFIG_STACKSIZE		(128 * 1024)	/* regular stack */
-
-/*
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS		2

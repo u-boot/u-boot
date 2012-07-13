@@ -74,7 +74,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x80000000	/* memtest start address */
 #define CONFIG_SYS_MEMTEST_END		0x81000000	/* 16MB RAM test */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
-#define CONFIG_STACKSIZE	(256*1024)	/* regular stack */
 #define PHYS_SDRAM_1		0x80000000	/* DDR Start */
 #define PHYS_SDRAM_1_SIZE	0x10000000	/* DDR size 256MB */
 
@@ -157,7 +156,6 @@
 /*==============================*/
 /* U-Boot general configuration */
 /*==============================*/
-#undef	CONFIG_USE_IRQ			/* No IRQ/FIQ in U-Boot */
 #define CONFIG_MISC_INIT_R
 #undef CONFIG_BOOTDELAY
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */
