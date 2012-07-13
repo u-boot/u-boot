@@ -336,8 +336,7 @@ int boot_get_ramdisk (int argc, char * const argv[], bootm_headers_t *images,
 #ifdef CONFIG_OF_LIBFDT
 int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *images,
 		char **of_flat_tree, ulong *of_size);
-int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
-		char **of_flat_tree, ulong *of_size);
+int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size);
 #endif
 
 #ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
@@ -345,11 +344,10 @@ int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 		  ulong *initrd_start, ulong *initrd_end);
 #endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
-int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
-			ulong bootmap_base);
+int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 #endif /* CONFIG_SYS_BOOT_GET_CMDLINE */
 #ifdef CONFIG_SYS_BOOT_GET_KBD
-int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base);
+int boot_get_kbd (struct lmb *lmb, bd_t **kbd);
 #endif /* CONFIG_SYS_BOOT_GET_KBD */
 #endif /* !USE_HOSTCC */
 
