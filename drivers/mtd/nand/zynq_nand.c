@@ -883,7 +883,11 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 	/* Change read/write column, read id etc */
 	else if (column != -1) {
 		/* Adjust columns for 16 bit bus width */
-		if (chip->options & NAND_BUSWIDTH_16)
+		if ((chip->options & NAND_BUSWIDTH_16) &&
+			((command == NAND_CMD_READ0) ||
+			(command == NAND_CMD_SEQIN) ||
+			(command == NAND_CMD_RNDOUT) ||
+			(command == NAND_CMD_RNDIN)))
 			column >>= 1;
 		cmd_data = column;
 	} else
@@ -899,6 +903,7 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 	ndelay(100);
 
 	if ((command == NAND_CMD_READ0) ||
+		(command == NAND_CMD_ERASE1) ||
 		(command == NAND_CMD_RESET) ||
 		(command == NAND_CMD_PARAM) ||
 		(command == NAND_CMD_GET_FEATURES)) {
@@ -1183,6 +1188,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	}
 
 	/* Send the command for reading device ID */
+	nand_chip->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
 	nand_chip->cmdfunc(mtd, NAND_CMD_READID, 0x00, -1);
 
 	/* Read manufacturer and device IDs */
