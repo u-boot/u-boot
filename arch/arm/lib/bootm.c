@@ -187,6 +187,8 @@ static int bootm_linux_fdt(int machid, bootm_headers_t *images)
 
 	kernel_entry = (void (*)(int, int, void *))images->ep;
 
+	boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
+
 	rd_len = images->rd_end - images->rd_start;
 	ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
 				initrd_start, initrd_end);

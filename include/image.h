@@ -336,6 +336,7 @@ int boot_get_ramdisk (int argc, char * const argv[], bootm_headers_t *images,
 #ifdef CONFIG_OF_LIBFDT
 int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *images,
 		char **of_flat_tree, ulong *of_size);
+void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob);
 int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size);
 #endif
 

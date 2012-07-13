@@ -234,6 +234,10 @@ static int boot_body_linux(bootm_headers_t *images)
 
 	int ret;
 
+#if defined(CONFIG_OF_LIBFDT)
+	boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
+#endif
+
 	/* allocate space and init command line */
 	ret = boot_cmdline_linux(images);
 	if (ret)
