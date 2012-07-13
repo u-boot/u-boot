@@ -454,6 +454,22 @@ phys_size_t getenv_bootm_size(void)
 #endif
 }
 
+phys_size_t getenv_bootm_mapsize(void)
+{
+	phys_size_t tmp;
+	char *s = getenv ("bootm_mapsize");
+	if (s) {
+		tmp = (phys_size_t)simple_strtoull (s, NULL, 16);
+		return tmp;
+	}
+
+#if defined(CONFIG_SYS_BOOTMAPSZ)
+	return CONFIG_SYS_BOOTMAPSZ;
+#else
+	return getenv_bootm_size();
+#endif
+}
+
 void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
 {
 	if (to == from)
@@ -1207,7 +1223,7 @@ int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 	/* Pad the FDT by a specified amount */
 	of_len = *of_size + CONFIG_SYS_FDT_PAD;
 	of_start = (void *)(unsigned long)lmb_alloc_base(lmb, of_len, 0x1000,
-			CONFIG_SYS_BOOTMAPSZ + getenv_bootm_low());
+			getenv_bootm_mapsize() + getenv_bootm_low());
 
 	if (of_start == 0) {
 		puts("device tree - allocation error\n");
@@ -1581,7 +1597,7 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 	char *s;
 
 	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CONFIG_SYS_BARGSIZE, 0xf,
-				     CONFIG_SYS_BOOTMAPSZ + getenv_bootm_low());
+				getenv_bootm_mapsize() + getenv_bootm_base());
 
 	if (cmdline == NULL)
 		return -1;
@@ -1617,7 +1633,7 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 int boot_get_kbd (struct lmb *lmb, bd_t **kbd)
 {
 	*kbd = (bd_t *)(ulong)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
-				     CONFIG_SYS_BOOTMAPSZ + getenv_bootm_low());
+				getenv_bootm_mapsize() + getenv_bootm_low());
 	if (*kbd == NULL)
 		return -1;
 

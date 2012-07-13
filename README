@@ -2311,7 +2311,10 @@ Configuration Settings:
 		used) must be put below this limit, unless "bootm_low"
 		enviroment variable is defined and non-zero. In such case
 		all data for the Linux kernel must be between "bootm_low"
-		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.
+		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.  The environment
+		variable "bootm_mapsize" will override the value of
+		CONFIG_SYS_BOOTMAPSZ.  If CONFIG_SYS_BOOTMAPSZ is undefined,
+		then the value in "bootm_size" will be used instead.
 
 - CONFIG_SYS_BOOT_RAMDISK_HIGH:
 		Enable initrd_high functionality.  If defined then the
@@ -3147,7 +3150,16 @@ List of environment variables (most likely not complete):
 		  for use by the bootm command. See also "bootm_size"
 		  environment variable. Address defined by "bootm_low" is
 		  also the base of the initial memory mapping for the Linux
-		  kernel -- see the description of CONFIG_SYS_BOOTMAPSZ.
+		  kernel -- see the description of CONFIG_SYS_BOOTMAPSZ and
+		  bootm_mapsize.
+
+  bootm_mapsize	- Size of the initial memory mapping for the Linux kernel.
+		  This variable is given as a hexadecimal number and it
+		  defines the size of the memory region starting at base
+		  address bootm_low that is accessible by the Linux kernel
+		  during early boot.  If unset, CONFIG_SYS_BOOTMAPSZ is used
+		  as the default value if it is defined, and bootm_size is
+		  used otherwise.
 
   bootm_size	- Memory range available for image processing in the bootm
 		  command can be restricted. This variable is given as

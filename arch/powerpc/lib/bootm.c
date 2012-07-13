@@ -95,7 +95,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		debug ("   Booting using OF flat tree...\n");
 		WATCHDOG_RESET ();
 		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
-			   CONFIG_SYS_BOOTMAPSZ, 0, 0);
+			   getenv_bootm_mapsize(), 0, 0);
 		/* does not return */
 	} else
 #endif
