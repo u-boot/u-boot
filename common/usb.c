@@ -799,12 +799,13 @@ int usb_new_device(struct usb_device *dev)
 	dev->epmaxpacketin[0] = 8;
 	dev->epmaxpacketout[0] = 8;
 
-	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, &dev->descriptor, 8);
+	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, tmpbuf, 8);
 	if (err < 8) {
 		printf("\n      USB device not responding, " \
 		       "giving up (status=%lX)\n", dev->status);
 		return 1;
 	}
+	memcpy(&dev->descriptor, tmpbuf, 8);
 #else
 	/* This is a Windows scheme of initialization sequence, with double
 	 * reset of the device (Linux uses the same sequence)
@@ -893,7 +894,7 @@ int usb_new_device(struct usb_device *dev)
 	tmp = sizeof(dev->descriptor);
 
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0,
-				 &dev->descriptor, sizeof(dev->descriptor));
+				 tmpbuf, sizeof(dev->descriptor));
 	if (err < tmp) {
 		if (err < 0)
 			printf("unable to get device descriptor (error=%d)\n",
@@ -903,6 +904,7 @@ int usb_new_device(struct usb_device *dev)
 				"(expected %i, got %i)\n", tmp, err);
 		return 1;
 	}
+	memcpy(&dev->descriptor, tmpbuf, sizeof(dev->descriptor));
 	/* correct le values */
 	le16_to_cpus(&dev->descriptor.bcdUSB);
 	le16_to_cpus(&dev->descriptor.idVendor);
