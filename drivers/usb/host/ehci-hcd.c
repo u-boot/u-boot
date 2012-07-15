@@ -175,18 +175,15 @@ static int ehci_td_buffer(struct qTD *td, void *buf, size_t sz)
 {
 	uint32_t delta, next;
 	uint32_t addr = (uint32_t)buf;
-	size_t rsz = roundup(sz, 32);
 	int idx;
 
-	if (sz != rsz)
-		debug("EHCI-HCD: Misaligned buffer size (%08x)\n", sz);
-
-	if (addr & 31)
+	if (addr != ALIGN(addr, ARCH_DMA_MINALIGN))
 		debug("EHCI-HCD: Misaligned buffer address (%p)\n", buf);
+
+	flush_dcache_range(addr, ALIGN(addr + sz, ARCH_DMA_MINALIGN));
 
 	idx = 0;
 	while (idx < 5) {
-		flush_dcache_range(addr, addr + rsz);
 		td->qt_buffer[idx] = cpu_to_hc32(addr);
 		td->qt_buffer_hi[idx] = 0;
 		next = (addr + 4096) & ~4095;
@@ -388,9 +385,17 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		WATCHDOG_RESET();
 	} while (get_timer(ts) < timeout);
 
-	/* Invalidate the memory area occupied by buffer */
-	invalidate_dcache_range(((uint32_t)buffer & ~31),
-		((uint32_t)buffer & ~31) + roundup(length, 32));
+	/*
+	 * Invalidate the memory area occupied by buffer
+	 * Don't try to fix the buffer alignment, if it isn't properly
+	 * aligned it's upper layer's fault so let invalidate_dcache_range()
+	 * vow about it. But we have to fix the length as it's actual
+	 * transfer length and can be unaligned. This is potentially
+	 * dangerous operation, it's responsibility of the calling
+	 * code to make sure enough space is reserved.
+	 */
+	invalidate_dcache_range((uint32_t)buffer,
+		ALIGN((uint32_t)buffer + length, ARCH_DMA_MINALIGN));
 
 	/* Check that the TD processing happened */
 	if (token & 0x80) {
