@@ -246,7 +246,6 @@ int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata)
 		if (is_ehci_phy_mode(usbhs_pdata->port_mode[i]))
 			omap_ehci_soft_phy_reset(i);
 
-	dcache_disable();
 	hccr = (struct ehci_hccr *)(OMAP_EHCI_BASE);
 	hcor = (struct ehci_hcor *)(OMAP_EHCI_BASE + 0x10);
 
