@@ -196,7 +196,7 @@ static int ehci_td_buffer(struct qTD *td, void *buf, size_t sz)
 	}
 
 	if (idx == 5) {
-		debug("out of buffer pointers (%u bytes left)\n", sz);
+		printf("out of buffer pointers (%u bytes left)\n", sz);
 		return -1;
 	}
 
@@ -281,7 +281,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		    (0 << 15) | (0 << 12) | (3 << 10) | (2 << 8) | (0x80 << 0);
 		qtd[qtd_counter].qt_token = cpu_to_hc32(token);
 		if (ehci_td_buffer(&qtd[qtd_counter], req, sizeof(*req)) != 0) {
-			debug("unable construct SETUP td\n");
+			printf("unable construct SETUP td\n");
 			goto fail;
 		}
 		/* Update previous qTD! */
@@ -310,7 +310,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		    ((usb_pipein(pipe) ? 1 : 0) << 8) | (0x80 << 0);
 		qtd[qtd_counter].qt_token = cpu_to_hc32(token);
 		if (ehci_td_buffer(&qtd[qtd_counter], buffer, length) != 0) {
-			debug("unable construct DATA td\n");
+			printf("unable construct DATA td\n");
 			goto fail;
 		}
 		/* Update previous qTD! */
