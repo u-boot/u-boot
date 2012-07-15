@@ -348,6 +348,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	flush_dcache_range((uint32_t)&qh, (uint32_t)&qh + sizeof(struct QH));
 	flush_dcache_range((uint32_t)qtd, (uint32_t)qtd + sizeof(qtd));
 
+	/* Set async. queue head pointer. */
+	ehci_writel(&hcor->or_asynclistaddr, (uint32_t)&qh_list);
+
 	usbsts = ehci_readl(&hcor->or_usbsts);
 	ehci_writel(&hcor->or_usbsts, (usbsts & 0x3f));
 
@@ -402,8 +405,6 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		printf("EHCI fail timeout STD_ASS reset\n");
 		goto fail;
 	}
-
-	qh_list.qh_link = cpu_to_hc32((uint32_t)&qh_list | QH_LINK_TYPE_QH);
 
 	token = hc32_to_cpu(qh.qh_overlay.qt_token);
 	if (!(token & 0x80)) {
@@ -740,9 +741,6 @@ int usb_lowlevel_init(void)
 	qh_list.qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh_list.qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh_list.qh_overlay.qt_token = cpu_to_hc32(0x40);
-
-	/* Set async. queue head pointer. */
-	ehci_writel(&hcor->or_asynclistaddr, (uint32_t)&qh_list);
 
 	reg = ehci_readl(&hccr->cr_hcsparams);
 	descriptor.hub.bNbrPorts = HCS_N_PORTS(reg);
