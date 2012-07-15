@@ -188,7 +188,8 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 		   request, requesttype, value, index, size);
 	dev->status = USB_ST_NOT_PROC; /*not yet processed */
 
-	submit_control_msg(dev, pipe, data, size, setup_packet);
+	if (submit_control_msg(dev, pipe, data, size, setup_packet) < 0)
+		return -1;
 	if (timeout == 0)
 		return (int)size;
 
@@ -220,7 +221,8 @@ int usb_bulk_msg(struct usb_device *dev, unsigned int pipe,
 	if (len < 0)
 		return -1;
 	dev->status = USB_ST_NOT_PROC; /*not yet processed */
-	submit_bulk_msg(dev, pipe, data, len);
+	if (submit_bulk_msg(dev, pipe, data, len) < 0)
+		return -1;
 	while (timeout--) {
 		if (!((volatile unsigned long)dev->status & USB_ST_NOT_PROC))
 			break;
