@@ -372,4 +372,6 @@ int board_eth_init(bd_t *bis)
 
 void reset_cpu(ulong addr)
 {
+	/* Soft Power On Reset */
+	writel((1 << 31), RESCNT2);
 }

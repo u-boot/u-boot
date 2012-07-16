@@ -40,6 +40,10 @@
 #define SRESCR	(CPG_BASE + 0x1018)
 #define PCLKCR	(CPG_BASE + 0x1020)
 
+/* SYSC */
+#define SYSC_BASE   (0xE6180000)
+#define RESCNT2	(SYSC_BASE + 0x8020)
+
 /* BSC */
 #define BSC_BASE (0xFEC10000)
 
