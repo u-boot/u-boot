@@ -87,3 +87,21 @@ endif
 ifndef CONFIG_NAND_SPL
 LDFLAGS_u-boot += -pie
 endif
+
+#
+# FIXME: binutils versions < 2.22 have a bug in the assembler where
+# branches to weak symbols can be incorrectly optimized in thumb mode
+# to a short branch (b.n instruction) that won't reach when the symbol
+# gets preempted
+#
+# http://sourceware.org/bugzilla/show_bug.cgi?id=12532
+#
+ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
+ifeq ($(GAS_BUG_12532),)
+export GAS_BUG_12532:=$(shell if [ $(call binutils-version) -lt 0222 ] ; \
+	then echo y; else echo n; fi)
+endif
+ifeq ($(GAS_BUG_12532),y)
+PLATFORM_RELFLAGS += -fno-optimize-sibling-calls
+endif
+endif
