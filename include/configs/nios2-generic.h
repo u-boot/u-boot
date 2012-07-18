@@ -117,10 +117,9 @@
 
 /*
  * MEMORY ORGANIZATION
- *	-Monitor at top of sdram.
- *	-The heap is placed below the monitor
- *	-Global data is placed below the heap.
- *	-The stack is placed below global data (&grows down).
+ * -Monitor at top of sdram.
+ * -The heap is placed below the monitor
+ * -The stack is placed below the heap (&grows down).
  */
 #define CONFIG_MONITOR_IS_IN_RAM
 #define CONFIG_SYS_MONITOR_LEN		0x40000	/* Reserve 256k */
@@ -130,10 +129,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x20000)
 #define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - \
 					 CONFIG_SYS_MALLOC_LEN)
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_MALLOC_BASE - \
-					 GENERATED_GBL_DATA_SIZE - \
-					 GENERATED_BD_INFO_SIZE)
-#define CONFIG_SYS_INIT_SP		CONFIG_SYS_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_SP		CONFIG_SYS_MALLOC_BASE
 
 /*
  * MISC
