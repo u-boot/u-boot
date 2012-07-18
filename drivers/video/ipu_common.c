@@ -163,6 +163,7 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 
 static int clk_ipu_enable(struct clk *clk)
 {
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	u32 reg;
 
 	reg = __raw_readl(clk->enable_reg);
@@ -178,12 +179,13 @@ static int clk_ipu_enable(struct clk *clk)
 	reg = __raw_readl(&mxc_ccm->clpcr);
 	reg &= ~MXC_CCM_CLPCR_BYPASS_IPU_LPM_HS;
 	__raw_writel(reg, &mxc_ccm->clpcr);
-
+#endif
 	return 0;
 }
 
 static void clk_ipu_disable(struct clk *clk)
 {
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	u32 reg;
 
 	reg = __raw_readl(clk->enable_reg);
@@ -202,13 +204,14 @@ static void clk_ipu_disable(struct clk *clk)
 	reg = __raw_readl(&mxc_ccm->clpcr);
 	reg |= MXC_CCM_CLPCR_BYPASS_IPU_LPM_HS;
 	__raw_writel(reg, &mxc_ccm->clpcr);
+#endif
 }
 
 
 static struct clk ipu_clk = {
 	.name = "ipu_clk",
-	.rate = 133000000,
-	.enable_reg = (u32 *)(MXC_CCM_BASE +
+	.rate = CONFIG_IPUV3_CLK,
+	.enable_reg = (u32 *)(CCM_BASE_ADDR +
 		offsetof(struct mxc_ccm_reg, CCGR5)),
 	.enable_shift = MXC_CCM_CCGR5_CG5_OFFSET,
 	.enable = clk_ipu_enable,
@@ -216,8 +219,15 @@ static struct clk ipu_clk = {
 	.usecount = 0,
 };
 
+static struct clk ldb_clk = {
+	.name = "ldb_clk",
+	.rate = 65000000,
+	.usecount = 0,
+};
+
 /* Globals */
 struct clk *g_ipu_clk;
+struct clk *g_ldb_clk;
 unsigned char g_ipu_clk_enabled;
 struct clk *g_di_clk[2];
 struct clk *g_pixel_clk[2];
@@ -340,7 +350,7 @@ static int ipu_pixel_clk_set_parent(struct clk *clk, struct clk *parent)
 
 	if (parent == g_ipu_clk)
 		di_gen &= ~DI_GEN_DI_CLK_EXT;
-	else if (!IS_ERR(g_di_clk[clk->id]) && parent == g_di_clk[clk->id])
+	else if (!IS_ERR(g_di_clk[clk->id]) && parent == g_ldb_clk)
 		di_gen |= DI_GEN_DI_CLK_EXT;
 	else
 		return -EINVAL;
@@ -401,6 +411,7 @@ void ipu_reset(void)
 int ipu_probe(void)
 {
 	unsigned long ipu_base;
+#if defined CONFIG_MX51
 	u32 temp;
 
 	u32 *reg_hsc_mcd = (u32 *)MIPI_HSC_BASE_ADDR;
@@ -414,6 +425,7 @@ int ipu_probe(void)
 
 	temp = __raw_readl(reg_hsc_mxt_conf);
 	__raw_writel(temp | 0x10000, reg_hsc_mxt_conf);
+#endif
 
 	ipu_base = IPU_CTRL_BASE_ADDR;
 	ipu_cpmem_base = (u32 *)(ipu_base + IPU_CPMEM_REG_BASE);
@@ -424,7 +436,8 @@ int ipu_probe(void)
 
 	g_ipu_clk = &ipu_clk;
 	debug("ipu_clk = %u\n", clk_get_rate(g_ipu_clk));
-
+	g_ldb_clk = &ldb_clk;
+	debug("ldb_clk = %u\n", clk_get_rate(g_ldb_clk));
 	ipu_reset();
 
 	clk_set_parent(g_pixel_clk[0], g_ipu_clk);

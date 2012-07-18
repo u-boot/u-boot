@@ -73,6 +73,9 @@
 #define MMDC1_ARB_BASE_ADDR             0x80000000
 #define MMDC1_ARB_END_ADDR              0xFFFFFFFF
 
+#define IPU_SOC_BASE_ADDR		IPU1_ARB_BASE_ADDR
+#define IPU_SOC_OFFSET			0x00200000
+
 /* Defines for Blocks connected via AIPS (SkyBlue) */
 #define ATZ1_BASE_ADDR              AIPS1_ARB_BASE_ADDR
 #define ATZ2_BASE_ADDR              AIPS2_ARB_BASE_ADDR
