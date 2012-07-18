@@ -46,13 +46,6 @@
 
 #define CRC_SIZE sizeof(uint32_t)
 
-#ifdef __MINGW32__
-#define FILE_PERM		(S_IRUSR | S_IWUSR)
-#else
-#define FILE_PERM		(S_IRUSR | S_IWUSR | S_IRGRP |\
-					     S_IWGRP)
-#endif
-
 static void usage(const char *exec_name)
 {
 	fprintf(stderr, "%s [-h] [-r] [-b] [-p <byte>] -s <environment partition size> -o <output> <input file>\n"
@@ -300,7 +293,8 @@ int main(int argc, char **argv)
 	if (!bin_filename || strcmp(bin_filename, "-") == 0) {
 		bin_fd = STDOUT_FILENO;
 	} else {
-		bin_fd = creat(bin_filename, FILE_PERM);
+		bin_fd = creat(bin_filename, S_IRUSR | S_IWUSR | S_IRGRP |
+					     S_IWGRP);
 		if (bin_fd == -1) {
 			fprintf(stderr, "Can't open output file \"%s\": %s\n",
 					bin_filename, strerror(errno));
