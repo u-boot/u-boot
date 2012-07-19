@@ -192,24 +192,19 @@ static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
 }
 
 /*
- * Stop the controller
+ * Stop I2C transaction
  */
 void i2c_imx_stop(void)
 {
 	int ret;
 	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
-	unsigned int temp = 0;
+	unsigned int temp = readb(&i2c_regs->i2cr);
 
-	/* Stop I2C transaction */
-	temp = readb(&i2c_regs->i2cr);
 	temp &= ~(I2CR_MSTA | I2CR_MTX);
 	writeb(temp, &i2c_regs->i2cr);
-
 	ret = wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
 	if (ret < 0)
 		printf("%s:trigger stop failed\n", __func__);
-	/* Disable I2C controller */
-	writeb(0, &i2c_regs->i2cr);
 }
 
 /*
@@ -223,11 +218,15 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 	int ret;
 
 	/* Enable I2C controller */
+	if (!(readb(&i2c_regs->i2cr) & I2CR_IEN)) {
+		writeb(I2CR_IEN, &i2c_regs->i2cr);
+		/* Wait for controller to be stable */
+		udelay(50);
+	}
 	writeb(0, &i2c_regs->i2sr);
-	writeb(I2CR_IEN, &i2c_regs->i2cr);
-
-	/* Wait for controller to be stable */
-	udelay(50);
+	ret = wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
+	if (ret < 0)
+		goto exit;
 
 	/* Start I2C transaction */
 	temp = readb(&i2c_regs->i2cr);
@@ -254,6 +253,8 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 	return 0;
 exit:
 	i2c_imx_stop();
+	/* Disable I2C controller */
+	writeb(0, &i2c_regs->i2cr);
 	return ret;
 }
 
@@ -303,10 +304,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 		 * controller from generating another clock cycle
 		 */
 		if (i == (len - 1)) {
-			temp = readb(&i2c_regs->i2cr);
-			temp &= ~(I2CR_MSTA | I2CR_MTX);
-			writeb(temp, &i2c_regs->i2cr);
-			wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
+			i2c_imx_stop();
 		} else if (i == (len - 2)) {
 			temp = readb(&i2c_regs->i2cr);
 			temp |= I2CR_TX_NO_AK;
