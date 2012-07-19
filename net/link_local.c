@@ -225,8 +225,8 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			timeout_ms = diff | 1; /* never 0 */
 		}
 	}
-/*
- * XXX Don't bother with ethernet link just yet
+#if 0
+ /* XXX Don't bother with ethernet link just yet */
 	if ((fds[0].revents & POLLIN) == 0) {
 		if (fds[0].revents & POLLERR) {
 			/*
@@ -240,7 +240,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 		}
 		continue;
 	}
-*/
+#endif
 
 	debug_cond(DEBUG_INT_STATE, "%s recv arp type=%d, op=%d,\n",
 		eth_get_name(), ntohs(arp->ar_pro),
