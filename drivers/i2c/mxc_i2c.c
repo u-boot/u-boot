@@ -195,7 +195,6 @@ static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
 	ret = wait_for_sr_state(i2c_regs, ST_IIF);
 	if (ret < 0)
 		return ret;
-	ret = readb(&i2c_regs->i2sr);
 	if (ret & I2SR_RX_NO_AK)
 		return -ENODEV;
 	return 0;
