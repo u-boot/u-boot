@@ -225,15 +225,14 @@ endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
 
+HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile), y, n)
+
 LIBS-y += lib/libgeneric.o
 LIBS-y += lib/lzma/liblzma.o
 LIBS-y += lib/lzo/liblzo.o
 LIBS-y += lib/zlib/libz.o
-ifeq ($(CONFIG_TIZEN),y)
-LIBS-y += lib/tizen/libtizen.o
-endif
-LIBS-y += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
-	"board/$(VENDOR)/common/lib$(VENDOR).o"; fi)
+LIBS-$(CONFIG_TIZEN) += lib/tizen/libtizen.o
+LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/lib$(VENDOR).o
 LIBS-y += $(CPUDIR)/lib$(CPU).o
 ifdef SOC
 LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
@@ -241,9 +240,7 @@ endif
 ifeq ($(CPU),ixp)
 LIBS-y += arch/arm/cpu/ixp/npe/libnpe.o
 endif
-ifeq ($(CONFIG_OF_EMBED),y)
-LIBS-y += dts/libdts.o
-endif
+LIBS-$(CONFIG_OF_EMBED) += dts/libdts.o
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
 LIBS-y += fs/cramfs/libcramfs.o fs/fat/libfat.o fs/fdos/libfdos.o fs/jffs2/libjffs2.o \
 	fs/reiserfs/libreiserfs.o fs/ext2/libext2fs.o fs/yaffs2/libyaffs2.o \
@@ -288,9 +285,7 @@ LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 LIBS-y += drivers/rtc/librtc.o
 LIBS-y += drivers/serial/libserial.o
-ifeq ($(CONFIG_GENERIC_LPC_TPM),y)
-LIBS-y += drivers/tpm/libtpm.o
-endif
+LIBS-$(CONFIG_GENERIC_LPC_TPM) += drivers/tpm/libtpm.o
 LIBS-y += drivers/twserial/libtws.o
 LIBS-y += drivers/usb/eth/libusb_eth.o
 LIBS-y += drivers/usb/gadget/libusb_gadget.o
