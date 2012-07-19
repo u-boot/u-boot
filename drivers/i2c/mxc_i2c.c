@@ -223,6 +223,8 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 		/* Wait for controller to be stable */
 		udelay(50);
 	}
+	if (readb(&i2c_regs->iadr) == (chip << 1))
+		writeb((chip << 1) ^ 2, &i2c_regs->iadr);
 	writeb(0, &i2c_regs->i2sr);
 	ret = wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
 	if (ret < 0)
