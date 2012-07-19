@@ -275,19 +275,29 @@ void i2c_imx_stop(void)
 }
 
 /*
- * Write register address
+ * Send start signal, chip address and
+ * write register address
  */
-int i2c_imx_set_reg_addr(uint addr, int alen)
+static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
+		uchar chip, uint addr, int alen)
 {
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
-	int ret = 0;
+	int ret = i2c_imx_start();
+	if (ret)
+		goto exit;
+
+	/* write slave address */
+	ret = tx_byte(i2c_regs, chip << 1);
+	if (ret < 0)
+		goto exit;
 
 	while (alen--) {
 		ret = tx_byte(i2c_regs, (addr >> (alen * 8)) & 0xff);
 		if (ret < 0)
-			break;
+			goto exit;
 	}
-
+	return 0;
+exit:
+	i2c_imx_stop();
 	return ret;
 }
 
@@ -318,17 +328,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	unsigned int temp;
 	int i;
 
-	ret = i2c_imx_start();
-	if (ret)
-		return ret;
-
-	/* write slave address */
-	ret = tx_byte(i2c_regs, chip << 1);
+	ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
 	if (ret < 0)
-		return ret;
-
-	ret = i2c_imx_set_reg_addr(addr, alen);
-	if (ret)
 		return ret;
 
 	temp = readb(&i2c_regs->i2cr);
@@ -387,17 +388,8 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	int ret;
 	int i;
 
-	ret = i2c_imx_start();
-	if (ret)
-		return ret;
-
-	/* write slave address */
-	ret = tx_byte(i2c_regs, chip << 1);
+	ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
 	if (ret < 0)
-		return ret;
-
-	ret = i2c_imx_set_reg_addr(addr, alen);
-	if (ret)
 		return ret;
 
 	for (i = 0; i < len; i++) {
