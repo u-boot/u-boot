@@ -424,14 +424,12 @@ static void fec_reg_setup(struct fec_priv *fec)
 
 	/* Start with frame length = 1518, common for all modes. */
 	rcntrl = PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT;
-	if (fec->xcv_type == SEVENWIRE)
-		rcntrl |= FEC_RCNTRL_FCE;
-	else if (fec->xcv_type == RGMII)
+	if (fec->xcv_type != SEVENWIRE)		/* xMII modes */
+		rcntrl |= FEC_RCNTRL_FCE | FEC_RCNTRL_MII_MODE;
+	if (fec->xcv_type == RGMII)
 		rcntrl |= FEC_RCNTRL_RGMII;
 	else if (fec->xcv_type == RMII)
 		rcntrl |= FEC_RCNTRL_RMII;
-	else	/* MII mode */
-		rcntrl |= FEC_RCNTRL_FCE | FEC_RCNTRL_MII_MODE;
 
 	writel(rcntrl, &fec->eth->r_cntrl);
 }
