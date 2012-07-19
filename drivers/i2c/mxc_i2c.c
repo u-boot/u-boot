@@ -200,10 +200,8 @@ int i2c_imx_trx_complete(void)
 	int timeout = I2C_MAX_TIMEOUT;
 
 	while (timeout--) {
-		if (readb(&i2c_regs->i2sr) & I2SR_IIF) {
-			writeb(0, &i2c_regs->i2sr);
+		if (readb(&i2c_regs->i2sr) & I2SR_IIF)
 			return 0;
-		}
 
 		udelay(1);
 	}
@@ -215,6 +213,7 @@ static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
 {
 	int ret;
 
+	writeb(0, &i2c_regs->i2sr);
 	writeb(byte, &i2c_regs->i2dr);
 	ret = i2c_imx_trx_complete();
 	if (ret < 0)
@@ -346,7 +345,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	if (len == 1)
 		temp |= I2CR_TX_NO_AK;
 	writeb(temp, &i2c_regs->i2cr);
-	readb(&i2c_regs->i2dr);
+	writeb(0, &i2c_regs->i2sr);
+	readb(&i2c_regs->i2dr);		/* dummy read to clear ICF */
 
 	/* read data */
 	for (i = 0; i < len; i++) {
@@ -369,6 +369,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 			writeb(temp, &i2c_regs->i2cr);
 		}
 
+		writeb(0, &i2c_regs->i2sr);
 		buf[i] = readb(&i2c_regs->i2dr);
 	}
 
