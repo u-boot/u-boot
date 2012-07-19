@@ -201,10 +201,9 @@ static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
 /*
  * Stop I2C transaction
  */
-void i2c_imx_stop(void)
+static void i2c_imx_stop(struct mxc_i2c_regs *i2c_regs)
 {
 	int ret;
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
 	unsigned int temp = readb(&i2c_regs->i2cr);
 
 	temp &= ~(I2CR_MSTA | I2CR_MTX);
@@ -271,7 +270,7 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 		ret = i2c_init_transfer_(i2c_regs, chip, addr, alen);
 		if (ret >= 0)
 			return 0;
-		i2c_imx_stop();
+		i2c_imx_stop(i2c_regs);
 		if (ret == -ENODEV)
 			return ret;
 
@@ -305,7 +304,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 
 	ret = tx_byte(i2c_regs, (chip << 1) | 1);
 	if (ret < 0) {
-		i2c_imx_stop();
+		i2c_imx_stop(i2c_regs);
 		return ret;
 	}
 
@@ -322,7 +321,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	for (i = 0; i < len; i++) {
 		ret = wait_for_sr_state(i2c_regs, ST_IIF);
 		if (ret < 0) {
-			i2c_imx_stop();
+			i2c_imx_stop(i2c_regs);
 			return ret;
 		}
 
@@ -331,7 +330,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 		 * controller from generating another clock cycle
 		 */
 		if (i == (len - 1)) {
-			i2c_imx_stop();
+			i2c_imx_stop(i2c_regs);
 		} else if (i == (len - 2)) {
 			temp = readb(&i2c_regs->i2cr);
 			temp |= I2CR_TX_NO_AK;
@@ -340,9 +339,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 		writeb(0, &i2c_regs->i2sr);
 		buf[i] = readb(&i2c_regs->i2dr);
 	}
-
-	i2c_imx_stop();
-
+	i2c_imx_stop(i2c_regs);
 	return 0;
 }
 
@@ -364,9 +361,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 		if (ret < 0)
 			break;
 	}
-
-	i2c_imx_stop();
-
+	i2c_imx_stop(i2c_regs);
 	return ret;
 }
 
