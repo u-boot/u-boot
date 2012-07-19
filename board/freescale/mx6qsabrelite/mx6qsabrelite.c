@@ -22,12 +22,12 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6x_pins.h>
-#include <asm/arch/iomux-v3.h>
-#include <asm/arch/clock.h>
 #include <asm/errno.h>
 #include <asm/gpio.h>
+#include <asm/imx-common/iomux-v3.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <micrel.h>
