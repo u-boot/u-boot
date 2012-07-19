@@ -36,6 +36,7 @@
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include <watchdog.h>
 
 struct mxc_i2c_regs {
 	uint32_t	iadr;
@@ -62,8 +63,6 @@ struct mxc_i2c_regs {
 #else
 #error "define CONFIG_SYS_I2C_BASE to use the mxc_i2c driver"
 #endif
-
-#define I2C_MAX_TIMEOUT		10000
 
 static u16 i2c_clk_div[50][2] = {
 	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
@@ -164,48 +163,26 @@ unsigned int i2c_get_bus_speed(void)
 	return mxc_get_clock(MXC_IPG_PERCLK) / i2c_clk_div[clk_div][0];
 }
 
-/*
- * Wait for bus to be busy (or free if for_busy = 0)
- *
- * for_busy = 1: Wait for IBB to be asserted
- * for_busy = 0: Wait for IBB to be de-asserted
- */
-int i2c_imx_bus_busy(int for_busy)
+#define ST_BUS_IDLE (0 | (I2SR_IBB << 8))
+#define ST_BUS_BUSY (I2SR_IBB | (I2SR_IBB << 8))
+#define ST_IIF (I2SR_IIF | (I2SR_IIF << 8))
+
+static int wait_for_sr_state(struct mxc_i2c_regs *i2c_regs, unsigned state)
 {
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
-	unsigned int temp;
-
-	int timeout = I2C_MAX_TIMEOUT;
-
-	while (timeout--) {
-		temp = readb(&i2c_regs->i2sr);
-
-		if (for_busy && (temp & I2SR_IBB))
-			return 0;
-		if (!for_busy && !(temp & I2SR_IBB))
-			return 0;
-
-		udelay(1);
+	unsigned sr;
+	ulong elapsed;
+	ulong start_time = get_timer(0);
+	for (;;) {
+		sr = readb(&i2c_regs->i2sr);
+		if ((sr & (state >> 8)) == (unsigned char)state)
+			return sr;
+		WATCHDOG_RESET();
+		elapsed = get_timer(start_time);
+		if (elapsed > (CONFIG_SYS_HZ / 10))	/* .1 seconds */
+			break;
 	}
-
-	return 1;
-}
-
-/*
- * Wait for transaction to complete
- */
-int i2c_imx_trx_complete(void)
-{
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
-	int timeout = I2C_MAX_TIMEOUT;
-
-	while (timeout--) {
-		if (readb(&i2c_regs->i2sr) & I2SR_IIF)
-			return 0;
-
-		udelay(1);
-	}
-
+	printf("%s: failed sr=%x cr=%x state=%x\n", __func__,
+			sr, readb(&i2c_regs->i2cr), state);
 	return -ETIMEDOUT;
 }
 
@@ -215,7 +192,7 @@ static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
 
 	writeb(0, &i2c_regs->i2sr);
 	writeb(byte, &i2c_regs->i2dr);
-	ret = i2c_imx_trx_complete();
+	ret = wait_for_sr_state(i2c_regs, ST_IIF);
 	if (ret < 0)
 		return ret;
 	ret = readb(&i2c_regs->i2sr);
@@ -245,8 +222,8 @@ int i2c_imx_start(void)
 	temp |= I2CR_MSTA;
 	writeb(temp, &i2c_regs->i2cr);
 
-	result = i2c_imx_bus_busy(1);
-	if (result)
+	result = wait_for_sr_state(i2c_regs, ST_BUS_BUSY);
+	if (result < 0)
 		return result;
 
 	temp |= I2CR_MTX | I2CR_TX_NO_AK;
@@ -260,6 +237,7 @@ int i2c_imx_start(void)
  */
 void i2c_imx_stop(void)
 {
+	int ret;
 	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
 	unsigned int temp = 0;
 
@@ -268,8 +246,9 @@ void i2c_imx_stop(void)
 	temp &= ~(I2CR_MSTA | I2CR_MTX);
 	writeb(temp, &i2c_regs->i2cr);
 
-	i2c_imx_bus_busy(0);
-
+	ret = wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
+	if (ret < 0)
+		printf("%s:trigger stop failed\n", __func__);
 	/* Disable I2C controller */
 	writeb(0, &i2c_regs->i2cr);
 }
@@ -336,8 +315,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 
 	/* read data */
 	for (i = 0; i < len; i++) {
-		ret = i2c_imx_trx_complete();
-		if (ret) {
+		ret = wait_for_sr_state(i2c_regs, ST_IIF);
+		if (ret < 0) {
 			i2c_imx_stop();
 			return ret;
 		}
@@ -350,20 +329,19 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 			temp = readb(&i2c_regs->i2cr);
 			temp &= ~(I2CR_MSTA | I2CR_MTX);
 			writeb(temp, &i2c_regs->i2cr);
-			i2c_imx_bus_busy(0);
+			wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
 		} else if (i == (len - 2)) {
 			temp = readb(&i2c_regs->i2cr);
 			temp |= I2CR_TX_NO_AK;
 			writeb(temp, &i2c_regs->i2cr);
 		}
-
 		writeb(0, &i2c_regs->i2sr);
 		buf[i] = readb(&i2c_regs->i2dr);
 	}
 
 	i2c_imx_stop();
 
-	return ret;
+	return 0;
 }
 
 /*
