@@ -201,37 +201,6 @@ static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
 }
 
 /*
- * Start the controller
- */
-int i2c_imx_start(void)
-{
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
-	unsigned int temp = 0;
-	int result;
-
-	/* Enable I2C controller */
-	writeb(0, &i2c_regs->i2sr);
-	writeb(I2CR_IEN, &i2c_regs->i2cr);
-
-	/* Wait controller to be stable */
-	udelay(50);
-
-	/* Start I2C transaction */
-	temp = readb(&i2c_regs->i2cr);
-	temp |= I2CR_MSTA;
-	writeb(temp, &i2c_regs->i2cr);
-
-	result = wait_for_sr_state(i2c_regs, ST_BUS_BUSY);
-	if (result < 0)
-		return result;
-
-	temp |= I2CR_MTX | I2CR_TX_NO_AK;
-	writeb(temp, &i2c_regs->i2cr);
-
-	return 0;
-}
-
-/*
  * Stop the controller
  */
 void i2c_imx_stop(void)
@@ -259,9 +228,27 @@ void i2c_imx_stop(void)
 static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 		uchar chip, uint addr, int alen)
 {
-	int ret = i2c_imx_start();
-	if (ret)
+	unsigned int temp;
+	int ret;
+
+	/* Enable I2C controller */
+	writeb(0, &i2c_regs->i2sr);
+	writeb(I2CR_IEN, &i2c_regs->i2cr);
+
+	/* Wait for controller to be stable */
+	udelay(50);
+
+	/* Start I2C transaction */
+	temp = readb(&i2c_regs->i2cr);
+	temp |= I2CR_MSTA;
+	writeb(temp, &i2c_regs->i2cr);
+
+	ret = wait_for_sr_state(i2c_regs, ST_BUS_BUSY);
+	if (ret < 0)
 		goto exit;
+
+	temp |= I2CR_MTX | I2CR_TX_NO_AK;
+	writeb(temp, &i2c_regs->i2cr);
 
 	/* write slave address */
 	ret = tx_byte(i2c_regs, chip << 1);
