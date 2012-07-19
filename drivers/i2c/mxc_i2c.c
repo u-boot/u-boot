@@ -55,6 +55,7 @@ struct mxc_i2c_regs {
 
 #define I2SR_ICF	(1 << 7)
 #define I2SR_IBB	(1 << 5)
+#define I2SR_IAL	(1 << 4)
 #define I2SR_IIF	(1 << 1)
 #define I2SR_RX_NO_AK	(1 << 0)
 
@@ -165,6 +166,12 @@ static int wait_for_sr_state(struct mxc_i2c_regs *i2c_regs, unsigned state)
 	ulong start_time = get_timer(0);
 	for (;;) {
 		sr = readb(&i2c_regs->i2sr);
+		if (sr & I2SR_IAL) {
+			writeb(sr & ~I2SR_IAL, &i2c_regs->i2sr);
+			printf("%s: Arbitration lost sr=%x cr=%x state=%x\n",
+				__func__, sr, readb(&i2c_regs->i2cr), state);
+			return -ERESTART;
+		}
 		if ((sr & (state >> 8)) == (unsigned char)state)
 			return sr;
 		WATCHDOG_RESET();
