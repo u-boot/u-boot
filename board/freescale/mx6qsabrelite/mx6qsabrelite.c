@@ -28,6 +28,7 @@
 #include <asm/errno.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/mxc_i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <micrel.h>
@@ -77,9 +78,48 @@ iomux_v3_cfg_t uart2_pads[] = {
        MX6Q_PAD_EIM_D27__UART2_RXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t i2c3_pads[] = {
-	MX6Q_PAD_GPIO_5__I2C3_SCL | MUX_PAD_CTRL(I2C_PAD_CTRL),
-	MX6Q_PAD_GPIO_16__I2C3_SDA | MUX_PAD_CTRL(I2C_PAD_CTRL),
+#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
+
+/* I2C1, SGTL5000 */
+struct i2c_pads_info i2c_pad_info0 = {
+	.scl = {
+		.i2c_mode = MX6Q_PAD_EIM_D21__I2C1_SCL | PC,
+		.gpio_mode = MX6Q_PAD_EIM_D21__GPIO_3_21 | PC,
+		.gp = GPIO_NUMBER(3, 21)
+	},
+	.sda = {
+		.i2c_mode = MX6Q_PAD_EIM_D28__I2C1_SDA | PC,
+		.gpio_mode = MX6Q_PAD_EIM_D28__GPIO_3_28 | PC,
+		.gp = GPIO_NUMBER(3, 28)
+	}
+};
+
+/* I2C2 Camera, MIPI */
+struct i2c_pads_info i2c_pad_info1 = {
+	.scl = {
+		.i2c_mode = MX6Q_PAD_KEY_COL3__I2C2_SCL | PC,
+		.gpio_mode = MX6Q_PAD_KEY_COL3__GPIO_4_12 | PC,
+		.gp = GPIO_NUMBER(4, 12)
+	},
+	.sda = {
+		.i2c_mode = MX6Q_PAD_KEY_ROW3__I2C2_SDA | PC,
+		.gpio_mode = MX6Q_PAD_KEY_ROW3__GPIO_4_13 | PC,
+		.gp = GPIO_NUMBER(4, 13)
+	}
+};
+
+/* I2C3, J15 - RGB connector */
+struct i2c_pads_info i2c_pad_info2 = {
+	.scl = {
+		.i2c_mode = MX6Q_PAD_GPIO_5__I2C3_SCL | PC,
+		.gpio_mode = MX6Q_PAD_GPIO_5__GPIO_1_5 | PC,
+		.gp = GPIO_NUMBER(1, 5)
+	},
+	.sda = {
+		.i2c_mode = MX6Q_PAD_GPIO_16__I2C3_SDA | PC,
+		.gpio_mode = MX6Q_PAD_GPIO_16__GPIO_7_11 | PC,
+		.gp = GPIO_NUMBER(7, 11)
+	}
 };
 
 iomux_v3_cfg_t usdhc3_pads[] = {
@@ -346,7 +386,9 @@ int board_init(void)
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
 #endif
-	imx_iomux_v3_setup_multiple_pads(i2c3_pads, ARRAY_SIZE(i2c3_pads));
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 
 #ifdef CONFIG_CMD_SATA
 	setup_sata();
