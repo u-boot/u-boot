@@ -49,5 +49,6 @@ void enable_usb_phy2_clk(unsigned char enable);
 void set_usboh3_clk(void);
 void enable_usboh3_clk(unsigned char enable);
 void mxc_set_sata_internal_clock(void);
+int enable_i2c_clk(unsigned char enable, unsigned i2c_num);
 
 #endif /* __ASM_ARCH_CLOCK_H */

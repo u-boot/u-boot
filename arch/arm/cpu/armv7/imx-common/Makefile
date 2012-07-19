@@ -27,7 +27,9 @@ include $(TOPDIR)/config.mk
 
 LIB     = $(obj)libimx-common.o
 
-COBJS	= iomux-v3.o timer.o cpu.o speed.o
+COBJS-y	= iomux-v3.o timer.o cpu.o speed.o
+COBJS-$(CONFIG_I2C_MXC) += i2c.o
+COBJS	:= $(sort $(COBJS-y))
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
