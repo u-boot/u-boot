@@ -31,12 +31,9 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
-
-#if defined(CONFIG_HARD_I2C)
-
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/io.h>
 #include <i2c.h>
 
 struct mxc_i2c_regs {
@@ -446,4 +443,3 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 
 	return ret;
 }
-#endif /* CONFIG_HARD_I2C */
