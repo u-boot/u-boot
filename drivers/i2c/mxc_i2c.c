@@ -416,6 +416,23 @@ static int i2c_idle_bus(void *base)
 	return 0;
 }
 
+#ifdef CONFIG_I2C_MULTI_BUS
+unsigned int i2c_get_bus_num(void)
+{
+	return srdata.curr_i2c_bus;
+}
+
+int i2c_set_bus_num(unsigned bus_idx)
+{
+	if (bus_idx >= ARRAY_SIZE(srdata.i2c_data))
+		return -1;
+	if (!srdata.i2c_data[bus_idx].base)
+		return -1;
+	srdata.curr_i2c_bus = bus_idx;
+	return 0;
+}
+#endif
+
 int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 {
 	return bus_i2c_read(get_base(), chip, addr, alen, buf, len);
