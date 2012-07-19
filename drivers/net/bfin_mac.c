@@ -190,8 +190,7 @@ static int bfin_EMAC_recv(struct eth_device *dev)
 
 		debug("%s: len = %d\n", __func__, length - 4);
 
-		NetRxPackets[rxIdx] =
-		    (volatile uchar *)(rxbuf[rxIdx]->FrmData->Dest);
+		NetRxPackets[rxIdx] = rxbuf[rxIdx]->FrmData->Dest;
 		NetReceive(NetRxPackets[rxIdx], length - 4);
 		bfin_write_DMA1_IRQ_STATUS(DMA_DONE | DMA_ERR);
 		rxbuf[rxIdx]->StatusWord = 0x00000000;
