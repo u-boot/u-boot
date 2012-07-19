@@ -63,7 +63,9 @@
 /* RWDT */
 struct sh73a0_rwdt {
 	u16 rwtcnt0;	/* 0x00 */
+	u16 dummy0;	/* 0x02 */
 	u16 rwtcsra0;	/* 0x04 */
+	u16 dummy1;	/* 0x06 */
 	u16 rwtcsrb0;	/* 0x08 */
 };
 
