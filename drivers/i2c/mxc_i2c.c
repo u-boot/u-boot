@@ -59,9 +59,7 @@ struct mxc_i2c_regs {
 #define I2SR_IIF	(1 << 1)
 #define I2SR_RX_NO_AK	(1 << 0)
 
-#ifdef CONFIG_SYS_I2C_BASE
-#define I2C_BASE	CONFIG_SYS_I2C_BASE
-#else
+#if defined(CONFIG_HARD_I2C) && !defined(CONFIG_SYS_I2C_BASE)
 #error "define CONFIG_SYS_I2C_BASE to use the mxc_i2c driver"
 #endif
 
@@ -115,11 +113,11 @@ static uint8_t i2c_imx_get_clk(unsigned int rate)
 }
 
 /*
- * Init I2C Bus
+ * Set I2C Bus speed
  */
-void i2c_init(int speed, int unused)
+int bus_i2c_set_bus_speed(void *base, int speed)
 {
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
+	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
 	u8 clk_idx = i2c_imx_get_clk(speed);
 	u8 idx = i2c_clk_div[clk_idx][1];
 
@@ -129,23 +127,15 @@ void i2c_init(int speed, int unused)
 	/* Reset module */
 	writeb(0, &i2c_regs->i2cr);
 	writeb(0, &i2c_regs->i2sr);
-}
-
-/*
- * Set I2C Speed
- */
-int i2c_set_bus_speed(unsigned int speed)
-{
-	i2c_init(speed, 0);
 	return 0;
 }
 
 /*
  * Get I2C Speed
  */
-unsigned int i2c_get_bus_speed(void)
+unsigned int bus_i2c_get_bus_speed(void *base)
 {
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
+	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
 	u8 clk_idx = readb(&i2c_regs->ifdr);
 	u8 clk_div;
 
@@ -287,12 +277,13 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 /*
  * Read data from I2C device
  */
-int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
+int bus_i2c_read(void *base, uchar chip, uint addr, int alen, uchar *buf,
+		int len)
 {
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
 	int ret;
 	unsigned int temp;
 	int i;
+	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
 
 	ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
 	if (ret < 0)
@@ -346,11 +337,12 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 /*
  * Write data to I2C device
  */
-int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
+int bus_i2c_write(void *base, uchar chip, uint addr, int alen,
+		const uchar *buf, int len)
 {
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
 	int ret;
 	int i;
+	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
 
 	ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
 	if (ret < 0)
@@ -365,10 +357,101 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	return ret;
 }
 
+struct i2c_parms {
+	void *base;
+	void *idle_bus_data;
+	int (*idle_bus_fn)(void *p);
+};
+
+struct sram_data {
+	unsigned curr_i2c_bus;
+	struct i2c_parms i2c_data[3];
+};
+
+/*
+ * For SPL boot some boards need i2c before SDRAM is initialized so force
+ * variables to live in SRAM
+ */
+static struct sram_data __attribute__((section(".data"))) srdata;
+
+void *get_base(void)
+{
+#ifdef CONFIG_SYS_I2C_BASE
+#ifdef CONFIG_I2C_MULTI_BUS
+	void *ret = srdata.i2c_data[srdata.curr_i2c_bus].base;
+	if (ret)
+		return ret;
+#endif
+	return (void *)CONFIG_SYS_I2C_BASE;
+#elif defined(CONFIG_I2C_MULTI_BUS)
+	return srdata.i2c_data[srdata.curr_i2c_bus].base;
+#else
+	return srdata.i2c_data[0].base;
+#endif
+}
+
+int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
+{
+	return bus_i2c_read(get_base(), chip, addr, alen, buf, len);
+}
+
+int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
+{
+	return bus_i2c_write(get_base(), chip, addr, alen, buf, len);
+}
+
 /*
  * Test if a chip at a given address responds (probe the chip)
  */
 int i2c_probe(uchar chip)
 {
-	return i2c_write(chip, 0, 0, NULL, 0);
+	return bus_i2c_write(get_base(), chip, 0, 0, NULL, 0);
+}
+
+void bus_i2c_init(void *base, int speed, int unused,
+		int (*idle_bus_fn)(void *p), void *idle_bus_data)
+{
+	int i = 0;
+	struct i2c_parms *p = srdata.i2c_data;
+	if (!base)
+		return;
+	for (;;) {
+		if (!p->base || (p->base == base)) {
+			p->base = base;
+			if (idle_bus_fn) {
+				p->idle_bus_fn = idle_bus_fn;
+				p->idle_bus_data = idle_bus_data;
+			}
+			break;
+		}
+		p++;
+		i++;
+		if (i >= ARRAY_SIZE(srdata.i2c_data))
+			return;
+	}
+	bus_i2c_set_bus_speed(base, speed);
+}
+
+/*
+ * Init I2C Bus
+ */
+void i2c_init(int speed, int unused)
+{
+	bus_i2c_init(get_base(), speed, unused, NULL, NULL);
+}
+
+/*
+ * Set I2C Speed
+ */
+int i2c_set_bus_speed(unsigned int speed)
+{
+	return bus_i2c_set_bus_speed(get_base(), speed);
+}
+
+/*
+ * Get I2C Speed
+ */
+unsigned int i2c_get_bus_speed(void)
+{
+	return bus_i2c_get_bus_speed(get_base());
 }
