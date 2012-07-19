@@ -33,6 +33,7 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/errno.h>
 #include <asm/io.h>
 #include <i2c.h>
 
@@ -207,17 +208,21 @@ int i2c_imx_trx_complete(void)
 		udelay(1);
 	}
 
-	return 1;
+	return -ETIMEDOUT;
 }
 
-/*
- * Check if the transaction was ACKed
- */
-int i2c_imx_acked(void)
+static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
 {
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
+	int ret;
 
-	return readb(&i2c_regs->i2sr) & I2SR_RX_NO_AK;
+	writeb(byte, &i2c_regs->i2dr);
+	ret = i2c_imx_trx_complete();
+	if (ret < 0)
+		return ret;
+	ret = readb(&i2c_regs->i2sr);
+	if (ret & I2SR_RX_NO_AK)
+		return -ENODEV;
+	return 0;
 }
 
 /*
@@ -271,30 +276,6 @@ void i2c_imx_stop(void)
 }
 
 /*
- * Set chip address and access mode
- *
- * read = 1: READ access
- * read = 0: WRITE access
- */
-int i2c_imx_set_chip_addr(uchar chip, int read)
-{
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
-	int ret;
-
-	writeb((chip << 1) | read, &i2c_regs->i2dr);
-
-	ret = i2c_imx_trx_complete();
-	if (ret)
-		return ret;
-
-	ret = i2c_imx_acked();
-	if (ret)
-		return ret;
-
-	return ret;
-}
-
-/*
  * Write register address
  */
 int i2c_imx_set_reg_addr(uint addr, int alen)
@@ -303,14 +284,8 @@ int i2c_imx_set_reg_addr(uint addr, int alen)
 	int ret = 0;
 
 	while (alen--) {
-		writeb((addr >> (alen * 8)) & 0xff, &i2c_regs->i2dr);
-
-		ret = i2c_imx_trx_complete();
-		if (ret)
-			break;
-
-		ret = i2c_imx_acked();
-		if (ret)
+		ret = tx_byte(i2c_regs, (addr >> (alen * 8)) & 0xff);
+		if (ret < 0)
 			break;
 	}
 
@@ -322,18 +297,15 @@ int i2c_imx_set_reg_addr(uint addr, int alen)
  */
 int i2c_probe(uchar chip)
 {
+	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
 	int ret;
 
 	ret = i2c_imx_start();
 	if (ret)
 		return ret;
 
-	ret = i2c_imx_set_chip_addr(chip, 0);
-	if (ret)
-		return ret;
-
+	ret = tx_byte(i2c_regs, chip << 1);
 	i2c_imx_stop();
-
 	return ret;
 }
 
@@ -352,8 +324,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 		return ret;
 
 	/* write slave address */
-	ret = i2c_imx_set_chip_addr(chip, 0);
-	if (ret)
+	ret = tx_byte(i2c_regs, chip << 1);
+	if (ret < 0)
 		return ret;
 
 	ret = i2c_imx_set_reg_addr(addr, alen);
@@ -364,8 +336,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	temp |= I2CR_RSTA;
 	writeb(temp, &i2c_regs->i2cr);
 
-	ret = i2c_imx_set_chip_addr(chip, 1);
-	if (ret)
+	ret = tx_byte(i2c_regs, (chip << 1) | 1);
+	if (ret < 0)
 		return ret;
 
 	/* setup bus to read data */
@@ -419,8 +391,8 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 		return ret;
 
 	/* write slave address */
-	ret = i2c_imx_set_chip_addr(chip, 0);
-	if (ret)
+	ret = tx_byte(i2c_regs, chip << 1);
+	if (ret < 0)
 		return ret;
 
 	ret = i2c_imx_set_reg_addr(addr, alen);
@@ -428,14 +400,8 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 		return ret;
 
 	for (i = 0; i < len; i++) {
-		writeb(buf[i], &i2c_regs->i2dr);
-
-		ret = i2c_imx_trx_complete();
-		if (ret)
-			return ret;
-
-		ret = i2c_imx_acked();
-		if (ret)
+		ret = tx_byte(i2c_regs, buf[i]);
+		if (ret < 0)
 			return ret;
 	}
 
