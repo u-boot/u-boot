@@ -218,7 +218,7 @@ void i2c_imx_stop(void)
  * Send start signal, chip address and
  * write register address
  */
-static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
+static int i2c_init_transfer_(struct mxc_i2c_regs *i2c_regs,
 		uchar chip, uint addr, int alen)
 {
 	unsigned int temp;
@@ -235,7 +235,7 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 	writeb(0, &i2c_regs->i2sr);
 	ret = wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
 	if (ret < 0)
-		goto exit;
+		return ret;
 
 	/* Start I2C transaction */
 	temp = readb(&i2c_regs->i2cr);
@@ -244,7 +244,7 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 
 	ret = wait_for_sr_state(i2c_regs, ST_BUS_BUSY);
 	if (ret < 0)
-		goto exit;
+		return ret;
 
 	temp |= I2CR_MTX | I2CR_TX_NO_AK;
 	writeb(temp, &i2c_regs->i2cr);
@@ -252,18 +252,36 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 	/* write slave address */
 	ret = tx_byte(i2c_regs, chip << 1);
 	if (ret < 0)
-		goto exit;
+		return ret;
 
 	while (alen--) {
 		ret = tx_byte(i2c_regs, (addr >> (alen * 8)) & 0xff);
 		if (ret < 0)
-			goto exit;
+			return ret;
 	}
 	return 0;
-exit:
-	i2c_imx_stop();
-	/* Disable I2C controller */
-	writeb(0, &i2c_regs->i2cr);
+}
+
+static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
+		uchar chip, uint addr, int alen)
+{
+	int retry;
+	int ret;
+	for (retry = 0; retry < 3; retry++) {
+		ret = i2c_init_transfer_(i2c_regs, chip, addr, alen);
+		if (ret >= 0)
+			return 0;
+		i2c_imx_stop();
+		if (ret == -ENODEV)
+			return ret;
+
+		printf("%s: failed for chip 0x%x retry=%d\n", __func__, chip,
+				retry);
+		if (ret != -ERESTART)
+			writeb(0, &i2c_regs->i2cr);	/* Disable controller */
+		udelay(100);
+	}
+	printf("%s: give up i2c_regs=%p\n", __func__, i2c_regs);
 	return ret;
 }
 
