@@ -251,6 +251,8 @@ static int i2c_init_transfer_(struct mxc_i2c_regs *i2c_regs,
 	return 0;
 }
 
+static int i2c_idle_bus(void *base);
+
 static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 		uchar chip, uint addr, int alen)
 {
@@ -269,6 +271,8 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 		if (ret != -ERESTART)
 			writeb(0, &i2c_regs->i2cr);	/* Disable controller */
 		udelay(100);
+		if (i2c_idle_bus(i2c_regs) < 0)
+			break;
 	}
 	printf("%s: give up i2c_regs=%p\n", __func__, i2c_regs);
 	return ret;
@@ -388,6 +392,28 @@ void *get_base(void)
 #else
 	return srdata.i2c_data[0].base;
 #endif
+}
+
+static struct i2c_parms *i2c_get_parms(void *base)
+{
+	int i = 0;
+	struct i2c_parms *p = srdata.i2c_data;
+	while (i < ARRAY_SIZE(srdata.i2c_data)) {
+		if (p->base == base)
+			return p;
+		p++;
+		i++;
+	}
+	printf("Invalid I2C base: %p\n", base);
+	return NULL;
+}
+
+static int i2c_idle_bus(void *base)
+{
+	struct i2c_parms *p = i2c_get_parms(base);
+	if (p && p->idle_bus_fn)
+		return p->idle_bus_fn(p->idle_bus_data);
+	return 0;
 }
 
 int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
