@@ -171,12 +171,13 @@ struct usb_linux_config_descriptor {
 /* Queue Element Transfer Descriptor (qTD). */
 struct qTD {
 	/* this part defined by EHCI spec */
-	uint32_t qt_next;		/* see EHCI 3.5.1 */
+	uint32_t qt_next;			/* see EHCI 3.5.1 */
 #define	QT_NEXT_TERMINATE	1
-	uint32_t qt_altnext;		/* see EHCI 3.5.2 */
-	uint32_t qt_token;		/* see EHCI 3.5.3 */
-	uint32_t qt_buffer[5];		/* see EHCI 3.5.4 */
-	uint32_t qt_buffer_hi[5];	/* Appendix B */
+	uint32_t qt_altnext;			/* see EHCI 3.5.2 */
+	uint32_t qt_token;			/* see EHCI 3.5.3 */
+#define QT_BUFFER_CNT		5
+	uint32_t qt_buffer[QT_BUFFER_CNT];	/* see EHCI 3.5.4 */
+	uint32_t qt_buffer_hi[QT_BUFFER_CNT];	/* Appendix B */
 	/* pad struct for 32 byte alignment */
 	uint32_t unused[3];
 };
