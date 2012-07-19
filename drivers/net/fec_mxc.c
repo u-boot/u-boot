@@ -603,7 +603,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 
 	fec_reg_setup(fec);
 
-	if (fec->xcv_type == MII10 || fec->xcv_type == MII100)
+	if (fec->xcv_type != SEVENWIRE)
 		fec_mii_setspeed(fec);
 
 	/*
