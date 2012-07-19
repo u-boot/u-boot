@@ -131,7 +131,7 @@ COBJS	+= tlb.o
 COBJS	+= traps.o
 
 # Stub implementations of cache management functions for USB
-COBJS-$(CONFIG_USB_EHCI) += cache.o
+COBJS += cache.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
