@@ -114,17 +114,6 @@ static uint8_t i2c_imx_get_clk(unsigned int rate)
 }
 
 /*
- * Reset I2C Controller
- */
-void i2c_reset(void)
-{
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
-
-	writeb(0, &i2c_regs->i2cr);	/* Reset module */
-	writeb(0, &i2c_regs->i2sr);
-}
-
-/*
  * Init I2C Bus
  */
 void i2c_init(int speed, int unused)
@@ -136,7 +125,9 @@ void i2c_init(int speed, int unused)
 	/* Store divider value */
 	writeb(idx, &i2c_regs->ifdr);
 
-	i2c_reset();
+	/* Reset module */
+	writeb(0, &i2c_regs->i2cr);
+	writeb(0, &i2c_regs->i2sr);
 }
 
 /*
