@@ -337,8 +337,10 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	writeb(temp, &i2c_regs->i2cr);
 
 	ret = tx_byte(i2c_regs, (chip << 1) | 1);
-	if (ret < 0)
+	if (ret < 0) {
+		i2c_imx_stop();
 		return ret;
+	}
 
 	/* setup bus to read data */
 	temp = readb(&i2c_regs->i2cr);
@@ -352,8 +354,10 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	/* read data */
 	for (i = 0; i < len; i++) {
 		ret = i2c_imx_trx_complete();
-		if (ret)
+		if (ret) {
+			i2c_imx_stop();
 			return ret;
+		}
 
 		/*
 		 * It must generate STOP before read I2DR to prevent
@@ -395,7 +399,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	for (i = 0; i < len; i++) {
 		ret = tx_byte(i2c_regs, buf[i]);
 		if (ret < 0)
-			return ret;
+			break;
 	}
 
 	i2c_imx_stop();
