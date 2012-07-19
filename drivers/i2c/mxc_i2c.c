@@ -264,7 +264,7 @@ void i2c_imx_stop(void)
 
 	/* Stop I2C transaction */
 	temp = readb(&i2c_regs->i2cr);
-	temp |= ~(I2CR_MSTA | I2CR_MTX);
+	temp &= ~(I2CR_MSTA | I2CR_MTX);
 	writeb(temp, &i2c_regs->i2cr);
 
 	i2c_imx_bus_busy(0);
