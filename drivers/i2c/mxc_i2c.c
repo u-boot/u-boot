@@ -302,23 +302,6 @@ exit:
 }
 
 /*
- * Try if a chip add given address responds (probe the chip)
- */
-int i2c_probe(uchar chip)
-{
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
-	int ret;
-
-	ret = i2c_imx_start();
-	if (ret)
-		return ret;
-
-	ret = tx_byte(i2c_regs, chip << 1);
-	i2c_imx_stop();
-	return ret;
-}
-
-/*
  * Read data from I2C device
  */
 int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
@@ -405,4 +388,12 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	i2c_imx_stop();
 
 	return ret;
+}
+
+/*
+ * Test if a chip at a given address responds (probe the chip)
+ */
+int i2c_probe(uchar chip)
+{
+	return i2c_write(chip, 0, 0, NULL, 0);
 }
