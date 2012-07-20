@@ -273,7 +273,6 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 {
 	__u32 idx = 0;
 	__u32 startsect;
-	__u32 nr_sect;
 	int ret;
 
 	if (clustnum > 0) {
@@ -285,25 +284,44 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 
 	debug("gc - clustnum: %d, startsect: %d\n", clustnum, startsect);
 
-	nr_sect = size / mydata->sect_size;
-	ret = disk_read(startsect, nr_sect, buffer);
-	if (ret != nr_sect) {
-		debug("Error reading data (got %d)\n", ret);
-		return -1;
-	}
-	if (size % mydata->sect_size) {
+	if ((unsigned long)buffer & (ARCH_DMA_MINALIGN - 1)) {
 		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
 
+		printf("FAT: Misaligned buffer address (%p)\n", buffer);
+
+		while (size >= mydata->sect_size) {
+			ret = disk_read(startsect++, 1, tmpbuf);
+			if (ret != 1) {
+				debug("Error reading data (got %d)\n", ret);
+				return -1;
+			}
+
+			memcpy(buffer, tmpbuf, mydata->sect_size);
+			buffer += mydata->sect_size;
+			size -= mydata->sect_size;
+		}
+	} else {
 		idx = size / mydata->sect_size;
-		ret = disk_read(startsect + idx, 1, tmpbuf);
+		ret = disk_read(startsect, idx, buffer);
+		if (ret != idx) {
+			debug("Error reading data (got %d)\n", ret);
+			return -1;
+		}
+		startsect += idx;
+		idx *= mydata->sect_size;
+		buffer += idx;
+		size -= idx;
+	}
+	if (size) {
+		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
+
+		ret = disk_read(startsect, 1, tmpbuf);
 		if (ret != 1) {
 			debug("Error reading data (got %d)\n", ret);
 			return -1;
 		}
-		buffer += idx * mydata->sect_size;
 
-		memcpy(buffer, tmpbuf, size % mydata->sect_size);
-		return 0;
+		memcpy(buffer, tmpbuf, size);
 	}
 
 	return 0;
