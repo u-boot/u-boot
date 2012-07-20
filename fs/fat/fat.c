@@ -775,7 +775,7 @@ do_fat_read(const char *filename, void *buffer, unsigned long maxsize, int dols)
 	volume_info volinfo;
 	fsdata datablock;
 	fsdata *mydata = &datablock;
-	dir_entry *dentptr;
+	dir_entry *dentptr = NULL;
 	__u16 prevcksum = 0xffff;
 	char *subname = "";
 	__u32 cursect;
@@ -874,19 +874,21 @@ do_fat_read(const char *filename, void *buffer, unsigned long maxsize, int dols)
 	while (1) {
 		int i;
 
-		debug("FAT read sect=%d, clust_size=%d, DIRENTSPERBLOCK=%zd\n",
-			cursect, mydata->clust_size, DIRENTSPERBLOCK);
+		if (j == 0) {
+			debug("FAT read sect=%d, clust_size=%d, DIRENTSPERBLOCK=%zd\n",
+				cursect, mydata->clust_size, DIRENTSPERBLOCK);
 
-		if (disk_read(cursect,
-				(mydata->fatsize == 32) ?
-				(mydata->clust_size) :
-				PREFETCH_BLOCKS,
-				do_fat_read_block) < 0) {
-			debug("Error: reading rootdir block\n");
-			goto exit;
+			if (disk_read(cursect,
+					(mydata->fatsize == 32) ?
+					(mydata->clust_size) :
+					PREFETCH_BLOCKS,
+					do_fat_read_block) < 0) {
+				debug("Error: reading rootdir block\n");
+				goto exit;
+			}
+
+			dentptr = (dir_entry *) do_fat_read_block;
 		}
-
-		dentptr = (dir_entry *) do_fat_read_block;
 
 		for (i = 0; i < DIRENTSPERBLOCK; i++) {
 			char s_name[14], l_name[VFAT_MAXLEN_BYTES];
@@ -1028,28 +1030,33 @@ do_fat_read(const char *filename, void *buffer, unsigned long maxsize, int dols)
 		 * completely processed.
 		 */
 		++j;
-		int fat32_end = 0;
-		if ((mydata->fatsize == 32) && (j == mydata->clust_size)) {
-			int nxtsect = 0;
-			int nxt_clust = 0;
+		int rootdir_end = 0;
+		if (mydata->fatsize == 32) {
+			if (j == mydata->clust_size) {
+				int nxtsect = 0;
+				int nxt_clust = 0;
 
-			nxt_clust = get_fatent(mydata, root_cluster);
-			fat32_end = CHECK_CLUST(nxt_clust, 32);
+				nxt_clust = get_fatent(mydata, root_cluster);
+				rootdir_end = CHECK_CLUST(nxt_clust, 32);
 
-			nxtsect = mydata->data_begin +
-				(nxt_clust * mydata->clust_size);
+				nxtsect = mydata->data_begin +
+					(nxt_clust * mydata->clust_size);
 
-			root_cluster = nxt_clust;
+				root_cluster = nxt_clust;
 
-			cursect = nxtsect;
-			j = 0;
+				cursect = nxtsect;
+				j = 0;
+			}
 		} else {
-			cursect++;
+			if (j == PREFETCH_BLOCKS)
+				j = 0;
+
+			rootdir_end = (++cursect - mydata->rootdir_sect >=
+				       rootdir_size);
 		}
 
 		/* If end of rootdir reached */
-		if ((mydata->fatsize == 32 && fat32_end) ||
-		    (mydata->fatsize != 32 && j == rootdir_size)) {
+		if (rootdir_end) {
 			if (dols == LS_ROOT) {
 				printf("\n%d file(s), %d dir(s)\n\n",
 				       files, dirs);
