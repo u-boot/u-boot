@@ -207,8 +207,8 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 		__u32 fatlength = mydata->fatlength;
 		__u32 startblock = bufnum * FATBUFBLOCKS;
 
-		if (getsize > fatlength)
-			getsize = fatlength;
+		if (startblock + getsize > fatlength)
+			getsize = fatlength - startblock;
 
 		fatlength *= mydata->sect_size;	/* We want it in bytes now */
 		startblock += mydata->fat_sect;	/* Offset from start of disk */
