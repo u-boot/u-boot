@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <miiphy.h>
+#include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/mpp.h>
@@ -41,6 +42,8 @@ int board_early_init_f(void)
 			IB62x0_OE_VAL_HIGH,
 			IB62x0_OE_LOW, IB62x0_OE_HIGH);
 
+	/* Set SATA activity LEDs to default off */
+	writel(MVSATAHC_LED_POLARITY_CTRL, MVSATAHC_LED_CONF_REG);
 	/* Multi-Purpose Pins Functionality configuration */
 	u32 kwmpp_config[] = {
 		MPP0_NF_IO2,
