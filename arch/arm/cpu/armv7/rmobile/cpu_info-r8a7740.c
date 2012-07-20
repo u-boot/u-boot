@@ -35,7 +35,7 @@ u32 rmobile_get_cpu_type(void)
 	return type;
 }
 
-u32 get_cpu_rev(void)
+u32 rmobile_get_cpu_rev(void)
 {
 	u32 id;
 	u32 rev;
