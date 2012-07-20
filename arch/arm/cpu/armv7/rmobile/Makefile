@@ -30,6 +30,8 @@ COBJS-y += cpu_info.o
 
 COBJS-$(CONFIG_DISPLAY_BOARDINFO) += board.o
 COBJS-$(CONFIG_GLOBAL_TIMER) += timer.o
+COBJS-$(CONFIG_R8A7740) += cpu_info-r8a7740.o
+COBJS-$(CONFIG_R8A7740) += pfc-r8a7740.o
 COBJS-$(CONFIG_SH73A0) += cpu_info-sh73a0.o
 COBJS-$(CONFIG_SH73A0) += pfc-sh73a0.o
 COBJS-$(CONFIG_TMU_TIMER) += $(TOPDIR)/arch/sh/lib/time.o
