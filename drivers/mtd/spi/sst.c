@@ -18,12 +18,6 @@
 
 #include "spi_flash_internal.h"
 
-#define CMD_SST_WREN		0x06	/* Write Enable */
-#define CMD_SST_WRDI		0x04	/* Write Disable */
-#define CMD_SST_RDSR		0x05	/* Read Status Register */
-#define CMD_SST_WRSR		0x01	/* Write Status Register */
-#define CMD_SST_READ		0x03	/* Read Data Bytes */
-#define CMD_SST_FAST_READ	0x0b	/* Read Data Bytes at Higher Speed */
 #define CMD_SST_BP		0x02	/* Byte Program */
 #define CMD_SST_AAI_WP		0xAD	/* Auto Address Increment Word Program */
 #define CMD_SST_SE		0x20	/* Sector Erase */
@@ -137,7 +131,7 @@ sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 	};
 
 	debug("BP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
-		spi_w8r8(flash->spi, CMD_SST_RDSR), buf, cmd[0], offset);
+		spi_w8r8(flash->spi, CMD_READ_STATUS), buf, cmd[0], offset);
 
 	ret = sst_enable_writing(flash);
 	if (ret)
@@ -184,7 +178,7 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 
 	for (; actual < len - 1; actual += 2) {
 		debug("WP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
-		     spi_w8r8(flash->spi, CMD_SST_RDSR), buf + actual, cmd[0],
+		     spi_w8r8(flash->spi, CMD_READ_STATUS), buf + actual, cmd[0],
 		     offset);
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, cmd_len,
@@ -232,13 +226,13 @@ sst_unlock(struct spi_flash *flash)
 	if (ret)
 		return ret;
 
-	cmd = CMD_SST_WRSR;
+	cmd = CMD_WRITE_STATUS;
 	status = 0;
 	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &status, 1);
 	if (ret)
 		debug("SF: Unable to set status byte\n");
 
-	debug("SF: sst: status = %x\n", spi_w8r8(flash->spi, CMD_SST_RDSR));
+	debug("SF: sst: status = %x\n", spi_w8r8(flash->spi, CMD_READ_STATUS));
 
 	return ret;
 }
