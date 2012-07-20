@@ -39,6 +39,11 @@ struct kw_sdram_addr_dec {
 	struct kw_sdram_bank	sdram_bank[4];
 };
 
+#define KW_REG_CPUCS_WIN_ENABLE		(1 << 0)
+#define KW_REG_CPUCS_WIN_WR_PROTECT	(1 << 1)
+#define KW_REG_CPUCS_WIN_WIN0_CS(x)	(((x) & 0x3) << 2)
+#define KW_REG_CPUCS_WIN_SIZE(x)	(((x) & 0xff) << 24)
+
 /*
  * kw_sdram_bar - reads SDRAM Base Address Register
  */
@@ -54,6 +59,25 @@ u32 kw_sdram_bar(enum memory_bank bank)
 
 	result = readl(&base->sdram_bank[bank].win_bar);
 	return result;
+}
+
+/*
+ * kw_sdram_bs_set - writes SDRAM Bank size
+ */
+static void kw_sdram_bs_set(enum memory_bank bank, u32 size)
+{
+	struct kw_sdram_addr_dec *base =
+		(struct kw_sdram_addr_dec *)KW_REGISTER(0x1500);
+	/* Read current register value */
+	u32 reg = readl(&base->sdram_bank[bank].win_sz);
+
+	/* Clear window size */
+	reg &= ~KW_REG_CPUCS_WIN_SIZE(0xFF);
+
+	/* Set new window size */
+	reg |= KW_REG_CPUCS_WIN_SIZE((size - 1) >> 24);
+
+	writel(reg, &base->sdram_bank[bank].win_sz);
 }
 
 /*
