@@ -37,7 +37,7 @@
 /*
  * Convert a string to lowercase.
  */
-static void downcase (char *str)
+static void downcase(char *str)
 {
 	while (*str != '\0') {
 		TOLOWER(*str);
@@ -62,7 +62,7 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 			cur_part_info.start + block, nr_blocks, buf);
 }
 
-int fat_register_device (block_dev_desc_t * dev_desc, int part_no)
+int fat_register_device(block_dev_desc_t * dev_desc, int part_no)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
@@ -127,7 +127,7 @@ int fat_register_device (block_dev_desc_t * dev_desc, int part_no)
  * Get the first occurence of a directory delimiter ('/' or '\') in a string.
  * Return index into string if found, -1 otherwise.
  */
-static int dirdelim (char *str)
+static int dirdelim(char *str)
 {
 	char *start = str;
 
@@ -142,7 +142,7 @@ static int dirdelim (char *str)
 /*
  * Extract zero terminated short name from a directory entry.
  */
-static void get_name (dir_entry *dirent, char *s_name)
+static void get_name(dir_entry *dirent, char *s_name)
 {
 	char *ptr;
 
@@ -171,7 +171,7 @@ static void get_name (dir_entry *dirent, char *s_name)
  * Get the entry at index 'entry' in a FAT (12/16/32) table.
  * On failure 0x00 is returned.
  */
-static __u32 get_fatent (fsdata *mydata, __u32 entry)
+static __u32 get_fatent(fsdata *mydata, __u32 entry)
 {
 	__u32 bufnum;
 	__u32 off16, offset;
@@ -270,8 +270,7 @@ static __u32 get_fatent (fsdata *mydata, __u32 entry)
  * Return 0 on success, -1 otherwise.
  */
 static int
-get_cluster (fsdata *mydata, __u32 clustnum, __u8 *buffer,
-	     unsigned long size)
+get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 {
 	__u32 idx = 0;
 	__u32 startsect;
@@ -317,8 +316,8 @@ get_cluster (fsdata *mydata, __u32 clustnum, __u8 *buffer,
  * Return the number of bytes read or -1 on fatal errors.
  */
 static long
-get_contents (fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
-	      unsigned long maxsize)
+get_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
+	     unsigned long maxsize)
 {
 	unsigned long filesize = FAT2CPU32(dentptr->size), gotsize = 0;
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
@@ -397,7 +396,7 @@ getit:
  * starting at l_name[*idx].
  * Return 1 if terminator (zero byte) is found, 0 otherwise.
  */
-static int slot2str (dir_slot *slotptr, char *l_name, int *idx)
+static int slot2str(dir_slot *slotptr, char *l_name, int *idx)
 {
 	int j;
 
@@ -433,8 +432,8 @@ __u8 get_vfatname_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
 
 static int
-get_vfatname (fsdata *mydata, int curclust, __u8 *cluster,
-	      dir_entry *retdent, char *l_name)
+get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
+	     dir_entry *retdent, char *l_name)
 {
 	dir_entry *realdent;
 	dir_slot *slotptr = (dir_slot *)retdent;
@@ -516,7 +515,7 @@ get_vfatname (fsdata *mydata, int curclust, __u8 *cluster,
 }
 
 /* Calculate short name checksum */
-static __u8 mkcksum (const char *str)
+static __u8 mkcksum(const char *str)
 {
 	int i;
 
@@ -537,9 +536,9 @@ static __u8 mkcksum (const char *str)
 __u8 get_dentfromdir_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
 
-static dir_entry *get_dentfromdir (fsdata *mydata, int startsect,
-				   char *filename, dir_entry *retdent,
-				   int dols)
+static dir_entry *get_dentfromdir(fsdata *mydata, int startsect,
+				  char *filename, dir_entry *retdent,
+				  int dols)
 {
 	__u16 prevcksum = 0xffff;
 	__u32 curclust = START(retdent);
@@ -699,7 +698,7 @@ static dir_entry *get_dentfromdir (fsdata *mydata, int startsect,
  * Read boot sector and volume info from a FAT filesystem
  */
 static int
-read_bootsectandvi (boot_sector *bs, volume_info *volinfo, int *fatsize)
+read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 {
 	__u8 *block;
 	volume_info *vistart;
@@ -716,7 +715,7 @@ read_bootsectandvi (boot_sector *bs, volume_info *volinfo, int *fatsize)
 		return -1;
 	}
 
-	if (disk_read (0, 1, block) < 0) {
+	if (disk_read(0, 1, block) < 0) {
 		debug("Error: reading block\n");
 		goto fail;
 	}
@@ -770,8 +769,7 @@ __u8 do_fat_read_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
 
 long
-do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
-	     int dols)
+do_fat_read(const char *filename, void *buffer, unsigned long maxsize, int dols)
 {
 	char fnamecopy[2048];
 	boot_sector bs;
@@ -1114,7 +1112,7 @@ exit:
 	return ret;
 }
 
-int file_fat_detectfs (void)
+int file_fat_detectfs(void)
 {
 	boot_sector bs;
 	volume_info volinfo;
@@ -1177,12 +1175,12 @@ int file_fat_detectfs (void)
 	return 0;
 }
 
-int file_fat_ls (const char *dir)
+int file_fat_ls(const char *dir)
 {
 	return do_fat_read(dir, NULL, 0, LS_YES);
 }
 
-long file_fat_read (const char *filename, void *buffer, unsigned long maxsize)
+long file_fat_read(const char *filename, void *buffer, unsigned long maxsize)
 {
 	printf("reading %s\n", filename);
 	return do_fat_read(filename, buffer, maxsize, LS_NO);
