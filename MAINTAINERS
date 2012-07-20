@@ -959,6 +959,10 @@ Vladimir Zapolskiy <vz@mleia.com>
 
 	devkit3250	lpc32xx
 
+Zhong Hongbo <bocui107@gmail.com>
+
+	SMDK6400	ARM1176 (S3C6400 SoC)
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
@@ -971,7 +975,6 @@ Unknown / orphaned boards:
 
 	imx31_phycore_eet i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
 	mx31ads		  i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
-	SMDK6400	  S3C6400 Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
 
 #########################################################################
 # x86 Systems:								#
