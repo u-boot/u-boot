@@ -210,7 +210,6 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 		if (startblock + getsize > fatlength)
 			getsize = fatlength - startblock;
 
-		fatlength *= mydata->sect_size;	/* We want it in bytes now */
 		startblock += mydata->fat_sect;	/* Offset from start of disk */
 
 		if (disk_read(startblock, getsize, bufptr) < 0) {
