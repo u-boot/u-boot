@@ -188,7 +188,8 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 		   request, requesttype, value, index, size);
 	dev->status = USB_ST_NOT_PROC; /*not yet processed */
 
-	submit_control_msg(dev, pipe, data, size, setup_packet);
+	if (submit_control_msg(dev, pipe, data, size, setup_packet) < 0)
+		return -1;
 	if (timeout == 0)
 		return (int)size;
 
@@ -220,7 +221,8 @@ int usb_bulk_msg(struct usb_device *dev, unsigned int pipe,
 	if (len < 0)
 		return -1;
 	dev->status = USB_ST_NOT_PROC; /*not yet processed */
-	submit_bulk_msg(dev, pipe, data, len);
+	if (submit_bulk_msg(dev, pipe, data, len) < 0)
+		return -1;
 	while (timeout--) {
 		if (!((volatile unsigned long)dev->status & USB_ST_NOT_PROC))
 			break;
@@ -799,12 +801,13 @@ int usb_new_device(struct usb_device *dev)
 	dev->epmaxpacketin[0] = 8;
 	dev->epmaxpacketout[0] = 8;
 
-	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, &dev->descriptor, 8);
+	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, tmpbuf, 8);
 	if (err < 8) {
 		printf("\n      USB device not responding, " \
 		       "giving up (status=%lX)\n", dev->status);
 		return 1;
 	}
+	memcpy(&dev->descriptor, tmpbuf, 8);
 #else
 	/* This is a Windows scheme of initialization sequence, with double
 	 * reset of the device (Linux uses the same sequence)
@@ -893,7 +896,7 @@ int usb_new_device(struct usb_device *dev)
 	tmp = sizeof(dev->descriptor);
 
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0,
-				 &dev->descriptor, sizeof(dev->descriptor));
+				 tmpbuf, sizeof(dev->descriptor));
 	if (err < tmp) {
 		if (err < 0)
 			printf("unable to get device descriptor (error=%d)\n",
@@ -903,6 +906,7 @@ int usb_new_device(struct usb_device *dev)
 				"(expected %i, got %i)\n", tmp, err);
 		return 1;
 	}
+	memcpy(&dev->descriptor, tmpbuf, sizeof(dev->descriptor));
 	/* correct le values */
 	le16_to_cpus(&dev->descriptor.bcdUSB);
 	le16_to_cpus(&dev->descriptor.idVendor);

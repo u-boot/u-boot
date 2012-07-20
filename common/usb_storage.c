@@ -150,11 +150,16 @@ struct us_data {
 	unsigned int	irqpipe;	 	/* pipe for release_irq */
 	unsigned char	irqmaxp;		/* max packed for irq Pipe */
 	unsigned char	irqinterval;		/* Intervall for IRQ Pipe */
-	unsigned long	max_xfer_blk;		/* Max blocks per xfer */
 	ccb		*srb;			/* current srb */
 	trans_reset	transport_reset;	/* reset routine */
 	trans_cmnd	transport;		/* transport routine */
 };
+
+/*
+ * The U-Boot EHCI driver cannot handle more than 5 page aligned buffers
+ * of 4096 bytes in a transfer without running itself out of qt_buffers
+ */
+#define USB_MAX_XFER_BLK(start, blksz)	(((4096 * 5) - (start % 4096)) / blksz)
 
 static struct us_data usb_stor[USB_MAX_STOR_DEV];
 
@@ -1041,7 +1046,7 @@ static void usb_bin_fixup(struct usb_device_descriptor descriptor,
 unsigned long usb_stor_read(int device, unsigned long blknr,
 			    unsigned long blkcnt, void *buffer)
 {
-	unsigned long start, blks, buf_addr;
+	unsigned long start, blks, buf_addr, max_xfer_blk;
 	unsigned short smallblks;
 	struct usb_device *dev;
 	struct us_data *ss;
@@ -1083,12 +1088,14 @@ unsigned long usb_stor_read(int device, unsigned long blknr,
 		/* XXX need some comment here */
 		retry = 2;
 		srb->pdata = (unsigned char *)buf_addr;
-		if (blks > ss->max_xfer_blk)
-			smallblks = ss->max_xfer_blk;
+		max_xfer_blk = USB_MAX_XFER_BLK(buf_addr,
+						usb_dev_desc[device].blksz);
+		if (blks > max_xfer_blk)
+			smallblks = (unsigned short) max_xfer_blk;
 		else
 			smallblks = (unsigned short) blks;
 retry_it:
-		if (smallblks == ss->max_xfer_blk)
+		if (smallblks == max_xfer_blk)
 			usb_show_progress();
 		srb->datalen = usb_dev_desc[device].blksz * smallblks;
 		srb->pdata = (unsigned char *)buf_addr;
@@ -1109,7 +1116,7 @@ retry_it:
 			start, smallblks, buf_addr);
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
-	if (blkcnt >= ss->max_xfer_blk)
+	if (blkcnt >= max_xfer_blk)
 		debug("\n");
 	return blkcnt;
 }
@@ -1117,7 +1124,7 @@ retry_it:
 unsigned long usb_stor_write(int device, unsigned long blknr,
 				unsigned long blkcnt, const void *buffer)
 {
-	unsigned long start, blks, buf_addr;
+	unsigned long start, blks, buf_addr, max_xfer_blk;
 	unsigned short smallblks;
 	struct usb_device *dev;
 	struct us_data *ss;
@@ -1162,12 +1169,14 @@ unsigned long usb_stor_write(int device, unsigned long blknr,
 		 */
 		retry = 2;
 		srb->pdata = (unsigned char *)buf_addr;
-		if (blks > ss->max_xfer_blk)
-			smallblks = ss->max_xfer_blk;
+		max_xfer_blk = USB_MAX_XFER_BLK(buf_addr,
+						usb_dev_desc[device].blksz);
+		if (blks > max_xfer_blk)
+			smallblks = (unsigned short) max_xfer_blk;
 		else
 			smallblks = (unsigned short) blks;
 retry_it:
-		if (smallblks == ss->max_xfer_blk)
+		if (smallblks == max_xfer_blk)
 			usb_show_progress();
 		srb->datalen = usb_dev_desc[device].blksz * smallblks;
 		srb->pdata = (unsigned char *)buf_addr;
@@ -1188,7 +1197,7 @@ retry_it:
 			start, smallblks, buf_addr);
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
-	if (blkcnt >= ss->max_xfer_blk)
+	if (blkcnt >= max_xfer_blk)
 		debug("\n");
 	return blkcnt;
 
@@ -1414,12 +1423,6 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	dev_desc->type = perq;
 	USB_STOR_PRINTF(" address %d\n", dev_desc->target);
 	USB_STOR_PRINTF("partype: %d\n", dev_desc->part_type);
-
-	/*
-	 * The U-Boot EHCI driver cannot handle more than 4096 * 5 bytes in a
-	 * transfer without running itself out of qt_buffers.
-	 */
-	ss->max_xfer_blk = (4096 * 5) / dev_desc->blksz;
 
 	init_part(dev_desc);
 

@@ -29,6 +29,16 @@
 #include <usb_defs.h>
 #include <usbdescriptors.h>
 
+/*
+ * The EHCI spec says that we must align to at least 32 bytes.  However,
+ * some platforms require larger alignment.
+ */
+#if ARCH_DMA_MINALIGN > 32
+#define USB_DMA_MINALIGN	ARCH_DMA_MINALIGN
+#else
+#define USB_DMA_MINALIGN	32
+#endif
+
 /* Everything is aribtrary */
 #define USB_ALTSETTINGALLOC		4
 #define USB_MAXALTSETTING		128	/* Hard limit */
