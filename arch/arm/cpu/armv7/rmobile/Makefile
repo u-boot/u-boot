@@ -31,6 +31,7 @@ COBJS-y += timer.o
 
 COBJS-$(CONFIG_DISPLAY_BOARDINFO) += board.o
 COBJS-$(CONFIG_SH73A0) += cpu_info-sh73a0.o
+COBJS-$(CONFIG_SH73A0) += pfc-sh73a0.o
 
 COBJS	:= $(COBJS-y)
 SRCS    := $(SOBJS:.o=.S) $(COBJS:.o=.c)
