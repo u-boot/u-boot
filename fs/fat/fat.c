@@ -367,21 +367,9 @@ get_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 			actsize += bytesperclust;
 		}
 
-		/* actsize >= file size */
-		actsize -= bytesperclust;
-
-		/* get remaining clusters */
-		if (get_cluster(mydata, curclust, buffer, (int)actsize) != 0) {
-			printf("Error reading cluster\n");
-			return -1;
-		}
-
 		/* get remaining bytes */
-		gotsize += (int)actsize;
-		filesize -= actsize;
-		buffer += actsize;
 		actsize = filesize;
-		if (get_cluster(mydata, endclust, buffer, (int)actsize) != 0) {
+		if (get_cluster(mydata, curclust, buffer, (int)actsize) != 0) {
 			printf("Error reading cluster\n");
 			return -1;
 		}
