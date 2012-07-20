@@ -30,20 +30,29 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define KW_REG_CPUCS_WIN_BAR(x)		(KW_REGISTER(0x1500) + (x * 0x08))
-#define KW_REG_CPUCS_WIN_SZ(x)		(KW_REGISTER(0x1504) + (x * 0x08))
+struct kw_sdram_bank {
+	u32	win_bar;
+	u32	win_sz;
+};
+
+struct kw_sdram_addr_dec {
+	struct kw_sdram_bank	sdram_bank[4];
+};
+
 /*
  * kw_sdram_bar - reads SDRAM Base Address Register
  */
 u32 kw_sdram_bar(enum memory_bank bank)
 {
+	struct kw_sdram_addr_dec *base =
+		(struct kw_sdram_addr_dec *)KW_REGISTER(0x1500);
 	u32 result = 0;
-	u32 enable = 0x01 & readl(KW_REG_CPUCS_WIN_SZ(bank));
+	u32 enable = 0x01 & readl(&base->sdram_bank[bank].win_sz);
 
 	if ((!enable) || (bank > BANK3))
 		return 0;
 
-	result = readl(KW_REG_CPUCS_WIN_BAR(bank));
+	result = readl(&base->sdram_bank[bank].win_bar);
 	return result;
 }
 
@@ -52,12 +61,14 @@ u32 kw_sdram_bar(enum memory_bank bank)
  */
 u32 kw_sdram_bs(enum memory_bank bank)
 {
+	struct kw_sdram_addr_dec *base =
+		(struct kw_sdram_addr_dec *)KW_REGISTER(0x1500);
 	u32 result = 0;
-	u32 enable = 0x01 & readl(KW_REG_CPUCS_WIN_SZ(bank));
+	u32 enable = 0x01 & readl(&base->sdram_bank[bank].win_sz);
 
 	if ((!enable) || (bank > BANK3))
 		return 0;
-	result = 0xff000000 & readl(KW_REG_CPUCS_WIN_SZ(bank));
+	result = 0xff000000 & readl(&base->sdram_bank[bank].win_sz);
 	result += 0x01000000;
 	return result;
 }
