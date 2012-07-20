@@ -224,10 +224,16 @@ void __dram_init_banksize(void)
 void dram_init_banksize(void)
 	__attribute__((weak, alias("__dram_init_banksize")));
 
+int __arch_cpu_init(void)
+{
+	return 0;
+}
+int arch_cpu_init(void)
+	__attribute__((weak, alias("__arch_cpu_init")));
+
 init_fnc_t *init_sequence[] = {
-#if defined(CONFIG_ARCH_CPU_INIT)
 	arch_cpu_init,		/* basic arch cpu dependent setup */
-#endif
+
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
