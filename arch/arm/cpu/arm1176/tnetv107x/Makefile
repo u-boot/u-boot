@@ -21,7 +21,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).o
 
-COBJS	+= aemif.o clock.o init.o mux.o timer.o wdt.o
+COBJS	+= aemif.o clock.o init.o mux.o timer.o
 SOBJS	+= lowlevel_init.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
