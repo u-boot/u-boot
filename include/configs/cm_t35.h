@@ -37,6 +37,7 @@
  */
 #define CONFIG_OMAP	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX	/* which is a 34XX */
+#define CONFIG_OMAP_GPIO
 #define CONFIG_CM_T3X	/* working with CM-T35 and CM-T3730 */
 
 #define CONFIG_SYS_TEXT_BASE	0x80008000

@@ -27,6 +27,7 @@
 #define CONFIG_OMAP			/* in a TI OMAP core */
 #define CONFIG_OMAP34XX			/* which is a 34XX */
 #define CONFIG_OMAP3_MCX		/* working with mcx */
+#define CONFIG_OMAP_GPIO
 
 #define MACH_TYPE_MCX			3656
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX
