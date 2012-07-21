@@ -19,6 +19,7 @@ Contents
 1) Prerequisites
 2) Compiling U-Boot for a MX28 based board
 3) Installation of U-Boot for a MX28 based board to SD card
+4) Installation of U-Boot into NAND flash
 
 1) Prerequisites
 ----------------
@@ -29,14 +30,14 @@ is the "mxsboot" tool found in U-Boot source tree.
 
 Firstly, obtain the elftosb archive from the following location:
 
-	http://foss.doredevelopment.dk/mirrors/imx/elftosb-10.12.01.tar.gz
+	ftp://ftp.denx.de/pub/tools/elftosb-10.12.01.tar.gz
 
 We use a $VER variable here to denote the current version. At the time of
 writing of this document, that is "10.12.01". To obtain the file from command
 line, use:
 
 	$ VER="10.12.01"
-	$ wget http://foss.doredevelopment.dk/mirrors/imx/elftosb-${VER}.tar.gz
+	$ wget ftp://ftp.denx.de/pub/tools/elftosb-${VER}.tar.gz
 
 Extract the file:
 
@@ -146,8 +147,8 @@ NOTE: If the user needs to adjust the start sector, the "mxsboot" tool contains
       a "-p" switch for that purpose. The "-p" switch takes the sector number as
       an argument.
 
-4) Installation of U-Boot for NAND flash
------------------------------------------------
+4) Installation of U-Boot into NAND flash
+-----------------------------------------
 
 To boot a MX28 based board from NAND, set the boot mode DIP switches according to i.MX28
 manual chapter 12.2.1 (Table 12-2), PORT=GPMI, NAND 1.8 V.
