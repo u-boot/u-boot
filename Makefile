@@ -238,7 +238,7 @@ ifdef SOC
 LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
 endif
 ifeq ($(CPU),ixp)
-LIBS-y += arch/arm/cpu/ixp/npe/libnpe.o
+LIBS-y += drivers/net/npe/libnpe.o
 endif
 LIBS-$(CONFIG_OF_EMBED) += dts/libdts.o
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
