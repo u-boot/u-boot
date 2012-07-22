@@ -45,7 +45,6 @@
 #define THERM_WRITE_TL		0x02
 #define THERM_WRITE_TH		0x01
 
-#define CONFIG_SYS_CPU			2
 #define CONFIG_SYS_1SHOT		1
 #define CONFIG_SYS_STANDALONE		0
 
