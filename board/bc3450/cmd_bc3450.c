@@ -32,13 +32,6 @@
  */
 #if defined(CONFIG_CMD_BSP)
 
-#undef DEBUG
-#ifdef DEBUG
-# define dprintf(fmt,args...)	printf(fmt, ##args)
-#else
-# define dprintf(fmt,args...)
-#endif
-
 /*
  * Definitions for DS1620 chip
  */
@@ -129,7 +122,7 @@ int sm501_gpio_init (void)
 	static int init_done = 0;
 
 	if (init_done) {
-/*	dprintf("sm501_gpio_init: nothing to be done.\n"); */
+		debug("sm501_gpio_init: nothing to be done.\n");
 		return 1;
 	}
 
@@ -162,7 +155,8 @@ int sm501_gpio_init (void)
 		(PWR_OFF | BUZZER | FP_DATA_TRI);
 
 	init_done = 1;
-/*  dprintf("sm501_gpio_init: done.\n"); */
+	debug("sm501_gpio_init: done.\n");
+
 	return 0;
 }
 
