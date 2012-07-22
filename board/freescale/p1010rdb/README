@@ -146,7 +146,6 @@ Build and burn u-boot to NAND flash
 3. Check SW4[1:4]= 1000 and SW6[4]=1, then power on.
 
 
-
 Build and burn u-boot to SPI flash
 ==================================
 1. Build u-boot-spi.bin image
@@ -164,7 +163,6 @@ Build and burn u-boot to SPI flash
 	=> sf write $loadaddr 0 $filesize
 
 3. Check SW4[1:4]= 0110 and SW6[4]=0, then power on.
-
 
 
 CPLD POR setting registers
@@ -195,7 +193,6 @@ Switch from NAND to NOR boot with Core/CCB/DDR (800/400/667 MHz):
 	=> mw.b ffb00016 3
 	=> mw.b ffb00017 f
 	=> reset
-
 
 
 Boot Linux from network using TFTP on P1010RDB
