@@ -855,18 +855,12 @@ version_string:
 	.globl	_start_cont
 _start_cont:
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
-	lis	r1,CONFIG_SYS_INIT_RAM_ADDR@h
-	ori	r1,r1,CONFIG_SYS_INIT_SP_OFFSET@l
-
+	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR)@h
+	ori	r3,r3,((CONFIG_SYS_INIT_SP_OFFSET-16)&~0xf)@l /* Align to 16 */
 	li	r0,0
-	stwu	r0,-4(r1)
-	stwu	r0,-4(r1)		/* Terminate call chain */
-
-	stwu	r1,-8(r1)		/* Save back chain and move SP */
-	lis	r0,RESET_VECTOR@h	/* Address of reset vector */
-	ori	r0,r0,RESET_VECTOR@l
-	stwu	r1,-8(r1)		/* Save back chain and move SP */
-	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
+	stw	r0,0(r3)	/* Terminate Back Chain */
+	stw	r0,+4(r3)	/* NULL return address. */
+	mr	r1,r3		/* Transfer to SP(r1) */
 
 	GET_GOT
 	bl	cpu_init_early_f
