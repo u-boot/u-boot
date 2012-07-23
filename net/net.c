@@ -256,6 +256,7 @@ static void NetInitLoop(void)
 #endif
 		env_changed_id = env_id;
 	}
+	memcpy(NetOurEther, eth_get_dev()->enetaddr, 6);
 
 	return;
 }
@@ -322,8 +323,6 @@ int NetLoop(enum proto_t protocol)
 	}
 
 restart:
-	memcpy(NetOurEther, eth_get_dev()->enetaddr, 6);
-
 	net_set_state(NETLOOP_CONTINUE);
 
 	/*
