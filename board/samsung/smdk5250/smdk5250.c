@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <i2c.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
@@ -172,9 +173,36 @@ static int board_uart_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
+static int board_i2c_init(void)
+{
+	int i, err;
+
+	for (i = 0; i < CONFIG_MAX_I2C_NUM; i++) {
+		err = exynos_pinmux_config((PERIPH_ID_I2C0 + i),
+						PINMUX_FLAG_NONE);
+		if (err) {
+			debug("I2C%d not configured\n", (PERIPH_ID_I2C0 + i));
+			return err;
+		}
+	}
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	return board_uart_init();
+	int err;
+	err = board_uart_init();
+	if (err) {
+		debug("UART init failed\n");
+		return err;
+	}
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
+	err = board_i2c_init();
+#endif
+	return err;
 }
 #endif
