@@ -158,6 +158,33 @@ static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
 	writel(I2C_MODE_MT | I2C_TXRX_ENA, &i2c->iicstat);
 }
 
+/*
+ * MULTI BUS I2C support
+ */
+
+#ifdef CONFIG_I2C_MULTI_BUS
+int i2c_set_bus_num(unsigned int bus)
+{
+	struct s3c24x0_i2c *i2c;
+
+	if ((bus < 0) || (bus >= CONFIG_MAX_I2C_NUM)) {
+		debug("Bad bus: %d\n", bus);
+		return -1;
+	}
+
+	g_current_bus = bus;
+	i2c = get_base_i2c();
+	i2c_ch_init(i2c, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+
+	return 0;
+}
+
+unsigned int i2c_get_bus_num(void)
+{
+	return g_current_bus;
+}
+#endif
+
 void i2c_init(int speed, int slaveadd)
 {
 	struct s3c24x0_i2c *i2c;
