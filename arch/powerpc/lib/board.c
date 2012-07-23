@@ -521,9 +521,8 @@ void board_init_f(ulong bootflag)
 	addr_sp -= 16;
 	addr_sp &= ~0xF;
 	s = (ulong *) addr_sp;
-	*s-- = 0;
-	*s-- = 0;
-	addr_sp = (ulong) s;
+	*s = 0; /* Terminate back chain */
+	*++s = 0; /* NULL return address */
 	debug("Stack Pointer at: %08lx\n", addr_sp);
 
 	/*
