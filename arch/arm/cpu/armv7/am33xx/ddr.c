@@ -101,22 +101,11 @@ void config_cmd_ctrl(const struct cmd_control *cmd)
 void config_ddr_data(int macrono, const struct ddr_data *data)
 {
 	writel(data->datardsratio0, &ddr_reg[macrono]->dt0rdsratio0);
-	writel(data->datardsratio1, &ddr_reg[macrono]->dt0rdsratio1);
-
 	writel(data->datawdsratio0, &ddr_reg[macrono]->dt0wdsratio0);
-	writel(data->datawdsratio1, &ddr_reg[macrono]->dt0wdsratio1);
-
 	writel(data->datawiratio0, &ddr_reg[macrono]->dt0wiratio0);
-	writel(data->datawiratio1, &ddr_reg[macrono]->dt0wiratio1);
 	writel(data->datagiratio0, &ddr_reg[macrono]->dt0giratio0);
-	writel(data->datagiratio1, &ddr_reg[macrono]->dt0giratio1);
-
 	writel(data->datafwsratio0, &ddr_reg[macrono]->dt0fwsratio0);
-	writel(data->datafwsratio1, &ddr_reg[macrono]->dt0fwsratio1);
-
 	writel(data->datawrsratio0, &ddr_reg[macrono]->dt0wrsratio0);
-	writel(data->datawrsratio1, &ddr_reg[macrono]->dt0wrsratio1);
-
 	writel(data->datadldiff0, &ddr_reg[macrono]->dt0dldiff0);
 }
 

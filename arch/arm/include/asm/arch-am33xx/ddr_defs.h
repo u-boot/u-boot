@@ -88,25 +88,20 @@ struct ddr_regs {
 	unsigned int cm2iclkout;	/* offset 0x094 */
 	unsigned int resv3[12];
 	unsigned int dt0rdsratio0;	/* offset 0x0C8 */
-	unsigned int dt0rdsratio1;	/* offset 0x0CC */
-	unsigned int resv4[3];
+	unsigned int resv4[4];
 	unsigned int dt0wdsratio0;	/* offset 0x0DC */
-	unsigned int dt0wdsratio1;	/* offset 0x0E0 */
-	unsigned int resv5[3];
+	unsigned int resv5[4];
 	unsigned int dt0wiratio0;	/* offset 0x0F0 */
-	unsigned int dt0wiratio1;	/* offset 0x0F4 */
+	unsigned int resv6;
 	unsigned int dt0giratio0;	/* offset 0x0FC */
-	unsigned int dt0giratio1;	/* offset 0x100 */
-	unsigned int resv6[1];
+	unsigned int resv7[2];
 	unsigned int dt0fwsratio0;	/* offset 0x108 */
-	unsigned int dt0fwsratio1;	/* offset 0x10C */
-	unsigned int resv7[4];
+	unsigned int resv8[5];
 	unsigned int dt0wrsratio0;	/* offset 0x120 */
-	unsigned int dt0wrsratio1;	/* offset 0x124 */
-	unsigned int resv8[3];
+	unsigned int resv9[4];
 	unsigned int dt0rdelays0;	/* offset 0x134 */
 	unsigned int dt0dldiff0;	/* offset 0x138 */
-	unsigned int resv9[39];
+	unsigned int resv10[39];
 	unsigned int dt1rdelays0;	/* offset 0x1D8 */
 };
 
@@ -136,17 +131,11 @@ struct cmd_control {
  */
 struct ddr_data {
 	unsigned long datardsratio0;
-	unsigned long datardsratio1;
 	unsigned long datawdsratio0;
-	unsigned long datawdsratio1;
 	unsigned long datawiratio0;
-	unsigned long datawiratio1;
 	unsigned long datagiratio0;
-	unsigned long datagiratio1;
 	unsigned long datafwsratio0;
-	unsigned long datafwsratio1;
 	unsigned long datawrsratio0;
-	unsigned long datawrsratio1;
 	unsigned long datadldiff0;
 };
 

@@ -51,22 +51,16 @@ void dram_init_banksize(void)
 static const struct ddr_data ddr2_data = {
 	.datardsratio0 = ((DDR2_RD_DQS<<30)|(DDR2_RD_DQS<<20)
 				|(DDR2_RD_DQS<<10)|(DDR2_RD_DQS<<0)),
-	.datardsratio1 = DDR2_RD_DQS>>2,
 	.datawdsratio0 = ((DDR2_WR_DQS<<30)|(DDR2_WR_DQS<<20)
 				|(DDR2_WR_DQS<<10)|(DDR2_WR_DQS<<0)),
-	.datawdsratio1 = DDR2_WR_DQS>>2,
 	.datawiratio0 = ((DDR2_PHY_WRLVL<<30)|(DDR2_PHY_WRLVL<<20)
 				|(DDR2_PHY_WRLVL<<10)|(DDR2_PHY_WRLVL<<0)),
-	.datawiratio1 = DDR2_PHY_WRLVL>>2,
 	.datagiratio0 = ((DDR2_PHY_GATELVL<<30)|(DDR2_PHY_GATELVL<<20)
 				|(DDR2_PHY_GATELVL<<10)|(DDR2_PHY_GATELVL<<0)),
-	.datagiratio1 = DDR2_PHY_GATELVL>>2,
 	.datafwsratio0 = ((DDR2_PHY_FIFO_WE<<30)|(DDR2_PHY_FIFO_WE<<20)
 				|(DDR2_PHY_FIFO_WE<<10)|(DDR2_PHY_FIFO_WE<<0)),
-	.datafwsratio1 = DDR2_PHY_FIFO_WE>>2,
 	.datawrsratio0 = ((DDR2_PHY_WR_DATA<<30)|(DDR2_PHY_WR_DATA<<20)
 				|(DDR2_PHY_WR_DATA<<10)|(DDR2_PHY_WR_DATA<<0)),
-	.datawrsratio1 = DDR2_PHY_WR_DATA>>2,
 	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
