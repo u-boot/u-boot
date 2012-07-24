@@ -112,22 +112,22 @@ static void config_emif_ddr2(void)
 	struct sdram_timing tmg;
 	struct ddr_phy_control phyc;
 
-	/*Program EMIF0 CFG Registers*/
-	phyc.reg = EMIF_READ_LATENCY;
-	phyc.reg_sh = EMIF_READ_LATENCY;
-	phyc.reg2 = EMIF_READ_LATENCY;
+	/* Program EMIF0 CFG Registers */
+	phyc.reg = DDR2_EMIF_READ_LATENCY;
+	phyc.reg_sh = DDR2_EMIF_READ_LATENCY;
+	phyc.reg2 = DDR2_EMIF_READ_LATENCY;
 
-	tmg.time1 = EMIF_TIM1;
-	tmg.time1_sh = EMIF_TIM1;
-	tmg.time2 = EMIF_TIM2;
-	tmg.time2_sh = EMIF_TIM2;
-	tmg.time3 = EMIF_TIM3;
-	tmg.time3_sh = EMIF_TIM3;
+	tmg.time1 = DDR2_EMIF_TIM1;
+	tmg.time1_sh = DDR2_EMIF_TIM1;
+	tmg.time2 = DDR2_EMIF_TIM2;
+	tmg.time2_sh = DDR2_EMIF_TIM2;
+	tmg.time3 = DDR2_EMIF_TIM3;
+	tmg.time3_sh = DDR2_EMIF_TIM3;
 
-	cfg.sdrcr = EMIF_SDCFG;
-	cfg.sdrcr2 = EMIF_SDCFG;
-	cfg.refresh = EMIF_SDREF;
-	cfg.refresh_sh = EMIF_SDREF;
+	cfg.sdrcr = DDR2_EMIF_SDCFG;
+	cfg.sdrcr2 = DDR2_EMIF_SDCFG;
+	cfg.refresh = DDR2_EMIF_SDREF;
+	cfg.refresh_sh = DDR2_EMIF_SDREF;
 
 	/* Program EMIF instance */
 	ret = config_ddr_phy(&phyc);
@@ -159,14 +159,14 @@ void config_ddr(short ddr_type)
 		config_ddr_data(0, &ddr2_data);
 		config_ddr_data(1, &ddr2_data);
 
-		writel(PHY_RANK0_DELAY, &ddrregs->dt0rdelays0);
-		writel(PHY_RANK0_DELAY, &ddrregs->dt1rdelays0);
+		writel(DDR2_PHY_RANK0_DELAY, &ddrregs->dt0rdelays0);
+		writel(DDR2_PHY_RANK0_DELAY, &ddrregs->dt1rdelays0);
 
-		ioctrl.cmd1ctl = DDR_IOCTRL_VALUE;
-		ioctrl.cmd2ctl = DDR_IOCTRL_VALUE;
-		ioctrl.cmd3ctl = DDR_IOCTRL_VALUE;
-		ioctrl.data1ctl = DDR_IOCTRL_VALUE;
-		ioctrl.data2ctl = DDR_IOCTRL_VALUE;
+		ioctrl.cmd1ctl = DDR2_IOCTRL_VALUE;
+		ioctrl.cmd2ctl = DDR2_IOCTRL_VALUE;
+		ioctrl.cmd3ctl = DDR2_IOCTRL_VALUE;
+		ioctrl.data1ctl = DDR2_IOCTRL_VALUE;
+		ioctrl.data2ctl = DDR2_IOCTRL_VALUE;
 
 		config_io_ctrl(&ioctrl);
 
