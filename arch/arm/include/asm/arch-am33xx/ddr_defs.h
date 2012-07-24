@@ -28,6 +28,7 @@
 #define CMD_FORCE		0x00
 #define CMD_DELAY		0x00
 #define PHY_DLL_LOCK_DIFF	0x0
+#define DDR_CKE_CTRL_NORMAL	0x1
 
 #define DDR2_EMIF_READ_LATENCY	0x100005	/* Enable Dynamic Power Down */
 #define DDR2_EMIF_TIM1		0x0666B3C9

@@ -170,10 +170,8 @@ void config_ddr(short ddr_type)
 
 		config_io_ctrl(&ioctrl);
 
-		writel(readl(&ddrctrl->ddrioctrl) & 0xefffffff,
-				&ddrctrl->ddrioctrl);
-		writel(readl(&ddrctrl->ddrckectrl) | 0x00000001,
-				&ddrctrl->ddrckectrl);
+		/* Set CKE to be controlled by EMIF/DDR PHY */
+		writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
 
 		config_emif_ddr2();
 	}
