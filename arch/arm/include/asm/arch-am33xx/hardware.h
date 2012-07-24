@@ -46,6 +46,7 @@
 
 /* Control Module Base Address */
 #define CTRL_BASE			0x44E10000
+#define CTRL_DEVICE_BASE		0x44E10600
 
 /* PRCM Base Address */
 #define PRCM_BASE			0x44E00000
@@ -77,5 +78,9 @@
 
 #define DDRPHY_0_CONFIG_BASE		(CTRL_BASE + 0x1400)
 #define DDRPHY_CONFIG_BASE		DDRPHY_0_CONFIG_BASE
+
+/* CPSW Config space */
+#define AM335X_CPSW_BASE		0x4A100000
+#define AM335X_CPSW_MDIO_BASE		0x4A101000
 
 #endif /* __AM33XX_HARDWARE_H */

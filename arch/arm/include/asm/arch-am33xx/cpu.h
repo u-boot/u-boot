@@ -255,6 +255,17 @@ struct ctrl_stat {
 #define OMAP_GPIO_CLEARDATAOUT		0x0190
 #define OMAP_GPIO_SETDATAOUT		0x0194
 
+/* Control Device Register */
+struct ctrl_dev {
+	unsigned int deviceid;		/* offset 0x00 */
+	unsigned int resv1[11];
+	unsigned int macid0l;		/* offset 0x30 */
+	unsigned int macid0h;		/* offset 0x34 */
+	unsigned int macid1l;		/* offset 0x38 */
+	unsigned int macid1h;		/* offset 0x3c */
+	unsigned int resv2[4];
+	unsigned int miisel;		/* offset 0x50 */
+};
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 

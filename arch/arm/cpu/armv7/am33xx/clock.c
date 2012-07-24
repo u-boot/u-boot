@@ -24,6 +24,7 @@
 
 #define PRCM_MOD_EN		0x2
 #define PRCM_FORCE_WAKEUP	0x2
+#define PRCM_FUNCTL		0x0
 
 #define PRCM_EMIF_CLK_ACTIVITY	BIT(2)
 #define PRCM_L3_GCLK_ACTIVITY	BIT(4)
@@ -38,7 +39,7 @@
 #define CLK_MODE_SEL		0x7
 #define CLK_MODE_MASK		0xfffffff8
 #define CLK_DIV_SEL		0xFFFFFFE0
-
+#define CPGMAC0_IDLE		0x30000
 
 const struct cm_perpll *cmper = (struct cm_perpll *)CM_PER;
 const struct cm_wkuppll *cmwkup = (struct cm_wkuppll *)CM_WKUP;
@@ -137,6 +138,11 @@ static void enable_per_clocks(void)
 	/* i2c1 */
 	writel(PRCM_MOD_EN, &cmper->i2c1clkctrl);
 	while (readl(&cmper->i2c1clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* Ethernet */
+	writel(PRCM_MOD_EN, &cmper->cpgmac0clkctrl);
+	while ((readl(&cmper->cpgmac0clkctrl) & CPGMAC0_IDLE) != PRCM_FUNCTL)
 		;
 }
 
