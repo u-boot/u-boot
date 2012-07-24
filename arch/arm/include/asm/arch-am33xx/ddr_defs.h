@@ -20,6 +20,7 @@
 #define _DDR_DEFS_H
 
 #include <asm/arch/hardware.h>
+#include <asm/emif.h>
 
 /* AM335X EMIF Register values */
 #define VTP_CTRL_READY		(0x1 << 5)
@@ -49,50 +50,19 @@
 #define DDR2_IOCTRL_VALUE	0x18B
 
 /**
- * Encapsulates DDR PHY control and corresponding shadow registers.
- */
-struct ddr_phy_control {
-	unsigned long	reg;
-	unsigned long	reg_sh;
-	unsigned long	reg2;
-};
-
-/**
- * Encapsulates SDRAM timing and corresponding shadow registers.
- */
-struct sdram_timing {
-	unsigned long	time1;
-	unsigned long	time1_sh;
-	unsigned long	time2;
-	unsigned long	time2_sh;
-	unsigned long	time3;
-	unsigned long	time3_sh;
-};
-
-/**
- * Encapsulates SDRAM configuration.
- * (Includes refresh control registers)  */
-struct sdram_config {
-	unsigned long	sdrcr;
-	unsigned long	sdrcr2;
-	unsigned long	refresh;
-	unsigned long	refresh_sh;
-};
-
-/**
  * Configure SDRAM
  */
-void config_sdram(struct sdram_config *cfg);
+void config_sdram(const struct emif_regs *regs);
 
 /**
  * Set SDRAM timings
  */
-void set_sdram_timings(struct sdram_timing *val);
+void set_sdram_timings(const struct emif_regs *regs);
 
 /**
  * Configure DDR PHY
  */
-void config_ddr_phy(struct ddr_phy_control *cfg);
+void config_ddr_phy(const struct emif_regs *regs);
 
 /**
  * This structure represents the DDR registers on AM33XX devices.

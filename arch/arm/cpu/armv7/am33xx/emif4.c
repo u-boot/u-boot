@@ -90,6 +90,15 @@ static const struct cmd_control ddr2_cmd_ctrl_data = {
 	.cmd2iclkout = DDR2_INVERT_CLKOUT,
 };
 
+static const struct emif_regs ddr2_emif_reg_data = {
+	.sdram_config = DDR2_EMIF_SDCFG,
+	.ref_ctrl = DDR2_EMIF_SDREF,
+	.sdram_tim1 = DDR2_EMIF_TIM1,
+	.sdram_tim2 = DDR2_EMIF_TIM2,
+	.sdram_tim3 = DDR2_EMIF_TIM3,
+	.emif_ddr_phy_ctlr_1 = DDR2_EMIF_READ_LATENCY,
+};
+
 static void config_vtp(void)
 {
 	writel(readl(&vtpreg->vtp0ctrlreg) | VTP_CTRL_ENABLE,
@@ -103,35 +112,6 @@ static void config_vtp(void)
 	while ((readl(&vtpreg->vtp0ctrlreg) & VTP_CTRL_READY) !=
 			VTP_CTRL_READY)
 		;
-}
-
-static void config_emif_ddr2(void)
-{
-	struct sdram_config cfg;
-	struct sdram_timing tmg;
-	struct ddr_phy_control phyc;
-
-	/* Program EMIF0 CFG Registers */
-	phyc.reg = DDR2_EMIF_READ_LATENCY;
-	phyc.reg_sh = DDR2_EMIF_READ_LATENCY;
-	phyc.reg2 = DDR2_EMIF_READ_LATENCY;
-
-	tmg.time1 = DDR2_EMIF_TIM1;
-	tmg.time1_sh = DDR2_EMIF_TIM1;
-	tmg.time2 = DDR2_EMIF_TIM2;
-	tmg.time2_sh = DDR2_EMIF_TIM2;
-	tmg.time3 = DDR2_EMIF_TIM3;
-	tmg.time3_sh = DDR2_EMIF_TIM3;
-
-	cfg.sdrcr = DDR2_EMIF_SDCFG;
-	cfg.sdrcr2 = DDR2_EMIF_SDCFG;
-	cfg.refresh = DDR2_EMIF_SDREF;
-	cfg.refresh_sh = DDR2_EMIF_SDREF;
-
-	/* Program EMIF instance */
-	config_ddr_phy(&phyc);
-	set_sdram_timings(&tmg);
-	config_sdram(&cfg);
 }
 
 void config_ddr(short ddr_type)
@@ -163,7 +143,10 @@ void config_ddr(short ddr_type)
 		/* Set CKE to be controlled by EMIF/DDR PHY */
 		writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
 
-		config_emif_ddr2();
+		/* Program EMIF instance */
+		config_ddr_phy(&ddr2_emif_reg_data);
+		set_sdram_timings(&ddr2_emif_reg_data);
+		config_sdram(&ddr2_emif_reg_data);
 	}
 }
 #endif

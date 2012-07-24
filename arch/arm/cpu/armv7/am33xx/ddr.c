@@ -42,33 +42,33 @@ static struct ddr_cmdtctrl *ioctrl_reg = {
 /**
  * Configure SDRAM
  */
-void config_sdram(struct sdram_config *cfg)
+void config_sdram(const struct emif_regs *regs)
 {
-	writel(cfg->refresh, &emif_reg->emif_sdram_ref_ctrl);
-	writel(cfg->refresh_sh, &emif_reg->emif_sdram_ref_ctrl_shdw);
-	writel(cfg->sdrcr, &emif_reg->emif_sdram_config);
+	writel(regs->ref_ctrl, &emif_reg->emif_sdram_ref_ctrl);
+	writel(regs->ref_ctrl, &emif_reg->emif_sdram_ref_ctrl_shdw);
+	writel(regs->sdram_config, &emif_reg->emif_sdram_config);
 }
 
 /**
  * Set SDRAM timings
  */
-void set_sdram_timings(struct sdram_timing *t)
+void set_sdram_timings(const struct emif_regs *regs)
 {
-	writel(t->time1, &emif_reg->emif_sdram_tim_1);
-	writel(t->time1_sh, &emif_reg->emif_sdram_tim_1_shdw);
-	writel(t->time2, &emif_reg->emif_sdram_tim_2);
-	writel(t->time2_sh, &emif_reg->emif_sdram_tim_2_shdw);
-	writel(t->time3, &emif_reg->emif_sdram_tim_3);
-	writel(t->time3_sh, &emif_reg->emif_sdram_tim_3_shdw);
+	writel(regs->sdram_tim1, &emif_reg->emif_sdram_tim_1);
+	writel(regs->sdram_tim1, &emif_reg->emif_sdram_tim_1_shdw);
+	writel(regs->sdram_tim2, &emif_reg->emif_sdram_tim_2);
+	writel(regs->sdram_tim2, &emif_reg->emif_sdram_tim_2_shdw);
+	writel(regs->sdram_tim3, &emif_reg->emif_sdram_tim_3);
+	writel(regs->sdram_tim3, &emif_reg->emif_sdram_tim_3_shdw);
 }
 
 /**
  * Configure DDR PHY
  */
-void config_ddr_phy(struct ddr_phy_control *p)
+void config_ddr_phy(const struct emif_regs *regs)
 {
-	writel(p->reg, &emif_reg->emif_ddr_phy_ctrl_1);
-	writel(p->reg_sh, &emif_reg->emif_ddr_phy_ctrl_1_shdw);
+	writel(regs->emif_ddr_phy_ctlr_1, &emif_reg->emif_ddr_phy_ctrl_1);
+	writel(regs->emif_ddr_phy_ctlr_1, &emif_reg->emif_ddr_phy_ctrl_1_shdw);
 }
 
 /**
