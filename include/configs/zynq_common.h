@@ -24,6 +24,9 @@
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
+	"kernel_image=uImage\0"	\
+	"ramdisk_image=uramdisk8M.image.gz\0"	\
+	"devicetree_image=devicetree.dtb\0"	\
 	"kernel_size=0x140000\0"	\
 	"ramdisk_size=0x200000\0"	\
 	"nand_kernel_size=0x400000\0"	\
@@ -31,34 +34,34 @@
 	"fdt_high=0x1000000\0"	\
 	"initrd_high=0xA627C2\0"	\
 	"norboot=echo Copying Linux from NOR flash to RAM...;" \
-			    "cp 0xE2100000 0x8000 ${kernel_size};" \
-			    "cp 0xE2600000 0x1000000 0x8000;" \
-			    "echo Copying ramdisk...;" \
-			    "cp 0xE3000000 0x800000 ${ramdisk_size};" \
-			    "go 0x8000\0" \
+		"cp 0xE2100000 0x3000000 ${kernel_size};" \
+		"cp 0xE2600000 0x2A00000 0x20000;" \
+		"echo Copying ramdisk...;" \
+		"cp 0xE3000000 0x2000000 ${ramdisk_size};" \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"qspiboot=echo Copying Linux from QSPI flash to RAM...;" \
-			    "cp 0xFC100000 0x8000 ${kernel_size};" \
-			    "cp 0xFC600000 0x1000000 0x8000;" \
-			    "echo Copying ramdisk...;" \
-			    "cp 0xFC800000 0x800000 ${ramdisk_size};" \
-			    "go 0x8000\0" \
+		"cp 0xFC100000 0x3000000 ${kernel_size};" \
+		"cp 0xFC600000 0x2A00000 0x20000;" \
+		"echo Copying ramdisk...;" \
+		"cp 0xFC800000 0x2000000 ${ramdisk_size};" \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"sdboot=echo Copying Linux from SD to RAM...;" \
-			    "mmcinfo;" \
-			    "fatload mmc 0 0x8000 zImage;" \
-			    "fatload mmc 0 0x1000000 devicetree.dtb;" \
-			    "fatload mmc 0 0x800000 ramdisk8M.image.gz;" \
-			    "go 0x8000\0" \
+		"mmcinfo;" \
+		"fatload mmc 0 0x3000000 ${kernel_image};" \
+		"fatload mmc 0 0x2A00000 ${devicetree_image};" \
+		"fatload mmc 0 0x2000000 ${ramdisk_image};" \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM...;" \
-			    "nand read 0x8000 0x200000 ${nand_kernel_size};" \
-			    "nand read 0x1000000 0x700000 0x20000;" \
-			    "echo Copying ramdisk...;" \
-		"nand read 0x800000 0x900000 ${nand_ramdisk_size};" \
-			    "go 0x8000\0" \
+		"nand read 0x3000000 0x200000 ${nand_kernel_size};" \
+		"nand read 0x2A00000 0x700000 0x20000;" \
+		"echo Copying ramdisk...;" \
+		"nand read 0x2000000 0x900000 ${nand_ramdisk_size};" \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"jtagboot=echo TFTPing Linux to RAM...;" \
-			    "tftp 0x8000 zImage;" \
-			    "tftp 0x1000000 devicetree.dtb;" \
-			    "tftp 0x800000 ramdisk8M.image.gz;" \
-			    "go 0x8000\0"
+		"tftp 0x3000000 ${kernel_image};" \
+		"tftp 0x2A00000 ${devicetree_image};" \
+		"tftp 0x2000000 ${ramdisk_image};" \
+		"bootm 0x3000000 0x2000000 0x2A00000\0"
 
 /* default boot is according to the bootmode switch settings */
 #define CONFIG_BOOTCOMMAND "run modeboot"
