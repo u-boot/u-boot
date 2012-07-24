@@ -15,12 +15,25 @@
 
 #include <common.h>
 #include <errno.h>
+#include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/common_def.h>
 #include <i2c.h>
+#include <miiphy.h>
+#include <cpsw.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define UART_RESET		(0x1 << 1)
+#define UART_CLK_RUNNING_MASK	0x1
+#define UART_SMART_IDLE_EN	(0x1 << 0x3)
+
+/* MII mode defines */
+#define MII_MODE_ENABLE		0x0
+#define RGMII_MODE_ENABLE	0xA
+
+struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /*
  * I2C Address of on-board EEPROM
@@ -106,3 +119,81 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_TI_CPSW
+static void cpsw_control(int enabled)
+{
+	/* VTP can be added here */
+
+	return;
+}
+
+static struct cpsw_slave_data cpsw_slaves[] = {
+	{
+		.slave_reg_ofs	= 0x208,
+		.sliver_reg_ofs	= 0xd80,
+		.phy_id		= 0,
+	},
+	{
+		.slave_reg_ofs	= 0x308,
+		.sliver_reg_ofs	= 0xdc0,
+		.phy_id		= 1,
+	},
+};
+
+static struct cpsw_platform_data cpsw_data = {
+	.mdio_base		= AM335X_CPSW_MDIO_BASE,
+	.cpsw_base		= AM335X_CPSW_BASE,
+	.mdio_div		= 0xff,
+	.channels		= 8,
+	.cpdma_reg_ofs		= 0x800,
+	.slaves			= 1,
+	.slave_data		= cpsw_slaves,
+	.ale_reg_ofs		= 0xd00,
+	.ale_entries		= 1024,
+	.host_port_reg_ofs	= 0x108,
+	.hw_stats_reg_ofs	= 0x900,
+	.mac_control		= (1 << 5),
+	.control		= cpsw_control,
+	.host_port_num		= 0,
+	.version		= CPSW_CTRL_VERSION_2,
+};
+
+int board_eth_init(bd_t *bis)
+{
+	uint8_t mac_addr[6];
+	uint32_t mac_hi, mac_lo;
+
+	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+		debug("<ethaddr> not set. Reading from E-fuse\n");
+		/* try reading mac address from efuse */
+		mac_lo = readl(&cdev->macid0l);
+		mac_hi = readl(&cdev->macid0h);
+		mac_addr[0] = mac_hi & 0xFF;
+		mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+		mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+		mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+		mac_addr[4] = mac_lo & 0xFF;
+		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+		if (is_valid_ether_addr(mac_addr))
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+		else
+			return -1;
+	}
+
+	if (board_is_bone()) {
+		enable_mii1_pin_mux();
+		writel(MII_MODE_ENABLE, &cdev->miisel);
+		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
+				PHY_INTERFACE_MODE_MII;
+	} else {
+		enable_rgmii1_pin_mux();
+		writel(RGMII_MODE_ENABLE, &cdev->miisel);
+		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
+				PHY_INTERFACE_MODE_RGMII;
+	}
+
+	return cpsw_register(&cpsw_data);
+}
+#endif

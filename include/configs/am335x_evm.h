@@ -21,10 +21,12 @@
 #undef CONFIG_GZIP
 #undef CONFIG_ZLIB
 #undef CONFIG_SYS_HUSH_PARSER
-#undef CONFIG_CMD_NET
 
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
+
+#define CONFIG_DMA_COHERENT
+#define CONFIG_DMA_COHERENT_SIZE	(1 << 20)
 
 #define CONFIG_ENV_SIZE			0x400
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 * 1024))
@@ -167,5 +169,21 @@
 
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
+
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_DRIVER_TI_CPSW
+#define CONFIG_MII
+#define CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_NET_RETRY_COUNT         10
+#define CONFIG_NET_MULTI
+#define CONFIG_PHY_GIGE
+#define CONFIG_PHYLIB
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */
