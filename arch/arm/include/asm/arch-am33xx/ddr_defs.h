@@ -82,17 +82,17 @@ struct sdram_config {
 /**
  * Configure SDRAM
  */
-int config_sdram(struct sdram_config *cfg);
+void config_sdram(struct sdram_config *cfg);
 
 /**
  * Set SDRAM timings
  */
-int set_sdram_timings(struct sdram_timing *val);
+void set_sdram_timings(struct sdram_timing *val);
 
 /**
  * Configure DDR PHY
  */
-int config_ddr_phy(struct ddr_phy_control *cfg);
+void config_ddr_phy(struct ddr_phy_control *cfg);
 
 /**
  * This structure represents the DDR registers on AM33XX devices.
@@ -183,12 +183,12 @@ struct ddr_data {
 /**
  * Configure DDR CMD control registers
  */
-int config_cmd_ctrl(const struct cmd_control *cmd);
+void config_cmd_ctrl(const struct cmd_control *cmd);
 
 /**
  * Configure DDR DATA registers
  */
-int config_ddr_data(int data_macrono, const struct ddr_data *data);
+void config_ddr_data(int data_macrono, const struct ddr_data *data);
 
 /**
  * This structure represents the DDR io control on AM33XX devices.
@@ -217,7 +217,7 @@ struct ddr_ioctrl {
 /**
  * Configure DDR io control registers
  */
-int config_io_ctrl(struct ddr_ioctrl *ioctrl);
+void config_io_ctrl(struct ddr_ioctrl *ioctrl);
 
 struct ddr_ctrl {
 	unsigned int ddrioctrl;

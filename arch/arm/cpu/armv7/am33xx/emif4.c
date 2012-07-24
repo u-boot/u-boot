@@ -107,7 +107,6 @@ static void config_vtp(void)
 
 static void config_emif_ddr2(void)
 {
-	int ret;
 	struct sdram_config cfg;
 	struct sdram_timing tmg;
 	struct ddr_phy_control phyc;
@@ -130,18 +129,9 @@ static void config_emif_ddr2(void)
 	cfg.refresh_sh = DDR2_EMIF_SDREF;
 
 	/* Program EMIF instance */
-	ret = config_ddr_phy(&phyc);
-	if (ret < 0)
-		printf("Couldn't configure phyc\n");
-
-
-	ret = set_sdram_timings(&tmg);
-	if (ret < 0)
-		printf("Couldn't configure timings\n");
-
-	ret = config_sdram(&cfg);
-	if (ret < 0)
-		printf("Couldn't configure SDRAM\n");
+	config_ddr_phy(&phyc);
+	set_sdram_timings(&tmg);
+	config_sdram(&cfg);
 }
 
 void config_ddr(short ddr_type)

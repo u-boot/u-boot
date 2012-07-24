@@ -40,26 +40,19 @@ static struct ddr_cmdtctrl *ioctrl_reg = {
 			(struct ddr_cmdtctrl *)DDR_CONTROL_BASE_ADDR};
 
 /**
- * As a convention, all functions here return 0 on success
- * -1 on failure.
- */
-
-/**
  * Configure SDRAM
  */
-int config_sdram(struct sdram_config *cfg)
+void config_sdram(struct sdram_config *cfg)
 {
 	writel(cfg->refresh, &emif_reg->emif_sdram_ref_ctrl);
 	writel(cfg->refresh_sh, &emif_reg->emif_sdram_ref_ctrl_shdw);
 	writel(cfg->sdrcr, &emif_reg->emif_sdram_config);
-
-	return 0;
 }
 
 /**
  * Set SDRAM timings
  */
-int set_sdram_timings(struct sdram_timing *t)
+void set_sdram_timings(struct sdram_timing *t)
 {
 	writel(t->time1, &emif_reg->emif_sdram_tim_1);
 	writel(t->time1_sh, &emif_reg->emif_sdram_tim_1_shdw);
@@ -67,25 +60,21 @@ int set_sdram_timings(struct sdram_timing *t)
 	writel(t->time2_sh, &emif_reg->emif_sdram_tim_2_shdw);
 	writel(t->time3, &emif_reg->emif_sdram_tim_3);
 	writel(t->time3_sh, &emif_reg->emif_sdram_tim_3_shdw);
-
-	return 0;
 }
 
 /**
  * Configure DDR PHY
  */
-int config_ddr_phy(struct ddr_phy_control *p)
+void config_ddr_phy(struct ddr_phy_control *p)
 {
 	writel(p->reg, &emif_reg->emif_ddr_phy_ctrl_1);
 	writel(p->reg_sh, &emif_reg->emif_ddr_phy_ctrl_1_shdw);
-
-	return 0;
 }
 
 /**
  * Configure DDR CMD control registers
  */
-int config_cmd_ctrl(const struct cmd_control *cmd)
+void config_cmd_ctrl(const struct cmd_control *cmd)
 {
 	writel(cmd->cmd0csratio, &ddr_reg[0]->cm0csratio);
 	writel(cmd->cmd0csforce, &ddr_reg[0]->cm0csforce);
@@ -104,14 +93,12 @@ int config_cmd_ctrl(const struct cmd_control *cmd)
 	writel(cmd->cmd2csdelay, &ddr_reg[0]->cm2csdelay);
 	writel(cmd->cmd2dldiff, &ddr_reg[0]->cm2dldiff);
 	writel(cmd->cmd2iclkout, &ddr_reg[0]->cm2iclkout);
-
-	return 0;
 }
 
 /**
  * Configure DDR DATA registers
  */
-int config_ddr_data(int macrono, const struct ddr_data *data)
+void config_ddr_data(int macrono, const struct ddr_data *data)
 {
 	writel(data->datardsratio0, &ddr_reg[macrono]->dt0rdsratio0);
 	writel(data->datardsratio1, &ddr_reg[macrono]->dt0rdsratio1);
@@ -131,17 +118,13 @@ int config_ddr_data(int macrono, const struct ddr_data *data)
 	writel(data->datawrsratio1, &ddr_reg[macrono]->dt0wrsratio1);
 
 	writel(data->datadldiff0, &ddr_reg[macrono]->dt0dldiff0);
-
-	return 0;
 }
 
-int config_io_ctrl(struct ddr_ioctrl *ioctrl)
+void config_io_ctrl(struct ddr_ioctrl *ioctrl)
 {
 	writel(ioctrl->cmd1ctl, &ioctrl_reg->cm0ioctl);
 	writel(ioctrl->cmd2ctl, &ioctrl_reg->cm1ioctl);
 	writel(ioctrl->cmd3ctl, &ioctrl_reg->cm2ioctl);
 	writel(ioctrl->data1ctl, &ioctrl_reg->dt0ioctl);
 	writel(ioctrl->data2ctl, &ioctrl_reg->dt1ioctl);
-
-	return 0;
 }
