@@ -120,11 +120,11 @@ void config_ddr_data(int macrono, const struct ddr_data *data)
 	writel(data->datadldiff0, &ddr_reg[macrono]->dt0dldiff0);
 }
 
-void config_io_ctrl(struct ddr_ioctrl *ioctrl)
+void config_io_ctrl(unsigned long val)
 {
-	writel(ioctrl->cmd1ctl, &ioctrl_reg->cm0ioctl);
-	writel(ioctrl->cmd2ctl, &ioctrl_reg->cm1ioctl);
-	writel(ioctrl->cmd3ctl, &ioctrl_reg->cm2ioctl);
-	writel(ioctrl->data1ctl, &ioctrl_reg->dt0ioctl);
-	writel(ioctrl->data2ctl, &ioctrl_reg->dt1ioctl);
+	writel(val, &ioctrl_reg->cm0ioctl);
+	writel(val, &ioctrl_reg->cm1ioctl);
+	writel(val, &ioctrl_reg->cm2ioctl);
+	writel(val, &ioctrl_reg->dt0ioctl);
+	writel(val, &ioctrl_reg->dt1ioctl);
 }

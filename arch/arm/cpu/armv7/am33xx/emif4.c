@@ -116,8 +116,6 @@ static void config_vtp(void)
 
 void config_ddr(short ddr_type)
 {
-	struct ddr_ioctrl ioctrl;
-
 	enable_emif_clocks();
 
 	if (ddr_type == EMIF_REG_SDRAM_TYPE_DDR2) {
@@ -132,13 +130,7 @@ void config_ddr(short ddr_type)
 		writel(DDR2_PHY_RANK0_DELAY, &ddrregs->dt0rdelays0);
 		writel(DDR2_PHY_RANK0_DELAY, &ddrregs->dt1rdelays0);
 
-		ioctrl.cmd1ctl = DDR2_IOCTRL_VALUE;
-		ioctrl.cmd2ctl = DDR2_IOCTRL_VALUE;
-		ioctrl.cmd3ctl = DDR2_IOCTRL_VALUE;
-		ioctrl.data1ctl = DDR2_IOCTRL_VALUE;
-		ioctrl.data2ctl = DDR2_IOCTRL_VALUE;
-
-		config_io_ctrl(&ioctrl);
+		config_io_ctrl(DDR2_IOCTRL_VALUE);
 
 		/* Set CKE to be controlled by EMIF/DDR PHY */
 		writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);

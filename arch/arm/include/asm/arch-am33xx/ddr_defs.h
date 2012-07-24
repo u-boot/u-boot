@@ -174,20 +174,9 @@ struct ddr_cmdtctrl {
 };
 
 /**
- * Encapsulates DDR CMD & DATA io control registers.
- */
-struct ddr_ioctrl {
-	unsigned long cmd1ctl;
-	unsigned long cmd2ctl;
-	unsigned long cmd3ctl;
-	unsigned long data1ctl;
-	unsigned long data2ctl;
-};
-
-/**
  * Configure DDR io control registers
  */
-void config_io_ctrl(struct ddr_ioctrl *ioctrl);
+void config_io_ctrl(unsigned long val);
 
 struct ddr_ctrl {
 	unsigned int ddrioctrl;
