@@ -62,7 +62,7 @@ int print_cpuinfo(void)
 		break;
 	default:
 		printf("CPU: Renesas Electronics CPU rev %d\n",
-				get_cpu_rev());
+				rmobile_get_cpu_rev());
 		break;
 	}
 	return 0;
