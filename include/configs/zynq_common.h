@@ -79,7 +79,7 @@
 /* CONFIG_SYS_MONITOR_LEN? */
 
 /* Keep L2 Cache Disabled */
-#define CONFIG_L2_OFF
+#define CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 /*
@@ -124,6 +124,6 @@
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
 
-#define BOARD_LATE_INIT
+#define CONFIG_BOARD_LATE_INIT
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */
