@@ -46,23 +46,32 @@ static u32 __rmobile_get_cpu_type(void)
 u32 rmobile_get_cpu_type(void)
 		__attribute__((weak, alias("__rmobile_get_cpu_type")));
 
-static u32 __rmobile_get_cpu_rev(void)
+static u32 __rmobile_get_cpu_rev_integer(void)
 {
 	return 0;
 }
-u32 rmobile_get_cpu_rev(void)
-		__attribute__((weak, alias("__rmobile_get_cpu_rev")));
+u32 rmobile_get_cpu_rev_integer(void)
+		__attribute__((weak, alias("__rmobile_get_cpu_rev_integer")));
+
+static u32 __rmobile_get_cpu_rev_fraction(void)
+{
+	return 0;
+}
+u32 rmobile_get_cpu_rev_fraction(void)
+		__attribute__((weak, alias("__rmobile_get_cpu_rev_fraction")));
 
 int print_cpuinfo(void)
 {
 	switch (rmobile_get_cpu_type()) {
 	case 0x37:
-		printf("CPU: Renesas Electronics SH73A0 rev %d\n",
-				rmobile_get_cpu_rev());
+		printf("CPU: Renesas Electronics SH73A0 rev %d.%d\n",
+		       rmobile_get_cpu_rev_integer(),
+		       rmobile_get_cpu_rev_fraction());
 		break;
 	default:
-		printf("CPU: Renesas Electronics CPU rev %d\n",
-				rmobile_get_cpu_rev());
+		printf("CPU: Renesas Electronics CPU rev %d.%d\n",
+		       rmobile_get_cpu_rev_integer(),
+		       rmobile_get_cpu_rev_fraction());
 		break;
 	}
 	return 0;

@@ -35,14 +35,26 @@ u32 rmobile_get_cpu_type(void)
 	return type;
 }
 
-u32 rmobile_get_cpu_rev(void)
+u32 rmobile_get_cpu_rev_integer(void)
 {
 	u32 id;
 	u32 rev;
 	struct sh73a0_hpb *hpb = (struct sh73a0_hpb *)HPB_BASE;
 
 	id = readl(&hpb->cccr);
-	rev = (id >> 4) & 0xF;
+	rev = ((id >> 4) & 0xF) + 1;
+
+	return rev;
+}
+
+u32 rmobile_get_cpu_rev_fraction(void)
+{
+	u32 id;
+	u32 rev;
+	struct sh73a0_hpb *hpb = (struct sh73a0_hpb *)HPB_BASE;
+
+	id = readl(&hpb->cccr);
+	rev = id & 0xF;
 
 	return rev;
 }
