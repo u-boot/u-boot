@@ -38,6 +38,7 @@ ENTRY(lowlevel_init)
 	.align 4
 
 wait_interrupt:
+#ifdef ICCICR
 	ldr     r1, =ICCICR
 	mov     r2, #0x0
 	str     r2, [r1]
@@ -47,6 +48,7 @@ wait_interrupt:
 	ldr     r1, =ICCICR
 	mov     r2, #0x1
 	str     r2, [r1]
+#endif
 
 wait_loop:
 	.long	0xE320F003 /* wfi */
@@ -77,6 +79,7 @@ loop0:
 
 	str ip, [sp]    /* stash old link register */
 	mov ip, lr      /* save link reg across call */
+
 	bl  s_init
 
 	ldr ip, [sp]    /* restore save ip */
