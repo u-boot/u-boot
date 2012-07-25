@@ -250,7 +250,8 @@ int board_early_init_f(void)
 	tmp = readl(KW_GPIO0_BASE + 4);
 	writel(tmp & (~KM_KIRKWOOD_SOFT_I2C_GPIOS) , KW_GPIO0_BASE + 4);
 #endif
-
+	/* adjust SDRAM size for bank 0 */
+	kw_sdram_size_adjust(0);
 	kirkwood_mpp_conf(kwmpp_config, NULL);
 	return 0;
 }
