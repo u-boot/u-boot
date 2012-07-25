@@ -97,6 +97,17 @@ u32 kw_sdram_bs(enum memory_bank bank)
 	return result;
 }
 
+void kw_sdram_size_adjust(enum memory_bank bank)
+{
+	u32 size;
+
+	/* probe currently equipped RAM size */
+	size = get_ram_size((void *)kw_sdram_bar(bank), kw_sdram_bs(bank));
+
+	/* adjust SDRAM window size accordingly */
+	kw_sdram_bs_set(bank, size);
+}
+
 #ifndef CONFIG_SYS_BOARD_DRAM_INIT
 int dram_init(void)
 {
