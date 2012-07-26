@@ -101,6 +101,7 @@
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 #define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
+#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_MTD_DEVICE
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
