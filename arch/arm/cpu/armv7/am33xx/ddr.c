@@ -49,10 +49,9 @@ static struct ddr_cmdtctrl *ioctrl_reg = {
  */
 int config_sdram(struct sdram_config *cfg)
 {
-	writel(cfg->sdrcr, &emif_reg->emif_sdram_config);
-	writel(cfg->sdrcr2, &emif_reg->emif_lpddr2_nvm_config);
 	writel(cfg->refresh, &emif_reg->emif_sdram_ref_ctrl);
 	writel(cfg->refresh_sh, &emif_reg->emif_sdram_ref_ctrl_shdw);
+	writel(cfg->sdrcr, &emif_reg->emif_sdram_config);
 
 	return 0;
 }
