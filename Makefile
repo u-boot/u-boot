@@ -617,7 +617,7 @@ $(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
 
 $(obj)include/generated/asm-offsets.h:	$(obj)include/autoconf.mk.dep \
 	$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
-	@echo Generating $@
+	@$(XECHO) Generating $@
 	tools/scripts/make-asm-offsets $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s $@
 
 $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s:	$(obj)include/autoconf.mk.dep
