@@ -23,7 +23,7 @@
 #define __ASM_ARM_ARCH_FB_H_
 
 #ifndef __ASSEMBLY__
-struct exynos4_fb {
+struct exynos_fb {
 	unsigned int vidcon0;
 	unsigned int vidcon1;
 	unsigned int vidcon2;
@@ -154,6 +154,18 @@ struct exynos4_fb {
 };
 #endif
 
+/* LCD IF register offset */
+#define EXYNOS4_LCD_IF_BASE_OFFSET			0x0
+#define EXYNOS5_LCD_IF_BASE_OFFSET			0x20000
+
+static inline unsigned int exynos_fimd_get_base_offset(void)
+{
+	if (cpu_is_exynos5())
+		return EXYNOS5_LCD_IF_BASE_OFFSET;
+	else
+		return EXYNOS4_LCD_IF_BASE_OFFSET;
+}
+
 /*
  *  Register offsets
 */
@@ -253,6 +265,8 @@ struct exynos4_fb {
 /* VIDTCON2 */
 #define EXYNOS_VIDTCON2_LINEVAL(x)			(((x) & 0x7ff) << 11)
 #define EXYNOS_VIDTCON2_HOZVAL(x)			(((x) & 0x7ff) << 0)
+#define EXYNOS_VIDTCON2_LINEVAL_E(x)			((((x) & 0x800) >> 11) << 23)
+#define EXYNOS_VIDTCON2_HOZVAL_E(x)			((((x) & 0x800) >> 11) << 22)
 
 /* Window 0~4 Control - WINCONx */
 #define EXYNOS_WINCON_DATAPATH_DMA			(0 << 22)
@@ -330,6 +344,8 @@ struct exynos4_fb {
 #define EXYNOS_VIDOSD_TOP_Y(x)				(((x) & 0x7ff) << 0)
 #define EXYNOS_VIDOSD_RIGHT_X(x)			(((x) & 0x7ff) << 11)
 #define EXYNOS_VIDOSD_BOTTOM_Y(x)			(((x) & 0x7ff) << 0)
+#define EXYNOS_VIDOSD_RIGHT_X_E(x)			(((x) & 0x1) << 23)
+#define EXYNOS_VIDOSD_BOTTOM_Y_E(x)			(((x) & 0x1) << 22)
 
 /* VIDOSD0C, VIDOSDxD */
 #define EXYNOS_VIDOSD_SIZE(x)				(((x) & 0xffffff) << 0)
@@ -354,6 +370,8 @@ struct exynos4_fb {
 /* Buffer Size */
 #define EXYNOS_VIDADDR_OFFSIZE(x)			(((x) & 0x1fff) << 13)
 #define EXYNOS_VIDADDR_PAGEWIDTH(x)			(((x) & 0x1fff) << 0)
+#define EXYNOS_VIDADDR_OFFSIZE_E(x)			((((x) & 0x2000) >> 13) << 27)
+#define EXYNOS_VIDADDR_PAGEWIDTH_E(x)			((((x) & 0x2000) >> 13) << 26)
 
 /* WIN Color Map */
 #define EXYNOS_WINMAP_COLOR(x)				((x) & 0xffffff)
@@ -442,5 +460,10 @@ struct exynos4_fb {
 #define EXYNOS_I80SOFT_TRIG_EN				(1 << 0)
 #define EXYNOS_I80START_TRIG				(1 << 1)
 #define EXYNOS_I80STATUS_TRIG_DONE			(1 << 2)
+
+/* DP_MIE_CLKCON */
+#define EXYNOS_DP_MIE_DISABLE				(0 << 0)
+#define EXYNOS_DP_CLK_ENABLE				(1 << 1)
+#define EXYNOS_MIE_CLK_ENABLE				(3 << 0)
 
 #endif /* _REGS_FB_H */

@@ -41,8 +41,8 @@ void exynos_fimd_lcd_init_mem(u_long screen_base, u_long fb_size,
 
 static void exynos_fimd_set_dualrgb(unsigned int enabled)
 {
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 	unsigned int cfg = 0;
 
 	if (enabled) {
@@ -60,8 +60,8 @@ static void exynos_fimd_set_dualrgb(unsigned int enabled)
 static void exynos_fimd_set_par(unsigned int win_id)
 {
 	unsigned int cfg = 0;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	/* set window control */
 	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
@@ -93,7 +93,10 @@ static void exynos_fimd_set_par(unsigned int win_id)
 			EXYNOS_VIDOSD(win_id));
 
 	cfg = EXYNOS_VIDOSD_RIGHT_X(pvid->vl_col - 1) |
-		EXYNOS_VIDOSD_BOTTOM_Y(pvid->vl_row - 1);
+		EXYNOS_VIDOSD_BOTTOM_Y(pvid->vl_row - 1) |
+		EXYNOS_VIDOSD_RIGHT_X_E(1) |
+		EXYNOS_VIDOSD_BOTTOM_Y_E(0);
+
 	writel(cfg, (unsigned int)&fimd_ctrl->vidosd0b +
 			EXYNOS_VIDOSD(win_id));
 
@@ -106,8 +109,8 @@ static void exynos_fimd_set_par(unsigned int win_id)
 static void exynos_fimd_set_buffer_address(unsigned int win_id)
 {
 	unsigned long start_addr, end_addr;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	start_addr = (unsigned long)lcd_base_addr;
 	end_addr = start_addr + ((pvid->vl_col * (NBITS(pvid->vl_bpix) / 8)) *
@@ -124,8 +127,8 @@ static void exynos_fimd_set_clock(vidinfo_t *pvid)
 	unsigned int cfg = 0, div = 0, remainder, remainder_div;
 	unsigned long pixel_clock;
 	unsigned long long src_clock;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	if (pvid->dual_lcd_enabled) {
 		pixel_clock = pvid->vl_freq *
@@ -153,9 +156,6 @@ static void exynos_fimd_set_clock(vidinfo_t *pvid)
 	cfg |= (EXYNOS_VIDCON0_CLKSEL_SCLK | EXYNOS_VIDCON0_CLKVALUP_ALWAYS |
 		EXYNOS_VIDCON0_VCLKEN_NORMAL | EXYNOS_VIDCON0_CLKDIR_DIVIDED);
 
-	if (pixel_clock > MAX_CLOCK)
-		pixel_clock = MAX_CLOCK;
-
 	src_clock = (unsigned long long) get_lcd_clk();
 
 	/* get quotient and remainder. */
@@ -180,8 +180,8 @@ static void exynos_fimd_set_clock(vidinfo_t *pvid)
 void exynos_set_trigger(void)
 {
 	unsigned int cfg = 0;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	cfg = readl(&fimd_ctrl->trigcon);
 
@@ -194,8 +194,8 @@ int exynos_is_i80_frame_done(void)
 {
 	unsigned int cfg = 0;
 	int status;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	cfg = readl(&fimd_ctrl->trigcon);
 
@@ -209,8 +209,8 @@ int exynos_is_i80_frame_done(void)
 static void exynos_fimd_lcd_on(void)
 {
 	unsigned int cfg = 0;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	/* display on */
 	cfg = readl(&fimd_ctrl->vidcon0);
@@ -221,8 +221,8 @@ static void exynos_fimd_lcd_on(void)
 static void exynos_fimd_window_on(unsigned int win_id)
 {
 	unsigned int cfg = 0;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	/* enable window */
 	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
@@ -239,8 +239,8 @@ static void exynos_fimd_window_on(unsigned int win_id)
 void exynos_fimd_lcd_off(void)
 {
 	unsigned int cfg = 0;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	cfg = readl(&fimd_ctrl->vidcon0);
 	cfg &= (EXYNOS_VIDCON0_ENVID_DISABLE | EXYNOS_VIDCON0_ENVID_F_DISABLE);
@@ -250,8 +250,8 @@ void exynos_fimd_lcd_off(void)
 void exynos_fimd_window_off(unsigned int win_id)
 {
 	unsigned int cfg = 0;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
 
 	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
 			EXYNOS_WINCON(win_id));
@@ -264,11 +264,15 @@ void exynos_fimd_window_off(unsigned int win_id)
 	writel(cfg, &fimd_ctrl->winshmap);
 }
 
+
 void exynos_fimd_lcd_init(vidinfo_t *vid)
 {
 	unsigned int cfg = 0, rgb_mode;
-	struct exynos4_fb *fimd_ctrl =
-		(struct exynos4_fb *)samsung_get_base_fimd();
+	unsigned int offset;
+	struct exynos_fb *fimd_ctrl =
+		(struct exynos_fb *)samsung_get_base_fimd();
+
+	offset = exynos_fimd_get_base_offset();
 
 	/* store panel info to global variable */
 	pvid = vid;
@@ -297,25 +301,27 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 		if (!pvid->vl_dp)
 			cfg |= EXYNOS_VIDCON1_IVDEN_INVERT;
 
-		writel(cfg, &fimd_ctrl->vidcon1);
+		writel(cfg, (unsigned int)&fimd_ctrl->vidcon1 + offset);
 
 		/* set timing */
 		cfg = EXYNOS_VIDTCON0_VFPD(pvid->vl_vfpd - 1);
 		cfg |= EXYNOS_VIDTCON0_VBPD(pvid->vl_vbpd - 1);
 		cfg |= EXYNOS_VIDTCON0_VSPW(pvid->vl_vspw - 1);
-		writel(cfg, &fimd_ctrl->vidtcon0);
+		writel(cfg, (unsigned int)&fimd_ctrl->vidtcon0 + offset);
 
 		cfg = EXYNOS_VIDTCON1_HFPD(pvid->vl_hfpd - 1);
 		cfg |= EXYNOS_VIDTCON1_HBPD(pvid->vl_hbpd - 1);
 		cfg |= EXYNOS_VIDTCON1_HSPW(pvid->vl_hspw - 1);
 
-		writel(cfg, &fimd_ctrl->vidtcon1);
+		writel(cfg, (unsigned int)&fimd_ctrl->vidtcon1 + offset);
 
 		/* set lcd size */
-		cfg = EXYNOS_VIDTCON2_HOZVAL(pvid->vl_col - 1);
-		cfg |= EXYNOS_VIDTCON2_LINEVAL(pvid->vl_row - 1);
+		cfg = EXYNOS_VIDTCON2_HOZVAL(pvid->vl_col - 1) |
+			EXYNOS_VIDTCON2_LINEVAL(pvid->vl_row - 1) |
+			EXYNOS_VIDTCON2_HOZVAL_E(pvid->vl_col - 1) |
+			EXYNOS_VIDTCON2_LINEVAL_E(pvid->vl_row - 1);
 
-		writel(cfg, &fimd_ctrl->vidtcon2);
+		writel(cfg, (unsigned int)&fimd_ctrl->vidtcon2 + offset);
 	}
 
 	/* set display mode */
@@ -331,7 +337,11 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 	exynos_fimd_set_buffer_address(pvid->win_id);
 
 	/* set buffer size */
-	cfg = EXYNOS_VIDADDR_PAGEWIDTH(pvid->vl_col * NBITS(pvid->vl_bpix) / 8);
+	cfg = EXYNOS_VIDADDR_PAGEWIDTH(pvid->vl_col * NBITS(pvid->vl_bpix) / 8) |
+		EXYNOS_VIDADDR_PAGEWIDTH_E(pvid->vl_col * NBITS(pvid->vl_bpix) / 8) |
+		EXYNOS_VIDADDR_OFFSIZE(0) |
+		EXYNOS_VIDADDR_OFFSIZE_E(0);
+
 	writel(cfg, (unsigned int)&fimd_ctrl->vidw00add2 +
 					EXYNOS_BUFFER_SIZE(pvid->win_id));
 
