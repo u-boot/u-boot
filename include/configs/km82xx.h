@@ -128,16 +128,18 @@
 #define CONFIG_SYS_OR1	((~(CONFIG_SYS_GLOBAL_SDRAM_LIMIT-1) & \
 			   ORxS_SDAM_MSK)		|\
 			ORxS_BPD_4			|\
-			ORxS_NUMR_13)
+			ORxS_NUMR_13			|\
+			ORxS_IBID)
 
 #define CONFIG_SYS_PSDMR (				\
 			PSDMR_PBI			|\
+			PSDMR_RFEN			|\
 			PSDMR_BSMA_A13_A15		|\
 			PSDMR_RFRC_5_CLK		|\
 			PSDMR_PRETOACT_2W		|\
 			PSDMR_ACTTORW_2W		|\
 			PSDMR_LDOTOPRE_1C		|\
-			PSDMR_WRC_2C			|\
+			PSDMR_WRC_1C			|\
 			PSDMR_CL_2)
 
 #define CONFIG_SYS_SDRAM_LIST	{					\
