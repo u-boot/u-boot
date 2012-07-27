@@ -261,6 +261,54 @@ static long int try_init(memctl8260_t *memctl, ulong sdmr,
 	return size;
 }
 
+#ifdef CONFIG_SYS_SDRAM_LIST
+
+/*
+ * If CONFIG_SYS_SDRAM_LIST is defined, we cycle through all SDRAM
+ * configurations therein (should be from high to lower) to find the
+ * one actually matching the current configuration.
+ * CONFIG_SYS_PSDMR and CONFIG_SYS_OR1 will contain the base values which are
+ * common among all possible configurations; values in CONFIG_SYS_SDRAM_LIST
+ * (defined as the initialization value for the array of struct sdram_conf_s)
+ * will then be ORed with such base values.
+ */
+
+struct sdram_conf_s {
+	ulong size;
+	int or1;
+	int psdmr;
+};
+
+static struct sdram_conf_s sdram_conf[] = CONFIG_SYS_SDRAM_LIST;
+
+static long probe_sdram(memctl8260_t *memctl)
+{
+	int n = 0;
+	long psize = 0;
+
+	for (n = 0; n < ARRAY_SIZE(sdram_conf); psize = 0, n++) {
+		psize = try_init(memctl,
+			CONFIG_SYS_PSDMR | sdram_conf[n].psdmr,
+			CONFIG_SYS_OR1 | sdram_conf[n].or1,
+			(uchar *) CONFIG_SYS_SDRAM_BASE);
+		debug("Probing %ld bytes returned %ld\n",
+			sdram_conf[n].size, psize);
+		if (psize == sdram_conf[n].size)
+			break;
+	}
+	return psize;
+}
+
+#else /* CONFIG_SYS_SDRAM_LIST */
+
+static long probe_sdram(memctl8260_t *memctl)
+{
+	return try_init(memctl, CONFIG_SYS_PSDMR, CONFIG_SYS_OR1,
+					(uchar *) CONFIG_SYS_SDRAM_BASE);
+}
+#endif /* CONFIG_SYS_SDRAM_LIST */
+
+
 phys_size_t initdram(int board_type)
 {
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
@@ -274,8 +322,7 @@ phys_size_t initdram(int board_type)
 #ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
-	psize = try_init(memctl, CONFIG_SYS_PSDMR, CONFIG_SYS_OR1,
-				  (uchar *) CONFIG_SYS_SDRAM_BASE);
+	psize = probe_sdram(memctl);
 #endif /* CONFIG_SYS_RAMBOOT */
 
 	icache_enable();
