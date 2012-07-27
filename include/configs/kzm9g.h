@@ -36,7 +36,8 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_EARLY_INIT_F
-#define	CONFIG_L2_OFF
+#define CONFIG_L2_OFF
+#define CONFIG_OF_LIBFDT
 
 #include <config_cmd_default.h>
 #define CONFIG_CMDLINE_TAG
