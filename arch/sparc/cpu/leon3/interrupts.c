@@ -209,9 +209,9 @@ void do_irqinfo(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char * const a
 
 	for (irq = 0; irq < NR_IRQS; irq++) {
 		if (irq_handlers[irq].handler != NULL) {
-			printf("%02d  %08lx  %08lx  %ld\n", irq,
-			       (unsigned int)irq_handlers[irq].handler,
-			       (unsigned int)irq_handlers[irq].arg,
+			printf("%02d  %p  %p  %d\n", irq,
+			       irq_handlers[irq].handler,
+			       irq_handlers[irq].arg,
 			       irq_handlers[irq].count);
 		}
 	}
