@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2011
+ * (C) Copyright 2007-2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MGCOGE3NE
-#define __MGCOGE3NE
+#ifndef __CONFIG_H
+#define __CONFIG_H
 
 /*
  * High Level Configuration Options
@@ -33,6 +33,7 @@
 #define CONFIG_MGCOGE3NE
 #define CONFIG_HOSTNAME		mgcoge3ne
 #define CONFIG_KM_82XX
+#define CONFIG_KM_BOARD_EXTRA_ENV	"bobcatreset=true\0"
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
@@ -68,26 +69,25 @@
 #define SDRAM_MAX_SIZE 0x10000000			/* max. 256 MB	*/
 #define CONFIG_SYS_GLOBAL_SDRAM_LIMIT	(512 << 20)	/* less than 512 MB */
 
-#define CONFIG_SYS_OR1    ((~(CONFIG_SYS_GLOBAL_SDRAM_LIMIT-1) & \
-			ORxS_SDAM_MSK) |\
+#define CONFIG_SYS_OR1	((~(CONFIG_SYS_GLOBAL_SDRAM_LIMIT-1) & \
+			   ORxS_SDAM_MSK)		|\
 			ORxS_BPD_4			|\
 			ORxS_ROWST_PBI1_A4		|\
 			ORxS_NUMR_13)
 
-#define CONFIG_SYS_PSDMR  (PSDMR_PBI				|\
-			PSDMR_SDAM_A17_IS_A5			|\
-			PSDMR_BSMA_A13_A15			|\
-			PSDMR_SDA10_PBI1_A6			|\
-			PSDMR_RFRC_5_CLK			|\
-			PSDMR_PRETOACT_2W			|\
-			PSDMR_ACTTORW_2W			|\
-			PSDMR_LDOTOPRE_1C			|\
-			PSDMR_WRC_2C				|\
+#define CONFIG_SYS_PSDMR (				\
+			PSDMR_PBI			|\
+			PSDMR_SDAM_A17_IS_A5		|\
+			PSDMR_BSMA_A13_A15		|\
+			PSDMR_SDA10_PBI1_A6		|\
+			PSDMR_RFRC_5_CLK		|\
+			PSDMR_PRETOACT_2W		|\
+			PSDMR_ACTTORW_2W		|\
+			PSDMR_LDOTOPRE_1C		|\
+			PSDMR_WRC_2C			|\
 			PSDMR_CL_2)
-
-#define CONFIG_KM_BOARD_EXTRA_ENV	"bobcatreset=true\0"
 
 /* include further common stuff for all keymile 82xx boards */
 #include "km/km82xx-common.h"
 
-#endif /* __MGCOGE3NE */
+#endif /* __CONFIG_H */
