@@ -119,7 +119,8 @@
 
 /*
  * Bank 1 - 60x bus SDRAM
- * mgcoge3ne has 256M.
+ * mgcoge3ne has 256MB
+ * mgcoge2ne has 128MB
  */
 #define SDRAM_MAX_SIZE 0x10000000			/* max. 256 MB	*/
 #define CONFIG_SYS_GLOBAL_SDRAM_LIMIT	(512 << 20)	/* less than 512 MB */
@@ -127,20 +128,28 @@
 #define CONFIG_SYS_OR1	((~(CONFIG_SYS_GLOBAL_SDRAM_LIMIT-1) & \
 			   ORxS_SDAM_MSK)		|\
 			ORxS_BPD_4			|\
-			ORxS_ROWST_PBI1_A4		|\
 			ORxS_NUMR_13)
 
 #define CONFIG_SYS_PSDMR (				\
 			PSDMR_PBI			|\
-			PSDMR_SDAM_A17_IS_A5		|\
 			PSDMR_BSMA_A13_A15		|\
-			PSDMR_SDA10_PBI1_A6		|\
 			PSDMR_RFRC_5_CLK		|\
 			PSDMR_PRETOACT_2W		|\
 			PSDMR_ACTTORW_2W		|\
 			PSDMR_LDOTOPRE_1C		|\
 			PSDMR_WRC_2C			|\
 			PSDMR_CL_2)
+
+#define CONFIG_SYS_SDRAM_LIST	{					\
+	{	.size	= 256 << 20,					\
+		.or1	= ORxS_ROWST_PBI1_A4,				\
+		.psdmr	= PSDMR_SDAM_A17_IS_A5 | PSDMR_SDA10_PBI1_A6,	\
+	},								\
+	{	.size	= 128 << 20,					\
+		.or1	= ORxS_ROWST_PBI1_A5,				\
+		.psdmr	= PSDMR_SDAM_A16_IS_A5 | PSDMR_SDA10_PBI1_A7,	\
+	},								\
+}
 #endif /* defined(CONFIG_MGCOGE3NE) */
 
 /* include further common stuff for all keymile 82xx boards */
