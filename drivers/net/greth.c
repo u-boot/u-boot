@@ -483,7 +483,7 @@ int greth_recv(struct eth_device *dev)
 	greth_regs *regs = greth->regs;
 	greth_bd *rxbd;
 	unsigned int status, len = 0, bad;
-	unsigned char *d;
+	char *d;
 	int enable = 0;
 	int i;
 
@@ -504,7 +504,7 @@ int greth_recv(struct eth_device *dev)
 			goto done;
 		}
 
-		debug("greth_recv: packet 0x%lx, 0x%lx, len: %d\n",
+		debug("greth_recv: packet 0x%x, 0x%x, len: %d\n",
 		       (unsigned int)rxbd, status, status & GRETH_BD_LEN);
 
 		/* Check status for errors.
@@ -620,7 +620,7 @@ int greth_initialize(bd_t * bis)
 
 	greth->regs = (greth_regs *) apbdev.address;
 	greth->irq = apbdev.irq;
-	debug("Found GRETH at 0x%lx, irq %d\n", greth->regs, greth->irq);
+	debug("Found GRETH at %p, irq %d\n", greth->regs, greth->irq);
 	dev->priv = (void *)greth;
 	dev->iobase = (unsigned int)greth->regs;
 	dev->init = greth_init;
@@ -652,7 +652,7 @@ int greth_initialize(bd_t * bis)
 	/* initiate PHY, select speed/duplex depending on connected PHY */
 	if (greth_init_phy(greth, bis)) {
 		/* Failed to init PHY (timedout) */
-		debug("GRETH[0x%08x]: Failed to init PHY\n", greth->regs);
+		debug("GRETH[%p]: Failed to init PHY\n", greth->regs);
 		return -1;
 	}
 
@@ -681,6 +681,6 @@ int greth_initialize(bd_t * bis)
 	/* set and remember MAC address */
 	greth_set_hwaddr(greth, addr);
 
-	debug("GRETH[0x%08x]: Initialized successfully\n", greth->regs);
+	debug("GRETH[%p]: Initialized successfully\n", greth->regs);
 	return 0;
 }
