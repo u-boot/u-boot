@@ -23,7 +23,6 @@
 
 #undef DEBUG
 
-#define CONFIG_ARM_CORTEXA9
 #define CONFIG_RMOBILE
 #define CONFIG_SH73A0
 #define CONFIG_KZM_A9_GT
