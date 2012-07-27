@@ -90,7 +90,4 @@
 /* include further common stuff for all keymile 82xx boards */
 #include "km/km82xx-common.h"
 
-/* bfticu address */
-#define CONFIG_SYS_BFTICU_BASE          0x40000000
-
 #endif /* __MGCOGE3NE */
