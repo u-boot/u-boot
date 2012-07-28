@@ -31,7 +31,7 @@
 
 #include "mx28_init.h"
 
-uint32_t dram_vals[] = {
+static uint32_t mx28_dram_vals[] = {
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -88,14 +88,14 @@ void __mx28_adjust_memory_params(uint32_t *dram_vals)
 void mx28_adjust_memory_params(uint32_t *dram_vals)
 	__attribute__((weak, alias("__mx28_adjust_memory_params")));
 
-void init_m28_200mhz_ddr2(void)
+void init_mx28_200mhz_ddr2(void)
 {
 	int i;
 
-	mx28_adjust_memory_params(dram_vals);
+	mx28_adjust_memory_params(mx28_dram_vals);
 
-	for (i = 0; i < ARRAY_SIZE(dram_vals); i++)
-		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
+	for (i = 0; i < ARRAY_SIZE(mx28_dram_vals); i++)
+		writel(mx28_dram_vals[i], MXS_DRAM_BASE + (4 * i));
 }
 
 void mx28_mem_init_clock(void)
@@ -230,7 +230,7 @@ void mx28_mem_init(void)
 	/* Clear START bit from DRAM_CTL16 */
 	clrbits_le32(MXS_DRAM_BASE + 0x40, 1);
 
-	init_m28_200mhz_ddr2();
+	init_mx28_200mhz_ddr2();
 
 	/* Clear SREFRESH bit from DRAM_CTL17 */
 	clrbits_le32(MXS_DRAM_BASE + 0x44, 1);
