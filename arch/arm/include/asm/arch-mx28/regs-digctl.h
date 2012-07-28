@@ -152,4 +152,8 @@ struct mx28_digctl_regs {
 };
 #endif
 
+/* Product code identification */
+#define HW_DIGCTL_CHIPID_MASK	(0xffff << 16)
+#define HW_DIGCTL_CHIPID_MX28	(0x2800 << 16)
+
 #endif /* __MX28_REGS_DIGCTL_H__ */

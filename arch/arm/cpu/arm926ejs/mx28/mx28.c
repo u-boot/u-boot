@@ -188,13 +188,47 @@ int arch_cpu_init(void)
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
+static const char *get_cpu_type(void)
+{
+	struct mx28_digctl_regs *digctl_regs =
+		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
+
+	switch (readl(&digctl_regs->hw_digctl_chipid) & HW_DIGCTL_CHIPID_MASK) {
+	case HW_DIGCTL_CHIPID_MX28:
+		return "28";
+	default:
+		return "??";
+	}
+}
+
+static const char *get_cpu_rev(void)
+{
+	struct mx28_digctl_regs *digctl_regs =
+		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
+	uint8_t rev = readl(&digctl_regs->hw_digctl_chipid) & 0x000000FF;
+
+	switch (readl(&digctl_regs->hw_digctl_chipid) & HW_DIGCTL_CHIPID_MASK) {
+	case HW_DIGCTL_CHIPID_MX28:
+		switch (rev) {
+		case 0x1:
+			return "1.2";
+		default:
+			return "??";
+		}
+	default:
+		return "??";
+	}
+}
+
 int print_cpuinfo(void)
 {
 	struct mx28_spl_data *data = (struct mx28_spl_data *)
 		((CONFIG_SYS_TEXT_BASE - sizeof(struct mx28_spl_data)) & ~0xf);
 
-	printf("Freescale i.MX28 family at %d MHz\n",
-			mxc_get_clock(MXC_ARM_CLK) / 1000000);
+	printf("CPU:   Freescale i.MX%s rev%s at %d MHz\n",
+		get_cpu_type(),
+		get_cpu_rev(),
+		mxc_get_clock(MXC_ARM_CLK) / 1000000);
 	printf("BOOT:  %s\n", mx28_boot_modes[data->boot_mode_idx].mode);
 	return 0;
 }
