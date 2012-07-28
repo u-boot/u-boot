@@ -36,13 +36,21 @@
 #define CONFIG_OF_EMBED		1
 #define CONFIG_DEFAULT_DEVICE_TREE microblaze
 
-/* linear flash memory */
+/* linear and spi flash memory */
 #ifdef XILINX_FLASH_START
 #define	FLASH
+#undef	SPIFLASH
+#undef	RAMENV	/* hold environment in flash */
+#else
+#ifdef XILINX_SPI_FLASH_BASEADDR
+#undef	FLASH
+#define	SPIFLASH
 #undef	RAMENV	/* hold environment in flash */
 #else
 #undef	FLASH
+#undef	SPIFLASH
 #define	RAMENV	/* hold environment in RAM */
+#endif
 #endif
 
 /* uart */
@@ -218,20 +226,51 @@
 #  define CONFIG_ENV_SIZE	0x1000
 #  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
 
-# else	/* !RAMENV */
+# else	/* FLASH && !RAMENV */
 #  define CONFIG_ENV_IS_IN_FLASH	1
 /* 128K(one sector) for env */
 #  define CONFIG_ENV_SECT_SIZE	0x20000
 #  define CONFIG_ENV_ADDR \
 			(CONFIG_SYS_FLASH_BASE + (2 * CONFIG_ENV_SECT_SIZE))
 #  define CONFIG_ENV_SIZE	0x20000
-# endif /* !RAMBOOT */
+# endif /* FLASH && !RAMBOOT */
 #else /* !FLASH */
+
+#ifdef SPIFLASH
+# define CONFIG_SYS_NO_FLASH		1
+# define CONFIG_SYS_SPI_BASE		XILINX_SPI_FLASH_BASEADDR
+# define CONFIG_XILINX_SPI		1
+# define CONFIG_SPI			1
+# define CONFIG_SPI_FLASH		1
+# define CONFIG_SPI_FLASH_STMICRO	1
+# define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
+# define CONFIG_SF_DEFAULT_SPEED	XILINX_SPI_FLASH_MAX_FREQ
+# define CONFIG_SF_DEFAULT_CS		XILINX_SPI_FLASH_CS
+
+# ifdef	RAMENV
+#  define CONFIG_ENV_IS_NOWHERE	1
+#  define CONFIG_ENV_SIZE	0x1000
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
+
+# else	/* SPIFLASH && !RAMENV */
+#  define CONFIG_ENV_IS_IN_SPI_FLASH	1
+#  define CONFIG_ENV_SPI_MODE		SPI_MODE_3
+#  define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
+#  define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
+/* 128K(two sectors) for env */
+#  define CONFIG_ENV_SECT_SIZE	0x10000
+#  define CONFIG_ENV_SIZE	(2 * CONFIG_ENV_SECT_SIZE)
+/* Warning: adjust the offset in respect of other flash content and size */
+#  define CONFIG_ENV_OFFSET	(128 * CONFIG_ENV_SECT_SIZE) /* at 8MB */
+# endif /* SPIFLASH && !RAMBOOT */
+#else /* !SPIFLASH */
+
 /* ENV in RAM */
 # define CONFIG_SYS_NO_FLASH	1
 # define CONFIG_ENV_IS_NOWHERE	1
 # define CONFIG_ENV_SIZE	0x1000
 # define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
+#endif /* !SPIFLASH */
 #endif /* !FLASH */
 
 /* system ace */
@@ -306,12 +345,22 @@
 #  define CONFIG_CMD_SAVEENV
 #  define CONFIG_CMD_SAVES
 # endif
+
+#else
+#if defined(SPIFLASH)
+# define CONFIG_CMD_SF
+
+# if !defined(RAMENV)
+#  define CONFIG_CMD_SAVEENV
+#  define CONFIG_CMD_SAVES
+# endif
 #else
 # undef CONFIG_CMD_IMLS
 # undef CONFIG_CMD_FLASH
 # undef CONFIG_CMD_JFFS2
 # undef CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS
+#endif
 #endif
 
 #if defined(CONFIG_CMD_JFFS2)
