@@ -26,7 +26,11 @@
 const omap3_sysinfo sysinfo = {
 	DDR_STACKED,
 	"IGEP v2 board",
+#if defined(CONFIG_ENV_IS_IN_ONENAND)
 	"ONENAND",
+#else
+	"NAND",
+#endif
 };
 
 static void setup_net_chip(void);

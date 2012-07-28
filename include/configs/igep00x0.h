@@ -105,7 +105,12 @@
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
+#ifdef CONFIG_BOOT_ONENAND
 #define CONFIG_CMD_ONENAND	/* ONENAND support		*/
+#endif
+#ifdef CONFIG_BOOT_NAND
+#define CONFIG_CMD_NAND
+#endif
 #define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
@@ -244,6 +249,7 @@
  * FLASH and environment organization
  */
 
+#ifdef CONFIG_BOOT_ONENAND
 #define PISMO1_ONEN_SIZE		GPMC_SIZE_128M /* Configure the PISMO */
 
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
@@ -253,6 +259,19 @@
 #define CONFIG_ENV_IS_IN_ONENAND	1
 #define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */
 #define CONFIG_ENV_ADDR			ONENAND_ENV_OFFSET
+#endif
+
+#ifdef CONFIG_BOOT_NAND
+#define PISMO1_NAND_SIZE		GPMC_SIZE_128M /* Configure the PISMO */
+#define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_SYS_NAND_BASE		NAND_BASE
+#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
+#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
+#define CONFIG_ENV_IS_IN_NAND	        1
+#define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */
+#define CONFIG_ENV_ADDR			NAND_ENV_OFFSET
+#define CONFIG_SYS_MAX_NAND_DEVICE      1
+#endif
 
 /*
  * Size of malloc() pool

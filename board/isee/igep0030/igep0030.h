@@ -26,7 +26,11 @@
 const omap3_sysinfo sysinfo = {
 	DDR_STACKED,
 	"OMAP3 IGEP module",
+#if defined(CONFIG_ENV_IS_IN_ONENAND)
 	"ONENAND",
+#else
+	"NAND",
+#endif
 };
 
 /*
