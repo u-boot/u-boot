@@ -18,21 +18,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define dmb() __asm__ __volatile__ ("dmb" : : : "memory")
-
-static void Out32(u32 OutAddress, u32 Value)
-{
-    *(volatile u32 *) OutAddress = Value;
-    dmb();
-}
-
-static u32 In32(u32 InAddress)
-{
-    volatile u32 temp = *(volatile u32 *)InAddress;
-    dmb();
-    return temp;
-}
-
 /* Common IO for xgmac and xnand */
 /* Data Memory Barrier */
 #define dmb() __asm__ __volatile__ ("dmb" : : : "memory")
@@ -51,8 +36,8 @@ u32 XIo_In32(u32 InAddress)
 	return temp;
 }
 
-#define Xil_Out32 Out32
-#define Xil_In32 In32
+#define Xil_Out32
+#define Xil_In32
 
 #ifdef CONFIG_FPGA
 Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
@@ -88,7 +73,7 @@ int board_late_init (void)
 {
 	u32 boot_mode;
 
-	boot_mode = (In32(BOOT_MODE_REG) & BOOT_MODES_MASK);
+	boot_mode = (Xil_In32(BOOT_MODE_REG) & BOOT_MODES_MASK);
 	switch(boot_mode) {
 	case QSPI_MODE:
 		setenv("modeboot", "run qspiboot");
