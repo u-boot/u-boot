@@ -467,7 +467,6 @@ enum davinci_clk_ids {
 	DAVINCI_MMC_CLKID			= DAVINCI_PLL0_SYSCLK2,
 	DAVINCI_SPI0_CLKID			= DAVINCI_PLL0_SYSCLK2,
 	DAVINCI_MMCSD_CLKID			= DAVINCI_PLL0_SYSCLK2,
-	DAVINCI_UART2_CLKID			= DAVINCI_PLL0_SYSCLK2,
 
 	/* special clock ID - output of PLL multiplier */
 	DAVINCI_PLLM_CLKID			= 0x0FF,
@@ -478,6 +477,9 @@ enum davinci_clk_ids {
 	/* special clock ID - PLL bypass */
 	DAVINCI_AUXCLK_CLKID			= 0x101,
 };
+
+#define DAVINCI_UART2_CLKID	(cpu_is_da830() ? DAVINCI_PLL0_SYSCLK2 \
+						: get_async3_src())
 
 #define DAVINCI_SPI1_CLKID	(cpu_is_da830() ? DAVINCI_PLL0_SYSCLK2 \
 						: get_async3_src())
