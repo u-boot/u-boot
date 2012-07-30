@@ -48,8 +48,8 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 
 	last = off;
 
-	datbuf = malloc(nand->writesize);
-	oobbuf = malloc(nand->oobsize);
+	datbuf = memalign(ARCH_DMA_MINALIGN, nand->writesize);
+	oobbuf = memalign(ARCH_DMA_MINALIGN, nand->oobsize);
 	if (!datbuf || !oobbuf) {
 		puts("No memory for page buffer\n");
 		return 1;
