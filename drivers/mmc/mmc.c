@@ -1137,7 +1137,8 @@ int mmc_startup(struct mmc *mmc)
 		}
 
 		/* store the partition info of emmc */
-		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT)
+		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) ||
+		    ext_csd[EXT_CSD_BOOT_MULT])
 			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
 	}
 
