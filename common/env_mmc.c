@@ -75,7 +75,26 @@ static int init_mmc_for_env(struct mmc *mmc)
 		return -1;
 	}
 
+#ifdef CONFIG_SYS_MMC_ENV_PART
+	if (CONFIG_SYS_MMC_ENV_PART != mmc->part_num) {
+		if (mmc_switch_part(CONFIG_SYS_MMC_ENV_DEV,
+				    CONFIG_SYS_MMC_ENV_PART)) {
+			puts("MMC partition switch failed\n");
+			return -1;
+		}
+	}
+#endif
+
 	return 0;
+}
+
+static void fini_mmc_for_env(struct mmc *mmc)
+{
+#ifdef CONFIG_SYS_MMC_ENV_PART
+	if (CONFIG_SYS_MMC_ENV_PART != mmc->part_num)
+		mmc_switch_part(CONFIG_SYS_MMC_ENV_DEV,
+				mmc->part_num);
+#endif
 }
 
 #ifdef CONFIG_CMD_SAVEENV
@@ -100,26 +119,38 @@ int saveenv(void)
 	char	*res;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 	u32	offset;
+	int	ret;
 
-	if (init_mmc_for_env(mmc) || mmc_get_env_addr(mmc, &offset))
+	if (init_mmc_for_env(mmc))
 		return 1;
+
+	if (mmc_get_env_addr(mmc, &offset)) {
+		ret = 1;
+		goto fini;
+	}
 
 	res = (char *)&env_new->data;
 	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
-		return 1;
+		ret = 1;
+		goto fini;
 	}
 
 	env_new->crc = crc32(0, &env_new->data[0], ENV_SIZE);
 	printf("Writing to MMC(%d)... ", CONFIG_SYS_MMC_ENV_DEV);
 	if (write_env(mmc, CONFIG_ENV_SIZE, offset, (u_char *)env_new)) {
 		puts("failed\n");
-		return 1;
+		ret = 1;
+		goto fini;
 	}
 
 	puts("done\n");
-	return 0;
+	ret = 0;
+
+fini:
+	fini_mmc_for_env(mmc);
+	return ret;
 }
 #endif /* CONFIG_CMD_SAVEENV */
 
@@ -143,13 +174,30 @@ void env_relocate_spec(void)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 	u32 offset;
+	int ret;
 
-	if (init_mmc_for_env(mmc) || mmc_get_env_addr(mmc, &offset))
-		return set_default_env(NULL);
+	if (init_mmc_for_env(mmc)) {
+		ret = 1;
+		goto err;
+	}
 
-	if (read_env(mmc, CONFIG_ENV_SIZE, offset, buf))
-		return set_default_env(NULL);
+	if (mmc_get_env_addr(mmc, &offset)) {
+		ret = 1;
+		goto fini;
+	}
+
+	if (read_env(mmc, CONFIG_ENV_SIZE, offset, buf)) {
+		ret = 1;
+		goto fini;
+	}
 
 	env_import(buf, 1);
+	ret = 0;
+
+fini:
+	fini_mmc_for_env(mmc);
+err:
+	if (ret)
+		set_default_env(NULL);
 #endif
 }
