@@ -62,8 +62,15 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 
-/* Environment not stored */
-#define CONFIG_ENV_IS_NOWHERE
+/* NAND support */
+#define CONFIG_CMD_NAND
+#define CONFIG_TEGRA_NAND
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE	TEGRA20_NAND_BASE
+
+/* Environment in NAND (which is 512M), aligned to start of last sector */
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET	(SZ_512M - SZ_128K) /* 128K sector size */
 
 /* USB Host support */
 #define CONFIG_USB_EHCI
