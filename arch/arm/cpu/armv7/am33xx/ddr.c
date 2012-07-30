@@ -77,20 +77,14 @@ void config_ddr_phy(const struct emif_regs *regs)
 void config_cmd_ctrl(const struct cmd_control *cmd)
 {
 	writel(cmd->cmd0csratio, &ddr_reg[0]->cm0csratio);
-	writel(cmd->cmd0csforce, &ddr_reg[0]->cm0csforce);
-	writel(cmd->cmd0csdelay, &ddr_reg[0]->cm0csdelay);
 	writel(cmd->cmd0dldiff, &ddr_reg[0]->cm0dldiff);
 	writel(cmd->cmd0iclkout, &ddr_reg[0]->cm0iclkout);
 
 	writel(cmd->cmd1csratio, &ddr_reg[0]->cm1csratio);
-	writel(cmd->cmd1csforce, &ddr_reg[0]->cm1csforce);
-	writel(cmd->cmd1csdelay, &ddr_reg[0]->cm1csdelay);
 	writel(cmd->cmd1dldiff, &ddr_reg[0]->cm1dldiff);
 	writel(cmd->cmd1iclkout, &ddr_reg[0]->cm1iclkout);
 
 	writel(cmd->cmd2csratio, &ddr_reg[0]->cm2csratio);
-	writel(cmd->cmd2csforce, &ddr_reg[0]->cm2csforce);
-	writel(cmd->cmd2csdelay, &ddr_reg[0]->cm2csdelay);
 	writel(cmd->cmd2dldiff, &ddr_reg[0]->cm2dldiff);
 	writel(cmd->cmd2iclkout, &ddr_reg[0]->cm2iclkout);
 }
@@ -106,6 +100,7 @@ void config_ddr_data(int macrono, const struct ddr_data *data)
 	writel(data->datagiratio0, &ddr_reg[macrono]->dt0giratio0);
 	writel(data->datafwsratio0, &ddr_reg[macrono]->dt0fwsratio0);
 	writel(data->datawrsratio0, &ddr_reg[macrono]->dt0wrsratio0);
+	writel(data->datauserank0delay, &ddr_reg[macrono]->dt0rdelays0);
 	writel(data->datadldiff0, &ddr_reg[macrono]->dt0dldiff0);
 }
 

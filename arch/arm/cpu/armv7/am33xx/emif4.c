@@ -61,25 +61,20 @@ static const struct ddr_data ddr2_data = {
 				|(DDR2_PHY_FIFO_WE<<10)|(DDR2_PHY_FIFO_WE<<0)),
 	.datawrsratio0 = ((DDR2_PHY_WR_DATA<<30)|(DDR2_PHY_WR_DATA<<20)
 				|(DDR2_PHY_WR_DATA<<10)|(DDR2_PHY_WR_DATA<<0)),
+	.datauserank0delay = DDR2_PHY_RANK0_DELAY,
 	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr2_cmd_ctrl_data = {
 	.cmd0csratio = DDR2_RATIO,
-	.cmd0csforce = CMD_FORCE,
-	.cmd0csdelay = CMD_DELAY,
 	.cmd0dldiff = DDR2_DLL_LOCK_DIFF,
 	.cmd0iclkout = DDR2_INVERT_CLKOUT,
 
 	.cmd1csratio = DDR2_RATIO,
-	.cmd1csforce = CMD_FORCE,
-	.cmd1csdelay = CMD_DELAY,
 	.cmd1dldiff = DDR2_DLL_LOCK_DIFF,
 	.cmd1iclkout = DDR2_INVERT_CLKOUT,
 
 	.cmd2csratio = DDR2_RATIO,
-	.cmd2csforce = CMD_FORCE,
-	.cmd2csdelay = CMD_DELAY,
 	.cmd2dldiff = DDR2_DLL_LOCK_DIFF,
 	.cmd2iclkout = DDR2_INVERT_CLKOUT,
 };
@@ -120,9 +115,6 @@ void config_ddr(short ddr_type)
 
 		config_ddr_data(0, &ddr2_data);
 		config_ddr_data(1, &ddr2_data);
-
-		writel(DDR2_PHY_RANK0_DELAY, &ddrregs->dt0rdelays0);
-		writel(DDR2_PHY_RANK0_DELAY, &ddrregs->dt1rdelays0);
 
 		config_io_ctrl(DDR2_IOCTRL_VALUE);
 

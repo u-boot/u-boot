@@ -26,8 +26,6 @@
 #define VTP_CTRL_READY		(0x1 << 5)
 #define VTP_CTRL_ENABLE		(0x1 << 6)
 #define VTP_CTRL_START_EN	(0x1)
-#define CMD_FORCE		0x00
-#define CMD_DELAY		0x00
 #define PHY_DLL_LOCK_DIFF	0x0
 #define DDR_CKE_CTRL_NORMAL	0x1
 
@@ -66,43 +64,43 @@ void config_ddr_phy(const struct emif_regs *regs);
 
 /**
  * This structure represents the DDR registers on AM33XX devices.
+ * We make use of DDR_PHY_BASE_ADDR2 to address the DATA1 registers that
+ * correspond to DATA1 registers defined here.
  */
 struct ddr_regs {
 	unsigned int resv0[7];
 	unsigned int cm0csratio;	/* offset 0x01C */
-	unsigned int cm0csforce;	/* offset 0x020 */
-	unsigned int cm0csdelay;	/* offset 0x024 */
+	unsigned int resv1[2];
 	unsigned int cm0dldiff;		/* offset 0x028 */
 	unsigned int cm0iclkout;	/* offset 0x02C */
-	unsigned int resv1[8];
+	unsigned int resv2[8];
 	unsigned int cm1csratio;	/* offset 0x050 */
-	unsigned int cm1csforce;	/* offset 0x054 */
-	unsigned int cm1csdelay;	/* offset 0x058 */
+	unsigned int resv3[2];
 	unsigned int cm1dldiff;		/* offset 0x05C */
 	unsigned int cm1iclkout;	/* offset 0x060 */
-	unsigned int resv2[8];
+	unsigned int resv4[8];
 	unsigned int cm2csratio;	/* offset 0x084 */
-	unsigned int cm2csforce;	/* offset 0x088 */
-	unsigned int cm2csdelay;	/* offset 0x08C */
+	unsigned int resv5[2];
 	unsigned int cm2dldiff;		/* offset 0x090 */
 	unsigned int cm2iclkout;	/* offset 0x094 */
-	unsigned int resv3[12];
+	unsigned int resv6[12];
 	unsigned int dt0rdsratio0;	/* offset 0x0C8 */
-	unsigned int resv4[4];
+	unsigned int resv7[4];
 	unsigned int dt0wdsratio0;	/* offset 0x0DC */
-	unsigned int resv5[4];
+	unsigned int resv8[4];
 	unsigned int dt0wiratio0;	/* offset 0x0F0 */
-	unsigned int resv6;
+	unsigned int resv9;
+	unsigned int dt0wimode0;	/* offset 0x0F8 */
 	unsigned int dt0giratio0;	/* offset 0x0FC */
-	unsigned int resv7[2];
+	unsigned int resv10;
+	unsigned int dt0gimode0;	/* offset 0x104 */
 	unsigned int dt0fwsratio0;	/* offset 0x108 */
-	unsigned int resv8[5];
+	unsigned int resv11[4];
+	unsigned int dt0dqoffset;	/* offset 0x11C */
 	unsigned int dt0wrsratio0;	/* offset 0x120 */
-	unsigned int resv9[4];
+	unsigned int resv12[4];
 	unsigned int dt0rdelays0;	/* offset 0x134 */
 	unsigned int dt0dldiff0;	/* offset 0x138 */
-	unsigned int resv10[39];
-	unsigned int dt1rdelays0;	/* offset 0x1D8 */
 };
 
 /**
@@ -136,6 +134,7 @@ struct ddr_data {
 	unsigned long datagiratio0;
 	unsigned long datafwsratio0;
 	unsigned long datawrsratio0;
+	unsigned long datauserank0delay;
 	unsigned long datadldiff0;
 };
 
