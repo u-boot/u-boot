@@ -87,6 +87,38 @@ static const struct emif_regs ddr2_emif_reg_data = {
 	.emif_ddr_phy_ctlr_1 = DDR2_EMIF_READ_LATENCY,
 };
 
+static const struct ddr_data ddr3_data = {
+	.datardsratio0 = DDR3_RD_DQS,
+	.datawdsratio0 = DDR3_WR_DQS,
+	.datafwsratio0 = DDR3_PHY_FIFO_WE,
+	.datawrsratio0 = DDR3_PHY_WR_DATA,
+	.datadldiff0 = PHY_DLL_LOCK_DIFF,
+};
+
+static const struct cmd_control ddr3_cmd_ctrl_data = {
+	.cmd0csratio = DDR3_RATIO,
+	.cmd0dldiff = DDR3_DLL_LOCK_DIFF,
+	.cmd0iclkout = DDR3_INVERT_CLKOUT,
+
+	.cmd1csratio = DDR3_RATIO,
+	.cmd1dldiff = DDR3_DLL_LOCK_DIFF,
+	.cmd1iclkout = DDR3_INVERT_CLKOUT,
+
+	.cmd2csratio = DDR3_RATIO,
+	.cmd2dldiff = DDR3_DLL_LOCK_DIFF,
+	.cmd2iclkout = DDR3_INVERT_CLKOUT,
+};
+
+static struct emif_regs ddr3_emif_reg_data = {
+	.sdram_config = DDR3_EMIF_SDCFG,
+	.ref_ctrl = DDR3_EMIF_SDREF,
+	.sdram_tim1 = DDR3_EMIF_TIM1,
+	.sdram_tim2 = DDR3_EMIF_TIM2,
+	.sdram_tim3 = DDR3_EMIF_TIM3,
+	.zq_config = DDR3_ZQ_CFG,
+	.emif_ddr_phy_ctlr_1 = DDR3_EMIF_READ_LATENCY,
+};
+
 static void config_vtp(void)
 {
 	writel(readl(&vtpreg->vtp0ctrlreg) | VTP_CTRL_ENABLE,
@@ -115,6 +147,15 @@ void config_ddr(short ddr_type)
 		ddr_data = &ddr2_data;
 		ioctrl_val = DDR2_IOCTRL_VALUE;
 		emif_regs = &ddr2_emif_reg_data;
+	} else if (ddr_type == EMIF_REG_SDRAM_TYPE_DDR3) {
+		ddr_pll = 303;
+		cmd_ctrl_data = &ddr3_cmd_ctrl_data;
+		ddr_data = &ddr3_data;
+		ioctrl_val = DDR3_IOCTRL_VALUE;
+		emif_regs = &ddr3_emif_reg_data;
+	} else {
+		puts("Unknown memory type");
+		hang();
 	}
 
 	enable_emif_clocks();
