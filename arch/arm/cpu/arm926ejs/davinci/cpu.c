@@ -117,6 +117,17 @@ int clk_get(enum davinci_clk_ids id)
 out:
 	return pll_out;
 }
+
+int set_cpu_clk_info(void)
+{
+	gd->bd->bi_arm_freq = clk_get(DAVINCI_ARM_CLKID) / 1000000;
+	/* DDR PHY uses an x2 input clock */
+	gd->bd->bi_ddr_freq = cpu_is_da830() ? 0 :
+				(clk_get(DAVINCI_DDR_CLKID) / 1000000);
+	gd->bd->bi_dsp_freq = 0;
+	return 0;
+}
+
 #else /* CONFIG_SOC_DA8XX */
 
 static unsigned pll_div(volatile void *pllbase, unsigned offset)
@@ -187,17 +198,9 @@ unsigned int davinci_clk_get(unsigned int div)
 	return pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, div) * 1000000;
 }
 #endif
-#endif /* !CONFIG_SOC_DA8XX */
 
 int set_cpu_clk_info(void)
 {
-#ifdef CONFIG_SOC_DA8XX
-	gd->bd->bi_arm_freq = clk_get(DAVINCI_ARM_CLKID) / 1000000;
-	/* DDR PHY uses an x2 input clock */
-	gd->bd->bi_ddr_freq = cpu_is_da830() ? 0 :
-				(clk_get(DAVINCI_DDR_CLKID) / 1000000);
-#else
-
 	unsigned int pllbase = DAVINCI_PLL_CNTRL0_BASE;
 #if defined(CONFIG_SOC_DM365)
 	pllbase = DAVINCI_PLL_CNTRL1_BASE;
@@ -216,9 +219,11 @@ int set_cpu_clk_info(void)
 	pllbase = DAVINCI_PLL_CNTRL0_BASE;
 #endif
 	gd->bd->bi_ddr_freq = pll_sysclk_mhz(pllbase, DDR_PLLDIV) / 2;
-#endif
+
 	return 0;
 }
+
+#endif /* !CONFIG_SOC_DA8XX */
 
 /*
  * Initializes on-chip ethernet controllers.
