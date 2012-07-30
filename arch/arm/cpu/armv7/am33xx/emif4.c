@@ -104,26 +104,35 @@ static void config_vtp(void)
 
 void config_ddr(short ddr_type)
 {
-	enable_emif_clocks();
+	int ddr_pll, ioctrl_val;
+	const struct emif_regs *emif_regs;
+	const struct ddr_data *ddr_data;
+	const struct cmd_control *cmd_ctrl_data;
 
 	if (ddr_type == EMIF_REG_SDRAM_TYPE_DDR2) {
-		ddr_pll_config(266);
-		config_vtp();
-
-		config_cmd_ctrl(&ddr2_cmd_ctrl_data);
-
-		config_ddr_data(0, &ddr2_data);
-		config_ddr_data(1, &ddr2_data);
-
-		config_io_ctrl(DDR2_IOCTRL_VALUE);
-
-		/* Set CKE to be controlled by EMIF/DDR PHY */
-		writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
-
-		/* Program EMIF instance */
-		config_ddr_phy(&ddr2_emif_reg_data);
-		set_sdram_timings(&ddr2_emif_reg_data);
-		config_sdram(&ddr2_emif_reg_data);
+		ddr_pll = 266;
+		cmd_ctrl_data = &ddr2_cmd_ctrl_data;
+		ddr_data = &ddr2_data;
+		ioctrl_val = DDR2_IOCTRL_VALUE;
+		emif_regs = &ddr2_emif_reg_data;
 	}
+
+	enable_emif_clocks();
+	ddr_pll_config(ddr_pll);
+	config_vtp();
+	config_cmd_ctrl(cmd_ctrl_data);
+
+	config_ddr_data(0, ddr_data);
+	config_ddr_data(1, ddr_data);
+
+	config_io_ctrl(ioctrl_val);
+
+	/* Set CKE to be controlled by EMIF/DDR PHY */
+	writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
+
+	/* Program EMIF instance */
+	config_ddr_phy(emif_regs);
+	set_sdram_timings(emif_regs);
+	config_sdram(emif_regs);
 }
 #endif
