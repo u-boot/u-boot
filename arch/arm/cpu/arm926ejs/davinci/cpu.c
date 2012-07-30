@@ -194,7 +194,8 @@ int set_cpu_clk_info(void)
 #ifdef CONFIG_SOC_DA8XX
 	gd->bd->bi_arm_freq = clk_get(DAVINCI_ARM_CLKID) / 1000000;
 	/* DDR PHY uses an x2 input clock */
-	gd->bd->bi_ddr_freq = clk_get(0x10001) / 1000000;
+	gd->bd->bi_ddr_freq = cpu_is_da830() ? 0 :
+				(clk_get(DAVINCI_DDR_CLKID) / 1000000);
 #else
 
 	unsigned int pllbase = DAVINCI_PLL_CNTRL0_BASE;
