@@ -27,10 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct ddr_regs *ddrregs = (struct ddr_regs *)DDR_PHY_BASE_ADDR;
-struct vtp_reg *vtpreg = (struct vtp_reg *)VTP0_CTRL_ADDR;
-struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
-
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
@@ -48,6 +44,9 @@ void dram_init_banksize(void)
 
 
 #ifdef CONFIG_SPL_BUILD
+static struct vtp_reg *vtpreg = (struct vtp_reg *)VTP0_CTRL_ADDR;
+static struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
+
 static const struct ddr_data ddr2_data = {
 	.datardsratio0 = ((DDR2_RD_DQS<<30)|(DDR2_RD_DQS<<20)
 				|(DDR2_RD_DQS<<10)|(DDR2_RD_DQS<<0)),
