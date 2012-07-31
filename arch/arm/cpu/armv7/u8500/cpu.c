@@ -33,18 +33,44 @@
 #include <asm/arch/hardware.h>
 
 #define CPUID_DB8500V1		0x411fc091
+#define CPUID_DB8500V2		0x412fc091
 #define ASICID_DB8500V11	0x008500A1
 
-static unsigned int read_asicid(void)
+static unsigned int read_asicid(void);
+
+static inline unsigned int read_cpuid(void)
 {
-	unsigned int *address = (void *)U8500_BOOTROM_BASE
-				+ U8500_BOOTROM_ASIC_ID_OFFSET;
-	return readl(address);
+	unsigned int val;
+
+	/* Main ID register (MIDR) */
+	asm("mrc        p15, 0, %0, c0, c0, 0"
+	   : "=r" (val)
+	   :
+	   : "cc");
+
+	return val;
 }
 
 static int cpu_is_u8500v11(void)
 {
 	return read_asicid() == ASICID_DB8500V11;
+}
+
+static int cpu_is_u8500v2(void)
+{
+	return read_cpuid() == CPUID_DB8500V2;
+}
+
+static unsigned int read_asicid(void)
+{
+	unsigned int *address;
+
+	if (cpu_is_u8500v2())
+		address = (void *) U8500_ASIC_ID_LOC_V2;
+	else
+		address = (void *) U8500_ASIC_ID_LOC_ED_V1;
+
+	return readl(address);
 }
 
 #ifdef CONFIG_ARCH_CPU_INIT
@@ -62,21 +88,21 @@ int arch_cpu_init(void)
 
 #ifdef CONFIG_MMC
 
-#define LDO_VAUX3_MASK		0x3
-#define LDO_VAUX3_ENABLE	0x1
-#define VAUX3_VOLTAGE_2_9V	0xd
-
-#define AB8500_REGU_CTRL2	0x4
-#define AB8500_REGU_VRF1VAUX3_REGU_REG	0x040A
-#define AB8500_REGU_VRF1VAUX3_SEL_REG	0x0421
-
 int u8500_mmc_power_init(void)
 {
 	int ret;
-	int val;
+	int enable, voltage;
+	int ab8500_revision;
 
-	if (!cpu_is_u8500v11())
+	if (!cpu_is_u8500v11() && !cpu_is_u8500v2())
 		return 0;
+
+	/* Get AB8500 revision */
+	ret = ab8500_read(AB8500_MISC, AB8500_REV_REG);
+	if (ret < 0)
+		goto out;
+
+	ab8500_revision = ret;
 
 	/*
 	 * On v1.1 HREF boards (HREF+), Vaux3 needs to be enabled for the SD
@@ -89,33 +115,50 @@ int u8500_mmc_power_init(void)
 	 * Turn off and delay is required to have it work across soft reboots.
 	 */
 
-	ret = prcmu_i2c_read(AB8500_REGU_CTRL2, AB8500_REGU_VRF1VAUX3_REGU_REG);
+	/* Turn off (read-modify-write) */
+	ret = ab8500_read(AB8500_REGU_CTRL2,
+				AB8500_REGU_VRF1VAUX3_REGU_REG);
 	if (ret < 0)
 		goto out;
 
-	val = ret;
+	enable = ret;
 
 	/* Turn off */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2, AB8500_REGU_VRF1VAUX3_REGU_REG,
-							val & ~LDO_VAUX3_MASK);
+	ret = ab8500_write(AB8500_REGU_CTRL2,
+			AB8500_REGU_VRF1VAUX3_REGU_REG,
+			enable & ~LDO_VAUX3_ENABLE_MASK);
 	if (ret < 0)
 		goto out;
 
 	udelay(10 * 1000);
 
-	/* Set the voltage to 2.9V */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2,
-				AB8500_REGU_VRF1VAUX3_SEL_REG,
-				VAUX3_VOLTAGE_2_9V);
+	/* Set the voltage to 2.91 V or 2.9 V without overriding VRF1 value */
+	ret = ab8500_read(AB8500_REGU_CTRL2,
+			AB8500_REGU_VRF1VAUX3_SEL_REG);
 	if (ret < 0)
 		goto out;
 
-	val = val & ~LDO_VAUX3_MASK;
-	val = val | LDO_VAUX3_ENABLE;
+	voltage = ret;
+
+	if (ab8500_revision < 0x20) {
+		voltage &= ~LDO_VAUX3_SEL_MASK;
+		voltage |= LDO_VAUX3_SEL_2V9;
+	} else {
+		voltage &= ~LDO_VAUX3_V2_SEL_MASK;
+		voltage |= LDO_VAUX3_V2_SEL_2V91;
+	}
+
+	ret = ab8500_write(AB8500_REGU_CTRL2,
+			AB8500_REGU_VRF1VAUX3_SEL_REG, voltage);
+	if (ret < 0)
+		goto out;
 
 	/* Turn on the supply */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2,
-				AB8500_REGU_VRF1VAUX3_REGU_REG, val);
+	enable &= ~LDO_VAUX3_ENABLE_MASK;
+	enable |= LDO_VAUX3_ENABLE_VAL;
+
+	ret = ab8500_write(AB8500_REGU_CTRL2,
+			AB8500_REGU_VRF1VAUX3_REGU_REG, enable);
 
 out:
 	return ret;

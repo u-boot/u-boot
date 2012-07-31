@@ -27,6 +27,7 @@
 #include <asm/arch/db8500_pincfg.h>
 #include <asm/arch/prcmu.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 
 #include "db8500_pins.h"
 
@@ -248,6 +249,10 @@ int board_late_init(void)
 	/* enable 3v6 for GBF chip */
 	if ((raise_ab8500_gpio16() < 0))
 		printf("error: cant' raise GPIO16\n");
+
+#ifdef CONFIG_MMC
+	u8500_mmc_power_init();
+#endif /* CONFIG_MMC */
 
 	return 0;
 }
