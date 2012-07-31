@@ -30,20 +30,15 @@
 #include <version.h>
 #include <watchdog.h>
 #include <stdio_dev.h>
+#include <serial.h>
 #include <net.h>
 #include <asm/processor.h>
+#include <asm/microblaze_intc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SYS_GPIO_0
 extern int gpio_init (void);
-#endif
-#ifdef CONFIG_SYS_INTC_0
-extern int interrupts_init (void);
-#endif
-
-#if defined(CONFIG_CMD_NET)
-extern int eth_init (bd_t * bis);
 #endif
 #ifdef CONFIG_SYS_TIMER_0
 extern int timer_init (void);
@@ -73,9 +68,7 @@ init_fnc_t *init_sequence[] = {
 #ifdef CONFIG_SYS_GPIO_0
 	gpio_init,
 #endif
-#ifdef CONFIG_SYS_INTC_0
 	interrupts_init,
-#endif
 #ifdef CONFIG_SYS_TIMER_0
 	timer_init,
 #endif
@@ -116,6 +109,10 @@ void board_init (void)
 	 * as our monitory code is run from SDRAM
 	 */
 	mem_malloc_init (CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
+
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET ();

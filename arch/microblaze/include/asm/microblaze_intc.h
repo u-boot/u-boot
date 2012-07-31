@@ -41,3 +41,6 @@ struct irq_action {
 
 void install_interrupt_handler (int irq, interrupt_handler_t * hdlr,
 				       void *arg);
+
+int interrupts_init(void);
+
