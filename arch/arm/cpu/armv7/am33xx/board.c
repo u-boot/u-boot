@@ -58,11 +58,6 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-/*
- * I2C Address of on-board EEPROM
- */
-#define I2C_BASE_BOARD_ADDR	0x50
-
 #define NO_OF_MAC_ADDR          3
 #define ETH_ALEN		6
 #define NAME_LEN		8
@@ -94,14 +89,14 @@ static inline int board_is_evm_sk(void)
 static int read_eeprom(void)
 {
 	/* Check if baseboard eeprom is available */
-	if (i2c_probe(I2C_BASE_BOARD_ADDR)) {
+	if (i2c_probe(CONFIG_SYS_I2C_EEPROM_ADDR)) {
 		puts("Could not probe the EEPROM; something fundamentally "
 			"wrong on the I2C bus.\n");
 		return -ENODEV;
 	}
 
 	/* read the eeprom using i2c */
-	if (i2c_read(I2C_BASE_BOARD_ADDR, 0, 2, (uchar *)&header,
+	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 2, (uchar *)&header,
 							sizeof(header))) {
 		puts("Could not read the EEPROM; something fundamentally"
 			" wrong on the I2C bus.\n");
@@ -113,8 +108,8 @@ static int read_eeprom(void)
 		 * read the eeprom using i2c again,
 		 * but use only a 1 byte address
 		 */
-		if (i2c_read(I2C_BASE_BOARD_ADDR, 0, 1, (uchar *)&header,
-							sizeof(header))) {
+		if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 1,
+					(uchar *)&header, sizeof(header))) {
 			puts("Could not read the EEPROM; something "
 				"fundamentally wrong on the I2C bus.\n");
 			return -EIO;
