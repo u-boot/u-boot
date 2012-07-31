@@ -36,6 +36,14 @@
 #define CPUID_DB8500V2		0x412fc091
 #define ASICID_DB8500V11	0x008500A1
 
+#define CACHE_CONTR_BASE	0xA0412000
+/* Cache controller register offsets
+ * as found in ARM's technical reference manual
+ */
+#define CACHE_INVAL_BY_WAY	(CACHE_CONTR_BASE + 0x77C)
+#define CACHE_LOCKDOWN_BY_D	(CACHE_CONTR_BASE + 0X900)
+#define CACHE_LOCKDOWN_BY_I	(CACHE_CONTR_BASE + 0X904)
+
 static unsigned int read_asicid(void);
 
 static inline unsigned int read_cpuid(void)
@@ -71,6 +79,24 @@ static unsigned int read_asicid(void)
 		address = (void *) U8500_ASIC_ID_LOC_ED_V1;
 
 	return readl(address);
+}
+
+void cpu_cache_initialization(void)
+{
+	unsigned int value;
+	/* invalidate all cache entries */
+	writel(0xFFFF, CACHE_INVAL_BY_WAY);
+
+	/* ways are set to '0' when they are totally
+	 * cleaned and invalidated
+	 */
+	do {
+		value = readl(CACHE_INVAL_BY_WAY);
+	} while (value & 0xFF);
+
+	/* Invalidate register 9 D and I lockdown */
+	writel(0xFF, CACHE_LOCKDOWN_BY_D);
+	writel(0xFF, CACHE_LOCKDOWN_BY_I);
 }
 
 #ifdef CONFIG_ARCH_CPU_INIT
