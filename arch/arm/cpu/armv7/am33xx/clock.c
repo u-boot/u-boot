@@ -71,6 +71,10 @@ static void enable_interface_clocks(void)
 	writel(PRCM_MOD_EN, &cmper->l4hsclkctrl);
 	while (readl(&cmper->l4hsclkctrl) != PRCM_MOD_EN)
 		;
+
+	writel(PRCM_MOD_EN, &cmwkup->wkgpio0clkctrl);
+	while (readl(&cmwkup->wkgpio0clkctrl) != PRCM_MOD_EN)
+		;
 }
 
 /*
