@@ -26,8 +26,8 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-#ifdef CONFIG_MMC
 #include <asm/arch/prcmu.h>
+#ifdef CONFIG_MMC
 #include "../../../drivers/mmc/arm_pl180_mmci.h"
 #endif
 
@@ -42,7 +42,6 @@
  * SGA: Smart Graphic accelerator
  * B2R2: Graphic blitter
  */
-#define PRCMU_BASE	CFG_PRCMU_BASE	/* 0x80157000 for U8500 */
 #define PRCM_ARMCLKFIX_MGT_REG		(PRCMU_BASE + 0x000)
 #define PRCM_ACLK_MGT_REG		(PRCMU_BASE + 0x004)
 #define PRCM_SVAMMDSPCLK_MGT_REG	(PRCMU_BASE + 0x008)

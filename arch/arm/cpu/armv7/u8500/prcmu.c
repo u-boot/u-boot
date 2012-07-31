@@ -40,6 +40,8 @@
 #define PRCM_MBOX_CPU_SET (U8500_PRCMU_BASE + 0x100)
 #define PRCM_MBOX_CPU_CLR (U8500_PRCMU_BASE + 0x104)
 
+#define I2C_MBOX_BIT    (1 << 5)
+
 static int prcmu_is_ready(void)
 {
 	int ready = readb(PRCM_XP70_CUR_PWR_STATE) == AP_EXECUTE;
@@ -161,4 +163,32 @@ int prcmu_i2c_write(u8 reg, u16 slave, u8 reg_data)
 		printf("ape-i2c: i2c_status : 0x%x\n", i2c_status);
 		return -1;
 	}
+}
+
+void u8500_prcmu_enable(u32 *reg)
+{
+	writel(readl(reg) | (1 << 8), reg);
+}
+
+void db8500_prcmu_init(void)
+{
+	/* Enable timers */
+	writel(1 << 17, PRCM_TCR);
+
+	u8500_prcmu_enable((u32 *)PRCM_PER1CLK_MGT_REG);
+	u8500_prcmu_enable((u32 *)PRCM_PER2CLK_MGT_REG);
+	u8500_prcmu_enable((u32 *)PRCM_PER3CLK_MGT_REG);
+	/* PER4CLK does not exist */
+	u8500_prcmu_enable((u32 *)PRCM_PER5CLK_MGT_REG);
+	u8500_prcmu_enable((u32 *)PRCM_PER6CLK_MGT_REG);
+	/* Only exists in ED but is always ok to write to */
+	u8500_prcmu_enable((u32 *)PRCM_PER7CLK_MGT_REG);
+
+	u8500_prcmu_enable((u32 *)PRCM_UARTCLK_MGT_REG);
+	u8500_prcmu_enable((u32 *)PRCM_I2CCLK_MGT_REG);
+
+	u8500_prcmu_enable((u32 *)PRCM_SDMMCCLK_MGT_REG);
+
+	/* Clean up the mailbox interrupts after pre-u-boot code. */
+	writel(I2C_MBOX_BIT, PRCM_ARM_IT1_CLEAR);
 }
