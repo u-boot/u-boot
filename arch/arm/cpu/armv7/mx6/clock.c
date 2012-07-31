@@ -50,6 +50,26 @@ void enable_usboh3_clk(unsigned char enable)
 
 }
 
+#ifdef CONFIG_I2C_MXC
+/* i2c_num can be from 0 - 2 */
+int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
+{
+	u32 reg;
+	u32 mask;
+
+	if (i2c_num > 2)
+		return -EINVAL;
+	mask = MXC_CCM_CCGR_CG_MASK << ((i2c_num + 3) << 1);
+	reg = __raw_readl(&imx_ccm->CCGR2);
+	if (enable)
+		reg |= mask;
+	else
+		reg &= ~mask;
+	__raw_writel(reg, &imx_ccm->CCGR2);
+	return 0;
+}
+#endif
+
 static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 {
 	u32 div;
