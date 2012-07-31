@@ -36,7 +36,8 @@ static int output_recursion;
 static int net_timeout;
 static uchar nc_ether[6]; /* server enet address */
 static IPaddr_t nc_ip; /* server ip */
-static short nc_port; /* source/target port */
+static short nc_out_port; /* target output port */
+static short nc_in_port; /* source input port */
 static const char *output_packet; /* used by first send udp */
 static int output_packet_len;
 
@@ -71,7 +72,7 @@ void NcStart(void)
 		net_set_arp_handler(nc_wait_arp_handler);
 		pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
 		memcpy(pkt, output_packet, output_packet_len);
-		NetSendUDPPacket(nc_ether, nc_ip, nc_port, nc_port,
+		NetSendUDPPacket(nc_ether, nc_ip, nc_out_port, nc_in_port,
 			output_packet_len);
 	}
 }
@@ -80,7 +81,7 @@ int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 {
 	int end, chunk;
 
-	if (dest != nc_port || !len)
+	if (dest != nc_in_port || !len)
 		return 0; /* not for us */
 
 	debug_cond(DEBUG_DEV_PKT, "input: \"%*.*s\"\n", len, len, pkt);
@@ -139,7 +140,7 @@ static void nc_send_packet(const char *buf, int len)
 	memcpy(pkt, buf, len);
 	ether = nc_ether;
 	ip = nc_ip;
-	NetSendUDPPacket(ether, ip, nc_port, nc_port, len);
+	NetSendUDPPacket(ether, ip, nc_out_port, nc_in_port, len);
 
 	if (inited)
 		eth_halt();
@@ -148,20 +149,30 @@ static void nc_send_packet(const char *buf, int len)
 static int nc_start(void)
 {
 	int netmask, our_ip;
+	char *p;
 
-	nc_port = 6666;		/* default port */
+	nc_out_port = 6666; /* default port */
+	nc_in_port = nc_out_port;
 
 	if (getenv("ncip")) {
-		char *p;
 
 		nc_ip = getenv_IPaddr("ncip");
 		if (!nc_ip)
 			return -1;	/* ncip is 0.0.0.0 */
 		p = strchr(getenv("ncip"), ':');
-		if (p != NULL)
-			nc_port = simple_strtoul(p + 1, NULL, 10);
+		if (p != NULL) {
+			nc_out_port = simple_strtoul(p + 1, NULL, 10);
+			nc_in_port = nc_out_port;
+		}
 	} else
-		nc_ip = ~0;		/* ncip is not set */
+		nc_ip = ~0; /* ncip is not set, so broadcast */
+
+	p = getenv("ncoutport");
+	if (p != NULL)
+		nc_out_port = simple_strtoul(p, NULL, 10);
+	p = getenv("ncinport");
+	if (p != NULL)
+		nc_in_port = simple_strtoul(p, NULL, 10);
 
 	our_ip = getenv_IPaddr("ipaddr");
 	netmask = getenv_IPaddr("netmask");
