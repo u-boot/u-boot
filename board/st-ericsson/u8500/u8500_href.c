@@ -138,18 +138,6 @@ void show_boot_progress(int progress)
 }
 #endif
 
-static unsigned int read_asicid(void)
-{
-	unsigned int *address = (void *)U8500_BOOTROM_BASE
-				+ U8500_BOOTROM_ASIC_ID_OFFSET;
-	return readl(address);
-}
-
-int cpu_is_u8500v11(void)
-{
-	return read_asicid() == 0x008500A1;
-}
-
 /*
  * Miscellaneous platform dependent initialisations
  */
@@ -226,67 +214,6 @@ unsigned int addr_vall_arr[] = {
 };
 
 #ifdef CONFIG_BOARD_LATE_INIT
-#ifdef CONFIG_MMC
-
-#define LDO_VAUX3_MASK		0x3
-#define LDO_VAUX3_ENABLE	0x1
-#define VAUX3_VOLTAGE_2_9V	0xd
-
-#define AB8500_REGU_CTRL2	0x4
-#define AB8500_REGU_VRF1VAUX3_REGU_REG	0x040A
-#define AB8500_REGU_VRF1VAUX3_SEL_REG	0x0421
-
-static int hrefplus_mmc_power_init(void)
-{
-	int ret;
-	int val;
-
-	if (!cpu_is_u8500v11())
-		return 0;
-
-	/*
-	 * On v1.1 HREF boards (HREF+), Vaux3 needs to be enabled for the SD
-	 * card to work.  This is done by enabling the regulators in the AB8500
-	 * via PRCMU I2C transactions.
-	 *
-	 * This code is derived from the handling of AB8500_LDO_VAUX3 in
-	 * ab8500_ldo_enable() and ab8500_ldo_disable() in Linux.
-	 *
-	 * Turn off and delay is required to have it work across soft reboots.
-	 */
-
-	ret = prcmu_i2c_read(AB8500_REGU_CTRL2, AB8500_REGU_VRF1VAUX3_REGU_REG);
-	if (ret < 0)
-		goto out;
-
-	val = ret;
-
-	/* Turn off */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2, AB8500_REGU_VRF1VAUX3_REGU_REG,
-				val & ~LDO_VAUX3_MASK);
-	if (ret < 0)
-		goto out;
-
-	udelay(10 * 1000);
-
-	/* Set the voltage to 2.9V */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2,
-				AB8500_REGU_VRF1VAUX3_SEL_REG,
-				VAUX3_VOLTAGE_2_9V);
-	if (ret < 0)
-		goto out;
-
-	val = val & ~LDO_VAUX3_MASK;
-	val = val | LDO_VAUX3_ENABLE;
-
-	/* Turn on the supply */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2,
-				AB8500_REGU_VRF1VAUX3_REGU_REG, val);
-
-out:
-	return ret;
-}
-#endif
 /*
  * called after all initialisation were done, but before the generic
  * mmc_initialize().
@@ -313,7 +240,7 @@ int board_late_init(void)
 		setenv("board_id", "1");
 	}
 #ifdef CONFIG_MMC
-	hrefplus_mmc_power_init();
+	u8500_mmc_power_init();
 
 	/*
 	 * config extended GPIO pins for level shifter and
