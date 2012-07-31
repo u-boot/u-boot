@@ -28,7 +28,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static char input_buffer[512];
+#ifndef CONFIG_NETCONSOLE_BUFFER_SIZE
+#define CONFIG_NETCONSOLE_BUFFER_SIZE 512
+#endif
+
+static char input_buffer[CONFIG_NETCONSOLE_BUFFER_SIZE];
 static int input_size; /* char count in input buffer */
 static int input_offset; /* offset to valid chars in input buffer */
 static int input_recursion;
@@ -214,7 +218,7 @@ static void nc_puts(const char *s)
 
 	len = strlen(s);
 	while (len) {
-		int send_len = min(len, 512);
+		int send_len = min(len, sizeof(input_buffer));
 		nc_send_packet(s, send_len);
 		len -= send_len;
 		s += send_len;
