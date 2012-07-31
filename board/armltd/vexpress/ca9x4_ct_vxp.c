@@ -33,6 +33,8 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <malloc.h>
+#include <errno.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/systimer.h>
@@ -90,8 +92,25 @@ int board_eth_init(bd_t *bis)
 int cpu_mmc_init(bd_t *bis)
 {
 	int rc = 0;
+	(void) bis;
 #ifdef CONFIG_ARM_PL180_MMCI
-	rc = arm_pl180_mmci_init();
+	struct pl180_mmc_host *host;
+
+	host = malloc(sizeof(struct pl180_mmc_host));
+	if (!host)
+		return -ENOMEM;
+	memset(host, 0, sizeof(*host));
+
+	strcpy(host->name, "MMC");
+	host->base = (struct sdi_registers *)CONFIG_ARM_PL180_MMCI_BASE;
+	host->pwr_init = INIT_PWR;
+	host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V1 | SDI_CLKCR_CLKEN;
+	host->voltages = VOLTAGE_WINDOW_MMC;
+	host->caps = 0;
+	host->clock_in = ARM_MCLK;
+	host->clock_min = ARM_MCLK / (2 * (SDI_CLKCR_CLKDIV_INIT_V1 + 1));
+	host->clock_max = CONFIG_ARM_PL180_MMCI_CLOCK_FREQ;
+	rc = arm_pl180_mmci_init(host);
 #endif
 	return rc;
 }

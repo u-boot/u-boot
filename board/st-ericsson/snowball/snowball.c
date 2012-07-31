@@ -29,6 +29,9 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
+#ifdef CONFIG_MMC
+#include "../../../drivers/mmc/arm_pl180_mmci.h"
+#endif
 #include "db8500_pins.h"
 
 /*
@@ -250,9 +253,96 @@ int board_late_init(void)
 	if ((raise_ab8500_gpio16() < 0))
 		printf("error: cant' raise GPIO16\n");
 
+	return 0;
+}
+
 #ifdef CONFIG_MMC
+/*
+ * emmc_host_init - initialize the emmc controller.
+ * Configure GPIO settings, set initial clock and power for emmc slot.
+ * Initialize mmc struct and register with mmc framework.
+ */
+static int emmc_host_init(void)
+{
+	struct pl180_mmc_host *host;
+
+	host = malloc(sizeof(struct pl180_mmc_host));
+	if (!host)
+		return -ENOMEM;
+	memset(host, 0, sizeof(*host));
+
+	host->base = (struct sdi_registers *)CFG_EMMC_BASE;
+	host->pwr_init = SDI_PWR_OPD | SDI_PWR_PWRCTRL_ON;
+	host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V2 |
+				 SDI_CLKCR_CLKEN | SDI_CLKCR_HWFC_EN;
+	strcpy(host->name, "EMMC");
+	host->caps = MMC_MODE_8BIT | MMC_MODE_HS | MMC_MODE_HS_52MHz;
+	host->voltages = VOLTAGE_WINDOW_MMC;
+	host->clock_min = ARM_MCLK / (2 + SDI_CLKCR_CLKDIV_INIT_V2);
+	host->clock_max = ARM_MCLK / 2;
+	host->clock_in = ARM_MCLK;
+	host->version2 = 1;
+
+	return arm_pl180_mmci_init(host);
+}
+
+/*
+ * mmc_host_init - initialize the external mmc controller.
+ * Configure GPIO settings, set initial clock and power for mmc slot.
+ * Initialize mmc struct and register with mmc framework.
+ */
+static int mmc_host_init(void)
+{
+	struct pl180_mmc_host *host;
+	u32 sdi_u32;
+
+	host = malloc(sizeof(struct pl180_mmc_host));
+	if (!host)
+		return -ENOMEM;
+	memset(host, 0, sizeof(*host));
+
+	host->base = (struct sdi_registers *)CFG_MMC_BASE;
+	sdi_u32 = 0xBF;
+	writel(sdi_u32, &host->base->power);
+	host->pwr_init = 0xBF;
+	host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V2 |
+				 SDI_CLKCR_CLKEN | SDI_CLKCR_HWFC_EN;
+	strcpy(host->name, "MMC");
+	host->caps = MMC_MODE_8BIT;
+	host->b_max = 0;
+	host->voltages = VOLTAGE_WINDOW_SD;
+	host->clock_min = ARM_MCLK / (2 + SDI_CLKCR_CLKDIV_INIT_V2);
+	host->clock_max = ARM_MCLK / 2;
+	host->clock_in = ARM_MCLK;
+	host->version2 = 1;
+
+	return arm_pl180_mmci_init(host);
+}
+
+/*
+ * board_mmc_init - initialize all the mmc/sd host controllers.
+ * Called by generic mmc framework.
+ */
+int board_mmc_init(bd_t *bis)
+{
+	int error;
+
+	(void) bis;
+
+	error = emmc_host_init();
+	if (error) {
+		printf("emmc_host_init() %d\n", error);
+		return -1;
+	}
+
 	u8500_mmc_power_init();
-#endif /* CONFIG_MMC */
+
+	error = mmc_host_init();
+	if (error) {
+		printf("mmc_host_init() %d\n", error);
+		return -1;
+	}
 
 	return 0;
 }
+#endif /* CONFIG_MMC */
