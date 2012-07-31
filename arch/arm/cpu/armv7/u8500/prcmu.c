@@ -36,9 +36,10 @@
 #include <asm/arch/prcmu.h>
 
 /* CPU mailbox registers */
-#define PRCM_MBOX_CPU_VAL (U8500_PRCMU_BASE + 0x0fc)
-#define PRCM_MBOX_CPU_SET (U8500_PRCMU_BASE + 0x100)
-#define PRCM_MBOX_CPU_CLR (U8500_PRCMU_BASE + 0x104)
+#define PRCMU_I2C_WRITE(slave)  \
+	(((slave) << 1) | I2CWRITE | (1 << 6))
+#define PRCMU_I2C_READ(slave) \
+	(((slave) << 1) | I2CREAD | (1 << 6))
 
 #define I2C_MBOX_BIT    (1 << 5)
 
@@ -50,26 +51,39 @@ static int prcmu_is_ready(void)
 	return ready;
 }
 
-static int _wait_for_req_complete(int num)
+static int wait_for_i2c_mbx_rdy(void)
 {
-	int timeout = 1000;
+	int timeout = 10000;
 
-	/* checking any already on-going transaction */
-	while ((readl(PRCM_MBOX_CPU_VAL) & (1 << num)) && timeout)
+	if (readl(PRCM_ARM_IT1_VAL) & I2C_MBOX_BIT) {
+		printf("prcmu: warning i2c mailbox was not acked\n");
+		/* clear mailbox 5 ack irq */
+		writel(I2C_MBOX_BIT, PRCM_ARM_IT1_CLEAR);
+	}
+
+	/* check any already on-going transaction */
+	while ((readl(PRCM_MBOX_CPU_VAL) & I2C_MBOX_BIT) && timeout)
 		timeout--;
 
-	timeout = 1000;
+	if (timeout == 0)
+		return -1;
+
+	return 0;
+}
+
+static int wait_for_i2c_req_done(void)
+{
+	int timeout = 10000;
 
 	/* Set an interrupt to XP70 */
-	writel(1 << num, PRCM_MBOX_CPU_SET);
+	writel(I2C_MBOX_BIT, PRCM_MBOX_CPU_SET);
 
-	while ((readl(PRCM_MBOX_CPU_VAL) & (1 << num)) && timeout)
+	/* wait for mailbox 5 (i2c) ack */
+	while (!(readl(PRCM_ARM_IT1_VAL) & I2C_MBOX_BIT) && timeout)
 		timeout--;
 
-	if (!timeout) {
-		printf("PRCMU operation timed out\n");
+	if (timeout == 0)
 		return -1;
-	}
 
 	return 0;
 }
@@ -84,6 +98,7 @@ int prcmu_i2c_read(u8 reg, u16 slave)
 {
 	uint8_t i2c_status;
 	uint8_t i2c_val;
+	int ret;
 
 	if (!prcmu_is_ready())
 		return -1;
@@ -91,13 +106,23 @@ int prcmu_i2c_read(u8 reg, u16 slave)
 	debug("\nprcmu_4500_i2c_read:bank=%x;reg=%x;\n",
 			reg, slave);
 
+	ret = wait_for_i2c_mbx_rdy();
+	if (ret) {
+		printf("prcmu_i2c_read: mailbox became not ready\n");
+		return ret;
+	}
+
 	/* prepare the data for mailbox 5 */
-	writeb((reg << 1) | I2CREAD, PRCM_REQ_MB5_I2COPTYPE_REG);
+	writeb(PRCMU_I2C_READ(reg), PRCM_REQ_MB5_I2COPTYPE_REG);
 	writeb((1 << 3) | 0x0, PRCM_REQ_MB5_BIT_FIELDS);
 	writeb(slave, PRCM_REQ_MB5_I2CSLAVE);
 	writeb(0, PRCM_REQ_MB5_I2CVAL);
 
-	_wait_for_req_complete(REQ_MB5);
+	ret = wait_for_i2c_req_done();
+	if (ret) {
+		printf("prcmu_i2c_read: mailbox request timed out\n");
+		return ret;
+	}
 
 	/* retrieve values */
 	debug("ack-mb5:transfer status = %x\n",
@@ -109,16 +134,14 @@ int prcmu_i2c_read(u8 reg, u16 slave)
 
 	i2c_status = readb(PRCM_ACK_MB5_STATUS);
 	i2c_val = readb(PRCM_ACK_MB5_VAL);
+	/* clear mailbox 5 ack irq */
+	writel(I2C_MBOX_BIT, PRCM_ARM_IT1_CLEAR);
 
 	if (i2c_status == I2C_RD_OK)
 		return i2c_val;
-	else {
 
-		printf("prcmu_i2c_read:read return status= %d\n",
-				i2c_status);
-		return -1;
-	}
-
+	printf("prcmu_i2c_read:read return status= %d\n", i2c_status);
+	return -1;
 }
 
 /**
@@ -131,6 +154,7 @@ int prcmu_i2c_read(u8 reg, u16 slave)
 int prcmu_i2c_write(u8 reg, u16 slave, u8 reg_data)
 {
 	uint8_t i2c_status;
+	int ret;
 
 	if (!prcmu_is_ready())
 		return -1;
@@ -138,14 +162,23 @@ int prcmu_i2c_write(u8 reg, u16 slave, u8 reg_data)
 	debug("\nprcmu_4500_i2c_write:bank=%x;reg=%x;\n",
 			reg, slave);
 
+	ret = wait_for_i2c_mbx_rdy();
+	if (ret) {
+		printf("prcmu_i2c_write: mailbox became not ready\n");
+		return ret;
+	}
+
 	/* prepare the data for mailbox 5 */
-	writeb((reg << 1) | I2CWRITE, PRCM_REQ_MB5_I2COPTYPE_REG);
+	writeb(PRCMU_I2C_WRITE(reg), PRCM_REQ_MB5_I2COPTYPE_REG);
 	writeb((1 << 3) | 0x0, PRCM_REQ_MB5_BIT_FIELDS);
 	writeb(slave, PRCM_REQ_MB5_I2CSLAVE);
 	writeb(reg_data, PRCM_REQ_MB5_I2CVAL);
 
-	debug("\ncpu_is_u8500v11\n");
-	_wait_for_req_complete(REQ_MB5);
+	ret = wait_for_i2c_req_done();
+	if (ret) {
+		printf("prcmu_i2c_write: mailbox request timed out\n");
+		return ret;
+	}
 
 	/* retrieve values */
 	debug("ack-mb5:transfer status = %x\n",
@@ -157,12 +190,14 @@ int prcmu_i2c_write(u8 reg, u16 slave, u8 reg_data)
 
 	i2c_status = readb(PRCM_ACK_MB5_STATUS);
 	debug("\ni2c_status = %x\n", i2c_status);
+	/* clear mailbox 5 ack irq */
+	writel(I2C_MBOX_BIT, PRCM_ARM_IT1_CLEAR);
+
 	if (i2c_status == I2C_WR_OK)
 		return 0;
-	else {
-		printf("ape-i2c: i2c_status : 0x%x\n", i2c_status);
-		return -1;
-	}
+
+	printf("%s: i2c_status : 0x%x\n", __func__, i2c_status);
+	return -1;
 }
 
 void u8500_prcmu_enable(u32 *reg)
