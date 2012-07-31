@@ -262,7 +262,8 @@ program_nmi_handler(void)
 		"%1 = RETS;" /* Load addr of NMI handler */
 		"RETS = %0;" /* Restore RETS */
 		"[%2] = %1;" /* Write NMI handler */
-		: "=r"(tmp1), "=r"(tmp2) : "ab"(EVT2)
+		: "=d"(tmp1), "=d"(tmp2)
+		: "ab"(EVT2)
 	);
 }
 
