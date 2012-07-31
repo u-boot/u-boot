@@ -27,6 +27,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/prcmu.h>
+#include <asm/arch/clock.h>
 
 #ifdef CONFIG_ARCH_CPU_INIT
 /*
@@ -35,6 +36,7 @@
 int arch_cpu_init(void)
 {
 	db8500_prcmu_init();
+	db8500_clocks_init();
 
 	return 0;
 }

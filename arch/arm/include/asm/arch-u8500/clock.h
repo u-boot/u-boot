@@ -64,9 +64,6 @@ struct prcmu {
 
 extern void u8500_clock_enable(int periph, int kern, int cluster);
 
-static inline void u8500_prcmu_enable(unsigned int *reg)
-{
-	writel(readl(reg) | (1 << 8), reg);
-}
+void db8500_clocks_init(void);
 
 #endif /* __ASM_ARCH_CLOCK */
