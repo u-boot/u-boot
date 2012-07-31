@@ -64,8 +64,11 @@
 
 #define REQ_MB5			5
 
-extern int prcmu_i2c_read(u8 reg, u16 slave);
-extern int prcmu_i2c_write(u8 reg, u16 slave, u8 reg_data);
+#define ab8500_read	prcmu_i2c_read
+#define ab8500_write	prcmu_i2c_write
+
+int prcmu_i2c_read(u8 reg, u16 slave);
+int prcmu_i2c_write(u8 reg, u16 slave, u8 reg_data);
 
 void u8500_prcmu_enable(u32 *reg);
 void db8500_prcmu_init(void);

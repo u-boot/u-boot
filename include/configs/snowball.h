@@ -32,6 +32,7 @@
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_ARCH_CPU_INIT
+#define CONFIG_BOARD_LATE_INIT
 
 /*
  * High Level Configuration Options

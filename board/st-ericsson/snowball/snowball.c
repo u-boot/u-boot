@@ -25,6 +25,8 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/db8500_pincfg.h>
+#include <asm/arch/prcmu.h>
+#include <asm/arch/hardware.h>
 
 #include "db8500_pins.h"
 
@@ -161,6 +163,91 @@ int dram_init(void)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->ram_size = gd->bd->bi_dram[0].size =
 		get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE);
+
+	return 0;
+}
+
+static int raise_ab8500_gpio16(void)
+{
+	int ret;
+
+	/* selection */
+	ret = ab8500_read(AB8500_MISC, AB8500_GPIO_SEL2_REG);
+	if (ret < 0)
+		goto out;
+
+	ret |= 0x80;
+	ret = ab8500_write(AB8500_MISC, AB8500_GPIO_SEL2_REG, ret);
+	if (ret < 0)
+		goto out;
+
+	/* direction */
+	ret = ab8500_read(AB8500_MISC, AB8500_GPIO_DIR2_REG);
+	if (ret < 0)
+		goto out;
+
+	ret |= 0x80;
+	ret = ab8500_write(AB8500_MISC, AB8500_GPIO_DIR2_REG, ret);
+	if (ret < 0)
+		goto out;
+
+	/* out */
+	ret = ab8500_read(AB8500_MISC, AB8500_GPIO_OUT2_REG);
+	if (ret < 0)
+		goto out;
+
+	ret |= 0x80;
+	ret = ab8500_write(AB8500_MISC, AB8500_GPIO_OUT2_REG, ret);
+
+out:
+	return ret;
+}
+
+static int raise_ab8500_gpio26(void)
+{
+	int ret;
+
+	/* selection */
+	ret = ab8500_read(AB8500_MISC, AB8500_GPIO_DIR4_REG);
+	if (ret < 0)
+		goto out;
+
+	ret |= 0x2;
+	ret = ab8500_write(AB8500_MISC, AB8500_GPIO_DIR4_REG, ret);
+	if (ret < 0)
+		goto out;
+
+	/* out */
+	ret = ab8500_read(AB8500_MISC, AB8500_GPIO_OUT4_REG);
+	if (ret < 0)
+		goto out;
+
+	ret |= 0x2;
+	ret = ab8500_write(AB8500_MISC, AB8500_GPIO_OUT4_REG, ret);
+
+out:
+	return ret;
+}
+
+int board_late_init(void)
+{
+	/* enable 3V3 for LAN controller */
+	if (raise_ab8500_gpio26() >= 0) {
+		/* Turn on FSMC device */
+		writel(0x1, 0x8000f000);
+		writel(0x1, 0x8000f008);
+
+		/* setup FSMC for LAN controler */
+		writel(0x305b, 0x80000000);
+
+		/* run at the highest possible speed */
+		writel(0x01010210, 0x80000004);
+	} else
+		printf("error: can't raise GPIO26\n");
+
+	/* enable 3v6 for GBF chip */
+	if ((raise_ab8500_gpio16() < 0))
+		printf("error: cant' raise GPIO16\n");
 
 	return 0;
 }
