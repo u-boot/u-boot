@@ -29,6 +29,7 @@
 #include <asm/io.h>
 #include <asm/omap_common.h>
 #include <asm/emif.h>
+#include <asm/gpio.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
@@ -52,6 +53,9 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
 #define MII_MODE_ENABLE		0x0
 #define RGMII_MODE_ENABLE	0xA
 
+/* GPIO that controls power to DDR on EVM-SK */
+#define GPIO_DDR_VTT_EN		7
+
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /*
@@ -72,11 +76,16 @@ struct am335x_baseboard_id {
 	char mac_addr[NO_OF_MAC_ADDR][ETH_ALEN];
 };
 
-static struct am335x_baseboard_id header;
+static struct am335x_baseboard_id __attribute__((section (".data"))) header;
 
 static inline int board_is_bone(void)
 {
 	return !strncmp(header.name, "A335BONE", NAME_LEN);
+}
+
+static inline int board_is_evm_sk(void)
+{
+	return !strncmp("A335X_SK", header.name, NAME_LEN);
 }
 
 /*
@@ -145,6 +154,18 @@ static void init_timer(void)
 #endif
 
 /*
+ * Determine what type of DDR we have.
+ */
+static short inline board_memory_type(void)
+{
+	/* The following boards are known to use DDR3. */
+	if (board_is_evm_sk())
+		return EMIF_REG_SDRAM_TYPE_DDR3;
+
+	return EMIF_REG_SDRAM_TYPE_DDR2;
+}
+
+/*
  * early system init of muxing and clocks.
  */
 void s_init(void)
@@ -185,7 +206,23 @@ void s_init(void)
 
 	preloader_console_init();
 
-	config_ddr(EMIF_REG_SDRAM_TYPE_DDR2);
+	/* Initalize the board header */
+	enable_i2c0_pin_mux();
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	if (read_eeprom() < 0)
+		puts("Could not get board ID.\n");
+
+	if (board_is_evm_sk()) {
+		/*
+		 * EVM SK 1.2A and later use gpio0_7 to enable DDR3.
+		 * This is safe enough to do on older revs.
+		 */
+		enable_gpio0_7_pin_mux();
+		gpio_request(GPIO_DDR_VTT_EN, "ddr_vtt_en");
+		gpio_direction_output(GPIO_DDR_VTT_EN, 1);
+	}
+
+	config_ddr(board_memory_type());
 #endif
 
 	/* Enable MMC0 */

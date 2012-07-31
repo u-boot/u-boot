@@ -288,6 +288,11 @@ static struct module_pin_mux i2c1_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux gpio0_7_pin_mux[] = {
+	{OFFSET(ecap0_in_pwm0_out), (MODE(7) | PULLUDEN)},	/* GPIO0_7 */
+	{-1},
+};
+
 static struct module_pin_mux rgmii1_pin_mux[] = {
 	{OFFSET(mii1_txen), MODE(2)},			/* RGMII1_TCTL */
 	{OFFSET(mii1_rxdv), MODE(2) | RXACTIVE},	/* RGMII1_RCTL */
@@ -369,4 +374,9 @@ void enable_rgmii1_pin_mux(void)
 void enable_mii1_pin_mux(void)
 {
 	configure_module_pin_mux(mii1_pin_mux);
+}
+
+void enable_gpio0_7_pin_mux(void)
+{
+	configure_module_pin_mux(gpio0_7_pin_mux);
 }

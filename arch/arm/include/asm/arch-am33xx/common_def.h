@@ -18,6 +18,7 @@
 
 extern void enable_uart0_pin_mux(void);
 extern void enable_mmc0_pin_mux(void);
+extern void enable_gpio0_7_pin_mux(void);
 extern void enable_i2c0_pin_mux(void);
 extern void enable_mii1_pin_mux(void);
 extern void enable_rgmii1_pin_mux(void);
