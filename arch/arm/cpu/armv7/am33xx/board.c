@@ -25,7 +25,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc_host_def.h>
-#include <asm/arch/common_def.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>
 #include <asm/emif.h>
@@ -58,29 +58,16 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-#define NO_OF_MAC_ADDR          3
-#define ETH_ALEN		6
-#define NAME_LEN		8
-
-struct am335x_baseboard_id {
-	unsigned int  magic;
-	char name[NAME_LEN];
-	char version[4];
-	char serial[12];
-	char config[32];
-	char mac_addr[NO_OF_MAC_ADDR][ETH_ALEN];
-};
-
 static struct am335x_baseboard_id __attribute__((section (".data"))) header;
 
 static inline int board_is_bone(void)
 {
-	return !strncmp(header.name, "A335BONE", NAME_LEN);
+	return !strncmp(header.name, "A335BONE", HDR_NAME_LEN);
 }
 
 static inline int board_is_evm_sk(void)
 {
-	return !strncmp("A335X_SK", header.name, NAME_LEN);
+	return !strncmp("A335X_SK", header.name, HDR_NAME_LEN);
 }
 
 /*
@@ -207,21 +194,18 @@ void s_init(void)
 	if (read_eeprom() < 0)
 		puts("Could not get board ID.\n");
 
+	enable_board_pin_mux(&header);
 	if (board_is_evm_sk()) {
 		/*
 		 * EVM SK 1.2A and later use gpio0_7 to enable DDR3.
 		 * This is safe enough to do on older revs.
 		 */
-		enable_gpio0_7_pin_mux();
 		gpio_request(GPIO_DDR_VTT_EN, "ddr_vtt_en");
 		gpio_direction_output(GPIO_DDR_VTT_EN, 1);
 	}
 
 	config_ddr(board_memory_type());
 #endif
-
-	/* Enable MMC0 */
-	enable_mmc0_pin_mux();
 }
 
 #if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
@@ -238,14 +222,10 @@ void setup_clocks_for_console(void)
 }
 
 /*
- * Basic board specific setup
+ * Basic board specific setup.  Pinmux has been handled already.
  */
 int board_init(void)
 {
-	enable_uart0_pin_mux();
-
-	enable_i2c0_pin_mux();
-	enable_i2c1_pin_mux();
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	if (read_eeprom() < 0)
 		puts("Could not get board ID.\n");
@@ -318,12 +298,10 @@ int board_eth_init(bd_t *bis)
 	}
 
 	if (board_is_bone()) {
-		enable_mii1_pin_mux();
 		writel(MII_MODE_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
 				PHY_INTERFACE_MODE_MII;
 	} else {
-		enable_rgmii1_pin_mux();
 		writel(RGMII_MODE_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
 				PHY_INTERFACE_MODE_RGMII;

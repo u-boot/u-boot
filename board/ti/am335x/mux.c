@@ -13,8 +13,8 @@
  * GNU General Public License for more details.
  */
 
-#include <config.h>
-#include <asm/arch/common_def.h>
+#include <common.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 
@@ -258,7 +258,6 @@ static struct module_pin_mux uart0_pin_mux[] = {
 	{-1},
 };
 
-#ifdef CONFIG_MMC
 static struct module_pin_mux mmc0_pin_mux[] = {
 	{OFFSET(mmc0_dat3), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT3 */
 	{OFFSET(mmc0_dat2), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT2 */
@@ -270,7 +269,17 @@ static struct module_pin_mux mmc0_pin_mux[] = {
 	{OFFSET(spi0_cs1), (MODE(5) | RXACTIVE | PULLUP_EN)},	/* MMC0_CD */
 	{-1},
 };
-#endif
+
+static struct module_pin_mux mmc0_pin_mux_sk_evm[] = {
+	{OFFSET(mmc0_dat3), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT3 */
+	{OFFSET(mmc0_dat2), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT2 */
+	{OFFSET(mmc0_dat1), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT1 */
+	{OFFSET(mmc0_dat0), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT0 */
+	{OFFSET(mmc0_clk), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_CLK */
+	{OFFSET(mmc0_cmd), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_CMD */
+	{OFFSET(spi0_cs1), (MODE(5) | RXACTIVE | PULLUP_EN)},	/* MMC0_CD */
+	{-1},
+};
 
 static struct module_pin_mux i2c0_pin_mux[] = {
 	{OFFSET(i2c0_sda), (MODE(0) | RXACTIVE |
@@ -349,34 +358,33 @@ void enable_uart0_pin_mux(void)
 	configure_module_pin_mux(uart0_pin_mux);
 }
 
-#ifdef CONFIG_MMC
-void enable_mmc0_pin_mux(void)
-{
-	configure_module_pin_mux(mmc0_pin_mux);
-}
-#endif
 
 void enable_i2c0_pin_mux(void)
 {
 	configure_module_pin_mux(i2c0_pin_mux);
 }
 
-void enable_i2c1_pin_mux(void)
+void enable_board_pin_mux(struct am335x_baseboard_id *header)
 {
+	/* Enable pinmux that is common to all TI boards. */
 	configure_module_pin_mux(i2c1_pin_mux);
-}
 
-void enable_rgmii1_pin_mux(void)
-{
-	configure_module_pin_mux(rgmii1_pin_mux);
-}
-
-void enable_mii1_pin_mux(void)
-{
-	configure_module_pin_mux(mii1_pin_mux);
-}
-
-void enable_gpio0_7_pin_mux(void)
-{
-	configure_module_pin_mux(gpio0_7_pin_mux);
+	/* Now do board-specific muxes. */
+	if (!strncmp(header->name, "A335BONE", HDR_NAME_LEN)) {
+		/* Beaglebone pinmux */
+		configure_module_pin_mux(mii1_pin_mux);
+		configure_module_pin_mux(mmc0_pin_mux);
+	} else if (!strncmp(header->config, "SKU#01", 6)) {
+		/* General Purpose EVM */
+		configure_module_pin_mux(rgmii1_pin_mux);
+		configure_module_pin_mux(mmc0_pin_mux);
+	} else if (!strncmp(header->name, "A335X_SK", HDR_NAME_LEN)) {
+		/* Starter Kit EVM */
+		configure_module_pin_mux(gpio0_7_pin_mux);
+		configure_module_pin_mux(rgmii1_pin_mux);
+		configure_module_pin_mux(mmc0_pin_mux_sk_evm);
+	} else {
+		puts("Unknown board, cannot configure pinmux.");
+		hang();
+	}
 }
