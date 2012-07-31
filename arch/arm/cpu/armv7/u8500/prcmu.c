@@ -33,8 +33,7 @@
 #include <asm/types.h>
 #include <asm/io.h>
 #include <asm/errno.h>
-
-#include "prcmu-fw.h"
+#include <asm/arch/prcmu.h>
 
 /* CPU mailbox registers */
 #define PRCM_MBOX_CPU_VAL (U8500_PRCMU_BASE + 0x0fc)
@@ -54,16 +53,16 @@ static int _wait_for_req_complete(int num)
 	int timeout = 1000;
 
 	/* checking any already on-going transaction */
-	while ((readl(PRCM_MBOX_CPU_VAL) & (1 << num)) && timeout--)
-		;
+	while ((readl(PRCM_MBOX_CPU_VAL) & (1 << num)) && timeout)
+		timeout--;
 
 	timeout = 1000;
 
 	/* Set an interrupt to XP70 */
 	writel(1 << num, PRCM_MBOX_CPU_SET);
 
-	while ((readl(PRCM_MBOX_CPU_VAL) & (1 << num)) && timeout--)
-		;
+	while ((readl(PRCM_MBOX_CPU_VAL) & (1 << num)) && timeout)
+		timeout--;
 
 	if (!timeout) {
 		printf("PRCMU operation timed out\n");
