@@ -1083,12 +1083,6 @@ unsigned long usb_stor_read(int device, unsigned long blknr,
 	buf_addr = (unsigned long)buffer;
 	start = blknr;
 	blks = blkcnt;
-	if (usb_test_unit_ready(srb, ss)) {
-		printf("Device NOT ready\n   Request Sense returned %02X %02X"
-		       " %02X\n", srb->sense_buf[2], srb->sense_buf[12],
-		       srb->sense_buf[13]);
-		return 0;
-	}
 
 	USB_STOR_PRINTF("\nusb_read: dev %d startblk %lx, blccnt %lx"
 			" buffer %lx\n", device, start, blks, buf_addr);
@@ -1161,12 +1155,6 @@ unsigned long usb_stor_write(int device, unsigned long blknr,
 	buf_addr = (unsigned long)buffer;
 	start = blknr;
 	blks = blkcnt;
-	if (usb_test_unit_ready(srb, ss)) {
-		printf("Device NOT ready\n   Request Sense returned %02X %02X"
-		       " %02X\n", srb->sense_buf[2], srb->sense_buf[12],
-			srb->sense_buf[13]);
-		return 0;
-	}
 
 	USB_STOR_PRINTF("\nusb_write: dev %d startblk %lx, blccnt %lx"
 			" buffer %lx\n", device, start, blks, buf_addr);
