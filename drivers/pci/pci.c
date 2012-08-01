@@ -118,11 +118,11 @@ PCI_WRITE_VIA_DWORD_OP(word, u16, 0x02, 0x0000ffff)
 void *pci_map_bar(pci_dev_t pdev, int bar, int flags)
 {
 	pci_addr_t pci_bus_addr;
-	u32 bar_response;
+	pci_addr_t bar_response;
 
 	/* read BAR address */
 	pci_read_config_dword(pdev, bar, &bar_response);
-	pci_bus_addr = (pci_addr_t)(bar_response & ~0xf);
+	pci_bus_addr = bar_response & ~0xf;
 
 	/*
 	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
@@ -385,7 +385,8 @@ int pci_hose_config_device(struct pci_controller *hose,
 			   pci_addr_t mem,
 			   unsigned long command)
 {
-	unsigned int bar_response, old_command;
+	pci_addr_t bar_response;
+	unsigned int old_command;
 	pci_addr_t bar_value;
 	pci_size_t bar_size;
 	unsigned char pin;

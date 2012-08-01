@@ -88,15 +88,15 @@ void pciauto_setup_device(struct pci_controller *hose,
 			  struct pci_region *prefetch,
 			  struct pci_region *io)
 {
-	unsigned int bar_response;
+	pci_addr_t bar_response;
 	pci_addr_t bar_value;
 	pci_size_t bar_size;
-	unsigned int cmdstat = 0;
+	u16 cmdstat = 0;
 	struct pci_region *bar_res;
 	int bar, bar_nr = 0;
 	int found_mem64 = 0;
 
-	pci_hose_read_config_dword(hose, dev, PCI_COMMAND, &cmdstat);
+	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
 	cmdstat = (cmdstat & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY)) | PCI_COMMAND_MASTER;
 
 	for (bar = PCI_BASE_ADDRESS_0; bar < PCI_BASE_ADDRESS_0 + (bars_num*4); bar += 4) {
@@ -167,7 +167,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 		bar_nr++;
 	}
 
-	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat);
+	pci_hose_write_config_word(hose, dev, PCI_COMMAND, cmdstat);
 	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE,
 		CONFIG_SYS_PCI_CACHE_LINE_SIZE);
 	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
@@ -179,9 +179,9 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 	struct pci_region *pci_mem = hose->pci_mem;
 	struct pci_region *pci_prefetch = hose->pci_prefetch;
 	struct pci_region *pci_io = hose->pci_io;
-	unsigned int cmdstat;
+	u16 cmdstat;
 
-	pci_hose_read_config_dword(hose, dev, PCI_COMMAND, &cmdstat);
+	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
 
 	/* Configure bus number registers */
 	pci_hose_write_config_byte(hose, dev, PCI_PRIMARY_BUS,
@@ -229,7 +229,8 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 	}
 
 	/* Enable memory and I/O accesses, enable bus master */
-	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat | PCI_COMMAND_MASTER);
+	pci_hose_write_config_word(hose, dev, PCI_COMMAND,
+					cmdstat | PCI_COMMAND_MASTER);
 }
 
 void pciauto_postscan_setup_bridge(struct pci_controller *hose,
