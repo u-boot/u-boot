@@ -50,7 +50,7 @@ alias s5pc           samsung
 alias samsung        uboot, prom
 alias tegra          uboot, Simon Glass <sjg@chromium.org>, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
-alias ti             uboot, Sandeep Paulraj <s-paulraj@ti.com>, Tom Rini <trini@ti.com>
+alias ti             uboot, Tom Rini <trini@ti.com>
 
 alias avr32          uboot, Andreas Bießmann <andreas.devel@googlemail.com>
 
