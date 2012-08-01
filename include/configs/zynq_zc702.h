@@ -74,7 +74,7 @@
 /*
  * Physical Memory map
  */
-#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
+#define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
 
 /*
  * SPI Settings
