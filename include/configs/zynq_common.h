@@ -25,7 +25,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
 	"kernel_image=uImage\0"	\
-	"ramdisk_image=uramdisk8M.image.gz\0"	\
+	"ramdisk_image=uramdisk.image.gz\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
 	"kernel_size=0x140000\0"	\
 	"ramdisk_size=0x200000\0"	\
