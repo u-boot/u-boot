@@ -31,8 +31,8 @@
 	"ramdisk_size=0x200000\0"	\
 	"nand_kernel_size=0x400000\0"	\
 	"nand_ramdisk_size=0x400000\0"	\
-	"fdt_high=0x1000000\0"	\
-	"initrd_high=0xA627C2\0"	\
+	"fdt_high=0x20000000\0"	\
+	"initrd_high=0x20000000\0"	\
 	"norboot=echo Copying Linux from NOR flash to RAM...;" \
 		"cp 0xE2100000 0x3000000 ${kernel_size};" \
 		"cp 0xE2600000 0x2A00000 0x20000;" \
