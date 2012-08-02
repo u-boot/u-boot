@@ -25,7 +25,7 @@ for ex.
 		-T kwbimage -a 0x00600000 -e 0x00600000 \
 		-d u-boot.bin u-boot.kwb
 
-kwimage support available with mkimage utility will generate kirkwood boot
+kwbimage support available with mkimage utility will generate kirkwood boot
 image that can be flashed on the board NAND/SPI flash
 
 Board specific configuration file specifications:
