@@ -133,7 +133,11 @@ cc-version = $(shell $(SHELL) $(SRCTREE)/tools/gcc-version.sh $(CC))
 # Include the make variables (CC, etc...)
 #
 AS	= $(CROSS_COMPILE)as
-LD	= $(CROSS_COMPILE)ld
+
+# Always use GNU ld
+LD	= $(shell if $(CROSS_COMPILE)ld.bfd -v > /dev/null 2>&1; \
+		then echo "$(CROSS_COMPILE)ld.bfd"; else echo "$(CROSS_COMPILE)ld"; fi;)
+
 CC	= $(CROSS_COMPILE)gcc
 CPP	= $(CC) -E
 AR	= $(CROSS_COMPILE)ar
