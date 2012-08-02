@@ -143,13 +143,11 @@ typedef enum irqreturn irqreturn_t;
  * All the four interrupt registers (Status/Mask/Enable/Disable) have the same
  * bit definitions.
  */
-#define XQSPIPSS_IXR_MODF_MASK		0x00000002 /* QSPI Mode Fault */
 #define XQSPIPSS_IXR_TXNFULL_MASK	0x00000004 /* QSPI TX FIFO Overflow */
 #define XQSPIPSS_IXR_TXFULL_MASK	0x00000008 /* QSPI TX FIFO is full */
 #define XQSPIPSS_IXR_RXNEMTY_MASK	0x00000010 /* QSPI RX FIFO Not Empty */
 #define XQSPIPSS_IXR_ALL_MASK		(XQSPIPSS_IXR_TXNFULL_MASK | \
-					 XQSPIPSS_IXR_RXNEMTY_MASK | \
-					 XQSPIPSS_IXR_MODF_MASK)
+					 XQSPIPSS_IXR_RXNEMTY_MASK)
 
 /*
  * QSPI Enable Register bit Masks
@@ -679,20 +677,7 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 	xqspips_write(xqspi->regs + XQSPIPSS_IDIS_OFFSET,
 			XQSPIPSS_IXR_ALL_MASK);
 #endif
-
-	if (intr_status & XQSPIPSS_IXR_MODF_MASK) {
-		/* Indicate that transfer is completed, the SPI subsystem will
-		 * identify the error as the remaining bytes to be
-		 * transferred is non-zero */
-#ifdef LINUX_ONLY_NOT_UBOOT
-		complete(&xqspi->done);
-#else
-		/* u-boot: return "operation complete" */
-		xqspips_write(xqspi->regs + XQSPIPSS_IDIS_OFFSET,
-			XQSPIPSS_IXR_ALL_MASK);
-		return 1;
-#endif
-	} else if ((intr_status & XQSPIPSS_IXR_TXNFULL_MASK) ||
+	if ((intr_status & XQSPIPSS_IXR_TXNFULL_MASK) ||
 		   (intr_status & XQSPIPSS_IXR_RXNEMTY_MASK)) {
 		/* This bit is set when Tx FIFO has < THRESHOLD entries. We have
 		   the THRESHOLD value set to 1, so this bit indicates Tx FIFO
