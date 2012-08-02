@@ -394,7 +394,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	sh_eth_write(eth, TPAUSER_TPAUSE, TPAUSER);
 #endif
 
-#if defined(CONFIG_CPU_SH7734)
+#if defined(CONFIG_CPU_SH7734) || defined(CONFIG_R8A7740)
 	sh_eth_write(eth, CONFIG_SH_ETHER_SH7734_MII, RMII_MII);
 #endif
 	/* Configure phy */
