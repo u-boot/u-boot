@@ -44,6 +44,11 @@ static short nc_out_port; /* target output port */
 static short nc_in_port; /* source input port */
 static const char *output_packet; /* used by first send udp */
 static int output_packet_len;
+/*
+ * Start with a default last protocol.
+ * We are only interested in NETCONS or not.
+ */
+enum proto_t net_loop_last_protocol = BOOTP;
 
 static void nc_wait_arp_handler(uchar *pkt, unsigned dest,
 				 IPaddr_t sip, unsigned src,
@@ -136,8 +141,13 @@ static void nc_send_packet(const char *buf, int len)
 	}
 
 	if (eth->state != ETH_STATE_ACTIVE) {
-		if (eth_init(gd->bd) < 0)
-			return;
+		if (eth_is_on_demand_init()) {
+			if (eth_init(gd->bd) < 0)
+				return;
+			eth_set_last_protocol(NETCONS);
+		} else
+			eth_init_state_only(gd->bd);
+
 		inited = 1;
 	}
 	pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
@@ -146,8 +156,12 @@ static void nc_send_packet(const char *buf, int len)
 	ip = nc_ip;
 	NetSendUDPPacket(ether, ip, nc_out_port, nc_in_port, len);
 
-	if (inited)
-		eth_halt();
+	if (inited) {
+		if (eth_is_on_demand_init())
+			eth_halt();
+		else
+			eth_halt_state_only();
+	}
 }
 
 static int nc_start(void)

@@ -121,12 +121,8 @@ static struct {
 static unsigned int eth_rcv_current, eth_rcv_last;
 #endif
 
-static struct eth_device *eth_devices, *eth_current;
-
-struct eth_device *eth_get_dev(void)
-{
-	return eth_current;
-}
+static struct eth_device *eth_devices;
+struct eth_device *eth_current;
 
 struct eth_device *eth_get_dev_by_name(const char *devname)
 {

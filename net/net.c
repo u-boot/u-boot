@@ -315,12 +315,15 @@ int NetLoop(enum proto_t protocol)
 
 	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
 	net_init();
-	eth_halt();
-	eth_set_current();
-	if (eth_init(bd) < 0) {
+	if (eth_is_on_demand_init() || protocol != NETCONS) {
 		eth_halt();
-		return -1;
-	}
+		eth_set_current();
+		if (eth_init(bd) < 0) {
+			eth_halt();
+			return -1;
+		}
+	} else
+		eth_init_state_only(bd);
 
 restart:
 	net_set_state(NETLOOP_CONTINUE);
@@ -460,6 +463,9 @@ restart:
 
 			net_cleanup_loop();
 			eth_halt();
+			/* Invalidate the last protocol */
+			eth_set_last_protocol(BOOTP);
+
 			puts("\nAbort\n");
 			/* include a debug print as well incase the debug
 			   messages are directed to stderr */
@@ -517,13 +523,21 @@ restart:
 				sprintf(buf, "%lX", (unsigned long)load_addr);
 				setenv("fileaddr", buf);
 			}
-			eth_halt();
+			if (protocol != NETCONS)
+				eth_halt();
+			else
+				eth_halt_state_only();
+
+			eth_set_last_protocol(protocol);
+
 			ret = NetBootFileXferSize;
 			debug_cond(DEBUG_INT_STATE, "--- NetLoop Success!\n");
 			goto done;
 
 		case NETLOOP_FAIL:
 			net_cleanup_loop();
+			/* Invalidate the last protocol */
+			eth_set_last_protocol(BOOTP);
 			debug_cond(DEBUG_INT_STATE, "--- NetLoop Fail!\n");
 			goto done;
 
