@@ -3880,6 +3880,7 @@ saveenv - save environment variables to persistent storage
 protect - enable or disable FLASH write protection
 erase	- erase FLASH memory
 flinfo	- print FLASH memory information
+nand	- NAND memory operations (see doc/README.nand)
 bdinfo	- print Board Info structure
 iminfo	- print header information for application image
 coninfo - print console devices and informations
