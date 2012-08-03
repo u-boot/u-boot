@@ -808,6 +808,10 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
 
+Mathieu Poirier <mathieu.poirier@linaro.org>
+
+	snowball	ARM ARMV7 (u8500 SoC)
+
 Stelian Pop <stelian@popies.net>
 
 	at91sam9260ek	ARM926EJS (AT91SAM9260 SoC)

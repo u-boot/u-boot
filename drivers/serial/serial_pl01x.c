@@ -156,6 +156,8 @@ int serial_init (void)
 			writel(lcr, &regs->fr);
 
 		writel(lcr, &regs->pl011_rlcr);
+		/* lcrh needs to be set again for change to be effective */
+		writel(lcr, &regs->pl011_lcrh);
 	}
 #endif
 	/* Finally, enable the UART */
