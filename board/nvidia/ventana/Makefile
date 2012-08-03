@@ -25,7 +25,7 @@
 include $(TOPDIR)/config.mk
 
 ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common $(obj)../seaboard)
+$(shell mkdir -p $(obj)../seaboard)
 endif
 
 LIB	= $(obj)lib$(BOARD).o
