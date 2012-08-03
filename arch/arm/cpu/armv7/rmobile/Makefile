@@ -27,11 +27,12 @@ LIB	= $(obj)lib$(SOC).o
 
 SOBJS = lowlevel_init.o
 COBJS-y += cpu_info.o
-COBJS-y += timer.o
 
 COBJS-$(CONFIG_DISPLAY_BOARDINFO) += board.o
+COBJS-$(CONFIG_GLOBAL_TIMER) += timer.o
 COBJS-$(CONFIG_SH73A0) += cpu_info-sh73a0.o
 COBJS-$(CONFIG_SH73A0) += pfc-sh73a0.o
+COBJS-$(CONFIG_TMU_TIMER) += $(TOPDIR)/arch/sh/lib/time.o
 
 COBJS	:= $(COBJS-y)
 SRCS    := $(SOBJS:.o=.S) $(COBJS:.o=.c)
