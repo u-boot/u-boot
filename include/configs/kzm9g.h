@@ -135,6 +135,7 @@
 #define CONFIG_SH_GPIO_PFC
 
 /* Clock */
+#define CONFIG_GLOBAL_TIMER
 #define CONFIG_SYS_CLK_FREQ	(48000000)
 #define CONFIG_SYS_CPU_CLK	(1196000000)
 #define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
