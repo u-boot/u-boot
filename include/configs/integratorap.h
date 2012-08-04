@@ -31,32 +31,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_INTEGRATOR
+#include "integrator-common.h"
+
+/* Integrator/AP-specific configuration */
 #define CONFIG_ARCH_INTEGRATOR
-/*
- * High Level Configuration Options
- * (easy to change)
- */
-#define CONFIG_SYS_TEXT_BASE		0x01000000
-#define CONFIG_SYS_MEMTEST_START	0x100000
-#define CONFIG_SYS_MEMTEST_END		0x10000000
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_HZ_CLOCK		24000000	/* Timer 1 is clocked at 24Mhz */
-#define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1		       */
-
-#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_MISC_INIT_R	1	/* call misc_init_r during start up */
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_CM_INIT		1
-#define CONFIG_CM_REMAP		1
-#define CONFIG_CM_SPD_DETECT
-
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
 
 /*
  * PL010 Configuration
@@ -90,29 +69,7 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP	/* undef to save memory	    */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT	"Integrator-AP # "	/* Monitor Command Prompt   */
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size  */
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
-
-#define CONFIG_SYS_LOAD_ADDR	0x7fc0	/* default load address */
-
-/*-----------------------------------------------------------------------
- * Physical Memory Map
- */
-#define CONFIG_NR_DRAM_BANKS	1	/* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1		0x00000000	/* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE	0x02000000	/* 32 MB */
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_SIZE PHYS_SDRAM_1_SIZE
-#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_SDRAM_BASE + \
-				    CONFIG_SYS_INIT_RAM_SIZE - \
-				    GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_FLASH_BASE	0x24000000
 
