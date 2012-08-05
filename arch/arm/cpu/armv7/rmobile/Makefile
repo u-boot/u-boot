@@ -27,6 +27,7 @@ LIB	= $(obj)lib$(SOC).o
 
 SOBJS = lowlevel_init.o
 COBJS-y += cpu_info.o
+COBJS-y += emac.o
 
 COBJS-$(CONFIG_DISPLAY_BOARDINFO) += board.o
 COBJS-$(CONFIG_GLOBAL_TIMER) += timer.o
