@@ -28,7 +28,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_timrot_regs {
+struct mxs_timrot_regs {
 	mxs_reg_32(hw_timrot_rotctrl)
 	mxs_reg_32(hw_timrot_rotcount)
 	mxs_reg_32(hw_timrot_timctrl0)

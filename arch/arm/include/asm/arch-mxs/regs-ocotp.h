@@ -29,7 +29,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_ocotp_regs {
+struct mxs_ocotp_regs {
 	mxs_reg_32(hw_ocotp_ctrl)	/* 0x0 */
 	mxs_reg_32(hw_ocotp_data)	/* 0x10 */
 	mxs_reg_32(hw_ocotp_cust0)	/* 0x20 */

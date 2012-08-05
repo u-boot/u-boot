@@ -233,7 +233,7 @@ static uint32_t mxs_nand_mark_bit_offset(struct mtd_info *mtd)
  */
 static int mxs_nand_wait_for_bch_complete(void)
 {
-	struct mx28_bch_regs *bch_regs = (struct mx28_bch_regs *)MXS_BCH_BASE;
+	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	int timeout = MXS_NAND_BCH_TIMEOUT;
 	int ret;
 
@@ -338,8 +338,8 @@ static int mxs_nand_device_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd->priv;
 	struct mxs_nand_info *nand_info = chip->priv;
-	struct mx28_gpmi_regs *gpmi_regs =
-		(struct mx28_gpmi_regs *)MXS_GPMI_BASE;
+	struct mxs_gpmi_regs *gpmi_regs =
+		(struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	uint32_t tmp;
 
 	tmp = readl(&gpmi_regs->hw_gpmi_stat);
@@ -968,7 +968,7 @@ static int mxs_nand_scan_bbt(struct mtd_info *mtd)
 {
 	struct nand_chip *nand = mtd->priv;
 	struct mxs_nand_info *nand_info = nand->priv;
-	struct mx28_bch_regs *bch_regs = (struct mx28_bch_regs *)MXS_BCH_BASE;
+	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	uint32_t tmp;
 
 	/* Configure BCH and set NFC geometry */
@@ -1056,8 +1056,8 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
  */
 int mxs_nand_init(struct mxs_nand_info *info)
 {
-	struct mx28_gpmi_regs *gpmi_regs =
-		(struct mx28_gpmi_regs *)MXS_GPMI_BASE;
+	struct mxs_gpmi_regs *gpmi_regs =
+		(struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	int i = 0, j;
 
 	info->desc = malloc(sizeof(struct mxs_dma_desc *) *

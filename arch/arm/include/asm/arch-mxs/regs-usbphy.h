@@ -23,7 +23,7 @@
 #ifndef __REGS_USBPHY_H__
 #define __REGS_USBPHY_H__
 
-struct mx28_usbphy_regs {
+struct mxs_usbphy_regs {
 	mxs_reg_32(hw_usbphy_pwd)
 	mxs_reg_32(hw_usbphy_tx)
 	mxs_reg_32(hw_usbphy_rx)

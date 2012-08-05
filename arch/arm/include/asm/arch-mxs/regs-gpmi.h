@@ -29,7 +29,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_gpmi_regs {
+struct mxs_gpmi_regs {
 	mxs_reg_32(hw_gpmi_ctrl0)
 	mxs_reg_32(hw_gpmi_compare)
 	mxs_reg_32(hw_gpmi_eccctrl)

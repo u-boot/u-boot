@@ -31,7 +31,7 @@
 /* Set time in seconds since 1970-01-01 */
 int mxs_rtc_set_time(uint32_t secs)
 {
-	struct mx28_rtc_regs *rtc_regs = (struct mx28_rtc_regs *)MXS_RTC_BASE;
+	struct mxs_rtc_regs *rtc_regs = (struct mxs_rtc_regs *)MXS_RTC_BASE;
 	int ret;
 
 	writel(secs, &rtc_regs->hw_rtc_seconds);
@@ -52,7 +52,7 @@ int mxs_rtc_set_time(uint32_t secs)
 
 int rtc_get(struct rtc_time *time)
 {
-	struct mx28_rtc_regs *rtc_regs = (struct mx28_rtc_regs *)MXS_RTC_BASE;
+	struct mxs_rtc_regs *rtc_regs = (struct mxs_rtc_regs *)MXS_RTC_BASE;
 	uint32_t secs;
 
 	secs = readl(&rtc_regs->hw_rtc_seconds);
@@ -73,7 +73,7 @@ int rtc_set(struct rtc_time *time)
 
 void rtc_reset(void)
 {
-	struct mx28_rtc_regs *rtc_regs = (struct mx28_rtc_regs *)MXS_RTC_BASE;
+	struct mxs_rtc_regs *rtc_regs = (struct mxs_rtc_regs *)MXS_RTC_BASE;
 	int ret;
 
 	/* Set time to 1970-01-01 */

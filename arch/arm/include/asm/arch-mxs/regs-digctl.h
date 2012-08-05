@@ -25,7 +25,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_digctl_regs {
+struct mxs_digctl_regs {
 	mxs_reg_32(hw_digctl_ctrl)				/* 0x000 */
 	mxs_reg_32(hw_digctl_status)				/* 0x010 */
 	mxs_reg_32(hw_digctl_hclkcount)			/* 0x020 */

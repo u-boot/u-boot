@@ -28,7 +28,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_ssp_regs {
+struct mxs_ssp_regs {
 	mxs_reg_32(hw_ssp_ctrl0)
 	mxs_reg_32(hw_ssp_cmd0)
 	mxs_reg_32(hw_ssp_cmd1)

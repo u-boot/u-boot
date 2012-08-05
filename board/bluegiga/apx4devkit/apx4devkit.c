@@ -122,8 +122,8 @@ int board_eth_init(bd_t *bis)
 #define MXS_OCOTP_MAX_TIMEOUT 1000000
 void get_board_serial(struct tag_serialnr *serialnr)
 {
-	struct mx28_ocotp_regs *ocotp_regs =
-		(struct mx28_ocotp_regs *)MXS_OCOTP_BASE;
+	struct mxs_ocotp_regs *ocotp_regs =
+		(struct mxs_ocotp_regs *)MXS_OCOTP_BASE;
 
 	serialnr->high = 0;
 	serialnr->low = 0;

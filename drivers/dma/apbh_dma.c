@@ -76,8 +76,8 @@ static unsigned int mxs_dma_cmd_address(struct mxs_dma_desc *desc)
  */
 static int mxs_dma_read_semaphore(int channel)
 {
-	struct mx28_apbh_regs *apbh_regs =
-		(struct mx28_apbh_regs *)MXS_APBH_BASE;
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 	uint32_t tmp;
 	int ret;
 
@@ -119,8 +119,8 @@ inline void mxs_dma_flush_desc(struct mxs_dma_desc *desc) {}
  */
 static int mxs_dma_enable(int channel)
 {
-	struct mx28_apbh_regs *apbh_regs =
-		(struct mx28_apbh_regs *)MXS_APBH_BASE;
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 	unsigned int sem;
 	struct mxs_dma_chan *pchan;
 	struct mxs_dma_desc *pdesc;
@@ -191,8 +191,8 @@ static int mxs_dma_enable(int channel)
 static int mxs_dma_disable(int channel)
 {
 	struct mxs_dma_chan *pchan;
-	struct mx28_apbh_regs *apbh_regs =
-		(struct mx28_apbh_regs *)MXS_APBH_BASE;
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 	int ret;
 
 	ret = mxs_dma_validate_chan(channel);
@@ -220,8 +220,8 @@ static int mxs_dma_disable(int channel)
  */
 static int mxs_dma_reset(int channel)
 {
-	struct mx28_apbh_regs *apbh_regs =
-		(struct mx28_apbh_regs *)MXS_APBH_BASE;
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 	int ret;
 
 	ret = mxs_dma_validate_chan(channel);
@@ -241,8 +241,8 @@ static int mxs_dma_reset(int channel)
  */
 static int mxs_dma_enable_irq(int channel, int enable)
 {
-	struct mx28_apbh_regs *apbh_regs =
-		(struct mx28_apbh_regs *)MXS_APBH_BASE;
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 	int ret;
 
 	ret = mxs_dma_validate_chan(channel);
@@ -267,8 +267,8 @@ static int mxs_dma_enable_irq(int channel, int enable)
  */
 static int mxs_dma_ack_irq(int channel)
 {
-	struct mx28_apbh_regs *apbh_regs =
-		(struct mx28_apbh_regs *)MXS_APBH_BASE;
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 	int ret;
 
 	ret = mxs_dma_validate_chan(channel);
@@ -504,8 +504,8 @@ static int mxs_dma_finish(int channel, struct list_head *head)
  */
 static int mxs_dma_wait_complete(uint32_t timeout, unsigned int chan)
 {
-	struct mx28_apbh_regs *apbh_regs =
-		(struct mx28_apbh_regs *)MXS_APBH_BASE;
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 	int ret;
 
 	ret = mxs_dma_validate_chan(chan);
@@ -554,8 +554,8 @@ int mxs_dma_go(int chan)
  */
 void mxs_dma_init(void)
 {
-	struct mx28_apbh_regs *apbh_regs =
-		(struct mx28_apbh_regs *)MXS_APBH_BASE;
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 
 	mx28_reset_block(&apbh_regs->hw_apbh_ctrl0_reg);
 

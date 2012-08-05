@@ -26,7 +26,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_rtc_regs {
+struct mxs_rtc_regs {
 	mxs_reg_32(hw_rtc_ctrl)
 	mxs_reg_32(hw_rtc_stat)
 	mxs_reg_32(hw_rtc_milliseconds)

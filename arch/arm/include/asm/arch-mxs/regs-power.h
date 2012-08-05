@@ -25,7 +25,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_power_regs {
+struct mxs_power_regs {
 	mxs_reg_32(hw_power_ctrl)
 	mxs_reg_32(hw_power_5vctrl)
 	mxs_reg_32(hw_power_minpwr)

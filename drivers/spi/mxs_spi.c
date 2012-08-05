@@ -55,7 +55,7 @@ struct mxs_spi_slave {
 	struct spi_slave	slave;
 	uint32_t		max_khz;
 	uint32_t		mode;
-	struct mx28_ssp_regs	*regs;
+	struct mxs_ssp_regs	*regs;
 	struct mxs_dma_desc	*desc;
 };
 
@@ -82,7 +82,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 {
 	struct mxs_spi_slave *mxs_slave;
 	uint32_t addr;
-	struct mx28_ssp_regs *ssp_regs;
+	struct mxs_ssp_regs *ssp_regs;
 	int reg;
 	struct mxs_dma_desc *desc;
 
@@ -108,7 +108,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxs_slave->slave.cs = cs;
 	mxs_slave->max_khz = max_hz / 1000;
 	mxs_slave->mode = mode;
-	mxs_slave->regs = (struct mx28_ssp_regs *)addr;
+	mxs_slave->regs = (struct mxs_ssp_regs *)addr;
 	mxs_slave->desc = desc;
 	ssp_regs = mxs_slave->regs;
 
@@ -136,7 +136,7 @@ void spi_free_slave(struct spi_slave *slave)
 int spi_claim_bus(struct spi_slave *slave)
 {
 	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
-	struct mx28_ssp_regs *ssp_regs = mxs_slave->regs;
+	struct mxs_ssp_regs *ssp_regs = mxs_slave->regs;
 	uint32_t reg = 0;
 
 	mx28_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
@@ -159,13 +159,13 @@ void spi_release_bus(struct spi_slave *slave)
 {
 }
 
-static void mxs_spi_start_xfer(struct mx28_ssp_regs *ssp_regs)
+static void mxs_spi_start_xfer(struct mxs_ssp_regs *ssp_regs)
 {
 	writel(SSP_CTRL0_LOCK_CS, &ssp_regs->hw_ssp_ctrl0_set);
 	writel(SSP_CTRL0_IGNORE_CRC, &ssp_regs->hw_ssp_ctrl0_clr);
 }
 
-static void mxs_spi_end_xfer(struct mx28_ssp_regs *ssp_regs)
+static void mxs_spi_end_xfer(struct mxs_ssp_regs *ssp_regs)
 {
 	writel(SSP_CTRL0_LOCK_CS, &ssp_regs->hw_ssp_ctrl0_clr);
 	writel(SSP_CTRL0_IGNORE_CRC, &ssp_regs->hw_ssp_ctrl0_set);
@@ -174,7 +174,7 @@ static void mxs_spi_end_xfer(struct mx28_ssp_regs *ssp_regs)
 static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 			char *data, int length, int write, unsigned long flags)
 {
-	struct mx28_ssp_regs *ssp_regs = slave->regs;
+	struct mxs_ssp_regs *ssp_regs = slave->regs;
 
 	if (flags & SPI_XFER_BEGIN)
 		mxs_spi_start_xfer(ssp_regs);
@@ -223,14 +223,13 @@ static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 	}
 
 	return 0;
-
 }
 
 static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 			char *data, int length, int write, unsigned long flags)
 {
 	struct mxs_dma_desc *desc = slave->desc;
-	struct mx28_ssp_regs *ssp_regs = slave->regs;
+	struct mxs_ssp_regs *ssp_regs = slave->regs;
 	uint32_t ctrl0 = SSP_CTRL0_DATA_XFER;
 	uint32_t cache_data_count;
 	int dmach;
@@ -289,7 +288,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
 	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
-	struct mx28_ssp_regs *ssp_regs = mxs_slave->regs;
+	struct mxs_ssp_regs *ssp_regs = mxs_slave->regs;
 	int len = bitlen / 8;
 	char dummy;
 	int write = 0;

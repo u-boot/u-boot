@@ -32,7 +32,7 @@
 
 void mx28_lradc_init(void)
 {
-	struct mx28_lradc_regs *regs = (struct mx28_lradc_regs *)MXS_LRADC_BASE;
+	struct mxs_lradc_regs *regs = (struct mxs_lradc_regs *)MXS_LRADC_BASE;
 
 	writel(LRADC_CTRL0_SFTRST, &regs->hw_lradc_ctrl0_clr);
 	writel(LRADC_CTRL0_CLKGATE, &regs->hw_lradc_ctrl0_clr);
@@ -51,7 +51,7 @@ void mx28_lradc_init(void)
 
 void mx28_lradc_enable_batt_measurement(void)
 {
-	struct mx28_lradc_regs *regs = (struct mx28_lradc_regs *)MXS_LRADC_BASE;
+	struct mxs_lradc_regs *regs = (struct mxs_lradc_regs *)MXS_LRADC_BASE;
 
 	/* Check if the channel is present at all. */
 	if (!(readl(&regs->hw_lradc_status) & LRADC_STATUS_CHANNEL7_PRESENT))

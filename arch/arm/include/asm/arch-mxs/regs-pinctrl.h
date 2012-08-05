@@ -29,7 +29,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_pinctrl_regs {
+struct mxs_pinctrl_regs {
 	mxs_reg_32(hw_pinctrl_ctrl)		/* 0x0 */
 
 	uint32_t	reserved1[60];

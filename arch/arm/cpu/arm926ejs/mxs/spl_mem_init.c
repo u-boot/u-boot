@@ -100,8 +100,8 @@ void init_mx28_200mhz_ddr2(void)
 
 void mx28_mem_init_clock(void)
 {
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
 	/* Gate EMI clock */
 	writeb(CLKCTRL_FRAC_CLKGATE,
@@ -131,8 +131,8 @@ void mx28_mem_init_clock(void)
 
 void mx28_mem_setup_cpu_and_hbus(void)
 {
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
 	/* Set fractional divider for ref_cpu to 480 * 18 / 19 = 454MHz
 	 * and ungate CPU clock */
@@ -163,8 +163,8 @@ void mx28_mem_setup_cpu_and_hbus(void)
 
 void mx28_mem_setup_vdda(void)
 {
-	struct mx28_power_regs *power_regs =
-		(struct mx28_power_regs *)MXS_POWER_BASE;
+	struct mxs_power_regs *power_regs =
+		(struct mxs_power_regs *)MXS_POWER_BASE;
 
 	writel((0xc << POWER_VDDACTRL_TRG_OFFSET) |
 		(0x7 << POWER_VDDACTRL_BO_OFFSET_OFFSET) |
@@ -174,8 +174,8 @@ void mx28_mem_setup_vdda(void)
 
 void mx28_mem_setup_vddd(void)
 {
-	struct mx28_power_regs *power_regs =
-		(struct mx28_power_regs *)MXS_POWER_BASE;
+	struct mxs_power_regs *power_regs =
+		(struct mxs_power_regs *)MXS_POWER_BASE;
 
 	writel((0x1c << POWER_VDDDCTRL_TRG_OFFSET) |
 		(0x7 << POWER_VDDDCTRL_BO_OFFSET_OFFSET) |
@@ -204,10 +204,10 @@ uint32_t mx28_mem_get_size(void)
 
 void mx28_mem_init(void)
 {
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
-	struct mx28_pinctrl_regs *pinctrl_regs =
-		(struct mx28_pinctrl_regs *)MXS_PINCTRL_BASE;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_pinctrl_regs *pinctrl_regs =
+		(struct mxs_pinctrl_regs *)MXS_PINCTRL_BASE;
 
 	/* Set DDR2 mode */
 	writel(PINCTRL_EMI_DS_CTRL_DDR_MODE_DDR2,

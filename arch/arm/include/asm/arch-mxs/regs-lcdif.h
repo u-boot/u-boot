@@ -29,7 +29,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_lcdif_regs {
+struct mxs_lcdif_regs {
 	mxs_reg_32(hw_lcdif_ctrl)		/* 0x00 */
 	mxs_reg_32(hw_lcdif_ctrl1)		/* 0x10 */
 	mxs_reg_32(hw_lcdif_ctrl2)		/* 0x20 */

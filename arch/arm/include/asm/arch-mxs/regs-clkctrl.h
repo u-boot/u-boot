@@ -29,7 +29,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_clkctrl_regs {
+struct mxs_clkctrl_regs {
 	mxs_reg_32(hw_clkctrl_pll0ctrl0)	/* 0x00 */
 	mxs_reg_32(hw_clkctrl_pll0ctrl1)	/* 0x10 */
 	mxs_reg_32(hw_clkctrl_pll1ctrl0)	/* 0x20 */

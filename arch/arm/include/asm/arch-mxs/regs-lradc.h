@@ -29,7 +29,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_lradc_regs {
+struct mxs_lradc_regs {
 	mxs_reg_32(hw_lradc_ctrl0);
 	mxs_reg_32(hw_lradc_ctrl1);
 	mxs_reg_32(hw_lradc_ctrl2);

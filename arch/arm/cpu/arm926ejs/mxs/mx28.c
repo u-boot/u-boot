@@ -51,10 +51,10 @@ void reset_cpu(ulong ignored) __attribute__((noreturn));
 
 void reset_cpu(ulong ignored)
 {
-	struct mx28_rtc_regs *rtc_regs =
-		(struct mx28_rtc_regs *)MXS_RTC_BASE;
-	struct mx28_lcdif_regs *lcdif_regs =
-		(struct mx28_lcdif_regs *)MXS_LCDIF_BASE;
+	struct mxs_rtc_regs *rtc_regs =
+		(struct mxs_rtc_regs *)MXS_RTC_BASE;
+	struct mxs_lcdif_regs *lcdif_regs =
+		(struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
 
 	/*
 	 * Shut down the LCD controller as it interferes with BootROM boot mode
@@ -155,8 +155,8 @@ int arch_misc_init(void)
 
 int arch_cpu_init(void)
 {
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	extern uint32_t _start;
 
 	mx28_fixup_vt((uint32_t)&_start);
@@ -190,8 +190,8 @@ int arch_cpu_init(void)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 static const char *get_cpu_type(void)
 {
-	struct mx28_digctl_regs *digctl_regs =
-		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
+	struct mxs_digctl_regs *digctl_regs =
+		(struct mxs_digctl_regs *)MXS_DIGCTL_BASE;
 
 	switch (readl(&digctl_regs->hw_digctl_chipid) & HW_DIGCTL_CHIPID_MASK) {
 	case HW_DIGCTL_CHIPID_MX28:
@@ -203,8 +203,8 @@ static const char *get_cpu_type(void)
 
 static const char *get_cpu_rev(void)
 {
-	struct mx28_digctl_regs *digctl_regs =
-		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
+	struct mxs_digctl_regs *digctl_regs =
+		(struct mxs_digctl_regs *)MXS_DIGCTL_BASE;
 	uint8_t rev = readl(&digctl_regs->hw_digctl_chipid) & 0x000000FF;
 
 	switch (readl(&digctl_regs->hw_digctl_chipid) & HW_DIGCTL_CHIPID_MASK) {
@@ -249,8 +249,8 @@ int do_mx28_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #ifdef	CONFIG_CMD_NET
 int cpu_eth_init(bd_t *bis)
 {
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
 	/* Turn on ENET clocks */
 	clrbits_le32(&clkctrl_regs->hw_clkctrl_enet,
@@ -291,8 +291,8 @@ void mx28_adjust_mac(int dev_id, unsigned char *mac)
 #define	MXS_OCOTP_MAX_TIMEOUT	1000000
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
-	struct mx28_ocotp_regs *ocotp_regs =
-		(struct mx28_ocotp_regs *)MXS_OCOTP_BASE;
+	struct mxs_ocotp_regs *ocotp_regs =
+		(struct mxs_ocotp_regs *)MXS_OCOTP_BASE;
 	uint32_t data;
 
 	memset(mac, 0, 6);

@@ -122,8 +122,8 @@ int fecmxc_mii_postcall(int phy)
 
 int board_eth_init(bd_t *bis)
 {
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	struct eth_device *dev;
 	int ret;
 

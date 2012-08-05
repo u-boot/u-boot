@@ -26,7 +26,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_i2c_regs {
+struct mxs_i2c_regs {
 	mxs_reg_32(hw_i2c_ctrl0)
 	mxs_reg_32(hw_i2c_timing0)
 	mxs_reg_32(hw_i2c_timing1)

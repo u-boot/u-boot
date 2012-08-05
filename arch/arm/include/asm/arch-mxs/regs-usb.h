@@ -23,7 +23,7 @@
 #ifndef __REGS_USB_H__
 #define __REGS_USB_H__
 
-struct mx28_usb_regs {
+struct mxs_usb_regs {
 	uint32_t		hw_usbctrl_id;			/* 0x000 */
 	uint32_t		hw_usbctrl_hwgeneral;		/* 0x004 */
 	uint32_t		hw_usbctrl_hwhost;		/* 0x008 */

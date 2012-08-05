@@ -52,7 +52,7 @@
 
 struct mxsmmc_priv {
 	int			id;
-	struct mx28_ssp_regs	*regs;
+	struct mxs_ssp_regs	*regs;
 	uint32_t		clkseq_bypass;
 	uint32_t		*clkctrl_ssp;
 	uint32_t		buswidth;
@@ -70,7 +70,7 @@ static int
 mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	struct mxsmmc_priv *priv = (struct mxsmmc_priv *)mmc->priv;
-	struct mx28_ssp_regs *ssp_regs = priv->regs;
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
 	uint32_t reg;
 	int timeout;
 	uint32_t data_count;
@@ -282,7 +282,7 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 static void mxsmmc_set_ios(struct mmc *mmc)
 {
 	struct mxsmmc_priv *priv = (struct mxsmmc_priv *)mmc->priv;
-	struct mx28_ssp_regs *ssp_regs = priv->regs;
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
 
 	/* Set the clock speed */
 	if (mmc->clock)
@@ -311,7 +311,7 @@ static void mxsmmc_set_ios(struct mmc *mmc)
 static int mxsmmc_init(struct mmc *mmc)
 {
 	struct mxsmmc_priv *priv = (struct mxsmmc_priv *)mmc->priv;
-	struct mx28_ssp_regs *ssp_regs = priv->regs;
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
 
 	/* Reset SSP */
 	mx28_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
@@ -335,8 +335,8 @@ static int mxsmmc_init(struct mmc *mmc)
 
 int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 {
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	struct mmc *mmc = NULL;
 	struct mxsmmc_priv *priv = NULL;
 	int ret;
@@ -366,22 +366,22 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 	priv->id = id;
 	switch (id) {
 	case 0:
-		priv->regs = (struct mx28_ssp_regs *)MXS_SSP0_BASE;
+		priv->regs = (struct mxs_ssp_regs *)MXS_SSP0_BASE;
 		priv->clkseq_bypass = CLKCTRL_CLKSEQ_BYPASS_SSP0;
 		priv->clkctrl_ssp = &clkctrl_regs->hw_clkctrl_ssp0;
 		break;
 	case 1:
-		priv->regs = (struct mx28_ssp_regs *)MXS_SSP1_BASE;
+		priv->regs = (struct mxs_ssp_regs *)MXS_SSP1_BASE;
 		priv->clkseq_bypass = CLKCTRL_CLKSEQ_BYPASS_SSP1;
 		priv->clkctrl_ssp = &clkctrl_regs->hw_clkctrl_ssp1;
 		break;
 	case 2:
-		priv->regs = (struct mx28_ssp_regs *)MXS_SSP2_BASE;
+		priv->regs = (struct mxs_ssp_regs *)MXS_SSP2_BASE;
 		priv->clkseq_bypass = CLKCTRL_CLKSEQ_BYPASS_SSP2;
 		priv->clkctrl_ssp = &clkctrl_regs->hw_clkctrl_ssp2;
 		break;
 	case 3:
-		priv->regs = (struct mx28_ssp_regs *)MXS_SSP3_BASE;
+		priv->regs = (struct mxs_ssp_regs *)MXS_SSP3_BASE;
 		priv->clkseq_bypass = CLKCTRL_CLKSEQ_BYPASS_SSP3;
 		priv->clkctrl_ssp = &clkctrl_regs->hw_clkctrl_ssp3;
 		break;

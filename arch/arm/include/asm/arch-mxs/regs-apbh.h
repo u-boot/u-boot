@@ -29,7 +29,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_apbh_regs {
+struct mxs_apbh_regs {
 	mxs_reg_32(hw_apbh_ctrl0)
 	mxs_reg_32(hw_apbh_ctrl1)
 	mxs_reg_32(hw_apbh_ctrl2)

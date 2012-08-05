@@ -29,7 +29,7 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
-struct mx28_bch_regs {
+struct mxs_bch_regs {
 	mxs_reg_32(hw_bch_ctrl)
 	mxs_reg_32(hw_bch_status0)
 	mxs_reg_32(hw_bch_mode)

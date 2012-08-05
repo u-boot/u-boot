@@ -62,8 +62,8 @@ static inline unsigned long us_to_tick(unsigned long us)
 
 int timer_init(void)
 {
-	struct mx28_timrot_regs *timrot_regs =
-		(struct mx28_timrot_regs *)MXS_TIMROT_BASE;
+	struct mxs_timrot_regs *timrot_regs =
+		(struct mxs_timrot_regs *)MXS_TIMROT_BASE;
 
 	/* Reset Timers and Rotary Encoder module */
 	mx28_reset_block(&timrot_regs->hw_timrot_rotctrl_reg);
@@ -84,8 +84,8 @@ int timer_init(void)
 
 unsigned long long get_ticks(void)
 {
-	struct mx28_timrot_regs *timrot_regs =
-		(struct mx28_timrot_regs *)MXS_TIMROT_BASE;
+	struct mxs_timrot_regs *timrot_regs =
+		(struct mxs_timrot_regs *)MXS_TIMROT_BASE;
 
 	/* Current tick value */
 	uint32_t now = readl(&timrot_regs->hw_timrot_running_count0);
