@@ -744,8 +744,8 @@ The following options need to be configured:
 - Monitor Functions:
 		Monitor commands can be included or excluded
 		from the build by using the #include files
-		"config_cmd_all.h" and #undef'ing unwanted
-		commands, or using "config_cmd_default.h"
+		<config_cmd_all.h> and #undef'ing unwanted
+		commands, or using <config_cmd_default.h>
 		and augmenting with additional #define's
 		for wanted commands.
 
