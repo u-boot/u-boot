@@ -218,5 +218,5 @@ const iomux_cfg_t iomux_setup[] = {
 
 void board_init_ll(void)
 {
-	mx28_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
+	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
 }

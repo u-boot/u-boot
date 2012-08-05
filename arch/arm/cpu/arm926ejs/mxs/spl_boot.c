@@ -31,7 +31,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 
-#include "mx28_init.h"
+#include "mxs_init.h"
 
 /*
  * This delay function is intended to be used only in early stage of boot, where
@@ -58,7 +58,7 @@ const iomux_cfg_t iomux_boot[] = {
 	MX28_PAD_LCD_D05__GPIO_1_5 | MUX_CONFIG_BOOTMODE_PAD,
 };
 
-uint8_t mx28_get_bootmode_index(void)
+uint8_t mxs_get_bootmode_index(void)
 {
 	uint8_t bootmode = 0;
 	int i;
@@ -92,22 +92,22 @@ uint8_t mx28_get_bootmode_index(void)
 	return i;
 }
 
-void mx28_common_spl_init(const iomux_cfg_t *iomux_setup,
+void mxs_common_spl_init(const iomux_cfg_t *iomux_setup,
 			const unsigned int iomux_size)
 {
-	struct mx28_spl_data *data = (struct mx28_spl_data *)
-		((CONFIG_SYS_TEXT_BASE - sizeof(struct mx28_spl_data)) & ~0xf);
-	uint8_t bootmode = mx28_get_bootmode_index();
+	struct mxs_spl_data *data = (struct mxs_spl_data *)
+		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
+	uint8_t bootmode = mxs_get_bootmode_index();
 
 	mxs_iomux_setup_multiple_pads(iomux_setup, iomux_size);
-	mx28_power_init();
+	mxs_power_init();
 
-	mx28_mem_init();
-	data->mem_dram_size = mx28_mem_get_size();
+	mxs_mem_init();
+	data->mem_dram_size = mxs_mem_get_size();
 
 	data->boot_mode_idx = bootmode;
 
-	mx28_power_wait_pswitch();
+	mxs_power_wait_pswitch();
 }
 
 /* Support aparatus */

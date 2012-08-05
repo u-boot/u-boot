@@ -35,7 +35,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int));
 
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/iomux-mx28.h>
-void mx28_common_spl_init(const iomux_cfg_t *iomux_setup,
+void mxs_common_spl_init(const iomux_cfg_t *iomux_setup,
 			const unsigned int iomux_size);
 #endif
 
@@ -64,7 +64,7 @@ static const struct mx28_pair mx28_boot_modes[] = {
 	{ 0x00, 0x00, "Reserved/Unknown/Wrong" },
 };
 
-struct mx28_spl_data {
+struct mxs_spl_data {
 	uint8_t		boot_mode_idx;
 	uint32_t	mem_dram_size;
 };

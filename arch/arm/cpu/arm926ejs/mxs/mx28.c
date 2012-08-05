@@ -222,8 +222,8 @@ static const char *get_cpu_rev(void)
 
 int print_cpuinfo(void)
 {
-	struct mx28_spl_data *data = (struct mx28_spl_data *)
-		((CONFIG_SYS_TEXT_BASE - sizeof(struct mx28_spl_data)) & ~0xf);
+	struct mxs_spl_data *data = (struct mxs_spl_data *)
+		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
 
 	printf("CPU:   Freescale i.MX%s rev%s at %d MHz\n",
 		get_cpu_type(),
@@ -322,8 +322,8 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 
 int mx28_dram_init(void)
 {
-	struct mx28_spl_data *data = (struct mx28_spl_data *)
-		((CONFIG_SYS_TEXT_BASE - sizeof(struct mx28_spl_data)) & ~0xf);
+	struct mxs_spl_data *data = (struct mxs_spl_data *)
+		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
 
 	if (data->mem_dram_size == 0) {
 		printf("MX28:\n"

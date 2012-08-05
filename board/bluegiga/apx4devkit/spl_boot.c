@@ -145,13 +145,13 @@ const iomux_cfg_t iomux_setup[] = {
 
 void board_init_ll(void)
 {
-	mx28_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
+	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
 
 	/* switch LED on */
 	gpio_direction_output(MX28_PAD_PWM3__GPIO_3_28, 0);
 }
 
-void mx28_adjust_memory_params(uint32_t *dram_vals)
+void mxs_adjust_memory_params(uint32_t *dram_vals)
 {
 	/*
 	 * All address lines are routed from CPU to memory chip.

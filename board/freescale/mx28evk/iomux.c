@@ -180,5 +180,5 @@ void mx28_adjust_memory_params(uint32_t *dram_vals)
 
 void board_init_ll(void)
 {
-	mx28_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
+	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
 }

@@ -29,7 +29,7 @@
 #include <asm/arch/iomux-mx28.h>
 #include <asm/arch/imx-regs.h>
 
-#include "mx28_init.h"
+#include "mxs_init.h"
 
 static uint32_t mx28_dram_vals[] = {
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -82,23 +82,23 @@ static uint32_t mx28_dram_vals[] = {
 	0x00000000, 0x00010001
 };
 
-void __mx28_adjust_memory_params(uint32_t *dram_vals)
+void __mxs_adjust_memory_params(uint32_t *dram_vals)
 {
 }
-void mx28_adjust_memory_params(uint32_t *dram_vals)
-	__attribute__((weak, alias("__mx28_adjust_memory_params")));
+void mxs_adjust_memory_params(uint32_t *dram_vals)
+	__attribute__((weak, alias("__mxs_adjust_memory_params")));
 
 void init_mx28_200mhz_ddr2(void)
 {
 	int i;
 
-	mx28_adjust_memory_params(mx28_dram_vals);
+	mxs_adjust_memory_params(mx28_dram_vals);
 
 	for (i = 0; i < ARRAY_SIZE(mx28_dram_vals); i++)
 		writel(mx28_dram_vals[i], MXS_DRAM_BASE + (4 * i));
 }
 
-void mx28_mem_init_clock(void)
+void mxs_mem_init_clock(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -129,7 +129,7 @@ void mx28_mem_init_clock(void)
 	early_delay(10000);
 }
 
-void mx28_mem_setup_cpu_and_hbus(void)
+void mxs_mem_setup_cpu_and_hbus(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -161,7 +161,7 @@ void mx28_mem_setup_cpu_and_hbus(void)
 	early_delay(15000);
 }
 
-void mx28_mem_setup_vdda(void)
+void mxs_mem_setup_vdda(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
@@ -172,7 +172,7 @@ void mx28_mem_setup_vdda(void)
 		&power_regs->hw_power_vddactrl);
 }
 
-void mx28_mem_setup_vddd(void)
+void mxs_mem_setup_vddd(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
@@ -183,7 +183,7 @@ void mx28_mem_setup_vddd(void)
 		&power_regs->hw_power_vdddctrl);
 }
 
-uint32_t mx28_mem_get_size(void)
+uint32_t mxs_mem_get_size(void)
 {
 	uint32_t sz, da;
 	uint32_t *vt = (uint32_t *)0x20;
@@ -202,7 +202,7 @@ uint32_t mx28_mem_get_size(void)
 	return sz;
 }
 
-void mx28_mem_init(void)
+void mxs_mem_init(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -219,9 +219,9 @@ void mx28_mem_init(void)
 
 	early_delay(11000);
 
-	mx28_mem_init_clock();
+	mxs_mem_init_clock();
 
-	mx28_mem_setup_vdda();
+	mxs_mem_setup_vdda();
 
 	/*
 	 * Configure the DRAM registers
@@ -242,9 +242,9 @@ void mx28_mem_init(void)
 	while (!(readl(MXS_DRAM_BASE + 0xe8) & (1 << 20)))
 		;
 
-	mx28_mem_setup_vddd();
+	mxs_mem_setup_vddd();
 
 	early_delay(10000);
 
-	mx28_mem_setup_cpu_and_hbus();
+	mxs_mem_setup_cpu_and_hbus();
 }

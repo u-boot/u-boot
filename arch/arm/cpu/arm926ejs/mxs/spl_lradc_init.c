@@ -28,9 +28,9 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 
-#include "mx28_init.h"
+#include "mxs_init.h"
 
-void mx28_lradc_init(void)
+void mxs_lradc_init(void)
 {
 	struct mxs_lradc_regs *regs = (struct mxs_lradc_regs *)MXS_LRADC_BASE;
 
@@ -49,7 +49,7 @@ void mx28_lradc_init(void)
 			LRADC_CTRL4_LRADC6SELECT_CHANNEL10);
 }
 
-void mx28_lradc_enable_batt_measurement(void)
+void mxs_lradc_enable_batt_measurement(void)
 {
 	struct mxs_lradc_regs *regs = (struct mxs_lradc_regs *)MXS_LRADC_BASE;
 

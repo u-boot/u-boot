@@ -28,18 +28,18 @@
 
 void early_delay(int delay);
 
-void mx28_power_init(void);
+void mxs_power_init(void);
 
 #ifdef	CONFIG_SPL_MX28_PSWITCH_WAIT
-void mx28_power_wait_pswitch(void);
+void mxs_power_wait_pswitch(void);
 #else
-static inline void mx28_power_wait_pswitch(void) { }
+static inline void mxs_power_wait_pswitch(void) { }
 #endif
 
-void mx28_mem_init(void);
-uint32_t mx28_mem_get_size(void);
+void mxs_mem_init(void);
+uint32_t mxs_mem_get_size(void);
 
-void mx28_lradc_init(void);
-void mx28_lradc_enable_batt_measurement(void);
+void mxs_lradc_init(void);
+void mxs_lradc_enable_batt_measurement(void);
 
 #endif	/* __M28_INIT_H__ */
