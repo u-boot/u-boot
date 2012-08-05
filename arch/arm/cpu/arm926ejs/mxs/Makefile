@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).o
 
-COBJS	= clock.o mx28.o iomux.o timer.o
+COBJS	= clock.o mxs.o iomux.o timer.o
 
 ifdef	CONFIG_SPL_BUILD
 COBJS	+= spl_boot.o spl_lradc_init.o spl_mem_init.o spl_power_init.o
