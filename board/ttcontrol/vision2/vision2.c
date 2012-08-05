@@ -674,9 +674,16 @@ int board_late_init(void)
 	udelay(2000);
 #endif
 
-	setenv("stdout", "serial");
-
 	return 0;
+}
+
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
 }
 
 int checkboard(void)
