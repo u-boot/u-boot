@@ -495,14 +495,14 @@ int print_cpuinfo(void)
 	return 0;
 }
 
-#ifdef CONFIG_BOARD_LATE_INIT
-int board_late_init(void)
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
 {
-	setenv("stdout", "serial");
-
-	return 0;
+	return 1;
 }
-#endif
 
 int board_init(void)
 {
