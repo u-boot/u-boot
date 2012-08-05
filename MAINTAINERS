@@ -952,6 +952,10 @@ Stephen Warren <swarren@nvidia.com>
 	trimslice	Tegra2 (ARM7 & A9 Dual Core)
 	whistler	Tegra2 (ARM7 & A9 Dual Core)
 
+Stephen Warren <swarren@wwwdotorg.org>
+
+	rpi_b		BCM2835 (ARM1176)
+
 Thomas Weber <weber@corscience.de>
 
 	devkit8000	ARM ARMV7 (OMAP3530 SoC)
