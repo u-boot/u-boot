@@ -577,6 +577,10 @@ void mxs_handle_5v_conflict(void)
 		tmp = readl(&power_regs->hw_power_sts);
 
 		if (tmp & POWER_STS_VDDIO_BO) {
+			/*
+			 * VDDIO has a brownout, then the VDD5V_GT_VDDIO becomes
+			 * unreliable
+			 */
 			mxs_powerdown();
 			break;
 		}
