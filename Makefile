@@ -450,7 +450,7 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 			$(obj)u-boot.ais
 
 $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
-		elftosb -zdf imx28 -c $(TOPDIR)/board/$(BOARDDIR)/u-boot.bd \
+		elftosb -zdf imx28 -c $(TOPDIR)/$(CPUDIR)/$(SOC)/u-boot.bd \
 			-o $(obj)u-boot.sb
 
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
