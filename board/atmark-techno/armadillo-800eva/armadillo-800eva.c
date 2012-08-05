@@ -312,11 +312,6 @@ int dram_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
-{
-	return sh_eth_initialize(bis);
-}
-
 const struct rmobile_sysinfo sysinfo = {
 	CONFIG_RMOBILE_BOARD_STRING
 };
