@@ -77,19 +77,19 @@ void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
 {
 	*mr = MICRON_V_MR_165;
 #ifdef CONFIG_BOOT_NAND
-	*mcfg = MICRON_V_MCFG_200(512 << 20);
+	*mcfg = MICRON_V_MCFG_200(256 << 20);
 	*ctrla = MICRON_V_ACTIMA_200;
 	*ctrlb = MICRON_V_ACTIMB_200;
 	*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 #else
 	if (get_cpu_family() == CPU_OMAP34XX) {
-		*mcfg = NUMONYX_V_MCFG_165(512 << 20);
+		*mcfg = NUMONYX_V_MCFG_165(256 << 20);
 		*ctrla = NUMONYX_V_ACTIMA_165;
 		*ctrlb = NUMONYX_V_ACTIMB_165;
 		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 
 	} else {
-		*mcfg = NUMONYX_V_MCFG_200(512 << 20);
+		*mcfg = NUMONYX_V_MCFG_200(256 << 20);
 		*ctrla = NUMONYX_V_ACTIMA_200;
 		*ctrlb = NUMONYX_V_ACTIMB_200;
 		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
