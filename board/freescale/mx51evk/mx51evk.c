@@ -536,11 +536,19 @@ int board_late_init(void)
 	setup_iomux_spi();
 	power_init();
 #endif
-	setenv("stdout", "serial");
 
 	return 0;
 }
 #endif
+
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
+}
 
 int checkboard(void)
 {
