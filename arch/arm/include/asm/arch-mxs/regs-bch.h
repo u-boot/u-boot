@@ -30,30 +30,30 @@
 
 #ifndef	__ASSEMBLY__
 struct mx28_bch_regs {
-	mx28_reg_32(hw_bch_ctrl)
-	mx28_reg_32(hw_bch_status0)
-	mx28_reg_32(hw_bch_mode)
-	mx28_reg_32(hw_bch_encodeptr)
-	mx28_reg_32(hw_bch_dataptr)
-	mx28_reg_32(hw_bch_metaptr)
+	mxs_reg_32(hw_bch_ctrl)
+	mxs_reg_32(hw_bch_status0)
+	mxs_reg_32(hw_bch_mode)
+	mxs_reg_32(hw_bch_encodeptr)
+	mxs_reg_32(hw_bch_dataptr)
+	mxs_reg_32(hw_bch_metaptr)
 
 	uint32_t	reserved[4];
 
-	mx28_reg_32(hw_bch_layoutselect)
-	mx28_reg_32(hw_bch_flash0layout0)
-	mx28_reg_32(hw_bch_flash0layout1)
-	mx28_reg_32(hw_bch_flash1layout0)
-	mx28_reg_32(hw_bch_flash1layout1)
-	mx28_reg_32(hw_bch_flash2layout0)
-	mx28_reg_32(hw_bch_flash2layout1)
-	mx28_reg_32(hw_bch_flash3layout0)
-	mx28_reg_32(hw_bch_flash3layout1)
-	mx28_reg_32(hw_bch_dbgkesread)
-	mx28_reg_32(hw_bch_dbgcsferead)
-	mx28_reg_32(hw_bch_dbgsyndegread)
-	mx28_reg_32(hw_bch_dbgahbmread)
-	mx28_reg_32(hw_bch_blockname)
-	mx28_reg_32(hw_bch_version)
+	mxs_reg_32(hw_bch_layoutselect)
+	mxs_reg_32(hw_bch_flash0layout0)
+	mxs_reg_32(hw_bch_flash0layout1)
+	mxs_reg_32(hw_bch_flash1layout0)
+	mxs_reg_32(hw_bch_flash1layout1)
+	mxs_reg_32(hw_bch_flash2layout0)
+	mxs_reg_32(hw_bch_flash2layout1)
+	mxs_reg_32(hw_bch_flash3layout0)
+	mxs_reg_32(hw_bch_flash3layout1)
+	mxs_reg_32(hw_bch_dbgkesread)
+	mxs_reg_32(hw_bch_dbgcsferead)
+	mxs_reg_32(hw_bch_dbgsyndegread)
+	mxs_reg_32(hw_bch_dbgahbmread)
+	mxs_reg_32(hw_bch_blockname)
+	mxs_reg_32(hw_bch_version)
 };
 #endif
 

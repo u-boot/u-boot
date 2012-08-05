@@ -81,7 +81,7 @@ void enable_caches(void)
 #endif
 }
 
-int mx28_wait_mask_set(struct mx28_register_32 *reg, uint32_t mask, int timeout)
+int mx28_wait_mask_set(struct mxs_register_32 *reg, uint32_t mask, int timeout)
 {
 	while (--timeout) {
 		if ((readl(&reg->reg) & mask) == mask)
@@ -92,7 +92,7 @@ int mx28_wait_mask_set(struct mx28_register_32 *reg, uint32_t mask, int timeout)
 	return !timeout;
 }
 
-int mx28_wait_mask_clr(struct mx28_register_32 *reg, uint32_t mask, int timeout)
+int mx28_wait_mask_clr(struct mxs_register_32 *reg, uint32_t mask, int timeout)
 {
 	while (--timeout) {
 		if ((readl(&reg->reg) & mask) == 0)
@@ -103,7 +103,7 @@ int mx28_wait_mask_clr(struct mx28_register_32 *reg, uint32_t mask, int timeout)
 	return !timeout;
 }
 
-int mx28_reset_block(struct mx28_register_32 *reg)
+int mx28_reset_block(struct mxs_register_32 *reg)
 {
 	/* Clear SFTRST */
 	writel(MX28_BLOCK_SFTRST, &reg->reg_clr);

@@ -24,16 +24,16 @@
 #define __REGS_USBPHY_H__
 
 struct mx28_usbphy_regs {
-	mx28_reg_32(hw_usbphy_pwd)
-	mx28_reg_32(hw_usbphy_tx)
-	mx28_reg_32(hw_usbphy_rx)
-	mx28_reg_32(hw_usbphy_ctrl)
-	mx28_reg_32(hw_usbphy_status)
-	mx28_reg_32(hw_usbphy_debug)
-	mx28_reg_32(hw_usbphy_debug0_status)
-	mx28_reg_32(hw_usbphy_debug1)
-	mx28_reg_32(hw_usbphy_version)
-	mx28_reg_32(hw_usbphy_ip)
+	mxs_reg_32(hw_usbphy_pwd)
+	mxs_reg_32(hw_usbphy_tx)
+	mxs_reg_32(hw_usbphy_rx)
+	mxs_reg_32(hw_usbphy_ctrl)
+	mxs_reg_32(hw_usbphy_status)
+	mxs_reg_32(hw_usbphy_debug)
+	mxs_reg_32(hw_usbphy_debug0_status)
+	mxs_reg_32(hw_usbphy_debug1)
+	mxs_reg_32(hw_usbphy_version)
+	mxs_reg_32(hw_usbphy_ip)
 };
 
 #define	USBPHY_PWD_RXPWDRX				(1 << 20)

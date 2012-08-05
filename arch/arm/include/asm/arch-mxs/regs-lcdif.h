@@ -30,38 +30,38 @@
 
 #ifndef	__ASSEMBLY__
 struct mx28_lcdif_regs {
-	mx28_reg_32(hw_lcdif_ctrl)		/* 0x00 */
-	mx28_reg_32(hw_lcdif_ctrl1)		/* 0x10 */
-	mx28_reg_32(hw_lcdif_ctrl2)		/* 0x20 */
-	mx28_reg_32(hw_lcdif_transfer_count)	/* 0x30 */
-	mx28_reg_32(hw_lcdif_cur_buf)		/* 0x40 */
-	mx28_reg_32(hw_lcdif_next_buf)		/* 0x50 */
-	mx28_reg_32(hw_lcdif_timing)		/* 0x60 */
-	mx28_reg_32(hw_lcdif_vdctrl0)		/* 0x70 */
-	mx28_reg_32(hw_lcdif_vdctrl1)		/* 0x80 */
-	mx28_reg_32(hw_lcdif_vdctrl2)		/* 0x90 */
-	mx28_reg_32(hw_lcdif_vdctrl3)		/* 0xa0 */
-	mx28_reg_32(hw_lcdif_vdctrl4)		/* 0xb0 */
-	mx28_reg_32(hw_lcdif_dvictrl0)		/* 0xc0 */
-	mx28_reg_32(hw_lcdif_dvictrl1)		/* 0xd0 */
-	mx28_reg_32(hw_lcdif_dvictrl2)		/* 0xe0 */
-	mx28_reg_32(hw_lcdif_dvictrl3)		/* 0xf0 */
-	mx28_reg_32(hw_lcdif_dvictrl4)		/* 0x100 */
-	mx28_reg_32(hw_lcdif_csc_coeffctrl0)	/* 0x110 */
-	mx28_reg_32(hw_lcdif_csc_coeffctrl1)	/* 0x120 */
-	mx28_reg_32(hw_lcdif_csc_coeffctrl2)	/* 0x130 */
-	mx28_reg_32(hw_lcdif_csc_coeffctrl3)	/* 0x140 */
-	mx28_reg_32(hw_lcdif_csc_coeffctrl4)	/* 0x150 */
-	mx28_reg_32(hw_lcdif_csc_offset)	/* 0x160 */
-	mx28_reg_32(hw_lcdif_csc_limit)		/* 0x170 */
-	mx28_reg_32(hw_lcdif_data)		/* 0x180 */
-	mx28_reg_32(hw_lcdif_bm_error_stat)	/* 0x190 */
-	mx28_reg_32(hw_lcdif_crc_stat)		/* 0x1a0 */
-	mx28_reg_32(hw_lcdif_lcdif_stat)	/* 0x1b0 */
-	mx28_reg_32(hw_lcdif_version)		/* 0x1c0 */
-	mx28_reg_32(hw_lcdif_debug0)		/* 0x1d0 */
-	mx28_reg_32(hw_lcdif_debug1)		/* 0x1e0 */
-	mx28_reg_32(hw_lcdif_debug2)		/* 0x1f0 */
+	mxs_reg_32(hw_lcdif_ctrl)		/* 0x00 */
+	mxs_reg_32(hw_lcdif_ctrl1)		/* 0x10 */
+	mxs_reg_32(hw_lcdif_ctrl2)		/* 0x20 */
+	mxs_reg_32(hw_lcdif_transfer_count)	/* 0x30 */
+	mxs_reg_32(hw_lcdif_cur_buf)		/* 0x40 */
+	mxs_reg_32(hw_lcdif_next_buf)		/* 0x50 */
+	mxs_reg_32(hw_lcdif_timing)		/* 0x60 */
+	mxs_reg_32(hw_lcdif_vdctrl0)		/* 0x70 */
+	mxs_reg_32(hw_lcdif_vdctrl1)		/* 0x80 */
+	mxs_reg_32(hw_lcdif_vdctrl2)		/* 0x90 */
+	mxs_reg_32(hw_lcdif_vdctrl3)		/* 0xa0 */
+	mxs_reg_32(hw_lcdif_vdctrl4)		/* 0xb0 */
+	mxs_reg_32(hw_lcdif_dvictrl0)		/* 0xc0 */
+	mxs_reg_32(hw_lcdif_dvictrl1)		/* 0xd0 */
+	mxs_reg_32(hw_lcdif_dvictrl2)		/* 0xe0 */
+	mxs_reg_32(hw_lcdif_dvictrl3)		/* 0xf0 */
+	mxs_reg_32(hw_lcdif_dvictrl4)		/* 0x100 */
+	mxs_reg_32(hw_lcdif_csc_coeffctrl0)	/* 0x110 */
+	mxs_reg_32(hw_lcdif_csc_coeffctrl1)	/* 0x120 */
+	mxs_reg_32(hw_lcdif_csc_coeffctrl2)	/* 0x130 */
+	mxs_reg_32(hw_lcdif_csc_coeffctrl3)	/* 0x140 */
+	mxs_reg_32(hw_lcdif_csc_coeffctrl4)	/* 0x150 */
+	mxs_reg_32(hw_lcdif_csc_offset)	/* 0x160 */
+	mxs_reg_32(hw_lcdif_csc_limit)		/* 0x170 */
+	mxs_reg_32(hw_lcdif_data)		/* 0x180 */
+	mxs_reg_32(hw_lcdif_bm_error_stat)	/* 0x190 */
+	mxs_reg_32(hw_lcdif_crc_stat)		/* 0x1a0 */
+	mxs_reg_32(hw_lcdif_lcdif_stat)	/* 0x1b0 */
+	mxs_reg_32(hw_lcdif_version)		/* 0x1c0 */
+	mxs_reg_32(hw_lcdif_debug0)		/* 0x1d0 */
+	mxs_reg_32(hw_lcdif_debug1)		/* 0x1e0 */
+	mxs_reg_32(hw_lcdif_debug2)		/* 0x1f0 */
 };
 #endif
 

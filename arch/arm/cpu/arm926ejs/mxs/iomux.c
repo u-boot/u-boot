@@ -43,7 +43,7 @@ int mxs_iomux_setup_pad(iomux_cfg_t pad)
 {
 	u32 reg, ofs, bp, bm;
 	void *iomux_base = (void *)MXS_PINCTRL_BASE;
-	struct mx28_register_32 *mxs_reg;
+	struct mxs_register_32 *mxs_reg;
 
 	/* muxsel */
 	ofs = 0x100;
@@ -70,7 +70,7 @@ int mxs_iomux_setup_pad(iomux_cfg_t pad)
 	/* vol */
 	if (PAD_VOL_VALID(pad)) {
 		bp = PAD_PIN(pad) % 8 * 4 + 2;
-		mxs_reg = (struct mx28_register_32 *)(iomux_base + ofs);
+		mxs_reg = (struct mxs_register_32 *)(iomux_base + ofs);
 		if (PAD_VOL(pad))
 			writel(1 << bp, &mxs_reg->reg_set);
 		else
@@ -82,7 +82,7 @@ int mxs_iomux_setup_pad(iomux_cfg_t pad)
 		ofs = PULL_OFFSET;
 		ofs += PAD_BANK(pad) * 0x10;
 		bp = PAD_PIN(pad);
-		mxs_reg = (struct mx28_register_32 *)(iomux_base + ofs);
+		mxs_reg = (struct mxs_register_32 *)(iomux_base + ofs);
 		if (PAD_PULL(pad))
 			writel(1 << bp, &mxs_reg->reg_set);
 		else

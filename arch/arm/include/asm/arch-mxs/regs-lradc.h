@@ -30,30 +30,30 @@
 
 #ifndef	__ASSEMBLY__
 struct mx28_lradc_regs {
-	mx28_reg_32(hw_lradc_ctrl0);
-	mx28_reg_32(hw_lradc_ctrl1);
-	mx28_reg_32(hw_lradc_ctrl2);
-	mx28_reg_32(hw_lradc_ctrl3);
-	mx28_reg_32(hw_lradc_status);
-	mx28_reg_32(hw_lradc_ch0);
-	mx28_reg_32(hw_lradc_ch1);
-	mx28_reg_32(hw_lradc_ch2);
-	mx28_reg_32(hw_lradc_ch3);
-	mx28_reg_32(hw_lradc_ch4);
-	mx28_reg_32(hw_lradc_ch5);
-	mx28_reg_32(hw_lradc_ch6);
-	mx28_reg_32(hw_lradc_ch7);
-	mx28_reg_32(hw_lradc_delay0);
-	mx28_reg_32(hw_lradc_delay1);
-	mx28_reg_32(hw_lradc_delay2);
-	mx28_reg_32(hw_lradc_delay3);
-	mx28_reg_32(hw_lradc_debug0);
-	mx28_reg_32(hw_lradc_debug1);
-	mx28_reg_32(hw_lradc_conversion);
-	mx28_reg_32(hw_lradc_ctrl4);
-	mx28_reg_32(hw_lradc_treshold0);
-	mx28_reg_32(hw_lradc_treshold1);
-	mx28_reg_32(hw_lradc_version);
+	mxs_reg_32(hw_lradc_ctrl0);
+	mxs_reg_32(hw_lradc_ctrl1);
+	mxs_reg_32(hw_lradc_ctrl2);
+	mxs_reg_32(hw_lradc_ctrl3);
+	mxs_reg_32(hw_lradc_status);
+	mxs_reg_32(hw_lradc_ch0);
+	mxs_reg_32(hw_lradc_ch1);
+	mxs_reg_32(hw_lradc_ch2);
+	mxs_reg_32(hw_lradc_ch3);
+	mxs_reg_32(hw_lradc_ch4);
+	mxs_reg_32(hw_lradc_ch5);
+	mxs_reg_32(hw_lradc_ch6);
+	mxs_reg_32(hw_lradc_ch7);
+	mxs_reg_32(hw_lradc_delay0);
+	mxs_reg_32(hw_lradc_delay1);
+	mxs_reg_32(hw_lradc_delay2);
+	mxs_reg_32(hw_lradc_delay3);
+	mxs_reg_32(hw_lradc_debug0);
+	mxs_reg_32(hw_lradc_debug1);
+	mxs_reg_32(hw_lradc_conversion);
+	mxs_reg_32(hw_lradc_ctrl4);
+	mxs_reg_32(hw_lradc_treshold0);
+	mxs_reg_32(hw_lradc_treshold1);
+	mxs_reg_32(hw_lradc_version);
 };
 #endif
 

@@ -26,10 +26,10 @@
 
 #ifndef	__ASSEMBLY__
 struct mx28_power_regs {
-	mx28_reg_32(hw_power_ctrl)
-	mx28_reg_32(hw_power_5vctrl)
-	mx28_reg_32(hw_power_minpwr)
-	mx28_reg_32(hw_power_charge)
+	mxs_reg_32(hw_power_ctrl)
+	mxs_reg_32(hw_power_5vctrl)
+	mxs_reg_32(hw_power_minpwr)
+	mxs_reg_32(hw_power_charge)
 	uint32_t	hw_power_vdddctrl;
 	uint32_t	reserved_vddd[3];
 	uint32_t	hw_power_vddactrl;
@@ -44,23 +44,23 @@ struct mx28_power_regs {
 	uint32_t	reserved_misc[3];
 	uint32_t	hw_power_dclimits;
 	uint32_t	reserved_dclimits[3];
-	mx28_reg_32(hw_power_loopctrl)
+	mxs_reg_32(hw_power_loopctrl)
 	uint32_t	hw_power_sts;
 	uint32_t	reserved_sts[3];
-	mx28_reg_32(hw_power_speed)
+	mxs_reg_32(hw_power_speed)
 	uint32_t	hw_power_battmonitor;
 	uint32_t	reserved_battmonitor[3];
 
 	uint32_t	reserved[4];
 
-	mx28_reg_32(hw_power_reset)
-	mx28_reg_32(hw_power_debug)
-	mx28_reg_32(hw_power_thermal)
-	mx28_reg_32(hw_power_usb1ctrl)
-	mx28_reg_32(hw_power_special)
-	mx28_reg_32(hw_power_version)
-	mx28_reg_32(hw_power_anaclkctrl)
-	mx28_reg_32(hw_power_refctrl)
+	mxs_reg_32(hw_power_reset)
+	mxs_reg_32(hw_power_debug)
+	mxs_reg_32(hw_power_thermal)
+	mxs_reg_32(hw_power_usb1ctrl)
+	mxs_reg_32(hw_power_special)
+	mxs_reg_32(hw_power_version)
+	mxs_reg_32(hw_power_anaclkctrl)
+	mxs_reg_32(hw_power_refctrl)
 };
 #endif
 

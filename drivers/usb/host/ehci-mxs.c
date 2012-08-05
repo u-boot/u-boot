@@ -75,8 +75,8 @@ int ehci_hcd_init(void)
 
 	int ret;
 	uint32_t usb_base, cap_base;
-	struct mx28_register_32 *digctl_ctrl =
-		(struct mx28_register_32 *)HW_DIGCTL_CTRL;
+	struct mxs_register_32 *digctl_ctrl =
+		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
 	struct mx28_clkctrl_regs *clkctrl_regs =
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
@@ -119,8 +119,8 @@ int ehci_hcd_stop(void)
 {
 	int ret;
 	uint32_t tmp;
-	struct mx28_register_32 *digctl_ctrl =
-		(struct mx28_register_32 *)HW_DIGCTL_CTRL;
+	struct mxs_register_32 *digctl_ctrl =
+		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
 	struct mx28_clkctrl_regs *clkctrl_regs =
 		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
