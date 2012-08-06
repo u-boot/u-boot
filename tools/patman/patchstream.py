@@ -214,7 +214,8 @@ class PatchStream:
                 self.in_change = 0
                 out = self.ProcessLine(line)
             else:
-                self.series.AddChange(self.in_change, self.commit, line)
+                if self.is_log:
+                    self.series.AddChange(self.in_change, self.commit, line)
             self.skip_blank = False
 
         # Detect Series-xxx tags
