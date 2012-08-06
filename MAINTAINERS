@@ -72,6 +72,9 @@ Holger Brunck <holger.brunck@keymile.com>
 
 	kmeter1		MPC8360
 	kmcoge5ne	MPC8360
+	mgcoge		MPC8247
+	mgcoge3ne	MPC8247
+	suvd3		MPC8321
 	tuge1		MPC8321
 	tuxx1		MPC8321
 
@@ -441,13 +444,10 @@ Heiko Schocher <hs@denx.de>
 	ids8247		MPC8247
 	jupiter		MPC5200
 	kmsupx5		MPC8321
-	mgcoge		MPC8247
-	mgcoge3ne	MPC8247
 	mucmc52		MPC5200
 	muas3001	MPC8270
 	municse		MPC5200
 	sc3		PPC405GP
-	suvd3		MPC8321
 	uc101		MPC5200
 	ve8313		MPC8313
 
