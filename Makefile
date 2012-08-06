@@ -269,6 +269,7 @@ LIBS-y += drivers/pci/libpci.o
 LIBS-y += drivers/pcmcia/libpcmcia.o
 LIBS-y += drivers/power/libpower.o
 LIBS-y += drivers/spi/libspi.o
+LIBS-y += drivers/dfu/libdfu.o
 ifeq ($(CPU),mpc83xx)
 LIBS-y += drivers/qe/libqe.o
 LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
