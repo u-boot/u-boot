@@ -165,6 +165,13 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 		return NULL;
 	}
 
+	/* address width is 4 for dual and 3 for single qspi */
+#ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
+	flash->addr_width = 4;
+#else
+	flash->addr_width = 3;
+#endif
+
 	flash->spi = spi;
 	flash->name = params->name;
 
@@ -173,7 +180,13 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	flash->read = spi_flash_cmd_read_fast;
 	flash->page_size = params->page_size;
 	flash->sector_size = params->page_size * params->pages_per_sector;
-	flash->size = flash->sector_size * params->nr_sectors;
+
+	if (flash->addr_width == 3)
+		flash->size = flash->sector_size * params->nr_sectors;
+	else if (flash->addr_width == 4) {
+		printf("Dual Flash\n");
+		flash->size = flash->sector_size * (2 * params->nr_sectors);
+	}
 
 	return flash;
 }
