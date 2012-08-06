@@ -301,7 +301,6 @@ void board_init_f(ulong bootflag)
  */
 void board_init_r(gd_t *id, ulong dest_addr)
 {
-	char *s;
 	bd_t *bd;
 	ulong malloc_start;
 
