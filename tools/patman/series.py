@@ -154,10 +154,9 @@ class Series(dict):
             for this_commit, text in self.changes[change]:
                 if commit and this_commit != commit:
                     continue
-                if text not in out:
-                    out.append(text)
+                out.append(text)
             if out:
-                out = ['Changes in v%d:' % change] + sorted(out)
+                out = ['Changes in v%d:' % change] + out
                 if need_blank:
                     out = [''] + out
                 final += out
