@@ -46,7 +46,7 @@ re_cover = re.compile('^Cover-letter:')
 re_series = re.compile('^Series-(\w*): *(.*)')
 
 # Commit tags that we want to collect and keep
-re_tag = re.compile('^(Tested-by|Acked-by|Signed-off-by|Cc): (.*)')
+re_tag = re.compile('^(Tested-by|Acked-by|Cc): (.*)')
 
 # The start of a new commit in the git log
 re_commit = re.compile('^commit (.*)')
@@ -241,15 +241,8 @@ class PatchStream:
 
         # Detect tags in the commit message
         elif tag_match:
-            # Onlly allow a single signoff tag
-            if tag_match.group(1) == 'Signed-off-by':
-                if self.signoff:
-                    self.warn.append('Patch has more than one Signed-off-by '
-                            'tag')
-                self.signoff += [line]
-
             # Remove Tested-by self, since few will take much notice
-            elif (tag_match.group(1) == 'Tested-by' and
+            if (tag_match.group(1) == 'Tested-by' and
                     tag_match.group(2).find(os.getenv('USER') + '@') != -1):
                 self.warn.append("Ignoring %s" % line)
             elif tag_match.group(1) == 'Cc':
@@ -288,8 +281,6 @@ class PatchStream:
 
                 # Output the tags (signeoff first), then change list
                 out = []
-                if self.signoff:
-                    out += self.signoff
                 log = self.series.MakeChangeLog(self.commit)
                 out += self.FormatTags(self.tags)
                 out += [line] + log
