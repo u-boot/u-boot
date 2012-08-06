@@ -90,7 +90,7 @@
 /*
  * Physical Memory map
  */
-#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
+#define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
 
 #if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM011) \
 	|| defined(CONFIG_ZC770_XM012)
