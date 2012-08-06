@@ -16,25 +16,6 @@
 /*
  * This driver is based on plat_nand.c and mxc_nand.c drivers
  */
-
-#ifdef LINUX_ONLY_NOT_UBOOT
-#include <linux/module.h>
-#include <linux/moduleparam.h>
-#include <linux/init.h>
-#include <linux/ioport.h>
-#include <linux/platform_device.h>
-#include <linux/interrupt.h>
-#include <linux/irq.h>
-#include <linux/io.h>
-#include <linux/slab.h>
-#include <linux/mtd/mtd.h>
-#include <linux/mtd/nand.h>
-#include <linux/mtd/partitions.h>
-#include <linux/delay.h>
-#include <linux/mtd/nand_ecc.h>
-#include <mach/smc.h>
-#endif
-
 #include "xbasic_types.h"
 #include <common.h>
 #include <malloc.h>
@@ -52,24 +33,9 @@
 #define EIO              5
 #define ENXIO            6
 #define ENOMEM          12
-#define EFAULT          14
-#define ENODEV          19
-
-#define dev_dbg(dev, format, arg...)            \
-        printf(format , ## arg)
-
-#define dev_err(dev, format, arg...)            \
-        printf(format , ## arg)
-
-#define dev_info(dev, format, arg...)            \
-        printf(format , ## arg)
 
 #define __devinitdata
 #define __force
-
-/*********************************/
-
-#define XNANDPSS_DRIVER_NAME "Xilinx_PSS_NAND"
 
 /*
  * The NAND flash driver defines
@@ -165,8 +131,6 @@ struct xnandps_command_format {
 
 /**
  * struct xnandps_info - Defines the NAND flash driver instance
- * @chip:		NAND chip information structure
- * @mtd:		MTD information structure
  * @parts:		Pointer	to the mtd_partition structure
  * @nand_base:		Virtual address of the NAND flash device
  * @smc_regs:		Virtual address of the NAND controller registers
@@ -174,10 +138,6 @@ struct xnandps_command_format {
  * @end_cmd:		End command
  **/
 struct xnandps_info {
-#ifdef LINUX_ONLY_NOT_UBOOT
-	struct nand_chip	chip;
-	struct mtd_info		mtd;
-#endif
 #ifdef CONFIG_MTD_PARTITIONS
 	struct mtd_partition	*parts;
 #endif
@@ -1039,28 +999,11 @@ static int xnandps_device_ready(struct mtd_info *mtd)
 	return status ? 1 : 0;
 }
 
-/**
- * xnandps_probe - Probe method for the NAND driver
- * @pdev:	Pointer to the platform_device structure
- *
- * This function initializes the driver data structures and the hardware.
- *
- * returns:	0 on success or error value on failure
- **/
-#ifdef LINUX_ONLY_NOT_UBOOT
-static int __init xnandps_probe(struct platform_device *pdev)
-#else
 int zynq_nand_init(struct nand_chip *nand_chip)
-#endif
 {
 	struct xnandps_info *xnand;
 	struct mtd_info *mtd;
-#ifdef LINUX_ONLY_NOT_UBOOT
-	struct nand_chip *nand_chip;
-	struct resource *nand_res, *smc_res;
-#else
 	extern struct mtd_info nand_info[];
-#endif
 	unsigned long ecc_page_size;
 	int err = 0;
 	u8 maf_id, dev_id;
@@ -1070,79 +1013,19 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	int ondie_ecc_enabled = 0;
 	int ez_nand_supported = 0;
 
-#ifdef LINUX_ONLY_NOT_UBOOT
-	xnand = kzalloc(sizeof(struct xnandps_info), GFP_KERNEL);
-#else
 	xnand = malloc(sizeof(struct xnandps_info));
 	memset(xnand, 0, sizeof(struct xnandps_info));
-#endif
 	if (!xnand) {
-		dev_err(&pdev->dev, "failed to allocate device structure.\n");
+		printf("failed to allocate device structure.\n");
 		return -ENOMEM;
 	}
 
-#ifdef LINUX_ONLY_NOT_UBOOT
-	/* Map physical address of NAND flash */
-	nand_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (nand_res == NULL) {
-		err = -ENODEV;
-		dev_err(&pdev->dev, "platform_get_resource for NAND failed\n");
-		goto out_free_data;
-	}
-
-	nand_res = request_mem_region(nand_res->start, resource_size(nand_res),
-					pdev->name);
-	if (nand_res == NULL) {
-		err = -ENOMEM;
-		dev_err(&pdev->dev, "request_mem_region for cont failed\n");
-		goto out_free_data;
-	}
-
-	xnand->nand_base = ioremap(nand_res->start, resource_size(nand_res));
-	if (xnand->nand_base == NULL) {
-		err = -EIO;
-		dev_err(&pdev->dev, "ioremap for NAND failed\n");
-		goto out_release_nand_mem_region;
-	}
-
-	/* Get the NAND controller virtual address */
-	smc_res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-	if (smc_res == NULL) {
-		err = -ENODEV;
-		dev_err(&pdev->dev, "platform_get_resource for cont failed\n");
-		goto out_nand_iounmap;
-	}
-
-	smc_res = request_mem_region(smc_res->start, resource_size(smc_res),
-					pdev->name);
-	if (smc_res == NULL) {
-		err = -ENOMEM;
-		dev_err(&pdev->dev, "request_mem_region for cont failed\n");
-		goto out_nand_iounmap;
-	}
-
-	xnand->smc_regs = ioremap(smc_res->start, resource_size(smc_res));
-	if (!xnand->smc_regs) {
-		err = -EIO;
-		dev_err(&pdev->dev, "ioremap for cont failed\n");
-		goto out_release_smc_mem_region;
-	}
-
-	/* Link the private data with the MTD structure */
-	mtd = &xnand->mtd;
-	nand_chip = &xnand->chip;
-#else
 	xnand->smc_regs = (void*)XPSS_CRTL_PARPORT_BASEADDR;
 	xnand->nand_base = (void*)XPSS_NAND_BASEADDR;
 	mtd = &nand_info[0];
-#endif
 
 	nand_chip->priv = xnand;
 	mtd->priv = nand_chip;
-#ifdef LINUX_ONLY_NOT_UBOOT
-	mtd->owner = THIS_MODULE;
-	mtd->name = "xilinx_nand";
-#endif
 
 	/* Set address of NAND IO lines */
 	nand_chip->IO_ADDR_R = xnand->nand_base;
@@ -1161,20 +1044,11 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	nand_chip->read_buf = xnandps_read_buf;
 	nand_chip->write_buf = xnandps_write_buf;
 
-	/* Set the device option and flash width */
-#ifdef LINUX_ONLY_NOT_UBOOT
-	nand_chip->options = *((u32 *)pdev->dev.platform_data);
-#endif
-
 #ifndef CONFIG_XILINX_ZYNQ_NAND_BUSWIDTH_16
 	/* arch/arm/mach-xilinx/devices.c */
 	nand_chip->options = NAND_NO_AUTOINCR | NAND_USE_FLASH_BBT;
 #else
 	nand_chip->options = NAND_BUSWIDTH_16;
-#endif
-
-#ifdef LINUX_ONLY_NOT_UBOOT
-	platform_set_drvdata(pdev, xnand);
 #endif
 
 	/* Initialize the NAND flash interface on NAND controller */
@@ -1183,7 +1057,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	/* first scan to find the device and get the page size */
 	if (nand_scan_ident(mtd, 1, NULL)) {
 		err = -ENXIO;
-		dev_err(&pdev->dev, "nand_scan_ident for NAND failed\n");
+		printf("nand_scan_ident for NAND failed\n");
 		goto out_unmap_all_mem;
 	}
 
@@ -1211,7 +1085,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 		nand_chip->read_buf(mtd, get_feature, 4);
 
 		if (get_feature[0] & 0x08) {
-			printf("OnDie ECC flash: ");
+			printf("OnDie ECC flash\n");
 			ondie_ecc_enabled = 1;
 		}
 	} else if ((nand_chip->onfi_version == 23) &&
@@ -1317,109 +1191,17 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	/* second phase scan */
 	if (nand_scan_tail(mtd)) {
 		err = -ENXIO;
-		dev_err(&pdev->dev, "nand_scan_tail for NAND failed\n");
+		printf("nand_scan_tail for NAND failed\n");
 		goto out_unmap_all_mem;
 	}
 
-	if (!err) {
-#ifdef LINUX_ONLY_NOT_UBOOT
-		dev_info(&pdev->dev, "at 0x%08X mapped to 0x%08X\n",
-				smc_res->start, (u32 __force) xnand->nand_base);
-#endif
+	if (!err)
 		return 0;
-	}
-printf("%s: ERROR *********** %d\n", __FUNCTION__, err);
 
+	printf("%s: ERROR *********** %d\n", __func__, err);
 	nand_release(mtd);
+
 out_unmap_all_mem:
-#ifdef LINUX_ONLY_NOT_UBOOT
-	platform_set_drvdata(pdev, NULL);
-	iounmap(xnand->smc_regs);
-out_release_smc_mem_region:
-	release_mem_region(smc_res->start, resource_size(smc_res));
-out_nand_iounmap:
-	iounmap(xnand->nand_base);
-out_release_nand_mem_region:
-	release_mem_region(nand_res->start, resource_size(nand_res));
-out_free_data:
-#endif
 	kfree(xnand);
 	return err;
 }
-
-/**
- * xnandps_remove - Remove method for the NAND driver
- * @pdev:	Pointer to the platform_device structure
- *
- * This function is called if the driver module is being unloaded. It frees all
- * resources allocated to the device.
- *
- * returns:	0 on success or error value on failure
- **/
-#ifdef LINUX_ONLY_NOT_UBOOT
-static int __devexit xnandps_remove(struct platform_device *pdev)
-{
-	struct xnandps_info *xnand = platform_get_drvdata(pdev);
-	struct resource *nand_res, *smc_res;
-
-	/* Release resources, unregister device */
-	nand_release(&xnand->mtd);
-#ifdef CONFIG_MTD_PARTITIONS
-	/* kfree(NULL) is safe */
-	kfree(xnand->parts);
-#endif
-	platform_set_drvdata(pdev, NULL);
-	/* Unmap and release physical address */
-	iounmap(xnand->smc_regs);
-	smc_res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-	release_mem_region(smc_res->start, resource_size(smc_res));
-
-	iounmap(xnand->nand_base);
-	nand_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	release_mem_region(nand_res->start, resource_size(nand_res));
-	/* Free the MTD device structure */
-	kfree(xnand);
-	return 0;
-}
-
-/*
- * xnandps_driver - This structure defines the NAND subsystem platform driver
- */
-static struct platform_driver xnandps_driver = {
-	.probe		= xnandps_probe,
-	.remove		= __devexit_p(xnandps_remove),
-	.suspend	= NULL,
-	.resume		= NULL,
-	.driver		= {
-		.name	= XNANDPSS_DRIVER_NAME,
-		.owner	= THIS_MODULE,
-	},
-};
-
-/**
- * xnandps_init - NAND driver module initialization function
- *
- * returns:	0 on success and error value on failure
- **/
-static int __init xnandps_init(void)
-{
-	return platform_driver_register(&xnandps_driver);
-}
-
-/**
- * xnandps_exit - NAND driver module exit function
- **/
-static void __exit xnandps_exit(void)
-{
-	platform_driver_unregister(&xnandps_driver);
-}
-
-module_init(xnandps_init);
-module_exit(xnandps_exit);
-
-MODULE_AUTHOR("Xilinx, Inc.");
-MODULE_ALIAS("platform:" XNANDPSS_DRIVER_NAME);
-MODULE_DESCRIPTION("Xilinx PSS NAND Flash Driver");
-MODULE_LICENSE("GPL");
-
-#endif
