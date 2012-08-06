@@ -184,6 +184,7 @@ COBJS-$(CONFIG_MENU) += menu.o
 COBJS-$(CONFIG_MODEM_SUPPORT) += modem.o
 COBJS-$(CONFIG_UPDATE_TFTP) += update.o
 COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
+COBJS-$(CONFIG_CMD_DFU) += cmd_dfu.o
 endif
 
 ifdef CONFIG_SPL_BUILD
