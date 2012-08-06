@@ -36,6 +36,9 @@ re_remove = re.compile('^BUG=|^TEST=|^Change-Id:|^Review URL:'
 # Lines which are allowed after a TEST= line
 re_allowed_after_test = re.compile('^Signed-off-by:')
 
+# Signoffs
+re_signoff = re.compile('^Signed-off-by:')
+
 # The start of the cover letter
 re_cover = re.compile('^Cover-letter:')
 
@@ -207,6 +210,9 @@ class PatchStream:
             if is_blank:
                 # Blank line ends this change list
                 self.in_change = 0
+            elif line == '---' or re_signoff.match(line):
+                self.in_change = 0
+                out = self.ProcessLine(line)
             else:
                 self.series.AddChange(self.in_change, self.commit, line)
             self.skip_blank = False
