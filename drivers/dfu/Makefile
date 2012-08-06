@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libdfu.o
 
 COBJS-$(CONFIG_DFU_FUNCTION) += dfu.o
+COBJS-$(CONFIG_DFU_MMC) += dfu_mmc.o
 
 SRCS    := $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
