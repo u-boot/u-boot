@@ -440,9 +440,8 @@ int ext2fs_read_file
 		/* grab middle blocks in one go */
 		if (i != pos / blocksize && i < blockcnt - 1 && blockcnt > 3) {
 			int oldblk = blknr;
-			int blocknxt;
+			int blocknxt = ext2fs_read_block(node, i + 1);
 			while (i < blockcnt - 1) {
-				blocknxt = ext2fs_read_block(node, i + 1);
 				if (blocknxt == (oldblk + 1)) {
 					oldblk = blocknxt;
 					i++;
@@ -450,6 +449,7 @@ int ext2fs_read_file
 					blocknxt = ext2fs_read_block(node, i);
 					break;
 				}
+				blocknxt = ext2fs_read_block(node, i);
 			}
 
 			if (oldblk == blknr)
