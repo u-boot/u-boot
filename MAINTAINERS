@@ -683,6 +683,10 @@ Vaibhav Hiremath <hvaibhav@ti.com>
 
 	am3517_evm	ARM ARMV7 (AM35x SoC)
 
+Markus Hubig <mhubig@imko.de>
+
+	STAMP9G20	ARM926EJS
+
 Grazvydas Ignotas <notasas@gmail.com>
 
 	omap3_pandora	ARM ARMV7 (OMAP3xx SoC)
