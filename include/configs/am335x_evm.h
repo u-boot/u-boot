@@ -242,5 +242,6 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHYLIB
+#define CONFIG_PHY_SMSC
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */
