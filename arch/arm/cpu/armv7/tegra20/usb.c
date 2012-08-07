@@ -137,24 +137,29 @@ static const u8 utmip_elastic_limit = 16;
 /* UTMIP High Speed Sync Start Delay */
 static const u8 utmip_hs_sync_start_delay = 9;
 
-/* Put the port into host mode (this only works for OTG ports) */
+/* Put the port into host mode */
 static void set_host_mode(struct fdt_usb *config)
 {
-	if (config->dr_mode == DR_MODE_OTG) {
-		/* Check whether remote host from USB1 is driving VBus */
-		if (readl(&config->reg->phy_vbus_sensors) & VBUS_VLD_STS)
-			return;
+	/*
+	 * If we are an OTG port, check if remote host is driving VBus and
+	 * bail out in this case.
+	 */
+	if (config->dr_mode == DR_MODE_OTG &&
+		(readl(&config->reg->phy_vbus_sensors) & VBUS_VLD_STS))
+		return;
 
-		/*
-		 * If not driving, we set the GPIO to enable VBUS. We assume
-		 * that the pinmux is set up correctly for this.
-		 */
-		if (fdt_gpio_isvalid(&config->vbus_gpio)) {
-			fdtdec_setup_gpio(&config->vbus_gpio);
-			gpio_direction_output(config->vbus_gpio.gpio, 1);
-			debug("set_host_mode: GPIO %d high\n",
-			      config->vbus_gpio.gpio);
-		}
+	/*
+	 * If not driving, we set the GPIO to enable VBUS. We assume
+	 * that the pinmux is set up correctly for this.
+	 */
+	if (fdt_gpio_isvalid(&config->vbus_gpio)) {
+		fdtdec_setup_gpio(&config->vbus_gpio);
+		gpio_direction_output(config->vbus_gpio.gpio,
+			(config->vbus_gpio.flags & FDT_GPIO_ACTIVE_LOW) ?
+				 0 : 1);
+		debug("set_host_mode: GPIO %d %s\n", config->vbus_gpio.gpio,
+			(config->vbus_gpio.flags & FDT_GPIO_ACTIVE_LOW) ?
+				"low" : "high");
 	}
 }
 
