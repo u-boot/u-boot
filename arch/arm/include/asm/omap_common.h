@@ -567,7 +567,6 @@ u32 omap_ddr_clk(void);
 u32 get_sys_clk_index(void);
 void enable_basic_clocks(void);
 void enable_basic_uboot_clocks(void);
-void enable_non_essential_clocks(void);
 void scale_vcores(struct vcores_data const *);
 u32 get_offset_code(u32 volt_offset, struct pmic_data *pmic);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic);
