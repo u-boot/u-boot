@@ -720,7 +720,7 @@ int mxs_get_vddio_power_source_off(void)
 		tmp = readl(&power_regs->hw_power_vddioctrl);
 		if (tmp & POWER_VDDIOCTRL_DISABLE_FET) {
 			if ((tmp & POWER_VDDIOCTRL_LINREG_OFFSET_MASK) ==
-				POWER_VDDDCTRL_LINREG_OFFSET_0STEPS) {
+				POWER_VDDIOCTRL_LINREG_OFFSET_0STEPS) {
 				return 1;
 			}
 		}
@@ -728,7 +728,7 @@ int mxs_get_vddio_power_source_off(void)
 		if (!(readl(&power_regs->hw_power_5vctrl) &
 			POWER_5VCTRL_ENABLE_DCDC)) {
 			if ((tmp & POWER_VDDIOCTRL_LINREG_OFFSET_MASK) ==
-				POWER_VDDDCTRL_LINREG_OFFSET_0STEPS) {
+				POWER_VDDIOCTRL_LINREG_OFFSET_0STEPS) {
 				return 1;
 			}
 		}
@@ -776,7 +776,7 @@ void mxs_power_set_vddio(uint32_t new_target, uint32_t new_brownout)
 	uint32_t cur_target, diff, bo_int = 0;
 	uint32_t powered_by_linreg = 0;
 
-	new_brownout = new_target - new_brownout;
+	new_brownout = (new_target - new_brownout + 25) / 50;
 
 	cur_target = readl(&power_regs->hw_power_vddioctrl);
 	cur_target &= POWER_VDDIOCTRL_TRG_MASK;
@@ -862,8 +862,8 @@ void mxs_power_set_vddio(uint32_t new_target, uint32_t new_brownout)
 	}
 
 	clrsetbits_le32(&power_regs->hw_power_vddioctrl,
-			POWER_VDDDCTRL_BO_OFFSET_MASK,
-			new_brownout << POWER_VDDDCTRL_BO_OFFSET_OFFSET);
+			POWER_VDDIOCTRL_BO_OFFSET_MASK,
+			new_brownout << POWER_VDDIOCTRL_BO_OFFSET_OFFSET);
 }
 
 void mxs_power_set_vddd(uint32_t new_target, uint32_t new_brownout)
@@ -873,7 +873,7 @@ void mxs_power_set_vddd(uint32_t new_target, uint32_t new_brownout)
 	uint32_t cur_target, diff, bo_int = 0;
 	uint32_t powered_by_linreg = 0;
 
-	new_brownout = new_target - new_brownout;
+	new_brownout = (new_target - new_brownout + 12) / 25;
 
 	cur_target = readl(&power_regs->hw_power_vdddctrl);
 	cur_target &= POWER_VDDDCTRL_TRG_MASK;
