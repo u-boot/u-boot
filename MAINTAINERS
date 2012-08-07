@@ -255,12 +255,6 @@ Klaus Heydeck <heydeck@kieback-peter.de>
 	KUP4K		MPC855
 	KUP4X		MPC859
 
-Ilko Iliev <iliev@ronetix.at>
-
-	PM9261		AT91SAM9261
-	PM9263		AT91SAM9263
-	PM9G45		ARM926EJS (AT91SAM9G45 SoC)
-
 Gary Jennejohn <garyj@denx.de>
 
 	quad100hd	PPC405EP
@@ -693,6 +687,12 @@ Vaibhav Hiremath <hvaibhav@ti.com>
 Grazvydas Ignotas <notasas@gmail.com>
 
 	omap3_pandora	ARM ARMV7 (OMAP3xx SoC)
+
+Ilko Iliev <iliev@ronetix.at>
+
+	PM9261		AT91SAM9261
+	PM9263		AT91SAM9263
+	PM9G45		ARM926EJS (AT91SAM9G45 SoC)
 
 Michael Jones <michael.jones@matrix-vision.de>
 
