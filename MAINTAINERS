@@ -618,7 +618,6 @@ Rishi Bhattacharya <rishi@ti.com>
 Andreas Bießmann <andreas.devel@gmail.com>
 
 	at91rm9200ek	at91rm9200
-	grasshopper	avr32
 
 Cliff Brake <cliff.brake@gmail.com>
 
@@ -1090,6 +1089,9 @@ Wolfgang Wegner <w.wegner@astro-kom.de>
 # Maintainer Name, Email Address					#
 #	Board		CPU						#
 #########################################################################
+
+Andreas Bießmann <andreas.devel@googlemail.com>
+	grasshopper		AT32AP7000
 
 Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
 
