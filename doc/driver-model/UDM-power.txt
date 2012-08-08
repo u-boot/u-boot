@@ -1,0 +1,88 @@
+The U-Boot Driver Model Project
+===============================
+POWER analysis
+==============
+Viktor Krivak <viktor.krivak@gmail.com>
+2012-03-09
+
+I) Overview
+-----------
+
+  1) Actual state
+  ---------------
+
+  At this moment power doesn't contain API. There are many methods for
+  initialization of some board specific functions but only few does what is
+  expected. Basically only one file contains something meaningful for this
+  driver.
+
+  2) Current implementation
+  -------------------------
+
+  In file twl6030.c are methods twl6030_stop_usb_charging() and
+  twl6030_start_usb_charging() for start and stop charging from USB. There are
+  also methods to get information about battery state and initialization of
+  battery charging. Only these methods are used in converted API.
+
+
+II) Approach
+------------
+
+  1) New API
+  ----------
+
+  New API implements only functions specific for managing power. All board
+  specific init methods are moved to other files. Name of methods are
+  self-explanatory.
+
+  struct ops {
+    void (*start_usb_charging)(struct instance *i);
+    void (*stop_usb_charging)(struct instance *i);
+    int  (*get_battery_current)(struct instance *i);
+    int  (*get_battery_voltage)(struct instance *i);
+    void (*init_battery_charging)(struct instance *i);
+  }
+
+  2) Conversions of other methods
+  -------------------------------
+
+  Methods that can't be converted to new API are moved to board file or to
+  special file for board hacks.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) ftpmu010.c
+  -------------
+  All methods of this file are moved to another location.
+    void ftpmu010_32768osc_enable(void): Move to boards hacks
+    void ftpmu010_mfpsr_select_dev(unsigned int dev): Move to board file
+                                                      arch/nds32/lib/board.c
+    void ftpmu010_mfpsr_diselect_dev(unsigned int dev): Dead code
+    void ftpmu010_dlldis_disable(void): Dead code
+    void ftpmu010_sdram_clk_disable(unsigned int cr0): Move to board file
+                                                       arch/nds32/lib/board.c
+    void ftpmu010_sdramhtc_set(unsigned int val): Move to board file
+                                                  arch/nds32/lib/board.c
+
+  2) twl4030.c
+  ------------
+  All methods of this file are moved to another location.
+    void twl4030_power_reset_init(void): Move to board hacks
+    void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val, u8 dev_grp,
+                                 u8 dev_grp_sel): Move to board hacks
+    void twl4030_power_init(void): Move to board hacks
+    void twl4030_power_mmc_init(void): Move to board hacks
+
+  3) twl6030.c
+  ------------
+  Some methods are converted to new API and rest are moved to another location.
+    void twl6030_stop_usb_charging(void): Convert to new API
+    void twl6030_start_usb_charging(void): Convert to new API
+    int twl6030_get_battery_current(void): Convert to new API
+    int twl6030_get_battery_voltage(void): Convert to new API
+    void twl6030_init_battery_charging(void): Convert to new API
+    void twl6030_power_mmc_init(): Move to board file
+                                   drivers/mmc/omap_hsmmc.c
+    void twl6030_usb_device_settings(): Move to board file
+                                        drivers/usb/musb/omap3.c
