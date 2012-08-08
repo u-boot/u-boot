@@ -17,6 +17,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
+#include <i2c.h>
 
 #define MUX_CFG(value, offset)	\
 	__raw_writel(value, (CTRL_BASE + offset));
@@ -364,22 +365,59 @@ void enable_i2c0_pin_mux(void)
 	configure_module_pin_mux(i2c0_pin_mux);
 }
 
+/*
+ * The AM335x GP EVM, if daughter card(s) are connected, can have 8
+ * different profiles.  These profiles determine what peripherals are
+ * valid and need pinmux to be configured.
+ */
+#define PROFILE_NONE	0x0
+#define PROFILE_0	(1 << 0)
+#define PROFILE_1	(1 << 1)
+#define PROFILE_2	(1 << 2)
+#define PROFILE_3	(1 << 3)
+#define PROFILE_4	(1 << 4)
+#define PROFILE_5	(1 << 5)
+#define PROFILE_6	(1 << 6)
+#define PROFILE_7	(1 << 7)
+#define PROFILE_MASK	0x7
+#define PROFILE_ALL	0xFF
+
+/* CPLD registers */
+#define I2C_CPLD_ADDR	0x35
+#define CFG_REG		0x10
+
+static unsigned short detect_daughter_board_profile(void)
+{
+	unsigned short val;
+
+	if (i2c_probe(I2C_CPLD_ADDR))
+		return PROFILE_NONE;
+
+	if (i2c_read(I2C_CPLD_ADDR, CFG_REG, 1, (unsigned char *)(&val), 2))
+		return PROFILE_NONE;
+
+	return (1 << (val & PROFILE_MASK));
+}
+
 void enable_board_pin_mux(struct am335x_baseboard_id *header)
 {
-	/* Enable pinmux that is common to all TI boards. */
-	configure_module_pin_mux(i2c1_pin_mux);
-
-	/* Now do board-specific muxes. */
+	/* Do board-specific muxes. */
 	if (!strncmp(header->name, "A335BONE", HDR_NAME_LEN)) {
 		/* Beaglebone pinmux */
+		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
 	} else if (!strncmp(header->config, "SKU#01", 6)) {
 		/* General Purpose EVM */
+		unsigned short profile = detect_daughter_board_profile();
 		configure_module_pin_mux(rgmii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
+		/* In profile #2 i2c1 and spi0 conflict. */
+		if (profile & ~PROFILE_2)
+			configure_module_pin_mux(i2c1_pin_mux);
 	} else if (!strncmp(header->name, "A335X_SK", HDR_NAME_LEN)) {
 		/* Starter Kit EVM */
+		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(gpio0_7_pin_mux);
 		configure_module_pin_mux(rgmii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux_sk_evm);
