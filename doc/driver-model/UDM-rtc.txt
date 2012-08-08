@@ -1,0 +1,258 @@
+=============================
+RTC device subsystem analysis
+=============================
+
+Tomas Hlavacek <tmshlvck@gmail.com>
+2012-03-10
+
+I) Overview
+-----------
+
+U-Boot currently implements one common API for RTC devices. The interface
+is defined in include/rtc.h and comprises of functions and structures:
+
+    struct rtc_time {
+        int tm_sec;
+        int tm_min;
+        int tm_hour;
+        int tm_mday;
+        int tm_mon;
+        int tm_year;
+        int tm_wday;
+        int tm_yday;
+        int tm_isdst;
+    };
+
+    int rtc_get (struct rtc_time *);
+    int rtc_set (struct rtc_time *);
+    void rtc_reset (void);
+
+The functions are implemented by a proper device driver in drivers/rtc
+directory and the driver to be compiled in is selected in a Makefile.
+Drivers are mutually exclusive.
+
+Drivers depends on date code in drivers/rtc/date.c and naturally on board
+specific data.
+
+II) Approach
+------------
+
+  1) New API
+  ----------
+  In the UDM each rtc driver would register itself by a function
+
+    int rtc_device_register(struct instance *i,
+                            struct rtc_device_ops *o);
+
+  The structure being defined as follows:
+
+    struct rtc_device_ops {
+        int  (*get_time)(struct instance *i, struct rtc_time *t);
+        int  (*set_time)(struct instance *i, struct rtc_time *t);
+        int  (*reset)(struct instance *i);
+    };
+
+
+  2) Conversion thougths
+  ----------------------
+  U-Boot RTC drivers exports the same functions and therefore the conversion
+  of the drivers is straight-forward. There is no initialization needed.
+
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) drivers/rtc/rv3029.c
+  -----------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  2) drivers/rtc/s3c24x0_rtc.c
+  ----------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  3) drivers/rtc/pt7c4338.c
+  -------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  4) drivers/rtc/mvrtc.c
+  ----------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  5) drivers/rtc/ftrtc010.c
+  -------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  6) drivers/rtc/mpc5xxx.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  7) drivers/rtc/ds164x.c
+  -----------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  8) drivers/rtc/rs5c372.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  9) drivers/rtc/m41t94.c
+  -----------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  10) drivers/rtc/mc13xxx-rtc.c
+  -----------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  11) drivers/rtc/mcfrtc.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  12) drivers/rtc/davinci.c
+  -------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  13) drivers/rtc/rx8025.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  14) drivers/rtc/bfin_rtc.c
+  --------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  15) drivers/rtc/m41t62.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  16) drivers/rtc/ds1306.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  17) drivers/rtc/mpc8xx.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  18) drivers/rtc/ds3231.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  19) drivers/rtc/ds12887.c
+  -------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  20) drivers/rtc/ds1302.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  21) drivers/rtc/ds1374.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  22) drivers/rtc/ds174x.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  23) drivers/rtc/m41t60.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  24) drivers/rtc/m48t35ax.c
+  --------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  25) drivers/rtc/pl031.c
+  -----------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  26) drivers/rtc/x1205.c
+  -----------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  27) drivers/rtc/m41t11.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  28) drivers/rtc/pcf8563.c
+  -------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  29) drivers/rtc/mk48t59.c
+  -------------------------
+  Macros needs cleanup. Besides that the driver is standard rtc.
+  Simple conversion is possible.
+
+
+  30) drivers/rtc/mxsrtc.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  31) drivers/rtc/ds1307.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  32) drivers/rtc/ds1556.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  33) drivers/rtc/rtc4543.c
+  -------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  34) drivers/rtc/s3c44b0_rtc.c
+  -----------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  35) drivers/rtc/ds1337.c
+  ------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  36) drivers/rtc/isl1208.c
+  -------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  37) drivers/rtc/max6900.c
+  -------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  38) drivers/rtc/mc146818.c
+  --------------------------
+  The driver is standard rtc. Simple conversion is possible.
+
+
+  39) drivers/rtc/at91sam9_rtt.c
+  ------------------------------
+  The driver is standard rtc. Simple conversion is possible.
