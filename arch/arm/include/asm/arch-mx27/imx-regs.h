@@ -24,6 +24,8 @@
 #ifndef _IMX_REGS_H
 #define _IMX_REGS_H
 
+#include <asm/arch/regs-rtc.h>
+
 #ifndef __ASSEMBLY__
 
 extern void imx_gpio_mode (int gpio_mode);
@@ -224,6 +226,7 @@ struct fuse_bank0_regs {
 #define IMX_TIM1_BASE		(0x03000 + IMX_IO_BASE)
 #define IMX_TIM2_BASE		(0x04000 + IMX_IO_BASE)
 #define IMX_TIM3_BASE		(0x05000 + IMX_IO_BASE)
+#define IMX_RTC_BASE		(0x07000 + IMX_IO_BASE)
 #define UART1_BASE		(0x0a000 + IMX_IO_BASE)
 #define UART2_BASE		(0x0b000 + IMX_IO_BASE)
 #define UART3_BASE		(0x0c000 + IMX_IO_BASE)
