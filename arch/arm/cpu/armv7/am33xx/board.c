@@ -211,7 +211,13 @@ void s_init(void)
 #if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0, 0, 0);
+	int ret;
+	
+	ret = omap_mmc_init(0, 0, 0);
+	if (ret)
+		return ret;
+
+	return omap_mmc_init(1, 0, 0);
 }
 #endif
 

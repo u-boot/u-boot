@@ -20,8 +20,7 @@
  * OMAP HSMMC register definitions
  */
 #define OMAP_HSMMC1_BASE		0x48060100
-#define OMAP_HSMMC2_BASE		0x481D8000
-#define OMAP_HSMMC3_BASE		0x47C24000
+#define OMAP_HSMMC2_BASE		0x481D8100
 
 typedef struct hsmmc {
 	unsigned char res1[0x10];
