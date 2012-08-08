@@ -163,6 +163,12 @@ __secondary_start_page:
 	cmpw    r3,r5
 	bge     2f
 1:
+#ifdef	CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011
+	lis	r3,toreset(enable_cpu_a011_workaround)@ha
+	lwz	r3,toreset(enable_cpu_a011_workaround)@l(r3)
+	cmpwi	r3,0
+	beq	2f
+#endif
 	mfspr	r3,L1CSR2
 	oris	r3,r3,(L1CSR2_DCWS)@h
 	mtspr	L1CSR2,r3
@@ -345,6 +351,15 @@ __bootpg_addr:
 	.globl __spin_table
 __spin_table:
 	.space CONFIG_MAX_CPUS*ENTRY_SIZE
+
+	/*
+	 * This variable is set by cpu_init_r() after parsing hwconfig
+	 * to enable workaround for erratum NMG_CPU_A011.
+	 */
+	.align L1_CACHE_SHIFT
+	.global enable_cpu_a011_workaround
+enable_cpu_a011_workaround:
+	.long	1
 
 	/* Fill in the empty space.  The actual reset vector is
 	 * the last word of the page */
