@@ -1,0 +1,200 @@
+The U-Boot Driver Model Project
+===============================
+SPI analysis
+============
+Viktor Krivak <viktor.krivak@gmail.com>
+2012-03-03
+
+I) Overview
+-----------
+
+  1) The SPI driver
+  -----------------
+
+  At this moment U-Boot provides standard API that consist of 7 functions:
+
+  void spi_init(void);
+  struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+                                    unsigned int max_hz, unsigned int mode);
+  void spi_free_slave(struct spi_slave *slave);
+  int  spi_claim_bus(struct spi_slave *slave);
+  void spi_release_bus(struct spi_slave *slave);
+  int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+                const void *dout, void *din, unsigned long flags);
+  int  spi_cs_is_valid(unsigned int bus, unsigned int cs);
+  void spi_cs_activate(struct spi_slave *slave);
+  void spi_cs_deactivate(struct spi_slave *slave);
+  void spi_set_speed(struct spi_slave *slave, uint hz);
+
+  Method spi_init() is usually empty. All necessary configuration are sets by
+  spi_setup_slave(). But this configuration is usually stored only in memory.
+  No real hardware sets are made. All hardware settings are provided by method
+  spi_claim_bus(). This method claims the bus and it can't be claimed again
+  until it's release. That's mean all calls of method spi_claim_bus() will
+  fail. But lots of cpu implementation don't meet this behaviour.
+  Method spi_release_bus() does exact opposite. It release bus directly by
+  some hardware sets. spi_free_slave() only free memory allocated by
+  spi_setup_slave(). Method spi_xfer() do actually read and write operation
+  throw specified bus and cs. Other methods are self explanatory.
+
+  2) Current limitations
+  ----------------------
+
+  Theoretically at this moment api allows use more then one bus per device at
+  the time. But in real this can be achieved only when all buses have their
+  own base addresses in memory.
+
+
+II) Approach
+------------
+
+  1) Claiming bus
+  ---------------
+
+  The current api cannot be used because struct spi_slave have to be in
+  private data. In that case user are prohibited to use different bus on one
+  device at same time. But when base memory address for bus are different.
+  It's possible make more instance of this driver. Otherwise it can't can be
+  done because of hardware limitation.
+
+  2) API change
+  -------------
+
+  Method spi_init() is moved to probe. Methods spi_setup_slave() and
+  spi_claim_bus() are joined to one method. This method checks if desired bus
+  exists and is available then configure necessary hardware and claims bus.
+  Method spi_release_bus() and spi_free_slave() are also joined to meet this
+  new approach. Other function remain same. Only struct spi_slave was change
+  to instance.
+
+  struct ops {
+    int  (*spi_request_bus)(struct instance *i, unsigned int bus,
+                            unsigned int cs, unsigned int max_hz,
+                            unsigned int mode);
+    void (*spi_release_bus)(struct instance *i);
+    int  (*spi_xfer) (struct instance *i, unsigned int bitlen,
+                      const void *dout, void *din, unsigned long flags);
+    int  (*spi_cs_is_valid)(struct instance *i, unsigned int bus,
+                            unsigned int cs);
+    void (*spi_cs_activate)(struct instance *i);
+    void (*spi_cs_deactivate)(struct instance *i);
+    void (*spi_set_speed)(struct instance *i, uint hz);
+  }
+
+  3) Legacy API
+  -------------
+
+  To easy conversion of the whole driver. Original and new api can exist next
+  to each other. New API is designed to be only a wrapper that extracts
+  necessary information from private_data and use old api. When driver can
+  use more than one bus at the time. New API require multiple instance. One
+  for each bus. In this case spi_slave have to be copied in each instance.
+
+  4) Conversion TIME-LINE
+  -----------------------
+
+  To prevent build corruption api conversion have to be processed in several
+  independent steps. In first step all old API methods are renamed. After that
+  new API and core function are implemented. Next step is conversion of all
+  board init methods to set platform data. After all these steps it is possible
+  to start conversion of all remaining calls. This procedure guarantees that
+  build procedure and binaries are never broken.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) altera_spi.c
+  ---------------
+  All methods have designated structure. Simple conversion possible.
+
+  2) andes_spi.c
+  --------------
+  All methods have designated structure. Simple conversion possible.
+
+  3) andes_spi.h
+  --------------
+  Support file for andes_spi.c. No conversion is needed.
+
+  4) armada100_spi.c
+  ------------------
+  All methods have designated structure. Simple conversion possible.
+
+  5) atmel_dataflash_spi.c
+  ------------------------
+  Wrong placement. Will be moved to another location.
+
+  6) atmel_spi.c
+  --------------
+  Supports more than one bus. Need some minor change.
+
+  7) atmel_spi.h
+  --------------
+  Support file for andes_spi.c. No conversion is needed.
+
+  8) bfin_spi.c
+  -------------
+  Supports more than one bus. Need some minor change.
+
+  9) cf_spi.c
+  -----------
+  Cooperate with some cpu specific methods from other files. Hard conversion.
+
+  10) davinci_spi.c
+  -----------------
+  All methods have designated structure. Simple conversion possible.
+
+  11) davinci_spi.h
+  -----------------
+  Support file for davinci_spi.h. No conversion is needed.
+
+  12) fsl_espi.c
+  --------------
+  All methods have designated structure. Simple conversion possible.
+
+  13) kirkwood_spi.c
+  ------------------
+  All methods have designated structure. Simple conversion possible.
+
+  14) mpc8xxx_spi.c
+  -----------------
+  All methods have designated structure. Simple conversion possible.
+
+  15) mpc52xx_spi.c
+  -----------------
+  All methods have designated structure. Simple conversion possible.
+
+  16) mxc_spi.c
+  -------------
+  All methods have designated structure. Simple conversion possible.
+
+  17) mxs_spi.c
+  -------------
+  All methods have designated structure. Simple conversion possible.
+
+  18) oc_tiny_spi.c
+  -----------------
+  Supports more than one bus. Need some minor change.
+
+  19) omap3_spi.c
+  ---------------
+  Supports more than one bus. Need some minor change.
+
+  20) omap3_spi.h
+  ---------------
+  Support file for omap3_spi.c. No conversion is needed.
+
+  21) sh_spi.c
+  ------------
+  All methods have designated structure. Simple conversion possible.
+
+  22) sh_spi.h
+  ------------
+  Support file for sh_spi.h. No conversion is needed.
+
+  23) soft_spi.c
+  --------------
+  Use many board specific method linked from other files. Need careful debugging.
+
+  24) tegra2_spi.c
+  ----------------
+  Some hardware specific problem when releasing bus.
