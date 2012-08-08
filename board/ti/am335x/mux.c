@@ -310,6 +310,16 @@ static struct module_pin_mux i2c1_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux spi0_pin_mux[] = {
+	{OFFSET(spi0_sclk), (MODE(0) | RXACTIVE | PULLUDEN)},	/* SPI0_SCLK */
+	{OFFSET(spi0_d0), (MODE(0) | RXACTIVE |
+			PULLUDEN | PULLUP_EN)},			/* SPI0_D0 */
+	{OFFSET(spi0_d1), (MODE(0) | RXACTIVE | PULLUDEN)},	/* SPI0_D1 */
+	{OFFSET(spi0_cs0), (MODE(0) | RXACTIVE |
+			PULLUDEN | PULLUP_EN)},			/* SPI0_CS0 */
+	{-1},
+};
+
 static struct module_pin_mux gpio0_7_pin_mux[] = {
 	{OFFSET(ecap0_in_pwm0_out), (MODE(7) | PULLUDEN)},	/* GPIO0_7 */
 	{-1},
@@ -430,6 +440,7 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 			configure_module_pin_mux(i2c1_pin_mux);
 		else if (profile == PROFILE_2) {
 			configure_module_pin_mux(mmc1_pin_mux);
+			configure_module_pin_mux(spi0_pin_mux);
 		}
 	} else if (!strncmp(header->name, "A335X_SK", HDR_NAME_LEN)) {
 		/* Starter Kit EVM */

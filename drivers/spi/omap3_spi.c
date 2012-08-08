@@ -173,8 +173,18 @@ int spi_claim_bus(struct spi_slave *slave)
 	/* standard 4-wire master mode:	SCK, MOSI/out, MISO/in, nCS
 	 * REVISIT: this controller could support SPI_3WIRE mode.
 	 */
+#ifdef CONFIG_AM33XX
+	/*
+	 * The reference design on AM33xx has D0 and D1 wired up opposite
+	 * of how it has been done on previous platforms.  We assume that
+	 * custom hardware will also follow this convention.
+	 */
+	conf &= OMAP3_MCSPI_CHCONF_DPE0;
+	conf |= ~(OMAP3_MCSPI_CHCONF_IS|OMAP3_MCSPI_CHCONF_DPE1);
+#else
 	conf &= ~(OMAP3_MCSPI_CHCONF_IS|OMAP3_MCSPI_CHCONF_DPE1);
 	conf |= OMAP3_MCSPI_CHCONF_DPE0;
+#endif
 
 	/* wordlength */
 	conf &= ~OMAP3_MCSPI_CHCONF_WL_MASK;
