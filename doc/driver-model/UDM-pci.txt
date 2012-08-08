@@ -1,0 +1,265 @@
+The U-Boot Driver Model Project
+===============================
+PCI subsystem analysis
+======================
+
+Pavel Herrmann <morpheus.ibis@gmail.com>
+2012-03-17
+
+I) Overview
+-----------
+
+  U-Boot already supports multiple PCI busses, stored in a linked-list of
+  pci_controller structures. This structure contains generic driver data, bus
+  interface operations and private data for the driver.
+
+  Bus interface operations for PCI are (names are self-explanatory):
+
+    read_byte()
+    read_word()
+    read_dword()
+    write_byte()
+    write_word()
+    write_dword()
+
+  Each driver has to implement dword operations, and either implement word and
+  byte operations, or use shared $operation_config_$type_via_dword (eg.
+  read_config_byte_via_dword and similar) function. These functions are used
+  for config space I/O (read_config_dword and similar functions of the PCI
+  subsystem), which is used to configure the connected devices for standard MMIO
+  operations. All data transfers by respective device drivers are then done by
+  MMIO
+
+  Each driver also defines a separate init function, which has unique symbol
+  name, and thus more drivers can be compiled in without colliding. This init
+  function is typically called from pci_init_board(), different for each
+  particular board.
+
+  Some boards also define a function called fixup_irq, which gets called after
+  scanning the PCI bus for devices, and should dismiss any interrupts.
+
+  Several drivers are also located in arch/ and should be moved to drivers/pci.
+
+II) Approach
+------------
+
+  The pci_controller structure needs to be broken down to fit the new driver
+  model. Due to a large number of members, this will be done through three
+  distinct accessors, one for memory regions, one for config table and one for
+  everything else. That will make the pci_ops structure look like this:
+
+    struct pci_ops {
+      int (*read_byte)(struct instance *bus, pci_dev_t *dev, int addr,
+		       u8 *buf);
+      int (*read_word)(struct instance *bus, pci_dev_t *dev, int addr,
+		       u16 *buf);
+      int (*read_dword)(struct instance *bus, pci_dev_t *dev, int addr,
+			u32 *buf);
+      int (*write_byte)(struct instance *bus, pci_dev_t *dev, int addr,
+			u8 val);
+      int (*write_byte)(struct instance *bus, pci_dev_t *dev, int addr,
+			u8 val);
+      int (*write_dword)(struct instance *bus, pci_dev_t *dev, int addr,
+			 u32 val);
+      void (*fixup_irq)(struct instance *bus, pci_dev_t *dev);
+      struct pci_region* (*get_region)(struct instance *, uint num);
+      struct pci_config_table* (*get_cfg_table)(struct instance *bus);
+      uint (*get_option)(struct instance * bus, enum pci_option_code op);
+    }
+
+    enum pci_option_code {
+      PCI_OPT_BUS_NUMBER=0,
+      PCI_OPT_REGION_COUNT,
+      PCI_OPT_INDIRECT_TYPE,
+      PCI_OPT_AUTO_MEM,
+      PCI_OPT_AUTO_IO,
+      PCI_OPT_AUTO_PREFETCH,
+      PCI_OPT_AUTO_FB,
+      PCI_OPT_CURRENT_BUS,
+      PCI_OPT_CFG_ADDR,
+    }
+
+  The return value for get_option will be an unsigned integer value for any
+  option code. If the option currently is a pointer to pci_region, it will
+  return an index for get_region function. Special case has to be made for
+  PCI_OPT_CFG_ADDR, which should be interpreted as a pointer, but it is only
+  used for equality in find_hose_by_cfg_addr, and thus can be returned as an
+  uint. Other function using cfg_addr value are read/write functions for
+  specific drivers (especially ops for indirect bridges), and thus have access
+  to private_data of the driver instance.
+
+  The config table accessor will return a pointer to a NULL-terminated array of
+  pci_config_table, which is supplied by the board in platform_data, or NULL if
+  the board didn't specify one. This table is used to override PnP
+  auto-initialization, or to specific initialization functions for non-PNP
+  devices.
+
+  Transparent PCI-PCI bridges will get their own driver, and will forward all
+  operations to operations of their parent bus. This however makes it
+  impossible to use instances to identify devices, as not all devices will be
+  directly visible to the respective bus driver.
+
+  Init functions of controller drivers will be moved to their respective
+  probe() functions, in accordance to the driver model.
+
+  The PCI core will handle all mapping functions currently found in pci.c, as
+  well as proxy functions for read/write operations of the drivers. The PCI
+  core will also handle bus scanning and device configuration.
+
+  The PnP helper functions currently in pci_auto.c will also be a part of PCI
+  core, but they will be exposed only to PCI controller drivers, not to other
+  device drivers.
+
+  The PCI API for device drivers will remain largely unchanged, most drivers
+  will require no changes at all, and all modifications will be limited to
+  changing the pci_controlle into instance*.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  A) drivers in drivers/pci/
+  --------------------------
+
+    1) pci_indirect.c
+    -----------------
+      Shared driver for indirect PCI bridges, several CONFIG macros - will
+      require significant cleanup.
+
+    2) pci_ixp.c
+    ------------
+      Standard driver, specifies all read/write functions separately.
+
+    3) pci_sh4.c
+    ------------
+      Shared init function for SH4 drivers, uses dword for read/write ops.
+
+    4) pci_sh7751.c
+    ---------------
+      Standard driver, uses SH4 shared init.
+
+    5) pci_sh7780.c
+    ---------------
+      Standard driver, uses SH4 shared init.
+
+    6) tsi108_pci.c
+    ---------------
+      Standard driver, uses dword for read/write ops.
+
+    7) fsl_pci_init.c
+    -----------------
+      Driver for PCI and PCI-e, uses indirect functions.
+
+    8) pci_ftpci100.c
+    -----------------
+      Standard driver, uses indirect functions, has separate scan/setup
+      functions.
+
+  B) driver in arch/
+  ------------------
+
+    1) x86/lib/pci_type1.c
+    ----------------------
+      Standard driver, specifies all read/write functions separately.
+
+    2) m68k/cpu/mcf5445x/pci.c
+    --------------------------
+      Standard driver, specifies all read/write functions separately.
+
+    3) m68k/cpu/mcf547x_8x/pci.c
+    ----------------------------
+      Standard driver, specifies all read/write functions separately.
+
+    4) powerpc/cpu/mpc824x/pci.c
+    ----------------------------
+      Standard driver, uses indirect functions, does not setup HW.
+
+    5) powerpc/cpu/mpc8260/pci.c
+    ----------------------------
+      Standard driver, uses indirect functions.
+
+    6) powerpc/cpu/ppc4xx/4xx_pci.c
+    -------------------------------
+      Standard driver, uses indirect functions.
+
+    7) powerpc/cpu/ppc4xx/4xx_pcie.c
+    --------------------------------
+      PCI-e driver, specifies all read/write functions separately.
+
+    8) powerpc/cpu/mpc83xx/pci.c
+    ----------------------------
+      Standard driver, uses indirect functions.
+
+    9) powerpc/cpu/mpc83xx/pcie.c
+    -----------------------------
+      PCI-e driver, specifies all read/write functions separately.
+
+    10) powerpc/cpu/mpc5xxx/pci_mpc5200.c
+    -------------------------------------
+      Standard driver, uses dword for read/write ops.
+
+    11) powerpc/cpu/mpc512x/pci.c
+    -----------------------------
+      Standard driver, uses indirect functions.
+
+    12) powerpc/cpu/mpc8220/pci.c
+    -----------------------------
+      Standard driver, specifies all read/write functions separately.
+
+    13) powerpc/cpu/mpc85xx/pci.c
+    -----------------------------
+      Standard driver, uses indirect functions, has two busses.
+
+  C) drivers in board/
+  --------------------
+
+    1) eltec/elppc/pci.c
+    --------------------
+      Standard driver, uses indirect functions.
+
+    2) amirix/ap1000/pci.c
+    ----------------------
+      Standard driver, specifies all read/write functions separately.
+
+    3) prodrive/p3mx/pci.c
+    ----------------------
+      Standard driver, uses dword for read/write ops, has two busses.
+
+    4) esd/cpci750/pci.c
+    --------------------
+      Standard driver, uses dword for read/write ops, has two busses.
+
+    5) esd/common/pci.c
+    -------------------
+      Standard driver, uses dword for read/write ops.
+
+    6) dave/common/pci.c
+    --------------------
+      Standard driver, uses dword for read/write ops.
+
+    7) ppmc7xx/pci.c
+    ----------------
+      Standard driver, uses indirect functions.
+
+    8) pcippc2/cpc710_pci.c
+    -----------------------
+      Standard driver, uses indirect functions, has two busses.
+
+    9) Marvell/db64360/pci.c
+    ------------------------
+      Standard driver, uses dword for read/write ops, has two busses.
+
+    10) Marvell/db64460/pci.c
+    -------------------------
+      Standard driver, uses dword for read/write ops, has two busses.
+
+    11) evb64260/pci.c
+    ------------------
+      Standard driver, uses dword for read/write ops, has two busses.
+
+    12) armltd/integrator/pci.c
+    ---------------------------
+      Standard driver, specifies all read/write functions separately.
+
+  All drivers will be moved to drivers/pci. Several drivers seem
+  similar/identical, especially those located under board, and may be merged
+  into one.
