@@ -282,6 +282,18 @@ static struct module_pin_mux mmc0_pin_mux_sk_evm[] = {
 	{-1},
 };
 
+static struct module_pin_mux mmc1_pin_mux[] = {
+	{OFFSET(gpmc_ad3), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT3 */
+	{OFFSET(gpmc_ad2), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT2 */
+	{OFFSET(gpmc_ad1), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT1 */
+	{OFFSET(gpmc_ad0), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT0 */
+	{OFFSET(gpmc_csn1), (MODE(2) | RXACTIVE | PULLUP_EN)},	/* MMC1_CLK */
+	{OFFSET(gpmc_csn2), (MODE(2) | RXACTIVE | PULLUP_EN)},	/* MMC1_CMD */
+	{OFFSET(gpmc_csn0), (MODE(7) | RXACTIVE | PULLUP_EN)},	/* MMC1_WP */
+	{OFFSET(gpmc_advn_ale), (MODE(7) | RXACTIVE | PULLUP_EN)},	/* MMC1_CD */
+	{-1},
+};
+
 static struct module_pin_mux i2c0_pin_mux[] = {
 	{OFFSET(i2c0_sda), (MODE(0) | RXACTIVE |
 			PULLUDEN | SLEWCTRL)}, /* I2C_DATA */
@@ -407,6 +419,7 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
+		configure_module_pin_mux(mmc1_pin_mux);
 	} else if (!strncmp(header->config, "SKU#01", 6)) {
 		/* General Purpose EVM */
 		unsigned short profile = detect_daughter_board_profile();
@@ -415,6 +428,9 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 		/* In profile #2 i2c1 and spi0 conflict. */
 		if (profile & ~PROFILE_2)
 			configure_module_pin_mux(i2c1_pin_mux);
+		else if (profile == PROFILE_2) {
+			configure_module_pin_mux(mmc1_pin_mux);
+		}
 	} else if (!strncmp(header->name, "A335X_SK", HDR_NAME_LEN)) {
 		/* Starter Kit EVM */
 		configure_module_pin_mux(i2c1_pin_mux);
