@@ -754,10 +754,10 @@ print_stats() {
 	rm -f ${donep}* ${skipp}*
 
 	if [ $BUILD_MANY == 1 ] && [ -e "${OUTPUT_PREFIX}/ERR" ] ; then
-		ERR_LIST=`grep -iwl error ${OUTPUT_PREFIX}/ERR/*`
+		ERR_LIST=`grep -riwl error ${OUTPUT_PREFIX}/ERR/`
 		ERR_LIST=`for f in $ERR_LIST ; do echo -n " $(basename $f)" ; done`
 		ERR_CNT=`echo $ERR_LIST | wc -w | awk '{print $1}'`
-		WRN_LIST=`grep -iwL error ${OUTPUT_PREFIX}/ERR/*`
+		WRN_LIST=`grep -riwL error ${OUTPUT_PREFIX}/ERR/`
 		WRN_LIST=`for f in $WRN_LIST ; do echo -n " $(basename $f)" ; done`
 		WRN_CNT=`echo $WRN_LIST | wc -w | awk '{print $1}'`
 	fi
