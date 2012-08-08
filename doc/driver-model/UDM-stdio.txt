@@ -1,0 +1,191 @@
+The U-Boot Driver Model Project
+===============================
+I/O system analysis
+===================
+Marek Vasut <marek.vasut@gmail.com>
+2012-02-20
+
+I) Overview
+-----------
+
+The console input and output is currently done using the STDIO subsystem in
+U-Boot. The design of this subsystem is already flexible enough to be easily
+converted to new driver model approach. Minor changes will need to be done
+though.
+
+Each device that wants to register with STDIO subsystem has to define struct
+stdio_dev, defined in include/stdio_dev.h and containing the following fields:
+
+struct stdio_dev {
+        int     flags;                  /* Device flags: input/output/system */
+        int     ext;                    /* Supported extensions              */
+        char    name[16];               /* Device name                       */
+
+/* GENERAL functions */
+
+        int (*start) (void);            /* To start the device               */
+        int (*stop) (void);             /* To stop the device                */
+
+/* OUTPUT functions */
+
+        void (*putc) (const char c);    /* To put a char                     */
+        void (*puts) (const char *s);   /* To put a string (accelerator)     */
+
+/* INPUT functions */
+
+        int (*tstc) (void);             /* To test if a char is ready...     */
+        int (*getc) (void);             /* To get that char                  */
+
+/* Other functions */
+
+        void *priv;                     /* Private extensions                */
+        struct list_head list;
+};
+
+Currently used flags are DEV_FLAGS_INPUT, DEV_FLAGS_OUTPUT and DEV_FLAGS_SYSTEM,
+extensions being only one, the DEV_EXT_VIDEO.
+
+The private extensions are now used as a per-device carrier of private data and
+finally list allows this structure to be a member of linked list of STDIO
+devices.
+
+The STDIN, STDOUT and STDERR routing is handled by environment variables
+"stdin", "stdout" and "stderr". By configuring the variable to the name of a
+driver, functions of such driver are called to execute that particular
+operation.
+
+II) Approach
+------------
+
+  1) Similarity of serial, video and keyboard drivers
+  ---------------------------------------------------
+
+  All of these drivers can be unified under the STDIO subsystem if modified
+  slightly. The serial drivers basically define both input and output functions
+  and need function to configure baudrate. The keyboard drivers provide only
+  input. On the other hand, video drivers provide output, but need to be
+  configured in certain way. This configuration might be dynamic, therefore the
+  STDIO has to be modified to provide such flexibility.
+
+  2) Unification of serial, video and keyboard drivers
+  ----------------------------------------------------
+
+  Every STDIO device would register a structure containing operation it supports
+  with the STDIO core by calling:
+
+    int stdio_device_register(struct instance *i, struct stdio_device_ops *o);
+
+  The structure being defined as follows:
+
+  struct stdio_device_ops {
+    void (*putc)(struct instance *i, const char c);
+    void (*puts)(struct instance *i, const char *s);    /* OPTIONAL */
+
+    int  (*tstc)(struct instance *i);
+    int  (*getc)(struct instance *i);
+
+    int  (*init)(struct instance *i);
+    int  (*exit)(struct instance *i);
+    int  (*conf)(struct instance *i, enum stdio_config c, const void *data);
+  };
+
+  The "putc()" function will emit a character, the "puts()" function will emit a
+  string. If both of these are set to NULL, the device is considered STDIN only,
+  aka input only device.
+
+  The "getc()" retrieves a character from a STDIN device, while "tstc()" tests
+  if there is a character in the buffer of STDIN device. In case these two are
+  set to NULL, this device is STDOUT / STDERR device.
+
+  Setting all "putc()", "puts()", "getc()" and "tstc()" calls to NULL isn't an
+  error condition, though such device does nothing. By instroducing tests for
+  these functions being NULL, the "flags" and "ext" fields from original struct
+  stdio_dev can be eliminated.
+
+  The "init()" and "exit()" calls are replacement for "start()" and "exit()"
+  calls in the old approach. The "priv" part of the old struct stdio_dev will be
+  replaced by common private data in the driver model and the struct list_head
+  list will be eliminated by introducing common STDIO core, that tracks all the
+  STDIO devices.
+
+  Lastly, the "conf()" call will allow the user to configure various options of
+  the driver. The enum stdio_config contains all possible configuration options
+  available to the STDIO devices, const void *data being the argument to be
+  configured. Currently, the enum stdio_config will contain at least the
+  following options:
+
+  enum stdio_config {
+    STDIO_CONFIG_SERIAL_BAUDRATE,
+  };
+
+  3) Transformation of stdio routing
+  ----------------------------------
+
+  By allowing multiple instances of drivers, the environment variables "stdin",
+  "stdout" and "stderr" can no longer be set to the name of the driver.
+  Therefore the STDIO core, tracking all of the STDIO devices in the system will
+  need to have a small amount of internal data for each device:
+
+  struct stdio_device_node {
+    struct instance          *i;
+    struct stdio_device_ops  *ops;
+    uint8_t                  id;
+    uint8_t                  flags;
+    struct list_head         list;
+  }
+
+  The "id" is the order of the instance of the same driver. The "flags" variable
+  allows multiple drivers to be used at the same time and even for different
+  purpose. The following flags will be defined:
+
+    STDIO_FLG_STDIN ..... This device will be used as an input device. All input
+                          from all devices with this flag set will be received
+			  and passed to the upper layers.
+    STDIO_FLG_STDOUT .... This device will be used as an output device. All
+                          output sent to stdout will be routed to all devices
+			  with this flag set.
+    STDIO_FLG_STDERR .... This device will be used as an standard error output
+                          device. All output sent to stderr will be routed to
+			  all devices with this flag set.
+
+  The "list" member of this structure allows to have a linked list of all
+  registered STDIO devices.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+For in-depth analysis of serial port drivers, refer to [ UDM-serial.txt ].
+For in-depth analysis of keyboard drivers, refer to [ UDM-keyboard.txt ].
+For in-depth analysis of video drivers, refer to [ UDM-video.txt ].
+
+  1) arch/blackfin/cpu/jtag-console.c
+  -----------------------------------
+  This driver is a classic STDIO driver, no problem with conversion is expected.
+
+  2) board/mpl/pati/pati.c
+  ------------------------
+  This driver registers with the STDIO framework, though it uses a lot of ad-hoc
+  stuff which will need to be sorted out.
+
+  3) board/netphone/phone_console.c
+  ---------------------------------
+  This driver is a classic STDIO driver, no problem with conversion is expected.
+
+  4) drivers/net/netconsole.c
+  ---------------------------
+  This driver is a classic STDIO driver, no problem with conversion is expected.
+
+IV) Other involved files (To be removed)
+----------------------------------------
+
+common/cmd_console.c
+common/cmd_log.c
+common/cmd_terminal.c
+common/console.c
+common/fdt_support.c
+common/iomux.c
+common/lcd.c
+common/serial.c
+common/stdio.c
+common/usb_kbd.c
+doc/README.iomux

@@ -1,0 +1,94 @@
+The U-Boot Driver Model Project
+===============================
+USB analysis
+============
+Marek Vasut <marek.vasut@gmail.com>
+2012-02-16
+
+I) Overview
+-----------
+
+  1) The USB Host driver
+  ----------------------
+  There are basically four or five USB host drivers. All such drivers currently
+  provide at least the following fuctions:
+
+    usb_lowlevel_init() ... Do the initialization of the USB controller hardware
+    usb_lowlevel_stop() ... Do the shutdown of the USB controller hardware
+
+    usb_event_poll() ...... Poll interrupt from USB device, often used by KBD
+
+    submit_control_msg() .. Submit message via Control endpoint
+    submit_int_msg() ...... Submit message via Interrupt endpoint
+    submit_bulk_msg() ..... Submit message via Bulk endpoint
+
+
+    This allows for the host driver to be easily abstracted.
+
+  2) The USB hierarchy
+  --------------------
+
+  In the current implementation, the USB Host driver provides operations to
+  communicate via the USB bus. This is realised by providing access to a USB
+  root port to which an USB root hub is attached. The USB bus is scanned and for
+  each newly found device, a struct usb_device is allocated. See common/usb.c
+  and include/usb.h for details.
+
+II) Approach
+------------
+
+  1) The USB Host driver
+  ----------------------
+
+  Converting the host driver will follow the classic driver model consideration.
+  Though, the host driver will have to call a function that registers a root
+  port with the USB core in it's probe() function, let's call this function
+
+    usb_register_root_port(&ops);
+
+  This will allow the USB core to track all available root ports. The ops
+  parameter will contain structure describing operations supported by the root
+  port:
+
+  struct usb_port_ops {
+    void   (*usb_event_poll)();
+    int    (*submit_control_msg)();
+    int    (*submit_int_msg)();
+    int    (*submit_bulk_msg)();
+  }
+
+  2) The USB hierarchy and hub drivers
+  ------------------------------------
+
+  Converting the USB heirarchy should be fairy simple, considering the already
+  dynamic nature of the implementation. The current usb_hub_device structure
+  will have to be converted to a struct instance. Every such instance will
+  contain components of struct usb_device and struct usb_hub_device in it's
+  private data, providing only accessors in order to properly encapsulate the
+  driver.
+
+  By registering the root port, the USB framework will instantiate a USB hub
+  driver, which is always present, the root hub. The root hub and any subsequent
+  hub instance is represented by struct instance and it's private data contain
+  amongst others common bits from struct usb_device.
+
+  Note the USB hub driver is partly defying the usual method of registering a
+  set of callbacks to a particular core driver. Instead, a static set of
+  functions is defined and the USB hub instance is passed to those. This creates
+  certain restrictions as of how the USB hub driver looks, but considering the
+  specification for USB hub is given and a different type of USB hub won't ever
+  exist, this approach is ok:
+
+  - Report how many ports does this hub have:
+      uint get_nr_ports(struct instance *hub);
+  - Get pointer to device connected to a port:
+      struct instance *(*get_child)(struct instance *hub, int port);
+  - Instantiate and configure device on port:
+      struct instance *(*enum_dev_on_port)(struct instance *hub, int port);
+
+  3) USB device drivers
+  ---------------------
+
+  The USB device driver, in turn, will have to register various ops structures
+  with certain cores. For example, USB disc driver will have to register it's
+  ops with core handling USB discs etc.
