@@ -86,15 +86,21 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	case 0:
 		ds->regs = (struct mcspi *)OMAP3_MCSPI1_BASE;
 		break;
+#ifdef OMAP3_MCSPI2_BASE
 	case 1:
 		ds->regs = (struct mcspi *)OMAP3_MCSPI2_BASE;
 		break;
+#endif
+#ifdef OMAP3_MCSPI3_BASE 
 	case 2:
 		ds->regs = (struct mcspi *)OMAP3_MCSPI3_BASE;
 		break;
+#endif
+#ifdef OMAP3_MCSPI4_BASE
 	case 3:
 		ds->regs = (struct mcspi *)OMAP3_MCSPI4_BASE;
 		break;
+#endif
 	default:
 		printf("SPI error: unsupported bus %i. \
 			Supported busses 0 - 3\n", bus);

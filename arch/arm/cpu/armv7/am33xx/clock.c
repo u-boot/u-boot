@@ -148,6 +148,11 @@ static void enable_per_clocks(void)
 	writel(PRCM_MOD_EN, &cmper->cpgmac0clkctrl);
 	while ((readl(&cmper->cpgmac0clkctrl) & CPGMAC0_IDLE) != PRCM_FUNCTL)
 		;
+
+	/* spi0 */
+	writel(PRCM_MOD_EN, &cmper->spi0clkctrl);
+	while (readl(&cmper->spi0clkctrl) != PRCM_MOD_EN)
+		;
 }
 
 static void mpu_pll_config(void)
