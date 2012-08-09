@@ -819,8 +819,17 @@ int
 submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	       int length, int interval)
 {
-
 	debug("dev=%p, pipe=%lu, buffer=%p, length=%d, interval=%d",
 	      dev, pipe, buffer, length, interval);
+
+	/*
+	 * Interrupt transfers requiring several transactions are not supported
+	 * because bInterval is ignored.
+	 */
+	if (length > usb_maxpacket(dev, pipe)) {
+		printf("%s: Interrupt transfers requiring several transactions "
+			"are not supported.\n", __func__);
+		return -1;
+	}
 	return ehci_submit_async(dev, pipe, buffer, length, NULL);
 }
