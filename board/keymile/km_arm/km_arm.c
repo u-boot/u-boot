@@ -331,26 +331,6 @@ void board_spi_release_bus(struct spi_slave *slave)
 	kw_gpio_set_value(KM_FLASH_GPIO_PIN, 1);
 }
 
-int dram_init(void)
-{
-	/* dram_init must store complete ramsize in gd->ram_size */
-	/* Fix this */
-	gd->ram_size = get_ram_size((void *)kw_sdram_bar(0),
-				kw_sdram_bs(0));
-	return 0;
-}
-
-void dram_init_banksize(void)
-{
-	int i;
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = kw_sdram_bar(i);
-		gd->bd->bi_dram[i].size = get_ram_size((long *)kw_sdram_bar(i),
-						       kw_sdram_bs(i));
-	}
-}
-
 #if (defined(CONFIG_KM_PIGGY4_88E6061))
 
 #define	PHY_LED_SEL_REG		0x18
