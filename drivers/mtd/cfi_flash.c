@@ -1447,6 +1447,47 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 							0, ATM_CMD_UNLOCK_SECT);
 				}
 			}
+			if (info->manufacturer_id == (uchar)AMD_MANUFACT) {
+				int flag = disable_interrupts();
+				int lock_flag;
+
+				flash_unlock_seq(info, 0);
+				flash_write_cmd(info, 0, info->addr_unlock1,
+						AMD_CMD_SET_PPB_ENTRY);
+				lock_flag = flash_isset(info, sector, 0, 0x01);
+				if (prot) {
+					if (lock_flag) {
+						flash_write_cmd(info, sector, 0,
+							AMD_CMD_PPB_LOCK_BC1);
+						flash_write_cmd(info, sector, 0,
+							AMD_CMD_PPB_LOCK_BC2);
+					}
+					debug("sector %ld %slocked\n", sector,
+						lock_flag ? "" : "already ");
+				} else {
+					if (!lock_flag) {
+						debug("unlock %ld\n", sector);
+						flash_write_cmd(info, 0, 0,
+							AMD_CMD_PPB_UNLOCK_BC1);
+						flash_write_cmd(info, 0, 0,
+							AMD_CMD_PPB_UNLOCK_BC2);
+					}
+					debug("sector %ld %sunlocked\n", sector,
+						!lock_flag ? "" : "already ");
+				}
+				if (flag)
+					enable_interrupts();
+
+				if (flash_status_check(info, sector,
+						info->erase_blk_tout,
+						prot ? "protect" : "unprotect"))
+					printf("status check error\n");
+
+				flash_write_cmd(info, 0, 0,
+						AMD_CMD_SET_PPB_EXIT_BC1);
+				flash_write_cmd(info, 0, 0,
+						AMD_CMD_SET_PPB_EXIT_BC2);
+			}
 			break;
 #ifdef CONFIG_FLASH_CFI_LEGACY
 		case CFI_CMDSET_AMD_LEGACY:
@@ -1634,6 +1675,17 @@ static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 
 	cmdset_amd_read_jedec_ids(info);
 	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
+
+#ifdef CONFIG_SYS_FLASH_PROTECTION
+	if (info->ext_addr && info->manufacturer_id == (uchar)AMD_MANUFACT) {
+		ushort spus;
+
+		/* read sector protect/unprotect scheme */
+		spus = flash_read_uchar(info, info->ext_addr + 9);
+		if (spus == 0x8)
+			info->legacy_unlock = 1;
+	}
+#endif
 
 	return 0;
 }
