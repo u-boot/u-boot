@@ -842,17 +842,7 @@ static void *lcd_logo(void)
 		}
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
-#ifdef CONFIG_VIDEO_BMP_GZIP
-		bmp_image_t *bmp = (bmp_image_t *)addr;
-		unsigned long len;
-
-		if (!((bmp->header.signature[0] == 'B') &&
-			(bmp->header.signature[1] == 'M'))) {
-			addr = (ulong)gunzip_bmp(addr, &len);
-		}
-#endif
-
-		if (lcd_display_bitmap(addr, x, y) == 0)
+		if (bmp_display(addr, x, y) == 0)
 			return (void *)lcd_base;
 	}
 #endif /* CONFIG_SPLASH_SCREEN */
