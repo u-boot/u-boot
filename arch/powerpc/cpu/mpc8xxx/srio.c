@@ -108,44 +108,44 @@ void srio_boot_master(int port)
 	/* configure inbound window for slave's u-boot image */
 	debug("SRIOBOOT - MASTER: Inbound window for slave's image; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_PHYS,
-			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_BUS1,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE);
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwtar,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_PHYS >> 12);
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwbar,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_BUS1 >> 12);
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1 >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE));
+			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE));
 
 	/* configure inbound window for slave's u-boot image */
 	debug("SRIOBOOT - MASTER: Inbound window for slave's image; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_PHYS,
-			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_BUS2,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE);
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwtar,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_PHYS >> 12);
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwbar,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_BUS2 >> 12);
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2 >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE));
+			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE));
 
 	/* configure inbound window for slave's ucode and ENV */
 	debug("SRIOBOOT - MASTER: Inbound window for slave's ucode and ENV; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_MEM_PHYS,
-			(u64)CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_MEM_BUS,
-			CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_SIZE);
+			(u64)CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS,
+			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwtar,
-			CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_MEM_PHYS >> 12);
+			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwbar,
-			CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_MEM_BUS >> 12);
+			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_SIZE));
+			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE));
 }
 
 void srio_boot_master_release_slave(int port)
@@ -227,8 +227,8 @@ void srio_boot_master_release_slave(int port)
 				 */
 				out_be32((void *)CONFIG_SYS_SRIO2_MEM_VIRT
 					+ SRIO_MAINT_WIN_SIZE
-					+ CONFIG_SRIOBOOT_SLAVE_BRR_OFFSET,
-					CONFIG_SRIOBOOT_SLAVE_RELEASE_MASK);
+					+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET,
+					CONFIG_SRIO_PCIE_BOOT_RELEASE_MASK);
 			} else {
 				out_be32((void *)CONFIG_SYS_SRIO1_MEM_VIRT
 					+ SRIO_LCSBA1CSR_OFFSET,
@@ -243,8 +243,8 @@ void srio_boot_master_release_slave(int port)
 				 */
 				out_be32((void *)CONFIG_SYS_SRIO1_MEM_VIRT
 					+ SRIO_MAINT_WIN_SIZE
-					+ CONFIG_SRIOBOOT_SLAVE_BRR_OFFSET,
-					CONFIG_SRIOBOOT_SLAVE_RELEASE_MASK);
+					+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET,
+					CONFIG_SRIO_PCIE_BOOT_RELEASE_MASK);
 			}
 			debug("SRIOBOOT - MASTER: "
 					"Release slave successfully! Now the slave should start up!\n");

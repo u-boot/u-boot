@@ -211,6 +211,95 @@ static int fsl_pci_setup_inbound_windows(struct pci_controller *hose,
 	return 1;
 }
 
+#ifdef CONFIG_FSL_CORENET
+static void fsl_pcie_boot_master(pit_t *pi)
+{
+	/* configure inbound window for slave's u-boot image */
+	debug("PCIEBOOT - MASTER: Inbound window for slave's image; "
+			"Local = 0x%llx, Bus = 0x%llx, Size = 0x%x\n",
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
+	struct pci_region r_inbound;
+	u32 sz_inbound = __ilog2_u64(CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE)
+					- 1;
+	pci_set_region(&r_inbound,
+		CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1,
+		CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+		sz_inbound,
+		PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+
+	set_inbound_window(pi--, &r_inbound,
+		CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
+
+	/* configure inbound window for slave's u-boot image */
+	debug("PCIEBOOT - MASTER: Inbound window for slave's image; "
+			"Local = 0x%llx, Bus = 0x%llx, Size = 0x%x\n",
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
+	pci_set_region(&r_inbound,
+		CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2,
+		CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+		sz_inbound,
+		PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+
+	set_inbound_window(pi--, &r_inbound,
+		CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
+
+	/* configure inbound window for slave's ucode and ENV */
+	debug("PCIEBOOT - MASTER: Inbound window for slave's "
+			"ucode and ENV; "
+			"Local = 0x%llx, Bus = 0x%llx, Size = 0x%x\n",
+			(u64)CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS,
+			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE);
+	sz_inbound = __ilog2_u64(CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE)
+				- 1;
+	pci_set_region(&r_inbound,
+		CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS,
+		CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS,
+		sz_inbound,
+		PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+
+	set_inbound_window(pi--, &r_inbound,
+		CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE);
+}
+
+static void fsl_pcie_boot_master_release_slave(int port)
+{
+	unsigned long release_addr;
+
+	/* now release slave's core 0 */
+	switch (port) {
+	case 1:
+		release_addr = CONFIG_SYS_PCIE1_MEM_VIRT
+			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
+		break;
+	case 2:
+		release_addr = CONFIG_SYS_PCIE2_MEM_VIRT
+			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
+		break;
+	case 3:
+		release_addr = CONFIG_SYS_PCIE3_MEM_VIRT
+			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
+		break;
+	default:
+		release_addr = 0;
+		break;
+	}
+	if (release_addr != 0) {
+		out_be32((void *)release_addr,
+			CONFIG_SRIO_PCIE_BOOT_RELEASE_MASK);
+		debug("PCIEBOOT - MASTER: "
+			"Release slave successfully! Now the slave should start up!\n");
+	} else {
+		debug("PCIEBOOT - MASTER: "
+			"Release slave failed!\n");
+	}
+}
+#endif
+
 void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 {
 	u32 cfg_addr = (u32)&((ccsr_fsl_pci_t *)pci_info->regs)->cfg_addr;
@@ -295,8 +384,25 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	/* see if we are a PCIe or PCI controller */
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
 
+#ifdef CONFIG_FSL_CORENET
+	/* boot from PCIE --master */
+	char *s = getenv("bootmaster");
+	char pcie[6];
+	sprintf(pcie, "PCIE%d", pci_info->pci_num);
+
+	if (s && (strcmp(s, pcie) == 0)) {
+		debug("PCIEBOOT - MASTER: Master port [ %d ] for pcie boot.\n",
+				pci_info->pci_num);
+		fsl_pcie_boot_master((pit_t *)pi);
+	} else {
+		/* inbound */
+		inbound = fsl_pci_setup_inbound_windows(hose,
+					out_lo, pcie_cap, pi);
+	}
+#else
 	/* inbound */
 	inbound = fsl_pci_setup_inbound_windows(hose, out_lo, pcie_cap, pi);
+#endif
 
 	for (r = 0; r < hose->region_count; r++)
 		debug("PCI reg:%d %016llx:%016llx %016llx %08lx\n", r,
@@ -488,6 +594,16 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	if (fsl_is_pci_agent(hose)) {
 		fsl_pci_config_unlock(hose);
 		hose->last_busno = hose->first_busno;
+#ifdef CONFIG_FSL_CORENET
+	} else {
+		/* boot from PCIE --master releases slave's core 0 */
+		char *s = getenv("bootmaster");
+		char pcie[6];
+		sprintf(pcie, "PCIE%d", pci_info->pci_num);
+
+		if (s && (strcmp(s, pcie) == 0))
+			fsl_pcie_boot_master_release_slave(pci_info->pci_num);
+#endif
 	}
 
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
