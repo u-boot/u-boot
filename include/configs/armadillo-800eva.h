@@ -43,6 +43,8 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_OF_LIBFDT
 #define BOARD_LATE_INIT
