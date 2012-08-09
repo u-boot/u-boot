@@ -62,8 +62,8 @@ int env_init(void)
 #ifdef CONFIG_CMD_SAVEENV
 int saveenv(void)
 {
-#ifdef CONFIG_SRIOBOOT_SLAVE
-	printf("Can not support the 'saveenv' when boot from SRIO!\n");
+#ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
+	printf("Can not support the 'saveenv' when boot from SRIO or PCIE!\n");
 	return 1;
 #else
 	return 0;

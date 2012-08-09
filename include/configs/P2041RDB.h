@@ -36,11 +36,11 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #endif
 
-#ifdef CONFIG_SRIOBOOT_SLAVE
+#ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
 /* Set 1M boot space */
-#define CONFIG_SYS_SRIOBOOT_SLAVE_ADDR (CONFIG_SYS_TEXT_BASE & 0xfff00000)
-#define CONFIG_SYS_SRIOBOOT_SLAVE_ADDR_PHYS \
-		(0x300000000ull | CONFIG_SYS_SRIOBOOT_SLAVE_ADDR)
+#define CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR (CONFIG_SYS_TEXT_BASE & 0xfff00000)
+#define CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS \
+		(0x300000000ull | CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR)
 #define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
 #define CONFIG_SYS_NO_FLASH
 #endif
@@ -82,7 +82,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_SYS_NO_FLASH
-#if !defined(CONFIG_RAMBOOT_PBL) && !defined(CONFIG_SRIOBOOT_SLAVE)
+#if !defined(CONFIG_RAMBOOT_PBL) && !defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define CONFIG_ENV_IS_NOWHERE
 #endif
 #else
@@ -113,7 +113,7 @@
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
 #define CONFIG_ENV_OFFSET		(5 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_SRIOBOOT_SLAVE)
+#elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define CONFIG_ENV_IS_IN_REMOTE
 #define CONFIG_ENV_ADDR		0xffe20000
 #define CONFIG_ENV_SIZE		0x2000
@@ -407,12 +407,12 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SRIO_PCIE_BOOT_RELEASE_MASK 0x00000001 /* release core 0 */
 
 /*
- * SRIOBOOT - SLAVE
+ * SRIO_PCIE_BOOT - SLAVE
  */
-#ifdef CONFIG_SRIOBOOT_SLAVE
-#define CONFIG_SYS_SRIOBOOT_UCODE_ENV_ADDR 0xFFE00000
-#define CONFIG_SYS_SRIOBOOT_UCODE_ENV_ADDR_PHYS \
-		(0x300000000ull | CONFIG_SYS_SRIOBOOT_UCODE_ENV_ADDR)
+#ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
+#define CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR 0xFFE00000
+#define CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS \
+		(0x300000000ull | CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR)
 #endif
 
 /*
@@ -527,13 +527,13 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_SRIOBOOT_SLAVE)
+#elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing
  * in two corenet boards, slave's ucode could be stored in master's memory
  * space, the address can be mapped from slave TLB->slave LAW->
- * slave SRIO outbound window->master inbound window->master LAW->
- * the ucode address in master's NOR flash.
+ * slave SRIO or PCIE outbound window->master inbound window->
+ * master LAW->the ucode address in master's memory space.
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
