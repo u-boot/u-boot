@@ -156,10 +156,10 @@ const iomux_cfg_t iomux_setup[] = {
 
 void board_init_ll(void)
 {
-	mx28_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
+	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
 }
 
-void mx28_adjust_memory_params(uint32_t *dram_vals)
+void mxs_adjust_memory_params(uint32_t *dram_vals)
 {
 	dram_vals[0x74 >> 2] = 0x0f02010a;
 }
