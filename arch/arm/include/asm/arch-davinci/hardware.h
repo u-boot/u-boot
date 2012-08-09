@@ -306,6 +306,7 @@ typedef volatile unsigned int *	dv_reg_p;
 
 void lpsc_on(unsigned int id);
 void lpsc_syncreset(unsigned int id);
+void lpsc_disable(unsigned int id);
 void dsp_on(void);
 
 void davinci_enable_uart0(void);

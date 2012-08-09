@@ -128,6 +128,11 @@ void lpsc_syncreset(unsigned int id)
 	lpsc_transition(id, 0x01);
 }
 
+void lpsc_disable(unsigned int id)
+{
+	lpsc_transition(id, 0x0);
+}
+
 /* Not all DaVinci chips have a DSP power domain. */
 #ifdef CONFIG_SOC_DM644X
 

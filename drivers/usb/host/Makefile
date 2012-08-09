@@ -28,6 +28,7 @@ LIB	:= $(obj)libusb_host.o
 # ohci
 COBJS-$(CONFIG_USB_OHCI_NEW) += ohci-hcd.o
 COBJS-$(CONFIG_USB_ATMEL) += ohci-at91.o
+COBJS-$(CONFIG_USB_OHCI_DA8XX) += ohci-da8xx.o
 COBJS-$(CONFIG_USB_ISP116X_HCD) += isp116x-hcd.o
 COBJS-$(CONFIG_USB_R8A66597_HCD) += r8a66597-hcd.o
 COBJS-$(CONFIG_USB_S3C64XX) += s3c64xx-hcd.o
