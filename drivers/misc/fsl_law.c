@@ -275,5 +275,32 @@ void init_laws(void)
 				law_table[i].size, law_table[i].trgt_id);
 	}
 
+#ifdef CONFIG_SRIOBOOT_SLAVE
+	/* check RCW to get which port is used for boot */
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	u32 bootloc = in_be32(&gur->rcwsr[6]);
+	/* in SRIO boot we need to set specail LAWs for SRIO interfaces */
+	switch ((bootloc & FSL_CORENET_RCWSR6_BOOT_LOC) >> 23) {
+	case 0x8: /* boot from SRIO1 */
+		set_next_law(CONFIG_SYS_SRIOBOOT_SLAVE_ADDR_PHYS,
+				LAW_SIZE_1M,
+				LAW_TRGT_IF_RIO_1);
+		set_next_law(CONFIG_SYS_SRIOBOOT_UCODE_ENV_ADDR_PHYS,
+				LAW_SIZE_1M,
+				LAW_TRGT_IF_RIO_1);
+		break;
+	case 0x9: /* boot from SRIO2 */
+		set_next_law(CONFIG_SYS_SRIOBOOT_SLAVE_ADDR_PHYS,
+				LAW_SIZE_1M,
+				LAW_TRGT_IF_RIO_2);
+		set_next_law(CONFIG_SYS_SRIOBOOT_UCODE_ENV_ADDR_PHYS,
+				LAW_SIZE_1M,
+				LAW_TRGT_IF_RIO_2);
+		break;
+	default:
+		break;
+	}
+#endif
+
 	return ;
 }
