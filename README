@@ -3092,12 +3092,12 @@ to save the current settings.
 	  These two #defines specify the address and size of the
 	  environment area within the remote memory space. The
 	  local device can get the environment from remote memory
-	  space by SRIO or other links.
+	  space by SRIO or PCIE links.
 
 BE CAREFUL! For some special cases, the local device can not use
 "saveenv" command. For example, the local device will get the
-environment stored in a remote NOR flash by SRIO link, but it can
-not erase, write this NOR flash by SRIO interface.
+environment stored in a remote NOR flash by SRIO or PCIE link,
+but it can not erase, write this NOR flash by SRIO or PCIE interface.
 
 - CONFIG_ENV_IS_IN_NAND:
 
@@ -3538,9 +3538,9 @@ within that device.
 - CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
 	Specifies that QE/FMAN firmware is located in the remote (master)
 	memory space.	CONFIG_SYS_FMAN_FW_ADDR is a virtual address which
-	can be mapped from slave TLB->slave LAW->slave SRIO outbound window
-	->master inbound window->master LAW->the ucode address in master's
-	NOR flash.
+	can be mapped from slave TLB->slave LAW->slave SRIO or PCIE outbound
+	window->master inbound window->master LAW->the ucode address in
+	master's memory space.
 
 Building the Software:
 ======================
