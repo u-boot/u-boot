@@ -36,6 +36,7 @@ ENTRY(lowlevel_init)
 	 * Setup a temporary stack
 	 */
 	ldr	sp, =CONFIG_SYS_INIT_SP_ADDR
+	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
 
 	/*
 	 * Save the old lr(passed in ip) and the current lr to stack
