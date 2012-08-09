@@ -498,23 +498,37 @@ static int lcd_getbgcolor(void)
 /************************************************************************/
 /* ** Chipset depending Bitmap / Logo stuff...                          */
 /************************************************************************/
+static inline ushort *configuration_get_cmap(void)
+{
+#if defined CONFIG_CPU_PXA
+	struct pxafb_info *fbi = &panel_info.pxa;
+	return (ushort *)fbi->palette;
+#elif defined(CONFIG_MPC823)
+	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	cpm8xx_t *cp = &(immr->im_cpm);
+	return (ushort *)&(cp->lcd_cmap[255 * sizeof(ushort)]);
+#elif defined(CONFIG_ATMEL_LCD)
+	return (ushort *)(panel_info.mmio + ATMEL_LCDC_LUT(0));
+#else
+	return (ushort *)panel_info.cmap;
+#endif
+}
+
 #ifdef CONFIG_LCD_LOGO
 void bitmap_plot(int x, int y)
 {
 #ifdef CONFIG_ATMEL_LCD
-	uint *cmap;
+	uint *cmap = (uint *)bmp_logo_palette;
 #else
-	ushort *cmap;
+	ushort *cmap = (ushort *)bmp_logo_palette;
 #endif
 	ushort i, j;
 	uchar *bmap;
 	uchar *fb;
 	ushort *fb16;
-#if defined(CONFIG_CPU_PXA)
-	struct pxafb_info *fbi = &panel_info.pxa;
-#elif defined(CONFIG_MPC823)
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile cpm8xx_t *cp = &(immr->im_cpm);
+#if defined(CONFIG_MPC823)
+	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	cpm8xx_t *cp = &(immr->im_cpm);
 #endif
 
 	debug("Logo: width %d  height %d  colors %d  cmap %d\n",
@@ -525,20 +539,17 @@ void bitmap_plot(int x, int y)
 	fb   = (uchar *)(lcd_base + y * lcd_line_length + x);
 
 	if (NBITS(panel_info.vl_bpix) < 12) {
-		/* Leave room for default color map */
-#if defined(CONFIG_CPU_PXA)
-		cmap = (ushort *) fbi->palette;
-#elif defined(CONFIG_MPC823)
+		/* Leave room for default color map
+		 * default case: generic system with no cmap (most likely 16bpp)
+		 * cmap was set to the source palette, so no change is done.
+		 * This avoids even more ifdefs in the next stanza
+		 */
+#if defined(CONFIG_MPC823)
 		cmap = (ushort *) &(cp->lcd_cmap[BMP_LOGO_OFFSET * sizeof(ushort)]);
 #elif defined(CONFIG_ATMEL_LCD)
-		cmap = (uint *) (panel_info.mmio + ATMEL_LCDC_LUT(0));
+		cmap = (uint *)configuration_get_cmap();
 #else
-		/*
-		 * default case: generic system with no cmap (most likely 16bpp)
-		 * We set cmap to the source palette, so no change is done.
-		 * This avoids even more ifdef in the next stanza
-		 */
-		cmap = bmp_logo_palette;
+		cmap = configuration_get_cmap();
 #endif
 
 		WATCHDOG_RESET();
@@ -639,12 +650,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	unsigned long width, height, byte_width;
 	unsigned long pwidth = panel_info.vl_col;
 	unsigned colors, bpix, bmp_bpix;
-#if defined(CONFIG_CPU_PXA)
-	struct pxafb_info *fbi = &panel_info.pxa;
-#elif defined(CONFIG_MPC823)
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile cpm8xx_t *cp = &(immr->im_cpm);
-#endif
 
 	if (!((bmp->header.signature[0] == 'B') &&
 		(bmp->header.signature[1] == 'M'))) {
@@ -682,14 +687,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #if !defined(CONFIG_MCC200)
 	/* MCC200 LCD doesn't need CMAP, supports 1bpp b&w only */
 	if (bmp_bpix == 8) {
-#if defined(CONFIG_CPU_PXA)
-		cmap = (ushort *)fbi->palette;
-#elif defined(CONFIG_MPC823)
-		cmap = (ushort *)&(cp->lcd_cmap[255*sizeof(ushort)]);
-#elif !defined(CONFIG_ATMEL_LCD) && !defined(CONFIG_EXYNOS_FB)
-		cmap = panel_info.cmap;
-#endif
-
+		cmap = configuration_get_cmap();
 		cmap_base = cmap;
 
 		/* Set color map */
