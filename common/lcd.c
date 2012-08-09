@@ -607,6 +607,22 @@ static inline void bitmap_plot(int x, int y) {}
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 #define BMP_ALIGN_CENTER	0x7FFF
+
+static void splash_align_axis(int *axis, unsigned long panel_size,
+					unsigned long picture_size)
+{
+	unsigned long panel_picture_delta = panel_size - picture_size;
+	unsigned long axis_alignment;
+
+	if (*axis == BMP_ALIGN_CENTER)
+		axis_alignment = panel_picture_delta / 2;
+	else if (*axis < 0)
+		axis_alignment = panel_picture_delta + *axis + 1;
+	else
+		return;
+
+	*axis = max(0, axis_alignment);
+}
 #endif
 
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
@@ -722,15 +738,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
-	if (x == BMP_ALIGN_CENTER)
-		x = max(0, (pwidth - width) / 2);
-	else if (x < 0)
-		x = max(0, pwidth - width + x + 1);
-
-	if (y == BMP_ALIGN_CENTER)
-		y = max(0, (panel_info.vl_row - height) / 2);
-	else if (y < 0)
-		y = max(0, panel_info.vl_row - height + y + 1);
+	splash_align_axis(&x, pwidth, width);
+	splash_align_axis(&y, panel_info.vl_row, height);
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 	if ((x + width) > pwidth)
