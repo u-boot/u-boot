@@ -30,7 +30,6 @@
  */
 #define NON_SECURE_SRAM_START	0x40304000
 #define NON_SECURE_SRAM_END	0x4030E000
-#define LOW_LEVEL_SRAM_STACK	0x4030B7FC
 
 /* ROM code defines */
 /* Boot device */

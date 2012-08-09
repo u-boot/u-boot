@@ -19,8 +19,9 @@
 #ifndef __AM33XX_HARDWARE_H
 #define __AM33XX_HARDWARE_H
 
+#include <asm/arch/omap.h>
+
 /* Module base addresses */
-#define LOW_LEVEL_SRAM_STACK		0x4030B7FC
 #define UART0_BASE			0x44E09000
 
 /* DM Timer base addresses */

@@ -262,8 +262,6 @@ struct omap_sys_ctrl_regs {
 #define NON_SECURE_SRAM_END	0x40320000	/* Not inclusive */
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4031F000
-/* Temporary SRAM stack used while low level init is done */
-#define LOW_LEVEL_SRAM_STACK	NON_SECURE_SRAM_END
 
 #define SRAM_SCRATCH_SPACE_ADDR		NON_SECURE_SRAM_START
 /*
