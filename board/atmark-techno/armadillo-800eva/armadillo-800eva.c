@@ -243,6 +243,9 @@ void s_init(void)
 #define I2C1_MSTP323    (1 << 23)
 #define GETHER_MSTP309	(1 << 9)
 
+#define GPIO_SCIFA1_TXD (0xE60520C4)
+#define GPIO_SCIFA1_RXD (0xE60520C3)
+
 int board_early_init_f(void)
 {
 	/* TMU */
@@ -256,9 +259,8 @@ int board_early_init_f(void)
 	clrbits_le32(MSTPCR3, I2C1_MSTP323);
 
 	/* SCIFA1 */
-	r8a7740_pinmux_init();
-	gpio_request(GPIO_FN_SCIFA1_RXD, NULL);
-	gpio_request(GPIO_FN_SCIFA1_TXD, NULL);
+	writeb(1, GPIO_SCIFA1_TXD); /* SCIFA1_TXD */
+	writeb(1, GPIO_SCIFA1_RXD); /* SCIFA1_RXD */
 
 	/* IICCR */
 	writew(GPIO_ICCR_DATA, GPIO_ICCR);
