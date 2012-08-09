@@ -636,6 +636,29 @@ static void splash_align_axis(int *axis, unsigned long panel_size,
 }
 #endif
 
+#if defined CONFIG_CPU_PXA || defined(CONFIG_ATMEL_LCD)
+#define FB_PUT_BYTE(fb, from) *(fb)++ = *(from)++
+#elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
+#define FB_PUT_BYTE(fb, from) *(fb)++ = (255 - *(from)++)
+#endif
+
+#if defined(CONFIG_BMP_16BPP)
+#if defined(CONFIG_ATMEL_LCD_BGR555)
+static inline void fb_put_word(uchar **fb, uchar **from)
+{
+	*(*fb)++ = (((*from)[0] & 0x1f) << 2) | ((*from)[1] & 0x03);
+	*(*fb)++ = ((*from)[0] & 0xe0) | (((*from)[1] & 0x7c) >> 2);
+	*from += 2;
+}
+#else
+static inline void fb_put_word(uchar **fb, uchar **from)
+{
+	*(*fb)++ = *(*from)++;
+	*(*fb)++ = *(*from)++;
+}
+#endif
+#endif /* CONFIG_BMP_16BPP */
+
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
 #if !defined(CONFIG_MCC200)
@@ -761,11 +784,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			WATCHDOG_RESET();
 			for (j = 0; j < width; j++) {
 				if (bpix != 16) {
-#if defined(CONFIG_CPU_PXA) || defined(CONFIG_ATMEL_LCD)
-					*(fb++) = *(bmap++);
-#elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
-					*(fb++) = 255 - *(bmap++);
-#endif
+					FB_PUT_BYTE(fb, bmap);
 				} else {
 					*(uint16_t *)fb = cmap_base[*(bmap++)];
 					fb += sizeof(uint16_t) / sizeof(*fb);
@@ -780,18 +799,9 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	case 16:
 		for (i = 0; i < height; ++i) {
 			WATCHDOG_RESET();
-			for (j = 0; j < width; j++) {
-#if defined(CONFIG_ATMEL_LCD_BGR555)
-				*(fb++) = ((bmap[0] & 0x1f) << 2) |
-					(bmap[1] & 0x03);
-				*(fb++) = (bmap[0] & 0xe0) |
-					((bmap[1] & 0x7c) >> 2);
-				bmap += 2;
-#else
-				*(fb++) = *(bmap++);
-				*(fb++) = *(bmap++);
-#endif
-			}
+			for (j = 0; j < width; j++)
+				fb_put_word(&fb, &bmap);
+
 			bmap += (padded_line - width) * 2;
 			fb   -= (width * 2 + lcd_line_length);
 		}
