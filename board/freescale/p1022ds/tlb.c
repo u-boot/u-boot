@@ -71,6 +71,20 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	SET_TLB_ENTRY(1, PIXIS_BASE, PIXIS_BASE_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 7, BOOKE_PAGESZ_4K, 1),
+
+#ifdef CONFIG_SYS_RAMBOOT
+	/* *I*G - eSDHC/eSPI/NAND boot */
+	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
+			MAS3_SX|MAS3_SW|MAS3_SR, 0,
+			0, 8, BOOKE_PAGESZ_1G, 1),
+
+	/* map the second 1G */
+	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE + 0x40000000,
+			CONFIG_SYS_DDR_SDRAM_BASE + 0x40000000,
+			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+			0, 9, BOOKE_PAGESZ_1G, 1),
+#endif
+#
 };
 
 int num_tlb_entries = ARRAY_SIZE(tlb_table);
