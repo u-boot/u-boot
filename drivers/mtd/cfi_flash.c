@@ -1391,6 +1391,40 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
  */
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 
+static int cfi_protect_bugfix(flash_info_t *info, long sector, int prot)
+{
+	if ((info->manufacturer_id == (uchar)INTEL_MANUFACT) &&
+		(info->device_id == NUMONYX_256MBIT)) {
+		/*
+		 * see errata called
+		 * "Numonyx Axcell P33/P30 Specification Update" :)
+		 */
+		flash_write_cmd(info, sector, 0, FLASH_CMD_READ_ID);
+		if (!flash_isequal(info, sector, FLASH_OFFSET_PROTECT,
+				   prot)) {
+			/*
+			 * cmd must come before FLASH_CMD_PROTECT + 20us
+			 * Disable interrupts which might cause a timeout here.
+			 */
+			int flag = disable_interrupts();
+			unsigned short cmd;
+
+			if (prot)
+				cmd = FLASH_CMD_PROTECT_SET;
+			else
+				cmd = FLASH_CMD_PROTECT_CLEAR;
+				flash_write_cmd(info, sector, 0,
+					  FLASH_CMD_PROTECT);
+			flash_write_cmd(info, sector, 0, cmd);
+			/* re-enable interrupts if necessary */
+			if (flag)
+				enable_interrupts();
+		}
+		return 1;
+	}
+	return 0;
+}
+
 int flash_real_protect (flash_info_t * info, long sector, int prot)
 {
 	int retcode = 0;
@@ -1399,31 +1433,18 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 		case CFI_CMDSET_INTEL_PROG_REGIONS:
 		case CFI_CMDSET_INTEL_STANDARD:
 		case CFI_CMDSET_INTEL_EXTENDED:
-			/*
-			 * see errata called
-			 * "Numonyx Axcell P33/P30 Specification Update" :)
-			 */
-			flash_write_cmd (info, sector, 0, FLASH_CMD_READ_ID);
-			if (!flash_isequal (info, sector, FLASH_OFFSET_PROTECT,
-					    prot)) {
-				/*
-				 * cmd must come before FLASH_CMD_PROTECT + 20us
-				 * Disable interrupts which might cause a timeout here.
-				 */
-				int flag = disable_interrupts ();
-				unsigned short cmd;
-
+			if (!cfi_protect_bugfix(info, sector, prot)) {
+				flash_write_cmd(info, sector, 0,
+					 FLASH_CMD_CLEAR_STATUS);
+				flash_write_cmd(info, sector, 0,
+					FLASH_CMD_PROTECT);
 				if (prot)
-					cmd = FLASH_CMD_PROTECT_SET;
+					flash_write_cmd(info, sector, 0,
+						FLASH_CMD_PROTECT_SET);
 				else
-					cmd = FLASH_CMD_PROTECT_CLEAR;
+					flash_write_cmd(info, sector, 0,
+						FLASH_CMD_PROTECT_CLEAR);
 
-				flash_write_cmd (info, sector, 0,
-						  FLASH_CMD_PROTECT);
-				flash_write_cmd (info, sector, 0, cmd);
-				/* re-enable interrupts if necessary */
-				if (flag)
-					enable_interrupts ();
 			}
 			break;
 		case CFI_CMDSET_AMD_EXTENDED:
