@@ -84,9 +84,6 @@ static NS16550_t serial_ports[4] = {
 };
 
 #define PORT	serial_ports[port-1]
-#if defined(CONFIG_CONS_INDEX)
-#define CONSOLE	(serial_ports[CONFIG_CONS_INDEX-1])
-#endif
 
 #if defined(CONFIG_SERIAL_MULTI)
 
