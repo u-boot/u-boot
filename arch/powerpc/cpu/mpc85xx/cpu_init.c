@@ -480,11 +480,18 @@ skip_l2:
 
 #ifdef CONFIG_SYS_SRIO
 	srio_init();
-#ifdef CONFIG_SRIOBOOT_MASTER
-	srio_boot_master();
-#ifdef CONFIG_SRIOBOOT_SLAVE_HOLDOFF
-	srio_boot_master_release_slave();
-#endif
+#ifdef CONFIG_FSL_CORENET
+	char *s = getenv("bootmaster");
+	if (s) {
+		if (!strcmp(s, "SRIO1")) {
+			srio_boot_master(1);
+			srio_boot_master_release_slave(1);
+		}
+		if (!strcmp(s, "SRIO2")) {
+			srio_boot_master(2);
+			srio_boot_master_release_slave(2);
+		}
+	}
 #endif
 #endif
 

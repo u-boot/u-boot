@@ -389,40 +389,24 @@
 #define CONFIG_SYS_SRIO2_MEM_SIZE	0x10000000	/* 256M */
 
 /*
- * SRIOBOOT - MASTER
- */
-#ifdef CONFIG_SRIOBOOT_MASTER
-/* master port for srioboot*/
-#define CONFIG_SRIOBOOT_MASTER_PORT 0
-/* #define CONFIG_SRIOBOOT_MASTER_PORT 1 */
-/*
  * for slave u-boot IMAGE instored in master memory space,
  * PHYS must be aligned based on the SIZE
  */
-#define CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS1 0xfef080000ull
-#define CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS1 0xfff80000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_PHYS 0xfef080000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_BUS1 0xfff80000ull
 #define CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE 0x80000	/* 512K */
-#define CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS2 0xfef080000ull
-#define CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS2 0x3fff80000ull
+#define CONFIG_SRIOBOOT_SLAVE_IMAGE_MEM_BUS2 0x3fff80000ull
 /*
- * for slave UCODE instored in master memory space,
+ * for slave UCODE and ENV instored in master memory space,
  * PHYS must be aligned based on the SIZE
  */
-#define CONFIG_SRIOBOOT_SLAVE_UCODE_LAW_PHYS 0xfef020000ull
-#define CONFIG_SRIOBOOT_SLAVE_UCODE_SRIO_PHYS 0x3ffe00000ull
-#define CONFIG_SRIOBOOT_SLAVE_UCODE_SIZE 0x10000	/* 64K */
-/*
- * for slave ENV instored in master memory space,
- * PHYS must be aligned based on the SIZE
- */
-#define CONFIG_SRIOBOOT_SLAVE_ENV_LAW_PHYS 0xfef060000ull
-#define CONFIG_SRIOBOOT_SLAVE_ENV_SRIO_PHYS 0x3ffe20000ull
-#define CONFIG_SRIOBOOT_SLAVE_ENV_SIZE 0x20000	/* 128K */
+#define CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_MEM_PHYS 0xfef040000ull
+#define CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_MEM_BUS 0x3ffe00000ull
+#define CONFIG_SRIOBOOT_SLAVE_UCODE_ENV_SIZE 0x40000	/* 256K */
+
 /* slave core release by master*/
-#define CONFIG_SRIOBOOT_SLAVE_HOLDOFF
 #define CONFIG_SRIOBOOT_SLAVE_BRR_OFFSET 0xe00e4
 #define CONFIG_SRIOBOOT_SLAVE_RELEASE_MASK 0x00000001 /* release core 0 */
-#endif
 
 /*
  * SRIOBOOT - SLAVE
