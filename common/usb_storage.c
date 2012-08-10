@@ -157,12 +157,13 @@ struct us_data {
 
 #ifdef CONFIG_USB_EHCI
 /*
- * The U-Boot EHCI driver cannot handle more than 5 page aligned buffers
- * of 4096 bytes in a transfer without running itself out of qt_buffers
+ * The U-Boot EHCI driver can handle any transfer length as long as there is
+ * enough free heap space left, but the SCSI READ(10) and WRITE(10) commands are
+ * limited to 65535 blocks.
  */
-#define USB_MAX_XFER_BLK(start, blksz)	(((4096 * 5) - (start % 4096)) / blksz)
+#define USB_MAX_XFER_BLK	65535
 #else
-#define USB_MAX_XFER_BLK(start, blksz)	20
+#define USB_MAX_XFER_BLK	20
 #endif
 
 static struct us_data usb_stor[USB_MAX_STOR_DEV];
@@ -1050,7 +1051,7 @@ static void usb_bin_fixup(struct usb_device_descriptor descriptor,
 unsigned long usb_stor_read(int device, unsigned long blknr,
 			    unsigned long blkcnt, void *buffer)
 {
-	unsigned long start, blks, buf_addr, max_xfer_blk;
+	unsigned long start, blks, buf_addr;
 	unsigned short smallblks;
 	struct usb_device *dev;
 	struct us_data *ss;
@@ -1092,14 +1093,12 @@ unsigned long usb_stor_read(int device, unsigned long blknr,
 		/* XXX need some comment here */
 		retry = 2;
 		srb->pdata = (unsigned char *)buf_addr;
-		max_xfer_blk = USB_MAX_XFER_BLK(buf_addr,
-						usb_dev_desc[device].blksz);
-		if (blks > max_xfer_blk)
-			smallblks = (unsigned short) max_xfer_blk;
+		if (blks > USB_MAX_XFER_BLK)
+			smallblks = USB_MAX_XFER_BLK;
 		else
 			smallblks = (unsigned short) blks;
 retry_it:
-		if (smallblks == max_xfer_blk)
+		if (smallblks == USB_MAX_XFER_BLK)
 			usb_show_progress();
 		srb->datalen = usb_dev_desc[device].blksz * smallblks;
 		srb->pdata = (unsigned char *)buf_addr;
@@ -1120,7 +1119,7 @@ retry_it:
 			start, smallblks, buf_addr);
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
-	if (blkcnt >= max_xfer_blk)
+	if (blkcnt >= USB_MAX_XFER_BLK)
 		debug("\n");
 	return blkcnt;
 }
@@ -1128,7 +1127,7 @@ retry_it:
 unsigned long usb_stor_write(int device, unsigned long blknr,
 				unsigned long blkcnt, const void *buffer)
 {
-	unsigned long start, blks, buf_addr, max_xfer_blk;
+	unsigned long start, blks, buf_addr;
 	unsigned short smallblks;
 	struct usb_device *dev;
 	struct us_data *ss;
@@ -1173,14 +1172,12 @@ unsigned long usb_stor_write(int device, unsigned long blknr,
 		 */
 		retry = 2;
 		srb->pdata = (unsigned char *)buf_addr;
-		max_xfer_blk = USB_MAX_XFER_BLK(buf_addr,
-						usb_dev_desc[device].blksz);
-		if (blks > max_xfer_blk)
-			smallblks = (unsigned short) max_xfer_blk;
+		if (blks > USB_MAX_XFER_BLK)
+			smallblks = USB_MAX_XFER_BLK;
 		else
 			smallblks = (unsigned short) blks;
 retry_it:
-		if (smallblks == max_xfer_blk)
+		if (smallblks == USB_MAX_XFER_BLK)
 			usb_show_progress();
 		srb->datalen = usb_dev_desc[device].blksz * smallblks;
 		srb->pdata = (unsigned char *)buf_addr;
@@ -1201,7 +1198,7 @@ retry_it:
 			start, smallblks, buf_addr);
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
-	if (blkcnt >= max_xfer_blk)
+	if (blkcnt >= USB_MAX_XFER_BLK)
 		debug("\n");
 	return blkcnt;
 
