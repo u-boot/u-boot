@@ -218,9 +218,12 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 	}
 
 	if (dev->write_hwaddr &&
-			!eth_mac_skip(eth_number) &&
-			is_valid_ether_addr(dev->enetaddr))
+			!eth_mac_skip(eth_number)) {
+		if (!is_valid_ether_addr(dev->enetaddr))
+			return -1;
+
 		ret = dev->write_hwaddr(dev);
+	}
 
 	return ret;
 }
