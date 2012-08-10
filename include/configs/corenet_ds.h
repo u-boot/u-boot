@@ -31,6 +31,14 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
+#define CONFIG_PBLPBI_CONFIG $(SRCTREE)/board/freescale/corenet_ds/pbi.cfg
+#if defined(CONFIG_P3041DS)
+#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p3041ds.cfg
+#elif defined(CONFIG_P4080DS)
+#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p4080ds.cfg
+#elif defined(CONFIG_P5020DS)
+#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p5020ds.cfg
+#endif
 #endif
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE

@@ -422,6 +422,11 @@ $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
 		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -d $< $@
 
+$(obj)u-boot.pbl:	$(obj)u-boot.bin
+		$(obj)tools/mkimage -n $(CONFIG_PBLRCW_CONFIG) \
+		-R $(CONFIG_PBLPBI_CONFIG) -T pblimage \
+		-d $< $@
+
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
 		$(obj)tools/ubsha1 $(obj)u-boot.bin
 
@@ -782,6 +787,7 @@ clobber:	tidy
 		$(obj)cscope.* $(obj)*.*~
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL-y)
 	@rm -f $(obj)u-boot.kwb
+	@rm -f $(obj)u-boot.pbl
 	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)u-boot.ubl
 	@rm -f $(obj)u-boot.ais
