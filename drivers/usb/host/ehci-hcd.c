@@ -215,7 +215,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	volatile struct qTD *vtd;
 	unsigned long ts;
 	uint32_t *tdp;
-	uint32_t endpt, token, usbsts;
+	uint32_t endpt, maxpacket, token, usbsts;
 	uint32_t c, toggle;
 	uint32_t cmd;
 	int timeout;
@@ -230,6 +230,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		      le16_to_cpu(req->value), le16_to_cpu(req->value),
 		      le16_to_cpu(req->index));
 
+#define PKT_ALIGN	512
 	/*
 	 * The USB transfer is split into qTD transfers. Eeach qTD transfer is
 	 * described by a transfer descriptor (the qTD). The qTDs form a linked
@@ -251,43 +252,41 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	if (length > 0 || req == NULL) {
 		/*
 		 * Determine the qTD transfer size that will be used for the
-		 * data payload (not considering the final qTD transfer, which
-		 * may be shorter).
+		 * data payload (not considering the first qTD transfer, which
+		 * may be longer or shorter, and the final one, which may be
+		 * shorter).
 		 *
 		 * In order to keep each packet within a qTD transfer, the qTD
-		 * transfer size is aligned to EHCI_PAGE_SIZE, which is a
-		 * multiple of wMaxPacketSize (except in some cases for
-		 * interrupt transfers, see comment in submit_int_msg()).
+		 * transfer size is aligned to PKT_ALIGN, which is a multiple of
+		 * wMaxPacketSize (except in some cases for interrupt transfers,
+		 * see comment in submit_int_msg()).
 		 *
-		 * By default, i.e. if the input buffer is page-aligned,
+		 * By default, i.e. if the input buffer is aligned to PKT_ALIGN,
 		 * QT_BUFFER_CNT full pages will be used.
 		 */
 		int xfr_sz = QT_BUFFER_CNT;
 		/*
-		 * However, if the input buffer is not page-aligned, the qTD
-		 * transfer size will be one page shorter, and the first qTD
+		 * However, if the input buffer is not aligned to PKT_ALIGN, the
+		 * qTD transfer size will be one page shorter, and the first qTD
 		 * data buffer of each transfer will be page-unaligned.
 		 */
-		if ((uint32_t)buffer & (EHCI_PAGE_SIZE - 1))
+		if ((uint32_t)buffer & (PKT_ALIGN - 1))
 			xfr_sz--;
 		/* Convert the qTD transfer size to bytes. */
 		xfr_sz *= EHCI_PAGE_SIZE;
 		/*
-		 * Determine the number of qTDs that will be required for the
-		 * data payload. This value has to be rounded up since the final
-		 * qTD transfer may be shorter than the regular qTD transfer
-		 * size that has just been computed.
+		 * Approximate by excess the number of qTDs that will be
+		 * required for the data payload. The exact formula is way more
+		 * complicated and saves at most 2 qTDs, i.e. a total of 128
+		 * bytes.
 		 */
-		qtd_count += DIV_ROUND_UP(length, xfr_sz);
-		/* ZLPs also need a qTD. */
-		if (!qtd_count)
-			qtd_count++;
+		qtd_count += 2 + length / xfr_sz;
 	}
 /*
- * Threshold value based on the worst-case total size of the qTDs to allocate
- * for a mass-storage transfer of 65535 blocks of 512 bytes.
+ * Threshold value based on the worst-case total size of the allocated qTDs for
+ * a mass-storage transfer of 65535 blocks of 512 bytes.
  */
-#if CONFIG_SYS_MALLOC_LEN <= 128 * 1024
+#if CONFIG_SYS_MALLOC_LEN <= 64 + 128 * 1024
 #warning CONFIG_SYS_MALLOC_LEN may be too small for EHCI
 #endif
 	qtd = memalign(USB_DMA_MINALIGN, qtd_count * sizeof(struct qTD));
@@ -313,8 +312,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	 */
 	qh->qh_link = cpu_to_hc32((uint32_t)qh_list | QH_LINK_TYPE_QH);
 	c = usb_pipespeed(pipe) != USB_SPEED_HIGH && !usb_pipeendpoint(pipe);
+	maxpacket = usb_maxpacket(dev, pipe);
 	endpt = QH_ENDPT1_RL(8) | QH_ENDPT1_C(c) |
-		QH_ENDPT1_MAXPKTLEN(usb_maxpacket(dev, pipe)) | QH_ENDPT1_H(0) |
+		QH_ENDPT1_MAXPKTLEN(maxpacket) | QH_ENDPT1_H(0) |
 		QH_ENDPT1_DTC(QH_ENDPT1_DTC_DT_FROM_QTD) |
 		QH_ENDPT1_EPS(usb_pipespeed(pipe)) |
 		QH_ENDPT1_ENDPT(usb_pipeendpoint(pipe)) | QH_ENDPT1_I(0) |
@@ -373,9 +373,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			xfr_bytes -= (uint32_t)buf_ptr & (EHCI_PAGE_SIZE - 1);
 			/*
 			 * In order to keep each packet within a qTD transfer,
-			 * align the qTD transfer size to EHCI_PAGE_SIZE.
+			 * align the qTD transfer size to PKT_ALIGN.
 			 */
-			xfr_bytes &= ~(EHCI_PAGE_SIZE - 1);
+			xfr_bytes &= ~(PKT_ALIGN - 1);
 			/*
 			 * This transfer may be shorter than the available qTD
 			 * transfer size that has just been computed.
@@ -411,6 +411,13 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			/* Update previous qTD! */
 			*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
 			tdp = &qtd[qtd_counter++].qt_next;
+			/*
+			 * Data toggle has to be adjusted since the qTD transfer
+			 * size is not always an even multiple of
+			 * wMaxPacketSize.
+			 */
+			if ((xfr_bytes / maxpacket) & 1)
+				toggle ^= 1;
 			buf_ptr += xfr_bytes;
 			left_length -= xfr_bytes;
 		} while (left_length > 0);
@@ -426,7 +433,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		 */
 		qtd[qtd_counter].qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 		qtd[qtd_counter].qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
-		token = QT_TOKEN_DT(toggle) | QT_TOKEN_TOTALBYTES(0) |
+		token = QT_TOKEN_DT(1) | QT_TOKEN_TOTALBYTES(0) |
 			QT_TOKEN_IOC(1) | QT_TOKEN_CPAGE(0) | QT_TOKEN_CERR(3) |
 			QT_TOKEN_PID(usb_pipein(pipe) ?
 				QT_TOKEN_PID_OUT : QT_TOKEN_PID_IN) |
@@ -931,11 +938,11 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	 * because bInterval is ignored.
 	 *
 	 * Also, ehci_submit_async() relies on wMaxPacketSize being a power of 2
-	 * if several qTDs are required, while the USB specification does not
-	 * constrain this for interrupt transfers. That means that
-	 * ehci_submit_async() would support interrupt transfers requiring
-	 * several transactions only as long as the transfer size does not
-	 * require more than a single qTD.
+	 * <= PKT_ALIGN if several qTDs are required, while the USB
+	 * specification does not constrain this for interrupt transfers. That
+	 * means that ehci_submit_async() would support interrupt transfers
+	 * requiring several transactions only as long as the transfer size does
+	 * not require more than a single qTD.
 	 */
 	if (length > usb_maxpacket(dev, pipe)) {
 		printf("%s: Interrupt transfers requiring several transactions "
