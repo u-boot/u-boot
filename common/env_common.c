@@ -80,6 +80,9 @@ const uchar default_environment[] = {
 #ifdef	CONFIG_ETH5ADDR
 	"eth5addr="	MK_STR(CONFIG_ETH5ADDR)		"\0"
 #endif
+#ifdef	CONFIG_ETHPRIME
+	"ethprime="	CONFIG_ETHPRIME			"\0"
+#endif
 #ifdef	CONFIG_IPADDR
 	"ipaddr="	MK_STR(CONFIG_IPADDR)		"\0"
 #endif
