@@ -208,8 +208,8 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int length, struct devrequest *req)
 {
 	ALLOC_ALIGN_BUFFER(struct QH, qh, 1, USB_DMA_MINALIGN);
-#define QTD_COUNT	3
-	ALLOC_ALIGN_BUFFER(struct qTD, qtd, QTD_COUNT, USB_DMA_MINALIGN);
+	struct qTD *qtd;
+	int qtd_count = 0;
 	int qtd_counter = 0;
 
 	volatile struct qTD *vtd;
@@ -230,8 +230,74 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		      le16_to_cpu(req->value), le16_to_cpu(req->value),
 		      le16_to_cpu(req->index));
 
+	/*
+	 * The USB transfer is split into qTD transfers. Eeach qTD transfer is
+	 * described by a transfer descriptor (the qTD). The qTDs form a linked
+	 * list with a queue head (QH).
+	 *
+	 * Each qTD transfer starts with a new USB packet, i.e. a packet cannot
+	 * have its beginning in a qTD transfer and its end in the following
+	 * one, so the qTD transfer lengths have to be chosen accordingly.
+	 *
+	 * Each qTD transfer uses up to QT_BUFFER_CNT data buffers, mapped to
+	 * single pages. The first data buffer can start at any offset within a
+	 * page (not considering the cache-line alignment issues), while the
+	 * following buffers must be page-aligned. There is no alignment
+	 * constraint on the size of a qTD transfer.
+	 */
+	if (req != NULL)
+		/* 1 qTD will be needed for SETUP, and 1 for ACK. */
+		qtd_count += 1 + 1;
+	if (length > 0 || req == NULL) {
+		/*
+		 * Determine the qTD transfer size that will be used for the
+		 * data payload (not considering the final qTD transfer, which
+		 * may be shorter).
+		 *
+		 * In order to keep each packet within a qTD transfer, the qTD
+		 * transfer size is aligned to EHCI_PAGE_SIZE, which is a
+		 * multiple of wMaxPacketSize (except in some cases for
+		 * interrupt transfers, see comment in submit_int_msg()).
+		 *
+		 * By default, i.e. if the input buffer is page-aligned,
+		 * QT_BUFFER_CNT full pages will be used.
+		 */
+		int xfr_sz = QT_BUFFER_CNT;
+		/*
+		 * However, if the input buffer is not page-aligned, the qTD
+		 * transfer size will be one page shorter, and the first qTD
+		 * data buffer of each transfer will be page-unaligned.
+		 */
+		if ((uint32_t)buffer & (EHCI_PAGE_SIZE - 1))
+			xfr_sz--;
+		/* Convert the qTD transfer size to bytes. */
+		xfr_sz *= EHCI_PAGE_SIZE;
+		/*
+		 * Determine the number of qTDs that will be required for the
+		 * data payload. This value has to be rounded up since the final
+		 * qTD transfer may be shorter than the regular qTD transfer
+		 * size that has just been computed.
+		 */
+		qtd_count += DIV_ROUND_UP(length, xfr_sz);
+		/* ZLPs also need a qTD. */
+		if (!qtd_count)
+			qtd_count++;
+	}
+/*
+ * Threshold value based on the worst-case total size of the qTDs to allocate
+ * for a mass-storage transfer of 65535 blocks of 512 bytes.
+ */
+#if CONFIG_SYS_MALLOC_LEN <= 128 * 1024
+#warning CONFIG_SYS_MALLOC_LEN may be too small for EHCI
+#endif
+	qtd = memalign(USB_DMA_MINALIGN, qtd_count * sizeof(struct qTD));
+	if (qtd == NULL) {
+		printf("unable to allocate TDs\n");
+		return -1;
+	}
+
 	memset(qh, 0, sizeof(struct QH));
-	memset(qtd, 0, QTD_COUNT * sizeof(*qtd));
+	memset(qtd, 0, qtd_count * sizeof(*qtd));
 
 	toggle = usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe));
 
@@ -290,30 +356,64 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	if (length > 0 || req == NULL) {
-		/*
-		 * Setup request qTD (3.5 in ehci-r10.pdf)
-		 *
-		 *   qt_next ................ 03-00 H
-		 *   qt_altnext ............. 07-04 H
-		 *   qt_token ............... 0B-08 H
-		 *
-		 *   [ buffer, buffer_hi ] loaded with "buffer".
-		 */
-		qtd[qtd_counter].qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
-		qtd[qtd_counter].qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
-		token = QT_TOKEN_DT(toggle) | QT_TOKEN_TOTALBYTES(length) |
-			QT_TOKEN_IOC(req == NULL) | QT_TOKEN_CPAGE(0) |
-			QT_TOKEN_CERR(3) | QT_TOKEN_PID(usb_pipein(pipe) ?
-				QT_TOKEN_PID_IN : QT_TOKEN_PID_OUT) |
-			QT_TOKEN_STATUS(QT_TOKEN_STATUS_ACTIVE);
-		qtd[qtd_counter].qt_token = cpu_to_hc32(token);
-		if (ehci_td_buffer(&qtd[qtd_counter], buffer, length)) {
-			printf("unable to construct DATA TD\n");
-			goto fail;
-		}
-		/* Update previous qTD! */
-		*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
-		tdp = &qtd[qtd_counter++].qt_next;
+		uint8_t *buf_ptr = buffer;
+		int left_length = length;
+
+		do {
+			/*
+			 * Determine the size of this qTD transfer. By default,
+			 * QT_BUFFER_CNT full pages can be used.
+			 */
+			int xfr_bytes = QT_BUFFER_CNT * EHCI_PAGE_SIZE;
+			/*
+			 * However, if the input buffer is not page-aligned, the
+			 * portion of the first page before the buffer start
+			 * offset within that page is unusable.
+			 */
+			xfr_bytes -= (uint32_t)buf_ptr & (EHCI_PAGE_SIZE - 1);
+			/*
+			 * In order to keep each packet within a qTD transfer,
+			 * align the qTD transfer size to EHCI_PAGE_SIZE.
+			 */
+			xfr_bytes &= ~(EHCI_PAGE_SIZE - 1);
+			/*
+			 * This transfer may be shorter than the available qTD
+			 * transfer size that has just been computed.
+			 */
+			xfr_bytes = min(xfr_bytes, left_length);
+
+			/*
+			 * Setup request qTD (3.5 in ehci-r10.pdf)
+			 *
+			 *   qt_next ................ 03-00 H
+			 *   qt_altnext ............. 07-04 H
+			 *   qt_token ............... 0B-08 H
+			 *
+			 *   [ buffer, buffer_hi ] loaded with "buffer".
+			 */
+			qtd[qtd_counter].qt_next =
+					cpu_to_hc32(QT_NEXT_TERMINATE);
+			qtd[qtd_counter].qt_altnext =
+					cpu_to_hc32(QT_NEXT_TERMINATE);
+			token = QT_TOKEN_DT(toggle) |
+				QT_TOKEN_TOTALBYTES(xfr_bytes) |
+				QT_TOKEN_IOC(req == NULL) | QT_TOKEN_CPAGE(0) |
+				QT_TOKEN_CERR(3) |
+				QT_TOKEN_PID(usb_pipein(pipe) ?
+					QT_TOKEN_PID_IN : QT_TOKEN_PID_OUT) |
+				QT_TOKEN_STATUS(QT_TOKEN_STATUS_ACTIVE);
+			qtd[qtd_counter].qt_token = cpu_to_hc32(token);
+			if (ehci_td_buffer(&qtd[qtd_counter], buf_ptr,
+						xfr_bytes)) {
+				printf("unable to construct DATA TD\n");
+				goto fail;
+			}
+			/* Update previous qTD! */
+			*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
+			tdp = &qtd[qtd_counter++].qt_next;
+			buf_ptr += xfr_bytes;
+			left_length -= xfr_bytes;
+		} while (left_length > 0);
 	}
 
 	if (req != NULL) {
@@ -344,7 +444,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		ALIGN_END_ADDR(struct QH, qh_list, 1));
 	flush_dcache_range((uint32_t)qh, ALIGN_END_ADDR(struct QH, qh, 1));
 	flush_dcache_range((uint32_t)qtd,
-			   ALIGN_END_ADDR(struct qTD, qtd, QTD_COUNT));
+			   ALIGN_END_ADDR(struct qTD, qtd, qtd_count));
 
 	/* Set async. queue head pointer. */
 	ehci_writel(&hcor->or_asynclistaddr, (uint32_t)qh_list);
@@ -375,7 +475,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		invalidate_dcache_range((uint32_t)qh,
 			ALIGN_END_ADDR(struct QH, qh, 1));
 		invalidate_dcache_range((uint32_t)qtd,
-			ALIGN_END_ADDR(struct qTD, qtd, QTD_COUNT));
+			ALIGN_END_ADDR(struct qTD, qtd, qtd_count));
 
 		token = hc32_to_cpu(vtd->qt_token);
 		if (!(QT_TOKEN_GET_STATUS(token) & QT_TOKEN_STATUS_ACTIVE))
@@ -448,9 +548,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		      ehci_readl(&hcor->or_portsc[1]));
 	}
 
+	free(qtd);
 	return (dev->status != USB_ST_NOT_PROC) ? 0 : -1;
 
 fail:
+	free(qtd);
 	return -1;
 }
 
@@ -827,6 +929,13 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	/*
 	 * Interrupt transfers requiring several transactions are not supported
 	 * because bInterval is ignored.
+	 *
+	 * Also, ehci_submit_async() relies on wMaxPacketSize being a power of 2
+	 * if several qTDs are required, while the USB specification does not
+	 * constrain this for interrupt transfers. That means that
+	 * ehci_submit_async() would support interrupt transfers requiring
+	 * several transactions only as long as the transfer size does not
+	 * require more than a single qTD.
 	 */
 	if (length > usb_maxpacket(dev, pipe)) {
 		printf("%s: Interrupt transfers requiring several transactions "
