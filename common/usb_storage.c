@@ -155,11 +155,15 @@ struct us_data {
 	trans_cmnd	transport;		/* transport routine */
 };
 
+#ifdef CONFIG_USB_EHCI
 /*
  * The U-Boot EHCI driver cannot handle more than 5 page aligned buffers
  * of 4096 bytes in a transfer without running itself out of qt_buffers
  */
 #define USB_MAX_XFER_BLK(start, blksz)	(((4096 * 5) - (start % 4096)) / blksz)
+#else
+#define USB_MAX_XFER_BLK(start, blksz)	20
+#endif
 
 static struct us_data usb_stor[USB_MAX_STOR_DEV];
 
