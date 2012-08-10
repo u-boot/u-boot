@@ -1286,10 +1286,9 @@ int mmc_register(struct mmc *mmc)
 block_dev_desc_t *mmc_get_dev(int dev)
 {
 	struct mmc *mmc = find_mmc_device(dev);
-	if (!mmc)
+	if (!mmc || mmc_init(mmc))
 		return NULL;
 
-	mmc_init(mmc);
 	return &mmc->block_dev;
 }
 #endif
