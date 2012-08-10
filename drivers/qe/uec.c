@@ -580,8 +580,7 @@ static void phy_change(struct eth_device *dev)
 {
 	uec_private_t	*uec = (uec_private_t *)dev->priv;
 
-#if defined(CONFIG_P1012) || defined(CONFIG_P1016) || \
-    defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#if defined(CONFIG_P1012) || defined(CONFIG_P1021) || defined(CONFIG_P1025)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
 	/* QE9 and QE12 need to be set for enabling QE MII managment signals */
@@ -592,8 +591,7 @@ static void phy_change(struct eth_device *dev)
 	/* Update the link, speed, duplex */
 	uec->mii_info->phyinfo->read_status(uec->mii_info);
 
-#if defined(CONFIG_P1012) || defined(CONFIG_P1016) || \
-    defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#if defined(CONFIG_P1012) || defined(CONFIG_P1021) || defined(CONFIG_P1025)
 	/*
 	 * QE12 is muxed with LBCTL, it needs to be released for enabling
 	 * LBCTL signal for LBC usage.
@@ -1208,16 +1206,14 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 	uec_private_t		*uec;
 	int			err, i;
 	struct phy_info         *curphy;
-#if defined(CONFIG_P1012) || defined(CONFIG_P1016) || \
-    defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#if defined(CONFIG_P1012) || defined(CONFIG_P1021) || defined(CONFIG_P1025)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 
 	uec = (uec_private_t *)dev->priv;
 
 	if (uec->the_first_run == 0) {
-#if defined(CONFIG_P1012) || defined(CONFIG_P1016) || \
-    defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#if defined(CONFIG_P1012) || defined(CONFIG_P1021) || defined(CONFIG_P1025)
 	/* QE9 and QE12 need to be set for enabling QE MII managment signals */
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE9);
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
@@ -1249,8 +1245,7 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 			udelay(100000);
 		} while (1);
 
-#if defined(CONFIG_P1012) || defined(CONFIG_P1016) || \
-    defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#if defined(CONFIG_P1012) || defined(CONFIG_P1021) || defined(CONFIG_P1025)
 		/* QE12 needs to be released for enabling LBCTL signal*/
 		clrbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE12);
 #endif
