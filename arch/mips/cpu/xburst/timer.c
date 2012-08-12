@@ -34,13 +34,13 @@ static struct jz4740_tcu *tcu = (struct jz4740_tcu *)JZ4740_TCU_BASE;
 void reset_timer_masked(void)
 {
 	/* reset time */
-	gd->lastinc = readw(&tcu->tcnt0);
+	gd->lastinc = readl(&tcu->tcnt0);
 	gd->tbl = 0;
 }
 
 ulong get_timer_masked(void)
 {
-	ulong now = readw(&tcu->tcnt0);
+	ulong now = readl(&tcu->tcnt0);
 
 	if (gd->lastinc <= now)
 		gd->tbl += now - gd->lastinc; /* normal mode */
@@ -83,11 +83,11 @@ void udelay_masked(unsigned long usec)
 
 int timer_init(void)
 {
-	writew(TCU_TCSR_PRESCALE256 | TCU_TCSR_EXT_EN, &tcu->tcsr0);
+	writel(TCU_TCSR_PRESCALE256 | TCU_TCSR_EXT_EN, &tcu->tcsr0);
 
-	writew(0, &tcu->tcnt0);
-	writew(0, &tcu->tdhr0);
-	writew(TIMER_FDATA, &tcu->tdfr0);
+	writel(0, &tcu->tcnt0);
+	writel(0, &tcu->tdhr0);
+	writel(TIMER_FDATA, &tcu->tdfr0);
 
 	/* mask irqs */
 	writel((1 << TIMER_CHAN) | (1 << (TIMER_CHAN + 16)), &tcu->tmsr);
