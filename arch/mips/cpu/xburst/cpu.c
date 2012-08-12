@@ -62,7 +62,7 @@ void __attribute__((weak)) _machine_restart(void)
 
 	writew(100, &wdt->tdr); /* wdt_set_data(100) */
 	writew(0, &wdt->tcnt); /* wdt_set_count(0); */
-	writew(TCU_TSSR_WDTSC, &tcu->tscr); /* tcu_start_wdt_clock */
+	writel(TCU_TSSR_WDTSC, &tcu->tscr); /* tcu_start_wdt_clock */
 	writeb(readb(&wdt->tcer) | WDT_TCER_TCEN, &wdt->tcer); /* wdt start */
 
 	while (1)
