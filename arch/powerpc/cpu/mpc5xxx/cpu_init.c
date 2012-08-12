@@ -169,6 +169,20 @@ void cpu_init_f (void)
 	out_be32(&gpio->port_config, CONFIG_SYS_GPS_PORT_CONFIG);
 #endif
 
+	/* Setup gpios */
+#if defined(CONFIG_SYS_GPIO_DATADIR)
+	out_be32(&gpio->simple_ddr, CONFIG_SYS_GPIO_DATADIR);
+#endif
+#if defined(CONFIG_SYS_GPIO_OPENDRAIN)
+	out_be32(&gpio->simple_ode, CONFIG_SYS_GPIO_OPENDRAIN);
+#endif
+#if defined(CONFIG_SYS_GPIO_DATAVALUE)
+	out_be32(&gpio->simple_dvo, CONFIG_SYS_GPIO_DATAVALUE);
+#endif
+#if defined(CONFIG_SYS_GPIO_ENABLE)
+	out_be32(&gpio->simple_gpioe, CONFIG_SYS_GPIO_ENABLE);
+#endif
+
 	/* enable timebase */
 	setbits_be32(&xlb->config, (1 << 13));
 
