@@ -35,6 +35,7 @@ unsigned long ddr_freq_mhz;
 void sdram_init(void)
 {
 	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+	u32 svr = mfspr(SPRN_SVR);
 
 	out_be32(&ddr->sdram_cfg, CONFIG_SYS_DDR_CONTROL | SDRAM_CFG_32_BE);
 	out_be32(&ddr->cs0_bnds, CONFIG_SYS_DDR_CS0_BNDS);
@@ -69,6 +70,16 @@ void sdram_init(void)
 	out_be32(&ddr->timing_cfg_4, CONFIG_SYS_DDR_TIMING_4);
 	out_be32(&ddr->timing_cfg_5, CONFIG_SYS_DDR_TIMING_5);
 	out_be32(&ddr->ddr_zq_cntl, CONFIG_SYS_DDR_ZQ_CONTROL);
+
+	/* P1014 and it's derivatives support max 16bit DDR width */
+	if (svr == SVR_P1014) {
+		__raw_writel(ddr->sdram_cfg & ~SDRAM_CFG_DBW_MASK, &ddr->sdram_cfg);
+		__raw_writel(ddr->sdram_cfg | SDRAM_CFG_16_BE, &ddr->sdram_cfg);
+		/* For CS0_BNDS we divide the start and end address by 2, so we can just
+		 * shift the entire register to achieve the desired result and the mask
+		 * the value so we don't write reserved fields */
+		__raw_writel((CONFIG_SYS_DDR_CS0_BNDS >> 1) & 0x0fff0fff, &ddr->cs0_bnds);
+	}
 
 	/* mimic 500us delay, with busy isync() loop */
 	udelay(100);
