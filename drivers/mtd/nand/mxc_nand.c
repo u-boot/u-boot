@@ -470,7 +470,7 @@ static int mxc_nand_read_page_raw_syndrome(struct mtd_info *mtd,
 	size = mtd->oobsize - (oob - chip->oob_poi);
 	if (size)
 		chip->read_buf(mtd, oob, size);
-	_mxc_nand_enable_hwecc(mtd, 0);
+	_mxc_nand_enable_hwecc(mtd, 1);
 
 	return 0;
 }
