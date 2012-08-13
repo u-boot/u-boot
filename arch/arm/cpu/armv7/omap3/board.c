@@ -71,7 +71,7 @@ u32 omap3_boot_device = BOOT_DEVICE_NAND;
 /* auto boot mode detection is not possible for OMAP3 - hard code */
 u32 omap_boot_mode(void)
 {
-	switch (omap_boot_device()) {
+	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC2:
 		return MMCSD_MODE_RAW;
 	case BOOT_DEVICE_MMC1:
@@ -86,7 +86,7 @@ u32 omap_boot_mode(void)
 	}
 }
 
-u32 omap_boot_device(void)
+u32 spl_boot_device(void)
 {
 	return omap3_boot_device;
 }

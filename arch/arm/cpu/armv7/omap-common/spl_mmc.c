@@ -37,7 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	switch (omap_boot_device()) {
+	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC1:
 		omap_mmc_init(0, 0, 0);
 		break;

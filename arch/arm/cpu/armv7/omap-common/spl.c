@@ -156,7 +156,7 @@ void board_init_r(gd_t *id, ulong dummy)
 	spl_board_init();
 #endif
 
-	boot_device = omap_boot_device();
+	boot_device = spl_boot_device();
 	debug("boot device - %d\n", boot_device);
 	switch (boot_device) {
 #ifdef CONFIG_SPL_MMC_SUPPORT

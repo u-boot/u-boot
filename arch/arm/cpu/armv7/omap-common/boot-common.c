@@ -37,7 +37,7 @@ struct omap_boot_parameters boot_params __attribute__ ((section(".data")));
  */
 u32 omap_bootmode = MMCSD_MODE_FAT;
 
-u32 omap_boot_device(void)
+u32 spl_boot_device(void)
 {
 	return (u32) (boot_params.omap_bootdevice);
 }
