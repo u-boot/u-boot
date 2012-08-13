@@ -33,7 +33,7 @@
  *	to support up to 2K byte pagesize nand.
  *	Reading or writing a 2K page requires 4 FDI/FDO cycles.
  *
- * MX25 and MX35 have version 1.1, which has:
+ * MX25 and MX35 have version 2.1, which has:
  *	8 512-byte main buffers and
  *	8 64-byte spare buffers
  *	to support up to 4K byte pagesize nand.
@@ -42,10 +42,12 @@
  */
 #if defined(CONFIG_MX27) || defined(CONFIG_MX31)
 #define MXC_NFC_V1
-#define is_mxc_nfc_11()		0
+#define is_mxc_nfc_1()		1
+#define is_mxc_nfc_21()		0
 #elif defined(CONFIG_MX25) || defined(CONFIG_MX35)
-#define MXC_NFC_V1_1
-#define is_mxc_nfc_11()		1
+#define MXC_NFC_V2_1
+#define is_mxc_nfc_1()		0
+#define is_mxc_nfc_21()		1
 #else
 #error "MXC NFC implementation not supported"
 #endif
@@ -55,7 +57,7 @@
 #define NAND_MXC_SPARE_BUF_SIZE		16
 #define NAND_MXC_REG_OFFSET		0xe00
 #define NAND_MXC_2K_MULTI_CYCLE
-#elif defined(MXC_NFC_V1_1)
+#elif defined(MXC_NFC_V2_1)
 #define NAND_MXC_NR_BUFS		8
 #define NAND_MXC_SPARE_BUF_SIZE		64
 #define NAND_MXC_REG_OFFSET		0x1e00
@@ -86,7 +88,7 @@ struct fsl_nfc_regs {
 	u16 nf_wrprst;
 	u16 config1;
 	u16 config2;
-#elif defined(MXC_NFC_V1_1)
+#elif defined(MXC_NFC_V2_1)
 	u16 reserved2[2];
 	u16 buf_addr;
 	u16 flash_addr;
@@ -153,7 +155,7 @@ struct fsl_nfc_regs {
  */
 #define NFC_INT		0x8000
 
-#ifdef MXC_NFC_V1_1
+#ifdef MXC_NFC_V2_1
 #define NFC_4_8N_ECC	(1 << 0)
 #endif
 #define NFC_SP_EN	(1 << 2)

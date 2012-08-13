@@ -47,7 +47,7 @@ static void nfc_wait_ready(void)
 
 static void nfc_nand_init(void)
 {
-#if defined(MXC_NFC_V1_1)
+#if defined(MXC_NFC_V2_1)
 	int ecc_per_page = CONFIG_SYS_NAND_PAGE_SIZE / 512;
 	int config1;
 
@@ -142,7 +142,7 @@ static int nfc_nand_check_ecc(void)
 #if defined(MXC_NFC_V1)
 	u16 ecc_status = readw(&nfc->ecc_status_result);
 	return (ecc_status & 0x3) == 2 || (ecc_status >> 2) == 2;
-#elif defined(MXC_NFC_V1_1)
+#elif defined(MXC_NFC_V2_1)
 	u32 ecc_status = readl(&nfc->ecc_status_result);
 	int ecc_per_page = CONFIG_SYS_NAND_PAGE_SIZE / 512;
 	int err_limit = CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page > 16 ? 8 : 4;

@@ -77,7 +77,7 @@ static struct nand_ecclayout nand_hw_eccoob2k = {
 	.oobfree = { {2, 4}, {11, 11}, {27, 11}, {43, 11}, {59, 5} },
 };
 #endif
-#elif defined(MXC_NFC_V1_1)
+#elif defined(MXC_NFC_V2_1)
 #ifndef CONFIG_SYS_NAND_LARGEPAGE
 static struct nand_ecclayout nand_hw_eccoob = {
 	.eccbytes = 9,
@@ -213,7 +213,7 @@ static void send_prog_page(struct mxc_nand_host *host, uint8_t buf_id,
 	if (spare_only)
 		MTDDEBUG(MTD_DEBUG_LEVEL1, "send_prog_page (%d)\n", spare_only);
 
-	if (is_mxc_nfc_11()) {
+	if (is_mxc_nfc_21()) {
 		int i;
 		/*
 		 *  The controller copies the 64 bytes of spare data from
@@ -273,7 +273,7 @@ static void send_read_page(struct mxc_nand_host *host, uint8_t buf_id,
 	/* Wait for operation to complete */
 	wait_op_done(host, TROP_US_DELAY, spare_only);
 
-	if (is_mxc_nfc_11()) {
+	if (is_mxc_nfc_21()) {
 		int i;
 
 		/*
@@ -377,7 +377,7 @@ static void mxc_nand_enable_hwecc(struct mtd_info *mtd, int mode)
 	 */
 }
 
-#ifdef MXC_NFC_V1_1
+#ifdef MXC_NFC_V2_1
 static int mxc_nand_read_oob_syndrome(struct mtd_info *mtd,
 				      struct nand_chip *chip,
 				      int page, int sndcmd)
@@ -1061,7 +1061,7 @@ void mxc_nand_command(struct mtd_info *mtd, unsigned command,
 	case NAND_CMD_PAGEPROG:
 		send_prog_page(host, 0, host->spare_only);
 
-		if (host->pagesize_2k && !is_mxc_nfc_11()) {
+		if (host->pagesize_2k && is_mxc_nfc_1()) {
 			/* data in 4 areas */
 			send_prog_page(host, 1, host->spare_only);
 			send_prog_page(host, 2, host->spare_only);
@@ -1111,7 +1111,7 @@ void mxc_nand_command(struct mtd_info *mtd, unsigned command,
 			send_cmd(host, NAND_CMD_READSTART);
 			/* read for each AREA */
 			send_read_page(host, 0, host->spare_only);
-			if (!is_mxc_nfc_11()) {
+			if (is_mxc_nfc_1()) {
 				send_read_page(host, 1, host->spare_only);
 				send_read_page(host, 2, host->spare_only);
 				send_read_page(host, 3, host->spare_only);
@@ -1200,7 +1200,7 @@ int board_nand_init(struct nand_chip *this)
 	this->ecc.calculate = mxc_nand_calculate_ecc;
 	this->ecc.hwctl = mxc_nand_enable_hwecc;
 	this->ecc.correct = mxc_nand_correct_data;
-	if (is_mxc_nfc_11()) {
+	if (is_mxc_nfc_21()) {
 		this->ecc.mode = NAND_ECC_HW_SYNDROME;
 		this->ecc.read_page = mxc_nand_read_page_syndrome;
 		this->ecc.read_page_raw = mxc_nand_read_page_raw_syndrome;
@@ -1238,7 +1238,7 @@ int board_nand_init(struct nand_chip *this)
 	this->ecc.layout = &nand_hw_eccoob;
 #endif
 
-#ifdef MXC_NFC_V1_1
+#ifdef MXC_NFC_V2_1
 	tmp = readw(&host->regs->config1);
 	tmp |= NFC_ONE_CYCLE;
 	tmp |= NFC_4_8N_ECC;
