@@ -23,7 +23,7 @@
 #include <asm/io.h>
 #include <asm/arch/regs-common.h>
 #include <asm/arch/regs-base.h>
-#include <asm/arch/regs-clkctrl.h>
+#include <asm/arch/regs-clkctrl-mx28.h>
 #include <asm/arch/regs-usb.h>
 #include <asm/arch/regs-usbphy.h>
 
