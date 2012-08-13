@@ -42,10 +42,12 @@
  */
 #if defined(CONFIG_MX27) || defined(CONFIG_MX31)
 #define MXC_NFC_V1
+#define is_mxc_nfc_11()		0
 #elif defined(CONFIG_MX25) || defined(CONFIG_MX35)
 #define MXC_NFC_V1_1
+#define is_mxc_nfc_11()		1
 #else
-#warning "MXC NFC version not defined"
+#error "MXC NFC implementation not supported"
 #endif
 
 #if defined(MXC_NFC_V1)
@@ -53,14 +55,10 @@
 #define NAND_MXC_SPARE_BUF_SIZE		16
 #define NAND_MXC_REG_OFFSET		0xe00
 #define NAND_MXC_2K_MULTI_CYCLE
-#define is_mxc_nfc_11()			0
 #elif defined(MXC_NFC_V1_1)
 #define NAND_MXC_NR_BUFS		8
 #define NAND_MXC_SPARE_BUF_SIZE		64
 #define NAND_MXC_REG_OFFSET		0x1e00
-#define is_mxc_nfc_11()			1
-#else
-#error "define CONFIG_NAND_MXC_VXXX to use the mxc nand driver"
 #endif
 
 struct fsl_nfc_regs {
