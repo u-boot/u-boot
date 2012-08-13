@@ -219,10 +219,7 @@ void preloader_console_init(void)
 
 	printf("\nU-Boot SPL %s (%s - %s)\n", u_boot_rev, U_BOOT_DATE,
 		U_BOOT_TIME);
-	omap_rev_string();
-}
-
-void __weak omap_rev_string()
-{
-	printf("Texas Instruments Revision detection unimplemented\n");
+#ifdef CONFIG_SPL_DISPLAY_PRINT
+	spl_display_print();
+#endif
 }

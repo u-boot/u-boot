@@ -92,6 +92,11 @@ static void init_boot_params(void)
 {
 	boot_params_ptr = (u32 *) &boot_params;
 }
+
+void spl_display_print(void)
+{
+	omap_rev_string();
+}
 #endif
 
 /*
