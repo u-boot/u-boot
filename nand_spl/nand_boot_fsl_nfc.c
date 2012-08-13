@@ -57,7 +57,8 @@ static void nfc_nand_init(void)
 	writew(0x2, &nfc->config);
 
 	/* hardware ECC checking and correct */
-	config1 = readw(&nfc->config1) | NFC_ECC_EN | NFC_INT_MSK | NFC_FP_INT;
+	config1 = readw(&nfc->config1) | NFC_ECC_EN | NFC_INT_MSK |
+			NFC_ONE_CYCLE | NFC_FP_INT;
 	/*
 	 * if spare size is larger that 16 bytes per 512 byte hunk
 	 * then use 8 symbol correction instead of 4
