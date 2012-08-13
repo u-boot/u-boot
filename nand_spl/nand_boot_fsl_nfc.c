@@ -83,37 +83,35 @@ static void nfc_nand_command(unsigned short command)
 	nfc_wait_ready();
 }
 
+static void nfc_nand_address(unsigned short address)
+{
+	writew(address, &nfc->flash_addr);
+	writew(NFC_ADDR, &nfc->config2);
+	nfc_wait_ready();
+}
+
 static void nfc_nand_page_address(unsigned int page_address)
 {
 	unsigned int page_count;
 
-	writew(0x00, &nfc->flash_addr);
-	writew(NFC_ADDR, &nfc->config2);
-	nfc_wait_ready();
+	nfc_nand_address(0x00);
 
 	/* code only for large page flash */
-	if (CONFIG_SYS_NAND_PAGE_SIZE > 512) {
-		writew(0x00, &nfc->flash_addr);
-		writew(NFC_ADDR, &nfc->config2);
-		nfc_wait_ready();
-	}
+	if (CONFIG_SYS_NAND_PAGE_SIZE > 512)
+		nfc_nand_address(0x00);
 
 	page_count = CONFIG_SYS_NAND_SIZE / CONFIG_SYS_NAND_PAGE_SIZE;
 
 	if (page_address <= page_count) {
 		page_count--; /* transform 0x01000000 to 0x00ffffff */
 		do {
-			writew(page_address & 0xff, &nfc->flash_addr);
-			writew(NFC_ADDR, &nfc->config2);
-			nfc_wait_ready();
+			nfc_nand_address(page_address & 0xff);
 			page_address = page_address >> 8;
 			page_count = page_count >> 8;
 		} while (page_count);
 	}
 
-	writew(0x00, &nfc->flash_addr);
-	writew(NFC_ADDR, &nfc->config2);
-	nfc_wait_ready();
+	nfc_nand_address(0x00);
 }
 
 static void nfc_nand_data_output(void)
@@ -149,12 +147,8 @@ static int nfc_nand_check_ecc(void)
 	return readw(&nfc->ecc_status_result);
 }
 
-static int nfc_read_page(unsigned int page_address, unsigned char *buf)
+static void nfc_nand_read_page(unsigned int page_address)
 {
-	int i;
-	u32 *src;
-	u32 *dst;
-
 	writew(0, &nfc->buf_addr); /* read in first 0 buffer */
 	nfc_nand_command(NAND_CMD_READ0);
 	nfc_nand_page_address(page_address);
@@ -163,6 +157,15 @@ static int nfc_read_page(unsigned int page_address, unsigned char *buf)
 		nfc_nand_command(NAND_CMD_READSTART);
 
 	nfc_nand_data_output(); /* fill the main buffer 0 */
+}
+
+static int nfc_read_page(unsigned int page_address, unsigned char *buf)
+{
+	int i;
+	u32 *src;
+	u32 *dst;
+
+	nfc_nand_read_page(page_address);
 
 	if (nfc_nand_check_ecc())
 		return -1;
@@ -188,14 +191,7 @@ static int is_badblock(int pagenumber)
 
 	/* Check the first two pages for bad block markers */
 	for (page = pagenumber; page < pagenumber + 2; page++) {
-		writew(0, &nfc->buf_addr); /* read in first 0 buffer */
-		nfc_nand_command(NAND_CMD_READ0);
-		nfc_nand_page_address(page);
-
-		if (CONFIG_SYS_NAND_PAGE_SIZE > 512)
-			nfc_nand_command(NAND_CMD_READSTART);
-
-		nfc_nand_data_output(); /* fill the main buffer 0 */
+		nfc_nand_read_page(page);
 
 		src = (u32 *)&nfc->spare_area[0][0];
 
