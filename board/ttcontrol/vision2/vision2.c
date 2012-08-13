@@ -521,7 +521,7 @@ static void setup_fec(void)
 }
 
 struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{MMC_SDHC1_BASE_ADDR, 1},
+	{MMC_SDHC1_BASE_ADDR},
 };
 
 int get_mmc_getcd(u8 *cd, struct mmc *mmc)

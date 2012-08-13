@@ -479,9 +479,10 @@ static int esdhc_init(struct mmc *mmc)
 	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
 		udelay(1000);
 
+#ifndef ARCH_MXC
 	/* Enable cache snooping */
-	if (cfg && !cfg->no_snoop)
-		esdhc_write32(&regs->scr, 0x00000040);
+	esdhc_write32(&regs->scr, 0x00000040);
+#endif
 
 	esdhc_write32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 

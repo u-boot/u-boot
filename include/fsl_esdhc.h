@@ -167,7 +167,6 @@
 
 struct fsl_esdhc_cfg {
 	u32	esdhc_base;
-	u32	no_snoop;
 };
 
 /* Select the correct accessors depending on endianess */

@@ -268,8 +268,8 @@ static inline void power_init(void) { }
 #ifdef CONFIG_FSL_ESDHC
 
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
-	{MMC_SDHC1_BASE_ADDR, 1},
-	{MMC_SDHC2_BASE_ADDR, 1},
+	{MMC_SDHC1_BASE_ADDR},
+	{MMC_SDHC2_BASE_ADDR},
 };
 
 static iomux_v3_cfg_t efikamx_sdhc1_pads[] = {

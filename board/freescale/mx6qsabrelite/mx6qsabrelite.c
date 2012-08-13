@@ -239,8 +239,8 @@ int board_ehci_hcd_init(int port)
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg usdhc_cfg[2] = {
-       {USDHC3_BASE_ADDR, 1},
-       {USDHC4_BASE_ADDR, 1},
+       {USDHC3_BASE_ADDR},
+       {USDHC4_BASE_ADDR},
 };
 
 int board_mmc_getcd(struct mmc *mmc)

@@ -165,8 +165,8 @@ static void setup_iomux_fec(void)
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
-	{MMC_SDHC1_BASE_ADDR, 1},
-	{MMC_SDHC3_BASE_ADDR, 1},
+	{MMC_SDHC1_BASE_ADDR},
+	{MMC_SDHC3_BASE_ADDR},
 };
 
 int board_mmc_getcd(struct mmc *mmc)
