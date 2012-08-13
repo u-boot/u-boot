@@ -76,7 +76,6 @@ void preloader_console_init(void);
 #define	MMCSD_MODE_UNDEFINED	0
 #define MMCSD_MODE_RAW		1
 #define MMCSD_MODE_FAT		2
-#define NAND_MODE_HW_ECC	3
 
 struct spl_image_info {
 	const char *name;

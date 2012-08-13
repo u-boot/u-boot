@@ -35,16 +35,9 @@ void spl_nand_load_image(void)
 	int *src __attribute__((unused));
 	int *dst __attribute__((unused));
 
-	switch (spl_boot_mode()) {
-	case NAND_MODE_HW_ECC:
-		debug("spl: nand - using hw ecc\n");
-		gpmc_init();
-		nand_init();
-		break;
-	default:
-		puts("spl: ERROR: This bootmode is not implemented - hanging");
-		hang();
-	}
+	debug("spl: nand - using hw ecc\n");
+	gpmc_init();
+	nand_init();
 
 	/*use CONFIG_SYS_TEXT_BASE as temporary storage area */
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);

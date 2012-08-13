@@ -77,9 +77,6 @@ u32 spl_boot_mode(void)
 	case BOOT_DEVICE_MMC1:
 		return MMCSD_MODE_FAT;
 		break;
-	case BOOT_DEVICE_NAND:
-		return NAND_MODE_HW_ECC;
-		break;
 	default:
 		puts("spl: ERROR:  unknown device - can't select boot mode\n");
 		hang();
