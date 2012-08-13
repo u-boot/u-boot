@@ -19,6 +19,8 @@
 #ifndef __ASM_ARCH_MX6_IMX_REGS_H__
 #define __ASM_ARCH_MX6_IMX_REGS_H__
 
+#define ARCH_MXC
+
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 #define ROMCP_ARB_BASE_ADDR             0x00000000

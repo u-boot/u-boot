@@ -541,6 +541,8 @@ struct esdc_regs {
 
 #endif
 
+#define ARCH_MXC
+
 #define __REG(x)     (*((volatile u32 *)(x)))
 #define __REG16(x)   (*((volatile u16 *)(x)))
 #define __REG8(x)    (*((volatile u8 *)(x)))

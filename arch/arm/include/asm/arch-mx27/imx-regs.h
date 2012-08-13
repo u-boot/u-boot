@@ -196,6 +196,8 @@ struct fuse_bank0_regs {
 
 #endif
 
+#define ARCH_MXC
+
 #define IMX_IO_BASE		0x10000000
 
 #define IMX_AIPI1_BASE		(0x00000 + IMX_IO_BASE)

@@ -23,6 +23,8 @@
 #ifndef __ASM_ARCH_MX5_IMX_REGS_H__
 #define __ASM_ARCH_MX5_IMX_REGS_H__
 
+#define ARCH_MXC
+
 #if defined(CONFIG_MX51)
 #define IRAM_BASE_ADDR		0x1FFE0000	/* internal ram */
 #define IPU_SOC_BASE_ADDR	0x40000000

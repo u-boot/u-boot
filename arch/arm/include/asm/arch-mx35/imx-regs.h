@@ -25,6 +25,8 @@
 #ifndef __ASM_ARCH_MX35_H
 #define __ASM_ARCH_MX35_H
 
+#define ARCH_MXC
+
 /*
  * IRAM
  */
