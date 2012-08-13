@@ -1137,24 +1137,6 @@ void mxc_nand_command(struct mtd_info *mtd, unsigned command,
 	}
 }
 
-#ifdef MXC_NFC_V1_1
-static void mxc_setup_config1(void)
-{
-	uint16_t tmp;
-
-	tmp = readw(&host->regs->config1);
-	tmp |= NFC_ONE_CYCLE;
-	tmp |= NFC_4_8N_ECC;
-	writew(tmp, &host->regs->config1);
-	if (host->pagesize_2k)
-		writew(64/2, &host->regs->spare_area_size);
-	else
-		writew(16/2, &host->regs->spare_area_size);
-}
-#else
-#define mxc_setup_config1()
-#endif
-
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 
 static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
@@ -1244,6 +1226,29 @@ int board_nand_init(struct nand_chip *this)
 	/* Reset NAND */
 	this->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
 
+	/* NAND bus width determines access functions used by upper layer */
+	if (is_16bit_nand())
+		this->options |= NAND_BUSWIDTH_16;
+
+#ifdef CONFIG_SYS_NAND_LARGEPAGE
+	host->pagesize_2k = 1;
+	this->ecc.layout = &nand_hw_eccoob2k;
+#else
+	host->pagesize_2k = 0;
+	this->ecc.layout = &nand_hw_eccoob;
+#endif
+
+#ifdef MXC_NFC_V1_1
+	tmp = readw(&host->regs->config1);
+	tmp |= NFC_ONE_CYCLE;
+	tmp |= NFC_4_8N_ECC;
+	writew(tmp, &host->regs->config1);
+	if (host->pagesize_2k)
+		writew(64/2, &host->regs->spare_area_size);
+	else
+		writew(16/2, &host->regs->spare_area_size);
+#endif
+
 	/*
 	 * preset operation
 	 * Unlock the internal RAM Buffer
@@ -1268,17 +1273,5 @@ int board_nand_init(struct nand_chip *this)
 	/* Unlock Block Command for given address range */
 	writew(0x4, &host->regs->wrprot);
 
-	/* NAND bus width determines access functions used by upper layer */
-	if (is_16bit_nand())
-		this->options |= NAND_BUSWIDTH_16;
-
-#ifdef CONFIG_SYS_NAND_LARGEPAGE
-	host->pagesize_2k = 1;
-	this->ecc.layout = &nand_hw_eccoob2k;
-#else
-	host->pagesize_2k = 0;
-	this->ecc.layout = &nand_hw_eccoob;
-#endif
-	mxc_setup_config1();
 	return 0;
 }
