@@ -41,8 +41,8 @@ DECLARE_GLOBAL_DATA_PTR;
 /* 1 second delay should be plenty of time for block reset. */
 #define	RESET_MAX_TIMEOUT	1000000
 
-#define	MX28_BLOCK_SFTRST	(1 << 31)
-#define	MX28_BLOCK_CLKGATE	(1 << 30)
+#define	MXS_BLOCK_SFTRST	(1 << 31)
+#define	MXS_BLOCK_CLKGATE	(1 << 30)
 
 /* Lowlevel init isn't used on i.MX28, so just have a dummy here */
 inline void lowlevel_init(void) {}
@@ -81,7 +81,7 @@ void enable_caches(void)
 #endif
 }
 
-int mx28_wait_mask_set(struct mxs_register_32 *reg, uint32_t mask, int timeout)
+int mxs_wait_mask_set(struct mxs_register_32 *reg, uint32_t mask, int timeout)
 {
 	while (--timeout) {
 		if ((readl(&reg->reg) & mask) == mask)
@@ -92,7 +92,7 @@ int mx28_wait_mask_set(struct mxs_register_32 *reg, uint32_t mask, int timeout)
 	return !timeout;
 }
 
-int mx28_wait_mask_clr(struct mxs_register_32 *reg, uint32_t mask, int timeout)
+int mxs_wait_mask_clr(struct mxs_register_32 *reg, uint32_t mask, int timeout)
 {
 	while (--timeout) {
 		if ((readl(&reg->reg) & mask) == 0)
@@ -103,34 +103,34 @@ int mx28_wait_mask_clr(struct mxs_register_32 *reg, uint32_t mask, int timeout)
 	return !timeout;
 }
 
-int mx28_reset_block(struct mxs_register_32 *reg)
+int mxs_reset_block(struct mxs_register_32 *reg)
 {
 	/* Clear SFTRST */
-	writel(MX28_BLOCK_SFTRST, &reg->reg_clr);
+	writel(MXS_BLOCK_SFTRST, &reg->reg_clr);
 
-	if (mx28_wait_mask_clr(reg, MX28_BLOCK_SFTRST, RESET_MAX_TIMEOUT))
+	if (mxs_wait_mask_clr(reg, MXS_BLOCK_SFTRST, RESET_MAX_TIMEOUT))
 		return 1;
 
 	/* Clear CLKGATE */
-	writel(MX28_BLOCK_CLKGATE, &reg->reg_clr);
+	writel(MXS_BLOCK_CLKGATE, &reg->reg_clr);
 
 	/* Set SFTRST */
-	writel(MX28_BLOCK_SFTRST, &reg->reg_set);
+	writel(MXS_BLOCK_SFTRST, &reg->reg_set);
 
 	/* Wait for CLKGATE being set */
-	if (mx28_wait_mask_set(reg, MX28_BLOCK_CLKGATE, RESET_MAX_TIMEOUT))
+	if (mxs_wait_mask_set(reg, MXS_BLOCK_CLKGATE, RESET_MAX_TIMEOUT))
 		return 1;
 
 	/* Clear SFTRST */
-	writel(MX28_BLOCK_SFTRST, &reg->reg_clr);
+	writel(MXS_BLOCK_SFTRST, &reg->reg_clr);
 
-	if (mx28_wait_mask_clr(reg, MX28_BLOCK_SFTRST, RESET_MAX_TIMEOUT))
+	if (mxs_wait_mask_clr(reg, MXS_BLOCK_SFTRST, RESET_MAX_TIMEOUT))
 		return 1;
 
 	/* Clear CLKGATE */
-	writel(MX28_BLOCK_CLKGATE, &reg->reg_clr);
+	writel(MXS_BLOCK_CLKGATE, &reg->reg_clr);
 
-	if (mx28_wait_mask_clr(reg, MX28_BLOCK_CLKGATE, RESET_MAX_TIMEOUT))
+	if (mxs_wait_mask_clr(reg, MXS_BLOCK_CLKGATE, RESET_MAX_TIMEOUT))
 		return 1;
 
 	return 0;
@@ -229,7 +229,7 @@ int print_cpuinfo(void)
 		get_cpu_type(),
 		get_cpu_rev(),
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
-	printf("BOOT:  %s\n", mx28_boot_modes[data->boot_mode_idx].mode);
+	printf("BOOT:  %s\n", mxs_boot_modes[data->boot_mode_idx].mode);
 	return 0;
 }
 #endif
@@ -299,7 +299,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 
 	writel(OCOTP_CTRL_RD_BANK_OPEN, &ocotp_regs->hw_ocotp_ctrl_set);
 
-	if (mx28_wait_mask_clr(&ocotp_regs->hw_ocotp_ctrl_reg, OCOTP_CTRL_BUSY,
+	if (mxs_wait_mask_clr(&ocotp_regs->hw_ocotp_ctrl_reg, OCOTP_CTRL_BUSY,
 				MXS_OCOTP_MAX_TIMEOUT)) {
 		printf("MXS FEC: Can't get MAC from OCOTP\n");
 		return;

@@ -130,7 +130,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 	writel(OCOTP_CTRL_RD_BANK_OPEN, &ocotp_regs->hw_ocotp_ctrl_set);
 
-	if (mx28_wait_mask_clr(&ocotp_regs->hw_ocotp_ctrl_reg, OCOTP_CTRL_BUSY,
+	if (mxs_wait_mask_clr(&ocotp_regs->hw_ocotp_ctrl_reg, OCOTP_CTRL_BUSY,
 		MXS_OCOTP_MAX_TIMEOUT)) {
 		printf("MXS: Can't get serial number from OCOTP\n");
 		return;

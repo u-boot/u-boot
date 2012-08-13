@@ -66,7 +66,7 @@ int timer_init(void)
 		(struct mxs_timrot_regs *)MXS_TIMROT_BASE;
 
 	/* Reset Timers and Rotary Encoder module */
-	mx28_reset_block(&timrot_regs->hw_timrot_rotctrl_reg);
+	mxs_reset_block(&timrot_regs->hw_timrot_rotctrl_reg);
 
 	/* Set fixed_count to 0 */
 	writel(0, &timrot_regs->hw_timrot_fixed_count0);

@@ -82,9 +82,9 @@ uint8_t mxs_get_bootmode_index(void)
 	bootmode |= (gpio_get_value(MX28_PAD_LCD_D04__GPIO_1_4) ? 1 : 0) << 4;
 	bootmode |= (gpio_get_value(MX28_PAD_LCD_D05__GPIO_1_5) ? 1 : 0) << 5;
 
-	for (i = 0; i < ARRAY_SIZE(mx28_boot_modes); i++) {
-		masked = bootmode & mx28_boot_modes[i].boot_mask;
-		if (masked == mx28_boot_modes[i].boot_pads)
+	for (i = 0; i < ARRAY_SIZE(mxs_boot_modes); i++) {
+		masked = bootmode & mxs_boot_modes[i].boot_mask;
+		if (masked == mxs_boot_modes[i].boot_pads)
 			break;
 	}
 

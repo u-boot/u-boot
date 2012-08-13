@@ -512,7 +512,7 @@ static int mxs_dma_wait_complete(uint32_t timeout, unsigned int chan)
 	if (ret)
 		return ret;
 
-	if (mx28_wait_mask_set(&apbh_regs->hw_apbh_ctrl1_reg,
+	if (mxs_wait_mask_set(&apbh_regs->hw_apbh_ctrl1_reg,
 				1 << chan, timeout)) {
 		ret = -ETIMEDOUT;
 		mxs_dma_reset(chan);
@@ -557,7 +557,7 @@ void mxs_dma_init(void)
 	struct mxs_apbh_regs *apbh_regs =
 		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 
-	mx28_reset_block(&apbh_regs->hw_apbh_ctrl0_reg);
+	mxs_reset_block(&apbh_regs->hw_apbh_ctrl0_reg);
 
 #ifdef CONFIG_APBH_DMA_BURST8
 	writel(APBH_CTRL0_AHB_BURST8_EN,

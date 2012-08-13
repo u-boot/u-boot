@@ -41,7 +41,7 @@ int mxs_rtc_set_time(uint32_t secs)
 	 * is taken from the linux kernel driver for the STMP37xx RTC since
 	 * documentation doesn't mention it.
 	 */
-	ret = mx28_wait_mask_clr(&rtc_regs->hw_rtc_stat_reg,
+	ret = mxs_wait_mask_clr(&rtc_regs->hw_rtc_stat_reg,
 		0x80 << RTC_STAT_STALE_REGS_OFFSET, MXS_RTC_MAX_TIMEOUT);
 
 	if (ret)
@@ -80,7 +80,7 @@ void rtc_reset(void)
 	mxs_rtc_set_time(0);
 
 	/* Reset the RTC block */
-	ret = mx28_reset_block(&rtc_regs->hw_rtc_ctrl_reg);
+	ret = mxs_reset_block(&rtc_regs->hw_rtc_ctrl_reg);
 	if (ret)
 		printf("MXS RTC: Block reset timeout\n");
 }

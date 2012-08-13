@@ -1,5 +1,5 @@
 /*
- * Freescale i.MX28 MX28 specific functions
+ * Freescale i.MX233/i.MX28 specific functions
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
@@ -20,14 +20,14 @@
  *
  */
 
-#ifndef __MX28_H__
-#define __MX28_H__
+#ifndef __SYS_PROTO_H__
+#define __SYS_PROTO_H__
 
-int mx28_reset_block(struct mxs_register_32 *reg);
-int mx28_wait_mask_set(struct mxs_register_32 *reg,
+int mxs_reset_block(struct mxs_register_32 *reg);
+int mxs_wait_mask_set(struct mxs_register_32 *reg,
 		       uint32_t mask,
 		       int timeout);
-int mx28_wait_mask_clr(struct mxs_register_32 *reg,
+int mxs_wait_mask_clr(struct mxs_register_32 *reg,
 		       uint32_t mask,
 		       int timeout);
 
@@ -39,13 +39,13 @@ void mxs_common_spl_init(const iomux_cfg_t *iomux_setup,
 			const unsigned int iomux_size);
 #endif
 
-struct mx28_pair {
+struct mxs_pair {
 	uint8_t	boot_pads;
 	uint8_t boot_mask;
 	const char *mode;
 };
 
-static const struct mx28_pair mx28_boot_modes[] = {
+static const struct mxs_pair mxs_boot_modes[] = {
 	{ 0x00, 0x0f, "USB #0" },
 	{ 0x01, 0x1f, "I2C #0, master, 3V3" },
 	{ 0x11, 0x1f, "I2C #0, master, 1V8" },
@@ -69,6 +69,6 @@ struct mxs_spl_data {
 	uint32_t	mem_dram_size;
 };
 
-int mx28_dram_init(void);
+int mxs_dram_init(void);
 
-#endif	/* __MX28_H__ */
+#endif	/* __SYS_PROTO_H__ */

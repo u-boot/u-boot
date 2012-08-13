@@ -139,7 +139,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	struct mxs_ssp_regs *ssp_regs = mxs_slave->regs;
 	uint32_t reg = 0;
 
-	mx28_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
+	mxs_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
 
 	writel(SSP_CTRL0_BUS_WIDTH_ONE_BIT, &ssp_regs->hw_ssp_ctrl0);
 
@@ -193,7 +193,7 @@ static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 
 		writel(SSP_CTRL0_RUN, &ssp_regs->hw_ssp_ctrl0_set);
 
-		if (mx28_wait_mask_set(&ssp_regs->hw_ssp_ctrl0_reg,
+		if (mxs_wait_mask_set(&ssp_regs->hw_ssp_ctrl0_reg,
 			SSP_CTRL0_RUN, MXS_SPI_MAX_TIMEOUT)) {
 			printf("MXS SPI: Timeout waiting for start\n");
 			return -ETIMEDOUT;
@@ -205,7 +205,7 @@ static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 		writel(SSP_CTRL0_DATA_XFER, &ssp_regs->hw_ssp_ctrl0_set);
 
 		if (!write) {
-			if (mx28_wait_mask_clr(&ssp_regs->hw_ssp_status_reg,
+			if (mxs_wait_mask_clr(&ssp_regs->hw_ssp_status_reg,
 				SSP_STATUS_FIFO_EMPTY, MXS_SPI_MAX_TIMEOUT)) {
 				printf("MXS SPI: Timeout waiting for data\n");
 				return -ETIMEDOUT;
@@ -215,7 +215,7 @@ static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 			data++;
 		}
 
-		if (mx28_wait_mask_clr(&ssp_regs->hw_ssp_ctrl0_reg,
+		if (mxs_wait_mask_clr(&ssp_regs->hw_ssp_ctrl0_reg,
 			SSP_CTRL0_RUN, MXS_SPI_MAX_TIMEOUT)) {
 			printf("MXS SPI: Timeout waiting for finish\n");
 			return -ETIMEDOUT;

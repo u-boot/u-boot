@@ -41,7 +41,7 @@ void mxs_i2c_reset(void)
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	int ret;
 
-	ret = mx28_reset_block(&i2c_regs->hw_i2c_ctrl0_reg);
+	ret = mxs_reset_block(&i2c_regs->hw_i2c_ctrl0_reg);
 	if (ret) {
 		debug("MXS I2C: Block reset timeout\n");
 		return;

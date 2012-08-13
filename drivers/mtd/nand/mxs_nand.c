@@ -237,7 +237,7 @@ static int mxs_nand_wait_for_bch_complete(void)
 	int timeout = MXS_NAND_BCH_TIMEOUT;
 	int ret;
 
-	ret = mx28_wait_mask_set(&bch_regs->hw_bch_ctrl_reg,
+	ret = mxs_wait_mask_set(&bch_regs->hw_bch_ctrl_reg,
 		BCH_CTRL_COMPLETE_IRQ, timeout);
 
 	writel(BCH_CTRL_COMPLETE_IRQ, &bch_regs->hw_bch_ctrl_clr);
@@ -972,7 +972,7 @@ static int mxs_nand_scan_bbt(struct mtd_info *mtd)
 	uint32_t tmp;
 
 	/* Configure BCH and set NFC geometry */
-	mx28_reset_block(&bch_regs->hw_bch_ctrl_reg);
+	mxs_reset_block(&bch_regs->hw_bch_ctrl_reg);
 
 	/* Configure layout 0 */
 	tmp = (mxs_nand_ecc_chunk_cnt(mtd->writesize) - 1)
@@ -1080,7 +1080,7 @@ int mxs_nand_init(struct mxs_nand_info *info)
 	}
 
 	/* Reset the GPMI block. */
-	mx28_reset_block(&gpmi_regs->hw_gpmi_ctrl0_reg);
+	mxs_reset_block(&gpmi_regs->hw_gpmi_ctrl0_reg);
 
 	/*
 	 * Choose NAND mode, set IRQ polarity, disable write protection and

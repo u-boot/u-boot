@@ -336,7 +336,7 @@ static int mxsmmc_init(struct mmc *mmc)
 	struct mxs_ssp_regs *ssp_regs = priv->regs;
 
 	/* Reset SSP */
-	mx28_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
+	mxs_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
 
 	/* 8 bits word length in MMC mode */
 	clrsetbits_le32(&ssp_regs->hw_ssp_ctrl1,
