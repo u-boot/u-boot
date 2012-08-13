@@ -33,13 +33,13 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
 #include <asm/cache.h>
 #include <asm/armv7.h>
 #include <asm/arch/gpio.h>
-#include <asm/spl.h>
 #include <asm/omap_common.h>
 #include <asm/arch/mmc_host_def.h>
 #include <i2c.h>

@@ -43,15 +43,8 @@ SOBJS	+= lowlevel_init.o
 endif
 
 ifdef CONFIG_SPL_BUILD
-COBJS	+= spl.o
 ifdef CONFIG_SPL_NAND_SUPPORT
 COBJS	+= spl_nand.o
-endif
-ifdef CONFIG_SPL_MMC_SUPPORT
-COBJS	+= spl_mmc.o
-endif
-ifdef CONFIG_SPL_YMODEM_SUPPORT
-COBJS	+= spl_ymodem.o
 endif
 endif
 

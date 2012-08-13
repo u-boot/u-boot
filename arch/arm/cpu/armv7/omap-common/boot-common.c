@@ -17,7 +17,7 @@
  */
 
 #include <common.h>
-#include <asm/spl.h>
+#include <spl.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/mmc_host_def.h>

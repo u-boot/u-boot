@@ -28,10 +28,10 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <spl.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/emif.h>
-#include <asm/spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

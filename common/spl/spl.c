@@ -23,9 +23,8 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include <asm/spl.h>
+#include <spl.h>
 #include <asm/u-boot.h>
-#include <asm/utils.h>
 #include <nand.h>
 #include <fat.h>
 #include <version.h>
@@ -36,7 +35,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u32* boot_params_ptr = NULL;
+u32 *boot_params_ptr = NULL;
 struct spl_image_info spl_image;
 
 /* Define global data structure pointer to it*/
