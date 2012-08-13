@@ -140,9 +140,21 @@ static void nfc_nand_data_output(void)
 static int nfc_nand_check_ecc(void)
 {
 #if defined(MXC_NFC_V1)
-	return readw(&nfc->ecc_status_result);
+	u16 ecc_status = readw(&nfc->ecc_status_result);
+	return (ecc_status & 0x3) == 2 || (ecc_status >> 2) == 2;
 #elif defined(MXC_NFC_V1_1)
-	return readl(&nfc->ecc_status_result);
+	u32 ecc_status = readl(&nfc->ecc_status_result);
+	int ecc_per_page = CONFIG_SYS_NAND_PAGE_SIZE / 512;
+	int err_limit = CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page > 16 ? 8 : 4;
+	int subpages = CONFIG_SYS_NAND_PAGE_SIZE / 512;
+
+	do {
+		if ((ecc_status & 0xf) > err_limit)
+			return 1;
+		ecc_status >>= 4;
+	} while (--subpages);
+
+	return 0;
 #endif
 }
 
