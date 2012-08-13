@@ -355,16 +355,6 @@ static int mxc_nand_dev_ready(struct mtd_info *mtd)
 	return 1;
 }
 
-#ifdef CONFIG_MXC_NAND_HWECC
-static void mxc_nand_enable_hwecc(struct mtd_info *mtd, int mode)
-{
-	/*
-	 * If HW ECC is enabled, we turn it on during init. There is
-	 * no need to enable again here.
-	 */
-}
-
-#ifdef MXC_NFC_V1_1
 static void _mxc_nand_enable_hwecc(struct mtd_info *mtd, int on)
 {
 	struct nand_chip *nand_chip = mtd->priv;
@@ -378,6 +368,16 @@ static void _mxc_nand_enable_hwecc(struct mtd_info *mtd, int on)
 	writew(tmp, &host->regs->config1);
 }
 
+#ifdef CONFIG_MXC_NAND_HWECC
+static void mxc_nand_enable_hwecc(struct mtd_info *mtd, int mode)
+{
+	/*
+	 * If HW ECC is enabled, we turn it on during init. There is
+	 * no need to enable again here.
+	 */
+}
+
+#ifdef MXC_NFC_V1_1
 static int mxc_nand_read_oob_syndrome(struct mtd_info *mtd,
 				      struct nand_chip *chip,
 				      int page, int sndcmd)
@@ -1235,15 +1235,11 @@ int board_nand_init(struct nand_chip *this)
 	host->pagesize_2k = 0;
 
 	this->ecc.size = 512;
-	tmp = readw(&host->regs->config1);
-	tmp |= NFC_ECC_EN;
-	writew(tmp, &host->regs->config1);
+	_mxc_nand_enable_hwecc(mtd, 1);
 #else
 	this->ecc.layout = &nand_soft_eccoob;
 	this->ecc.mode = NAND_ECC_SOFT;
-	tmp = readw(&host->regs->config1);
-	tmp &= ~NFC_ECC_EN;
-	writew(tmp, &host->regs->config1);
+	_mxc_nand_enable_hwecc(mtd, 0);
 #endif
 	/* Reset NAND */
 	this->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
