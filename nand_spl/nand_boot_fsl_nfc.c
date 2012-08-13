@@ -139,7 +139,11 @@ static void nfc_nand_data_output(void)
 
 static int nfc_nand_check_ecc(void)
 {
+#if defined(MXC_NFC_V1)
 	return readw(&nfc->ecc_status_result);
+#elif defined(MXC_NFC_V1_1)
+	return readl(&nfc->ecc_status_result);
+#endif
 }
 
 static void nfc_nand_read_page(unsigned int page_address)

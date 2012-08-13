@@ -653,7 +653,7 @@ static int mxc_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 {
 	struct nand_chip *nand_chip = mtd->priv;
 	struct mxc_nand_host *host = nand_chip->priv;
-	uint16_t ecc_status = readw(&host->regs->ecc_status_result);
+	uint32_t ecc_status = readl(&host->regs->ecc_status_result);
 	int subpages = mtd->writesize / nand_chip->subpagesize;
 	int pg2blk_shift = nand_chip->phys_erase_shift -
 			   nand_chip->page_shift;

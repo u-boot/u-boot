@@ -94,8 +94,7 @@ struct fsl_nfc_regs {
 	u16 flash_addr;
 	u16 flash_cmd;
 	u16 config;
-	u16 ecc_status_result;
-	u16 ecc_status_result2;
+	u32 ecc_status_result;
 	u16 spare_area_size;
 	u16 wrprot;
 	u16 reserved3[2];
