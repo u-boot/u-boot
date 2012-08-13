@@ -292,10 +292,10 @@ local_bus_init(void)
 	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	if (lbc_hz < 66) {
-		lbc->lcrr = CONFIG_SYS_LBC_LCRR | 0x80000000;	/* DLL Bypass */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR | LCRR_DBYP;	/* DLL Bypass */
 
 	} else if (lbc_hz >= 133) {
-		lbc->lcrr = CONFIG_SYS_LBC_LCRR & (~0x80000000); /* DLL Enabled */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR & (~LCRR_DBYP); /* DLL Enabled */
 
 	} else {
 		/*
@@ -310,7 +310,7 @@ local_bus_init(void)
 			lbc->lcrr = 0x10000004;
 		}
 
-		lbc->lcrr = CONFIG_SYS_LBC_LCRR & (~0x80000000);/* DLL Enabled */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR & (~LCRR_DBYP);/* DLL Enabled */
 		udelay(200);
 
 		/*
