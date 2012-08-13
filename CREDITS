@@ -428,6 +428,11 @@ E: art@videon-central.com
 D: Support for NetSilicon NS7520
 D: Support for ColdFire MCF5275
 
+N: Jeremy C. Andrus
+E: jeremy@jeremya.com
+D: ColdFire MCF5249 initialization code
+W: jeremya.com
+
 N: Michal Simek
 E: monstr@monstr.eu
 D: Support for Microblaze, ML401, XUPV2P board
