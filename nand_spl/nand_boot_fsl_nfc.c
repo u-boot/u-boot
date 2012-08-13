@@ -45,10 +45,10 @@ static void nfc_wait_ready(void)
 	writew(tmp, &nfc->config2);
 }
 
-void nfc_nand_init(void)
+static void nfc_nand_init(void)
 {
 #if defined(MXC_NFC_V1_1)
-	int ecc_per_page  = CONFIG_SYS_NAND_PAGE_SIZE / 512;
+	int ecc_per_page = CONFIG_SYS_NAND_PAGE_SIZE / 512;
 	int config1;
 
 	writew(CONFIG_SYS_NAND_SPARE_SIZE / 2, &nfc->spare_area_size);
@@ -57,12 +57,12 @@ void nfc_nand_init(void)
 	writew(0x2, &nfc->config);
 
 	/* hardware ECC checking and correct */
-	config1 = readw(&nfc->config1) | NFC_ECC_EN | 0x800;
+	config1 = readw(&nfc->config1) | NFC_ECC_EN | NFC_FP_INT;
 	/*
 	 * if spare size is larger that 16 bytes per 512 byte hunk
 	 * then use 8 symbol correction instead of 4
 	 */
-	if ((CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page) > 16)
+	if (CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page > 16)
 		config1 &= ~NFC_4_8N_ECC;
 	else
 		config1 |= NFC_4_8N_ECC;
@@ -133,7 +133,7 @@ static void nfc_nand_data_output(void)
 	 * This NAND controller requires multiple input commands
 	 * for pages larger than 512 bytes.
 	 */
-	for (i = 1; i < (CONFIG_SYS_NAND_PAGE_SIZE / 512); i++) {
+	for (i = 1; i < CONFIG_SYS_NAND_PAGE_SIZE / 512; i++) {
 		config1 = readw(&nfc->config1);
 		config1 |= NFC_ECC_EN | NFC_INT_MSK;
 		writew(config1, &nfc->config1);
@@ -171,7 +171,7 @@ static int nfc_read_page(unsigned int page_address, unsigned char *buf)
 	dst = (u32 *)buf;
 
 	/* main copy loop from NAND-buffer to SDRAM memory */
-	for (i = 0; i < (CONFIG_SYS_NAND_PAGE_SIZE / 4); i++) {
+	for (i = 0; i < CONFIG_SYS_NAND_PAGE_SIZE / 4; i++) {
 		writel(readl(src), dst);
 		src++;
 		dst++;
@@ -230,7 +230,7 @@ static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
 	page = from / CONFIG_SYS_NAND_PAGE_SIZE;
 	i = 0;
 
-	while (i < (size / CONFIG_SYS_NAND_PAGE_SIZE)) {
+	while (i < size / CONFIG_SYS_NAND_PAGE_SIZE) {
 		if (nfc_read_page(page, buf) < 0)
 			return -1;
 

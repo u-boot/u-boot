@@ -166,5 +166,6 @@ struct fsl_nfc_regs {
 #define NFC_RST		(1 << 6)
 #define NFC_CE		(1 << 7)
 #define NFC_ONE_CYCLE	(1 << 8)
+#define NFC_FP_INT	(1 << 11)
 
 #endif /* __FSL_NFC_H */

@@ -123,8 +123,7 @@ static int is_16bit_nand(void)
 #elif defined(CONFIG_MX25) || defined(CONFIG_MX35)
 static int is_16bit_nand(void)
 {
-	struct ccm_regs *ccm =
-		(struct ccm_regs *)IMX_CCM_BASE;
+	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 
 	if (readl(&ccm->rcsr) & CCM_RCSR_NF_16BIT_SEL)
 		return 1;
@@ -238,7 +237,7 @@ static void send_prog_page(struct mxc_nand_host *host, uint8_t buf_id,
 		if (spare_only)
 			config1 |= NFC_SP_EN;
 		else
-			config1 &= ~(NFC_SP_EN);
+			config1 &= ~NFC_SP_EN;
 		writew(config1, &host->regs->config1);
 	}
 
@@ -687,7 +686,6 @@ static int mxc_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 #define mxc_nand_write_page_syndrome NULL
 #define mxc_nand_write_page_raw_syndrome NULL
 #define mxc_nand_write_oob_syndrome NULL
-#define mxc_nfc_11_nand_correct_data NULL
 
 static int mxc_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 				 u_char *read_ecc, u_char *calc_ecc)
@@ -1188,7 +1186,6 @@ int board_nand_init(struct nand_chip *this)
 {
 	struct mtd_info *mtd;
 	uint16_t tmp;
-	int err = 0;
 
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 	this->options |= NAND_USE_FLASH_BBT;
@@ -1287,5 +1284,5 @@ int board_nand_init(struct nand_chip *this)
 	this->ecc.layout = &nand_hw_eccoob;
 #endif
 	mxc_setup_config1();
-	return err;
+	return 0;
 }
