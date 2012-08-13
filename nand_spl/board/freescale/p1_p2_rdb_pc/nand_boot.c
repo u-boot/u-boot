@@ -25,11 +25,9 @@
 #include <nand.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/global_data.h>
 
-#define udelay(x) {int i, j; \
-			for (i = 0; i < x; i++) \
-				for (j = 0; j < 10000; j++) \
-					; }
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
@@ -76,7 +74,7 @@ void sdram_init(void)
 
 void board_init_f(ulong bootflag)
 {
-	u32 plat_ratio, bus_clk;
+	u32 plat_ratio;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 #ifndef CONFIG_QE
 	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
@@ -85,10 +83,10 @@ void board_init_f(ulong bootflag)
 	/* initialize selected port with appropriate baud rate */
 	plat_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_PLAT_RATIO;
 	plat_ratio >>= 1;
-	bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
+	gd->bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
 
 	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM1,
-			bus_clk / 16 / CONFIG_BAUDRATE);
+			gd->bus_clk / 16 / CONFIG_BAUDRATE);
 
 	puts("\nNAND boot... ");
 

@@ -27,8 +27,9 @@
 #include <asm/immap_85xx.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_law.h>
+#include <asm/global_data.h>
 
-#define udelay(x) { int j; for (j = 0; j < x * 10000; j++) isync(); }
+DECLARE_GLOBAL_DATA_PTR;
 
 unsigned long ddr_freq_mhz;
 
@@ -82,8 +83,7 @@ void sdram_init(void)
 		__raw_writel((CONFIG_SYS_DDR_CS0_BNDS >> 1) & 0x0fff0fff, &ddr->cs0_bnds);
 	}
 
-	/* mimic 500us delay, with busy isync() loop */
-	udelay(100);
+	udelay(500);
 
 	/* Let the controller go */
 	out_be32(&ddr->sdram_cfg, in_be32(&ddr->sdram_cfg) | SDRAM_CFG_MEM_EN);
@@ -94,20 +94,19 @@ void sdram_init(void)
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio, ddr_ratio;
-	unsigned long bus_clk;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 
 	/* initialize selected port with appropriate baud rate */
 	plat_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_PLAT_RATIO;
 	plat_ratio >>= 1;
-	bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
+	gd->bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
 
 	ddr_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO;
 	ddr_ratio = ddr_ratio >> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 	ddr_freq_mhz = (CONFIG_SYS_CLK_FREQ * ddr_ratio) / 0x1000000;
 
 	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM1,
-			bus_clk / 16 / CONFIG_BAUDRATE);
+			gd->bus_clk / 16 / CONFIG_BAUDRATE);
 
 	puts("\nNAND boot... ");
 

@@ -39,7 +39,8 @@ CFLAGS	+= -DCONFIG_NAND_SPL
 
 SOBJS	= start.o resetvec.o
 COBJS	= cache.o cpu_init_early.o cpu_init_nand.o fsl_law.o law.o \
-	  nand_boot.o nand_boot_fsl_elbc.o ns16550.o tlb.o tlb_table.o
+	  nand_boot.o nand_boot_fsl_elbc.o ns16550.o tlb.o tlb_table.o \
+	  ../common.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -119,6 +120,9 @@ ifneq ($(OBJTREE), $(SRCTREE))
 $(obj)nand_boot.c:
 	@rm -f $(obj)nand_boot.c
 	ln -s $(SRCTREE)/nand_spl/board/$(BOARDDIR)/nand_boot.c $(obj)nand_boot.c
+$(obj)../common.c:
+	@rm -f $(obj)../common.c
+	ln -s $(SRCTREE)/nand_spl/board/freescale/common.c $(obj)../common.c
 endif
 
 #########################################################################
