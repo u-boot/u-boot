@@ -57,7 +57,7 @@ static void nfc_nand_init(void)
 	writew(0x2, &nfc->config);
 
 	/* hardware ECC checking and correct */
-	config1 = readw(&nfc->config1) | NFC_ECC_EN | NFC_FP_INT;
+	config1 = readw(&nfc->config1) | NFC_ECC_EN | NFC_INT_MSK | NFC_FP_INT;
 	/*
 	 * if spare size is larger that 16 bytes per 512 byte hunk
 	 * then use 8 symbol correction instead of 4
@@ -72,7 +72,7 @@ static void nfc_nand_init(void)
 	writew(0x2, &nfc->config);
 
 	/* hardware ECC checking and correct */
-	writew(NFC_ECC_EN, &nfc->config1);
+	writew(NFC_ECC_EN | NFC_INT_MSK, &nfc->config1);
 #endif
 }
 
@@ -116,13 +116,10 @@ static void nfc_nand_page_address(unsigned int page_address)
 
 static void nfc_nand_data_output(void)
 {
-	int config1 = readw(&nfc->config1);
 #ifdef NAND_MXC_2K_MULTI_CYCLE
 	int i;
 #endif
 
-	config1 |= NFC_ECC_EN | NFC_INT_MSK;
-	writew(config1, &nfc->config1);
 	writew(0, &nfc->buf_addr);
 	writew(NFC_OUTPUT, &nfc->config2);
 	nfc_wait_ready();
@@ -132,9 +129,6 @@ static void nfc_nand_data_output(void)
 	 * for pages larger than 512 bytes.
 	 */
 	for (i = 1; i < CONFIG_SYS_NAND_PAGE_SIZE / 512; i++) {
-		config1 = readw(&nfc->config1);
-		config1 |= NFC_ECC_EN | NFC_INT_MSK;
-		writew(config1, &nfc->config1);
 		writew(i, &nfc->buf_addr);
 		writew(NFC_OUTPUT, &nfc->config2);
 		nfc_wait_ready();
