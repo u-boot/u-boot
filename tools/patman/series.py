@@ -173,12 +173,13 @@ class Series(dict):
         col = terminal.Color()
         if self.get('version'):
             changes_copy = dict(self.changes)
-            for version in range(2, int(self.version) + 1):
+            for version in range(1, int(self.version) + 1):
                 if self.changes.get(version):
                     del changes_copy[version]
                 else:
-                    str = 'Change log missing for v%d' % version
-                    print col.Color(col.RED, str)
+                    if version > 1:
+                        str = 'Change log missing for v%d' % version
+                        print col.Color(col.RED, str)
             for version in changes_copy:
                 str = 'Change log for unknown version v%d' % version
                 print col.Color(col.RED, str)
