@@ -25,6 +25,10 @@
 #include <asm/io.h>
 #include <nand.h>
 #include <asm/fsl_law.h>
+#include <asm/fsl_ddr_sdram.h>
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Fixed sdram init -- doesn't use serial presence detect. */
 void sdram_init(void)
@@ -53,20 +57,27 @@ void sdram_init(void)
 	out_be32(&ddr->ddr_wrlvl_cntl, CONFIG_SYS_DDR_WRLVL_CNTL);
 	out_be32(&ddr->ddr_cdr1, CONFIG_SYS_DDR_CDR_1);
 	out_be32(&ddr->ddr_cdr2, CONFIG_SYS_DDR_CDR_2);
-	out_be32(&ddr->sdram_cfg, CONFIG_SYS_DDR_CONTROL);
+	/* Set, but do not enable the memory */
+	out_be32(&ddr->sdram_cfg, CONFIG_SYS_DDR_CONTROL & ~SDRAM_CFG_MEM_EN);
+
+	asm volatile("sync;isync");
+	udelay(500);
+
+	/* Let the controller go */
+	out_be32(&ddr->sdram_cfg, in_be32(&ddr->sdram_cfg) | SDRAM_CFG_MEM_EN);
 }
 
 void board_init_f(ulong bootflag)
 {
-	u32 plat_ratio, bus_clk;
+	u32 plat_ratio;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 
 	/* initialize selected port with appropriate baud rate */
 	plat_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_PLAT_RATIO;
 	plat_ratio >>= 1;
-	bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
+	gd->bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
 	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM1,
-			bus_clk / 16 / CONFIG_BAUDRATE);
+			gd->bus_clk / 16 / CONFIG_BAUDRATE);
 
 	puts("\nNAND boot... ");
 	/* Initialize the DDR3 */
