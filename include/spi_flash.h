@@ -38,6 +38,8 @@ struct spi_flash {
 	u32		page_size;
 	/* Erase (sector) size */
 	u32		sector_size;
+	/* To find whether single/dual spi device */
+	u8		addr_width;
 
 	int		(*read)(struct spi_flash *flash, u32 offset,
 				size_t len, void *buf);
