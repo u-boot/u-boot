@@ -57,6 +57,10 @@
 #define CONFIG_CMD_SF
 #define CONFIG_SOFT_I2C		/* I2C bit-banged	*/
 
+/* SPI NOR Flash default params, used by sf commands */
+#define CONFIG_SF_DEFAULT_SPEED		8100000
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
+
 #if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		0
