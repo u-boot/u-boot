@@ -60,9 +60,10 @@
 
 /* Spl */
 #define CONFIG_SPL
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_SIMPLE
-#define CONFIG_SPL_NAND_LOAD
 #define CONFIG_SPL_LIBGENERIC_SUPPORT	/* for udelay and __div64_32 for NAND */
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"board/$(BOARDDIR)/u-boot-spl-hawk.lds"

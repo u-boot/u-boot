@@ -457,7 +457,7 @@ $(obj)u-boot.ubl:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		rm $(obj)u-boot-ubl.bin
 		rm $(obj)spl/u-boot-spl-pad.bin
 
-$(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
+$(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		$(obj)tools/mkimage -s -n $(if $(CONFIG_AIS_CONFIG_FILE),$(CONFIG_AIS_CONFIG_FILE),"/dev/null") \
 			-T aisimage \
 			-e $(CONFIG_SPL_TEXT_BASE) \
@@ -466,7 +466,7 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		$(OBJCOPY) ${OBJCFLAGS} -I binary \
 			--pad-to=$(CONFIG_SPL_MAX_SIZE) -O binary \
 			$(obj)spl/u-boot-spl.ais $(obj)spl/u-boot-spl-pad.ais
-		cat $(obj)spl/u-boot-spl-pad.ais $(obj)u-boot.bin > \
+		cat $(obj)spl/u-boot-spl-pad.ais $(obj)u-boot.img > \
 			$(obj)u-boot.ais
 
 # Specify the target for use in elftosb call
