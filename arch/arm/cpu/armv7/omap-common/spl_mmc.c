@@ -26,30 +26,11 @@
 #include <asm/spl.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
-#include <asm/arch/sys_proto.h>
 #include <mmc.h>
 #include <fat.h>
 #include <version.h>
-#include <asm/omap_common.h>
-#include <asm/arch/mmc_host_def.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#ifdef CONFIG_GENERIC_MMC
-int board_mmc_init(bd_t *bis)
-{
-	switch (spl_boot_device()) {
-	case BOOT_DEVICE_MMC1:
-		omap_mmc_init(0, 0, 0);
-		break;
-	case BOOT_DEVICE_MMC2:
-	case BOOT_DEVICE_MMC2_2:
-		omap_mmc_init(1, 0, 0);
-		break;
-	}
-	return 0;
-}
-#endif
 
 static void mmc_load_image_raw(struct mmc *mmc)
 {
@@ -70,8 +51,8 @@ static void mmc_load_image_raw(struct mmc *mmc)
 	spl_parse_image_header(header);
 
 	/* convert size to sectors - round up */
-	image_size_sectors = (spl_image.size + MMCSD_SECTOR_SIZE - 1) /
-				MMCSD_SECTOR_SIZE;
+	image_size_sectors = (spl_image.size + mmc->read_bl_len - 1) /
+				mmc->read_bl_len;
 
 	/* Read the header too to avoid extra memcpy */
 	err = mmc->block_dev.block_read(0,

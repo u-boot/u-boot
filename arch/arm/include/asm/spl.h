@@ -26,6 +26,11 @@
 /* Platform-specific defines */
 #include <asm/arch/spl.h>
 
+/* Boot type */
+#define MMCSD_MODE_UNDEFINED	0
+#define MMCSD_MODE_RAW		1
+#define MMCSD_MODE_FAT		2
+
 struct spl_image_info {
 	const char *name;
 	u8 os;

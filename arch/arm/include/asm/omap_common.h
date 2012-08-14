@@ -34,11 +34,6 @@
 #define OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL	2
 #define OMAP_INIT_CONTEXT_UBOOT_AFTER_CH	3
 
-/* Boot type */
-#define	MMCSD_MODE_UNDEFINED	0
-#define MMCSD_MODE_RAW		1
-#define MMCSD_MODE_FAT		2
-
 static inline u32 omap_revision(void)
 {
 	extern u32 *const omap_si_rev;
