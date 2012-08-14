@@ -177,7 +177,7 @@
 #define IPU_CONF_PF_EN		(1<<3)
 #define IPU_CONF_ROT_EN		(1<<2)
 #define IPU_CONF_IC_EN		(1<<1)
-#define IPU_CONF_SCI_EN		(1<<0)
+#define IPU_CONF_CSI_EN		(1<<0)
 
 /*
  * CSPI register definitions
