@@ -155,6 +155,22 @@ void fm_info_set_phy_address(enum fm_port port, int address)
 }
 
 /*
+ * Returns the PHY address for a given Fman port
+ *
+ * The port must be set via a prior call to fm_info_set_phy_address().
+ * A negative error code is returned if the port is invalid.
+ */
+int fm_info_get_phy_address(enum fm_port port)
+{
+	int i = fm_port_to_index(port);
+
+	if (i == -1)
+		return -1;
+
+	return fm_info[i].phy_addr;
+}
+
+/*
  * Returns the type of the data interface between the given MAC and its PHY.
  * This is typically determined by the RCW.
  */
