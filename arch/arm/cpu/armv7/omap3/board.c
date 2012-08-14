@@ -106,6 +106,9 @@ int board_mmc_init(bd_t *bis)
 
 void spl_board_init(void)
 {
+#ifdef CONFIG_SPL_NAND_SUPPORT
+	gpmc_init();
+#endif
 #ifdef CONFIG_SPL_I2C_SUPPORT
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif

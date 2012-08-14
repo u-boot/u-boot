@@ -49,6 +49,13 @@ u32 spl_boot_mode(void)
 	return omap_bootmode;
 }
 
+void spl_board_init(void)
+{
+#ifdef CONFIG_SPL_NAND_SUPPORT
+	gpmc_init();
+#endif
+}
+
 int board_mmc_init(bd_t *bis)
 {
 	switch (spl_boot_device()) {

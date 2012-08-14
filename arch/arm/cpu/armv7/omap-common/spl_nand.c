@@ -35,7 +35,6 @@ void spl_nand_load_image(void)
 	int *dst __attribute__((unused));
 
 	debug("spl: nand - using hw ecc\n");
-	gpmc_init();
 	nand_init();
 
 	/*use CONFIG_SYS_TEXT_BASE as temporary storage area */
