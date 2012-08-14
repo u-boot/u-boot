@@ -186,6 +186,14 @@ int print_cpuinfo(void)
 }
 #endif
 
+void enable_caches(void)
+{
+#ifndef CONFIG_SYS_DCACHE_OFF
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+#endif
+}
+
 int cpu_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FEC_MXC)
