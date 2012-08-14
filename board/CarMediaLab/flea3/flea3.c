@@ -165,8 +165,8 @@ static void board_setup_sdram(void)
 
 static void setup_iomux_uart3(void)
 {
-	mxc_request_iomux(MX35_PIN_RTS2_UART3_RXD_MUX, MUX_CONFIG_ALT7);
-	mxc_request_iomux(MX35_PIN_CTS2_UART3_TXD_MUX, MUX_CONFIG_ALT7);
+	mxc_request_iomux(MX35_PIN_RTS2, MUX_CONFIG_ALT7);
+	mxc_request_iomux(MX35_PIN_CTS2, MUX_CONFIG_ALT7);
 }
 
 static void setup_iomux_i2c(void)
