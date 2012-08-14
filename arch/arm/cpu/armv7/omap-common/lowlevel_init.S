@@ -63,7 +63,7 @@ ENTRY(save_boot_params)
 	blt	2f
 	cmp	r2, #7
 	bgt	2f
-	/* Store the boot mode (raw/FAT) in omap_boot_mode */
+	/* Store the boot mode (raw/FAT) in omap_bootmode */
 	ldr	r2, [r0, #DEV_DESC_PTR_OFFSET]	@ get the device descriptor ptr
 	ldr	r2, [r2, #DEV_DATA_PTR_OFFSET]	@ get the pDeviceData ptr
 	ldr	r2, [r2, #BOOT_MODE_OFFSET]	@ get the boot mode
