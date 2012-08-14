@@ -52,7 +52,7 @@ static void board_setup_clocks(void)
 	writel((CCM_CCMR_SETUP | CCMR_MPE) & ~CCMR_MDS, &ccm->ccmr);
 
 	/* Set up clock to 532MHz */
-	writel(PDR0_CSI_PODF(0x1ff) | PDR0_PER_PODF(7) |
+	writel(PDR0_CSI_PODF(0x3f) | PDR0_CSI_PRDF(7) | PDR0_PER_PODF(7) |
 			PDR0_HSP_PODF(3) | PDR0_NFC_PODF(5) |
 			PDR0_IPG_PODF(1) | PDR0_MAX_PODF(3) |
 			PDR0_MCU_PODF(0), &ccm->pdr0);

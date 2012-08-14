@@ -569,7 +569,8 @@ struct esdc_regs {
 
 #define MX31_IIM_BASE_ADDR	0x5001C000
 
-#define PDR0_CSI_PODF(x)	(((x) & 0x1ff) << 23)
+#define PDR0_CSI_PODF(x)	(((x) & 0x3f) << 26)
+#define PDR0_CSI_PRDF(x)	(((x) & 0x7) << 23)
 #define PDR0_PER_PODF(x)	(((x) & 0x1f) << 16)
 #define PDR0_HSP_PODF(x)	(((x) & 0x7) << 11)
 #define PDR0_NFC_PODF(x)	(((x) & 0x7) << 8)
@@ -592,7 +593,8 @@ struct esdc_regs {
 #define PLL_MFI(x)		(((x) & 0xf) << 10)
 #define PLL_MFN(x)		(((x) & 0x3ff) << 0)
 
-#define GET_PDR0_CSI_PODF(x)	(((x) >> 23) & 0x1ff)
+#define GET_PDR0_CSI_PODF(x)	(((x) >> 26) & 0x3f)
+#define GET_PDR0_CSI_PRDF(x)	(((x) >> 23) & 0x7)
 #define GET_PDR0_PER_PODF(x)	(((x) >> 16) & 0x1f)
 #define GET_PDR0_HSP_PODF(x)	(((x) >> 11) & 0x7)
 #define GET_PDR0_NFC_PODF(x)	(((x) >> 8) & 0x7)

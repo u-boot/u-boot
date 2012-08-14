@@ -203,11 +203,11 @@
 
 /* Configuration of lowlevel_init.S (clocks and SDRAM) */
 #define CCM_CCMR_SETUP		0x074B0BF5
-#define CCM_PDR0_SETUP_532MHZ	(PDR0_CSI_PODF(0x1ff) | PDR0_PER_PODF(7) | \
-				 PDR0_HSP_PODF(3) | PDR0_NFC_PODF(5) |     \
-				 PDR0_IPG_PODF(1) | PDR0_MAX_PODF(3) |     \
-				 PDR0_MCU_PODF(0))
-#define CCM_MPCTL_SETUP_532MHZ	(PLL_PD(0) | PLL_MFD(51) | PLL_MFI(10) |   \
+#define CCM_PDR0_SETUP_532MHZ	(PDR0_CSI_PODF(0x3f) | PDR0_CSI_PRDF(7) | \
+				 PDR0_PER_PODF(7) | PDR0_HSP_PODF(3) |    \
+				 PDR0_NFC_PODF(5) | PDR0_IPG_PODF(1) |    \
+				 PDR0_MAX_PODF(3) | PDR0_MCU_PODF(0))
+#define CCM_MPCTL_SETUP_532MHZ	(PLL_PD(0) | PLL_MFD(51) | PLL_MFI(10) |  \
 				 PLL_MFN(12))
 
 #define ESDMISC_MDDR_SETUP	0x00000004
