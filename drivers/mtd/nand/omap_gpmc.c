@@ -283,6 +283,7 @@ void omap_nand_switch_ecc(int32_t hardware)
 		nand->ecc.mode = NAND_ECC_SOFT;
 		/* Use mtd default settings */
 		nand->ecc.layout = NULL;
+		nand->ecc.size = 0;
 		printf("SW ECC selected\n");
 	}
 
