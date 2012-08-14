@@ -25,7 +25,7 @@
 #define __ASM_ARCH_CLOCK_H
 
 enum mxc_clock {
-	MXC_ARM_CLK = 0,
+	MXC_ARM_CLK,
 	MXC_AHB_CLK,
 	MXC_IPG_CLK,
 	MXC_IPG_PERCLK,
@@ -34,6 +34,32 @@ enum mxc_clock {
 	MXC_USB_CLK,
 	MXC_CSPI_CLK,
 	MXC_FEC_CLK,
+};
+
+enum mxc_main_clock {
+	CPU_CLK,
+	AHB_CLK,
+	IPG_CLK,
+	IPG_PER_CLK,
+	NFC_CLK,
+	USB_CLK,
+	HSP_CLK,
+};
+
+enum mxc_peri_clock {
+	UART1_BAUD,
+	UART2_BAUD,
+	UART3_BAUD,
+	SSI1_BAUD,
+	SSI2_BAUD,
+	CSI_BAUD,
+	MSHC_CLK,
+	ESDHC1_CLK,
+	ESDHC2_CLK,
+	ESDHC3_CLK,
+	SPDIF_CLK,
+	SPI1_CLK,
+	SPI2_CLK,
 };
 
 unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref);

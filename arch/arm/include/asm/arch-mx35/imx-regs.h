@@ -215,32 +215,6 @@
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
-enum mxc_main_clocks {
-	CPU_CLK,
-	AHB_CLK,
-	IPG_CLK,
-	IPG_PER_CLK,
-	NFC_CLK,
-	USB_CLK,
-	HSP_CLK,
-};
-
-enum mxc_peri_clocks {
-	UART1_BAUD,
-	UART2_BAUD,
-	UART3_BAUD,
-	SSI1_BAUD,
-	SSI2_BAUD,
-	CSI_BAUD,
-	MSHC_CLK,
-	ESDHC1_CLK,
-	ESDHC2_CLK,
-	ESDHC3_CLK,
-	SPDIF_CLK,
-	SPI1_CLK,
-	SPI2_CLK,
-};
-
 /* Clock Control Module (CCM) registers */
 struct ccm_regs {
 	u32 ccmr;	/* Control */

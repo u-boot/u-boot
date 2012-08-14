@@ -208,7 +208,7 @@ u32 imx_get_uartclk(void)
 	return freq;
 }
 
-unsigned int mxc_get_main_clock(enum mxc_main_clocks clk)
+unsigned int mxc_get_main_clock(enum mxc_main_clock clk)
 {
 	u32 nfc_pdf, hsp_podf;
 	u32 pll, ret_val = 0, usb_prdf, usb_podf;
@@ -273,7 +273,7 @@ unsigned int mxc_get_main_clock(enum mxc_main_clocks clk)
 
 	return ret_val;
 }
-unsigned int mxc_get_peri_clock(enum mxc_peri_clocks clk)
+unsigned int mxc_get_peri_clock(enum mxc_peri_clock clk)
 {
 	u32 ret_val = 0, pdf, pre_pdf, clk_sel;
 	struct ccm_regs *ccm =
