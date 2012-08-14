@@ -144,6 +144,12 @@
 #define MXC_CCM_ACMR_SSI2_CLK_SEL_MASK		(0xF << 0)
 
 /* Bit definitions for Clock gating Register*/
+#define MXC_CCM_CGR_CG_MASK			0x3
+#define MXC_CCM_CGR_CG_OFF			0x0
+#define MXC_CCM_CGR_CG_RUN_ON			0x1
+#define MXC_CCM_CGR_CG_RUN_WAIT_ON		0x2
+#define MXC_CCM_CGR_CG_ON			0x3
+
 #define MXC_CCM_CGR0_ASRC_OFFSET		0
 #define MXC_CCM_CGR0_ASRC_MASK			(0x3 << 0)
 #define MXC_CCM_CGR0_ATA_OFFSET			2
