@@ -61,7 +61,7 @@ static inline unsigned long long tick_to_time(unsigned long long tick)
 
 static inline unsigned long long us_to_tick(unsigned long long usec)
 {
-	usec *= CLK_32KHZ;
+	usec = usec * CLK_32KHZ + 999999;
 	do_div(usec, 1000000);
 
 	return usec;
