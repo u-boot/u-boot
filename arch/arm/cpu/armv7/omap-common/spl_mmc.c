@@ -23,6 +23,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <asm/spl.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <asm/arch/sys_proto.h>

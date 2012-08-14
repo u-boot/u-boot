@@ -23,6 +23,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <asm/spl.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <asm/arch/sys_proto.h>
@@ -30,7 +31,6 @@
 #include <mmc.h>
 #include <fat.h>
 #include <version.h>
-#include <asm/omap_common.h>
 #include <asm/arch/mmc_host_def.h>
 #include <i2c.h>
 #include <image.h>

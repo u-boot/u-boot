@@ -1,0 +1,61 @@
+/*
+ * (C) Copyright 2012
+ * Texas Instruments, <www.ti.com>
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+#ifndef	_ASM_SPL_H_
+#define	_ASM_SPL_H_
+
+/* Platform-specific defines */
+#include <asm/arch/spl.h>
+
+struct spl_image_info {
+	const char *name;
+	u8 os;
+	u32 load_addr;
+	u32 entry_point;
+	u32 size;
+};
+
+extern struct spl_image_info spl_image;
+extern u32 *boot_params_ptr;
+
+/* SPL common functions */
+void preloader_console_init(void);
+u32 spl_boot_device(void);
+u32 spl_boot_mode(void);
+void spl_parse_image_header(const struct image_header *header);
+void spl_board_prepare_for_linux(void);
+int spl_start_uboot(void);
+void spl_display_print(void);
+
+/* NAND SPL functions */
+void spl_nand_load_image(void);
+
+/* MMC SPL functions */
+void spl_mmc_load_image(void);
+
+/* YMODEM SPL functions */
+void spl_ymodem_load_image(void);
+
+#ifdef CONFIG_SPL_BOARD_INIT
+void spl_board_init(void);
+#endif
+#endif

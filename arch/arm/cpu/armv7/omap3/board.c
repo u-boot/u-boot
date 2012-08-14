@@ -39,6 +39,7 @@
 #include <asm/cache.h>
 #include <asm/armv7.h>
 #include <asm/arch/gpio.h>
+#include <asm/spl.h>
 #include <asm/omap_common.h>
 #include <i2c.h>
 #include <linux/compiler.h>

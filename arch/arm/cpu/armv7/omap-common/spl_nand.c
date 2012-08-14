@@ -21,13 +21,13 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <asm/spl.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <nand.h>
 #include <version.h>
-#include <asm/omap_common.h>
 
 void spl_nand_load_image(void)
 {

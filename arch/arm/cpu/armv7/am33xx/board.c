@@ -27,9 +27,9 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
-#include <asm/omap_common.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
+#include <asm/spl.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
