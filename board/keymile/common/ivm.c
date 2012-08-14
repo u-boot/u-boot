@@ -163,7 +163,7 @@ static int ivm_findinventorystring(int type,
 		if (addr == INVENTORYDATASIZE) {
 			xcode = -1;
 			printf("Error end of string not found\n");
-		} else if ((size >= (maxlen - 1)) &&
+		} else if ((size > (maxlen - 1)) &&
 			   (buf[addr] != '\r')) {
 			xcode = -1;
 			printf("string too long till next CR\n");
