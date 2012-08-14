@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/imx-regs.h>
@@ -129,15 +130,17 @@ static int get_ahb_div(u32 pdr0)
 static u32 decode_pll(u32 reg, u32 infreq)
 {
 	u32 mfi = (reg >> 10) & 0xf;
-	u32 mfn = reg & 0x3f;
-	u32 mfd = (reg >> 16) & 0x3f;
+	s32 mfn = reg & 0x3ff;
+	u32 mfd = (reg >> 16) & 0x3ff;
 	u32 pd = (reg >> 26) & 0xf;
 
 	mfi = mfi <= 5 ? 5 : mfi;
+	mfn = mfn >= 512 ? mfn - 1024 : mfn;
 	mfd += 1;
 	pd += 1;
 
-	return ((2 * (infreq / 1000) * (mfi * mfd + mfn)) / (mfd * pd)) * 1000;
+	return lldiv(2 * (u64)infreq * (mfi * mfd + mfn),
+		mfd * pd);
 }
 
 static u32 get_mcu_main_clk(void)
