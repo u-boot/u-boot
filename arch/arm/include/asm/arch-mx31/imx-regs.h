@@ -577,6 +577,16 @@ struct esdc_regs {
 #define PDR0_MAX_PODF(x)	(((x) & 0x7) << 3)
 #define PDR0_MCU_PODF(x)	((x) & 0x7)
 
+#define PDR1_USB_PRDF(x)	(((x) & 0x3) << 30)
+#define PDR1_USB_PODF(x)	(((x) & 0x7) << 27)
+#define PDR1_FIRI_PRDF(x)	(((x) & 0x7) << 24)
+#define PDR1_FIRI_PODF(x)	(((x) & 0x3f) << 18)
+#define PDR1_SSI2_PRDF(x)	(((x) & 0x7) << 15)
+#define PDR1_SSI2_PODF(x)	(((x) & 0x3f) << 9)
+#define PDR1_SSI1_PRDF(x)	(((x) & 0x7) << 6)
+#define PDR1_SSI1_PODF(x)	((x) & 0x3f)
+
+#define PLL_BRMO(x)		(((x) & 0x1) << 31)
 #define PLL_PD(x)		(((x) & 0xf) << 26)
 #define PLL_MFD(x)		(((x) & 0x3ff) << 16)
 #define PLL_MFI(x)		(((x) & 0xf) << 10)
