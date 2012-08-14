@@ -174,17 +174,14 @@ static u32 get_ipg_per_clk(void)
 	u32 pdr4 = readl(&ccm->pdr4);
 	u32 div;
 	if (pdr0 & MXC_CCM_PDR0_PER_SEL) {
-		div = (CCM_GET_DIVIDER(pdr4,
-			MXC_CCM_PDR4_PER0_PRDF_MASK,
-			MXC_CCM_PDR4_PER0_PODF_OFFSET) + 1) *
-			(CCM_GET_DIVIDER(pdr4,
+		div = CCM_GET_DIVIDER(pdr4,
 			MXC_CCM_PDR4_PER0_PODF_MASK,
-			MXC_CCM_PDR4_PER0_PODF_OFFSET) + 1);
+			MXC_CCM_PDR4_PER0_PODF_OFFSET) + 1;
 	} else {
 		div = CCM_GET_DIVIDER(pdr0,
 			MXC_CCM_PDR0_PER_PODF_MASK,
 			MXC_CCM_PDR0_PER_PODF_OFFSET) + 1;
-		freq /= get_ahb_div(pdr0);
+		div *= get_ahb_div(pdr0);
 	}
 	return freq / div;
 }
@@ -202,19 +199,16 @@ u32 imx_get_uartclk(void)
 		freq = decode_pll(readl(&ccm->ppctl),
 			CONFIG_MX35_HCLK_FREQ);
 	}
-	freq /= ((CCM_GET_DIVIDER(pdr4,
-			MXC_CCM_PDR4_UART_PRDF_MASK,
-			MXC_CCM_PDR4_UART_PRDF_OFFSET) + 1) *
-		(CCM_GET_DIVIDER(pdr4,
+	freq /= CCM_GET_DIVIDER(pdr4,
 			MXC_CCM_PDR4_UART_PODF_MASK,
-			MXC_CCM_PDR4_UART_PODF_OFFSET) + 1));
+			MXC_CCM_PDR4_UART_PODF_OFFSET) + 1;
 	return freq;
 }
 
 unsigned int mxc_get_main_clock(enum mxc_main_clock clk)
 {
 	u32 nfc_pdf, hsp_podf;
-	u32 pll, ret_val = 0, usb_prdf, usb_podf;
+	u32 pll, ret_val = 0, usb_podf;
 	struct ccm_regs *ccm =
 		(struct ccm_regs *)IMX_CCM_BASE;
 
@@ -258,8 +252,7 @@ unsigned int mxc_get_main_clock(enum mxc_main_clock clk)
 		ret_val = pll / (nfc_pdf + 1);
 		break;
 	case USB_CLK:
-		usb_prdf = (reg4 >> 25) & 0x7;
-		usb_podf = (reg4 >> 22) & 0x7;
+		usb_podf = (reg4 >> 22) & 0x3F;
 		if (reg4 & 0x200) {
 			pll = get_mcu_main_clk();
 		} else {
@@ -267,7 +260,7 @@ unsigned int mxc_get_main_clock(enum mxc_main_clock clk)
 				CONFIG_MX35_HCLK_FREQ);
 		}
 
-		ret_val = pll / ((usb_prdf + 1) * (usb_podf + 1));
+		ret_val = pll / (usb_podf + 1);
 		break;
 	default:
 		printf("Unknown clock: %d\n", clk);
@@ -290,11 +283,10 @@ unsigned int mxc_get_peri_clock(enum mxc_peri_clock clk)
 	case UART2_BAUD:
 	case UART3_BAUD:
 		clk_sel = mpdr3 & (1 << 14);
-		pre_pdf = (mpdr4 >> 13) & 0x7;
-		pdf = (mpdr4 >> 10) & 0x7;
+		pdf = (mpdr4 >> 10) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
 			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				((pre_pdf + 1) * (pdf + 1));
+				(pdf + 1);
 		break;
 	case SSI1_BAUD:
 		pre_pdf = (mpdr2 >> 24) & 0x7;
@@ -314,11 +306,10 @@ unsigned int mxc_get_peri_clock(enum mxc_peri_clock clk)
 		break;
 	case CSI_BAUD:
 		clk_sel = mpdr2 & (1 << 7);
-		pre_pdf = (mpdr2 >> 16) & 0x7;
-		pdf = (mpdr2 >> 19) & 0x7;
+		pdf = (mpdr2 >> 16) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
 			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				((pre_pdf + 1) * (pdf + 1));
+				(pdf + 1);
 		break;
 	case MSHC_CLK:
 		pre_pdf = readl(&ccm->pdr1);
@@ -331,27 +322,24 @@ unsigned int mxc_get_peri_clock(enum mxc_peri_clock clk)
 		break;
 	case ESDHC1_CLK:
 		clk_sel = mpdr3 & 0x40;
-		pre_pdf = mpdr3 & 0x7;
-		pdf = (mpdr3>>3) & 0x7;
+		pdf = mpdr3 & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
 			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				((pre_pdf + 1) * (pdf + 1));
+				(pdf + 1);
 		break;
 	case ESDHC2_CLK:
 		clk_sel = mpdr3 & 0x40;
-		pre_pdf = (mpdr3 >> 8) & 0x7;
-		pdf = (mpdr3 >> 11) & 0x7;
+		pdf = (mpdr3 >> 8) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
 			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				((pre_pdf + 1) * (pdf + 1));
+				(pdf + 1);
 		break;
 	case ESDHC3_CLK:
 		clk_sel = mpdr3 & 0x40;
-		pre_pdf = (mpdr3 >> 16) & 0x7;
-		pdf = (mpdr3 >> 19) & 0x7;
+		pdf = (mpdr3 >> 16) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
 			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				((pre_pdf + 1) * (pdf + 1));
+				(pdf + 1);
 		break;
 	case SPDIF_CLK:
 		clk_sel = mpdr3 & 0x400000;
