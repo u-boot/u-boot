@@ -22,7 +22,7 @@
 
 /*
  * P5020 DS board configuration file
- *
+ * Also supports P5010 DS
  */
 #define CONFIG_P5020DS
 #define CONFIG_PHYS_64BIT

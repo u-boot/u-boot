@@ -22,7 +22,7 @@
 
 /*
  * P2041 RDB board configuration file
- *
+ * Also supports P2040 RDB
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H
