@@ -23,7 +23,7 @@ include $(TOPDIR)/config.mk
 # We want the final binaries in this directory
 obj := $(OBJTREE)/spl/
 
-HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile), y, n)
+HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
 
 ifdef	CONFIG_SPL_START_S_PATH
 START_PATH := $(subst ",,$(CONFIG_SPL_START_S_PATH))
