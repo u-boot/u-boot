@@ -50,6 +50,9 @@ struct fm_eth_info fm_info[] = {
 #if (CONFIG_SYS_NUM_FM2_DTSEC >= 4)
 	FM_DTSEC_INFO_INITIALIZER(2, 4),
 #endif
+#if (CONFIG_SYS_NUM_FM2_DTSEC >= 5)
+	FM_DTSEC_INFO_INITIALIZER(2, 5),
+#endif
 #if (CONFIG_SYS_NUM_FM1_10GEC >= 1)
 	FM_TGEC_INFO_INITIALIZER(1, 1),
 #endif

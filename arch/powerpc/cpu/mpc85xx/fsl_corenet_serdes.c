@@ -68,6 +68,7 @@ static const char *serdes_prtcl_str[] = {
 	[SGMII_FM2_DTSEC2] = "SGMII_FM2_DTSEC2",
 	[SGMII_FM2_DTSEC3] = "SGMII_FM2_DTSEC3",
 	[SGMII_FM2_DTSEC4] = "SGMII_FM2_DTSEC4",
+	[SGMII_FM2_DTSEC5] = "SGMII_FM2_DTSEC5",
 	[XAUI_FM1] = "XAUI_FM1",
 	[XAUI_FM2] = "XAUI_FM2",
 	[AURORA] = "DEBUG",
@@ -658,6 +659,7 @@ void fsl_serdes_init(void)
 		case SGMII_FM2_DTSEC2:
 		case SGMII_FM2_DTSEC3:
 		case SGMII_FM2_DTSEC4:
+		case SGMII_FM2_DTSEC5:
 		case XAUI_FM1:
 		case XAUI_FM2:
 		case SRIO1:
@@ -716,6 +718,10 @@ void fsl_serdes_init(void)
 		case SGMII_FM2_DTSEC4:
 			serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM2 |
 					    FSL_CORENET_DEVDISR2_DTSEC2_4;
+			break;
+		case SGMII_FM2_DTSEC5:
+			serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM2 |
+					    FSL_CORENET_DEVDISR2_DTSEC2_5;
 			break;
 		case XAUI_FM1:
 			serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM1	|

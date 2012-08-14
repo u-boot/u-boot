@@ -35,6 +35,7 @@ enum fm_port {
 	FM2_DTSEC2,
 	FM2_DTSEC3,
 	FM2_DTSEC4,
+	FM2_DTSEC5,
 	FM2_10GEC1,
 	NUM_FM_PORTS,
 };

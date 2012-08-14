@@ -1729,6 +1729,7 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_DEVDISR2_DTSEC2_2	0x00004000
 #define FSL_CORENET_DEVDISR2_DTSEC2_3	0x00002000
 #define FSL_CORENET_DEVDISR2_DTSEC2_4	0x00001000
+#define FSL_CORENET_DEVDISR2_DTSEC2_5	0x00000800
 #define FSL_CORENET_NUM_DEVDISR		2
 	u8	res7[8];
 	u32	powmgtcsr;	/* Power management status & control */
