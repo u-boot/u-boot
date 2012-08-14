@@ -194,11 +194,7 @@
 #define CONFIG_DDR_SPD
 #define CONFIG_FSL_DDR3
 
-#ifdef CONFIG_P3060QDS
-#define CONFIG_SYS_SPD_BUS_NUM	0
-#else
 #define CONFIG_SYS_SPD_BUS_NUM	1
-#endif
 #define SPD_EEPROM_ADDRESS1	0x51
 #define SPD_EEPROM_ADDRESS2	0x52
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1	/* for p3041/p5010 */
@@ -713,7 +709,7 @@
 
 #define CONFIG_BAUDRATE	115200
 
-#if defined(CONFIG_P4080DS) || defined(CONFIG_P3060QDS)
+#ifdef CONFIG_P4080DS
 #define __USB_PHY_TYPE	ulpi
 #else
 #define __USB_PHY_TYPE	utmi
