@@ -124,6 +124,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if ((SVR_MAJ(svr) == 1) || IS_SVR_REV(svr, 2, 0))
 		puts("Work-around for Erratum NMG ETSEC129 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004510
+	puts("Work-around for Erratum A004510 enabled\n");
+#endif
 	return 0;
 }
 

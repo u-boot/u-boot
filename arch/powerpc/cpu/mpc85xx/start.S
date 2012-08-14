@@ -86,6 +86,35 @@ _start_e500:
 	li	r1,MSR_DE
 	mtmsr 	r1
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004510
+	mfspr	r3,SPRN_SVR
+	rlwinm	r3,r3,0,0xff
+	li	r4,CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV
+	cmpw	r3,r4
+	beq	1f
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2
+	li	r4,CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2
+	cmpw	r3,r4
+	beq	1f
+#endif
+
+	/* Not a supported revision affected by erratum */
+	li	r27,0
+	b	2f
+
+1:	li	r27,1	/* Remember for later that we have the erratum */
+	/* Erratum says set bits 55:60 to 001001 */
+	msync
+	isync
+	mfspr	r3,976
+	li	r4,0x48
+	rlwimi	r3,r4,0,0x1f8
+	mtspr	976,r3
+	isync
+2:
+#endif
+
 #if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_E500MC)
 	/* ISBC uses L2 as stack.
 	 * Disable L2 cache here so that u-boot can enable it later
@@ -440,6 +469,14 @@ nexti:	mflr	r1		/* R1 = our PC */
 	mfspr	r2, MAS2
 	andc	r2, r2, r3
 	or	r2, r2, r1
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004510
+	cmpwi	r27,0
+	beq	1f
+	andi.	r15, r2, MAS2_I|MAS2_G /* save the old I/G for later */
+	rlwinm	r2, r2, 0, ~MAS2_I
+	ori	r2, r2, MAS2_G
+1:
+#endif
 	mtspr	MAS2, r2	/* Set the EPN to our PC base address */
 
 	mfspr	r2, MAS3
@@ -718,6 +755,253 @@ delete_temp_tlbs:
 	msync
 	tlbwe
 #endif /* #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS) */
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004510
+#define DCSR_LAWBARH0	(CONFIG_SYS_CCSRBAR + 0x1000)
+#define LAW_SIZE_1M	0x13
+#define DCSRBAR_LAWAR	(LAW_EN | (0x1d << 20) | LAW_SIZE_1M)
+
+	cmpwi	r27,0
+	beq	9f
+
+	/*
+	 * Create a TLB entry for CCSR
+	 *
+	 * We're executing out of TLB1 entry in r14, and that's the only
+	 * TLB entry that exists.  To allocate some TLB entries for our
+	 * own use, flip a bit high enough that we won't flip it again
+	 * via incrementing.
+	 */
+
+	xori	r8, r14, 32
+	lis	r0, MAS0_TLBSEL(1)@h
+	rlwimi	r0, r8, 16, MAS0_ESEL_MSK
+	lis	r1, FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)@h
+	ori	r1, r1, FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)@l
+	lis	r7, CONFIG_SYS_CCSRBAR@h
+	ori	r7, r7, CONFIG_SYS_CCSRBAR@l
+	ori	r2, r7, MAS2_I|MAS2_G
+	lis	r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@h
+	ori	r3, r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@l
+	lis	r4, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
+	ori	r4, r4, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	mtspr	MAS0, r0
+	mtspr	MAS1, r1
+	mtspr	MAS2, r2
+	mtspr	MAS3, r3
+	mtspr	MAS7, r4
+	isync
+	tlbwe
+	isync
+	msync
+
+	/* Map DCSR temporarily to physical address zero */
+	li	r0, 0
+	lis	r3, DCSRBAR_LAWAR@h
+	ori	r3, r3, DCSRBAR_LAWAR@l
+
+	stw	r0, 0xc00(r7)	/* LAWBARH0 */
+	stw	r0, 0xc04(r7)	/* LAWBARL0 */
+	sync
+	stw	r3, 0xc08(r7)	/* LAWAR0 */
+
+	/* Read back from LAWAR to ensure the update is complete. */
+	lwz	r3, 0xc08(r7)	/* LAWAR0 */
+	isync
+
+	/* Create a TLB entry for DCSR at zero */
+
+	addi	r9, r8, 1
+	lis	r0, MAS0_TLBSEL(1)@h
+	rlwimi	r0, r9, 16, MAS0_ESEL_MSK
+	lis	r1, FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1M)@h
+	ori	r1, r1, FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_1M)@l
+	li	r6, 0	/* DCSR effective address */
+	ori	r2, r6, MAS2_I|MAS2_G
+	li	r3, MAS3_SW|MAS3_SR
+	li	r4, 0
+	mtspr	MAS0, r0
+	mtspr	MAS1, r1
+	mtspr	MAS2, r2
+	mtspr	MAS3, r3
+	mtspr	MAS7, r4
+	isync
+	tlbwe
+	isync
+	msync
+
+	/* enable the timebase */
+#define CTBENR	0xe2084
+	li	r3, 1
+	addis	r4, r7, CTBENR@ha
+	stw	r3, CTBENR@l(r4)
+	lwz	r3, CTBENR@l(r4)
+	twi	0,r3,0
+	isync
+
+	.macro	erratum_set_ccsr offset value
+	addis	r3, r7, \offset@ha
+	lis	r4, \value@h
+	addi	r3, r3, \offset@l
+	ori	r4, r4, \value@l
+	bl	erratum_set_value
+	.endm
+
+	.macro	erratum_set_dcsr offset value
+	addis	r3, r6, \offset@ha
+	lis	r4, \value@h
+	addi	r3, r3, \offset@l
+	ori	r4, r4, \value@l
+	bl	erratum_set_value
+	.endm
+
+	erratum_set_dcsr 0xb0e08 0xe0201800
+	erratum_set_dcsr 0xb0e18 0xe0201800
+	erratum_set_dcsr 0xb0e38 0xe0400000
+	erratum_set_dcsr 0xb0008 0x00900000
+	erratum_set_dcsr 0xb0e40 0xe00a0000
+	erratum_set_ccsr 0x18600 CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
+	erratum_set_ccsr 0x10f00 0x415e5000
+	erratum_set_ccsr 0x11f00 0x415e5000
+
+	/* Make temp mapping uncacheable again, if it was initially */
+	bl	2f
+2:	mflr	r3
+	tlbsx	0, r3
+	mfspr	r4, MAS2
+	rlwimi	r4, r15, 0, MAS2_I
+	rlwimi	r4, r15, 0, MAS2_G
+	mtspr	MAS2, r4
+	isync
+	tlbwe
+	isync
+	msync
+
+	/* Clear the cache */
+	lis	r3,(L1CSR1_ICFI|L1CSR1_ICLFR)@h
+	ori	r3,r3,(L1CSR1_ICFI|L1CSR1_ICLFR)@l
+	sync
+	isync
+	mtspr	SPRN_L1CSR1,r3
+	isync
+2:	sync
+	mfspr	r4,SPRN_L1CSR1
+	and.	r4,r4,r3
+	bne	2b
+
+	lis	r3,(L1CSR1_CPE|L1CSR1_ICE)@h
+	ori	r3,r3,(L1CSR1_CPE|L1CSR1_ICE)@l
+	sync
+	isync
+	mtspr	SPRN_L1CSR1,r3
+	isync
+2:	sync
+	mfspr	r4,SPRN_L1CSR1
+	and.	r4,r4,r3
+	beq	2b
+
+	/* Remove temporary mappings */
+	lis	r0, MAS0_TLBSEL(1)@h
+	rlwimi	r0, r9, 16, MAS0_ESEL_MSK
+	li	r3, 0
+	mtspr	MAS0, r0
+	mtspr	MAS1, r3
+	isync
+	tlbwe
+	isync
+	msync
+
+	li	r3, 0
+	stw	r3, 0xc08(r7)	/* LAWAR0 */
+	lwz	r3, 0xc08(r7)
+	isync
+
+	lis	r0, MAS0_TLBSEL(1)@h
+	rlwimi	r0, r8, 16, MAS0_ESEL_MSK
+	li	r3, 0
+	mtspr	MAS0, r0
+	mtspr	MAS1, r3
+	isync
+	tlbwe
+	isync
+	msync
+
+	b	9f
+
+	/* r3 = addr, r4 = value, clobbers r5, r11, r12 */
+erratum_set_value:
+	/* Lock two cache lines into I-Cache */
+	sync
+	mfspr	r11, SPRN_L1CSR1
+	rlwinm	r11, r11, 0, ~L1CSR1_ICUL
+	sync
+	isync
+	mtspr	SPRN_L1CSR1, r11
+	isync
+
+	mflr	r12
+	bl	5f
+5:	mflr	r5
+	addi	r5, r5, 2f - 5b
+	icbtls	0, 0, r5
+	addi	r5, r5, 64
+
+	sync
+	mfspr	r11, SPRN_L1CSR1
+3:	andi.	r11, r11, L1CSR1_ICUL
+	bne	3b
+
+	icbtls	0, 0, r5
+	addi	r5, r5, 64
+
+	sync
+	mfspr	r11, SPRN_L1CSR1
+3:	andi.	r11, r11, L1CSR1_ICUL
+	bne	3b
+
+	b	2f
+	.align	6
+	/* Inside a locked cacheline, wait a while, write, then wait a while */
+2:	sync
+
+	mfspr	r5, SPRN_TBRL
+	addis	r11, r5, 0x10000@h /* wait 65536 timebase ticks */
+4:	mfspr	r5, SPRN_TBRL
+	subf.	r5, r5, r11
+	bgt	4b
+
+	stw	r4, 0(r3)
+
+	mfspr	r5, SPRN_TBRL
+	addis	r11, r5, 0x10000@h /* wait 65536 timebase ticks */
+4:	mfspr	r5, SPRN_TBRL
+	subf.	r5, r5, r11
+	bgt	4b
+
+	sync
+
+	/*
+	 * Fill out the rest of this cache line and the next with nops,
+	 * to ensure that nothing outside the locked area will be
+	 * fetched due to a branch.
+	 */
+	.rept 19
+	nop
+	.endr
+
+	sync
+	mfspr	r11, SPRN_L1CSR1
+	rlwinm	r11, r11, 0, ~L1CSR1_ICUL
+	sync
+	isync
+	mtspr	SPRN_L1CSR1, r11
+	isync
+
+	mtlr	r12
+	blr
+
+9:
+#endif
 
 create_init_ram_area:
 	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h

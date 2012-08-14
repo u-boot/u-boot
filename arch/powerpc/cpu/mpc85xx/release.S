@@ -74,6 +74,33 @@ __secondary_start_page:
 	mtspr	977,r3
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004510
+	mfspr	r3,SPRN_SVR
+	rlwinm	r3,r3,0,0xff
+	li	r4,CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV
+	cmpw	r3,r4
+	beq	1f
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2
+	li	r4,CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2
+	cmpw	r3,r4
+	beq	1f
+#endif
+
+	/* Not a supported revision affected by erratum */
+	b	2f
+
+1:	/* Erratum says set bits 55:60 to 001001 */
+	msync
+	isync
+	mfspr	r3,976
+	li	r4,0x48
+	rlwimi	r3,r4,0,0x1f8
+	mtspr	976,r3
+	isync
+2:
+#endif
+
 	/* Enable branch prediction */
 	lis	r3,BUCSR_ENABLE@h
 	ori	r3,r3,BUCSR_ENABLE@l
