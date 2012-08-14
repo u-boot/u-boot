@@ -247,7 +247,7 @@ int board_early_init_f(void)
 	/* enable clocks */
 	writel(readl(&ccm->cgr0) |
 		MXC_CCM_CGR0_EMI_MASK |
-		MXC_CCM_CGR0_EDI0_MASK |
+		MXC_CCM_CGR0_EDIO_MASK |
 		MXC_CCM_CGR0_EPIT1_MASK,
 		&ccm->cgr0);
 
