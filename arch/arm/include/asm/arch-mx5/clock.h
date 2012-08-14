@@ -38,8 +38,6 @@ enum mxc_clock {
 	MXC_PERIPH_CLK,
 };
 
-unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref);
-
 u32 imx_get_uartclk(void);
 u32 imx_get_fecclk(void);
 unsigned int mxc_get_clock(enum mxc_clock clk);
