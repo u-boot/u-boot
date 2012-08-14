@@ -138,7 +138,7 @@ void spl_mmc_load_image(void)
 		printf("spl: mmc init failed: err - %d\n", err);
 		hang();
 	}
-	boot_mode = omap_boot_mode();
+	boot_mode = spl_boot_mode();
 	if (boot_mode == MMCSD_MODE_RAW) {
 		debug("boot mode - RAW\n");
 		mmc_load_image_raw(mmc);

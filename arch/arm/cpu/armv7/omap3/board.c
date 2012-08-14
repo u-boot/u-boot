@@ -69,7 +69,7 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_34xx;
 u32 omap3_boot_device = BOOT_DEVICE_NAND;
 
 /* auto boot mode detection is not possible for OMAP3 - hard code */
-u32 omap_boot_mode(void)
+u32 spl_boot_mode(void)
 {
 	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC2:

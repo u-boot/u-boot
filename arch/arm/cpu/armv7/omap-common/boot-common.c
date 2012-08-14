@@ -42,7 +42,7 @@ u32 spl_boot_device(void)
 	return (u32) (boot_params.omap_bootdevice);
 }
 
-u32 omap_boot_mode(void)
+u32 spl_boot_mode(void)
 {
 	return omap_bootmode;
 }

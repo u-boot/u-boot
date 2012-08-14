@@ -90,7 +90,7 @@ extern struct spl_image_info spl_image;
 
 extern u32* boot_params_ptr;
 u32 spl_boot_device(void);
-u32 omap_boot_mode(void);
+u32 spl_boot_mode(void);
 
 /* SPL common function s*/
 void spl_parse_image_header(const struct image_header *header);

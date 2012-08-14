@@ -35,7 +35,7 @@ void spl_nand_load_image(void)
 	int *src __attribute__((unused));
 	int *dst __attribute__((unused));
 
-	switch (omap_boot_mode()) {
+	switch (spl_boot_mode()) {
 	case NAND_MODE_HW_ECC:
 		debug("spl: nand - using hw ecc\n");
 		gpmc_init();
