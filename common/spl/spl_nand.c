@@ -21,12 +21,10 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <config.h>
 #include <spl.h>
-#include <asm/u-boot.h>
-#include <asm/utils.h>
 #include <asm/io.h>
 #include <nand.h>
-#include <version.h>
 
 void spl_nand_load_image(void)
 {
@@ -71,10 +69,10 @@ void spl_nand_load_image(void)
 			nand_deselect();
 			return;
 		} else {
-			printf("The Expected Linux image was not"
-				"found. Please check your NAND"
+			puts("The Expected Linux image was not "
+				"found. Please check your NAND "
 				"configuration.\n");
-			printf("Trying to start u-boot now...\n");
+			puts("Trying to start u-boot now...\n");
 		}
 	}
 #endif

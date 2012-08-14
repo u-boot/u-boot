@@ -16,6 +16,7 @@ LIB	= $(obj)libspl.o
 ifdef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_SPL_FRAMEWORK) += spl.o
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += spl_ymodem.o
+COBJS-$(CONFIG_SPL_NAND_SUPPORT) += spl_nand.o
 endif
 
 COBJS	:= $(sort $(COBJS-y))

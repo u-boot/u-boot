@@ -42,12 +42,6 @@ COBJS	+= boot-common.o
 SOBJS	+= lowlevel_init.o
 endif
 
-ifdef CONFIG_SPL_BUILD
-ifdef CONFIG_SPL_NAND_SUPPORT
-COBJS	+= spl_nand.o
-endif
-endif
-
 ifndef CONFIG_SPL_BUILD
 ifneq ($(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 COBJS	+= mem-common.o
