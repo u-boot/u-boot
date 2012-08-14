@@ -60,6 +60,9 @@ void spl_mmc_load_image(void);
 /* YMODEM SPL functions */
 void spl_ymodem_load_image(void);
 
+/* SPI SPL functions */
+void spi_boot(void);
+
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);
 #endif

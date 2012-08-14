@@ -175,6 +175,11 @@ void board_init_r(gd_t *id, ulong dummy)
 		spl_ymodem_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_SPI_SUPPORT
+	case BOOT_DEVICE_SPI:
+		spi_boot();
+	break;
+#endif
 	default:
 		puts("SPL: Un-supported Boot Device\n");
 		debug("Found: %d\n", boot_device);
