@@ -167,8 +167,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #endif
 #ifdef CONFIG_SPL_SPI_SUPPORT
 	case BOOT_DEVICE_SPI:
-		spi_boot();
-	break;
+		spl_spi_load_image();
+		break;
 #endif
 	default:
 		puts("SPL: Un-supported Boot Device\n");

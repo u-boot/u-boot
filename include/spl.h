@@ -69,7 +69,7 @@ void spl_mmc_load_image(void);
 void spl_ymodem_load_image(void);
 
 /* SPI SPL functions */
-void spi_boot(void);
+void spl_spi_load_image(void);
 
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);
