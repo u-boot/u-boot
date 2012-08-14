@@ -26,12 +26,9 @@
 #include <asm/spl.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
-#include <asm/arch/sys_proto.h>
 #include <nand.h>
-#include <mmc.h>
 #include <fat.h>
 #include <version.h>
-#include <asm/arch/mmc_host_def.h>
 #include <i2c.h>
 #include <image.h>
 #include <malloc.h>
@@ -78,8 +75,8 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_SPL_OS_BOOT
 __weak int spl_start_uboot(void)
 {
-	printf("SPL: Please implement spl_start_uboot() for your board\n");
-	printf("SPL: Direct Linux boot not active!\n");
+	puts("SPL: Please implement spl_start_uboot() for your board\n");
+	puts("SPL: Direct Linux boot not active!\n");
 	return 1;
 }
 #endif
@@ -99,9 +96,9 @@ void spl_parse_image_header(const struct image_header *header)
 			spl_image.name, spl_image.load_addr, spl_image.size);
 	} else {
 		/* Signature not found - assume u-boot.bin */
-		printf("mkimage signature not found - ih_magic = %x\n",
+		puts("mkimage signature not found, assuming u-boot.bin ..\n");
+		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
-		debug("Assuming u-boot.bin ..\n");
 		/* Let's assume U-Boot will not be more than 200 KB */
 		spl_image.size = 200 * 1024;
 		spl_image.entry_point = CONFIG_SYS_TEXT_BASE;
@@ -179,7 +176,8 @@ void board_init_r(gd_t *id, ulong dummy)
 		break;
 #endif
 	default:
-		printf("SPL: Un-supported Boot Device - %d!!!\n", boot_device);
+		puts("SPL: Un-supported Boot Device\n");
+		debug("Found: %d\n", boot_device);
 		hang();
 		break;
 	}
@@ -205,8 +203,6 @@ void board_init_r(gd_t *id, ulong dummy)
 /* This requires UART clocks to be enabled */
 void preloader_console_init(void)
 {
-	const char *u_boot_rev = U_BOOT_VERSION;
-
 	gd = &gdata;
 	gd->bd = &bdata;
 	gd->flags |= GD_FLG_RELOC;
@@ -216,11 +212,8 @@ void preloader_console_init(void)
 
 	gd->have_console = 1;
 
-	/* Avoid a second "U-Boot" coming from this string */
-	u_boot_rev = &u_boot_rev[7];
-
-	printf("\nU-Boot SPL %s (%s - %s)\n", u_boot_rev, U_BOOT_DATE,
-		U_BOOT_TIME);
+	puts("\nU-Boot SPL " PLAIN_VERSION " (" U_BOOT_DATE " - " \
+			U_BOOT_TIME ")\n");
 #ifdef CONFIG_SPL_DISPLAY_PRINT
 	spl_display_print();
 #endif
