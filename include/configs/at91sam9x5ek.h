@@ -35,8 +35,6 @@
 #define CONFIG_AT91SAM9X5EK
 #define CONFIG_AT91FAMILY
 
-#define CONFIG_ARCH_CPU_INIT
-
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
