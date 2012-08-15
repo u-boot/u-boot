@@ -81,7 +81,7 @@
 /*
  * Physical Memory map
  */
-#define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
+#define PHYS_SDRAM_1_SIZE (128 * 1024 * 1024)
 
 /*
  * UART Settings
