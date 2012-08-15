@@ -85,3 +85,26 @@ Debugging
 
 When building SPL with DEBUG set you may also need to set CONFIG_PANIC_HANG
 as in most cases do_reset is not defined within SPL.
+
+
+Estimating stack usage
+----------------------
+
+With gcc 4.6 (and later) and the use of GNU cflow it is possible to estimate
+stack usage at various points in run sequence of SPL.  The -fstack-usage option
+to gcc will produce '.su' files (such as arch/arm/cpu/armv7/syslib.su) that
+will give stack usage information and cflow can construct program flow.
+
+Must have gcc 4.6 or later, which supports -fstack-usage
+
+1) Build normally
+2) Perform the following shell command to generate a list of C files used in
+SPL:
+$ find spl -name '*.su' | sed -e 's:^spl/::' -e 's:[.]su$:.c:' > used-spl.list
+3) Execute cflow:
+$ cflow --main=board_init_r `cat used-spl.list` 2>&1 | $PAGER
+
+cflow will spit out a number of warnings as it does not parse
+the config files and picks functions based on #ifdef.  Parsing the '.i'
+files instead introduces another set of headaches.  These warnings are
+not usually important to understanding the flow, however.
