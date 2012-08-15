@@ -30,6 +30,7 @@
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <asm/imx-common/boot_mode.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <micrel.h>
@@ -488,10 +489,23 @@ static void preboot_keys(void)
 }
 #endif
 
+#ifdef CONFIG_CMD_BMODE
+static const struct boot_mode board_boot_modes[] = {
+	/* 4 bit bus width */
+	{"mmc0",	MAKE_CFGVAL(0x40, 0x30, 0x00, 0x00)},
+	{"mmc1",	MAKE_CFGVAL(0x40, 0x38, 0x00, 0x00)},
+	{NULL,		0},
+};
+#endif
+
 int misc_init_r(void)
 {
 #ifdef CONFIG_PREBOOT
 	preboot_keys();
+#endif
+
+#ifdef CONFIG_CMD_BMODE
+	add_board_boot_modes(board_boot_modes);
 #endif
 	return 0;
 }
