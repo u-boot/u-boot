@@ -68,6 +68,7 @@ enum law_trgt_if {
 	LAW_TRGT_IF_QMAN = 0x3c,
 };
 #define LAW_TRGT_IF_DDR		LAW_TRGT_IF_DDR_1
+#define LAW_TRGT_IF_IFC		LAW_TRGT_IF_LBC
 #else
 enum law_trgt_if {
 	LAW_TRGT_IF_PCI = 0x00,
