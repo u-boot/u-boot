@@ -109,6 +109,14 @@ static const struct atmel_spi_flash_params atmel_spi_flash_table[] = {
 		.nr_sectors		= 32,
 		.name			= "AT45DB642D",
 	},
+	{
+		.idcode1		= 0x47,
+		.l2_page_size		= 8,
+		.pages_per_block	= 16,
+		.blocks_per_sector	= 16,
+		.nr_sectors		= 64,
+		.name			= "AT25DF321",
+	},
 };
 
 static int at45_wait_ready(struct spi_flash *flash, unsigned long timeout)
@@ -515,6 +523,8 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 	case DF_FAMILY_AT26F:
 	case DF_FAMILY_AT26DF:
 		asf->flash.read = spi_flash_cmd_read_fast;
+		asf->flash.write = dataflash_write_p2;
+		asf->flash.erase = dataflash_erase_p2;
 		break;
 
 	default:
