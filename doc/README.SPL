@@ -78,3 +78,10 @@ an SPL CPU in boards.cfg as follows:
 
 This this case CPU will be set to "normal_cpu" during the main u-boot
 build and "spl_cpu" during the SPL build.
+
+
+Debugging
+---------
+
+When building SPL with DEBUG set you may also need to set CONFIG_PANIC_HANG
+as in most cases do_reset is not defined within SPL.
