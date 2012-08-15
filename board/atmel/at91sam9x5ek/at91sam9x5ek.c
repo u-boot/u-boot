@@ -60,6 +60,8 @@ static void at91sam9x5ek_nand_hw_init(void)
 	/* Enable CS3 */
 	csa = readl(&matrix->ebicsa);
 	csa |= AT91_MATRIX_EBI_CS3A_SMC_SMARTMEDIA;
+	/* NAND flash on D16 */
+	csa |= AT91_MATRIX_NFD0_ON_D16;
 	writel(csa, &matrix->ebicsa);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
