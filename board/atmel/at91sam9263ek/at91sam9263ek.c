@@ -260,9 +260,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/* Enable Ctrlc */
-	console_init_f();
-
 	/* arch number of AT91SAM9263EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9263EK;
 	/* adress of boot parameters */
