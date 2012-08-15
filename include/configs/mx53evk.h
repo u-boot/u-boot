@@ -88,6 +88,9 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DATE
 
+/* Miscellaneous commands */
+#define CONFIG_CMD_BMODE
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
