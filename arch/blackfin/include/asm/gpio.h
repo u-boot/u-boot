@@ -68,7 +68,7 @@
 
 #ifndef __ASSEMBLY__
 
-#ifndef CONFIG_BF54x
+#if !defined(CONFIG_BF54x) && !defined(CONFIG_BF60x)
 void set_gpio_dir(unsigned, unsigned short);
 void set_gpio_inen(unsigned, unsigned short);
 void set_gpio_polar(unsigned, unsigned short);
