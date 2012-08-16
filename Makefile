@@ -450,9 +450,18 @@ $(obj)u-boot.ldr.hex:	$(obj)u-boot.ldr
 $(obj)u-boot.ldr.srec:	$(obj)u-boot.ldr
 		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@ -I binary
 
+#
+# U-Boot entry point, needed for booting of full-blown U-Boot
+# from the SPL U-Boot version.
+#
+ifndef CONFIG_SYS_UBOOT_START
+CONFIG_SYS_UBOOT_START := 0
+endif
+
 $(obj)u-boot.img:	$(obj)u-boot.bin
 		$(obj)tools/mkimage -A $(ARCH) -T firmware -C none \
-		-O u-boot -a $(CONFIG_SYS_TEXT_BASE) -e 0 \
+		-O u-boot -a $(CONFIG_SYS_TEXT_BASE) \
+		-e $(CONFIG_SYS_UBOOT_START) \
 		-n $(shell sed -n -e 's/.*U_BOOT_VERSION//p' $(VERSION_FILE) | \
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
 		-d $< $@
