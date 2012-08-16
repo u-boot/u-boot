@@ -244,9 +244,6 @@ int board_init(void)
 	writel(pin, &pio->piod.odr);
 	writel(pin, &pio->piod.owdr);
 
-	/* Enable Ctrlc */
-	console_init_f();
-
 	gd->bd->bi_arch_number = MACH_TYPE_VL_MA2SC;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;

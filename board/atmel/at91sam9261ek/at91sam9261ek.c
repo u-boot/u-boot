@@ -242,9 +242,6 @@ void lcd_show_board_info(void)
 
 int board_init(void)
 {
-	/* Enable Ctrlc */
-	console_init_f();
-
 #ifdef CONFIG_AT91SAM9G10EK
 	/* arch number of AT91SAM9G10EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9G10EK;

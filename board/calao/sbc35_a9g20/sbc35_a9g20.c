@@ -149,9 +149,6 @@ static void sbc35_a9g20_macb_hw_init(void)
 
 int board_init(void)
 {
-	/* Enable Ctrlc */
-	console_init_f();
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 

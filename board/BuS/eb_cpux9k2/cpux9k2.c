@@ -59,8 +59,6 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	at91_pio_t *pio	= (at91_pio_t *) ATMEL_BASE_PIO;
-	/* Enable Ctrlc */
-	console_init_f();
 
 	/* Correct IRDA resistor problem / Set PA23_TXD in Output */
 	writel(ATMEL_PMX_AA_TXD2, &pio->pioa.oer);
