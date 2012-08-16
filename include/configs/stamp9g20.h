@@ -59,6 +59,7 @@
 #define CONFIG_INITRD_TAG		/* pass initrd param to kernel */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
 #define CONFIG_BOARD_EARLY_INIT_f	/* call board_early_init_f() */
+#define CONFIG_BOARD_POSTCLK_INIT	/* call board_postclk_init() */
 #define CONFIG_DISPLAY_CPUINFO		/* display CPU Info at startup */
 
 /* setting board specific options */
