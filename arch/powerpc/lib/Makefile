@@ -57,7 +57,9 @@ SOBJS-y	+= ticks.o
 SOBJS-y	+= reloc.o
 
 COBJS-$(CONFIG_BAT_RW) += bat_rw.o
+ifndef CONFIG_SPL_BUILD
 COBJS-y	+= board.o
+endif
 COBJS-y	+= bootm.o
 COBJS-y	+= cache.o
 COBJS-y	+= extable.o
@@ -66,6 +68,11 @@ COBJS-$(CONFIG_CMD_KGDB) += kgdb.o
 COBJS-${CONFIG_CMD_IDE} += ide.o
 COBJS-y	+= time.o
 
+# Don't include the MPC5xxx special memcpy into the
+# SPL U-Boot image. memcpy is used in the SPL NOR
+# flash driver. And we need the real, fast memcpy
+# here. We have no problems with unaligned access.
+ifndef CONFIG_SPL_BUILD
 # Workaround for local bus unaligned access problems
 # on MPC512x and MPC5200
 ifdef CONFIG_MPC512X
@@ -75,6 +82,7 @@ endif
 ifdef CONFIG_MPC5200
 $(obj)ppcstring.o: AFLAGS += -Dmemcpy=__memcpy
 COBJS-y += memcpy_mpc5200.o
+endif
 endif
 
 endif # not minimal
