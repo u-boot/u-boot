@@ -295,7 +295,13 @@ void board_init_f(ulong bootflag)
 
 	printf("Clock: VCO: %s MHz, ", strmhz(buf, get_vco()));
 	printf("Core: %s MHz, ", strmhz(buf, get_cclk()));
+#if defined(__ADSPBF60x__)
+	printf("System0: %s MHz, ", strmhz(buf, get_sclk0()));
+	printf("System1: %s MHz, ", strmhz(buf, get_sclk1()));
+	printf("Dclk: %s MHz\n", strmhz(buf, get_dclk()));
+#else
 	printf("System: %s MHz\n", strmhz(buf, get_sclk()));
+#endif
 
 	if (CONFIG_MEM_SIZE) {
 		printf("RAM:   ");
