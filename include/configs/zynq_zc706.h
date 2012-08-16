@@ -28,6 +28,9 @@
 #include <configs/zynq_zc702.h>
 
 #undef CONFIG_ZC702
+
+/* ZC706 QSPI settings */
 #define CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
 
 #endif /* __CONFIG_ZYNQ_ZC706_H */
