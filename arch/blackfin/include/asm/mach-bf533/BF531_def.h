@@ -149,6 +149,7 @@
 #define UART_LSR                       0xFFC00414
 #define UART_SCR                       0xFFC0041C
 #define UART_RBR                       0xFFC00400 /* Receive Buffer */
+#define UART0_RBR                      UART_RBR
 #define UART_GCTL                      0xFFC00424
 #define SPT0_TX_CONFIG0                0xFFC00800
 #define SPT0_TX_CONFIG1                0xFFC00804
