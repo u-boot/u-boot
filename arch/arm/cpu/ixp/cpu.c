@@ -107,28 +107,6 @@ void pci_init(void)
 }
 */
 
-#ifdef CONFIG_BOOTCOUNT_LIMIT
-
-void bootcount_store (ulong a)
-{
-	volatile ulong *save_addr = (volatile ulong *)(CONFIG_SYS_BOOTCOUNT_ADDR);
-
-	save_addr[0] = a;
-	save_addr[1] = BOOTCOUNT_MAGIC;
-}
-
-ulong bootcount_load (void)
-{
-	volatile ulong *save_addr = (volatile ulong *)(CONFIG_SYS_BOOTCOUNT_ADDR);
-
-	if (save_addr[1] != BOOTCOUNT_MAGIC)
-		return 0;
-	else
-		return save_addr[0];
-}
-
-#endif /* CONFIG_BOOTCOUNT_LIMIT */
-
 int cpu_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_IXP4XX_NPE

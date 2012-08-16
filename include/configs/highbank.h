@@ -41,6 +41,8 @@
 #define CONFIG_BAUDRATE			38400
 
 #define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
+#define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0xfff3cf0c
 
 #define CONFIG_MISC_INIT_R

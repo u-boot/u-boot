@@ -249,6 +249,7 @@ LIBS-y += net/libnet.o
 LIBS-y += disk/libdisk.o
 LIBS-y += drivers/bios_emulator/libatibiosemu.o
 LIBS-y += drivers/block/libblock.o
+LIBS-$(CONFIG_BOOTCOUNT_LIMIT) += drivers/bootcount/libbootcount.o
 LIBS-y += drivers/dma/libdma.o
 LIBS-y += drivers/fpga/libfpga.o
 LIBS-y += drivers/gpio/libgpio.o

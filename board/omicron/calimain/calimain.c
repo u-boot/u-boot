@@ -157,32 +157,3 @@ void hw_watchdog_reset(void)
 	davinci_hw_watchdog_reset();
 }
 #endif
-
-#if defined(CONFIG_BOOTCOUNT_LIMIT)
-void bootcount_store(ulong a)
-{
-	struct davinci_rtc *reg =
-		(struct davinci_rtc *)CONFIG_SYS_BOOTCOUNT_ADDR;
-
-	/*
-	 * write RTC kick register to enable write
-	 * for RTC Scratch registers. Scratch0 and 1 are
-	 * used for bootcount values.
-	 */
-	writel(RTC_KICK0R_WE, &reg->kick0r);
-	writel(RTC_KICK1R_WE, &reg->kick1r);
-	writel(a, &reg->scratch0);
-	writel(BOOTCOUNT_MAGIC, &reg->scratch1);
-}
-
-ulong bootcount_load(void)
-{
-	struct davinci_rtc *reg =
-		(struct davinci_rtc *)CONFIG_SYS_BOOTCOUNT_ADDR;
-
-	if (readl(&reg->scratch1) != BOOTCOUNT_MAGIC)
-		return 0;
-	else
-		return readl(&reg->scratch0);
-}
-#endif

@@ -778,35 +778,6 @@ void arch_memory_failure_handle(void)
 }
 #endif
 
-#if defined(CONFIG_BOOTCOUNT_LIMIT)
-void bootcount_store(ulong a)
-{
-	struct davinci_rtc *reg =
-		(struct davinci_rtc *)CONFIG_SYS_BOOTCOUNT_ADDR;
-
-	/*
-	 * write RTC kick register to enable write
-	 * for RTC Scratch registers. Scratch0 and 1 are
-	 * used for bootcount values.
-	 */
-	writel(RTC_KICK0R_WE, &reg->kick0r);
-	writel(RTC_KICK1R_WE, &reg->kick1r);
-	out_be32(&reg->scratch0, a);
-	out_be32(&reg->scratch1, BOOTCOUNT_MAGIC);
-}
-
-ulong bootcount_load(void)
-{
-	struct davinci_rtc *reg =
-		(struct davinci_rtc *)CONFIG_SYS_BOOTCOUNT_ADDR;
-
-	if (in_be32(&reg->scratch1) != BOOTCOUNT_MAGIC)
-		return 0;
-	else
-		return in_be32(&reg->scratch0);
-}
-#endif
-
 ulong post_word_load(void)
 {
 	struct davinci_rtc *reg =

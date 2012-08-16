@@ -1,7 +1,4 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -12,7 +9,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,17 +20,19 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).o
+LIB 	:= $(obj)libbootcount.o
 
-COBJS	:= timer.o
-SOBJS	:=
+COBJS-y				+= bootcount.o
+COBJS-$(CONFIG_AT91SAM9XE)	+= bootcount_at91.o
+COBJS-$(CONFIG_BLACKFIN)	+= bootcount_blackfin.o
+COBJS-$(CONFIG_SOC_DA8XX)	+= bootcount_davinci.o
+COBJS-$(CONFIG_BOOTCOUNT_RAM)	+= bootcount_ram.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
+COBJS	:= $(COBJS-y)
+SRCS 	:= $(COBJS:.o=.c)
+OBJS 	:= $(addprefix $(obj),$(COBJS))
 
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
@@ -43,4 +42,4 @@ include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
 
-#########################################################################
+########################################################################

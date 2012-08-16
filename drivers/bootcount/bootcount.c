@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010
+ * (C) Copyright 2010-2012
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/io.h>
+#include <bootcount.h>
+#include <linux/compiler.h>
 
 /*
  * Only override CONFIG_SYS_BOOTCOUNT_ADDR if not already defined. This
@@ -65,33 +65,36 @@
 
 #endif /* !defined(CONFIG_SYS_BOOTCOUNT_ADDR) */
 
-void bootcount_store(ulong a)
+/* Now implement the generic default functions */
+#if defined(CONFIG_SYS_BOOTCOUNT_ADDR)
+__weak void bootcount_store(ulong a)
 {
 	void *reg = (void *)CONFIG_SYS_BOOTCOUNT_ADDR;
 
 #if defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD)
-	out_be32(reg, (BOOTCOUNT_MAGIC & 0xffff0000) | a);
+	raw_bootcount_store(reg, (BOOTCOUNT_MAGIC & 0xffff0000) | a);
 #else
-	out_be32(reg, a);
-	out_be32(reg + 4, BOOTCOUNT_MAGIC);
+	raw_bootcount_store(reg, a);
+	raw_bootcount_store(reg + 4, BOOTCOUNT_MAGIC);
 #endif
 }
 
-ulong bootcount_load(void)
+__weak ulong bootcount_load(void)
 {
 	void *reg = (void *)CONFIG_SYS_BOOTCOUNT_ADDR;
 
 #if defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD)
-	u32 tmp = in_be32(reg);
+	u32 tmp = raw_bootcount_load(reg);
 
 	if ((tmp & 0xffff0000) != (BOOTCOUNT_MAGIC & 0xffff0000))
 		return 0;
 	else
 		return (tmp & 0x0000ffff);
 #else
-	if (in_be32(reg + 4) != BOOTCOUNT_MAGIC)
+	if (raw_bootcount_load(reg + 4) != BOOTCOUNT_MAGIC)
 		return 0;
 	else
-		return in_be32(reg);
+		return raw_bootcount_load(reg);
 #endif
 }
+#endif
