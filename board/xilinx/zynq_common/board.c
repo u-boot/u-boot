@@ -36,9 +36,6 @@ u32 XIo_In32(u32 InAddress)
 	return temp;
 }
 
-#define Xil_Out32
-#define Xil_In32
-
 #ifdef CONFIG_FPGA
 Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
 #endif
@@ -48,16 +45,16 @@ int board_init(void)
 	/* temporary hack to clear pending irqs before Linux as it 
 	   will hang Linux */
 
-	Xil_Out32(0xe0001014, 0x26d);
+	XIo_Out32(0xe0001014, 0x26d);
 
 	/* temporary hack to take USB out of reset til the is fixed
 	   in Linux */
 
-	Xil_Out32(0xe000a204, 0x80);
-	Xil_Out32(0xe000a208, 0x80);
-	Xil_Out32(0xe000a040, 0x80);
-	Xil_Out32(0xe000a040, 0x00);
-	Xil_Out32(0xe000a040, 0x80);
+	XIo_Out32(0xe000a204, 0x80);
+	XIo_Out32(0xe000a208, 0x80);
+	XIo_Out32(0xe000a040, 0x80);
+	XIo_Out32(0xe000a040, 0x00);
+	XIo_Out32(0xe000a040, 0x80);
 
 	icache_enable();
 
@@ -73,7 +70,7 @@ int board_late_init (void)
 {
 	u32 boot_mode;
 
-	boot_mode = (Xil_In32(BOOT_MODE_REG) & BOOT_MODES_MASK);
+	boot_mode = (XIo_In32(BOOT_MODE_REG) & BOOT_MODES_MASK);
 	switch(boot_mode) {
 	case QSPI_MODE:
 		setenv("modeboot", "run qspiboot");
