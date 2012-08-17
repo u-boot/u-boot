@@ -1157,6 +1157,7 @@ struct cpu_type {
 };
 
 struct cpu_type *identify_cpu(u32 ver);
+int fixup_cpu(void);
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 #define CPU_TYPE_ENTRY(n, v, nc) \

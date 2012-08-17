@@ -345,6 +345,13 @@ ulong get_effective_memsize(void)
 #endif
 }
 
+int __fixup_cpu(void)
+{
+	return 0;
+}
+
+int fixup_cpu(void) __attribute__((weak, alias("__fixup_cpu")));
+
 /*
  * This is the first part of the initialization sequence that is
  * implemented in C, but still running from ROM.
@@ -646,6 +653,12 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	 * We need to update it to point to the same CPU entry in RAM.
 	 */
 	gd->cpu += dest_addr - CONFIG_SYS_MONITOR_BASE;
+
+	/*
+	 * If we didn't know the cpu mask & # cores, we can save them of
+	 * now rather than 'computing' them constantly
+	 */
+	fixup_cpu();
 #endif
 
 #ifdef CONFIG_SYS_EXTRA_ENV_RELOC
