@@ -35,6 +35,9 @@
 
 #define MAX_LEVEL	32		/* how deeply nested we will go */
 #define SCRATCHPAD	1024		/* bytes of scratchpad memory */
+#ifndef CONFIG_CMD_FDT_MAX_DUMP
+#define CONFIG_CMD_FDT_MAX_DUMP 64
+#endif
 
 /*
  * Global data (for the gd->bd)
@@ -672,19 +675,28 @@ static void print_data(const void *data, int len)
 	}
 
 	if ((len %4) == 0) {
-		const u32 *p;
+		if (len > CONFIG_CMD_FDT_MAX_DUMP)
+			printf("* 0x%08x [0x%08x]", (unsigned int)data, len);
+		else {
+			const u32 *p;
 
-		printf("<");
-		for (j = 0, p = data; j < len/4; j ++)
-			printf("0x%x%s", fdt32_to_cpu(p[j]), j < (len/4 - 1) ? " " : "");
-		printf(">");
+			printf("<");
+			for (j = 0, p = data; j < len/4; j++)
+				printf("0x%08x%s", fdt32_to_cpu(p[j]),
+					j < (len/4 - 1) ? " " : "");
+			printf(">");
+		}
 	} else { /* anything else... hexdump */
-		const u8 *s;
+		if (len > CONFIG_CMD_FDT_MAX_DUMP)
+			printf("* 0x%08x [0x%08x]", (unsigned int)data, len);
+		else {
+			const u8 *s;
 
-		printf("[");
-		for (j = 0, s = data; j < len; j++)
-			printf("%02x%s", s[j], j < len - 1 ? " " : "");
-		printf("]");
+			printf("[");
+			for (j = 0, s = data; j < len; j++)
+				printf("%02x%s", s[j], j < len - 1 ? " " : "");
+			printf("]");
+		}
 	}
 }
 
