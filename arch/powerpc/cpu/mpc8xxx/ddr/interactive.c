@@ -1047,7 +1047,7 @@ void ddr3_spd_dump(const ddr3_spd_eeprom_t *spd)
 
 	/* General Section: Bytes 0-59 */
 
-#define PRINT_NXS(x, y, z...) printf("%-3d    : %02x " z "\n", x, y);
+#define PRINT_NXS(x, y, z...) printf("%-3d    : %02x " z "\n", x, (u8)y);
 #define PRINT_NNXXS(n0, n1, x0, x1, s) \
 	printf("%-3d-%3d: %02x %02x " s "\n", n0, n1, x0, x1);
 
@@ -1398,7 +1398,7 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		 * No need to worry for buffer overflow here in
 		 * this function;  readline() maxes out at CFG_CBSIZE
 		 */
-		readline_into_buffer(prompt,  buffer);
+		readline_into_buffer(prompt, buffer, 0);
 		argc = parse_line(buffer, argv);
 		if (argc == 0)
 			continue;
