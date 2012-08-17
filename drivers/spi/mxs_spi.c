@@ -91,7 +91,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	mxs_slave = malloc(sizeof(struct mxs_spi_slave));
+	mxs_slave = calloc(sizeof(struct mxs_spi_slave), 1);
 	if (!mxs_slave)
 		return NULL;
 
