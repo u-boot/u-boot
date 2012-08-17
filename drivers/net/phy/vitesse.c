@@ -1,6 +1,9 @@
 /*
  * Vitesse PHY drivers
  *
+ * Copyright 2010-2012 Freescale Semiconductor, Inc.
+ * Author: Andy Fleming
+ * Add vsc8662 phy support - Priyanka Jain
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
@@ -15,10 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
- * Copyright 2010-2011 Freescale Semiconductor, Inc.
- * author Andy Fleming
- *
  */
 #include <miiphy.h>
 
@@ -206,6 +205,16 @@ static struct phy_driver VSC8641_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver VSC8662_driver = {
+	.name = "Vitesse VSC8662",
+	.uid = 0x70660,
+	.mask = 0xffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &genphy_config_aneg,
+	.startup = &vitesse_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 /* Vitesse bought Cicada, so we'll put these here */
 static struct phy_driver cis8201_driver = {
 	.name = "CIS8201",
@@ -235,6 +244,7 @@ int phy_vitesse_init(void)
 	phy_register(&VSC8244_driver);
 	phy_register(&VSC8211_driver);
 	phy_register(&VSC8221_driver);
+	phy_register(&VSC8662_driver);
 	phy_register(&cis8201_driver);
 	phy_register(&cis8204_driver);
 
