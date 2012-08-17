@@ -1078,6 +1078,32 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) { /* not protected */
+#ifdef CONFIG_SYS_FLASH_CHECK_BLANK_BEFORE_ERASE
+			int k;
+			int size;
+			int erased;
+			u32 *flash;
+
+			/*
+			 * Check if whole sector is erased
+			 */
+			size = flash_sector_size(info, sect);
+			erased = 1;
+			flash = (u32 *)info->start[sect];
+			/* divide by 4 for longword access */
+			size = size >> 2;
+			for (k = 0; k < size; k++) {
+				if (flash_read32(flash++) != 0xffffffff) {
+					erased = 0;
+					break;
+				}
+			}
+			if (erased) {
+				if (flash_verbose)
+					putc(',');
+				continue;
+			}
+#endif
 			switch (info->vendor) {
 			case CFI_CMDSET_INTEL_PROG_REGIONS:
 			case CFI_CMDSET_INTEL_STANDARD:
