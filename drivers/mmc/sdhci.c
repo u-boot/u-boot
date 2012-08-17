@@ -381,11 +381,24 @@ int sdhci_init(struct mmc *mmc)
 		}
 	}
 
+	sdhci_set_power(host, fls(mmc->voltages) - 1);
+
+	if (host->quirks & SDHCI_QUIRK_NO_CD) {
+		unsigned int status;
+
+		sdhci_writel(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
+			SDHCI_HOST_CONTROL);
+
+		status = sdhci_readl(host, SDHCI_PRESENT_STATE);
+		while ((!(status & SDHCI_CARD_PRESENT)) ||
+		    (!(status & SDHCI_CARD_STATE_STABLE)) ||
+		    (!(status & SDHCI_CARD_DETECT_PIN_LEVEL)))
+			status = sdhci_readl(host, SDHCI_PRESENT_STATE);
+	}
+
 	/* Eable all state */
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_ENABLE);
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_SIGNAL_ENABLE);
-
-	sdhci_set_power(host, fls(mmc->voltages) - 1);
 
 	return 0;
 }
