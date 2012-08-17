@@ -28,6 +28,32 @@
 #include <command.h>
 #include <sha1.h>
 
+/*
+ * Store the resulting sum to an address or variable
+ */
+static void store_result(const u8 *sum, const char *dest)
+{
+	unsigned int i;
+
+	if (*dest == '*') {
+		u8 *ptr;
+
+		ptr = (u8 *)simple_strtoul(dest + 1, NULL, 16);
+		for (i = 0; i < 20; i++)
+			*ptr++ = sum[i];
+	} else {
+		char str_output[41];
+		char *str_ptr = str_output;
+
+		for (i = 0; i < 20; i++) {
+			sprintf(str_ptr, "%02x", sum[i]);
+			str_ptr += 2;
+		}
+		str_ptr = '\0';
+		setenv(dest, str_output);
+	}
+}
+
 #ifdef CONFIG_SHA1SUM_VERIFY
 static int parse_verify_sum(char *verify_str, u8 *vsum)
 {
@@ -94,6 +120,9 @@ int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		for (i = 0; i < 20; i++)
 			printf("%02x", output[i]);
 		printf("\n");
+
+		if (ac > 2)
+			store_result(output, *av);
 	} else {
 		char *verify_str = *av++;
 
@@ -136,6 +165,9 @@ static int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("%02x", output[i]);
 	printf("\n");
 
+	if (argc > 3)
+		store_result(output, argv[3]);
+
 	return 0;
 }
 #endif
@@ -144,15 +176,16 @@ static int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	sha1sum,	5,	1,	do_sha1sum,
 	"compute SHA1 message digest",
-	"address count\n"
-		"    - compute SHA1 message digest\n"
+	"address count [[*]sum]\n"
+		"    - compute SHA1 message digest [save to sum]\n"
 	"sha1sum -v address count [*]sum\n"
 		"    - verify sha1sum of memory area"
 );
 #else
 U_BOOT_CMD(
-	sha1sum,	3,	1,	do_sha1sum,
+	sha1sum,	4,	1,	do_sha1sum,
 	"compute SHA1 message digest",
-	"address count"
+	"address count [[*]sum]\n"
+		"    - compute SHA1 message digest [save to sum]"
 );
 #endif
