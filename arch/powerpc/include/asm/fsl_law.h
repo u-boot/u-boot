@@ -60,8 +60,12 @@ enum law_trgt_if {
 
 	LAW_TRGT_IF_DDR_1 = 0x10,
 	LAW_TRGT_IF_DDR_2 = 0x11,	/* 2nd controller */
+	LAW_TRGT_IF_DDR_3 = 0x12,
+	LAW_TRGT_IF_DDR_4 = 0x13,
 	LAW_TRGT_IF_DDR_INTRLV = 0x14,
-
+	LAW_TRGT_IF_DDR_INTLV_34 = 0x15,
+	LAW_TRGT_IF_DDR_INTLV_123 = 0x17,
+	LAW_TRGT_IF_DDR_INTLV_1234 = 0x16,
 	LAW_TRGT_IF_BMAN = 0x18,
 	LAW_TRGT_IF_DCSR = 0x1d,
 	LAW_TRGT_IF_LBC = 0x1f,
@@ -87,6 +91,12 @@ enum law_trgt_if {
 	LAW_TRGT_IF_DPAA_SWP_SRAM = 0x0e,
 	LAW_TRGT_IF_DDR = 0x0f,
 	LAW_TRGT_IF_DDR_2 = 0x16,	/* 2nd controller */
+	/* place holder for 3-way and 4-way interleaving */
+	LAW_TRGT_IF_DDR_3,
+	LAW_TRGT_IF_DDR_4,
+	LAW_TRGT_IF_DDR_INTLV_34,
+	LAW_TRGT_IF_DDR_INTLV_123,
+	LAW_TRGT_IF_DDR_INTLV_1234,
 };
 #define LAW_TRGT_IF_DDR_1	LAW_TRGT_IF_DDR
 #define LAW_TRGT_IF_PCI_1	LAW_TRGT_IF_PCI

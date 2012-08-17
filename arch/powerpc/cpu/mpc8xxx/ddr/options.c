@@ -1,5 +1,5 @@
 /*
- * Copyright 2008, 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2008, 2010-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -790,46 +790,97 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * should be a subset of the requested configuration.
 	 */
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
-	if (hwconfig_sub_f("fsl_ddr", "ctlr_intlv", buf)) {
-		if (pdimm[0].n_ranks == 0) {
-			printf("There is no rank on CS0 for controller %d. Because only"
-				" rank on CS0 and ranks chip-select interleaved with CS0"
-				" are controller interleaved, force non memory "
-				"controller interleaving\n", ctrl_num);
-			popts->memctl_interleaving = 0;
-		} else {
-			popts->memctl_interleaving = 1;
-			/*
-			 * test null first. if CONFIG_HWCONFIG is not defined
-			 * hwconfig_arg_cmp returns non-zero
-			 */
-			if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
-						    "null", buf)) {
-				popts->memctl_interleaving = 0;
-				debug("memory controller interleaving disabled.\n");
-			} else if (hwconfig_subarg_cmp_f("fsl_ddr",
-							 "ctlr_intlv",
-							 "cacheline", buf))
-				popts->memctl_interleaving_mode =
-					FSL_DDR_CACHE_LINE_INTERLEAVING;
-			else if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
-						       "page", buf))
-				popts->memctl_interleaving_mode =
-					FSL_DDR_PAGE_INTERLEAVING;
-			else if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
-						       "bank", buf))
-				popts->memctl_interleaving_mode =
-					FSL_DDR_BANK_INTERLEAVING;
-			else if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
-						       "superbank", buf))
-				popts->memctl_interleaving_mode =
-					FSL_DDR_SUPERBANK_INTERLEAVING;
-			else {
-				popts->memctl_interleaving = 0;
-				printf("hwconfig has unrecognized parameter for ctlr_intlv.\n");
-			}
-		}
+	if (!hwconfig_sub_f("fsl_ddr", "ctlr_intlv", buf))
+		goto done;
+
+	if (pdimm[0].n_ranks == 0) {
+		printf("There is no rank on CS0 for controller %d.\n", ctrl_num);
+		popts->memctl_interleaving = 0;
+		goto done;
 	}
+	popts->memctl_interleaving = 1;
+	/*
+	 * test null first. if CONFIG_HWCONFIG is not defined
+	 * hwconfig_arg_cmp returns non-zero
+	 */
+	if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
+				    "null", buf)) {
+		popts->memctl_interleaving = 0;
+		debug("memory controller interleaving disabled.\n");
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"cacheline", buf)) {
+		popts->memctl_interleaving_mode =
+			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			0 : FSL_DDR_CACHE_LINE_INTERLEAVING;
+		popts->memctl_interleaving =
+			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			0 : 1;
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"page", buf)) {
+		popts->memctl_interleaving_mode =
+			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			0 : FSL_DDR_PAGE_INTERLEAVING;
+		popts->memctl_interleaving =
+			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			0 : 1;
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"bank", buf)) {
+		popts->memctl_interleaving_mode =
+			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			0 : FSL_DDR_BANK_INTERLEAVING;
+		popts->memctl_interleaving =
+			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			0 : 1;
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"superbank", buf)) {
+		popts->memctl_interleaving_mode =
+			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			0 : FSL_DDR_SUPERBANK_INTERLEAVING;
+		popts->memctl_interleaving =
+			((CONFIG_NUM_DDR_CONTROLLERS == 3) && ctrl_num == 2) ?
+			0 : 1;
+#if (CONFIG_NUM_DDR_CONTROLLERS == 3)
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"3way_1KB", buf)) {
+		popts->memctl_interleaving_mode =
+			FSL_DDR_3WAY_1KB_INTERLEAVING;
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"3way_4KB", buf)) {
+		popts->memctl_interleaving_mode =
+			FSL_DDR_3WAY_4KB_INTERLEAVING;
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"3way_8KB", buf)) {
+		popts->memctl_interleaving_mode =
+			FSL_DDR_3WAY_8KB_INTERLEAVING;
+#elif (CONFIG_NUM_DDR_CONTROLLERS == 4)
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"4way_1KB", buf)) {
+		popts->memctl_interleaving_mode =
+			FSL_DDR_4WAY_1KB_INTERLEAVING;
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"4way_4KB", buf)) {
+		popts->memctl_interleaving_mode =
+			FSL_DDR_4WAY_4KB_INTERLEAVING;
+	} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+					"ctlr_intlv",
+					"4way_8KB", buf)) {
+		popts->memctl_interleaving_mode =
+			FSL_DDR_4WAY_8KB_INTERLEAVING;
+#endif
+	} else {
+		popts->memctl_interleaving = 0;
+		printf("hwconfig has unrecognized parameter for ctlr_intlv.\n");
+	}
+done:
 #endif
 	if ((hwconfig_sub_f("fsl_ddr", "bank_intlv", buf)) &&
 		(CONFIG_CHIP_SELECTS_PER_CTRL > 1)) {
@@ -859,20 +910,20 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for "
 					"CS0+CS1+CS2+CS3 on controller %d, "
-					"force non-interleaving!\n", ctrl_num);
+					"interleaving disabled!\n", ctrl_num);
 			}
 #elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
 			if ((pdimm[0].n_ranks < 2) && (pdimm[1].n_ranks < 2)) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for "
 					"CS0+CS1+CS2+CS3 on controller %d, "
-					"force non-interleaving!\n", ctrl_num);
+					"interleaving disabled!\n", ctrl_num);
 			}
 			if (pdimm[0].capacity != pdimm[1].capacity) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not identical DIMM size for "
 					"CS0+CS1+CS2+CS3 on controller %d, "
-					"force non-interleaving!\n", ctrl_num);
+					"interleaving disabled!\n", ctrl_num);
 			}
 #endif
 			break;
@@ -881,7 +932,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for "
 					"CS0+CS1 on controller %d, "
-					"force non-interleaving!\n", ctrl_num);
+					"interleaving disabled!\n", ctrl_num);
 			}
 			break;
 		case FSL_DDR_CS2_CS3:
@@ -889,13 +940,13 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			if (pdimm[0].n_ranks < 4) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for CS2+CS3 "
-					"on controller %d, force non-interleaving!\n", ctrl_num);
+					"on controller %d, interleaving disabled!\n", ctrl_num);
 			}
 #elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
 			if (pdimm[1].n_ranks < 2) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for CS2+CS3 "
-					"on controller %d, force non-interleaving!\n", ctrl_num);
+					"on controller %d, interleaving disabled!\n", ctrl_num);
 			}
 #endif
 			break;
@@ -905,14 +956,14 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(CS) for CS0+CS1 and "
 					"CS2+CS3 on controller %d, "
-					"force non-interleaving!\n", ctrl_num);
+					"interleaving disabled!\n", ctrl_num);
 			}
 #elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
 			if ((pdimm[0].n_ranks < 2) || (pdimm[1].n_ranks < 2)) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(CS) for CS0+CS1 and "
 					"CS2+CS3 on controller %d, "
-					"force non-interleaving!\n", ctrl_num);
+					"interleaving disabled!\n", ctrl_num);
 			}
 #endif
 			break;
@@ -954,33 +1005,73 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 
 void check_interleaving_options(fsl_ddr_info_t *pinfo)
 {
-	int i, j, check_n_ranks, intlv_fixed = 0;
+	int i, j, k, check_n_ranks, intlv_invalid = 0;
+	unsigned int check_intlv, check_n_row_addr, check_n_col_addr;
 	unsigned long long check_rank_density;
+	struct dimm_params_s *dimm;
 	/*
 	 * Check if all controllers are configured for memory
 	 * controller interleaving. Identical dimms are recommended. At least
-	 * the size should be checked.
+	 * the size, row and col address should be checked.
 	 */
 	j = 0;
 	check_n_ranks = pinfo->dimm_params[0][0].n_ranks;
 	check_rank_density = pinfo->dimm_params[0][0].rank_density;
+	check_n_row_addr =  pinfo->dimm_params[0][0].n_row_addr;
+	check_n_col_addr = pinfo->dimm_params[0][0].n_col_addr;
+	check_intlv = pinfo->memctl_opts[0].memctl_interleaving_mode;
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
-		if ((pinfo->memctl_opts[i].memctl_interleaving) && \
-		    (check_rank_density == pinfo->dimm_params[i][0].rank_density) && \
-		    (check_n_ranks == pinfo->dimm_params[i][0].n_ranks)) {
+		dimm = &pinfo->dimm_params[i][0];
+		if (!pinfo->memctl_opts[i].memctl_interleaving) {
+			continue;
+		} else if (((check_rank_density != dimm->rank_density) ||
+		     (check_n_ranks != dimm->n_ranks) ||
+		     (check_n_row_addr != dimm->n_row_addr) ||
+		     (check_n_col_addr != dimm->n_col_addr) ||
+		     (check_intlv !=
+			pinfo->memctl_opts[i].memctl_interleaving_mode))){
+			intlv_invalid = 1;
+			break;
+		} else {
 			j++;
 		}
+
 	}
-	if (j != CONFIG_NUM_DDR_CONTROLLERS) {
+	if (intlv_invalid) {
 		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
-			if (pinfo->memctl_opts[i].memctl_interleaving) {
+			pinfo->memctl_opts[i].memctl_interleaving = 0;
+		printf("Not all DIMMs are identical. "
+			"Memory controller interleaving disabled.\n");
+	} else {
+		switch (check_intlv) {
+		case FSL_DDR_CACHE_LINE_INTERLEAVING:
+		case FSL_DDR_PAGE_INTERLEAVING:
+		case FSL_DDR_BANK_INTERLEAVING:
+		case FSL_DDR_SUPERBANK_INTERLEAVING:
+			if (3 == CONFIG_NUM_DDR_CONTROLLERS)
+				k = 2;
+			else
+				k = CONFIG_NUM_DDR_CONTROLLERS;
+			break;
+		case FSL_DDR_3WAY_1KB_INTERLEAVING:
+		case FSL_DDR_3WAY_4KB_INTERLEAVING:
+		case FSL_DDR_3WAY_8KB_INTERLEAVING:
+		case FSL_DDR_4WAY_1KB_INTERLEAVING:
+		case FSL_DDR_4WAY_4KB_INTERLEAVING:
+		case FSL_DDR_4WAY_8KB_INTERLEAVING:
+		default:
+			k = CONFIG_NUM_DDR_CONTROLLERS;
+			break;
+		}
+		debug("%d of %d controllers are interleaving.\n", j, k);
+		if (j != k) {
+			for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
 				pinfo->memctl_opts[i].memctl_interleaving = 0;
-				intlv_fixed = 1;
-			}
-		if (intlv_fixed)
-			printf("Not all DIMMs are identical in size. "
-				"Memory controller interleaving disabled.\n");
+			printf("Not all controllers have compatible "
+				"interleaving mode. All disabled.\n");
+		}
 	}
+	debug("Checking interleaving options completed\n");
 }
 
 int fsl_use_spd(void)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2011 Freescale Semiconductor, Inc.
+ * Copyright 2008-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -79,7 +79,7 @@ unsigned int mclk_to_picos(unsigned int mclk)
 
 void
 __fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
-			   unsigned int memctl_interleaved,
+			   unsigned int law_memctl,
 			   unsigned int ctrl_num)
 {
 	unsigned long long base = memctl_common_params->base_address;
@@ -98,34 +98,28 @@ __fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 	if ((base + size) >= CONFIG_MAX_MEM_MAPPED)
 		size = CONFIG_MAX_MEM_MAPPED - base;
 #endif
-
-	if (ctrl_num == 0) {
-		/*
-		 * Set up LAW for DDR controller 1 space.
-		 */
-		unsigned int lawbar1_target_id = memctl_interleaved
-			? LAW_TRGT_IF_DDR_INTRLV : LAW_TRGT_IF_DDR_1;
-
-		if (set_ddr_laws(base, size, lawbar1_target_id) < 0) {
-			printf("%s: ERROR (ctrl #0, intrlv=%d)\n", __func__,
-				memctl_interleaved);
-			return ;
-		}
-	} else if (ctrl_num == 1) {
-		if (set_ddr_laws(base, size, LAW_TRGT_IF_DDR_2) < 0) {
-			printf("%s: ERROR (ctrl #1)\n", __func__);
-			return ;
-		}
-	} else {
-		printf("%s: unexpected DDR controller number (%u)\n", __func__,
-			ctrl_num);
+	if (set_ddr_laws(base, size, law_memctl) < 0) {
+		printf("%s: ERROR (ctrl #%d, TRGT ID=%x)\n", __func__, ctrl_num,
+			law_memctl);
+		return ;
 	}
+	debug("setup ddr law base = 0x%llx, size 0x%llx, TRGT_ID 0x%x\n",
+		base, size, law_memctl);
 }
 
 __attribute__((weak, alias("__fsl_ddr_set_lawbar"))) void
 fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 			 unsigned int memctl_interleaved,
 			 unsigned int ctrl_num);
+
+void fsl_ddr_set_intl3r(const unsigned int granule_size)
+{
+#ifdef CONFIG_E6500
+	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
+	*mcintl3r = 0x80000000 | (granule_size & 0x1f);
+	debug("Enable MCINTL3R with granule size 0x%x\n", granule_size);
+#endif
+}
 
 void board_add_ram_info(int use_default)
 {
@@ -136,6 +130,9 @@ void board_add_ram_info(int use_default)
 	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 #elif defined(CONFIG_MPC86xx)
 	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC86xx_DDR_ADDR);
+#endif
+#if	defined(CONFIG_E6500) && (CONFIG_NUM_DDR_CONTROLLERS == 3)
+	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
 #endif
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	uint32_t cs0_config = in_be32(&ddr->cs0_config);
@@ -180,7 +177,29 @@ void board_add_ram_info(int use_default)
 	else
 		puts(", ECC off)");
 
-#if (CONFIG_NUM_DDR_CONTROLLERS > 1)
+#if (CONFIG_NUM_DDR_CONTROLLERS == 3)
+#ifdef CONFIG_E6500
+	if (*mcintl3r & 0x80000000) {
+		puts("\n");
+		puts("       DDR Controller Interleaving Mode: ");
+		switch (*mcintl3r & 0x1f) {
+		case FSL_DDR_3WAY_1KB_INTERLEAVING:
+			puts("3-way 1KB");
+			break;
+		case FSL_DDR_3WAY_4KB_INTERLEAVING:
+			puts("3-way 4KB");
+			break;
+		case FSL_DDR_3WAY_8KB_INTERLEAVING:
+			puts("3-way 8KB");
+			break;
+		default:
+			puts("3-way UNKNOWN");
+			break;
+		}
+	}
+#endif
+#endif
+#if (CONFIG_NUM_DDR_CONTROLLERS >= 2)
 	if (cs0_config & 0x20000000) {
 		puts("\n");
 		puts("       DDR Controller Interleaving Mode: ");

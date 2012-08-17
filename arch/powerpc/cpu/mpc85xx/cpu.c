@@ -430,9 +430,19 @@ static void dump_spd_ddr_reg(void)
 		case 0:
 			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
 			break;
-#ifdef CONFIG_SYS_MPC85xx_DDR2_ADDR
+#if defined(CONFIG_SYS_MPC85xx_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
 		case 1:
 			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
+			break;
+#endif
+#if defined(CONFIG_SYS_MPC85xx_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+		case 2:
+			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR3_ADDR;
+			break;
+#endif
+#if defined(CONFIG_SYS_MPC85xx_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+		case 3:
+			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR4_ADDR;
 			break;
 #endif
 		default:
