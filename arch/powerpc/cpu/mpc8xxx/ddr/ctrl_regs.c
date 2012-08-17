@@ -313,29 +313,41 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 
 /* DDR SDRAM Timing Configuration 3 (TIMING_CFG_3) */
 static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
+			       const memctl_options_t *popts,
 			       const common_timing_params_t *common_dimm,
 			       unsigned int cas_latency)
 {
+	/* Extended precharge to activate interval (tRP) */
+	unsigned int ext_pretoact = 0;
 	/* Extended Activate to precharge interval (tRAS) */
 	unsigned int ext_acttopre = 0;
-	unsigned int ext_refrec; /* Extended refresh recovery time (tRFC) */
-	unsigned int ext_caslat = 0; /* Extended MCAS latency from READ cmd */
-	unsigned int cntl_adj = 0; /* Control Adjust */
+	/* Extended activate to read/write interval (tRCD) */
+	unsigned int ext_acttorw = 0;
+	/* Extended refresh recovery time (tRFC) */
+	unsigned int ext_refrec;
+	/* Extended MCAS latency from READ cmd */
+	unsigned int ext_caslat = 0;
+	/* Extended last data to precharge interval (tWR) */
+	unsigned int ext_wrrec = 0;
+	/* Control Adjust */
+	unsigned int cntl_adj = 0;
 
-	/* If the tRAS > 19 MCLK, we use the ext mode */
-	if (picos_to_mclk(common_dimm->tRAS_ps) > 0x13)
-		ext_acttopre = 1;
-
+	ext_pretoact = picos_to_mclk(common_dimm->tRP_ps) >> 4;
+	ext_acttopre = picos_to_mclk(common_dimm->tRAS_ps) >> 4;
+	ext_acttorw = picos_to_mclk(common_dimm->tRCD_ps) >> 4;
+	ext_caslat = (2 * cas_latency - 1) >> 4;
 	ext_refrec = (picos_to_mclk(common_dimm->tRFC_ps) - 8) >> 4;
-
-	/* If the CAS latency more than 8, use the ext mode */
-	if (cas_latency > 8)
-		ext_caslat = 1;
+	/* ext_wrrec only deals with 16 clock and above, or 14 with OTF */
+	ext_wrrec = (picos_to_mclk(common_dimm->tWR_ps) +
+		(popts->OTF_burst_chop_en ? 2 : 0)) >> 4;
 
 	ddr->timing_cfg_3 = (0
-		| ((ext_acttopre & 0x1) << 24)
-		| ((ext_refrec & 0xF) << 16)
-		| ((ext_caslat & 0x1) << 12)
+		| ((ext_pretoact & 0x1) << 28)
+		| ((ext_acttopre & 0x2) << 24)
+		| ((ext_acttorw & 0x1) << 22)
+		| ((ext_refrec & 0x1F) << 16)
+		| ((ext_caslat & 0x3) << 12)
+		| ((ext_wrrec & 0x1) << 8)
 		| ((cntl_adj & 0x7) << 0)
 		);
 	debug("FSLDDR: timing_cfg_3 = 0x%08x\n", ddr->timing_cfg_3);
@@ -397,15 +409,16 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	 * we need set extend bit for it at
 	 * TIMING_CFG_3[EXT_CASLAT]
 	 */
-	if (cas_latency > 8)
-		cas_latency -= 8;
 	caslat_ctrl = 2 * cas_latency - 1;
 #endif
 
 	refrec_ctrl = picos_to_mclk(common_dimm->tRFC_ps) - 8;
 	wrrec_mclk = picos_to_mclk(common_dimm->tWR_ps);
 
-	wrrec_mclk = wrrec_table[wrrec_mclk - 1];
+	if (wrrec_mclk > 16)
+		printf("Error: WRREC doesn't support more than 16 clocks\n");
+	else
+		wrrec_mclk = wrrec_table[wrrec_mclk - 1];
 	if (popts->OTF_burst_chop_en)
 		wrrec_mclk += 2;
 
@@ -1550,7 +1563,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_timing_cfg_0(ddr, popts);
 #endif
 
-	set_timing_cfg_3(ddr, common_dimm, cas_latency);
+	set_timing_cfg_3(ddr, popts, common_dimm, cas_latency);
 	set_timing_cfg_1(ddr, popts, common_dimm, cas_latency);
 	set_timing_cfg_2(ddr, popts, common_dimm,
 				cas_latency, additive_latency);

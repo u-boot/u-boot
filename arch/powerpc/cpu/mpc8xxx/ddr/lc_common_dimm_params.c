@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2011 Freescale Semiconductor, Inc.
+ * Copyright 2008-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -490,6 +490,16 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	 * use it.
 	 */
 	outpdimm->additive_latency = additive_latency;
+
+	debug("tCKmin_ps = %u\n", outpdimm->tCKmin_X_ps);
+	debug("tRCD_ps   = %u\n", outpdimm->tRCD_ps);
+	debug("tRP_ps    = %u\n", outpdimm->tRP_ps);
+	debug("tRAS_ps   = %u\n", outpdimm->tRAS_ps);
+	debug("tWR_ps    = %u\n", outpdimm->tWR_ps);
+	debug("tWTR_ps   = %u\n", outpdimm->tWTR_ps);
+	debug("tRFC_ps   = %u\n", outpdimm->tRFC_ps);
+	debug("tRRD_ps   = %u\n", outpdimm->tRRD_ps);
+	debug("tRC_ps    = %u\n", outpdimm->tRC_ps);
 
 	return 0;
 }
