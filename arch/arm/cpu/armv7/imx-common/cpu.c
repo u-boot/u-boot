@@ -111,18 +111,16 @@ int cpu_eth_init(bd_t *bis)
 	return rc;
 }
 
+#ifdef CONFIG_FSL_ESDHC
 /*
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
 int cpu_mmc_init(bd_t *bis)
 {
-#ifdef CONFIG_FSL_ESDHC
 	return fsl_esdhc_mmc_init(bis);
-#else
-	return 0;
-#endif
 }
+#endif
 
 void reset_cpu(ulong addr)
 {
