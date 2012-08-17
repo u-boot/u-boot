@@ -30,6 +30,9 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#ifdef CONFIG_FSL_ESDHC
+#include <fsl_esdhc.h>
+#endif
 #include <netdev.h>
 
 #define CLK_CODE(arm, ahb, sel) (((arm) << 16) + ((ahb) << 8) + (sel))
@@ -463,7 +466,6 @@ int print_cpuinfo(void)
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
  */
-
 int cpu_eth_init(bd_t *bis)
 {
 	int rc = -ENODEV;
@@ -474,6 +476,17 @@ int cpu_eth_init(bd_t *bis)
 
 	return rc;
 }
+
+#ifdef CONFIG_FSL_ESDHC
+/*
+ * Initializes on-chip MMC controllers.
+ * to override, implement board_mmc_init()
+ */
+int cpu_mmc_init(bd_t *bis)
+{
+	return fsl_esdhc_mmc_init(bis);
+}
+#endif
 
 int get_clocks(void)
 {
