@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2011 Freescale Semiconductor, Inc.
+ * Copyright 2008-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -825,7 +825,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 
 	/* Mode Register - MR0 */
 	unsigned int dll_on;	/* DLL control for precharge PD, 0=off, 1=on */
-	unsigned int wr;	/* Write Recovery */
+	unsigned int wr = 0;	/* Write Recovery */
 	unsigned int dll_rst;	/* DLL Reset */
 	unsigned int mode;	/* Normal=0 or Test=1 */
 	unsigned int caslat = 4;/* CAS# latency, default set as 6 cycles */
@@ -885,24 +885,37 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	dll_on = 1;
 
 	wr_mclk = (common_dimm->tWR_ps + mclk_ps - 1) / mclk_ps;
-	wr = wr_table[wr_mclk - 5];
+	if (wr_mclk <= 16) {
+		wr = wr_table[wr_mclk - 5];
+	} else {
+		printf("Error: unsupported write recovery for mode register "
+		       "wr_mclk = %d\n", wr_mclk);
+	}
 
 	dll_rst = 0;	/* dll no reset */
 	mode = 0;	/* normal mode */
 
 	/* look up table to get the cas latency bits */
-	if (cas_latency >= 5 && cas_latency <= 11) {
-		unsigned char cas_latency_table[7] = {
+	if (cas_latency >= 5 && cas_latency <= 16) {
+		unsigned char cas_latency_table[] = {
 			0x2,	/* 5 clocks */
 			0x4,	/* 6 clocks */
 			0x6,	/* 7 clocks */
 			0x8,	/* 8 clocks */
 			0xa,	/* 9 clocks */
 			0xc,	/* 10 clocks */
-			0xe	/* 11 clocks */
+			0xe,	/* 11 clocks */
+			0x1,	/* 12 clocks */
+			0x3,	/* 13 clocks */
+			0x5,	/* 14 clocks */
+			0x7,	/* 15 clocks */
+			0x9,	/* 16 clocks */
 		};
 		caslat = cas_latency_table[cas_latency - 5];
+	} else {
+		printf("Error: unsupported cas latency for mode register\n");
 	}
+
 	bt = 0;	/* Nibble sequential */
 
 	switch (popts->burst_length) {
@@ -930,6 +943,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 		  | ((mode & 0x1) << 7)
 		  | (((caslat >> 1) & 0x7) << 4)
 		  | ((bt & 0x1) << 3)
+		  | ((caslat & 1) << 2)
 		  | ((bl & 0x3) << 0)
 		  );
 
@@ -1574,7 +1588,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			set_csn_config(dimm_number, i, ddr, popts, dimm_params);
 			set_csn_config_2(i, ddr);
 		} else
-			printf("CS%d is disabled.\n", i);
+			debug("CS%d is disabled.\n", i);
 	}
 
 	/*
