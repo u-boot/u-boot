@@ -46,8 +46,6 @@
 
 static u32 serdes_prtcl_map;
 
-#define HWCONFIG_BUFFER_SIZE	128
-
 #ifdef DEBUG
 static const char *serdes_prtcl_str[] = {
 	[NONE] = "NA",

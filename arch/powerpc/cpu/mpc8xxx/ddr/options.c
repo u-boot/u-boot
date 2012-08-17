@@ -19,7 +19,6 @@
  * This is pretty fragile on both the use of stack and if the buffer is big
  * enough. However we will get a warning from getenv_f for the later.
  */
-#define HWCONFIG_BUFFER_SIZE	128
 
 /* Board-specific functions defined in each board's ddr.c */
 extern void fsl_ddr_board_options(memctl_options_t *popts,
