@@ -260,7 +260,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	if (clock == 0)
 		return 0;
 
-	if (host->version >= SDHCI_SPEC_300) {
+	if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300) {
 		/* Version 3.00 divisors must be a multiple of 2. */
 		if (mmc->f_max <= clock)
 			div = 1;
@@ -347,10 +347,10 @@ void sdhci_set_ios(struct mmc *mmc)
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
 	if (mmc->bus_width == 8) {
 		ctrl &= ~SDHCI_CTRL_4BITBUS;
-		if (host->version >= SDHCI_SPEC_300)
+		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
 			ctrl |= SDHCI_CTRL_8BITBUS;
 	} else {
-		if (host->version >= SDHCI_SPEC_300)
+		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
 			ctrl &= ~SDHCI_CTRL_8BITBUS;
 		if (mmc->bus_width == 4)
 			ctrl |= SDHCI_CTRL_4BITBUS;
@@ -421,7 +421,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	if (max_clk)
 		mmc->f_max = max_clk;
 	else {
-		if (host->version >= SDHCI_SPEC_300)
+		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
 			mmc->f_max = (caps & SDHCI_CLOCK_V3_BASE_MASK)
 				>> SDHCI_CLOCK_BASE_SHIFT;
 		else
@@ -436,7 +436,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	if (min_clk)
 		mmc->f_min = min_clk;
 	else {
-		if (host->version >= SDHCI_SPEC_300)
+		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
 			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_300;
 		else
 			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_200;
