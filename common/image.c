@@ -2820,6 +2820,11 @@ int fit_image_check_hashes(const void *fit, int image_noffset)
 		}
 	}
 
+	if (noffset == -FDT_ERR_TRUNCATED || noffset == -FDT_ERR_BADSTRUCTURE) {
+		err_msg = " error!\nCorrupted or truncated tree";
+		goto error;
+	}
+
 	return 1;
 
 error:
