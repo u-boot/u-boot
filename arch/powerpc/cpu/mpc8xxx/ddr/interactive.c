@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2010-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -1121,11 +1121,21 @@ void ddr3_spd_dump(const ddr3_spd_eeprom_t *spd)
 		"therm_sensor  SDRAM Thermal Sensor");
 	PRINT_NXS(33, spd->device_type,
 		"device_type  SDRAM Device Type");
+	PRINT_NXS(34, spd->fine_tCK_min,
+		"fine_tCK_min  Fine offset for tCKmin");
+	PRINT_NXS(35, spd->fine_tAA_min,
+		"fine_tAA_min  Fine offset for tAAmin");
+	PRINT_NXS(36, spd->fine_tRCD_min,
+		"fine_tRCD_min Fine offset for tRCDmin");
+	PRINT_NXS(37, spd->fine_tRP_min,
+		"fine_tRP_min  Fine offset for tRPmin");
+	PRINT_NXS(38, spd->fine_tRC_min,
+		"fine_tRC_min  Fine offset for tRCmin");
 
-	printf("%-3d-%3d: ",  34, 59);  /* Reserved, General Section */
+	printf("%-3d-%3d: ",  39, 59);  /* Reserved, General Section */
 
-	for (i = 34; i <= 59; i++)
-		printf("%02x ", spd->res_34_59[i - 34]);
+	for (i = 39; i <= 59; i++)
+		printf("%02x ", spd->res_39_59[i - 39]);
 
 	puts("\n");
 
