@@ -950,6 +950,7 @@
 #define PVR_VER_E500_V2	0x8021
 #define PVR_VER_E500MC	0x8023
 #define PVR_VER_E5500	0x8024
+#define PVR_VER_E6500	0x8040
 
 #define PVR_86xx	0x80040000
 

@@ -117,6 +117,9 @@ int checkcpu (void)
 	case PVR_VER_E5500:
 		puts("E5500");
 		break;
+	case PVR_VER_E6500:
+		puts("E6500");
+		break;
 	default:
 		puts("Unknown");
 		break;
