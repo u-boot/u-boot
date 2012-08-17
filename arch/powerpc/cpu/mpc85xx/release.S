@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2011 Freescale Semiconductor, Inc.
+ * Copyright 2008-2012 Freescale Semiconductor, Inc.
  * Kumar Gala <kumar.gala@freescale.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -155,7 +155,27 @@ __secondary_start_page:
 
 	/* r10 has the base address for the entry */
 	mfspr	r0,SPRN_PIR
-#ifdef CONFIG_E500MC
+#if	defined(CONFIG_E6500)
+/*
+ * PIR definition for E6500
+ * 0-17 Reserved (logic 0s)
+ * 8-19 CHIP_ID,    2’b00      - SoC 1
+ *                  all others - reserved
+ * 20-24 CLUSTER_ID 5’b00000   - CCM 1
+ *                  all others - reserved
+ * 25-26 CORE_CLUSTER_ID 2’b00 - cluster 1
+ *                       2’b01 - cluster 2
+ *                       2’b10 - cluster 3
+ *                       2’b11 - cluster 4
+ * 27-28 CORE_ID         2’b00 - core 0
+ *                       2’b01 - core 1
+ *                       2’b10 - core 2
+ *                       2’b11 - core 3
+ * 29-31 THREAD_ID       3’b000 - thread 0
+ *                       3’b001 - thread 1
+ */
+	rlwinm  r4,r0,29,25,31
+#elif	defined(CONFIG_E500MC)
 	rlwinm	r4,r0,27,27,31
 #else
 	mr	r4,r0
@@ -169,6 +189,25 @@ __secondary_start_page:
 	addi	r8,r8,32
 	mtspr	L1CSR2,r8
 #endif
+
+#ifdef CONFIG_E6500
+	mfspr	r0,SPRN_PIR
+	/*
+	 * core 0 thread 0: pir reset value 0x00, new pir 0
+	 * core 0 thread 1: pir reset value 0x01, new pir 1
+	 * core 1 thread 0: pir reset value 0x08, new pir 2
+	 * core 1 thread 1: pir reset value 0x09, new pir 3
+	 * core 2 thread 0: pir reset value 0x10, new pir 4
+	 * core 2 thread 1: pir reset value 0x11, new pir 5
+	 * etc.
+	 *
+	 * Only thread 0 of each core will be running, updating PIR doesn't
+	 * need to deal with the thread bits.
+	 */
+	rlwinm	r4,r0,30,24,30
+#endif
+
+	mtspr	SPRN_PIR,r4	/* write to PIR register */
 
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
@@ -253,7 +292,7 @@ __secondary_start_page:
 	/* setup the entry */
 	li	r3,0
 	li	r8,1
-	stw	r0,ENTRY_PIR(r10)
+	stw	r4,ENTRY_PIR(r10)
 	stw	r3,ENTRY_ADDR_UPPER(r10)
 	stw	r8,ENTRY_ADDR_LOWER(r10)
 	stw	r3,ENTRY_R3_UPPER(r10)
