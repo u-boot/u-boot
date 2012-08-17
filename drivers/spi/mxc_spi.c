@@ -408,7 +408,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (bus >= ARRAY_SIZE(spi_bases))
 		return NULL;
 
-	mxcs = malloc(sizeof(struct mxc_spi_slave));
+	mxcs = calloc(sizeof(struct mxc_spi_slave), 1);
 	if (!mxcs) {
 		puts("mxc_spi: SPI Slave not allocated !\n");
 		return NULL;
