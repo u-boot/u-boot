@@ -27,8 +27,10 @@ compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 
 	/* compute the common CAS latency supported between slots */
 	tmp = dimm_params[0].caslat_X;
-	for (i = 1; i < number_of_dimms; i++)
-		 tmp &= dimm_params[i].caslat_X;
+	for (i = 1; i < number_of_dimms; i++) {
+		if (dimm_params[i].n_ranks)
+			tmp &= dimm_params[i].caslat_X;
+	}
 	common_caslat = tmp;
 
 	/* compute the max tAAmin tCKmin between slots */
