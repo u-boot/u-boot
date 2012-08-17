@@ -2743,13 +2743,50 @@ static int parse_group(o_string *dest, struct p_context *ctx,
 static char *lookup_param(char *src)
 {
 	char *p;
+	char *sep;
+	char *default_val = NULL;
+	int assign = 0;
+	int expand_empty = 0;
 
 	if (!src)
 		return NULL;
 
-		p = getenv(src);
-		if (!p)
-			p = get_local_var(src);
+	sep = strchr(src, ':');
+
+	if (sep) {
+		*sep = '\0';
+		if (*(sep + 1) == '-')
+			default_val = sep+2;
+		if (*(sep + 1) == '=') {
+			default_val = sep+2;
+			assign = 1;
+		}
+		if (*(sep + 1) == '+') {
+			default_val = sep+2;
+			expand_empty = 1;
+		}
+	}
+
+	p = getenv(src);
+	if (!p)
+		p = get_local_var(src);
+
+	if (!p || strlen(p) == 0) {
+		p = default_val;
+		if (assign) {
+			char *var = malloc(strlen(src)+strlen(default_val)+2);
+			if (var) {
+				sprintf(var, "%s=%s", src, default_val);
+				set_local_var(var, 0);
+			}
+			free(var);
+		}
+	} else if (expand_empty) {
+		p += strlen(p);
+	}
+
+	if (sep)
+		*sep = ':';
 
 	return p;
 }
