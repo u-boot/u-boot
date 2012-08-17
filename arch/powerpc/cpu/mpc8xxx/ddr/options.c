@@ -26,14 +26,15 @@ extern void fsl_ddr_board_options(memctl_options_t *popts,
 		dimm_params_t *pdimm,
 		unsigned int ctrl_num);
 
-typedef struct {
+struct dynamic_odt {
 	unsigned int odt_rd_cfg;
 	unsigned int odt_wr_cfg;
 	unsigned int odt_rtt_norm;
 	unsigned int odt_rtt_wr;
-} dynamic_odt_t;
+};
 
-static const dynamic_odt_t single_Q[4] = {
+#ifdef CONFIG_FSL_DDR3
+static const struct dynamic_odt single_Q[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_CS_AND_OTHER_DIMM,
@@ -60,7 +61,7 @@ static const dynamic_odt_t single_Q[4] = {
 	}
 };
 
-static const dynamic_odt_t single_D[4] = {
+static const struct dynamic_odt single_D[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_ALL,
@@ -77,7 +78,7 @@ static const dynamic_odt_t single_D[4] = {
 	{0, 0, 0, 0}
 };
 
-static const dynamic_odt_t single_S[4] = {
+static const struct dynamic_odt single_S[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_ALL,
@@ -89,7 +90,7 @@ static const dynamic_odt_t single_S[4] = {
 	{0, 0, 0, 0},
 };
 
-static const dynamic_odt_t dual_DD[4] = {
+static const struct dynamic_odt dual_DD[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_SAME_DIMM,
@@ -116,7 +117,7 @@ static const dynamic_odt_t dual_DD[4] = {
 	}
 };
 
-static const dynamic_odt_t dual_DS[4] = {
+static const struct dynamic_odt dual_DS[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_SAME_DIMM,
@@ -137,7 +138,7 @@ static const dynamic_odt_t dual_DS[4] = {
 	},
 	{0, 0, 0, 0}
 };
-static const dynamic_odt_t dual_SD[4] = {
+static const struct dynamic_odt dual_SD[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_OTHER_DIMM,
 		FSL_DDR_ODT_ALL,
@@ -159,7 +160,7 @@ static const dynamic_odt_t dual_SD[4] = {
 	}
 };
 
-static const dynamic_odt_t dual_SS[4] = {
+static const struct dynamic_odt dual_SS[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_OTHER_DIMM,
 		FSL_DDR_ODT_ALL,
@@ -176,7 +177,7 @@ static const dynamic_odt_t dual_SS[4] = {
 	{0, 0, 0, 0}
 };
 
-static const dynamic_odt_t dual_D0[4] = {
+static const struct dynamic_odt dual_D0[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_SAME_DIMM,
@@ -193,7 +194,7 @@ static const dynamic_odt_t dual_D0[4] = {
 	{0, 0, 0, 0}
 };
 
-static const dynamic_odt_t dual_0D[4] = {
+static const struct dynamic_odt dual_0D[4] = {
 	{0, 0, 0, 0},
 	{0, 0, 0, 0},
 	{	/* cs2 */
@@ -210,7 +211,7 @@ static const dynamic_odt_t dual_0D[4] = {
 	}
 };
 
-static const dynamic_odt_t dual_S0[4] = {
+static const struct dynamic_odt dual_S0[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_CS,
@@ -223,7 +224,7 @@ static const dynamic_odt_t dual_S0[4] = {
 
 };
 
-static const dynamic_odt_t dual_0S[4] = {
+static const struct dynamic_odt dual_0S[4] = {
 	{0, 0, 0, 0},
 	{0, 0, 0, 0},
 	{	/* cs2 */
@@ -236,7 +237,7 @@ static const dynamic_odt_t dual_0S[4] = {
 
 };
 
-static const dynamic_odt_t odt_unknown[4] = {
+static const struct dynamic_odt odt_unknown[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_CS,
@@ -262,7 +263,218 @@ static const dynamic_odt_t odt_unknown[4] = {
 		DDR3_RTT_OFF
 	}
 };
+#else	/* CONFIG_FSL_DDR3 */
+static const struct dynamic_odt single_Q[4] = {
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+};
 
+static const struct dynamic_odt single_D[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+};
+
+static const struct dynamic_odt single_S[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+};
+
+static const struct dynamic_odt dual_DD[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	}
+};
+
+static const struct dynamic_odt dual_DS[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0}
+};
+
+static const struct dynamic_odt dual_SD[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	}
+};
+
+static const struct dynamic_odt dual_SS[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0}
+};
+
+static const struct dynamic_odt dual_D0[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+};
+
+static const struct dynamic_odt dual_0D[4] = {
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	}
+};
+
+static const struct dynamic_odt dual_S0[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+
+};
+
+static const struct dynamic_odt dual_0S[4] = {
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0}
+
+};
+
+static const struct dynamic_odt odt_unknown[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	}
+};
+#endif
 unsigned int populate_memctl_options(int all_DIMMs_registered,
 			memctl_options_t *popts,
 			dimm_params_t *pdimm,
@@ -271,7 +483,10 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	unsigned int i;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
-	const dynamic_odt_t *pdodt = odt_unknown;
+#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
+	const struct dynamic_odt *pdodt = odt_unknown;
+#endif
+	ulong ddr_freq;
 
 	/*
 	 * Extract hwconfig from environment since we have not properly setup
@@ -280,6 +495,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		buf = buffer;
 
+#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
 	/* Chip select options. */
 	if (CONFIG_DIMM_SLOTS_PER_CTLR == 1) {
 		switch (pdimm[0].n_ranks) {
@@ -333,10 +549,11 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			break;
 		}
 	}
+#endif
 
 	/* Pick chip-select local options. */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
 		popts->cs_local_opts[i].odt_rd_cfg = pdodt[i].odt_rd_cfg;
 		popts->cs_local_opts[i].odt_wr_cfg = pdodt[i].odt_wr_cfg;
 		popts->cs_local_opts[i].odt_rtt_norm = pdodt[i].odt_rtt_norm;
@@ -418,8 +635,38 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	/* Choose dynamic power management mode. */
 	popts->dynamic_power = 0;
 
-	/* 0 = 64-bit, 1 = 32-bit, 2 = 16-bit */
-	popts->data_bus_width = 0;
+	/*
+	 * check first dimm for primary sdram width
+	 * presuming all dimms are similar
+	 * 0 = 64-bit, 1 = 32-bit, 2 = 16-bit
+	 */
+#if defined(CONFIG_FSL_DDR1) || defined(CONFIG_FSL_DDR2)
+	if (pdimm[0].n_ranks != 0) {
+		if ((pdimm[0].data_width >= 64) && \
+			(pdimm[0].data_width <= 72))
+			popts->data_bus_width = 0;
+		else if ((pdimm[0].data_width >= 32) || \
+			(pdimm[0].data_width <= 40))
+			popts->data_bus_width = 1;
+		else {
+			panic("Error: data width %u is invalid!\n",
+				pdimm[0].data_width);
+		}
+	}
+#else
+	if (pdimm[0].n_ranks != 0) {
+		if (pdimm[0].primary_sdram_width == 64)
+			popts->data_bus_width = 0;
+		else if (pdimm[0].primary_sdram_width == 32)
+			popts->data_bus_width = 1;
+		else if (pdimm[0].primary_sdram_width == 16)
+			popts->data_bus_width = 2;
+		else {
+			panic("Error: primary sdram width %u is invalid!\n",
+				pdimm[0].primary_sdram_width);
+		}
+	}
+#endif
 
 	/* Choose burst length. */
 #if defined(CONFIG_FSL_DDR3)
@@ -427,8 +674,14 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	popts->OTF_burst_chop_en = 0;	/* on-the-fly burst chop disable */
 	popts->burst_length = DDR_BL8;	/* Fixed 8-beat burst len */
 #else
-	popts->OTF_burst_chop_en = 1;	/* on-the-fly burst chop */
-	popts->burst_length = DDR_OTF;	/* on-the-fly BC4 and BL8 */
+	if ((popts->data_bus_width == 1) || (popts->data_bus_width == 2)) {
+		/* 32-bit or 16-bit bus */
+		popts->OTF_burst_chop_en = 0;
+		popts->burst_length = DDR_BL8;
+	} else {
+		popts->OTF_burst_chop_en = 1;	/* on-the-fly burst chop */
+		popts->burst_length = DDR_OTF;	/* on-the-fly BC4 and BL8 */
+	}
 #endif
 #else
 	popts->burst_length = DDR_BL4;	/* has to be 4 for DDR2 */
@@ -679,6 +932,20 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 
 	if (pdimm[0].n_ranks == 4)
 		popts->quad_rank_present = 1;
+
+	ddr_freq = get_ddr_freq(0) / 1000000;
+	if (popts->registered_dimm_en) {
+		popts->rcw_override = 1;
+		popts->rcw_1 = 0x000a5a00;
+		if (ddr_freq <= 800)
+			popts->rcw_2 = 0x00000000;
+		else if (ddr_freq <= 1066)
+			popts->rcw_2 = 0x00100000;
+		else if (ddr_freq <= 1333)
+			popts->rcw_2 = 0x00200000;
+		else
+			popts->rcw_2 = 0x00300000;
+	}
 
 	fsl_ddr_board_options(popts, pdimm, ctrl_num);
 

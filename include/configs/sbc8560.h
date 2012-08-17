@@ -92,20 +92,6 @@
 #error "You can only use ONE of PCI Ethernet Card or TSEC Ethernet or CPM FCC."
 #endif
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default	*/
-
-#if XXX
-  #define CONFIG_SYS_CCSRBAR		0xfdf00000	/* relocated CCSRBAR	*/
-#else
-  #define CONFIG_SYS_CCSRBAR		0xff700000	/* default CCSRBAR	*/
-#endif
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR	*/
-
 #define CONFIG_SYS_SDRAM_SIZE		512		/* DDR is 512MB */
 
 /* DDR Setup */
@@ -244,10 +230,6 @@
 
 #ifdef CONFIG_TSEC_ENET
 
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI 	1
-#endif
-
 #ifndef CONFIG_MII
 #define CONFIG_MII		1	/* MII PHY management */
 #endif
@@ -278,8 +260,8 @@
      * - Select bus for bd/buffers
      * - Full duplex
      */
-    #define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
-    #define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
+    #define CONFIG_SYS_CMXFCR_MASK2	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
+    #define CONFIG_SYS_CMXFCR_VALUE2	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
     #define CONFIG_SYS_CPMFCR_RAMTYPE	0
     #define CONFIG_SYS_FCC_PSMR	(FCC_PSMR_FDE)
 
@@ -446,8 +428,8 @@
  */
 
 #define CONFIG_HOSTNAME		SBC8560
-#define CONFIG_ROOTPATH		/home/ppc
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_ROOTPATH		"/home/ppc"
+#define CONFIG_BOOTFILE		"uImage"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\

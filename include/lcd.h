@@ -87,7 +87,8 @@ typedef struct vidinfo {
 	u_char	vl_wbf;		/* Wait between frames */
 } vidinfo_t;
 
-#elif defined CONFIG_PXA250 || defined CONFIG_PXA27X || defined CONFIG_CPU_MONAHANS
+#elif defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
+	defined CONFIG_CPU_MONAHANS
 /*
  * PXA LCD DMA descriptor
  */
@@ -159,8 +160,8 @@ typedef struct vidinfo {
 #elif defined(CONFIG_ATMEL_LCD)
 
 typedef struct vidinfo {
-	u_long vl_col;		/* Number of columns (i.e. 640) */
-	u_long vl_row;		/* Number of rows (i.e. 480) */
+	ushort vl_col;		/* Number of columns (i.e. 640) */
+	ushort vl_row;		/* Number of rows (i.e. 480) */
 	u_long vl_clk;	/* pixel clock in ps    */
 
 	/* LCD configuration register */
@@ -195,7 +196,7 @@ typedef struct vidinfo {
 	void	*priv;		/* Pointer to driver-specific data */
 } vidinfo_t;
 
-#endif /* CONFIG_MPC823, CONFIG_PXA250 or CONFIG_MCC200 or CONFIG_ATMEL_LCD */
+#endif /* CONFIG_MPC823, CONFIG_CPU_PXA25X, CONFIG_MCC200, CONFIG_ATMEL_LCD */
 
 extern vidinfo_t panel_info;
 
@@ -210,6 +211,8 @@ void	lcd_disable	(void);
 void	lcd_putc	(const char c);
 void	lcd_puts	(const char *s);
 void	lcd_printf	(const char *fmt, ...);
+void	lcd_clear(void);
+int	lcd_display_bitmap(ulong bmp_image, int x, int y);
 
 /* Allow boards to customize the information displayed */
 void lcd_show_board_info(void);

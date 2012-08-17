@@ -39,7 +39,8 @@ SECTIONS
     board/tqc/tqm8xx/libtqm8xx.o	(.text*)
     disk/libdisk.o			(.text*)
     drivers/net/libnet.o		(.text*)
-    drivers/pcmcia/libpcmcia.o		(.text*)
+    drivers/pcmcia/libpcmcia.o		(.text.pcmcia_on)
+    drivers/pcmcia/libpcmcia.o		(.text.pcmcia_hardware_enable)
     drivers/rtc/librtc.o		(.text*)
     drivers/misc/libmisc.o		(.text*)
     *(.text.print_buffer)
@@ -63,13 +64,14 @@ SECTIONS
   PROVIDE (erotext = .);
   .reloc   :
   {
-    KEEP(*(.got))
     _GOT2_TABLE_ = .;
     KEEP(*(.got2))
+    KEEP(*(.got))
+    PROVIDE(_GLOBAL_OFFSET_TABLE_ = . + 4);
     _FIXUP_TABLE_ = .;
     KEEP(*(.fixup))
   }
-  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
+  __got2_entries = ((_GLOBAL_OFFSET_TABLE_ - _GOT2_TABLE_) >> 2) - 1;
   __fixup_entries = (. - _FIXUP_TABLE_)>>2;
 
   .data    :

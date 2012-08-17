@@ -97,39 +97,39 @@ static void status_led_blink (void)
 void show_boot_progress (int val)
 {
 	/* find all valid Codes for val in README */
-	if (val == -30) return;
+	if (val == -BOOTSTAGE_ID_NEED_RESET)
+		return;
 	if (val < 0) {
 		/* smthing goes wrong */
 		status_led_blink ();
 		return;
 	}
 	switch (val) {
-		case 1:
-			/* validating Image */
-			status_led_set (0, STATUS_LED_OFF);
-			status_led_set (1, STATUS_LED_ON);
-			status_led_set (2, STATUS_LED_ON);
-			break;
-		case 15:
-			/* booting */
-			status_led_set (0, STATUS_LED_ON);
-			status_led_set (1, STATUS_LED_ON);
-			status_led_set (2, STATUS_LED_ON);
-			break;
+	case BOOTSTAGE_ID_CHECK_MAGIC:
+		/* validating Image */
+		status_led_set(0, STATUS_LED_OFF);
+		status_led_set(1, STATUS_LED_ON);
+		status_led_set(2, STATUS_LED_ON);
+		break;
+	case BOOTSTAGE_ID_RUN_OS:
+		status_led_set(0, STATUS_LED_ON);
+		status_led_set(1, STATUS_LED_ON);
+		status_led_set(2, STATUS_LED_ON);
+		break;
 #if 0
-		case 64:
-			/* starting Ethernet configuration */
-			status_led_set (0, STATUS_LED_OFF);
-			status_led_set (1, STATUS_LED_OFF);
-			status_led_set (2, STATUS_LED_ON);
-			break;
+	case BOOTSTAGE_ID_NET_ETH_START:
+		/* starting Ethernet configuration */
+		status_led_set(0, STATUS_LED_OFF);
+		status_led_set(1, STATUS_LED_OFF);
+		status_led_set(2, STATUS_LED_ON);
+		break;
 #endif
-		case 80:
-			/* loading Image */
-			status_led_set (0, STATUS_LED_ON);
-			status_led_set (1, STATUS_LED_OFF);
-			status_led_set (2, STATUS_LED_ON);
-			break;
+	case BOOTSTAGE_ID_NET_START:
+		/* loading Image */
+		status_led_set(0, STATUS_LED_ON);
+		status_led_set(1, STATUS_LED_OFF);
+		status_led_set(2, STATUS_LED_ON);
+		break;
 	}
 }
 #endif
@@ -509,12 +509,13 @@ int misc_init_r (void)
 
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	printf("Board: PCS440EP");
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

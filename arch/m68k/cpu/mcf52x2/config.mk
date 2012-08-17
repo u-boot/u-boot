@@ -34,9 +34,6 @@ is5272:=$(shell grep CONFIG_M5272 $(TOPDIR)/include/$(cfg))
 is5275:=$(shell grep CONFIG_M5275 $(TOPDIR)/include/$(cfg))
 is5282:=$(shell grep CONFIG_M5282 $(TOPDIR)/include/$(cfg))
 
-
-ifneq ($(findstring 4.1,$(shell $(CC) --version)),4.1)
-
 ifneq (,$(findstring CONFIG_M5208,$(is5208)))
 PLATFORM_CPPFLAGS += -mcpu=5208
 endif
@@ -57,8 +54,4 @@ PLATFORM_CPPFLAGS += -mcpu=5275
 endif
 ifneq (,$(findstring CONFIG_M5282,$(is5282)))
 PLATFORM_CPPFLAGS += -mcpu=5282
-endif
-
-else
-PLATFORM_CPPFLAGS += -m5307
 endif

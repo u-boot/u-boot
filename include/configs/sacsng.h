@@ -10,8 +10,7 @@
  * Advent Networks, Inc. <http://www.adventnetworks.com>
  * Jay Monkman <jtm@smoothsmoothie.com>
  *
- * Configuration settings for the WindRiver SBC8260 board.
- *	See http://www.windriver.com/products/html/sbc8260.html
+ * Configuration settings for the SACSng 8260 board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -204,7 +203,7 @@
  *  - RX clk is CLK11
  *  - TX clk is CLK12
  */
-# define CONFIG_SYS_CMXSCR_VALUE	(CMXSCR_RS1CS_CLK11  | CMXSCR_TS1CS_CLK12)
+# define CONFIG_SYS_CMXSCR_VALUE1	(CMXSCR_RS1CS_CLK11  | CMXSCR_TS1CS_CLK12)
 
 #elif defined(CONFIG_ETHER_ON_FCC) && (CONFIG_ETHER_INDEX == 2)
 
@@ -214,8 +213,8 @@
  * - Select bus for bd/buffers (see 28-13)
  * - Enable Full Duplex in FSMR
  */
-# define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC2|CMXFCR_RF2CS_MSK|CMXFCR_TF2CS_MSK)
-# define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14)
+# define CONFIG_SYS_CMXFCR_MASK2	(CMXFCR_FC2|CMXFCR_RF2CS_MSK|CMXFCR_TF2CS_MSK)
+# define CONFIG_SYS_CMXFCR_VALUE2	(CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14)
 # define CONFIG_SYS_CPMFCR_RAMTYPE	0
 # define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
 
@@ -547,7 +546,6 @@
  *****************************************************************************/
 
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
-#define CONFIG_SBC8260		1	/* on an EST SBC8260 Board  */
 #define CONFIG_SACSng		1	/* munged for the SACSng */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 

@@ -28,6 +28,8 @@
 #include <common.h>
 
 #include <nand.h>
+#include <linux/mtd/nand.h>
+
 #include <asm/arch/s3c6400.h>
 
 #include <asm/io.h>
@@ -59,32 +61,6 @@ static void print_oob(const char *header, struct mtd_info *mtd)
 	printf("\n");
 }
 #endif /* S3C_NAND_DEBUG */
-
-#ifdef CONFIG_NAND_SPL
-static u_char nand_read_byte(struct mtd_info *mtd)
-{
-	struct nand_chip *this = mtd->priv;
-	return readb(this->IO_ADDR_R);
-}
-
-static void nand_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
-{
-	int i;
-	struct nand_chip *this = mtd->priv;
-
-	for (i = 0; i < len; i++)
-		writeb(buf[i], this->IO_ADDR_W);
-}
-
-static void nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
-{
-	int i;
-	struct nand_chip *this = mtd->priv;
-
-	for (i = 0; i < len; i++)
-		buf[i] = readb(this->IO_ADDR_R);
-}
-#endif
 
 static void s3c_nand_select_chip(struct mtd_info *mtd, int chip)
 {

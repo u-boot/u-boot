@@ -348,7 +348,7 @@ phys_size_t fixed_sdram(void)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	int node, tmp[2];
+	int node;
 #ifdef CONFIG_PCI
 	const char *path;
 #endif
@@ -356,7 +356,6 @@ ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 
 	node = fdt_path_offset(blob, "/aliases");
-	tmp[0] = 0;
 	if (node >= 0) {
 #ifdef CONFIG_PCI
 		path = fdt_getprop(blob, node, "pci0", NULL);

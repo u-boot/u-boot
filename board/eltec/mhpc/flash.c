@@ -311,7 +311,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	ulong cp, wp;
 	FPW data;
-	int count, i, l, rc, port_width;
+	int i, l, rc, port_width;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
 		return 4;
@@ -330,9 +330,9 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	 */
 	if ((l = addr - wp) != 0) {
 		data = 0;
-		for (i=0, cp=wp; i<l; ++i, ++cp) {
+		for (i=0, cp=wp; i<l; ++i, ++cp)
 			data = (data << 8) | (*(uchar *)cp);
-		}
+
 		for (; i<port_width && cnt>0; ++i) {
 			data = (data << 8) | *src++;
 			--cnt;
@@ -351,7 +351,6 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	/*
 	 * handle word aligned part
 	 */
-	count = 0;
 	while (cnt >= port_width) {
 		data = 0;
 		for (i=0; i<port_width; ++i) {

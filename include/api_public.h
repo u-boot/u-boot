@@ -90,6 +90,9 @@ enum {
 	API_ENV_ENUM,
 	API_ENV_GET,
 	API_ENV_SET,
+	API_DISPLAY_GET_INFO,
+	API_DISPLAY_DRAW_BITMAP,
+	API_DISPLAY_CLEAR,
 	API_MAXCALL
 };
 
@@ -150,6 +153,19 @@ struct device_info {
 #define di_net info.net
 
 	int	state;
+};
+
+#define DISPLAY_TYPE_LCD	0x0001
+#define DISPLAY_TYPE_VIDEO	0x0002
+
+struct display_info {
+	int type;
+	/* screen size in pixels */
+	int pixel_width;
+	int pixel_height;
+	/* screen size in rows and columns of text */
+	int screen_rows;
+	int screen_cols;
 };
 
 #endif /* _API_PUBLIC_H_ */

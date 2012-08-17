@@ -46,16 +46,16 @@
  */
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC512X		1	/* MPC512X family */
-#define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 /* video */
-#undef CONFIG_VIDEO
-
-#ifdef CONFIG_VIDEO
+#ifdef CONFIG_FSL_DIU_FB
+#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_IMMR + 0x2100)
+#define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
 #define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
@@ -74,7 +74,6 @@
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_SYS_IMMR		0x80000000
-#define CONFIG_SYS_DIU_ADDR		(CONFIG_SYS_IMMR+0x2100)
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000      /* memtest region */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
@@ -243,7 +242,6 @@
 #define CONFIG_SYS_NAND_BASE            0x40000000
 
 #define CONFIG_SYS_MAX_NAND_DEVICE      2
-#define NAND_MAX_CHIPS                  CONFIG_SYS_MAX_NAND_DEVICE
 #define CONFIG_SYS_NAND_SELECT_DEVICE	/* driver supports mutipl. chips */
 
 /*
@@ -363,7 +361,6 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC512x_FEC	1
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR		0x1
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_FEC_AN_TIMEOUT	1
@@ -527,8 +524,8 @@
 #define CONFIG_TIMESTAMP
 
 #define CONFIG_HOSTNAME		mpc5121ads
-#define CONFIG_BOOTFILE		mpc5121ads/uImage
-#define CONFIG_ROOTPATH		/opt/eldk/ppc_6xx
+#define CONFIG_BOOTFILE		"mpc5121ads/uImage"
+#define CONFIG_ROOTPATH		"/opt/eldk/ppc_6xx"
 
 #define CONFIG_LOADADDR		400000	/* default location for tftp and bootm */
 

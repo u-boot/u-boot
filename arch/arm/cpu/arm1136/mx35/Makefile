@@ -39,8 +39,6 @@ all:	$(obj).depend $(LIB)
 $(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
-$(OBJS) : $(TOPDIR)/include/asm/arch/asm-offsets.h
-
 
 #########################################################################
 
@@ -50,14 +48,3 @@ include $(SRCTREE)/rules.mk
 sinclude $(obj).depend
 
 #########################################################################
-
-$(TOPDIR)/include/asm/arch/asm-offsets.h:	$(TOPDIR)/include/autoconf.mk.dep \
-	./asm-offsets.s
-	@echo Generating $@
-	$(TOPDIR)/tools/scripts/make-asm-offsets ./asm-offsets.s $@
-
-asm-offsets.s:	$(TOPDIR)/include/autoconf.mk.dep \
-	./asm-offsets.c
-	$(CC) -DDO_DEPS_ONLY \
-		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
-		-o $@ ./asm-offsets.c -c -S

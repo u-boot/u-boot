@@ -26,13 +26,6 @@
 
 /* Controller-specific definitions: */
 
-/* CONFIG_HARD_SPI triggers SPI bus initialization in PowerPC */
-#ifdef CONFIG_MPC8XXX_SPI
-# ifndef CONFIG_HARD_SPI
-#  define CONFIG_HARD_SPI
-# endif
-#endif
-
 /* SPI mode flags */
 #define	SPI_CPHA	0x01			/* clock phase */
 #define	SPI_CPOL	0x02			/* clock polarity */
@@ -174,6 +167,14 @@ void spi_cs_activate(struct spi_slave *slave);
  * select to the device identified by "slave".
  */
 void spi_cs_deactivate(struct spi_slave *slave);
+
+/*-----------------------------------------------------------------------
+ * Set transfer speed.
+ * This sets a new speed to be applied for next spi_xfer().
+ *   slave:	The SPI slave
+ *   hz:	The transfer speed
+ */
+void spi_set_speed(struct spi_slave *slave, uint hz);
 
 /*-----------------------------------------------------------------------
  * Write 8 bits, then read 8 bits.

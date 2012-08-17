@@ -31,19 +31,12 @@ SRCS    := $(COBJS-y:.o=.c)
 OBJS    := $(addprefix $(obj),$(COBJS-y))
 
 # -DCONFIG_YAFFS_NO_YAFFS1
-CFLAGS +=    -DCONFIG_YAFFS_DIRECT -DCONFIG_YAFFS_SHORT_NAMES_IN_RAM -DCONFIG_YAFFS_YAFFS2 -DNO_Y_INLINE -DLINUX_VERSION_CODE=0x20622
+CFLAGS +=    -DCONFIG_YAFFS_DIRECT -DCONFIG_YAFFS_SHORT_NAMES_IN_RAM -DCONFIG_YAFFS_YAFFS2 -DLINUX_VERSION_CODE=0x20622
 
 all:  $(LIB)
 
 $(LIB): $(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
-
-.PHONY: clean distclean
-clean:
-	rm -f $(OBJS)
-
-distclean:  clean
-	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

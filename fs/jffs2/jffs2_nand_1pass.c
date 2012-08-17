@@ -350,7 +350,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 ino, char *dest,
 #endif
 			default:
 				/* unknown */
-				putLabeledWord("UNKOWN COMPRESSION METHOD = ", inode->compr);
+				putLabeledWord("UNKNOWN COMPRESSION METHOD = ", inode->compr);
 				return -1;
 			}
 		}

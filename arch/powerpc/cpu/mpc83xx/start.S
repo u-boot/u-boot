@@ -30,7 +30,9 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc83xx.h>
-#include <timestamp.h>
+#ifndef  CONFIG_IDENT_STRING
+#define  CONFIG_IDENT_STRING "MPC83XX"
+#endif
 #include <version.h>
 
 #define CONFIG_83XX	1		/* needed for Linux kernel header files*/
@@ -42,10 +44,6 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <asm/u-boot.h>
-
-#ifndef  CONFIG_IDENT_STRING
-#define  CONFIG_IDENT_STRING "MPC83XX"
-#endif
 
 /* We don't want the  MMU yet.
  */
@@ -107,9 +105,7 @@
 
 	.globl	version_string
 version_string:
-	.ascii U_BOOT_VERSION
-	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii " ", CONFIG_IDENT_STRING, "\0"
+	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	.align 2
 

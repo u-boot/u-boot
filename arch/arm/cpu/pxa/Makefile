@@ -27,8 +27,12 @@ LIB	= $(obj)lib$(CPU).o
 
 START	= start.o
 
-COBJS	+= cpu.o
-COBJS	+= i2c.o
+COBJS-$(CONFIG_CPU_PXA25X)	= pxa2xx.o
+COBJS-$(CONFIG_CPU_PXA27X)	= pxa2xx.o
+
+COBJS-y	+= cpuinfo.o
+
+COBJS	= $(COBJS-y)
 COBJS	+= pxafb.o
 COBJS	+= timer.o
 COBJS	+= usb.o

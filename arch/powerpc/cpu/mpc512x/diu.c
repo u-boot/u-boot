@@ -51,20 +51,10 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", in_be32(clkdvdr));
 }
 
-int platform_diu_init(unsigned int *xres, unsigned int *yres)
+int platform_diu_init(unsigned int xres, unsigned int yres, const char *port)
 {
-	unsigned int pixel_format;
-
-#if defined(CONFIG_VIDEO_XRES) & defined(CONFIG_VIDEO_YRES)
-	*xres = CONFIG_VIDEO_XRES;
-	*yres = CONFIG_VIDEO_YRES;
-#else
-	*xres = 1024;
-	*yres = 768;
-#endif
-	pixel_format = 0x88883316;
+	unsigned int pixel_format = 0x88883316;
 
 	debug("mpc5121_diu_init\n");
-
-	return fsl_diu_init(*xres, pixel_format, 0);
+	return fsl_diu_init(xres, yres, pixel_format, 0);
 }

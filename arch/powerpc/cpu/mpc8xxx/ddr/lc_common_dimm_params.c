@@ -38,9 +38,9 @@ compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 	}
 	/* validate if the memory clk is in the range of dimms */
 	if (mclk_ps < tCKmin_X_ps) {
-		printf("The DIMM max tCKmin is %d ps,"
-			"doesn't support the MCLK cycle %d ps\n",
-			tCKmin_X_ps, mclk_ps);
+		printf("DDR clock (MCLK cycle %u ps) is faster than "
+			"the slowest DIMM(s) (tCKmin %u ps) can support.\n",
+			mclk_ps, tCKmin_X_ps);
 		return 1;
 	}
 	/* determine the acutal cas latency */
@@ -207,10 +207,15 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	temp1 = temp2 = 0;
 	for (i = 0; i < number_of_dimms; i++) {
 		if (dimm_params[i].n_ranks) {
-			if (dimm_params[i].registered_dimm)
+			if (dimm_params[i].registered_dimm) {
 				temp1 = 1;
-			if (!dimm_params[i].registered_dimm)
+				printf("Detected RDIMM %s\n",
+					dimm_params[i].mpart);
+			} else {
 				temp2 = 1;
+				printf("Detected UDIMM %s\n",
+					dimm_params[i].mpart);
+			}
 		}
 	}
 
@@ -218,10 +223,8 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	outpdimm->all_DIMMs_unbuffered = 0;
 	if (temp1 && !temp2) {
 		outpdimm->all_DIMMs_registered = 1;
-		printf("Detected RDIMM(s)\n");
 	} else if (!temp1 && temp2) {
 		outpdimm->all_DIMMs_unbuffered = 1;
-		printf("Detected UDIMM(s)\n");
 	} else {
 		printf("ERROR:  Mix of registered buffered and unbuffered "
 				"DIMMs detected!\n");
@@ -445,7 +448,8 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 
 #if defined(CONFIG_FSL_DDR2)
 	if (lowest_good_caslat < 4) {
-		additive_latency = picos_to_mclk(tRCD_ps) - lowest_good_caslat;
+		additive_latency = (picos_to_mclk(tRCD_ps) > lowest_good_caslat)
+			? picos_to_mclk(tRCD_ps) - lowest_good_caslat : 0;
 		if (mclk_to_picos(additive_latency) > tRCD_ps) {
 			additive_latency = picos_to_mclk(tRCD_ps);
 			debug("setting additive_latency to %u because it was "

@@ -79,7 +79,7 @@ phys_size_t initdram(int board_type)
 	mtsdram(SDRAM0_B0CR, 0x00082001);
 	mtsdram(SDRAM0_TR0, 0x41094012);
 	mtsdram(SDRAM0_TR1, 0x8080083d);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x00*/
-	mtsdram(SDRAM0_RTR, 0x04100000);	/* Interval 7.8µs @ 133MHz PLB	*/
+	mtsdram(SDRAM0_RTR, 0x04100000);	/* Interval 7.8Âµs @ 133MHz PLB	*/
 	mtsdram(SDRAM0_CFG1, 0x00000000);	/* Self-refresh exit, disable PM*/
 
 	/*

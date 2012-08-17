@@ -135,18 +135,6 @@ ulong get_tbclk(void)
 	return (ulong)(timer_load_val / 100);
 }
 
-void reset_timer_masked(void)
-{
-	/* reset time */
-	lastdec = read_timer();
-	timestamp = 0;
-}
-
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer_masked(void)
 {
 	unsigned long long res = get_ticks();
@@ -157,11 +145,6 @@ ulong get_timer_masked(void)
 ulong get_timer(ulong base)
 {
 	return get_timer_masked() - base;
-}
-
-void set_timer(ulong t)
-{
-	timestamp = t * (timer_load_val / (100 * CONFIG_SYS_HZ));
 }
 
 void __udelay(unsigned long usec)

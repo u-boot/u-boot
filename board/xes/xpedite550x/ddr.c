@@ -27,28 +27,10 @@
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
 
-static void get_spd(ddr3_spd_eeprom_t *spd, unsigned char i2c_address)
+void get_spd(ddr3_spd_eeprom_t *spd, u8 i2c_address)
 {
 	i2c_read(i2c_address, SPD_EEPROM_OFFSET, 2, (uchar *)spd,
 		 sizeof(ddr3_spd_eeprom_t));
-}
-
-void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd,
-		      unsigned int ctrl_num)
-{
-	unsigned int i;
-	unsigned int i2c_address = 0;
-
-	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
-		if (ctrl_num == 0 && i == 0)
-			i2c_address = SPD_EEPROM_ADDRESS1;
-		get_spd(&(ctrl_dimms_spd[i]), i2c_address);
-	}
-}
-
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
 }
 
 /*
@@ -143,8 +125,14 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 			popts->clk_adjust = pbsp->clk_adjust;
 			popts->cpo_override = pbsp->cpo;
 			popts->twoT_en = 0;
+			break;
 		}
 		pbsp++;
+	}
+
+	if (i == num_params) {
+		printf("Warning: board specific timing not found "
+		"for data rate %lu MT/s!\n", ddr_freq);
 	}
 
 	/*

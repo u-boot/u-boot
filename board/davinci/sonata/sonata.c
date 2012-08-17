@@ -34,9 +34,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	/* arch number of the board */
-	gd->bd->bi_arch_number = MACH_TYPE_SONATA;
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 

@@ -25,7 +25,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 3rd stage loader */
 #define CONFIG_SYS_NO_FLASH		/* that is, no *NOR* flash */
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_DISPLAY_CPUINFO
 
 /* SoC Configuration */
 #define CONFIG_ARM926EJS				/* arm926ejs CPU */
@@ -54,7 +53,6 @@
 #define CONFIG_DM9000_BASE		0x04000000
 #define DM9000_IO			CONFIG_DM9000_BASE
 #define DM9000_DATA			(CONFIG_DM9000_BASE + 16)
-#define CONFIG_NET_MULTI
 
 /* I2C */
 #define CONFIG_HARD_I2C
@@ -70,7 +68,6 @@
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ 0x02000000, }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_MAX_CHIPS	1
 
 /* U-Boot command configuration */
 #include <config_cmd_default.h>
@@ -85,6 +82,10 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
+
+#ifdef CONFIG_CMD_BDI
+#define CONFIG_CLOCKS
+#endif
 
 #ifdef CONFIG_NAND_DAVINCI
 #define CONFIG_CMD_MTDPARTS

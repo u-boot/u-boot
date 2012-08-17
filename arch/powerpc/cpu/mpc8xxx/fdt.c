@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Freescale Semiconductor, Inc.
+ * Copyright 2009-2012 Freescale Semiconductor, Inc.
  *
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
@@ -27,8 +27,11 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/mp.h>
-#include <asm/fsl_enet.h>
 #include <asm/fsl_serdes.h>
+#include <phy.h>
+#include <hwconfig.h>
+
+#define FSL_MAX_NUM_USB_CTRLS	2
 
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
 static int ft_del_cpuhandle(void *blob, int cpuhandle)
@@ -60,7 +63,7 @@ void ft_fixup_num_cores(void *blob) {
 	while (off != -FDT_ERR_NOTFOUND) {
 		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 
-		if ((*reg > num_cores-1) || (is_core_disabled(*reg))) {
+		if (!is_core_valid(*reg) || is_core_disabled(*reg)) {
 			int ph = fdt_get_phandle(blob, off);
 
 			/* Delete the cpu node once there are no cpu handles */
@@ -83,46 +86,110 @@ void ft_fixup_num_cores(void *blob) {
 }
 #endif /* defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) */
 
-#ifdef CONFIG_HAS_FSL_DR_USB
-void fdt_fixup_dr_usb(void *blob, bd_t *bd)
+#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
+static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
+				const char *phy_type, int start_offset)
 {
-	char *mode;
-	char *type;
-	const char *compat = "fsl-usb2-dr";
+	const char *compat_dr = "fsl-usb2-dr";
+	const char *compat_mph = "fsl-usb2-mph";
 	const char *prop_mode = "dr_mode";
 	const char *prop_type = "phy_type";
+	const char *node_type = NULL;
 	int node_offset;
 	int err;
 
-	mode = getenv("usb_dr_mode");
-	type = getenv("usb_phy_type");
-	if (!mode && !type)
-		return;
-
-	node_offset = fdt_node_offset_by_compatible(blob, 0, compat);
+	node_offset = fdt_node_offset_by_compatible(blob,
+			start_offset, compat_mph);
 	if (node_offset < 0) {
-		printf("WARNING: could not find compatible node %s: %s.\n",
-			compat, fdt_strerror(node_offset));
-		return;
-	}
+		node_offset = fdt_node_offset_by_compatible(blob,
+			start_offset, compat_dr);
+		if (node_offset < 0) {
+			printf("WARNING: could not find compatible"
+				" node %s or %s: %s.\n", compat_mph,
+				compat_dr, fdt_strerror(node_offset));
+			return -1;
+		} else
+			node_type = compat_dr;
+	} else
+		node_type = compat_mph;
 
 	if (mode) {
 		err = fdt_setprop(blob, node_offset, prop_mode, mode,
 				  strlen(mode) + 1);
 		if (err < 0)
 			printf("WARNING: could not set %s for %s: %s.\n",
-			       prop_mode, compat, fdt_strerror(err));
+			       prop_mode, node_type, fdt_strerror(err));
 	}
 
-	if (type) {
-		err = fdt_setprop(blob, node_offset, prop_type, type,
-				  strlen(type) + 1);
+	if (phy_type) {
+		err = fdt_setprop(blob, node_offset, prop_type, phy_type,
+				  strlen(phy_type) + 1);
 		if (err < 0)
 			printf("WARNING: could not set %s for %s: %s.\n",
-			       prop_type, compat, fdt_strerror(err));
+			       prop_type, node_type, fdt_strerror(err));
+	}
+
+	return node_offset;
+}
+
+void fdt_fixup_dr_usb(void *blob, bd_t *bd)
+{
+	const char *modes[] = { "host", "peripheral", "otg" };
+	const char *phys[] = { "ulpi", "utmi" };
+	const char *mode = NULL;
+	const char *phy_type = NULL;
+	char usb1_defined = 0;
+	int usb_mode_off = -1;
+	int usb_phy_off = -1;
+	char str[5];
+	int i, j;
+
+	for (i = 1; i <= FSL_MAX_NUM_USB_CTRLS; i++) {
+		int mode_idx = -1, phy_idx = -1;
+		snprintf(str, 5, "%s%d", "usb", i);
+		if (hwconfig(str)) {
+			for (j = 0; j < ARRAY_SIZE(modes); j++) {
+				if (hwconfig_subarg_cmp(str, "dr_mode",
+						modes[j])) {
+					mode_idx = j;
+					break;
+				}
+			}
+			for (j = 0; j < ARRAY_SIZE(phys); j++) {
+				if (hwconfig_subarg_cmp(str, "phy_type",
+						phys[j])) {
+					phy_idx = j;
+					break;
+				}
+			}
+			if (mode_idx >= 0) {
+				usb_mode_off = fdt_fixup_usb_mode_phy_type(blob,
+					modes[mode_idx], NULL, usb_mode_off);
+				if (usb_mode_off < 0)
+					return;
+			}
+			if (phy_idx >= 0) {
+				usb_phy_off = fdt_fixup_usb_mode_phy_type(blob,
+					NULL, phys[phy_idx], usb_phy_off);
+				if (usb_phy_off < 0)
+					return;
+			}
+			if (!strcmp(str, "usb1"))
+				usb1_defined = 1;
+			if (mode_idx < 0 && phy_idx < 0)
+				printf("WARNING: invalid phy or mode\n");
+		}
+	}
+	if (!usb1_defined) {
+		int usb_off = -1;
+		mode = getenv("usb_dr_mode");
+		phy_type = getenv("usb_phy_type");
+		if (!mode && !phy_type)
+			return;
+		fdt_fixup_usb_mode_phy_type(blob, mode, phy_type, usb_off);
 	}
 }
-#endif /* CONFIG_HAS_FSL_DR_USB */
+#endif /* defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB) */
 
 /*
  * update crypto node properties to a specified revision of the SEC
@@ -218,45 +285,80 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 }
 #endif
 
-int fdt_fixup_phy_connection(void *blob, int offset, enum fsl_phy_enet_if phyc)
+int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
 {
-	static const char *fsl_phy_enet_if_str[] = {
-		[MII]		= "mii",
-		[RMII]		= "rmii",
-		[GMII]		= "gmii",
-		[RGMII]		= "rgmii",
-		[RGMII_ID]	= "rgmii-id",
-		[RGMII_RXID]	= "rgmii-rxid",
-		[SGMII]		= "sgmii",
-		[TBI]		= "tbi",
-		[RTBI]		= "rtbi",
-		[XAUI]		= "xgmii",
-		[FSL_ETH_IF_NONE] = "",
-	};
-
-	if (phyc > ARRAY_SIZE(fsl_phy_enet_if_str))
-		return fdt_setprop_string(blob, offset, "phy-connection-type", "");
-
 	return fdt_setprop_string(blob, offset, "phy-connection-type",
-					 fsl_phy_enet_if_str[phyc]);
+					 phy_string_for_interface(phyc));
 }
 
 #ifdef CONFIG_SYS_SRIO
+static inline void ft_disable_srio_port(void *blob, int srio_off, int port)
+{
+	int off = fdt_node_offset_by_prop_value(blob, srio_off,
+			"cell-index", &port, 4);
+	if (off >= 0) {
+		off = fdt_setprop_string(blob, off, "status", "disabled");
+		if (off > 0)
+			printf("WARNING unable to set status for fsl,srio "
+				"port %d: %s\n", port, fdt_strerror(off));
+	}
+}
+
+static inline void ft_disable_rman(void *blob)
+{
+	int off = fdt_node_offset_by_compatible(blob, -1, "fsl,rman");
+	if (off >= 0) {
+		off = fdt_setprop_string(blob, off, "status", "disabled");
+		if (off > 0)
+			printf("WARNING unable to set status for fsl,rman %s\n",
+				fdt_strerror(off));
+	}
+}
+
+static inline void ft_disable_rmu(void *blob)
+{
+	int off = fdt_node_offset_by_compatible(blob, -1, "fsl,srio-rmu");
+	if (off >= 0) {
+		off = fdt_setprop_string(blob, off, "status", "disabled");
+		if (off > 0)
+			printf("WARNING unable to set status for "
+				"fsl,srio-rmu %s\n", fdt_strerror(off));
+	}
+}
+
 void ft_srio_setup(void *blob)
 {
+	int srio1_used = 0, srio2_used = 0;
+	int srio_off;
+
+	/* search for srio node, if doesn't exist just return - nothing todo */
+	srio_off = fdt_node_offset_by_compatible(blob, -1, "fsl,srio");
+	if (srio_off < 0)
+		return ;
+
 #ifdef CONFIG_SRIO1
-	if (!is_serdes_configured(SRIO1)) {
-		fdt_del_node_and_alias(blob, "rio0");
-	}
-#else
-	fdt_del_node_and_alias(blob, "rio0");
+	if (is_serdes_configured(SRIO1))
+		srio1_used = 1;
 #endif
 #ifdef CONFIG_SRIO2
-	if (!is_serdes_configured(SRIO2)) {
-		fdt_del_node_and_alias(blob, "rio1");
-	}
-#else
-	fdt_del_node_and_alias(blob, "rio1");
+	if (is_serdes_configured(SRIO2))
+		srio2_used = 1;
 #endif
+
+	/* mark port1 disabled */
+	if (!srio1_used)
+		ft_disable_srio_port(blob, srio_off, 1);
+
+	/* mark port2 disabled */
+	if (!srio2_used)
+		ft_disable_srio_port(blob, srio_off, 2);
+
+	/* if both ports not used, disable controller, rmu and rman */
+	if (!srio1_used && !srio2_used) {
+		fdt_setprop_string(blob, srio_off, "status", "disabled");
+
+		ft_disable_rman(blob);
+		ft_disable_rmu(blob);
+	}
 }
 #endif

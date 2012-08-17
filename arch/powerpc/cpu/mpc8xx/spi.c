@@ -139,14 +139,10 @@ void spi_init_f (void)
 
 	volatile spi_t *spi;
 	volatile immap_t *immr;
-	volatile cpic8xx_t *cpi;
 	volatile cpm8xx_t *cp;
-	volatile iop8xx_t *iop;
 	volatile cbd_t *tbdf, *rbdf;
 
 	immr = (immap_t *)  CONFIG_SYS_IMMR;
-	cpi  = (cpic8xx_t *)&immr->im_cpic;
-	iop  = (iop8xx_t *) &immr->im_ioport;
 	cp   = (cpm8xx_t *) &immr->im_cpm;
 
 #ifdef CONFIG_SYS_SPI_UCODE_PATCH

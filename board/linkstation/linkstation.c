@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#include <version.h>
 #include <common.h>
+#include <version.h>
 #include <mpc824x.h>
 #include <asm/io.h>
 #include <ns16550.h>

@@ -39,7 +39,7 @@ typedef enum {
 } ACTION;
 
 typedef struct entry {
-	char *key;
+	const char *key;
 	char *data;
 } ENTRY;
 
@@ -80,12 +80,19 @@ extern int hsearch_r(ENTRY __item, ACTION __action, ENTRY ** __retval,
  */
 extern int hmatch_r(const char *__match, int __last_idx, ENTRY ** __retval,
 		    struct hsearch_data *__htab);
+/*
+ * Search for an entry whose key or data contains `MATCH'.  Otherwise,
+ * Same semantics as hsearch_r().
+ */
+extern int hstrstr_r(const char *__match, int __last_idx, ENTRY ** __retval,
+		    struct hsearch_data *__htab);
 
 /* Search and delete entry matching ITEM.key in internal hash table. */
 extern int hdelete_r(const char *__key, struct hsearch_data *__htab);
 
 extern ssize_t hexport_r(struct hsearch_data *__htab,
-		     const char __sep, char **__resp, size_t __size);
+		     const char __sep, char **__resp, size_t __size,
+		     int argc, char * const argv[]);
 
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,

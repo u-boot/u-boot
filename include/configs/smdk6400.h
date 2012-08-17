@@ -65,7 +65,7 @@
 /*
  * Architecture magic and machine type
  */
-#define MACH_TYPE		1270
+#define CONFIG_MACH_TYPE		1270
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -78,7 +78,6 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_CS8900			/* we have a CS8900 on-board	*/
 #define CONFIG_CS8900_BASE	  	0x18800300
 #define CONFIG_CS8900_BUS16		/* follow the Linux driver	*/
@@ -263,12 +262,8 @@
 #define CONFIG_SYS_NAND_ECCSIZE	CONFIG_SYS_NAND_PAGE_SIZE
 /* Number of ECC bytes per OOB - S3C6400 calculates 4 bytes ECC in 1-bit mode */
 #define CONFIG_SYS_NAND_ECCBYTES	4
-/* Number of ECC-blocks per NAND page */
-#define CONFIG_SYS_NAND_ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CONFIG_SYS_NAND_ECCSIZE)
 /* Size of a single OOB region */
 #define CONFIG_SYS_NAND_OOBSIZE	64
-/* Number of ECC bytes per page */
-#define CONFIG_SYS_NAND_ECCTOTAL	(CONFIG_SYS_NAND_ECCBYTES * CONFIG_SYS_NAND_ECCSTEPS)
 /* ECC byte positions */
 #define CONFIG_SYS_NAND_ECCPOS		{40, 41, 42, 43, 44, 45, 46, 47, \
 				 48, 49, 50, 51, 52, 53, 54, 55, \

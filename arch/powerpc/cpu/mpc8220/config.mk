@@ -21,7 +21,7 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fPIC -meabi
+PLATFORM_RELFLAGS += -meabi
 
 PLATFORM_CPPFLAGS += -DCONFIG_MPC8220 -ffixed-r2 \
 		     -mstring -mcpu=603e -mmultiple

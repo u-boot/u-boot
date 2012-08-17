@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2011 Freescale Semiconductor.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
@@ -200,6 +200,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 int checkboard (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	char buf[32];
 
 	/* PCI slot in USER bits CSR[6:7] by convention. */
 	uint pci_slot = get_pci_slot ();
@@ -222,8 +223,7 @@ int checkboard (void)
 
 	printf("PCI1: %d bit, %s MHz, %s\n",
 		(pci1_32) ? 32 : 64,
-		(pci1_speed == 33000000) ? "33" :
-		(pci1_speed == 66000000) ? "66" : "unknown",
+		strmhz(buf, pci1_speed),
 		pci1_clk_sel ? "sync" : "async");
 
 	if (pci_dual) {
@@ -275,7 +275,7 @@ local_bus_init(void)
 		lbc->lcrr &= (~0x80000000);		/* DLL Enabled */
 
 	} else {
-		lbc->lcrr &= (~0x8000000);	/* DLL Enabled */
+		lbc->lcrr &= (~0x80000000);	/* DLL Enabled */
 		udelay(200);
 
 		/*

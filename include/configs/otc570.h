@@ -1,10 +1,10 @@
 /*
- * (C) Copyright 2010
+ * (C) Copyright 2010-2011
  * Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
  * esd electronic system design gmbh <www.esd.eu>
  *
  * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop@leadtechdesign.com>
+ * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  *
  * Configuation settings for the esd OTC570 board.
@@ -31,101 +31,126 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* Common stuff */
-#define CONFIG_OTC570			1	/* Board is esd OTC570 */
-#define CONFIG_ARM926EJS		1	/* This is an ARM926EJS Core */
-#define CONFIG_AT91SAM9263		1	/* It's an AT91SAM9263 SoC */
+/*
+ * SoC must be defined first, before hardware.h is included.
+ * In this case SoC is defined in boards.cfg.
+ */
+#include <asm/hardware.h>
+
+/*
+ * Warning: changing CONFIG_SYS_TEXT_BASE requires
+ * adapting the initial boot program.
+ * Since the linker has to swallow that define, we must use a pure
+ * hex number here!
+ */
+#define CONFIG_SYS_TEXT_BASE		0x20002000
+
+/*
+ * since a number of boards are not being listed in linux
+ * arch/arm/tools/mach-types any more, the mach-types have to be
+ * defined here
+ */
+#define MACH_TYPE_OTC570		2166
+
+/* ARM asynchronous clock */
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768	/* 32.768 kHz crystal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
 #define CONFIG_SYS_HZ			1000	/* decrementer freq */
-#define CONFIG_DISPLAY_BOARDINFO	1
-#define CONFIG_DISPLAY_CPUINFO		1	/* display cpu info and speed */
-#define CONFIG_PREBOOT				/* enable preboot variable */
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
-#define CONFIG_SERIAL_TAG		1
-#define CONFIG_REVISION_TAG		1
-#undef CONFIG_USE_IRQ				/* don't need IRQ/FIQ stuff */
 
+/* Misc CPU related */
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_MISC_INIT_R		1	/* Call misc_init_r */
-
 #define CONFIG_ARCH_CPU_INIT
+#define CONFIG_BOARD_EARLY_INIT_F		/* call board_early_init_f() */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+#define CONFIG_SERIAL_TAG
+#define CONFIG_REVISION_TAG
+#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
+#define CONFIG_MISC_INIT_R			/* Call misc_init_r */
+#undef	CONFIG_USE_IRQ				/* don't need IRQ/FIQ stuff */
+
+#define CONFIG_DISPLAY_BOARDINFO		/* call checkboard() */
+#define CONFIG_DISPLAY_CPUINFO			/* display cpu info and speed */
+#define CONFIG_PREBOOT				/* enable preboot variable */
 
 /*
  * Hardware drivers
  */
-#define CONFIG_AT91_GPIO		1
+
+/* required until arch/arm/include/asm/arch-at91/at91sam9263.h is reworked */
+#define ATMEL_PMC_UHP			AT91SAM926x_PMC_UHP
+
+/* general purpose I/O */
+#define CONFIG_AT91_GPIO
 
 /* Console output */
-#define CONFIG_ATMEL_USART		1
-#undef CONFIG_USART0
-#undef CONFIG_USART1
-#undef CONFIG_USART2
-#define CONFIG_USART3			1	/* USART 3 is DBGU */
+#define CONFIG_ATMEL_USART
+#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
+#define CONFIG_USART_ID			ATMEL_ID_SYS
+#define CONFIG_BAUDRATE			115200
+#define CONFIG_SYS_BAUDRATE_TABLE	{115200, 19200, 38400, 57600, 9600}
 
 #define CONFIG_BOOTDELAY		3
-#define CONFIG_ZERO_BOOTDELAY_CHECK	1
+#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* LCD */
-#define CONFIG_LCD			1
-#define LCD_BPP				LCD_COLOR8
-
+#define CONFIG_LCD
 #undef CONFIG_SPLASH_SCREEN
 
-#ifndef CONFIG_SPLASH_SCREEN
-#define CONFIG_LCD_LOGO			1
-#define CONFIG_LCD_INFO			1
-#undef CONFIG_LCD_INFO_BELOW_LOGO
-#endif /* CONFIG_SPLASH_SCREEN */
+#ifdef CONFIG_LCD
+# define LCD_BPP			LCD_COLOR8
 
-#undef LCD_TEST_PATTERN
-#define CONFIG_SYS_WHITE_ON_BLACK	1
-#define CONFIG_ATMEL_LCD		1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
-#define CONFIG_OTC570_LCD_BASE		0x23E00000	/* LCD is in SDRAM */
-#define CONFIG_CMD_BMP			1
+# ifndef CONFIG_SPLASH_SCREEN
+#  define CONFIG_LCD_LOGO
+#  define CONFIG_LCD_INFO
+#  undef CONFIG_LCD_INFO_BELOW_LOGO
+# endif /* CONFIG_SPLASH_SCREEN */
+
+# undef LCD_TEST_PATTERN
+# define CONFIG_SYS_WHITE_ON_BLACK
+# define CONFIG_ATMEL_LCD
+# define CONFIG_SYS_CONSOLE_IS_IN_ENV
+# define CONFIG_OTC570_LCD_BASE		(CONFIG_SYS_SDRAM_BASE + 0x03fa5000)
+# define CONFIG_CMD_BMP
+#endif /* CONFIG_LCD */
 
 /* RTC and I2C stuff */
-#define CONFIG_RTC_DS1338		1
+#define CONFIG_RTC_DS1338
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
 #undef CONFIG_HARD_I2C
-#define CONFIG_SOFT_I2C			1
+#define CONFIG_SOFT_I2C
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
 #ifdef CONFIG_SOFT_I2C
-#define CONFIG_I2C_CMD_TREE		1
-#define CONFIG_I2C_MULTI_BUS		1
+# define CONFIG_I2C_CMD_TREE
+# define CONFIG_I2C_MULTI_BUS
 /* Configure data and clock pins for pio */
-#define I2C_INIT { \
+# define I2C_INIT { \
 	at91_set_pio_output(AT91_PIO_PORTB, 4, 0); \
 	at91_set_pio_output(AT91_PIO_PORTB, 5, 0); \
 }
-#define I2C_SOFT_DECLARATIONS
+# define I2C_SOFT_DECLARATIONS
 /* Configure data pin as output */
-#define I2C_ACTIVE		at91_set_pio_output(AT91_PIO_PORTB, 4, 0)
+# define I2C_ACTIVE		at91_set_pio_output(AT91_PIO_PORTB, 4, 0)
 /* Configure data pin as input */
-#define I2C_TRISTATE		at91_set_pio_input(AT91_PIO_PORTB, 4, 0)
+# define I2C_TRISTATE		at91_set_pio_input(AT91_PIO_PORTB, 4, 0)
 /* Read data pin */
-#define I2C_READ		at91_get_pio_value(AT91_PIO_PORTB, 4)
+# define I2C_READ		at91_get_pio_value(AT91_PIO_PORTB, 4)
 /* Set data pin */
-#define I2C_SDA(bit)		at91_set_pio_value(AT91_PIO_PORTB, 4, bit)
+# define I2C_SDA(bit)		at91_set_pio_value(AT91_PIO_PORTB, 4, bit)
 /* Set clock pin */
-#define I2C_SCL(bit)		at91_set_pio_value(AT91_PIO_PORTB, 5, bit)
-#define I2C_DELAY		udelay(2) /* 1/4 I2C clock duration */
+# define I2C_SCL(bit)		at91_set_pio_value(AT91_PIO_PORTB, 5, bit)
+# define I2C_DELAY		udelay(2) /* 1/4 I2C clock duration */
 #endif /* CONFIG_SOFT_I2C */
-
-#define CONFIG_BOOTDELAY		3
-#define CONFIG_ZERO_BOOTDELAY_CHECK	1
 
 /*
  * BOOTP options
  */
-#define CONFIG_BOOTP_BOOTFILESIZE	1
-#define CONFIG_BOOTP_BOOTPATH		1
-#define CONFIG_BOOTP_GATEWAY		1
-#define CONFIG_BOOTP_HOSTNAME		1
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
@@ -135,99 +160,115 @@
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_IMLS
 
-#define CONFIG_CMD_PING			1
-#define CONFIG_CMD_DHCP			1
-#define CONFIG_CMD_NAND			1
-#define CONFIG_CMD_USB			1
-#define CONFIG_CMD_I2C			1
-#define CONFIG_CMD_DATE			1
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_DATE
 
 /* LED */
-#define CONFIG_AT91_LED			1
+#define CONFIG_AT91_LED
 
-/* SDRAM */
-#define CONFIG_NR_DRAM_BANKS			1
-#define PHYS_SDRAM				0x20000000
+/*
+ * SDRAM: 1 bank, min 32, max 128 MB
+ * Initialized before u-boot gets started.
+ */
+#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_SYS_SDRAM_BASE		0x20000000 /* ATMEL_BASE_CS1 */
+#define CONFIG_SYS_SDRAM_SIZE		0x04000000
+
+#define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE + 0x00100000)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x01E00000)
+#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x00100000)
+
+/*
+ * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
+ * leaving the correct space for initial global data structure above
+ * that address while providing maximum stack area below.
+ */
+#define CONFIG_SYS_INIT_SP_ADDR \
+	(ATMEL_BASE_SRAM0 + 0x1000 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
-#define CONFIG_ATMEL_DATAFLASH_SPI
-#define CONFIG_HAS_DATAFLASH			1
-#define CONFIG_SYS_SPI_WRITE_TOUT		(5 * CONFIG_SYS_HZ)
-#define CONFIG_SYS_MAX_DATAFLASH_BANKS		1
-#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
-#define AT91_SPI_CLK				15000000
-#define DATAFLASH_TCSS				(0x1a << 16)
-#define DATAFLASH_TCHS				(0x1 << 24)
+#ifdef CONFIG_SYS_USE_DATAFLASH
+# define CONFIG_ATMEL_DATAFLASH_SPI
+# define CONFIG_HAS_DATAFLASH
+# define CONFIG_SYS_SPI_WRITE_TOUT		(5 * CONFIG_SYS_HZ)
+# define CONFIG_SYS_MAX_DATAFLASH_BANKS		1
+# define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
+# define AT91_SPI_CLK				15000000
+# define DATAFLASH_TCSS				(0x1a << 16)
+# define DATAFLASH_TCHS				(0x1 << 24)
+#endif
 
 /* NOR flash is not populated, disable it */
-#define CONFIG_SYS_NO_FLASH			1
+#define CONFIG_SYS_NO_FLASH
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_ATMEL
-#define CONFIG_SYS_MAX_NAND_DEVICE		1
-#define CONFIG_SYS_NAND_BASE			0x40000000
-#define CONFIG_SYS_NAND_DBW_8			1
-/* our ALE is AD21 */
-#define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
-/* our CLE is AD22 */
-#define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
-#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIO_PORTD, 15
-#define CONFIG_SYS_NAND_READY_PIN		AT91_PIO_PORTA, 22
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+# define CONFIG_NAND_ATMEL
+# define CONFIG_SYS_MAX_NAND_DEVICE		1
+# define CONFIG_SYS_NAND_BASE			0x40000000 /* ATMEL_BASE_CS3 */
+# define CONFIG_SYS_NAND_DBW_8
+# define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
+# define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
+# define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIO_PORTD, 15
+# define CONFIG_SYS_NAND_READY_PIN		AT91_PIO_PORTA, 22
+# define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #endif
 
 /* Ethernet */
-#define CONFIG_MACB				1
-#define CONFIG_RMII				1
-#define CONFIG_NET_MULTI			1
+#define CONFIG_MACB
+#define CONFIG_RMII
+#define CONFIG_FIT
 #define CONFIG_NET_RETRY_COUNT			20
 #undef CONFIG_RESET_PHY_R
 
 /* USB */
 #define CONFIG_USB_ATMEL
-#define CONFIG_USB_OHCI_NEW			1
-#define CONFIG_DOS_PARTITION			1
-#define CONFIG_SYS_USB_OHCI_CPU_INIT		1
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_DOS_PARTITION
+#define CONFIG_SYS_USB_OHCI_CPU_INIT
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00a00000
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-#define CONFIG_USB_STORAGE			1
-#define CONFIG_CMD_FAT				1
-
-#define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */
-
-#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
-#define CONFIG_SYS_MEMTEST_END			0x23e00000
-
-#define CONFIG_SYS_USE_DATAFLASH		1
-#undef CONFIG_SYS_USE_NANDFLASH
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_FAT
 
 /* CAN */
-#define CONFIG_AT91_CAN				1
+#define CONFIG_AT91_CAN
 
 /* hw-controller addresses */
-#define CONFIG_ET1100_BASE			0x70000000
+#define CONFIG_ET1100_BASE		0x70000000 /* ATMEL_BASE_CS6 */
+
+#ifdef CONFIG_SYS_USE_DATAFLASH
 
 /* bootstrap + u-boot + env in dataflash on CS0 */
-#define CONFIG_ENV_IS_IN_DATAFLASH	1
-#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + \
+# define CONFIG_ENV_IS_IN_DATAFLASH
+# define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + \
 					0x8400)
-#define CONFIG_ENV_OFFSET		0x4200
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + \
+# define CONFIG_ENV_OFFSET		0x4200
+# define CONFIG_ENV_ADDR		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + \
 					CONFIG_ENV_OFFSET)
-#define CONFIG_ENV_SIZE			0x4200
+# define CONFIG_ENV_SIZE		0x4200
 
-#define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
+#elif CONFIG_SYS_USE_NANDFLASH
+
+/* bootstrap + u-boot + env + linux in nandflash */
+# define CONFIG_ENV_IS_IN_NAND		1
+# define CONFIG_ENV_OFFSET		0xC0000
+# define CONFIG_ENV_SIZE		0x20000
+
+#endif
 
 #define CONFIG_SYS_PROMPT		"=> "
-#define CONFIG_SYS_CBSIZE		256
+#define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING		1
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_CMDLINE_EDITING
 
 /*
  * Size of malloc() pool
@@ -238,7 +279,7 @@
 #define CONFIG_STACKSIZE		(32 * 1024)	/* regular stack */
 
 #ifdef CONFIG_USE_IRQ
-#error CONFIG_USE_IRQ not supported
+# error CONFIG_USE_IRQ not supported
 #endif
 
 #endif

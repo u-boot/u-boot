@@ -26,6 +26,8 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libspi.o
 
 COBJS-$(CONFIG_ALTERA_SPI) += altera_spi.o
+COBJS-$(CONFIG_ANDES_SPI) += andes_spi.o
+COBJS-$(CONFIG_ARMADA100_SPI) += armada100_spi.o
 COBJS-$(CONFIG_ATMEL_DATAFLASH_SPI) += atmel_dataflash_spi.o
 COBJS-$(CONFIG_ATMEL_SPI) += atmel_spi.o
 COBJS-$(CONFIG_BFIN_SPI) += bfin_spi.o
@@ -35,9 +37,13 @@ COBJS-$(CONFIG_KIRKWOOD_SPI) += kirkwood_spi.o
 COBJS-$(CONFIG_MPC52XX_SPI) += mpc52xx_spi.o
 COBJS-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
 COBJS-$(CONFIG_MXC_SPI) += mxc_spi.o
+COBJS-$(CONFIG_MXS_SPI) += mxs_spi.o
+COBJS-$(CONFIG_OC_TINY_SPI) += oc_tiny_spi.o
 COBJS-$(CONFIG_OMAP3_SPI) += omap3_spi.o
 COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
 COBJS-$(CONFIG_SH_SPI) += sh_spi.o
+COBJS-$(CONFIG_FSL_ESPI) += fsl_espi.o
+COBJS-$(CONFIG_TEGRA2_SPI) += tegra2_spi.o
 COBJS-$(CONFIG_ZYNQ_SPI) += zynq_qspi.o zynq_qspi_wrap.o
 
 COBJS	:= $(COBJS-y)

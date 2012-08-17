@@ -65,7 +65,8 @@ LoopOsc:
 	ldr	r0, =SMRDATA
 	ldr	r1, _MTEXT_BASE
 	sub	r0, r0, r1
-	add	r2, r0, #80
+	ldr	r2, =SMRDATAE
+	sub	r2, r2, r1
 pllloop:
 	/* the address */
 	ldr	r1, [r0], #4
@@ -83,7 +84,8 @@ lock:
 	ldr	r0, =SMRDATA1
 	ldr	r1, _MTEXT_BASE
 	sub	r0, r0, r1
-	add	r2, r0, #176
+	ldr	r2, =SMRDATA1E
+	sub	r2, r2, r1
 sdinit:
 	/* the address */
 	ldr	r1, [r0], #4
@@ -114,6 +116,7 @@ SMRDATA:
 	.word CONFIG_SYS_PLLBR_VAL
 	.word AT91_ASM_PMC_MCKR
 	.word CONFIG_SYS_MCKR_VAL
+SMRDATAE:
 	/* here there's a delay */
 SMRDATA1:
 	.word AT91_ASM_PIOC_ASR
@@ -160,5 +163,6 @@ SMRDATA1:
 	.word CONFIG_SYS_SDRC_MR_VAL3
 	.word CONFIG_SYS_SDRAM
 	.word CONFIG_SYS_SDRAM_VAL
+SMRDATA1E:
 	/* SMRDATA1 is 176 bytes long */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */

@@ -21,7 +21,7 @@
 
 #include <config.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 /*
  * L2CC Cache setup/invalidation/disable
@@ -39,10 +39,14 @@
 	orr r0, r0, #(1 << 23)		/* disable write allocate combine */
 	orr r0, r0, #(1 << 22)		/* disable write allocate */
 
-	cmp r3, #0x10    /* r3 contains the silicon rev */
+#if defined(CONFIG_MX51)
+	ldr r1, =0x0
+	ldr r3, [r1, #ROM_SI_REV]
+	cmp r3, #0x10
 
 	/* disable write combine for TO 2 and lower revs */
 	orrls r0, r0, #(1 << 25)
+#endif
 
 	mcr 15, 1, r0, c9, c0, 2
 .endm /* init_l2cc */
@@ -117,6 +121,35 @@
 	beq 1b
 .endm
 
+.macro setup_pll_errata pll, freq
+	ldr r2, =\pll
+	mov r1, #0x0
+	str r1, [r2, #PLL_DP_CONFIG] /* Disable auto-restart AREN bit */
+	ldr r1, =0x00001236
+	str r1, [r2, #PLL_DP_CTL]    /* Restart PLL with PLM=1 */
+1:	ldr r1, [r2, #PLL_DP_CTL]    /* Wait for lock */
+	ands r1, r1, #0x1
+	beq 1b
+
+	ldr r5, \freq
+	str r5, [r2, #PLL_DP_MFN]    /* Modify MFN value */
+	str r5, [r2, #PLL_DP_HFS_MFN]
+
+	mov r1, #0x1
+	str r1, [r2, #PLL_DP_CONFIG] /* Reload MFN value */
+
+2:	ldr r1, [r2, #PLL_DP_CONFIG]
+	tst r1, #1
+	bne 2b
+
+	ldr r1, =100		     /* Wait at least 4 us */
+3:	subs r1, r1, #1
+	bge 3b
+
+	mov r1, #0x2
+	str r1, [r2, #PLL_DP_CONFIG] /* Enable auto-restart AREN bit */
+.endm
+
 .macro init_clock
 	ldr r0, =CCM_BASE_ADDR
 
@@ -147,13 +180,33 @@
 1:	ldr r1, [r0, #CLKCTL_CDHIPR]
 	cmp r1, #0x0
 	bne 1b
+#else
+	ldr r1, =0x3FFFFFFF
+	str r1, [r0, #CLKCTL_CCGR0]
+	ldr r1, =0x0
+	str r1, [r0, #CLKCTL_CCGR1]
+	str r1, [r0, #CLKCTL_CCGR2]
+	str r1, [r0, #CLKCTL_CCGR3]
+	str r1, [r0, #CLKCTL_CCGR7]
+
+	ldr r1, =0x00030000
+	str r1, [r0, #CLKCTL_CCGR4]
+	ldr r1, =0x00FFF030
+	str r1, [r0, #CLKCTL_CCGR5]
+	ldr r1, =0x0F00030F
+	str r1, [r0, #CLKCTL_CCGR6]
 #endif
 
 	/* Switch ARM to step clock */
 	mov r1, #0x4
 	str r1, [r0, #CLKCTL_CCSR]
 
+#if defined(CONFIG_MX51_PLL_ERRATA)
+	setup_pll PLL1_BASE_ADDR, 864
+	setup_pll_errata PLL1_BASE_ADDR, W_DP_MFN_800_DIT
+#else
 	setup_pll PLL1_BASE_ADDR, 800
+#endif
 
 #if defined(CONFIG_MX51)
 	setup_pll PLL3_BASE_ADDR, 665
@@ -231,10 +284,24 @@
 	ldr r1, =0x00C30321
 	str r1, [r0, #CLKCTL_CSCDR1]
 #elif defined(CONFIG_MX53)
+	/* Switch peripheral to PLL2 */
+	ldr r0, =CCM_BASE_ADDR
+	ldr r1, =0x00808145
+	orr r1, r1, #(2 << 10)
+	orr r1, r1, #(0 << 16)
+	orr r1, r1, #(1 << 19)
+	str r1, [r0, #CLKCTL_CBCDR]
+
+	ldr r1, =0x00016154
+	str r1, [r0, #CLKCTL_CBCMR]
+	/* Change uart clk parent to pll2*/
+	ldr r1, [r0, #CLKCTL_CSCMR1]
+	and r1, r1, #0xfcffffff
+	orr r1, r1, #0x01000000
+	str r1, [r0, #CLKCTL_CSCMR1]
 	ldr r1, [r0, #CLKCTL_CSCDR1]
-	orr r1, r1, #0x3f
-	eor r1, r1, #0x3f
-	orr r1, r1, #0x21
+	and r1, r1, #0xffffffc0
+	orr r1, r1, #0x0a
 	str r1, [r0, #CLKCTL_CSCDR1]
 #endif
 	/* make sure divider effective */
@@ -283,6 +350,10 @@ lowlevel_init:
 	mov pc,lr
 
 /* Board level setting value */
+W_DP_OP_864:              .word DP_OP_864
+W_DP_MFD_864:             .word DP_MFD_864
+W_DP_MFN_864:             .word DP_MFN_864
+W_DP_MFN_800_DIT:         .word DP_MFN_800_DIT
 W_DP_OP_800:              .word DP_OP_800
 W_DP_MFD_800:             .word DP_MFD_800
 W_DP_MFN_800:             .word DP_MFN_800

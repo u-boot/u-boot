@@ -142,8 +142,10 @@ struct gpio_port_t {
 
 #ifdef CONFIG_BFIN_GPIO_TRACK
 void bfin_gpio_labels(void);
+void bfin_gpio_free(unsigned gpio);
 #else
 #define bfin_gpio_labels()
+#define bfin_gpio_free(gpio)
 #define bfin_gpio_request(gpio, label) bfin_gpio_request(gpio)
 #define bfin_special_gpio_request(gpio, label) bfin_special_gpio_request(gpio)
 #endif
@@ -154,7 +156,6 @@ int bfin_special_gpio_request(unsigned gpio, const char *label);
 #endif
 
 int bfin_gpio_request(unsigned gpio, const char *label);
-void bfin_gpio_free(unsigned gpio);
 int bfin_gpio_direction_input(unsigned gpio);
 int bfin_gpio_direction_output(unsigned gpio, int value);
 int bfin_gpio_get_value(unsigned gpio);
@@ -195,6 +196,59 @@ static inline int gpio_is_valid(int number)
 {
 	return number >= 0 && number < MAX_BLACKFIN_GPIOS;
 }
+
+#include <linux/ctype.h>
+
+static inline int name_to_gpio(const char *name)
+{
+	int port_base;
+
+	if (tolower(*name) == 'p') {
+		++name;
+
+		switch (tolower(*name)) {
+#ifdef GPIO_PA0
+		case 'a': port_base = GPIO_PA0; break;
+#endif
+#ifdef GPIO_PB0
+		case 'b': port_base = GPIO_PB0; break;
+#endif
+#ifdef GPIO_PC0
+		case 'c': port_base = GPIO_PC0; break;
+#endif
+#ifdef GPIO_PD0
+		case 'd': port_base = GPIO_PD0; break;
+#endif
+#ifdef GPIO_PE0
+		case 'e': port_base = GPIO_PE0; break;
+#endif
+#ifdef GPIO_PF0
+		case 'f': port_base = GPIO_PF0; break;
+#endif
+#ifdef GPIO_PG0
+		case 'g': port_base = GPIO_PG0; break;
+#endif
+#ifdef GPIO_PH0
+		case 'h': port_base = GPIO_PH0; break;
+#endif
+#ifdef GPIO_PI0
+		case 'i': port_base = GPIO_PI0; break;
+#endif
+#ifdef GPIO_PJ
+		case 'j': port_base = GPIO_PJ0; break;
+#endif
+		default:  return -1;
+		}
+
+		++name;
+	} else
+		port_base = 0;
+
+	return port_base + simple_strtoul(name, NULL, 10);
+}
+#define name_to_gpio(n) name_to_gpio(n)
+
+#define gpio_status() bfin_gpio_labels()
 
 #endif /* __ASSEMBLY__ */
 

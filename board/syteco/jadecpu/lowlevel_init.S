@@ -30,7 +30,7 @@
 #include <version.h>
 #include <asm/macro.h>
 #include <asm/arch/mb86r0x.h>
-#include <asm/arch/asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 /* Set up the platform, once the cpu has been initialized */
 .globl lowlevel_init

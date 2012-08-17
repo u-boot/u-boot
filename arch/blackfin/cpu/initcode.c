@@ -4,7 +4,7 @@
  * cannot make any function calls as it may be executed all by itself by
  * the Blackfin's bootrom in LDR format.
  *
- * Copyright (c) 2004-2008 Analog Devices Inc.
+ * Copyright (c) 2004-2011 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */
@@ -19,11 +19,15 @@
 #include <asm/mach-common/bits/pll.h>
 #include <asm/mach-common/bits/uart.h>
 
+#define BUG() while (1) { asm volatile("emuexcpt;"); }
+
 #include "serial.h"
 
 __attribute__((always_inline))
 static inline void serial_init(void)
 {
+	uint32_t uart_base = UART_DLL;
+
 #ifdef __ADSPBF54x__
 # ifdef BFIN_BOOT_UART_USE_RTS
 #  define BFIN_UART_USE_RTS 1
@@ -65,13 +69,13 @@ static inline void serial_init(void)
 
 	if (BFIN_DEBUG_EARLY_SERIAL) {
 		int ucen = bfin_read16(&pUART->gctl) & UCEN;
-		serial_early_init();
+		serial_early_init(uart_base);
 
 		/* If the UART is off, that means we need to program
 		 * the baud rate ourselves initially.
 		 */
 		if (ucen != UCEN)
-			serial_early_set_baud(CONFIG_BAUDRATE);
+			serial_early_set_baud(uart_base, CONFIG_BAUDRATE);
 	}
 }
 
@@ -79,6 +83,8 @@ __attribute__((always_inline))
 static inline void serial_deinit(void)
 {
 #ifdef __ADSPBF54x__
+	uint32_t uart_base = UART_DLL;
+
 	if (BFIN_UART_USE_RTS && CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
 		/* clear forced RTS rather than relying on auto RTS */
 		bfin_write16(&pUART->mcr, bfin_read16(&pUART->mcr) & ~FCPOL);
@@ -89,6 +95,8 @@ static inline void serial_deinit(void)
 __attribute__((always_inline))
 static inline void serial_putc(char c)
 {
+	uint32_t uart_base = UART_DLL;
+
 	if (!BFIN_DEBUG_EARLY_SERIAL)
 		return;
 
@@ -100,6 +108,8 @@ static inline void serial_putc(char c)
 	while (!(bfin_read16(&pUART->lsr) & TEMT))
 		continue;
 }
+
+#include "initcode.h"
 
 __attribute__((always_inline)) static inline void
 program_nmi_handler(void)
@@ -164,21 +174,6 @@ program_nmi_handler(void)
 
 #ifndef CONFIG_PLL_CTL_VAL
 # define CONFIG_PLL_CTL_VAL (SPORT_HYST | (CONFIG_VCO_MULT << 9) | CONFIG_CLKIN_HALF)
-#endif
-
-#ifndef CONFIG_EBIU_RSTCTL_VAL
-# define CONFIG_EBIU_RSTCTL_VAL 0 /* only MDDRENABLE is useful */
-#endif
-#if ((CONFIG_EBIU_RSTCTL_VAL & 0xFFFFFFC4) != 0)
-# error invalid EBIU_RSTCTL value: must not set reserved bits
-#endif
-
-#ifndef CONFIG_EBIU_MBSCTL_VAL
-# define CONFIG_EBIU_MBSCTL_VAL 0
-#endif
-
-#if defined(CONFIG_EBIU_DDRQUE_VAL) && ((CONFIG_EBIU_DDRQUE_VAL & 0xFFFF8000) != 0)
-# error invalid EBIU_DDRQUE value: must not set reserved bits
 #endif
 
 /* Make sure our voltage value is sane so we don't blow up! */
@@ -341,13 +336,13 @@ maybe_self_refresh(ADI_BOOT_DATA *bs)
 		return false;
 
 	/* If external memory is enabled, put it into self refresh first. */
-#ifdef EBIU_RSTCTL
+#if defined(EBIU_RSTCTL)
 	if (bfin_read_EBIU_RSTCTL() & DDR_SRESET) {
 		serial_putc('b');
 		bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | SRREQ);
 		return true;
 	}
-#else
+#elif defined(EBIU_SDGCTL)
 	if (bfin_read_EBIU_SDBCTL() & EBE) {
 		serial_putc('b');
 		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() | SRFS);
@@ -373,12 +368,15 @@ program_clocks(ADI_BOOT_DATA *bs, bool put_into_srfs)
 
 	/* If we're entering self refresh, make sure it has happened. */
 	if (put_into_srfs)
-#ifdef EBIU_RSTCTL
+#if defined(EBIU_RSTCTL)
 		while (!(bfin_read_EBIU_RSTCTL() & SRACK))
-#else
-		while (!(bfin_read_EBIU_SDSTAT() & SDSRA))
-#endif
 			continue;
+#elif defined(EBIU_SDGCTL)
+		while (!(bfin_read_EBIU_SDSTAT() & SDSRA))
+			continue;
+#else
+		;
+#endif
 
 	serial_putc('c');
 
@@ -516,7 +514,7 @@ update_serial_clocks(ADI_BOOT_DATA *bs, uint sdivB, uint divB, uint vcoB)
 		unsigned int quotient;
 		for (quotient = 0; dividend > 0; ++quotient)
 			dividend -= divisor;
-		serial_early_put_div(quotient - ANOMALY_05000230);
+		serial_early_put_div(UART_DLL, quotient - ANOMALY_05000230);
 		serial_putc('c');
 	}
 
@@ -536,7 +534,7 @@ program_memory_controller(ADI_BOOT_DATA *bs, bool put_into_srfs)
 	/* Program the external memory controller before we come out of
 	 * self-refresh.  This only works with our SDRAM controller.
 	 */
-#ifndef EBIU_RSTCTL
+#ifdef EBIU_SDGCTL
 # ifdef CONFIG_EBIU_SDRRC_VAL
 	bfin_write_EBIU_SDRRC(CONFIG_EBIU_SDRRC_VAL);
 # endif
@@ -552,9 +550,9 @@ program_memory_controller(ADI_BOOT_DATA *bs, bool put_into_srfs)
 
 	/* Now that we've reprogrammed, take things out of self refresh. */
 	if (put_into_srfs)
-#ifdef EBIU_RSTCTL
+#if defined(EBIU_RSTCTL)
 		bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() & ~(SRREQ));
-#else
+#elif defined(EBIU_SDGCTL)
 		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() & ~(SRFS));
 #endif
 
@@ -631,34 +629,6 @@ check_hibernation(ADI_BOOT_DATA *bs, u16 vr_ctl, bool put_into_srfs)
 	}
 
 	serial_putc('e');
-}
-
-__attribute__((always_inline)) static inline void
-program_async_controller(ADI_BOOT_DATA *bs)
-{
-	serial_putc('a');
-
-	/* Program the async banks controller. */
-	bfin_write_EBIU_AMBCTL0(CONFIG_EBIU_AMBCTL0_VAL);
-	bfin_write_EBIU_AMBCTL1(CONFIG_EBIU_AMBCTL1_VAL);
-	bfin_write_EBIU_AMGCTL(CONFIG_EBIU_AMGCTL_VAL);
-
-	serial_putc('b');
-
-	/* Not all parts have these additional MMRs. */
-#ifdef EBIU_MODE
-# ifdef CONFIG_EBIU_MBSCTL_VAL
-	bfin_write_EBIU_MBSCTL(CONFIG_EBIU_MBSCTL_VAL);
-# endif
-# ifdef CONFIG_EBIU_MODE_VAL
-	bfin_write_EBIU_MODE(CONFIG_EBIU_MODE_VAL);
-# endif
-# ifdef CONFIG_EBIU_FCTL_VAL
-	bfin_write_EBIU_FCTL(CONFIG_EBIU_FCTL_VAL);
-# endif
-#endif
-
-	serial_putc('c');
 }
 
 BOOTROM_CALLED_FUNC_ATTR

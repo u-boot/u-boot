@@ -219,7 +219,9 @@ typedef struct ddr3_spd_eeprom_s {
 					     Delay Time*/
 	unsigned char opt_features;    /* 30 SDRAM Optional Features */
 	unsigned char therm_ref_opt;   /* 31 SDRAM Thermal and Refresh Opts */
-	unsigned char res_32_59[28];   /* 32-59 Reserved, General Section */
+	unsigned char therm_sensor;    /* 32 Module Thermal Sensor */
+	unsigned char device_type;     /* 33 SDRAM device type */
+	unsigned char res_34_59[26];   /* 34-59 Reserved, General Section */
 
 	/* Module-Specific Section: Bytes 60-116 */
 	union {
@@ -304,14 +306,31 @@ extern unsigned int ddr3_spd_check(const ddr3_spd_eeprom_t *spd);
 #define SPD_MEMTYPE_DDR2_FBDIMM_PROBE	(0x0A)
 #define SPD_MEMTYPE_DDR3	(0x0B)
 
-/*
- * Byte 3 Key Byte / Module Type for DDR3 SPD
- */
-#define SPD_MODULETYPE_RDIMM		(0x01)
-#define SPD_MODULETYPE_UDIMM		(0x02)
-#define SPD_MODULETYPE_SODIMM		(0x03)
-#define SPD_MODULETYPE_MICRODIMM	(0x04)
-#define SPD_MODULETYPE_MINIRDIMM	(0x05)
-#define SPD_MODULETYPE_MINIUDIMM	(0x06)
+/* DIMM Type for DDR2 SPD (according to v1.3) */
+#define DDR2_SPD_DIMMTYPE_UNDEFINED	(0x00)
+#define DDR2_SPD_DIMMTYPE_RDIMM		(0x01)
+#define DDR2_SPD_DIMMTYPE_UDIMM		(0x02)
+#define DDR2_SPD_DIMMTYPE_SO_DIMM	(0x04)
+#define DDR2_SPD_DIMMTYPE_72B_SO_CDIMM	(0x06)
+#define DDR2_SPD_DIMMTYPE_72B_SO_RDIMM	(0x07)
+#define DDR2_SPD_DIMMTYPE_MICRO_DIMM	(0x08)
+#define DDR2_SPD_DIMMTYPE_MINI_RDIMM	(0x10)
+#define DDR2_SPD_DIMMTYPE_MINI_UDIMM	(0x20)
+
+/* Byte 3 Key Byte / Module Type for DDR3 SPD */
+#define DDR3_SPD_MODULETYPE_MASK	(0x0f)
+#define DDR3_SPD_MODULETYPE_RDIMM	(0x01)
+#define DDR3_SPD_MODULETYPE_UDIMM	(0x02)
+#define DDR3_SPD_MODULETYPE_SO_DIMM	(0x03)
+#define DDR3_SPD_MODULETYPE_MICRO_DIMM	(0x04)
+#define DDR3_SPD_MODULETYPE_MINI_RDIMM	(0x05)
+#define DDR3_SPD_MODULETYPE_MINI_UDIMM	(0x06)
+#define DDR3_SPD_MODULETYPE_MINI_CDIMM	(0x07)
+#define DDR3_SPD_MODULETYPE_72B_SO_UDIMM	(0x08)
+#define DDR3_SPD_MODULETYPE_72B_SO_RDIMM	(0x09)
+#define DDR3_SPD_MODULETYPE_72B_SO_CDIMM	(0x0A)
+#define DDR3_SPD_MODULETYPE_LRDIMM	(0x0B)
+#define DDR3_SPD_MODULETYPE_16B_SO_DIMM	(0x0C)
+#define DDR3_SPD_MODULETYPE_32B_SO_DIMM	(0x0D)
 
 #endif /* _DDR_SPD_H_ */

@@ -23,7 +23,7 @@
 
 CROSS_COMPILE ?= mips_4KC-
 
-STANDALONE_LOAD_ADDR = 0x80200000 -T mips.lds
+CONFIG_STANDALONE_LOAD_ADDR ?= 0x80200000 -T mips.lds
 
 PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 
@@ -50,3 +50,5 @@ PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic
 PLATFORM_CPPFLAGS		+= -msoft-float
 PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib
+PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
+LDFLAGS_FINAL			+= --gc-sections

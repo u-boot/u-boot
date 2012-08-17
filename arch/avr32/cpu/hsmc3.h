@@ -119,8 +119,8 @@
 
 /* Register access macros */
 #define hsmc3_readl(reg)					\
-	readl((void *)HSMC_BASE + HSMC3_##reg)
+	readl((void *)ATMEL_BASE_HSMC + HSMC3_##reg)
 #define hsmc3_writel(reg,value)					\
-	writel((value), (void *)HSMC_BASE + HSMC3_##reg)
+	writel((value), (void *)ATMEL_BASE_HSMC + HSMC3_##reg)
 
 #endif /* __CPU_AT32AP_HSMC3_H__ */

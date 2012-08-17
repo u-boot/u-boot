@@ -484,7 +484,7 @@ void show_boot_progress(int status)
 	display_out_pos = 0;	/* reset output position */
 
 	/* we want to flush status 15 now */
-	if (status == 15)
+	if (status == BOOTSTAGE_ID_RUN_OS)
 		display_flush();
 }
 #endif

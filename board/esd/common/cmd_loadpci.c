@@ -110,7 +110,7 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			 * Call run_cmd
 			 */
 			printf("running command at addr 0x%s ...\n", addr);
-			run_command((char*)la, 0);
+			run_command((char *)la, 0);
 			break;
 
 		default:

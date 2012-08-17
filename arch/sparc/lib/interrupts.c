@@ -90,26 +90,16 @@ void timer_interrupt(struct pt_regs *regs)
 	timestamp++;
 }
 
-void reset_timer(void)
-{
-	timestamp = 0;
-}
-
 ulong get_timer(ulong base)
 {
 	return (timestamp - base);
-}
-
-void set_timer(ulong t)
-{
-	timestamp = t;
 }
 
 void timer_interrupt_init(void)
 {
 	int irq;
 
-	reset_timer();
+	timestamp = 0;
 
 	irq = timer_interrupt_init_cpu();
 

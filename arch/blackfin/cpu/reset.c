@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/blackfin.h>
+#include <asm/mach-common/bits/bootrom.h>
 #include "cpu.h"
 
 /* A system soft reset makes external memory unusable so force
@@ -29,46 +30,42 @@ static void bfin_reset(void)
 	 */
 	__builtin_bfin_ssync();
 
-	/* The bootrom checks to see how it was reset and will
-	 * automatically perform a software reset for us when
-	 * it starts executing after the core reset.
+	/* Initiate System software reset. */
+	bfin_write_SWRST(0x7);
+
+	/* Due to the way reset is handled in the hardware, we need
+	 * to delay for 10 SCLKS.  The only reliable way to do this is
+	 * to calculate the CCLK/SCLK ratio and multiply 10.  For now,
+	 * we'll assume worse case which is a 1:15 ratio.
 	 */
-	if (ANOMALY_05000353 || ANOMALY_05000386) {
-		/* Initiate System software reset. */
-		bfin_write_SWRST(0x7);
+	asm(
+		"LSETUP (1f, 1f) LC0 = %0\n"
+		"1: nop;"
+		:
+		: "a" (15 * 10)
+		: "LC0", "LB0", "LT0"
+	);
 
-		/* Due to the way reset is handled in the hardware, we need
-		 * to delay for 10 SCLKS.  The only reliable way to do this is
-		 * to calculate the CCLK/SCLK ratio and multiply 10.  For now,
-		 * we'll assume worse case which is a 1:15 ratio.
-		 */
-		asm(
-			"LSETUP (1f, 1f) LC0 = %0\n"
-			"1: nop;"
-			:
-			: "a" (15 * 10)
-			: "LC0", "LB0", "LT0"
-		);
+	/* Clear System software reset */
+	bfin_write_SWRST(0);
 
-		/* Clear System software reset */
-		bfin_write_SWRST(0);
-
-		/* The BF526 ROM will crash during reset */
+	/* The BF526 ROM will crash during reset */
 #if defined(__ADSPBF522__) || defined(__ADSPBF524__) || defined(__ADSPBF526__)
+	/* Seems to be fixed with newer parts though ... */
+	if (__SILICON_REVISION__ < 1 && bfin_revid() < 1)
 		bfin_read_SWRST();
 #endif
 
-		/* Wait for the SWRST write to complete.  Cannot rely on SSYNC
-		 * though as the System state is all reset now.
-		 */
-		asm(
-			"LSETUP (1f, 1f) LC1 = %0\n"
-			"1: nop;"
-			:
-			: "a" (15 * 1)
-			: "LC1", "LB1", "LT1"
-		);
-	}
+	/* Wait for the SWRST write to complete.  Cannot rely on SSYNC
+	 * though as the System state is all reset now.
+	 */
+	asm(
+		"LSETUP (1f, 1f) LC1 = %0\n"
+		"1: nop;"
+		:
+		: "a" (15 * 1)
+		: "LC1", "LB1", "LT1"
+	);
 
 	while (1)
 		/* Issue core reset */
@@ -80,27 +77,14 @@ static void bfin_reset(void)
  * PC relative call with a 25 bit immediate.  This is not enough
  * to get us from the top of SDRAM into L1.
  */
-__attribute__ ((__noreturn__))
-static inline void bfin_reset_trampoline(void)
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (board_reset)
 		board_reset();
-	while (1)
-		asm("jump (%0);" : : "a" (bfin_reset));
-}
-
-__attribute__ ((__noreturn__))
-void bfin_reset_or_hang(void)
-{
-#ifdef CONFIG_PANIC_HANG
-	hang();
-#else
-	bfin_reset_trampoline();
-#endif
-}
-
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	bfin_reset_trampoline();
+	if (ANOMALY_05000353 || ANOMALY_05000386)
+		while (1)
+			asm("jump (%0);" : : "a" (bfin_reset));
+	else
+		bfrom_SoftReset((void *)(L1_SRAM_SCRATCH_END - 20));
 	return 0;
 }

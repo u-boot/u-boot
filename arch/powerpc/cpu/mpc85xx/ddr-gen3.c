@@ -115,6 +115,11 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	for (i = 0; i < 32; i++)
 		out_be32(&ddr->debug[i], regs->debug[i]);
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003474
+	out_be32(&ddr->debug[12], 0x00000015);
+	out_be32(&ddr->debug[21], 0x24000000);
+#endif /* CONFIG_SYS_FSL_ERRATUM_DDR_A003474 */
+
 	/* Set, but do not enable the memory */
 	temp_sdram_cfg = regs->ddr_sdram_cfg;
 	temp_sdram_cfg &= ~(SDRAM_CFG_MEM_EN);

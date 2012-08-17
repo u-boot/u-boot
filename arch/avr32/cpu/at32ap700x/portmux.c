@@ -24,7 +24,7 @@
 #include <asm/io.h>
 
 #include <asm/arch/chip-features.h>
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/portmux.h>
 
 /*

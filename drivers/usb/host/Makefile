@@ -35,16 +35,22 @@ COBJS-$(CONFIG_USB_SL811HS) += sl811-hcd.o
 
 # echi
 COBJS-$(CONFIG_USB_EHCI) += ehci-hcd.o
+COBJS-$(CONFIG_USB_EHCI_ARMADA100) += ehci-armada100.o utmi-armada100.o
 ifdef CONFIG_MPC512X
 COBJS-$(CONFIG_USB_EHCI_FSL) += ehci-mpc512x.o
 else
 COBJS-$(CONFIG_USB_EHCI_FSL) += ehci-fsl.o
 endif
 COBJS-$(CONFIG_USB_EHCI_MXC) += ehci-mxc.o
+COBJS-$(CONFIG_USB_EHCI_MXS) += ehci-mxs.o
+COBJS-$(CONFIG_USB_EHCI_MX5) += ehci-mx5.o
+COBJS-$(CONFIG_USB_EHCI_MX6) += ehci-mx6.o
+COBJS-$(CONFIG_USB_EHCI_OMAP) += ehci-omap.o
 COBJS-$(CONFIG_USB_EHCI_PPC4XX) += ehci-ppc4xx.o
 COBJS-$(CONFIG_USB_EHCI_IXP4XX) += ehci-ixp.o
-COBJS-$(CONFIG_USB_EHCI_KIRKWOOD) += ehci-kirkwood.o
+COBJS-$(CONFIG_USB_EHCI_MARVELL) += ehci-marvell.o
 COBJS-$(CONFIG_USB_EHCI_PCI) += ehci-pci.o
+COBJS-$(CONFIG_USB_EHCI_TEGRA) += ehci-tegra.o
 COBJS-$(CONFIG_USB_EHCI_VCT) += ehci-vct.o
 
 COBJS	:= $(COBJS-y)

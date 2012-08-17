@@ -48,13 +48,13 @@
 #define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/10		/* 100 ms */
 #endif
 
-static int ACEX1K_ps_load( Altera_desc *desc, void *buf, size_t bsize );
-static int ACEX1K_ps_dump( Altera_desc *desc, void *buf, size_t bsize );
-/* static int ACEX1K_ps_info( Altera_desc *desc ); */
+static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize);
+static int ACEX1K_ps_dump(Altera_desc *desc, const void *buf, size_t bsize);
+/* static int ACEX1K_ps_info(Altera_desc *desc); */
 
 /* ------------------------------------------------------------------------- */
 /* ACEX1K Generic Implementation */
-int ACEX1K_load (Altera_desc * desc, void *buf, size_t bsize)
+int ACEX1K_load(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -74,7 +74,7 @@ int ACEX1K_load (Altera_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-int ACEX1K_dump (Altera_desc * desc, void *buf, size_t bsize)
+int ACEX1K_dump(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -103,7 +103,7 @@ int ACEX1K_info( Altera_desc *desc )
 /* ------------------------------------------------------------------------- */
 /* ACEX1K Passive Serial Generic Implementation                                  */
 
-static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
+static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume the worst */
 	Altera_ACEX1K_Passive_Serial_fns *fn = desc->iface_fns;
@@ -256,7 +256,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-static int ACEX1K_ps_dump (Altera_desc * desc, void *buf, size_t bsize)
+static int ACEX1K_ps_dump(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	/* Readback is only available through the Slave Parallel and         */
 	/* boundary-scan interfaces.                                         */

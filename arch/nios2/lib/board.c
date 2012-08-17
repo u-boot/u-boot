@@ -158,9 +158,7 @@ void board_init (void)
 #endif
 
 #if defined(CONFIG_CMD_NET)
-#if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");
-#endif
 	eth_initialize (bd);
 #endif
 

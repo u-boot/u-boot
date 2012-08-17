@@ -1,7 +1,7 @@
 /*
  * SH SPI driver
  *
- * Copyright (C) 2011 Renesas Solutions Corp.
+ * Copyright (C) 2011-2012 Renesas Solutions Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,19 @@ void spi_init(void)
 {
 }
 
+static void sh_spi_set_cs(struct sh_spi *ss, unsigned int cs)
+{
+	unsigned long val = 0;
+
+	if (cs & 0x01)
+		val |= SH_SPI_SSS0;
+	if (cs & 0x02)
+		val |= SH_SPI_SSS1;
+
+	sh_spi_clear_bit(SH_SPI_SSS0 | SH_SPI_SSS1, &ss->regs->cr4);
+	sh_spi_set_bit(val, &ss->regs->cr4);
+}
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
@@ -104,6 +117,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	sh_spi_write(0x00, &ss->regs->cr1);
 	/* CR3 init */
 	sh_spi_write(0x00, &ss->regs->cr3);
+	sh_spi_set_cs(ss, cs);
 
 	clear_fifo(ss);
 
@@ -242,8 +256,7 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 int  spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-	/* This driver supports "bus = 0" and "cs = 0" only. */
-	if (!bus && !cs)
+	if (!bus && cs < SH_SPI_NUM_CS)
 		return 1;
 	else
 		return 0;

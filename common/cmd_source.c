@@ -179,7 +179,7 @@ source (ulong addr, const char *fit_uname)
 				if (*line) {
 					debug ("** exec: \"%s\"\n",
 						line);
-					if (run_command (line, 0) < 0) {
+					if (run_command(line, 0) < 0) {
 						rcode = 1;
 						break;
 					}

@@ -162,8 +162,6 @@ static void musb_db_regs(void)
 static void musb_peri_softconnect(void)
 {
 	u8 power, devctl;
-	u8 intrusb;
-	u16 intrrx, intrtx;
 
 	/* Power off MUSB */
 	power = readb(&musbr->power);
@@ -171,9 +169,9 @@ static void musb_peri_softconnect(void)
 	writeb(power, &musbr->power);
 
 	/* Read intr to clear */
-	intrusb = readb(&musbr->intrusb);
-	intrrx = readw(&musbr->intrrx);
-	intrtx = readw(&musbr->intrtx);
+	readb(&musbr->intrusb);
+	readw(&musbr->intrrx);
+	readw(&musbr->intrtx);
 
 	udelay(1000 * 1000); /* 1 sec */
 

@@ -72,7 +72,6 @@
 #undef	CONFIG_ETHER_NONE		/* define if ether on something else */
 #define CONFIG_ETHER_ON_FCC
 
-#define	CONFIG_NET_MULTI
 #define CONFIG_ETHER_ON_FCC2
 
 /*

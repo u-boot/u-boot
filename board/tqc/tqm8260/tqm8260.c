@@ -195,17 +195,17 @@ const iop_conf_t iop_conf_tab[4][32] = {
  */
 int checkboard (void)
 {
-	char str[64];
-	int i = getenv_f("serial#", str, sizeof (str));
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	puts ("Board: ");
 
-	if (!i || strncmp (str, "TQM82", 5)) {
+	if (i < 0 || strncmp(buf, "TQM82", 5)) {
 		puts ("### No HW ID - assuming TQM8260\n");
 		return (0);
 	}
 
-	puts (str);
+	puts (buf);
 	putc ('\n');
 
 	return 0;

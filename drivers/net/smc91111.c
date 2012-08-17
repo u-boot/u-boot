@@ -1169,17 +1169,6 @@ static void smc_write_phy_register (struct eth_device *dev, byte phyreg,
 
 
 /*------------------------------------------------------------
- . Waits the specified number of milliseconds - kernel friendly
- .-------------------------------------------------------------*/
-#ifndef CONFIG_SMC91111_EXT_PHY
-static void smc_wait_ms(unsigned int ms)
-{
-	udelay(ms*1000);
-}
-#endif /* !CONFIG_SMC91111_EXT_PHY */
-
-
-/*------------------------------------------------------------
  . Configures the specified PHY using Autonegotiation. Calls
  . smc_phy_fixed() if the user has requested a certain config.
  .-------------------------------------------------------------*/
@@ -1187,17 +1176,11 @@ static void smc_wait_ms(unsigned int ms)
 static void smc_phy_configure (struct eth_device *dev)
 {
 	int timeout;
-	byte phyaddr;
 	word my_phy_caps;	/* My PHY capabilities */
 	word my_ad_caps;	/* My Advertised capabilities */
 	word status = 0;	/*;my status = 0 */
-	int failed = 0;
 
 	PRINTK3 ("%s: smc_program_phy()\n", SMC_DEV_NAME);
-
-
-	/* Get the detected phy address */
-	phyaddr = SMC_PHY_ADDR;
 
 	/* Reset the PHY, setting all other bits to zero */
 	smc_write_phy_register (dev, PHY_CNTL_REG, PHY_CNTL_RST);
@@ -1211,7 +1194,7 @@ static void smc_phy_configure (struct eth_device *dev)
 			break;
 		}
 
-		smc_wait_ms (500);	/* wait 500 millisecs */
+		mdelay(500);	/* wait 500 millisecs */
 	}
 
 	if (timeout < 1) {
@@ -1276,7 +1259,7 @@ static void smc_phy_configure (struct eth_device *dev)
 			break;
 		}
 
-		smc_wait_ms (500);	/* wait 500 millisecs */
+		mdelay(500);	/* wait 500 millisecs */
 
 		/* Restart auto-negotiation if remote fault */
 		if (status & PHY_STAT_REM_FLT) {
@@ -1296,13 +1279,11 @@ static void smc_phy_configure (struct eth_device *dev)
 
 	if (timeout < 1) {
 		printf ("%s: PHY auto-negotiate timed out\n", SMC_DEV_NAME);
-		failed = 1;
 	}
 
 	/* Fail if we detected an auto-negotiate remote fault */
 	if (status & PHY_STAT_REM_FLT) {
 		printf ("%s: PHY remote fault detected\n", SMC_DEV_NAME);
-		failed = 1;
 	}
 
 	/* Re-Configure the Receive/Phy Control register */

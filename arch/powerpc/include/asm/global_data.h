@@ -138,6 +138,9 @@ typedef	struct	global_data {
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
 	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
 	unsigned long	have_console;	/* serial_init() was called		*/
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
+	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
+#endif
 #if defined(CONFIG_SYS_ALLOC_DPRAM) || defined(CONFIG_CPM2)
 	unsigned int	dp_alloc_base;
 	unsigned int	dp_alloc_top;
@@ -160,6 +163,7 @@ typedef	struct	global_data {
 #endif
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 	unsigned long	post_log_word;  /* Record POST activities */
+	unsigned long	post_log_res; /* success of POST test */
 	unsigned long	post_init_f_time;  /* When post_init_f started */
 #endif
 #ifdef CONFIG_BOARD_TYPES

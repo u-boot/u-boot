@@ -1,0 +1,67 @@
+This document describes the board support for
+Dil/NetPC DNP/5370 (http://www.dilnetpc.com/dnp0086.htm) module.
+The distributor is SSV (http://www.ssv-embedded.de),
+
+The module used to develop the support files contains:
+
+*   Processor: Blackfin BF537 Rev 0.3 (600 MHz core / 120MHz RAM)
+
+*   RAM: 32 MB SDRAM
+    Hynix HY57V561620FTP-H 810EA
+    Connected to Blackfin via "Expansion Bus"
+    Address range 0x0000.0000 - 0x1fff.ffff
+
+*   NOR flash: 32 MBit (4 MByte)
+    Exel Semiconductor ES29LVS320EB
+    Connected to Blackfin via "Expansion Bus",
+    Chip Selects 0, 1 and 2, each is connected
+    to a 1 MB memory bank at Blackfin, therefore
+    only 3 MB accessible.
+    Address range 0x2000.0000 - 0x202f.ffff
+    CFI compatible
+
+    Exel Semiconductor was bought by Rohm Semiconductor (www.rohm.com).
+
+*   NAND flash: 64 MBit (8 MByte)
+    Atmel 45DB642D-CNU
+    Connected to Blackfin via SPI
+    CFI compatible
+
+*   Davicom DM9161EP Ethernet PHY
+
+*   A SD card reader, connected via SPI
+
+*   Hardware watchdog MAX823 or TPS3823
+
+(other devices not listed here)
+
+To run it, the module must be inserted in a 64 pin DIL socket
+on another board, e.g. DNP/EVA13 (together: SSV SK28).
+
+The Blackfin is booted from NOR flash. The NOR flash data begins
+with the U-Boot code and is then followed by the Linux code.
+Finally, the MAC is stored in the last sector.
+You may need to adjust these settings to your needs.
+The memory map used to develop the board support is:
+
+Memory map:
+0x00000000 .. 0x01ffffff SDRAM
+0x20000000 .. 0x202fffff NOR flash
+
+RAM use:
+0x01f9bffc .. 0x01fbbffb U-Boot stack
+0x01f9c000 .. 0x01f9ffff U-Boot global data
+0x01fa0000 .. 0x01fbffff U-Boot malloc() RAM
+0x01fc0000 .. 0x01ffffff U-Boot execution RAM
+
+NOR flash use:
+0x20000000 .. 0x0002ffff U-Boot
+0x20004000 .. 0x20005fff U-Boot environment
+0x20030000 .. 0x202effff Linux kernel image
+0x202f0000 .. 0x202fffff MAC address sector
+
+NOR flash is 0x00300000 (3145728) bytes large (3 MB).
+Max space for compressed kernel in flash is 0x002c0000 (2883584) bytes (2.75 MB)
+Max space for u-boot in flash is 0x00030000 (196608) bytes (192 KB)
+
+The module is hardwired to BYPASS boot mode.

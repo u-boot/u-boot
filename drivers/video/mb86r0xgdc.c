@@ -57,7 +57,6 @@ static void dsp_init(struct mb86r0x_gdc_dsp *dsp, char *modestr,
 	u16 l2dx, l2dy, l2wx, l2wy, l2ww, l2wh;
 	unsigned long div;
 	int bpp;
-	u32 i;
 
 	bpp = video_get_params(&var_mode, modestr);
 
@@ -77,8 +76,7 @@ static void dsp_init(struct mb86r0x_gdc_dsp *dsp, char *modestr,
 	}
 
 	/* Fill memory with white */
-	for (i = 0; i < var_mode.xres * var_mode.yres / 2; i++)
-		*videomem++ = 0xFFFFFFFF;
+	memset(videomem, 0xFF, var_mode.xres * var_mode.yres * 2);
 
 	mb86r0x.winSizeX = var_mode.xres;
 	mb86r0x.winSizeY = var_mode.yres;

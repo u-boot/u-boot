@@ -39,7 +39,7 @@
  *  f = 2 * f_ref * --------------------
  *                        pd + 1
  */
-static unsigned int imx_decode_pll (unsigned int pll, unsigned int f_ref)
+static unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
 {
 	unsigned int mfi = (pll >> CCM_PLL_MFI_SHIFT)
 	    & CCM_PLL_MFI_MASK;
@@ -52,80 +52,131 @@ static unsigned int imx_decode_pll (unsigned int pll, unsigned int f_ref)
 
 	mfi = mfi <= 5 ? 5 : mfi;
 
-	return lldiv (2 * (u64) f_ref * (mfi * (mfd + 1) + mfn),
+	return lldiv(2 * (u64) f_ref * (mfi * (mfd + 1) + mfn),
 		      (mfd + 1) * (pd + 1));
 }
 
-static ulong imx_get_mpllclk (void)
+static ulong imx_get_mpllclk(void)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 	ulong fref = 24000000;
 
-	return imx_decode_pll (readl (&ccm->mpctl), fref);
+	return imx_decode_pll(readl(&ccm->mpctl), fref);
 }
 
-ulong imx_get_armclk (void)
+ulong imx_get_armclk(void)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
-	ulong cctl = readl (&ccm->cctl);
-	ulong fref = imx_get_mpllclk ();
+	ulong cctl = readl(&ccm->cctl);
+	ulong fref = imx_get_mpllclk();
 	ulong div;
 
 	if (cctl & CCM_CCTL_ARM_SRC)
-		fref = lldiv ((fref * 3), 4);
+		fref = lldiv((fref * 3), 4);
 
 	div = ((cctl >> CCM_CCTL_ARM_DIV_SHIFT)
 	       & CCM_CCTL_ARM_DIV_MASK) + 1;
 
-	return lldiv (fref, div);
+	return lldiv(fref, div);
 }
 
-ulong imx_get_ahbclk (void)
+ulong imx_get_ahbclk(void)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
-	ulong cctl = readl (&ccm->cctl);
-	ulong fref = imx_get_armclk ();
+	ulong cctl = readl(&ccm->cctl);
+	ulong fref = imx_get_armclk();
 	ulong div;
 
 	div = ((cctl >> CCM_CCTL_AHB_DIV_SHIFT)
 	       & CCM_CCTL_AHB_DIV_MASK) + 1;
 
-	return lldiv (fref, div);
+	return lldiv(fref, div);
 }
 
-ulong imx_get_perclk (int clk)
+ulong imx_get_perclk(int clk)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
-	ulong fref = imx_get_ahbclk ();
+	ulong fref = imx_get_ahbclk();
 	ulong div;
 
-	div = readl (&ccm->pcdr[CCM_PERCLK_REG (clk)]);
-	div = ((div >> CCM_PERCLK_SHIFT (clk)) & CCM_PERCLK_MASK) + 1;
+	div = readl(&ccm->pcdr[CCM_PERCLK_REG(clk)]);
+	div = ((div >> CCM_PERCLK_SHIFT(clk)) & CCM_PERCLK_MASK) + 1;
 
-	return lldiv (fref, div);
+	return lldiv(fref, div);
+}
+
+u32 get_cpu_rev(void)
+{
+	u32 srev;
+	u32 system_rev = 0x25000;
+
+	/* read SREV register from IIM module */
+	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
+	srev = readl(&iim->iim_srev);
+
+	switch (srev) {
+	case 0x00:
+		system_rev |= CHIP_REV_1_0;
+		break;
+	case 0x01:
+		system_rev |= CHIP_REV_1_1;
+		break;
+	default:
+		system_rev |= 0x8000;
+		break;
+	}
+
+	return system_rev;
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
-int print_cpuinfo (void)
+static char *get_reset_cause(void)
+{
+	/* read RCSR register from CCM module */
+	struct ccm_regs *ccm =
+		(struct ccm_regs *)IMX_CCM_BASE;
+
+	u32 cause = readl(&ccm->rcsr) & 0x0f;
+
+	if (cause == 0)
+		return "POR";
+	else if (cause == 1)
+		return "RST";
+	else if ((cause & 2) == 2)
+		return "WDOG";
+	else if ((cause & 4) == 4)
+		return "SW RESET";
+	else if ((cause & 8) == 8)
+		return "JTAG";
+	else
+		return "unknown reset";
+
+}
+
+int print_cpuinfo(void)
 {
 	char buf[32];
+	u32 cpurev = get_cpu_rev();
 
-	printf ("CPU:   Freescale i.MX25 at %s MHz\n\n",
-		strmhz (buf, imx_get_armclk ()));
+	printf("CPU:   Freescale i.MX25 rev%d.%d%s at %s MHz\n",
+		(cpurev & 0xF0) >> 4, (cpurev & 0x0F),
+		((cpurev & 0x8000) ? " unknown" : ""),
+		strmhz(buf, imx_get_armclk()));
+	printf("Reset cause: %s\n\n", get_reset_cause());
 	return 0;
 }
 #endif
 
-int cpu_eth_init (bd_t * bis)
+int cpu_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FEC_MXC)
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 	ulong val;
 
-	val = readl (&ccm->cgr0);
+	val = readl(&ccm->cgr0);
 	val |= (1 << 23);
-	writel (val, &ccm->cgr0);
-	return fecmxc_initialize (bis);
+	writel(val, &ccm->cgr0);
+	return fecmxc_initialize(bis);
 #else
 	return 0;
 #endif
@@ -135,17 +186,17 @@ int cpu_eth_init (bd_t * bis)
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
-int cpu_mmc_init (bd_t * bis)
+int cpu_mmc_init(bd_t *bis)
 {
 #ifdef CONFIG_MXC_MMC
-	return mxc_mmc_init (bis);
+	return mxc_mmc_init(bis);
 #else
 	return 0;
 #endif
 }
 
 #ifdef CONFIG_MXC_UART
-void mx25_uart_init_pins (void)
+void mx25_uart1_init_pins(void)
 {
 	struct iomuxc_mux_ctl *muxctl;
 	struct iomuxc_pad_ctl *padctl;
@@ -155,7 +206,7 @@ void mx25_uart_init_pins (void)
 
 	muxctl = (struct iomuxc_mux_ctl *)IMX_IOPADMUX_BASE;
 	padctl = (struct iomuxc_pad_ctl *)IMX_IOPADCTL_BASE;
-	muxmode0 = MX25_PIN_MUX_MODE (0);
+	muxmode0 = MX25_PIN_MUX_MODE(0);
 	/*
 	 * set up input pins with hysteresis and 100K pull-ups
 	 */
@@ -176,25 +227,25 @@ void mx25_uart_init_pins (void)
 
 	/* UART1 */
 	/* rxd */
-	writel (muxmode0, &muxctl->pad_uart1_rxd);
-	writel (inpadctl, &padctl->pad_uart1_rxd);
+	writel(muxmode0, &muxctl->pad_uart1_rxd);
+	writel(inpadctl, &padctl->pad_uart1_rxd);
 
 	/* txd */
-	writel (muxmode0, &muxctl->pad_uart1_txd);
-	writel (outpadctl, &padctl->pad_uart1_txd);
+	writel(muxmode0, &muxctl->pad_uart1_txd);
+	writel(outpadctl, &padctl->pad_uart1_txd);
 
 	/* rts */
-	writel (muxmode0, &muxctl->pad_uart1_rts);
-	writel (outpadctl, &padctl->pad_uart1_rts);
+	writel(muxmode0, &muxctl->pad_uart1_rts);
+	writel(outpadctl, &padctl->pad_uart1_rts);
 
 	/* cts */
-	writel (muxmode0, &muxctl->pad_uart1_cts);
-	writel (inpadctl, &padctl->pad_uart1_cts);
+	writel(muxmode0, &muxctl->pad_uart1_cts);
+	writel(inpadctl, &padctl->pad_uart1_cts);
 }
 #endif /* CONFIG_MXC_UART */
 
 #ifdef CONFIG_FEC_MXC
-void mx25_fec_init_pins (void)
+void mx25_fec_init_pins(void)
 {
 	struct iomuxc_mux_ctl *muxctl;
 	struct iomuxc_pad_ctl *padctl;
@@ -205,7 +256,7 @@ void mx25_fec_init_pins (void)
 
 	muxctl = (struct iomuxc_mux_ctl *)IMX_IOPADMUX_BASE;
 	padctl = (struct iomuxc_pad_ctl *)IMX_IOPADCTL_BASE;
-	muxmode0 = MX25_PIN_MUX_MODE (0);
+	muxmode0 = MX25_PIN_MUX_MODE(0);
 	inpadctl_100kpd = MX25_PIN_PAD_CTL_HYS
 	    | MX25_PIN_PAD_CTL_PKE
 	    | MX25_PIN_PAD_CTL_PUE | MX25_PIN_PAD_CTL_100K_PD;
@@ -224,44 +275,44 @@ void mx25_fec_init_pins (void)
 	outpadctl = MX25_PIN_PAD_CTL_PUE | MX25_PIN_PAD_CTL_100K_PD;
 
 	/* FEC_TX_CLK */
-	writel (muxmode0, &muxctl->pad_fec_tx_clk);
-	writel (inpadctl_100kpd, &padctl->pad_fec_tx_clk);
+	writel(muxmode0, &muxctl->pad_fec_tx_clk);
+	writel(inpadctl_100kpd, &padctl->pad_fec_tx_clk);
 
 	/* FEC_RX_DV */
-	writel (muxmode0, &muxctl->pad_fec_rx_dv);
-	writel (inpadctl_100kpd, &padctl->pad_fec_rx_dv);
+	writel(muxmode0, &muxctl->pad_fec_rx_dv);
+	writel(inpadctl_100kpd, &padctl->pad_fec_rx_dv);
 
 	/* FEC_RDATA0 */
-	writel (muxmode0, &muxctl->pad_fec_rdata0);
-	writel (inpadctl_100kpd, &padctl->pad_fec_rdata0);
+	writel(muxmode0, &muxctl->pad_fec_rdata0);
+	writel(inpadctl_100kpd, &padctl->pad_fec_rdata0);
 
 	/* FEC_TDATA0 */
-	writel (muxmode0, &muxctl->pad_fec_tdata0);
-	writel (outpadctl, &padctl->pad_fec_tdata0);
+	writel(muxmode0, &muxctl->pad_fec_tdata0);
+	writel(outpadctl, &padctl->pad_fec_tdata0);
 
 	/* FEC_TX_EN */
-	writel (muxmode0, &muxctl->pad_fec_tx_en);
-	writel (outpadctl, &padctl->pad_fec_tx_en);
+	writel(muxmode0, &muxctl->pad_fec_tx_en);
+	writel(outpadctl, &padctl->pad_fec_tx_en);
 
 	/* FEC_MDC */
-	writel (muxmode0, &muxctl->pad_fec_mdc);
-	writel (outpadctl, &padctl->pad_fec_mdc);
+	writel(muxmode0, &muxctl->pad_fec_mdc);
+	writel(outpadctl, &padctl->pad_fec_mdc);
 
 	/* FEC_MDIO */
-	writel (muxmode0, &muxctl->pad_fec_mdio);
-	writel (inpadctl_22kpu, &padctl->pad_fec_mdio);
+	writel(muxmode0, &muxctl->pad_fec_mdio);
+	writel(inpadctl_22kpu, &padctl->pad_fec_mdio);
 
 	/* FEC_RDATA1 */
-	writel (muxmode0, &muxctl->pad_fec_rdata1);
-	writel (inpadctl_100kpd, &padctl->pad_fec_rdata1);
+	writel(muxmode0, &muxctl->pad_fec_rdata1);
+	writel(inpadctl_100kpd, &padctl->pad_fec_rdata1);
 
 	/* FEC_TDATA1 */
-	writel (muxmode0, &muxctl->pad_fec_tdata1);
-	writel (outpadctl, &padctl->pad_fec_tdata1);
+	writel(muxmode0, &muxctl->pad_fec_tdata1);
+	writel(outpadctl, &padctl->pad_fec_tdata1);
 
 }
 
-void imx_get_mac_from_fuse(unsigned char *mac)
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
 	int i;
 	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;

@@ -55,7 +55,7 @@ typedef struct t2 {
 #define OMAP_HSMMC2_BASE	0x480B4000
 #define OMAP_HSMMC3_BASE	0x480AD000
 
-typedef struct hsmmc {
+struct hsmmc {
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
 	unsigned int sysstatus;		/* 0x14 */
@@ -77,7 +77,7 @@ typedef struct hsmmc {
 	unsigned int ie;		/* 0x134 */
 	unsigned char res4[0x8];
 	unsigned int capa;		/* 0x140 */
-} hsmmc_t;
+};
 
 /*
  * OMAP HS MMC Bit definitions
@@ -129,7 +129,7 @@ typedef struct hsmmc {
 #define INDEX_MASK			(0x3f << 24)
 #define INDEX(i)			(i << 24)
 #define DATI_MASK			(0x1 << 1)
-#define DATI_CMDDIS			(0x1 << 1)
+#define CMDI_MASK			(0x1 << 0)
 #define DTW_1_BITMODE			(0x0 << 1)
 #define DTW_4_BITMODE			(0x1 << 1)
 #define DTW_8_BITMODE                   (0x1 << 5) /* CON[DW8]*/
@@ -182,13 +182,6 @@ typedef struct hsmmc {
 #define CLK_400KHZ			1
 #define CLK_MISC			2
 
-typedef struct {
-	unsigned int card_type;
-	unsigned int version;
-	unsigned int mode;
-	unsigned int size;
-	unsigned int RCA;
-} mmc_card_data;
 #define RSP_TYPE_NONE	(RSP_TYPE_NORSP   | CCCE_NOCHECK | CICE_NOCHECK)
 #define MMC_CMD0	(INDEX(0)  | RSP_TYPE_NONE | DP_NO_DATA | DDIR_WRITE)
 

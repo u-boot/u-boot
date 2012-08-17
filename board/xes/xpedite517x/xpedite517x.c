@@ -93,12 +93,3 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 }
 #endif
-
-#ifdef CONFIG_MP
-extern void cpu_mp_lmb_reserve(struct lmb *lmb);
-
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
-}
-#endif

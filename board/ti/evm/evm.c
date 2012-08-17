@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004-2008
+ * (C) Copyright 2004-2011
  * Texas Instruments, <www.ti.com>
  *
  * Author :
@@ -33,9 +33,15 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/mmc_host_def.h>
+#include <asm/gpio.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
+#include <linux/mtd/nand.h>
 #include "evm.h"
+
+#define OMAP3EVM_GPIO_ETH_RST_GEN1		64
+#define OMAP3EVM_GPIO_ETH_RST_GEN2		7
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -114,6 +120,42 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on the first bank.  This
+ * provides the timing values back to the function that configures
+ * the memory.
+ */
+void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
+		u32 *mr)
+{
+	int pop_mfr, pop_id;
+
+	/*
+	 * We need to identify what PoP memory is on the board so that
+	 * we know what timings to use.  To map the ID values please see
+	 * nand_ids.c
+	 */
+	identify_nand_chip(&pop_mfr, &pop_id);
+
+	if (pop_mfr == NAND_MFR_HYNIX && pop_id == 0xbc) {
+		/* 256MB DDR */
+		*mcfg = HYNIX_V_MCFG_200(256 << 20);
+		*ctrla = HYNIX_V_ACTIMA_200;
+		*ctrlb = HYNIX_V_ACTIMB_200;
+	} else {
+		/* 128MB DDR */
+		*mcfg = MICRON_V_MCFG_165(128 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+	}
+	*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	*mr = MICRON_V_MR_165;
+}
+#endif
+
 /*
  * Routine: misc_init_r
  * Description: Init ethernet (done here so udelay works)
@@ -130,6 +172,9 @@ int misc_init_r(void)
 #endif
 	omap3_evm_get_revision();
 
+#if defined(CONFIG_CMD_NET)
+	reset_net_chip();
+#endif
 	dieid_num_r();
 
 	return 0;
@@ -146,6 +191,7 @@ void set_muxconf_regs(void)
 	MUX_EVM();
 }
 
+#ifdef CONFIG_CMD_NET
 /*
  * Routine: setup_net_chip
  * Description: Setting up the configuration GPMC registers specific to the
@@ -153,7 +199,6 @@ void set_muxconf_regs(void)
  */
 static void setup_net_chip(void)
 {
-	struct gpio *gpio3_base = (struct gpio *)OMAP34XX_GPIO3_BASE;
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
 	/* Configure GPMC registers */
@@ -172,23 +217,68 @@ static void setup_net_chip(void)
 	/* Enable off mode for ALE in PADCONF_GPMC_NADV_ALE register */
 	writew(readw(&ctrl_base->gpmc_nadv_ale) | 0x0E00,
 		&ctrl_base->gpmc_nadv_ale);
+}
 
-	/* Make GPIO 64 as output pin */
-	writel(readl(&gpio3_base->oe) & ~(GPIO0), &gpio3_base->oe);
+/**
+ * Reset the ethernet chip.
+ */
+static void reset_net_chip(void)
+{
+	int ret;
+	int rst_gpio;
 
-	/* Now send a pulse on the GPIO pin */
-	writel(GPIO0, &gpio3_base->setdataout);
+	if (get_omap3_evm_rev() == OMAP3EVM_BOARD_GEN_1) {
+		rst_gpio = OMAP3EVM_GPIO_ETH_RST_GEN1;
+	} else {
+		rst_gpio = OMAP3EVM_GPIO_ETH_RST_GEN2;
+	}
+
+	ret = gpio_request(rst_gpio, "");
+	if (ret < 0) {
+		printf("Unable to get GPIO %d\n", rst_gpio);
+		return ;
+	}
+
+	/* Configure as output */
+	gpio_direction_output(rst_gpio, 0);
+
+	/* Send a pulse on the GPIO pin */
+	gpio_set_value(rst_gpio, 1);
 	udelay(1);
-	writel(GPIO0, &gpio3_base->cleardataout);
+	gpio_set_value(rst_gpio, 0);
 	udelay(1);
-	writel(GPIO0, &gpio3_base->setdataout);
+	gpio_set_value(rst_gpio, 1);
 }
 
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_SMC911X
+#define STR_ENV_ETHADDR	"ethaddr"
+
+	struct eth_device *dev;
+	uchar eth_addr[6];
+
 	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+
+	if (!eth_getenv_enetaddr(STR_ENV_ETHADDR, eth_addr)) {
+		dev = eth_get_dev_by_index(0);
+		if (dev) {
+			eth_setenv_enetaddr(STR_ENV_ETHADDR, dev->enetaddr);
+		} else {
+			printf("omap3evm: Couldn't get eth device\n");
+			rc = -1;
+		}
+	}
 #endif
 	return rc;
 }
+#endif /* CONFIG_CMD_NET */
+
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+int board_mmc_init(bd_t *bis)
+{
+	omap_mmc_init(0);
+	return 0;
+}
+#endif

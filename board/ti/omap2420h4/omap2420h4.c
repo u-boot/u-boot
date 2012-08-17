@@ -193,7 +193,7 @@ void ether_init (void)
 int dram_init (void)
 {
 	unsigned int size0=0,size1=0;
-	u32 mtype, btype, rev, cpu;
+	u32 mtype, btype, rev;
 	u8 chg_on = 0x5; /* enable charge of back up battery */
 	u8 vmode_on = 0x8C;
 	#define NOT_EARLY 0
@@ -203,7 +203,6 @@ int dram_init (void)
 	btype = get_board_type();
 	mtype = get_mem_type();
 	rev = get_cpu_rev();
-	cpu = get_cpu_type();
 
 	display_board_info(btype);
 	if (btype == BOARD_H4_MENELAUS){

@@ -26,7 +26,9 @@
 #define SCHMOOGIE
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_SYS_USE_NAND
-#define CONFIG_DISPLAY_CPUINFO
+#define MACH_TYPE_SCHMOOGIE 1255
+#define CONFIG_MACH_TYPE MACH_TYPE_SCHMOOGIE
+
 /*===================*/
 /* SoC Configuration */
 /*===================*/
@@ -68,7 +70,6 @@
 /* Network & Ethernet Configuration */
 /*==================================*/
 #define CONFIG_DRIVER_TI_EMAC
-#define CONFIG_EMAC_MDIO_PHY_NUM	1
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
@@ -76,7 +77,6 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
-#define CONFIG_NET_MULTI
 /*=====================*/
 /* Flash & Environment */
 /*=====================*/
@@ -147,6 +147,10 @@
 #undef CONFIG_CMD_SETGETDCR
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
+
+#ifdef CONFIG_CMD_BDI
+#define CONFIG_CLOCKS
+#endif
 
 #define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20)	/* 256 MB */
 

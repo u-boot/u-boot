@@ -134,7 +134,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int serial_init (void)
 {
-	volatile char val;
 	unsigned short br_reg;
 
 	br_reg = ((((CONFIG_CPUCLOCK * 1000000) / 16) / gd->baudrate) - 1);
@@ -149,7 +148,7 @@ int serial_init (void)
 	out_8((u8 *)SPU_BASE + spu_RxCmd, 0xb0);	/* Enable Rx */
 	out_8((u8 *)SPU_BASE + spu_TxCmd, 0x9c);	/* Enable Tx */
 	out_8((u8 *)SPU_BASE + spu_Handshk_rc, 0xff);	/* Clear Handshake */
-	val = in_8((u8 *)SPU_BASE + spu_RxBuff);	/* Dummy read, to clear receiver */
+	in_8((u8 *)SPU_BASE + spu_RxBuff);	/* Dummy read, to clear receiver */
 
 	return (0);
 }

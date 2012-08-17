@@ -717,7 +717,7 @@ typedef struct
  */
 typedef struct
 {
-    UINT32  rxBitField;			/**< Recieved bit field */
+    UINT32  rxBitField;			/**< Received bit field */
     UINT32  atmCellHeader;		/**< ATM Cell Header */
     UINT32  rsvdWord0;                  /**< Reserved field */
     UINT16  currMbufLen;		/**< Mbuf Length */

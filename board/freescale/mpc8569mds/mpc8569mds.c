@@ -39,6 +39,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
+#include <phy.h>
 
 #include "bcsr.h"
 #if defined(CONFIG_PQ_MDS_PIB)
@@ -302,12 +303,10 @@ local_bus_init(void)
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
-	uint lbc_hz;
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
 	clkdiv = (lbc->lcrr & LCRR_CLKDIV) * 2;
-	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	out_be32(&gur->lbiuiplldcr1, 0x00078080);
 	if (clkdiv == 16)
@@ -550,7 +549,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 			break;
 		}
 
-		err = fdt_fixup_phy_connection(blob, nodeoff, RMII);
+		err = fdt_fixup_phy_connection(blob, nodeoff,
+				PHY_INTERFACE_MODE_RMII);
 
 		if (err < 0) {
 			printf("WARNING: could not set phy-connection-type "

@@ -37,6 +37,8 @@
 #define CONFIG_APOLLON		1
 #define CONFIG_APOLLON_PLUS	1 /* If you have apollon plus 1.x */
 
+#define CONFIG_ONENAND_U_BOOT	y
+
 /* Clock config to target*/
 #define PRCM_CONFIG_I		1
 /* #define PRCM_CONFIG_II	1 */
@@ -78,7 +80,6 @@
 #define	CONFIG_ENV_SIZE SZ_128K	/* Total Size of Environment Sector */
 #define CONFIG_ENV_SIZE_FLEX SZ_256K
 #define	CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + SZ_1M)
-/* bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -87,7 +88,6 @@
 /*
  * SMC91c96 Etherent
  */
-#define CONFIG_NET_MULTI
 #define	CONFIG_LAN91C96
 #define	CONFIG_LAN91C96_BASE	(APOLLON_CS1_BASE+0x300)
 #define	CONFIG_LAN91C96_EXT_PHY
@@ -213,10 +213,6 @@
  * The stack sizes are set up in start.S using the settings below
  */
 #define	CONFIG_STACKSIZE SZ_128K	/* regular stack */
-#ifdef	CONFIG_USE_IRQ
-# define	CONFIG_STACKSIZE_IRQ SZ_4K	/* IRQ stack */
-# define	CONFIG_STACKSIZE_FIQ SZ_4K	/* FIQ stack */
-#endif
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
@@ -266,5 +262,9 @@
 					"32m(fs),"			\
 					"-(ubifs)"
 #endif
+
+#define PHYS_SRAM			0x4020F800
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR 	PHYS_SRAM
 
 #endif /* __CONFIG_H */

@@ -52,11 +52,11 @@
 #define CONFIG_ETHPRIME
 #define CONFIG_IPADDR		192.168.30.1
 #define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_ROOTPATH
+#define CONFIG_ROOTPATH		""
 #define CONFIG_GATEWAYIP	192.168.1.1
 #define CONFIG_NETMASK		255.255.0.0
 #define CONFIG_HOSTNAME		idmr
-#define CONFIG_BOOTFILE		/tftpboot/idmr/uImage
+#define CONFIG_BOOTFILE		"/tftpboot/idmr/uImage"
 #define CONFIG_PREBOOT		"echo;echo Type \\\"run flash_nfs\\\" to mount root " \
 				"filesystem over NFS; echo"
 
@@ -155,7 +155,6 @@
  */
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_NET_MULTI		1
 #	define CONFIG_MII		1
 #	define CONFIG_MII_INIT		1
 #	define CONFIG_SYS_DISCOVER_PHY

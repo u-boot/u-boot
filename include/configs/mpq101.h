@@ -64,20 +64,8 @@
 
 #define CONFIG_SYS_CLK_FREQ      33000000 /* sysclk for MPC85xx */
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT 0xff700000
-#define CONFIG_SYS_CCSRBAR         0xe0000000
-
-#ifdef CONFIG_PHYS_64BIT
-# define CONFIG_SYS_CCSRBAR_PHYS   0xfe0000000ull
-#else
-# define CONFIG_SYS_CCSRBAR_PHYS   CONFIG_SYS_CCSRBAR
-#endif
-
-#define CONFIG_SYS_IMMR            CONFIG_SYS_CCSRBAR
+#define CONFIG_SYS_CCSRBAR		0xe0000000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
 #define CONFIG_FSL_DDR2
@@ -272,10 +260,6 @@
  * Ethernet
  */
 #ifdef CONFIG_TSEC_ENET
-
-# ifndef CONFIG_NET_MULTI
-#  define CONFIG_NET_MULTI
-# endif
 
 # define CONFIG_MII                /* MII PHY management */
 # define CONFIG_MII_DEFAULT_TSEC 1 /* Allow unregistered phys */

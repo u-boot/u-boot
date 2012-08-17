@@ -66,15 +66,14 @@
 static u16 get_reg_init_bus(struct eth_device *dev, int regno)
 {
 	/* force 16 bit busmode */
-	volatile u8 c;
 	struct cs8900_priv *priv = (struct cs8900_priv *)(dev->priv);
 	uint8_t volatile * const iob = (uint8_t volatile * const)dev->iobase;
 
-	c = readb(iob);
-	c = readb(iob + 1);
-	c = readb(iob);
-	c = readb(iob + 1);
-	c = readb(iob);
+	readb(iob);
+	readb(iob + 1);
+	readb(iob);
+	readb(iob + 1);
+	readb(iob);
 
 	REG_WRITE(regno, &priv->regs->pptr);
 	return REG_READ(&priv->regs->pdata);

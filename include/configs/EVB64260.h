@@ -78,7 +78,6 @@
 #define	CONFIG_MPSC
 #define CONFIG_MPSC_PORT	0
 
-#define CONFIG_NET_MULTI        /* attempt all available adapters */
 
 /* define this if you want to enable GT MAC filtering */
 #define CONFIG_GT_USE_MAC_HASH_TABLE

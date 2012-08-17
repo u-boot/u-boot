@@ -91,7 +91,7 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 40000000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"scratch=40200000\0"					\
-	"getkernel=tftpboot \$\(scratch\)\ \$\(bootfile\)\0" \
+	"getkernel=tftpboot $(scratch) $(bootfile)\0" \
 	"bootargs=console=ttyS0,38400 root=/dev/nfs rw nfsroot=192.168.0.20:/export/rootfs ip=192.168.0.206:192.168.0.20:192.168.0.1:255.255.255.0:grxc3s1500_daniel:eth0\0" \
 	""
 
@@ -99,9 +99,9 @@
 #define CONFIG_GATEWAYIP 192.168.0.1
 #define CONFIG_SERVERIP 192.168.0.20
 #define CONFIG_IPADDR 192.168.0.206
-#define CONFIG_ROOTPATH /export/rootfs
+#define CONFIG_ROOTPATH "/export/rootfs"
 #define CONFIG_HOSTNAME  grxc3s1500
-#define CONFIG_BOOTFILE  /uImage
+#define CONFIG_BOOTFILE "/uImage"
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -237,7 +237,6 @@
  * Ethernet configuration
  */
 #define CONFIG_GRETH	1
-#define CONFIG_NET_MULTI	1
 
 /* Default GRETH Ethernet HARDWARE address */
 #define GRETH_HWADDR_0 0x00

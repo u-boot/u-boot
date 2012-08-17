@@ -40,6 +40,7 @@
 #define CONFIG_SYS_TEXT_BASE_SPL 0xfff00000
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE_SPL /* start of monitor */
 #else
+#define CONFIG_SYS_LDSCRIPT $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
 #define CONFIG_SYS_TEXT_BASE	0xf8f82000
 #endif /* CONFIG_NAND_SPL */
 #endif
@@ -76,6 +77,7 @@
 #define CONFIG_MPC8536DS	1
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
+#define CONFIG_SPI_FLASH	1	/* Has SPI Flash */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* Enable PCI controller 1 */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
@@ -126,22 +128,11 @@
 #define CONFIG_SYS_L2_SIZE		(512 << 10)
 #define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR		0xffe00000	/* relocated CCSRBAR */
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_CCSRBAR_PHYS	0xfffe00000ull /* physical addr of CCSRBAR */
-#else
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR
-#endif
-#define CONFIG_SYS_IMMR	CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
+#define CONFIG_SYS_CCSRBAR		0xffe00000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
-#if defined(CONFIG_RAMBOOT_NAND) && !defined(CONFIG_NAND_SPL)
-#define CONFIG_SYS_CCSRBAR_DEFAULT	CONFIG_SYS_CCSRBAR
-#else
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
+#if defined(CONFIG_NAND_SPL)
+#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
 #endif
 
 /* DDR Setup */
@@ -261,6 +252,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 
+#define CONFIG_HWCONFIG			/* enable hwconfig */
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xffdf0000	/* PIXIS registers */
 #ifdef CONFIG_PHYS_64BIT
@@ -360,13 +352,13 @@
 #define CONFIG_SYS_NAND_U_BOOT_RELOC_SP ((CONFIG_SYS_INIT_L2_END - 1) & ~0xF)
 
 /* NAND flash config */
-#define CONFIG_NAND_BR_PRELIM \
+#define CONFIG_SYS_NAND_BR_PRELIM \
 		(BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 		| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 		| BR_PS_8		/* Port Size = 8 bit */ \
 		| BR_MS_FCM		/* MSEL = FCM */ \
 		| BR_V)			/* valid */
-#define CONFIG_NAND_OR_PRELIM	(0xFFFC0000	/* length 256K */ \
+#define CONFIG_SYS_NAND_OR_PRELIM	(0xFFFC0000	/* length 256K */ \
 		| OR_FCM_PGS		/* Large Page*/ \
 		| OR_FCM_CSCT \
 		| OR_FCM_CST \
@@ -376,15 +368,15 @@
 		| OR_FCM_EHTR)
 
 #ifdef CONFIG_RAMBOOT_NAND
-#define CONFIG_SYS_BR0_PRELIM  CONFIG_NAND_BR_PRELIM	/* NAND Base Address */
-#define CONFIG_SYS_OR0_PRELIM  CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #define CONFIG_SYS_BR2_PRELIM  CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
 #define CONFIG_SYS_OR2_PRELIM  CONFIG_FLASH_OR_PRELIM	/* NOR Options */
 #else
 #define CONFIG_SYS_BR0_PRELIM  CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
 #define CONFIG_SYS_OR0_PRELIM  CONFIG_FLASH_OR_PRELIM	/* NOR Options */
-#define CONFIG_SYS_BR2_PRELIM  CONFIG_NAND_BR_PRELIM	/* NAND Base Address */
-#define CONFIG_SYS_OR2_PRELIM  CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_BR2_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR2_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #endif
 
 #define CONFIG_SYS_BR4_PRELIM \
@@ -393,14 +385,14 @@
 		| BR_PS_8		/* Port Size = 8 bit */ \
 		| BR_MS_FCM		/* MSEL = FCM */ \
 		| BR_V)			/* valid */
-#define CONFIG_SYS_OR4_PRELIM	CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_OR4_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #define CONFIG_SYS_BR5_PRELIM \
 		(BR_PHYS_ADDR((CONFIG_SYS_NAND_BASE_PHYS + 0x80000)) \
 		| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 		| BR_PS_8		/* Port Size = 8 bit */ \
 		| BR_MS_FCM		/* MSEL = FCM */ \
 		| BR_V)			/* valid */
-#define CONFIG_SYS_OR5_PRELIM	CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_OR5_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 
 #define CONFIG_SYS_BR6_PRELIM \
 		(BR_PHYS_ADDR((CONFIG_SYS_NAND_BASE_PHYS + 0xc0000)) \
@@ -408,7 +400,7 @@
 		| BR_PS_8		/* Port Size = 8 bit */ \
 		| BR_MS_FCM		/* MSEL = FCM */ \
 		| BR_V)			/* valid */
-#define CONFIG_SYS_OR6_PRELIM	CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_OR6_PRELIM	CONFIG_SYS_NAND_OR_PRELIM	/* NAND Options */
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
@@ -465,6 +457,19 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_EEPROM_BUS_NUM	1
+
+/*
+ * eSPI - Enhanced SPI
+ */
+#define CONFIG_HARD_SPI
+#define CONFIG_FSL_ESPI
+
+#if defined(CONFIG_SPI_FLASH)
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED	10000000
+#define CONFIG_SF_DEFAULT_MODE	0
+#endif
 
 /*
  * General PCI
@@ -551,7 +556,6 @@
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 /*PCIE video card used*/
@@ -609,10 +613,6 @@
 
 #if defined(CONFIG_TSEC_ENET)
 
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
-
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */
 #define CONFIG_TSEC1	1
@@ -644,10 +644,25 @@
 
 #if defined(CONFIG_SYS_RAMBOOT)
 #if defined(CONFIG_RAMBOOT_NAND)
-	#define CONFIG_ENV_IS_IN_NAND	1
-	#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
-	#define CONFIG_ENV_OFFSET ((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
+#define CONFIG_ENV_IS_IN_NAND	1
+#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET ((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
+#elif defined(CONFIG_RAMBOOT_SPIFLASH)
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SPI_BUS	0
+#define CONFIG_ENV_SPI_CS	0
+#define CONFIG_ENV_SPI_MAX_HZ	10000000
+#define CONFIG_ENV_SPI_MODE	0
+#define CONFIG_ENV_SIZE		0x2000	/* 8KB */
+#define CONFIG_ENV_OFFSET	0xF0000
+#define CONFIG_ENV_SECT_SIZE	0x10000
+#elif defined(CONFIG_RAMBOOT_SDCARD)
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_FSL_FIXED_MMC_LOCATION
+#define CONFIG_ENV_SIZE		0x2000
+#define CONFIG_SYS_MMC_ENV_DEV  0
+#else
 	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 	#define CONFIG_ENV_SIZE		0x2000
@@ -694,6 +709,21 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
+#endif
+
+/*
+ * USB
+ */
+#define CONFIG_USB_EHCI
+
+#ifdef CONFIG_USB_EHCI
+#define CONFIG_CMD_USB
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#define CONFIG_USB_EHCI_FSL
+#define CONFIG_USB_STORAGE
+#endif
+
+#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
@@ -720,11 +750,11 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 16 MB of memory, since this is
+ * have to be in the first 64 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20) /* Initial Memory map for Linux */
-#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
+#define CONFIG_SYS_BOOTMAPSZ	(64 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
@@ -750,8 +780,8 @@
 #define CONFIG_IPADDR		192.168.1.254
 
 #define CONFIG_HOSTNAME		unknown
-#define CONFIG_ROOTPATH		/opt/nfsroot
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_ROOTPATH		"/opt/nfsroot"
+#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 
 #define CONFIG_SERVERIP		192.168.1.1
@@ -781,7 +811,7 @@
  "fdtaddr=c00000\0"				\
  "fdtfile=8536ds/mpc8536ds.dtb\0"		\
  "bdev=sda3\0"					\
- "usb_phy_type=ulpi\0"
+ "hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"
 
 #define CONFIG_HDBOOT				\
  "setenv bootargs root=/dev/$bdev rw "		\

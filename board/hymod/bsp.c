@@ -75,14 +75,14 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 int
-fpga_load (int mezz, uchar *addr, ulong size)
+fpga_load(int mezz, const uchar *addr, ulong size)
 {
 	hymod_conf_t *cp = &gd->bd->bi_hymod_conf;
 	xlx_info_t *fp;
 	xlx_iopins_t *fpgaio;
 	volatile uchar *fpgabase;
 	volatile uint cnt;
-	uchar *eaddr = addr + size;
+	const uchar *eaddr = addr + size;
 	int result;
 
 	if (mezz)
@@ -200,7 +200,7 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			load_addr = simple_strtoul (argv[3], NULL, 16);
 			NetBootFileXferSize = 0;
 
-			if (NetLoop (TFTP) <= 0) {
+			if (NetLoop(TFTPGET) <= 0) {
 				printf ("tftp transfer failed - aborting "
 					"fgpa load\n");
 				return 1;

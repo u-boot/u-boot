@@ -31,13 +31,19 @@
 #define LOB(x) ((x) & 0xFF)
 #define HIB(x) (((x) >> 8) & 0xFF)
 
+#if defined(__ADSPBF50x__) || defined(__ADSPBF54x__)
+# define BFIN_UART_HW_VER 2
+#else
+# define BFIN_UART_HW_VER 1
+#endif
+
 /*
  * All Blackfin system MMRs are padded to 32bits even if the register
  * itself is only 16bits.  So use a helper macro to streamline this.
  */
 #define __BFP(m) u16 m; u16 __pad_##m
 struct bfin_mmr_serial {
-#ifdef __ADSPBF54x__
+#if BFIN_UART_HW_VER == 2
 	__BFP(dll);
 	__BFP(dlh);
 	__BFP(gctl);
@@ -74,55 +80,51 @@ struct bfin_mmr_serial {
 };
 #undef __BFP
 
-#ifndef UART_LSR
-# if (CONFIG_UART_CONSOLE == 3)
-#  define UART_BASE UART3_DLL
-# elif (CONFIG_UART_CONSOLE == 2)
-#  define UART_BASE UART2_DLL
-# elif (CONFIG_UART_CONSOLE == 1)
-#  define UART_BASE UART1_DLL
-# elif (CONFIG_UART_CONSOLE == 0)
-#  define UART_BASE UART0_DLL
-# endif
+#define __PASTE_UART(num, pfx, sfx) pfx##num##_##sfx
+#define _PASTE_UART(num, pfx, sfx) __PASTE_UART(num, pfx, sfx)
+#define MMR_UART(n) _PASTE_UART(n, UART, DLL)
+#define _P_UART(n, pin) _PASTE_UART(n, P_UART, pin)
+#define P_UART(pin) _P_UART(CONFIG_UART_CONSOLE, pin)
+
+#ifndef UART_DLL
+# define UART_DLL MMR_UART(CONFIG_UART_CONSOLE)
 #else
+# define UART0_DLL UART_DLL
 # if CONFIG_UART_CONSOLE != 0
 #  error CONFIG_UART_CONSOLE must be 0 on parts with only one UART
 # endif
-# define UART_BASE UART_DLL
 #endif
-#define pUART ((volatile struct bfin_mmr_serial *)UART_BASE)
+#define pUART ((volatile struct bfin_mmr_serial *)uart_base)
 
-#ifdef __ADSPBF54x__
+#if BFIN_UART_HW_VER == 2
 # define ACCESS_LATCH()
 # define ACCESS_PORT_IER()
 #else
 # define ACCESS_LATCH() \
-	bfin_write16(&pUART->lcr, bfin_read16(&pUART->lcr) | DLAB)
+	bfin_write(&pUART->lcr, bfin_read(&pUART->lcr) | DLAB)
 # define ACCESS_PORT_IER() \
-	bfin_write16(&pUART->lcr, bfin_read16(&pUART->lcr) & ~DLAB)
+	bfin_write(&pUART->lcr, bfin_read(&pUART->lcr) & ~DLAB)
 #endif
 
 __attribute__((always_inline))
 static inline void serial_do_portmux(void)
 {
 	if (!BFIN_DEBUG_EARLY_SERIAL) {
-		const unsigned short pins[] = {
-#if CONFIG_UART_CONSOLE == 0
-			P_UART0_TX, P_UART0_RX,
-#elif CONFIG_UART_CONSOLE == 1
-			P_UART1_TX, P_UART1_RX,
-#elif CONFIG_UART_CONSOLE == 2
-			P_UART2_TX, P_UART2_RX,
-#elif CONFIG_UART_CONSOLE == 3
-			P_UART3_TX, P_UART3_RX,
-#endif
-			0,
-		};
+		const unsigned short pins[] = { P_UART(RX), P_UART(TX), 0, };
 		peripheral_request_list(pins, "bfin-uart");
 		return;
 	}
 
-#if defined(__ADSPBF51x__)
+#if defined(__ADSPBF50x__)
+# define DO_MUX(port, mux_tx, mux_rx, tx, rx) \
+	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~(PORT_x_MUX_##mux_tx##_MASK | PORT_x_MUX_##mux_rx##_MASK)) | PORT_x_MUX_##mux_tx##_FUNC_1 | PORT_x_MUX_##mux_rx##_FUNC_1); \
+	bfin_write_PORT##port##_FER(bfin_read_PORT##port##_FER() | P##port##tx | P##port##rx);
+	switch (CONFIG_UART_CONSOLE) {
+	case 0: DO_MUX(G, 7, 7, 12, 13); break;	/* Port G; mux 7; PG12 and PG13 */
+	case 1: DO_MUX(F, 3, 3, 6, 7);   break;	/* Port F; mux 3; PF6 and PF7 */
+	}
+	SSYNC();
+#elif defined(__ADSPBF51x__)
 # define DO_MUX(port, mux_tx, mux_rx, tx, rx) \
 	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~(PORT_x_MUX_##mux_tx##_MASK | PORT_x_MUX_##mux_rx##_MASK)) | PORT_x_MUX_##mux_tx##_FUNC_2 | PORT_x_MUX_##mux_rx##_FUNC_2); \
 	bfin_write_PORT##port##_FER(bfin_read_PORT##port##_FER() | P##port##tx | P##port##rx);
@@ -141,13 +143,11 @@ static inline void serial_do_portmux(void)
 	}
 	SSYNC();
 #elif defined(__ADSPBF537__) || defined(__ADSPBF536__) || defined(__ADSPBF534__)
-# define DO_MUX(func, tx, rx) \
-	bfin_write_PORT_MUX(bfin_read_PORT_MUX() & ~(func)); \
-	bfin_write_PORTF_FER(bfin_read_PORTF_FER() | PF##tx | PF##rx);
-	switch (CONFIG_UART_CONSOLE) {
-	case 0: DO_MUX(PFDE, 0, 1); break;
-	case 1: DO_MUX(PFTE, 2, 3); break;
-	}
+	const uint16_t func[] = { PFDE, PFTE, };
+	bfin_write_PORT_MUX(bfin_read_PORT_MUX() & ~func[CONFIG_UART_CONSOLE]);
+	bfin_write_PORTF_FER(bfin_read_PORTF_FER() |
+	                     (1 << P_IDENT(P_UART(RX))) |
+	                     (1 << P_IDENT(P_UART(TX))));
 	SSYNC();
 #elif defined(__ADSPBF54x__)
 # define DO_MUX(port, tx, rx) \
@@ -160,34 +160,57 @@ static inline void serial_do_portmux(void)
 	case 3: DO_MUX(B, 6, 7); break;	/* Port B; PB6 and PB7 */
 	}
 	SSYNC();
+#elif defined(__ADSPBF561__)
+	/* UART pins could be GPIO, but they aren't pin muxed.  */
+#else
+# if (P_UART(RX) & P_DEFINED) || (P_UART(TX) & P_DEFINED)
+#  error "missing portmux logic for UART"
+# endif
 #endif
 }
 
 __attribute__((always_inline))
-static inline void serial_early_init(void)
+static inline int uart_init(uint32_t uart_base)
+{
+	/* always enable UART -- avoids anomalies 05000309 and 05000350 */
+	bfin_write(&pUART->gctl, UCEN);
+
+	/* Set LCR to Word Lengh 8-bit word select */
+	bfin_write(&pUART->lcr, WLS_8);
+
+	SSYNC();
+
+	return 0;
+}
+
+__attribute__((always_inline))
+static inline int serial_early_init(uint32_t uart_base)
 {
 	/* handle portmux crap on different Blackfins */
 	serial_do_portmux();
 
-	/* always enable UART -- avoids anomalies 05000309 and 05000350 */
-	bfin_write16(&pUART->gctl, UCEN);
-
-	/* Set LCR to Word Lengh 8-bit word select */
-	bfin_write16(&pUART->lcr, WLS_8);
-
-	SSYNC();
+	return uart_init(uart_base);
 }
 
 __attribute__((always_inline))
-static inline void serial_early_put_div(uint16_t divisor)
+static inline int serial_early_uninit(uint32_t uart_base)
+{
+	/* disable the UART by clearing UCEN */
+	bfin_write(&pUART->gctl, 0);
+
+	return 0;
+}
+
+__attribute__((always_inline))
+static inline void serial_early_put_div(uint32_t uart_base, uint16_t divisor)
 {
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH();
 	SSYNC();
 
 	/* Program the divisor to get the baud rate we want */
-	bfin_write16(&pUART->dll, LOB(divisor));
-	bfin_write16(&pUART->dlh, HIB(divisor));
+	bfin_write(&pUART->dll, LOB(divisor));
+	bfin_write(&pUART->dlh, HIB(divisor));
 	SSYNC();
 
 	/* Clear DLAB in LCR to Access THR RBR IER */
@@ -198,12 +221,14 @@ static inline void serial_early_put_div(uint16_t divisor)
 __attribute__((always_inline))
 static inline uint16_t serial_early_get_div(void)
 {
+	uint32_t uart_base = UART_DLL;
+
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH();
 	SSYNC();
 
-	uint8_t dll = bfin_read16(&pUART->dll);
-	uint8_t dlh = bfin_read16(&pUART->dlh);
+	uint8_t dll = bfin_read(&pUART->dll);
+	uint8_t dlh = bfin_read(&pUART->dlh);
 	uint16_t divisor = (dlh << 8) | dll;
 
 	/* Clear DLAB in LCR to Access THR RBR IER */
@@ -219,13 +244,14 @@ static inline uint16_t serial_early_get_div(void)
 #endif
 
 __attribute__((always_inline))
-static inline void serial_early_set_baud(uint32_t baud)
+static inline void serial_early_set_baud(uint32_t uart_base, uint32_t baud)
 {
 	/* Translate from baud into divisor in terms of SCLK.  The
 	 * weird multiplication is to make sure we over sample just
 	 * a little rather than under sample the incoming signals.
 	 */
-	serial_early_put_div((get_sclk() + (baud * 8)) / (baud * 16) - ANOMALY_05000230);
+	serial_early_put_div(uart_base,
+		(get_sclk() + (baud * 8)) / (baud * 16) - ANOMALY_05000230);
 }
 
 #ifndef BFIN_IN_INITCODE
@@ -262,16 +288,16 @@ static inline void serial_early_puts(const char *s)
  */
 #ifdef CONFIG_DEBUG_EARLY_SERIAL
 # define serial_early_puts(str) \
-	call _get_pc; \
-	jump 1f; \
+	.section .rodata; \
+	7: \
 	.ascii "Early:"; \
 	.ascii __FILE__; \
 	.ascii ": "; \
 	.ascii str; \
 	.asciz "\n"; \
-	.align 4; \
-1: \
-	R0 += 2; \
+	.previous; \
+	R0.L = 7b; \
+	R0.H = 7b; \
 	call _serial_puts;
 #else
 # define serial_early_puts(str)

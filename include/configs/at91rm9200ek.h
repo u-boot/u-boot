@@ -55,23 +55,25 @@
  * CONFIG_SYS_HZ is the tick rate for timer tc0
  */
 #define AT91C_XTAL_CLOCK		18432000
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 #define AT91C_MAIN_CLOCK		((AT91C_XTAL_CLOCK / 4) * 39)
 #define AT91C_MASTER_CLOCK		(AT91C_MAIN_CLOCK / 3 )
 #define CONFIG_SYS_HZ_CLOCK		(AT91C_MASTER_CLOCK / 2)
 #define CONFIG_SYS_HZ			1000
 
 /* CPU configuration */
-#define CONFIG_ARM920T
 #define CONFIG_AT91RM9200
 #define CONFIG_AT91RM9200EK
 #define CONFIG_CPUAT91
 #define USE_920T_MMU
 
+#include <asm/hardware.h>	/* needed for port definitions */
+
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-#define CONFIG_AT91FAMILY
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /*
  * Memory Configuration
@@ -123,8 +125,9 @@
  * CONFIG_DBGU is DBGU unit on J10
  * CONFIG_USART1 is USART1 on J14
  */
-#define CONFIG_AT91RM9200_USART
-#define CONFIG_DBGU
+#define CONFIG_ATMEL_USART
+#define CONFIG_USART_BASE	ATMEL_BASE_DBGU
+#define CONFIG_USART_ID		0/* ignored in arm */
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 #define CONFIG_BAUDRATE			115200
@@ -144,7 +147,6 @@
 /*
  * Network Driver Setting
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_DRIVER_AT91EMAC
 #define CONFIG_SYS_RX_ETH_BUFFER	16
 #define CONFIG_RMII
@@ -172,7 +174,7 @@
 #define CONFIG_DOS_PARTITION			1
 
 #define CONFIG_SYS_USB_OHCI_CPU_INIT		1
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		AT91_USB_HOST_BASE
+#define CONFIG_SYS_USB_OHCI_REGS_BASE		ATMEL_USB_HOST_BASE
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91rm9200"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 
@@ -220,7 +222,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + SZ_128K, \
 					     SZ_4K)
-/* size in bytes reserved for initial data */
 
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_4K \
 					- GENERATED_GBL_DATA_SIZE)

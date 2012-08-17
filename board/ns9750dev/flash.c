@@ -261,7 +261,7 @@ void flash_unprotect_sectors (FPWV * addr)
 int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
 	int flag, prot, sect;
-	ulong type, start, last;
+	ulong type, start;
 	int rcode = 0;
 
 	if ((s_first < 0) || (s_first > s_last)) {
@@ -294,10 +294,6 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		printf ("\n");
 	}
 
-
-	start = get_timer (0);
-	last = start;
-
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
 
@@ -312,7 +308,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			flash_unprotect_sectors (addr);
 
 			/* arm simple, non interrupt dependent timer */
-			reset_timer_masked ();
+			start = get_timer(0);
 
 			*addr = (FPW) 0x00500050;/* clear status register */
 			*addr = (FPW) 0x00200020;/* erase setup */
@@ -321,7 +317,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			while (((status =
 				*addr) & (FPW) 0x00800080) !=
 				(FPW) 0x00800080) {
-					if (get_timer_masked () >
+					if (get_timer(start) >
 					CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					/* suspend erase     */
@@ -441,6 +437,7 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 	FPWV *addr = (FPWV *) dest;
 	ulong status;
 	int flag;
+	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
@@ -454,11 +451,11 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 	*addr = data;
 
 	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked ();
+	start = get_timer(0);
 
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}

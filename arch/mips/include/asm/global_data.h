@@ -39,8 +39,22 @@
 typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
+#ifdef CONFIG_JZSOC
+	/* There are other clocks in the jz4740 */
+	unsigned long	cpu_clk;	/* CPU core clock */
+	unsigned long	sys_clk;	/* System bus clock */
+	unsigned long	per_clk;	/* Peripheral bus clock */
+	unsigned long	mem_clk;	/* Memory bus clock */
+	unsigned long	dev_clk;	/* Device clock */
+	/* "static data" needed by most of timer.c */
+	unsigned long	tbl;
+	unsigned long	lastinc;
+#endif
 	unsigned long	baudrate;
 	unsigned long	have_console;	/* serial_init() was called */
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
+	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
+#endif
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	env_addr;	/* Address  of Environment struct */

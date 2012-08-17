@@ -441,7 +441,7 @@ int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	param = base - (pram << 10);
 	printf("PARAM: @%08x\n", param);
-	debug("memsize=0x%08x, base=0x%08x\n", gd->bd->bi_memsize, base);
+	debug("memsize=0x%08x, base=0x%08x\n", (u32)gd->bd->bi_memsize, base);
 
 	/* clear entire PA ram */
 	memset((void*)param, 0, (pram << 10));

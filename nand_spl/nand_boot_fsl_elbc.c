@@ -51,11 +51,11 @@ static void nand_load(unsigned int offs, int uboot_size, uchar *dst)
 {
 	fsl_lbc_t *regs = LBC_BASE_ADDR;
 	uchar *buf = (uchar *)CONFIG_SYS_NAND_BASE;
-	int large = in_be32(&regs->bank[0].or) & OR_FCM_PGS;
-	int block_shift = large ? 17 : 14;
-	int block_size = 1 << block_shift;
-	int page_size = large ? 2048 : 512;
-	int bad_marker = large ? page_size + 0 : page_size + 5;
+	const int large = CONFIG_SYS_NAND_OR_PRELIM & OR_FCM_PGS;
+	const int block_shift = large ? 17 : 14;
+	const int block_size = 1 << block_shift;
+	const int page_size = large ? 2048 : 512;
+	const int bad_marker = large ? page_size + 0 : page_size + 5;
 	int fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT) | 2;
 	int pos = 0;
 

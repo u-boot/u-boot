@@ -63,7 +63,7 @@ phys_size_t initdram (int board_type)
 	dram_size = fixed_sdram ();
 #endif
 
-	puts ("    DDR: ");
+	debug ("    DDR: ");
 	return dram_size;
 }
 
@@ -273,12 +273,3 @@ void board_reset(void)
 	__asm__ __volatile__ ("rfi");
 #endif
 }
-
-#ifdef CONFIG_MP
-extern void cpu_mp_lmb_reserve(struct lmb *lmb);
-
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
-}
-#endif

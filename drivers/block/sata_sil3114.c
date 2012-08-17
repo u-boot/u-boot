@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Excito Elektronik i Skåne AB, All rights reserved.
+ * Copyright (C) Excito Elektronik i SkÃ¥ne AB, All rights reserved.
  * Author: Tor Krill <tor@excito.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -171,7 +171,7 @@ static void sata_identify (int num, int dev)
 	sata_dev_desc[devno].removable = 0;
 
 	sata_dev_desc[devno].lba = (u32) n_sectors;
-	debug ("lba=0x%x\n", sata_dev_desc[devno].lba);
+	debug("lba=0x%lx\n", sata_dev_desc[devno].lba);
 
 #ifdef CONFIG_LBA48
 	if (iobuf[83] & (1 << 10)) {
@@ -782,6 +782,7 @@ int scan_sata (int dev)
 		    (iobase[5] + VND_TF2_CH0) | ATA_PCI_CTL_OFS;
 		port[0].ioaddr.bmdma_addr = iobase[5] + VND_BMDMA_CH0;
 		break;
+#if (CONFIG_SYS_SATA_MAX_DEVICE >= 1)
 	case 1:
 		port[1].port_no = 0;
 		port[1].ioaddr.cmd_addr = iobase[5] + VND_TF0_CH1;
@@ -789,6 +790,7 @@ int scan_sata (int dev)
 		    (iobase[5] + VND_TF2_CH1) | ATA_PCI_CTL_OFS;
 		port[1].ioaddr.bmdma_addr = iobase[5] + VND_BMDMA_CH1;
 		break;
+#elif (CONFIG_SYS_SATA_MAX_DEVICE >= 2)
 	case 2:
 		port[2].port_no = 0;
 		port[2].ioaddr.cmd_addr = iobase[5] + VND_TF0_CH2;
@@ -796,6 +798,7 @@ int scan_sata (int dev)
 		    (iobase[5] + VND_TF2_CH2) | ATA_PCI_CTL_OFS;
 		port[2].ioaddr.bmdma_addr = iobase[5] + VND_BMDMA_CH2;
 		break;
+#elif (CONFIG_SYS_SATA_MAX_DEVICE >= 3)
 	case 3:
 		port[3].port_no = 0;
 		port[3].ioaddr.cmd_addr = iobase[5] + VND_TF0_CH3;
@@ -803,6 +806,7 @@ int scan_sata (int dev)
 		    (iobase[5] + VND_TF2_CH3) | ATA_PCI_CTL_OFS;
 		port[3].ioaddr.bmdma_addr = iobase[5] + VND_BMDMA_CH3;
 		break;
+#endif
 	default:
 		printf ("Tried to scan unknown port: ata%d\n", dev);
 		return 1;

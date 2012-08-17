@@ -402,3 +402,34 @@ const char * ub_env_enum(const char *last)
 
 	return env_name;
 }
+
+/****************************************
+ *
+ * display
+ *
+ ****************************************/
+
+int ub_display_get_info(int type, struct display_info *di)
+{
+	int err = 0;
+
+	if (!syscall(API_DISPLAY_GET_INFO, &err, (uint32_t)type, (uint32_t)di))
+		return API_ESYSC;
+
+	return err;
+}
+
+int ub_display_draw_bitmap(ulong bitmap, int x, int y)
+{
+	int err = 0;
+
+	if (!syscall(API_DISPLAY_DRAW_BITMAP, &err, bitmap, x, y))
+		return API_ESYSC;
+
+	return err;
+}
+
+void ub_display_clear(void)
+{
+	syscall(API_DISPLAY_CLEAR, NULL);
+}

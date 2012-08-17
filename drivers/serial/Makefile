@@ -28,7 +28,6 @@ LIB	:= $(obj)libserial.o
 COBJS-$(CONFIG_ALTERA_UART) += altera_uart.o
 COBJS-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o
 COBJS-$(CONFIG_ARM_DCC) += arm_dcc.o
-COBJS-$(CONFIG_AT91RM9200_USART) += at91rm9200_usart.o
 COBJS-$(CONFIG_ATMEL_USART) += atmel_usart.o
 COBJS-$(CONFIG_MCFUART) += mcfuart.o
 COBJS-$(CONFIG_NS9750_UART) += ns9750_serial.o
@@ -54,10 +53,13 @@ COBJS-$(CONFIG_SA1100_SERIAL) += serial_sa1100.o
 COBJS-$(CONFIG_S3C24X0_SERIAL) += serial_s3c24x0.o
 COBJS-$(CONFIG_S3C44B0_SERIAL) += serial_s3c44b0.o
 COBJS-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
+COBJS-$(CONFIG_SANDBOX_SERIAL) += sandbox.o
 COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
-COBJS-$(CONFIG_TEGRA2) += serial_tegra2.o
-COBJS-$(CONFIG_USB_TTY) += usbtty.o
 COBJS-$(CONFIG_PSS_SERIAL) += serial_xpsuart.o
+
+ifndef CONFIG_SPL_BUILD
+COBJS-$(CONFIG_USB_TTY) += usbtty.o
+endif
 
 COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)

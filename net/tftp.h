@@ -2,6 +2,8 @@
  *	LiMon - BOOTP/TFTP.
  *
  *	Copyright 1994, 1995, 2000 Neil Russell.
+ *	Copyright 2011 Comelit Group SpA
+ *	               Luca Ceresoli <luca.ceresoli@comelit.it>
  *	(See License)
  */
 
@@ -14,7 +16,11 @@
  */
 
 /* tftp.c */
-extern void	TftpStart (void);	/* Begin TFTP get */
+void TftpStart(enum proto_t protocol);	/* Begin TFTP get/put */
+
+#ifdef CONFIG_CMD_TFTPSRV
+extern void	TftpStartServer(void);	/* Wait for incoming TFTP put */
+#endif
 
 /**********************************************************************/
 

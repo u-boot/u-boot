@@ -43,6 +43,11 @@
 #define SDR0_PFC1		0x4101
 #define SDR0_MFR		0x4300	/* SDR0_MFR reg */
 
+#define SDR0_ECID0		0x0080
+#define SDR0_ECID1		0x0081
+#define SDR0_ECID2		0x0082
+#define SDR0_ECID3		0x0083
+
 #define SDR0_SDCS_SDD		(0x80000000 >> 31)
 
 #define SDR0_SRST_DMC		(0x80000000 >> 10)

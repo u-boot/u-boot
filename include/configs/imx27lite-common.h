@@ -34,6 +34,8 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_DISPLAY_CPUINFO
 
+#define CONFIG_SYS_TEXT_BASE		0xc0000000
+
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
@@ -88,7 +90,6 @@
  */
 /* malloc() len */
 #define CONFIG_SYS_MALLOC_LEN		(0x10000 + 512 * 1024)
-/* reserved for initial data */
 /* memtest start address */
 #define CONFIG_SYS_MEMTEST_START	0xA0000000
 #define CONFIG_SYS_MEMTEST_END		0xA1000000	/* 16MB RAM test */
@@ -101,7 +102,7 @@
  * Serial Driver info
  */
 #define CONFIG_MXC_UART
-#define CONFIG_SYS_MX27_UART1
+#define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
@@ -136,7 +137,6 @@
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC_PHYADDR		0x1f
 #define CONFIG_MII
-#define CONFIG_NET_MULTI
 
 /*
  * MTD

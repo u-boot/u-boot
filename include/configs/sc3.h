@@ -162,7 +162,6 @@
 #undef CONFIG_LOADS_ECHO   /* no echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-#define CONFIG_NET_MULTI
 /* #define CONFIG_EEPRO100_SROM_WRITE */
 /* #define CONFIG_SHOW_MAC */
 #define CONFIG_EEPRO100
@@ -480,7 +479,6 @@
   (offset only)
 
 */
-/* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_OFFSET   (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 /* Initial value of the stack pointern in internal SRAM */
 #define CONFIG_SYS_INIT_SP_OFFSET    CONFIG_SYS_GBL_DATA_OFFSET
@@ -533,9 +531,9 @@
 
 #define CONFIG_SYS_ISA_MEM_BASE_ADDRESS 0x78000000
 /*
- Die Grafik-Treiber greifen über die Adresse in diesem Macro auf den Chip zu.
+ Die Grafik-Treiber greifen Ã¼ber die Adresse in diesem Macro auf den Chip zu.
  Das funktioniert bei deren Karten, weil sie eine PCI-Bridge benutzen, die
- das gleiche Mapping durchführen kann, wie der SC520 (also Aufteilen von IO-Zugriffen
+ das gleiche Mapping durchfÃ¼hren kann, wie der SC520 (also Aufteilen von IO-Zugriffen
  auf ISA- und PCI-Zyklen)
  */
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS  0xE8000000

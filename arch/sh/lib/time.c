@@ -108,14 +108,9 @@ int timer_init (void)
 unsigned long long get_ticks (void)
 {
 	unsigned long tcnt = 0 - readl(TCNT0);
-	unsigned long ticks;
 
-	if (last_tcnt > tcnt) { /* overflow */
+	if (last_tcnt > tcnt) /* overflow */
 		overflow_ticks++;
-		ticks = (0xffffffff - last_tcnt) + tcnt;
-	} else {
-		ticks = tcnt;
-	}
 	last_tcnt = tcnt;
 
 	return (overflow_ticks << 32) | tcnt;
@@ -137,18 +132,6 @@ unsigned long get_timer (unsigned long base)
 {
 	/* return msec */
 	return tick_to_time(get_ticks()) - base;
-}
-
-void set_timer (unsigned long t)
-{
-	writel((0 - t), TCNT0);
-}
-
-void reset_timer (void)
-{
-	tmu_timer_stop(0);
-	set_timer (0);
-	tmu_timer_start(0);
 }
 
 unsigned long get_tbclk (void)

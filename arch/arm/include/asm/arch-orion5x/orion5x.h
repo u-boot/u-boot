@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Albert ARIBAUD <albert.aribaud@free.fr>
+ * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * Based on original Kirkwood support which is
  * (C) Copyright 2009
@@ -30,18 +30,13 @@
 #ifndef _ASM_ARCH_ORION5X_H
 #define _ASM_ARCH_ORION5X_H
 
-#ifndef __ASSEMBLY__
-#include <asm/types.h>
-#include <asm/io.h>
-#endif /* __ASSEMBLY__ */
-
 #if defined(CONFIG_FEROCEON)
-#include <asm/arch/cpu.h>
 
 /* SOC specific definations */
 #define ORION5X_REGISTER(x)			(ORION5X_REGS_PHY_BASE + x)
 
 /* Documented registers */
+#define ORION5X_DRAM_BASE			(ORION5X_REGISTER(0x01500))
 #define ORION5X_TWSI_BASE			(ORION5X_REGISTER(0x11000))
 #define ORION5X_UART0_BASE			(ORION5X_REGISTER(0x12000))
 #define ORION5X_UART1_BASE			(ORION5X_REGISTER(0x12100))
@@ -62,6 +57,18 @@
 /* Orion5x GbE controller has a single port */
 #define MAX_MVGBE_DEVS	1
 #define MVGBE0_BASE	ORION5X_EGIGA_BASE
+
+/* Orion5x USB Host controller is port 1 */
+#define MVUSB0_BASE			ORION5X_USB20_HOST_PORT_BASE
+#define MVUSB0_CPU_ATTR_DRAM_CS0	ORION5X_ATTR_DRAM_CS0
+#define MVUSB0_CPU_ATTR_DRAM_CS1	ORION5X_ATTR_DRAM_CS1
+#define MVUSB0_CPU_ATTR_DRAM_CS2	ORION5X_ATTR_DRAM_CS2
+#define MVUSB0_CPU_ATTR_DRAM_CS3	ORION5X_ATTR_DRAM_CS3
+
+/* Kirkwood CPU memory windows */
+#define MVCPU_WIN_CTRL_DATA	ORION5X_CPU_WIN_CTRL_DATA
+#define MVCPU_WIN_ENABLE	ORION5X_WIN_ENABLE
+#define MVCPU_WIN_DISABLE	ORION5X_WIN_DISABLE
 
 #define CONFIG_MAX_RAM_BANK_SIZE		(64*1024*1024)
 

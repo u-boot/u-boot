@@ -104,6 +104,7 @@ static void release_cf_lock(void)
 	ace_writew((val & 0xffff), 0x18);
 }
 
+#ifdef CONFIG_PARTITIONS
 block_dev_desc_t *systemace_get_dev(int dev)
 {
 	/* The first time through this, the systemace_dev object is
@@ -128,6 +129,7 @@ block_dev_desc_t *systemace_get_dev(int dev)
 
 	return &systemace_dev;
 }
+#endif
 
 /*
  * This function is called (by dereferencing the block_read pointer in

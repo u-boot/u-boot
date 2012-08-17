@@ -30,7 +30,7 @@
 #define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_CONS_SCIF1	1
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_BOOTDELAY	-1
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
@@ -59,7 +59,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
 /* Size of DRAM reserved for malloc() use */
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
-/* size in bytes reserved for initial data */
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /*
@@ -123,7 +122,6 @@
 /*
  * Network device (RTL8139) support
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_RTL8139
 
 #endif /* __CONFIG_H */

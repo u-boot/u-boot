@@ -29,11 +29,13 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
+#include <div64.h>
 
 enum pll_clocks {
 	PLL1_CLOCK = 0,
 	PLL2_CLOCK,
 	PLL3_CLOCK,
+	PLL4_CLOCK,
 	PLL_CLOCKS,
 };
 
@@ -41,25 +43,137 @@ struct mxc_pll_reg *mxc_plls[PLL_CLOCKS] = {
 	[PLL1_CLOCK] = (struct mxc_pll_reg *)PLL1_BASE_ADDR,
 	[PLL2_CLOCK] = (struct mxc_pll_reg *)PLL2_BASE_ADDR,
 	[PLL3_CLOCK] = (struct mxc_pll_reg *)PLL3_BASE_ADDR,
+#ifdef	CONFIG_MX53
+	[PLL4_CLOCK] = (struct mxc_pll_reg *)PLL4_BASE_ADDR,
+#endif
 };
 
 struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
 
-/*
- * Calculate the frequency of this pll.
- */
-static u32 decode_pll(struct mxc_pll_reg *pll, u32 infreq)
+void set_usboh3_clk(void)
 {
-	u32 mfi, mfn, mfd, pd;
+	unsigned int reg;
 
-	mfn = __raw_readl(&pll->mfn);
-	mfd = __raw_readl(&pll->mfd) + 1;
-	mfi = __raw_readl(&pll->op);
-	pd = (mfi  & 0xF) + 1;
-	mfi = (mfi >> 4) & 0xF;
-	mfi = (mfi >= 5) ? mfi : 5;
+	reg = readl(&mxc_ccm->cscmr1) &
+		 ~MXC_CCM_CSCMR1_USBOH3_CLK_SEL_MASK;
+	reg |= 1 << MXC_CCM_CSCMR1_USBOH3_CLK_SEL_OFFSET;
+	writel(reg, &mxc_ccm->cscmr1);
 
-	return ((4 * (infreq / 1000) * (mfi * mfd + mfn)) / (mfd * pd)) * 1000;
+	reg = readl(&mxc_ccm->cscdr1);
+	reg &= ~MXC_CCM_CSCDR1_USBOH3_CLK_PODF_MASK;
+	reg &= ~MXC_CCM_CSCDR1_USBOH3_CLK_PRED_MASK;
+	reg |= 4 << MXC_CCM_CSCDR1_USBOH3_CLK_PRED_OFFSET;
+	reg |= 1 << MXC_CCM_CSCDR1_USBOH3_CLK_PODF_OFFSET;
+
+	writel(reg, &mxc_ccm->cscdr1);
+}
+
+void enable_usboh3_clk(unsigned char enable)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->CCGR2);
+	if (enable)
+		reg |= 1 << MXC_CCM_CCGR2_CG14_OFFSET;
+	else
+		reg &= ~(1 << MXC_CCM_CCGR2_CG14_OFFSET);
+	writel(reg, &mxc_ccm->CCGR2);
+}
+
+void set_usb_phy1_clk(void)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->cscmr1);
+	reg &= ~MXC_CCM_CSCMR1_USB_PHY_CLK_SEL;
+	writel(reg, &mxc_ccm->cscmr1);
+}
+
+void enable_usb_phy1_clk(unsigned char enable)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->CCGR4);
+	if (enable)
+		reg |= 1 << MXC_CCM_CCGR4_CG5_OFFSET;
+	else
+		reg &= ~(1 << MXC_CCM_CCGR4_CG5_OFFSET);
+	writel(reg, &mxc_ccm->CCGR4);
+}
+
+void set_usb_phy2_clk(void)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->cscmr1);
+	reg &= ~MXC_CCM_CSCMR1_USB_PHY_CLK_SEL;
+	writel(reg, &mxc_ccm->cscmr1);
+}
+
+void enable_usb_phy2_clk(unsigned char enable)
+{
+	unsigned int reg;
+
+	reg = readl(&mxc_ccm->CCGR4);
+	if (enable)
+		reg |= 1 << MXC_CCM_CCGR4_CG6_OFFSET;
+	else
+		reg &= ~(1 << MXC_CCM_CCGR4_CG6_OFFSET);
+	writel(reg, &mxc_ccm->CCGR4);
+}
+
+/*
+ * Calculate the frequency of PLLn.
+ */
+static uint32_t decode_pll(struct mxc_pll_reg *pll, uint32_t infreq)
+{
+	uint32_t ctrl, op, mfd, mfn, mfi, pdf, ret;
+	uint64_t refclk, temp;
+	int32_t mfn_abs;
+
+	ctrl = readl(&pll->ctrl);
+
+	if (ctrl & MXC_DPLLC_CTL_HFSM) {
+		mfn = __raw_readl(&pll->hfs_mfn);
+		mfd = __raw_readl(&pll->hfs_mfd);
+		op = __raw_readl(&pll->hfs_op);
+	} else {
+		mfn = __raw_readl(&pll->mfn);
+		mfd = __raw_readl(&pll->mfd);
+		op = __raw_readl(&pll->op);
+	}
+
+	mfd &= MXC_DPLLC_MFD_MFD_MASK;
+	mfn &= MXC_DPLLC_MFN_MFN_MASK;
+	pdf = op & MXC_DPLLC_OP_PDF_MASK;
+	mfi = (op & MXC_DPLLC_OP_MFI_MASK) >> MXC_DPLLC_OP_MFI_OFFSET;
+
+	/* 21.2.3 */
+	if (mfi < 5)
+		mfi = 5;
+
+	/* Sign extend */
+	if (mfn >= 0x04000000) {
+		mfn |= 0xfc000000;
+		mfn_abs = -mfn;
+	} else
+		mfn_abs = mfn;
+
+	refclk = infreq * 2;
+	if (ctrl & MXC_DPLLC_CTL_DPDCK0_2_EN)
+		refclk *= 2;
+
+	do_div(refclk, pdf + 1);
+	temp = refclk * mfn_abs;
+	do_div(temp, mfd + 1);
+	ret = refclk * mfi;
+
+	if ((int)mfn < 0)
+		ret -= temp;
+	else
+		ret += temp;
+
+	return ret;
 }
 
 /*
@@ -99,18 +213,35 @@ static u32 get_periph_clk(void)
 }
 
 /*
+ * Get the rate of ahb clock.
+ */
+static u32 get_ahb_clk(void)
+{
+	uint32_t freq, div, reg;
+
+	freq = get_periph_clk();
+
+	reg = __raw_readl(&mxc_ccm->cbcdr);
+	div = ((reg & MXC_CCM_CBCDR_AHB_PODF_MASK) >>
+			MXC_CCM_CBCDR_AHB_PODF_OFFSET) + 1;
+
+	return freq / div;
+}
+
+/*
  * Get the rate of ipg clock.
  */
 static u32 get_ipg_clk(void)
 {
-	u32 ahb_podf, ipg_podf;
+	uint32_t freq, reg, div;
 
-	ahb_podf = __raw_readl(&mxc_ccm->cbcdr);
-	ipg_podf = (ahb_podf & MXC_CCM_CBCDR_IPG_PODF_MASK) >>
-			MXC_CCM_CBCDR_IPG_PODF_OFFSET;
-	ahb_podf = (ahb_podf & MXC_CCM_CBCDR_AHB_PODF_MASK) >>
-			MXC_CCM_CBCDR_AHB_PODF_OFFSET;
-	return get_periph_clk() / ((ahb_podf + 1) * (ipg_podf + 1));
+	freq = get_ahb_clk();
+
+	reg = __raw_readl(&mxc_ccm->cbcdr);
+	div = ((reg & MXC_CCM_CBCDR_IPG_PODF_MASK) >>
+			MXC_CCM_CBCDR_IPG_PODF_OFFSET) + 1;
+
+	return freq / div;
 }
 
 /*
@@ -237,7 +368,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_ARM_CLK:
 		return get_mcu_main_clk();
 	case MXC_AHB_CLK:
-		break;
+		return get_ahb_clk();
 	case MXC_IPG_CLK:
 		return get_ipg_clk();
 	case MXC_IPG_PERCLK:
@@ -274,13 +405,20 @@ int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	u32 freq;
 
 	freq = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
-	printf("pll1: %dMHz\n", freq / 1000000);
+	printf("PLL1       %8d MHz\n", freq / 1000000);
 	freq = decode_pll(mxc_plls[PLL2_CLOCK], CONFIG_SYS_MX5_HCLK);
-	printf("pll2: %dMHz\n", freq / 1000000);
+	printf("PLL2       %8d MHz\n", freq / 1000000);
 	freq = decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_SYS_MX5_HCLK);
-	printf("pll3: %dMHz\n", freq / 1000000);
-	printf("ipg clock     : %dHz\n", mxc_get_clock(MXC_IPG_CLK));
-	printf("ipg per clock : %dHz\n", mxc_get_clock(MXC_IPG_PERCLK));
+	printf("PLL3       %8d MHz\n", freq / 1000000);
+#ifdef	CONFIG_MX53
+	freq = decode_pll(mxc_plls[PLL4_CLOCK], CONFIG_SYS_MX5_HCLK);
+	printf("PLL4       %8d MHz\n", freq / 1000000);
+#endif
+
+	printf("\n");
+	printf("AHB        %8d kHz\n", mxc_get_clock(MXC_AHB_CLK) / 1000);
+	printf("IPG        %8d kHz\n", mxc_get_clock(MXC_IPG_CLK) / 1000);
+	printf("IPG PERCLK %8d kHz\n", mxc_get_clock(MXC_IPG_PERCLK) / 1000);
 
 	return 0;
 }
@@ -288,7 +426,7 @@ int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 /***************************************************/
 
 U_BOOT_CMD(
-	clockinfo,	CONFIG_SYS_MAXARGS,	1,	do_mx5_showclocks,
-	"display clocks\n",
+	clocks,	CONFIG_SYS_MAXARGS, 1, do_mx5_showclocks,
+	"display clocks",
 	""
 );

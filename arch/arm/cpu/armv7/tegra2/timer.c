@@ -38,39 +38,28 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
+#include <asm/arch/timer.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct timerus *timer_base = (struct timerus *)NV_PA_TMRUS_BASE;
-
 /* counter runs at 1MHz */
-#define TIMER_CLK	(1000000)
+#define TIMER_CLK	1000000
 #define TIMER_LOAD_VAL	0xffffffff
 
 /* timer without interrupts */
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	return get_timer_masked() - base;
-}
-
-void set_timer(ulong t)
-{
-	gd->tbl = t;
 }
 
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
 	long tmo = usec * (TIMER_CLK / 1000) / 1000;
-	unsigned long now, last = readl(&timer_base->cntr_1us);
+	unsigned long now, last = timer_get_us();
 
 	while (tmo > 0) {
-		now = readl(&timer_base->cntr_1us);
+		now = timer_get_us();
 		if (last > now) /* count up timer overflow */
 			tmo -= TIMER_LOAD_VAL - last + now;
 		else
@@ -79,19 +68,12 @@ void __udelay(unsigned long usec)
 	}
 }
 
-void reset_timer_masked(void)
-{
-	/* reset time, capture current incrementer value time */
-	gd->lastinc = readl(&timer_base->cntr_1us) / (TIMER_CLK/CONFIG_SYS_HZ);
-	gd->tbl = 0;		/* start "advancing" time stamp from 0 */
-}
-
 ulong get_timer_masked(void)
 {
 	ulong now;
 
 	/* current tick value */
-	now = readl(&timer_base->cntr_1us) / (TIMER_CLK / CONFIG_SYS_HZ);
+	now = timer_get_us() / (TIMER_CLK / CONFIG_SYS_HZ);
 
 	if (now >= gd->lastinc)	/* normal mode (non roll) */
 		/* move stamp forward with absolute diff ticks */
@@ -119,4 +101,11 @@ unsigned long long get_ticks(void)
 ulong get_tbclk(void)
 {
 	return CONFIG_SYS_HZ;
+}
+
+unsigned long timer_get_us(void)
+{
+	struct timerus *timer_base = (struct timerus *)NV_PA_TMRUS_BASE;
+
+	return readl(&timer_base->cntr_1us);
 }

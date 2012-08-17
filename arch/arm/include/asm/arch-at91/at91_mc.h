@@ -23,12 +23,12 @@
 #ifndef AT91_MC_H
 #define AT91_MC_H
 
-#define AT91_ASM_MC_EBI_CSA	(AT91_MC_BASE + 0x60)
-#define AT91_ASM_MC_EBI_CFG	(AT91_MC_BASE + 0x64)
-#define AT91_ASM_MC_SMC_CSR0	(AT91_MC_BASE + 0x70)
-#define AT91_ASM_MC_SDRAMC_MR	(AT91_MC_BASE + 0x90)
-#define AT91_ASM_MC_SDRAMC_TR	(AT91_MC_BASE + 0x94)
-#define AT91_ASM_MC_SDRAMC_CR	(AT91_MC_BASE + 0x98)
+#define AT91_ASM_MC_EBI_CSA	(ATMEL_BASE_MC + 0x60)
+#define AT91_ASM_MC_EBI_CFG	(ATMEL_BASE_MC + 0x64)
+#define AT91_ASM_MC_SMC_CSR0	(ATMEL_BASE_MC + 0x70)
+#define AT91_ASM_MC_SDRAMC_MR	(ATMEL_BASE_MC + 0x90)
+#define AT91_ASM_MC_SDRAMC_TR	(ATMEL_BASE_MC + 0x94)
+#define AT91_ASM_MC_SDRAMC_CR	(ATMEL_BASE_MC + 0x98)
 
 #ifndef __ASSEMBLY__
 
@@ -36,7 +36,7 @@ typedef struct at91_ebi {
 	u32 	csa;		/* 0x00 Chip Select Assignment Register */
 	u32	cfgr;		/* 0x04 Configuration Register */
 	u32	reserved[2];
-} __attribute__ ((packed)) at91_ebi_t;
+} at91_ebi_t;
 
 #define AT91_EBI_CSA_CS0A	0x0001
 #define AT91_EBI_CSA_CS1A	0x0002
@@ -55,11 +55,11 @@ typedef struct at91_sdramc {
 	u32	imr; 	/* 0x1C SDRAMC Interrupt Mask Register */
 	u32	icr; 	/* 0x20 SDRAMC Interrupt Status Register */
 	u32	reserved[3];
-} __attribute__ ((packed)) at91_sdramc_t;
+} at91_sdramc_t;
 
 typedef struct at91_smc {
 	u32	csr[8]; 	/* 0x00 SDRAMC Mode Register */
-} __attribute__ ((packed)) at91_smc_t;
+} at91_smc_t;
 
 #define AT91_SMC_CSR_RWHOLD(x)		((x & 0x7) << 28)
 #define AT91_SMC_CSR_RWSETUP(x)		((x & 0x7) << 24)
@@ -78,7 +78,7 @@ typedef struct at91_smc {
 
 typedef struct at91_bfc {
 	u32	mr; 	/* 0x00 SDRAMC Mode Register */
-} __attribute__ ((packed)) at91_bfc_t;
+} at91_bfc_t;
 
 typedef struct at91_mc {
 	u32		rcr;		/* 0x00 MC Remap Control Register */
@@ -91,7 +91,7 @@ typedef struct at91_mc {
 	at91_sdramc_t	sdramc;		/* 0x90 - 0xBC SDRAMC User Interface */
 	at91_bfc_t	bfc;		/* 0xC0 BFC User Interface */
 	u32		reserved2[15];
-} __attribute__ ((packed)) at91_mc_t;
+} at91_mc_t;
 
 #endif
 #endif

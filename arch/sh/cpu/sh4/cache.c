@@ -106,3 +106,25 @@ int cache_control(unsigned int cmd)
 
 	return 0;
 }
+
+void dcache_wback_range(u32 start, u32 end)
+{
+	u32 v;
+
+	start &= ~(L1_CACHE_BYTES - 1);
+	for (v = start; v < end; v += L1_CACHE_BYTES) {
+		asm volatile ("ocbwb     %0" :	/* no output */
+			      : "m" (__m(v)));
+	}
+}
+
+void dcache_invalid_range(u32 start, u32 end)
+{
+	u32 v;
+
+	start &= ~(L1_CACHE_BYTES - 1);
+	for (v = start; v < end; v += L1_CACHE_BYTES) {
+		asm volatile ("ocbi     %0" :	/* no output */
+			      : "m" (__m(v)));
+	}
+}

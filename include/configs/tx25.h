@@ -25,9 +25,7 @@
 /*
  * KARO TX25 board - SoC Configuration
  */
-#define CONFIG_ARM926EJS			/* arm926ejs CPU core */
 #define CONFIG_MX25
-#define CONFIG_TX25
 #define CONFIG_MX25_CLK32		32000	/* OSC32K frequency */
 #define CONFIG_SYS_HZ			1000
 
@@ -35,6 +33,12 @@
 
 /* NAND BOOT is the only boot method */
 #define CONFIG_NAND_U_BOOT
+
+#ifndef MACH_TYPE_TX25
+#define MACH_TYPE_TX25	2177
+#endif
+
+#define CONFIG_MACH_TYPE MACH_TYPE_TX25
 
 #ifdef CONFIG_NAND_SPL
 /* Start copying real U-boot from the second page */
@@ -56,16 +60,15 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
 
 /*
  * Memory Info
  */
 /* malloc() len */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* 1 MiB */
-/* reserved for initial data */
 /*
  * Board has 2 32MB banks of DRAM but there is a bug when using
  * both so only the first is configured
@@ -86,17 +89,19 @@
 /*
  * Serial Info
  */
-#define CONFIG_MXC_UART		1
-#define CONFIG_SYS_MX25_UART1	1
+#define CONFIG_MXC_UART
+#define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONS_INDEX	1	/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200	/* Default baud rate */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+
+#define CONFIG_MXC_GPIO
 
 /*
  * Flash & Environment
  */
 /* No NOR flash present */
-#define CONFIG_SYS_NO_FLASH	1
+#define CONFIG_SYS_NO_FLASH
 #define	CONFIG_ENV_IS_IN_NAND
 #define	CONFIG_ENV_OFFSET	CONFIG_SYS_MONITOR_LEN
 #define CONFIG_ENV_SIZE		(128 * 1024)	/* 128 kB NAND block size */
@@ -138,8 +143,7 @@
 #define CONFIG_FEC_MXC_PHYADDR		0x1f
 #define CONFIG_MII
 #define CONFIG_CMD_NET
-#define CONFIG_NET_MULTI
-#define BOARD_LATE_INIT
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BOOTDELAY	5

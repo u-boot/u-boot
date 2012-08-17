@@ -35,17 +35,29 @@
 #include <common.h>
 #include <twl4030.h>
 #include <asm/io.h>
+#include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
 #include <asm/mach-types.h>
 #include "devkit8000.h"
+#include <asm/gpio.h>
 #ifdef CONFIG_DRIVER_DM9000
 #include <net.h>
 #include <netdev.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static u32 gpmc_net_config[GPMC_MAX_REG] = {
+	NET_GPMC_CONFIG1,
+	NET_GPMC_CONFIG2,
+	NET_GPMC_CONFIG3,
+	NET_GPMC_CONFIG4,
+	NET_GPMC_CONFIG5,
+	NET_GPMC_CONFIG6,
+	0
+};
 
 /*
  * Routine: board_init
@@ -60,6 +72,13 @@ int board_init(void)
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
 	return 0;
+}
+
+/* Configure GPMC registers for DM9000 */
+static void gpmc_dm9000_config(void)
+{
+	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[6],
+		CONFIG_DM9000_BASE, GPMC_SIZE_16M);
 }
 
 /*
@@ -81,13 +100,8 @@ int misc_init_r(void)
 
 #ifdef CONFIG_DRIVER_DM9000
 	/* Configure GPMC registers for DM9000 */
-	writel(NET_GPMC_CONFIG1, &gpmc_cfg->cs[6].config1);
-	writel(NET_GPMC_CONFIG2, &gpmc_cfg->cs[6].config2);
-	writel(NET_GPMC_CONFIG3, &gpmc_cfg->cs[6].config3);
-	writel(NET_GPMC_CONFIG4, &gpmc_cfg->cs[6].config4);
-	writel(NET_GPMC_CONFIG5, &gpmc_cfg->cs[6].config5);
-	writel(NET_GPMC_CONFIG6, &gpmc_cfg->cs[6].config6);
-	writel(NET_GPMC_CONFIG7, &gpmc_cfg->cs[6].config7);
+	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[6],
+			CONFIG_DM9000_BASE, GPMC_SIZE_16M);
 
 	/* Use OMAP DIE_ID as MAC address */
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
@@ -119,7 +133,15 @@ void set_muxconf_regs(void)
 	MUX_DEVKIT8000();
 }
 
-#ifdef CONFIG_DRIVER_DM9000
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+int board_mmc_init(bd_t *bis)
+{
+	omap_mmc_init(0);
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_DRIVER_DM9000) & !defined(CONFIG_SPL_BUILD)
 /*
  * Routine: board_eth_init
  * Description: Setting up the Ethernet hardware.
@@ -129,3 +151,53 @@ int board_eth_init(bd_t *bis)
 	return dm9000_initialize(bis);
 }
 #endif
+
+#ifdef CONFIG_SPL_OS_BOOT
+/*
+ * Do board specific preperation before SPL
+ * Linux boot
+ */
+void spl_board_prepare_for_linux(void)
+{
+	gpmc_dm9000_config();
+}
+
+/*
+ * devkit8000 specific implementation of spl_start_uboot()
+ *
+ * RETURN
+ * 0 if the button is not pressed
+ * 1 if the button is pressed
+ */
+int spl_start_uboot(void)
+{
+	int val = 0;
+	if (!gpio_request(CONFIG_SPL_OS_BOOT_KEY, "U-Boot key")) {
+		gpio_direction_input(CONFIG_SPL_OS_BOOT_KEY);
+		val = gpio_get_value(CONFIG_SPL_OS_BOOT_KEY);
+		gpio_free(CONFIG_SPL_OS_BOOT_KEY);
+	}
+	return !val;
+}
+#endif
+
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on the first bank.  This
+ * provides the timing values back to the function that configures
+ * the memory.  We have either one or two banks of 128MB DDR.
+ */
+void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
+		u32 *mr)
+{
+	/* General SDRC config */
+	*mcfg = MICRON_V_MCFG_165(128 << 20);
+	*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+
+	/* AC timings */
+	*ctrla = MICRON_V_ACTIMA_165;
+	*ctrlb = MICRON_V_ACTIMB_165;
+
+	*mr = MICRON_V_MR_165;
+}

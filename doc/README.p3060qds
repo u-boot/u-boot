@@ -1,0 +1,110 @@
+Overview
+=========
+The P3060QDS is a Freescale reference board that hosts the six-core P3060 SOC.
+
+The P3060 Processor combines six e500mc Power Architecture processor
+cores(1.2GHz) with high-performance datapath acceleration
+architecture(DPAA), CoreNet fabric infrastructure, as well as network
+and peripheral bus interfaces required for networking, telecom/datacom,
+wireless infrastructure, and military/aerospace applications.
+
+
+P3060QDS Board Specifications:
+==============================
+Memory subsystem:
+ * 2G Bytes UDIMM DDR3(64bit bus) with ECC on
+ * 128M Bytes NOR flash single-chip memory
+ * 16M Bytes SPI flash
+ * 8K Bytes AT24C64 I2C EEPROM for RCW
+
+Ethernet(Default SERDES 0x19):
+ * FM1-dTSEC1: connected to RGMII PHY1 (Vitesse VSC8641 on board,Bottom of dual RJ45)
+ * FM1-dTSEC2: connected to RGMII PHY2 (Vitesse VSC8641 on board,Top of dual RJ45)
+ * FM1-dTSEC3: connected to SGMII PHY  (Vitesse VSC8234 port1 in slot1)
+ * FM1-dTSEC4: connected to SGMII PHY  (Vitesse VSC8234 port3 in slot1)
+ * FM2-dTSEC1: connected to SGMII PHY  (Vitesse VSC8234 port0 in slot2)
+ * FM2-dTSEC2: connected to SGMII PHY  (Vitesse VSC8234 port2 in slot2)
+ * FM2-dTSEC3: connected to SGMII PHY  (Vitesse VSC8234 port0 in slot1)
+ * FM2-dTSEC4: connected to SGMII PHY  (Vitesse VSC8234 port2 in slot1)
+
+PCIe:
+ * PCIe1: Lanes A, B, C and D of Bank1 are connected to one x4 PCIe SLOT4
+ * PCIe2: Lanes E, F, G and H of Bank1 are connected to one x4 PCIe SLOT3
+
+RapidIO:
+ * sRIO1: Lanes E, F, G and H of Bank1 are connected to sRIO1 (SLOT3)
+ * sRIO2: Lanes A, B, C and D of Bank1 are connected to sRIO2 (SLOT4)
+
+USB:
+ * USB1: connected via an external ULPI PHY SMC3315 to a TYPE-A interface
+ * USB2: connected via an external ULPI PHY SMC3315 to a TYPE-AB interface
+
+I2C:
+ * I2C1_CH0: EEPROM AT24C64(0x50) RCW, AT24C02(0x51) DDR SPD,
+	     AT24C02(0x53) DDR SPD, AT24C02(0x57) SystemID, RTC DS3232(0x68)
+ * I2C1_CH1: 1588 RiserCard(0x55), HSLB Testport, TempMon
+	     ADT7461(0x4C), SerDesMux DS64MB201(0x51/59/5C/5D)
+ * I2C1_CH2: VDD/GVDD/GIDD ZL6100 (0x21/0x22/0x23/0x24/0x40)
+ * I2C1_CH3: OCM CFG AT24C02(0x55), OCM IPL AT24C64(0x56)
+ * I2C1_CH4: PCIe SLOT1
+ * I2C1_CH5: PCIe SLOT2
+ * I2C1_CH6: PCIe SLOT3
+ * I2C1_CH7: PCIe SLOT4
+ * I2C2: NULL
+ * I2C3: NULL
+
+UART:
+ * Supports two UARTs up to 115200 bps for console
+
+
+Boot from NOR flash
+===================
+1. Build image
+	export ARCH=powerpc
+	export CROSS_COMPILE=/your_path/gcc-4.5.xx-eglibc-2.11.xx/powerpc-linux-gnu/bin/powerpc-linux-gnu-
+	make P3060QDS_config
+	make
+
+2. Program image
+	=> tftp 1000000 u-boot.bin
+	=> protect off all
+	=> erase eff80000 efffffff
+	=> cp.b 1000000 eff80000 80000
+
+3. Program RCW
+	=> tftp 1000000 rcw.bin
+	=> protect off all
+	=> erase e8000000 e801ffff
+	=> cp.b 1000000 e8000000 50
+
+4. Program FMAN Firmware ucode
+	=> tftp 1000000 ucode.bin
+	=> protect off all
+	=> erase ef000000 ef0fffff
+	=> cp.b 1000000 ef000000 2000
+
+5. Change DIP-switch
+	RCW Location: SW1[1-5] = 01101 (eLBC 16bit NOR flash)
+	Note: 1 stands for 'on', 0 stands for 'off'
+
+
+Using the Device Tree Source File
+=================================
+To create the DTB (Device Tree Binary) image file, use a command
+similar to this:
+	dtc -O dtb -b 0 -p 1024 p3060qds.dts > p3060qds.dtb
+
+Or use the following command:
+	{linux-2.6}/make p3060qds.dtb ARCH=powerpc
+
+then the dtb file will be generated under the following directory:
+	{linux-2.6}/arch/powerpc/boot/p3060qds.dtb
+
+
+Booting Linux
+=============
+Place a linux uImage in the TFTP disk area.
+	tftp 1000000 uImage
+	tftp 2000000 rootfs.ext2.gz.uboot
+	tftp 3000000 p3060rdb.dtb
+	bootm 1000000 2000000 3000000

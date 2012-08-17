@@ -208,7 +208,6 @@
 
 #define CONFIG_NR_DRAM_BANKS	2
 
-#define CONFIG_NET_MULTI
 
 #ifdef CONFIG_DBAU1550
 #define MEM_SIZE 192

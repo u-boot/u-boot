@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2009 Freescale Semiconductor, Inc.
+ * (C) Copyright 2009, 2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2008, Excito Elektronik i Sk=E5ne AB
  *
@@ -26,6 +26,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <usb/ehci-fsl.h>
+#include <hwconfig.h>
 
 #include "ehci.h"
 #include "ehci-core.h"
@@ -39,6 +40,13 @@
 int ehci_hcd_init(void)
 {
 	struct usb_ehci *ehci;
+	const char *phy_type = NULL;
+	size_t len;
+#ifdef CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
+	char usb_phy[5];
+
+	usb_phy[0] = '\0';
+#endif
 
 	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
 	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
@@ -52,10 +60,37 @@ int ehci_hcd_init(void)
 	out_be32(&ehci->snoop2, 0x80000000 | SNOOP_SIZE_2GB);
 
 	/* Init phy */
-	if (!strcmp(getenv("usb_phy_type"), "utmi"))
-		out_le32(&(hcor->or_portsc[0]), PORT_PTS_UTMI);
+	if (hwconfig_sub("usb1", "phy_type"))
+		phy_type = hwconfig_subarg("usb1", "phy_type", &len);
 	else
+		phy_type = getenv("usb_phy_type");
+
+	if (!phy_type) {
+#ifdef CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
+		/* if none specified assume internal UTMI */
+		strcpy(usb_phy, "utmi");
+		phy_type = usb_phy;
+#else
+		printf("WARNING: USB phy type not defined !!\n");
+		return -1;
+#endif
+	}
+
+	if (!strcmp(phy_type, "utmi")) {
+#if defined(CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY)
+		setbits_be32(&ehci->control, PHY_CLK_SEL_UTMI);
+		setbits_be32(&ehci->control, UTMI_PHY_EN);
+		udelay(1000); /* delay required for PHY Clk to appear */
+#endif
+		out_le32(&(hcor->or_portsc[0]), PORT_PTS_UTMI);
+	} else {
+#if defined(CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY)
+		clrbits_be32(&ehci->control, UTMI_PHY_EN);
+		setbits_be32(&ehci->control, PHY_CLK_SEL_ULPI);
+		udelay(1000); /* delay required for PHY Clk to appear */
+#endif
 		out_le32(&(hcor->or_portsc[0]), PORT_PTS_ULPI);
+	}
 
 	/* Enable interface. */
 	setbits_be32(&ehci->control, USB_EN);

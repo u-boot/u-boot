@@ -22,17 +22,14 @@
  */
 
 #ifndef __ASSEMBLY__
-#define	__ASSEMBLY__			/* Dirty trick to get only #defines	*/
+#define	__ASSEMBLY__			/* Dirty trick to get only #defines */
 #endif
-#define	__ASM_STUB_PROCESSOR_H__	/* don't include asm/processor.		*/
+#define	__ASM_STUB_PROCESSOR_H__	/* don't include asm/processor. */
 #include <config.h>
 #undef	__ASSEMBLY__
 #include <environment.h>
 
-/*
- * Handle HOSTS that have prepended
- * crap on symbol names, not TARGETS.
- */
+/* Handle HOSTS that have prepended crap on symbol names, not TARGETS. */
 #if defined(__APPLE__)
 /* Leading underscore on symbols */
 #  define SYM_CHAR "_"
@@ -44,7 +41,7 @@
  * Generate embedded environment table
  * inside U-Boot image, if needed.
  */
-#if defined(ENV_IS_EMBEDDED)
+#if defined(ENV_IS_EMBEDDED) || defined(CONFIG_BUILD_ENVCRC)
 /*
  * Only put the environment in it's own section when we are building
  * U-Boot proper.  The host based program "tools/envcrc" does not need
@@ -52,34 +49,36 @@
  * U-Boot itself.
  */
 #if (defined(CONFIG_SYS_USE_PPCENV) || defined(CONFIG_NAND_U_BOOT)) && \
-     defined(ENV_CRC) /* Environment embedded in U-Boot .ppcenv section */
+	defined(ENV_CRC) /* Environment embedded in U-Boot .ppcenv section */
 /* XXX - This only works with GNU C */
-#  define __PPCENV__ __attribute__ ((section(".ppcenv")))
-#  define __PPCTEXT__ __attribute__ ((section(".text")))
+#  define __PPCENV__	__attribute__ ((section(".ppcenv")))
+#  define __PPCTEXT__	__attribute__ ((section(".text")))
 
 #elif defined(USE_HOSTCC) /* Native for 'tools/envcrc' */
-#  define __PPCENV__ /*XXX DO_NOT_DEL_THIS_COMMENT*/
-#  define __PPCTEXT__ /*XXX DO_NOT_DEL_THIS_COMMENT*/
+#  define __PPCENV__	/*XXX DO_NOT_DEL_THIS_COMMENT*/
+#  define __PPCTEXT__	/*XXX DO_NOT_DEL_THIS_COMMENT*/
 
 #else /* Environment is embedded in U-Boot's .text section */
 /* XXX - This only works with GNU C */
-#  define __PPCENV__ __attribute__ ((section(".text")))
-#  define __PPCTEXT__ __attribute__ ((section(".text")))
+#  define __PPCENV__	__attribute__ ((section(".text")))
+#  define __PPCTEXT__	__attribute__ ((section(".text")))
 #endif
 
 /*
  * Macros to generate global absolutes.
  */
 #if defined(__bfin__)
-# define GEN_SET_VALUE(name, value) asm (".set " GEN_SYMNAME(name) ", " GEN_VALUE(value))
+# define GEN_SET_VALUE(name, value)	\
+	asm(".set " GEN_SYMNAME(name) ", " GEN_VALUE(value))
 #else
-# define GEN_SET_VALUE(name, value) asm (GEN_SYMNAME(name) " = " GEN_VALUE(value))
+# define GEN_SET_VALUE(name, value)	\
+	asm(GEN_SYMNAME(name) " = " GEN_VALUE(value))
 #endif
-#define GEN_SYMNAME(str) SYM_CHAR #str
-#define GEN_VALUE(str) #str
-#define GEN_ABS(name, value) \
-		asm (".globl " GEN_SYMNAME(name)); \
-		GEN_SET_VALUE(name, value)
+#define GEN_SYMNAME(str)	SYM_CHAR #str
+#define GEN_VALUE(str)		#str
+#define GEN_ABS(name, value)			\
+	asm(".globl " GEN_SYMNAME(name));	\
+	GEN_SET_VALUE(name, value)
 
 /*
  * Macros to transform values
@@ -93,7 +92,7 @@
  * computed CRC.  Otherwise define it as ~0.
  */
 #if !defined(ENV_CRC)
-#  define ENV_CRC	~0
+#  define ENV_CRC	(~0)
 #endif
 
 env_t environment __PPCENV__ = {
@@ -151,10 +150,10 @@ env_t environment __PPCENV__ = {
 	"serverip="	MK_STR(CONFIG_SERVERIP)		"\0"
 #endif
 #ifdef	CONFIG_SYS_AUTOLOAD
-	"autoload="	CONFIG_SYS_AUTOLOAD			"\0"
+	"autoload="	CONFIG_SYS_AUTOLOAD		"\0"
 #endif
 #ifdef	CONFIG_ROOTPATH
-	"rootpath="	MK_STR(CONFIG_ROOTPATH)		"\0"
+	"rootpath="	CONFIG_ROOTPATH			"\0"
 #endif
 #ifdef	CONFIG_GATEWAYIP
 	"gatewayip="	MK_STR(CONFIG_GATEWAYIP)	"\0"
@@ -166,7 +165,7 @@ env_t environment __PPCENV__ = {
 	"hostname="	MK_STR(CONFIG_HOSTNAME)		"\0"
 #endif
 #ifdef	CONFIG_BOOTFILE
-	"bootfile="	MK_STR(CONFIG_BOOTFILE)		"\0"
+	"bootfile="	CONFIG_BOOTFILE			"\0"
 #endif
 #ifdef	CONFIG_LOADADDR
 	"loadaddr="	MK_STR(CONFIG_LOADADDR)		"\0"
@@ -180,7 +179,7 @@ env_t environment __PPCENV__ = {
 #if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
 	"pcidelay="	MK_STR(CONFIG_PCI_BOOTDELAY)	"\0"
 #endif
-#ifdef  CONFIG_EXTRA_ENV_SETTINGS
+#ifdef	CONFIG_EXTRA_ENV_SETTINGS
 	CONFIG_EXTRA_ENV_SETTINGS
 #endif
 	"\0"		/* Term. env_t.data with 2 NULs */

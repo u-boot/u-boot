@@ -40,16 +40,16 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_PXA27X		1	/* This is an PXA27x CPU    */
+#define CONFIG_CPU_PXA27X		1	/* This is an PXA27x CPU    */
 
 #define CONFIG_MMC		1
-#define BOARD_LATE_INIT		1
+#define CONFIG_BOARD_LATE_INIT
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
 /* we will never enable dcache, because we have to setup MMU first */
-#define CONFIG_SYS_NO_DCACHE
+#define CONFIG_SYS_DCACHE_OFF
 
 #define RTC
 
@@ -291,7 +291,6 @@
 #define CONFIG_SYS_MCIO0_VAL		0x00008407
 #define CONFIG_SYS_MCIO1_VAL		0x0000c108
 
-#define CONFIG_NET_MULTI		1
 #define CONFIG_DRIVER_DM9000		1
 
 #if CONFIG_POLARIS

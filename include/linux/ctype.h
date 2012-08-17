@@ -31,6 +31,12 @@ extern const unsigned char _ctype[];
 #define isupper(c)	((__ismask(c)&(_U)) != 0)
 #define isxdigit(c)	((__ismask(c)&(_D|_X)) != 0)
 
+/*
+ * Rather than doubling the size of the _ctype lookup table to hold a 'blank'
+ * flag, just check for space or tab.
+ */
+#define isblank(c)	(c == ' ' || c == '\t')
+
 #define isascii(c) (((unsigned char)(c))<=0x7f)
 #define toascii(c) (((unsigned char)(c))&0x7f)
 

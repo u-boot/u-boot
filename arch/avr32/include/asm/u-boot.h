@@ -40,4 +40,7 @@ typedef struct bd_info {
 #define bi_memstart bi_dram[0].start
 #define bi_memsize bi_dram[0].size
 
+/* For image.h:image_check_target_arch() */
+#define IH_ARCH_DEFAULT IH_ARCH_AVR32
+
 #endif /* __ASM_U_BOOT_H__ */

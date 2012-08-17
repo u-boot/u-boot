@@ -76,7 +76,7 @@
 
 #define CONFIG_SERVERIP		10.0.0.201
 #define CONFIG_IPADDR		10.0.0.200
-#define CONFIG_ROOTPATH		/opt/eldk/ppc_82xx
+#define CONFIG_ROOTPATH		"/opt/eldk/ppc_82xx"
 #define CONFIG_NETMASK		255.255.255.0
 #undef CONFIG_BOOTARGS
 #if 0
@@ -130,7 +130,6 @@
 /*
  * Networking stuff
  */
-#define CONFIG_NET_MULTI			/* Multi ethernet cards support */
 
 #define CONFIG_PCNET				/* there are 2 AMD PCnet 79C973	*/
 #define CONFIG_PCNET_79C973

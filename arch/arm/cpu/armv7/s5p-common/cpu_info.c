@@ -26,6 +26,8 @@
 
 /* Default is s5pc100 */
 unsigned int s5p_cpu_id = 0xC100;
+/* Default is EVT1 */
+unsigned int s5p_cpu_rev = 1;
 
 #ifdef CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)

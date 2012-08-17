@@ -15,7 +15,7 @@
  *
  * (C) Copyright 2009 DENX Software Engineering
  * Author: John Rigby <jrigby@gmail.com>
- * 	Add support for MX25
+ *	Add support for MX25
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -43,8 +43,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define timestamp gd->tbl
-#define lastinc gd->lastinc
+#define timestamp	(gd->tbl)
+#define lastinc		(gd->lastinc)
 
 /*
  * "time" is measured in 1 / CONFIG_SYS_HZ seconds,
@@ -121,21 +121,7 @@ int timer_init(void)
 	return 0;
 }
 
-void reset_timer_masked(void)
-{
-	struct gpt_regs *gpt = (struct gpt_regs *)IMX_GPT1_BASE;
-	/* reset time */
-	/* capture current incrementer value time */
-	lastinc = readl(&gpt->counter);
-	timestamp = 0; /* start "advancing" time stamp from 0 */
-}
-
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
-unsigned long long get_ticks (void)
+unsigned long long get_ticks(void)
 {
 	struct gpt_regs *gpt = (struct gpt_regs *)IMX_GPT1_BASE;
 	ulong now = readl(&gpt->counter); /* current tick value */
@@ -154,7 +140,7 @@ unsigned long long get_ticks (void)
 	return timestamp;
 }
 
-ulong get_timer_masked (void)
+ulong get_timer_masked(void)
 {
 	/*
 	 * get_ticks() returns a long long (64 bit), it wraps in
@@ -165,18 +151,13 @@ ulong get_timer_masked (void)
 	return tick_to_time(get_ticks());
 }
 
-ulong get_timer (ulong base)
+ulong get_timer(ulong base)
 {
-	return get_timer_masked () - base;
-}
-
-void set_timer (ulong t)
-{
-	timestamp = time_to_tick(t);
+	return get_timer_masked() - base;
 }
 
 /* delay x useconds AND preserve advance timstamp value */
-void __udelay (unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;
@@ -186,4 +167,16 @@ void __udelay (unsigned long usec)
 
 	while (get_ticks() < tmp)	/* loop till event */
 		 /*NOP*/;
+}
+
+/*
+ * This function is derived from PowerPC code (timebase clock frequency).
+ * On ARM it returns the number of timer ticks per second.
+ */
+ulong get_tbclk(void)
+{
+	ulong tbclk;
+
+	tbclk = CONFIG_MX25_CLK32;
+	return tbclk;
 }

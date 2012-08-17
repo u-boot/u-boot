@@ -116,13 +116,40 @@ typedef volatile unsigned char	vu_char;
 #include <flash.h>
 #include <image.h>
 
-#ifdef	DEBUG
-#define debug(fmt,args...)	printf (fmt ,##args)
-#define debugX(level,fmt,args...) if (DEBUG>=level) printf(fmt,##args);
+#ifdef DEBUG
+#define _DEBUG	1
 #else
-#define debug(fmt,args...)
-#define debugX(level,fmt,args...)
-#endif	/* DEBUG */
+#define _DEBUG	0
+#endif
+
+/*
+ * Output a debug text when condition "cond" is met. The "cond" should be
+ * computed by a preprocessor in the best case, allowing for the best
+ * optimization.
+ */
+#define debug_cond(cond, fmt, args...)		\
+	do {					\
+		if (cond)			\
+			printf(fmt, ##args);	\
+	} while (0)
+
+#define debug(fmt, args...)			\
+	debug_cond(_DEBUG, fmt, ##args)
+
+/*
+ * An assertion is run-time check done in debug mode only. If DEBUG is not
+ * defined then it is skipped. If DEBUG is defined and the assertion fails,
+ * then it calls panic*( which may or may not reset/halt U-Boot (see
+ * CONFIG_PANIC_HANG), It is hoped that all failing assertions are found
+ * before release, and after release it is hoped that they don't matter. But
+ * in any case these failing assertions cannot be fixed with a reset (which
+ * may just do the same assertion again).
+ */
+void __assert_fail(const char *assertion, const char *file, unsigned line,
+		   const char *function);
+#define assert(x) \
+	({ if (!(x) && _DEBUG) \
+		__assert_fail(#x, __FILE__, __LINE__, __func__); })
 
 #define error(fmt, args...) do {					\
 		printf("ERROR: " fmt "\nat %s:%d/%s()\n",		\
@@ -136,6 +163,9 @@ typedef volatile unsigned char	vu_char;
 } while (0)
 #define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
 #endif /* BUG */
+
+/* Force a compilation error if condition is true */
+#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
 
 typedef void (interrupt_handler_t)(void *);
 
@@ -180,11 +210,13 @@ typedef void (interrupt_handler_t)(void *);
  * General Purpose Utilities
  */
 #define min(X, Y)				\
-	({ typeof (X) __x = (X), __y = (Y);	\
+	({ typeof (X) __x = (X);		\
+		typeof (Y) __y = (Y);		\
 		(__x < __y) ? __x : __y; })
 
 #define max(X, Y)				\
-	({ typeof (X) __x = (X), __y = (Y);	\
+	({ typeof (X) __x = (X);		\
+		typeof (Y) __y = (Y);		\
 		(__x > __y) ? __x : __y; })
 
 #define MIN(x, y)  min(x, y)
@@ -217,6 +249,9 @@ typedef void (interrupt_handler_t)(void *);
 
 void	hang		(void) __attribute__ ((noreturn));
 
+int	timer_init(void);
+int	cpu_init(void);
+
 /* */
 phys_size_t initdram (int);
 int	display_options (void);
@@ -225,12 +260,17 @@ int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 
 /* common/main.c */
 void	main_loop	(void);
-int	run_command	(const char *cmd, int flag);
+int run_command(const char *cmd, int flag);
 int	readline	(const char *const prompt);
-int	readline_into_buffer	(const char *const prompt, char * buffer);
+int	readline_into_buffer(const char *const prompt, char *buffer,
+			int timeout);
 int	parse_line (char *, char *[]);
 void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
+#ifdef CONFIG_MENU
+int	abortboot(int bootdelay);
+#endif
+extern char console_buffer[];
 
 /* arch/$(ARCH)/lib/board.c */
 void	board_init_f  (ulong) __attribute__ ((noreturn));
@@ -241,6 +281,8 @@ int	checkdram     (void);
 int	last_stage_init(void);
 extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
+extern u8 _binary_dt_dtb_start[];	/* embedded device tree blob */
+int set_cpu_clk_info(void);
 
 /* common/flash.c */
 void flash_perror (int);
@@ -249,30 +291,45 @@ void flash_perror (int);
 int	source (ulong addr, const char *fit_uname);
 
 extern ulong load_addr;		/* Default Load Address */
+extern ulong save_addr;		/* Default Save Address */
+extern ulong save_size;		/* Default Save Size */
 
 /* common/cmd_doc.c */
 void	doc_probe(unsigned long physadr);
+
+/* common/cmd_net.c */
+int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
 int	envmatch     (uchar *, int);
-char	*getenv	     (char *);
-int	getenv_f     (char *name, char *buf, unsigned len);
+char	*getenv	     (const char *);
+int	getenv_f     (const char *name, char *buf, unsigned len);
+ulong getenv_ulong(const char *name, int base, ulong default_val);
 int	saveenv	     (void);
 #ifdef CONFIG_PPC		/* ARM version to be fixed! */
-int inline setenv   (char *, char *);
+int inline setenv    (const char *, const char *);
 #else
-int	setenv	     (char *, char *);
+int	setenv	     (const char *, const char *);
+int setenv_ulong(const char *varname, ulong value);
+int setenv_addr(const char *varname, const void *addr);
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
 # include <asm/setup.h>
 # include <asm/u-boot-arm.h>	/* ARM version to be fixed! */
 #endif /* CONFIG_ARM */
-#ifdef CONFIG_I386		/* x86 version to be fixed! */
-# include <asm/u-boot-i386.h>
-#endif /* CONFIG_I386 */
+#ifdef CONFIG_X86		/* x86 version to be fixed! */
+# include <asm/u-boot-x86.h>
+#endif /* CONFIG_X86 */
+#ifdef CONFIG_SANDBOX
+# include <asm/u-boot-sandbox.h>	/* TODO(sjg) what needs to be fixed? */
+#endif
+#ifdef CONFIG_NDS32
+# include <asm/mach-types.h>
+# include <asm/u-boot-nds32.h>
+#endif /* CONFIG_NDS32 */
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
@@ -315,7 +372,7 @@ const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
 void	api_init (void);
 
 /* common/memsize.c */
-long	get_ram_size  (volatile long *, long);
+long	get_ram_size  (long *, long);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
@@ -411,6 +468,7 @@ void	icache_disable(void);
 int	dcache_status (void);
 void	dcache_enable (void);
 void	dcache_disable(void);
+void	mmu_disable(void);
 void	relocate_code (ulong, gd_t *, ulong) __attribute__ ((noreturn));
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
@@ -447,10 +505,30 @@ void		out16(unsigned int, unsigned short value);
 #if defined (CONFIG_MPC83xx)
 void		ppcDWload(unsigned int *addr, unsigned int *ret);
 void		ppcDWstore(unsigned int *addr, unsigned int *value);
+void disable_addr_trans(void);
+void enable_addr_trans(void);
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+void ddr_enable_ecc(unsigned int dram_size);
+#endif
 #endif
 
 /* $(CPU)/cpu.c */
+static inline int cpumask_next(int cpu, unsigned int mask)
+{
+	for (cpu++; !((1 << cpu) & mask); cpu++)
+		;
+
+	return cpu;
+}
+
+#define for_each_cpu(iter, cpu, num_cpus, mask) \
+	for (iter = 0, cpu = cpumask_next(-1, mask); \
+		iter < num_cpus; \
+		iter++, cpu = cpumask_next(cpu, mask)) \
+
 int	cpu_numcores  (void);
+u32	cpu_mask      (void);
+int	is_core_valid (unsigned int);
 int	probecpu      (void);
 int	checkcpu      (void);
 int	checkicache   (void);
@@ -468,7 +546,6 @@ void ft_pci_setup(void *blob, bd_t *bd);
 
 /* $(CPU)/serial.c */
 int	serial_init   (void);
-void	serial_exit   (void);
 void	serial_setbrg (void);
 void	serial_putc   (const char);
 void	serial_putc_raw(const char);
@@ -530,14 +607,20 @@ ulong get_PERCLK3(void);
 ulong	get_bus_freq  (ulong);
 int get_serial_clock(void);
 
+#if defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx)
+ulong get_ddr_freq(ulong);
+#endif
 #if defined(CONFIG_MPC85xx)
 typedef MPC85xx_SYS_INFO sys_info_t;
 void	get_sys_info  ( sys_info_t * );
-ulong	get_ddr_freq  (ulong);
 #endif
 #if defined(CONFIG_MPC86xx)
 typedef MPC86xx_SYS_INFO sys_info_t;
 void   get_sys_info  ( sys_info_t * );
+static inline ulong get_ddr_freq(ulong dummy)
+{
+	return get_bus_freq(dummy);
+}
 #endif
 
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
@@ -575,7 +658,6 @@ void	irq_install_handler(int, interrupt_handler_t *, void *);
 void	irq_free_handler   (int);
 void	reset_timer	   (void);
 ulong	get_timer	   (ulong base);
-void	set_timer	   (ulong t);
 void	enable_interrupts  (void);
 int	disable_interrupts (void);
 
@@ -595,17 +677,17 @@ void mii_init (void);
 /* $(CPU)/.../lcd.c */
 ulong	lcd_setmem (ulong);
 
-/* $(CPU)/.../vfd.c */
-ulong	vfd_setmem (ulong);
-
 /* $(CPU)/.../video.c */
 ulong	video_setmem (ulong);
 
 /* arch/$(ARCH)/lib/cache.c */
+void	enable_caches(void);
 void	flush_cache   (unsigned long, unsigned long);
+void	flush_dcache_all(void);
 void	flush_dcache_range(unsigned long start, unsigned long stop);
 void	invalidate_dcache_range(unsigned long start, unsigned long stop);
-
+void	invalidate_dcache_all(void);
+void	invalidate_icache_all(void);
 
 /* arch/$(ARCH)/lib/ticks.S */
 unsigned long long get_ticks(void);
@@ -636,16 +718,14 @@ int strcmp_compar(const void *, const void *);
 
 /* lib/time.c */
 void	udelay        (unsigned long);
+void mdelay(unsigned long);
+
+/* lib/uuid.c */
+void uuid_str_to_bin(const char *uuid, unsigned char *out);
+int uuid_str_valid(const char *uuid);
 
 /* lib/vsprintf.c */
-ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
-unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
-long	simple_strtol(const char *cp,char **endp,unsigned int base);
-void	panic(const char *fmt, ...)
-		__attribute__ ((format (__printf__, 1, 2)));
-int	sprintf(char * buf, const char *fmt, ...)
-		__attribute__ ((format (__printf__, 2, 3)));
-int	vsprintf(char *buf, const char *fmt, va_list args);
+#include <vsprintf.h>
 
 /* lib/strmhz.c */
 char *	strmhz(char *buf, unsigned long hz);
@@ -711,10 +791,8 @@ int	pcmcia_init (void);
 #ifdef CONFIG_STATUS_LED
 # include <status_led.h>
 #endif
-/*
- * Board-specific Platform code can reimplement show_boot_progress () if needed
- */
-void show_boot_progress(int val);
+
+#include <bootstage.h>
 
 /* Multicore arch functions */
 #ifdef CONFIG_MP
@@ -725,6 +803,14 @@ int cpu_release(int nr, int argc, char * const argv[]);
 #endif
 
 #endif /* __ASSEMBLY__ */
+
+#ifdef CONFIG_PPC
+/*
+ * Has to be included outside of the #ifndef __ASSEMBLY__ section.
+ * Otherwise might lead to compilation errors in assembler files.
+ */
+#include <asm/cache.h>
+#endif
 
 /* Put only stuff here that the assembler can digest */
 
@@ -742,12 +828,83 @@ int cpu_release(int nr, int argc, char * const argv[]);
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-#define ROUND(a,b)		(((a) + (b)) & ~((b) - 1))
+#define ROUND(a,b)		(((a) + (b) - 1) & ~((b) - 1))
 #define DIV_ROUND(n,d)		(((n) + ((d)/2)) / (d))
 #define DIV_ROUND_UP(n,d)	(((n) + (d) - 1) / (d))
 #define roundup(x, y)		((((x) + ((y) - 1)) / (y)) * (y))
 
 #define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
 #define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
+
+/*
+ * ARCH_DMA_MINALIGN is defined in asm/cache.h for each architecture.  It
+ * is used to align DMA buffers.
+ */
+#ifndef __ASSEMBLY__
+#include <asm/cache.h>
+#endif
+
+/*
+ * The ALLOC_CACHE_ALIGN_BUFFER macro is used to allocate a buffer on the
+ * stack that meets the minimum architecture alignment requirements for DMA.
+ * Such a buffer is useful for DMA operations where flushing and invalidating
+ * the cache before and after a read and/or write operation is required for
+ * correct operations.
+ *
+ * When called the macro creates an array on the stack that is sized such
+ * that:
+ *
+ * 1) The beginning of the array can be advanced enough to be aligned.
+ *
+ * 2) The size of the aligned portion of the array is a multiple of the minimum
+ *    architecture alignment required for DMA.
+ *
+ * 3) The aligned portion contains enough space for the original number of
+ *    elements requested.
+ *
+ * The macro then creates a pointer to the aligned portion of this array and
+ * assigns to the pointer the address of the first element in the aligned
+ * portion of the array.
+ *
+ * Calling the macro as:
+ *
+ *     ALLOC_CACHE_ALIGN_BUFFER(uint32_t, buffer, 1024);
+ *
+ * Will result in something similar to saying:
+ *
+ *     uint32_t    buffer[1024];
+ *
+ * The following differences exist:
+ *
+ * 1) The resulting buffer is guaranteed to be aligned to the value of
+ *    ARCH_DMA_MINALIGN.
+ *
+ * 2) The buffer variable created by the macro is a pointer to the specified
+ *    type, and NOT an array of the specified type.  This can be very important
+ *    if you want the address of the buffer, which you probably do, to pass it
+ *    to the DMA hardware.  The value of &buffer is different in the two cases.
+ *    In the macro case it will be the address of the pointer, not the address
+ *    of the space reserved for the buffer.  However, in the second case it
+ *    would be the address of the buffer.  So if you are replacing hard coded
+ *    stack buffers with this macro you need to make sure you remove the & from
+ *    the locations where you are taking the address of the buffer.
+ *
+ * Note that the size parameter is the number of array elements to allocate,
+ * not the number of bytes.
+ *
+ * This macro can not be used outside of function scope, or for the creation
+ * of a function scoped static buffer.  It can not be used to create a cache
+ * line aligned global buffer.
+ */
+#define ALLOC_CACHE_ALIGN_BUFFER(type, name, size)			\
+	char __##name[ROUND(size * sizeof(type), ARCH_DMA_MINALIGN) +	\
+		      ARCH_DMA_MINALIGN - 1];				\
+									\
+	type *name = (type *) ALIGN((uintptr_t)__##name, ARCH_DMA_MINALIGN)
+
+/* Pull in stuff for the build system */
+#ifdef DO_DEPS_ONLY
+# include <environment.h>
+#endif
 
 #endif	/* __COMMON_H_ */

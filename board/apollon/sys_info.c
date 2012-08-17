@@ -247,8 +247,6 @@ void display_board_info(u32 btype)
 	char cpu_2420[] = "2420";	/* cpu type */
 	char cpu_2422[] = "2422";
 	char cpu_2423[] = "2423";
-	char db_men[] = "Menelaus";	/* board type */
-	char db_ip[] = "IP";
 	char mem_sdr[] = "mSDR";	/* memory type */
 	char mem_ddr[] = "mDDR";
 	char t_tst[] = "TST";	/* security level */
@@ -257,7 +255,7 @@ void display_board_info(u32 btype)
 	char t_gp[] = "GP";
 	char unk[] = "?";
 
-	char *cpu_s, *db_s, *mem_s, *sec_s;
+	char *cpu_s, *mem_s, *sec_s;
 	u32 cpu, rev, sec;
 
 	rev = get_cpu_rev();
@@ -275,11 +273,6 @@ void display_board_info(u32 btype)
 		cpu_s = cpu_2422;
 	else
 		cpu_s = cpu_2420;
-
-	if (btype == BOARD_H4_MENELAUS)
-		db_s = db_men;
-	else
-		db_s = db_ip;
 
 	switch (sec) {
 	case TST_DEVICE:

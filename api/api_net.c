@@ -34,10 +34,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DEBUG
 #undef DEBUG
 
-#if !defined(CONFIG_NET_MULTI)
-#error "API/net is currently only available for platforms with CONFIG_NET_MULTI"
-#endif
-
 #ifdef DEBUG
 #define debugf(fmt, args...) do { printf("%s(): ", __func__); printf(fmt, ##args); } while (0)
 #else

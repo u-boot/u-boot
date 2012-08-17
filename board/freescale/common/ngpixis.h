@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Freescale Semiconductor
+ * Copyright 2010-2011 Freescale Semiconductor
  * Author: Timur Tabi <timur@freescale.com>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,16 +20,17 @@ typedef struct ngpixis {
 	u8 scver;
 	u8 csr;
 	u8 rst;
-	u8 res1;
+	u8 serclk;
 	u8 aux;
 	u8 spd;
 	u8 brdcfg0;
 	u8 brdcfg1;	/* On some boards, this register is called 'dma' */
 	u8 addr;
-	u8 res2[2];
+	u8 brdcfg2;
+	u8 gpiodir;
 	u8 data;
 	u8 led;
-	u8 res3;
+	u8 tag;
 	u8 vctl;
 	u8 vstat;
 	u8 vcfgen0;
@@ -55,3 +56,9 @@ typedef struct ngpixis {
 
 /* The PIXIS EN register that corresponds to board switch X, where x >= 1 */
 #define PIXIS_EN(x)		(pixis->s[(x) - 1].en)
+
+u8 pixis_read(unsigned int reg);
+void pixis_write(unsigned int reg, u8 value);
+
+#define PIXIS_READ(reg) pixis_read(offsetof(ngpixis_t, reg))
+#define PIXIS_WRITE(reg, value) pixis_write(offsetof(ngpixis_t, reg), value)

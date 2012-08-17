@@ -48,6 +48,16 @@ flush_icache:
 	bltu	r4, r5, 1b
 	ret
 
+	.global flush_dcache_range
+
+flush_dcache_range:
+	movhi	r8, %hi(CONFIG_SYS_DCACHELINE_SIZE)
+	ori	r8, r8, %lo(CONFIG_SYS_DCACHELINE_SIZE)
+0:	flushd	0(r4)
+	add	r4, r4, r8
+	bltu	r4, r5, 0b
+	ret
+
 	.global flush_cache
 
 flush_cache:

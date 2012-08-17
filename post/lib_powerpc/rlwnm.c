@@ -60,8 +60,7 @@ static struct cpu_post_rlwnm_s
 	0x0000ff00
    },
 };
-static unsigned int cpu_post_rlwnm_size =
-    sizeof (cpu_post_rlwnm_table) / sizeof (struct cpu_post_rlwnm_s);
+static unsigned int cpu_post_rlwnm_size = ARRAY_SIZE(cpu_post_rlwnm_table);
 
 int cpu_post_test_rlwnm (void)
 {

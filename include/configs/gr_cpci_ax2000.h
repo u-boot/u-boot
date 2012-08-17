@@ -108,7 +108,7 @@
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip;"					\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"getkernel=tftpboot \$\(scratch\)\ \$\(bootfile\)\0" \
+	"getkernel=tftpboot $(scratch) $(bootfile)\0" \
 	"bootargs=console=ttyS0,38400 root=/dev/nfs rw nfsroot=192.168.0.20:/export/rootfs ip=192.168.0.206:192.168.0.20:192.168.0.1:255.255.255.0:ax2000:eth0\0"
 
 #if CONFIG_LEON_RAM_SELECT == CONFIG_LEON_RAM_SRAM
@@ -135,9 +135,9 @@
 #define CONFIG_GATEWAYIP 192.168.0.1
 #define CONFIG_SERVERIP 192.168.0.20
 #define CONFIG_IPADDR 192.168.0.206
-#define CONFIG_ROOTPATH /export/rootfs
+#define CONFIG_ROOTPATH "/export/rootfs"
 #define CONFIG_HOSTNAME  ax2000
-#define CONFIG_BOOTFILE  /uImage
+#define CONFIG_BOOTFILE "/uImage"
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -291,7 +291,6 @@
 /*
  * Ethernet configuration uses on board SMC91C111
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111          1
 #define CONFIG_SMC91111_BASE		0x20000300	/* chip select 3         */
 #define CONFIG_SMC_USE_32_BIT		1	/* 32 bit bus  */

@@ -253,14 +253,14 @@ int misc_init_r(void)
 	/* Verify if enabled */
 	tmp_val = 0;
 	i2c_read(0x38, 0x08, 1, &tmp_val, sizeof(tmp_val));
-	debug("DVI Encoder Read: 0x%02lx\n", tmp_val);
+	debug("DVI Encoder Read: 0x%02x\n", tmp_val);
 
 	tmp_val = 0x10;
 	i2c_write(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
 	/* Verify if enabled */
 	tmp_val = 0;
 	i2c_read(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
-	debug("DVI Encoder Read: 0x%02lx\n", tmp_val);
+	debug("DVI Encoder Read: 0x%02x\n", tmp_val);
 
 	return 0;
 }

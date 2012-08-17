@@ -386,7 +386,7 @@ ixQMgrNotificationEnable (IxQMgrQId qId,
 				     &dispatchQInfo[qId].statusMask);
 
 
-    /* Set the interupt source is this queue is in the range 0-31 */
+    /* Set the interrupt source is this queue is in the range 0-31 */
     if (qId < IX_QMGR_MIN_QUEUPP_QID)
     {
 	ixQMgrAqmIfIntSrcSelWrite (qId, srcSel);
@@ -1191,7 +1191,6 @@ ixQMgrLLPShow (int resetStats)
 {
 #ifndef NDEBUG
     UINT8 i = 0;
-    IxQMgrQInfo *q;
     UINT32 intEnableRegVal = 0;
 
     printf ("Livelock statistics are printed on the fly.\n");
@@ -1200,8 +1199,6 @@ ixQMgrLLPShow (int resetStats)
 
     for (i=0; i<= IX_QMGR_MAX_LOW_QUE_TABLE_INDEX; i++)
     {
-        q = &dispatchQInfo[i];
-
         if (ixQMgrQTypes[i] != IX_QMGR_TYPE_REALTIME_OTHER)
         {
             printf (" %2d ", i);

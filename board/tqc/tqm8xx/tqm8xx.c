@@ -106,31 +106,33 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	char *s = getenv ("serial#");
+	char buf[64];
+	int i;
+	int l = getenv_f("serial#", buf, sizeof(buf));
 
 	puts ("Board: ");
 
-	if (!s || strncmp (s, "TQM8", 4)) {
+	if (l < 0 || strncmp(buf, "TQM8", 4)) {
 		puts ("### No HW ID - assuming TQM8xxL\n");
 		return (0);
 	}
 
-	if ((*(s + 6) == 'L')) {	/* a TQM8xxL type */
+	if ((buf[6] == 'L')) {	/* a TQM8xxL type */
 		gd->board_type = 'L';
 	}
 
-	if ((*(s + 6) == 'M')) {	/* a TQM8xxM type */
+	if ((buf[6] == 'M')) {	/* a TQM8xxM type */
 		gd->board_type = 'M';
 	}
 
-	if ((*(s + 6) == 'D')) {	/* a TQM885D type */
+	if ((buf[6] == 'D')) {	/* a TQM885D type */
 		gd->board_type = 'D';
 	}
 
-	for (; *s; ++s) {
-		if (*s == ' ')
+	for (i = 0; i < l; ++i) {
+		if (buf[i] == ' ')
 			break;
-		putc (*s);
+		putc (buf[i]);
 	}
 #ifdef CONFIG_VIRTLAB2
 	puts (" (Virtlab2)");

@@ -44,6 +44,20 @@
 #endif
 
 /*
+ * CHIP_21 errata - you must set this to match your exact CPU, else your
+ * board will not boot.  DO NOT enable this unless you have JTAG available
+ * for recovery, in the event you get it wrong.
+ *
+ * Kilauea uses the 405EX, while Haleakala uses the 405EXr.  Either board
+ * may be equipped for security or not.  You must look at the CPU part
+ * number to be sure what you have.
+ */
+/* #define CONFIG_SYS_4xx_CHIP_21_405EX_NO_SECURITY */
+/* #define CONFIG_SYS_4xx_CHIP_21_405EX_SECURITY */
+/* #define CONFIG_SYS_4xx_CHIP_21_405EXr_NO_SECURITY */
+/* #define CONFIG_SYS_4xx_CHIP_21_405EXr_SECURITY */
+
+/*
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		kilauea
@@ -196,9 +210,7 @@
 
 #define CONFIG_SYS_NAND_ECCSIZE	256
 #define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_SYS_NAND_ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CONFIG_SYS_NAND_ECCSIZE)
 #define CONFIG_SYS_NAND_OOBSIZE	16
-#define CONFIG_SYS_NAND_ECCTOTAL	(CONFIG_SYS_NAND_ECCBYTES * CONFIG_SYS_NAND_ECCSTEPS)
 #define CONFIG_SYS_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
 
 #ifdef CONFIG_ENV_IS_IN_NAND

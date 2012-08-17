@@ -14,6 +14,7 @@
 
 #include "common_timing_params.h"
 
+#if defined(CONFIG_DDR_SPD) || defined(CONFIG_SPD_EEPROM)
 /*
  * Bind the main DDR setup driver's generic names
  * to this specific DDR technology.
@@ -25,6 +26,7 @@ compute_dimm_parameters(const generic_spd_eeprom_t *spd,
 {
 	return ddr_compute_dimm_parameters(spd, pdimm, dimm_number);
 }
+#endif
 
 /*
  * Data Structures
@@ -54,31 +56,49 @@ typedef struct {
 #define STEP_PROGRAM_REGS            (1 << 6)
 #define STEP_ALL                     0xFFF
 
-extern unsigned long long
+unsigned long long
 fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 				       unsigned int size_only);
 
-extern const char * step_to_string(unsigned int step);
+const char *step_to_string(unsigned int step);
 
-extern unsigned int
-compute_fsl_memctl_config_regs(const memctl_options_t *popts,
+unsigned int compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			       fsl_ddr_cfg_regs_t *ddr,
 			       const common_timing_params_t *common_dimm,
 			       const dimm_params_t *dimm_parameters,
 			       unsigned int dbw_capacity_adjust,
 			       unsigned int size_only);
-extern unsigned int
-compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
-				      common_timing_params_t *outpdimm,
-				      unsigned int number_of_dimms);
-extern unsigned int populate_memctl_options(int all_DIMMs_registered,
+unsigned int compute_lowest_common_dimm_parameters(
+				const dimm_params_t *dimm_params,
+				common_timing_params_t *outpdimm,
+				unsigned int number_of_dimms);
+unsigned int populate_memctl_options(int all_DIMMs_registered,
 				memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num);
-extern void check_interleaving_options(fsl_ddr_info_t *pinfo);
+void check_interleaving_options(fsl_ddr_info_t *pinfo);
 
-extern unsigned int mclk_to_picos(unsigned int mclk);
-extern unsigned int get_memory_clk_period_ps(void);
-extern unsigned int picos_to_mclk(unsigned int picos);
-extern unsigned int fsl_ddr_get_mem_data_rate(void);
+unsigned int mclk_to_picos(unsigned int mclk);
+unsigned int get_memory_clk_period_ps(void);
+unsigned int picos_to_mclk(unsigned int picos);
+void fsl_ddr_set_lawbar(
+		const common_timing_params_t *memctl_common_params,
+		unsigned int memctl_interleaved,
+		unsigned int ctrl_num);
+
+unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo);
+void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
+			   unsigned int ctrl_num);
+
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+unsigned int check_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr);
+
+/* processor specific function */
+void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
+				   unsigned int ctrl_num);
+
+/* board specific function */
+int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
+			unsigned int controller_number,
+			unsigned int dimm_number);
 #endif

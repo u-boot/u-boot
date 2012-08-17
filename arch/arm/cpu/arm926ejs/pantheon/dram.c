@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/pantheon.h>
 
 DECLARE_GLOBAL_DATA_PTR;

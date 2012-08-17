@@ -46,9 +46,6 @@ static unsigned long old_val = 0;
  */
 int board_init(void)
 {
-	/* arch number of PDNB3 */
-	gd->bd->bi_arch_number = MACH_TYPE_PDNB3;
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 
@@ -101,13 +98,14 @@ int board_init(void)
  */
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	puts("Board: PDNB3");
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

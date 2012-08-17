@@ -273,7 +273,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 {
 	volatile FLASH_WORD_SIZE *addr = (FLASH_WORD_SIZE *)(info->start[0]);
 	volatile FLASH_WORD_SIZE *addr2;
-	int flag, prot, sect, l_sect;
+	int flag, prot, sect;
 
 	if ((s_first < 0) || (s_first > s_last)) {
 		if (info->flash_id == FLASH_UNKNOWN) {
@@ -303,16 +303,14 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		printf ("\n");
 	}
 
-	l_sect = -1;
-
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect<=s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-		    addr2 = (FLASH_WORD_SIZE *)(info->start[sect]);
-		    printf("Erasing sector %p\n", addr2);
+			addr2 = (FLASH_WORD_SIZE *)(info->start[sect]);
+			printf("Erasing sector %p\n", addr2);
 
 			addr[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
 			addr[ADDR1] = (FLASH_WORD_SIZE)0x00550055;
@@ -320,15 +318,14 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			addr[ADDR0] = (FLASH_WORD_SIZE)0x00AA00AA;
 			addr[ADDR1] = (FLASH_WORD_SIZE)0x00550055;
 			addr2[0] = (FLASH_WORD_SIZE)0x00300030;  /* sector erase */
-		    l_sect = sect;
-		    /*
-		     * Wait for each sector to complete, it's more
-		     * reliable.  According to AMD Spec, you must
-		     * issue all erase commands within a specified
-		     * timeout.  This has been seen to fail, especially
-		     * if printf()s are included (for debug)!!
-		     */
-		    wait_for_DQ7(info, sect);
+			/*
+			 * Wait for each sector to complete, it's more
+			 * reliable.  According to AMD Spec, you must
+			 * issue all erase commands within a specified
+			 * timeout.  This has been seen to fail, especially
+			 * if printf()s are included (for debug)!!
+			 */
+			wait_for_DQ7(info, sect);
 		}
 	}
 

@@ -7,37 +7,9 @@
  */
 
 #include <common.h>
-#include <i2c.h>
 
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
-
-static void
-get_spd(ddr3_spd_eeprom_t *spd, unsigned char i2c_address)
-{
-	i2c_read(i2c_address, 0, 1, (uchar *)spd, sizeof(ddr3_spd_eeprom_t));
-}
-
-
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
-void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd,
-		      unsigned int ctrl_num)
-{
-	unsigned int i;
-	unsigned int i2c_address = 0;
-
-	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
-		if (ctrl_num == 0 && i == 0)
-			i2c_address = SPD_EEPROM_ADDRESS1;
-		if (ctrl_num == 0 && i == 1)
-			i2c_address = SPD_EEPROM_ADDRESS2;
-		get_spd(&(ctrl_dimms_spd[i]), i2c_address);
-	}
-}
 
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,

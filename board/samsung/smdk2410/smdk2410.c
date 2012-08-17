@@ -3,7 +3,7 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
  *
- * (C) Copyright 2002
+ * (C) Copyright 2002, 2010
  * David Mueller, ELSOFT AG, <d.mueller@elsoft.ch>
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <asm/io.h>
 #include <asm/arch/s3c24x0_cpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -55,7 +56,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define U_M_SDIV	0x2
 #endif
 
-static inline void delay (unsigned long loops)
+static inline void pll_delay(unsigned long loops)
 {
 	__asm__ volatile ("1:\n"
 	  "subs %0, %1, #1\n"
@@ -66,44 +67,51 @@ static inline void delay (unsigned long loops)
  * Miscellaneous platform dependent initialisations
  */
 
-int board_init (void)
+int board_early_init_f(void)
 {
 	struct s3c24x0_clock_power * const clk_power =
 					s3c24x0_get_base_clock_power();
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* to reduce PLL lock time, adjust the LOCKTIME register */
-	clk_power->locktime = 0xFFFFFF;
+	writel(0xFFFFFF, &clk_power->locktime);
 
 	/* configure MPLL */
-	clk_power->mpllcon = ((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV);
+	writel((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV,
+	       &clk_power->mpllcon);
 
 	/* some delay between MPLL and UPLL */
-	delay (4000);
+	pll_delay(4000);
 
 	/* configure UPLL */
-	clk_power->upllcon = ((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV);
+	writel((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV,
+	       &clk_power->upllcon);
 
 	/* some delay between MPLL and UPLL */
-	delay (8000);
+	pll_delay(8000);
 
 	/* set up the I/O ports */
-	gpio->gpacon = 0x007FFFFF;
-	gpio->gpbcon = 0x00044555;
-	gpio->gpbup = 0x000007FF;
-	gpio->gpccon = 0xAAAAAAAA;
-	gpio->gpcup = 0x0000FFFF;
-	gpio->gpdcon = 0xAAAAAAAA;
-	gpio->gpdup = 0x0000FFFF;
-	gpio->gpecon = 0xAAAAAAAA;
-	gpio->gpeup = 0x0000FFFF;
-	gpio->gpfcon = 0x000055AA;
-	gpio->gpfup = 0x000000FF;
-	gpio->gpgcon = 0xFF95FFBA;
-	gpio->gpgup = 0x0000FFFF;
-	gpio->gphcon = 0x002AFAAA;
-	gpio->gphup = 0x000007FF;
+	writel(0x007FFFFF, &gpio->gpacon);
+	writel(0x00044555, &gpio->gpbcon);
+	writel(0x000007FF, &gpio->gpbup);
+	writel(0xAAAAAAAA, &gpio->gpccon);
+	writel(0x0000FFFF, &gpio->gpcup);
+	writel(0xAAAAAAAA, &gpio->gpdcon);
+	writel(0x0000FFFF, &gpio->gpdup);
+	writel(0xAAAAAAAA, &gpio->gpecon);
+	writel(0x0000FFFF, &gpio->gpeup);
+	writel(0x000055AA, &gpio->gpfcon);
+	writel(0x000000FF, &gpio->gpfup);
+	writel(0xFF95FFBA, &gpio->gpgcon);
+	writel(0x0000FFFF, &gpio->gpgup);
+	writel(0x002AFAAA, &gpio->gphcon);
+	writel(0x000007FF, &gpio->gphup);
 
+	return 0;
+}
+
+int board_init(void)
+{
 	/* arch number of SMDK2410-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_SMDK2410;
 
@@ -116,11 +124,10 @@ int board_init (void)
 	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }
 
@@ -134,3 +141,15 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 #endif
+
+/*
+ * Hardcoded flash setup:
+ * Flash 0 is a non-CFI AMD AM29LV800BB flash.
+ */
+ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
+{
+	info->portwidth = FLASH_CFI_16BIT;
+	info->chipwidth = FLASH_CFI_BY16;
+	info->interface = FLASH_CFI_X16;
+	return 1;
+}

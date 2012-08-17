@@ -43,6 +43,9 @@ phys_size_t initdram(int board_type)
 	volatile siu_t *siu = (siu_t *) (MMAP_SIU);
 	volatile sdram_t *sdram = (volatile sdram_t *)(MMAP_SDRAM);
 	u32 dramsize, i;
+#ifdef CONFIG_SYS_DRAMSZ1
+	u32 temp;
+#endif
 
 	siu->drv = CONFIG_SYS_SDRAM_DRVSTRENGTH;
 

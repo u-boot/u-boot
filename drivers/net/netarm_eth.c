@@ -81,9 +81,10 @@ static unsigned int na_mii_read (int reg)
 
 static int na_mii_poll_busy (void)
 {
+	ulong start;
 	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked ();
-	while (get_timer_masked () < NA_MII_POLL_BUSY_DELAY) {
+	start = get_timer(0));
+	while (get_timer(start) < NA_MII_POLL_BUSY_DELAY) {
 		if (!(GET_EADDR (NETARM_ETH_MII_IND) & NETARM_ETH_MIII_BUSY)) {
 			return 1;
 		}
@@ -164,19 +165,20 @@ static unsigned int na_mii_check_speed (void)
 static int reset_eth (void)
 {
 	int pt;
+	ulong start;
 
 	na_get_mac_addr ();
 	pt = na_mii_identify_phy ();
 
 	/* reset the phy */
 	na_mii_write (MII_PHY_CONTROL, 0x8000);
-	reset_timer_masked ();
-	while (get_timer_masked () < NA_MII_NEGOTIATE_DELAY) {
+	start = get_timer(0);
+	while (get_timer(start) < NA_MII_NEGOTIATE_DELAY) {
 		if ((na_mii_read (MII_PHY_STATUS) & 0x8000) == 0) {
 			break;
 		}
 	}
-	if (get_timer_masked () >= NA_MII_NEGOTIATE_DELAY)
+	if (get_timer(start) >= NA_MII_NEGOTIATE_DELAY)
 		printf ("phy reset timeout\n");
 
 	/* set the PCS reg */

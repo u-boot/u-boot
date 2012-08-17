@@ -27,7 +27,7 @@
 #include <asm/processor.h>
 #include <asm/sysreg.h>
 
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 
 #define HANDLER_MASK	0x00ffffff
 #define INTLEV_SHIFT	30
@@ -62,35 +62,12 @@ unsigned long long get_ticks(void)
 	return ((unsigned long long)hi_now << 32) | lo;
 }
 
-void reset_timer(void)
-{
-	sysreg_write(COUNT, 0);
-	cpu_sync_pipeline();	/* process any pending interrupts */
-	timer_overflow = 0;
-}
-
 unsigned long get_timer(unsigned long base)
 {
 	u64 now = get_ticks();
 
 	now *= tb_factor;
 	return (unsigned long)(now >> 32) - base;
-}
-
-void set_timer(unsigned long t)
-{
-	unsigned long long ticks = t;
-	unsigned long lo, hi, hi_new;
-
-	ticks = (ticks * get_tbclk()) / CONFIG_SYS_HZ;
-	hi = ticks >> 32;
-	lo = ticks & 0xffffffffUL;
-
-	do {
-		timer_overflow = hi;
-		sysreg_write(COUNT, lo);
-		hi_new = timer_overflow;
-	} while (hi_new != hi);
 }
 
 /*
@@ -125,12 +102,12 @@ static int set_interrupt_handler(unsigned int nr, void (*handler)(void),
 
 	intpr = (handler_addr & HANDLER_MASK);
 	intpr |= (priority & INTLEV_MASK) << INTLEV_SHIFT;
-	writel(intpr, (void *)INTC_BASE + 4 * nr);
+	writel(intpr, (void *)ATMEL_BASE_INTC + 4 * nr);
 
 	return 0;
 }
 
-void timer_init(void)
+int timer_init(void)
 {
 	extern void timer_interrupt_handler(void);
 	u64 tmp;
@@ -143,8 +120,9 @@ void timer_init(void)
 	tb_factor = (u32)tmp;
 
 	if (set_interrupt_handler(0, &timer_interrupt_handler, 3))
-		return;
+		return -EINVAL;
 
 	/* For all practical purposes, this gives us an overflow interrupt */
 	sysreg_write(COMPARE, 0xffffffff);
+	return 0;
 }

@@ -33,6 +33,7 @@
 
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 
+#ifndef CONFIG_POST_EXTERNAL_WORD_FUNCS
 #ifdef CONFIG_SYS_POST_WORD_ADDR
 #define _POST_WORD_ADDR	CONFIG_SYS_POST_WORD_ADDR
 #else
@@ -85,6 +86,13 @@ static inline void post_word_store (ulong value)
 {
 	out_le32((volatile void *)(_POST_WORD_ADDR), value);
 }
+
+#else
+
+extern ulong post_word_load(void);
+extern void post_word_store(ulong value);
+
+#endif /* CONFIG_POST_EXTERNAL_WORD_FUNCS */
 #endif /* defined (CONFIG_POST) || defined(CONFIG_LOGBUFFER) */
 #endif /* __ASSEMBLY__ */
 
@@ -147,6 +155,7 @@ unsigned long post_time_ms (unsigned long base);
 extern struct post_test post_list[];
 extern unsigned int post_list_size;
 extern int post_hotkeys_pressed(void);
+extern int memory_post_test(int flags);
 
 /*
  *  If GCC is configured to use a version of GAS that supports
@@ -186,6 +195,8 @@ extern int post_hotkeys_pressed(void);
 #define CONFIG_SYS_POST_BSPEC5		0x00100000
 #define CONFIG_SYS_POST_CODEC		0x00200000
 #define CONFIG_SYS_POST_COPROC		0x00400000
+#define CONFIG_SYS_POST_FLASH		0x00800000
+#define CONFIG_SYS_POST_MEM_REGIONS	0x01000000
 
 #endif /* CONFIG_POST */
 

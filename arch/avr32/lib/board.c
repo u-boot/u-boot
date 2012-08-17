@@ -23,26 +23,26 @@
 #include <command.h>
 #include <malloc.h>
 #include <stdio_dev.h>
-#include <timestamp.h>
 #include <version.h>
 #include <net.h>
+#include <atmel_mci.h>
 
 #ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
 #endif
 
-#include <asm/initcalls.h>
 #include <asm/sections.h>
 #include <asm/arch/mmu.h>
+#include <asm/arch/hardware.h>
 
 #ifndef CONFIG_IDENT_STRING
 #define CONFIG_IDENT_STRING ""
 #endif
 
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+#include <mmc.h>
+#endif
 DECLARE_GLOBAL_DATA_PTR;
-
-const char version_string[] =
-	U_BOOT_VERSION " ("U_BOOT_DATE" - "U_BOOT_TIME") " CONFIG_IDENT_STRING;
 
 unsigned long monitor_flash_len;
 
@@ -53,6 +53,13 @@ static int __do_nothing(void)
 }
 int board_postclk_init(void) __attribute__((weak, alias("__do_nothing")));
 int board_early_init_r(void) __attribute__((weak, alias("__do_nothing")));
+
+/* provide cpu_mmc_init, to overwrite provide board_mmc_init */
+int cpu_mmc_init(bd_t *bd)
+{
+	/* This calls the atmel_mci_init in gen_atmel_mci.c */
+	return atmel_mci_init((void *)ATMEL_BASE_MMCI);
+}
 
 #ifdef CONFIG_SYS_DMA_ALLOC_LEN
 #include <asm/arch/cacheflush.h>
@@ -100,18 +107,9 @@ static inline void dma_alloc_init(void)
 
 static int init_baudrate(void)
 {
-	char tmp[64];
-	int i;
-
-	i = getenv_f("baudrate", tmp, sizeof(tmp));
-	if (i > 0) {
-		gd->baudrate = simple_strtoul(tmp, NULL, 10);
-	} else {
-		gd->baudrate = CONFIG_BAUDRATE;
-	}
+	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
 	return 0;
 }
-
 
 static int display_banner (void)
 {
@@ -324,9 +322,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	jumptable_init();
 	console_init_r();
 
-	s = getenv("loadaddr");
-	if (s)
-		load_addr = simple_strtoul(s, NULL, 16);
+	/* Initialize from environment */
+	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
 #ifdef CONFIG_BITBANGMII
 	bb_miiphy_init();
@@ -335,12 +332,13 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	s = getenv("bootfile");
 	if (s)
 		copy_filename(BootFile, s, sizeof(BootFile));
-#if defined(CONFIG_NET_MULTI)
 	puts("Net:   ");
-#endif
 	eth_initialize(gd->bd);
 #endif
 
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+	mmc_initialize(gd->bd);
+#endif
 	for (;;) {
 		main_loop();
 	}

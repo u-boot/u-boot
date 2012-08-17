@@ -696,7 +696,6 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 	u32 latestVersion = 0;
 	uchar *lDest;
 	uchar *src;
-	long ret;
 	int i;
 	u32 counter = 0;
 #ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
@@ -768,33 +767,30 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 #endif
 				switch (jNode->compr) {
 				case JFFS2_COMPR_NONE:
-					ret = (unsigned long) ldr_memcpy(lDest, src, jNode->dsize);
+					ldr_memcpy(lDest, src, jNode->dsize);
 					break;
 				case JFFS2_COMPR_ZERO:
-					ret = 0;
 					for (i = 0; i < jNode->dsize; i++)
 						*(lDest++) = 0;
 					break;
 				case JFFS2_COMPR_RTIME:
-					ret = 0;
 					rtime_decompress(src, lDest, jNode->csize, jNode->dsize);
 					break;
 				case JFFS2_COMPR_DYNRUBIN:
 					/* this is slow but it works */
-					ret = 0;
 					dynrubin_decompress(src, lDest, jNode->csize, jNode->dsize);
 					break;
 				case JFFS2_COMPR_ZLIB:
-					ret = zlib_decompress(src, lDest, jNode->csize, jNode->dsize);
+					zlib_decompress(src, lDest, jNode->csize, jNode->dsize);
 					break;
 #if defined(CONFIG_JFFS2_LZO)
 				case JFFS2_COMPR_LZO:
-					ret = lzo_decompress(src, lDest, jNode->csize, jNode->dsize);
+					lzo_decompress(src, lDest, jNode->csize, jNode->dsize);
 					break;
 #endif
 				default:
 					/* unknown */
-					putLabeledWord("UNKOWN COMPRESSION METHOD = ", jNode->compr);
+					putLabeledWord("UNKNOWN COMPRESSION METHOD = ", jNode->compr);
 					put_fl_mem(jNode, pL->readbuf);
 					return -1;
 					break;
@@ -803,7 +799,6 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 
 #if 0
 			putLabeledWord("read_inode: totalSize = ", totalSize);
-			putLabeledWord("read_inode: compr ret = ", ret);
 #endif
 		}
 		counter++;
@@ -1575,9 +1570,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 
 			if (*(uint32_t *)(&buf[ofs-buf_ofs]) == 0xffffffff) {
 				uint32_t inbuf_ofs;
-				uint32_t empty_start, scan_end;
+				uint32_t scan_end;
 
-				empty_start = ofs;
 				ofs += 4;
 				scan_end = min_t(uint32_t, EMPTY_SCAN_SIZE(
 							part->sector_size)/8,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -8,12 +8,6 @@
 
 #include <common.h>
 #include <asm/fsl_ddr_sdram.h>
-
-#define DATARATE_800MHZ			800000000
-#define DATARATE_900MHZ			900000000
-#define DATARATE_1000MHZ		1000000000
-#define DATARATE_1200MHZ		1200000000
-#define DATARATE_1300MHZ		1300000000
 
 #define CONFIG_SYS_DDR_TIMING_3_1200	0x01030000
 #define CONFIG_SYS_DDR_TIMING_0_1200	0xCC550104
@@ -340,17 +334,17 @@ fsl_ddr_cfg_regs_t ddr_cfg_regs_1200_2nd = {
 };
 
 fixed_ddr_parm_t fixed_ddr_parm_0[] = {
-	{DATARATE_800MHZ, DATARATE_900MHZ, &ddr_cfg_regs_800},
-	{DATARATE_900MHZ, DATARATE_1000MHZ, &ddr_cfg_regs_900},
-	{DATARATE_1000MHZ, DATARATE_1200MHZ, &ddr_cfg_regs_1000},
-	{DATARATE_1200MHZ, DATARATE_1300MHZ, &ddr_cfg_regs_1200},
+	{750, 850, &ddr_cfg_regs_800},
+	{850, 950, &ddr_cfg_regs_900},
+	{950, 1050, &ddr_cfg_regs_1000},
+	{1050, 1250, &ddr_cfg_regs_1200},
 	{0, 0, NULL}
 };
 
 fixed_ddr_parm_t fixed_ddr_parm_1[] = {
-	{DATARATE_800MHZ, DATARATE_900MHZ, &ddr_cfg_regs_800_2nd},
-	{DATARATE_900MHZ, DATARATE_1000MHZ, &ddr_cfg_regs_900_2nd},
-	{DATARATE_1000MHZ, DATARATE_1200MHZ, &ddr_cfg_regs_1000_2nd},
-	{DATARATE_1200MHZ, DATARATE_1300MHZ, &ddr_cfg_regs_1200_2nd},
+	{750, 850, &ddr_cfg_regs_800_2nd},
+	{850, 950, &ddr_cfg_regs_900_2nd},
+	{950, 1050, &ddr_cfg_regs_1000_2nd},
+	{1050, 1250, &ddr_cfg_regs_1200_2nd},
 	{0, 0, NULL}
 };

@@ -3,7 +3,7 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # (C) Copyright 2008
-# Stelian Pop <stelian.pop@leadtechdesign.com>
+# Stelian Pop <stelian@popies.net>
 # Lead Tech Design <www.leadtechdesign.com>
 #
 # See file CREDITS for list of people who contributed to this
@@ -39,12 +39,6 @@ SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

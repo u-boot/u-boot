@@ -29,6 +29,10 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#ifdef CONFIG_36BIT
+#define CONFIG_PHYS_64BIT
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -74,25 +78,24 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_ADDR_MAP
+#define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
+#endif
+
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
-#define CONFIG_SYS_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
+#define CONFIG_SYS_CCSRBAR		0xe0000000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_SPD
-#define CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN	/* possible DLL fix needed */
 
+#define CONFIG_DDR_ECC
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
@@ -112,6 +115,37 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #undef CONFIG_CLOCKS_IN_MHZ
+/*
+ * Physical Address Map
+ *
+ * 32bit:
+ * 0x0000_0000	0x7fff_ffff	DDR			2G	cacheable
+ * 0x8000_0000	0x9fff_ffff	PCI1 MEM		512M	cacheable
+ * 0xa000_0000	0xbfff_ffff	PCIe MEM		512M	cacheable
+ * 0xc000_0000	0xdfff_ffff	RapidIO			512M	cacheable
+ * 0xe000_0000	0xe00f_ffff	CCSR			1M	non-cacheable
+ * 0xe200_0000	0xe20f_ffff	PCI1 IO			1M	non-cacheable
+ * 0xe300_0000	0xe30f_ffff	PCIe IO			1M	non-cacheable
+ * 0xf000_0000	0xf3ff_ffff	SDRAM			64M	cacheable
+ * 0xf800_0000	0xf80f_ffff	NVRAM/CADMUS		1M	non-cacheable
+ * 0xff00_0000	0xff7f_ffff	FLASH (2nd bank)	8M	non-cacheable
+ * 0xff80_0000	0xffff_ffff	FLASH (boot bank)	8M	non-cacheable
+ *
+ * 36bit:
+ * 0x00000_0000	0x07fff_ffff	DDR			2G	cacheable
+ * 0xc0000_0000	0xc1fff_ffff	PCI1 MEM		512M	cacheable
+ * 0xc2000_0000	0xc3fff_ffff	PCIe MEM		512M	cacheable
+ * 0xc4000_0000	0xc5fff_ffff	RapidIO			512M	cacheable
+ * 0xfe000_0000	0xfe00f_ffff	CCSR			1M	non-cacheable
+ * 0xfe200_0000	0xfe20f_ffff	PCI1 IO			1M	non-cacheable
+ * 0xfe300_0000	0xfe30f_ffff	PCIe IO			1M	non-cacheable
+ * 0xff000_0000	0xff3ff_ffff	SDRAM			64M	cacheable
+ * 0xff800_0000	0xff80f_ffff	NVRAM/CADMUS		1M	non-cacheable
+ * 0xfff00_0000	0xfff7f_ffff	FLASH (2nd bank)	8M	non-cacheable
+ * 0xfff80_0000	0xfffff_ffff	FLASH (boot bank)	8M	non-cacheable
+ *
+ */
+
 
 /*
  * Local Bus Definitions
@@ -147,16 +181,24 @@ extern unsigned long get_clock_freq(void);
  * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65	 ORx
  */
 
-#define CONFIG_SYS_BOOT_BLOCK		0xff000000	/* boot TLB block */
-#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_BOOT_BLOCK	/* start of FLASH 16M */
+#define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH 16M */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_FLASH_BASE_PHYS	0xfff000000ull
+#else
+#define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
+#endif
 
-#define CONFIG_SYS_BR0_PRELIM		0xff801001
-#define CONFIG_SYS_BR1_PRELIM		0xff001001
+#define CONFIG_SYS_BR0_PRELIM \
+	(BR_PHYS_ADDR((CONFIG_SYS_FLASH_BASE_PHYS + 0x800000)) \
+	| BR_PS_16 | BR_V)
+#define CONFIG_SYS_BR1_PRELIM \
+	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
 
 #define	CONFIG_SYS_OR0_PRELIM		0xff806e65
 #define	CONFIG_SYS_OR1_PRELIM		0xff806e65
 
-#define CONFIG_SYS_FLASH_BANKS_LIST	{0xff800000, CONFIG_SYS_FLASH_BASE}
+#define CONFIG_SYS_FLASH_BANKS_LIST \
+	{CONFIG_SYS_FLASH_BASE_PHYS + 0x800000, CONFIG_SYS_FLASH_BASE_PHYS}
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	128		/* sectors per device */
 #undef	CONFIG_SYS_FLASH_CHECKSUM
@@ -169,16 +211,17 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
+#define CONFIG_HWCONFIG			/* enable hwconfig */
 
 /*
  * SDRAM on the Local Bus
  */
-#define CONFIG_SYS_LBC_CACHE_BASE	0xf0000000	/* Localbus cacheable */
-#define CONFIG_SYS_LBC_CACHE_SIZE	64
-#define CONFIG_SYS_LBC_NONCACHE_BASE	0xf8000000	/* Localbus non-cacheable */
-#define CONFIG_SYS_LBC_NONCACHE_SIZE	64
-
-#define CONFIG_SYS_LBC_SDRAM_BASE	CONFIG_SYS_LBC_CACHE_BASE	/* Localbus SDRAM */
+#define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_LBC_SDRAM_BASE_PHYS	0xff0000000ull
+#else
+#define CONFIG_SYS_LBC_SDRAM_BASE_PHYS	CONFIG_SYS_LBC_SDRAM_BASE
+#endif
 #define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
 
 /*
@@ -199,7 +242,9 @@ extern unsigned long get_clock_freq(void);
  * FIXME: the top 17 bits of BR2.
  */
 
-#define CONFIG_SYS_BR2_PRELIM		0xf0001861
+#define CONFIG_SYS_BR2_PRELIM \
+	(BR_PHYS_ADDR(CONFIG_SYS_LBC_SDRAM_BASE_PHYS) \
+	| BR_PS_32 | (3<<BR_MSEL_SHIFT) | BR_V)
 
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
@@ -270,20 +315,24 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_FSL_CADMUS
 
 #define CADMUS_BASE_ADDR 0xf8000000
-#define CONFIG_SYS_BR3_PRELIM	 0xf8000801
+#ifdef CONFIG_PHYS_64BIT
+#define CADMUS_BASE_ADDR_PHYS	0xff8000000ull
+#else
+#define CADMUS_BASE_ADDR_PHYS	CADMUS_BASE_ADDR
+#endif
+#define CONFIG_SYS_BR3_PRELIM \
+	(BR_PHYS_ADDR(CADMUS_BASE_ADDR_PHYS) | BR_PS_8 | BR_V)
 #define CONFIG_SYS_OR3_PRELIM	 0xfff00ff7
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
 
-#define CONFIG_SYS_INIT_L2_ADDR	0xf8f80000	/* relocate boot L2SRAM */
-
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
+#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX	2
@@ -331,47 +380,54 @@ extern unsigned long get_clock_freq(void);
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
-#define CONFIG_SYS_PCI_VIRT		0x80000000	/* 1G PCI TLB */
-#define CONFIG_SYS_PCI_PHYS		0x80000000	/* 1G PCI TLB */
-
 #define CONFIG_SYS_PCI1_MEM_VIRT	0x80000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCI1_MEM_BUS		0xe0000000
+#define CONFIG_SYS_PCI1_MEM_PHYS	0xc00000000ull
+#else
 #define CONFIG_SYS_PCI1_MEM_BUS	0x80000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	0x80000000
+#endif
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCI1_IO_VIRT	0xe2000000
 #define CONFIG_SYS_PCI1_IO_BUS	0x00000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCI1_IO_PHYS 0xfe2000000ull
+#else
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe2000000
-#define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
-
-#ifdef CONFIG_PCI2
-#define CONFIG_SYS_PCI2_MEM_VIRT	0xa0000000
-#define CONFIG_SYS_PCI2_MEM_BUS	0xa0000000
-#define CONFIG_SYS_PCI2_MEM_PHYS	0xa0000000
-#define CONFIG_SYS_PCI2_MEM_SIZE	0x20000000	/* 512M */
-#define CONFIG_SYS_PCI2_IO_VIRT	0xe2800000
-#define CONFIG_SYS_PCI2_IO_BUS	0x00000000
-#define CONFIG_SYS_PCI2_IO_PHYS	0xe2800000
-#define CONFIG_SYS_PCI2_IO_SIZE	0x00100000	/* 1M */
 #endif
+#define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 #ifdef CONFIG_PCIE1
 #define CONFIG_SYS_PCIE1_NAME		"Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xa0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE1_MEM_PHYS	0xc20000000ull
+#else
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
+#endif
 #define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE1_IO_VIRT	0xe3000000
 #define CONFIG_SYS_PCIE1_IO_BUS	0x00000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_IO_PHYS        0xfe3000000ull
+#else
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe3000000
+#endif
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
 #endif
 
 /*
  * RapidIO MMU
  */
-#define CONFIG_SYS_SRIO1_MEM_VIRT	0xC0000000
-#define CONFIG_SYS_SRIO1_MEM_BUS	0xC0000000
-#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BUS
+#define CONFIG_SYS_SRIO1_MEM_VIRT	0xc0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_SRIO1_MEM_PHYS	0xc40000000ull
+#else
+#define CONFIG_SYS_SRIO1_MEM_PHYS	0xc0000000
+#endif
 #define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
 #ifdef CONFIG_LEGACY
@@ -384,22 +440,18 @@ extern unsigned long get_clock_freq(void);
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
+#define CONFIG_E1000			/* Define e1000 pci Ethernet card */
 
-#undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
+#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
 #endif	/* CONFIG_PCI */
 
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_TSEC1	1
@@ -411,6 +463,8 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_TSEC4
 #define CONFIG_TSEC4_NAME	"eTSEC3"
 #undef CONFIG_MPC85XX_FEC
+
+#define CONFIG_PHY_MARVELL
 
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
@@ -435,8 +489,12 @@ extern unsigned long get_clock_freq(void);
  * Environment
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
-#define CONFIG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+#if CONFIG_SYS_MONITOR_BASE > 0xfff80000
+#define CONFIG_ENV_ADDR	0xfff80000
+#else
+#define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+#endif
+#define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K for env */
 #define CONFIG_ENV_SIZE		0x2000
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
@@ -491,11 +549,11 @@ extern unsigned long get_clock_freq(void);
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 16 MB of memory, since this is
+ * have to be in the first 64 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
-#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
+#define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
@@ -521,8 +579,8 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_IPADDR	 192.168.1.253
 
 #define CONFIG_HOSTNAME	 unknown
-#define CONFIG_ROOTPATH	 /nfsroot
-#define CONFIG_BOOTFILE	8548cds/uImage.uboot
+#define CONFIG_ROOTPATH	 "/nfsroot"
+#define CONFIG_BOOTFILE "8548cds/uImage.uboot"
 #define CONFIG_UBOOTPATH	8548cds/u-boot.bin	/* TFTP server */
 
 #define CONFIG_SERVERIP	 192.168.1.1
@@ -536,20 +594,21 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_BAUDRATE	115200
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
- "netdev=eth0\0"						\
- "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
- "tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
-	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
- "consoledev=ttyS1\0"				\
- "ramdiskaddr=2000000\0"			\
- "ramdiskfile=ramdisk.uboot\0"			\
- "fdtaddr=c00000\0"				\
- "fdtfile=mpc8548cds.dtb\0"
+#define	CONFIG_EXTRA_ENV_SETTINGS		\
+	"hwconfig=fsl_ddr:ecc=off\0"		\
+	"netdev=eth0\0"				\
+	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"	\
+	"tftpflash=tftpboot $loadaddr $uboot; "	\
+		"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "   \
+		"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	      \
+		"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; " \
+		"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "    \
+		"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"\
+	"consoledev=ttyS1\0"			\
+	"ramdiskaddr=2000000\0"			\
+	"ramdiskfile=ramdisk.uboot\0"		\
+	"fdtaddr=c00000\0"			\
+	"fdtfile=mpc8548cds.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\
    "setenv bootargs root=/dev/nfs rw "					\

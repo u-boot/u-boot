@@ -62,7 +62,7 @@ in_flash:
 	    remap gt regs?
 	    map PCI mem/io
 	    map device space
-	    clear out interupts
+	    clear out interrupts
 	init_timebase
 	env_init
 	serial_init

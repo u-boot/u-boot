@@ -23,7 +23,8 @@
 #define CONFIG_PANIC_HANG 0
 
 /* CPU Options */
-#define CONFIG_BFIN_BOOT_MODE	BFIN_BOOT_SPI_MASTER
+#define CONFIG_BFIN_CPU        bf561-0.5
+#define CONFIG_BFIN_BOOT_MODE  BFIN_BOOT_SPI_MASTER
 
 /*
  *		CLOCK SETTINGS CAVEAT
@@ -71,26 +72,22 @@
  * Then use the dedicated card IP + 1 for the board
  * http://docs.blackfin.uclinux.org/doku.php?id=setting_up_the_network
  */
-#define CONFIG_NET_MULTI
-
 #define CONFIG_DRIVER_AX88180	1
 #define AX88180_BASE		0x2c000000
 #define CONFIG_CMD_MII		/* enable probing PHY */
 
-#ifdef CONFIG_NET_MULTI		/* also used as the network enabler */
-# define CONFIG_HOSTNAME	blackvme	/* Bfin board  */
-# define CONFIG_IPADDR		169.254.144.145	/* Bfin board  */
-# define CONFIG_GATEWAYIP	169.254.144.144	/* dedic card  */
-# define CONFIG_SERVERIP	169.254.144.144	/* tftp server */
-# define CONFIG_NETMASK		255.255.255.0
-# define CONFIG_ROOTPATH	/export/uClinux-dist/romfs	/*NFS*/
-# define CFG_AUTOLOAD		"no"
-# define CONFIG_CMD_DHCP
-# define CONFIG_CMD_PING
-# define CONFIG_ENV_OVERWRITE	1	/* enable changing MAC at runtime */
+#define CONFIG_HOSTNAME	blackvme	/* Bfin board  */
+#define CONFIG_IPADDR		169.254.144.145	/* Bfin board  */
+#define CONFIG_GATEWAYIP	169.254.144.144	/* dedic card  */
+#define CONFIG_SERVERIP	169.254.144.144	/* tftp server */
+#define CONFIG_NETMASK		255.255.255.0
+#define CONFIG_ROOTPATH		"/export/uClinux-dist/romfs"	/*NFS*/
+#define CFG_AUTOLOAD		"no"
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_ENV_OVERWRITE	1	/* enable changing MAC at runtime */
 /* Comment out hardcoded MAC to enable MAC storage in EEPROM */
 /* # define CONFIG_ETHADDR	ff:ee:dd:cc:bb:aa */
-#endif
 
 /*
  * SDRAM settings & memory map

@@ -1,9 +1,9 @@
 /*
- * (C) Copyright 2008
- * Graeme Russ, graeme.russ@gmail.com.
+ * (C) Copyright 2008,2009
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB <daniel@omicron.se>.
+ * Daniel EngstrÃ¶m, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,10 +23,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
 #include <common.h>
 #include <pci.h>
 #include <asm/pci.h>
-#include <asm/ic/pci.h>
+#include <asm/arch/pci.h>
 
 static void pci_enet_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
@@ -37,7 +38,7 @@ static void pci_enet_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 		CONFIG_SYS_THIRD_PCI_IRQ,
 		CONFIG_SYS_FORTH_PCI_IRQ
 	};
-	static int next_irq_index=0;
+	static int next_irq_index;
 
 	uchar tmp_pin;
 	int pin;
@@ -46,9 +47,8 @@ static void pci_enet_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 	pin = tmp_pin;
 
 	pin -= 1; /* PCI config space use 1-based numbering */
-	if (pin == -1) {
+	if (pin == -1)
 		return; /* device use no irq */
-	}
 
 	/* map device number +  pin to a pin on the sc520 */
 	switch (PCI_DEV(dev)) {
@@ -68,19 +68,19 @@ static void pci_enet_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 
 	if (sc520_pci_ints[pin] == -1) {
 		/* re-route one interrupt for us */
-		if (next_irq_index > 3) {
+		if (next_irq_index > 3)
 			return;
-		}
-		if (pci_sc520_set_irq(pin, irq_list[next_irq_index])) {
+
+		if (pci_sc520_set_irq(pin, irq_list[next_irq_index]))
 			return;
-		}
+
 		next_irq_index++;
 	}
 
-	if (-1 != sc520_pci_ints[pin]) {
-	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE,
+	if (-1 != sc520_pci_ints[pin])
+		pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE,
 					   sc520_pci_ints[pin]);
-	}
+
 	printf("fixup_irq: device %d pin %c irq %d\n",
 	       PCI_DEV(dev), 'A' + pin, sc520_pci_ints[pin]);
 }

@@ -12,7 +12,8 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_BOOT_MODE		BFIN_BOOT_BYPASS
+#define CONFIG_BFIN_CPU             bf561-0.5
+#define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
 
 
 /*
@@ -75,7 +76,6 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK			1
-#define CONFIG_NET_MULTI
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE

@@ -87,13 +87,8 @@ ulong monitor_flash_len;
 
 static int init_baudrate(void)
 {
-	char tmp[64];		/* long enough for environment variables */
-	int i = getenv_f("baudrate", tmp, sizeof(tmp));
-
-	gd->baudrate = (i > 0)
-	    ? (int)simple_strtoul(tmp, NULL, 10)
-	    : CONFIG_BAUDRATE;
-	return (0);
+	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
+	return 0;
 }
 
 /***********************************************************************/
@@ -170,13 +165,10 @@ char *str_init_seq_done = "\n\rInit sequence done...\r\n\r\n";
 
 void board_init_f(ulong bootflag)
 {
-	cmd_tbl_t *cmdtp;
 	bd_t *bd;
 	unsigned char *s;
 	init_fnc_t **init_fnc_ptr;
 	int j;
-	int i;
-	char *e;
 
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong flash_size;
@@ -365,12 +357,8 @@ void board_init_f(ulong bootflag)
 
 	udelay(20);
 
-	set_timer(0);
-
 	/* Initialize from environment */
-	if ((s = getenv("loadaddr")) != NULL) {
-		load_addr = simple_strtoul(s, NULL, 16);
-	}
+	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 #if defined(CONFIG_CMD_NET)
 	if ((s = getenv("bootfile")) != NULL) {
 		copy_filename(BootFile, s, sizeof(BootFile));
@@ -389,10 +377,8 @@ void board_init_f(ulong bootflag)
 	bb_miiphy_init();
 #endif
 #if defined(CONFIG_CMD_NET)
-#if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET();
 	puts("Net:   ");
-#endif
 	eth_initialize(bd);
 #endif
 
@@ -440,7 +426,7 @@ void hang(void)
 {
 	puts("### ERROR ### Please RESET the board ###\n");
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
-	show_boot_progress(-30);
+	bootstage_error(BOOTSTAGE_ID_NEED_RESET);
 #endif
 	for (;;) ;
 }

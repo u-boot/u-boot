@@ -27,7 +27,6 @@ LIB	= $(obj)lib$(SOC).o
 
 SOBJS	+= reset.o
 COBJS	+= timer.o
-COBJS	+= ftsmc020.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

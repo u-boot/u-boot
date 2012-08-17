@@ -28,16 +28,39 @@
 #include <part.h>
 #include <i2c.h>
 #include <twl4030.h>
+#include <twl6030.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
+#include <asm/arch/sys_proto.h>
 
 /* If we fail after 1 second wait, something is really bad */
 #define MAX_RETRY_MS	1000
 
-static int mmc_read_data(hsmmc_t *mmc_base, char *buf, unsigned int size);
-static int mmc_write_data(hsmmc_t *mmc_base, const char *buf, unsigned int siz);
+static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size);
+static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
+			unsigned int siz);
 static struct mmc hsmmc_dev[2];
-unsigned char mmc_board_init(hsmmc_t *mmc_base)
+
+#if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
+static void omap4_vmmc_pbias_config(struct mmc *mmc)
+{
+	u32 value = 0;
+	struct omap4_sys_ctrl_regs *const ctrl =
+		(struct omap4_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
+
+
+	value = readl(&ctrl->control_pbiaslite);
+	value &= ~(MMC1_PBIASLITE_PWRDNZ | MMC1_PWRDNZ);
+	writel(value, &ctrl->control_pbiaslite);
+	/* set VMMC to 3V */
+	twl6030_power_mmc_init();
+	value = readl(&ctrl->control_pbiaslite);
+	value |= MMC1_PBIASLITE_VMODE | MMC1_PBIASLITE_PWRDNZ | MMC1_PWRDNZ;
+	writel(value, &ctrl->control_pbiaslite);
+}
+#endif
+
+unsigned char mmc_board_init(struct mmc *mmc)
 {
 #if defined(CONFIG_TWL4030_POWER)
 	twl4030_power_mmc_init();
@@ -66,12 +89,16 @@ unsigned char mmc_board_init(hsmmc_t *mmc_base)
 		&prcm_base->iclken1_core);
 #endif
 
-/* TODO add appropriate OMAP4 init - none currently necessary */
+#if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
+	/* PBIAS config needed for MMC1 only */
+	if (mmc->block_dev.dev == 0)
+		omap4_vmmc_pbias_config(mmc);
+#endif
 
 	return 0;
 }
 
-void mmc_init_stream(hsmmc_t *mmc_base)
+void mmc_init_stream(struct hsmmc *mmc_base)
 {
 	ulong start;
 
@@ -102,12 +129,12 @@ void mmc_init_stream(hsmmc_t *mmc_base)
 
 static int mmc_init_setup(struct mmc *mmc)
 {
-	hsmmc_t *mmc_base = (hsmmc_t *)mmc->priv;
+	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
 	unsigned int reg_val;
 	unsigned int dsor;
 	ulong start;
 
-	mmc_board_init(mmc_base);
+	mmc_board_init(mmc);
 
 	writel(readl(&mmc_base->sysconfig) | MMC_SOFTRESET,
 		&mmc_base->sysconfig);
@@ -166,14 +193,15 @@ static int mmc_init_setup(struct mmc *mmc)
 static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
-	hsmmc_t *mmc_base = (hsmmc_t *)mmc->priv;
+	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
 	unsigned int flags, mmc_stat;
 	ulong start;
 
 	start = get_timer(0);
-	while ((readl(&mmc_base->pstate) & DATI_MASK) == DATI_CMDDIS) {
+	while ((readl(&mmc_base->pstate) & (DATI_MASK | CMDI_MASK)) != 0) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
-			printf("%s: timedout waiting for cmddis!\n", __func__);
+			printf("%s: timedout waiting on cmd inhibit to clear\n",
+					__func__);
 			return TIMEOUT;
 		}
 	}
@@ -279,7 +307,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-static int mmc_read_data(hsmmc_t *mmc_base, char *buf, unsigned int size)
+static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size)
 {
 	unsigned int *output_buf = (unsigned int *)buf;
 	unsigned int mmc_stat;
@@ -330,7 +358,8 @@ static int mmc_read_data(hsmmc_t *mmc_base, char *buf, unsigned int size)
 	return 0;
 }
 
-static int mmc_write_data(hsmmc_t *mmc_base, const char *buf, unsigned int size)
+static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
+				unsigned int size)
 {
 	unsigned int *input_buf = (unsigned int *)buf;
 	unsigned int mmc_stat;
@@ -383,7 +412,7 @@ static int mmc_write_data(hsmmc_t *mmc_base, const char *buf, unsigned int size)
 
 static void mmc_set_ios(struct mmc *mmc)
 {
-	hsmmc_t *mmc_base = (hsmmc_t *)mmc->priv;
+	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
 	unsigned int dsor = 0;
 	ulong start;
 
@@ -444,26 +473,42 @@ int omap_mmc_init(int dev_index)
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_init_setup;
+	mmc->getcd = NULL;
 
 	switch (dev_index) {
 	case 0:
-		mmc->priv = (hsmmc_t *)OMAP_HSMMC1_BASE;
+		mmc->priv = (struct hsmmc *)OMAP_HSMMC1_BASE;
 		break;
+#ifdef OMAP_HSMMC2_BASE
 	case 1:
-		mmc->priv = (hsmmc_t *)OMAP_HSMMC2_BASE;
+		mmc->priv = (struct hsmmc *)OMAP_HSMMC2_BASE;
 		break;
+#endif
+#ifdef OMAP_HSMMC3_BASE
 	case 2:
-		mmc->priv = (hsmmc_t *)OMAP_HSMMC3_BASE;
+		mmc->priv = (struct hsmmc *)OMAP_HSMMC3_BASE;
 		break;
+#endif
 	default:
-		mmc->priv = (hsmmc_t *)OMAP_HSMMC1_BASE;
+		mmc->priv = (struct hsmmc *)OMAP_HSMMC1_BASE;
 		return 1;
 	}
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS;
+	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
+				MMC_MODE_HC;
 
 	mmc->f_min = 400000;
 	mmc->f_max = 52000000;
+
+	mmc->b_max = 0;
+
+#if defined(CONFIG_OMAP34XX)
+	/*
+	 * Silicon revs 2.1 and older do not support multiblock transfers.
+	 */
+	if ((get_cpu_family() == CPU_OMAP34XX) && (get_cpu_rev() <= CPU_3XX_ES21))
+		mmc->b_max = 1;
+#endif
 
 	mmc_register(mmc);
 

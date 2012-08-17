@@ -502,7 +502,7 @@ void codsp_write_sop_short(int duslic_id, int channel, unsigned char regno, unsi
 
 void codsp_write_sop_int(int duslic_id, int channel, unsigned char regno, unsigned int val)
 {
-	unsigned char cmd[5];
+	unsigned char cmd[6];
 
 	cmd[0] = CODSP_WR | CODSP_ADR(channel) | CODSP_CMD_SOP;
 	cmd[1] = regno;
@@ -577,7 +577,7 @@ void codsp_write_cop_char(int duslic_id, int channel, unsigned char addr, unsign
 
 void codsp_write_cop_short(int duslic_id, int channel, unsigned char addr, unsigned short val)
 {
-	unsigned char cmd[3];
+	unsigned char cmd[4];
 
 	cmd[0] = CODSP_WR | CODSP_OP | CODSP_ADR(channel) | CODSP_CMD_COP;
 	cmd[1] = addr;
@@ -668,7 +668,7 @@ void codsp_write_pop_short (int duslic_id, int channel, unsigned char regno,
 void codsp_write_pop_int (int duslic_id, int channel, unsigned char regno,
 			  unsigned int val)
 {
-	unsigned char cmd[5];
+	unsigned char cmd[6];
 
 	cmd[0] = CODSP_WR | CODSP_ADR (channel) | CODSP_CMD_POP;
 	cmd[1] = regno;
@@ -1386,34 +1386,31 @@ static inline unsigned int s_transfer_internal(int s_id, unsigned int address, u
 static void s_write_BR(int s_id, unsigned int regno, unsigned int val)
 {
 	unsigned int address;
-	unsigned int v;
 
 	address = 0x70 | (regno & 15);
 	val &= 0xff;
 
-	v = s_transfer_internal(s_id, address, val);
+	(void)s_transfer_internal(s_id, address, val);
 }
 
 static void s_write_OR(int s_id, unsigned int regno, unsigned int val)
 {
 	unsigned int address;
-	unsigned int v;
 
 	address = 0x70 | (regno & 15);
 	val &= 0xff;
 
-	v = s_transfer_internal(s_id, address, val);
+	(void)s_transfer_internal(s_id, address, val);
 }
 
 static void s_write_NR(int s_id, unsigned int regno, unsigned int val)
 {
 	unsigned int address;
-	unsigned int v;
 
 	address = (regno & 7) << 4;
 	val &= 0xf;
 
-	v = s_transfer_internal(s_id, address | val, 0x00);
+	(void)s_transfer_internal(s_id, address | val, 0x00);
 }
 
 #define BR7_IFR			0x08	/* IDL2 free run */

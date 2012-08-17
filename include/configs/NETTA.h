@@ -95,7 +95,6 @@
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#define	CONFIG_NET_MULTI	1	/* the only way to get the FEC in */
 #define	FEC_ENET		1	/* eth.c needs it that way... */
 #undef  CONFIG_SYS_DISCOVER_PHY		/* do not discover phys */
 #define CONFIG_MII		1
@@ -589,7 +588,7 @@
  +------+----------------+------------------------------------------------------------
  |  #   | Name           | Comment
  +------+----------------+------------------------------------------------------------
- | IRQ1 | UINTER_3V      | S interupt chips interrupt (common)
+ | IRQ1 | UINTER_3V      | S interrupt chips interrupt (common)
  | IRQ3 | IRQ_DSP        | DSP interrupt
  | IRQ4 | IRQ_DSP1       | Extra DSP interrupt
  +------+----------------+------------------------------------------------------------

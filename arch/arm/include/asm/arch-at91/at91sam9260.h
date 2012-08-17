@@ -2,9 +2,15 @@
  * [origin: Linux kernel include/asm-arm/arch-at91/at91sam9260.h]
  *
  * (C) 2006 Andrew Victor
+ * (C) Copyright 2010
+ * Reinhard Meyer, EMK Elektronik, reinhard.meyer@emk-elektronik.de
  *
- * Common definitions.
- * Based on AT91SAM9260 datasheet revision A (Preliminary).
+ * Definitions for the SoCs:
+ * AT91SAM9260, AT91SAM9G20, AT91SAM9XE
+ *
+ * Note that those SoCs are mostly software and pin compatible,
+ * therefore this file applies to all of them. Differences between
+ * those SoCs are concentrated at the end of this file.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,145 +22,152 @@
 #define AT91SAM9260_H
 
 /*
+ * defines to be used in other places
+ */
+#define CONFIG_ARM926EJS	/* ARM926EJS Core */
+#define CONFIG_AT91FAMILY	/* it's a member of AT91 */
+
+/*
  * Peripheral identifiers/interrupts.
  */
-#define AT91_ID_FIQ		0	/* Advanced Interrupt Controller (FIQ) */
-#define AT91_ID_SYS		1	/* System Peripherals */
-#define AT91SAM9260_ID_PIOA	2	/* Parallel IO Controller A */
-#define AT91SAM9260_ID_PIOB	3	/* Parallel IO Controller B */
-#define AT91SAM9260_ID_PIOC	4	/* Parallel IO Controller C */
-#define AT91SAM9260_ID_ADC	5	/* Analog-to-Digital Converter */
-#define AT91SAM9260_ID_US0	6	/* USART 0 */
-#define AT91SAM9260_ID_US1	7	/* USART 1 */
-#define AT91SAM9260_ID_US2	8	/* USART 2 */
-#define AT91SAM9260_ID_MCI	9	/* Multimedia Card Interface */
-#define AT91SAM9260_ID_UDP	10	/* USB Device Port */
-#define AT91SAM9260_ID_TWI	11	/* Two-Wire Interface */
-#define AT91SAM9260_ID_SPI0	12	/* Serial Peripheral Interface 0 */
-#define AT91SAM9260_ID_SPI1	13	/* Serial Peripheral Interface 1 */
-#define AT91SAM9260_ID_SSC	14	/* Serial Synchronous Controller */
-#define AT91SAM9260_ID_TC0	17	/* Timer Counter 0 */
-#define AT91SAM9260_ID_TC1	18	/* Timer Counter 1 */
-#define AT91SAM9260_ID_TC2	19	/* Timer Counter 2 */
-#define AT91SAM9260_ID_UHP	20	/* USB Host port */
-#define AT91SAM9260_ID_EMAC	21	/* Ethernet */
-#define AT91SAM9260_ID_ISI	22	/* Image Sensor Interface */
-#define AT91SAM9260_ID_US3	23	/* USART 3 */
-#define AT91SAM9260_ID_US4	24	/* USART 4 */
-#define AT91SAM9260_ID_US5	25	/* USART 5 */
-#define AT91SAM9260_ID_TC3	26	/* Timer Counter 3 */
-#define AT91SAM9260_ID_TC4	27	/* Timer Counter 4 */
-#define AT91SAM9260_ID_TC5	28	/* Timer Counter 5 */
-#define AT91SAM9260_ID_IRQ0	29	/* Advanced Interrupt Controller (IRQ0) */
-#define AT91SAM9260_ID_IRQ1	30	/* Advanced Interrupt Controller (IRQ1) */
-#define AT91SAM9260_ID_IRQ2	31	/* Advanced Interrupt Controller (IRQ2) */
+#define ATMEL_ID_FIQ	0	/* Advanced Interrupt Controller (FIQ) */
+#define ATMEL_ID_SYS	1	/* System Peripherals */
+#define ATMEL_ID_PIOA	2	/* Parallel IO Controller A */
+#define ATMEL_ID_PIOB	3	/* Parallel IO Controller B */
+#define ATMEL_ID_PIOC	4	/* Parallel IO Controller C */
+#define ATMEL_ID_ADC	5	/* Analog-to-Digital Converter */
+#define ATMEL_ID_USART0	6	/* USART 0 */
+#define ATMEL_ID_USART1	7	/* USART 1 */
+#define ATMEL_ID_USART2	8	/* USART 2 */
+#define ATMEL_ID_MCI	9	/* Multimedia Card Interface */
+#define ATMEL_ID_UDP	10	/* USB Device Port */
+#define ATMEL_ID_TWI0	11	/* Two-Wire Interface 0 */
+#define ATMEL_ID_SPI0	12	/* Serial Peripheral Interface 0 */
+#define ATMEL_ID_SPI1	13	/* Serial Peripheral Interface 1 */
+#define ATMEL_ID_SSC0	14	/* Serial Synchronous Controller 0 */
+/* Reserved:		15 */
+/* Reserved:		16 */
+#define ATMEL_ID_TC0	17	/* Timer Counter 0 */
+#define ATMEL_ID_TC1	18	/* Timer Counter 1 */
+#define ATMEL_ID_TC2	19	/* Timer Counter 2 */
+#define ATMEL_ID_UHP	20	/* USB Host port */
+#define ATMEL_ID_EMAC0	21	/* Ethernet 0 */
+#define ATMEL_ID_ISI	22	/* Image Sensor Interface */
+#define ATMEL_ID_USART3	23	/* USART 3 */
+#define ATMEL_ID_USART4	24	/* USART 4 */
+/* USART5 or TWI1:	25 */
+#define ATMEL_ID_TC3	26	/* Timer Counter 3 */
+#define ATMEL_ID_TC4	27	/* Timer Counter 4 */
+#define ATMEL_ID_TC5	28	/* Timer Counter 5 */
+#define ATMEL_ID_IRQ0	29	/* Advanced Interrupt Controller (IRQ0) */
+#define ATMEL_ID_IRQ1	30	/* Advanced Interrupt Controller (IRQ1) */
+#define ATMEL_ID_IRQ2	31	/* Advanced Interrupt Controller (IRQ2) */
 
-#define AT91_EMAC_BASE		0xfffc4000
-#define AT91_SDRAMC_BASE	0xffffea00
-#define AT91_SMC_BASE		0xffffec00
-#define AT91_MATRIX_BASE	0xffffee00
-#define AT91_PIO_BASE		0xfffff400
-#define AT91_PMC_BASE		0xfffffc00
-#define AT91_RSTC_BASE		0xfffffd00
-#define AT91_SHDWN_BASE		0xfffffd10
-#define AT91_RTT_BASE		0xfffffd20
-#define AT91_PIT_BASE		0xfffffd30
-#define AT91_WDT_BASE		0xfffffd40
 /*
- * The AT91SAM9XE has the GPBRs at a different address than
- * the AT91SAM9260/9G20.
+ * User Peripherals physical base addresses.
  */
-#ifdef CONFIG_AT91SAM9XE
-# define AT91_GPR_BASE		0xfffffd60
-#else
-# define AT91_GPR_BASE		0xfffffd50
-#endif
-
-#ifdef CONFIG_AT91_LEGACY
+#define ATMEL_BASE_TCB0		0xfffa0000
+#define ATMEL_BASE_TC0		0xfffa0000
+#define ATMEL_BASE_TC1		0xfffa0040
+#define ATMEL_BASE_TC2		0xfffa0080
+#define ATMEL_BASE_UDP0		0xfffa4000
+#define ATMEL_BASE_MCI		0xfffa8000
+#define ATMEL_BASE_TWI0		0xfffac000
+#define ATMEL_BASE_USART0	0xfffb0000
+#define ATMEL_BASE_USART1	0xfffb4000
+#define ATMEL_BASE_USART2	0xfffb8000
+#define ATMEL_BASE_SSC0		0xfffbc000
+#define ATMEL_BASE_ISI0		0xfffc0000
+#define ATMEL_BASE_EMAC0	0xfffc4000
+#define ATMEL_BASE_SPI0		0xfffc8000
+#define ATMEL_BASE_SPI1		0xfffcc000
+#define ATMEL_BASE_USART3	0xfffd0000
+#define ATMEL_BASE_USART4	0xfffd4000
+/* USART5 or TWI1:		0xfffd8000 */
+#define ATMEL_BASE_TCB1		0xfffdc000
+#define ATMEL_BASE_TC3		0xfffdc000
+#define ATMEL_BASE_TC4		0xfffdc040
+#define ATMEL_BASE_TC5		0xfffdc080
+#define ATMEL_BASE_ADC		0xfffe0000
+/* Reserved:	0xfffe4000 - 0xffffe7ff */
 
 /*
- * User Peripheral physical base addresses.
+ * System Peripherals physical base addresses.
  */
-#define AT91SAM9260_BASE_TCB0		0xfffa0000
-#define AT91SAM9260_BASE_TC0		0xfffa0000
-#define AT91SAM9260_BASE_TC1		0xfffa0040
-#define AT91SAM9260_BASE_TC2		0xfffa0080
-#define AT91SAM9260_BASE_UDP		0xfffa4000
-#define AT91SAM9260_BASE_MCI		0xfffa8000
-#define AT91SAM9260_BASE_TWI		0xfffac000
-#define AT91SAM9260_BASE_US0		0xfffb0000
-#define AT91SAM9260_BASE_US1		0xfffb4000
-#define AT91SAM9260_BASE_US2		0xfffb8000
-#define AT91SAM9260_BASE_SSC		0xfffbc000
-#define AT91SAM9260_BASE_ISI		0xfffc0000
-#define AT91SAM9260_BASE_EMAC		0xfffc4000
-#define AT91SAM9260_BASE_SPI0		0xfffc8000
-#define AT91SAM9260_BASE_SPI1		0xfffcc000
-#define AT91SAM9260_BASE_US3		0xfffd0000
-#define AT91SAM9260_BASE_US4		0xfffd4000
-#define AT91SAM9260_BASE_US5		0xfffd8000
-#define AT91SAM9260_BASE_TCB1		0xfffdc000
-#define AT91SAM9260_BASE_TC3		0xfffdc000
-#define AT91SAM9260_BASE_TC4		0xfffdc040
-#define AT91SAM9260_BASE_TC5		0xfffdc080
-#define AT91SAM9260_BASE_ADC		0xfffe0000
-#define AT91_BASE_SYS			0xffffe800
+#define ATMEL_BASE_SYS		0xffffe800
+#define ATMEL_BASE_SDRAMC	0xffffea00
+#define ATMEL_BASE_SMC		0xffffec00
+#define ATMEL_BASE_MATRIX	0xffffee00
+#define ATMEL_BASE_AIC		0xfffff000
+#define ATMEL_BASE_DBGU		0xfffff200
+#define ATMEL_BASE_PIOA		0xfffff400
+#define ATMEL_BASE_PIOB		0xfffff600
+#define ATMEL_BASE_PIOC		0xfffff800
+/* EEFC:			0xfffffa00 */
+#define ATMEL_BASE_PMC		0xfffffc00
+#define ATMEL_BASE_RSTC		0xfffffd00
+#define ATMEL_BASE_SHDWN	0xfffffd10
+#define ATMEL_BASE_RTT		0xfffffd20
+#define ATMEL_BASE_PIT		0xfffffd30
+#define ATMEL_BASE_WDT		0xfffffd40
+/* GPBR(non-XE SoCs):		0xfffffd50 */
+/* GPBR(XE SoCs):		0xfffffd60 */
+/* Reserved:	0xfffffd70 - 0xffffffff */
 
 /*
- * System Peripherals (offset from AT91_BASE_SYS)
+ * Internal Memory common on all these SoCs
  */
-#define AT91_ECC	(0xffffe800 - AT91_BASE_SYS)
-#define AT91_SDRAMC	(0xffffea00 - AT91_BASE_SYS)
-#define AT91_SMC	(0xffffec00 - AT91_BASE_SYS)
-#define AT91_MATRIX	(0xffffee00 - AT91_BASE_SYS)
-#define AT91_CCFG	(0xffffef10 - AT91_BASE_SYS)
-#define AT91_AIC	(0xfffff000 - AT91_BASE_SYS)
-#define AT91_DBGU	(0xfffff200 - AT91_BASE_SYS)
-#define AT91_PIOA	(0xfffff400 - AT91_BASE_SYS)
-#define AT91_PIOB	(0xfffff600 - AT91_BASE_SYS)
-#define AT91_PIOC	(0xfffff800 - AT91_BASE_SYS)
-#define AT91_PMC	(0xfffffc00 - AT91_BASE_SYS)
-#define AT91_RSTC	(0xfffffd00 - AT91_BASE_SYS)
-#define AT91_SHDWC	(0xfffffd10 - AT91_BASE_SYS)
-#define AT91_RTT	(0xfffffd20 - AT91_BASE_SYS)
-#define AT91_PIT	(0xfffffd30 - AT91_BASE_SYS)
-#define AT91_WDT	(0xfffffd40 - AT91_BASE_SYS)
-#define AT91_GPBR	(0xfffffd50 - AT91_BASE_SYS)
-
-#define AT91_USART0	AT91SAM9260_BASE_US0
-#define AT91_USART1	AT91SAM9260_BASE_US1
-#define AT91_USART2	AT91SAM9260_BASE_US2
-#define AT91_USART3	AT91SAM9260_BASE_US3
-#define AT91_USART4	AT91SAM9260_BASE_US4
-#define AT91_USART5	AT91SAM9260_BASE_US5
-
-#endif /* CONFIG_AT91_LEGACY */
+#define ATMEL_BASE_BOOT		0x00000000	/* Boot mapped area */
+#define ATMEL_BASE_ROM		0x00100000	/* Internal ROM base address */
+/* SRAM or FLASH:		0x00200000 */
+/* SRAM:			0x00300000 */
+/* Reserved:			0x00400000 */
+#define ATMEL_UHP_BASE		0x00500000	/* USB Host controller */
 
 /*
- * Internal Memory.
+ * External memory
  */
-#define AT91SAM9260_ROM_BASE	0x00100000	/* Internal ROM base address */
-#define AT91SAM9260_ROM_SIZE	SZ_32K		/* Internal ROM size (32Kb) */
-
-#define AT91SAM9260_SRAM0_BASE	0x00200000	/* Internal SRAM 0 base address */
-#define AT91SAM9260_SRAM0_SIZE	SZ_4K		/* Internal SRAM 0 size (4Kb) */
-#define AT91SAM9260_SRAM1_BASE	0x00300000	/* Internal SRAM 1 base address */
-#define AT91SAM9260_SRAM1_SIZE	SZ_4K		/* Internal SRAM 1 size (4Kb) */
-
-#define AT91SAM9260_UHP_BASE	0x00500000	/* USB Host controller */
-
-#define AT91SAM9XE_FLASH_BASE	0x00200000	/* Internal FLASH base address */
-#define AT91SAM9XE_SRAM_BASE	0x00300000	/* Internal SRAM base address */
+#define ATMEL_BASE_CS0		0x10000000	/* typically NOR */
+#define ATMEL_BASE_CS1		0x20000000	/* SDRAM */
+#define ATMEL_BASE_CS2		0x30000000
+#define ATMEL_BASE_CS3		0x40000000	/* typically NAND */
+#define ATMEL_BASE_CS4		0x50000000
+#define ATMEL_BASE_CS5		0x60000000
+#define ATMEL_BASE_CS6		0x70000000
+#define ATMEL_BASE_CS7		0x80000000
 
 /*
- * Cpu Name
+ * Other misc defines
+ */
+#define ATMEL_PIO_PORTS		3		/* these SoCs have 3 PIO */
+#define ATMEL_PMC_UHP		AT91SAM926x_PMC_UHP
+#define ATMEL_BASE_PIO		ATMEL_BASE_PIOA
+
+/*
+ * SoC specific defines
  */
 #if defined(CONFIG_AT91SAM9XE)
-# define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9XE"
+# define ATMEL_CPU_NAME		"AT91SAM9XE"
+# define ATMEL_ID_TWI1		25	/* TWI 1 */
+# define ATMEL_BASE_FLASH	0x00200000	/* Internal FLASH */
+# define ATMEL_BASE_SRAM	0x00300000	/* Internal SRAM */
+# define ATMEL_BASE_TWI1	0xfffd8000
+# define ATMEL_BASE_EEFC	0xfffffa00
+# define ATMEL_BASE_GPBR	0xfffffd60
 #elif defined(CONFIG_AT91SAM9260)
-# define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9260"
+# define ATMEL_CPU_NAME		"AT91SAM9260"
+# define ATMEL_ID_USART5	25	/* USART 5 */
+# define ATMEL_BASE_SRAM0	0x00200000	/* Internal SRAM 0 */
+# define ATMEL_BASE_SRAM1	0x00300000	/* Internal SRAM 1 */
+# define ATMEL_BASE_USART5	0xfffd8000
+# define ATMEL_BASE_GPBR	0xfffffd50
 #elif defined(CONFIG_AT91SAM9G20)
-# define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9G20"
+# define ATMEL_CPU_NAME		"AT91SAM9G20"
+# define ATMEL_ID_USART5	25	/* USART 5 */
+# define ATMEL_BASE_SRAM0	0x00200000	/* Internal SRAM 0 */
+# define ATMEL_BASE_SRAM1	0x00300000	/* Internal SRAM 1 */
+# define ATMEL_BASE_USART5	0xfffd8000
+# define ATMEL_BASE_GPBR	0xfffffd50
 #endif
 
 #endif

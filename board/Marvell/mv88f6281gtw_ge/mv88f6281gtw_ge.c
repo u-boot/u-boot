@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/mpp.h>
 #include "mv88f6281gtw_ge.h"

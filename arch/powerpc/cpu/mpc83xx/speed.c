@@ -327,6 +327,8 @@ int get_clocks(void)
 	i2c1_clk = enc_clk;
 #elif defined(CONFIG_FSL_ESDHC)
 	i2c1_clk = sdhc_clk;
+#elif defined(CONFIG_MPC837x)
+	i2c1_clk = enc_clk;
 #endif
 #if !defined(CONFIG_MPC832x)
 	i2c2_clk = csb_clk; /* i2c-2 clk is equal to csb clk */
@@ -481,7 +483,8 @@ int get_clocks(void)
 	gd->qe_clk = qe_clk;
 	gd->brg_clk = brg_clk;
 #endif
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC837x)
 	gd->pciexp1_clk = pciexp1_clk;
 	gd->pciexp2_clk = pciexp2_clk;
 #endif
@@ -502,6 +505,15 @@ int get_clocks(void)
 ulong get_bus_freq(ulong dummy)
 {
 	return gd->csb_clk;
+}
+
+/********************************************
+ * get_ddr_freq
+ * return ddr bus freq in Hz
+ *********************************************/
+ulong get_ddr_freq(ulong dummy)
+{
+	return gd->mem_clk;
 }
 
 int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -541,7 +553,8 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_MPC834x)
 	printf("  USB MPH:             %-4s MHz\n", strmhz(buf, gd->usbmph_clk));
 #endif
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC837x)
 	printf("  PCIEXP1:             %-4s MHz\n", strmhz(buf, gd->pciexp1_clk));
 	printf("  PCIEXP2:             %-4s MHz\n", strmhz(buf, gd->pciexp2_clk));
 #endif

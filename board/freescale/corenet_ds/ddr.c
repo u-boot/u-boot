@@ -16,9 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-				   unsigned int ctrl_num);
-
 
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
@@ -31,19 +28,21 @@ extern fixed_ddr_parm_t fixed_ddr_parm_1[];
 phys_size_t fixed_sdram(void)
 {
 	int i;
-	sys_info_t sysinfo;
 	char buf[32];
 	fsl_ddr_cfg_regs_t ddr_cfg_regs;
 	phys_size_t ddr_size;
 	unsigned int lawbar1_target_id;
+	ulong ddr_freq, ddr_freq_mhz;
 
-	get_sys_info(&sysinfo);
+	ddr_freq = get_ddr_freq(0);
+	ddr_freq_mhz = ddr_freq / 1000000;
+
 	printf("Configuring DDR for %s MT/s data rate\n",
-				strmhz(buf, sysinfo.freqDDRBus));
+				strmhz(buf, ddr_freq));
 
 	for (i = 0; fixed_ddr_parm_0[i].max_freq > 0; i++) {
-		if ((sysinfo.freqDDRBus > fixed_ddr_parm_0[i].min_freq) &&
-		   (sysinfo.freqDDRBus <= fixed_ddr_parm_0[i].max_freq)) {
+		if ((ddr_freq_mhz > fixed_ddr_parm_0[i].min_freq) &&
+		   (ddr_freq_mhz <= fixed_ddr_parm_0[i].max_freq)) {
 			memcpy(&ddr_cfg_regs,
 				fixed_ddr_parm_0[i].ddr_settings,
 				sizeof(ddr_cfg_regs));
@@ -53,7 +52,7 @@ phys_size_t fixed_sdram(void)
 
 	if (fixed_ddr_parm_0[i].max_freq == 0)
 		panic("Unsupported DDR data rate %s MT/s data rate\n",
-			strmhz(buf, sysinfo.freqDDRBus));
+			strmhz(buf, ddr_freq));
 
 	ddr_size = (phys_size_t) CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 	ddr_cfg_regs.ddr_cdr1 = DDR_CDR1_DHC_EN;
@@ -108,127 +107,138 @@ phys_size_t fixed_sdram(void)
 	return ddr_size;
 }
 
-static void get_spd(ddr3_spd_eeprom_t *spd, unsigned char i2c_address)
-{
-	int ret;
-
-	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd, sizeof(ddr3_spd_eeprom_t));
-	if (ret) {
-		debug("DDR: failed to read SPD from address %u\n", i2c_address);
-		memset(spd, 0, sizeof(ddr3_spd_eeprom_t));
-	}
-}
-
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
-void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd,
-		      unsigned int ctrl_num)
-{
-	unsigned int i;
-	unsigned int i2c_address = 0;
-
-	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
-		if (ctrl_num == 0 && i == 0)
-			i2c_address = SPD_EEPROM_ADDRESS1;
-		else if (ctrl_num == 1 && i == 0)
-			i2c_address = SPD_EEPROM_ADDRESS2;
-
-		get_spd(&(ctrl_dimms_spd[i]), i2c_address);
-	}
-}
-
-typedef struct {
-	u32 datarate_mhz_low;
-	u32 datarate_mhz_high;
+struct board_specific_parameters {
 	u32 n_ranks;
+	u32 datarate_mhz_high;
 	u32 clk_adjust;
 	u32 wrlvl_start;
 	u32 cpo;
 	u32 write_data_delay;
 	u32 force_2T;
-} board_specific_parameters_t;
+};
 
-/* ranges for parameters:
- *  wr_data_delay = 0-6
- *  clk adjust = 0-8
- *  cpo 2-0x1E (30)
+/*
+ * This table contains all valid speeds we want to override with board
+ * specific parameters. datarate_mhz_high values need to be in ascending order
+ * for each n_ranks group.
  */
-
-
-/* XXX: these values need to be checked for all interleaving modes.  */
-/* XXX: No reliable dual-rank 800 MHz setting has been found.  It may
- *      seem reliable, but errors will appear when memory intensive
- *      program is run. */
-/* XXX: Single rank at 800 MHz is OK.  */
-const board_specific_parameters_t board_specific_parameters[][30] = {
-	{
+static const struct board_specific_parameters udimm0[] = {
 	/*
 	 * memory controller 0
-	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
-	 * mhz| mhz|ranks|adjst| start | delay|
+	 *   num|  hi|  clk| wrlvl | cpo  |wrdata|2T
+	 * ranks| mhz|adjst| start |      |delay |
 	 */
-		{  0, 850,    4,    4,     6,   0xff,    2,  0},
-		{851, 950,    4,    5,     7,   0xff,    2,  0},
-		{951, 1050,   4,    5,     8,   0xff,    2,  0},
-		{1051, 1250,  4,    5,    10,   0xff,    2,  0},
-		{1251, 1350,  4,    5,    11,   0xff,    2,  0},
-		{  0, 850,    2,    5,     6,   0xff,    2,  0},
-		{851, 950,    2,    5,     7,   0xff,    2,  0},
-		{951, 1050,   2,    5,     7,   0xff,    2,  0},
-		{1051, 1250,  2,    4,     6,   0xff,    2,  0},
-		{1251, 1350,  2,    5,     7,   0xff,    2,  0},
-	},
+	{4,   850,    4,     6,   0xff,    2,  0},
+	{4,   950,    5,     7,   0xff,    2,  0},
+	{4,  1050,    5,     8,   0xff,    2,  0},
+	{4,  1250,    5,    10,   0xff,    2,  0},
+	{4,  1350,    5,    11,   0xff,    2,  0},
+	{4,  1666,    5,    12,   0xff,    2,  0},
+	{2,   850,    5,     6,   0xff,    2,  0},
+	{2,  1050,    5,     7,   0xff,    2,  0},
+	{2,  1250,    4,     6,   0xff,    2,  0},
+	{2,  1350,    5,     7,   0xff,    2,  0},
+	{2,  1666,    5,     8,   0xff,    2,  0},
+	{1,   850,    4,     5,   0xff,    2,  0},
+	{1,   950,    4,     7,   0xff,    2,  0},
+	{1,  1666,    4,     8,   0xff,    2,  0},
+	{}
+};
 
-	{
+/*
+ * The two slots have slightly different timing. The center values are good
+ * for both slots. We use identical speed tables for them. In future use, if
+ * DIMMs have fewer center values that require two separated tables, copy the
+ * udimm0 table to udimm1 and make changes to clk_adjust and wrlvl_start.
+ */
+static const struct board_specific_parameters *udimms[] = {
+	udimm0,
+	udimm0,
+};
+
+static const struct board_specific_parameters rdimm0[] = {
 	/*
-	 * memory controller 1
-	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
-	 * mhz| mhz|ranks|adjst| start | delay|
+	 * memory controller 0
+	 *   num|  hi|  clk| wrlvl | cpo  |wrdata|2T
+	 * ranks| mhz|adjst| start |      |delay |
 	 */
-		{  0, 850,    4,    4,     6,   0xff,    2,  0},
-		{851, 950,    4,    5,     7,   0xff,    2,  0},
-		{951, 1050,   4,    5,     8,   0xff,    2,  0},
-		{1051, 1250,  4,    5,    10,   0xff,    2,  0},
-		{1251, 1350,  4,    5,    11,   0xff,    2,  0},
-		{  0, 850,    2,    5,     6,   0xff,    2,  0},
-		{851, 950,    2,    5,     7,   0xff,    2,  0},
-		{951, 1050,   2,    5,     7,   0xff,    2,  0},
-		{1051, 1250,  2,    4,     6,   0xff,    2,  0},
-		{1251, 1350,  2,    5,     7,   0xff,    2,  0},
-	}
+	{4,   850,    4,     6,   0xff,    2,  0},
+	{4,   950,    5,     7,   0xff,    2,  0},
+	{4,  1050,    5,     8,   0xff,    2,  0},
+	{4,  1250,    5,    10,   0xff,    2,  0},
+	{4,  1350,    5,    11,   0xff,    2,  0},
+	{4,  1666,    5,    12,   0xff,    2,  0},
+	{2,   850,    4,     6,   0xff,    2,  0},
+	{2,  1050,    4,     7,   0xff,    2,  0},
+	{2,  1666,    4,     8,   0xff,    2,  0},
+	{1,   850,    4,     5,   0xff,    2,  0},
+	{1,   950,    4,     7,   0xff,    2,  0},
+	{1,  1666,    4,     8,   0xff,    2,  0},
+	{}
+};
+
+/*
+ * The two slots have slightly different timing. See comments above.
+ */
+static const struct board_specific_parameters *rdimms[] = {
+	rdimm0,
+	rdimm0,
 };
 
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num)
 {
-	const board_specific_parameters_t *pbsp =
-				&(board_specific_parameters[ctrl_num][0]);
-	u32 num_params = sizeof(board_specific_parameters[ctrl_num]) /
-				sizeof(board_specific_parameters[0][0]);
-	u32 i;
+	const struct board_specific_parameters *pbsp, *pbsp_highest = NULL;
 	ulong ddr_freq;
+
+	if (ctrl_num > 1) {
+		printf("Wrong parameter for controller number %d", ctrl_num);
+		return;
+	}
+	if (!pdimm->n_ranks)
+		return;
+
+	if (popts->registered_dimm_en)
+		pbsp = rdimms[ctrl_num];
+	else
+		pbsp = udimms[ctrl_num];
+
 
 	/* Get clk_adjust, cpo, write_data_delay,2T, according to the board ddr
 	 * freqency and n_banks specified in board_specific_parameters table.
 	 */
 	ddr_freq = get_ddr_freq(0) / 1000000;
-	for (i = 0; i < num_params; i++) {
-		if (ddr_freq >= pbsp->datarate_mhz_low &&
-			ddr_freq <= pbsp->datarate_mhz_high &&
-			pdimm[0].n_ranks == pbsp->n_ranks) {
-			popts->cpo_override = pbsp->cpo;
-			popts->write_data_delay = pbsp->write_data_delay;
-			popts->clk_adjust = pbsp->clk_adjust;
-			popts->wrlvl_start = pbsp->wrlvl_start;
-			popts->twoT_en = pbsp->force_2T;
+	while (pbsp->datarate_mhz_high) {
+		if (pbsp->n_ranks == pdimm->n_ranks) {
+			if (ddr_freq <= pbsp->datarate_mhz_high) {
+				popts->cpo_override = pbsp->cpo;
+				popts->write_data_delay =
+					pbsp->write_data_delay;
+				popts->clk_adjust = pbsp->clk_adjust;
+				popts->wrlvl_start = pbsp->wrlvl_start;
+				popts->twoT_en = pbsp->force_2T;
+				goto found;
+			}
+			pbsp_highest = pbsp;
 		}
 		pbsp++;
 	}
 
+	if (pbsp_highest) {
+		printf("Error: board specific timing not found "
+			"for data rate %lu MT/s!\n"
+			"Trying to use the highest speed (%u) parameters\n",
+			ddr_freq, pbsp_highest->datarate_mhz_high);
+		popts->cpo_override = pbsp_highest->cpo;
+		popts->write_data_delay = pbsp_highest->write_data_delay;
+		popts->clk_adjust = pbsp_highest->clk_adjust;
+		popts->wrlvl_start = pbsp_highest->wrlvl_start;
+		popts->twoT_en = pbsp_highest->force_2T;
+	} else {
+		panic("DIMM is not supported by this board");
+	}
+found:
 	/*
 	 * Factors to consider for half-strength driver enable:
 	 *	- number of DIMMs installed
@@ -250,20 +260,6 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 
 	/* DHC_EN =1, ODT = 60 Ohm */
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN;
-
-	/* override SPD values. rcw_2 should vary at differnt speed */
-	if (pdimm[0].n_ranks == 4) {
-		popts->rcw_override = 1;
-		popts->rcw_1 = 0x000a5a00;
-		if (ddr_freq <= 800)
-			popts->rcw_2 = 0x00000000;
-		else if (ddr_freq <= 1066)
-			popts->rcw_2 = 0x00100000;
-		else if (ddr_freq <= 1333)
-			popts->rcw_2 = 0x00200000;
-		else
-			popts->rcw_2 = 0x00300000;
-	}
 }
 
 phys_size_t initdram(int board_type)
@@ -283,6 +279,6 @@ phys_size_t initdram(int board_type)
 	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
 	dram_size *= 0x100000;
 
-	puts("    DDR: ");
+	debug("    DDR: ");
 	return dram_size;
 }

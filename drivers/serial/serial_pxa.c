@@ -1,4 +1,6 @@
 /*
+ * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
+ *
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  *
@@ -32,148 +34,161 @@
 #include <watchdog.h>
 #include <serial.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/arch/regs-uart.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define FFUART_INDEX	0
-#define BTUART_INDEX	1
-#define STUART_INDEX	2
+/*
+ * The numbering scheme differs here for PXA25x, PXA27x and PXA3xx so we can
+ * easily handle enabling of clock.
+ */
+#ifdef	CONFIG_CPU_MONAHANS
+#define	UART_CLK_BASE	CKENA_21_BTUART
+#define	UART_CLK_REG	CKENA
+#define	BTUART_INDEX	0
+#define	FFUART_INDEX	1
+#define	STUART_INDEX	2
+#elif	CONFIG_CPU_PXA25X
+#define	UART_CLK_BASE	(1 << 4)	/* HWUART */
+#define	UART_CLK_REG	CKEN
+#define	HWUART_INDEX	0
+#define	STUART_INDEX	1
+#define	FFUART_INDEX	2
+#define	BTUART_INDEX	3
+#else	/* PXA27x */
+#define	UART_CLK_BASE	CKEN5_STUART
+#define	UART_CLK_REG	CKEN
+#define	STUART_INDEX	0
+#define	FFUART_INDEX	1
+#define	BTUART_INDEX	2
+#endif
+
+/*
+ * Only PXA250 has HWUART, to avoid poluting the code with more macros,
+ * artificially introduce this.
+ */
+#ifndef	CONFIG_CPU_PXA25X
+#define	HWUART_INDEX	0xff
+#endif
 
 #ifndef CONFIG_SERIAL_MULTI
-#if defined (CONFIG_FFUART)
+#if defined(CONFIG_FFUART)
 #define UART_INDEX	FFUART_INDEX
-#elif defined (CONFIG_BTUART)
+#elif defined(CONFIG_BTUART)
 #define UART_INDEX	BTUART_INDEX
-#elif defined (CONFIG_STUART)
+#elif defined(CONFIG_STUART)
 #define UART_INDEX	STUART_INDEX
+#elif defined(CONFIG_HWUART)
+#define UART_INDEX	HWUART_INDEX
 #else
-#error "Bad: you didn't configure serial ..."
+#error "Please select CONFIG_(FF|BT|ST|HW)UART in board config file."
 #endif
 #endif
 
-void pxa_setbrg_dev (unsigned int uart_index)
+uint32_t pxa_uart_get_baud_divider(void)
 {
-	unsigned int quot = 0;
-
 	if (gd->baudrate == 1200)
-		quot = 768;
+		return 768;
 	else if (gd->baudrate == 9600)
-		quot = 96;
+		return 96;
 	else if (gd->baudrate == 19200)
-		quot = 48;
+		return 48;
 	else if (gd->baudrate == 38400)
-		quot = 24;
+		return 24;
 	else if (gd->baudrate == 57600)
-		quot = 16;
+		return 16;
 	else if (gd->baudrate == 115200)
-		quot = 8;
-	else
-		hang ();
+		return 8;
+	else	/* Unsupported baudrate */
+		return 0;
+}
 
+struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
+{
 	switch (uart_index) {
-		case FFUART_INDEX:
-#ifdef CONFIG_CPU_MONAHANS
-			writel(readl(CKENA) | CKENA_22_FFUART, CKENA);
-#else
-			writel(readl(CKEN) | CKEN6_FFUART, CKEN);
-#endif /* CONFIG_CPU_MONAHANS */
-
-			writel(0, FFIER);	/* Disable for now */
-			writel(0, FFFCR);	/* No fifos enabled */
-
-			/* set baud rate */
-			writel(LCR_WLS0 | LCR_WLS1 | LCR_DLAB, FFLCR);
-			writel(quot & 0xff, FFDLL);
-			writel(quot >> 8, FFDLH);
-			writel(LCR_WLS0 | LCR_WLS1, FFLCR);
-
-			writel(IER_UUE, FFIER);	/* Enable FFUART */
-		break;
-
-		case BTUART_INDEX:
-#ifdef CONFIG_CPU_MONAHANS
-			writel(readl(CKENA) | CKENA_21_BTUART, CKENA);
-#else
-			writel(readl(CKEN) | CKEN7_BTUART, CKEN);
-#endif /*  CONFIG_CPU_MONAHANS */
-
-			writel(0, BTIER);
-			writel(0, BTFCR);
-
-			/* set baud rate */
-			writel(LCR_DLAB, BTLCR);
-			writel(quot & 0xff, BTDLL);
-			writel(quot >> 8, BTDLH);
-			writel(LCR_WLS0 | LCR_WLS1, BTLCR);
-
-			writel(IER_UUE, BTIER);	/* Enable BFUART */
-
-		break;
-
-		case STUART_INDEX:
-#ifdef CONFIG_CPU_MONAHANS
-			writel(readl(CKENA) | CKENA_23_STUART, CKENA);
-#else
-			writel(readl(CKEN) | CKEN5_STUART, CKEN);
-#endif /* CONFIG_CPU_MONAHANS */
-
-			writel(0, STIER);
-			writel(0, STFCR);
-
-			/* set baud rate */
-			writel(LCR_DLAB, STLCR);
-			writel(quot & 0xff, STDLL);
-			writel(quot >> 8, STDLH);
-			writel(LCR_WLS0 | LCR_WLS1, STLCR);
-
-			writel(IER_UUE, STIER);	/* Enable STUART */
-			break;
-
-		default:
-			hang();
+	case FFUART_INDEX: return (struct pxa_uart_regs *)FFUART_BASE;
+	case BTUART_INDEX: return (struct pxa_uart_regs *)BTUART_BASE;
+	case STUART_INDEX: return (struct pxa_uart_regs *)STUART_BASE;
+	case HWUART_INDEX: return (struct pxa_uart_regs *)HWUART_BASE;
+	default:
+		return NULL;
 	}
 }
 
+void pxa_uart_toggle_clock(uint32_t uart_index, int enable)
+{
+	uint32_t clk_reg, clk_offset, reg;
+
+	clk_reg = UART_CLK_REG;
+	clk_offset = UART_CLK_BASE << uart_index;
+
+	reg = readl(clk_reg);
+
+	if (enable)
+		reg |= clk_offset;
+	else
+		reg &= ~clk_offset;
+
+	writel(reg, clk_reg);
+}
+
+/*
+ * Enable clock and set baud rate, parity etc.
+ */
+void pxa_setbrg_dev(uint32_t uart_index)
+{
+	uint32_t divider = 0;
+	struct pxa_uart_regs *uart_regs;
+
+	divider = pxa_uart_get_baud_divider();
+	if (!divider)
+		hang();
+
+	uart_regs = pxa_uart_index_to_regs(uart_index);
+	if (!uart_regs)
+		hang();
+
+	pxa_uart_toggle_clock(uart_index, 1);
+
+	/* Disable interrupts and FIFOs */
+	writel(0, &uart_regs->ier);
+	writel(0, &uart_regs->fcr);
+
+	/* Set baud rate */
+	writel(LCR_WLS0 | LCR_WLS1 | LCR_DLAB, &uart_regs->lcr);
+	writel(divider & 0xff, &uart_regs->dll);
+	writel(divider >> 8, &uart_regs->dlh);
+	writel(LCR_WLS0 | LCR_WLS1, &uart_regs->lcr);
+
+	/* Enable UART */
+	writel(IER_UUE, &uart_regs->ier);
+}
 
 /*
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
- *
  */
-int pxa_init_dev (unsigned int uart_index)
+int pxa_init_dev(unsigned int uart_index)
 {
 	pxa_setbrg_dev (uart_index);
-
-	return (0);
+	return 0;
 }
-
 
 /*
  * Output a single byte to the serial port.
  */
-void pxa_putc_dev (unsigned int uart_index,const char c)
+void pxa_putc_dev(unsigned int uart_index, const char c)
 {
-	switch (uart_index) {
-		case FFUART_INDEX:
-		/* wait for room in the tx FIFO on FFUART */
-			while ((readl(FFLSR) & LSR_TEMT) == 0)
-				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-			writel(c, FFTHR);
-			break;
+	struct pxa_uart_regs *uart_regs;
 
-		case BTUART_INDEX:
-			while ((readl(BTLSR) & LSR_TEMT) == 0)
-				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-			writel(c, BTTHR);
-			break;
+	uart_regs = pxa_uart_index_to_regs(uart_index);
+	if (!uart_regs)
+		hang();
 
-		case STUART_INDEX:
-			while ((readl(STLSR) & LSR_TEMT) == 0)
-				WATCHDOG_RESET ();	/* Reset HW Watchdog, if needed */
-			writel(c, STTHR);
-			break;
-	}
+	while (!(readl(&uart_regs->lsr) & LSR_TEMT))
+		WATCHDOG_RESET();
+	writel(c, &uart_regs->thr);
 
 	/* If \n, also do \r */
 	if (c == '\n')
@@ -185,17 +200,15 @@ void pxa_putc_dev (unsigned int uart_index,const char c)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int pxa_tstc_dev (unsigned int uart_index)
+int pxa_tstc_dev(unsigned int uart_index)
 {
-	switch (uart_index) {
-		case FFUART_INDEX:
-			return readl(FFLSR) & LSR_DR;
-		case BTUART_INDEX:
-			return readl(BTLSR) & LSR_DR;
-		case STUART_INDEX:
-			return readl(STLSR) & LSR_DR;
-	}
-	return -1;
+	struct pxa_uart_regs *uart_regs;
+
+	uart_regs = pxa_uart_index_to_regs(uart_index);
+	if (!uart_regs)
+		return -1;
+
+	return readl(&uart_regs->lsr) & LSR_DR;
 }
 
 /*
@@ -203,190 +216,86 @@ int pxa_tstc_dev (unsigned int uart_index)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int pxa_getc_dev (unsigned int uart_index)
+int pxa_getc_dev(unsigned int uart_index)
 {
-	switch (uart_index) {
-		case FFUART_INDEX:
-			while (!(readl(FFLSR) & LSR_DR))
-				/* Reset HW Watchdog, if needed */
-				WATCHDOG_RESET();
-			return (char) readl(FFRBR) & 0xff;
+	struct pxa_uart_regs *uart_regs;
 
-		case BTUART_INDEX:
-			while (!(readl(BTLSR) & LSR_DR))
-				/* Reset HW Watchdog, if needed */
-				WATCHDOG_RESET();
-			return (char) readl(BTRBR) & 0xff;
-		case STUART_INDEX:
-			while (!(readl(STLSR) & LSR_DR))
-				/* Reset HW Watchdog, if needed */
-				WATCHDOG_RESET();
-			return (char) readl(STRBR) & 0xff;
-	}
-	return -1;
+	uart_regs = pxa_uart_index_to_regs(uart_index);
+	if (!uart_regs)
+		return -1;
+
+	while (!(readl(&uart_regs->lsr) & LSR_DR))
+		WATCHDOG_RESET();
+	return readl(&uart_regs->rbr) & 0xff;
 }
 
-void
-pxa_puts_dev (unsigned int uart_index,const char *s)
+void pxa_puts_dev(unsigned int uart_index, const char *s)
 {
-	while (*s) {
-		pxa_putc_dev (uart_index,*s++);
-	}
+	while (*s)
+		pxa_putc_dev(uart_index, *s++);
 }
 
-#if defined (CONFIG_FFUART)
-static int ffuart_init(void)
-{
-	return pxa_init_dev(FFUART_INDEX);
-}
+#define	pxa_uart(uart, UART)						\
+	int uart##_init(void)						\
+	{								\
+		return pxa_init_dev(UART##_INDEX);			\
+	}								\
+									\
+	void uart##_setbrg(void)					\
+	{								\
+		return pxa_setbrg_dev(UART##_INDEX);			\
+	}								\
+									\
+	void uart##_putc(const char c)					\
+	{								\
+		return pxa_putc_dev(UART##_INDEX, c);			\
+	}								\
+									\
+	void uart##_puts(const char *s)					\
+	{								\
+		return pxa_puts_dev(UART##_INDEX, s);			\
+	}								\
+									\
+	int uart##_getc(void)						\
+	{								\
+		return pxa_getc_dev(UART##_INDEX);			\
+	}								\
+									\
+	int uart##_tstc(void)						\
+	{								\
+		return pxa_tstc_dev(UART##_INDEX);			\
+	}								\
 
-static void ffuart_setbrg(void)
-{
-	return pxa_setbrg_dev(FFUART_INDEX);
-}
+#define	pxa_uart_desc(uart)						\
+	struct serial_device serial_##uart##_device =			\
+	{								\
+		"serial_"#uart,						\
+		uart##_init,						\
+		NULL,							\
+		uart##_setbrg,						\
+		uart##_getc,						\
+		uart##_tstc,						\
+		uart##_putc,						\
+		uart##_puts,						\
+	};
 
-static void ffuart_putc(const char c)
-{
-	return pxa_putc_dev(FFUART_INDEX,c);
-}
+#define	pxa_uart_multi(uart, UART)					\
+	pxa_uart(uart, UART)						\
+	pxa_uart_desc(uart)
 
-static void ffuart_puts(const char *s)
-{
-	return pxa_puts_dev(FFUART_INDEX,s);
-}
-
-static int ffuart_getc(void)
-{
-	return pxa_getc_dev(FFUART_INDEX);
-}
-
-static int ffuart_tstc(void)
-{
-	return pxa_tstc_dev(FFUART_INDEX);
-}
-
-struct serial_device serial_ffuart_device =
-{
-	"serial_ffuart",
-	"PXA",
-	ffuart_init,
-	NULL,
-	ffuart_setbrg,
-	ffuart_getc,
-	ffuart_tstc,
-	ffuart_putc,
-	ffuart_puts,
-};
+#if defined(CONFIG_HWUART)
+	pxa_uart_multi(hwuart, HWUART)
+#endif
+#if defined(CONFIG_STUART)
+	pxa_uart_multi(stuart, STUART)
+#endif
+#if defined(CONFIG_FFUART)
+	pxa_uart_multi(ffuart, FFUART)
+#endif
+#if defined(CONFIG_BTUART)
+	pxa_uart_multi(btuart, BTUART)
 #endif
 
-#if defined (CONFIG_BTUART)
-static int btuart_init(void)
-{
-	return pxa_init_dev(BTUART_INDEX);
-}
-
-static void btuart_setbrg(void)
-{
-	return pxa_setbrg_dev(BTUART_INDEX);
-}
-
-static void btuart_putc(const char c)
-{
-	return pxa_putc_dev(BTUART_INDEX,c);
-}
-
-static void btuart_puts(const char *s)
-{
-	return pxa_puts_dev(BTUART_INDEX,s);
-}
-
-static int btuart_getc(void)
-{
-	return pxa_getc_dev(BTUART_INDEX);
-}
-
-static int btuart_tstc(void)
-{
-	return pxa_tstc_dev(BTUART_INDEX);
-}
-
-struct serial_device serial_btuart_device =
-{
-	"serial_btuart",
-	"PXA",
-	btuart_init,
-	NULL,
-	btuart_setbrg,
-	btuart_getc,
-	btuart_tstc,
-	btuart_putc,
-	btuart_puts,
-};
+#ifndef	CONFIG_SERIAL_MULTI
+	pxa_uart(serial, UART)
 #endif
-
-#if defined (CONFIG_STUART)
-static int stuart_init(void)
-{
-	return pxa_init_dev(STUART_INDEX);
-}
-
-static void stuart_setbrg(void)
-{
-	return pxa_setbrg_dev(STUART_INDEX);
-}
-
-static void stuart_putc(const char c)
-{
-	return pxa_putc_dev(STUART_INDEX,c);
-}
-
-static void stuart_puts(const char *s)
-{
-	return pxa_puts_dev(STUART_INDEX,s);
-}
-
-static int stuart_getc(void)
-{
-	return pxa_getc_dev(STUART_INDEX);
-}
-
-static int stuart_tstc(void)
-{
-	return pxa_tstc_dev(STUART_INDEX);
-}
-
-struct serial_device serial_stuart_device =
-{
-	"serial_stuart",
-	"PXA",
-	stuart_init,
-	NULL,
-	stuart_setbrg,
-	stuart_getc,
-	stuart_tstc,
-	stuart_putc,
-	stuart_puts,
-};
-#endif
-
-
-#ifndef CONFIG_SERIAL_MULTI
-inline int serial_init(void) {
-	return (pxa_init_dev(UART_INDEX));
-}
-void serial_setbrg(void) {
-	pxa_setbrg_dev(UART_INDEX);
-}
-int serial_getc(void) {
-	return(pxa_getc_dev(UART_INDEX));
-}
-int serial_tstc(void) {
-	return(pxa_tstc_dev(UART_INDEX));
-}
-void serial_putc(const char c) {
-	pxa_putc_dev(UART_INDEX,c);
-}
-void serial_puts(const char *s) {
-	pxa_puts_dev(UART_INDEX,s);
-}
-#endif	/* CONFIG_SERIAL_MULTI */

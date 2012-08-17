@@ -1,8 +1,8 @@
 /*
  *  armboot - Startup Code for ARM920 CPU-core
  *
- *  Copyright (c) 2001	Marius Gröger <mag@sysgo.de>
- *  Copyright (c) 2002	Alex Züpke <azu@sysgo.de>
+ *  Copyright (c) 2001	Marius GrÃ¶ger <mag@sysgo.de>
+ *  Copyright (c) 2002	Alex ZÃ¼pke <azu@sysgo.de>
  *  Copyright (c) 2002	Gary Jennejohn <garyj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
@@ -124,7 +124,7 @@ reset:
 	msr	cpsr,r0
 
 #define pWDTCTL		0x80001400  /* Watchdog Timer control register */
-#define pINTENC		0x8000050C  /* Interupt-Controller enable clear register */
+#define pINTENC		0x8000050C  /* Interrupt-Controller enable clear register */
 #define pCLKSET		0x80000420  /* clock divisor register */
 
 	/* disable watchdog, set watchdog control register to
@@ -195,7 +195,7 @@ copy_loop:
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	/*
 	 * fix .rel.dyn relocations
 	 */
@@ -237,7 +237,7 @@ fixnext:
 #endif
 
 clear_bss:
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	mov	r4, r6			/* reloc addr */

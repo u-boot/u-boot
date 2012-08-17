@@ -58,16 +58,17 @@ int board_early_init_f(void)
  */
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 #ifdef DISPLAY_BOARD_INFO
 	sys_info_t sysinfo;
 #endif
 
 	puts("Board: Quad100hd");
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

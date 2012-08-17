@@ -43,5 +43,7 @@ typedef struct bd_info {
 	unsigned long	bi_baudrate;	/* Console Baudrate */
 } bd_t;
 
+/* For image.h:image_check_target_arch() */
+#define IH_ARCH_DEFAULT IH_ARCH_NIOS2
 
 #endif	/* __ASM_NIOS2_U_BOOT_H_ */

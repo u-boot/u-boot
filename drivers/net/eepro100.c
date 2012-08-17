@@ -923,7 +923,6 @@ static void purge_tx_ring (struct eth_device *dev)
 
 static void read_hw_addr (struct eth_device *dev, bd_t * bis)
 {
-	u16 eeprom[0x40];
 	u16 sum = 0;
 	int i, j;
 	int addr_len = read_eeprom (dev, 0, 6) == 0xffff ? 8 : 6;
@@ -931,7 +930,6 @@ static void read_hw_addr (struct eth_device *dev, bd_t * bis)
 	for (j = 0, i = 0; i < 0x40; i++) {
 		u16 value = read_eeprom (dev, i, addr_len);
 
-		eeprom[i] = value;
 		sum += value;
 		if (i < 3) {
 			dev->enetaddr[j++] = value;

@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/iomux.h>
@@ -31,12 +32,12 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <pmic.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
+#include <usb/ehci-fsl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static u32 system_rev;
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
@@ -45,15 +46,10 @@ struct fsl_esdhc_cfg esdhc_cfg[2] = {
 };
 #endif
 
-u32 get_board_rev(void)
-{
-	return system_rev;
-}
-
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile void *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
 				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
@@ -177,39 +173,101 @@ static void setup_iomux_spi(void)
 }
 #endif
 
+#ifdef CONFIG_USB_EHCI_MX5
+#define MX51EVK_USBH1_HUB_RST	IOMUX_TO_GPIO(MX51_PIN_GPIO1_7) /* GPIO1_7 */
+#define MX51EVK_USBH1_STP	IOMUX_TO_GPIO(MX51_PIN_USBH1_STP) /* GPIO1_27 */
+#define MX51EVK_USB_CLK_EN_B	IOMUX_TO_GPIO(MX51_PIN_EIM_D18) /* GPIO2_1 */
+#define MX51EVK_USB_PHY_RESET	IOMUX_TO_GPIO(MX51_PIN_EIM_D21) /* GPIO2_5 */
+
+#define USBH1_PAD	(PAD_CTL_SRE_FAST | PAD_CTL_DRV_HIGH |		\
+			 PAD_CTL_100K_PU | PAD_CTL_PUE_PULL |		\
+			 PAD_CTL_PKE_ENABLE | PAD_CTL_HYS_ENABLE)
+#define GPIO_PAD	(PAD_CTL_DRV_HIGH | PAD_CTL_PKE_ENABLE |	\
+			 PAD_CTL_SRE_FAST)
+#define NO_PAD		(1 << 16)
+
+static void setup_usb_h1(void)
+{
+	setup_iomux_usb_h1();
+
+	/* GPIO_1_7 for USBH1 hub reset */
+	mxc_request_iomux(MX51_PIN_GPIO1_7, IOMUX_CONFIG_ALT0);
+	mxc_iomux_set_pad(MX51_PIN_GPIO1_7, NO_PAD);
+
+	/* GPIO_2_1 */
+	mxc_request_iomux(MX51_PIN_EIM_D17, IOMUX_CONFIG_ALT1);
+	mxc_iomux_set_pad(MX51_PIN_EIM_D17, GPIO_PAD);
+
+	/* GPIO_2_5 for USB PHY reset */
+	mxc_request_iomux(MX51_PIN_EIM_D21, IOMUX_CONFIG_ALT1);
+	mxc_iomux_set_pad(MX51_PIN_EIM_D21, GPIO_PAD);
+}
+
+int board_ehci_hcd_init(int port)
+{
+	/* Set USBH1_STP to GPIO and toggle it */
+	mxc_request_iomux(MX51_PIN_USBH1_STP, IOMUX_CONFIG_GPIO);
+	mxc_iomux_set_pad(MX51_PIN_USBH1_STP, USBH1_PAD);
+
+	gpio_direction_output(MX51EVK_USBH1_STP, 0);
+	gpio_direction_output(MX51EVK_USB_PHY_RESET, 0);
+	mdelay(10);
+	gpio_set_value(MX51EVK_USBH1_STP, 1);
+
+	/* Set back USBH1_STP to be function */
+	mxc_request_iomux(MX51_PIN_USBH1_STP, IOMUX_CONFIG_ALT0);
+	mxc_iomux_set_pad(MX51_PIN_USBH1_STP, USBH1_PAD);
+
+	/* De-assert USB PHY RESETB */
+	gpio_set_value(MX51EVK_USB_PHY_RESET, 1);
+
+	/* Drive USB_CLK_EN_B line low */
+	gpio_direction_output(MX51EVK_USB_CLK_EN_B, 0);
+
+	/* Reset USB hub */
+	gpio_direction_output(MX51EVK_USBH1_HUB_RST, 0);
+	mdelay(2);
+	gpio_set_value(MX51EVK_USBH1_HUB_RST, 1);
+	return 0;
+}
+#endif
+
 static void power_init(void)
 {
 	unsigned int val;
-	unsigned int reg;
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
 
 	/* Write needed to Power Gate 2 register */
-	val = pmic_reg_read(REG_POWER_MISC);
+	pmic_reg_read(p, REG_POWER_MISC, &val);
 	val &= ~PWGT2SPIEN;
-	pmic_reg_write(REG_POWER_MISC, val);
+	pmic_reg_write(p, REG_POWER_MISC, val);
 
 	/* Externally powered */
-	val = pmic_reg_read(REG_CHARGE);
+	pmic_reg_read(p, REG_CHARGE, &val);
 	val |= ICHRG0 | ICHRG1 | ICHRG2 | ICHRG3 | CHGAUTOB;
-	pmic_reg_write(REG_CHARGE, val);
+	pmic_reg_write(p, REG_CHARGE, val);
 
 	/* power up the system first */
-	pmic_reg_write(REG_POWER_MISC, PWUP);
+	pmic_reg_write(p, REG_POWER_MISC, PWUP);
 
 	/* Set core voltage to 1.1V */
-	val = pmic_reg_read(REG_SW_0);
+	pmic_reg_read(p, REG_SW_0, &val);
 	val = (val & ~SWx_VOLT_MASK) | SWx_1_100V;
-	pmic_reg_write(REG_SW_0, val);
+	pmic_reg_write(p, REG_SW_0, val);
 
 	/* Setup VCC (SW2) to 1.25 */
-	val = pmic_reg_read(REG_SW_1);
+	pmic_reg_read(p, REG_SW_1, &val);
 	val = (val & ~SWx_VOLT_MASK) | SWx_1_250V;
-	pmic_reg_write(REG_SW_1, val);
+	pmic_reg_write(p, REG_SW_1, val);
 
 	/* Setup 1V2_DIG1 (SW3) to 1.25 */
-	val = pmic_reg_read(REG_SW_2);
+	pmic_reg_read(p, REG_SW_2, &val);
 	val = (val & ~SWx_VOLT_MASK) | SWx_1_250V;
-	pmic_reg_write(REG_SW_2, val);
+	pmic_reg_write(p, REG_SW_2, val);
 	udelay(50);
 
 	/* Raise the core frequency to 800MHz */
@@ -217,72 +275,68 @@ static void power_init(void)
 
 	/* Set switchers in Auto in NORMAL mode & STANDBY mode */
 	/* Setup the switcher mode for SW1 & SW2*/
-	val = pmic_reg_read(REG_SW_4);
+	pmic_reg_read(p, REG_SW_4, &val);
 	val = (val & ~((SWMODE_MASK << SWMODE1_SHIFT) |
 		(SWMODE_MASK << SWMODE2_SHIFT)));
 	val |= (SWMODE_AUTO_AUTO << SWMODE1_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE2_SHIFT);
-	pmic_reg_write(REG_SW_4, val);
+	pmic_reg_write(p, REG_SW_4, val);
 
 	/* Setup the switcher mode for SW3 & SW4 */
-	val = pmic_reg_read(REG_SW_5);
+	pmic_reg_read(p, REG_SW_5, &val);
 	val = (val & ~((SWMODE_MASK << SWMODE3_SHIFT) |
 		(SWMODE_MASK << SWMODE4_SHIFT)));
 	val |= (SWMODE_AUTO_AUTO << SWMODE3_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE4_SHIFT);
-	pmic_reg_write(REG_SW_5, val);
+	pmic_reg_write(p, REG_SW_5, val);
 
 	/* Set VDIG to 1.65V, VGEN3 to 1.8V, VCAM to 2.6V */
-	val = pmic_reg_read(REG_SETTING_0);
+	pmic_reg_read(p, REG_SETTING_0, &val);
 	val &= ~(VCAM_MASK | VGEN3_MASK | VDIG_MASK);
 	val |= VDIG_1_65 | VGEN3_1_8 | VCAM_2_6;
-	pmic_reg_write(REG_SETTING_0, val);
+	pmic_reg_write(p, REG_SETTING_0, val);
 
 	/* Set VVIDEO to 2.775V, VAUDIO to 3V, VSD to 3.15V */
-	val = pmic_reg_read(REG_SETTING_1);
+	pmic_reg_read(p, REG_SETTING_1, &val);
 	val &= ~(VVIDEO_MASK | VSD_MASK | VAUDIO_MASK);
 	val |= VSD_3_15 | VAUDIO_3_0 | VVIDEO_2_775;
-	pmic_reg_write(REG_SETTING_1, val);
+	pmic_reg_write(p, REG_SETTING_1, val);
 
 	/* Configure VGEN3 and VCAM regulators to use external PNP */
 	val = VGEN3CONFIG | VCAMCONFIG;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 	udelay(200);
-
-	reg = readl(GPIO2_BASE_ADDR + 0x0);
-	reg &= ~0x4000;  /* Lower reset line */
-	writel(reg, GPIO2_BASE_ADDR + 0x0);
-
-	reg = readl(GPIO2_BASE_ADDR + 0x4);
-	reg |= 0x4000;	/* configure GPIO lines as output */
-	writel(reg, GPIO2_BASE_ADDR + 0x4);
-
-	/* Reset the ethernet controller over GPIO */
-	writel(0x1, IOMUXC_BASE_ADDR + 0x0AC);
 
 	/* Enable VGEN3, VCAM, VAUDIO, VVIDEO, VSD regulators */
 	val = VGEN3EN | VGEN3CONFIG | VCAMEN | VCAMCONFIG |
 		VVIDEOEN | VAUDIOEN  | VSDEN;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
+
+	mxc_request_iomux(MX51_PIN_EIM_A20, IOMUX_CONFIG_ALT1);
+	gpio_direction_output(46, 0);
 
 	udelay(500);
 
-	reg = readl(GPIO2_BASE_ADDR + 0x0);
-	reg |= 0x4000;
-	writel(reg, GPIO2_BASE_ADDR + 0x0);
+	gpio_set_value(46, 1);
 }
 
 #ifdef CONFIG_FSL_ESDHC
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
+int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	int ret;
+
+	mxc_request_iomux(MX51_PIN_GPIO1_0, IOMUX_CONFIG_ALT1);
+	gpio_direction_input(0);
+	mxc_request_iomux(MX51_PIN_GPIO1_6, IOMUX_CONFIG_ALT0);
+	gpio_direction_input(6);
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*cd = readl(GPIO1_BASE_ADDR) & 0x01;
+		ret = !gpio_get_value(0);
 	else
-		*cd = readl(GPIO1_BASE_ADDR) & 0x40;
+		ret = !gpio_get_value(6);
 
-	return 0;
+	return ret;
 }
 
 int board_mmc_init(bd_t *bis)
@@ -403,22 +457,22 @@ int board_early_init_f(void)
 {
 	setup_iomux_uart();
 	setup_iomux_fec();
+#ifdef CONFIG_USB_EHCI_MX5
+	setup_usb_h1();
+#endif
 
 	return 0;
 }
 
 int board_init(void)
 {
-	system_rev = get_cpu_rev();
-
-	gd->bd->bi_arch_number = MACH_TYPE_MX51_BABBAGE;
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	return 0;
 }
 
-#ifdef BOARD_LATE_INIT
+#ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
 #ifdef CONFIG_MXC_SPI
@@ -431,41 +485,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: MX51EVK ");
+	puts("Board: MX51EVK\n");
 
-	switch (system_rev & 0xff) {
-	case CHIP_REV_3_0:
-		puts("3.0 [");
-		break;
-	case CHIP_REV_2_5:
-		puts("2.5 [");
-		break;
-	case CHIP_REV_2_0:
-		puts("2.0 [");
-		break;
-	case CHIP_REV_1_1:
-		puts("1.1 [");
-		break;
-	case CHIP_REV_1_0:
-	default:
-		puts("1.0 [");
-		break;
-	}
-
-	switch (__raw_readl(SRC_BASE_ADDR + 0x8)) {
-	case 0x0001:
-		puts("POR");
-		break;
-	case 0x0009:
-		puts("RST");
-		break;
-	case 0x0010:
-	case 0x0011:
-		puts("WDOG");
-		break;
-	default:
-		puts("unknown");
-	}
-	puts("]\n");
 	return 0;
 }

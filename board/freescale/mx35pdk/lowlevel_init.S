@@ -21,7 +21,7 @@
 
 #include <config.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/asm-offsets.h>
+#include <generated/asm-offsets.h>
 #include "mx35pdk.h"
 
 /*
@@ -193,10 +193,11 @@
 	mov r2, #0x00
 	mov r1, #CSD0_BASE_ADDR
 	bl setup_sdram_bank
-	cmp r3, #0x0
-	orreq r5, r5, #1
-	eorne r2, r2, #0x1
-	blne setup_sdram_bank
+
+	mov r5, #0x00
+	mov r2, #0x00
+	mov r1, #CSD1_BASE_ADDR
+	bl setup_sdram_bank
 
 	mov lr, fp
 

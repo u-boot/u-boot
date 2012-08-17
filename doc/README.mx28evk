@@ -1,0 +1,29 @@
+FREESCALE MX28EVK
+==================
+
+Supported hardware: only MX28EVK rev D is supported in U-boot.
+
+Files of the MX28EVK port
+--------------------------
+
+arch/arm/cpu/arm926ejs/mx28/	- The CPU support code for the Freescale i.MX28
+arch/arm/include/asm/arch-mx28/	- Header files for the Freescale i.MX28
+board/freescale/mx28evk/	- MX28EVK board specific files
+include/configs/mx28evk.h	- MX28EVK configuration file
+
+Jumper configuration
+---------------------
+
+To boot MX28EVK from an SD card, set the boot mode DIP switches as:
+
+   * Boot Mode Select: 1 0 0 1 (Boot from SD card Slot 0 - U42)
+   * JTAG PSWITCH RESET: To the left (reset enabled)
+   * Battery Source: Down
+   * Wall 5V: Up
+   * VDD 5V: To the left (off)
+   * Hold Button: Down (off)
+
+Follow the instructions from doc/README.mx28_common to generate a bootable SD
+card.
+
+Insert the SD card in slot 0, power up the board and U-boot will boot.

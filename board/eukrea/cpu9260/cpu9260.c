@@ -1,10 +1,10 @@
 /*
  * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop@leadtechdesign.com>
+ * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  * Ilko Iliev <www.ronetix.at>
  *
- * (C) Copyright 2009
+ * (C) Copyright 2009-2011
  * Eric Benard <eric@eukrea.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,15 +27,15 @@
  */
 
 #include <common.h>
-#include <asm/sizes.h>
+#include <asm/io.h>
 #include <asm/arch/at91sam9260.h>
-#include <asm/arch/at91sam9_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
+#include <asm/arch/at91_matrix.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/io.h>
+#include <asm/arch/at91_pio.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
@@ -53,116 +53,103 @@ DECLARE_GLOBAL_DATA_PTR;
 static void cpu9260_nand_hw_init(void)
 {
 	unsigned long csa;
+	at91_smc_t *smc = (at91_smc_t *) ATMEL_BASE_SMC;
+	at91_matrix_t *matrix = (at91_matrix_t *) ATMEL_BASE_MATRIX;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
 	/* Enable CS3 */
-	csa = at91_sys_read(AT91_MATRIX_EBICSA);
-	at91_sys_write(AT91_MATRIX_EBICSA,
-		       csa | AT91_MATRIX_CS3A_SMC_SMARTMEDIA);
+	csa = readl(&matrix->csa) | AT91_MATRIX_CSA_EBI_CS3A;
+	writel(csa, &matrix->csa);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
 #if defined(CONFIG_CPU9G20)
-	at91_sys_write(AT91_SMC_SETUP(3),
-		       AT91_SMC_NWESETUP_(2) | AT91_SMC_NCS_WRSETUP_(0) |
-		       AT91_SMC_NRDSETUP_(2) | AT91_SMC_NCS_RDSETUP_(0));
-	at91_sys_write(AT91_SMC_PULSE(3),
-		       AT91_SMC_NWEPULSE_(4) | AT91_SMC_NCS_WRPULSE_(4) |
-		       AT91_SMC_NRDPULSE_(4) | AT91_SMC_NCS_RDPULSE_(4));
-	at91_sys_write(AT91_SMC_CYCLE(3),
-		       AT91_SMC_NWECYCLE_(7) | AT91_SMC_NRDCYCLE_(7));
-	at91_sys_write(AT91_SMC_MODE(3),
-		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
-		       AT91_SMC_EXNWMODE_DISABLE |
-		       AT91_SMC_DBW_8 |
-		       AT91_SMC_TDF_(3));
+	writel(AT91_SMC_SETUP_NWE(2) | AT91_SMC_SETUP_NCS_WR(0) |
+		AT91_SMC_SETUP_NRD(2) | AT91_SMC_SETUP_NCS_RD(0),
+		&smc->cs[3].setup);
+	writel(AT91_SMC_PULSE_NWE(4) | AT91_SMC_PULSE_NCS_WR(4) |
+		AT91_SMC_PULSE_NRD(4) | AT91_SMC_PULSE_NCS_RD(4),
+		&smc->cs[3].pulse);
+	writel(AT91_SMC_CYCLE_NWE(7) | AT91_SMC_CYCLE_NRD(7),
+		&smc->cs[3].cycle);
+	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
+		AT91_SMC_MODE_EXNW_DISABLE |
+		AT91_SMC_MODE_DBW_8 |
+		AT91_SMC_MODE_TDF_CYCLE(3),
+		&smc->cs[3].mode);
 #elif defined(CONFIG_CPU9260)
-	at91_sys_write(AT91_SMC_SETUP(3),
-		       AT91_SMC_NWESETUP_(1) | AT91_SMC_NCS_WRSETUP_(0) |
-		       AT91_SMC_NRDSETUP_(1) | AT91_SMC_NCS_RDSETUP_(0));
-	at91_sys_write(AT91_SMC_PULSE(3),
-		       AT91_SMC_NWEPULSE_(3) | AT91_SMC_NCS_WRPULSE_(3) |
-		       AT91_SMC_NRDPULSE_(3) | AT91_SMC_NCS_RDPULSE_(3));
-	at91_sys_write(AT91_SMC_CYCLE(3),
-		       AT91_SMC_NWECYCLE_(5) | AT91_SMC_NRDCYCLE_(5));
-	at91_sys_write(AT91_SMC_MODE(3),
-		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
-		       AT91_SMC_EXNWMODE_DISABLE |
-		       AT91_SMC_DBW_8 |
-		       AT91_SMC_TDF_(2));
+	writel(AT91_SMC_SETUP_NWE(1) | AT91_SMC_SETUP_NCS_WR(0) |
+		AT91_SMC_SETUP_NRD(1) | AT91_SMC_SETUP_NCS_RD(0),
+		&smc->cs[3].setup);
+	writel(AT91_SMC_PULSE_NWE(3) | AT91_SMC_PULSE_NCS_WR(3) |
+		AT91_SMC_PULSE_NRD(3) | AT91_SMC_PULSE_NCS_RD(3),
+		&smc->cs[3].pulse);
+	writel(AT91_SMC_CYCLE_NWE(5) | AT91_SMC_CYCLE_NRD(5),
+		&smc->cs[3].cycle);
+	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
+		AT91_SMC_MODE_EXNW_DISABLE |
+		AT91_SMC_MODE_DBW_8 |
+		AT91_SMC_MODE_TDF_CYCLE(2),
+		&smc->cs[3].mode);
 #endif
 
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_PIOC);
+	writel(1 << ATMEL_ID_PIOC, &pmc->pcer);
 
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	at91_set_pio_input(CONFIG_SYS_NAND_READY_PIN, 1);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	at91_set_pio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 
 #ifdef CONFIG_MACB
 static void cpu9260_macb_hw_init(void)
 {
-	unsigned long rstc;
+	unsigned long rstcmr;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
+	at91_rstc_t *rstc = (at91_rstc_t *) ATMEL_BASE_RSTC;
 
 	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_EMAC);
+	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
 
-	/*
-	 * Disable pull-up on:
-	 *	RXDV (PA17) => PHY normal mode (not Test mode)
-	 *	ERX0 (PA14) => PHY ADDR0
-	 *	ERX1 (PA15) => PHY ADDR1
-	 *	ERX2 (PA25) => PHY ADDR2
-	 *	ERX3 (PA26) => PHY ADDR3
-	 *	ECRS (PA28) => PHY ADDR4  => PHYADDR = 0x0
-	 *
-	 * PHY has internal pull-down
-	 */
-	writel(pin_to_mask(AT91_PIN_PA14) |
-	       pin_to_mask(AT91_PIN_PA15) |
-	       pin_to_mask(AT91_PIN_PA17) |
-	       pin_to_mask(AT91_PIN_PA25) |
-	       pin_to_mask(AT91_PIN_PA26) |
-	       pin_to_mask(AT91_PIN_PA28),
-	       pin_to_controller(AT91_PIN_PA0) + PIO_PUDR);
+	at91_set_pio_pullup(AT91_PIO_PORTA, 17, 1);
 
-	rstc = at91_sys_read(AT91_RSTC_MR) & AT91_RSTC_ERSTL;
+	rstcmr = readl(&rstc->mr) & AT91_RSTC_MR_ERSTL_MASK;
 
 	/* Need to reset PHY -> 500ms reset */
-	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
-		       (AT91_RSTC_ERSTL & (0x0D << 8)) |
-		       AT91_RSTC_URSTEN);
+	writel(AT91_RSTC_KEY | AT91_RSTC_MR_ERSTL(0xD) |
+				AT91_RSTC_MR_URSTEN, &rstc->mr);
 
-	at91_sys_write(AT91_RSTC_CR, AT91_RSTC_KEY | AT91_RSTC_EXTRST);
+	writel(AT91_RSTC_KEY | AT91_RSTC_CR_EXTRST, &rstc->cr);
 
 	/* Wait for end hardware reset */
-	while (!(at91_sys_read(AT91_RSTC_SR) & AT91_RSTC_NRSTL))
+	while (!(readl(&rstc->sr) & AT91_RSTC_SR_NRSTL))
 		;
 
 	/* Restore NRST value */
-	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
-		       (rstc) |
-		       AT91_RSTC_URSTEN);
-
-	/* Re-enable pull-up */
-	writel(pin_to_mask(AT91_PIN_PA14) |
-	       pin_to_mask(AT91_PIN_PA15) |
-	       pin_to_mask(AT91_PIN_PA17) |
-	       pin_to_mask(AT91_PIN_PA25) |
-	       pin_to_mask(AT91_PIN_PA26) |
-	       pin_to_mask(AT91_PIN_PA28),
-	       pin_to_controller(AT91_PIN_PA0) + PIO_PUER);
+	writel(AT91_RSTC_KEY | rstcmr | AT91_RSTC_MR_URSTEN, &rstc->mr);
 
 	at91_macb_hw_init();
 }
 #endif
 
+int board_early_init_f(void)
+{
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
+
+	writel((1 << ATMEL_ID_PIOA) |
+		(1 << ATMEL_ID_PIOB) |
+		(1 << ATMEL_ID_PIOC),
+		&pmc->pcer);
+
+	at91_seriald_hw_init();
+
+	return 0;
+}
+
+
 int board_init(void)
 {
-	/* Enable Ctrlc */
-	console_init_f();
-
 	/* arch number of the board */
 #if defined(CONFIG_CPU9G20)
 	gd->bd->bi_arch_number = MACH_TYPE_CPUAT9G20;
@@ -171,9 +158,8 @@ int board_init(void)
 #endif
 
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-	at91_serial_hw_init();
 #ifdef CONFIG_CMD_NAND
 	cpu9260_nand_hw_init();
 #endif
@@ -188,26 +174,16 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM;
-	if (get_ram_size((long *) PHYS_SDRAM, PHYS_SDRAM_SIZE) !=
-	    PHYS_SDRAM_SIZE)
-		return -1;
-
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
+	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+			CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }
-
-#ifdef CONFIG_RESET_PHY_R
-void reset_phy(void)
-{
-}
-#endif
 
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)AT91SAM9260_BASE_EMAC, 0x00);
+	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC0, 0);
 #endif
 	return rc;
 }

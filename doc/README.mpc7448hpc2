@@ -8,7 +8,7 @@ design, which is optimized for high speed throughput between the processor and
 the memory, disk drive and Ethernet port subsystems.
 
 MPC7448hpc2(Taiga) is designed to the micro-ATX chassis, allowing it to be
-used in 1U or 2U rack-mount chassis¡¯, as well as in standard ATX/Micro-ATX
+used in 1U or 2U rack-mount chassisÂ¡Â¯, as well as in standard ATX/Micro-ATX
 chassis.
 
 Building U-Boot

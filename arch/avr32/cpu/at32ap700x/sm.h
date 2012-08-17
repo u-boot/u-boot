@@ -197,8 +197,8 @@
 
 /* Register access macros */
 #define sm_readl(reg)					\
-	readl((void *)SM_BASE + SM_##reg)
+	readl((void *)ATMEL_BASE_SM + SM_##reg)
 #define sm_writel(reg,value)				\
-	writel((value), (void *)SM_BASE + SM_##reg)
+	writel((value), (void *)ATMEL_BASE_SM + SM_##reg)
 
 #endif /* __CPU_AT32AP_SM_H__ */

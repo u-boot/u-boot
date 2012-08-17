@@ -198,7 +198,7 @@ static int ramtron_common(struct spi_flash *flash,
 
 	if (command == CMD_RAMTRON_WRITE) {
 		/* send WREN */
-		ret = spi_flash_cmd(flash->spi, CMD_RAMTRON_WREN, NULL, 0);
+		ret = spi_flash_cmd_write_enable(flash);
 		if (ret < 0) {
 			debug("SF: Enabling Write failed\n");
 			goto releasebus;
@@ -233,7 +233,7 @@ static int ramtron_write(struct spi_flash *flash,
 		CMD_RAMTRON_WRITE);
 }
 
-int ramtron_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int ramtron_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	debug("SF: Erase of RAMTRON FRAMs is pointless\n");
 	return -1;
@@ -311,9 +311,6 @@ found:
 	sn->flash.read = ramtron_read;
 	sn->flash.erase = ramtron_erase;
 	sn->flash.size = params->size;
-
-	printf("SF: Detected %s with size ", params->name);
-	print_size(sn->flash.size, "\n");
 
 	return &sn->flash;
 }

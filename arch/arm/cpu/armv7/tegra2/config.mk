@@ -24,5 +24,12 @@
 # MA 02111-1307 USA
 #
 
-# Use ARMv4 for Tegra2 - initial code runs on the AVP, which is an ARM7TDI.
-PLATFORM_CPPFLAGS += -march=armv4
+# Tegra has an ARMv4T CPU which runs board_init_f(), so we must build this
+# file with compatible flags
+ifdef CONFIG_TEGRA2
+CFLAGS_arch/arm/lib/board.o += -march=armv4t
+endif
+
+USE_PRIVATE_LIBGCC = yes
+
+CONFIG_ARCH_DEVICE_TREE := tegra20

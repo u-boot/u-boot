@@ -128,7 +128,6 @@
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_EEPRO100
 
 /*

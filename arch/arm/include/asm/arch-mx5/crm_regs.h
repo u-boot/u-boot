@@ -195,9 +195,23 @@ struct mxc_ccm_reg {
 /* Define the bits in register CCGRx */
 #define MXC_CCM_CCGR_CG_MASK				0x3
 
+#define MXC_CCM_CCGR4_CG5_OFFSET			10
+#define MXC_CCM_CCGR4_CG6_OFFSET			12
 #define MXC_CCM_CCGR5_CG5_OFFSET			10
+#define MXC_CCM_CCGR2_CG14_OFFSET			28
 
 /* Define the bits in register CLPCR */
 #define MXC_CCM_CLPCR_BYPASS_IPU_LPM_HS                 (0x1 << 18)
+
+#define	MXC_DPLLC_CTL_HFSM				(1 << 7)
+#define	MXC_DPLLC_CTL_DPDCK0_2_EN			(1 << 12)
+
+#define	MXC_DPLLC_OP_PDF_MASK				0xf
+#define	MXC_DPLLC_OP_MFI_MASK				(0xf << 4)
+#define	MXC_DPLLC_OP_MFI_OFFSET				4
+
+#define	MXC_DPLLC_MFD_MFD_MASK				0x7ffffff
+
+#define	MXC_DPLLC_MFN_MFN_MASK				0x7ffffff
 
 #endif				/* __ARCH_ARM_MACH_MX51_CRM_REGS_H__ */

@@ -99,7 +99,7 @@ void ks8695_getmac(void)
 
 /****************************************************************************/
 
-void eth_reset(bd_t *bd)
+static int ks8695_eth_init(struct eth_device *dev, bd_t *bd)
 {
 	int i;
 
@@ -151,21 +151,12 @@ void eth_reset(bd_t *bd)
 	ks8695_write(KS8695_LAN_DMA_RX_START, 0x1);
 
 	printf("KS8695 ETHERNET: %pM\n", eth_mac);
-}
-
-/****************************************************************************/
-
-int eth_init(bd_t *bd)
-{
-	debug ("%s(%d): eth_init()\n", __FILE__, __LINE__);
-
-	eth_reset(bd);
 	return 0;
 }
 
 /****************************************************************************/
 
-void eth_halt(void)
+static void ks8695_eth_halt(struct eth_device *dev)
 {
 	debug ("%s(%d): eth_halt()\n", __FILE__, __LINE__);
 
@@ -176,7 +167,7 @@ void eth_halt(void)
 
 /****************************************************************************/
 
-int eth_rx(void)
+static int ks8695_eth_recv(struct eth_device *dev)
 {
 	volatile struct ks8695_rxdesc *dp;
 	int i, len = 0;
@@ -199,12 +190,13 @@ int eth_rx(void)
 
 /****************************************************************************/
 
-int eth_send(volatile void *packet, int len)
+static int ks8695_eth_send(struct eth_device *dev, volatile void *packet,
+	int len)
 {
 	volatile struct ks8695_txdesc *dp;
 	static int next = 0;
 
-	debug ("%s(%d): eth_send(packet=%x,len=%d)\n", __FILE__, __LINE__,
+	debug ("%s(%d): eth_send(packet=%p,len=%d)\n", __FILE__, __LINE__,
 		packet, len);
 
 	dp = &ks8695_tx[next];
@@ -224,5 +216,27 @@ int eth_send(volatile void *packet, int len)
 	if (++next >= TXDESCS)
 		next = 0;
 
-	return len;
+	return 0;
+}
+
+/****************************************************************************/
+
+int ks8695_eth_initialize(void)
+{
+	struct eth_device *dev;
+
+	dev = malloc(sizeof(*dev));
+	if (dev == NULL)
+		return -1;
+	memset(dev, 0, sizeof(*dev));
+
+	dev->iobase = KS8695_IO_BASE + KS8695_LAN_DMA_TX;
+	dev->init = ks8695_eth_init;
+	dev->halt = ks8695_eth_halt;
+	dev->send = ks8695_eth_send;
+	dev->recv = ks8695_eth_recv;
+	strcpy(dev->name, "ks8695eth");
+
+	eth_register(dev);
+	return 0;
 }

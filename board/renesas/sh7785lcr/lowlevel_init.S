@@ -312,7 +312,7 @@ CS4WCR_D:	.long	0x00101012
 
 /* USB setting : 32bit mode = CS2, 29bit mode = CS5 */
 CS_USB_BCR_D:	.long	0x11111200
-CS_USB_WCR_D:	.long	0x00020004
+CS_USB_WCR_D:	.long	0x00020005
 
 /* SD setting : 32bit mode = CS3, 29bit mode = CS6 */
 CS_SD_BCR_D:	.long	0x00000300

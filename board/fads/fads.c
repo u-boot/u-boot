@@ -603,15 +603,17 @@ static int initsdram(uint base, uint *noMbytes)
 phys_size_t initdram (int board_type)
 {
 	uint sdramsz = 0;	/* size of sdram in Mbytes */
-	uint base = 0;		/* base of dram in bytes */
 	uint m = 0;		/* size of dram in Mbytes */
 #ifndef CONFIG_MPC885ADS
+	uint base = 0;		/* base of dram in bytes */
 	uint k, s;
 #endif
 
 #ifdef CONFIG_FADS
 	if (!initsdram (0x00000000, &sdramsz)) {
+#ifndef CONFIG_MPC885ADS
 		base = sdramsz << 20;
+#endif
 		printf ("(%u MB SDRAM) ", sdramsz);
 	}
 #endif

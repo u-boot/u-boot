@@ -66,7 +66,7 @@ void set_working_fdt_addr(void *addr)
 int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/*
 	 * Set the address of the fdt
@@ -123,7 +123,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		int  err;
 
 		if (argc < 4)
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 		/*
 		 * Set the address and length of the fdt.
@@ -175,7 +175,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		 * Parameters: Node path, new node to be appended to the path.
 		 */
 		if (argc < 4)
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 		pathp = argv[2];
 		nodep = argv[3];
@@ -211,7 +211,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		 * Parameters: Node path, property, optional value.
 		 */
 		if (argc < 4)
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 		pathp  = argv[2];
 		prop   = argv[3];
@@ -409,7 +409,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			}
 		} else {
 			/* Unrecognized command */
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 		}
 	}
 #ifdef CONFIG_OF_BOARD_SETUP
@@ -422,7 +422,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		unsigned long initrd_start = 0, initrd_end = 0;
 
 		if ((argc != 2) && (argc != 4))
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 		if (argc == 4) {
 			initrd_start = simple_strtoul(argv[2], NULL, 16);
@@ -438,7 +438,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	}
 	else {
 		/* Unrecognized command */
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	return 0;
@@ -665,7 +665,7 @@ static void print_data(const void *data, int len)
 
 		printf("<");
 		for (j = 0, p = data; j < len/4; j ++)
-			printf("0x%x%s", p[j], j < (len/4 - 1) ? " " : "");
+			printf("0x%x%s", fdt32_to_cpu(p[j]), j < (len/4 - 1) ? " " : "");
 		printf(">");
 	} else { /* anything else... hexdump */
 		const u8 *s;

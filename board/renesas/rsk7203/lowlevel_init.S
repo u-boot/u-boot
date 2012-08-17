@@ -186,6 +186,7 @@ PCCRL2_D:	.word 0x1111
 .align 2
 PCCRL1_A:	.long 0xFFFE3916
 PCCRL1_D:	.word 0x1010
+.align 2
 PDCRL4_A:	.long 0xFFFE3990
 PDCRL4_D:	.word 0x0011
 .align 2

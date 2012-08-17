@@ -24,6 +24,7 @@
 #include <malloc.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/mmc.h>
 #include <spi_flash.h>
 
 int checkboard(void)
@@ -261,6 +262,11 @@ int dram_init(void)
 		SH7757LCR_SDRAM_PHYS_TOP + SH7757LCR_GRA_OFFSET + 0x00ffffff);
 
 	return 0;
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	return mmcif_mmc_init();
 }
 
 static int get_sh_eth_mac_raw(unsigned char *buf, int size)

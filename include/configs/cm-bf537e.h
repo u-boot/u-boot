@@ -11,6 +11,7 @@
 /*
  * Processor Settings
  */
+#define CONFIG_BFIN_CPU             bf537-0.2
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
 
 
@@ -54,7 +55,7 @@
 #define CONFIG_EBIU_AMBCTL0_VAL	(B1WAT_7 | B1RAT_11 | B1HT_2 | B1ST_3 | B0WAT_7 | B0RAT_11 | B0HT_2 | B0ST_3)
 #define CONFIG_EBIU_AMBCTL1_VAL	(B3WAT_7 | B3RAT_11 | B3HT_2 | B3ST_3 | B2WAT_7 | B2RAT_11 | B2HT_2 | B2ST_3)
 
-#define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
+#define CONFIG_SYS_MONITOR_LEN	(512 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(128 * 1024)
 
 
@@ -64,8 +65,10 @@
 #ifndef __ADSPBF534__
 #define ADI_CMDS_NETWORK	1
 #define CONFIG_BFIN_MAC
+#define CONFIG_SMC911X		1
+#define CONFIG_SMC911X_BASE	0x20308000
+#define CONFIG_SMC911X_16_BIT
 #define CONFIG_NETCONSOLE	1
-#define CONFIG_NET_MULTI	1
 #endif
 #define CONFIG_HOSTNAME		cm-bf537e
 /* Uncomment next line to use fixed MAC address */
@@ -85,16 +88,22 @@
 
 
 /*
+ * SPI Settings
+ */
+#define CONFIG_BFIN_SPI
+#define CONFIG_ENV_SPI_MAX_HZ	30000000
+
+
+/*
  * Env Storage Settings
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_OFFSET	0x4000
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_OFFSET	0x8000
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_SECT_SIZE	0x8000
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
 #define ENV_IS_EMBEDDED
-#else
-#define CONFIG_ENV_IS_EMBEDDED_IN_LDR
 #endif
 #ifdef ENV_IS_EMBEDDED
 /* WARNING - the following is hand-optimized to fit within
@@ -118,6 +127,14 @@
 
 
 /*
+ * SPI_MMC Settings
+ */
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MMC_SPI
+
+
+/*
  * Misc Settings
  */
 #define CONFIG_BAUDRATE		115200
@@ -126,7 +143,7 @@
 #define CONFIG_UART_CONSOLE	0
 #define CONFIG_BOOTCOMMAND	"run flashboot"
 #define FLASHBOOT_ENV_SETTINGS \
-	"flashboot=flread 20040000 1000000 300000;" \
+	"flashboot=flread 20040000 1000000 3c0000;" \
 	"bootm 0x1000000\0"
 
 

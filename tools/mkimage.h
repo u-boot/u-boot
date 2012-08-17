@@ -60,6 +60,7 @@ struct mkimage_params {
 	int lflag;
 	int vflag;
 	int xflag;
+	int skipcpy;
 	int os;
 	int arch;
 	int type;
@@ -122,6 +123,13 @@ struct image_type_params {
 	int (*check_image_type) (uint8_t);
 	/* This callback function will be executed if fflag is defined */
 	int (*fflag_handle) (struct mkimage_params *);
+	/*
+	 * This callback function will be executed for variable size record
+	 * It is expected to build this header in memory and return its length
+	 * and a pointer to it
+	 */
+	int (*vrec_header) (struct mkimage_params *,
+		struct image_type_params *);
 	/* pointer to the next registered entry in linked list */
 	struct image_type_params *next;
 };
@@ -139,9 +147,12 @@ void mkimage_register (struct image_type_params *tparams);
  *
  * Supported image types init functions
  */
+void init_ais_image_type(void);
 void init_kwb_image_type (void);
 void init_imx_image_type (void);
 void init_default_image_type (void);
 void init_fit_image_type (void);
+void init_ubl_image_type(void);
+void init_omap_image_type(void);
 
 #endif /* _MKIIMAGE_H_ */

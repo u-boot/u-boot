@@ -170,20 +170,6 @@ static void at45_build_address(struct atmel_spi_flash *asf, u8 *cmd, u32 offset)
 	cmd[2] = byte_addr;
 }
 
-static int dataflash_read_fast_p2(struct spi_flash *flash,
-		u32 offset, size_t len, void *buf)
-{
-	u8 cmd[5];
-
-	cmd[0] = CMD_READ_ARRAY_FAST;
-	cmd[1] = offset >> 16;
-	cmd[2] = offset >> 8;
-	cmd[3] = offset;
-	cmd[4] = 0x00;
-
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
-}
-
 static int dataflash_read_fast_at45(struct spi_flash *flash,
 		u32 offset, size_t len, void *buf)
 {
@@ -342,7 +328,7 @@ out:
 /*
  * TODO: the two erase funcs (_p2/_at45) should get unified ...
  */
-int dataflash_erase_p2(struct spi_flash *flash, u32 offset, size_t len)
+static int dataflash_erase_p2(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct atmel_spi_flash *asf = to_atmel_spi_flash(flash);
 	unsigned long page_size;
@@ -401,7 +387,7 @@ out:
 	return ret;
 }
 
-int dataflash_erase_at45(struct spi_flash *flash, u32 offset, size_t len)
+static int dataflash_erase_at45(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct atmel_spi_flash *asf = to_atmel_spi_flash(flash);
 	unsigned long page_addr;
@@ -519,7 +505,7 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 			asf->flash.erase = dataflash_erase_at45;
 			page_size += 1 << (params->l2_page_size - 5);
 		} else {
-			asf->flash.read = dataflash_read_fast_p2;
+			asf->flash.read = spi_flash_cmd_read_fast;
 			asf->flash.write = dataflash_write_p2;
 			asf->flash.erase = dataflash_erase_p2;
 		}
@@ -528,7 +514,7 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 
 	case DF_FAMILY_AT26F:
 	case DF_FAMILY_AT26DF:
-		asf->flash.read = dataflash_read_fast_p2;
+		asf->flash.read = spi_flash_cmd_read_fast;
 		break;
 
 	default:
@@ -536,13 +522,10 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 		goto err;
 	}
 
+	asf->flash.sector_size = page_size;
 	asf->flash.size = page_size * params->pages_per_block
 				* params->blocks_per_sector
 				* params->nr_sectors;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, page_size);
-	print_size(asf->flash.size, "\n");
 
 	return &asf->flash;
 

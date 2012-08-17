@@ -884,7 +884,7 @@ static void bfin_ata_identify(struct ata_port *ap, int dev)
 		sata_dev_desc[ap->port_no].removable = 0;
 
 	sata_dev_desc[ap->port_no].lba = (u32) n_sectors;
-	debug("lba=0x%x\n", sata_dev_desc[ap->port_no].lba);
+	debug("lba=0x%lx\n", sata_dev_desc[ap->port_no].lba);
 
 #ifdef CONFIG_LBA48
 	if (iop->command_set_2 & 0x0400)

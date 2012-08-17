@@ -138,13 +138,29 @@ static const unsigned short cs_pins[][7] = {
 #endif
 };
 
+void spi_set_speed(struct spi_slave *slave, uint hz)
+{
+	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
+	ulong sclk;
+	u32 baud;
+
+	sclk = get_sclk();
+	baud = sclk / (2 * hz);
+	/* baud should be rounded up */
+	if (sclk % (2 * hz))
+		baud += 1;
+	if (baud < 2)
+		baud = 2;
+	else if (baud > (u16)-1)
+		baud = -1;
+	bss->baud = baud;
+}
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	struct bfin_spi_slave *bss;
-	ulong sclk;
 	u32 mmr_base;
-	u32 baud;
 
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
@@ -166,16 +182,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		default: return NULL;
 	}
 
-	sclk = get_sclk();
-	baud = sclk / (2 * max_hz);
-	/* baud should be rounded up */
-	if (sclk % (2 * max_hz))
-		baud += 1;
-	if (baud < 2)
-		baud = 2;
-	else if (baud > (u16)-1)
-		baud = -1;
-
 	bss = malloc(sizeof(*bss));
 	if (!bss)
 		return NULL;
@@ -187,11 +193,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (mode & SPI_CPHA) bss->ctl |= CPHA;
 	if (mode & SPI_CPOL) bss->ctl |= CPOL;
 	if (mode & SPI_LSB_FIRST) bss->ctl |= LSBF;
-	bss->baud = baud;
 	bss->flg = mode & SPI_CS_HIGH ? 1 : 0;
+	spi_set_speed(&bss->slave, max_hz);
 
 	debug("%s: bus:%i cs:%i mmr:%x ctl:%x baud:%i flg:%i\n", __func__,
-		bus, cs, mmr_base, bss->ctl, baud, bss->flg);
+		bus, cs, mmr_base, bss->ctl, bss->baud, bss->flg);
 
 	return &bss->slave;
 }
@@ -248,6 +254,8 @@ void spi_release_bus(struct spi_slave *slave)
 #elif defined(__ADSPBF537__) || defined(__ADSPBF536__) || defined(__ADSPBF534__) || \
       defined(__ADSPBF52x__) || defined(__ADSPBF51x__)
 # define SPI_DMA_BASE DMA7_NEXT_DESC_PTR
+# elif defined(__ADSPBF50x__)
+# define SPI_DMA_BASE DMA6_NEXT_DESC_PTR
 #else
 # error "Please provide SPI DMA channel defines"
 #endif

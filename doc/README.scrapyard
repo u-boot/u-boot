@@ -11,7 +11,57 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
-barco	powerpc	MPC8245	-	  2010-11-23	Marc Leeman <marc.leeman@barco.com>
+tb0229	mips	mips32	-	  2011-12-12
+rmu	powerpc	MPC850	fb82fd7   2011-12-07	Wolfgang Denk <wd@denx.de>
+OXC	powerpc	MPC8240	309a292   2011-12-07
+BAB7xx	powerpc	MPC740/MPC750 c53043b 2011-12-07 Frank Gottschling <fgottschling@eltec.de>
+xm250   arm     pxa     c746cdd   2011-25-11
+pleb2   arm     pxa     b185a1c   2011-25-11
+cradle  arm     pxa     4e24f8a   2011-25-11    Kyle Harris <kharris@nexus-tech.net>
+cerf250 arm     pxa     a3f1241   2011-25-11    Prakash Kumar <prakash@embedx.com>
+mpq101	powerpc	mpc85xx	e877fab	  2011-10-23	Alex Dubov <oakad@yahoo.com>
+ixdpg425 arm	ixp	0ca8eb7	  2011-09-22	Stefan Roese <sr@denx.de>
+ixdp425 arm	ixp	0ca8eb7	  2011-09-22	Kyle Harris <kharris@nexus-tech.net>
+zylonite arm	pxa	b66521a	  2011-09-05
+shannon arm	sa1100	5df092d	  2011-09-05	Rolf Offermanns <rof@sysgo.de>
+modnet50 arm	arm720t	9c62815	  2011-09-05	Thomas Elste <info@elste.org>
+lpc2292sodimm arm arm720t d1a067a  2011-09-05
+lart	arm	sa1100	3d57573	  2011-09-05	Alex Züpke <azu@sysgo.de>
+impa7	arm	arm720t	c1f8750	  2011-09-05	Marius Gröger <mag@sysgo.de>
+gcplus	arm	sa1100	2c650e2	  2011-09-05	George G. Davis <gdavis@mvista.com>
+evb4510	arm	arm720t	26e670e	  2011-09-05	Curt Brune <curt@cucy.com>
+ep7312	arm	arm720t	c8f63b4	  2011-09-05	Marius Gröger <mag@sysgo.de>
+dnp1110	arm	sa1100	fc5e5ce	  2011-09-05	Alex Züpke <azu@sysgo.de>
+SMN42	arm	arm720t	6aac646	  2011-09-05
+at91rm9200dk arm arm920t 1c85752  2011-07-17
+m501sk	arm	arm920t	b1a2bd4	  2011-07-17
+kb9202	arm	arm920t	5bd3814	  2011-07-17
+csb637	arm	arm920t	d14af08	  2011-07-17
+cmc_pu2	arm	arm920t	37a9b4d	  2011-07-17
+at91cap9adk arm	arm926ejs b550834 2011-07-17	Stelian Pop <stelian@popies.net>
+voiceblue arm	arm925t	1b793a4	  2011-07-17
+smdk2400 arm	arm920t	ad218a8	  2011-07-17	Gary Jennejohn <garyj@denx.de>
+sbc2410x arm	arm920t	1f7f0ed	  2011-07-17
+netstar	arm	arm925t	6ea2405	  2011-07-17
+mx1fs2	arm	arm920t	6962419	  2011-07-17
+lpd7a404 arm	lh7a40x	957731e	  2011-07-17
+edb9301	arm	arm920t	716f7ad	  2011-07-17
+edb9302	arm	arm920t	716f7ad	  2011-07-17
+edb9302a arm	arm920t	716f7ad	  2011-07-17
+edb9307	 arm	arm920t	716f7ad	  2011-07-17
+edb9307a arm	arm920t	716f7ad	  2011-07-17
+edb9312	arm	arm920t	716f7ad	  2011-07-17
+edb9315	arm	arm920t	716f7ad	  2011-07-17
+edb9315a arm	arm920t	716f7ad	  2011-07-17
+B2	arm	s3c44b0 5dcf536	  2011-07-16	Andrea Scian <andrea.scian@dave-tech.it>
+armadillo arm	arm720t	be28857	  2011-07-16	Rowel Atienza <rowel@diwalabs.com>
+assabet	arm	sa1100	c91e90d	  2011-07-16	George G. Davis <gdavis@mvista.com>
+trab	arm	S3C2400	566e5cf	  2011-05-01	Gary Jennejohn <garyj@denx.de>
+xsengine ARM	PXA2xx	4262a7c   2010-10-20
+wepep250 ARM	PXA2xx	7369478   2010-10-20	Peter Figuli <peposh@etc.sk>
+delta	ARM	PXA2xx	75e2035   2010-10-20
+mp2usb	ARM	AT91RM2900  ee986e2 2011-01-25	Eric Bénard <eric@eukrea.com>
+barco	powerpc	MPC8245	afaa27b	  2010-11-23	Marc Leeman <marc.leeman@barco.com>
 ERIC	powerpc	405GP	d9ba451	  2010-11-21	Swen Anderson <sand@peppercon.de>
 VoVPN-GW_100MHz	powerpc	MPC8260 26fe3d2 2010-10-24	Juergen Selent <j.selent@elmeg.de>
 NC650	powerpc	MPC852	333d86d   2010-10-19	Wolfgang Denk <wd@denx.de>

@@ -37,8 +37,8 @@ int board_pre_init (void)
 /** serial number and platform display at startup */
 int checkboard (void)
 {
-	char *s = getenv ("serial#");
-	char *e;
+	char buf[64];
+	int l = getenv_f("serial#", buf, sizeof(buf));
 
 	/* After a loadace command, the SystemAce control register is left in a wonky state. */
 	/* this code did not work in board_pre_init */
@@ -115,17 +115,19 @@ int checkboard (void)
 
 	puts ("Serial#: ");
 
-	if (!s) {
+	if (l < 0) {
 		printf ("### No HW ID - assuming AMIRIX");
 	} else {
-		for (e = s; *e; ++e) {
-			if (*e == ' ')
+		int i;
+
+		for (i = 0; i < l; ++i) {
+			if (buf[i] == ' ') {
+				buf[i] = '\0';
 				break;
+			}
 		}
 
-		for (; s < e; ++s) {
-			putc (*s);
-		}
+		puts(buf);
 	}
 
 	putc ('\n');
@@ -136,9 +138,11 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	char *s = getenv ("dramsize");
+	char buf[64];
+	int i = getenv_f("dramsize", buf, sizeof(buf));
 
-	if (s != NULL) {
+	if (i > 0) {
+		char *s = buf;
 		if ((s[0] == '0') && ((s[1] == 'x') || (s[1] == 'X'))) {
 			s += 2;
 		}

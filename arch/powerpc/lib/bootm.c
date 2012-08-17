@@ -33,6 +33,7 @@
 #include <bzlib.h>
 #include <environment.h>
 #include <asm/byteorder.h>
+#include <asm/mp.h>
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <fdt.h>
@@ -68,7 +69,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
 
-	show_boot_progress (15);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
@@ -86,7 +87,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		 *   r8: 0
 		 *   r9: 0
 		 */
-#if defined(CONFIG_85xx) || defined(CONFIG_440)
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_440)
  #define EPAPR_MAGIC	(0x45504150)
 #else
  #define EPAPR_MAGIC	(0x65504150)
@@ -166,17 +167,23 @@ void arch_lmb_reserve(struct lmb *lmb)
 	sp -= 4096;
 	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + get_effective_memsize() - sp));
 
+#ifdef CONFIG_MP
+	cpu_mp_lmb_reserve(lmb);
+#endif
+
 	return ;
 }
 
-static void boot_prep_linux(void)
+static void boot_prep_linux(bootm_headers_t *images)
 {
 #ifdef CONFIG_MP
-	/* if we are MP make sure to flush the dcache() to any changes are made
-	 * visibile to all other cores */
-	flush_dcache();
+	/*
+	 * if we are MP make sure to flush the device tree so any changes are
+	 * made visibile to all other cores.  In AMP boot scenarios the cores
+	 * might not be HW cache coherent with each other.
+	 */
+	flush_cache((unsigned long)images->ft_addr, images->ft_len);
 #endif
-	return ;
 }
 
 static int boot_cmdline_linux(bootm_headers_t *images)
@@ -220,6 +227,24 @@ static int boot_bd_t_linux(bootm_headers_t *images)
 
 	return ret;
 }
+
+/*
+ * Verify the device tree.
+ *
+ * This function is called after all device tree fix-ups have been enacted,
+ * so that the final device tree can be verified.  The definition of "verified"
+ * is up to the specific implementation.  However, it generally means that the
+ * addresses of some of the devices in the device tree are compared with the
+ * actual addresses at which U-Boot has placed them.
+ *
+ * Returns 1 on success, 0 on failure.  If 0 is returned, U-boot will halt the
+ * boot process.
+ */
+static int __ft_verify_fdt(void *fdt)
+{
+	return 1;
+}
+__attribute__((weak, alias("__ft_verify_fdt"))) int ft_verify_fdt(void *fdt);
 
 static int boot_body_linux(bootm_headers_t *images)
 {
@@ -283,14 +308,19 @@ static int boot_body_linux(bootm_headers_t *images)
 			return ret;
 		of_size = ret;
 
-		if (*initrd_start && *initrd_end)
+		if (*initrd_start && *initrd_end) {
 			of_size += FDT_RAMDISK_OVERHEAD;
+			fdt_set_totalsize(*of_flat_tree, of_size);
+		}
 		/* Create a new LMB reservation */
 		lmb_reserve(lmb, (ulong)*of_flat_tree, of_size);
 
 		/* fixup the initrd now that we know where it should be */
 		if (*initrd_start && *initrd_end)
 			fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
+
+		if (!ft_verify_fdt(*of_flat_tree))
+			return -1;
 	}
 #endif	/* CONFIG_OF_LIBFDT */
 	return 0;
@@ -312,7 +342,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	}
 
 	if (flag & BOOTM_STATE_OS_PREP) {
-		boot_prep_linux();
+		boot_prep_linux(images);
 		return 0;
 	}
 
@@ -321,7 +351,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 		return 0;
 	}
 
-	boot_prep_linux();
+	boot_prep_linux(images);
 	ret = boot_body_linux(images);
 	if (ret)
 		return ret;

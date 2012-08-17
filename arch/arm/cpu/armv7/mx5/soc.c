@@ -26,12 +26,10 @@
 #include <common.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
+
 #include <asm/errno.h>
 #include <asm/io.h>
-
-#ifdef CONFIG_FSL_ESDHC
-#include <fsl_esdhc.h>
-#endif
 
 #if !(defined(CONFIG_MX51) || defined(CONFIG_MX53))
 #error "CPU_TYPE not defined"
@@ -65,55 +63,16 @@ u32 get_cpu_rev(void)
 		break;
 	}
 #else
-	switch (reg) {
-	case 0x20:
-		system_rev |= CHIP_REV_2_0;
-		break;
-	default:
+	if (reg < 0x20)
 		system_rev |= CHIP_REV_1_0;
-		break;
-	}
+	else
+		system_rev |= reg;
 #endif
 	return system_rev;
 }
 
-
-#if defined(CONFIG_DISPLAY_CPUINFO)
-int print_cpuinfo(void)
-{
-	u32 cpurev;
-
-	cpurev = get_cpu_rev();
-	printf("CPU:   Freescale i.MX%x family rev%d.%d at %d MHz\n",
-		(cpurev & 0xFF000) >> 12,
-		(cpurev & 0x000F0) >> 4,
-		(cpurev & 0x0000F) >> 0,
-		mxc_get_clock(MXC_ARM_CLK) / 1000000);
-	return 0;
-}
-#endif
-
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
 #if defined(CONFIG_FEC_MXC)
-extern int fecmxc_initialize(bd_t *bis);
-#endif
-
-int cpu_eth_init(bd_t *bis)
-{
-	int rc = -ENODEV;
-
-#if defined(CONFIG_FEC_MXC)
-	rc = fecmxc_initialize(bis);
-#endif
-
-	return rc;
-}
-
-#if defined(CONFIG_FEC_MXC)
-void imx_get_mac_from_fuse(unsigned char *mac)
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
 	int i;
 	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
@@ -126,21 +85,33 @@ void imx_get_mac_from_fuse(unsigned char *mac)
 }
 #endif
 
-/*
- * Initializes on-chip MMC controllers.
- * to override, implement board_mmc_init()
- */
-int cpu_mmc_init(bd_t *bis)
+void set_chipselect_size(int const cs_size)
 {
-#ifdef CONFIG_FSL_ESDHC
-	return fsl_esdhc_mmc_init(bis);
-#else
-	return 0;
-#endif
-}
+	unsigned int reg;
+	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	reg = readl(&iomuxc_regs->gpr1);
 
+	switch (cs_size) {
+	case CS0_128:
+		reg &= ~0x7;	/* CS0=128MB, CS1=0, CS2=0, CS3=0 */
+		reg |= 0x5;
+		break;
+	case CS0_64M_CS1_64M:
+		reg &= ~0x3F;	/* CS0=64MB, CS1=64MB, CS2=0, CS3=0 */
+		reg |= 0x1B;
+		break;
+	case CS0_64M_CS1_32M_CS2_32M:
+		reg &= ~0x1FF;	/* CS0=64MB, CS1=32MB, CS2=32MB, CS3=0 */
+		reg |= 0x4B;
+		break;
+	case CS0_32M_CS1_32M_CS2_32M_CS3_32M:
+		reg &= ~0xFFF;  /* CS0=32MB, CS1=32MB, CS2=32MB, CS3=32MB */
+		reg |= 0x249;
+		break;
+	default:
+		printf("Unknown chip select size: %d\n", cs_size);
+		break;
+	}
 
-void reset_cpu(ulong addr)
-{
-	__raw_writew(4, WDOG1_BASE_ADDR);
+	writel(reg, &iomuxc_regs->gpr1);
 }

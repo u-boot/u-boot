@@ -51,6 +51,10 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
+#ifndef __ASSEMBLY__
+#include <galileo/core.h>
+#endif
+
 /*
  * Monitor configuration
  *
@@ -121,12 +125,10 @@
 /*
  * Network config
  *
- * CONFIG_NET_MULTI		- Support for multiple network interfaces
  * CONFIG_EEPRO100		- Intel 8255x Ethernet Controller
  * CONFIG_EEPRO100_SROM_WRITE	- Enable writing to network card ROM
  */
 
-#define	CONFIG_NET_MULTI
 #define	CONFIG_EEPRO100
 #define	CONFIG_EEPRO100_SROM_WRITE
 

@@ -48,7 +48,7 @@ static struct descriptor {
 		0x29,		/* bDescriptorType: hub descriptor */
 		2,		/* bNrPorts -- runtime modified */
 		0,		/* wHubCharacteristics */
-		0xff,		/* bPwrOn2PwrGood */
+		10,		/* bPwrOn2PwrGood */
 		0,		/* bHubCntrCurrent */
 		{},		/* Device removable */
 		{}		/* at most 7 ports! XXX */
@@ -201,6 +201,14 @@ static inline void ehci_invalidate_dcache(struct QH *qh)
 }
 #endif /* CONFIG_EHCI_DCACHE */
 
+void __ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+{
+	mdelay(50);
+}
+
+void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+	__attribute__((weak, alias("__ehci_powerup_fixup")));
+
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 {
 	uint32_t result;
@@ -247,6 +255,13 @@ static int ehci_reset(void)
 #endif
 		ehci_writel(reg_ptr, tmp);
 	}
+
+#ifdef CONFIG_USB_EHCI_TXFIFO_THRESH
+	cmd = ehci_readl(&hcor->or_txfilltuning);
+	cmd &= ~TXFIFO_THRESH(0x3f);
+	cmd |= TXFIFO_THRESH(CONFIG_USB_EHCI_TXFIFO_THRESH);
+	ehci_writel(&hcor->or_txfilltuning, cmd);
+#endif
 out:
 	return ret;
 }
@@ -461,7 +476,6 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	/* Check that the TD processing happened */
 	if (token & 0x80) {
 		printf("EHCI timed out on TD - token=%#x\n", token);
-		goto fail;
 	}
 
 	/* Disable async schedule. */
@@ -710,8 +724,8 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				 * usb 2.0 specification say 50 ms resets on
 				 * root
 				 */
-				wait_ms(50);
-				/* terminate the reset */
+				ehci_powerup_fixup(status_reg, &reg);
+
 				ehci_writel(status_reg, reg & ~EHCI_PS_PR);
 				/*
 				 * A host controller must terminate the reset
@@ -769,7 +783,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		goto unknown;
 	}
 
-	wait_ms(1);
+	mdelay(1);
 	len = min3(srclen, le16_to_cpu(req->length), length);
 	if (srcptr != NULL && len > 0)
 		memcpy(buffer, srcptr, len);
@@ -850,7 +864,7 @@ int usb_lowlevel_init(void)
 	ehci_writel(&hcor->or_configflag, cmd);
 	/* unblock posted write */
 	cmd = ehci_readl(&hcor->or_usbcmd);
-	wait_ms(5);
+	mdelay(5);
 	reg = HC_VERSION(ehci_readl(&hccr->cr_capbase));
 	printf("USB EHCI %x.%02x\n", reg >> 8, reg & 0xff);
 
@@ -896,5 +910,5 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	debug("dev=%p, pipe=%lu, buffer=%p, length=%d, interval=%d",
 	      dev, pipe, buffer, length, interval);
-	return -1;
+	return ehci_submit_async(dev, pipe, buffer, length, NULL);
 }

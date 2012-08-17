@@ -91,14 +91,8 @@
 #define CONFIG_SYS_MEMTEST_START	0x00400000
 #define CONFIG_SYS_MEMTEST_END		0x00C00000
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xFF700000	/* CCSRBAR Default	*/
-#define CONFIG_SYS_CCSRBAR		0xE0000000	/* relocated CCSRBAR	*/
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR	*/
+#define CONFIG_SYS_CCSRBAR		0xE0000000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
 #define CONFIG_FSL_DDR2
@@ -290,7 +284,6 @@
 #endif	/* CONFIG_PCI */
 
 
-#define CONFIG_NET_MULTI	1
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"

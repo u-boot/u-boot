@@ -24,8 +24,8 @@
  */
 
 #include <common.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/armada100.h>
-#include <asm/io.h>
 
 #define UARTCLK14745KHZ	(APBC_APBCLK | APBC_FNCLK | APBC_FNCLKSEL(1))
 #define SET_MRVL_ID	(1<<8)
@@ -62,6 +62,16 @@ int arch_cpu_init(void)
 	/* Enable GPIO clock */
 	writel(APBC_APBCLK, &apb1clkres->gpio);
 
+#ifdef CONFIG_I2C_MV
+	/* Enable general I2C clock */
+	writel(APBC_RST | APBC_FNCLK | APBC_APBCLK, &apb1clkres->twsi0);
+	writel(APBC_FNCLK | APBC_APBCLK, &apb1clkres->twsi0);
+
+	/* Enable power I2C clock */
+	writel(APBC_RST | APBC_FNCLK | APBC_APBCLK, &apb1clkres->twsi1);
+	writel(APBC_FNCLK | APBC_APBCLK, &apb1clkres->twsi1);
+#endif
+
 	/*
 	 * Enable Functional and APB clock at 14.7456MHz
 	 * for configured UART console
@@ -88,5 +98,11 @@ int print_cpuinfo(void)
 	id = readl(&cpuregs->chip_id);
 	printf("SoC:   Armada 88AP%X-%X\n", (id & 0xFFF), (id >> 0x10));
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_I2C_MV
+void i2c_clk_enable(void)
+{
 }
 #endif

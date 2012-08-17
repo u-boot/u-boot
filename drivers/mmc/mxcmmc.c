@@ -25,9 +25,7 @@
 #include <mmc.h>
 #include <asm/errno.h>
 #include <asm/io.h>
-#ifdef CONFIG_MX27
 #include <asm/arch/clock.h>
-#endif
 
 #define DRIVER_NAME "mxc-mmc"
 
@@ -422,7 +420,7 @@ static void mxcmci_set_clk_rate(struct mxcmci_host *host, unsigned int clk_ios)
 {
 	unsigned int divider;
 	int prescaler = 0;
-	unsigned long clk_in = imx_get_perclk2();
+	unsigned long clk_in = mxc_get_clock(MXC_ESDHC_CLK);
 
 	while (prescaler <= 0x800) {
 		for (divider = 1; divider <= 0xF; divider++) {
@@ -500,6 +498,7 @@ static int mxcmci_initialize(bd_t *bis)
 	mmc->send_cmd = mxcmci_request;
 	mmc->set_ios = mxcmci_set_ios;
 	mmc->init = mxcmci_init;
+	mmc->getcd = NULL;
 	mmc->host_caps = MMC_MODE_4BIT;
 
 	host->base = (struct mxcmci_regs *)CONFIG_MXC_MCI_REGS_BASE;
@@ -508,8 +507,10 @@ static int mxcmci_initialize(bd_t *bis)
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 
-	mmc->f_min = imx_get_perclk2() >> 7;
-	mmc->f_max = imx_get_perclk2() >> 1;
+	mmc->f_min = mxc_get_clock(MXC_ESDHC_CLK) >> 7;
+	mmc->f_max = mxc_get_clock(MXC_ESDHC_CLK) >> 1;
+
+	mmc->b_max = 0;
 
 	mmc_register(mmc);
 

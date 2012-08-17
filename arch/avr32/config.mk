@@ -23,7 +23,11 @@
 
 CROSS_COMPILE ?= avr32-linux-
 
-STANDALONE_LOAD_ADDR = 0x00000000
+CONFIG_STANDALONE_LOAD_ADDR ?= 0x00000000
 
 PLATFORM_RELFLAGS	+= -ffixed-r5 -fPIC -mno-init-got -mrelax
-PLATFORM_LDFLAGS	+= --relax
+PLATFORM_RELFLAGS	+= -ffunction-sections -fdata-sections
+
+LDFLAGS_u-boot		= --gc-sections --relax
+
+LDSCRIPT			= $(SRCTREE)/$(CPUDIR)/u-boot.lds

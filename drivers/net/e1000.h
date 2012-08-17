@@ -2,6 +2,7 @@
 
 
   Copyright(c) 1999 - 2002 Intel Corporation. All rights reserved.
+  Copyright 2011 Freescale Semiconductor, Inc.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of the GNU General Public License as published by the Free
@@ -34,27 +35,59 @@
 #define _E1000_HW_H_
 
 #include <common.h>
+#include <linux/list.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <pci.h>
 
-#define E1000_ERR(args...) printf("e1000: " args)
+#ifdef CONFIG_E1000_SPI
+#include <spi.h>
+#endif
+
+#define E1000_ERR(NIC, fmt, args...) \
+	printf("e1000: %s: ERROR: " fmt, (NIC)->name ,##args)
 
 #ifdef E1000_DEBUG
-#define E1000_DBG(args...)	printf("e1000: " args)
-#define DEBUGOUT(fmt,args...) printf(fmt ,##args)
-#define DEBUGFUNC()	   printf("%s\n", __FUNCTION__);
+#define E1000_DBG(NIC, fmt, args...) \
+	printf("e1000: %s: DEBUG: " fmt, (NIC)->name ,##args)
+#define DEBUGOUT(fmt, args...)	printf(fmt ,##args)
+#define DEBUGFUNC()		printf("%s\n", __func__);
 #else
-#define E1000_DBG(args...)
-#define DEBUGFUNC()
-#define DEBUGOUT(fmt,args...)
+#define E1000_DBG(HW, args...)	do { } while (0)
+#define DEBUGFUNC()		do { } while (0)
+#define DEBUGOUT(fmt, args...)	do { } while (0)
 #endif
+
+/* I/O wrapper functions */
+#define E1000_WRITE_REG(a, reg, value) \
+	writel((value), ((a)->hw_addr + E1000_##reg))
+#define E1000_READ_REG(a, reg) \
+	readl((a)->hw_addr + E1000_##reg)
+#define E1000_WRITE_REG_ARRAY(a, reg, offset, value) \
+	writel((value), ((a)->hw_addr + E1000_##reg + ((offset) << 2)))
+#define E1000_READ_REG_ARRAY(a, reg, offset) \
+	readl((a)->hw_addr + E1000_##reg + ((offset) << 2))
+#define E1000_WRITE_FLUSH(a) \
+	do { E1000_READ_REG(a, STATUS); } while (0)
 
 /* Forward declarations of structures used by the shared code */
 struct e1000_hw;
 struct e1000_hw_stats;
+
+/* Internal E1000 helper functions */
+struct e1000_hw *e1000_find_card(unsigned int cardnum);
+int32_t e1000_acquire_eeprom(struct e1000_hw *hw);
+void e1000_standby_eeprom(struct e1000_hw *hw);
+void e1000_release_eeprom(struct e1000_hw *hw);
+void e1000_raise_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
+void e1000_lower_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
+
+#ifdef CONFIG_E1000_SPI
+int do_e1000_spi(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
+		int argc, char * const argv[]);
+#endif
 
 typedef enum {
 	FALSE = 0,
@@ -81,6 +114,7 @@ typedef enum {
 	e1000_82571,
 	e1000_82572,
 	e1000_82573,
+	e1000_82574,
 	e1000_80003es2lan,
 	e1000_ich8lan,
 	e1000_num_macs
@@ -110,11 +144,6 @@ typedef enum {
 	e1000_100_half = 2,
 	e1000_100_full = 3
 } e1000_speed_duplex_type;
-
-typedef enum {
-	e1000_lan_a = 0,
-	e1000_lan_b = 1
-} e1000_lan_loc;
 
 /* Flow Control Settings */
 typedef enum {
@@ -200,6 +229,7 @@ typedef enum {
 	e1000_phy_gg82563,
 	e1000_phy_igp_3,
 	e1000_phy_ife,
+	e1000_phy_bm,
 	e1000_phy_undefined = 0xFF
 } e1000_phy_type;
 
@@ -286,6 +316,7 @@ struct e1000_phy_stats {
 #define E1000_DEV_ID_82573E              0x108B
 #define E1000_DEV_ID_82573E_IAMT         0x108C
 #define E1000_DEV_ID_82573L              0x109A
+#define E1000_DEV_ID_82574L              0x10D3
 #define E1000_DEV_ID_82546GB_QUAD_COPPER_KSP3 0x10B5
 #define E1000_DEV_ID_80003ES2LAN_COPPER_DPT     0x1096
 #define E1000_DEV_ID_80003ES2LAN_SERDES_DPT     0x1098
@@ -1048,6 +1079,13 @@ typedef enum {
 
 /* Structure containing variables used by the shared code (e1000_hw.c) */
 struct e1000_hw {
+	struct list_head list_node;
+	struct eth_device *nic;
+#ifdef CONFIG_E1000_SPI
+	struct spi_slave spi;
+#endif
+	unsigned int cardnum;
+
 	pci_dev_t pdev;
 	uint8_t *hw_addr;
 	e1000_mac_type mac_type;
@@ -1055,7 +1093,6 @@ struct e1000_hw {
 	uint32_t phy_init_script;
 	uint32_t txd_cmd;
 	e1000_media_type media_type;
-	e1000_lan_loc lan_loc;
 	e1000_fc_type fc;
 	e1000_bus_type bus_type;
 #if 0
@@ -1640,14 +1677,6 @@ struct e1000_hw {
 #define EEPROM_ERASE_OPCODE 0x7	/* EERPOM erase opcode */
 #define EEPROM_EWEN_OPCODE  0x13	/* EERPOM erase/write enable */
 #define EEPROM_EWDS_OPCODE  0x10	/* EERPOM erast/write disable */
-
-/* EEPROM Word Offsets */
-#define EEPROM_COMPAT		   0x0003
-#define EEPROM_ID_LED_SETTINGS	   0x0004
-#define EEPROM_INIT_CONTROL1_REG   0x000A
-#define EEPROM_INIT_CONTROL2_REG   0x000F
-#define EEPROM_FLASH_VERSION	   0x0032
-#define EEPROM_CHECKSUM_REG	   0x003F
 
 /* Word definitions for ID LED Settings */
 #define ID_LED_RESERVED_0000 0x0000
@@ -2417,6 +2446,8 @@ struct e1000_hw {
 #define L1LXT971A_PHY_ID   0x001378E0
 #define GG82563_E_PHY_ID   0x01410CA0
 
+#define BME1000_E_PHY_ID     0x01410CB0
+
 /* Miscellaneous PHY bit definitions. */
 #define PHY_PREAMBLE			0xFFFFFFFF
 #define PHY_SOF				0x01
@@ -2440,7 +2471,6 @@ struct e1000_hw {
 #define ADVERTISE_100_FULL		0x0008
 #define ADVERTISE_1000_HALF		0x0010
 #define ADVERTISE_1000_FULL		0x0020
-#define AUTONEG_ADVERTISE_SPEED_DEFAULT 0x002F	/* Everything but 1000-Half */
 
 #define ICH_FLASH_GFPREG   0x0000
 #define ICH_FLASH_HSFSTS   0x0004
@@ -2465,7 +2495,6 @@ struct e1000_hw {
 #define ICH_GFPREG_BASE_MASK       0x1FFF
 #define ICH_FLASH_LINEAR_ADDR_MASK 0x00FFFFFF
 
-#define E1000_EEWR     0x0102C  /* EEPROM Write Register - RW */
 #define E1000_SW_FW_SYNC 0x05B5C /* Software-Firmware Synchronization - RW */
 
 /* SPI EEPROM Status Register */
@@ -2560,7 +2589,6 @@ struct e1000_hw {
 #define PHY_CFG_TIMEOUT             100
 #define DEFAULT_80003ES2LAN_TIPG_IPGT_10_100 0x00000009
 #define DEFAULT_80003ES2LAN_TIPG_IPGT_1000   0x00000008
-#define E1000_TXDMAC_DPP 0x00000001
 #define AUTO_ALL_MODES	0
 
 #ifndef E1000_MASTER_SLAVE

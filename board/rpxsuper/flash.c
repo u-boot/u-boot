@@ -47,41 +47,39 @@ static int write_word (flash_info_t *info, ulong dest, ulong data);
 /*-----------------------------------------------------------------------
  */
 
-unsigned long flash_init (void)
+unsigned long flash_init(void)
 {
-    unsigned long size;
-    int i;
+	int i;
 
-    /* Init: no FLASHes known */
-    for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
-	flash_info[i].flash_id = FLASH_UNKNOWN;
-    }
+	/* Init: no FLASHes known */
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i)
+		flash_info[i].flash_id = FLASH_UNKNOWN;
 
-    /* for now, only support the 4 MB Flash SIMM */
-    size = flash_get_size((vu_long *)CONFIG_SYS_FLASH0_BASE, &flash_info[0]);
+	/* for now, only support the 4 MB Flash SIMM */
+	(void)flash_get_size((vu_long *) CONFIG_SYS_FLASH0_BASE,
+			      &flash_info[0]);
 
-    /*
-     * protect monitor and environment sectors
-     */
+	/*
+	 * protect monitor and environment sectors
+	 */
 
 #if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH0_BASE
-    flash_protect(FLAG_PROTECT_SET,
-		  CONFIG_SYS_MONITOR_BASE,
-		  CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
-		  &flash_info[0]);
+	flash_protect(FLAG_PROTECT_SET,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
+		      &flash_info[0]);
 #endif
 
 #if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
-# ifndef  CONFIG_ENV_SIZE
-#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
-# endif
-    flash_protect(FLAG_PROTECT_SET,
-		  CONFIG_ENV_ADDR,
-		  CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
-		  &flash_info[0]);
+#ifndef CONFIG_ENV_SIZE
+#define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
+#endif
+	flash_protect(FLAG_PROTECT_SET,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 #endif
 
-    return /*size*/ (CONFIG_SYS_FLASH0_SIZE * 1024 * 1024);
+	return CONFIG_SYS_FLASH0_SIZE * 1024 * 1024;
 }
 
 /*-----------------------------------------------------------------------

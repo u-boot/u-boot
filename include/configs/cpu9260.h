@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop@leadtechdesign.com>
+ * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  * Ilko Iliev <www.ronetix.at>
  *
@@ -31,35 +31,40 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_AT91_LEGACY
-
-#define CONFIG_DISPLAY_CPUINFO	1
+/* to be removed once maemory-map.h is fixed */
+#define AT91_BASE_SYS	0xffffe800
+#define AT91_DBGU	(0xfffff200 - AT91_BASE_SYS)
 
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
 #define CONFIG_SYS_HZ		1000
-
-#define CONFIG_ARM926EJS	1
-
-#if defined(CONFIG_CPU9260_128M) || defined(CONFIG_CPU9260)
-#define CONFIG_CPU9260		1
-#elif defined(CONFIG_CPU9G20_128M) || defined(CONFIG_CPU9G20)
-#define CONFIG_CPU9G20		1
-#endif
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
 #if defined(CONFIG_CPU9G20)
-#define CONFIG_AT91SAM9G20	1
+#define CONFIG_AT91SAM9G20
 #elif defined(CONFIG_CPU9260)
-#define CONFIG_AT91SAM9260	1
+#define CONFIG_AT91SAM9260
 #else
 #error "Unknown board"
 #endif
 
+#include <asm/arch/hardware.h>
+
+#define CONFIG_AT91FAMILY
 #define CONFIG_ARCH_CPU_INIT
 #undef CONFIG_USE_IRQ
+#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_CMDLINE_TAG		1
-#define CONFIG_SETUP_MEMORY_TAGS 	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+
+#if defined(CONFIG_NANDBOOT)
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SYS_TEXT_BASE           0x23f00000
+#else
+#define CONFIG_SYS_TEXT_BASE           0x00000000
+#endif
 
 /* clocks */
 #if defined(CONFIG_CPU9G20)
@@ -113,8 +118,8 @@
 
 /* EBI_CSA, 3.3V, no pull-ups for D[15:0], CS1 SDRAM, CS3 NAND Flash */
 #define CONFIG_SYS_MATRIX_EBICSA_VAL		\
-       (AT91_MATRIX_DBPUC | AT91_MATRIX_CS1A_SDRAMC |\
-       AT91_MATRIX_CS3A_SMC_SMARTMEDIA | AT91_MATRIX_VDDIOMSEL)
+		(AT91_MATRIX_CSA_DBPUC | AT91_MATRIX_CSA_EBI_CS1A | \
+		AT91_MATRIX_CSA_EBI_CS3A | AT91_MATRIX_CSA_VDDIOMSEL_3_3V)
 
 /* SDRAM */
 /* SDRAMC_MR Mode register */
@@ -199,67 +204,66 @@
 /* setup SMC0, CS0 (NOR Flash) - 16-bit */
 #if defined(CONFIG_CPU9G20)
 #define CONFIG_SYS_SMC0_SETUP0_VAL					\
-		(AT91_SMC_NWESETUP_(0) | AT91_SMC_NCS_WRSETUP_(0) |	\
-		 AT91_SMC_NRDSETUP_(0) | AT91_SMC_NCS_RDSETUP_(0))
+		(AT91_SMC_SETUP_NWE(0) | AT91_SMC_SETUP_NCS_WR(0) |	\
+		 AT91_SMC_SETUP_NRD(0) | AT91_SMC_SETUP_NCS_RD(0))
 #define CONFIG_SYS_SMC0_PULSE0_VAL					\
-		(AT91_SMC_NWEPULSE_(8) | AT91_SMC_NCS_WRPULSE_(8) |	\
-		 AT91_SMC_NRDPULSE_(14) | AT91_SMC_NCS_RDPULSE_(14))
+		(AT91_SMC_PULSE_NWE(8) | AT91_SMC_PULSE_NCS_WR(8) |	\
+		 AT91_SMC_PULSE_NRD(14) | AT91_SMC_PULSE_NCS_RD(14))
 #define CONFIG_SYS_SMC0_CYCLE0_VAL	\
-		(AT91_SMC_NWECYCLE_(8) | AT91_SMC_NRDCYCLE_(14))
+		(AT91_SMC_CYCLE_NWE(8) | AT91_SMC_CYCLE_NRD(14))
 #define CONFIG_SYS_SMC0_MODE0_VAL				\
-		(AT91_SMC_READMODE | AT91_SMC_WRITEMODE |	\
-		 AT91_SMC_DBW_16 |				\
-		 AT91_SMC_TDFMODE |				\
-		 AT91_SMC_TDF_(3))
+		(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |	\
+		 AT91_SMC_MODE_DBW_16 |				\
+		 AT91_SMC_MODE_TDF |				\
+		 AT91_SMC_MODE_TDF_CYCLE(3))
 #elif defined(CONFIG_CPU9260)
 #define CONFIG_SYS_SMC0_SETUP0_VAL					\
-		(AT91_SMC_NWESETUP_(0) | AT91_SMC_NCS_WRSETUP_(0) |	\
-		 AT91_SMC_NRDSETUP_(0) | AT91_SMC_NCS_RDSETUP_(0))
+		(AT91_SMC_SETUP_NWE(0) | AT91_SMC_SETUP_NCS_WR(0) |	\
+		 AT91_SMC_SETUP_NRD(0) | AT91_SMC_SETUP_NCS_RD(0))
 #define CONFIG_SYS_SMC0_PULSE0_VAL					\
-		(AT91_SMC_NWEPULSE_(6) | AT91_SMC_NCS_WRPULSE_(6) |	\
-		 AT91_SMC_NRDPULSE_(10) | AT91_SMC_NCS_RDPULSE_(10))
+		(AT91_SMC_PULSE_NWE(6) | AT91_SMC_PULSE_NCS_WR(6) |	\
+		 AT91_SMC_PULSE_NRD(10) | AT91_SMC_PULSE_NCS_RD(10))
 #define CONFIG_SYS_SMC0_CYCLE0_VAL	\
-		(AT91_SMC_NWECYCLE_(6) | AT91_SMC_NRDCYCLE_(10))
+		(AT91_SMC_CYCLE_NWE(6) | AT91_SMC_CYCLE_NRD(10))
 #define CONFIG_SYS_SMC0_MODE0_VAL				\
-		(AT91_SMC_READMODE | AT91_SMC_WRITEMODE |	\
-		 AT91_SMC_DBW_16 |				\
-		 AT91_SMC_TDFMODE |				\
-		 AT91_SMC_TDF_(2))
+		(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |	\
+		 AT91_SMC_MODE_DBW_16 |				\
+		 AT91_SMC_MODE_TDF |				\
+		 AT91_SMC_MODE_TDF_CYCLE(2))
 #endif
 
 /* user reset enable */
 #define CONFIG_SYS_RSTC_RMR_VAL			\
 		(AT91_RSTC_KEY |		\
-		AT91_RSTC_PROCRST |		\
-		AT91_RSTC_RSTTYP_WAKEUP |	\
-		AT91_RSTC_RSTTYP_WATCHDOG)
+		AT91_RSTC_CR_PROCRST |		\
+		AT91_RSTC_MR_ERSTL(1) |	\
+		AT91_RSTC_MR_ERSTL(2))
 
 /* Disable Watchdog */
 #define CONFIG_SYS_WDTC_WDMR_VAL				\
-		(AT91_WDT_WDIDLEHLT | AT91_WDT_WDDBGHLT |	\
-		 AT91_WDT_WDV |					\
-		 AT91_WDT_WDDIS |				\
-		 AT91_WDT_WDD)
+		(AT91_WDT_MR_WDIDLEHLT | AT91_WDT_MR_WDDBGHLT |	\
+		 AT91_WDT_MR_WDV(0xfff) |			\
+		 AT91_WDT_MR_WDDIS |				\
+		 AT91_WDT_MR_WDD(0xfff))
 
 /*
  * Hardware drivers
  */
-#define CONFIG_AT91_GPIO	1
-#define CONFIG_ATMEL_USART	1
-#undef CONFIG_USART0
-#undef CONFIG_USART1
-#undef CONFIG_USART2
-#define CONFIG_USART3		1	/* USART 3 is DBGU */
+#define CONFIG_AT91SAM9_WATCHDOG
+#define CONFIG_AT91_GPIO
+#define CONFIG_ATMEL_USART
+#define CONFIG_USART_BASE	ATMEL_BASE_DBGU
+#define CONFIG_USART_ID		ATMEL_ID_SYS
 
 #define CONFIG_BOOTDELAY	3
 
 /*
  * BOOTP options
  */
-#define CONFIG_BOOTP_BOOTFILESIZE	1
-#define CONFIG_BOOTP_BOOTPATH		1
-#define CONFIG_BOOTP_GATEWAY		1
-#define CONFIG_BOOTP_HOSTNAME		1
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
@@ -271,37 +275,40 @@
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_IMLS
 
-#define CONFIG_CMD_PING		1
-#define CONFIG_CMD_DHCP		1
-#define CONFIG_CMD_NAND		1
-#define CONFIG_CMD_USB		1
-#define CONFIG_CMD_FAT		1
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_MII
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS	1
-#define PHYS_SDRAM		0x20000000
+#define CONFIG_SYS_SDRAM_BASE		0x20000000
 #if defined(CONFIG_CPU9260_128M) || defined(CONFIG_CPU9G20_128M)
-#define PHYS_SDRAM_SIZE		0x08000000	/* 128 MB */
+#define CONFIG_SYS_SDRAM_SIZE		(128 * 1024 * 1024)
 #define CONFIG_SYS_SDRC_CR_VAL	CONFIG_SYS_SDRC_CR_VAL_128MB
 #else
-#define PHYS_SDRAM_SIZE		0x04000000	/* 64 MB */
+#define CONFIG_SYS_SDRAM_SIZE		(64 * 1024 * 1024)
 #define CONFIG_SYS_SDRC_CR_VAL	CONFIG_SYS_SDRC_CR_VAL_64MB
 #endif
 
 /* NAND flash */
-#define CONFIG_NAND_ATMEL			1
-#define NAND_MAX_CHIPS				1
+#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			0x40000000
 #define CONFIG_SYS_NAND_DBW_8			1
-#define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC13
-#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
+#define CONFIG_SYS_NAND_READY_PIN		AT91_PIO_PORTC, 13
+#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIO_PORTC, 14
 #define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
 #define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
 
 /* NOR flash */
-#define CONFIG_SYS_FLASH_CFI			1
-#define CONFIG_FLASH_CFI_DRIVER			1
+#if defined(CONFIG_NANDBOOT)
+#define CONFIG_SYS_NO_FLASH
+#else
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
 #define PHYS_FLASH_1				0x10000000
 #define PHYS_FLASH_2				0x12000000
 #define CONFIG_SYS_FLASH_BANKS_LIST		\
@@ -310,23 +317,22 @@
 #define CONFIG_SYS_MAX_FLASH_SECT		(255+4)
 #define CONFIG_SYS_MAX_FLASH_BANKS		2
 #define CONFIG_SYS_FLASH_CFI_WIDTH		FLASH_CFI_16BIT
-#define CONFIG_SYS_FLASH_EMPTY_INFO		1
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
-#define CONFIG_SYS_FLASH_PROTECTION		1
+#define CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_MONITOR_BASE			PHYS_FLASH_1
+#endif
 
 /* Ethernet */
-#define CONFIG_MACB				1
-#define CONFIG_RMII				1
-#define CONFIG_RESET_PHY_R			1
-#define CONFIG_NET_MULTI			1
+#define CONFIG_MACB
+#define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT			20
-#define CONFIG_MACB_SEARCH_PHY			1
+#define CONFIG_MACB_SEARCH_PHY
 
 /* LEDS */
 /* Status LED */
-#define CONFIG_STATUS_LED			1 /* Status LED enabled	*/
-#define CONFIG_BOARD_SPECIFIC_LED		1
+#define CONFIG_STATUS_LED
+#define CONFIG_BOARD_SPECIFIC_LED
 #define STATUS_LED_RED				0
 #define STATUS_LED_GREEN			1
 #define STATUS_LED_YELLOW			2
@@ -350,39 +356,56 @@
 /* Optional value */
 #define STATUS_LED_BOOT				STATUS_LED_BIT
 
-#define CONFIG_RED_LED				AT91_PIN_PC11
-#define CONFIG_GREEN_LED			AT91_PIN_PC12
-#define CONFIG_YELLOW_LED			AT91_PIN_PC7
-#define CONFIG_BLUE_LED				AT91_PIN_PC9
+#define CONFIG_RED_LED				AT91_PIO_PORTC, 11
+#define CONFIG_GREEN_LED			AT91_PIO_PORTC, 12
+#define CONFIG_YELLOW_LED			AT91_PIO_PORTC, 7
+#define CONFIG_BLUE_LED				AT91_PIO_PORTC, 9
 
 /* USB */
-#define CONFIG_USB_ATMEL			1
-#define CONFIG_USB_OHCI_NEW			1
-#define CONFIG_DOS_PARTITION			1
-#define CONFIG_SYS_USB_OHCI_CPU_INIT		1
+#define CONFIG_USB_ATMEL
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_DOS_PARTITION
+#define CONFIG_SYS_USB_OHCI_CPU_INIT
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000
+#if defined(CONFIG_CPU9G20)
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9g20"
+#elif defined(CONFIG_CPU9260)
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9260"
+#endif
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-#define CONFIG_USB_STORAGE			1
+#define CONFIG_USB_STORAGE
 
 #define CONFIG_SYS_LOAD_ADDR			0x21000000
+#define CONFIG_LOADADDR				CONFIG_SYS_LOAD_ADDR
 
-#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
-#define CONFIG_SYS_MEMTEST_END			0x21e00000
+#define CONFIG_SYS_MEMTEST_START		CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_MEMTEST_END			\
+	(CONFIG_SYS_MEMTEST_START + CONFIG_SYS_SDRAM_SIZE - 512 * 1024)
 
+#if defined(CONFIG_NANDBOOT)
+#define CONFIG_SYS_USE_NANDFLASH
+#undef CONFIG_SYS_USE_FLASH
+#else
+#define CONFIG_SYS_USE_FLASH
 #undef CONFIG_SYS_USE_NANDFLASH
-#define CONFIG_SYS_USE_FLASH			1
+#endif
+
+#if defined(CONFIG_CPU9G20)
+#define CONFIG_SYS_BASEDIR	"cpu9G20"
+#elif defined(CONFIG_CPU9260)
+#define CONFIG_SYS_BASEDIR	"cpu9260"
+#endif
 
 #if defined(CONFIG_SYS_USE_FLASH)
-#define CONFIG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_OFFSET		0x40000
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define	CONFIG_ENV_SIZE			0x20000
-#define CONFIG_ENV_OVERWRITE		1
+#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BOOTCOMMAND		"run flashboot"
 
-#define MTDIDS_DEFAULT	 	"nor0=physmap-flash.0,nand0=atmel_nand"
+#define MTDIDS_DEFAULT		"nor0=physmap-flash.0,nand0=atmel_nand"
 #define MTDPARTS_DEFAULT		\
 	"mtdparts=physmap-flash.0:"	\
 		"256k(u-boot)ro,"	\
@@ -393,18 +416,12 @@
 
 #define CONFIG_BOOTARGS "root=/dev/mtdblock3 rootfstype=jffs2 "
 
-#if defined(CONFIG_CPU9G20)
-#define CONFIG_SYS_BASEDIR	"cpu9G20"
-#elif defined(CONFIG_CPU9260)
-#define CONFIG_SYS_BASEDIR	"cpu9260"
-#endif
-
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"mtdids=" MTDIDS_DEFAULT "\0"				\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
 	"partition=nand0,0\0"					\
 	"ramargs=setenv bootargs $(bootargs) $(mtdparts)\0"	\
-	"ramboot=tftpboot 0x22000000 cpu9260/uImage;"		\
+	"ramboot=tftpboot 0x22000000 $(basedir)/uImage;"	\
 		"run ramargs;bootm 22000000\0"			\
 	"flashboot=run ramargs;bootm 0x10060000\0"		\
 	"basedir=" CONFIG_SYS_BASEDIR "\0"			\
@@ -421,6 +438,52 @@
 		"0x10220000 0x13ffffff;cp.b 0x24000000 "	\
 		"0x10220000 $(filesize)\0" \
 	""
+#elif defined(CONFIG_NANDBOOT)
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET		0x60000
+#define CONFIG_ENV_OFFSET_REDUND	0x80000
+#define CONFIG_ENV_SECT_SIZE		0x20000
+#define	CONFIG_ENV_SIZE			0x20000
+#define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
+#define CONFIG_ENV_OVERWRITE
+
+#define CONFIG_BOOTCOMMAND		"run flashboot"
+
+#define MTDIDS_DEFAULT		"nand0=atmel_nand"
+#define MTDPARTS_DEFAULT		\
+	"mtdparts=atmel_nand:"		\
+		"128k(bootstrap)ro,"	\
+		"256k(u-boot)ro,"	\
+		"128k(u-boot-env)ro,"	\
+		"128k(u-boot-env2)ro,"	\
+		"2M(kernel),"	\
+		"-(rootfs)"
+
+#define CONFIG_BOOTARGS "root=ubi0:eukrea-cpu9260-rootfs "	\
+	"ubi.mtd=5 rootfstype=ubifs at91sam9_wdt.heartbeat=60"
+
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+	"mtdids=" MTDIDS_DEFAULT "\0"				\
+	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
+	"partition=nand0,5\0"					\
+	"ramargs=setenv bootargs $(bootargs) $(mtdparts)\0"	\
+	"ramboot=tftpboot 0x22000000 $(basedir)/uImage;"	\
+		"run ramargs;bootm 22000000\0"			\
+	"flashboot=run ramargs; nand read 0x22000000 0xA0000 "	\
+		"0x200000; bootm 0x22000000\0"			\
+	"basedir=" CONFIG_SYS_BASEDIR "\0"			\
+	"u-boot=u-boot-eukrea-cpu9260.bin\0"			\
+	"kernel=uImage-eukrea-cpu9260.bin\0"			\
+	"rootfs=image-eukrea-cpu9260.ubi\0"			\
+	"updtub=tftp ${loadaddr} $(basedir)/${u-boot}; "	\
+		"nand erase 20000 40000; "			\
+		"nand write ${loadaddr} 20000 40000\0"		\
+	"updtui=tftp ${loadaddr} $(basedir)/${kernel}; "	\
+		"nand erase a0000 200000; "			\
+		"nand write ${loadaddr} a0000 200000\0"		\
+	"updtrfs=tftp ${loadaddr} $(basedir)/${rootfs}; "	\
+		"nand erase  2a0000 fd60000; "			\
+		"nand write ${loadaddr} 2a0000 ${filesize}\0"
 #endif
 
 #define CONFIG_BAUDRATE			115200
@@ -435,16 +498,19 @@
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		\
 		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING		1
-#define CONFIG_SILENT_CONSOLE		1
-#define CONFIG_NETCONSOLE		1
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_SILENT_CONSOLE
+#define CONFIG_NETCONSOLE
 
 /*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		\
 		ROUND(3 * CONFIG_ENV_SIZE + 128 * 1024, 0x1000)
+
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - \
+				GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_STACKSIZE		(32 * 1024)
 

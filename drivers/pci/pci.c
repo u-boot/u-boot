@@ -50,7 +50,6 @@ PCI_HOSE_OP(write, byte, u8)
 PCI_HOSE_OP(write, word, u16)
 PCI_HOSE_OP(write, dword, u32)
 
-#ifndef CONFIG_IXP425
 #define PCI_OP(rw, size, type, error_code)				\
 int pci_##rw##_config_##size(pci_dev_t dev, int offset, type value)	\
 {									\
@@ -71,7 +70,6 @@ PCI_OP(read, dword, u32 *, *value = 0xffffffff)
 PCI_OP(write, byte, u8, )
 PCI_OP(write, word, u16, )
 PCI_OP(write, dword, u32, )
-#endif	/* CONFIG_IXP425 */
 
 #define PCI_READ_VIA_DWORD_OP(size, type, off_mask)			\
 int pci_hose_read_config_##size##_via_dword(struct pci_controller *hose,\
@@ -190,7 +188,6 @@ int pci_last_busno(void)
 	return hose->last_busno;
 }
 
-#ifndef CONFIG_IXP425
 pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 {
 	struct pci_controller * hose;
@@ -246,7 +243,6 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 
 	return (-1);
 }
-#endif	/* CONFIG_IXP425 */
 
 pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
 {
@@ -520,7 +516,6 @@ void pci_cfgfunc_do_nothing(struct pci_controller *hose,
  * to get the correct result when scanning bridges
  */
 extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
-extern void pciauto_config_init(struct pci_controller *hose);
 
 #if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI_SCAN_SHOW)
 const char * pci_class_str(u8 class)
@@ -699,6 +694,23 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 
 int pci_hose_scan(struct pci_controller *hose)
 {
+#if defined(CONFIG_PCI_BOOTDELAY)
+	static int pcidelay_done;
+	char *s;
+	int i;
+
+	if (!pcidelay_done) {
+		/* wait "pcidelay" ms (if defined)... */
+		s = getenv("pcidelay");
+		if (s) {
+			int val = simple_strtoul(s, NULL, 10);
+			for (i = 0; i < val; i++)
+				udelay(1000);
+		}
+		pcidelay_done = 1;
+	}
+#endif /* CONFIG_PCI_BOOTDELAY */
+
 	/* Start scan at current_busno.
 	 * PCIe will start scan at first_busno+1.
 	 */
@@ -713,19 +725,6 @@ int pci_hose_scan(struct pci_controller *hose)
 
 void pci_init(void)
 {
-#if defined(CONFIG_PCI_BOOTDELAY)
-	char *s;
-	int i;
-
-	/* wait "pcidelay" ms (if defined)... */
-	s = getenv ("pcidelay");
-	if (s) {
-		int val = simple_strtoul (s, NULL, 10);
-		for (i=0; i<val; i++)
-			udelay (1000);
-	}
-#endif /* CONFIG_PCI_BOOTDELAY */
-
 	hose_head = NULL;
 
 	/* now call board specific pci_init()... */

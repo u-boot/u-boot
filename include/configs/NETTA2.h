@@ -100,7 +100,6 @@
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#define	CONFIG_NET_MULTI	1	/* the only way to get the FEC in */
 #define	FEC_ENET		1	/* eth.c needs it that way... */
 #undef CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_MII		1

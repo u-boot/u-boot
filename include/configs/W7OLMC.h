@@ -71,7 +71,6 @@
 #define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII		1		/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0		/* PHY address			*/
-#define CONFIG_NET_MULTI
 
 #define CONFIG_RTC_M48T35A	1		/* ST Electronics M48 timekeeper */
 

@@ -81,7 +81,6 @@
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
-#define CONFIG_NET_MULTI
 
 
 /*

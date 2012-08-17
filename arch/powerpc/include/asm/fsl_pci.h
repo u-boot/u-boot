@@ -1,5 +1,5 @@
 /*
- * Copyright 2007,2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007,2009-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,9 @@
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <pci.h>
+
+#define PEX_IP_BLK_REV_2_2	0x02080202
+#define PEX_IP_BLK_REV_2_3	0x02080203
 
 int fsl_setup_hose(struct pci_controller *hose, unsigned long addr);
 int fsl_is_pci_agent(struct pci_controller *hose);
@@ -73,7 +76,8 @@ typedef struct ccsr_pci {
 	u32	out_comp_to;	/* 0x00C - PCI Outbound Completion Timeout Register */
 	u32	out_conf_to;	/* 0x010 - PCI Configuration Timeout Register */
 	u32	config;		/* 0x014 - PCIE CONFIG Register */
-	char	res2[8];
+	u32	int_status;	/* 0x018 - PCIE interrupt status register */
+	char	res2[4];
 	u32	pme_msg_det;	/* 0x020 - PCIE PME & message detect register */
 	u32	pme_msg_dis;	/* 0x024 - PCIE PME & message disable register */
 	u32	pme_msg_int_en;	/* 0x028 - PCIE PME & message interrupt enable register */
@@ -83,8 +87,11 @@ typedef struct ccsr_pci {
 	u32	block_rev2;	/* 0xbfc - PCIE Block Revision register 2 */
 
 	pot_t	pot[5];		/* 0xc00 - 0xc9f Outbound ATMU's 0, 1, 2, 3, and 4 */
-	u32	res5[64];
-	pit_t	pit[3];		/* 0xda0 - 0xdff Inbound ATMU's 3, 2, and 1 */
+	u32	res5[24];
+	pit_t	pmit;		/* 0xd00 - 0xd9c Inbound ATMU's MSI */
+	u32	res6[24];
+	pit_t	pit[4];		/* 0xd80 - 0xdff Inbound ATMU's 3, 2, 1 and 0 */
+
 #define PIT3 0
 #define PIT2 1
 #define PIT1 2
@@ -158,6 +165,11 @@ typedef struct ccsr_pci {
 	u32	pdb_stat;	/* 0xf00 - PCIE Debug Status */
 	char	res24[252];
 } ccsr_fsl_pci_t;
+#define PCIE_CONFIG_PC	0x00020000
+#define PCIE_CONFIG_OB_CK	0x00002000
+#define PCIE_CONFIG_SAC	0x00000010
+#define PCIE_CONFIG_SP	0x80000002
+#define PCIE_CONFIG_SCC	0x80000001
 
 struct fsl_pci_info {
 	unsigned long regs;
@@ -218,8 +230,10 @@ int fsl_pcie_init_board(int busno);
 #define FT_FSL_PCIE3_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 3)
 #define FT_FSL_PCIE4_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 4)
 
-#if defined(CONFIG_FSL_CORENET)
-#define FSL_PCIE_COMPAT	"fsl,p4080-pcie"
+#if !defined(CONFIG_PCI)
+#define FT_FSL_PCI_SETUP
+#elif defined(CONFIG_FSL_CORENET)
+#define FSL_PCIE_COMPAT	CONFIG_SYS_FSL_PCIE_COMPAT
 #define FT_FSL_PCI_SETUP \
 	FT_FSL_PCIE1_SETUP; \
 	FT_FSL_PCIE2_SETUP; \
@@ -228,7 +242,11 @@ int fsl_pcie_init_board(int busno);
 #define FT_FSL_PCIE_SETUP FT_FSL_PCI_SETUP
 #elif defined(CONFIG_MPC85xx)
 #define FSL_PCI_COMPAT	"fsl,mpc8540-pci"
+#ifdef CONFIG_SYS_FSL_PCIE_COMPAT
+#define FSL_PCIE_COMPAT	CONFIG_SYS_FSL_PCIE_COMPAT
+#else
 #define FSL_PCIE_COMPAT	"fsl,mpc8548-pcie"
+#endif
 #define FT_FSL_PCI_SETUP \
 	FT_FSL_PCI1_SETUP; \
 	FT_FSL_PCI2_SETUP; \

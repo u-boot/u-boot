@@ -327,13 +327,11 @@ int phypower(int flag)
 
 int do_phypower(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	int status;
+	if (argv[1][0] == '0')
+		(void)phypower(0);
+	else
+		(void)phypower(1);
 
-	if (argv[1][0] == '0') {
-		status = phypower(0);
-	} else {
-		status = phypower(1);
-	}
 	return (0);
 }
 

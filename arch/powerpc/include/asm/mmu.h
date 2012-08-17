@@ -392,17 +392,17 @@ extern void print_bats(void);
  */
 
 #define MAS0_TLBSEL_MSK	0x30000000
-#define MAS0_TLBSEL(x)	((x << 28) & MAS0_TLBSEL_MSK)
+#define MAS0_TLBSEL(x)	(((x) << 28) & MAS0_TLBSEL_MSK)
 #define MAS0_ESEL_MSK	0x0FFF0000
-#define MAS0_ESEL(x)	((x << 16) & MAS0_ESEL_MSK)
+#define MAS0_ESEL(x)	(((x) << 16) & MAS0_ESEL_MSK)
 #define MAS0_NV(x)	((x) & 0x00000FFF)
 
 #define MAS1_VALID	0x80000000
 #define MAS1_IPROT	0x40000000
-#define MAS1_TID(x)	((x << 16) & 0x3FFF0000)
+#define MAS1_TID(x)	(((x) << 16) & 0x3FFF0000)
 #define MAS1_TS		0x00001000
-#define MAS1_TSIZE(x)	((x << 8) & 0x00000F00)
-#define TSIZE_TO_BYTES(x) ((phys_addr_t)(1UL << ((tsize * 2) + 10)))
+#define MAS1_TSIZE(x)	(((x) << 8) & 0x00000F00)
+#define TSIZE_TO_BYTES(x) (1ULL << (((x) * 2) + 10))
 
 #define MAS2_EPN	0xFFFFF000
 #define MAS2_X0		0x00000040
@@ -489,6 +489,7 @@ extern int find_free_tlbcam(void);
 extern void print_tlbcam(void);
 
 extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
+extern void clear_ddr_tlbs(unsigned int memsize_in_meg);
 
 extern void write_tlb(u32 _mas0, u32 _mas1, u32 _mas2, u32 _mas3, u32 _mas7);
 

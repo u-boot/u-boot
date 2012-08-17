@@ -21,7 +21,7 @@
 #include <version.h>
 
 #include <asm/macro.h>
-#include <asm/arch/ftsdmc020.h>
+#include <faraday/ftsdmc020.h>
 
 /*
  * parameters for the SDRAM controller

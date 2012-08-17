@@ -21,10 +21,12 @@
  */
 
 #include <common.h>
+#include <asm/fsl_ifc.h>
 #include <asm/io.h>
 
 void cpu_init_f(void)
 {
+#ifdef CONFIG_FSL_LBC
 	fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	/*
@@ -33,17 +35,25 @@ void cpu_init_f(void)
 	 */
 	out_be32(&lbc->lcrr, LCRR_DBYP | LCRR_CLKDIV_8);
 
-#if defined(CONFIG_NAND_BR_PRELIM) && defined(CONFIG_NAND_OR_PRELIM)
-	set_lbc_br(0, CONFIG_NAND_BR_PRELIM);
-	set_lbc_or(0, CONFIG_NAND_OR_PRELIM);
+#if defined(CONFIG_SYS_NAND_BR_PRELIM) && defined(CONFIG_SYS_NAND_OR_PRELIM)
+	set_lbc_br(0, CONFIG_SYS_NAND_BR_PRELIM);
+	set_lbc_or(0, CONFIG_SYS_NAND_OR_PRELIM);
 #else
-#error  CONFIG_NAND_BR_PRELIM, CONFIG_NAND_OR_PRELIM must be defined
+#error  CONFIG_SYS_NAND_BR_PRELIM, CONFIG_SYS_NAND_OR_PRELIM must be defined
+#endif
+#endif
+#ifdef CONFIG_FSL_IFC
+#ifndef	CONFIG_SYS_FSL_ERRATUM_IFC_A003399
+#if defined(CONFIG_SYS_CSPR0) && defined(CONFIG_SYS_CSOR0)
+	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0);
+	set_ifc_amask(IFC_CS0, CONFIG_SYS_AMASK0);
+	set_ifc_csor(IFC_CS0, CONFIG_SYS_CSOR0);
+#endif
+#endif
 #endif
 
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L2_ADDR)
 	ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
-	char *l2srbar;
-	int i;
 
 	out_be32(&l2cache->l2srbar0, CONFIG_SYS_INIT_L2_ADDR);
 
@@ -54,10 +64,5 @@ void cpu_init_f(void)
 	/* set L2E=1 & L2SRAM=001 */
 	out_be32(&l2cache->l2ctl,
 		(MPC85xx_L2CTL_L2E | MPC85xx_L2CTL_L2SRAM_ENTIRE));
-
-	/* Initialize L2 SRAM to zero */
-	l2srbar = (char *)CONFIG_SYS_INIT_L2_ADDR;
-	for (i = 0; i < CONFIG_SYS_L2_SIZE; i++)
-		l2srbar[i] = 0;
 #endif
 }

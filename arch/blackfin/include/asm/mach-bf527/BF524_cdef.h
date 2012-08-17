@@ -6,26 +6,8 @@
 #ifndef __BFIN_CDEF_ADSP_BF524_proc__
 #define __BFIN_CDEF_ADSP_BF524_proc__
 
-#include "../mach-common/ADSP-EDN-core_cdef.h"
+#include "BF522_cdef.h"
 
-#include "ADSP-EDN-BF52x-extended_cdef.h"
-
-#define bfin_read_PLL_CTL()            bfin_read16(PLL_CTL)
-#define bfin_write_PLL_CTL(val)        bfin_write16(PLL_CTL, val)
-#define bfin_read_PLL_DIV()            bfin_read16(PLL_DIV)
-#define bfin_write_PLL_DIV(val)        bfin_write16(PLL_DIV, val)
-#define bfin_read_VR_CTL()             bfin_read16(VR_CTL)
-#define bfin_write_VR_CTL(val)         bfin_write16(VR_CTL, val)
-#define bfin_read_PLL_STAT()           bfin_read16(PLL_STAT)
-#define bfin_write_PLL_STAT(val)       bfin_write16(PLL_STAT, val)
-#define bfin_read_PLL_LOCKCNT()        bfin_read16(PLL_LOCKCNT)
-#define bfin_write_PLL_LOCKCNT(val)    bfin_write16(PLL_LOCKCNT, val)
-#define bfin_read_CHIPID()             bfin_read32(CHIPID)
-#define bfin_write_CHIPID(val)         bfin_write32(CHIPID, val)
-#define bfin_read_SWRST()              bfin_read16(SWRST)
-#define bfin_write_SWRST(val)          bfin_write16(SWRST, val)
-#define bfin_read_SYSCR()              bfin_read16(SYSCR)
-#define bfin_write_SYSCR(val)          bfin_write16(SYSCR, val)
 #define bfin_read_USB_FADDR()          bfin_read16(USB_FADDR)
 #define bfin_write_USB_FADDR(val)      bfin_write16(USB_FADDR, val)
 #define bfin_read_USB_POWER()          bfin_read16(USB_POWER)

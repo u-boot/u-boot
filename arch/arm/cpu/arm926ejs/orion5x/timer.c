@@ -1,5 +1,5 @@
 /*
-  * Copyright (C) 2010 Albert ARIBAUD <albert.aribaud@free.fr>
+  * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * Based on original Kirkwood support which is
  * Copyright (C) Marvell International Ltd. and its affiliates
@@ -25,7 +25,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/orion5x.h>
+#include <asm/io.h>
 
 #define UBOOT_CNTR	0	/* counter to use for uboot timer */
 
@@ -95,13 +95,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define timestamp gd->tbl
 #define lastdec gd->lastinc
 
-void reset_timer_masked(void)
-{
-	/* reset time */
-	lastdec = read_timer();
-	timestamp = 0;
-}
-
 ulong get_timer_masked(void)
 {
 	ulong now = read_timer();
@@ -119,19 +112,9 @@ ulong get_timer_masked(void)
 	return timestamp;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	return get_timer_masked() - base;
-}
-
-void set_timer(ulong t)
-{
-	timestamp = t;
 }
 
 static inline ulong uboot_cntr_val(void)
@@ -181,5 +164,24 @@ int timer_init(void)
 void timer_init_r(void)
 {
 	/* init the timestamp and lastdec value */
-	reset_timer_masked();
+	lastdec = read_timer();
+	timestamp = 0;
+}
+
+/*
+ * This function is derived from PowerPC code (read timebase as long long).
+ * On ARM it just returns the timer value.
+ */
+unsigned long long get_ticks(void)
+{
+	return get_timer(0);
+}
+
+/*
+ * This function is derived from PowerPC code (timebase clock frequency).
+ * On ARM it returns the number of timer ticks per second.
+ */
+ulong get_tbclk (void)
+{
+	return (ulong)CONFIG_SYS_HZ;
 }

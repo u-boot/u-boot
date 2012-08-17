@@ -23,20 +23,21 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/io.h>
-#include <asm/arch/mx31.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init (void)
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((void *)PHYS_SDRAM_1,
+				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
 
-int board_init (void)
+int board_early_init_f(void)
 {
 	int i;
 
@@ -48,9 +49,16 @@ int board_init (void)
 	 * the only non-zero field "Wait State Control" is set to half the
 	 * default value.
 	 */
-	__REG(CSCR_U(0)) = 0x00000f00;
-	__REG(CSCR_L(0)) = 0x10000D03;
-	__REG(CSCR_A(0)) = 0x00720900;
+	static const struct mxc_weimcs cs0 = {
+		/*    sp wp bcd bcs psz pme sync dol cnc wsc ew wws edc */
+		CSCR_U(0, 0,  0,  0,  0,  0,   0,  0,  0, 15, 0,  0,  0),
+		/*   oea oen ebwa ebwn csa ebc dsz csn psr cre wrap csen */
+		CSCR_L(1,  0,   0,   0,  0,  1,  5,  0,  0,  0,   1,   1),
+		/*  ebra ebrn rwa rwn mum lah lbn lba dww dct wwu age cnc2 fce*/
+		CSCR_A(0,   0,  7,  2,  0,  0,  2,  1,  0,  0,  0,  0,   0,   0)
+	};
+
+	mxc_setup_weimcs(0, &cs0);
 
 	/* setup pins for UART1 */
 	mx31_gpio_mux(MUX_RXD1__UART1_RXD_MUX);
@@ -94,13 +102,17 @@ int board_init (void)
 	readb(CS4_BASE + 8);
 	readb(CS4_BASE + 7);
 
-	gd->bd->bi_arch_number = MACH_TYPE_MX31ADS;	/* board id for linux */
+	return 0;
+}
+
+int board_init(void)
+{
 	gd->bd->bi_boot_params = 0x80000100;	/* adress of boot parameters */
 
 	return 0;
 }
 
-int checkboard (void)
+int checkboard(void)
 {
 	printf("Board: MX31ADS\n");
 	return 0;

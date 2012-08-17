@@ -1,58 +1,57 @@
 #!/bin/bash
-
 # Tool mainly for U-Boot Quality Assurance: build one or more board
 # configurations with minimal verbosity, showing only warnings and
 # errors.
-#
-# There are several ways to select which boards to build.
-#
-# Traditionally, architecture names (like "powerpc"), CPU family names
-# (like "mpc83xx") or board names can be specified on the command
-# line; without any arguments, MAKEALL defaults to building all Power
-# Architecture systems (i. e. same as for "MAKEALL powerpc").
-#
-# With the introduction of the board.cfg file, it has become possible
-# to provide additional selections.  We use standard command line
-# options for this:
-#
-# -a or --arch	:	Select architecture
-# -c or --cpu	:	Select CPU family
-# -s or --soc	:	Select SoC type
-# -v or --vendor:	Select board vendor
-#
-# Selections by these options are logically ANDed; if the same option
-# is used repeatedly, such selections are ORed.  So "-v FOO -v BAR"
-# will select all configurations where the vendor is either FOO or
-# BAR.  Any additional arguments specified on the command line are
-# always build additionally.
-#
-# Examples:
-#
-# - build all Power Architecture boards:
-#
-#	MAKEALL -a powerpc
-#   or
-#	MAKEALL --arch powerpc
-#   or
-#	MAKEALL powerpc
-#
-# - build all PowerPC boards manufactured by vendor "esd":
-#
-#	MAKEALL -a powerpc -v esd
-#
-# - build all PowerPC boards manufactured either by "keymile" or
-#   "siemens":
-#
-#	MAKEALL -a powerpc -v keymile -v siemens
-#
-# - build all Freescale boards with MPC83xx CPUs, plus all 4xx boards:
-#
-#	MAKEALL -c mpc83xx -v freescale 4xx
-#
-#########################################################################
 
-SHORT_OPTS="a:c:v:s:"
-LONG_OPTS="arch:,cpu:,vendor:,soc:"
+usage()
+{
+	# if exiting with 0, write to stdout, else write to stderr
+	local ret=${1:-0}
+	[ "${ret}" -eq 1 ] && exec 1>&2
+	cat <<-EOF
+	Usage: MAKEALL [options] [--] [boards-to-build]
+
+	Options:
+	  -a ARCH,   --arch ARCH       Build all boards with arch ARCH
+	  -c CPU,    --cpu CPU         Build all boards with cpu CPU
+	  -v VENDOR, --vendor VENDOR   Build all boards with vendor VENDOR
+	  -s SOC,    --soc SOC         Build all boards with soc SOC
+	  -l,        --list            List all targets to be built
+	  -m,        --maintainers     List all targets and maintainer email
+	  -M,        --mails           List all targets and all affilated emails
+	  -h,        --help            This help output
+
+	Selections by these options are logically ANDed; if the same option
+	is used repeatedly, such selections are ORed.  So "-v FOO -v BAR"
+	will select all configurations where the vendor is either FOO or
+	BAR.  Any additional arguments specified on the command line are
+	always build additionally.  See the boards.cfg file for more info.
+
+	If no boards are specified, then the default is "powerpc".
+
+	Environment variables:
+	  BUILD_NCPUS      number of parallel make jobs (default: auto)
+	  CROSS_COMPILE    cross-compiler toolchain prefix (default: "")
+	  MAKEALL_LOGDIR   output all logs to here (default: ./LOG/)
+	  BUILD_DIR        output build directory (default: ./)
+
+	Examples:
+	  - build all Power Architecture boards:
+	      MAKEALL -a powerpc
+	      MAKEALL --arch powerpc
+	      MAKEALL powerpc
+	  - build all PowerPC boards manufactured by vendor "esd":
+	      MAKEALL -a powerpc -v esd
+	  - build all PowerPC boards manufactured either by "keymile" or "siemens":
+	      MAKEALL -a powerpc -v keymile -v siemens
+	  - build all Freescale boards with MPC83xx CPUs, plus all 4xx boards:
+	      MAKEALL -c mpc83xx -v freescale 4xx
+	EOF
+	exit ${ret}
+}
+
+SHORT_OPTS="ha:c:v:s:lmM"
+LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list,maintainers,mails"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
@@ -63,12 +62,15 @@ LONG_OPTS="arch:,cpu:,vendor:,soc:"
 TEMP=`getopt -o ${SHORT_OPTS} --long ${LONG_OPTS} \
      -n 'MAKEALL' -- "$@"`
 
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+[ $? != 0 ] && usage 1
 
 # Note the quotes around `$TEMP': they are essential!
 eval set -- "$TEMP"
 
 SELECTED=''
+ONLY_LIST=''
+PRINT_MAINTS=''
+MAINTAINERS_ONLY=''
 
 while true ; do
 	case "$1" in
@@ -108,6 +110,20 @@ while true ; do
 		fi
 		SELECTED='y'
 		shift 2 ;;
+	-l|--list)
+		ONLY_LIST='y'
+		shift ;;
+	-m|--maintainers)
+		ONLY_LIST='y'
+		PRINT_MAINTS='y'
+		MAINTAINERS_ONLY='y'
+		shift ;;
+	-M|--mails)
+		ONLY_LIST='y'
+		PRINT_MAINTS='y'
+		shift ;;
+	-h|--help)
+		usage ;;
 	--)
 		shift ; break ;;
 	*)
@@ -299,165 +315,35 @@ LIST_ppc="		\
 LIST_SA="$(boards_by_cpu sa1100)"
 
 #########################################################################
-## ARM7 Systems
-#########################################################################
-
-LIST_ARM7="		\
-	ap7		\
-	ap720t		\
-	armadillo	\
-	B2		\
-	ep7312		\
-	evb4510		\
-	impa7		\
-	integratorap	\
-	lpc2292sodimm	\
-	modnet50	\
-	SMN42		\
-"
-
-#########################################################################
 ## ARM9 Systems
 #########################################################################
 
-LIST_ARM9="			\
-	a320evb			\
-	ap920t			\
-	ap922_XA10		\
-	ap926ejs		\
-	ap946es			\
-	ap966			\
-	aspenite		\
-	cp920t			\
-	cp922_XA10		\
-	cp926ejs		\
-	cp946es			\
-	cp966			\
-	da830evm		\
-	da850evm		\
-	edb9301			\
-	edb9302			\
-	edb9302a		\
-	edb9307			\
-	edb9307a		\
-	edb9312			\
-	edb9315			\
-	edb9315a		\
-	edminiv2		\
-	guruplug		\
-	imx27lite		\
-	jadecpu			\
-	lpd7a400		\
-	magnesium		\
-	mv88f6281gtw_ge		\
-	mx1ads			\
-	mx1fs2			\
-	netstar			\
-	nhk8815			\
-	nhk8815_onenand		\
-	omap1510inn		\
-	omap1610h2		\
-	omap1610inn		\
-	omap5912osk		\
-	omap730p2		\
-	openrd_base		\
-	rd6281a			\
-	sbc2410x		\
-	scb9328			\
-	sheevaplug		\
-	smdk2400		\
-	smdk2410		\
-	spear300		\
-	spear310		\
-	spear320		\
-	spear600		\
-	suen3			\
-	trab			\
-	VCMA9			\
-	versatile		\
-	versatileab		\
-	versatilepb		\
-	voiceblue		\
-	davinci_dvevm		\
-	davinci_schmoogie	\
-	davinci_sffsdr		\
-	davinci_sonata		\
-	davinci_dm355evm	\
-	davinci_dm355leopard	\
-	davinci_dm365evm	\
-	davinci_dm6467evm	\
-"
-
-#########################################################################
-## ARM10 Systems
-#########################################################################
-LIST_ARM10="		\
-	integratorcp	\
-	cp1026		\
+LIST_ARM9="$(boards_by_cpu arm920t)	\
+	$(boards_by_cpu arm926ejs)	\
+	$(boards_by_cpu arm925t)	\
 "
 
 #########################################################################
 ## ARM11 Systems
 #########################################################################
-LIST_ARM11="			\
-	cp1136			\
-	omap2420h4		\
-	apollon			\
-	imx31_litekit		\
+LIST_ARM11="$(boards_by_cpu arm1136)	\
 	imx31_phycore		\
 	imx31_phycore_eet	\
-	mx31ads			\
 	mx31pdk			\
-	mx31pdk_nand		\
-	qong			\
 	smdk6400		\
-	tnetv107x_evm		\
 "
 
 #########################################################################
 ## ARMV7 Systems
 #########################################################################
-LIST_ARMV7="		\
-	am3517_evm		\
-	ca9x4_ct_vxp		\
-	devkit8000		\
-	igep0020		\
-	igep0030		\
-	mx51evk			\
-	omap3_beagle		\
-	omap3_overo		\
-	omap3_evm		\
-	omap3_pandora		\
-	omap3_sdp3430		\
-	omap3_zoom1		\
-	omap3_zoom2		\
-	omap4_panda		\
-	omap4_sdp4430		\
-	s5p_goni		\
-	smdkc100		\
-"
+
+LIST_ARMV7="$(boards_by_cpu armv7)"
 
 #########################################################################
 ## AT91 Systems
 #########################################################################
 
-LIST_at91="$(boards_by_soc at91)\
-	$(boards_by_soc at91rm9200)\
-	at91sam9260ek		\
-	at91sam9261ek		\
-	at91sam9263ek		\
-	at91sam9g10ek		\
-	at91sam9g20ek		\
-	at91sam9m10g45ek	\
-	at91sam9rlek		\
-	CPUAT91			\
-	CPU9260			\
-	CPU9G20			\
-	pm9g45			\
-	SBC35_A9G20		\
-	TNY_A9260		\
-	TNY_A9G20		\
-"
+LIST_at91="$(boards_by_soc at91)"
 
 #########################################################################
 ## Xscale Systems
@@ -476,7 +362,6 @@ LIST_ixp="$(boards_by_cpu ixp)
 
 LIST_arm="			\
 	${LIST_SA}		\
-	${LIST_ARM7}		\
 	${LIST_ARM9}		\
 	${LIST_ARM10}		\
 	${LIST_ARM11}		\
@@ -507,16 +392,11 @@ LIST_mips4kc="		\
 	vct_premium_onenand_small	\
 "
 
-LIST_mips5kc="		\
-	purple		\
-"
-
 LIST_au1xx0="		\
 	dbau1000	\
 	dbau1100	\
 	dbau1500	\
 	dbau1550	\
-	dbau1550_el	\
 	gth2		\
 "
 
@@ -530,34 +410,35 @@ LIST_mips="		\
 ## MIPS Systems		(little endian)
 #########################################################################
 
-LIST_mips4kc_el=""
-
-LIST_mips5kc_el=""
+LIST_xburst_el="	\
+	qi_lb60		\
+"
 
 LIST_au1xx0_el="	\
 	dbau1550_el	\
 	pb1000		\
 "
-
 LIST_mips_el="			\
-	${LIST_mips4kc_el}	\
-	${LIST_mips5kc_el}	\
+	${LIST_xburst_el}	\
 	${LIST_au1xx0_el}	\
 "
+#########################################################################
+## OpenRISC Systems
+#########################################################################
+
+LIST_openrisc="$(boards_by_arch openrisc)"
 
 #########################################################################
-## i386 Systems
+## x86 Systems
 #########################################################################
 
-LIST_x86="$(boards_by_arch i386)"
+LIST_x86="$(boards_by_arch x86)"
 
 #########################################################################
 ## Nios-II Systems
 #########################################################################
 
-LIST_nios2="$(boards_by_arch nios2)
-	nios2-generic	\
-"
+LIST_nios2="$(boards_by_arch nios2)"
 
 #########################################################################
 ## MicroBlaze Systems
@@ -569,20 +450,15 @@ LIST_microblaze="$(boards_by_arch microblaze)"
 ## ColdFire Systems
 #########################################################################
 
-LIST_coldfire="$(boards_by_arch m68k)
-	astro_mcf5373l		\
-	cobra5272		\
+LIST_m68k="$(boards_by_arch m68k)
 	EB+MCF-EV123		\
 	EB+MCF-EV123_internal	\
 	M52277EVB		\
 	M5235EVB		\
-	M5329AFEE		\
-	M5373EVB		\
 	M54451EVB		\
 	M54455EVB		\
-	M5475AFE		\
-	M5485AFE		\
 "
+LIST_coldfire=${LIST_m68k}
 
 #########################################################################
 ## AVR32 Systems
@@ -612,10 +488,117 @@ LIST_sh="$(boards_by_arch sh)"
 
 LIST_sparc="$(boards_by_arch sparc)"
 
+#########################################################################
+## NDS32 Systems
+#########################################################################
+
+LIST_nds32="$(boards_by_arch nds32)"
+
 #-----------------------------------------------------------------------
+
+get_target_location() {
+	local target=$1
+	local BOARD_NAME=""
+	local CONFIG_NAME=""
+	local board=""
+	local vendor=""
+
+	# Automatic mode
+	local line=`egrep -i "^[[:space:]]*${target}[[:space:]]" boards.cfg`
+
+	if [ -z "${line}" ] ; then echo "" ; return ; fi
+
+	set ${line}
+
+	# add default board name if needed
+	[ $# = 3 ] && set ${line} ${1}
+
+	CONFIG_NAME="${1%_config}"
+
+	[ "${BOARD_NAME}" ] || BOARD_NAME="${1%_config}"
+
+	if [ "$4" = "-" ] ; then
+		board=${BOARD_NAME}
+	else
+		board="$4"
+	fi
+
+	[ $# -gt 4 ] && [ "$5" != "-" ] && vendor="$5"
+	[ $# -gt 6 ] && [ "$7" != "-" ] && {
+		tmp="${7%:*}"
+		if [ "$tmp" ] ; then
+			CONFIG_NAME="$tmp"
+		fi
+	}
+
+	# Assign board directory to BOARDIR variable
+	if [ -z "${vendor}" ] ; then
+	    BOARDDIR=${board}
+	else
+	    BOARDDIR=${vendor}/${board}
+	fi
+
+	echo "${CONFIG_NAME}:${BOARDDIR}"
+}
+
+get_target_maintainers() {
+	local name=`echo $1 | cut -d : -f 1`
+
+	if ! grep -qsi "[[:blank:]]${name}[[:blank:]]" MAINTAINERS ; then
+		echo ""
+		return ;
+	fi
+
+	local line=`tac MAINTAINERS | grep -ni "[[:blank:]]${name}[[:blank:]]" | cut -d : -f 1`
+	local mail=`tac MAINTAINERS | tail -n +${line} | \
+		sed -n ":start /.*@.*/ { b mail } ; n ; b start ; :mail /.*@.*/ { p ; n ; b mail } ; q" | \
+		sed "s/^.*<//;s/>.*$//"`
+	echo "$mail"
+}
+
+list_target() {
+	if [ "$PRINT_MAINTS" != 'y' ] ; then
+		echo "$1"
+		return
+	fi
+
+	echo -n "$1:"
+
+	local loc=`get_target_location $1`
+
+	if [ -z "${loc}" ] ; then echo "ERROR" ; return ; fi
+
+	local maintainers_result=`get_target_maintainers ${loc} | tr " " "\n"`
+
+	if [ "$MAINTAINERS_ONLY" != 'y' ] ; then
+
+		local dir=`echo ${loc} | cut -d ":" -f 2`
+		local cfg=`echo ${loc} | cut -d ":" -f 1`
+		local git_result=`git log --format=%aE board/${dir} \
+				include/configs/${cfg}.h | grep "@"`
+		local git_result_recent=`echo ${git_result} | tr " " "\n" | \
+						head -n 3`
+		local git_result_top=`echo ${git_result} | tr " " "\n" | \
+			sort | uniq -c | sort -nr | head -n 3 | \
+			sed "s/^ \+[0-9]\+ \+//"`
+
+		echo -e "$git_result_recent\n$git_result_top\n$maintainers_result" | \
+			sort -u | tr "\n" " " | sed "s/ $//" ;
+	else
+		echo -e "$maintainers_result" | sort -u | tr "\n" " " | \
+						sed "s/ $//" ;
+	fi
+
+	echo ""
+}
 
 build_target() {
 	target=$1
+
+	if [ "$ONLY_LIST" == 'y' ] ; then
+		list_target ${target}
+		return
+	fi
 
 	${MAKE} distclean >/dev/null
 	${MAKE} -s ${target}_config
@@ -637,8 +620,12 @@ build_target() {
 
 	TOTAL_CNT=$((TOTAL_CNT + 1))
 
-	${CROSS_COMPILE}size ${BUILD_DIR}/u-boot \
-				| tee -a ${LOG_DIR}/$target.MAKELOG
+	OBJS=${BUILD_DIR}/u-boot
+	if [ -e ${BUILD_DIR}/spl/u-boot-spl ]; then
+		OBJS="${OBJS} ${BUILD_DIR}/spl/u-boot-spl"
+	fi
+
+	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
 }
 build_targets() {
 	for t in "$@" ; do
@@ -660,6 +647,7 @@ build_targets() {
 #-----------------------------------------------------------------------
 
 print_stats() {
+	if [ "$ONLY_LIST" == 'y' ] ; then return ; fi
 	echo ""
 	echo "--------------------- SUMMARY ----------------------------"
 	echo "Boards compiled: ${TOTAL_CNT}"

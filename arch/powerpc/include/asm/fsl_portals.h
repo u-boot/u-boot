@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -35,6 +35,13 @@ enum fsl_dpaa_dev {
 #ifdef CONFIG_SYS_DPAA_PME
 	FSL_HW_PORTAL_PME,
 #endif
+#ifdef CONFIG_SYS_FSL_RAID_ENGINE
+	FSL_HW_PORTAL_RAID_ENGINE,
+#endif
+#ifdef CONFIG_SYS_DPAA_RMAN
+	FSL_HW_PORTAL_RMAN,
+#endif
+
 };
 
 struct qportal_info {
@@ -51,6 +58,7 @@ extern int get_dpaa_liodn(enum fsl_dpaa_dev dpaa_dev,
 			  u32 *liodns, int liodn_offset);
 extern void setup_portals(void);
 extern void fdt_fixup_qportals(void *blob);
+extern void fdt_fixup_bportals(void *blob);
 
 extern struct qportal_info qp_info[];
 extern void fdt_portal(void *blob, const char *compat, const char *container,

@@ -177,7 +177,8 @@ struct uart_port {
 #elif defined(CONFIG_CPU_SH7201) || \
 	defined(CONFIG_CPU_SH7203) || \
 	defined(CONFIG_CPU_SH7206) || \
-	defined(CONFIG_CPU_SH7263)
+	defined(CONFIG_CPU_SH7263) || \
+	defined(CONFIG_CPU_SH7264)
 # define SCSPTR0 0xfffe8020 /* 16 bit SCIF */
 # define SCSPTR1 0xfffe8820 /* 16 bit SCIF */
 # define SCSPTR2 0xfffe9020 /* 16 bit SCIF */

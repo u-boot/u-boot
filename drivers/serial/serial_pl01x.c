@@ -111,6 +111,15 @@ int serial_init (void)
 	unsigned int divider;
 	unsigned int remainder;
 	unsigned int fraction;
+	unsigned int lcr;
+
+#ifdef CONFIG_PL011_SERIAL_FLUSH_ON_INIT
+	/* Empty RX fifo if necessary */
+	if (readl(&regs->pl011_cr) & UART_PL011_CR_UARTEN) {
+		while (!(readl(&regs->fr) & UART_PL01x_FR_RXFE))
+			readl(&regs->dr);
+	}
+#endif
 
 	/* First, disable everything */
 	writel(0, &regs->pl011_cr);
@@ -131,9 +140,24 @@ int serial_init (void)
 	writel(fraction, &regs->pl011_fbrd);
 
 	/* Set the UART to be 8 bits, 1 stop bit, no parity, fifo enabled */
-	writel(UART_PL011_LCRH_WLEN_8 | UART_PL011_LCRH_FEN,
-	       &regs->pl011_lcrh);
+	lcr = UART_PL011_LCRH_WLEN_8 | UART_PL011_LCRH_FEN;
+	writel(lcr, &regs->pl011_lcrh);
 
+#ifdef CONFIG_PL011_SERIAL_RLCR
+	{
+		int i;
+
+		/*
+		 * Program receive line control register after waiting
+		 * 10 bus cycles.  Delay be writing to readonly register
+		 * 10 times
+		 */
+		for (i = 0; i < 10; i++)
+			writel(lcr, &regs->fr);
+
+		writel(lcr, &regs->pl011_rlcr);
+	}
+#endif
 	/* Finally, enable the UART */
 	writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE | UART_PL011_CR_RXE,
 	       &regs->pl011_cr);
@@ -170,7 +194,17 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
+	struct pl01x_regs *regs = pl01x_get_regs(CONSOLE_PORT);
+
 	baudrate = gd->baudrate;
+	/*
+	 * Flush FIFO and wait for non-busy before changing baudrate to avoid
+	 * crap in console
+	 */
+	while (!(readl(&regs->fr) & UART_PL01x_FR_TXFE))
+		WATCHDOG_RESET();
+	while (readl(&regs->fr) & UART_PL01x_FR_BUSY)
+		WATCHDOG_RESET();
 	serial_init();
 }
 

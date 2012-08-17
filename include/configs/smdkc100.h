@@ -32,7 +32,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_SAMSUNG		1	/* in a SAMSUNG core */
 #define CONFIG_S5P		1	/* which is in a S5P Family */
 #define CONFIG_S5PC100		1	/* which is in a S5PC100 */
@@ -61,7 +60,6 @@
  * 1MB = 0x100000, 0x100000 = 1024 * 1024
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
-						/* initial data */
 /*
  * select serial console configuration
  */
@@ -240,7 +238,6 @@
  * Ethernet Contoller driver
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC911X         1       /* we have a SMC9115 on-board   */
 #define CONFIG_SMC911X_16_BIT  1       /* SMC911X_16_BIT Mode          */
 #define CONFIG_SMC911X_BASE    0x98800300      /* SMC911X Drive Base   */

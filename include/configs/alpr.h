@@ -206,7 +206,6 @@
 
 #define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_NET_MULTI	1
 #define CONFIG_PHY_ADDR		0x02	/* dummy setting, no EMAC0 used	*/
 #define CONFIG_PHY1_ADDR	0x03	/* dummy setting, no EMAC1 used	*/
 #define CONFIG_PHY2_ADDR	0x01	/* PHY address for EMAC2	*/

@@ -82,18 +82,17 @@ static void spi_init(void)
 
 static int spi_transmit(unsigned char data)
 {
-	int dummy;
 	struct mpc5xxx_spi *spi = (struct mpc5xxx_spi*)MPC5XXX_SPI;
 
 	spi->dr = data;
 	/* wait for SPI transmission completed */
-	while(!(spi->sr & 0x80))
-	{
-		if (spi->sr & 0x40)	/* if write collision occured */
-		{
+	while (!(spi->sr & 0x80)) {
+		if (spi->sr & 0x40) {	/* if write collision occured */
+			int dummy;
+
 			/* do dummy read to clear status register */
 			dummy = spi->dr;
-			printf ("SPI write collision\n");
+			printf("SPI write collision: dr=0x%x\n", dummy);
 			return -1;
 		}
 	}
@@ -172,10 +171,8 @@ static void i2s_init(void)
 	psc->ccr = 0x1F03;	/* 16 bit data width; 5.617MHz MCLK */
 	psc->ctur = 0x0F;	/* 16 bit frame width */
 
-	for(i=0;i<128;i++)
-	{
+	for (i = 0; i < 128; i++)
 		psc->psc_buffer_32 = 0; /* clear tx fifo */
-	}
 }
 
 static int i2s_play_wave(unsigned long addr, unsigned long len)
@@ -183,7 +180,6 @@ static int i2s_play_wave(unsigned long addr, unsigned long len)
 	unsigned long i;
 	unsigned char *wave_file = (uchar *)addr + 44;	/* quick'n dirty: skip
 							 * wav header*/
-	unsigned char swapped[4];
 	struct mpc5xxx_psc *psc = (struct mpc5xxx_psc*)MPC5XXX_PSC2;
 
 	/*
@@ -192,11 +188,16 @@ static int i2s_play_wave(unsigned long addr, unsigned long len)
 	psc->command = (PSC_RX_ENABLE | PSC_TX_ENABLE);
 
 	for(i = 0;i < (len / 4); i++) {
+		unsigned char swapped[4];
+		unsigned long *p = (unsigned long*)swapped;
+
 		swapped[3] = *wave_file++;
 		swapped[2] = *wave_file++;
 		swapped[1] = *wave_file++;
 		swapped[0] = *wave_file++;
-		psc->psc_buffer_32 =  *((unsigned long*)swapped);
+
+		psc->psc_buffer_32 =  *p;
+
 		while (psc->tfnum > 400) {
 			if(ctrlc())
 				return 0;

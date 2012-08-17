@@ -95,8 +95,7 @@ static struct cpu_post_cmp_s
 	0x04
     },
 };
-static unsigned int cpu_post_cmp_size =
-    sizeof (cpu_post_cmp_table) / sizeof (struct cpu_post_cmp_s);
+static unsigned int cpu_post_cmp_size = ARRAY_SIZE(cpu_post_cmp_table);
 
 int cpu_post_test_cmp (void)
 {

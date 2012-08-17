@@ -50,8 +50,10 @@ void lbc_sdram_init(void);
 #define BR_MSEL				0x000000E0
 #define BR_MSEL_SHIFT			5
 #define BR_MS_GPCM			0x00000000	/* GPCM */
+#if !defined(CONFIG_MPC834x) && !defined(CONFIG_MPC8360)
 #define BR_MS_FCM			0x00000020	/* FCM */
-#ifdef CONFIG_MPC83xx
+#endif
+#if defined(CONFIG_MPC834x) || defined(CONFIG_MPC8360)
 #define BR_MS_SDRAM			0x00000060	/* SDRAM */
 #elif defined(CONFIG_MPC85xx)
 #define BR_MS_SDRAM			0x00000000	/* SDRAM */
@@ -138,8 +140,10 @@ void lbc_sdram_init(void);
 #define OR_GPCM_EHTR_SHIFT		1
 #define OR_GPCM_EHTR_CLEAR		0x00000000
 #define OR_GPCM_EHTR_SET		0x00000002
+#if !defined(CONFIG_MPC8308)
 #define OR_GPCM_EAD			0x00000001
 #define OR_GPCM_EAD_SHIFT		0
+#endif
 
 /* helpers to convert values into an OR address mask (GPCM mode) */
 #define P2SZ_TO_AM(s)	((~((s) - 1)) & 0xffff8000)	/* must be pow of 2 */
@@ -196,8 +200,10 @@ void lbc_sdram_init(void);
 #define OR_SDRAM_XAM_SHIFT		13
 #define OR_SDRAM_COLS			0x00001C00
 #define OR_SDRAM_COLS_SHIFT		10
+#define OR_SDRAM_MIN_COLS		7
 #define OR_SDRAM_ROWS			0x000001C0
 #define OR_SDRAM_ROWS_SHIFT		6
+#define OR_SDRAM_MIN_ROWS		9
 #define OR_SDRAM_PMSEL			0x00000020
 #define OR_SDRAM_PMSEL_SHIFT		5
 #define OR_SDRAM_EAD			0x00000001
@@ -469,6 +475,8 @@ extern void init_early_memctl_regs(void);
 extern void upmconfig(uint upm, uint *table, uint size);
 
 #define LBC_BASE_ADDR ((fsl_lbc_t *)CONFIG_SYS_LBC_ADDR)
+#define get_lbc_lcrr() (in_be32(&(LBC_BASE_ADDR)->lcrr))
+#define get_lbc_lbcr() (in_be32(&(LBC_BASE_ADDR)->lbcr))
 #define get_lbc_br(i) (in_be32(&(LBC_BASE_ADDR)->bank[i].br))
 #define get_lbc_or(i) (in_be32(&(LBC_BASE_ADDR)->bank[i].or))
 #define set_lbc_br(i, v) (out_be32(&(LBC_BASE_ADDR)->bank[i].br, v))

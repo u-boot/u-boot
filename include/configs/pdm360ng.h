@@ -64,8 +64,6 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_VIDEO_XRES	800
-#define CONFIG_VIDEO_YRES	480
 #endif
 
 #define CONFIG_SYS_MPC512X_CLKIN	33333333	/* in Hz */
@@ -227,9 +225,7 @@
 #define CONFIG_CMD_NAND			/* enable NAND support */
 #define CONFIG_NAND_MPC5121_NFC
 #define CONFIG_SYS_NAND_BASE            0x40000000
-
 #define CONFIG_SYS_MAX_NAND_DEVICE      1
-#define NAND_MAX_CHIPS                  CONFIG_SYS_MAX_NAND_DEVICE
 #define CONFIG_SYS_NAND_SELECT_DEVICE	/* driver supports mutipl. chips */
 
 /*
@@ -346,7 +342,6 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC512x_FEC	1
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR		0x1F
 #define CONFIG_MII		1	/* MII PHY management	*/
 #define CONFIG_FEC_AN_TIMEOUT	1

@@ -24,8 +24,6 @@
 #ifndef _IMXIMAGE_H_
 #define _IMXIMAGE_H_
 
-#include <config.h>
-
 #define MAX_HW_CFG_SIZE_V2 121 /* Max number of registers imx can set for v2 */
 #define MAX_HW_CFG_SIZE_V1 60  /* Max number of registers imx can set for v1 */
 #define APP_CODE_BARKER	0xB1
@@ -34,11 +32,14 @@
 #define HEADER_OFFSET	0x400
 
 #define CMD_DATA_STR	"DATA"
+#define FLASH_OFFSET_UNDEFINED	0xFFFFFFFF
 #define FLASH_OFFSET_STANDARD	0x400
 #define FLASH_OFFSET_NAND	FLASH_OFFSET_STANDARD
 #define FLASH_OFFSET_SD		FLASH_OFFSET_STANDARD
 #define FLASH_OFFSET_SPI	FLASH_OFFSET_STANDARD
 #define FLASH_OFFSET_ONENAND	0x100
+#define FLASH_OFFSET_NOR	0x1000
+#define FLASH_OFFSET_SATA	FLASH_OFFSET_STANDARD
 
 #define IVT_HEADER_TAG 0xD1
 #define IVT_VERSION 0x40

@@ -23,8 +23,8 @@
  */
 
 #include <common.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/pantheon.h>
-#include <asm/io.h>
 
 #define UARTCLK14745KHZ	(APBC_APBCLK | APBC_FNCLK | APBC_FNCLKSEL(1))
 #define SET_MRVL_ID	(1<<8)
@@ -41,6 +41,9 @@ int arch_cpu_init(void)
 
 	struct panthmpmu_registers *mpmu =
 		(struct panthmpmu_registers*) PANTHEON_MPMU_BASE;
+
+	struct panthapmu_registers *apmu =
+		(struct panthapmu_registers *) PANTHEON_APMU_BASE;
 
 	/* set SEL_MRVL_ID bit in PANTHEON_CPU_CONF register */
 	val = readl(&cpuregs->cpu_conf);
@@ -59,6 +62,20 @@ int arch_cpu_init(void)
 	/* Enable GPIO clock */
 	writel(APBC_APBCLK, &apbclkres->gpio);
 
+#ifdef CONFIG_I2C_MV
+	/* Enable I2C clock */
+	writel(APBC_RST | APBC_FNCLK | APBC_APBCLK, &apbclkres->twsi);
+	writel(APBC_FNCLK | APBC_APBCLK, &apbclkres->twsi);
+#endif
+
+#ifdef CONFIG_MV_SDHCI
+	/* Enable mmc clock */
+	writel(APMU_PERI_CLK | APMU_AXI_CLK | APMU_PERI_RST | APMU_AXI_RST,
+			&apmu->sd1);
+	writel(APMU_PERI_CLK | APMU_AXI_CLK | APMU_PERI_RST | APMU_AXI_RST,
+			&apmu->sd3);
+#endif
+
 	icache_enable();
 
 	return 0;
@@ -74,5 +91,11 @@ int print_cpuinfo(void)
 	id = readl(&cpuregs->chip_id);
 	printf("SoC:   PANTHEON 88AP%X-%X\n", (id & 0xFFF), (id >> 0x10));
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_I2C_MV
+void i2c_clk_enable(void)
+{
 }
 #endif

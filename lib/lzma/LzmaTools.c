@@ -67,11 +67,11 @@ int lzmaBuffToBuffDecompress (unsigned char *outStream, SizeT *uncompressedSize,
     ELzmaStatus state;
     SizeT compressedSize = (SizeT)(length - LZMA_PROPS_SIZE);
 
-    debug ("LZMA: Image address............... 0x%lx\n", inStream);
-    debug ("LZMA: Properties address.......... 0x%lx\n", inStream + LZMA_PROPERTIES_OFFSET);
-    debug ("LZMA: Uncompressed size address... 0x%lx\n", inStream + LZMA_SIZE_OFFSET);
-    debug ("LZMA: Compressed data address..... 0x%lx\n", inStream + LZMA_DATA_OFFSET);
-    debug ("LZMA: Destination address......... 0x%lx\n", outStream);
+    debug ("LZMA: Image address............... 0x%p\n", inStream);
+    debug ("LZMA: Properties address.......... 0x%p\n", inStream + LZMA_PROPERTIES_OFFSET);
+    debug ("LZMA: Uncompressed size address... 0x%p\n", inStream + LZMA_SIZE_OFFSET);
+    debug ("LZMA: Compressed data address..... 0x%p\n", inStream + LZMA_DATA_OFFSET);
+    debug ("LZMA: Destination address......... 0x%p\n", outStream);
 
     memset(&state, 0, sizeof(state));
 
@@ -107,8 +107,8 @@ int lzmaBuffToBuffDecompress (unsigned char *outStream, SizeT *uncompressedSize,
         }
     }
 
-    debug ("LZMA: Uncompresed size............ 0x%lx\n", outSizeFull);
-    debug ("LZMA: Compresed size.............. 0x%lx\n", compressedSize);
+    debug("LZMA: Uncompresed size............ 0x%zx\n", outSizeFull);
+    debug("LZMA: Compresed size.............. 0x%zx\n", compressedSize);
 
     g_Alloc.Alloc = SzAlloc;
     g_Alloc.Free = SzFree;

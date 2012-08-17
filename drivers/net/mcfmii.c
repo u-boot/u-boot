@@ -35,7 +35,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if defined(CONFIG_CMD_NET)
 #undef MII_DEBUG
 #undef ET_DEBUG
 
@@ -330,4 +330,4 @@ int mcffec_miiphy_write(const char *devname, unsigned char addr, unsigned char r
 	return 0;
 }
 
-#endif				/* CONFIG_CMD_NET, FEC_ENET & NET_MULTI */
+#endif				/* CONFIG_CMD_NET */

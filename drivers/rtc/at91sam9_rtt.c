@@ -38,9 +38,9 @@
 #include <common.h>
 #include <command.h>
 #include <rtc.h>
+#include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
 #include <asm/arch/at91_rtt.h>
 #include <asm/arch/at91_gpbr.h>
 
@@ -48,8 +48,8 @@
 
 int rtc_get (struct rtc_time *tmp)
 {
-	at91_rtt_t *rtt = (at91_rtt_t *) AT91_RTT_BASE;
-	at91_gpbr_t *gpbr = (at91_gpbr_t *) AT91_GPR_BASE;
+	at91_rtt_t *rtt = (at91_rtt_t *) ATMEL_BASE_RTT;
+	at91_gpbr_t *gpbr = (at91_gpbr_t *) ATMEL_BASE_GPBR;
 	ulong tim;
 	ulong tim2;
 	ulong off;
@@ -66,8 +66,8 @@ int rtc_get (struct rtc_time *tmp)
 
 int rtc_set (struct rtc_time *tmp)
 {
-	at91_rtt_t *rtt = (at91_rtt_t *) AT91_RTT_BASE;
-	at91_gpbr_t *gpbr = (at91_gpbr_t *) AT91_GPR_BASE;
+	at91_rtt_t *rtt = (at91_rtt_t *) ATMEL_BASE_RTT;
+	at91_gpbr_t *gpbr = (at91_gpbr_t *) ATMEL_BASE_GPBR;
 	ulong tim;
 
 	tim = mktime (tmp->tm_year, tmp->tm_mon, tmp->tm_mday,
@@ -85,8 +85,8 @@ int rtc_set (struct rtc_time *tmp)
 
 void rtc_reset (void)
 {
-	at91_rtt_t *rtt = (at91_rtt_t *) AT91_RTT_BASE;
-	at91_gpbr_t *gpbr = (at91_gpbr_t *) AT91_GPR_BASE;
+	at91_rtt_t *rtt = (at91_rtt_t *) ATMEL_BASE_RTT;
+	at91_gpbr_t *gpbr = (at91_gpbr_t *) ATMEL_BASE_GPBR;
 
 	/* clear alarm, set prescaler to 32768, clear counter */
 	writel(32768+AT91_RTT_RTTRST, &rtt->mr);

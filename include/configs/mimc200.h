@@ -24,14 +24,14 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 
-#define CONFIG_AVR32			1
-#define CONFIG_AT32AP			1
-#define CONFIG_AT32AP7000		1
-#define CONFIG_MIMC200			1
+#define CONFIG_AVR32
+#define CONFIG_AT32AP
+#define CONFIG_AT32AP7000
+#define CONFIG_MIMC200
 
-#define CONFIG_MIMC200_EXT_FLASH	1
+#define CONFIG_MIMC200_EXT_FLASH
 
 #define CONFIG_SYS_HZ				1000
 
@@ -40,8 +40,8 @@
  * frequency, the HSB and PBB busses to run at 1/2 the PLL frequency
  * and the PBA bus to run at 1/4 the PLL frequency.
  */
-#define CONFIG_PLL			1
-#define CONFIG_SYS_POWER_MANAGER		1
+#define CONFIG_PLL
+#define CONFIG_SYS_POWER_MANAGER
 #define CONFIG_SYS_OSC0_HZ			10000000
 #define CONFIG_SYS_PLL0_DIV			1
 #define CONFIG_SYS_PLL0_MUL			15
@@ -63,15 +63,17 @@
  */
 #define CONFIG_SYS_PLL0_OPT			0x04
 
-#define CONFIG_USART1			1
+#define CONFIG_USART_BASE			ATMEL_BASE_USART1
+#define CONFIG_USART_ID				1
+
 #define CONFIG_MIMC200_DBGLINK		1
 
 /* User serviceable stuff */
-#define CONFIG_DOS_PARTITION		1
+#define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMDLINE_TAG		1
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
 
 #define CONFIG_STACKSIZE		(2048)
 
@@ -81,9 +83,9 @@
 #define CONFIG_BOOTCOMMAND						\
 	"fsload boot/uImage; bootm"
 
-#define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
-#define CONFIG_DISABLE_CONSOLE		1	/* disable console */
-#define CONFIG_SYS_DEVICE_NULLDEV		1	/* include nulldev device */
+#define CONFIG_SILENT_CONSOLE       /* enable silent startup */
+#define CONFIG_DISABLE_CONSOLE      /* disable console */
+#define CONFIG_SYS_DEVICE_NULLDEV   /* include nulldev device */
 
 #define CONFIG_LCD			1
 
@@ -92,16 +94,15 @@
  * data on the serial line may interrupt the boot sequence.
  */
 #define CONFIG_BOOTDELAY		0
-#define CONFIG_ZERO_BOOTDELAY_CHECK 	1
-#define CONFIG_AUTOBOOT			1
+#define CONFIG_ZERO_BOOTDELAY_CHECK
+#define CONFIG_AUTOBOOT
 
 /*
  * After booting the board for the first time, new ethernet addresses
  * should be generated and assigned to the environment variables
  * "ethaddr" and "eth1addr". This is normally done during production.
  */
-#define CONFIG_OVERWRITE_ETHADDR_ONCE	1
-#define CONFIG_NET_MULTI		1
+#define CONFIG_OVERWRITE_ETHADDR_ONCE
 
 /*
  * BOOTP/DHCP options
@@ -122,13 +123,15 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_NET
 
-#define CONFIG_ATMEL_USART		1
-#define CONFIG_MACB			1
-#define CONFIG_PORTMUX_PIO		1
+#define CONFIG_ATMEL_USART
+#define CONFIG_MACB
+#define CONFIG_PORTMUX_PIO
 #define CONFIG_SYS_NR_PIOS			5
-#define CONFIG_SYS_HSDRAMC			1
-#define CONFIG_MMC			1
-#define CONFIG_ATMEL_MCI		1
+#define CONFIG_SYS_HSDRAMC
+#define CONFIG_MMC
+#define CONFIG_GENERIC_ATMEL_MCI
+#define CONFIG_GENERIC_MMC
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
 
 #if defined(CONFIG_LCD)
 #define CONFIG_CMD_BMP
@@ -149,8 +152,8 @@
 
 #define CONFIG_NR_DRAM_BANKS		1
 
-#define CONFIG_SYS_FLASH_CFI			1
-#define CONFIG_FLASH_CFI_DRIVER		1
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
 
 #define CONFIG_SYS_FLASH_BASE			0x00000000
 #define CONFIG_SYS_FLASH_SIZE			0x800000
@@ -158,6 +161,7 @@
 #define CONFIG_SYS_MAX_FLASH_SECT		135
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_TEXT_BASE		0x00000000
 
 #define CONFIG_SYS_INTRAM_BASE			INTERNAL_SRAM_BASE
 #define CONFIG_SYS_INTRAM_SIZE			INTERNAL_SRAM_SIZE
@@ -166,7 +170,7 @@
 #define CONFIG_SYS_FRAM_BASE			0x08000000
 #define CONFIG_SYS_FRAM_SIZE			0x20000
 
-#define CONFIG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SIZE			65536
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_SIZE - CONFIG_ENV_SIZE)
 
@@ -184,7 +188,7 @@
 #define CONFIG_SYS_CBSIZE			256
 #define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_LONGHELP			1
+#define CONFIG_SYS_LONGHELP
 
 #define CONFIG_SYS_MEMTEST_START		EBI_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END			(CONFIG_SYS_MEMTEST_START + 0x1f00000)

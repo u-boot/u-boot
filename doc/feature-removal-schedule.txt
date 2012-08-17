@@ -7,22 +7,30 @@ file.
 
 ---------------------------
 
-What:	CONFIG_NET_MULTI option
-When:	Release 2009-11
+What:	Users of the legacy miiphy_* code
+When:	undetermined
 
-Why:	U-boot currently implements two network driver APIs.  New drivers with
-	the older-style implementation have not been accepted for a while, and
-	this parallel system makes the code confusing and hard to augment.
+Why:	We now have a PHY library, which allows everyone to share PHY
+	drivers. All new drivers should use this infrastructure, and
+	all old drivers should get converted to use it.
 
-	All existing in-tree boards will be converted to use CONFIG_NET_MULTI
-	over the span of two releases (2009-07 and 2009-09).
-	In the 2009-11 release, all code that is compiled when CONFIG_NET_MULTI
-	is not set will be removed, and all references to CONFIG_NET_MULTI
-	will be removed, effectively making it the only API.  This should
-	provide ample time for out-of-tree users to adjust, and for tools on
-	all architectures to be made to work with weak functions.
+Who:	Andy Fleming <afleming@freescale.com> and driver maintainers
 
-Who:	Ben Warren <biggerbadderben@gmail.com>
+---------------------------
+
+What:	boards with xxx_config targets in top level Makefile
+When:	Release v2012.03
+
+Why:	We have a boards.cfg file which the vast majority of boards have
+	converted over to.  Boards that still manually run mkconfig in the
+	top level Makefile are either dead, or the maintainer doesn't care,
+	or they are doing something weird/wrong that should be fixed in a
+	different way, or they need to extend boards.cfg syntax (unlikely).
+
+	In any case, if no one cares about these boards to figure out how
+	to make boards.cfg work, then we'll just punt them.
+
+Who:	Mike Frysinger <vapier@gentoo.org>
 
 ---------------------------
 

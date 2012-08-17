@@ -184,14 +184,12 @@ eth_reset_err_out:
  **********************************************/
 int dram_init(void)
 {
-	unsigned int size0 = 0, size1 = 0;
-	u32 mtype, btype, rev = 0, cpu = 0;
+	unsigned int size;
+	u32 mtype, btype;
 #define NOT_EARLY 0
 
 	btype = get_board_type();
 	mtype = get_mem_type();
-	rev = get_cpu_rev();
-	cpu = get_cpu_type();
 
 	display_board_info(btype);
 
@@ -200,14 +198,16 @@ int dram_init(void)
 		do_sdrc_init(SDRC_CS1_OSET, NOT_EARLY);
 	}
 
-	size0 = get_sdr_cs_size(SDRC_CS0_OSET);
-	size1 = get_sdr_cs_size(SDRC_CS1_OSET);
+	size = get_sdr_cs_size(SDRC_CS0_OSET);
 
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = size0;
+	gd->bd->bi_dram[0].size = size;
 #if CONFIG_NR_DRAM_BANKS > 1
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_1 + size0;
-	gd->bd->bi_dram[1].size = size1;
+	size = get_sdr_cs_size(SDRC_CS1_OSET);
+
+	gd->bd->bi_dram[1].start = gd->bd->bi_dram[0].start +
+				   gd->bd->bi_dram[0].size;
+	gd->bd->bi_dram[1].size = size;
 #endif
 
 	return 0;

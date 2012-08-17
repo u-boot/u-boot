@@ -51,6 +51,11 @@ the mkimage tool. dtc tool with support for binary includes, e.g. in version
 to be prepared. Refer to the doc/uImage.FIT/ directory for more details on FIT
 images.
 
+This mechanism can be also triggered by the commmand "fitupd".
+If an optional, non-zero address is provided as argument, the TFTP transfer
+is skipped and the image at this address is used.
+The fitupd command is enabled by CONFIG_CMD_FITUPD.
+
 
 Example .its files
 ------------------

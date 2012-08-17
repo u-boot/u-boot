@@ -32,6 +32,7 @@
 #ifdef USE_HOSTCC		/* HOST build */
 # include <string.h>
 # include <assert.h>
+# include <ctype.h>
 
 # ifndef debug
 #  ifdef DEBUG
@@ -43,6 +44,7 @@
 #else				/* U-Boot build */
 # include <common.h>
 # include <linux/string.h>
+# include <linux/ctype.h>
 #endif
 
 #ifndef	CONFIG_ENV_MIN_ENTRIES	/* minimum number of entries */
@@ -155,7 +157,7 @@ void hdestroy_r(struct hsearch_data *htab)
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
 
-			free(ep->key);
+			free((void *)ep->key);
 			free(ep->data);
 		}
 	}
@@ -202,6 +204,29 @@ void hdestroy_r(struct hsearch_data *htab)
  *   example for functions like hdelete().
  */
 
+/*
+ * hstrstr_r - return index to entry whose key and/or data contains match
+ */
+int hstrstr_r(const char *match, int last_idx, ENTRY ** retval,
+	      struct hsearch_data *htab)
+{
+	unsigned int idx;
+
+	for (idx = last_idx + 1; idx < htab->size; ++idx) {
+		if (htab->table[idx].used <= 0)
+			continue;
+		if (strstr(htab->table[idx].entry.key, match) ||
+		    strstr(htab->table[idx].entry.data, match)) {
+			*retval = &htab->table[idx].entry;
+			return idx;
+		}
+	}
+
+	__set_errno(ESRCH);
+	*retval = NULL;
+	return 0;
+}
+
 int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
 	     struct hsearch_data *htab)
 {
@@ -209,7 +234,7 @@ int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
 	size_t key_len = strlen(match);
 
 	for (idx = last_idx + 1; idx < htab->size; ++idx) {
-		if (htab->table[idx].used > 0)
+		if (htab->table[idx].used <= 0)
 			continue;
 		if (!strncmp(match, htab->table[idx].entry.key, key_len)) {
 			*retval = &htab->table[idx].entry;
@@ -393,7 +418,7 @@ int hdelete_r(const char *key, struct hsearch_data *htab)
 	/* free used ENTRY */
 	debug("hdelete: DELETING key \"%s\"\n", key);
 
-	free(ep->key);
+	free((void *)ep->key);
 	free(ep->data);
 	htab->table[idx].used = -1;
 
@@ -453,7 +478,8 @@ static int cmpkey(const void *p1, const void *p2)
 }
 
 ssize_t hexport_r(struct hsearch_data *htab, const char sep,
-		 char **resp, size_t size)
+		 char **resp, size_t size,
+		 int argc, char * const argv[])
 {
 	ENTRY *list[htab->size];
 	char *res, *p;
@@ -466,8 +492,8 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 		return (-1);
 	}
 
-	debug("EXPORT  table = %p, htab.size = %d, htab.filled = %d, size = %d\n",
-		htab, htab->size, htab->filled, size);
+	debug("EXPORT  table = %p, htab.size = %d, htab.filled = %d, "
+		"size = %zu\n", htab, htab->size, htab->filled, size);
 	/*
 	 * Pass 1:
 	 * search used entries,
@@ -477,6 +503,16 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
+			int arg, found = 0;
+
+			for (arg = 0; arg < argc; ++arg) {
+				if (strcmp(argv[arg], ep->key) == 0) {
+					found = 1;
+					break;
+				}
+			}
+			if ((argc > 0) && (found == 0))
+				continue;
 
 			list[n++] = ep;
 
@@ -514,8 +550,8 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 	/* Check if the user supplied buffer size is sufficient */
 	if (size) {
 		if (size < totlen + 1) {	/* provided buffer too small */
-			debug("### buffer too small: %d, but need %d\n",
-				size, totlen + 1);
+			printf("Env export buffer too small: %zu, "
+				"but need %zu\n", size, totlen + 1);
 			__set_errno(ENOMEM);
 			return (-1);
 		}
@@ -541,7 +577,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 	 * export sorted list of result data
 	 */
 	for (i = 0, p = res; i < n; ++i) {
-		char *s;
+		const char *s;
 
 		s = list[i]->key;
 		while (*s)
@@ -615,7 +651,7 @@ int himport_r(struct hsearch_data *htab,
 
 	/* we allocate new space to make sure we can write to the array */
 	if ((data = malloc(size)) == NULL) {
-		debug("himport_r: can't malloc %d bytes\n", size);
+		debug("himport_r: can't malloc %zu bytes\n", size);
 		__set_errno(ENOMEM);
 		return 0;
 	}
@@ -667,7 +703,7 @@ int himport_r(struct hsearch_data *htab,
 		ENTRY e, *rv;
 
 		/* skip leading white space */
-		while ((*dp == ' ') || (*dp == '\t'))
+		while (isblank(*dp))
 			++dp;
 
 		/* skip comment lines */

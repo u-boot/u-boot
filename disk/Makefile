@@ -27,7 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libdisk.o
 
-COBJS-y += part.o
+COBJS-$(CONFIG_PARTITIONS) 	+= part.o
 COBJS-$(CONFIG_MAC_PARTITION)   += part_mac.o
 COBJS-$(CONFIG_DOS_PARTITION)   += part_dos.o
 COBJS-$(CONFIG_ISO_PARTITION)   += part_iso.o

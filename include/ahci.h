@@ -25,6 +25,8 @@
 #ifndef _AHCI_H_
 #define _AHCI_H_
 
+#include <pci.h>
+
 #define AHCI_PCI_BAR		0x24
 #define AHCI_MAX_SG		56 /* hardware max is 64K */
 #define AHCI_CMD_SLOT_SZ	32
@@ -186,5 +188,7 @@ struct ahci_probe_ent {
 	u32	port_map; /* cache of HOST_PORTS_IMPL reg */
 	u32	link_port_map; /*linkup port map*/
 };
+
+int ahci_init(u32 base);
 
 #endif

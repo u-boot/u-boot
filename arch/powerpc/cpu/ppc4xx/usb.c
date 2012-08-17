@@ -30,8 +30,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-#include "usbdev.h"
-
 int usb_cpu_init(void)
 {
 #ifdef CONFIG_4xx_DCACHE
@@ -39,9 +37,6 @@ int usb_cpu_init(void)
 	change_tlb(gd->bd->bi_memstart, gd->bd->bi_memsize, TLB_WORD2_I_ENABLE);
 #endif
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440EPX)
-	usb_dev_init();
-#endif
 	return 0;
 }
 

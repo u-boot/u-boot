@@ -1,0 +1,68 @@
+Generic SPL framework
+=====================
+
+Overview
+--------
+
+To unify all existing implementations for a secondary program loader (SPL)
+and to allow simply adding of new implementations this generic SPL framework
+has been created. With this framework almost all source files for a board
+can be reused. No code duplication or symlinking is necessary anymore.
+
+
+How it works
+------------
+
+There is a new directory TOPDIR/spl which contains only a Makefile.
+The object files are built separately for SPL and placed in this directory.
+The final binaries which are generated are u-boot-spl, u-boot-spl.bin and
+u-boot-spl.map.
+
+During the SPL build a variable named CONFIG_SPL_BUILD is exported
+in the make environment and also appended to CPPFLAGS with -DCONFIG_SPL_BUILD.
+Source files can therefore be compiled for SPL with different settings.
+ARM-based boards have previously used the option CONFIG_PRELOADER for it.
+
+For example:
+
+ifeq ($(CONFIG_SPL_BUILD),y)
+COBJS-y += board_spl.o
+else
+COBJS-y += board.o
+endif
+
+COBJS-$(CONFIG_SPL_BUILD) += foo.o
+
+#ifdef CONFIG_SPL_BUILD
+	foo();
+#endif
+
+
+The building of SPL images can be with:
+
+#define CONFIG_SPL
+
+Because SPL images normally have a different text base, one has to be
+configured by defining CONFIG_SPL_TEXT_BASE. The linker script has to be
+defined with CONFIG_SPL_LDSCRIPT.
+
+To support generic U-Boot libraries and drivers in the SPL binary one can
+optionally define CONFIG_SPL_XXX_SUPPORT. Currently following options
+are supported:
+
+CONFIG_SPL_LIBCOMMON_SUPPORT (common/libcommon.o)
+CONFIG_SPL_LIBDISK_SUPPORT (disk/libdisk.o)
+CONFIG_SPL_I2C_SUPPORT (drivers/i2c/libi2c.o)
+CONFIG_SPL_GPIO_SUPPORT (drivers/gpio/libgpio.o)
+CONFIG_SPL_MMC_SUPPORT (drivers/mmc/libmmc.o)
+CONFIG_SPL_SERIAL_SUPPORT (drivers/serial/libserial.o)
+CONFIG_SPL_SPI_FLASH_SUPPORT (drivers/mtd/spi/libspi_flash.o)
+CONFIG_SPL_SPI_SUPPORT (drivers/spi/libspi.o)
+CONFIG_SPL_FAT_SUPPORT (fs/fat/libfat.o)
+CONFIG_SPL_LIBGENERIC_SUPPORT (lib/libgeneric.o)
+CONFIG_SPL_POWER_SUPPORT (drivers/power/libpower.o)
+CONFIG_SPL_NAND_SUPPORT (drivers/mtd/nand/libnand.o)
+CONFIG_SPL_DMA_SUPPORT (drivers/dma/libdma.o)
+CONFIG_SPL_POST_MEM_SUPPORT (post/drivers/memory.o)
+CONFIG_SPL_NAND_LOAD (drivers/mtd/nand/nand_spl_load.o)
+CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)

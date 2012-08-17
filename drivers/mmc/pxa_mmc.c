@@ -55,7 +55,7 @@ mmc_cmd(ushort cmd, ushort argh, ushort argl, ushort cmdat)
 /****************************************************/
 {
 	static uint32_t resp[4], a, b, c;
-	ulong status;
+	uint32_t status;
 	int i;
 
 	debug("mmc_cmd %u 0x%04x 0x%04x 0x%04x\n", cmd, argh, argl,
@@ -97,7 +97,7 @@ mmc_cmd(ushort cmd, ushort argh, ushort argl, ushort cmdat)
 
 int
 /****************************************************/
-mmc_block_read(uchar * dst, ulong src, ulong len)
+mmc_block_read(uchar * dst, uint32_t src, int len)
 /****************************************************/
 {
 	ushort argh, argl;
@@ -107,7 +107,7 @@ mmc_block_read(uchar * dst, ulong src, ulong len)
 		return 0;
 	}
 
-	debug("mmc_block_rd dst %lx src %lx len %d\n", (ulong) dst, src, len);
+	debug("mmc_block_rd dst %p src %08x len %d\n", dst, src, len);
 
 	argh = len >> 16;
 	argl = len & 0xffff;
@@ -129,7 +129,7 @@ mmc_block_read(uchar * dst, ulong src, ulong len)
 	writel(~MMC_I_MASK_RXFIFO_RD_REQ, MMC_I_MASK);
 	while (len) {
 		if (readl(MMC_I_REG) & MMC_I_REG_RXFIFO_RD_REQ) {
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 			int i;
 			for (i = min(len, 32); i; i--) {
 				*dst++ = readb(MMC_RXFIFO);
@@ -298,7 +298,7 @@ pxa_mmc_read(long src, uchar * dst, int size)
 
 int
 /****************************************************/
-pxa_mmc_write(uchar * src, ulong dst, int size)
+pxa_mmc_write(uchar * src, uint32_t dst, int size)
 /****************************************************/
 {
 	ulong end, part_start, part_end, part_len, aligned_start, aligned_end;
@@ -325,14 +325,14 @@ pxa_mmc_write(uchar * src, ulong dst, int size)
 
 	/* all block aligned accesses */
 	debug
-	    ("src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-	     src, (ulong) dst, end, part_start, part_end, aligned_start,
+	    ("src %p dst %08x end %lx pstart %lx pend %lx astart %lx aend %lx\n",
+	     src, dst, end, part_start, part_end, aligned_start,
 	     aligned_end);
 	if (part_start) {
 		part_len = mmc_block_size - part_start;
 		debug
-		    ("ps src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-		     (ulong) src, dst, end, part_start, part_end, aligned_start,
+		    ("ps src %p dst %08x end %lx pstart %lx pend %lx astart %lx aend %lx\n",
+		     src, dst, end, part_start, part_end, aligned_start,
 		     aligned_end);
 		if ((mmc_block_read(mmc_buf, aligned_start, mmc_block_size)) <
 		    0) {
@@ -347,26 +347,26 @@ pxa_mmc_write(uchar * src, ulong dst, int size)
 		src += part_len;
 	}
 	debug
-	    ("src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-	     src, (ulong) dst, end, part_start, part_end, aligned_start,
+	    ("src %p dst %08x end %lx pstart %lx pend %lx astart %lx aend %lx\n",
+	     src, dst, end, part_start, part_end, aligned_start,
 	     aligned_end);
 	for (; dst < aligned_end; src += mmc_block_size, dst += mmc_block_size) {
 		debug
-		    ("al src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-		     src, (ulong) dst, end, part_start, part_end, aligned_start,
+		    ("al src %p dst %08x end %lx pstart %lx pend %lx astart %lx aend %lx\n",
+		     src, dst, end, part_start, part_end, aligned_start,
 		     aligned_end);
 		if ((mmc_block_write(dst, (uchar *) src, mmc_block_size)) < 0) {
 			return -1;
 		}
 	}
 	debug
-	    ("src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-	     src, (ulong) dst, end, part_start, part_end, aligned_start,
+	    ("src %p dst %08x end %lx pstart %lx pend %lx astart %lx aend %lx\n",
+	     src, dst, end, part_start, part_end, aligned_start,
 	     aligned_end);
 	if (part_end && dst < end) {
 		debug
-		    ("pe src %lx dst %lx end %lx pstart %lx pend %lx astart %lx aend %lx\n",
-		     src, (ulong) dst, end, part_start, part_end, aligned_start,
+		    ("pe src %p dst %08x end %lx pstart %lx pend %lx astart %lx aend %lx\n",
+		     src, dst, end, part_start, part_end, aligned_start,
 		     aligned_end);
 		if ((mmc_block_read(mmc_buf, aligned_end, mmc_block_size)) < 0) {
 			return -1;
@@ -560,10 +560,6 @@ mmc_legacy_init(int verbose)
 	/* Reset device interface type */
 	mmc_dev.if_type = IF_TYPE_UNKNOWN;
 
-#if defined (CONFIG_LUBBOCK) || (defined (CONFIG_GUMSTIX) && !defined(CONFIG_PXA27X))
-	set_GPIO_mode(GPIO6_MMCCLK_MD);
-	set_GPIO_mode(GPIO8_MMCCS0_MD);
-#endif
 #ifdef CONFIG_CPU_MONAHANS	/* pxa3xx */
 	writel(readl(CKENA) | CKENA_12_MMC0 | CKENA_13_MMC1, CKENA);
 #else	/* pxa2xx */
@@ -633,7 +629,7 @@ mmc_legacy_init(int verbose)
 	writel(0, MMC_CLKRT);		/* 20 MHz */
 	resp = mmc_cmd(MMC_CMD_SELECT_CARD, rca, 0, MMC_CMDAT_R1);
 
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 	if (IF_TYPE_SD == mmc_dev.if_type) {
 		resp = mmc_cmd(MMC_CMD_APP_CMD, rca, 0, MMC_CMDAT_R1);
 		resp = mmc_cmd(SD_CMD_APP_SET_BUS_WIDTH, 0, 2, MMC_CMDAT_R1);

@@ -127,15 +127,16 @@ const uint static_table[] =
 
 int checkboard (void)
 {
-	char *s = getenv ("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
-	if (!s || strncmp (s, "TQM8", 4)) {
+	if (i < 0 || strncmp(buf, "TQM8", 4)) {
 		printf ("### No HW ID - assuming RBC823\n");
 		return (0);
 	}
 
-	puts (s);
-	putc ('\n');
+	puts(buf);
+	putc('\n');
 
 	return (0);
 }

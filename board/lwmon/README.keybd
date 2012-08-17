@@ -5,44 +5,44 @@ Die Implementierung / Decodierung beruht auf den Angaben aus dem  Do-
 kument  "PIC LWE-Tastatur" in der Fassung vom 9. 3. 2001, insbesonde-
 re Tabelle 3 im Kapitel 4.3 Tastencodes. In  U-Boot  werden  die  vom
 Keyboard-Controller  gelesenen Daten hexadezimal codiert in der auto-
-matisch angelegten Environment-Variablen "keybd" übergeben. Ist  kei-
-ne Taste gedrückt worden, steht dort:
+matisch angelegten Environment-Variablen "keybd" Ã¼bergeben. Ist  kei-
+ne Taste gedrÃ¼ckt worden, steht dort:
 
 	keybd=000000000000000000
 
 Der decodierte Tastencode ("keybd") kann mit den  "bootargs"  an  den
-Linux-Kernel  übergeben  und  dort z. B. in einem Device-Treiber oder
+Linux-Kernel  Ã¼bergeben  und  dort z. B. in einem Device-Treiber oder
 einer Applikation ausgewertet werden.
 
 
 Sonderfunktionen beim Booten:
 
 Es lassen sich eine oder mehrere (beliebig viele) Tasten oder Tasten-
-kombinationen definieren, die Sonderfunktionen auslösen,  wenn  diese
-Tasten beim Booten (Reset) gedrückt sind.
+kombinationen definieren, die Sonderfunktionen auslÃ¶sen,  wenn  diese
+Tasten beim Booten (Reset) gedrÃ¼ckt sind.
 
 Wird eine eingestellte Taste bzw. Tastenkombination erkannt, so  wird
 in  U-Boot noch vor dem Start des "Countdown" und somit vor jedem an-
 deren Kommando der Inhalt einer dieser Taste  bzw.  Tastenkombination
-zugeordneten Environment-Variablen ausführen.
+zugeordneten Environment-Variablen ausfÃ¼hren.
 
 
 Die Environment-Variable "magic_keys" wird als Liste von Zeichen ver-
-standen, die als Suffix an den Namen "key_magic" angefügt werden  und
+standen, die als Suffix an den Namen "key_magic" angefÃ¼gt werden  und
 so  die  Namen  der  Environment-Variablen  definieren, mit denen die
 Tasten (-kombinationen) festgelegt werden:
 
 Ist "magic_keys" NICHT definiert, so wird nur die in der Environment-
-Variablen "key_magic" codierte  Tasten  (-kombination)  geprüft,  und
-ggf.  der  Inhalt der Environment-Variablen "key_cmd" ausgeführt (ge-
+Variablen "key_magic" codierte  Tasten  (-kombination)  geprÃ¼ft,  und
+ggf.  der  Inhalt der Environment-Variablen "key_cmd" ausgefÃ¼hrt (ge-
 nauer: der Inhalt von "key_cmd" wird der Variablen "preboot" zugewie-
-sen, die ausgeführt wird, unmittelbar bevor die interaktive Kommando-
+sen, die ausgefÃ¼hrt wird, unmittelbar bevor die interaktive Kommando-
 interpretation beginnt).
 
-Enthält "magic_keys" z. B.  die  Zeichenkette  "0123CB*",  so  werden
-nacheinander folgende Aktionen ausgeführt:
+EnthÃ¤lt "magic_keys" z. B.  die  Zeichenkette  "0123CB*",  so  werden
+nacheinander folgende Aktionen ausgefÃ¼hrt:
 
-	prüfe Tastencode	ggf. führe aus Kommando
+	prÃ¼fe Tastencode	ggf. fÃ¼hre aus Kommando
 	in Variable		in Variable
 	-----------------------------------
 	key_magic0	==>	key_cmd0
@@ -55,43 +55,43 @@ nacheinander folgende Aktionen ausgeführt:
 	key_magic*	==>	key_cmd*
 
 Hinweis: sobald ein aktivierter Tastencode erkannt  wurde,  wird  die
-Bearbeitung  abgebrochen; es wird daher höchstens eines der definier-
-ten Kommandos ausgeführt, wobei die Priorität durch  die  Suchreihen-
+Bearbeitung  abgebrochen; es wird daher hÃ¶chstens eines der definier-
+ten Kommandos ausgefÃ¼hrt, wobei die PrioritÃ¤t durch  die  Suchreihen-
 folge  festgelegt wird, also durch die Reihenfolge der Zeichen in der
 Varuiablen "magic_keys".
 
 
-Die Codierung der Tasten, die beim Booten gedrückt werden müssen, um
-eine Funktion auszulösen, erfolgt nach der Tastaturtabelle.
+Die Codierung der Tasten, die beim Booten gedrÃ¼ckt werden mÃ¼ssen, um
+eine Funktion auszulÃ¶sen, erfolgt nach der Tastaturtabelle.
 
 Die Definitionen
 
 	=> setenv key_magic0 3a+3b
 	=> setenv key_cmd0 setenv bootdelay 30
 
-bedeuten dementsprechend, daß die Tasten mit den  Codes  0x3A  (Taste
-"F1")  und 0x3B (Taste "F2") gleichzeitig gedrückt werden müssen. Sie
-können dort eine beliebige  Tastenkombination  eintragen  (jeweils  2
-Zeichen für die Hex-Codes der Tasten, und '+' als Trennzeichen).
+bedeuten dementsprechend, daÃŸ die Tasten mit den  Codes  0x3A  (Taste
+"F1")  und 0x3B (Taste "F2") gleichzeitig gedrÃ¼ckt werden mÃ¼ssen. Sie
+kÃ¶nnen dort eine beliebige  Tastenkombination  eintragen  (jeweils  2
+Zeichen fÃ¼r die Hex-Codes der Tasten, und '+' als Trennzeichen).
 
 Wird die eingestellte Tastenkombination erkannt, so  wird  in  U-Boot
 noch  vor  dem Start des "Countdown" und somit vor jedem anderen Kom-
-mando das angebene Kommando ausgeführt und  somit  ein  langes  Boot-
+mando das angebene Kommando ausgefÃ¼hrt und  somit  ein  langes  Boot-
 Delay eingetragen.
 
-Praktisch könnten Sie also in U-Boot "bootdelay"  auf  0  setzen  und
-somit  stets  ohne  jede  User-Interaktion automatisch booten, außer,
-wenn die beiden Tasten "F1" und "F2"  beim  Booten  gedrückt  werden:
-dann würde ein Boot-Delay von 30 Sekunden eingefügt.
+Praktisch kÃ¶nnten Sie also in U-Boot "bootdelay"  auf  0  setzen  und
+somit  stets  ohne  jede  User-Interaktion automatisch booten, auÃŸer,
+wenn die beiden Tasten "F1" und "F2"  beim  Booten  gedrÃ¼ckt  werden:
+dann wÃ¼rde ein Boot-Delay von 30 Sekunden eingefÃ¼gt.
 
 
 Hinweis: dem Zeichen '#' kommt innerhalb von "magic_keys" eine beson-
 dere Bedeutung zu: die dadurch definierte  Key-Sequenz  schaltet  den
-Monitor in den "Debug-Modus" - das bedeutet zunächst, daß alle weite-
-ren  Meldungen  von  U-Boot  über  das LCD-Display ausgegeben werden;
-außerdem kann man durch das mit dieser  Tastenkombination  verknüpfte
+Monitor in den "Debug-Modus" - das bedeutet zunÃ¤chst, daÃŸ alle weite-
+ren  Meldungen  von  U-Boot  Ã¼ber  das LCD-Display ausgegeben werden;
+auÃŸerdem kann man durch das mit dieser  Tastenkombination  verknÃ¼pfte
 Kommando  z. B. die Linux-Bootmeldungen ebenfalls auf das LCD-Display
-legen, so daß der Boot-Vorgang direkt und  ohne  weitere  Hilfsmittel
+legen, so daÃŸ der Boot-Vorgang direkt und  ohne  weitere  Hilfsmittel
 analysiert werden kann.
 
 Beispiel:
@@ -107,20 +107,20 @@ chert:
 (6)	=> setenv bootcmd bootp\;run nfsargs\;run addip\;run addfb\;bootm
 
 Hierbei wird die Linux Commandline (in der Variablen  "bootargs")  im
-Boot-Kommando  "bootcmd"  (6)  schrittweise zusammengesetzt: zunächst
-werden die für Root-Filesystem über NFS erforderlichen  Optionen  ge-
+Boot-Kommando  "bootcmd"  (6)  schrittweise zusammengesetzt: zunÃ¤chst
+werden die fÃ¼r Root-Filesystem Ã¼ber NFS erforderlichen  Optionen  ge-
 setzt  ("run  nfsargs", vgl. (3)), dann die Netzwerkkonfiguration an-
-gefügt ("run addip", vgl. (4)),  und  schließlich  die  Systemconsole
+gefÃ¼gt ("run addip", vgl. (4)),  und  schlieÃŸlich  die  Systemconsole
 definiert ("run addfb").
 
 Dabei wird im Normalfall die Definition (5)  verwendt;  wurde  aller-
-dings  beim  Reset die entsprechende Taste gedrückt gehalten, so wird
-diese Definition bei der Ausführung des in (2) definierten  Kommandos
-überschrieben,  so  daß  Linux die Bootmeldungen auch über das Frame-
+dings  beim  Reset die entsprechende Taste gedrÃ¼ckt gehalten, so wird
+diese Definition bei der AusfÃ¼hrung des in (2) definierten  Kommandos
+Ã¼berschrieben,  so  daÃŸ  Linux die Bootmeldungen auch Ã¼ber das Frame-
 buffer-Device (=LCD-Display) ausgibt.
 
 Beachten Sie die Verdoppelung der '\'-Escapes in der  Definition  von
 "key_cmd#" - diese ist erforderlich, weil der String _zweimal_ inter-
 pretiert  wird:  das  erste  Mal  bei der Eingabe von "key_cmd#", das
-zweite Mal, wenn der String (als  Inhalt  von  "preboot")  ausgeführt
+zweite Mal, wenn der String (als  Inhalt  von  "preboot")  ausgefÃ¼hrt
 wird.

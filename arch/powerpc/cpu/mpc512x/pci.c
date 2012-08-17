@@ -52,7 +52,6 @@ pci_init_board(void)
 	volatile law512x_t *pci_law;
 	volatile pot512x_t *pci_pot;
 	volatile pcictrl512x_t *pci_ctrl;
-	volatile pciconf512x_t *pci_conf;
 	u16 reg16;
 	u32 reg32;
 	u32 dev;
@@ -73,7 +72,6 @@ pci_init_board(void)
 	pci_law = im->sysconf.pcilaw;
 	pci_pot = im->ios.pot;
 	pci_ctrl = &im->pci_ctrl;
-	pci_conf = &im->pci_conf;
 
 	hose = &pci_hose;
 

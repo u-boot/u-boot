@@ -27,13 +27,14 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/iomux.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include <asm/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <pmic.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
 
@@ -62,10 +63,13 @@ void efikamx_toggle_led(uint32_t mask);
 #define	EFIKAMX_BOARD_REV_13	0x3
 #define	EFIKAMX_BOARD_REV_14	0x4
 
+#define	EFIKASB_BOARD_REV_13	0x1
+#define	EFIKASB_BOARD_REV_20	0x2
+
 /*
  * Board identification
  */
-u32 get_efika_rev(void)
+u32 get_efikamx_rev(void)
 {
 	u32 rev = 0;
 	/*
@@ -76,30 +80,50 @@ u32 get_efika_rev(void)
 	 *      rev1.4: 1,0,0
 	 */
 	mxc_request_iomux(MX51_PIN_NANDF_CS0, IOMUX_CONFIG_GPIO);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0),
-				MXC_GPIO_DIRECTION_OUT);
 	/* set to 1 in order to get correct value on board rev1.1 */
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0), 1);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0), 1);
 
 	mxc_request_iomux(MX51_PIN_NANDF_CS0, IOMUX_CONFIG_GPIO);
 	mxc_iomux_set_pad(MX51_PIN_NANDF_CS0, PAD_CTL_100K_PU);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0),
-				MXC_GPIO_DIRECTION_IN);
-	rev |= (!!mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0))) << 0;
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0))) << 0;
 
 	mxc_request_iomux(MX51_PIN_NANDF_CS1, IOMUX_CONFIG_GPIO);
 	mxc_iomux_set_pad(MX51_PIN_NANDF_CS1, PAD_CTL_100K_PU);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1),
-				MXC_GPIO_DIRECTION_IN);
-	rev |= (!!mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1))) << 1;
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1))) << 1;
 
 	mxc_request_iomux(MX51_PIN_NANDF_RB3, IOMUX_CONFIG_GPIO);
 	mxc_iomux_set_pad(MX51_PIN_NANDF_RB3, PAD_CTL_100K_PU);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3),
-				MXC_GPIO_DIRECTION_IN);
-	rev |= (!!mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3))) << 2;
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3))) << 2;
 
 	return (~rev & 0x7) + 1;
+}
+
+inline u32 get_efikasb_rev(void)
+{
+	u32 rev = 0;
+
+	mxc_request_iomux(MX51_PIN_EIM_CS3, IOMUX_CONFIG_GPIO);
+	mxc_iomux_set_pad(MX51_PIN_EIM_CS3, PAD_CTL_100K_PU);
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_EIM_CS3));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS3))) << 0;
+
+	mxc_request_iomux(MX51_PIN_EIM_CS4, IOMUX_CONFIG_GPIO);
+	mxc_iomux_set_pad(MX51_PIN_EIM_CS4, PAD_CTL_100K_PU);
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_EIM_CS4));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS4))) << 1;
+
+	return rev;
+}
+
+inline uint32_t get_efika_rev(void)
+{
+	if (machine_is_efikamx())
+		return get_efikamx_rev();
+	else
+		return get_efikasb_rev();
 }
 
 u32 get_board_rev(void)
@@ -113,7 +137,7 @@ u32 get_board_rev(void)
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile void *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
 				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
@@ -154,15 +178,11 @@ static void setup_iomux_spi(void)
 
 	/* Configure SS0 as a GPIO */
 	mxc_request_iomux(MX51_PIN_CSPI1_SS0, IOMUX_CONFIG_GPIO);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS0),
-				MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS0), 0);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS0), 0);
 
 	/* Configure SS1 as a GPIO */
 	mxc_request_iomux(MX51_PIN_CSPI1_SS1, IOMUX_CONFIG_GPIO);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS1),
-				MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS1), 1);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS1), 1);
 
 	/* 000: Select mux mode: ALT0 mux port: SS2 of instance: ecspi1. */
 	mxc_request_iomux(MX51_PIN_CSPI1_RDY, IOMUX_CONFIG_ALT0);
@@ -186,34 +206,38 @@ static void power_init(void)
 {
 	unsigned int val;
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
 
 	/* Write needed to Power Gate 2 register */
-	val = pmic_reg_read(REG_POWER_MISC);
+	pmic_reg_read(p, REG_POWER_MISC, &val);
 	val &= ~PWGT2SPIEN;
-	pmic_reg_write(REG_POWER_MISC, val);
+	pmic_reg_write(p, REG_POWER_MISC, val);
 
 	/* Externally powered */
-	val = pmic_reg_read(REG_CHARGE);
+	pmic_reg_read(p, REG_CHARGE, &val);
 	val |= ICHRG0 | ICHRG1 | ICHRG2 | ICHRG3 | CHGAUTOB;
-	pmic_reg_write(REG_CHARGE, val);
+	pmic_reg_write(p, REG_CHARGE, val);
 
 	/* power up the system first */
-	pmic_reg_write(REG_POWER_MISC, PWUP);
+	pmic_reg_write(p, REG_POWER_MISC, PWUP);
 
 	/* Set core voltage to 1.1V */
-	val = pmic_reg_read(REG_SW_0);
-	val = (val & ~SWx_VOLT_MASK) | SWx_1_100V;
-	pmic_reg_write(REG_SW_0, val);
+	pmic_reg_read(p, REG_SW_0, &val);
+	val = (val & ~SWx_VOLT_MASK) | SWx_1_200V;
+	pmic_reg_write(p, REG_SW_0, val);
 
 	/* Setup VCC (SW2) to 1.25 */
-	val = pmic_reg_read(REG_SW_1);
+	pmic_reg_read(p, REG_SW_1, &val);
 	val = (val & ~SWx_VOLT_MASK) | SWx_1_250V;
-	pmic_reg_write(REG_SW_1, val);
+	pmic_reg_write(p, REG_SW_1, val);
 
 	/* Setup 1V2_DIG1 (SW3) to 1.25 */
-	val = pmic_reg_read(REG_SW_2);
+	pmic_reg_read(p, REG_SW_2, &val);
 	val = (val & ~SWx_VOLT_MASK) | SWx_1_250V;
-	pmic_reg_write(REG_SW_2, val);
+	pmic_reg_write(p, REG_SW_2, val);
 	udelay(50);
 
 	/* Raise the core frequency to 800MHz */
@@ -221,46 +245,51 @@ static void power_init(void)
 
 	/* Set switchers in Auto in NORMAL mode & STANDBY mode */
 	/* Setup the switcher mode for SW1 & SW2*/
-	val = pmic_reg_read(REG_SW_4);
+	pmic_reg_read(p, REG_SW_4, &val);
 	val = (val & ~((SWMODE_MASK << SWMODE1_SHIFT) |
 		(SWMODE_MASK << SWMODE2_SHIFT)));
 	val |= (SWMODE_AUTO_AUTO << SWMODE1_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE2_SHIFT);
-	pmic_reg_write(REG_SW_4, val);
+	pmic_reg_write(p, REG_SW_4, val);
 
 	/* Setup the switcher mode for SW3 & SW4 */
-	val = pmic_reg_read(REG_SW_5);
+	pmic_reg_read(p, REG_SW_5, &val);
 	val = (val & ~((SWMODE_MASK << SWMODE3_SHIFT) |
 		(SWMODE_MASK << SWMODE4_SHIFT)));
 	val |= (SWMODE_AUTO_AUTO << SWMODE3_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE4_SHIFT);
-	pmic_reg_write(REG_SW_5, val);
+	pmic_reg_write(p, REG_SW_5, val);
 
-	/* Set VDIG to 1.65V, VGEN3 to 1.8V, VCAM to 2.6V */
-	val = pmic_reg_read(REG_SETTING_0);
+	/* Set VDIG to 1.8V, VGEN3 to 1.8V, VCAM to 2.6V */
+	pmic_reg_read(p, REG_SETTING_0, &val);
 	val &= ~(VCAM_MASK | VGEN3_MASK | VDIG_MASK);
-	val |= VDIG_1_65 | VGEN3_1_8 | VCAM_2_6;
-	pmic_reg_write(REG_SETTING_0, val);
+	val |= VDIG_1_8 | VGEN3_1_8 | VCAM_2_6;
+	pmic_reg_write(p, REG_SETTING_0, val);
 
 	/* Set VVIDEO to 2.775V, VAUDIO to 3V, VSD to 3.15V */
-	val = pmic_reg_read(REG_SETTING_1);
+	pmic_reg_read(p, REG_SETTING_1, &val);
 	val &= ~(VVIDEO_MASK | VSD_MASK | VAUDIO_MASK);
-	val |= VSD_3_15 | VAUDIO_3_0 | VVIDEO_2_775;
-	pmic_reg_write(REG_SETTING_1, val);
+	val |= VSD_3_15 | VAUDIO_3_0 | VVIDEO_2_775 | VGEN1_1_2 | VGEN2_3_15;
+	pmic_reg_write(p, REG_SETTING_1, val);
+
+	/* Enable VGEN1, VGEN2, VDIG, VPLL */
+	pmic_reg_read(p, REG_MODE_0, &val);
+	val |= VGEN1EN | VDIGEN | VGEN2EN | VPLLEN;
+	pmic_reg_write(p, REG_MODE_0, val);
 
 	/* Configure VGEN3 and VCAM regulators to use external PNP */
 	val = VGEN3CONFIG | VCAMCONFIG;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 	udelay(200);
 
 	/* Enable VGEN3, VCAM, VAUDIO, VVIDEO, VSD regulators */
 	val = VGEN3EN | VGEN3CONFIG | VCAMEN | VCAMCONFIG |
-		VVIDEOEN | VAUDIOEN  | VSDEN;
-	pmic_reg_write(REG_MODE_1, val);
+		VVIDEOEN | VAUDIOEN | VSDEN;
+	pmic_reg_write(p, REG_MODE_1, val);
 
-	val = pmic_reg_read(REG_POWER_CTL2);
+	pmic_reg_read(p, REG_POWER_CTL2, &val);
 	val |= WDIRESET;
-	pmic_reg_write(REG_POWER_CTL2, val);
+	pmic_reg_write(p, REG_POWER_CTL2, val);
 
 	udelay(2500);
 }
@@ -277,25 +306,37 @@ struct fsl_esdhc_cfg esdhc_cfg[2] = {
 	{MMC_SDHC2_BASE_ADDR, 1},
 };
 
-int board_mmc_getcd(u8 *absent, struct mmc *mmc)
+static inline uint32_t efika_mmc_cd(void)
+{
+	if (machine_is_efikamx())
+		return MX51_PIN_GPIO1_0;
+	else
+		return MX51_PIN_EIM_CS2;
+}
+
+int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	uint32_t cd = efika_mmc_cd();
+	int ret;
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*absent = mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_GPIO1_0));
+		ret = !gpio_get_value(IOMUX_TO_GPIO(cd));
 	else
-		*absent = mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
+		ret = !gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
 
-	return 0;
+	return ret;
 }
+
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
+	uint32_t cd = efika_mmc_cd();
 
 	/* SDHC1 is used on all revisions, setup control pins first */
-	mxc_request_iomux(MX51_PIN_GPIO1_0,
+	mxc_request_iomux(cd,
 		IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-	mxc_iomux_set_pad(MX51_PIN_GPIO1_0,
+	mxc_iomux_set_pad(cd,
 		PAD_CTL_DRV_HIGH | PAD_CTL_HYS_ENABLE |
 		PAD_CTL_PUE_KEEPER | PAD_CTL_100K_PU |
 		PAD_CTL_ODE_OPENDRAIN_NONE |
@@ -307,13 +348,12 @@ int board_mmc_init(bd_t *bis)
 		PAD_CTL_100K_PU | PAD_CTL_ODE_OPENDRAIN_NONE |
 		PAD_CTL_SRE_FAST);
 
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_GPIO1_0),
-				MXC_GPIO_DIRECTION_IN);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_GPIO1_1),
-				MXC_GPIO_DIRECTION_IN);
+	gpio_direction_input(IOMUX_TO_GPIO(cd));
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_1));
 
 	/* Internal SDHC1 IOMUX + SDHC2 IOMUX on old boards */
-	if (get_efika_rev() < EFIKAMX_BOARD_REV_12) {
+	if (machine_is_efikasb() || (machine_is_efikamx() &&
+		(get_efika_rev() < EFIKAMX_BOARD_REV_12))) {
 		/* SDHC1 IOMUX */
 		mxc_request_iomux(MX51_PIN_SD1_CMD,
 			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
@@ -389,10 +429,8 @@ int board_mmc_init(bd_t *bis)
 			PAD_CTL_100K_PU | PAD_CTL_ODE_OPENDRAIN_NONE |
 			PAD_CTL_SRE_FAST);
 
-		mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8),
-					MXC_GPIO_DIRECTION_IN);
-		mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_GPIO1_7),
-					MXC_GPIO_DIRECTION_IN);
+		gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
+		gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_7));
 
 		ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 		if (!ret)
@@ -427,6 +465,7 @@ int board_mmc_init(bd_t *bis)
 
 		ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 	}
+
 	return ret;
 }
 #endif
@@ -502,32 +541,57 @@ static inline void setup_iomux_ata(void) { }
 #endif
 
 /*
+ * EHCI USB
+ */
+#ifdef	CONFIG_CMD_USB
+extern void setup_iomux_usb(void);
+#else
+static inline void setup_iomux_usb(void) { }
+#endif
+
+/*
  * LED configuration
  */
 void setup_iomux_led(void)
 {
-	/* Blue LED */
-	mxc_request_iomux(MX51_PIN_CSI1_D9, IOMUX_CONFIG_ALT3);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
-				MXC_GPIO_DIRECTION_OUT);
-	/* Green LED */
-	mxc_request_iomux(MX51_PIN_CSI1_VSYNC, IOMUX_CONFIG_ALT3);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
-				MXC_GPIO_DIRECTION_OUT);
-	/* Red LED */
-	mxc_request_iomux(MX51_PIN_CSI1_HSYNC, IOMUX_CONFIG_ALT3);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
-				MXC_GPIO_DIRECTION_OUT);
+	if (machine_is_efikamx()) {
+		/* Blue LED */
+		mxc_request_iomux(MX51_PIN_CSI1_D9, IOMUX_CONFIG_ALT3);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9), 0);
+
+		/* Green LED */
+		mxc_request_iomux(MX51_PIN_CSI1_VSYNC, IOMUX_CONFIG_ALT3);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC), 0);
+
+		/* Red LED */
+		mxc_request_iomux(MX51_PIN_CSI1_HSYNC, IOMUX_CONFIG_ALT3);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC), 0);
+	} else {
+		/* CAPS-LOCK LED */
+		mxc_request_iomux(MX51_PIN_EIM_CS0, IOMUX_CONFIG_GPIO);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_EIM_CS0), 0);
+
+		/* ALARM-LED LED */
+		mxc_request_iomux(MX51_PIN_GPIO1_3, IOMUX_CONFIG_GPIO);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_GPIO1_3), 0);
+	}
 }
 
 void efikamx_toggle_led(uint32_t mask)
 {
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
-			mask & EFIKAMX_LED_BLUE);
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
-			mask & EFIKAMX_LED_GREEN);
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
-			mask & EFIKAMX_LED_RED);
+	if (machine_is_efikamx()) {
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
+				mask & EFIKAMX_LED_BLUE);
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
+				mask & EFIKAMX_LED_GREEN);
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
+				mask & EFIKAMX_LED_RED);
+	} else {
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS0),
+				mask & EFIKAMX_LED_BLUE);
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_3),
+				!(mask & EFIKAMX_LED_GREEN));
+	}
 }
 
 /*
@@ -621,7 +685,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_MX51_EFIKAMX;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	return 0;
@@ -635,6 +698,12 @@ int board_late_init(void)
 
 	setup_iomux_led();
 	setup_iomux_ata();
+	setup_iomux_usb();
+
+	if (machine_is_efikasb())
+		setenv("preboot", "usb reset ; setenv stdin usbkbd\0");
+
+	setup_iomux_led();
 
 	efikamx_toggle_led(EFIKAMX_LED_BLUE);
 
@@ -643,47 +712,24 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	u32 system_rev = get_cpu_rev();
-	u32 cause;
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	u32 rev = get_efika_rev();
 
-	puts("Board: Efika MX ");
-
-	switch (system_rev & 0xff) {
-	case CHIP_REV_3_0:
-		puts("3.0 [");
-		break;
-	case CHIP_REV_2_5:
-		puts("2.5 [");
-		break;
-	case CHIP_REV_2_0:
-		puts("2.0 [");
-		break;
-	case CHIP_REV_1_1:
-		puts("1.1 [");
-		break;
-	case CHIP_REV_1_0:
-	default:
-		puts("1.0 [");
-		break;
+	if (machine_is_efikamx()) {
+		printf("Board: Efika MX, rev1.%i\n", rev & 0xf);
+		return 0;
+	} else {
+		switch (rev) {
+		case EFIKASB_BOARD_REV_13:
+			printf("Board: Efika SB rev1.3\n");
+			break;
+		case EFIKASB_BOARD_REV_20:
+			printf("Board: Efika SB rev2.0\n");
+			break;
+		default:
+			printf("Board: Efika SB, rev Unknown\n");
+			break;
+		}
 	}
-
-	cause = src_regs->srsr;
-	switch (cause) {
-	case 0x0001:
-		puts("POR");
-		break;
-	case 0x0009:
-		puts("RST");
-		break;
-	case 0x0010:
-	case 0x0011:
-		puts("WDOG");
-		break;
-	default:
-		printf("unknown 0x%x", cause);
-	}
-	puts("]\n");
 
 	return 0;
 }

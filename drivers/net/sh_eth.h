@@ -1,8 +1,8 @@
 /*
  * sh_eth.h - Driver for Renesas SuperH ethernet controler.
  *
- * Copyright (C) 2008 Renesas Solutions Corp.
- * Copyright (c) 2008 Nobuhiro Iwamatsu
+ * Copyright (C) 2008, 2011 Renesas Solutions Corp.
+ * Copyright (c) 2008, 2011 Nobuhiro Iwamatsu
  * Copyright (c) 2007 Carlos Munoz <carlos@kenati.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -89,6 +89,7 @@ struct sh_eth_info {
 	u8 mac_addr[6];
 	u8 phy_addr;
 	struct eth_device *dev;
+	struct phy_device *phydev;
 };
 
 struct sh_eth_dev {
@@ -161,6 +162,32 @@ struct sh_eth_dev {
 #define MAHR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x01c0)
 #define MALR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x01c8)
 #define RTRATE(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x01fc)
+
+#elif defined(CONFIG_CPU_SH7724)
+#define BASE_IO_ADDR	0xA4600000
+
+#define TDLAR(port)		(BASE_IO_ADDR + 0x0018)
+#define RDLAR(port)		(BASE_IO_ADDR + 0x0020)
+
+#define EDMR(port)		(BASE_IO_ADDR + 0x0000)
+#define EDTRR(port)		(BASE_IO_ADDR + 0x0008)
+#define EDRRR(port)		(BASE_IO_ADDR + 0x0010)
+#define EESR(port)		(BASE_IO_ADDR + 0x0028)
+#define EESIPR(port)	(BASE_IO_ADDR + 0x0030)
+#define TRSCER(port)	(BASE_IO_ADDR + 0x0038)
+#define TFTR(port)		(BASE_IO_ADDR + 0x0048)
+#define FDR(port)		(BASE_IO_ADDR + 0x0050)
+#define RMCR(port)		(BASE_IO_ADDR + 0x0058)
+#define FCFTR(port)		(BASE_IO_ADDR + 0x0070)
+#define ECMR(port)		(BASE_IO_ADDR + 0x0100)
+#define RFLR(port)		(BASE_IO_ADDR + 0x0108)
+#define ECSIPR(port)	(BASE_IO_ADDR + 0x0118)
+#define PIR(port)		(BASE_IO_ADDR + 0x0120)
+#define APR(port)		(BASE_IO_ADDR + 0x0154)
+#define MPR(port)		(BASE_IO_ADDR + 0x0158)
+#define TPAUSER(port)	(BASE_IO_ADDR + 0x0164)
+#define MAHR(port)		(BASE_IO_ADDR + 0x01c0)
+#define MALR(port)		(BASE_IO_ADDR + 0x01c8)
 #endif
 
 /*
@@ -182,7 +209,7 @@ enum DMAC_M_BIT {
 	EDMR_SRST	= 0x03,
 	EMDR_DESC_R	= 0x30, /* Descriptor reserve size */
 	EDMR_EL		= 0x40, /* Litte endian */
-#elif defined CONFIG_CPU_SH7757
+#elif defined(CONFIG_CPU_SH7757) ||defined (CONFIG_CPU_SH7724)
 	EDMR_SRST	= 0x01,
 	EMDR_DESC_R	= 0x30, /* Descriptor reserve size */
 	EDMR_EL		= 0x40, /* Litte endian */
@@ -324,7 +351,8 @@ enum FCFTR_BIT {
 
 /* Transfer descriptor bit */
 enum TD_STS_BIT {
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7757)
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7757) \
+		|| defined(CONFIG_CPU_SH7724)
 	TD_TACT = 0x80000000,
 #else
 	TD_TACT = 0x7fffffff,
@@ -349,6 +377,10 @@ enum FELIC_MODE_BIT {
 	ECMR_PMDE = 0x00000200, ECMR_RE = 0x00000040, ECMR_TE = 0x00000020,
 	ECMR_ILB = 0x00000008, ECMR_ELB = 0x00000004, ECMR_DM = 0x00000002,
 	ECMR_PRM = 0x00000001,
+#ifdef CONFIG_CPU_SH7724
+	ECMR_RTM = 0x00000010,
+#endif
+
 };
 
 #ifdef CONFIG_CPU_SH7763
@@ -356,6 +388,8 @@ enum FELIC_MODE_BIT {
 						ECMR_TXF | ECMR_MCT)
 #elif CONFIG_CPU_SH7757
 #define ECMR_CHG_DM	(ECMR_ZPF)
+#elif CONFIG_CPU_SH7724
+#define ECMR_CHG_DM (ECMR_ZPF | ECMR_PFR | ECMR_RXF | ECMR_TXF)
 #else
 #define ECMR_CHG_DM	(ECMR_ZPF | ECMR_PFR | ECMR_RXF | ECMR_TXF | ECMR_MCT)
 #endif
@@ -433,63 +467,4 @@ enum RPADIR_BIT {
 /* FDR */
 enum FIFO_SIZE_BIT {
 	FIFO_SIZE_T = 0x00000700, FIFO_SIZE_R = 0x00000007,
-};
-
-enum PHY_OFFSETS {
-	PHY_CTRL = 0, PHY_STAT = 1, PHY_IDT1 = 2, PHY_IDT2 = 3,
-	PHY_ANA = 4, PHY_ANL = 5, PHY_ANE = 6,
-	PHY_16 = 16,
-};
-
-/* PHY_CTRL */
-enum PHY_CTRL_BIT {
-	PHY_C_RESET = 0x8000, PHY_C_LOOPBK = 0x4000, PHY_C_SPEEDSL = 0x2000,
-	PHY_C_ANEGEN = 0x1000, PHY_C_PWRDN = 0x0800, PHY_C_ISO = 0x0400,
-	PHY_C_RANEG = 0x0200, PHY_C_DUPLEX = 0x0100, PHY_C_COLT = 0x0080,
-};
-#define DM9161_PHY_C_ANEGEN 0	/* auto nego special */
-
-/* PHY_STAT */
-enum PHY_STAT_BIT {
-	PHY_S_100T4 = 0x8000, PHY_S_100X_F = 0x4000, PHY_S_100X_H = 0x2000,
-	PHY_S_10T_F = 0x1000, PHY_S_10T_H = 0x0800, PHY_S_ANEGC = 0x0020,
-	PHY_S_RFAULT = 0x0010, PHY_S_ANEGA = 0x0008, PHY_S_LINK = 0x0004,
-	PHY_S_JAB = 0x0002, PHY_S_EXTD = 0x0001,
-};
-
-/* PHY_ANA */
-enum PHY_ANA_BIT {
-	PHY_A_NP = 0x8000, PHY_A_ACK = 0x4000, PHY_A_RF = 0x2000,
-	PHY_A_FCS = 0x0400, PHY_A_T4 = 0x0200, PHY_A_FDX = 0x0100,
-	PHY_A_HDX = 0x0080, PHY_A_10FDX = 0x0040, PHY_A_10HDX = 0x0020,
-	PHY_A_SEL = 0x001e,
-	PHY_A_EXT = 0x0001,
-};
-
-/* PHY_ANL */
-enum PHY_ANL_BIT {
-	PHY_L_NP = 0x8000, PHY_L_ACK = 0x4000, PHY_L_RF = 0x2000,
-	PHY_L_FCS = 0x0400, PHY_L_T4 = 0x0200, PHY_L_FDX = 0x0100,
-	PHY_L_HDX = 0x0080, PHY_L_10FDX = 0x0040, PHY_L_10HDX = 0x0020,
-	PHY_L_SEL = 0x001f,
-};
-
-/* PHY_ANE */
-enum PHY_ANE_BIT {
-	PHY_E_PDF = 0x0010, PHY_E_LPNPA = 0x0008, PHY_E_NPA = 0x0004,
-	PHY_E_PRX = 0x0002, PHY_E_LPANEGA = 0x0001,
-};
-
-/* DM9161 */
-enum PHY_16_BIT {
-	PHY_16_BP4B45 = 0x8000, PHY_16_BPSCR = 0x4000, PHY_16_BPALIGN = 0x2000,
-	PHY_16_BP_ADPOK = 0x1000, PHY_16_Repeatmode = 0x0800,
-	PHY_16_TXselect = 0x0400,
-	PHY_16_Rsvd = 0x0200, PHY_16_RMIIEnable = 0x0100,
-	PHY_16_Force100LNK = 0x0080,
-	PHY_16_APDLED_CTL = 0x0040, PHY_16_COLLED_CTL = 0x0020,
-	PHY_16_RPDCTR_EN = 0x0010,
-	PHY_16_ResetStMch = 0x0008, PHY_16_PreamSupr = 0x0004,
-	PHY_16_Sleepmode = 0x0002,
-	PHY_16_RemoteLoopOut = 0x0001,
 };

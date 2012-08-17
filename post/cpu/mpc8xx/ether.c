@@ -67,8 +67,6 @@ static int ctlr_list[][2] = { {CTLR_SCC, 1} };
 static int ctlr_list[][2] = { };
 #endif
 
-#define CTRL_LIST_SIZE (sizeof(ctlr_list) / sizeof(ctlr_list[0]))
-
 static struct {
 	void (*init) (int index);
 	void (*halt) (int index);
@@ -618,7 +616,7 @@ int ether_post_test (int flags)
 	ctlr_proc[CTLR_SCC].send = scc_send;
 	ctlr_proc[CTLR_SCC].recv = scc_recv;
 
-	for (i = 0; i < CTRL_LIST_SIZE; i++) {
+	for (i = 0; i < ARRAY_SIZE(ctlr_list); i++) {
 		if (test_ctlr (ctlr_list[i][0], ctlr_list[i][1]) != 0) {
 			res = -1;
 		}

@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libwatchdog.o
 
 COBJS-$(CONFIG_AT91SAM9_WATCHDOG) += at91sam9_wdt.o
+COBJS-$(CONFIG_FTWDT010_WATCHDOG) += ftwdt010_wdt.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

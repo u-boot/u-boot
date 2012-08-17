@@ -28,12 +28,8 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/imx25-pinmux.h>
-
-static void mdelay(int n)
-{
-	while (n-- > 0)
-		udelay(1000);
-}
+#include <asm/gpio.h>
+#include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -70,18 +66,18 @@ void tx25_fec_init(void)
 	writel(0x0, &padctl->pad_d11);
 
 	/* drop PHY power and assert reset (low) */
-	val = readl(&gpio4->dr) & ~((1 << 7) | (1 << 9));
-	writel(val, &gpio4->dr);
-	val = readl(&gpio4->dir) | (1 << 7) | (1 << 9);
-	writel(val, &gpio4->dir);
+	val = readl(&gpio4->gpio_dr) & ~((1 << 7) | (1 << 9));
+	writel(val, &gpio4->gpio_dr);
+	val = readl(&gpio4->gpio_dir) | (1 << 7) | (1 << 9);
+	writel(val, &gpio4->gpio_dir);
 
 	mdelay(5);
 
 	debug("resetting phy\n");
 
 	/* turn on PHY power leaving reset asserted */
-	val = readl(&gpio4->dr) | 1 << 9;
-	writel(val, &gpio4->dr);
+	val = readl(&gpio4->gpio_dr) | 1 << 9;
+	writel(val, &gpio4->gpio_dr);
 
 	mdelay(10);
 
@@ -111,19 +107,19 @@ void tx25_fec_init(void)
 	/*
 	 * set each to 1 and make each an output
 	 */
-	val = readl(&gpio3->dr) | (1 << 10) | (1 << 11) | (1 << 12);
-	writel(val, &gpio3->dr);
-	val = readl(&gpio3->dir) | (1 << 10) | (1 << 11) | (1 << 12);
-	writel(val, &gpio3->dir);
+	val = readl(&gpio3->gpio_dr) | (1 << 10) | (1 << 11) | (1 << 12);
+	writel(val, &gpio3->gpio_dr);
+	val = readl(&gpio3->gpio_dir) | (1 << 10) | (1 << 11) | (1 << 12);
+	writel(val, &gpio3->gpio_dir);
 
 	mdelay(22);		/* this value came from RedBoot */
 
 	/*
 	 * deassert PHY reset
 	 */
-	val = readl(&gpio4->dr) | 1 << 7;
-	writel(val, &gpio4->dr);
-	writel(val, &gpio4->dr);
+	val = readl(&gpio4->gpio_dr) | 1 << 7;
+	writel(val, &gpio4->gpio_dr);
+	writel(val, &gpio4->gpio_dr);
 
 	mdelay(5);
 
@@ -141,12 +137,9 @@ void tx25_fec_init(void)
 int board_init()
 {
 #ifdef CONFIG_MXC_UART
-	extern void mx25_uart_init_pins(void);
-
-	mx25_uart_init_pins();
+	mx25_uart1_init_pins();
 #endif
 	/* board id for linux */
-	gd->bd->bi_arch_number = MACH_TYPE_TX25;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 	return 0;
 }
@@ -157,10 +150,10 @@ int board_late_init(void)
 	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM_1,
+	gd->ram_size = get_ram_size((void *)PHYS_SDRAM_1,
 				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
@@ -168,11 +161,11 @@ int dram_init (void)
 void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = get_ram_size((volatile void *)PHYS_SDRAM_1,
+	gd->bd->bi_dram[0].size = get_ram_size((void *)PHYS_SDRAM_1,
 			PHYS_SDRAM_1_SIZE);
 #if CONFIG_NR_DRAM_BANKS > 1
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = get_ram_size((volatile void *)PHYS_SDRAM_2,
+	gd->bd->bi_dram[1].size = get_ram_size((void *)PHYS_SDRAM_2,
 			PHYS_SDRAM_2_SIZE);
 #else
 

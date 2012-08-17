@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <linux/compiler.h>
 #include <asm/fsl_law.h>
 #include <asm/io.h>
 
@@ -244,6 +245,25 @@ void init_laws(void)
 	gd->used_laws = 0;
 #else
 #error FSL_HW_NUM_LAWS can not be greater than 32 w/o code changes
+#endif
+
+	/*
+	 * Any LAWs that were set up before we booted assume they are meant to
+	 * be around and mark them used.
+	 */
+	for (i = 0; i < FSL_HW_NUM_LAWS; i++) {
+		u32 lawar = in_be32(LAWAR_ADDR(i));
+
+		if (lawar & LAW_EN)
+			gd->used_laws |= (1 << i);
+	}
+
+#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+	/*
+	 * in NAND boot we've already parsed the law_table and setup those LAWs
+	 * so don't do it again.
+	 */
+	return;
 #endif
 
 	for (i = 0; i < num_law_entries; i++) {

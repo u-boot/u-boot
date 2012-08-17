@@ -43,7 +43,7 @@
 #define CONFIG_STXSSA		1	/* Silicon Tx GPPP SSA board specific*/
 #define CONFIG_MPC8560		1
 
-#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+#define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
 #define CONFIG_PCI			/* PCI ethernet support	*/
 #define CONFIG_TSEC_ENET		/* tsec ethernet support*/
@@ -121,12 +121,10 @@
 
 #ifdef CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0x40000000	/* CCSRBAR by BDI cfg	*/
-#else
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default	*/
 #endif
-#define CONFIG_SYS_CCSRBAR		0xe0000000	/* relocated CCSRBAR	*/
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR	*/
+
+#define CONFIG_SYS_CCSRBAR		0xe0000000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
 #define CONFIG_FSL_DDR1
@@ -194,6 +192,11 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #endif
 
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
+
 /*
  * I2C
  */
@@ -236,7 +239,6 @@
 
 #if defined(CONFIG_PCI)			/* PCI Ethernet card */
 #define CONFIG_MPC85XX_PCI2	1
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_EEPRO100
@@ -254,10 +256,6 @@
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 
@@ -287,8 +285,8 @@
    * - Select bus for bd/buffers
    * - Full duplex
    */
-  #define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
-  #define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
+  #define CONFIG_SYS_CMXFCR_MASK2	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
+  #define CONFIG_SYS_CMXFCR_VALUE2	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
   #define CONFIG_SYS_CPMFCR_RAMTYPE	0
 #if 0
   #define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE)
@@ -428,8 +426,8 @@
 #define CONFIG_GATEWAYIP	192.168.85.1
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_HOSTNAME		STX_SSA
-#define CONFIG_ROOTPATH		/gppproot
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_ROOTPATH		"/gppproot"
+#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_LOADADDR		0x1000000
 
 #else /* ENV IS IN FLASH		-- use a full-blown envionment */

@@ -279,7 +279,7 @@ typedef struct
     BOOL               portInitialized;
     UINT32 npeId; /**< NpeId for this port */
     IxEthAccTxDataInfo ixEthAccTxData; /**< Transmit data control structures */
-    IxEthAccRxDataInfo ixEthAccRxData; /**< Recieve data control structures */
+    IxEthAccRxDataInfo ixEthAccRxData; /**< Receive data control structures */
 } IxEthAccPortDataInfo; 
 
 extern IxEthAccPortDataInfo  ixEthAccPortData[];

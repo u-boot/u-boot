@@ -360,7 +360,7 @@ static void get_spd_info(unsigned long dimm_ranks[],
 		printf("Install at least one DDR2 DIMM.\n\n");
 		spd_ddr_init_hang();
 	}
-	debug("Total number of ranks = %d\n", *ranks);
+	debug("Total number of ranks = %ld\n", *ranks);
 }
 
 /*------------------------------------------------------------------
@@ -387,7 +387,7 @@ static void check_frequency(unsigned long *dimm_ranks,
 		if (dimm_ranks[dimm_num]) {
 			cycle_time =
 			    get_tcyc(spd_read(iic0_dimm_addr[dimm_num], 9));
-			debug("cycle_time=%d ps\n", cycle_time);
+			debug("cycle_time=%ld ps\n", cycle_time);
 
 			if (cycle_time > (calc_cycle_time + 10)) {
 				/*
@@ -470,10 +470,10 @@ static void get_dimm_size(unsigned long dimm_ranks[],
 			}
 		}
 	}
-	debug("Number of rows = %d\n", *rows);
-	debug("Number of columns = %d\n", *cols);
-	debug("Number of banks = %d\n", *banks);
-	debug("Data width = %d\n", *width);
+	debug("Number of rows = %ld\n", *rows);
+	debug("Number of columns = %ld\n", *cols);
+	debug("Number of banks = %ld\n", *banks);
+	debug("Data width = %ld\n", *width);
 	if (*rows > 14) {
 		printf("ERROR: DRAM DIMM modules have %lu address rows.\n",
 		       *rows);
@@ -568,7 +568,7 @@ static void program_ddr0_03(unsigned long dimm_ranks[],
 	/*------------------------------------------------------------------
 	 * Get the board configuration info.
 	 *-----------------------------------------------------------------*/
-	debug("sdram_freq = %d\n", sdram_freq);
+	debug("sdram_freq = %ld\n", sdram_freq);
 
 	/*------------------------------------------------------------------
 	 * Handle the timing.  We need to find the worst case timing of all
@@ -601,7 +601,7 @@ static void program_ddr0_03(unsigned long dimm_ranks[],
 				    get_tcyc(spd_read(iic0_dimm_addr[dimm_num],
 						      tcyc_addr[cas_index]));
 
-				debug("cas_index = %d: cycle_time_ps = %d\n",
+				debug("cas_index = %ld: cycle_time_ps = %ld\n",
 				      cas_index, cycle_time_ps);
 				/*
 				 * DDR2 devices use the following bitmask for CAS latency:
@@ -640,10 +640,10 @@ static void program_ddr0_03(unsigned long dimm_ranks[],
 	cycle_3_0_clk = MULDIV64(ONE_BILLION, 1000, max_3_0_tcyc_ps) + 10;
 	cycle_4_0_clk = MULDIV64(ONE_BILLION, 1000, max_4_0_tcyc_ps) + 10;
 	cycle_5_0_clk = MULDIV64(ONE_BILLION, 1000, max_5_0_tcyc_ps) + 10;
-	debug("cycle_2_0_clk = %d\n", cycle_2_0_clk);
-	debug("cycle_3_0_clk = %d\n", cycle_3_0_clk);
-	debug("cycle_4_0_clk = %d\n", cycle_4_0_clk);
-	debug("cycle_5_0_clk = %d\n", cycle_5_0_clk);
+	debug("cycle_2_0_clk = %ld\n", cycle_2_0_clk);
+	debug("cycle_3_0_clk = %ld\n", cycle_3_0_clk);
+	debug("cycle_4_0_clk = %ld\n", cycle_4_0_clk);
+	debug("cycle_5_0_clk = %ld\n", cycle_5_0_clk);
 
 	if ((cas_available & 0x04) && (sdram_freq <= cycle_2_0_clk)) {
 		*cas_latency = 2;
@@ -673,7 +673,7 @@ static void program_ddr0_03(unsigned long dimm_ranks[],
 		       cycle_3_0_clk, cycle_4_0_clk, cycle_5_0_clk);
 		spd_ddr_init_hang();
 	}
-	debug("CAS latency = %d\n", *cas_latency);
+	debug("CAS latency = %ld\n", *cas_latency);
 	mtsdram(DDR0_03, ddr0_03);
 }
 
@@ -728,11 +728,11 @@ static void program_ddr0_04(unsigned long dimm_ranks[],
 			t_rtp_ps = max(t_rtp_ps, ps);
 		}
 	}
-	debug("t_rc_ps  = %d\n", t_rc_ps);
+	debug("t_rc_ps  = %ld\n", t_rc_ps);
 	t_rc_clk = (MULDIV64(sdram_freq, t_rc_ps, ONE_BILLION) + 999) / 1000;
-	debug("t_rrd_ps = %d\n", t_rrd_ps);
+	debug("t_rrd_ps = %ld\n", t_rrd_ps);
 	t_rrd_clk = (MULDIV64(sdram_freq, t_rrd_ps, ONE_BILLION) + 999) / 1000;
-	debug("t_rtp_ps = %d\n", t_rtp_ps);
+	debug("t_rtp_ps = %ld\n", t_rtp_ps);
 	t_rtp_clk = (MULDIV64(sdram_freq, t_rtp_ps, ONE_BILLION) + 999) / 1000;
 	mtsdram(DDR0_04, DDR0_04_TRC_ENCODE(t_rc_clk) |
 		DDR0_04_TRRD_ENCODE(t_rrd_clk) |
@@ -769,9 +769,9 @@ static void program_ddr0_05(unsigned long dimm_ranks[],
 			t_ras_ps = max(t_ras_ps, ps);
 		}
 	}
-	debug("t_rp_ps  = %d\n", t_rp_ps);
+	debug("t_rp_ps  = %ld\n", t_rp_ps);
 	t_rp_clk = (MULDIV64(sdram_freq, t_rp_ps, ONE_BILLION) + 999) / 1000;
-	debug("t_ras_ps = %d\n", t_ras_ps);
+	debug("t_ras_ps = %ld\n", t_ras_ps);
 	t_ras_clk = (MULDIV64(sdram_freq, t_ras_ps, ONE_BILLION) + 999) / 1000;
 	mtsdram(DDR0_05, ddr0_05 | DDR0_05_TRP_ENCODE(t_rp_clk) |
 		DDR0_05_TRAS_MIN_ENCODE(t_ras_clk));
@@ -828,9 +828,9 @@ static void program_ddr0_06(unsigned long dimm_ranks[],
 			t_rfc_ps = max(t_rfc_ps, ps);
 		}
 	}
-	debug("t_wtr_ps = %d\n", t_wtr_ps);
+	debug("t_wtr_ps = %ld\n", t_wtr_ps);
 	t_wtr_clk = (MULDIV64(sdram_freq, t_wtr_ps, ONE_BILLION) + 999) / 1000;
-	debug("t_rfc_ps = %d\n", t_rfc_ps);
+	debug("t_rfc_ps = %ld\n", t_rfc_ps);
 	t_rfc_clk = (MULDIV64(sdram_freq, t_rfc_ps, ONE_BILLION) + 999) / 1000;
 	mtsdram(DDR0_06, ddr0_06 | DDR0_06_TWTR_ENCODE(t_wtr_clk) |
 		DDR0_06_TRFC_ENCODE(t_rfc_clk));
@@ -857,7 +857,7 @@ static void program_ddr0_11(unsigned long sdram_freq)
 	unsigned long const t_xsnr_ps = 200000;	/* 200 ns */
 	unsigned long t_xsnr_clk;
 
-	debug("t_xsnr_ps = %d\n", t_xsnr_ps);
+	debug("t_xsnr_ps = %ld\n", t_xsnr_ps);
 	t_xsnr_clk =
 	    (MULDIV64(sdram_freq, t_xsnr_ps, ONE_BILLION) + 999) / 1000;
 	mtsdram(DDR0_11, DDR0_11_SREFRESH_ENCODE(0) |
@@ -928,9 +928,9 @@ static void program_ddr0_26(unsigned long sdram_freq)
 	unsigned long t_ref_clk;
 
 	/* Round down t_ras_max_clk and t_ref_clk */
-	debug("t_ras_max_ps = %d\n", t_ras_max_ps);
+	debug("t_ras_max_ps = %ld\n", t_ras_max_ps);
 	t_ras_max_clk = MULDIV64(sdram_freq, t_ras_max_ps, ONE_BILLION) / 1000;
-	debug("t_ref_ps     = %d\n", t_ref_ps);
+	debug("t_ref_ps     = %ld\n", t_ref_ps);
 	t_ref_clk = MULDIV64(sdram_freq, t_ref_ps, ONE_BILLION) / 1000;
 	mtsdram(DDR0_26, DDR0_26_TRAS_MAX_ENCODE(t_ras_max_clk) |
 		DDR0_26_TREF_ENCODE(t_ref_clk));
@@ -941,7 +941,7 @@ static void program_ddr0_27(unsigned long sdram_freq)
 	unsigned long const t_init_ps = 200000000;	/* 200 us. init */
 	unsigned long t_init_clk;
 
-	debug("t_init_ps = %d\n", t_init_ps);
+	debug("t_init_ps = %ld\n", t_init_ps);
 	t_init_clk =
 	    (MULDIV64(sdram_freq, t_init_ps, ONE_BILLION) + 999) / 1000;
 	mtsdram(DDR0_27, DDR0_27_EMRS_DATA_ENCODE(0x0000) |
@@ -975,7 +975,7 @@ static void program_ddr0_43(unsigned long dimm_ranks[],
 			t_wr_ps = max(t_wr_ps, ps);
 		}
 	}
-	debug("t_wr_ps = %d\n", t_wr_ps);
+	debug("t_wr_ps = %ld\n", t_wr_ps);
 	t_wr_clk = (MULDIV64(sdram_freq, t_wr_ps, ONE_BILLION) + 999) / 1000;
 	mtsdram(DDR0_43, ddr0_43 | DDR0_43_TWR_ENCODE(t_wr_clk));
 }
@@ -1003,7 +1003,7 @@ static void program_ddr0_44(unsigned long dimm_ranks[],
 			t_rcd_ps = max(t_rcd_ps, ps);
 		}
 	}
-	debug("t_rcd_ps = %d\n", t_rcd_ps);
+	debug("t_rcd_ps = %ld\n", t_rcd_ps);
 	t_rcd_clk = (MULDIV64(sdram_freq, t_rcd_ps, ONE_BILLION) + 999) / 1000;
 	mtsdram(DDR0_44, DDR0_44_TRCD_ENCODE(t_rcd_clk));
 }

@@ -37,7 +37,7 @@
  * the actually available RAM size between addresses `base' and
  * `base + maxsize'.
  */
-long get_ram_size(volatile long *base, long maxsize)
+long get_ram_size(long *base, long maxsize)
 {
 	volatile long *addr;
 	long           save[32];

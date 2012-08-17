@@ -25,6 +25,7 @@
 #include <command.h>
 #include <asm/mipsregs.h>
 #include <asm/io.h>
+#include <netdev.h>
 
 phys_size_t initdram(int board_type)
 {
@@ -86,4 +87,9 @@ int misc_init_r(void)
 {
 	set_io_port_base(0);
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return ne2k_register();
 }

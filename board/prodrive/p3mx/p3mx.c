@@ -335,13 +335,14 @@ void after_reloc (ulong dest_addr, gd_t * gd)
 
 int checkboard (void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	printf("Board: %s", CONFIG_SYS_BOARD_NAME);
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 
@@ -849,4 +850,9 @@ void my_remap_gt_regs_bootm (u32 cur_loc, u32 new_loc)
 							(INTERNAL_SPACE_DECODE)))))
 	       != temp);
 
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return mv6446x_eth_initialize(bis);
 }

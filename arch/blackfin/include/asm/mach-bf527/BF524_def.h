@@ -6,18 +6,8 @@
 #ifndef __BFIN_DEF_ADSP_BF524_proc__
 #define __BFIN_DEF_ADSP_BF524_proc__
 
-#include "../mach-common/ADSP-EDN-core_def.h"
+#include "BF522_def.h"
 
-#include "ADSP-EDN-BF52x-extended_def.h"
-
-#define PLL_CTL                        0xFFC00000 /* PLL Control Register */
-#define PLL_DIV                        0xFFC00004 /* PLL Divide Register */
-#define VR_CTL                         0xFFC00008 /* Voltage Regulator Control Register */
-#define PLL_STAT                       0xFFC0000C /* PLL Status Register */
-#define PLL_LOCKCNT                    0xFFC00010 /* PLL Lock Count Register */
-#define CHIPID                         0xFFC00014
-#define SWRST                          0xFFC00100 /* Software Reset Register */
-#define SYSCR                          0xFFC00104 /* System Configuration register */
 #define USB_FADDR                      0xFFC03800 /* Function address register */
 #define USB_POWER                      0xFFC03804 /* Power management register */
 #define USB_INTRTX                     0xFFC03808 /* Interrupt register for endpoint 0 and Tx endpoint 1 to 7 */

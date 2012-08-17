@@ -60,7 +60,7 @@
 #define CONFIG_IPADDR                 10.0.0.5
 #define CONFIG_SERVERIP               10.0.0.2
 #define CONFIG_NETMASK                255.0.0.0
-#define CONFIG_ROOTPATH               /opt/eldk/ppc_8xx
+#define CONFIG_ROOTPATH               "/opt/eldk/ppc_8xx"
 #define CONFIG_BOOTCOMMAND            "run flash_self"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\

@@ -100,7 +100,6 @@
 #undef	CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
 
-#define CONFIG_NET_MULTI		/* Multi ethernet cards support */
 
 /* #define CONFIG_TULIP */
 /* #define CONFIG_EEPRO100 */

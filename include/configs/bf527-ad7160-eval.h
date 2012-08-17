@@ -11,6 +11,7 @@
 /*
  * Processor Settings
  */
+#define CONFIG_BFIN_CPU             bf527-0.2
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_SPI_MASTER
 
 
@@ -68,7 +69,6 @@
 #define CONFIG_DRIVER_NAND_BFIN
 #define CONFIG_SYS_NAND_BASE		0 /* not actually used */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS		1
 #endif
 
 
@@ -127,9 +127,8 @@
  * SPI_MMC Settings
  */
 #define CONFIG_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_SPI_MMC
-#define CONFIG_SPI_MMC_DEFAULT_CS (MAX_CTRL_CS + GPIO_PH3)
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MMC_SPI
 
 
 /*

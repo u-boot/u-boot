@@ -33,7 +33,7 @@
 #include <asm/errno.h>
 #include <asm/byteorder.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 #include "atmel_mci.h"
 
 #ifndef CONFIG_SYS_MMC_CLK_OD
@@ -337,6 +337,7 @@ int atmel_mci_init(void *regs)
 	mmc->send_cmd = mci_send_cmd;
 	mmc->set_ios = mci_set_ios;
 	mmc->init = mci_init;
+	mmc->getcd = NULL;
 
 	/* need to be able to pass these in on a board by board basis */
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
@@ -347,6 +348,8 @@ int atmel_mci_init(void *regs)
 	 */
 	mmc->f_min = get_mci_clk_rate() / (2*256);
 	mmc->f_max = get_mci_clk_rate() / (2*1);
+
+	mmc->b_max = 0;
 
 	mmc_register(mmc);
 

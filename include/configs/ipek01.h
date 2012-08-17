@@ -98,7 +98,6 @@
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x01000000
 
-#define CONFIG_NET_MULTI	1
 #define CONFIG_MII		1
 #define CONFIG_EEPRO100		1
 #define CONFIG_SYS_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
@@ -265,8 +264,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 /* End of used area in DPRAM */
 #define CONFIG_SYS_INIT_RAM_SIZE		MPC5XXX_SRAM_SIZE
-
-/* size in bytes reserved for initial data */
 
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)

@@ -125,8 +125,7 @@ static struct cpu_post_threex_s
 	0x1000
     },
 };
-static unsigned int cpu_post_threex_size =
-    sizeof (cpu_post_threex_table) / sizeof (struct cpu_post_threex_s);
+static unsigned int cpu_post_threex_size = ARRAY_SIZE(cpu_post_threex_table);
 
 int cpu_post_test_threex (void)
 {

@@ -30,9 +30,12 @@
 #include <asm/arch/mem.h>	/* get mem tables */
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
+#include <linux/compiler.h>
 
 extern omap3_sysinfo sysinfo;
 static struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
+
+#ifdef CONFIG_DISPLAY_CPUINFO
 static char *rev_s[CPU_3XX_MAX_REV] = {
 				"1.0",
 				"2.0",
@@ -42,6 +45,13 @@ static char *rev_s[CPU_3XX_MAX_REV] = {
 				"UNKNOWN",
 				"UNKNOWN",
 				"3.1.2"};
+
+/* this is the revision table for 37xx CPUs */
+static char *rev_s_37xx[CPU_37XX_MAX_REV] = {
+				"1.0",
+				"1.1",
+				"1.2"};
+#endif /* CONFIG_DISPLAY_CPUINFO */
 
 /*****************************************************************
  * dieid_num_r(void) - read and set die ID
@@ -188,7 +198,7 @@ u32 get_gpmc0_width(void)
  * get_board_rev() - setup to pass kernel board revision information
  * returns:(bit[0-3] sub version, higher bit[7-4] is higher version)
  *************************************************************************/
-u32 get_board_rev(void)
+u32 __weak get_board_rev(void)
 {
 	return 0x20;
 }
@@ -344,7 +354,12 @@ int print_cpuinfo (void)
 		sec_s = "?";
 	}
 
-	printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
+	if (CPU_OMAP36XX == get_cpu_family())
+		printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
+			cpu_family_s, cpu_s, sec_s,
+			rev_s_37xx[get_cpu_rev()], max_clk);
+	else
+		printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
 			cpu_family_s, cpu_s, sec_s,
 			rev_s[get_cpu_rev()], max_clk);
 

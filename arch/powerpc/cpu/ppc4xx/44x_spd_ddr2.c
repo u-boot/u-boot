@@ -445,9 +445,6 @@ static unsigned char spd_read(uchar chip, uint addr)
 phys_size_t initdram(int board_type)
 {
 	unsigned char iic0_dimm_addr[] = SPD_EEPROM_ADDRESS;
-	unsigned char spd0[MAX_SPD_BYTES];
-	unsigned char spd1[MAX_SPD_BYTES];
-	unsigned char *dimm_spd[MAXDIMMS];
 	unsigned long dimm_populated[MAXDIMMS] = {SDRAM_NONE, SDRAM_NONE};
 	unsigned long num_dimm_banks;		/* on board dimm banks */
 	unsigned long val;
@@ -456,12 +453,6 @@ phys_size_t initdram(int board_type)
 	phys_size_t dram_size = 0;
 
 	num_dimm_banks = sizeof(iic0_dimm_addr);
-
-	/*------------------------------------------------------------------
-	 * Set up an array of SPD matrixes.
-	 *-----------------------------------------------------------------*/
-	dimm_spd[0] = spd0;
-	dimm_spd[1] = spd1;
 
 	/*------------------------------------------------------------------
 	 * Reset the DDR-SDRAM controller.
@@ -655,6 +646,13 @@ phys_size_t initdram(int board_type)
 	 *-----------------------------------------------------------------*/
 	program_ecc(dimm_populated, iic0_dimm_addr, num_dimm_banks, 0);
 #endif
+
+	/*
+	 * Flush the dcache before removing the TLB with caches
+	 * enabled. Otherwise this might lead to problems later on,
+	 * e.g. while booting Linux (as seen on ICON-440SPe).
+	 */
+	flush_dcache();
 
 	/*
 	 * Now after initialization (auto-calibration and ECC generation)
@@ -993,7 +991,6 @@ static void program_copt1(unsigned long *dimm_populated,
 	unsigned long attribute = 0;
 	unsigned long buf0, buf1; /* TODO: code to be changed for IOP1.6 to support 4 DIMMs */
 	unsigned long bankcount;
-	unsigned long ddrtype;
 	unsigned long val;
 
 #ifdef CONFIG_DDR_ECC
@@ -1038,8 +1035,6 @@ static void program_copt1(unsigned long *dimm_populated,
 			else /* bank count = 8 */
 				mcopt1 |= SDRAM_MCOPT1_8_BANKS;
 
-			/* test DDR type */
-			ddrtype = (unsigned long)spd_read(iic0_dimm_addr[dimm_num], 2);
 			/* test for buffered/unbuffered, registered, differential clocks */
 			registered = (unsigned long)spd_read(iic0_dimm_addr[dimm_num], 20);
 			attribute = (unsigned long)spd_read(iic0_dimm_addr[dimm_num], 21);
@@ -1493,7 +1488,6 @@ static void program_mode(unsigned long *dimm_populated,
 			else
 				sdram_ddr1 = FALSE;
 
-			/* t_wr_ns = max(t_wr_ns, (unsigned long)dimm_spd[dimm_num][36] >> 2); */ /*  not used in this loop. */
 			cas_bit = spd_read(iic0_dimm_addr[dimm_num], 18);
 			debug("cas_bit[SPD byte 18]=%02lx\n", cas_bit);
 
@@ -2483,12 +2477,6 @@ static void DQS_calibration_process(void)
 	unsigned long val;
 	long rffd_average;
 	long max_start;
-	long min_end;
-	unsigned long begin_rqfd[MAXRANKS];
-	unsigned long begin_rffd[MAXRANKS];
-	unsigned long end_rqfd[MAXRANKS];
-	unsigned long end_rffd[MAXRANKS];
-	char window_found;
 	unsigned long dlycal;
 	unsigned long dly_val;
 	unsigned long max_pass_length;
@@ -2499,6 +2487,7 @@ static void DQS_calibration_process(void)
 	unsigned char fail_found;
 	unsigned char pass_found;
 #if !defined(CONFIG_DDR_RQDC_FIXED)
+	int window_found;
 	u32 rqdc_reg;
 	u32 rqfd;
 	u32 rqfd_start;
@@ -2552,16 +2541,6 @@ calibration_loop:
 #endif /* CONFIG_DDR_RQDC_FIXED */
 
 	max_start = 0;
-	min_end = 0;
-	begin_rqfd[0] = 0;
-	begin_rffd[0] = 0;
-	begin_rqfd[1] = 0;
-	begin_rffd[1] = 0;
-	end_rqfd[0] = 0;
-	end_rffd[0] = 0;
-	end_rqfd[1] = 0;
-	end_rffd[1] = 0;
-	window_found = FALSE;
 
 	max_pass_length = 0;
 	max_start = 0;
@@ -2569,7 +2548,6 @@ calibration_loop:
 	current_pass_length = 0;
 	current_fail_length = 0;
 	current_start = 0;
-	window_found = FALSE;
 	fail_found = FALSE;
 	pass_found = FALSE;
 
@@ -2614,7 +2592,6 @@ calibration_loop:
 				if (fail_found == FALSE) {
 					fail_found = TRUE;
 				} else if (pass_found == TRUE) {
-					window_found = TRUE;
 					break;
 				}
 			}

@@ -240,7 +240,7 @@ unsigned int mxc_get_main_clock(enum mxc_main_clocks clk)
 		}
 		break;
 	case IPG_CLK:
-		ret_val = get_ipg_clk();;
+		ret_val = get_ipg_clk();
 		break;
 	case IPG_PER_CLK:
 		ret_val = get_ipg_per_clk();
@@ -393,7 +393,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 /*
  * The MX35 has no fuse for MAC, return a NULL MAC
  */
-void imx_get_mac_from_fuse(unsigned char *mac)
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
 	memset(mac, 0, 6);
 }
@@ -417,17 +417,44 @@ int do_mx35_showclocks(cmd_tbl_t *cmdtp,
 }
 
 U_BOOT_CMD(
-	clockinfo,	CONFIG_SYS_MAXARGS,	1,	do_mx35_showclocks,
-	"display clocks\n",
+	clocks,	CONFIG_SYS_MAXARGS, 1, do_mx35_showclocks,
+	"display clocks",
 	""
 );
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
+static char *get_reset_cause(void)
+{
+	/* read RCSR register from CCM module */
+	struct ccm_regs *ccm =
+		(struct ccm_regs *)IMX_CCM_BASE;
+
+	u32 cause = readl(&ccm->rcsr) & 0x0F;
+
+	switch (cause) {
+	case 0x0000:
+		return "POR";
+	case 0x0002:
+		return "JTAG";
+	case 0x0004:
+		return "RST";
+	case 0x0008:
+		return "WDOG";
+	default:
+		return "unknown reset";
+	}
+}
+
 int print_cpuinfo(void)
 {
-	printf("CPU:   Freescale i.MX35 at %d MHz\n",
+	u32 srev = get_cpu_rev();
+
+	printf("CPU:   Freescale i.MX35 rev %d.%d at %d MHz.\n",
+		(srev & 0xF0) >> 4, (srev & 0x0F),
 		get_mcu_main_clk() / 1000000);
-	/* mxc_dump_clocks(); */
+
+	printf("Reset cause: %s\n", get_reset_cause());
+
 	return 0;
 }
 #endif

@@ -147,23 +147,16 @@ static void set_shdn(int what)
 
 static void cfg_ports (void)
 {
-	volatile immap_t	*immap;
-	volatile cpm8xx_t	*cp;
-
-	immap = (immap_t *)CONFIG_SYS_IMMR;
-	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
-
-
 	cfg_vppd(0); cfg_vppd(1);	/* VPPD0,VPPD1 VAVPP => Hi-Z */
 	cfg_vccd(0); cfg_vccd(1);	/* 3V and 5V off */
 	cfg_shdn();
 	cfg_oc();
 
 	/*
-	* Configure Port A for TPS2211 PC-Card Power-Interface Switch
-	*
-	* Switch off all voltages, assert shutdown
-	*/
+	 * Configure Port A for TPS2211 PC-Card Power-Interface Switch
+	 *
+	 * Switch off all voltages, assert shutdown
+	 */
 	set_vppd(0, 1); set_vppd(1, 1);
 	set_vccd(0, 0); set_vccd(1, 0);
 	set_shdn(1);
@@ -173,10 +166,7 @@ static void cfg_ports (void)
 
 int pcmcia_hardware_enable(int slot)
 {
-	volatile immap_t	*immap;
-	volatile cpm8xx_t	*cp;
 	volatile pcmconf8xx_t	*pcmp;
-	volatile sysconf8xx_t	*sysp;
 	uint reg, pipr, mask;
 	int i;
 
@@ -184,10 +174,7 @@ int pcmcia_hardware_enable(int slot)
 
 	udelay(10000);
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
-	sysp  = (sysconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_siu_conf));
 	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
-	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/* Configure Ports for TPS2211A PC-Card Power-Interface Switch */
 	cfg_ports ();
@@ -197,9 +184,9 @@ int pcmcia_hardware_enable(int slot)
 	pcmp->pcmc_per &= ~PCMCIA_MASK(_slot_);
 
 	/*
-	* Disable interrupts, DMA, and PCMCIA buffers
-	* (isolate the interface) and assert RESET signal
-	*/
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
+	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
 	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
@@ -221,8 +208,8 @@ int pcmcia_hardware_enable(int slot)
 	}
 
 	/*
-	* Power On: Set VAVCC to 3.3V or 5V, set VAVPP to Hi-Z
-	*/
+	 * Power On: Set VAVCC to 3.3V or 5V, set VAVPP to Hi-Z
+	 */
 	mask = PCMCIA_VS1(slot) | PCMCIA_VS2(slot);
 	pipr = pcmp->pcmc_pipr;
 	debug ("PIPR: 0x%x ==> VS1=o%s, VS2=o%s\n",
@@ -267,14 +254,9 @@ int pcmcia_hardware_enable(int slot)
 #if defined(CONFIG_CMD_PCMCIA)
 int pcmcia_hardware_disable(int slot)
 {
-	volatile immap_t	*immap;
-	volatile pcmconf8xx_t	*pcmp;
 	u_long reg;
 
 	debug ("hardware_disable: " PCMCIA_BOARD_MSG " Slot %c\n", 'A'+slot);
-
-	immap = (immap_t *)CONFIG_SYS_IMMR;
-	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 
 	/* Configure PCMCIA General Control Register */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
@@ -296,24 +278,19 @@ int pcmcia_hardware_disable(int slot)
 
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
 {
-	volatile immap_t	*immap;
-	volatile cpm8xx_t	*cp;
 	volatile pcmconf8xx_t	*pcmp;
 	u_long reg;
-	ushort sreg;
 
 	debug ("voltage_set: "
 			PCMCIA_BOARD_MSG
 			" Slot %c, Vcc=%d.%d, Vpp=%d.%d\n",
 	'A'+slot, vcc/10, vcc%10, vpp/10, vcc%10);
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
-	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	/*
-	* Disable PCMCIA buffers (isolate the interface)
-	* and assert RESET signal
-	*/
+	 * Disable PCMCIA buffers (isolate the interface)
+	 * and assert RESET signal
+	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
 	reg  = PCMCIA_PGCRX(_slot_);
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
@@ -322,30 +299,29 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	udelay(500);
 
 	/*
-	* Configure Port C pins for
-	* 5 Volts Enable and 3 Volts enable,
-	* Turn all power pins to Hi-Z
-	*/
+	 * Configure Port C pins for
+	 * 5 Volts Enable and 3 Volts enable,
+	 * Turn all power pins to Hi-Z
+	 */
 	debug ("PCMCIA power OFF\n");
 	cfg_ports ();	/* Enables switch, but all in Hi-Z */
 
-	sreg  = immap->im_ioport.iop_pcdat;
 	set_vppd(0, 1); set_vppd(1, 1);
 
 	switch(vcc) {
-		case  0:
-			break;	/* Switch off		*/
+	case  0:
+		break;	/* Switch off		*/
 
-		case 33:
-			set_vccd(0, 1); set_vccd(1, 0);
-			break;
+	case 33:
+		set_vccd(0, 1); set_vccd(1, 0);
+		break;
 
-		case 50:
-			set_vccd(0, 0); set_vccd(1, 1);
-			break;
+	case 50:
+		set_vccd(0, 0); set_vccd(1, 1);
+		break;
 
-		default:
-			goto done;
+	default:
+		goto done;
 	}
 
 	/* Checking supported voltages */

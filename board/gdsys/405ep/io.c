@@ -87,8 +87,9 @@ err_out:
  */
 int checkboard(void)
 {
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
-	char *s = getenv("serial#");
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
 	u16 fpga_features = in_le16(&fpga->fpga_features);
@@ -106,9 +107,9 @@ int checkboard(void)
 
 	printf("CATCenter Io");
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	puts("\n       ");
 

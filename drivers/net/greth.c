@@ -576,7 +576,7 @@ int greth_recv(struct eth_device *dev)
 		GRETH_REGORIN(&regs->control, GRETH_RXEN);
 	}
       done:
-	/* return positive length of packet or 0 if non recieved */
+	/* return positive length of packet or 0 if non received */
 	return len;
 }
 

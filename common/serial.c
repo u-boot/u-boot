@@ -24,81 +24,15 @@
 #include <common.h>
 #include <serial.h>
 #include <stdio_dev.h>
+#include <post.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct serial_device *serial_devices = NULL;
-static struct serial_device *serial_current = NULL;
+static struct serial_device *serial_devices;
+static struct serial_device *serial_current;
 
-#if !defined(CONFIG_LWMON) && !defined(CONFIG_PXA250) && !defined(CONFIG_PXA27X)
-struct serial_device *__default_serial_console (void)
-{
-#if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
-	return &serial_smc_device;
-#elif defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
-   || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
-	return &serial_scc_device;
-#elif defined(CONFIG_4xx) \
-   || defined(CONFIG_MB86R0x) || defined(CONFIG_MPC5xxx) \
-   || defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) \
-   || defined(CONFIG_MPC86xx) || defined(CONFIG_SYS_SC520) \
-   || defined(CONFIG_TEGRA2)
-#if defined(CONFIG_CONS_INDEX) && defined(CONFIG_SYS_NS16550_SERIAL)
-#if (CONFIG_CONS_INDEX==1)
-	return &eserial1_device;
-#elif (CONFIG_CONS_INDEX==2)
-	return &eserial2_device;
-#elif (CONFIG_CONS_INDEX==3)
-	return &eserial3_device;
-#elif (CONFIG_CONS_INDEX==4)
-	return &eserial4_device;
-#else
-#error "Bad CONFIG_CONS_INDEX."
-#endif
-#else
-	return &serial0_device;
-#endif
-#elif defined(CONFIG_MPC512X)
-#if (CONFIG_PSC_CONSOLE == 3)
-		return &serial3_device;
-#elif (CONFIG_PSC_CONSOLE == 6)
-		return &serial6_device;
-#else
-#error "Bad CONFIG_PSC_CONSOLE."
-#endif
-#elif defined(CONFIG_S3C2410)
-#if defined(CONFIG_SERIAL1)
-	return &s3c24xx_serial0_device;
-#elif defined(CONFIG_SERIAL2)
-	return &s3c24xx_serial1_device;
-#elif defined(CONFIG_SERIAL3)
-	return &s3c24xx_serial2_device;
-#else
-#error "CONFIG_SERIAL? missing."
-#endif
-#elif defined(CONFIG_S5P)
-#if defined(CONFIG_SERIAL0)
-	return &s5p_serial0_device;
-#elif defined(CONFIG_SERIAL1)
-	return &s5p_serial1_device;
-#elif defined(CONFIG_SERIAL2)
-	return &s5p_serial2_device;
-#elif defined(CONFIG_SERIAL3)
-	return &s5p_serial3_device;
-#else
-#error "CONFIG_SERIAL? missing."
-#endif
-#elif defined(CONFIG_OMAP3_ZOOM2)
-		return ZOOM2_DEFAULT_SERIAL_DEVICE;
-#else
-#error No default console
-#endif
-}
-
-struct serial_device *default_serial_console(void) __attribute__((weak, alias("__default_serial_console")));
-#endif
-
-int serial_register (struct serial_device *dev)
+void serial_register(struct serial_device *dev)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	dev->init += gd->reloc_off;
@@ -111,18 +45,16 @@ int serial_register (struct serial_device *dev)
 
 	dev->next = serial_devices;
 	serial_devices = dev;
-
-	return 0;
 }
 
-void serial_initialize (void)
+void serial_initialize(void)
 {
 #if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
-	serial_register (&serial_smc_device);
+	serial_register(&serial_smc_device);
 #endif
-#if defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
- || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
-	serial_register (&serial_scc_device);
+#if	defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) || \
+	defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
+	serial_register(&serial_scc_device);
 #endif
 
 #if defined(CONFIG_SYS_NS16550_SERIAL)
@@ -139,13 +71,13 @@ void serial_initialize (void)
 	serial_register(&eserial4_device);
 #endif
 #endif /* CONFIG_SYS_NS16550_SERIAL */
-#if defined (CONFIG_FFUART)
+#if defined(CONFIG_FFUART)
 	serial_register(&serial_ffuart_device);
 #endif
-#if defined (CONFIG_BTUART)
+#if defined(CONFIG_BTUART)
 	serial_register(&serial_btuart_device);
 #endif
-#if defined (CONFIG_STUART)
+#if defined(CONFIG_STUART)
 	serial_register(&serial_stuart_device);
 #endif
 #if defined(CONFIG_S3C2410)
@@ -173,18 +105,35 @@ void serial_initialize (void)
 	serial_register(&serial6_device);
 #endif
 #endif
-	serial_assign (default_serial_console ()->name);
+#if defined(CONFIG_SYS_BFIN_UART)
+	serial_register_bfin_uart();
+#endif
+#if defined(CONFIG_XILINX_UARTLITE)
+# ifdef XILINX_UARTLITE_BASEADDR
+	serial_register(&uartlite_serial0_device);
+# endif /* XILINX_UARTLITE_BASEADDR */
+# ifdef XILINX_UARTLITE_BASEADDR1
+	serial_register(&uartlite_serial1_device);
+# endif /* XILINX_UARTLITE_BASEADDR1 */
+# ifdef XILINX_UARTLITE_BASEADDR2
+	serial_register(&uartlite_serial2_device);
+# endif /* XILINX_UARTLITE_BASEADDR2 */
+# ifdef XILINX_UARTLITE_BASEADDR3
+	serial_register(&uartlite_serial3_device);
+# endif /* XILINX_UARTLITE_BASEADDR3 */
+#endif /* CONFIG_XILINX_UARTLITE */
+	serial_assign(default_serial_console()->name);
 }
 
-void serial_stdio_init (void)
+void serial_stdio_init(void)
 {
 	struct stdio_dev dev;
 	struct serial_device *s = serial_devices;
 
 	while (s) {
-		memset (&dev, 0, sizeof (dev));
+		memset(&dev, 0, sizeof(dev));
 
-		strcpy (dev.name, s->name);
+		strcpy(dev.name, s->name);
 		dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 
 		dev.start = s->init;
@@ -194,18 +143,18 @@ void serial_stdio_init (void)
 		dev.getc = s->getc;
 		dev.tstc = s->tstc;
 
-		stdio_register (&dev);
+		stdio_register(&dev);
 
 		s = s->next;
 	}
 }
 
-int serial_assign (char *name)
+int serial_assign(const char *name)
 {
 	struct serial_device *s;
 
 	for (s = serial_devices; s; s = s->next) {
-		if (strcmp (s->name, name) == 0) {
+		if (strcmp(s->name, name) == 0) {
 			serial_current = s;
 			return 0;
 		}
@@ -214,80 +163,143 @@ int serial_assign (char *name)
 	return 1;
 }
 
-void serial_reinit_all (void)
+void serial_reinit_all(void)
 {
 	struct serial_device *s;
 
+	for (s = serial_devices; s; s = s->next)
+		s->init();
+}
+
+static struct serial_device *get_current(void)
+{
+	struct serial_device *dev;
+
+	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
+		dev = default_serial_console();
+
+		/* We must have a console device */
+		if (!dev)
+			panic("Cannot find console");
+	} else
+		dev = serial_current;
+	return dev;
+}
+
+int serial_init(void)
+{
+	return get_current()->init();
+}
+
+void serial_setbrg(void)
+{
+	get_current()->setbrg();
+}
+
+int serial_getc(void)
+{
+	return get_current()->getc();
+}
+
+int serial_tstc(void)
+{
+	return get_current()->tstc();
+}
+
+void serial_putc(const char c)
+{
+	get_current()->putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	get_current()->puts(s);
+}
+
+#if CONFIG_POST & CONFIG_SYS_POST_UART
+static const int bauds[] = CONFIG_SYS_BAUDRATE_TABLE;
+
+/* Mark weak until post/cpu/.../uart.c migrate over */
+__weak
+int uart_post_test(int flags)
+{
+	unsigned char c;
+	int ret, saved_baud, b;
+	struct serial_device *saved_dev, *s;
+	bd_t *bd = gd->bd;
+
+	/* Save current serial state */
+	ret = 0;
+	saved_dev = serial_current;
+	saved_baud = bd->bi_baudrate;
+
 	for (s = serial_devices; s; s = s->next) {
-		s->init ();
-	}
-}
+		/* If this driver doesn't support loop back, skip it */
+		if (!s->loop)
+			continue;
 
-int serial_init (void)
-{
-	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
-		struct serial_device *dev = default_serial_console ();
+		/* Test the next device */
+		serial_current = s;
 
-		return dev->init ();
-	}
+		ret = serial_init();
+		if (ret)
+			goto done;
 
-	return serial_current->init ();
-}
+		/* Consume anything that happens to be queued */
+		while (serial_tstc())
+			serial_getc();
 
-void serial_setbrg (void)
-{
-	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
-		struct serial_device *dev = default_serial_console ();
+		/* Enable loop back */
+		s->loop(1);
 
-		dev->setbrg ();
-		return;
-	}
+		/* Test every available baud rate */
+		for (b = 0; b < ARRAY_SIZE(bauds); ++b) {
+			bd->bi_baudrate = bauds[b];
+			serial_setbrg();
 
-	serial_current->setbrg ();
-}
+			/*
+			 * Stick to printable chars to avoid issues:
+			 *  - terminal corruption
+			 *  - serial program reacting to sequences and sending
+			 *    back random extra data
+			 *  - most serial drivers add in extra chars (like \r\n)
+			 */
+			for (c = 0x20; c < 0x7f; ++c) {
+				/* Send it out */
+				serial_putc(c);
 
-int serial_getc (void)
-{
-	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
-		struct serial_device *dev = default_serial_console ();
+				/* Make sure it's the same one */
+				ret = (c != serial_getc());
+				if (ret) {
+					s->loop(0);
+					goto done;
+				}
 
-		return dev->getc ();
-	}
+				/* Clean up the output in case it was sent */
+				serial_putc('\b');
+				ret = ('\b' != serial_getc());
+				if (ret) {
+					s->loop(0);
+					goto done;
+				}
+			}
+		}
 
-	return serial_current->getc ();
-}
+		/* Disable loop back */
+		s->loop(0);
 
-int serial_tstc (void)
-{
-	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
-		struct serial_device *dev = default_serial_console ();
-
-		return dev->tstc ();
-	}
-
-	return serial_current->tstc ();
-}
-
-void serial_putc (const char c)
-{
-	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
-		struct serial_device *dev = default_serial_console ();
-
-		dev->putc (c);
-		return;
-	}
-
-	serial_current->putc (c);
-}
-
-void serial_puts (const char *s)
-{
-	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
-		struct serial_device *dev = default_serial_console ();
-
-		dev->puts (s);
-		return;
+		/* XXX: There is no serial_uninit() !? */
+		if (s->uninit)
+			s->uninit();
 	}
 
-	serial_current->puts (s);
+ done:
+	/* Restore previous serial state */
+	serial_current = saved_dev;
+	bd->bi_baudrate = saved_baud;
+	serial_reinit_all();
+	serial_setbrg();
+
+	return ret;
 }
+#endif

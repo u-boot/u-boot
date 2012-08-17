@@ -25,10 +25,8 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
-#define CONFIG_OMAP3430		1	/* which is in a 3430 */
 #define CONFIG_OMAP3_IGEP0020	1	/* working with IGEP0020 */
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
@@ -52,6 +50,8 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
 #define CONFIG_REVISION_TAG		1
+
+#define CONFIG_OF_LIBFDT		1
 
 /*
  * NS16550 Configuration
@@ -77,9 +77,6 @@
 #define CONFIG_MMC			1
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
-
-/* DDR  */
-#define CONFIG_OMAP3_NUMONYX_DDR	1
 
 /* USB */
 #define CONFIG_MUSB_UDC			1
@@ -129,14 +126,61 @@
  */
 #define CONFIG_TWL4030_POWER		1
 
-/* Environment information */
-#define CONFIG_BOOTCOMMAND \
-	"mmc init 0 ; fatload mmc 0 0x80000000 setup.ini ; source \0"
-
 #define CONFIG_BOOTDELAY		3
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"usbtty=cdc_acm\0"
+	"usbtty=cdc_acm\0" \
+	"loadaddr=0x82000000\0" \
+	"usbtty=cdc_acm\0" \
+	"console=ttyS2,115200n8\0" \
+	"mpurate=500\0" \
+	"vram=12M\0" \
+	"dvimode=1024x768MR-16@60\0" \
+	"defaultdisplay=dvi\0" \
+	"mmcdev=0\0" \
+	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcrootfstype=ext3 rootwait\0" \
+	"nandroot=/dev/mtdblock4 rw\0" \
+	"nandrootfstype=jffs2\0" \
+	"mmcargs=setenv bootargs console=${console} " \
+		"mpurate=${mpurate} " \
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapfb.debug=y " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype}\0" \
+	"nandargs=setenv bootargs console=${console} " \
+		"mpurate=${mpurate} " \
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapfb.debug=y " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype}\0" \
+	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+	"bootscript=echo Running bootscript from mmc ...; " \
+		"source ${loadaddr}\0" \
+	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"bootm ${loadaddr}\0" \
+	"nandboot=echo Booting from onenand ...; " \
+		"run nandargs; " \
+		"onenand read ${loadaddr} 280000 400000; " \
+		"bootm ${loadaddr}\0" \
+
+#define CONFIG_BOOTCOMMAND \
+	"if mmc rescan ${mmcdev}; then " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
+			"if run loaduimage; then " \
+				"run mmcboot; " \
+			"else run nandboot; " \
+			"fi; " \
+		"fi; " \
+	"else run nandboot; fi"
 
 #define CONFIG_AUTO_COMPLETE		1
 
@@ -190,9 +234,6 @@
 #define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 meg */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C		1
-
 /*
  * FLASH and environment organization
  */
@@ -216,7 +257,6 @@
  * SMSC911x Ethernet
  */
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_32_BIT
 #define CONFIG_SMC911X_BASE	0x2C000000

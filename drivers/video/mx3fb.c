@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2009
  * Guennadi Liakhovetski, DENX Software Engineering, <lg@denx.de>
+ * Copyright (C) 2011
+ * HALE electronic GmbH, <helmut.raiger@hale.at>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,100 +23,20 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include <lcd.h>
-#include <asm/arch/mx31.h>
-#include <asm/arch/mx31-regs.h>
+#include <malloc.h>
+#include <video_fb.h>
+
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
 #include <asm/errno.h>
+#include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+#include "videomodes.h"
 
-void *lcd_base;			/* Start of framebuffer memory	*/
-void *lcd_console_address;	/* Start of console buffer	*/
-
-int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
-
-short console_col;
-short console_row;
-
-void lcd_initcolregs(void)
-{
-}
-
-void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
-{
-}
-
-void lcd_disable(void)
-{
-}
-
-void lcd_panel_disable(void)
-{
-}
-
-#define msleep(a) udelay(a * 1000)
-
-#if defined(CONFIG_DISPLAY_VBEST_VGG322403)
-#define XRES		320
-#define YRES		240
-#define PANEL_TYPE	IPU_PANEL_TFT
-#define PIXEL_CLK	156000
-#define PIXEL_FMT	IPU_PIX_FMT_RGB666
-#define H_START_WIDTH	20		/* left_margin */
-#define H_SYNC_WIDTH	30		/* hsync_len */
-#define H_END_WIDTH	(38 + 30)	/* right_margin + hsync_len */
-#define V_START_WIDTH	7		/* upper_margin */
-#define V_SYNC_WIDTH	3		/* vsync_len */
-#define V_END_WIDTH	(26 + 3)	/* lower_margin + vsync_len */
-#define SIG_POL		(DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL)
+/* this might need panel specific set-up as-well */
 #define IF_CONF		0
-#define IF_CLK_DIV	0x175
-#elif defined(CONFIG_DISPLAY_COM57H5M10XRC)
-#define XRES		640
-#define YRES		480
-#define PANEL_TYPE	IPU_PANEL_TFT
-#define PIXEL_CLK	40000
-#define PIXEL_FMT	IPU_PIX_FMT_RGB666
-#define H_START_WIDTH	120		/* left_margin */
-#define H_SYNC_WIDTH	30		/* hsync_len */
-#define H_END_WIDTH	(10 + 30)	/* right_margin + hsync_len */
-#define V_START_WIDTH	35		/* upper_margin */
-#define V_SYNC_WIDTH	3		/* vsync_len */
-#define V_END_WIDTH	(7 + 3)	/* lower_margin + vsync_len */
-#define SIG_POL		(DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL)
-#define IF_CONF		0
-#define IF_CLK_DIV	0x55
-#else
-#define XRES		240
-#define YRES		320
-#define PANEL_TYPE	IPU_PANEL_TFT
-#define PIXEL_CLK	185925
-#define PIXEL_FMT	IPU_PIX_FMT_RGB666
-#define H_START_WIDTH	9		/* left_margin */
-#define H_SYNC_WIDTH	1		/* hsync_len */
-#define H_END_WIDTH	(16 + 1)	/* right_margin + hsync_len */
-#define V_START_WIDTH	7		/* upper_margin */
-#define V_SYNC_WIDTH	1		/* vsync_len */
-#define V_END_WIDTH	(9 + 1)		/* lower_margin + vsync_len */
-#define SIG_POL		(DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL)
-#define IF_CONF		0
-#define IF_CLK_DIV	0x175
-#endif
 
-#define LCD_COLOR_IPU	LCD_COLOR16
-
-static ushort colormap[256];
-
-vidinfo_t panel_info = {
-	.vl_col		= XRES,
-	.vl_row		= YRES,
-	.vl_bpix	= LCD_COLOR_IPU,
-	.cmap		= colormap,
-};
-
-#define BIT_PER_PIXEL	NBITS(LCD_COLOR_IPU)
+/* -------------- controller specific stuff -------------- */
 
 /* IPU DMA Controller channel definitions. */
 enum ipu_channel {
@@ -192,7 +114,7 @@ enum ipu_panel {
 };
 
 /* IPU Common registers */
-/* IPU_CONF and its bits already defined in mx31-regs.h */
+/* IPU_CONF and its bits already defined in imx-regs.h */
 #define IPU_CHA_BUF0_RDY	(0x04 + IPU_BASE)
 #define IPU_CHA_BUF1_RDY	(0x08 + IPU_BASE)
 #define IPU_CHA_DB_MODE_SEL	(0x0C + IPU_BASE)
@@ -438,89 +360,134 @@ union chan_param_mem {
 	struct chan_param_mem_interleaved	ip;
 };
 
-static inline u32 reg_read(unsigned long reg)
-{
-	return __REG(reg);
-}
+DECLARE_GLOBAL_DATA_PTR;
 
-static inline void reg_write(u32 value, unsigned long reg)
-{
-	__REG(reg) = value;
-}
+/* graphics setup */
+static GraphicDevice panel;
+static struct ctfb_res_modes *mode;
+static struct ctfb_res_modes var_mode;
 
 /*
  * sdc_init_panel() - initialize a synchronous LCD panel.
  * @width:		width of panel in pixels.
  * @height:		height of panel in pixels.
- * @pixel_fmt:		pixel format of buffer as FOURCC ASCII code.
+ * @di_setup:	pixel format of the frame buffer
+ * @di_panel:	either SHARP or normal TFT
  * @return:		0 on success or negative error code on failure.
  */
-static int sdc_init_panel(u16 width, u16 height, enum pixel_fmt pixel_fmt)
+static int sdc_init_panel(u16 width, u16 height,
+		enum pixel_fmt di_setup, enum ipu_panel di_panel)
 {
-	u32 reg;
+	u32 reg, div;
 	uint32_t old_conf;
+	int clock;
+
+	debug("%s(width=%d, height=%d)\n", __func__, width, height);
+
+	/* Init clocking, the IPU receives its clock from the hsp divder */
+	clock = mxc_get_clock(MXC_IPU_CLK);
+	if (clock < 0)
+		return -EACCES;
 
 	/* Init panel size and blanking periods */
-	reg = ((H_SYNC_WIDTH - 1) << 26) |
-		((u32)(width + H_START_WIDTH + H_END_WIDTH - 1) << 16);
-	reg_write(reg, SDC_HOR_CONF);
+	reg = width + mode->left_margin + mode->right_margin - 1;
+	if (reg > 1023) {
+		printf("mx3fb: Display width too large, coerced to 1023!");
+		reg = 1023;
+	}
+	reg = ((mode->hsync_len - 1) << 26) | (reg << 16);
+	writel(reg, SDC_HOR_CONF);
 
-	reg = ((V_SYNC_WIDTH - 1) << 26) | SDC_V_SYNC_WIDTH_L |
-		((u32)(height + V_START_WIDTH + V_END_WIDTH - 1) << 16);
-	reg_write(reg, SDC_VER_CONF);
+	reg = height + mode->upper_margin + mode->lower_margin - 1;
+	if (reg > 1023) {
+		printf("mx3fb: Display height too large, coerced to 1023!");
+		reg = 1023;
+	}
+	reg = ((mode->vsync_len - 1) << 26) | SDC_V_SYNC_WIDTH_L | (reg << 16);
+	writel(reg, SDC_VER_CONF);
 
-	switch (PANEL_TYPE) {
+	switch (di_panel) {
 	case IPU_PANEL_SHARP_TFT:
-		reg_write(0x00FD0102L, SDC_SHARP_CONF_1);
-		reg_write(0x00F500F4L, SDC_SHARP_CONF_2);
-		reg_write(SDC_COM_SHARP | SDC_COM_TFT_COLOR, SDC_COM_CONF);
+		writel(0x00FD0102L, SDC_SHARP_CONF_1);
+		writel(0x00F500F4L, SDC_SHARP_CONF_2);
+		writel(SDC_COM_SHARP | SDC_COM_TFT_COLOR, SDC_COM_CONF);
+		/* TODO: probably IF_CONF must be adapted (see below)! */
 		break;
 	case IPU_PANEL_TFT:
-		reg_write(SDC_COM_TFT_COLOR, SDC_COM_CONF);
+		writel(SDC_COM_TFT_COLOR, SDC_COM_CONF);
 		break;
 	default:
 		return -EINVAL;
 	}
 
-	/* Init clocking */
-
 	/*
-	 * Calculate divider: fractional part is 4 bits so simply multiple by
-	 * 2^4 to get fractional part, as long as we stay under ~250MHz and on
-	 * i.MX31 it (HSP_CLK) is <= 178MHz. Currently 128.267MHz
+	 * Calculate divider: The fractional part is 4 bits so simply
+	 * multiple by 2^4 to get it.
+	 *
+	 * Opposed to the kernel driver mode->pixclock is the time of one
+	 * pixel in pico seconds, so:
+	 *		pixel_clk = 1e12 / mode->pixclock
+	 *		div = ipu_clk * 16 / pixel_clk
+	 * leads to:
+	 *		div = ipu_clk * 16 / (1e12 / mode->pixclock)
+	 * or:
+	 *		div = ipu_clk * 16 * mode->pixclock / 1e12
+	 *
+	 * To avoid integer overflows this is split into 2 shifts and
+	 * one divide with sufficient accuracy:
+	 *		16*1024*128*476837 =  0.9999996682e12
 	 */
+	div = ((clock/1024) * (mode->pixclock/128)) / 476837;
+	debug("hsp_clk is %d, div=%d\n", clock, div);
+	/* coerce to not less than 4.0, not more than 255.9375 */
+	if (div < 0x40)
+		div = 0x40;
+	else if (div > 0xFFF)
+		div = 0xFFF;
+	/* DISP3_IF_CLK_DOWN_WR is half the divider value and 2 less
+	 * fraction bits. Subtract 1 extra from DISP3_IF_CLK_DOWN_WR
+	 * based on timing debug DISP3_IF_CLK_UP_WR is 0
+	 */
+	writel((((div / 8) - 1) << 22) | div, DI_DISP3_TIME_CONF);
 
-	reg_write((((IF_CLK_DIV / 8) - 1) << 22) |
-			IF_CLK_DIV, DI_DISP3_TIME_CONF);
+	/* DI settings for display 3: clock idle (bit 26) during vsync */
+	old_conf = readl(DI_DISP_IF_CONF) & 0x78FFFFFF;
+	writel(old_conf | IF_CONF, DI_DISP_IF_CONF);
 
-	/* DI settings */
-	old_conf = reg_read(DI_DISP_IF_CONF) & 0x78FFFFFF;
-	reg_write(old_conf | IF_CONF, DI_DISP_IF_CONF);
+	/* only set display 3 polarity bits */
+	old_conf = readl(DI_DISP_SIG_POL) & 0xE0FFFFFF;
+	writel(old_conf | mode->sync, DI_DISP_SIG_POL);
 
-	old_conf = reg_read(DI_DISP_SIG_POL) & 0xE0FFFFFF;
-	reg_write(old_conf | SIG_POL, DI_DISP_SIG_POL);
+	writel(fmt_cfg[di_setup].b0, DI_DISP3_B0_MAP);
+	writel(fmt_cfg[di_setup].b1, DI_DISP3_B1_MAP);
+	writel(fmt_cfg[di_setup].b2, DI_DISP3_B2_MAP);
+	writel(readl(DI_DISP_ACC_CC) |
+		  ((fmt_cfg[di_setup].acc - 1) << 12), DI_DISP_ACC_CC);
 
-	reg_write(fmt_cfg[pixel_fmt].b0, DI_DISP3_B0_MAP);
-	reg_write(fmt_cfg[pixel_fmt].b1, DI_DISP3_B1_MAP);
-	reg_write(fmt_cfg[pixel_fmt].b2, DI_DISP3_B2_MAP);
-	reg_write(reg_read(DI_DISP_ACC_CC) |
-		  ((fmt_cfg[pixel_fmt].acc - 1) << 12), DI_DISP_ACC_CC);
+	debug("DI_DISP_IF_CONF = 0x%08X\n",	readl(DI_DISP_IF_CONF));
+	debug("DI_DISP_SIG_POL = 0x%08X\n", readl(DI_DISP_SIG_POL));
+	debug("DI_DISP3_TIME_CONF = 0x%08X\n", readl(DI_DISP3_TIME_CONF));
+	debug("SDC_HOR_CONF = 0x%08X\n", readl(SDC_HOR_CONF));
+	debug("SDC_VER_CONF = 0x%08X\n", readl(SDC_VER_CONF));
 
 	return 0;
 }
 
 static void ipu_ch_param_set_size(union chan_param_mem *params,
-				  uint32_t pixel_fmt, uint16_t width,
+				  uint pixelfmt, uint16_t width,
 				  uint16_t height, uint16_t stride)
 {
+	debug("%s(pixelfmt=%d, width=%d, height=%d, stride=%d)\n",
+			__func__, pixelfmt, width, height, stride);
+
 	params->pp.fw		= width - 1;
 	params->pp.fh_l		= height - 1;
 	params->pp.fh_h		= (height - 1) >> 8;
 	params->pp.sl		= stride - 1;
 
 	/* See above, for further formats see the Linux driver */
-	switch (pixel_fmt) {
-	case IPU_PIX_FMT_RGB565:
+	switch (pixelfmt) {
+	case GDF_16BIT_565RGB:
 		params->ip.bpp	= 2;
 		params->ip.pfs	= 4;
 		params->ip.npb	= 7;
@@ -533,7 +500,7 @@ static void ipu_ch_param_set_size(union chan_param_mem *params,
 		params->ip.wid1	= 5;		/* Green bit width - 1 */
 		params->ip.wid2	= 4;		/* Blue bit width - 1 */
 		break;
-	case IPU_PIX_FMT_RGB24:
+	case GDF_32BIT_X888RGB:
 		params->ip.bpp	= 1;		/* 24 BPP & RGB PFS */
 		params->ip.pfs	= 4;
 		params->ip.npb	= 7;
@@ -547,6 +514,7 @@ static void ipu_ch_param_set_size(union chan_param_mem *params,
 		params->ip.wid2	= 7;		/* Blue bit width - 1 */
 		break;
 	default:
+		printf("mx3fb: Pixel format not supported!\n");
 		break;
 	}
 
@@ -564,23 +532,13 @@ static void ipu_write_param_mem(uint32_t addr, uint32_t *data,
 				uint32_t num_words)
 {
 	for (; num_words > 0; num_words--) {
-		reg_write(addr, IPU_IMA_ADDR);
-		reg_write(*data++, IPU_IMA_DATA);
+		writel(addr, IPU_IMA_ADDR);
+		writel(*data++, IPU_IMA_DATA);
 		addr++;
 		if ((addr & 0x7) == 5) {
 			addr &= ~0x7;	/* set to word 0 */
 			addr += 8;	/* increment to next row */
 		}
-	}
-}
-
-static uint32_t bpp_to_pixfmt(int bpp)
-{
-	switch (bpp) {
-	case 16:
-		return IPU_PIX_FMT_RGB565;
-	default:
-		return 0;
 	}
 }
 
@@ -596,11 +554,13 @@ static void ipu_init_channel_buffer(enum ipu_channel channel, void *fbmem)
 	uint32_t reg;
 	uint32_t stride_bytes;
 
-	stride_bytes = (XRES * ((BIT_PER_PIXEL + 7) / 8) + 3) & ~3;
+	stride_bytes = (panel.plnSizeX * panel.gdfBytesPP + 3) & ~3;
+
+	debug("%s(channel=%d, fbmem=%p)\n", __func__, channel, fbmem);
 
 	/* Build parameter memory data for DMA channel */
-	ipu_ch_param_set_size(&params, bpp_to_pixfmt(BIT_PER_PIXEL),
-			      XRES, YRES, stride_bytes);
+	ipu_ch_param_set_size(&params, panel.gdfIndex,
+			      panel.plnSizeX, panel.plnSizeY, stride_bytes);
 	ipu_ch_param_set_buffer(&params, fbmem, NULL);
 	params.pp.bam = 0;
 	/* Some channels (rotation) have restriction on burst length */
@@ -617,22 +577,22 @@ static void ipu_init_channel_buffer(enum ipu_channel channel, void *fbmem)
 	ipu_write_param_mem(dma_param_addr(channel), (uint32_t *)&params, 10);
 
 	/* Disable double-buffering */
-	reg = reg_read(IPU_CHA_DB_MODE_SEL);
+	reg = readl(IPU_CHA_DB_MODE_SEL);
 	reg &= ~(1UL << channel);
-	reg_write(reg, IPU_CHA_DB_MODE_SEL);
+	writel(reg, IPU_CHA_DB_MODE_SEL);
 }
 
 static void ipu_channel_set_priority(enum ipu_channel channel,
 				     int prio)
 {
-	u32 reg = reg_read(IDMAC_CHA_PRI);
+	u32 reg = readl(IDMAC_CHA_PRI);
 
 	if (prio)
 		reg |= 1UL << channel;
 	else
 		reg &= ~(1UL << channel);
 
-	reg_write(reg, IDMAC_CHA_PRI);
+	writel(reg, IDMAC_CHA_PRI);
 }
 
 /*
@@ -645,7 +605,7 @@ static int ipu_enable_channel(enum ipu_channel channel)
 	uint32_t reg;
 
 	/* Reset to buffer 0 */
-	reg_write(1UL << channel, IPU_CHA_CUR_BUF);
+	writel(1UL << channel, IPU_CHA_CUR_BUF);
 
 	switch (channel) {
 	case IDMAC_SDC_0:
@@ -655,8 +615,8 @@ static int ipu_enable_channel(enum ipu_channel channel)
 		break;
 	}
 
-	reg = reg_read(IDMAC_CHA_EN);
-	reg_write(reg | (1UL << channel), IDMAC_CHA_EN);
+	reg = readl(IDMAC_CHA_EN);
+	writel(reg | (1UL << channel), IDMAC_CHA_EN);
 
 	return 0;
 }
@@ -665,13 +625,13 @@ static int ipu_update_channel_buffer(enum ipu_channel channel, void *buf)
 {
 	uint32_t reg;
 
-	reg = reg_read(IPU_CHA_BUF0_RDY);
+	reg = readl(IPU_CHA_BUF0_RDY);
 	if (reg & (1UL << channel))
 		return -EACCES;
 
 	/* 44.3.3.1.9 - Row Number 1 (WORD1, offset 0) */
-	reg_write(dma_param_addr(channel) + 0x0008UL, IPU_IMA_ADDR);
-	reg_write((u32)buf, IPU_IMA_DATA);
+	writel(dma_param_addr(channel) + 0x0008UL, IPU_IMA_ADDR);
+	writel((u32)buf, IPU_IMA_DATA);
 
 	return 0;
 }
@@ -690,7 +650,7 @@ static int idmac_tx_submit(enum ipu_channel channel, void *buf)
 
 	/* ipu_idmac.c::ipu_select_buffer() */
 	/* Mark buffer 0 as ready. */
-	reg_write(1UL << channel, IPU_CHA_BUF0_RDY);
+	writel(1UL << channel, IPU_CHA_BUF0_RDY);
 
 
 	ret = ipu_enable_channel(channel);
@@ -706,8 +666,8 @@ static void sdc_enable_channel(void *fbmem)
 
 	/* mx3fb.c::sdc_fb_init() */
 	if (ret >= 0) {
-		reg = reg_read(SDC_COM_CONF);
-		reg_write(reg | SDC_COM_BG_EN, SDC_COM_CONF);
+		reg = readl(SDC_COM_CONF);
+		writel(reg | SDC_COM_BG_EN, SDC_COM_CONF);
 	}
 
 	/*
@@ -715,31 +675,33 @@ static void sdc_enable_channel(void *fbmem)
 	 * interrupts. Next sdc_set_brightness() is going to be called
 	 * from mx3fb_blank().
 	 */
-	msleep(2);
+	udelay(2000);
 }
 
 /*
  * mx3fb_set_par() - set framebuffer parameters and change the operating mode.
  * @return:	0 on success or negative error code on failure.
+ *  TODO: currently only 666 and TFT as DI setup supported
  */
 static int mx3fb_set_par(void)
 {
 	int ret;
 
-	ret = sdc_init_panel(XRES, YRES, PIXEL_FMT);
+	ret = sdc_init_panel(panel.plnSizeX, panel.plnSizeY,
+			IPU_PIX_FMT_RGB666, IPU_PANEL_TFT);
 	if (ret < 0)
 		return ret;
 
-	reg_write((H_START_WIDTH << 16) | V_START_WIDTH, SDC_BG_POS);
+	writel((mode->left_margin << 16) | mode->upper_margin, SDC_BG_POS);
 
 	return 0;
 }
 
-/* References in this function refer to respective Linux kernel sources */
-void lcd_enable(void)
+static void ll_disp3_enable(void *base)
 {
 	u32 reg;
 
+	debug("%s(base=0x%x)\n", __func__, (u32) base);
 	/* pcm037.c::mxc_board_init() */
 
 	/* Display Interface #3 */
@@ -780,78 +742,190 @@ void lcd_enable(void)
 	/* ipu_idmac.c::ipu_idmac_init() */
 
 	/* Service request counter to maximum - shouldn't be needed */
-	reg_write(0x00000070, IDMAC_CONF);
+	writel(0x00000070, IDMAC_CONF);
 
 
 	/* ipu_idmac.c::ipu_init_channel() */
 
 	/* Enable IPU sub modules */
-	reg = reg_read(IPU_CONF) | IPU_CONF_SDC_EN | IPU_CONF_DI_EN;
-	reg_write(reg, IPU_CONF);
+	reg = readl(IPU_CONF) | IPU_CONF_SDC_EN | IPU_CONF_DI_EN;
+	writel(reg, IPU_CONF);
 
 
 	/* mx3fb.c::init_fb_chan() */
 
 	/* set Display Interface clock period */
-	reg_write(0x00100010L, DI_HSP_CLK_PER);
+	writel(0x00100010L, DI_HSP_CLK_PER);
 	/* Might need to trigger HSP clock change - see 44.3.3.8.5 */
 
 
 	/* mx3fb.c::sdc_set_brightness() */
 
 	/* This might be board-specific */
-	reg_write(0x03000000UL | 255 << 16, SDC_PWM_CTRL);
+	writel(0x03000000UL | 255 << 16, SDC_PWM_CTRL);
 
 
 	/* mx3fb.c::sdc_set_global_alpha() */
 
 	/* Use global - not per-pixel - Alpha-blending */
-	reg = reg_read(SDC_GW_CTRL) & 0x00FFFFFFL;
-	reg_write(reg | ((uint32_t) 0xff << 24), SDC_GW_CTRL);
+	reg = readl(SDC_GW_CTRL) & 0x00FFFFFFL;
+	writel(reg | ((uint32_t) 0xff << 24), SDC_GW_CTRL);
 
-	reg = reg_read(SDC_COM_CONF);
-	reg_write(reg | SDC_COM_GLB_A, SDC_COM_CONF);
+	reg = readl(SDC_COM_CONF);
+	writel(reg | SDC_COM_GLB_A, SDC_COM_CONF);
 
 
 	/* mx3fb.c::sdc_set_color_key() */
 
 	/* Disable colour-keying for background */
-	reg = reg_read(SDC_COM_CONF) &
+	reg = readl(SDC_COM_CONF) &
 		~(SDC_COM_GWSEL | SDC_COM_KEY_COLOR_G);
-	reg_write(reg, SDC_COM_CONF);
+	writel(reg, SDC_COM_CONF);
 
 
 	mx3fb_set_par();
 
-	sdc_enable_channel(lcd_base);
+	sdc_enable_channel(base);
 
 	/*
 	 * Linux driver calls sdc_set_brightness() here again,
 	 * once is enough for us
 	 */
+	debug("%s() done\n", __func__);
 }
 
-void lcd_ctrl_init(void *lcdbase)
-{
-	u32 mem_len = XRES * YRES * BIT_PER_PIXEL / 8;
-	/*
-	 * We rely on lcdbase being a physical address, i.e., either MMU off,
-	 * or 1-to-1 mapping. Might want to add some virt2phys here.
-	 */
-	if (!lcdbase)
-		return;
-
-	memset(lcdbase, 0, mem_len);
-}
-
+/* ------------------------ public part ------------------- */
 ulong calc_fbsize(void)
 {
-	return ((panel_info.vl_col * panel_info.vl_row *
-		NBITS(panel_info.vl_bpix)) / 8) + PAGE_SIZE;
+	return panel.plnSizeX * panel.plnSizeY * panel.gdfBytesPP;
 }
 
-int overwrite_console(void)
+/*
+ * The current implementation is only tested for GDF_16BIT_565RGB!
+ * It was switched from the original CONFIG_LCD setup to CONFIG_VIDEO,
+ * because the lcd code seemed loaded with color table stuff, that
+ * does not relate to most modern TFTs. cfb_console.c looks more
+ * straight forward.
+ * This is the environment setting for the original setup
+ *	"unknown=video=ctfb:x:240,y:320,depth:16,mode:0,pclk:185925,le:9,ri:17,
+ *		up:7,lo:10,hs:1,vs:1,sync:100663296,vmode:0"
+ *	"videomode=unknown"
+ *
+ * Settings for VBEST VGG322403 display:
+ *	"videomode=video=ctfb:x:320,y:240,depth:16,mode:0,pclk:156000,
+ *		"le:20,ri:68,up:7,lo:29,hs:30,vs:3,sync:100663296,vmode:0"
+ *
+ * Settings for COM57H5M10XRC display:
+ *	"videomode=video=ctfb:x:640,y:480,depth:16,mode:0,pclk:40000,
+ *		"le:120,ri:40,up:35,lo:10,hs:30,vs:3,sync:100663296,vmode:0"
+ */
+void *video_hw_init(void)
 {
-	/* Keep stdout / stderr on serial, our LCD is for splashscreen only */
-	return 1;
+	char *penv;
+	u32 memsize;
+	unsigned long t1, hsynch, vsynch;
+	int bits_per_pixel, i, tmp, videomode;
+
+	tmp = 0;
+
+	puts("Video: ");
+
+	videomode = CONFIG_SYS_DEFAULT_VIDEO_MODE;
+	/* get video mode via environment */
+	penv = getenv("videomode");
+	if (penv) {
+		/* decide if it is a string */
+		if (penv[0] <= '9') {
+			videomode = (int) simple_strtoul(penv, NULL, 16);
+			tmp = 1;
+		}
+	} else {
+		tmp = 1;
+	}
+	if (tmp) {
+		/* parameter are vesa modes */
+		/* search params */
+		for (i = 0; i < VESA_MODES_COUNT; i++) {
+			if (vesa_modes[i].vesanr == videomode)
+				break;
+		}
+		if (i == VESA_MODES_COUNT) {
+			printf("No VESA Mode found, switching to mode 0x%x ",
+					CONFIG_SYS_DEFAULT_VIDEO_MODE);
+			i = 0;
+		}
+		mode = (struct ctfb_res_modes *)
+				&res_mode_init[vesa_modes[i].resindex];
+		bits_per_pixel = vesa_modes[i].bits_per_pixel;
+	} else {
+		mode = (struct ctfb_res_modes *) &var_mode;
+		bits_per_pixel = video_get_params(mode, penv);
+	}
+
+	/* calculate hsynch and vsynch freq (info only) */
+	t1 = (mode->left_margin + mode->xres +
+	      mode->right_margin + mode->hsync_len) / 8;
+	t1 *= 8;
+	t1 *= mode->pixclock;
+	t1 /= 1000;
+	hsynch = 1000000000L / t1;
+	t1 *= (mode->upper_margin + mode->yres +
+	       mode->lower_margin + mode->vsync_len);
+	t1 /= 1000;
+	vsynch = 1000000000L / t1;
+
+	/* fill in Graphic device struct */
+	sprintf(panel.modeIdent, "%dx%dx%d %ldkHz %ldHz",
+			mode->xres, mode->yres,
+			bits_per_pixel, (hsynch / 1000), (vsynch / 1000));
+	printf("%s\n", panel.modeIdent);
+	panel.winSizeX = mode->xres;
+	panel.winSizeY = mode->yres;
+	panel.plnSizeX = mode->xres;
+	panel.plnSizeY = mode->yres;
+
+	switch (bits_per_pixel) {
+	case 24:
+		panel.gdfBytesPP = 4;
+		panel.gdfIndex = GDF_32BIT_X888RGB;
+		break;
+	case 16:
+		panel.gdfBytesPP = 2;
+		panel.gdfIndex = GDF_16BIT_565RGB;
+		break;
+	default:
+		panel.gdfBytesPP = 1;
+		panel.gdfIndex = GDF__8BIT_INDEX;
+		break;
+	}
+
+	/* set up Hardware */
+	memsize = calc_fbsize();
+
+	debug("%s() allocating %d bytes\n", __func__, memsize);
+
+	/* fill in missing Graphic device struct */
+	panel.frameAdrs = (u32) malloc(memsize);
+	if (panel.frameAdrs == 0) {
+		printf("%s() malloc(%d) failed\n", __func__, memsize);
+		return 0;
+	}
+	panel.memSize = memsize;
+
+	ll_disp3_enable((void *) panel.frameAdrs);
+	memset((void *) panel.frameAdrs, 0, memsize);
+
+	debug("%s() done, framebuffer at 0x%x, size=%d cleared\n",
+			__func__, panel.frameAdrs, memsize);
+
+	return (void *) &panel;
+}
+
+void video_set_lut(unsigned int index,	/* color number */
+		    unsigned char r,	/* red */
+		    unsigned char g,	/* green */
+		    unsigned char b	/* blue */
+		    )
+{
+	return;
 }

@@ -43,7 +43,9 @@ int timer_init (void)
 	TPRER1 = get_PERCLK1() / 1000000; /* 1 MHz */
 	TCTL1 |= TCTL_FRR | (1<<1); /* Freerun Mode, PERCLK1 input */
 
-	reset_timer_masked();
+	/* Reset the timer */
+	TCTL1 &= ~TCTL_TEN;
+	TCTL1 |= TCTL_TEN; /* Enable timer */
 
 	return (0);
 }
@@ -51,26 +53,9 @@ int timer_init (void)
 /*
  * timer without interrupts
  */
-
-void reset_timer (void)
-{
-	reset_timer_masked ();
-}
-
 ulong get_timer (ulong base)
 {
 	return get_timer_masked() - base;
-}
-
-void set_timer (ulong t)
-{
-	/* nop */
-}
-
-void reset_timer_masked (void)
-{
-	TCTL1 &= ~TCTL_TEN;
-	TCTL1 |= TCTL_TEN; /* Enable timer */
 }
 
 ulong get_timer_masked (void)

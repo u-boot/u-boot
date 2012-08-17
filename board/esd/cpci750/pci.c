@@ -28,11 +28,6 @@
 #ifdef CONFIG_PCI
 #include <pci.h>
 
-#ifdef CONFIG_PCI_PNP
-void pciauto_config_init(struct pci_controller *hose);
-int  pciauto_region_allocate(struct pci_region* res, unsigned int size, unsigned int *bar);
-#endif
-
 #include "../../Marvell/include/pci.h"
 
 #undef DEBUG

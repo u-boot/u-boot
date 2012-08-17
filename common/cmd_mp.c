@@ -29,12 +29,11 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long cpuid;
 
 	if (argc < 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	cpuid = simple_strtoul(argv[1], NULL, 10);
-	if (cpuid >= cpu_numcores()) {
-		printf ("Core num: %lu is out of range[0..%d]\n",
-				cpuid, cpu_numcores() - 1);
+	if (!is_core_valid(cpuid)) {
+		printf ("Core num: %lu is not valid\n",	cpuid);
 		return 1;
 	}
 
@@ -47,17 +46,17 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		else if (strncmp(argv[2], "disable", 7) == 0)
 			return cpu_disable(cpuid);
 		else
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 		return 0;
 	}
 
 	/* 4 or greater, make sure its release */
 	if (strncmp(argv[2], "release", 7) != 0)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (cpu_release(cpuid, argc - 3, argv + 3))
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	return 0;
 }

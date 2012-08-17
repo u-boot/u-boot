@@ -53,7 +53,7 @@ int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret;
 
 	if (argc != 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	vol_name = argv[1];
 	debug("Using volume %s\n", vol_name);
@@ -94,7 +94,7 @@ void cmd_ubifs_umount(void)
 int do_ubifs_umount(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc != 1)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (ubifs_initialized == 0) {
 		printf("No UBIFS volume mounted!\n");
@@ -141,18 +141,18 @@ int do_ubifs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	if (argc < 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[1], &endp, 16);
 	if (endp == argv[1])
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	filename = argv[2];
 
 	if (argc == 4) {
 		size = simple_strtoul(argv[3], &endp, 16);
 		if (endp == argv[3])
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 	}
 	debug("Loading file '%s' to address 0x%08x (size %d)\n", filename, addr, size);
 

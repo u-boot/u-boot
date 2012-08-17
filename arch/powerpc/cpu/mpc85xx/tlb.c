@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -55,6 +55,7 @@ void init_tlbs(void)
 	return ;
 }
 
+#ifndef CONFIG_NAND_SPL
 void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 		       phys_addr_t *rpn)
 {
@@ -73,7 +74,6 @@ void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 #endif
 }
 
-#ifndef CONFIG_NAND_SPL
 void print_tlbcam(void)
 {
 	int i;
@@ -172,7 +172,7 @@ void set_tlb(u8 tlb, u32 epn, u64 rpn,
 
 void disable_tlb(u8 esel)
 {
-	u32 _mas0, _mas1, _mas2, _mas3, _mas7;
+	u32 _mas0, _mas1, _mas2, _mas3;
 
 	free_tlb_cam(esel);
 
@@ -180,14 +180,13 @@ void disable_tlb(u8 esel)
 	_mas1 = 0;
 	_mas2 = 0;
 	_mas3 = 0;
-	_mas7 = 0;
 
 	mtspr(MAS0, _mas0);
 	mtspr(MAS1, _mas1);
 	mtspr(MAS2, _mas2);
 	mtspr(MAS3, _mas3);
 #ifdef CONFIG_ENABLE_36BIT_PHYS
-	mtspr(MAS7, _mas7);
+	mtspr(MAS7, 0);
 #endif
 	asm volatile("isync;msync;tlbwe;isync");
 
@@ -252,16 +251,20 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 	unsigned int tlb_size;
 	unsigned int wimge = 0;
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
-	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xf;
+	unsigned int max_cam;
 	u64 size, memsize = (u64)memsize_in_meg << 20;
 
 #ifdef CONFIG_SYS_PPC_DDR_WIMGE
 	wimge = CONFIG_SYS_PPC_DDR_WIMGE;
 #endif
 	size = min(memsize, CONFIG_MAX_MEM_MAPPED);
-
-	/* Convert (4^max) kB to (2^max) bytes */
-	max_cam = max_cam * 2 + 10;
+	if ((mfspr(SPRN_MMUCFG) & MMUCFG_MAVN) == MMUCFG_MAVN_V1) {
+		/* Convert (4^max) kB to (2^max) bytes */
+		max_cam = ((mfspr(SPRN_TLB1CFG) >> 16) & 0xf) * 2 + 10;
+	} else {
+		/* Convert (2^max) kB to (2^max) bytes */
+		max_cam = __ilog2(mfspr(SPRN_TLB1PS)) + 10;
+	}
 
 	for (i = 0; size && i < 8; i++) {
 		int ram_tlb_index = find_free_tlbcam();
@@ -300,4 +303,33 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	return
 		setup_ddr_tlbs_phys(CONFIG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
 }
+
+/* Invalidate the DDR TLBs for the requested size */
+void clear_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
+{
+	u32 vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+	unsigned long epn;
+	u32 tsize, valid, ptr;
+	phys_addr_t rpn = 0;
+	int ddr_esel;
+	u64 memsize = (u64)memsize_in_meg << 20;
+
+	ptr = vstart;
+
+	while (ptr < (vstart + memsize)) {
+		ddr_esel = find_tlb_idx((void *)ptr, 1);
+		if (ddr_esel != -1) {
+			read_tlbcam_entry(ddr_esel, &valid, &tsize, &epn, &rpn);
+			disable_tlb(ddr_esel);
+		}
+		ptr += TSIZE_TO_BYTES(tsize);
+	}
+}
+
+void clear_ddr_tlbs(unsigned int memsize_in_meg)
+{
+	clear_ddr_tlbs_phys(CONFIG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
+}
+
+
 #endif /* !CONFIG_NAND_SPL */

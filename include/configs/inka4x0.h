@@ -134,8 +134,8 @@
 #define	CONFIG_SERVERIP		192.168.100.1
 #define	CONFIG_NETMASK		255.255.255.0
 #define HOSTNAME		inka4x0
-#define CONFIG_BOOTFILE		/tftpboot/inka4x0/uImage
-#define	CONFIG_ROOTPATH		/opt/eldk/ppc_6xx
+#define CONFIG_BOOTFILE		"/tftpboot/inka4x0/uImage"
+#define	CONFIG_ROOTPATH		"/opt/eldk/ppc_6xx"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

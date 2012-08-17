@@ -282,6 +282,7 @@ reiserfs_mount (unsigned part_length)
 {
   struct reiserfs_super_block super;
   int superblock = REISERFS_DISK_OFFSET_IN_BYTES >> SECTOR_BITS;
+  char *cache;
 
   if (part_length < superblock + (sizeof (super) >> SECTOR_BITS)
       || ! reiserfs_devread (superblock, 0, sizeof (struct reiserfs_super_block),
@@ -357,7 +358,8 @@ reiserfs_mount (unsigned part_length)
   if (! block_read (sb_root_block(&super), 0, INFO->blocksize, (char*) ROOT))
     return 0;
 
-  INFO->tree_depth = __le16_to_cpu(BLOCKHEAD (ROOT)->blk_level);
+  cache = ROOT;
+  INFO->tree_depth = __le16_to_cpu(BLOCKHEAD (cache)->blk_level);
 
 #ifdef REISERDEBUG
   printf ("root read_in: block=%d, depth=%d\n",

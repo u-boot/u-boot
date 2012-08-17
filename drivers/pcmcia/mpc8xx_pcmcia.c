@@ -1,6 +1,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include <pcmcia.h>
+#include <linux/compiler.h>
 
 #undef	CONFIG_PCMCIA
 
@@ -73,8 +74,8 @@ int pcmcia_on (void)
 {
 	u_long reg, base;
 	pcmcia_win_t *win;
-	u_int slotbit;
 	u_int rc, slot;
+	__maybe_unused u_int slotbit;
 	int i;
 
 	debug ("Enable PCMCIA " PCMCIA_SLOT_MSG "\n");

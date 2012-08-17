@@ -24,7 +24,7 @@ static bool ldr_valid_signature(uint8_t *data)
 #if defined(__ADSPBF561__)
 
 	/* BF56x has a 4 byte global header */
-	if (data[3] == 0xA0)
+	if (data[3] == (GFLAG_56X_SIGN_MAGIC << (GFLAG_56X_SIGN_SHIFT - 24)))
 		return true;
 
 #elif defined(__ADSPBF531__) || defined(__ADSPBF532__) || defined(__ADSPBF533__) || \
@@ -53,11 +53,6 @@ static bool ldr_valid_signature(uint8_t *data)
  * LDRs from random memory addresses.  So whenever possible, use that.  In
  * the older cases (BF53x/BF561), parse the LDR format ourselves.
  */
-#define ZEROFILL  0x0001
-#define RESVECT   0x0002
-#define INIT      0x0008
-#define IGNORE    0x0010
-#define FINAL     0x8000
 static void ldr_load(uint8_t *base_addr)
 {
 #if defined(__ADSPBF531__) || defined(__ADSPBF532__) || defined(__ADSPBF533__) || \
@@ -76,7 +71,7 @@ static void ldr_load(uint8_t *base_addr)
 # endif
 
 	memmove(&flags, base_addr + 8, sizeof(flags));
-	bfin_write_EVT1(flags & RESVECT ? 0xFFA00000 : 0xFFA08000);
+	bfin_write_EVT1(flags & BFLAG_53X_RESVECT ? 0xFFA00000 : 0xFFA08000);
 
 	do {
 		/* block header may not be aligned */
@@ -85,24 +80,24 @@ static void ldr_load(uint8_t *base_addr)
 		memmove(&flags, base_addr+8, sizeof(flags));
 		base_addr += sizeof(addr) + sizeof(count) + sizeof(flags);
 
-		printf("loading to 0x%08x (0x%x bytes) flags: 0x%04x\n",
+		printf("loading to 0x%08x (%#x bytes) flags: 0x%04x\n",
 			addr, count, flags);
 
-		if (!(flags & IGNORE)) {
-			if (flags & ZEROFILL)
+		if (!(flags & BFLAG_53X_IGNORE)) {
+			if (flags & BFLAG_53X_ZEROFILL)
 				memset((void *)addr, 0x00, count);
 			else
 				memcpy((void *)addr, base_addr, count);
 
-			if (flags & INIT) {
+			if (flags & BFLAG_53X_INIT) {
 				void (*init)(void) = (void *)addr;
 				init();
 			}
 		}
 
-		if (!(flags & ZEROFILL))
+		if (!(flags & BFLAG_53X_ZEROFILL))
 			base_addr += count;
-	} while (!(flags & FINAL));
+	} while (!(flags & BFLAG_53X_FINAL));
 
 #endif
 }

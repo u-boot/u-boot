@@ -358,6 +358,9 @@
 #define IXP425_GPIO_GPCLKR      IXP425_GPIO_REG(IXP425_GPIO_GPCLKR_OFFSET)
 #define IXP425_GPIO_GPDBSELR    IXP425_GPIO_REG(IXP425_GPIO_GPDBSELR_OFFSET)
 
+#define IXP425_GPIO_GPITR(line)	(((line) >= 8) ? \
+				IXP425_GPIO_GPIT2R : IXP425_GPIO_GPIT1R)
+
 /*
  * Macros to make it easy to access the GPIO registers
  */
@@ -365,8 +368,11 @@
 #define GPIO_OUTPUT_DISABLE(line)	*IXP425_GPIO_GPOER |= (1 << (line))
 #define GPIO_OUTPUT_SET(line)		*IXP425_GPIO_GPOUTR |= (1 << (line))
 #define GPIO_OUTPUT_CLEAR(line)		*IXP425_GPIO_GPOUTR &= ~(1 << (line))
-#define GPIO_INT_ACT_LOW_SET(line)	*IXP425_GPIO_GPIT1R = \
-		(*IXP425_GPIO_GPIT1R & ~(0x7 << (line * 3))) | (0x1 << (line * 3))
+#define GPIO_INT_ACT_LOW_SET(line)				\
+	*IXP425_GPIO_GPITR(line) =				\
+			(*IXP425_GPIO_GPITR(line) &		\
+			~(0x7 << (((line) & 0x7) * 3))) |	\
+			(0x1 << (((line) & 0x7) * 3))		\
 
 /*
  * Constants to make it easy to access Timer Control/Status registers
@@ -391,9 +397,8 @@
 #define IXP425_TIMER_REG(x) (IXP425_TIMER_BASE_PHYS+(x))
 #endif
 
-#if 0 /* test-only: also defined in npe/include/... */
-#define IXP425_OSTS	IXP425_TIMER_REG(IXP425_OSTS_OFFSET)
-#endif
+/* _B to avoid collision: also defined in npe/include/... */
+#define IXP425_OSTS_B	IXP425_TIMER_REG(IXP425_OSTS_OFFSET)
 #define IXP425_OST1	IXP425_TIMER_REG(IXP425_OST1_OFFSET)
 #define IXP425_OSRT1	IXP425_TIMER_REG(IXP425_OSRT1_OFFSET)
 #define IXP425_OST2	IXP425_TIMER_REG(IXP425_OST2_OFFSET)

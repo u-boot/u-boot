@@ -26,13 +26,6 @@
 #include <asm/io.h>
 #include <mvmfp.h>
 #include <asm/arch/mfp.h>
-#ifdef CONFIG_ARMADA100
-#include <asm/arch/armada100.h>
-#elif defined(CONFIG_PANTHEON)
-#include <asm/arch/pantheon.h>
-#else
-#error Unsupported SoC...
-#endif
 
 /*
  * mfp_config

@@ -43,8 +43,9 @@ static struct gptimer *timer_base = (struct gptimer *)CONFIG_SYS_TIMERBASE;
  * Nothing really to do with interrupts, just starts up a counter.
  */
 
-#define TIMER_CLOCK	(V_SCLK / (2 << CONFIG_SYS_PTV))
-#define TIMER_LOAD_VAL	0xffffffff
+#define TIMER_CLOCK		(V_SCLK / (2 << CONFIG_SYS_PTV))
+#define TIMER_OVERFLOW_VAL	0xffffffff
+#define TIMER_LOAD_VAL		0
 
 int timer_init(void)
 {
@@ -54,7 +55,9 @@ int timer_init(void)
 	writel((CONFIG_SYS_PTV << 2) | TCLR_PRE | TCLR_AR | TCLR_ST,
 		&timer_base->tclr);
 
-	reset_timer_masked();	/* init the timestamp and lastinc value */
+	/* reset time, capture current incrementer value time */
+	gd->lastinc = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
+	gd->tbl = 0;		/* start "advancing" time stamp from 0 */
 
 	return 0;
 }
@@ -62,19 +65,9 @@ int timer_init(void)
 /*
  * timer without interrupts
  */
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	return get_timer_masked() - base;
-}
-
-void set_timer(ulong t)
-{
-	gd->tbl = t;
 }
 
 /* delay x useconds */
@@ -86,18 +79,11 @@ void __udelay(unsigned long usec)
 	while (tmo > 0) {
 		now = readl(&timer_base->tcrr);
 		if (last > now) /* count up timer overflow */
-			tmo -= TIMER_LOAD_VAL - last + now;
+			tmo -= TIMER_OVERFLOW_VAL - last + now + 1;
 		else
 			tmo -= now - last;
 		last = now;
 	}
-}
-
-void reset_timer_masked(void)
-{
-	/* reset time, capture current incrementer value time */
-	gd->lastinc = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
-	gd->tbl = 0;		/* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked(void)

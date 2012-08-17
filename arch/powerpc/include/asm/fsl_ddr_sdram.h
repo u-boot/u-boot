@@ -31,6 +31,11 @@
 #define DDR3_RTT_20_OHM		4 /* RTT_Nom = RZQ/12 */
 #define DDR3_RTT_30_OHM		5 /* RTT_Nom = RZQ/8 */
 
+#define DDR2_RTT_OFF		0
+#define DDR2_RTT_75_OHM		1
+#define DDR2_RTT_150_OHM	2
+#define DDR2_RTT_50_OHM		3
+
 #if defined(CONFIG_FSL_DDR1)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(1)
 typedef ddr1_spd_eeprom_t generic_spd_eeprom_t;
@@ -84,6 +89,7 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define SDRAM_CFG_SDRAM_TYPE_SHIFT	24
 #define SDRAM_CFG_DYN_PWR		0x00200000
 #define SDRAM_CFG_32_BE			0x00080000
+#define SDRAM_CFG_16_BE			0x00100000
 #define SDRAM_CFG_8_BE			0x00040000
 #define SDRAM_CFG_NCAP			0x00020000
 #define SDRAM_CFG_2T_EN			0x00008000
@@ -91,6 +97,10 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 
 #define SDRAM_CFG2_D_INIT		0x00000010
 #define SDRAM_CFG2_ODT_CFG_MASK		0x00600000
+#define SDRAM_CFG2_ODT_NEVER		0
+#define SDRAM_CFG2_ODT_ONLY_WRITE	1
+#define SDRAM_CFG2_ODT_ONLY_READ	2
+#define SDRAM_CFG2_ODT_ALWAYS		3
 
 #define TIMING_CFG_2_CPO_MASK	0x0F800000
 
@@ -180,6 +190,9 @@ typedef struct memctl_options_partial_s {
 	unsigned int all_DIMMs_minimum_tRCD_ps;
 } memctl_options_partial_t;
 
+#define DDR_DATA_BUS_WIDTH_64 0
+#define DDR_DATA_BUS_WIDTH_32 1
+#define DDR_DATA_BUS_WIDTH_16 2
 /*
  * Generalized parameters for memory controller configuration,
  * might be a little specific to the FSL memory controller
@@ -267,10 +280,16 @@ typedef struct memctl_options_s {
 	unsigned int rcw_2;
 	/* control register 1 */
 	unsigned int ddr_cdr1;
+
+	unsigned int trwt_override;
+	unsigned int trwt;			/* read-to-write turnaround */
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);
+extern phys_size_t fsl_ddr_sdram_size(void);
 extern int fsl_use_spd(void);
+extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
+					unsigned int ctrl_num);
 
 /*
  * The 85xx boards have a common prototype for fixed_sdram so put the

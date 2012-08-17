@@ -5,8 +5,8 @@
  *
  *  ----- Adapted for OMAP1610 OMAP730 from ARM925t code ------
  *
- *  Copyright (c) 2001	Marius Gröger <mag@sysgo.de>
- *  Copyright (c) 2002	Alex Züpke <azu@sysgo.de>
+ *  Copyright (c) 2001	Marius GrÃ¶ger <mag@sysgo.de>
+ *  Copyright (c) 2002	Alex ZÃ¼pke <azu@sysgo.de>
  *  Copyright (c) 2002	Gary Jennejohn <garyj@denx.de>
  *  Copyright (c) 2003	Richard Woodruff <r-woodruff2@ti.com>
  *  Copyright (c) 2003	Kshitij <kshitij@ti.com>
@@ -182,7 +182,7 @@ copy_loop:
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	/*
 	 * fix .rel.dyn relocations
 	 */
@@ -224,7 +224,7 @@ fixnext:
 #endif
 
 clear_bss:
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	mov	r4, r6			/* reloc addr */
@@ -238,7 +238,7 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 	bne	clbss_l
 
 	bl coloured_LED_init
-	bl red_LED_on
+	bl red_led_on
 #endif
 
 /*

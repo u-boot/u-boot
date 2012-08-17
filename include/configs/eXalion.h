@@ -185,7 +185,6 @@
 #define CONFIG_PCI		1	/* include pci support		*/
 #undef	CONFIG_PCI_PNP
 
-#define CONFIG_NET_MULTI	1	/* Multi ethernet cards support */
 
 #define CONFIG_EEPRO100		1
 

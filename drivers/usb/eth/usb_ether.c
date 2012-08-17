@@ -45,6 +45,13 @@ static const struct usb_eth_prob_dev prob_dev[] = {
 		.get_info = asix_eth_get_info,
 	},
 #endif
+#ifdef CONFIG_USB_ETHER_SMSC95XX
+	{
+		.before_probe = smsc95xx_eth_before_probe,
+		.probe = smsc95xx_eth_probe,
+		.get_info = smsc95xx_eth_get_info,
+	},
+#endif
 	{ },		/* END */
 };
 
@@ -73,6 +80,7 @@ int is_eth_dev_on_usb_host(void)
  */
 static void probe_valid_drivers(struct usb_device *dev)
 {
+	struct eth_device *eth;
 	int j;
 
 	for (j = 0; prob_dev[j].probe && prob_dev[j].get_info; j++) {
@@ -81,9 +89,10 @@ static void probe_valid_drivers(struct usb_device *dev)
 		/*
 		 * ok, it is a supported eth device. Get info and fill it in
 		 */
+		eth = &usb_eth[usb_max_eth_dev].eth_dev;
 		if (prob_dev[j].get_info(dev,
 			&usb_eth[usb_max_eth_dev],
-			&usb_eth[usb_max_eth_dev].eth_dev)) {
+			eth)) {
 			/* found proper driver */
 			/* register with networking stack */
 			usb_max_eth_dev++;
@@ -93,7 +102,10 @@ static void probe_valid_drivers(struct usb_device *dev)
 			 * call since eth_current_changed (internally called)
 			 * relies on it
 			 */
-			eth_register(&usb_eth[usb_max_eth_dev - 1].eth_dev);
+			eth_register(eth);
+			if (eth_write_hwaddr(eth, "usbeth",
+					usb_max_eth_dev - 1))
+				puts("Warning: failed to set MAC address\n");
 			break;
 			}
 		}
@@ -115,8 +127,11 @@ int usb_host_eth_scan(int mode)
 
 	old_async = usb_disable_asynch(1); /* asynch transfer not allowed */
 
-	for (i = 0; i < USB_MAX_ETH_DEV; i++)
-		memset(&usb_eth[i], 0, sizeof(usb_eth[i]));
+	/* unregister a previously detected device */
+	for (i = 0; i < usb_max_eth_dev; i++)
+		eth_unregister(&usb_eth[i].eth_dev);
+
+	memset(usb_eth, 0, sizeof(usb_eth));
 
 	for (i = 0; prob_dev[i].probe; i++) {
 		if (prob_dev[i].before_probe)
@@ -128,7 +143,7 @@ int usb_host_eth_scan(int mode)
 		dev = usb_get_dev_index(i); /* get device */
 		debug("i=%d\n", i);
 		if (dev == NULL)
-			break; /* no more devices avaiable */
+			break; /* no more devices available */
 
 		/* find valid usb_ether driver for this device, if any */
 		probe_valid_drivers(dev);

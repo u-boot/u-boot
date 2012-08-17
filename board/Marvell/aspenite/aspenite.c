@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <mvmfp.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/mfp.h>
 #include <asm/arch/armada100.h>
 
@@ -33,9 +34,14 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_early_init_f(void)
 {
 	u32 mfp_cfg[] = {
+		/* I2C */
+		MFP105_CI2C_SDA,
+		MFP106_CI2C_SCL,
+
 		/* Enable Console on UART1 */
 		MFP107_UART1_RXD,
 		MFP108_UART1_TXD,
+
 		MFP_EOC		/*End of configureation*/
 	};
 	/* configure MFP's */

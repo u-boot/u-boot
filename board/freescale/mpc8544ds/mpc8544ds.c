@@ -33,6 +33,7 @@
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <fsl_mdio.h>
 #include <tsec.h>
 #include <netdev.h>
 
@@ -248,9 +249,37 @@ get_board_sys_clk(ulong dummy)
 	return val;
 }
 
+
+#define MIIM_CIS8204_SLED_CON		0x1b
+#define MIIM_CIS8204_SLEDCON_INIT	0x1115
+/*
+ * Hack to write all 4 PHYs with the LED values
+ */
+int board_phy_config(struct phy_device *phydev)
+{
+	static int do_once;
+	uint phyid;
+	struct mii_dev *bus = phydev->bus;
+
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
+	if (do_once)
+		return 0;
+
+	for (phyid = 0; phyid < 4; phyid++)
+		bus->write(bus, phyid, MDIO_DEVAD_NONE, MIIM_CIS8204_SLED_CON,
+				MIIM_CIS8204_SLEDCON_INIT);
+
+	do_once = 1;
+
+	return 0;
+}
+
+
 int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_TSEC_ENET
+	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[2];
 	int num = 0;
 
@@ -282,6 +311,9 @@ int board_eth_init(bd_t *bis)
 		fsl_sgmii_riser_init(tsec_info, num);
 	}
 
+	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
+	mdio_info.name = DEFAULT_MII_NAME;
+	fsl_pq_mdio_init(bis, &mdio_info);
 
 	tsec_eth_init(bis, tsec_info, num);
 #endif

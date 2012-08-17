@@ -51,7 +51,7 @@
 #define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_IMMR + CPM_BOOTCOUNT_ADDR)
 #endif /* defined(CONFIG_MPC8260) */
 
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_QE)
 #include <asm/immap_qe.h>
 
 #define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_IMMR + 0x110000 + \

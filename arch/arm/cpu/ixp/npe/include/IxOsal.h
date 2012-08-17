@@ -250,7 +250,7 @@ PUBLIC void ixOsalIrqUnlock (UINT32 irqEnable);
  *
  * @brief Selectively disables interrupts
  *
- * @param irqLevel ­ new interrupt level
+ * @param irqLevel - new interrupt level
  *
  * Disables the interrupts below the specified interrupt level 
  * 
@@ -269,7 +269,7 @@ PUBLIC UINT32 ixOsalIrqLevelSet (UINT32 irqLevel);
  *
  * @brief Enables an interrupt level
  *
- * @param irqLevel ­ interrupt level to enable
+ * @param irqLevel - interrupt level to enable
  *
  * Enables the specified interrupt level
  *
@@ -285,7 +285,7 @@ PUBLIC void ixOsalIrqEnable (UINT32 irqLevel);
  *
  * @brief Disables an interrupt level
  *
- * @param irqLevel ­ interrupt level to disable
+ * @param irqLevel - interrupt level to disable
  *
  * Disables the specified interrupt level
  *

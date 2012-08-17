@@ -20,6 +20,7 @@
 /*
  * Processor Settings
  */
+#define CONFIG_BFIN_CPU             bf532-0.5
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_NAND
 
 
@@ -68,7 +69,6 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK	1
-#define CONFIG_NET_MULTI	1
 #define CONFIG_HOSTNAME		IP04
 
 #define CONFIG_DRIVER_DM9000	1

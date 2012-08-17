@@ -316,7 +316,6 @@ static int ubi_volume_write(char *volume, void *buf, size_t size)
 static int ubi_volume_read(char *volume, char *buf, size_t size)
 {
 	int err, lnum, off, len, tbuf_size;
-	size_t count_save = size;
 	void *tbuf;
 	unsigned long long tmp;
 	struct ubi_volume *vol;
@@ -347,7 +346,7 @@ static int ubi_volume_read(char *volume, char *buf, size_t size)
 	if (vol->corrupted)
 		printf("read from corrupted volume %d", vol->vol_id);
 	if (offp + size > vol->used_bytes)
-		count_save = size = vol->used_bytes - offp;
+		size = vol->used_bytes - offp;
 
 	tbuf_size = vol->usable_leb_size;
 	if (size < tbuf_size)
@@ -439,7 +438,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	int err = 0;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (mtdparts_init() != 0) {
 		printf("Error initializing mtdparts!\n");
@@ -466,7 +465,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		if (argc < 3)
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 
 #ifdef CONFIG_CMD_UBIFS
 		/*

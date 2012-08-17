@@ -1,8 +1,8 @@
 /*
- * (C) Copyright 2010
- * CompuLab, Ltd. <www.compulab.co.il>
+ * (C) Copyright 2011 CompuLab, Ltd. <www.compulab.co.il>
  *
- * Author: Mike Rapoport <mike@compulab.co.il>
+ * Authors: Mike Rapoport <mike@compulab.co.il>
+ *	    Igor Grinberg <grinberg@compulab.co.il>
  *
  * Derived from omap3evm and Beagle Board by
  *	Manikandan Pillai <mani.pillai@ti.com>
@@ -24,15 +24,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc.
  */
 
 #include <common.h>
+#include <status_led.h>
 #include <netdev.h>
 #include <net.h>
 #include <i2c.h>
 #include <twl4030.h>
+#include <linux/compiler.h>
 
 #include <asm/io.h>
 #include <asm/arch/mem.h>
@@ -41,9 +42,13 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
 
+#include "eeprom.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+
 const omap3_sysinfo sysinfo = {
 	DDR_DISCRETE,
-	"CM-T35 board",
+	"CM-T3x board",
 	"NAND",
 };
 
@@ -73,31 +78,33 @@ static u32 gpmc_nand_config[GPMC_MAX_REG] = {
  */
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 
 	enable_gpmc_cs_config(gpmc_nand_config, &gpmc_cfg->cs[0],
 			      CONFIG_SYS_NAND_BASE, GPMC_SIZE_16M);
 
 	/* board id for Linux */
-	gd->bd->bi_arch_number = MACH_TYPE_CM_T35;
+	if (get_cpu_family() == CPU_OMAP34XX)
+		gd->bd->bi_arch_number = MACH_TYPE_CM_T35;
+	else
+		gd->bd->bi_arch_number = MACH_TYPE_CM_T3730;
+
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
+
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
+#endif
 
 	return 0;
 }
 
 /*
  * Routine: misc_init_r
- * Description: Init I2C and display die ID
+ * Description: display die ID
  */
 int misc_init_r(void)
 {
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
-
 	dieid_num_r();
 
 	return 0;
@@ -109,7 +116,7 @@ int misc_init_r(void)
  *		hardware. Many pins need to be moved from protect to primary
  *		mode.
  */
-void set_muxconf_regs(void)
+static void cm_t3x_set_common_muxconf(void)
 {
 	/* SDRC */
 	MUX_VAL(CP(SDRC_D0),		(IEN  | PTD | DIS | M0)); /*SDRC_D0*/
@@ -184,7 +191,7 @@ void set_muxconf_regs(void)
 	/* SB-T35 Ethernet */
 	MUX_VAL(CP(GPMC_NCS4),		(IEN  | PTU | EN  | M0)); /*GPMC_nCS4*/
 
-	/* CM-T35 Ethernet */
+	/* CM-T3x Ethernet */
 	MUX_VAL(CP(GPMC_NCS5),		(IDIS | PTU | DIS | M0)); /*GPMC_nCS5*/
 	MUX_VAL(CP(GPMC_CLK),		(IEN  | PTD | DIS | M4)); /*GPIO_59*/
 	MUX_VAL(CP(GPMC_NADV_ALE),	(IDIS | PTD | DIS | M0)); /*nADV_ALE*/
@@ -200,12 +207,6 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(DSS_HSYNC),		(IDIS | PTD | DIS | M0)); /*DSS_HSYNC*/
 	MUX_VAL(CP(DSS_VSYNC),		(IDIS | PTD | DIS | M0)); /*DSS_VSYNC*/
 	MUX_VAL(CP(DSS_ACBIAS),		(IDIS | PTD | DIS | M0)); /*DSS_ACBIAS*/
-	MUX_VAL(CP(DSS_DATA0),		(IDIS | PTD | DIS | M0)); /*DSS_DATA0*/
-	MUX_VAL(CP(DSS_DATA1),		(IDIS | PTD | DIS | M0)); /*DSS_DATA1*/
-	MUX_VAL(CP(DSS_DATA2),		(IDIS | PTD | DIS | M0)); /*DSS_DATA2*/
-	MUX_VAL(CP(DSS_DATA3),		(IDIS | PTD | DIS | M0)); /*DSS_DATA3*/
-	MUX_VAL(CP(DSS_DATA4),		(IDIS | PTD | DIS | M0)); /*DSS_DATA4*/
-	MUX_VAL(CP(DSS_DATA5),		(IDIS | PTD | DIS | M0)); /*DSS_DATA5*/
 	MUX_VAL(CP(DSS_DATA6),		(IDIS | PTD | DIS | M0)); /*DSS_DATA6*/
 	MUX_VAL(CP(DSS_DATA7),		(IDIS | PTD | DIS | M0)); /*DSS_DATA7*/
 	MUX_VAL(CP(DSS_DATA8),		(IDIS | PTD | DIS | M0)); /*DSS_DATA8*/
@@ -218,12 +219,6 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(DSS_DATA15),		(IDIS | PTD | DIS | M0)); /*DSS_DATA15*/
 	MUX_VAL(CP(DSS_DATA16),		(IDIS | PTD | DIS | M0)); /*DSS_DATA16*/
 	MUX_VAL(CP(DSS_DATA17),		(IDIS | PTD | DIS | M0)); /*DSS_DATA17*/
-	MUX_VAL(CP(DSS_DATA18),		(IDIS | PTD | DIS | M0)); /*DSS_DATA18*/
-	MUX_VAL(CP(DSS_DATA19),		(IDIS | PTD | DIS | M0)); /*DSS_DATA19*/
-	MUX_VAL(CP(DSS_DATA20),		(IDIS | PTD | DIS | M0)); /*DSS_DATA20*/
-	MUX_VAL(CP(DSS_DATA21),		(IDIS | PTD | DIS | M0)); /*DSS_DATA21*/
-	MUX_VAL(CP(DSS_DATA22),		(IDIS | PTD | DIS | M0)); /*DSS_DATA22*/
-	MUX_VAL(CP(DSS_DATA23),		(IDIS | PTD | DIS | M0)); /*DSS_DATA23*/
 
 	/* serial interface */
 	MUX_VAL(CP(UART3_RX_IRRX),	(IEN  | PTD | DIS | M0)); /*UART3_RX*/
@@ -253,11 +248,71 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(SYS_NIRQ),		(IEN  | PTU | EN  | M0)); /*SYS_nIRQ*/
 	MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0)); /*OFF_MODE*/
 	MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M0)); /*CLKOUT1*/
-	MUX_VAL(CP(SYS_CLKOUT2),	(IDIS | PTD | DIS | M4)); /*green LED*/
+	MUX_VAL(CP(SYS_CLKOUT2),	(IDIS | PTU | DIS | M4)); /*green LED*/
 	MUX_VAL(CP(JTAG_nTRST),		(IEN  | PTD | DIS | M0)); /*JTAG_nTRST*/
 	MUX_VAL(CP(JTAG_TCK),		(IEN  | PTD | DIS | M0)); /*JTAG_TCK*/
 	MUX_VAL(CP(JTAG_TMS),		(IEN  | PTD | DIS | M0)); /*JTAG_TMS*/
 	MUX_VAL(CP(JTAG_TDI),		(IEN  | PTD | DIS | M0)); /*JTAG_TDI*/
+
+	/* MMC1 */
+	MUX_VAL(CP(MMC1_CLK),		(IDIS | PTU | EN  | M0)); /*MMC1_CLK*/
+	MUX_VAL(CP(MMC1_CMD),		(IEN  | PTU | EN  | M0)); /*MMC1_CMD*/
+	MUX_VAL(CP(MMC1_DAT0),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT0*/
+	MUX_VAL(CP(MMC1_DAT1),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT1*/
+	MUX_VAL(CP(MMC1_DAT2),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT2*/
+	MUX_VAL(CP(MMC1_DAT3),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT3*/
+}
+
+static void cm_t35_set_muxconf(void)
+{
+	/* DSS */
+	MUX_VAL(CP(DSS_DATA0),		(IDIS | PTD | DIS | M0)); /*DSS_DATA0*/
+	MUX_VAL(CP(DSS_DATA1),		(IDIS | PTD | DIS | M0)); /*DSS_DATA1*/
+	MUX_VAL(CP(DSS_DATA2),		(IDIS | PTD | DIS | M0)); /*DSS_DATA2*/
+	MUX_VAL(CP(DSS_DATA3),		(IDIS | PTD | DIS | M0)); /*DSS_DATA3*/
+	MUX_VAL(CP(DSS_DATA4),		(IDIS | PTD | DIS | M0)); /*DSS_DATA4*/
+	MUX_VAL(CP(DSS_DATA5),		(IDIS | PTD | DIS | M0)); /*DSS_DATA5*/
+
+	MUX_VAL(CP(DSS_DATA18),         (IDIS | PTD | DIS | M0)); /*DSS_DATA18*/
+	MUX_VAL(CP(DSS_DATA19),         (IDIS | PTD | DIS | M0)); /*DSS_DATA19*/
+	MUX_VAL(CP(DSS_DATA20),         (IDIS | PTD | DIS | M0)); /*DSS_DATA20*/
+	MUX_VAL(CP(DSS_DATA21),         (IDIS | PTD | DIS | M0)); /*DSS_DATA21*/
+	MUX_VAL(CP(DSS_DATA22),         (IDIS | PTD | DIS | M0)); /*DSS_DATA22*/
+	MUX_VAL(CP(DSS_DATA23),         (IDIS | PTD | DIS | M0)); /*DSS_DATA23*/
+
+	/* MMC1 */
+	MUX_VAL(CP(MMC1_DAT4),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT4*/
+	MUX_VAL(CP(MMC1_DAT5),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT5*/
+	MUX_VAL(CP(MMC1_DAT6),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT6*/
+	MUX_VAL(CP(MMC1_DAT7),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT7*/
+}
+
+static void cm_t3730_set_muxconf(void)
+{
+	/* DSS */
+	MUX_VAL(CP(DSS_DATA18),		(IDIS | PTD | DIS | M3)); /*DSS_DATA0*/
+	MUX_VAL(CP(DSS_DATA19),		(IDIS | PTD | DIS | M3)); /*DSS_DATA1*/
+	MUX_VAL(CP(DSS_DATA20),		(IDIS | PTD | DIS | M3)); /*DSS_DATA2*/
+	MUX_VAL(CP(DSS_DATA21),		(IDIS | PTD | DIS | M3)); /*DSS_DATA3*/
+	MUX_VAL(CP(DSS_DATA22),		(IDIS | PTD | DIS | M3)); /*DSS_DATA4*/
+	MUX_VAL(CP(DSS_DATA23),		(IDIS | PTD | DIS | M3)); /*DSS_DATA5*/
+
+	MUX_VAL(CP(SYS_BOOT0),		(IDIS | PTD | DIS | M3)); /*DSS_DATA18*/
+	MUX_VAL(CP(SYS_BOOT1),		(IDIS | PTD | DIS | M3)); /*DSS_DATA19*/
+	MUX_VAL(CP(SYS_BOOT3),		(IDIS | PTD | DIS | M3)); /*DSS_DATA20*/
+	MUX_VAL(CP(SYS_BOOT4),		(IDIS | PTD | DIS | M3)); /*DSS_DATA21*/
+	MUX_VAL(CP(SYS_BOOT5),		(IDIS | PTD | DIS | M3)); /*DSS_DATA22*/
+	MUX_VAL(CP(SYS_BOOT6),		(IDIS | PTD | DIS | M3)); /*DSS_DATA23*/
+}
+
+void set_muxconf_regs(void)
+{
+	cm_t3x_set_common_muxconf();
+
+	if (get_cpu_family() == CPU_OMAP34XX)
+		cm_t35_set_muxconf();
+	else
+		cm_t3730_set_muxconf();
 }
 
 #ifdef CONFIG_GENERIC_MMC
@@ -277,7 +332,7 @@ static void setup_net_chip_gmpc(void)
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
 	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[5],
-			      CM_T35_SMC911X_BASE, GPMC_SIZE_16M);
+			      CM_T3X_SMC911X_BASE, GPMC_SIZE_16M);
 	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[4],
 			      SB_T35_SMC911X_BASE, GPMC_SIZE_16M);
 
@@ -301,21 +356,23 @@ static void reset_net_chip(void)
 {
 	/* Set GPIO1 of TPS65930 as output */
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-			     TWL4030_BASEADD_GPIO+0x03);
+				TWL4030_BASEADD_GPIO + 0x03);
 	/* Send a pulse on the GPIO pin */
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-			     TWL4030_BASEADD_GPIO+0x0C);
+				TWL4030_BASEADD_GPIO + 0x0C);
 	udelay(1);
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-			     TWL4030_BASEADD_GPIO+0x09);
-	udelay(1);
+				TWL4030_BASEADD_GPIO + 0x09);
+	mdelay(40);
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-			     TWL4030_BASEADD_GPIO+0x0C);
+				TWL4030_BASEADD_GPIO + 0x0C);
+	mdelay(1);
 }
 #else
 static inline void reset_net_chip(void) {}
 #endif
 
+#ifdef CONFIG_SMC911X
 /*
  * Routine: handle_mac_address
  * Description: prepare MAC address for on-board Ethernet.
@@ -329,11 +386,9 @@ static int handle_mac_address(void)
 	if (rc)
 		return 0;
 
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
-	rc = i2c_read(0x50, 0, 1, enetaddr, 6);
+	rc = cm_t3x_eeprom_read_mac_addr(enetaddr);
 	if (rc)
 		return rc;
-#endif
 
 	if (!is_valid_ether_addr(enetaddr))
 		return -1;
@@ -350,22 +405,31 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0, rc1 = 0;
 
-#ifdef CONFIG_SMC911X
 	setup_net_chip_gmpc();
 	reset_net_chip();
 
 	rc1 = handle_mac_address();
 	if (rc1)
-		printf("CM-T35: No MAC address found\n");
+		printf("CM-T3x: No MAC address found\n");
 
-	rc1 = smc911x_initialize(0, CM_T35_SMC911X_BASE);
+	rc1 = smc911x_initialize(0, CM_T3X_SMC911X_BASE);
 	if (rc1 > 0)
 		rc++;
 
 	rc1 = smc911x_initialize(1, SB_T35_SMC911X_BASE);
 	if (rc1 > 0)
 		rc++;
-#endif
 
 	return rc;
 }
+#endif
+
+void __weak get_board_serial(struct tag_serialnr *serialnr)
+{
+	/*
+	 * This corresponds to what happens when we can communicate with the
+	 * eeprom but don't get a valid board serial value.
+	 */
+	serialnr->low = 0;
+	serialnr->high = 0;
+};

@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop@leadtechdesign.com>
+ * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -28,11 +28,10 @@
 void at91_can_hw_init(void);
 void at91_macb_hw_init(void);
 void at91_mci_hw_init(void);
-void at91_serial_hw_init(void);
 void at91_serial0_hw_init(void);
 void at91_serial1_hw_init(void);
 void at91_serial2_hw_init(void);
-void at91_serial3_hw_init(void);
+void at91_seriald_hw_init(void);
 void at91_spi0_hw_init(unsigned long cs_mask);
 void at91_spi1_hw_init(unsigned long cs_mask);
 void at91_uhp_hw_init(void);

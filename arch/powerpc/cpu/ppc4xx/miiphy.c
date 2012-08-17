@@ -187,10 +187,9 @@ int phy_setup_aneg (char *devname, unsigned char addr)
  */
 unsigned int miiphy_getemac_offset(u8 addr)
 {
-#if (defined(CONFIG_440) && \
+#if defined(CONFIG_440) && \
     !defined(CONFIG_440SP) && !defined(CONFIG_440SPE) && \
-    !defined(CONFIG_460EX) && !defined(CONFIG_460GT)) && \
-    defined(CONFIG_NET_MULTI)
+    !defined(CONFIG_460EX) && !defined(CONFIG_460GT)
 	unsigned long zmii;
 	unsigned long eoffset;
 
@@ -228,7 +227,7 @@ unsigned int miiphy_getemac_offset(u8 addr)
 	return (eoffset);
 #else
 
-#if defined(CONFIG_NET_MULTI) && defined(CONFIG_405EX)
+#if defined(CONFIG_405EX)
 	unsigned long rgmii;
 	int devnum = 1;
 

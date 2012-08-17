@@ -234,13 +234,13 @@ static int hpi_write_inc(u32 addr, u32 *data, u32 count)
 	HPI_HPIA_1 = addr1;
 	HPI_HPIA_2 = addr2;
 
-	debugX(4, "writing from data=0x%lx to 0x%lx\n",
+	debug("writing from data=0x%lx to 0x%lx\n",
 		(ulong)data, (ulong)(data+count));
 
 	for(i=0; i<count; i++) {
 		HPI_HPID_INC_1 = (u16) ((data[i] >> 16) & 0xffff);
 		HPI_HPID_INC_2 = (u16) (data[i] & 0xffff);
-		debugX(4, "hpi_write_inc: data1=0x%x, data2=0x%x\n",
+		debug("hpi_write_inc: data1=0x%x, data2=0x%x\n",
 		       (u16) ((data[i] >> 16) & 0xffff),
 		       (u16) (data[i] & 0xffff));
 	}
@@ -273,7 +273,7 @@ static int hpi_read_inc(u32 addr, u32 *buf, u32 count)
 	for(i=0; i<count; i++) {
 		data1 = HPI_HPID_INC_1;
 		data2 = HPI_HPID_INC_2;
-		debugX(4, "hpi_read_inc: data1=0x%x, data2=0x%x\n", data1, data2);
+		debug("hpi_read_inc: data1=0x%x, data2=0x%x\n", data1, data2);
 		buf[i] = (((u32) data1) << 16) | (data2 & 0xffff);
 	}
 
@@ -354,9 +354,9 @@ int hpi_test(void)
 	u32 test_data[HPI_TEST_CHUNKSIZE];
 	u32 read_data[HPI_TEST_CHUNKSIZE];
 
-	debugX(2, "hpi_test: activating hpi...");
+	debug("hpi_test: activating hpi...");
 	hpi_activate();
-	debugX(2, "OK.\n");
+	debug("OK.\n");
 
 #if 0
 	/* Dump the first 1024 bytes
@@ -372,22 +372,22 @@ int hpi_test(void)
 	/* HPIA read-write test
 	 *
 	 */
-	debugX(1, "hpi_test: starting HPIA read-write tests...\n");
+	debug("hpi_test: starting HPIA read-write tests...\n");
 	err |= hpi_write_addr_test(0xdeadc0de);
 	err |= hpi_write_addr_test(0xbeefd00d);
 	err |= hpi_write_addr_test(0xabcd1234);
 	err |= hpi_write_addr_test(0xaaaaaaaa);
 	if(err) {
-		debugX(1, "hpi_test: HPIA read-write tests: *** FAILED ***\n");
+		debug("hpi_test: HPIA read-write tests: *** FAILED ***\n");
 		return -1;
 	}
-	debugX(1, "hpi_test: HPIA read-write tests: OK\n");
+	debug("hpi_test: HPIA read-write tests: OK\n");
 
 
 	/* read write test using nonincremental data regs
 	 *
 	 */
-	debugX(1, "hpi_test: starting nonincremental tests...\n");
+	debug("hpi_test: starting nonincremental tests...\n");
 	for(i=HPI_TEST_START; i<HPI_TEST_END; i+=4) {
 		err |= hpi_read_write_test(i, pattern);
 
@@ -400,16 +400,16 @@ int hpi_test(void)
 		err |= hpi_read_write_test(i, pattern);
 
 		if(err) {
-			debugX(1, "hpi_test: nonincremental tests *** FAILED ***\n");
+			debug("hpi_test: nonincremental tests *** FAILED ***\n");
 			return -1;
 		}
 	}
-	debugX(1, "hpi_test: nonincremental test OK\n");
+	debug("hpi_test: nonincremental test OK\n");
 
 	/* read write a chunk of data using nonincremental data regs
 	 *
 	 */
-	debugX(1, "hpi_test: starting nonincremental chunk tests...\n");
+	debug("hpi_test: starting nonincremental chunk tests...\n");
 	pattern = HPI_TEST_PATTERN;
 	for(i=HPI_TEST_START; i<HPI_TEST_END; i+=4) {
 		hpi_write_noinc(i, pattern);
@@ -426,7 +426,7 @@ int hpi_test(void)
 		tmp = hpi_read_noinc(i);
 
 		if(tmp != pattern) {
-			debugX(1, "hpi_test: noninc chunk test *** FAILED *** @ 0x%x, written=0x%x, read=0x%x\n", i, pattern, tmp);
+			debug("hpi_test: noninc chunk test *** FAILED *** @ 0x%x, written=0x%x, read=0x%x\n", i, pattern, tmp);
 			err = -1;
 		}
 		/* stolen from cmd_mem.c */
@@ -438,23 +438,23 @@ int hpi_test(void)
 	}
 	if(err)
 		return -1;
-	debugX(1, "hpi_test: nonincremental chunk test OK\n");
+	debug("hpi_test: nonincremental chunk test OK\n");
 
 
 #ifdef DO_TINY_TEST
 	/* small verbose test using autoinc and nonautoinc to compare
 	 *
 	 */
-	debugX(1, "hpi_test: tiny_autoinc_test...\n");
+	debug("hpi_test: tiny_autoinc_test...\n");
 	hpi_tiny_autoinc_test();
-	debugX(1, "hpi_test: tiny_autoinc_test done\n");
+	debug("hpi_test: tiny_autoinc_test done\n");
 #endif /* DO_TINY_TEST */
 
 
 	/* $%& write a chunk of data using the autoincremental regs
 	 *
 	 */
-	debugX(1, "hpi_test: starting autoinc test %d chunks with 0x%x bytes...\n",
+	debug("hpi_test: starting autoinc test %d chunks with 0x%x bytes...\n",
 	       ((HPI_TEST_END - HPI_TEST_START) / HPI_TEST_CHUNKSIZE),
 	       HPI_TEST_CHUNKSIZE);
 
@@ -462,9 +462,9 @@ int hpi_test(void)
 	    i < ((HPI_TEST_END - HPI_TEST_START) / HPI_TEST_CHUNKSIZE);
 	    i++) {
 		/* generate the pattern data */
-		debugX(3, "generating pattern data: ");
+		debug("generating pattern data: ");
 		for(ii = 0; ii < HPI_TEST_CHUNKSIZE; ii++) {
-			debugX(3, "0x%x ", pattern);
+			debug("0x%x ", pattern);
 
 			test_data[ii] = pattern;
 			read_data[ii] = 0x0; /* zero to be sure */
@@ -476,24 +476,24 @@ int hpi_test(void)
 				pattern = ~pattern;
 			}
 		}
-		debugX(3, "done\n");
+		debug("done\n");
 
-		debugX(2, "Writing autoinc data @ 0x%x\n", i);
+		debug("Writing autoinc data @ 0x%x\n", i);
 		hpi_write_inc(i, test_data, HPI_TEST_CHUNKSIZE);
 
-		debugX(2, "Reading autoinc data @ 0x%x\n", i);
+		debug("Reading autoinc data @ 0x%x\n", i);
 		hpi_read_inc(i, read_data, HPI_TEST_CHUNKSIZE);
 
 		/* compare */
 		for(ii = 0; ii < HPI_TEST_CHUNKSIZE; ii++) {
-			debugX(3, "hpi_test_autoinc: @ 0x%x, written=0x%x, read=0x%x", i+ii, test_data[ii], read_data[ii]);
+			debug("hpi_test_autoinc: @ 0x%x, written=0x%x, read=0x%x", i+ii, test_data[ii], read_data[ii]);
 			if(read_data[ii] != test_data[ii]) {
-				debugX(0, "hpi_test: autoinc test @ 0x%x, written=0x%x, read=0x%x *** FAILED ***\n", i+ii, test_data[ii], read_data[ii]);
+				debug("hpi_test: autoinc test @ 0x%x, written=0x%x, read=0x%x *** FAILED ***\n", i+ii, test_data[ii], read_data[ii]);
 				return -1;
 			}
 		}
 	}
-	debugX(1, "hpi_test: autoinc test OK\n");
+	debug("hpi_test: autoinc test OK\n");
 
 	return 0;
 }
@@ -510,22 +510,22 @@ int hpi_test(void)
 		0x0009000a, 0x000b000c, 0x000d000e, 0x000f0001
 	};
 
-	debugX(0, "hpi_test: activating hpi...");
+	debug("hpi_test: activating hpi...");
 	hpi_activate();
-	debugX(0, "OK.\n");
+	debug("OK.\n");
 
 	while(1) {
 		led9(1);
-		debugX(0, " writing to autoinc...\n");
+		debug(" writing to autoinc...\n");
 		hpi_write_inc(TINY_AUTOINC_BASE_ADDR,
 			      dummy_data, TINY_AUTOINC_DATA_SIZE);
 
-		debugX(0, " reading from autoinc...\n");
+		debug(" reading from autoinc...\n");
 		hpi_read_inc(TINY_AUTOINC_BASE_ADDR,
 			     read_data, TINY_AUTOINC_DATA_SIZE);
 
 		for(i=0; i < (TINY_AUTOINC_DATA_SIZE); i++) {
-			debugX(0, " written=0x%x, read(inc)=0x%x\n",
+			debug(" written=0x%x, read(inc)=0x%x\n",
 			       dummy_data[i], read_data[i]);
 		}
 		led9(0);
@@ -546,11 +546,11 @@ static int hpi_write_addr_test(u32 addr)
 	read_back = (((u32) HPI_HPIA_1)<<16) | ((u32) HPI_HPIA_2);
 
 	if(read_back == addr) {
-		debugX(2, " hpi_write_addr_test OK: written=0x%x, read=0x%x\n",
+		debug(" hpi_write_addr_test OK: written=0x%x, read=0x%x\n",
 		       addr, read_back);
 		return 0;
 	} else {
-		debugX(0, " hpi_write_addr_test *** FAILED ***: written=0x%x, read=0x%x\n",
+		debug(" hpi_write_addr_test *** FAILED ***: written=0x%x, read=0x%x\n",
 		      addr, read_back);
 		return -1;
 	}
@@ -567,10 +567,10 @@ static int hpi_read_write_test(u32 addr, u32 data)
 	read_back = hpi_read_noinc(addr);
 
 	if(read_back == data) {
-		debugX(2, " hpi_read_write_test: OK, addr=0x%x written=0x%x, read=0x%x\n", addr, data, read_back);
+		debug(" hpi_read_write_test: OK, addr=0x%x written=0x%x, read=0x%x\n", addr, data, read_back);
 		return 0;
 	} else {
-		debugX(0, " hpi_read_write_test: *** FAILED ***, addr=0x%x written=0x%x, read=0x%x\n", addr, data, read_back);
+		debug(" hpi_read_write_test: *** FAILED ***, addr=0x%x written=0x%x, read=0x%x\n", addr, data, read_back);
 		return -1;
 	}
 

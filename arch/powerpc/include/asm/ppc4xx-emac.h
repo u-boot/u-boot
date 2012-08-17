@@ -136,7 +136,6 @@ typedef struct emac_4xx_hw_st {
 #if defined(CONFIG_440GX) || defined(CONFIG_460GT)
 #define EMAC_NUM_DEV		4
 #elif (defined(CONFIG_440) || defined(CONFIG_405EP)) &&	\
-	defined(CONFIG_NET_MULTI) &&			\
 	!defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
 #define EMAC_NUM_DEV		2
 #else

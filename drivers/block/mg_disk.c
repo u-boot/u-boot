@@ -91,7 +91,9 @@ static unsigned int mg_wait (u32 expect, u32 msec)
 	u32 from, cur, err;
 
 	err = MG_ERR_NONE;
+#ifdef CONFIG_SYS_LOW_RES_TIMER
 	reset_timer();
+#endif
 	from = get_timer(0);
 
 	status = readb(mg_base() + MG_REG_STATUS);
@@ -522,10 +524,12 @@ mg_write_exit:
 	return err;
 }
 
+#ifdef CONFIG_PARTITIONS
 block_dev_desc_t *mg_disk_get_dev(int dev)
 {
 	return ((block_dev_desc_t *) & mg_disk_dev);
 }
+#endif
 
 /* must override this function */
 struct mg_drv_data * __attribute__((weak)) mg_get_drv_data (void)

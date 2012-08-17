@@ -45,8 +45,8 @@ ELF-oxc                          += eepro100_eeprom
 #
 ELF := $(strip $(ELF-y) $(ELF-$(ARCH)) $(ELF-$(BOARD)) $(ELF-$(CPU)))
 
-SREC = $(addsuffix .srec,$(ELF))
-BIN  = $(addsuffix .bin,$(ELF))
+SREC := $(addsuffix .srec,$(ELF))
+BIN  := $(addsuffix .bin,$(ELF))
 
 COBJS	:= $(ELF:=.o)
 
@@ -85,7 +85,8 @@ endif
 # We don't want gcc reordering functions if possible.  This ensures that an
 # application's entry point will be the first function in the application's
 # source file.
-CFLAGS += $(call cc-option,-fno-toplevel-reorder)
+CFLAGS_NTR := $(call cc-option,-fno-toplevel-reorder)
+CFLAGS += $(CFLAGS_NTR)
 
 all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN) $(ELF)
 
@@ -95,7 +96,7 @@ $(LIB):	$(obj).depend $(LIBOBJS)
 
 $(ELF):
 $(obj)%:	$(obj)%.o $(LIB)
-		$(LD) -g -Ttext $(STANDALONE_LOAD_ADDR) \
+		$(LD) $(LDFLAGS) -g -Ttext $(CONFIG_STANDALONE_LOAD_ADDR) \
 			-o $@ -e $(SYM_PREFIX)$(notdir $(<:.o=)) $< $(LIB) \
 			-L$(gcclibdir) -lgcc
 

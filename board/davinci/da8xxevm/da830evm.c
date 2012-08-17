@@ -40,11 +40,11 @@
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
+#include <nand.h>
+#include <asm/arch/nand_defs.h>
 #include <asm/arch/davinci_misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
 
 /* SPI0 pin muxer settings */
 static const struct pinmux_config spi0_pins[] = {
@@ -98,6 +98,56 @@ static const struct pinmux_config i2c_pins[] = {
 	{ pinmux(8), 2, 4 }
 };
 
+#ifdef CONFIG_USE_NAND
+/* NAND pin muxer settings */
+const struct pinmux_config aemif_pins[] = {
+	{ pinmux(13), 1, 6 },
+	{ pinmux(13), 1, 7 },
+	{ pinmux(14), 1, 0 },
+	{ pinmux(14), 1, 1 },
+	{ pinmux(14), 1, 2 },
+	{ pinmux(14), 1, 3 },
+	{ pinmux(14), 1, 4 },
+	{ pinmux(14), 1, 5 },
+	{ pinmux(14), 1, 6 },
+	{ pinmux(14), 1, 7 },
+	{ pinmux(15), 1, 0 },
+	{ pinmux(15), 1, 1 },
+	{ pinmux(15), 1, 2 },
+	{ pinmux(15), 1, 3 },
+	{ pinmux(15), 1, 4 },
+	{ pinmux(15), 1, 5 },
+	{ pinmux(15), 1, 6 },
+	{ pinmux(15), 1, 7 },
+	{ pinmux(16), 1, 0 },
+	{ pinmux(16), 1, 1 },
+	{ pinmux(16), 1, 2 },
+	{ pinmux(16), 1, 3 },
+	{ pinmux(16), 1, 4 },
+	{ pinmux(16), 1, 5 },
+	{ pinmux(16), 1, 6 },
+	{ pinmux(16), 1, 7 },
+	{ pinmux(17), 1, 0 },
+	{ pinmux(17), 1, 1 },
+	{ pinmux(17), 1, 2 },
+	{ pinmux(17), 1, 3 },
+	{ pinmux(17), 1, 4 },
+	{ pinmux(17), 1, 5 },
+	{ pinmux(17), 1, 6 },
+	{ pinmux(17), 1, 7 },
+	{ pinmux(18), 1, 0 },
+	{ pinmux(18), 1, 1 },
+	{ pinmux(18), 1, 2 },
+	{ pinmux(18), 1, 3 },
+	{ pinmux(18), 1, 4 },
+	{ pinmux(18), 1, 5 },
+	{ pinmux(18), 1, 6 },
+	{ pinmux(18), 1, 7 },
+	{ pinmux(10), 1, 0 }
+};
+#endif
+
+
 /* USB0_DRVVBUS pin muxer settings */
 static const struct pinmux_config usb_pins[] = {
 	{ pinmux(9), 1, 1 }
@@ -114,6 +164,7 @@ static const struct pinmux_resource pinmuxes[] = {
 #endif
 #ifdef CONFIG_USE_NAND
 	PINMUX_ITEM(emifa_nand_pins),
+	PINMUX_ITEM(aemif_pins),
 #endif
 #if defined(CONFIG_DRIVER_TI_EMAC)
 	PINMUX_ITEM(emac_pins),
@@ -183,6 +234,16 @@ int board_init(void)
 
 	return(0);
 }
+
+
+#ifdef CONFIG_NAND_DAVINCI
+int board_nand_init(struct nand_chip *nand)
+{
+	davinci_nand_init(nand);
+
+	return 0;
+}
+#endif
 
 #if defined(CONFIG_DRIVER_TI_EMAC)
 

@@ -55,6 +55,7 @@ struct erase_info {
 	u_long priv;
 	u_char state;
 	struct erase_info *next;
+	int scrub;
 };
 
 struct mtd_erase_region_info {
@@ -115,7 +116,7 @@ struct mtd_info {
 	u_int32_t flags;
 	uint64_t size;	 /* Total size of the MTD */
 
-	/* "Major" erase size for the device. Naïve users may take this
+	/* "Major" erase size for the device. NaÃ¯ve users may take this
 	 * to be the only erase size available, or may use the more detailed
 	 * information below if they desire
 	 */

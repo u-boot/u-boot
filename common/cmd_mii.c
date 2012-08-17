@@ -293,7 +293,7 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	const char	*devname;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 #if defined(CONFIG_MII_INIT)
 	mii_init ();
@@ -420,7 +420,7 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		else
 			miiphy_set_current_dev (argv[2]);
 	} else {
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	/*

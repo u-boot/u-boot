@@ -11,6 +11,7 @@
 /*
  * Processor Settings
  */
+#define CONFIG_BFIN_CPU             bf518-0.0
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_PARA
 
 
@@ -63,7 +64,6 @@
 #define ADI_CMDS_NETWORK	1
 #define CONFIG_BFIN_MAC
 #define CONFIG_NETCONSOLE	1
-#define CONFIG_NET_MULTI	1
 #endif
 #define CONFIG_HOSTNAME		tcm-bf518
 /* Uncomment next line to use fixed MAC address */

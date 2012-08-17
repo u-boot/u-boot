@@ -5,12 +5,12 @@
  *
  *  ----- Adapted for OMAP1610 OMAP730 from ARM925t code ------
  *
- *  Copyright (c) 2001	Marius Gröger <mag@sysgo.de>
- *  Copyright (c) 2002	Alex Züpke <azu@sysgo.de>
+ *  Copyright (c) 2001	Marius GrÃ¶ger <mag@sysgo.de>
+ *  Copyright (c) 2002	Alex ZÃ¼pke <azu@sysgo.de>
  *  Copyright (c) 2002	Gary Jennejohn <garyj@denx.de>
  *  Copyright (c) 2003	Richard Woodruff <r-woodruff2@ti.com>
  *  Copyright (c) 2003	Kshitij <kshitij@ti.com>
- *  Copyright (c) 2010	Albert Aribaud <albert.aribaud@free.fr>
+ *  Copyright (c) 2010	Albert Aribaud <albert.u.boot@aribaud.net>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -51,10 +51,19 @@
  */
 
 
+#ifdef CONFIG_SYS_DV_NOR_BOOT_CFG
+.globl _start
+_start:
+.globl _NOR_BOOT_CFG
+_NOR_BOOT_CFG:
+	.word	CONFIG_SYS_DV_NOR_BOOT_CFG
+	b	reset
+#else
 .globl _start
 _start:
 	b	reset
-#ifdef CONFIG_PRELOADER
+#endif
+#ifdef CONFIG_SPL_BUILD
 /* No exception handlers in preloader */
 	ldr	pc, _hang
 	ldr	pc, _hang
@@ -98,7 +107,7 @@ _irq:
 _fiq:
 	.word fiq
 
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */
 	.balignl 16,0xdeadbeef
 
 
@@ -117,7 +126,15 @@ _fiq:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#ifdef CONFIG_NAND_SPL /* deprecated, use instead CONFIG_SPL_BUILD */
 	.word	CONFIG_SYS_TEXT_BASE
+#else
+#ifdef CONFIG_SPL_BUILD
+	.word	CONFIG_SPL_TEXT_BASE
+#else
+	.word	CONFIG_SYS_TEXT_BASE
+#endif
+#endif
 
 /*
  * These are defined in the board-specific linker script.
@@ -136,6 +153,12 @@ _bss_end_ofs:
 .globl _end_ofs
 _end_ofs:
 	.word _end - _start
+
+#ifdef CONFIG_NAND_U_BOOT
+.globl _end
+_end:
+	.word __bss_end__
+#endif
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
@@ -177,7 +200,15 @@ reset:
 
 /* Set stackpointer in internal RAM to call board_init_f */
 call_board_init_f:
+#ifdef CONFIG_NAND_SPL /* deprecated, use instead CONFIG_SPL_BUILD */
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
+#else
+#ifdef CONFIG_SPL_BUILD
+	ldr	sp, =(CONFIG_SPL_STACK)
+#else
+	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
+#endif
+#endif
 	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
 	ldr	r0,=0x00000000
 	bl	board_init_f
@@ -202,6 +233,7 @@ stack_setup:
 	mov	sp, r4
 
 	adr	r0, _start
+	sub	r9, r6, r0		/* r9 <- relocation offset */
 	cmp	r0, r6
 	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy loop */
@@ -214,7 +246,7 @@ copy_loop:
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	/*
 	 * fix .rel.dyn relocations
 	 */
@@ -256,21 +288,29 @@ fixnext:
 #endif
 
 clear_bss:
-#ifndef CONFIG_PRELOADER
+#ifdef CONFIG_SPL_BUILD
+	/* No relocation for SPL */
+	ldr	r0, =__bss_start
+	ldr	r1, =__bss_end__
+#else
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	mov	r4, r6			/* reloc addr */
 	add	r0, r0, r4
 	add	r1, r1, r4
+#endif
 	mov	r2, #0x00000000		/* clear			    */
 
-clbss_l:str	r2, [r0]		/* clear loop...		    */
+clbss_l:cmp	r0, r1			/* clear loop... */
+	bhs	clbss_e			/* if reached end of bss, exit */
+	str	r2, [r0]
 	add	r0, r0, #4
-	cmp	r0, r1
-	bne	clbss_l
+	b	clbss_l
+clbss_e:
 
+#ifndef CONFIG_SPL_BUILD
 	bl coloured_LED_init
-	bl red_LED_on
+	bl red_led_on
 #endif
 
 /*
@@ -318,20 +358,32 @@ _dynsym_start_ofs:
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 	/*
-	 * flush v4 I/D caches
+	 * flush D cache before disabling it
 	 */
 	mov	r0, #0
-	mcr	p15, 0, r0, c7, c7, 0	/* flush v3/v4 cache */
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
+flush_dcache:
+	mrc	p15, 0, r15, c7, c10, 3
+	bne	flush_dcache
+
+	mcr	p15, 0, r0, c8, c7, 0	/* invalidate TLB */
+	mcr	p15, 0, r0, c7, c5, 0	/* invalidate I Cache */
 
 	/*
-	 * disable MMU stuff and caches
+	 * disable MMU and D cache
+	 * enable I cache if CONFIG_SYS_ICACHE_OFF is not defined
 	 */
 	mrc	p15, 0, r0, c1, c0, 0
-	bic	r0, r0, #0x00002300	/* clear bits 13, 9:8 (--V- --RS) */
+	bic	r0, r0, #0x00000300	/* clear bits 9:8 (---- --RS) */
 	bic	r0, r0, #0x00000087	/* clear bits 7, 2:0 (B--- -CAM) */
+#ifdef CONFIG_SYS_EXCEPTION_VECTORS_HIGH
+	orr	r0, r0, #0x00002000	/* set bit 13 (--V- ----) */
+#else
+	bic	r0, r0, #0x00002000	/* clear bit 13 (--V- ----) */
+#endif
 	orr	r0, r0, #0x00000002	/* set bit 2 (A) Align */
+#ifndef CONFIG_SYS_ICACHE_OFF
 	orr	r0, r0, #0x00001000	/* set bit 12 (I) I-Cache */
+#endif
 	mcr	p15, 0, r0, c1, c0, 0
 
 	/*
@@ -343,7 +395,7 @@ cpu_init_crit:
 	mov	pc, lr		/* back to my caller */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 /*
  *************************************************************************
  *
@@ -440,18 +492,18 @@ cpu_init_crit:
 	.macro get_fiq_stack			@ setup FIQ stack
 	ldr	sp, FIQ_STACK_START
 	.endm
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */
 
 /*
  * exception handlers
  */
-#ifdef CONFIG_PRELOADER
+#ifdef CONFIG_SPL_BUILD
 	.align	5
 do_hang:
 	ldr	sp, _TEXT_BASE			/* switch to abort stack */
 1:
 	bl	1b				/* hang and never return */
-#else	/* !CONFIG_PRELOADER */
+#else	/* !CONFIG_SPL_BUILD */
 	.align  5
 undefined_instruction:
 	get_bad_stack
@@ -514,4 +566,4 @@ fiq:
 	bl	do_fiq
 
 #endif
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */

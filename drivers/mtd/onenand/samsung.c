@@ -483,12 +483,11 @@ static void s3c_onenand_check_lock_status(struct mtd_info *mtd)
 {
 	struct onenand_chip *this = mtd->priv;
 	unsigned int block, end;
-	int tmp;
 
 	end = this->chipsize >> this->erase_shift;
 
 	for (block = 0; block < end; block++) {
-		tmp = s3c_read_cmd(CMD_MAP_01(onenand->mem_addr(block, 0, 0)));
+		s3c_read_cmd(CMD_MAP_01(onenand->mem_addr(block, 0, 0)));
 
 		if (readl(&onenand->reg->int_err_stat) & LOCKED_BLK) {
 			printf("block %d is write-protected!\n", block);
@@ -589,6 +588,16 @@ static void s3c_set_width_regs(struct onenand_chip *this)
 	DBS_DFS_WIDTH0_REG = dbs_dfs;
 }
 #endif
+
+int s5pc110_chip_probe(struct mtd_info *mtd)
+{
+	return 0;
+}
+
+int s5pc210_chip_probe(struct mtd_info *mtd)
+{
+	return 0;
+}
 
 void s3c_onenand_init(struct mtd_info *mtd)
 {

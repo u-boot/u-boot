@@ -341,7 +341,6 @@ pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag
 {
 	ulong	i;
 	int	nbytes;
-	extern char console_buffer[];
 	uint	val4;
 	ushort  val2;
 	u_char	val1;
@@ -481,7 +480,7 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 1;
  usage:
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 /***************************************************/

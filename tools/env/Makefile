@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-HOSTSRCS := $(obj)crc32.c  fw_env.c  fw_env_main.c
+HOSTSRCS := $(SRCTREE)/lib/crc32.c  fw_env.c  fw_env_main.c
 HEADERS	:= fw_env.h
 
 # Compile for a hosted environment on the target
@@ -43,10 +43,7 @@ $(obj)fw_printenv:	$(HOSTSRCS) $(HEADERS)
 	$(HOSTCC) $(HOSTCFLAGS_NOPED) $(HOSTLDFLAGS) -o $@ $(HOSTSRCS)
 
 clean:
-	rm -f $(obj)fw_printenv $(obj)crc32.c
-
-$(obj)crc32.c:
-	ln -s $(src)../../lib/crc32.c $(obj)crc32.c
+	rm -f $(obj)fw_printenv
 
 #########################################################################
 

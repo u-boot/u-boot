@@ -15,8 +15,7 @@
 #include "fec.h"
 
 #undef  DEBUG
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-    defined(CONFIG_MPC8220_FEC)
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_MPC8220_FEC)
 
 #if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
@@ -773,8 +772,8 @@ static int mpc8220_fec_recv (struct eth_device *dev)
 			frame = (NBUF *) pRbd->dataPointer;
 			frame_length = pRbd->dataLength - 4;
 
-#if (0)
-			{
+			/* DEBUG code */
+			if (_DEBUG) {
 				int i;
 
 				printf ("recv data hdr:");
@@ -782,7 +781,7 @@ static int mpc8220_fec_recv (struct eth_device *dev)
 					printf ("%x ", *(frame->head + i));
 				printf ("\n");
 			}
-#endif
+
 			/*
 			 *  Fill the buffer and pass it to upper layers
 			 */

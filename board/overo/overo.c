@@ -31,12 +31,14 @@
 #include <common.h>
 #include <netdev.h>
 #include <twl4030.h>
+#include <linux/mtd/nand.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/gpio.h>
+#include <asm/arch/omap_gpmc.h>
+#include <asm/gpio.h>
 #include <asm/mach-types.h>
 #include "overo.h"
 
@@ -99,6 +101,16 @@ int board_init(void)
 }
 
 /*
+ * Routine: omap_rev_string
+ * Description: For SPL builds output board rev
+ */
+#ifdef CONFIG_SPL_BUILD
+void omap_rev_string(void)
+{
+}
+#endif
+
+/*
  * Routine: get_board_revision
  * Description: Returns the board revision
  */
@@ -106,28 +118,76 @@ int get_board_revision(void)
 {
 	int revision;
 
-	if (!omap_request_gpio(112) &&
-	    !omap_request_gpio(113) &&
-	    !omap_request_gpio(115)) {
+#ifdef CONFIG_DRIVER_OMAP34XX_I2C
+	unsigned char data;
 
-		omap_set_gpio_direction(112, 1);
-		omap_set_gpio_direction(113, 1);
-		omap_set_gpio_direction(115, 1);
+	/* board revisions <= R2410 connect 4030 irq_1 to gpio112             */
+	/* these boards should return a revision number of 0                  */
+	/* the code below forces a 4030 RTC irq to ensure that gpio112 is low */
+	i2c_set_bus_num(TWL4030_I2C_BUS);
+	data = 0x01;
+	i2c_write(0x4B, 0x29, 1, &data, 1);
+	data = 0x0c;
+	i2c_write(0x4B, 0x2b, 1, &data, 1);
+	i2c_read(0x4B, 0x2a, 1, &data, 1);
+#endif
 
-		revision = omap_get_gpio_datain(115) << 2 |
-			   omap_get_gpio_datain(113) << 1 |
-			   omap_get_gpio_datain(112);
+	if (!gpio_request(112, "") &&
+	    !gpio_request(113, "") &&
+	    !gpio_request(115, "")) {
 
-		omap_free_gpio(112);
-		omap_free_gpio(113);
-		omap_free_gpio(115);
+		gpio_direction_input(112);
+		gpio_direction_input(113);
+		gpio_direction_input(115);
+
+		revision = gpio_get_value(115) << 2 |
+			   gpio_get_value(113) << 1 |
+			   gpio_get_value(112);
 	} else {
-		printf("Error: unable to acquire board revision GPIOs\n");
+		puts("Error: unable to acquire board revision GPIOs\n");
 		revision = -1;
 	}
 
 	return revision;
 }
+
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on both banks.
+ */
+void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
+		u32 *mr)
+{
+	*mr = MICRON_V_MR_165;
+	switch (get_board_revision()) {
+	case REVISION_0: /* Micron 1286MB/256MB, 1/2 banks of 128MB */
+		*mcfg = MICRON_V_MCFG_165(128 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		break;
+	case REVISION_1: /* Micron 256MB/512MB, 1/2 banks of 256MB */
+		*mcfg = MICRON_V_MCFG_165(256 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		break;
+	case REVISION_2: /* Hynix 256MB/512MB, 1/2 banks of 256MB */
+		*mcfg = HYNIX_V_MCFG_165(256 << 20);
+		*ctrla = HYNIX_V_ACTIMA_165;
+		*ctrlb = HYNIX_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		break;
+	default:
+		*mcfg = MICRON_V_MCFG_165(128 << 20);
+		*ctrla = MICRON_V_ACTIMA_165;
+		*ctrlb = MICRON_V_ACTIMB_165;
+		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	}
+}
+#endif
 
 /*
  * Routine: get_sdio2_config
@@ -139,23 +199,22 @@ int get_sdio2_config(void)
 {
 	int sdio_direct;
 
-	if (!omap_request_gpio(130) && !omap_request_gpio(139)) {
+	if (!gpio_request(130, "") && !gpio_request(139, "")) {
 
-		omap_set_gpio_direction(130, 0);
-		omap_set_gpio_direction(139, 1);
+		gpio_direction_output(130, 0);
+		gpio_direction_input(139);
 
 		sdio_direct = 1;
-		omap_set_gpio_dataout(130, 0);
-		if (omap_get_gpio_datain(139) == 0) {
-			omap_set_gpio_dataout(130, 1);
-			if (omap_get_gpio_datain(139) == 1)
+		gpio_set_value(130, 0);
+		if (gpio_get_value(139) == 0) {
+			gpio_set_value(130, 1);
+			if (gpio_get_value(139) == 1)
 				sdio_direct = 0;
 		}
 
-		omap_free_gpio(130);
-		omap_free_gpio(139);
+		gpio_direction_input(130);
 	} else {
-		printf("Error: unable to acquire sdio2 clk GPIOs\n");
+		puts("Error: unable to acquire sdio2 clk GPIOs\n");
 		sdio_direct = -1;
 	}
 
@@ -204,15 +263,15 @@ int misc_init_r(void)
 
 	switch (get_sdio2_config()) {
 	case 0:
-		printf("Tranceiver detected on mmc2\n");
+		puts("Tranceiver detected on mmc2\n");
 		MUX_OVERO_SDIO2_TRANSCEIVER();
 		break;
 	case 1:
-		printf("Direct connection on mmc2\n");
+		puts("Direct connection on mmc2\n");
 		MUX_OVERO_SDIO2_DIRECT();
 		break;
 	default:
-		printf("Unable to detect mmc2 connection type\n");
+		puts("Unable to detect mmc2 connection type\n");
 	}
 
 	switch (get_expansion_id()) {
@@ -232,6 +291,9 @@ int misc_init_r(void)
 		printf("Recognized Tobi Duo expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		/* second lan chip */
+		enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4],
+		    0x2B000000, GPMC_SIZE_16M);
 		break;
 	case GUMSTIX_PALO35:
 		printf("Recognized Palo35 expansion board (rev %d %s)\n",
@@ -270,10 +332,10 @@ int misc_init_r(void)
 		setenv("defaultdisplay", "dvi");
 		break;
 	case GUMSTIX_NO_EEPROM:
-		printf("No EEPROM on expansion board\n");
+		puts("No EEPROM on expansion board\n");
 		break;
 	default:
-		printf("Unrecognized expansion board\n");
+		puts("Unrecognized expansion board\n");
 	}
 
 	if (expansion_config.content == 1)
@@ -309,10 +371,6 @@ static void setup_net_chip(void)
 	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5], 0x2C000000,
 			GPMC_SIZE_16M);
 
-	/* second lan chip */
-	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4], 0x2B000000,
-			GPMC_SIZE_16M);
-
 	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
 	writew(readw(&ctrl_base ->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);
 	/* Enable off mode for NOE in PADCONF_GPMC_NADV_ALE register */
@@ -322,13 +380,13 @@ static void setup_net_chip(void)
 		&ctrl_base->gpmc_nadv_ale);
 
 	/* Make GPIO 64 as output pin and send a magic pulse through it */
-	if (!omap_request_gpio(64)) {
-		omap_set_gpio_direction(64, 0);
-		omap_set_gpio_dataout(64, 1);
+	if (!gpio_request(64, "")) {
+		gpio_direction_output(64, 0);
+		gpio_set_value(64, 1);
 		udelay(1);
-		omap_set_gpio_dataout(64, 0);
+		gpio_set_value(64, 0);
 		udelay(1);
-		omap_set_gpio_dataout(64, 1);
+		gpio_set_value(64, 1);
 	}
 }
 #endif
@@ -342,7 +400,7 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0);

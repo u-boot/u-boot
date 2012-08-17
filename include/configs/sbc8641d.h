@@ -332,7 +332,6 @@
 
 #undef CONFIG_SYS_SCSI_SCAN_BUS_REVERSE
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
@@ -360,10 +359,6 @@
 #endif	/* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 /* #define CONFIG_MII		1 */	/* MII PHY management */
 
@@ -570,8 +565,8 @@
 #define CONFIG_IPADDR		192.168.0.50
 
 #define CONFIG_HOSTNAME		sbc8641d
-#define CONFIG_ROOTPATH		/opt/eldk/ppc_74xx
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_ROOTPATH		"/opt/eldk/ppc_74xx"
+#define CONFIG_BOOTFILE		"uImage"
 
 #define CONFIG_SERVERIP		192.168.0.2
 #define CONFIG_GATEWAYIP	192.168.0.1

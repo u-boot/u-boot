@@ -15,7 +15,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern void show_regs __P ((struct pt_regs *));
 extern int run_command __P ((const char *, int));
-extern char console_buffer[];
 
 ulong dis_last_addr = 0;	/* Last address disassembled   */
 ulong dis_last_len = 20;	/* Default disassembler length */
@@ -85,7 +84,7 @@ int do_bedbug_dis (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	len = dis_last_len;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
 		/* New command */
@@ -124,7 +123,7 @@ int do_bedbug_asm (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	int rcode = 0;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	printf ("\nEnter '.' when done\n");
 	mem_addr = simple_strtoul (argv[1], NULL, 16);
@@ -238,7 +237,7 @@ void bedbug_main_loop (unsigned long addr, struct pt_regs *regs)
 		if (len == -1)
 			printf ("<INTERRUPT>\n");
 		else
-			rc = run_command (lastcommand, flag);
+			rc = run_command(lastcommand, flag);
 
 		if (rc <= 0) {
 			/* invalid command or not repeatable, forget it */

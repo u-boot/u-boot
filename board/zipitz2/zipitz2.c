@@ -27,6 +27,8 @@
 #include <command.h>
 #include <serial.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/pxa.h>
+#include <asm/arch/regs-mmc.h>
 #include <spi.h>
 #include <asm/io.h>
 
@@ -65,10 +67,9 @@ struct serial_device *default_serial_console (void)
 	return &serial_stuart_device;
 }
 
-extern void pxa_dram_init(void);
 int dram_init(void)
 {
-	pxa_dram_init();
+	pxa2xx_dram_init();
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }
@@ -78,6 +79,14 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 }
+
+#ifdef	CONFIG_CMD_MMC
+int board_mmc_init(bd_t *bis)
+{
+	pxa_mmc_register(0);
+	return 0;
+}
+#endif
 
 #ifdef	CONFIG_CMD_SPI
 

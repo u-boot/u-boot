@@ -20,7 +20,6 @@
 
 int pcmcia_hardware_enable(int slot)
 {
-	volatile immap_t	*immap;
 	volatile cpm8xx_t	*cp;
 	volatile pcmconf8xx_t	*pcmp;
 	volatile sysconf8xx_t	*sysp;
@@ -30,15 +29,14 @@ int pcmcia_hardware_enable(int slot)
 
 	udelay(10000);
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
 	sysp  = (sysconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_siu_conf));
 	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/*
-	* Configure SIUMCR to enable PCMCIA port B
-	* (VFLS[0:1] are not used for debugging, we connect FRZ# instead)
-	*/
+	 * Configure SIUMCR to enable PCMCIA port B
+	 * (VFLS[0:1] are not used for debugging, we connect FRZ# instead)
+	 */
 	sysp->sc_siumcr &= ~SIUMCR_DBGC11;	/* set DBGC to 00 */
 
 	/* clear interrupt state, and disable interrupts */
@@ -46,9 +44,9 @@ int pcmcia_hardware_enable(int slot)
 	pcmp->pcmc_per &= ~PCMCIA_MASK(slot);
 
 	/*
-	* Disable interrupts, DMA, and PCMCIA buffers
-	* (isolate the interface) and assert RESET signal
-	*/
+	 * Disable interrupts, DMA, and PCMCIA buffers
+	 * (isolate the interface) and assert RESET signal
+	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
 	reg  = 0;
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
@@ -57,9 +55,9 @@ int pcmcia_hardware_enable(int slot)
 	udelay(2500);
 
 	/*
-	* Configure Port B pins for
-	* 3 Volts enable
-	*/
+	 * Configure Port B pins for
+	 * 3 Volts enable
+	 */
 	if (slot) { /* Slot A is built-in */
 		cp->cp_pbdir |=  KUP4K_PCMCIA_B_3V3;
 		cp->cp_pbpar &= ~KUP4K_PCMCIA_B_3V3;
@@ -67,8 +65,8 @@ int pcmcia_hardware_enable(int slot)
 		cp->cp_pbdat |=  KUP4K_PCMCIA_B_3V3; /* active low */
 	}
 	/*
-	* Make sure there is a card in the slot, then configure the interface.
-	*/
+	 * Make sure there is a card in the slot, then configure the interface.
+	 */
 	udelay(10000);
 	debug ("[%d] %s: PIPR(%p)=0x%x\n",
 	       __LINE__,__FUNCTION__,
@@ -79,8 +77,8 @@ int pcmcia_hardware_enable(int slot)
 	}
 
 	/*
-	* Power On.
-	*/
+	 * Power On.
+	 */
 	printf("%s  Slot %c:", slot ? "" : "\n", 'A' + slot);
 	mask = PCMCIA_VS1(slot) | PCMCIA_VS2(slot);
 	reg  = pcmp->pcmc_pipr;
@@ -149,7 +147,6 @@ int pcmcia_hardware_disable(int slot)
 
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
 {
-	volatile immap_t	*immap;
 	volatile cpm8xx_t	*cp;
 	volatile pcmconf8xx_t	*pcmp;
 	u_long reg;
@@ -162,14 +159,13 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	if (!slot) /* Slot A is not configurable */
 		return 0;
 
-	immap = (immap_t *)CONFIG_SYS_IMMR;
 	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/*
-	* Disable PCMCIA buffers (isolate the interface)
-	* and assert RESET signal
-	*/
+	 * Disable PCMCIA buffers (isolate the interface)
+	 * and assert RESET signal
+	 */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
 	reg  = PCMCIA_PGCRX(slot);
 	reg |= __MY_PCMCIA_GCRX_CXRESET;	/* active high */
@@ -179,9 +175,9 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 
 	debug ("PCMCIA power OFF\n");
 	/*
-	* Configure Port B pins for
-	* 3 Volts enable
-	*/
+	 * Configure Port B pins for
+	 * 3 Volts enable
+	 */
 	cp->cp_pbdir |=  KUP4K_PCMCIA_B_3V3;
 	cp->cp_pbpar &= ~KUP4K_PCMCIA_B_3V3;
 	/* remove all power */

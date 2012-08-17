@@ -58,7 +58,7 @@ int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* Validate arguments */
 	if ((argc != 5) || (strlen(argv[3]) != 1))
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	w = cmd_get_data_size(argv[0], 4);
 

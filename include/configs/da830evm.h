@@ -28,6 +28,7 @@
  * Board
  */
 #define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_USE_SPIFLASH
 
 /*
  * SoC Configuration
@@ -48,8 +49,9 @@
  */
 #define CONFIG_SYS_MALLOC_LEN	(0x10000 + 1*1024*1024) /* malloc() len */
 #define PHYS_SDRAM_1			0xc0000000 /* SDRAM Start */
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1 /* memtest start addr */
-#define CONFIG_SYS_MEMTEST_END 	(PHYS_SDRAM_1 + 16*1024*1024) /* 16MB test */
+#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
+						(32 << 20))
 #define CONFIG_NR_DRAM_BANKS	1 /* we have 1 bank of DRAM */
 #define CONFIG_STACKSIZE	(256*1024) /* regular stack */
 
@@ -85,14 +87,12 @@
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_EMAC_MDIO_PHY_NUM	1
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
-#define CONFIG_NET_MULTI
 #endif
 
 /*
@@ -104,8 +104,10 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #define CONFIG_ENV_OFFSET		(512 << 10)
-#define CONFIG_ENV_SIZE			(512 << 10)
+#define CONFIG_ENV_SIZE			(10 << 10) /* 10KB */
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
+#define CONFIG_SYS_NAND_PAGE_2K
 #define CONFIG_SYS_NAND_CS		3
 #define CONFIG_SYS_NAND_BASE		DAVINCI_ASYNC_EMIF_DATA_CE3_BASE
 #define CONFIG_SYS_NAND_PAGE_2K
@@ -113,7 +115,6 @@
 #define CONFIG_SYS_CLE_MASK		0x10
 #define CONFIG_SYS_ALE_MASK		0x8
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
-#define NAND_MAX_CHIPS			1
 #endif
 
 #ifdef CONFIG_USE_NOR
@@ -145,8 +146,8 @@
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_SYS_SPI_BASE		DAVINCI_SPI0_BASE
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI0_CLKID)
-#define CONFIG_SF_DEFAULT_SPEED		50000000
-#define CONFIG_SYS_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_SF_DEFAULT_SPEED		30000000
+#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #endif
 
 /*
@@ -162,12 +163,12 @@
 #undef CONFIG_MISC_INIT_R
 #undef CONFIG_BOOTDELAY
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
-#define CONFIG_SYS_PROMPT	"DA830-evm > " /* Command Prompt */
+#define CONFIG_SYS_PROMPT	"U-Boot > " /* Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16 /* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_MEMTEST_START + 0x700000)
+#define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE	/* Won't work with hush so far, may be later */
 #define CONFIG_SYS_HUSH_PARSER
@@ -180,7 +181,7 @@
 /*
  * Linux Information
  */
-#define LINUX_BOOT_PARAM_ADDR	(CONFIG_SYS_MEMTEST_START + 0x100)
+#define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTARGS		"mem=32M console=ttyS2,115200n8 root=/dev/mtdblock/2 rw noinitrd ip=dhcp"
@@ -201,7 +202,10 @@
 #define CONFIG_CMD_MEMORY
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_SETGETDCR
-#define CONFIG_CMD_EEPROM
+
+#ifdef CONFIG_CMD_BDI
+#define CONFIG_CLOCKS
+#endif
 
 #ifndef CONFIG_DRIVER_TI_EMAC
 #undef CONFIG_CMD_NET
@@ -223,6 +227,7 @@
 #undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_FLASH
 #define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
 #define CONFIG_CMD_SAVEENV
 #endif
 

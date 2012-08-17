@@ -50,13 +50,6 @@ static struct fsl_sata_info fsl_sata_info[] = {
 #endif
 };
 
-static inline void mdelay(unsigned long msec)
-{
-	unsigned long i;
-	for (i = 0; i < msec; i++)
-		udelay(1000);
-}
-
 static inline void sdelay(unsigned long sec)
 {
 	unsigned long i;
@@ -203,27 +196,6 @@ int init_sata(int dev)
 
 	/* Wait the controller offline */
 	ata_wait_register(&reg->hstatus, HSTATUS_ONOFF, 0, 1000);
-
-#if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)
-	/*
-	 * For P1022/1013 Rev1.0 silicon, after power on SATA host
-	 * controller is configured in legacy mode instead of the
-	 * expected enterprise mode. software needs to clear bit[28]
-	 * of HControl register to change to enterprise mode from
-	 * legacy mode.
-	 */
-	{
-		u32 svr = get_svr();
-		if (IS_SVR_REV(svr, 1, 0) &&
-		    ((SVR_SOC_VER(svr) == SVR_P1022) ||
-		     (SVR_SOC_VER(svr) == SVR_P1022_E) ||
-		     (SVR_SOC_VER(svr) == SVR_P1013) ||
-		     (SVR_SOC_VER(svr) == SVR_P1013_E))) {
-			out_le32(&reg->hstatus, 0x20000000);
-			out_le32(&reg->hcontrol, 0x00000100);
-		}
-	}
-#endif
 
 	/* Set the command header base address to CHBA register to tell DMA */
 	out_le32(&reg->chba, (u32)cmd_hdr & ~0x3);
@@ -700,7 +672,7 @@ u32 fsl_sata_rw_ncq_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_write
 	int ncq_channel;
 	u64 block;
 
-	if (sata_dev_desc[dev].lba48 != 1) {
+	if (sata->lba48 != 1) {
 		printf("execute FPDMA command on non-LBA48 hard disk\n\r");
 		return -1;
 	}
@@ -854,8 +826,9 @@ u32 ata_low_level_rw_lba28(int dev, u32 blknr, u32 blkcnt, void *buffer, int is_
 ulong sata_read(int dev, u32 blknr, u32 blkcnt, void *buffer)
 {
 	u32 rc;
+	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
 
-	if (sata_dev_desc[dev].lba48)
+	if (sata->lba48)
 		rc = ata_low_level_rw_lba48(dev, blknr, blkcnt, buffer, READ_CMD);
 	else
 		rc = ata_low_level_rw_lba28(dev, blknr, blkcnt, buffer, READ_CMD);
@@ -865,8 +838,9 @@ ulong sata_read(int dev, u32 blknr, u32 blkcnt, void *buffer)
 ulong sata_write(int dev, u32 blknr, u32 blkcnt, void *buffer)
 {
 	u32 rc;
+	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
 
-	if (sata_dev_desc[dev].lba48) {
+	if (sata->lba48) {
 		rc = ata_low_level_rw_lba48(dev, blknr, blkcnt, buffer, WRITE_CMD);
 		if (fsl_sata_get_wcache(dev) && fsl_sata_get_flush_ext(dev))
 			fsl_sata_flush_cache_ext(dev);
@@ -916,11 +890,14 @@ int scan_sata(int dev)
 	n_sectors = ata_id_n_sectors(id);
 	sata_dev_desc[dev].lba = (u32)n_sectors;
 
+#ifdef CONFIG_LBA48
 	/* Check if support LBA48 */
 	if (ata_id_has_lba48(id)) {
-		sata_dev_desc[dev].lba48 = 1;
+		sata->lba48 = 1;
 		debug("Device support LBA48\n\r");
-	}
+	} else
+		debug("Device supports LBA28\n\r");
+#endif
 
 	/* Get the NCQ queue depth from device */
 	sata->queue_depth = ata_id_queue_depth(id);

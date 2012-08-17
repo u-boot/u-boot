@@ -90,7 +90,8 @@
 
 
 #define CONFIG_BOOTDELAY	5
-#define CONFIG_HUSH_PARSER
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT	"\nEV123 U-Boot> "
 #define	CONFIG_SYS_LONGHELP	1
 
@@ -126,7 +127,6 @@
  *----------------------------------------------------------------------*/
 
 #define CONFIG_MCFFEC
-#define CONFIG_NET_MULTI		1
 #define CONFIG_MII			1
 #define CONFIG_MII_INIT			1
 #define CONFIG_SYS_DISCOVER_PHY

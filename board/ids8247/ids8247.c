@@ -281,10 +281,9 @@ phys_size_t initdram (int board_type)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 
-	long psize, lsize;
+	long psize;
 
 	psize = 16 * 1024 * 1024;
-	lsize = 0;
 
 	memctl->memc_psrt = CONFIG_SYS_PSRT;
 	memctl->memc_mptpr = CONFIG_SYS_MPTPR;

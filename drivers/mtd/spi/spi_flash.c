@@ -11,79 +11,116 @@
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <watchdog.h>
 
 #include "spi_flash_internal.h"
 
-int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len)
+static void spi_flash_addr(u32 addr, u8 *cmd)
+{
+	/* cmd[0] is actual command */
+	cmd[1] = addr >> 16;
+	cmd[2] = addr >> 8;
+	cmd[3] = addr >> 0;
+}
+
+static int spi_flash_read_write(struct spi_slave *spi,
+				const u8 *cmd, size_t cmd_len,
+				const u8 *data_out, u8 *data_in,
+				size_t data_len)
 {
 	unsigned long flags = SPI_XFER_BEGIN;
 	int ret;
 
-	if (len == 0)
+	if (data_len == 0)
 		flags |= SPI_XFER_END;
 
-	ret = spi_xfer(spi, 8, &cmd, NULL, flags);
+	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags);
 	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
-		return ret;
-	}
-
-	if (len) {
-		ret = spi_xfer(spi, len * 8, NULL, response, SPI_XFER_END);
+		debug("SF: Failed to send command (%zu bytes): %d\n",
+				cmd_len, ret);
+	} else if (data_len != 0) {
+		ret = spi_xfer(spi, data_len * 8, data_out, data_in, SPI_XFER_END);
 		if (ret)
-			debug("SF: Failed to read response (%zu bytes): %d\n",
-					len, ret);
+			debug("SF: Failed to transfer %zu bytes of data: %d\n",
+					data_len, ret);
 	}
 
 	return ret;
+}
+
+int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len)
+{
+	return spi_flash_cmd_read(spi, &cmd, 1, response, len);
 }
 
 int spi_flash_cmd_read(struct spi_slave *spi, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len)
 {
-	unsigned long flags = SPI_XFER_BEGIN;
-	int ret;
-
-	if (data_len == 0)
-		flags |= SPI_XFER_END;
-
-	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags);
-	if (ret) {
-		debug("SF: Failed to send read command (%zu bytes): %d\n",
-				cmd_len, ret);
-	} else if (data_len != 0) {
-		ret = spi_xfer(spi, data_len * 8, NULL, data, SPI_XFER_END);
-		if (ret)
-			debug("SF: Failed to read %zu bytes of data: %d\n",
-					data_len, ret);
-	}
-
-	return ret;
+	return spi_flash_read_write(spi, cmd, cmd_len, NULL, data, data_len);
 }
 
 int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 		const void *data, size_t data_len)
 {
-	unsigned long flags = SPI_XFER_BEGIN;
-	int ret;
-
-	if (data_len == 0)
-		flags |= SPI_XFER_END;
-
-	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags);
-	if (ret) {
-		debug("SF: Failed to send read command (%zu bytes): %d\n",
-				cmd_len, ret);
-	} else if (data_len != 0) {
-		ret = spi_xfer(spi, data_len * 8, data, NULL, SPI_XFER_END);
-		if (ret)
-			debug("SF: Failed to read %zu bytes of data: %d\n",
-					data_len, ret);
-	}
-
-	return ret;
+	return spi_flash_read_write(spi, cmd, cmd_len, data, NULL, data_len);
 }
 
+int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
+		size_t len, const void *buf)
+{
+	unsigned long page_addr, byte_addr, page_size;
+	size_t chunk_len, actual;
+	int ret;
+	u8 cmd[4];
+
+	page_size = flash->page_size;
+	page_addr = offset / page_size;
+	byte_addr = offset % page_size;
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: unable to claim SPI bus\n");
+		return ret;
+	}
+
+	cmd[0] = CMD_PAGE_PROGRAM;
+	for (actual = 0; actual < len; actual += chunk_len) {
+		chunk_len = min(len - actual, page_size - byte_addr);
+
+		cmd[1] = page_addr >> 8;
+		cmd[2] = page_addr;
+		cmd[3] = byte_addr;
+
+		debug("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
+		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
+
+		ret = spi_flash_cmd_write_enable(flash);
+		if (ret < 0) {
+			debug("SF: enabling write failed\n");
+			break;
+		}
+
+		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
+					  buf + actual, chunk_len);
+		if (ret < 0) {
+			debug("SF: write failed\n");
+			break;
+		}
+
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		if (ret)
+			break;
+
+		page_addr++;
+		byte_addr = 0;
+	}
+
+	debug("SF: program %s %zu bytes @ %#x\n",
+	      ret ? "failure" : "success", len, offset);
+
+	spi_release_bus(flash->spi);
+	return ret;
+}
 
 int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len)
@@ -95,6 +132,111 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 	ret = spi_flash_cmd_read(spi, cmd, cmd_len, data, data_len);
 	spi_release_bus(spi);
 
+	return ret;
+}
+
+int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
+		size_t len, void *data)
+{
+	u8 cmd[5];
+
+	cmd[0] = CMD_READ_ARRAY_FAST;
+	spi_flash_addr(offset, cmd);
+	cmd[4] = 0x00;
+
+	return spi_flash_read_common(flash, cmd, sizeof(cmd), data, len);
+}
+
+int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
+			   u8 cmd, u8 poll_bit)
+{
+	struct spi_slave *spi = flash->spi;
+	unsigned long timebase;
+	int ret;
+	u8 status;
+
+	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret) {
+		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
+		return ret;
+	}
+
+	timebase = get_timer(0);
+	do {
+		WATCHDOG_RESET();
+
+		ret = spi_xfer(spi, 8, NULL, &status, 0);
+		if (ret)
+			return -1;
+
+		if ((status & poll_bit) == 0)
+			break;
+
+	} while (get_timer(timebase) < timeout);
+
+	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
+
+	if ((status & poll_bit) == 0)
+		return 0;
+
+	/* Timed out */
+	debug("SF: time out!\n");
+	return -1;
+}
+
+int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+{
+	return spi_flash_cmd_poll_bit(flash, timeout,
+		CMD_READ_STATUS, STATUS_WIP);
+}
+
+int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
+			u32 offset, size_t len)
+{
+	u32 start, end, erase_size;
+	int ret;
+	u8 cmd[4];
+
+	erase_size = flash->sector_size;
+	if (offset % erase_size || len % erase_size) {
+		debug("SF: Erase offset/length not multiple of erase size\n");
+		return -1;
+	}
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
+
+	cmd[0] = erase_cmd;
+	start = offset;
+	end = start + len;
+
+	while (offset < end) {
+		spi_flash_addr(offset, cmd);
+		offset += erase_size;
+
+		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
+		      cmd[2], cmd[3], offset);
+
+		ret = spi_flash_cmd_write_enable(flash);
+		if (ret)
+			goto out;
+
+		ret = spi_flash_cmd_write(flash->spi, cmd, sizeof(cmd), NULL, 0);
+		if (ret)
+			goto out;
+
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		if (ret)
+			goto out;
+	}
+
+	debug("SF: Successfully erased %zu bytes @ %#x\n", len, start);
+
+ out:
+	spi_release_bus(flash->spi);
 	return ret;
 }
 
@@ -213,6 +355,10 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		printf("SF: Unsupported manufacturer %02x\n", *idp);
 		goto err_manufacturer_probe;
 	}
+
+	printf("SF: Detected %s with page size ", flash->name);
+	print_size(flash->sector_size, ", total ");
+	print_size(flash->size, "\n");
 
 	spi_release_bus(spi);
 

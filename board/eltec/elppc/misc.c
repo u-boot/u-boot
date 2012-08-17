@@ -29,7 +29,6 @@
 #include "srom.h"
 
 /* imports  */
-extern char console_buffer[CONFIG_SYS_CBSIZE];
 extern int l2_cache_enable (int l2control);
 extern int eepro100_write_eeprom (struct eth_device *dev, int location,
 				  int addr_len, unsigned short data);
@@ -117,7 +116,7 @@ int misc_init_r (void)
 		eerev.etheraddr[5] = 0x4D;
 
 		/* cache config word for ELPPC */
-		*(int *) &eerev.res[0] = 0;
+		memset(&eerev.res[0], 0, 4);
 
 		initSrom = 1;	/* force dialog */
 		copyNv = 1;	/* copy to nvram */

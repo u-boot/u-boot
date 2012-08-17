@@ -31,6 +31,11 @@
 
 #include "../common/osd.h"
 
+#define LATCH2_BASE (CONFIG_SYS_LATCH_BASE + 0x200)
+#define LATCH2_MC2_PRESENT_N 0x0080
+
+#define LATCH3_BASE (CONFIG_SYS_LATCH_BASE + 0x300)
+
 enum {
 	UNITTYPE_VIDEO_USER = 0,
 	UNITTYPE_MAIN_USER = 1,
@@ -60,6 +65,20 @@ enum {
 	RAM_DDR2_64 = 2,
 };
 
+static unsigned int get_hwver(void)
+{
+	u16 latch3 = in_le16((void *)LATCH3_BASE);
+
+	return latch3 & 0x0003;
+}
+
+static unsigned int get_mc2_present(void)
+{
+	u16 latch2 = in_le16((void *)LATCH2_BASE);
+
+	return !(latch2 & LATCH2_MC2_PRESENT_N);
+}
+
 static void print_fpga_info(unsigned dev)
 {
 	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(dev);
@@ -68,7 +87,6 @@ static void print_fpga_info(unsigned dev)
 	u16 fpga_features = in_le16(&fpga->fpga_features);
 	unsigned unit_type;
 	unsigned hardware_version;
-	unsigned feature_compression;
 	unsigned feature_rs232;
 	unsigned feature_audio;
 	unsigned feature_sysclock;
@@ -92,7 +110,6 @@ static void print_fpga_info(unsigned dev)
 
 	unit_type = (versions >> 4) & 0x000f;
 	hardware_version = versions & 0x000f;
-	feature_compression = (fpga_features >> 13) & 0x0003;
 	feature_rs232 = fpga_features & (1<<11);
 	feature_audio = (fpga_features >> 9) & 0x0003;
 	feature_sysclock = (fpga_features >> 7) & 0x0003;
@@ -206,34 +223,41 @@ static void print_fpga_info(unsigned dev)
  */
 int checkboard(void)
 {
-	unsigned k;
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	printf("Board: ");
 
 	printf("DLVision 10G");
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 
 	puts("\n");
 
-	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k)
-		print_fpga_info(k);
+	print_fpga_info(0);
+	if (get_mc2_present())
+		print_fpga_info(1);
 
 	return 0;
 }
 
 int last_stage_init(void)
 {
-	unsigned k;
+	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
+	u16 versions = in_le16(&fpga->versions);
 
-	for (k = 0; k < CONFIG_SYS_OSD_SCREENS; ++k)
-		if (!get_fpga_state(k)
-		    || (get_fpga_state(k) == FPGA_STATE_DONE_FAILED))
-			osd_probe(k);
+	if (((versions >> 4) & 0x000f) != UNITTYPE_MAIN_USER)
+		return 0;
+
+	if (!get_fpga_state(0) || (get_hwver() == HWVER_101))
+		osd_probe(0);
+
+	if (get_mc2_present() &&
+	    (!get_fpga_state(1) || (get_hwver() == HWVER_101)))
+		osd_probe(1);
 
 	return 0;
 }

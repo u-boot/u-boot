@@ -24,7 +24,7 @@ you can downland
 
 #config to build the kernel
 qemu_mips_defconfig
-#patch to fix mips interupt init on 2.6.24.y kernel
+#patch to fix mips interrupt init on 2.6.24.y kernel
 qemu_mips_kernel.patch
 initrd.gz
 vmlinux

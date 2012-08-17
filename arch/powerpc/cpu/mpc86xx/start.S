@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007 Freescale Semiconductor.
+ * Copyright 2004, 2007, 2011 Freescale Semiconductor.
  * Srikanth Srinivasan <srikanth.srinivaan@freescale.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -33,7 +33,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc86xx.h>
-#include <timestamp.h>
 #include <version.h>
 
 #include <ppc_asm.tmpl>
@@ -42,10 +41,6 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <asm/u-boot.h>
-
-#ifndef	CONFIG_IDENT_STRING
-#define CONFIG_IDENT_STRING ""
-#endif
 
 /*
  * Need MSR_DR | MSR_IR enabled to access I/O (printf) in exceptions
@@ -78,9 +73,7 @@
 	.long	0x27051956		/* U-Boot Magic Number */
 	.globl	version_string
 version_string:
-	.ascii	U_BOOT_VERSION
-	.ascii	" (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii	CONFIG_IDENT_STRING, "\0"
+	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
@@ -328,6 +321,73 @@ invalidate_bats:
 	isync
 	sync
 	blr
+
+#define CONFIG_BAT_PAIR(n) \
+	lis	r4, CONFIG_SYS_IBAT##n##L@h; 		\
+	ori	r4, r4, CONFIG_SYS_IBAT##n##L@l; 	\
+	lis	r3, CONFIG_SYS_IBAT##n##U@h; 		\
+	ori	r3, r3, CONFIG_SYS_IBAT##n##U@l; 	\
+	mtspr	IBAT##n##L, r4; 			\
+	mtspr	IBAT##n##U, r3; 			\
+	lis	r4, CONFIG_SYS_DBAT##n##L@h; 		\
+	ori	r4, r4, CONFIG_SYS_DBAT##n##L@l; 	\
+	lis	r3, CONFIG_SYS_DBAT##n##U@h; 		\
+	ori	r3, r3, CONFIG_SYS_DBAT##n##U@l; 	\
+	mtspr	DBAT##n##L, r4;				\
+	mtspr	DBAT##n##U, r3;
+
+/*
+ * setup_bats:
+ *
+ * Set up the final BAT registers now that setup is done.
+ *
+ * Assumes that:
+ *	1) Address translation is enabled upon entry
+ *	2) The boot rom is still accessible via 1:1 translation
+ */
+	.globl setup_bats
+setup_bats:
+	mflr	r5
+	sync
+
+	/*
+	 * When we disable address translation, we will get 1:1 (VA==PA)
+	 * translation.  The only place we know for sure is safe for that is
+	 * the bootrom where we originally started out.  Pop back into there.
+	 */
+	lis	r4, CONFIG_SYS_MONITOR_BASE_EARLY@h
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE_EARLY@l
+	addi	r4, r4, trans_disabled - _start + EXC_OFF_SYS_RESET
+
+	/* disable address translation */
+	mfmsr	r3
+	rlwinm	r3, r3, 0, 28, 25
+	mtspr	SRR0, r4
+	mtspr	SRR1, r3
+	rfi
+
+trans_disabled:
+#if defined(CONFIG_SYS_DBAT0U) && defined(CONFIG_SYS_DBAT0L) \
+	&& defined(CONFIG_SYS_IBAT0U) && defined(CONFIG_SYS_IBAT0L)
+	CONFIG_BAT_PAIR(0)
+#endif
+	CONFIG_BAT_PAIR(1)
+	CONFIG_BAT_PAIR(2)
+	CONFIG_BAT_PAIR(3)
+	CONFIG_BAT_PAIR(4)
+	CONFIG_BAT_PAIR(5)
+	CONFIG_BAT_PAIR(6)
+	CONFIG_BAT_PAIR(7)
+
+	sync
+	isync
+
+	/* Turn translation back on and return */
+	mfmsr	r3
+	ori	r3, r3, (MSR_IR | MSR_DR)
+	mtspr	SPRN_SRR0,r5
+	mtspr	SPRN_SRR1,r3
+	rfi
 
 /*
  * early_bats:

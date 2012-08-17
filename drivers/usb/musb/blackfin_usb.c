@@ -15,6 +15,10 @@
 
 #include "musb_core.h"
 
+#ifndef CONFIG_USB_BLACKFIN_CLKIN
+#define CONFIG_USB_BLACKFIN_CLKIN 24
+#endif
+
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {
 	.regs       = (struct musb_regs *)USB_FADDR,
@@ -93,10 +97,25 @@ static void __def_musb_init(void)
 }
 void board_musb_init(void) __attribute__((weak, alias("__def_musb_init")));
 
-int musb_platform_init(void)
+static void bfin_anomaly_init(void)
 {
-	/* board specific initialization */
-	board_musb_init();
+	u32 revid;
+
+	if (!ANOMALY_05000346 && !ANOMALY_05000347)
+		return;
+
+	revid = bfin_revid();
+
+#ifdef __ADSPBF54x__
+	if (revid > 0)
+		return;
+#endif
+#ifdef __ADSPBF52x__
+	if (ANOMALY_BF526 && revid > 0)
+		return;
+	if (ANOMALY_BF527 && revid > 1)
+		return;
+#endif
 
 	if (ANOMALY_05000346) {
 		bfin_write_USB_APHY_CALIB(ANOMALY_05000346_value);
@@ -107,9 +126,18 @@ int musb_platform_init(void)
 		bfin_write_USB_APHY_CNTRL(0x0);
 		SSYNC();
 	}
+}
+
+int musb_platform_init(void)
+{
+	/* board specific initialization */
+	board_musb_init();
+
+	bfin_anomaly_init();
 
 	/* Configure PLL oscillator register */
-	bfin_write_USB_PLLOSC_CTRL(0x30a8);
+	bfin_write_USB_PLLOSC_CTRL(0x3080 |
+		((480 / CONFIG_USB_BLACKFIN_CLKIN) << 1));
 	SSYNC();
 
 	bfin_write_USB_SRP_CLKDIV((get_sclk()/1000) / 32 - 1);

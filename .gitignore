@@ -10,39 +10,47 @@
 *.orig
 *.a
 *.o
+*.su
 *~
 *.swp
 *.patch
+*.bin
 
 #
 # Top-level generic files
 #
 
+/MLO
 /System.map
 /u-boot
 /u-boot.hex
 /u-boot.imx
 /u-boot.map
-/u-boot.bin
 /u-boot.srec
 /u-boot.ldr
 /u-boot.ldr.hex
 /u-boot.ldr.srec
+/u-boot.img
+/u-boot.kwb
+/u-boot.sha1
+/u-boot.dis
 /u-boot.lds
-/u-boot-onenand.bin
-/u-boot-flexonenand.bin
+/u-boot.ubl
+/u-boot.ais
+/u-boot.dtb
+/u-boot.sb
 
 #
 # Generated files
 #
 
-*.depend
+*.depend*
 /LOG
 /errlog
 /reloc_off
 
 /include/generated/
-/lib/asm-offsets.s
+asm-offsets.s
 
 # stgit generated dirs
 patches-*

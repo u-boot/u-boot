@@ -82,13 +82,18 @@ int board_late_init(void)
 
 int dram_init(void)
 {
-	/* set dram bank start addr and size */
+	gd->ram_size = get_ram_size(CONFIG_SYS_SDRAM_BASE,
+				    CONFIG_SYS_SDRAM_SIZE);
+	return 0;
+}
+
+void dram_init_banksize(void)
+{
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
 	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
-	return 0;
 }
 
 #ifdef CONFIG_CMD_NET

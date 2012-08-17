@@ -27,6 +27,7 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS-y += $(BOARD).o
 COBJS-$(CONFIG_PCI) += pci.o
+COBJS-$(CONFIG_FSL_DDR2) += ddr.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
@@ -35,12 +36,6 @@ SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

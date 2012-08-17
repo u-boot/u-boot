@@ -63,6 +63,8 @@ SECTIONS
 		*(.dynsym)
 	}
 
+	_end = .;
+
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
 		*(.bss)

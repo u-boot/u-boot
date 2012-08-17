@@ -30,6 +30,7 @@
 
 #include <common.h>
 #include <asm/arch/platform.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,8 +47,8 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int env_flash_cmdline (void)
 {
-	unsigned char *sp = (unsigned char *) 0x0201c020;
-	unsigned char *ep;
+	char *sp = (char *) 0x0201c020;
+	char *ep;
 	int len;
 
 	/* Check if "erase" push button is depressed */
@@ -74,6 +75,10 @@ int board_late_init (void)
 	return 0;
 }
 
+int board_eth_init(bd_t *bis)
+{
+	return ks8695_eth_initialize();
+}
 
 int board_init (void)
 {

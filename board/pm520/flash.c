@@ -370,7 +370,7 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
 int flash_erase (flash_info_t *info, int s_first, int s_last)
 {
 	int flag, prot, sect;
-	ulong type, start, last;
+	ulong type, start;
 	int rcode = 0;
 
 	if ((s_first < 0) || (s_first > s_last)) {
@@ -404,7 +404,6 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	}
 
 	start = get_timer (0);
-	last = start;
 
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
@@ -440,6 +439,10 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 			printf (" done\n");
 		}
 	}
+
+	if (flag)
+		enable_interrupts();
+
 	return rcode;
 }
 
@@ -543,6 +546,7 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 	ulong status;
 	ulong start;
 	int flag;
+	int rcode = 0;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
@@ -561,14 +565,17 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
 		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
-			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
-			return (1);
+			rcode = 1;
+			break;
 		}
 	}
 
 	*addr = (FPW) 0x00FF00FF;	/* restore read mode */
 
-	return (0);
+	if (flag)
+		enable_interrupts();
+
+	return rcode;
 }
 
 void inline spin_wheel (void)

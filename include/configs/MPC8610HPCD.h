@@ -1,5 +1,5 @@
 /*
- * Copyright 2007, 2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,14 +21,16 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000
 
-#define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 
 /* video */
-#undef CONFIG_VIDEO
+#define CONFIG_FSL_DIU_FB
 
-#ifdef CONFIG_VIDEO
+#ifdef CONFIG_FSL_DIU_FB
+#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x2c000)
+#define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
 #define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
@@ -88,8 +90,6 @@
 #define CONFIG_SYS_CCSRBAR_PHYS_HIGH	0x0
 #define CONFIG_SYS_CCSRBAR_PHYS		CONFIG_SYS_CCSRBAR_PHYS_LOW
 
-#define CONFIG_SYS_DIU_ADDR		(CONFIG_SYS_CCSRBAR+0x2c000)
-
 /* DDR Setup */
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
@@ -108,7 +108,7 @@
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
-#define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
 
 /* These are used when DDR doesn't use SPD.  */
 #define CONFIG_SYS_SDRAM_SIZE	256		/* DDR is 256MB */
@@ -298,7 +298,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_CMD_NET
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_CMD_REGINFO
@@ -494,9 +493,6 @@
 #define CONFIG_WATCHDOG			/* watchdog enabled */
 #define CONFIG_SYS_WATCHDOG_FREQ	5000	/* Feed interval, 5s */
 
-/*DIU Configuration*/
-#define DIU_CONNECT_TO_DVI		/* DIU controller connects to DVI encoder*/
-
 /*
  * Miscellaneous configurable options
  */
@@ -534,8 +530,8 @@
 #define CONFIG_IPADDR		192.168.1.100
 
 #define CONFIG_HOSTNAME		unknown
-#define CONFIG_ROOTPATH		/opt/nfsroot
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_ROOTPATH		"/opt/nfsroot"
+#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	8610hpcd/u-boot.bin
 
 #define CONFIG_SERVERIP		192.168.1.1
@@ -630,8 +626,6 @@
  "diuregs=md e002c000 1d\0" \
  "dium=mw e002c01c\0" \
  "diuerr=md e002c014 1\0" \
- "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0 debug\0" \
- "monitor=0-DVI\0" \
  "pmregs=md e00e1000 2b\0" \
  "lawregs=md e0000c08 4b\0" \
  "lbcregs=md e0005000 36\0" \
@@ -651,9 +645,7 @@
  "ramdiskfile=8610hpcd/ramdisk.uboot\0"                         \
  "fdtaddr=c00000\0"                                             \
  "fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"                          \
- "bdev=sda3\0"							\
- "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0\0"\
- "monitor=0-DVI\0"
+ "bdev=sda3\0"
 #endif
 
 #define CONFIG_NFSBOOTCOMMAND					\

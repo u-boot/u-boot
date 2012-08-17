@@ -282,7 +282,7 @@ OUTL(struct eth_device *dev, int command, u_long addr)
  * ready to send and receive packets.
  *
  * Side effects:
- *            leaves the natsemi initialized, and ready to recieve packets.
+ *            leaves the natsemi initialized, and ready to receive packets.
  *
  * Returns:   struct eth_device *:          pointer to NIC data structure
  */

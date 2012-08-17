@@ -148,7 +148,7 @@ unsigned char mmc_read_sector (unsigned long addr,unsigned char *Buffer)
 	/* Command 16 to read aBlocks from the MMC/SD - caed */
 	unsigned char CMD[] = {0x51,0x00,0x00,0x00,0x00,0xFF};
 
-	/* The addres on the MMC/SD-card is in bytes,
+	/* The address on the MMC/SD-card is in bytes,
 	addr is transformed from blocks to bytes and the result is
 	placed into the command */
 
@@ -173,7 +173,7 @@ unsigned char mmc_write_sector (unsigned long addr,unsigned char *Buffer)
 	/* Command 24 to write a block to the MMC/SD - card */
 	unsigned char CMD[] = {0x58, 0x00, 0x00, 0x00, 0x00, 0xFF};
 
-	/* The addres on the MMC/SD-card is in bytes,
+	/* The address on the MMC/SD-card is in bytes,
 	addr is transformed from blocks to bytes and the result is
 	placed into the command */
 

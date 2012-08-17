@@ -109,8 +109,8 @@ dtt_write (int sensor, int reg, int val)
 	return 0;
 } /* dtt_write() */
 
-static int
-_dtt_init (int sensor)
+int
+dtt_init_one(int sensor)
 {
 	dtt_cfg_t *dcp = &dttcfg[sensor >> 1];
 	int reg, val;
@@ -164,28 +164,7 @@ _dtt_init (int sensor)
 		return 1;
 
 	return 0;
-} /* _dtt_init() */
-
-int
-dtt_init (void)
-{
-	int i;
-	unsigned char sensors[] = CONFIG_DTT_SENSORS;
-	const char *const header = "DTT:   ";
-
-	/* switch to correct I2C bus */
-	I2C_SET_BUS(CONFIG_SYS_DTT_BUS_NUM);
-
-	for (i = 0; i < sizeof(sensors); i++) {
-		if (_dtt_init(sensors[i]) != 0)
-			printf ("%s%d FAILED INIT\n", header, i+1);
-		else
-			printf ("%s%d is %i C\n", header, i+1,
-				dtt_get_temp(sensors[i]));
-	}
-
-	return (0);
-} /* dtt_init() */
+} /* dtt_init_one() */
 
 int
 dtt_get_temp (int sensor)

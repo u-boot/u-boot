@@ -22,7 +22,7 @@ boot bank at 0xfff8_0000.
 Memory Map
 ----------
 
-0xff80_0000 - 0xffbf_ffff	Alernate bank		4MB
+0xff80_0000 - 0xffbf_ffff	Alternate bank		4MB
 0xffc0_0000 - 0xffff_ffff	Boot bank		4MB
 
 0xffb8_0000			Alternate image start	512KB

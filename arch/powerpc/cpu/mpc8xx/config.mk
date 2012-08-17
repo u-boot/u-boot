@@ -21,6 +21,6 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fPIC -meabi
+PLATFORM_RELFLAGS += -meabi
 
 PLATFORM_CPPFLAGS += -DCONFIG_8xx -ffixed-r2 -mstring -mcpu=860 -msoft-float

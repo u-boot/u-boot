@@ -34,42 +34,59 @@
 #ifndef _miiphy_h_
 #define _miiphy_h_
 
+#include <common.h>
 #include <linux/mii.h>
+#include <linux/list.h>
 #include <net.h>
+#include <phy.h>
 
-int miiphy_read (const char *devname, unsigned char addr, unsigned char reg,
+struct legacy_mii_dev {
+	int (*read)(const char *devname, unsigned char addr,
+		     unsigned char reg, unsigned short *value);
+	int (*write)(const char *devname, unsigned char addr,
+		      unsigned char reg, unsigned short value);
+};
+
+int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		 unsigned short *value);
-int miiphy_write (const char *devname, unsigned char addr, unsigned char reg,
+int miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
 		  unsigned short value);
-int miiphy_info (const char *devname, unsigned char addr, unsigned int *oui,
+int miiphy_info(const char *devname, unsigned char addr, unsigned int *oui,
 		 unsigned char *model, unsigned char *rev);
-int miiphy_reset (const char *devname, unsigned char addr);
-int miiphy_speed (const char *devname, unsigned char addr);
-int miiphy_duplex (const char *devname, unsigned char addr);
-int miiphy_is_1000base_x (const char *devname, unsigned char addr);
+int miiphy_reset(const char *devname, unsigned char addr);
+int miiphy_speed(const char *devname, unsigned char addr);
+int miiphy_duplex(const char *devname, unsigned char addr);
+int miiphy_is_1000base_x(const char *devname, unsigned char addr);
 #ifdef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-int miiphy_link (const char *devname, unsigned char addr);
+int miiphy_link(const char *devname, unsigned char addr);
 #endif
 
-void miiphy_init (void);
+void miiphy_init(void);
 
-void miiphy_register (const char *devname,
-		      int (*read) (const char *devname, unsigned char addr,
+void miiphy_register(const char *devname,
+		      int (*read)(const char *devname, unsigned char addr,
 				   unsigned char reg, unsigned short *value),
-		      int (*write) (const char *devname, unsigned char addr,
+		      int (*write)(const char *devname, unsigned char addr,
 				    unsigned char reg, unsigned short value));
 
-int miiphy_set_current_dev (const char *devname);
-const char *miiphy_get_current_dev (void);
+int miiphy_set_current_dev(const char *devname);
+const char *miiphy_get_current_dev(void);
+struct mii_dev *mdio_get_current_dev(void);
+struct mii_dev *miiphy_get_dev_by_name(const char *devname);
+struct phy_device *mdio_phydev_for_ethname(const char *devname);
 
-void miiphy_listdev (void);
+void miiphy_listdev(void);
+
+struct mii_dev *mdio_alloc(void);
+int mdio_register(struct mii_dev *bus);
+void mdio_list_devices(void);
 
 #ifdef CONFIG_BITBANGMII
 
 #define BB_MII_DEVNAME	"bb_miiphy"
 
 struct bb_miiphy_bus {
-	char name[NAMESIZE];
+	char name[16];
 	int (*init)(struct bb_miiphy_bus *bus);
 	int (*mdio_active)(struct bb_miiphy_bus *bus);
 	int (*mdio_tristate)(struct bb_miiphy_bus *bus);
@@ -85,10 +102,10 @@ struct bb_miiphy_bus {
 extern struct bb_miiphy_bus bb_miiphy_buses[];
 extern int bb_miiphy_buses_num;
 
-void bb_miiphy_init (void);
-int bb_miiphy_read (const char *devname, unsigned char addr,
+void bb_miiphy_init(void);
+int bb_miiphy_read(const char *devname, unsigned char addr,
 		    unsigned char reg, unsigned short *value);
-int bb_miiphy_write (const char *devname, unsigned char addr,
+int bb_miiphy_write(const char *devname, unsigned char addr,
 		     unsigned char reg, unsigned short value);
 #endif
 

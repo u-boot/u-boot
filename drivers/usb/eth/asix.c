@@ -219,7 +219,7 @@ static inline int asix_get_phy_addr(struct ueth_data *dev)
 		debug("Error reading PHYID register: %02x\n", ret);
 		goto out;
 	}
-	debug("asix_get_phy_addr() returning 0x%04x\n", *((__le16 *)buf));
+	debug("asix_get_phy_addr() returning 0x%02x%02x\n", buf[0], buf[1]);
 	ret = buf[1];
 
 out:

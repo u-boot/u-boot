@@ -69,8 +69,8 @@ static void dmmc_set_clock(struct mmc *mmc, uint clock)
 static int
 dmmc_wait_fifo_status(volatile struct davinci_mmc_regs *regs, uint status)
 {
-	uint mmcstatus1, wdog = WATCHDOG_COUNT;
-	mmcstatus1 = get_val(&regs->mmcst1);
+	uint wdog = WATCHDOG_COUNT;
+
 	while (--wdog && ((get_val(&regs->mmcst1) & status) != status))
 		udelay(10);
 
@@ -86,9 +86,8 @@ dmmc_wait_fifo_status(volatile struct davinci_mmc_regs *regs, uint status)
 /* Busy bit wait loop for MMCST1 */
 static int dmmc_busy_wait(volatile struct davinci_mmc_regs *regs)
 {
-	uint mmcstatus1, wdog = WATCHDOG_COUNT;
+	uint wdog = WATCHDOG_COUNT;
 
-	mmcstatus1 = get_val(&regs->mmcst1);
 	while (--wdog && (get_val(&regs->mmcst1) & MMCST1_BUSY))
 		udelay(10);
 
@@ -388,15 +387,15 @@ int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
 	mmc->send_cmd = dmmc_send_cmd;
 	mmc->set_ios = dmmc_set_ios;
 	mmc->init = dmmc_init;
+	mmc->getcd = NULL;
 
 	mmc->f_min = 200000;
 	mmc->f_max = 25000000;
 	mmc->voltages = host->voltages;
 	mmc->host_caps = host->host_caps;
 
-#ifdef CONFIG_MMC_MBLOCK
 	mmc->b_max = DAVINCI_MAX_BLOCKS;
-#endif
+
 	mmc_register(mmc);
 
 	return 0;

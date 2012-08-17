@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop@leadtechdesign.com>
+ * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,42 +23,42 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/io.h>
 
 #ifdef CONFIG_RED_LED
-void red_LED_on(void)
+void red_led_on(void)
 {
 	at91_set_gpio_value(CONFIG_RED_LED, 1);
 }
 
-void red_LED_off(void)
+void red_led_off(void)
 {
 	at91_set_gpio_value(CONFIG_RED_LED, 0);
 }
 #endif
 
 #ifdef CONFIG_GREEN_LED
-void green_LED_on(void)
+void green_led_on(void)
 {
 	at91_set_gpio_value(CONFIG_GREEN_LED, 0);
 }
 
-void green_LED_off(void)
+void green_led_off(void)
 {
 	at91_set_gpio_value(CONFIG_GREEN_LED, 1);
 }
 #endif
 
 #ifdef CONFIG_YELLOW_LED
-void yellow_LED_on(void)
+void yellow_led_on(void)
 {
 	at91_set_gpio_value(CONFIG_YELLOW_LED, 0);
 }
 
-void yellow_LED_off(void)
+void yellow_led_off(void)
 {
 	at91_set_gpio_value(CONFIG_YELLOW_LED, 1);
 }

@@ -28,6 +28,9 @@ LIB	= $(obj)lib$(SOC).o
 SOBJS	+= lowlevel_init.o
 COBJS	+= reset.o
 COBJS	+= timer.o
+COBJS	+= clock.o
+COBJS	+= cpu.o
+COBJS	+= at91rm9200_devices.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

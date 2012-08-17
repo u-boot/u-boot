@@ -33,12 +33,6 @@
 
 #define SM107_DEVICEID		(0x13e00060 + NOCACHE_OFFSET)
 
-static void wait_ms(unsigned long time)
-{
-	while (time--)
-		udelay(1000);
-}
-
 static void test_pld(void)
 {
 	printf("PLD version = %04x\n", readb(PLD_VERSR));
@@ -53,10 +47,10 @@ static void test_led(void)
 {
 	printf("turn on LEDs 3, 5, 7, 9\n");
 	writeb(0x55, PLD_LEDCR);
-	wait_ms(2000);
+	mdelay(2000);
 	printf("turn on LEDs 4, 6, 8, 10\n");
 	writeb(0xaa, PLD_LEDCR);
-	wait_ms(2000);
+	mdelay(2000);
 	writeb(0x00, PLD_LEDCR);
 }
 

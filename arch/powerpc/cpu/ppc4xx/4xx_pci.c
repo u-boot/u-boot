@@ -707,7 +707,7 @@ void pci_master_init(struct pci_controller *hose)
 #endif /* CONFIG_SYS_PCI_MASTER_INIT */
 
 #if defined(CONFIG_SYS_PCI_MASTER_INIT) || defined(CONFIG_SYS_PCI_TARGET_INIT)
-int pci_440_init (struct pci_controller *hose)
+static int pci_440_init (struct pci_controller *hose)
 {
 	int reg_num = 0;
 
@@ -859,7 +859,9 @@ void pci_init_board(void)
 	 * is selected.
 	 */
 #if defined(CONFIG_SYS_PCI_MASTER_INIT) || defined(CONFIG_SYS_PCI_TARGET_INIT)
-	busno = pci_440_init (&ppc440_hose);
+	busno = pci_440_init(&ppc440_hose);
+	if (busno < 0)
+		return;
 #endif
 #if (defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \

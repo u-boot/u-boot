@@ -106,13 +106,9 @@ TBC
 Debugging u-boot in RAM:
 (example on the qong board)
 
-a) add in config.mk:
-
-PLATFORM_CPPFLAGS += -DDEBUG
-
 -----------------
 
-b) start debugger
+a) start debugger
 
 arm-linux-gdb u-boot
 
@@ -130,7 +126,7 @@ The target architecture is set automatically (currently arm)
 
 -----------------
 
-c) connect to target
+b) connect to target
 
 target remote bdi10:2001
 
@@ -141,7 +137,7 @@ Remote debugging using bdi10:2001
 
 -----------------
 
-d) discard symbol-file
+c) discard symbol-file
 
 (gdb) symbol-file
 Discard symbol table from `/home/hs/celf/u-boot/u-boot'? (y or n) y
@@ -150,7 +146,7 @@ No symbol file now.
 
 -----------------
 
-e) load new symbol table:
+d) load new symbol table:
 
 (gdb) add-symbol-file u-boot 0x8ff08000
 add symbol table from file "u-boot" at
@@ -167,28 +163,31 @@ Program received signal SIGSTOP, Stopped (signal).
 
 add-symbol-file u-boot 0x8ff08000
 		       ^^^^^^^^^^
-		       get this address from u-boot debug printfs
+		       get this address from u-boot bdinfo command
+		       or get it from gd->relocaddr in gdb
 
-U-Boot 2010.06-rc2-00009-gf77b8b8-dirty (Jun 22 2010 - 09:43:46)
+ => bdinfo
+rch_number = XXXXXXXXXX
+boot_params = XXXXXXXXXX
+DRAM bank   = XXXXXXXXXX
+-> start    = XXXXXXXXXX
+-> size     = XXXXXXXXXX
+ethaddr     = XXXXXXXXXX
+ip_addr     = XXXXXXXXXX
+baudrate    = XXXXXXXXXX
+TLB addr    = XXXXXXXXXX
+relocaddr   = 0x8ff08000
+	      ^^^^^^^^^^
+reloc off   = XXXXXXXXXX
+irq_sp	    = XXXXXXXXXX
+sp start    = XXXXXXXXXX
+FB base     = XXXXXXXXXX
 
-U-Boot code: A0000000 -> A0058BAC  BSS: -> A0061F10
-CPU:   Freescale i.MX31 at 398 MHz
-Board: DAVE/DENX Qong
-mon: FFFFFFFF gd->monLen: 00061F10
-Top of RAM usable for U-Boot at: 90000000
-LCD panel info: 640 x 480, 16 bit/pix
-Reserving 600k for LCD Framebuffer at: 8ff6a000
-Reserving 391k for U-Boot at: 8ff08000
-			      ^^^^^^^^
-Reserving 1280k for malloc() at: 8fdc8000
-Reserving 24 Bytes for Board Info at: 8fdc7fe8
-Reserving 52 Bytes for Global Data at: 8fdc7fb4
-New Stack Pointer is: 8fdc7fb0
-RAM Configuration:
-Bank #0: 80000000 256 MiB
-relocation Offset is: eff08000
-mon: 00058BAC gd->monLen: 00061F10
-Now running in RAM - U-Boot at: 8ff08000
-				^^^^^^^^
+or interrupt execution by any means and re-load the symbols at the location
+specified by gd->relocaddr -- this is only valid after board_init_f.
+
+(gdb) set $s = gd->relocaddr
+(gdb) symbol-file
+(gdb) add-symbol-file u-boot $s
 
 Now you can use gdb as usual :-)

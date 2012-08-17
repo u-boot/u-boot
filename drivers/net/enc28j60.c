@@ -314,7 +314,7 @@ static void enc_release_bus(enc_dev_t *enc)
 /*
  * Read PHY register
  */
-static u16 phy_read(enc_dev_t *enc, const u8 addr)
+static u16 enc_phy_read(enc_dev_t *enc, const u8 addr)
 {
 	uint64_t etime;
 	u8 status;
@@ -339,7 +339,7 @@ static u16 phy_read(enc_dev_t *enc, const u8 addr)
 /*
  * Write PHY register
  */
-static void phy_write(enc_dev_t *enc, const u8 addr, const u16 data)
+static void enc_phy_write(enc_dev_t *enc, const u8 addr, const u16 data)
 {
 	uint64_t etime;
 	u8 status;
@@ -374,7 +374,7 @@ static int enc_phy_link_wait(enc_dev_t *enc)
 
 #ifdef CONFIG_ENC_SILENTLINK
 	/* check if we have a link, then just return */
-	status = phy_read(enc, PHY_REG_PHSTAT1);
+	status = enc_phy_read(enc, PHY_REG_PHSTAT1);
 	if (status & ENC_PHSTAT1_LLSTAT)
 		return 0;
 #endif
@@ -382,10 +382,10 @@ static int enc_phy_link_wait(enc_dev_t *enc)
 	/* wait for link with 1 second timeout */
 	etime = get_ticks() + get_tbclk();
 	while (get_ticks() <= etime) {
-		status = phy_read(enc, PHY_REG_PHSTAT1);
+		status = enc_phy_read(enc, PHY_REG_PHSTAT1);
 		if (status & ENC_PHSTAT1_LLSTAT) {
 			/* now we have a link */
-			status = phy_read(enc, PHY_REG_PHSTAT2);
+			status = enc_phy_read(enc, PHY_REG_PHSTAT2);
 			duplex = (status & ENC_PHSTAT2_DPXSTAT) ? 1 : 0;
 			printf("%s: link up, 10Mbps %s-duplex\n",
 				enc->dev->name, duplex ? "full" : "half");
@@ -432,7 +432,6 @@ static void enc_receive(enc_dev_t *enc)
 	u16 pkt_len;
 	u16 copy_len;
 	u16 status;
-	u8 eir_reg;
 	u8 pkt_cnt = 0;
 	u16 rxbuf_rdpt;
 	u8 hbuf[6];
@@ -476,7 +475,7 @@ static void enc_receive(enc_dev_t *enc)
 		/* read pktcnt */
 		pkt_cnt = enc_r8(enc, CTL_REG_EPKTCNT);
 		if (copy_len == 0) {
-			eir_reg = enc_r8(enc, CTL_REG_EIR);
+			(void)enc_r8(enc, CTL_REG_EIR);
 			enc_reset_rx(enc);
 			printf("%s: receive copy_len=0\n", enc->dev->name);
 			continue;
@@ -489,7 +488,7 @@ static void enc_receive(enc_dev_t *enc)
 		NetReceive(packet, pkt_len);
 		if (enc_claim_bus(enc))
 			return;
-		eir_reg = enc_r8(enc, CTL_REG_EIR);
+		(void)enc_r8(enc, CTL_REG_EIR);
 	} while (pkt_cnt);
 	/* Use EPKTCNT not EIR.PKTIF flag, see errata pt. 6 */
 }
@@ -500,14 +499,13 @@ static void enc_receive(enc_dev_t *enc)
 static void enc_poll(enc_dev_t *enc)
 {
 	u8 eir_reg;
-	u8 estat_reg;
 	u8 pkt_cnt;
 
 #ifdef CONFIG_USE_IRQ
 	/* clear global interrupt enable bit in enc28j60 */
 	enc_bclr(enc, CTL_REG_EIE, ENC_EIE_INTIE);
 #endif
-	estat_reg = enc_r8(enc, CTL_REG_ESTAT);
+	(void)enc_r8(enc, CTL_REG_ESTAT);
 	eir_reg = enc_r8(enc, CTL_REG_EIR);
 	if (eir_reg & ENC_EIR_TXIF) {
 		/* clear TXIF bit in EIR */
@@ -678,8 +676,8 @@ static int enc_setup(enc_dev_t *enc)
 	enc->bank = 0xff;	/* invalidate current bank in enc28j60 */
 
 	/* verify PHY identification */
-	phid1 = phy_read(enc, PHY_REG_PHID1);
-	phid2 = phy_read(enc, PHY_REG_PHID2) & ENC_PHID2_MASK;
+	phid1 = enc_phy_read(enc, PHY_REG_PHID1);
+	phid2 = enc_phy_read(enc, PHY_REG_PHID2) & ENC_PHID2_MASK;
 	if (phid1 != ENC_PHID1_VALUE || phid2 != ENC_PHID2_VALUE) {
 		printf("%s: failed to identify PHY. Found %04x:%04x\n",
 			enc->dev->name, phid1, phid2);
@@ -694,7 +692,7 @@ static int enc_setup(enc_dev_t *enc)
 	 * Prevent automatic loopback of data beeing transmitted by setting
 	 * ENC_PHCON2_HDLDIS
 	 */
-	phy_write(enc, PHY_REG_PHCON2, (1<<8));
+	enc_phy_write(enc, PHY_REG_PHCON2, (1<<8));
 
 	/*
 	 * LEDs configuration
@@ -702,10 +700,10 @@ static int enc_setup(enc_dev_t *enc)
 	 * LEDB: LBCFG = 0111 -> display TX & RX activity
 	 * STRCH = 1 -> LED pulses
 	 */
-	phy_write(enc, PHY_REG_PHLCON, 0x0472);
+	enc_phy_write(enc, PHY_REG_PHLCON, 0x0472);
 
 	/* Reset PDPXMD-bit => half duplex */
-	phy_write(enc, PHY_REG_PHCON1, 0);
+	enc_phy_write(enc, PHY_REG_PHCON1, 0);
 
 #ifdef CONFIG_USE_IRQ
 	/* enable interrupts */
@@ -771,7 +769,7 @@ int enc_miiphy_read(const char *devname, u8 phy_adr, u8 reg, u16 *value)
 		enc_release_bus(enc);
 		return -1;
 	}
-	*value = phy_read(enc, reg);
+	*value = enc_phy_read(enc, reg);
 	enc_release_bus(enc);
 	return 0;
 }
@@ -796,7 +794,7 @@ int enc_miiphy_write(const char *devname, u8 phy_adr, u8 reg, u16 value)
 		enc_release_bus(enc);
 		return -1;
 	}
-	phy_write(enc, reg, value);
+	enc_phy_write(enc, reg, value);
 	enc_release_bus(enc);
 	return 0;
 }

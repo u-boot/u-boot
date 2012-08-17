@@ -54,6 +54,10 @@
 
 #undef  CONFIG_ECC		/* disable ECC support */
 
+#ifndef __ASSEMBLY__
+#include <galileo/core.h>
+#endif
+
 /* Board-specific Initialization Functions to be called */
 #define CONFIG_SYS_BOARD_ASM_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -128,9 +132,8 @@
 #define CONFIG_TSI108_ETH
 #define CONFIG_TSI108_ETH_NUM_PORTS	2
 
-#define CONFIG_NET_MULTI
 
-#define CONFIG_BOOTFILE		zImage.initrd.elf
+#define CONFIG_BOOTFILE		"zImage.initrd.elf"
 #define CONFIG_LOADADDR		0x400000
 
 /*-------------------------------------------------------------------------- */

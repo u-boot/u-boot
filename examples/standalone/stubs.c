@@ -1,10 +1,11 @@
+#include <common.h>
 #include <exports.h>
 
 #ifndef GCC_VERSION
 #define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
 #endif /* GCC_VERSION */
 
-#if defined(CONFIG_I386)
+#if defined(CONFIG_X86)
 /*
  * x86 does not have a dedicated register to store the pointer to
  * the global_data. Thus the jump table address is stored in a
@@ -167,8 +168,37 @@ gd_t *global_data;
 "	jmp %%g1\n"					\
 "	nop\n"						\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "g1" );
-
+#elif defined(CONFIG_NDS32)
+/*
+ * r16 holds the pointer to the global_data. gp is call clobbered.
+ * not support reduced register (16 GPR).
+ */
+#define EXPORT_FUNC(x) \
+	asm volatile (			\
+"	.globl " #x "\n"		\
+#x ":\n"				\
+"	lwi	$r16, [$gp + (%0)]\n"	\
+"	lwi	$r16, [$r16 + (%1)]\n"	\
+"	jr	$r16\n"			\
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "$r16");
+#elif defined(CONFIG_OPENRISC)
+/*
+ * r10 holds the pointer to the global_data, r13 is a call-clobbered
+ * register
+ */
+#define EXPORT_FUNC(x) \
+	asm volatile (			\
+"	.globl " #x "\n"		\
+#x ":\n"				\
+"	l.lwz	r13, %0(r10)\n"	\
+"	l.lwz	r13, %1(r13)\n"	\
+"	l.jr	r13\n"		\
+"	l.nop\n"				\
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "r13");
 #else
+/*"	addi	$sp, $sp, -24\n"	\
+"	br	$r16\n"			\*/
+
 #error stubs definition missing for this architecture
 #endif
 
@@ -198,7 +228,7 @@ void app_startup(char * const *argv)
 		*cp++ = 0;
 	}
 
-#if defined(CONFIG_I386)
+#if defined(CONFIG_X86)
 	/* x86 does not have a dedicated register for passing global_data */
 	global_data = (gd_t *)argv[-1];
 	jt = global_data->jt;

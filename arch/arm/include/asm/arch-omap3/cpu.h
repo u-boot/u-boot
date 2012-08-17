@@ -218,6 +218,7 @@ struct sdrc {
 
 /* EMIF4 */
 typedef struct emif4 {
+	unsigned int emif_mod_id_rev;
 	unsigned int sdram_sts;
 	unsigned int sdram_config;
 	unsigned int res1;
@@ -281,6 +282,51 @@ typedef struct emif4 {
 #define SOFTRESET		(0x1 << 1)
 #define SMART_IDLE		(0x2 << 3)
 #define REF_ON_IDLE		(0x1 << 6)
+
+/* DMA */
+#ifndef __KERNEL_STRICT_NAMES
+#ifndef __ASSEMBLY__
+struct dma4_chan {
+	u32 ccr;
+	u32 clnk_ctrl;
+	u32 cicr;
+	u32 csr;
+	u32 csdp;
+	u32 cen;
+	u32 cfn;
+	u32 cssa;
+	u32 cdsa;
+	u32 csel;
+	u32 csfl;
+	u32 cdel;
+	u32 cdfl;
+	u32 csac;
+	u32 cdac;
+	u32 ccen;
+	u32 ccfn;
+	u32 color;
+};
+
+struct dma4 {
+	u32 revision;
+	u8 res1[0x4];
+	u32 irqstatus_l[0x4];
+	u32 irqenable_l[0x4];
+	u32 sysstatus;
+	u32 ocp_sysconfig;
+	u8 res2[0x34];
+	u32 caps_0;
+	u8 res3[0x4];
+	u32 caps_2;
+	u32 caps_3;
+	u32 caps_4;
+	u32 gcr;
+	u8 res4[0x4];
+	struct dma4_chan chan[32];
+};
+
+#endif /*__ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 /* timer regs offsets (32 bit regs) */
 
@@ -347,10 +393,13 @@ struct prcm {
 	u32 clksel2_pll_mpu;	/* 0x944 */
 	u8 res6[0xb8];
 	u32 fclken1_core;	/* 0xa00 */
-	u8 res7[0xc];
+	u32 res_fclken2_core;
+	u32 fclken3_core;	/* 0xa08 */
+	u8 res7[0x4];
 	u32 iclken1_core;	/* 0xa10 */
 	u32 iclken2_core;	/* 0xa14 */
-	u8 res8[0x28];
+	u32 iclken3_core;	/* 0xa18 */
+	u8 res8[0x24];
 	u32 clksel_core;	/* 0xa40 */
 	u8 res9[0xbc];
 	u32 fclken_gfx;		/* 0xb00 */
@@ -368,13 +417,17 @@ struct prcm {
 	u32 clksel_wkup;	/* 0xc40 */
 	u8 res16[0xbc];
 	u32 clken_pll;		/* 0xd00 */
-	u8 res17[0x1c];
+	u32 clken2_pll;	        /* 0xd04 */
+	u8 res17[0x18];
 	u32 idlest_ckgen;	/* 0xd20 */
-	u8 res18[0x1c];
+	u32 idlest2_ckgen;	/* 0xd24 */
+	u8 res18[0x18];
 	u32 clksel1_pll;	/* 0xd40 */
 	u32 clksel2_pll;	/* 0xd44 */
 	u32 clksel3_pll;	/* 0xd48 */
-	u8 res19[0xb4];
+	u32 clksel4_pll;	/* 0xd4c */
+	u32 clksel5_pll;	/* 0xd50 */
+	u8 res19[0xac];
 	u32 fclken_dss;		/* 0xe00 */
 	u8 res20[0xc];
 	u32 iclken_dss;		/* 0xe10 */
@@ -394,6 +447,10 @@ struct prcm {
 	u32 clksel_per;		/* 0x1040 */
 	u8 res28[0xfc];
 	u32 clksel1_emu;	/* 0x1140 */
+	u8 res29[0x2bc];
+	u32 fclken_usbhost;	/* 0x1400 */
+	u8 res30[0xc];
+	u32 iclken_usbhost;	/* 0x1410 */
 };
 #else /* __ASSEMBLY__ */
 #define CM_CLKSEL_CORE		0x48004a40
@@ -486,5 +543,31 @@ struct pm {
 
 /* MUSB base */
 #define MUSB_BASE		(OMAP34XX_CORE_L4_IO_BASE + 0xAB000)
+
+/* OMAP3 GPIO registers */
+#define OMAP_GPIO_REVISION		0x0000
+#define OMAP_GPIO_SYSCONFIG		0x0010
+#define OMAP_GPIO_SYSSTATUS		0x0014
+#define OMAP_GPIO_IRQSTATUS1		0x0018
+#define OMAP_GPIO_IRQSTATUS2		0x0028
+#define OMAP_GPIO_IRQENABLE2		0x002c
+#define OMAP_GPIO_IRQENABLE1		0x001c
+#define OMAP_GPIO_WAKE_EN		0x0020
+#define OMAP_GPIO_CTRL			0x0030
+#define OMAP_GPIO_OE			0x0034
+#define OMAP_GPIO_DATAIN		0x0038
+#define OMAP_GPIO_DATAOUT		0x003c
+#define OMAP_GPIO_LEVELDETECT0		0x0040
+#define OMAP_GPIO_LEVELDETECT1		0x0044
+#define OMAP_GPIO_RISINGDETECT		0x0048
+#define OMAP_GPIO_FALLINGDETECT		0x004c
+#define OMAP_GPIO_DEBOUNCE_EN		0x0050
+#define OMAP_GPIO_DEBOUNCE_VAL		0x0054
+#define OMAP_GPIO_CLEARIRQENABLE1	0x0060
+#define OMAP_GPIO_SETIRQENABLE1		0x0064
+#define OMAP_GPIO_CLEARWKUENA		0x0080
+#define OMAP_GPIO_SETWKUENA		0x0084
+#define OMAP_GPIO_CLEARDATAOUT		0x0090
+#define OMAP_GPIO_SETDATAOUT		0x0094
 
 #endif /* _CPU_H */

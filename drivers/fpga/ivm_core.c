@@ -2102,7 +2102,6 @@ signed char ispVMLCOUNT(unsigned short a_usCountSize)
 	unsigned char ucState             = 0;
 	unsigned short usDelay            = 0;
 	unsigned short usToggle           = 0;
-	unsigned char usByte              = 0;
 
 	g_usIntelBufferSize = (unsigned short)ispVMDataSize();
 
@@ -2171,7 +2170,6 @@ signed char ispVMLCOUNT(unsigned short a_usCountSize)
 		ucState            = 0;
 		usDelay            = 0;
 		usToggle           = 0;
-		usByte             = 0;
 		usContinue		   = 1;
 
 		/*

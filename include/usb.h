@@ -46,7 +46,7 @@
  * This is the timeout to allow for submitting an urb in ms. We allow more
  * time for a BULK device to react - some are slow.
  */
-#define USB_TIMEOUT_MS(pipe) (usb_pipebulk(pipe) ? 5000 : 100)
+#define USB_TIMEOUT_MS(pipe) (usb_pipebulk(pipe) ? 5000 : 1000)
 
 /* device request (setup) */
 struct devrequest {
@@ -149,7 +149,6 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, struct devrequest *setup);
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
-void usb_event_poll(void);
 
 /* Defines */
 #define USB_UHCI_VEND_ID	0x8086
@@ -200,7 +199,6 @@ int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int transfer_len, int interval);
 int usb_disable_asynch(int disable);
 int usb_maxpacket(struct usb_device *dev, unsigned long pipe);
-inline void wait_ms(unsigned long ms);
 int usb_get_configuration_no(struct usb_device *dev, unsigned char *buffer,
 				int cfgno);
 int usb_get_report(struct usb_device *dev, int ifnum, unsigned char type,
@@ -366,5 +364,13 @@ struct usb_hub_device {
 	struct usb_device *pusb_dev;
 	struct usb_hub_descriptor desc;
 };
+
+int usb_hub_probe(struct usb_device *dev, int ifnum);
+void usb_hub_reset(void);
+int hub_port_reset(struct usb_device *dev, int port,
+			  unsigned short *portstat);
+
+struct usb_device *usb_alloc_new_device(void);
+int usb_new_device(struct usb_device *dev);
 
 #endif /*_USB_H_ */

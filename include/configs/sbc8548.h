@@ -57,8 +57,18 @@
 #define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_SBC8548		1	/* SBC8548 board specific */
 
+/*
+ * If you want to boot from the SODIMM flash, instead of the soldered
+ * on flash, set this, and change JP12, SW2:8 accordingly.
+ */
+#undef CONFIG_SYS_ALT_BOOT
+
 #ifndef CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_SYS_ALT_BOOT
+#define CONFIG_SYS_TEXT_BASE	0xfff00000
+#else
 #define CONFIG_SYS_TEXT_BASE	0xfffa0000
+#endif
 #endif
 
 #undef CONFIG_RIO
@@ -103,21 +113,23 @@
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
-#define CONFIG_SYS_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
+#define CONFIG_SYS_CCSRBAR		0xe0000000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
+#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
+/*
+ * A hardware errata caused the LBC SDRAM SPD and the DDR2 SPD
+ * to collide, meaning you couldn't reliably read either. So
+ * physically remove the LBC PC100 SDRAM module from the board
+ * before enabling the two SPD options below, or check that you
+ * have the hardware fix on your board via "i2c probe" and looking
+ * for a device at 0x53.
+ */
 #undef CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #undef CONFIG_DDR_SPD
-#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
@@ -130,14 +142,20 @@
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
-/* I2C addresses of SPD EEPROMs */
+/*
+ * The hardware fix for the I2C address collision puts the DDR
+ * SPD at 0x53, but if we are running on an older board w/o the
+ * fix, it will still be at 0x51.  We check 0x53 1st.
+ */
 #define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
+#define ALT_SPD_EEPROM_ADDRESS	0x53	/* CTLR 0 DIMM 0 */
 
 /*
  * Make sure required options are set
  */
 #ifndef CONFIG_SPD_EEPROM
 	#define CONFIG_SYS_SDRAM_SIZE	256		/* DDR is 256MB */
+	#define CONFIG_SYS_DDR_CONTROL	0xc300c000
 #endif
 
 #undef CONFIG_CLOCKS_IN_MHZ
@@ -145,28 +163,54 @@
 /*
  * FLASH on the Local Bus
  * Two banks, one 8MB the other 64MB, using the CFI driver.
- * Boot from BR0/OR0 bank at 0xff80_0000
- * Alternate BR6/OR6 bank at 0xfb80_0000
+ * JP12+SW2.8 are used to swap CS0 and CS6, defaults are to have
+ * CS0 the 8MB boot flash, and CS6 the 64MB flash.
  *
- * BR0:
+ *	Default:
+ *	ec00_0000	efff_ffff	64MB SODIMM
+ *	ff80_0000	ffff_ffff	8MB soldered flash
+ *
+ *	Alternate:
+ *	ef80_0000	efff_ffff	8MB soldered flash
+ *	fc00_0000	ffff_ffff	64MB SODIMM
+ *
+ * BR0_8M:
  *    Base address 0 = 0xff80_0000 = BR0[0:16] = 1111 1111 1000 0000 0
  *    Port Size = 8 bits = BRx[19:20] = 01
  *    Use GPCM = BRx[24:26] = 000
  *    Valid = BRx[31] = 1
  *
- * 0    4    8    12   16   20   24   28
- * 1111 1111 1000 0000 0000 1000 0000 0001 = ff800801    BR0
- *
- * BR6:
- *    Base address 6 = 0xfb80_0000 = BR6[0:16] = 1111 1011 1000 0000 0
+ * BR0_64M:
+ *    Base address 0 = 0xfc00_0000 = BR0[0:16] = 1111 1100 0000 0000 0
  *    Port Size = 32 bits = BRx[19:20] = 11
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 1111 1000 0000 0000 1000 0000 0001 = ff800801    BR0_8M
+ * 1111 1100 0000 0000 0001 1000 0000 0001 = fc001801    BR0_64M
+ */
+#define CONFIG_SYS_BR0_8M	0xff800801
+#define CONFIG_SYS_BR0_64M	0xfc001801
+
+/*
+ * BR6_8M:
+ *    Base address 6 = 0xef80_0000 = BR6[0:16] = 1110 1111 1000 0000 0
+ *    Port Size = 8 bits = BRx[19:20] = 01
  *    Use GPCM = BRx[24:26] = 000
  *    Valid = BRx[31] = 1
+
+ * BR6_64M:
+ *    Base address 6 = 0xec00_0000 = BR6[0:16] = 1110 1100 0000 0000 0
+ *    Port Size = 32 bits = BRx[19:20] = 11
  *
  * 0    4    8    12   16   20   24   28
- * 1111 1011 1000 0000 0001 1000 0000 0001 = fb801801    BR6
- *
- * OR0:
+ * 1110 1111 1000 0000 0000 1000 0000 0001 = ef800801    BR6_8M
+ * 1110 1100 0000 0000 0001 1000 0000 0001 = ec001801    BR6_64M
+ */
+#define CONFIG_SYS_BR6_8M	0xef800801
+#define CONFIG_SYS_BR6_64M	0xec001801
+
+/*
+ * OR0_8M:
  *    Addr Mask = 8M = OR1[0:16] = 1111 1111 1000 0000 0
  *    XAM = OR0[17:18] = 11
  *    CSNT = OR0[20] = 1
@@ -175,11 +219,20 @@
  *    TRLX = use relaxed timing = OR0[29] = 1
  *    EAD = use external address latch delay = OR0[31] = 1
  *
- * 0    4    8    12   16   20   24   28
- * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65    OR0
+ * OR0_64M:
+ *    Addr Mask = 64M = OR1[0:16] = 1111 1100 0000 0000 0
  *
- * OR6:
- *    Addr Mask = 64M = OR6[0:16] = 1111 1000 0000 0000 0
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65    OR0_8M
+ * 1111 1100 0000 0000 0110 1110 0110 0101 = fc006e65    OR0_64M
+ */
+#define CONFIG_SYS_OR0_8M	0xff806e65
+#define CONFIG_SYS_OR0_64M	0xfc006e65
+
+/*
+ * OR6_8M:
+ *    Addr Mask = 8M = OR6[0:16] = 1111 1111 1000 0000 0
  *    XAM = OR6[17:18] = 11
  *    CSNT = OR6[20] = 1
  *    ACS = half cycle delay = OR6[21:22] = 11
@@ -187,20 +240,37 @@
  *    TRLX = use relaxed timing = OR6[29] = 1
  *    EAD = use external address latch delay = OR6[31] = 1
  *
+ * OR6_64M:
+ *    Addr Mask = 64M = OR6[0:16] = 1111 1100 0000 0000 0
+ *
  * 0    4    8    12   16   20   24   28
- * 1111 1000 0000 0000 0110 1110 0110 0101 = f8006e65    OR6
+ * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65    OR6_8M
+ * 1111 1100 0000 0000 0110 1110 0110 0101 = fc006e65    OR6_64M
  */
+#define CONFIG_SYS_OR6_8M	0xff806e65
+#define CONFIG_SYS_OR6_64M	0xfc006e65
 
+#ifndef CONFIG_SYS_ALT_BOOT		/* JP12 in default position */
 #define CONFIG_SYS_BOOT_BLOCK		0xff800000	/* start of 8MB Flash */
-#define CONFIG_SYS_ALT_FLASH		0xfb800000	/* 64MB "user" flash */
-#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_BOOT_BLOCK	/* start of FLASH 16M */
+#define CONFIG_SYS_ALT_FLASH		0xec000000	/* 64MB "user" flash */
 
-#define CONFIG_SYS_BR0_PRELIM		0xff800801
-#define CONFIG_SYS_BR6_PRELIM		0xfb801801
+#define CONFIG_SYS_BR0_PRELIM		CONFIG_SYS_BR0_8M
+#define CONFIG_SYS_OR0_PRELIM		CONFIG_SYS_OR0_8M
 
-#define	CONFIG_SYS_OR0_PRELIM		0xff806e65
-#define	CONFIG_SYS_OR6_PRELIM		0xf8006e65
+#define CONFIG_SYS_BR6_PRELIM		CONFIG_SYS_BR6_64M
+#define CONFIG_SYS_OR6_PRELIM		CONFIG_SYS_OR6_64M
+#else					/* JP12 in alternate position */
+#define CONFIG_SYS_BOOT_BLOCK		0xfc000000	/* start 64MB Flash */
+#define CONFIG_SYS_ALT_FLASH		0xef800000	/* 8MB soldered flash */
 
+#define CONFIG_SYS_BR0_PRELIM		CONFIG_SYS_BR0_64M
+#define CONFIG_SYS_OR0_PRELIM		CONFIG_SYS_OR0_64M
+
+#define CONFIG_SYS_BR6_PRELIM		CONFIG_SYS_BR6_8M
+#define CONFIG_SYS_OR6_PRELIM		CONFIG_SYS_OR6_8M
+#endif
+
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_BOOT_BLOCK
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE, \
 					 CONFIG_SYS_ALT_FLASH}
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
@@ -227,6 +297,10 @@
 
 /*
  * SDRAM on the Local Bus (CS3 and CS4)
+ * Note that most boards have a hardware errata where both the
+ * LBC SDRAM and the DDR2 SDRAM decode at 0x51, making it impossible
+ * to use CONFIG_DDR_SPD unless you physically remove the LBC DIMM.
+ * A hardware workaround is also available, see README.sbc8548 file.
  */
 #define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
 #define CONFIG_SYS_LBC_SDRAM_SIZE	128		/* LBC SDRAM is 128MB */
@@ -306,18 +380,25 @@
 
 /*
  * Common settings for all Local Bus SDRAM commands.
- * At run time, either BSMA1516 (for CPU 1.1)
- *                  or BSMA1617 (for CPU 1.0) (old)
- * is OR'ed in too.
  */
 #define CONFIG_SYS_LBC_LSDMR_COMMON	( LSDMR_RFCR16		\
-				| LSDMR_PRETOACT7	\
-				| LSDMR_ACTTORW7	\
+				| LSDMR_BSMA1516	\
+				| LSDMR_PRETOACT3	\
+				| LSDMR_ACTTORW3	\
+				| LSDMR_BUFCMD		\
 				| LSDMR_BL8		\
-				| LSDMR_WRC4		\
+				| LSDMR_WRC2		\
 				| LSDMR_CL3		\
-				| LSDMR_RFEN		\
 				)
+
+#define CONFIG_SYS_LBC_LSDMR_PCHALL	\
+	 (CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_PCHALL)
+#define CONFIG_SYS_LBC_LSDMR_ARFRSH	\
+	 (CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_ARFRSH)
+#define CONFIG_SYS_LBC_LSDMR_MRW	\
+	 (CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_MRW)
+#define CONFIG_SYS_LBC_LSDMR_RFEN	\
+	 (CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_RFEN)
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
@@ -336,7 +417,7 @@
  * thing for MONITOR_LEN in both cases.
  */
 #define CONFIG_SYS_MONITOR_LEN		(~CONFIG_SYS_TEXT_BASE + 1)
-#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
+#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024) /* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX	1
@@ -410,7 +491,6 @@
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
@@ -422,10 +502,6 @@
 
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_TSEC1	1
@@ -538,8 +614,8 @@
 #define CONFIG_IPADDR	 192.168.0.55
 
 #define CONFIG_HOSTNAME	 sbc8548
-#define CONFIG_ROOTPATH	 /opt/eldk/ppc_85xx
-#define CONFIG_BOOTFILE	 /uImage
+#define CONFIG_ROOTPATH	 "/opt/eldk/ppc_85xx"
+#define CONFIG_BOOTFILE	 "/uImage"
 #define CONFIG_UBOOTPATH /u-boot.bin	/* TFTP server */
 
 #define CONFIG_SERVERIP	 192.168.0.2

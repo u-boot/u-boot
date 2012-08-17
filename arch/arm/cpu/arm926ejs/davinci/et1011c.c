@@ -22,6 +22,7 @@
 #include <net.h>
 #include <miiphy.h>
 #include <asm/arch/emac_defs.h>
+#include "../../../../../drivers/net/davinci_emac.h"
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 
@@ -39,11 +40,9 @@ int et1011c_get_link_speed(int phy_addr)
 	u_int16_t	data;
 
 	if (davinci_eth_phy_read(phy_addr, MII_STATUS_REG, &data) && (data & 0x04)) {
-		davinci_eth_phy_read(EMAC_MDIO_PHY_NUM,
-				MII_PHY_CONFIG_REG, &data);
+		davinci_eth_phy_read(phy_addr, MII_PHY_CONFIG_REG, &data);
 		/* Enable 125MHz clock sourced from PHY */
-		davinci_eth_phy_write(EMAC_MDIO_PHY_NUM,
-			MII_PHY_CONFIG_REG,
+		davinci_eth_phy_write(phy_addr, MII_PHY_CONFIG_REG,
 			data | PHY_SYS_CLK_EN);
 		return (1);
 	}

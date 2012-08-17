@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -46,12 +46,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FSL_PCIE_CAP_ID		0x4c
 #define FSL_PCIE_CFG_RDY	0x4b0
 #define FSL_PROG_IF_AGENT	0x1
-
-void pciauto_prescan_setup_bridge(struct pci_controller *hose,
-				pci_dev_t dev, int sub_bus);
-void pciauto_postscan_setup_bridge(struct pci_controller *hose,
-				pci_dev_t dev, int sub_bus);
-void pciauto_config_init(struct pci_controller *hose);
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS 0
@@ -223,6 +217,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	u32 cfg_data = (u32)&((ccsr_fsl_pci_t *)pci_info->regs)->cfg_data;
 	u16 temp16;
 	u32 temp32;
+	u32 block_rev;
 	int enabled, r, inbound = 0;
 	u16 ltssm;
 	u8 temp8, pcie_cap;
@@ -232,12 +227,19 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 
 	/* Initialize ATMU registers based on hose regions and flags */
 	volatile pot_t *po = &pci->pot[1];	/* skip 0 */
-	volatile pit_t *pi = &pci->pit[2];	/* ranges from: 3 to 1 */
+	volatile pit_t *pi;
 
 	u64 out_hi = 0, out_lo = -1ULL;
 	u32 pcicsrbar, pcicsrbar_sz;
 
 	pci_setup_indirect(hose, cfg_addr, cfg_data);
+
+	block_rev = in_be32(&pci->block_rev1);
+	if (PEX_IP_BLK_REV_2_2 <= block_rev) {
+		pi = &pci->pit[2];	/* 0xDC0 */
+	} else {
+		pi = &pci->pit[3];	/* 0xDE0 */
+	}
 
 	/* Handle setup of outbound windows first */
 	for (r = 0; r < hose->region_count; r++) {
@@ -297,10 +299,10 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	inbound = fsl_pci_setup_inbound_windows(hose, out_lo, pcie_cap, pi);
 
 	for (r = 0; r < hose->region_count; r++)
-		debug("PCI reg:%d %016llx:%016llx %016llx %08x\n", r,
+		debug("PCI reg:%d %016llx:%016llx %016llx %08lx\n", r,
 			(u64)hose->regions[r].phys_start,
-			hose->regions[r].bus_start,
-			hose->regions[r].size,
+			(u64)hose->regions[r].bus_start,
+			(u64)hose->regions[r].size,
 			hose->regions[r].flags);
 
 	pci_register_hose(hose);
@@ -308,7 +310,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	hose->current_busno = hose->first_busno;
 
 	out_be32(&pci->pedr, 0xffffffff);	/* Clear any errors */
-	out_be32(&pci->peer, ~0x20140);	/* Enable All Error Interupts except
+	out_be32(&pci->peer, ~0x20140);	/* Enable All Error Interrupts except
 					 * - Master abort (pci)
 					 * - Master PERR (pci)
 					 * - ICCA (PCIe)
@@ -336,7 +338,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 			setbits_be32(&pci->pdb_stat, 0x08000000);
 			(void) in_be32(&pci->pdb_stat);
 			udelay(100);
-			debug("  Asserting PCIe reset @%x = %x\n",
+			debug("  Asserting PCIe reset @%p = %x\n",
 			      &pci->pdb_stat, in_be32(&pci->pdb_stat));
 			/* clear PCIe reset */
 			clrbits_be32(&pci->pdb_stat, 0x08000000);

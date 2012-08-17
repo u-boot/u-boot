@@ -894,12 +894,7 @@
 /*  Module      :  EBU register address and bits                       */
 /***********************************************************************/
 
-#if defined(CONFIG_INCA_IP)
 #define INCA_IP_EBU                          (0xB8000200)
-#elif defined(CONFIG_PURPLE)
-#define INCA_IP_EBU                          (0xB800D800)
-#endif
-
 /***********************************************************************/
 
 
@@ -1495,12 +1490,7 @@ If set and clear bit are written concurrently with 1, the associated bit is not 
 /*  Module      :  ASC register address and bits                       */
 /***********************************************************************/
 
-#if defined(CONFIG_INCA_IP)
 #define INCA_IP_ASC                          (0xB8000400)
-#elif defined(CONFIG_PURPLE)
-#define INCA_IP_ASC                          (0xBE500000)
-#endif
-
 /***********************************************************************/
 
 

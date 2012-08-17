@@ -95,7 +95,10 @@ int timer_init (void)
 
 	/* init the timestamp */
 	total_count = 0ULL;
-	reset_timer_masked();
+	/* capure current decrementer value    */
+	lastdec	  = READ_TIMER;
+	/* start "advancing" time stamp from 0 */
+	timestamp = 0L;
 
 	div_timer = CONFIG_SYS_HZ_CLOCK;
 	do_div(div_timer, CONFIG_SYS_HZ);
@@ -107,20 +110,9 @@ int timer_init (void)
 /*
  * timer without interrupts
  */
-void reset_timer (void)
-{
-	reset_timer_masked ();
-}
-
 ulong get_timer (ulong base_ticks)
 {
 	return get_timer_masked () - base_ticks;
-}
-
-void set_timer (ulong ticks)
-{
-	timestamp   = ticks;
-	total_count = ticks * div_timer;
 }
 
 /* delay usec useconds */
@@ -138,14 +130,6 @@ void __udelay (unsigned long usec)
 	while (get_timer_masked () < tmo) {/* loop till event */
 		/*NOP*/;
 	}
-}
-
-void reset_timer_masked (void)
-{
-	/* capure current decrementer value    */
-	lastdec	  = READ_TIMER;
-	/* start "advancing" time stamp from 0 */
-	timestamp = 0L;
 }
 
 /* converts the timer reading to U-Boot ticks	       */

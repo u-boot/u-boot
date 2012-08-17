@@ -82,7 +82,6 @@ D: Port to the gw8260 board
 N: Curt Brune
 E: curt@cucy.com
 D: Added support for Samsung S3C4510B CPU (ARM7tdmi based SoC)
-D: Added support for ESPD-Inc. EVB4510 Board
 W: http://www.cucy.com
 
 N: Jonathan De Bruyne
@@ -134,11 +133,6 @@ N: Dave Ellis
 E: DGE@sixnetio.com
 D: EEPROM Speedup, SXNI855T port
 
-N: Thomas Elste
-E: info@elste.org
-D: Port for the ModNET50 Board, NET+50 CPU Port
-W: http://www.imms.de
-
 N: Daniel Engstr?m
 E: daniel@omicron.se
 D: x86 port, Support for sc520_cdp board
@@ -161,18 +155,13 @@ N: Thomas Frieden
 E: ThomasF@hyperion-entertainment.com
 D: Support for AmigaOne
 
-N: Niklaus Giger
-E: niklaus.giger@netstal.com
-D: Support for HCU(x) boards
-W: www.netstal.com
-
 N: Paul Gortmaker
 E: paul.gortmaker@windriver.com
 D: Support for WRS SBC8347/8349 boards
 
 N: Frank Gottschling
 E: fgottschling@eltec.de
-D: Support for ELTEC MHPC/BAB7xx/ELPPC boards, cfb-console, i8042, SMI LynxEM
+D: Support for ELTEC MHPC/ELPPC boards, cfb-console, i8042, SMI LynxEM
 W: www.eltec.de
 
 N: Marius Groeger
@@ -194,7 +183,7 @@ D: Port to Walnut405 board
 
 N: Andreas Heppel
 E: aheppel@sysgo.de
-D: CPU Support for MPC 75x; board support for Eltec BAB750 [obsolete!]
+D: CPU Support for MPC 75x
 
 N: Josh Huber
 E: huber@alum.wpi.edu
@@ -387,7 +376,7 @@ D: Support for the Wind River sbc405, sbc8240 board
 W: http://www.windriver.com
 
 N: Stelian Pop
-E: stelian.pop@leadtechdesign.com
+E: stelian@popies.net
 D: Atmel AT91CAP9ADK support
 
 N: Ricardo Ribalda Delgado

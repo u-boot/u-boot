@@ -21,7 +21,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 
-#include <asm/arch/ftsmc020.h>
+#include <faraday/ftsmc020.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,7 +31,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_FARADAY;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	ftsmc020_init();	/* initialize Flash */

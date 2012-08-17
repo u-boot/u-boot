@@ -104,6 +104,7 @@ int board_early_init_r(void)
 #if defined(CONFIG_MACB) && defined(CONFIG_CMD_NET)
 int board_eth_init(bd_t *bi)
 {
-	return macb_eth_initialize(0, (void *)MACB0_BASE, bi->bi_phy_id[0]);
+	return macb_eth_initialize(0, (void *)ATMEL_BASE_MACB0,
+		bi->bi_phy_id[0]);
 }
 #endif

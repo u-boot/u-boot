@@ -203,7 +203,6 @@
 /*-----------------------------------------------------------------------
  * defines we need to get FEC running
  */
-#define	CONFIG_NET_MULTI	1	/* the only way to get the FEC in */
 #define CONFIG_FEC_ENET		1	/* Ethernet only via FEC	*/
 #define	FEC_ENET		1	/* eth.c needs it that way... */
 #define CONFIG_SYS_DISCOVER_PHY	1

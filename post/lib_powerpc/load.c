@@ -171,8 +171,7 @@ static struct cpu_post_load_s
 	1
     },
 };
-static unsigned int cpu_post_load_size =
-    sizeof (cpu_post_load_table) / sizeof (struct cpu_post_load_s);
+static unsigned int cpu_post_load_size = ARRAY_SIZE(cpu_post_load_table);
 
 int cpu_post_test_load (void)
 {

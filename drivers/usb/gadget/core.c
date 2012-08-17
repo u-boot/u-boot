@@ -212,7 +212,6 @@ struct usb_device_descriptor *usbd_device_device_descriptor (struct usb_device_i
 	return (device->device_descriptor);
 }
 
-
 /**
  * usbd_device_configuration_descriptor
  * @device: which device
@@ -671,9 +670,9 @@ void usbd_device_event_irq (struct usb_device_instance *device, usb_device_event
 		usbdbg("event %d - not handled",event);
 		break;
 	}
-	/*usbdbg("%s event: %d oldstate: %d newstate: %d status: %d address: %d",
+	debug("%s event: %d oldstate: %d newstate: %d status: %d address: %d",
 		device->name, event, state,
-		device->device_state, device->status, device->address); */
+		device->device_state, device->status, device->address);
 
 	/* tell the bus interface driver */
 	if( device->event ) {

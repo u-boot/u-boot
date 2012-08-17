@@ -33,7 +33,7 @@ typedef struct at91_spi {
 	at91_pdc_t	pdc;
 } at91_spi_t;
 
-#ifdef CONFIG_AT91_LEGACY
+#ifdef CONFIG_ATMEL_LEGACY
 
 #define AT91_SPI_CR			0x00		/* Control Register */
 #define		AT91_SPI_SPIEN		(1 <<  0)		/* SPI Enable */

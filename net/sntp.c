@@ -48,7 +48,8 @@ SntpTimeout (void)
 }
 
 static void
-SntpHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
+SntpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+	    unsigned len)
 {
 	struct sntp_pkt_t *rpktp = (struct sntp_pkt_t *)pkt;
 	struct rtc_time tm;

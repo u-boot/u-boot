@@ -82,11 +82,11 @@ ALL PARAMETERS ARE ALL LONGWORDS (FOUR BYTES EACH).
     sdma->IntPend = (1 << tasknum);                    \
 }
 
-/* get interupt pending bit of a task */
+/* get interrupt pending bit of a task */
 #define SDMA_GET_PENDINGBIT(tasknum)                   \
 	((*(vu_long *)(MPC5XXX_SDMA + 0x14)) & (1<<(tasknum)))
 
-/* get interupt mask bit of a task */
+/* get interrupt mask bit of a task */
 #define SDMA_GET_MASKBIT(tasknum)                      \
 	((*(vu_long *)(MPC5XXX_SDMA + 0x18)) & (1<<(tasknum)))
 

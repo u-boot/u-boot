@@ -37,18 +37,67 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
 #include <asm/cache.h>
+#include <asm/armv7.h>
+#include <asm/arch/gpio.h>
+#include <asm/omap_common.h>
+#include <i2c.h>
 
+/* Declarations */
 extern omap3_sysinfo sysinfo;
+static void omap3_setup_aux_cr(void);
+static void omap3_invalidate_l2_cache_secure(void);
 
-/******************************************************************************
- * Routine: delay
- * Description: spinning delay to use before udelay works
- *****************************************************************************/
-static inline void delay(unsigned long loops)
+static const struct gpio_bank gpio_bank_34xx[6] = {
+	{ (void *)OMAP34XX_GPIO1_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP34XX_GPIO2_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP34XX_GPIO3_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP34XX_GPIO4_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP34XX_GPIO5_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP34XX_GPIO6_BASE, METHOD_GPIO_24XX },
+};
+
+const struct gpio_bank *const omap_gpio_bank = gpio_bank_34xx;
+
+#ifdef CONFIG_SPL_BUILD
+/*
+* We use static variables because global data is not ready yet.
+* Initialized data is available in SPL right from the beginning.
+* We would not typically need to save these parameters in regular
+* U-Boot. This is needed only in SPL at the moment.
+*/
+u32 omap3_boot_device = BOOT_DEVICE_NAND;
+
+/* auto boot mode detection is not possible for OMAP3 - hard code */
+u32 omap_boot_mode(void)
 {
-	__asm__ volatile ("1:\n" "subs %0, %1, #1\n"
-			  "bne 1b":"=r" (loops):"0"(loops));
+	switch (omap_boot_device()) {
+	case BOOT_DEVICE_MMC2:
+		return MMCSD_MODE_RAW;
+	case BOOT_DEVICE_MMC1:
+		return MMCSD_MODE_FAT;
+		break;
+	case BOOT_DEVICE_NAND:
+		return NAND_MODE_HW_ECC;
+		break;
+	default:
+		puts("spl: ERROR:  unknown device - can't select boot mode\n");
+		hang();
+	}
 }
+
+u32 omap_boot_device(void)
+{
+	return omap3_boot_device;
+}
+
+void spl_board_init(void)
+{
+#ifdef CONFIG_SPL_I2C_SUPPORT
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+}
+#endif /* CONFIG_SPL_BUILD */
+
 
 /******************************************************************************
  * Routine: secure_unlock
@@ -97,7 +146,7 @@ void secureworld_exit()
 {
 	unsigned long i;
 
-	/* configrue non-secure access control register */
+	/* configure non-secure access control register */
 	__asm__ __volatile__("mrc p15, 0, %0, c1, c1, 2":"=r"(i));
 	/* enabling co-processor CP10 and CP11 accesses in NS world */
 	__asm__ __volatile__("orr %0, %0, #0xC00":"=r"(i));
@@ -166,34 +215,30 @@ void s_init(void)
 
 	try_unlock_memory();
 
-	/*
-	 * Right now flushing at low MPU speed.
-	 * Need to move after clock init
-	 */
-	invalidate_dcache(get_device_type());
-#ifndef CONFIG_ICACHE_OFF
-	icache_enable();
-#endif
+	/* Errata workarounds */
+	omap3_setup_aux_cr();
 
-#ifdef CONFIG_L2_OFF
-	l2_cache_disable();
-#else
-	l2_cache_enable();
+#ifndef CONFIG_SYS_L2CACHE_OFF
+	/* Invalidate L2-cache from secure mode */
+	omap3_invalidate_l2_cache_secure();
 #endif
-	/*
-	 * Writing to AuxCR in U-boot using SMI for GP DEV
-	 * Currently SMI in Kernel on ES2 devices seems to have an issue
-	 * Once that is resolved, we can postpone this config to kernel
-	 */
-	if (get_device_type() == GP_DEVICE)
-		setup_auxcr();
 
 	set_muxconf_regs();
-	delay(100);
+	sdelay(100);
 
 	prcm_init();
 
 	per_clocks_enable();
+
+#ifdef CONFIG_USB_EHCI_OMAP
+	ehci_clocks_enable();
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+	preloader_console_init();
+
+	timer_init();
+#endif
 
 	if (!in_sdram)
 		mem_init();
@@ -243,7 +288,7 @@ void abort(void)
 {
 }
 
-#ifdef CONFIG_NAND_OMAP_GPMC
+#if defined(CONFIG_NAND_OMAP_GPMC) & !defined(CONFIG_SPL_BUILD)
 /******************************************************************************
  * OMAP3 specific command to switch between NAND HW and SW ecc
  *****************************************************************************/
@@ -271,7 +316,7 @@ U_BOOT_CMD(
 	"[hw/sw] - Switch between NAND hardware (hw) or software (sw) ecc algorithm"
 );
 
-#endif /* CONFIG_NAND_OMAP_GPMC */
+#endif /* CONFIG_NAND_OMAP_GPMC & !CONFIG_SPL_BUILD */
 
 #ifdef CONFIG_DISPLAY_BOARDINFO
 /**
@@ -292,3 +337,119 @@ int checkboard (void)
 	return 0;
 }
 #endif	/* CONFIG_DISPLAY_BOARDINFO */
+
+static void omap3_emu_romcode_call(u32 service_id, u32 *parameters)
+{
+	u32 i, num_params = *parameters;
+	u32 *sram_scratch_space = (u32 *)OMAP3_PUBLIC_SRAM_SCRATCH_AREA;
+
+	/*
+	 * copy the parameters to an un-cached area to avoid coherency
+	 * issues
+	 */
+	for (i = 0; i < num_params; i++) {
+		__raw_writel(*parameters, sram_scratch_space);
+		parameters++;
+		sram_scratch_space++;
+	}
+
+	/* Now make the PPA call */
+	do_omap3_emu_romcode_call(service_id, OMAP3_PUBLIC_SRAM_SCRATCH_AREA);
+}
+
+static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
+{
+	u32 acr;
+
+	/* Read ACR */
+	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
+	acr &= ~clear_bits;
+	acr |= set_bits;
+
+	if (get_device_type() == GP_DEVICE) {
+		omap3_gp_romcode_call(OMAP3_GP_ROMCODE_API_WRITE_ACR,
+				       acr);
+	} else {
+		struct emu_hal_params emu_romcode_params;
+		emu_romcode_params.num_params = 1;
+		emu_romcode_params.param1 = acr;
+		omap3_emu_romcode_call(OMAP3_EMU_HAL_API_WRITE_ACR,
+				       (u32 *)&emu_romcode_params);
+	}
+}
+
+static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
+{
+	u32 acr;
+
+	/* Read ACR */
+	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
+	acr &= ~clear_bits;
+	acr |= set_bits;
+
+	/* Write ACR - affects non-secure banked bits */
+	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
+}
+
+static void omap3_setup_aux_cr(void)
+{
+	/* Workaround for Cortex-A8 errata: #454179 #430973
+	 *	Set "IBE" bit
+	 *	Set "Disable Branch Size Mispredicts" bit
+	 * Workaround for erratum #621766
+	 *	Enable L1NEON bit
+	 * ACR |= (IBE | DBSM | L1NEON) => ACR |= 0xE0
+	 */
+	omap3_update_aux_cr_secure(0xE0, 0);
+}
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+/* Invalidate the entire L2 cache from secure mode */
+static void omap3_invalidate_l2_cache_secure(void)
+{
+	if (get_device_type() == GP_DEVICE) {
+		omap3_gp_romcode_call(OMAP3_GP_ROMCODE_API_L2_INVAL,
+				      0);
+	} else {
+		struct emu_hal_params emu_romcode_params;
+		emu_romcode_params.num_params = 1;
+		emu_romcode_params.param1 = 0;
+		omap3_emu_romcode_call(OMAP3_EMU_HAL_API_L2_INVAL,
+				       (u32 *)&emu_romcode_params);
+	}
+}
+
+void v7_outer_cache_enable(void)
+{
+	/* Set L2EN */
+	omap3_update_aux_cr_secure(0x2, 0);
+
+	/*
+	 * On some revisions L2EN bit is banked on some revisions it's not
+	 * No harm in setting both banked bits(in fact this is required
+	 * by an erratum)
+	 */
+	omap3_update_aux_cr(0x2, 0);
+}
+
+void omap3_outer_cache_disable(void)
+{
+	/* Clear L2EN */
+	omap3_update_aux_cr_secure(0, 0x2);
+
+	/*
+	 * On some revisions L2EN bit is banked on some revisions it's not
+	 * No harm in clearing both banked bits(in fact this is required
+	 * by an erratum)
+	 */
+	omap3_update_aux_cr(0, 0x2);
+}
+#endif
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif

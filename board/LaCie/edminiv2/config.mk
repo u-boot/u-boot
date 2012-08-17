@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2010 Albert ARIBAUD <albert.aribaud@free.fr>
+# Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
 #
 # (C) Copyright 2009
 # Marvell Semiconductor <www.marvell.com>

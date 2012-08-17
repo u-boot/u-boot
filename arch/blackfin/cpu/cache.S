@@ -8,8 +8,8 @@
  * Licensed under the GPL-2 or later.
  */
 
-#include <asm/linkage.h>
 #include <config.h>
+#include <linux/linkage.h>
 #include <asm/blackfin.h>
 
 .text

@@ -1,6 +1,7 @@
 /*
- * Copyright 2007 Freescale Semiconductor, Inc.
- * York Sun <yorksun@freescale.com>
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
+ * Authors: York Sun <yorksun@freescale.com>
+ *          Timur Tabi <timur@freescale.com>
  *
  * FSL DIU Framebuffer driver
  *
@@ -27,6 +28,10 @@
 #include <command.h>
 #include <asm/io.h>
 #include <fsl_diu_fb.h>
+#include "../common/pixis.h"
+
+#define PX_BRDCFG0_DLINK	0x10
+#define PX_BRDCFG0_DVISEL	0x08
 
 void diu_set_pixel_clock(unsigned int pixclock)
 {
@@ -49,50 +54,34 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
 }
 
-int platform_diu_init(unsigned int *xres, unsigned int *yres)
+int platform_diu_init(unsigned int xres, unsigned int yres, const char *port)
 {
-	char *monitor_port;
-	int gamma_fix;
-	unsigned int pixel_format;
-	unsigned char tmp_val;
-	unsigned char pixis_arch;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
+	const char *name;
+	int gamma_fix = 0;
+	u32 pixel_format = 0x88883316;
+	u8 temp;
 
-	tmp_val = in_8(pixis_base + PIXIS_BRDCFG0);
-	pixis_arch = in_8(pixis_base + PIXIS_VER);
+	temp = in_8(&pixis->brdcfg0);
 
-	monitor_port = getenv("monitor");
-	if (!strncmp(monitor_port, "0", 1)) {	/* 0 - DVI */
-		*xres = 1280;
-		*yres = 1024;
-		if (pixis_arch == 0x01)
-			pixel_format = 0x88882317;
-		else
-			pixel_format = 0x88883316;
-		gamma_fix = 0;
-		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
-
-	} else if (!strncmp(monitor_port, "1", 1)) { /* 1 - Single link LVDS */
-		*xres = 1024;
-		*yres = 768;
-		pixel_format = 0x88883316;
-		gamma_fix = 0;
-		out_8(pixis_base + PIXIS_BRDCFG0, (tmp_val & 0xf7) | 0x10);
-
-	} else if (!strncmp(monitor_port, "2", 1)) { /* 2 - Double link LVDS */
-		*xres = 1280;
-		*yres = 1024;
-		pixel_format = 0x88883316;
+	if (strncmp(port, "dlvds", 5) == 0) {
+		/* Dual link LVDS */
 		gamma_fix = 1;
-		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val & 0xe7);
-
-	} else {	/* DVI */
-		*xres = 1280;
-		*yres = 1024;
-		pixel_format = 0x88882317;
-		gamma_fix = 0;
-		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
+		temp &= ~(PX_BRDCFG0_DLINK | PX_BRDCFG0_DVISEL);
+		name = "Dual-Link LVDS";
+	} else if (strncmp(port, "lvds", 4) == 0) {
+		/* Single link LVDS */
+		temp = (temp & ~PX_BRDCFG0_DVISEL) | PX_BRDCFG0_DLINK;
+		name = "Single-Link LVDS";
+	} else {
+		/* DVI */
+		if (in_8(&pixis->ver) == 1)	/* Board version */
+			pixel_format = 0x88882317;
+		temp |= PX_BRDCFG0_DVISEL;
+		name = "DVI";
 	}
 
-	return fsl_diu_init(*xres, pixel_format, gamma_fix);
+	printf("DIU:   Switching to %s monitor @ %ux%u\n", name, xres, yres);
+	out_8(&pixis->brdcfg0, temp);
+
+	return fsl_diu_init(xres, yres, pixel_format, gamma_fix);
 }

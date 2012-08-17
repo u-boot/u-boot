@@ -117,7 +117,6 @@
  *----------------------------------------------------------------------*/
 /* Change the default ethernet port, use this define (options: 0, 1, 2) */
 #define CONFIG_SYS_ETH_PORT		ETH_0
-#define CONFIG_NET_MULTI
 #define MV_ETH_DEVS		2
 #define CONFIG_PHY_RESET        1	/* reset phy upon startup         */
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
@@ -447,5 +446,9 @@
 #endif
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
+
+#ifndef __ASSEMBLY__
+#include <../board/Marvell/include/core.h>
+#endif
 
 #endif	/* __CONFIG_H */

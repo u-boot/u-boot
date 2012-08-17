@@ -36,7 +36,7 @@ typedef struct at91_tcc {
 	u32		idr;	/* 0x28 Interrupt Disable Register */
 	u32		imr;	/* 0x2C Interrupt Mask Register */
 	u32		reserved3[4];
-} __attribute__ ((packed)) at91_tcc_t;
+} at91_tcc_t;
 
 #define AT91_TC_CCR_CLKEN		0x00000001
 #define AT91_TC_CCR_CLKDIS		0x00000002
@@ -57,7 +57,7 @@ typedef struct at91_tc {
 	at91_tcc_t	tc[3];	/* 0x00 TC Channel 0-2 */
 	u32		bcr;	/* 0xC0 TC Block Control Register */
 	u32		bmr;	/* 0xC4 TC Block Mode Register */
-} __attribute__ ((packed)) at91_tc_t;
+} at91_tc_t;
 
 #define AT91_TC_BMR_TC0XC0S_TCLK0	0x00000000
 #define AT91_TC_BMR_TC0XC0S_NONE	0x00000001

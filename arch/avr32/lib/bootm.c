@@ -165,6 +165,16 @@ static struct tag *setup_ethernet_tags(struct tag *params)
 	return params;
 }
 
+static struct tag *setup_boardinfo_tag(struct tag *params)
+{
+	params->hdr.tag = ATAG_BOARDINFO;
+	params->hdr.size = tag_size(tag_boardinfo);
+
+	params->u.boardinfo.board_number = gd->bd->bi_board_number;
+
+	return tag_next(params);
+}
+
 static void setup_end_tag(struct tag *params)
 {
 	params->hdr.tag = ATAG_NONE;
@@ -182,7 +192,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 
 	theKernel = (void *)images->ep;
 
-	show_boot_progress (15);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	params = params_start = (struct tag *)gd->bd->bi_boot_params;
 	params = setup_start_tag(params);
@@ -195,6 +205,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	params = setup_commandline_tag(params, commandline);
 	params = setup_clock_tags(params);
 	params = setup_ethernet_tags(params);
+	params = setup_boardinfo_tag(params);
 	setup_end_tag(params);
 
 	printf("\nStarting kernel at %p (params at %p)...\n\n",

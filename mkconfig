@@ -29,6 +29,15 @@ if [ \( $# -eq 2 \) -a \( "$1" = "-A" \) ] ; then
 	set ${line}
 	# add default board name if needed
 	[ $# = 3 ] && set ${line} ${1}
+elif [ "${MAKEFLAGS+set}${MAKELEVEL+set}" = "setset" ] ; then
+	# only warn when using a config target in the Makefile
+	cat <<-EOF
+
+	warning: Please migrate to boards.cfg.  Failure to do so will
+	         mean removal of your board in the next release.
+
+	EOF
+	sleep 5
 fi
 
 while [ $# -gt 0 ] ; do
@@ -148,7 +157,7 @@ fi
 echo "/* Automatically generated - do not edit */" >>config.h
 
 for i in ${TARGETS} ; do
-	i="`echo ${i} | sed '/=/ {s/=/\t/;q } ; { s/$/\t1/ }'`"
+	i="`echo ${i} | sed '/=/ {s/=/	/;q; } ; { s/$/	1/; }'`"
 	echo "#define CONFIG_${i}" >>config.h ;
 done
 

@@ -78,14 +78,8 @@
 #define CONFIG_BTB			/* toggle branch predition */
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
-#define CONFIG_SYS_CCSRBAR		0xef000000	/* relocated CCSRBAR */
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
+#define CONFIG_SYS_CCSRBAR		0xef000000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /*
  * Diagnostics
@@ -290,7 +284,6 @@
  */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
-#define CONFIG_NET_MULTI	1
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_ETHPRIME		"eTSEC1"
 

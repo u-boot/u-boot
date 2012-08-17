@@ -14,7 +14,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -44,6 +44,8 @@
 #define MMC_MODE_HS_52MHz	0x010
 #define MMC_MODE_4BIT		0x100
 #define MMC_MODE_8BIT		0x200
+#define MMC_MODE_SPI		0x400
+#define MMC_MODE_HC		0x800
 
 #define SD_DATA_4BIT	0x00040000
 
@@ -74,13 +76,20 @@
 #define MMC_CMD_READ_MULTIPLE_BLOCK	18
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
 #define MMC_CMD_WRITE_MULTIPLE_BLOCK	25
+#define MMC_CMD_ERASE_GROUP_START	35
+#define MMC_CMD_ERASE_GROUP_END		36
+#define MMC_CMD_ERASE			38
 #define MMC_CMD_APP_CMD			55
+#define MMC_CMD_SPI_READ_OCR		58
+#define MMC_CMD_SPI_CRC_ON_OFF		59
 
 #define SD_CMD_SEND_RELATIVE_ADDR	3
 #define SD_CMD_SWITCH_FUNC		6
 #define SD_CMD_SEND_IF_COND		8
 
 #define SD_CMD_APP_SET_BUS_WIDTH	6
+#define SD_CMD_ERASE_WR_BLK_START	32
+#define SD_CMD_ERASE_WR_BLK_END		33
 #define SD_CMD_APP_SEND_OP_COND		41
 #define SD_CMD_APP_SEND_SCR		51
 
@@ -91,8 +100,19 @@
 #define MMC_HS_TIMING		0x00000100
 #define MMC_HS_52MHZ		0x2
 
-#define OCR_BUSY	0x80000000
-#define OCR_HCS		0x40000000
+#define OCR_BUSY		0x80000000
+#define OCR_HCS			0x40000000
+#define OCR_VOLTAGE_MASK	0x007FFF80
+#define OCR_ACCESS_MODE		0x60000000
+
+#define SECURE_ERASE		0x80000000
+
+#define MMC_STATUS_MASK		(~0x0206BF7F)
+#define MMC_STATUS_RDY_FOR_DATA (1 << 8)
+#define MMC_STATUS_CURR_STATE	(0xf << 9)
+#define MMC_STATUS_ERROR	(1 << 19)
+
+#define MMC_STATE_PRG		(7 << 9)
 
 #define MMC_VDD_165_195		0x00000080	/* VDD voltage 1.65 - 1.95 */
 #define MMC_VDD_20_21		0x00000100	/* VDD voltage 2.0 ~ 2.1 */
@@ -127,23 +147,26 @@
 /*
  * EXT_CSD fields
  */
-
-#define EXT_CSD_BUS_WIDTH	183	/* R/W */
-#define EXT_CSD_HS_TIMING	185	/* R/W */
-#define EXT_CSD_CARD_TYPE	196	/* RO */
-#define EXT_CSD_REV		192	/* RO */
-#define EXT_CSD_SEC_CNT		212	/* RO, 4 bytes */
+#define EXT_CSD_PARTITIONING_SUPPORT	160	/* RO */
+#define EXT_CSD_ERASE_GROUP_DEF		175	/* R/W */
+#define EXT_CSD_PART_CONF		179	/* R/W */
+#define EXT_CSD_BUS_WIDTH		183	/* R/W */
+#define EXT_CSD_HS_TIMING		185	/* R/W */
+#define EXT_CSD_REV			192	/* RO */
+#define EXT_CSD_CARD_TYPE		196	/* RO */
+#define EXT_CSD_SEC_CNT			212	/* RO, 4 bytes */
+#define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
 
 /*
  * EXT_CSD field definitions
  */
 
-#define EXT_CSD_CMD_SET_NORMAL		(1<<0)
-#define EXT_CSD_CMD_SET_SECURE		(1<<1)
-#define EXT_CSD_CMD_SET_CPSECURE	(1<<2)
+#define EXT_CSD_CMD_SET_NORMAL		(1 << 0)
+#define EXT_CSD_CMD_SET_SECURE		(1 << 1)
+#define EXT_CSD_CMD_SET_CPSECURE	(1 << 2)
 
-#define EXT_CSD_CARD_TYPE_26	(1<<0)	/* Card can run at 26MHz */
-#define EXT_CSD_CARD_TYPE_52	(1<<1)	/* Card can run at 52MHz */
+#define EXT_CSD_CARD_TYPE_26	(1 << 0)	/* Card can run at 26MHz */
+#define EXT_CSD_CARD_TYPE_52	(1 << 1)	/* Card can run at 52MHz */
 
 #define EXT_CSD_BUS_WIDTH_1	0	/* Card is in 1 bit mode */
 #define EXT_CSD_BUS_WIDTH_4	1	/* Card is in 4 bit mode */
@@ -153,22 +176,25 @@
 #define R1_APP_CMD			(1 << 5)
 
 #define MMC_RSP_PRESENT (1 << 0)
-#define MMC_RSP_136     (1 << 1)                /* 136 bit response */
-#define MMC_RSP_CRC     (1 << 2)                /* expect valid crc */
-#define MMC_RSP_BUSY    (1 << 3)                /* card may send busy */
-#define MMC_RSP_OPCODE  (1 << 4)                /* response contains opcode */
+#define MMC_RSP_136	(1 << 1)		/* 136 bit response */
+#define MMC_RSP_CRC	(1 << 2)		/* expect valid crc */
+#define MMC_RSP_BUSY	(1 << 3)		/* card may send busy */
+#define MMC_RSP_OPCODE	(1 << 4)		/* response contains opcode */
 
-#define MMC_RSP_NONE    (0)
-#define MMC_RSP_R1      (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_NONE	(0)
+#define MMC_RSP_R1	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 #define MMC_RSP_R1b	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE| \
 			MMC_RSP_BUSY)
-#define MMC_RSP_R2      (MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
-#define MMC_RSP_R3      (MMC_RSP_PRESENT)
-#define MMC_RSP_R4      (MMC_RSP_PRESENT)
-#define MMC_RSP_R5      (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
-#define MMC_RSP_R6      (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
-#define MMC_RSP_R7      (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R2	(MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
+#define MMC_RSP_R3	(MMC_RSP_PRESENT)
+#define MMC_RSP_R4	(MMC_RSP_PRESENT)
+#define MMC_RSP_R5	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R7	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 
+#define MMCPART_NOAVAILABLE	(0xff)
+#define PART_ACCESS_MASK	(0x7)
+#define PART_SUPPORT		(0x1)
 
 struct mmc_cid {
 	unsigned long psn;
@@ -253,6 +279,7 @@ struct mmc {
 	void *priv;
 	uint voltages;
 	uint version;
+	uint has_init;
 	uint f_min;
 	uint f_max;
 	int high_capacity;
@@ -265,18 +292,20 @@ struct mmc {
 	uint csd[4];
 	uint cid[4];
 	ushort rca;
+	char part_config;
+	char part_num;
 	uint tran_speed;
 	uint read_bl_len;
 	uint write_bl_len;
+	uint erase_grp_size;
 	u64 capacity;
 	block_dev_desc_t block_dev;
 	int (*send_cmd)(struct mmc *mmc,
 			struct mmc_cmd *cmd, struct mmc_data *data);
 	void (*set_ios)(struct mmc *mmc);
 	int (*init)(struct mmc *mmc);
-#ifdef CONFIG_MMC_MBLOCK
+	int (*getcd)(struct mmc *mmc);
 	uint b_max;
-#endif
 };
 
 int mmc_register(struct mmc *mmc);
@@ -287,10 +316,14 @@ void mmc_set_clock(struct mmc *mmc, uint clock);
 struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
-int board_mmc_getcd(u8 *cd, struct mmc *mmc);
+int get_mmc_num(void);
+int board_mmc_getcd(struct mmc *mmc);
+int mmc_switch_part(int dev_num, unsigned int part_num);
+int mmc_getcd(struct mmc *mmc);
 
 #ifdef CONFIG_GENERIC_MMC
-int atmel_mci_init(void *regs);
+#define mmc_host_is_spi(mmc)	((mmc)->host_caps & MMC_MODE_SPI)
+struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 #else
 int mmc_legacy_init(int verbose);
 #endif

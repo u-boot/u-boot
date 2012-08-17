@@ -63,6 +63,7 @@
 #include <malloc.h>
 #include "lan91c96.h"
 #include <net.h>
+#include <linux/compiler.h>
 
 /*------------------------------------------------------------------------
  *
@@ -154,7 +155,7 @@ static void smc_set_mac_addr(const unsigned char *addr)
  ***********************************************/
 void dump_memory_info(struct eth_device *dev)
 {
-	word mem_info;
+	__maybe_unused word mem_info;
 	word old_bank;
 
 	old_bank = SMC_inw(dev, LAN91C96_BANK_SELECT) & 0xF;
@@ -317,7 +318,6 @@ static int smc_send_packet(struct eth_device *dev, volatile void *packet,
 		int packet_length)
 {
 	byte packet_no;
-	unsigned long ioaddr;
 	byte *buf;
 	int length;
 	int numPages;
@@ -381,9 +381,6 @@ static int smc_send_packet(struct eth_device *dev, volatile void *packet,
 			 dev->name, try);
 
 	/* I can send the packet now.. */
-
-	ioaddr = dev->iobase;
-
 	buf = (byte *) packet;
 
 	/* If I get here, I _know_ there is a packet slot waiting for me */

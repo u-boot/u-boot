@@ -28,3 +28,22 @@ The driver has been tested with the following configurations:
 
 - MPC823FADS with AD7176 on a PAL TV (YCbYCr)	- arsenio@tin.it
 - GENIETV    with AD7177 on a PAL TV (YCbYCr)	- arsenio@tin.it
+
+
+"video-mode" environment variable
+===============================
+
+The 'video-mode' environment variable can be used to enable and configure
+some video drivers.  The format matches the video= command-line option used
+for Linux:
+
+	video-mode=<driver>:<xres>x<yres>-<depth>@<freq><,option=string>
+
+	<driver>	The video driver name, ignored by U-Boot
+	<xres>		The X resolution (in pixels) to use.
+	<yres>		The Y resolution (in pixels) to use.
+	<depth>		The color depth (in bits) to use.
+	<freq>		The frequency (in Hz) to use.
+	<options>	A comma-separated list of device-specific options
+
+Example: video-mode=fslfb:1280x1024-32@60,monitor=dvi

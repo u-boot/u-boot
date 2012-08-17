@@ -62,7 +62,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	uint		unc_len = CONFIG_SYS_XIMG_LEN;
 	uint8_t		comp;
 
-	verify = getenv_yesno ("verify");
+	verify = getenv_yesno("verify");
 
 	if (argc > 1) {
 		addr = simple_strtoul(argv[1], NULL, 16);
@@ -77,33 +77,33 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		dest = simple_strtoul(argv[3], NULL, 16);
 	}
 
-	switch (genimg_get_format ((void *)addr)) {
+	switch (genimg_get_format((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
 
 		printf("## Copying part %d from legacy image "
 			"at %08lx ...\n", part, addr);
 
 		hdr = (image_header_t *)addr;
-		if (!image_check_magic (hdr)) {
+		if (!image_check_magic(hdr)) {
 			printf("Bad Magic Number\n");
 			return 1;
 		}
 
-		if (!image_check_hcrc (hdr)) {
+		if (!image_check_hcrc(hdr)) {
 			printf("Bad Header Checksum\n");
 			return 1;
 		}
 #ifdef DEBUG
-		image_print_contents (hdr);
+		image_print_contents(hdr);
 #endif
 
-		if (!image_check_type (hdr, IH_TYPE_MULTI)) {
+		if (!image_check_type(hdr, IH_TYPE_MULTI)) {
 			printf("Wrong Image Type for %s command\n",
 					cmdtp->name);
 			return 1;
 		}
 
-		comp = image_get_comp (hdr);
+		comp = image_get_comp(hdr);
 		if ((comp != IH_COMP_NONE) && (argc < 4)) {
 			printf("Must specify load address for %s command "
 					"with compressed image\n",
@@ -113,25 +113,25 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 		if (verify) {
 			printf("   Verifying Checksum ... ");
-			if (!image_check_dcrc (hdr)) {
+			if (!image_check_dcrc(hdr)) {
 				printf("Bad Data CRC\n");
 				return 1;
 			}
 			printf("OK\n");
 		}
 
-		count = image_multi_count (hdr);
+		count = image_multi_count(hdr);
 		if (part >= count) {
 			printf("Bad Image Part\n");
 			return 1;
 		}
 
-		image_multi_getimg (hdr, part, &data, &len);
+		image_multi_getimg(hdr, part, &data, &len);
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		if (uname == NULL) {
-			puts ("No FIT subimage unit name\n");
+			puts("No FIT subimage unit name\n");
 			return 1;
 		}
 
@@ -139,19 +139,19 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			"at %08lx ...\n", uname, addr);
 
 		fit_hdr = (const void *)addr;
-		if (!fit_check_format (fit_hdr)) {
-			puts ("Bad FIT image format\n");
+		if (!fit_check_format(fit_hdr)) {
+			puts("Bad FIT image format\n");
 			return 1;
 		}
 
 		/* get subimage node offset */
-		noffset = fit_image_get_node (fit_hdr, uname);
+		noffset = fit_image_get_node(fit_hdr, uname);
 		if (noffset < 0) {
-			printf ("Can't find '%s' FIT subimage\n", uname);
+			printf("Can't find '%s' FIT subimage\n", uname);
 			return 1;
 		}
 
-		if (fit_image_check_comp (fit_hdr, noffset, IH_COMP_NONE)
+		if (fit_image_check_comp(fit_hdr, noffset, IH_COMP_NONE)
 		    && (argc < 4)) {
 			printf("Must specify load address for %s command "
 				"with compressed image\n",
@@ -161,21 +161,21 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 		/* verify integrity */
 		if (verify) {
-			if (!fit_image_check_hashes (fit_hdr, noffset)) {
-				puts ("Bad Data Hash\n");
+			if (!fit_image_check_hashes(fit_hdr, noffset)) {
+				puts("Bad Data Hash\n");
 				return 1;
 			}
 		}
 
 		/* get subimage data address and length */
-		if (fit_image_get_data (fit_hdr, noffset,
+		if (fit_image_get_data(fit_hdr, noffset,
 					&fit_data, &fit_len)) {
-			puts ("Could not find script subimage data\n");
+			puts("Could not find script subimage data\n");
 			return 1;
 		}
 
-		if (fit_image_get_comp (fit_hdr, noffset, &comp)) {
-			puts ("Could not find script subimage "
+		if (fit_image_get_comp(fit_hdr, noffset, &comp)) {
+			puts("Could not find script subimage "
 				"compression type\n");
 			return 1;
 		}
@@ -185,7 +185,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		break;
 #endif
 	default:
-		puts ("Invalid image type for imxtract\n");
+		puts("Invalid image type for imxtract\n");
 		return 1;
 	}
 
@@ -199,48 +199,50 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 				void *to = (void *) dest;
 				void *from = (void *)data;
 
-				printf ("   Loading part %d ... ", part);
+				printf("   Loading part %d ... ", part);
 
 				while (l > 0) {
 					tail = (l > CHUNKSZ) ? CHUNKSZ : l;
 					WATCHDOG_RESET();
-					memmove (to, from, tail);
+					memmove(to, from, tail);
 					to += tail;
 					from += tail;
 					l -= tail;
 				}
 			}
 #else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-			printf ("   Loading part %d ... ", part);
-			memmove ((char *) dest, (char *)data, len);
+			printf("   Loading part %d ... ", part);
+			memmove((char *) dest, (char *)data, len);
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 			break;
+#ifdef CONFIG_GZIP
 		case IH_COMP_GZIP:
-			printf ("   Uncompressing part %d ... ", part);
-			if (gunzip ((void *) dest, unc_len,
-				    (uchar *) data, &len) != 0) {
-				puts ("GUNZIP ERROR - image not loaded\n");
+			printf("   Uncompressing part %d ... ", part);
+			if (gunzip((void *) dest, unc_len,
+				   (uchar *) data, &len) != 0) {
+				puts("GUNZIP ERROR - image not loaded\n");
 				return 1;
 			}
 			break;
+#endif
 #if defined(CONFIG_BZIP2)
 		case IH_COMP_BZIP2:
 			{
 				int i;
 
-				printf ("   Uncompressing part %d ... ", part);
+				printf("   Uncompressing part %d ... ", part);
 				/*
 				 * If we've got less than 4 MB of malloc()
 				 * space, use slower decompression algorithm
 				 * which requires at most 2300 KB of memory.
 				 */
 				i = BZ2_bzBuffToBuffDecompress(
-					(char*)ntohl(hdr->ih_load),
+					(char *)ntohl(hdr->ih_load),
 					&unc_len, (char *)data, len,
 					CONFIG_SYS_MALLOC_LEN < (4096 * 1024),
 					0);
 				if (i != BZ_OK) {
-					printf ("BUNZIP2 ERROR %d - "
+					printf("BUNZIP2 ERROR %d - "
 						"image not loaded\n", i);
 					return 1;
 				}
@@ -248,10 +250,10 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			break;
 #endif /* CONFIG_BZIP2 */
 		default:
-			printf ("Unimplemented compression type %d\n", comp);
+			printf("Unimplemented compression type %d\n", comp);
 			return 1;
 		}
-		puts ("OK\n");
+		puts("OK\n");
 	}
 
 	sprintf(pbuf, "%8lx", data);

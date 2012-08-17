@@ -39,6 +39,7 @@
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_NFS
@@ -85,7 +86,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(128 * 1024)
 /* Size of DRAM reserved for malloc() use */
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
-/* size in bytes reserved for initial data */
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 #define CONFIG_SYS_FLASH_CFI
@@ -118,9 +118,11 @@
 #define CONFIG_SYS_HZ		1000
 
 /* Ether */
-#define CONFIG_NET_MULTI 1
 #define CONFIG_SH_ETHER 1
 #define CONFIG_SH_ETHER_USE_PORT (1)
 #define CONFIG_SH_ETHER_PHY_ADDR (0x01)
+#define CONFIG_PHYLIB
+#define CONFIG_BITBANGMII
+#define CONFIG_BITBANGMII_MULTI
 
 #endif /* __SH7763RDP_H */

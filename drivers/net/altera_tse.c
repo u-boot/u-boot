@@ -199,6 +199,12 @@ static int alt_sgdma_do_async_transfer(volatile struct alt_sgdma_registers *dev,
 		debug("Timeout waiting sgdma in do async!\n");
 
 	/*
+	 * Clear the RUN bit in the control register. This is needed
+	 * to restart the SGDMA engine later on.
+	 */
+	dev->control = 0;
+
+	/*
 	 * Clear any (previous) status register information
 	 * that might occlude our error checking later.
 	 */
@@ -262,7 +268,8 @@ static int tse_eth_send(struct eth_device *dev,
 	volatile struct alt_sgdma_descriptor *tx_desc_cur =
 	    (volatile struct alt_sgdma_descriptor *)&tx_desc[0];
 
-	flush_dcache((unsigned long)packet, length);
+	flush_dcache_range((unsigned long)packet,
+			(unsigned long)packet + length);
 	alt_sgdma_construct_descriptor_burst(
 		(volatile struct alt_sgdma_descriptor *)&tx_desc[0],
 		(volatile struct alt_sgdma_descriptor *)&tx_desc[1],
@@ -300,7 +307,8 @@ static int tse_eth_rx(struct eth_device *dev)
 		NetReceive(NetRxPackets[0], packet_length);
 
 		/* start descriptor again */
-		flush_dcache((unsigned long)(NetRxPackets[0]), PKTSIZE_ALIGN);
+		flush_dcache_range((unsigned long)(NetRxPackets[0]),
+			(unsigned long)(NetRxPackets[0]) + PKTSIZE_ALIGN);
 		alt_sgdma_construct_descriptor_burst(
 			(volatile struct alt_sgdma_descriptor *)&rx_desc[0],
 			(volatile struct alt_sgdma_descriptor *)&rx_desc[1],
@@ -317,6 +325,8 @@ static int tse_eth_rx(struct eth_device *dev)
 
 		/* setup the sgdma */
 		alt_sgdma_do_async_transfer(priv->sgdma_rx, &rx_desc[0]);
+
+		return packet_length;
 	}
 
 	return -1;
@@ -351,8 +361,8 @@ static void tse_eth_reset(struct eth_device *dev)
 
 	if (counter >= ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR) {
 		debug("Timeout waiting for rx sgdma!\n");
-		rx_sgdma->control &= ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
-		rx_sgdma->control &= ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
+		rx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
+		rx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
 	}
 
 	counter = 0;
@@ -364,8 +374,8 @@ static void tse_eth_reset(struct eth_device *dev)
 
 	if (counter >= ALT_TSE_SGDMA_BUSY_WATCHDOG_CNTR) {
 		debug("Timeout waiting for tx sgdma!\n");
-		tx_sgdma->control &= ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
-		tx_sgdma->control &= ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
+		tx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
+		tx_sgdma->control = ALT_SGDMA_CONTROL_SOFTWARERESET_MSK;
 	}
 	/* reset the mac */
 	mac_dev->command_config.bits.transmit_enable = 1;
@@ -577,7 +587,11 @@ static uint mii_m88e1111s_setmode_sr(uint mii_reg, struct altera_tse_priv *priv)
 {
 	uint mii_data = tse_mdio_read(priv, mii_reg);
 	mii_data &= 0xfff0;
-	mii_data |= 0xb;
+	if ((priv->flags >= 1) && (priv->flags <= 4))
+		mii_data |= 0xb;
+	else if (priv->flags == 5)
+		mii_data |= 0x4;
+
 	return mii_data;
 }
 
@@ -585,7 +599,9 @@ static uint mii_m88e1111s_setmode_cr(uint mii_reg, struct altera_tse_priv *priv)
 {
 	uint mii_data = tse_mdio_read(priv, mii_reg);
 	mii_data &= ~0x82;
-	mii_data |= 0x82;
+	if ((priv->flags >= 1) && (priv->flags <= 4))
+		mii_data |= 0x82;
+
 	return mii_data;
 }
 
@@ -820,7 +836,8 @@ static int tse_eth_init(struct eth_device *dev, bd_t * bd)
 		0x0	/* channel */
 		);
 	debug("Configuring rx desc\n");
-	flush_dcache((unsigned long)(NetRxPackets[0]), PKTSIZE_ALIGN);
+	flush_dcache_range((unsigned long)(NetRxPackets[0]),
+			(unsigned long)(NetRxPackets[0]) + PKTSIZE_ALIGN);
 	alt_sgdma_construct_descriptor_burst(
 		(volatile struct alt_sgdma_descriptor *)&rx_desc[0],
 		(volatile struct alt_sgdma_descriptor *)&rx_desc[1],
@@ -876,7 +893,8 @@ static int tse_eth_init(struct eth_device *dev, bd_t * bd)
 
 /* TSE init code */
 int altera_tse_initialize(u8 dev_num, int mac_base,
-			  int sgdma_rx_base, int sgdma_tx_base)
+			  int sgdma_rx_base, int sgdma_tx_base,
+			  u32 sgdma_desc_base, u32 sgdma_desc_size)
 {
 	struct altera_tse_priv *priv;
 	struct eth_device *dev;
@@ -897,8 +915,20 @@ int altera_tse_initialize(u8 dev_num, int mac_base,
 		free(dev);
 		return 0;
 	}
-	tx_desc = dma_alloc_coherent(sizeof(*tx_desc) * (3 + PKTBUFSRX),
-				     &dma_handle);
+	if (sgdma_desc_size) {
+		if (sgdma_desc_size < (sizeof(*tx_desc) * (3 + PKTBUFSRX))) {
+			printf("ALTERA_TSE-%hu: "
+			       "descriptor memory is too small\n", dev_num);
+			free(priv);
+			free(dev);
+			return 0;
+		}
+		tx_desc = (struct alt_sgdma_descriptor *)sgdma_desc_base;
+	} else {
+		tx_desc = dma_alloc_coherent(sizeof(*tx_desc) * (3 + PKTBUFSRX),
+					     &dma_handle);
+	}
+
 	rx_desc = tx_desc + 2;
 	debug("tx desc: address = 0x%x\n", (unsigned int)tx_desc);
 	debug("rx desc: address = 0x%x\n", (unsigned int)rx_desc);

@@ -32,6 +32,8 @@
 #ifndef __FEC_MXC_H
 #define __FEC_MXC_H
 
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
+
 /**
  * Layout description of the FEC
  */
@@ -194,6 +196,9 @@ struct ethernet_regs {
 #define FEC_RCNTRL_PROM			0x00000008
 #define FEC_RCNTRL_BC_REJ		0x00000010
 #define FEC_RCNTRL_FCE			0x00000020
+#define FEC_RCNTRL_RGMII		0x00000040
+#define FEC_RCNTRL_RMII			0x00000100
+#define FEC_RCNTRL_RMII_10T		0x00000200
 
 #define FEC_TCNTRL_GTS			0x00000001
 #define FEC_TCNTRL_HBC			0x00000002
@@ -203,6 +208,10 @@ struct ethernet_regs {
 
 #define FEC_ECNTRL_RESET		0x00000001	/* reset the FEC */
 #define FEC_ECNTRL_ETHER_EN		0x00000002	/* enable the FEC */
+#define FEC_ECNTRL_SPEED		0x00000020
+#define FEC_ECNTRL_DBSWAP		0x00000100
+
+#define FEC_X_WMRK_STRFWD		0x00000100
 
 #if defined(CONFIG_MX25) || defined(CONFIG_MX53)
 /* defines for MIIGSK */
@@ -225,22 +234,6 @@ struct ethernet_regs {
 #endif
 
 /**
- * @brief Descriptor buffer alignment
- *
- * i.MX27 requires a 16 byte alignment (but for the first element only)
- */
-#define DB_ALIGNMENT		16
-
-/**
- * @brief Data buffer alignment
- *
- * i.MX27 requires a four byte alignment for transmit and 16 bits
- * alignment for receive so take 16
- * Note: Valid for member data_pointer in struct buffer_descriptor
- */
-#define DB_DATA_ALIGNMENT	16
-
-/**
  * @brief Receive & Transmit Buffer Descriptor definitions
  *
  * Note: The first BD must be aligned (see DB_ALIGNMENT)
@@ -257,7 +250,9 @@ struct fec_bd {
 enum xceiver_type {
 	SEVENWIRE,	/* 7-wire       */
 	MII10,		/* MII 10Mbps   */
-	MII100		/* MII 100Mbps  */
+	MII100,		/* MII 100Mbps  */
+	RMII,		/* RMII */
+	RGMII,		/* RGMII */
 };
 
 /**
@@ -271,8 +266,15 @@ struct fec_priv {
 	struct fec_bd *tbd_base;	/* TBD ring */
 	int tbd_index;			/* next transmit BD to write */
 	bd_t *bd;
-	void *rdb_ptr;
-	void *base_ptr;
+	uint8_t *tdb_ptr;
+	int dev_id;
+	int phy_id;
+	struct mii_dev *bus;
+#ifdef CONFIG_PHYLIB
+	struct phy_device *phydev;
+#else
+	int (*mii_postcall)(int);
+#endif
 };
 
 /**

@@ -52,15 +52,17 @@ ulong flash_get_size (ulong base, int banknum);
 int checkboard (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-
-	char *src;
+	char buf[64];
 	int f;
-	char *s = getenv("serial#");
+	int i = getenv_f("serial#", buf, sizeof(buf));
+#ifdef CONFIG_PCI
+	char *src;
+#endif
 
 	puts("Board: Socrates");
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

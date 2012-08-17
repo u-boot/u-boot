@@ -23,7 +23,7 @@
 #define __ASM_AVR32_ARCH_GPIO_H__
 
 #include <asm/arch/chip-features.h>
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 
 #define NR_GPIO_CONTROLLERS	5
 
@@ -45,15 +45,15 @@ static inline void *pio_pin_to_port(unsigned int pin)
 {
 	switch (pin >> 5) {
 	case 0:
-		return (void *)PIOA_BASE;
+		return (void *)ATMEL_BASE_PIOA;
 	case 1:
-		return (void *)PIOB_BASE;
+		return (void *)ATMEL_BASE_PIOB;
 	case 2:
-		return (void *)PIOC_BASE;
+		return (void *)ATMEL_BASE_PIOC;
 	case 3:
-		return (void *)PIOD_BASE;
+		return (void *)ATMEL_BASE_PIOD;
 	case 4:
-		return (void *)PIOE_BASE;
+		return (void *)ATMEL_BASE_PIOE;
 	default:
 		return NULL;
 	}

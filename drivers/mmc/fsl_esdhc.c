@@ -58,7 +58,8 @@ struct fsl_esdhc {
 	uint	autoc12err;
 	uint	hostcapblt;
 	uint	wml;
-	char	reserved1[8];
+	uint    mixctrl;
+	char    reserved1[4];
 	uint	fevt;
 	char	reserved2[168];
 	uint	hostver;
@@ -99,6 +100,10 @@ uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	else if (cmd->resp_type & MMC_RSP_PRESENT)
 		xfertyp |= XFERTYP_RSPTYP_48;
 
+#ifdef CONFIG_MX53
+	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+		xfertyp |= XFERTYP_CMDTYP_ABORT;
+#endif
 	return XFERTYP_CMD(cmd->cmdidx) | xfertyp;
 }
 
@@ -109,7 +114,8 @@ uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 static void
 esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
 {
-	struct fsl_esdhc *regs = mmc->priv;
+	struct fsl_esdhc_cfg *cfg = mmc->priv;
+	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 	uint blocks;
 	char *buffer;
 	uint databuf;
@@ -178,14 +184,14 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	wml_value = data->blocksize/4;
 
 	if (data->flags & MMC_DATA_READ) {
-		if (wml_value > 0x10)
-			wml_value = 0x10;
+		if (wml_value > WML_RD_WML_MAX)
+			wml_value = WML_RD_WML_MAX_VAL;
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 		esdhc_write32(&regs->dsaddr, (u32)data->dest);
 	} else {
-		if (wml_value > 0x80)
-			wml_value = 0x80;
+		if (wml_value > WML_WR_WML_MAX)
+			wml_value = WML_WR_WML_MAX_VAL;
 		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
 			printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
 			return TIMEOUT;
@@ -294,8 +300,13 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	/* Send the command */
 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
+#if defined(CONFIG_FSL_USDHC)
+	esdhc_write32(&regs->mixctrl,
+	(esdhc_read32(&regs->mixctrl) & 0xFFFFFF80) | (xfertyp & 0x7F));
+	esdhc_write32(&regs->xfertyp, xfertyp & 0xFFFF0000);
+#else
 	esdhc_write32(&regs->xfertyp, xfertyp);
-
+#endif
 	/* Wait for the command to complete */
 	while (!(esdhc_read32(&regs->irqstat) & IRQSTAT_CC))
 		;
@@ -332,11 +343,11 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		do {
 			irqstat = esdhc_read32(&regs->irqstat);
 
-			if (irqstat & DATA_ERR)
-				return COMM_ERR;
-
 			if (irqstat & IRQSTAT_DTOE)
 				return TIMEOUT;
+
+			if (irqstat & DATA_ERR)
+				return COMM_ERR;
 		} while (!(irqstat & IRQSTAT_TC) &&
 				(esdhc_read32(&regs->prsstat) & PRSSTAT_DLA));
 #endif
@@ -408,8 +419,6 @@ static int esdhc_init(struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 	int timeout = 1000;
-	int ret = 0;
-	u8 card_absent;
 
 	/* Reset the entire host controller */
 	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
@@ -436,21 +445,19 @@ static int esdhc_init(struct mmc *mmc)
 	/* Set timout to the maximum value */
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
 
-	/* Check if there is a callback for detecting the card */
-	if (board_mmc_getcd(&card_absent, mmc)) {
-		timeout = 1000;
-		while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) &&
-				--timeout)
-			udelay(1000);
+	return 0;
+}
 
-		if (timeout <= 0)
-			ret = NO_CARD_ERR;
-	} else {
-		if (card_absent)
-			ret = NO_CARD_ERR;
-	}
+static int esdhc_getcd(struct mmc *mmc)
+{
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
+	int timeout = 1000;
 
-	return ret;
+	while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) && --timeout)
+		udelay(1000);
+
+	return timeout > 0;
 }
 
 static void esdhc_reset(struct fsl_esdhc *regs)
@@ -478,7 +485,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 
 	mmc = malloc(sizeof(struct mmc));
 
-	sprintf(mmc->name, "FSL_ESDHC");
+	sprintf(mmc->name, "FSL_SDHC");
 	regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
 	/* First reset the eSDHC controller */
@@ -488,6 +495,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	mmc->send_cmd = esdhc_send_cmd;
 	mmc->set_ios = esdhc_set_ios;
 	mmc->init = esdhc_init;
+	mmc->getcd = esdhc_getcd;
 
 	voltage_caps = 0;
 	caps = regs->hostcapblt;
@@ -521,6 +529,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	mmc->f_min = 400000;
 	mmc->f_max = MIN(gd->sdhc_clk, 52000000);
 
+	mmc->b_max = 0;
 	mmc_register(mmc);
 
 	return 0;

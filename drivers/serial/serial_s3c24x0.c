@@ -19,6 +19,7 @@
  */
 
 #include <common.h>
+#include <linux/compiler.h>
 #include <asm/arch/s3c24x0_cpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -27,15 +28,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UART_NR	S3C24X0_UART0
 
 #elif defined(CONFIG_SERIAL2)
-# if defined(CONFIG_TRAB)
-#  error "TRAB supports only CONFIG_SERIAL1"
-# endif
 #define UART_NR	S3C24X0_UART1
 
 #elif defined(CONFIG_SERIAL3)
-# if defined(CONFIG_TRAB)
-#  error "TRAB supports only CONFIG_SERIAL1"
-# endif
 #define UART_NR	S3C24X0_UART2
 
 #else
@@ -74,9 +69,8 @@ DECLARE_GLOBAL_DATA_PTR;
 		serial_puts_dev(port, s); \
 	}
 
-#define INIT_S3C_SERIAL_STRUCTURE(port, name, bus) { \
+#define INIT_S3C_SERIAL_STRUCTURE(port, name) { \
 	name, \
-	bus, \
 	s3serial##port##_init, \
 	NULL,\
 	s3serial##port##_setbrg, \
@@ -309,11 +303,24 @@ void serial_puts(const char *s)
 #if defined(CONFIG_SERIAL_MULTI)
 DECLARE_S3C_SERIAL_FUNCTIONS(0);
 struct serial_device s3c24xx_serial0_device =
-INIT_S3C_SERIAL_STRUCTURE(0, "s3ser0", "S3UART1");
+INIT_S3C_SERIAL_STRUCTURE(0, "s3ser0");
 DECLARE_S3C_SERIAL_FUNCTIONS(1);
 struct serial_device s3c24xx_serial1_device =
-INIT_S3C_SERIAL_STRUCTURE(1, "s3ser1", "S3UART2");
+INIT_S3C_SERIAL_STRUCTURE(1, "s3ser1");
 DECLARE_S3C_SERIAL_FUNCTIONS(2);
 struct serial_device s3c24xx_serial2_device =
-INIT_S3C_SERIAL_STRUCTURE(2, "s3ser2", "S3UART3");
+INIT_S3C_SERIAL_STRUCTURE(2, "s3ser2");
+
+__weak struct serial_device *default_serial_console(void)
+{
+#if defined(CONFIG_SERIAL1)
+	return &s3c24xx_serial0_device;
+#elif defined(CONFIG_SERIAL2)
+	return &s3c24xx_serial1_device;
+#elif defined(CONFIG_SERIAL3)
+	return &s3c24xx_serial2_device;
+#else
+#error "CONFIG_SERIAL? missing."
+#endif
+}
 #endif /* CONFIG_SERIAL_MULTI */

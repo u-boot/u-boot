@@ -41,7 +41,7 @@ SECTIONS
 
 	.text :
 	{
-		arch/sh/cpu/sh4/start.o		(.text)
+		KEEP(arch/sh/cpu/sh4/start.o		(.text))
 		*(.spiboot1.text)
 		*(.spiboot2.text)
 		. = ALIGN(8192);

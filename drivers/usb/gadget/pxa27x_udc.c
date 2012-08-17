@@ -26,10 +26,12 @@
 #include <common.h>
 #include <config.h>
 #include <asm/byteorder.h>
-#include <usbdcore.h>
-#include <usbdcore_ep0.h>
+#include <usbdevice.h>
 #include <asm/arch/hardware.h>
+#include <asm/io.h>
 #include <usb/pxa27x_udc.h>
+
+#include "ep0.h"
 
 /* number of endpoints on this UDC */
 #define UDC_MAX_ENDPOINTS	24
@@ -50,7 +52,7 @@ static void udc_dump_buffer(char *name, u8 *buf, int len)
 
 static inline void udc_ack_int_UDCCR(int mask)
 {
-	USIR1	= mask | USIR1;
+	writel(readl(USIR1) | mask, USIR1);
 }
 
 /*
@@ -68,9 +70,7 @@ static int udc_write_urb(struct usb_endpoint_instance *endpoint)
 {
 	struct urb *urb = endpoint->tx_urb;
 	int ep_num = endpoint->endpoint_address & USB_ENDPOINT_NUMBER_MASK;
-	u32 *addr32 = (u32 *) &UDCDN(ep_num);
 	u32 *data32 = (u32 *) urb->buffer;
-	u8  *addr8 = (u8 *) &UDCDN(ep_num);
 	u8  *data8 = (u8 *) urb->buffer;
 	unsigned int i, n, w, b, is_short;
 	int timeout = 2000;	/* 2ms */
@@ -98,26 +98,28 @@ static int udc_write_urb(struct usb_endpoint_instance *endpoint)
 
 	/* Prepare for data send */
 	if (ep_num)
-		UDCCSN(ep_num) = UDCCSR_PC;
+		writel(UDCCSR_PC ,UDCCSN(ep_num));
 
 	for (i = 0; i < w; i++)
-		*addr32 = data32[endpoint->sent/4 + i];
+		  writel(data32[endpoint->sent / 4 + i], UDCDN(ep_num));
+
 	for (i = 0; i < b; i++)
-		*addr8 = data8[endpoint->sent + w*4 + i];
+		  writeb(data8[endpoint->sent + w * 4 + i], UDCDN(ep_num));
 
 	/* Set "Packet Complete" if less data then tx_packetSize */
 	if (is_short)
-		UDCCSN(ep_num) = ep_num ? UDCCSR_SP : UDCCSR0_IPR;
+		writel(ep_num ? UDCCSR_SP : UDCCSR0_IPR, UDCCSN(ep_num));
 
 	/* Wait for data sent */
-	while (!(UDCCSN(ep_num) & (ep_num ? UDCCSR_PC : UDCCSR0_IPR))) {
-		if (ep_num) {
+	if (ep_num) {
+		while (!(readl(UDCCSN(ep_num)) & UDCCSR_PC)) {
 			if (timeout-- == 0)
 				return -1;
 			else
 				udelay(1);
-		};
+		}
 	}
+
 	endpoint->last = n;
 
 	if (ep_num) {
@@ -127,7 +129,7 @@ static int udc_write_urb(struct usb_endpoint_instance *endpoint)
 		endpoint->last -= n;
 	}
 
-	if ((endpoint->tx_urb->actual_length - endpoint->sent) <= 0) {
+	if (endpoint->sent >= urb->actual_length) {
 		urb->actual_length = 0;
 		endpoint->sent = 0;
 		endpoint->last = 0;
@@ -148,7 +150,6 @@ static int udc_read_urb(struct usb_endpoint_instance *endpoint)
 {
 	struct urb *urb = endpoint->rcv_urb;
 	int ep_num = endpoint->endpoint_address & USB_ENDPOINT_NUMBER_MASK;
-	u32 *addr32 = (u32 *) &UDCDN(ep_num);
 	u32 *data32 = (u32 *) urb->buffer;
 	unsigned int i, n, is_short ;
 
@@ -160,15 +161,15 @@ static int udc_read_urb(struct usb_endpoint_instance *endpoint)
 		endpoint->rcv_packetSize);
 #endif
 
-	if (UDCCSN(ep_num) & UDCCSR_BNE)
-		n = UDCBCN(ep_num) & 0x3ff;
+	if (readl(UDCCSN(ep_num)) & UDCCSR_BNE)
+		n = readl(UDCBCN(ep_num)) & 0x3ff;
 	else /* zlp */
 		n = 0;
 	is_short = n != endpoint->rcv_packetSize;
 
 	usbdbg("n %d%s", n, is_short ? "-s" : "");
 	for (i = 0; i < n; i += 4)
-		data32[urb->actual_length/4 + i/4] = *addr32;
+		data32[urb->actual_length / 4 + i / 4] = readl(UDCDN(ep_num));
 
 	udc_dump_buffer("urb read", (u8 *) data32, urb->actual_length + n);
 	usbd_rcv_complete(endpoint, n, 0);
@@ -178,27 +179,35 @@ static int udc_read_urb(struct usb_endpoint_instance *endpoint)
 
 static int udc_read_urb_ep0(void)
 {
-	u32 *addr32 = (u32 *) &UDCDN(0);
 	u32 *data32 = (u32 *) ep0_urb->buffer;
-	u8 *addr8 = (u8 *) &UDCDN(0);
 	u8 *data8 = (u8 *) ep0_urb->buffer;
 	unsigned int i, n, w, b;
 
-	n = UDCBCR0;
+	usbdbg("read urb on ep 0");
+#if defined(USBDDBG) && defined(USBDPARANOIA)
+	usbdbg("urb: buf %p, buf_len %d, actual_len %d",
+		ep0_urb->buffer, ep0_urb->buffer_length, ep0_urb->actual_length);
+#endif
+
+	n = readl(UDCBCR0);
 	w = n / 4;
 	b = n % 4;
 
 	for (i = 0; i < w; i++) {
-		data32[ep0_urb->actual_length/4 + i] = *addr32;
-		ep0_urb->actual_length += 4;
+		data32[ep0_urb->actual_length / 4 + i] = readl(UDCDN(0));
+		/* ep0_urb->actual_length += 4; */
 	}
 
 	for (i = 0; i < b; i++) {
-		data8[ep0_urb->actual_length + w*4 + i] = *addr8;
-		ep0_urb->actual_length++;
+		data8[ep0_urb->actual_length + w * 4 + i] = readb(UDCDN(0));
+		/* ep0_urb->actual_length++; */
 	}
 
-	UDCCSR0 = UDCCSR0_OPC | UDCCSR0_IPR;
+	ep0_urb->actual_length += n;
+
+	udc_dump_buffer("urb read", (u8 *) data32, ep0_urb->actual_length);
+
+	writel(UDCCSR0_OPC | UDCCSR0_IPR, UDCCSR0);
 	if (ep0_urb->actual_length == ep0_urb->device_request.wLength)
 		return 1;
 
@@ -207,7 +216,7 @@ static int udc_read_urb_ep0(void)
 
 static void udc_handle_ep0(struct usb_endpoint_instance *endpoint)
 {
-	u32 udccsr0 = UDCCSR0;
+	u32 udccsr0 = readl(UDCCSR0);
 	u32 *data = (u32 *) &ep0_urb->device_request;
 	int i;
 
@@ -216,7 +225,7 @@ static void udc_handle_ep0(struct usb_endpoint_instance *endpoint)
 	/* Clear stall status */
 	if (udccsr0 & UDCCSR0_SST) {
 		usberr("clear stall status");
-		UDCCSR0 = UDCCSR0_SST;
+		writel(UDCCSR0_SST, UDCCSR0);
 		ep0state = EP0_IDLE;
 	}
 
@@ -227,8 +236,7 @@ static void udc_handle_ep0(struct usb_endpoint_instance *endpoint)
 	switch (ep0state) {
 
 	case EP0_IDLE:
-
-		udccsr0 = UDCCSR0;
+		udccsr0 = readl(UDCCSR0);
 		/* Start control request? */
 		if ((udccsr0 & (UDCCSR0_OPC | UDCCSR0_SA | UDCCSR0_RNE))
 			== (UDCCSR0_OPC | UDCCSR0_SA | UDCCSR0_RNE)) {
@@ -238,15 +246,15 @@ static void udc_handle_ep0(struct usb_endpoint_instance *endpoint)
 			 */
 			usbdbg("try reading SETUP packet");
 			for (i = 0; i < 2; i++) {
-				if ((UDCCSR0 & UDCCSR0_RNE) == 0) {
+				if ((readl(UDCCSR0) & UDCCSR0_RNE) == 0) {
 					usberr("setup packet too short:%d", i);
 					goto stall;
 				}
-				data[i] = UDCDR0;
+				data[i] = readl(UDCDR0);
 			}
 
-			UDCCSR0 |= (UDCCSR0_OPC | UDCCSR0_SA);
-			if ((UDCCSR0 & UDCCSR0_RNE) != 0) {
+			writel(readl(UDCCSR0) | UDCCSR0_OPC | UDCCSR0_SA, UDCCSR0);
+			if ((readl(UDCCSR0) & UDCCSR0_RNE) != 0) {
 				usberr("setup packet too long");
 				goto stall;
 			}
@@ -261,7 +269,7 @@ static void udc_handle_ep0(struct usb_endpoint_instance *endpoint)
 								(u8 *)data, 8);
 					goto stall;
 				}
-				UDCCSR0 = UDCCSR0_IPR;
+				writel(UDCCSR0_IPR, UDCCSR0);
 				ep0state = EP0_IDLE;
 			} else {
 				/* Check direction */
@@ -274,7 +282,7 @@ static void udc_handle_ep0(struct usb_endpoint_instance *endpoint)
 					ep0_urb->buffer_length =
 						sizeof(ep0_urb->buffer_data);
 					ep0_urb->actual_length = 0;
-					UDCCSR0 = UDCCSR0_IPR;
+					writel(UDCCSR0_IPR, UDCCSR0);
 				} else {
 					/* The ep0_recv_setup function has
 					 * already placed our response packet
@@ -289,9 +297,9 @@ stall:
 							, (u8 *) data, 8);
 						ep0state = EP0_IDLE;
 
-						UDCCSR0 = UDCCSR0_SA |
+						writel(UDCCSR0_SA |
 						UDCCSR0_OPC | UDCCSR0_FST |
-						UDCCS0_FTF;
+						UDCCS0_FTF, UDCCSR0);
 
 						return;
 					}
@@ -317,7 +325,7 @@ stall:
 			 * - IPR cleared
 			 * - OPC got set, without SA (likely status stage)
 			 */
-			UDCCSR0 = udccsr0 & (UDCCSR0_SA | UDCCSR0_OPC);
+			writel(udccsr0 & (UDCCSR0_SA | UDCCSR0_OPC), UDCCSR0);
 		}
 		break;
 
@@ -351,7 +359,7 @@ read_complete:
 	case EP0_IN_DATA:
 		/* GET_DESCRIPTOR etc */
 		if (udccsr0 & UDCCSR0_OPC) {
-			UDCCSR0 = UDCCSR0_OPC | UDCCSR0_FTF;
+			writel(UDCCSR0_OPC | UDCCSR0_FTF, UDCCSR0);
 			usberr("ep0in premature status");
 			ep0state = EP0_IDLE;
 		} else {
@@ -364,14 +372,14 @@ read_complete:
 		break;
 
 	case EP0_XFER_COMPLETE:
-		UDCCSR0 = UDCCSR0_IPR;
+		writel(UDCCSR0_IPR, UDCCSR0);
 		ep0state = EP0_IDLE;
 		break;
 
 	default:
 		usbdbg("Default\n");
 	}
-	USIR0 = USIR0_IR0;
+	writel(USIR0_IR0, USIR0);
 }
 
 static void udc_handle_ep(struct usb_endpoint_instance *endpoint)
@@ -380,33 +388,33 @@ static void udc_handle_ep(struct usb_endpoint_instance *endpoint)
 	int ep_num = ep_addr & USB_ENDPOINT_NUMBER_MASK;
 	int ep_isout = (ep_addr & USB_ENDPOINT_DIR_MASK) == USB_DIR_OUT;
 
-	u32 flags = UDCCSN(ep_num) & (UDCCSR_SST | UDCCSR_TRN);
+	u32 flags = readl(UDCCSN(ep_num)) & (UDCCSR_SST | UDCCSR_TRN);
 	if (flags)
-		UDCCSN(ep_num) = flags;
+		writel(flags, UDCCSN(ep_num));
 
 	if (ep_isout)
 		udc_read_urb(endpoint);
 	else
 		udc_write_urb(endpoint);
 
-	UDCCSN(ep_num) = UDCCSR_PC;
+	writel(UDCCSR_PC, UDCCSN(ep_num));
 }
 
 static void udc_state_changed(void)
 {
 	int config, interface, alternate;
 
-	UDCCR |= UDCCR_SMAC;
+	writel(readl(UDCCR) | UDCCR_SMAC, UDCCR);
 
-	config = (UDCCR & UDCCR_ACN) >> UDCCR_ACN_S;
-	interface = (UDCCR & UDCCR_AIN) >> UDCCR_AIN_S;
-	alternate = (UDCCR & UDCCR_AAISN) >> UDCCR_AAISN_S;
+	config = (readl(UDCCR) & UDCCR_ACN) >> UDCCR_ACN_S;
+	interface = (readl(UDCCR) & UDCCR_AIN) >> UDCCR_AIN_S;
+	alternate = (readl(UDCCR) & UDCCR_AAISN) >> UDCCR_AAISN_S;
 
 	usbdbg("New UDC settings are: conf %d - inter %d - alter %d",
 		config, interface, alternate);
 
 	usbd_device_event_irq(udc_device, DEVICE_CONFIGURED, 0);
-	UDCISR1 = UDCISR1_IRCC;
+	writel(UDCISR1_IRCC, UDCISR1);
 }
 
 void udc_irq(void)
@@ -419,7 +427,7 @@ void udc_irq(void)
 	do {
 		handled = 0;
 		/* Suspend Interrupt Request */
-		if (USIR1 & UDCCR_SUSIR) {
+		if (readl(USIR1) & UDCCR_SUSIR) {
 			usbdbg("Suspend\n");
 			udc_ack_int_UDCCR(UDCCR_SUSIR);
 			handled = 1;
@@ -427,35 +435,35 @@ void udc_irq(void)
 		}
 
 		/* Resume Interrupt Request */
-		if (USIR1 & UDCCR_RESIR) {
+		if (readl(USIR1) & UDCCR_RESIR) {
 			udc_ack_int_UDCCR(UDCCR_RESIR);
 			handled = 1;
 			usbdbg("USB resume\n");
 		}
 
-		if (USIR1 & (1<<31)) {
+		if (readl(USIR1) & (1<<31)) {
 			handled = 1;
 			udc_state_changed();
 		}
 
 		/* Reset Interrupt Request */
-		if (USIR1 & UDCCR_RSTIR) {
+		if (readl(USIR1) & UDCCR_RSTIR) {
 			udc_ack_int_UDCCR(UDCCR_RSTIR);
 			handled = 1;
 			usbdbg("Reset\n");
 			usbd_device_event_irq(udc_device, DEVICE_RESET, 0);
 		} else {
-			if (USIR0)
-				usbdbg("UISR0: %x \n", USIR0);
+			if (readl(USIR0))
+				usbdbg("UISR0: %x \n", readl(USIR0));
 
-			if (USIR0 & 0x2)
-				USIR0 = 0x2;
+			if (readl(USIR0) & 0x2)
+				writel(0x2, USIR0);
 
 			/* Control traffic */
-			if (USIR0  & USIR0_IR0) {
+			if (readl(USIR0)  & USIR0_IR0) {
 				handled = 1;
+				writel(USIR0_IR0, USIR0);
 				udc_handle_ep0(udc_device->bus->endpoint_array);
-				USIR0 = USIR0_IR0;
 			}
 
 			endpoint = udc_device->bus->endpoint_array;
@@ -464,11 +472,11 @@ void udc_irq(void)
 						USB_ENDPOINT_NUMBER_MASK;
 				if (!ep_num)
 					continue;
-				udcisr0 = UDCISR0;
+				udcisr0 = readl(UDCISR0);
 				if (udcisr0 &
 					UDCISR_INT(ep_num, UDC_INT_PACKETCMP)) {
-					UDCISR0 = UDCISR_INT(ep_num,
-							 UDC_INT_PACKETCMP);
+					writel(UDCISR_INT(ep_num, UDC_INT_PACKETCMP),
+					       UDCISR0);
 					udc_handle_ep(&endpoint[i]);
 				}
 			}
@@ -485,21 +493,21 @@ void udc_irq(void)
 
 static inline void udc_set_mask_UDCCR(int mask)
 {
-    UDCCR = (UDCCR & UDCCR_MASK_BITS) | (mask & UDCCR_MASK_BITS);
+    writel((readl(UDCCR) & UDCCR_MASK_BITS) | (mask & UDCCR_MASK_BITS), UDCCR);
 }
 
 static inline void udc_clear_mask_UDCCR(int mask)
 {
-    UDCCR = (UDCCR & UDCCR_MASK_BITS) & ~(mask & UDCCR_MASK_BITS);
+    writel((readl(UDCCR) & UDCCR_MASK_BITS) & ~(mask & UDCCR_MASK_BITS), UDCCR);
 }
 
 static void pio_irq_enable(int ep_num)
 {
 	if (ep_num < 16)
-		UDCICR0 |= 3 << (ep_num * 2);
+		writel(readl(UDCICR0) | 3 << (ep_num * 2), UDCICR0);
 	else {
 		ep_num -= 16;
-		UDCICR1 |= 3 << (ep_num * 2);
+		writel(readl(UDCICR1) | 3 << (ep_num * 2), UDCICR1);
 	}
 }
 
@@ -589,22 +597,25 @@ void udc_setup_ep(struct usb_device_instance *device, unsigned int id,
 	tmp |= (ep_size << UDCCONR_MPS_S) & UDCCONR_MPS;
 	tmp |= UDCCONR_EE;
 
-	UDCCN(ep_num) = tmp;
+	writel(tmp, UDCCN(ep_num));
 
-	usbdbg("UDCCR%c = %x", 'A' + ep_num-1, UDCCN(ep_num));
-	usbdbg("UDCCSR%c = %x", 'A' + ep_num-1, UDCCSN(ep_num));
+	usbdbg("UDCCR%c = %x", 'A' + ep_num-1, readl(UDCCN(ep_num)));
+	usbdbg("UDCCSR%c = %x", 'A' + ep_num-1, readl(UDCCSN(ep_num)));
 }
-
-#define CONFIG_USB_DEV_PULLUP_GPIO 87
 
 /* Connect the USB device to the bus */
 void udc_connect(void)
 {
 	usbdbg("UDC connect");
 
+#ifdef CONFIG_USB_DEV_PULLUP_GPIO
 	/* Turn on the USB connection by enabling the pullup resistor */
 	set_GPIO_mode(CONFIG_USB_DEV_PULLUP_GPIO | GPIO_OUT);
-	GPSR(CONFIG_USB_DEV_PULLUP_GPIO) = GPIO_bit(CONFIG_USB_DEV_PULLUP_GPIO);
+	writel(GPIO_bit(CONFIG_USB_DEV_PULLUP_GPIO), GPSR(CONFIG_USB_DEV_PULLUP_GPIO));
+#else
+	/* Host port 2 transceiver D+ pull up enable */
+	writel(readl(UP2OCR) | UP2OCR_DPPUE, UP2OCR);
+#endif
 }
 
 /* Disconnect the USB device to the bus */
@@ -612,8 +623,13 @@ void udc_disconnect(void)
 {
 	usbdbg("UDC disconnect");
 
+#ifdef CONFIG_USB_DEV_PULLUP_GPIO
 	/* Turn off the USB connection by disabling the pullup resistor */
-	GPCR(CONFIG_USB_DEV_PULLUP_GPIO) = GPIO_bit(CONFIG_USB_DEV_PULLUP_GPIO);
+	writel(GPIO_bit(CONFIG_USB_DEV_PULLUP_GPIO), GPCR(CONFIG_USB_DEV_PULLUP_GPIO));
+#else
+	/* Host port 2 transceiver D+ pull up disable */
+	writel(readl(UP2OCR) & ~UP2OCR_DPPUE, UP2OCR);
+#endif
 }
 
 /* Switch on the UDC */
@@ -621,15 +637,14 @@ void udc_enable(struct usb_device_instance *device)
 {
 
 	ep0state = EP0_IDLE;
-	CKEN |= CKEN11_USB;
 
 	/* enable endpoint 0, A, B's Packet Complete Interrupt. */
-	UDCICR0 = 0x0000003f;
-	UDCICR1 = 0xa8000000;
+	writel(0xffffffff, UDCICR0);
+	writel(0xa8000000, UDCICR1);
 
 	/* clear the interrupt status/control registers */
-	UDCISR0 = 0xffffffff;
-	UDCISR1 = 0xffffffff;
+	writel(0xffffffff, UDCISR0);
+	writel(0xffffffff, UDCISR1);
 
 	/* set UDC-enable */
 	udc_set_mask_UDCCR(UDCCR_UDE);
@@ -652,7 +667,7 @@ void udc_disable(void)
 	udc_clear_mask_UDCCR(UDCCR_UDE);
 
 	/* Disable clock for USB device */
-	CKEN &= ~CKEN11_USB;
+	writel(readl(CKEN) & ~CKEN11_USB, CKEN);
 
 	/* Free ep0 URB */
 	if (ep0_urb) {
@@ -689,14 +704,15 @@ int udc_init(void)
 	udc_device = NULL;
 	usbdbg("PXA27x usbd start");
 
+	/* Enable clock for USB device */
+	writel(readl(CKEN) | CKEN11_USB, CKEN);
+
 	/* Disable the UDC */
 	udc_clear_mask_UDCCR(UDCCR_UDE);
 
-	/* Disable clock for USB device */
-	CKEN &= ~CKEN11_USB;
-
 	/* Disable IRQs: we don't use them */
-	UDCICR0 = UDCICR1 = 0;
+	writel(0, UDCICR0);
+	writel(0, UDCICR1);
 
 	return 0;
 }

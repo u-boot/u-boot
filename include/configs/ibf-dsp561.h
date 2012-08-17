@@ -11,6 +11,7 @@
 /*
  * Processor Settings
  */
+#define CONFIG_BFIN_CPU             bf561-0.5
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
 
 
@@ -60,7 +61,6 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK	1
-#define CONFIG_NET_MULTI
 #define CONFIG_DRIVER_AX88180	1
 #define AX88180_BASE		0x2c000000
 #define CONFIG_HOSTNAME		ibf-dsp561
@@ -79,8 +79,8 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	135	/* max number of sectors on one chip */
 /* The BF561-EZKIT uses a top boot flash */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		0x20004000
-#define CONFIG_ENV_OFFSET		(CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
+#define CONFIG_ENV_OFFSET		0x4000
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x10000	/* Total Size of Environment Sector */
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)

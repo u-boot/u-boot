@@ -182,7 +182,7 @@ void cpu_init_f (volatile immap_t * immr)
 #endif
 
 	/* now restrict to preliminary range */
-	/* the PS came from the HRCW, don´t change it */
+	/* the PS came from the HRCW, don't change it */
 	memctl->memc_br0 = SET_VAL_MASK(memctl->memc_br0 , CONFIG_SYS_BR0_PRELIM, BRx_PS_MSK);
 	memctl->memc_or0 = CONFIG_SYS_OR0_PRELIM;
 

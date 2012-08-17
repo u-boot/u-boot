@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -32,14 +32,12 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
-
-extern void pci_of_setup(void *blob, bd_t *bd);
+#include <fm_eth.h>
 
 #include "../common/ngpixis.h"
+#include "corenet_ds.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-void cpu_mp_lmb_reserve(struct lmb *lmb);
 
 int checkboard (void)
 {
@@ -89,10 +87,21 @@ int checkboard (void)
 	 * don't match.
 	 */
 	puts("SERDES Reference Clocks: ");
+#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS)
+	sw = in_8(&PIXIS_SW(5));
+	for (i = 0; i < 3; i++) {
+		static const char *freq[] = {"100", "125", "156.25", "212.5" };
+		unsigned int clock = (sw >> (6 - (2 * i))) & 3;
+
+		printf("Bank%u=%sMhz ", i+1, freq[clock]);
+	}
+	puts("\n");
+#else
 	sw = in_8(&PIXIS_SW(3));
 	printf("Bank1=%uMHz ", (sw & 0x40) ? 125 : 100);
 	printf("Bank2=%sMHz ", (sw & 0x20) ? "156.25" : "125");
 	printf("Bank3=%sMHz\n", (sw & 0x10) ? "156.25" : "125");
+#endif
 
 	return 0;
 }
@@ -133,7 +142,9 @@ int board_early_init_r(void)
 			0, flash_esel, BOOKE_PAGESZ_256M, 1);	/* ts, esel, tsize, iprot */
 
 	set_liodns();
+#ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_portals();
+#endif
 
 	return 0;
 }
@@ -148,7 +159,7 @@ static const char *serdes_clock_to_string(u32 clock)
 	case SRDS_PLLCR0_RFCK_SEL_156_25:
 		return "156.25";
 	default:
-		return "???";
+		return "150";
 	}
 }
 
@@ -159,19 +170,41 @@ int misc_init_r(void)
 	serdes_corenet_t *srds_regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
 	u32 actual[NUM_SRDS_BANKS];
 	unsigned int i;
-	u8 sw3;
+	u8 sw;
 
+#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS)
+	sw = in_8(&PIXIS_SW(5));
+	for (i = 0; i < 3; i++) {
+		unsigned int clock = (sw >> (6 - (2 * i))) & 3;
+		switch (clock) {
+		case 0:
+			actual[i] = SRDS_PLLCR0_RFCK_SEL_100;
+			break;
+		case 1:
+			actual[i] = SRDS_PLLCR0_RFCK_SEL_125;
+			break;
+		case 2:
+			actual[i] = SRDS_PLLCR0_RFCK_SEL_156_25;
+			break;
+		default:
+			printf("Warning: SDREFCLK%u switch setting of '11' is "
+			       "unsupported\n", i + 1);
+			break;
+		}
+	}
+#else
 	/* Warn if the expected SERDES reference clocks don't match the
 	 * actual reference clocks.  This needs to be done after calling
 	 * p4080_erratum_serdes8(), since that function may modify the clocks.
 	 */
-	sw3 = in_8(&PIXIS_SW(3));
-	actual[0] = (sw3 & 0x40) ?
+	sw = in_8(&PIXIS_SW(3));
+	actual[0] = (sw & 0x40) ?
 		SRDS_PLLCR0_RFCK_SEL_125 : SRDS_PLLCR0_RFCK_SEL_100;
-	actual[1] = (sw3 & 0x20) ?
+	actual[1] = (sw & 0x20) ?
 		SRDS_PLLCR0_RFCK_SEL_156_25 : SRDS_PLLCR0_RFCK_SEL_125;
-	actual[2] = (sw3 & 0x10) ?
+	actual[2] = (sw & 0x10) ?
 		SRDS_PLLCR0_RFCK_SEL_156_25 : SRDS_PLLCR0_RFCK_SEL_125;
+#endif
 
 	for (i = 0; i < NUM_SRDS_BANKS; i++) {
 		u32 expected = srds_regs->bank[i].pllcr0 & SRDS_PLLCR0_RFCK_SEL_MASK;
@@ -185,13 +218,6 @@ int misc_init_r(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_MP
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
-}
-#endif
 
 void ft_board_setup(void *blob, bd_t *bd)
 {
@@ -210,9 +236,10 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_liodn(blob);
-}
+	fdt_fixup_dr_usb(blob, bd);
 
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
+#ifdef CONFIG_SYS_DPAA_FMAN
+	fdt_fixup_fman_ethernet(blob);
+	fdt_fixup_board_enet(blob);
+#endif
 }

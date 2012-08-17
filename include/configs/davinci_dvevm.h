@@ -51,7 +51,6 @@
 #define DV_EVM
 #define CONFIG_SYS_NAND_SMALLPAGE
 #define CONFIG_SYS_USE_NAND
-#define CONFIG_DISPLAY_CPUINFO
 /*===================*/
 /* SoC Configuration */
 /*===================*/
@@ -102,14 +101,12 @@
 /* Network & Ethernet Configuration */
 /*==================================*/
 #define CONFIG_DRIVER_TI_EMAC
-#define CONFIG_EMAC_MDIO_PHY_NUM	1
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
-#define CONFIG_NET_MULTI
 /*=====================*/
 /* Flash & Environment */
 /*=====================*/
@@ -202,6 +199,11 @@
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_BDI
+
+#ifdef CONFIG_CMD_BDI
+#define CONFIG_CLOCKS
+#endif
+
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_SETGETDCR
 #ifdef CONFIG_SYS_USE_NAND

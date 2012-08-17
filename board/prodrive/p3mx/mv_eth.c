@@ -274,7 +274,7 @@ void mv6446x_eth_initialize (bd_t * bis)
 			return;
 		}
 
-		/* must be less than NAMESIZE (16) */
+		/* must be less than sizeof(dev->name) */
 		sprintf (dev->name, "mv_enet%d", devnum);
 
 #ifdef DEBUG
@@ -468,7 +468,6 @@ static int mv64460_eth_real_open (struct eth_device *dev)
 	ETH_PORT_INFO *ethernet_private;
 	struct mv64460_eth_priv *port_private;
 	unsigned int port_num;
-	u32 port_status;
 	ushort reg_short;
 	int speed;
 	int duplex;
@@ -569,7 +568,7 @@ static int mv64460_eth_real_open (struct eth_device *dev)
 	 */
 
 	MV_REG_WRITE (MV64460_ETH_MAXIMUM_TRANSMIT_UNIT (port_num), 0);
-	port_status = MV_REG_READ (MV64460_ETH_PORT_STATUS_REG (port_num));
+	MV_REG_READ (MV64460_ETH_PORT_STATUS_REG (port_num));
 
 #if defined(CONFIG_PHY_RESET)
 	/*
@@ -717,15 +716,6 @@ static int mv64460_eth_free_rx_rings (struct eth_device *dev)
 
 int mv64460_eth_stop (struct eth_device *dev)
 {
-	ETH_PORT_INFO *ethernet_private;
-	struct mv64460_eth_priv *port_private;
-	unsigned int port_num;
-
-	ethernet_private = (ETH_PORT_INFO *) dev->priv;
-	port_private =
-		(struct mv64460_eth_priv *) ethernet_private->port_private;
-	port_num = port_private->port_num;
-
 	/* Disable all gigE address decoder */
 	MV_REG_WRITE (MV64460_ETH_BASE_ADDR_ENABLE_REG, 0x3f);
 	DP (printf ("%s Ethernet stop called ... \n", __FUNCTION__));
@@ -793,7 +783,6 @@ int mv64460_eth_xmit (struct eth_device *dev, volatile void *dataPtr,
 {
 	ETH_PORT_INFO *ethernet_private;
 	struct mv64460_eth_priv *port_private;
-	unsigned int port_num;
 	PKT_INFO pkt_info;
 	ETH_FUNC_RET_STATUS status;
 	struct net_device_stats *stats;
@@ -802,7 +791,6 @@ int mv64460_eth_xmit (struct eth_device *dev, volatile void *dataPtr,
 	ethernet_private = (ETH_PORT_INFO *) dev->priv;
 	port_private =
 		(struct mv64460_eth_priv *) ethernet_private->port_private;
-	port_num = port_private->port_num;
 
 	stats = port_private->stats;
 
@@ -874,13 +862,11 @@ int mv64460_eth_receive (struct eth_device *dev)
 {
 	ETH_PORT_INFO *ethernet_private;
 	struct mv64460_eth_priv *port_private;
-	unsigned int port_num;
 	PKT_INFO pkt_info;
 	struct net_device_stats *stats;
 
 	ethernet_private = (ETH_PORT_INFO *) dev->priv;
 	port_private = (struct mv64460_eth_priv *) ethernet_private->port_private;
-	port_num = port_private->port_num;
 	stats = port_private->stats;
 
 	while ((eth_port_receive (ethernet_private, ETH_Q0, &pkt_info) == ETH_OK)) {
@@ -976,12 +962,10 @@ static struct net_device_stats *mv64460_eth_get_stats (struct eth_device *dev)
 {
 	ETH_PORT_INFO *ethernet_private;
 	struct mv64460_eth_priv *port_private;
-	unsigned int port_num;
 
 	ethernet_private = (ETH_PORT_INFO *) dev->priv;
 	port_private =
 		(struct mv64460_eth_priv *) ethernet_private->port_private;
-	port_num = port_private->port_num;
 
 	mv64460_eth_update_stat (dev);
 
@@ -1002,13 +986,10 @@ static void mv64460_eth_update_stat (struct eth_device *dev)
 	ETH_PORT_INFO *ethernet_private;
 	struct mv64460_eth_priv *port_private;
 	struct net_device_stats *stats;
-	unsigned int port_num;
-	volatile unsigned int dummy;
 
 	ethernet_private = (ETH_PORT_INFO *) dev->priv;
 	port_private =
 		(struct mv64460_eth_priv *) ethernet_private->port_private;
-	port_num = port_private->port_num;
 	stats = port_private->stats;
 
 	/* These are false updates */
@@ -1031,12 +1012,12 @@ static void mv64460_eth_update_stat (struct eth_device *dev)
 	 * But the unsigned long in PowerPC and MIPS are 32bit. So the next read
 	 * is just a dummy read for proper work of the GigE port
 	 */
-	dummy = eth_read_mib_counter (ethernet_private->port_num,
+	(void)eth_read_mib_counter (ethernet_private->port_num,
 				      ETH_MIB_GOOD_OCTETS_RECEIVED_HIGH);
 	stats->tx_bytes += (unsigned long)
 		eth_read_mib_counter (ethernet_private->port_num,
 				      ETH_MIB_GOOD_OCTETS_SENT_LOW);
-	dummy = eth_read_mib_counter (ethernet_private->port_num,
+	(void)eth_read_mib_counter (ethernet_private->port_num,
 				      ETH_MIB_GOOD_OCTETS_SENT_HIGH);
 	stats->rx_errors += (unsigned long)
 		eth_read_mib_counter (ethernet_private->port_num,
@@ -1084,12 +1065,10 @@ static void mv64460_eth_print_stat (struct eth_device *dev)
 	ETH_PORT_INFO *ethernet_private;
 	struct mv64460_eth_priv *port_private;
 	struct net_device_stats *stats;
-	unsigned int port_num;
 
 	ethernet_private = (ETH_PORT_INFO *) dev->priv;
 	port_private =
 		(struct mv64460_eth_priv *) ethernet_private->port_private;
-	port_num = port_private->port_num;
 	stats = port_private->stats;
 
 	/* These are false updates */
@@ -2138,13 +2117,13 @@ static void eth_port_init_mac_tables (ETH_PORT eth_port_num)
 static void eth_clear_mib_counters (ETH_PORT eth_port_num)
 {
 	int i;
-	unsigned int dummy;
 
 	/* Perform dummy reads from MIB counters */
 	for (i = ETH_MIB_GOOD_OCTETS_RECEIVED_LOW; i < ETH_MIB_LATE_COLLISION;
-	     i += 4)
-		dummy = MV_REG_READ ((MV64460_ETH_MIB_COUNTERS_BASE
+	     i += 4) {
+		(void)MV_REG_READ ((MV64460_ETH_MIB_COUNTERS_BASE
 				      (eth_port_num) + i));
+	}
 
 	return;
 }

@@ -19,7 +19,7 @@
 
 #ifdef __ASSEMBLY__
 
-#define AT91_ASM_WDT_MR	(AT91_WDT_BASE +  0x04)
+#define AT91_ASM_WDT_MR	(ATMEL_BASE_WDT +  0x04)
 
 #else
 

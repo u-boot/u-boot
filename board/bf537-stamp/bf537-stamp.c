@@ -43,13 +43,6 @@ int checkboard(void)
 	return 0;
 }
 
-void board_reset(void)
-{
-	/* workaround for weak pull ups on ssel */
-	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
-		bfin_reset_boot_spi_cs(GPIO_PF10);
-}
-
 #ifdef CONFIG_BFIN_MAC
 static void board_init_enetaddr(uchar *mac_addr)
 {

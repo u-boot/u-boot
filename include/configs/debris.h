@@ -81,7 +81,7 @@
 #undef CONFIG_SYS_AUTOLOAD
 
 /* rootpath */
-#define CONFIG_ROOTPATH /tftpboot/target
+#define CONFIG_ROOTPATH "/tftpboot/target"
 
 /* gatewayip */
 #define CONFIG_GATEWAYIP 192.168.0.1
@@ -93,7 +93,7 @@
 #define CONFIG_HOSTNAME debris
 
 /* bootfile */
-#define CONFIG_BOOTFILE pImage
+#define CONFIG_BOOTFILE "pImage"
 
 /* loadaddr */
 #define CONFIG_LOADADDR 800000
@@ -174,7 +174,6 @@
 #define CONFIG_PCI				/* include pci support		*/
 #define CONFIG_PCI_PNP
 
-#define CONFIG_NET_MULTI		/* Multi ethernet cards support */
 #define CONFIG_EEPRO100
 #define CONFIG_SYS_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100  */
 #define CONFIG_EEPRO100_SROM_WRITE

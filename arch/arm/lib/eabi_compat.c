@@ -13,11 +13,17 @@
 
 int raise (int signum)
 {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 	printf("raise: Signal # %d caught\n", signum);
+#endif
 	return 0;
 }
 
 /* Dummy function to avoid linker complaints */
 void __aeabi_unwind_cpp_pr0(void)
+{
+};
+
+void __aeabi_unwind_cpp_pr1(void)
 {
 };

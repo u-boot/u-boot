@@ -1,0 +1,101 @@
+Overview
+--------
+The P1023 process includes a performance optimized implementation of the
+QorIQ data Path Acceleration Architecture (DPAA).  This architecture
+provides the infrastructure to support simplified sharing of networking
+interfaces and accelerators by multiple CPU cores. P1023 is an e500 based
+dual core SOC.
+
+P1023RDS board is a Low End Dual core platform supporting the P1023
+processor of QorIQ series.
+
+Building U-boot
+---------------
+To build the u-boot for P1023RDS:
+Configure to NOR boot:
+	make P1023RDS_config
+Configure to NAND boot:
+	make P1023RDS_NAND_config
+Build:
+	make
+
+Board Switches
+--------------
+Most switches on the board should not be changed.  The most frequent
+user-settable switches on the board are used to configure
+the flash banks.
+
+J4: all open
+
+Default NOR flash boot switch setting:
+ Sw3[1:8]: off on on off on on off off
+ Sw4[1:8]: off off off on off off off off
+ Sw6[1:8]: off on off on off on on off
+ Sw7[1:8]: off on off off on off off off
+ Sw8[1:8]: on off off off off off off off
+
+For NAND flash boot,set
+Sw4[1:4]: off on on on
+
+The default native ethernet setting is for RGMII mode.
+To use SGMII mode, set
+SW8[1:2]: OFF OFF
+SW7[6:7]: ON ON
+
+Memory Map
+----------
+0x0000_0000	0x7fff_ffff	DDR			2G Cacheable
+0x8000_0000	0xbfff_ffff	PCI Express Mem		1G non-cacheable
+0xc000_0000	0xdfff_ffff	PCI			512M non-cacheable
+0xe100_0000	0xe3ff_ffff	PCI IO range		4M non-cacheable
+
+0xe000_0000	0xe003_ffff	BCSR			256K BCSR
+0xee00_0000	0xefff_ffff	NOR flash		32M NOR flash
+0xff00_0000	0xff3f_ffff	DPAA_QBMAN		4M
+0xff60_0000	0xff7f_ffff	CCSR			2M non-cacheable
+0xffa0_0000	0xffaf_ffff	NAND FLASH		1M non-cacheable
+0xffd0_0000	0xffd0_3fff	L1 for stack		16K Cacheable TLB0
+
+Flashing u-boot Images
+---------------
+To program the image in the boot flash bank:
+NOR flash boot:
+	=> tftp 1000000 u-boot.bin
+	=> protect off all
+	=> erase eff80000 efffffff
+	=> cp.b 1000000 eff80000 80000
+
+NAND flash boot:
+	=> tftp 1000000 u-boot-nand.bin
+	=> nand erase 0 80000
+	=> nand write 1000000 0 80000
+
+Firmware ucode location
+---------------------------------
+Microcode(ucode) to FMAN's IRAM is needed to make FMAN Ethernet work.
+u-boot loads ucode FLASH. The location for ucode:
+NOR Flash: 0xfe000000
+NAND Flash: 0x1f00000
+
+Using the Device Tree Source File
+---------------------------------
+To create the DTB (Device Tree Binary) image file,
+use a command similar to this:
+
+	dtc -b 0 -f -I dts -O dtb p1023rds.dts > p1023rds.dtb
+
+Likely, that .dts file will come from here;
+
+	linux-2.6/arch/powerpc/boot/dts/p1023rds.dts
+or
+	make p1023rds.dtb ARCH=powerpc
+in linux-2.6 directory.
+
+Booting Linux
+-------------
+Place a linux uImage in the TFTP disk area.
+
+	tftp 1000000 uImage
+	tftp 2000000 rootfs.ext2.gz.uboot
+	tftp c00000 p1023rds.dtb
+	bootm 1000000 2000000 c00000

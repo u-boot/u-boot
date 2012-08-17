@@ -1,5 +1,5 @@
 /*
- * Copyright 2007,2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007,2009-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
@@ -147,12 +147,10 @@ local_bus_init(void)
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
-	uint lbc_hz;
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
 	clkdiv = (lbc->lcrr & LCRR_CLKDIV) * 2;
-	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	gur->lbiuiplldcr1 = 0x00078080;
 	if (clkdiv == 16) {
@@ -259,11 +257,7 @@ static struct pci_config_table pci_mpc8568mds_config_table[] = {
 };
 #endif
 
-static struct pci_controller pci1_hose = {
-#ifndef CONFIG_PCI_PNP
-	config_table: pci_mpc8568mds_config_table,
-#endif
-};
+static struct pci_controller pci1_hose;
 #endif	/* CONFIG_PCI */
 
 /*
@@ -306,6 +300,7 @@ pib_init(void)
 	i2c_write(0x27, 0x3, 1, &val8, 1);
 
 	asm("eieio");
+	i2c_set_bus_num(orig_i2c_bus);
 }
 
 #ifdef CONFIG_PCI
@@ -347,6 +342,9 @@ void pci_init_board(void)
 			pci_arb ? "arbiter" : "external-arbiter",
 			pci_info.regs);
 
+#ifndef CONFIG_PCI_PNP
+		pci1_hose.config_table = pci_mpc8568mds_config_table;
+#endif
 		first_free_busno = fsl_pci_init_port(&pci_info,
 					&pci1_hose, first_free_busno);
 	} else {

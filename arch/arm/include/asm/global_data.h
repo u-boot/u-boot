@@ -24,7 +24,7 @@
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
 /*
- * The following data structure is placed in some memory wich is
+ * The following data structure is placed in some memory which is
  * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
  * some locked parts of the data cache) to allow for a minimum set of
  * global variables during system initialization (until we have set
@@ -38,12 +38,12 @@ typedef	struct	global_data {
 	unsigned long	flags;
 	unsigned long	baudrate;
 	unsigned long	have_console;	/* serial_init() was called */
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
+	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
+#endif
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
 	unsigned long	fb_base;	/* base address of frame buffer */
-#ifdef CONFIG_VFD
-	unsigned char	vfd_type;	/* display type */
-#endif
 #ifdef CONFIG_FSL_ESDHC
 	unsigned long	sdhc_clk;
 #endif
@@ -64,17 +64,26 @@ typedef	struct	global_data {
 	unsigned long long	timer_reset_value;
 	unsigned long	lastinc;
 #endif
+#ifdef CONFIG_IXP425
+	unsigned long	timestamp;
+#endif
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	mon_len;	/* monitor len */
 	unsigned long	irq_sp;		/* irq stack pointer */
 	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
 	unsigned long	reloc_off;
-#if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	unsigned long	tlb_addr;
 #endif
+	const void	*fdt_blob;	/* Our device tree, NULL if none */
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
+#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
+	unsigned long	post_log_word; /* Record POST activities */
+	unsigned long	post_log_res; /* success of POST test */
+	unsigned long	post_init_f_time; /* When post_init_f started */
+#endif
 } gd_t;
 
 /*

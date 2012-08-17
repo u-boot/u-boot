@@ -1,0 +1,103 @@
+# To use this file, run in your u-boot tree:
+#	git config sendemail.aliasesfile doc/git-mailrc
+#	git config sendemail.aliasfiletype mutt
+#
+# Then when sending patches, you can use:
+#	git send-email --to u-boot --cc i2c ...
+
+alias uboot  u-boot@lists.denx.de
+alias u-boot uboot
+
+# Maintainer aliases.  Use the same alias here as patchwork to keep
+# things simple and easy to look up/coordinate.
+alias aaribaud       Albert Aribaud <albert.u.boot@aribaud.net>
+alias afleming       Andy Fleming <afleming@freescale.com>
+alias ag             Anatolij Gustschin <agust@denx.de>
+alias galak          Kumar Gala <galak@kernel.crashing.org>
+alias gruss          Graeme Russ <graeme.russ@gmail.com>
+alias hs             Heiko Schocher <hs@denx.de>
+alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+alias jasonjin       Jason Jin <jason.jin@freescale.com>
+alias jhersh         Joe Hershberger <joe.hershberger@gmail.com>
+alias kimphill       Kim Phillips <kim.phillips@freescale.com>
+alias macpaul        Macpaul Lin <macpaul@andestech.com>
+alias marex          Marek Vasut <marek.vasut@gmail.com>
+alias monstr         Michal Simek <monstr@monstr.eu>
+alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
+alias prom           Minkyu Kang <mk7.kang@samsung.com>
+alias rbohmer        Remy Bohmer <linux@bohmer.net>
+alias reinhardm      Reinhard Meyer <u-boot@emk-elektronik.de>
+alias sbabic         Stefano Babic <sbabic@denx.de>
+alias scottwood      Scott Wood <scottwood@freescale.com>
+alias smcnutt        Scott McNutt <smcnutt@psyent.com>
+alias stroese        Stefan Roese <sr@denx.de>
+alias vapier         Mike Frysinger <vapier@gentoo.org>
+alias wd             Wolfgang Denk <wd@denx.de>
+
+# Architecture aliases
+alias arch           arm, avr32, bfin, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, sparc, x86
+alias arches         arch
+
+alias arm            uboot, aaribaud
+alias at91           uboot, reinhardm
+alias davinci        ti
+alias imx            uboot, sbabic
+alias kirkwood       uboot, prafulla
+alias omap           ti
+alias pxa            uboot, marex
+alias s3c            samsung
+alias s5pc           samsung
+alias samsung        uboot, prom
+alias tegra          uboot, Simon Glass <sjg@chromium.org>, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
+alias tegra2         tegra
+alias ti             uboot, Sandeep Paulraj <s-paulraj@ti.com>, Tom Rini <trini@ti.com>
+
+alias avr32          uboot, Andreas Bießmann <andreas.devel@googlemail.com>
+
+alias bfin           uboot, vapier
+alias blackfin       bfin
+
+alias m68k           uboot, jasonjin
+alias coldfire       m68k
+
+alias microblaze     uboot, monstr
+alias mb             microblaze
+
+alias mips           uboot, Shinya Kuribayashi <skuribay@pobox.com>
+
+alias nds32          uboot, macpaul
+
+alias nios           uboot, Thomas Chou <thomas@wytron.com.tw>, smcnutt
+alias nios2          nios
+
+alias powerpc        uboot, afleming, kimphill, galak, stroese, wd
+alias ppc            powerpc
+alias mpc5xxx        uboot, wd
+alias mpc8xx         uboot, wd
+alias mpc82xx        uboot, wd
+alias mpc83xx        uboot, kimphill
+alias mpc85xx        uboot, afleming, galak
+alias mpc86xx        uboot, afleming, galak
+alias ppc4xx         uboot, stroese
+alias ppc7xx         uboot, wd
+alias ppc74xx        uboot, wd
+
+alias sandbox        Simon Glass <sjg@chromium.org>
+alias sb             sandbox
+
+alias sparc          uboot, Daniel Hellstrom <daniel@gaisler.com>
+
+alias superh         uboot, iwamatsu
+alias sh             superh
+
+alias x86            uboot, gruss
+
+# Subsystem aliases
+alias cfi            uboot, stroese
+alias fdt            uboot, Jerry Van Baren <vanbaren@cideas.com>
+alias i2c            uboot, hs
+alias mmc            uboot, afleming
+alias nand           uboot, scottwood
+alias net            uboot, jhersh
+alias usb            uboot, marex
+alias video          uboot, ag

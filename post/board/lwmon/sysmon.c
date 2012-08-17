@@ -133,7 +133,7 @@ static sysmon_table_t sysmon_table[] =
     {"+ 5 V standby", "V", &sysmon_pic, NULL, NULL,
      100, 1000, 0, 6040, 0xFF, 0xC8, 0xDE, 0, 0xC8, 0xDE, 0, 0x7C},
 };
-static int sysmon_table_size = sizeof(sysmon_table) / sizeof(sysmon_table[0]);
+static int sysmon_table_size = ARRAY_SIZE(sysmon_table);
 
 static int conversion_done = 0;
 

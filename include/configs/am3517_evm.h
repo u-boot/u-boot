@@ -28,7 +28,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_AM3517EVM	1	/* working with AM3517EVM */
@@ -61,11 +60,9 @@
  */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB sector */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-						/* initial data */
 /*
  * DDR related
  */
-#define CONFIG_OMAP3_MICRON_DDR		1	/* Micron DDR */
 #define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)
 
 /*
@@ -95,7 +92,8 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 #define CONFIG_MMC			1
-#define CONFIG_OMAP3_MMC		1
+#define CONFIG_GENERIC_MMC		1
+#define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
 
 /*
@@ -187,21 +185,21 @@
 /* Environment information */
 #define CONFIG_BOOTDELAY	10
 
-#define CONFIG_BOOTFILE		uImage
+#define CONFIG_BOOTFILE		"uImage"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
-	"console=ttyS2,115200n8\0" \
+	"console=ttyO2,115200n8\0" \
+	"mmcdev=0\0" \
 	"mmcargs=setenv bootargs console=${console} " \
-		"root=/dev/mmcblk0p2 rw " \
-		"rootfstype=ext3 rootwait\0" \
+		"root=/dev/mmcblk0p2 rw rootwait\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"root=/dev/mtdblock4 rw " \
 		"rootfstype=jffs2\0" \
-	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
+	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc 0 ${loadaddr} uImage\0" \
+	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
@@ -211,7 +209,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc init; then " \
+	"if mmc rescan ${mmcdev}; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
@@ -263,21 +261,13 @@
  * The stack sizes are set up in start.S using the settings below
  */
 #define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack 4 KiB */
-#define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack 4 KiB */
-#endif
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
-
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C		1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -294,7 +284,9 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
-#define CONFIG_SYS_FLASH_BASE		boot_flash_base
+#if defined(CONFIG_CMD_NAND)
+#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#endif
 
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
@@ -304,9 +296,9 @@
 #define CONFIG_ENV_IS_IN_NAND		1
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
-#define CONFIG_SYS_ENV_SECT_SIZE	boot_flash_sec
-#define CONFIG_ENV_OFFSET		boot_flash_off
-#define CONFIG_ENV_ADDR			boot_flash_env_addr
+#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
+#define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup
@@ -323,18 +315,61 @@
 #define CONFIG_SYS_JFFS2_FIRST_BANK	CONFIG_SYS_MAX_FLASH_BANKS
 #define CONFIG_SYS_JFFS2_NUM_BANKS	1
 
-#ifndef __ASSEMBLY__
-extern unsigned int boot_flash_base;
-extern volatile unsigned int boot_flash_env_addr;
-extern unsigned int boot_flash_off;
-extern unsigned int boot_flash_sec;
-extern unsigned int boot_flash_type;
-#endif
-
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
+
+/* Defines for SPL */
+#define CONFIG_SPL
+#define CONFIG_SPL_NAND_SIMPLE
+#define CONFIG_SPL_TEXT_BASE		0x40200800
+#define CONFIG_SPL_MAX_SIZE		(45 * 1024)
+#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+
+#define CONFIG_SPL_BSS_START_ADDR	0x80000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
+
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
+#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
+#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_POWER_SUPPORT
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+
+/* NAND boot config */
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_PAGE_COUNT	64
+#define CONFIG_SYS_NAND_PAGE_SIZE	2048
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
+#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
+						10, 11, 12, 13}
+#define CONFIG_SYS_NAND_ECCSIZE		512
+#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+
+/*
+ * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
+ * 64 bytes before this address should be set aside for u-boot.img's
+ * header. That is 0x800FFFC0--0x80100000 should not be used for any
+ * other needs.
+ */
+#define CONFIG_SYS_TEXT_BASE		0x80100000
+#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
+
 #endif /* __CONFIG_H */

@@ -57,14 +57,12 @@
 
 /* Network Configuration */
 #define CONFIG_DRIVER_TI_EMAC
-#define CONFIG_EMAC_MDIO_PHY_NUM	0
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
-#define CONFIG_NET_MULTI
 
 /* I2C */
 #define CONFIG_HARD_I2C
@@ -144,6 +142,10 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 
+#ifdef CONFIG_CMD_BDI
+#define CONFIG_CLOCKS
+#endif
+
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_EXT2
@@ -166,7 +168,7 @@
 /* U-Boot general configuration */
 #undef CONFIG_USE_IRQ				/* No IRQ/FIQ in U-Boot */
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */
-#define CONFIG_SYS_PROMPT	"DM365 EVM # "	/* Monitor Command Prompt */
+#define CONFIG_SYS_PROMPT	"DM36x EVM # "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size  */
 #define CONFIG_SYS_PBSIZE			/* Print buffer size */ \
 		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)

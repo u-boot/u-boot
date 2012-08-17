@@ -302,8 +302,8 @@ void sclock(void);
 void ispVMDelay(unsigned short int a_usMicroSecondDelay);
 void calibration(void);
 
-int lattice_load(Lattice_desc *desc, void *buf, size_t bsize);
-int lattice_dump(Lattice_desc *desc, void *buf, size_t bsize);
+int lattice_load(Lattice_desc *desc, const void *buf, size_t bsize);
+int lattice_dump(Lattice_desc *desc, const void *buf, size_t bsize);
 int lattice_info(Lattice_desc *desc);
 
 void ispVMStart(void);

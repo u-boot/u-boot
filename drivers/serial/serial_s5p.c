@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm/arch/uart.h>
 #include <asm/arch/clk.h>
@@ -182,9 +183,8 @@ int s5p_serial##port##_tstc(void) { return serial_tstc_dev(port); } \
 void s5p_serial##port##_putc(const char c) { serial_putc_dev(c, port); } \
 void s5p_serial##port##_puts(const char *s) { serial_puts_dev(s, port); }
 
-#define INIT_S5P_SERIAL_STRUCTURE(port, name, bus) { \
+#define INIT_S5P_SERIAL_STRUCTURE(port, name) { \
 	name, \
-	bus, \
 	s5p_serial##port##_init, \
 	NULL, \
 	s5p_serial##port##_setbrg, \
@@ -195,13 +195,28 @@ void s5p_serial##port##_puts(const char *s) { serial_puts_dev(s, port); }
 
 DECLARE_S5P_SERIAL_FUNCTIONS(0);
 struct serial_device s5p_serial0_device =
-	INIT_S5P_SERIAL_STRUCTURE(0, "s5pser0", "S5PUART0");
+	INIT_S5P_SERIAL_STRUCTURE(0, "s5pser0");
 DECLARE_S5P_SERIAL_FUNCTIONS(1);
 struct serial_device s5p_serial1_device =
-	INIT_S5P_SERIAL_STRUCTURE(1, "s5pser1", "S5PUART1");
+	INIT_S5P_SERIAL_STRUCTURE(1, "s5pser1");
 DECLARE_S5P_SERIAL_FUNCTIONS(2);
 struct serial_device s5p_serial2_device =
-	INIT_S5P_SERIAL_STRUCTURE(2, "s5pser2", "S5PUART2");
+	INIT_S5P_SERIAL_STRUCTURE(2, "s5pser2");
 DECLARE_S5P_SERIAL_FUNCTIONS(3);
 struct serial_device s5p_serial3_device =
-	INIT_S5P_SERIAL_STRUCTURE(3, "s5pser3", "S5PUART3");
+	INIT_S5P_SERIAL_STRUCTURE(3, "s5pser3");
+
+__weak struct serial_device *default_serial_console(void)
+{
+#if defined(CONFIG_SERIAL0)
+	return &s5p_serial0_device;
+#elif defined(CONFIG_SERIAL1)
+	return &s5p_serial1_device;
+#elif defined(CONFIG_SERIAL2)
+	return &s5p_serial2_device;
+#elif defined(CONFIG_SERIAL3)
+	return &s5p_serial3_device;
+#else
+#error "CONFIG_SERIAL? missing."
+#endif
+}

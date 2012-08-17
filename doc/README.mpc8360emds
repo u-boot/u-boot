@@ -15,7 +15,7 @@ Freescale MPC8360EMDS Board
 		"On"  == 0
 
 	SW18 is switch 18 as silk-screened onto the board.
-	SW4[8] is the bit labled 8 on Switch 4.
+	SW4[8] is the bit labeled 8 on Switch 4.
 	SW2[1:6] refers to bits labeled 1 through 6 in order on switch 2.
 	SW3[7:1] refers to bits labeled 7 through 1 in order on switch 3.
 	SW3[1:8]= 0000_0001 refers to bits labeled 1 through 6 is set as "On"
@@ -87,28 +87,36 @@ Freescale MPC8360EMDS Board
 
 4. Compilation
 
+	MPC8360EMDS shipped with 33.33MHz or 66MHz oscillator(check U41 chip).
+
 	Assuming you're using BASH shell:
 
 		export CROSS_COMPILE=your-cross-compile-prefix
 		cd u-boot
 		make distclean
-		make MPC8360EMDS_config
+		make MPC8360EMDS_XX_config
 		make
 
-	MPC8360 support PCI in host and slave mode.
+	MPC8360EMDS support ATM, PCI in host and slave mode.
+
+	To make u-boot support ATM :
+	1) Make MPC8360EMDS_XX_ATM_config
 
 	To make u-boot support PCI host 66M :
 	1) DIP SW support PCI mode as described in Section 1.1.
-	2) Make MPC8360EMDS_HOST_66_config
+	2) Make MPC8360EMDS_XX_HOST_66_config
 
 	To make u-boot support PCI host 33M :
 	1) DIP SW setting is similar as Section 1.1, except for SW3[4] is 1
-	2) Make MPC8360EMDS_HOST_33_config
+	2) Make MPC8360EMDS_XX_HOST_33_config
 
 	To make u-boot support PCI slave 66M :
 	1) DIP SW setting is similar as Section 1.1, except for SW9[3] is 1
-	2) Make MPC8360EMDS_SLAVE_config
+	2) Make MPC8360EMDS_XX_SLAVE_config
 
+	(where XX is:
+	   33 - 33.33MHz oscillator
+	   66 - 66MHz oscillator)
 
 5. Downloading and Flashing Images
 

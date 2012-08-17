@@ -22,7 +22,7 @@ void mmu_init_r(unsigned long dest_addr)
 	 */
 	vmr_table_addr = (uintptr_t)&mmu_vmr_table;
 	sysreg_write(PTBR, vmr_table_addr);
-	printf("VMR table @ 0x%08x\n", vmr_table_addr);
+	printf("VMR table @ 0x%08lx\n", vmr_table_addr);
 
 	/* Enable paging */
 	sysreg_write(MMUCR, SYSREG_BF(DRP, 1) | SYSREG_BF(DLA, 1)

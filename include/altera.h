@@ -51,18 +51,18 @@ typedef enum {				/* typedef Altera_iface */
 	passive_parallel_asynchronous,	/* parallel data */
 	passive_serial_asynchronous,	/* serial data w/ internal clock (not used)	*/
 	altera_jtag_mode,		/* jtag/tap serial (not used ) */
-	fast_passive_parallel,	/* fast passive parallel (FPP) */
+	fast_passive_parallel,		/* fast passive parallel (FPP) */
 	fast_passive_parallel_security,	/* fast passive parallel with security (FPPS) */
 	max_altera_iface_type		/* insert all new types before this */
 } Altera_iface;				/* end, typedef Altera_iface */
 
 typedef enum {			/* typedef Altera_Family */
-    min_altera_type,		/* insert all new types after this */
-    Altera_ACEX1K,		/* ACEX1K Family */
-    Altera_CYC2,		/* CYCLONII Family */
+	min_altera_type,	/* insert all new types after this */
+	Altera_ACEX1K,		/* ACEX1K Family */
+	Altera_CYC2,		/* CYCLONII Family */
 	Altera_StratixII,	/* StratixII Familiy */
 /* Add new models here */
-    max_altera_type		/* insert all new types before this */
+	max_altera_type		/* insert all new types before this */
 } Altera_Family;		/* end, typedef Altera_Family */
 
 typedef struct {		/* typedef Altera_desc */
@@ -76,9 +76,9 @@ typedef struct {		/* typedef Altera_desc */
 
 /* Generic Altera Functions
  *********************************************************************/
-extern int altera_load( Altera_desc *desc, void *image, size_t size );
-extern int altera_dump( Altera_desc *desc, void *buf, size_t bsize );
-extern int altera_info( Altera_desc *desc );
+extern int altera_load(Altera_desc *desc, const void *image, size_t size);
+extern int altera_dump(Altera_desc *desc, const void *buf, size_t bsize);
+extern int altera_info(Altera_desc *desc);
 
 /* Board specific implementation specific function types
  *********************************************************************/
@@ -88,7 +88,7 @@ typedef int (*Altera_status_fn)( int cookie );
 typedef int (*Altera_done_fn)( int cookie );
 typedef int (*Altera_clk_fn)( int assert_clk, int flush, int cookie );
 typedef int (*Altera_data_fn)( int assert_data, int flush, int cookie );
-typedef int (*Altera_write_fn)(void *buf, size_t len, int flush, int cookie);
+typedef int(*Altera_write_fn)(const void *buf, size_t len, int flush, int cookie);
 typedef int (*Altera_abort_fn)( int cookie );
 typedef int (*Altera_post_fn)( int cookie );
 

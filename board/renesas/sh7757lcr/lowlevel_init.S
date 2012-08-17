@@ -326,12 +326,13 @@ PC_MASK:	.long	0x20000000
 	/* step 26 */
 	wait_DBCMD
 
+#if defined(CONFIG_SH7757LCR_DDR_ECC)
 	/* enable DDR-ECC */
 	write32 ECD_ECDEN_A, ECD_ECDEN_D
 	write32 ECD_INTSR_A, ECD_INTSR_D
 	write32 ECD_SPACER_A, ECD_SPACER_D
 	write32 ECD_MCR_A, ECD_MCR_D
-
+#endif
 	bra	exit_ddr
 	nop
 

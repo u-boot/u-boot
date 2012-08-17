@@ -149,7 +149,8 @@
 
 #define CONFIG_SYS_DDR_CS0_BNDS	0x00000007
 #define CONFIG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN \
-				| 0x00010000  /* ODT_WR to CSn */ \
+				| CSCONFIG_ODT_RD_NEVER \
+				| CSCONFIG_ODT_WR_ONLY_CURRENT \
 				| CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_10)
 				/* 0x80010102 */
 #define CONFIG_SYS_DDR_TIMING_3	0x00000000
@@ -184,7 +185,7 @@
 				/* 0x03600100 */
 #define CONFIG_SYS_DDR_SDRAM_CFG	(SDRAM_CFG_SREN \
 				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
-				| SDRAM_CFG_32_BE)
+				| SDRAM_CFG_DBW_32)
 				/* 0x43080000 */
 
 #define CONFIG_SYS_DDR_SDRAM_CFG2	0x00401000 /* 1 posted refresh */
@@ -212,7 +213,7 @@
  */
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_SIZE		0x1000 /* Size of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
@@ -238,19 +239,18 @@
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_8MB)
 
-#define CONFIG_SYS_BR0_PRELIM	(\
-		CONFIG_SYS_FLASH_BASE	/* Flash Base address */	|\
-		(2 << BR_PS_SHIFT)	/* 16 bit port size */		|\
-		BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
+#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
+				| BR_PS_16	/* 16 bit port */ \
+				| BR_MS_GPCM	/* MSEL = GPCM */ \
+				| BR_V)		/* valid */
+#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX \
-				| OR_GPCM_EHTR \
-				| OR_GPCM_EAD)
+				| OR_GPCM_TRLX_SET \
+				| OR_GPCM_EHTR_SET)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 /* 127 64KB sectors and 8 8KB top sectors per device */
@@ -262,19 +262,20 @@
 /*
  * NAND Flash on the Local Bus
  */
-#define CONFIG_SYS_NAND_BASE		0xE0600000	/* 0xE0600000 */
-#define CONFIG_SYS_BR1_PRELIM	( CONFIG_SYS_NAND_BASE \
-				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
-				| BR_PS_8		/* Port Size = 8 bit */ \
+#define CONFIG_SYS_NAND_BASE	0xE0600000		/* 0xE0600000 */
+#define CONFIG_SYS_NAND_WINDOW_SIZE	(32 * 1024)	/* 0x00008000 */
+#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_NAND_BASE \
+				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
+				| BR_PS_8		/* 8 bit Port */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
-				| BR_V )		/* valid */
-#define CONFIG_SYS_OR1_PRELIM	( 0xFFFF8000		/* length 32K */ \
+				| BR_V)			/* valid */
+#define CONFIG_SYS_OR1_PRELIM	(P2SZ_TO_AM(CONFIG_SYS_NAND_WINDOW_SIZE) \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
 				| OR_FCM_SCY_1 \
 				| OR_FCM_TRLX \
-				| OR_FCM_EHTR )
+				| OR_FCM_EHTR)
 				/* 0xFFFF8396 */
 
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
@@ -282,9 +283,22 @@
 
 #ifdef CONFIG_VSC7385_ENET
 #define CONFIG_TSEC2
+					/* VSC7385 Base address on CS2 */
 #define CONFIG_SYS_VSC7385_BASE		0xF0000000
-#define CONFIG_SYS_BR2_PRELIM		0xf0000801 /* VSC7385 Base address */
-#define CONFIG_SYS_OR2_PRELIM		0xfffe09ff /* VSC7385, 128K bytes*/
+#define CONFIG_SYS_VSC7385_SIZE		(128 * 1024) /* 0x00020000 */
+#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_VSC7385_BASE \
+					| BR_PS_8	/* 8-bit port */ \
+					| BR_MS_GPCM	/* MSEL = GPCM */ \
+					| BR_V)		/* valid */
+					/* 0xF0000801 */
+#define CONFIG_SYS_OR2_PRELIM		(P2SZ_TO_AM(CONFIG_SYS_VSC7385_SIZE) \
+					| OR_GPCM_CSNT \
+					| OR_GPCM_XACS \
+					| OR_GPCM_SCY_15 \
+					| OR_GPCM_SETA \
+					| OR_GPCM_TRLX_SET \
+					| OR_GPCM_EHTR_SET)
+					/* 0xFFFE09FF */
 /* Access window base at VSC7385 base */
 #define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VSC7385_BASE
 /* Access window size 128K */
@@ -323,7 +337,7 @@
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_SPEED	400000 /* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE	0x7F
-#define CONFIG_SYS_I2C_NOPROBES	{{0x51}} /* Don't probe these addrs */
+#define CONFIG_SYS_I2C_NOPROBES	{ {0, 0x51} } /* Don't probe these addrs */
 #define CONFIG_SYS_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C2_OFFSET	0x3100
 
@@ -367,7 +381,6 @@
 /*
  * TSEC
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_TSEC_ENET	/* TSEC ethernet support */
 #define CONFIG_SYS_TSEC1_OFFSET	0x24000
 #define CONFIG_SYS_TSEC1	(CONFIG_SYS_IMMR+CONFIG_SYS_TSEC1_OFFSET)
@@ -464,7 +477,7 @@
  */
 
 /* DDR: cache cacheable */
-#define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE | BATL_PP_10 | \
+#define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE | BATL_PP_RW | \
 					BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE | BATU_BL_128M | \
 					BATU_VS | BATU_VP)
@@ -472,7 +485,7 @@
 #define CONFIG_SYS_DBAT0U	CONFIG_SYS_IBAT0U
 
 /* IMMRBAR, PCI IO and NAND: cache-inhibit and guarded */
-#define CONFIG_SYS_IBAT1L	(CONFIG_SYS_IMMR | BATL_PP_10 | \
+#define CONFIG_SYS_IBAT1L	(CONFIG_SYS_IMMR | BATL_PP_RW | \
 			BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT1U	(CONFIG_SYS_IMMR | BATU_BL_8M | BATU_VS | \
 					BATU_VP)
@@ -480,17 +493,17 @@
 #define CONFIG_SYS_DBAT1U	CONFIG_SYS_IBAT1U
 
 /* FLASH: icache cacheable, but dcache-inhibit and guarded */
-#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_FLASH_BASE | BATL_PP_10 | \
+#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_FLASH_BASE | BATL_PP_RW | \
 					BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT2U	(CONFIG_SYS_FLASH_BASE | BATU_BL_8M | \
 					BATU_VS | BATU_VP)
-#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_FLASH_BASE | BATL_PP_10 | \
+#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_FLASH_BASE | BATL_PP_RW | \
 					BATL_CACHEINHIBIT | \
 					BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT2U	CONFIG_SYS_IBAT2U
 
 /* Stack in dcache: cacheable, no memory coherence */
-#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_10)
+#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_RW)
 #define CONFIG_SYS_IBAT3U	(CONFIG_SYS_INIT_RAM_ADDR | BATU_BL_128K | \
 					BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT3L	CONFIG_SYS_IBAT3L

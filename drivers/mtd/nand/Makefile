@@ -26,23 +26,36 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libnand.o
 
 ifdef CONFIG_CMD_NAND
+ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_NAND_SIMPLE
+COBJS-y += nand_spl_simple.o
+endif
+ifdef CONFIG_SPL_NAND_LOAD
+COBJS-y	+= nand_spl_load.o
+endif
+else
 COBJS-y += nand.o
-COBJS-y += nand_base.o
 COBJS-y += nand_bbt.o
-COBJS-y += nand_ecc.o
 COBJS-y += nand_ids.o
 COBJS-y += nand_util.o
+endif
+COBJS-y += nand_ecc.o
+COBJS-y += nand_base.o
+COBJS-$(CONFIG_NAND_ECC_BCH) += nand_bch.o
 
 COBJS-$(CONFIG_NAND_ATMEL) += atmel_nand.o
 COBJS-$(CONFIG_DRIVER_NAND_BFIN) += bfin_nand.o
 COBJS-$(CONFIG_NAND_DAVINCI) += davinci_nand.o
 COBJS-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_nand.o
+COBJS-$(CONFIG_NAND_FSL_IFC) += fsl_ifc_nand.o
 COBJS-$(CONFIG_NAND_FSL_UPM) += fsl_upm.o
+COBJS-$(CONFIG_NAND_JZ4740) += jz4740_nand.o
 COBJS-$(CONFIG_NAND_KB9202) += kb9202_nand.o
 COBJS-$(CONFIG_NAND_KIRKWOOD) += kirkwood_nand.o
 COBJS-$(CONFIG_NAND_KMETER1) += kmeter1_nand.o
 COBJS-$(CONFIG_NAND_MPC5121_NFC) += mpc5121_nfc.o
 COBJS-$(CONFIG_NAND_MXC) += mxc_nand.o
+COBJS-$(CONFIG_NAND_MXS) += mxs_nand.o
 COBJS-$(CONFIG_NAND_NDFC) += ndfc.o
 COBJS-$(CONFIG_NAND_NOMADIK) += nomadik.o
 COBJS-$(CONFIG_NAND_S3C2410) += s3c2410_nand.o

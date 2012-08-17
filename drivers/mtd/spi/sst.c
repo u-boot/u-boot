@@ -36,8 +36,12 @@
 #define SST_SR_AAI		(1 << 6)	/* Addressing mode */
 #define SST_SR_BPL		(1 << 7)	/* BP bits lock */
 
+#define SST_FEAT_WP		(1 << 0)	/* Supports AAI word program */
+#define SST_FEAT_MBP		(1 << 1)	/* Supports multibyte program */
+
 struct sst_spi_flash_params {
 	u8 idcode1;
+	u8 flags;
 	u16 nr_sectors;
 	const char *name;
 };
@@ -53,81 +57,60 @@ static inline struct sst_spi_flash *to_sst_spi_flash(struct spi_flash *flash)
 }
 
 #define SST_SECTOR_SIZE (4 * 1024)
+#define SST_PAGE_SIZE   256
 static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 	{
 		.idcode1 = 0x8d,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 128,
 		.name = "SST25VF040B",
 	},{
 		.idcode1 = 0x8e,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 256,
 		.name = "SST25VF080B",
 	},{
 		.idcode1 = 0x41,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 512,
 		.name = "SST25VF016B",
 	},{
 		.idcode1 = 0x4a,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 1024,
 		.name = "SST25VF032B",
 	},{
+		.idcode1 = 0x4b,
+		.flags = SST_FEAT_MBP,
+		.nr_sectors = 2048,
+		.name = "SST25VF064C",
+	},{
 		.idcode1 = 0x01,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 16,
 		.name = "SST25WF512",
 	},{
 		.idcode1 = 0x02,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 32,
 		.name = "SST25WF010",
 	},{
 		.idcode1 = 0x03,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 64,
 		.name = "SST25WF020",
 	},{
 		.idcode1 = 0x04,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 128,
 		.name = "SST25WF040",
 	},
 };
 
 static int
-sst_wait_ready(struct spi_flash *flash, unsigned long timeout)
-{
-	struct spi_slave *spi = flash->spi;
-	unsigned long timebase;
-	int ret;
-	u8 byte = CMD_SST_RDSR;
-
-	ret = spi_xfer(spi, sizeof(byte) * 8, &byte, NULL, SPI_XFER_BEGIN);
-	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", byte, ret);
-		return ret;
-	}
-
-	timebase = get_timer(0);
-	do {
-		ret = spi_xfer(spi, sizeof(byte) * 8, NULL, &byte, 0);
-		if (ret)
-			break;
-
-		if ((byte & SST_SR_WIP) == 0)
-			break;
-
-	} while (get_timer(timebase) < timeout);
-
-	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
-
-	if (!ret && (byte & SST_SR_WIP) != 0)
-		ret = -1;
-
-	if (ret)
-		debug("SF: sst wait for ready timed out\n");
-	return ret;
-}
-
-static int
 sst_enable_writing(struct spi_flash *flash)
 {
-	int ret = spi_flash_cmd(flash->spi, CMD_SST_WREN, NULL, 0);
+	int ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
 		debug("SF: Enabling Write failed\n");
 	return ret;
@@ -136,23 +119,10 @@ sst_enable_writing(struct spi_flash *flash)
 static int
 sst_disable_writing(struct spi_flash *flash)
 {
-	int ret = spi_flash_cmd(flash->spi, CMD_SST_WRDI, NULL, 0);
+	int ret = spi_flash_cmd_write_disable(flash);
 	if (ret)
 		debug("SF: Disabling Write failed\n");
 	return ret;
-}
-
-static int
-sst_read_fast(struct spi_flash *flash, u32 offset, size_t len, void *buf)
-{
-	u8 cmd[5] = {
-		CMD_READ_ARRAY_FAST,
-		offset >> 16,
-		offset >> 8,
-		offset,
-		0x00,
-	};
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
 }
 
 static int
@@ -177,11 +147,11 @@ sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 	if (ret)
 		return ret;
 
-	return sst_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+	return spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
 }
 
 static int
-sst_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
+sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 {
 	size_t actual, cmd_len;
 	int ret;
@@ -224,7 +194,7 @@ sst_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 			break;
 		}
 
-		ret = sst_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
 		if (ret)
 			break;
 
@@ -247,67 +217,9 @@ sst_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	return ret;
 }
 
-int
-sst_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int sst_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	unsigned long sector_size;
-	u32 start, end;
-	int ret;
-	u8 cmd[4];
-
-	/*
-	 * This function currently uses sector erase only.
-	 * Probably speed things up by using bulk erase
-	 * when possible.
-	 */
-
-	sector_size = SST_SECTOR_SIZE;
-
-	if (offset % sector_size) {
-		debug("SF: Erase offset not multiple of sector size\n");
-		return -1;
-	}
-
-	ret = spi_claim_bus(flash->spi);
-	if (ret) {
-		debug("SF: Unable to claim SPI bus\n");
-		return ret;
-	}
-
-	cmd[0] = CMD_SST_SE;
-	cmd[3] = 0;
-	start = offset;
-	end = start + len;
-
-	ret = 0;
-	while (offset < end) {
-		cmd[1] = offset >> 16;
-		cmd[2] = offset >> 8;
-		offset += sector_size;
-
-		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
-		      cmd[2], cmd[3], offset);
-
-		ret = sst_enable_writing(flash);
-		if (ret)
-			break;
-
-		ret = spi_flash_cmd_write(flash->spi, cmd, sizeof(cmd), NULL, 0);
-		if (ret) {
-			debug("SF: sst page erase failed\n");
-			break;
-		}
-
-		ret = sst_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret)
-			break;
-	}
-
-	debug("SF: sst: Successfully erased %lu bytes @ 0x%x\n",
-	      len * sector_size, start);
-
-	spi_release_bus(flash->spi);
-	return ret;
+	return spi_flash_cmd_erase(flash, CMD_SST_SE, offset, len);
 }
 
 static int
@@ -359,14 +271,15 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 	stm->flash.spi = spi;
 	stm->flash.name = params->name;
 
-	stm->flash.write = sst_write;
+	if (stm->params->flags & SST_FEAT_WP)
+		stm->flash.write = sst_write_wp;
+	else
+		stm->flash.write = spi_flash_cmd_write_multi;
 	stm->flash.erase = sst_erase;
-	stm->flash.read = sst_read_fast;
-	stm->flash.size = SST_SECTOR_SIZE * params->nr_sectors;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, SST_SECTOR_SIZE);
-	print_size(stm->flash.size, "\n");
+	stm->flash.read = spi_flash_cmd_read_fast;
+	stm->flash.page_size = SST_PAGE_SIZE;
+	stm->flash.sector_size = SST_SECTOR_SIZE;
+	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
 
 	/* Flash powers up read-only, so clear BP# bits */
 	sst_unlock(&stm->flash);

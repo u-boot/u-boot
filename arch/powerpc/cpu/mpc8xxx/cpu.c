@@ -27,6 +27,7 @@
 #include <common.h>
 #include <command.h>
 #include <tsec.h>
+#include <fm_eth.h>
 #include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>
@@ -71,23 +72,39 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(P1012, P1012, 1),
 	CPU_TYPE_ENTRY(P1012, P1012_E, 1),
 	CPU_TYPE_ENTRY(P1013, P1013, 1),
+	CPU_TYPE_ENTRY(P1013, P1013_E, 1),
 	CPU_TYPE_ENTRY(P1014, P1014_E, 1),
 	CPU_TYPE_ENTRY(P1014, P1014, 1),
-	CPU_TYPE_ENTRY(P1013, P1013_E, 1),
+	CPU_TYPE_ENTRY(P1015, P1015_E, 1),
+	CPU_TYPE_ENTRY(P1015, P1015, 1),
+	CPU_TYPE_ENTRY(P1016, P1016_E, 1),
+	CPU_TYPE_ENTRY(P1016, P1016, 1),
+	CPU_TYPE_ENTRY(P1017, P1017, 1),
+	CPU_TYPE_ENTRY(P1017, P1017_E, 1),
 	CPU_TYPE_ENTRY(P1020, P1020, 2),
 	CPU_TYPE_ENTRY(P1020, P1020_E, 2),
 	CPU_TYPE_ENTRY(P1021, P1021, 2),
 	CPU_TYPE_ENTRY(P1021, P1021_E, 2),
 	CPU_TYPE_ENTRY(P1022, P1022, 2),
 	CPU_TYPE_ENTRY(P1022, P1022_E, 2),
+	CPU_TYPE_ENTRY(P1023, P1023, 2),
+	CPU_TYPE_ENTRY(P1023, P1023_E, 2),
+	CPU_TYPE_ENTRY(P1024, P1024, 2),
+	CPU_TYPE_ENTRY(P1024, P1024_E, 2),
+	CPU_TYPE_ENTRY(P1025, P1025, 2),
+	CPU_TYPE_ENTRY(P1025, P1025_E, 2),
 	CPU_TYPE_ENTRY(P2010, P2010, 1),
 	CPU_TYPE_ENTRY(P2010, P2010_E, 1),
 	CPU_TYPE_ENTRY(P2020, P2020, 2),
 	CPU_TYPE_ENTRY(P2020, P2020_E, 2),
 	CPU_TYPE_ENTRY(P2040, P2040, 4),
 	CPU_TYPE_ENTRY(P2040, P2040_E, 4),
+	CPU_TYPE_ENTRY(P2041, P2041, 4),
+	CPU_TYPE_ENTRY(P2041, P2041_E, 4),
 	CPU_TYPE_ENTRY(P3041, P3041, 4),
 	CPU_TYPE_ENTRY(P3041, P3041_E, 4),
+	CPU_TYPE_ENTRY_MASK(P3060, P3060, 6, 0xf3),
+	CPU_TYPE_ENTRY_MASK(P3060, P3060_E, 6, 0xf3),
 	CPU_TYPE_ENTRY(P4040, P4040, 4),
 	CPU_TYPE_ENTRY(P4040, P4040_E, 4),
 	CPU_TYPE_ENTRY(P4080, P4080, 8),
@@ -115,18 +132,50 @@ struct cpu_type *identify_cpu(u32 ver)
 	return &cpu_type_unknown;
 }
 
+#define MPC8xxx_PICFRR_NCPU_MASK  0x00001f00
+#define MPC8xxx_PICFRR_NCPU_SHIFT 8
+
+/*
+ * Return a 32-bit mask indicating which cores are present on this SOC.
+ */
+u32 cpu_mask()
+{
+	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
+	struct cpu_type *cpu = gd->cpu;
+
+	/* better to query feature reporting register than just assume 1 */
+	if (cpu == &cpu_type_unknown)
+	return ((in_be32(&pic->frr) & MPC8xxx_PICFRR_NCPU_MASK) >>
+			MPC8xxx_PICFRR_NCPU_SHIFT) + 1;
+
+	return cpu->mask;
+}
+
+/*
+ * Return the number of cores on this SOC.
+ */
 int cpu_numcores() {
 	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
 	struct cpu_type *cpu = gd->cpu;
 
 	/* better to query feature reporting register than just assume 1 */
-#define MPC8xxx_PICFRR_NCPU_MASK 0x00001f00
-#define MPC8xxx_PICFRR_NCPU_SHIFT 8
 	if (cpu == &cpu_type_unknown)
 		return ((in_be32(&pic->frr) & MPC8xxx_PICFRR_NCPU_MASK) >>
 			MPC8xxx_PICFRR_NCPU_SHIFT) + 1;
 
 	return cpu->num_cores;
+}
+
+/*
+ * Check if the given core ID is valid
+ *
+ * Returns zero if it isn't, 1 if it is.
+ */
+int is_core_valid(unsigned int core)
+{
+	struct cpu_type *cpu = gd->cpu;
+
+	return !!((1 << core) & cpu->mask);
 }
 
 int probecpu (void)
@@ -160,5 +209,8 @@ int cpu_eth_init(bd_t *bis)
 	tsec_standard_init(bis);
 #endif
 
+#ifdef CONFIG_FMAN_ENET
+	fm_standard_init(bis);
+#endif
 	return 0;
 }

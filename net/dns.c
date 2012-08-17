@@ -25,6 +25,7 @@
 #include <common.h>
 #include <command.h>
 #include <net.h>
+#include <asm/unaligned.h>
 
 #include "dns.h"
 
@@ -101,7 +102,7 @@ DnsTimeout(void)
 }
 
 static void
-DnsHandler(uchar *pkt, unsigned dest, unsigned src, unsigned len)
+DnsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 {
 	struct header *header;
 	const unsigned char *p, *e, *s;
@@ -109,7 +110,6 @@ DnsHandler(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 	int found, stop, dlen;
 	char IPStr[22];
 	IPaddr_t IPAddress;
-	short tmp;
 
 
 	debug("%s\n", __func__);
@@ -120,14 +120,14 @@ DnsHandler(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 		debug("0x%p - 0x%.2x  0x%.2x  0x%.2x  0x%.2x\n",
 			pkt+i, pkt[i], pkt[i+1], pkt[i+2], pkt[i+3]);
 
-	/* We sent 1 query. We want to see more that 1 answer. */
+	/* We sent one query. We want to have a single answer: */
 	header = (struct header *) pkt;
 	if (ntohs(header->nqueries) != 1)
 		return;
 
 	/* Received 0 answers */
 	if (header->nanswers == 0) {
-		puts("DNS server returned no answers\n");
+		puts("DNS: host not found\n");
 		NetState = NETLOOP_SUCCESS;
 		return;
 	}
@@ -139,9 +139,8 @@ DnsHandler(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 		continue;
 
 	/* We sent query class 1, query type 1 */
-	tmp = p[1] | (p[2] << 8);
-	if (&p[5] > e || ntohs(tmp) != DNS_A_RECORD) {
-		puts("DNS response was not A record\n");
+	if (&p[5] > e || get_unaligned_be16(p+1) != DNS_A_RECORD) {
+		puts("DNS: response was not an A record\n");
 		NetState = NETLOOP_SUCCESS;
 		return;
 	}
@@ -160,14 +159,12 @@ DnsHandler(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 		}
 		debug("Name (Offset in header): %d\n", p[1]);
 
-		tmp = p[2] | (p[3] << 8);
-		type = ntohs(tmp);
+		type = get_unaligned_be16(p+2);
 		debug("type = %d\n", type);
 		if (type == DNS_CNAME_RECORD) {
 			/* CNAME answer. shift to the next section */
 			debug("Found canonical name\n");
-			tmp = p[10] | (p[11] << 8);
-			dlen = ntohs(tmp);
+			dlen = get_unaligned_be16(p+10);
 			debug("dlen = %d\n", dlen);
 			p += 12 + dlen;
 		} else if (type == DNS_A_RECORD) {
@@ -181,8 +178,7 @@ DnsHandler(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 
 	if (found && &p[12] < e) {
 
-		tmp = p[10] | (p[11] << 8);
-		dlen = ntohs(tmp);
+		dlen = get_unaligned_be16(p+10);
 		p += 12;
 		memcpy(&IPAddress, p, 4);
 

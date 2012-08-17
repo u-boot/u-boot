@@ -27,9 +27,9 @@
 
 #include <xilinx.h>
 
-extern int Spartan3_load( Xilinx_desc *desc, void *image, size_t size );
-extern int Spartan3_dump( Xilinx_desc *desc, void *buf, size_t bsize );
-extern int Spartan3_info( Xilinx_desc *desc );
+extern int Spartan3_load(Xilinx_desc *desc, const void *image, size_t size);
+extern int Spartan3_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
+extern int Spartan3_info(Xilinx_desc *desc);
 
 /* Slave Parallel Implementation function table */
 typedef struct {
@@ -80,6 +80,12 @@ typedef struct {
 #define	XILINX_XC3S1200E_SIZE	3841184/8
 #define	XILINX_XC3S1600E_SIZE	5969696/8
 
+/*
+ * Spartan-6 : the Spartan-6 family can be programmed
+ * exactly as the Spartan-3
+ */
+#define XILINK_XC6SLX4_SIZE	(3713568/8)
+
 /* Descriptor Macros
  *********************************************************************/
 /* Spartan-III devices */
@@ -122,5 +128,8 @@ typedef struct {
 
 #define XILINX_XC3S1600E_DESC(iface, fn_table, cookie) \
 { Xilinx_Spartan3, iface, XILINX_XC3S1600E_SIZE, fn_table, cookie }
+
+#define XILINX_XC6SLX4_DESC(iface, fn_table, cookie) \
+{ Xilinx_Spartan3, iface, XILINK_XC6SLX4_SIZE, fn_table, cookie }
 
 #endif /* _SPARTAN3_H_ */

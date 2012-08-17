@@ -31,7 +31,11 @@
 #define CONFIG_ARMCORTEXA9		/* This is an ARM V7 CPU core */
 #define CONFIG_TEGRA2			/* in a NVidia Tegra2 core */
 #define CONFIG_MACH_TEGRA_GENERIC	/* which is a Tegra generic machine */
-#define CONFIG_L2_OFF			/* No L2 cache */
+#define CONFIG_SYS_L2CACHE_OFF		/* No L2 cache */
+
+#define CONFIG_SYS_CACHELINE_SIZE	32
+
+#define CONFIG_ARCH_CPU_INIT		/* Fire up the A9 core */
 
 #include <asm/arch/tegra2.h>		/* get chip and board defs */
 
@@ -41,14 +45,13 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_SKIP_RELOCATE_UBOOT
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
+#define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
 
 /* Environment */
-#define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_SIZE			0x20000	/* Total Size Environment */
+#define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
 
 /*
  * Size of malloc() pool
@@ -81,6 +84,19 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 
+/*
+ * This parameter affects a TXFILLTUNING field that controls how much data is
+ * sent to the latency fifo before it is sent to the wire. Without this
+ * parameter, the default (2) causes occasional Data Buffer Errors in OUT
+ * packets depending on the buffer address and size.
+ */
+#define CONFIG_USB_EHCI_TXFIFO_THRESH	10
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_EHCI_DCACHE
+
+/* Total I2C ports on Tegra2 */
+#define TEGRA_I2C_NUM_CONTROLLERS	4
+
 /* include default commands */
 #include <config_cmd_default.h>
 
@@ -95,7 +111,7 @@
 /* turn on command-line edit/hist/auto */
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
-#define CONFIG_AUTOCOMPLETE
+#define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_SYS_NO_FLASH
 
@@ -148,7 +164,7 @@
 #define PHYS_SDRAM_1		TEGRA2_SDRC_CS0
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512M */
 
-#define CONFIG_SYS_TEXT_BASE	0x00E08000
+#define CONFIG_SYS_TEXT_BASE	0x00108000
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_STACKBASE
@@ -157,4 +173,6 @@
 						CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 
+#define CONFIG_TEGRA2_GPIO
+#define CONFIG_CMD_GPIO
 #endif /* __TEGRA2_COMMON_H */

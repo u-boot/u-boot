@@ -59,7 +59,7 @@ ulong flash_get_size (ulong base, int banknum);
 
 /* Local functions */
 static int detect_num_flash_banks(void);
-static long int get_ddr_bank_size(short cs, volatile long *base);
+static long int get_ddr_bank_size(short cs, long *base);
 static void set_cs_bounds(short cs, long base, long size);
 static void set_cs_config(short cs, long config);
 static void set_ddr_config(void);
@@ -120,10 +120,10 @@ phys_size_t initdram (int board_type)
 		debug("\nDetecting Bank%d\n", cs);
 
 		bank_size = get_ddr_bank_size(cs,
-			(volatile long*)(CONFIG_SYS_DDR_BASE + size));
+			(long *)(CONFIG_SYS_DDR_BASE + size));
 		size += bank_size;
 
-		debug("DDR Bank%d size: %d MiB\n\n", cs, bank_size >> 20);
+		debug("DDR Bank%d size: %ld MiB\n\n", cs, bank_size >> 20);
 
 		/* exit if less than one bank */
 		if(size < DDR_MAX_SIZE_PER_CS) break;
@@ -262,7 +262,7 @@ static int detect_num_flash_banks(void)
 /*************************************************************************
  * Detect the size of a ddr bank. Sets CS bounds and CS config accordingly.
  */
-static long int get_ddr_bank_size(short cs, volatile long *base)
+static long int get_ddr_bank_size(short cs, long *base)
 {
 	/* This array lists all valid DDR SDRAM configurations, with
 	 * Bank sizes in bytes. (Refer to Table 9-27 in the MPC8349E RM).
@@ -333,7 +333,7 @@ static long int get_ddr_bank_size(short cs, volatile long *base)
  */
 static void set_cs_bounds(short cs, long base, long size)
 {
-	debug("Setting bounds %08x, %08x for cs %d\n", base, size, cs);
+	debug("Setting bounds %08lx, %08lx for cs %d\n", base, size, cs);
 	if(size == 0){
 		im->ddr.csbnds[cs].csbnds = 0x00000000;
 	} else {
@@ -351,7 +351,7 @@ static void set_cs_bounds(short cs, long base, long size)
  */
 static void set_cs_config(short cs, long config)
 {
-	debug("Setting config %08x for cs %d\n", config, cs);
+	debug("Setting config %08lx for cs %d\n", config, cs);
 	im->ddr.cs_config[cs] = config;
 	SYNC;
 }

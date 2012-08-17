@@ -322,7 +322,7 @@ void show_boot_progress (int status)
 			(status < 0) ? STATUS_LED_ON : STATUS_LED_OFF);
 # endif	/* STATUS_LED_YELLOW */
 # if defined(STATUS_LED_BOOT)
-	if (status == 6)
+	if (status == BOOTSTAGE_ID_DECOMP_IMAGE)
 		status_led_set (STATUS_LED_BOOT, STATUS_LED_OFF);
 # endif	/* STATUS_LED_BOOT */
 #endif /* CONFIG_STATUS_LED */

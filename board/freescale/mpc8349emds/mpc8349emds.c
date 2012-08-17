@@ -29,7 +29,11 @@
 #include <i2c.h>
 #include <spi.h>
 #include <miiphy.h>
+#ifdef CONFIG_FSL_DDR2
+#include <asm/fsl_ddr_sdram.h>
+#else
 #include <spd_sdram.h>
+#endif
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -62,7 +66,7 @@ int board_early_init_f (void)
 phys_size_t initdram (int board_type)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 msize = 0;
+	phys_size_t msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
@@ -70,24 +74,24 @@ phys_size_t initdram (int board_type)
 	/* DDR SDRAM - Main SODIMM */
 	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
-	msize = spd_sdram();
+#ifndef CONFIG_FSL_DDR2
+	msize = spd_sdram() * 1024 * 1024;
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+	ddr_enable_ecc(msize);
+#endif
 #else
-	msize = fixed_sdram();
+	msize = fsl_ddr_sdram();
+#endif
+#else
+	msize = fixed_sdram() * 1024 * 1024;
 #endif
 	/*
 	 * Initialize SDRAM if it is on local bus.
 	 */
 	sdram_init();
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(msize * 1024 * 1024);
-#endif
-
 	/* return total bus SDRAM size(bytes)  -- DDR */
-	return (msize * 1024 * 1024);
+	return msize;
 }
 
 #if !defined(CONFIG_SPD_EEPROM)
@@ -97,18 +101,10 @@ phys_size_t initdram (int board_type)
 int fixed_sdram(void)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 msize = 0;
-	u32 ddr_size;
-	u32 ddr_size_log2;
+	u32 msize = CONFIG_SYS_DDR_SIZE;
+	u32 ddr_size = msize << 20;	/* DDR size in bytes */
+	u32 ddr_size_log2 = __ilog2(ddr_size);
 
-	msize = CONFIG_SYS_DDR_SIZE;
-	for (ddr_size = msize << 20, ddr_size_log2 = 0;
-	     (ddr_size > 1);
-	     ddr_size = ddr_size>>1, ddr_size_log2++) {
-		if (ddr_size & 1) {
-			return -1;
-		}
-	}
 	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
 
@@ -129,8 +125,15 @@ int fixed_sdram(void)
 	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
 #else
-	im->ddr.csbnds[2].csbnds = 0x0000000f;
-	im->ddr.cs_config[2] = CONFIG_SYS_DDR_CONFIG;
+
+#if ((CONFIG_SYS_DDR_SDRAM_BASE & 0x00FFFFFF) != 0)
+#warning Chip select bounds is only configurable in 16MB increments
+#endif
+	im->ddr.csbnds[2].csbnds =
+		((CONFIG_SYS_DDR_SDRAM_BASE >> CSBNDS_SA_SHIFT) & CSBNDS_SA) |
+		(((CONFIG_SYS_DDR_SDRAM_BASE + ddr_size - 1) >>
+				CSBNDS_EA_SHIFT) & CSBNDS_EA);
+	im->ddr.cs_config[2] = CONFIG_SYS_DDR_CS2_CONFIG;
 
 	/* currently we use only one CS, so disable the other banks */
 	im->ddr.cs_config[0] = 0;

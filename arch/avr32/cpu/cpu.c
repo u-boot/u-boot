@@ -27,7 +27,7 @@
 #include <asm/sysreg.h>
 
 #include <asm/arch/clk.h>
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 
 #include "hsmc3.h"
 

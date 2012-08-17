@@ -70,6 +70,7 @@
 #define CONFIG_PCI		1
 #define CONFIG_PCI_PNP		1
 #define CONFIG_PCI_SCAN_SHOW	1
+#define CONFIG_PCI_BOOTDELAY	250
 
 #define CONFIG_PCI_MEM_BUS	0x40000000
 #define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
@@ -86,10 +87,38 @@
 #define CONFIG_BZIP2
 
 /*
+ * Video
+ */
+#define CONFIG_VIDEO
+
+#ifdef CONFIG_VIDEO
+#define CONFIG_VIDEO_MB862xx
+#define CONFIG_VIDEO_MB862xx_ACCEL
+#define CONFIG_VIDEO_CORALP
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* decompressed img */
+
+/* Coral-PA clock frequency, geo and other both 133MHz */
+#define CONFIG_SYS_MB862xx_CCF	0x00050000
+/* Video SDRAM parameters */
+#define CONFIG_SYS_MB862xx_MMR	0x11d7fa72
+#endif
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#endif
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
@@ -252,6 +281,8 @@
 #if defined(CONFIG_DIGSY_REV5)
 #define CONFIG_SYS_I2C_RTC_ADDR	0x56
 #define CONFIG_RTC_RV3029
+/* Enable 5k Ohm trickle charge resistor */
+#define CONFIG_SYS_RV3029_TCR	0x20
 #else
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
@@ -343,7 +374,11 @@
  */
 #define CONFIG_MPC5xxx_FEC	1
 #define CONFIG_MPC5xxx_FEC_MII100
+#if defined(CONFIG_DIGSY_REV5)
+#define CONFIG_PHY_ADDR		0x01
+#else
 #define CONFIG_PHY_ADDR		0x00
+#endif
 #define CONFIG_PHY_RESET_DELAY	1000
 
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/

@@ -51,7 +51,6 @@ static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, int flag,
 	uchar	chip;
 	ulong	data;
 	int	nbytes;
-	extern char console_buffer[];
 
 	char sysClock[4];
 	char cpuClock[4];

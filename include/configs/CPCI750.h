@@ -100,7 +100,6 @@
 #define CONFIG_MPSC_PORT	0
 
 /* to change the default ethernet port, use this define (options: 0, 1, 2) */
-#define CONFIG_NET_MULTI
 #define MV_ETH_DEVS		1
 #define CONFIG_ETHER_PORT	0
 
@@ -188,6 +187,8 @@
 #define CONFIG_SYS_I2C_MULTI_EEPROMS
 #define CONFIG_SYS_I2C_SPEED	80000		/* I2C speed default */
 
+#define CONFIG_PRAM 0
+
 #define CONFIG_SYS_GT_DUAL_CPU			/* also for JTAG even with one cpu */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 #define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
@@ -241,11 +242,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define CONFIG_SYS_TCLK		133000000
-
-/*#define CONFIG_SYS_750FX_HID0		0x8000c084*/
-#define CONFIG_SYS_750FX_HID0		0x80008484
-#define CONFIG_SYS_750FX_HID1		0x54800000
-#define CONFIG_SYS_750FX_HID2		0x00000000
 
 /*
  * Low Level Configuration Settings
@@ -458,7 +454,11 @@
 #define CONFIG_SYS_ATA_DATA_OFFSET	0x0000	/* Offset for data I/O			*/
 #define CONFIG_SYS_ATA_REG_OFFSET	0x0000	/* Offset for normal register accesses	*/
 #define CONFIG_SYS_ATA_ALT_OFFSET	0x0000	/* Offset for alternate registers	*/
-
+#ifndef __ASSEMBLY__
+int ata_device(int dev);
+#endif
+#define ATA_DEVICE(dev)                 ata_device(dev)
+#define CONFIG_ATAPI                    1
 
 /*----------------------------------------------------------------------
  * Initial BAT mappings
@@ -498,8 +498,8 @@
  * IBAT4 and DBAT4
  * FIXME: ingo disable BATs for Linux Kernel
  */
-#undef SETUP_HIGH_BATS_FX750		/* don't initialize BATS 4-7 */
-/*#define SETUP_HIGH_BATS_FX750*/		/* initialize BATS 4-7 */
+/* #undef SETUP_HIGH_BATS_FX750	*/	/* don't initialize BATS 4-7 */
+#define SETUP_HIGH_BATS_FX750		/* initialize BATS 4-7 */
 
 #ifdef SETUP_HIGH_BATS_FX750
 #define CONFIG_SYS_IBAT4L (CONFIG_SYS_SDRAM1_BASE | BATL_PP_RW | BATL_CACHEINHIBIT)
@@ -622,5 +622,7 @@
 #define CPCI750_SLAVE_TEST	(((in8(0xf0300000) & 0x80) == 0) ? 0 : 1)
 #define CPCI750_ECC_TEST	(((in8(0xf0300000) & 0x02) == 0) ? 1 : 0)
 #define CONFIG_SYS_PLD_VER	0xf0e00000
+
+#define CONFIG_OF_LIBFDT 1
 
 #endif	/* __CONFIG_H */

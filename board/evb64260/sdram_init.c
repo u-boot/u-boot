@@ -29,6 +29,7 @@
 #include <galileo/pci.h>
 #include <galileo/gt64260R.h>
 #include <net.h>
+#include <linux/compiler.h>
 
 #include "eth.h"
 #include "mpsc.h"
@@ -330,7 +331,8 @@ static int check_dimm (uchar slot, sdram_info_t * info)
 static int setup_sdram_common (sdram_info_t info[2])
 {
 	ulong tmp;
-	int tpar = 2, tras_clocks = 5, registered = 1, ecc = 2;
+	int tpar = 2, tras_clocks = 5, registered = 1;
+	__maybe_unused int ecc = 2;
 
 	if (!info[0].banks && !info[1].banks)
 		return 0;
@@ -407,8 +409,9 @@ static int setup_sdram_common (sdram_info_t info[2])
 /* sets up the GT properly with information passed in */
 static int setup_sdram (sdram_info_t * info)
 {
-	ulong tmp, check;
+	ulong tmp;
 	ulong *addr = 0;
+	__maybe_unused ulong check;
 	int i;
 
 	/* sanity checking */

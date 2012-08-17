@@ -71,7 +71,7 @@ compute_ranksize(const ddr3_spd_eeprom_t *spd)
 	bsize = 1ULL << (nbit_sdram_cap_bsize - 3
 		    + nbit_primary_bus_width - nbit_sdram_width);
 
-	debug("DDR: DDR III rank density = 0x%16lx\n", bsize);
+	debug("DDR: DDR III rank density = 0x%16llx\n", bsize);
 
 	return bsize;
 }
@@ -114,7 +114,8 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * and copying the part name in ASCII from the SPD onto it
 	 */
 	memset(pdimm->mpart, 0, sizeof(pdimm->mpart));
-	memcpy(pdimm->mpart, spd->mpart, sizeof(pdimm->mpart) - 1);
+	if ((spd->info_size_crc & 0xF) > 1)
+		memcpy(pdimm->mpart, spd->mpart, sizeof(pdimm->mpart) - 1);
 
 	/* DIMM organization parameters */
 	pdimm->n_ranks = ((spd->organization >> 3) & 0x7) + 1;
@@ -128,24 +129,39 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	pdimm->data_width = pdimm->primary_sdram_width
 			  + pdimm->ec_sdram_width;
 
-	switch (spd->module_type & 0xf) {
-	case 0x01:	/* RDIMM */
-	case 0x05:	/* Mini-RDIMM */
-		pdimm->registered_dimm = 1; /* register buffered */
+	/* These are the types defined by the JEDEC DDR3 SPD spec */
+	pdimm->mirrored_dimm = 0;
+	pdimm->registered_dimm = 0;
+	switch (spd->module_type & DDR3_SPD_MODULETYPE_MASK) {
+	case DDR3_SPD_MODULETYPE_RDIMM:
+	case DDR3_SPD_MODULETYPE_MINI_RDIMM:
+	case DDR3_SPD_MODULETYPE_72B_SO_RDIMM:
+		/* Registered/buffered DIMMs */
+		pdimm->registered_dimm = 1;
 		for (i = 0; i < 16; i += 2) {
-			pdimm->rcw[i] = spd->mod_section.registered.rcw[i/2] & 0x0F;
-			pdimm->rcw[i+1] = (spd->mod_section.registered.rcw[i/2] >> 4) & 0x0F;
+			u8 rcw = spd->mod_section.registered.rcw[i/2];
+			pdimm->rcw[i]   = (rcw >> 0) & 0x0F;
+			pdimm->rcw[i+1] = (rcw >> 4) & 0x0F;
 		}
 		break;
-	case 0x02:	/* UDIMM */
-	case 0x03:	/* SO-DIMM */
-	case 0x04:	/* Micro-DIMM */
-	case 0x06:	/* Mini-UDIMM */
-		pdimm->registered_dimm = 0;	/* unbuffered */
+
+	case DDR3_SPD_MODULETYPE_UDIMM:
+	case DDR3_SPD_MODULETYPE_SO_DIMM:
+	case DDR3_SPD_MODULETYPE_MICRO_DIMM:
+	case DDR3_SPD_MODULETYPE_MINI_UDIMM:
+	case DDR3_SPD_MODULETYPE_MINI_CDIMM:
+	case DDR3_SPD_MODULETYPE_72B_SO_UDIMM:
+	case DDR3_SPD_MODULETYPE_72B_SO_CDIMM:
+	case DDR3_SPD_MODULETYPE_LRDIMM:
+	case DDR3_SPD_MODULETYPE_16B_SO_DIMM:
+	case DDR3_SPD_MODULETYPE_32B_SO_DIMM:
+		/* Unbuffered DIMMs */
+		if (spd->mod_section.unbuffered.addr_mapping & 0x1)
+			pdimm->mirrored_dimm = 1;
 		break;
 
 	default:
-		printf("unknown dimm_type 0x%02X\n", spd->module_type);
+		printf("unknown module_type 0x%02X\n", spd->module_type);
 		return 1;
 	}
 
@@ -302,17 +318,6 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 */
 	pdimm->tFAW_ps = (((spd->tFAW_msb & 0xf) << 8) | spd->tFAW_min)
 			* mtb_ps;
-
-	/*
-	 * We need check the address mirror for unbuffered DIMM
-	 * If SPD indicate the address map mirror, The DDR controller
-	 * need care it.
-	 */
-	if ((spd->module_type == SPD_MODULETYPE_UDIMM) ||
-	    (spd->module_type == SPD_MODULETYPE_SODIMM) ||
-	    (spd->module_type == SPD_MODULETYPE_MICRODIMM) ||
-	    (spd->module_type == SPD_MODULETYPE_MINIUDIMM))
-		pdimm->mirrored_dimm = spd->mod_section.unbuffered.addr_mapping & 0x1;
 
 	return 0;
 }

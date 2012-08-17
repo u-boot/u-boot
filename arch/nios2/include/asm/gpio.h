@@ -5,8 +5,8 @@
  * bit[0] data
  * bit[1] output enable
  *
- * when CONFIG_SYS_GPIO_BASE is not defined, board may provide
- * its own driver.
+ * When CONFIG_SYS_GPIO_BASE is not defined, the board may either
+ * provide its own driver or the altera_pio driver may be used.
  *
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
  *
@@ -58,6 +58,15 @@ static inline int gpio_is_valid(int number)
 	return ((unsigned)number) < CONFIG_SYS_GPIO_WIDTH;
 }
 #else
+#ifdef CONFIG_ALTERA_PIO
+extern int altera_pio_init(u32 base, u8 width, char iot,
+			   u32 rstval, u32 negmask,
+			   const char *label);
+
+extern void altera_pio_info(void);
+#define gpio_status() altera_pio_info()
+#endif
+
 extern int gpio_request(unsigned gpio, const char *label);
 extern int gpio_free(unsigned gpio);
 extern int gpio_direction_input(unsigned gpio);

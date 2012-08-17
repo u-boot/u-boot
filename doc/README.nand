@@ -78,11 +78,30 @@ Commands:
       should work well, but loading an image copied from another flash is
       going to be trouble if there are any bad blocks.
 
+   nand write.trimffs addr ofs|partition size
+      Enabled by the CONFIG_CMD_NAND_TRIMFFS macro. This command will write to
+      the NAND flash in a manner identical to the 'nand write' command
+      described above -- with the additional check that all pages at the end
+      of eraseblocks which contain only 0xff data will not be written to the
+      NAND flash. This behaviour is required when flashing UBI images
+      containing UBIFS volumes as per the UBI FAQ[1].
+
+      [1] http://www.linux-mtd.infradead.org/doc/ubi.html#L_flasher_algo
+
    nand write.oob addr ofs|partition size
       Write `size' bytes from `addr' to the out-of-band data area
       corresponding to `ofs' in NAND flash. This is limited to the 16 bytes
       of data for one 512-byte page or 2 256-byte pages. There is no check
       for bad blocks.
+
+   nand read.raw addr ofs|partition
+      Read page from `ofs' in NAND flash to `addr'. This reads the raw page,
+      so ECC is avoided and the OOB area is read as well.
+
+   nand write.raw addr ofs|partition
+      Write page from `addr' to `ofs' in NAND flash. This writes the raw page,
+      so ECC is avoided and the OOB area is written as well, making the whole
+      page written as-is.
 
 Configuration Options:
 
@@ -100,6 +119,68 @@ Configuration Options:
 
    CONFIG_SYS_NAND_MAX_CHIPS
       The maximum number of NAND chips per device to be supported.
+
+   CONFIG_SYS_NAND_SELF_INIT
+      Traditionally, glue code in drivers/mtd/nand/nand.c has driven
+      the initialization process -- it provides the mtd and nand
+      structs, calls a board init function for a specific device,
+      calls nand_scan(), and registers with mtd.
+
+      This arrangement does not provide drivers with the flexibility to
+      run code between nand_scan_ident() and nand_scan_tail(), or other
+      deviations from the "normal" flow.
+
+      If a board defines CONFIG_SYS_NAND_SELF_INIT, drivers/mtd/nand/nand.c
+      will make one call to board_nand_init(), with no arguments.  That
+      function is responsible for calling a driver init function for
+      each NAND device on the board, that performs all initialization
+      tasks except setting mtd->name, and registering with the rest of
+      U-Boot.  Those last tasks are accomplished by calling  nand_register()
+      on the new mtd device.
+
+      Example of new init to be added to the end of an existing driver
+      init:
+
+	/*
+	 * devnum is the device number to be used in nand commands
+	 * and in mtd->name.  Must be less than
+	 * CONFIG_SYS_NAND_MAX_DEVICE.
+	 */
+	mtd = &nand_info[devnum];
+
+	/* chip is struct nand_chip, and is now provided by the driver. */
+	mtd->priv = &chip;
+
+	/*
+	 * Fill in appropriate values if this driver uses these fields,
+	 * or uses the standard read_byte/write_buf/etc. functions from
+	 * nand_base.c that use these fields.
+	 */
+	chip.IO_ADDR_R = ...;
+	chip.IO_ADDR_W = ...;
+
+	if (nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_CHIPS, NULL))
+		error out
+
+	/*
+	 * Insert here any code you wish to run after the chip has been
+	 * identified, but before any other I/O is done.
+	 */
+
+	if (nand_scan_tail(mtd))
+		error out
+
+	if (nand_register(devnum))
+		error out
+
+      In addition to providing more flexibility to the driver, it reduces
+      the difference between a U-Boot driver and its Linux counterpart.
+      nand_init() is now reduced to calling board_nand_init() once, and
+      printing a size summary.  This should also make it easier to
+      transition to delayed NAND initialization.
+
+      Please convert your driver even if you don't need the extra
+      flexibility, so that one day we can eliminate the old mechanism.
 
 NOTE:
 =====

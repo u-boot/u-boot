@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,8 +23,10 @@
 #define __ICS_CLK_H_	1
 
 #ifndef __ASSEMBLY__
+
 extern unsigned long get_board_sys_clk(void);
 extern unsigned long get_board_ddr_clk(void);
+extern unsigned long ics307_sysclk_calculator(unsigned long out_freq);
 #endif
 
 #endif	/* __ICS_CLK_H_ */

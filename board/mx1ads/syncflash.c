@@ -57,7 +57,7 @@ flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips    
 
 /* Get Status register			*/
 u32 SF_SR(void) {
-	u32 tmp,tmp1;
+	u32 tmp;
 
 	reg_SFCTL	= CMD_PROGRAM;
 	tmp		= __REG(CONFIG_SYS_FLASH_BASE);
@@ -65,7 +65,7 @@ u32 SF_SR(void) {
 	reg_SFCTL	= CMD_NORMAL;
 
 	reg_SFCTL	= CMD_LCR;			/* Activate LCR Mode		*/
-	tmp1		= __REG(CONFIG_SYS_FLASH_BASE + LCR_SR_CLEAR);
+	__REG(CONFIG_SYS_FLASH_BASE + LCR_SR_CLEAR);
 
 	return tmp;
 }
@@ -93,10 +93,10 @@ u8 SF_Ready(void) {
 /* Issue the precharge all command		*/
 void SF_PrechargeAll(void) {
 
-	u32 tmp;
-
-	reg_SFCTL	= CMD_PREC;			/* Set Precharge Command	*/
-	tmp		= __REG(CONFIG_SYS_FLASH_BASE + SYNCFLASH_A10); /* Issue Precharge All Command */
+	/* Set Precharge Command	*/
+	reg_SFCTL	= CMD_PREC;
+	/* Issue Precharge All Command */
+	__REG(CONFIG_SYS_FLASH_BASE + SYNCFLASH_A10);
 }
 
 /* set SyncFlash to normal mode			*/
@@ -109,13 +109,12 @@ void SF_Normal(void) {
 
 /* Erase SyncFlash				*/
 void SF_Erase(u32 RowAddress) {
-	u32 tmp;
 
 	reg_SFCTL	= CMD_NORMAL;
-	tmp		= __REG(RowAddress);
+	__REG(RowAddress);
 
 	reg_SFCTL	= CMD_PREC;
-	tmp		= __REG(RowAddress);
+	__REG(RowAddress);
 
 	reg_SFCTL	= CMD_LCR;			/* Set LCR mode		*/
 	__REG(RowAddress + LCR_ERASE_CONFIRM)	= 0;	/* Issue Erase Setup Command	*/
@@ -152,7 +151,6 @@ void SF_NvmodeWrite(void) {
 
 ulong flash_init(void) {
 	int i, j;
-	u32 tmp;
 
 /* Turn on CSD1 for negating RESETSF of SyncFLash */
 
@@ -160,7 +158,7 @@ ulong flash_init(void) {
 	udelay(200);
 
 	reg_SFCTL	= CMD_LMR;		/* Set Load Mode Register Command	*/
-	tmp		= __REG(MODE_REG_VAL);	/* Issue Load Mode Register Command	*/
+	__REG(MODE_REG_VAL);	/* Issue Load Mode Register Command	*/
 
 	SF_Normal();
 
@@ -276,7 +274,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last) {
 
 /* arm simple, non interrupt dependent timer */
 
-		reset_timer_masked();
+		get_timer(0);
 
 		SF_NvmodeErase();
 		SF_NvmodeWrite();

@@ -472,8 +472,8 @@
 #define CONFIG_ETHADDR	00:10:EC:00:37:5B
 #define CONFIG_IPADDR	172.16.115.7
 #define CONFIG_SERVERIP 172.16.115.6
-#define CONFIG_ROOTPATH /workspace/myfilesystem/target/
-#define CONFIG_BOOTFILE uImage.rpxusb
+#define CONFIG_ROOTPATH "/workspace/myfilesystem/target/"
+#define CONFIG_BOOTFILE "uImage.rpxusb"
 #define CONFIG_HOSTNAME LITE_H1_DW
 
 #endif	/* __CONFIG_H */

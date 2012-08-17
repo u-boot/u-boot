@@ -24,7 +24,7 @@
 #include <common.h>
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
-# if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
+# if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_CPU_PXA27X)
 
 #include <asm/arch/pxa-regs.h>
 #include <asm/io.h>
@@ -37,7 +37,7 @@ int usb_cpu_init(void)
 	writel(readl(CKENA) | CKENA_2_USBHOST | CKENA_20_UDC, CKENA);
 	udelay(100);
 #endif
-#if defined(CONFIG_PXA27X)
+#if defined(CONFIG_CPU_PXA27X)
 	/* Enable USB host clock. */
 	writel(readl(CKEN) | CKEN10_USBHOST, CKEN);
 #endif
@@ -48,17 +48,17 @@ int usb_cpu_init(void)
 #endif
 
 	writel(readl(UHCHR) | UHCHR_FHR, UHCHR);
-	wait_ms(11);
+	mdelay(11);
 	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
 	writel(readl(UHCHR) | UHCHR_FSBIR, UHCHR);
 	while (readl(UHCHR) & UHCHR_FSBIR)
 		udelay(1);
 
-#if defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
 	writel(readl(UHCHR) & ~UHCHR_SSEP0, UHCHR);
 #endif
-#if defined(CONFIG_PXA27X)
+#if defined(CONFIG_CPU_PXA27X)
 	writel(readl(UHCHR) & ~UHCHR_SSEP2, UHCHR);
 #endif
 	writel(readl(UHCHR) & ~(UHCHR_SSEP1 | UHCHR_SSE), UHCHR);
@@ -72,13 +72,13 @@ int usb_cpu_stop(void)
 	udelay(11);
 	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
-	writel(readl(UHCCOMS) | UHCHR_FHR, UHCCOMS);
+	writel(readl(UHCCOMS) | UHCCOMS_HCR, UHCCOMS);
 	udelay(10);
 
-#if defined(CONFIG_CPU_MONAHANS)
+#if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
 	writel(readl(UHCHR) | UHCHR_SSEP0, UHCHR);
 #endif
-#if defined(CONFIG_PXA27X)
+#if defined(CONFIG_CPU_PXA27X)
 	writel(readl(UHCHR) | UHCHR_SSEP2, UHCHR);
 #endif
 	writel(readl(UHCHR) | UHCHR_SSEP1 | UHCHR_SSE, UHCHR);
@@ -88,7 +88,7 @@ int usb_cpu_stop(void)
 	writel(readl(CKENA) & ~(CKENA_2_USBHOST | CKENA_20_UDC), CKENA);
 	udelay(100);
 #endif
-#if defined(CONFIG_PXA27X)
+#if defined(CONFIG_CPU_PXA27X)
 	/* Disable USB host clock. */
 	writel(readl(CKEN) & ~CKEN10_USBHOST, CKEN);
 #endif
@@ -101,5 +101,5 @@ int usb_cpu_init_fail(void)
 	return usb_cpu_stop();
 }
 
-# endif /* defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X) */
+# endif /* defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_CPU_PXA27X) */
 #endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT) */

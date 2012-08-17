@@ -33,8 +33,6 @@
 
 #define ETH_ZLEN	60
 
-#define mdelay(n) ({unsigned long msec = (n); while (msec--) udelay(1000); })
-
 /* RBSR - hw default init value is also 0x640 */
 #define RBSR_DEFAULT_VALUE	0x640
 
@@ -384,8 +382,6 @@ static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
 
 	debug("%s()\n", __func__);
 
-	ftgmac100_reset(dev);
-
 	/* set the ethernet address */
 	ftgmac100_set_mac_from_env(dev);
 
@@ -560,6 +556,8 @@ int ftgmac100_initialize(bd_t *bd)
 	dev->priv	= priv;
 
 	eth_register(dev);
+
+	ftgmac100_reset(dev);
 
 	return 1;
 

@@ -59,7 +59,6 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE 1	/* allow baudrate change	*/
 
-#define CONFIG_NET_MULTI	1
 #undef  CONFIG_HAS_ETH1
 
 #define CONFIG_PPC4xx_EMAC
@@ -330,7 +329,6 @@
 /* End of used area in RAM */
 #define CONFIG_SYS_INIT_RAM_SIZE		CONFIG_SYS_OCM_DATA_SIZE
 
-/* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET

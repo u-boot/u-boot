@@ -128,6 +128,7 @@
  * TMRMS represents the desired mecs per tick (msecs per interrupt).
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_HZ			1000	/* Always 1000 */
+#define CONFIG_SYS_LOW_RES_TIMER
 #define CONFIG_SYS_NIOS_TMRBASE	0x02120820	/* Tick timer base addr */
 #define CONFIG_SYS_NIOS_TMRIRQ		3	/* Timer IRQ num */
 #define CONFIG_SYS_NIOS_TMRMS		10	/* Desired period */
@@ -153,7 +154,6 @@
  * cache bypass so there's no need to monkey with inx/outx macros.
  *----------------------------------------------------------------------*/
 #define CONFIG_SMC91111_BASE	0x82110300	/* Base addr (bypass)	*/
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111			/* Using SMC91c111	*/
 #undef	CONFIG_SMC91111_EXT_PHY			/* Internal PHY		*/
 #define CONFIG_SMC_USE_32_BIT			/* 32-bit interface	*/

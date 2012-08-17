@@ -29,24 +29,19 @@
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/errno.h>
 #include <i2c.h>
 #include <mmc.h>
+#include <pmic.h>
 #include <fsl_esdhc.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
 #include <linux/fb.h>
 
+#include <ipu_pixfmt.h>
+
 DECLARE_GLOBAL_DATA_PTR;
-
-static u32 system_rev;
-
-extern int mx51_fb_init(struct fb_videomode *mode);
-
-#ifdef CONFIG_HW_WATCHDOG
-#include <watchdog.h>
 
 static struct fb_videomode nec_nl6448bc26_09c = {
 	"NEC_NL6448BC26-09C",
@@ -65,14 +60,16 @@ static struct fb_videomode nec_nl6448bc26_09c = {
 	0,	/* flag */
 };
 
+#ifdef CONFIG_HW_WATCHDOG
+#include <watchdog.h>
 void hw_watchdog_reset(void)
 {
 	int val;
 
 	/* toggle watchdog trigger pin */
-	val = mxc_gpio_get(66);
+	val = gpio_get_value(66);
 	val = val ? 0 : 1;
-	mxc_gpio_set(66, val);
+	gpio_set_value(66, val);
 }
 #endif
 
@@ -151,13 +148,6 @@ static void init_drive_strength(void)
 		PAD_CTL_DRV_HIGH | PAD_CTL_SRE_FAST);
 }
 
-u32 get_board_rev(void)
-{
-	system_rev = get_cpu_rev();
-
-	return system_rev;
-}
-
 int dram_init(void)
 {
 	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1,
@@ -170,11 +160,11 @@ static void setup_weim(void)
 {
 	struct weim  *pweim = (struct weim *)WEIM_BASE_ADDR;
 
-	pweim->csgcr1 = 0x004100b9;
-	pweim->csgcr2 = 0x00000001;
-	pweim->csrcr1 = 0x0a018000;
-	pweim->csrcr2 = 0;
-	pweim->cswcr1 = 0x0704a240;
+	pweim->cs0gcr1 = 0x004100b9;
+	pweim->cs0gcr2 = 0x00000001;
+	pweim->cs0rcr1 = 0x0a018000;
+	pweim->cs0rcr2 = 0;
+	pweim->cs0wcr1 = 0x0704a240;
 }
 
 static void setup_uart(void)
@@ -234,30 +224,22 @@ static void reset_peripherals(int reset)
 	if (reset) {
 
 		/* reset_n is on NANDF_D15 */
-		mxc_gpio_set(89, 0);
-		mxc_gpio_direction(89, MXC_GPIO_DIRECTION_OUT);
+		gpio_direction_output(89, 0);
 
 #ifdef CONFIG_VISION2_HW_1_0
 		/*
 		 * set FEC Configuration lines
 		 * set levels of FEC config lines
 		 */
-		mxc_gpio_set(75, 0);
-		mxc_gpio_set(74, 1);
-		mxc_gpio_set(95, 1);
-		mxc_gpio_direction(75, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(74, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(95, MXC_GPIO_DIRECTION_OUT);
+		gpio_direction_output(75, 0);
+		gpio_direction_output(74, 1);
+		gpio_direction_output(95, 1);
 
 		/* set direction of FEC config lines */
-		mxc_gpio_set(59, 0);
-		mxc_gpio_set(60, 0);
-		mxc_gpio_set(61, 0);
-		mxc_gpio_set(55, 1);
-		mxc_gpio_direction(59, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(60, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(61, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(55, MXC_GPIO_DIRECTION_OUT);
+		gpio_direction_output(59, 0);
+		gpio_direction_output(60, 0);
+		gpio_direction_output(61, 0);
+		gpio_direction_output(55, 1);
 
 		/* FEC_RXD1 - sel GPIO (2-23) for configuration -> 1 */
 		mxc_request_iomux(MX51_PIN_EIM_EB3, IOMUX_CONFIG_ALT1);
@@ -284,7 +266,7 @@ static void reset_peripherals(int reset)
 			PAD_CTL_DRV_VOT_HIGH | PAD_CTL_DRV_MAX);
 	} else {
 		/* set FEC Control lines */
-		mxc_gpio_direction(89, MXC_GPIO_DIRECTION_IN);
+		gpio_direction_input(89);
 		udelay(500);
 
 #ifdef CONFIG_VISION2_HW_1_0
@@ -322,59 +304,63 @@ static void reset_peripherals(int reset)
 static void power_init_mx51(void)
 {
 	unsigned int val;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
 
 	/* Write needed to Power Gate 2 register */
-	val = pmic_reg_read(REG_POWER_MISC);
+	pmic_reg_read(p, REG_POWER_MISC, &val);
 
 	/* enable VCAM with 2.775V to enable read from PMIC */
 	val = VCAMCONFIG | VCAMEN;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 
 	/*
 	 * Set switchers in Auto in NORMAL mode & STANDBY mode
 	 * Setup the switcher mode for SW1 & SW2
 	 */
-	val = pmic_reg_read(REG_SW_4);
+	pmic_reg_read(p, REG_SW_4, &val);
 	val = (val & ~((SWMODE_MASK << SWMODE1_SHIFT) |
 		(SWMODE_MASK << SWMODE2_SHIFT)));
 	val |= (SWMODE_AUTO_AUTO << SWMODE1_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE2_SHIFT);
-	pmic_reg_write(REG_SW_4, val);
+	pmic_reg_write(p, REG_SW_4, val);
 
 	/* Setup the switcher mode for SW3 & SW4 */
-	val = pmic_reg_read(REG_SW_5);
+	pmic_reg_read(p, REG_SW_5, &val);
 	val &= ~((SWMODE_MASK << SWMODE4_SHIFT) |
 		(SWMODE_MASK << SWMODE3_SHIFT));
 	val |= (SWMODE_AUTO_AUTO << SWMODE4_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE3_SHIFT);
-	pmic_reg_write(REG_SW_5, val);
+	pmic_reg_write(p, REG_SW_5, val);
 
 
 	/* Set VGEN3 to 1.8V, VCAM to 3.0V */
-	val = pmic_reg_read(REG_SETTING_0);
+	pmic_reg_read(p, REG_SETTING_0, &val);
 	val &= ~(VCAM_MASK | VGEN3_MASK);
 	val |= VCAM_3_0;
-	pmic_reg_write(REG_SETTING_0, val);
+	pmic_reg_write(p, REG_SETTING_0, val);
 
 	/* Set VVIDEO to 2.775V, VAUDIO to 3V0, VSD to 1.8V */
-	val = pmic_reg_read(REG_SETTING_1);
+	pmic_reg_read(p, REG_SETTING_1, &val);
 	val &= ~(VVIDEO_MASK | VSD_MASK | VAUDIO_MASK);
 	val |= VVIDEO_2_775 | VAUDIO_3_0 | VSD_1_8;
-	pmic_reg_write(REG_SETTING_1, val);
+	pmic_reg_write(p, REG_SETTING_1, val);
 
 	/* Configure VGEN3 and VCAM regulators to use external PNP */
 	val = VGEN3CONFIG | VCAMCONFIG;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 	udelay(200);
 
 	/* Enable VGEN3, VCAM, VAUDIO, VVIDEO, VSD regulators */
 	val = VGEN3EN | VGEN3CONFIG | VCAMEN | VCAMCONFIG |
 		VVIDEOEN | VAUDIOEN  | VSDEN;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 
-	val = pmic_reg_read(REG_POWER_CTL2);
+	pmic_reg_read(p, REG_POWER_CTL2, &val);
 	val |= WDIRESET;
-	pmic_reg_write(REG_POWER_CTL2, val);
+	pmic_reg_write(p, REG_POWER_CTL2, val);
 
 	udelay(2500);
 
@@ -439,31 +425,22 @@ static void setup_gpios(void)
 	 * Set GPIO1_4 to high and output; it is used to reset
 	 * the system on reboot
 	 */
-	mxc_gpio_set(4, 1);
-	mxc_gpio_direction(4, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(4, 1);
 
-	mxc_gpio_set(7, 0);
-	mxc_gpio_direction(7, MXC_GPIO_DIRECTION_OUT);
-	for (i = 65; i < 71; i++) {
-		mxc_gpio_set(i, 0);
-		mxc_gpio_direction(i, MXC_GPIO_DIRECTION_OUT);
-	}
+	gpio_direction_output(7, 0);
+	for (i = 65; i < 71; i++)
+		gpio_direction_output(i, 0);
 
-	mxc_gpio_set(94, 0);
-	mxc_gpio_direction(94, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(94, 0);
 
 	/* Set POWER_OFF high */
-	mxc_gpio_set(91, 1);
-	mxc_gpio_direction(91, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(91, 1);
 
-	mxc_gpio_set(90, 0);
-	mxc_gpio_direction(90, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(90, 0);
 
-	mxc_gpio_set(122, 0);
-	mxc_gpio_direction(122, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(122, 0);
 
-	mxc_gpio_set(121, 1);
-	mxc_gpio_direction(121, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(121, 1);
 
 	WATCHDOG_RESET();
 }
@@ -552,7 +529,7 @@ int get_mmc_getcd(u8 *cd, struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*cd = mxc_gpio_get(0);
+		*cd = gpio_get_value(0);
 	else
 		*cd = 0;
 
@@ -617,6 +594,21 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+void lcd_enable(void)
+{
+	int ret;
+
+	mxc_request_iomux(MX51_PIN_DI1_PIN2, IOMUX_CONFIG_ALT0);
+	mxc_request_iomux(MX51_PIN_DI1_PIN3, IOMUX_CONFIG_ALT0);
+
+	gpio_set_value(2, 1);
+	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT0);
+
+	ret = mx51_fb_init(&nec_nl6448bc26_09c, 0, IPU_PIX_FMT_RGB666);
+	if (ret)
+		puts("LCD cannot be configured\n");
+}
+
 int board_early_init_f(void)
 {
 
@@ -624,8 +616,7 @@ int board_early_init_f(void)
 	init_drive_strength();
 
 	/* Setup debug led */
-	mxc_gpio_set(6, 0);
-	mxc_gpio_direction(6, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(6, 0);
 	mxc_request_iomux(MX51_PIN_GPIO1_6, IOMUX_CONFIG_ALT0);
 	mxc_iomux_set_pad(MX51_PIN_GPIO1_6, PAD_CTL_DRV_MAX | PAD_CTL_SRE_FAST);
 
@@ -645,35 +636,23 @@ int board_early_init_f(void)
 static void backlight(int on)
 {
 	if (on) {
-		mxc_gpio_set(65, 1);
+		gpio_set_value(65, 1);
 		udelay(10000);
-		mxc_gpio_set(68, 1);
+		gpio_set_value(68, 1);
 	} else {
-		mxc_gpio_set(65, 0);
-		mxc_gpio_set(68, 0);
+		gpio_set_value(65, 0);
+		gpio_set_value(68, 0);
 	}
-}
-
-void lcd_enable(void)
-{
-	int ret;
-
-	mxc_request_iomux(MX51_PIN_DI1_PIN2, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX51_PIN_DI1_PIN3, IOMUX_CONFIG_ALT0);
-
-	mxc_gpio_set(2, 1);
-	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT0);
-
-	ret = mx51_fb_init(&nec_nl6448bc26_09c);
-	if (ret)
-		puts("LCD cannot be configured\n");
 }
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_TTC_VISION2;	/* board id for linux */
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+	lcd_enable();
+
+	backlight(1);
 
 	return 0;
 }
@@ -695,52 +674,14 @@ int board_late_init(void)
 	udelay(2000);
 #endif
 
+	setenv("stdout", "serial");
+
 	return 0;
 }
 
 int checkboard(void)
 {
-	u32 system_rev = get_cpu_rev();
-	u32 cause;
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-
-	puts("Board: TTControl Vision II CPU V");
-
-	switch (system_rev & 0xff) {
-	case CHIP_REV_3_0:
-		puts("3.0 [");
-		break;
-	case CHIP_REV_2_5:
-		puts("2.5 [");
-		break;
-	case CHIP_REV_2_0:
-		puts("2.0 [");
-		break;
-	case CHIP_REV_1_1:
-		puts("1.1 [");
-		break;
-	case CHIP_REV_1_0:
-	default:
-		puts("1.0 [");
-		break;
-	}
-
-	cause = src_regs->srsr;
-	switch (cause) {
-	case 0x0001:
-		puts("POR");
-		break;
-	case 0x0009:
-		puts("RST");
-		break;
-	case 0x0010:
-	case 0x0011:
-		puts("WDOG");
-		break;
-	default:
-		printf("unknown 0x%x", cause);
-	}
-	puts("]\n");
+	puts("Board: TTControl Vision II CPU V\n");
 
 	return 0;
 }

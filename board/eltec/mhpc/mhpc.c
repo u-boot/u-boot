@@ -35,9 +35,6 @@
 #include "mpc8xx.h"
 #include <video_fb.h>
 
-/* imports from common/main.c */
-extern char console_buffer[CONFIG_SYS_CBSIZE];
-
 extern void eeprom_init (void);
 extern int eeprom_read (unsigned dev_addr, unsigned offset,
 			unsigned char *buffer, unsigned cnt);

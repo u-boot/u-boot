@@ -32,9 +32,12 @@
 #include <net.h>
 #include <malloc.h>
 #include <miiphy.h>
+#include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/types.h>
+#include <asm/system.h>
 #include <asm/byteorder.h>
+#include <asm/arch/cpu.h>
 
 #if defined(CONFIG_KIRKWOOD)
 #include <asm/arch/kirkwood.h>
@@ -49,6 +52,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MV_PHY_ADR_REQUEST 0xee
 #define MVGBE_SMI_REG (((struct mvgbe_registers *)MVGBE0_BASE)->smi)
 
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 /*
  * smi_reg_read - miiphy_read callback function.
  *
@@ -178,6 +182,7 @@ static int smi_reg_write(const char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 
 	return 0;
 }
+#endif
 
 /* Stop and checks all queues */
 static void stop_queue(u32 * qreg)
@@ -528,6 +533,7 @@ static int mvgbe_send(struct eth_device *dev, void *dataptr,
 	struct mvgbe_txdesc *p_txdesc = dmvgbe->p_txdesc;
 	void *p = (void *)dataptr;
 	u32 cmd_sts;
+	u32 txuq0_reg_addr;
 
 	/* Copy buffer if it's misaligned */
 	if ((u32) dataptr & 0x07) {
@@ -549,7 +555,8 @@ static int mvgbe_send(struct eth_device *dev, void *dataptr,
 	p_txdesc->byte_cnt = datasize;
 
 	/* Set this tc desc as zeroth TXUQ */
-	MVGBE_REG_WR(regs->tcqdp[TXUQ], (u32) p_txdesc);
+	txuq0_reg_addr = (u32)&regs->tcqdp[TXUQ];
+	writel((u32) p_txdesc, txuq0_reg_addr);
 
 	/* ensure tx desc writes above are performed before we start Tx DMA */
 	isb();
@@ -580,6 +587,7 @@ static int mvgbe_recv(struct eth_device *dev)
 	struct mvgbe_rxdesc *p_rxdesc_curr = dmvgbe->p_rxdesc_curr;
 	u32 cmd_sts;
 	u32 timeout = 0;
+	u32 rxdesc_curr_addr;
 
 	/* wait untill rx packet available or timeout */
 	do {
@@ -634,8 +642,8 @@ static int mvgbe_recv(struct eth_device *dev)
 	p_rxdesc_curr->buf_size = PKTSIZE_ALIGN;
 	p_rxdesc_curr->byte_cnt = 0;
 
-	writel((unsigned)p_rxdesc_curr->nxtdesc_p,
-		(u32) &dmvgbe->p_rxdesc_curr);
+	rxdesc_curr_addr = (u32)&dmvgbe->p_rxdesc_curr;
+	writel((unsigned)p_rxdesc_curr->nxtdesc_p, rxdesc_curr_addr);
 
 	return 0;
 }
@@ -645,7 +653,6 @@ int mvgbe_initialize(bd_t *bis)
 	struct mvgbe_device *dmvgbe;
 	struct eth_device *dev;
 	int devnum;
-	char *s;
 	u8 used_ports[MAX_MVGBE_DEVS] = CONFIG_MVGBE_PORTS;
 
 	for (devnum = 0; devnum < MAX_MVGBE_DEVS; devnum++) {
@@ -697,44 +704,22 @@ error1:
 
 		dev = &dmvgbe->dev;
 
-		/* must be less than NAMESIZE (16) */
+		/* must be less than sizeof(dev->name) */
 		sprintf(dev->name, "egiga%d", devnum);
 
-		/* Extract the MAC address from the environment */
 		switch (devnum) {
 		case 0:
 			dmvgbe->regs = (void *)MVGBE0_BASE;
-			s = "ethaddr";
 			break;
 #if defined(MVGBE1_BASE)
 		case 1:
 			dmvgbe->regs = (void *)MVGBE1_BASE;
-			s = "eth1addr";
 			break;
 #endif
 		default:	/* this should never happen */
 			printf("Err..(%s) Invalid device number %d\n",
 				__FUNCTION__, devnum);
 			return -1;
-		}
-
-		while (!eth_getenv_enetaddr(s, dev->enetaddr)) {
-			/* Generate Private MAC addr if not set */
-			dev->enetaddr[0] = 0x02;
-			dev->enetaddr[1] = 0x50;
-			dev->enetaddr[2] = 0x43;
-#if defined (CONFIG_SKIP_LOCAL_MAC_RANDOMIZATION)
-			/* Generate fixed lower MAC half using devnum */
-			dev->enetaddr[3] = 0;
-			dev->enetaddr[4] = 0;
-			dev->enetaddr[5] = devnum;
-#else
-			/* Generate random lower MAC half */
-			dev->enetaddr[3] = get_random_hex();
-			dev->enetaddr[4] = get_random_hex();
-			dev->enetaddr[5] = get_random_hex();
-#endif
-			eth_setenv_enetaddr(s, dev->enetaddr);
 		}
 
 		dev->init = (void *)mvgbe_init;

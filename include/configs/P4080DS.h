@@ -27,6 +27,11 @@
 #define CONFIG_PHYS_64BIT
 #define CONFIG_PPC_P4080
 
+#define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
+
+#define CONFIG_MMC
+#define CONFIG_PCIE3
+
 #define CONFIG_ICS307_REFCLK_HZ		33333000  /* ICS307 ref clk freq */
 
 #include "corenet_ds.h"

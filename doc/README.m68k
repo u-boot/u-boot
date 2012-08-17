@@ -111,7 +111,7 @@ CONFIG_SYS_MBAR	-- defines the base address of the MCF5272 configuration registe
 CONFIG_SYS_INIT_RAM_ADDR
 		-- defines the base address of the MCF5272 internal SRAM
 CONFIG_SYS_ENET_BD_BASE
-		-- defines the base addres of the FEC buffer descriptors
+		-- defines the base address of the FEC buffer descriptors
 
 CONFIG_SYS_SCR		-- defines the contents of the System Configuration Register
 CONFIG_SYS_SPR		-- defines the contents of the System Protection Register
@@ -138,7 +138,7 @@ CONFIG_SYS_INIT_RAM_ADDR
 CONFIG_SYS_INT_FLASH_BASE
 		-- defines the base address of the MCF5282 internal Flash memory
 CONFIG_SYS_ENET_BD_BASE
-		-- defines the base addres of the FEC buffer descriptors
+		-- defines the base address of the FEC buffer descriptors
 
 CONFIG_SYS_MFD
 		-- defines the PLL Multiplication Factor Devider

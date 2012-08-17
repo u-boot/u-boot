@@ -68,7 +68,9 @@ int timer_init(void)
 	/* auto reload, start timer */
 	writel(readl(&gpt_regs_p->control) | GPT_ENABLE, &gpt_regs_p->control);
 
-	reset_timer_masked();
+	/* Reset the timer */
+	lastdec = READ_TIMER();
+	timestamp = 0;
 
 	return 0;
 }
@@ -76,20 +78,9 @@ int timer_init(void)
 /*
  * timer without interrupts
  */
-
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	return (get_timer_masked() / GPT_RESOLUTION) - base;
-}
-
-void set_timer(ulong t)
-{
-	timestamp = t;
 }
 
 void __udelay(unsigned long usec)
@@ -106,13 +97,6 @@ void __udelay(unsigned long usec)
 
 	while ((ulong) (get_timer_masked() - start) < tmo)
 		;
-}
-
-void reset_timer_masked(void)
-{
-	/* reset time */
-	lastdec = READ_TIMER();
-	timestamp = 0;
 }
 
 ulong get_timer_masked(void)

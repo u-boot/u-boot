@@ -284,7 +284,7 @@ void cpu_init_f(void)
 	mbar_writeLong(MCF_FMPLL_SYNCR,
 			MCF_FMPLL_SYNCR_MFD(0) | MCF_FMPLL_SYNCR_RFD(0));
 #endif
-	while (!mbar_readByte(MCF_FMPLL_SYNSR) & MCF_FMPLL_SYNSR_LOCK) ;
+	while (!(mbar_readByte(MCF_FMPLL_SYNSR) & MCF_FMPLL_SYNSR_LOCK)) ;
 }
 
 /*

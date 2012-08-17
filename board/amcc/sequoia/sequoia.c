@@ -331,7 +331,8 @@ int misc_init_r(void)
 
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 	u8 rev;
 	u32 clock = get_async_pci_freq();
 
@@ -344,9 +345,9 @@ int checkboard(void)
 	rev = in_8((void *)(CONFIG_SYS_BCSR_BASE + 0));
 	printf(", Rev. %X, PCI-Async=%d MHz", rev, clock / 1000000);
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

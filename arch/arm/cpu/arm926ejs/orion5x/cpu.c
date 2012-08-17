@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Albert ARIBAUD <albert.aribaud@free.fr>
+ * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * Based on original Kirkwood support which is
  * (C) Copyright 2009
@@ -28,8 +28,9 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/cache.h>
+#include <asm/io.h>
 #include <u-boot/md5.h>
-#include <asm/arch/orion5x.h>
+#include <asm/arch/cpu.h>
 #include <hush.h>
 
 #define BUFLEN	16

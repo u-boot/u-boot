@@ -4,7 +4,9 @@
  *
  * (C) Copyright 2001 Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Andreas Heppel <aheppel@sysgo.de>
-
+ *
+ * Copyright 2011 Freescale Semiconductor, Inc.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -54,18 +56,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
-    !defined(CONFIG_ENV_IS_IN_FLASH)	&& \
-    !defined(CONFIG_ENV_IS_IN_DATAFLASH)	&& \
-    !defined(CONFIG_ENV_IS_IN_MG_DISK)	&& \
-    !defined(CONFIG_ENV_IS_IN_MMC)  && \
-    !defined(CONFIG_ENV_IS_IN_NAND)	&& \
-    !defined(CONFIG_ENV_IS_IN_NVRAM)	&& \
-    !defined(CONFIG_ENV_IS_IN_ONENAND)	&& \
-    !defined(CONFIG_ENV_IS_IN_SPI_FLASH)	&& \
-    !defined(CONFIG_ENV_IS_NOWHERE)
+#if	!defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
+	!defined(CONFIG_ENV_IS_IN_FLASH)	&& \
+	!defined(CONFIG_ENV_IS_IN_DATAFLASH)	&& \
+	!defined(CONFIG_ENV_IS_IN_MG_DISK)	&& \
+	!defined(CONFIG_ENV_IS_IN_MMC)		&& \
+	!defined(CONFIG_ENV_IS_IN_FAT)		&& \
+	!defined(CONFIG_ENV_IS_IN_NAND)		&& \
+	!defined(CONFIG_ENV_IS_IN_NVRAM)	&& \
+	!defined(CONFIG_ENV_IS_IN_ONENAND)	&& \
+	!defined(CONFIG_ENV_IS_IN_SPI_FLASH)	&& \
+	!defined(CONFIG_ENV_IS_NOWHERE)
 # error Define one of CONFIG_ENV_IS_IN_{EEPROM|FLASH|DATAFLASH|ONENAND|\
-SPI_FLASH|MG_DISK|NVRAM|MMC|NOWHERE}
+SPI_FLASH|MG_DISK|NVRAM|MMC|FAT} or CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define XMK_STR(x)	#x
@@ -77,6 +80,8 @@ SPI_FLASH|MG_DISK|NVRAM|MMC|NOWHERE}
 #define	MAX_ENV_SIZE	(1 << 20)	/* 1 MiB */
 
 ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
+ulong save_addr;			/* Default Save Address */
+ulong save_size;			/* Default Save Size (in bytes) */
 
 /*
  * Table with supported baudrates (defined in config_xyz.h)
@@ -93,7 +98,7 @@ static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
  */
 static int env_id = 1;
 
-int get_env_id (void)
+int get_env_id(void)
 {
 	return env_id;
 }
@@ -116,12 +121,12 @@ static int env_print(char *name)
 		hsearch_r(e, FIND, &ep, &env_htab);
 		if (ep == NULL)
 			return 0;
-		len = printf ("%s=%s\n", ep->key, ep->data);
+		len = printf("%s=%s\n", ep->key, ep->data);
 		return len;
 	}
 
 	/* print whole list */
-	len = hexport_r(&env_htab, '\n', &res, 0);
+	len = hexport_r(&env_htab, '\n', &res, 0, 0, NULL);
 
 	if (len > 0) {
 		puts(res);
@@ -160,12 +165,43 @@ int do_env_print (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return rcode;
 }
 
+#ifdef CONFIG_CMD_GREPENV
+static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
+		       int argc, char * const argv[])
+{
+	ENTRY *match;
+	unsigned char matched[env_htab.size / 8];
+	int rcode = 1, arg = 1, idx;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	memset(matched, 0, env_htab.size / 8);
+
+	while (arg <= argc) {
+		idx = 0;
+		while ((idx = hstrstr_r(argv[arg], idx, &match, &env_htab))) {
+			if (!(matched[idx / 8] & (1 << (idx & 7)))) {
+				puts(match->key);
+				puts("=");
+				puts(match->data);
+				puts("\n");
+			}
+			matched[idx / 8] |= 1 << (idx & 7);
+			rcode = 0;
+		}
+		arg++;
+	}
+
+	return rcode;
+}
+#endif
+
 /*
  * Set a new environment variable,
  * or replace or delete an existing one.
  */
-
-int _do_env_set (int flag, int argc, char * const argv[])
+int _do_env_set(int flag, int argc, char * const argv[])
 {
 	bd_t  *bd = gd->bd;
 	int   i, len;
@@ -176,7 +212,8 @@ int _do_env_set (int flag, int argc, char * const argv[])
 	name = argv[1];
 
 	if (strchr(name, '=')) {
-		printf ("## Error: illegal character '=' in variable name \"%s\"\n", name);
+		printf("## Error: illegal character '=' in variable name"
+		       "\"%s\"\n", name);
 		return 1;
 	}
 
@@ -189,13 +226,12 @@ int _do_env_set (int flag, int argc, char * const argv[])
 	hsearch_r(e, FIND, &ep, &env_htab);
 
 	/* Check for console redirection */
-	if (strcmp(name,"stdin") == 0) {
+	if (strcmp(name, "stdin") == 0)
 		console = stdin;
-	} else if (strcmp(name,"stdout") == 0) {
+	else if (strcmp(name, "stdout") == 0)
 		console = stdout;
-	} else if (strcmp(name,"stderr") == 0) {
+	else if (strcmp(name, "stderr") == 0)
 		console = stderr;
-	}
 
 	if (console != -1) {
 		if (argc < 3) {		/* Cannot delete it! */
@@ -209,11 +245,11 @@ int _do_env_set (int flag, int argc, char * const argv[])
 			return i;
 #else
 		/* Try assigning specified device */
-		if (console_assign (console, argv[2]) < 0)
+		if (console_assign(console, argv[2]) < 0)
 			return 1;
 
 #ifdef CONFIG_SERIAL_MULTI
-		if (serial_assign (argv[2]) < 0)
+		if (serial_assign(argv[2]) < 0)
 			return 1;
 #endif
 #endif /* CONFIG_CONSOLE_MUX */
@@ -225,53 +261,48 @@ int _do_env_set (int flag, int argc, char * const argv[])
 	 */
 	if (ep) {		/* variable exists */
 #ifndef CONFIG_ENV_OVERWRITE
-		if ((strcmp (name, "serial#") == 0) ||
-		    ((strcmp (name, "ethaddr") == 0)
+		if (strcmp(name, "serial#") == 0 ||
+		    (strcmp(name, "ethaddr") == 0
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-		     && (strcmp (ep->data,MK_STR(CONFIG_ETHADDR)) != 0)
+		     && strcmp(ep->data, MK_STR(CONFIG_ETHADDR)) != 0
 #endif	/* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
-		    ) ) {
-			printf ("Can't overwrite \"%s\"\n", name);
+			)) {
+			printf("Can't overwrite \"%s\"\n", name);
 			return 1;
 		}
 #endif
 		/*
 		 * Switch to new baudrate if new baudrate is supported
 		 */
-		if (strcmp(name,"baudrate") == 0) {
+		if (strcmp(name, "baudrate") == 0) {
 			int baudrate = simple_strtoul(argv[2], NULL, 10);
 			int i;
-			for (i=0; i<N_BAUDRATES; ++i) {
+			for (i = 0; i < N_BAUDRATES; ++i) {
 				if (baudrate == baudrate_table[i])
 					break;
 			}
 			if (i == N_BAUDRATES) {
-				printf ("## Baudrate %d bps not supported\n",
+				printf("## Baudrate %d bps not supported\n",
 					baudrate);
 				return 1;
 			}
-			printf ("## Switch baudrate to %d bps and press ENTER ...\n",
-				baudrate);
+			printf("## Switch baudrate to %d bps and"
+			       "press ENTER ...\n", baudrate);
 			udelay(50000);
 			gd->baudrate = baudrate;
 #if defined(CONFIG_PPC) || defined(CONFIG_MCF52x2)
 			gd->bd->bi_baudrate = baudrate;
 #endif
 
-			serial_setbrg ();
+			serial_setbrg();
 			udelay(50000);
-			for (;;) {
-				/* Xilinx: DT 614252 */
-				char c;
-				c = getc();
-				if (c == '\r' || c == '\n')
-				      break;
-			}
+			while (getc() != '\r')
+				;
 		}
 	}
 
 	/* Delete only ? */
-	if ((argc < 3) || argv[2] == NULL) {
+	if (argc < 3 || argv[2] == NULL) {
 		int rc = hdelete_r(name, &env_htab);
 		return !rc;
 	}
@@ -279,25 +310,26 @@ int _do_env_set (int flag, int argc, char * const argv[])
 	/*
 	 * Insert / replace new value
 	 */
-	for (i=2,len=0; i<argc; ++i) {
+	for (i = 2, len = 0; i < argc; ++i)
 		len += strlen(argv[i]) + 1;
-	}
-	if ((value = malloc(len)) == NULL) {
+
+	value = malloc(len);
+	if (value == NULL) {
 		printf("## Can't malloc %d bytes\n", len);
 		return 1;
 	}
-	for (i=2,s=value; i<argc; ++i) {
+	for (i = 2, s = value; i < argc; ++i) {
 		char *v = argv[i];
 
 		while ((*s++ = *v++) != '\0')
 			;
-		*(s-1) = ' ';
+		*(s - 1) = ' ';
 	}
 	if (s != value)
 		*--s = '\0';
 
-	e.key  = name;
-	e.data = value;
+	e.key	= name;
+	e.data	= value;
 	hsearch_r(e, ENTER, &ep, &env_htab);
 	free(value);
 	if (!ep) {
@@ -310,46 +342,77 @@ int _do_env_set (int flag, int argc, char * const argv[])
 	 * Some variables should be updated when the corresponding
 	 * entry in the environment is changed
 	 */
-
-	if (strcmp(name,"ipaddr") == 0) {
+	if (strcmp(name, "ipaddr") == 0) {
 		char *s = argv[2];	/* always use only one arg */
 		char *e;
 		unsigned long addr;
 		bd->bi_ip_addr = 0;
-		for (addr=0, i=0; i<4; ++i) {
+		for (addr = 0, i = 0; i < 4; ++i) {
 			ulong val = s ? simple_strtoul(s, &e, 10) : 0;
 			addr <<= 8;
-			addr  |= (val & 0xFF);
-			if (s) s = (*e) ? e+1 : e;
+			addr  |= val & 0xFF;
+			if (s)
+				s = *e ? e + 1 : e;
 		}
 		bd->bi_ip_addr = htonl(addr);
 		return 0;
-	} else if (strcmp(argv[1],"loadaddr") == 0) {
+	} else if (strcmp(argv[1], "loadaddr") == 0) {
 		load_addr = simple_strtoul(argv[2], NULL, 16);
 		return 0;
 	}
 #if defined(CONFIG_CMD_NET)
-	else if (strcmp(argv[1],"bootfile") == 0) {
-		copy_filename (BootFile, argv[2], sizeof(BootFile));
+	else if (strcmp(argv[1], "bootfile") == 0) {
+		copy_filename(BootFile, argv[2], sizeof(BootFile));
 		return 0;
 	}
 #endif
 	return 0;
 }
 
-int setenv (char *varname, char *varvalue)
+int setenv(const char *varname, const char *varvalue)
 {
-	char * const argv[4] = { "setenv", varname, varvalue, NULL };
-	if ((varvalue == NULL) || (varvalue[0] == '\0'))
-		return _do_env_set(0, 2, argv);
+	const char * const argv[4] = { "setenv", varname, varvalue, NULL };
+
+	if (varvalue == NULL || varvalue[0] == '\0')
+		return _do_env_set(0, 2, (char * const *)argv);
 	else
-		return _do_env_set(0, 3, argv);
+		return _do_env_set(0, 3, (char * const *)argv);
 }
 
-int do_env_set (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+/**
+ * Set an environment variable to an integer value
+ *
+ * @param varname	Environmet variable to set
+ * @param value		Value to set it to
+ * @return 0 if ok, 1 on error
+ */
+int setenv_ulong(const char *varname, ulong value)
+{
+	/* TODO: this should be unsigned */
+	char *str = simple_itoa(value);
+
+	return setenv(varname, str);
+}
+
+/**
+ * Set an environment variable to an address in hex
+ *
+ * @param varname	Environmet variable to set
+ * @param addr		Value to set it to
+ * @return 0 if ok, 1 on error
+ */
+int setenv_addr(const char *varname, const void *addr)
+{
+	char str[17];
+
+	sprintf(str, "%lx", (uintptr_t)addr);
+	return setenv(varname, str);
+}
+
+int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	return _do_env_set(flag, argc, argv);
 }
@@ -358,9 +421,8 @@ int do_env_set (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * Prompt for environment variable
  */
 #if defined(CONFIG_CMD_ASKENV)
-int do_env_ask ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	extern char console_buffer[CONFIG_SYS_CBSIZE];
 	char message[CONFIG_SYS_CBSIZE];
 	int size = CONFIG_SYS_CBSIZE - 1;
 	int i, len, pos;
@@ -374,7 +436,7 @@ int do_env_ask ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Check the syntax */
 	switch (argc) {
 	case 1:
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	case 2:		/* env_ask envname */
 		sprintf(message, "Please enter '%s':", argv[1]);
@@ -386,13 +448,14 @@ int do_env_ask ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		break;
 
 	default:	/* env_ask envname message1 ... messagen size */
-		for (i=2,pos=0; i < argc - 1; i++) {
-			if (pos) {
+		for (i = 2, pos = 0; i < argc - 1; i++) {
+			if (pos)
 				message[pos++] = ' ';
-			}
-			strcpy(message+pos, argv[i]);
+
+			strcpy(message + pos, argv[i]);
 			pos += strlen(argv[i]);
 		}
+
 		message[pos] = '\0';
 		size = simple_strtoul(argv[argc - 1], NULL, 10);
 		break;
@@ -429,19 +492,18 @@ int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char buffer[CONFIG_SYS_CBSIZE];
 	char *init_val;
-	int len;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* Set read buffer to initial value or empty sting */
 	init_val = getenv(argv[1]);
 	if (init_val)
-		len = sprintf(buffer, "%s", init_val);
+		sprintf(buffer, "%s", init_val);
 	else
 		buffer[0] = '\0';
 
-	readline_into_buffer("edit: ", buffer);
+	readline_into_buffer("edit: ", buffer, 0);
 
 	return setenv(argv[1], buffer);
 }
@@ -452,22 +514,21 @@ int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * return address of storage for that variable,
  * or NULL if not found
  */
-char *getenv (char *name)
+char *getenv(const char *name)
 {
-	if (gd->flags & GD_FLG_ENV_READY) {	/* after import into hashtable */
+	if (gd->flags & GD_FLG_ENV_READY) { /* after import into hashtable */
 		ENTRY e, *ep;
 
 		WATCHDOG_RESET();
 
-		e.key  = name;
-		e.data = NULL;
+		e.key	= name;
+		e.data	= NULL;
 		hsearch_r(e, FIND, &ep, &env_htab);
 
-		return (ep ? ep->data : NULL);
+		return ep ? ep->data : NULL;
 	}
 
 	/* restricted capabilities before import */
-
 	if (getenv_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) > 0)
 		return (char *)(gd->env_buf);
 
@@ -477,46 +538,67 @@ char *getenv (char *name)
 /*
  * Look up variable from environment for restricted C runtime env.
  */
-int getenv_f (char *name, char *buf, unsigned len)
+int getenv_f(const char *name, char *buf, unsigned len)
 {
 	int i, nxt;
 
-	for (i=0; env_get_char(i) != '\0'; i=nxt+1) {
+	for (i = 0; env_get_char(i) != '\0'; i = nxt + 1) {
 		int val, n;
 
-		for (nxt=i; env_get_char(nxt) != '\0'; ++nxt) {
-			if (nxt >= CONFIG_ENV_SIZE) {
-				return (-1);
-			}
+		for (nxt = i; env_get_char(nxt) != '\0'; ++nxt) {
+			if (nxt >= CONFIG_ENV_SIZE)
+				return -1;
 		}
-		if ((val=envmatch((uchar *)name, i)) < 0)
+
+		val = envmatch((uchar *)name, i);
+		if (val < 0)
 			continue;
 
 		/* found; copy out */
-		for (n=0; n<len; ++n, ++buf) {
-			if ((*buf = env_get_char(val++)) == '\0')
+		for (n = 0; n < len; ++n, ++buf) {
+			*buf = env_get_char(val++);
+			if (*buf == '\0')
 				return n;
 		}
 
 		if (n)
 			*--buf = '\0';
 
-		printf("env_buf too small [%d]\n", len);
+		printf("env_buf [%d bytes] too small for value of \"%s\"\n",
+			len, name);
 
 		return n;
 	}
-	return (-1);
+
+	return -1;
+}
+
+/**
+ * Decode the integer value of an environment variable and return it.
+ *
+ * @param name		Name of environemnt variable
+ * @param base		Number base to use (normally 10, or 16 for hex)
+ * @param default_val	Default value to return if the variable is not
+ *			found
+ * @return the decoded value, or default_val if not found
+ */
+ulong getenv_ulong(const char *name, int base, ulong default_val)
+{
+	/*
+	 * We can use getenv() here, even before relocation, since the
+	 * environment variable value is an integer and thus short.
+	 */
+	const char *str = getenv(name);
+
+	return str ? simple_strtoul(str, NULL, base) : default_val;
 }
 
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-
-int do_env_save (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	extern char * env_name_spec;
+	printf("Saving Environment to %s...\n", env_name_spec);
 
-	printf ("Saving Environment to %s...\n", env_name_spec);
-
-	return (saveenv() ? 1 : 0);
+	return saveenv() ? 1 : 0;
 }
 
 U_BOOT_CMD(
@@ -524,7 +606,6 @@ U_BOOT_CMD(
 	"save environment variables to persistent storage",
 	""
 );
-
 #endif
 
 
@@ -533,37 +614,40 @@ U_BOOT_CMD(
  *
  * s1 is either a simple 'name', or a 'name=value' pair.
  * i2 is the environment index for a 'name2=value2' pair.
- * If the names match, return the index for the value2, else NULL.
+ * If the names match, return the index for the value2, else -1.
  */
-
-int envmatch (uchar *s1, int i2)
+int envmatch(uchar *s1, int i2)
 {
-
 	while (*s1 == env_get_char(i2++))
 		if (*s1++ == '=')
-			return(i2);
+			return i2;
+
 	if (*s1 == '\0' && env_get_char(i2-1) == '=')
-		return(i2);
-	return(-1);
+		return i2;
+
+	return -1;
 }
 
-static int do_env_default(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_env_default(cmd_tbl_t *cmdtp, int flag,
+			  int argc, char * const argv[])
 {
-	if ((argc != 2) || (strcmp(argv[1], "-f") != 0)) {
-		return cmd_usage(cmdtp);
-	}
+	if (argc != 2 || strcmp(argv[1], "-f") != 0)
+		return CMD_RET_USAGE;
+
 	set_default_env("## Resetting to default environment\n");
 	return 0;
 }
 
-static int do_env_delete(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_env_delete(cmd_tbl_t *cmdtp, int flag,
+			 int argc, char * const argv[])
 {
 	printf("Not implemented yet\n");
 	return 0;
 }
 
+#ifdef CONFIG_CMD_EXPORTENV
 /*
- * env export [-t | -b | -c] addr [size]
+ * env export [-t | -b | -c] [-s size] addr [var ...]
  *	-t:	export as text format; if size is given, data will be
  *		padded with '\0' bytes; if not, one terminating '\0'
  *		will be added (which is included in the "filesize"
@@ -573,8 +657,12 @@ static int do_env_delete(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
  *		'\0', list end marked by double "\0\0")
  *	-c:	export as checksum protected environment format as
  *		used for example by "saveenv" command
+ *	-s size:
+ *		size of output buffer
  *	addr:	memory address where environment gets stored
- *	size:	size of output buffer
+ *	var...	List of variable names that get included into the
+ *		export. Without arguments, the whole environment gets
+ *		exported.
  *
  * With "-c" and size is NOT given, then the export command will
  * format the data as currently used for the persistent storage,
@@ -603,11 +691,12 @@ static int do_env_delete(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
  *
  *	=> env import -d -t ${backup_addr}
  */
-static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_env_export(cmd_tbl_t *cmdtp, int flag,
+			 int argc, char * const argv[])
 {
 	char	buf[32];
 	char	*addr, *cmd, *res;
-	size_t	size;
+	size_t	size = 0;
 	ssize_t	len;
 	env_t	*envp;
 	char	sep = '\n';
@@ -631,38 +720,41 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 				sep = '\0';
 				chk = 1;
 				break;
+			case 's':		/* size given */
+				if (--argc <= 0)
+					return cmd_usage(cmdtp);
+				size = simple_strtoul(*++argv, NULL, 16);
+				goto NXTARG;
 			case 't':		/* text format */
 				if (fmt++)
 					goto sep_err;
 				sep = '\n';
 				break;
 			default:
-				return cmd_usage(cmdtp);
+				return CMD_RET_USAGE;
 			}
 		}
+NXTARG:		;
 	}
 
-	if (argc < 1) {
-		return cmd_usage(cmdtp);
-	}
+	if (argc < 1)
+		return CMD_RET_USAGE;
 
 	addr = (char *)simple_strtoul(argv[0], NULL, 16);
 
-	if (argc == 2) {
-		size = simple_strtoul(argv[1], NULL, 16);
+	if (size)
 		memset(addr, '\0', size);
-	} else {
-		size = 0;
-	}
+
+	argc--;
+	argv++;
 
 	if (sep) {		/* export as text file */
-		len = hexport_r(&env_htab, sep, &addr, size);
+		len = hexport_r(&env_htab, sep, &addr, size, argc, argv);
 		if (len < 0) {
-			error("Cannot export environment: errno = %d\n",
-				errno);
+			error("Cannot export environment: errno = %d\n", errno);
 			return 1;
 		}
-		sprintf(buf, "%zX", len);
+		sprintf(buf, "%zX", (size_t)len);
 		setenv("filesize", buf);
 
 		return 0;
@@ -675,30 +767,30 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	else			/* export as raw binary data */
 		res = addr;
 
-	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE);
+	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE, argc, argv);
 	if (len < 0) {
-		error("Cannot export environment: errno = %d\n",
-			errno);
+		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
 
 	if (chk) {
-		envp->crc   = crc32(0, envp->data, ENV_SIZE);
+		envp->crc = crc32(0, envp->data, ENV_SIZE);
 #ifdef CONFIG_ENV_ADDR_REDUND
 		envp->flags = ACTIVE_FLAG;
 #endif
 	}
-	sprintf(buf, "%zX", len + offsetof(env_t,data));
+	sprintf(buf, "%zX", (size_t)(len + offsetof(env_t, data)));
 	setenv("filesize", buf);
 
 	return 0;
 
 sep_err:
-	printf("## %s: only one of \"-b\", \"-c\" or \"-t\" allowed\n",
-		cmd);
+	printf("## %s: only one of \"-b\", \"-c\" or \"-t\" allowed\n",	cmd);
 	return 1;
 }
+#endif
 
+#ifdef CONFIG_CMD_IMPORTENV
 /*
  * env import [-d] [-t | -b | -c] addr [size]
  *	-d:	delete existing environment before importing;
@@ -711,7 +803,8 @@ sep_err:
  *	size:	length of input data; if missing, proper '\0'
  *		termination is mandatory
  */
-static int do_env_import(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_env_import(cmd_tbl_t *cmdtp, int flag,
+			 int argc, char * const argv[])
 {
 	char	*cmd, *addr;
 	char	sep = '\n';
@@ -746,14 +839,13 @@ static int do_env_import(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 				del = 1;
 				break;
 			default:
-				return cmd_usage(cmdtp);
+				return CMD_RET_USAGE;
 			}
 		}
 	}
 
-	if (argc < 1) {
-		return cmd_usage(cmdtp);
-	}
+	if (argc < 1)
+		return CMD_RET_USAGE;
 
 	if (!fmt)
 		printf("## Warning: defaulting to text format\n");
@@ -777,8 +869,8 @@ static int do_env_import(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			printf("## Warning: Input data exceeds %d bytes"
 				" - truncated\n", MAX_ENV_SIZE);
 		}
-		++size;
-		printf("## Info: input data size = %zd = 0x%zX\n", size, size);
+		size += 2;
+		printf("## Info: input data size = %zu = 0x%zX\n", size, size);
 	}
 
 	if (chk) {
@@ -808,9 +900,6 @@ sep_err:
 		cmd);
 	return 1;
 }
-
-#if defined(CONFIG_CMD_RUN)
-extern int do_run (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #endif
 
 /*
@@ -825,8 +914,15 @@ static cmd_tbl_t cmd_env_sub[] = {
 #if defined(CONFIG_CMD_EDITENV)
 	U_BOOT_CMD_MKENT(edit, 2, 0, do_env_edit, "", ""),
 #endif
+#if defined(CONFIG_CMD_EXPORTENV)
 	U_BOOT_CMD_MKENT(export, 4, 0, do_env_export, "", ""),
+#endif
+#if defined(CONFIG_CMD_GREPENV)
+	U_BOOT_CMD_MKENT(grep, CONFIG_SYS_MAXARGS, 1, do_env_grep, "", ""),
+#endif
+#if defined(CONFIG_CMD_IMPORTENV)
 	U_BOOT_CMD_MKENT(import, 5, 0, do_env_import, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(print, CONFIG_SYS_MAXARGS, 1, do_env_print, "", ""),
 #if defined(CONFIG_CMD_RUN)
 	U_BOOT_CMD_MKENT(run, CONFIG_SYS_MAXARGS, 1, do_run, "", ""),
@@ -844,12 +940,12 @@ void env_reloc(void)
 }
 #endif
 
-static int do_env (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *cp;
 
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	/* drop initial "env" arg */
 	argc--;
@@ -860,7 +956,7 @@ static int do_env (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (cp)
 		return cp->cmd(cmdtp, flag, argc, argv);
 
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(
@@ -873,13 +969,18 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_EDITENV)
 	"env edit name - edit environment variable\n"
 #endif
-	"env export [-t | -b | -c] addr [size] - export environmnt\n"
-	"env import [-d] [-t | -b | -c] addr [size] - import environmnt\n"
+	"env export [-t | -b | -c] [-s size] addr [var ...] - export environment\n"
+#if defined(CONFIG_CMD_GREPENV)
+	"env grep string [...] - search environment\n"
+#endif
+	"env import [-d] [-t | -b | -c] addr [size] - import environment\n"
 	"env print [name ...] - print environment\n"
 #if defined(CONFIG_CMD_RUN)
 	"env run var [...] - run commands in an environment variable\n"
 #endif
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 	"env save - save environment\n"
+#endif
 	"env set [-f] name [arg ...]\n"
 );
 
@@ -905,6 +1006,16 @@ U_BOOT_CMD_COMPLETE(
 	"    - print value of environment variable 'name'",
 	var_complete
 );
+
+#ifdef CONFIG_CMD_GREPENV
+U_BOOT_CMD_COMPLETE(
+	grepenv, CONFIG_SYS_MAXARGS, 0,  do_env_grep,
+	"search environment variables",
+	"string ...\n"
+	"    - list environment name=value pairs matching 'string'",
+	var_complete
+);
+#endif
 
 U_BOOT_CMD_COMPLETE(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,

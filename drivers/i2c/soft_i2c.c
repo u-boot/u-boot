@@ -119,7 +119,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef DEBUG_I2C
 #define PRINTD(fmt,args...)	do {	\
-	if (gd->have_console)		\
 		printf (fmt ,##args);	\
 	} while (0)
 #else
@@ -286,6 +285,7 @@ int i2c_set_bus_num(unsigned int bus)
 		int	ret;
 
 		ret = i2x_mux_select_mux(bus);
+		i2c_init_board();
 		if (ret == 0)
 			i2c_bus_num = bus;
 		else

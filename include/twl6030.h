@@ -33,6 +33,8 @@
 #define TWL6030_CHIP_PWM	0x49
 
 /* Slave Address 0x48 */
+#define VMMC_CFG_STATE		0x9A
+#define VMMC_CFG_VOLTATE	0x9B
 #define VUSB_CFG_STATE		0xA2
 
 #define MISC1			0xE4
@@ -130,3 +132,4 @@ void twl6030_start_usb_charging(void);
 void twl6030_stop_usb_charging(void);
 int twl6030_get_battery_voltage(void);
 int twl6030_get_battery_current(void);
+void twl6030_power_mmc_init(void);

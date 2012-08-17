@@ -151,9 +151,6 @@
  * Definitions for initial stack pointer and data area
  */
 
-/* Size in bytes reserved for initial data
- */
-
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
@@ -461,7 +458,6 @@
 #undef	CONFIG_PCI_PNP
 #undef	CONFIG_PCI_SCAN_SHOW
 
-#define CONFIG_NET_MULTI		/* Multi ethernet cards support		*/
 
 #define CONFIG_EEPRO100
 #define CONFIG_SYS_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/

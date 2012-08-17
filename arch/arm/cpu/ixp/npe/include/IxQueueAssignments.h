@@ -404,7 +404,7 @@
 *
 * @def IX_ETH_ACC_RX_FRAME_ETH_Q 
 *
-* @brief  Eth0/Eth1 NPE Frame Recieve Q.
+* @brief  Eth0/Eth1 NPE Frame Receive Q.
 *
 * @note THIS IS NOT USED - the Rx queues are read from EthDB QoS configuration
 * 

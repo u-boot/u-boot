@@ -68,6 +68,11 @@ make
 make cm_t35_config
 make
 
+* BlueLYNX-X:
+
+make omap3_mvblx_config
+make
+
 Custom commands
 ===============
 
@@ -95,32 +100,50 @@ Interfaces
 ==========
 
 gpio
+----
 
 To set a bit :
 
-	if (!omap_request_gpio(N)) {
-		omap_set_gpio_direction(N, 0);
-		omap_set_gpio_dataout(N, 1);
+	if (!gpio_request(N, "")) {
+		gpio_direction_output(N, 0);
+		gpio_set_value(N, 1);
 	}
 
 To clear a bit :
 
-	if (!omap_request_gpio(N)) {
-		omap_set_gpio_direction(N, 0);
-		omap_set_gpio_dataout(N, 0);
+	if (!gpio_request(N, "")) {
+		gpio_direction_output(N, 0);
+		gpio_set_value(N, 0);
 	}
 
 To read a bit :
 
-	if (!omap_request_gpio(N)) {
-		omap_set_gpio_direction(N, 1);
-		val = omap_get_gpio_datain(N);
-		omap_free_gpio(N);
+	if (!gpio_request(N, "")) {
+		gpio_direction_input(N);
+		val = gpio_get_value(N);
+		gpio_free(N);
 	}
 	if (val)
 		printf("GPIO N is set\n");
 	else
 		printf("GPIO N is clear\n");
+
+dma
+---
+void omap3_dma_init(void)
+	Init the DMA module
+int omap3_dma_get_conf_chan(uint32_t chan, struct dma4_chan *config);
+	Read config of the channel
+int omap3_dma_conf_chan(uint32_t chan, struct dma4_chan *config);
+	Write config to the channel
+int omap3_dma_conf_transfer(uint32_t chan, uint32_t *src, uint32_t *dst,
+		uint32_t sze)
+	Config source, destination and size of a transfer
+int omap3_dma_wait_for_transfer(uint32_t chan)
+	Wait for a transfer to end - this hast to be called before a channel
+	or the data the channel transferd are used.
+int omap3_dma_get_revision(uint32_t *minor, uint32_t *major)
+	Read silicon Revision of the DMA module
 
 
 Acknowledgements

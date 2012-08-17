@@ -527,7 +527,12 @@ extern void pciauto_setup_device(struct pci_controller *hose,
 				 struct pci_region *mem,
 				 struct pci_region *prefetch,
 				 struct pci_region *io);
-int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
+extern void pciauto_prescan_setup_bridge(struct pci_controller *hose,
+				 pci_dev_t dev, int sub_bus);
+extern void pciauto_postscan_setup_bridge(struct pci_controller *hose,
+				 pci_dev_t dev, int sub_bus);
+extern void pciauto_config_init(struct pci_controller *hose);
+extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 
 extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int index);
 extern pci_dev_t pci_find_devices (struct pci_device_id *ids, int index);

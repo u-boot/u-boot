@@ -12,32 +12,6 @@
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
 
-static void
-get_spd(ddr2_spd_eeprom_t *spd, unsigned char i2c_address)
-{
-	i2c_read(i2c_address, 0, 1, (uchar *)spd, sizeof(ddr2_spd_eeprom_t));
-}
-
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
-void fsl_ddr_get_spd(ddr2_spd_eeprom_t *ctrl_dimms_spd,
-			unsigned int ctrl_num)
-{
-	unsigned int i;
-
-	if (ctrl_num) {
-		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
-		return;
-	}
-
-	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
-		get_spd(&(ctrl_dimms_spd[i]), SPD_EEPROM_ADDRESS);
-	}
-}
-
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num)
@@ -81,3 +55,79 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	 */
 	popts->half_strength_driver_enable = 0;
 }
+
+#ifdef CONFIG_SPD_EEPROM
+/*
+ * Workaround for hardware errata.  An i2c address conflict
+ * existed on earlier boards; the workaround moved the DDR
+ * SPD from 0x51 to 0x53.  So we try and read 0x53 1st, and
+ * if that fails, then fall back to reading at 0x51.
+ */
+void get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
+{
+	int ret;
+
+#ifdef ALT_SPD_EEPROM_ADDRESS
+	if (i2c_address == SPD_EEPROM_ADDRESS) {
+		ret = i2c_read(ALT_SPD_EEPROM_ADDRESS, 0, 1, (uchar *)spd,
+				sizeof(generic_spd_eeprom_t));
+		if (ret == 0)
+			return;		/* Good data at 0x53 */
+		memset(spd, 0, sizeof(generic_spd_eeprom_t));
+	}
+#endif
+	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,
+				sizeof(generic_spd_eeprom_t));
+	if (ret) {
+		printf("DDR: failed to read SPD from addr %u\n", i2c_address);
+		memset(spd, 0, sizeof(generic_spd_eeprom_t));
+	}
+}
+
+#else
+/*
+ *  fixed_sdram init -- doesn't use serial presence detect.
+ *  Assumes 256MB DDR2 SDRAM SODIMM, without ECC, running at DDR400 speed.
+ */
+phys_size_t fixed_sdram(void)
+{
+	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
+
+	out_be32(&ddr->cs0_bnds,	0x0000007f);
+	out_be32(&ddr->cs1_bnds,	0x008000ff);
+	out_be32(&ddr->cs2_bnds,	0x00000000);
+	out_be32(&ddr->cs3_bnds,	0x00000000);
+
+	out_be32(&ddr->cs0_config,	0x80010101);
+	out_be32(&ddr->cs1_config,	0x80010101);
+	out_be32(&ddr->cs2_config,	0x00000000);
+	out_be32(&ddr->cs3_config,	0x00000000);
+
+	out_be32(&ddr->timing_cfg_3,	0x00000000);
+	out_be32(&ddr->timing_cfg_0,	0x00220802);
+	out_be32(&ddr->timing_cfg_1,	0x38377322);
+	out_be32(&ddr->timing_cfg_2,	0x0fa044C7);
+
+	out_be32(&ddr->sdram_cfg,	0x4300C000);
+	out_be32(&ddr->sdram_cfg_2,	0x24401000);
+
+	out_be32(&ddr->sdram_mode,	0x23C00542);
+	out_be32(&ddr->sdram_mode_2,	0x00000000);
+
+	out_be32(&ddr->sdram_interval,	0x05080100);
+	out_be32(&ddr->sdram_md_cntl,	0x00000000);
+	out_be32(&ddr->sdram_data_init,	0x00000000);
+	out_be32(&ddr->sdram_clk_cntl,	0x03800000);
+	asm("sync;isync;msync");
+	udelay(500);
+
+	#ifdef CONFIG_DDR_ECC
+	  /* Enable ECC checking */
+	  out_be32(&ddr->sdram_cfg, CONFIG_SYS_DDR_CONTROL | 0x20000000);
+	#else
+	  out_be32(&ddr->sdram_cfg, CONFIG_SYS_DDR_CONTROL);
+	#endif
+
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+}
+#endif

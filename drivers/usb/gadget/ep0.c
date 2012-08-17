@@ -184,7 +184,6 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 			       int index)
 {
 	int port = 0;		/* XXX compound device */
-	char *cp;
 
 	/*dbg_ep0(3, "max: %x type: %x index: %x", max, descriptor_type, index); */
 
@@ -196,7 +195,6 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 
 	/* setup tx urb */
 	urb->actual_length = 0;
-	cp = (char*)urb->buffer;
 
 	dbg_ep0 (2, "%s", USBD_DEVICE_DESCRIPTORS (descriptor_type));
 
@@ -340,12 +338,27 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 		}
 		break;
 	case USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER:
+#if defined(CONFIG_USBD_HS)
 		{
-			/* If a USB device supports both a full speed and low speed operation
-			 * we must send a Device_Qualifier descriptor here
-			 */
-			return -1;
+			struct usb_qualifier_descriptor *qualifier_descriptor =
+				device->qualifier_descriptor;
+
+			if (!qualifier_descriptor)
+				return -1;
+
+			/* copy descriptor for this device */
+			copy_config(urb, qualifier_descriptor,
+					sizeof(struct usb_qualifier_descriptor),
+					max);
+
 		}
+		dbg_ep0(3, "copied qualifier descriptor, actual_length: 0x%x",
+				urb->actual_length);
+#else
+		return -1;
+#endif
+		break;
+
 	default:
 		return -1;
 	}

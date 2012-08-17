@@ -45,8 +45,11 @@
 
 #include <config.h>
 
+#define MDSTAT_STATE	0x3f
+
 .globl	lowlevel_init
 lowlevel_init:
+#ifdef CONFIG_SOC_DM644X
 
 	/*-------------------------------------------------------*
 	 * Mask all IRQs by setting all bits in the EINT default *
@@ -268,7 +271,7 @@ checkStatClkStop:
 checkDDRStatClkStop:
 	ldr	r6, MDSTAT_DDR2
 	ldr	r7, [r6]
-	and	r7, r7, $0x1f
+	and	r7, r7, $MDSTAT_STATE
 	cmp	r7, $0x03
 	bne	checkDDRStatClkStop
 
@@ -343,7 +346,7 @@ checkStatClkStop2:
 checkDDRStatClkStop2:
 	ldr	r6, MDSTAT_DDR2
 	ldr	r7, [r6]
-	and	r7, r7, $0x1f
+	and	r7, r7, $MDSTAT_STATE
 	cmp	r7, $0x01
 	bne	checkDDRStatClkStop2
 
@@ -374,7 +377,7 @@ checkStatClkEn2:
 checkDDRStatClkEn2:
 	ldr	r6, MDSTAT_DDR2
 	ldr	r7, [r6]
-	and	r7, r7, $0x1f
+	and	r7, r7, $MDSTAT_STATE
 	cmp	r7, $0x03
 	bne	checkDDRStatClkEn2
 
@@ -705,3 +708,6 @@ DDR2_START_ADDR:
 	.word	0x80000000
 DUMMY_VAL:
 	.word	0xa55aa55a
+#else /* CONFIG_SOC_DM644X */
+	mov pc, lr
+#endif

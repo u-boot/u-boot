@@ -132,8 +132,6 @@ static void showPci9054 (void)
 
 static void updatePci9054 (void)
 {
-	int val;
-
 	/*
 	 * Set EEPROM write-protect register to 0
 	 */
@@ -141,44 +139,44 @@ static void updatePci9054 (void)
 		  in_be32 ((void *)(pci9054_iobase + 0x0c)) & 0xffff00ff);
 
 	/* Long Serial EEPROM Load Registers... */
-	val = PciEepromWriteLongVPD (0x00, 0x905410b5);
-	val = PciEepromWriteLongVPD (0x04, 0x09800001);	/* other input controller */
-	val = PciEepromWriteLongVPD (0x08, 0x28140100);
+	PciEepromWriteLongVPD (0x00, 0x905410b5);
+	PciEepromWriteLongVPD (0x04, 0x09800001);	/* other input controller */
+	PciEepromWriteLongVPD (0x08, 0x28140100);
 
-	val = PciEepromWriteLongVPD (0x0c, 0x00000000);	/* MBOX0... */
-	val = PciEepromWriteLongVPD (0x10, 0x00000000);
+	PciEepromWriteLongVPD (0x0c, 0x00000000);	/* MBOX0... */
+	PciEepromWriteLongVPD (0x10, 0x00000000);
 
 	/* las0: fpga access (0x0000.0000 ... 0x0003.ffff) */
-	val = PciEepromWriteLongVPD (0x14, 0xfffc0000);	/* LAS0RR... */
-	val = PciEepromWriteLongVPD (0x18, 0x00000001);	/* LAS0BA */
+	PciEepromWriteLongVPD (0x14, 0xfffc0000);	/* LAS0RR... */
+	PciEepromWriteLongVPD (0x18, 0x00000001);	/* LAS0BA */
 
-	val = PciEepromWriteLongVPD (0x1c, 0x00200000);	/* MARBR... */
-	val = PciEepromWriteLongVPD (0x20, 0x00300500);	/* LMISC/BIGEND */
+	PciEepromWriteLongVPD (0x1c, 0x00200000);	/* MARBR... */
+	PciEepromWriteLongVPD (0x20, 0x00300500);	/* LMISC/BIGEND */
 
-	val = PciEepromWriteLongVPD (0x24, 0x00000000);	/* EROMRR... */
-	val = PciEepromWriteLongVPD (0x28, 0x00000000);	/* EROMBA */
+	PciEepromWriteLongVPD (0x24, 0x00000000);	/* EROMRR... */
+	PciEepromWriteLongVPD (0x28, 0x00000000);	/* EROMBA */
 
-	val = PciEepromWriteLongVPD (0x2c, 0x43030000);	/* LBRD0... */
+	PciEepromWriteLongVPD (0x2c, 0x43030000);	/* LBRD0... */
 
-	val = PciEepromWriteLongVPD (0x30, 0x00000000);	/* DMRR... */
-	val = PciEepromWriteLongVPD (0x34, 0x00000000);
-	val = PciEepromWriteLongVPD (0x38, 0x00000000);
+	PciEepromWriteLongVPD (0x30, 0x00000000);	/* DMRR... */
+	PciEepromWriteLongVPD (0x34, 0x00000000);
+	PciEepromWriteLongVPD (0x38, 0x00000000);
 
-	val = PciEepromWriteLongVPD (0x3c, 0x00000000);	/* DMPBAM... */
-	val = PciEepromWriteLongVPD (0x40, 0x00000000);
+	PciEepromWriteLongVPD (0x3c, 0x00000000);	/* DMPBAM... */
+	PciEepromWriteLongVPD (0x40, 0x00000000);
 
 	/* Extra Long Serial EEPROM Load Registers... */
-	val = PciEepromWriteLongVPD (0x44, 0x010212fe);	/* PCISID... */
+	PciEepromWriteLongVPD (0x44, 0x010212fe);	/* PCISID... */
 
 	/* las1: 505-sram access (0x0004.0000 ... 0x001f.ffff) */
 	/* Offset to LAS1: Group 1: 0x00040000                 */
 	/*                 Group 2: 0x00080000                 */
 	/*                 Group 3: 0x000c0000                 */
-	val = PciEepromWriteLongVPD (0x48, 0xffe00000);	/* LAS1RR */
-	val = PciEepromWriteLongVPD (0x4c, 0x00040001);	/* LAS1BA */
-	val = PciEepromWriteLongVPD (0x50, 0x00000208);	/* LBRD1 */ /* so wars bisher */
+	PciEepromWriteLongVPD (0x48, 0xffe00000);	/* LAS1RR */
+	PciEepromWriteLongVPD (0x4c, 0x00040001);	/* LAS1BA */
+	PciEepromWriteLongVPD (0x50, 0x00000208);	/* LBRD1 */ /* so wars bisher */
 
-	val = PciEepromWriteLongVPD (0x54, 0x00004c06);	/* HotSwap... */
+	PciEepromWriteLongVPD (0x54, 0x00004c06);	/* HotSwap... */
 
 	printf ("Finished writing defaults into PLX PCI9054 EEPROM!\n");
 }
@@ -186,8 +184,6 @@ static void updatePci9054 (void)
 
 static void clearPci9054 (void)
 {
-	int val;
-
 	/*
 	 * Set EEPROM write-protect register to 0
 	 */
@@ -195,8 +191,8 @@ static void clearPci9054 (void)
 		  in_be32 ((void *)(pci9054_iobase + 0x0c)) & 0xffff00ff);
 
 	/* Long Serial EEPROM Load Registers... */
-	val = PciEepromWriteLongVPD (0x00, 0xffffffff);
-	val = PciEepromWriteLongVPD (0x04, 0xffffffff);	/* other input controller */
+	PciEepromWriteLongVPD (0x00, 0xffffffff);
+	PciEepromWriteLongVPD (0x04, 0xffffffff);	/* other input controller */
 
 	printf ("Finished clearing PLX PCI9054 EEPROM!\n");
 }

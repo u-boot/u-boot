@@ -71,7 +71,7 @@
 #define PLLD_LFBDV_MASK		0x0000003f  /* PLL Local Feedback Divisor */
 
 #define OPBDDV_MASK		0x03000000  /* OPB Clock Divisor Register */
-#define PERDV_MASK		0x07000000  /* Periferal Clock Divisor */
+#define PERDV_MASK		0x07000000  /* Peripheral Clock Divisor */
 #define PRADV_MASK		0x07000000  /* Primary Divisor A */
 #define PRBDV_MASK		0x07000000  /* Primary Divisor B */
 #define SPCID_MASK		0x03000000  /* Sync PCI Divisor  */
@@ -81,7 +81,7 @@
 #define PLLSYS1_PERCLK_DIV_MASK 0x03000000	/* Peripheral Clk Divisor */
 #define PLLSYS1_MAL_DIV_MASK	0x00c00000	/* MAL Clk Divisor */
 #define PLLSYS1_RW_MASK		0x00300000	/* ROM width */
-#define PLLSYS1_EAR_MASK	0x00080000	/* ERAP Addres reset vector */
+#define PLLSYS1_EAR_MASK	0x00080000	/* ERAP Address reset vector */
 #define PLLSYS1_PAE_MASK	0x00040000	/* PCI arbitor enable */
 #define PLLSYS1_PCHE_MASK	0x00020000	/* PCI host config enable */
 #define PLLSYS1_PISE_MASK	0x00010000	/* PCI init seq. enable */

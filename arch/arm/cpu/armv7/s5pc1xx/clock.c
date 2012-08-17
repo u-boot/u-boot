@@ -336,3 +336,8 @@ unsigned long get_uart_clk(int dev_index)
 {
 	return s5pc1xx_get_uart_clk(dev_index);
 }
+
+void set_mmc_clk(int dev_index, unsigned int div)
+{
+	/* Do NOTHING */
+}

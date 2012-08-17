@@ -18,9 +18,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define DEBUG 0
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_MPC512x_FEC)
-
 #if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
 #endif
@@ -755,5 +752,3 @@ int fec512x_miiphy_write(const char *devname, u8 phyAddr, u8 regAddr, u16 data)
 
 	return 0;
 }
-
-#endif /* CONFIG_MPC512x_FEC */

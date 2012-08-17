@@ -164,7 +164,6 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII	      1		     /* MII PHY management	*/
-#define CONFIG_NET_MULTI      1
 #define CONFIG_PHY_ADDR	      0xff	     /* no phy on EMAC0		*/
 #define CONFIG_PHY1_ADDR      0xff	     /* no phy on EMAC1		*/
 #define CONFIG_PHY2_ADDR      0x08	     /* PHY addr, MGMT, EMAC2	*/

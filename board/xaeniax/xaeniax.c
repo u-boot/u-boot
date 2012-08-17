@@ -30,6 +30,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <asm/arch/pxa.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -59,10 +60,9 @@ int board_late_init(void)
 	return 0;
 }
 
-extern void pxa_dram_init(void);
 int dram_init(void)
 {
-	pxa_dram_init();
+	pxa2xx_dram_init();
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }

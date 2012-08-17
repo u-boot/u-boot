@@ -30,21 +30,12 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if 0
 #define	PCNET_DEBUG_LEVEL	0	/* 0=off, 1=init, 2=rx/tx */
-#endif
 
-#if PCNET_DEBUG_LEVEL > 0
-#define	PCNET_DEBUG1(fmt,args...)	printf (fmt ,##args)
-#if PCNET_DEBUG_LEVEL > 1
-#define	PCNET_DEBUG2(fmt,args...)	printf (fmt ,##args)
-#else
-#define PCNET_DEBUG2(fmt,args...)
-#endif
-#else
-#define PCNET_DEBUG1(fmt,args...)
-#define PCNET_DEBUG2(fmt,args...)
-#endif
+#define PCNET_DEBUG1(fmt,args...)	\
+	debug_cond(PCNET_DEBUG_LEVEL > 0, fmt ,##args)
+#define PCNET_DEBUG2(fmt,args...)	\
+	debug_cond(PCNET_DEBUG_LEVEL > 1, fmt ,##args)
 
 #if !defined(CONF_PCNET_79C973) && defined(CONF_PCNET_79C975)
 #error "Macro for PCnet chip version is not defined!"

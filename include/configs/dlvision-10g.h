@@ -34,13 +34,17 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		dlvsion-10g
-#define CONFIG_IDENT_STRING	" dlvision-10g 0.01"
+#define CONFIG_IDENT_STRING	" dlvision-10g 0.02"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f */
 #define CONFIG_LAST_STAGE_INIT
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll   */
+
+#undef CONFIG_ZERO_BOOTDELAY_CHECK     /* ignore keypress on bootdelay==0 */
+#define CONFIG_AUTOBOOT_KEYED          /* use key strings to stop autoboot */
+#define CONFIG_AUTOBOOT_STOP_STR " "
 
 /*
  * Configure PLL
@@ -111,9 +115,10 @@
 
 /* Temp sensor/hwmon/dtt */
 #define CONFIG_DTT_LM63		1	/* National LM63	*/
-#define CONFIG_DTT_SENSORS	{ 0 }	/* Sensor addresses	*/
+#define CONFIG_DTT_SENSORS	{ 0x4c, 0x4e }	/* Sensor addresses	*/
 #define CONFIG_DTT_PWM_LOOKUPTABLE	\
-		{ { 40, 10 }, { 50, 20 }, { 60, 40 } }
+		{ { 46, 10 }, { 48, 14 }, { 50, 19 }, { 52, 23 },\
+		  { 54, 27 }, { 56, 31 }, { 58, 36 }, { 60, 40 } }
 #define CONFIG_DTT_TACH_LIMIT	0xa10
 
 /* EBC peripherals */
@@ -135,6 +140,8 @@
 #define CONFIG_SYS_LATCH0_BOOT		0xffff
 #define CONFIG_SYS_LATCH1_RESET		0xffcf
 #define CONFIG_SYS_LATCH1_BOOT		0xffff
+
+#define CONFIG_SYS_FPGA_NO_RFL_HI
 
 /*
  * FLASH organization
@@ -310,6 +317,7 @@
  * OSD Setup
  */
 #define CONFIG_SYS_ICS8N3QV01
+#define CONFIG_SYS_MPC92469AC
 #define CONFIG_SYS_SIL1178
 #define CONFIG_SYS_OSD_SCREENS		CONFIG_SYS_FPGA_COUNT
 

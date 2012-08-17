@@ -31,10 +31,8 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
-#define CONFIG_OMAP3430		1	/* which is in a 3430 */
 #define CONFIG_OMAP3_BEAGLE	1	/* working with BEAGLE */
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
@@ -68,7 +66,6 @@
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-						/* initial data */
 
 /*
  * Hardware drivers
@@ -101,8 +98,23 @@
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
 
-/* DDR - I use Micron DDR */
-#define CONFIG_OMAP3_MICRON_DDR		1
+/* Status LED */
+#define CONFIG_STATUS_LED		1
+#define CONFIG_BOARD_SPECIFIC_LED	1
+#define STATUS_LED_BIT			0x01
+#define STATUS_LED_STATE		STATUS_LED_ON
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_BIT1			0x02
+#define STATUS_LED_STATE1		STATUS_LED_ON
+#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_BOOT			STATUS_LED_BIT
+#define STATUS_LED_GREEN		STATUS_LED_BIT1
+
+/* Enable Multi Bus support for I2C */
+#define CONFIG_I2C_MULTI_BUS		1
+
+/* Probe all devices */
+#define CONFIG_SYS_I2C_NOPROBES		{{0x0, 0x0}}
 
 /* USB */
 #define CONFIG_MUSB_UDC			1
@@ -113,6 +125,23 @@
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
+
+/* USB EHCI */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+
+#define CONFIG_USB_EHCI_OMAP
+/*#define CONFIG_EHCI_DCACHE*/ /* leave it disabled for now */
+#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	147
+
+#define CONFIG_USB_ULPI
+#define CONFIG_USB_ULPI_VIEWPORT_OMAP
+
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+#define CONFIG_USB_ETHER_ASIX
+
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -130,14 +159,20 @@
 
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
+#define CONFIG_USB_STORAGE	/* USB storage support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
+#define CONFIG_CMD_LED		/* LED support			*/
+#define CONFIG_CMD_NET      /* bootp, tftpboot, rarpboot    */
+#define CONFIG_CMD_NFS      /* NFS support          */
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
+#define CONFIG_CMD_GPIO     /* Enable gpio command */
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#undef CONFIG_CMD_NFS		/* NFS support			*/
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_HARD_I2C			1
@@ -147,6 +182,7 @@
 #define CONFIG_SYS_I2C_BUS_SELECT	1
 #define CONFIG_I2C_MULTI_BUS		1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
+#define CONFIG_VIDEO_OMAP3	/* DSS Support			*/
 
 /*
  * TWL4030
@@ -177,41 +213,64 @@
 							/* partition */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY		10
+#define CONFIG_BOOTDELAY		2
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x82000000\0" \
+	"loadaddr=0x80200000\0" \
+	"rdaddr=0x81000000\0" \
 	"usbtty=cdc_acm\0" \
-	"console=ttyS2,115200n8\0" \
-	"mpurate=500\0" \
+	"bootfile=uImage.beagle\0" \
+	"console=ttyO2,115200n8\0" \
+	"mpurate=auto\0" \
+	"buddy=none "\
+	"optargs=\0" \
+	"camera=none\0" \
 	"vram=12M\0" \
-	"dvimode=1024x768MR-16@60\0" \
+	"dvimode=640x480MR-16@60\0" \
 	"defaultdisplay=dvi\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
-	"nandroot=/dev/mtdblock4 rw\0" \
-	"nandrootfstype=jffs2\0" \
+	"nandroot=ubi0:rootfs ubi.mtd=4\0" \
+	"nandrootfstype=ubifs\0" \
+	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=0x81000000,64M\0" \
+	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
+		"${optargs} " \
 		"mpurate=${mpurate} " \
+		"buddy=${buddy} "\
+		"camera=${camera} "\
 		"vram=${vram} " \
 		"omapfb.mode=dvi:${dvimode} " \
-		"omapfb.debug=y " \
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
 	"nandargs=setenv bootargs console=${console} " \
+		"${optargs} " \
 		"mpurate=${mpurate} " \
+		"buddy=${buddy} "\
+		"camera=${camera} "\
 		"vram=${vram} " \
 		"omapfb.mode=dvi:${dvimode} " \
-		"omapfb.debug=y " \
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"bootenv=uEnv.txt\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t $loadaddr $filesize\0" \
+	"ramargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"mpurate=${mpurate} " \
+		"buddy=${buddy} "\
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${ramroot} " \
+		"rootfstype=${ramrootfstype}\0" \
+	"loadramdisk=fatload mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
+	"loaduimagefat=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"loaduimage=ext2load mmc ${mmcdev}:2 ${loadaddr} /boot/uImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
@@ -219,18 +278,35 @@
 		"run nandargs; " \
 		"nand read ${loadaddr} 280000 400000; " \
 		"bootm ${loadaddr}\0" \
-
+	"ramboot=echo Booting from ramdisk ...; " \
+		"run ramargs; " \
+		"bootm ${loadaddr}\0" \
+	"userbutton=if gpio input 173; then run userbutton_xm; " \
+		"else run userbutton_nonxm; fi;\0" \
+	"userbutton_xm=gpio input 4;\0" \
+	"userbutton_nonxm=gpio input 7;\0"
+/* "run userbutton" will return 1 (false) if is pressed and 0 (false) if not */
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan ${mmcdev}; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
+		"if run userbutton; then " \
+			"setenv bootenv uEnv.txt;" \
 		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"else run nandboot; " \
-			"fi; " \
-		"fi; " \
-	"else run nandboot; fi"
+			"setenv bootenv user.txt;" \
+		"fi;" \
+		"echo SD/MMC found on device ${mmcdev};" \
+		"if run loadbootenv; then " \
+			"echo Loaded environment from ${bootenv};" \
+			"run importbootenv;" \
+		"fi;" \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...;" \
+			"run uenvcmd;" \
+		"fi;" \
+		"if run loaduimage; then " \
+			"run mmcboot;" \
+		"fi;" \
+	"fi;" \
+	"run nandboot;" \
 
 #define CONFIG_AUTO_COMPLETE		1
 /*
@@ -240,18 +316,19 @@
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"OMAP3 beagleboard.org # "
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
+#define CONFIG_SYS_MAXARGS		32	/* max number of command args */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)	/* memtest */
-								/* works on */
-#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
-					0x01F00000) /* 31MB */
+#define CONFIG_SYS_ALT_MEMTEST		1
+#define CONFIG_SYS_MEMTEST_START	(0x82000000)		/* memtest */
+								/* defaults */
+#define CONFIG_SYS_MEMTEST_END		(0x87FFFFFF) 		/* 128MB */
+#define CONFIG_SYS_MEMTEST_SCRATCH	(0x81000000)	/* dummy address */
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)	/* default */
 							/* load address */
@@ -271,21 +348,13 @@
  * The stack sizes are set up in start.S using the settings below
  */
 #define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack 4 KiB */
-#define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack 4 KiB */
-#endif
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
-
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C		1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -299,7 +368,9 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
-#define CONFIG_SYS_FLASH_BASE		boot_flash_base
+#if defined(CONFIG_CMD_NAND)
+#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#endif
 
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
@@ -309,17 +380,9 @@
 #define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
-#define CONFIG_SYS_ENV_SECT_SIZE	boot_flash_sec
-#define CONFIG_ENV_OFFSET		boot_flash_off
+#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
-
-#ifndef __ASSEMBLY__
-extern unsigned int boot_flash_base;
-extern volatile unsigned int boot_flash_env_addr;
-extern unsigned int boot_flash_off;
-extern unsigned int boot_flash_sec;
-extern unsigned int boot_flash_type;
-#endif
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
@@ -329,5 +392,58 @@ extern unsigned int boot_flash_type;
 					 GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_OMAP3_SPI
+
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
+/* Defines for SPL */
+#define CONFIG_SPL
+#define CONFIG_SPL_NAND_SIMPLE
+#define CONFIG_SPL_TEXT_BASE		0x40200800
+#define CONFIG_SPL_MAX_SIZE		(45 * 1024)
+#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+
+#define CONFIG_SPL_BSS_START_ADDR	0x80000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
+
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
+#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
+#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_POWER_SUPPORT
+#define CONFIG_SPL_OMAP3_ID_NAND
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+
+/* NAND boot config */
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_PAGE_COUNT	64
+#define CONFIG_SYS_NAND_PAGE_SIZE	2048
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
+#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
+						10, 11, 12, 13}
+#define CONFIG_SYS_NAND_ECCSIZE		512
+#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+
+/*
+ * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
+ * 64 bytes before this address should be set aside for u-boot.img's
+ * header. That is 0x800FFFC0--0x80100000 should not be used for any
+ * other needs.
+ */
+#define CONFIG_SYS_TEXT_BASE		0x80100000
+#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
 #endif /* __CONFIG_H */

@@ -207,4 +207,14 @@ void dcache_invalid(void);
 
 #endif
 
+/*
+ * m68k uses 16 byte L1 data cache line sizes.  Use this for DMA buffer
+ * alignment unless the board configuration has specified a new value.
+ */
+#ifdef CONFIG_SYS_CACHELINE_SIZE
+#define ARCH_DMA_MINALIGN	CONFIG_SYS_CACHELINE_SIZE
+#else
+#define ARCH_DMA_MINALIGN	16
+#endif
+
 #endif				/* __CACHE_H */

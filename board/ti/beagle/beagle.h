@@ -23,6 +23,8 @@
 #ifndef _BEAGLE_H_
 #define _BEAGLE_H_
 
+#include <asm/arch/dss.h>
+
 const omap3_sysinfo sysinfo = {
 	DDR_STACKED,
 	"OMAP3 Beagle board",
@@ -37,7 +39,9 @@ const omap3_sysinfo sysinfo = {
 #define REVISION_AXBX	0x7
 #define REVISION_CX	0x6
 #define REVISION_C4	0x5
-#define REVISION_XM	0x0
+#define REVISION_XM_A	0x0
+#define REVISION_XM_B	0x1
+#define REVISION_XM_C	0x2
 
 /*
  * IEN  - Input Enable
@@ -273,18 +277,18 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(MCSPI1_CS1),		(IDIS | PTD | EN  | M0)) /*McSPI1_CS1*/\
 	MUX_VAL(CP(MCSPI1_CS2),		(IDIS | PTD | DIS | M4)) /*GPIO_176*/\
  /* USB EHCI (port 2) */\
-	MUX_VAL(CP(MCSPI1_CS3),		(IEN  | PTU | DIS | M3)) /*HSUSB2_DATA2*/\
-	MUX_VAL(CP(MCSPI2_CLK),		(IEN  | PTU | DIS | M3)) /*HSUSB2_DATA7*/\
-	MUX_VAL(CP(MCSPI2_SIMO),	(IEN  | PTU | DIS | M3)) /*HSUSB2_DATA4*/\
-	MUX_VAL(CP(MCSPI2_SOMI),	(IEN  | PTU | DIS | M3)) /*HSUSB2_DATA5*/\
-	MUX_VAL(CP(MCSPI2_CS0),		(IEN  | PTU | DIS | M3)) /*HSUSB2_DATA6*/\
-	MUX_VAL(CP(MCSPI2_CS1),		(IEN  | PTU | DIS | M3)) /*HSUSB2_DATA3*/\
-	MUX_VAL(CP(ETK_D10_ES2),	(IDIS | PTU | DIS | M3)) /*HSUSB2_CLK*/\
-	MUX_VAL(CP(ETK_D11_ES2),	(IDIS | PTU | DIS | M3)) /*HSUSB2_STP*/\
-	MUX_VAL(CP(ETK_D12_ES2),	(IEN  | PTU | DIS | M3)) /*HSUSB2_DIR*/\
-	MUX_VAL(CP(ETK_D13_ES2),	(IEN  | PTU | DIS | M3)) /*HSUSB2_NXT*/\
-	MUX_VAL(CP(ETK_D14_ES2),	(IEN  | PTU | DIS | M3)) /*HSUSB2_DATA0*/\
-	MUX_VAL(CP(ETK_D15_ES2),	(IEN  | PTU | DIS | M3)) /*HSUSB2_DATA1*/\
+	MUX_VAL(CP(MCSPI1_CS3),		(IEN  | PTD | EN  | M3)) /*HSUSB2_DATA2*/\
+	MUX_VAL(CP(MCSPI2_CLK),		(IEN  | PTD | EN  | M3)) /*HSUSB2_DATA7*/\
+	MUX_VAL(CP(MCSPI2_SIMO),	(IEN  | PTD | EN  | M3)) /*HSUSB2_DATA4*/\
+	MUX_VAL(CP(MCSPI2_SOMI),	(IEN  | PTD | EN  | M3)) /*HSUSB2_DATA5*/\
+	MUX_VAL(CP(MCSPI2_CS0),		(IEN  | PTD | EN  | M3)) /*HSUSB2_DATA6*/\
+	MUX_VAL(CP(MCSPI2_CS1),		(IEN  | PTD | EN  | M3)) /*HSUSB2_DATA3*/\
+	MUX_VAL(CP(ETK_D10_ES2),	(IDIS | PTD | DIS | M3)) /*HSUSB2_CLK*/\
+	MUX_VAL(CP(ETK_D11_ES2),	(IDIS | PTD | DIS | M3)) /*HSUSB2_STP*/\
+	MUX_VAL(CP(ETK_D12_ES2),	(IEN  | PTD | EN  | M3)) /*HSUSB2_DIR*/\
+	MUX_VAL(CP(ETK_D13_ES2),	(IEN  | PTD | EN  | M3)) /*HSUSB2_NXT*/\
+	MUX_VAL(CP(ETK_D14_ES2),	(IEN  | PTD | EN  | M3)) /*HSUSB2_DATA0*/\
+	MUX_VAL(CP(ETK_D15_ES2),	(IEN  | PTD | EN  | M3)) /*HSUSB2_DATA1*/\
  /*Control and debug */\
 	MUX_VAL(CP(SYS_32K),		(IEN  | PTD | DIS | M0)) /*SYS_32K*/\
 	MUX_VAL(CP(SYS_CLKREQ),		(IEN  | PTD | DIS | M0)) /*SYS_CLKREQ*/\
@@ -383,7 +387,8 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(MCBSP3_CLKX),	(IEN  | PTD | DIS | M4)) /*GPIO_141*/\
 	MUX_VAL(CP(UART2_CTS),		(IEN  | PTU | EN  | M0)) /*UART2_CTS*/\
 	MUX_VAL(CP(UART2_RTS),		(IDIS | PTD | DIS | M0)) /*UART2_RTS*/\
-	MUX_VAL(CP(UART2_TX),		(IDIS | PTD | DIS | M0)) /*UART2_TX*/
+	MUX_VAL(CP(UART2_TX),		(IDIS | PTD | DIS | M0)) /*UART2_TX*/\
+	MUX_VAL(CP(UART2_RX),		(IDIS | PTU | EN  | M4)) /*GPIO_147*/
 
 #define MUX_BEAGLE_XM() \
 	MUX_VAL(CP(GPMC_NCS5),		(IDIS | PTD | EN  | M4)) /*GPIO_56*/\
@@ -457,4 +462,100 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(MCBSP1_DR),      (IEN  | PTU | EN  | M1)) /*MCSPI4_SOMI*/\
 	MUX_VAL(CP(MCBSP1_FSX),     (IDIS | PTU | DIS | M1)) /*MCSPI4_CS0*/
 
+#define MUX_BBTOYS_WIFI() \
+	MUX_VAL(CP(MMC2_CLK),       (IEN  | PTU | EN  | M0)) /*MMC2_CLK*/\
+	MUX_VAL(CP(MMC2_CMD),       (IEN  | PTU | EN  | M0)) /*MMC2_CMD*/\
+	MUX_VAL(CP(MMC2_DAT0),      (IEN  | PTU | EN  | M0)) /*MMC2_DAT0*/\
+	MUX_VAL(CP(MMC2_DAT1),      (IEN  | PTU | EN  | M0)) /*MMC2_DAT1*/\
+	MUX_VAL(CP(MMC2_DAT2),      (IEN  | PTU | EN  | M0)) /*MMC2_DAT2*/\
+	MUX_VAL(CP(MMC2_DAT3),      (IEN  | PTU | EN  | M0)) /*MMC2_DAT3*/\
+	MUX_VAL(CP(MMC2_DAT4),      (IDIS | PTU | EN  | M4)) /*GPIO_136 FM_EN/BT_WU*/\
+	MUX_VAL(CP(MMC2_DAT5),      (IEN  | PTU | EN  | M4)) /*GPIO_137 WLAN_IRQ*/\
+	MUX_VAL(CP(MMC2_DAT6),      (IDIS | PTU | EN  | M4)) /*GPIO_138 BT_EN*/\
+	MUX_VAL(CP(MMC2_DAT7),      (IDIS | PTU | EN  | M4)) /*GPIO_139 WLAN_EN*/
+
+/*
+ * Display Configuration
+ */
+
+#define DVI_BEAGLE_ORANGE_COL		0x00FF8000
+#define VENC_HEIGHT			0x00ef
+#define VENC_WIDTH			0x027f
+
+/*
+ * Configure VENC in DSS for Beagle to generate Color Bar
+ *
+ * Kindly refer to OMAP TRM for definition of these values.
+ */
+static const struct venc_regs venc_config_std_tv = {
+	.status					= 0x0000001B,
+	.f_control				= 0x00000040,
+	.vidout_ctrl				= 0x00000000,
+	.sync_ctrl				= 0x00008000,
+	.llen					= 0x00008359,
+	.flens					= 0x0000020C,
+	.hfltr_ctrl				= 0x00000000,
+	.cc_carr_wss_carr			= 0x043F2631,
+	.c_phase				= 0x00000024,
+	.gain_u					= 0x00000130,
+	.gain_v					= 0x00000198,
+	.gain_y					= 0x000001C0,
+	.black_level				= 0x0000006A,
+	.blank_level				= 0x0000005C,
+	.x_color				= 0x00000000,
+	.m_control				= 0x00000001,
+	.bstamp_wss_data			= 0x0000003F,
+	.s_carr					= 0x21F07C1F,
+	.line21					= 0x00000000,
+	.ln_sel					= 0x00000015,
+	.l21__wc_ctl				= 0x00001400,
+	.htrigger_vtrigger			= 0x00000000,
+	.savid__eavid				= 0x069300F4,
+	.flen__fal				= 0x0016020C,
+	.lal__phase_reset			= 0x00060107,
+	.hs_int_start_stop_x			= 0x008D034E,
+	.hs_ext_start_stop_x			= 0x000F0359,
+	.vs_int_start_x				= 0x01A00000,
+	.vs_int_stop_x__vs_int_start_y		= 0x020501A0,
+	.vs_int_stop_y__vs_ext_start_x		= 0x01AC0024,
+	.vs_ext_stop_x__vs_ext_start_y		= 0x020D01AC,
+	.vs_ext_stop_y				= 0x00000006,
+	.avid_start_stop_x			= 0x03480079,
+	.avid_start_stop_y			= 0x02040024,
+	.fid_int_start_x__fid_int_start_y	= 0x0001008A,
+	.fid_int_offset_y__fid_ext_start_x	= 0x01AC0106,
+	.fid_ext_start_y__fid_ext_offset_y	= 0x01060006,
+	.tvdetgp_int_start_stop_x		= 0x00140001,
+	.tvdetgp_int_start_stop_y		= 0x00010001,
+	.gen_ctrl				= 0x00FF0000,
+	.output_control				= 0x0000000D,
+	.dac_b__dac_c				= 0x00000000
+};
+
+/*
+ * Configure Timings for DVI D
+ */
+static const struct panel_config dvid_cfg = {
+	.timing_h	= 0x0ff03f31, /* Horizontal timing */
+	.timing_v	= 0x01400504, /* Vertical timing */
+	.pol_freq	= 0x00007028, /* Pol Freq */
+	.divisor	= 0x00010006, /* 72Mhz Pixel Clock */
+	.lcd_size	= 0x02ff03ff, /* 1024x768 */
+	.panel_type	= 0x01, /* TFT */
+	.data_lines	= 0x03, /* 24 Bit RGB */
+	.load_mode	= 0x02, /* Frame Mode */
+	.panel_color	= DVI_BEAGLE_ORANGE_COL /* ORANGE */
+};
+
+static const struct panel_config dvid_cfg_xm = {
+	.timing_h	= 0x1a4024c9, /* Horizontal timing */
+	.timing_v	= 0x02c00509, /* Vertical timing */
+	.pol_freq	= 0x00007028, /* Pol Freq */
+	.divisor	= 0x00010001, /* 96MHz Pixel Clock */
+	.lcd_size	= 0x02ff03ff, /* 1024x768 */
+	.panel_type	= 0x01, /* TFT */
+	.data_lines	= 0x03, /* 24 Bit RGB */
+	.load_mode	= 0x02, /* Frame Mode */
+	.panel_color	= DVI_BEAGLE_ORANGE_COL /* ORANGE */
+};
 #endif

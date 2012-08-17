@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Albert ARIBAUD <albert.aribaud@free.fr>
+ * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * Based on original Kirkwood support which is
  * (C) Copyright 2009
@@ -45,6 +45,7 @@
 #define CONFIG_88F5182		1	/* SOC Name */
 #define CONFIG_MACH_EDMINIV2	1	/* Machine type */
 
+#include <asm/arch/orion5x.h>
 /*
  * CLKs configurations
  */
@@ -133,6 +134,7 @@
 #include <config_cmd_default.h>
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_USB
 
 /*
  * Network
@@ -145,7 +147,6 @@
 #define CONFIG_PHY_BASE_ADR	0x8
 #define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
-#define CONFIG_NET_MULTI	/* specify more that one ports available */
 #define	CONFIG_MII		/* expose smi ove miiphy interface */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
@@ -183,6 +184,19 @@
 #endif /* CMD_IDE */
 
 /*
+ * Common USB/EHCI configuration
+ */
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_EHCI		/* Enable EHCI USB support */
+#define CONFIG_USB_EHCI_MARVELL
+#define ORION5X_USB20_HOST_PORT_BASE ORION5X_USB20_PORT0_BASE
+#define CONFIG_USB_STORAGE
+#define CONFIG_DOS_PARTITION
+#define CONFIG_ISO_PARTITION
+#define CONFIG_SUPPORT_VFAT
+#endif /* CONFIG_CMD_USB */
+
+/*
  * I2C related stuff
  */
 #ifdef CONFIG_CMD_I2C
@@ -204,7 +218,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(1024 * 128) /* 128kB for malloc() */
-/* size in bytes reserved for initial data */
 
 /*
  * Other required minimal configurations
@@ -221,6 +234,16 @@
 #define CONFIG_SYS_MEMTEST_END		0x007fffff
 #define CONFIG_SYS_RESET_ADDRESS	0xffff0000
 #define CONFIG_SYS_MAXARGS		16
+
+/* Use the HUSH parser */
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+
+/* Enable command line editing */
+#define CONFIG_CMDLINE_EDITING
+
+/* provide extensive help */
+#define CONFIG_SYS_LONGHELP
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0

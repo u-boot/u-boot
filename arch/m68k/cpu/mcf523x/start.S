@@ -23,7 +23,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <timestamp.h>
 #include "version.h"
 #include <asm/cache.h>
 
@@ -270,7 +269,5 @@ _int_handler:
 
 	.globl	version_string
 version_string:
-	.ascii U_BOOT_VERSION
-	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii CONFIG_IDENT_STRING, "\0"
+	.ascii U_BOOT_VERSION_STRING, "\0"
 	.align 4

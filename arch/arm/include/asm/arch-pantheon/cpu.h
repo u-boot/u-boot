@@ -43,6 +43,17 @@ struct panthmpmu_registers {
 };
 
 /*
+ * Application Power Management (APMU) Registers
+ * Refer Register Datasheet 9.2
+ */
+struct panthapmu_registers {
+	u8 pad0[0x0054];
+	u32 sd1;	/*0x0054*/
+	u8 pad1[0x00e0 - 0x054 - 4];
+	u32 sd3;	/*0x00e0*/
+};
+
+/*
  * APB Clock Reset/Control Registers
  * Refer Register Datasheet 6.14
  */
@@ -50,7 +61,9 @@ struct panthapb_registers {
 	u32 uart0;	/*0x000*/
 	u32 uart1;	/*0x004*/
 	u32 gpio;	/*0x008*/
-	u8 pad0[0x034 - 0x08 - 4];
+	u8 pad0[0x02c - 0x08 - 4];
+	u32 twsi;	/*0x02c*/
+	u8 pad1[0x034 - 0x2c - 4];
 	u32 timers;	/*0x034*/
 };
 
@@ -75,5 +88,6 @@ struct panthcpu_registers {
  */
 u32 panth_sdram_base(int);
 u32 panth_sdram_size(int);
+int mv_sdh_init(u32 regbase, u32 max_clk, u32 min_clk, u32 quirks);
 
 #endif /* _PANTHEON_CPU_H */

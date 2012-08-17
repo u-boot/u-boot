@@ -47,8 +47,25 @@
 #define OMAP34XX_L4_PER			0x49000000
 #define OMAP34XX_L4_IO_BASE		OMAP34XX_CORE_L4_IO_BASE
 
+/* DMA4/SDMA */
+#define OMAP34XX_DMA4_BASE              0x48056000
+
 /* CONTROL */
 #define OMAP34XX_CTRL_BASE		(OMAP34XX_L4_IO_BASE + 0x2000)
+
+#ifndef __ASSEMBLY__
+/* Signal Integrity Parameter Control Registers */
+struct control_prog_io {
+	unsigned char res[0x408];
+	unsigned int io2;		/* 0x408 */
+	unsigned char res2[0x38];
+	unsigned int io0;		/* 0x444 */
+	unsigned int io1;		/* 0x448 */
+};
+#endif /* __ASSEMBLY__ */
+
+/* Bit definition for CONTROL_PROG_IO1 */
+#define PRG_I2C2_PULLUPRESX		0x00000001
 
 /* UART */
 #define OMAP34XX_UART1			(OMAP34XX_L4_IO_BASE + 0x6a000)
@@ -85,14 +102,6 @@ struct s32ktimer {
 };
 
 #endif /* __ASSEMBLY__ */
-
-/* OMAP3 GPIO registers */
-#define OMAP34XX_GPIO1_BASE		0x48310000
-#define OMAP34XX_GPIO2_BASE		0x49050000
-#define OMAP34XX_GPIO3_BASE		0x49052000
-#define OMAP34XX_GPIO4_BASE		0x49054000
-#define OMAP34XX_GPIO5_BASE		0x49056000
-#define OMAP34XX_GPIO6_BASE		0x49058000
 
 #ifndef __ASSEMBLY__
 struct gpio {
@@ -144,8 +153,15 @@ struct gpio {
 #define SRAM_OFFSET2			0x0000F800
 #define SRAM_VECT_CODE			(SRAM_OFFSET0 | SRAM_OFFSET1 | \
 					 SRAM_OFFSET2)
+#define SRAM_CLK_CODE			(SRAM_VECT_CODE + 64)
+
+#define OMAP3_PUBLIC_SRAM_BASE		0x40208000 /* Works for GP & EMU */
+#define OMAP3_PUBLIC_SRAM_END		0x40210000
 
 #define LOW_LEVEL_SRAM_STACK		0x4020FFFC
+
+/* scratch area - accessible on both EMU and GP */
+#define OMAP3_PUBLIC_SRAM_SCRATCH_AREA	OMAP3_PUBLIC_SRAM_BASE
 
 #define DEBUG_LED1			149	/* gpio */
 #define DEBUG_LED2			150	/* gpio */
@@ -178,6 +194,16 @@ struct gpio {
 #define CPU_3XX_ES31		4
 #define CPU_3XX_ES312		7
 #define CPU_3XX_MAX_REV		8
+
+/*
+ * 37xx real hardware:
+ * ES1.0 onwards, the value maps to contents of IDCODE register [31:28].
+ */
+
+#define CPU_37XX_ES10		0
+#define CPU_37XX_ES11		1
+#define CPU_37XX_ES12		2
+#define CPU_37XX_MAX_REV	3
 
 #define CPU_3XX_ID_SHIFT	28
 
@@ -212,5 +238,19 @@ struct gpio {
 #define AM3517			0x1c00
 
 #define OMAP3730		0x0c00
+
+/*
+ * ROM code API related flags
+ */
+#define OMAP3_GP_ROMCODE_API_L2_INVAL		1
+#define OMAP3_GP_ROMCODE_API_WRITE_ACR		3
+
+/*
+ * EMU device PPA HAL related flags
+ */
+#define OMAP3_EMU_HAL_API_L2_INVAL		40
+#define OMAP3_EMU_HAL_API_WRITE_ACR		42
+
+#define OMAP3_EMU_HAL_START_HAL_CRITICAL	4
 
 #endif

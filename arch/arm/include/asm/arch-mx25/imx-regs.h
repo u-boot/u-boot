@@ -36,7 +36,6 @@
 #ifndef __ASSEMBLY__
 #ifdef CONFIG_FEC_MXC
 extern void mx25_fec_init_pins(void);
-extern void imx_get_mac_from_fuse(unsigned char *mac);
 #endif
 
 /* Clock Control Module (CCM) registers */
@@ -84,18 +83,6 @@ struct esdramc_regs {
 	u32 cdlyl;	/* delay line cycle length debug */
 };
 
-/* GPIO registers */
-struct gpio_regs {
-	u32 dr;		/* data */
-	u32 dir;	/* direction */
-	u32 psr;	/* pad satus */
-	u32 icr1;	/* interrupt config 1 */
-	u32 icr2;	/* interrupt config 2 */
-	u32 imr;	/* interrupt mask */
-	u32 isr;	/* interrupt status */
-	u32 edge_sel;	/* edge select */
-};
-
 /* General Purpose Timer (GPT) registers */
 struct gpt_regs {
 	u32 ctrl;   	/* control */
@@ -141,6 +128,45 @@ struct fuse_bank0_regs {
 	u32 mac_addr[6];
 };
 
+/* Multi-Layer AHB Crossbar Switch (MAX) registers */
+struct max_regs {
+	u32 mpr0;
+	u32 pad00[3];
+	u32 sgpcr0;
+	u32 pad01[59];
+	u32 mpr1;
+	u32 pad02[3];
+	u32 sgpcr1;
+	u32 pad03[59];
+	u32 mpr2;
+	u32 pad04[3];
+	u32 sgpcr2;
+	u32 pad05[59];
+	u32 mpr3;
+	u32 pad06[3];
+	u32 sgpcr3;
+	u32 pad07[59];
+	u32 mpr4;
+	u32 pad08[3];
+	u32 sgpcr4;
+	u32 pad09[251];
+	u32 mgpcr0;
+	u32 pad10[63];
+	u32 mgpcr1;
+	u32 pad11[63];
+	u32 mgpcr2;
+	u32 pad12[63];
+	u32 mgpcr3;
+	u32 pad13[63];
+	u32 mgpcr4;
+};
+
+/* AHB <-> IP-Bus Interface (AIPS) */
+struct aips_regs {
+	u32 mpr_0_7;
+	u32 mpr_8_15;
+};
+
 #endif
 
 /* AIPS 1 */
@@ -154,8 +180,8 @@ struct fuse_bank0_regs {
 #define IMX_I2C3_BASE		(0x43F84000)
 #define IMX_CAN1_BASE		(0x43F88000)
 #define IMX_CAN2_BASE		(0x43F8C000)
-#define IMX_UART1_BASE		(0x43F90000)
-#define IMX_UART2_BASE		(0x43F94000)
+#define UART1_BASE		(0x43F90000)
+#define UART2_BASE		(0x43F94000)
 #define IMX_I2C2_BASE		(0x43F98000)
 #define IMX_OWIRE_BASE		(0x43F9C000)
 #define IMX_CSPI1_BASE		(0x43FA4000)
@@ -171,15 +197,15 @@ struct fuse_bank0_regs {
 /* SPBA */
 #define IMX_SPBA_BASE		(0x50000000)
 #define IMX_CSPI3_BASE		(0x50004000)
-#define IMX_UART4_BASE		(0x50008000)
-#define IMX_UART3_BASE		(0x5000C000)
+#define UART4_BASE		(0x50008000)
+#define UART3_BASE		(0x5000C000)
 #define IMX_CSPI2_BASE		(0x50010000)
 #define IMX_SSI2_BASE		(0x50014000)
 #define IMX_ESAI_BASE		(0x50018000)
 #define IMX_ATA_DMA_BASE	(0x50020000)
 #define IMX_SIM1_BASE		(0x50024000)
 #define IMX_SIM2_BASE		(0x50028000)
-#define IMX_UART5_BASE		(0x5002C000)
+#define UART5_BASE		(0x5002C000)
 #define IMX_TSC_BASE		(0x50030000)
 #define IMX_SSI1_BASE		(0x50034000)
 #define IMX_FEC_BASE		(0x50038000)
@@ -317,5 +343,14 @@ struct fuse_bank0_regs {
 #define WCR_WDE 		0x04
 #define WSR_UNLOCK1		0x5555
 #define WSR_UNLOCK2		0xAAAA
+
+/* Names used in GPIO driver */
+#define GPIO1_BASE_ADDR		IMX_GPIO1_BASE
+#define GPIO2_BASE_ADDR		IMX_GPIO2_BASE
+#define GPIO3_BASE_ADDR		IMX_GPIO3_BASE
+#define GPIO4_BASE_ADDR		IMX_GPIO4_BASE
+
+#define CHIP_REV_1_0		0x10
+#define CHIP_REV_1_1		0x11
 
 #endif				/* _IMX_REGS_H */

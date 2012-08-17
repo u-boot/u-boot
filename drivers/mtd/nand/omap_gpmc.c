@@ -27,10 +27,12 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/omap_gpmc.h>
 #include <linux/mtd/nand_ecc.h>
+#include <linux/compiler.h>
 #include <nand.h>
 
 static uint8_t cs;
-static struct nand_ecclayout hw_nand_oob = GPMC_NAND_HW_ECC_LAYOUT;
+static __maybe_unused struct nand_ecclayout hw_nand_oob =
+	GPMC_NAND_HW_ECC_LAYOUT;
 
 /*
  * omap_nand_hwcontrol - Set the address pointers corretly for the
@@ -61,13 +63,21 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 		writeb(cmd, this->IO_ADDR_W);
 }
 
+#ifdef CONFIG_SPL_BUILD
+/* Check wait pin as dev ready indicator */
+int omap_spl_dev_ready(struct mtd_info *mtd)
+{
+	return gpmc_cfg->status & (1 << 8);
+}
+#endif
+
 /*
  * omap_hwecc_init - Initialize the Hardware ECC for NAND flash in
  *                   GPMC controller
  * @mtd:        MTD device structure
  *
  */
-static void omap_hwecc_init(struct nand_chip *chip)
+static void __maybe_unused omap_hwecc_init(struct nand_chip *chip)
 {
 	/*
 	 * Init ECC Control Register
@@ -105,7 +115,7 @@ static uint32_t gen_true_ecc(uint8_t *ecc_buf)
  *
  * @return 0 if data is OK or corrected, else returns -1
  */
-static int omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
+static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 				uint8_t *read_ecc, uint8_t *calc_ecc)
 {
 	uint32_t orig_ecc, new_ecc, res, hm;
@@ -171,8 +181,8 @@ static int omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
  *  @dat:	unused
  *  @ecc_code:	ecc_code buffer
  */
-static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
-				uint8_t *ecc_code)
+static int __maybe_unused omap_calculate_ecc(struct mtd_info *mtd,
+		const uint8_t *dat, uint8_t *ecc_code)
 {
 	u_int32_t val;
 
@@ -197,7 +207,7 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
  * @mtd:        MTD device structure
  * @mode:       Read/Write mode
  */
-static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
+static void __maybe_unused omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 {
 	struct nand_chip *chip = mtd->priv;
 	uint32_t val, dev_width = (chip->options & NAND_BUSWIDTH_16) >> 1;
@@ -224,6 +234,7 @@ static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 	}
 }
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * omap_nand_switch_ecc - switch the ECC operation b/w h/w ecc and s/w ecc.
  * The default is to come up on s/w ecc
@@ -280,6 +291,7 @@ void omap_nand_switch_ecc(int32_t hardware)
 
 	nand->options &= ~NAND_OWN_BUFFERS;
 }
+#endif /* CONFIG_SPL_BUILD */
 
 /*
  * Board-specific NAND initialization. The following members of the
@@ -338,7 +350,26 @@ int board_nand_init(struct nand_chip *nand)
 
 	nand->chip_delay = 100;
 	/* Default ECC mode */
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_NAND_SOFTECC)
 	nand->ecc.mode = NAND_ECC_SOFT;
+#else
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.layout = &hw_nand_oob;
+	nand->ecc.size = CONFIG_SYS_NAND_ECCSIZE;
+	nand->ecc.bytes = CONFIG_SYS_NAND_ECCBYTES;
+	nand->ecc.hwctl = omap_enable_hwecc;
+	nand->ecc.correct = omap_correct_data;
+	nand->ecc.calculate = omap_calculate_ecc;
+	omap_hwecc_init(nand);
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+	if (nand->options & NAND_BUSWIDTH_16)
+		nand->read_buf = nand_read_buf16;
+	else
+		nand->read_buf = nand_read_buf;
+	nand->dev_ready = omap_spl_dev_ready;
+#endif
 
 	return 0;
 }

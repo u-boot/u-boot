@@ -25,24 +25,22 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libnet.o
 
-COBJS-$(CONFIG_DRIVER_3C589) += 3c589.o
 COBJS-$(CONFIG_PPC4xx_EMAC) += 4xx_enet.o
 COBJS-$(CONFIG_ALTERA_TSE) += altera_tse.o
+COBJS-$(CONFIG_ARMADA100_FEC) += armada100_fec.o
 COBJS-$(CONFIG_DRIVER_AT91EMAC) += at91_emac.o
 COBJS-$(CONFIG_DRIVER_AX88180) += ax88180.o
-COBJS-$(CONFIG_BCM570x) += bcm570x.o
-COBJS-$(CONFIG_BCM570x) += bcm570x_autoneg.o
-COBJS-$(CONFIG_BCM570x) += 5701rls.o
 COBJS-$(CONFIG_BFIN_MAC) += bfin_mac.o
+COBJS-$(CONFIG_CALXEDA_XGMAC) += calxedaxgmac.o
 COBJS-$(CONFIG_CS8900) += cs8900.o
 COBJS-$(CONFIG_TULIP) += dc2114x.o
 COBJS-$(CONFIG_DESIGNWARE_ETH) += designware.o
 COBJS-$(CONFIG_DRIVER_DM9000) += dm9000x.o
 COBJS-$(CONFIG_DNET) += dnet.o
 COBJS-$(CONFIG_E1000) += e1000.o
+COBJS-$(CONFIG_E1000_SPI) += e1000_spi.o
 COBJS-$(CONFIG_EEPRO100) += eepro100.o
 COBJS-$(CONFIG_ENC28J60) += enc28j60.o
-COBJS-$(CONFIG_ENC28J60_LPC2292) += enc28j60_lpc2292.o
 COBJS-$(CONFIG_EP93XX) += ep93xx_eth.o
 COBJS-$(CONFIG_ETHOC) += ethoc.o
 COBJS-$(CONFIG_FEC_MXC) += fec_mxc.o
@@ -63,27 +61,24 @@ COBJS-$(CONFIG_DRIVER_NE2000) += ne2000.o ne2000_base.o
 COBJS-$(CONFIG_DRIVER_AX88796L) += ax88796.o ne2000_base.o
 COBJS-$(CONFIG_DRIVER_NETARMETH) += netarm_eth.o
 COBJS-$(CONFIG_NETCONSOLE) += netconsole.o
-COBJS-$(CONFIG_DRIVER_NS7520_ETHERNET) += ns7520_eth.o
 COBJS-$(CONFIG_NS8382X) += ns8382x.o
-COBJS-$(CONFIG_DRIVER_NS9750_ETHERNET) += ns9750_eth.o
 COBJS-$(CONFIG_PCNET) += pcnet.o
 COBJS-$(CONFIG_PLB2800_ETHER) += plb2800_eth.o
-COBJS-$(CONFIG_DRIVER_RTL8019) += rtl8019.o
 COBJS-$(CONFIG_RTL8139) += rtl8139.o
 COBJS-$(CONFIG_RTL8169) += rtl8169.o
-COBJS-$(CONFIG_DRIVER_S3C4510_ETH) += s3c4510b_eth.o
 COBJS-$(CONFIG_SH_ETHER) += sh_eth.o
 COBJS-$(CONFIG_SMC91111) += smc91111.o
 COBJS-$(CONFIG_SMC911X) += smc911x.o
-COBJS-$(CONFIG_TIGON3) += tigon3.o
-COBJS-$(CONFIG_TIGON3) += bcm570x_autoneg.o
-COBJS-$(CONFIG_TIGON3) += 5701rls.o
 COBJS-$(CONFIG_DRIVER_TI_EMAC) += davinci_emac.o
-COBJS-$(CONFIG_TSEC_ENET) += tsec.o
+COBJS-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
+COBJS-$(CONFIG_FMAN_ENET) += fsl_mdio.o
 COBJS-$(CONFIG_TSI108_ETH) += tsi108_eth.o
 COBJS-$(CONFIG_ULI526X) += uli526x.o
 COBJS-$(CONFIG_VSC7385_ENET) += vsc7385.o
+COBJS-$(CONFIG_XILINX_AXIEMAC) += xilinx_axi_emac.o
 COBJS-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
+COBJS-$(CONFIG_XILINX_LL_TEMAC) += xilinx_ll_temac.o xilinx_ll_temac_mdio.o \
+		xilinx_ll_temac_fifo.o xilinx_ll_temac_sdma.o
 COBJS-$(CONFIG_ZYNQ_GEM) += zynq_gem.o zynq_gem_bdring.o zynq_gem_control.o \
 			zynq_gem_g.o zynq_gem_sinit.o zynq_gem_wrap.o
 

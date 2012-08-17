@@ -44,7 +44,7 @@
 #ifdef __linux__
 # include <endian.h>
 # include <byteswap.h>
-#elif defined(__MACH__)
+#elif defined(__MACH__) || defined(__FreeBSD__)
 # include <machine/endian.h>
 typedef unsigned long ulong;
 #endif
@@ -111,14 +111,22 @@ typedef unsigned int uint;
 #include <linux/types.h>
 #include <asm/byteorder.h>
 
-/* Types for `void *' pointers. */
-#if __WORDSIZE == 64
-typedef unsigned long int       uintptr_t;
+#if __SIZEOF_LONG__ == 8
+# define __WORDSIZE	64
+#elif __SIZEOF_LONG__ == 4
+# define __WORDSIZE	32
 #else
-typedef unsigned int            uintptr_t;
+/*
+ * Assume 32-bit for now - only newer toolchains support this feature and
+ * this is only required for sandbox support at present.
+ */
+#define __WORDSIZE	32
 #endif
 
-#endif
+/* Type for `void *' pointers. */
+typedef unsigned long int uintptr_t;
+
+#endif /* USE_HOSTCC */
 
 /* compiler options */
 #define uninitialized_var(x)		x = x

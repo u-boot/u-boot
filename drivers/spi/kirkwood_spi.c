@@ -27,6 +27,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/io.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/spi.h>
 #include <asm/arch/mpp.h>
@@ -65,7 +66,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	debug("data = 0x%08x \n", data);
 
 	writel(KWSPI_SMEMRDIRQ, &spireg->irq_cause);
-	writel(KWSPI_IRQMASK, spireg->irq_mask);
+	writel(KWSPI_IRQMASK, &spireg->irq_mask);
 
 	/* program mpp registers to select  SPI_CSn */
 	if (cs) {
@@ -106,6 +107,10 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 }
 #endif
 
+void spi_init(void)
+{
+}
+
 void spi_cs_activate(struct spi_slave *slave)
 {
 	writel(readl(&spireg->ctrl) | KWSPI_IRQUNMASK, &spireg->ctrl);
@@ -122,7 +127,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	unsigned int tmpdout, tmpdin;
 	int tm, isread = 0;
 
-	debug("spi_xfer: slave %u:%u dout %08X din %08X bitlen %u\n",
+	debug("spi_xfer: slave %u:%u dout %p din %p bitlen %u\n",
 	      slave->bus, slave->cs, dout, din, bitlen);
 
 	if (flags & SPI_XFER_BEGIN)
@@ -158,7 +163,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 				isread = 1;
 				tmpdin = readl(&spireg->din);
 				debug
-					("spi_xfer: din %08x..%08x read\n",
+					("spi_xfer: din %p..%08x read\n",
 					din, tmpdin);
 
 				if (din) {

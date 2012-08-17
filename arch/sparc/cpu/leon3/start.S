@@ -28,7 +28,6 @@
 #include <asm/psr.h>
 #include <asm/stack.h>
 #include <asm/leon.h>
-#include <timestamp.h>
 #include <version.h>
 
 /* Entry for traps which jump to a programmer-specified trap handler.  */
@@ -201,9 +200,7 @@ _trap_table:
 	.extern leon3_snooping_avail
 	.globl	version_string
 version_string:
-	.ascii U_BOOT_VERSION
-	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii CONFIG_IDENT_STRING, "\0"
+	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	.section	".text"
 	.align 4

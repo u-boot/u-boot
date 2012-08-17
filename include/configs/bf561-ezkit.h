@@ -11,6 +11,7 @@
 /*
  * Processor Settings
  */
+#define CONFIG_BFIN_CPU             bf561-0.3
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
 
 
@@ -59,7 +60,6 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK	1
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x2C010300
 #define CONFIG_SMC_USE_32_BIT	1
@@ -79,27 +79,10 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	135
 /* The BF561-EZKIT uses a top boot flash */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		0x20004000
-#define CONFIG_ENV_OFFSET	(CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	0x10000
-#if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
-#define ENV_IS_EMBEDDED
-#else
-#define CONFIG_ENV_IS_EMBEDDED_IN_LDR
-#endif
-#ifdef ENV_IS_EMBEDDED
-/* WARNING - the following is hand-optimized to fit within
- * the sector before the environment sector. If it throws
- * an error during compilation remove an object here to get
- * it linked after the configuration sector.
- */
-# define LDS_BOARD_TEXT \
-	arch/blackfin/lib/libblackfin.o (.text*); \
-	arch/blackfin/cpu/libblackfin.o (.text*); \
-	. = DEFINED(env_offset) ? env_offset : .; \
-	common/env_embedded.o (.text*);
-#endif
+#define CONFIG_ENV_OFFSET	(0x800000 - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_SECT_SIZE	0x2000
 
 
 /*

@@ -438,7 +438,7 @@ static inline void r8a66597_read_fifo(struct r8a66597 *r8a66597,
 
 	count = len / 4;
 	for (i = 0; i < count; i++)
-		inl(p[i], r8a66597->reg + offset);
+		p[i] = inl(r8a66597->reg + offset);
 
 	if (len & 0x00000003) {
 		unsigned long tmp = inl(fifoaddr);

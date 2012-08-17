@@ -40,10 +40,10 @@ int board_init(void)
 	writel(0x00000010, &ccnt->cmux_md);
 
 	gd->flags = 0;
-	gd->bd->bi_arch_number = MACH_TYPE_JADECPU;
 	gd->bd->bi_boot_params = PHYS_SDRAM + PHYS_SDRAM_SIZE - 0x10000;
 
 	icache_enable();
+	dcache_enable();
 
 	return 0;
 }
@@ -125,9 +125,6 @@ int board_late_init(void)
 		setenv("preboot", "run gs_slow_boot");
 	} else if ((in_word & 0xC0) != 0) {
 		setenv("stdout", "vga");
-		setenv("gs_bootcmd", "mw.l 0x40000000 0 1024; usb start;"
-			"fatls usb 0; fatload usb 0 0x40000000 mcq5resq.bin;"
-			"bootelf 0x40000000; bootelf 0x10080000");
 		setenv("preboot", "run gs_slow_boot");
 	} else {
 		setenv("stdin", "serial");
@@ -136,7 +133,6 @@ int board_late_init(void)
 		if (getenv("gs_devel")) {
 			setenv("preboot", "run gs_slow_boot");
 		} else {
-			setenv("gs_bootcmd", "bootelf 0x10080000");
 			setenv("preboot", "run gs_fast_boot");
 		}
 	}
@@ -155,7 +151,7 @@ int misc_init_r(void)
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM,
+	gd->ram_size = get_ram_size((void *)PHYS_SDRAM,
 					PHYS_SDRAM_SIZE);
 
 	return 0;

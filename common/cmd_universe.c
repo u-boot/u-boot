@@ -46,7 +46,7 @@ static UNI_DEV   *dev;
 
 int universe_init(void)
 {
-	int j, result, lastError = 0;
+	int j, result;
 	pci_dev_t busdevfn;
 	unsigned int val;
 
@@ -126,8 +126,6 @@ int universe_init(void)
  break_30:
 	free(dev);
  break_20:
-	lastError = result;
-
 	return result;
 }
 

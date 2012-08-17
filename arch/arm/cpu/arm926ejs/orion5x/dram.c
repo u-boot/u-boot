@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Albert ARIBAUD <albert.aribaud@free.fr>
+ * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * Based on original Kirkwood support which is
  * (C) Copyright 2009
@@ -27,7 +27,7 @@
 
 #include <common.h>
 #include <config.h>
-#include <asm/arch/orion5x.h>
+#include <asm/arch/cpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,7 +38,7 @@ u32 orion5x_sdram_bar(enum memory_bank bank)
 {
 	struct orion5x_ddr_addr_decode_registers *winregs =
 		(struct orion5x_ddr_addr_decode_registers *)
-		ORION5X_CPU_WIN_BASE;
+		ORION5X_DRAM_BASE;
 
 	u32 result = 0;
 	u32 enable = 0x01 & winregs[bank].size;
@@ -53,7 +53,7 @@ int dram_init (void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
 	gd->ram_size = get_ram_size(
-			(volatile long *) orion5x_sdram_bar(0),
+			(long *) orion5x_sdram_bar(0),
 			CONFIG_MAX_RAM_BANK_SIZE);
 	return 0;
 }
@@ -65,7 +65,7 @@ void dram_init_banksize (void)
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		gd->bd->bi_dram[i].start = orion5x_sdram_bar(i);
 		gd->bd->bi_dram[i].size = get_ram_size(
-			(volatile long *) (gd->bd->bi_dram[i].start),
+			(long *) (gd->bd->bi_dram[i].start),
 			CONFIG_MAX_RAM_BANK_SIZE);
 	}
 }

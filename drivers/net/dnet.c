@@ -20,6 +20,7 @@
 
 #include <miiphy.h>
 #include <asm/io.h>
+#include <asm/unaligned.h>
 
 #include "dnet.h"
 
@@ -133,14 +134,11 @@ static int dnet_send(struct eth_device *netdev, volatile void *packet,
 		     int length)
 {
 	struct dnet_device *dnet = to_dnet(netdev);
-	int i, len, wrsz;
+	int i, wrsz;
 	unsigned int *bufp;
 	unsigned int tx_cmd;
 
 	debug(DRIVERNAME "[%s] Sending %u bytes\n", __func__, length);
-
-	/* frame size (words) */
-	len = (length + 3) >> 2;
 
 	bufp = (unsigned int *) (((u32)packet) & 0xFFFFFFFC);
 	wrsz = (u32)length + 3;
@@ -206,11 +204,11 @@ static void dnet_set_hwaddr(struct eth_device *netdev)
 	struct dnet_device *dnet = to_dnet(netdev);
 	u16 tmp;
 
-	tmp = cpu_to_be16(*((u16 *)netdev->enetaddr));
+	tmp = get_unaligned_be16(netdev->enetaddr);
 	dnet_writew_mac(dnet, DNET_INTERNAL_MAC_ADDR_0_REG, tmp);
-	tmp = cpu_to_be16(*((u16 *)(netdev->enetaddr + 2)));
+	tmp = get_unaligned_be16(&netdev->enetaddr[2]);
 	dnet_writew_mac(dnet, DNET_INTERNAL_MAC_ADDR_1_REG, tmp);
-	tmp = cpu_to_be16(*((u16 *)(netdev->enetaddr + 4)));
+	tmp = get_unaligned_be16(&netdev->enetaddr[4]);
 	dnet_writew_mac(dnet, DNET_INTERNAL_MAC_ADDR_2_REG, tmp);
 }
 

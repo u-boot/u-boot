@@ -60,8 +60,8 @@
  * do a read-modify-write for partially programmed pages
  */
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_eefc.h>
 #include <asm/arch/at91_dbu.h>
@@ -77,8 +77,8 @@ static u32 pagesize;
 
 unsigned long flash_init (void)
 {
-	at91_eefc_t *eefc = (at91_eefc_t *) 0xfffffa00;
-	at91_dbu_t *dbu = (at91_dbu_t *) 0xfffff200;
+	at91_eefc_t *eefc = (at91_eefc_t *) ATMEL_BASE_EEFC;
+	at91_dbu_t *dbu = (at91_dbu_t *) ATMEL_BASE_DBGU;
 	u32 id, size, nplanes, planesize, nlocks;
 	u32 addr, i, tmp=0;
 
@@ -119,7 +119,7 @@ unsigned long flash_init (void)
 	flash_info[0].sector_count = nlocks;
 	flash_info[0].flash_id = id;
 
-	addr = AT91SAM9XE_FLASH_BASE;
+	addr = ATMEL_BASE_FLASH;
 	for (i=0; i<nlocks; i++) {
 		tmp = readl(&eefc->frr);	/* words 4+nplanes+1.. */
 		flash_info[0].start[i] = addr;
@@ -167,8 +167,8 @@ void flash_print_info (flash_info_t *info)
 
 int flash_real_protect (flash_info_t *info, long sector, int prot)
 {
-	at91_eefc_t *eefc = (at91_eefc_t *) 0xfffffa00;
-	u32 pagenum = (info->start[sector]-AT91SAM9XE_FLASH_BASE)/pagesize;
+	at91_eefc_t *eefc = (at91_eefc_t *) ATMEL_BASE_EEFC;
+	u32 pagenum = (info->start[sector]-ATMEL_BASE_FLASH)/pagesize;
 	u32 i, tmp=0;
 
 	debug("protect sector=%ld prot=%d\n", sector, prot);
@@ -205,7 +205,7 @@ int flash_real_protect (flash_info_t *info, long sector, int prot)
 
 static u32 erase_write_page (u32 pagenum)
 {
-	at91_eefc_t *eefc = (at91_eefc_t *) 0xfffffa00;
+	at91_eefc_t *eefc = (at91_eefc_t *) ATMEL_BASE_EEFC;
 
 	debug("erase+write page=%u\n", pagenum);
 
@@ -249,7 +249,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	}
 
 	/* now start copying data */
-	pagenum = (addr-AT91SAM9XE_FLASH_BASE)/pagesize;
+	pagenum = (addr-ATMEL_BASE_FLASH)/pagesize;
 	src32 = (u32 *) src;
 	dst32 = (u32 *) addr;
 	while (cnt > 0) {

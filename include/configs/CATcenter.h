@@ -114,7 +114,6 @@
 
 #define CONFIG_PPC4xx_EMAC
 #undef CONFIG_EXT_PHY
-#define CONFIG_NET_MULTI	1
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #ifndef	 CONFIG_EXT_PHY

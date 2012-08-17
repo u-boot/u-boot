@@ -247,13 +247,9 @@
  */
 #define CONFIG_CMD_NAND					/* enable NAND support */
 #define CONFIG_JFFS2_NAND				/* with JFFS2 on it */
-
-
 #define CONFIG_NAND_MPC5121_NFC
 #define CONFIG_SYS_NAND_BASE		0x40000000
-
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS			CONFIG_SYS_MAX_NAND_DEVICE
 
 /*
  * Configuration parameters for MPC5121 NAND driver
@@ -398,7 +394,6 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC512x_FEC		1
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR			0x17
 #define CONFIG_MII			1	/* MII PHY management */
 #define CONFIG_FEC_AN_TIMEOUT		1
@@ -537,8 +532,8 @@
 #define CONFIG_TIMESTAMP
 
 #define CONFIG_HOSTNAME			aria
-#define CONFIG_BOOTFILE			aria/uImage
-#define CONFIG_ROOTPATH			/opt/eldk/ppc_6xx
+#define CONFIG_BOOTFILE			"aria/uImage"
+#define CONFIG_ROOTPATH			"/opt/eldk/ppc_6xx"
 
 #define CONFIG_LOADADDR			400000	/* default load addr */
 

@@ -9,13 +9,13 @@ mkimage \- Generate image for U-Boot
 The
 .B mkimage
 command is used to create images for use with the U-Boot boot loader.
-Thes eimages can contain the linux kernel, device tree blob, root file
+These images can contain the linux kernel, device tree blob, root file
 system image, firmware images etc., either separate or combined.
 
 .B mkimage
 supports two different formats:
 
-The old,
+The old
 .I legacy image
 format concatenates the individual parts (for example, kernel image,
 device tree blob and ramdisk image) and adds a 64 bytes header
@@ -23,9 +23,9 @@ containing information about target architecture, operating system,
 image type, compression method, entry points, time stamp, checksums,
 etc.
 
-The new,
+The new
 .I FIT (Flattened Image Tree) format
-allows for more flexibility in handling images of various and also
+allows for more flexibility in handling images of various types and also
 enhances integrity protection of images with stronger checksums.
 
 .SH "OPTIONS"
@@ -82,16 +82,16 @@ Set XIP (execute in place) flag.
 .B Create FIT image:
 
 .TP
-.BI "\-D "dtc option"
+.BI "\-D [" "dtc options" "]"
 Provide special options to the device tree compiler that is used to
 create the image.
 
 .TP
-.BI "\-f "fit-image.its"
-Image tree source fine that descbres the structure and contents of the
+.BI "\-f [" "image tree source file" "]"
+Image tree source file that describes the structure and contents of the
 FIT image.
 
-.SH EXMAPLES
+.SH EXAMPLES
 
 List image information:
 .nf

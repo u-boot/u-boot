@@ -27,9 +27,15 @@
 #include <asm/arch/tegra2.h>
 #include <asm/arch/sys_proto.h>
 
+#include <asm/arch/board.h>
 #include <asm/arch/clk_rst.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart.h>
+#include <spi.h>
+#include <asm/arch/usb.h>
+#include <i2c.h>
+#include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -43,133 +49,14 @@ const struct tegra2_sysinfo sysinfo = {
  */
 int timer_init(void)
 {
-	reset_timer();
 	return 0;
 }
 
-/*
- * Routine: clock_init_uart
- * Description: init the PLL and clock for the UART(s)
- */
-static void clock_init_uart(void)
+void __pin_mux_usb(void)
 {
-	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	static int pllp_init_done;
-	u32 reg;
-
-	if (!pllp_init_done) {
-		/* Override pllp setup for 216MHz operation. */
-		reg = (PLL_BYPASS | PLL_BASE_OVRRIDE | PLL_DIVP);
-		reg |= (((NVRM_PLLP_FIXED_FREQ_KHZ/500) << 8) | PLL_DIVM);
-		writel(reg, &clkrst->crc_pllp_base);
-
-		reg |= PLL_ENABLE;
-		writel(reg, &clkrst->crc_pllp_base);
-
-		reg &= ~PLL_BYPASS;
-		writel(reg, &clkrst->crc_pllp_base);
-
-		pllp_init_done++;
-	}
-
-	/* Now do the UART reset/clock enable */
-#if defined(CONFIG_TEGRA2_ENABLE_UARTA)
-	/* Assert Reset to UART */
-	reg = readl(&clkrst->crc_rst_dev_l);
-	reg |= SWR_UARTA_RST;		/* SWR_UARTA_RST = 1 */
-	writel(reg, &clkrst->crc_rst_dev_l);
-
-	/* Enable clk to UART */
-	reg = readl(&clkrst->crc_clk_out_enb_l);
-	reg |= CLK_ENB_UARTA;		/* CLK_ENB_UARTA = 1 */
-	writel(reg, &clkrst->crc_clk_out_enb_l);
-
-	/* Enable pllp_out0 to UART */
-	reg = readl(&clkrst->crc_clk_src_uarta);
-	reg &= 0x3FFFFFFF;	/* UARTA_CLK_SRC = 00, PLLP_OUT0 */
-	writel(reg, &clkrst->crc_clk_src_uarta);
-
-	/* wait for 2us */
-	udelay(2);
-
-	/* De-assert reset to UART */
-	reg = readl(&clkrst->crc_rst_dev_l);
-	reg &= ~SWR_UARTA_RST;		/* SWR_UARTA_RST = 0 */
-	writel(reg, &clkrst->crc_rst_dev_l);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
-#if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	/* Assert Reset to UART */
-	reg = readl(&clkrst->crc_rst_dev_u);
-	reg |= SWR_UARTD_RST;		/* SWR_UARTD_RST = 1 */
-	writel(reg, &clkrst->crc_rst_dev_u);
-
-	/* Enable clk to UART */
-	reg = readl(&clkrst->crc_clk_out_enb_u);
-	reg |= CLK_ENB_UARTD;		/* CLK_ENB_UARTD = 1 */
-	writel(reg, &clkrst->crc_clk_out_enb_u);
-
-	/* Enable pllp_out0 to UART */
-	reg = readl(&clkrst->crc_clk_src_uartd);
-	reg &= 0x3FFFFFFF;	/* UARTD_CLK_SRC = 00, PLLP_OUT0 */
-	writel(reg, &clkrst->crc_clk_src_uartd);
-
-	/* wait for 2us */
-	udelay(2);
-
-	/* De-assert reset to UART */
-	reg = readl(&clkrst->crc_rst_dev_u);
-	reg &= ~SWR_UARTD_RST;		/* SWR_UARTD_RST = 0 */
-	writel(reg, &clkrst->crc_rst_dev_u);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
 }
 
-/*
- * Routine: pin_mux_uart
- * Description: setup the pin muxes/tristate values for the UART(s)
- */
-static void pin_mux_uart(void)
-{
-	struct pmux_tri_ctlr *pmt = (struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
-	u32 reg;
-
-#if defined(CONFIG_TEGRA2_ENABLE_UARTA)
-	reg = readl(&pmt->pmt_ctl_c);
-	reg &= 0xFFF0FFFF;	/* IRRX_/IRTX_SEL [19:16] = 00 UARTA */
-	writel(reg, &pmt->pmt_ctl_c);
-
-	reg = readl(&pmt->pmt_tri_a);
-	reg &= ~Z_IRRX;		/* Z_IRRX = normal (0) */
-	reg &= ~Z_IRTX;		/* Z_IRTX = normal (0) */
-	writel(reg, &pmt->pmt_tri_a);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
-#if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	reg = readl(&pmt->pmt_ctl_b);
-	reg &= 0xFFFFFFF3;	/* GMC_SEL [3:2] = 00, UARTD */
-	writel(reg, &pmt->pmt_ctl_b);
-
-	reg = readl(&pmt->pmt_tri_a);
-	reg &= ~Z_GMC;		/* Z_GMC = normal (0) */
-	writel(reg, &pmt->pmt_tri_a);
-#endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
-}
-
-/*
- * Routine: clock_init
- * Description: Do individual peripheral clock reset/enables
- */
-void clock_init(void)
-{
-	clock_init_uart();
-}
-
-/*
- * Routine: pinmux_init
- * Description: Do individual peripheral pinmux configs
- */
-void pinmux_init(void)
-{
-	pin_mux_uart();
-}
+void pin_mux_usb(void) __attribute__((weak, alias("__pin_mux_usb")));
 
 /*
  * Routine: board_init
@@ -177,16 +64,44 @@ void pinmux_init(void)
  */
 int board_init(void)
 {
+	/* Do clocks and UART first so that printf() works */
+	clock_init();
+	clock_verify();
+
+#ifdef CONFIG_SPI_UART_SWITCH
+	gpio_config_uart();
+#endif
+#ifdef CONFIG_TEGRA2_SPI
+	spi_init();
+#endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
-	/* board id for Linux */
-	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
+#ifdef CONFIG_TEGRA_I2C
+#ifndef CONFIG_SYS_I2C_INIT_BOARD
+#error "You must define CONFIG_SYS_I2C_INIT_BOARD to use i2c on Nvidia boards"
+#endif
+	i2c_init_board();
+#endif
 
-	/* Initialize peripheral clocks */
-	clock_init();
-
-	/* Initialize periph pinmuxes */
-	pinmux_init();
+#ifdef CONFIG_USB_EHCI_TEGRA
+	pin_mux_usb();
+	board_usb_init(gd->fdt_blob);
+#endif
 
 	return 0;
 }
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+	board_init_uart_f();
+
+	/* Initialize periph GPIOs */
+#ifdef CONFIG_SPI_UART_SWITCH
+	gpio_early_init_uart();
+#else
+	gpio_config_uart();
+#endif
+	return 0;
+}
+#endif	/* EARLY_INIT */

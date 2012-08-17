@@ -406,7 +406,7 @@ static unsigned char same_chip_banks (int bank1, int bank2)
 int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
 	int flag, prot, sect;
-	ulong type, start, last;
+	ulong type, start;
 	int rcode = 0, intel = 0;
 
 	if ((s_first < 0) || (s_first > s_last)) {
@@ -444,7 +444,6 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	}
 
 	start = get_timer (0);
-	last = start;
 
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
@@ -501,6 +500,9 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			printf (" done\n");
 		}
 	}
+	if (flag)
+		enable_interrupts();
+
 	return rcode;
 }
 
@@ -666,7 +668,7 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 {
 	FPWV *addr = (FPWV *) dest;
 	ulong start;
-	int flag;
+	int flag, rc = 0;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
@@ -685,14 +687,18 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 	/* wait while polling the status register */
 	while ((*addr & (FPW) 0x00800080) != (FPW) 0x00800080) {
 		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
-			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
-			return (1);
+			rc = 1;
+			goto OUT;
 		}
 	}
 
-	*addr = (FPW) 0x00FF00FF;	/* restore read mode */
+OUT:
+	*addr = (FPW)0x00FF00FF;	/* restore read mode */
 
-	return (0);
+	if (flag)
+		enable_interrupts();
+
+	return rc;
 }
 
 /*-----------------------------------------------------------------------
@@ -706,7 +712,7 @@ static int write_data_block (flash_info_t * info, ulong src, ulong dest)
 	FPWV *srcaddr = (FPWV *) src;
 	FPWV *dstaddr = (FPWV *) dest;
 	ulong start;
-	int flag, i;
+	int flag, i, rc = 0;
 
 	/* Check if Flash is (sufficiently) erased */
 	for (i = 0; i < WR_BLOCK; i++)
@@ -727,10 +733,10 @@ static int write_data_block (flash_info_t * info, ulong src, ulong dest)
 	start = get_timer (0);
 
 	/* wait while polling the status register */
-	while ((*dstaddr & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
-			*dstaddr = (FPW) 0x00FF00FF;	/* restore read mode */
-			return (1);
+	while ((*dstaddr & (FPW)0x00800080) != (FPW)0x00800080) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
+			rc = 1;
+			goto OUT;
 		}
 	}
 
@@ -752,9 +758,12 @@ static int write_data_block (flash_info_t * info, ulong src, ulong dest)
 		}
 	}
 
-	*dstaddr = (FPW) 0x00FF00FF;	/* restore read mode */
+OUT:
+	*dstaddr = (FPW)0x00FF00FF;	/* restore read mode */
+	if (flag)
+		enable_interrupts();
 
-	return (0);
+	return rc;
 }
 
 /*-----------------------------------------------------------------------

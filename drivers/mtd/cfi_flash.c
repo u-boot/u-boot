@@ -40,6 +40,7 @@
 #include <asm/byteorder.h>
 #include <environment.h>
 #include <mtd/cfi_flash.h>
+#include <watchdog.h>
 
 /*
  * This file implements a Common Flash Interface (CFI) driver for
@@ -573,14 +574,18 @@ static int flash_status_check (flash_info_t * info, flash_sect_t sector,
 #endif
 
 	/* Wait for command completion */
+#ifdef CONFIG_SYS_LOW_RES_TIMER
 	reset_timer();
+#endif
 	start = get_timer (0);
+	WATCHDOG_RESET();
 	while (flash_is_busy (info, sector)) {
 		if (get_timer (start) > tout) {
 			printf ("Flash %s timeout at address %lx data %lx\n",
 				prompt, info->start[sector],
 				flash_read_long (info, sector, 0));
 			flash_write_cmd (info, sector, 0, info->cmd_reset);
+			udelay(1);
 			return ERR_TIMOUT;
 		}
 		udelay (1);		/* also triggers watchdog */
@@ -628,6 +633,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 				puts ("Vpp Low Error.\n");
 		}
 		flash_write_cmd (info, sector, 0, info->cmd_reset);
+		udelay(1);
 		break;
 	default:
 		break;
@@ -660,8 +666,11 @@ static int flash_status_poll(flash_info_t *info, void *src, void *dst,
 #endif
 
 	/* Wait for command completion */
+#ifdef CONFIG_SYS_LOW_RES_TIMER
 	reset_timer();
+#endif
 	start = get_timer(0);
+	WATCHDOG_RESET();
 	while (1) {
 		switch (info->portwidth) {
 		case FLASH_CFI_8BIT:
@@ -864,7 +873,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	void *src = cp;
 	void *dst = (void *)dest;
 	void *dst2 = dst;
-	int flag = 0;
+	int flag = 1;
 	uint offset = 0;
 	unsigned int shift;
 	uchar write_cmd;
@@ -889,7 +898,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 
 	cnt = len >> shift;
 
-	while ((cnt-- > 0) && (flag == 0)) {
+	while ((cnt-- > 0) && (flag == 1)) {
 		switch (info->portwidth) {
 		case FLASH_CFI_8BIT:
 			flag = ((flash_read8(dst2) & flash_read8(src)) ==
@@ -1202,8 +1211,9 @@ void flash_print_info (flash_info_t * info)
 		info->manufacturer_id);
 	printf (info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
 		info->device_id);
-	if (info->device_id == 0x7E) {
-		printf("%04X", info->device_id2);
+	if ((info->device_id & 0xff) == 0x7E) {
+		printf(info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
+		info->device_id2);
 	}
 	printf ("\n  Erase timeout: %ld ms, write timeout: %ld ms\n",
 		info->erase_blk_tout,
@@ -1490,6 +1500,7 @@ void flash_read_user_serial (flash_info_t * info, void *buffer, int offset,
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (dst, src + offset, len);
 	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	udelay(1);
 	flash_unmap(info, 0, FLASH_OFFSET_USER_PROTECTION, src);
 }
 
@@ -1505,6 +1516,7 @@ void flash_read_factory_serial (flash_info_t * info, void *buffer, int offset,
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (buffer, src + offset, len);
 	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	udelay(1);
 	flash_unmap(info, 0, FLASH_OFFSET_INTEL_PROTECTION, src);
 }
 
@@ -1536,6 +1548,7 @@ static void cfi_reverse_geometry(struct cfi_qry *qry)
 static void cmdset_intel_read_jedec_ids(flash_info_t *info)
 {
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
+	udelay(1);
 	flash_write_cmd(info, 0, 0, FLASH_CMD_READ_ID);
 	udelay(1000); /* some flash are slow to respond */
 	info->manufacturer_id = flash_read_uchar (info,
@@ -1599,11 +1612,20 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 	case FLASH_CFI_16BIT:
 		info->device_id = flash_read_word (info,
 						FLASH_OFFSET_DEVICE_ID);
+		if ((info->device_id & 0xff) == 0x7E) {
+			/* AMD 3-byte (expanded) device ids */
+			info->device_id2 = flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID2);
+			info->device_id2 <<= 8;
+			info->device_id2 |= flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID3);
+		}
 		break;
 	default:
 		break;
 	}
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	udelay(1);
 }
 
 static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
@@ -1730,6 +1752,7 @@ void __flash_cmd_reset(flash_info_t *info)
 	 * that AMD flash roms ignore the Intel command.
 	 */
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	udelay(1);
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 }
 void flash_cmd_reset(flash_info_t *info)
@@ -1852,11 +1875,16 @@ static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
 	if (qry->num_erase_regions > 1) {
 		/* reverse geometry if top boot part */
 		if (info->cfi_version < 0x3131) {
-			/* CFI < 1.1, guess by device id (M29W320{DT,ET} only) */
-			if (info->device_id == 0x22CA ||
-			    info->device_id == 0x2256) {
+			/* CFI < 1.1, guess by device id */
+			if (info->device_id == 0x22CA || /* M29W320DT */
+			    info->device_id == 0x2256 || /* M29W320ET */
+			    info->device_id == 0x22D7) { /* M29W800DT */
 				cfi_reverse_geometry(qry);
 			}
+		} else if (flash_read_uchar(info, info->ext_addr + 0xf) == 3) {
+			/* CFI >= 1.1, deduct from top/bottom flag */
+			/* note: ext_addr is valid since cfi_version > 0 */
+			cfi_reverse_geometry(qry);
 		}
 	}
 }
@@ -1929,7 +1957,8 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 
 		/* Do manufacturer-specific fixups */
 		switch (info->manufacturer_id) {
-		case 0x0001:
+		case 0x0001: /* AMD */
+		case 0x0037: /* AMIC */
 			flash_fixup_amd(info, &qry);
 			break;
 		case 0x001f:
@@ -2092,16 +2121,58 @@ static void cfi_flash_set_config_reg(u32 base, u16 val)
 
 /*-----------------------------------------------------------------------
  */
-unsigned long flash_init (void)
+
+void flash_protect_default(void)
 {
-	unsigned long size = 0;
-	int i;
 #if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
+	int i;
 	struct apl_s {
 		ulong start;
 		ulong size;
 	} apl[] = CONFIG_SYS_FLASH_AUTOPROTECT_LIST;
 #endif
+
+	/* Monitor protection ON by default */
+#if (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE) && \
+	(!defined(CONFIG_MONITOR_IS_IN_RAM))
+	flash_protect(FLAG_PROTECT_SET,
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len  - 1,
+		       flash_get_info(CONFIG_SYS_MONITOR_BASE));
+#endif
+
+	/* Environment protection ON by default */
+#ifdef CONFIG_ENV_IS_IN_FLASH
+	flash_protect(FLAG_PROTECT_SET,
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
+		       flash_get_info(CONFIG_ENV_ADDR));
+#endif
+
+	/* Redundant environment protection ON by default */
+#ifdef CONFIG_ENV_ADDR_REDUND
+	flash_protect(FLAG_PROTECT_SET,
+		       CONFIG_ENV_ADDR_REDUND,
+		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
+		       flash_get_info(CONFIG_ENV_ADDR_REDUND));
+#endif
+
+#if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
+	for (i = 0; i < (sizeof(apl) / sizeof(struct apl_s)); i++) {
+		debug("autoprotecting from %08lx to %08lx\n",
+		      apl[i].start, apl[i].start + apl[i].size - 1);
+		flash_protect(FLAG_PROTECT_SET,
+			       apl[i].start,
+			       apl[i].start + apl[i].size - 1,
+			       flash_get_info(apl[i].start));
+	}
+#endif
+}
+
+unsigned long flash_init (void)
+{
+	unsigned long size = 0;
+	int i;
 
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 	/* read environment from EEPROM */
@@ -2178,42 +2249,7 @@ unsigned long flash_init (void)
 #endif /* CONFIG_SYS_FLASH_PROTECTION */
 	}
 
-	/* Monitor protection ON by default */
-#if (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE) && \
-	(!defined(CONFIG_MONITOR_IS_IN_RAM))
-	flash_protect (FLAG_PROTECT_SET,
-		       CONFIG_SYS_MONITOR_BASE,
-		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len  - 1,
-		       flash_get_info(CONFIG_SYS_MONITOR_BASE));
-#endif
-
-	/* Environment protection ON by default */
-#ifdef CONFIG_ENV_IS_IN_FLASH
-	flash_protect (FLAG_PROTECT_SET,
-		       CONFIG_ENV_ADDR,
-		       CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
-		       flash_get_info(CONFIG_ENV_ADDR));
-#endif
-
-	/* Redundant environment protection ON by default */
-#ifdef CONFIG_ENV_ADDR_REDUND
-	flash_protect (FLAG_PROTECT_SET,
-		       CONFIG_ENV_ADDR_REDUND,
-		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
-		       flash_get_info(CONFIG_ENV_ADDR_REDUND));
-#endif
-
-#if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
-	for (i = 0; i < (sizeof(apl) / sizeof(struct apl_s)); i++) {
-		debug("autoprotecting from %08x to %08x\n",
-		      apl[i].start, apl[i].start + apl[i].size - 1);
-		flash_protect (FLAG_PROTECT_SET,
-			       apl[i].start,
-			       apl[i].start + apl[i].size - 1,
-			       flash_get_info(apl[i].start));
-	}
-#endif
-
+	flash_protect_default();
 #ifdef CONFIG_FLASH_CFI_MTD
 	cfi_mtd_init();
 #endif

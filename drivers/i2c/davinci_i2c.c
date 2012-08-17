@@ -78,13 +78,11 @@ static int poll_i2c_irq(int mask)
 
 void flush_rx(void)
 {
-	int	dummy;
-
 	while (1) {
 		if (!(REG(I2C_STAT) & I2C_STAT_RRDY))
 			break;
 
-		dummy = REG(I2C_DRR);
+		REG(I2C_DRR);
 		REG(I2C_STAT) = I2C_STAT_RRDY;
 		udelay(1000);
 	}
@@ -119,6 +117,11 @@ void i2c_init(int speed, int slaveadd)
 	udelay(1000);
 }
 
+int i2c_set_bus_speed(unsigned int speed)
+{
+	i2c_init(speed, CONFIG_SYS_I2C_SLAVE);
+	return 0;
+}
 
 int i2c_probe(u_int8_t chip)
 {

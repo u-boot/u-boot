@@ -59,4 +59,8 @@ typedef struct bd_info {
 } bd_t;
 
 #endif				/* __ASSEMBLY__ */
+
+/* For image.h:image_check_target_arch() */
+#define IH_ARCH_DEFAULT IH_ARCH_SPARC
+
 #endif				/* __U_BOOT_H__ */

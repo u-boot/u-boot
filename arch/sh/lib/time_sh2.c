@@ -54,7 +54,7 @@ int timer_init(void)
 
 	/* User Device 0 only */
 	cmt_timer_stop(0);
-	set_timer(CMT_TIMER_RESET);
+	writew(CMT_TIMER_RESET, CMCOR_0);
 	cmt_timer_start(0);
 
 	return 0;
@@ -88,19 +88,6 @@ static unsigned long get_usec (void)
 ulong get_timer(ulong base)
 {
 	return (get_usec() / 1000) - base;
-}
-
-void set_timer(ulong t)
-{
-	writew((u16) t, CMCOR_0);
-}
-
-void reset_timer(void)
-{
-	cmt_timer_stop(0);
-	set_timer(CMT_TIMER_RESET);
-	cmt0_timer = 0;
-	cmt_timer_start(0);
 }
 
 void __udelay(unsigned long usec)

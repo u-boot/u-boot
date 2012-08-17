@@ -23,19 +23,31 @@
 
 #########################################################################
 
-ifneq ($(OBJTREE),$(SRCTREE))
 ifeq ($(CURDIR),$(SRCTREE))
 dir :=
 else
 dir := $(subst $(SRCTREE)/,,$(CURDIR))
 endif
 
+ifneq ($(OBJTREE),$(SRCTREE))
+# Create object files for SPL in a separate directory
+ifeq ($(CONFIG_SPL_BUILD),y)
+obj := $(if $(dir),$(SPLTREE)/$(dir)/,$(SPLTREE)/)
+else
 obj := $(if $(dir),$(OBJTREE)/$(dir)/,$(OBJTREE)/)
+endif
 src := $(if $(dir),$(SRCTREE)/$(dir)/,$(SRCTREE)/)
 
 $(shell mkdir -p $(obj))
 else
+# Create object files for SPL in a separate directory
+ifeq ($(CONFIG_SPL_BUILD),y)
+obj := $(if $(dir),$(SPLTREE)/$(dir)/,$(SPLTREE)/)
+
+$(shell mkdir -p $(obj))
+else
 obj :=
+endif
 src :=
 endif
 
@@ -95,8 +107,23 @@ HOSTCFLAGS	+= -pedantic
 # Option checker (courtesy linux kernel) to ensure
 # only supported compiler options are used
 #
-cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-		> /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+CC_OPTIONS_CACHE_FILE := $(OBJTREE)/include/generated/cc_options.mk
+CC_TEST_OFILE := $(OBJTREE)/include/generated/cc_test_file.o
+
+-include $(CC_OPTIONS_CACHE_FILE)
+
+cc-option-sys = $(shell mkdir -p $(dir $(CC_TEST_OFILE)); \
+		if $(CC) $(CFLAGS) $(1) -S -xc /dev/null -o $(CC_TEST_OFILE) \
+		> /dev/null 2>&1; then \
+		echo 'CC_OPTIONS += $(strip $1)' >> $(CC_OPTIONS_CACHE_FILE); \
+		echo "$(1)"; fi)
+
+ifeq ($(CONFIG_CC_OPT_CACHE_DISABLE),y)
+cc-option = $(strip $(if $(call cc-option-sys,$1),$1,$2))
+else
+cc-option = $(strip $(if $(findstring $1,$(CC_OPTIONS)),$1,\
+		$(if $(call cc-option-sys,$1),$1,$2)))
+endif
 
 #
 # Include the make variables (CC, etc...)
@@ -112,6 +139,7 @@ STRIP	= $(CROSS_COMPILE)strip
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 RANLIB	= $(CROSS_COMPILE)RANLIB
+DTC	= dtc
 
 #########################################################################
 
@@ -145,30 +173,36 @@ endif
 
 #########################################################################
 
-ifneq (,$(findstring s,$(MAKEFLAGS)))
-ARFLAGS = cr
-else
-ARFLAGS = crv
-endif
+# We don't actually use $(ARFLAGS) anywhere anymore, so catch people
+# who are porting old code to latest mainline but not updating $(AR).
+ARFLAGS = $(error update your Makefile to use cmd_link_o_target and not AR)
 RELFLAGS= $(PLATFORM_RELFLAGS)
 DBGFLAGS= -g # -DDEBUG
 OPTFLAGS= -Os #-fomit-frame-pointer
-ifndef LDSCRIPT
-#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
-ifeq ($(CONFIG_NAND_U_BOOT),y)
-LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
-else
-LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
-endif
-endif
+
 OBJCFLAGS += --gap-fill=0xff
 
 gccincdir := $(shell $(CC) -print-file-name=include)
 
 CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
 	-D__KERNEL__
+
+# Enable garbage collection of un-used sections for SPL
+ifeq ($(CONFIG_SPL_BUILD),y)
+CPPFLAGS += -ffunction-sections -fdata-sections
+LDFLAGS_FINAL += --gc-sections
+endif
+
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
+endif
+
+ifneq ($(CONFIG_SPL_TEXT_BASE),)
+CPPFLAGS += -DCONFIG_SPL_TEXT_BASE=$(CONFIG_SPL_TEXT_BASE)
+endif
+
+ifeq ($(CONFIG_SPL_BUILD),y)
+CPPFLAGS += -DCONFIG_SPL_BUILD
 endif
 
 ifneq ($(RESET_VECTOR_ADDRESS),)
@@ -195,7 +229,17 @@ endif
 
 CFLAGS += -mno-unaligned-access
 
-CFLAGS += $(call cc-option,-fno-stack-protector)
+CFLAGS_SSP := $(call cc-option,-fno-stack-protector)
+CFLAGS += $(CFLAGS_SSP)
+# Some toolchains enable security related warning flags by default,
+# but they don't make much sense in the u-boot world, so disable them.
+CFLAGS_WARN := $(call cc-option,-Wno-format-nonliteral) \
+	       $(call cc-option,-Wno-format-security)
+CFLAGS += $(CFLAGS_WARN)
+
+# Report stack usage if supported
+CFLAGS_STACK := $(call cc-option,-fstack-usage)
+CFLAGS += $(CFLAGS_STACK)
 
 # $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
@@ -216,6 +260,11 @@ LDFLAGS_FINAL += -Bstatic
 LDFLAGS_u-boot += -T $(obj)u-boot.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
+endif
+
+LDFLAGS_u-boot-spl += -T $(obj)u-boot-spl.lds $(LDFLAGS_FINAL)
+ifneq ($(CONFIG_SPL_TEXT_BASE),)
+LDFLAGS_u-boot-spl += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 
 # Location of a usable BFD library, where we define "usable" as
@@ -253,6 +302,13 @@ export	CONFIG_SYS_TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS 
 BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
 ALL_AFLAGS = $(AFLAGS) $(AFLAGS_$(BCURDIR)/$(@F)) $(AFLAGS_$(BCURDIR))
 ALL_CFLAGS = $(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR))
+EXTRA_CPPFLAGS = $(CPPFLAGS_$(BCURDIR)/$(@F)) $(CPPFLAGS_$(BCURDIR))
+ALL_CFLAGS += $(EXTRA_CPPFLAGS)
+
+# The _DEP version uses the $< file target (for dependency generation)
+# See rules.mk
+EXTRA_CPPFLAGS_DEP = $(CPPFLAGS_$(BCURDIR)/$(addsuffix .o,$(basename $<))) \
+		$(CPPFLAGS_$(BCURDIR))
 $(obj)%.s:	%.S
 	$(CPP) $(ALL_AFLAGS) -o $@ $<
 $(obj)%.o:	%.S

@@ -29,12 +29,11 @@
 extern void imx_gpio_mode (int gpio_mode);
 
 #ifdef CONFIG_MXC_UART
-extern void mx27_uart_init_pins(void);
+extern void mx27_uart1_init_pins(void);
 #endif /* CONFIG_MXC_UART */
 
 #ifdef CONFIG_FEC_MXC
 extern void mx27_fec_init_pins(void);
-extern void imx_get_mac_from_fuse(unsigned char *mac);
 #endif /* CONFIG_FEC_MXC */
 
 #ifdef CONFIG_MXC_MMC
@@ -225,10 +224,10 @@ struct fuse_bank0_regs {
 #define IMX_TIM1_BASE		(0x03000 + IMX_IO_BASE)
 #define IMX_TIM2_BASE		(0x04000 + IMX_IO_BASE)
 #define IMX_TIM3_BASE		(0x05000 + IMX_IO_BASE)
-#define IMX_UART1_BASE		(0x0a000 + IMX_IO_BASE)
-#define IMX_UART2_BASE		(0x0b000 + IMX_IO_BASE)
-#define IMX_UART3_BASE		(0x0c000 + IMX_IO_BASE)
-#define IMX_UART4_BASE		(0x0d000 + IMX_IO_BASE)
+#define UART1_BASE		(0x0a000 + IMX_IO_BASE)
+#define UART2_BASE		(0x0b000 + IMX_IO_BASE)
+#define UART3_BASE		(0x0c000 + IMX_IO_BASE)
+#define UART4_BASE		(0x0d000 + IMX_IO_BASE)
 #define IMX_I2C1_BASE		(0x12000 + IMX_IO_BASE)
 #define IMX_GPIO_BASE		(0x15000 + IMX_IO_BASE)
 #define IMX_TIM4_BASE		(0x19000 + IMX_IO_BASE)

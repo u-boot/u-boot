@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop@leadtechdesign.com>
+ * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  * Ilko Iliev <www.ronetix.at>
  *
@@ -28,25 +28,32 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/*
+ * SoC must be defined first, before hardware.h is included.
+ * In this case SoC is defined in boards.cfg.
+ */
+
+#include <asm/hardware.h>
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9261"
 
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define MASTER_PLL_DIV		15
 #define MASTER_PLL_MUL		162
 #define MAIN_PLL_DIV		2
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
 
 #define CONFIG_SYS_HZ		1000
 
-#define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
-#define CONFIG_AT91SAM9261	1	/* It's an Atmel AT91SAM9261 SoC*/
+#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9261"
 #define CONFIG_PM9261		1	/* on a Ronetix PM9261 Board	*/
 #define CONFIG_ARCH_CPU_INIT
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 #define CONFIG_SYS_TEXT_BASE	0
-#define CONFIG_AT91FAMILY
+
+#define MACH_TYPE_PM9261	1187
+#define CONFIG_MACH_TYPE	MACH_TYPE_PM9261
 
 /* clocks */
 /* CKGR_MOR - enable main osc. */
@@ -154,16 +161,15 @@
 #define CONFIG_INITRD_TAG	1
 
 #undef CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /*
  * Hardware drivers
  */
 #define CONFIG_AT91_GPIO	1
 #define CONFIG_ATMEL_USART	1
-#undef CONFIG_USART0
-#undef CONFIG_USART1
-#undef CONFIG_USART2
-#define CONFIG_USART3		1	/* USART 3 is DBGU */
+#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
+#define	CONFIG_USART_ID			ATMEL_ID_SYS
 
 /* LCD */
 #define CONFIG_LCD			1
@@ -227,7 +233,6 @@
 
 /* NAND flash */
 #define CONFIG_NAND_ATMEL
-#define NAND_MAX_CHIPS				1
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			0x40000000
 #define CONFIG_SYS_NAND_DBW_8			1
@@ -254,7 +259,6 @@
 #define CONFIG_DM9000_USE_16BIT			1
 #define CONFIG_NET_RETRY_COUNT			20
 #define CONFIG_RESET_PHY_R			1
-#define CONFIG_NET_MULTI
 
 /* USB */
 #define CONFIG_USB_ATMEL

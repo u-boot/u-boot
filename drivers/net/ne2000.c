@@ -78,7 +78,6 @@ Add SNMP
 /* NE2000 base header file */
 #include "ne2000_base.h"
 
-#define mdelay(n) udelay((n)*1000)
 /* find prom (taken from pc_net_cs.c from Linux) */
 
 #include "8390.h"

@@ -104,7 +104,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	      (ulong) kernel);
 
-	show_boot_progress (15);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	/*
 	 * Linux Kernel Parameters (passing board info data):

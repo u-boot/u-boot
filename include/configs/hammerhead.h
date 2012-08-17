@@ -24,10 +24,10 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_AVR32			1
-#define CONFIG_AT32AP			1
-#define CONFIG_AT32AP7000		1
-#define CONFIG_HAMMERHEAD		1
+#define CONFIG_AVR32
+#define CONFIG_AT32AP
+#define CONFIG_AT32AP7000
+#define CONFIG_HAMMERHEAD
 
 #define CONFIG_SYS_HZ				1000
 
@@ -36,8 +36,8 @@
  * frequency, the HSB and PBB busses to run at 1/2 the PLL frequency
  * and the PBA bus to run at 1/4 the PLL frequency.
  */
-#define CONFIG_PLL			1
-#define CONFIG_SYS_POWER_MANAGER		1
+#define CONFIG_PLL
+#define CONFIG_SYS_POWER_MANAGER
 #define CONFIG_SYS_OSC0_HZ			25000000
 #define CONFIG_SYS_PLL0_DIV			1
 #define CONFIG_SYS_PLL0_MUL			5
@@ -59,16 +59,17 @@
  */
 #define CONFIG_SYS_PLL0_OPT			0x04
 
-#define CONFIG_USART1			1
+#define CONFIG_USART_BASE			ATMEL_BASE_USART1
+#define CONFIG_USART_ID				1
 
 #define CONFIG_HOSTNAME			hammerhead
 
 /* User serviceable stuff */
-#define CONFIG_DOS_PARTITION		1
+#define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMDLINE_TAG		1
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
 
 #define CONFIG_STACKSIZE		(2048)
 
@@ -83,8 +84,8 @@
  * data on the serial line may interrupt the boot sequence.
  */
 #define CONFIG_BOOTDELAY		1
-#define CONFIG_AUTOBOOT			1
-#define CONFIG_AUTOBOOT_KEYED		1
+#define CONFIG_AUTOBOOT
+#define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT				\
 	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
 #define CONFIG_AUTOBOOT_DELAY_STR	"d"
@@ -95,8 +96,7 @@
  * should be generated and assigned to the environment variables
  * "ethaddr". This is normally done during production.
  */
-#define CONFIG_OVERWRITE_ETHADDR_ONCE	1
-#define CONFIG_NET_MULTI		1
+#define CONFIG_OVERWRITE_ETHADDR_ONCE
 
 /*
  * BOOTP/DHCP options
@@ -118,21 +118,23 @@
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_SETGETDCR
 
-#define CONFIG_ATMEL_USART		1
-#define CONFIG_MACB			1
-#define CONFIG_PORTMUX_PIO		1
+#define CONFIG_ATMEL_USART
+#define CONFIG_MACB
+#define CONFIG_PORTMUX_PIO
 #define CONFIG_SYS_NR_PIOS			5
-#define CONFIG_SYS_HSDRAMC			1
-#define CONFIG_MMC			1
-#define CONFIG_ATMEL_MCI		1
+#define CONFIG_SYS_HSDRAMC
+#define CONFIG_MMC
+#define CONFIG_GENERIC_ATMEL_MCI
+#define CONFIG_GENERIC_MMC
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
 
 #define CONFIG_SYS_DCACHE_LINESZ		32
 #define CONFIG_SYS_ICACHE_LINESZ		32
 
 #define CONFIG_NR_DRAM_BANKS		1
 
-#define CONFIG_SYS_FLASH_CFI			1
-#define CONFIG_FLASH_CFI_DRIVER		1
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
 
 #define CONFIG_SYS_FLASH_BASE			0x00000000
 #define CONFIG_SYS_FLASH_SIZE			0x800000
@@ -140,13 +142,14 @@
 #define CONFIG_SYS_MAX_FLASH_SECT		135
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_TEXT_BASE		0x00000000
 
 #define CONFIG_SYS_INTRAM_BASE			0x24000000
 #define CONFIG_SYS_INTRAM_SIZE			0x8000
 
 #define CONFIG_SYS_SDRAM_BASE			0x10000000
 
-#define CONFIG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SIZE			65536
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_SIZE - CONFIG_ENV_SIZE)
 
@@ -165,7 +168,7 @@
 #define CONFIG_SYS_CBSIZE			256
 #define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_LONGHELP			1
+#define CONFIG_SYS_LONGHELP
 
 #define CONFIG_SYS_MEMTEST_START		CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END			(CONFIG_SYS_MEMTEST_START + 0x1f00000)

@@ -92,13 +92,10 @@
 #include <asm/ppc4xx-mal.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <linux/compiler.h>
 
 #if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
-#endif
-
-#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_NET_MULTI)
-#error "CONFIG_NET_MULTI has to be defined for NetConsole"
 #endif
 
 #define EMAC_RESET_TIMEOUT 1000 /* 1000 ms reset timeout */
@@ -876,7 +873,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
-	int ethgroup = -1;
+	__maybe_unused int ethgroup = -1;
 #endif
 #endif
 	u32 bd_cached;
@@ -1353,7 +1350,7 @@ get_speed:
 		hw_p->rx_phys = bd_cached + MAL_TX_DESC_SIZE;
 		hw_p->tx = (mal_desc_t *)(bd_uncached);
 		hw_p->rx = (mal_desc_t *)(bd_uncached + MAL_TX_DESC_SIZE);
-		debug("hw_p->tx=%08x, hw_p->rx=%08x\n", hw_p->tx, hw_p->rx);
+		debug("hw_p->tx=%p, hw_p->rx=%p\n", hw_p->tx, hw_p->rx);
 	}
 
 	for (i = 0; i < NUM_TX_BUFF; i++) {
@@ -1366,7 +1363,7 @@ get_speed:
 		if ((NUM_TX_BUFF - 1) == i)
 			hw_p->tx[i].ctrl |= MAL_TX_CTRL_WRAP;
 		hw_p->tx_run[i] = -1;
-		debug("TX_BUFF %d @ 0x%08lx\n", i, (u32)hw_p->tx[i].data_ptr);
+		debug("TX_BUFF %d @ 0x%08x\n", i, (u32)hw_p->tx[i].data_ptr);
 	}
 
 	for (i = 0; i < NUM_RX_BUFF; i++) {
@@ -1377,7 +1374,7 @@ get_speed:
 			hw_p->rx[i].ctrl |= MAL_RX_CTRL_WRAP;
 		hw_p->rx[i].ctrl |= MAL_RX_CTRL_EMPTY | MAL_RX_CTRL_INTR;
 		hw_p->rx_ready[i] = -1;
-		debug("RX_BUFF %d @ 0x%08lx\n", i, (u32)hw_p->rx[i].data_ptr);
+		debug("RX_BUFF %d @ 0x%08x\n", i, (u32)hw_p->rx[i].data_ptr);
 	}
 
 	reg = 0x00000000;
@@ -1704,7 +1701,7 @@ int enetInt (struct eth_device *dev)
 			rc = 0;
 		}
 
-		/* handle MAL RX EOB interupt from a receive */
+		/* handle MAL RX EOB interrupt from a receive */
 		/* check for EOB on valid channels	     */
 		if (uic_mal & UIC_MAL_RXEOB) {
 			mal_eob = mfdcr(MAL0_RXEOBISR);
@@ -1773,7 +1770,6 @@ static void emac_err (struct eth_device *dev, unsigned long isr)
  *-----------------------------------------------------------------------------*/
 static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 {
-	struct enet_frame *ef_ptr;
 	unsigned long data_len;
 	unsigned long rx_eob_isr;
 	EMAC_4XX_HW_PST hw_p = dev->priv;
@@ -1832,8 +1828,6 @@ static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 			} else {
 				hw_p->stats.rx_frames++;
 				hw_p->stats.rx += data_len;
-				ef_ptr = (struct enet_frame *) hw_p->rx[i].
-					data_ptr;
 #ifdef INFO_4XX_ENET
 				hw_p->stats.pkts_rx++;
 #endif
@@ -2035,6 +2029,13 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 		dev->send = ppc_4xx_eth_send;
 		dev->recv = ppc_4xx_eth_rx;
 
+		eth_register(dev);
+
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
+		miiphy_register(dev->name,
+				emac4xx_miiphy_read, emac4xx_miiphy_write);
+#endif
+
 		if (0 == virgin) {
 			/* set the MAL IER ??? names may change with new spec ??? */
 #if defined(CONFIG_440SPE) || \
@@ -2072,13 +2073,6 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 					     dev);
 			virgin = 1;
 		}
-
-		eth_register (dev);
-
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-		miiphy_register (dev->name,
-				 emac4xx_miiphy_read, emac4xx_miiphy_write);
-#endif
 	}			/* end for each supported device */
 
 	return 0;

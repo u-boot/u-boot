@@ -33,22 +33,15 @@
 /* Maximum Long File Name length supported here is 128 UTF-16 code units */
 #define VFAT_MAXLEN_BYTES	256 /* Maximum LFN buffer in bytes */
 #define VFAT_MAXSEQ		9   /* Up to 9 of 13 2-byte UTF-16 entries */
-#define LINEAR_PREFETCH_SIZE	(SECTOR_SIZE*2) /* Prefetch buffer size */
-
-#define SECTOR_SIZE FS_BLOCK_SIZE
-
-#define FS_BLOCK_SIZE	512
-
-#if FS_BLOCK_SIZE != SECTOR_SIZE
-#error FS_BLOCK_SIZE != SECTOR_SIZE - This code needs to be fixed!
-#endif
+#define PREFETCH_BLOCKS		2
 
 #define MAX_CLUSTSIZE	65536
-#define DIRENTSPERBLOCK	(FS_BLOCK_SIZE/sizeof(dir_entry))
-#define DIRENTSPERCLUST	((mydata->clust_size*SECTOR_SIZE)/sizeof(dir_entry))
+#define DIRENTSPERBLOCK	(mydata->sect_size / sizeof(dir_entry))
+#define DIRENTSPERCLUST	((mydata->clust_size * mydata->sect_size) / \
+			 sizeof(dir_entry))
 
 #define FATBUFBLOCKS	6
-#define FATBUFSIZE	(FS_BLOCK_SIZE*FATBUFBLOCKS)
+#define FATBUFSIZE	(mydata->sect_size * FATBUFBLOCKS)
 #define FAT12BUFSIZE	((FATBUFSIZE*2)/3)
 #define FAT16BUFSIZE	(FATBUFSIZE/2)
 #define FAT32BUFSIZE	(FATBUFSIZE/4)
@@ -106,6 +99,8 @@
 #endif
 
 #define TOLOWER(c)	if((c) >= 'A' && (c) <= 'Z'){(c)+=('a' - 'A');}
+#define TOUPPER(c)	if ((c) >= 'a' && (c) <= 'z') \
+				(c) -= ('a' - 'A');
 #define START(dent)	(FAT2CPU16((dent)->start) \
 			+ (mydata->fatsize != 32 ? 0 : \
 			  (FAT2CPU16((dent)->starthi) << 16)))
@@ -181,11 +176,12 @@ typedef struct dir_slot {
  * (see FAT32 accesses)
  */
 typedef struct {
-	__u8	fatbuf[FATBUFSIZE]; /* Current FAT buffer */
+	__u8	*fatbuf;	/* Current FAT buffer */
 	int	fatsize;	/* Size of FAT in bits */
 	__u16	fatlength;	/* Length of FAT in sectors */
 	__u16	fat_sect;	/* Starting sector of the FAT */
 	__u16	rootdir_sect;	/* Start sector of root directory */
+	__u16	sect_size;	/* Size of sectors in bytes */
 	__u16	clust_size;	/* Size of clusters in sectors */
 	short	data_begin;	/* The sector of the first cluster, can be negative */
 	int	fatbufnum;	/* Used by get_fatent, init to -1 */
@@ -216,4 +212,5 @@ long file_fat_read(const char *filename, void *buffer, unsigned long maxsize);
 const char *file_getfsname(int idx);
 int fat_register_device(block_dev_desc_t *dev_desc, int part_no);
 
+int file_fat_write(const char *filename, void *buffer, unsigned long maxsize);
 #endif /* _FAT_H_ */

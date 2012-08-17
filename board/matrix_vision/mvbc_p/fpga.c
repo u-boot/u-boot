@@ -160,7 +160,7 @@ static inline int _write_fpga(u8 val)
 	return 0;
 }
 
-int fpga_wr_fn(void *buf, size_t len, int flush, int cookie)
+int fpga_wr_fn(const void *buf, size_t len, int flush, int cookie)
 {
 	unsigned char *data = (unsigned char *) buf;
 	int i;

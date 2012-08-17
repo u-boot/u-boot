@@ -31,7 +31,7 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS-y	:= $(BOARD).o
 COBJS-$(CONFIG_BFIN_IDE)   += ide-cf.o
-COBJS-$(CONFIG_HAS_POST)   += post.o post-memory.o
+COBJS-$(CONFIG_HAS_POST)   += post-memory.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
@@ -39,12 +39,6 @@ SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

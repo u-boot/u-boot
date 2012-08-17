@@ -81,7 +81,6 @@ RTC_DEBUG		-- define to show RTC debug message
 CONFIG_CMD_DATE		-- enable to use date feature in u-boot
 
 CONFIG_MCFFEC		-- define to use common CF FEC driver
-CONFIG_NET_MULTI	-- define to use multi FEC in u-boot
 CONFIG_MII		-- enable to use MII driver
 CONFIG_CF_DOMII		-- enable to use MII feature in cmd_mii.c
 CONFIG_SYS_DISCOVER_PHY	-- enable PHY discovery

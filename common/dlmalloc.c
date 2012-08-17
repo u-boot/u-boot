@@ -286,13 +286,6 @@ extern "C" {
 
 */
 
-#ifdef DEBUG
-#include <assert.h>
-#else
-#define assert(x) ((void)0)
-#endif
-
-
 /*
   INTERNAL_SIZE_T is the word-size used for internal bookkeeping
   of chunk sizes. On a 64-bit machine, you can reduce malloc
@@ -1654,9 +1647,7 @@ static void do_check_chunk(mchunkptr p)
 static void do_check_chunk(p) mchunkptr p;
 #endif
 {
-#if 0	/* causes warnings because assert() is off */
   INTERNAL_SIZE_T sz = p->size & ~PREV_INUSE;
-#endif	/* 0 */
 
   /* No checkable chunk is mmapped */
   assert(!chunk_is_mmapped(p));
@@ -1678,9 +1669,7 @@ static void do_check_free_chunk(p) mchunkptr p;
 #endif
 {
   INTERNAL_SIZE_T sz = p->size & ~PREV_INUSE;
-#if 0	/* causes warnings because assert() is off */
   mchunkptr next = chunk_at_offset(p, sz);
-#endif	/* 0 */
 
   do_check_chunk(p);
 
@@ -1744,10 +1733,8 @@ static void do_check_malloced_chunk(mchunkptr p, INTERNAL_SIZE_T s)
 static void do_check_malloced_chunk(p, s) mchunkptr p; INTERNAL_SIZE_T s;
 #endif
 {
-#if 0	/* causes warnings because assert() is off */
   INTERNAL_SIZE_T sz = p->size & ~PREV_INUSE;
   long room = sz - s;
-#endif	/* 0 */
 
   do_check_inuse_chunk(p);
 

@@ -34,6 +34,7 @@
 #include <common.h>
 #include <commproc.h>
 #include <mpc8xx.h>
+#include <asm/io.h>
 
 /*****************************************************************************
  * UPM table for 60ns EDO RAM at 25 MHz bus/external clock
@@ -87,7 +88,7 @@ phys_size_t initdram (int board_type)
 	 */
 	if ((ulong) initdram & 0xff000000) {
 		volatile uint *addr1, *addr2;
-		uint i, j;
+		uint i;
 
 		upmconfig (UPMA, (uint *) edo_60ns_25MHz_tbl,
 			   sizeof (edo_60ns_25MHz_tbl) / sizeof (uint));
@@ -100,8 +101,8 @@ phys_size_t initdram (int board_type)
 		 */
 		addr1 = (volatile uint *) 0;
 		addr2 = (volatile uint *) 0x00400000;
-		for (i = 0, j = 0; i < 8; i++)
-			j = addr1[0];
+		for (i = 0; i < 8; i++)
+			in_be32(addr1);
 
 		/*
 		 * Now check whether we got 4MB or 16MB populated

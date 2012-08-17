@@ -68,6 +68,7 @@ extern dpll_param *get_mpu_dpll_param(void);
 extern dpll_param *get_iva_dpll_param(void);
 extern dpll_param *get_core_dpll_param(void);
 extern dpll_param *get_per_dpll_param(void);
+extern dpll_param *get_per2_dpll_param(void);
 
 extern dpll_param *get_36x_mpu_dpll_param(void);
 extern dpll_param *get_36x_iva_dpll_param(void);

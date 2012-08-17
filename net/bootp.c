@@ -17,6 +17,7 @@
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
+#include <linux/compiler.h>
 
 #define BOOTP_VENDOR_MAGIC	0x63825363	/* RFC1048 Magic Cookie		*/
 
@@ -44,7 +45,8 @@ ulong		seed1, seed2;
 dhcp_state_t dhcp_state = INIT;
 unsigned long dhcp_leasetime = 0;
 IPaddr_t NetDHCPServerIP = 0;
-static void DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len);
+static void DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+			unsigned len);
 
 /* For Debug */
 #if 0
@@ -104,7 +106,7 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
  */
 static void BootpCopyNetParams(Bootp_t *bp)
 {
-	IPaddr_t tmp_ip;
+	__maybe_unused IPaddr_t tmp_ip;
 
 	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
 #if !defined(CONFIG_BOOTP_SERVERIP)
@@ -227,6 +229,11 @@ static void BootpVendorFieldProcess (u8 * ext)
 			NetOurNISDomain[size] = 0;
 		}
 		break;
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
+	case 42:	/* NTP server IP */
+		NetCopyIP(&NetNtpServerIP, (IPaddr_t *) (ext + 2));
+		break;
+#endif
 		/* Application layer fields */
 	case 43:		/* Vendor specific info - Not yet supported	*/
 		/*
@@ -277,15 +284,21 @@ static void BootpVendorProcess (u8 * ext, int size)
 
 	if (NetBootFileSize)
 		debug("NetBootFileSize: %d\n", NetBootFileSize);
+
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
+	if (NetNtpServerIP)
+		debug("NetNtpServerIP : %pI4\n", &NetNtpServerIP);
+#endif
 }
+
 /*
  *	Handle a BOOTP received packet.
  */
 static void
-BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
+BootpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+	     unsigned len)
 {
 	Bootp_t *bp;
-	char	*s;
 
 	debug("got BOOTP packet (src=%d, dst=%d, len=%d want_len=%zu)\n",
 		src, dest, len, sizeof (Bootp_t));
@@ -309,29 +322,11 @@ BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		BootpVendorProcess((uchar *)&bp->bp_vend[4], len);
 
 	NetSetTimeout(0, (thand_f *)0);
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP, "bootp_stop");
 
 	debug("Got good BOOTP\n");
 
-	if ((s = getenv("autoload")) != NULL) {
-		if (*s == 'n') {
-			/*
-			 * Just use BOOTP to configure system;
-			 * Do not use TFTP to load the bootfile.
-			 */
-			NetState = NETLOOP_SUCCESS;
-			return;
-#if defined(CONFIG_CMD_NFS)
-		} else if (strcmp(s, "NFS") == 0) {
-			/*
-			 * Use NFS to load the bootfile.
-			 */
-			NfsStart();
-			return;
-#endif
-		}
-	}
-
-	TftpStart();
+	net_auto_load();
 }
 #endif
 
@@ -358,6 +353,11 @@ static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t R
 {
 	u8 *start = e;
 	u8 *cnt;
+#if defined(CONFIG_BOOTP_PXE)
+	char *uuid;
+	size_t vci_strlen;
+	u16 clientarch;
+#endif
 
 #if defined(CONFIG_BOOTP_VENDOREX)
 	u8 *x;
@@ -412,6 +412,41 @@ static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t R
 	}
 #endif
 
+#if defined(CONFIG_BOOTP_PXE)
+	clientarch = CONFIG_BOOTP_PXE_CLIENTARCH;
+	*e++ = 93;	/* Client System Architecture */
+	*e++ = 2;
+	*e++ = (clientarch >> 8) & 0xff;
+	*e++ = clientarch & 0xff;
+
+	*e++ = 94;	/* Client Network Interface Identifier */
+	*e++ = 3;
+	*e++ = 1;	/* type field for UNDI */
+	*e++ = 0;	/* major revision */
+	*e++ = 0;	/* minor revision */
+
+	uuid = getenv("pxeuuid");
+
+	if (uuid) {
+		if (uuid_str_valid(uuid)) {
+			*e++ = 97;	/* Client Machine Identifier */
+			*e++ = 17;
+			*e++ = 0;	/* type 0 - UUID */
+
+			uuid_str_to_bin(uuid, e);
+			e += 16;
+		} else {
+			printf("Invalid pxeuuid: %s\n", uuid);
+		}
+	}
+
+	*e++ = 60;	/* Vendor Class Identifier */
+	vci_strlen = strlen(CONFIG_BOOTP_VCI_STRING);
+	*e++ = vci_strlen;
+	memcpy(e, CONFIG_BOOTP_VCI_STRING, vci_strlen);
+	e += vci_strlen;
+#endif
+
 #if defined(CONFIG_BOOTP_VENDOREX)
 	if ((x = dhcp_vendorex_prep (e)))
 		return x - start;
@@ -464,7 +499,7 @@ static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t R
 
 	/* Pad to minimal length */
 #ifdef	CONFIG_DHCP_MIN_EXT_LEN
-	while ((e - start) <= CONFIG_DHCP_MIN_EXT_LEN)
+	while ((e - start) < CONFIG_DHCP_MIN_EXT_LEN)
 		*e++ = 0;
 #endif
 
@@ -536,6 +571,11 @@ static int BootpExtended (u8 * e)
 	*e++ = 32;
 	e   += 32;
 #endif
+#if defined(CONFIG_BOOTP_NTPSERVER)
+	*e++ = 42;
+	*e++ = 4;
+	e   += 4;
+#endif
 
 	*e++ = 255;		/* End of the list */
 
@@ -550,6 +590,7 @@ BootpRequest (void)
 	Bootp_t *bp;
 	int ext_len, pktlen, iplen;
 
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_START, "bootp_start");
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = INIT;
 #endif
@@ -858,7 +899,8 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
  *	Handle DHCP received packets.
  */
 static void
-DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
+DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+	    unsigned len)
 {
 	Bootp_t *bp = (Bootp_t *)pkt;
 
@@ -904,34 +946,15 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		debug("DHCP State: REQUESTING\n");
 
 		if ( DhcpMessageType((u8 *)bp->bp_vend) == DHCP_ACK ) {
-			char *s;
-
 			if (NetReadLong((ulong*)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
 				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 			BootpCopyNetParams(bp); /* Store net params from reply */
 			dhcp_state = BOUND;
 			printf ("DHCP client bound to address %pI4\n", &NetOurIP);
+			bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP,
+					    "bootp_stop");
 
-			/* Obey the 'autoload' setting */
-			if ((s = getenv("autoload")) != NULL) {
-				if (*s == 'n') {
-					/*
-					 * Just use BOOTP to configure system;
-					 * Do not use TFTP to load the bootfile.
-					 */
-					NetState = NETLOOP_SUCCESS;
-					return;
-#if defined(CONFIG_CMD_NFS)
-				} else if (strcmp(s, "NFS") == 0) {
-					/*
-					 * Use NFS to load the bootfile.
-					 */
-					NfsStart();
-					return;
-#endif
-				}
-			}
-			TftpStart();
+			net_auto_load();
 			return;
 		}
 		break;

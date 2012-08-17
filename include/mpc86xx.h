@@ -84,6 +84,7 @@ static __inline__ unsigned long get_l2cr (void)
 }
 
 void setup_ddr_bat(phys_addr_t dram_size);
+extern void setup_bats(void);
 
 #endif  /* _ASMLANGUAGE */
 #endif	/* __MPC86xx_H__ */

@@ -20,7 +20,7 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fPIC -meabi
+PLATFORM_RELFLAGS += -meabi
 
 PLATFORM_CPPFLAGS += -DCONFIG_MPC512X -DCONFIG_E300 \
 			-ffixed-r2 -msoft-float -mcpu=603e

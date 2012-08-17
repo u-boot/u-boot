@@ -109,6 +109,30 @@ int fdt_num_mem_rsv(const void *fdt)
 	return i;
 }
 
+static int _nextprop(const void *fdt, int offset)
+{
+	uint32_t tag;
+	int nextoffset;
+
+	do {
+		tag = fdt_next_tag(fdt, offset, &nextoffset);
+
+		switch (tag) {
+		case FDT_END:
+			if (nextoffset >= 0)
+				return -FDT_ERR_BADSTRUCTURE;
+			else
+				return nextoffset;
+
+		case FDT_PROP:
+			return offset;
+		}
+		offset = nextoffset;
+	} while (tag == FDT_NOP);
+
+	return -FDT_ERR_NOTFOUND;
+}
+
 int fdt_subnode_offset_namelen(const void *fdt, int offset,
 			       const char *name, int namelen)
 {
@@ -198,52 +222,66 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 	return NULL;
 }
 
+int fdt_first_property_offset(const void *fdt, int nodeoffset)
+{
+	int offset;
+
+	if ((offset = _fdt_check_node_offset(fdt, nodeoffset)) < 0)
+		return offset;
+
+	return _nextprop(fdt, offset);
+}
+
+int fdt_next_property_offset(const void *fdt, int offset)
+{
+	if ((offset = _fdt_check_prop_offset(fdt, offset)) < 0)
+		return offset;
+
+	return _nextprop(fdt, offset);
+}
+
+const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
+						      int offset,
+						      int *lenp)
+{
+	int err;
+	const struct fdt_property *prop;
+
+	if ((err = _fdt_check_prop_offset(fdt, offset)) < 0) {
+		if (lenp)
+			*lenp = err;
+		return NULL;
+	}
+
+	prop = _fdt_offset_ptr(fdt, offset);
+
+	if (lenp)
+		*lenp = fdt32_to_cpu(prop->len);
+
+	return prop;
+}
+
 const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int nodeoffset,
+						    int offset,
 						    const char *name,
 						    int namelen, int *lenp)
 {
-	uint32_t tag;
-	const struct fdt_property *prop;
-	int offset, nextoffset;
-	int err;
+	for (offset = fdt_first_property_offset(fdt, offset);
+	     (offset >= 0);
+	     (offset = fdt_next_property_offset(fdt, offset))) {
+		const struct fdt_property *prop;
 
-	if (((err = fdt_check_header(fdt)) != 0)
-	    || ((err = _fdt_check_node_offset(fdt, nodeoffset)) < 0))
-			goto fail;
-
-	nextoffset = err;
-	do {
-		offset = nextoffset;
-
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
-		switch (tag) {
-		case FDT_END:
-			if (nextoffset < 0)
-				err = nextoffset;
-			else
-				/* FDT_END tag with unclosed nodes */
-				err = -FDT_ERR_BADSTRUCTURE;
-			goto fail;
-
-		case FDT_PROP:
-			prop = _fdt_offset_ptr(fdt, offset);
-			if (_fdt_string_eq(fdt, fdt32_to_cpu(prop->nameoff),
-					   name, namelen)) {
-				/* Found it! */
-				if (lenp)
-					*lenp = fdt32_to_cpu(prop->len);
-
-				return prop;
-			}
+		if (!(prop = fdt_get_property_by_offset(fdt, offset, lenp))) {
+			offset = -FDT_ERR_INTERNAL;
 			break;
 		}
-	} while ((tag != FDT_BEGIN_NODE) && (tag != FDT_END_NODE));
+		if (_fdt_string_eq(fdt, fdt32_to_cpu(prop->nameoff),
+				   name, namelen))
+			return prop;
+	}
 
-	err = -FDT_ERR_NOTFOUND;
- fail:
 	if (lenp)
-		*lenp = err;
+		*lenp = offset;
 	return NULL;
 }
 
@@ -267,6 +305,19 @@ const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
 	return prop->data;
 }
 
+const void *fdt_getprop_by_offset(const void *fdt, int offset,
+				  const char **namep, int *lenp)
+{
+	const struct fdt_property *prop;
+
+	prop = fdt_get_property_by_offset(fdt, offset, lenp);
+	if (!prop)
+		return NULL;
+	if (namep)
+		*namep = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+	return prop->data;
+}
+
 const void *fdt_getprop(const void *fdt, int nodeoffset,
 			const char *name, int *lenp)
 {
@@ -278,9 +329,14 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
 	const uint32_t *php;
 	int len;
 
-	php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-	if (!php || (len != sizeof(*php)))
-		return 0;
+	/* FIXME: This is a bit sub-optimal, since we potentially scan
+	 * over all the properties twice. */
+	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
+	if (!php || (len != sizeof(*php))) {
+		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
+		if (!php || (len != sizeof(*php)))
+			return 0;
+	}
 
 	return fdt32_to_cpu(*php);
 }
@@ -440,11 +496,27 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 
 int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
+	int offset;
+
 	if ((phandle == 0) || (phandle == -1))
 		return -FDT_ERR_BADPHANDLE;
-	phandle = cpu_to_fdt32(phandle);
-	return fdt_node_offset_by_prop_value(fdt, -1, "linux,phandle",
-					     &phandle, sizeof(phandle));
+
+	FDT_CHECK_HEADER(fdt);
+
+	/* FIXME: The algorithm here is pretty horrible: we
+	 * potentially scan each property of a node in
+	 * fdt_get_phandle(), then if that didn't find what
+	 * we want, we scan over them again making our way to the next
+	 * node.  Still it's the easiest to implement approach;
+	 * performance can come later. */
+	for (offset = fdt_next_node(fdt, -1, NULL);
+	     offset >= 0;
+	     offset = fdt_next_node(fdt, offset, NULL)) {
+		if (fdt_get_phandle(fdt, offset) == phandle)
+			return offset;
+	}
+
+	return offset; /* error from fdt_next_node() */
 }
 
 static int _fdt_stringlist_contains(const char *strlist, int listlen,

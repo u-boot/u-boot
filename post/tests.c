@@ -46,6 +46,7 @@ extern int sysmon_post_test (int flags);
 extern int dsp_post_test (int flags);
 extern int codec_post_test (int flags);
 extern int ecc_post_test (int flags);
+extern int flash_post_test(int flags);
 
 extern int dspic_init_post_test (int flags);
 extern int dspic_post_test (int flags);
@@ -54,6 +55,9 @@ extern int fpga_post_test (int flags);
 extern int lwmon5_watchdog_post_test(int flags);
 extern int sysmon1_post_test(int flags);
 extern int coprocessor_post_test(int flags);
+extern int led_post_test(int flags);
+extern int button_post_test(int flags);
+extern int memory_regions_post_test(int flags);
 
 extern int sysmon_init_f (void);
 
@@ -301,8 +305,32 @@ struct post_test post_list[] =
 	NULL,
 	NULL,
 	CONFIG_SYS_POST_COPROC
-    }
+    },
+#endif
+#if CONFIG_POST & CONFIG_SYS_POST_FLASH
+    {
+	"Parallel NOR flash test",
+	"flash",
+	"This test verifies parallel flash operations.",
+	POST_RAM | POST_SLOWTEST | POST_MANUAL,
+	&flash_post_test,
+	NULL,
+	NULL,
+	CONFIG_SYS_POST_FLASH
+    },
+#endif
+#if CONFIG_POST & CONFIG_SYS_POST_MEM_REGIONS
+    {
+	"Memory regions test",
+	"mem_regions",
+	"This test checks regularly placed regions of the RAM.",
+	POST_ROM | POST_SLOWTEST | POST_PREREL,
+	&memory_regions_post_test,
+	NULL,
+	NULL,
+	CONFIG_SYS_POST_MEM_REGIONS
+    },
 #endif
 };
 
-unsigned int post_list_size = sizeof (post_list) / sizeof (struct post_test);
+unsigned int post_list_size = ARRAY_SIZE(post_list);

@@ -42,8 +42,8 @@
 #define I2C_BASE_ADDR           0x43F80000
 #define I2C3_BASE_ADDR          0x43F84000
 #define ATA_BASE_ADDR           0x43F8C000
-#define UART1_BASE_ADDR         0x43F90000
-#define UART2_BASE_ADDR         0x43F94000
+#define UART1_BASE		0x43F90000
+#define UART2_BASE		0x43F94000
 #define I2C2_BASE_ADDR          0x43F98000
 #define CSPI1_BASE_ADDR         0x43FA4000
 #define IOMUXC_BASE_ADDR        0x43FAC000
@@ -52,7 +52,7 @@
  * SPBA
  */
 #define SPBA_BASE_ADDR          0x50000000
-#define UART3_BASE_ADDR         0x5000C000
+#define UART3_BASE		0x5000C000
 #define CSPI2_BASE_ADDR         0x50010000
 #define ATA_DMA_BASE_ADDR       0x50020000
 #define FEC_BASE_ADDR           0x50038000
@@ -147,6 +147,19 @@
 #define PLL_MFI(x)		(((x) & 0xf) << 10)
 #define PLL_MFN(x)		(((x) & 0x3ff) << 0)
 
+#define _PLL_BRM(x)	((x) << 31)
+#define _PLL_PD(x)	(((x) - 1) << 26)
+#define _PLL_MFD(x)	(((x) - 1) << 16)
+#define _PLL_MFI(x)	((x) << 10)
+#define _PLL_MFN(x)	(x)
+#define _PLL_SETTING(brm, pd, mfd, mfi, mfn) \
+	(_PLL_BRM(brm) | _PLL_PD(pd) | _PLL_MFD(mfd) | _PLL_MFI(mfi) |\
+	 _PLL_MFN(mfn))
+
+#define CCM_MPLL_532_HZ	_PLL_SETTING(1, 1, 12, 11, 1)
+#define CCM_MPLL_399_HZ _PLL_SETTING(0, 1, 16, 8, 5)
+#define CCM_PPLL_300_HZ _PLL_SETTING(0, 1, 4, 6, 1)
+
 #define CSCR_U(x)	(WEIM_CTRL_CS#x + 0)
 #define CSCR_L(x)	(WEIM_CTRL_CS#x + 4)
 #define CSCR_A(x)	(WEIM_CTRL_CS#x + 8)
@@ -166,6 +179,31 @@
 #define IPU_CONF_IC_EN		(1<<1)
 #define IPU_CONF_SCI_EN		(1<<0)
 
+/*
+ * CSPI register definitions
+ */
+#define MXC_CSPI
+#define MXC_CSPICTRL_EN		(1 << 0)
+#define MXC_CSPICTRL_MODE	(1 << 1)
+#define MXC_CSPICTRL_XCH	(1 << 2)
+#define MXC_CSPICTRL_SMC	(1 << 3)
+#define MXC_CSPICTRL_POL	(1 << 4)
+#define MXC_CSPICTRL_PHA	(1 << 5)
+#define MXC_CSPICTRL_SSCTL	(1 << 6)
+#define MXC_CSPICTRL_SSPOL	(1 << 7)
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
+#define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
+#define MXC_CSPICTRL_TC		(1 << 7)
+#define MXC_CSPICTRL_RXOVF	(1 << 6)
+#define MXC_CSPICTRL_MAXBITS	0xfff
+#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
+#define MAX_SPI_BYTES	4
+
+#define MXC_SPI_BASE_ADDRESSES \
+	0x43fa4000, \
+	0x50010000,
+
 #define GPIO_PORT_NUM		3
 #define GPIO_NUM_PIN		32
 
@@ -177,8 +215,6 @@
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
-
-extern void imx_get_mac_from_fuse(unsigned char *mac);
 
 enum mxc_main_clocks {
 	CPU_CLK,
@@ -286,6 +322,23 @@ struct wdog_regs {
 	u16 wmcr;	/* Misc Control */
 };
 
+struct esdc_regs {
+	u32	esdctl0;
+	u32	esdcfg0;
+	u32	esdctl1;
+	u32	esdcfg1;
+	u32	esdmisc;
+	u32	reserved[4];
+	u32	esdcdly[5];
+	u32	esdcdlyl;
+};
+
+#define ESDC_MISC_RST		(1 << 1)
+#define ESDC_MISC_MDDR_EN	(1 << 2)
+#define ESDC_MISC_MDDR_DL_RST	(1 << 3)
+#define ESDC_MISC_DDR_EN	(1 << 8)
+#define ESDC_MISC_DDR2_EN	(1 << 9)
+
 /*
  * NFMS bit in RCSR register for pagesize of nandflash
  */
@@ -294,10 +347,6 @@ struct wdog_regs {
 #define NFMS_NF_PG_SZ		8
 
 #define CCM_RCSR_NF_16BIT_SEL	(1 << 14)
-
-extern unsigned int get_board_rev(void);
-extern int is_soc_rev(int rev);
-extern int sdhc_init(void);
 
 #endif
 #endif /* __ASM_ARCH_MX35_H */

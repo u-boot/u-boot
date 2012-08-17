@@ -52,7 +52,7 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #include <config_cmd_default.h>
-#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_I2C
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 /*

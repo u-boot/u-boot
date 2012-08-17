@@ -31,6 +31,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91_common.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -44,7 +45,7 @@ int board_init(void)
 	 * Correct IRDA resistor problem
 	 * Set PA23_TXD in Output
 	 */
-	writel(AT91_PMX_AA_TXD2, &pio->pioa.oer);
+	writel(ATMEL_PMX_AA_TXD2, &pio->pioa.oer);
 
 	/* arch number of AT91RM9200EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91RM9200EK;
@@ -54,10 +55,16 @@ int board_init(void)
 	return 0;
 }
 
+int board_early_init_f(void)
+{
+	at91_seriald_hw_init();
+	return 0;
+}
+
 int dram_init (void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile long *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 			CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }
@@ -65,6 +72,6 @@ int dram_init (void)
 #ifdef CONFIG_DRIVER_AT91EMAC
 int board_eth_init(bd_t *bis)
 {
-	return at91emac_register(bis, (u32) AT91_EMAC_BASE);
+	return at91emac_register(bis, (u32) ATMEL_BASE_EMAC);
 }
 #endif

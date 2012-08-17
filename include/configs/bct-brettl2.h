@@ -11,7 +11,8 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_BOOT_MODE	    BFIN_BOOT_BYPASS
+#define CONFIG_BFIN_CPU             bf536-0.3
+#define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
 
 
 /*
@@ -67,12 +68,11 @@
 #define ADI_CMDS_NETWORK	1
 #define CONFIG_BFIN_MAC		1
 #define CONFIG_NETCONSOLE	1
-#define CONFIG_NET_MULTI	1
 #define CONFIG_HOSTNAME		brettl2
 #define CONFIG_IPADDR		192.168.233.224
 #define CONFIG_GATEWAYIP	192.168.233.1
 #define CONFIG_SERVERIP		192.168.233.53
-#define CONFIG_ROOTPATH		/romfs/brettl2
+#define CONFIG_ROOTPATH		"/romfs/brettl2"
 /* Uncomment next line to use fixed MAC address */
 /* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
 #endif

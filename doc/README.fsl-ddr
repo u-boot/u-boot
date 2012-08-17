@@ -170,3 +170,205 @@ Single slot system
 
 Reference http://www.xrosstalkmag.com/mag_issues/xrosstalk_oct08_final.pdf
 	  http://download.micron.com/pdf/technotes/ddr3/tn4108_ddr3_design_guide.pdf
+
+
+Table for ODT for DDR2
+======================
+Two slots system
++-----------------------+----------+---------------+-----------------------------+-----------------------------+
+|     Configuration     |          |DRAM controller|           Slot 1            |            Slot 2           |
++-----------+-----------+----------+-------+-------+--------------+--------------+--------------+--------------+
+|           |           |          |       |       |     Rank 1   |     Rank 2   |   Rank 1     |    Rank 2    |
++  Slot 1   |   Slot 2  |Write/Read| Write | Read  |-------+------+-------+------+-------+------+-------+------+
+|           |           |          |       |       | Write | Read | Write | Read | Write | Read | Write | Read |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|           |           |  Slot 1  |  off  | 150   | off   | off  | off   | off  | 75    | 75   | off   | off  |
+| Dual Rank | Dual Rank |----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|           |           |  Slot 2  |  off  | 150   | 75    | 75   | off   | off  | off   | off  | off   | off  |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|           |           |  Slot 1  |  off  | 150   | off   | off  | off   | off  | 75    | 75   |       |      |
+| Dual Rank |Single Rank|----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|           |           |  Slot 2  |  off  | 150   | 75    | 75   | off   | off  | off   | off  |       |      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|           |           |  Slot 1  |  off  | 150   | off   | off  |       |      | 75    | 75   | off   | off  |
+|Single Rank| Dual Rank |----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|           |           |  Slot 2  |  off  | 150   | 75    | 75   |       |      | off   | off  | off   | off  |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|           |           |  Slot 1  |  off  | 150   | off   | off  |       |      | 75    | 75   |       |      |
+|Single Rank|Single Rank|----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|           |           |  Slot 2  |  off  | 150   | 75    | 75   |       |      | off   | off  |       |      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+| Dual Rank |   Empty   |  Slot 1  |  off  | 75    | 150   | off  | off   | off  |       |      |       |      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|   Empty   | Dual Rank |  Slot 2  |  off  | 75    |       |      |       |      | 150   | off  | off   | off  |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|Single Rank|   Empty   |  Slot 1  |  off  | 75    | 150   | off  |       |      |       |      |       |      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+|   Empty   |Single Rank|  Slot 2  |  off  | 75    |       |      |       |      | 150   | off  |       |      |
++-----------+-----------+----------+-------+-------+-------+------+-------+------+-------+------+-------+------+
+
+Single slot system
++-------------+------------+---------------+-----------------------------+
+|             |            |DRAM controller|     Rank 1   |    Rank 2    |
+|Configuration| Write/Read |-------+-------+-------+------+-------+------+
+|             |            | Write | Read  | Write | Read | Write | Read |
++-------------+------------+-------+-------+-------+------+-------+------+
+|             |   R1       | off   | 75    | 150   | off  | off   | off  |
+|  Dual Rank  |------------+-------+-------+-------+------+-------+------+
+|             |   R2       | off   | 75    | 150   | off  | off   | off  |
++-------------+------------+-------+-------+-------+------+-------+------+
+| Single Rank |   R1       | off   | 75    | 150   | off  |
++-------------+------------+-------+-------+-------+------+
+
+Reference http://www.samsung.com/global/business/semiconductor/products/dram/downloads/applicationnote/ddr2_odt_control_200603.pdf
+
+
+Interactive DDR debugging
+===========================
+
+For DDR parameter tuning up and debugging, the interactive DDR debugging can
+be activated by saving an environment variable "ddr_interactive". The value
+doesn't matter. Once activated, U-boot prompts "FSL DDR>" before enabling DDR
+controller. The available commands can be seen by typing "help".
+
+The example flow of using interactive debugging is
+type command "compute" to calculate the parameters from the default
+type command "print" with arguments to show SPD, options, registers
+type command "edit" with arguments to change any if desired
+type command "go" to continue calculation and enable DDR controller
+type command "reset" to reset the board
+type command "recompute" to reload SPD and start over
+
+Note, check "next_step" to show the flow. For example, after edit opts, the
+next_step is STEP_ASSIGN_ADDRESSES. After editing registers, the next_step is
+STEP_PROGRAM_REGS. Upon issuing command "go", DDR controller will be enabled
+with current setting without further calculation.
+
+The detail syntax for each commands are
+
+print [c<n>] [d<n>] [spd] [dimmparms] [commonparms] [opts] [addresses] [regs]
+	c<n>		- the controller number, eg. c0, c1
+	d<n>		- the DIMM number, eg. d0, d1
+	spd		- print SPD data
+	dimmparms	- DIMM parameters, calculated from SPD
+	commonparms	- lowest common parameters for all DIMMs
+	opts		- options
+	addresses	- address assignment (not implemented yet)
+	regs		- controller registers
+
+edit <c#> <d#> <spd|dimmparms|commonparms|opts|addresses|regs> <element> <value>
+	c<n>		- the controller number, eg. c0, c1
+	d<n>		- the DIMM number, eg. d0, d1
+	spd		- print SPD data
+	dimmparms	- DIMM parameters, calculated from SPD
+	commonparms	- lowest common parameters for all DIMMs
+	opts		- options
+	addresses	- address assignment (not implemented yet)
+	regs		- controller registers
+	<element>	- name of the modified element
+			  byte number if the object is SPD
+	<value>		- decimal or heximal (prefixed with 0x) numbers
+
+reset
+	no arguement	- reset the board
+
+recompute
+	no argument	- reload SPD and start over
+
+compute
+	no argument	- recompute from current next_step
+
+next_step
+	no argument	- show current next_step
+
+help
+	no argument	- print a list of all commands
+
+go
+	no argument	- program memory controller(s) and continue with U-boot
+
+Examples of debugging flow
+
+	FSL DDR>compute
+	Detected UDIMM UG51U6400N8SU-ACF
+	SL DDR>print
+	print [c<n>] [d<n>] [spd] [dimmparms] [commonparms] [opts] [addresses] [regs]
+	FSL DDR>print dimmparms
+	DIMM parameters:  Controller=0 DIMM=0
+	DIMM organization parameters:
+	module part name = UG51U6400N8SU-ACF
+	rank_density = 2147483648 bytes (2048 megabytes)
+	capacity = 4294967296 bytes (4096 megabytes)
+	burst_lengths_bitmask = 0C
+	base_addresss = 0 (00000000 00000000)
+	n_ranks = 2
+	data_width = 64
+	primary_sdram_width = 64
+	ec_sdram_width = 0
+	registered_dimm = 0
+	n_row_addr = 15
+	n_col_addr = 10
+	edc_config = 0
+	n_banks_per_sdram_device = 8
+	tCKmin_X_ps = 1500
+	tCKmin_X_minus_1_ps = 0
+	tCKmin_X_minus_2_ps = 0
+	tCKmax_ps = 0
+	caslat_X = 960
+	tAA_ps = 13125
+	caslat_X_minus_1 = 0
+	caslat_X_minus_2 = 0
+	caslat_lowest_derated = 0
+	tRCD_ps = 13125
+	tRP_ps = 13125
+	tRAS_ps = 36000
+	tWR_ps = 15000
+	tWTR_ps = 7500
+	tRFC_ps = 160000
+	tRRD_ps = 6000
+	tRC_ps = 49125
+	refresh_rate_ps = 7800000
+	tIS_ps = 0
+	tIH_ps = 0
+	tDS_ps = 0
+	tDH_ps = 0
+	tRTP_ps = 7500
+	tDQSQ_max_ps = 0
+	tQHS_ps = 0
+	FSL DDR>edit c0 opts ECC_mode 0
+	FSL DDR>edit c0 regs cs0_bnds 0x000000FF
+	FSL DDR>go
+	2 GiB left unmapped
+	4 GiB (DDR3, 64-bit, CL=9, ECC off)
+	       DDR Chip-Select Interleaving Mode: CS0+CS1
+	Testing 0x00000000 - 0x7fffffff
+	Testing 0x80000000 - 0xffffffff
+	Remap DDR 2 GiB left unmapped
+
+	POST memory PASSED
+	Flash: 128 MiB
+	L2:    128 KB enabled
+	Corenet Platform Cache: 1024 KB enabled
+	SERDES: timeout resetting bank 3
+	SRIO1: disabled
+	SRIO2: disabled
+	MMC:  FSL_ESDHC: 0
+	EEPROM: Invalid ID (ff ff ff ff)
+	PCIe1: disabled
+	PCIe2: Root Complex, x1, regs @ 0xfe201000
+	  01:00.0     - 8086:10d3 - Network controller
+	PCIe2: Bus 00 - 01
+	PCIe3: disabled
+	In:    serial
+	Out:   serial
+	Err:   serial
+	Net:   Initializing Fman
+	Fman1: Uploading microcode version 101.8.0
+	e1000: 00:1b:21:81:d2:e0
+	FM1@DTSEC1, FM1@DTSEC2, FM1@DTSEC3, FM1@DTSEC4, FM1@DTSEC5, e1000#0 [PRIME]
+	Warning: e1000#0 MAC addresses don't match:
+	Address in SROM is         00:1b:21:81:d2:e0
+	Address in environment is  00:e0:0c:00:ea:05
+
+	Hit any key to stop autoboot:  0
+	=>

@@ -25,6 +25,7 @@
 #include <mpc8260.h>
 #include <asm/m8260_pci.h>
 #include <miiphy.h>
+#include <linux/compiler.h>
 
 #include "m88e6060.h"
 
@@ -263,7 +264,7 @@ int board_early_init_f (void)
 int misc_init_r (void)
 {
 	volatile ioport_t *iop;
-	unsigned char temp;
+	__maybe_unused unsigned char temp;
 #if 0
 	/* DUMP UPMA RAM */
 	volatile immap_t *immap;
