@@ -82,7 +82,7 @@ $(obj)cpu_init_nand.c:
 
 $(obj)fsl_law.c:
 	@rm -f $(obj)fsl_law.c
-	ln -sf $(SRCTREE)/drivers/misc/fsl_law.c $(obj)fsl_law.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc8xxx/law.c $(obj)fsl_law.c
 
 $(obj)law.c:
 	@rm -f $(obj)law.c
