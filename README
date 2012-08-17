@@ -704,6 +704,8 @@ The following options need to be configured:
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
 		set to -1 to disable autoboot.
+		set to -2 to autoboot with no delay and not check for abort
+		(even when CONFIG_ZERO_BOOTDELAY_CHECK is defined).
 
 		See doc/README.autoboot for these options that
 		work with CONFIG_BOOTDELAY. None are required.
