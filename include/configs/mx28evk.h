@@ -214,7 +214,6 @@
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* (redundant) environemnt in SPI flash */
-#undef CONFIG_ENV_IS_IN_SPI_FLASH
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SIZE			0x1000		/* 4KB */
