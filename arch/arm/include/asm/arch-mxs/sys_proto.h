@@ -69,6 +69,6 @@ struct mxs_spl_data {
 	uint32_t	mem_dram_size;
 };
 
-int mxs_dram_init(void);
+int mx28_dram_init(void);
 
 #endif	/* __SYS_PROTO_H__ */
