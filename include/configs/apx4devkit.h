@@ -22,8 +22,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/regs-base.h>
-
 /* SoC configurations */
 #define CONFIG_MX28				/* i.MX28 SoC */
 #define CONFIG_MXS_GPIO				/* GPIO control */
@@ -31,6 +29,8 @@
 
 #define MACH_TYPE_APX4DEVKIT	3712
 #define CONFIG_MACH_TYPE	MACH_TYPE_APX4DEVKIT
+
+#include <asm/arch/regs-base.h>
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_BOARD_EARLY_INIT_F

@@ -19,16 +19,17 @@
 #ifndef __MX28EVK_CONFIG_H__
 #define __MX28EVK_CONFIG_H__
 
-#include <asm/arch/regs-base.h>
-
 /*
  * SoC configurations
  */
 #define CONFIG_MX28				/* i.MX28 SoC */
+
 #define CONFIG_MXS_GPIO			/* GPIO control */
 #define CONFIG_SYS_HZ		1000		/* Ticks per second */
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX28EVK
+
+#include <asm/arch/regs-base.h>
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_BOARD_EARLY_INIT_F

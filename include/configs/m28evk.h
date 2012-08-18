@@ -20,8 +20,6 @@
 #ifndef __M28EVK_CONFIG_H__
 #define __M28EVK_CONFIG_H__
 
-#include <asm/arch/regs-base.h>
-
 /*
  * SoC configurations
  */
@@ -35,6 +33,8 @@
 #define	MACH_TYPE_M28EVK	3613
 
 #define	CONFIG_MACH_TYPE	MACH_TYPE_M28EVK
+
+#include <asm/arch/regs-base.h>
 
 #define	CONFIG_SYS_NO_FLASH
 #define	CONFIG_BOARD_EARLY_INIT_F
