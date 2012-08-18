@@ -114,6 +114,13 @@ class Series(dict):
                 cc_list += gitutil.BuildEmailList(commit.tags)
             cc_list += gitutil.BuildEmailList(commit.cc_list)
 
+            # Skip items in To list
+            if 'to' in self:
+                try:
+                    map(cc_list.remove, gitutil.BuildEmailList(self.to))
+                except ValueError:
+                    pass
+
             for email in cc_list:
                 if email == None:
                     email = col.Color(col.YELLOW, "<alias '%s' not found>"
