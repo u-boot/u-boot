@@ -21,8 +21,12 @@
  */
 
 #include <common.h>
+#include <asm/processor.h>
+#include <asm/global_data.h>
 #include <asm/fsl_ifc.h>
 #include <asm/io.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 void cpu_init_f(void)
 {
@@ -39,4 +43,17 @@ void cpu_init_f(void)
 	out_be32(&l2cache->l2ctl,
 		(MPC85xx_L2CTL_L2E | MPC85xx_L2CTL_L2SRAM_ENTIRE));
 #endif
+}
+
+#ifndef CONFIG_SYS_FSL_TBCLK_DIV
+#define CONFIG_SYS_FSL_TBCLK_DIV 8
+#endif
+
+void udelay(unsigned long usec)
+{
+	u32 ticks_per_usec = gd->bus_clk / (CONFIG_SYS_FSL_TBCLK_DIV * 1000000);
+	u32 ticks = ticks_per_usec * usec;
+	u32 s = mfspr(SPRN_TBRL);
+
+	while ((mfspr(SPRN_TBRL) - s) < ticks);
 }
