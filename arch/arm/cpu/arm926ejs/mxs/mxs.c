@@ -246,7 +246,7 @@ int do_mx28_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 /*
  * Initializes on-chip ethernet controllers.
  */
-#ifdef	CONFIG_CMD_NET
+#if defined(CONFIG_MX28) && defined(CONFIG_CMD_NET)
 int cpu_eth_init(bd_t *bis)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
