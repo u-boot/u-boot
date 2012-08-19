@@ -92,6 +92,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	as->slave.cs = cs;
 	as->regs = regs;
 	as->mr = ATMEL_SPI_MR_MSTR | ATMEL_SPI_MR_MODFDIS
+#if defined(CONFIG_AT91SAM9X5)
+			| ATMEL_SPI_MR_WDRBT
+#endif
 			| ATMEL_SPI_MR_PCS(~(1 << cs) & 0xf);
 	spi_writel(as, CSR(cs), csrx);
 
