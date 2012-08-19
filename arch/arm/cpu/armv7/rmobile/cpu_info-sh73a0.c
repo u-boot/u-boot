@@ -23,48 +23,26 @@
 #include <common.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_ARCH_CPU_INIT
-int arch_cpu_init(void)
-{
-	icache_enable();
-	return 0;
-}
-#endif
-
-#ifndef CONFIG_SYS_DCACHE_OFF
-void enable_caches(void)
-{
-	dcache_enable();
-}
-#endif
-
-#ifdef CONFIG_DISPLAY_CPUINFO
-static u32 __rmobile_get_cpu_type(void)
-{
-	return 0x0;
-}
 u32 rmobile_get_cpu_type(void)
-		__attribute__((weak, alias("__rmobile_get_cpu_type")));
-
-static u32 __rmobile_get_cpu_rev(void)
 {
-	return 0;
-}
-u32 rmobile_get_cpu_rev(void)
-		__attribute__((weak, alias("__rmobile_get_cpu_rev")));
+	u32 id;
+	u32 type;
+	struct sh73a0_hpb *hpb = (struct sh73a0_hpb *)HPB_BASE;
 
-int print_cpuinfo(void)
-{
-	switch (rmobile_get_cpu_type()) {
-	case 0x37:
-		printf("CPU: Renesas Electronics SH73A0 rev %d\n",
-				rmobile_get_cpu_rev());
-		break;
-	default:
-		printf("CPU: Renesas Electronics CPU rev %d\n",
-				get_cpu_rev());
-		break;
-	}
-	return 0;
+	id = readl(hpb->cccr);
+	type = (id >> 8) & 0xFF;
+
+	return type;
 }
-#endif /* CONFIG_DISPLAY_CPUINFO */
+
+u32 get_cpu_rev(void)
+{
+	u32 id;
+	u32 rev;
+	struct sh73a0_hpb *hpb = (struct sh73a0_hpb *)HPB_BASE;
+
+	id = readl(hpb->cccr);
+	rev = (id >> 4) & 0xF;
+
+	return rev;
+}
