@@ -660,7 +660,7 @@ Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 	meesc		ARM926EJS (AT91SAM9263 SoC)
 	otc570		ARM926EJS (AT91SAM9263 SoC)
 
-Sedji Gaouaou<sedji.gaouaou@atmel.com>
+Bo Shen<voice.shen@atmel.com>
 	at91sam9g10ek		ARM926EJS (AT91SAM9G10 SoC)
 	at91sam9m10g45ek	ARM926EJS (AT91SAM9G45 SoC)
 
