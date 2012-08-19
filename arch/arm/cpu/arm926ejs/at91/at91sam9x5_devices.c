@@ -121,7 +121,7 @@ void at91_serial2_hw_init(void)
 #ifdef CONFIG_ATMEL_SPI
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_PMC_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
 	at91_set_a_periph(AT91_PIO_PORTA, 11, 0);	/* SPI0_MISO */
 	at91_set_a_periph(AT91_PIO_PORTA, 12, 0);	/* SPI0_MOSI */
@@ -150,7 +150,7 @@ void at91_spi0_hw_init(unsigned long cs_mask)
 
 void at91_spi1_hw_init(unsigned long cs_mask)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_PMC_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
 	at91_set_b_periph(AT91_PIO_PORTA, 21, 0);	/* SPI1_MISO */
 	at91_set_b_periph(AT91_PIO_PORTA, 22, 0);	/* SPI1_MOSI */
