@@ -34,8 +34,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_FEC_MXC
-#define GPIO_FEC_RESET_B	MXC_GPIO_PORT_TO_NUM(4, 7)
-#define GPIO_FEC_ENABLE_B	MXC_GPIO_PORT_TO_NUM(4, 9)
+#define GPIO_FEC_RESET_B	IMX_GPIO_NR(4, 7)
+#define GPIO_FEC_ENABLE_B	IMX_GPIO_NR(4, 9)
 void tx25_fec_init(void)
 {
 	struct iomuxc_mux_ctl *muxctl;
@@ -103,9 +103,9 @@ void tx25_fec_init(void)
 	/*
 	 * set each to 1 and make each an output
 	 */
-	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(3, 10), 1);
-	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(3, 11), 1);
-	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(3, 12), 1);
+	gpio_direction_output(IMX_GPIO_NR(3, 10), 1);
+	gpio_direction_output(IMX_GPIO_NR(3, 11), 1);
+	gpio_direction_output(IMX_GPIO_NR(3, 12), 1);
 
 	mdelay(22);		/* this value came from RedBoot */
 

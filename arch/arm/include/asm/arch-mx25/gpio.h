@@ -25,21 +25,6 @@
 #ifndef __ASM_ARCH_MX25_GPIO_H
 #define __ASM_ARCH_MX25_GPIO_H
 
-/* Converts a GPIO port number and the internal bit position
- * to the GPIO number
- */
-#define MXC_GPIO_PORT_TO_NUM(port, bit) (((port - 1) << 5) + (bit & 0x1f))
-
-/* GPIO registers */
-struct gpio_regs {
-	u32 gpio_dr;	/* data */
-	u32 gpio_dir;	/* direction */
-	u32 psr;	/* pad satus */
-	u32 icr1;	/* interrupt config 1 */
-	u32 icr2;	/* interrupt config 2 */
-	u32 imr;	/* interrupt mask */
-	u32 isr;	/* interrupt status */
-	u32 edge_sel;	/* edge select */
-};
+#include <asm/imx-common/gpio.h>
 
 #endif

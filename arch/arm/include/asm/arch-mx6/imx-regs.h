@@ -172,8 +172,6 @@
 #define IMX_IIM_BASE                 OCOTP_BASE_ADDR
 #define FEC_QUIRK_ENET_MAC
 
-#define GPIO_NUMBER(port, index)		((((port)-1)*32)+((index)&31))
-
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 

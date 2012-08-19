@@ -22,9 +22,18 @@
  */
 
 
-#ifndef __ASM_ARCH_MX35_GPIO_H
-#define __ASM_ARCH_MX35_GPIO_H
+#ifndef __ASM_ARCH_IMX_GPIO_H
+#define __ASM_ARCH_IMX_GPIO_H
 
-#include <asm/imx-common/gpio.h>
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
+/* GPIO registers */
+struct gpio_regs {
+	u32 gpio_dr;	/* data */
+	u32 gpio_dir;	/* direction */
+	u32 gpio_psr;	/* pad satus */
+};
+#endif
+
+#define IMX_GPIO_NR(port, index)		((((port)-1)*32)+((index)&31))
 
 #endif
