@@ -1,5 +1,5 @@
 /*
- * Freescale i.MX233/i.MX28 specific functions
+ * Freescale i.MX23/i.MX28 specific functions
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
