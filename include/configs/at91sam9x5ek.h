@@ -86,6 +86,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_SF
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -96,12 +97,11 @@
 	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
-#ifdef CONFIG_ATMEL_SPI
-#define CONFIG_CMD_SF
-#define CONFIG_CMD_SPI
+#ifdef CONFIG_CMD_SF
+#define CONFIG_ATMEL_SPI
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ATMEL
-#define CONFIG_SYS_MAX_DATAFLASH_BANKS
+#define CONFIG_SF_DEFAULT_SPEED		30000000
 #endif
 
 /* no NOR flash */
@@ -149,6 +149,18 @@
 #define CONFIG_BOOTCOMMAND	"nand read " \
 				"0x22000000 0x200000 0x300000; " \
 				"bootm 0x22000000"
+#else
+#ifdef CONFIG_SYS_USE_SPIFLASH
+/* bootstrap + u-boot + env + linux in spi flash */
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_OFFSET	0x5000
+#define CONFIG_ENV_SIZE		0x3000
+#define CONFIG_ENV_SECT_SIZE	0x1000
+#define CONFIG_ENV_SPI_MAX_HZ	30000000
+#define CONFIG_BOOTCOMMAND	"sf probe 0; " \
+				"sf read 0x22000000 0x100000 0x300000; " \
+				"bootm 0x22000000"
+#endif
 #endif
 
 #define CONFIG_BOOTARGS		"mem=128M console=ttyS0,115200 " \
