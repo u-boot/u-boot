@@ -320,13 +320,13 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 }
 #endif
 
-int mx28_dram_init(void)
+int mxs_dram_init(void)
 {
 	struct mxs_spl_data *data = (struct mxs_spl_data *)
 		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
 
 	if (data->mem_dram_size == 0) {
-		printf("MX28:\n"
+		printf("MXS:\n"
 			"Error, the RAM size passed up from SPL is 0!\n");
 		hang();
 	}

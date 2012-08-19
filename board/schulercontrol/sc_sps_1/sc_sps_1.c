@@ -72,7 +72,7 @@ int board_init(void)
 
 int dram_init(void)
 {
-	return mx28_dram_init();
+	return mxs_dram_init();
 }
 
 #ifdef	CONFIG_CMD_MMC

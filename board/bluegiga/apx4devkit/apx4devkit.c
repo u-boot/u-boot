@@ -55,7 +55,7 @@ int board_early_init_f(void)
 
 int dram_init(void)
 {
-	return mx28_dram_init();
+	return mxs_dram_init();
 }
 
 int board_init(void)
