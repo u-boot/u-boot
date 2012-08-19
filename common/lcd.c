@@ -674,7 +674,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	unsigned long pwidth = panel_info.vl_col;
 	unsigned colors, bpix, bmp_bpix;
 
-	if (!((bmp->header.signature[0] == 'B') &&
+	if (!bmp || !((bmp->header.signature[0] == 'B') &&
 		(bmp->header.signature[1] == 'M'))) {
 		printf("Error: no valid bmp image at %lx\n", bmp_image);
 
