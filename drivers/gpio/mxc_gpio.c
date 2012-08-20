@@ -116,7 +116,7 @@ int gpio_get_value(unsigned gpio)
 
 	regs = (struct gpio_regs *)gpio_ports[port];
 
-	val = (readl(&regs->gpio_dr) >> gpio) & 0x01;
+	val = (readl(&regs->gpio_psr) >> gpio) & 0x01;
 
 	return val;
 }
