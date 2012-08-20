@@ -1,0 +1,68 @@
+Summary
+=======
+The README is for the boot procedure used for various DA850 (or compatible
+parts such as the AM1808) based boards.
+
+In the context of U-Boot, the board is booted in three stages. The initial
+bootloader which executes upon reset is the ROM Boot Loader (RBL) and sits
+in the internal ROM. The RBL initializes the internal memory and then
+depending on the exact board and pin configurations will initialize another
+controller (such as SPI or NAND) to continue the boot process by loading
+the secondary program loader (SPL).  The SPL will initialize the system
+further (some clocks, SDRAM) and then load the full u-boot from a
+predefined location in persistent storage to DDR and jumps to the u-boot
+entry point.
+
+AIS is an image format defined by TI for the images that are to be loaded
+to memory by the RBL. The image is divided into a series of sections and
+the image's entry point is specified. Each section comes with meta data
+like the target address the section is to be copied to and the size of the
+section, which is used by the RBL to load the image. At the end of the
+image the RBL jumps to the image entry point.  The AIS format allows for
+other things such as programming the clocks and SDRAM if the header is
+programmed for it.  We do not take advantage of this and instead use SPL as
+it allows for additional flexibility (run-time detect of board revision,
+loading the next image from a different media, etc).
+
+
+Compilation
+===========
+The exact build target you need will depend on the board you have.  For
+Logic PD boards, or other boards which store the ethernet MAC address at
+the end of SPI flash, run 'make da850evm'.  For boards which store the
+ethernet MAC address in the i2c EEPROM located at 0x50, run
+'make da850_am18xxevm'.  Once this build completes you will have a
+u-boot.ais file that needs to be written to the correct persistent
+storage.
+
+
+Flashing the images to SPI
+==========================
+The AIS image can be written to SPI flash using the following commands.
+Assuming that the network is configured and enabled and the u-boot.ais file
+is tftp'able.
+
+U-Boot > sf probe 0
+U-Boot > sf erase 0 +320000
+U-Boot > tftp u-boot.ais
+U-Boot > sf write c0700000 0 $filesize
+
+
+Recovery
+========
+
+In the case of a "bricked" board, you need to use the TI tools found
+here[1] to write the u-boot.ais file.  An example of recovering to the SPI
+flash of an AM1808 would be:
+
+$ mono sfh_OMAP-L138.exe -targetType AM1808 -p /dev/ttyUSB0 \
+	-flash_noubl /path/to/u-boot.ais
+
+For other target types and flash locations:
+
+$ mono sfh_OMAP-L138.exe -h
+
+Links
+=====
+[1]
+ http://processors.wiki.ti.com/index.php/Serial_Boot_and_Flash_Loading_Utility_for_OMAP-L138
