@@ -435,12 +435,11 @@ l2_disabled:
  * Search for the TLB that covers the code we're executing, and shrink it
  * so that it covers only this 4K page.  That will ensure that any other
  * TLB we create won't interfere with it.  We assume that the TLB exists,
- * which is why we don't check the Valid bit of MAS1.
+ * which is why we don't check the Valid bit of MAS1.  We also assume
+ * it is in TLB1.
  *
  * This is necessary, for example, when booting from the on-chip ROM,
  * which (oddly) creates a single 4GB TLB that covers CCSR and DDR.
- * If we don't shrink this TLB now, then we'll accidentally delete it
- * in "purge_old_ccsr_tlb" below.
  */
 	bl	nexti		/* Find our address */
 nexti:	mflr	r1		/* R1 = our PC */
@@ -450,11 +449,15 @@ nexti:	mflr	r1		/* R1 = our PC */
 	msync
 	tlbsx	0, r1		/* This must succeed */
 
+	mfspr	r14, MAS0	/* Save ESEL for later */
+	rlwinm	r14, r14, 16, 0xfff
+
 	/* Set the size of the TLB to 4KB */
 	mfspr	r3, MAS1
 	li	r2, 0xF00
 	andc	r3, r3, r2	/* Clear the TSIZE bits */
 	ori	r3, r3, MAS1_TSIZE(BOOKE_PAGESZ_4K)@l
+	oris	r3, r3, MAS1_IPROT@h
 	mtspr	MAS1, r3
 
 	/*
@@ -489,6 +492,39 @@ nexti:	mflr	r1		/* R1 = our PC */
 	tlbwe
 
 /*
+ * Clear out any other TLB entries that may exist, to avoid conflicts.
+ * Our TLB entry is in r14.
+ */
+	li	r0, TLBIVAX_ALL | TLBIVAX_TLB0
+	tlbivax 0, r0
+	tlbsync
+
+	mfspr	r4, SPRN_TLB1CFG
+	rlwinm	r4, r4, 0, TLBnCFG_NENTRY_MASK
+
+	li	r3, 0
+	mtspr	MAS1, r3
+1:	cmpw	r3, r14
+#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(CONFIG_NAND_SPL)
+	cmpwi	cr1, r3, CONFIG_SYS_PPC_E500_DEBUG_TLB
+	cror	cr0*4+eq, cr0*4+eq, cr1*4+eq
+#endif
+	rlwinm	r5, r3, 16, MAS0_ESEL_MSK
+	addi	r3, r3, 1
+	beq	2f		/* skip the entry we're executing from */
+
+	oris	r5, r5, MAS0_TLBSEL(1)@h
+	mtspr	MAS0, r5
+
+	isync
+	tlbwe
+	isync
+	msync
+
+2:	cmpw	r3, r4
+	blt	1b
+
+/*
  * Relocate CCSR, if necessary.  We relocate CCSR if (obviously) the default
  * location is not where we want it.  This typically happens on a 36-bit
  * system, where we want to move CCSR to near the top of 36-bit address space.
@@ -506,41 +542,15 @@ nexti:	mflr	r1		/* R1 = our PC */
 #error "CONFIG_SYS_CCSRBAR_PHYS_HIGH and CONFIG_SYS_CCSRBAR_PHYS_LOW) must be defined."
 #endif
 
-purge_old_ccsr_tlb:
-	lis	r8, CONFIG_SYS_CCSRBAR@h
-	ori	r8, r8, CONFIG_SYS_CCSRBAR@l
-	lis	r9, (CONFIG_SYS_CCSRBAR + 0x1000)@h
-	ori	r9, r9, (CONFIG_SYS_CCSRBAR + 0x1000)@l
-
-	/*
-	 * In a multi-stage boot (e.g. NAND boot), a previous stage may have
-	 * created a TLB for CCSR, which will interfere with our relocation
-	 * code.  Since we're going to create a new TLB for CCSR anyway,
-	 * it should be safe to delete this old TLB here.  We have to search
-	 * for it, though.
-	 */
-
-	li	r1, 0
-	mtspr	MAS6, r1	/* Search the current address space and PID */
-	isync
-	msync
-	tlbsx	0, r8
-	mfspr	r1, MAS1
-	andis.  r2, r1, MAS1_VALID@h	/* Check for the Valid bit */
-	beq     1f			/* Skip if no TLB found */
-
-	rlwinm	r1, r1, 0, 1, 31	/* Clear Valid bit */
-	mtspr	MAS1, r1
-	isync
-	msync
-	tlbwe
-1:
-
 create_ccsr_new_tlb:
 	/*
 	 * Create a TLB for the new location of CCSR.  Register R8 is reserved
 	 * for the virtual address of this TLB (CONFIG_SYS_CCSRBAR).
 	 */
+	lis	r8, CONFIG_SYS_CCSRBAR@h
+	ori	r8, r8, CONFIG_SYS_CCSRBAR@l
+	lis	r9, (CONFIG_SYS_CCSRBAR + 0x1000)@h
+	ori	r9, r9, (CONFIG_SYS_CCSRBAR + 0x1000)@l
 	lis     r0, FSL_BOOKE_MAS0(0, 0, 0)@h
 	ori     r0, r0, FSL_BOOKE_MAS0(0, 0, 0)@l
 	lis     r1, FSL_BOOKE_MAS1(1, 0, 0, 0, BOOKE_PAGESZ_4K)@h

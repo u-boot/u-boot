@@ -475,6 +475,10 @@ extern void print_bats(void);
 #define BOOKE_PAGESZ_256GB	14
 #define BOOKE_PAGESZ_1TB	15
 
+#define TLBIVAX_ALL		4
+#define TLBIVAX_TLB0		0
+#define TLBIVAX_TLB1		8
+
 #ifdef CONFIG_E500
 #ifndef __ASSEMBLY__
 extern void set_tlb(u8 tlb, u32 epn, u64 rpn,
