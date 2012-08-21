@@ -30,7 +30,6 @@
 #include <common.h>
 #include <div64.h>
 #include <asm/processor.h>
-#include <asm/clk.h>
 #include <asm/io.h>
 #include <sh_tmu.h>
 
