@@ -39,9 +39,9 @@
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
 
-#define MX51EVK_LCD_3V3		(3 * 32 + 9)	/* GPIO4_9 */
-#define MX51EVK_LCD_5V		(3 * 32 + 10)	/* GPIO4_10 */
-#define MX51EVK_LCD_BACKLIGHT	(2 * 32 + 4)	/* GPIO3_4 */
+#define MX51EVK_LCD_3V3		IMX_GPIO_NR(4, 9)
+#define MX51EVK_LCD_5V		IMX_GPIO_NR(4, 10)
+#define MX51EVK_LCD_BACKLIGHT	IMX_GPIO_NR(3, 4)
 
 DECLARE_GLOBAL_DATA_PTR;
 
