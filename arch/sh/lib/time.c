@@ -36,23 +36,26 @@
 
 static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
 
-#define TMU_MAX_COUNTER (~0UL)
-
-static ulong timer_freq;
+static u16 bit;
 static unsigned long last_tcnt;
 static unsigned long long overflow_ticks;
+
+unsigned long get_tbclk(void)
+{
+	return get_tmu0_clk_rate() >> ((bit + 1) * 2);
+}
 
 static inline unsigned long long tick_to_time(unsigned long long tick)
 {
 	tick *= CONFIG_SYS_HZ;
-	do_div(tick, timer_freq);
+	do_div(tick, get_tbclk());
 
 	return tick;
 }
 
 static inline unsigned long long usec_to_tick(unsigned long long usec)
 {
-	usec *= timer_freq;
+	usec *= get_tbclk();
 	do_div(usec, 1000000);
 
 	return usec;
@@ -74,30 +77,8 @@ static void tmu_timer_stop(unsigned int timer)
 
 int timer_init(void)
 {
-	/* Divide clock by CONFIG_SYS_TMU_CLK_DIV */
-	u16 bit = 0;
-
-	switch (CONFIG_SYS_TMU_CLK_DIV) {
-	case 1024:
-		bit = 4;
-		break;
-	case 256:
-		bit = 3;
-		break;
-	case 64:
-		bit = 2;
-		break;
-	case 16:
-		bit = 1;
-		break;
-	case 4:
-	default:
-		break;
-	}
+	bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
 	writew(readw(&tmu->tcr0) | bit, &tmu->tcr0);
-
-	/* Calc clock rate */
-	timer_freq = get_tmu0_clk_rate() >> ((bit + 1) * 2);
 
 	tmu_timer_stop(0);
 	tmu_timer_start(0);
@@ -137,7 +118,14 @@ unsigned long get_timer(unsigned long base)
 	return tick_to_time(get_ticks()) - base;
 }
 
-unsigned long get_tbclk(void)
+void set_timer(unsigned long t)
 {
-	return timer_freq;
+	writel((0 - t), &tmu->tcnt0);
+}
+
+void reset_timer(void)
+{
+	tmu_timer_stop(0);
+	set_timer(0);
+	tmu_timer_start(0);
 }
