@@ -39,8 +39,6 @@ endif
 # Default to EB if no endianess is configured
 ENDIANNESS ?= -EB
 
-CONFIG_STANDALONE_LOAD_ADDR ?= 0x80200000 -T mips.lds
-
 PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 
 #

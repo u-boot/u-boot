@@ -21,3 +21,5 @@
 #
 
 PLATFORM_CPPFLAGS += -march=mips32
+
+CONFIG_STANDALONE_LOAD_ADDR ?= 0x80200000 -T mips.lds
