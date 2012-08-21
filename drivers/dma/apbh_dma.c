@@ -526,7 +526,7 @@ static int mxs_dma_wait_complete(uint32_t timeout, unsigned int chan)
  */
 int mxs_dma_go(int chan)
 {
-	uint32_t timeout = 10000;
+	uint32_t timeout = 10000000;
 	int ret;
 
 	LIST_HEAD(tmp_desc_list);
