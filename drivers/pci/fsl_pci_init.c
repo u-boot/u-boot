@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2011 Freescale Semiconductor, Inc.
+ * Copyright 2007-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -499,13 +499,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	}
 
 #ifndef CONFIG_PCI_NOSCAN
-	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &temp8);
-
-	/* Programming Interface (PCI_CLASS_PROG)
-	 * 0 == pci host or pcie root-complex,
-	 * 1 == pci agent or pcie end-point
-	 */
-	if (!temp8) {
+	if (!fsl_is_pci_agent(hose)) {
 		debug("           Scanning PCI bus %02x\n",
 			hose->current_busno);
 		hose->last_busno = pci_hose_scan_bus(hose, hose->current_busno);
@@ -543,12 +537,22 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 
 int fsl_is_pci_agent(struct pci_controller *hose)
 {
-	u8 prog_if;
+	u8 pcie_cap;
 	pci_dev_t dev = PCI_BDF(hose->first_busno, 0, 0);
 
-	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prog_if);
+	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
+	if (pcie_cap == PCI_CAP_ID_EXP) {
+		u8 header_type;
 
-	return (prog_if == FSL_PROG_IF_AGENT);
+		pci_hose_read_config_byte(hose, dev, PCI_HEADER_TYPE,
+					  &header_type);
+		return (header_type & 0x7f) == PCI_HEADER_TYPE_NORMAL;
+	} else {
+		u8 prog_if;
+
+		pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prog_if);
+		return (prog_if == FSL_PROG_IF_AGENT);
+	}
 }
 
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
@@ -618,12 +622,10 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 void fsl_pci_config_unlock(struct pci_controller *hose)
 {
 	pci_dev_t dev = PCI_BDF(hose->first_busno,0,0);
-	u8 agent;
 	u8 pcie_cap;
 	u16 pbfr;
 
-	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &agent);
-	if (!agent)
+	if (!fsl_is_pci_agent(hose))
 		return;
 
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
