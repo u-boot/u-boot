@@ -17,7 +17,6 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_MX25_CLK32		32768	/* OSC32K frequency */
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_TEXT_BASE		0x81200000
 
