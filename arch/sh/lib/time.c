@@ -2,7 +2,7 @@
  * (C) Copyright 2009
  * Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
  *
- * (C) Copyright 2007-2010
+ * (C) Copyright 2007-2012
  * Nobobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * (C) Copyright 2003
@@ -32,6 +32,9 @@
 #include <asm/processor.h>
 #include <asm/clk.h>
 #include <asm/io.h>
+#include <sh_tmu.h>
+
+static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
 
 #define TMU_MAX_COUNTER (~0UL)
 
@@ -55,21 +58,21 @@ static inline unsigned long long usec_to_tick(unsigned long long usec)
 	return usec;
 }
 
-static void tmu_timer_start (unsigned int timer)
+static void tmu_timer_start(unsigned int timer)
 {
 	if (timer > 2)
 		return;
-	writeb(readb(TSTR) | (1 << timer), TSTR);
+	writeb(readb(&tmu->tstr) | (1 << timer), &tmu->tstr);
 }
 
-static void tmu_timer_stop (unsigned int timer)
+static void tmu_timer_stop(unsigned int timer)
 {
 	if (timer > 2)
 		return;
-	writeb(readb(TSTR) & ~(1 << timer), TSTR);
+	writeb(readb(&tmu->tstr) & ~(1 << timer), &tmu->tstr);
 }
 
-int timer_init (void)
+int timer_init(void)
 {
 	/* Divide clock by CONFIG_SYS_TMU_CLK_DIV */
 	u16 bit = 0;
@@ -91,7 +94,7 @@ int timer_init (void)
 	default:
 		break;
 	}
-	writew(readw(TCR0) | bit, TCR0);
+	writew(readw(&tmu->tcr0) | bit, &tmu->tcr0);
 
 	/* Calc clock rate */
 	timer_freq = get_tmu0_clk_rate() >> ((bit + 1) * 2);
@@ -105,9 +108,9 @@ int timer_init (void)
 	return 0;
 }
 
-unsigned long long get_ticks (void)
+unsigned long long get_ticks(void)
 {
-	unsigned long tcnt = 0 - readl(TCNT0);
+	unsigned long tcnt = 0 - readl(&tmu->tcnt0);
 
 	if (last_tcnt > tcnt) /* overflow */
 		overflow_ticks++;
@@ -116,7 +119,7 @@ unsigned long long get_ticks (void)
 	return (overflow_ticks << 32) | tcnt;
 }
 
-void __udelay (unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;
@@ -128,13 +131,13 @@ void __udelay (unsigned long usec)
 		 /*NOP*/;
 }
 
-unsigned long get_timer (unsigned long base)
+unsigned long get_timer(unsigned long base)
 {
 	/* return msec */
 	return tick_to_time(get_ticks()) - base;
 }
 
-unsigned long get_tbclk (void)
+unsigned long get_tbclk(void)
 {
 	return timer_freq;
 }

@@ -36,9 +36,7 @@
 #define SCIF5_BASE  0xFFE45000
 
 /* Timer */
-#define TSTR	0xFFD80004
-#define TCNT0	0xFFD8000C
-#define TCR0	0xFFD80010
+#define TMU_BASE 0xFFD80000
 
 /* PFC */
 #define PMMR    (0xFFFC0000)

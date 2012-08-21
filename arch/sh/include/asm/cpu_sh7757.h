@@ -51,19 +51,7 @@ struct mmu_regs {
 #define SMR0		0xfe470000
 
 /* TMU0 */
-#define TSTR		0xFE430004
-#define TOCR		0xFE430000
-#define TSTR0		0xFE430004
-#define TCOR0		0xFE430008
-#define TCNT0		0xFE43000C
-#define TCR0		0xFE430010
-#define TCOR1		0xFE430014
-#define TCNT1		0xFE430018
-#define TCR1		0xFE43001C
-#define TCOR2		0xFE430020
-#define TCNT2		0xFE430024
-#define TCR2		0xFE430028
-#define TCPR2		0xFE43002C
+#define TMU_BASE    0xFE430000
 
 /* ETHER, GETHER MAC address */
 struct ether_mac_regs {
