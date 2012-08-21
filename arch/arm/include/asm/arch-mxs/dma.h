@@ -27,6 +27,7 @@
 #define __DMA_H__
 
 #include <linux/list.h>
+#include <linux/compiler.h>
 
 #ifndef	CONFIG_ARCH_DMA_PIO_WORDS
 #define	DMA_PIO_WORDS		15
@@ -109,7 +110,7 @@ struct mxs_dma_desc {
 	dma_addr_t		address;
 	void			*buffer;
 	struct list_head	node;
-};
+} __aligned(MXS_DMA_ALIGNMENT);
 
 /**
  * MXS DMA channel
