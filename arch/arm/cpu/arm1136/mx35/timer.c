@@ -101,7 +101,7 @@ ulong get_timer_masked(void)
 {
 	/*
 	 * get_ticks() returns a long long (64 bit), it wraps in
-	 * 2^64 / CONFIG_MX25_CLK32 = 2^64 / 2^15 = 2^49 ~ 5 * 10^14 (s) ~
+	 * 2^64 / MXC_CLK32 = 2^64 / 2^15 = 2^49 ~ 5 * 10^14 (s) ~
 	 * 5 * 10^9 days... and get_ticks() * CONFIG_SYS_HZ wraps in
 	 * 5 * 10^6 days - long enough.
 	 */

@@ -31,7 +31,6 @@
  /* High Level Configuration Options */
 #define CONFIG_ARM1136	/* This is an arm1136 CPU core */
 #define CONFIG_MX35
-#define CONFIG_MX35_HCLK_FREQ	24000000
 
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32

@@ -149,9 +149,7 @@ static u32 get_mcu_main_clk(void)
 	struct ccm_regs *ccm =
 		(struct ccm_regs *)IMX_CCM_BASE;
 	arm_div = get_arm_div(readl(&ccm->pdr0), &fi, &fd);
-	fi *=
-		decode_pll(readl(&ccm->mpctl),
-			CONFIG_MX35_HCLK_FREQ);
+	fi *= decode_pll(readl(&ccm->mpctl), MXC_HCLK);
 	return fi / (arm_div * fd);
 }
 
@@ -193,12 +191,10 @@ u32 imx_get_uartclk(void)
 		(struct ccm_regs *)IMX_CCM_BASE;
 	u32 pdr4 = readl(&ccm->pdr4);
 
-	if (readl(&ccm->pdr3) & MXC_CCM_PDR3_UART_M_U) {
+	if (readl(&ccm->pdr3) & MXC_CCM_PDR3_UART_M_U)
 		freq = get_mcu_main_clk();
-	} else {
-		freq = decode_pll(readl(&ccm->ppctl),
-			CONFIG_MX35_HCLK_FREQ);
-	}
+	else
+		freq = decode_pll(readl(&ccm->ppctl), MXC_HCLK);
 	freq /= CCM_GET_DIVIDER(pdr4,
 			MXC_CCM_PDR4_UART_PODF_MASK,
 			MXC_CCM_PDR4_UART_PODF_OFFSET) + 1;
@@ -253,12 +249,10 @@ unsigned int mxc_get_main_clock(enum mxc_main_clock clk)
 		break;
 	case USB_CLK:
 		usb_podf = (reg4 >> 22) & 0x3F;
-		if (reg4 & 0x200) {
+		if (reg4 & 0x200)
 			pll = get_mcu_main_clk();
-		} else {
-			pll = decode_pll(readl(&ccm->ppctl),
-				CONFIG_MX35_HCLK_FREQ);
-		}
+		else
+			pll = decode_pll(readl(&ccm->ppctl), MXC_HCLK);
 
 		ret_val = pll / (usb_podf + 1);
 		break;
@@ -285,15 +279,14 @@ unsigned int mxc_get_peri_clock(enum mxc_peri_clock clk)
 		clk_sel = mpdr3 & (1 << 14);
 		pdf = (mpdr4 >> 10) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				(pdf + 1);
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) / (pdf + 1);
 		break;
 	case SSI1_BAUD:
 		pre_pdf = (mpdr2 >> 24) & 0x7;
 		pdf = mpdr2 & 0x3F;
 		clk_sel = mpdr2 & (1 << 6);
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) /
 				((pre_pdf + 1) * (pdf + 1));
 		break;
 	case SSI2_BAUD:
@@ -301,15 +294,14 @@ unsigned int mxc_get_peri_clock(enum mxc_peri_clock clk)
 		pdf = (mpdr2 >> 8) & 0x3F;
 		clk_sel = mpdr2 & (1 << 6);
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) /
 				((pre_pdf + 1) * (pdf + 1));
 		break;
 	case CSI_BAUD:
 		clk_sel = mpdr2 & (1 << 7);
 		pdf = (mpdr2 >> 16) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				(pdf + 1);
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) / (pdf + 1);
 		break;
 	case MSHC_CLK:
 		pre_pdf = readl(&ccm->pdr1);
@@ -317,36 +309,33 @@ unsigned int mxc_get_peri_clock(enum mxc_peri_clock clk)
 		pdf = (pre_pdf >> 22) & 0x3F;
 		pre_pdf = (pre_pdf >> 28) & 0x7;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) /
 				((pre_pdf + 1) * (pdf + 1));
 		break;
 	case ESDHC1_CLK:
 		clk_sel = mpdr3 & 0x40;
 		pdf = mpdr3 & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				(pdf + 1);
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) / (pdf + 1);
 		break;
 	case ESDHC2_CLK:
 		clk_sel = mpdr3 & 0x40;
 		pdf = (mpdr3 >> 8) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				(pdf + 1);
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) / (pdf + 1);
 		break;
 	case ESDHC3_CLK:
 		clk_sel = mpdr3 & 0x40;
 		pdf = (mpdr3 >> 16) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
-				(pdf + 1);
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) / (pdf + 1);
 		break;
 	case SPDIF_CLK:
 		clk_sel = mpdr3 & 0x400000;
 		pre_pdf = (mpdr3 >> 29) & 0x7;
 		pdf = (mpdr3 >> 23) & 0x3F;
 		ret_val = ((clk_sel != 0) ? mxc_get_main_clock(CPU_CLK) :
-			decode_pll(readl(&ccm->ppctl), CONFIG_MX35_HCLK_FREQ)) /
+			decode_pll(readl(&ccm->ppctl), MXC_HCLK)) /
 				((pre_pdf + 1) * (pdf + 1));
 		break;
 	default:
