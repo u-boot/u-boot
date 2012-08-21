@@ -42,7 +42,7 @@
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
 
-#define MX53LOCO_LCD_POWER		(2 * 32 + 24)	/* GPIO3_24 */
+#define MX53LOCO_LCD_POWER		IMX_GPIO_NR(3, 24)
 
 DECLARE_GLOBAL_DATA_PTR;
 
