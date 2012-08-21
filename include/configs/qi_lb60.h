@@ -11,6 +11,7 @@
 #define __CONFIG_QI_LB60_H
 
 #define CONFIG_MIPS32		/* MIPS32 CPU core */
+#define CONFIG_SYS_LITTLE_ENDIAN
 #define CONFIG_JZSOC		/* Jz SoC */
 #define CONFIG_JZ4740		/* Jz4740 SoC */
 #define CONFIG_NAND_JZ4740
