@@ -33,7 +33,7 @@
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
 
-#define ETHERNET_INT		(1 * 32 + 31)  /* GPIO2_31 */
+#define ETHERNET_INT		IMX_GPIO_NR(2, 31)
 
 DECLARE_GLOBAL_DATA_PTR;
 
