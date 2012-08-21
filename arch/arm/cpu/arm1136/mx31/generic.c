@@ -49,9 +49,9 @@ static u32 mx31_get_mpl_dpdgck_clk(void)
 	u32 infreq;
 
 	if ((readl(CCM_CCMR) & CCMR_PRCS_MASK) == CCMR_FPM)
-		infreq = CONFIG_MX31_CLK32 * 1024;
+		infreq = MXC_CLK32 * 1024;
 	else
-		infreq = CONFIG_MX31_HCLK_FREQ;
+		infreq = MXC_HCLK;
 
 	return mx31_decode_pll(readl(CCM_MPCTL), infreq);
 }
