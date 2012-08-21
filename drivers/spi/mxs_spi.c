@@ -56,7 +56,6 @@ struct mxs_spi_slave {
 	uint32_t		max_khz;
 	uint32_t		mode;
 	struct mxs_ssp_regs	*regs;
-	struct mxs_dma_desc	*desc;
 };
 
 static inline struct mxs_spi_slave *to_mxs_slave(struct spi_slave *slave)
@@ -84,7 +83,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	uint32_t addr;
 	struct mxs_ssp_regs *ssp_regs;
 	int reg;
-	struct mxs_dma_desc *desc;
 
 	if (!spi_cs_is_valid(bus, cs)) {
 		printf("mxs_spi: invalid bus %d / chip select %d\n", bus, cs);
@@ -94,10 +92,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxs_slave = calloc(sizeof(struct mxs_spi_slave), 1);
 	if (!mxs_slave)
 		return NULL;
-
-	desc = mxs_dma_desc_alloc();
-	if (!desc)
-		goto err_desc;
 
 	if (mxs_dma_init_channel(bus))
 		goto err_init;
@@ -109,7 +103,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxs_slave->max_khz = max_hz / 1000;
 	mxs_slave->mode = mode;
 	mxs_slave->regs = (struct mxs_ssp_regs *)addr;
-	mxs_slave->desc = desc;
 	ssp_regs = mxs_slave->regs;
 
 	reg = readl(&ssp_regs->hw_ssp_ctrl0);
@@ -120,8 +113,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	return &mxs_slave->slave;
 
 err_init:
-	mxs_dma_desc_free(desc);
-err_desc:
 	free(mxs_slave);
 	return NULL;
 }
@@ -129,7 +120,6 @@ err_desc:
 void spi_free_slave(struct spi_slave *slave)
 {
 	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
-	mxs_dma_desc_free(mxs_slave->desc);
 	free(mxs_slave);
 }
 
@@ -228,19 +218,24 @@ static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 			char *data, int length, int write, unsigned long flags)
 {
-	struct mxs_dma_desc *desc = slave->desc;
+	const int xfer_max_sz = 0xff00;
+	const int desc_count = DIV_ROUND_UP(length, xfer_max_sz) + 1;
 	struct mxs_ssp_regs *ssp_regs = slave->regs;
-	uint32_t ctrl0 = SSP_CTRL0_DATA_XFER;
+	struct mxs_dma_desc *dp;
+	uint32_t ctrl0;
 	uint32_t cache_data_count;
 	int dmach;
+	int tl;
 
-	memset(desc, 0, sizeof(struct mxs_dma_desc));
-	desc->address = (dma_addr_t)desc;
+	ALLOC_CACHE_ALIGN_BUFFER(struct mxs_dma_desc, desc, desc_count);
+
+	memset(desc, 0, sizeof(struct mxs_dma_desc) * desc_count);
+
+	ctrl0 = readl(&ssp_regs->hw_ssp_ctrl0);
+	ctrl0 |= SSP_CTRL0_DATA_XFER;
 
 	if (flags & SPI_XFER_BEGIN)
 		ctrl0 |= SSP_CTRL0_LOCK_CS;
-	if (flags & SPI_XFER_END)
-		ctrl0 |= SSP_CTRL0_IGNORE_CRC;
 	if (!write)
 		ctrl0 |= SSP_CTRL0_READ;
 
@@ -251,27 +246,66 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 	else
 		cache_data_count = length;
 
-	if (!write) {
-		slave->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_WRITE;
-		slave->desc->cmd.address = (dma_addr_t)data;
-	} else {
-		slave->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_READ;
-		slave->desc->cmd.address = (dma_addr_t)data;
-
+	if (write)
 		/* Flush data to DRAM so DMA can pick them up */
 		flush_dcache_range((uint32_t)data,
 			(uint32_t)(data + cache_data_count));
-	}
-
-	slave->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
-				(length << MXS_DMA_DESC_BYTES_OFFSET) |
-				(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
-				MXS_DMA_DESC_WAIT4END;
-
-	slave->desc->cmd.pio_words[0] = ctrl0;
 
 	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + slave->slave.bus;
-	mxs_dma_desc_append(dmach, slave->desc);
+
+	dp = desc;
+	while (length) {
+		dp->address = (dma_addr_t)dp;
+		dp->cmd.address = (dma_addr_t)data;
+
+		/*
+		 * This is correct, even though it does indeed look insane.
+		 * I hereby have to, wholeheartedly, thank Freescale Inc.,
+		 * for always inventing insane hardware and keeping me busy
+		 * and employed ;-)
+		 */
+		if (write)
+			dp->cmd.data = MXS_DMA_DESC_COMMAND_DMA_READ;
+		else
+			dp->cmd.data = MXS_DMA_DESC_COMMAND_DMA_WRITE;
+
+		/*
+		 * The DMA controller can transfer large chunks (64kB) at
+		 * time by setting the transfer length to 0. Setting tl to
+		 * 0x10000 will overflow below and make .data contain 0.
+		 * Otherwise, 0xff00 is the transfer maximum.
+		 */
+		if (length >= 0x10000)
+			tl = 0x10000;
+		else
+			tl = min(length, xfer_max_sz);
+
+		dp->cmd.data |=
+			(tl << MXS_DMA_DESC_BYTES_OFFSET) |
+			(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
+			MXS_DMA_DESC_HALT_ON_TERMINATE |
+			MXS_DMA_DESC_TERMINATE_FLUSH;
+		dp->cmd.pio_words[0] = ctrl0;
+
+		data += tl;
+		length -= tl;
+
+		mxs_dma_desc_append(dmach, dp);
+
+		dp++;
+	}
+
+	dp->address = (dma_addr_t)dp;
+	dp->cmd.address = (dma_addr_t)0;
+	dp->cmd.data = MXS_DMA_DESC_COMMAND_NO_DMAXFER |
+			(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
+			MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM;
+	if (flags & SPI_XFER_END) {
+		ctrl0 &= ~SSP_CTRL0_LOCK_CS;
+		dp->cmd.pio_words[0] = ctrl0 | SSP_CTRL0_IGNORE_CRC;
+	}
+	mxs_dma_desc_append(dmach, dp);
+
 	if (mxs_dma_go(dmach))
 		return -EINVAL;
 
