@@ -104,7 +104,8 @@
 #define FLAG_NONE			0
 #define FLAG_TYPE_AX88172	(1U << 0)
 #define FLAG_TYPE_AX88772	(1U << 1)
-#define FLAG_EEPROM_MAC		(1U << 2) /* initial mac address in eeprom */
+#define FLAG_TYPE_AX88772B	(1U << 2)
+#define FLAG_EEPROM_MAC		(1U << 3) /* initial mac address in eeprom */
 
 /* local vars */
 static int curr_eth_dev; /* index for name of next device detected */
@@ -543,13 +544,13 @@ static int asix_recv(struct eth_device *eth)
 		}
 		memcpy(&packet_len, buf_ptr, sizeof(packet_len));
 		le32_to_cpus(&packet_len);
-		if (((packet_len >> 16) ^ 0xffff) != (packet_len & 0xffff)) {
+		if (((~packet_len >> 16) & 0x7ff) != (packet_len & 0x7ff)) {
 			debug("Rx: malformed packet length: %#x (%#x:%#x)\n",
-			      packet_len, (packet_len >> 16) ^ 0xffff,
-			      packet_len & 0xffff);
+			      packet_len, (~packet_len >> 16) & 0x7ff,
+			      packet_len & 0x7ff);
 			return -1;
 		}
-		packet_len = packet_len & 0xffff;
+		packet_len = packet_len & 0x7ff;
 		if (packet_len > actual_len - sizeof(packet_len)) {
 			debug("Rx: too large packet: %d\n", packet_len);
 			return -1;
@@ -599,6 +600,8 @@ static const struct asix_dongle const asix_dongles[] = {
 	{ 0x1557, 0x7720, FLAG_TYPE_AX88772 },	/* 0Q0 cable ethernet */
 	/* DLink DUB-E100 H/W Ver B1 Alternate */
 	{ 0x2001, 0x3c05, FLAG_TYPE_AX88772 },
+	/* ASIX 88772B */
+	{ 0x0b95, 0x772b, FLAG_TYPE_AX88772B | FLAG_EEPROM_MAC },
 	{ 0x0000, 0x0000, FLAG_NONE }	/* END - Do not remove */
 };
 
@@ -608,6 +611,7 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 {
 	struct usb_interface *iface;
 	struct usb_interface_descriptor *iface_desc;
+	int ep_in_found = 0, ep_out_found = 0;
 	int i;
 
 	/* let's examine the device now */
@@ -651,13 +655,20 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 		/* is it an BULK endpoint? */
 		if ((iface->ep_desc[i].bmAttributes &
 		     USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_BULK) {
-			if (iface->ep_desc[i].bEndpointAddress & USB_DIR_IN)
-				ss->ep_in = iface->ep_desc[i].bEndpointAddress &
-					USB_ENDPOINT_NUMBER_MASK;
-			else
-				ss->ep_out =
-					iface->ep_desc[i].bEndpointAddress &
-					USB_ENDPOINT_NUMBER_MASK;
+			u8 ep_addr = iface->ep_desc[i].bEndpointAddress;
+			if (ep_addr & USB_DIR_IN) {
+				if (!ep_in_found) {
+					ss->ep_in = ep_addr &
+						USB_ENDPOINT_NUMBER_MASK;
+					ep_in_found = 1;
+				}
+			} else {
+				if (!ep_out_found) {
+					ss->ep_out = ep_addr &
+						USB_ENDPOINT_NUMBER_MASK;
+					ep_out_found = 1;
+				}
+			}
 		}
 
 		/* is it an interrupt endpoint? */
