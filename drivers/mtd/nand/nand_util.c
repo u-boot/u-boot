@@ -321,7 +321,8 @@ int nand_get_lock_status(struct mtd_info *mtd, loff_t offset)
  *
  * @return		0 on success, -1 in case of error
  */
-int nand_unlock(struct mtd_info *mtd, ulong start, ulong length, int allexcept)
+int nand_unlock(struct mtd_info *mtd, loff_t start, size_t length,
+	int allexcept)
 {
 	int ret = 0;
 	int chipnr;
@@ -329,7 +330,7 @@ int nand_unlock(struct mtd_info *mtd, ulong start, ulong length, int allexcept)
 	int page;
 	struct nand_chip *chip = mtd->priv;
 
-	debug("nand_unlock%s: start: %08x, length: %d!\n",
+	debug("nand_unlock%s: start: %08llx, length: %d!\n",
 		allexcept ? " (allexcept)" : "", start, length);
 
 	/* select the NAND device */
