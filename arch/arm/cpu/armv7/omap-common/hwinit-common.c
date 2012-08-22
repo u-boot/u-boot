@@ -124,6 +124,9 @@ void s_init(void)
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
 	setup_clocks_for_console();
+
+	gd = &gdata;
+
 	preloader_console_init();
 	do_io_settings();
 #endif

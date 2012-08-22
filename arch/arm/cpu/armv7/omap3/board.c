@@ -45,6 +45,8 @@
 #include <i2c.h>
 #include <linux/compiler.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Declarations */
 extern omap3_sysinfo sysinfo;
 static void omap3_setup_aux_cr(void);
@@ -252,6 +254,8 @@ void s_init(void)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
+	gd = &gdata;
+
 	preloader_console_init();
 
 	timer_init();

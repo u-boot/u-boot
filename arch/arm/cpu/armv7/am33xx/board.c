@@ -166,6 +166,8 @@ void s_init(void)
 	regVal |= UART_SMART_IDLE_EN;
 	writel(regVal, &uart_base->uartsyscfg);
 
+	gd = &gdata;
+
 	preloader_console_init();
 
 	/* Initalize the board header */

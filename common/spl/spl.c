@@ -38,8 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 u32 *boot_params_ptr = NULL;
 struct spl_image_info spl_image;
 
-/* Define global data structure pointer to it*/
-static gd_t gdata __attribute__ ((section(".data")));
+/* Define board data structure */
 static bd_t bdata __attribute__ ((section(".data")));
 
 inline void hang(void)
@@ -47,18 +46,6 @@ inline void hang(void)
 	puts("### ERROR ### Please RESET the board ###\n");
 	for (;;)
 		;
-}
-
-void board_init_f(ulong dummy)
-{
-	/*
-	 * We call relocate_code() with relocation target same as the
-	 * CONFIG_SYS_SPL_TEXT_BASE. This will result in relocation getting
-	 * skipped. Instead, only .bss initialization will happen. That's
-	 * all we need
-	 */
-	debug(">>board_init_f()\n");
-	relocate_code(CONFIG_SPL_STACK, &gdata, CONFIG_SPL_TEXT_BASE);
 }
 
 /*
@@ -107,24 +94,6 @@ void spl_parse_image_header(const struct image_header *header)
 	}
 }
 
-/*
- * This function jumps to an image with argument. Normally an FDT or ATAGS
- * image.
- * arg: Pointer to paramter image in RAM
- */
-#ifdef CONFIG_SPL_OS_BOOT
-static void __noreturn jump_to_image_linux(void *arg)
-{
-	debug("Entering kernel arg pointer: 0x%p\n", arg);
-	typedef void (*image_entry_arg_t)(int, int, void *)
-		__attribute__ ((noreturn));
-	image_entry_arg_t image_entry =
-		(image_entry_arg_t) spl_image.entry_point;
-	cleanup_before_linux();
-	image_entry(0, CONFIG_MACH_TYPE, arg);
-}
-#endif
-
 static void __noreturn jump_to_image_no_args(void)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(u32 *);
@@ -140,7 +109,7 @@ static void __noreturn jump_to_image_no_args(void)
 	image_entry((u32 *)boot_params_ptr_addr);
 }
 
-void board_init_r(gd_t *id, ulong dummy)
+void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	u32 boot_device;
 	debug(">>spl:board_init_r()\n");
@@ -204,10 +173,12 @@ void board_init_r(gd_t *id, ulong dummy)
 	}
 }
 
-/* This requires UART clocks to be enabled */
+/*
+ * This requires UART clocks to be enabled.  In order for this to work the
+ * caller must ensure that the gd pointer is valid.
+ */
 void preloader_console_init(void)
 {
-	gd = &gdata;
 	gd->bd = &bdata;
 	gd->flags |= GD_FLG_RELOC;
 	gd->baudrate = CONFIG_BAUDRATE;
