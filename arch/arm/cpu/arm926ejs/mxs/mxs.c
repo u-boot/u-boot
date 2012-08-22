@@ -81,7 +81,8 @@ void enable_caches(void)
 #endif
 }
 
-int mxs_wait_mask_set(struct mxs_register_32 *reg, uint32_t mask, int timeout)
+int mxs_wait_mask_set(struct mxs_register_32 *reg, uint32_t mask, unsigned
+								int timeout)
 {
 	while (--timeout) {
 		if ((readl(&reg->reg) & mask) == mask)
@@ -92,7 +93,8 @@ int mxs_wait_mask_set(struct mxs_register_32 *reg, uint32_t mask, int timeout)
 	return !timeout;
 }
 
-int mxs_wait_mask_clr(struct mxs_register_32 *reg, uint32_t mask, int timeout)
+int mxs_wait_mask_clr(struct mxs_register_32 *reg, uint32_t mask, unsigned
+								int timeout)
 {
 	while (--timeout) {
 		if ((readl(&reg->reg) & mask) == 0)

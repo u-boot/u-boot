@@ -26,10 +26,10 @@
 int mxs_reset_block(struct mxs_register_32 *reg);
 int mxs_wait_mask_set(struct mxs_register_32 *reg,
 		       uint32_t mask,
-		       int timeout);
+		       unsigned int timeout);
 int mxs_wait_mask_clr(struct mxs_register_32 *reg,
 		       uint32_t mask,
-		       int timeout);
+		       unsigned int timeout);
 
 int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int));
 
