@@ -32,6 +32,7 @@
 #define AX_CMD_READ_MII_REG		0x07
 #define AX_CMD_WRITE_MII_REG		0x08
 #define AX_CMD_SET_HW_MII		0x0a
+#define AX_CMD_READ_EEPROM		0x0b
 #define AX_CMD_READ_RX_CTL		0x0f
 #define AX_CMD_WRITE_RX_CTL		0x10
 #define AX_CMD_WRITE_IPG0		0x12
@@ -103,6 +104,7 @@
 #define FLAG_NONE			0
 #define FLAG_TYPE_AX88172	(1U << 0)
 #define FLAG_TYPE_AX88772	(1U << 1)
+#define FLAG_EEPROM_MAC		(1U << 2) /* initial mac address in eeprom */
 
 /* local vars */
 static int curr_eth_dev; /* index for name of next device detected */
@@ -337,6 +339,34 @@ static int mii_nway_restart(struct ueth_data *dev)
 	return r;
 }
 
+static int asix_read_mac(struct eth_device *eth)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	struct asix_private *priv = (struct asix_private *)dev->dev_priv;
+	int i;
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buf, ETH_ALEN);
+
+	if (priv->flags & FLAG_EEPROM_MAC) {
+		for (i = 0; i < (ETH_ALEN >> 1); i++) {
+			if (asix_read_cmd(dev, AX_CMD_READ_EEPROM,
+					  0x04 + i, 0, 2, buf) < 0) {
+				debug("Failed to read SROM address 04h.\n");
+				return -1;
+			}
+			memcpy((eth->enetaddr + i * 2), buf, 2);
+		}
+	} else {
+		if (asix_read_cmd(dev, AX_CMD_READ_NODE_ID, 0, 0, ETH_ALEN, buf)
+		     < 0) {
+			debug("Failed to read MAC address.\n");
+			return -1;
+		}
+		memcpy(eth->enetaddr, buf, ETH_ALEN);
+	}
+
+	return 0;
+}
+
 static int asix_basic_reset(struct ueth_data *dev)
 {
 	int embd_phy;
@@ -390,18 +420,6 @@ static int asix_init(struct eth_device *eth, bd_t *bd)
 	int link_detected;
 
 	debug("** %s()\n", __func__);
-
-	/* Get the MAC address */
-	if (asix_read_cmd(dev, AX_CMD_READ_NODE_ID,
-				0, 0, ETH_ALEN, buf) < 0) {
-		debug("Failed to read MAC address.\n");
-		goto out_err;
-	}
-	memcpy(eth->enetaddr, buf, ETH_ALEN);
-	debug("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
-		eth->enetaddr[0], eth->enetaddr[1],
-		eth->enetaddr[2], eth->enetaddr[3],
-		eth->enetaddr[4], eth->enetaddr[5]);
 
 	dev->phy_id = asix_get_phy_addr(dev);
 	if (dev->phy_id < 0)
@@ -683,6 +701,11 @@ int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 
 	if (asix_basic_reset(ss))
 		return 0;
+
+	/* Get the MAC address */
+	if (asix_read_mac(eth))
+		return 0;
+	debug("MAC %pM\n", eth->enetaddr);
 
 	return 1;
 }
