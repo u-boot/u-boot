@@ -265,7 +265,6 @@ int nand_lock(struct mtd_info *mtd, int tight)
  *			>0 lock status:
  *			  bitfield with the following combinations:
  *			  NAND_LOCK_STATUS_TIGHT: page in tight state
- *			  NAND_LOCK_STATUS_LOCK:  page locked
  *			  NAND_LOCK_STATUS_UNLOCK: page unlocked
  *
  */
@@ -294,7 +293,6 @@ int nand_get_lock_status(struct mtd_info *mtd, loff_t offset)
 	chip->cmdfunc(mtd, NAND_CMD_LOCK_STATUS, -1, page & chip->pagemask);
 
 	ret = chip->read_byte(mtd) & (NAND_LOCK_STATUS_TIGHT
-					  | NAND_LOCK_STATUS_LOCK
 					  | NAND_LOCK_STATUS_UNLOCK);
 
  out:

@@ -231,12 +231,18 @@ print:
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
 static void print_status(ulong start, ulong end, ulong erasesize, int status)
 {
+	/*
+	 * Micron NAND flash (e.g. MT29F4G08ABADAH4) BLOCK LOCK READ STATUS is
+	 * not the same as others.  Instead of bit 1 being lock, it is
+	 * #lock_tight. To make the driver support either format, ignore bit 1
+	 * and use only bit 0 and bit 2.
+	 */
 	printf("%08lx - %08lx: %08lx blocks %s%s%s\n",
 		start,
 		end - 1,
 		(end - start) / erasesize,
 		((status & NAND_LOCK_STATUS_TIGHT) ?  "TIGHT " : ""),
-		((status & NAND_LOCK_STATUS_LOCK) ?  "LOCK " : ""),
+		(!(status & NAND_LOCK_STATUS_UNLOCK) ?  "LOCK " : ""),
 		((status & NAND_LOCK_STATUS_UNLOCK) ?  "UNLOCK " : ""));
 }
 
