@@ -144,8 +144,8 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
 #define NAND_LOCK_STATUS_LOCK	0x02
 #define NAND_LOCK_STATUS_UNLOCK 0x04
 
-int nand_lock( nand_info_t *meminfo, int tight );
-int nand_unlock( nand_info_t *meminfo, ulong start, ulong length );
+int nand_lock(nand_info_t *meminfo, int tight);
+int nand_unlock(nand_info_t *meminfo, ulong start, ulong length, int allexcept);
 int nand_get_lock_status(nand_info_t *meminfo, loff_t offset);
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst);

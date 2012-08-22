@@ -317,18 +317,20 @@ int nand_get_lock_status(struct mtd_info *mtd, loff_t offset)
  * @param start		start byte address
  * @param length	number of bytes to unlock (must be a multiple of
  *			page size nand->writesize)
+ * @param allexcept	if set, unlock everything not selected
  *
  * @return		0 on success, -1 in case of error
  */
-int nand_unlock(struct mtd_info *mtd, ulong start, ulong length)
+int nand_unlock(struct mtd_info *mtd, ulong start, ulong length, int allexcept)
 {
 	int ret = 0;
 	int chipnr;
 	int status;
 	int page;
 	struct nand_chip *chip = mtd->priv;
-	printf ("nand_unlock: start: %08x, length: %d!\n",
-		(int)start, (int)length);
+
+	debug("nand_unlock%s: start: %08x, length: %d!\n",
+		allexcept ? " (allexcept)" : "", start, length);
 
 	/* select the NAND device */
 	chipnr = (int)(start >> chip->chip_shift);
@@ -368,6 +370,15 @@ int nand_unlock(struct mtd_info *mtd, ulong start, ulong length)
 
 	/* submit ADDRESS of LAST page to unlock */
 	page += (int)(length >> chip->page_shift);
+
+	/*
+	 * Page addresses for unlocking are supposed to be block-aligned.
+	 * At least some NAND chips use the low bit to indicate that the
+	 * page range should be inverted.
+	 */
+	if (allexcept)
+		page |= 1;
+
 	chip->cmdfunc(mtd, NAND_CMD_UNLOCK2, -1, page & chip->pagemask);
 
 	/* call wait ready function */

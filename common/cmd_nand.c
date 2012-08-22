@@ -749,11 +749,18 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
-	if (strcmp(cmd, "unlock") == 0) {
+	if (strncmp(cmd, "unlock", 5) == 0) {
+		int allexcept = 0;
+
+		s = strchr(cmd, '.');
+
+		if (s && !strcmp(s, ".allexcept"))
+			allexcept = 1;
+
 		if (arg_off_size(argc - 2, argv + 2, &dev, &off, &size) < 0)
 			return 1;
 
-		if (!nand_unlock(&nand_info[dev], off, size)) {
+		if (!nand_unlock(&nand_info[dev], off, size, allexcept)) {
 			puts("NAND flash successfully unlocked\n");
 		} else {
 			puts("Error unlocking NAND flash, "
@@ -807,7 +814,7 @@ U_BOOT_CMD(
 	"\n"
 	"nand lock [tight] [status]\n"
 	"    bring nand to lock state or display locked pages\n"
-	"nand unlock [offset] [size] - unlock section"
+	"nand unlock[.allexcept] [offset] [size] - unlock section"
 #endif
 #ifdef CONFIG_ENV_OFFSET_OOB
 	"\n"
