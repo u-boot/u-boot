@@ -33,7 +33,7 @@
 #include <usb/ulpi.h>
 #include <errno.h>
 
-#include "../../drivers/usb/host/ehci.h"
+#include "../../../drivers/usb/host/ehci.h"
 
 /* USB pin configuration */
 #define USB_PAD_CONFIG	(PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST | \
