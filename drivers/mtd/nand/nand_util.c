@@ -207,12 +207,6 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
  * Support for locking / unlocking operations of some NAND devices
  *****************************************************************************/
 
-#define NAND_CMD_LOCK		0x2a
-#define NAND_CMD_LOCK_TIGHT	0x2c
-#define NAND_CMD_UNLOCK1	0x23
-#define NAND_CMD_UNLOCK2	0x24
-#define NAND_CMD_LOCK_STATUS	0x7a
-
 /**
  * nand_lock: Set all pages of NAND flash chip to the LOCK or LOCK-TIGHT
  *	      state

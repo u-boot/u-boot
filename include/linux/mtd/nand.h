@@ -85,8 +85,10 @@ extern void nand_wait_ready(struct mtd_info *mtd);
 #define NAND_CMD_RESET		0xff
 
 #define NAND_CMD_LOCK		0x2a
+#define NAND_CMD_LOCK_TIGHT	0x2c
 #define NAND_CMD_UNLOCK1	0x23
 #define NAND_CMD_UNLOCK2	0x24
+#define NAND_CMD_LOCK_STATUS	0x7a
 
 /* Extended commands for large page devices */
 #define NAND_CMD_READSTART	0x30
