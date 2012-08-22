@@ -23,6 +23,7 @@
 #include <usb.h>
 #include <linux/mii.h>
 #include "usb_ether.h"
+#include <malloc.h>
 
 
 /* ASIX AX8817X based USB 2.0 Ethernet Devices */
@@ -35,6 +36,7 @@
 #define AX_CMD_WRITE_RX_CTL		0x10
 #define AX_CMD_WRITE_IPG0		0x12
 #define AX_CMD_READ_NODE_ID		0x13
+#define AX_CMD_WRITE_NODE_ID	0x14
 #define AX_CMD_READ_PHY_ID		0x19
 #define AX_CMD_WRITE_MEDIUM_MODE	0x1b
 #define AX_CMD_WRITE_GPIOS		0x1f
@@ -97,8 +99,18 @@
 #define AX_RX_URB_SIZE 2048
 #define PHY_CONNECT_TIMEOUT 5000
 
+/* asix_flags defines */
+#define FLAG_NONE			0
+#define FLAG_TYPE_AX88172	(1U << 0)
+#define FLAG_TYPE_AX88772	(1U << 1)
+
 /* local vars */
 static int curr_eth_dev; /* index for name of next device detected */
+
+/* driver private */
+struct asix_private {
+	int flags;
+};
 
 /*
  * Asix infrastructure commands
@@ -280,6 +292,21 @@ static int asix_write_gpio(struct ueth_data *dev, u16 value, int sleep)
 	}
 	if (sleep)
 		udelay(sleep * 1000);
+
+	return ret;
+}
+
+static int asix_write_hwaddr(struct eth_device *eth)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	int ret;
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buf, ETH_ALEN);
+
+	memcpy(buf, eth->enetaddr, ETH_ALEN);
+
+	ret = asix_write_cmd(dev, AX_CMD_WRITE_NODE_ID, 0, 0, ETH_ALEN, buf);
+	if (ret < 0)
+		debug("Failed to set MAC address: %02x\n", ret);
 
 	return ret;
 }
@@ -539,19 +566,22 @@ void asix_eth_before_probe(void)
 struct asix_dongle {
 	unsigned short vendor;
 	unsigned short product;
+	int flags;
 };
 
-static struct asix_dongle asix_dongles[] = {
-	{ 0x05ac, 0x1402 },	/* Apple USB Ethernet Adapter */
-	{ 0x07d1, 0x3c05 },	/* D-Link DUB-E100 H/W Ver B1 */
-	{ 0x0b95, 0x772a },	/* Cables-to-Go USB Ethernet Adapter */
-	{ 0x0b95, 0x7720 },	/* Trendnet TU2-ET100 V3.0R */
-	{ 0x0b95, 0x1720 },	/* SMC */
-	{ 0x0db0, 0xa877 },	/* MSI - ASIX 88772a */
-	{ 0x13b1, 0x0018 },	/* Linksys 200M v2.1 */
-	{ 0x1557, 0x7720 },	/* 0Q0 cable ethernet */
-	{ 0x2001, 0x3c05 },	/* DLink DUB-E100 H/W Ver B1 Alternate */
-	{ 0x0000, 0x0000 }	/* END - Do not remove */
+static const struct asix_dongle const asix_dongles[] = {
+	{ 0x05ac, 0x1402, FLAG_TYPE_AX88772 },	/* Apple USB Ethernet Adapter */
+	{ 0x07d1, 0x3c05, FLAG_TYPE_AX88772 },	/* D-Link DUB-E100 H/W Ver B1 */
+	/* Cables-to-Go USB Ethernet Adapter */
+	{ 0x0b95, 0x772a, FLAG_TYPE_AX88772 },
+	{ 0x0b95, 0x7720, FLAG_TYPE_AX88772 },	/* Trendnet TU2-ET100 V3.0R */
+	{ 0x0b95, 0x1720, FLAG_TYPE_AX88172 },	/* SMC */
+	{ 0x0db0, 0xa877, FLAG_TYPE_AX88772 },	/* MSI - ASIX 88772a */
+	{ 0x13b1, 0x0018, FLAG_TYPE_AX88172 },	/* Linksys 200M v2.1 */
+	{ 0x1557, 0x7720, FLAG_TYPE_AX88772 },	/* 0Q0 cable ethernet */
+	/* DLink DUB-E100 H/W Ver B1 Alternate */
+	{ 0x2001, 0x3c05, FLAG_TYPE_AX88772 },
+	{ 0x0000, 0x0000, FLAG_NONE }	/* END - Do not remove */
 };
 
 /* Probe to see if a new device is actually an asix device */
@@ -587,6 +617,13 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 	ss->pusb_dev = dev;
 	ss->subclass = iface_desc->bInterfaceSubClass;
 	ss->protocol = iface_desc->bInterfaceProtocol;
+
+	/* alloc driver private */
+	ss->dev_priv = calloc(1, sizeof(struct asix_private));
+	if (!ss->dev_priv)
+		return 0;
+
+	((struct asix_private *)ss->dev_priv)->flags = asix_dongles[i].flags;
 
 	/*
 	 * We are expecting a minimum of 3 endpoints - in, out (bulk), and
@@ -629,6 +666,8 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 				struct eth_device *eth)
 {
+	struct asix_private *priv = (struct asix_private *)ss->dev_priv;
+
 	if (!eth) {
 		debug("%s: missing parameter.\n", __func__);
 		return 0;
@@ -638,6 +677,8 @@ int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	eth->send = asix_send;
 	eth->recv = asix_recv;
 	eth->halt = asix_halt;
+	if (!(priv->flags & FLAG_TYPE_AX88172))
+		eth->write_hwaddr = asix_write_hwaddr;
 	eth->priv = ss;
 
 	if (asix_basic_reset(ss))
