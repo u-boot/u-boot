@@ -310,54 +310,59 @@ static int mii_nway_restart(struct ueth_data *dev)
 	return r;
 }
 
-/*
- * Asix callbacks
- */
-static int asix_init(struct eth_device *eth, bd_t *bd)
+static int asix_basic_reset(struct ueth_data *dev)
 {
 	int embd_phy;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buf, ETH_ALEN);
 	u16 rx_ctl;
-	struct ueth_data	*dev = (struct ueth_data *)eth->priv;
-	int timeout = 0;
-#define TIMEOUT_RESOLUTION 50	/* ms */
-	int link_detected;
-
-	debug("** %s()\n", __func__);
 
 	if (asix_write_gpio(dev,
 			AX_GPIO_RSE | AX_GPIO_GPO_2 | AX_GPIO_GPO2EN, 5) < 0)
-		goto out_err;
+		return -1;
 
 	/* 0x10 is the phy id of the embedded 10/100 ethernet phy */
 	embd_phy = ((asix_get_phy_addr(dev) & 0x1f) == 0x10 ? 1 : 0);
 	if (asix_write_cmd(dev, AX_CMD_SW_PHY_SELECT,
 				embd_phy, 0, 0, NULL) < 0) {
 		debug("Select PHY #1 failed\n");
-		goto out_err;
+		return -1;
 	}
 
 	if (asix_sw_reset(dev, AX_SWRESET_IPPD | AX_SWRESET_PRL) < 0)
-		goto out_err;
+		return -1;
 
 	if (asix_sw_reset(dev, AX_SWRESET_CLEAR) < 0)
-		goto out_err;
+		return -1;
 
 	if (embd_phy) {
 		if (asix_sw_reset(dev, AX_SWRESET_IPRL) < 0)
-			goto out_err;
+			return -1;
 	} else {
 		if (asix_sw_reset(dev, AX_SWRESET_PRTE) < 0)
-			goto out_err;
+			return -1;
 	}
 
 	rx_ctl = asix_read_rx_ctl(dev);
 	debug("RX_CTL is 0x%04x after software reset\n", rx_ctl);
 	if (asix_write_rx_ctl(dev, 0x0000) < 0)
-		goto out_err;
+		return -1;
 
 	rx_ctl = asix_read_rx_ctl(dev);
 	debug("RX_CTL is 0x%04x setting to 0x0000\n", rx_ctl);
+
+	return 0;
+}
+
+/*
+ * Asix callbacks
+ */
+static int asix_init(struct eth_device *eth, bd_t *bd)
+{
+	struct ueth_data	*dev = (struct ueth_data *)eth->priv;
+	int timeout = 0;
+#define TIMEOUT_RESOLUTION 50	/* ms */
+	int link_detected;
+
+	debug("** %s()\n", __func__);
 
 	/* Get the MAC address */
 	if (asix_read_cmd(dev, AX_CMD_READ_NODE_ID,
@@ -634,6 +639,9 @@ int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	eth->recv = asix_recv;
 	eth->halt = asix_halt;
 	eth->priv = ss;
+
+	if (asix_basic_reset(ss))
+		return 0;
 
 	return 1;
 }
