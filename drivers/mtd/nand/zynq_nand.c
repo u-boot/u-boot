@@ -1011,7 +1011,6 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
 	unsigned long ecc_cfg;
 	int ondie_ecc_enabled = 0;
-	int ez_nand_supported = 0;
 
 	xnand = malloc(sizeof(struct xnandps_info));
 	memset(xnand, 0, sizeof(struct xnandps_info));
@@ -1088,12 +1087,9 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 			printf("OnDie ECC flash\n");
 			ondie_ecc_enabled = 1;
 		}
-	} else if ((nand_chip->onfi_version == 23) &&
-				(nand_chip->onfi_params.features & (1 << 9))) {
-		ez_nand_supported = 1;
 	}
 
-	if (ondie_ecc_enabled || ez_nand_supported) {
+	if (ondie_ecc_enabled) {
 		/* bypass the controller ECC block */
 		ecc_cfg = xnandps_read32(xnand->smc_regs +
 			XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET));
