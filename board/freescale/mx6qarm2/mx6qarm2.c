@@ -126,8 +126,8 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret;
 
 	if (cfg->esdhc_base == USDHC3_BASE_ADDR) {
-		gpio_direction_input(171); /*GPIO6_11*/
-		ret = !gpio_get_value(171);
+		gpio_direction_input(IMX_GPIO_NR(6, 11));
+		ret = !gpio_get_value(IMX_GPIO_NR(6, 11));
 	} else /* Don't have the CD GPIO pin on board */
 		ret = 1;
 
