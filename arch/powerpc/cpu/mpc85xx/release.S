@@ -358,7 +358,6 @@ __second_half_boot_page:
 	lwz	r14,0(r3)
 #endif
 
-#define EPAPR_MAGIC		0x45504150
 #define ENTRY_ADDR_UPPER	0
 #define ENTRY_ADDR_LOWER	4
 #define ENTRY_R3_UPPER		8
