@@ -94,8 +94,6 @@ struct zfs_dirhook_info {
 
 
 struct zfs_filesystem *zfsget_fs(void);
-int init_fs(block_dev_desc_t *dev_desc);
-void deinit_fs(block_dev_desc_t *dev_desc);
 int zfs_open(zfs_file_t, const char *filename);
 uint64_t zfs_read(zfs_file_t, char *buf, uint64_t len);
 struct zfs_data *zfs_mount(device_t);

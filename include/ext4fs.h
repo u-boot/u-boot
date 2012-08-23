@@ -130,8 +130,6 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 #endif
 
 struct ext_filesystem *get_fs(void);
-int init_fs(block_dev_desc_t *dev_desc);
-void deinit_fs(block_dev_desc_t *dev_desc);
 int ext4fs_open(const char *filename);
 int ext4fs_read(char *buf, unsigned len);
 int ext4fs_mount(unsigned part_length);

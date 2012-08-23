@@ -75,7 +75,6 @@ int do_ext_load(cmd_tbl_t *cmdtp, int flag, int argc,
 	ulong part_length;
 	int filelen;
 	disk_partition_t info;
-	struct ext_filesystem *fs;
 	char buf[12];
 	unsigned long count;
 	const char *addr_str;
@@ -117,10 +116,7 @@ int do_ext_load(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("** Block device %s %d not supported\n", argv[1], dev);
 		return 1;
 	}
-	if (init_fs(ext4_dev_desc))
-		return 1;
 
-	fs = get_fs();
 	if (*ep) {
 		if (*ep != ':') {
 			puts("** Invalid boot device, use `dev[:part]' **\n");
@@ -130,7 +126,7 @@ int do_ext_load(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	if (part != 0) {
-		if (get_partition_info(fs->dev_desc, part, &info)) {
+		if (get_partition_info(ext4_dev_desc, part, &info)) {
 			printf("** Bad partition %lu **\n", part);
 			goto fail;
 		}
@@ -149,7 +145,7 @@ int do_ext_load(cmd_tbl_t *cmdtp, int flag, int argc,
 		       filename, argv[1], dev);
 	}
 
-	part_length = ext4fs_set_blk_dev(fs->dev_desc, part);
+	part_length = ext4fs_set_blk_dev(ext4_dev_desc, part);
 	if (part_length == 0) {
 		printf("**Bad partition - %s %d:%lu **\n", argv[1], dev, part);
 		ext4fs_close();
@@ -180,7 +176,6 @@ int do_ext_load(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	ext4fs_close();
-	deinit_fs(fs->dev_desc);
 	/* Loading ok, update default load address */
 	load_addr = addr;
 
@@ -190,7 +185,6 @@ int do_ext_load(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	return 0;
 fail:
-	deinit_fs(fs->dev_desc);
 	return 1;
 }
 
@@ -200,7 +194,6 @@ int do_ext_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	int dev;
 	unsigned long part = 1;
 	char *ep;
-	struct ext_filesystem *fs;
 	int part_length;
 	if (argc < 3)
 		return cmd_usage(cmdtp);
@@ -214,10 +207,6 @@ int do_ext_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		return 1;
 	}
 
-	if (init_fs(ext4_dev_desc))
-		return 1;
-
-	fs = get_fs();
 	if (*ep) {
 		if (*ep != ':') {
 			puts("\n** Invalid boot device, use `dev[:part]' **\n");
@@ -229,7 +218,7 @@ int do_ext_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if (argc == 4)
 		filename = argv[3];
 
-	part_length = ext4fs_set_blk_dev(fs->dev_desc, part);
+	part_length = ext4fs_set_blk_dev(ext4_dev_desc, part);
 	if (part_length == 0) {
 		printf("** Bad partition - %s %d:%lu **\n", argv[1], dev, part);
 		ext4fs_close();
@@ -250,10 +239,8 @@ int do_ext_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	};
 
 	ext4fs_close();
-	deinit_fs(fs->dev_desc);
 	return 0;
 
 fail:
-	deinit_fs(fs->dev_desc);
 	return 1;
 }

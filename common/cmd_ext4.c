@@ -151,8 +151,6 @@ int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("Block device %s %d not supported\n", argv[1], dev);
 		return 1;
 	}
-	if (init_fs(ext4_dev_desc))
-		return 1;
 
 	fs = get_fs();
 	if (*ep) {
@@ -173,21 +171,21 @@ int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 	file_size = simple_strtoul(argv[5], NULL, 10);
 
 	/* set the device as block device */
-	part_length = ext4fs_set_blk_dev(fs->dev_desc, part);
+	part_length = ext4fs_set_blk_dev(ext4_dev_desc, part);
 	if (part_length == 0) {
 		printf("Bad partition - %s %d:%lu\n", argv[1], dev, part);
 		goto fail;
 	}
 
 	/* register the device and partition */
-	if (ext4_register_device(fs->dev_desc, part) != 0) {
+	if (ext4_register_device(ext4_dev_desc, part) != 0) {
 		printf("Unable to use %s %d:%lu for fattable\n",
 		       argv[1], dev, part);
 		goto fail;
 	}
 
 	/* get the partition information */
-	if (!get_partition_info(fs->dev_desc, part, &info)) {
+	if (!get_partition_info(ext4_dev_desc, part, &info)) {
 		total_sector = (info.size * info.blksz) / SECTOR_SIZE;
 		fs->total_sect = total_sector;
 	} else {
@@ -207,13 +205,11 @@ int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 		goto fail;
 	}
 	ext4fs_close();
-	deinit_fs(fs->dev_desc);
 
 	return 0;
 
 fail:
 	ext4fs_close();
-	deinit_fs(fs->dev_desc);
 
 	return 1;
 }

@@ -44,43 +44,11 @@
 
 int ext4fs_symlinknest;
 block_dev_desc_t *ext4_dev_desc;
+struct ext_filesystem ext_fs;
 
 struct ext_filesystem *get_fs(void)
 {
-	if (ext4_dev_desc == NULL || ext4_dev_desc->priv == NULL)
-		printf("Invalid Input Arguments %s\n", __func__);
-
-	return ext4_dev_desc->priv;
-}
-
-int init_fs(block_dev_desc_t *dev_desc)
-{
-	struct ext_filesystem *fs;
-	if (dev_desc == NULL) {
-		printf("Invalid Input Arguments %s\n", __func__);
-		return -EINVAL;
-	}
-
-	fs = zalloc(sizeof(struct ext_filesystem));
-	if (fs == NULL) {
-		printf("malloc failed: %s\n", __func__);
-		return -ENOMEM;
-	}
-
-	fs->dev_desc = dev_desc;
-	dev_desc->priv = fs;
-
-	return 0;
-}
-
-void deinit_fs(block_dev_desc_t *dev_desc)
-{
-	if (dev_desc == NULL) {
-		printf("Invalid Input Arguments %s\n", __func__);
-		return;
-	}
-	free(dev_desc->priv);
-	dev_desc->priv = NULL;
+	return &ext_fs;
 }
 
 void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot)
