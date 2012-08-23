@@ -27,11 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= efikamx.o
-
-ifdef	CONFIG_CMD_USB
-COBJS	+= efikamx-usb.o
-endif
+COBJS	:= efikamx.o efikamx-usb.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

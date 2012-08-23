@@ -492,9 +492,6 @@ int board_late_init(void)
 					ARRAY_SIZE(efikamx_pata_pads));
 	setup_iomux_usb();
 
-	if (machine_is_efikasb())
-		setenv("preboot", "usb reset ; setenv stdin usbkbd\0");
-
 	return 0;
 }
 
