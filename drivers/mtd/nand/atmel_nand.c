@@ -79,7 +79,6 @@ static struct nand_ecclayout atmel_oobinfo_small = {
 static int atmel_nand_calculate(struct mtd_info *mtd,
 		const u_char *dat, unsigned char *ecc_code)
 {
-	struct nand_chip *nand_chip = mtd->priv;
 	unsigned int ecc_value;
 
 	/* get the first 2 ECC bytes */
@@ -167,7 +166,7 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 		u_char *read_ecc, u_char *isnull)
 {
 	struct nand_chip *nand_chip = mtd->priv;
-	unsigned int ecc_status, ecc_parity, ecc_mode;
+	unsigned int ecc_status;
 	unsigned int ecc_word, ecc_bit;
 
 	/* get the status from the Status Register */
