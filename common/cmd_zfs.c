@@ -49,12 +49,11 @@
 static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	char *filename = NULL;
-	char *ep;
 	int dev;
-	unsigned long part = 1;
+	int part;
 	ulong addr = 0;
-	ulong part_length;
 	disk_partition_t info;
+	block_dev_desc_t *dev_desc;
 	char buf[12];
 	unsigned long count;
 	const char *addr_str;
@@ -95,48 +94,17 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	dev = (int)simple_strtoul(argv[2], &ep, 16);
-	zfs_dev_desc = get_dev(argv[1], dev);
-	if (zfs_dev_desc == NULL) {
-		printf("** Block device %s %d not supported\n", argv[1], dev);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	if (part < 0)
 		return 1;
-	}
 
-	if (*ep) {
-		if (*ep != ':') {
-			puts("** Invalid boot device, use `dev[:part]' **\n");
-			return 1;
-		}
-		part = simple_strtoul(++ep, NULL, 16);
-	}
+	dev = dev_desc->dev;
+	printf("Loading file \"%s\" from %s device %d%c%c\n",
+		filename, argv[1], dev,
+		part ? ':' : ' ', part ? part + '0' : ' ');
 
-	if (part != 0) {
-		if (get_partition_info(zfs_dev_desc, part, &info)) {
-			printf("** Bad partition %lu **\n", part);
-			return 1;
-		}
-
-		if (strncmp((char *)info.type, BOOT_PART_TYPE,
-					strlen(BOOT_PART_TYPE)) != 0) {
-			printf("** Invalid partition type \"%s\" (expect \"" BOOT_PART_TYPE "\")\n",
-				   info.type);
-			return 1;
-		}
-		printf("Loading file \"%s\" "
-			   "from %s device %d:%lu %s\n",
-			   filename, argv[1], dev, part, info.name);
-	} else {
-		printf("Loading file \"%s\" from %s device %d\n",
-			   filename, argv[1], dev);
-	}
-
-	part_length = zfs_set_blk_dev(zfs_dev_desc, part);
-	if (part_length == 0) {
-		printf("**Bad partition - %s %d:%lu **\n", argv[1], dev, part);
-		return 1;
-	}
-
-	vdev.part_length = part_length;
+	zfs_set_blk_dev(dev_desc, &info);
+	vdev.part_length = info.size;
 
 	memset(&zfile, 0, sizeof(zfile));
 	zfile.device = &vdev;
@@ -149,7 +117,7 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		zfile.size = (uint64_t)count;
 
 	if (zfs_read(&zfile, (char *)addr, zfile.size) != zfile.size) {
-		printf("** Unable to read \"%s\" from %s %d:%lu **\n",
+		printf("** Unable to read \"%s\" from %s %d:%d **\n",
 			   filename, argv[1], dev, part);
 		zfs_close(&zfile);
 		return 1;
@@ -181,41 +149,23 @@ int zfs_print(const char *entry, const struct zfs_dirhook_info *data)
 static int do_zfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	const char *filename = "/";
-	int dev;
-	unsigned long part = 1;
-	char *ep;
-	int part_length;
+	int part;
+	block_dev_desc_t *dev_desc;
+	disk_partition_t info;
 	struct device_s vdev;
 
-	if (argc < 3)
+	if (argc < 2)
 		return cmd_usage(cmdtp);
-
-	dev = (int)simple_strtoul(argv[2], &ep, 16);
-	zfs_dev_desc = get_dev(argv[1], dev);
-
-	if (zfs_dev_desc == NULL) {
-		printf("\n** Block device %s %d not supported\n", argv[1], dev);
-		return 1;
-	}
-
-	if (*ep) {
-		if (*ep != ':') {
-			puts("\n** Invalid boot device, use `dev[:part]' **\n");
-			return 1;
-		}
-		part = simple_strtoul(++ep, NULL, 16);
-	}
 
 	if (argc == 4)
 		filename = argv[3];
 
-	part_length = zfs_set_blk_dev(zfs_dev_desc, part);
-	if (part_length == 0) {
-		printf("** Bad partition - %s %d:%lu **\n", argv[1], dev, part);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	if (part < 0)
 		return 1;
-	}
 
-	vdev.part_length = part_length;
+	zfs_set_blk_dev(dev_desc, &info);
+	vdev.part_length = info.size;
 
 	zfs_ls(&vdev, filename,
 		   zfs_print);
