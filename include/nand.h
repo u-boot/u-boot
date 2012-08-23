@@ -31,7 +31,7 @@
  * at the same time, so do it here.  When all drivers are
  * converted, this will go away.
  */
-#if defined(CONFIG_NAND_FSL_ELBC)
+#if defined(CONFIG_NAND_FSL_ELBC) || defined(CONFIG_NAND_ATMEL)
 #define CONFIG_SYS_NAND_SELF_INIT
 #endif
 

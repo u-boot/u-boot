@@ -232,6 +232,60 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 static void atmel_nand_hwctl(struct mtd_info *mtd, int mode)
 {
 }
+
+int atmel_hwecc_nand_init_param(struct nand_chip *nand, struct mtd_info *mtd)
+{
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.calculate = atmel_nand_calculate;
+	nand->ecc.correct = atmel_nand_correct;
+	nand->ecc.hwctl = atmel_nand_hwctl;
+	nand->ecc.read_page = atmel_nand_read_page;
+	nand->ecc.bytes = 4;
+
+	if (nand->ecc.mode == NAND_ECC_HW) {
+		/* ECC is calculated for the whole page (1 step) */
+		nand->ecc.size = mtd->writesize;
+
+		/* set ECC page size and oob layout */
+		switch (mtd->writesize) {
+		case 512:
+			nand->ecc.layout = &atmel_oobinfo_small;
+			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+					ATMEL_ECC_PAGESIZE_528);
+			break;
+		case 1024:
+			nand->ecc.layout = &atmel_oobinfo_large;
+			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+					ATMEL_ECC_PAGESIZE_1056);
+			break;
+		case 2048:
+			nand->ecc.layout = &atmel_oobinfo_large;
+			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+					ATMEL_ECC_PAGESIZE_2112);
+			break;
+		case 4096:
+			nand->ecc.layout = &atmel_oobinfo_large;
+			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+					ATMEL_ECC_PAGESIZE_4224);
+			break;
+		default:
+			/* page size not handled by HW ECC */
+			/* switching back to soft ECC */
+			nand->ecc.mode = NAND_ECC_SOFT;
+			nand->ecc.calculate = NULL;
+			nand->ecc.correct = NULL;
+			nand->ecc.hwctl = NULL;
+			nand->ecc.read_page = NULL;
+			nand->ecc.postpad = 0;
+			nand->ecc.prepad = 0;
+			nand->ecc.bytes = 0;
+			break;
+		}
+	}
+
+	return 0;
+}
+
 #endif
 
 static void at91_nand_hwcontrol(struct mtd_info *mtd,
@@ -267,12 +321,20 @@ static int at91_nand_ready(struct mtd_info *mtd)
 }
 #endif
 
-int board_nand_init(struct nand_chip *nand)
-{
-#ifdef CONFIG_ATMEL_NAND_HWECC
-	static int chip_nr = 0;
-	struct mtd_info *mtd;
+#ifndef CONFIG_SYS_NAND_BASE_LIST
+#define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
 #endif
+static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
+static ulong base_addr[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIST;
+
+int atmel_nand_chip_init(int devnum, ulong base_addr)
+{
+	int ret;
+	struct mtd_info *mtd = &nand_info[devnum];
+	struct nand_chip *nand = &nand_chip[devnum];
+
+	mtd->priv = nand;
+	nand->IO_ADDR_R = nand->IO_ADDR_W = (void  __iomem *)base_addr;
 
 	nand->ecc.mode = NAND_ECC_SOFT;
 #ifdef CONFIG_SYS_NAND_DBW_16
@@ -284,62 +346,28 @@ int board_nand_init(struct nand_chip *nand)
 #endif
 	nand->chip_delay = 20;
 
-#ifdef CONFIG_ATMEL_NAND_HWECC
-	nand->ecc.mode = NAND_ECC_HW;
-	nand->ecc.calculate = atmel_nand_calculate;
-	nand->ecc.correct = atmel_nand_correct;
-	nand->ecc.hwctl = atmel_nand_hwctl;
-	nand->ecc.read_page = atmel_nand_read_page;
-	nand->ecc.bytes = 4;
-#endif
+	ret = nand_scan_ident(mtd, CONFIG_SYS_NAND_MAX_CHIPS, NULL);
+	if (ret)
+		return ret;
 
 #ifdef CONFIG_ATMEL_NAND_HWECC
-	mtd = &nand_info[chip_nr++];
-	mtd->priv = nand;
-
-	/* Detect NAND chips */
-	if (nand_scan_ident(mtd, 1, NULL)) {
-		printk(KERN_WARNING "NAND Flash not found !\n");
-		return -ENXIO;
-	}
-
-	if (nand->ecc.mode == NAND_ECC_HW) {
-		/* ECC is calculated for the whole page (1 step) */
-		nand->ecc.size = mtd->writesize;
-
-		/* set ECC page size and oob layout */
-		switch (mtd->writesize) {
-		case 512:
-			nand->ecc.layout = &atmel_oobinfo_small;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR, ATMEL_ECC_PAGESIZE_528);
-			break;
-		case 1024:
-			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR, ATMEL_ECC_PAGESIZE_1056);
-			break;
-		case 2048:
-			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR, ATMEL_ECC_PAGESIZE_2112);
-			break;
-		case 4096:
-			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR, ATMEL_ECC_PAGESIZE_4224);
-			break;
-		default:
-			/* page size not handled by HW ECC */
-			/* switching back to soft ECC */
-			nand->ecc.mode = NAND_ECC_SOFT;
-			nand->ecc.calculate = NULL;
-			nand->ecc.correct = NULL;
-			nand->ecc.hwctl = NULL;
-			nand->ecc.read_page = NULL;
-			nand->ecc.postpad = 0;
-			nand->ecc.prepad = 0;
-			nand->ecc.bytes = 0;
-			break;
-		}
-	}
+	ret = atmel_hwecc_nand_init_param(nand, mtd);
+	if (ret)
+		return ret;
 #endif
 
-	return 0;
+	ret = nand_scan_tail(mtd);
+	if (!ret)
+		nand_register(devnum);
+
+	return ret;
+}
+
+void board_nand_init(void)
+{
+	int i;
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
+		if (atmel_nand_chip_init(i, base_addr[i]))
+			printk(KERN_ERR "atmel_nand: Fail to initialize #%d chip",
+				i);
 }
