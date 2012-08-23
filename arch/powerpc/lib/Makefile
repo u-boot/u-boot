@@ -79,6 +79,10 @@ endif
 
 endif # not minimal
 
+ifdef CONFIG_SPL_BUILD
+COBJS-$(CONFIG_SPL_FRAMEWORK) += spl.o
+endif
+
 COBJS	+= $(sort $(COBJS-y))
 
 SRCS	:= $(GLSOBJS:.o=.S) $(GLCOBJS:.o=.c) \
