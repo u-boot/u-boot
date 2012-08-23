@@ -23,14 +23,16 @@
  */
 #include <common.h>
 #include <command.h>
+#include <part.h>
 
+#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_SCSI) || \
+	defined(CONFIG_USB_STORAGE)
 int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 		    char *const argv[])
 {
-	char *boot_device = NULL;
-	char *ep;
-	int dev, part = 0;
-	ulong addr, cnt;
+	int dev, part;
+	ulong addr = CONFIG_SYS_LOAD_ADDR;
+	ulong cnt;
 	disk_partition_t info;
 	image_header_t *hdr;
 	block_dev_desc_t *dev_desc;
@@ -40,72 +42,30 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 #endif
 
 	bootstage_mark(BOOTSTAGE_ID_IDE_START);
-	switch (argc) {
-	case 1:
-		addr = CONFIG_SYS_LOAD_ADDR;
-		boot_device = getenv("bootdevice");
-		break;
-	case 2:
-		addr = simple_strtoul(argv[1], NULL, 16);
-		boot_device = getenv("bootdevice");
-		break;
-	case 3:
-		addr = simple_strtoul(argv[1], NULL, 16);
-		boot_device = argv[2];
-		break;
-	default:
+	if (argc > 3) {
 		bootstage_error(BOOTSTAGE_ID_IDE_ADDR);
 		return CMD_RET_USAGE;
 	}
 	bootstage_mark(BOOTSTAGE_ID_IDE_ADDR);
 
-	if (!boot_device) {
-		puts("\n** No boot device **\n");
-		bootstage_error(BOOTSTAGE_ID_IDE_BOOT_DEVICE);
-		return 1;
-	}
+	if (argc > 1)
+		addr = simple_strtoul(argv[1], NULL, 16);
+
 	bootstage_mark(BOOTSTAGE_ID_IDE_BOOT_DEVICE);
 
-	dev = simple_strtoul(boot_device, &ep, 16);
-
-	dev_desc = get_dev(intf, dev);
-	if (dev_desc->type == DEV_TYPE_UNKNOWN) {
-		printf("\n** Device %d not available\n", dev);
+	part = get_device_and_partition(intf, (argc == 3) ? argv[2] : NULL,
+					&dev_desc, &info);
+	if (part < 0) {
 		bootstage_error(BOOTSTAGE_ID_IDE_TYPE);
 		return 1;
 	}
+
+	dev = dev_desc->dev;
 	bootstage_mark(BOOTSTAGE_ID_IDE_TYPE);
 
-	if (*ep) {
-		if (*ep != ':') {
-			puts("\n** Invalid boot device, use `dev[:part]' **\n");
-			bootstage_error(BOOTSTAGE_ID_IDE_PART);
-			return 1;
-		}
-		part = simple_strtoul(++ep, NULL, 16);
-	}
-	bootstage_mark(BOOTSTAGE_ID_IDE_PART);
-
-	if (get_partition_info(dev_desc, part, &info)) {
-		bootstage_error(BOOTSTAGE_ID_IDE_PART_INFO);
-		return 1;
-	}
-	bootstage_mark(BOOTSTAGE_ID_IDE_PART_INFO);
-
-	if ((strncmp((char *)info.type, BOOT_PART_TYPE, sizeof(info.type)) != 0)
-	    &&
-	    (strncmp((char *)info.type, BOOT_PART_COMP, sizeof(info.type)) != 0)
-	   ) {
-		printf("\n** Invalid partition type \"%.32s\"" " (expect \""
-			BOOT_PART_TYPE "\")\n",
-			info.type);
-		bootstage_error(BOOTSTAGE_ID_IDE_PART_TYPE);
-		return 1;
-	}
-	bootstage_mark(BOOTSTAGE_ID_IDE_PART_TYPE);
-
-	printf("\nLoading from disk device %d, partition %d: "
-	       "Name: %.32s  Type: %.32s\n", dev, part, info.name, info.type);
+	printf("\nLoading from %s device %d, partition %d: "
+	       "Name: %.32s  Type: %.32s\n", intf, dev, part, info.name,
+	       info.type);
 
 	debug("First Block: %ld,  # of blocks: %ld, Block Size: %ld\n",
 	      info.start, info.size, info.blksz);
@@ -181,3 +141,4 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 
 	return bootm_maybe_autostart(cmdtp, argv[0]);
 }
+#endif
