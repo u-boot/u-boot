@@ -89,7 +89,7 @@ static int mmc_file_op(enum dfu_mmc_op op, struct dfu_entity *dfu,
 		return ret;
 	}
 
-	if (dfu->layout != DFU_RAW_ADDR) {
+	if (dfu->layout != DFU_RAW_ADDR && op == DFU_OP_READ) {
 		str_env = getenv("filesize");
 		if (str_env == NULL) {
 			puts("dfu: Wrong file size!\n");
