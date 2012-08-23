@@ -93,6 +93,7 @@ typedef struct disk_partition {
 	ulong	blksz;		/* block size in bytes			*/
 	uchar	name[32];	/* partition name			*/
 	uchar	type[32];	/* string type description		*/
+	int	bootable;	/* Active/Bootable flag is set		*/
 } disk_partition_t;
 
 /* Misc _get_dev functions */

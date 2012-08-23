@@ -60,14 +60,20 @@ static inline int is_extended(int part_type)
 	    part_type == 0x85);
 }
 
+static inline int is_bootable(dos_partition_t *p)
+{
+	return p->boot_ind == 0x80;
+}
+
 static void print_one_part (dos_partition_t *p, int ext_part_sector, int part_num)
 {
 	int lba_start = ext_part_sector + le32_to_int (p->start4);
 	int lba_size  = le32_to_int (p->size4);
 
-	printf ("%5d\t\t%10d\t%10d\t%2x%s\n",
+	printf("%5d\t\t%10d\t%10d\t%2x%s%s\n",
 		part_num, lba_start, lba_size, p->sys_ind,
-		(is_extended (p->sys_ind) ? " Extd" : ""));
+		(is_extended(p->sys_ind) ? " Extd" : ""),
+		(is_bootable(p) ? " Boot" : ""));
 }
 
 static int test_block_type(unsigned char *buffer)
@@ -222,6 +228,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 			}
 			/* sprintf(info->type, "%d, pt->sys_ind); */
 			sprintf ((char *)info->type, "U-Boot");
+			info->bootable = is_bootable(pt);
 			return 0;
 		}
 
