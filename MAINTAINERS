@@ -886,6 +886,11 @@ Michael Schwingen <michael@schwingen.org>
 	actux4		xscale/ixp
 	dvlhost		xscale/ixp
 
+Matt Sealey <matt@genesi-usa.com>
+
+	efikamx		i.MX51
+	efikasb		i.MX51
+
 Bo Shen <voice.shen@atmel.com>
 	at91sam9x5ek		ARM926EJS (AT91SAM9G15,G25,G35,X25,X35 SoC)
 
@@ -915,8 +920,6 @@ Marek Vasut <marek.vasut@gmail.com>
 	zipitz2		xscale/pxa
 	m28evk		i.MX28
 	sc_sps_1	i.MX28
- 	efikamx		i.MX51
-	efikasb		i.MX51
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
