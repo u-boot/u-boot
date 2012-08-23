@@ -63,10 +63,23 @@ static int mmc_file_op(enum dfu_mmc_op op, struct dfu_entity *dfu,
 	char *str_env;
 	int ret;
 
-	sprintf(cmd_buf, "fat%s mmc %d:%d 0x%x %s %lx",
-		op == DFU_OP_READ ? "load" : "write",
-		dfu->data.mmc.dev, dfu->data.mmc.part,
-		(unsigned int) buf, dfu->name, *len);
+	switch (dfu->layout) {
+	case DFU_FS_FAT:
+		sprintf(cmd_buf, "fat%s mmc %d:%d 0x%x %s %lx",
+			op == DFU_OP_READ ? "load" : "write",
+			dfu->data.mmc.dev, dfu->data.mmc.part,
+			(unsigned int) buf, dfu->name, *len);
+		break;
+	case DFU_FS_EXT4:
+		sprintf(cmd_buf, "ext4%s mmc %d:%d /%s 0x%x %ld",
+			op == DFU_OP_READ ? "load" : "write",
+			dfu->data.mmc.dev, dfu->data.mmc.part,
+			dfu->name, (unsigned int) buf, *len);
+		break;
+	default:
+		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
+		       dfu_get_layout(dfu->layout));
+	}
 
 	debug("%s: %s 0x%p\n", __func__, cmd_buf, cmd_buf);
 
@@ -107,6 +120,7 @@ int dfu_write_medium_mmc(struct dfu_entity *dfu, void *buf, long *len)
 		ret = mmc_block_write(dfu, buf, len);
 		break;
 	case DFU_FS_FAT:
+	case DFU_FS_EXT4:
 		ret = mmc_file_write(dfu, buf, len);
 		break;
 	default:
@@ -126,6 +140,7 @@ int dfu_read_medium_mmc(struct dfu_entity *dfu, void *buf, long *len)
 		ret = mmc_block_read(dfu, buf, len);
 		break;
 	case DFU_FS_FAT:
+	case DFU_FS_EXT4:
 		ret = mmc_file_read(dfu, buf, len);
 		break;
 	default:
@@ -149,10 +164,15 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 		dfu->data.mmc.lba_blk_size = get_mmc_blk_size(dfu->dev_num);
 	} else if (!strcmp(st, "fat")) {
 		dfu->layout = DFU_FS_FAT;
-		dfu->data.mmc.dev = simple_strtoul(s, &s, 10);
-		dfu->data.mmc.part = simple_strtoul(++s, &s, 10);
+	} else if (!strcmp(st, "ext4")) {
+		dfu->layout = DFU_FS_EXT4;
 	} else {
 		printf("%s: Memory layout (%s) not supported!\n", __func__, st);
+	}
+
+	if (dfu->layout == DFU_FS_EXT4 || dfu->layout == DFU_FS_FAT) {
+		dfu->data.mmc.dev = simple_strtoul(s, &s, 10);
+		dfu->data.mmc.part = simple_strtoul(++s, &s, 10);
 	}
 
 	dfu->read_medium = dfu_read_medium_mmc;
