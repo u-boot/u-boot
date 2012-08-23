@@ -43,7 +43,6 @@
 #include "ext4_common.h"
 
 int ext4fs_symlinknest;
-block_dev_desc_t *ext4_dev_desc;
 struct ext_filesystem ext_fs;
 
 struct ext_filesystem *get_fs(void)

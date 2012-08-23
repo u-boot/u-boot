@@ -113,7 +113,6 @@ struct ext_filesystem {
 	block_dev_desc_t *dev_desc;
 };
 
-extern block_dev_desc_t *ext4_dev_desc;
 extern struct ext2_data *ext4fs_root;
 extern struct ext2fs_node *ext4fs_file;
 
@@ -137,6 +136,6 @@ void ext4fs_close(void);
 int ext4fs_ls(const char *dirname);
 void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot);
 int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf);
-int ext4fs_set_blk_dev(block_dev_desc_t *rbdd, int part);
+void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info);
 long int read_allocated_block(struct ext2_inode *inode, int fileblock);
 #endif

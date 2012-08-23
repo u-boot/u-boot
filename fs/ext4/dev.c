@@ -38,26 +38,20 @@
 
 #include <common.h>
 #include <config.h>
+#include <ext4fs.h>
 #include <ext_common.h>
 
-static block_dev_desc_t *ext4fs_block_dev_desc;
-static disk_partition_t part_info;
+unsigned long part_offset;
 
-int ext4fs_set_blk_dev(block_dev_desc_t *rbdd, int part)
+static block_dev_desc_t *ext4fs_block_dev_desc;
+static disk_partition_t *part_info;
+
+void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
 {
 	ext4fs_block_dev_desc = rbdd;
-
-	if (part == 0) {
-		/* disk doesn't use partition table */
-		part_info.start = 0;
-		part_info.size = rbdd->lba;
-		part_info.blksz = rbdd->blksz;
-	} else {
-		if (get_partition_info(ext4fs_block_dev_desc,
-					part, &part_info))
-			return 0;
-	}
-	return part_info.size;
+	part_info = info;
+	part_offset = info->start;
+	get_fs()->total_sect = (info->size * info->blksz) / SECTOR_SIZE;
 }
 
 int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)
@@ -68,7 +62,7 @@ int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)
 	/* Check partition boundaries */
 	if ((sector < 0)
 	    || ((sector + ((byte_offset + byte_len - 1) >> SECTOR_BITS)) >=
-		part_info.size)) {
+		part_info->size)) {
 		printf("%s read outside partition %d\n", __func__, sector);
 		return 0;
 	}
@@ -88,7 +82,7 @@ int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)
 		/* read first part which isn't aligned with start of sector */
 		if (ext4fs_block_dev_desc->
 		    block_read(ext4fs_block_dev_desc->dev,
-				part_info.start + sector, 1,
+				part_info->start + sector, 1,
 				(unsigned long *) sec_buf) != 1) {
 			printf(" ** ext2fs_devread() read error **\n");
 			return 0;
@@ -111,14 +105,14 @@ int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)
 
 		block_len = SECTOR_SIZE;
 		ext4fs_block_dev_desc->block_read(ext4fs_block_dev_desc->dev,
-						  part_info.start + sector,
+						  part_info->start + sector,
 						  1, (unsigned long *)p);
 		memcpy(buf, p, byte_len);
 		return 1;
 	}
 
 	if (ext4fs_block_dev_desc->block_read(ext4fs_block_dev_desc->dev,
-					       part_info.start + sector,
+					       part_info->start + sector,
 					       block_len / SECTOR_SIZE,
 					       (unsigned long *) buf) !=
 					       block_len / SECTOR_SIZE) {
@@ -134,7 +128,7 @@ int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)
 		/* read rest of data which are not in whole sector */
 		if (ext4fs_block_dev_desc->
 		    block_read(ext4fs_block_dev_desc->dev,
-				part_info.start + sector, 1,
+				part_info->start + sector, 1,
 				(unsigned long *) sec_buf) != 1) {
 			printf("* %s read error - last part\n", __func__);
 			return 0;

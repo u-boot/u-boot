@@ -62,7 +62,6 @@ static inline void *zalloc(size_t size)
 	return p;
 }
 
-extern unsigned long part_offset;
 int ext4fs_read_inode(struct ext2_data *data, int ino,
 		      struct ext2_inode *inode);
 int ext4fs_read_file(struct ext2fs_node *node, int pos,

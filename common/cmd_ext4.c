@@ -56,21 +56,6 @@
 #include <usb.h>
 #endif
 
-#if !defined(CONFIG_DOS_PARTITION) && !defined(CONFIG_EFI_PARTITION)
-#error DOS or EFI partition support must be selected
-#endif
-
-uint64_t total_sector;
-uint64_t part_offset;
-#if defined(CONFIG_CMD_EXT4_WRITE)
-static uint64_t part_size;
-static uint16_t cur_part = 1;
-#endif
-
-#define DOS_PART_MAGIC_OFFSET		0x1fe
-#define DOS_FS_TYPE_OFFSET		0x36
-#define DOS_FS32_TYPE_OFFSET		0x52
-
 int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,
 						char *const argv[])
 {
@@ -89,77 +74,24 @@ int do_ext4_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 }
 
 #if defined(CONFIG_CMD_EXT4_WRITE)
-static int ext4_register_device(block_dev_desc_t *dev_desc, int part_no)
-{
-	unsigned char buffer[SECTOR_SIZE];
-	disk_partition_t info;
-
-	if (!dev_desc->block_read)
-		return -1;
-
-	/* check if we have a MBR (on floppies we have only a PBR) */
-	if (dev_desc->block_read(dev_desc->dev, 0, 1, (ulong *) buffer) != 1) {
-		printf("** Can't read from device %d **\n", dev_desc->dev);
-		return -1;
-	}
-	if (buffer[DOS_PART_MAGIC_OFFSET] != 0x55 ||
-	    buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) {
-		/* no signature found */
-		return -1;
-	}
-
-	/* First we assume there is a MBR */
-	if (!get_partition_info(dev_desc, part_no, &info)) {
-		part_offset = info.start;
-		cur_part = part_no;
-		part_size = info.size;
-	} else if ((strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET],
-			    "FAT", 3) == 0) || (strncmp((char *)&buffer
-							[DOS_FS32_TYPE_OFFSET],
-							"FAT32", 5) == 0)) {
-		/* ok, we assume we are on a PBR only */
-		cur_part = 1;
-		part_offset = 0;
-	} else {
-		printf("** Partition %d not valid on device %d **\n",
-		       part_no, dev_desc->dev);
-		return -1;
-	}
-
-	return 0;
-}
-
 int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 				char *const argv[])
 {
 	const char *filename = "/";
-	int part_length;
-	unsigned long part = 1;
-	int dev;
-	char *ep;
+	int dev, part;
 	unsigned long ram_address;
 	unsigned long file_size;
 	disk_partition_t info;
-	struct ext_filesystem *fs;
+	block_dev_desc_t *dev_desc;
 
 	if (argc < 6)
 		return cmd_usage(cmdtp);
 
-	dev = (int)simple_strtoul(argv[2], &ep, 16);
-	ext4_dev_desc = get_dev(argv[1], dev);
-	if (ext4_dev_desc == NULL) {
-		printf("Block device %s %d not supported\n", argv[1], dev);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	if (part < 0)
 		return 1;
-	}
 
-	fs = get_fs();
-	if (*ep) {
-		if (*ep != ':') {
-			puts("Invalid boot device, use `dev[:part]'\n");
-			goto fail;
-		}
-		part = simple_strtoul(++ep, NULL, 16);
-	}
+	dev = dev_desc->dev;
 
 	/* get the filename */
 	filename = argv[3];
@@ -171,30 +103,10 @@ int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 	file_size = simple_strtoul(argv[5], NULL, 10);
 
 	/* set the device as block device */
-	part_length = ext4fs_set_blk_dev(ext4_dev_desc, part);
-	if (part_length == 0) {
-		printf("Bad partition - %s %d:%lu\n", argv[1], dev, part);
-		goto fail;
-	}
-
-	/* register the device and partition */
-	if (ext4_register_device(ext4_dev_desc, part) != 0) {
-		printf("Unable to use %s %d:%lu for fattable\n",
-		       argv[1], dev, part);
-		goto fail;
-	}
-
-	/* get the partition information */
-	if (!get_partition_info(ext4_dev_desc, part, &info)) {
-		total_sector = (info.size * info.blksz) / SECTOR_SIZE;
-		fs->total_sect = total_sector;
-	} else {
-		printf("error : get partition info\n");
-		goto fail;
-	}
+	ext4fs_set_blk_dev(dev_desc, &info);
 
 	/* mount the filesystem */
-	if (!ext4fs_mount(part_length)) {
+	if (!ext4fs_mount(info.size)) {
 		printf("Bad ext4 partition %s %d:%lu\n", argv[1], dev, part);
 		goto fail;
 	}
