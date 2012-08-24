@@ -142,7 +142,7 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
  * be freed and the local static variable can be marked as not used.
  */
 
-void hdestroy_r(struct hsearch_data *htab)
+void hdestroy_r(struct hsearch_data *htab, int do_apply)
 {
 	int i;
 
@@ -156,7 +156,10 @@ void hdestroy_r(struct hsearch_data *htab)
 	for (i = 1; i <= htab->size; ++i) {
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
-
+			if (do_apply && htab->apply != NULL) {
+				/* deletion is always forced */
+				htab->apply(ep->key, ep->data, NULL, H_FORCE);
+			}
 			free((void *)ep->key);
 			free(ep->data);
 		}
@@ -401,7 +404,7 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
  * do that.
  */
 
-int hdelete_r(const char *key, struct hsearch_data *htab)
+int hdelete_r(const char *key, struct hsearch_data *htab, int do_apply)
 {
 	ENTRY e, *ep;
 	int idx;
@@ -417,7 +420,8 @@ int hdelete_r(const char *key, struct hsearch_data *htab)
 
 	/* free used ENTRY */
 	debug("hdelete: DELETING key \"%s\"\n", key);
-
+	if (do_apply && htab->apply != NULL)
+		htab->apply(ep->key, ep->data, NULL, H_FORCE);
 	free((void *)ep->key);
 	free(ep->data);
 	htab->table[idx].used = -1;
@@ -682,7 +686,7 @@ int himport_r(struct hsearch_data *htab,
 		debug("Destroy Hash Table: %p table = %p\n", htab,
 		       htab->table);
 		if (htab->table)
-			hdestroy_r(htab);
+			hdestroy_r(htab, do_apply);
 	}
 
 	/*
@@ -748,7 +752,7 @@ int himport_r(struct hsearch_data *htab,
 			if (!is_var_in_set(name, nvars, vars))
 				continue;
 
-			if (hdelete_r(name, htab) == 0)
+			if (hdelete_r(name, htab, do_apply) == 0)
 				debug("DELETE ERROR ##############################\n");
 
 			continue;

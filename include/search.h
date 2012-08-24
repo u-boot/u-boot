@@ -73,7 +73,7 @@ struct hsearch_data {
 extern int hcreate_r(size_t __nel, struct hsearch_data *__htab);
 
 /* Destroy current internal hashing table.  */
-extern void hdestroy_r(struct hsearch_data *__htab);
+extern void hdestroy_r(struct hsearch_data *__htab, int do_apply);
 
 /*
  * Search for entry matching ITEM.key in internal hash table.  If
@@ -98,7 +98,8 @@ extern int hstrstr_r(const char *__match, int __last_idx, ENTRY ** __retval,
 		    struct hsearch_data *__htab);
 
 /* Search and delete entry matching ITEM.key in internal hash table. */
-extern int hdelete_r(const char *__key, struct hsearch_data *__htab);
+extern int hdelete_r(const char *__key, struct hsearch_data *__htab,
+			int do_apply);
 
 extern ssize_t hexport_r(struct hsearch_data *__htab,
 		     const char __sep, char **__resp, size_t __size,

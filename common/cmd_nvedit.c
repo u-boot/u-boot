@@ -359,7 +359,7 @@ int _do_env_set(int flag, int argc, char * const argv[])
 
 	/* Delete only ? */
 	if (argc < 3 || argv[2] == NULL) {
-		int rc = hdelete_r(name, &env_htab);
+		int rc = hdelete_r(name, &env_htab, 0);
 		return !rc;
 	}
 
