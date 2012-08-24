@@ -94,9 +94,13 @@ extern ssize_t hexport_r(struct hsearch_data *__htab,
 		     const char __sep, char **__resp, size_t __size,
 		     int argc, char * const argv[]);
 
+/*
+ * nvars: length of vars array
+ * vars: array of strings (variable names) to import (nvars == 0 means all)
+ */
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
-		     int __flag);
+		     int __flag, int nvars, char * const vars[]);
 
 /* Flags for himport_r() */
 #define	H_NOCLEAR	(1 << 0) /* do not clear hash table before importing */

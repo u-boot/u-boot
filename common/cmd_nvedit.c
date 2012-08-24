@@ -914,7 +914,8 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 		addr = (char *)ep->data;
 	}
 
-	if (himport_r(&env_htab, addr, size, sep, del ? 0 : H_NOCLEAR) == 0) {
+	if (himport_r(&env_htab, addr, size, sep, del ? 0 : H_NOCLEAR,
+			0, NULL) == 0) {
 		error("Environment import failed: errno = %d\n", errno);
 		return 1;
 	}

@@ -603,6 +603,24 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
  * himport()
  */
 
+/* Check whether variable name is amongst vars[] */
+static int is_var_in_set(const char *name, int nvars, char * const vars[])
+{
+	int i = 0;
+
+	/* No variables specified means process all of them */
+	if (nvars == 0)
+		return 1;
+
+	for (i = 0; i < nvars; i++) {
+		if (!strcmp(name, vars[i]))
+			return 1;
+	}
+	debug("Skipping non-listed variable %s\n", name);
+
+	return 0;
+}
+
 /*
  * Import linearized data into hash table.
  *
@@ -639,7 +657,8 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
  */
 
 int himport_r(struct hsearch_data *htab,
-	      const char *env, size_t size, const char sep, int flag)
+		const char *env, size_t size, const char sep, int flag,
+		int nvars, char * const vars[])
 {
 	char *data, *sp, *dp, *name, *value;
 
@@ -726,6 +745,8 @@ int himport_r(struct hsearch_data *htab,
 			*dp++ = '\0';	/* terminate name */
 
 			debug("DELETE CANDIDATE: \"%s\"\n", name);
+			if (!is_var_in_set(name, nvars, vars))
+				continue;
 
 			if (hdelete_r(name, htab) == 0)
 				debug("DELETE ERROR ##############################\n");
@@ -742,6 +763,10 @@ int himport_r(struct hsearch_data *htab,
 		}
 		*sp++ = '\0';	/* terminate value */
 		++dp;
+
+		/* Skip variables which are not supposed to be processed */
+		if (!is_var_in_set(name, nvars, vars))
+			continue;
 
 		/* enter into hash table */
 		e.key = name;
