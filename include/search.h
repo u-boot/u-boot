@@ -99,6 +99,7 @@ extern int himport_r(struct hsearch_data *__htab,
 		     int __flag);
 
 /* Flags for himport_r() */
-#define	H_NOCLEAR	1	/* do not clear hash table before importing */
+#define	H_NOCLEAR	(1 << 0) /* do not clear hash table before importing */
+#define	H_FORCE		(1 << 1) /* overwrite read-only/write-once variables */
 
 #endif /* search.h */

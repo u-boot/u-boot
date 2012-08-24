@@ -198,31 +198,19 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 #endif
 
 /*
- * Set a new environment variable,
- * or replace or delete an existing one.
+ * Perform consistency checking before setting, replacing, or deleting an
+ * environment variable, then (if successful) apply the changes to internals so
+ * to make them effective.  Code for this function was taken out of
+ * _do_env_set(), which now calls it instead.
+ * Returns 0 in case of success, 1 in case of failure.
+ * When (flag & H_FORCE) is set, do not print out any error message and force
+ * overwriting of write-once variables.
  */
-int _do_env_set(int flag, int argc, char * const argv[])
+
+int env_check_apply(const char *name, const char *oldval,
+			const char *newval, int flag)
 {
-	int   i, len;
 	int   console = -1;
-	char  *name, *value, *s;
-	ENTRY e, *ep;
-
-	name = argv[1];
-
-	if (strchr(name, '=')) {
-		printf("## Error: illegal character '=' in variable name"
-		       "\"%s\"\n", name);
-		return 1;
-	}
-
-	env_id++;
-	/*
-	 * search if variable with this name already exists
-	 */
-	e.key = name;
-	e.data = NULL;
-	hsearch_r(e, FIND, &ep, &env_htab);
 
 	/* Check for console redirection */
 	if (strcmp(name, "stdin") == 0)
@@ -233,59 +221,75 @@ int _do_env_set(int flag, int argc, char * const argv[])
 		console = stderr;
 
 	if (console != -1) {
-		if (argc < 3) {		/* Cannot delete it! */
-			printf("Can't delete \"%s\"\n", name);
+		if ((newval == NULL) || (*newval == '\0')) {
+			/* We cannot delete stdin/stdout/stderr */
+			if ((flag & H_FORCE) == 0)
+				printf("Can't delete \"%s\"\n", name);
 			return 1;
 		}
 
 #ifdef CONFIG_CONSOLE_MUX
-		if (iomux_doenv(console, argv[2]))
+		if (iomux_doenv(console, newval))
 			return 1;
 #else
 		/* Try assigning specified device */
-		if (console_assign(console, argv[2]) < 0)
+		if (console_assign(console, newval) < 0)
 			return 1;
 
 #ifdef CONFIG_SERIAL_MULTI
-		if (serial_assign(argv[2]) < 0)
+		if (serial_assign(newval) < 0)
 			return 1;
 #endif
 #endif /* CONFIG_CONSOLE_MUX */
 	}
 
 	/*
-	 * Some variables like "ethaddr" and "serial#" can be set only
-	 * once and cannot be deleted; also, "ver" is readonly.
+	 * Some variables like "ethaddr" and "serial#" can be set only once and
+	 * cannot be deleted, unless CONFIG_ENV_OVERWRITE is defined.
 	 */
-	if (ep) {		/* variable exists */
 #ifndef CONFIG_ENV_OVERWRITE
+	if (oldval != NULL &&			/* variable exists */
+		(flag & H_FORCE) == 0) {	/* and we are not forced */
 		if (strcmp(name, "serial#") == 0 ||
 		    (strcmp(name, "ethaddr") == 0
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-		     && strcmp(ep->data, MK_STR(CONFIG_ETHADDR)) != 0
+		     && strcmp(oldval, MK_STR(CONFIG_ETHADDR)) != 0
 #endif	/* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
 			)) {
 			printf("Can't overwrite \"%s\"\n", name);
 			return 1;
 		}
+	}
 #endif
+	/*
+	 * When we change baudrate, or we are doing an env default -a
+	 * (which will erase all variables prior to calling this),
+	 * we want the baudrate to actually change - for real.
+	 */
+	if (oldval != NULL ||			/* variable exists */
+		(flag & H_NOCLEAR) == 0) {	/* or env is clear */
 		/*
 		 * Switch to new baudrate if new baudrate is supported
 		 */
 		if (strcmp(name, "baudrate") == 0) {
-			int baudrate = simple_strtoul(argv[2], NULL, 10);
+			int baudrate = simple_strtoul(newval, NULL, 10);
 			int i;
 			for (i = 0; i < N_BAUDRATES; ++i) {
 				if (baudrate == baudrate_table[i])
 					break;
 			}
 			if (i == N_BAUDRATES) {
-				printf("## Baudrate %d bps not supported\n",
-					baudrate);
+				if ((flag & H_FORCE) == 0)
+					printf("## Baudrate %d bps not "
+						"supported\n", baudrate);
 				return 1;
 			}
+			if (gd->baudrate == baudrate) {
+				/* If unchanged, we just say it's OK */
+				return 0;
+			}
 			printf("## Switch baudrate to %d bps and"
-			       "press ENTER ...\n", baudrate);
+				"press ENTER ...\n", baudrate);
 			udelay(50000);
 			gd->baudrate = baudrate;
 #if defined(CONFIG_PPC) || defined(CONFIG_MCF52x2)
@@ -297,6 +301,59 @@ int _do_env_set(int flag, int argc, char * const argv[])
 			while (getc() != '\r')
 				;
 		}
+	}
+
+	/*
+	 * Some variables should be updated when the corresponding
+	 * entry in the environment is changed
+	 */
+	if (strcmp(name, "loadaddr") == 0) {
+		load_addr = simple_strtoul(newval, NULL, 16);
+		return 0;
+	}
+#if defined(CONFIG_CMD_NET)
+	else if (strcmp(name, "bootfile") == 0) {
+		copy_filename(BootFile, newval, sizeof(BootFile));
+		return 0;
+	}
+#endif
+	return 0;
+}
+
+/*
+ * Set a new environment variable,
+ * or replace or delete an existing one.
+*/
+int _do_env_set(int flag, int argc, char * const argv[])
+{
+	int   i, len;
+	char  *name, *value, *s;
+	ENTRY e, *ep;
+
+	name = argv[1];
+	value = argv[2];
+
+	if (strchr(name, '=')) {
+		printf("## Error: illegal character '='"
+		       "in variable name \"%s\"\n", name);
+		return 1;
+	}
+
+	env_id++;
+	/*
+	 * search if variable with this name already exists
+	 */
+	e.key = name;
+	e.data = NULL;
+	hsearch_r(e, FIND, &ep, &env_htab);
+
+	/*
+	 * Perform requested checks. Notice how since we are overwriting
+	 * a single variable, we need to set H_NOCLEAR
+	 */
+	if (env_check_apply(name, ep ? ep->data : NULL, value, H_NOCLEAR)) {
+		debug("check function did not approve, refusing\n");
+		return 1;
 	}
 
 	/* Delete only ? */
@@ -336,20 +393,6 @@ int _do_env_set(int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	/*
-	 * Some variables should be updated when the corresponding
-	 * entry in the environment is changed
-	 */
-	if (strcmp(argv[1], "loadaddr") == 0) {
-		load_addr = simple_strtoul(argv[2], NULL, 16);
-		return 0;
-	}
-#if defined(CONFIG_CMD_NET)
-	else if (strcmp(argv[1], "bootfile") == 0) {
-		copy_filename(BootFile, argv[2], sizeof(BootFile));
-		return 0;
-	}
-#endif
 	return 0;
 }
 
