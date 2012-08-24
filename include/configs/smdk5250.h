@@ -204,6 +204,11 @@
 #define CONFIG_MAX_I2C_NUM	8
 #define CONFIG_SYS_I2C_SLAVE    0x0
 
+/* PMIC */
+#define CONFIG_PMIC
+#define CONFIG_PMIC_I2C
+#define CONFIG_PMIC_MAX77686
+
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_SMC911X
