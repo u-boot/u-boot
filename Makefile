@@ -544,6 +544,9 @@ $(obj)u-boot-$(nodtb)-tegra.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin $(dtb
 		rm $(obj)spl/u-boot-spl-pad.bin
 endif
 
+$(obj)u-boot-img.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
+		cat $(obj)spl/u-boot-spl.bin $(obj)u-boot.img > $@
+
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
 		cd $(LNDIR) && $(CC) $(SYMS) -T $(obj)u-boot.lds \
