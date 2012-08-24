@@ -239,9 +239,8 @@ int _do_env_set(int flag, int argc, char * const argv[])
 		}
 
 #ifdef CONFIG_CONSOLE_MUX
-		i = iomux_doenv(console, argv[2]);
-		if (i)
-			return i;
+		if (iomux_doenv(console, argv[2]))
+			return 1;
 #else
 		/* Try assigning specified device */
 		if (console_assign(console, argv[2]) < 0)
