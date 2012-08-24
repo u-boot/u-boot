@@ -658,7 +658,7 @@ static int is_var_in_set(const char *name, int nvars, char * const vars[])
 
 int himport_r(struct hsearch_data *htab,
 		const char *env, size_t size, const char sep, int flag,
-		int nvars, char * const vars[])
+		int nvars, char * const vars[], int do_apply)
 {
 	char *data, *sp, *dp, *name, *value;
 
@@ -771,6 +771,24 @@ int himport_r(struct hsearch_data *htab,
 		/* enter into hash table */
 		e.key = name;
 		e.data = value;
+
+		/* if there is an apply function, check what it has to say */
+		if (do_apply && htab->apply != NULL) {
+			debug("searching before calling cb function"
+				" for  %s\n", name);
+			/*
+			 * Search for variable in existing env, so to pass
+			 * its previous value to the apply callback
+			 */
+			hsearch_r(e, FIND, &rv, htab);
+			debug("previous value was %s\n", rv ? rv->data : "");
+			if (htab->apply(name, rv ? rv->data : NULL,
+				value, flag)) {
+				debug("callback function refused to set"
+					" variable %s, skipping it!\n", name);
+				continue;
+			}
+		}
 
 		hsearch_r(e, ENTER, &rv, htab);
 		if (rv == NULL) {

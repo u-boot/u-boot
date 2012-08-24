@@ -136,7 +136,9 @@ const uchar default_environment[] = {
 	"\0"
 };
 
-struct hsearch_data env_htab;
+struct hsearch_data env_htab = {
+	.apply = env_check_apply,
+};
 
 static uchar __env_get_char_spec(int index)
 {
@@ -197,7 +199,7 @@ void set_default_env(const char *s)
 
 	if (himport_r(&env_htab, (char *)default_environment,
 			sizeof(default_environment), '\0', 0,
-			0, NULL) == 0)
+			0, NULL, 0 /* do_apply */) == 0)
 		error("Environment import failed: errno = %d\n", errno);
 
 	gd->flags |= GD_FLG_ENV_READY;
@@ -223,7 +225,7 @@ int env_import(const char *buf, int check)
 	}
 
 	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', 0,
-			0, NULL)) {
+			0, NULL, 0 /* do_apply */)) {
 		gd->flags |= GD_FLG_ENV_READY;
 		return 1;
 	}

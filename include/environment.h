@@ -184,6 +184,15 @@ void set_default_env(const char *s);
 /* Import from binary representation into hash table */
 int env_import(const char *buf, int check);
 
+/*
+ * Check if variable "name" can be changed from oldval to newval,
+ * and if so, apply the changes (e.g. baudrate).
+ * When (flag & H_FORCE) is set, it does not print out any error
+ * message and forces overwriting of write-once variables.
+ */
+int env_check_apply(const char *name, const char *oldval,
+			const char *newval, int flag);
+
 #endif /* DO_DEPS_ONLY */
 
 #endif /* _ENVIRONMENT_H_ */

@@ -57,6 +57,16 @@ struct hsearch_data {
 	struct _ENTRY *table;
 	unsigned int size;
 	unsigned int filled;
+/*
+ * Callback function which will check whether the given change for variable
+ * "name" from "oldval" to "newval" may be applied or not, and possibly apply
+ * such change.
+ * When (flag & H_FORCE) is set, it shall not print out any error message and
+ * shall force overwriting of write-once variables.
+.* Must return 0 for approval, 1 for denial.
+ */
+	int (*apply)(const char *name, const char *oldval,
+			const char *newval, int flag);
 };
 
 /* Create a new hashing table which will at most contain NEL elements.  */
@@ -97,10 +107,12 @@ extern ssize_t hexport_r(struct hsearch_data *__htab,
 /*
  * nvars: length of vars array
  * vars: array of strings (variable names) to import (nvars == 0 means all)
+ * do_apply: whether to call callback function to check the new argument,
+ * and possibly apply changes (false means accept everything)
  */
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
-		     int __flag, int nvars, char * const vars[]);
+		     int __flag, int nvars, char * const vars[], int do_apply);
 
 /* Flags for himport_r() */
 #define	H_NOCLEAR	(1 << 0) /* do not clear hash table before importing */

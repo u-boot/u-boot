@@ -202,6 +202,7 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
  * environment variable, then (if successful) apply the changes to internals so
  * to make them effective.  Code for this function was taken out of
  * _do_env_set(), which now calls it instead.
+ * Also called as a callback function by himport_r().
  * Returns 0 in case of success, 1 in case of failure.
  * When (flag & H_FORCE) is set, do not print out any error message and force
  * overwriting of write-once variables.
@@ -915,7 +916,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	if (himport_r(&env_htab, addr, size, sep, del ? 0 : H_NOCLEAR,
-			0, NULL) == 0) {
+			0, NULL, 0 /* do_apply */) == 0) {
 		error("Environment import failed: errno = %d\n", errno);
 		return 1;
 	}
