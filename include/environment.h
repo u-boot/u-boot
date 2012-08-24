@@ -181,6 +181,9 @@ void env_crc_update(void);
 /* [re]set to the default environment */
 void set_default_env(const char *s);
 
+/* [re]set individual variables to their value in the default environment */
+int set_default_vars(int nvars, char * const vars[]);
+
 /* Import from binary representation into hash table */
 int env_import(const char *buf, int check);
 

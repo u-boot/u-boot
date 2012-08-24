@@ -180,6 +180,11 @@ const uchar *env_get_addr(int index)
 
 void set_default_env(const char *s)
 {
+	/*
+	 * By default, do not apply changes as they will eventually
+	 * be applied by someone else
+	 */
+	int do_apply = 0;
 	if (sizeof(default_environment) > ENV_SIZE) {
 		puts("*** Error - default environment is too large\n\n");
 		return;
@@ -191,6 +196,14 @@ void set_default_env(const char *s)
 				"using default environment\n\n",
 				s + 1);
 		} else {
+			/*
+			 * This set_to_default was explicitly asked for
+			 * by the user, as opposed to being a recovery
+			 * mechanism.  Therefore we check every single
+			 * variable and apply changes to the system
+			 * right away (e.g. baudrate, console).
+			 */
+			do_apply = 1;
 			puts(s);
 		}
 	} else {
@@ -199,10 +212,23 @@ void set_default_env(const char *s)
 
 	if (himport_r(&env_htab, (char *)default_environment,
 			sizeof(default_environment), '\0', 0,
-			0, NULL, 0 /* do_apply */) == 0)
+			0, NULL, do_apply) == 0)
 		error("Environment import failed: errno = %d\n", errno);
 
 	gd->flags |= GD_FLG_ENV_READY;
+}
+
+
+/* [re]set individual variables to their value in the default environment */
+int set_default_vars(int nvars, char * const vars[])
+{
+	/*
+	 * Special use-case: import from default environment
+	 * (and use \0 as a separator)
+	 */
+	return himport_r(&env_htab, (const char *)default_environment,
+				sizeof(default_environment), '\0', H_NOCLEAR,
+				nvars, vars, 1 /* do_apply */);
 }
 
 /*

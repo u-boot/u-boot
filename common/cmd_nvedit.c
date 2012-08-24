@@ -656,14 +656,41 @@ int envmatch(uchar *s1, int i2)
 	return -1;
 }
 
-static int do_env_default(cmd_tbl_t *cmdtp, int flag,
+static int do_env_default(cmd_tbl_t *cmdtp, int __flag,
 			  int argc, char * const argv[])
 {
-	if (argc != 2 || strcmp(argv[1], "-f") != 0)
-		return CMD_RET_USAGE;
+	int all = 0, flag = 0;
 
-	set_default_env("## Resetting to default environment\n");
-	return 0;
+	debug("Initial value for argc=%d\n", argc);
+	while (--argc > 0 && **++argv == '-') {
+		char *arg = *argv;
+
+		while (*++arg) {
+			switch (*arg) {
+			case 'a':		/* default all */
+				all = 1;
+				break;
+			case 'f':		/* force */
+				flag |= H_FORCE;
+				break;
+			default:
+				return cmd_usage(cmdtp);
+			}
+		}
+	}
+	debug("Final value for argc=%d\n", argc);
+	if (all && (argc == 0)) {
+		/* Reset the whole environment */
+		set_default_env("## Resetting to default environment\n");
+		return 0;
+	}
+	if (!all && (argc > 0)) {
+		/* Reset individual variables */
+		set_default_vars(argc, argv);
+		return 0;
+	}
+
+	return cmd_usage(cmdtp);
 }
 
 static int do_env_delete(cmd_tbl_t *cmdtp, int flag,
@@ -994,7 +1021,8 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_ASKENV)
 	"ask name [message] [size] - ask for environment variable\nenv "
 #endif
-	"default -f - reset default environment\n"
+	"default [-f] -a - [forcibly] reset default environment\n"
+	"env default [-f] var [...] - [forcibly] reset variable(s) to their default values\n"
 #if defined(CONFIG_CMD_EDITENV)
 	"env edit name - edit environment variable\n"
 #endif
