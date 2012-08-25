@@ -23,12 +23,12 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	struct gpio_regs *regs = (struct gpio_regs *)IMX_GPIO_BASE;
 #if defined(CONFIG_SYS_NAND_LARGEPAGE)
 	struct system_control_regs *sc_regs =
 		(struct system_control_regs *)IMX_SYSTEM_CTL_BASE;
@@ -43,8 +43,7 @@ int board_init(void)
 #ifdef CONFIG_FEC_MXC
 	mx27_fec_init_pins();
 	imx_gpio_mode((GPIO_PORTC | GPIO_OUT | GPIO_PUEN | GPIO_GPIO | 31));
-	writel(readl(&regs->port[PORTC].dr) | (1 << 31),
-				&regs->port[PORTC].dr);
+	gpio_set_value(GPIO_PORTC | 31, 1);
 #endif
 #ifdef CONFIG_MXC_MMC
 #if defined(CONFIG_MAGNESIUM)

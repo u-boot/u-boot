@@ -161,6 +161,11 @@
 #define CONFIG_DOS_PARTITION
 
 /*
+ * GPIO
+ */
+#define CONFIG_MXC_GPIO
+
+/*
  * MTD partitions
  */
 #define CONFIG_CMD_MTDPARTS
