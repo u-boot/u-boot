@@ -47,103 +47,12 @@ int __board_mmc_getcd(struct mmc *mmc) {
 int board_mmc_getcd(struct mmc *mmc)__attribute__((weak,
 	alias("__board_mmc_getcd")));
 
-#ifdef CONFIG_MMC_BOUNCE_BUFFER
-static int mmc_bounce_need_bounce(struct mmc_data *orig)
-{
-	ulong addr, len;
-
-	if (orig->flags & MMC_DATA_READ)
-		addr = (ulong)orig->dest;
-	else
-		addr = (ulong)orig->src;
-
-	if (addr % ARCH_DMA_MINALIGN) {
-		debug("MMC: Unaligned data destination address %08lx!\n", addr);
-		return 1;
-	}
-
-	len = (ulong)(orig->blocksize * orig->blocks);
-	if (len % ARCH_DMA_MINALIGN) {
-		debug("MMC: Unaligned data destination length %08lx!\n", len);
-		return 1;
-	}
-
-	return 0;
-}
-
-static int mmc_bounce_buffer_start(struct mmc_data *backup,
-					struct mmc_data *orig)
-{
-	ulong origlen, len;
-	void *buffer;
-
-	if (!orig)
-		return 0;
-
-	if (!mmc_bounce_need_bounce(orig))
-		return 0;
-
-	memcpy(backup, orig, sizeof(struct mmc_data));
-
-	origlen = orig->blocksize * orig->blocks;
-	len = roundup(origlen, ARCH_DMA_MINALIGN);
-	buffer = memalign(ARCH_DMA_MINALIGN, len);
-	if (!buffer) {
-		puts("MMC: Error allocating MMC bounce buffer!\n");
-		return 1;
-	}
-
-	if (orig->flags & MMC_DATA_READ) {
-		orig->dest = buffer;
-	} else {
-		memcpy(buffer, orig->src, origlen);
-		orig->src = buffer;
-	}
-
-	return 0;
-}
-
-static void mmc_bounce_buffer_stop(struct mmc_data *backup,
-					struct mmc_data *orig)
-{
-	ulong len;
-
-	if (!orig)
-		return;
-
-	if (!mmc_bounce_need_bounce(backup))
-		return;
-
-	if (backup->flags & MMC_DATA_READ) {
-		len = backup->blocksize * backup->blocks;
-		memcpy(backup->dest, orig->dest, len);
-		free(orig->dest);
-		orig->dest = backup->dest;
-	} else {
-		free((void *)orig->src);
-		orig->src = backup->src;
-	}
-
-	return;
-
-}
-#else
-static inline int mmc_bounce_buffer_start(struct mmc_data *backup,
-					struct mmc_data *orig) { return 0; }
-static inline void mmc_bounce_buffer_stop(struct mmc_data *backup,
-					struct mmc_data *orig) { }
-#endif
-
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	struct mmc_data backup;
 	int ret;
 
 	memset(&backup, 0, sizeof(backup));
-
-	ret = mmc_bounce_buffer_start(&backup, data);
-	if (ret)
-		return ret;
 
 #ifdef CONFIG_MMC_TRACE
 	int i;
@@ -196,7 +105,6 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 #else
 	ret = mmc->send_cmd(mmc, cmd, data);
 #endif
-	mmc_bounce_buffer_stop(&backup, data);
 	return ret;
 }
 
