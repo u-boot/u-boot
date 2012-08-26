@@ -31,6 +31,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 #include <asm/errno.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -791,7 +792,7 @@ static int fec_recv(struct eth_device *dev)
 	uint16_t bd_status;
 	uint32_t addr, size;
 	int i;
-	uchar buff[FEC_MAX_PKT_SIZE];
+	uchar buff[FEC_MAX_PKT_SIZE] __aligned(ARCH_DMA_MINALIGN);
 
 	/*
 	 * Check if any critical events have happened
