@@ -695,7 +695,7 @@ static void fec_halt(struct eth_device *dev)
 static int fec_send(struct eth_device *dev, void *packet, int length)
 {
 	unsigned int status;
-	uint32_t size;
+	uint32_t size, end;
 	uint32_t addr;
 
 	/*
@@ -722,8 +722,9 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 #endif
 
 	addr = (uint32_t)packet;
-	size = roundup(length, ARCH_DMA_MINALIGN);
-	flush_dcache_range(addr, addr + size);
+	end = roundup(addr + length, ARCH_DMA_MINALIGN);
+	addr &= ~(ARCH_DMA_MINALIGN - 1);
+	flush_dcache_range(addr, end);
 
 	writew(length, &fec->tbd_base[fec->tbd_index].data_length);
 	writel(addr, &fec->tbd_base[fec->tbd_index].data_pointer);
@@ -790,7 +791,7 @@ static int fec_recv(struct eth_device *dev)
 	int frame_length, len = 0;
 	struct nbuf *frame;
 	uint16_t bd_status;
-	uint32_t addr, size;
+	uint32_t addr, size, end;
 	int i;
 	uchar buff[FEC_MAX_PKT_SIZE] __aligned(ARCH_DMA_MINALIGN);
 
@@ -854,8 +855,9 @@ static int fec_recv(struct eth_device *dev)
 			 * Invalidate data cache over the buffer
 			 */
 			addr = (uint32_t)frame;
-			size = roundup(frame_length, ARCH_DMA_MINALIGN);
-			invalidate_dcache_range(addr, addr + size);
+			end = roundup(addr + frame_length, ARCH_DMA_MINALIGN);
+			addr &= ~(ARCH_DMA_MINALIGN - 1);
+			invalidate_dcache_range(addr, end);
 
 			/*
 			 *  Fill the buffer and pass it to upper layers
