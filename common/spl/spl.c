@@ -142,6 +142,11 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		spl_nand_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_NOR_SUPPORT
+	case BOOT_DEVICE_NOR:
+		spl_nor_load_image();
+		break;
+#endif
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
 	case BOOT_DEVICE_UART:
 		spl_ymodem_load_image();
