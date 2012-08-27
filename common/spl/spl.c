@@ -75,13 +75,13 @@ void spl_parse_image_header(const struct image_header *header)
 {
 	u32 header_size = sizeof(struct image_header);
 
-	if (__be32_to_cpu(header->ih_magic) == IH_MAGIC) {
-		spl_image.size = __be32_to_cpu(header->ih_size) + header_size;
-		spl_image.entry_point = __be32_to_cpu(header->ih_load);
+	if (image_get_magic(header) == IH_MAGIC) {
+		spl_image.size = image_get_data_size(header) + header_size;
+		spl_image.entry_point = image_get_load(header);
 		/* Load including the header */
 		spl_image.load_addr = spl_image.entry_point - header_size;
-		spl_image.os = header->ih_os;
-		spl_image.name = (const char *)&header->ih_name;
+		spl_image.os = image_get_os(header);
+		spl_image.name = image_get_name(header);
 		debug("spl: payload image: %s load addr: 0x%x size: %d\n",
 			spl_image.name, spl_image.load_addr, spl_image.size);
 	} else {
