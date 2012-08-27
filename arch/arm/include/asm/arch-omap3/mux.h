@@ -451,6 +451,11 @@
 #define CONTROL_PADCONF_GPIO128		0x0A58
 #define CONTROL_PADCONF_GPIO129		0x0A5A
 
+/* AM/DM37xx specific: gpio_127, gpio_127 and gpio_129 require configuration
+ * of the extended drain cells */
+#define OMAP34XX_CTRL_WKUP_CTRL		(OMAP34XX_CTRL_BASE + 0x0A5C)
+#define OMAP34XX_CTRL_WKUP_CTRL_GPIO_IO_PWRDNZ	(1<<6)
+
 #define MUX_VAL(OFFSET,VALUE)\
 	writew((VALUE), OMAP34XX_CTRL_BASE + (OFFSET));
 
