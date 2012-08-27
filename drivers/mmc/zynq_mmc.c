@@ -118,6 +118,7 @@ static void init_port(void)
 #define CMD9	(9)			/* SEND_CSD */
 #define CMD10	(10)		/* SEND_CID */
 #define CMD12	(12)		/* STOP_TRANSMISSION */
+#define CMD13	(13)		/* SEND_STATUS */
 #define ACMD13	(0x80+13)	/* SD_STATUS (SDC) */
 #define CMD16	(16)		/* SET_BLOCKLEN */
 #define CMD17	(17)		/* READ_SINGLE_BLOCK */
@@ -177,6 +178,7 @@ make_command (unsigned cmd)
 		break;
 	case CMD10:
 	case CMD12:
+	case CMD13:
 	case ACMD13:
 	case CMD16:
 	case CMD23:
