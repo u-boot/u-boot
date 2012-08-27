@@ -1,10 +1,22 @@
-
-#ifndef __SD_H__
-#define __SD_H__
-
 /*
+ * (C) Copyright 2012 Xilinx
+ *
+ * Zynq SD Host Controller Interface
  * Controller register and bit definitions
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
  */
+
+#ifndef __SDHCI_MMC_H_
+#define __SDHCI_MMC_H_
 
 #define SD_DMA_ADDR_R        0x00
 
@@ -92,4 +104,4 @@
 
 #define SD_CAPABILITIES_R    0x40
 
-#endif
+#endif /* __SDHCI_MMC_H_ */
