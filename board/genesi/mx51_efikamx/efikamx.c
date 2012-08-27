@@ -1,7 +1,7 @@
 /*
+ * Copyright (C) 2009 Freescale Semiconductor, Inc.
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
- *
- * (C) Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright (C) 2009-2012 Genesi USA, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,9 +24,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/imx-regs.h>
-#include <asm/arch/mx5x_pins.h>
-#include <asm/arch/iomux.h>
+#include <asm/arch/iomux-mx51.h>
 #include <asm/gpio.h>
 #include <asm/errno.h>
 #include <asm/arch/sys_proto.h>
@@ -48,16 +46,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 /*
- * Shared variables / local defines
+ * Board revisions
+ *
+ * Note that we get these revisions here for convenience, but we only set
+ * up for the production model Smarttop (1.3) and Smartbook (2.0).
+ *
  */
-/* LED */
-#define	EFIKAMX_LED_BLUE	0x1
-#define	EFIKAMX_LED_GREEN	0x2
-#define	EFIKAMX_LED_RED		0x4
-
-void efikamx_toggle_led(uint32_t mask);
-
-/* Board revisions */
 #define	EFIKAMX_BOARD_REV_11	0x1
 #define	EFIKAMX_BOARD_REV_12	0x2
 #define	EFIKAMX_BOARD_REV_13	0x3
@@ -69,66 +63,67 @@ void efikamx_toggle_led(uint32_t mask);
 /*
  * Board identification
  */
-u32 get_efikamx_rev(void)
+static u32 get_mx_rev(void)
 {
 	u32 rev = 0;
 	/*
 	 * Retrieve board ID:
-	 *      rev1.1: 1,1,1
-	 *      rev1.2: 1,1,0
-	 *      rev1.3: 1,0,1
-	 *      rev1.4: 1,0,0
+	 *
+	 *  gpio: 16 17 11
+	 *  ==============
+	 *	r1.1:  1+ 1  1
+	 *	r1.2:  1  1  0
+	 *	r1.3:  1  0  1
+	 *	r1.4:  1  0  0
+	 *
+	 * + note: r1.1 does not strap this pin properly so it needs to
+	 *         be hacked or ignored.
 	 */
-	mxc_request_iomux(MX51_PIN_NANDF_CS0, IOMUX_CONFIG_GPIO);
-	/* set to 1 in order to get correct value on board rev1.1 */
-	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0), 1);
 
-	mxc_request_iomux(MX51_PIN_NANDF_CS0, IOMUX_CONFIG_GPIO);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS0, PAD_CTL_100K_PU);
-	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0));
-	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0))) << 0;
+	/* set to 1 in order to get correct value on board rev 1.1 */
+	gpio_direction_output(GPIO_NUMBER(3, 16), 1);
+	gpio_direction_input(GPIO_NUMBER(3, 11));
+	gpio_direction_input(GPIO_NUMBER(3, 16));
+	gpio_direction_input(GPIO_NUMBER(3, 17));
 
-	mxc_request_iomux(MX51_PIN_NANDF_CS1, IOMUX_CONFIG_GPIO);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS1, PAD_CTL_100K_PU);
-	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1));
-	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1))) << 1;
-
-	mxc_request_iomux(MX51_PIN_NANDF_RB3, IOMUX_CONFIG_GPIO);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_RB3, PAD_CTL_100K_PU);
-	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3));
-	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3))) << 2;
+	rev |= (!!gpio_get_value(GPIO_NUMBER(3, 16))) << 0;
+	rev |= (!!gpio_get_value(GPIO_NUMBER(3, 17))) << 1;
+	rev |= (!!gpio_get_value(GPIO_NUMBER(3, 11))) << 2;
 
 	return (~rev & 0x7) + 1;
 }
 
-inline u32 get_efikasb_rev(void)
+static iomux_v3_cfg_t efikasb_revision_pads[] = {
+	MX51_PAD_EIM_CS3__GPIO2_28,
+	MX51_PAD_EIM_CS4__GPIO2_29,
+};
+
+static inline u32 get_sb_rev(void)
 {
 	u32 rev = 0;
 
-	mxc_request_iomux(MX51_PIN_EIM_CS3, IOMUX_CONFIG_GPIO);
-	mxc_iomux_set_pad(MX51_PIN_EIM_CS3, PAD_CTL_100K_PU);
-	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_EIM_CS3));
-	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS3))) << 0;
+	imx_iomux_v3_setup_multiple_pads(efikasb_revision_pads,
+				ARRAY_SIZE(efikasb_revision_pads));
+	gpio_direction_input(GPIO_NUMBER(2, 28));
+	gpio_direction_input(GPIO_NUMBER(2, 29));
 
-	mxc_request_iomux(MX51_PIN_EIM_CS4, IOMUX_CONFIG_GPIO);
-	mxc_iomux_set_pad(MX51_PIN_EIM_CS4, PAD_CTL_100K_PU);
-	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_EIM_CS4));
-	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS4))) << 1;
+	rev |= (!!gpio_get_value(GPIO_NUMBER(2, 28))) << 0;
+	rev |= (!!gpio_get_value(GPIO_NUMBER(2, 29))) << 1;
 
 	return rev;
 }
 
-inline uint32_t get_efika_rev(void)
+inline uint32_t get_efikamx_rev(void)
 {
 	if (machine_is_efikamx())
-		return get_efikamx_rev();
-	else
-		return get_efikasb_rev();
+		return get_mx_rev();
+	else if (machine_is_efikasb())
+		return get_sb_rev();
 }
 
 u32 get_board_rev(void)
 {
-	return get_cpu_rev() | (get_efika_rev() << 8);
+	return get_cpu_rev() | (get_efikamx_rev() << 8);
 }
 
 /*
@@ -138,65 +133,35 @@ int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
 	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-				PHYS_SDRAM_1_SIZE);
+						PHYS_SDRAM_1_SIZE);
 	return 0;
 }
 
 /*
  * UART configuration
  */
-static void setup_iomux_uart(void)
-{
-	unsigned int pad = PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE |
-			PAD_CTL_PUE_PULL | PAD_CTL_DRV_HIGH;
-
-	mxc_request_iomux(MX51_PIN_UART1_RXD, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_UART1_RXD, pad | PAD_CTL_SRE_FAST);
-	mxc_request_iomux(MX51_PIN_UART1_TXD, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_UART1_TXD, pad | PAD_CTL_SRE_FAST);
-	mxc_request_iomux(MX51_PIN_UART1_RTS, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_UART1_RTS, pad);
-	mxc_request_iomux(MX51_PIN_UART1_CTS, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_UART1_CTS, pad);
-}
+static iomux_v3_cfg_t efikamx_uart_pads[] = {
+	MX51_PAD_UART1_RXD__UART1_RXD,
+	MX51_PAD_UART1_TXD__UART1_TXD,
+	MX51_PAD_UART1_RTS__UART1_RTS,
+	MX51_PAD_UART1_CTS__UART1_CTS,
+};
 
 /*
  * SPI configuration
  */
-#ifdef CONFIG_MXC_SPI
-static void setup_iomux_spi(void)
-{
-	/* 000: Select mux mode: ALT0 mux port: MOSI of instance: ecspi1 */
-	mxc_request_iomux(MX51_PIN_CSPI1_MOSI, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_MOSI,
-		PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH | PAD_CTL_SRE_FAST);
+static iomux_v3_cfg_t efikamx_spi_pads[] = {
+	MX51_PAD_CSPI1_MOSI__ECSPI1_MOSI,
+	MX51_PAD_CSPI1_MISO__ECSPI1_MISO,
+	MX51_PAD_CSPI1_SCLK__ECSPI1_SCLK,
+	MX51_PAD_CSPI1_SS0__GPIO4_24,
+	MX51_PAD_CSPI1_SS1__GPIO4_25,
+	MX51_PAD_GPIO1_6__GPIO1_6,
+};
 
-	/* 000: Select mux mode: ALT0 mux port: MISO of instance: ecspi1. */
-	mxc_request_iomux(MX51_PIN_CSPI1_MISO, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_MISO,
-		PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH | PAD_CTL_SRE_FAST);
-
-	/* Configure SS0 as a GPIO */
-	mxc_request_iomux(MX51_PIN_CSPI1_SS0, IOMUX_CONFIG_GPIO);
-	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS0), 0);
-
-	/* Configure SS1 as a GPIO */
-	mxc_request_iomux(MX51_PIN_CSPI1_SS1, IOMUX_CONFIG_GPIO);
-	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS1), 1);
-
-	/* 000: Select mux mode: ALT0 mux port: SS2 of instance: ecspi1. */
-	mxc_request_iomux(MX51_PIN_CSPI1_RDY, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_RDY,
-		PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE);
-
-	/* 000: Select mux mode: ALT0 mux port: SCLK of instance: ecspi1. */
-	mxc_request_iomux(MX51_PIN_CSPI1_SCLK, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_SCLK,
-		PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH | PAD_CTL_SRE_FAST);
-}
-#else
-static inline void setup_iomux_spi(void) { }
-#endif
+#define EFIKAMX_SPI_SS0		GPIO_NUMBER(4, 24)
+#define EFIKAMX_SPI_SS1		GPIO_NUMBER(4, 25)
+#define EFIKAMX_PMIC_IRQ	GPIO_NUMBER(1, 6)
 
 /*
  * PMIC configuration
@@ -226,7 +191,7 @@ static void power_init(void)
 
 	/* Set core voltage to 1.1V */
 	pmic_reg_read(p, REG_SW_0, &val);
-	val = (val & ~SWx_VOLT_MASK) | SWx_1_200V;
+	val = (val & ~SWx_VOLT_MASK) | SWx_1_100V;
 	pmic_reg_write(p, REG_SW_0, val);
 
 	/* Setup VCC (SW2) to 1.25 */
@@ -301,29 +266,62 @@ static inline void power_init(void) { }
  * MMC configuration
  */
 #ifdef CONFIG_FSL_ESDHC
+
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
 	{MMC_SDHC1_BASE_ADDR, 1},
 	{MMC_SDHC2_BASE_ADDR, 1},
 };
 
-static inline uint32_t efika_mmc_cd(void)
+static iomux_v3_cfg_t efikamx_sdhc1_pads[] = {
+	MX51_PAD_SD1_CMD__SD1_CMD,
+	MX51_PAD_SD1_CLK__SD1_CLK,
+	MX51_PAD_SD1_DATA0__SD1_DATA0,
+	MX51_PAD_SD1_DATA1__SD1_DATA1,
+	MX51_PAD_SD1_DATA2__SD1_DATA2,
+	MX51_PAD_SD1_DATA3__SD1_DATA3,
+	MX51_PAD_GPIO1_1__SD1_WP,
+};
+
+#define EFIKAMX_SDHC1_WP	GPIO_NUMBER(1, 1)
+
+static iomux_v3_cfg_t efikamx_sdhc1_cd_pads[] = {
+	MX51_PAD_GPIO1_0__SD1_CD,
+	MX51_PAD_EIM_CS2__SD1_CD,
+};
+
+#define EFIKAMX_SDHC1_CD	GPIO_NUMBER(1, 0)
+#define EFIKASB_SDHC1_CD	GPIO_NUMBER(2, 27)
+
+static iomux_v3_cfg_t efikasb_sdhc2_pads[] = {
+	MX51_PAD_SD2_CMD__SD2_CMD,
+	MX51_PAD_SD2_CLK__SD2_CLK,
+	MX51_PAD_SD2_DATA0__SD2_DATA0,
+	MX51_PAD_SD2_DATA1__SD2_DATA1,
+	MX51_PAD_SD2_DATA2__SD2_DATA2,
+	MX51_PAD_SD2_DATA3__SD2_DATA3,
+	MX51_PAD_GPIO1_7__SD2_WP,
+	MX51_PAD_GPIO1_8__SD2_CD,
+};
+
+#define EFIKASB_SDHC2_CD	GPIO_NUMBER(1, 8)
+#define EFIKASB_SDHC2_WP	GPIO_NUMBER(1, 7)
+
+static inline uint32_t efikamx_mmc_getcd(u32 base)
 {
-	if (machine_is_efikamx())
-		return MX51_PIN_GPIO1_0;
+	if (base == MMC_SDHC1_BASE_ADDR)
+		if (machine_is_efikamx())
+			return EFIKAMX_SDHC1_CD;
+		else
+			return EFIKASB_SDHC1_CD;
 	else
-		return MX51_PIN_EIM_CS2;
+		return EFIKASB_SDHC2_CD;
 }
 
 int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	uint32_t cd = efika_mmc_cd();
-	int ret;
-
-	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		ret = !gpio_get_value(IOMUX_TO_GPIO(cd));
-	else
-		ret = !gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
+	uint32_t cd = efikamx_mmc_getcd(cfg->esdhc_base);
+	int ret = !gpio_get_value(cd);
 
 	return ret;
 }
@@ -331,139 +329,36 @@ int board_mmc_getcd(struct mmc *mmc)
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
-	uint32_t cd = efika_mmc_cd();
 
-	/* SDHC1 is used on all revisions, setup control pins first */
-	mxc_request_iomux(cd,
-		IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-	mxc_iomux_set_pad(cd,
-		PAD_CTL_DRV_HIGH | PAD_CTL_HYS_ENABLE |
-		PAD_CTL_PUE_KEEPER | PAD_CTL_100K_PU |
-		PAD_CTL_ODE_OPENDRAIN_NONE |
-		PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST);
-	mxc_request_iomux(MX51_PIN_GPIO1_1,
-		IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-	mxc_iomux_set_pad(MX51_PIN_GPIO1_1,
-		PAD_CTL_DRV_HIGH | PAD_CTL_HYS_ENABLE |
-		PAD_CTL_100K_PU | PAD_CTL_ODE_OPENDRAIN_NONE |
-		PAD_CTL_SRE_FAST);
+	/*
+	 * All Efika MX boards use eSDHC1 with a common write-protect GPIO
+	 */
+	imx_iomux_v3_setup_multiple_pads(efikamx_sdhc1_pads,
+					ARRAY_SIZE(efikamx_sdhc1_pads));
+	gpio_direction_input(EFIKAMX_SDHC1_WP);
 
-	gpio_direction_input(IOMUX_TO_GPIO(cd));
-	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_1));
+	/*
+	 * Smartbook and Smarttop differ on the location of eSDHC1
+	 * carrier-detect GPIO
+	 */
+	if (machine_is_efikamx()) {
+		imx_iomux_v3_setup_pad(efikamx_sdhc1_cd_pads[0]);
+		gpio_direction_input(EFIKAMX_SDHC1_CD);
+	} else if (machine_is_efikasb()) {
+		imx_iomux_v3_setup_pad(efikamx_sdhc1_cd_pads[1]);
+		gpio_direction_input(EFIKASB_SDHC1_CD);
+	}
 
-	/* Internal SDHC1 IOMUX + SDHC2 IOMUX on old boards */
-	if (machine_is_efikasb() || (machine_is_efikamx() &&
-		(get_efika_rev() < EFIKAMX_BOARD_REV_12))) {
-		/* SDHC1 IOMUX */
-		mxc_request_iomux(MX51_PIN_SD1_CMD,
-			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_pad(MX51_PIN_SD1_CMD,
-			PAD_CTL_PUE_KEEPER | PAD_CTL_PKE_ENABLE |
-			PAD_CTL_DRV_HIGH | PAD_CTL_47K_PU | PAD_CTL_SRE_FAST);
+	ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 
-		mxc_request_iomux(MX51_PIN_SD1_CLK,
-			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_pad(MX51_PIN_SD1_CLK,
-			PAD_CTL_PUE_KEEPER | PAD_CTL_PKE_ENABLE |
-			PAD_CTL_DRV_HIGH | PAD_CTL_47K_PU | PAD_CTL_SRE_FAST);
+	if (machine_is_efikasb()) {
 
-		mxc_request_iomux(MX51_PIN_SD1_DATA0, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD1_DATA0,
-			PAD_CTL_PUE_KEEPER | PAD_CTL_PKE_ENABLE |
-			PAD_CTL_DRV_HIGH | PAD_CTL_47K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD1_DATA1, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD1_DATA1,
-			PAD_CTL_PUE_KEEPER | PAD_CTL_PKE_ENABLE |
-			PAD_CTL_DRV_HIGH | PAD_CTL_47K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD1_DATA2, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD1_DATA2,
-			PAD_CTL_PUE_KEEPER | PAD_CTL_PKE_ENABLE |
-			PAD_CTL_DRV_HIGH | PAD_CTL_47K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD1_DATA3, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD1_DATA3,
-			PAD_CTL_PUE_KEEPER | PAD_CTL_PKE_ENABLE |
-			PAD_CTL_DRV_HIGH | PAD_CTL_47K_PU | PAD_CTL_SRE_FAST);
-
-		/* SDHC2 IOMUX */
-		mxc_request_iomux(MX51_PIN_SD2_CMD,
-			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_pad(MX51_PIN_SD2_CMD,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD2_CLK,
-			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_pad(MX51_PIN_SD2_CLK,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD2_DATA0, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD2_DATA0,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD2_DATA1, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD2_DATA1,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD2_DATA2, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD2_DATA2,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD2_DATA3, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD2_DATA3,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		/* SDHC2 Control lines IOMUX */
-		mxc_request_iomux(MX51_PIN_GPIO1_7,
-			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_pad(MX51_PIN_GPIO1_7,
-			PAD_CTL_DRV_HIGH | PAD_CTL_HYS_ENABLE |
-			PAD_CTL_PUE_KEEPER | PAD_CTL_100K_PU |
-			PAD_CTL_ODE_OPENDRAIN_NONE |
-			PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST);
-		mxc_request_iomux(MX51_PIN_GPIO1_8,
-			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_pad(MX51_PIN_GPIO1_8,
-			PAD_CTL_DRV_HIGH | PAD_CTL_HYS_ENABLE |
-			PAD_CTL_100K_PU | PAD_CTL_ODE_OPENDRAIN_NONE |
-			PAD_CTL_SRE_FAST);
-
-		gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
-		gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_7));
-
-		ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
+		imx_iomux_v3_setup_multiple_pads(efikasb_sdhc2_pads,
+						ARRAY_SIZE(efikasb_sdhc2_pads));
+		gpio_direction_input(EFIKASB_SDHC2_CD);
+		gpio_direction_input(EFIKASB_SDHC2_WP);
 		if (!ret)
 			ret = fsl_esdhc_initialize(bis, &esdhc_cfg[1]);
-	} else {	/* New boards use only SDHC1 */
-		/* SDHC1 IOMUX */
-		mxc_request_iomux(MX51_PIN_SD1_CMD,
-			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_pad(MX51_PIN_SD1_CMD,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD1_CLK,
-			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_pad(MX51_PIN_SD1_CLK,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD1_DATA0, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD1_DATA0,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD1_DATA1, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD1_DATA1,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD1_DATA2, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD1_DATA2,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		mxc_request_iomux(MX51_PIN_SD1_DATA3, IOMUX_CONFIG_ALT0);
-		mxc_iomux_set_pad(MX51_PIN_SD1_DATA3,
-			PAD_CTL_DRV_MAX | PAD_CTL_22K_PU | PAD_CTL_SRE_FAST);
-
-		ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 	}
 
 	return ret;
@@ -471,74 +366,39 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 /*
- * ATA
+ * PATA
  */
-#ifdef	CONFIG_MX51_PATA
-#define	ATA_PAD_CONFIG	(PAD_CTL_DRV_HIGH | PAD_CTL_DRV_VOT_HIGH)
-void setup_iomux_ata(void)
-{
-	mxc_request_iomux(MX51_PIN_NANDF_ALE, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_ALE, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_CS2, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS2, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_CS3, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS3, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_CS4, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS4, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_CS5, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS5, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_CS6, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS6, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_RE_B, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_RE_B, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_WE_B, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_WE_B, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_CLE, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CLE, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_RB0, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_RB0, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_WP_B, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_WP_B, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_GPIO_NAND, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_GPIO_NAND, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_RB1, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_RB1, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D0, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D0, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D1, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D1, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D2, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D2, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D3, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D3, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D4, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D4, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D5, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D5, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D6, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D6, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D7, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D7, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D8, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D8, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D9, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D9, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D10, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D10, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D11, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D11, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D12, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D12, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D13, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D13, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D14, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D14, ATA_PAD_CONFIG);
-	mxc_request_iomux(MX51_PIN_NANDF_D15, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D15, ATA_PAD_CONFIG);
-}
-#else
-static inline void setup_iomux_ata(void) { }
-#endif
+static iomux_v3_cfg_t efikamx_pata_pads[] = {
+	MX51_PAD_NANDF_WE_B__PATA_DIOW,
+	MX51_PAD_NANDF_RE_B__PATA_DIOR,
+	MX51_PAD_NANDF_ALE__PATA_BUFFER_EN,
+	MX51_PAD_NANDF_CLE__PATA_RESET_B,
+	MX51_PAD_NANDF_WP_B__PATA_DMACK,
+	MX51_PAD_NANDF_RB0__PATA_DMARQ,
+	MX51_PAD_NANDF_RB1__PATA_IORDY,
+	MX51_PAD_GPIO_NAND__PATA_INTRQ,
+	MX51_PAD_NANDF_CS2__PATA_CS_0,
+	MX51_PAD_NANDF_CS3__PATA_CS_1,
+	MX51_PAD_NANDF_CS4__PATA_DA_0,
+	MX51_PAD_NANDF_CS5__PATA_DA_1,
+	MX51_PAD_NANDF_CS6__PATA_DA_2,
+	MX51_PAD_NANDF_D15__PATA_DATA15,
+	MX51_PAD_NANDF_D14__PATA_DATA14,
+	MX51_PAD_NANDF_D13__PATA_DATA13,
+	MX51_PAD_NANDF_D12__PATA_DATA12,
+	MX51_PAD_NANDF_D11__PATA_DATA11,
+	MX51_PAD_NANDF_D10__PATA_DATA10,
+	MX51_PAD_NANDF_D9__PATA_DATA9,
+	MX51_PAD_NANDF_D8__PATA_DATA8,
+	MX51_PAD_NANDF_D7__PATA_DATA7,
+	MX51_PAD_NANDF_D6__PATA_DATA6,
+	MX51_PAD_NANDF_D5__PATA_DATA5,
+	MX51_PAD_NANDF_D4__PATA_DATA4,
+	MX51_PAD_NANDF_D3__PATA_DATA3,
+	MX51_PAD_NANDF_D2__PATA_DATA2,
+	MX51_PAD_NANDF_D1__PATA_DATA1,
+	MX51_PAD_NANDF_D0__PATA_DATA0,
+};
 
 /*
  * EHCI USB
@@ -551,57 +411,58 @@ static inline void setup_iomux_usb(void) { }
 
 /*
  * LED configuration
+ *
+ * Smarttop LED pad config is done in the DCD
+ *
  */
-void setup_iomux_led(void)
-{
-	if (machine_is_efikamx()) {
-		/* Blue LED */
-		mxc_request_iomux(MX51_PIN_CSI1_D9, IOMUX_CONFIG_ALT3);
-		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9), 0);
+#define EFIKAMX_LED_BLUE	GPIO_NUMBER(3, 13)
+#define EFIKAMX_LED_GREEN	GPIO_NUMBER(3, 14)
+#define EFIKAMX_LED_RED		GPIO_NUMBER(3, 15)
 
-		/* Green LED */
-		mxc_request_iomux(MX51_PIN_CSI1_VSYNC, IOMUX_CONFIG_ALT3);
-		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC), 0);
+static iomux_v3_cfg_t efikasb_led_pads[] = {
+	MX51_PAD_GPIO1_3__GPIO1_3,
+	MX51_PAD_EIM_CS0__GPIO2_25,
+};
 
-		/* Red LED */
-		mxc_request_iomux(MX51_PIN_CSI1_HSYNC, IOMUX_CONFIG_ALT3);
-		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC), 0);
-	} else {
-		/* CAPS-LOCK LED */
-		mxc_request_iomux(MX51_PIN_EIM_CS0, IOMUX_CONFIG_GPIO);
-		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_EIM_CS0), 0);
-
-		/* ALARM-LED LED */
-		mxc_request_iomux(MX51_PIN_GPIO1_3, IOMUX_CONFIG_GPIO);
-		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_GPIO1_3), 0);
-	}
-}
-
-void efikamx_toggle_led(uint32_t mask)
-{
-	if (machine_is_efikamx()) {
-		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
-				mask & EFIKAMX_LED_BLUE);
-		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
-				mask & EFIKAMX_LED_GREEN);
-		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
-				mask & EFIKAMX_LED_RED);
-	} else {
-		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS0),
-				mask & EFIKAMX_LED_BLUE);
-		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_3),
-				!(mask & EFIKAMX_LED_GREEN));
-	}
-}
+#define EFIKASB_CAPSLOCK_LED	GPIO_NUMBER(2, 25)
+#define EFIKASB_MESSAGE_LED	GPIO_NUMBER(1, 3) /* Note: active low */
 
 /*
  * Board initialization
  */
 int board_early_init_f(void)
 {
-	setup_iomux_uart();
-	setup_iomux_spi();
-	setup_iomux_led();
+	if (machine_is_efikasb()) {
+		imx_iomux_v3_setup_multiple_pads(efikasb_led_pads,
+						ARRAY_SIZE(efikasb_led_pads));
+		gpio_direction_output(EFIKASB_CAPSLOCK_LED, 0);
+		gpio_direction_output(EFIKASB_MESSAGE_LED, 1);
+	} else if (machine_is_efikamx()) {
+		/*
+		 * Set up GPIO directions for LEDs.
+		 * IOMUX has been done in the DCD already.
+		 * Turn the red LED on for pre-relocation code.
+		 */
+		gpio_direction_output(EFIKAMX_LED_BLUE, 0);
+		gpio_direction_output(EFIKAMX_LED_GREEN, 0);
+		gpio_direction_output(EFIKAMX_LED_RED, 1);
+	}
+
+	/*
+	 * Both these pad configurations for UART and SPI are kind of redundant
+	 * since they are the Power-On Defaults for the i.MX51. But, it seems we
+	 * should make absolutely sure that they are set up correctly.
+	 */
+	imx_iomux_v3_setup_multiple_pads(efikamx_uart_pads,
+					ARRAY_SIZE(efikamx_uart_pads));
+	imx_iomux_v3_setup_multiple_pads(efikamx_spi_pads,
+					ARRAY_SIZE(efikamx_spi_pads));
+
+	/* not technically required for U-Boot operation but do it anyway. */
+	gpio_direction_input(EFIKAMX_PMIC_IRQ);
+	/* Deselect both CS for now, otherwise NOR doesn't probe properly. */
+	gpio_direction_output(EFIKAMX_SPI_SS0, 0);
+	gpio_direction_output(EFIKAMX_SPI_SS1, 1);
 
 	return 0;
 }
@@ -615,44 +476,37 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	setup_iomux_spi();
+	if (machine_is_efikamx()) {
+		/*
+		 * Set up Blue LED for "In U-Boot" status.
+		 * We're all relocated and ready to U-Boot!
+		 */
+		gpio_set_value(EFIKAMX_LED_RED, 0);
+		gpio_set_value(EFIKAMX_LED_GREEN, 0);
+		gpio_set_value(EFIKAMX_LED_BLUE, 1);
+	}
 
 	power_init();
 
-	setup_iomux_led();
-	setup_iomux_ata();
+	imx_iomux_v3_setup_multiple_pads(efikamx_pata_pads,
+					ARRAY_SIZE(efikamx_pata_pads));
 	setup_iomux_usb();
 
 	if (machine_is_efikasb())
 		setenv("preboot", "usb reset ; setenv stdin usbkbd\0");
-
-	setup_iomux_led();
-
-	efikamx_toggle_led(EFIKAMX_LED_BLUE);
 
 	return 0;
 }
 
 int checkboard(void)
 {
-	u32 rev = get_efika_rev();
+	u32 rev = get_efikamx_rev();
 
-	if (machine_is_efikamx()) {
-		printf("Board: Efika MX, rev1.%i\n", rev & 0xf);
-		return 0;
-	} else {
-		switch (rev) {
-		case EFIKASB_BOARD_REV_13:
-			printf("Board: Efika SB rev1.3\n");
-			break;
-		case EFIKASB_BOARD_REV_20:
-			printf("Board: Efika SB rev2.0\n");
-			break;
-		default:
-			printf("Board: Efika SB, rev Unknown\n");
-			break;
-		}
-	}
+	printf("Board: Genesi Efika MX ");
+	if (machine_is_efikamx())
+		printf("Smarttop (1.%i)\n", rev & 0xf);
+	else if (machine_is_efikasb())
+		printf("Smartbook\n");
 
 	return 0;
 }
