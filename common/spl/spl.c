@@ -102,7 +102,6 @@ void spl_parse_image_header(const struct image_header *header)
 			spl_image.name, spl_image.load_addr, spl_image.size);
 	} else {
 		/* Signature not found - assume u-boot.bin */
-		puts("mkimage signature not found, assuming u-boot.bin ..\n");
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
 		/* Let's assume U-Boot will not be more than 200 KB */
@@ -181,19 +180,17 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
 		debug("Jumping to U-Boot\n");
-		jump_to_image_no_args();
 		break;
 #ifdef CONFIG_SPL_OS_BOOT
 	case IH_OS_LINUX:
 		debug("Jumping to Linux\n");
 		spl_board_prepare_for_linux();
 		jump_to_image_linux((void *)CONFIG_SYS_SPL_ARGS_ADDR);
-		break;
 #endif
 	default:
-		puts("Unsupported OS image.. Jumping nevertheless..\n");
-		jump_to_image_no_args();
+		debug("Unsupported OS image.. Jumping nevertheless..\n");
 	}
+	jump_to_image_no_args();
 }
 
 /*
