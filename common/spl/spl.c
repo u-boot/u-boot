@@ -174,10 +174,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		break;
 #endif
 	default:
-		puts("SPL: Un-supported Boot Device\n");
-		debug("Found: %d\n", boot_device);
+		debug("SPL: Un-supported Boot Device\n");
 		hang();
-		break;
 	}
 
 	switch (spl_image.os) {
