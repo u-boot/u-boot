@@ -81,14 +81,14 @@ static u32 get_mx_rev(void)
 	 */
 
 	/* set to 1 in order to get correct value on board rev 1.1 */
-	gpio_direction_output(GPIO_NUMBER(3, 16), 1);
-	gpio_direction_input(GPIO_NUMBER(3, 11));
-	gpio_direction_input(GPIO_NUMBER(3, 16));
-	gpio_direction_input(GPIO_NUMBER(3, 17));
+	gpio_direction_output(IMX_GPIO_NR(3, 16), 1);
+	gpio_direction_input(IMX_GPIO_NR(3, 11));
+	gpio_direction_input(IMX_GPIO_NR(3, 16));
+	gpio_direction_input(IMX_GPIO_NR(3, 17));
 
-	rev |= (!!gpio_get_value(GPIO_NUMBER(3, 16))) << 0;
-	rev |= (!!gpio_get_value(GPIO_NUMBER(3, 17))) << 1;
-	rev |= (!!gpio_get_value(GPIO_NUMBER(3, 11))) << 2;
+	rev |= (!!gpio_get_value(IMX_GPIO_NR(3, 16))) << 0;
+	rev |= (!!gpio_get_value(IMX_GPIO_NR(3, 17))) << 1;
+	rev |= (!!gpio_get_value(IMX_GPIO_NR(3, 11))) << 2;
 
 	return (~rev & 0x7) + 1;
 }
@@ -104,11 +104,11 @@ static inline u32 get_sb_rev(void)
 
 	imx_iomux_v3_setup_multiple_pads(efikasb_revision_pads,
 				ARRAY_SIZE(efikasb_revision_pads));
-	gpio_direction_input(GPIO_NUMBER(2, 28));
-	gpio_direction_input(GPIO_NUMBER(2, 29));
+	gpio_direction_input(IMX_GPIO_NR(2, 28));
+	gpio_direction_input(IMX_GPIO_NR(2, 29));
 
-	rev |= (!!gpio_get_value(GPIO_NUMBER(2, 28))) << 0;
-	rev |= (!!gpio_get_value(GPIO_NUMBER(2, 29))) << 1;
+	rev |= (!!gpio_get_value(IMX_GPIO_NR(2, 28))) << 0;
+	rev |= (!!gpio_get_value(IMX_GPIO_NR(2, 29))) << 1;
 
 	return rev;
 }
@@ -159,9 +159,9 @@ static iomux_v3_cfg_t efikamx_spi_pads[] = {
 	MX51_PAD_GPIO1_6__GPIO1_6,
 };
 
-#define EFIKAMX_SPI_SS0		GPIO_NUMBER(4, 24)
-#define EFIKAMX_SPI_SS1		GPIO_NUMBER(4, 25)
-#define EFIKAMX_PMIC_IRQ	GPIO_NUMBER(1, 6)
+#define EFIKAMX_SPI_SS0		IMX_GPIO_NR(4, 24)
+#define EFIKAMX_SPI_SS1		IMX_GPIO_NR(4, 25)
+#define EFIKAMX_PMIC_IRQ	IMX_GPIO_NR(1, 6)
 
 /*
  * PMIC configuration
@@ -282,15 +282,15 @@ static iomux_v3_cfg_t efikamx_sdhc1_pads[] = {
 	MX51_PAD_GPIO1_1__SD1_WP,
 };
 
-#define EFIKAMX_SDHC1_WP	GPIO_NUMBER(1, 1)
+#define EFIKAMX_SDHC1_WP	IMX_GPIO_NR(1, 1)
 
 static iomux_v3_cfg_t efikamx_sdhc1_cd_pads[] = {
 	MX51_PAD_GPIO1_0__SD1_CD,
 	MX51_PAD_EIM_CS2__SD1_CD,
 };
 
-#define EFIKAMX_SDHC1_CD	GPIO_NUMBER(1, 0)
-#define EFIKASB_SDHC1_CD	GPIO_NUMBER(2, 27)
+#define EFIKAMX_SDHC1_CD	IMX_GPIO_NR(1, 0)
+#define EFIKASB_SDHC1_CD	IMX_GPIO_NR(2, 27)
 
 static iomux_v3_cfg_t efikasb_sdhc2_pads[] = {
 	MX51_PAD_SD2_CMD__SD2_CMD,
@@ -303,8 +303,8 @@ static iomux_v3_cfg_t efikasb_sdhc2_pads[] = {
 	MX51_PAD_GPIO1_8__SD2_CD,
 };
 
-#define EFIKASB_SDHC2_CD	GPIO_NUMBER(1, 8)
-#define EFIKASB_SDHC2_WP	GPIO_NUMBER(1, 7)
+#define EFIKASB_SDHC2_CD	IMX_GPIO_NR(1, 8)
+#define EFIKASB_SDHC2_WP	IMX_GPIO_NR(1, 7)
 
 static inline uint32_t efikamx_mmc_getcd(u32 base)
 {
@@ -415,17 +415,17 @@ static inline void setup_iomux_usb(void) { }
  * Smarttop LED pad config is done in the DCD
  *
  */
-#define EFIKAMX_LED_BLUE	GPIO_NUMBER(3, 13)
-#define EFIKAMX_LED_GREEN	GPIO_NUMBER(3, 14)
-#define EFIKAMX_LED_RED		GPIO_NUMBER(3, 15)
+#define EFIKAMX_LED_BLUE	IMX_GPIO_NR(3, 13)
+#define EFIKAMX_LED_GREEN	IMX_GPIO_NR(3, 14)
+#define EFIKAMX_LED_RED		IMX_GPIO_NR(3, 15)
 
 static iomux_v3_cfg_t efikasb_led_pads[] = {
 	MX51_PAD_GPIO1_3__GPIO1_3,
 	MX51_PAD_EIM_CS0__GPIO2_25,
 };
 
-#define EFIKASB_CAPSLOCK_LED	GPIO_NUMBER(2, 25)
-#define EFIKASB_MESSAGE_LED	GPIO_NUMBER(1, 3) /* Note: active low */
+#define EFIKASB_CAPSLOCK_LED	IMX_GPIO_NR(2, 25)
+#define EFIKASB_MESSAGE_LED	IMX_GPIO_NR(1, 3) /* Note: active low */
 
 /*
  * Board initialization
