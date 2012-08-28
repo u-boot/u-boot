@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2012 Xilinx
  *
- * Configuration settings for the Xilinx Zynq ZC702 board.
+ * Configuration settings for the Xilinx Zynq ZC702 and ZC706 boards
  * See zynq_common.h for Zynq common configs
  *
  * This program is free software; you can redistribute it and/or
@@ -15,13 +15,14 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_ZYNQ_ZC702_H
-#define __CONFIG_ZYNQ_ZC702_H
+#ifndef __CONFIG_ZYNQ_ZC70X_H
+#define __CONFIG_ZYNQ_ZC70X_H
 
 /*
  * High Level Configuration Options
  */
 #define CONFIG_ZC702 /* Board */
+#define CONFIG_ZC706 /* Board */
 
 #include <configs/zynq_common.h>
 
@@ -75,6 +76,7 @@
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_SPANSION
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #undef CONFIG_ZYNQ_XILINX_FLASH_HEADER
@@ -98,4 +100,4 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
-#endif /* __CONFIG_ZYNQ_ZC702_H */
+#endif /* __CONFIG_ZYNQ_ZC70X_H */
