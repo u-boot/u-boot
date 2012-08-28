@@ -122,16 +122,16 @@ static void init_port(void)
 }
 
 /* MMC/SD command (SPI mode) */
-#define CMD0	(0)			/* GO_IDLE_STATE */
-#define CMD1	(1)			/* SEND_OP_COND */
+#define CMD0	(0)		/* GO_IDLE_STATE */
+#define CMD1	(1)		/* SEND_OP_COND */
 #define	ACMD41	(0x80+41)	/* SEND_OP_COND (SDC) */
 #define CMD2    (2)		/* SEND_CID */
 #define CMD3    (3)		/* RELATIVE_ADDR */
-#define CMD5	(5)			/* SLEEP_WAKE (SDC) */
+#define CMD5	(5)		/* SLEEP_WAKE (SDC) */
 #define CMD6	(6)		/* SWITCH_FUNC */
-#define CMD7	(7)			/* SELECT */
-#define CMD8	(8)			/* SEND_IF_COND */
-#define CMD9	(9)			/* SEND_CSD */
+#define CMD7	(7)		/* SELECT */
+#define CMD8	(8)		/* SEND_IF_COND */
+#define CMD9	(9)		/* SEND_CSD */
 #define CMD10	(10)		/* SEND_CID */
 #define CMD12	(12)		/* STOP_TRANSMISSION */
 #define CMD13	(13)		/* SEND_STATUS */
@@ -161,11 +161,11 @@ make_command (unsigned cmd)
 	retval = cmd << 8;
 
 #define RSP_NONE SD_CMD_RESP_NONE
-#define RSP_R1   (SD_CMD_INDEX|SD_CMD_RESP_48     |SD_CMD_CRC)
-#define RSP_R1b  (SD_CMD_INDEX|SD_CMD_RESP_48_BUSY|SD_CMD_CRC)
-#define RSP_R2   (SD_CMD_CRC  |SD_CMD_RESP_136)
+#define RSP_R1   (SD_CMD_INDEX | SD_CMD_RESP_48 | SD_CMD_CRC)
+#define RSP_R1b  (SD_CMD_INDEX | SD_CMD_RESP_48_BUSY | SD_CMD_CRC)
+#define RSP_R2   (SD_CMD_CRC | SD_CMD_RESP_136)
 #define RSP_R3   (SD_CMD_RESP_48)
-#define RSP_R6   (SD_CMD_INDEX|SD_CMD_RESP_48_BUSY|SD_CMD_CRC) 
+#define RSP_R6   (SD_CMD_INDEX | SD_CMD_RESP_48_BUSY | SD_CMD_CRC)
 
 	switch(cmd) {
 	case CMD0:
@@ -221,7 +221,7 @@ make_command (unsigned cmd)
 	case CMD6:
 		break;
 	default:
-		printf("Unknown command\n");
+		printf("Unknown command CMD%d\n", cmd);
 		break;
 	}
 
@@ -236,10 +236,8 @@ static int zynq_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	u16 modereg;
 	int result = 0;
 
-#ifdef DEBUG_VERBOSE
-	printf("zynq_sdh_request: cmdidx: %d arg: 0x%x\n",
+	debug("zynq_sdh_request: cmdidx: %d arg: 0x%x\n",
 	    cmd->cmdidx, cmd->cmdarg);
-#endif
 
 	cmd->response[0] = 0;
 	cmdreg = make_command(cmd->cmdidx);
@@ -256,11 +254,9 @@ static int zynq_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	 * buffer because the controller can't DMA into the first 512K
 	 * of DDR.
 	 */
-#ifdef DEBUG_VERBOSE
-	printf("data->dest = %p (%d) (%d * %d)\n", data->dest,
+	debug("data->dest = %p (%d) (%d * %d)\n", data->dest,
 		(cmdreg & SD_CMD_DATA) ? data->blocks : 0, data->blocks,
 		data->blocksize);
-#endif
 
 #ifdef CONFIG_ZYNQ_SD_DIRECT_DMA
 	/*
@@ -377,13 +373,12 @@ exit:
 
 static void zynq_sdh_set_ios(struct mmc *mmc)
 {
-#ifdef DEBUG
-	printf("%s: voltages: 0x%x clock: 0x%x bus_width: 0x%x\n", __FUNCTION__,
-		mmc->voltages, mmc->clock, mmc->bus_width);
-#endif
+	debug("%s: voltages: 0x%x clock: 0x%x bus_width: 0x%x\n",
+		__func__, mmc->voltages, mmc->clock, mmc->bus_width);
 }
 static int zynq_sdh_init(struct mmc *mmc)
 {
+	debug(" zynq_sdh_init called\n");
 	init_port();
 	return 0;
 }
