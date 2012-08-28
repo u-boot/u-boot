@@ -35,6 +35,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_SYS_UBOOT_START
+#define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
+#endif
 #ifndef CONFIG_SYS_MONITOR_LEN
 #define CONFIG_SYS_MONITOR_LEN	(200 * 1024)
 #endif
@@ -104,7 +107,7 @@ void spl_parse_image_header(const struct image_header *header)
 			header->ih_magic);
 		/* Let's assume U-Boot will not be more than 200 KB */
 		spl_image.size = CONFIG_SYS_MONITOR_LEN;
-		spl_image.entry_point = CONFIG_SYS_TEXT_BASE;
+		spl_image.entry_point = CONFIG_SYS_UBOOT_START;
 		spl_image.load_addr = CONFIG_SYS_TEXT_BASE;
 		spl_image.os = IH_OS_U_BOOT;
 		spl_image.name = "U-Boot";
