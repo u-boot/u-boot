@@ -31,6 +31,43 @@
 
 #undef CONFIG_ZYNQ_XIL_LQSPI
 
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"ethaddr=00:0a:35:00:01:22\0"	\
+	"kernel_size=0x140000\0"	\
+	"ramdisk_size=0x200000\0"	\
+	"nand_kernel_size=0x400000\0"	\
+	"nand_ramdisk_size=0x400000\0"	\
+	"norboot=echo Copying Linux from NOR flash to RAM...;" \
+		"cp 0xE2100000 0x8000 ${kernel_size};" \
+		"cp 0xE2600000 0x1000000 0x8000;" \
+		"echo Copying ramdisk...;" \
+		"cp 0xE3000000 0x800000 ${ramdisk_size};" \
+		"go 0x8000\0" \
+	"qspiboot=echo Copying Linux from QSPI flash to RAM...;" \
+		"cp 0xFC100000 0x8000 ${kernel_size};" \
+		"cp 0xFC600000 0x1000000 0x8000;" \
+		"echo Copying ramdisk...;" \
+		"cp 0xFC800000 0x800000 ${ramdisk_size};" \
+		"go 0x8000\0" \
+	"sdboot=echo Copying Linux from SD to RAM...;" \
+		"mmcinfo;" \
+		"fatload mmc 0 0x8000 zImage;" \
+		"fatload mmc 0 0x1000000 devicetree.dtb;" \
+		"fatload mmc 0 0x800000 ramdisk8M.image.gz;" \
+		"go 0x8000\0" \
+	"nandboot=echo Copying Linux from NAND flash to RAM...;" \
+		"nand read 0x8000 0x200000 ${nand_kernel_size};" \
+		"nand read 0x1000000 0x700000 0x20000;" \
+		"echo Copying ramdisk...;" \
+		"nand read 0x800000 0x900000 ${nand_ramdisk_size};" \
+		"go 0x8000\0" \
+	"jtagboot=echo TFTPing Linux to RAM...;" \
+		"tftp 0x8000 zImage;" \
+		"tftp 0x1000000 devicetree.dtb;" \
+		"tftp 0x800000 ramdisk8M.image.gz;" \
+		"go 0x8000\0"
+
 /* Uncomment it if you don't want Flash */
 //#define CONFIG_SYS_NO_FLASH	
 
