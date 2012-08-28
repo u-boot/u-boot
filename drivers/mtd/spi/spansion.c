@@ -90,6 +90,13 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.name = "S25FL032P",
 	},
 	{
+		.idcode1 = 0x0216,
+		.idcode2 = 0x4d00,
+		.pages_per_sector = 256,
+		.nr_sectors = 128,
+		.name = "S25FL064P",
+	},
+	{
 		.idcode1 = 0x2018,
 		.idcode2 = 0x4d01,
 		.pages_per_sector = 256,
