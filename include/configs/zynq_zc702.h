@@ -74,7 +74,6 @@
 #define CONFIG_SF_DEFAULT_SPEED 30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
-/* #define CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH */
 #define CONFIG_SPI_FLASH_STMICRO
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
