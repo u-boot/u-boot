@@ -776,6 +776,7 @@ clean:
 	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
 	       $(obj)tools/mk{env,}image   $(obj)tools/mpc86x_clk	  \
 	       $(obj)tools/mk{smdk5250,}spl				  \
+	       $(obj)tools/mxsboot					  \
 	       $(obj)tools/ncb		   $(obj)tools/ubsha1
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
