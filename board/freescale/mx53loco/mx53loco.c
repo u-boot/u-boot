@@ -175,14 +175,14 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret;
 
 	mxc_request_iomux(MX53_PIN_EIM_DA11, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(75);
+	gpio_direction_input(IMX_GPIO_NR(3, 11));
 	mxc_request_iomux(MX53_PIN_EIM_DA13, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(77);
+	gpio_direction_input(IMX_GPIO_NR(3, 13));
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		ret = !gpio_get_value(77); /* GPIO3_13 */
+		ret = !gpio_get_value(IMX_GPIO_NR(3, 13));
 	else
-		ret = !gpio_get_value(75); /* GPIO3_11 */
+		ret = !gpio_get_value(IMX_GPIO_NR(3, 11));
 
 	return ret;
 }

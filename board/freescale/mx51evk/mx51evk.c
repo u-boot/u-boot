@@ -319,11 +319,11 @@ static void power_init(void)
 	pmic_reg_write(p, REG_MODE_1, val);
 
 	mxc_request_iomux(MX51_PIN_EIM_A20, IOMUX_CONFIG_ALT1);
-	gpio_direction_output(46, 0);
+	gpio_direction_output(IMX_GPIO_NR(2, 14), 0);
 
 	udelay(500);
 
-	gpio_set_value(46, 1);
+	gpio_set_value(IMX_GPIO_NR(2, 14), 1);
 }
 
 #ifdef CONFIG_FSL_ESDHC
@@ -333,14 +333,14 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret;
 
 	mxc_request_iomux(MX51_PIN_GPIO1_0, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(0);
+	gpio_direction_input(IMX_GPIO_NR(1, 0));
 	mxc_request_iomux(MX51_PIN_GPIO1_6, IOMUX_CONFIG_ALT0);
-	gpio_direction_input(6);
+	gpio_direction_input(IMX_GPIO_NR(1, 6));
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		ret = !gpio_get_value(0);
+		ret = !gpio_get_value(IMX_GPIO_NR(1, 0));
 	else
-		ret = !gpio_get_value(6);
+		ret = !gpio_get_value(IMX_GPIO_NR(1, 6));
 
 	return ret;
 }
