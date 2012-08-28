@@ -55,6 +55,7 @@ void spi_init()
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
+	int is_dual;
 	struct zynq_spi_slave *pspi;
 
 #ifdef DEBUG
@@ -62,7 +63,15 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		bus, cs, max_hz, mode);
 #endif
 
-	xqspips_init_hw((void *)XPSS_QSPI_BASEADDR);
+	is_dual = xqspips_check_is_dual_flash((void *)XPSS_SYS_CTRL_BASEADDR);
+
+	if (is_dual == -1) {
+		printf("SPI error: No QSPI device detected based"
+				" on MIO settings\n");
+		return NULL;
+	}
+
+	xqspips_init_hw((void *)XPSS_QSPI_BASEADDR, is_dual);
 
 	pspi = malloc(sizeof(struct zynq_spi_slave));
 	if (!pspi) {
@@ -70,11 +79,13 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 	pspi->slave.bus = bus;
 	pspi->slave.cs = cs;
+	pspi->slave.is_dual = is_dual;
 	pspi->qspi.master.input_clk_hz = 100000000;
 	pspi->qspi.master.speed_hz     = pspi->qspi.master.input_clk_hz / 2;
 	pspi->qspi.max_speed_hz = pspi->qspi.master.speed_hz;
 	pspi->qspi.master.dev_busy     = 0;
 	pspi->qspi.master.regs = (void*)XPSS_QSPI_BASEADDR;
+	pspi->qspi.master.is_dual = is_dual;
 	pspi->qspi.mode = mode;
 	pspi->qspi.chip_select = 0;
 	pspi->qspi.bits_per_word = 32;

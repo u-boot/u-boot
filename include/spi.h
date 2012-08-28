@@ -49,10 +49,12 @@
  *
  *   bus:	ID of the bus that the slave is attached to.
  *   cs:	ID of the chip select connected to the slave.
+ *   is_dual:	Indicates whether dual memories are used
  */
 struct spi_slave {
 	unsigned int	bus;
 	unsigned int	cs;
+	unsigned int	is_dual;
 };
 
 /*-----------------------------------------------------------------------

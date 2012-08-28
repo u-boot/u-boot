@@ -23,6 +23,7 @@ struct xqspips {
 	struct xqspips_inst_format *curr_inst;
         u8 inst_response;
         bool is_inst;
+	bool is_dual;
 };
 
 struct spi_device {
@@ -45,11 +46,12 @@ struct spi_transfer {
 };
 
 /**************************************************************************/
-extern void xqspips_init_hw(void *regs_base);
+extern void xqspips_init_hw(void *regs_base, unsigned int is_dual);
 extern int  xqspips_setup_transfer(struct spi_device   *qspi,
                                     struct spi_transfer *transfer);
 extern int  xqspips_transfer(struct spi_device   *qspi,
                               struct spi_transfer *transfer);
+extern int xqspips_check_is_dual_flash(void *regs_base);
 
 /**************************************************************************/
 

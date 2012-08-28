@@ -308,6 +308,7 @@ static struct xqspips_inst_format __devinitdata flash_inst[] = {
 /**
  * xqspips_init_hw - Initialize the hardware
  * @regs_base:		Base address of QSPI controller
+ * @is_dual:		Indicates whether dual memories are used
  *
  * The default settings of the QSPI controller's configurable parameters on
  * reset are
@@ -325,7 +326,7 @@ static struct xqspips_inst_format __devinitdata flash_inst[] = {
  *	- Set the little endian mode of TX FIFO and
  *	- Enable the QSPI controller
  **/
-void xqspips_init_hw(void __iomem *regs_base)
+void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
 {
 	u32 config_reg;
 
@@ -347,9 +348,10 @@ void xqspips_init_hw(void __iomem *regs_base)
 	config_reg |= 0x8000FCC1;
 	xqspips_write(regs_base + XQSPIPSS_CONFIG_OFFSET, config_reg);
 
-#ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
-	xqspips_write(regs_base + XQSPIPSS_LINEAR_CFG_OFFSET, 0x6400016B);
-#endif
+	if (is_dual == 1)
+		/* Enable two memories on seperate buses */
+		xqspips_write(regs_base + XQSPIPSS_LINEAR_CFG_OFFSET,
+				0x6400016B);
 
 	xqspips_write(regs_base + XQSPIPSS_ENABLE_OFFSET,
 			XQSPIPSS_ENABLE_ENABLE_MASK);
@@ -806,11 +808,11 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		xqspi->curr_inst = &flash_inst[index];
 		xqspi->inst_response = 1;
 
-#ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
 		/* In case of dual memories, convert 25 bit address to 24 bit
 		 * address before transmitting to the 2 memories
 		 */
-		if ((instruction == XQSPIPSS_FLASH_OPCODE_PP) ||
+		if ((xqspi->is_dual == 1) &&
+		    ((instruction == XQSPIPSS_FLASH_OPCODE_PP) ||
 		    (instruction == XQSPIPSS_FLASH_OPCODE_SE) ||
 		    (instruction == XQSPIPSS_FLASH_OPCODE_BE_32K) ||
 		    (instruction == XQSPIPSS_FLASH_OPCODE_BE_4K) ||
@@ -818,7 +820,7 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		    (instruction == XQSPIPSS_FLASH_OPCODE_NORM_READ) ||
 		    (instruction == XQSPIPSS_FLASH_OPCODE_FAST_READ) ||
 		    (instruction == XQSPIPSS_FLASH_OPCODE_DUAL_READ) ||
-		    (instruction == XQSPIPSS_FLASH_OPCODE_QUAD_READ)) {
+		    (instruction == XQSPIPSS_FLASH_OPCODE_QUAD_READ))) {
 
 			u8 *ptr = (u8*) (xqspi->txbuf);
 			data = ((u32) ptr[1] << 24) | ((u32) ptr[2] << 16) |
@@ -830,7 +832,6 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 			xqspi->bytes_to_transfer -= 1;
 			xqspi->bytes_to_receive -= 1;
 		}
-#endif
 
 		/* Get the instruction */
 		data = 0;
@@ -1366,3 +1367,57 @@ MODULE_DESCRIPTION("Xilinx PSS QSPI driver");
 MODULE_LICENSE("GPL");
 
 #endif
+
+/**
+ * xqspips_check_is_dual_flash - checking for dual or single qspi
+ *
+ * This function will check the type of the flash whether it supports
+ * single or dual qspi based on the MIO configuration done by FSBL.
+ *
+ * User needs to correctly configure the MIO's based on the
+ * number of qspi flashes present on the board.
+ *
+ * function will return -1, if there is no MIO configuration for
+ * qspi flash.
+ *
+ * @regs_base:	base address of SLCR
+ */
+
+int xqspips_check_is_dual_flash(void __iomem *regs_base)
+{
+	int is_dual = -1, lower_mio = 0, upper_mio = 0, val;
+	u16 mask = 3, type = 2;
+	u32 mio_base, mio_pin_index;
+
+#ifdef CONFIG_EP107
+#ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
+	is_dual = 1;
+#else
+	is_dual = 0;
+#endif
+	return is_dual;
+#endif
+
+	mio_base = regs_base + 0x700;
+
+	/* checking single QSPI MIO's */
+	for (mio_pin_index = 2; mio_pin_index < 7; mio_pin_index++) {
+		val = xqspips_read(mio_base + 4 * mio_pin_index);
+		if ((val & mask) == type)
+			lower_mio++;
+	}
+
+	/* checking dual QSPI MIO's */
+	for (mio_pin_index = 8; mio_pin_index < 14; mio_pin_index++) {
+		val = xqspips_read(mio_base + 4 * mio_pin_index);
+		if ((val & mask) == type)
+			upper_mio++;
+	}
+
+	if ((lower_mio == 5) && (upper_mio == 6))
+		is_dual = 1;
+	else if (lower_mio == 5)
+		is_dual = 0;
+
+	return is_dual;
+}
