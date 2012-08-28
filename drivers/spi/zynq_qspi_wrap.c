@@ -22,34 +22,26 @@ struct zynq_spi_slave {
 __attribute__((weak))
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-#ifdef DEBUG
-	printf("spi_cs_is_valid: bus: %d cs: %d\n",
+	debug("spi_cs_is_valid: bus: %d cs: %d\n",
 		bus, cs);
-#endif
 	return 1;
 }
 
 __attribute__((weak))
 void spi_cs_activate(struct spi_slave *slave)
 {
-#ifdef DEBUG
-	printf("spi_cs_activate: slave 0x%08x\n", (unsigned)slave);
-#endif
+	debug("spi_cs_activate: slave 0x%08x\n", (unsigned)slave);
 }
 
 __attribute__((weak))
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-#ifdef DEBUG
-	printf("spi_cs_deactivate: slave 0x%08x\n", (unsigned)slave);
-#endif
+	debug("spi_cs_deactivate: slave 0x%08x\n", (unsigned)slave);
 }
 
 void spi_init()
 {
-#ifdef DEBUG
-	printf("spi_init:\n");
-#endif
+	debug("spi_init\n");
 }
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
@@ -58,10 +50,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	int is_dual;
 	struct zynq_spi_slave *pspi;
 
-#ifdef DEBUG
-	printf("spi_setup_slave: bus: %d cs: %d max_hz: %d mode: %d\n",
+	debug("spi_setup_slave: bus: %d cs: %d max_hz: %d mode: %d\n",
 		bus, cs, max_hz, mode);
-#endif
 
 	is_dual = xqspips_check_is_dual_flash((void *)XPSS_SYS_CTRL_BASEADDR);
 
@@ -98,9 +88,7 @@ void spi_free_slave(struct spi_slave *slave)
 {
 	struct zynq_spi_slave *pspi;
 
-#ifdef DEBUG
-	printf("spi_free_slave: slave: 0x%08x\n", (u32)slave);
-#endif
+	debug("spi_free_slave: slave: 0x%08x\n", (u32)slave);
 
 	pspi = to_zynq_spi_slave(slave);
 	free(pspi);
@@ -108,17 +96,13 @@ void spi_free_slave(struct spi_slave *slave)
 
 int spi_claim_bus(struct spi_slave *slave)
 {
-#ifdef DEBUG
-	printf("spi_claim_bus: slave: 0x%08x\n", (u32)slave);
-#endif
+	debug("spi_claim_bus: slave: 0x%08x\n", (u32)slave);
 	return 0;
 }
 
 void spi_release_bus(struct spi_slave *slave)
 {
-#ifdef DEBUG
-	printf("spi_release_bus: slave: 0x%08x\n", (u32)slave);
-#endif
+	debug("spi_release_bus: slave: 0x%08x\n", (u32)slave);
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
@@ -127,10 +111,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	struct zynq_spi_slave *pspi;
 	struct spi_transfer transfer;
 
-#ifdef DEBUG
-	printf("spi_xfer: slave: 0x%08x bitlen: %d dout: 0x%08x din: 0x%08x flags: 0x%lx\n",
+	debug("spi_xfer: slave: 0x%08x bitlen: %d dout: 0x%08x din:"
+		" 0x%08x flags: 0x%lx\n",
 		(u32)slave, bitlen, (u32)dout, (u32)din, flags);
-#endif
 
 	pspi = (struct zynq_spi_slave *)slave;
 	transfer.tx_buf = dout;
