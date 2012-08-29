@@ -142,7 +142,6 @@ struct venc_regs {
 };
 
 /* Few Register Offsets */
-#define FRAME_MODE_SHIFT			1
 #define TFTSTN_SHIFT				3
 #define DATALINES_SHIFT				8
 
