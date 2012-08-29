@@ -35,6 +35,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Timeout the transfer after 5 mS. This is usually a bit more, since
+ * the code in the tightloops this timeout is used in adds some overhead.
+ */
+#define FEC_XFER_TIMEOUT	5000
+
 #ifndef CONFIG_MII
 #error "CONFIG_MII has to be defined!"
 #endif
@@ -697,6 +703,8 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 	unsigned int status;
 	uint32_t size, end;
 	uint32_t addr;
+	int timeout = FEC_XFER_TIMEOUT;
+	int ret = 0;
 
 	/*
 	 * This routine transmits one frame.  This routine only accepts
@@ -764,6 +772,10 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 	while (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY) {
 		udelay(1);
 		invalidate_dcache_range(addr, addr + size);
+		if (!timeout--) {
+			ret = -EINVAL;
+			break;
+		}
 	}
 
 	debug("fec_send: status 0x%x index %d\n",
@@ -775,7 +787,7 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 	else
 		fec->tbd_index = 1;
 
-	return 0;
+	return ret;
 }
 
 /**
