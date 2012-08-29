@@ -196,6 +196,22 @@ int board_init(void)
 	return 0;
 }
 
+int misc_init_r(void)
+{
+	char *eth_addr;
+
+	dieid_num_r();
+
+	eth_addr = getenv("ethaddr");
+	if (eth_addr)
+		return 0;
+
+#ifndef CONFIG_SPL_BUILD
+	TAM3517_READ_MAC_FROM_EEPROM;
+#endif
+	return 0;
+}
+
 /*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the
