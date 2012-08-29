@@ -627,7 +627,9 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 	unsigned int sub_bus, found_multi = 0;
 	unsigned short vendor, device, class;
 	unsigned char header_type;
+#ifndef CONFIG_PCI_PNP
 	struct pci_config_table *cfg;
+#endif
 	pci_dev_t dev;
 #ifdef CONFIG_PCI_SCAN_SHOW
 	static int indent = 0;
@@ -675,18 +677,16 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 		}
 #endif
 
+#ifdef CONFIG_PCI_PNP
+		sub_bus = max(pciauto_config_device(hose, dev), sub_bus);
+#else
 		cfg = pci_find_config(hose, class, vendor, device,
 				      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
 		if (cfg) {
 			cfg->config_device(hose, dev, cfg);
 			sub_bus = max(sub_bus, hose->current_busno);
-#ifdef CONFIG_PCI_PNP
-		} else {
-			int n = pciauto_config_device(hose, dev);
-
-			sub_bus = max(sub_bus, n);
-#endif
 		}
+#endif
 
 #ifdef CONFIG_PCI_SCAN_SHOW
 		indent--;
