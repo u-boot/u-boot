@@ -131,6 +131,10 @@
 #define CONFIG_FPGA_ZYNQPL
 #define CONFIG_CMD_FPGA
 
+/* FIT support */
+#define CONFIG_FIT		1
+#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
+
 /* For now, use only single block reads for the MMC */
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
