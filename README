@@ -3377,6 +3377,13 @@ Low Level (hardware related) configuration options:
 		Disable PCI-Express on systems where it is supported but not
 		required.
 
+- CONFIG_PCI_ENUM_ONLY
+		Only scan through and get the devices on the busses.
+		Don't do any setup work, presumably because someone or
+		something has already done it, and we don't need to do it
+		a second time.	Useful for platforms that are pre-booted
+		by coreboot or similar.
+
 - CONFIG_SYS_SRIO:
 		Chip has SRIO or not
 
