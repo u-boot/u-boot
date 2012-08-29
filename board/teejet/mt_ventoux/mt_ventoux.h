@@ -223,10 +223,6 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(MCBSP2_DX),		(IEN | PTD | EN | M4)) \
 			/* GPIO_119: FPGA_INIT */ \
 	\
-	MUX_VAL(CP(MCBSP3_DX),		(IEN | PTU | EN | M4)) \
-			/* GPIO_140: speaker #mute */\
-	MUX_VAL(CP(MCBSP3_DR),		(IEN  | PTU | EN | M4)) \
-			/* GPIO_141: Buzz Hi */\
 	MUX_VAL(CP(MCBSP3_CLKX),	(IEN  | PTU | EN | M4)) \
 	MUX_VAL(CP(MCBSP3_FSX),		(IEN  | PTU | EN | M4)) \
 	\

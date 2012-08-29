@@ -39,6 +39,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define BUZZER		140
+#define SPEAKER		141
+
 #ifndef CONFIG_FPGA
 #error "The Teejet mt_ventoux must have CONFIG_FPGA enabled"
 #endif
@@ -192,6 +195,17 @@ int board_init(void)
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
 	mt_ventoux_init_fpga();
+
+	/* GPIO_140: speaker #mute */
+	MUX_VAL(CP(MCBSP3_DX),		(IEN | PTU | EN | M4))
+	/* GPIO_141: Buzz Hi */
+	MUX_VAL(CP(MCBSP3_DR),		(IEN  | PTU | EN | M4))
+
+	/* Turning off the buzzer */
+	gpio_request(BUZZER, "BUZZER_MUTE");
+	gpio_request(SPEAKER, "SPEAKER");
+	gpio_direction_output(BUZZER, 0);
+	gpio_direction_output(SPEAKER, 0);
 
 	return 0;
 }
