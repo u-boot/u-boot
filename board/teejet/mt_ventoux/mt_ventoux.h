@@ -203,7 +203,7 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(MMC2_DAT5),		(IDIS  | PTU | EN  | M4)) \
 	MUX_VAL(CP(MMC2_DAT6),		(IDIS  | PTU | EN  | M4)) \
 			/* GPIO_138: LCD_ENVD */\
-	MUX_VAL(CP(MMC2_DAT7),		(IDIS  | PTU | EN  | M4)) \
+	MUX_VAL(CP(MMC2_DAT7),		(IDIS  | PTD | EN  | M4)) \
 			/* GPIO_139: LCD_PON */\
 	/* McBSP */\
 	MUX_VAL(CP(MCBSP_CLKS),		(IEN  | PTU | DIS | M0)) \

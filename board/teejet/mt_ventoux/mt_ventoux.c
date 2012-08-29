@@ -21,13 +21,17 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <malloc.h>
 #include <fpga.h>
+#include <video_fb.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_gpio.h>
 #include <asm/arch/mmc_host_def.h>
+#include <asm/arch/dss.h>
+#include <asm/arch/clocks.h>
 #include <i2c.h>
 #include <spartan3.h>
 #include <asm/gpio.h>
@@ -52,6 +56,42 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FPGA_DIN	118
 #define FPGA_INIT	119
 #define FPGA_DONE	154
+
+#define LCD_PWR		138
+#define LCD_PON_PIN	139
+
+#if defined(CONFIG_VIDEO) && !defined(CONFIG_SPL_BUILD)
+static struct {
+	u32 xres;
+	u32 yres;
+} panel_resolution[] = {
+	{ 480, 272 },
+	{ 800, 480 }
+};
+
+static struct panel_config lcd_cfg[] = {
+	{
+	.timing_h       = PANEL_TIMING_H(4, 8, 41),
+	.timing_v       = PANEL_TIMING_V(2, 4, 10),
+	.pol_freq       = 0x00000000, /* Pol Freq */
+	.divisor        = 0x0001000d, /* 33Mhz Pixel Clock */
+	.panel_type     = 0x01, /* TFT */
+	.data_lines     = 0x03, /* 24 Bit RGB */
+	.load_mode      = 0x02, /* Frame Mode */
+	.panel_color	= 0,
+	},
+	{
+	.timing_h       = PANEL_TIMING_H(20, 192, 4),
+	.timing_v       = PANEL_TIMING_V(2, 20, 10),
+	.pol_freq       = 0x00004000, /* Pol Freq */
+	.divisor        = 0x0001000E, /* 36Mhz Pixel Clock */
+	.panel_type     = 0x01, /* TFT */
+	.data_lines     = 0x03, /* 24 Bit RGB */
+	.load_mode      = 0x02, /* Frame Mode */
+	.panel_color	= 0,
+	}
+};
+#endif
 
 /* Timing definitions for FPGA */
 static const u32 gpmc_fpga[] = {
@@ -252,5 +292,48 @@ int board_eth_init(bd_t *bis)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0);
+}
+#endif
+
+#if defined(CONFIG_VIDEO) && !defined(CONFIG_SPL_BUILD)
+int board_video_init(void)
+{
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	struct panel_config *panel = &lcd_cfg[0];
+	char *s;
+	u32 index = 0;
+
+	void *fb;
+
+	fb = (void *)0x88000000;
+
+	s = getenv("panel");
+	if (s) {
+		index = simple_strtoul(s, NULL, 10);
+		if (index < ARRAY_SIZE(lcd_cfg))
+			panel = &lcd_cfg[index];
+		else
+			return 0;
+	}
+
+	panel->frame_buffer = fb;
+	printf("Panel: %dx%d\n", panel_resolution[index].xres,
+		panel_resolution[index].yres);
+	panel->lcd_size = (panel_resolution[index].yres - 1) << 16 |
+		(panel_resolution[index].xres - 1);
+
+	gpio_request(LCD_PWR, "LCD Power");
+	gpio_request(LCD_PON_PIN, "LCD Pon");
+	gpio_direction_output(LCD_PWR, 0);
+	gpio_direction_output(LCD_PON_PIN, 1);
+
+
+	setbits_le32(&prcm_base->fclken_dss, FCK_DSS_ON);
+	setbits_le32(&prcm_base->iclken_dss, ICK_DSS_ON);
+
+	omap3_dss_panel_config(panel);
+	omap3_dss_enable();
+
+	return 0;
 }
 #endif
