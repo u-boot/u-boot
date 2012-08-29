@@ -768,19 +768,21 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 	 * invalidate data cache to see what's really in RAM. Also, we need
 	 * barrier here.
 	 */
-	invalidate_dcache_range(addr, addr + size);
-	while (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY) {
-		udelay(1);
-		invalidate_dcache_range(addr, addr + size);
-		if (!timeout--) {
-			ret = -EINVAL;
+	while (--timeout) {
+		if (!(readl(&fec->eth->x_des_active) & (1 << 24)))
 			break;
-		}
 	}
 
-	debug("fec_send: status 0x%x index %d\n",
+	if (!timeout)
+		ret = -EINVAL;
+
+	invalidate_dcache_range(addr, addr + size);
+	if (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY)
+		ret = -EINVAL;
+
+	debug("fec_send: status 0x%x index %d ret %i\n",
 			readw(&fec->tbd_base[fec->tbd_index].status),
-			fec->tbd_index);
+			fec->tbd_index, ret);
 	/* for next transmission use the other buffer */
 	if (fec->tbd_index)
 		fec->tbd_index = 0;
