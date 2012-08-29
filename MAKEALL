@@ -334,18 +334,27 @@ LIST_ppc="		\
 LIST_SA="$(boards_by_cpu sa1100)"
 
 #########################################################################
+## ARM7 Systems
+#########################################################################
+
+LIST_ARM7="$(boards_by_cpu arm720t)"
+
+#########################################################################
 ## ARM9 Systems
 #########################################################################
 
 LIST_ARM9="$(boards_by_cpu arm920t)	\
 	$(boards_by_cpu arm926ejs)	\
 	$(boards_by_cpu arm925t)	\
+	$(boards_by_cpu arm946es)	\
 "
 
 #########################################################################
 ## ARM11 Systems
 #########################################################################
-LIST_ARM11="$(boards_by_cpu arm1136)"
+LIST_ARM11="$(boards_by_cpu arm1136)	\
+	$(boards_by_cpu arm1176)	\
+"
 
 #########################################################################
 ## ARMV7 Systems
@@ -371,16 +380,7 @@ LIST_ixp="$(boards_by_cpu ixp)"
 ## ARM groups
 #########################################################################
 
-LIST_arm="			\
-	${LIST_SA}		\
-	${LIST_ARM9}		\
-	${LIST_ARM10}		\
-	${LIST_ARM11}		\
-	${LIST_ARMV7}	\
-	${LIST_at91}		\
-	${LIST_pxa}		\
-	${LIST_ixp}		\
-"
+LIST_arm="$(boards_by_arch arm)"
 
 #########################################################################
 ## MIPS Systems		(default = big endian)
@@ -388,6 +388,9 @@ LIST_arm="			\
 
 LIST_mips4kc="		\
 	incaip		\
+	incaip_100MHz	\
+	incaip_133MHz	\
+	incaip_150MHz	\
 	qemu_mips	\
 	vct_platinum	\
 	vct_platinum_small	\
@@ -461,14 +464,7 @@ LIST_microblaze="$(boards_by_arch microblaze)"
 ## ColdFire Systems
 #########################################################################
 
-LIST_m68k="$(boards_by_arch m68k)
-	EB+MCF-EV123		\
-	EB+MCF-EV123_internal	\
-	M52277EVB		\
-	M5235EVB		\
-	M54451EVB		\
-	M54455EVB		\
-"
+LIST_m68k="$(boards_by_arch m68k)"
 LIST_coldfire=${LIST_m68k}
 
 #########################################################################
