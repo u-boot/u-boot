@@ -256,7 +256,7 @@ static int miiphy_wait_aneg(struct eth_device *dev)
 
 static int fec_rx_task_enable(struct fec_priv *fec)
 {
-	writel(1 << 24, &fec->eth->r_des_active);
+	writel(FEC_R_DES_ACTIVE_RDAR, &fec->eth->r_des_active);
 	return 0;
 }
 
@@ -267,7 +267,7 @@ static int fec_rx_task_disable(struct fec_priv *fec)
 
 static int fec_tx_task_enable(struct fec_priv *fec)
 {
-	writel(1 << 24, &fec->eth->x_des_active);
+	writel(FEC_X_DES_ACTIVE_TDAR, &fec->eth->x_des_active);
 	return 0;
 }
 
@@ -769,7 +769,7 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 	 * barrier here.
 	 */
 	while (--timeout) {
-		if (!(readl(&fec->eth->x_des_active) & (1 << 24)))
+		if (!(readl(&fec->eth->x_des_active) & FEC_X_DES_ACTIVE_TDAR))
 			break;
 	}
 
