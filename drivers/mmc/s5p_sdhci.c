@@ -54,7 +54,7 @@ static void s5p_sdhci_set_control_reg(struct sdhci_host *host)
 	 *	00 = Delay3 (inverter delay)
 	 *	10 = Delay4 (inverter delay + 2ns)
 	 */
-	val = SDHCI_CTRL3_FCSEL3 | SDHCI_CTRL3_FCSEL1;
+	val = SDHCI_CTRL3_FCSEL0 | SDHCI_CTRL3_FCSEL1;
 	sdhci_writel(host, val, SDHCI_CONTROL3);
 
 	/*
@@ -82,12 +82,10 @@ int s5p_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk, u32 quirks)
 	host->ioaddr = (void *)regbase;
 	host->quirks = quirks;
 
-	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT | SDHCI_QUIRK_BROKEN_VOLTAGE;
+	host->quirks = SDHCI_QUIRK_NO_HISPD_BIT | SDHCI_QUIRK_BROKEN_VOLTAGE |
+		SDHCI_QUIRK_BROKEN_R1B | SDHCI_QUIRK_32BIT_DMA_ADDR;
 	host->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	if (quirks & SDHCI_QUIRK_REG32_RW)
-		host->version = sdhci_readl(host, SDHCI_HOST_VERSION - 2) >> 16;
-	else
-		host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
+	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	host->set_control_reg = &s5p_sdhci_set_control_reg;
 
