@@ -39,8 +39,6 @@
 #include <asm/arch/regs-base.h>
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_ARCH_MISC_INIT
