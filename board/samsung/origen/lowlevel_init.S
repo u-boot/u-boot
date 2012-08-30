@@ -158,7 +158,22 @@ system_clock_init:
 	ldr	r2, =CLK_SRC_PERIL0_OFFSET
 	str	r1, [r0, r2]
 
-	/* FIMD0 */
+	/* CAM , FIMC 0-3 */
+	ldr	r1, =CLK_SRC_CAM_VAL
+	ldr	r2, =CLK_SRC_CAM_OFFSET
+	str	r1, [r0, r2]
+
+	/* MFC */
+	ldr	r1, =CLK_SRC_MFC_VAL
+	ldr	r2, =CLK_SRC_MFC_OFFSET
+	str	r1, [r0, r2]
+
+	/* G3D */
+	ldr	r1, =CLK_SRC_G3D_VAL
+	ldr	r2, =CLK_SRC_G3D_OFFSET
+	str	r1, [r0, r2]
+
+	/* LCD0 */
 	ldr	r1, =CLK_SRC_LCD0_VAL
 	ldr	r2, =CLK_SRC_LCD0_OFFSET
 	str	r1, [r0, r2]
@@ -221,6 +236,26 @@ system_clock_init:
 	/* CLK_DIV_PERIL0: UART Clock Divisors */
 	ldr	r1, =CLK_DIV_PERIL0_VAL
 	ldr	r2, =CLK_DIV_PERIL0_OFFSET
+	str	r1, [r0, r2]
+
+	/* CAM, FIMC 0-3: CAM Clock Divisors */
+	ldr	r1, =CLK_DIV_CAM_VAL
+	ldr	r2, =CLK_DIV_CAM_OFFSET
+	str	r1, [r0, r2]
+
+	/* CLK_DIV_MFC: MFC Clock Divisors */
+	ldr	r1, =CLK_DIV_MFC_VAL
+	ldr	r2, =CLK_DIV_MFC_OFFSET
+	str	r1, [r0, r2]
+
+	/* CLK_DIV_G3D: G3D Clock Divisors */
+	ldr	r1, =CLK_DIV_G3D_VAL
+	ldr	r2, =CLK_DIV_G3D_OFFSET
+	str	r1, [r0, r2]
+
+	/* CLK_DIV_LCD0: LCD0 Clock Divisors */
+	ldr	r1, =CLK_DIV_LCD0_VAL
+	ldr	r2, =CLK_DIV_LCD0_OFFSET
 	str	r1, [r0, r2]
 
 	/* Set PLL locktime */
