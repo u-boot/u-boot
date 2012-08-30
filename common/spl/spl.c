@@ -128,6 +128,23 @@ static void __noreturn jump_to_image_no_args(void)
 	image_entry((u32 *)boot_params_ptr_addr);
 }
 
+#ifdef CONFIG_SPL_RAM_DEVICE
+static void spl_ram_load_image(void)
+{
+	const struct image_header *header;
+
+	/*
+	 * Get the header.  It will point to an address defined by handoff
+	 * which will tell where the image located inside the flash. For
+	 * now, it will temporary fixed to address pointed by U-Boot.
+	 */
+	header = (struct image_header *)
+		(CONFIG_SYS_TEXT_BASE -	sizeof(struct image_header));
+
+	spl_parse_image_header(header);
+}
+#endif
+
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	u32 boot_device;
@@ -145,6 +162,11 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	boot_device = spl_boot_device();
 	debug("boot device - %d\n", boot_device);
 	switch (boot_device) {
+#ifdef CONFIG_SPL_RAM_DEVICE
+	case BOOT_DEVICE_RAM:
+		spl_ram_load_image();
+		break;
+#endif
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:

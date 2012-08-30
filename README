@@ -2669,6 +2669,9 @@ FIT uImage format:
 		CONFIG_SPL_SPI_SUPPORT
 		Support for drivers/spi/libspi.o in SPL binary
 
+		CONFIG_SPL_RAM_DEVICE
+		Support for running image already present in ram, in SPL binary
+
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
 
