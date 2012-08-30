@@ -69,7 +69,7 @@ static void s5p_sdhci_set_control_reg(struct sdhci_host *host)
 	sdhci_writel(host, ctrl, SDHCI_CONTROL2);
 }
 
-int s5p_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk, u32 quirks)
+int s5p_sdhci_init(u32 regbase, int index, int bus_width)
 {
 	struct sdhci_host *host = NULL;
 	host = (struct sdhci_host *)malloc(sizeof(struct sdhci_host));
@@ -80,7 +80,6 @@ int s5p_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk, u32 quirks)
 
 	host->name = S5P_NAME;
 	host->ioaddr = (void *)regbase;
-	host->quirks = quirks;
 
 	host->quirks = SDHCI_QUIRK_NO_HISPD_BIT | SDHCI_QUIRK_BROKEN_VOLTAGE |
 		SDHCI_QUIRK_BROKEN_R1B | SDHCI_QUIRK_32BIT_DMA_ADDR;
@@ -91,6 +90,6 @@ int s5p_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk, u32 quirks)
 
 	host->host_caps = MMC_MODE_HC;
 
-	add_sdhci(host, max_clk, min_clk);
+	add_sdhci(host, 52000000, 400000);
 	return 0;
 }
