@@ -21,6 +21,7 @@
 #include <malloc.h>
 #include <sdhci.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/clk.h>
 
 static char *S5P_NAME = "SAMSUNG SDHCI";
 static void s5p_sdhci_set_control_reg(struct sdhci_host *host)
@@ -87,6 +88,8 @@ int s5p_sdhci_init(u32 regbase, int index, int bus_width)
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	host->set_control_reg = &s5p_sdhci_set_control_reg;
+	host->set_clock = set_mmc_clk;
+	host->index = index;
 
 	host->host_caps = MMC_MODE_HC;
 

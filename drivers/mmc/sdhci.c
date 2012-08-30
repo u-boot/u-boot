@@ -279,6 +279,9 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	}
 	div >>= 1;
 
+	if (host->set_clock)
+		host->set_clock(host->index, div);
+
 	clk = (div & SDHCI_DIV_MASK) << SDHCI_DIVIDER_SHIFT;
 	clk |= ((div & SDHCI_DIV_HI_MASK) >> SDHCI_DIV_MASK_LEN)
 		<< SDHCI_DIVIDER_HI_SHIFT;
