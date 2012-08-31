@@ -180,6 +180,9 @@ int timer_init (void)
 	PUT32(T0TC, 0);
 	PUT32(T0TCR, 1);	/* enable timer0 */
 
+#elif defined(CONFIG_TEGRA)
+	/* No timer routines for tegra as yet */
+	lastdec = 0;
 #else
 #error No timer_init() defined for this CPU type
 #endif
@@ -282,6 +285,8 @@ void __udelay (unsigned long usec)
 
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No timer routines for IntegratorAP/CM720T as yet */
+#elif defined(CONFIG_TEGRA)
+	/* No timer routines for tegra as yet */
 #else
 #error Timer routines not defined for this CPU type
 #endif

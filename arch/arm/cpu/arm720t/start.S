@@ -59,6 +59,7 @@ _data_abort:		.word _data_abort
 _not_used:		.word _not_used
 _irq:			.word _irq
 _fiq:			.word _fiq
+_pad:			.word 0x12345678 /* now 16*4=64 */
 #else
 _undefined_instruction: .word undefined_instruction
 _software_interrupt:	.word software_interrupt
@@ -67,6 +68,7 @@ _data_abort:		.word data_abort
 _not_used:		.word not_used
 _irq:			.word irq
 _fiq:			.word fiq
+_pad:			.word 0x12345678 /* now 16*4=64 */
 #endif	/* CONFIG_SPL_BUILD */
 
 	.balignl 16,0xdeadbeef
@@ -87,7 +89,11 @@ _fiq:			.word fiq
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#ifdef CONFIG_SPL_BUILD
+	.word	CONFIG_SPL_TEXT_BASE
+#else
 	.word	CONFIG_SYS_TEXT_BASE
+#endif
 
 /*
  * These are defined in the board-specific linker script.
@@ -409,6 +415,8 @@ lock_loop:
 	ldr	r0, VPBDIV_ADR
 	mov	r1, #0x01	/* VPB clock is same as process clock */
 	str	r1, [r0]
+#elif defined(CONFIG_TEGRA)
+	/* No cpu_init_crit for tegra as yet */
 #else
 #error No cpu_init_crit() defined for current CPU type
 #endif
@@ -424,7 +432,7 @@ lock_loop:
 	str	r1, [r0]
 #endif
 
-#ifndef CONFIG_LPC2292
+#if !defined(CONFIG_LPC2292) && !defined(CONFIG_TEGRA)
 	mov	ip, lr
 	/*
 	 * before relocating, we have to setup RAM timing
@@ -633,6 +641,8 @@ reset_cpu:
 .globl reset_cpu
 reset_cpu:
 	mov	pc, r0
+#elif defined(CONFIG_TEGRA)
+	/* No specific reset actions for tegra as yet */
 #else
 #error No reset_cpu() defined for current CPU type
 #endif
