@@ -59,12 +59,8 @@ CONFIG_NAME="${1%_config}"
 [ "${BOARD_NAME}" ] || BOARD_NAME="${1%_config}"
 
 arch="$2"
-cpu="$3"
-tmp="${cpu#*:}"
-if [ "$tmp" != "$cpu" ] ; then
-	spl_cpu=$tmp
-	cpu="${cpu%:*}"
-fi
+cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $1}'`
+spl_cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $2}'`
 if [ "$4" = "-" ] ; then
 	board=${BOARD_NAME}
 else
@@ -135,21 +131,21 @@ fi
 #
 # Create include file for Make
 #
-echo "ARCH   = ${arch}"  >  config.mk
-if [ ! -z "$spl_cpu" ] ; then
-	echo 'ifeq ($(CONFIG_SPL_BUILD),y)' >> config.mk
-	echo "CPU    = ${spl_cpu}" >> config.mk
-	echo "else" >> config.mk
-	echo "CPU    = ${cpu}"   >> config.mk
-	echo "endif" >> config.mk
-else
-	echo "CPU    = ${cpu}"   >> config.mk
-fi
-echo "BOARD  = ${board}" >> config.mk
+( echo "ARCH   = ${arch}"
+    if [ ! -z "$spl_cpu" ] ; then
+	echo 'ifeq ($(CONFIG_SPL_BUILD),y)'
+	echo "CPU    = ${spl_cpu}"
+	echo "else"
+	echo "CPU    = ${cpu}"
+	echo "endif"
+    else
+	echo "CPU    = ${cpu}"
+    fi
+    echo "BOARD  = ${board}"
 
-[ "${vendor}" ] && echo "VENDOR = ${vendor}" >> config.mk
-
-[ "${soc}"    ] && echo "SOC    = ${soc}"    >> config.mk
+    [ "${vendor}" ] && echo "VENDOR = ${vendor}"
+    [ "${soc}"    ] && echo "SOC    = ${soc}"
+    exit 0 ) > config.mk
 
 # Assign board directory to BOARDIR variable
 if [ -z "${vendor}" ] ; then
