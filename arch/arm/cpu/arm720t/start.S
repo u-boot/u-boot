@@ -51,6 +51,15 @@ _start: b	reset
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
+#ifdef CONFIG_SPL_BUILD
+_undefined_instruction: .word _undefined_instruction
+_software_interrupt:	.word _software_interrupt
+_prefetch_abort:	.word _prefetch_abort
+_data_abort:		.word _data_abort
+_not_used:		.word _not_used
+_irq:			.word _irq
+_fiq:			.word _fiq
+#else
 _undefined_instruction: .word undefined_instruction
 _software_interrupt:	.word software_interrupt
 _prefetch_abort:	.word prefetch_abort
@@ -58,6 +67,7 @@ _data_abort:		.word data_abort
 _not_used:		.word not_used
 _irq:			.word irq
 _fiq:			.word fiq
+#endif	/* CONFIG_SPL_BUILD */
 
 	.balignl 16,0xdeadbeef
 
@@ -167,6 +177,7 @@ stack_setup:
 
 	adr	r0, _start
 	cmp	r0, r6
+	moveq	r9, #0		/* no relocation. relocation offset(r9) = 0 */
 	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
 	ldr	r3, _bss_start_ofs
@@ -427,6 +438,7 @@ lock_loop:
 	mov	pc, lr
 
 
+#ifndef CONFIG_SPL_BUILD
 /*
  *************************************************************************
  *
@@ -589,6 +601,7 @@ fiq:
 	bl	do_fiq
 
 #endif
+#endif /* CONFIG_SPL_BUILD */
 
 #if defined(CONFIG_NETARM)
 	.align	5
