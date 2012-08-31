@@ -43,8 +43,6 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
-#define CONFIG_ARCH_CPU_INIT		/* Fire up the A9 core */
-
 #include <asm/arch/tegra20.h>		/* get chip and board defs */
 
 /*
@@ -52,8 +50,6 @@
  */
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
@@ -182,7 +178,7 @@
 #define PHYS_SDRAM_1		TEGRA20_SDRC_CS0
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512M */
 
-#define CONFIG_SYS_TEXT_BASE	0x00108000
+#define CONFIG_SYS_TEXT_BASE	0x0010c000
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_STACKBASE
@@ -195,4 +191,20 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_ENTERRCM
 #define CONFIG_CMD_BOOTZ
+
+/* Defines for SPL */
+#define CONFIG_SPL
+#define CONFIG_SPL_NAND_SIMPLE
+#define CONFIG_SPL_TEXT_BASE		0x00108000
+#define CONFIG_SPL_MAX_SIZE		0x00004000
+#define CONFIG_SYS_SPL_MALLOC_START	0x00090000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00010000
+#define CONFIG_SPL_STACK		0x000ffffc
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_GPIO_SUPPORT
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/tegra20/u-boot-spl.lds"
+
 #endif /* __TEGRA20_COMMON_H */

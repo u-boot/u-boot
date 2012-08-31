@@ -381,6 +381,15 @@ ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
 ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 
+# enable combined SPL/u-boot/dtb rules for tegra
+ifeq ($(SOC),tegra20)
+ifeq ($(CONFIG_OF_SEPARATE),y)
+ALL-y += $(obj)u-boot-dtb-tegra.bin
+else
+ALL-y += $(obj)u-boot-nodtb-tegra.bin
+endif
+endif
+
 all:		$(ALL-y) $(SUBDIR_EXAMPLES)
 
 $(obj)u-boot.dtb:	$(obj)u-boot

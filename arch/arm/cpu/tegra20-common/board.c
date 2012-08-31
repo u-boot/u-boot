@@ -23,12 +23,12 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/ap20.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pmc.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/tegra20.h>
+#include <asm/arch/warmboot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,27 +79,6 @@ int checkboard(void)
 	return 0;
 }
 #endif	/* CONFIG_DISPLAY_BOARDINFO */
-
-#ifdef CONFIG_ARCH_CPU_INIT
-/*
- * Note this function is executed by the ARM7TDMI AVP. It does not return
- * in this case. It is also called once the A9 starts up, but does nothing in
- * that case.
- */
-int arch_cpu_init(void)
-{
-	/* Fire up the Cortex A9 */
-	tegra20_start();
-
-	/* We didn't do this init in start.S, so do it now */
-	cpu_init_cp15();
-
-	/* Initialize essential common plls */
-	clock_early_init();
-
-	return 0;
-}
-#endif
 
 static int uart_configs[] = {
 #if defined(CONFIG_TEGRA20_UARTA_UAA_UAB)

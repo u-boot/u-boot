@@ -146,4 +146,69 @@
 	"fdt_high=01100000\0" \
 	BOOTCMDS_COMMON
 
+/* overrides for SPL build here */
+#ifdef CONFIG_SPL_BUILD
+
+/* remove devicetree support */
+#ifdef CONFIG_OF_CONTROL
+#undef CONFIG_OF_CONTROL
+#endif
+
+/* remove SERIAL_MULTI */
+#ifdef CONFIG_SERIAL_MULTI
+#undef CONFIG_SERIAL_MULTI
+#endif
+
+/* remove I2C support */
+#ifdef CONFIG_TEGRA_I2C
+#undef CONFIG_TEGRA_I2C
+#endif
+#ifdef CONFIG_CMD_I2C
+#undef CONFIG_CMD_I2C
+#endif
+
+/* remove MMC support */
+#ifdef CONFIG_MMC
+#undef CONFIG_MMC
+#endif
+#ifdef CONFIG_GENERIC_MMC
+#undef CONFIG_GENERIC_MMC
+#endif
+#ifdef CONFIG_TEGRA20_MMC
+#undef CONFIG_TEGRA20_MMC
+#endif
+#ifdef CONFIG_CMD_MMC
+#undef CONFIG_CMD_MMC
+#endif
+
+/* remove partitions/filesystems */
+#ifdef CONFIG_DOS_PARTITION
+#undef CONFIG_DOS_PARTITION
+#endif
+#ifdef CONFIG_EFI_PARTITION
+#undef CONFIG_EFI_PARTITION
+#endif
+#ifdef CONFIG_CMD_EXT2
+#undef CONFIG_CMD_EXT2
+#endif
+#ifdef CONFIG_CMD_FAT
+#undef CONFIG_CMD_FAT
+#endif
+
+/* remove USB */
+#ifdef CONFIG_USB_EHCI
+#undef CONFIG_USB_EHCI
+#endif
+#ifdef CONFIG_USB_EHCI_TEGRA
+#undef CONFIG_USB_EHCI_TEGRA
+#endif
+#ifdef CONFIG_USB_STORAGE
+#undef CONFIG_USB_STORAGE
+#endif
+#ifdef CONFIG_CMD_USB
+#undef CONFIG_CMD_USB
+#endif
+
+#endif /* CONFIG_SPL_BUILD */
+
 #endif /* __TEGRA20_COMMON_POST_H */
