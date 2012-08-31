@@ -472,6 +472,20 @@ $(obj)u-boot.spr:	$(obj)u-boot.img $(obj)spl/u-boot-spl.bin
 			conv=notrunc 2>/dev/null
 		cat $(obj)spl/u-boot-spl-pad.img $(obj)u-boot.img > $@
 
+ifeq ($(SOC),tegra20)
+ifeq ($(CONFIG_OF_SEPARATE),y)
+$(obj)u-boot-dtb-tegra.bin:	$(obj)spl/u-boot-spl.bin $(obj)u-boot.bin $(obj)u-boot.dtb
+		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SYS_TEXT_BASE) -O binary $(obj)spl/u-boot-spl $(obj)spl/u-boot-spl-pad.bin
+		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin $(obj)u-boot.dtb > $@
+		rm $(obj)spl/u-boot-spl-pad.bin
+else
+$(obj)u-boot-nodtb-tegra.bin:	$(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
+		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SYS_TEXT_BASE) -O binary $(obj)spl/u-boot-spl $(obj)spl/u-boot-spl-pad.bin
+		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin > $@
+		rm $(obj)spl/u-boot-spl-pad.bin
+endif
+endif
+
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
 		cd $(LNDIR) && $(CC) $(SYMS) -T $(obj)u-boot.lds \
