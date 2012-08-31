@@ -23,16 +23,4 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
-# Tegra has an ARMv4T CPU which runs board_init_f(), so we must build these
-# files with compatible flags
-ifdef CONFIG_TEGRA20
-CFLAGS_arch/arm/lib/board.o += -march=armv4t
-CFLAGS_arch/arm/lib/memset.o += -march=armv4t
-CFLAGS_lib/string.o += -march=armv4t
-CFLAGS_common/cmd_nvedit.o += -march=armv4t
-endif
-
-USE_PRIVATE_LIBGCC = yes
-
 CONFIG_ARCH_DEVICE_TREE := tegra20

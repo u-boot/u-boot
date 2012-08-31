@@ -27,8 +27,6 @@ include $(TOPDIR)/config.mk
 
 # The AVP is ARMv4T architecture so we must use special compiler
 # flags for any startup files it might use.
-CFLAGS_arch/arm/cpu/tegra20-common/ap20.o += -march=armv4t
-CFLAGS_arch/arm/cpu/tegra20-common/clock.o += -march=armv4t
 CFLAGS_arch/arm/cpu/tegra20-common/warmboot_avp.o += -march=armv4t
 
 LIB	= $(obj)lib$(SOC)-common.o
