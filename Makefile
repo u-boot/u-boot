@@ -319,6 +319,9 @@ endif
 ifeq ($(SOC),exynos)
 LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
+ifeq ($(SOC),tegra20)
+LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
+endif
 
 LIBS := $(addprefix $(obj),$(sort $(LIBS-y)))
 .PHONY : $(LIBS)

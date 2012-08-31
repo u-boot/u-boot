@@ -61,6 +61,10 @@ ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
+ifeq ($(SOC),tegra20)
+LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
+endif
+
 START := $(addprefix $(SPLTREE)/,$(START))
 LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))
 
