@@ -237,6 +237,15 @@ Wolfgang Grandegger <wg@denx.de>
 	IPHASE4539	MPC8260
 	SCM		MPC8260
 
+Anatolij Gustschin <agust@denx.de>
+
+	O2D		MPC5200
+	O2D300		MPC5200
+	O2DNT2		MPC5200
+	O2I		MPC5200
+	O2MNT		MPC5200
+	O3DNT		MPC5200
+
 Rob Herring <rob.herring@calxeda.com>
 
 	highbank	highbank
