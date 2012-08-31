@@ -1,5 +1,7 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2010,2011 Nvidia Corporation.
+#
+# (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -12,7 +14,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -21,26 +23,31 @@
 # MA 02111-1307 USA
 #
 
+# The AVP is ARMv4T architecture so we must use special compiler
+# flags for any startup files it might use.
+CFLAGS_arch/arm/cpu/armv7/tegra20/ap20.o += -march=armv4t
+CFLAGS_arch/arm/cpu/armv7/tegra20/clock.o += -march=armv4t
+CFLAGS_arch/arm/cpu/armv7/tegra20/warmboot_avp.o += -march=armv4t
+
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libinput.o
+LIB	=  $(obj)lib$(SOC).o
 
-COBJS-$(CONFIG_I8042_KBD) += i8042.o
-COBJS-$(CONFIG_TEGRA20_KEYBOARD) += tegra-kbc.o
-ifdef CONFIG_PS2KBD
-COBJS-y += keyboard.o pc_keyb.o
-COBJS-$(CONFIG_PS2MULT) += ps2mult.o ps2ser.o
-endif
-COBJS-y += input.o
-COBJS-$(CONFIG_OF_CONTROL) += key_matrix.o
+SOBJS	:= lowlevel_init.o
+COBJS-y	:= ap20.o board.o clock.o funcmux.o pinmux.o sys_info.o timer.o
+COBJS-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
+COBJS-$(CONFIG_TEGRA_PMU) += pmu.o
+COBJS-$(CONFIG_USB_EHCI_TEGRA) += usb.o
+COBJS-$(CONFIG_TEGRA20_LP0) += crypto.o warmboot.o warmboot_avp.o
+COBJS-$(CONFIG_CMD_ENTERRCM) += cmd_enterrcm.o
 
 COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
 
-all:	$(LIB)
+all:	 $(obj).depend $(LIB)
 
-$(LIB):	$(obj).depend $(OBJS)
+$(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################

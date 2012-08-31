@@ -262,7 +262,7 @@ exit:
 	return error;
 }
 
-static int tegra2_i2c_write_data(u32 addr, u8 *data, u32 len)
+static int tegra20_i2c_write_data(u32 addr, u8 *data, u32 len)
 {
 	int error;
 	struct i2c_trans_info trans_info;
@@ -275,12 +275,12 @@ static int tegra2_i2c_write_data(u32 addr, u8 *data, u32 len)
 
 	error = send_recv_packets(&i2c_controllers[i2c_bus_num], &trans_info);
 	if (error)
-		debug("tegra2_i2c_write_data: Error (%d) !!!\n", error);
+		debug("tegra20_i2c_write_data: Error (%d) !!!\n", error);
 
 	return error;
 }
 
-static int tegra2_i2c_read_data(u32 addr, u8 *data, u32 len)
+static int tegra20_i2c_read_data(u32 addr, u8 *data, u32 len)
 {
 	int error;
 	struct i2c_trans_info trans_info;
@@ -293,7 +293,7 @@ static int tegra2_i2c_read_data(u32 addr, u8 *data, u32 len)
 
 	error = send_recv_packets(&i2c_controllers[i2c_bus_num], &trans_info);
 	if (error)
-		debug("tegra2_i2c_read_data: Error (%d) !!!\n", error);
+		debug("tegra20_i2c_read_data: Error (%d) !!!\n", error);
 
 	return error;
 }
@@ -438,7 +438,7 @@ int i2c_write_data(uchar chip, uchar *buffer, int len)
 	debug("\n");
 
 	/* Shift 7-bit address over for lower-level i2c functions */
-	rc = tegra2_i2c_write_data(chip << 1, buffer, len);
+	rc = tegra20_i2c_write_data(chip << 1, buffer, len);
 	if (rc)
 		debug("i2c_write_data(): rc=%d\n", rc);
 
@@ -452,7 +452,7 @@ int i2c_read_data(uchar chip, uchar *buffer, int len)
 
 	debug("inside i2c_read_data():\n");
 	/* Shift 7-bit address over for lower-level i2c functions */
-	rc = tegra2_i2c_read_data(chip << 1, buffer, len);
+	rc = tegra20_i2c_read_data(chip << 1, buffer, len);
 	if (rc) {
 		debug("i2c_read_data(): rc=%d\n", rc);
 		return rc;

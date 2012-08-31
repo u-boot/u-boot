@@ -22,13 +22,13 @@
 #ifndef __TEGRA_MMC_H_
 #define __TEGRA_MMC_H_
 
-#define TEGRA2_SDMMC1_BASE	0xC8000000
-#define TEGRA2_SDMMC2_BASE	0xC8000200
-#define TEGRA2_SDMMC3_BASE	0xC8000400
-#define TEGRA2_SDMMC4_BASE	0xC8000600
+#define TEGRA20_SDMMC1_BASE	0xC8000000
+#define TEGRA20_SDMMC2_BASE	0xC8000200
+#define TEGRA20_SDMMC3_BASE	0xC8000400
+#define TEGRA20_SDMMC4_BASE	0xC8000600
 
 #ifndef __ASSEMBLY__
-struct tegra2_mmc {
+struct tegra20_mmc {
 	unsigned int	sysad;		/* _SYSTEM_ADDRESS_0 */
 	unsigned short	blksize;	/* _BLOCK_SIZE_BLOCK_COUNT_0 15:00 */
 	unsigned short	blkcnt;		/* _BLOCK_SIZE_BLOCK_COUNT_0 31:16 */
@@ -118,7 +118,7 @@ struct tegra2_mmc {
 #define TEGRA_MMC_NORINTSIGEN_XFER_COMPLETE			(1 << 1)
 
 struct mmc_host {
-	struct tegra2_mmc *reg;
+	struct tegra20_mmc *reg;
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
 	unsigned int base;	/* Base address, SDMMC1/2/3/4 */

@@ -25,21 +25,21 @@
 #define __CONFIG_H
 
 #include <asm/sizes.h>
-#include "tegra2-common.h"
+#include "tegra20-common.h"
 
 /* Enable fdt support for Whistler. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-whistler
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-whistler
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define V_PROMPT		"Tegra2 (Whistler) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"NVIDIA Whistler"
+#define V_PROMPT		"Tegra20 (Whistler) # "
+#define CONFIG_TEGRA20_BOARD_STRING	"NVIDIA Whistler"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTA
-#define CONFIG_TEGRA2_UARTA_UAA_UAB
+#define CONFIG_TEGRA20_ENABLE_UARTA
+#define CONFIG_TEGRA20_UARTA_UAA_UAB
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_WHISTLER
@@ -89,6 +89,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
-#include "tegra2-common-post.h"
+#include "tegra20-common-post.h"
 
 #endif /* __CONFIG_H */

@@ -28,7 +28,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/board.h>
-#include <asm/arch/tegra2.h>
+#include <asm/arch/tegra20.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
@@ -78,7 +78,7 @@ int board_mmc_init(bd_t *bd)
 	pin_mux_mmc();
 
 	/* init dev 0, SD slot, with 4-bit bus */
-	tegra2_mmc_init(0, 4, GPIO_PI6, GPIO_PH2);
+	tegra20_mmc_init(0, 4, GPIO_PI6, GPIO_PH2);
 
 	return 0;
 }

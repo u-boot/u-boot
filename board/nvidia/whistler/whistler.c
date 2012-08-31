@@ -24,7 +24,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/io.h>
-#include <asm/arch/tegra2.h>
+#include <asm/arch/tegra20.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
@@ -81,10 +81,10 @@ int board_mmc_init(bd_t *bd)
 	pin_mux_mmc();
 
 	/* init dev 0 (SDMMC4), (J29 "HSMMC") with 8-bit bus */
-	tegra2_mmc_init(0, 8, -1, -1);
+	tegra20_mmc_init(0, 8, -1, -1);
 
 	/* init dev 1 (SDMMC3), (J40 "SDIO3") with 8-bit bus */
-	tegra2_mmc_init(1, 8, -1, -1);
+	tegra20_mmc_init(1, 8, -1, -1);
 
 	return 0;
 }

@@ -26,21 +26,21 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "tegra2-common.h"
+#include "tegra20-common.h"
 
 /* Enable fdt support for TEC. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-tec
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-tec
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define V_PROMPT			"Tegra2 (TEC) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Tamonten Evaluation Carrier"
+#define V_PROMPT			"Tegra20 (TEC) # "
+#define CONFIG_TEGRA20_BOARD_STRING	"Avionic Design Tamonten Evaluation Carrier"
 #define CONFIG_SYS_BOARD_ODMDATA	0x2b0d8011
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTD	/* UARTD: debug UART */
+#define CONFIG_TEGRA20_ENABLE_UARTD	/* UARTD: debug UART */
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 #define CONFIG_BOARD_EARLY_INIT_F

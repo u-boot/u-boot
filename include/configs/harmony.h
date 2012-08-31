@@ -25,24 +25,24 @@
 #define __CONFIG_H
 
 #include <asm/sizes.h>
-#include "tegra2-common.h"
+#include "tegra20-common.h"
 
 /* Enable fdt support for Harmony. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-harmony
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-harmony
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define V_PROMPT		"Tegra2 (Harmony) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"NVIDIA Harmony"
+#define V_PROMPT		"Tegra20 (Harmony) # "
+#define CONFIG_TEGRA20_BOARD_STRING	"NVIDIA Harmony"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTD
+#define CONFIG_TEGRA20_ENABLE_UARTD
 
 /* UARTD: keyboard satellite board UART, default */
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
-#ifdef CONFIG_TEGRA2_ENABLE_UARTA
+#ifdef CONFIG_TEGRA20_ENABLE_UARTA
 /* UARTA: debug board UART */
 #define CONFIG_SYS_NS16550_COM2		NV_PA_APB_UARTA_BASE
 #endif
@@ -80,6 +80,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
-#include "tegra2-common-post.h"
+#include "tegra20-common-post.h"
 
 #endif /* __CONFIG_H */

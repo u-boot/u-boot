@@ -54,7 +54,7 @@ static inline struct tegra_spi_slave *to_tegra_spi(struct spi_slave *slave)
 
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-	/* Tegra2 SPI-Flash - only 1 device ('bus/cs') */
+	/* Tegra20 SPI-Flash - only 1 device ('bus/cs') */
 	if (bus != 0 || cs != 0)
 		return 0;
 	else
@@ -72,9 +72,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	if (max_hz > TEGRA2_SPI_MAX_FREQ) {
+	if (max_hz > TEGRA20_SPI_MAX_FREQ) {
 		printf("SPI error: unsupported frequency %d Hz. Max frequency"
-			" is %d Hz\n", max_hz, TEGRA2_SPI_MAX_FREQ);
+			" is %d Hz\n", max_hz, TEGRA20_SPI_MAX_FREQ);
 		return NULL;
 	}
 
@@ -86,7 +86,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	spi->slave.bus = bus;
 	spi->slave.cs = cs;
 	spi->freq = max_hz;
-	spi->regs = (struct spi_tegra *)TEGRA2_SPI_BASE;
+	spi->regs = (struct spi_tegra *)TEGRA20_SPI_BASE;
 	spi->mode = mode;
 
 	return &spi->slave;
@@ -130,7 +130,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	debug("spi_init: COMMAND = %08x\n", readl(&regs->command));
 
 	/*
-	 * SPI pins on Tegra2 are muxed - change pinmux later due to UART
+	 * SPI pins on Tegra20 are muxed - change pinmux later due to UART
 	 * issue.
 	 */
 	pinmux_set_func(PINGRP_GMD, PMUX_FUNC_SFLASH);

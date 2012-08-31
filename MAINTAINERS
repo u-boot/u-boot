@@ -831,9 +831,9 @@ Sricharan R <r.sricharan@ti.com>
 
 Thierry Reding <thierry.reding@avionic-design.de>
 
-	plutux		Tegra2 (ARM7 & A9 Dual Core)
-	medcom		Tegra2 (ARM7 & A9 Dual Core)
-	tec		Tegra2 (ARM7 & A9 Dual Core)
+	plutux		Tegra20 (ARM7 & A9 Dual Core)
+	medcom		Tegra20 (ARM7 & A9 Dual Core)
+	tec		Tegra20 (ARM7 & A9 Dual Core)
 
 Christian Riesch <christian.riesch@omicron.at>
 Manfred Rudigier <manfred.rudigier@omicron.at>
@@ -941,16 +941,16 @@ Michael Walle <michael@walle.cc>
 
 Tom Warren <twarren@nvidia.com>
 
-	harmony		Tegra2 (ARM7 & A9 Dual Core)
-	seaboard	Tegra2 (ARM7 & A9 Dual Core)
+	harmony		Tegra20 (ARM7 & A9 Dual Core)
+	seaboard	Tegra20 (ARM7 & A9 Dual Core)
 
 Tom Warren <twarren@nvidia.com>
 Stephen Warren <swarren@nvidia.com>
 
-	ventana		Tegra2 (ARM7 & A9 Dual Core)
-	paz00		Tegra2 (ARM7 & A9 Dual Core)
-	trimslice	Tegra2 (ARM7 & A9 Dual Core)
-	whistler	Tegra2 (ARM7 & A9 Dual Core)
+	ventana		Tegra20 (ARM7 & A9 Dual Core)
+	paz00		Tegra20 (ARM7 & A9 Dual Core)
+	trimslice	Tegra20 (ARM7 & A9 Dual Core)
+	whistler	Tegra20 (ARM7 & A9 Dual Core)
 
 Stephen Warren <swarren@wwwdotorg.org>
 

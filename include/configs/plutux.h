@@ -26,20 +26,20 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "tegra2-common.h"
+#include "tegra20-common.h"
 
 /* Enable fdt support for Plutux. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-plutux
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-plutux
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define V_PROMPT			"Tegra2 (Plutux) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Plutux"
+#define V_PROMPT			"Tegra20 (Plutux) # "
+#define CONFIG_TEGRA20_BOARD_STRING	"Avionic Design Plutux"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTD	/* UARTD: debug UART */
+#define CONFIG_TEGRA20_ENABLE_UARTD	/* UARTD: debug UART */
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -78,6 +78,6 @@
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
 
-#include "tegra2-common-post.h"
+#include "tegra20-common-post.h"
 
 #endif /* __CONFIG_H */

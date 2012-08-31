@@ -24,7 +24,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart-spi-switch.h>
-#include <asm/arch/tegra2.h>
+#include <asm/arch/tegra20.h>
 #include <asm/arch/tegra_spi.h>
 
 

@@ -27,26 +27,26 @@
 #include <asm/sizes.h>
 
 /* LP0 suspend / resume */
-#define CONFIG_TEGRA2_LP0
+#define CONFIG_TEGRA20_LP0
 #define CONFIG_AES
 #define CONFIG_TEGRA_PMU
 #define CONFIG_TPS6586X_POWER
 #define CONFIG_TEGRA_CLOCK_SCALING
 
-#include "tegra2-common.h"
+#include "tegra20-common.h"
 
 /* Enable fdt support for Seaboard. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-seaboard
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-seaboard
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define V_PROMPT		"Tegra2 (SeaBoard) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"NVIDIA Seaboard"
+#define V_PROMPT		"Tegra20 (SeaBoard) # "
+#define CONFIG_TEGRA20_BOARD_STRING	"NVIDIA Seaboard"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTD
+#define CONFIG_TEGRA20_ENABLE_UARTD
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 /* On Seaboard: GPIO_PI3 = Port I = 8, bit = 3 */
@@ -95,14 +95,14 @@
 #define CONFIG_CMD_DHCP
 
 /* Enable keyboard */
-#define CONFIG_TEGRA2_KEYBOARD
+#define CONFIG_TEGRA20_KEYBOARD
 #define CONFIG_KEYBOARD
 
-#undef TEGRA2_DEVICE_SETTINGS
-#define TEGRA2_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
+#undef TEGRA20_DEVICE_SETTINGS
+#define TEGRA20_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
-#include "tegra2-common-post.h"
+#include "tegra20-common-post.h"
 
 #endif /* __CONFIG_H */
