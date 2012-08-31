@@ -65,6 +65,12 @@ ifeq ($(SOC),tegra20)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
 endif
 
+# Add GCC lib
+ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
+PLATFORM_LIBGCC = $(SPLTREE)/arch/$(ARCH)/lib/libgcc.o
+PLATFORM_LIBS := $(filter-out %/libgcc.o, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
+endif
+
 START := $(addprefix $(SPLTREE)/,$(START))
 LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))
 
