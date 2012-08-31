@@ -345,11 +345,6 @@ void init_pmc_scratch(void)
 	/* ODMDATA is for kernel use to determine RAM size, LP config, etc. */
 	odmdata = get_odmdata();
 	writel(odmdata, &pmc->pmc_scratch20);
-
-#ifdef CONFIG_TEGRA20_LP0
-	/* save Sdram params to PMC 2, 4, and 24 for WB0 */
-	warmboot_save_sdram_params();
-#endif
 }
 
 void tegra20_start(void)

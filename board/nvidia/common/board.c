@@ -133,6 +133,9 @@ int board_init(void)
 #endif
 
 #ifdef CONFIG_TEGRA20_LP0
+	/* save Sdram params to PMC 2, 4, and 24 for WB0 */
+	warmboot_save_sdram_params();
+
 	/* prepare the WB code to LP0 location */
 	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif
