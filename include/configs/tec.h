@@ -79,4 +79,6 @@
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
 
+#include "tegra20-common-post.h"
+
 #endif /* __CONFIG_H */
