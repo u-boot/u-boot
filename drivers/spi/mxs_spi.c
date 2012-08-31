@@ -224,6 +224,7 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 	struct mxs_dma_desc *dp;
 	uint32_t ctrl0;
 	uint32_t cache_data_count;
+	const uint32_t dstart = (uint32_t)data;
 	int dmach;
 	int tl;
 
@@ -246,10 +247,12 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 	else
 		cache_data_count = length;
 
+	/* Flush data to DRAM so DMA can pick them up */
 	if (write)
-		/* Flush data to DRAM so DMA can pick them up */
-		flush_dcache_range((uint32_t)data,
-			(uint32_t)(data + cache_data_count));
+		flush_dcache_range(dstart, dstart + cache_data_count);
+
+	/* Invalidate the area, so no writeback into the RAM races with DMA */
+	invalidate_dcache_range(dstart, dstart + cache_data_count);
 
 	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + slave->slave.bus;
 
@@ -310,10 +313,8 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 		return -EINVAL;
 
 	/* The data arrived into DRAM, invalidate cache over them */
-	if (!write) {
-		invalidate_dcache_range((uint32_t)data,
-			(uint32_t)(data + cache_data_count));
-	}
+	if (!write)
+		invalidate_dcache_range(dstart, dstart + cache_data_count);
 
 	return 0;
 }
