@@ -236,6 +236,7 @@ stack_setup:
 	adr	r0, _start
 	sub	r9, r6, r0		/* r9 <- relocation offset */
 	cmp	r0, r6
+	moveq	r9, #0		/* no relocation. relocation offset(r9) = 0 */
 	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy loop */
 	ldr	r3, _bss_start_ofs
