@@ -17,7 +17,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(SOC).o
 
 SOBJS	:= lowlevel_init.o
-COBJS	:= reset.o timer.o
+COBJS	:= init.o reset.o timer.o
 
 SRCS	:= $(SOBJS:.o=.c) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
