@@ -105,16 +105,6 @@
 
 /*	TMU	*/
 #define TMU_BASE	0xA412FE90
-#define TSTR		(TMU_BASE + 0x02)
-#define TCOR0		(TMU_BASE + 0x04)
-#define TCNT0		(TMU_BASE + 0x08)
-#define TCR0		(TMU_BASE + 0x0C)
-#define TCOR1		(TMU_BASE + 0x10)
-#define TCNT1		(TMU_BASE + 0x14)
-#define TCR1		(TMU_BASE + 0x18)
-#define TCOR2		(TMU_BASE + 0x1C)
-#define TCNT2		(TMU_BASE + 0x20)
-#define TCR2		(TMU_BASE + 0x24)
 
 /*	TPU	*/
 #define TPU_BASE	0xA4480000
