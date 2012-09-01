@@ -36,6 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_FEC_MXC
 #define GPIO_FEC_RESET_B	IMX_GPIO_NR(4, 7)
 #define GPIO_FEC_ENABLE_B	IMX_GPIO_NR(4, 9)
+
 void tx25_fec_init(void)
 {
 	struct iomuxc_mux_ctl *muxctl;
