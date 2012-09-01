@@ -37,7 +37,7 @@
 #define CMD_M25PXX_RES		0xab	/* Release from DP, and Read Signature */
 
 struct stmicro_spi_flash_params {
-	u8 idcode1;
+	u16 id;
 	u16 pages_per_sector;
 	u16 nr_sectors;
 	const char *name;
@@ -45,55 +45,67 @@ struct stmicro_spi_flash_params {
 
 static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 	{
-		.idcode1 = 0x11,
+		.id = 0x2011,
 		.pages_per_sector = 128,
 		.nr_sectors = 4,
 		.name = "M25P10",
 	},
 	{
-		.idcode1 = 0x15,
+		.id = 0x2015,
 		.pages_per_sector = 256,
 		.nr_sectors = 32,
 		.name = "M25P16",
 	},
 	{
-		.idcode1 = 0x12,
+		.id = 0x2012,
 		.pages_per_sector = 256,
 		.nr_sectors = 4,
 		.name = "M25P20",
 	},
 	{
-		.idcode1 = 0x16,
+		.id = 0x2016,
 		.pages_per_sector = 256,
 		.nr_sectors = 64,
 		.name = "M25P32",
 	},
 	{
-		.idcode1 = 0x13,
+		.id = 0x2013,
 		.pages_per_sector = 256,
 		.nr_sectors = 8,
 		.name = "M25P40",
 	},
 	{
-		.idcode1 = 0x17,
+		.id = 0x2017,
 		.pages_per_sector = 256,
 		.nr_sectors = 128,
 		.name = "M25P64",
 	},
 	{
-		.idcode1 = 0x14,
+		.id = 0x2014,
 		.pages_per_sector = 256,
 		.nr_sectors = 16,
 		.name = "M25P80",
 	},
 	{
-		.idcode1 = 0x18,
+		.id = 0x2018,
 		.pages_per_sector = 1024,
 		.nr_sectors = 64,
 		.name = "M25P128",
 	},
 	{
-		.idcode1 = 0x19,
+		.id = 0xba18,
+		.pages_per_sector = 256,
+		.nr_sectors = 256,
+		.name = "N25Q128",
+	},
+	{
+		.id = 0xbb18,
+		.pages_per_sector = 256,
+		.nr_sectors = 256,
+		.name = "N25Q128A",
+	},
+	{
+		.id = 0xba19,
 		.pages_per_sector = 256,
 		.nr_sectors = 512,
 		.name = "N25Q256",
@@ -105,6 +117,7 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	const struct stmicro_spi_flash_params *params;
 	struct spi_flash *flash;
 	unsigned int i;
+	u16 id;
 
 	if (idcode[0] == 0xff) {
 		i = spi_flash_cmd(spi, CMD_M25PXX_RES,
@@ -119,15 +132,17 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 			return NULL;
 	}
 
+	id = ((idcode[1] << 8) | idcode[2]);
+
 	for (i = 0; i < ARRAY_SIZE(stmicro_spi_flash_table); i++) {
 		params = &stmicro_spi_flash_table[i];
-		if (params->idcode1 == idcode[2]) {
+		if (params->id == id) {
 			break;
 		}
 	}
 
 	if (i == ARRAY_SIZE(stmicro_spi_flash_table)) {
-		debug("SF: Unsupported STMicro ID %02x\n", idcode[1]);
+		debug("SF: Unsupported STMicro ID %04x\n", id);
 		return NULL;
 	}
 
