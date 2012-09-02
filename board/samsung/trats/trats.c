@@ -59,6 +59,8 @@ static int hwrevision(int rev)
 	return (board_rev & 0xf) == rev;
 }
 
+struct s3c_plat_otg_data s5pc210_otg_data;
+
 int board_init(void)
 {
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
@@ -259,6 +261,12 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_phy_ctrl	= EXYNOS4_USBPHY_CONTROL,
 	.usb_flags	= PHY0_SLEEP,
 };
+
+void board_usb_init(void)
+{
+	debug("USB_udc_probe\n");
+	s3c_udc_probe(&s5pc210_otg_data);
+}
 #endif
 
 static void pmic_reset(void)
