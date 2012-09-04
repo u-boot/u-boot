@@ -234,7 +234,7 @@ static int zynq_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	u32 status;
 	u16 cmdreg;
 	u16 modereg;
-	int result = 0;
+	int result = 0, i;
 
 	debug("zynq_sdh_request: cmdidx: %d arg: 0x%x\n",
 	    cmd->cmdidx, cmd->cmdarg);
@@ -340,21 +340,26 @@ static int zynq_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	} 
 
-	if (cmd->resp_type == MMC_RSP_R2) {
-		int i;
-		
-		/* RESP_136 */
-		/* CRC is stripped so we need to do some shifting. */
-		for (i = 0;i < 4;i++) {
-			cmd->response[i] = sd_in32(SD_RSP_R + (3-i)*4) << 8;
-			if (i != 3) {
-				cmd->response[i] |=
-					sd_in8((SD_RSP_R + (3-i)*4)-1);
+	if (cmd->resp_type & MMC_RSP_PRESENT) {
+		if (cmd->resp_type & MMC_RSP_136) {
+			/* CRC is stripped so we need to do some shifting */
+			/* response type 2 */
+			for (i = 0; i < 4; i++) {
+				cmd->response[i] =
+					sd_in32(SD_RSP_R + (3-i) * 4) << 8;
+				debug("CMD%d cmd->response[%d] = %d\n",
+					cmd->cmdidx, i, cmd->response[i]);
+				if (i != 3) {
+					cmd->response[i] |=
+						sd_in8((SD_RSP_R + (3-i)*4)-1);
+				}
 			}
+		} else {
+			/* response type 1, 1b, 3, 6 */
+			cmd->response[0] = sd_in32(SD_RSP_R);
+			debug("CMD%d cmd->response[0] = %d\n",
+				cmd->cmdidx, cmd->response[0]);
 		}
-	} else {
-		/* RESP_48 */
-		cmd->response[0] = sd_in32(SD_RSP_R);
 	}
 
 #ifndef CONFIG_ZYNQ_SD_DIRECT_DMA
