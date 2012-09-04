@@ -207,6 +207,25 @@ static inline unsigned int s5p_gpio_base(int nr)
 	return 0;
 }
 
+static inline unsigned int s5p_gpio_part_max(int nr)
+{
+	if (cpu_is_exynos5()) {
+		if (nr < EXYNOS5_GPIO_PART1_MAX)
+			return 0;
+		else if (nr < EXYNOS5_GPIO_PART2_MAX)
+			return EXYNOS5_GPIO_PART1_MAX;
+		else
+			return EXYNOS5_GPIO_PART2_MAX;
+
+	} else if (cpu_is_exynos4()) {
+		if (nr < EXYNOS4_GPIO_PART1_MAX)
+			return 0;
+		else
+			return EXYNOS4_GPIO_PART1_MAX;
+	}
+
+	return 0;
+}
 #endif
 
 /* Pin configurations */
