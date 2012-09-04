@@ -241,6 +241,9 @@ init_fnc_t *init_sequence[] = {
 	fdtdec_check_fdt,
 #endif
 	timer_init,		/* initialize timer */
+#ifdef CONFIG_BOARD_POSTCLK_INIT
+	board_postclk_init,
+#endif
 #ifdef CONFIG_FSL_ESDHC
 	get_clocks,
 #endif

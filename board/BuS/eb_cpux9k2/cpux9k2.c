@@ -267,9 +267,9 @@ int drv_video_init(void)
 		display_height = 256;
 	printf("%ld x %ld pixel matrix\n", display_width, display_height);
 
-	/* RWH = 7 | RWS =7  | TDF = 15 | NWS = 0x7F */
-	csr =	AT91_SMC_CSR_RWHOLD(7) | AT91_SMC_CSR_RWSETUP(7) |
-		AT91_SMC_CSR_TDF(15) | AT91_SMC_CSR_NWS(127) |
+	/* RWH = 2 | RWS =2  | TDF = 4 | NWS = 0x6 */
+	csr =	AT91_SMC_CSR_RWHOLD(2) | AT91_SMC_CSR_RWSETUP(2) |
+		AT91_SMC_CSR_TDF(4) | AT91_SMC_CSR_NWS(6) |
 		AT91_SMC_CSR_ACSS_STANDARD | AT91_SMC_CSR_DBW_16 |
 		AT91_SMC_CSR_BAT_16 | AT91_SMC_CSR_WSEN;
 	writel(csr, &mc->smc.csr[2]);
