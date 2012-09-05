@@ -37,8 +37,8 @@ DECLARE_GLOBAL_DATA_PTR;
 static int gzip_decompress(const unsigned char *in, size_t in_len,
 			   unsigned char *out, size_t *out_len)
 {
-	unsigned long len = in_len;
-	return zunzip(out, *out_len, (unsigned char *)in, &len, 0, 0);
+	return zunzip(out, *out_len, (unsigned char *)in,
+		      (unsigned long *)out_len, 0, 0);
 }
 
 /* Fake description object for the "none" compressor */
