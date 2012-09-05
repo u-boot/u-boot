@@ -212,6 +212,12 @@
 #define CONFIG_ENV_SROM_BANK		1
 #endif /*CONFIG_CMD_NET*/
 
+/* Enable PXE Support */
+#ifdef CONFIG_CMD_NET
+#define CONFIG_CMD_PXE
+#define CONFIG_MENU
+#endif
+
 /* Enable devicetree support */
 #define CONFIG_OF_LIBFDT
 
