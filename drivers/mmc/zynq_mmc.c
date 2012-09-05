@@ -243,9 +243,9 @@ static int zynq_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	cmd->response[0] = 0;
 	cmdreg = make_command(cmd->cmdidx);
 
-	/* exit if command is SWITCH_FUNC, as it currently not supporting */
+	/* append the data if the command is SWITCH_FUNC */
 	if (data && (data->flags & MMC_DATA_READ) && (cmd->cmdidx == 6))
-		return result;
+		cmdreg |= SD_CMD_DATA;
 
 	/* Wait until the device is willing to accept commands */
 	do {
@@ -383,12 +383,45 @@ exit:
 
 static void zynq_sdh_set_ios(struct mmc *mmc)
 {
-	u16 sdhci_clkctrl;
+	u16 clk, sdhci_clkctrl;
 
 	debug("%s: voltages: 0x%x clock: 0x%x bus_width: 0x%x\n",
 		__func__, mmc->voltages, mmc->clock, mmc->bus_width);
 
 	sdhci_clkctrl = sd_in16(SD_HOST_CTRL_R);
+
+	/* Configure the clock 50MHz system REFF clock*/
+	if (mmc->clock) {
+		u32 div;
+
+		for (div = 1; div < 256; div *= 2) {
+			if ((SD_REFF_CLK_50M / div) <= mmc->clock)
+				break;
+		}
+		div >>= 1;
+
+		/* Disable SD clock and internal clock */
+		clk = sd_in16(SD_CLK_CTL_R);
+		clk &= ~(SD_CLK_SD_EN|SD_CLK_INT_EN);
+		sd_out16(SD_CLK_CTL_R, clk);
+
+		/* Enable Internal clock and wait for it to stablilize */
+		clk = (div << SD_DIV_SHIFT) | SD_CLK_INT_EN;
+		sd_out16(SD_CLK_CTL_R, clk);
+		do {
+			clk = sd_in16(SD_CLK_CTL_R);
+		} while (!(clk & SD_CLK_INT_STABLE));
+
+		/* Enable SD clock */
+		clk |= SD_CLK_SD_EN;
+		sd_out16(SD_CLK_CTL_R, clk);
+
+		if (!div)
+			/* Enable high speed mode in controller */
+			sdhci_clkctrl |= SD_HOST_HS;
+		else
+			sdhci_clkctrl &= ~SD_HOST_HS;
+	}
 
 	/* Configure the bus_width */
 	if (mmc->bus_width == 4)
@@ -426,7 +459,7 @@ int zynq_mmc_init(bd_t *bd)
 	mmc->set_ios = zynq_sdh_set_ios;
 	mmc->init = zynq_sdh_init;
 
-	mmc->host_caps = MMC_MODE_4BIT;
+	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS | MMC_MODE_HS_52MHz;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
         

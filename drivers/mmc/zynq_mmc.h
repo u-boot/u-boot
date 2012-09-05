@@ -77,6 +77,9 @@
 #define  SD_CLK_INT_STABLE   0x0002
 #define  SD_CLK_INT_EN       0x0001
 
+#define SD_REFF_CLK_50M		50000000
+#define SD_HOST_HS		0x4
+
 #define SD_TIMEOUT_CTL_R     0x2E
 
 #define SD_SOFT_RST_R        0x2F
