@@ -69,10 +69,10 @@ int board_mmc_init(bd_t *bd)
 	pin_mux_mmc();
 
 	/* init dev 0 (SDMMC4), (micro-SD slot) with 4-bit bus */
-	tegra20_mmc_init(0, 4, -1, GPIO_PP1);
+	tegra_mmc_init(0, 4, -1, GPIO_PP1);
 
 	/* init dev 3 (SDMMC1), (SD slot) with 4-bit bus */
-	tegra20_mmc_init(3, 4, -1, -1);
+	tegra_mmc_init(3, 4, -1, -1);
 
 	return 0;
 }

@@ -35,12 +35,12 @@
 
 /* High-level configuration options */
 #define V_PROMPT			"Tegra20 (TEC) # "
-#define CONFIG_TEGRA20_BOARD_STRING	"Avionic Design Tamonten Evaluation Carrier"
+#define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Tamonten Evaluation Carrier"
 #define CONFIG_SYS_BOARD_ODMDATA	0x2b0d8011
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA20_ENABLE_UARTD	/* UARTD: debug UART */
+#define CONFIG_TEGRA_ENABLE_UARTD	/* UARTD: debug UART */
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -55,7 +55,7 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_TEGRA_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		TEGRA20_NAND_BASE
+#define CONFIG_SYS_NAND_BASE		NV_PA_NAND_BASE
 
 /* Environment in NAND, aligned to start of last sector */
 #define CONFIG_ENV_IS_IN_NAND
@@ -87,6 +87,6 @@
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
 
-#include "tegra20-common-post.h"
+#include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

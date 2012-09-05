@@ -78,7 +78,7 @@ int board_mmc_init(bd_t *bd)
 	pin_mux_mmc();
 
 	/* init dev 0, SD slot, with 4-bit bus */
-	tegra20_mmc_init(0, 4, GPIO_PI6, GPIO_PH2);
+	tegra_mmc_init(0, 4, GPIO_PI6, GPIO_PH2);
 
 	return 0;
 }

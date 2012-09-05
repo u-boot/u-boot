@@ -35,11 +35,11 @@
 
 /* High-level configuration options */
 #define V_PROMPT			"Tegra20 (Plutux) # "
-#define CONFIG_TEGRA20_BOARD_STRING	"Avionic Design Plutux"
+#define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Plutux"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA20_ENABLE_UARTD	/* UARTD: debug UART */
+#define CONFIG_TEGRA_ENABLE_UARTD	/* UARTD: debug UART */
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -78,6 +78,6 @@
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
 
-#include "tegra20-common-post.h"
+#include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

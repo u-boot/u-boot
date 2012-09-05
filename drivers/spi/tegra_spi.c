@@ -72,9 +72,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	if (max_hz > TEGRA20_SPI_MAX_FREQ) {
+	if (max_hz > TEGRA_SPI_MAX_FREQ) {
 		printf("SPI error: unsupported frequency %d Hz. Max frequency"
-			" is %d Hz\n", max_hz, TEGRA20_SPI_MAX_FREQ);
+			" is %d Hz\n", max_hz, TEGRA_SPI_MAX_FREQ);
 		return NULL;
 	}
 
@@ -86,7 +86,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	spi->slave.bus = bus;
 	spi->slave.cs = cs;
 	spi->freq = max_hz;
-	spi->regs = (struct spi_tegra *)TEGRA20_SPI_BASE;
+	spi->regs = (struct spi_tegra *)NV_PA_SPI_BASE;
 	spi->mode = mode;
 
 	return &spi->slave;

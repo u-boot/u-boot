@@ -47,7 +47,7 @@ enum {
 
 unsigned int query_sdram_size(void)
 {
-	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 
 	reg = readl(&pmc->pmc_scratch20);
@@ -81,11 +81,11 @@ int checkboard(void)
 #endif	/* CONFIG_DISPLAY_BOARDINFO */
 
 static int uart_configs[] = {
-#if defined(CONFIG_TEGRA20_UARTA_UAA_UAB)
+#if defined(CONFIG_TEGRA_UARTA_UAA_UAB)
 	FUNCMUX_UART1_UAA_UAB,
-#elif defined(CONFIG_TEGRA20_UARTA_GPU)
+#elif defined(CONFIG_TEGRA_UARTA_GPU)
 	FUNCMUX_UART1_GPU,
-#elif defined(CONFIG_TEGRA20_UARTA_SDIO1)
+#elif defined(CONFIG_TEGRA_UARTA_SDIO1)
 	FUNCMUX_UART1_SDIO1,
 #else
 	FUNCMUX_UART1_IRRX_IRTX,
@@ -125,13 +125,13 @@ void board_init_uart_f(void)
 {
 	int uart_ids = 0;	/* bit mask of which UART ids to enable */
 
-#ifdef CONFIG_TEGRA20_ENABLE_UARTA
+#ifdef CONFIG_TEGRA_ENABLE_UARTA
 	uart_ids |= UARTA;
 #endif
-#ifdef CONFIG_TEGRA20_ENABLE_UARTB
+#ifdef CONFIG_TEGRA_ENABLE_UARTB
 	uart_ids |= UARTB;
 #endif
-#ifdef CONFIG_TEGRA20_ENABLE_UARTD
+#ifdef CONFIG_TEGRA_ENABLE_UARTD
 	uart_ids |= UARTD;
 #endif
 	setup_uarts(uart_ids);

@@ -39,7 +39,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_TEGRA_CLOCK_SCALING
-#error "You must enable CONFIG_TEGRA_CLOCK_SCALING to use CONFIG_TEGRA20_LP0"
+#error "You must enable CONFIG_TEGRA_CLOCK_SCALING to use CONFIG_TEGRA_LP0"
 #endif
 
 /*
@@ -139,9 +139,9 @@ int warmboot_save_sdram_params(void)
 	u32 ram_code;
 	struct sdram_params sdram;
 	struct pmux_tri_ctlr *pmt = (struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	struct apb_misc_gp_ctlr *gp =
-			(struct apb_misc_gp_ctlr *)TEGRA20_APB_MISC_GP_BASE;
+			(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
 	struct emc_ctlr *emc = emc_get_controller(gd->fdt_blob);
 	union scratch2_reg scratch2;
 	union scratch4_reg scratch4;
@@ -205,7 +205,7 @@ static u32 get_major_version(void)
 {
 	u32 major_id;
 	struct apb_misc_gp_ctlr *gp =
-		(struct apb_misc_gp_ctlr *)TEGRA20_APB_MISC_GP_BASE;
+		(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
 
 	major_id = (readl(&gp->hidrev) & HIDREV_MAJORPREV_MASK) >>
 			HIDREV_MAJORPREV_SHIFT;
@@ -229,7 +229,7 @@ static int is_failure_analysis_mode(struct fuse_regs *fuse)
 
 static int ap20_is_odm_production_mode(void)
 {
-	struct fuse_regs *fuse = (struct fuse_regs *)TEGRA20_FUSE_BASE;
+	struct fuse_regs *fuse = (struct fuse_regs *)NV_PA_FUSE_BASE;
 
 	if (!is_failure_analysis_mode(fuse) &&
 	    is_odm_production_mode_fuse_set(fuse))
@@ -240,7 +240,7 @@ static int ap20_is_odm_production_mode(void)
 
 static int ap20_is_production_mode(void)
 {
-	struct fuse_regs *fuse = (struct fuse_regs *)TEGRA20_FUSE_BASE;
+	struct fuse_regs *fuse = (struct fuse_regs *)NV_PA_FUSE_BASE;
 
 	if (get_major_version() == 0)
 		return 1;
@@ -257,7 +257,7 @@ static enum fuse_operating_mode fuse_get_operation_mode(void)
 {
 	u32 chip_id;
 	struct apb_misc_gp_ctlr *gp =
-		(struct apb_misc_gp_ctlr *)TEGRA20_APB_MISC_GP_BASE;
+		(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
 
 	chip_id = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK) >>
 			HIDREV_CHIPID_SHIFT;

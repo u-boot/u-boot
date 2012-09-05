@@ -19,9 +19,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _TEGRA20_MMC_H_
-#define _TEGRA20_MMC_H_
+#ifndef _TEGRA_MMC_H_
+#define _TEGRA_MMC_H_
 
-int tegra20_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio);
+int tegra_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio);
 
-#endif /* TEGRA20_MMC_H_ */
+#endif /* _TEGRA_MMC_H_ */

@@ -105,14 +105,14 @@ static void enable_cpu_clock(int enable)
 
 static int is_cpu_powered(void)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 
 	return (readl(&pmc->pmc_pwrgate_status) & CPU_PWRED) ? 1 : 0;
 }
 
 static void remove_cpu_io_clamps(void)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 
 	/* Remove the clamps on the CPU I/O signals */
@@ -126,7 +126,7 @@ static void remove_cpu_io_clamps(void)
 
 static void powerup_cpu(void)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 	int timeout = IO_STABILIZATION_DELAY;
 
@@ -157,7 +157,7 @@ static void powerup_cpu(void)
 
 static void enable_cpu_power_rail(void)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 
 	reg = readl(&pmc->pmc_cntrl);

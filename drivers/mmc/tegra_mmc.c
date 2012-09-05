@@ -25,7 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
-#include "tegra_mmc.h"
+#include <asm/arch/tegra_mmc.h>
 
 /* support 4 mmc hosts */
 struct mmc mmc_dev[4];
@@ -39,31 +39,31 @@ struct mmc_host mmc_host[4];
  * @param host		Structure to fill in (base, reg, mmc_id)
  * @param dev_index	Device index (0-3)
  */
-static void tegra20_get_setup(struct mmc_host *host, int dev_index)
+static void tegra_get_setup(struct mmc_host *host, int dev_index)
 {
-	debug("tegra20_get_base_mmc: dev_index = %d\n", dev_index);
+	debug("tegra_get_setup: dev_index = %d\n", dev_index);
 
 	switch (dev_index) {
 	case 1:
-		host->base = TEGRA20_SDMMC3_BASE;
+		host->base = TEGRA_SDMMC3_BASE;
 		host->mmc_id = PERIPH_ID_SDMMC3;
 		break;
 	case 2:
-		host->base = TEGRA20_SDMMC2_BASE;
+		host->base = TEGRA_SDMMC2_BASE;
 		host->mmc_id = PERIPH_ID_SDMMC2;
 		break;
 	case 3:
-		host->base = TEGRA20_SDMMC1_BASE;
+		host->base = TEGRA_SDMMC1_BASE;
 		host->mmc_id = PERIPH_ID_SDMMC1;
 		break;
 	case 0:
 	default:
-		host->base = TEGRA20_SDMMC4_BASE;
+		host->base = TEGRA_SDMMC4_BASE;
 		host->mmc_id = PERIPH_ID_SDMMC4;
 		break;
 	}
 
-	host->reg = (struct tegra20_mmc *)host->base;
+	host->reg = (struct tegra_mmc *)host->base;
 }
 
 static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
@@ -345,7 +345,7 @@ static void mmc_change_clock(struct mmc_host *host, uint clock)
 	debug(" mmc_change_clock called\n");
 
 	/*
-	 * Change Tegra20 SDMMCx clock divisor here. Source is 216MHz,
+	 * Change Tegra SDMMCx clock divisor here. Source is 216MHz,
 	 * PLLP_OUT0
 	 */
 	if (clock == 0)
@@ -494,11 +494,11 @@ static int mmc_core_init(struct mmc *mmc)
 	return 0;
 }
 
-int tegra20_mmc_getcd(struct mmc *mmc)
+int tegra_mmc_getcd(struct mmc *mmc)
 {
 	struct mmc_host *host = (struct mmc_host *)mmc->priv;
 
-	debug("tegra20_mmc_getcd called\n");
+	debug("tegra_mmc_getcd called\n");
 
 	if (host->cd_gpio >= 0)
 		return !gpio_get_value(host->cd_gpio);
@@ -506,13 +506,13 @@ int tegra20_mmc_getcd(struct mmc *mmc)
 	return 1;
 }
 
-int tegra20_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
+int tegra_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 {
 	struct mmc_host *host;
 	char gpusage[12]; /* "SD/MMCn PWR" or "SD/MMCn CD" */
 	struct mmc *mmc;
 
-	debug(" tegra20_mmc_init: index %d, bus width %d "
+	debug(" tegra_mmc_init: index %d, bus width %d "
 		"pwr_gpio %d cd_gpio %d\n",
 		dev_index, bus_width, pwr_gpio, cd_gpio);
 
@@ -521,7 +521,7 @@ int tegra20_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 	host->clock = 0;
 	host->pwr_gpio = pwr_gpio;
 	host->cd_gpio = cd_gpio;
-	tegra20_get_setup(host, dev_index);
+	tegra_get_setup(host, dev_index);
 
 	clock_start_periph_pll(host->mmc_id, CLOCK_ID_PERIPH, 20000000);
 
@@ -539,12 +539,12 @@ int tegra20_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 
 	mmc = &mmc_dev[dev_index];
 
-	sprintf(mmc->name, "Tegra20 SD/MMC");
+	sprintf(mmc->name, "Tegra SD/MMC");
 	mmc->priv = host;
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_core_init;
-	mmc->getcd = tegra20_mmc_getcd;
+	mmc->getcd = tegra_mmc_getcd;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	if (bus_width == 8)
@@ -559,7 +559,7 @@ int tegra20_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 	 * max freq is highest HS eMMC clock as per the SD/MMC spec
 	 *  (actually 52MHz)
 	 * Both of these are the closest equivalents w/216MHz source
-	 *  clock and Tegra20 SDMMC divisors.
+	 *  clock and Tegra SDMMC divisors.
 	 */
 	mmc->f_min = 375000;
 	mmc->f_max = 48000000;
