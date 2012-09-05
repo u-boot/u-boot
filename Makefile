@@ -378,7 +378,6 @@ ALL-y += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
 
 ALL-$(CONFIG_NAND_U_BOOT) += $(obj)u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += $(obj)u-boot-onenand.bin
-ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
 ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 
@@ -549,12 +548,6 @@ nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
 
 $(obj)u-boot-nand.bin:	nand_spl $(obj)u-boot.bin
 		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
-
-onenand_ipl:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
-		$(MAKE) -C onenand_ipl/board/$(BOARDDIR) all
-
-$(obj)u-boot-onenand.bin:	onenand_ipl $(obj)u-boot.bin
-		cat $(ONENAND_BIN) $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
 
 $(obj)spl/u-boot-spl.bin:	$(SUBDIR_TOOLS) depend
 		$(MAKE) -C spl all
@@ -790,9 +783,7 @@ clean:
 	@rm -f $(obj)include/generated/asm-offsets.h
 	@rm -f $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
 	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-nand_spl.lds,u-boot-spl,u-boot-spl.map,System.map}
-	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl.map}
 	@rm -f $(ONENAND_BIN)
-	@rm -f $(obj)onenand_ipl/u-boot.lds
 	@rm -f $(obj)spl/{u-boot-spl,u-boot-spl.bin,u-boot-spl.lds,u-boot-spl.map}
 	@rm -f $(obj)MLO
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
@@ -825,7 +816,6 @@ clobber:	tidy
 	@rm -fr $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@rm -fr $(obj)include/generated
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
-	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
 	@rm -f $(obj)dts/*.tmp
 	@rm -f $(obj)spl/u-boot-spl{,-pad}.ais
 
