@@ -2,6 +2,9 @@
  * Copyright (C) 2011
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
  *
+ *
+ * Configuration settings for the Teejet mt_ventoux board.
+ *
  * Copyright (C) 2009 TechNexion Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,6 +27,10 @@
 
 #include "tam3517-common.h"
 
+#undef CONFIG_SYS_MALLOC_LEN
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10) + \
+					6 * 1024 * 1024)
+
 #define MACH_TYPE_AM3517_MT_VENTOUX	3832
 #define CONFIG_MACH_TYPE	MACH_TYPE_AM3517_MT_VENTOUX
 
@@ -31,6 +38,7 @@
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_AUTO_COMPLETE
 
+#define CONFIG_OMAP3_GPIO_4
 #define CONFIG_HOSTNAME mt_ventoux
 
 /*
@@ -61,6 +69,15 @@
 #define CONFIG_MAX_FPGA_DEVICES	1
 #define CONFIG_FPGA_DELAY() udelay(1)
 #define CONFIG_SYS_FPGA_PROG_FEEDBACK
+
+#define CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_CMD_BMP
+#define CONFIG_VIDEO_OMAP3	/* DSS Support			*/
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	CONFIG_TAM3517_SETTINGS \
 	"bootcmd=run net_nfs\0"
