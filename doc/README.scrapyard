@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+apollon arm     omap24xx -        2012-09-06    Kyungmin Park <kyungmin.park@samsung.com>
 tb0229	mips	mips32	-	  2011-12-12
 rmu	powerpc	MPC850	fb82fd7   2011-12-07	Wolfgang Denk <wd@denx.de>
 OXC	powerpc	MPC8240	309a292   2011-12-07

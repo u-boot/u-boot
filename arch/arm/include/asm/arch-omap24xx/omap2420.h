@@ -228,16 +228,6 @@
 #define LAN_RESET_REGISTER    (H4_CS1_BASE+0x1c)
 #endif  /* endif CONFIG_2420H4 */
 
-#if defined(CONFIG_APOLLON)
-#define APOLLON_CS0_BASE	0x00000000	/* OneNAND */
-#define APOLLON_CS1_BASE	0x08000000	/* ethernet */
-#define APOLLON_CS2_BASE	0x10000000	/* OneNAND */
-#define APOLLON_CS3_BASE	0x18000000	/* NOR */
-
-#define ETH_CONTROL_REG		(APOLLON_CS1_BASE + 0x30b)
-#define LAN_RESET_REGISTER	(APOLLON_CS1_BASE + 0x1c)
-#endif	/* endif CONFIG_APOLLON */
-
 /* Common */
 #define LOW_LEVEL_SRAM_STACK  0x4020FFFC
 
