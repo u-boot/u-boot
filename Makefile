@@ -306,11 +306,8 @@ ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
-ifeq ($(SOC),mx5)
-LIBS-y += $(CPUDIR)/imx-common/libimx-common.o
-endif
-ifeq ($(SOC),mx6)
-LIBS-y += $(CPUDIR)/imx-common/libimx-common.o
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
+LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
 ifeq ($(SOC),s5pc1xx)
