@@ -43,6 +43,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <asm/unaligned.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -269,6 +270,7 @@ static int usb_hub_configure(struct usb_device *dev)
 	int i;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, USB_BUFSIZ);
 	unsigned char *bitmap;
+	short hubCharacteristics;
 	struct usb_hub_descriptor *descriptor;
 	struct usb_hub_device *hub;
 #ifdef USB_HUB_DEBUG
@@ -304,8 +306,9 @@ static int usb_hub_configure(struct usb_device *dev)
 	}
 	memcpy((unsigned char *)&hub->desc, buffer, descriptor->bLength);
 	/* adjust 16bit values */
-	hub->desc.wHubCharacteristics =
-				le16_to_cpu(descriptor->wHubCharacteristics);
+	put_unaligned(le16_to_cpu(get_unaligned(
+			&descriptor->wHubCharacteristics)),
+			&hub->desc.wHubCharacteristics);
 	/* set the bitmap */
 	bitmap = (unsigned char *)&hub->desc.DeviceRemovable[0];
 	/* devices not removable by default */
@@ -322,7 +325,8 @@ static int usb_hub_configure(struct usb_device *dev)
 	dev->maxchild = descriptor->bNbrPorts;
 	USB_HUB_PRINTF("%d ports detected\n", dev->maxchild);
 
-	switch (hub->desc.wHubCharacteristics & HUB_CHAR_LPSM) {
+	hubCharacteristics = get_unaligned(&hub->desc.wHubCharacteristics);
+	switch (hubCharacteristics & HUB_CHAR_LPSM) {
 	case 0x00:
 		USB_HUB_PRINTF("ganged power switching\n");
 		break;
@@ -335,12 +339,12 @@ static int usb_hub_configure(struct usb_device *dev)
 		break;
 	}
 
-	if (hub->desc.wHubCharacteristics & HUB_CHAR_COMPOUND)
+	if (hubCharacteristics & HUB_CHAR_COMPOUND)
 		USB_HUB_PRINTF("part of a compound device\n");
 	else
 		USB_HUB_PRINTF("standalone hub\n");
 
-	switch (hub->desc.wHubCharacteristics & HUB_CHAR_OCPM) {
+	switch (hubCharacteristics & HUB_CHAR_OCPM) {
 	case 0x00:
 		USB_HUB_PRINTF("global over-current protection\n");
 		break;
