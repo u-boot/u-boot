@@ -38,6 +38,9 @@
 #elif defined(CONFIG_NETSPACE_MAX_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MAX_V2
 #define CONFIG_IDENT_STRING		" NS Max v2"
+#elif defined(CONFIG_D2NET_V2)
+#define CONFIG_MACH_TYPE		MACH_TYPE_D2NET_V2
+#define CONFIG_IDENT_STRING		" D2 v2"
 #elif defined(CONFIG_NET2BIG_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NET2BIG_V2
 #define CONFIG_IDENT_STRING		" 2Big v2"
@@ -108,7 +111,9 @@
 #define CONFIG_ENV_SPI_MAX_HZ           20000000 /* 20Mhz */
 #define CONFIG_SYS_IDE_MAXBUS           1
 #define CONFIG_SYS_IDE_MAXDEVICE        1
-#if defined(CONFIG_NET2BIG_V2)
+#if defined(CONFIG_D2NET_V2)
+#define CONFIG_SYS_PROMPT		"d2v2> "
+#elif defined(CONFIG_NET2BIG_V2)
 #define CONFIG_SYS_PROMPT		"2big2> "
 #else
 #define CONFIG_SYS_PROMPT		"ns2> "
@@ -128,7 +133,8 @@
  */
 #ifdef CONFIG_MVSATA_IDE
 #define CONFIG_SYS_ATA_IDE0_OFFSET      MV_SATA_PORT0_OFFSET
-#if defined(CONFIG_NETSPACE_MAX_V2) || defined(CONFIG_NET2BIG_V2)
+#if defined(CONFIG_NETSPACE_MAX_V2) || defined(CONFIG_D2NET_V2) || \
+	defined(CONFIG_NET2BIG_V2)
 #define CONFIG_SYS_ATA_IDE1_OFFSET      MV_SATA_PORT1_OFFSET
 #endif
 #endif /* CONFIG_MVSATA_IDE */
