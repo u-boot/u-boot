@@ -52,7 +52,7 @@ static int wait_for_command_end(struct mmc *dev, struct mmc_cmd *cmd)
 		debug("CMD%d time out\n", cmd->cmdidx);
 		return TIMEOUT;
 	} else if ((hoststatus & SDI_STA_CCRCFAIL) &&
-		   (cmd->flags & MMC_RSP_CRC)) {
+		   (cmd->resp_type & MMC_RSP_CRC)) {
 		printf("CMD%d CRC error\n", cmd->cmdidx);
 		return -EILSEQ;
 	}

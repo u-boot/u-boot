@@ -118,7 +118,7 @@ static int pxa_mmc_start_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	int ret;
 
 	/* The card can send a "busy" response */
-	if (cmd->flags & MMC_RSP_BUSY)
+	if (cmd->resp_type & MMC_RSP_BUSY)
 		cmdat |= MMC_CMDAT_BUSY;
 
 	/* Inform the controller about response type */
@@ -181,9 +181,11 @@ static int pxa_mmc_cmd_done(struct mmc *mmc, struct mmc_cmd *cmd)
 	/* The command response didn't arrive */
 	if (stat & MMC_STAT_TIME_OUT_RESPONSE)
 		return -ETIMEDOUT;
-	else if (stat & MMC_STAT_RES_CRC_ERROR && cmd->flags & MMC_RSP_CRC) {
+	else if (stat & MMC_STAT_RES_CRC_ERROR
+			&& cmd->resp_type & MMC_RSP_CRC) {
 #ifdef	PXAMMC_CRC_SKIP
-		if (cmd->flags & MMC_RSP_136 && cmd->response[0] & (1 << 31))
+		if (cmd->resp_type & MMC_RSP_136
+				&& cmd->response[0] & (1 << 31))
 			printf("Ignoring CRC, this may be dangerous!\n");
 		else
 #endif
