@@ -13,10 +13,11 @@
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_RESET_PHY_R)
 
+#define MII_MARVELL_PHY_PAGE		22
+
 #define MV88E1116_LED_FCTRL_REG		10
 #define MV88E1116_CPRSP_CR3_REG		21
 #define MV88E1116_MAC_CTRL_REG		21
-#define MV88E1116_PGADR_REG		22
 #define MV88E1116_RGMII_TXTM_CTRL	(1 << 4)
 #define MV88E1116_RGMII_RXTM_CTRL	(1 << 5)
 
@@ -31,14 +32,43 @@ void mv_phy_88e1116_init(const char *name, u16 phyaddr)
 	 * Enable RGMII delay on Tx and Rx for CPU port
 	 * Ref: sec 4.7.2 of chip datasheet
 	 */
-	miiphy_write(name, phyaddr, MV88E1116_PGADR_REG, 2);
+	miiphy_write(name, phyaddr, MII_MARVELL_PHY_PAGE, 2);
 	miiphy_read(name, phyaddr, MV88E1116_MAC_CTRL_REG, &reg);
 	reg |= (MV88E1116_RGMII_RXTM_CTRL | MV88E1116_RGMII_TXTM_CTRL);
 	miiphy_write(name, phyaddr, MV88E1116_MAC_CTRL_REG, reg);
-	miiphy_write(name, phyaddr, MV88E1116_PGADR_REG, 0);
+	miiphy_write(name, phyaddr, MII_MARVELL_PHY_PAGE, 0);
 
 	if (miiphy_reset(name, phyaddr) == 0)
 		printf("88E1116 Initialized on %s\n", name);
+}
+
+void mv_phy_88e1318_init(const char *name, u16 phyaddr)
+{
+	u16 reg;
+
+	if (miiphy_set_current_dev(name))
+		return;
+
+	/*
+	 * Set control mode 4 for LED[0].
+	 */
+	miiphy_write(name, phyaddr, MII_MARVELL_PHY_PAGE, 3);
+	miiphy_read(name, phyaddr, 16, &reg);
+	reg |= 0xf;
+	miiphy_write(name, phyaddr, 16, reg);
+
+	/*
+	 * Enable RGMII delay on Tx and Rx for CPU port
+	 * Ref: sec 4.7.2 of chip datasheet
+	 */
+	miiphy_write(name, phyaddr, MII_MARVELL_PHY_PAGE, 2);
+	miiphy_read(name, phyaddr, MV88E1116_MAC_CTRL_REG, &reg);
+	reg |= (MV88E1116_RGMII_TXTM_CTRL | MV88E1116_RGMII_RXTM_CTRL);
+	miiphy_write(name, phyaddr, MV88E1116_MAC_CTRL_REG, reg);
+	miiphy_write(name, phyaddr, MII_MARVELL_PHY_PAGE, 0);
+
+	if (miiphy_reset(name, phyaddr) == 0)
+		printf("88E1318 Initialized on %s\n", name);
 }
 #endif /* CONFIG_CMD_NET && CONFIG_RESET_PHY_R */
 

@@ -27,6 +27,14 @@
 #elif defined(CONFIG_NETSPACE_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_V2
 #define CONFIG_IDENT_STRING		" NS v2"
+#elif defined(CONFIG_NETSPACE_LITE_V2)
+#define MACH_TYPE_NETSPACE_LITE_V2	2983 /* missing in mach-types.h */
+#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_LITE_V2
+#define CONFIG_IDENT_STRING		" NS v2 Lite"
+#elif defined(CONFIG_NETSPACE_MINI_V2)
+#define MACH_TYPE_NETSPACE_MINI_V2	2831 /* missing in mach-types.h */
+#define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MINI_V2
+#define CONFIG_IDENT_STRING		" NS v2 Mini"
 #elif defined(CONFIG_NETSPACE_MAX_V2)
 #define CONFIG_MACH_TYPE		MACH_TYPE_NETSPACE_MAX_V2
 #define CONFIG_IDENT_STRING		" NS Max v2"
@@ -41,8 +49,13 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KIRKWOOD			/* SOC Family Name */
-#define CONFIG_KW88F6281		/* SOC Name */
+#define CONFIG_KIRKWOOD			/* SoC Family Name */
+/* SoC name */
+#if defined(CONFIG_NETSPACE_LITE_V2) || defined(CONFIG_NETSPACE_MINI_V2)
+#define CONFIG_KW88F6192
+#else
+#define CONFIG_KW88F6281
+#endif
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
@@ -56,7 +69,9 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
+#ifndef CONFIG_NETSPACE_MINI_V2 /* No USB ports on Network Space v2 Mini */
 #define CONFIG_CMD_USB
+#endif
 
 /*
  * Core clock definition
@@ -68,9 +83,14 @@
  */
 #define CONFIG_NR_DRAM_BANKS		1
 
-#ifdef CONFIG_INETSPACE_V2
-/* Different SDRAM configuration and size for Internet Space v2 */
+/*
+ * Different SDRAM configuration and size for some of the boards derived
+ * from the Network Space v2
+ */
+#if defined(CONFIG_INETSPACE_V2)
 #define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg
+#elif defined(CONFIG_NETSPACE_LITE_V2) || defined(CONFIG_NETSPACE_MINI_V2)
+#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-ns2l.cfg
 #endif
 
 /*
