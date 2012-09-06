@@ -130,6 +130,12 @@
 #endif /* CONFIG_CMD_I2C */
 
 /*
+ * Partition support
+ */
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+
+/*
  * File systems support
  */
 #define CONFIG_CMD_EXT2
