@@ -5,20 +5,19 @@
 
 struct serial_device {
 	/* enough bytes to match alignment of following func pointer */
-	char name[16];
+	char	name[16];
 
-	int  (*init) (void);
-	int  (*uninit) (void);
-	void (*setbrg) (void);
-	int (*getc) (void);
-	int (*tstc) (void);
-	void (*putc) (const char c);
-	void (*puts) (const char *s);
+	int	(*init)(void);
+	int	(*uninit)(void);
+	void	(*setbrg)(void);
+	int	(*getc)(void);
+	int	(*tstc)(void);
+	void	(*putc)(const char c);
+	void	(*puts)(const char *s);
 #if CONFIG_POST & CONFIG_SYS_POST_UART
-	void (*loop) (int);
+	void	(*loop)(int);
 #endif
-
-	struct serial_device *next;
+	struct serial_device	*next;
 };
 
 extern struct serial_device serial_smc_device;
