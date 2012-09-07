@@ -35,7 +35,7 @@ static struct serial_device *serial_current;
 void serial_register(struct serial_device *dev)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
-	dev->init += gd->reloc_off;
+	dev->start += gd->reloc_off;
 	dev->setbrg += gd->reloc_off;
 	dev->getc += gd->reloc_off;
 	dev->tstc += gd->reloc_off;
@@ -144,8 +144,8 @@ void serial_stdio_init(void)
 		strcpy(dev.name, s->name);
 		dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 
-		dev.start = s->init;
-		dev.stop = s->uninit;
+		dev.start = s->start;
+		dev.stop = s->stop;
 		dev.putc = s->putc;
 		dev.puts = s->puts;
 		dev.getc = s->getc;
@@ -176,7 +176,7 @@ void serial_reinit_all(void)
 	struct serial_device *s;
 
 	for (s = serial_devices; s; s = s->next)
-		s->init();
+		s->start();
 }
 
 static struct serial_device *get_current(void)
@@ -196,7 +196,7 @@ static struct serial_device *get_current(void)
 
 int serial_init(void)
 {
-	return get_current()->init();
+	return get_current()->start();
 }
 
 void serial_setbrg(void)
@@ -296,9 +296,9 @@ int uart_post_test(int flags)
 		/* Disable loop back */
 		s->loop(0);
 
-		/* XXX: There is no serial_uninit() !? */
-		if (s->uninit)
-			s->uninit();
+		/* XXX: There is no serial_stop() !? */
+		if (s->stop)
+			s->stop();
 	}
 
  done:

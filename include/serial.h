@@ -7,8 +7,8 @@ struct serial_device {
 	/* enough bytes to match alignment of following func pointer */
 	char	name[16];
 
-	int	(*init)(void);
-	int	(*uninit)(void);
+	int	(*start)(void);
+	int	(*stop)(void);
 	void	(*setbrg)(void);
 	int	(*getc)(void);
 	int	(*tstc)(void);

@@ -236,8 +236,8 @@ static void uart##n##_loop(int state) \
 \
 struct serial_device bfin_serial##n##_device = { \
 	.name   = "bfin_uart"#n, \
-	.init   = uart##n##_init, \
-	.uninit = uart##n##_uninit, \
+	.start  = uart##n##_init, \
+	.stop   = uart##n##_uninit, \
 	.setbrg = uart##n##_setbrg, \
 	.getc   = uart##n##_getc, \
 	.tstc   = uart##n##_tstc, \

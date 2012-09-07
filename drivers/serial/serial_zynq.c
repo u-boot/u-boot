@@ -219,8 +219,8 @@ int serial_tstc(void)
 /* Serial device descriptor */
 #define INIT_PSSERIAL_STRUCTURE(port, __name) {	\
 	  .name   = __name,			\
-	  .init   = uart_zynq##port##_init,	\
-	  .uninit = NULL,			\
+	  .start  = uart_zynq##port##_init,	\
+	  .stop   = NULL,			\
 	  .setbrg = uart_zynq##port##_setbrg,	\
 	  .getc   = uart_zynq##port##_getc,	\
 	  .tstc   = uart_zynq##port##_tstc,	\
