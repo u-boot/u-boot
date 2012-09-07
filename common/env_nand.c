@@ -226,7 +226,7 @@ int saveenv(void)
 int saveenv(void)
 {
 	int	ret = 0;
-	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, sizeof(env_t));
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	ssize_t	len;
 	char	*res;
 	nand_erase_options_t nand_erase_options;
