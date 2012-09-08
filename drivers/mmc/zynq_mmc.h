@@ -57,6 +57,7 @@
 #define  SD_CARD_WP          0x00080000
 
 #define SD_HOST_CTRL_R       0x28
+#define SD_HOST_4BIT		0x02
 #define  SD_CD_TEST_INS      0x40
 #define  SD_CD_TEST          0x80
 

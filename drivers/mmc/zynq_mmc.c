@@ -128,7 +128,7 @@ static void init_port(void)
 #define CMD2    (2)		/* SEND_CID */
 #define CMD3    (3)		/* RELATIVE_ADDR */
 #define CMD5	(5)		/* SLEEP_WAKE (SDC) */
-#define CMD6	(6)		/* SWITCH_FUNC */
+#define CMD6	(6)		/* APP_SET_BUS_WIDTH */
 #define CMD7	(7)		/* SELECT */
 #define CMD8	(8)		/* SEND_IF_COND */
 #define CMD9	(9)		/* SEND_CSD */
@@ -153,8 +153,7 @@ static void init_port(void)
  * Determing the proper value for the command register for the indicated
  * command index.
  */
-static int
-make_command (unsigned cmd)
+static int make_command(unsigned cmd)
 {
 	unsigned retval;
 
@@ -182,6 +181,9 @@ make_command (unsigned cmd)
 		break;
 	case CMD5:
 		retval |= RSP_R1b;
+		break;
+	case CMD6:
+		retval |= RSP_R1;
 		break;
 	case CMD7:
 		retval |= RSP_R1;
@@ -211,14 +213,13 @@ make_command (unsigned cmd)
 		retval |= RSP_R3;
 		break;
 	case CMD51:
-		retval |= RSP_R1;
+		retval |= RSP_R1 | SD_CMD_DATA;
 		break;
 	case CMD52:
 	case CMD55:
 		retval |= RSP_R1;
 		break;
 	case CMD58:
-	case CMD6:
 		break;
 	default:
 		printf("Unknown command CMD%d\n", cmd);
@@ -241,6 +242,10 @@ static int zynq_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	cmd->response[0] = 0;
 	cmdreg = make_command(cmd->cmdidx);
+
+	/* exit if command is SWITCH_FUNC, as it currently not supporting */
+	if (data && (data->flags & MMC_DATA_READ) && (cmd->cmdidx == 6))
+		return result;
 
 	/* Wait until the device is willing to accept commands */
 	do {
@@ -378,9 +383,24 @@ exit:
 
 static void zynq_sdh_set_ios(struct mmc *mmc)
 {
+	u16 sdhci_clkctrl;
+
 	debug("%s: voltages: 0x%x clock: 0x%x bus_width: 0x%x\n",
 		__func__, mmc->voltages, mmc->clock, mmc->bus_width);
+
+	sdhci_clkctrl = sd_in16(SD_HOST_CTRL_R);
+
+	/* Configure the bus_width */
+	if (mmc->bus_width == 4)
+		sdhci_clkctrl |= SD_HOST_4BIT;
+	else if (mmc->bus_width == 1)
+		sdhci_clkctrl &= ~SD_HOST_4BIT;
+	else
+		printf("Invalid bus_width\n");
+
+	sd_out16(SD_HOST_CTRL_R, sdhci_clkctrl);
 }
+
 static int zynq_sdh_init(struct mmc *mmc)
 {
 	debug(" zynq_sdh_init called\n");
