@@ -652,8 +652,9 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 	sector_size = host->pmecc_sector_size = CONFIG_PMECC_SECTOR_SIZE;
 	host->pmecc_index_table_offset = CONFIG_PMECC_INDEX_TABLE_OFFSET;
 
-	printk(KERN_INFO "Initialize PMECC params, cap: %d, sector: %d\n",
-		 cap, sector_size);
+	MTDDEBUG(MTD_DEBUG_LEVEL1,
+		"Initialize PMECC params, cap: %d, sector: %d\n",
+		cap, sector_size);
 
 	host->pmecc = (struct pmecc_regs __iomem *) ATMEL_BASE_PMECC;
 	host->pmerrloc = (struct pmecc_errloc_regs __iomem *)
