@@ -390,14 +390,14 @@ smc_tstc(void)
 
 struct serial_device serial_smc_device =
 {
-	"serial_smc",
-	smc_init,
-	NULL,
-	smc_setbrg,
-	smc_getc,
-	smc_tstc,
-	smc_putc,
-	smc_puts,
+	.name	= "serial_smc",
+	.start	= smc_init,
+	.stop	= NULL,
+	.setbrg	= smc_setbrg,
+	.getc	= smc_getc,
+	.tstc	= smc_tstc,
+	.putc	= smc_putc,
+	.puts	= smc_puts,
 };
 
 #endif /* CONFIG_8xx_CONS_SMC1 || CONFIG_8xx_CONS_SMC2 */
@@ -660,14 +660,14 @@ scc_tstc(void)
 
 struct serial_device serial_scc_device =
 {
-	"serial_scc",
-	scc_init,
-	NULL,
-	scc_setbrg,
-	scc_getc,
-	scc_tstc,
-	scc_putc,
-	scc_puts,
+	.name	= "serial_scc",
+	.start	= scc_init,
+	.stop	= NULL,
+	.setbrg	= scc_setbrg,
+	.getc	= scc_getc,
+	.tstc	= scc_tstc,
+	.putc	= scc_putc,
+	.puts	= scc_puts,
 };
 
 #endif	/* CONFIG_8xx_CONS_SCCx */

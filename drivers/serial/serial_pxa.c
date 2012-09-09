@@ -269,14 +269,14 @@ void pxa_puts_dev(unsigned int uart_index, const char *s)
 #define	pxa_uart_desc(uart)						\
 	struct serial_device serial_##uart##_device =			\
 	{								\
-		"serial_"#uart,						\
-		uart##_init,						\
-		NULL,							\
-		uart##_setbrg,						\
-		uart##_getc,						\
-		uart##_tstc,						\
-		uart##_putc,						\
-		uart##_puts,						\
+		.name	= "serial_"#uart,				\
+		.start	= uart##_init,					\
+		.stop	= NULL,						\
+		.setbrg	= uart##_setbrg,				\
+		.getc	= uart##_getc,					\
+		.tstc	= uart##_tstc,					\
+		.putc	= uart##_putc,					\
+		.puts	= uart##_puts,					\
 	};
 
 #define	pxa_uart_multi(uart, UART)					\

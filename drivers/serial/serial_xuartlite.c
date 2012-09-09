@@ -144,15 +144,16 @@ int serial_tstc(void)
 				{ uartlite_serial_puts(s, port); }
 
 /* Serial device descriptor */
-#define INIT_ESERIAL_STRUCTURE(port, name) {\
-	name,\
-	userial##port##_init,\
-	NULL,\
-	userial##port##_setbrg,\
-	userial##port##_getc,\
-	userial##port##_tstc,\
-	userial##port##_putc,\
-	userial##port##_puts, }
+#define INIT_ESERIAL_STRUCTURE(port, __name) {	\
+	.name	= __name,			\
+	.start	= userial##port##_init,		\
+	.stop	= NULL,				\
+	.setbrg	= userial##port##_setbrg,	\
+	.getc	= userial##port##_getc,		\
+	.tstc	= userial##port##_tstc,		\
+	.putc	= userial##port##_putc,		\
+	.puts	= userial##port##_puts,		\
+}
 
 DECLARE_ESERIAL_FUNCTIONS(0);
 struct serial_device uartlite_serial0_device =

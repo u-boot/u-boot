@@ -338,14 +338,14 @@ int serial1_tstc(void)
 
 struct serial_device serial0_device =
 {
-	"serial0",
-	serial0_init,
-	NULL,
-	serial0_setbrg,
-	serial0_getc,
-	serial0_tstc,
-	serial0_putc,
-	serial0_puts,
+	.name	= "serial0",
+	.start	= serial0_init,
+	.stop	= NULL,
+	.setbrg	= serial0_setbrg,
+	.getc	= serial0_getc,
+	.tstc	= serial0_tstc,
+	.putc	= serial0_putc,
+	.puts	= serial0_puts,
 };
 
 __weak struct serial_device *default_serial_console(void)
@@ -355,14 +355,14 @@ __weak struct serial_device *default_serial_console(void)
 
 struct serial_device serial1_device =
 {
-	"serial1",
-	serial1_init,
-	NULL,
-	serial1_setbrg,
-	serial1_getc,
-	serial1_tstc,
-	serial1_putc,
-	serial1_puts,
+	.name	= "serial1",
+	.start	= serial1_init,
+	.stop	= NULL,
+	.setbrg	= serial1_setbrg,
+	.getc	= serial1_getc,
+	.tstc	= serial1_tstc,
+	.putc	= serial1_putc,
+	.puts	= serial1_puts,
 };
 #endif /* CONFIG_SERIAL_MULTI */
 

@@ -319,15 +319,15 @@ int serial_getcts_dev(unsigned int idx)
 		serial_puts_dev(port, s); \
 	}
 
-#define INIT_PSC_SERIAL_STRUCTURE(port, name) { \
-	name, \
-	serial##port##_init, \
-	serial##port##_uninit, \
-	serial##port##_setbrg, \
-	serial##port##_getc, \
-	serial##port##_tstc, \
-	serial##port##_putc, \
-	serial##port##_puts, \
+#define INIT_PSC_SERIAL_STRUCTURE(port, __name) {	\
+	.name	= __name,				\
+	.start	= serial##port##_init,			\
+	.stop	= serial##port##_uninit,		\
+	.setbrg	= serial##port##_setbrg,		\
+	.getc	= serial##port##_getc,			\
+	.tstc	= serial##port##_tstc,			\
+	.putc	= serial##port##_putc,			\
+	.puts	= serial##port##_puts,			\
 }
 
 #if defined(CONFIG_SYS_PSC1)

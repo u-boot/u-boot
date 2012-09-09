@@ -183,15 +183,16 @@ int s5p_serial##port##_tstc(void) { return serial_tstc_dev(port); } \
 void s5p_serial##port##_putc(const char c) { serial_putc_dev(c, port); } \
 void s5p_serial##port##_puts(const char *s) { serial_puts_dev(s, port); }
 
-#define INIT_S5P_SERIAL_STRUCTURE(port, name) { \
-	name, \
-	s5p_serial##port##_init, \
-	NULL, \
-	s5p_serial##port##_setbrg, \
-	s5p_serial##port##_getc, \
-	s5p_serial##port##_tstc, \
-	s5p_serial##port##_putc, \
-	s5p_serial##port##_puts, }
+#define INIT_S5P_SERIAL_STRUCTURE(port, __name) {	\
+	.name	= __name,				\
+	.start	= s5p_serial##port##_init,		\
+	.stop	= NULL,					\
+	.setbrg	= s5p_serial##port##_setbrg,		\
+	.getc	= s5p_serial##port##_getc,		\
+	.tstc	= s5p_serial##port##_tstc,		\
+	.putc	= s5p_serial##port##_putc,		\
+	.puts	= s5p_serial##port##_puts,		\
+}
 
 DECLARE_S5P_SERIAL_FUNCTIONS(0);
 struct serial_device s5p_serial0_device =

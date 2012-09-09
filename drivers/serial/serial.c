@@ -106,15 +106,16 @@ static NS16550_t serial_ports[4] = {
 	serial_puts_dev(port, s);}
 
 /* Serial device descriptor */
-#define INIT_ESERIAL_STRUCTURE(port, name) {\
-	name,\
-	eserial##port##_init,\
-	NULL,\
-	eserial##port##_setbrg,\
-	eserial##port##_getc,\
-	eserial##port##_tstc,\
-	eserial##port##_putc,\
-	eserial##port##_puts, }
+#define INIT_ESERIAL_STRUCTURE(port, __name) {	\
+	.name	= __name,			\
+	.start	= eserial##port##_init,		\
+	.stop	= NULL,				\
+	.setbrg	= eserial##port##_setbrg,	\
+	.getc	= eserial##port##_getc,		\
+	.tstc	= eserial##port##_tstc,		\
+	.putc	= eserial##port##_putc,		\
+	.puts	= eserial##port##_puts,		\
+}
 
 #endif /* CONFIG_SERIAL_MULTI */
 

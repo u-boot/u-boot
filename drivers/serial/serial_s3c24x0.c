@@ -69,15 +69,15 @@ DECLARE_GLOBAL_DATA_PTR;
 		serial_puts_dev(port, s); \
 	}
 
-#define INIT_S3C_SERIAL_STRUCTURE(port, name) { \
-	name, \
-	s3serial##port##_init, \
-	NULL,\
-	s3serial##port##_setbrg, \
-	s3serial##port##_getc, \
-	s3serial##port##_tstc, \
-	s3serial##port##_putc, \
-	s3serial##port##_puts, \
+#define INIT_S3C_SERIAL_STRUCTURE(port, __name) {	\
+	.name	= __name,				\
+	.start	= s3serial##port##_init,		\
+	.stop	= NULL,					\
+	.setbrg	= s3serial##port##_setbrg,		\
+	.getc	= s3serial##port##_getc,		\
+	.tstc	= s3serial##port##_tstc,		\
+	.putc	= s3serial##port##_putc,		\
+	.puts	= s3serial##port##_puts,		\
 }
 
 #endif /* CONFIG_SERIAL_MULTI */
