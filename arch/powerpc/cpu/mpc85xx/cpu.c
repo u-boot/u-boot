@@ -270,10 +270,7 @@ reset_85xx_watchdog(void)
 	/*
 	 * Clear TSR(WIS) bit by writing 1
 	 */
-	unsigned long val;
-	val = mfspr(SPRN_TSR);
-	val |= TSR_WIS;
-	mtspr(SPRN_TSR, val);
+	mtspr(SPRN_TSR, TSR_WIS);
 }
 #endif	/* CONFIG_WATCHDOG */
 
