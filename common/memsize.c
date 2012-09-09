@@ -73,6 +73,7 @@ long get_ram_size(long *base, long maxsize)
 		}
 		return (0);
 	}
+	*addr = save[i];
 
 	for (cnt = 1; cnt < maxsize / sizeof (long); cnt <<= 1) {
 		addr = base + cnt;	/* pointer arith! */
