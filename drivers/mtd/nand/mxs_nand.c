@@ -25,10 +25,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <common.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/types.h>
-#include <common.h>
 #include <malloc.h>
 #include <asm/errno.h>
 #include <asm/io.h>
