@@ -52,7 +52,13 @@ extern int  xqspips_setup_transfer(struct spi_device   *qspi,
 extern int  xqspips_transfer(struct spi_device   *qspi,
                               struct spi_transfer *transfer);
 extern int xqspips_check_is_dual_flash(void *regs_base);
+extern void xqspips_write_quad_bit(void *regs_base);
 
+/* Few mtd flash functions */
+extern int spi_flash_cmd(struct spi_slave *spi, u8 cmd,
+		void *response, size_t len);
+extern int spi_flash_cmd_read(struct spi_slave *spi, const u8 *cmd,
+		size_t cmd_len, void *data, size_t data_len);
 /**************************************************************************/
 
 #endif

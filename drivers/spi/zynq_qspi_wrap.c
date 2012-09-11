@@ -44,6 +44,79 @@ void spi_init()
 	debug("spi_init\n");
 }
 
+/**
+ * spi_enable_quad_bit - Enable the QUAD bit for SPI flash
+ *
+ * This function will enable the quad bit in flash using
+ * the QSPI controller. Supports only spansion.
+ *
+ * @spi : SPI slave structure
+ */
+void spi_enable_quad_bit(struct spi_slave *spi)
+{
+	int ret;
+	u8 idcode[5];
+	u8 rdid_cmd = 0x9f;	/* RDID */
+	u8 rcr_data = 0;
+	u8 rcr_cmd = 0x35;	/* RCR */
+	u8 rdsr_cmd = 0x05;	/* RDSR */
+	u8 wren_cmd = 0x06;	/* WREN */
+
+	ret = spi_flash_cmd(spi, rdid_cmd, &idcode, sizeof(idcode));
+	if (ret) {
+		debug("SF error: Failed read RDID\n");
+		return;
+	}
+
+	if (idcode[0] == 0x01) {
+		/* Read config register */
+		ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
+					&rcr_data, sizeof(rcr_data));
+		if (ret) {
+			debug("SF error: Failed read RCR\n");
+			return;
+		}
+
+		if (rcr_data & 0x2)
+			debug("QUAD bit is already set..\n");
+		else {
+			debug("QUAD bit needs to be set ..\n");
+
+			/* Write enable */
+			ret = spi_flash_cmd(spi, wren_cmd, NULL, 0);
+			if (ret) {
+				debug("SF error: Failed write WREN\n");
+				return;
+			}
+
+			/* Write QUAD bit */
+			xqspips_write_quad_bit((void *)XPSS_QSPI_BASEADDR);
+
+			/* Read RDSR */
+			do {
+				ret = spi_flash_cmd_read(spi, &rdsr_cmd,
+						sizeof(rdsr_cmd), &rcr_data,
+						sizeof(rcr_data));
+			} while ((ret == 0) && (rcr_data != 0));
+
+			/* Read config register */
+			ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
+						&rcr_data, sizeof(rcr_data));
+			if (!(rcr_data & 0x2)) {
+				printf("SF error: Fail to set QUAD enable bit"
+					" 0x%x\n", rcr_data);
+				return;
+			} else
+				debug("SF: QUAD enable bit is set 0x%x\n",
+						rcr_data);
+		}
+	} else
+		debug("SF: QUAD bit not enabled for 0x%x SPI flash\n",
+					idcode[0]);
+
+	return;
+}
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
@@ -80,6 +153,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	pspi->qspi.chip_select = 0;
 	pspi->qspi.bits_per_word = 32;
 	xqspips_setup_transfer(&pspi->qspi, NULL);
+
+	spi_enable_quad_bit(&pspi->slave);
 
 	return &pspi->slave;
 }

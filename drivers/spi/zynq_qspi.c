@@ -1421,3 +1421,37 @@ int xqspips_check_is_dual_flash(void __iomem *regs_base)
 
 	return is_dual;
 }
+
+/**
+ * xqspips_write_quad_bit - Write 1 to QUAD bit on flash
+ *
+ * This function will write a 1 to quad bit in flash
+ * using QSPI controller and supports only spansion flash.
+ *
+ * @regs_base:  base address of QSPI controller
+ */
+void xqspips_write_quad_bit(void __iomem *regs_base)
+{
+	u32 config_reg, intr_status;
+
+	/* enable the QSPI controller */
+	xqspips_write(regs_base + XQSPIPSS_ENABLE_OFFSET,
+			XQSPIPSS_ENABLE_ENABLE_MASK);
+
+	/* Write QUAD bit with 3-byte instruction */
+	xqspips_write(regs_base + XQSPIPSS_TXD_00_11_OFFSET, 0x20001);
+
+	/* Enable manual start command */
+	config_reg = xqspips_read(regs_base +
+		XQSPIPSS_CONFIG_OFFSET) | XQSPIPSS_CONFIG_MANSRT_MASK;
+	xqspips_write(regs_base + XQSPIPSS_CONFIG_OFFSET, config_reg);
+
+	/* Wait for the transfer to finish by polling Tx fifo status */
+	do {
+		intr_status = xqspips_read(regs_base +
+			XQSPIPSS_STATUS_OFFSET);
+	} while ((intr_status & 0x04) == 0);
+
+	/* Read data receive register */
+	config_reg = xqspips_read(regs_base + XQSPIPSS_RXD_OFFSET);
+}
