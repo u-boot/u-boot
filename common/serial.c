@@ -40,6 +40,8 @@ static void serial_null(void)
 	void name(void)						\
 		__attribute__((weak, alias("serial_null")));
 
+serial_initfunc(mpc8xx_serial_initialize);
+
 void serial_register(struct serial_device *dev)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
@@ -57,14 +59,7 @@ void serial_register(struct serial_device *dev)
 
 void serial_initialize(void)
 {
-#if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
-	serial_register(&serial_smc_device);
-#endif
-#if	defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) || \
-	defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
-	serial_register(&serial_scc_device);
-#endif
-
+	mpc8xx_serial_initialize();
 #if defined(CONFIG_SYS_NS16550_SERIAL)
 #if defined(CONFIG_SYS_NS16550_COM1)
 	serial_register(&eserial1_device);

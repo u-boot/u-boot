@@ -681,6 +681,17 @@ __weak struct serial_device *default_serial_console(void)
 #endif
 }
 
+void mpc8xx_serial_initialize(void)
+{
+#if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
+	serial_register(&serial_smc_device);
+#endif
+#if	defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) || \
+	defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
+	serial_register(&serial_scc_device);
+#endif
+}
+
 #ifdef CONFIG_MODEM_SUPPORT
 void disable_putc(void)
 {
