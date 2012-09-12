@@ -37,6 +37,10 @@
 
 #define CONFIG_MISC_INIT_R
 
+/* new uImage format support */
+#define CONFIG_FIT			1
+#define CONFIG_FIT_VERBOSE		1
+
 /*
  * On-board devices
  *
