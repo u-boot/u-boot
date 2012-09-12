@@ -87,7 +87,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 #endif
 
-uint32_t pxa_uart_get_baud_divider(void)
+static uint32_t pxa_uart_get_baud_divider(void)
 {
 	if (gd->baudrate == 1200)
 		return 768;
@@ -105,7 +105,7 @@ uint32_t pxa_uart_get_baud_divider(void)
 		return 0;
 }
 
-struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
+static struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
 {
 	switch (uart_index) {
 	case FFUART_INDEX: return (struct pxa_uart_regs *)FFUART_BASE;
@@ -117,7 +117,7 @@ struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
 	}
 }
 
-void pxa_uart_toggle_clock(uint32_t uart_index, int enable)
+static void pxa_uart_toggle_clock(uint32_t uart_index, int enable)
 {
 	uint32_t clk_reg, clk_offset, reg;
 
