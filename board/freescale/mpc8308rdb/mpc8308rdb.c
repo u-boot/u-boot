@@ -31,6 +31,7 @@
 #include <mpc83xx.h>
 #include <vsc7385.h>
 #include <netdev.h>
+#include <fsl_esdhc.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_mpc83xx_serdes.h>
@@ -65,6 +66,13 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	setbits_be32(&immr->gpio[0].dat, SPI_CS_MASK);
 }
 #endif /* CONFIG_MPC8XXX_SPI */
+
+#ifdef CONFIG_FSL_ESDHC
+int board_mmc_init(bd_t *bd)
+{
+	return fsl_esdhc_mmc_init(bd);
+}
+#endif
 
 static u8 read_board_info(void)
 {
@@ -173,6 +181,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 	fdt_fixup_dr_usb(blob, bd);
+	fdt_fixup_esdhc(blob, bd);
 }
 #endif
 
