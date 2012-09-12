@@ -340,6 +340,19 @@
 #define CONFIG_SYS_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C2_OFFSET	0x3100
 
+/*
+ * SPI on header J8
+ *
+ * WARNING: enabling this will break TSEC2 (connected to the Vitesse switch)
+ * due to a pinmux conflict between GPIO9 (SPI chip select )and the TSEC2 pins.
+ */
+#ifdef CONFIG_MPC8XXX_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_USE_SPIFLASH
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_CMD_SF
+#endif
 
 /*
  * Board info - revision and where boot from

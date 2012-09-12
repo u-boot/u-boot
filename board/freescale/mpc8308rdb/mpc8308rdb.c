@@ -24,6 +24,7 @@
 #include <common.h>
 #include <hwconfig.h>
 #include <i2c.h>
+#include <spi.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <pci.h>
@@ -35,6 +36,35 @@
 #include <asm/fsl_mpc83xx_serdes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * The following are used to control the SPI chip selects for the SPI command.
+ */
+#ifdef CONFIG_MPC8XXX_SPI
+
+#define SPI_CS_MASK	0x00400000
+
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+
+	/* active low */
+	clrbits_be32(&immr->gpio[0].dat, SPI_CS_MASK);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+
+	/* inactive high */
+	setbits_be32(&immr->gpio[0].dat, SPI_CS_MASK);
+}
+#endif /* CONFIG_MPC8XXX_SPI */
 
 static u8 read_board_info(void)
 {
@@ -109,6 +139,25 @@ void pci_init_board(void)
 */
 int misc_init_r(void)
 {
+#ifdef CONFIG_MPC8XXX_SPI
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	sysconf83xx_t *sysconf = &immr->sysconf;
+
+	/*
+	 * Set proper bits in SICRH to allow SPI on header J8
+	 *
+	 * NOTE: this breaks the TSEC2 interface, attached to the Vitesse
+	 * switch. The pinmux configuration does not have a fine enough
+	 * granularity to support both simultaneously.
+	 */
+	clrsetbits_be32(&sysconf->sicrh, SICRH_GPIO_A_TSEC2, SICRH_GPIO_A_GPIO);
+	puts("WARNING: SPI enabled, TSEC2 support is broken\n");
+
+	/* Set header J8 SPI chip select output, disabled */
+	setbits_be32(&immr->gpio[0].dir, SPI_CS_MASK);
+	setbits_be32(&immr->gpio[0].dat, SPI_CS_MASK);
+#endif
+
 #ifdef CONFIG_VSC7385_IMAGE
 	if (vsc7385_upload_firmware((void *) CONFIG_VSC7385_IMAGE,
 		CONFIG_VSC7385_IMAGE_SIZE)) {
