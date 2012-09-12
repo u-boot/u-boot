@@ -29,6 +29,7 @@
 
 #ifdef CONFIG_SERIAL_MULTI
 #include <serial.h>
+#include <linux/compiler.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -132,7 +133,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * as serial console interface.
  */
 
-int serial_init (void)
+static int iop480_serial_init(void)
 {
 	unsigned short br_reg;
 
@@ -153,7 +154,7 @@ int serial_init (void)
 	return (0);
 }
 
-void serial_setbrg (void)
+static void iop480_serial_setbrg(void)
 {
 	unsigned short br_reg;
 
@@ -165,7 +166,7 @@ void serial_setbrg (void)
 	      ((br_reg & 0xff00) >> 8)); /* ... */
 }
 
-void serial_putc (const char c)
+static void iop480_serial_putc(const char c)
 {
 	if (c == '\n')
 		serial_putc ('\r');
@@ -182,14 +183,14 @@ void serial_putc (const char c)
 	}
 }
 
-void serial_puts (const char *s)
+static void iop480_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
 
-int serial_getc ()
+static int iop480_serial_getc(void)
 {
 	unsigned char status = 0;
 
@@ -212,7 +213,7 @@ int serial_getc ()
 	return (0x000000ff & (int) in_8((u8 *)asyncRxBufferport1));
 }
 
-int serial_tstc ()
+static int iop480_serial_tstc(void)
 {
 	unsigned char status;
 
@@ -233,4 +234,56 @@ int serial_tstc ()
 	return 0;
 }
 
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device iop480_serial_drv = {
+	.name	= "iop480_serial",
+	.start	= iop480_serial_init,
+	.stop	= NULL,
+	.setbrg	= iop480_serial_setbrg,
+	.putc	= iop480_serial_putc,
+	.puts	= iop480_serial_puts,
+	.getc	= iop480_serial_getc,
+	.tstc	= iop480_serial_tstc,
+};
+
+void iop480_serial_initialize(void)
+{
+	serial_register(&iop480_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &iop480_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return iop480_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	iop480_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	iop480_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	iop480_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return iop480_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return iop480_serial_tstc();
+}
+#endif
 #endif	/* CONFIG_IOP480 */
