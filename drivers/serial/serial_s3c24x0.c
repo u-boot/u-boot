@@ -323,4 +323,11 @@ __weak struct serial_device *default_serial_console(void)
 #error "CONFIG_SERIAL? missing."
 #endif
 }
+
+void s3c24xx_serial_initialize(void)
+{
+	serial_register(&s3c24xx_serial0_device);
+	serial_register(&s3c24xx_serial1_device);
+	serial_register(&s3c24xx_serial2_device);
+}
 #endif /* CONFIG_SERIAL_MULTI */

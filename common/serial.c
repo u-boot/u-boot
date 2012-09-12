@@ -41,6 +41,7 @@ static void serial_null(void)
 		__attribute__((weak, alias("serial_null")));
 
 serial_initfunc(mpc8xx_serial_initialize);
+serial_initfunc(s3c24xx_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -83,11 +84,7 @@ void serial_initialize(void)
 #if defined(CONFIG_STUART)
 	serial_register(&serial_stuart_device);
 #endif
-#if defined(CONFIG_S3C2410)
-	serial_register(&s3c24xx_serial0_device);
-	serial_register(&s3c24xx_serial1_device);
-	serial_register(&s3c24xx_serial2_device);
-#endif
+	s3c24xx_serial_initialize();
 #if defined(CONFIG_S5P)
 	serial_register(&s5p_serial0_device);
 	serial_register(&s5p_serial1_device);
