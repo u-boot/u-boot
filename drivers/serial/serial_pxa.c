@@ -314,4 +314,17 @@ __weak struct serial_device *default_serial_console(void)
 #error "Bad CONFIG_CONS_INDEX."
 #endif
 }
+
+void pxa_serial_initialize(void)
+{
+#if defined(CONFIG_FFUART)
+	serial_register(&serial_ffuart_device);
+#endif
+#if defined(CONFIG_BTUART)
+	serial_register(&serial_btuart_device);
+#endif
+#if defined(CONFIG_STUART)
+	serial_register(&serial_stuart_device);
+#endif
+}
 #endif
