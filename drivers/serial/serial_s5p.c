@@ -221,3 +221,11 @@ __weak struct serial_device *default_serial_console(void)
 #error "CONFIG_SERIAL? missing."
 #endif
 }
+
+void s5p_serial_initialize(void)
+{
+	serial_register(&s5p_serial0_device);
+	serial_register(&s5p_serial1_device);
+	serial_register(&s5p_serial2_device);
+	serial_register(&s5p_serial3_device);
+}

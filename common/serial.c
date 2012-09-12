@@ -43,6 +43,7 @@ static void serial_null(void)
 serial_initfunc(mpc8xx_serial_initialize);
 serial_initfunc(pxa_serial_initialize);
 serial_initfunc(s3c24xx_serial_initialize);
+serial_initfunc(s5p_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -78,12 +79,7 @@ void serial_initialize(void)
 #endif /* CONFIG_SYS_NS16550_SERIAL */
 	pxa_serial_initialize();
 	s3c24xx_serial_initialize();
-#if defined(CONFIG_S5P)
-	serial_register(&s5p_serial0_device);
-	serial_register(&s5p_serial1_device);
-	serial_register(&s5p_serial2_device);
-	serial_register(&s5p_serial3_device);
-#endif
+	s5p_serial_initialize();
 #if defined(CONFIG_MPC512X)
 #if defined(CONFIG_SYS_PSC1)
 	serial_register(&serial1_device);
