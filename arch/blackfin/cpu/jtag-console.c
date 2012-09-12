@@ -194,12 +194,35 @@ int drv_jtag_console_init(void)
 }
 
 #ifdef CONFIG_UART_CONSOLE_IS_JTAG
+#include <serial.h>
 /* Since the JTAG is always available (at power on), allow it to fake a UART */
-void serial_set_baud(uint32_t baud) {}
-void serial_setbrg(void)            {}
-int serial_init(void)               { return 0; }
-void serial_putc(const char c)      __attribute__((alias("jtag_putc")));
-void serial_puts(const char *s)     __attribute__((alias("jtag_puts")));
-int serial_tstc(void)               __attribute__((alias("jtag_tstc")));
-int serial_getc(void)               __attribute__((alias("jtag_getc")));
+void jtag_serial_setbrg(void)
+{
+}
+
+int jtag_serial_init(void)
+{
+	return 0;
+}
+
+static struct serial_device serial_jtag_drv = {
+	.name	= "jtag",
+	.start	= jtag_serial_init,
+	.stop	= NULL,
+	.setbrg	= jtag_serial_setbrg,
+	.putc	= jtag_putc,
+	.puts	= jtag_puts,
+	.tstc	= jtag_tstc,
+	.getc	= jtag_getc,
+};
+
+void bfin_jtag_initialize(void)
+{
+	serial_register(&serial_jtag_drv);
+}
+
+struct serial_device *default_serial_console(void)
+{
+	return &serial_jtag_drv;
+}
 #endif
