@@ -36,6 +36,7 @@
 #include <asm/arch/pxa-regs.h>
 #include <asm/arch/regs-uart.h>
 #include <asm/io.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -298,4 +299,19 @@ void pxa_puts_dev(unsigned int uart_index, const char *s)
 
 #ifndef	CONFIG_SERIAL_MULTI
 	pxa_uart(serial, UART)
+#else
+__weak struct serial_device *default_serial_console(void)
+{
+#if CONFIG_CONS_INDEX == 1
+	return &serial_hwuart_device;
+#elif CONFIG_CONS_INDEX == 2
+	return &serial_stuart_device;
+#elif CONFIG_CONS_INDEX == 3
+	return &serial_ffuart_device;
+#elif CONFIG_CONS_INDEX == 4
+	return &serial_btuart_device;
+#else
+#error "Bad CONFIG_CONS_INDEX."
+#endif
+}
 #endif
