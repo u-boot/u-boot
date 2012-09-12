@@ -5,6 +5,8 @@
 #include <config.h>
 #include <common.h>
 #include <asm/inca-ip.h>
+#include <serial.h>
+#include <linux/compiler.h>
 #include "asc_serial.h"
 
 
@@ -32,7 +34,7 @@ static volatile incaAsc_t *pAsc = (incaAsc_t *)INCA_IP_ASC;
 * RETURNS: N/A
 */
 
-int serial_init (void)
+static int asc_serial_init(void)
 {
     /* we have to set PMU.EN13 bit to enable an ASC device*/
     INCAASC_PMU_ENABLE(13);
@@ -82,7 +84,7 @@ int serial_init (void)
     return 0;
 }
 
-void serial_setbrg (void)
+static void asc_serial_setbrg(void)
 {
     ulong      uiReloadValue, fdv;
     ulong      f_ASC;
@@ -210,7 +212,7 @@ static int serial_setopt (void)
     return 0;
 }
 
-void serial_putc (const char c)
+static void asc_serial_putc(const char c)
 {
     uint txFl = 0;
 
@@ -234,7 +236,7 @@ void serial_putc (const char c)
     }
 }
 
-void serial_puts (const char *s)
+static void asc_serial_puts(const char *s)
 {
     while (*s)
     {
@@ -242,7 +244,7 @@ void serial_puts (const char *s)
     }
 }
 
-int serial_getc (void)
+static int asc_serial_getc(void)
 {
     ulong symbol_mask;
     char c;
@@ -257,7 +259,7 @@ int serial_getc (void)
     return c;
 }
 
-int serial_tstc (void)
+static int asc_serial_tstc(void)
 {
     int res = 1;
 
@@ -283,3 +285,56 @@ int serial_tstc (void)
 
     return res;
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device asc_serial_drv = {
+	.name	= "asc_serial",
+	.start	= asc_serial_init,
+	.stop	= NULL,
+	.setbrg	= asc_serial_setbrg,
+	.putc	= asc_serial_putc,
+	.puts	= asc_serial_puts,
+	.getc	= asc_serial_getc,
+	.tstc	= asc_serial_tstc,
+};
+
+void asc_serial_initialize(void)
+{
+	serial_register(&asc_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &asc_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return asc_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	asc_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	asc_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	asc_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return asc_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return asc_serial_tstc();
+}
+#endif
