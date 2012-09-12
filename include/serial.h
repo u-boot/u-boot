@@ -48,10 +48,6 @@ extern struct serial_device zoom2_serial_device3;
 
 #if defined(CONFIG_SYS_BFIN_UART)
 extern void serial_register_bfin_uart(void);
-extern struct serial_device bfin_serial0_device;
-extern struct serial_device bfin_serial1_device;
-extern struct serial_device bfin_serial2_device;
-extern struct serial_device bfin_serial3_device;
 #endif
 
 extern void serial_register(struct serial_device *);
