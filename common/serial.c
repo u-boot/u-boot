@@ -32,6 +32,14 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct serial_device *serial_devices;
 static struct serial_device *serial_current;
 
+static void serial_null(void)
+{
+}
+
+#define serial_initfunc(name)					\
+	void name(void)						\
+		__attribute__((weak, alias("serial_null")));
+
 void serial_register(struct serial_device *dev)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
