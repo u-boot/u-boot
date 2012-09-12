@@ -365,6 +365,22 @@ __weak struct serial_device *default_serial_console(void)
 #endif
 }
 
+void mpc512x_serial_initialize(void)
+{
+#if defined(CONFIG_SYS_PSC1)
+	serial_register(&serial1_device);
+#endif
+#if defined(CONFIG_SYS_PSC3)
+	serial_register(&serial3_device);
+#endif
+#if defined(CONFIG_SYS_PSC4)
+	serial_register(&serial4_device);
+#endif
+#if defined(CONFIG_SYS_PSC6)
+	serial_register(&serial6_device);
+#endif
+}
+
 #else
 
 void serial_setbrg(void)

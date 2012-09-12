@@ -45,6 +45,7 @@ serial_initfunc(pxa_serial_initialize);
 serial_initfunc(s3c24xx_serial_initialize);
 serial_initfunc(s5p_serial_initialize);
 serial_initfunc(zynq_serial_initalize);
+serial_initfunc(mpc512x_serial_initialize);
 serial_initfunc(uartlite_serial_initialize);
 
 void serial_register(struct serial_device *dev)
@@ -82,20 +83,7 @@ void serial_initialize(void)
 	pxa_serial_initialize();
 	s3c24xx_serial_initialize();
 	s5p_serial_initialize();
-#if defined(CONFIG_MPC512X)
-#if defined(CONFIG_SYS_PSC1)
-	serial_register(&serial1_device);
-#endif
-#if defined(CONFIG_SYS_PSC3)
-	serial_register(&serial3_device);
-#endif
-#if defined(CONFIG_SYS_PSC4)
-	serial_register(&serial4_device);
-#endif
-#if defined(CONFIG_SYS_PSC6)
-	serial_register(&serial6_device);
-#endif
-#endif
+	mpc512x_serial_initialize();
 #if defined(CONFIG_SYS_BFIN_UART)
 	serial_register_bfin_uart();
 #endif
