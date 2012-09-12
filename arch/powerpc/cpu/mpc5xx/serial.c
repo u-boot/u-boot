@@ -33,20 +33,40 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc5xx.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
- * Local function prototypes
+ * Local functions
  */
 
-static int ready_to_send(void);
+static int ready_to_send(void)
+{
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	volatile short status;
+
+	do {
+#if defined(CONFIG_5xx_CONS_SCI1)
+		status = immr->im_qsmcm.qsmcm_sc1sr;
+#else
+		status = immr->im_qsmcm.qsmcm_sc2sr;
+#endif
+
+#if defined(CONFIG_WATCHDOG)
+		reset_5xx_watchdog (immr);
+#endif
+	} while ((status & SCI_TDRE) == 0);
+	return 1;
+
+}
 
 /*
  * Minimal global serial functions needed to use one of the SCI modules.
  */
 
-int serial_init (void)
+static int mpc5xx_serial_init(void)
 {
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
@@ -63,7 +83,7 @@ int serial_init (void)
 	return 0;
 }
 
-void serial_putc(const char c)
+static void mpc5xx_serial_putc(const char c)
 {
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
@@ -85,7 +105,7 @@ void serial_putc(const char c)
 	}
 }
 
-int serial_getc(void)
+static int mpc5xx_serial_getc(void)
 {
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile short status;
@@ -113,7 +133,7 @@ int serial_getc(void)
 	return	tmp;
 }
 
-int serial_tstc()
+static int mpc5xx_serial_tstc(void)
 {
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	short status;
@@ -127,7 +147,7 @@ int serial_tstc()
 	return (status & SCI_RDRF);
 }
 
-void serial_setbrg (void)
+static void mpc5xx_serial_setbrg(void)
 {
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	short scxbr;
@@ -141,7 +161,7 @@ void serial_setbrg (void)
 #endif
 }
 
-void serial_puts (const char *s)
+static void mpc5xx_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc(*s);
@@ -149,22 +169,55 @@ void serial_puts (const char *s)
 	}
 }
 
-int ready_to_send(void)
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device mpc5xx_serial_drv = {
+	.name	= "mpc5xx_serial",
+	.start	= mpc5xx_serial_init,
+	.stop	= NULL,
+	.setbrg	= mpc5xx_serial_setbrg,
+	.putc	= mpc5xx_serial_putc,
+	.puts	= mpc5xx_serial_puts,
+	.getc	= mpc5xx_serial_getc,
+	.tstc	= mpc5xx_serial_tstc,
+};
+
+void mpc5xx_serial_initialize(void)
 {
-	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-	volatile short status;
-
-	do {
-#if defined(CONFIG_5xx_CONS_SCI1)
-		status = immr->im_qsmcm.qsmcm_sc1sr;
-#else
-		status = immr->im_qsmcm.qsmcm_sc2sr;
-#endif
-
-#if defined(CONFIG_WATCHDOG)
-		reset_5xx_watchdog (immr);
-#endif
-	} while ((status & SCI_TDRE) == 0);
-	return 1;
-
+	serial_register(&mpc5xx_serial_drv);
 }
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &mpc5xx_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return mpc5xx_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	mpc5xx_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	mpc5xx_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	mpc5xx_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return mpc5xx_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return mpc5xx_serial_tstc();
+}
+#endif
