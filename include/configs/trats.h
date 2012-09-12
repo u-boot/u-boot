@@ -78,6 +78,7 @@
 #define CONFIG_MMC
 #define CONFIG_S5P_SDHCI
 #define CONFIG_SDHCI
+#define CONFIG_MMC_SDMA
 
 /* PWM */
 #define CONFIG_PWM

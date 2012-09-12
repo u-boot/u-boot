@@ -260,7 +260,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	if (clock == 0)
 		return 0;
 
-	if (host->version >= SDHCI_SPEC_300) {
+	if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300) {
 		/* Version 3.00 divisors must be a multiple of 2. */
 		if (mmc->f_max <= clock)
 			div = 1;
@@ -278,6 +278,9 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		}
 	}
 	div >>= 1;
+
+	if (host->set_clock)
+		host->set_clock(host->index, div);
 
 	clk = (div & SDHCI_DIV_MASK) << SDHCI_DIVIDER_SHIFT;
 	clk |= ((div & SDHCI_DIV_HI_MASK) >> SDHCI_DIV_MASK_LEN)
@@ -347,10 +350,10 @@ void sdhci_set_ios(struct mmc *mmc)
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
 	if (mmc->bus_width == 8) {
 		ctrl &= ~SDHCI_CTRL_4BITBUS;
-		if (host->version >= SDHCI_SPEC_300)
+		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
 			ctrl |= SDHCI_CTRL_8BITBUS;
 	} else {
-		if (host->version >= SDHCI_SPEC_300)
+		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
 			ctrl &= ~SDHCI_CTRL_8BITBUS;
 		if (mmc->bus_width == 4)
 			ctrl |= SDHCI_CTRL_4BITBUS;
@@ -381,11 +384,24 @@ int sdhci_init(struct mmc *mmc)
 		}
 	}
 
+	sdhci_set_power(host, fls(mmc->voltages) - 1);
+
+	if (host->quirks & SDHCI_QUIRK_NO_CD) {
+		unsigned int status;
+
+		sdhci_writel(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
+			SDHCI_HOST_CONTROL);
+
+		status = sdhci_readl(host, SDHCI_PRESENT_STATE);
+		while ((!(status & SDHCI_CARD_PRESENT)) ||
+		    (!(status & SDHCI_CARD_STATE_STABLE)) ||
+		    (!(status & SDHCI_CARD_DETECT_PIN_LEVEL)))
+			status = sdhci_readl(host, SDHCI_PRESENT_STATE);
+	}
+
 	/* Eable all state */
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_ENABLE);
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_SIGNAL_ENABLE);
-
-	sdhci_set_power(host, fls(mmc->voltages) - 1);
 
 	return 0;
 }
@@ -421,7 +437,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	if (max_clk)
 		mmc->f_max = max_clk;
 	else {
-		if (host->version >= SDHCI_SPEC_300)
+		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
 			mmc->f_max = (caps & SDHCI_CLOCK_V3_BASE_MASK)
 				>> SDHCI_CLOCK_BASE_SHIFT;
 		else
@@ -436,7 +452,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	if (min_clk)
 		mmc->f_min = min_clk;
 	else {
-		if (host->version >= SDHCI_SPEC_300)
+		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
 			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_300;
 		else
 			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_200;

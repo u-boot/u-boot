@@ -236,7 +236,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 	status = (cmd.response[0] & MMC_STATUS_CURR_STATE) >> 9;
 	printf("CURR STATE:%d\n", status);
 #endif
-	if (!timeout) {
+	if (timeout <= 0) {
 		printf("Timeout waiting card ready\n");
 		return TIMEOUT;
 	}
@@ -658,7 +658,7 @@ int mmc_send_op_cond(struct mmc *mmc)
 }
 
 
-int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
+int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
@@ -669,7 +669,7 @@ int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.cmdarg = 0;
 
-	data.dest = ext_csd;
+	data.dest = (char *)ext_csd;
 	data.blocks = 1;
 	data.blocksize = 512;
 	data.flags = MMC_DATA_READ;
@@ -704,7 +704,7 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 
 int mmc_change_freq(struct mmc *mmc)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(char, ext_csd, 512);
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, 512);
 	char cardtype;
 	int err;
 
@@ -963,8 +963,8 @@ int mmc_startup(struct mmc *mmc)
 	uint mult, freq;
 	u64 cmult, csize, capacity;
 	struct mmc_cmd cmd;
-	ALLOC_CACHE_ALIGN_BUFFER(char, ext_csd, 512);
-	ALLOC_CACHE_ALIGN_BUFFER(char, test_csd, 512);
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, 512);
+	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, 512);
 	int timeout = 1000;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
@@ -1137,7 +1137,8 @@ int mmc_startup(struct mmc *mmc)
 		}
 
 		/* store the partition info of emmc */
-		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT)
+		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) ||
+		    ext_csd[EXT_CSD_BOOT_MULT])
 			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
 	}
 
@@ -1232,7 +1233,9 @@ int mmc_startup(struct mmc *mmc)
 			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
 	sprintf(mmc->block_dev.revision, "%d.%d", mmc->cid[2] >> 28,
 			(mmc->cid[2] >> 24) & 0xf);
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
 	init_part(&mmc->block_dev);
+#endif
 
 	return 0;
 }
@@ -1283,10 +1286,9 @@ int mmc_register(struct mmc *mmc)
 block_dev_desc_t *mmc_get_dev(int dev)
 {
 	struct mmc *mmc = find_mmc_device(dev);
-	if (!mmc)
+	if (!mmc || mmc_init(mmc))
 		return NULL;
 
-	mmc_init(mmc);
 	return &mmc->block_dev;
 }
 #endif
