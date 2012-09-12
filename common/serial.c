@@ -50,6 +50,7 @@ serial_initfunc(bfin_serial_initialize);
 serial_initfunc(bfin_jtag_initialize);
 serial_initfunc(mpc512x_serial_initialize);
 serial_initfunc(uartlite_serial_initialize);
+serial_initfunc(au1x00_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -78,6 +79,8 @@ void serial_initialize(void)
 	bfin_jtag_initialize();
 	uartlite_serial_initialize();
 	zynq_serial_initalize();
+	au1x00_serial_initialize();
+
 	serial_assign(default_serial_console()->name);
 }
 
