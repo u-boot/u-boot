@@ -45,6 +45,7 @@ serial_initfunc(pxa_serial_initialize);
 serial_initfunc(s3c24xx_serial_initialize);
 serial_initfunc(s5p_serial_initialize);
 serial_initfunc(zynq_serial_initalize);
+serial_initfunc(uartlite_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -98,20 +99,7 @@ void serial_initialize(void)
 #if defined(CONFIG_SYS_BFIN_UART)
 	serial_register_bfin_uart();
 #endif
-#if defined(CONFIG_XILINX_UARTLITE)
-# ifdef XILINX_UARTLITE_BASEADDR
-	serial_register(&uartlite_serial0_device);
-# endif /* XILINX_UARTLITE_BASEADDR */
-# ifdef XILINX_UARTLITE_BASEADDR1
-	serial_register(&uartlite_serial1_device);
-# endif /* XILINX_UARTLITE_BASEADDR1 */
-# ifdef XILINX_UARTLITE_BASEADDR2
-	serial_register(&uartlite_serial2_device);
-# endif /* XILINX_UARTLITE_BASEADDR2 */
-# ifdef XILINX_UARTLITE_BASEADDR3
-	serial_register(&uartlite_serial3_device);
-# endif /* XILINX_UARTLITE_BASEADDR3 */
-#endif /* CONFIG_XILINX_UARTLITE */
+	uartlite_serial_initialize();
 	zynq_serial_initalize();
 	serial_assign(default_serial_console()->name);
 }

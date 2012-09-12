@@ -181,4 +181,20 @@ __weak struct serial_device *default_serial_console(void)
 
 	return NULL;
 }
+
+void uartlite_serial_initialize(void)
+{
+#ifdef XILINX_UARTLITE_BASEADDR
+	serial_register(&uartlite_serial0_device);
+#endif /* XILINX_UARTLITE_BASEADDR */
+#ifdef XILINX_UARTLITE_BASEADDR1
+	serial_register(&uartlite_serial1_device);
+#endif /* XILINX_UARTLITE_BASEADDR1 */
+#ifdef XILINX_UARTLITE_BASEADDR2
+	serial_register(&uartlite_serial2_device);
+#endif /* XILINX_UARTLITE_BASEADDR2 */
+#ifdef XILINX_UARTLITE_BASEADDR3
+	serial_register(&uartlite_serial3_device);
+#endif /* XILINX_UARTLITE_BASEADDR3 */
+}
 #endif /* CONFIG_SERIAL_MULTI */
