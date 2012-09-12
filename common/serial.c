@@ -57,6 +57,7 @@ serial_initfunc(mpc5xx_serial_initialize);
 serial_initfunc(mpc8220_serial_initialize);
 serial_initfunc(mpc8260_scc_serial_initialize);
 serial_initfunc(mpc8260_smc_serial_initialize);
+serial_initfunc(mpc85xx_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -92,6 +93,7 @@ void serial_initialize(void)
 	mpc8220_serial_initialize();
 	mpc8260_scc_serial_initialize();
 	mpc8260_smc_serial_initialize();
+	mpc85xx_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
