@@ -340,4 +340,20 @@ __weak struct serial_device *default_serial_console(void)
 #endif
 }
 
+void ns16550_serial_initialize(void)
+{
+#if defined(CONFIG_SYS_NS16550_COM1)
+	serial_register(&eserial1_device);
+#endif
+#if defined(CONFIG_SYS_NS16550_COM2)
+	serial_register(&eserial2_device);
+#endif
+#if defined(CONFIG_SYS_NS16550_COM3)
+	serial_register(&eserial3_device);
+#endif
+#if defined(CONFIG_SYS_NS16550_COM4)
+	serial_register(&eserial4_device);
+#endif
+}
+
 #endif /* CONFIG_SERIAL_MULTI */

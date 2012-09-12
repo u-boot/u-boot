@@ -41,6 +41,7 @@ static void serial_null(void)
 		__attribute__((weak, alias("serial_null")));
 
 serial_initfunc(mpc8xx_serial_initialize);
+serial_initfunc(ns16550_serial_initialize);
 serial_initfunc(pxa_serial_initialize);
 serial_initfunc(s3c24xx_serial_initialize);
 serial_initfunc(s5p_serial_initialize);
@@ -66,20 +67,7 @@ void serial_register(struct serial_device *dev)
 void serial_initialize(void)
 {
 	mpc8xx_serial_initialize();
-#if defined(CONFIG_SYS_NS16550_SERIAL)
-#if defined(CONFIG_SYS_NS16550_COM1)
-	serial_register(&eserial1_device);
-#endif
-#if defined(CONFIG_SYS_NS16550_COM2)
-	serial_register(&eserial2_device);
-#endif
-#if defined(CONFIG_SYS_NS16550_COM3)
-	serial_register(&eserial3_device);
-#endif
-#if defined(CONFIG_SYS_NS16550_COM4)
-	serial_register(&eserial4_device);
-#endif
-#endif /* CONFIG_SYS_NS16550_SERIAL */
+	ns16550_serial_initialize();
 	pxa_serial_initialize();
 	s3c24xx_serial_initialize();
 	s5p_serial_initialize();

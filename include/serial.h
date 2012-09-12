@@ -34,14 +34,10 @@ extern struct serial_device *default_serial_console(void);
 	defined(CONFIG_MICROBLAZE)
 extern struct serial_device serial0_device;
 extern struct serial_device serial1_device;
-#if defined(CONFIG_SYS_NS16550_SERIAL)
+#endif
+
 extern struct serial_device eserial1_device;
 extern struct serial_device eserial2_device;
-extern struct serial_device eserial3_device;
-extern struct serial_device eserial4_device;
-#endif /* CONFIG_SYS_NS16550_SERIAL */
-
-#endif
 
 #if defined(CONFIG_OMAP3_ZOOM2)
 extern struct serial_device zoom2_serial_device0;
