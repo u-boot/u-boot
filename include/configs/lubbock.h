@@ -64,6 +64,7 @@
  */
 #define CONFIG_PXA_SERIAL
 #define CONFIG_FFUART	       1       /* we use FFUART on LUBBOCK */
+#define CONFIG_CONS_INDEX	3
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

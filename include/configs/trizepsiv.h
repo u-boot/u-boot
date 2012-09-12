@@ -68,6 +68,7 @@
 #define CONFIG_FFUART	       1       /* we use FFUART on Conxs */
 #define CONFIG_BTUART	       1       /* we use BTUART on Conxs */
 #define CONFIG_STUART	       1       /* we use STUART on Conxs */
+#define CONFIG_CONS_INDEX	3
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

@@ -29,11 +29,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct serial_device *default_serial_console(void)
-{
-	return &serial_ffuart_device;
-}
-
 int board_init(void)
 {
 	/* We have RAM, disable cache */
