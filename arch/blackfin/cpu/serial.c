@@ -272,7 +272,7 @@ __weak struct serial_device *default_serial_console(void)
 #endif
 }
 
-void serial_register_bfin_uart(void)
+void bfin_serial_initialize(void)
 {
 #ifdef UART0_DLL
 	serial_register(&bfin_serial0_device);
