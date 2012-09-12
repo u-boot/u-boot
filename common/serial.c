@@ -54,6 +54,7 @@ serial_initfunc(au1x00_serial_initialize);
 serial_initfunc(asc_serial_initialize);
 serial_initfunc(jz_serial_initialize);
 serial_initfunc(mpc5xx_serial_initialize);
+serial_initfunc(mpc8220_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -86,6 +87,7 @@ void serial_initialize(void)
 	asc_serial_initialize();
 	jz_serial_initialize();
 	mpc5xx_serial_initialize();
+	mpc8220_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
