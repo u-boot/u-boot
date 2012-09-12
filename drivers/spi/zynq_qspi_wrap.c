@@ -68,7 +68,7 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 		return;
 	}
 
-	if (idcode[0] == 0x01) {
+	if ((idcode[0] == 0x01) || (idcode[0] == 0xef)) {
 		/* Read config register */
 		ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
 					&rcr_data, sizeof(rcr_data));
