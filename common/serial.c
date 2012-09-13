@@ -67,6 +67,7 @@ serial_initfunc(bmw_serial_initialize);
 serial_initfunc(cogent_serial_initialize);
 serial_initfunc(cpci750_serial_initialize);
 serial_initfunc(evb64260_serial_initialize);
+serial_initfunc(ml2_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -112,6 +113,7 @@ void serial_initialize(void)
 	cogent_serial_initialize();
 	cpci750_serial_initialize();
 	evb64260_serial_initialize();
+	ml2_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }

@@ -24,6 +24,8 @@
 #include <asm/processor.h>
 #include <command.h>
 #include <configs/ML2.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #if (defined CONFIG_SYS_INIT_CHAN1) || (defined CONFIG_SYS_INIT_CHAN2)
 #include <ns16550.h>
@@ -37,7 +39,7 @@ const NS16550_t COM_PORTS[] = { (NS16550_t) CONFIG_SYS_NS16550_COM1,
 };
 #endif
 
-int serial_init (void)
+static int ml2_serial_init(void)
 {
 	int clock_divisor = CONFIG_SYS_NS16550_CLK / 16 / gd->baudrate;
 
@@ -51,7 +53,7 @@ int serial_init (void)
 
 }
 
-void serial_putc (const char c)
+static void ml2_serial_putc(const char c)
 {
 	if (c == '\n')
 		NS16550_putc (COM_PORTS[CONFIG_SYS_DUART_CHAN], '\r');
@@ -59,17 +61,17 @@ void serial_putc (const char c)
 	NS16550_putc (COM_PORTS[CONFIG_SYS_DUART_CHAN], c);
 }
 
-int serial_getc (void)
+static int ml2_serial_getc(void)
 {
 	return NS16550_getc (COM_PORTS[CONFIG_SYS_DUART_CHAN]);
 }
 
-int serial_tstc (void)
+static int ml2_serial_tstc(void)
 {
 	return NS16550_tstc (COM_PORTS[CONFIG_SYS_DUART_CHAN]);
 }
 
-void serial_setbrg (void)
+static void ml2_serial_setbrg(void)
 {
 	int clock_divisor = CONFIG_SYS_NS16550_CLK / 16 / gd->baudrate;
 
@@ -81,13 +83,65 @@ void serial_setbrg (void)
 #endif
 }
 
-void serial_puts (const char *s)
+static void ml2_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
 
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device ml2_serial_drv = {
+	.name	= "ml2_serial",
+	.start	= ml2_serial_init,
+	.stop	= NULL,
+	.setbrg	= ml2_serial_setbrg,
+	.putc	= ml2_serial_putc,
+	.puts	= ml2_serial_puts,
+	.getc	= ml2_serial_getc,
+	.tstc	= ml2_serial_tstc,
+};
+
+void ml2_serial_initialize(void)
+{
+	serial_register(&ml2_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &ml2_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return ml2_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	ml2_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	ml2_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	ml2_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return ml2_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return ml2_serial_tstc();
+}
+#endif
 #if defined(CONFIG_CMD_KGDB)
 void kgdb_serial_init (void)
 {
