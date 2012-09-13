@@ -43,7 +43,7 @@ static struct sh_i2c *base;
 #define SH_I2C_ICCR_SCP		(1 << 0)
 
 /* ICSR / ICIC */
-#define SH_IC_BUSY	(1 << 3)
+#define SH_IC_BUSY	(1 << 4)
 #define SH_IC_TACK	(1 << 2)
 #define SH_IC_WAIT	(1 << 1)
 #define SH_IC_DTE	(1 << 0)
