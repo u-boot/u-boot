@@ -1487,7 +1487,39 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 static int video_logo_xpos;
 static int video_logo_ypos;
 
-void logo_plot(void *screen, int width, int x, int y)
+static void plot_logo_or_black(void *screen, int width, int x, int y,	\
+			int black);
+
+static void logo_plot(void *screen, int width, int x, int y)
+{
+	plot_logo_or_black(screen, width, x, y, 0);
+}
+
+static void logo_black(void)
+{
+	plot_logo_or_black(video_fb_address, \
+			VIDEO_COLS, \
+			video_logo_xpos, \
+			video_logo_ypos, \
+			1);
+}
+
+static int do_clrlogo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc != 1)
+		return cmd_usage(cmdtp);
+
+	logo_black();
+	return 0;
+}
+
+U_BOOT_CMD(
+	   clrlogo, 1, 0, do_clrlogo,
+	   "fill the boot logo area with black",
+	   " "
+	   );
+
+static void plot_logo_or_black(void *screen, int width, int x, int y, int black)
 {
 
 	int xcount, i;
@@ -1545,9 +1577,15 @@ void logo_plot(void *screen, int width, int x, int y)
 #endif
 		xcount = VIDEO_LOGO_WIDTH;
 		while (xcount--) {
-			r = logo_red[*source - VIDEO_LOGO_LUT_OFFSET];
-			g = logo_green[*source - VIDEO_LOGO_LUT_OFFSET];
-			b = logo_blue[*source - VIDEO_LOGO_LUT_OFFSET];
+			if (black) {
+				r = 0x00;
+				g = 0x00;
+				b = 0x00;
+			} else {
+				r = logo_red[*source - VIDEO_LOGO_LUT_OFFSET];
+				g = logo_green[*source - VIDEO_LOGO_LUT_OFFSET];
+				b = logo_blue[*source - VIDEO_LOGO_LUT_OFFSET];
+			}
 
 			switch (VIDEO_DATA_FORMAT) {
 			case GDF__8BIT_INDEX:
