@@ -154,6 +154,7 @@
 /* I2C */
 #define CONFIG_CMD_I2C
 #define CONFIG_SH_I2C 1
+#define CONFIG_SH_I2C_8BIT
 #define CONFIG_HARD_I2C
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_MAX_I2C_BUS  (2)

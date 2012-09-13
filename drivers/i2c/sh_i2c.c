@@ -48,7 +48,13 @@ static struct sh_i2c *base;
 #define SH_IC_WAIT	(1 << 1)
 #define SH_IC_DTE	(1 << 0)
 
-static u8 iccl, icch;
+#ifdef CONFIG_SH_I2C_8BIT
+/* store 8th bit of iccl and icch in ICIC register */
+#define SH_I2C_ICIC_ICCLB8	(1 << 7)
+#define SH_I2C_ICIC_ICCHB8	(1 << 6)
+#endif
+
+static u16 iccl, icch;
 
 #define IRQ_WAIT 1000
 
@@ -76,12 +82,20 @@ static void irq_busy(struct sh_i2c *base)
 
 static void i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
 {
+	u8 icic = 0;
+
 	writeb(readb(&base->iccr) & ~SH_I2C_ICCR_ICE, &base->iccr);
 	writeb(readb(&base->iccr) | SH_I2C_ICCR_ICE, &base->iccr);
 
-	writeb(iccl, &base->iccl);
-	writeb(icch, &base->icch);
-	writeb(0, &base->icic);
+	writeb(iccl & 0xff, &base->iccl);
+	writeb(icch & 0xff, &base->icch);
+#ifdef CONFIG_SH_I2C_8BIT
+	if (iccl > 0xff)
+		icic |= SH_I2C_ICIC_ICCLB8;
+	if (icch > 0xff)
+		icic |= SH_I2C_ICIC_ICCHB8;
+#endif
+	writeb(icic, &base->icic);
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS|SH_I2C_ICCR_BUSY), &base->iccr);
 	irq_dte(base);
@@ -206,18 +220,18 @@ void i2c_init(int speed, int slaveaddr)
 	denom = speed * (CONFIG_SH_I2C_DATA_HIGH + CONFIG_SH_I2C_DATA_LOW);
 	tmp = num * 10 / denom;
 	if (tmp % 10 >= 5)
-		iccl = (u8)((num/denom) + 1);
+		iccl = (u16)((num/denom) + 1);
 	else
-		iccl = (u8)(num/denom);
+		iccl = (u16)(num/denom);
 
 	/* Calculate the value for icch. From the data sheet:
 	   icch = (p clock / transfer rate) * (H / (L + H)) */
 	num = CONFIG_SH_I2C_CLOCK * CONFIG_SH_I2C_DATA_HIGH;
 	tmp = num * 10 / denom;
 	if (tmp % 10 >= 5)
-		icch = (u8)((num/denom) + 1);
+		icch = (u16)((num/denom) + 1);
 	else
-		icch = (u8)(num/denom);
+		icch = (u16)(num/denom);
 }
 
 /*
