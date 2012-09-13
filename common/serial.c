@@ -61,6 +61,7 @@ serial_initfunc(mpc85xx_serial_initialize);
 serial_initfunc(iop480_serial_initialize);
 serial_initfunc(leon2_serial_initialize);
 serial_initfunc(leon3_serial_initialize);
+serial_initfunc(marvell_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -100,6 +101,7 @@ void serial_initialize(void)
 	iop480_serial_initialize();
 	leon2_serial_initialize();
 	leon3_serial_initialize();
+	marvell_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }

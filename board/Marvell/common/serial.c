@@ -32,6 +32,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <serial.h>
+#include <linux/compiler.h>
+
 #include "../include/memory.h"
 #include "serial.h"
 
@@ -48,9 +51,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_MPSC
-
-
-int serial_init (void)
+static int marvell_serial_init(void)
 {
 #if (defined CONFIG_SYS_INIT_CHAN1) || (defined CONFIG_SYS_INIT_CHAN2)
 	int clock_divisor = 230400 / gd->baudrate;
@@ -68,7 +69,7 @@ int serial_init (void)
 	return (0);
 }
 
-void serial_putc (const char c)
+static void marvell_serial_putc(const char c)
 {
 	if (c == '\n')
 		mpsc_putchar ('\r');
@@ -76,24 +77,24 @@ void serial_putc (const char c)
 	mpsc_putchar (c);
 }
 
-int serial_getc (void)
+static int marvell_serial_getc(void)
 {
 	return mpsc_getchar ();
 }
 
-int serial_tstc (void)
+static int marvell_serial_tstc(void)
 {
 	return mpsc_test_char ();
 }
 
-void serial_setbrg (void)
+static void marvell_serial_setbrg(void)
 {
 	galbrg_set_baudrate (CONFIG_MPSC_PORT, gd->baudrate);
 }
 
 #else  /* ! CONFIG_MPSC */
 
-int serial_init (void)
+static int marvell_serial_init(void)
 {
 	int clock_divisor = 230400 / gd->baudrate;
 
@@ -106,7 +107,7 @@ int serial_init (void)
 	return (0);
 }
 
-void serial_putc (const char c)
+static void marvell_serial_putc(const char c)
 {
 	if (c == '\n')
 		NS16550_putc (COM_PORTS[CONFIG_SYS_DUART_CHAN], '\r');
@@ -114,17 +115,17 @@ void serial_putc (const char c)
 	NS16550_putc (COM_PORTS[CONFIG_SYS_DUART_CHAN], c);
 }
 
-int serial_getc (void)
+static int marvell_serial_getc(void)
 {
 	return NS16550_getc (COM_PORTS[CONFIG_SYS_DUART_CHAN]);
 }
 
-int serial_tstc (void)
+static int marvell_serial_tstc(void)
 {
 	return NS16550_tstc (COM_PORTS[CONFIG_SYS_DUART_CHAN]);
 }
 
-void serial_setbrg (void)
+static void marvell_serial_setbrg(void)
 {
 	int clock_divisor = 230400 / gd->baudrate;
 
@@ -138,12 +139,65 @@ void serial_setbrg (void)
 
 #endif /* CONFIG_MPSC */
 
-void serial_puts (const char *s)
+static void marvell_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device marvell_serial_drv = {
+	.name	= "marvell_serial",
+	.start	= marvell_serial_init,
+	.stop	= NULL,
+	.setbrg	= marvell_serial_setbrg,
+	.putc	= marvell_serial_putc,
+	.puts	= marvell_serial_puts,
+	.getc	= marvell_serial_getc,
+	.tstc	= marvell_serial_tstc,
+};
+
+void marvell_serial_initialize(void)
+{
+	serial_register(&marvell_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &marvell_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return marvell_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	marvell_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	marvell_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	marvell_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return marvell_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return marvell_serial_tstc();
+}
+#endif
 
 #if defined(CONFIG_CMD_KGDB)
 void kgdb_serial_init (void)
