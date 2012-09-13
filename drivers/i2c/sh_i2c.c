@@ -134,29 +134,37 @@ static void i2c_finish(struct sh_i2c *base)
 	writeb(readb(&base->iccr) & ~SH_I2C_ICCR_ICE, &base->iccr);
 }
 
-static void i2c_raw_write(struct sh_i2c *base, u8 id, u8 reg, u8 val)
+static int i2c_raw_write(struct sh_i2c *base, u8 id, u8 reg, u8 val)
 {
-	i2c_set_addr(base, id, reg, 0);
+	int ret = -1;
+	if (i2c_set_addr(base, id, reg, 0) != 0)
+		goto exit0;
 	udelay(10);
 
 	writeb(val, &base->icdr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		goto exit0;
 
 	writeb((SH_I2C_ICCR_ICE | SH_I2C_ICCR_RTS), &base->iccr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		goto exit0;
 	irq_busy(base);
-
+	ret = 0;
+exit0:
 	i2c_finish(base);
+	return ret;
 }
 
-static u8 i2c_raw_read(struct sh_i2c *base, u8 id, u8 reg)
+static int i2c_raw_read(struct sh_i2c *base, u8 id, u8 reg)
 {
-	u8 ret;
+	int ret = -1;
 
 #if defined(CONFIG_SH73A0)
-	i2c_set_addr(base, id, reg, 0);
+	if (i2c_set_addr(base, id, reg, 0) != 0)
+		goto exit0;
 #else
-	i2c_set_addr(base, id, reg, 1);
+	if (i2c_set_addr(base, id, reg, 1) != 0)
+		goto exit0;
 	udelay(100);
 #endif
 
@@ -164,17 +172,19 @@ static u8 i2c_raw_read(struct sh_i2c *base, u8 id, u8 reg)
 	irq_dte(base);
 
 	writeb(id << 1 | 0x01, &base->icdr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		goto exit0;
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_SCP), &base->iccr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		goto exit0;
 
-	ret = readb(&base->icdr);
+	ret = readb(&base->icdr) & 0xff;
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RACK), &base->iccr);
 	readb(&base->icdr); /* Dummy read */
 	irq_busy(base);
-
+exit0:
 	i2c_finish(base);
 
 	return ret;
@@ -286,10 +296,14 @@ void i2c_init(int speed, int slaveaddr)
  */
 int i2c_read(u8 chip, u32 addr, int alen, u8 *buffer, int len)
 {
+	int ret;
 	int i = 0;
-	for (i = 0 ; i < len ; i++)
-		buffer[i] = i2c_raw_read(base, chip, addr + i);
-
+	for (i = 0 ; i < len ; i++) {
+		ret = i2c_raw_read(base, chip, addr + i);
+		if (ret < 0)
+			return -1;
+		buffer[i] = ret & 0xff;
+	}
 	return 0;
 }
 
@@ -310,8 +324,8 @@ int i2c_write(u8 chip, u32 addr, int alen, u8 *buffer, int len)
 {
 	int i = 0;
 	for (i = 0; i < len ; i++)
-		i2c_raw_write(base, chip, addr + i, buffer[i]);
-
+		if (i2c_raw_write(base, chip, addr + i, buffer[i]) != 0)
+			return -1;
 	return 0;
 }
 
