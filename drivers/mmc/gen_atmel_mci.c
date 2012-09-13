@@ -321,8 +321,8 @@ static int mci_init(struct mmc *mmc)
 	writel(MMCI_BIT(MCIEN), &mci->cr);	/* enable mci */
 	writel(MMCI_BF(SCDSEL, MCI_BUS), &mci->sdcr);	/* select port */
 
-	/* Initial Time-outs */
-	writel(0x5f, &mci->dtor);
+	/* This delay can be optimized, but stick with max value */
+	writel(0x7f, &mci->dtor);
 	/* Disable Interrupts */
 	writel(~0UL, &mci->idr);
 
