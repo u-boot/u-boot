@@ -74,6 +74,7 @@ serial_initfunc(altera_jtag_serial_initialize);
 serial_initfunc(altera_serial_initialize);
 serial_initfunc(atmel_serial_initialize);
 serial_initfunc(lpc32xx_serial_initialize);
+serial_initfunc(mcf_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -126,6 +127,7 @@ void serial_initialize(void)
 	altera_serial_initialize();
 	atmel_serial_initialize();
 	lpc32xx_serial_initialize();
+	mcf_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
