@@ -344,6 +344,8 @@ int board_init(void)
 	gpio_direction_output(GPIO_PORT15, 1);
 
 	/* I2C */
+	gpio_request(GPIO_FN_PORT237_I2C_SCL2, NULL);
+	gpio_request(GPIO_FN_PORT236_I2C_SDA2, NULL);
 	gpio_request(GPIO_FN_PORT27_I2C_SCL3, NULL);
 	gpio_request(GPIO_FN_PORT28_I2C_SDA3, NULL);
 
