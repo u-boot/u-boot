@@ -98,8 +98,8 @@ static int i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
 {
 	u8 icic = SH_IC_TACK;
 
-	writeb(readb(&base->iccr) & ~SH_I2C_ICCR_ICE, &base->iccr);
-	writeb(readb(&base->iccr) | SH_I2C_ICCR_ICE, &base->iccr);
+	clrbits_8(&base->iccr, SH_I2C_ICCR_ICE);
+	setbits_8(&base->iccr, SH_I2C_ICCR_ICE);
 
 	writeb(iccl & 0xff, &base->iccl);
 	writeb(icch & 0xff, &base->icch);
@@ -114,7 +114,7 @@ static int i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS|SH_I2C_ICCR_BUSY), &base->iccr);
 	irq_dte(base);
 
-	writeb(readb(&base->icsr) & ~SH_IC_TACK, &base->icsr);
+	clrbits_8(&base->icsr, SH_IC_TACK);
 	writeb(id << 1, &base->icdr);
 	if (irq_dte_with_tack(base) != 0)
 		return -1;
@@ -131,7 +131,7 @@ static int i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
 static void i2c_finish(struct sh_i2c *base)
 {
 	writeb(0, &base->icsr);
-	writeb(readb(&base->iccr) & ~SH_I2C_ICCR_ICE, &base->iccr);
+	clrbits_8(&base->iccr, SH_I2C_ICCR_ICE);
 }
 
 static int i2c_raw_write(struct sh_i2c *base, u8 id, u8 reg, u8 val)
