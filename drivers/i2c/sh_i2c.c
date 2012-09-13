@@ -69,6 +69,20 @@ static void irq_dte(struct sh_i2c *base)
 	}
 }
 
+static int irq_dte_with_tack(struct sh_i2c *base)
+{
+	int i;
+
+	for (i = 0 ; i < IRQ_WAIT ; i++) {
+		if (SH_IC_DTE & readb(&base->icsr))
+			break;
+		if (SH_IC_TACK & readb(&base->icsr))
+			return -1;
+		udelay(10);
+	}
+	return 0;
+}
+
 static void irq_busy(struct sh_i2c *base)
 {
 	int i;
@@ -80,9 +94,9 @@ static void irq_busy(struct sh_i2c *base)
 	}
 }
 
-static void i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
+static int i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
 {
-	u8 icic = 0;
+	u8 icic = SH_IC_TACK;
 
 	writeb(readb(&base->iccr) & ~SH_I2C_ICCR_ICE, &base->iccr);
 	writeb(readb(&base->iccr) | SH_I2C_ICCR_ICE, &base->iccr);
@@ -100,14 +114,18 @@ static void i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS|SH_I2C_ICCR_BUSY), &base->iccr);
 	irq_dte(base);
 
+	writeb(readb(&base->icsr) & ~SH_IC_TACK, &base->icsr);
 	writeb(id << 1, &base->icdr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		return -1;
 
 	writeb(reg, &base->icdr);
 	if (stop)
 		writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS), &base->iccr);
 
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		return -1;
+	return 0;
 }
 
 static void i2c_finish(struct sh_i2c *base)
@@ -305,5 +323,9 @@ int i2c_write(u8 chip, u32 addr, int alen, u8 *buffer, int len)
  */
 int i2c_probe(u8 chip)
 {
-	return 0;
+	int ret;
+
+	ret = i2c_set_addr(base, chip, 0, 1);
+	i2c_finish(base);
+	return ret;
 }
