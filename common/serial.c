@@ -64,6 +64,7 @@ serial_initfunc(leon3_serial_initialize);
 serial_initfunc(marvell_serial_initialize);
 serial_initfunc(amirix_serial_initialize);
 serial_initfunc(bmw_serial_initialize);
+serial_initfunc(cogent_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -106,6 +107,7 @@ void serial_initialize(void)
 	marvell_serial_initialize();
 	amirix_serial_initialize();
 	bmw_serial_initialize();
+	cogent_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
