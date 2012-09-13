@@ -184,6 +184,21 @@ int i2c_set_bus_num(unsigned int bus)
 	case 1:
 		base = (void *)CONFIG_SH_I2C_BASE1;
 		break;
+#ifdef CONFIG_SH_I2C_BASE2
+	case 2:
+		base = (void *)CONFIG_SH_I2C_BASE2;
+		break;
+#endif
+#ifdef CONFIG_SH_I2C_BASE3
+	case 3:
+		base = (void *)CONFIG_SH_I2C_BASE3;
+		break;
+#endif
+#ifdef CONFIG_SH_I2C_BASE4
+	case 4:
+		base = (void *)CONFIG_SH_I2C_BASE4;
+		break;
+#endif
 	default:
 		return -1;
 	}
