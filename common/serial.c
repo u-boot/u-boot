@@ -68,6 +68,7 @@ serial_initfunc(cogent_serial_initialize);
 serial_initfunc(cpci750_serial_initialize);
 serial_initfunc(evb64260_serial_initialize);
 serial_initfunc(ml2_serial_initialize);
+serial_initfunc(sconsole_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -114,6 +115,7 @@ void serial_initialize(void)
 	cpci750_serial_initialize();
 	evb64260_serial_initialize();
 	ml2_serial_initialize();
+	sconsole_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
