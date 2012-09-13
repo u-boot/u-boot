@@ -70,6 +70,7 @@ serial_initfunc(evb64260_serial_initialize);
 serial_initfunc(ml2_serial_initialize);
 serial_initfunc(sconsole_serial_initialize);
 serial_initfunc(p3mx_serial_initialize);
+serial_initfunc(altera_jtag_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -118,6 +119,7 @@ void serial_initialize(void)
 	ml2_serial_initialize();
 	sconsole_serial_initialize();
 	p3mx_serial_initialize();
+	altera_jtag_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
