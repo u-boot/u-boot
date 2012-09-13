@@ -65,6 +65,7 @@ serial_initfunc(marvell_serial_initialize);
 serial_initfunc(amirix_serial_initialize);
 serial_initfunc(bmw_serial_initialize);
 serial_initfunc(cogent_serial_initialize);
+serial_initfunc(cpci750_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -108,6 +109,7 @@ void serial_initialize(void)
 	amirix_serial_initialize();
 	bmw_serial_initialize();
 	cogent_serial_initialize();
+	cpci750_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }

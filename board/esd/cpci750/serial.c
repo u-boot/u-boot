@@ -35,6 +35,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <serial.h>
+#include <linux/compiler.h>
+
 #include "../../Marvell/include/memory.h"
 #include "serial.h"
 
@@ -42,14 +45,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int serial_init (void)
+static int cpci750_serial_init(void)
 {
 	mpsc_init (gd->baudrate);
 
 	return (0);
 }
 
-void serial_putc (const char c)
+static void cpci750_serial_putc(const char c)
 {
 	if (c == '\n')
 		mpsc_putchar ('\r');
@@ -57,29 +60,81 @@ void serial_putc (const char c)
 	mpsc_putchar (c);
 }
 
-int serial_getc (void)
+static int cpci750_serial_getc(void)
 {
 	return mpsc_getchar ();
 }
 
-int serial_tstc (void)
+static int cpci750_serial_tstc(void)
 {
 	return mpsc_test_char ();
 }
 
-void serial_setbrg (void)
+static void cpci750_serial_setbrg(void)
 {
 	galbrg_set_baudrate (CONFIG_MPSC_PORT, gd->baudrate);
 }
 
 
-void serial_puts (const char *s)
+static void cpci750_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
 
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device cpci750_serial_drv = {
+	.name	= "cpci750_serial",
+	.start	= cpci750_serial_init,
+	.stop	= NULL,
+	.setbrg	= cpci750_serial_setbrg,
+	.putc	= cpci750_serial_putc,
+	.puts	= cpci750_serial_puts,
+	.getc	= cpci750_serial_getc,
+	.tstc	= cpci750_serial_tstc,
+};
+
+void cpci750_serial_initialize(void)
+{
+	serial_register(&cpci750_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &cpci750_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return cpci750_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	cpci750_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	cpci750_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	cpci750_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return cpci750_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return cpci750_serial_tstc();
+}
+#endif
 #if defined(CONFIG_CMD_KGDB)
 void kgdb_serial_init (void)
 {
