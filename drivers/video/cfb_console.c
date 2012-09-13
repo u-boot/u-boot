@@ -66,7 +66,11 @@
  * CONFIG_CONSOLE_TIME	      - display time/date in upper right
  *				corner, needs CONFIG_CMD_DATE and
  *				CONFIG_CONSOLE_CURSOR
- * CONFIG_VIDEO_LOGO	      - display Linux Logo in upper left corner
+ * CONFIG_VIDEO_LOGO	      - display Linux Logo in upper left corner.
+ *				Use CONFIG_SPLASH_SCREEN_ALIGN with
+ *				environment variable "splashpos" to place
+ *				the logo on other position. In this case
+ *				no CONSOLE_EXTRA_INFO is possible.
  * CONFIG_VIDEO_BMP_LOGO      - use bmp_logo instead of linux_logo
  * CONFIG_CONSOLE_EXTRA_INFO  - display additional board information
  *				strings that normaly goes to serial
@@ -1480,6 +1484,9 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 
 
 #ifdef CONFIG_VIDEO_LOGO
+static int video_logo_xpos;
+static int video_logo_ypos;
+
 void logo_plot(void *screen, int width, int x, int y)
 {
 
@@ -1488,8 +1495,21 @@ void logo_plot(void *screen, int width, int x, int y)
 	int ycount = video_logo_height;
 	unsigned char r, g, b, *logo_red, *logo_blue, *logo_green;
 	unsigned char *source;
-	unsigned char *dest = (unsigned char *) screen +
-		((y * width * VIDEO_PIXEL_SIZE) + x * VIDEO_PIXEL_SIZE);
+	unsigned char *dest;
+
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+	if (x == BMP_ALIGN_CENTER)
+		x = max(0, (VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH) / 2);
+	else if (x < 0)
+		x = max(0, VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH + x + 1);
+
+	if (y == BMP_ALIGN_CENTER)
+		y = max(0, (VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT) / 2);
+	else if (y < 0)
+		y = max(0, VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1);
+#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+
+	dest = (unsigned char *)screen + (y * width  + x) * VIDEO_PIXEL_SIZE;
 
 #ifdef CONFIG_VIDEO_BMP_LOGO
 	source = bmp_logo_bitmap;
@@ -1592,42 +1612,66 @@ static void *video_logo(void)
 	char info[128];
 	int space, len;
 	__maybe_unused int y_off = 0;
+	__maybe_unused ulong addr;
+	__maybe_unused char *s;
 
-#ifdef CONFIG_SPLASH_SCREEN
-	char *s;
-	ulong addr;
-
-	s = getenv("splashimage");
-	if (s != NULL) {
-		int x = 0, y = 0;
-
-		addr = simple_strtoul(s, NULL, 16);
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
-		s = getenv("splashpos");
-		if (s != NULL) {
-			if (s[0] == 'm')
-				x = BMP_ALIGN_CENTER;
-			else
-				x = simple_strtol(s, NULL, 0);
+	s = getenv("splashpos");
+	if (s != NULL) {
+		if (s[0] == 'm')
+			video_logo_xpos = BMP_ALIGN_CENTER;
+		else
+			video_logo_xpos = simple_strtol(s, NULL, 0);
 
-			s = strchr(s + 1, ',');
-			if (s != NULL) {
-				if (s[1] == 'm')
-					y = BMP_ALIGN_CENTER;
-				else
-					y = simple_strtol(s + 1, NULL, 0);
-			}
+		s = strchr(s + 1, ',');
+		if (s != NULL) {
+			if (s[1] == 'm')
+				video_logo_ypos = BMP_ALIGN_CENTER;
+			else
+				video_logo_ypos = simple_strtol(s + 1, NULL, 0);
 		}
+	}
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
-		if (video_display_bitmap(addr, x, y) == 0) {
+#ifdef CONFIG_SPLASH_SCREEN
+	s = getenv("splashimage");
+	if (s != NULL) {
+
+		addr = simple_strtoul(s, NULL, 16);
+
+
+		if (video_display_bitmap(addr,
+					video_logo_xpos,
+					video_logo_ypos) == 0) {
 			video_logo_height = 0;
 			return ((void *) (video_fb_address));
 		}
 	}
 #endif /* CONFIG_SPLASH_SCREEN */
 
-	logo_plot(video_fb_address, VIDEO_COLS, 0, 0);
+	logo_plot(video_fb_address, VIDEO_COLS,
+		  video_logo_xpos, video_logo_ypos);
+
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+	/*
+	 * when using splashpos for video_logo, skip any info
+	 * output on video console if the logo is not at 0,0
+	 */
+	if (video_logo_xpos || video_logo_ypos) {
+		/*
+		 * video_logo_height is used in text and cursor offset
+		 * calculations. Since the console is below the logo,
+		 * we need to adjust the logo height
+		 */
+		if (video_logo_ypos == BMP_ALIGN_CENTER)
+			video_logo_height += max(0, (VIDEO_VISIBLE_ROWS - \
+						     VIDEO_LOGO_HEIGHT) / 2);
+		else if (video_logo_ypos > 0)
+			video_logo_height += video_logo_ypos;
+
+		return video_fb_address + video_logo_height * VIDEO_LINE_LEN;
+	}
+#endif
 
 	sprintf(info, " %s", version_string);
 
