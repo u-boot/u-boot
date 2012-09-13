@@ -43,6 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SMSTPCR1_CMT0	(1 << 24)
 #define SMSTPCR1_I2C0	(1 << 16)
 #define SMSTPCR3_USB	(1 << 22)
+#define SMSTPCR3_I2C1	(1 << 23)
 
 #define PORT32CR (0xE6051020)
 #define PORT33CR (0xE6051021)
@@ -287,8 +288,8 @@ int board_early_init_f(void)
 
 	clrbits_le32(&cpg->smstpcr1, (SMSTPCR1_CMT0|SMSTPCR1_I2C0));
 	clrbits_le32(&cpg_srcr->srcr1, (SMSTPCR1_CMT0|SMSTPCR1_I2C0));
-	clrbits_le32(&cpg->smstpcr3, SMSTPCR3_USB);
-	clrbits_le32(&cpg_srcr->srcr3, SMSTPCR3_USB);
+	clrbits_le32(&cpg->smstpcr3, (SMSTPCR3_USB|SMSTPCR3_I2C1));
+	clrbits_le32(&cpg_srcr->srcr3, (SMSTPCR3_USB|SMSTPCR3_I2C1));
 	writel(VCLKCR1_D, &cpg->vclkcr1);
 
 	/* Setup SCIF4 / workaround */
