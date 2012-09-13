@@ -254,6 +254,15 @@ int board_early_init_f(void)
 	return 0;
 }
 
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
+}
+
 int board_init(void)
 {
 	/* arch number of the board */
@@ -280,8 +289,6 @@ int board_late_init(void)
 
 	/* Set HALTEN to high */
 	gpio_direction_output(134, 1);
-
-	setenv("stdout", "serial");
 
 	/* Set fixed contrast settings for LCD via I2C potentiometer */
 	buf[0] = 0x00;
