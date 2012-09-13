@@ -22,6 +22,9 @@
  */
 
 #include <common.h>
+#include <serial.h>
+#include <linux/compiler.h>
+
 #include "ns16550.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -38,7 +41,7 @@ static struct NS16550 *console =
 
 extern ulong get_bus_freq (ulong);
 
-int serial_init (void)
+static int bmw_serial_init(void)
 {
 	int clock_divisor = gd->bus_clk / 16 / gd->baudrate;
 
@@ -47,7 +50,7 @@ int serial_init (void)
 	return (0);
 }
 
-void serial_putc (const char c)
+static void bmw_serial_putc(const char c)
 {
 	if (c == '\n') {
 		serial_putc ('\r');
@@ -55,7 +58,7 @@ void serial_putc (const char c)
 	NS16550_putc (console, c);
 }
 
-void serial_puts (const char *s)
+static void bmw_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
@@ -63,19 +66,72 @@ void serial_puts (const char *s)
 }
 
 
-int serial_getc (void)
+static int bmw_serial_getc(void)
 {
 	return NS16550_getc (console);
 }
 
-int serial_tstc (void)
+static int bmw_serial_tstc(void)
 {
 	return NS16550_tstc (console);
 }
 
-void serial_setbrg (void)
+static void bmw_serial_setbrg(void)
 {
 	int clock_divisor = get_bus_freq (0) / 16 / gd->baudrate;
 
 	NS16550_reinit (console, clock_divisor);
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device bmw_serial_drv = {
+	.name	= "bmw_serial",
+	.start	= bmw_serial_init,
+	.stop	= NULL,
+	.setbrg	= bmw_serial_setbrg,
+	.putc	= bmw_serial_putc,
+	.puts	= bmw_serial_puts,
+	.getc	= bmw_serial_getc,
+	.tstc	= bmw_serial_tstc,
+};
+
+void bmw_serial_initialize(void)
+{
+	serial_register(&bmw_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &bmw_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return bmw_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	bmw_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	bmw_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	bmw_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return bmw_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return bmw_serial_tstc();
+}
+#endif
