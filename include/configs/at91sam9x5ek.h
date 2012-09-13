@@ -89,6 +89,7 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_SF
+#define CONFIG_CMD_MMC
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -136,6 +137,15 @@
 #define CONFIG_LZO
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
+#endif
+
+/* MMC */
+#ifdef CONFIG_CMD_MMC
+#define CONFIG_MMC
+#define CONFIG_CMD_FAT
+#define CONFIG_GENERIC_MMC
+#define CONFIG_GENERIC_ATMEL_MCI
+#define CONFIG_DOS_PARTITION
 #endif
 
 /* Ethernet */
