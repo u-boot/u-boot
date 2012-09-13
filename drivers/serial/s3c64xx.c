@@ -68,7 +68,7 @@ static const int udivslot[] = {
 	0xffdf,
 };
 
-void serial_setbrg(void)
+static void s3c64xx_serial_setbrg(void)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 	u32 pclk = get_PCLK();
@@ -88,7 +88,7 @@ void serial_setbrg(void)
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  */
-int serial_init(void)
+static int s3c64xx_serial_init(void)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 
@@ -110,7 +110,7 @@ int serial_init(void)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_getc(void)
+static int s3c64xx_serial_getc(void)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 
@@ -137,7 +137,7 @@ void enable_putc(void)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc(const char c)
+static void s3c64xx_serial_putc(const char c)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 
@@ -159,15 +159,68 @@ void serial_putc(const char c)
 /*
  * Test whether a character is in the RX buffer
  */
-int serial_tstc(void)
+static int s3c64xx_serial_tstc(void)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 
 	return uart->UTRSTAT & 0x1;
 }
 
-void serial_puts(const char *s)
+static void s3c64xx_serial_puts(const char *s)
 {
 	while (*s)
 		serial_putc(*s++);
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device s3c64xx_serial_drv = {
+	.name	= "s3c64xx_serial",
+	.start	= s3c64xx_serial_init,
+	.stop	= NULL,
+	.setbrg	= s3c64xx_serial_setbrg,
+	.putc	= s3c64xx_serial_putc,
+	.puts	= s3c64xx_serial_puts,
+	.getc	= s3c64xx_serial_getc,
+	.tstc	= s3c64xx_serial_tstc,
+};
+
+void s3c64xx_serial_initialize(void)
+{
+	serial_register(&s3c64xx_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &s3c64xx_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return s3c64xx_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	s3c64xx_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	s3c64xx_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	s3c64xx_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return s3c64xx_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return s3c64xx_serial_tstc();
+}
+#endif
