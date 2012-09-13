@@ -80,7 +80,7 @@ static int serial_flush_output(void)
 }
 
 
-void serial_setbrg (void)
+static void s3c4510b_serial_setbrg(void)
 {
 	UART_LINE_CTRL ulctrl;
 	UART_CTRL      uctrl;
@@ -135,7 +135,7 @@ void serial_setbrg (void)
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  *
  */
-int serial_init (void)
+static int s3c4510b_serial_init(void)
 {
 
 #if   CONFIG_SERIAL1 == 1
@@ -155,7 +155,7 @@ int serial_init (void)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc (const char c)
+static void s3c4510_serial_putc(const char c)
 {
 	/* wait for room in the transmit FIFO */
 	while( !uart->m_stat.bf.txBufEmpty);
@@ -174,7 +174,7 @@ void serial_putc (const char c)
  * Test if an input byte is ready from the serial port. Returns non-zero on
  * success, 0 otherwise.
  */
-int serial_tstc (void)
+static int s3c4510b_serial_tstc(void)
 {
 	return uart->m_stat.bf.rxReady;
 }
@@ -184,7 +184,7 @@ int serial_tstc (void)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_getc (void)
+static int s3c4510b_serial_getc(void)
 {
 	int rv;
 
@@ -197,7 +197,7 @@ int serial_getc (void)
 	}
 }
 
-void serial_puts (const char *s)
+static void s3c4510b_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
@@ -210,3 +210,56 @@ void serial_puts (const char *s)
 	uart->m_ctrl.bf.sendBreak = 0;
 
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device s3c4510b_serial_drv = {
+	.name	= "s3c4510b_serial",
+	.start	= s3c4510b_serial_init,
+	.stop	= NULL,
+	.setbrg	= s3c4510b_serial_setbrg,
+	.putc	= s3c4510b_serial_putc,
+	.puts	= s3c4510b_serial_puts,
+	.getc	= s3c4510b_serial_getc,
+	.tstc	= s3c4510b_serial_tstc,
+};
+
+void s3c4510b_serial_initialize(void)
+{
+	serial_register(&s3c4510b_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &s3c4510b_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return s3c4510b_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	s3c4510b_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	s3c4510b_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	s3c4510b_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return s3c4510b_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return s3c4510b_serial_tstc();
+}
+#endif

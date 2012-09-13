@@ -77,6 +77,7 @@ serial_initfunc(lpc32xx_serial_initialize);
 serial_initfunc(mcf_serial_initialize);
 serial_initfunc(ns9750_serial_initialize);
 serial_initfunc(oc_serial_initialize);
+serial_initfunc(s3c4510b_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -132,6 +133,7 @@ void serial_initialize(void)
 	mcf_serial_initialize();
 	ns9750_serial_initialize();
 	oc_serial_initialize();
+	s3c4510b_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
