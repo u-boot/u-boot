@@ -20,6 +20,8 @@
  */
 #include <common.h>
 #include <watchdog.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #include <asm/io.h>
 #include <asm/arch/clk.h>
@@ -29,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void serial_setbrg(void)
+static void atmel_serial_setbrg(void)
 {
 	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
 	unsigned long divisor;
@@ -45,7 +47,7 @@ void serial_setbrg(void)
 	writel(USART3_BF(CD, divisor), &usart->brgr);
 }
 
-int serial_init(void)
+static int atmel_serial_init(void)
 {
 	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
 
@@ -73,7 +75,7 @@ int serial_init(void)
 	return 0;
 }
 
-void serial_putc(char c)
+static void atmel_serial_putc(char c)
 {
 	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
 
@@ -84,13 +86,13 @@ void serial_putc(char c)
 	writel(c, &usart->thr);
 }
 
-void serial_puts(const char *s)
+static void atmel_serial_puts(const char *s)
 {
 	while (*s)
 		serial_putc(*s++);
 }
 
-int serial_getc(void)
+static int atmel_serial_getc(void)
 {
 	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
 
@@ -99,8 +101,61 @@ int serial_getc(void)
 	return readl(&usart->rhr);
 }
 
-int serial_tstc(void)
+static int atmel_serial_tstc(void)
 {
 	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
 	return (readl(&usart->csr) & USART3_BIT(RXRDY)) != 0;
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device atmel_serial_drv = {
+	.name	= "atmel_serial",
+	.start	= atmel_serial_init,
+	.stop	= NULL,
+	.setbrg	= atmel_serial_setbrg,
+	.putc	= atmel_serial_putc,
+	.puts	= atmel_serial_puts,
+	.getc	= atmel_serial_getc,
+	.tstc	= atmel_serial_tstc,
+};
+
+void atmel_serial_initialize(void)
+{
+	serial_register(&atmel_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &atmel_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return atmel_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	atmel_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	atmel_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	atmel_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return atmel_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return atmel_serial_tstc();
+}
+#endif

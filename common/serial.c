@@ -72,6 +72,7 @@ serial_initfunc(sconsole_serial_initialize);
 serial_initfunc(p3mx_serial_initialize);
 serial_initfunc(altera_jtag_serial_initialize);
 serial_initfunc(altera_serial_initialize);
+serial_initfunc(atmel_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -122,6 +123,7 @@ void serial_initialize(void)
 	p3mx_serial_initialize();
 	altera_jtag_serial_initialize();
 	altera_serial_initialize();
+	atmel_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
