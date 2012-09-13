@@ -135,8 +135,12 @@ static u8 i2c_raw_read(struct sh_i2c *base, u8 id, u8 reg)
 {
 	u8 ret;
 
+#if defined(CONFIG_SH73A0)
+	i2c_set_addr(base, id, reg, 0);
+#else
 	i2c_set_addr(base, id, reg, 1);
 	udelay(100);
+#endif
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS|SH_I2C_ICCR_BUSY), &base->iccr);
 	irq_dte(base);
