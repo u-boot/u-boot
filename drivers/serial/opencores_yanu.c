@@ -37,7 +37,7 @@ static yanu_uart_t *uart = (yanu_uart_t *)CONFIG_SYS_NIOS_CONSOLE;
 
 /* Everything's already setup for fixed-baud PTF assignment*/
 
-void serial_setbrg (void)
+static void oc_serial_setbrg(void)
 {
 	int n, k;
 	const unsigned max_uns = 0xFFFFFFFF;
@@ -68,7 +68,7 @@ void serial_setbrg (void)
 
 #else
 
-void serial_setbrg (void)
+static void oc_serial_setbrg(void)
 {
 	int n, k;
 	const unsigned max_uns = 0xFFFFFFFF;
@@ -100,7 +100,7 @@ void serial_setbrg (void)
 
 #endif /* CONFIG_SYS_NIOS_FIXEDBAUD */
 
-int serial_init (void)
+static int oc_serial_init(void)
 {
 	unsigned action,control;
 
@@ -141,7 +141,7 @@ int serial_init (void)
 /*-----------------------------------------------------------------------
  * YANU CONSOLE
  *---------------------------------------------------------------------*/
-void serial_putc (char c)
+static void oc_serial_putc(char c)
 {
 	int tx_chars;
 	unsigned status;
@@ -161,7 +161,7 @@ void serial_putc (char c)
 	writel((unsigned char)c, &uart->data);
 }
 
-void serial_puts (const char *s)
+static void oc_serial_puts(const char *s)
 {
 	while (*s != 0) {
 		serial_putc (*s++);
@@ -169,7 +169,7 @@ void serial_puts (const char *s)
 }
 
 
-int serial_tstc(void)
+static int oc_serial_tstc(void)
 {
 	unsigned status ;
 
@@ -178,7 +178,7 @@ int serial_tstc(void)
 		 ((1 << YANU_RFIFO_CHARS_N) - 1)) > 0);
 }
 
-int serial_getc (void)
+statoc int oc_serial_getc(void)
 {
 	while (serial_tstc() == 0)
 		WATCHDOG_RESET ();
@@ -188,3 +188,56 @@ int serial_getc (void)
 
 	return(readl(&uart->data) & YANU_DATA_CHAR_MASK);
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device oc_serial_drv = {
+	.name	= "oc_serial",
+	.start	= oc_serial_init,
+	.stop	= NULL,
+	.setbrg	= oc_serial_setbrg,
+	.putc	= oc_serial_putc,
+	.puts	= oc_serial_puts,
+	.getc	= oc_serial_getc,
+	.tstc	= oc_serial_tstc,
+};
+
+void oc_serial_initialize(void)
+{
+	serial_register(&oc_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &oc_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return oc_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	oc_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	oc_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	oc_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return oc_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return oc_serial_tstc();
+}
+#endif
