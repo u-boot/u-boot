@@ -52,7 +52,7 @@ static unsigned int unCharCache; /* unCharCache is only valid if
  * @Descr: configures GPIOs and UART. Requires BBUS Master Reset turned off
  ***********************************************************************/
 
-int serial_init( void )
+static int ns9750_serial_init(void)
 {
 	unsigned int aunGPIOTxD[] = { 0, 8, 40, 44 };
 	unsigned int aunGPIORxD[] = { 1, 9, 41, 45 };
@@ -85,7 +85,7 @@ int serial_init( void )
  * @Descr: writes one character to the FIFO. Blocks until FIFO is not full
  ***********************************************************************/
 
-void serial_putc( const char c )
+static void ns9750_serial_putc(const char c)
 {
 	if (c == '\n')
 		serial_putc( '\r' );
@@ -105,7 +105,7 @@ void serial_putc( const char c )
  * @Descr: writes non-zero string to the FIFO.
  ***********************************************************************/
 
-void serial_puts( const char *s )
+static void ns9750_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc( *s++ );
@@ -118,7 +118,7 @@ void serial_puts( const char *s )
  * @Descr: performs only 8bit accesses to the FIFO. No error handling
  ***********************************************************************/
 
-int serial_getc( void )
+static int ns9750_serial_getc(void)
 {
 	int i;
 
@@ -142,7 +142,7 @@ int serial_getc( void )
  *	   unCharCache and the numbers of characters in cCharsAvailable
  ***********************************************************************/
 
-int serial_tstc( void )
+static int ns9750_serial_tstc(void)
 {
 	unsigned int unRegCache;
 
@@ -171,7 +171,7 @@ int serial_tstc( void )
 	return 0;
 }
 
-void serial_setbrg( void )
+static void ns9750_serial_setbrg(void)
 {
 	*get_ser_reg_addr_channel( NS9750_SER_BITRATE, CONSOLE ) =
 		calcBitrateRegister();
@@ -208,3 +208,56 @@ static unsigned int calcRxCharGapRegister( void )
 {
 	return NS9750_SER_RX_CHAR_TIMER_TRUN;
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device ns9750_serial_drv = {
+	.name	= "ns9750_serial",
+	.start	= ns9750_serial_init,
+	.stop	= NULL,
+	.setbrg	= ns9750_serial_setbrg,
+	.putc	= ns9750_serial_putc,
+	.puts	= ns9750_serial_puts,
+	.getc	= ns9750_serial_getc,
+	.tstc	= ns9750_serial_tstc,
+};
+
+void ns9750_serial_initialize(void)
+{
+	serial_register(&ns9750_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &ns9750_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return ns9750_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	ns9750_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	ns9750_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	ns9750_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return ns9750_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return ns9750_serial_tstc();
+}
+#endif
