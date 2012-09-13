@@ -26,6 +26,8 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <nios2-io.h>
+#include <linux/compiler.h>
+#include <serial.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,27 +39,33 @@ static nios_uart_t *uart = (nios_uart_t *) CONFIG_SYS_NIOS_CONSOLE;
 
 #if defined(CONFIG_SYS_NIOS_FIXEDBAUD)
 
-/* Everything's already setup for fixed-baud PTF
+/*
+ * Everything's already setup for fixed-baud PTF
  * assignment
  */
-void serial_setbrg (void){ return; }
-int serial_init (void) { return (0);}
+static void altera_serial_setbrg(void)
+{
+}
+
+static int altera_serial_init(void)
+{
+	return 0;
+}
 
 #else
 
-void serial_setbrg (void)
+static void altera_serial_setbrg(void)
 {
 	unsigned div;
 
 	div = (CONFIG_SYS_CLK_FREQ/gd->baudrate)-1;
 	writel (div, &uart->divisor);
-	return;
 }
 
-int serial_init (void)
+static int altera_serial_init(void)
 {
-	serial_setbrg ();
-	return (0);
+	serial_setbrg();
+	return 0;
 }
 
 #endif /* CONFIG_SYS_NIOS_FIXEDBAUD */
@@ -65,7 +73,7 @@ int serial_init (void)
 /*-----------------------------------------------------------------------
  * UART CONSOLE
  *---------------------------------------------------------------------*/
-void serial_putc (char c)
+static void altera_serial_putc(char c)
 {
 	if (c == '\n')
 		serial_putc ('\r');
@@ -74,21 +82,74 @@ void serial_putc (char c)
 	writel ((unsigned char)c, &uart->txdata);
 }
 
-void serial_puts (const char *s)
+static void altera_serial_puts(const char *s)
 {
 	while (*s != 0) {
 		serial_putc (*s++);
 	}
 }
 
-int serial_tstc (void)
+static int altera_serial_tstc(void)
 {
 	return (readl (&uart->status) & NIOS_UART_RRDY);
 }
 
-int serial_getc (void)
+static int altera_serial_getc(void)
 {
 	while (serial_tstc () == 0)
 		WATCHDOG_RESET ();
 	return (readl (&uart->rxdata) & 0x00ff );
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device altera_serial_drv = {
+	.name	= "altera_serial",
+	.start	= altera_serial_init,
+	.stop	= NULL,
+	.setbrg	= altera_serial_setbrg,
+	.putc	= altera_serial_putc,
+	.puts	= altera_serial_puts,
+	.getc	= altera_serial_getc,
+	.tstc	= altera_serial_tstc,
+};
+
+void altera_serial_initialize(void)
+{
+	serial_register(&altera_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &altera_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return altera_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	altera_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	altera_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	altera_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return altera_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return altera_serial_tstc();
+}
+#endif
