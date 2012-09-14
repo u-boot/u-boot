@@ -22,6 +22,8 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include "serial_sh.h"
+#include <serial.h>
+#include <linux/compiler.h>
 
 #if defined(CONFIG_CONS_SCIF0)
 # define SCIF_BASE	SCIF0_BASE
@@ -55,13 +57,13 @@ static struct uart_port sh_sci = {
 	.type		= SCIF_BASE_PORT,
 };
 
-void serial_setbrg(void)
+static void sh_serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	sci_out(&sh_sci, SCBRR, SCBRR_VALUE(gd->baudrate, CONFIG_SYS_CLK_FREQ));
 }
 
-int serial_init(void)
+static int sh_serial_init(void)
 {
 	sci_out(&sh_sci, SCSCR , SCSCR_INIT(&sh_sci));
 	sci_out(&sh_sci, SCSCR , SCSCR_INIT(&sh_sci));
@@ -127,21 +129,21 @@ void serial_raw_putc(const char c)
 	sci_out(&sh_sci, SCxSR, sci_in(&sh_sci, SCxSR) & ~SCxSR_TEND(&sh_sci));
 }
 
-void serial_putc(const char c)
+static void sh_serial_putc(const char c)
 {
 	if (c == '\n')
 		serial_raw_putc('\r');
 	serial_raw_putc(c);
 }
 
-void serial_puts(const char *s)
+static void sh_serial_puts(const char *s)
 {
 	char c;
 	while ((c = *s++) != 0)
 		serial_putc(c);
 }
 
-int serial_tstc(void)
+static int sh_serial_tstc(void)
 {
 	return serial_rx_fifo_level() ? 1 : 0;
 }
@@ -167,7 +169,7 @@ int serial_getc_check(void)
 	return status & (SCIF_DR | SCxSR_RDxF(&sh_sci));
 }
 
-int serial_getc(void)
+static int sh_serial_getc(void)
 {
 	unsigned short status;
 	char ch;
@@ -187,3 +189,56 @@ int serial_getc(void)
 		handle_error();
 	return ch;
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device sh_serial_drv = {
+	.name	= "sh_serial",
+	.start	= sh_serial_init,
+	.stop	= NULL,
+	.setbrg	= sh_serial_setbrg,
+	.putc	= sh_serial_putc,
+	.puts	= sh_serial_puts,
+	.getc	= sh_serial_getc,
+	.tstc	= sh_serial_tstc,
+};
+
+void sh_serial_initialize(void)
+{
+	serial_register(&sh_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &sh_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return sh_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	sh_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	sh_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	sh_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return sh_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return sh_serial_tstc();
+}
+#endif
