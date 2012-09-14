@@ -89,6 +89,7 @@ serial_initfunc(lpc2292_serial_initialize);
 serial_initfunc(max3100_serial_initialize);
 serial_initfunc(mxc_serial_initialize);
 serial_initfunc(netarm_serial_initialize);
+serial_initfunc(pl01x_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -156,6 +157,7 @@ void serial_initialize(void)
 	max3100_serial_initialize();
 	mxc_serial_initialize();
 	netarm_serial_initialize();
+	pl01x_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
