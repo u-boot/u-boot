@@ -1,50 +1,23 @@
-/*****************************************************************************
-*
-* (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
-*
-* This file contains confidential and proprietary information of Xilinx, Inc.
-* and is protected under U.S. and international copyright and other
-* intellectual property laws.
-*
-* DISCLAIMER
-* This disclaimer is not a license and does not grant any rights to the
-* materials distributed herewith. Except as otherwise provided in a valid
-* license issued to you by Xilinx, and to the maximum extent permitted by
-* applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
-* FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
-* IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-* MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
-* and (2) Xilinx shall not be liable (whether in contract or tort, including
-* negligence, or under any other theory of liability) for any loss or damage
-* of any kind or nature related to, arising under or in connection with these
-* materials, including for any direct, or any indirect, special, incidental,
-* or consequential loss or damage (including loss of data, profits, goodwill,
-* or any type of loss or damage suffered as a result of any action brought by
-* a third party) even if such damage or loss was reasonably foreseeable or
-* Xilinx had been advised of the possibility of the same.
-*
-* CRITICAL APPLICATIONS
-* Xilinx products are not designed or intended to be fail-safe, or for use in
-* any application requiring fail-safe performance, such as life-support or
-* safety devices or systems, Class III medical devices, nuclear facilities,
-* applications related to the deployment of airbags, or any other applications
-* that could lead to death, personal injury, or severe property or
-* environmental damage (individually and collectively, "Critical
-* Applications"). Customer assumes the sole risk and liability of any use of
-* Xilinx products in Critical Applications, subject only to applicable laws
-* and regulations governing limitations on product liability.
-*
-* THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
-* AT ALL TIMES.
-*
-*****************************************************************************/
-/****************************************************************************/
-/**
- *
- * @file zynq_gem.h
+/*
+ * (C) Copyright 2012 Xilinx
  *
  * The Xilinx Embedded Processor Block Ethernet driver.
  *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+#ifndef XEMACPSS_H		/* prevent circular inclusions */
+#define XEMACPSS_H		/* by using protection macros */
+
+/**
  * For a full description of XEMACPSS features, please see the hardware spec.
  * This driver supports the following features:
  *   - Memory mapped access to host interface registers
@@ -62,7 +35,7 @@
  *   - Large frame support up to 1536 bytes
  *   - Checksum offload
  *
- * <b>Driver Description</b>
+ * Driver Description:
  *
  * The device driver enables higher layer software (e.g., an application) to
  * communicate to the XEmacPss. The driver handles transmission and reception
@@ -73,7 +46,7 @@
  * A single device driver can support multiple devices even when those devices
  * have significantly different configurations.
  *
- * <b>Initialization & Configuration</b>
+ * Initialization & Configuration:
  *
  * The XEmacPss_Config structure is used by the driver to configure itself.
  * This configuration structure is typically created by the tool-chain based
@@ -90,7 +63,7 @@
  * supported. The driver expects to start the DMA channels and expects that
  * the user has set up the buffer descriptor lists.
  *
- * <b>Interrupts and Asynchronous Callbacks</b>
+ * Interrupts and Asynchronous Callbacks:
  *
  * The driver has no dependencies on the interrupt controller. When an
  * interrupt occurs, the handler will perform a small amount of
@@ -98,7 +71,7 @@
  * appropriate callback function. All callbacks are registered by the user
  * level application.
  *
- * <b>Virtual Memory</b>
+ * Virtual Memory:
  *
  * All virtual to physical memory mappings must occur prior to accessing the
  * driver API.
@@ -106,7 +79,7 @@
  * For DMA transactions, user buffers supplied to the driver must be in terms
  * of their physical address.
  *
- * <b>DMA</b>
+ * DMA:
  *
  * The DMA engine uses buffer descriptors (BDs) to describe Ethernet frames.
  * These BDs are typically chained together into a list the hardware follows
@@ -171,7 +144,7 @@
  * provided to hardware with BdRingToHw. Same goes with BdRingFromHw and
  * BdRIngFree.
  *
- * <b>Alignment & Data Cache Restrictions</b>
+ * Alignment & Data Cache Restrictions:
  *
  * Due to the design of the hardware, all RX buffers, BDs need to be 4-byte
  * aligned. Please reference zynq_gem_bd.h for cache related macros.
@@ -189,14 +162,14 @@
  *
  * Both cache invalidate/flush are taken care of in driver code.
  *
- * <b>Buffer Copying</b>
+ * Buffer Copying:
  *
  * The driver is designed for a zero-copy buffer scheme. That is, the driver
  * will not copy buffers. This avoids potential throughput bottlenecks within
  * the driver. If byte copying is required, then the transfer will take longer
  * to complete.
  *
- * <b>Checksum Offloading</b>
+ * Checksum Offloading:
  *
  * The Embedded Processor Block Ethernet can be configured to perform IP, TCP
  * and UDP checksum offloading in both receive and transmit directions.
@@ -244,11 +217,11 @@
  * If any of the checksums are verified incorrect by the hardware, the packet
  * is discarded and the appropriate statistics counter incremented.
  *
- * <b>PHY Interfaces</b>
+ * PHY Interfaces:
  *
  * RGMII 1.3 is the only interface supported.
  *
- * <b>Asserts</b>
+ * Asserts:
  *
  * Asserts are used within all Xilinx drivers to enforce constraints on
  * parameters. Asserts can be turned off on a system-wide basis by defining,
@@ -265,19 +238,7 @@
  * This driver is intended to be RTOS and processor independent. Any needs for
  * dynamic memory management, threads or thread mutual exclusion, or cache
  * control must be satisfied bythe layer above this driver.
- *
- * <pre>
- * MODIFICATION HISTORY:
- *
- * Ver   Who  Date     Changes
- * ----- ---- -------- -------------------------------------------------------
- * 1.00a wsy  06/01/09 First release
- * </pre>
- *
- ****************************************************************************/
-
-#ifndef XEMACPSS_H		/* prevent circular inclusions */
-#define XEMACPSS_H		/* by using protection macros */
+ */
 
 #ifdef __cplusplus
 extern "C" {
