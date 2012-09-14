@@ -25,6 +25,8 @@
 
 #include <common.h>
 #include <watchdog.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -149,7 +151,7 @@ static int rxfifo_in;
 static int rxfifo_out;
 static unsigned char rxfifo_buf[16];
 
-static void max3100_putc(int c)
+static void max3100_serial_putc_raw(int c)
 {
 	unsigned int rx;
 
@@ -164,7 +166,7 @@ static void max3100_putc(int c)
 	}
 }
 
-static int max3100_getc(void)
+static int max3100_serial_getc(void)
 {
 	int c;
 	unsigned int rx;
@@ -190,7 +192,7 @@ static int max3100_getc(void)
 	return c;
 }
 
-static int max3100_tstc(void)
+static int max3100_serial_tstc(void)
 {
 	unsigned int rx;
 
@@ -213,7 +215,7 @@ static int max3100_tstc(void)
 	return 1;
 }
 
-int serial_init(void)
+static int max3100_serial_init(void)
 {
 	unsigned int wconf, rconf;
 	int i;
@@ -268,31 +270,73 @@ int serial_init(void)
 	return (0);
 }
 
-void serial_putc(const char c)
+static void max3100_serial_putc(const char c)
 {
 	if (c == '\n')
-		max3100_putc('\r');
+		max3100_serial_putc_raw('\r');
 
-	max3100_putc(c);
+	max3100_serial_putc_raw(c);
+}
+
+static void max3100_serial_puts(const char *s)
+{
+	while (*s)
+		max3100_serial_putc_raw(*s++);
+}
+
+static void max3100_serial_setbrg(void)
+{
+}
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device max3100_serial_drv = {
+	.name	= "max3100_serial",
+	.start	= max3100_serial_init,
+	.stop	= NULL,
+	.setbrg	= max3100_serial_setbrg,
+	.putc	= max3100_serial_putc,
+	.puts	= max3100_serial_puts,
+	.getc	= max3100_serial_getc,
+	.tstc	= max3100_serial_tstc,
+};
+
+void max3100_serial_initialize(void)
+{
+	serial_register(&max3100_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &max3100_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return max3100_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	max3100_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	max3100_serial_putc(c);
 }
 
 void serial_puts(const char *s)
 {
-	while (*s)
-		serial_putc (*s++);
+	max3100_serial_puts(s);
 }
 
 int serial_getc(void)
 {
-	return max3100_getc();
+	return max3100_serial_getc();
 }
 
 int serial_tstc(void)
 {
-	return max3100_tstc();
+	return max3100_serial_tstc();
 }
-
-/* XXX WTF? */
-void serial_setbrg(void)
-{
-}
+#endif
