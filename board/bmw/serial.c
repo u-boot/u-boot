@@ -83,7 +83,6 @@ static void bmw_serial_setbrg(void)
 	NS16550_reinit (console, clock_divisor);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device bmw_serial_drv = {
 	.name	= "bmw_serial",
 	.start	= bmw_serial_init,
@@ -104,34 +103,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &bmw_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return bmw_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	bmw_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	bmw_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	bmw_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return bmw_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return bmw_serial_tstc();
-}
-#endif

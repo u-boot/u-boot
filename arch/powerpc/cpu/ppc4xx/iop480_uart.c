@@ -26,11 +26,8 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <watchdog.h>
-
-#ifdef CONFIG_SERIAL_MULTI
 #include <serial.h>
 #include <linux/compiler.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -234,7 +231,6 @@ static int iop480_serial_tstc(void)
 	return 0;
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device iop480_serial_drv = {
 	.name	= "iop480_serial",
 	.start	= iop480_serial_init,
@@ -255,35 +251,4 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &iop480_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return iop480_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	iop480_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	iop480_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	iop480_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return iop480_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return iop480_serial_tstc();
-}
-#endif
 #endif	/* CONFIG_IOP480 */

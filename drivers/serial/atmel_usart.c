@@ -107,7 +107,6 @@ static int atmel_serial_tstc(void)
 	return (readl(&usart->csr) & USART3_BIT(RXRDY)) != 0;
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device atmel_serial_drv = {
 	.name	= "atmel_serial",
 	.start	= atmel_serial_init,
@@ -128,34 +127,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &atmel_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return atmel_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	atmel_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	atmel_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	atmel_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return atmel_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return atmel_serial_tstc();
-}
-#endif

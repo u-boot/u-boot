@@ -182,7 +182,6 @@ static void lh7a40x_serial_puts(const char *s)
 	}
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device lh7a40x_serial_drv = {
 	.name	= "lh7a40x_serial",
 	.start	= lh7a40x_serial_init,
@@ -203,34 +202,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &lh7a40x_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return lh7a40x_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	lh7a40x_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	lh7a40x_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	lh7a40x_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return lh7a40x_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return lh7a40x_serial_tstc();
-}
-#endif

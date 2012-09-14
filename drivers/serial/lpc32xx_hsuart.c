@@ -83,7 +83,6 @@ static void lpc32xx_serial_puts(const char *s)
 		serial_putc(*s++);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device lpc32xx_serial_drv = {
 	.name	= "lpc32xx_serial",
 	.start	= lpc32xx_serial_init,
@@ -104,34 +103,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &lpc32xx_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return lpc32xx_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	lpc32xx_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	lpc32xx_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	lpc32xx_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return lpc32xx_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return lpc32xx_serial_tstc();
-}
-#endif

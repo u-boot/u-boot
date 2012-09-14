@@ -130,7 +130,6 @@ static void mcf_serial_setbrg(void)
 	uart->ucr = UART_UCR_RX_ENABLED | UART_UCR_TX_ENABLED;
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device mcf_serial_drv = {
 	.name	= "mcf_serial",
 	.start	= mcf_serial_init,
@@ -151,34 +150,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &mcf_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return mcf_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	mcf_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	mcf_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	mcf_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return mcf_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return mcf_serial_tstc();
-}
-#endif

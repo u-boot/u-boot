@@ -169,7 +169,6 @@ static void mpc5xx_serial_puts(const char *s)
 	}
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device mpc5xx_serial_drv = {
 	.name	= "mpc5xx_serial",
 	.start	= mpc5xx_serial_init,
@@ -190,34 +189,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &mpc5xx_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return mpc5xx_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	mpc5xx_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	mpc5xx_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	mpc5xx_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return mpc5xx_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return mpc5xx_serial_tstc();
-}
-#endif

@@ -166,7 +166,6 @@ static void leon2_serial_setbrg(void)
 	}
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device leon2_serial_drv = {
 	.name	= "leon2_serial",
 	.start	= leon2_serial_init,
@@ -187,34 +186,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &leon2_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return leon2_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	leon2_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	leon2_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	leon2_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return leon2_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return leon2_serial_tstc();
-}
-#endif

@@ -90,7 +90,6 @@ static int cogent_serial_tstc(void)
 	return ((cma_mb_reg_read (&mbsp->ser_lsr) & LSR_DR) != 0);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device cogent_serial_drv = {
 	.name	= "cogent_serial",
 	.start	= cogent_serial_init,
@@ -111,37 +110,6 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &cogent_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return cogent_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	cogent_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	cogent_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	cogent_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return cogent_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return cogent_serial_tstc();
-}
-#endif
 #endif /* CONS_NONE */
 
 #if defined(CONFIG_CMD_KGDB) && \

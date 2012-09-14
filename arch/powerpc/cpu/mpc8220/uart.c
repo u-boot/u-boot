@@ -126,7 +126,6 @@ static void mpc8220_serial_setbrg(void)
 	psc->cr = PSC_CR_RX_ENABLE | PSC_CR_TX_ENABLE;
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device mpc8220_serial_drv = {
 	.name	= "mpc8220_serial",
 	.start	= mpc8220_serial_init,
@@ -147,35 +146,4 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &mpc8220_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return mpc8220_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	mpc8220_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	mpc8220_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	mpc8220_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return mpc8220_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return mpc8220_serial_tstc();
-}
-#endif
 #endif /* CONFIG_PSC_CONSOLE */

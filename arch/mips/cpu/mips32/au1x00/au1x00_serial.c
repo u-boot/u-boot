@@ -131,7 +131,6 @@ static int au1x00_serial_tstc(void)
 	return 0;
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device au1x00_serial_drv = {
 	.name	= "au1x00_serial",
 	.start	= au1x00_serial_init,
@@ -152,34 +151,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &au1x00_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return au1x00_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	au1x00_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	au1x00_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	au1x00_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return au1x00_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return au1x00_serial_tstc();
-}
-#endif

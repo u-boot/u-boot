@@ -160,7 +160,6 @@ static void sa1100_serial_puts(const char *s)
 	}
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device sa1100_serial_drv = {
 	.name	= "sa1100_serial",
 	.start	= sa1100_serial_init,
@@ -181,34 +180,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &sa1100_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return sa1100_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	sa1100_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	sa1100_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	sa1100_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return sa1100_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return sa1100_serial_tstc();
-}
-#endif

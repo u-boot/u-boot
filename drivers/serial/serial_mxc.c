@@ -32,10 +32,6 @@
 
 #define UART_PHYS	CONFIG_MXC_UART_BASE
 
-#ifdef CONFIG_SERIAL_MULTI
-#warning "MXC driver does not support MULTI serials."
-#endif
-
 /* Register definitions */
 #define URXD  0x0  /* Receiver Register */
 #define UTXD  0x40 /* Transmitter Register */
@@ -226,7 +222,6 @@ static int mxc_serial_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device mxc_serial_drv = {
 	.name	= "mxc_serial",
 	.start	= mxc_serial_init,
@@ -247,34 +242,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &mxc_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return mxc_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	mxc_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	mxc_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	mxc_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return mxc_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return mxc_serial_tstc();
-}
-#endif

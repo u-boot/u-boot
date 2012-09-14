@@ -288,7 +288,6 @@ static void max3100_serial_setbrg(void)
 {
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device max3100_serial_drv = {
 	.name	= "max3100_serial",
 	.start	= max3100_serial_init,
@@ -309,34 +308,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &max3100_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return max3100_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	max3100_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	max3100_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	max3100_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return max3100_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return max3100_serial_tstc();
-}
-#endif

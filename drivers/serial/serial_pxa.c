@@ -73,20 +73,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	HWUART_INDEX	0xff
 #endif
 
-#ifndef CONFIG_SERIAL_MULTI
-#if defined(CONFIG_FFUART)
-#define UART_INDEX	FFUART_INDEX
-#elif defined(CONFIG_BTUART)
-#define UART_INDEX	BTUART_INDEX
-#elif defined(CONFIG_STUART)
-#define UART_INDEX	STUART_INDEX
-#elif defined(CONFIG_HWUART)
-#define UART_INDEX	HWUART_INDEX
-#else
-#error "Please select CONFIG_(FF|BT|ST|HW)UART in board config file."
-#endif
-#endif
-
 static uint32_t pxa_uart_get_baud_divider(void)
 {
 	if (gd->baudrate == 1200)
@@ -297,9 +283,6 @@ void pxa_puts_dev(unsigned int uart_index, const char *s)
 	pxa_uart_multi(btuart, BTUART)
 #endif
 
-#ifndef	CONFIG_SERIAL_MULTI
-	pxa_uart(serial, UART)
-#else
 __weak struct serial_device *default_serial_console(void)
 {
 #if CONFIG_CONS_INDEX == 1
@@ -327,4 +310,3 @@ void pxa_serial_initialize(void)
 	serial_register(&serial_stuart_device);
 #endif
 }
-#endif

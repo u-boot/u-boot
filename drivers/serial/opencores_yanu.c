@@ -189,7 +189,6 @@ statoc int oc_serial_getc(void)
 	return(readl(&uart->data) & YANU_DATA_CHAR_MASK);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device oc_serial_drv = {
 	.name	= "oc_serial",
 	.start	= oc_serial_init,
@@ -210,34 +209,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &oc_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return oc_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	oc_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	oc_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	oc_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return oc_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return oc_serial_tstc();
-}
-#endif

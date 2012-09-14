@@ -115,7 +115,6 @@ static void sconsole_serial_setbrg(void)
 	}
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device sconsole_serial_drv = {
 	.name	= "sconsole_serial",
 	.start	= sconsole_serial_init,
@@ -136,37 +135,7 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &sconsole_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return sconsole_serial_init();
-}
 
-void serial_setbrg(void)
-{
-	sconsole_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	sconsole_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	sconsole_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return sconsole_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return sconsole_serial_tstc();
-}
-#endif
 int sconsole_get_baudrate (void)
 {
 	sconsole_buffer_t *sb = SCONSOLE_BUFFER;

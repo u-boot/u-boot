@@ -261,7 +261,6 @@ static int mpc8260_scc_serial_tstc(void)
 	return ((rbdf->cbd_sc & BD_SC_EMPTY) == 0);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device mpc8260_scc_serial_drv = {
 	.name	= "mpc8260_scc_uart",
 	.start	= mpc8260_scc_serial_init,
@@ -282,37 +281,6 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &mpc8260_scc_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return mpc8260_scc_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	mpc8260_scc_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	mpc8260_scc_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	mpc8260_scc_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return mpc8260_scc_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return mpc8260_scc_serial_tstc();
-}
-#endif
 #endif	/* CONFIG_CONS_ON_SCC */
 
 #if defined(CONFIG_KGDB_ON_SCC)

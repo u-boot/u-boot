@@ -172,9 +172,7 @@ phys_size_t initdram (int board_type)
 	return msize;
 }
 
-#if defined(CONFIG_SERIAL_MULTI)
 static int set_lcd_brightness(char *);
-#endif
 
 int misc_init_r(void)
 {
@@ -237,9 +235,7 @@ int misc_init_r(void)
 #endif
 
 #ifdef CONFIG_FSL_DIU_FB
-#if defined(CONFIG_SERIAL_MULTI)
 	set_lcd_brightness(0);
-#endif
 	/* Switch LCD-Backlight and LVDS-Interface on */
 	setbits_be32(&im->gpio.gpdir, 0x01040000);
 	clrsetbits_be32(&im->gpio.gpdat, 0x01000000, 0x00040000);
@@ -608,7 +604,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 
-#if defined(CONFIG_SERIAL_MULTI)
 /*
  * If argument is NULL, set the LCD brightness to the
  * value from "brightness" environment variable. Set
@@ -685,4 +680,3 @@ U_BOOT_CMD(lcdbr, 2, 1, cmd_lcd_brightness,
 	"set LCD brightness",
 	"<brightness> - set LCD backlight level to <brightness>.\n"
 );
-#endif /* CONFIG_SERIAL_MULTI */

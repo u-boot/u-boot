@@ -64,7 +64,6 @@ static int sandbox_serial_tstc(void)
 	return 0;
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device sandbox_serial_drv = {
 	.name	= "sandbox_serial",
 	.start	= sandbox_serial_init,
@@ -85,34 +84,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &sandbox_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return sandbox_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	sandbox_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	sandbox_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	sandbox_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return sandbox_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return sandbox_serial_tstc();
-}
-#endif

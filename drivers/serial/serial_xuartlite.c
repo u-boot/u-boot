@@ -96,39 +96,6 @@ static int uartlite_serial_init(const int port)
 	return -1;
 }
 
-#if !defined(CONFIG_SERIAL_MULTI)
-int serial_init(void)
-{
-	return uartlite_serial_init(0);
-}
-
-void serial_setbrg(void)
-{
-	/* FIXME: what's this for? */
-}
-
-void serial_putc(const char c)
-{
-	uartlite_serial_putc(c, 0);
-}
-
-void serial_puts(const char *s)
-{
-	uartlite_serial_puts(s, 0);
-}
-
-int serial_getc(void)
-{
-	return uartlite_serial_getc(0);
-}
-
-int serial_tstc(void)
-{
-	return uartlite_serial_tstc(0);
-}
-#endif
-
-#if defined(CONFIG_SERIAL_MULTI)
 /* Multi serial device functions */
 #define DECLARE_ESERIAL_FUNCTIONS(port) \
 	int userial##port##_init(void) \
@@ -197,4 +164,3 @@ void uartlite_serial_initialize(void)
 	serial_register(&uartlite_serial3_device);
 #endif /* XILINX_UARTLITE_BASEADDR3 */
 }
-#endif /* CONFIG_SERIAL_MULTI */

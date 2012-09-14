@@ -209,7 +209,6 @@ static unsigned int calcRxCharGapRegister( void )
 	return NS9750_SER_RX_CHAR_TIMER_TRUN;
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device ns9750_serial_drv = {
 	.name	= "ns9750_serial",
 	.start	= ns9750_serial_init,
@@ -230,34 +229,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &ns9750_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return ns9750_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	ns9750_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	ns9750_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	ns9750_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return ns9750_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return ns9750_serial_tstc();
-}
-#endif

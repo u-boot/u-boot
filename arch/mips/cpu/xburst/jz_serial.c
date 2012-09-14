@@ -115,7 +115,6 @@ static void jz_serial_puts(const char *s)
 		serial_putc(*s++);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device jz_serial_drv = {
 	.name	= "jz_serial",
 	.start	= jz_serial_init,
@@ -136,34 +135,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &jz_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return jz_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	jz_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	jz_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	jz_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return jz_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return jz_serial_tstc();
-}
-#endif

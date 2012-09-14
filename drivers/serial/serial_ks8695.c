@@ -118,7 +118,6 @@ static int ks8695_serial_getc(void)
 	return (uartp->RX);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device ks8695_serial_drv = {
 	.name	= "ks8695_serial",
 	.start	= ks8695_serial_init,
@@ -139,34 +138,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &ks8695_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return ks8695_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	ks8695_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	ks8695_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	ks8695_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return ks8695_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return ks8695_serial_tstc();
-}
-#endif

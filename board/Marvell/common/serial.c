@@ -146,7 +146,6 @@ static void marvell_serial_puts(const char *s)
 	}
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device marvell_serial_drv = {
 	.name	= "marvell_serial",
 	.start	= marvell_serial_init,
@@ -167,37 +166,6 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &marvell_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return marvell_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	marvell_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	marvell_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	marvell_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return marvell_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return marvell_serial_tstc();
-}
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 void kgdb_serial_init (void)

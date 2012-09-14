@@ -101,7 +101,6 @@ static int altera_serial_getc(void)
 	return (readl (&uart->rxdata) & 0x00ff );
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device altera_serial_drv = {
 	.name	= "altera_serial",
 	.start	= altera_serial_init,
@@ -122,34 +121,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &altera_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return altera_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	altera_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	altera_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	altera_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return altera_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return altera_serial_tstc();
-}
-#endif

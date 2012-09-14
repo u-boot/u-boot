@@ -128,7 +128,6 @@ static void ixp_serial_puts(const char *s)
 	}
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device ixp_serial_drv = {
 	.name	= "ixp_serial",
 	.start	= ixp_serial_init,
@@ -149,34 +148,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &ixp_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return ixp_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	ixp_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	ixp_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	ixp_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return ixp_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return ixp_serial_tstc();
-}
-#endif

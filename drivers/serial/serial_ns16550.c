@@ -29,20 +29,11 @@
 #include <ns87308.h>
 #endif
 
-#if defined (CONFIG_SERIAL_MULTI)
 #include <serial.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_CONS_INDEX)
-#if defined (CONFIG_SERIAL_MULTI)
-/*   with CONFIG_SERIAL_MULTI we might have no console
- *  on these devices
- */
-#else
-#error	"No console index specified."
-#endif /* CONFIG_SERIAL_MULTI */
 #elif (CONFIG_CONS_INDEX < 1) || (CONFIG_CONS_INDEX > 4)
 #error	"Invalid console index value."
 #endif
@@ -85,8 +76,6 @@ static NS16550_t serial_ports[4] = {
 
 #define PORT	serial_ports[port-1]
 
-#if defined(CONFIG_SERIAL_MULTI)
-
 /* Multi serial device functions */
 #define DECLARE_ESERIAL_FUNCTIONS(port) \
     int  eserial##port##_init (void) {\
@@ -116,8 +105,6 @@ static NS16550_t serial_ports[4] = {
 	.putc	= eserial##port##_putc,		\
 	.puts	= eserial##port##_puts,		\
 }
-
-#endif /* CONFIG_SERIAL_MULTI */
 
 static int calc_divisor (NS16550_t port)
 {
@@ -150,36 +137,6 @@ static int calc_divisor (NS16550_t port)
 	return (CONFIG_SYS_NS16550_CLK + (gd->baudrate * (MODE_X_DIV / 2))) /
 		(MODE_X_DIV * gd->baudrate);
 }
-
-#if !defined(CONFIG_SERIAL_MULTI)
-int serial_init (void)
-{
-	int clock_divisor;
-
-#ifdef CONFIG_NS87308
-	initialise_ns87308();
-#endif
-
-#ifdef CONFIG_SYS_NS16550_COM1
-	clock_divisor = calc_divisor(serial_ports[0]);
-	NS16550_init(serial_ports[0], clock_divisor);
-#endif
-#ifdef CONFIG_SYS_NS16550_COM2
-	clock_divisor = calc_divisor(serial_ports[1]);
-	NS16550_init(serial_ports[1], clock_divisor);
-#endif
-#ifdef CONFIG_SYS_NS16550_COM3
-	clock_divisor = calc_divisor(serial_ports[2]);
-	NS16550_init(serial_ports[2], clock_divisor);
-#endif
-#ifdef CONFIG_SYS_NS16550_COM4
-	clock_divisor = calc_divisor(serial_ports[3]);
-	NS16550_init(serial_ports[3], clock_divisor);
-#endif
-
-	return (0);
-}
-#endif
 
 void
 _serial_putc(const char c,const int port)
@@ -226,91 +183,41 @@ _serial_setbrg (const int port)
 	NS16550_reinit(PORT, clock_divisor);
 }
 
-#if defined(CONFIG_SERIAL_MULTI)
 static inline void
 serial_putc_dev(unsigned int dev_index,const char c)
 {
 	_serial_putc(c,dev_index);
 }
-#else
-void
-serial_putc(const char c)
-{
-	_serial_putc(c,CONFIG_CONS_INDEX);
-}
-#endif
 
-#if defined(CONFIG_SERIAL_MULTI)
 static inline void
 serial_putc_raw_dev(unsigned int dev_index,const char c)
 {
 	_serial_putc_raw(c,dev_index);
 }
-#else
-void
-serial_putc_raw(const char c)
-{
-	_serial_putc_raw(c,CONFIG_CONS_INDEX);
-}
-#endif
 
-#if defined(CONFIG_SERIAL_MULTI)
 static inline void
 serial_puts_dev(unsigned int dev_index,const char *s)
 {
 	_serial_puts(s,dev_index);
 }
-#else
-void
-serial_puts(const char *s)
-{
-	_serial_puts(s,CONFIG_CONS_INDEX);
-}
-#endif
 
-#if defined(CONFIG_SERIAL_MULTI)
 static inline int
 serial_getc_dev(unsigned int dev_index)
 {
 	return _serial_getc(dev_index);
 }
-#else
-int
-serial_getc(void)
-{
-	return _serial_getc(CONFIG_CONS_INDEX);
-}
-#endif
 
-#if defined(CONFIG_SERIAL_MULTI)
 static inline int
 serial_tstc_dev(unsigned int dev_index)
 {
 	return _serial_tstc(dev_index);
 }
-#else
-int
-serial_tstc(void)
-{
-	return _serial_tstc(CONFIG_CONS_INDEX);
-}
-#endif
 
-#if defined(CONFIG_SERIAL_MULTI)
 static inline void
 serial_setbrg_dev(unsigned int dev_index)
 {
 	_serial_setbrg(dev_index);
 }
-#else
-void
-serial_setbrg(void)
-{
-	_serial_setbrg(CONFIG_CONS_INDEX);
-}
-#endif
-
-#if defined(CONFIG_SERIAL_MULTI)
 
 DECLARE_ESERIAL_FUNCTIONS(1);
 struct serial_device eserial1_device =
@@ -355,5 +262,3 @@ void ns16550_serial_initialize(void)
 	serial_register(&eserial4_device);
 #endif
 }
-
-#endif /* CONFIG_SERIAL_MULTI */

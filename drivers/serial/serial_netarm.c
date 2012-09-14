@@ -189,7 +189,6 @@ static void netarm_serial_puts(const char *s)
 	}
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device netarm_serial_drv = {
 	.name	= "netarm_serial",
 	.start	= netarm_serial_init,
@@ -210,34 +209,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &netarm_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return netarm_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	netarm_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	netarm_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	netarm_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return netarm_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return netarm_serial_tstc();
-}
-#endif

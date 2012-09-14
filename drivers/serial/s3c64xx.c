@@ -172,7 +172,6 @@ static void s3c64xx_serial_puts(const char *s)
 		serial_putc(*s++);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device s3c64xx_serial_drv = {
 	.name	= "s3c64xx_serial",
 	.start	= s3c64xx_serial_init,
@@ -193,34 +192,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &s3c64xx_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return s3c64xx_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	s3c64xx_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	s3c64xx_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	s3c64xx_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return s3c64xx_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return s3c64xx_serial_tstc();
-}
-#endif

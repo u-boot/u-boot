@@ -262,7 +262,6 @@ static int mpc85xx_serial_tstc(void)
 	return ((rbdf->cbd_sc & BD_SC_EMPTY) == 0);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device mpc85xx_serial_drv = {
 	.name	= "mpc85xx_serial",
 	.start	= mpc85xx_serial_init,
@@ -283,35 +282,4 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &mpc85xx_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return mpc85xx_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	mpc85xx_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	mpc85xx_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	mpc85xx_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return mpc85xx_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return mpc85xx_serial_tstc();
-}
-#endif
 #endif	/* CONFIG_CONS_ON_SCC */

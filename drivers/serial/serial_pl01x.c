@@ -253,7 +253,6 @@ static int pl01x_tstc (int portnum)
 	return !(readl(&regs->fr) & UART_PL01x_FR_RXFE);
 }
 
-#ifdef CONFIG_SERIAL_MULTI
 static struct serial_device pl01x_serial_drv = {
 	.name	= "pl01x_serial",
 	.start	= pl01x_serial_init,
@@ -274,34 +273,3 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &pl01x_serial_drv;
 }
-#else
-int serial_init(void)
-{
-	return pl01x_serial_init();
-}
-
-void serial_setbrg(void)
-{
-	pl01x_serial_setbrg();
-}
-
-void serial_putc(const char c)
-{
-	pl01x_serial_putc(c);
-}
-
-void serial_puts(const char *s)
-{
-	pl01x_serial_puts(s);
-}
-
-int serial_getc(void)
-{
-	return pl01x_serial_getc();
-}
-
-int serial_tstc(void)
-{
-	return pl01x_serial_tstc();
-}
-#endif
