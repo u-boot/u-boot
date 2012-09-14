@@ -82,6 +82,7 @@ serial_initfunc(s3c64xx_serial_initialize);
 serial_initfunc(sandbox_serial_initialize);
 serial_initfunc(clps7111_serial_initialize);
 serial_initfunc(imx_serial_initialize);
+serial_initfunc(ixp_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -142,6 +143,7 @@ void serial_initialize(void)
 	sandbox_serial_initialize();
 	clps7111_serial_initialize();
 	imx_serial_initialize();
+	ixp_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
