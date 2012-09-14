@@ -91,6 +91,7 @@ serial_initfunc(mxc_serial_initialize);
 serial_initfunc(netarm_serial_initialize);
 serial_initfunc(pl01x_serial_initialize);
 serial_initfunc(s3c44b0_serial_initialize);
+serial_initfunc(sa1100_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -160,6 +161,7 @@ void serial_initialize(void)
 	netarm_serial_initialize();
 	pl01x_serial_initialize();
 	s3c44b0_serial_initialize();
+	sa1100_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }

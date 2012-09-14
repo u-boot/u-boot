@@ -30,10 +30,12 @@
 
 #include <common.h>
 #include <SA-1100.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void serial_setbrg (void)
+static void sa1100_serial_setbrg(void)
 {
 	unsigned int reg = 0;
 
@@ -89,7 +91,7 @@ void serial_setbrg (void)
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  *
  */
-int serial_init (void)
+static int sa1100_serial_init(void)
 {
 	serial_setbrg ();
 
@@ -100,7 +102,7 @@ int serial_init (void)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc (const char c)
+static void sa1100_serial_putc(const char c)
 {
 #ifdef CONFIG_SERIAL1
 	/* wait for room in the tx FIFO on SERIAL1 */
@@ -124,7 +126,7 @@ void serial_putc (const char c)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_tstc (void)
+static int sa1100_serial_tstc(void)
 {
 #ifdef CONFIG_SERIAL1
 	return Ser1UTSR1 & UTSR1_RNE;
@@ -138,7 +140,7 @@ int serial_tstc (void)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_getc (void)
+static int sa1100_serial_getc(void)
 {
 #ifdef CONFIG_SERIAL1
 	while (!(Ser1UTSR1 & UTSR1_RNE));
@@ -151,10 +153,62 @@ int serial_getc (void)
 #endif
 }
 
-void
-serial_puts (const char *s)
+static void sa1100_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device sa1100_serial_drv = {
+	.name	= "sa1100_serial",
+	.start	= sa1100_serial_init,
+	.stop	= NULL,
+	.setbrg	= sa1100_serial_setbrg,
+	.putc	= sa1100_serial_putc,
+	.puts	= sa1100_serial_puts,
+	.getc	= sa1100_serial_getc,
+	.tstc	= sa1100_serial_tstc,
+};
+
+void sa1100_serial_initialize(void)
+{
+	serial_register(&sa1100_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &sa1100_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return sa1100_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	sa1100_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	sa1100_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	sa1100_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return sa1100_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return sa1100_serial_tstc();
+}
+#endif
