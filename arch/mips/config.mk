@@ -23,7 +23,21 @@
 
 CROSS_COMPILE ?= mips_4KC-
 
-CONFIG_STANDALONE_LOAD_ADDR ?= 0x80200000 -T mips.lds
+# Handle special prefix in ELDK 4.0 toolchain
+ifneq (,$(findstring 4KCle,$(CROSS_COMPILE)))
+ENDIANNESS := -EL
+endif
+
+ifdef CONFIG_SYS_LITTLE_ENDIAN
+ENDIANNESS := -EL
+endif
+
+ifdef CONFIG_SYS_BIG_ENDIAN
+ENDIANNESS := -EB
+endif
+
+# Default to EB if no endianess is configured
+ENDIANNESS ?= -EB
 
 PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 
@@ -47,8 +61,8 @@ PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 # On the other hand, we want PIC in the U-Boot code to relocate it from ROM
 # to RAM. $28 is always used as gp.
 #
-PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic
+PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic $(ENDIANNESS)
 PLATFORM_CPPFLAGS		+= -msoft-float
-PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib
+PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib $(ENDIANNESS)
 PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
 LDFLAGS_FINAL			+= --gc-sections
