@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libserial.o
 
-COBJS-$(CONFIG_SERIAL_MULTI) += serial.o
+COBJS-y += serial.o
 
 COBJS-$(CONFIG_ALTERA_UART) += altera_uart.o
 COBJS-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o
