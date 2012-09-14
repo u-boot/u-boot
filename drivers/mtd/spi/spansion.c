@@ -103,7 +103,7 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.name = "S25FL129P_64K",
 	},
 	{
-		.idcode1 = 0x2019,
+		.idcode1 = 0x0219,
 		.idcode2 = 0x4d01,
 		.pages_per_sector = 256,
 		.nr_sectors = 512,
