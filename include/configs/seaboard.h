@@ -45,7 +45,6 @@
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Seaboard"
 
 /* Board-specific serial config */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTD
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 

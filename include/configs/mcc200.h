@@ -76,16 +76,11 @@
  */
 #if !defined(CONFIG_PRS200)
 /* MCC200 configuration: */
-#define CONFIG_SERIAL_MULTI	1
 #define CONFIG_PSC_CONSOLE	1	/* PSC1 may be COM */
 #define CONFIG_PSC_CONSOLE2	2	/* PSC2 is PSoC */
 #else
 /* PRS200 configuration: */
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1		*/
-#endif
-#if defined(CONFIG_QUART_CONSOLE) && defined(CONFIG_PSC_CONSOLE) && \
-	!defined(CONFIG_SERIAL_MULTI)
-#error "Select only one console device!"
 #endif
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }

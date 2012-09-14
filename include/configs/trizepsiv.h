@@ -64,7 +64,6 @@
  * select serial console configuration
  */
 #define CONFIG_PXA_SERIAL
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_FFUART	       1       /* we use FFUART on Conxs */
 #define CONFIG_BTUART	       1       /* we use BTUART on Conxs */
 #define CONFIG_STUART	       1       /* we use STUART on Conxs */

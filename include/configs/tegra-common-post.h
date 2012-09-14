@@ -154,11 +154,6 @@
 #undef CONFIG_OF_CONTROL
 #endif
 
-/* remove SERIAL_MULTI */
-#ifdef CONFIG_SERIAL_MULTI
-#undef CONFIG_SERIAL_MULTI
-#endif
-
 /* remove I2C support */
 #ifdef CONFIG_TEGRA_I2C
 #undef CONFIG_TEGRA_I2C

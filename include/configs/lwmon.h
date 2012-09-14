@@ -60,7 +60,6 @@
 #define CONFIG_LCD_INFO		1	/* ... and some board info	*/
 #define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 
-#define CONFIG_SERIAL_MULTI	1
 #define CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/
 #define CONFIG_8xx_CONS_SCC2	1	/* Console is on SCC2		*/
 

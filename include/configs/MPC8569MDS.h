@@ -274,7 +274,6 @@ extern unsigned long get_clock_freq(void);
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_SERIAL_MULTI		1
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE    1

@@ -68,7 +68,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
 
 /* select serial console configuration */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_SERIAL3			/* use SERIAL 3 */
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000

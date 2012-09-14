@@ -113,7 +113,6 @@
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK			/* external serial clock */
 #define CONFIG_SYS_BASE_BAUD		691200
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_SERIAL_MULTI
 
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	\

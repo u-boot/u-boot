@@ -59,7 +59,6 @@
  * select serial console configuration
  */
 #define CONFIG_SERIAL2			1	/* use SERIAL2 */
-#define CONFIG_SERIAL_MULTI		1
 #define CONFIG_BAUDRATE			115200
 
 /* MMC */
