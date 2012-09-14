@@ -401,9 +401,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
-#endif
 
 	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 

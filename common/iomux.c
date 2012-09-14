@@ -135,7 +135,6 @@ int iomux_doenv(const int console, const char *arg)
 		 */
 		if (console_assign(console, start[j]) < 0)
 			continue;
-#ifdef CONFIG_SERIAL_MULTI
 		/*
 		 * This was taken from common/cmd_nvedit.c.
 		 * This will never work because serial_assign() returns
@@ -146,7 +145,6 @@ int iomux_doenv(const int console, const char *arg)
 		 */
 		if (serial_assign(start[j]) < 0)
 			continue;
-#endif
 		cons_set[cs_idx++] = dev;
 	}
 	free(console_args);

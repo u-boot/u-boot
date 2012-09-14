@@ -94,7 +94,7 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 
 #ifdef CONFIG_OF_STDOUT_VIA_ALIAS
 
-#ifdef CONFIG_SERIAL_MULTI
+#ifdef CONFIG_CONS_INDEX
 static void fdt_fill_multisername(char *sername, size_t maxlen)
 {
 	const char *outname = stdio_devices[stdout]->name;
@@ -106,9 +106,7 @@ static void fdt_fill_multisername(char *sername, size_t maxlen)
 	if (strcmp(outname + 1, "serial") > 0)
 		strncpy(sername, outname + 1, maxlen);
 }
-#else
-static inline void fdt_fill_multisername(char *sername, size_t maxlen) {}
-#endif /* CONFIG_SERIAL_MULTI */
+#endif
 
 static int fdt_fixup_stdout(void *fdt, int chosenoff)
 {

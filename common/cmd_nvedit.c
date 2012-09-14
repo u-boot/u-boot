@@ -239,10 +239,8 @@ int env_check_apply(const char *name, const char *oldval,
 		if (console_assign(console, newval) < 0)
 			return 1;
 
-#ifdef CONFIG_SERIAL_MULTI
 		if (serial_assign(newval) < 0)
 			return 1;
-#endif
 #endif /* CONFIG_CONSOLE_MUX */
 	}
 

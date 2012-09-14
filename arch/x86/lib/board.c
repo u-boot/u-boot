@@ -150,9 +150,7 @@ init_fnc_t *init_sequence_r[] = {
 	timer_init,
 	display_banner,
 	display_dram_config,
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize_r,
-#endif
 #ifndef CONFIG_SYS_NO_FLASH
 	flash_init_r,
 #endif

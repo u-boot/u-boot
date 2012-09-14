@@ -492,9 +492,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info(); /* Setup clock information */
 #endif
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
-#endif
 
 	debug("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 

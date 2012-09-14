@@ -324,9 +324,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
 #endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
 
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
-#endif
 
 	debug("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 

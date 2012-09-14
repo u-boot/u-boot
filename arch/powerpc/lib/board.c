@@ -672,9 +672,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	gd->env_addr += dest_addr - CONFIG_SYS_MONITOR_BASE;
 #endif
 
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
-#endif
 
 	debug("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
