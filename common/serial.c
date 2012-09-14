@@ -79,6 +79,7 @@ serial_initfunc(ns9750_serial_initialize);
 serial_initfunc(oc_serial_initialize);
 serial_initfunc(s3c4510b_serial_initialize);
 serial_initfunc(s3c64xx_serial_initialize);
+serial_initfunc(sandbox_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -136,6 +137,7 @@ void serial_initialize(void)
 	oc_serial_initialize();
 	s3c4510b_serial_initialize();
 	s3c64xx_serial_initialize();
+	sandbox_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
