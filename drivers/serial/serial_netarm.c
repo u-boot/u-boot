@@ -59,7 +59,7 @@ extern void _netarm_led_FAIL1(void);
 /*
  * Setup both serial i/f with given baudrate
  */
-void serial_setbrg (void)
+static void netarm_serial_setbrg(void)
 {
 	/* set 0 ... make sure pins are configured for serial */
 #if !defined(CONFIG_NETARM_NS7520)
@@ -108,7 +108,7 @@ void serial_setbrg (void)
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  */
-int serial_init (void)
+static int netarm_serial_init(void)
 {
 	serial_setbrg ();
 	return 0;
@@ -118,7 +118,7 @@ int serial_init (void)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc (const char c)
+static void netarm_serial_putc(const char c)
 {
 	volatile unsigned char *fifo;
 
@@ -135,7 +135,7 @@ void serial_putc (const char c)
  * Test of a single byte from the serial port. Returns 1 on success, 0
  * otherwise.
  */
-int serial_tstc(void)
+static int netarm_serial_tstc(void)
 {
 	return serial_reg_ch1->status_a & NETARM_SER_STATA_RX_RDY;
 }
@@ -144,7 +144,7 @@ int serial_tstc(void)
  * Read a single byte from the serial port. Returns 1 on success, 0
  * otherwise.
  */
-int serial_getc (void)
+static int netarm_serial_getc(void)
 {
 	unsigned int ch_uint;
 	volatile unsigned int *fifo;
@@ -182,9 +182,62 @@ int serial_getc (void)
 	return ch_uint & 0xff;
 }
 
-void serial_puts (const char *s)
+static void netarm_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device netarm_serial_drv = {
+	.name	= "netarm_serial",
+	.start	= netarm_serial_init,
+	.stop	= NULL,
+	.setbrg	= netarm_serial_setbrg,
+	.putc	= netarm_serial_putc,
+	.puts	= netarm_serial_puts,
+	.getc	= netarm_serial_getc,
+	.tstc	= netarm_serial_tstc,
+};
+
+void netarm_serial_initialize(void)
+{
+	serial_register(&netarm_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &netarm_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return netarm_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	netarm_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	netarm_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	netarm_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return netarm_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return netarm_serial_tstc();
+}
+#endif
