@@ -33,7 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 # error "No console configured ... "
 #endif
 
-void serial_setbrg (void)
+static void lh7a40x_serial_setbrg(void)
 {
 	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 	int i;
@@ -61,7 +61,7 @@ void serial_setbrg (void)
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  *
  */
-int serial_init (void)
+static int lh7a40x_serial_init(void)
 {
 	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 
@@ -95,7 +95,7 @@ int serial_init (void)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_getc (void)
+static int lh7a40x_serial_getc(void)
 {
 	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 
@@ -141,7 +141,7 @@ void enable_putc(void)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc (const char c)
+static void lh7a40x_serial_putc(const char c)
 {
 	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 
@@ -168,17 +168,69 @@ void serial_putc (const char c)
 /*
  * Test whether a character is in the RX buffer
  */
-int serial_tstc (void)
+static int lh7a40x_serial_tstc(void)
 {
 	lh7a40x_uart_t* uart = LH7A40X_UART_PTR(UART_CONSOLE);
 
 	return(!(uart->status & UART_RXFE));
 }
 
-void
-serial_puts (const char *s)
+static void lh7a40x_serial_puts(const char *s)
 {
 	while (*s) {
 		serial_putc (*s++);
 	}
 }
+
+#ifdef CONFIG_SERIAL_MULTI
+static struct serial_device lh7a40x_serial_drv = {
+	.name	= "lh7a40x_serial",
+	.start	= lh7a40x_serial_init,
+	.stop	= NULL,
+	.setbrg	= lh7a40x_serial_setbrg,
+	.putc	= lh7a40x_serial_putc,
+	.puts	= lh7a40x_serial_puts,
+	.getc	= lh7a40x_serial_getc,
+	.tstc	= lh7a40x_serial_tstc,
+};
+
+void lh7a40x_serial_initialize(void)
+{
+	serial_register(&lh7a40x_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &lh7a40x_serial_drv;
+}
+#else
+int serial_init(void)
+{
+	return lh7a40x_serial_init();
+}
+
+void serial_setbrg(void)
+{
+	lh7a40x_serial_setbrg();
+}
+
+void serial_putc(const char c)
+{
+	lh7a40x_serial_putc(c);
+}
+
+void serial_puts(const char *s)
+{
+	lh7a40x_serial_puts(s);
+}
+
+int serial_getc(void)
+{
+	return lh7a40x_serial_getc();
+}
+
+int serial_tstc(void)
+{
+	return lh7a40x_serial_tstc();
+}
+#endif
