@@ -85,6 +85,7 @@ serial_initfunc(imx_serial_initialize);
 serial_initfunc(ixp_serial_initialize);
 serial_initfunc(ks8695_serial_initialize);
 serial_initfunc(lh7a40x_serial_initialize);
+serial_initfunc(lpc2292_serial_initialize);
 
 void serial_register(struct serial_device *dev)
 {
@@ -148,6 +149,7 @@ void serial_initialize(void)
 	ixp_serial_initialize();
 	ks8695_serial_initialize();
 	lh7a40x_serial_initialize();
+	lpc2292_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
