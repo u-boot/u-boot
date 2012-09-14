@@ -124,10 +124,6 @@ inline void board_init_r(gd_t *id, ulong dest_addr)
 		;
 }
 
-#ifndef CONFIG_SPL_SERIAL_SUPPORT
-void serial_putc(const char c) {}
-void serial_puts(const char *s) {}
-#endif
 void hang(void) __attribute__ ((noreturn));
 void hang(void)
 {
