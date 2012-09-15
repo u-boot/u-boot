@@ -222,8 +222,14 @@ static struct serial_device *get_current(void)
 		dev = default_serial_console();
 
 		/* We must have a console device */
-		if (!dev)
-			panic("Cannot find console");
+		if (!dev) {
+#ifdef CONFIG_SPL_BUILD
+			puts("Cannot find console\n");
+			hang();
+#else
+			panic("Cannot find console\n");
+#endif
+		}
 	} else
 		dev = serial_current;
 	return dev;
