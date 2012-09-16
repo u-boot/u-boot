@@ -284,7 +284,7 @@ static unsigned long load_elf_image_phdr(unsigned long addr)
 
 	/* Load each program header */
 	for (i = 0; i < ehdr->e_phnum; ++i) {
-		void *dst = (void *) phdr->p_paddr;
+		void *dst = (void *)(uintptr_t) phdr->p_paddr;
 		void *src = (void *) addr + phdr->p_offset;
 		debug("Loading phdr %i to 0x%p (%i bytes)\n",
 			i, dst, phdr->p_filesz);
@@ -339,10 +339,11 @@ static unsigned long load_elf_image_shdr(unsigned long addr)
 		}
 
 		if (shdr->sh_type == SHT_NOBITS) {
-			memset((void *)shdr->sh_addr, 0, shdr->sh_size);
+			memset((void *)(uintptr_t) shdr->sh_addr, 0,
+				shdr->sh_size);
 		} else {
 			image = (unsigned char *) addr + shdr->sh_offset;
-			memcpy((void *) shdr->sh_addr,
+			memcpy((void *)(uintptr_t) shdr->sh_addr,
 				(const void *) image,
 				shdr->sh_size);
 		}
