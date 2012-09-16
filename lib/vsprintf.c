@@ -23,7 +23,6 @@
 #endif
 
 #include <div64.h>
-# define NUM_TYPE long long
 #define noinline __attribute__((noinline))
 
 /* some reluctance to put this into a new limits.h, so it is here */
@@ -259,7 +258,7 @@ static char *put_dec_full(char *buf, unsigned q)
 	return buf;
 }
 /* No inlining helps gcc to use registers better */
-static noinline char *put_dec(char *buf, unsigned NUM_TYPE num)
+static noinline char *put_dec(char *buf, u64 num)
 {
 	while (1) {
 		unsigned rem;
@@ -292,7 +291,7 @@ static noinline char *put_dec(char *buf, unsigned NUM_TYPE num)
 #define ADDCH(str, ch)	(*(str)++ = (ch))
 #endif
 
-static char *number(char *buf, char *end, unsigned NUM_TYPE num,
+static char *number(char *buf, char *end, u64 num,
 		int base, int size, int precision, int type)
 {
 	/* we are called with base 8, 10 or 16, only, thus don't need "G..."  */
@@ -311,9 +310,9 @@ static char *number(char *buf, char *end, unsigned NUM_TYPE num,
 		type &= ~ZEROPAD;
 	sign = 0;
 	if (type & SIGN) {
-		if ((signed NUM_TYPE) num < 0) {
+		if ((s64) num < 0) {
 			sign = '-';
-			num = -(signed NUM_TYPE) num;
+			num = -(s64) num;
 			size--;
 		} else if (type & PLUS) {
 			sign = '+';
@@ -534,7 +533,7 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
 			      va_list args)
 {
-	unsigned NUM_TYPE num;
+	u64 num;
 	int base;
 	char *str;
 
