@@ -97,12 +97,20 @@ serial_initfunc(sh_serial_initialize);
 void serial_register(struct serial_device *dev)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
-	dev->start += gd->reloc_off;
-	dev->setbrg += gd->reloc_off;
-	dev->getc += gd->reloc_off;
-	dev->tstc += gd->reloc_off;
-	dev->putc += gd->reloc_off;
-	dev->puts += gd->reloc_off;
+	if (dev->start)
+		dev->start += gd->reloc_off;
+	if (dev->stop)
+		dev->stop += gd->reloc_off;
+	if (dev->setbrg)
+		dev->setbrg += gd->reloc_off;
+	if (dev->getc)
+		dev->getc += gd->reloc_off;
+	if (dev->tstc)
+		dev->tstc += gd->reloc_off;
+	if (dev->putc)
+		dev->putc += gd->reloc_off;
+	if (dev->puts)
+		dev->puts += gd->reloc_off;
 #endif
 
 	dev->next = serial_devices;
