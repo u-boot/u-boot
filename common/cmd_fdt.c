@@ -114,10 +114,21 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			}
 		}
 
+		return CMD_RET_SUCCESS;
+	}
+
+	if (!working_fdt) {
+		puts(
+			"No FDT memory address configured. Please configure\n"
+			"the FDT address via \"fdt addr <address>\" command.\n"
+			"Aborting!\n");
+		return CMD_RET_FAILURE;
+	}
+
 	/*
 	 * Move the working_fdt
 	 */
-	} else if (strncmp(argv[1], "mo", 2) == 0) {
+	if (strncmp(argv[1], "mo", 2) == 0) {
 		struct fdt_header *newaddr;
 		int  len;
 		int  err;
