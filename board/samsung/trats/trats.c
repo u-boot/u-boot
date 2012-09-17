@@ -75,6 +75,21 @@ int board_init(void)
 	return 0;
 }
 
+void i2c_init_board(void)
+{
+	struct exynos4_gpio_part1 *gpio1 =
+		(struct exynos4_gpio_part1 *)samsung_get_base_gpio_part1();
+	struct exynos4_gpio_part2 *gpio2 =
+		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
+
+	/* I2C_5 -> PMIC */
+	s5p_gpio_direction_output(&gpio1->b, 7, 1);
+	s5p_gpio_direction_output(&gpio1->b, 6, 1);
+	/* I2C_9 -> FG */
+	s5p_gpio_direction_output(&gpio2->y4, 0, 1);
+	s5p_gpio_direction_output(&gpio2->y4, 1, 1);
+}
+
 int dram_init(void)
 {
 	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE) +
