@@ -86,12 +86,6 @@ struct qixis {
 	u8 res15[16];
 };
 
-#define QIXIS_BASE		0xffdf0000
-#define QIXIS_LBMAP_SWITCH	7
-#define QIXIS_LBMAP_MASK	0x0f
-#define QIXIS_LBMAP_SHIFT	0
-#define QIXIS_LBMAP_ALTBANK	0x04
-
 u8 qixis_read(unsigned int reg);
 void qixis_write(unsigned int reg, u8 value);
 

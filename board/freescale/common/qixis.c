@@ -32,22 +32,22 @@ void qixis_write(unsigned int reg, u8 value)
 
 void qixis_reset(void)
 {
-	QIXIS_WRITE(rst_ctl, 0x83);
+	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET);
 }
 
 void qixis_bank_reset(void)
 {
-	QIXIS_WRITE(rcfg_ctl, 0x20);
-	QIXIS_WRITE(rcfg_ctl, 0x21);
+	QIXIS_WRITE(rcfg_ctl, QIXIS_RCFG_CTL_RECONFIG_IDLE);
+	QIXIS_WRITE(rcfg_ctl, QIXIS_RCFG_CTL_RECONFIG_START);
 }
 
-/* Set the boot bank to the power-on default bank0 */
+/* Set the boot bank to the power-on default bank */
 void clear_altbank(void)
 {
 	u8 reg;
 
 	reg = QIXIS_READ(brdcfg[0]);
-	reg = reg & ~QIXIS_LBMAP_MASK;
+	reg = (reg & ~QIXIS_LBMAP_MASK) | QIXIS_LBMAP_DFLTBANK;
 	QIXIS_WRITE(brdcfg[0], reg);
 }
 
@@ -115,7 +115,8 @@ int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		for (i = 0; i < ARRAY_SIZE(period); i++) {
 			if (strcmp(argv[2], period[i]) == 0) {
 				/* disable watchdog */
-				QIXIS_WRITE(rcfg_ctl, rcfg & ~0x08);
+				QIXIS_WRITE(rcfg_ctl,
+					rcfg & ~QIXIS_RCFG_CTL_WATCHDOG_ENBLE);
 				QIXIS_WRITE(watch, ((i<<2) - 1));
 				QIXIS_WRITE(rcfg_ctl, rcfg);
 				return 0;
