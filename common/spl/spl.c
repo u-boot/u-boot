@@ -155,6 +155,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			CONFIG_SYS_SPL_MALLOC_SIZE);
 #endif
 
+	timer_init();
+
 #ifdef CONFIG_SPL_BOARD_INIT
 	spl_board_init();
 #endif
