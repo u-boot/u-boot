@@ -37,7 +37,8 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	long size;
 	unsigned long offset;
-	unsigned long count;
+	unsigned long count = 0;
+	unsigned long pos = 0;
 	char buf [12];
 	block_dev_desc_t *dev_desc=NULL;
 	disk_partition_t info;
@@ -45,7 +46,7 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc < 5) {
 		printf("usage: fatload <interface> [<dev[:part]>] "
-			"<addr> <filename> [bytes]\n");
+			"<addr> <filename> [bytes [pos]]\n");
 		return 1;
 	}
 
@@ -60,11 +61,11 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 	offset = simple_strtoul(argv[3], NULL, 16);
-	if (argc == 6)
+	if (argc >= 6)
 		count = simple_strtoul(argv[5], NULL, 16);
-	else
-		count = 0;
-	size = file_fat_read(argv[4], (unsigned char *)offset, count);
+	if (argc >= 7)
+		pos = simple_strtoul(argv[6], NULL, 16);
+	size = file_fat_read_at(argv[4], pos, (unsigned char *)offset, count);
 
 	if(size==-1) {
 		printf("\n** Unable to read \"%s\" from %s %d:%d **\n",
@@ -82,11 +83,15 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 
 U_BOOT_CMD(
-	fatload,	6,	0,	do_fat_fsload,
+	fatload,	7,	0,	do_fat_fsload,
 	"load binary file from a dos filesystem",
-	"<interface> [<dev[:part]>]  <addr> <filename> [bytes]\n"
-	"    - load binary file 'filename' from 'dev' on 'interface'\n"
-	"      to address 'addr' from dos filesystem"
+	"<interface> [<dev[:part]>]  <addr> <filename> [bytes [pos]]\n"
+	"    - Load binary file 'filename' from 'dev' on 'interface'\n"
+	"      to address 'addr' from dos filesystem.\n"
+	"      'pos' gives the file position to start loading from.\n"
+	"      If 'pos' is omitted, 0 is used. 'pos' requires 'bytes'.\n"
+	"      'bytes' gives the size to load. If 'bytes' is 0 or omitted,\n"
+	"      the load stops on end of file."
 );
 
 int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
