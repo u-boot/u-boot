@@ -71,7 +71,7 @@ void put_ext4(uint64_t off, void *buf, uint32_t size)
 	uint64_t startblock;
 	uint64_t remainder;
 	unsigned char *temp_ptr = NULL;
-	unsigned char sec_buf[SECTOR_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, sec_buf, SECTOR_SIZE);
 	struct ext_filesystem *fs = get_fs();
 
 	startblock = off / (uint64_t)SECTOR_SIZE;

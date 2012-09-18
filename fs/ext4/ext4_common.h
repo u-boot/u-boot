@@ -55,7 +55,12 @@
 #define SUPERBLOCK_SIZE	1024
 #define F_FILE			1
 
-#define zalloc(size) calloc(1, size)
+static inline void *zalloc(size_t size)
+{
+	void *p = memalign(ARCH_DMA_MINALIGN, size);
+	memset(p, 0, size);
+	return p;
+}
 
 extern unsigned long part_offset;
 int ext4fs_read_inode(struct ext2_data *data, int ino,

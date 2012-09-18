@@ -62,7 +62,7 @@ int ext4fs_set_blk_dev(block_dev_desc_t *rbdd, int part)
 
 int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)
 {
-	char sec_buf[SECTOR_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, SECTOR_SIZE);
 	unsigned block_len;
 
 	/* Check partition boundaries */
@@ -107,7 +107,7 @@ int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)
 	block_len = byte_len & ~(SECTOR_SIZE - 1);
 
 	if (block_len == 0) {
-		u8 p[SECTOR_SIZE];
+		ALLOC_CACHE_ALIGN_BUFFER(u8, p, SECTOR_SIZE);
 
 		block_len = SECTOR_SIZE;
 		ext4fs_block_dev_desc->block_read(ext4fs_block_dev_desc->dev,
