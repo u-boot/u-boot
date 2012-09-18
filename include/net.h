@@ -549,7 +549,8 @@ extern void NetReceive(uchar *, int);
 
 #ifdef CONFIG_NETCONSOLE
 void NcStart(void);
-int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len);
+int nc_input_packet(uchar *pkt, IPaddr_t src_ip, unsigned dest_port,
+	unsigned src_port, unsigned len);
 #endif
 
 static inline __attribute__((always_inline)) int eth_is_on_demand_init(void)

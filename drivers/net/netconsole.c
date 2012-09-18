@@ -147,12 +147,16 @@ void NcStart(void)
 	}
 }
 
-int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len)
+int nc_input_packet(uchar *pkt, IPaddr_t src_ip, unsigned dest_port,
+	unsigned src_port, unsigned len)
 {
 	int end, chunk;
 
-	if (dest != nc_in_port || !len)
+	if (dest_port != nc_in_port || !len)
 		return 0; /* not for us */
+
+	if (src_ip != nc_ip && !is_broadcast(nc_ip))
+		return 0; /* not from our client */
 
 	debug_cond(DEBUG_DEV_PKT, "input: \"%*.*s\"\n", len, len, pkt);
 
