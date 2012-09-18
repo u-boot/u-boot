@@ -497,11 +497,13 @@ skip_l2:
 	setup_mp();
 #endif
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC136
+#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC13
 	{
-		void *p;
-		p = (void *)CONFIG_SYS_DCSRBAR + 0x20520;
-		setbits_be32(p, 1 << (31 - 14));
+		if (SVR_MAJ(svr) < 3) {
+			void *p;
+			p = (void *)CONFIG_SYS_DCSRBAR + 0x20520;
+			setbits_be32(p, 1 << (31 - 14));
+		}
 	}
 #endif
 
