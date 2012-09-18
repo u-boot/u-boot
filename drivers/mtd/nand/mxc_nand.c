@@ -1167,7 +1167,9 @@ static struct nand_bbt_descr bbt_mirror_descr = {
 int board_nand_init(struct nand_chip *this)
 {
 	struct mtd_info *mtd;
+#ifdef MXC_NFC_V2_1
 	uint16_t tmp;
+#endif
 
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 	this->options |= NAND_USE_FLASH_BBT;
