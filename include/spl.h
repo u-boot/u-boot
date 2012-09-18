@@ -71,6 +71,9 @@ void spl_ymodem_load_image(void);
 /* SPI SPL functions */
 void spl_spi_load_image(void);
 
+/* Ethernet SPL functions */
+void spl_net_load_image(const char *device);
+
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);
 #endif

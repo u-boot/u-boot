@@ -196,6 +196,15 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		spl_spi_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_ETH_SUPPORT
+	case BOOT_DEVICE_CPGMAC:
+#ifdef CONFIG_SPL_ETH_DEVICE
+		spl_net_load_image(CONFIG_SPL_ETH_DEVICE);
+#else
+		spl_net_load_image(NULL);
+#endif
+		break;
+#endif
 	default:
 		debug("SPL: Un-supported Boot Device\n");
 		hang();

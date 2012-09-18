@@ -535,8 +535,13 @@ static int BootpExtended(u8 *e)
 	*e++ = (576 - 312 + OPT_FIELD_SIZE) & 0xff;
 #endif
 
-#ifdef CONFIG_BOOTP_VCI_STRING
+#if defined(CONFIG_BOOTP_VCI_STRING) || \
+	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING))
+#ifdef CONFIG_SPL_BUILD
+	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
+#else
 	put_vci(e, CONFIG_BOOTP_VCI_STRING);
+#endif
 #endif
 
 #if defined(CONFIG_BOOTP_SUBNETMASK)

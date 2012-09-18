@@ -1,6 +1,9 @@
 /*
+ * (C) Copyright 2000-2004
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
  * (C) Copyright 2012
- * Texas Instruments, <www.ti.com>
+ * Ilya Yanok <ilya.yanok@gmail.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -17,16 +20,33 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc.
  */
-#ifndef	_ASM_ARCH_SPL_H_
-#define	_ASM_SPL_H_
+#include <common.h>
+#include <spl.h>
+#include <net.h>
 
-#define BOOT_DEVICE_NAND	5
-#define BOOT_DEVICE_MMC1	8
-#define BOOT_DEVICE_MMC2	9	/* eMMC or daughter card */
-#define BOOT_DEVICE_UART	65
-#define BOOT_DEVICE_CPGMAC	70
-#define BOOT_DEVICE_MMC2_2      0xFF
-#endif
+DECLARE_GLOBAL_DATA_PTR;
+
+void spl_net_load_image(const char *device)
+{
+	int rv;
+
+	env_init();
+	env_relocate();
+	setenv("autoload", "yes");
+	load_addr = CONFIG_SYS_TEXT_BASE - sizeof(struct image_header);
+	rv = eth_initialize(gd->bd);
+	if (rv == 0) {
+		printf("No Ethernet devices found\n");
+		hang();
+	}
+	if (device)
+		setenv("ethact", device);
+	rv = NetLoop(BOOTP);
+	if (rv < 0) {
+		printf("Problem booting with BOOTP\n");
+		hang();
+	}
+	spl_parse_image_header((struct image_header *)load_addr);
+}
