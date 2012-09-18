@@ -37,6 +37,24 @@
 
 #define CONFIG_MISC_INIT_R
 
+/* new uImage format support */
+#define CONFIG_FIT			1
+#define CONFIG_FIT_VERBOSE		1
+
+#define CONFIG_MMC     1
+
+#ifdef CONFIG_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
+#define CONFIG_SYS_FSL_ERRATUM_ESDHC111
+#define CONFIG_SYS_FSL_ESDHC_USE_PIO
+
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
+
 /*
  * On-board devices
  *
@@ -340,6 +358,19 @@
 #define CONFIG_SYS_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C2_OFFSET	0x3100
 
+/*
+ * SPI on header J8
+ *
+ * WARNING: enabling this will break TSEC2 (connected to the Vitesse switch)
+ * due to a pinmux conflict between GPIO9 (SPI chip select )and the TSEC2 pins.
+ */
+#ifdef CONFIG_MPC8XXX_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_USE_SPIFLASH
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_CMD_SF
+#endif
 
 /*
  * Board info - revision and where boot from
