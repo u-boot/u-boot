@@ -146,7 +146,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 void boot_mode_apply(unsigned cfg_val)
 {
 	unsigned reg;
-	struct src_regs *psrc = (struct src_regs *)SRC_BASE_ADDR;
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	writel(cfg_val, &psrc->gpr9);
 	reg = readl(&psrc->gpr10);
 	if (cfg_val)

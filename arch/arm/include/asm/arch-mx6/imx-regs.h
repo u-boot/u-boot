@@ -593,26 +593,5 @@ struct iomuxc_base_regs {
 	u32     daisy[104];     /* 0x7b0..94c */
 };
 
-struct src_regs {
-	u32	scr;		/* 0x00 */
-	u32	sbmr1;		/* 0x04 */
-	u32	srsr;		/* 0x08 */
-	u32	reserved1;	/* 0x0c */
-	u32	reserved2;	/* 0x10 */
-	u32	sisr;		/* 0x14 */
-	u32	simr;		/* 0x18 */
-	u32	sbmr2;		/* 0x1c */
-	u32	gpr1;		/* 0x20 */
-	u32	gpr2;		/* 0x24 */
-	u32	gpr3;		/* 0x28 */
-	u32	gpr4;		/* 0x2c */
-	u32	gpr5;		/* 0x30 */
-	u32	gpr6;		/* 0x34 */
-	u32	gpr7;		/* 0x38 */
-	u32	gpr8;		/* 0x3c */
-	u32	gpr9;		/* 0x40 */
-	u32	gpr10;		/* 0x44 */
-};
-
 #endif /* __ASSEMBLER__*/
 #endif /* __ASM_ARCH_MX6_IMX_REGS_H__ */
