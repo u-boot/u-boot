@@ -228,6 +228,8 @@ NAND locking command (for chips with active LOCKPRE pin)
   "nand unlock [offset] [size]"
   unlock consecutive area (can be called multiple times for different areas)
 
+  "nand unlock.allexcept [offset] [size]"
+  unlock all except specified consecutive area
 
 I have tested the code with board containing 128MiB NAND large page chips
 and 32MiB small page chips.
