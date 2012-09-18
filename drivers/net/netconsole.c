@@ -69,8 +69,69 @@ static void nc_timeout(void)
 	net_set_state(NETLOOP_SUCCESS);
 }
 
+static int is_broadcast(IPaddr_t ip)
+{
+	static IPaddr_t netmask;
+	static IPaddr_t our_ip;
+	static int env_changed_id;
+	int env_id = get_env_id();
+
+	/* update only when the environment has changed */
+	if (env_changed_id != env_id) {
+		netmask = getenv_IPaddr("netmask");
+		our_ip = getenv_IPaddr("ipaddr");
+
+		env_changed_id = env_id;
+	}
+
+	return (ip == ~0 ||				/* 255.255.255.255 */
+	    ((netmask & our_ip) == (netmask & ip) &&	/* on the same net */
+	    (netmask | ip) == ~0));		/* broadcast to our net */
+}
+
+static int refresh_settings_from_env(void)
+{
+	const char *p;
+	static int env_changed_id;
+	int env_id = get_env_id();
+
+	/* update only when the environment has changed */
+	if (env_changed_id != env_id) {
+		if (getenv("ncip")) {
+			nc_ip = getenv_IPaddr("ncip");
+			if (!nc_ip)
+				return -1;	/* ncip is 0.0.0.0 */
+			p = strchr(getenv("ncip"), ':');
+			if (p != NULL) {
+				nc_out_port = simple_strtoul(p + 1, NULL, 10);
+				nc_in_port = nc_out_port;
+			}
+		} else
+			nc_ip = ~0; /* ncip is not set, so broadcast */
+
+		p = getenv("ncoutport");
+		if (p != NULL)
+			nc_out_port = simple_strtoul(p, NULL, 10);
+		p = getenv("ncinport");
+		if (p != NULL)
+			nc_in_port = simple_strtoul(p, NULL, 10);
+
+		if (is_broadcast(nc_ip))
+			/* broadcast MAC address */
+			memset(nc_ether, 0xff, sizeof(nc_ether));
+		else
+			/* force arp request */
+			memset(nc_ether, 0, sizeof(nc_ether));
+	}
+	return 0;
+}
+
+/**
+ * Called from NetLoop in net/net.c before each packet
+ */
 void NcStart(void)
 {
+	refresh_settings_from_env();
 	if (!output_packet_len || memcmp(nc_ether, NetEtherNullAddr, 6)) {
 		/* going to check for input packet */
 		net_set_udp_handler(nc_handler);
@@ -166,41 +227,14 @@ static void nc_send_packet(const char *buf, int len)
 
 static int nc_start(void)
 {
-	int netmask, our_ip;
-	char *p;
+	int retval;
 
 	nc_out_port = 6666; /* default port */
 	nc_in_port = nc_out_port;
 
-	if (getenv("ncip")) {
-
-		nc_ip = getenv_IPaddr("ncip");
-		if (!nc_ip)
-			return -1;	/* ncip is 0.0.0.0 */
-		p = strchr(getenv("ncip"), ':');
-		if (p != NULL) {
-			nc_out_port = simple_strtoul(p + 1, NULL, 10);
-			nc_in_port = nc_out_port;
-		}
-	} else
-		nc_ip = ~0; /* ncip is not set, so broadcast */
-
-	p = getenv("ncoutport");
-	if (p != NULL)
-		nc_out_port = simple_strtoul(p, NULL, 10);
-	p = getenv("ncinport");
-	if (p != NULL)
-		nc_in_port = simple_strtoul(p, NULL, 10);
-
-	our_ip = getenv_IPaddr("ipaddr");
-	netmask = getenv_IPaddr("netmask");
-
-	if (nc_ip == ~0 ||				/* 255.255.255.255 */
-	    ((netmask & our_ip) == (netmask & nc_ip) &&	/* on the same net */
-	    (netmask | nc_ip) == ~0))		/* broadcast to our net */
-		memset(nc_ether, 0xff, sizeof(nc_ether));
-	else
-		memset(nc_ether, 0, sizeof(nc_ether));	/* force arp request */
+	retval = refresh_settings_from_env();
+	if (retval != 0)
+		return retval;
 
 	/*
 	 * Initialize the static IP settings and buffer pointers
