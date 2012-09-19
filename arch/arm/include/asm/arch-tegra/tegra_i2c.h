@@ -1,5 +1,5 @@
 /*
- * NVIDIA Tegra20 I2C controller
+ * NVIDIA Tegra I2C controller
  *
  * Copyright 2010-2011 NVIDIA Corporation
  *
@@ -161,4 +161,4 @@ struct i2c_ctlr {
  */
 int tegra_i2c_get_dvc_bus_num(void);
 
-#endif
+#endif	/* _TEGRA_I2C_H_ */

@@ -26,12 +26,12 @@
 #include <fdtdec.h>
 #include <i2c.h>
 #include <asm/io.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/tegra_i2c.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/tegra_i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

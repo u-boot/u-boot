@@ -21,10 +21,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _TEGRA20_H_
-#define _TEGRA20_H_
+#ifndef _TEGRA_H_
+#define _TEGRA_H_
 
-#define NV_PA_SDRAM_BASE	0x00000000
 #define NV_PA_ARM_PERIPHBASE	0x50040000
 #define NV_PA_PG_UP_BASE	0x60000000
 #define NV_PA_TMRUS_BASE	0x60005010
@@ -41,11 +40,11 @@
 #define NV_PA_APB_UARTE_BASE	(NV_PA_APB_MISC_BASE + 0x6400)
 #define NV_PA_NAND_BASE		(NV_PA_APB_MISC_BASE + 0x8000)
 #define NV_PA_SPI_BASE		(NV_PA_APB_MISC_BASE + 0xC380)
+#define TEGRA_DVC_BASE		(NV_PA_APB_MISC_BASE + 0xD000)
 #define NV_PA_PMC_BASE		(NV_PA_APB_MISC_BASE + 0xE400)
+#define NV_PA_EMC_BASE		(NV_PA_APB_MISC_BASE + 0xF400)
 #define NV_PA_FUSE_BASE		(NV_PA_APB_MISC_BASE + 0xF800)
 #define NV_PA_CSITE_BASE	0x70040000
-#define TEGRA_USB1_BASE		0xC5000000
-#define TEGRA_USB3_BASE		0xC5008000
 #define TEGRA_USB_ADDR_MASK	0xFFFFC000
 
 #define NV_PA_SDRC_CS0		NV_PA_SDRAM_BASE
@@ -60,11 +59,10 @@ struct timerus {
 };
 
 /* Address at which WB code runs, it must not overlap Bootrom's IRAM usage */
-#define AP20_WB_RUN_ADDRESS	0x40020000
+#define NV_WB_RUN_ADDRESS	0x40020000
 
 #define NVBOOTINFOTABLE_BCTSIZE	0x38	/* BCT size in BIT in IRAM */
 #define NVBOOTINFOTABLE_BCTPTR	0x3C	/* BCT pointer in BIT in IRAM */
-#define BCT_ODMDATA_OFFSET	4068	/* 12 bytes from end of BCT */
 
 /* These are the available SKUs (product types) for Tegra */
 enum {
@@ -89,4 +87,4 @@ enum {
 #define PRM_RSTCTRL		NV_PA_PMC_BASE
 #endif
 
-#endif	/* TEGRA20_H */
+#endif	/* TEGRA_H */

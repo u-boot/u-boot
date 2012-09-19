@@ -20,14 +20,14 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 * MA 02111-1307 USA
 */
-#include <asm/io.h>
-#include <asm/arch/ap20.h>
-#include <asm/arch/fuse.h>
-#include <asm/arch/gp_padctrl.h>
-#include <asm/arch/pmc.h>
-#include <asm/arch/scu.h>
-#include <asm/arch/warmboot.h>
 #include <common.h>
+#include <asm/io.h>
+#include <asm/arch/gp_padctrl.h>
+#include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/fuse.h>
+#include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/scu.h>
+#include <asm/arch-tegra/warmboot.h>
 
 int tegra_get_chip_type(void)
 {

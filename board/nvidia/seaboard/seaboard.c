@@ -23,11 +23,11 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/tegra20.h>
+#include <asm/arch/tegra.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/mmc.h>
+#include <asm/arch-tegra/mmc.h>
 #include <asm/gpio.h>
 #ifdef CONFIG_TEGRA_MMC
 #include <mmc.h>

@@ -21,10 +21,10 @@
 
 /* Tegra20 pin multiplexing functions */
 
-#include <asm/io.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/pinmux.h>
 #include <common.h>
+#include <asm/io.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch/pinmux.h>
 
 
 /*

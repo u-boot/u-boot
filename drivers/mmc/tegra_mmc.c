@@ -20,12 +20,12 @@
  */
 
 #include <common.h>
-#include <mmc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/tegra_mmc.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/tegra_mmc.h>
+#include <mmc.h>
 
 /* support 4 mmc hosts */
 struct mmc mmc_dev[4];

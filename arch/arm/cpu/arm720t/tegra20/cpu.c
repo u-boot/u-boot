@@ -21,14 +21,14 @@
 * MA 02111-1307 USA
 */
 
-#include <asm/io.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/clk_rst.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/pmc.h>
-#include <asm/arch/pinmux.h>
-#include <asm/arch/scu.h>
 #include <common.h>
+#include <asm/io.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/pinmux.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/scu.h>
 #include "../tegra-common/cpu.h"
 
 /* Returns 1 if the current CPU executing is a Cortex-A9, else 0 */

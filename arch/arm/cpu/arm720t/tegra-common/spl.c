@@ -25,8 +25,6 @@
 #include <common.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/clock.h>
 #include <nand.h>
 #include <mmc.h>
 #include <fat.h>
@@ -39,13 +37,13 @@
 #include "cpu.h"
 
 #include <asm/io.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/pmc.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/scu.h>
-#include <common.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/scu.h>
+#include <asm/arch-tegra/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

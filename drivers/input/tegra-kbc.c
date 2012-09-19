@@ -30,7 +30,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
-#include <asm/arch/timer.h>
+#include <asm/arch-tegra/timer.h>
 #include <linux/input.h>
 
 DECLARE_GLOBAL_DATA_PTR;

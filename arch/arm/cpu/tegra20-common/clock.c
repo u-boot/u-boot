@@ -21,12 +21,12 @@
 
 /* Tegra20 Clock control functions */
 
-#include <asm/io.h>
-#include <asm/arch/clk_rst.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/timer.h>
-#include <asm/arch/tegra20.h>
 #include <common.h>
+#include <asm/io.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/timer.h>
 #include <div64.h>
 #include <fdtdec.h>
 

@@ -36,7 +36,7 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
-#include <asm/arch/tegra20.h>		/* get chip and board defs */
+#include <asm/arch/tegra.h>		/* get chip and board defs */
 
 /*
  * Display CPU and Board information

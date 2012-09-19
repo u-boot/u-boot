@@ -40,8 +40,8 @@
  */
 
 #include <common.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/pmc.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/pmc.h>
 
 static int do_enterrcm(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])

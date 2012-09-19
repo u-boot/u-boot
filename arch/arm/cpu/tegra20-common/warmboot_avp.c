@@ -23,14 +23,14 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/ap20.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/flow.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/pmc.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/warmboot.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/warmboot.h>
 #include "warmboot_avp.h"
 
 #define DEBUG_RESET_CORESIGHT
@@ -58,7 +58,7 @@ void wb_start(void)
 					/* no input, no clobber list */
 	);
 
-	if (reg != AP20_WB_RUN_ADDRESS)
+	if (reg != NV_WB_RUN_ADDRESS)
 		goto do_reset;
 
 	/* Are we running with AVP? */

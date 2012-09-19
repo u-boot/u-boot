@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2011 The Chromium OS Authors.
- *
+ * Copyright (c) 2011, Google Inc. All rights reserved.
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -20,34 +19,22 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/emc.h>
-#include <asm/arch/pmu.h>
-#include <asm/arch/tegra.h>
-#include <asm/arch-tegra/ap.h>
-#include <asm/arch-tegra/clk_rst.h>
-#include <asm/arch-tegra/sys_proto.h>
+#ifndef _TEGRA_GPIO_H_
+#define _TEGRA_GPIO_H_
 
-DECLARE_GLOBAL_DATA_PTR;
+#define MAX_NUM_GPIOS           (TEGRA_GPIO_PORTS * TEGRA_GPIO_BANKS * 8)
+#define GPIO_NAME_SIZE		20	/* gpio_request max label len */
 
-/* These rates are hard-coded for now, until fdt provides them */
-#define EMC_SDRAM_RATE_T20	(333000 * 2 * 1000)
-#define EMC_SDRAM_RATE_T25	(380000 * 2 * 1000)
+#define GPIO_BANK(x)		((x) >> 5)
+#define GPIO_PORT(x)		(((x) >> 3) & 0x3)
+#define GPIO_FULLPORT(x)	((x) >> 3)
+#define GPIO_BIT(x)		((x) & 0x7)
 
-int board_emc_init(void)
-{
-	unsigned rate;
+/*
+ * Tegra-specific GPIO API
+ */
 
-	switch (tegra_get_chip_type()) {
-	default:
-	case TEGRA_SOC_T20:
-		rate  = EMC_SDRAM_RATE_T20;
-		break;
-	case TEGRA_SOC_T25:
-		rate  = EMC_SDRAM_RATE_T25;
-		break;
-	}
-	return tegra_set_emc(gd->fdt_blob, rate);
-}
+void gpio_info(void);
+
+#define gpio_status()	gpio_info()
+#endif	/* TEGRA_GPIO_H_ */

@@ -24,10 +24,10 @@
 #include <common.h>
 #include <tps6586x.h>
 #include <asm/io.h>
-#include <asm/arch/ap20.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/tegra_i2c.h>
-#include <asm/arch/sys_proto.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/tegra_i2c.h>
+#include <asm/arch-tegra/sys_proto.h>
 
 #define VDD_CORE_NOMINAL_T25	0x17	/* 1.3v */
 #define VDD_CPU_NOMINAL_T25	0x10	/* 1.125v */

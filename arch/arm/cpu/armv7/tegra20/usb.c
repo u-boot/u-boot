@@ -24,15 +24,15 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/uart.h>
+#include <asm/arch/tegra.h>
 #include <asm/arch/usb.h>
 #include <usb/ulpi.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/sys_proto.h>
+#include <asm/arch-tegra/uart.h>
 #include <libfdt.h>
 #include <fdtdec.h>
 

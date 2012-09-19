@@ -25,10 +25,10 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
-#include <asm/arch/pmc.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/warmboot.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/sys_proto.h>
+#include <asm/arch-tegra/warmboot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2011 The Chromium OS Authors.
+ * (C) Copyright 2010,2011
+ * NVIDIA Corporation <www.nvidia.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,34 +21,16 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/emc.h>
-#include <asm/arch/pmu.h>
-#include <asm/arch/tegra.h>
-#include <asm/arch-tegra/ap.h>
-#include <asm/arch-tegra/clk_rst.h>
-#include <asm/arch-tegra/sys_proto.h>
+#ifndef _TEGRA20_H_
+#define _TEGRA20_H_
 
-DECLARE_GLOBAL_DATA_PTR;
+#define NV_PA_SDRAM_BASE	0x00000000
 
-/* These rates are hard-coded for now, until fdt provides them */
-#define EMC_SDRAM_RATE_T20	(333000 * 2 * 1000)
-#define EMC_SDRAM_RATE_T25	(380000 * 2 * 1000)
+#include <asm/arch-tegra/tegra.h>
 
-int board_emc_init(void)
-{
-	unsigned rate;
+#define TEGRA_USB1_BASE		0xC5000000
+#define TEGRA_USB3_BASE		0xC5008000
 
-	switch (tegra_get_chip_type()) {
-	default:
-	case TEGRA_SOC_T20:
-		rate  = EMC_SDRAM_RATE_T20;
-		break;
-	case TEGRA_SOC_T25:
-		rate  = EMC_SDRAM_RATE_T25;
-		break;
-	}
-	return tegra_set_emc(gd->fdt_blob, rate);
-}
+#define BCT_ODMDATA_OFFSET	4068	/* 12 bytes from end of BCT */
+
+#endif	/* TEGRA20_H */
