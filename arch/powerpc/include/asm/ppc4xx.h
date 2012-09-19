@@ -86,7 +86,7 @@
 /*
  * Configure which SDRAM/DDR/DDR2 controller is equipped
  */
-#if defined(CONFIG_AP1000) || defined(CONFIG_ML2)
+#if defined(CONFIG_AP1000)
 #define CONFIG_SDRAM_PPC4xx_IBM_SDRAM	/* IBM SDRAM controller */
 #endif
 

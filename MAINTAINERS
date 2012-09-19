@@ -454,10 +454,6 @@ Heiko Schocher <hs@denx.de>
 	uc101		MPC5200
 	ve8313		MPC8313
 
-Peter De Schrijver <p2@mind.be>
-
-	ML2		PPC4xx
-
 Andre Schwarz <andre.schwarz@matrix-vision.de>
 
 	mergerbox	MPC8377
