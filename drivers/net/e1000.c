@@ -135,7 +135,6 @@ static void e1000_set_media_type(struct e1000_hw *hw);
 static int32_t e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask);
 static int32_t e1000_check_phy_reset_block(struct e1000_hw *hw);
 
-#ifndef CONFIG_AP1000 /* remove for warnings */
 static int32_t e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
 		uint16_t words,
 		uint16_t *data);
@@ -942,7 +941,6 @@ e1000_set_phy_mode(struct e1000_hw *hw)
 
 	return E1000_SUCCESS;
 }
-#endif /* #ifndef CONFIG_AP1000 */
 
 /***************************************************************************
  *
@@ -1123,7 +1121,6 @@ static boolean_t e1000_is_second_port(struct e1000_hw *hw)
 static int
 e1000_read_mac_addr(struct eth_device *nic)
 {
-#ifndef CONFIG_AP1000
 	struct e1000_hw *hw = nic->priv;
 	uint16_t offset;
 	uint16_t eeprom_data;
@@ -1150,31 +1147,6 @@ e1000_read_mac_addr(struct eth_device *nic)
 		unsigned char fb_mac[NODE_ADDRESS_SIZE] = CONFIG_E1000_FALLBACK_MAC;
 
 		memcpy (nic->enetaddr, fb_mac, NODE_ADDRESS_SIZE);
-	}
-#endif
-#else
-	/*
-	 * The AP1000's e1000 has no eeprom; the MAC address is stored in the
-	 * environment variables.  Currently this does not support the addition
-	 * of a PMC e1000 card, which is certainly a possibility, so this should
-	 * be updated to properly use the env variable only for the onboard e1000
-	 */
-
-	int ii;
-	char *s, *e;
-
-	DEBUGFUNC();
-
-	s = getenv ("ethaddr");
-	if (s == NULL) {
-		return -E1000_ERR_EEPROM;
-	} else {
-		for(ii = 0; ii < 6; ii++) {
-			nic->enetaddr[ii] = s ? simple_strtoul (s, &e, 16) : 0;
-			if (s){
-				s = (*e) ? e + 1 : e;
-			}
-		}
 	}
 #endif
 	return 0;
@@ -1808,7 +1780,6 @@ e1000_setup_link(struct eth_device *nic)
 	if (e1000_check_phy_reset_block(hw))
 		return E1000_SUCCESS;
 
-#ifndef CONFIG_AP1000
 	/* Read and store word 0x0F of the EEPROM. This word contains bits
 	 * that determine the hardware's default PAUSE (flow control) mode,
 	 * a bit that determines whether the HW defaults to enabling or
@@ -1822,11 +1793,6 @@ e1000_setup_link(struct eth_device *nic)
 		DEBUGOUT("EEPROM Read Error\n");
 		return -E1000_ERR_EEPROM;
 	}
-#else
-	/* we have to hardcode the proper value for our hardware. */
-	/* this value is for the 82540EM pci card used for prototyping, and it works. */
-	eeprom_data = 0xb220;
-#endif
 
 	if (hw->fc == e1000_fc_default) {
 		switch (hw->mac_type) {
@@ -1836,16 +1802,12 @@ e1000_setup_link(struct eth_device *nic)
 			hw->fc = e1000_fc_full;
 			break;
 		default:
-#ifndef CONFIG_AP1000
 			ret_val = e1000_read_eeprom(hw,
 				EEPROM_INIT_CONTROL2_REG, 1, &eeprom_data);
 			if (ret_val) {
 				DEBUGOUT("EEPROM Read Error\n");
 				return -E1000_ERR_EEPROM;
 			}
-#else
-			eeprom_data = 0xb220;
-#endif
 			if ((eeprom_data & EEPROM_WORD0F_PAUSE_MASK) == 0)
 				hw->fc = e1000_fc_none;
 			else if ((eeprom_data & EEPROM_WORD0F_PAUSE_MASK) ==
@@ -2109,12 +2071,10 @@ e1000_copper_link_preconfig(struct e1000_hw *hw)
 	}
 	DEBUGOUT("Phy ID = %x \n", hw->phy_id);
 
-#ifndef CONFIG_AP1000
 	/* Set PHY to class A mode (if necessary) */
 	ret_val = e1000_set_phy_mode(hw);
 	if (ret_val)
 		return ret_val;
-#endif
 	if ((hw->mac_type == e1000_82545_rev_3) ||
 		(hw->mac_type == e1000_82546_rev_3)) {
 		ret_val = e1000_read_phy_reg(hw, M88E1000_PHY_SPEC_CTRL,
@@ -5242,7 +5202,7 @@ e1000_initialize(bd_t * bis)
 		list_add_tail(&hw->list_node, &e1000_hw_list);
 
 		/* Validate the EEPROM and get chipset information */
-#if !(defined(CONFIG_AP1000) || defined(CONFIG_MVBC_1G))
+#if !defined(CONFIG_MVBC_1G)
 		if (e1000_init_eeprom_params(hw)) {
 			E1000_ERR(nic, "EEPROM is invalid!\n");
 			continue;

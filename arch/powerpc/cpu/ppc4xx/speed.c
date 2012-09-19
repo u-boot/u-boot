@@ -812,14 +812,6 @@ unsigned long determine_pci_clock_per(void)
 extern void get_sys_info (sys_info_t * sysInfo);
 extern ulong get_PCI_freq (void);
 
-#elif defined(CONFIG_AP1000)
-void get_sys_info (sys_info_t * sysInfo)
-{
-	sysInfo->freqProcessor = 240 * 1000 * 1000;
-	sysInfo->freqPLB = 80 * 1000 * 1000;
-	sysInfo->freqPCI = 33 * 1000 * 1000;
-}
-
 #elif defined(CONFIG_405)
 
 void get_sys_info (sys_info_t * sysInfo)
