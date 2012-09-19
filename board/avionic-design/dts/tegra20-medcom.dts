@@ -4,7 +4,7 @@
 
 / {
 	model = "Avionic Design Medcom-Wide";
-	compatible = "avionic-design,medcom", "nvidia,tegra20";
+	compatible = "ad,medcom", "nvidia,tegra20";
 
 	aliases {
 		usb0 = "/usb@c5008000";
