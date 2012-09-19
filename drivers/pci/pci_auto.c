@@ -89,7 +89,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 			  struct pci_region *prefetch,
 			  struct pci_region *io)
 {
-	pci_addr_t bar_response;
+	u32 bar_response;
 	pci_size_t bar_size;
 	u16 cmdstat = 0;
 	int bar, bar_nr = 0;
