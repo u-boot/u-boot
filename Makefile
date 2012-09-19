@@ -343,6 +343,8 @@ LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
 ifeq ($(SOC),tegra20)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
+LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
+LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o
 endif
 
 LIBS := $(addprefix $(obj),$(sort $(LIBS-y)))

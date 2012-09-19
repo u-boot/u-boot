@@ -29,7 +29,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/scu.h>
 #include <common.h>
-#include "cpu.h"
+#include "../tegra-common/cpu.h"
 
 /* Returns 1 if the current CPU executing is a Cortex-A9, else 0 */
 int ap20_cpu_is_cortexa9(void)

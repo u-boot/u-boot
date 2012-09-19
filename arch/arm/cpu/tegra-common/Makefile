@@ -1,7 +1,7 @@
 #
 # (C) Copyright 2010,2011 Nvidia Corporation.
 #
-# (C) Copyright 2000-2003
+# (C) Copyright 2000-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -14,7 +14,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -25,15 +25,15 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	=  $(obj)lib$(SOC).o
+LIB	= $(obj)libcputegra-common.o
 
-COBJS-$(CONFIG_USB_EHCI_TEGRA) += usb.o
+SOBJS += lowlevel_init.o
+COBJS-y	+= ap.o board.o sys_info.o timer.o
 
-COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 
-all:	 $(obj).depend $(LIB)
+all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
