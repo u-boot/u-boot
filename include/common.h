@@ -659,7 +659,7 @@ static inline ulong get_ddr_freq(ulong dummy)
 }
 #endif
 
-#if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
+#if defined(CONFIG_4xx)
 #  if defined(CONFIG_440)
 #	if defined(CONFIG_440SPE)
 	 unsigned long determine_sysper(void);

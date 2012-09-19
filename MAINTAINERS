@@ -179,7 +179,6 @@ Thomas Frieden <ThomasF@hyperion-entertainment.com>
 
 Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 
-	ADCIOP		IOP480 (PPC401)
 	APC405		PPC405GP
 	AR405		PPC405GP
 	ASH405		PPC405EP
@@ -190,7 +189,6 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	CPCI405AB	PPC405GP
 	CPCI405DT	PPC405GP
 	CPCIISER4	PPC405GP
-	DASA_SIM	IOP480 (PPC401)
 	DP405		PPC405EP
 	DU405		PPC405GP
 	DU440		PPC440EPx

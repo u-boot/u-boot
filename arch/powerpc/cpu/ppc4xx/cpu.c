@@ -79,7 +79,7 @@ static int pci_async_enabled(void)
 #endif
 #endif /* CONFIG_PCI */
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && \
+#if defined(CONFIG_PCI) && \
     !defined(CONFIG_405) && !defined(CONFIG_405EX)
 int pci_arbiter_enabled(void)
 {
@@ -303,7 +303,6 @@ int checkcpu (void)
 	u32 reg;
 #endif
 
-#if !defined(CONFIG_IOP480)
 	char addstr[64] = "";
 	sys_info_t sys_info;
 	int cpu_num;
@@ -671,14 +670,6 @@ int checkcpu (void)
 	printf ("       16 kB I-Cache %d kB D-Cache",
 		((pvr | 0x00000001) == PVR_405GPR_RB) ? 16 : 8);
 #endif
-#endif /* !defined(CONFIG_IOP480) */
-
-#if defined(CONFIG_IOP480)
-	printf ("PLX IOP480 (PVR=%08x)", pvr);
-	printf (" at %s MHz:", strmhz(buf, clock));
-	printf (" %u kB I-Cache", 4);
-	printf (" %u kB D-Cache", 2);
-#endif
 
 #endif /* !defined(CONFIG_405) */
 
@@ -723,15 +714,10 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 unsigned long get_tbclk (void)
 {
-#if !defined(CONFIG_IOP480)
 	sys_info_t  sys_info;
 
 	get_sys_info(&sys_info);
 	return (sys_info.freqProcessor);
-#else
-	return (66000000);
-#endif
-
 }
 
 
