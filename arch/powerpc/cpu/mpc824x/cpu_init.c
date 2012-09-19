@@ -63,7 +63,7 @@ void
 cpu_init_f (void)
 {
 /* MOUSSE board is initialized in asm */
-#if !defined(CONFIG_MOUSSE) && !defined(CONFIG_BMW)
+#if !defined(CONFIG_MOUSSE)
     register unsigned long val;
     CONFIG_WRITE_HALFWORD(PCICR, 0x06); /* Bus Master, respond to PCI memory space acesses*/
 /*    CONFIG_WRITE_HALFWORD(PCISR, 0xffff); */ /*reset PCISR*/
@@ -321,7 +321,7 @@ cpu_init_f (void)
 	CONFIG_WRITE_WORD(MCCR1, val | MCCR1_MEMGO); /* set memory access going */
 	__asm__ __volatile__("eieio");
 
-#endif /* !CONFIG_MOUSSE && !CONFIG_BMW */
+#endif /* !CONFIG_MOUSSE */
 }
 
 
