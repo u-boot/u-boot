@@ -830,7 +830,7 @@ Sricharan R <r.sricharan@ti.com>
 Thierry Reding <thierry.reding@avionic-design.de>
 
 	plutux		Tegra20 (ARM7 & A9 Dual Core)
-	medcom		Tegra20 (ARM7 & A9 Dual Core)
+	medcom-wide	Tegra20 (ARM7 & A9 Dual Core)
 	tec		Tegra20 (ARM7 & A9 Dual Core)
 
 Christian Riesch <christian.riesch@omicron.at>
