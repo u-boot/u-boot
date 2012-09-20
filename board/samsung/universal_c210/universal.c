@@ -27,6 +27,7 @@
 #include <asm/arch/adc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/pinmux.h>
 #include <pmic.h>
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
@@ -177,7 +178,7 @@ int checkboard(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	int i, err;
+	int err;
 
 	switch (get_hwrev()) {
 	case 0:
@@ -200,75 +201,30 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	/*
-	 * eMMC GPIO:
-	 * SDR 8-bit@48MHz at MMC0
-	 * GPK0[0]	SD_0_CLK(2)
-	 * GPK0[1]	SD_0_CMD(2)
-	 * GPK0[2]	SD_0_CDn	-> Not used
-	 * GPK0[3:6]	SD_0_DATA[0:3](2)
-	 * GPK1[3:6]	SD_0_DATA[0:3](3)
-	 *
-	 * DDR 4-bit@26MHz at MMC4
-	 * GPK0[0]	SD_4_CLK(3)
-	 * GPK0[1]	SD_4_CMD(3)
-	 * GPK0[2]	SD_4_CDn	-> Not used
-	 * GPK0[3:6]	SD_4_DATA[0:3](3)
-	 * GPK1[3:6]	SD_4_DATA[4:7](4)
+	 * MMC device init
+	 * mmc0	 : eMMC (8-bit buswidth)
+	 * mmc2	 : SD card (4-bit buswidth)
 	 */
-	for (i = 0; i < 7; i++) {
-		if (i == 2)
-			continue;
-		/* GPK0[0:6] special function 2 */
-		s5p_gpio_cfg_pin(&gpio2->k0, i, 0x2);
-		/* GPK0[0:6] pull disable */
-		s5p_gpio_set_pull(&gpio2->k0, i, GPIO_PULL_NONE);
-		/* GPK0[0:6] drv 4x */
-		s5p_gpio_set_drv(&gpio2->k0, i, GPIO_DRV_4X);
-	}
-
-	for (i = 3; i < 7; i++) {
-		/* GPK1[3:6] special function 3 */
-		s5p_gpio_cfg_pin(&gpio2->k1, i, 0x3);
-		/* GPK1[3:6] pull disable */
-		s5p_gpio_set_pull(&gpio2->k1, i, GPIO_PULL_NONE);
-		/* GPK1[3:6] drv 4x */
-		s5p_gpio_set_drv(&gpio2->k1, i, GPIO_DRV_4X);
-	}
+	err = exynos_pinmux_config(PERIPH_ID_SDMMC0, PINMUX_FLAG_8BIT_MODE);
+	if (err)
+		debug("SDMMC0 not configured\n");
+	else
+		err = s5p_mmc_init(0, 8);
 
 	/* T-flash detect */
 	s5p_gpio_cfg_pin(&gpio2->x3, 4, 0xf);
 	s5p_gpio_set_pull(&gpio2->x3, 4, GPIO_PULL_UP);
 
 	/*
-	 * MMC device init
-	 * mmc0	 : eMMC (8-bit buswidth)
-	 * mmc2	 : SD card (4-bit buswidth)
-	 */
-	err = s5p_mmc_init(0, 8);
-
-	/*
 	 * Check the T-flash  detect pin
 	 * GPX3[4] T-flash detect pin
 	 */
 	if (!s5p_gpio_get_value(&gpio2->x3, 4)) {
-		/*
-		 * SD card GPIO:
-		 * GPK2[0]	SD_2_CLK(2)
-		 * GPK2[1]	SD_2_CMD(2)
-		 * GPK2[2]	SD_2_CDn	-> Not used
-		 * GPK2[3:6]	SD_2_DATA[0:3](2)
-		 */
-		for (i = 0; i < 7; i++) {
-			if (i == 2)
-				continue;
-			/* GPK2[0:6] special function 2 */
-			s5p_gpio_cfg_pin(&gpio2->k2, i, 0x2);
-			/* GPK2[0:6] pull disable */
-			s5p_gpio_set_pull(&gpio2->k2, i, GPIO_PULL_NONE);
-			/* GPK2[0:6] drv 4x */
-			s5p_gpio_set_drv(&gpio2->k2, i, GPIO_DRV_4X);
-		}
-		err = s5p_mmc_init(2, 4);
+		err = exynos_pinmux_config(PERIPH_ID_SDMMC2, PINMUX_FLAG_NONE);
+		if (err)
+			debug("SDMMC2 not configured\n");
+		else
+			err = s5p_mmc_init(2, 4);
 	}
 
 	return err;
