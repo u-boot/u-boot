@@ -32,6 +32,8 @@
 #include <i2c.h>
 #include <pmic.h>
 #include <fsl_pmic.h>
+#include <mmc.h>
+#include <fsl_esdhc.h>
 #include <mc9sdz60.h>
 #include <mc13892.h>
 #include <linux/types.h>
@@ -275,3 +277,26 @@ int board_eth_init(bd_t *bis)
 
 	return rc;
 }
+
+#if defined(CONFIG_FSL_ESDHC)
+
+struct fsl_esdhc_cfg esdhc_cfg = {MMC_SDHC1_BASE_ADDR};
+
+int board_mmc_init(bd_t *bis)
+{
+	/* configure pins for SDHC1 only */
+	mxc_request_iomux(MX35_PIN_SD1_CMD, MUX_CONFIG_FUNC);
+	mxc_request_iomux(MX35_PIN_SD1_CLK, MUX_CONFIG_FUNC);
+	mxc_request_iomux(MX35_PIN_SD1_DATA0, MUX_CONFIG_FUNC);
+	mxc_request_iomux(MX35_PIN_SD1_DATA1, MUX_CONFIG_FUNC);
+	mxc_request_iomux(MX35_PIN_SD1_DATA2, MUX_CONFIG_FUNC);
+	mxc_request_iomux(MX35_PIN_SD1_DATA3, MUX_CONFIG_FUNC);
+
+	return fsl_esdhc_initialize(bis, &esdhc_cfg);
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	return !(mc9sdz60_reg_read(MC9SDZ60_REG_DES_FLAG) & 0x4);
+}
+#endif

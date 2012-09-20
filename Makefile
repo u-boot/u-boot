@@ -306,11 +306,8 @@ ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
-ifeq ($(SOC),mx5)
-LIBS-y += $(CPUDIR)/imx-common/libimx-common.o
-endif
-ifeq ($(SOC),mx6)
-LIBS-y += $(CPUDIR)/imx-common/libimx-common.o
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
+LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
 ifeq ($(SOC),s5pc1xx)
@@ -776,6 +773,7 @@ clean:
 	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
 	       $(obj)tools/mk{env,}image   $(obj)tools/mpc86x_clk	  \
 	       $(obj)tools/mk{smdk5250,}spl				  \
+	       $(obj)tools/mxsboot					  \
 	       $(obj)tools/ncb		   $(obj)tools/ubsha1
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \

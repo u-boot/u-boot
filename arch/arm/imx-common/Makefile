@@ -27,8 +27,10 @@ include $(TOPDIR)/config.mk
 
 LIB     = $(obj)libimx-common.o
 
+ifeq ($(SOC),$(filter $(SOC),mx5 mx6))
 COBJS-y	= iomux-v3.o timer.o cpu.o speed.o
-COBJS-$(CONFIG_I2C_MXC) += i2c.o
+COBJS-$(CONFIG_I2C_MXC) += i2c-mxv7.o
+endif
 COBJS-$(CONFIG_CMD_BMODE) += cmd_bmode.o
 COBJS	:= $(sort $(COBJS-y))
 

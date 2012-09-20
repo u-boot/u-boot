@@ -31,8 +31,6 @@
 /* High Level Configuration Options */
 #define CONFIG_ARM1136
 #define CONFIG_MX31
-#define CONFIG_MX31_HCLK_FREQ	26000000
-#define CONFIG_MX31_CLK32	32768
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO

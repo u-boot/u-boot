@@ -214,3 +214,15 @@ void board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
 	if (port)
 		mdelay(10);
 }
+
+/*
+ * Ethernet on the Smarttop is on the USB bus. Rather than give an error about
+ * "CPU Net Initialization Failed", just pass this test since no other settings
+ * are required. Smartbook doesn't have built-in Ethernet but we will let it
+ * pass anyway considering someone may have plugged in a USB stick and all
+ * they need to do is run "usb start".
+ */
+int board_eth_init(bd_t *bis)
+{
+	return 0;
+}

@@ -28,8 +28,6 @@
 #define CONFIG_ARM1136			/* This is an arm1136 CPU core */
 #define CONFIG_MX31			/* in a mx31 */
 #define CONFIG_QONG
-#define CONFIG_MX31_HCLK_FREQ	26000000	/* 26MHz */
-#define CONFIG_MX31_CLK32	32768
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
