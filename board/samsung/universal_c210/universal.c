@@ -32,6 +32,7 @@
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
 #include <max8998_pmic.h>
+#include <asm/arch/watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -276,3 +277,10 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_flags = PHY0_SLEEP,
 };
 #endif
+
+int board_early_init_f(void)
+{
+	wdt_stop();
+
+	return 0;
+}
