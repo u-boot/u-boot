@@ -143,7 +143,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
 	"fdt_load=0x01000000\0" \
-	"fdt_high=01100000\0" \
 	BOOTCMDS_COMMON
 
 /* overrides for SPL build here */
