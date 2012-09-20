@@ -39,7 +39,7 @@ AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
 SOBJS	= start.o resetvec.o
-COBJS	= cache.o cpu_init_early.o cpu_init_nand.o fsl_law.o law.o \
+COBJS	= cache.o cpu_init_early.o spl_minimal.o fsl_law.o law.o \
 	  nand_boot.o nand_boot_fsl_elbc.o ns16550.o tlb.o tlb_table.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
@@ -79,9 +79,9 @@ $(obj)cpu_init_early.c:
 	@rm -f $(obj)cpu_init_early.c
 	ln -sf $(SRCTREE)/$(CPUDIR)/cpu_init_early.c $(obj)cpu_init_early.c
 
-$(obj)cpu_init_nand.c:
-	@rm -f $(obj)cpu_init_nand.c
-	ln -sf $(SRCTREE)/$(CPUDIR)/cpu_init_nand.c $(obj)cpu_init_nand.c
+$(obj)spl_minimal.c:
+	@rm -f $(obj)spl_minimal.c
+	ln -sf $(SRCTREE)/$(CPUDIR)/spl_minimal.c $(obj)spl_minimal.c
 
 $(obj)fsl_law.c:
 	@rm -f $(obj)fsl_law.c
