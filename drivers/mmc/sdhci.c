@@ -82,6 +82,13 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 				unsigned int start_addr)
 {
 	unsigned int stat, rdy, mask, timeout, block = 0;
+#ifdef CONFIG_MMC_SDMA
+	unsigned char ctrl;
+	ctrl = sdhci_readl(host, SDHCI_HOST_CONTROL);
+	ctrl &= ~SDHCI_CTRL_DMA_MASK;
+	ctrl |= SDHCI_CTRL_SDMA;
+	sdhci_writel(host, ctrl, SDHCI_HOST_CONTROL);
+#endif
 
 	timeout = 1000000;
 	rdy = SDHCI_INT_SPACE_AVAIL | SDHCI_INT_DATA_AVAIL;
