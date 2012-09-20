@@ -44,6 +44,15 @@
 #undef	MSR_KERNEL
 #define MSR_KERNEL ( MSR_ME )	/* Machine Check */
 
+#if defined(CONFIG_NAND_SPL) || \
+	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_INIT_MINIMAL))
+#define MINIMAL_SPL
+#endif
+
+#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
+#define NOR_BOOT
+#endif
+
 /*
  * Set up GOT: Global Offset Table
  *
@@ -53,7 +62,7 @@
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(_FIXUP_TABLE_)
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	GOT_ENTRY(_start)
 	GOT_ENTRY(_start_of_vectors)
 	GOT_ENTRY(_end_of_vectors)
@@ -282,11 +291,8 @@ l2_disabled:
 	isync
 	.endm
 
-/*
- * Ne need to setup interrupt vector for NAND SPL
- * because NAND SPL never compiles it.
- */
-#if !defined(CONFIG_NAND_SPL)
+/* Interrupt vectors do not fit in minimal SPL. */
+#if !defined(MINIMAL_SPL)
 	/* Setup interrupt vectors */
 	lis	r1,CONFIG_SYS_MONITOR_BASE@h
 	mtspr	IVPR,r1
@@ -518,7 +524,7 @@ nexti:	mflr	r1		/* R1 = our PC */
  * in AS1.
  */
 
-#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
+#ifdef NOR_BOOT
 /*
  * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
  * bacause flash's virtual address maps to 0xff800000 - 0xffffffff.
@@ -1032,7 +1038,7 @@ create_init_ram_area:
 	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h
 	ori     r6,r6,FSL_BOOKE_MAS0(1, 15, 0)@l
 
-#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
+#ifdef NOR_BOOT
 	/* create a temp mapping in AS=1 to the 4M boot window */
 	create_tlb1_entry 15, \
 		1, BOOKE_PAGESZ_4M, \
@@ -1107,7 +1113,8 @@ switch_as:
 	bdnz	1b
 
 	/* Jump out the last 4K page and continue to 'normal' start */
-#ifdef CONFIG_SYS_RAMBOOT
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)
+	/* We assume that we're already running at the address we're linked at */
 	b	_start_cont
 #else
 	/* Calculate absolute address in FLASH and jump there		*/
@@ -1153,7 +1160,7 @@ _start_cont:
 
 	/* NOTREACHED - board_init_f() does not return */
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	. = EXC_OFF_SYS_RESET
 	.globl	_start_of_vectors
 _start_of_vectors:
@@ -1597,7 +1604,7 @@ in32:
 in32r:
 	lwbrx	r3,r0,r3
 	blr
-#endif  /* !CONFIG_NAND_SPL */
+#endif  /* !MINIMAL_SPL */
 
 /*------------------------------------------------------------------------------*/
 
@@ -1794,7 +1801,7 @@ clear_bss:
 	mr	r4,r10		/* Destination Address		*/
 	bl	board_init_r
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	/*
 	 * Copy exception vector code to low memory
 	 *
@@ -1967,4 +1974,4 @@ setup_ivors:
 
 #include "fixed_ivor.S"
 	blr
-#endif /* !CONFIG_NAND_SPL */
+#endif /* !MINIMAL_SPL */

@@ -28,7 +28,22 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).o
 
-START	= start.o resetvec.o
+MINIMAL=
+
+ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_INIT_MINIMAL
+MINIMAL=y
+endif
+endif
+
+START = start.o resetvec.o
+
+ifdef MINIMAL
+
+COBJS-y	+= cpu_init_early.o tlb.o spl_minimal.o
+
+else
+
 SOBJS-$(CONFIG_MP)	+= release.o
 SOBJS	= $(SOBJS-y)
 
@@ -131,6 +146,8 @@ COBJS-y	+= traps.o
 
 # Stub implementations of cache management functions for USB
 COBJS-y += cache.o
+
+endif # not minimal
 
 COBJS	= $(COBJS-y)
 

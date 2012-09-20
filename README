@@ -2677,6 +2677,9 @@ FIT uImage format:
 		For ARM, enable an optional function to print more information
 		about the running system.
 
+		CONFIG_SPL_INIT_MINIMAL
+		Arch init code should be built for a very small image
+
 		CONFIG_SPL_LIBCOMMON_SUPPORT
 		Support for common/libcommon.o in SPL binary
 

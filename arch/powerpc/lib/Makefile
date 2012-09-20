@@ -38,8 +38,21 @@ endif
 
 LIB	= $(obj)lib$(ARCH).o
 
-SOBJS-y	+= ppccache.o
+MINIMAL=
+
+ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_INIT_MINIMAL
+MINIMAL=y
+endif
+endif
+
+ifdef MINIMAL
+COBJS-y += cache.o
+else
+
 SOBJS-y	+= ppcstring.o
+
+SOBJS-y	+= ppccache.o
 SOBJS-y	+= ticks.o
 SOBJS-y	+= reloc.o
 
@@ -63,6 +76,8 @@ ifdef CONFIG_MPC5200
 $(obj)ppcstring.o: AFLAGS += -Dmemcpy=__memcpy
 COBJS-y += memcpy_mpc5200.o
 endif
+
+endif # not minimal
 
 COBJS	+= $(sort $(COBJS-y))
 
