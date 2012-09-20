@@ -240,6 +240,9 @@ int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (!ret && data)
 		ret = sdhci_transfer_data(host, data, start_addr);
 
+	if (host->quirks & SDHCI_QUIRK_WAIT_SEND_CMD)
+		udelay(1000);
+
 	stat = sdhci_readl(host, SDHCI_INT_STATUS);
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 	if (!ret) {
