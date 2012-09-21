@@ -75,12 +75,6 @@ TARGETS += $(LIB)
 all: $(TARGETS)
 
 $(LIB):	$(obj).depend $(OBJS)
-	@if ! $(CROSS_COMPILE)readelf -S $(OBJS) | grep -q '\.fixup.*PROGBITS';\
-	then \
-		echo "ERROR: Your compiler doesn't generate .fixup sections!";\
-		echo "       Upgrade to a recent toolchain."; \
-		exit 1; \
-	fi;
 	$(call cmd_link_o_target, $(OBJS))
 
 $(LIBGCC): $(obj).depend $(LGOBJS)
