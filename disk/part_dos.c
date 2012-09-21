@@ -169,7 +169,8 @@ static void print_partition_extended (block_dev_desc_t *dev_desc, int ext_part_s
  */
 static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part_sector,
 				 int relative, int part_num,
-				 int which_part, disk_partition_t *info)
+				 int which_part, disk_partition_t *info,
+				 unsigned int disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
@@ -187,6 +188,11 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 			buffer[DOS_PART_MAGIC_OFFSET + 1]);
 		return -1;
 	}
+
+#ifdef CONFIG_PARTITION_UUIDS
+	if (!ext_part_sector)
+		disksig = le32_to_int(&buffer[DOS_PART_DISKSIG_OFFSET]);
+#endif
 
 	/* Print all primary/logical partitions */
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
@@ -229,6 +235,9 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 			/* sprintf(info->type, "%d, pt->sys_ind); */
 			sprintf ((char *)info->type, "U-Boot");
 			info->bootable = is_bootable(pt);
+#ifdef CONFIG_PARTITION_UUIDS
+			sprintf(info->uuid, "%08x-%02x", disksig, part_num);
+#endif
 			return 0;
 		}
 
@@ -247,7 +256,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 
 			return get_partition_info_extended (dev_desc, lba_start,
 				 ext_part_sector == 0 ? lba_start : relative,
-				 part_num, which_part, info);
+				 part_num, which_part, info, disksig);
 		}
 	}
 	return -1;
@@ -261,7 +270,7 @@ void print_part_dos (block_dev_desc_t *dev_desc)
 
 int get_partition_info_dos (block_dev_desc_t *dev_desc, int part, disk_partition_t * info)
 {
-	return get_partition_info_extended (dev_desc, 0, 0, 1, part, info);
+	return get_partition_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }
 
 
