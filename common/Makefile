@@ -34,6 +34,7 @@ COBJS-$(CONFIG_SYS_HUSH_PARSER) += hush.o
 COBJS-y += s_record.o
 COBJS-$(CONFIG_SERIAL_MULTI) += serial.o
 COBJS-y += xyzModem.o
+COBJS-y += cmd_disk.o
 
 # core command
 COBJS-y += cmd_boot.o
