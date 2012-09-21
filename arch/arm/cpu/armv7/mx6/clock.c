@@ -43,9 +43,9 @@ void enable_usboh3_clk(unsigned char enable)
 
 	reg = __raw_readl(&imx_ccm->CCGR6);
 	if (enable)
-		reg |= MXC_CCM_CCGR_CG_MASK << MXC_CCM_CCGR0_CG0_OFFSET;
+		reg |= MXC_CCM_CCGR6_USBOH3_MASK;
 	else
-		reg &= ~(MXC_CCM_CCGR_CG_MASK << MXC_CCM_CCGR0_CG0_OFFSET);
+		reg &= ~(MXC_CCM_CCGR6_USBOH3_MASK);
 	__raw_writel(reg, &imx_ccm->CCGR6);
 
 }
@@ -59,7 +59,9 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 
 	if (i2c_num > 2)
 		return -EINVAL;
-	mask = MXC_CCM_CCGR_CG_MASK << ((i2c_num + 3) << 1);
+
+	mask = MXC_CCM_CCGR_CG_MASK
+		<< (MXC_CCM_CCGR2_I2C1_SERIAL_OFFSET + (i2c_num << 1));
 	reg = __raw_readl(&imx_ccm->CCGR2);
 	if (enable)
 		reg |= mask;
@@ -321,7 +323,7 @@ int enable_sata_clock(void)
 
 	/* Enable sata clock */
 	reg = readl(&imx_ccm->CCGR5); /* CCGR5 */
-	reg |= MXC_CCM_CCGR5_CG2_MASK;
+	reg |= MXC_CCM_CCGR5_SATA_MASK;
 	writel(reg, &imx_ccm->CCGR5);
 
 	/* Enable PLLs */
