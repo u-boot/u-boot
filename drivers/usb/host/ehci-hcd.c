@@ -22,6 +22,7 @@
  */
 #include <common.h>
 #include <asm/byteorder.h>
+#include <asm/unaligned.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <malloc.h>
@@ -866,10 +867,12 @@ int usb_lowlevel_init(void)
 	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
 	/* Port Indicators */
 	if (HCS_INDICATOR(reg))
-		descriptor.hub.wHubCharacteristics |= 0x80;
+		put_unaligned(get_unaligned(&descriptor.hub.wHubCharacteristics)
+				| 0x80, &descriptor.hub.wHubCharacteristics);
 	/* Port Power Control */
 	if (HCS_PPC(reg))
-		descriptor.hub.wHubCharacteristics |= 0x01;
+		put_unaligned(get_unaligned(&descriptor.hub.wHubCharacteristics)
+				| 0x01, &descriptor.hub.wHubCharacteristics);
 
 	/* Start the host controller. */
 	cmd = ehci_readl(&hcor->or_usbcmd);
