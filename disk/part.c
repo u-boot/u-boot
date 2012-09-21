@@ -291,61 +291,6 @@ void init_part (block_dev_desc_t * dev_desc)
 }
 
 
-int get_partition_info (block_dev_desc_t *dev_desc, int part
-					, disk_partition_t *info)
-{
-	switch (dev_desc->part_type) {
-#ifdef CONFIG_MAC_PARTITION
-	case PART_TYPE_MAC:
-		if (get_partition_info_mac(dev_desc,part,info) == 0) {
-			PRINTF ("## Valid MAC partition found ##\n");
-			return (0);
-		}
-		break;
-#endif
-
-#ifdef CONFIG_DOS_PARTITION
-	case PART_TYPE_DOS:
-		if (get_partition_info_dos(dev_desc,part,info) == 0) {
-			PRINTF ("## Valid DOS partition found ##\n");
-			return (0);
-		}
-		break;
-#endif
-
-#ifdef CONFIG_ISO_PARTITION
-	case PART_TYPE_ISO:
-		if (get_partition_info_iso(dev_desc,part,info) == 0) {
-			PRINTF ("## Valid ISO boot partition found ##\n");
-			return (0);
-		}
-		break;
-#endif
-
-#ifdef CONFIG_AMIGA_PARTITION
-	case PART_TYPE_AMIGA:
-	    if (get_partition_info_amiga(dev_desc, part, info) == 0)
-	    {
-		PRINTF ("## Valid Amiga partition found ##\n");
-		return (0);
-	    }
-	    break;
-#endif
-
-#ifdef CONFIG_EFI_PARTITION
-	case PART_TYPE_EFI:
-		if (get_partition_info_efi(dev_desc,part,info) == 0) {
-			PRINTF ("## Valid EFI partition found ##\n");
-			return (0);
-		}
-		break;
-#endif
-	default:
-		break;
-	}
-	return (-1);
-}
-
 static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 {
 	puts ("\nPartition Map for ");
@@ -433,3 +378,66 @@ void print_part (block_dev_desc_t * dev_desc)
 #endif
 
 #endif
+
+int get_partition_info(block_dev_desc_t *dev_desc, int part
+					, disk_partition_t *info)
+{
+#if defined(CONFIG_CMD_IDE) || \
+	defined(CONFIG_CMD_SATA) || \
+	defined(CONFIG_CMD_SCSI) || \
+	defined(CONFIG_CMD_USB) || \
+	defined(CONFIG_MMC) || \
+	defined(CONFIG_SYSTEMACE)
+
+	switch (dev_desc->part_type) {
+#ifdef CONFIG_MAC_PARTITION
+	case PART_TYPE_MAC:
+		if (get_partition_info_mac(dev_desc, part, info) == 0) {
+			PRINTF("## Valid MAC partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_DOS_PARTITION
+	case PART_TYPE_DOS:
+		if (get_partition_info_dos(dev_desc, part, info) == 0) {
+			PRINTF("## Valid DOS partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_ISO_PARTITION
+	case PART_TYPE_ISO:
+		if (get_partition_info_iso(dev_desc, part, info) == 0) {
+			PRINTF("## Valid ISO boot partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_AMIGA_PARTITION
+	case PART_TYPE_AMIGA:
+		if (get_partition_info_amiga(dev_desc, part, info) == 0) {
+			PRINTF("## Valid Amiga partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_EFI_PARTITION
+	case PART_TYPE_EFI:
+		if (get_partition_info_efi(dev_desc, part, info) == 0) {
+			PRINTF("## Valid EFI partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+	default:
+		break;
+	}
+#endif
+
+	return -1;
+}
