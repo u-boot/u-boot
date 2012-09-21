@@ -173,6 +173,13 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 		return -1;
 	}
 
+	if (part > le32_to_int(gpt_head->num_partition_entries) ||
+	    !is_pte_valid(&gpt_pte[part - 1])) {
+		printf("%s: *** ERROR: Invalid partition number %d ***\n",
+			__func__, part);
+		return -1;
+	}
+
 	/* The ulong casting limits the maximum disk size to 2 TB */
 	info->start = (ulong) le64_to_int(gpt_pte[part - 1].starting_lba);
 	/* The ending LBA is inclusive, to calculate size, add 1 to it */
