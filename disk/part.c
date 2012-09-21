@@ -391,6 +391,11 @@ int get_partition_info(block_dev_desc_t *dev_desc, int part
 	defined(CONFIG_MMC) || \
 	defined(CONFIG_SYSTEMACE)
 
+#ifdef CONFIG_PARTITION_UUIDS
+	/* The common case is no UUID support */
+	info->uuid[0] = 0;
+#endif
+
 	switch (dev_desc->part_type) {
 #ifdef CONFIG_MAC_PARTITION
 	case PART_TYPE_MAC:

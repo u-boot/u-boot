@@ -94,6 +94,9 @@ typedef struct disk_partition {
 	uchar	name[32];	/* partition name			*/
 	uchar	type[32];	/* string type description		*/
 	int	bootable;	/* Active/Bootable flag is set		*/
+#ifdef CONFIG_PARTITION_UUIDS
+	char	uuid[37];	/* filesystem UUID as string, if exists	*/
+#endif
 } disk_partition_t;
 
 /* Misc _get_dev functions */
