@@ -55,7 +55,7 @@ void init_tlbs(void)
 	return ;
 }
 
-#ifndef CONFIG_NAND_SPL
+#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
 void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 		       phys_addr_t *rpn)
 {
@@ -332,4 +332,4 @@ void clear_ddr_tlbs(unsigned int memsize_in_meg)
 }
 
 
-#endif /* !CONFIG_NAND_SPL */
+#endif /* not SPL */

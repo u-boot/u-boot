@@ -92,7 +92,7 @@ void disable_law(u8 idx)
 	return;
 }
 
-#ifndef CONFIG_NAND_SPL
+#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
 static int get_law_entry(u8 i, struct law_entry *e)
 {
 	u32 lawar;
@@ -122,7 +122,7 @@ int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 	return idx;
 }
 
-#ifndef CONFIG_NAND_SPL
+#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
 int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
 	u32 idx;
@@ -233,7 +233,7 @@ int set_ddr_laws(u64 start, u64 sz, enum law_trgt_if id)
 
 	return 0;
 }
-#endif
+#endif /* not SPL */
 
 void init_laws(void)
 {
@@ -258,9 +258,10 @@ void init_laws(void)
 			gd->used_laws |= (1 << i);
 	}
 
-#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+#if (defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)) || \
+	(defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD))
 	/*
-	 * in NAND boot we've already parsed the law_table and setup those LAWs
+	 * in SPL boot we've already parsed the law_table and setup those LAWs
 	 * so don't do it again.
 	 */
 	return;
