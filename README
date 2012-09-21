@@ -2727,7 +2727,8 @@ FIT uImage format:
 		Include standard software ECC in the SPL
 
 		CONFIG_SPL_NAND_SIMPLE
-		Support for drivers/mtd/nand/libnand.o in SPL binary
+		Support for NAND boot using simple NAND drivers that
+		expose the cmd_ctrl() interface.
 
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
@@ -2735,15 +2736,19 @@ FIT uImage format:
 		CONFIG_SYS_NAND_ECCPOS, CONFIG_SYS_NAND_ECCSIZE,
 		CONFIG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
-		to read U-Boot with CONFIG_SPL_NAND_SIMPLE
+		to read U-Boot
 
 		CONFIG_SYS_NAND_U_BOOT_OFFS
-		Location in NAND for CONFIG_SPL_NAND_SIMPLE to read U-Boot
-		from.
+		Location in NAND to read U-Boot from
+
+		CONFIG_SYS_NAND_U_BOOT_DST
+		Location in memory to load U-Boot to
+
+		CONFIG_SYS_NAND_U_BOOT_SIZE
+		Size of image to load
 
 		CONFIG_SYS_NAND_U_BOOT_START
-		Location in memory for CONFIG_SPL_NAND_SIMPLE to load U-Boot
-		to.
+		Entry point in loaded image to jump to
 
 		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
 		Define this if you need to first read the OOB and then the

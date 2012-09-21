@@ -78,6 +78,10 @@ COBJS-$(CONFIG_TEGRA_NAND) += tegra_nand.o
 COBJS-$(CONFIG_NAND_OMAP_GPMC) += omap_gpmc.o
 COBJS-$(CONFIG_NAND_PLAT) += nand_plat.o
 
+else  # minimal SPL drivers
+
+COBJS-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_spl.o
+
 endif # drivers
 endif # nand
 
