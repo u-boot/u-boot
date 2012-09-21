@@ -2653,6 +2653,10 @@ FIT uImage format:
 		CONFIG_SPL_TEXT_BASE
 		TEXT_BASE for linking the SPL binary.
 
+		CONFIG_SPL_RELOC_TEXT_BASE
+		Address to relocate to.  If unspecified, this is equal to
+		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).
+
 		CONFIG_SPL_BSS_START_ADDR
 		Link address for the BSS within the SPL binary.
 
@@ -2661,6 +2665,11 @@ FIT uImage format:
 
 		CONFIG_SPL_STACK
 		Adress of the start of the stack SPL will use
+
+		CONFIG_SPL_RELOC_STACK
+		Adress of the start of the stack SPL will use after
+		relocation.  If unspecified, this is equal to
+		CONFIG_SPL_STACK.
 
 		CONFIG_SYS_SPL_MALLOC_START
 		Starting address of the malloc pool used in SPL.
