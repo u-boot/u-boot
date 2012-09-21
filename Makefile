@@ -92,6 +92,24 @@ BUILD_DIR := $(O)
 endif
 endif
 
+# Call a source code checker (by default, "sparse") as part of the
+# C compilation.
+#
+# Use 'make C=1' to enable checking of re-compiled files.
+#
+# See the linux kernel file "Documentation/sparse.txt" for more details,
+# including where to get the "sparse" utility.
+
+ifdef C
+ifeq ("$(origin C)", "command line")
+CHECKSRC := $(C)
+endif
+endif
+ifndef CHECKSRC
+  CHECKSRC = 0
+endif
+export CHECKSRC
+
 ifneq ($(BUILD_DIR),)
 saved-output := $(BUILD_DIR)
 
