@@ -2716,6 +2716,16 @@ FIT uImage format:
 		CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from FAT
 
+		CONFIG_SPL_NAND_BASE
+		Include nand_base.c in the SPL.  Requires
+		CONFIG_SPL_NAND_DRIVERS.
+
+		CONFIG_SPL_NAND_DRIVERS
+		SPL uses normal NAND drivers, not minimal drivers.
+
+		CONFIG_SPL_NAND_ECC
+		Include standard software ECC in the SPL
+
 		CONFIG_SPL_NAND_SIMPLE
 		Support for drivers/mtd/nand/libnand.o in SPL binary
 
