@@ -25,13 +25,24 @@ for ex.
 		-T kwbimage -a 0x00600000 -e 0x00600000 \
 		-d u-boot.bin u-boot.kwb
 
-kwimage support available with mkimage utility will generate kirkwood boot
-image that can be flashed on the board NAND/SPI flash
+
+kwbimage support available with mkimage utility will generate kirkwood boot
+image that can be flashed on the board NAND/SPI flash.  The make target
+which uses mkimage to produce such an image is "u-boot.kwb".  For example:
+
+  export BUILD_DIR=/tmp/build
+  make distclean
+  make yourboard_config
+  make $BUILD_DIR/u-boot.kwb
+
 
 Board specific configuration file specifications:
 ------------------------------------------------
-1. This file must present in the $(BOARDDIR) and the name should be
-	kwbimage.cfg (since this is used in Makefile)
+1. This file must present in the $(BOARDDIR).  The default name is
+	kwbimage.cfg.  The name can be set as part of the full path
+        to the file using CONFIG_SYS_KWD_CONFIG (probably in
+        include/configs/<yourboard>.h).   The path should look like:
+        $(SRCTREE)/$(CONFIG_BOARDDIR)/<yourkwbimagename>.cfg
 2. This file can have empty lines and lines starting with "#" as first
 	character to put comments
 3. This file can have configuration command lines as mentioned below,

@@ -64,7 +64,7 @@ static unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
 static ulong imx_get_mpllclk(void)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
-	ulong fref = 24000000;
+	ulong fref = MXC_HCLK;
 
 	return imx_decode_pll(readl(&ccm->mpctl), fref);
 }

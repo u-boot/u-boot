@@ -2934,7 +2934,8 @@ int nand_scan_tail(struct mtd_info *mtd)
 	struct nand_chip *chip = mtd->priv;
 
 	if (!(chip->options & NAND_OWN_BUFFERS))
-		chip->buffers = kmalloc(sizeof(*chip->buffers), GFP_KERNEL);
+		chip->buffers = memalign(ARCH_DMA_MINALIGN,
+					 sizeof(*chip->buffers));
 	if (!chip->buffers)
 		return -ENOMEM;
 

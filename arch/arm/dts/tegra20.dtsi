@@ -204,4 +204,11 @@
 		compatible = "nvidia,tegra20-kbc";
 		reg = <0x7000e200 0x0078>;
 	};
+
+	nand: nand-controller@70008000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "nvidia,tegra20-nand";
+		reg = <0x70008000 0x100>;
+	};
 };

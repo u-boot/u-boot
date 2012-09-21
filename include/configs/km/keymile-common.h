@@ -81,7 +81,6 @@
 
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
-#define CONFIG_SYS_BOARD_DRAM_INIT	/* Used board specific dram_init */
 
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_MAX_I2C_BUS		1

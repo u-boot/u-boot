@@ -119,6 +119,10 @@ static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 			(uint32_t)(priv->desc->cmd.address + cache_data_count));
 	}
 
+	/* Invalidate the area, so no writeback into the RAM races with DMA */
+	invalidate_dcache_range((uint32_t)priv->desc->cmd.address,
+			(uint32_t)(priv->desc->cmd.address + cache_data_count));
+
 	priv->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
 				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
 

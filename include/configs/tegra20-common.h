@@ -54,7 +54,7 @@
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
 
-#ifdef CONFIG_TEGRA20_LP0
+#ifdef CONFIG_TEGRA_LP0
 #define TEGRA_LP0_ADDR			0x1C406000
 #define TEGRA_LP0_SIZE			0x2000
 #define TEGRA_LP0_VEC \
@@ -132,9 +132,9 @@
 /* Environment information, boards can override if required */
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define TEGRA20_DEVICE_SETTINGS	"stdin=serial\0" \
-					"stdout=serial\0" \
-					"stderr=serial\0"
+#define TEGRA_DEVICE_SETTINGS	"stdin=serial\0" \
+				"stdout=serial\0" \
+				"stderr=serial\0"
 
 #define CONFIG_LOADADDR		0x408000	/* def. location for kernel */
 #define CONFIG_BOOTDELAY	2		/* -1 to disable auto boot */
@@ -157,7 +157,7 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
-#define CONFIG_SYS_MEMTEST_START	(TEGRA20_SDRC_CS0 + 0x600000)
+#define CONFIG_SYS_MEMTEST_START	(NV_PA_SDRC_CS0 + 0x600000)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x100000)
 
 #define CONFIG_SYS_LOAD_ADDR		(0xA00800)	/* default */
@@ -169,7 +169,7 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1
-#define PHYS_SDRAM_1		TEGRA20_SDRC_CS0
+#define PHYS_SDRAM_1		NV_PA_SDRC_CS0
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512M */
 
 #define CONFIG_SYS_TEXT_BASE	0x0010c000
@@ -200,5 +200,7 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/tegra20/u-boot-spl.lds"
+
+#define CONFIG_SYS_NAND_SELF_INIT
 
 #endif /* __TEGRA20_COMMON_H */

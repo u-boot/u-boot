@@ -63,6 +63,7 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA20_EMC,	/* Tegra20 memory controller */
 	COMPAT_NVIDIA_TEGRA20_EMC_TABLE, /* Tegra20 memory timing table */
 	COMPAT_NVIDIA_TEGRA20_KBC,	/* Tegra20 Keyboard */
+	COMPAT_NVIDIA_TEGRA20_NAND,	/* Tegra2 NAND controller */
 
 	COMPAT_COUNT,
 };

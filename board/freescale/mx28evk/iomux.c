@@ -173,7 +173,7 @@ const iomux_cfg_t iomux_setup[] = {
 #define HW_DRAM_CTL29_CONFIG	(CS_MAP << 24 | COLUMN_SIZE << 16 | \
 					ADDR_PINS << 8 | APREBIT)
 
-void mx28_adjust_memory_params(uint32_t *dram_vals)
+void mxs_adjust_memory_params(uint32_t *dram_vals)
 {
 	dram_vals[HW_DRAM_CTL29] = HW_DRAM_CTL29_CONFIG;
 }

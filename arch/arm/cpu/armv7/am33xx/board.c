@@ -37,7 +37,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-struct gptimer *timer_base = (struct gptimer *)CONFIG_SYS_TIMERBASE;
 struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 
 static const struct gpio_bank gpio_bank_am33xx[4] = {
@@ -119,22 +118,6 @@ static int read_eeprom(void)
 #define UART_SMART_IDLE_EN	(0x1 << 0x3)
 #endif
 
-#ifdef CONFIG_SPL_BUILD
-/* Initialize timer */
-static void init_timer(void)
-{
-	/* Reset the Timer */
-	writel(0x2, (&timer_base->tscir));
-
-	/* Wait until the reset is done */
-	while (readl(&timer_base->tiocp_cfg) & 1)
-		;
-
-	/* Start the Timer */
-	writel(0x1, (&timer_base->tclr));
-}
-#endif
-
 /*
  * Determine what type of DDR we have.
  */
@@ -182,9 +165,6 @@ void s_init(void)
 	regVal = readl(&uart_base->uartsyscfg);
 	regVal |= UART_SMART_IDLE_EN;
 	writel(regVal, &uart_base->uartsyscfg);
-
-	/* Initialize the Timer */
-	init_timer();
 
 	preloader_console_init();
 

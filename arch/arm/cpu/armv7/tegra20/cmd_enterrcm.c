@@ -46,7 +46,7 @@
 static int do_enterrcm(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 
 	puts("Entering RCM...\n");
 	udelay(50000);

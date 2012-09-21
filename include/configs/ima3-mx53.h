@@ -64,7 +64,6 @@
 /* Ethernet on FEC */
 #define CONFIG_NET_MULTI
 #define CONFIG_MII
-#define CONFIG_DISCOVER_PHY
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			FEC_BASE_ADDR
@@ -72,7 +71,7 @@
 #define CONFIG_PHY_ADDR			CONFIG_FEC_MXC_PHYADDR
 #define CONFIG_RESET_PHY_R
 #define CONFIG_FEC_MXC_NO_ANEG
-#define CONFIG_PRIME	"FEC0"
+#define CONFIG_ETHPRIME			"FEC0"
 
 /* SPI */
 #define CONFIG_HARD_SPI

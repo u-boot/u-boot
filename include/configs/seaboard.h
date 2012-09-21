@@ -27,7 +27,7 @@
 #include <asm/sizes.h>
 
 /* LP0 suspend / resume */
-#define CONFIG_TEGRA20_LP0
+#define CONFIG_TEGRA_LP0
 #define CONFIG_AES
 #define CONFIG_TEGRA_PMU
 #define CONFIG_TPS6586X_POWER
@@ -42,11 +42,11 @@
 
 /* High-level configuration options */
 #define V_PROMPT		"Tegra20 (SeaBoard) # "
-#define CONFIG_TEGRA20_BOARD_STRING	"NVIDIA Seaboard"
+#define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Seaboard"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA20_ENABLE_UARTD
+#define CONFIG_TEGRA_ENABLE_UARTD
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 /* On Seaboard: GPIO_PI3 = Port I = 8, bit = 3 */
@@ -96,14 +96,23 @@
 #define CONFIG_CMD_DHCP
 
 /* Enable keyboard */
-#define CONFIG_TEGRA20_KEYBOARD
+#define CONFIG_TEGRA_KEYBOARD
 #define CONFIG_KEYBOARD
 
-#undef TEGRA20_DEVICE_SETTINGS
-#define TEGRA20_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
-					"stdout=serial\0" \
-					"stderr=serial\0"
+#undef TEGRA_DEVICE_SETTINGS
+#define TEGRA_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
+				"stdout=serial\0" \
+				"stderr=serial\0"
 
-#include "tegra20-common-post.h"
+#include "tegra-common-post.h"
 
+/* NAND support */
+#define CONFIG_CMD_NAND
+#define CONFIG_TEGRA_NAND
+
+/* Max number of NAND devices */
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+
+/* Somewhat oddly, the NAND base address must be a config option */
+#define CONFIG_SYS_NAND_BASE	NV_PA_NAND_BASE
 #endif /* __CONFIG_H */

@@ -224,8 +224,10 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 	struct mxs_dma_desc *dp;
 	uint32_t ctrl0;
 	uint32_t cache_data_count;
+	const uint32_t dstart = (uint32_t)data;
 	int dmach;
 	int tl;
+	int ret = 0;
 
 	ALLOC_CACHE_ALIGN_BUFFER(struct mxs_dma_desc, desc, desc_count);
 
@@ -239,17 +241,17 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 	if (!write)
 		ctrl0 |= SSP_CTRL0_READ;
 
-	writel(length, &ssp_regs->hw_ssp_xfer_size);
-
 	if (length % ARCH_DMA_MINALIGN)
 		cache_data_count = roundup(length, ARCH_DMA_MINALIGN);
 	else
 		cache_data_count = length;
 
+	/* Flush data to DRAM so DMA can pick them up */
 	if (write)
-		/* Flush data to DRAM so DMA can pick them up */
-		flush_dcache_range((uint32_t)data,
-			(uint32_t)(data + cache_data_count));
+		flush_dcache_range(dstart, dstart + cache_data_count);
+
+	/* Invalidate the area, so no writeback into the RAM races with DMA */
+	invalidate_dcache_range(dstart, dstart + cache_data_count);
 
 	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + slave->slave.bus;
 
@@ -281,41 +283,47 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 			tl = min(length, xfer_max_sz);
 
 		dp->cmd.data |=
-			(tl << MXS_DMA_DESC_BYTES_OFFSET) |
-			(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
+			((tl & 0xffff) << MXS_DMA_DESC_BYTES_OFFSET) |
+			(4 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
 			MXS_DMA_DESC_HALT_ON_TERMINATE |
 			MXS_DMA_DESC_TERMINATE_FLUSH;
-		dp->cmd.pio_words[0] = ctrl0;
 
 		data += tl;
 		length -= tl;
+
+		if (!length) {
+			dp->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM;
+
+			if (flags & SPI_XFER_END) {
+				ctrl0 &= ~SSP_CTRL0_LOCK_CS;
+				ctrl0 |= SSP_CTRL0_IGNORE_CRC;
+			}
+		}
+
+		/*
+		 * Write CTRL0, CMD0, CMD1, XFER_SIZE registers. It is
+		 * essential that the XFER_SIZE register is written on
+		 * a per-descriptor basis with the same size as is the
+		 * descriptor!
+		 */
+		dp->cmd.pio_words[0] = ctrl0;
+		dp->cmd.pio_words[1] = 0;
+		dp->cmd.pio_words[2] = 0;
+		dp->cmd.pio_words[3] = tl;
 
 		mxs_dma_desc_append(dmach, dp);
 
 		dp++;
 	}
 
-	dp->address = (dma_addr_t)dp;
-	dp->cmd.address = (dma_addr_t)0;
-	dp->cmd.data = MXS_DMA_DESC_COMMAND_NO_DMAXFER |
-			(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
-			MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM;
-	if (flags & SPI_XFER_END) {
-		ctrl0 &= ~SSP_CTRL0_LOCK_CS;
-		dp->cmd.pio_words[0] = ctrl0 | SSP_CTRL0_IGNORE_CRC;
-	}
-	mxs_dma_desc_append(dmach, dp);
-
 	if (mxs_dma_go(dmach))
-		return -EINVAL;
+		ret = -EINVAL;
 
 	/* The data arrived into DRAM, invalidate cache over them */
-	if (!write) {
-		invalidate_dcache_range((uint32_t)data,
-			(uint32_t)(data + cache_data_count));
-	}
+	if (!write)
+		invalidate_dcache_range(dstart, dstart + cache_data_count);
 
-	return 0;
+	return ret;
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,

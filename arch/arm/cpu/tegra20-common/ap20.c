@@ -32,7 +32,7 @@
 int tegra_get_chip_type(void)
 {
 	struct apb_misc_gp_ctlr *gp;
-	struct fuse_regs *fuse = (struct fuse_regs *)TEGRA20_FUSE_BASE;
+	struct fuse_regs *fuse = (struct fuse_regs *)NV_PA_FUSE_BASE;
 	uint tegra_sku_id, rev;
 
 	/*
@@ -40,7 +40,7 @@ int tegra_get_chip_type(void)
 	 * APB_MISC + 0x804, and has value 0x20 for Tegra20, 0x30 for
 	 * Tegra30
 	 */
-	gp = (struct apb_misc_gp_ctlr *)TEGRA20_APB_MISC_GP_BASE;
+	gp = (struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
 	rev = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK) >> HIDREV_CHIPID_SHIFT;
 
 	tegra_sku_id = readl(&fuse->sku_info) & 0xff;
@@ -101,7 +101,7 @@ static u32 get_odmdata(void)
 
 static void init_pmc_scratch(void)
 {
-	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 odmdata;
 	int i;
 

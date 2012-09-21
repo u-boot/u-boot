@@ -33,7 +33,7 @@ LIB	= $(obj)lib$(SOC)-common.o
 
 SOBJS += lowlevel_init.o
 COBJS-y	+= ap20.o board.o clock.o funcmux.o pinmux.o sys_info.o timer.o
-COBJS-$(CONFIG_TEGRA20_LP0) += warmboot.o crypto.o warmboot_avp.o
+COBJS-$(CONFIG_TEGRA_LP0) += warmboot.o crypto.o warmboot_avp.o
 COBJS-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 COBJS-$(CONFIG_TEGRA_PMU) += pmu.o
 

@@ -70,6 +70,6 @@ struct spi_tegra {
 #define SPI_STAT_CUR_BLKCNT		(1 << 15)
 
 #define SPI_TIMEOUT		1000
-#define TEGRA20_SPI_MAX_FREQ	52000000
+#define TEGRA_SPI_MAX_FREQ	52000000
 
 #endif	/* _TEGRA_SPI_H_ */

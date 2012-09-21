@@ -171,9 +171,9 @@
 #define	CONFIG_LZO
 #define	CONFIG_MTD_DEVICE
 #define	CONFIG_MTD_PARTITIONS
-#define	MTDIDS_DEFAULT			"nand0=gpmi-nand.0"
+#define	MTDIDS_DEFAULT			"nand0=gpmi-nand"
 #define	MTDPARTS_DEFAULT			\
-	"mtdparts=gpmi-nand.0:"			\
+	"mtdparts=gpmi-nand:"			\
 		"3m(bootloader)ro,"		\
 		"512k(environment),"		\
 		"512k(redundant-environment),"	\

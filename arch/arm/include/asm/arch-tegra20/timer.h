@@ -21,8 +21,8 @@
 
 /* Tegra20 timer functions */
 
-#ifndef _TEGRA20_TIMER_H
-#define _TEGRA20_TIMER_H
+#ifndef _TEGRA_TIMER_H
+#define _TEGRA_TIMER_H
 
 /* returns the current monotonic timer value in microseconds */
 unsigned long timer_get_us(void);

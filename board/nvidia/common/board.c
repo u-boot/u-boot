@@ -45,8 +45,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const struct tegra20_sysinfo sysinfo = {
-	CONFIG_TEGRA20_BOARD_STRING
+const struct tegra_sysinfo sysinfo = {
+	CONFIG_TEGRA_BOARD_STRING
 };
 
 #ifndef CONFIG_SPL_BUILD
@@ -79,7 +79,7 @@ void pin_mux_spi(void) __attribute__((weak, alias("__pin_mux_spi")));
 static void power_det_init(void)
 {
 #if defined(CONFIG_TEGRA20)
-	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA20_PMC_BASE;
+	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 
 	/* turn off power detects */
 	writel(0, &pmc->pmc_pwr_det_latch);
@@ -132,7 +132,7 @@ int board_init(void)
 	board_usb_init(gd->fdt_blob);
 #endif
 
-#ifdef CONFIG_TEGRA20_LP0
+#ifdef CONFIG_TEGRA_LP0
 	/* save Sdram params to PMC 2, 4, and 24 for WB0 */
 	warmboot_save_sdram_params();
 

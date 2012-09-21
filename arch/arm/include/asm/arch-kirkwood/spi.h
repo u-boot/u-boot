@@ -49,6 +49,7 @@ struct kwspi_registers {
 #define MISO_MPP11	(1 << 2)
 
 #define KWSPI_CLKPRESCL_MASK	0x1f
+#define KWSPI_CLKPRESCL_MIN	0x12
 #define KWSPI_CSN_ACT		1 /* Activates serial memory interface */
 #define KWSPI_SMEMRDY		(1 << 1) /* SerMem Data xfer ready */
 #define KWSPI_IRQUNMASK		1 /* unmask SPI interrupt */

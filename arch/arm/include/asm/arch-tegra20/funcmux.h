@@ -57,6 +57,9 @@ enum {
 
 	/* Serial Flash configs */
 	FUNCMUX_SPI1_GMC_GMD = 0,
+
+	/* NAND flags */
+	FUNCMUX_NDFLASH_ATC = 0,
 };
 
 /**

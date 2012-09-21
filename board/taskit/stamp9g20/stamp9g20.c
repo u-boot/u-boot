@@ -159,14 +159,27 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int board_postclk_init(void)
+{
+	/*
+	 * Initialize the serial interface here, because be need a running
+	 * timer to set PC9 to high and wait for some time to enable the
+	 * level converter of the RS232 interface on the PortuxG20 board.
+	 */
+
+#ifdef CONFIG_PORTUXG20
+	at91_set_gpio_output(AT91_PIN_PC9, 1);
+	mdelay(1);
+#endif
+	at91_seriald_hw_init();
+
+	return 0;
+}
+
 int board_init(void)
 {
 	/* Adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-
-	/* Enable the serial interface */
-	at91_set_gpio_output(AT91_PIN_PC9, 1);
-	at91_seriald_hw_init();
 
 	stamp9G20_nand_hw_init();
 #ifdef CONFIG_MACB

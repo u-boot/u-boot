@@ -27,11 +27,11 @@
 
 /* High-level configuration options */
 #define V_PROMPT		"Tegra20 (Paz00) MOD # "
-#define CONFIG_TEGRA20_BOARD_STRING	"Compal Paz00"
+#define CONFIG_TEGRA_BOARD_STRING	"Compal Paz00"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA20_ENABLE_UARTA
+#define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_PAZ00
@@ -69,6 +69,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
-#include "tegra20-common-post.h"
+#include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

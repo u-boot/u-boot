@@ -234,6 +234,13 @@ int funcmux_select(enum periph_id id, int config)
 		}
 		break;
 
+	case PERIPH_ID_NDFLASH:
+		if (config == FUNCMUX_NDFLASH_ATC) {
+			pinmux_set_func(PINGRP_ATC, PMUX_FUNC_NAND);
+			pinmux_tristate_disable(PINGRP_ATC);
+		}
+		break;
+
 	default:
 		debug("%s: invalid periph_id %d", __func__, id);
 		return -1;

@@ -56,8 +56,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	writel(~KWSPI_CSN_ACT | KWSPI_SMEMRDY, &spireg->ctrl);
 
 	/* calculate spi clock prescaller using max_hz */
-	data = ((CONFIG_SYS_TCLK / 2) / max_hz) & KWSPI_CLKPRESCL_MASK;
-	data |= 0x10;
+	data = ((CONFIG_SYS_TCLK / 2) / max_hz) + 0x10;
+	data = data < KWSPI_CLKPRESCL_MIN ? KWSPI_CLKPRESCL_MIN : data;
+	data = data > KWSPI_CLKPRESCL_MASK ? KWSPI_CLKPRESCL_MASK : data;
 
 	/* program spi clock prescaller using max_hz */
 	writel(KWSPI_ADRLEN_3BYTE | data, &spireg->cfg);

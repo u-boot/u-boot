@@ -95,9 +95,6 @@
 #define HALT_COP_EVENT_IRQ_1		(1 << 11)
 #define HALT_COP_EVENT_FIQ_1		(1 << 9)
 
-/* Start up the tegra20 SOC */
-void tegra20_start(void);
-
 /* This is the main entry into U-Boot, used by the Cortex-A9 */
 extern void _start(void);
 

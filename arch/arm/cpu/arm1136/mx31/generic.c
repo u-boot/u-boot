@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>
@@ -30,16 +31,17 @@
 static u32 mx31_decode_pll(u32 reg, u32 infreq)
 {
 	u32 mfi = GET_PLL_MFI(reg);
-	u32 mfn = GET_PLL_MFN(reg);
+	s32 mfn = GET_PLL_MFN(reg);
 	u32 mfd = GET_PLL_MFD(reg);
 	u32 pd =  GET_PLL_PD(reg);
 
 	mfi = mfi <= 5 ? 5 : mfi;
+	mfn = mfn >= 512 ? mfn - 1024 : mfn;
 	mfd += 1;
 	pd += 1;
 
-	return ((2 * (infreq >> 10) * (mfi * mfd + mfn)) /
-		(mfd * pd)) << 10;
+	return lldiv(2 * (u64)infreq * (mfi * mfd + mfn),
+		mfd * pd);
 }
 
 static u32 mx31_get_mpl_dpdgck_clk(void)
@@ -47,9 +49,9 @@ static u32 mx31_get_mpl_dpdgck_clk(void)
 	u32 infreq;
 
 	if ((readl(CCM_CCMR) & CCMR_PRCS_MASK) == CCMR_FPM)
-		infreq = CONFIG_MX31_CLK32 * 1024;
+		infreq = MXC_CLK32 * 1024;
 	else
-		infreq = CONFIG_MX31_HCLK_FREQ;
+		infreq = MXC_HCLK;
 
 	return mx31_decode_pll(readl(CCM_MPCTL), infreq);
 }

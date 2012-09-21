@@ -158,7 +158,7 @@ static void set_led(int state)
 {
 	switch (state) {
 	case LED_OFF:
-		__set_led(0, 0, 0, 0, 0, 0);
+		__set_led(0, 0, 0, 1, 1, 1);
 		break;
 	case LED_ALARM_ON:
 		__set_led(0, 0, 0, 0, 1, 1);
@@ -192,6 +192,25 @@ int board_init(void)
 }
 
 #ifdef CONFIG_MISC_INIT_R
+static void check_power_switch(void)
+{
+	if (kw_gpio_get_value(GPIO_POWER_SWITCH)) {
+		/* turn off HDD and USB power */
+		kw_gpio_set_value(GPIO_HDD_POWER, 0);
+		kw_gpio_set_value(GPIO_USB_VBUS, 0);
+		set_led(LED_OFF);
+
+		/* loop until released */
+		while (kw_gpio_get_value(GPIO_POWER_SWITCH))
+			;
+
+		/* turn power on again */
+		kw_gpio_set_value(GPIO_HDD_POWER, 1);
+		kw_gpio_set_value(GPIO_USB_VBUS, 1);
+		set_led(LED_POWER_BLINKING);
+	}
+}
+
 void check_enetaddr(void)
 {
 	uchar enetaddr[6];
@@ -261,6 +280,7 @@ static void check_push_button(void)
 
 int misc_init_r(void)
 {
+	check_power_switch();
 	check_enetaddr();
 	check_push_button();
 
