@@ -100,19 +100,6 @@ int board_mmc_init(bd_t *bis)
 
 #ifdef	CONFIG_CMD_NET
 
-#define	MII_OPMODE_STRAP_OVERRIDE	0x16
-#define	MII_PHY_CTRL1			0x1e
-#define	MII_PHY_CTRL2			0x1f
-
-int fecmxc_mii_postcall(int phy)
-{
-	miiphy_write("FEC1", phy, MII_BMCR, 0x9000);
-	miiphy_write("FEC1", phy, MII_OPMODE_STRAP_OVERRIDE, 0x0202);
-	if (phy == 3)
-		miiphy_write("FEC1", 3, MII_PHY_CTRL2, 0x8180);
-	return 0;
-}
-
 int board_eth_init(bd_t *bis)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
@@ -152,22 +139,10 @@ int board_eth_init(bd_t *bis)
 		return -EINVAL;
 	}
 
-	ret = fecmxc_register_mii_postcall(dev, fecmxc_mii_postcall);
-	if (ret) {
-		puts("FEC MXS: Unable to register FEC0 mii postcall\n");
-		return ret;
-	}
-
 	dev = eth_get_dev_by_name("FEC1");
 	if (!dev) {
 		puts("FEC MXS: Unable to get FEC1 device entry\n");
 		return -EINVAL;
-	}
-
-	ret = fecmxc_register_mii_postcall(dev, fecmxc_mii_postcall);
-	if (ret) {
-		puts("FEC MXS: Unable to register FEC1 mii postcall\n");
-		return ret;
 	}
 
 	return ret;
