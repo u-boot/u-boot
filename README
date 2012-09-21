@@ -2746,6 +2746,11 @@ FIT uImage format:
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
 
+		CONFIG_SPL_TARGET
+		Final target image containing SPL and payload.  Some SPLs
+		use an arch-specific makefile fragment instead, for
+		example if more than one image needs to be produced.
+
 Modem Support:
 --------------
 

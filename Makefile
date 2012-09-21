@@ -407,6 +407,7 @@ ALL-y += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
 ALL-$(CONFIG_NAND_U_BOOT) += $(obj)u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += $(obj)u-boot-onenand.bin
 ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
+ALL-$(CONFIG_SPL) += $(obj)$(subst ",,$(CONFIG_SPL_TARGET))
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 
 # enable combined SPL/u-boot/dtb rules for tegra
