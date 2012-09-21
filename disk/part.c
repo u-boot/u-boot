@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <ide.h>
+#include <malloc.h>
 #include <part.h>
 
 #undef	PART_DEBUG
@@ -465,66 +466,176 @@ int get_device(const char *ifname, const char *dev_str,
 	return dev;
 }
 
-int get_device_and_partition(const char *ifname, const char *dev_str,
+#define PART_UNSPECIFIED -2
+#define PART_AUTO -1
+#define MAX_SEARCH_PARTITIONS 16
+int get_device_and_partition(const char *ifname, const char *dev_part_str,
 			     block_dev_desc_t **dev_desc,
-			     disk_partition_t *info)
+			     disk_partition_t *info, int allow_whole_dev)
 {
-	int ret;
-	char *ep;
+	int ret = -1;
+	const char *part_str;
+	char *dup_str = NULL;
+	const char *dev_str;
 	int dev;
-	block_dev_desc_t *desc;
-	int part = 0;
-	char *part_str;
+	char *ep;
+	int p;
+	int part;
+	disk_partition_t tmpinfo;
 
-	if (dev_str)
-		dev = simple_strtoul(dev_str, &ep, 16);
+	/* If no dev_part_str, use bootdevice environment variable */
+	if (!dev_part_str)
+		dev_part_str = getenv("bootdevice");
 
-	if (!dev_str || (dev_str == ep)) {
-		dev_str = getenv("bootdevice");
-		if (dev_str)
-			dev = simple_strtoul(dev_str, &ep, 16);
-		if (!dev_str || (dev_str == ep))
-			goto err;
+	/* If still no dev_part_str, it's an error */
+	if (!dev_part_str) {
+		printf("** No device specified **\n");
+		goto cleanup;
 	}
 
-	desc = get_dev(ifname, dev);
-	if (!desc || (desc->type == DEV_TYPE_UNKNOWN))
-		goto err;
+	/* Separate device and partition ID specification */
+	part_str = strchr(dev_part_str, ':');
+	if (part_str) {
+		dup_str = strdup(dev_part_str);
+		dup_str[part_str - dev_part_str] = 0;
+		dev_str = dup_str;
+		part_str++;
+	} else {
+		dev_str = dev_part_str;
+	}
 
-	if (desc->part_type == PART_TYPE_UNKNOWN) {
-		/* disk doesn't use partition table */
-		if (!desc->lba) {
-			printf("**Bad disk size - %s %d:0 **\n", ifname, dev);
-			return -1;
+	/* Look up the device */
+	dev = get_device(ifname, dev_str, dev_desc);
+	if (dev < 0)
+		goto cleanup;
+
+	/* Convert partition ID string to number */
+	if (!part_str || !*part_str) {
+		part = PART_UNSPECIFIED;
+	} else if (!strcmp(part_str, "auto")) {
+		part = PART_AUTO;
+	} else {
+		/* Something specified -> use exactly that */
+		part = (int)simple_strtoul(part_str, &ep, 16);
+		/*
+		 * Less than whole string converted,
+		 * or request for whole device, but caller requires partition.
+		 */
+		if (*ep || (part == 0 && !allow_whole_dev)) {
+			printf("** Bad partition specification %s %s **\n",
+			    ifname, dev_part_str);
+			goto cleanup;
 		}
-		info->start = 0;
-		info->size = desc->lba;
-		info->blksz = desc->blksz;
-
-		*dev_desc = desc;
-		return 0;
 	}
 
-	part_str = strchr(dev_str, ':');
-	if (part_str)
-		part = (int)simple_strtoul(++part_str, NULL, 16);
+	/*
+	 * No partition table on device,
+	 * or user requested partition 0 (entire device).
+	 */
+	if (((*dev_desc)->part_type == PART_TYPE_UNKNOWN) ||
+	    (part == 0)) {
+		if (!(*dev_desc)->lba) {
+			printf("** Bad device size - %s %s **\n", ifname,
+			       dev_str);
+			goto cleanup;
+		}
 
-	ret = get_partition_info(desc, part, info);
-	if (ret) {
-		printf("** Invalid partition %d, use `dev[:part]' **\n", part);
-		return -1;
+		/*
+		 * If user specified a partition ID other than 0,
+		 * or the calling command only accepts partitions,
+		 * it's an error.
+		 */
+		if ((part > 0) || (!allow_whole_dev)) {
+			printf("** No partition table - %s %s **\n", ifname,
+			       dev_str);
+			goto cleanup;
+		}
+
+		info->start = 0;
+		info->size = (*dev_desc)->lba;
+		info->blksz = (*dev_desc)->blksz;
+		info->bootable = 0;
+#ifdef CONFIG_PARTITION_UUIDS
+		info->uuid[0] = 0;
+#endif
+
+		ret = 0;
+		goto cleanup;
+	}
+
+	/*
+	 * Now there's known to be a partition table,
+	 * not specifying a partition means to pick partition 1.
+	 */
+	if (part == PART_UNSPECIFIED)
+		part = 1;
+
+	/*
+	 * If user didn't specify a partition number, or did specify something
+	 * other than "auto", use that partition number directly.
+	 */
+	if (part != PART_AUTO) {
+		ret = get_partition_info(*dev_desc, part, info);
+		if (ret) {
+			printf("** Invalid partition %d **\n", part);
+			goto cleanup;
+		}
+	} else {
+		/*
+		 * Find the first bootable partition.
+		 * If none are bootable, fall back to the first valid partition.
+		 */
+		part = 0;
+		for (p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
+			ret = get_partition_info(*dev_desc, p, info);
+			if (ret)
+				continue;
+
+			/*
+			 * First valid partition, or new better partition?
+			 * If so, save partition ID.
+			 */
+			if (!part || info->bootable)
+				part = p;
+
+			/* Best possible partition? Stop searching. */
+			if (info->bootable)
+				break;
+
+			/*
+			 * We now need to search further for best possible.
+			 * If we what we just queried was the best so far,
+			 * save the info since we over-write it next loop.
+			 */
+			if (part == p)
+				tmpinfo = *info;
+		}
+		/* If we found any acceptable partition */
+		if (part) {
+			/*
+			 * If we searched all possible partition IDs,
+			 * return the first valid partition we found.
+			 */
+			if (p == MAX_SEARCH_PARTITIONS + 1)
+				*info = tmpinfo;
+			ret = 0;
+		} else {
+			printf("** No valid partitions found **\n");
+			goto cleanup;
+		}
 	}
 	if (strncmp((char *)info->type, BOOT_PART_TYPE, sizeof(info->type)) != 0) {
 		printf("** Invalid partition type \"%.32s\""
 			" (expect \"" BOOT_PART_TYPE "\")\n",
 			info->type);
-		return -1;
+		ret  = -1;
+		goto cleanup;
 	}
 
-	*dev_desc = desc;
-	return part;
+	ret = part;
+	goto cleanup;
 
-err:
-	puts("** Invalid boot device, use `dev[:part]' **\n");
-	return -1;
+cleanup:
+	free(dup_str);
+	return ret;
 }

@@ -57,7 +57,7 @@ int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
@@ -140,7 +140,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 

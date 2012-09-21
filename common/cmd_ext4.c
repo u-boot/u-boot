@@ -87,7 +87,7 @@ int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc < 6)
 		return cmd_usage(cmdtp);
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 

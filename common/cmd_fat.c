@@ -49,7 +49,7 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
@@ -101,7 +101,7 @@ int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
@@ -139,7 +139,7 @@ int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 
@@ -175,7 +175,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	if (argc < 5)
 		return cmd_usage(cmdtp);
 
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info);
+	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
 

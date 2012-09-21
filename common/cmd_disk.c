@@ -54,7 +54,7 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 	bootstage_mark(BOOTSTAGE_ID_IDE_BOOT_DEVICE);
 
 	part = get_device_and_partition(intf, (argc == 3) ? argv[2] : NULL,
-					&dev_desc, &info);
+					&dev_desc, &info, 1);
 	if (part < 0) {
 		bootstage_error(BOOTSTAGE_ID_IDE_TYPE);
 		return 1;
