@@ -509,8 +509,14 @@ static inline ushort *configuration_get_cmap(void)
 	return (ushort *)&(cp->lcd_cmap[255 * sizeof(ushort)]);
 #elif defined(CONFIG_ATMEL_LCD)
 	return (ushort *)(panel_info.mmio + ATMEL_LCDC_LUT(0));
+#elif !defined(CONFIG_ATMEL_HLCD) && !defined(CONFIG_EXYNOS_FB)
+	return panel_info.cmap;
 #else
-	return (ushort *)panel_info.cmap;
+#if defined(CONFIG_LCD_LOGO)
+	return bmp_logo_palette;
+#else
+	return NULL;
+#endif
 #endif
 }
 
@@ -636,10 +642,10 @@ static void splash_align_axis(int *axis, unsigned long panel_size,
 }
 #endif
 
-#if defined CONFIG_CPU_PXA || defined(CONFIG_ATMEL_LCD)
-#define FB_PUT_BYTE(fb, from) *(fb)++ = *(from)++
-#elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
+#if defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
 #define FB_PUT_BYTE(fb, from) *(fb)++ = (255 - *(from)++)
+#else
+#define FB_PUT_BYTE(fb, from) *(fb)++ = *(from)++
 #endif
 
 #if defined(CONFIG_BMP_16BPP)
