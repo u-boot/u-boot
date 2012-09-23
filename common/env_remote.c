@@ -41,11 +41,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_ENV_OFFSET 0
 #endif
 
-uchar env_get_char_spec(int index)
-{
-	return *((uchar *)(gd->env_addr + index));
-}
-
 int env_init(void)
 {
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
