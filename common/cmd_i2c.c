@@ -605,18 +605,28 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 
 /*
  * Syntax:
- *	i2c probe {addr}{.0, .1, .2}
+ *	i2c probe {addr}
+ *
+ * Returns zero (success) if one or more I2C devices was found
  */
 static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int j;
+	int addr = -1;
+	int found = 0;
 #if defined(CONFIG_SYS_I2C_NOPROBES)
 	int k, skip;
 	uchar bus = GET_BUS_NUM;
 #endif	/* NOPROBES */
 
+	if (argc == 2)
+		addr = simple_strtol(argv[1], 0, 16);
+
 	puts ("Valid chip addresses:");
 	for (j = 0; j < 128; j++) {
+		if ((0 <= addr) && (j != addr))
+			continue;
+
 #if defined(CONFIG_SYS_I2C_NOPROBES)
 		skip = 0;
 		for (k=0; k < NUM_ELEMENTS_NOPROBE; k++) {
@@ -628,8 +638,10 @@ static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		if (skip)
 			continue;
 #endif
-		if (i2c_probe(j) == 0)
+		if (i2c_probe(j) == 0) {
 			printf(" %02X", j);
+			found++;
+		}
 	}
 	putc ('\n');
 
@@ -642,7 +654,7 @@ static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	putc ('\n');
 #endif
 
-	return 0;
+	return (0 == found);
 }
 
 /*
@@ -1380,7 +1392,7 @@ U_BOOT_CMD(
 	"i2c mm chip address[.0, .1, .2] - write to I2C device (auto-incrementing)\n"
 	"i2c mw chip address[.0, .1, .2] value [count] - write to I2C device (fill)\n"
 	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
-	"i2c probe - show devices on the I2C bus\n"
+	"i2c probe [address] - test for and show device(s) on the I2C bus\n"
 	"i2c read chip address[.0, .1, .2] length memaddress - read to memory \n"
 	"i2c write memaddress chip address[.0, .1, .2] length - write memory to i2c\n"
 	"i2c reset - re-init the I2C Controller\n"
