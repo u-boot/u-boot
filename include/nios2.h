@@ -24,6 +24,8 @@
 #ifndef __NIOS2_H__
 #define __NIOS2_H__
 
+#include <linux/stringify.h>
+
 /*------------------------------------------------------------------------
  * Control registers -- use with wrctl() & rdctl()
  *----------------------------------------------------------------------*/
@@ -36,11 +38,10 @@
 /*------------------------------------------------------------------------
  * Access to control regs
  *----------------------------------------------------------------------*/
-#define _str_(x) #x
 
 #define rdctl(reg)\
 	({unsigned int val;\
-	asm volatile( "rdctl %0, ctl" _str_(reg)\
+	asm volatile("rdctl %0, ctl" __stringify(reg) \
 		: "=r" (val) ); val;})
 
 #define wrctl(reg,val)\
