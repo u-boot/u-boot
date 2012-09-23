@@ -140,6 +140,9 @@ u32 get_cpu_rev(void)
 	case 0x01:
 		system_rev |= CHIP_REV_1_1;
 		break;
+	case 0x02:
+		system_rev |= CHIP_REV_1_2;
+		break;
 	default:
 		system_rev |= 0x8000;
 		break;
