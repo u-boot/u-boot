@@ -209,7 +209,7 @@ static int global_board_data_init(void)
 	gd->bd = bd;
 
 	bd->bi_r_version = version_string;
-	bd->bi_cpu = MK_STR(CONFIG_BFIN_CPU);
+	bd->bi_cpu = __stringify(CONFIG_BFIN_CPU);
 	bd->bi_board_name = BFIN_BOARD_NAME;
 	bd->bi_vco = get_vco();
 	bd->bi_cclk = get_cclk();

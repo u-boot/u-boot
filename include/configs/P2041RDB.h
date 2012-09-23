@@ -707,8 +707,8 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"bank_intlv=cs0_cs1\0"					\
 	"netdev=eth0\0"						\
-	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"			\
-	"ubootaddr=" MK_STR(CONFIG_SYS_TEXT_BASE) "\0"		\
+	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"			\
+	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"		\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
 	"protect off $ubootaddr +$filesize && "			\
 	"erase $ubootaddr +$filesize && "			\
@@ -716,7 +716,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 	"protect on $ubootaddr +$filesize && "			\
 	"cmp.b $loadaddr $ubootaddr $filesize\0"		\
 	"consoledev=ttyS0\0"					\
-	"usb_phy_type=" MK_STR(__USB_PHY_TYPE) "\0"		\
+	"usb_phy_type=" __stringify(__USB_PHY_TYPE) "\0"		\
 	"usb_dr_mode=host\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=p2041rdb/ramdisk.uboot\0"			\

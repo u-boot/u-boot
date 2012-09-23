@@ -726,9 +726,9 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_BAUDRATE		115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"hwconfig=" MK_STR(CONFIG_DEF_HWCONFIG)  "\0"	\
+	"hwconfig=" __stringify(CONFIG_DEF_HWCONFIG)  "\0"	\
 	"netdev=eth0\0"						\
-	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
+	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"loadaddr=1000000\0"			\
 	"consoledev=ttyS0\0"				\
 	"ramdiskaddr=2000000\0"			\

@@ -71,9 +71,6 @@ DECLARE_GLOBAL_DATA_PTR;
 SPI_FLASH|NVRAM|MMC|FAT|REMOTE} or CONFIG_ENV_IS_NOWHERE
 #endif
 
-#define XMK_STR(x)	#x
-#define MK_STR(x)	XMK_STR(x)
-
 /*
  * Maximum expected input data size for import command
  */
@@ -259,7 +256,7 @@ int env_check_apply(const char *name, const char *oldval,
 		if (strcmp(name, "serial#") == 0 ||
 		    (strcmp(name, "ethaddr") == 0
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-		     && strcmp(oldval, MK_STR(CONFIG_ETHADDR)) != 0
+		     && strcmp(oldval, __stringify(CONFIG_ETHADDR)) != 0
 #endif	/* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
 			)) {
 			printf("Can't overwrite \"%s\"\n", name);

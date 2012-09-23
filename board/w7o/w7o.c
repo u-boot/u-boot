@@ -33,13 +33,6 @@
 unsigned long get_dram_size (void);
 void sdram_init(void);
 
-/*
- * Macros to transform values
- * into environment strings.
- */
-#define XMK_STR(x)	#x
-#define MK_STR(x)	XMK_STR(x)
-
 /* ------------------------------------------------------------------------- */
 
 int board_early_init_f (void)
@@ -228,7 +221,7 @@ static void w7o_env_init (VPD * vpd)
 		/* Set 'ethaddr' envvar if 'ethaddr' envvar is the default */
 		eth = (char *)(vpd->ethAddrs[0]);
 		if (ethaddr
-		    && (strcmp (ethaddr, MK_STR (CONFIG_ETHADDR)) == 0)) {
+		    && (strcmp(ethaddr, __stringify(CONFIG_ETHADDR)) == 0)) {
 			/* Now setup ethaddr */
 			sprintf (buf, "%02x:%02x:%02x:%02x:%02x:%02x",
 				 eth[0], eth[1], eth[2], eth[3], eth[4],

@@ -500,22 +500,17 @@
 #define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 
-#define XMK_STR(x)	#x
-#define MK_STR(x)	XMK_STR(x)
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"netdev=" MK_STR(CONFIG_NETDEV) "\0"				\
-	"ethprime=" MK_STR(CONFIG_TSEC1_NAME) "\0"			\
-	"u-boot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
+	"netdev=" __stringify(CONFIG_NETDEV) "\0"			\
+	"ethprime=" __stringify(CONFIG_TSEC1_NAME) "\0"			\
+	"u-boot=" __stringify(CONFIG_UBOOTPATH) "\0"			\
 	"u-boot_addr_r=100000\0"					\
 	"load=tftp ${u-boot_addr_r} ${u-boot}\0"			\
-	"update=protect off " MK_STR(CONFIG_SYS_FLASH_BASE) " +${filesize};" \
-	"erase " MK_STR(CONFIG_SYS_FLASH_BASE) " +${filesize};"		\
-	"cp.b ${u-boot_addr_r} " MK_STR(CONFIG_SYS_FLASH_BASE)		\
+	"update=protect off " __stringify(CONFIG_SYS_FLASH_BASE)	\
+		" +${filesize};"	\
+	"erase " __stringify(CONFIG_SYS_FLASH_BASE) " +${filesize};"	\
+	"cp.b ${u-boot_addr_r} " __stringify(CONFIG_SYS_FLASH_BASE)	\
 	" ${filesize};"							\
-	"protect on " MK_STR(CONFIG_SYS_FLASH_BASE) " +${filesize}\0"	\
-
-#undef MK_STR
-#undef XMK_STR
+	"protect on " __stringify(CONFIG_SYS_FLASH_BASE) " +${filesize}\0" \
 
 #endif	/* __CONFIG_H */

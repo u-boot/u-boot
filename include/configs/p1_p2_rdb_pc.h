@@ -871,15 +871,15 @@ i2c mw 18 3 __SW_BOOT_MASK 1; reset
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 "netdev=eth0\0"	\
-"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"	\
+"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"	\
 "loadaddr=1000000\0"	\
 "bootfile=uImage\0"	\
 "tftpflash=tftpboot $loadaddr $uboot; "	\
-	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
+	"protect off " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; " \
+	"erase " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"cp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE) " $filesize; " \
+	"protect on " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE) " $filesize\0" \
 "hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"    \
 "consoledev=ttyS0\0"	\
 "ramdiskaddr=2000000\0"	\
@@ -895,11 +895,11 @@ i2c mw 18 3 __SW_BOOT_MASK 1; reset
 "ramdisk_size=120000\0"	\
 "map_lowernorbank=i2c dev 1; i2c mw 18 1 02 1; i2c mw 18 3 fd 1\0" \
 "map_uppernorbank=i2c dev 1; i2c mw 18 1 00 1; i2c mw 18 3 fd 1\0" \
-MK_STR(__NOR_RST_CMD)"\0" \
-MK_STR(__SPI_RST_CMD)"\0" \
-MK_STR(__SD_RST_CMD)"\0" \
-MK_STR(__NAND_RST_CMD)"\0" \
-MK_STR(__PCIE_RST_CMD)"\0"
+__stringify(__NOR_RST_CMD)"\0" \
+__stringify(__SPI_RST_CMD)"\0" \
+__stringify(__SD_RST_CMD)"\0" \
+__stringify(__NAND_RST_CMD)"\0" \
+__stringify(__PCIE_RST_CMD)"\0"
 
 #define CONFIG_NFSBOOTCOMMAND	\
 "setenv bootargs root=/dev/nfs rw "	\

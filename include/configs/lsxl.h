@@ -141,8 +141,8 @@
 		"&& bootm 0x00100000 0x00800000\0"			\
 	"bootcmd_rescue=run config_nc_dhcp; run nc\0"			\
 	"eraseenv=sf probe 0 "						\
-		"&& sf erase " MK_STR(CONFIG_ENV_OFFSET)		\
-			" +" MK_STR(CONFIG_ENV_SIZE) "\0"		\
+		"&& sf erase " __stringify(CONFIG_ENV_OFFSET)		\
+			" +" __stringify(CONFIG_ENV_SIZE) "\0"		\
 	"config_nc_dhcp=setenv autoload_old ${autoload}; "		\
 		"setenv autoload no "					\
 		"&& bootp "						\
