@@ -58,6 +58,7 @@ int saveenv(void)
 	block_dev_desc_t *dev_desc = NULL;
 	int dev = FAT_ENV_DEVICE;
 	int part = FAT_ENV_PART;
+	int err;
 
 	res = (char *)&env_new.data;
 	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE, 0, NULL);
@@ -67,7 +68,7 @@ int saveenv(void)
 	}
 
 #ifdef CONFIG_MMC
-	if (strcmp (FAT_ENV_INTERFACE, "mmc") == 0) {
+	if (strcmp(FAT_ENV_INTERFACE, "mmc") == 0) {
 		struct mmc *mmc = find_mmc_device(dev);
 
 		if (!mmc) {
@@ -86,14 +87,17 @@ int saveenv(void)
 			FAT_ENV_INTERFACE, dev);
 		return 1;
 	}
-	if (fat_register_device(dev_desc, part) != 0) {
+
+	err = fat_register_device(dev_desc, part);
+	if (err) {
 		printf("Failed to register %s%d:%d\n",
 			FAT_ENV_INTERFACE, dev, part);
 		return 1;
 	}
 
 	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
-	if (file_fat_write(FAT_ENV_FILE, (void *)&env_new, sizeof(env_t)) == -1) {
+	err = file_fat_write(FAT_ENV_FILE, (void *)&env_new, sizeof(env_t));
+	if (err == -1) {
 		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
 			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);
 		return 1;
@@ -110,9 +114,10 @@ void env_relocate_spec(void)
 	block_dev_desc_t *dev_desc = NULL;
 	int dev = FAT_ENV_DEVICE;
 	int part = FAT_ENV_PART;
+	int err;
 
 #ifdef CONFIG_MMC
-	if (strcmp (FAT_ENV_INTERFACE, "mmc") == 0) {
+	if (strcmp(FAT_ENV_INTERFACE, "mmc") == 0) {
 		struct mmc *mmc = find_mmc_device(dev);
 
 		if (!mmc) {
@@ -133,14 +138,17 @@ void env_relocate_spec(void)
 		set_default_env(NULL);
 		return;
 	}
-	if (fat_register_device(dev_desc, part) != 0) {
+
+	err = fat_register_device(dev_desc, part);
+	if (err) {
 		printf("Failed to register %s%d:%d\n",
 			FAT_ENV_INTERFACE, dev, part);
 		set_default_env(NULL);
 		return;
 	}
 
-	if (file_fat_read(FAT_ENV_FILE, (unsigned char *)&buf, CONFIG_ENV_SIZE) == -1) {
+	err = file_fat_read(FAT_ENV_FILE, (uchar *)&buf, CONFIG_ENV_SIZE);
+	if (err == -1) {
 		printf("\n** Unable to read \"%s\" from %s%d:%d **\n",
 			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);
 		set_default_env(NULL);
