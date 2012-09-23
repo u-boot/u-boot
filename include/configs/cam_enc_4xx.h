@@ -402,8 +402,6 @@
 /*
  * Default environment settings
  */
-#define xstr(s)	str(s)
-#define str(s)	#s
 
 #define DVN4XX_UBOOT_ADDR_R_RAM		0x80000000
 /* (DVN4XX_UBOOT_ADDR_R_RAM + CONFIG_SYS_NAND_PAGE_SIZE) */
@@ -415,22 +413,22 @@
 #define DVN4XX_UBOOT_ADDR_R_UBOOT	0x80003800
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"u_boot_addr_r=" xstr(DVN4XX_UBOOT_ADDR_R_RAM) "\0"		\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.ubl\0"			\
+	"u_boot_addr_r=" __stringify(DVN4XX_UBOOT_ADDR_R_RAM) "\0"	\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.ubl\0"		\
 	"load=tftp ${u_boot_addr_r} ${u-boot}\0"			\
-	"pagesz=" xstr(CONFIG_SYS_NAND_PAGE_SIZE) "\0"			\
+	"pagesz=" __stringify(CONFIG_SYS_NAND_PAGE_SIZE) "\0"		\
 	"writeheader=nandrbl rbl;nand erase 20000 ${pagesz};"		\
 		"nand write ${u_boot_addr_r} 20000 ${pagesz};"		\
 		"nandrbl uboot\0"					\
 	"writenand_spl=nandrbl rbl;nand erase 0 3000;"			\
-		"nand write " xstr(DVN4XX_UBOOT_ADDR_R_NAND_SPL)	\
+		"nand write " __stringify(DVN4XX_UBOOT_ADDR_R_NAND_SPL)	\
 		" 0 3000;nandrbl uboot\0"				\
 	"writeuboot=nandrbl uboot;"					\
-		"nand erase " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "	\
-		 xstr(CONFIG_SYS_NAND_U_BOOT_ERA_SIZE)			\
-		";nand write " xstr(DVN4XX_UBOOT_ADDR_R_UBOOT)		\
-		" " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "		\
-		xstr(CONFIG_SYS_NAND_U_BOOT_SIZE) "\0"			\
+		"nand erase " __stringify(CONFIG_SYS_NAND_U_BOOT_OFFS) " "\
+		 __stringify(CONFIG_SYS_NAND_U_BOOT_ERA_SIZE)		\
+		";nand write " __stringify(DVN4XX_UBOOT_ADDR_R_UBOOT)	\
+		" " __stringify(CONFIG_SYS_NAND_U_BOOT_OFFS) " "	\
+		__stringify(CONFIG_SYS_NAND_U_BOOT_SIZE) "\0"		\
 	"update=run load writenand_spl writeuboot\0"			\
 	"bootcmd=run net_nfs\0"						\
 	"rootpath=/opt/eldk-arm/arm\0"					\
@@ -447,14 +445,14 @@
 	"rootpath=/opt/eldk-arm/arm\0"					\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
-	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage \0"			\
+	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage \0"		\
 	"kernel_addr_r=80600000\0"					\
 	"load_kernel=tftp ${kernel_addr_r} ${bootfile}\0"		\
 	"ubi_load_kernel=ubi part ubi 2048;ubifsmount ${img_volume};"	\
 		"ubifsload ${kernel_addr_r} boot/uImage\0"		\
-	"fit_addr_r=" xstr(CONFIG_BOARD_IMG_ADDR_R) "\0"		\
-	"img_addr_r=" xstr(CONFIG_BOARD_IMG_ADDR_R) "\0"		\
-	"img_file=" xstr(CONFIG_HOSTNAME) "/ait.itb\0"			\
+	"fit_addr_r=" __stringify(CONFIG_BOARD_IMG_ADDR_R) "\0"		\
+	"img_addr_r=" __stringify(CONFIG_BOARD_IMG_ADDR_R) "\0"		\
+	"img_file=" __stringify(CONFIG_HOSTNAME) "/ait.itb\0"		\
 	"header_addr=20000\0"						\
 	"img_writeheader=nandrbl rbl;"					\
 		"nand erase ${header_addr} ${pagesz};"			\
@@ -463,11 +461,11 @@
 	"img_writespl=nandrbl rbl;nand erase 0 3000;"			\
 		"nand write ${img_addr_r} 0 3000;nandrbl uboot\0"	\
 	"img_writeuboot=nandrbl uboot;"					\
-		"nand erase " xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "	\
-		 xstr(CONFIG_SYS_NAND_U_BOOT_ERA_SIZE)			\
+		"nand erase " __stringify(CONFIG_SYS_NAND_U_BOOT_OFFS) " "\
+		 __stringify(CONFIG_SYS_NAND_U_BOOT_ERA_SIZE)		\
 		";nand write ${img_addr_r} "				\
-		xstr(CONFIG_SYS_NAND_U_BOOT_OFFS) " "			\
-		xstr(CONFIG_SYS_NAND_U_BOOT_SIZE) "\0"			\
+		__stringify(CONFIG_SYS_NAND_U_BOOT_OFFS) " "		\
+		__stringify(CONFIG_SYS_NAND_U_BOOT_SIZE) "\0"		\
 	"img_writedfenv=ubi part ubi 2048;"				\
 		"ubi write ${img_addr_r} default ${filesize}\0"		\
 	"img_volume=rootfs1\0"						\

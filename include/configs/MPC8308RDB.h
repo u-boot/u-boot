@@ -556,9 +556,6 @@
 
 #define CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
 
-#define xstr(s)	str(s)
-#define str(s)	#s
-
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"consoledev=ttyS0\0"						\
@@ -592,10 +589,10 @@
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"bootcmd=run flash_self\0"					\
 	"load=tftp ${loadaddr} ${u-boot}\0"				\
-	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE)		\
-		" +${filesize};era " xstr(CONFIG_SYS_MONITOR_BASE)	\
+	"update=protect off " __stringify(CONFIG_SYS_MONITOR_BASE)	\
+		" +${filesize};era " __stringify(CONFIG_SYS_MONITOR_BASE)\
 		" +${filesize};cp.b ${fileaddr} "			\
-		xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0"		\
+		__stringify(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0"	\
 	"upd=run load update\0"						\
 
 #endif	/* __CONFIG_H */

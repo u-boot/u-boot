@@ -148,9 +148,6 @@
 	"ubi part " CONFIG_KM_UBI_PARTITION_NAME_APP "; fi\0"
 #endif /* CONFIG_KM_UBI_PARTITION_NAME_APP */
 
-#define xstr(s)	str(s)
-#define str(s)	#s
-
 /*
  * boottargets
  * - set 'subbootcmds'
@@ -187,7 +184,7 @@
 		":${hostname}:${netdev}:off3"				\
 		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}"	\
 		" mem=${kernelmem} init=${init}"			\
-		" phram.phram=phvar,${varaddr}," xstr(CONFIG_KM_PHRAM)	\
+		" phram.phram=phvar,${varaddr}," __stringify(CONFIG_KM_PHRAM)\
 		" " CONFIG_KM_UBI_LINUX_MTD " "				\
 		CONFIG_KM_DEF_BOOT_ARGS_CPU				\
 		"\0"							\
@@ -212,9 +209,9 @@
  * - 'cramfsloadfdt': copy fdt from a cramfs to ram
  */
 #define CONFIG_KM_DEF_ENV_FLASH_BOOT					\
-	"cramfsaddr=" xstr(CONFIG_KM_CRAMFS_ADDR) "\0"			\
+	"cramfsaddr=" __stringify(CONFIG_KM_CRAMFS_ADDR) "\0"		\
 	"cramfsloadkernel=cramfsload ${load_addr_r} uImage\0"		\
-	"ubicopy=ubi read "xstr(CONFIG_KM_CRAMFS_ADDR)			\
+	"ubicopy=ubi read "__stringify(CONFIG_KM_CRAMFS_ADDR)		\
 			" bootfs${boot_bank}\0"				\
 	CONFIG_KM_DEV_ENV_FLASH_BOOT_UBI
 
@@ -227,7 +224,7 @@
 #define CONFIG_KM_DEF_ENV_CONSTANTS					\
 	"backup_bank=0\0"						\
 	"release=run newenv; reset\0"					\
-	"pnvramsize=" xstr(CONFIG_KM_PNVRAM) "\0"			\
+	"pnvramsize=" __stringify(CONFIG_KM_PNVRAM) "\0"		\
 	"testbootcmd=setenv boot_bank ${test_bank}; "			\
 		"run ${subbootcmds}; reset\0"				\
 	""
@@ -252,7 +249,7 @@
 		"saveenv && saveenv && boot\0"				\
 	"bootlimit=3\0"							\
 	"init=/sbin/init-overlay.sh\0"					\
-	"load_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"			\
+	"load_addr_r="__stringify(CONFIG_KM_KERNEL_ADDR) "\0"		\
 	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
