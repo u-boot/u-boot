@@ -22,8 +22,6 @@
 
 #include "zynq_mmc.h"
 
-#define SD_BASEADDR XPSS_SDIO0_BASEADDR
-
 static u32 *sd_dma_buffer;
 
 /* Data Memory Barrier */
