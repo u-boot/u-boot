@@ -912,6 +912,8 @@
 #define PVR_440SPe_RA	0x53521890 /* 440SPe rev A without RAID 6 support	*/
 #define PVR_440SPe_6_RB	0x53421891 /* 440SPe rev B with RAID 6 support enabled	*/
 #define PVR_440SPe_RB	0x53521891 /* 440SPe rev B without RAID 6 support	*/
+#define PVR_440x5_R1x	0x7ff21910 /* 440 rev 1.x in Xilinx Virtex-5 FXT FPGA */
+#define PVR_440x5_R20	0x7ff21911 /* 440 rev 2.0 in Xilinx Virtex-5 FXT FPGA */
 #define PVR_460EX_SE_RA	0x130218A2 /* 460EX rev A with Security Engine	  */
 #define PVR_460EX_RA	0x130218A3 /* 460EX rev A without Security Engine */
 #define PVR_460EX_RB	0x130218A4 /* 460EX rev B with and without Sec Eng*/
