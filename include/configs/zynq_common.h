@@ -121,6 +121,13 @@
 #endif
 
 
+/* For development/debugging */
+#ifdef DEBUG
+# define CONFIG_CMD_REGINFO
+# define CONFIG_PANIC_HANG
+#endif
+
+
 
 #include <asm/arch/xparameters.h>
 
