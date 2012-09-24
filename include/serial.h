@@ -90,6 +90,11 @@ extern struct serial_device bfin_serial2_device;
 extern struct serial_device bfin_serial3_device;
 #endif
 
+#if defined(CONFIG_ZYNQ_SERIAL)
+extern struct serial_device uart_zynq_serial0_device;
+extern struct serial_device uart_zynq_serial1_device;
+#endif
+
 extern void serial_register(struct serial_device *);
 extern void serial_initialize(void);
 extern void serial_stdio_init(void);
