@@ -27,8 +27,8 @@
 
 #include <xilinx.h>
 
-extern int zynq_load(Xilinx_desc *desc, void *image, size_t size);
-extern int zynq_dump(Xilinx_desc *desc, void *buf, size_t bsize);
+extern int zynq_load(Xilinx_desc *desc, const void *image, size_t size);
+extern int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
 extern int zynq_info(Xilinx_desc *desc);
 
 /* Device Image Sizes

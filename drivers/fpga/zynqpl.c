@@ -76,7 +76,7 @@ int zynq_info(Xilinx_desc *desc)
 	return FPGA_SUCCESS;
 }
 
-int zynq_load(Xilinx_desc *desc, void *buf, size_t bsize)
+int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	unsigned long ts;		/* timestamp */
 	u32 control;
@@ -218,7 +218,7 @@ int zynq_load(Xilinx_desc *desc, void *buf, size_t bsize)
 	return FPGA_SUCCESS;
 }
 
-int zynq_dump(Xilinx_desc *desc, void *buf, size_t bsize)
+int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	return FPGA_FAIL;
 }
