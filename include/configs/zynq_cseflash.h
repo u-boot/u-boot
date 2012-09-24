@@ -57,8 +57,6 @@
 #undef CONFIG_GZIP
 #undef CONFIG_ZLIB
 
-//#define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
-
 //#define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 

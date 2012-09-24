@@ -127,8 +127,6 @@
 # define CONFIG_PANIC_HANG
 #endif
 
-
-
 #include <asm/arch/xparameters.h>
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000
