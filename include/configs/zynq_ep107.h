@@ -29,6 +29,7 @@
 #define CONFIG_CPU_FREQ_HZ	12500000
 
 #define CONFIG_MMC
+#define CONFIG_ZYNQ_SPI
 
 #include <configs/zynq_common.h>
 
@@ -71,18 +72,6 @@
 
 #undef CONFIG_FIT
 #undef CONFIG_FIT_VERBOSE
-
-/*
- * SPI Settings
- */
-#define CONFIG_ZYNQ_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_SF_DEFAULT_SPEED 30000000
-#define CONFIG_SPI_FLASH
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_SPI_FLASH_WINBOND
-#define CONFIG_SPI_FLASH_STMICRO
 
 /*
  * NAND Flash settings

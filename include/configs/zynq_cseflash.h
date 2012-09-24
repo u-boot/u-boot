@@ -71,20 +71,6 @@
 #undef CONFIG_ENV_SIZE
 #define CONFIG_ENV_SIZE 896
 
-/*
- * SPI Settings
- */
-#define CONFIG_ZYNQ_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_SF_DEFAULT_SPEED 30000000
-#define CONFIG_SPI_FLASH
-#define CONFIG_CMD_SF
-/* #define CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH */
-//#define CONFIG_SPI_FLASH_ATMEL
-#define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_SPI_FLASH_WINBOND
-#define CONFIG_SPI_FLASH_STMICRO
-
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 

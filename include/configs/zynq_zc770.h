@@ -27,6 +27,7 @@
 # define CONFIG_ZYNQ_GEM0
 # define CONFIG_PHY_ADDR	7
 # define CONFIG_MMC
+# define CONFIG_ZYNQ_SPI
 
 #elif defined(CONFIG_ZC770_XM011)
 # define CONFIG_ZYNQ_SERIAL_UART1
@@ -39,11 +40,11 @@
 # define CONFIG_ZYNQ_SERIAL_UART0
 # define CONFIG_ZYNQ_GEM1
 # define CONFIG_PHY_ADDR	7
+# define CONFIG_ZYNQ_SPI
 
 #else
 # define CONFIG_ZYNQ_SERIAL_UART0
 #endif
-
 
 
 #include <configs/zynq_common.h>
@@ -53,32 +54,16 @@
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #endif
 
-
-
-
 /*
  * SPI Settings
  */
 #if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM013)
-#define CONFIG_ZYNQ_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_SF_DEFAULT_SPEED 30000000
-#define CONFIG_SPI_FLASH
-#define CONFIG_CMD_SF
-
 #ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
 /* Address Xilinx boot rom should use to launch u-boot */
 #define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
 #endif
 #endif
 
-#if defined(CONFIG_ZC770_XM013)
-#define CONFIG_SPI_FLASH_SPANSION
-#endif
-
-#if defined(CONFIG_ZC770_XM010)
-#define CONFIG_SPI_FLASH_STMICRO
-#endif
 
 /*
  * NAND Flash settings

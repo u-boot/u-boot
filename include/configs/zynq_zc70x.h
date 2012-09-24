@@ -27,21 +27,8 @@
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_MMC
+#define CONFIG_ZYNQ_SPI
 
 #include <configs/zynq_common.h>
-
-
-#define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
-
-/*
- * SPI Settings
- */
-#define CONFIG_ZYNQ_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_SF_DEFAULT_SPEED 30000000
-#define CONFIG_SPI_FLASH
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_SPANSION
 
 #endif /* __CONFIG_ZYNQ_ZC70X_H */

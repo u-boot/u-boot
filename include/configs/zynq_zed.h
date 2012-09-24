@@ -27,10 +27,9 @@
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_MMC
+#define CONFIG_ZYNQ_SPI
 
 #include <configs/zynq_common.h>
-
-
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS 	\
@@ -53,15 +52,5 @@
 		"tftp 0x1000000 devicetree.dtb;" \
 		"tftp 0x800000 ramdisk8M.image.gz;" \
 		"go 0x8000\0"
-
-/*
- * SPI Settings
- */
-#define CONFIG_ZYNQ_SPI
-#define CONFIG_CMD_SPI
-#define CONFIG_SF_DEFAULT_SPEED 30000000
-#define CONFIG_SPI_FLASH
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_SPANSION
 
 #endif /* __CONFIG_ZYNQ_ZED_H */
