@@ -48,6 +48,7 @@ enum mxc_clock {
 	MXC_USB_CLK,
 	MXC_CSPI_CLK,
 	MXC_FEC_CLK,
+	MXC_I2C_CLK,
 };
 
 enum mxc_main_clock {

@@ -46,6 +46,7 @@ enum mxc_clock {
 	MXC_UART_CLK,
 	MXC_IPU_CLK,
 	MXC_ESDHC_CLK,
+	MXC_I2C_CLK,
 };
 
 unsigned int mxc_get_clock(enum mxc_clock clk);

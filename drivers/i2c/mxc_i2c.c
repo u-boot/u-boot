@@ -98,7 +98,7 @@ static uint8_t i2c_imx_get_clk(unsigned int rate)
 #endif
 
 	/* Divider value calculation */
-	i2c_clk_rate = mxc_get_clock(MXC_IPG_PERCLK);
+	i2c_clk_rate = mxc_get_clock(MXC_I2C_CLK);
 	div = (i2c_clk_rate + rate - 1) / rate;
 	if (div < i2c_clk_div[0][0])
 		clk_div = 0;
@@ -142,7 +142,7 @@ unsigned int bus_i2c_get_bus_speed(void *base)
 	for (clk_div = 0; i2c_clk_div[clk_div][1] != clk_idx; clk_div++)
 		;
 
-	return mxc_get_clock(MXC_IPG_PERCLK) / i2c_clk_div[clk_div][0];
+	return mxc_get_clock(MXC_I2C_CLK) / i2c_clk_div[clk_div][0];
 }
 
 #define ST_BUS_IDLE (0 | (I2SR_IBB << 8))

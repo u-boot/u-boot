@@ -482,6 +482,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_IPG_CLK:
 		return get_ipg_clk();
 	case MXC_IPG_PERCLK:
+	case MXC_I2C_CLK:
 		return get_ipg_per_clk();
 	case MXC_UART_CLK:
 		return get_uart_clk();

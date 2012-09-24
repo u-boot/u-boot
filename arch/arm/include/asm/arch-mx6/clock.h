@@ -41,6 +41,7 @@ enum mxc_clock {
 	MXC_ESDHC4_CLK,
 	MXC_SATA_CLK,
 	MXC_NFC_CLK,
+	MXC_I2C_CLK,
 };
 
 u32 imx_get_uartclk(void);
