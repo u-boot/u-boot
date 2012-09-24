@@ -60,7 +60,9 @@
 #undef CONFIG_CMD_ITEST	/* Integer (and string) test	*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
 
-#undef CONFIG_BOOTM_LINUX
+
+// FIXME this is silly - there is no any bootm image enabled - disable BOOTM
+//#undef CONFIG_BOOTM_LINUX
 #undef CONFIG_BOOTM_NETBSD
 #undef CONFIG_BOOTM_RTEMS
 #undef CONFIG_GZIP
