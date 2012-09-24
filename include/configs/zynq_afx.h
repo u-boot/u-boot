@@ -27,6 +27,8 @@
 # undef CONFIG_SYS_NO_FLASH
 #elif defined(CONFIG_AFX_QSPI)
 # define CONFIG_ZYNQ_SPI
+#elif defined(CONFIG_AFX_NAND)
+# define CONFIG_NAND_ZYNQ
 #endif
 
 
@@ -45,19 +47,6 @@
 /* Address Xilinx boot rom should use to launch u-boot */
 #define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
 #endif
-#endif
-
-/*
- * NAND Flash settings
- */
-#if defined(CONFIG_AFX_NAND)
-#define CONFIG_NAND_ZYNQ
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_LOCK_UNLOCK
-#define CONFIG_SYS_MAX_NAND_DEVICE 1
-#define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_MTD_DEVICE
 #endif
 
 #endif /* __CONFIG_ZYNQ_AFX_H */

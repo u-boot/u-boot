@@ -30,6 +30,7 @@
 
 #define CONFIG_MMC
 #define CONFIG_ZYNQ_SPI
+#define CONFIG_NAND_ZYNQ
 
 #include <configs/zynq_common.h>
 
@@ -73,16 +74,6 @@
 #undef CONFIG_FIT
 #undef CONFIG_FIT_VERBOSE
 
-/*
- * NAND Flash settings
- */
-#define CONFIG_NAND_ZYNQ
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_LOCK_UNLOCK
-#define CONFIG_SYS_MAX_NAND_DEVICE 1
-#define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_MTD_DEVICE
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
