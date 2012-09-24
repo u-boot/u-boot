@@ -36,7 +36,7 @@ lowlevel_init:
 	ldr r1, =(XPSS_SYS_CTRL_BASEADDR +0x910)
 	ldr r2, =0x1F
 	str r2, [r1]
-	
+
 	# FPGA_RST_CTRL
 	# clear resets on AXI fabric ports
 	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 0x240)
@@ -127,8 +127,8 @@ doit:
 	str r2, [r1]
 
 #if (XPAR_MEMORY_MB_SIZE == 256)
-/* 
- * starting with PEEP8 designs, there is 256 MB 
+/*
+ * starting with PEEP8 designs, there is 256 MB
  */
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x3C)
 	ldr r2, =0x00000F88
@@ -189,7 +189,7 @@ doit:
 
 # Delay spin loop
 	ldr r4, =0x1000000
-loop:	
+loop:
 	sub r4, r4, #1
 	cmp r4, #0
 	bne loop

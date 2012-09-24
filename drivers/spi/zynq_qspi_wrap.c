@@ -202,7 +202,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	transfer.tx_buf = dout;
 	transfer.rx_buf = din;
 	transfer.len = bitlen / 8;
-	
+
 	/* Festering sore.
 	 * Assume that the beginning of a transfer with bits to
 	 * transmit must contain a device command.

@@ -293,7 +293,7 @@ xnandps_calculate_hwecc(struct mtd_info *mtd, const u8 *data, u8 *ecc_code)
 	u32 ecc_value = 0;
 	u8 ecc_reg, ecc_byte;
 	u32 ecc_status;
-	
+
 	chip = (struct nand_chip *)mtd->priv;
 	xnand = (struct xnandps_info *)chip->priv;
 
