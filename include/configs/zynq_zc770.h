@@ -133,12 +133,10 @@
 #endif
 
 #if defined(CONFIG_ZC770_XM013)
-#define CONFIG_TTC1
 #define CONFIG_SPI_FLASH_SPANSION
 #endif
 
 #if defined(CONFIG_ZC770_XM010)
-#define CONFIG_TTC0
 #define CONFIG_SPI_FLASH_STMICRO
 #endif
 

@@ -74,9 +74,6 @@
 /* this is to set ipaddr, ethaddr and serverip env variables. */
 #define CONFIG_ZYNQ_IP_ENV
 
-/* HW to use */
-#define CONFIG_TTC0
-
 /*
  * Physical Memory map
  */

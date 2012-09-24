@@ -100,9 +100,6 @@
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_TTC0
-//#define CONFIG_GEM0
-
 /*
  * Physical Memory map
  */

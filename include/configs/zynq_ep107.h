@@ -118,9 +118,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 #endif
 
-/* HW to use */
-#define CONFIG_TTC0
-
 /*
  * Physical Memory map
  */
