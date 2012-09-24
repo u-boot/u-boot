@@ -196,7 +196,7 @@ typedef enum irqreturn irqreturn_t;
 #else
 static inline
 u32 xqspips_read(void *addr)
-{					
+{
 	u32 val;
 
 	val =  XIo_In32((unsigned)addr);
@@ -1384,7 +1384,8 @@ int xqspips_check_is_dual_flash(void __iomem *regs_base)
 {
 	int is_dual = -1, lower_mio = 0, upper_mio = 0, val;
 	u16 mask = 3, type = 2;
-	u32 mio_base, mio_pin_index;
+	u32 mio_pin_index;
+	void *mio_base;
 
 #ifdef CONFIG_EP107
 #ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
