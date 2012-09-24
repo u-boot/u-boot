@@ -16,7 +16,7 @@
 /*
  * This driver is based on plat_nand.c and mxc_nand.c drivers
  */
-#include "xbasic_types.h"
+//#include "xbasic_types.h"
 #include <common.h>
 #include <malloc.h>
 
@@ -28,6 +28,22 @@
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/nand_ecc.h>
 #include "zynq_nand.h"
+
+#define dmbp() __asm__ __volatile__ ("dmb" : : : "memory")
+
+static void XIo_Out32(u32 OutAddress, u32 Value)
+{
+    *(volatile u32 *) OutAddress = Value;
+    dmbp();
+}
+
+static u32 XIo_In32(u32 InAddress)
+{
+    volatile u32 temp = *(volatile u32 *)InAddress;
+    dmbp();
+    return temp;
+}
+
 
 /********** stubs - Make Linux code compile in this environment **************/
 #define EIO              5

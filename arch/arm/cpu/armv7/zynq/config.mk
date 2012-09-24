@@ -20,10 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-PLATFORM_RELFLAGS += -fno-strict-aliasing 
+PLATFORM_RELFLAGS += -fno-strict-aliasing
 # Xilinx, added to prevent unaligned accesses which started happening # with GCC 4.5.2 tools
 PLATFORM_RELFLAGS += -mno-unaligned-access
-
-PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/xilinx/common
-PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/$(BOARDDIR)
-

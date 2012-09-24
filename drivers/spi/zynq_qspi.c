@@ -27,7 +27,7 @@
 #include <linux/xilinx_devices.h>
 #else
 
-#include "xbasic_types.h"
+//#include "xbasic_types.h"
 #include <common.h>
 #include <malloc.h>
 
@@ -43,6 +43,21 @@
 #undef DEBUG_REG
 
 #endif
+
+#define dmbp() __asm__ __volatile__ ("dmb" : : : "memory")
+
+static void XIo_Out32(u32 OutAddress, u32 Value)
+{
+    *(volatile u32 *) OutAddress = Value;
+    dmbp();
+}
+
+static u32 XIo_In32(u32 InAddress)
+{
+    volatile u32 temp = *(volatile u32 *)InAddress;
+    dmbp();
+    return temp;
+}
 
 /****** stubs to make this Linux driver build in this environment **/
 
