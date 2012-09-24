@@ -407,7 +407,7 @@ void Xgmac_halt(struct eth_device *dev)
 	return;
 }
 
-int Xgmac_send(struct eth_device *dev, volatile void *packet, int length)
+int Xgmac_send(struct eth_device *dev, void *packet, int length)
 {
 	volatile int Status;
 	XEmacPss_Bd *BdPtr;
@@ -501,7 +501,7 @@ int Xgmac_rx(struct eth_device *dev)
 	if (status & XEMACPSS_RXSR_FRAMERX_MASK) {
 
 //		printf("rx packet received\n");
-	
+
 		do {
 			retval = Xgmac_process_rx(EmacPssInstancePtr);
 		} while (retval == 0) ;
@@ -511,7 +511,7 @@ int Xgmac_rx(struct eth_device *dev)
 	 */
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 	                  XEMACPSS_RXSR_OFFSET, status);
-	
+
 	return 1;
 }
 
