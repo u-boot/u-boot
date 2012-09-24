@@ -80,8 +80,6 @@ COBJS-$(CONFIG_XILINX_AXIEMAC) += xilinx_axi_emac.o
 COBJS-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
 COBJS-$(CONFIG_XILINX_LL_TEMAC) += xilinx_ll_temac.o xilinx_ll_temac_mdio.o \
 		xilinx_ll_temac_fifo.o xilinx_ll_temac_sdma.o
-COBJS-$(CONFIG_ZYNQ_GEM) += zynq_gem.o zynq_gem_bdring.o zynq_gem_control.o \
-			zynq_gem_g.o zynq_gem_sinit.o zynq_gem_wrap.o
 
 COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
