@@ -18,6 +18,8 @@
 #ifndef __CONFIG_ZYNQ_ZC70X_H
 #define __CONFIG_ZYNQ_ZC70X_H
 
+#define CONFIG_ZYNQ_SERIAL_UART1
+
 #include <configs/zynq_common.h>
 
 #undef CONFIG_ZYNQ_XIL_LQSPI
@@ -46,7 +48,6 @@
 #define CONFIG_ZYNQ_IP_ENV
 
 /* HW to use */
-#define CONFIG_UART1
 #define CONFIG_TTC0
 #define CONFIG_GEM0
 #define CONFIG_ZYNQ_GEM

@@ -18,6 +18,20 @@
 #ifndef __CONFIG_ZYNQ_ZC770_H
 #define __CONFIG_ZYNQ_ZC770_H
 
+
+#if defined(CONFIG_ZC770_XM010)
+# define CONFIG_ZYNQ_SERIAL_UART1
+
+#elif defined(CONFIG_ZC770_XM011)
+# define CONFIG_ZYNQ_SERIAL_UART1
+
+#elif defined(CONFIG_ZC770_XM012)
+# define CONFIG_ZYNQ_SERIAL_UART1
+
+#else
+# define CONFIG_ZYNQ_SERIAL_UART0
+#endif
+
 #include <configs/zynq_common.h>
 
 #if defined(CONFIG_ZC770_XM012)
@@ -83,12 +97,6 @@
  */
 #define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
 
-#if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM011) \
-	|| defined(CONFIG_ZC770_XM012)
-#define CONFIG_UART1
-#else
-#define CONFIG_UART0
-#endif
 
 /*
  * Ethernet Settings

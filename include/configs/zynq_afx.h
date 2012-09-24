@@ -18,6 +18,8 @@
 #ifndef __CONFIG_ZYNQ_AFX_H
 #define __CONFIG_ZYNQ_AFX_H
 
+#define CONFIG_ZYNQ_SERIAL_UART1
+
 #include <configs/zynq_common.h>
 
 #if defined(CONFIG_AFX_NOR)
@@ -77,11 +79,6 @@
  * Physical Memory map
  */
 #define PHYS_SDRAM_1_SIZE (128 * 1024 * 1024)
-
-/*
- * UART Settings
- */
-#define CONFIG_UART1
 
 /*
  * Ethernet Settings

@@ -20,6 +20,8 @@
 
 #define CONFIG_EP107 /* Board */
 
+#define CONFIG_ZYNQ_SERIAL_UART0
+
 #include <configs/zynq_common.h>
 
 #undef CONFIG_ZYNQ_XIL_LQSPI
@@ -113,7 +115,6 @@
 #endif
 
 /* HW to use */
-# define CONFIG_UART0
 #define CONFIG_TTC0
 #define CONFIG_GEM0
 #define CONFIG_ZYNQ_GEM

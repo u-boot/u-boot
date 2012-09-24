@@ -6,6 +6,11 @@
 
 #include <configs/zynq_common.h>
 
+/* Disable uart console */
+#undef CONFIG_SERIAL_MULTI
+#undef CONFIG_ZYNQ_SERIAL
+
+
 #define CONFIG_ARM_DCC
 #define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
 
@@ -15,7 +20,6 @@
 #undef CONFIG_OF_LIBFDT
 
 #undef CONFIG_ZYNQ_XIL_LQSPI
-#undef CONFIG_PSS_SERIAL
 #undef CONFIG_RTC_XPSSRTC
 
 #undef CONFIG_SYS_NO_FLASH
@@ -96,8 +100,6 @@
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-/* HW to use */
-#define CONFIG_UART1
 #define CONFIG_TTC0
 //#define CONFIG_GEM0
 
