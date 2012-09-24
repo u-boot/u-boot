@@ -50,19 +50,10 @@
 
 #include <configs/zynq_common.h>
 
-#if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM012)
 /* Place a Xilinx Boot ROM header in u-boot image? */
+#if defined(CONFIG_ZC770_XM010)
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
-#endif
-
-/*
- * SPI Settings
- */
-#if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM013)
-#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
-/* Address Xilinx boot rom should use to launch u-boot */
 #define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
-#endif
 #endif
 
 #endif /* __CONFIG_ZYNQ_ZC770_H */

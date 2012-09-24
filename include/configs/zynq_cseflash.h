@@ -73,10 +73,6 @@
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
-
-#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
-/* NOR */
 #define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
-#endif
 
 #endif /* __CONFIG_H */

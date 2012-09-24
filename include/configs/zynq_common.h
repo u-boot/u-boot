@@ -101,9 +101,6 @@
 #  define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
 #  define CONFIG_ENV_IS_IN_FLASH
 #  define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
-#  ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
-#   define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
-#  endif
 # endif
 #endif
 
