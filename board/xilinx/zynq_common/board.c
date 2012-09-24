@@ -54,7 +54,7 @@ Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
 
 int board_init(void)
 {
-	/* temporary hack to clear pending irqs before Linux as it 
+	/* temporary hack to clear pending irqs before Linux as it
 	   will hang Linux */
 
 	XIo_Out32(0xe0001014, 0x26d);
@@ -110,7 +110,18 @@ int board_late_init (void)
 #ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)
 {
-	return 0;
+	u32 ret = 0;
+
+#if defined(CONFIG_ZYNQ_GEM)
+# if defined(CONFIG_ZYNQ_GEM_BASEADDR0)
+	ret |= zynq_gem_initialize(bis, CONFIG_ZYNQ_GEM_BASEADDR0);
+# endif
+# if defined(CONFIG_ZYNQ_GEM_BASEADDR1)
+	ret |= zynq_gem_initialize(bis, CONFIG_ZYNQ_GEM_BASEADDR1);
+# endif
+#endif
+
+	return ret;
 }
 #endif
 

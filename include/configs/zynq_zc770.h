@@ -21,12 +21,19 @@
 
 #if defined(CONFIG_ZC770_XM010)
 # define CONFIG_ZYNQ_SERIAL_UART1
+# define CONFIG_ZYNQ_GEM0
+# define CONFIG_PHY_ADDR	7
 
 #elif defined(CONFIG_ZC770_XM011)
 # define CONFIG_ZYNQ_SERIAL_UART1
 
 #elif defined(CONFIG_ZC770_XM012)
 # define CONFIG_ZYNQ_SERIAL_UART1
+
+#elif defined(CONFIG_ZC770_XM013)
+# define CONFIG_ZYNQ_SERIAL_UART0
+# define CONFIG_ZYNQ_GEM1
+# define CONFIG_PHY_ADDR	7
 
 #else
 # define CONFIG_ZYNQ_SERIAL_UART0
@@ -103,8 +110,6 @@
  */
 #if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM013)
 #define CONFIG_CMD_PING
-#define CONFIG_ZYNQ_GEM
-#define CONFIG_XGMAC_PHY_ADDR 0x7
 #else
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
@@ -128,13 +133,11 @@
 #endif
 
 #if defined(CONFIG_ZC770_XM013)
-#define CONFIG_GEM1
 #define CONFIG_TTC1
 #define CONFIG_SPI_FLASH_SPANSION
 #endif
 
 #if defined(CONFIG_ZC770_XM010)
-#define CONFIG_GEM0
 #define CONFIG_TTC0
 #define CONFIG_SPI_FLASH_STMICRO
 #endif

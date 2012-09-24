@@ -19,6 +19,8 @@
 #define __CONFIG_ZYNQ_ZC70X_H
 
 #define CONFIG_ZYNQ_SERIAL_UART1
+#define CONFIG_ZYNQ_GEM0
+#define CONFIG_PHY_ADDR	7
 
 #include <configs/zynq_common.h>
 
@@ -49,9 +51,6 @@
 
 /* HW to use */
 #define CONFIG_TTC0
-#define CONFIG_GEM0
-#define CONFIG_ZYNQ_GEM
-#define CONFIG_XGMAC_PHY_ADDR 0x7
 
 /*
  * Physical Memory map

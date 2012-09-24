@@ -21,6 +21,8 @@
 #define CONFIG_EP107 /* Board */
 
 #define CONFIG_ZYNQ_SERIAL_UART0
+#define CONFIG_ZYNQ_GEM0
+#define CONFIG_PHY_ADDR	23
 
 #include <configs/zynq_common.h>
 
@@ -116,9 +118,6 @@
 
 /* HW to use */
 #define CONFIG_TTC0
-#define CONFIG_GEM0
-#define CONFIG_ZYNQ_GEM
-#define CONFIG_XGMAC_PHY_ADDR 0x17
 
 /*
  * Physical Memory map

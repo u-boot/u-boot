@@ -45,6 +45,24 @@
 #define CONFIG_ZYNQ_SERIAL
 #endif
 
+/* Ethernet driver */
+#ifdef CONFIG_ZYNQ_GEM0
+# define CONFIG_ZYNQ_GEM_BASEADDR0	0xE000B000
+#endif
+
+#ifdef CONFIG_ZYNQ_GEM1
+# define CONFIG_ZYNQ_GEM_BASEADDR1	0xE000C000
+#endif
+
+#if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
+# define CONFIG_NET_MULTI
+# define CONFIG_ZYNQ_GEM
+# define CONFIG_MII
+# define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
+# define CONFIG_PHYLIB
+# define CONFIG_PHY_MARVELL
+#endif
+
 #include <asm/arch/xparameters.h>
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000
