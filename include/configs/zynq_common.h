@@ -126,6 +126,16 @@
 #endif
 
 
+#ifdef CONFIG_MMC
+# define CONFIG_GENERIC_MMC
+# define CONFIG_ZYNQ_MMC
+# define CONFIG_CMD_MMC
+# define CONFIG_CMD_FAT
+# define CONFIG_CMD_EXT2
+# define CONFIG_DOS_PARTITION
+#endif
+
+
 /* For development/debugging */
 #ifdef DEBUG
 # define CONFIG_CMD_REGINFO

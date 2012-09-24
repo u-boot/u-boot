@@ -28,6 +28,8 @@
 
 #define CONFIG_CPU_FREQ_HZ	12500000
 
+#define CONFIG_MMC
+
 #include <configs/zynq_common.h>
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
@@ -100,18 +102,6 @@
 /* Address Xilinx boot rom should use to launch u-boot */
 /* NOR */
 #define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
-#endif
-
-/* Secure Digital */
-#define CONFIG_MMC
-
-#ifdef CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_ZYNQ_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_DOS_PARTITION
 #endif
 
 #endif /* __CONFIG_ZYNQ_EP107_H */

@@ -26,6 +26,7 @@
 # define CONFIG_ZYNQ_SERIAL_UART1
 # define CONFIG_ZYNQ_GEM0
 # define CONFIG_PHY_ADDR	7
+# define CONFIG_MMC
 
 #elif defined(CONFIG_ZC770_XM011)
 # define CONFIG_ZYNQ_SERIAL_UART1
@@ -42,7 +43,6 @@
 #else
 # define CONFIG_ZYNQ_SERIAL_UART0
 #endif
-
 
 
 
@@ -93,18 +93,5 @@
 #define CONFIG_MTD_DEVICE
 #endif
 
-#if defined(CONFIG_ZC770_XM010)
-/* Secure Digital */
-#define CONFIG_MMC
-
-#ifdef CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_ZYNQ_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_DOS_PARTITION
-#endif
-#endif
 
 #endif /* __CONFIG_ZYNQ_ZC770_H */

@@ -26,6 +26,8 @@
 
 #define CONFIG_SYS_NO_FLASH
 
+#define CONFIG_MMC
+
 #include <configs/zynq_common.h>
 
 
@@ -61,17 +63,5 @@
 #define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH_SPANSION
-
-/* Secure Digital */
-#define CONFIG_MMC
-
-#ifdef CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_ZYNQ_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_DOS_PARTITION
-#endif
 
 #endif /* __CONFIG_ZYNQ_ZED_H */
