@@ -18,6 +18,8 @@
 #ifndef __CONFIG_ZYNQ_AFX_H
 #define __CONFIG_ZYNQ_AFX_H
 
+#define PHYS_SDRAM_1_SIZE (128 * 1024 * 1024)
+
 #define CONFIG_ZYNQ_SERIAL_UART1
 
 #define CONFIG_SYS_NO_FLASH
@@ -44,10 +46,6 @@
 #endif
 
 
-/*
- * Physical Memory map
- */
-#define PHYS_SDRAM_1_SIZE (128 * 1024 * 1024)
 
 /*
  * SPI Settings

@@ -20,6 +20,8 @@
 
 #define CONFIG_EP107 /* Board */
 
+#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
+
 #define CONFIG_ZYNQ_SERIAL_UART0
 #define CONFIG_ZYNQ_GEM0
 #define CONFIG_PHY_ADDR	23
@@ -82,11 +84,6 @@
 /* this is to set ipaddr, ethaddr and serverip env variables. */
 #define CONFIG_ZYNQ_IP_ENV
 
-
-/*
- * Physical Memory map
- */
-#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
 
 /*
  * SPI Settings

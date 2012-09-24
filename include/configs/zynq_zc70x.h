@@ -18,6 +18,8 @@
 #ifndef __CONFIG_ZYNQ_ZC70X_H
 #define __CONFIG_ZYNQ_ZC70X_H
 
+#define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
+
 #define CONFIG_ZYNQ_SERIAL_UART1
 #define CONFIG_ZYNQ_GEM0
 #define CONFIG_PHY_ADDR	7
@@ -44,10 +46,7 @@
 /* this is to set ipaddr, ethaddr and serverip env variables. */
 #define CONFIG_ZYNQ_IP_ENV
 
-/*
- * Physical Memory map
- */
-#define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
+
 
 /*
  * SPI Settings

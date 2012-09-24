@@ -4,6 +4,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
+
 #define CONFIG_ENV_IS_NOWHERE
 
 #include <configs/zynq_common.h>
@@ -71,10 +73,7 @@
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-/*
- * Physical Memory map
- */
-#define PHYS_SDRAM_1_SIZE (256 * 1024 * 1024)
+
 
 /* Why? */
 #undef CONFIG_ENV_SIZE

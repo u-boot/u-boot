@@ -18,6 +18,8 @@
 #ifndef __CONFIG_ZYNQ_ZC770_H
 #define __CONFIG_ZYNQ_ZC770_H
 
+#define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
+
 #define CONFIG_SYS_NO_FLASH
 
 #if defined(CONFIG_ZC770_XM010)
@@ -65,10 +67,7 @@
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #endif
 
-/*
- * Physical Memory map
- */
-#define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
+
 
 
 /*
