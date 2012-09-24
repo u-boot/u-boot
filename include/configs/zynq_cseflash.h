@@ -26,7 +26,6 @@
 
 
 
-#undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 #undef CONFIG_CMD_EDITENV
 #undef CONFIG_CMD_SAVEENV
 

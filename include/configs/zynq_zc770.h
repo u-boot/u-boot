@@ -49,8 +49,6 @@
 #include <configs/zynq_common.h>
 
 
-#undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
-
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
 
 

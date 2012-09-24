@@ -52,8 +52,6 @@
 		"tftp 0x800000 ramdisk8M.image.gz;" \
 		"go 0x8000\0"
 
-#undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
-
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
 
 #define CONFIG_AUTO_COMPLETE

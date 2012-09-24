@@ -31,7 +31,6 @@
 
 
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
-#undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 
 
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
