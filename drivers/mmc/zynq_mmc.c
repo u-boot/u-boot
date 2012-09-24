@@ -35,19 +35,19 @@ static void sd_out32(u32 OutAddress, u32 Value)
 	OutAddress += SD_BASEADDR;
 	*(volatile u32 *) OutAddress = Value;
 	SYNCHRONIZE_IO;
-}   
+}
 static void sd_out16(u32 OutAddress, u16 Value)
 {
 	OutAddress += SD_BASEADDR;
 	*(volatile u16 *) OutAddress = Value;
 	SYNCHRONIZE_IO;
-}   
+}
 static void sd_out8(u32 OutAddress, u8 Value)
 {
 	OutAddress += SD_BASEADDR;
 	*(volatile u8 *) OutAddress = Value;
 	SYNCHRONIZE_IO;
-}   
+}
 
 static u32 sd_in32(u32 InAddress)
 {
@@ -343,7 +343,7 @@ static int zynq_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 				break;
 			}
 		}
-	} 
+	}
 
 	if (cmd->resp_type & MMC_RSP_PRESENT) {
 		if (cmd->resp_type & MMC_RSP_136) {
@@ -462,7 +462,7 @@ int zynq_mmc_init(bd_t *bd)
 	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS | MMC_MODE_HS_52MHz;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
-        
+
         mmc->f_max = 52000000;
 	mmc->f_min = mmc->f_max >> 9;
 
