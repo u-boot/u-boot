@@ -67,9 +67,6 @@
 		"tftp 0x800000 ramdisk8M.image.gz;" \
 		"go 0x8000\0"
 
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-
 #undef CONFIG_FIT
 #undef CONFIG_FIT_VERBOSE
 

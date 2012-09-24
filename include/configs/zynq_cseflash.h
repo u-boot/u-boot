@@ -57,8 +57,10 @@
 #undef CONFIG_GZIP
 #undef CONFIG_ZLIB
 
-//#define CONFIG_AUTO_COMPLETE
+#undef CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
+#undef CONFIG_SYS_LONGHELP
+
 
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 #define CONFIG_SKIP_LOWLEVEL_INIT

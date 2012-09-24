@@ -30,9 +30,6 @@
 
 #include <configs/zynq_common.h>
 
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-
 #if defined(CONFIG_AFX_NOR) || defined(CONFIG_AFX_QSPI)
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER

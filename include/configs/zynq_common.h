@@ -108,6 +108,11 @@
 #endif
 
 
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_SYS_LONGHELP
+
+
 
 #include <config_cmd_default.h>
 
