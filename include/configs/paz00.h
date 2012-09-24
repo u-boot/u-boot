@@ -18,20 +18,20 @@
 #define __CONFIG_H
 
 #include <asm/sizes.h>
-#include "tegra2-common.h"
+#include "tegra20-common.h"
 
 /* Enable fdt support for Paz00. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-paz00
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-paz00
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define V_PROMPT		"Tegra2 (Paz00) MOD # "
-#define CONFIG_TEGRA2_BOARD_STRING	"Compal Paz00"
+#define V_PROMPT		"Tegra20 (Paz00) MOD # "
+#define CONFIG_TEGRA_BOARD_STRING	"Compal Paz00"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTA
+#define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_PAZ00
@@ -51,8 +51,9 @@
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_OFFSET ((2 * 1024 * 1024) - CONFIG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET ((1024 * 1024) - CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV 0
+#define CONFIG_SYS_MMC_ENV_PART 2
 
 /* USB Host support */
 #define CONFIG_USB_EHCI
@@ -68,6 +69,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
-#include "tegra2-common-post.h"
+#include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

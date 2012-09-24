@@ -39,8 +39,6 @@
 /*
  * CPU and Board Configuration Options
  */
-#undef CONFIG_USE_IRQ		/* we don't need IRQ/FIQ stuff */
-
 #undef CONFIG_SKIP_LOWLEVEL_INIT
 
 /*
@@ -103,17 +101,6 @@
 
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4 * 1024)	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ	(4 * 1024)	/* FIQ stack */
-#endif
 
 /*
  * Size of malloc() pool

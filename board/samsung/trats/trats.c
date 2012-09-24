@@ -59,6 +59,8 @@ static int hwrevision(int rev)
 	return (board_rev & 0xf) == rev;
 }
 
+struct s3c_plat_otg_data s5pc210_otg_data;
+
 int board_init(void)
 {
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
@@ -71,6 +73,21 @@ int board_init(void)
 #endif
 
 	return 0;
+}
+
+void i2c_init_board(void)
+{
+	struct exynos4_gpio_part1 *gpio1 =
+		(struct exynos4_gpio_part1 *)samsung_get_base_gpio_part1();
+	struct exynos4_gpio_part2 *gpio2 =
+		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
+
+	/* I2C_5 -> PMIC */
+	s5p_gpio_direction_output(&gpio1->b, 7, 1);
+	s5p_gpio_direction_output(&gpio1->b, 6, 1);
+	/* I2C_9 -> FG */
+	s5p_gpio_direction_output(&gpio2->y4, 0, 1);
+	s5p_gpio_direction_output(&gpio2->y4, 1, 1);
 }
 
 int dram_init(void)
@@ -259,6 +276,12 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_phy_ctrl	= EXYNOS4_USBPHY_CONTROL,
 	.usb_flags	= PHY0_SLEEP,
 };
+
+void board_usb_init(void)
+{
+	debug("USB_udc_probe\n");
+	s3c_udc_probe(&s5pc210_otg_data);
+}
 #endif
 
 static void pmic_reset(void)

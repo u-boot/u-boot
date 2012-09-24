@@ -41,7 +41,6 @@
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
@@ -188,9 +187,5 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
-
-#define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
-
-#undef CONFIG_USE_IRQ
 
 #endif

@@ -34,14 +34,14 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_FEC_MXC
+#define GPIO_FEC_RESET_B	IMX_GPIO_NR(4, 7)
+#define GPIO_FEC_ENABLE_B	IMX_GPIO_NR(4, 9)
+
 void tx25_fec_init(void)
 {
 	struct iomuxc_mux_ctl *muxctl;
 	struct iomuxc_pad_ctl *padctl;
-	u32 val;
 	u32 gpio_mux_mode = MX25_PIN_MUX_MODE(5);
-	struct gpio_regs *gpio4 = (struct gpio_regs *)IMX_GPIO4_BASE;
-	struct gpio_regs *gpio3 = (struct gpio_regs *)IMX_GPIO3_BASE;
 	u32 saved_rdata0_mode, saved_rdata1_mode, saved_rx_dv_mode;
 
 	debug("tx25_fec_init\n");
@@ -66,18 +66,15 @@ void tx25_fec_init(void)
 	writel(0x0, &padctl->pad_d11);
 
 	/* drop PHY power and assert reset (low) */
-	val = readl(&gpio4->gpio_dr) & ~((1 << 7) | (1 << 9));
-	writel(val, &gpio4->gpio_dr);
-	val = readl(&gpio4->gpio_dir) | (1 << 7) | (1 << 9);
-	writel(val, &gpio4->gpio_dir);
+	gpio_direction_output(GPIO_FEC_RESET_B, 0);
+	gpio_direction_output(GPIO_FEC_ENABLE_B, 0);
 
 	mdelay(5);
 
 	debug("resetting phy\n");
 
 	/* turn on PHY power leaving reset asserted */
-	val = readl(&gpio4->gpio_dr) | 1 << 9;
-	writel(val, &gpio4->gpio_dr);
+	gpio_set_value(GPIO_FEC_ENABLE_B, 1);
 
 	mdelay(10);
 
@@ -107,19 +104,16 @@ void tx25_fec_init(void)
 	/*
 	 * set each to 1 and make each an output
 	 */
-	val = readl(&gpio3->gpio_dr) | (1 << 10) | (1 << 11) | (1 << 12);
-	writel(val, &gpio3->gpio_dr);
-	val = readl(&gpio3->gpio_dir) | (1 << 10) | (1 << 11) | (1 << 12);
-	writel(val, &gpio3->gpio_dir);
+	gpio_direction_output(IMX_GPIO_NR(3, 10), 1);
+	gpio_direction_output(IMX_GPIO_NR(3, 11), 1);
+	gpio_direction_output(IMX_GPIO_NR(3, 12), 1);
 
 	mdelay(22);		/* this value came from RedBoot */
 
 	/*
 	 * deassert PHY reset
 	 */
-	val = readl(&gpio4->gpio_dr) | 1 << 7;
-	writel(val, &gpio4->gpio_dr);
-	writel(val, &gpio4->gpio_dr);
+	gpio_set_value(GPIO_FEC_RESET_B, 1);
 
 	mdelay(5);
 

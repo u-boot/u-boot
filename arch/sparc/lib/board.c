@@ -166,7 +166,6 @@ char *str_init_seq_done = "\n\rInit sequence done...\r\n\r\n";
 void board_init_f(ulong bootflag)
 {
 	bd_t *bd;
-	unsigned char *s;
 	init_fnc_t **init_fnc_ptr;
 	int j;
 

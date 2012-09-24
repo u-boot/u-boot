@@ -33,7 +33,7 @@
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
 
-#define ETHERNET_INT		(1 * 32 + 31)  /* GPIO2_31 */
+#define ETHERNET_INT		IMX_GPIO_NR(2, 31)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,8 +79,8 @@ static void setup_iomux_uart(void)
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
-	{MMC_SDHC1_BASE_ADDR, 1 },
-	{MMC_SDHC2_BASE_ADDR, 1 },
+	{MMC_SDHC1_BASE_ADDR},
+	{MMC_SDHC2_BASE_ADDR},
 };
 
 int board_mmc_getcd(struct mmc *mmc)
@@ -89,14 +89,14 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret;
 
 	mxc_request_iomux(MX53_PIN_GPIO_1, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(1);
+	gpio_direction_input(IMX_GPIO_NR(1, 1));
 	mxc_request_iomux(MX53_PIN_GPIO_4, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(4);
+	gpio_direction_input(IMX_GPIO_NR(1, 4));
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		ret = !gpio_get_value(1); /* GPIO1_1 */
+		ret = !gpio_get_value(IMX_GPIO_NR(1, 1));
 	else
-		ret = !gpio_get_value(4); /* GPIO1_4 */
+		ret = !gpio_get_value(IMX_GPIO_NR(1, 4));
 
 	return ret;
 }

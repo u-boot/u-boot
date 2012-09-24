@@ -64,7 +64,7 @@ static unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
 static ulong imx_get_mpllclk(void)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
-	ulong fref = 24000000;
+	ulong fref = MXC_HCLK;
 
 	return imx_decode_pll(readl(&ccm->mpctl), fref);
 }
@@ -185,6 +185,14 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
+
+void enable_caches(void)
+{
+#ifndef CONFIG_SYS_DCACHE_OFF
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+#endif
+}
 
 int cpu_eth_init(bd_t *bis)
 {

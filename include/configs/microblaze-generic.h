@@ -31,6 +31,28 @@
 #define	CONFIG_MICROBLAZE	1
 #define	MICROBLAZE_V5		1
 
+/* Open Firmware DTS */
+#define CONFIG_OF_CONTROL	1
+#define CONFIG_OF_EMBED		1
+#define CONFIG_DEFAULT_DEVICE_TREE microblaze
+
+/* linear and spi flash memory */
+#ifdef XILINX_FLASH_START
+#define	FLASH
+#undef	SPIFLASH
+#undef	RAMENV	/* hold environment in flash */
+#else
+#ifdef XILINX_SPI_FLASH_BASEADDR
+#undef	FLASH
+#define	SPIFLASH
+#undef	RAMENV	/* hold environment in flash */
+#else
+#undef	FLASH
+#undef	SPIFLASH
+#define	RAMENV	/* hold environment in RAM */
+#endif
+#endif
+
 /* uart */
 #ifdef XILINX_UARTLITE_BASEADDR
 # define CONFIG_XILINX_UARTLITE
@@ -88,40 +110,35 @@
 
 /* interrupt controller */
 #ifdef XILINX_INTC_BASEADDR
-# define CONFIG_SYS_INTC_0		1
 # define CONFIG_SYS_INTC_0_ADDR		XILINX_INTC_BASEADDR
 # define CONFIG_SYS_INTC_0_NUM		XILINX_INTC_NUM_INTR_INPUTS
 #endif
 
 /* timer */
-#ifdef XILINX_TIMER_BASEADDR
-# if (XILINX_TIMER_IRQ != -1)
-#  define CONFIG_SYS_TIMER_0		1
+#if defined(XILINX_TIMER_BASEADDR) && defined(XILINX_TIMER_IRQ)
 #  define CONFIG_SYS_TIMER_0_ADDR	XILINX_TIMER_BASEADDR
 #  define CONFIG_SYS_TIMER_0_IRQ	XILINX_TIMER_IRQ
-#  define FREQUENCE	XILINX_CLOCK_FREQ
-#  define CONFIG_SYS_TIMER_0_PRELOAD	( FREQUENCE/1000 )
-# endif
-#elif XILINX_CLOCK_FREQ
-# define CONFIG_XILINX_CLOCK_FREQ	XILINX_CLOCK_FREQ
-#else
-# error BAD CLOCK FREQ
 #endif
+
 /* FSL */
 /* #define	CONFIG_SYS_FSL_2 */
 /* #define	FSL_INTR_2	1 */
 
 /*
  * memory layout - Example
- * CONFIG_SYS_TEXT_BASE = 0x1200_0000;
+ * CONFIG_SYS_TEXT_BASE = 0x1200_0000;	defined in config.mk
  * CONFIG_SYS_SRAM_BASE = 0x1000_0000;
- * CONFIG_SYS_SRAM_SIZE = 0x0400_0000;
+ * CONFIG_SYS_SRAM_SIZE = 0x0400_0000;	64MB
+ *
+ * CONFIG_SYS_MONITOR_LEN = 0x40000
+ * CONFIG_SYS_MALLOC_LEN = 3 * CONFIG_SYS_MONITOR_LEN = 0xC0000
  *
  * CONFIG_SYS_GBL_DATA_OFFSET = 0x1000_0000 + 0x0400_0000 - 0x1000 = 0x13FF_F000
- * CONFIG_SYS_MONITOR_BASE = 0x13FF_F000 - 0x40000 = 0x13FB_F000
- * CONFIG_SYS_MALLOC_BASE = 0x13FB_F000 - 0x40000 = 0x13F7_F000
+ * CONFIG_SYS_MONITOR_BASE = 0x13FF_F000 - CONFIG_SYS_MONITOR_LEN = 0x13FB_F000
+ * CONFIG_SYS_MALLOC_BASE = 0x13FB_F000 - CONFIG_SYS_MALLOC_LEN = 0x13EF_F000
  *
  * 0x1000_0000	CONFIG_SYS_SDRAM_BASE
+ *					MEMTEST_AREA	 64kB
  *					FREE
  * 0x1200_0000	CONFIG_SYS_TEXT_BASE
  *		U-BOOT code
@@ -129,9 +146,9 @@
  *					FREE
  *
  *					STACK
- * 0x13F7_F000	CONFIG_SYS_MALLOC_BASE
- *					MALLOC_AREA	256kB	Alloc
- * 0x11FB_F000	CONFIG_SYS_MONITOR_BASE
+ * 0x13EF_F000	CONFIG_SYS_MALLOC_BASE
+ *					MALLOC_AREA	768kB	Alloc
+ * 0x13FB_F000	CONFIG_SYS_MONITOR_BASE
  *					MONITOR_CODE	256kB	Env
  * 0x13FF_F000	CONFIG_SYS_GBL_DATA_OFFSET
  *					GLOBAL_DATA	4kB	bd, gd
@@ -157,15 +174,30 @@
 			- CONFIG_SYS_MONITOR_LEN - GENERATED_BD_INFO_SIZE)
 #define	CONFIG_SYS_MONITOR_END \
 			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-#define	CONFIG_SYS_MALLOC_LEN		SIZE
+#define	CONFIG_SYS_MALLOC_LEN		(SIZE * 3)
 #define	CONFIG_SYS_MALLOC_BASE \
 			(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
 
 /* stack */
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_MALLOC_BASE
 
-/*#define	RAMENV */
-#define	FLASH
+/*
+ * CFI flash memory layout - Example
+ * CONFIG_SYS_FLASH_BASE = 0x2200_0000;
+ * CONFIG_SYS_FLASH_SIZE = 0x0080_0000;	  8MB
+ *
+ * SECT_SIZE = 0x20000;			128kB is one sector
+ * CONFIG_ENV_SIZE = SECT_SIZE;		128kB environment store
+ *
+ * 0x2200_0000	CONFIG_SYS_FLASH_BASE
+ *					FREE		256kB
+ * 0x2204_0000	CONFIG_ENV_ADDR
+ *					ENV_AREA	128kB
+ * 0x2206_0000
+ *					FREE
+ * 0x2280_0000	CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_SIZE
+ *
+ */
 
 #ifdef FLASH
 # define CONFIG_SYS_FLASH_BASE		XILINX_FLASH_START
@@ -186,22 +218,51 @@
 #  define CONFIG_ENV_SIZE	0x1000
 #  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
 
-# else	/* !RAMENV */
+# else	/* FLASH && !RAMENV */
 #  define CONFIG_ENV_IS_IN_FLASH	1
 /* 128K(one sector) for env */
 #  define CONFIG_ENV_SECT_SIZE	0x20000
 #  define CONFIG_ENV_ADDR \
 			(CONFIG_SYS_FLASH_BASE + (2 * CONFIG_ENV_SECT_SIZE))
 #  define CONFIG_ENV_SIZE	0x20000
-# endif /* !RAMBOOT */
+# endif /* FLASH && !RAMBOOT */
 #else /* !FLASH */
+
+#ifdef SPIFLASH
+# define CONFIG_SYS_NO_FLASH		1
+# define CONFIG_SYS_SPI_BASE		XILINX_SPI_FLASH_BASEADDR
+# define CONFIG_XILINX_SPI		1
+# define CONFIG_SPI			1
+# define CONFIG_SPI_FLASH		1
+# define CONFIG_SPI_FLASH_STMICRO	1
+# define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
+# define CONFIG_SF_DEFAULT_SPEED	XILINX_SPI_FLASH_MAX_FREQ
+# define CONFIG_SF_DEFAULT_CS		XILINX_SPI_FLASH_CS
+
+# ifdef	RAMENV
+#  define CONFIG_ENV_IS_NOWHERE	1
+#  define CONFIG_ENV_SIZE	0x1000
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
+
+# else	/* SPIFLASH && !RAMENV */
+#  define CONFIG_ENV_IS_IN_SPI_FLASH	1
+#  define CONFIG_ENV_SPI_MODE		SPI_MODE_3
+#  define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
+#  define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
+/* 128K(two sectors) for env */
+#  define CONFIG_ENV_SECT_SIZE	0x10000
+#  define CONFIG_ENV_SIZE	(2 * CONFIG_ENV_SECT_SIZE)
+/* Warning: adjust the offset in respect of other flash content and size */
+#  define CONFIG_ENV_OFFSET	(128 * CONFIG_ENV_SECT_SIZE) /* at 8MB */
+# endif /* SPIFLASH && !RAMBOOT */
+#else /* !SPIFLASH */
+
 /* ENV in RAM */
 # define CONFIG_SYS_NO_FLASH	1
 # define CONFIG_ENV_IS_NOWHERE	1
 # define CONFIG_ENV_SIZE	0x1000
 # define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
-/* hardware flash protection */
-# define CONFIG_SYS_FLASH_PROTECTION
+#endif /* !SPIFLASH */
 #endif /* !FLASH */
 
 /* system ace */
@@ -269,6 +330,17 @@
 # define CONFIG_CMD_FLASH
 # define CONFIG_CMD_IMLS
 # define CONFIG_CMD_JFFS2
+# define CONFIG_CMD_UBI
+# undef CONFIG_CMD_UBIFS
+
+# if !defined(RAMENV)
+#  define CONFIG_CMD_SAVEENV
+#  define CONFIG_CMD_SAVES
+# endif
+
+#else
+#if defined(SPIFLASH)
+# define CONFIG_CMD_SF
 
 # if !defined(RAMENV)
 #  define CONFIG_CMD_SAVEENV
@@ -278,10 +350,27 @@
 # undef CONFIG_CMD_IMLS
 # undef CONFIG_CMD_FLASH
 # undef CONFIG_CMD_JFFS2
+# undef CONFIG_CMD_UBI
+# undef CONFIG_CMD_UBIFS
+#endif
 #endif
 
 #if defined(CONFIG_CMD_JFFS2)
-/* JFFS2 partitions */
+# define CONFIG_MTD_PARTITIONS
+#endif
+
+#if defined(CONFIG_CMD_UBIFS)
+# define CONFIG_CMD_UBI
+# define CONFIG_LZO
+#endif
+
+#if defined(CONFIG_CMD_UBI)
+# define CONFIG_MTD_PARTITIONS
+# define CONFIG_RBTREE
+#endif
+
+#if defined(CONFIG_MTD_PARTITIONS)
+/* MTD partitions */
 #define CONFIG_CMD_MTDPARTS	/* mtdparts command line support */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD

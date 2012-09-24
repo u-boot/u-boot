@@ -95,16 +95,7 @@
 #define WTCNT		RWTCNT
 
 /* TMU */
-#define TSTR        0xFFD80004
-#define TCOR0       0xFFD80008
-#define TCNT0       0xFFD8000C
-#define TCR0        0xFFD80010
-#define TCOR1       0xFFD80014
-#define TCNT1       0xFFD80018
-#define TCR1        0xFFD8001C
-#define TCOR2       0xFFD80020
-#define TCNT2       0xFFD80024
-#define TCR2        0xFFD80028
+#define TMU_BASE	0xFFD80000
 
 /* TPU */
 

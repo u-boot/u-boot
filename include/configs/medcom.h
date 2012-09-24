@@ -26,20 +26,20 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "tegra2-common.h"
+#include "tegra20-common.h"
 
 /* Enable fdt support for Medcom. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra2-medcom
+#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-medcom
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
-#define V_PROMPT			"Tegra2 (Medcom) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"Avionic Design Medcom"
+#define V_PROMPT			"Tegra20 (Medcom) # "
+#define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Medcom"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTD	/* UARTD: debug UART */
+#define CONFIG_TEGRA_ENABLE_UARTD	/* UARTD: debug UART */
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -78,6 +78,6 @@
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
 
-#include "tegra2-common-post.h"
+#include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

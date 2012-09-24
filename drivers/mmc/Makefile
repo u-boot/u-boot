@@ -25,6 +25,10 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libmmc.o
 
+ifdef CONFIG_SPL_MMC_LOAD
+COBJS-$(CONFIG_SPL_MMC_LOAD)	+= spl_mmc_load.o
+endif
+
 COBJS-$(CONFIG_BFIN_SDH) += bfin_sdh.o
 COBJS-$(CONFIG_DAVINCI_MMC) += davinci_mmc.o
 COBJS-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o

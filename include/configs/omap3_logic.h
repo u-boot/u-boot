@@ -33,8 +33,7 @@
 #define CONFIG_OMAP			/* in a TI OMAP core */
 #define CONFIG_OMAP34XX			/* which is a 34XX */
 #define CONFIG_OMAP3_LOGIC		/* working with Logic OMAP boards */
-
-#undef CONFIG_USE_IRQ			/* no support for IRQs */
+#define CONFIG_OMAP_GPIO
 
 #define CONFIG_SYS_TEXT_BASE	0x80400000
 
@@ -284,13 +283,6 @@
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_HZ			1000
-
-/*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 
 /*
  * Physical Memory Map

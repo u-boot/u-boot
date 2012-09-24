@@ -27,6 +27,7 @@
  */
 #define CONFIG_OMAP		/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		/* which is a 34XX */
+#define CONFIG_OMAP_GPIO
 
 #define CONFIG_SYS_TEXT_BASE 0x80008000
 
@@ -47,7 +48,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#undef CONFIG_USE_IRQ				/* no support for IRQs */
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
@@ -124,6 +124,7 @@
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_EEPROM
 
 #undef CONFIG_CMD_FLASH		/* only NAND on the SOM */
 #undef CONFIG_CMD_IMLS
@@ -134,6 +135,9 @@
 #define CONFIG_SYS_I2C_SLAVE		1
 #define CONFIG_SYS_I2C_BUS		0
 #define CONFIG_SYS_I2C_BUS_SELECT	1
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50		/* base address */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1		/* bytes of address */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
 #define CONFIG_DRIVER_OMAP34XX_I2C
 
 
@@ -181,12 +185,6 @@
 #define CONFIG_SYS_TIMERBASE		OMAP34XX_GPT2
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_HZ			1000
-
-/*
- * Stack sizes
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 
 /*
  * Physical Memory Map
@@ -251,6 +249,7 @@
 #define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
@@ -351,5 +350,67 @@
 			"echo Board without bootloader !!;"		\
 		"fi;"							\
 		"else echo U-Boot not downloaded..exiting;fi\0"		\
+
+
+/*
+ * this is common code for all TAM3517 boards.
+ * MAC address is stored from manufacturer in
+ * I2C EEPROM
+ */
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
+
+/*
+ * The I2C EEPROM on the TAM3517 contains
+ * mac address and production data
+ */
+struct tam3517_module_info {
+	char customer[48];
+	char product[48];
+
+	/*
+	 * bit 0~47  : sequence number
+	 * bit 48~55 : week of year, from 0.
+	 * bit 56~63 : year
+	 */
+	unsigned long long sequence_number;
+
+	/*
+	 * bit 0~7   : revision fixed
+	 * bit 8~15  : revision major
+	 * bit 16~31 : TNxxx
+	 */
+	unsigned int revision;
+	unsigned char eth_addr[4][8];
+	unsigned char _rev[100];
+};
+
+#define TAM3517_READ_MAC_FROM_EEPROM	\
+do {					\
+	struct tam3517_module_info info;\
+	char buf[80], ethname[20];	\
+	int i;				\
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);	\
+	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,		\
+			(void *)&info, sizeof(info)))		\
+		break;						\
+	memset(buf, 0, sizeof(buf));				\
+	for (i = 0 ; i < ARRAY_SIZE(info.eth_addr); i++) {	\
+		sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X",	\
+			info.eth_addr[i][5],			\
+			info.eth_addr[i][4],			\
+			info.eth_addr[i][3],			\
+			info.eth_addr[i][2],			\
+			info.eth_addr[i][1],			\
+			info.eth_addr[i][0]);			\
+								\
+		if (i)						\
+			sprintf(ethname, "eth%daddr", i);	\
+		else						\
+			sprintf(ethname, "ethaddr");		\
+		printf("Setting %s from EEPROM with %s\n", ethname, buf);\
+		setenv(ethname, buf);				\
+	}							\
+} while (0)
+#endif
 
 #endif /* __TAM3517_H */

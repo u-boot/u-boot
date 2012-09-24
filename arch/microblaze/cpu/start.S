@@ -108,7 +108,6 @@ _start:
 	sh	r6, r0, r8
 #endif
 
-#ifdef CONFIG_SYS_INTC_0
 	/* interrupt_handler */
 	swi	r2, r0, 0x10	/* interrupt - imm opcode */
 	swi	r3, r0, 0x14	/* interrupt - brai opcode */
@@ -120,7 +119,6 @@ _start:
 	sh	r7, r0, r8
 	rsubi	r8, r10, 0x16
 	sh	r6, r0, r8
-#endif
 
 	/* hardware exception */
 	swi	r2, r0, 0x20	/* hardware exception - imm opcode */
@@ -151,7 +149,7 @@ clear_bss:
 	cmp     r6, r5, r4 /* check if we have reach the end */
 	bnei    r6, 2b
 3:	/* jumping to board_init */
-	brai	board_init
+	brai	board_init_f
 1:	bri	1b
 
 /*

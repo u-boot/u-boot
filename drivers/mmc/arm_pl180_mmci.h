@@ -26,8 +26,6 @@
 #ifndef __ARM_PL180_MMCI_H__
 #define __ARM_PL180_MMCI_H__
 
-int arm_pl180_mmci_init(void);
-
 #define COMMAND_REG_DELAY	300
 #define DATA_REG_DELAY		1000
 #define CLK_CHANGE_DELAY	2000
@@ -59,8 +57,13 @@ int arm_pl180_mmci_init(void);
 #define SDI_CLKCR_WIDBUS_MASK	0x00001800
 #define SDI_CLKCR_WIDBUS_1	0x00000000
 #define SDI_CLKCR_WIDBUS_4	0x00000800
+/* V2 only */
+#define SDI_CLKCR_WIDBUS_8	0x00001000
+#define SDI_CLKCR_NEDGE		0x00002000
+#define SDI_CLKCR_HWFC_EN	0x00004000
 
-#define SDI_CLKCR_CLKDIV_INIT	0x000000C6 /* MCLK/(2*(0xC6+1)) => 505KHz */
+#define SDI_CLKCR_CLKDIV_INIT_V1 0x000000C6 /* MCLK/(2*(0xC6+1)) => 505KHz */
+#define SDI_CLKCR_CLKDIV_INIT_V2 0x000000FD
 
 /* SDI command register bits */
 #define SDI_CMD_CMDINDEX_MASK	0x000000FF
@@ -144,6 +147,8 @@ int arm_pl180_mmci_init(void);
 #define SDI_DCTRL_DBOOTMODEEN	0x00002000
 #define SDI_DCTRL_BUSYMODE	0x00004000
 #define SDI_DCTRL_DDR_MODE	0x00008000
+#define SDI_DCTRL_DBLOCKSIZE_V2_MASK   0x7fff0000
+#define SDI_DCTRL_DBLOCKSIZE_V2_SHIFT  16
 
 #define SDI_FIFO_BURST_SIZE	8
 
@@ -179,5 +184,21 @@ struct sdi_registers {
 	u32 pcell_id2;		/* 0xFF8*/
 	u32 pcell_id3;		/* 0xFFC*/
 };
+
+struct pl180_mmc_host {
+	struct sdi_registers *base;
+	char name[32];
+	unsigned int b_max;
+	unsigned int voltages;
+	unsigned int caps;
+	unsigned int clock_in;
+	unsigned int clock_min;
+	unsigned int clock_max;
+	unsigned int clkdiv_init;
+	unsigned int pwr_init;
+	int version2;
+};
+
+int arm_pl180_mmci_init(struct pl180_mmc_host *);
 
 #endif

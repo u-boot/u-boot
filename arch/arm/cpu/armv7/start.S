@@ -168,7 +168,6 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr,r0
 
-#if !defined(CONFIG_TEGRA2)
 /*
  * Setup vector:
  * (OMAP4 spl TEXT_BASE is not 32 byte aligned.
@@ -184,7 +183,6 @@ reset:
 	ldr	r0, =_start
 	mcr	p15, 0, r0, c12, c0, 0	@Set VBAR
 #endif
-#endif	/* !Tegra2 */
 
 	/* the mask ROM code should have PLL and others stable */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
@@ -317,14 +315,14 @@ jump_2_ram:
 /*
  * Move vector table
  */
-#if !defined(CONFIG_TEGRA2)
+#if !defined(CONFIG_TEGRA20)
 #if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD))
 	/* Set vector address in CP15 VBAR register */
 	ldr     r0, =_start
 	add     r0, r0, r9
 	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
 #endif
-#endif /* !Tegra2 */
+#endif /* !Tegra20 */
 
 	ldr	r0, _board_init_r_ofs
 	adr	r1, _start
@@ -339,6 +337,20 @@ jump_2_ram:
 _board_init_r_ofs:
 	.word board_init_r - _start
 ENDPROC(relocate_code)
+
+/*************************************************************************
+ *
+ * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+ *	__attribute__((weak));
+ *
+ * Stack pointer is not yet initialized at this moment
+ * Don't save anything to stack even if compiled with -O0
+ *
+ *************************************************************************/
+ENTRY(save_boot_params)
+	bx	lr			@ back to my caller
+ENDPROC(save_boot_params)
+	.weak	save_boot_params
 
 /*************************************************************************
  *

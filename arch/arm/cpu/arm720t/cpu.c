@@ -51,6 +51,8 @@ int cleanup_before_linux (void)
 	/* Nothing more needed */
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No cleanup before linux for IntegratorAP/CM720T as yet */
+#elif defined(CONFIG_TEGRA)
+	/* No cleanup before linux for tegra as yet */
 #else
 #error No cleanup_before_linux() defined for this CPU type
 #endif

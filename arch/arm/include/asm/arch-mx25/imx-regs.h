@@ -172,6 +172,8 @@ struct aips_regs {
 
 #endif
 
+#define ARCH_MXC
+
 /* AIPS 1 */
 #define IMX_AIPS1_BASE		(0x43F00000)
 #define IMX_MAX_BASE		(0x43F04000)

@@ -37,6 +37,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define HOT_WATER_BUTTON	38
+
 #ifdef CONFIG_USB_EHCI
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
@@ -67,6 +69,27 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	if (gpio_request(HOT_WATER_BUTTON, "hot-water-button") < 0) {
+		puts("Failed to get hot-water-button pin\n");
+		return -ENODEV;
+	}
+	gpio_direction_input(HOT_WATER_BUTTON);
+
+	/*
+	 * if hot-water-button is pressed
+	 * change bootcmd
+	 */
+	if (gpio_get_value(HOT_WATER_BUTTON))
+		return 0;
+
+	setenv("bootcmd", "run swupdate");
+	return 0;
+}
+#endif
 
 /*
  * Routine: set_muxconf_regs

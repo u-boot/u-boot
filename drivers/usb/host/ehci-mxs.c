@@ -23,7 +23,7 @@
 #include <asm/io.h>
 #include <asm/arch/regs-common.h>
 #include <asm/arch/regs-base.h>
-#include <asm/arch/regs-clkctrl.h>
+#include <asm/arch/regs-clkctrl-mx28.h>
 #include <asm/arch/regs-usb.h>
 #include <asm/arch/regs-usbphy.h>
 
@@ -39,8 +39,8 @@
 #endif
 
 static struct ehci_mxs {
-	struct mx28_usb_regs	*usb_regs;
-	struct mx28_usbphy_regs	*phy_regs;
+	struct mxs_usb_regs	*usb_regs;
+	struct mxs_usbphy_regs	*phy_regs;
 } ehci_mxs;
 
 int mxs_ehci_get_port(struct ehci_mxs *mxs_usb, int port)
@@ -60,8 +60,8 @@ int mxs_ehci_get_port(struct ehci_mxs *mxs_usb, int port)
 		return -1;
 	}
 
-	mxs_usb->usb_regs = (struct mx28_usb_regs *)usb_base;
-	mxs_usb->phy_regs = (struct mx28_usbphy_regs *)phy_base;
+	mxs_usb->usb_regs = (struct mxs_usb_regs *)usb_base;
+	mxs_usb->phy_regs = (struct mxs_usbphy_regs *)phy_base;
 	return 0;
 }
 
@@ -75,10 +75,10 @@ int ehci_hcd_init(void)
 
 	int ret;
 	uint32_t usb_base, cap_base;
-	struct mx28_register_32 *digctl_ctrl =
-		(struct mx28_register_32 *)HW_DIGCTL_CTRL;
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_register_32 *digctl_ctrl =
+		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
 	ret = mxs_ehci_get_port(&ehci_mxs, CONFIG_EHCI_MXS_PORT);
 	if (ret)
@@ -119,10 +119,10 @@ int ehci_hcd_stop(void)
 {
 	int ret;
 	uint32_t tmp;
-	struct mx28_register_32 *digctl_ctrl =
-		(struct mx28_register_32 *)HW_DIGCTL_CTRL;
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_register_32 *digctl_ctrl =
+		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
 	ret = mxs_ehci_get_port(&ehci_mxs, CONFIG_EHCI_MXS_PORT);
 	if (ret)

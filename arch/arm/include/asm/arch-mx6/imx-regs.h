@@ -19,6 +19,8 @@
 #ifndef __ASM_ARCH_MX6_IMX_REGS_H__
 #define __ASM_ARCH_MX6_IMX_REGS_H__
 
+#define ARCH_MXC
+
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 #define ROMCP_ARB_BASE_ADDR             0x00000000
@@ -171,8 +173,6 @@
 #define IRAM_SIZE                    0x00040000
 #define IMX_IIM_BASE                 OCOTP_BASE_ADDR
 #define FEC_QUIRK_ENET_MAC
-
-#define GPIO_NUMBER(port, index)		((((port)-1)*32)+((index)&31))
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
@@ -446,6 +446,27 @@ struct iomuxc_base_regs {
 	u32     swpad_ctl[250]; /* 0x360 */
 	u32     swgrp[26];      /* 0x748 */
 	u32     daisy[104];     /* 0x7b0..94c */
+};
+
+struct src_regs {
+	u32	scr;		/* 0x00 */
+	u32	sbmr1;		/* 0x04 */
+	u32	srsr;		/* 0x08 */
+	u32	reserved1;	/* 0x0c */
+	u32	reserved2;	/* 0x10 */
+	u32	sisr;		/* 0x14 */
+	u32	simr;		/* 0x18 */
+	u32	sbmr2;		/* 0x1c */
+	u32	gpr1;		/* 0x20 */
+	u32	gpr2;		/* 0x24 */
+	u32	gpr3;		/* 0x28 */
+	u32	gpr4;		/* 0x2c */
+	u32	gpr5;		/* 0x30 */
+	u32	gpr6;		/* 0x34 */
+	u32	gpr7;		/* 0x38 */
+	u32	gpr8;		/* 0x3c */
+	u32	gpr9;		/* 0x40 */
+	u32	gpr10;		/* 0x44 */
 };
 
 #endif /* __ASSEMBLER__*/

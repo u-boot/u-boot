@@ -44,7 +44,12 @@
 #define MACH_TYPE_EB_CPUX9K2		1977
 #define CONFIG_MACH_TYPE		MACH_TYPE_EB_CPUX9K2
 /*--------------------------------------------------------------------------*/
-#define CONFIG_SYS_TEXT_BASE 		0x00000000
+#ifndef CONFIG_RAMBOOT
+#define CONFIG_SYS_TEXT_BASE		0x00000000
+#else
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SYS_TEXT_BASE		0x21f00000
+#endif
 #define CONFIG_SYS_LOAD_ADDR		0x21000000  /* default load address */
 
 #define CONFIG_SYS_BOOT_SIZE		0x00 /* 0 KBytes */
@@ -60,8 +65,6 @@
 #define CONFIG_SYS_MAXARGS	32		/* max number of command args */
 #define CONFIG_SYS_PBSIZE	\
 	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-
-#define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 /*
  * ARM asynchronous clock

@@ -23,6 +23,7 @@
  * MA 02111-1307 USA
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <key_matrix.h>
 #include <malloc.h>

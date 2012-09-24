@@ -172,7 +172,6 @@ struct control_lpddr2io_regs {
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4030D000
 /* Temporary SRAM stack used while low level init is done */
-#define LOW_LEVEL_SRAM_STACK		NON_SECURE_SRAM_END
 #define SRAM_SCRATCH_SPACE_ADDR		NON_SECURE_SRAM_START
 /* SRAM scratch space entries */
 #define OMAP4_SRAM_SCRATCH_OMAP4_REV	SRAM_SCRATCH_SPACE_ADDR

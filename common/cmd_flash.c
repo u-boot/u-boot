@@ -443,7 +443,8 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 				rcode = flash_erase (info, s_first[bank], s_last[bank]);
 			}
 		}
-		printf ("Erased %d sectors\n", erased);
+		if (rcode == 0)
+			printf("Erased %d sectors\n", erased);
 	} else if (rcode == 0) {
 		puts ("Error: start and/or end address"
 			" not on sector boundary\n");

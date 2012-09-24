@@ -541,6 +541,8 @@ struct esdc_regs {
 
 #endif
 
+#define ARCH_MXC
+
 #define __REG(x)     (*((volatile u32 *)(x)))
 #define __REG16(x)   (*((volatile u16 *)(x)))
 #define __REG8(x)    (*((volatile u8 *)(x)))
@@ -669,7 +671,7 @@ struct esdc_regs {
 #define IPU_CONF_PF_EN		(1<<3)
 #define IPU_CONF_ROT_EN		(1<<2)
 #define IPU_CONF_IC_EN		(1<<1)
-#define IPU_CONF_SCI_EN		(1<<0)
+#define IPU_CONF_CSI_EN		(1<<0)
 
 #define ARM_PPMRR		0x40000015
 

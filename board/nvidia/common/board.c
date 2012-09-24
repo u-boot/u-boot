@@ -25,7 +25,7 @@
 #include <ns16550.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
-#include <asm/arch/tegra2.h>
+#include <asm/arch/tegra20.h>
 #include <asm/arch/sys_proto.h>
 
 #include <asm/arch/board.h>
@@ -45,10 +45,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const struct tegra2_sysinfo sysinfo = {
-	CONFIG_TEGRA2_BOARD_STRING
+const struct tegra_sysinfo sysinfo = {
+	CONFIG_TEGRA_BOARD_STRING
 };
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Routine: timer_init
  * Description: init the timestamp and lastinc value
@@ -57,6 +58,7 @@ int timer_init(void)
 {
 	return 0;
 }
+#endif
 
 void __pin_mux_usb(void)
 {
@@ -76,8 +78,8 @@ void pin_mux_spi(void) __attribute__((weak, alias("__pin_mux_spi")));
  */
 static void power_det_init(void)
 {
-#if defined(CONFIG_TEGRA2)
-	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
+#if defined(CONFIG_TEGRA20)
+	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 
 	/* turn off power detects */
 	writel(0, &pmc->pmc_pwr_det_latch);
@@ -130,7 +132,10 @@ int board_init(void)
 	board_usb_init(gd->fdt_blob);
 #endif
 
-#ifdef CONFIG_TEGRA2_LP0
+#ifdef CONFIG_TEGRA_LP0
+	/* save Sdram params to PMC 2, 4, and 24 for WB0 */
+	warmboot_save_sdram_params();
+
 	/* prepare the WB code to LP0 location */
 	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif

@@ -343,16 +343,6 @@ struct s3c24x0_watchdog {
 	u32	wtcnt;
 };
 
-
-/* IIC (see manual chapter 20) */
-struct s3c24x0_i2c {
-	u32	iiccon;
-	u32	iicstat;
-	u32	iicadd;
-	u32	iicds;
-};
-
-
 /* IIS (see manual chapter 21) */
 struct s3c24x0_i2s {
 #ifdef __BIG_ENDIAN

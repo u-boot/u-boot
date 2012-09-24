@@ -211,6 +211,13 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 	if (*argv[3] == 0 || *endp != 0)
 		return -1;
 
+	/* Consistency checking */
+	if (offset + len > flash->size) {
+		printf("ERROR: attempting %s past flash size (%#x)\n",
+			argv[0], flash->size);
+		return 1;
+	}
+
 	buf = map_physmem(addr, len, MAP_WRBACK);
 	if (!buf) {
 		puts("Failed to map physical memory\n");
@@ -251,6 +258,13 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 	ret = sf_parse_len_arg(argv[2], &len);
 	if (ret != 1)
 		return -1;
+
+	/* Consistency checking */
+	if (offset + len > flash->size) {
+		printf("ERROR: attempting %s past flash size (%#x)\n",
+			argv[0], flash->size);
+		return 1;
+	}
 
 	ret = spi_flash_erase(flash, offset, len);
 	if (ret) {

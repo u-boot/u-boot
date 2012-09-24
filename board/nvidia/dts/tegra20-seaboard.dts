@@ -1,0 +1,166 @@
+/dts-v1/;
+
+/memreserve/ 0x1c000000 0x04000000;
+/include/ ARCH_CPU_DTS
+
+/ {
+	model = "NVIDIA Seaboard";
+	compatible = "nvidia,seaboard", "nvidia,tegra20";
+
+	chosen {
+		bootargs = "vmalloc=192M video=tegrafb console=ttyS0,115200n8 root=/dev/mmcblk1p3 rw rootwait";
+	};
+
+	aliases {
+		/* This defines the order of our USB ports */
+		usb0 = "/usb@c5008000";
+		usb1 = "/usb@c5000000";
+
+		i2c0 = "/i2c@7000d000";
+		i2c1 = "/i2c@7000c000";
+		i2c2 = "/i2c@7000c400";
+		i2c3 = "/i2c@7000c500";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = < 0x00000000 0x40000000 >;
+	};
+
+	/* This is not used in U-Boot, but is expected to be in kernel .dts */
+	i2c@7000d000 {
+		clock-frequency = <100000>;
+		pmic@34 {
+			compatible = "ti,tps6586x";
+			reg = <0x34>;
+
+			clk_32k: clock {
+				compatible = "fixed-clock";
+				/*
+				 * leave out for now due to CPP:
+				 * #clock-cells = <0>;
+				 */
+				clock-frequency = <32768>;
+			};
+		};
+	};
+
+	clocks {
+		osc {
+			clock-frequency = <12000000>;
+		};
+	};
+
+	clock@60006000 {
+		clocks = <&clk_32k &osc>;
+	};
+
+	serial@70006300 {
+		clock-frequency = < 216000000 >;
+	};
+
+	sdhci@c8000400 {
+		cd-gpios = <&gpio 69 0>; /* gpio PI5 */
+		wp-gpios = <&gpio 57 0>; /* gpio PH1 */
+		power-gpios = <&gpio 70 0>; /* gpio PI6 */
+	};
+
+	sdhci@c8000600 {
+		support-8bit;
+	};
+
+	usb@c5000000 {
+		nvidia,vbus-gpio = <&gpio 24 0>; /* PD0 */
+		dr_mode = "otg";
+	};
+
+	usb@c5004000 {
+		status = "disabled";
+	};
+
+	i2c@7000c000 {
+		clock-frequency = <100000>;
+	};
+
+	i2c@7000c400 {
+		status = "disabled";
+	};
+
+	i2c@7000c500 {
+		clock-frequency = <100000>;
+	};
+
+	emc@7000f400 {
+		emc-table@190000 {
+			reg = < 190000 >;
+			compatible = "nvidia,tegra20-emc-table";
+			clock-frequency = < 190000 >;
+			nvidia,emc-registers = < 0x0000000c 0x00000026
+				0x00000009 0x00000003 0x00000004 0x00000004
+				0x00000002 0x0000000c 0x00000003 0x00000003
+				0x00000002 0x00000001 0x00000004 0x00000005
+				0x00000004 0x00000009 0x0000000d 0x0000059f
+				0x00000000 0x00000003 0x00000003 0x00000003
+				0x00000003 0x00000001 0x0000000b 0x000000c8
+				0x00000003 0x00000007 0x00000004 0x0000000f
+				0x00000002 0x00000000 0x00000000 0x00000002
+				0x00000000 0x00000000 0x00000083 0xa06204ae
+				0x007dc010 0x00000000 0x00000000 0x00000000
+				0x00000000 0x00000000 0x00000000 0x00000000 >;
+		};
+		emc-table@380000 {
+			reg = < 380000 >;
+			compatible = "nvidia,tegra20-emc-table";
+			clock-frequency = < 380000 >;
+			nvidia,emc-registers = < 0x00000017 0x0000004b
+				0x00000012 0x00000006 0x00000004 0x00000005
+				0x00000003 0x0000000c 0x00000006 0x00000006
+				0x00000003 0x00000001 0x00000004 0x00000005
+				0x00000004 0x00000009 0x0000000d 0x00000b5f
+				0x00000000 0x00000003 0x00000003 0x00000006
+				0x00000006 0x00000001 0x00000011 0x000000c8
+				0x00000003 0x0000000e 0x00000007 0x0000000f
+				0x00000002 0x00000000 0x00000000 0x00000002
+				0x00000000 0x00000000 0x00000083 0xe044048b
+				0x007d8010 0x00000000 0x00000000 0x00000000
+				0x00000000 0x00000000 0x00000000 0x00000000 >;
+		};
+	};
+
+	kbc@7000e200 {
+		linux,keymap = <0x00020011 0x0003001f 0x0004001e 0x0005002c
+			0x000701d0 0x0107007d 0x02060064 0x02070038 0x03000006
+			0x03010005 0x03020013 0x03030012 0x03040021 0x03050020
+			0x0306002d 0x04000008 0x04010007 0x04020014 0x04030023
+			0x04040022 0x0405002f 0x0406002e 0x04070039 0x0500000a
+			0x05010009 0x05020016 0x05030015 0x05040024 0x05050031
+			0x05060030 0x0507002b 0x0600000c 0x0601000b 0x06020018
+			0x06030017 0x06040026 0x06050025 0x06060033 0x06070032
+			0x0701000d 0x0702001b 0x0703001c 0x0707008b 0x08040036
+			0x0805002a 0x09050061 0x0907001d 0x0b00001a 0x0b010019
+			0x0b020028 0x0b030027 0x0b040035 0x0b050034 0x0c000044
+			0x0c010043 0x0c02000e 0x0c030004 0x0c040003 0x0c050067
+			0x0c0600d2 0x0c070077 0x0d00006e 0x0d01006f 0x0d030068
+			0x0d04006d 0x0d05006a 0x0d06006c 0x0d070069 0x0e000057
+			0x0e010058 0x0e020042 0x0e030010 0x0e04003e 0x0e05003d
+			0x0e060002 0x0e070041 0x0f000001 0x0f010029 0x0f02003f
+			0x0f03000f 0x0f04003b 0x0f05003c 0x0f06003a 0x0f070040
+			0x14000047 0x15000049 0x15010048 0x1502004b 0x1504004f
+			0x16010062 0x1602004d 0x1603004c 0x16040051 0x16050050
+			0x16070052 0x1b010037 0x1b03004a 0x1b04004e 0x1b050053
+			0x1c050073 0x1d030066 0x1d04006b 0x1d0500e0 0x1d060072
+			0x1d0700e1 0x1e000045 0x1e010046 0x1e020071
+			0x1f04008a>;
+		linux,fn-keymap = <0x05040002>;
+	};
+
+	nand-controller@70008000 {
+		nvidia,wp-gpios = <&gpio 59 0>;		/* PH3 */
+		nvidia,width = <8>;
+		nvidia,timing = <26 100 20 80 20 10 12 10 70>;
+		nand@0 {
+			reg = <0>;
+			compatible = "hynix,hy27uf4g2b", "nand-flash";
+		};
+	};
+};

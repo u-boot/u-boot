@@ -2,6 +2,8 @@
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * Copyright (C) 2012 Freescale Semiconductor, Inc. All Rights Reserved.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -23,6 +25,7 @@
 
 #include <common.h>
 #include <asm/immap.h>
+#include <asm/io.h>
 
 
 int checkboard (void) {
@@ -32,10 +35,10 @@ int checkboard (void) {
 	};
 
 phys_size_t initdram (int board_type) {
-	volatile sdramctrl_t * sdp = (sdramctrl_t *)(MMAP_SDRAM);
+	sdramctrl_t * sdp = (sdramctrl_t *)(MMAP_SDRAM);
 
-	sdp->sdram_sdtr = 0xf539;
-	sdp->sdram_sdcr = 0x4211;
+	out_be16(&sdp->sdram_sdtr, 0xf539);
+	out_be16(&sdp->sdram_sdcr, 0x4211);
 
 	/* Dummy write to start SDRAM */
 	*((volatile unsigned long *)0) = 0;

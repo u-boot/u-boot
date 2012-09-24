@@ -1,0 +1,48 @@
+The U-Boot Driver Model Project
+===============================
+TPM system analysis
+===================
+Marek Vasut <marek.vasut@gmail.com>
+2012-02-23
+
+I) Overview
+-----------
+
+There is currently only one TPM chip driver available and therefore the API
+controlling it is very much based on this. The API is very simple:
+
+  int tis_open(void);
+  int tis_close(void);
+  int tis_sendrecv(const u8 *sendbuf, size_t send_size,
+                         u8 *recvbuf, size_t *recv_len);
+
+The command operating the TPM chip only provides operations to send and receive
+bytes from the chip.
+
+II) Approach
+------------
+
+The API can't be generalised too much considering there's only one TPM chip
+supported. But it's a good idea to split the tis_sendrecv() function in two
+functions. Therefore the new API will use register the TPM chip by calling:
+
+  tpm_device_register(struct instance *i, const struct tpm_ops *ops);
+
+And the struct tpm_ops will contain the following members:
+
+  struct tpm_ops {
+    int (*tpm_open)(struct instance *i);
+    int (*tpm_close)(struct instance *i);
+    int (*tpm_send)(const uint8_t *buf, const size_t size);
+    int (*tpm_recv)(uint8_t *buf, size_t *size);
+  };
+
+The behaviour of "tpm_open()" and "tpm_close()" will basically copy the
+behaviour of "tis_open()" and "tis_close()". The "tpm_send()" will be based on
+the "tis_senddata()" and "tis_recv()" will be based on "tis_readresponse()".
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+There is only one in-tree driver present, the "drivers/tpm/generic_lpc_tpm.c",
+which will be simply converted as outlined in previous chapter.

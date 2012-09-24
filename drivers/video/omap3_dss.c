@@ -112,7 +112,7 @@ void omap3_dss_panel_config(const struct panel_config *panel_cfg)
 	writel(panel_cfg->pol_freq, &dispc->pol_freq);
 	writel(panel_cfg->divisor, &dispc->divisor);
 	writel(panel_cfg->lcd_size, &dispc->size_lcd);
-	writel(panel_cfg->load_mode << FRAME_MODE_SHIFT, &dispc->config);
+	writel(panel_cfg->load_mode << LOADMODE_SHIFT, &dispc->config);
 	writel(panel_cfg->panel_type << TFTSTN_SHIFT |
 		panel_cfg->data_lines << DATALINES_SHIFT, &dispc->control);
 	writel(panel_cfg->panel_color, &dispc->default_color0);
@@ -121,7 +121,6 @@ void omap3_dss_panel_config(const struct panel_config *panel_cfg)
 	if (!panel_cfg->frame_buffer)
 		return;
 
-	writel(panel_cfg->load_mode << LOADMODE_SHIFT, &dispc->config);
 	writel(8 << GFX_FORMAT_SHIFT | GFX_ENABLE, &dispc->gfx_attributes);
 	writel(1, &dispc->gfx_row_inc);
 	writel(1, &dispc->gfx_pixel_inc);

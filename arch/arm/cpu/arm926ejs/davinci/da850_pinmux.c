@@ -35,6 +35,11 @@ const struct pinmux_config spi1_pins_scs0[] = {
 };
 
 /* UART pin muxer settings */
+const struct pinmux_config uart0_pins_txrx[] = {
+	{ pinmux(3), 2, 4 }, /* UART0_RXD */
+	{ pinmux(3), 2, 5 }, /* UART0_TXD */
+};
+
 const struct pinmux_config uart1_pins_txrx[] = {
 	{ pinmux(4), 2, 6 }, /* UART1_RXD */
 	{ pinmux(4), 2, 7 }, /* UART1_TXD */
@@ -168,4 +173,15 @@ const struct pinmux_config emifa_pins_nor[] = {
 	{ pinmux(12), 1, 5 }, /* EMA_A[2] */
 	{ pinmux(12), 1, 6 }, /* EMA_A[1] */
 	{ pinmux(12), 1, 7 }, /* EMA_A[0] */
+};
+
+/* MMC0 pin muxer settings */
+const struct pinmux_config mmc0_pins[] = {
+	{ pinmux(10), 2, 0 },	/* MMCSD0_CLK */
+	{ pinmux(10), 2, 1 },	/* MMCSD0_CMD */
+	{ pinmux(10), 2, 2 },	/* MMCSD0_DAT_0 */
+	{ pinmux(10), 2, 3 },	/* MMCSD0_DAT_1 */
+	{ pinmux(10), 2, 4 },	/* MMCSD0_DAT_2 */
+	{ pinmux(10), 2, 5 },	/* MMCSD0_DAT_3 */
+	/* DA850 supports only 4-bit mode, remaining pins are not configured */
 };

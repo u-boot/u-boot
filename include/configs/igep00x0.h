@@ -30,6 +30,7 @@
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
+#define CONFIG_OMAP_GPIO
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
@@ -105,7 +106,12 @@
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
+#ifdef CONFIG_BOOT_ONENAND
 #define CONFIG_CMD_ONENAND	/* ONENAND support		*/
+#endif
+#ifdef CONFIG_BOOT_NAND
+#define CONFIG_CMD_NAND
+#endif
 #define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
@@ -135,14 +141,14 @@
 	"usbtty=cdc_acm\0" \
 	"loadaddr=0x82000000\0" \
 	"usbtty=cdc_acm\0" \
-	"console=ttyS2,115200n8\0" \
+	"console=ttyO2,115200n8\0" \
 	"mpurate=auto\0" \
 	"vram=12M\0" \
 	"dvimode=1024x768MR-16@60\0" \
 	"defaultdisplay=dvi\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
-	"mmcrootfstype=ext3 rootwait\0" \
+	"mmcrootfstype=ext4 rootwait\0" \
 	"nandroot=/dev/mtdblock4 rw\0" \
 	"nandrootfstype=jffs2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
@@ -225,13 +231,6 @@
 #define CONFIG_SYS_HZ			1000
 
 /*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
-
-/*
  * Physical Memory Map
  *
  */
@@ -244,6 +243,7 @@
  * FLASH and environment organization
  */
 
+#ifdef CONFIG_BOOT_ONENAND
 #define PISMO1_ONEN_SIZE		GPMC_SIZE_128M /* Configure the PISMO */
 
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
@@ -253,6 +253,19 @@
 #define CONFIG_ENV_IS_IN_ONENAND	1
 #define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */
 #define CONFIG_ENV_ADDR			ONENAND_ENV_OFFSET
+#endif
+
+#ifdef CONFIG_BOOT_NAND
+#define PISMO1_NAND_SIZE		GPMC_SIZE_128M /* Configure the PISMO */
+#define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_SYS_NAND_BASE		NAND_BASE
+#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
+#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
+#define CONFIG_ENV_IS_IN_NAND	        1
+#define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */
+#define CONFIG_ENV_ADDR			NAND_ENV_OFFSET
+#define CONFIG_SYS_MAX_NAND_DEVICE      1
+#endif
 
 /*
  * Size of malloc() pool
@@ -268,11 +281,76 @@
 #define CONFIG_SMC911X_BASE	0x2C000000
 #endif /* (CONFIG_CMD_NET) */
 
+/*
+ * Leave it at 0x80008000 to allow booting new u-boot.bin with X-loader
+ * and older u-boot.bin with the new U-Boot SPL.
+ */
+#define CONFIG_SYS_TEXT_BASE		0x80008000
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
+
+/* SPL */
+#define CONFIG_SPL
+#define CONFIG_SPL_NAND_SIMPLE
+#define CONFIG_SPL_TEXT_BASE		0x40200800
+#define CONFIG_SPL_MAX_SIZE		(54 * 1024)
+#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+
+/* move malloc and bss high to prevent clashing with the main image */
+#define CONFIG_SYS_SPL_MALLOC_START	0x87000000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x80000
+#define CONFIG_SPL_BSS_START_ADDR	0x87080000	/* end of minimum RAM */
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
+
+/* MMC boot config */
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
+#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
+#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+
+#define CONFIG_SPL_POWER_SUPPORT
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+
+#ifdef CONFIG_BOOT_ONENAND
+#define CONFIG_SPL_ONENAND_SUPPORT
+
+/* OneNAND boot config */
+#define CONFIG_SYS_ONENAND_U_BOOT_OFFS  0x80000
+#define CONFIG_SYS_ONENAND_PAGE_SIZE	2048
+#define CONFIG_SPL_ONENAND_LOAD_ADDR    0x80000
+#define CONFIG_SPL_ONENAND_LOAD_SIZE    \
+	(512 * 1024 - CONFIG_SPL_ONENAND_LOAD_ADDR)
+
+#endif
+
+#ifdef CONFIG_BOOT_NAND
+#define CONFIG_SPL_NAND_SUPPORT
+
+/* NAND boot config */
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_PAGE_COUNT	64
+#define CONFIG_SYS_NAND_PAGE_SIZE	2048
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
+#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
+						10, 11, 12, 13}
+#define CONFIG_SYS_NAND_ECCSIZE		512
+#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+#endif
 
 #endif /* __IGEP00X0_H */

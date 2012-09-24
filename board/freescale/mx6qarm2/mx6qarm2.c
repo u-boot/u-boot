@@ -24,9 +24,9 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6x_pins.h>
-#include <asm/arch/iomux-v3.h>
 #include <asm/errno.h>
 #include <asm/gpio.h>
+#include <asm/imx-common/iomux-v3.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
@@ -116,8 +116,8 @@ static void setup_iomux_enet(void)
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg usdhc_cfg[2] = {
-	{USDHC3_BASE_ADDR, 1},
-	{USDHC4_BASE_ADDR, 1},
+	{USDHC3_BASE_ADDR},
+	{USDHC4_BASE_ADDR},
 };
 
 int board_mmc_getcd(struct mmc *mmc)
@@ -126,8 +126,8 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret;
 
 	if (cfg->esdhc_base == USDHC3_BASE_ADDR) {
-		gpio_direction_input(171); /*GPIO6_11*/
-		ret = !gpio_get_value(171);
+		gpio_direction_input(IMX_GPIO_NR(6, 11));
+		ret = !gpio_get_value(IMX_GPIO_NR(6, 11));
 	} else /* Don't have the CD GPIO pin on board */
 		ret = 1;
 

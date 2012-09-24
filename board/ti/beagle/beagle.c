@@ -50,8 +50,6 @@
 #include <asm/ehci-omap.h>
 #endif
 
-#define pr_debug(fmt, args...) debug(fmt, ##args)
-
 #define TWL4030_I2C_BUS			0
 #define EXPANSION_EEPROM_I2C_BUS	1
 #define EXPANSION_EEPROM_I2C_ADDRESS	0x50
@@ -112,7 +110,7 @@ int board_init(void)
  *		GPIO173, GPIO172, GPIO171: 1 0 1 => C4
  *		GPIO173, GPIO172, GPIO171: 0 0 0 => xM
  */
-int get_board_revision(void)
+static int get_board_revision(void)
 {
 	int revision;
 
@@ -211,7 +209,7 @@ void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
  *		bus 1 for the availability of an AT24C01B serial EEPROM.
  *		returns the device_vendor field from the EEPROM
  */
-unsigned int get_expansion_id(void)
+static unsigned int get_expansion_id(void)
 {
 	i2c_set_bus_num(EXPANSION_EEPROM_I2C_BUS);
 
@@ -230,11 +228,12 @@ unsigned int get_expansion_id(void)
 	return expansion_config.device_vendor;
 }
 
+#ifdef CONFIG_VIDEO_OMAP3
 /*
  * Configure DSS to display background color on DVID
  * Configure VENC to display color bar on S-Video
  */
-void beagle_display_init(void)
+static void beagle_display_init(void)
 {
 	omap3_dss_venc_config(&venc_config_std_tv, VENC_HEIGHT, VENC_WIDTH);
 	switch (get_board_revision()) {
@@ -284,6 +283,7 @@ static void beagle_dvi_pup(void)
 		break;
 	}
 }
+#endif
 
 /*
  * Routine: misc_init_r
@@ -460,9 +460,11 @@ int misc_init_r(void)
 
 	dieid_num_r();
 
+#ifdef CONFIG_VIDEO_OMAP3
 	beagle_dvi_pup();
 	beagle_display_init();
 	omap3_dss_enable();
+#endif
 
 	return 0;
 }

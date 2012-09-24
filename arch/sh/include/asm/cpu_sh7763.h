@@ -43,9 +43,6 @@
 #define WDTST		0xFFCC0000
 
 /* TMU */
-#define TSTR		0xFFD80004
-#define TCOR0		0xFFD80008
-#define TCNT0		0xFFD8000C
-#define TCR0		0xFFD80010
+#define TMU_BASE	0xFFD80000
 
 #endif /* _ASM_CPU_SH7763_H_ */

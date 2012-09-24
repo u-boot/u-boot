@@ -96,7 +96,7 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 
 	clk_src = mxc_get_clock(MXC_CSPI_CLK);
 
-	div = clk_src / max_hz;
+	div = DIV_ROUND_UP(clk_src, max_hz);
 	div = get_cspi_div(div);
 
 	debug("clk %d Hz, div %d, real clk %d Hz\n",
@@ -147,7 +147,7 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 	 * The following computation is taken directly from Freescale's code.
 	 */
 	if (clk_src > max_hz) {
-		pre_div = clk_src / max_hz;
+		pre_div = DIV_ROUND_UP(clk_src, max_hz);
 		if (pre_div > 16) {
 			post_div = pre_div / 16;
 			pre_div = 15;
@@ -408,7 +408,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (bus >= ARRAY_SIZE(spi_bases))
 		return NULL;
 
-	mxcs = malloc(sizeof(struct mxc_spi_slave));
+	mxcs = calloc(sizeof(struct mxc_spi_slave), 1);
 	if (!mxcs) {
 		puts("mxc_spi: SPI Slave not allocated !\n");
 		return NULL;

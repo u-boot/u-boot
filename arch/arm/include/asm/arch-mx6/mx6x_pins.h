@@ -22,7 +22,7 @@
 #ifndef __ASM_ARCH_MX6_MX6X_PINS_H__
 #define __ASM_ARCH_MX6_MX6X_PINS_H__
 
-#include <asm/arch/iomux-v3.h>
+#include <asm/imx-common/iomux-v3.h>
 
 /* Use to set PAD control */
 #define PAD_CTL_HYS		(1 << 16)

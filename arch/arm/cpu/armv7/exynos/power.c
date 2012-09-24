@@ -74,3 +74,24 @@ void set_usbhost_phy_ctrl(unsigned int enable)
 	if (cpu_is_exynos5())
 		exynos5_set_usbhost_phy_ctrl(enable);
 }
+
+static void exynos5_dp_phy_control(unsigned int enable)
+{
+	unsigned int cfg;
+	struct exynos5_power *power =
+	    (struct exynos5_power *)samsung_get_base_power();
+
+	cfg = readl(&power->dptx_phy_control);
+	if (enable)
+		cfg |= EXYNOS_DP_PHY_ENABLE;
+	else
+		cfg &= ~EXYNOS_DP_PHY_ENABLE;
+
+	writel(cfg, &power->dptx_phy_control);
+}
+
+void set_dp_phy_ctrl(unsigned int enable)
+{
+	if (cpu_is_exynos5())
+		exynos5_dp_phy_control(enable);
+}

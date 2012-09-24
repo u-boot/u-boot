@@ -67,7 +67,7 @@ void preloader_console_init(void);
 #elif defined(CONFIG_AM33XX)	/* AM33XX */
 #define BOOT_DEVICE_NAND	5
 #define BOOT_DEVICE_MMC1	8
-#define BOOT_DEVICE_MMC2	0
+#define BOOT_DEVICE_MMC2	9 /* eMMC or daughter card */
 #define BOOT_DEVICE_UART	65
 #define BOOT_DEVICE_MMC2_2      0xFF
 #endif

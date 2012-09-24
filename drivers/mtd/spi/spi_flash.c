@@ -204,8 +204,7 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 		CMD_READ_STATUS, STATUS_WIP);
 }
 
-int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
-			u32 offset, size_t len)
+int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	u32 start, end, erase_size;
 	int ret;
@@ -224,7 +223,10 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
 		return ret;
 	}
 
-	cmd[0] = erase_cmd;
+	if (erase_size == 4096)
+		cmd[0] = CMD_ERASE_4K;
+	else
+		cmd[0] = CMD_ERASE_64K;
 	start = offset;
 	end = start + len;
 
@@ -254,6 +256,33 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
  out:
 	spi_release_bus(flash->spi);
 	return ret;
+}
+
+int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
+{
+	u8 cmd;
+	int ret;
+
+	ret = spi_flash_cmd_write_enable(flash);
+	if (ret < 0) {
+		debug("SF: enabling write failed\n");
+		return ret;
+	}
+
+	cmd = CMD_WRITE_STATUS;
+	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &sr, 1);
+	if (ret) {
+		debug("SF: fail to write status register\n");
+		return ret;
+	}
+
+	ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+	if (ret < 0) {
+		debug("SF: write status register timed out\n");
+		return ret;
+	}
+
+	return 0;
 }
 
 /*

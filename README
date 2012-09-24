@@ -744,8 +744,8 @@ The following options need to be configured:
 - Monitor Functions:
 		Monitor commands can be included or excluded
 		from the build by using the #include files
-		"config_cmd_all.h" and #undef'ing unwanted
-		commands, or using "config_cmd_default.h"
+		<config_cmd_all.h> and #undef'ing unwanted
+		commands, or using <config_cmd_default.h>
 		and augmenting with additional #define's
 		for wanted commands.
 
@@ -907,7 +907,8 @@ The following options need to be configured:
 		If this variable is defined, an environment variable
 		named "ver" is created by U-Boot showing the U-Boot
 		version as printed by the "version" command.
-		This variable is readonly.
+		Any change to this variable will be reverted at the
+		next reset.
 
 - Real-Time Clock:
 
@@ -950,13 +951,20 @@ The following options need to be configured:
 		commands like bootm or iminfo. This option is
 		automatically enabled when you select CONFIG_CMD_DATE .
 
-- Partition Support:
-		CONFIG_MAC_PARTITION and/or CONFIG_DOS_PARTITION
-		and/or CONFIG_ISO_PARTITION and/or CONFIG_EFI_PARTITION
+- Partition Labels (disklabels) Supported:
+		Zero or more of the following:
+		CONFIG_MAC_PARTITION   Apple's MacOS partition table.
+		CONFIG_DOS_PARTITION   MS Dos partition table, traditional on the
+				       Intel architecture, USB sticks, etc.
+		CONFIG_ISO_PARTITION   ISO partition table, used on CDROM etc.
+		CONFIG_EFI_PARTITION   GPT partition table, common when EFI is the
+				       bootloader.  Note 2TB partition limit; see
+				       disk/part_efi.c
+		CONFIG_MTD_PARTITIONS  Memory Technology Device partition table.
 
 		If IDE or SCSI support is enabled (CONFIG_CMD_IDE or
 		CONFIG_CMD_SCSI) you must configure support for at
-		least one partition type as well.
+		least one non-MTD partition type as well.
 
 - IDE Reset method:
 		CONFIG_IDE_RESET_ROUTINE - this is defined in several
@@ -2148,6 +2156,13 @@ The following options need to be configured:
 		CONFIG_ARP_TIMEOUT
 
 		Timeout waiting for an ARP reply in milliseconds.
+
+		CONFIG_NFS_TIMEOUT
+
+		Timeout in milliseconds used in NFS protocol.
+		If you encounter "ERROR: Cannot umount" in nfs command,
+		try longer timeout such as
+		#define CONFIG_NFS_TIMEOUT 10000UL
 
 - Command Interpreter:
 		CONFIG_AUTO_COMPLETE
@@ -3369,6 +3384,13 @@ Low Level (hardware related) configuration options:
 - CONFIG_PCI_DISABLE_PCIE:
 		Disable PCI-Express on systems where it is supported but not
 		required.
+
+- CONFIG_PCI_ENUM_ONLY
+		Only scan through and get the devices on the busses.
+		Don't do any setup work, presumably because someone or
+		something has already done it, and we don't need to do it
+		a second time.	Useful for platforms that are pre-booted
+		by coreboot or similar.
 
 - CONFIG_SYS_SRIO:
 		Chip has SRIO or not

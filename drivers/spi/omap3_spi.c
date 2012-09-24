@@ -86,15 +86,21 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	case 0:
 		ds->regs = (struct mcspi *)OMAP3_MCSPI1_BASE;
 		break;
+#ifdef OMAP3_MCSPI2_BASE
 	case 1:
 		ds->regs = (struct mcspi *)OMAP3_MCSPI2_BASE;
 		break;
+#endif
+#ifdef OMAP3_MCSPI3_BASE 
 	case 2:
 		ds->regs = (struct mcspi *)OMAP3_MCSPI3_BASE;
 		break;
+#endif
+#ifdef OMAP3_MCSPI4_BASE
 	case 3:
 		ds->regs = (struct mcspi *)OMAP3_MCSPI4_BASE;
 		break;
+#endif
 	default:
 		printf("SPI error: unsupported bus %i. \
 			Supported busses 0 - 3\n", bus);
@@ -167,8 +173,18 @@ int spi_claim_bus(struct spi_slave *slave)
 	/* standard 4-wire master mode:	SCK, MOSI/out, MISO/in, nCS
 	 * REVISIT: this controller could support SPI_3WIRE mode.
 	 */
+#ifdef CONFIG_AM33XX
+	/*
+	 * The reference design on AM33xx has D0 and D1 wired up opposite
+	 * of how it has been done on previous platforms.  We assume that
+	 * custom hardware will also follow this convention.
+	 */
+	conf &= OMAP3_MCSPI_CHCONF_DPE0;
+	conf |= ~(OMAP3_MCSPI_CHCONF_IS|OMAP3_MCSPI_CHCONF_DPE1);
+#else
 	conf &= ~(OMAP3_MCSPI_CHCONF_IS|OMAP3_MCSPI_CHCONF_DPE1);
 	conf |= OMAP3_MCSPI_CHCONF_DPE0;
+#endif
 
 	/* wordlength */
 	conf &= ~OMAP3_MCSPI_CHCONF_WL_MASK;

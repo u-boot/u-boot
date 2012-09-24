@@ -89,11 +89,17 @@ int uartlite_serial_tstc(const int port)
 	return in_be32(&regs->status) & SR_RX_FIFO_VALID_DATA;
 }
 
+static int uartlite_serial_init(const int port)
+{
+	if (userial_ports[port])
+		return 0;
+	return -1;
+}
+
 #if !defined(CONFIG_SERIAL_MULTI)
 int serial_init(void)
 {
-	/* FIXME: Nothing for now. We should initialize fifo, etc */
-	return 0;
+	return uartlite_serial_init(0);
 }
 
 void serial_setbrg(void)
@@ -126,7 +132,7 @@ int serial_tstc(void)
 /* Multi serial device functions */
 #define DECLARE_ESERIAL_FUNCTIONS(port) \
 	int userial##port##_init(void) \
-				{ return(0); } \
+				{ return uartlite_serial_init(port); } \
 	void userial##port##_setbrg(void) {} \
 	int userial##port##_getc(void) \
 				{ return uartlite_serial_getc(port); } \
@@ -163,17 +169,15 @@ struct serial_device uartlite_serial3_device =
 
 __weak struct serial_device *default_serial_console(void)
 {
-# ifdef XILINX_UARTLITE_BASEADDR
-	return &uartlite_serial0_device;
-# endif /* XILINX_UARTLITE_BASEADDR */
-# ifdef XILINX_UARTLITE_BASEADDR1
-	return &uartlite_serial1_device;
-# endif /* XILINX_UARTLITE_BASEADDR1 */
-# ifdef XILINX_UARTLITE_BASEADDR2
-	return &uartlite_serial2_device;
-# endif /* XILINX_UARTLITE_BASEADDR2 */
-# ifdef XILINX_UARTLITE_BASEADDR3
-	return &uartlite_serial3_device;
-# endif /* XILINX_UARTLITE_BASEADDR3 */
+	if (userial_ports[0])
+		return &uartlite_serial0_device;
+	if (userial_ports[1])
+		return &uartlite_serial1_device;
+	if (userial_ports[2])
+		return &uartlite_serial2_device;
+	if (userial_ports[3])
+		return &uartlite_serial3_device;
+
+	return NULL;
 }
 #endif /* CONFIG_SERIAL_MULTI */

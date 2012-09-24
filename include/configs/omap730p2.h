@@ -47,8 +47,6 @@
 
 #define CONFIG_SYS_CLK_FREQ	   13000000
 
-#undef CONFIG_USE_IRQ			     /* we don't need IRQ/FIQ stuff */
-
 #define CONFIG_CMDLINE_TAG	   1	     /* enable passing of ATAGs	 */
 #define CONFIG_SETUP_MEMORY_TAGS   1
 
@@ -146,18 +144,6 @@
 #define CONFIG_SYS_TIMERBASE		0xFFFEC500	/* use timer 1 */
 #define CONFIG_SYS_PTV			7	/* 2^(PTV+1), divide by 256 */
 #define CONFIG_SYS_HZ			((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
-
-/*-----------------------------------------------------------------------
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-
-#define CONFIG_STACKSIZE	   (128*1024)	  /* regular stack */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	   (4*1024)	  /* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ	   (4*1024)	  /* FIQ stack */
-#endif
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

@@ -141,6 +141,7 @@ extern flash_info_t *flash_get_info(ulong base);
 #define ERR_UNKNOWN_FLASH_VENDOR	32
 #define ERR_UNKNOWN_FLASH_TYPE		64
 #define ERR_PROG_ERROR			128
+#define ERR_ABORTED			256
 
 /*-----------------------------------------------------------------------
  * Protection Flags for flash_protect():
@@ -348,6 +349,7 @@ extern flash_info_t *flash_get_info(ulong base);
 #define TOSH_ID_FVT160	0xC2		/* TC58FVT160 ID (16 M, top )		*/
 #define TOSH_ID_FVB160	0x43		/* TC58FVT160 ID (16 M, bottom )	*/
 #define PHILIPS_LPC2292 0x0401FF13  /* LPC2292 internal FLASH			*/
+#define NUMONYX_256MBIT	0x8922		/* Numonyx P33/30 256MBit 65nm	*/
 
 /*-----------------------------------------------------------------------
  * Internal FLASH identification codes

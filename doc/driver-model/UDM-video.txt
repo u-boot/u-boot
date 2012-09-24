@@ -1,0 +1,74 @@
+The U-Boot Driver Model Project
+===============================
+Video output analysis
+=====================
+Marek Vasut <marek.vasut@gmail.com>
+2012-02-20
+
+I) Overview
+-----------
+
+The video drivers are most often registered with video subsystem. This subsystem
+often expects to be allowed access to framebuffer of certain parameters. This
+subsystem also provides calls for STDIO subsystem to allow it to output
+characters on the screen. For this part, see [ UDM-stdio.txt ].
+
+Therefore the API has two parts, the video driver part and the part where the
+video driver core registers with STDIO API.
+
+The video driver part will follow the current cfb_console approach, though
+allowing it to be more dynamic.
+
+II) Approach
+------------
+
+Registering the video driver into the video driver core is done by calling the
+following function from the driver probe() function:
+
+  video_device_register(struct instance *i, GraphicDevice *gd);
+
+Because the video driver core is in charge or rendering characters as well as
+bitmaps on the screen, it will in turn call stdio_device_register(i, so), where
+"i" is the same instance as the video driver's one. But "so" will be special
+static struct stdio_device_ops handling the character output.
+
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) arch/powerpc/cpu/mpc8xx/video.c
+  ----------------------------------
+  This driver copies the cfb_console [ see drivers/video/cfb_console.c ]
+  approach and acts only as a STDIO device. Therefore there are currently two
+  possible approaches, first being the conversion of this driver to usual STDIO
+  device and second, long-term one, being conversion of this driver to video
+  driver that provides console.
+
+  2) arch/x86/lib/video.c
+  -----------------------
+  This driver registers two separate STDIO devices and should be therefore
+  converted as such.
+
+  3) board/bf527-ezkit/video.c
+  ----------------------------
+  This driver seems bogus as it behaves as STDIO device, but provides no input
+  or output capabilities. It relies on DEV_EXT_VIDEO, which is no longer in use
+  or present otherwise than as a dead code/define.
+
+  4) board/bf533-stamp/video.c
+  ----------------------------
+  This driver seems bogus as it behaves as STDIO device, but provides no input
+  or output capabilities. It relies on DEV_EXT_VIDEO, which is no longer in use
+  or present otherwise than as a dead code/define.
+
+  5) board/bf548-ezkit/video.c
+  ----------------------------
+  This driver seems bogus as it behaves as STDIO device, but provides no input
+  or output capabilities. It relies on DEV_EXT_VIDEO, which is no longer in use
+  or present otherwise than as a dead code/define.
+
+  6) board/cm-bf548/video.c
+  ----------------------------
+  This driver seems bogus as it behaves as STDIO device, but provides no input
+  or output capabilities. It relies on DEV_EXT_VIDEO, which is no longer in use
+  or present otherwise than as a dead code/define.

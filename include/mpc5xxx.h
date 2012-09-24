@@ -898,8 +898,11 @@ struct mpc5xxx_xlb {
 	volatile u32 snoop_window;	/* XLB + 0x70 */
 };
 
+struct pci_controller;
+
 /* function prototypes */
 void loadtask(int basetask, int tasks);
+void pci_mpc5xxx_init(struct pci_controller *);
 
 #endif /* __ASSEMBLY__ */
 

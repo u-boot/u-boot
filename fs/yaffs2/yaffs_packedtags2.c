@@ -1,7 +1,7 @@
 /*
  * YAFFS: Yet Another Flash File System. A NAND-flash specific file system.
  *
- * Copyright (C) 2002-2007 Aleph One Ltd.
+ * Copyright (C) 2002-2011 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
  *
  * Created by Charles Manning <charles@aleph1.co.uk>
@@ -11,12 +11,9 @@
  * published by the Free Software Foundation.
  */
 
-/* XXX U-BOOT XXX */
-#include <common.h>
-
 #include "yaffs_packedtags2.h"
 #include "yportenv.h"
-#include "yaffs_tagsvalidity.h"
+#include "yaffs_trace.h"
 
 /* This code packs a set of extended tags into a binary structure for
  * NAND storage
@@ -27,159 +24,174 @@
  * This is defined by having the EXTRA_HEADER_INFO_FLAG set.
  */
 
-/* Extra flags applied to chunkId */
+/* Extra flags applied to chunk_id */
 
 #define EXTRA_HEADER_INFO_FLAG	0x80000000
 #define EXTRA_SHRINK_FLAG	0x40000000
 #define EXTRA_SHADOWS_FLAG	0x20000000
 #define EXTRA_SPARE_FLAGS	0x10000000
 
-#define ALL_EXTRA_FLAGS		0xF0000000
+#define ALL_EXTRA_FLAGS		0xf0000000
 
 /* Also, the top 4 bits of the object Id are set to the object type. */
 #define EXTRA_OBJECT_TYPE_SHIFT (28)
-#define EXTRA_OBJECT_TYPE_MASK  ((0x0F) << EXTRA_OBJECT_TYPE_SHIFT)
+#define EXTRA_OBJECT_TYPE_MASK  ((0x0f) << EXTRA_OBJECT_TYPE_SHIFT)
 
-static void yaffs_DumpPackedTags2(const yaffs_PackedTags2 * pt)
+static void yaffs_dump_packed_tags2_tags_only(
+				const struct yaffs_packed_tags2_tags_only *ptt)
 {
-	T(YAFFS_TRACE_MTD,
-	  (TSTR("packed tags obj %d chunk %d byte %d seq %d" TENDSTR),
-	   pt->t.objectId, pt->t.chunkId, pt->t.byteCount,
-	   pt->t.sequenceNumber));
+	yaffs_trace(YAFFS_TRACE_MTD,
+		"packed tags obj %d chunk %d byte %d seq %d",
+		ptt->obj_id, ptt->chunk_id, ptt->n_bytes, ptt->seq_number);
 }
 
-static void yaffs_DumpTags2(const yaffs_ExtendedTags * t)
+static void yaffs_dump_packed_tags2(const struct yaffs_packed_tags2 *pt)
 {
-	T(YAFFS_TRACE_MTD,
-	  (TSTR
-	   ("ext.tags eccres %d blkbad %d chused %d obj %d chunk%d byte "
-	    "%d del %d ser %d seq %d"
-	    TENDSTR), t->eccResult, t->blockBad, t->chunkUsed, t->objectId,
-	   t->chunkId, t->byteCount, t->chunkDeleted, t->serialNumber,
-	   t->sequenceNumber));
+	yaffs_dump_packed_tags2_tags_only(&pt->t);
+}
+
+static void yaffs_dump_tags2(const struct yaffs_ext_tags *t)
+{
+	yaffs_trace(YAFFS_TRACE_MTD,
+		"ext.tags eccres %d blkbad %d chused %d obj %d chunk%d byte %d del %d ser %d seq %d",
+		t->ecc_result, t->block_bad, t->chunk_used, t->obj_id,
+		t->chunk_id, t->n_bytes, t->is_deleted, t->serial_number,
+		t->seq_number);
 
 }
 
-void yaffs_PackTags2(yaffs_PackedTags2 * pt, const yaffs_ExtendedTags * t)
+static int yaffs_check_tags_extra_packable(const struct yaffs_ext_tags *t)
 {
-	pt->t.chunkId = t->chunkId;
-	pt->t.sequenceNumber = t->sequenceNumber;
-	pt->t.byteCount = t->byteCount;
-	pt->t.objectId = t->objectId;
+	if (t->chunk_id != 0 || !t->extra_available)
+		return 0;
 
-	if (t->chunkId == 0 && t->extraHeaderInfoAvailable) {
+	/* Check if the file size is too long to store */
+	if (t->extra_obj_type == YAFFS_OBJECT_TYPE_FILE &&
+	    (t->extra_file_size >> 31) != 0)
+		return 0;
+	return 1;
+}
+
+void yaffs_pack_tags2_tags_only(struct yaffs_packed_tags2_tags_only *ptt,
+				const struct yaffs_ext_tags *t)
+{
+	ptt->chunk_id = t->chunk_id;
+	ptt->seq_number = t->seq_number;
+	ptt->n_bytes = t->n_bytes;
+	ptt->obj_id = t->obj_id;
+
+	/* Only store extra tags for object headers.
+	 * If it is a file then only store  if the file size is short\
+	 * enough to fit.
+	 */
+	if (yaffs_check_tags_extra_packable(t)) {
 		/* Store the extra header info instead */
-		/* We save the parent object in the chunkId */
-		pt->t.chunkId = EXTRA_HEADER_INFO_FLAG
-			| t->extraParentObjectId;
-		if (t->extraIsShrinkHeader) {
-			pt->t.chunkId |= EXTRA_SHRINK_FLAG;
-		}
-		if (t->extraShadows) {
-			pt->t.chunkId |= EXTRA_SHADOWS_FLAG;
-		}
+		/* We save the parent object in the chunk_id */
+		ptt->chunk_id = EXTRA_HEADER_INFO_FLAG | t->extra_parent_id;
+		if (t->extra_is_shrink)
+			ptt->chunk_id |= EXTRA_SHRINK_FLAG;
+		if (t->extra_shadows)
+			ptt->chunk_id |= EXTRA_SHADOWS_FLAG;
 
-		pt->t.objectId &= ~EXTRA_OBJECT_TYPE_MASK;
-		pt->t.objectId |=
-		    (t->extraObjectType << EXTRA_OBJECT_TYPE_SHIFT);
+		ptt->obj_id &= ~EXTRA_OBJECT_TYPE_MASK;
+		ptt->obj_id |= (t->extra_obj_type << EXTRA_OBJECT_TYPE_SHIFT);
 
-		if (t->extraObjectType == YAFFS_OBJECT_TYPE_HARDLINK) {
-			pt->t.byteCount = t->extraEquivalentObjectId;
-		} else if (t->extraObjectType == YAFFS_OBJECT_TYPE_FILE) {
-			pt->t.byteCount = t->extraFileLength;
-		} else {
-			pt->t.byteCount = 0;
-		}
+		if (t->extra_obj_type == YAFFS_OBJECT_TYPE_HARDLINK)
+			ptt->n_bytes = t->extra_equiv_id;
+		else if (t->extra_obj_type == YAFFS_OBJECT_TYPE_FILE)
+			ptt->n_bytes = (unsigned) t->extra_file_size;
+		else
+			ptt->n_bytes = 0;
 	}
 
-	yaffs_DumpPackedTags2(pt);
-	yaffs_DumpTags2(t);
-
-#ifndef YAFFS_IGNORE_TAGS_ECC
-	{
-		yaffs_ECCCalculateOther((unsigned char *)&pt->t,
-					sizeof(yaffs_PackedTags2TagsPart),
-					&pt->ecc);
-	}
-#endif
+	yaffs_dump_packed_tags2_tags_only(ptt);
+	yaffs_dump_tags2(t);
 }
 
-void yaffs_UnpackTags2(yaffs_ExtendedTags * t, yaffs_PackedTags2 * pt)
+void yaffs_pack_tags2(struct yaffs_packed_tags2 *pt,
+		      const struct yaffs_ext_tags *t, int tags_ecc)
 {
+	yaffs_pack_tags2_tags_only(&pt->t, t);
 
-	memset(t, 0, sizeof(yaffs_ExtendedTags));
+	if (tags_ecc)
+		yaffs_ecc_calc_other((unsigned char *)&pt->t,
+				    sizeof(struct yaffs_packed_tags2_tags_only),
+				    &pt->ecc);
+}
 
-	yaffs_InitialiseTags(t);
+void yaffs_unpack_tags2_tags_only(struct yaffs_ext_tags *t,
+				  struct yaffs_packed_tags2_tags_only *ptt)
+{
+	memset(t, 0, sizeof(struct yaffs_ext_tags));
 
-	if (pt->t.sequenceNumber != 0xFFFFFFFF) {
-		/* Page is in use */
-#ifdef YAFFS_IGNORE_TAGS_ECC
-		{
-			t->eccResult = YAFFS_ECC_RESULT_NO_ERROR;
-		}
-#else
-		{
-			yaffs_ECCOther ecc;
-			int result;
-			yaffs_ECCCalculateOther((unsigned char *)&pt->t,
-						sizeof
-						(yaffs_PackedTags2TagsPart),
-						&ecc);
-			result =
-			    yaffs_ECCCorrectOther((unsigned char *)&pt->t,
-						  sizeof
-						  (yaffs_PackedTags2TagsPart),
-						  &pt->ecc, &ecc);
-			switch(result){
-				case 0:
-					t->eccResult = YAFFS_ECC_RESULT_NO_ERROR;
-					break;
-				case 1:
-					t->eccResult = YAFFS_ECC_RESULT_FIXED;
-					break;
-				case -1:
-					t->eccResult = YAFFS_ECC_RESULT_UNFIXED;
-					break;
-				default:
-					t->eccResult = YAFFS_ECC_RESULT_UNKNOWN;
-			}
-		}
-#endif
-		t->blockBad = 0;
-		t->chunkUsed = 1;
-		t->objectId = pt->t.objectId;
-		t->chunkId = pt->t.chunkId;
-		t->byteCount = pt->t.byteCount;
-		t->chunkDeleted = 0;
-		t->serialNumber = 0;
-		t->sequenceNumber = pt->t.sequenceNumber;
+	if (ptt->seq_number == 0xffffffff)
+		return;
 
-		/* Do extra header info stuff */
+	t->block_bad = 0;
+	t->chunk_used = 1;
+	t->obj_id = ptt->obj_id;
+	t->chunk_id = ptt->chunk_id;
+	t->n_bytes = ptt->n_bytes;
+	t->is_deleted = 0;
+	t->serial_number = 0;
+	t->seq_number = ptt->seq_number;
 
-		if (pt->t.chunkId & EXTRA_HEADER_INFO_FLAG) {
-			t->chunkId = 0;
-			t->byteCount = 0;
+	/* Do extra header info stuff */
+	if (ptt->chunk_id & EXTRA_HEADER_INFO_FLAG) {
+		t->chunk_id = 0;
+		t->n_bytes = 0;
 
-			t->extraHeaderInfoAvailable = 1;
-			t->extraParentObjectId =
-			    pt->t.chunkId & (~(ALL_EXTRA_FLAGS));
-			t->extraIsShrinkHeader =
-			    (pt->t.chunkId & EXTRA_SHRINK_FLAG) ? 1 : 0;
-			t->extraShadows =
-			    (pt->t.chunkId & EXTRA_SHADOWS_FLAG) ? 1 : 0;
-			t->extraObjectType =
-			    pt->t.objectId >> EXTRA_OBJECT_TYPE_SHIFT;
-			t->objectId &= ~EXTRA_OBJECT_TYPE_MASK;
+		t->extra_available = 1;
+		t->extra_parent_id = ptt->chunk_id & (~(ALL_EXTRA_FLAGS));
+		t->extra_is_shrink = ptt->chunk_id & EXTRA_SHRINK_FLAG ? 1 : 0;
+		t->extra_shadows = ptt->chunk_id & EXTRA_SHADOWS_FLAG ? 1 : 0;
+		t->extra_obj_type = ptt->obj_id >> EXTRA_OBJECT_TYPE_SHIFT;
+		t->obj_id &= ~EXTRA_OBJECT_TYPE_MASK;
 
-			if (t->extraObjectType == YAFFS_OBJECT_TYPE_HARDLINK) {
-				t->extraEquivalentObjectId = pt->t.byteCount;
-			} else {
-				t->extraFileLength = pt->t.byteCount;
-			}
+		if (t->extra_obj_type == YAFFS_OBJECT_TYPE_HARDLINK)
+			t->extra_equiv_id = ptt->n_bytes;
+		else
+			t->extra_file_size = ptt->n_bytes;
+	}
+	yaffs_dump_packed_tags2_tags_only(ptt);
+	yaffs_dump_tags2(t);
+}
+
+void yaffs_unpack_tags2(struct yaffs_ext_tags *t, struct yaffs_packed_tags2 *pt,
+			int tags_ecc)
+{
+	enum yaffs_ecc_result ecc_result = YAFFS_ECC_RESULT_NO_ERROR;
+
+	if (pt->t.seq_number != 0xffffffff && tags_ecc) {
+		/* Chunk is in use and we need to do ECC */
+
+		struct yaffs_ecc_other ecc;
+		int result;
+		yaffs_ecc_calc_other((unsigned char *)&pt->t,
+				sizeof(struct yaffs_packed_tags2_tags_only),
+				&ecc);
+		result =
+		    yaffs_ecc_correct_other((unsigned char *)&pt->t,
+				sizeof(struct yaffs_packed_tags2_tags_only),
+				&pt->ecc, &ecc);
+		switch (result) {
+		case 0:
+			ecc_result = YAFFS_ECC_RESULT_NO_ERROR;
+			break;
+		case 1:
+			ecc_result = YAFFS_ECC_RESULT_FIXED;
+			break;
+		case -1:
+			ecc_result = YAFFS_ECC_RESULT_UNFIXED;
+			break;
+		default:
+			ecc_result = YAFFS_ECC_RESULT_UNKNOWN;
 		}
 	}
+	yaffs_unpack_tags2_tags_only(t, &pt->t);
 
-	yaffs_DumpPackedTags2(pt);
-	yaffs_DumpTags2(t);
+	t->ecc_result = ecc_result;
 
+	yaffs_dump_packed_tags2(pt);
+	yaffs_dump_tags2(t);
 }

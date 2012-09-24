@@ -1,7 +1,7 @@
 /*
  * Configuation settings for the Freescale MCF5373 FireEngine board.
  *
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -59,7 +59,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
-#ifdef NANDFLASH_SIZE
+#ifdef CONFIG_NANDFLASH_SIZE
 #      define CONFIG_CMD_NAND
 #endif
 
@@ -208,7 +208,7 @@
 #	define CONFIG_SYS_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #endif
 
-#ifdef NANDFLASH_SIZE
+#ifdef CONFIG_NANDFLASH_SIZE
 #	define CONFIG_SYS_MAX_NAND_DEVICE	1
 #	define CONFIG_SYS_NAND_BASE		CONFIG_SYS_CS2_BASE
 #	define CONFIG_SYS_NAND_SIZE		1
@@ -264,9 +264,9 @@
 #define CONFIG_SYS_CS1_MASK		0x001f0001
 #define CONFIG_SYS_CS1_CTRL		0x002A3780
 
-#ifdef NANDFLASH_SIZE
+#ifdef CONFIG_NANDFLASH_SIZE
 #define CONFIG_SYS_CS2_BASE		0x20000000
-#define CONFIG_SYS_CS2_MASK		((NANDFLASH_SIZE << 20) | 1)
+#define CONFIG_SYS_CS2_MASK		((CONFIG_NANDFLASH_SIZE << 20) | 1)
 #define CONFIG_SYS_CS2_CTRL		0x00001f60
 #endif
 

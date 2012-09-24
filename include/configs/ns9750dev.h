@@ -42,7 +42,6 @@
 #define AHB_CLK_FREQ		(CONFIG_SYS_CLK_FREQ/4)
 #define BBUS_CLK_FREQ		(CONFIG_SYS_CLK_FREQ/8)
 
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 /*@TODO #define CONFIG_STATUS_LED*/
 #define CONFIG_USE_IRQ
 
@@ -126,10 +125,7 @@
 
 /*-----------------------------------------------------------------------
  * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
  */
-#define CONFIG_STACKSIZE	(128*1024)	/* regular stack */
 #ifdef CONFIG_USE_IRQ
 #define CONFIG_STACKSIZE_IRQ	(4*1024)	/* IRQ stack */
 #define CONFIG_STACKSIZE_FIQ	(4*1024)	/* FIQ stack */

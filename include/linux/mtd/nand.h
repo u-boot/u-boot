@@ -85,8 +85,10 @@ extern void nand_wait_ready(struct mtd_info *mtd);
 #define NAND_CMD_RESET		0xff
 
 #define NAND_CMD_LOCK		0x2a
+#define NAND_CMD_LOCK_TIGHT	0x2c
 #define NAND_CMD_UNLOCK1	0x23
 #define NAND_CMD_UNLOCK2	0x24
+#define NAND_CMD_LOCK_STATUS	0x7a
 
 /* Extended commands for large page devices */
 #define NAND_CMD_READSTART	0x30
@@ -206,9 +208,6 @@ typedef enum {
 #define NAND_HAS_COPYBACK(chip) ((chip->options & NAND_COPYBACK))
 /* Large page NAND with SOFT_ECC should support subpage reads */
 #define NAND_HAS_SUBPAGE_READ(chip) ((chip->options & NAND_SUBPAGE_READ))
-
-/* Mask to zero out the chip options, which come from the id table */
-#define NAND_CHIPOPTIONS_MSK	(0x0000efff & ~NAND_NO_AUTOINCR)
 
 /* Non chip related options */
 /*
@@ -393,9 +392,10 @@ struct nand_ecc_ctrl {
  * consecutive order.
  */
 struct nand_buffers {
-	uint8_t	ecccalc[NAND_MAX_OOBSIZE];
-	uint8_t	ecccode[NAND_MAX_OOBSIZE];
-	uint8_t databuf[NAND_MAX_PAGESIZE + NAND_MAX_OOBSIZE];
+	uint8_t	ecccalc[ALIGN(NAND_MAX_OOBSIZE, ARCH_DMA_MINALIGN)];
+	uint8_t	ecccode[ALIGN(NAND_MAX_OOBSIZE, ARCH_DMA_MINALIGN)];
+	uint8_t databuf[ALIGN(NAND_MAX_PAGESIZE + NAND_MAX_OOBSIZE,
+			      ARCH_DMA_MINALIGN)];
 };
 
 /**

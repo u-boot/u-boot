@@ -28,6 +28,7 @@
 #include <ns16550.h>
 #include <malloc.h>
 #include <spi_flash.h>
+#include <mmc.h>
 
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 
@@ -74,12 +75,7 @@ void board_init_f(ulong dummy)
 
 void board_init_r(gd_t *id, ulong dummy)
 {
-#ifdef CONFIG_SPL_NAND_LOAD
-	nand_init();
-	puts("Nand boot...\n");
-	nand_boot();
-#endif
-#ifdef CONFIG_SPL_SPI_LOAD
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 	mem_malloc_init(CONFIG_SYS_TEXT_BASE - CONFIG_SYS_MALLOC_LEN,
 			CONFIG_SYS_MALLOC_LEN);
 
@@ -90,7 +86,19 @@ void board_init_r(gd_t *id, ulong dummy)
 	serial_init();          /* serial communications setup */
 	gd->have_console = 1;
 
+#endif
+
+#ifdef CONFIG_SPL_NAND_LOAD
+	nand_init();
+	puts("Nand boot...\n");
+	nand_boot();
+#endif
+#ifdef CONFIG_SPL_SPI_LOAD
 	puts("SPI boot...\n");
 	spi_boot();
+#endif
+#ifdef CONFIG_SPL_MMC_LOAD
+	puts("MMC boot...\n");
+	spl_mmc_load();
 #endif
 }

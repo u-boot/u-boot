@@ -64,11 +64,11 @@
 #define SDHCI_CTRL4_DRIVE_MASK(_x)	((_x) << 16)
 #define SDHCI_CTRL4_DRIVE_SHIFT		(16)
 
-int s5p_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk, u32 quirks);
+int s5p_sdhci_init(u32 regbase, int index, int bus_width);
 
 static inline unsigned int s5p_mmc_init(int index, int bus_width)
 {
 	unsigned int base = samsung_get_base_mmc() + (0x10000 * index);
-	return s5p_sdhci_init(base, 52000000, 400000, index);
+	return s5p_sdhci_init(base, index, bus_width);
 }
 #endif

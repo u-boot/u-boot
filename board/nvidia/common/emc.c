@@ -28,7 +28,7 @@
 #include <asm/arch/emc.h>
 #include <asm/arch/pmu.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/tegra2.h>
+#include <asm/arch/tegra20.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

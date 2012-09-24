@@ -42,7 +42,7 @@
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
 
-#define MX53LOCO_LCD_POWER		(2 * 32 + 24)	/* GPIO3_24 */
+#define MX53LOCO_LCD_POWER		IMX_GPIO_NR(3, 24)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -165,8 +165,8 @@ static void setup_iomux_fec(void)
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
-	{MMC_SDHC1_BASE_ADDR, 1},
-	{MMC_SDHC3_BASE_ADDR, 1},
+	{MMC_SDHC1_BASE_ADDR},
+	{MMC_SDHC3_BASE_ADDR},
 };
 
 int board_mmc_getcd(struct mmc *mmc)
@@ -175,14 +175,14 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret;
 
 	mxc_request_iomux(MX53_PIN_EIM_DA11, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(75);
+	gpio_direction_input(IMX_GPIO_NR(3, 11));
 	mxc_request_iomux(MX53_PIN_EIM_DA13, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(77);
+	gpio_direction_input(IMX_GPIO_NR(3, 13));
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		ret = !gpio_get_value(77); /* GPIO3_13 */
+		ret = !gpio_get_value(IMX_GPIO_NR(3, 13));
 	else
-		ret = !gpio_get_value(75); /* GPIO3_11 */
+		ret = !gpio_get_value(IMX_GPIO_NR(3, 11));
 
 	return ret;
 }
@@ -495,14 +495,14 @@ int print_cpuinfo(void)
 	return 0;
 }
 
-#ifdef CONFIG_BOARD_LATE_INIT
-int board_late_init(void)
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
 {
-	setenv("stdout", "serial");
-
-	return 0;
+	return 1;
 }
-#endif
 
 int board_init(void)
 {

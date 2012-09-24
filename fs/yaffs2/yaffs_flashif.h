@@ -1,7 +1,7 @@
 /*
  * YAFFS: Yet another Flash File System . A NAND-flash specific file system.
  *
- * Copyright (C) 2002-2007 Aleph One Ltd.
+ * Copyright (C) 2002-2011 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
  *
  * Created by Charles Manning <charles@aleph1.co.uk>
@@ -18,14 +18,18 @@
 
 
 #include "yaffs_guts.h"
-int yflash_EraseBlockInNAND(yaffs_Device *dev, int blockNumber);
-int yflash_WriteChunkToNAND(yaffs_Device *dev,int chunkInNAND,const __u8 *data, const yaffs_Spare *spare);
-int yflash_WriteChunkWithTagsToNAND(yaffs_Device *dev,int chunkInNAND,const __u8 *data, yaffs_ExtendedTags *tags);
-int yflash_ReadChunkFromNAND(yaffs_Device *dev,int chunkInNAND, __u8 *data, yaffs_Spare *spare);
-int yflash_ReadChunkWithTagsFromNAND(yaffs_Device *dev,int chunkInNAND, __u8 *data, yaffs_ExtendedTags *tags);
-int yflash_EraseBlockInNAND(yaffs_Device *dev, int blockNumber);
-int yflash_InitialiseNAND(yaffs_Device *dev);
-int yflash_MarkNANDBlockBad(struct yaffs_DeviceStruct *dev, int blockNo);
-int yflash_QueryNANDBlock(struct yaffs_DeviceStruct *dev, int blockNo, yaffs_BlockState *state, int *sequenceNumber);
+int yflash_EraseBlockInNAND(struct yaffs_dev *dev, int blockNumber);
+int yflash_WriteChunkToNAND(struct yaffs_dev *dev, int nand_chunk,
+			const u8 *data, const struct yaffs_spare *spare);
+int yflash_WriteChunkWithTagsToNAND(struct yaffs_dev *dev, int nand_chunk,
+			const u8 *data, const struct yaffs_ext_tags *tags);
+int yflash_ReadChunkFromNAND(struct yaffs_dev *dev, int nand_chunk,
+			u8 *data, struct yaffs_spare *spare);
+int yflash_ReadChunkWithTagsFromNAND(struct yaffs_dev *dev, int nand_chunk,
+			u8 *data, struct yaffs_ext_tags *tags);
+int yflash_InitialiseNAND(struct yaffs_dev *dev);
+int yflash_MarkNANDBlockBad(struct yaffs_dev *dev, int block_no);
+int yflash_QueryNANDBlock(struct yaffs_dev *dev, int block_no,
+			enum yaffs_block_state *state, u32 *seq_number);
 
 #endif

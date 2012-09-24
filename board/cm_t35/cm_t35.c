@@ -74,7 +74,7 @@ static u32 gpmc_nand_config[GPMC_MAX_REG] = {
 
 /*
  * Routine: board_init
- * Description: Early hardware init.
+ * Description: hardware init.
  */
 int board_init(void)
 {
@@ -438,7 +438,7 @@ int board_eth_init(bd_t *bis)
 
 	rc1 = handle_mac_address();
 	if (rc1)
-		printf("CM-T3x: No MAC address found\n");
+		printf("No MAC address found! ");
 
 	rc1 = smc911x_initialize(0, CM_T3X_SMC911X_BASE);
 	if (rc1 > 0)

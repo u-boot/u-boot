@@ -24,6 +24,7 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/gpio.h>
 #ifdef CONFIG_MXC_MMC
 #include <asm/arch/mxcmmc.h>
 #endif
@@ -209,7 +210,7 @@ int cpu_mmc_init(bd_t *bis)
 
 void imx_gpio_mode(int gpio_mode)
 {
-	struct gpio_regs *regs = (struct gpio_regs *)IMX_GPIO_BASE;
+	struct gpio_port_regs *regs = (struct gpio_port_regs *)IMX_GPIO_BASE;
 	unsigned int pin = gpio_mode & GPIO_PIN_MASK;
 	unsigned int port = (gpio_mode & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
 	unsigned int ocr = (gpio_mode & GPIO_OCR_MASK) >> GPIO_OCR_SHIFT;
@@ -228,11 +229,11 @@ void imx_gpio_mode(int gpio_mode)
 
 	/* Data direction */
 	if (gpio_mode & GPIO_OUT) {
-		writel(readl(&regs->port[port].ddir) | 1 << pin,
-				&regs->port[port].ddir);
+		writel(readl(&regs->port[port].gpio_dir) | 1 << pin,
+				&regs->port[port].gpio_dir);
 	} else {
-		writel(readl(&regs->port[port].ddir) & ~(1 << pin),
-				&regs->port[port].ddir);
+		writel(readl(&regs->port[port].gpio_dir) & ~(1 << pin),
+				&regs->port[port].gpio_dir);
 	}
 
 	/* Primary / alternate function */

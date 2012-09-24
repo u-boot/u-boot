@@ -1,5 +1,5 @@
 /*
- * NVIDIA Tegra2 GPIO handling.
+ * NVIDIA Tegra20 GPIO handling.
  *  (C) Copyright 2010-2012
  *  NVIDIA Corporation <www.nvidia.com>
  *
@@ -30,14 +30,14 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/bitops.h>
-#include <asm/arch/tegra2.h>
+#include <asm/arch/tegra20.h>
 #include <asm/gpio.h>
 
 enum {
-	TEGRA2_CMD_INFO,
-	TEGRA2_CMD_PORT,
-	TEGRA2_CMD_OUTPUT,
-	TEGRA2_CMD_INPUT,
+	TEGRA_CMD_INFO,
+	TEGRA_CMD_PORT,
+	TEGRA_CMD_OUTPUT,
+	TEGRA_CMD_INPUT,
 };
 
 static struct gpio_names {

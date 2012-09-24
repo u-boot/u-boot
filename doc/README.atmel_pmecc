@@ -1,0 +1,44 @@
+How to enable PMECC(Programmable Multibit ECC) for nand on Atmel SoCs
+-----------------------------------------------------------
+2012-08-22 Josh Wu <josh.wu@atmel.com>
+
+The Programmable Multibit ECC (PMECC) controller is a programmable binary
+BCH(Bose, Chaudhuri and Hocquenghem) encoder and decoder. This controller
+can be used to support both SLC and MLC NAND Flash devices. It supports to
+generate ECC to correct 2, 4, 8, 12 or 24 bits of error per sector (512 or
+1024 bytes) of data.
+
+Following Atmel AT91 products support PMECC.
+- AT91SAM9X25, X35, G25, G15, G35 (tested)
+- AT91SAM9N12 (not tested, Should work)
+
+As soon as your nand flash software ECC works, you can enable PMECC.
+
+To use PMECC in this driver, the user needs to set:
+	1. the PMECC correction error bits capability: CONFIG_PMECC_CAP.
+	   It can be 2, 4, 8, 12 or 24.
+	2. The PMECC sector size: CONFIG_PMECC_SECTOR_SIZE.
+	   It only can be 512 or 1024.
+	3. The PMECC index lookup table's offsets in ROM code: CONFIG_PMECC_INDEX_TABLE_OFFSET.
+	   In the chip datasheet section "Boot Stragegies", you can find
+	   two Galois Field Table in the ROM code. One table is for 512-bytes
+	   sector. Another is for 1024-byte sector. Each Galois Field includes
+	   two sub-table: indext table & alpha table.
+	   In the beginning of each Galois Field Table is the index table,
+	   Alpha table is in the following.
+	   So the index table's offset is same as the Galois Field Table.
+
+	   Please set CONFIG_PMECC_INDEX_TABLE_OFFSET correctly according the
+	   Galois Field Table's offset base on the sector size you used.
+
+Take AT91SAM9X5EK as an example, the board definition file likes:
+
+/* PMECC & PMERRLOC */
+#define CONFIG_ATMEL_NAND_HWECC		1
+#define CONFIG_ATMEL_NAND_HW_PMECC	1
+#define CONFIG_PMECC_CAP		2
+#define CONFIG_PMECC_SECTOR_SIZE	512
+#define CONFIG_PMECC_INDEX_TABLE_OFFSET	0x8000
+
+NOTE: If you use 1024 as the sector size, then need set 0x10000 as the
+ CONFIG_PMECC_INDEX_TABLE_OFFSET

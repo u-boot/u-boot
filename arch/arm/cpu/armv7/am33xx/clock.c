@@ -24,6 +24,7 @@
 
 #define PRCM_MOD_EN		0x2
 #define PRCM_FORCE_WAKEUP	0x2
+#define PRCM_FUNCTL		0x0
 
 #define PRCM_EMIF_CLK_ACTIVITY	BIT(2)
 #define PRCM_L3_GCLK_ACTIVITY	BIT(4)
@@ -38,7 +39,7 @@
 #define CLK_MODE_SEL		0x7
 #define CLK_MODE_MASK		0xfffffff8
 #define CLK_DIV_SEL		0xFFFFFFE0
-
+#define CPGMAC0_IDLE		0x30000
 
 const struct cm_perpll *cmper = (struct cm_perpll *)CM_PER;
 const struct cm_wkuppll *cmwkup = (struct cm_wkuppll *)CM_WKUP;
@@ -69,6 +70,10 @@ static void enable_interface_clocks(void)
 
 	writel(PRCM_MOD_EN, &cmper->l4hsclkctrl);
 	while (readl(&cmper->l4hsclkctrl) != PRCM_MOD_EN)
+		;
+
+	writel(PRCM_MOD_EN, &cmwkup->wkgpio0clkctrl);
+	while (readl(&cmwkup->wkgpio0clkctrl) != PRCM_MOD_EN)
 		;
 }
 
@@ -117,6 +122,36 @@ static void enable_per_clocks(void)
 	/* i2c0 */
 	writel(PRCM_MOD_EN, &cmwkup->wkup_i2c0ctrl);
 	while (readl(&cmwkup->wkup_i2c0ctrl) != PRCM_MOD_EN)
+		;
+
+	/* gpio1 module */
+	writel(PRCM_MOD_EN, &cmper->gpio1clkctrl);
+	while (readl(&cmper->gpio1clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* gpio2 module */
+	writel(PRCM_MOD_EN, &cmper->gpio2clkctrl);
+	while (readl(&cmper->gpio2clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* gpio3 module */
+	writel(PRCM_MOD_EN, &cmper->gpio3clkctrl);
+	while (readl(&cmper->gpio3clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* i2c1 */
+	writel(PRCM_MOD_EN, &cmper->i2c1clkctrl);
+	while (readl(&cmper->i2c1clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* Ethernet */
+	writel(PRCM_MOD_EN, &cmper->cpgmac0clkctrl);
+	while ((readl(&cmper->cpgmac0clkctrl) & CPGMAC0_IDLE) != PRCM_FUNCTL)
+		;
+
+	/* spi0 */
+	writel(PRCM_MOD_EN, &cmper->spi0clkctrl);
+	while (readl(&cmper->spi0clkctrl) != PRCM_MOD_EN)
 		;
 }
 
@@ -216,7 +251,7 @@ static void per_pll_config(void)
 		;
 }
 
-static void ddr_pll_config(void)
+void ddr_pll_config(unsigned int ddrpll_m)
 {
 	u32 clkmode, clksel, div_m2;
 
@@ -234,7 +269,7 @@ static void ddr_pll_config(void)
 		;
 
 	clksel = clksel & (~CLK_SEL_MASK);
-	clksel = clksel | ((DDRPLL_M << CLK_SEL_SHIFT) | DDRPLL_N);
+	clksel = clksel | ((ddrpll_m << CLK_SEL_SHIFT) | DDRPLL_N);
 	writel(clksel, &cmwkup->clkseldpllddr);
 
 	div_m2 = div_m2 & CLK_DIV_SEL;
@@ -255,11 +290,6 @@ void enable_emif_clocks(void)
 	writel(PRCM_MOD_EN, &cmper->emiffwclkctrl);
 	/* Enable EMIF0 Clock */
 	writel(PRCM_MOD_EN, &cmper->emifclkctrl);
-	/* Poll for emif_gclk  & L3_G clock  are active */
-	while ((readl(&cmper->l3clkstctrl) & (PRCM_EMIF_CLK_ACTIVITY |
-			PRCM_L3_GCLK_ACTIVITY)) != (PRCM_EMIF_CLK_ACTIVITY |
-			PRCM_L3_GCLK_ACTIVITY))
-		;
 	/* Poll if module is functional */
 	while ((readl(&cmper->emifclkctrl)) != PRCM_MOD_EN)
 		;
@@ -273,7 +303,6 @@ void pll_init()
 	mpu_pll_config();
 	core_pll_config();
 	per_pll_config();
-	ddr_pll_config();
 
 	/* Enable the required interconnect clocks */
 	enable_interface_clocks();

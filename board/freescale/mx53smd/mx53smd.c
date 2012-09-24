@@ -129,14 +129,14 @@ static void setup_iomux_fec(void)
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{MMC_SDHC1_BASE_ADDR, 1},
+	{MMC_SDHC1_BASE_ADDR},
 };
 
 int board_mmc_getcd(struct mmc *mmc)
 {
 	mxc_request_iomux(MX53_PIN_EIM_DA13, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(77);
-	return !gpio_get_value(77); /* GPIO3_13 */
+	gpio_direction_input(IMX_GPIO_NR(3, 13));
+	return !gpio_get_value(IMX_GPIO_NR(3, 13));
 }
 
 int board_mmc_init(bd_t *bis)

@@ -37,21 +37,9 @@
 #define CMD_S25FLXX_DP		0xb9	/* Deep Power-down */
 #define CMD_S25FLXX_RES		0xab	/* Release from DP, and Read Signature */
 
-#define SPSN_ID_S25FL008A	0x0213
-#define SPSN_ID_S25FL016A	0x0214
-#define SPSN_ID_S25FL032A	0x0215
-#define SPSN_ID_S25FL064A	0x0216
-#define SPSN_ID_S25FL256S	0x0219
-#define SPSN_ID_S25FL128P	0x2018
-#define SPSN_EXT_ID_S25FL128P_256KB	0x0300
-#define SPSN_EXT_ID_S25FL128P_64KB	0x0301
-#define SPSN_EXT_ID_S25FL032P		0x4d00
-#define SPSN_EXT_ID_S25FL129P		0x4d01
-
 struct spansion_spi_flash_params {
 	u16 idcode1;
 	u16 idcode2;
-	u16 page_size;
 	u16 pages_per_sector;
 	u16 nr_sectors;
 	const char *name;
@@ -61,7 +49,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
 		.idcode1 = 0x0213,
 		.idcode2 = 0,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 16,
 		.name = "S25FL008A",
@@ -69,7 +56,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
 		.idcode1 = 0x0214,
 		.idcode2 = 0,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 32,
 		.name = "S25FL016A",
@@ -77,7 +63,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
 		.idcode1 = 0x0215,
 		.idcode2 = 0,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 64,
 		.name = "S25FL032A",
@@ -85,7 +70,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
 		.idcode1 = 0x0216,
 		.idcode2 = 0,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 128,
 		.name = "S25FL064A",
@@ -93,7 +77,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
 		.idcode1 = 0x2018,
 		.idcode2 = 0x0301,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 256,
 		.name = "S25FL128P_64K",
@@ -101,7 +84,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
 		.idcode1 = 0x2018,
 		.idcode2 = 0x0300,
-		.page_size = 256,
 		.pages_per_sector = 1024,
 		.nr_sectors = 64,
 		.name = "S25FL128P_256K",
@@ -109,7 +91,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
 		.idcode1 = 0x0215,
 		.idcode2 = 0x4d00,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 64,
 		.name = "S25FL032P",
@@ -117,25 +98,18 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	{
 		.idcode1 = 0x2018,
 		.idcode2 = 0x4d01,
-		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 256,
 		.name = "S25FL129P_64K",
 	},
 	{
-		.idcode1 = SPSN_ID_S25FL256S,
-		.idcode2 = SPSN_EXT_ID_S25FL129P,
-		.page_size = 256,
+		.idcode1 = 0x2019,
+		.idcode2 = 0x4d01,
 		.pages_per_sector = 256,
 		.nr_sectors = 512,
 		.name = "S25FL256S",
 	},
 };
-
-static int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
-{
-	return spi_flash_cmd_erase(flash, CMD_S25FLXX_SE, offset, len);
-}
 
 struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 {
@@ -170,16 +144,16 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	flash->name = params->name;
 
 	flash->write = spi_flash_cmd_write_multi;
-	flash->erase = spansion_erase;
+	flash->erase = spi_flash_cmd_erase;
 	flash->read = spi_flash_cmd_read_fast;
-	flash->page_size = params->page_size;
-	flash->sector_size = params->page_size * params->pages_per_sector;
+	flash->page_size = 256;
+	flash->sector_size = 256 * params->pages_per_sector;
 
 	/* address width is 4 for dual and 3 for single qspi */
 	if (flash->spi->is_dual == 1) {
 		flash->addr_width = 4;
 		flash->size = flash->sector_size * (2 * params->nr_sectors);
-	} else if (flash->spi->is_dual == 0) {
+	} else {
 		flash->addr_width = 3;
 		flash->size = flash->sector_size * params->nr_sectors;
 	}

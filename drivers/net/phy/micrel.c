@@ -35,6 +35,12 @@ static struct phy_driver KSZ804_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+#ifndef CONFIG_PHY_MICREL_KSZ9021
+/*
+ * I can't believe Micrel used the exact same part number
+ * for the KSZ9021
+ * Shame Micrel, Shame!!!!!
+ */
 static struct phy_driver KS8721_driver = {
 	.name = "Micrel KS8721BL",
 	.uid = 0x221610,
@@ -44,7 +50,9 @@ static struct phy_driver KS8721_driver = {
 	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
+#endif
 
+#ifdef CONFIG_PHY_MICREL_KSZ9021
 /* ksz9021 PHY Registers */
 #define MII_KSZ9021_EXTENDED_CTRL	0x0b
 #define MII_KSZ9021_EXTENDED_DATAW	0x0c
@@ -127,12 +135,15 @@ static struct phy_driver ksz9021_driver = {
 	.startup = &ksz9021_startup,
 	.shutdown = &genphy_shutdown,
 };
+#endif
 
 int phy_micrel_init(void)
 {
 	phy_register(&KSZ804_driver);
-	phy_register(&KS8721_driver);
+#ifdef CONFIG_PHY_MICREL_KSZ9021
 	phy_register(&ksz9021_driver);
-
+#else
+	phy_register(&KS8721_driver);
+#endif
 	return 0;
 }

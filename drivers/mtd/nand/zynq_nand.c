@@ -22,7 +22,7 @@
 
 #include <asm/arch/nand.h>
 #include <asm/io.h>
-#include <linux/mtd/compat.h>
+//#include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/partitions.h>

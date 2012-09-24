@@ -1261,19 +1261,11 @@ static int ohci_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	int leni = transfer_len;
 	int len = 0;
 	int stat = 0;
-	__u32 datab[4];
-	union {
-		void *ptr;
-		__u8 *u8;
-		__u16 *u16;
-		__u32 *u32;
-	} databuf;
 	__u16 bmRType_bReq;
 	__u16 wValue;
 	__u16 wIndex;
 	__u16 wLength;
-
-	databuf.u32 = (__u32 *)datab;
+	ALLOC_ALIGN_BUFFER(__u8, databuf, 16, sizeof(u32));
 
 #ifdef DEBUG
 pkt_print(NULL, dev, pipe, buffer, transfer_len,
@@ -1304,20 +1296,20 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 	*/
 
 	case RH_GET_STATUS:
-		databuf.u16[0] = cpu_to_le16(1);
+		*(u16 *)databuf = cpu_to_le16(1);
 		OK(2);
 	case RH_GET_STATUS | RH_INTERFACE:
-		databuf.u16[0] = cpu_to_le16(0);
+		*(u16 *)databuf = cpu_to_le16(0);
 		OK(2);
 	case RH_GET_STATUS | RH_ENDPOINT:
-		databuf.u16[0] = cpu_to_le16(0);
+		*(u16 *)databuf = cpu_to_le16(0);
 		OK(2);
 	case RH_GET_STATUS | RH_CLASS:
-		databuf.u32[0] = cpu_to_le32(
+		*(u32 *)databuf = cpu_to_le32(
 				RD_RH_STAT & ~(RH_HS_CRWE | RH_HS_DRWE));
 		OK(4);
 	case RH_GET_STATUS | RH_OTHER | RH_CLASS:
-		databuf.u32[0] = cpu_to_le32(RD_RH_PORTSTAT);
+		*(u32 *)databuf = cpu_to_le32(RD_RH_PORTSTAT);
 		OK(4);
 
 	case RH_CLEAR_FEATURE | RH_ENDPOINT:
@@ -1381,14 +1373,14 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 					min_t(unsigned int,
 					sizeof(root_hub_dev_des),
 					wLength));
-			databuf.ptr = root_hub_dev_des; OK(len);
+			databuf = root_hub_dev_des; OK(len);
 		case (0x02): /* configuration descriptor */
 			len = min_t(unsigned int,
 					leni,
 					min_t(unsigned int,
 					sizeof(root_hub_config_des),
 					wLength));
-			databuf.ptr = root_hub_config_des; OK(len);
+			databuf = root_hub_config_des; OK(len);
 		case (0x03): /* string descriptors */
 			if (wValue == 0x0300) {
 				len = min_t(unsigned int,
@@ -1396,7 +1388,7 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 						min_t(unsigned int,
 						sizeof(root_hub_str_index0),
 						wLength));
-				databuf.ptr = root_hub_str_index0;
+				databuf = root_hub_str_index0;
 				OK(len);
 			}
 			if (wValue == 0x0301) {
@@ -1405,7 +1397,7 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 						min_t(unsigned int,
 						sizeof(root_hub_str_index1),
 						wLength));
-				databuf.ptr = root_hub_str_index1;
+				databuf = root_hub_str_index1;
 				OK(len);
 		}
 		default:
@@ -1417,40 +1409,40 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 	{
 		__u32 temp = roothub_a(&gohci);
 
-		databuf.u8[0] = 9;		/* min length; */
-		databuf.u8[1] = 0x29;
-		databuf.u8[2] = temp & RH_A_NDP;
+		databuf[0] = 9;		/* min length; */
+		databuf[1] = 0x29;
+		databuf[2] = temp & RH_A_NDP;
 #ifdef CONFIG_AT91C_PQFP_UHPBUG
-		databuf.u8[2] = (databuf.u8[2] == 2) ? 1 : 0;
+		databuf[2] = (databuf[2] == 2) ? 1 : 0;
 #endif
-		databuf.u8[3] = 0;
+		databuf[3] = 0;
 		if (temp & RH_A_PSM)	/* per-port power switching? */
-			databuf.u8[3] |= 0x1;
+			databuf[3] |= 0x1;
 		if (temp & RH_A_NOCP)	/* no overcurrent reporting? */
-			databuf.u8[3] |= 0x10;
+			databuf[3] |= 0x10;
 		else if (temp & RH_A_OCPM)/* per-port overcurrent reporting? */
-			databuf.u8[3] |= 0x8;
+			databuf[3] |= 0x8;
 
-		/* corresponds to databuf.u8[4-7] */
-		databuf.u8[1] = 0;
-		databuf.u8[5] = (temp & RH_A_POTPGT) >> 24;
+		databuf[4] = 0;
+		databuf[5] = (temp & RH_A_POTPGT) >> 24;
+		databuf[6] = 0;
 		temp = roothub_b(&gohci);
-		databuf.u8[7] = temp & RH_B_DR;
-		if (databuf.u8[2] < 7) {
-			databuf.u8[8] = 0xff;
+		databuf[7] = temp & RH_B_DR;
+		if (databuf[2] < 7) {
+			databuf[8] = 0xff;
 		} else {
-			databuf.u8[0] += 2;
-			databuf.u8[8] = (temp & RH_B_DR) >> 8;
-			databuf.u8[10] = databuf.u8[9] = 0xff;
+			databuf[0] += 2;
+			databuf[8] = (temp & RH_B_DR) >> 8;
+			databuf[10] = databuf[9] = 0xff;
 		}
 
 		len = min_t(unsigned int, leni,
-			    min_t(unsigned int, databuf.u8[0], wLength));
+			    min_t(unsigned int, databuf[0], wLength));
 		OK(len);
 	}
 
 	case RH_GET_CONFIGURATION:
-		databuf.u8[0] = 0x01;
+		databuf[0] = 0x01;
 		OK(1);
 
 	case RH_SET_CONFIGURATION:
@@ -1469,8 +1461,8 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 #endif
 
 	len = min_t(int, len, leni);
-	if (data != databuf.ptr)
-		memcpy(data, databuf.ptr, len);
+	if (data != databuf)
+		memcpy(data, databuf, len);
 	dev->act_len = len;
 	dev->status = stat;
 

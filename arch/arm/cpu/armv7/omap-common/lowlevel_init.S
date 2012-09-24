@@ -78,24 +78,6 @@ ENTRY(save_boot_params)
 	bx	lr
 ENDPROC(save_boot_params)
 
-ENTRY(lowlevel_init)
-	/*
-	 * Setup a temporary stack
-	 */
-	ldr	sp, =LOW_LEVEL_SRAM_STACK
-
-	/*
-	 * Save the old lr(passed in ip) and the current lr to stack
-	 */
-	push	{ip, lr}
-
-	/*
-	 * go setup pll, mux, memory
-	 */
-	bl	s_init
-	pop	{ip, pc}
-ENDPROC(lowlevel_init)
-
 ENTRY(set_pl310_ctrl_reg)
 	PUSH	{r4-r11, lr}	@ save registers - ROM code may pollute
 				@ our registers

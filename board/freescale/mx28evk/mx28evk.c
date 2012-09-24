@@ -49,8 +49,8 @@ int board_early_init_f(void)
 
 	/* SSP0 clock at 96MHz */
 	mx28_set_sspclk(MXC_SSPCLK0, 96000, 0);
-	/* SSP2 clock at 96MHz */
-	mx28_set_sspclk(MXC_SSPCLK2, 96000, 0);
+	/* SSP2 clock at 160MHz */
+	mx28_set_sspclk(MXC_SSPCLK2, 160000, 0);
 
 #ifdef	CONFIG_CMD_USB
 	mxs_iomux_setup_pad(MX28_PAD_SSP2_SS1__USB1_OVERCURRENT);
@@ -64,7 +64,7 @@ int board_early_init_f(void)
 
 int dram_init(void)
 {
-	return mx28_dram_init();
+	return mxs_dram_init();
 }
 
 int board_init(void)
@@ -115,8 +115,8 @@ int fecmxc_mii_postcall(int phy)
 
 int board_eth_init(bd_t *bis)
 {
-	struct mx28_clkctrl_regs *clkctrl_regs =
-		(struct mx28_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	struct eth_device *dev;
 	int ret;
 

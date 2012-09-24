@@ -66,3 +66,45 @@ CONFIG_SPL_DMA_SUPPORT (drivers/dma/libdma.o)
 CONFIG_SPL_POST_MEM_SUPPORT (post/drivers/memory.o)
 CONFIG_SPL_NAND_LOAD (drivers/mtd/nand/nand_spl_load.o)
 CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
+
+
+Normally CPU is assumed to be the same between the SPL and normal
+u-boot build.  However it is possible to specify a different CPU for
+the SPL build for cases where the SPL is expected to run on a
+different CPU model from the main u-boot.  This is done by specifying
+an SPL CPU in boards.cfg as follows:
+
+	normal_cpu:spl_cpu
+
+This this case CPU will be set to "normal_cpu" during the main u-boot
+build and "spl_cpu" during the SPL build.
+
+
+Debugging
+---------
+
+When building SPL with DEBUG set you may also need to set CONFIG_PANIC_HANG
+as in most cases do_reset is not defined within SPL.
+
+
+Estimating stack usage
+----------------------
+
+With gcc 4.6 (and later) and the use of GNU cflow it is possible to estimate
+stack usage at various points in run sequence of SPL.  The -fstack-usage option
+to gcc will produce '.su' files (such as arch/arm/cpu/armv7/syslib.su) that
+will give stack usage information and cflow can construct program flow.
+
+Must have gcc 4.6 or later, which supports -fstack-usage
+
+1) Build normally
+2) Perform the following shell command to generate a list of C files used in
+SPL:
+$ find spl -name '*.su' | sed -e 's:^spl/::' -e 's:[.]su$:.c:' > used-spl.list
+3) Execute cflow:
+$ cflow --main=board_init_r `cat used-spl.list` 2>&1 | $PAGER
+
+cflow will spit out a number of warnings as it does not parse
+the config files and picks functions based on #ifdef.  Parsing the '.i'
+files instead introduces another set of headaches.  These warnings are
+not usually important to understanding the flow, however.

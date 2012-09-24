@@ -25,10 +25,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <common.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/types.h>
-#include <common.h>
 #include <malloc.h>
 #include <asm/errno.h>
 #include <asm/io.h>
@@ -233,11 +233,11 @@ static uint32_t mxs_nand_mark_bit_offset(struct mtd_info *mtd)
  */
 static int mxs_nand_wait_for_bch_complete(void)
 {
-	struct mx28_bch_regs *bch_regs = (struct mx28_bch_regs *)MXS_BCH_BASE;
+	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	int timeout = MXS_NAND_BCH_TIMEOUT;
 	int ret;
 
-	ret = mx28_wait_mask_set(&bch_regs->hw_bch_ctrl_reg,
+	ret = mxs_wait_mask_set(&bch_regs->hw_bch_ctrl_reg,
 		BCH_CTRL_COMPLETE_IRQ, timeout);
 
 	writel(BCH_CTRL_COMPLETE_IRQ, &bch_regs->hw_bch_ctrl_clr);
@@ -338,8 +338,8 @@ static int mxs_nand_device_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd->priv;
 	struct mxs_nand_info *nand_info = chip->priv;
-	struct mx28_gpmi_regs *gpmi_regs =
-		(struct mx28_gpmi_regs *)MXS_GPMI_BASE;
+	struct mxs_gpmi_regs *gpmi_regs =
+		(struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	uint32_t tmp;
 
 	tmp = readl(&gpmi_regs->hw_gpmi_stat);
@@ -968,11 +968,11 @@ static int mxs_nand_scan_bbt(struct mtd_info *mtd)
 {
 	struct nand_chip *nand = mtd->priv;
 	struct mxs_nand_info *nand_info = nand->priv;
-	struct mx28_bch_regs *bch_regs = (struct mx28_bch_regs *)MXS_BCH_BASE;
+	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 	uint32_t tmp;
 
 	/* Configure BCH and set NFC geometry */
-	mx28_reset_block(&bch_regs->hw_bch_ctrl_reg);
+	mxs_reset_block(&bch_regs->hw_bch_ctrl_reg);
 
 	/* Configure layout 0 */
 	tmp = (mxs_nand_ecc_chunk_cnt(mtd->writesize) - 1)
@@ -1056,8 +1056,8 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
  */
 int mxs_nand_init(struct mxs_nand_info *info)
 {
-	struct mx28_gpmi_regs *gpmi_regs =
-		(struct mx28_gpmi_regs *)MXS_GPMI_BASE;
+	struct mxs_gpmi_regs *gpmi_regs =
+		(struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	int i = 0, j;
 
 	info->desc = malloc(sizeof(struct mxs_dma_desc *) *
@@ -1080,7 +1080,7 @@ int mxs_nand_init(struct mxs_nand_info *info)
 	}
 
 	/* Reset the GPMI block. */
-	mx28_reset_block(&gpmi_regs->hw_gpmi_ctrl0_reg);
+	mxs_reset_block(&gpmi_regs->hw_gpmi_ctrl0_reg);
 
 	/*
 	 * Choose NAND mode, set IRQ polarity, disable write protection and

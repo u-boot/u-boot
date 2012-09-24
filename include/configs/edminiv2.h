@@ -69,13 +69,18 @@
  * - GPIO16 is Power LED control (0 = on, 1 = off)
  * - GPIO17 is Power LED source select (0 = CPLD, 1 = GPIO16)
  * - GPIO18 is Power Button status (0 = Released, 1 = Pressed)
- * - Last GPIO is 26, further bits are supposed to be 0.
+ * - GPIO19 is SATA disk power toggle (toggles on 0-to-1)
+ * - GPIO22 is SATA disk power status ()
+ * - GPIO23 is supply status for SATA disk ()
+ * - GPIO24 is supply control for board (write 1 to power off)
+ * Last GPIO is 25, further bits are supposed to be 0.
  * Enable mask has ones for INPUT, 0 for OUTPUT.
- * Default is LED ON.
+ * Default is LED ON, board ON :)
  */
 
-#define ORION5X_GPIO_OUT_ENABLE	0x03fcffff
-#define ORION5X_GPIO_OUT_VALUE	0x03fcffff
+#define ORION5X_GPIO_OUT_ENABLE		0xfef4f0ca
+#define ORION5X_GPIO_OUT_VALUE		0x00000000
+#define ORION5X_GPIO_IN_POLARITY	0x000000d0
 
 /*
  * NS16550 Configuration
@@ -228,7 +233,6 @@
 #define CONFIG_DISPLAY_CPUINFO		/* Display cpu info */
 #define CONFIG_NR_DRAM_BANKS		1
 
-#define CONFIG_STACKSIZE		0x00100000
 #define CONFIG_SYS_LOAD_ADDR		0x00800000
 #define CONFIG_SYS_MEMTEST_START	0x00400000
 #define CONFIG_SYS_MEMTEST_END		0x007fffff

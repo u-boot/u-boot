@@ -97,143 +97,208 @@ struct sh_eth_dev {
 	struct sh_eth_info port_info[MAX_PORT_NUM];
 };
 
+/* from linux/drivers/net/ethernet/renesas/sh_eth.h */
+enum {
+	/* E-DMAC registers */
+	EDSR = 0,
+	EDMR,
+	EDTRR,
+	EDRRR,
+	EESR,
+	EESIPR,
+	TDLAR,
+	TDFAR,
+	TDFXR,
+	TDFFR,
+	RDLAR,
+	RDFAR,
+	RDFXR,
+	RDFFR,
+	TRSCER,
+	RMFCR,
+	TFTR,
+	FDR,
+	RMCR,
+	EDOCR,
+	TFUCR,
+	RFOCR,
+	FCFTR,
+	RPADIR,
+	TRIMD,
+	RBWAR,
+	TBRAR,
+
+	/* Ether registers */
+	ECMR,
+	ECSR,
+	ECSIPR,
+	PIR,
+	PSR,
+	RDMLR,
+	PIPR,
+	RFLR,
+	IPGR,
+	APR,
+	MPR,
+	PFTCR,
+	PFRCR,
+	RFCR,
+	RFCF,
+	TPAUSER,
+	TPAUSECR,
+	BCFR,
+	BCFRR,
+	GECMR,
+	BCULR,
+	MAHR,
+	MALR,
+	TROCR,
+	CDCR,
+	LCCR,
+	CNDCR,
+	CEFCR,
+	FRECR,
+	TSFRCR,
+	TLFRCR,
+	CERCR,
+	CEECR,
+	MAFCR,
+	RTRATE,
+	CSMR,
+	RMII_MII,
+
+	/* This value must be written at last. */
+	SH_ETH_MAX_REGISTER_OFFSET,
+};
+
+static const u16 sh_eth_offset_gigabit[SH_ETH_MAX_REGISTER_OFFSET] = {
+	[EDSR]	= 0x0000,
+	[EDMR]	= 0x0400,
+	[EDTRR]	= 0x0408,
+	[EDRRR]	= 0x0410,
+	[EESR]	= 0x0428,
+	[EESIPR]	= 0x0430,
+	[TDLAR]	= 0x0010,
+	[TDFAR]	= 0x0014,
+	[TDFXR]	= 0x0018,
+	[TDFFR]	= 0x001c,
+	[RDLAR]	= 0x0030,
+	[RDFAR]	= 0x0034,
+	[RDFXR]	= 0x0038,
+	[RDFFR]	= 0x003c,
+	[TRSCER]	= 0x0438,
+	[RMFCR]	= 0x0440,
+	[TFTR]	= 0x0448,
+	[FDR]	= 0x0450,
+	[RMCR]	= 0x0458,
+	[RPADIR]	= 0x0460,
+	[FCFTR]	= 0x0468,
+	[CSMR] = 0x04E4,
+
+	[ECMR]	= 0x0500,
+	[ECSR]	= 0x0510,
+	[ECSIPR]	= 0x0518,
+	[PIR]	= 0x0520,
+	[PSR]	= 0x0528,
+	[PIPR]	= 0x052c,
+	[RFLR]	= 0x0508,
+	[APR]	= 0x0554,
+	[MPR]	= 0x0558,
+	[PFTCR]	= 0x055c,
+	[PFRCR]	= 0x0560,
+	[TPAUSER]	= 0x0564,
+	[GECMR]	= 0x05b0,
+	[BCULR]	= 0x05b4,
+	[MAHR]	= 0x05c0,
+	[MALR]	= 0x05c8,
+	[TROCR]	= 0x0700,
+	[CDCR]	= 0x0708,
+	[LCCR]	= 0x0710,
+	[CEFCR]	= 0x0740,
+	[FRECR]	= 0x0748,
+	[TSFRCR]	= 0x0750,
+	[TLFRCR]	= 0x0758,
+	[RFCR]	= 0x0760,
+	[CERCR]	= 0x0768,
+	[CEECR]	= 0x0770,
+	[MAFCR]	= 0x0778,
+	[RMII_MII] =  0x0790,
+};
+
+static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
+	[ECMR]	= 0x0100,
+	[RFLR]	= 0x0108,
+	[ECSR]	= 0x0110,
+	[ECSIPR]	= 0x0118,
+	[PIR]	= 0x0120,
+	[PSR]	= 0x0128,
+	[RDMLR]	= 0x0140,
+	[IPGR]	= 0x0150,
+	[APR]	= 0x0154,
+	[MPR]	= 0x0158,
+	[TPAUSER]	= 0x0164,
+	[RFCF]	= 0x0160,
+	[TPAUSECR]	= 0x0168,
+	[BCFRR]	= 0x016c,
+	[MAHR]	= 0x01c0,
+	[MALR]	= 0x01c8,
+	[TROCR]	= 0x01d0,
+	[CDCR]	= 0x01d4,
+	[LCCR]	= 0x01d8,
+	[CNDCR]	= 0x01dc,
+	[CEFCR]	= 0x01e4,
+	[FRECR]	= 0x01e8,
+	[TSFRCR]	= 0x01ec,
+	[TLFRCR]	= 0x01f0,
+	[RFCR]	= 0x01f4,
+	[MAFCR]	= 0x01f8,
+	[RTRATE]	= 0x01fc,
+
+	[EDMR]	= 0x0000,
+	[EDTRR]	= 0x0008,
+	[EDRRR]	= 0x0010,
+	[TDLAR]	= 0x0018,
+	[RDLAR]	= 0x0020,
+	[EESR]	= 0x0028,
+	[EESIPR]	= 0x0030,
+	[TRSCER]	= 0x0038,
+	[RMFCR]	= 0x0040,
+	[TFTR]	= 0x0048,
+	[FDR]	= 0x0050,
+	[RMCR]	= 0x0058,
+	[TFUCR]	= 0x0064,
+	[RFOCR]	= 0x0068,
+	[FCFTR]	= 0x0070,
+	[RPADIR]	= 0x0078,
+	[TRIMD]	= 0x007c,
+	[RBWAR]	= 0x00c8,
+	[RDFAR]	= 0x00cc,
+	[TBRAR]	= 0x00d4,
+	[TDFAR]	= 0x00d8,
+};
+
 /* Register Address */
-#ifdef CONFIG_CPU_SH7763
+#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xfee00000
-
-#define EDSR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0000)
-
-#define TDLAR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0010)
-#define TDFAR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0014)
-#define TDFXR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0018)
-#define TDFFR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x001c)
-
-#define RDLAR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0030)
-#define RDFAR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0034)
-#define RDFXR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0038)
-#define RDFFR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x003c)
-
-#define EDMR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0400)
-#define EDTRR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0408)
-#define EDRRR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0410)
-#define EESR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0428)
-#define EESIPR(port)	(BASE_IO_ADDR + 0x800 * (port) + 0x0430)
-#define TRSCER(port)	(BASE_IO_ADDR + 0x800 * (port) + 0x0438)
-#define TFTR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0448)
-#define FDR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0450)
-#define RMCR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0458)
-#define RPADIR(port)	(BASE_IO_ADDR + 0x800 * (port) + 0x0460)
-#define FCFTR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0468)
-#define ECMR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0500)
-#define RFLR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0508)
-#define ECSIPR(port)	(BASE_IO_ADDR + 0x800 * (port) + 0x0518)
-#define PIR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0520)
-#define PIPR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x052c)
-#define APR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0554)
-#define MPR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0558)
-#define TPAUSER(port)	(BASE_IO_ADDR + 0x800 * (port) + 0x0564)
-#define GECMR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x05b0)
-#define MALR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x05c8)
-#define MAHR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x05c0)
-
 #elif defined(CONFIG_CPU_SH7757)
+#if defined(CONFIG_SH_ETHER_USE_GETHER)
+#define SH_ETH_TYPE_GETHER
+#define BASE_IO_ADDR	0xfee00000
+#else
+#define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xfef00000
-
-#define TDLAR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0018)
-#define RDLAR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0020)
-
-#define EDMR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0000)
-#define EDTRR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0008)
-#define EDRRR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0010)
-#define EESR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0028)
-#define EESIPR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0030)
-#define TRSCER(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0038)
-#define TFTR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0048)
-#define FDR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0050)
-#define RMCR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0058)
-#define FCFTR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0070)
-#define ECMR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0100)
-#define RFLR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0108)
-#define ECSIPR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0118)
-#define PIR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0120)
-#define APR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0154)
-#define MPR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0158)
-#define TPAUSER(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x0164)
-#define MAHR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x01c0)
-#define MALR(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x01c8)
-#define RTRATE(port)		(BASE_IO_ADDR + 0x800 * (port) + 0x01fc)
-
+#endif
 #elif defined(CONFIG_CPU_SH7724)
+#define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xA4600000
-
-#define TDLAR(port)		(BASE_IO_ADDR + 0x0018)
-#define RDLAR(port)		(BASE_IO_ADDR + 0x0020)
-
-#define EDMR(port)		(BASE_IO_ADDR + 0x0000)
-#define EDTRR(port)		(BASE_IO_ADDR + 0x0008)
-#define EDRRR(port)		(BASE_IO_ADDR + 0x0010)
-#define EESR(port)		(BASE_IO_ADDR + 0x0028)
-#define EESIPR(port)	(BASE_IO_ADDR + 0x0030)
-#define TRSCER(port)	(BASE_IO_ADDR + 0x0038)
-#define TFTR(port)		(BASE_IO_ADDR + 0x0048)
-#define FDR(port)		(BASE_IO_ADDR + 0x0050)
-#define RMCR(port)		(BASE_IO_ADDR + 0x0058)
-#define FCFTR(port)		(BASE_IO_ADDR + 0x0070)
-#define ECMR(port)		(BASE_IO_ADDR + 0x0100)
-#define RFLR(port)		(BASE_IO_ADDR + 0x0108)
-#define ECSIPR(port)	(BASE_IO_ADDR + 0x0118)
-#define PIR(port)		(BASE_IO_ADDR + 0x0120)
-#define APR(port)		(BASE_IO_ADDR + 0x0154)
-#define MPR(port)		(BASE_IO_ADDR + 0x0158)
-#define TPAUSER(port)	(BASE_IO_ADDR + 0x0164)
-#define MAHR(port)		(BASE_IO_ADDR + 0x01c0)
-#define MALR(port)		(BASE_IO_ADDR + 0x01c8)
-
-#elif defined(CONFIG_CPU_SH7734)
-#define BASE_IO_ADDR	0xFEE00000
-
-#define EDSR(port)		(BASE_IO_ADDR)
-
-#define TDLAR(port)		(BASE_IO_ADDR + 0x0010)
-#define TDFAR(port)		(BASE_IO_ADDR + 0x0014)
-#define TDFXR(port)		(BASE_IO_ADDR + 0x0018)
-#define TDFFR(port)		(BASE_IO_ADDR + 0x001c)
-#define RDLAR(port)		(BASE_IO_ADDR + 0x0030)
-#define RDFAR(port)		(BASE_IO_ADDR + 0x0034)
-#define RDFXR(port)		(BASE_IO_ADDR + 0x0038)
-#define RDFFR(port)		(BASE_IO_ADDR + 0x003c)
-
-#define EDMR(port)		(BASE_IO_ADDR + 0x0400)
-#define EDTRR(port)		(BASE_IO_ADDR + 0x0408)
-#define EDRRR(port)		(BASE_IO_ADDR + 0x0410)
-#define EESR(port)		(BASE_IO_ADDR + 0x0428)
-#define EESIPR(port)	(BASE_IO_ADDR + 0x0430)
-#define TRSCER(port)	(BASE_IO_ADDR + 0x0438)
-#define TFTR(port)		(BASE_IO_ADDR + 0x0448)
-#define FDR(port)		(BASE_IO_ADDR + 0x0450)
-#define RMCR(port)		(BASE_IO_ADDR + 0x0458)
-#define RPADIR(port)	(BASE_IO_ADDR + 0x0460)
-#define FCFTR(port)		(BASE_IO_ADDR + 0x0468)
-#define ECMR(port)		(BASE_IO_ADDR + 0x0500)
-#define RFLR(port)		(BASE_IO_ADDR + 0x0508)
-#define ECSIPR(port)	(BASE_IO_ADDR + 0x0518)
-#define PIR(port)		(BASE_IO_ADDR + 0x0520)
-#define PIPR(port)		(BASE_IO_ADDR + 0x052c)
-#define APR(port)		(BASE_IO_ADDR + 0x0554)
-#define MPR(port)		(BASE_IO_ADDR + 0x0558)
-#define TPAUSER(port)	(BASE_IO_ADDR + 0x0564)
-#define GECMR(port)		(BASE_IO_ADDR + 0x05b0)
-#define MAHR(port)		(BASE_IO_ADDR + 0x05C0)
-#define MALR(port)		(BASE_IO_ADDR + 0x05C8)
-#define RMII_MII(port)  (BASE_IO_ADDR + 0x0790)
-
 #endif
 
 /*
  * Register's bits
  * Copy from Linux driver source code
  */
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 /* EDSR */
 enum EDSR_BIT {
 	EDSR_ENT = 0x01, EDSR_ENR = 0x02,
@@ -244,15 +309,15 @@ enum EDSR_BIT {
 /* EDMR */
 enum DMAC_M_BIT {
 	EDMR_DL1 = 0x20, EDMR_DL0 = 0x10,
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	EDMR_SRST	= 0x03, /* Receive/Send reset */
 	EMDR_DESC_R	= 0x30, /* Descriptor reserve size */
 	EDMR_EL		= 0x40, /* Litte endian */
-#elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7724)
+#elif defined(SH_ETH_TYPE_ETHER)
 	EDMR_SRST	= 0x01,
 	EMDR_DESC_R	= 0x30, /* Descriptor reserve size */
 	EDMR_EL		= 0x40, /* Litte endian */
-#else /* CONFIG_CPU_SH7763 */
+#else
 	EDMR_SRST = 0x01,
 #endif
 };
@@ -262,7 +327,7 @@ enum DMAC_M_BIT {
 
 /* EDTRR */
 enum DMAC_T_BIT {
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	EDTRR_TRNS = 0x03,
 #else
 	EDTRR_TRNS = 0x01,
@@ -271,7 +336,11 @@ enum DMAC_T_BIT {
 
 /* GECMR */
 enum GECMR_BIT {
+#if defined(CONFIG_CPU_SH7757)
+	GECMR_1000B = 0x20, GECMR_100B = 0x01, GECMR_10B = 0x00,
+#else
 	GECMR_1000B = 0x01, GECMR_100B = 0x04, GECMR_10B = 0x00,
+#endif
 };
 
 /* EDRRR*/
@@ -302,7 +371,7 @@ enum PHY_STATUS_BIT { PHY_ST_LINK = 0x01, };
 /* EESR */
 enum EESR_BIT {
 
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	EESR_TWB  = 0x40000000,
 #else
 	EESR_TWB  = 0xC0000000,
@@ -312,14 +381,14 @@ enum EESR_BIT {
 #endif
 	EESR_TABT = 0x04000000,
 	EESR_RABT = 0x02000000, EESR_RFRMER = 0x01000000,
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	EESR_ADE  = 0x00800000,
 #endif
 	EESR_ECI  = 0x00400000,
 	EESR_FTC  = 0x00200000, EESR_TDE  = 0x00100000,
 	EESR_TFE  = 0x00080000, EESR_FRC  = 0x00040000,
 	EESR_RDE  = 0x00020000, EESR_RFE  = 0x00010000,
-#if defined(CONFIG_CPU_SH7724) && !defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	EESR_CND  = 0x00000800,
 #endif
 	EESR_DLC  = 0x00000400,
@@ -331,7 +400,7 @@ enum EESR_BIT {
 };
 
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 # define TX_CHECK (EESR_TC1 | EESR_FTC)
 # define EESR_ERR_CHECK	(EESR_TWB | EESR_TABT | EESR_RABT | EESR_RDE \
 		| EESR_RFRMER | EESR_TFE | EESR_TDE | EESR_ECI)
@@ -391,8 +460,7 @@ enum FCFTR_BIT {
 
 /* Transfer descriptor bit */
 enum TD_STS_BIT {
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7757) \
-		|| defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_ETHER)
 	TD_TACT = 0x80000000,
 #else
 	TD_TACT = 0x7fffffff,
@@ -408,7 +476,7 @@ enum TD_STS_BIT {
 enum RECV_RST_BIT { RMCR_RST = 0x01, };
 /* ECMR */
 enum FELIC_MODE_BIT {
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	ECMR_TRCCM=0x04000000, ECMR_RCSC= 0x00800000, ECMR_DPAD= 0x00200000,
 	ECMR_RZPF = 0x00100000,
 #endif
@@ -423,12 +491,10 @@ enum FELIC_MODE_BIT {
 
 };
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 #define ECMR_CHG_DM	(ECMR_TRCCM | ECMR_RZPF | ECMR_ZPF | ECMR_PFR | ECMR_RXF | \
 						ECMR_TXF | ECMR_MCT)
-#elif CONFIG_CPU_SH7757
-#define ECMR_CHG_DM	(ECMR_ZPF)
-#elif CONFIG_CPU_SH7724
+#elif defined(SH_ETH_TYPE_ETHER)
 #define ECMR_CHG_DM (ECMR_ZPF | ECMR_PFR | ECMR_RXF | ECMR_TXF)
 #else
 #define ECMR_CHG_DM	(ECMR_ZPF | ECMR_PFR | ECMR_RXF | ECMR_TXF | ECMR_MCT)
@@ -436,14 +502,14 @@ enum FELIC_MODE_BIT {
 
 /* ECSR */
 enum ECSR_STATUS_BIT {
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	ECSR_BRCRX = 0x20, ECSR_PSRTO = 0x10,
 #endif
 	ECSR_LCHNG = 0x04,
 	ECSR_MPD = 0x02, ECSR_ICD = 0x01,
 };
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 # define ECSR_INIT (ECSR_ICD | ECSIPR_MPDIP)
 #else
 # define ECSR_INIT (ECSR_BRCRX | ECSR_PSRTO | \
@@ -452,10 +518,10 @@ enum ECSR_STATUS_BIT {
 
 /* ECSIPR */
 enum ECSIPR_STATUS_MASK_BIT {
-#if defined(CONFIG_CPU_SH7724) || defined(CONFIG_CPU_SH7757)
+#if defined(SH_ETH_TYPE_ETHER)
 	ECSIPR_BRCRXIP = 0x20,
 	ECSIPR_PSRTOIP = 0x10,
-#elif defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#elif defined(SH_ETY_TYPE_GETHER)
 	ECSIPR_PSRTOIP = 0x10,
 	ECSIPR_PHYIP = 0x08,
 #endif
@@ -464,7 +530,7 @@ enum ECSIPR_STATUS_MASK_BIT {
 	ECSIPR_ICDIP = 0x01,
 };
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 # define ECSIPR_INIT (ECSIPR_LCHNGIP | ECSIPR_ICDIP | ECSIPR_MPDIP)
 #else
 # define ECSIPR_INIT (ECSIPR_BRCRXIP | ECSIPR_PSRTOIP | ECSIPR_LCHNGIP | \
@@ -473,20 +539,12 @@ enum ECSIPR_STATUS_MASK_BIT {
 
 /* APR */
 enum APR_BIT {
-#ifdef CONFIG_CPU_SH7757
-	APR_AP = 0x00000001,
-#else
 	APR_AP = 0x00000004,
-#endif
 };
 
 /* MPR */
 enum MPR_BIT {
-#ifdef CONFIG_CPU_SH7757
-	MPR_MP = 0x00000001,
-#else
 	MPR_MP = 0x00000006,
-#endif
 };
 
 /* TRSCER */
@@ -503,7 +561,7 @@ enum RPADIR_BIT {
 	RPADIR_PADR = 0x0003f,
 };
 
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 # define RPADIR_INIT (0x00)
 #else
 # define RPADIR_INIT (RPADIR_PADS1)
@@ -513,3 +571,28 @@ enum RPADIR_BIT {
 enum FIFO_SIZE_BIT {
 	FIFO_SIZE_T = 0x00000700, FIFO_SIZE_R = 0x00000007,
 };
+
+static inline unsigned long sh_eth_reg_addr(struct sh_eth_dev *eth,
+					    int enum_index)
+{
+#if defined(SH_ETH_TYPE_GETHER)
+	const u16 *reg_offset = sh_eth_offset_gigabit;
+#elif defined(SH_ETH_TYPE_ETHER)
+	const u16 *reg_offset = sh_eth_offset_fast_sh4;
+#else
+#error
+#endif
+	return BASE_IO_ADDR + reg_offset[enum_index] + 0x800 * eth->port;
+}
+
+static inline void sh_eth_write(struct sh_eth_dev *eth, unsigned long data,
+				int enum_index)
+{
+	outl(data, sh_eth_reg_addr(eth, enum_index));
+}
+
+static inline unsigned long sh_eth_read(struct sh_eth_dev *eth,
+					int enum_index)
+{
+	return inl(sh_eth_reg_addr(eth, enum_index));
+}

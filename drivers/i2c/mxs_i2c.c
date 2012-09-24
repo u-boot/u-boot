@@ -38,10 +38,10 @@
 
 void mxs_i2c_reset(void)
 {
-	struct mx28_i2c_regs *i2c_regs = (struct mx28_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	int ret;
 
-	ret = mx28_reset_block(&i2c_regs->hw_i2c_ctrl0_reg);
+	ret = mxs_reset_block(&i2c_regs->hw_i2c_ctrl0_reg);
 	if (ret) {
 		debug("MXS I2C: Block reset timeout\n");
 		return;
@@ -57,7 +57,7 @@ void mxs_i2c_reset(void)
 
 void mxs_i2c_setup_read(uint8_t chip, int len)
 {
-	struct mx28_i2c_regs *i2c_regs = (struct mx28_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 
 	writel(I2C_QUEUECMD_RETAIN_CLOCK | I2C_QUEUECMD_PRE_SEND_START |
 		I2C_QUEUECMD_MASTER_MODE | I2C_QUEUECMD_DIRECTION |
@@ -76,7 +76,7 @@ void mxs_i2c_setup_read(uint8_t chip, int len)
 void mxs_i2c_write(uchar chip, uint addr, int alen,
 			uchar *buf, int blen, int stop)
 {
-	struct mx28_i2c_regs *i2c_regs = (struct mx28_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	uint32_t data;
 	int i, remain, off;
 
@@ -119,7 +119,7 @@ void mxs_i2c_write(uchar chip, uint addr, int alen,
 
 int mxs_i2c_wait_for_ack(void)
 {
-	struct mx28_i2c_regs *i2c_regs = (struct mx28_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	uint32_t tmp;
 	int timeout = MXS_I2C_MAX_TIMEOUT;
 
@@ -157,7 +157,7 @@ err:
 
 int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	struct mx28_i2c_regs *i2c_regs = (struct mx28_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	uint32_t tmp = 0;
 	int ret;
 	int i;
@@ -212,7 +212,7 @@ int i2c_probe(uchar chip)
 
 void i2c_init(int speed, int slaveadd)
 {
-	struct mx28_i2c_regs *i2c_regs = (struct mx28_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 
 	mxs_i2c_reset();
 

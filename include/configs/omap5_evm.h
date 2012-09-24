@@ -38,6 +38,7 @@
 #define CONFIG_OMAP54XX	/* which is a 54XX */
 #define CONFIG_OMAP5430	/* which is in a 5430 */
 #define CONFIG_5430EVM	/* working with EVM */
+#define CONFIG_OMAP_GPIO
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>
@@ -51,7 +52,6 @@
 #define V_OSCK			19200000	/* Clock output from T2 */
 #define V_SCLK	V_OSCK
 
-#undef CONFIG_USE_IRQ	/* no support for IRQs */
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_OF_LIBFDT
@@ -209,17 +209,6 @@
 #define CONFIG_SYS_HZ			1000
 
 /*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 << 10)	/* Regular stack */
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack */
-#endif
-
-/*
  * SDRAM Memory Map
  * Even though we use two CS all the memory
  * is mapped to one contiguous block
@@ -227,10 +216,7 @@
 #define CONFIG_NR_DRAM_BANKS	1
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
-#define CONFIG_SYS_INIT_RAM_ADDR	0x4030D800
-#define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - \
+#define CONFIG_SYS_INIT_SP_ADDR         (NON_SECURE_SRAM_END - \
 					 GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
@@ -245,7 +231,7 @@
 #define CONFIG_SPL
 #define CONFIG_SPL_TEXT_BASE		0x40300350
 #define CONFIG_SPL_MAX_SIZE		0x19000	/* 100K */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */

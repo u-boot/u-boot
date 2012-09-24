@@ -1113,7 +1113,7 @@ int usb_lowlevel_init(void)
 	 * should be a usb device connected.
 	 */
 	timeout = musb_cfg.timeout;
-	while (timeout--)
+	while (--timeout)
 		if (readb(&musbr->devctl) & MUSB_DEVCTL_HM)
 			break;
 

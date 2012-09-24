@@ -151,7 +151,11 @@ extern void __reset(void);
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	disable_interrupts();
-	__reset();
+	/* Code the jump to __reset here as the compiler is prone to
+	   emitting a bad jump instruction if the function is in flash */
+	__asm__("l.movhi r1,hi(__reset);  \
+                 l.ori r1,r1,lo(__reset); \
+                 l.jr r1");
 	/* not reached, __reset does not return */
 	return 0;
 }

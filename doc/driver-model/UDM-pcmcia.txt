@@ -1,0 +1,78 @@
+The U-Boot Driver Model Project
+===============================
+PCMCIA analysis
+===============
+Viktor Krivak <viktor.krivak@gmail.com>
+2012-03-17
+
+I) Overview
+-----------
+
+  U-boot implements only 2 methods to interoperate with pcmcia. One to turn
+  device on and other to turn device off. Names of these methods are usually
+  pcmcia_on() and pcmcia_off() without any parameters. Some files in driver
+  directory implements only internal API. These methods aren't used outside
+  driver directory and they are not converted to new driver model.
+
+II) Approach
+-----------
+
+  1) New API
+  ----------
+
+    Current API is preserved and all internal methods are hiden.
+
+    struct ops {
+      void (*pcmcia_on)(struct instance *i);
+      void (*pcmcia_off)(struct instance *i);
+    }
+
+  2) Conversion
+  -------------
+
+    In header file pcmcia.h are some other variables which are used for
+    additional configuration. But all have to be moved to platform data or to
+    specific driver implementation.
+
+  3) Platform data
+  ----------------
+
+    Many boards have custom implementation of internal API. Pointers to these
+    methods are stored in platform_data. But the most implementations for Intel
+    82365 and compatible PC Card controllers and Yenta-compatible
+    PCI-to-CardBus controllers implement whole API per board. In these cases
+    pcmcia_on() and pcmcia_off() behave only as wrappers and call specific
+    board methods.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) i82365.c
+  -----------
+    Driver methods have different name i82365_init() and i82365_exit but
+    all functionality is the same. Board files board/atc/ti113x.c and
+    board/cpc45/pd67290.c use their own implementation of these method.
+    In this case all methods in driver behave only as wrappers.
+
+  2) marubun_pcmcia.c
+  -------------------
+    Meets standard API behaviour. Simple conversion.
+
+  3) mpc8xx_pcmcia.c
+  ------------------
+    Meets standard API behaviour. Simple conversion.
+
+  4) rpx_pcmcia.c
+  ---------------
+    Implements only internal API used in other drivers. Non of methods
+    implemented here are used outside driver model.
+
+  5) ti_pci1410a.c
+  ----------------
+    Has different API but methods in this file are never called. Probably
+    dead code.
+
+  6)tqm8xx_pcmcia.c
+  -----------------
+    Implements only internal API used in other drivers. Non of methods
+    implemented here are used outside driver model.

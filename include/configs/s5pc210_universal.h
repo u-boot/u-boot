@@ -214,9 +214,6 @@
 
 #define CONFIG_SYS_HZ			1000
 
-/* Stack sizes */
-#define CONFIG_STACKSIZE	(256 << 10)	/* regular stack 256KB */
-
 /* Universal has 2 banks of DRAM */
 #define CONFIG_NR_DRAM_BANKS	2
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* LDDDR2 DMC 0 */

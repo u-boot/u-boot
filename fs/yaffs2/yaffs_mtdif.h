@@ -18,10 +18,10 @@
 
 #include "yaffs_guts.h"
 
-int nandmtd_WriteChunkToNAND(yaffs_Device * dev, int chunkInNAND,
-			     const __u8 * data, const yaffs_Spare * spare);
-int nandmtd_ReadChunkFromNAND(yaffs_Device * dev, int chunkInNAND, __u8 * data,
-			      yaffs_Spare * spare);
-int nandmtd_EraseBlockInNAND(yaffs_Device * dev, int blockNumber);
-int nandmtd_InitialiseNAND(yaffs_Device * dev);
+int nandmtd_WriteChunkToNAND(struct yaffs_dev *dev, int chunkInNAND,
+			     const u8 *data, const struct yaffs_spare *spare);
+int nandmtd_ReadChunkFromNAND(struct yaffs_dev *dev, int chunkInNAND, u8 *data,
+			      struct yaffs_spare *spare);
+int nandmtd_EraseBlockInNAND(struct yaffs_dev *dev, int blockNumber);
+int nandmtd_InitialiseNAND(struct yaffs_dev *dev);
 #endif

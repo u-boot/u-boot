@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Copyright (C) 2004-2008 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2008, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,6 +27,7 @@
 #include <common.h>
 #include <spi.h>
 #include <asm/immap.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,14 +52,14 @@ phys_size_t initdram(int board_type)
 	 */
 	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000;
 #else
-	volatile sdramc_t *sdram = (volatile sdramc_t *)(MMAP_SDRAM);
-	volatile gpio_t *gpio = (volatile gpio_t *)(MMAP_GPIO);
+	sdramc_t *sdram = (sdramc_t *)(MMAP_SDRAM);
+	gpio_t *gpio = (gpio_t *)(MMAP_GPIO);
 	u32 i;
 
 	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000;
 
-	if ((sdram->sdcfg1 == CONFIG_SYS_SDRAM_CFG1) &&
-	    (sdram->sdcfg2 == CONFIG_SYS_SDRAM_CFG2))
+	if ((in_be32(&sdram->sdcfg1) == CONFIG_SYS_SDRAM_CFG1) &&
+	    (in_be32(&sdram->sdcfg2) == CONFIG_SYS_SDRAM_CFG2))
 		return dramsize;
 
 	for (i = 0x13; i < 0x20; i++) {
@@ -67,32 +68,33 @@ phys_size_t initdram(int board_type)
 	}
 	i--;
 
-	gpio->mscr_sdram = CONFIG_SYS_SDRAM_DRV_STRENGTH;
+	out_8(&gpio->mscr_sdram, CONFIG_SYS_SDRAM_DRV_STRENGTH);
 
-	sdram->sdcs0 = (CONFIG_SYS_SDRAM_BASE | i);
+	out_be32(&sdram->sdcs0, CONFIG_SYS_SDRAM_BASE | i);
 
-	sdram->sdcfg1 = CONFIG_SYS_SDRAM_CFG1;
-	sdram->sdcfg2 = CONFIG_SYS_SDRAM_CFG2;
+	out_be32(&sdram->sdcfg1, CONFIG_SYS_SDRAM_CFG1);
+	out_be32(&sdram->sdcfg2, CONFIG_SYS_SDRAM_CFG2);
 
 	udelay(200);
 
 	/* Issue PALL */
-	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 2;
+	out_be32(&sdram->sdcr, CONFIG_SYS_SDRAM_CTRL | 2);
 	__asm__("nop");
 
 	/* Perform two refresh cycles */
-	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 4;
+	out_be32(&sdram->sdcr, CONFIG_SYS_SDRAM_CTRL | 4);
 	__asm__("nop");
-	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 4;
+	out_be32(&sdram->sdcr, CONFIG_SYS_SDRAM_CTRL | 4);
 	__asm__("nop");
 
 	/* Issue LEMR */
-	sdram->sdmr = CONFIG_SYS_SDRAM_MODE;
+	out_be32(&sdram->sdmr, CONFIG_SYS_SDRAM_MODE);
 	__asm__("nop");
-	sdram->sdmr = CONFIG_SYS_SDRAM_EMOD;
+	out_be32(&sdram->sdmr, CONFIG_SYS_SDRAM_MODE);
 	__asm__("nop");
 
-	sdram->sdcr = (CONFIG_SYS_SDRAM_CTRL & ~0x80000000) | 0x10000000;
+	out_be32(&sdram->sdcr,
+		(CONFIG_SYS_SDRAM_CTRL & ~0x80000000) | 0x10000000);
 
 	udelay(100);
 #endif

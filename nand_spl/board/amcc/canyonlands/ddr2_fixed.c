@@ -92,14 +92,11 @@ static void ddr_init_common(void)
 	mtsdram(SDRAM_INITPLR11, 0x80000432);
 	mtsdram(SDRAM_INITPLR12, 0x808103C0);
 	mtsdram(SDRAM_INITPLR13, 0x80810040);
-	mtsdram(SDRAM_INITPLR14, 0x00000000);
-	mtsdram(SDRAM_INITPLR15, 0x00000000);
 	mtsdram(SDRAM_RDCC, 0x40000000);
 	mtsdram(SDRAM_RQDC, 0x80000038);
 	mtsdram(SDRAM_RFDC, 0x00000257);
 
 	mtdcr(SDRAM_R0BAS, 0x0000F800);		/* MQ0_B0BAS */
-	mtdcr(SDRAM_R1BAS, 0x0400F800);		/* MQ0_B1BAS */
 }
 
 phys_size_t initdram(int board_type)

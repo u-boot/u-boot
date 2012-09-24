@@ -17,7 +17,6 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_MX25_CLK32		32768	/* OSC32K frequency */
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_TEXT_BASE		0x81200000
 
@@ -48,9 +47,6 @@
 /* Memory Test */
 #define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE/2)
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE)
-
-/* Stack sizes */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
 
 /* Serial Info */
 #define CONFIG_MXC_UART

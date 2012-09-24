@@ -29,7 +29,6 @@
 
 /*--------------------------------------------------------------------------*/
 
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 #define CONFIG_ARM926EJS		/* This is an ARM926EJS Core	*/
 #define CONFIG_AT91FAMILY
 #define CONFIG_AT91SAM9263		/* It's an Atmel AT91SAM9263 SoC*/
@@ -379,8 +378,6 @@
 	ROUND(3 * CONFIG_ENV_SIZE + 128 * 1024, 0x1000)
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* 128 bytes for initial data */
 
-#define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
-
 #ifndef CONFIG_RAMLOAD
 #define CONFIG_BOOTCOMMAND		"run nfsboot"
 #endif
@@ -453,11 +450,5 @@
 	"clearenv=protect off 10060000 1007FFFF;"			\
 		"erase 10060000 1007FFFF;reset\0"			\
 	" "
-
-/*--------------------------------------------------------------------------*/
-
-#ifdef CONFIG_USE_IRQ
-#error CONFIG_USE_IRQ not supported
-#endif
 
 #endif

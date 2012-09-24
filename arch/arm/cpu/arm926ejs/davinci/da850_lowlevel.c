@@ -190,13 +190,21 @@ int da850_ddr_setup(void)
 
 		setbits_le32(&davinci_syscfg1_regs->vtpio_ctl, VTP_LOCK);
 		setbits_le32(&davinci_syscfg1_regs->vtpio_ctl, VTP_POWERDWN);
-
-		setbits_le32(&davinci_syscfg1_regs->vtpio_ctl, VTP_IOPWRDWN);
 	}
-
+	setbits_le32(&davinci_syscfg1_regs->vtpio_ctl, VTP_IOPWRDWN);
 	writel(CONFIG_SYS_DA850_DDR2_DDRPHYCR, &dv_ddr2_regs_ctrl->ddrphycr);
-	clrbits_le32(&davinci_syscfg1_regs->ddr_slew,
-		(1 << DDR_SLEW_CMOSEN_BIT));
+
+	if (CONFIG_SYS_DA850_DDR2_SDBCR & (1 << DV_DDR_SDCR_DDR2EN_SHIFT)) {
+		/* DDR2 */
+		clrbits_le32(&davinci_syscfg1_regs->ddr_slew,
+			(1 << DDR_SLEW_DDR_PDENA_BIT) |
+			(1 << DDR_SLEW_CMOSEN_BIT));
+	} else {
+		/* MOBILE DDR */
+		setbits_le32(&davinci_syscfg1_regs->ddr_slew,
+			(1 << DDR_SLEW_DDR_PDENA_BIT) |
+			(1 << DDR_SLEW_CMOSEN_BIT));
+	}
 
 	/*
 	 * SDRAM Configuration Register (SDCR):
@@ -216,7 +224,11 @@ int da850_ddr_setup(void)
 	writel(tmp, &dv_ddr2_regs_ctrl->sdbcr);
 
 	/* write memory configuration and timing */
-	writel(CONFIG_SYS_DA850_DDR2_SDBCR2, &dv_ddr2_regs_ctrl->sdbcr2);
+	if (!(CONFIG_SYS_DA850_DDR2_SDBCR & (1 << DV_DDR_SDCR_DDR2EN_SHIFT))) {
+		/* MOBILE DDR only*/
+		writel(CONFIG_SYS_DA850_DDR2_SDBCR2,
+			&dv_ddr2_regs_ctrl->sdbcr2);
+	}
 	writel(CONFIG_SYS_DA850_DDR2_SDTIMR, &dv_ddr2_regs_ctrl->sdtimr);
 	writel(CONFIG_SYS_DA850_DDR2_SDTIMR2, &dv_ddr2_regs_ctrl->sdtimr2);
 
@@ -240,7 +252,7 @@ int da850_ddr_setup(void)
 
 	/* disable self refresh */
 	clrbits_le32(&dv_ddr2_regs_ctrl->sdrcr,
-		DV_DDR_SDRCR_LPMODEN | DV_DDR_SDRCR_LPMODEN);
+		DV_DDR_SDRCR_LPMODEN | DV_DDR_SDRCR_MCLKSTOPEN);
 	writel(CONFIG_SYS_DA850_DDR2_PBBPR, &dv_ddr2_regs_ctrl->pbbpr);
 
 	return 0;

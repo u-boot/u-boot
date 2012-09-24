@@ -46,6 +46,14 @@ struct NS16550 {
 	UART_REG(lsr);		/* 5 */
 	UART_REG(msr);		/* 6 */
 	UART_REG(spr);		/* 7 */
+#ifdef CONFIG_SOC_DA8XX
+	UART_REG(reg8);		/* 8 */
+	UART_REG(reg9);		/* 9 */
+	UART_REG(revid1);	/* A */
+	UART_REG(revid2);	/* B */
+	UART_REG(pwr_mgmt);	/* C */
+	UART_REG(mdr1);		/* D */
+#else
 	UART_REG(mdr1);		/* 8 */
 	UART_REG(reg9);		/* 9 */
 	UART_REG(regA);		/* A */
@@ -58,6 +66,7 @@ struct NS16550 {
 	UART_REG(ssr);		/* 11*/
 	UART_REG(reg12);	/* 12*/
 	UART_REG(osc_12m_sel);	/* 13*/
+#endif
 };
 
 #define thr rbr

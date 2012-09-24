@@ -1,0 +1,319 @@
+The U-Boot Driver Model Project
+===============================
+MMC system analysis
+===================
+Marek Vasut <marek.vasut@gmail.com>
+2012-02-25
+
+I) Overview
+-----------
+
+The MMC subsystem is already quite dynamic in it's nature. It's only necessary
+to flip the subsystem to properly defined API.
+
+The probing process of MMC drivers start by calling "mmc_initialize()",
+implemented by MMC framework, from the architecture initialization file. The
+"mmc_initialize()" function in turn calls "board_mmc_init()" function and if
+this doesn't succeed, "cpu_mmc_init()" function is called. It is important to
+note that both of the "*_mmc_init()" functions have weak aliases to functions
+which automatically fail.
+
+Both of the "*_mmc_init()" functions though serve only one purpose. To call
+driver specific probe function, which in turn actually registers the driver with
+MMC subsystem. Each of the driver specific probe functions is currently done in
+very ad-hoc manner.
+
+The registration with the MMC subsystem is done by calling "mmc_register()",
+whose argument is a runtime configured structure of information about the MMC
+driver. Currently, the information structure is intermixed with driver's internal
+data. The description of the structure follows:
+
+struct mmc {
+ /*
+  * API: Allows this driver to be a member of the linked list of all MMC drivers
+  *      registered with MMC subsystem
+  */
+  struct list_head link;
+
+  /* DRIVER: Name of the registered driver */
+  char name[32];
+
+  /* DRIVER: Driver's private data */
+  void *priv;
+
+  /* DRIVER: Voltages the host bus can provide */
+  uint voltages;
+
+  /* API: Version of the card */
+  uint version;
+
+  /* API: Test if the driver was already initialized */
+  uint has_init;
+
+  /* DRIVER: Minimum frequency the host bus can provide */
+  uint f_min;
+
+  /* DRIVER: Maximum frequency the host bus can provide */
+  uint f_max;
+
+  /* API: Is the card SDHC */
+  int high_capacity;
+
+  /* API: Actual width of the bus used by the current card */
+  uint bus_width;
+
+  /*
+   * DRIVER: Clock frequency to be configured on the host bus, this is read-only
+   *         for the driver.
+   */
+  uint clock;
+
+  /* API: Capabilities of the card */
+  uint card_caps;
+
+  /* DRIVER: MMC bus capabilities */
+  uint host_caps;
+
+  /* API: Configuration and ID data retrieved from the card */
+  uint ocr;
+  uint scr[2];
+  uint csd[4];
+  uint cid[4];
+  ushort rca;
+
+  /* API: Partition configuration */
+  char part_config;
+
+  /* API: Number of partitions */
+  char part_num;
+
+  /* API: Transmission speed */
+  uint tran_speed;
+
+  /* API: Read block length */
+  uint read_bl_len;
+
+  /* API: Write block length */
+  uint write_bl_len;
+
+  /* API: Erase group size */
+  uint erase_grp_size;
+
+  /* API: Capacity of the card */
+  u64 capacity;
+
+  /* API: Descriptor of this block device */
+  block_dev_desc_t block_dev;
+
+  /* DRIVER: Function used to submit command to the card */
+  int (*send_cmd)(struct mmc *mmc,
+                  struct mmc_cmd *cmd, struct mmc_data *data);
+
+  /* DRIVER: Function used to configure the host */
+  void (*set_ios)(struct mmc *mmc);
+
+  /* DRIVER: Function used to initialize the host */
+  int (*init)(struct mmc *mmc);
+
+  /* DRIVER: Function used to report the status of Card Detect pin */
+  int (*getcd)(struct mmc *mmc);
+
+  /*
+   * DRIVER: Maximum amount of blocks sent during multiblock xfer,
+   *         set to 0 to autodetect.
+   */
+  uint b_max;
+};
+
+The API above is the new API used by most of the drivers. There're still drivers
+in the tree that use old, legacy API though.
+
+2) Approach
+-----------
+
+To convert the MMC subsystem to a proper driver model, the "struct mmc"
+structure will have to be properly split in the first place. The result will
+consist of multiple parts, first will be the structure defining operations
+provided by the MMC driver:
+
+struct mmc_driver_ops {
+  /* Function used to submit command to the card */
+  int  (*send_cmd)(struct mmc *mmc,
+                  struct mmc_cmd *cmd, struct mmc_data *data);
+  /* DRIVER: Function used to configure the host */
+  void (*set_ios)(struct mmc *mmc);
+  /* Function used to initialize the host */
+  int  (*init)(struct mmc *mmc);
+  /* Function used to report the status of Card Detect pin */
+  int  (*getcd)(struct mmc *mmc);
+}
+
+The second part will define the parameters of the MMC driver:
+
+struct mmc_driver_params {
+  /* Voltages the host bus can provide */
+  uint32_t voltages;
+  /* Minimum frequency the host bus can provide */
+  uint32_t f_min;
+  /* Maximum frequency the host bus can provide */
+  uint32_t f_max;
+  /* MMC bus capabilities */
+  uint32_t host_caps;
+  /*
+   * Maximum amount of blocks sent during multiblock xfer,
+   * set to 0 to autodetect.
+   */
+  uint32_t b_max;
+}
+
+And finally, the internal per-card data of the MMC subsystem core:
+
+struct mmc_card_props {
+  /* Version of the card */
+  uint32_t version;
+  /* Test if the driver was already initializes */
+  bool     has_init;
+  /* Is the card SDHC */
+  bool     high_capacity;
+  /* Actual width of the bus used by the current card */
+  uint8_t  bus_width;
+  /* Capabilities of the card */
+  uint32_t card_caps;
+  /* Configuration and ID data retrieved from the card */
+  uint32_t ocr;
+  uint32_t scr[2];
+  uint32_t csd[4];
+  uint32_t cid[4];
+  uint16_t rca;
+  /* Partition configuration */
+  uint8_t  part_config;
+  /* Number of partitions */
+  uint8_t  part_num;
+  /* Transmission speed */
+  uint32_t tran_speed;
+  /* Read block length */
+  uint32_t read_bl_len;
+  /* Write block length */
+  uint32_t write_bl_len;
+  /* Erase group size */
+  uint32_t erase_grp_size;
+  /* Capacity of the card */
+  uint64_t capacity;
+  /* Descriptor of this block device */
+  block_dev_desc_t block_dev;
+}
+
+The probe() function will then register the MMC driver by calling:
+
+  mmc_device_register(struct instance *i, struct mmc_driver_ops *o,
+                                          struct mmc_driver_params *p);
+
+The struct mmc_driver_params will have to be dynamic in some cases, but the
+driver shouldn't modify it's contents elsewhere than in probe() call.
+
+Next, since the MMC drivers will now be consistently registered into the driver
+tree from board file, the functions "board_mmc_init()" and "cpu_mmc_init()" will
+disappear altogether.
+
+As for the legacy drivers, these will either be converted or removed altogether.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) arm_pl180_mmci.c
+  -------------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  2) atmel_mci.c
+  --------------
+  This driver uses the legacy API and should be removed unless converted. It is
+  probably possbible to replace this driver with gen_atmel_mci.c . No conversion
+  will be done on this driver.
+
+  3) bfin_sdh.c
+  -------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  4) davinci_mmc.c
+  ----------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  5) fsl_esdhc.c
+  --------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple, unless some problem appears due to the FDT
+  component of the driver.
+
+  6) ftsdc010_esdhc.c
+  -------------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  7) gen_atmel_mci.c
+  ------------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  8) mmc_spi.c
+  ------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  9) mv_sdhci.c
+  -------------
+  This is a component of the SDHCI support, allowing it to run on Marvell
+  Kirkwood chip. It is probable the SDHCI support will have to be modified to
+  allow calling functions from this file based on information passed via
+  platform_data.
+
+  10) mxcmmc.c
+  ------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  11) mxsmmc.c
+  ------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  12) omap_hsmmc.c
+  ----------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  13) pxa_mmc.c
+  -------------
+  This driver uses the legacy API and is written in a severely ad-hoc manner.
+  This driver will be removed in favor of pxa_mmc_gen.c, which is proved to work
+  better and is already well tested. No conversion will be done on this driver
+  anymore.
+
+  14) pxa_mmc_gen.c
+  -----------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  15) s5p_mmc.c
+  -------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  16) sdhci.c
+  -----------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple, though it'd be necessary to modify this driver
+  to also support the Kirkwood series and probably also Tegra series of CPUs.
+  See the respective parts of this section for details.
+
+  17) sh_mmcif.c
+  --------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  18) tegra2_mmc.c
+  ----------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.

@@ -226,7 +226,7 @@ int saveenv(void)
 int saveenv(void)
 {
 	int	ret = 0;
-	env_t	env_new;
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	ssize_t	len;
 	char	*res;
 	nand_erase_options_t nand_erase_options;
@@ -238,20 +238,20 @@ int saveenv(void)
 	if (CONFIG_ENV_RANGE < CONFIG_ENV_SIZE)
 		return 1;
 
-	res = (char *)&env_new.data;
+	res = (char *)&env_new->data;
 	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
-	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
+	env_new->crc = crc32(0, env_new->data, ENV_SIZE);
 
 	puts("Erasing Nand...\n");
 	if (nand_erase_opts(&nand_info[0], &nand_erase_options))
 		return 1;
 
 	puts("Writing to Nand... ");
-	if (writeenv(CONFIG_ENV_OFFSET, (u_char *)&env_new)) {
+	if (writeenv(CONFIG_ENV_OFFSET, (u_char *)env_new)) {
 		puts("FAILED!\n");
 		return 1;
 	}
@@ -398,7 +398,7 @@ void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;
-	char buf[CONFIG_ENV_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 
 #if defined(CONFIG_ENV_OFFSET_OOB)
 	ret = get_nand_env_oob(&nand_info[0], &nand_env_oob_offset);

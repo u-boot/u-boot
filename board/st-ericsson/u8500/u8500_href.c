@@ -18,6 +18,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <malloc.h>
 #include <i2c.h>
 #include <asm/types.h>
 #include <asm/io.h>
@@ -26,8 +27,8 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/prcmu.h>
 #ifdef CONFIG_MMC
-#include "prcmu-fw.h"
 #include "../../../drivers/mmc/arm_pl180_mmci.h"
 #endif
 
@@ -42,7 +43,6 @@
  * SGA: Smart Graphic accelerator
  * B2R2: Graphic blitter
  */
-#define PRCMU_BASE	CFG_PRCMU_BASE	/* 0x80157000 for U8500 */
 #define PRCM_ARMCLKFIX_MGT_REG		(PRCMU_BASE + 0x000)
 #define PRCM_ACLK_MGT_REG		(PRCMU_BASE + 0x004)
 #define PRCM_SVAMMDSPCLK_MGT_REG	(PRCMU_BASE + 0x008)
@@ -139,18 +139,6 @@ void show_boot_progress(int progress)
 }
 #endif
 
-static unsigned int read_asicid(void)
-{
-	unsigned int *address = (void *)U8500_BOOTROM_BASE
-				+ U8500_BOOTROM_ASIC_ID_OFFSET;
-	return readl(address);
-}
-
-int cpu_is_u8500v11(void)
-{
-	return read_asicid() == 0x008500A1;
-}
-
 /*
  * Miscellaneous platform dependent initialisations
  */
@@ -227,67 +215,6 @@ unsigned int addr_vall_arr[] = {
 };
 
 #ifdef CONFIG_BOARD_LATE_INIT
-#ifdef CONFIG_MMC
-
-#define LDO_VAUX3_MASK		0x3
-#define LDO_VAUX3_ENABLE	0x1
-#define VAUX3_VOLTAGE_2_9V	0xd
-
-#define AB8500_REGU_CTRL2	0x4
-#define AB8500_REGU_VRF1VAUX3_REGU_REG	0x040A
-#define AB8500_REGU_VRF1VAUX3_SEL_REG	0x0421
-
-static int hrefplus_mmc_power_init(void)
-{
-	int ret;
-	int val;
-
-	if (!cpu_is_u8500v11())
-		return 0;
-
-	/*
-	 * On v1.1 HREF boards (HREF+), Vaux3 needs to be enabled for the SD
-	 * card to work.  This is done by enabling the regulators in the AB8500
-	 * via PRCMU I2C transactions.
-	 *
-	 * This code is derived from the handling of AB8500_LDO_VAUX3 in
-	 * ab8500_ldo_enable() and ab8500_ldo_disable() in Linux.
-	 *
-	 * Turn off and delay is required to have it work across soft reboots.
-	 */
-
-	ret = prcmu_i2c_read(AB8500_REGU_CTRL2, AB8500_REGU_VRF1VAUX3_REGU_REG);
-	if (ret < 0)
-		goto out;
-
-	val = ret;
-
-	/* Turn off */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2, AB8500_REGU_VRF1VAUX3_REGU_REG,
-				val & ~LDO_VAUX3_MASK);
-	if (ret < 0)
-		goto out;
-
-	udelay(10 * 1000);
-
-	/* Set the voltage to 2.9V */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2,
-				AB8500_REGU_VRF1VAUX3_SEL_REG,
-				VAUX3_VOLTAGE_2_9V);
-	if (ret < 0)
-		goto out;
-
-	val = val & ~LDO_VAUX3_MASK;
-	val = val | LDO_VAUX3_ENABLE;
-
-	/* Turn on the supply */
-	ret = prcmu_i2c_write(AB8500_REGU_CTRL2,
-				AB8500_REGU_VRF1VAUX3_REGU_REG, val);
-
-out:
-	return ret;
-}
-#endif
 /*
  * called after all initialisation were done, but before the generic
  * mmc_initialize().
@@ -314,7 +241,7 @@ int board_late_init(void)
 		setenv("board_id", "1");
 	}
 #ifdef CONFIG_MMC
-	hrefplus_mmc_power_init();
+	u8500_mmc_power_init();
 
 	/*
 	 * config extended GPIO pins for level shifter and
@@ -448,12 +375,27 @@ static int u8500_mmci_board_init(void)
 
 int board_mmc_init(bd_t *bd)
 {
+	struct pl180_mmc_host *host;
+
 	if (u8500_mmci_board_init())
 		return -ENODEV;
 
-	if (arm_pl180_mmci_init())
-		return -ENODEV;
-	return 0;
+	host = malloc(sizeof(struct pl180_mmc_host));
+	if (!host)
+		return -ENOMEM;
+	memset(host, 0, sizeof(*host));
+
+	strcpy(host->name, "MMC");
+	host->base = (struct sdi_registers *)CONFIG_ARM_PL180_MMCI_BASE;
+	host->pwr_init = INIT_PWR;
+	host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V1 | SDI_CLKCR_CLKEN;
+	host->voltages = VOLTAGE_WINDOW_MMC;
+	host->caps = 0;
+	host->clock_in = ARM_MCLK;
+	host->clock_min = ARM_MCLK / (2 * (SDI_CLKCR_CLKDIV_INIT_V1 + 1));
+	host->clock_max = CONFIG_ARM_PL180_MMCI_CLOCK_FREQ;
+
+	return arm_pl180_mmci_init(host);
 }
 #endif
 

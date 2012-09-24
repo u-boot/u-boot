@@ -36,6 +36,11 @@
 #include <asm/errno.h>
 #include <hwconfig.h>
 
+#ifdef CONFIG_DAVINCI_MMC
+#include <mmc.h>
+#include <asm/arch/sdmmc_defs.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_DRIVER_TI_EMAC
@@ -204,10 +209,31 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifdef CONFIG_DAVINCI_MMC
+static struct davinci_mmc mmc_sd0 = {
+	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
+	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */
+	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
+	.version = MMC_CTLR_VERSION_2,
+};
+
+int board_mmc_init(bd_t *bis)
+{
+	mmc_sd0.input_clk = clk_get(DAVINCI_MMCSD_CLKID);
+
+	/* Add slot-0 to mmc subsystem */
+	return davinci_mmc_init(bis, &mmc_sd0);
+}
+#endif
+
 static const struct pinmux_config gpio_pins[] = {
 #ifdef CONFIG_USE_NOR
 	/* GP0[11] is required for NOR to work on Rev 3 EVMs */
 	{ pinmux(0), 8, 4 },	/* GP0[11] */
+#endif
+#ifdef CONFIG_DAVINCI_MMC
+	/* GP0[11] is required for SD to work on Rev 3 EVMs */
+	{ pinmux(0),  8, 4 },	/* GP0[11] */
 #endif
 };
 
@@ -236,6 +262,9 @@ const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(emifa_pins_nor),
 #endif
 	PINMUX_ITEM(gpio_pins),
+#ifdef CONFIG_DAVINCI_MMC
+	PINMUX_ITEM(mmc0_pins),
+#endif
 };
 
 const int pinmuxes_size = ARRAY_SIZE(pinmuxes);
@@ -246,6 +275,9 @@ const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
+#ifdef CONFIG_DAVINCI_MMC
+	{ DAVINCI_LPSC_MMC_SD },
+#endif
 };
 
 const int lpsc_size = ARRAY_SIZE(lpsc);
@@ -303,7 +335,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_USE_NOR
+#if defined(CONFIG_USE_NOR) || defined(CONFIG_DAVINCI_MMC)
 	u32 val;
 #endif
 
@@ -316,11 +348,11 @@ int board_init(void)
 	 * NAND CS setup - cycle counts based on da850evm NAND timings in the
 	 * Linux kernel @ 25MHz EMIFA
 	 */
-	writel((DAVINCI_ABCR_WSETUP(0) |
-		DAVINCI_ABCR_WSTROBE(1) |
-		DAVINCI_ABCR_WHOLD(0) |
-		DAVINCI_ABCR_RSETUP(0) |
-		DAVINCI_ABCR_RSTROBE(1) |
+	writel((DAVINCI_ABCR_WSETUP(2) |
+		DAVINCI_ABCR_WSTROBE(2) |
+		DAVINCI_ABCR_WHOLD(1) |
+		DAVINCI_ABCR_RSETUP(1) |
+		DAVINCI_ABCR_RSTROBE(4) |
 		DAVINCI_ABCR_RHOLD(0) |
 		DAVINCI_ABCR_TA(1) |
 		DAVINCI_ABCR_ASIZE_8BIT),
@@ -352,6 +384,16 @@ int board_init(void)
 	val = readl(GPIO_BANK0_REG_SET_ADDR);
 	val |= (0x01 << 11);
 	writel(val, GPIO_BANK0_REG_CLR_ADDR);
+#endif
+
+#ifdef CONFIG_DAVINCI_MMC
+	/* Set the GPIO direction as output */
+	clrbits_le32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
+
+	/* Set the output as high */
+	val = readl(GPIO_BANK0_REG_SET_ADDR);
+	val |= (0x01 << 11);
+	writel(val, GPIO_BANK0_REG_SET_ADDR);
 #endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC

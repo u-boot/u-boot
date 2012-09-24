@@ -158,6 +158,10 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 #ifdef CONFIG_MACB
 void at91_macb_hw_init(void)
 {
+	/* Enable EMAC clock */
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
+
 	at91_set_a_periph(AT91_PIO_PORTA, 19, 0);	/* ETXCK_EREFCK */
 	at91_set_a_periph(AT91_PIO_PORTA, 17, 0);	/* ERXDV */
 	at91_set_a_periph(AT91_PIO_PORTA, 14, 0);	/* ERX0 */

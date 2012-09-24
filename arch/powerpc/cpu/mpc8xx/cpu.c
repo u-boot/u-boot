@@ -41,6 +41,7 @@
 #include <netdev.h>
 #include <asm/cache.h>
 #include <linux/compiler.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -253,7 +254,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	if ((pvr >> 16) != 0x0050)
 		return -1;
 
-	k = (immr << 16) | *((ushort *) & immap->im_cpm.cp_dparam[0xB0]);
+	k = (immr << 16) | in_be16((ushort *)&immap->im_cpm.cp_dparam[0xB0]);
 	m = 0;
 
 	switch (k) {

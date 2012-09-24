@@ -62,8 +62,26 @@ static void exynos4_set_system_display(void)
 	writel(cfg, &sysreg->display_ctrl);
 }
 
+static void exynos5_set_system_display(void)
+{
+	struct exynos5_sysreg *sysreg =
+	    (struct exynos5_sysreg *)samsung_get_base_sysreg();
+	unsigned int cfg = 0;
+
+	/*
+	 * system register path set
+	 * 0: MIE/MDNIE
+	 * 1: FIMD Bypass
+	 */
+	cfg = readl(&sysreg->disp1blk_cfg);
+	cfg |= (1 << 15);
+	writel(cfg, &sysreg->disp1blk_cfg);
+}
+
 void set_system_display_ctrl(void)
 {
 	if (cpu_is_exynos4())
 		exynos4_set_system_display();
+	else
+		exynos5_set_system_display();
 }

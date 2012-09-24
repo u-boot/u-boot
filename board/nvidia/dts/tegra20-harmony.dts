@@ -1,0 +1,67 @@
+/dts-v1/;
+
+/include/ ARCH_CPU_DTS
+
+/ {
+	model = "NVIDIA Tegra20 Harmony evaluation board";
+	compatible = "nvidia,harmony", "nvidia,tegra20";
+
+	aliases {
+		usb0 = "/usb@c5008000";
+	};
+
+	memory {
+		reg = <0x00000000 0x40000000>;
+	};
+
+	clocks {
+		clk_32k: clk_32k {
+			clock-frequency = <32000>;
+		};
+		osc {
+			clock-frequency = <12000000>;
+		};
+	};
+
+	clock@60006000 {
+		clocks = <&clk_32k &osc>;
+	};
+
+	serial@70006300 {
+		clock-frequency = < 216000000 >;
+	};
+
+	i2c@7000c000 {
+		status = "disabled";
+	};
+
+	i2c@7000c400 {
+		status = "disabled";
+	};
+
+	i2c@7000c500 {
+		status = "disabled";
+	};
+
+	i2c@7000d000 {
+		status = "disabled";
+	};
+
+	usb@c5000000 {
+		status = "disabled";
+	};
+
+	usb@c5004000 {
+		status = "disabled";
+	};
+
+	nand-controller@70008000 {
+		nvidia,wp-gpios = <&gpio 23 0>;		/* PC7 */
+		nvidia,width = <8>;
+		nvidia,timing = <26 100 20 80 20 10 12 10 70>;
+		nand@0 {
+			reg = <0>;
+			compatible = "hynix,hy27uf4g2b", "nand-flash";
+		};
+	};
+};

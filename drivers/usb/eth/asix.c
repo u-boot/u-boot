@@ -168,27 +168,28 @@ static inline int asix_set_hw_mii(struct ueth_data *dev)
 
 static int asix_mdio_read(struct ueth_data *dev, int phy_id, int loc)
 {
-	__le16 res;
+	ALLOC_CACHE_ALIGN_BUFFER(__le16, res, 1);
 
 	asix_set_sw_mii(dev);
-	asix_read_cmd(dev, AX_CMD_READ_MII_REG, phy_id, (__u16)loc, 2, &res);
+	asix_read_cmd(dev, AX_CMD_READ_MII_REG, phy_id, (__u16)loc, 2, res);
 	asix_set_hw_mii(dev);
 
 	debug("asix_mdio_read() phy_id=0x%02x, loc=0x%02x, returns=0x%04x\n",
-			phy_id, loc, le16_to_cpu(res));
+			phy_id, loc, le16_to_cpu(*res));
 
-	return le16_to_cpu(res);
+	return le16_to_cpu(*res);
 }
 
 static void
 asix_mdio_write(struct ueth_data *dev, int phy_id, int loc, int val)
 {
-	__le16 res = cpu_to_le16(val);
+	ALLOC_CACHE_ALIGN_BUFFER(__le16, res, 1);
+	*res = cpu_to_le16(val);
 
 	debug("asix_mdio_write() phy_id=0x%02x, loc=0x%02x, val=0x%04x\n",
 			phy_id, loc, val);
 	asix_set_sw_mii(dev);
-	asix_write_cmd(dev, AX_CMD_WRITE_MII_REG, phy_id, (__u16)loc, 2, &res);
+	asix_write_cmd(dev, AX_CMD_WRITE_MII_REG, phy_id, (__u16)loc, 2, res);
 	asix_set_hw_mii(dev);
 }
 
@@ -210,7 +211,8 @@ static int asix_sw_reset(struct ueth_data *dev, u8 flags)
 
 static inline int asix_get_phy_addr(struct ueth_data *dev)
 {
-	u8 buf[2];
+	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, 2);
+
 	int ret = asix_read_cmd(dev, AX_CMD_READ_PHY_ID, 0, 0, 2, buf);
 
 	debug("asix_get_phy_addr()\n");
@@ -242,13 +244,14 @@ static int asix_write_medium_mode(struct ueth_data *dev, u16 mode)
 
 static u16 asix_read_rx_ctl(struct ueth_data *dev)
 {
-	__le16 v;
-	int ret = asix_read_cmd(dev, AX_CMD_READ_RX_CTL, 0, 0, 2, &v);
+	ALLOC_CACHE_ALIGN_BUFFER(__le16, v, 1);
+
+	int ret = asix_read_cmd(dev, AX_CMD_READ_RX_CTL, 0, 0, 2, v);
 
 	if (ret < 0)
 		debug("Error reading RX_CTL register: %02x\n", ret);
 	else
-		ret = le16_to_cpu(v);
+		ret = le16_to_cpu(*v);
 	return ret;
 }
 
@@ -313,7 +316,7 @@ static int mii_nway_restart(struct ueth_data *dev)
 static int asix_init(struct eth_device *eth, bd_t *bd)
 {
 	int embd_phy;
-	unsigned char buf[ETH_ALEN];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buf, ETH_ALEN);
 	u16 rx_ctl;
 	struct ueth_data	*dev = (struct ueth_data *)eth->priv;
 	int timeout = 0;
@@ -425,7 +428,8 @@ static int asix_send(struct eth_device *eth, void *packet, int length)
 	int err;
 	u32 packet_len;
 	int actual_len;
-	unsigned char msg[PKTSIZE + sizeof(packet_len)];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, msg,
+		PKTSIZE + sizeof(packet_len));
 
 	debug("** %s(), len %d\n", __func__, length);
 
@@ -452,7 +456,7 @@ static int asix_send(struct eth_device *eth, void *packet, int length)
 static int asix_recv(struct eth_device *eth)
 {
 	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	static unsigned char  recv_buf[AX_RX_URB_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, recv_buf, AX_RX_URB_SIZE);
 	unsigned char *buf_ptr;
 	int err;
 	int actual_len;

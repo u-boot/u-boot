@@ -16,9 +16,7 @@
 
 include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
 $(shell mkdir -p $(obj)../../nvidia/common)
-endif
 
 LIB	= $(obj)lib$(BOARD).o
 

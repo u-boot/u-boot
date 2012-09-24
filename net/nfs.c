@@ -31,7 +31,11 @@
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
 #define NFS_RETRY_COUNT 30
-#define NFS_TIMEOUT 2000UL
+#ifndef CONFIG_NFS_TIMEOUT
+# define NFS_TIMEOUT 2000UL
+#else
+# define NFS_TIMEOUT CONFIG_NFS_TIMEOUT
+#endif
 
 static int fs_mounted;
 static unsigned long rpc_id;

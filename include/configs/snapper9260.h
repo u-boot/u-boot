@@ -40,7 +40,6 @@
 
 /* CPU */
 #define CONFIG_ARCH_CPU_INIT
-#undef CONFIG_USE_IRQ
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -162,7 +161,6 @@
 
 /* U-Boot memory settings */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)
-#define CONFIG_STACKSIZE		(256 << 10)
 
 /* Command line configuration */
 #include <config_cmd_default.h>

@@ -451,25 +451,15 @@ static char *enbw_cmc_getvalue(char *ptr, int *value)
 	return ptr;
 }
 
-static int enbw_cmc_config_switch(unsigned long addr)
+static struct spi_slave *enbw_cmc_init_spi(void)
 {
 	struct spi_slave *spi;
-	char *ptr = (char *)addr;
-	int value, reg;
 	int ret;
-	int bus, cs, max_hz, spi_mode;
 
-	debug("configure switch with file on addr: 0x%lx\n", addr);
-
-	bus = 0;
-	cs = 0;
-	max_hz = 1000000;
-	spi_mode = 0;
-
-	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
+	spi = spi_setup_slave(0, 0, 1000000, 0);
 	if (!spi) {
 		printf("Failed to set up slave\n");
-		return -EINVAL;
+		return NULL;
 	}
 
 	ret = spi_claim_bus(spi);
@@ -480,25 +470,45 @@ static int enbw_cmc_config_switch(unsigned long addr)
 
 	ret = enbw_cmc_switch_read_ident(spi);
 	if (ret)
-		goto err_claim_bus;
+		goto err_read;
 
-	ptr = (char *)addr;
+	return spi;
+err_read:
+	spi_release_bus(spi);
+err_claim_bus:
+	spi_free_slave(spi);
+	return NULL;
+}
+
+static int enbw_cmc_config_switch(unsigned long addr)
+{
+	struct spi_slave *spi;
+	char *ptr = (char *)addr;
+	int value, reg;
+	int ret = 0;
+
+	debug("configure switch with file on addr: 0x%lx\n", addr);
+
+	spi = enbw_cmc_init_spi();
+	if (!spi)
+		return -EINVAL;
+
 	while (ptr != NULL) {
 		ptr = enbw_cmc_getvalue(ptr, &reg);
 		if (ptr != NULL) {
 			ptr = enbw_cmc_getvalue(ptr, &value);
 			if ((ptr != NULL) && (value >= 0))
-				if (enbw_cmc_switch_write(spi, reg, value))
-					goto err_read;
+				if (enbw_cmc_switch_write(spi, reg, value)) {
+					/* error writing to switch */
+					ptr = NULL;
+					ret = -EINVAL;
+				}
 		}
 	}
-	return 0;
 
-err_read:
 	spi_release_bus(spi);
-err_claim_bus:
 	spi_free_slave(spi);
-	return -EINVAL;
+	return ret;
 }
 
 static int do_switch(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -524,8 +534,10 @@ U_BOOT_CMD(switch, 3, 1, do_switch,
  */
 int board_eth_init(bd_t *bis)
 {
+	struct spi_slave *spi;
 	const char *s;
-	size_t len;
+	size_t len = 0;
+	int config = 1;
 
 	davinci_emac_mii_mode_sel(0);
 
@@ -534,25 +546,49 @@ int board_eth_init(bd_t *bis)
 	if (len) {
 		unsigned long addr = simple_strtoul(s, NULL, 16);
 
-		enbw_cmc_config_switch(addr);
+		config = enbw_cmc_config_switch(addr);
 	}
 
+	if (config) {
+		/*
+		 * no valid config file -> do we have some args in
+		 * hwconfig ?
+		 */
+		if ((hwconfig_subarg("switch", "lan", &len)) ||
+		    (hwconfig_subarg("switch", "lmn", &len))) {
+			/* If so start switch */
+			spi = enbw_cmc_init_spi();
+			if (spi) {
+				if (enbw_cmc_switch_write(spi, 1, 0))
+					config = 0;
+				udelay(10000);
+				if (enbw_cmc_switch_write(spi, 1, 1))
+					config = 0;
+				spi_release_bus(spi);
+				spi_free_slave(spi);
+			}
+		} else {
+			config = 0;
+		}
+	}
 	if (!davinci_emac_initialize()) {
 		printf("Error: Ethernet init failed!\n");
 		return -1;
 	}
 
-	if (hwconfig_subarg_cmp("switch", "lan", "on"))
-		/* Switch port lan on */
-		enbw_cmc_switch(1, 1);
-	else
-		enbw_cmc_switch(1, 0);
+	if (config) {
+		if (hwconfig_subarg_cmp("switch", "lan", "on"))
+			/* Switch port lan on */
+			enbw_cmc_switch(1, 1);
+		else
+			enbw_cmc_switch(1, 0);
 
-	if (hwconfig_subarg_cmp("switch", "pwl", "on"))
-		/* Switch port pwl on */
-		enbw_cmc_switch(2, 1);
-	else
-		enbw_cmc_switch(2, 0);
+		if (hwconfig_subarg_cmp("switch", "lmn", "on"))
+			/* Switch port pwl on */
+			enbw_cmc_switch(2, 1);
+		else
+			enbw_cmc_switch(2, 0);
+	}
 
 	return 0;
 }
@@ -775,35 +811,6 @@ void arch_memory_failure_handle(void)
 		}
 		udelay(500);
 	}
-}
-#endif
-
-#if defined(CONFIG_BOOTCOUNT_LIMIT)
-void bootcount_store(ulong a)
-{
-	struct davinci_rtc *reg =
-		(struct davinci_rtc *)CONFIG_SYS_BOOTCOUNT_ADDR;
-
-	/*
-	 * write RTC kick register to enable write
-	 * for RTC Scratch registers. Scratch0 and 1 are
-	 * used for bootcount values.
-	 */
-	writel(RTC_KICK0R_WE, &reg->kick0r);
-	writel(RTC_KICK1R_WE, &reg->kick1r);
-	out_be32(&reg->scratch0, a);
-	out_be32(&reg->scratch1, BOOTCOUNT_MAGIC);
-}
-
-ulong bootcount_load(void)
-{
-	struct davinci_rtc *reg =
-		(struct davinci_rtc *)CONFIG_SYS_BOOTCOUNT_ADDR;
-
-	if (in_be32(&reg->scratch1) != BOOTCOUNT_MAGIC)
-		return 0;
-	else
-		return in_be32(&reg->scratch0);
 }
 #endif
 

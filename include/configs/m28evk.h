@@ -20,8 +20,6 @@
 #ifndef __M28EVK_CONFIG_H__
 #define __M28EVK_CONFIG_H__
 
-#include <asm/arch/regs-base.h>
-
 /*
  * SoC configurations
  */
@@ -36,9 +34,9 @@
 
 #define	CONFIG_MACH_TYPE	MACH_TYPE_M28EVK
 
+#include <asm/arch/regs-base.h>
+
 #define	CONFIG_SYS_NO_FLASH
-#define	CONFIG_SYS_ICACHE_OFF
-#define	CONFIG_SYS_DCACHE_OFF
 #define	CONFIG_BOARD_EARLY_INIT_F
 #define	CONFIG_ARCH_MISC_INIT
 
@@ -47,8 +45,8 @@
  */
 #define	CONFIG_SPL
 #define	CONFIG_SPL_NO_CPU_SUPPORT_CODE
-#define	CONFIG_SPL_START_S_PATH		"arch/arm/cpu/arm926ejs/mx28"
-#define	CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mx28/u-boot-spl.lds"
+#define	CONFIG_SPL_START_S_PATH		"arch/arm/cpu/arm926ejs/mxs"
+#define	CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds"
 #define	CONFIG_SPL_LIBCOMMON_SUPPORT
 #define	CONFIG_SPL_LIBGENERIC_SUPPORT
 #define	CONFIG_SPL_GPIO_SUPPORT
@@ -85,7 +83,6 @@
 #define	CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
 #define	PHYS_SDRAM_1			0x40000000	/* Base address */
 #define	PHYS_SDRAM_1_SIZE		0x20000000	/* Max 512 MB RAM */
-#define	CONFIG_STACKSIZE		(128 * 1024)	/* 128 KB stack */
 #define	CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */
 #define	CONFIG_SYS_GBL_DATA_SIZE	128		/* Initial data */
 #define	CONFIG_SYS_MEMTEST_START	0x40000000	/* Memtest start adr */
@@ -174,9 +171,9 @@
 #define	CONFIG_LZO
 #define	CONFIG_MTD_DEVICE
 #define	CONFIG_MTD_PARTITIONS
-#define	MTDIDS_DEFAULT			"nand0=gpmi-nand.0"
+#define	MTDIDS_DEFAULT			"nand0=gpmi-nand"
 #define	MTDPARTS_DEFAULT			\
-	"mtdparts=gpmi-nand.0:"			\
+	"mtdparts=gpmi-nand:"			\
 		"3m(bootloader)ro,"		\
 		"512k(environment),"		\
 		"512k(redundant-environment),"	\
@@ -194,7 +191,6 @@
 #define	CONFIG_FEC_MXC
 #define	CONFIG_FEC_MXC_MULTI
 #define	CONFIG_MII
-#define	CONFIG_DISCOVER_PHY
 #define	CONFIG_FEC_XCV_TYPE		RMII
 #endif
 
@@ -247,6 +243,7 @@
 #ifdef	CONFIG_CMD_SPI
 #define	CONFIG_HARD_SPI
 #define	CONFIG_MXS_SPI
+#define	CONFIG_MXS_SPI_DMA_ENABLE
 #define	CONFIG_SPI_HALF_DUPLEX
 #define	CONFIG_DEFAULT_SPI_BUS		2
 #define	CONFIG_DEFAULT_SPI_MODE		SPI_MODE_0
@@ -257,11 +254,11 @@
 #define	CONFIG_SPI_FLASH_STMICRO
 #define	CONFIG_SF_DEFAULT_CS		2
 #define	CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define	CONFIG_SF_DEFAULT_SPEED		24000000
+#define	CONFIG_SF_DEFAULT_SPEED		40000000
 
 #define	CONFIG_ENV_SPI_CS		0
 #define	CONFIG_ENV_SPI_BUS		2
-#define	CONFIG_ENV_SPI_MAX_HZ		24000000
+#define	CONFIG_ENV_SPI_MAX_HZ		40000000
 #define	CONFIG_ENV_SPI_MODE		SPI_MODE_0
 #endif
 #endif

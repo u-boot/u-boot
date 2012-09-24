@@ -19,8 +19,9 @@
 #ifndef __AM33XX_HARDWARE_H
 #define __AM33XX_HARDWARE_H
 
+#include <asm/arch/omap.h>
+
 /* Module base addresses */
-#define LOW_LEVEL_SRAM_STACK		0x4030B7FC
 #define UART0_BASE			0x44E09000
 
 /* DM Timer base addresses */
@@ -46,6 +47,7 @@
 
 /* Control Module Base Address */
 #define CTRL_BASE			0x44E10000
+#define CTRL_DEVICE_BASE		0x44E10600
 
 /* PRCM Base Address */
 #define PRCM_BASE			0x44E00000
@@ -53,7 +55,6 @@
 /* EMIF Base address */
 #define EMIF4_0_CFG_BASE		0x4C000000
 #define EMIF4_1_CFG_BASE		0x4D000000
-#define DMM_BASE			0x4E000000
 
 /* PLL related registers */
 #define CM_PER				0x44E00000
@@ -77,5 +78,9 @@
 
 #define DDRPHY_0_CONFIG_BASE		(CTRL_BASE + 0x1400)
 #define DDRPHY_CONFIG_BASE		DDRPHY_0_CONFIG_BASE
+
+/* CPSW Config space */
+#define AM335X_CPSW_BASE		0x4A100000
+#define AM335X_CPSW_MDIO_BASE		0x4A101000
 
 #endif /* __AM33XX_HARDWARE_H */

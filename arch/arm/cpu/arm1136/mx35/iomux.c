@@ -44,8 +44,6 @@ enum iomux_reg_addr {
 #define MUX_INPUT_NUM_MUX	\
 		(((IOMUXSW_INPUT_END - IOMUXSW_INPUT_CTL) >> 2) + 1)
 
-#define PIN_TO_IOMUX_INDEX(pin) ((PIN_TO_IOMUX_PAD(pin) - 0x328) >> 2)
-
 /*
  * Request ownership for an IO pin. This function has to be the first one
  * being called before that pin is used.

@@ -31,7 +31,7 @@
 /* Set time in seconds since 1970-01-01 */
 int mxs_rtc_set_time(uint32_t secs)
 {
-	struct mx28_rtc_regs *rtc_regs = (struct mx28_rtc_regs *)MXS_RTC_BASE;
+	struct mxs_rtc_regs *rtc_regs = (struct mxs_rtc_regs *)MXS_RTC_BASE;
 	int ret;
 
 	writel(secs, &rtc_regs->hw_rtc_seconds);
@@ -41,7 +41,7 @@ int mxs_rtc_set_time(uint32_t secs)
 	 * is taken from the linux kernel driver for the STMP37xx RTC since
 	 * documentation doesn't mention it.
 	 */
-	ret = mx28_wait_mask_clr(&rtc_regs->hw_rtc_stat_reg,
+	ret = mxs_wait_mask_clr(&rtc_regs->hw_rtc_stat_reg,
 		0x80 << RTC_STAT_STALE_REGS_OFFSET, MXS_RTC_MAX_TIMEOUT);
 
 	if (ret)
@@ -52,7 +52,7 @@ int mxs_rtc_set_time(uint32_t secs)
 
 int rtc_get(struct rtc_time *time)
 {
-	struct mx28_rtc_regs *rtc_regs = (struct mx28_rtc_regs *)MXS_RTC_BASE;
+	struct mxs_rtc_regs *rtc_regs = (struct mxs_rtc_regs *)MXS_RTC_BASE;
 	uint32_t secs;
 
 	secs = readl(&rtc_regs->hw_rtc_seconds);
@@ -73,14 +73,14 @@ int rtc_set(struct rtc_time *time)
 
 void rtc_reset(void)
 {
-	struct mx28_rtc_regs *rtc_regs = (struct mx28_rtc_regs *)MXS_RTC_BASE;
+	struct mxs_rtc_regs *rtc_regs = (struct mxs_rtc_regs *)MXS_RTC_BASE;
 	int ret;
 
 	/* Set time to 1970-01-01 */
 	mxs_rtc_set_time(0);
 
 	/* Reset the RTC block */
-	ret = mx28_reset_block(&rtc_regs->hw_rtc_ctrl_reg);
+	ret = mxs_reset_block(&rtc_regs->hw_rtc_ctrl_reg);
 	if (ret)
 		printf("MXS RTC: Block reset timeout\n");
 }

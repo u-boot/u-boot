@@ -30,27 +30,14 @@
 #include <version.h>
 #include <watchdog.h>
 #include <stdio_dev.h>
+#include <serial.h>
 #include <net.h>
+#include <linux/compiler.h>
 #include <asm/processor.h>
+#include <asm/microblaze_intc.h>
+#include <fdtdec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#ifdef CONFIG_SYS_GPIO_0
-extern int gpio_init (void);
-#endif
-#ifdef CONFIG_SYS_INTC_0
-extern int interrupts_init (void);
-#endif
-
-#if defined(CONFIG_CMD_NET)
-extern int eth_init (bd_t * bis);
-#endif
-#ifdef CONFIG_SYS_TIMER_0
-extern int timer_init (void);
-#endif
-#ifdef CONFIG_SYS_FSL_2
-extern void fsl_init2 (void);
-#endif
 
 /*
  * All attempts to come up with a "common" initialization sequence
@@ -68,33 +55,26 @@ typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
 	env_init,
+#ifdef CONFIG_OF_CONTROL
+	fdtdec_check_fdt,
+#endif
 	serial_init,
 	console_init_f,
-#ifdef CONFIG_SYS_GPIO_0
-	gpio_init,
-#endif
-#ifdef CONFIG_SYS_INTC_0
 	interrupts_init,
-#endif
-#ifdef CONFIG_SYS_TIMER_0
 	timer_init,
-#endif
-#ifdef CONFIG_SYS_FSL_2
-	fsl_init2,
-#endif
 	NULL,
 };
 
 unsigned long monitor_flash_len;
 
-void board_init (void)
+void board_init_f(ulong not_used)
 {
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 	gd = (gd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET);
 	bd = (bd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET \
 						- GENERATED_BD_INFO_SIZE);
-	char *s;
+	__maybe_unused char *s;
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
@@ -110,6 +90,17 @@ void board_init (void)
 
 	monitor_flash_len = __end - __text_start;
 
+#ifdef CONFIG_OF_EMBED
+	/* Get a pointer to the FDT */
+	gd->fdt_blob = _binary_dt_dtb_start;
+#elif defined CONFIG_OF_SEPARATE
+	/* FDT is at end of image */
+	gd->fdt_blob = (void *)__end;
+#endif
+	/* Allow the early environment to override the fdt address */
+	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
+						(uintptr_t)gd->fdt_blob);
+
 	/*
 	 * The Malloc area is immediately below the monitor copy in DRAM
 	 * aka CONFIG_SYS_MONITOR_BASE - Note there is no need for reloc_off
@@ -117,12 +108,25 @@ void board_init (void)
 	 */
 	mem_malloc_init (CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
+
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET ();
 		if ((*init_fnc_ptr) () != 0) {
 			hang ();
 		}
 	}
+
+#ifdef CONFIG_OF_CONTROL
+	/* For now, put this check after the console is ready */
+	if (fdtdec_prepare_fdt()) {
+		panic("** CONFIG_OF_CONTROL defined but no FDT - please see "
+			"doc/README.fdt-control");
+	} else
+		printf("DTB: 0x%x\n", (u32)gd->fdt_blob);
+#endif
 
 	puts ("SDRAM :\n");
 	printf ("\t\tIcache:%s\n", icache_status() ? "ON" : "OFF");
@@ -132,9 +136,8 @@ void board_init (void)
 #if defined(CONFIG_CMD_FLASH)
 	puts ("Flash: ");
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
-	if (0 < (flash_size = flash_init ())) {
-		bd->bi_flashsize = flash_size;
-		bd->bi_flashoffset = CONFIG_SYS_FLASH_BASE + flash_size;
+	flash_size = flash_init();
+	if (bd->bi_flashstart && flash_size > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM
 		print_size (flash_size, "");
 		/*
@@ -145,13 +148,16 @@ void board_init (void)
 		s = getenv ("flashchecksum");
 		if (s && (*s == 'y')) {
 			printf ("  CRC: %08X",
-				crc32 (0, (const unsigned char *) CONFIG_SYS_FLASH_BASE, flash_size)
+				crc32(0, (const u8 *)bd->bi_flashstart,
+							flash_size)
 			);
 		}
 		putc ('\n');
 # else	/* !CONFIG_SYS_FLASH_CHECKSUM */
 		print_size (flash_size, "\n");
 # endif /* CONFIG_SYS_FLASH_CHECKSUM */
+		bd->bi_flashsize = flash_size;
+		bd->bi_flashoffset = bd->bi_flashstart + flash_size;
 	} else {
 		puts ("Flash init FAILED");
 		bd->bi_flashstart = 0;
@@ -171,6 +177,8 @@ void board_init (void)
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
+
+	board_init();
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);

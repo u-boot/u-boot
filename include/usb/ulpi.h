@@ -61,7 +61,7 @@ int ulpi_select_transceiver(struct ulpi_viewport *ulpi_vp, unsigned speed);
  *
  * returns 0 on success, ULPI_ERROR on failure.
  */
-int ulpi_enable_vbus(struct ulpi_viewport *ulpi_vp,
+int ulpi_set_vbus(struct ulpi_viewport *ulpi_vp,
 			int on, int ext_power, int ext_ind);
 
 /*

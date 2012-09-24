@@ -32,6 +32,7 @@ COBJS-$(CONFIG_ATMEL_DATAFLASH_SPI) += atmel_dataflash_spi.o
 COBJS-$(CONFIG_ATMEL_SPI) += atmel_spi.o
 COBJS-$(CONFIG_BFIN_SPI) += bfin_spi.o
 COBJS-$(CONFIG_CF_SPI) += cf_spi.o
+COBJS-$(CONFIG_CF_QSPI) += cf_qspi.o
 COBJS-$(CONFIG_DAVINCI_SPI) += davinci_spi.o
 COBJS-$(CONFIG_KIRKWOOD_SPI) += kirkwood_spi.o
 COBJS-$(CONFIG_MPC52XX_SPI) += mpc52xx_spi.o
@@ -44,6 +45,7 @@ COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
 COBJS-$(CONFIG_SH_SPI) += sh_spi.o
 COBJS-$(CONFIG_FSL_ESPI) += fsl_espi.o
 COBJS-$(CONFIG_TEGRA_SPI) += tegra_spi.o
+COBJS-$(CONFIG_XILINX_SPI) += xilinx_spi.o
 COBJS-$(CONFIG_ZYNQ_SPI) += zynq_qspi.o zynq_qspi_wrap.o
 
 COBJS	:= $(COBJS-y)

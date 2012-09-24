@@ -23,7 +23,7 @@
 #ifndef _OMAP4_I2C_H_
 #define _OMAP4_I2C_H_
 
-#define I2C_BUS_MAX	3
+#define I2C_BUS_MAX	4
 #define I2C_DEFAULT_BASE	I2C_BASE1
 
 struct i2c {

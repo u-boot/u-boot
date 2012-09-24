@@ -31,7 +31,7 @@
  * at the same time, so do it here.  When all drivers are
  * converted, this will go away.
  */
-#if defined(CONFIG_NAND_FSL_ELBC)
+#if defined(CONFIG_NAND_FSL_ELBC) || defined(CONFIG_NAND_ATMEL)
 #define CONFIG_SYS_NAND_SELF_INIT
 #endif
 
@@ -141,11 +141,11 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
 
 #define NAND_LOCK_STATUS_TIGHT	0x01
-#define NAND_LOCK_STATUS_LOCK	0x02
 #define NAND_LOCK_STATUS_UNLOCK 0x04
 
-int nand_lock( nand_info_t *meminfo, int tight );
-int nand_unlock( nand_info_t *meminfo, ulong start, ulong length );
+int nand_lock(nand_info_t *meminfo, int tight);
+int nand_unlock(nand_info_t *meminfo, loff_t start, size_t length,
+	int allexcept);
 int nand_get_lock_status(nand_info_t *meminfo, loff_t offset);
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst);

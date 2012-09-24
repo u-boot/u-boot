@@ -51,7 +51,6 @@
 
 #define CONFIG_AT91FAMILY
 #define CONFIG_ARCH_CPU_INIT
-#undef CONFIG_USE_IRQ
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_BOARD_EARLY_INIT_F
 
@@ -510,11 +509,5 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - \
 				GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_STACKSIZE		(32 * 1024)
-
-#if defined(CONFIG_USE_IRQ)
-#error CONFIG_USE_IRQ not supported
-#endif
 
 #endif

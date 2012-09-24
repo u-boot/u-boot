@@ -6,8 +6,8 @@ Supported hardware: only MX28EVK rev D is supported in U-boot.
 Files of the MX28EVK port
 --------------------------
 
-arch/arm/cpu/arm926ejs/mx28/	- The CPU support code for the Freescale i.MX28
-arch/arm/include/asm/arch-mx28/	- Header files for the Freescale i.MX28
+arch/arm/cpu/arm926ejs/mxs/	- The CPU support code for the Freescale i.MX28
+arch/arm/include/asm/arch-mxs/	- Header files for the Freescale i.MX28
 board/freescale/mx28evk/	- MX28EVK board specific files
 include/configs/mx28evk.h	- MX28EVK configuration file
 

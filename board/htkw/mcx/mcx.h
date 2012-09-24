@@ -284,9 +284,14 @@ const omap3_sysinfo sysinfo = {
 					/* HSUSB2_dat3 */\
 	/* CCDC */\
 	MUX_VAL(CP(CCDC_PCLK),		(IEN  | PTD | EN  | M4)) \
-	MUX_VAL(CP(CCDC_FIELD),		(IEN  | PTD | EN  | M4)) \
-	MUX_VAL(CP(CCDC_HD),		(IEN  | PTD | EN  | M4)) \
-	MUX_VAL(CP(CCDC_VD),		(IEN  | PTD | EN  | M4)) \
+	/* CCDC_FIELD: gpio_95, uP-TXD4 */ \
+	MUX_VAL(CP(CCDC_FIELD),		(IDIS | PTD | DIS | M2)) \
+	/* CCDC_HD: gpio_96, uP-RTS4# */ \
+	MUX_VAL(CP(CCDC_HD),		(IDIS | PTD | DIS | M2)) \
+	/* CCDC_VD: gpio_97, uP-CTS4# */ \
+	MUX_VAL(CP(CCDC_VD),		(IEN  | PTD | EN  | M2)) \
+	/* CCDC_WEN: gpio_98, uP-RXD4 */ \
+	MUX_VAL(CP(CCDC_WEN),		(IEN  | PTD | DIS | M2)) \
 	MUX_VAL(CP(CCDC_WEN),		(IEN  | PTD | EN  | M4)) \
 	MUX_VAL(CP(CCDC_DATA0),		(IEN  | PTD | EN  | M4)) \
 	MUX_VAL(CP(CCDC_DATA1),		(IEN  | PTD | EN  | M4)) \

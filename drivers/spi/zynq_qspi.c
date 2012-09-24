@@ -31,7 +31,7 @@
 #include <common.h>
 #include <malloc.h>
 
-#include <linux/mtd/compat.h>
+//#include <linux/mtd/compat.h>
 #include <ubi_uboot.h>
 #include <spi.h>
 

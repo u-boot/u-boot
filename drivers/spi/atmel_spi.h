@@ -26,6 +26,7 @@
 #define ATMEL_SPI_MR_PCSDEC		(1 << 2)
 #define ATMEL_SPI_MR_FDIV		(1 << 3)
 #define ATMEL_SPI_MR_MODFDIS		(1 << 4)
+#define ATMEL_SPI_MR_WDRBT		(1 << 5)
 #define ATMEL_SPI_MR_LLB		(1 << 7)
 #define ATMEL_SPI_MR_PCS(x)		(((x) & 15) << 16)
 #define ATMEL_SPI_MR_DLYBCS(x)		((x) << 24)

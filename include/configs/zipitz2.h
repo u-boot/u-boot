@@ -30,7 +30,6 @@
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
 #undef	CONFIG_BOARD_LATE_INIT
-#undef	CONFIG_USE_IRQ
 #undef	CONFIG_SKIP_LOWLEVEL_INIT
 #define	CONFIG_PREBOOT
 
@@ -152,15 +151,6 @@ unsigned char zipitz2_spi_read(void);
 #undef	CONFIG_SYS_CLKS_IN_HZ
 #define	CONFIG_SYS_HZ			3250000		/* Timer @ 3250000 Hz */
 #define CONFIG_SYS_CPUSPEED		0x190		/* standard setting for 312MHz; L=16, N=1.5, A=0, SDCLK!=SystemBus */
-
-/*
- * Stack sizes
- */
-#define	CONFIG_STACKSIZE		(128*1024)	/* regular stack */
-#ifdef	CONFIG_USE_IRQ
-#define	CONFIG_STACKSIZE_IRQ		(4*1024)	/* IRQ stack */
-#define	CONFIG_STACKSIZE_FIQ		(4*1024)	/* FIQ stack */
-#endif
 
 /*
  * SRAM Map

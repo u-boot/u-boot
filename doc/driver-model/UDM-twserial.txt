@@ -1,0 +1,47 @@
+==================================
+TWserial device subsystem analysis
+==================================
+
+Tomas Hlavacek<tmshlvck@gmail.com>
+2012-03-21
+
+I) Overview
+-----------
+
+U-Boot currently implements one common API for TWSerial devices. The interface
+is defined in include/tws.h and comprises of functions:
+
+    int tws_read(uchar *buffer, int len);
+    int tws_write(uchar *buffer, int len);
+
+The functions are implemented by a proper device driver in drivers/twserial
+directory and the driver to be compiled in is selected in a Makefile. There is
+only one driver present now.
+
+The driver depends on ad-hoc code in board specific data, namely functions:
+
+    void tws_ce(unsigned bit);
+    void tws_wr(unsigned bit);
+    void tws_clk(unsigned bit);
+    void tws_data(unsigned bit);
+    unsigned tws_data_read(void);
+    void tws_data_config_output(unsigned output);
+
+implemented in include/configs/inka4x0.h .
+
+II) Approach
+------------
+
+  U-Boot TWserial drivers exports two simple functions and therefore the conversion
+  of the driver and creating a core for it is not needed. It should be consolidated
+  with include/configs/inka4x0.h and taken to the misc/ dir.
+
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) drivers/twserial/soft_tws.c
+  ------------------------------
+  The driver is the only TWserial driver. The ad-hoc part in
+  include/configs/inka4x0.h and the core soft_tws driver should be consolidated
+  to one compact driver and moved to misc/ .

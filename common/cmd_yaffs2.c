@@ -1,18 +1,37 @@
+/* Yaffs commands.
+ * Modified by Charles Manning by adding ydevconfig command.
+ *
+ * Use ydevconfig to configure a mountpoint before use.
+ * For example:
+ *  # Configure mountpt xxx using nand device 0 using blocks 100-500
+ *  ydevconfig xxx 0 100 500
+ *  # Mount it
+ *  ymount xxx
+ *  # yls, yrdm etc
+ *  yls -l xxx
+ *  yrdm xxx/boot-image 82000000
+ *  ...
+ */
+
 #include <common.h>
 
 #include <config.h>
 #include <command.h>
 
-#ifdef  YAFFS2_DEBUG
-#define PRINTF(fmt,args...) printf (fmt ,##args)
+#ifdef YAFFS2_DEBUG
+#define PRINTF(fmt, args...) printf(fmt, ##args)
 #else
-#define PRINTF(fmt,args...)
+#define PRINTF(fmt, args...) do { } while (0)
 #endif
 
+extern void cmd_yaffs_dev_ls(void);
+extern void cmd_yaffs_tracemask(unsigned set, unsigned mask);
+extern void cmd_yaffs_devconfig(char *mp, int flash_dev,
+				int start_block, int end_block);
 extern void cmd_yaffs_mount(char *mp);
 extern void cmd_yaffs_umount(char *mp);
 extern void cmd_yaffs_read_file(char *fn);
-extern void cmd_yaffs_write_file(char *fn,char bval,int sizeOfFile);
+extern void cmd_yaffs_write_file(char *fn, char bval, int sizeOfFile);
 extern void cmd_yaffs_ls(const char *mountpt, int longlist);
 extern void cmd_yaffs_mwrite_file(char *fn, char *addr, int size);
 extern void cmd_yaffs_mread_file(char *fn, char *addr);
@@ -21,193 +40,287 @@ extern void cmd_yaffs_rmdir(const char *dir);
 extern void cmd_yaffs_rm(const char *path);
 extern void cmd_yaffs_mv(const char *oldPath, const char *newPath);
 
-extern int yaffs_DumpDevStruct(const char *path);
+extern int yaffs_dump_dev(const char *path);
 
-
-int do_ymount (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+/* ytrace - show/set yaffs trace mask */
+int do_ytrace(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *mtpoint = argv[1];
-    cmd_yaffs_mount(mtpoint);
+	if (argc > 1)
+		cmd_yaffs_tracemask(1, simple_strtol(argv[1], NULL, 16));
+	else
+		cmd_yaffs_tracemask(0, 0);
 
-    return(0);
+	return 0;
 }
 
-int do_yumount (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+/* ydevls - lists yaffs mount points. */
+int do_ydevls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *mtpoint = argv[1];
-    cmd_yaffs_umount(mtpoint);
+	cmd_yaffs_dev_ls();
 
-    return(0);
+	return 0;
 }
 
-int do_yls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+/* ydevconfig mount_pt mtd_dev_num start_block end_block */
+int do_ydevconfig(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *dirname = argv[argc-1];
+	char *mtpoint;
+	int mtd_dev;
+	int start_block;
+	int end_block;
 
-    cmd_yaffs_ls(dirname, (argc>2)?1:0);
+	if (argc != 5) {
+		printf
+		    ("Bad arguments: ydevconfig mount_pt mtd_dev start_block end_block\n");
+		return -1;
+	}
 
-    return(0);
+	mtpoint = argv[1];
+	mtd_dev = simple_strtol(argv[2], NULL, 16);
+	start_block = simple_strtol(argv[3], NULL, 16);
+	end_block = simple_strtol(argv[4], NULL, 16);
+
+	cmd_yaffs_devconfig(mtpoint, mtd_dev, start_block, end_block);
+
+	return 0;
 }
 
-int do_yrd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ymount(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *filename = argv[1];
-    printf ("Reading file %s ", filename);
+	char *mtpoint;
 
-    cmd_yaffs_read_file(filename);
+	if (argc != 2) {
+		printf("Bad arguments: ymount mount_pt\n");
+		return -1;
+	}
 
-    printf ("done\n");
-    return(0);
+	mtpoint = argv[1];
+	printf("Mounting yaffs2 mount point %s\n", mtpoint);
+
+	cmd_yaffs_mount(mtpoint);
+
+	return 0;
 }
 
-int do_ywr (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_yumount(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *filename = argv[1];
-    ulong value = simple_strtoul(argv[2], NULL, 16);
-    ulong numValues = simple_strtoul(argv[3], NULL, 16);
+	char *mtpoint;
 
-    printf ("Writing value (%lx) %lx times to %s... ", value, numValues, filename);
+	if (argc != 2) {
+		printf("Bad arguments: yumount mount_pt\n");
+		return -1;
+	}
 
-    cmd_yaffs_write_file(filename,value,numValues);
+	mtpoint = argv[1];
+	printf("Unmounting yaffs2 mount point %s\n", mtpoint);
+	cmd_yaffs_umount(mtpoint);
 
-    printf ("done\n");
-    return(0);
+	return 0;
 }
 
-int do_yrdm (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_yls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *filename = argv[1];
-    ulong addr = simple_strtoul(argv[2], NULL, 16);
+	char *dirname;
 
-    cmd_yaffs_mread_file(filename, (char *)addr);
+	if (argc < 2 || argc > 3 || (argc == 3 && strcmp(argv[1], "-l"))) {
+		printf("Bad arguments: yls [-l] dir\n");
+		return -1;
+	}
 
-    return(0);
+	dirname = argv[argc - 1];
+
+	cmd_yaffs_ls(dirname, (argc > 2) ? 1 : 0);
+
+	return 0;
 }
 
-int do_ywrm (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_yrd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *filename = argv[1];
-    ulong addr = simple_strtoul(argv[2], NULL, 16);
-    ulong size = simple_strtoul(argv[3], NULL, 16);
+	char *filename;
 
-    cmd_yaffs_mwrite_file(filename, (char *)addr, size);
+	if (argc != 2) {
+		printf("Bad arguments: yrd file_name\n");
+		return -1;
+	}
 
-    return(0);
+	filename = argv[1];
+
+	printf("Reading file %s ", filename);
+
+	cmd_yaffs_read_file(filename);
+
+	printf("done\n");
+	return 0;
 }
 
-int do_ymkdir (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ywr(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *dirname = argv[1];
+	char *filename;
+	ulong value;
+	ulong numValues;
 
-    cmd_yaffs_mkdir(dirname);
+	if (argc != 4) {
+		printf("Bad arguments: ywr file_name value n_values\n");
+		return -1;
+	}
 
-    return(0);
+	filename = argv[1];
+	value = simple_strtoul(argv[2], NULL, 16);
+	numValues = simple_strtoul(argv[3], NULL, 16);
+
+	printf("Writing value (%lx) %lx times to %s... ", value, numValues,
+	       filename);
+
+	cmd_yaffs_write_file(filename, value, numValues);
+
+	printf("done\n");
+	return 0;
 }
 
-int do_yrmdir (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_yrdm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *dirname = argv[1];
+	char *filename;
+	ulong addr;
 
-    cmd_yaffs_rmdir(dirname);
+	if (argc != 3) {
+		printf("Bad arguments: yrdm file_name addr\n");
+		return -1;
+	}
 
-    return(0);
+	filename = argv[1];
+	addr = simple_strtoul(argv[2], NULL, 16);
+
+	cmd_yaffs_mread_file(filename, (char *)addr);
+
+	return 0;
 }
 
-int do_yrm (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ywrm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *path = argv[1];
+	char *filename;
+	ulong addr;
+	ulong size;
 
-    cmd_yaffs_rm(path);
+	if (argc != 4) {
+		printf("Bad arguments: ywrm file_name addr size\n");
+		return -1;
+	}
 
-    return(0);
+	filename = argv[1];
+	addr = simple_strtoul(argv[2], NULL, 16);
+	size = simple_strtoul(argv[3], NULL, 16);
+
+	cmd_yaffs_mwrite_file(filename, (char *)addr, size);
+
+	return 0;
 }
 
-int do_ymv (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ymkdir(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *oldPath = argv[1];
-    char *newPath = argv[2];
+	char *dirname;
 
-    cmd_yaffs_mv(newPath, oldPath);
+	if (argc != 2) {
+		printf("Bad arguments: ymkdir dir_name\n");
+		return -1;
+	}
 
-    return(0);
+	dirname = argv[1];
+	cmd_yaffs_mkdir(dirname);
+
+	return 0;
 }
 
-int do_ydump (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_yrmdir(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-    char *dirname = argv[1];
-    if (yaffs_DumpDevStruct(dirname) != 0)
-	printf("yaffs_DumpDevStruct returning error when dumping path: , %s\n", dirname);
-    return 0;
+	char *dirname;
+
+	if (argc != 2) {
+		printf("Bad arguments: yrmdir dir_name\n");
+		return -1;
+	}
+
+	dirname = argv[1];
+	cmd_yaffs_rmdir(dirname);
+
+	return 0;
 }
 
-U_BOOT_CMD(
-    ymount, 3,  0,  do_ymount,
-    "mount yaffs",
-    ""
-);
+int do_yrm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	char *name;
 
-U_BOOT_CMD(
-    yumount, 3,  0,  do_yumount,
-    "unmount yaffs",
-    ""
-);
+	if (argc != 2) {
+		printf("Bad arguments: yrm name\n");
+		return -1;
+	}
 
-U_BOOT_CMD(
-    yls,    4,  0,  do_yls,
-    "yaffs ls",
-    "[-l] name"
-);
+	name = argv[1];
 
-U_BOOT_CMD(
-    yrd,    2,  0,  do_yrd,
-    "read file from yaffs",
-    "filename"
-);
+	cmd_yaffs_rm(name);
 
-U_BOOT_CMD(
-    ywr,    4,  0,  do_ywr,
-    "write file to yaffs",
-    "filename value num_vlues"
-);
+	return 0;
+}
 
-U_BOOT_CMD(
-    yrdm,   3,  0,  do_yrdm,
-    "read file to memory from yaffs",
-    "filename offset"
-);
+int do_ymv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	char *oldPath;
+	char *newPath;
 
-U_BOOT_CMD(
-    ywrm,   4,  0,  do_ywrm,
-    "write file from memory to yaffs",
-    "filename offset size"
-);
+	if (argc != 3) {
+		printf("Bad arguments: ymv old_path new_path\n");
+		return -1;
+	}
 
-U_BOOT_CMD(
-    ymkdir, 2,  0,  do_ymkdir,
-    "YAFFS mkdir",
-    "dirname"
-);
+	oldPath = argv[1];
+	newPath = argv[2];
 
-U_BOOT_CMD(
-    yrmdir, 2,  0,  do_yrmdir,
-    "YAFFS rmdir",
-    "dirname"
-);
+	cmd_yaffs_mv(newPath, oldPath);
 
-U_BOOT_CMD(
-    yrm,    2,  0,  do_yrm,
-    "YAFFS rm",
-    "path"
-);
+	return 0;
+}
 
-U_BOOT_CMD(
-    ymv,    4,  0,  do_ymv,
-    "YAFFS mv",
-    "oldPath newPath"
-);
+U_BOOT_CMD(ytrace, 2, 0, do_ytrace,
+	   "show/set yaffs trace mask",
+	   "ytrace [new_mask]  show/set yaffs trace mask");
 
-U_BOOT_CMD(
-    ydump,  2,  0,  do_ydump,
-    "YAFFS device struct",
-    "dirname"
-);
+U_BOOT_CMD(ydevls, 1, 0, do_ydevls,
+	   "list yaffs mount points", "list yaffs mount points");
+
+U_BOOT_CMD(ydevconfig, 5, 0, do_ydevconfig,
+	   "configure yaffs mount point",
+	   "ydevconfig mtpoint mtd_id start_block end_block   configures a yaffs2 mount point");
+
+U_BOOT_CMD(ymount, 2, 0, do_ymount,
+	   "mount yaffs", "ymount mtpoint  mounts a yaffs2 mount point");
+
+U_BOOT_CMD(yumount, 2, 0, do_yumount,
+	   "unmount yaffs", "yunmount mtpoint  unmounts a yaffs2 mount point");
+
+U_BOOT_CMD(yls, 3, 0, do_yls, "yaffs ls", "yls [-l] dirname");
+
+U_BOOT_CMD(yrd, 2, 0, do_yrd,
+	   "read file from yaffs", "yrd path   read file from yaffs");
+
+U_BOOT_CMD(ywr, 4, 0, do_ywr,
+	   "write file to yaffs",
+	   "ywr filename value num_vlues   write values to yaffs file");
+
+U_BOOT_CMD(yrdm, 3, 0, do_yrdm,
+	   "read file to memory from yaffs",
+	   "yrdm filename offset    reads yaffs file into memory");
+
+U_BOOT_CMD(ywrm, 4, 0, do_ywrm,
+	   "write file from memory to yaffs",
+	   "ywrm filename offset size  writes memory to yaffs file");
+
+U_BOOT_CMD(ymkdir, 2, 0, do_ymkdir,
+	   "YAFFS mkdir", "ymkdir dir    create a yaffs directory");
+
+U_BOOT_CMD(yrmdir, 2, 0, do_yrmdir,
+	   "YAFFS rmdir", "yrmdir dirname   removes a yaffs directory");
+
+U_BOOT_CMD(yrm, 2, 0, do_yrm, "YAFFS rm", "yrm path   removes a yaffs file");
+
+U_BOOT_CMD(ymv, 4, 0, do_ymv,
+	   "YAFFS mv",
+	   "ymv old_path new_path   moves/rename files within a yaffs mount point");

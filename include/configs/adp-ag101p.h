@@ -145,13 +145,6 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 /*
- * Stack sizes
- *
- * The stack sizes are set up in start.S using the settings below
- */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
-
-/*
  * Size of malloc() pool
  */
 /* 512kB is suggested, (CONFIG_ENV_SIZE + 128 * 1024) was not enough */

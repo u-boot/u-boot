@@ -294,6 +294,35 @@ enum {
 #define NUMONYX_RASWIDTH_165		15
 #define NUMONYX_V_MCFG_165(size)	MCFG((size), NUMONYX_RASWIDTH_165)
 
+/* NUMONYX part of IGEP v2 (200MHz optimized) 5 ns */
+#define NUMONYX_TDAL_200	6	/* Twr/Tck + Trp/tck		*/
+					/* 15/5 + 15/5 = 3 + 3 -> 6	*/
+#define NUMONYX_TDPL_200	3	/* 15/5 = 3 -> 3 (Twr)	        */
+#define NUMONYX_TRRD_200	2	/* 10/5 = 2			*/
+#define NUMONYX_TRCD_200	4	/* 16.2/5 = 3.24 -> 4		*/
+#define NUMONYX_TRP_200		3	/* 15/5 = 3			*/
+#define NUMONYX_TRAS_200	8	/* 40/5 = 8			*/
+#define NUMONYX_TRC_200		11	/* 55/5 = 11			*/
+#define NUMONYX_TRFC_200        28      /* 140/5 = 28                   */
+
+#define NUMONYX_V_ACTIMA_200	\
+		ACTIM_CTRLA(NUMONYX_TRFC_200, NUMONYX_TRC_200,		\
+				NUMONYX_TRAS_200, NUMONYX_TRP_200,	\
+				NUMONYX_TRCD_200, NUMONYX_TRRD_200,	\
+				NUMONYX_TDPL_200, NUMONYX_TDAL_200)
+
+#define NUMONYX_TWTR_200	2
+#define NUMONYX_TCKE_200	2
+#define NUMONYX_TXP_200		3
+#define NUMONYX_XSR_200		40
+
+#define NUMONYX_V_ACTIMB_200	\
+		ACTIM_CTRLB(NUMONYX_TWTR_200, NUMONYX_TCKE_200,	\
+				NUMONYX_TXP_200, NUMONYX_XSR_200)
+
+#define NUMONYX_RASWIDTH_200		15
+#define NUMONYX_V_MCFG_200(size)	MCFG((size), NUMONYX_RASWIDTH_200)
+
 /*
  * GPMC settings -
  * Definitions is as per the following format

@@ -51,6 +51,16 @@ _start: b	reset
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
+#ifdef CONFIG_SPL_BUILD
+_undefined_instruction: .word _undefined_instruction
+_software_interrupt:	.word _software_interrupt
+_prefetch_abort:	.word _prefetch_abort
+_data_abort:		.word _data_abort
+_not_used:		.word _not_used
+_irq:			.word _irq
+_fiq:			.word _fiq
+_pad:			.word 0x12345678 /* now 16*4=64 */
+#else
 _undefined_instruction: .word undefined_instruction
 _software_interrupt:	.word software_interrupt
 _prefetch_abort:	.word prefetch_abort
@@ -58,6 +68,8 @@ _data_abort:		.word data_abort
 _not_used:		.word not_used
 _irq:			.word irq
 _fiq:			.word fiq
+_pad:			.word 0x12345678 /* now 16*4=64 */
+#endif	/* CONFIG_SPL_BUILD */
 
 	.balignl 16,0xdeadbeef
 
@@ -77,7 +89,11 @@ _fiq:			.word fiq
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#ifdef CONFIG_SPL_BUILD
+	.word	CONFIG_SPL_TEXT_BASE
+#else
 	.word	CONFIG_SYS_TEXT_BASE
+#endif
 
 /*
  * These are defined in the board-specific linker script.
@@ -167,6 +183,7 @@ stack_setup:
 
 	adr	r0, _start
 	cmp	r0, r6
+	moveq	r9, #0		/* no relocation. relocation offset(r9) = 0 */
 	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
 	ldr	r3, _bss_start_ofs
@@ -398,6 +415,8 @@ lock_loop:
 	ldr	r0, VPBDIV_ADR
 	mov	r1, #0x01	/* VPB clock is same as process clock */
 	str	r1, [r0]
+#elif defined(CONFIG_TEGRA)
+	/* No cpu_init_crit for tegra as yet */
 #else
 #error No cpu_init_crit() defined for current CPU type
 #endif
@@ -413,7 +432,7 @@ lock_loop:
 	str	r1, [r0]
 #endif
 
-#ifndef CONFIG_LPC2292
+#if !defined(CONFIG_LPC2292) && !defined(CONFIG_TEGRA)
 	mov	ip, lr
 	/*
 	 * before relocating, we have to setup RAM timing
@@ -427,6 +446,7 @@ lock_loop:
 	mov	pc, lr
 
 
+#ifndef CONFIG_SPL_BUILD
 /*
  *************************************************************************
  *
@@ -589,6 +609,7 @@ fiq:
 	bl	do_fiq
 
 #endif
+#endif /* CONFIG_SPL_BUILD */
 
 #if defined(CONFIG_NETARM)
 	.align	5
@@ -620,6 +641,8 @@ reset_cpu:
 .globl reset_cpu
 reset_cpu:
 	mov	pc, r0
+#elif defined(CONFIG_TEGRA)
+	/* No specific reset actions for tegra as yet */
 #else
 #error No reset_cpu() defined for current CPU type
 #endif

@@ -98,7 +98,7 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 	struct exynos5_clock *clk =
 		(struct exynos5_clock *)samsung_get_base_clock();
 	unsigned long r, m, p, s, k = 0, mask, fout;
-	unsigned int freq;
+	unsigned int freq, pll_div2_sel, fout_sel;
 
 	switch (pllreg) {
 	case APLL:
@@ -115,6 +115,9 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 		r = readl(&clk->vpll_con0);
 		k = readl(&clk->vpll_con1);
 		break;
+	case BPLL:
+		r = readl(&clk->bpll_con0);
+		break;
 	default:
 		printf("Unsupported PLL (%d)\n", pllreg);
 		return 0;
@@ -125,8 +128,9 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 	 * MPLL_CON: MIDV [25:16]
 	 * EPLL_CON: MIDV [24:16]
 	 * VPLL_CON: MIDV [24:16]
+	 * BPLL_CON: MIDV [25:16]
 	 */
-	if (pllreg == APLL || pllreg == MPLL)
+	if (pllreg == APLL || pllreg == MPLL || pllreg == BPLL)
 		mask = 0x3ff;
 	else
 		mask = 0x1ff;
@@ -153,6 +157,29 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 			s = 1;
 		/* FOUT = MDIV * FIN / (PDIV * 2^(SDIV - 1)) */
 		fout = m * (freq / (p * (1 << (s - 1))));
+	}
+
+	/* According to the user manual, in EVT1 MPLL and BPLL always gives
+	 * 1.6GHz clock, so divide by 2 to get 800MHz MPLL clock.*/
+	if (pllreg == MPLL || pllreg == BPLL) {
+		pll_div2_sel = readl(&clk->pll_div2_sel);
+
+		switch (pllreg) {
+		case MPLL:
+			fout_sel = (pll_div2_sel >> MPLL_FOUT_SEL_SHIFT)
+					& MPLL_FOUT_SEL_MASK;
+			break;
+		case BPLL:
+			fout_sel = (pll_div2_sel >> BPLL_FOUT_SEL_SHIFT)
+					& BPLL_FOUT_SEL_MASK;
+			break;
+		default:
+			fout_sel = -1;
+			break;
+		}
+
+		if (fout_sel == 0)
+			fout /= 2;
 	}
 
 	return fout;
@@ -456,6 +483,48 @@ static unsigned long exynos4_get_lcd_clk(void)
 	return pclk;
 }
 
+/* get_lcd_clk: return lcd clock frequency */
+static unsigned long exynos5_get_lcd_clk(void)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+	unsigned long pclk, sclk;
+	unsigned int sel;
+	unsigned int ratio;
+
+	/*
+	 * CLK_SRC_LCD0
+	 * FIMD0_SEL [3:0]
+	 */
+	sel = readl(&clk->src_disp1_0);
+	sel = sel & 0xf;
+
+	/*
+	 * 0x6: SCLK_MPLL
+	 * 0x7: SCLK_EPLL
+	 * 0x8: SCLK_VPLL
+	 */
+	if (sel == 0x6)
+		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x7)
+		sclk = get_pll_clk(EPLL);
+	else if (sel == 0x8)
+		sclk = get_pll_clk(VPLL);
+	else
+		return 0;
+
+	/*
+	 * CLK_DIV_LCD0
+	 * FIMD0_RATIO [3:0]
+	 */
+	ratio = readl(&clk->div_disp1_0);
+	ratio = ratio & 0xf;
+
+	pclk = sclk / (ratio + 1);
+
+	return pclk;
+}
+
 void exynos4_set_lcd_clk(void)
 {
 	struct exynos4_clock *clk =
@@ -518,6 +587,68 @@ void exynos4_set_lcd_clk(void)
 	writel(cfg, &clk->div_lcd0);
 }
 
+void exynos5_set_lcd_clk(void)
+{
+	struct exynos5_clock *clk =
+	    (struct exynos5_clock *)samsung_get_base_clock();
+	unsigned int cfg = 0;
+
+	/*
+	 * CLK_GATE_BLOCK
+	 * CLK_CAM	[0]
+	 * CLK_TV	[1]
+	 * CLK_MFC	[2]
+	 * CLK_G3D	[3]
+	 * CLK_LCD0	[4]
+	 * CLK_LCD1	[5]
+	 * CLK_GPS	[7]
+	 */
+	cfg = readl(&clk->gate_block);
+	cfg |= 1 << 4;
+	writel(cfg, &clk->gate_block);
+
+	/*
+	 * CLK_SRC_LCD0
+	 * FIMD0_SEL		[3:0]
+	 * MDNIE0_SEL		[7:4]
+	 * MDNIE_PWM0_SEL	[8:11]
+	 * MIPI0_SEL		[12:15]
+	 * set lcd0 src clock 0x6: SCLK_MPLL
+	 */
+	cfg = readl(&clk->src_disp1_0);
+	cfg &= ~(0xf);
+	cfg |= 0x8;
+	writel(cfg, &clk->src_disp1_0);
+
+	/*
+	 * CLK_GATE_IP_LCD0
+	 * CLK_FIMD0		[0]
+	 * CLK_MIE0		[1]
+	 * CLK_MDNIE0		[2]
+	 * CLK_DSIM0		[3]
+	 * CLK_SMMUFIMD0	[4]
+	 * CLK_PPMULCD0		[5]
+	 * Gating all clocks for FIMD0
+	 */
+	cfg = readl(&clk->gate_ip_disp1);
+	cfg |= 1 << 0;
+	writel(cfg, &clk->gate_ip_disp1);
+
+	/*
+	 * CLK_DIV_LCD0
+	 * FIMD0_RATIO		[3:0]
+	 * MDNIE0_RATIO		[7:4]
+	 * MDNIE_PWM0_RATIO	[11:8]
+	 * MDNIE_PWM_PRE_RATIO	[15:12]
+	 * MIPI0_RATIO		[19:16]
+	 * MIPI0_PRE_RATIO	[23:20]
+	 * set fimd ratio
+	 */
+	cfg &= ~(0xf);
+	cfg |= 0x0;
+	writel(cfg, &clk->div_disp1_0);
+}
+
 void exynos4_set_mipi_clk(void)
 {
 	struct exynos4_clock *clk =
@@ -578,6 +709,29 @@ void exynos4_set_mipi_clk(void)
 	writel(cfg, &clk->div_lcd0);
 }
 
+/*
+ * I2C
+ *
+ * exynos5: obtaining the I2C clock
+ */
+static unsigned long exynos5_get_i2c_clk(void)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+	unsigned long aclk_66, aclk_66_pre, sclk;
+	unsigned int ratio;
+
+	sclk = get_pll_clk(MPLL);
+
+	ratio = (readl(&clk->div_top1)) >> 24;
+	ratio &= 0x7;
+	aclk_66_pre = sclk / (ratio + 1);
+	ratio = readl(&clk->div_top0);
+	ratio &= 0x7;
+	aclk_66 = aclk_66_pre / (ratio + 1);
+	return aclk_66;
+}
+
 unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5())
@@ -592,6 +746,16 @@ unsigned long get_arm_clk(void)
 		return exynos5_get_arm_clk();
 	else
 		return exynos4_get_arm_clk();
+}
+
+unsigned long get_i2c_clk(void)
+{
+	if (cpu_is_exynos5()) {
+		return exynos5_get_i2c_clk();
+	} else {
+		debug("I2C clock is not set for this CPU\n");
+		return 0;
+	}
 }
 
 unsigned long get_pwm_clk(void)
@@ -623,13 +787,15 @@ unsigned long get_lcd_clk(void)
 	if (cpu_is_exynos4())
 		return exynos4_get_lcd_clk();
 	else
-		return 0;
+		return exynos5_get_lcd_clk();
 }
 
 void set_lcd_clk(void)
 {
 	if (cpu_is_exynos4())
 		exynos4_set_lcd_clk();
+	else
+		exynos5_set_lcd_clk();
 }
 
 void set_mipi_clk(void)

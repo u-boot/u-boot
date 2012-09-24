@@ -424,14 +424,12 @@ static void fec_reg_setup(struct fec_priv *fec)
 
 	/* Start with frame length = 1518, common for all modes. */
 	rcntrl = PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT;
-	if (fec->xcv_type == SEVENWIRE)
-		rcntrl |= FEC_RCNTRL_FCE;
-	else if (fec->xcv_type == RGMII)
+	if (fec->xcv_type != SEVENWIRE)		/* xMII modes */
+		rcntrl |= FEC_RCNTRL_FCE | FEC_RCNTRL_MII_MODE;
+	if (fec->xcv_type == RGMII)
 		rcntrl |= FEC_RCNTRL_RGMII;
 	else if (fec->xcv_type == RMII)
 		rcntrl |= FEC_RCNTRL_RMII;
-	else	/* MII mode */
-		rcntrl |= FEC_RCNTRL_FCE | FEC_RCNTRL_MII_MODE;
 
 	writel(rcntrl, &fec->eth->r_cntrl);
 }
@@ -510,7 +508,13 @@ static int fec_open(struct eth_device *edev)
 		fec_eth_phy_config(edev);
 	if (fec->phydev) {
 		/* Start up the PHY */
-		phy_startup(fec->phydev);
+		int ret = phy_startup(fec->phydev);
+
+		if (ret) {
+			printf("Could not initialize PHY %s\n",
+			       fec->phydev->dev->name);
+			return ret;
+		}
 		speed = fec->phydev->speed;
 	} else {
 		speed = _100BASET;
@@ -599,7 +603,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 
 	fec_reg_setup(fec);
 
-	if (fec->xcv_type == MII10 || fec->xcv_type == MII100)
+	if (fec->xcv_type != SEVENWIRE)
 		fec_mii_setspeed(fec);
 
 	/*

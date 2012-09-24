@@ -89,7 +89,7 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				cs = bus;
 				bus = CONFIG_DEFAULT_SPI_BUS;
 			}
-			if (*cp == '.');
+			if (*cp == '.')
 				mode = simple_strtoul(cp+1, NULL, 10);
 		}
 		if (argc >= 3)

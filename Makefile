@@ -22,9 +22,9 @@
 #
 
 VERSION = 2012
-PATCHLEVEL = 07
+PATCHLEVEL = 10
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc1
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -225,105 +225,109 @@ endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
 
-LIBS  = lib/libgeneric.o
-LIBS += lib/lzma/liblzma.o
-LIBS += lib/lzo/liblzo.o
-LIBS += lib/zlib/libz.o
-ifeq ($(CONFIG_TIZEN),y)
-LIBS += lib/tizen/libtizen.o
-endif
-LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
-	"board/$(VENDOR)/common/lib$(VENDOR).o"; fi)
-LIBS += $(CPUDIR)/lib$(CPU).o
+HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
+
+LIBS-y += lib/libgeneric.o
+LIBS-y += lib/lzma/liblzma.o
+LIBS-y += lib/lzo/liblzo.o
+LIBS-y += lib/zlib/libz.o
+LIBS-$(CONFIG_TIZEN) += lib/tizen/libtizen.o
+LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/lib$(VENDOR).o
+LIBS-y += $(CPUDIR)/lib$(CPU).o
 ifdef SOC
-LIBS += $(CPUDIR)/$(SOC)/lib$(SOC).o
+LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
 endif
 ifeq ($(CPU),ixp)
-LIBS += arch/arm/cpu/ixp/npe/libnpe.o
+LIBS-y += arch/arm/cpu/ixp/npe/libnpe.o
 endif
-ifeq ($(CONFIG_OF_EMBED),y)
-LIBS += dts/libdts.o
-endif
-LIBS += arch/$(ARCH)/lib/lib$(ARCH).o
-LIBS += fs/cramfs/libcramfs.o fs/fat/libfat.o fs/fdos/libfdos.o fs/jffs2/libjffs2.o \
-	fs/reiserfs/libreiserfs.o fs/ext2/libext2fs.o fs/yaffs2/libyaffs2.o \
-	fs/ubifs/libubifs.o
-LIBS += net/libnet.o
-LIBS += disk/libdisk.o
-LIBS += drivers/bios_emulator/libatibiosemu.o
-LIBS += drivers/block/libblock.o
-LIBS += drivers/dma/libdma.o
-LIBS += drivers/fpga/libfpga.o
-LIBS += drivers/gpio/libgpio.o
-LIBS += drivers/hwmon/libhwmon.o
-LIBS += drivers/i2c/libi2c.o
-LIBS += drivers/input/libinput.o
-LIBS += drivers/misc/libmisc.o
-LIBS += drivers/mmc/libmmc.o
-LIBS += drivers/mtd/libmtd.o
-LIBS += drivers/mtd/nand/libnand.o
-LIBS += drivers/mtd/onenand/libonenand.o
-LIBS += drivers/mtd/ubi/libubi.o
-LIBS += drivers/mtd/spi/libspi_flash.o
-LIBS += drivers/net/libnet.o
-LIBS += drivers/net/phy/libphy.o
-LIBS += drivers/pci/libpci.o
-LIBS += drivers/pcmcia/libpcmcia.o
-LIBS += drivers/power/libpower.o
-LIBS += drivers/spi/libspi.o
+LIBS-$(CONFIG_OF_EMBED) += dts/libdts.o
+LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
+LIBS-y += fs/cramfs/libcramfs.o \
+	fs/ext4/libext4fs.o \
+	fs/fat/libfat.o \
+	fs/fdos/libfdos.o \
+	fs/jffs2/libjffs2.o \
+	fs/reiserfs/libreiserfs.o \
+	fs/ubifs/libubifs.o \
+	fs/yaffs2/libyaffs2.o \
+	fs/zfs/libzfs.o
+LIBS-y += net/libnet.o
+LIBS-y += disk/libdisk.o
+LIBS-y += drivers/bios_emulator/libatibiosemu.o
+LIBS-y += drivers/block/libblock.o
+LIBS-$(CONFIG_BOOTCOUNT_LIMIT) += drivers/bootcount/libbootcount.o
+LIBS-y += drivers/dma/libdma.o
+LIBS-y += drivers/fpga/libfpga.o
+LIBS-y += drivers/gpio/libgpio.o
+LIBS-y += drivers/hwmon/libhwmon.o
+LIBS-y += drivers/i2c/libi2c.o
+LIBS-y += drivers/input/libinput.o
+LIBS-y += drivers/misc/libmisc.o
+LIBS-y += drivers/mmc/libmmc.o
+LIBS-y += drivers/mtd/libmtd.o
+LIBS-y += drivers/mtd/nand/libnand.o
+LIBS-y += drivers/mtd/onenand/libonenand.o
+LIBS-y += drivers/mtd/ubi/libubi.o
+LIBS-y += drivers/mtd/spi/libspi_flash.o
+LIBS-y += drivers/net/libnet.o
+LIBS-y += drivers/net/phy/libphy.o
+LIBS-y += drivers/pci/libpci.o
+LIBS-y += drivers/pcmcia/libpcmcia.o
+LIBS-y += drivers/power/libpower.o
+LIBS-y += drivers/spi/libspi.o
+LIBS-y += drivers/dfu/libdfu.o
 ifeq ($(CPU),mpc83xx)
-LIBS += drivers/qe/libqe.o
-LIBS += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+LIBS-y += drivers/qe/libqe.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 ifeq ($(CPU),mpc85xx)
-LIBS += drivers/qe/libqe.o
-LIBS += drivers/net/fm/libfm.o
-LIBS += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+LIBS-y += drivers/qe/libqe.o
+LIBS-y += drivers/net/fm/libfm.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 ifeq ($(CPU),mpc86xx)
-LIBS += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
-LIBS += drivers/rtc/librtc.o
-LIBS += drivers/serial/libserial.o
-ifeq ($(CONFIG_GENERIC_LPC_TPM),y)
-LIBS += drivers/tpm/libtpm.o
-endif
-LIBS += drivers/twserial/libtws.o
-LIBS += drivers/usb/eth/libusb_eth.o
-LIBS += drivers/usb/gadget/libusb_gadget.o
-LIBS += drivers/usb/host/libusb_host.o
-LIBS += drivers/usb/musb/libusb_musb.o
-LIBS += drivers/usb/phy/libusb_phy.o
-LIBS += drivers/usb/ulpi/libusb_ulpi.o
-LIBS += drivers/video/libvideo.o
-LIBS += drivers/watchdog/libwatchdog.o
-LIBS += common/libcommon.o
-LIBS += lib/libfdt/libfdt.o
-LIBS += api/libapi.o
-LIBS += post/libpost.o
+LIBS-y += drivers/rtc/librtc.o
+LIBS-y += drivers/serial/libserial.o
+LIBS-$(CONFIG_GENERIC_LPC_TPM) += drivers/tpm/libtpm.o
+LIBS-y += drivers/twserial/libtws.o
+LIBS-y += drivers/usb/eth/libusb_eth.o
+LIBS-y += drivers/usb/gadget/libusb_gadget.o
+LIBS-y += drivers/usb/host/libusb_host.o
+LIBS-y += drivers/usb/musb/libusb_musb.o
+LIBS-y += drivers/usb/phy/libusb_phy.o
+LIBS-y += drivers/usb/ulpi/libusb_ulpi.o
+LIBS-y += drivers/video/libvideo.o
+LIBS-y += drivers/watchdog/libwatchdog.o
+LIBS-y += common/libcommon.o
+LIBS-y += lib/libfdt/libfdt.o
+LIBS-y += api/libapi.o
+LIBS-y += post/libpost.o
+LIBS-y += test/libtest.o
 
 ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
-LIBS += $(CPUDIR)/omap-common/libomap-common.o
+LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
-ifeq ($(SOC),mx5)
-LIBS += $(CPUDIR)/imx-common/libimx-common.o
-endif
-ifeq ($(SOC),mx6)
-LIBS += $(CPUDIR)/imx-common/libimx-common.o
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
+LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
 ifeq ($(SOC),s5pc1xx)
-LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
+LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
 ifeq ($(SOC),exynos)
-LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
+LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
+endif
+ifeq ($(SOC),tegra20)
+LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
 endif
 
-LIBS := $(addprefix $(obj),$(sort $(LIBS)))
+LIBS := $(addprefix $(obj),$(sort $(LIBS-y)))
 .PHONY : $(LIBS)
 
 LIBBOARD = board/$(BOARDDIR)/lib$(BOARD).o
@@ -377,9 +381,17 @@ ALL-y += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
 
 ALL-$(CONFIG_NAND_U_BOOT) += $(obj)u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += $(obj)u-boot-onenand.bin
-ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
 ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
+
+# enable combined SPL/u-boot/dtb rules for tegra
+ifeq ($(SOC),tegra20)
+ifeq ($(CONFIG_OF_SEPARATE),y)
+ALL-y += $(obj)u-boot-dtb-tegra.bin
+else
+ALL-y += $(obj)u-boot-nodtb-tegra.bin
+endif
+endif
 
 all:		$(ALL-y) $(SUBDIR_EXAMPLES)
 
@@ -441,7 +453,8 @@ $(obj)u-boot.ubl:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		rm $(obj)spl/u-boot-spl-pad.bin
 
 $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
-		$(obj)tools/mkimage -s -n /dev/null -T aisimage \
+		$(obj)tools/mkimage -s -n $(if $(CONFIG_AIS_CONFIG_FILE),$(CONFIG_AIS_CONFIG_FILE),"/dev/null") \
+			-T aisimage \
 			-e $(CONFIG_SPL_TEXT_BASE) \
 			-d $(obj)spl/u-boot-spl.bin \
 			$(obj)spl/u-boot-spl.ais
@@ -450,10 +463,12 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 			$(obj)spl/u-boot-spl.ais $(obj)spl/u-boot-spl-pad.ais
 		cat $(obj)spl/u-boot-spl-pad.ais $(obj)u-boot.bin > \
 			$(obj)u-boot.ais
-		rm $(obj)spl/u-boot-spl{,-pad}.ais
+
+# Specify the target for use in elftosb call
+ELFTOSB_TARGET-$(CONFIG_MX28) = imx28
 
 $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
-		elftosb -zdf imx28 -c $(TOPDIR)/board/$(BOARDDIR)/u-boot.bd \
+		elftosb -zdf $(ELFTOSB_TARGET-y) -c $(TOPDIR)/$(CPUDIR)/$(SOC)/u-boot-$(ELFTOSB_TARGET-y).bd \
 			-o $(obj)u-boot.sb
 
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
@@ -471,6 +486,20 @@ $(obj)u-boot.spr:	$(obj)u-boot.img $(obj)spl/u-boot-spl.bin
 		dd if=$(obj)spl/u-boot-spl.img of=$(obj)spl/u-boot-spl-pad.img \
 			conv=notrunc 2>/dev/null
 		cat $(obj)spl/u-boot-spl-pad.img $(obj)u-boot.img > $@
+
+ifeq ($(SOC),tegra20)
+ifeq ($(CONFIG_OF_SEPARATE),y)
+$(obj)u-boot-dtb-tegra.bin:	$(obj)spl/u-boot-spl.bin $(obj)u-boot.bin $(obj)u-boot.dtb
+		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SYS_TEXT_BASE) -O binary $(obj)spl/u-boot-spl $(obj)spl/u-boot-spl-pad.bin
+		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin $(obj)u-boot.dtb > $@
+		rm $(obj)spl/u-boot-spl-pad.bin
+else
+$(obj)u-boot-nodtb-tegra.bin:	$(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
+		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SYS_TEXT_BASE) -O binary $(obj)spl/u-boot-spl $(obj)spl/u-boot-spl-pad.bin
+		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin > $@
+		rm $(obj)spl/u-boot-spl-pad.bin
+endif
+endif
 
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
@@ -490,7 +519,7 @@ $(obj)u-boot:	depend \
 		$(SUBDIR_TOOLS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
-		smap=`$(call SYSTEM_MAP,u-boot) | \
+		smap=`$(call SYSTEM_MAP,$(obj)u-boot) | \
 			awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
 		$(CC) $(CFLAGS) -DSYSTEM_MAP="\"$${smap}\"" \
 			-c common/system_map.c -o $(obj)common/system_map.o
@@ -522,12 +551,6 @@ nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
 
 $(obj)u-boot-nand.bin:	nand_spl $(obj)u-boot.bin
 		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
-
-onenand_ipl:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
-		$(MAKE) -C onenand_ipl/board/$(BOARDDIR) all
-
-$(obj)u-boot-onenand.bin:	onenand_ipl $(obj)u-boot.bin
-		cat $(ONENAND_BIN) $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
 
 $(obj)spl/u-boot-spl.bin:	$(SUBDIR_TOOLS) depend
 		$(MAKE) -C spl all
@@ -750,6 +773,7 @@ clean:
 	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
 	       $(obj)tools/mk{env,}image   $(obj)tools/mpc86x_clk	  \
 	       $(obj)tools/mk{smdk5250,}spl				  \
+	       $(obj)tools/mxsboot					  \
 	       $(obj)tools/ncb		   $(obj)tools/ubsha1
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
@@ -763,9 +787,7 @@ clean:
 	@rm -f $(obj)include/generated/asm-offsets.h
 	@rm -f $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
 	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-nand_spl.lds,u-boot-spl,u-boot-spl.map,System.map}
-	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl.map}
 	@rm -f $(ONENAND_BIN)
-	@rm -f $(obj)onenand_ipl/u-boot.lds
 	@rm -f $(obj)spl/{u-boot-spl,u-boot-spl.bin,u-boot-spl.lds,u-boot-spl.map}
 	@rm -f $(obj)MLO
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
@@ -798,8 +820,8 @@ clobber:	tidy
 	@rm -fr $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@rm -fr $(obj)include/generated
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
-	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
 	@rm -f $(obj)dts/*.tmp
+	@rm -f $(obj)spl/u-boot-spl{,-pad}.ais
 
 mrproper \
 distclean:	clobber unconfig

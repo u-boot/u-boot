@@ -23,7 +23,8 @@
  */
 #include <common.h>
 
-#include "da8xx.h"
+#include "musb_core.h"
+#include <asm/arch/da8xx-usb.h>
 
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {

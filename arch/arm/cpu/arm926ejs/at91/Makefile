@@ -35,6 +35,7 @@ COBJS-$(CONFIG_AT91SAM9263)	+= at91sam9263_devices.o
 COBJS-$(CONFIG_AT91SAM9RL)	+= at91sam9rl_devices.o
 COBJS-$(CONFIG_AT91SAM9M10G45)	+= at91sam9m10g45_devices.o
 COBJS-$(CONFIG_AT91SAM9G45)	+= at91sam9m10g45_devices.o
+COBJS-$(CONFIG_AT91SAM9X5)	+= at91sam9x5_devices.o
 COBJS-$(CONFIG_AT91_EFLASH)	+= eflash.o
 COBJS-$(CONFIG_AT91_LED)	+= led.o
 COBJS-y += clock.o

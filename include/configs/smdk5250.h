@@ -69,7 +69,7 @@
 
 /* select serial console configuration */
 #define CONFIG_SERIAL_MULTI
-#define CONFIG_SERIAL1			/* use SERIAL 1 */
+#define CONFIG_SERIAL3			/* use SERIAL 3 */
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
 
@@ -112,6 +112,11 @@
 #define CONFIG_SPL
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
+/* specific .lds file */
+#define CONFIG_SPL_LDSCRIPT	"board/samsung/smdk5250/smdk5250-uboot-spl.lds"
+#define CONFIG_SPL_TEXT_BASE	0x02023400
+#define CONFIG_SPL_MAX_SIZE	(14 * 1024)
+
 #define CONFIG_BOOTCOMMAND	"mmc read 40007000 451 2000; bootm 40007000"
 
 /* Miscellaneous configurable options */
@@ -132,9 +137,6 @@
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_RD_LVL
-
-/* Stack sizes */
-#define CONFIG_STACKSIZE		(256 << 10)	/* 256KB */
 
 #define CONFIG_NR_DRAM_BANKS	8
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
@@ -192,6 +194,16 @@
 #define CONFIG_IRAM_STACK	0x02050000
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
+
+/* I2C */
+#define CONFIG_SYS_I2C_INIT_BOARD
+#define CONFIG_HARD_I2C
+#define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C_SPEED	100000		/* 100 Kbps */
+#define CONFIG_DRIVER_S3C24X0_I2C
+#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_MAX_I2C_NUM	8
+#define CONFIG_SYS_I2C_SLAVE    0x0
 
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET

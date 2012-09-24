@@ -28,6 +28,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/errno.h>
+#include <asm/imx-common/boot_mode.h>
 #include <netdev.h>
 #include <i2c.h>
 #include <mmc.h>
@@ -204,8 +205,8 @@ static void setup_iomux_fec(void)
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
-	{MMC_SDHC1_BASE_ADDR, 1},
-	{MMC_SDHC3_BASE_ADDR, 1},
+	{MMC_SDHC1_BASE_ADDR},
+	{MMC_SDHC3_BASE_ADDR},
 };
 
 int board_mmc_getcd(struct mmc *mmc)
@@ -214,14 +215,14 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret;
 
 	mxc_request_iomux(MX53_PIN_EIM_DA11, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(75);
+	gpio_direction_input(IMX_GPIO_NR(3, 11));
 	mxc_request_iomux(MX53_PIN_EIM_DA13, IOMUX_CONFIG_ALT1);
-	gpio_direction_input(77);
+	gpio_direction_input(IMX_GPIO_NR(3, 13));
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		ret = !gpio_get_value(77); /* GPIO3_13 */
+		ret = !gpio_get_value(IMX_GPIO_NR(3, 13));
 	else
-		ret = !gpio_get_value(75); /* GPIO3_11 */
+		ret = !gpio_get_value(IMX_GPIO_NR(3, 11));
 
 	return ret;
 }
@@ -367,11 +368,23 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_CMD_BMODE
+static const struct boot_mode board_boot_modes[] = {
+	/* 4 bit bus width */
+	{"mmc0",	MAKE_CFGVAL(0x40, 0x20, 0x00, 0x12)},
+	{"mmc1",	MAKE_CFGVAL(0x40, 0x20, 0x08, 0x12)},
+	{NULL,		0},
+};
+#endif
+
 int board_late_init(void)
 {
 	setup_i2c(1);
 	power_init();
 
+#ifdef CONFIG_CMD_BMODE
+	add_board_boot_modes(board_boot_modes);
+#endif
 	return 0;
 }
 

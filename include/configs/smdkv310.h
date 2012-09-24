@@ -115,9 +115,6 @@
 
 #define CONFIG_SYS_HZ			1000
 
-/* Stack sizes */
-#define CONFIG_STACKSIZE		(256 << 10)	/* 256KB */
-
 /* SMDKV310 has 4 bank of DRAM */
 #define CONFIG_NR_DRAM_BANKS	4
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
@@ -134,11 +131,6 @@
 #define CONFIG_SYS_NO_FLASH		1
 #undef	CONFIG_CMD_IMLS
 #define CONFIG_IDENT_STRING		" for SMDKC210/V310"
-
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ		(4*1024)	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ		(4*1024)	/* FIQ stack */
-#endif
 
 #define CONFIG_CLK_1000_400_200
 

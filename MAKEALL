@@ -87,9 +87,9 @@ while true ; do
 	-c|--cpu)
 		# echo "Option CPU: argument \`$2'"
 		if [ "$opt_c" ] ; then
-			opt_c="${opt_c%)} || \$3 == \"$2\")"
+			opt_c="${opt_c%)} || \$3 == \"$2\" || \$3 ~ /$2:/)"
 		else
-			opt_c="(\$3 == \"$2\")"
+			opt_c="(\$3 == \"$2\" || \$3 ~ /$2:/)"
 		fi
 		SELECTED='y'
 		shift 2 ;;
@@ -211,14 +211,17 @@ RC=0
 # Helper funcs for parsing boards.cfg
 boards_by_field()
 {
+	FS="[ \t]+"
+	[ -n "$3" ] && FS="$3"
 	awk \
 		-v field="$1" \
 		-v select="$2" \
+		-F "$FS" \
 		'($1 !~ /^#/ && $field == select) { print $1 }' \
 		boards.cfg
 }
 boards_by_arch() { boards_by_field 2 "$@" ; }
-boards_by_cpu()  { boards_by_field 3 "$@" ; }
+boards_by_cpu()  { boards_by_field 3 "$@" "[: \t]+" ; }
 boards_by_soc()  { boards_by_field 6 "$@" ; }
 
 #########################################################################
@@ -754,10 +757,10 @@ print_stats() {
 	rm -f ${donep}* ${skipp}*
 
 	if [ $BUILD_MANY == 1 ] && [ -e "${OUTPUT_PREFIX}/ERR" ] ; then
-		ERR_LIST=`grep -iwl error ${OUTPUT_PREFIX}/ERR/*`
+		ERR_LIST=`grep -riwl error ${OUTPUT_PREFIX}/ERR/`
 		ERR_LIST=`for f in $ERR_LIST ; do echo -n " $(basename $f)" ; done`
 		ERR_CNT=`echo $ERR_LIST | wc -w | awk '{print $1}'`
-		WRN_LIST=`grep -iwL error ${OUTPUT_PREFIX}/ERR/*`
+		WRN_LIST=`grep -riwL error ${OUTPUT_PREFIX}/ERR/`
 		WRN_LIST=`for f in $WRN_LIST ; do echo -n " $(basename $f)" ; done`
 		WRN_CNT=`echo $WRN_LIST | wc -w | awk '{print $1}'`
 	fi

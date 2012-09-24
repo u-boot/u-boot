@@ -64,7 +64,6 @@
 /* Ethernet on FEC */
 #define CONFIG_NET_MULTI
 #define CONFIG_MII
-#define CONFIG_DISCOVER_PHY
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			FEC_BASE_ADDR
@@ -72,7 +71,7 @@
 #define CONFIG_PHY_ADDR			CONFIG_FEC_MXC_PHYADDR
 #define CONFIG_RESET_PHY_R
 #define CONFIG_FEC_MXC_NO_ANEG
-#define CONFIG_PRIME	"FEC0"
+#define CONFIG_ETHPRIME			"FEC0"
 
 /* SPI */
 #define CONFIG_HARD_SPI
@@ -132,9 +131,6 @@
 
 #define CONFIG_SYS_HZ		1000
 #define CONFIG_CMDLINE_EDITING
-
-/* Stack sizes */
-#define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS	1

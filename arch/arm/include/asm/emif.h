@@ -19,7 +19,7 @@
 #define EMIF1_BASE				0x4c000000
 #define EMIF2_BASE				0x4d000000
 
-/* Registers shifts and masks */
+/* Registers shifts, masks and values */
 
 /* EMIF_MOD_ID_REV */
 #define EMIF_REG_SCHEME_SHIFT			30
@@ -46,6 +46,12 @@
 /* SDRAM_CONFIG */
 #define EMIF_REG_SDRAM_TYPE_SHIFT			29
 #define EMIF_REG_SDRAM_TYPE_MASK			(0x7 << 29)
+#define EMIF_REG_SDRAM_TYPE_DDR1			0
+#define EMIF_REG_SDRAM_TYPE_LPDDR1			1
+#define EMIF_REG_SDRAM_TYPE_DDR2			2
+#define EMIF_REG_SDRAM_TYPE_DDR3			3
+#define EMIF_REG_SDRAM_TYPE_LPDDR2_S4			4
+#define EMIF_REG_SDRAM_TYPE_LPDDR2_S2			5
 #define EMIF_REG_IBANK_POS_SHIFT			27
 #define EMIF_REG_IBANK_POS_MASK			(0x3 << 27)
 #define EMIF_REG_DDR_TERM_SHIFT			24

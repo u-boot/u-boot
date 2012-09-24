@@ -46,7 +46,6 @@
 #define CONFIG_ARM920T
 #define CONFIG_AT91RM9200
 #define CONFIG_CPUAT91
-#undef CONFIG_USE_IRQ
 #define USE_920T_MMU
 
 #include <asm/hardware.h>	/* needed for port definitions */
@@ -210,15 +209,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - \
 				GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_STACKSIZE		(32 * 1024)
-#define CONFIG_STACKSIZE_IRQ		(4 * 1024)
-#define CONFIG_STACKSIZE_FIQ		(4 * 1024)
-
-
-#if defined(CONFIG_USE_IRQ)
-#error CONFIG_USE_IRQ not supported
-#endif
 
 #define CONFIG_DEVICE_NULLDEV
 #define CONFIG_SILENT_CONSOLE

@@ -43,8 +43,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	/* Enable Ctrlc */
-	console_init_f();
 	/* arch number of CPUAT91-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_CPUAT91;
 	/* adress of boot parameters */

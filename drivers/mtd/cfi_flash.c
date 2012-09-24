@@ -1077,7 +1077,38 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 
 	for (sect = s_first; sect <= s_last; sect++) {
+		if (ctrlc()) {
+			printf("\n");
+			return 1;
+		}
+
 		if (info->protect[sect] == 0) { /* not protected */
+#ifdef CONFIG_SYS_FLASH_CHECK_BLANK_BEFORE_ERASE
+			int k;
+			int size;
+			int erased;
+			u32 *flash;
+
+			/*
+			 * Check if whole sector is erased
+			 */
+			size = flash_sector_size(info, sect);
+			erased = 1;
+			flash = (u32 *)info->start[sect];
+			/* divide by 4 for longword access */
+			size = size >> 2;
+			for (k = 0; k < size; k++) {
+				if (flash_read32(flash++) != 0xffffffff) {
+					erased = 0;
+					break;
+				}
+			}
+			if (erased) {
+				if (flash_verbose)
+					putc(',');
+				continue;
+			}
+#endif
 			switch (info->vendor) {
 			case CFI_CMDSET_INTEL_PROG_REGIONS:
 			case CFI_CMDSET_INTEL_STANDARD:
@@ -1353,6 +1384,9 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		src += i;
 		cnt -= i;
 		FLASH_SHOW_PROGRESS(scale, dots, digit, i);
+		/* Only check every once in a while */
+		if ((cnt & 0xFFFF) < buffered_size && ctrlc())
+			return ERR_ABORTED;
 	}
 #else
 	while (cnt >= info->portwidth) {
@@ -1365,6 +1399,9 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		wp += info->portwidth;
 		cnt -= info->portwidth;
 		FLASH_SHOW_PROGRESS(scale, dots, digit, info->portwidth);
+		/* Only check every once in a while */
+		if ((cnt & 0xFFFF) < info->portwidth && ctrlc())
+			return ERR_ABORTED;
 	}
 #endif /* CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
@@ -1391,6 +1428,40 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
  */
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 
+static int cfi_protect_bugfix(flash_info_t *info, long sector, int prot)
+{
+	if ((info->manufacturer_id == (uchar)INTEL_MANUFACT) &&
+		(info->device_id == NUMONYX_256MBIT)) {
+		/*
+		 * see errata called
+		 * "Numonyx Axcell P33/P30 Specification Update" :)
+		 */
+		flash_write_cmd(info, sector, 0, FLASH_CMD_READ_ID);
+		if (!flash_isequal(info, sector, FLASH_OFFSET_PROTECT,
+				   prot)) {
+			/*
+			 * cmd must come before FLASH_CMD_PROTECT + 20us
+			 * Disable interrupts which might cause a timeout here.
+			 */
+			int flag = disable_interrupts();
+			unsigned short cmd;
+
+			if (prot)
+				cmd = FLASH_CMD_PROTECT_SET;
+			else
+				cmd = FLASH_CMD_PROTECT_CLEAR;
+				flash_write_cmd(info, sector, 0,
+					  FLASH_CMD_PROTECT);
+			flash_write_cmd(info, sector, 0, cmd);
+			/* re-enable interrupts if necessary */
+			if (flag)
+				enable_interrupts();
+		}
+		return 1;
+	}
+	return 0;
+}
+
 int flash_real_protect (flash_info_t * info, long sector, int prot)
 {
 	int retcode = 0;
@@ -1399,31 +1470,18 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 		case CFI_CMDSET_INTEL_PROG_REGIONS:
 		case CFI_CMDSET_INTEL_STANDARD:
 		case CFI_CMDSET_INTEL_EXTENDED:
-			/*
-			 * see errata called
-			 * "Numonyx Axcell P33/P30 Specification Update" :)
-			 */
-			flash_write_cmd (info, sector, 0, FLASH_CMD_READ_ID);
-			if (!flash_isequal (info, sector, FLASH_OFFSET_PROTECT,
-					    prot)) {
-				/*
-				 * cmd must come before FLASH_CMD_PROTECT + 20us
-				 * Disable interrupts which might cause a timeout here.
-				 */
-				int flag = disable_interrupts ();
-				unsigned short cmd;
-
+			if (!cfi_protect_bugfix(info, sector, prot)) {
+				flash_write_cmd(info, sector, 0,
+					 FLASH_CMD_CLEAR_STATUS);
+				flash_write_cmd(info, sector, 0,
+					FLASH_CMD_PROTECT);
 				if (prot)
-					cmd = FLASH_CMD_PROTECT_SET;
+					flash_write_cmd(info, sector, 0,
+						FLASH_CMD_PROTECT_SET);
 				else
-					cmd = FLASH_CMD_PROTECT_CLEAR;
+					flash_write_cmd(info, sector, 0,
+						FLASH_CMD_PROTECT_CLEAR);
 
-				flash_write_cmd (info, sector, 0,
-						  FLASH_CMD_PROTECT);
-				flash_write_cmd (info, sector, 0, cmd);
-				/* re-enable interrupts if necessary */
-				if (flag)
-					enable_interrupts ();
 			}
 			break;
 		case CFI_CMDSET_AMD_EXTENDED:
@@ -1446,6 +1504,47 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 						flash_write_cmd (info, sector,
 							0, ATM_CMD_UNLOCK_SECT);
 				}
+			}
+			if (info->manufacturer_id == (uchar)AMD_MANUFACT) {
+				int flag = disable_interrupts();
+				int lock_flag;
+
+				flash_unlock_seq(info, 0);
+				flash_write_cmd(info, 0, info->addr_unlock1,
+						AMD_CMD_SET_PPB_ENTRY);
+				lock_flag = flash_isset(info, sector, 0, 0x01);
+				if (prot) {
+					if (lock_flag) {
+						flash_write_cmd(info, sector, 0,
+							AMD_CMD_PPB_LOCK_BC1);
+						flash_write_cmd(info, sector, 0,
+							AMD_CMD_PPB_LOCK_BC2);
+					}
+					debug("sector %ld %slocked\n", sector,
+						lock_flag ? "" : "already ");
+				} else {
+					if (!lock_flag) {
+						debug("unlock %ld\n", sector);
+						flash_write_cmd(info, 0, 0,
+							AMD_CMD_PPB_UNLOCK_BC1);
+						flash_write_cmd(info, 0, 0,
+							AMD_CMD_PPB_UNLOCK_BC2);
+					}
+					debug("sector %ld %sunlocked\n", sector,
+						!lock_flag ? "" : "already ");
+				}
+				if (flag)
+					enable_interrupts();
+
+				if (flash_status_check(info, sector,
+						info->erase_blk_tout,
+						prot ? "protect" : "unprotect"))
+					printf("status check error\n");
+
+				flash_write_cmd(info, 0, 0,
+						AMD_CMD_SET_PPB_EXIT_BC1);
+				flash_write_cmd(info, 0, 0,
+						AMD_CMD_SET_PPB_EXIT_BC2);
 			}
 			break;
 #ifdef CONFIG_FLASH_CFI_LEGACY
@@ -1634,6 +1733,17 @@ static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 
 	cmdset_amd_read_jedec_ids(info);
 	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
+
+#ifdef CONFIG_SYS_FLASH_PROTECTION
+	if (info->ext_addr && info->manufacturer_id == (uchar)AMD_MANUFACT) {
+		ushort spus;
+
+		/* read sector protect/unprotect scheme */
+		spus = flash_read_uchar(info, info->ext_addr + 9);
+		if (spus == 0x8)
+			info->legacy_unlock = 1;
+	}
+#endif
 
 	return 0;
 }

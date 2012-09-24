@@ -28,3 +28,11 @@ void reset_cpu(ulong addr)
 {
 	writel(0x1, samsung_get_base_swreset());
 }
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif

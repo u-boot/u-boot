@@ -20,7 +20,6 @@
 
 #define CMD_SST_BP		0x02	/* Byte Program */
 #define CMD_SST_AAI_WP		0xAD	/* Auto Address Increment Word Program */
-#define CMD_SST_SE		0x20	/* Sector Erase */
 
 #define SST_SR_WIP		(1 << 0)	/* Write-in-Progress */
 #define SST_SR_WEL		(1 << 1)	/* Write enable */
@@ -45,13 +44,6 @@ struct sst_spi_flash {
 	const struct sst_spi_flash_params *params;
 };
 
-static inline struct sst_spi_flash *to_sst_spi_flash(struct spi_flash *flash)
-{
-	return container_of(flash, struct sst_spi_flash, flash);
-}
-
-#define SST_SECTOR_SIZE (4 * 1024)
-#define SST_PAGE_SIZE   256
 static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 	{
 		.idcode1 = 0x8d,
@@ -102,24 +94,6 @@ static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 };
 
 static int
-sst_enable_writing(struct spi_flash *flash)
-{
-	int ret = spi_flash_cmd_write_enable(flash);
-	if (ret)
-		debug("SF: Enabling Write failed\n");
-	return ret;
-}
-
-static int
-sst_disable_writing(struct spi_flash *flash)
-{
-	int ret = spi_flash_cmd_write_disable(flash);
-	if (ret)
-		debug("SF: Disabling Write failed\n");
-	return ret;
-}
-
-static int
 sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 {
 	int ret;
@@ -133,7 +107,7 @@ sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 	debug("BP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
 		spi_w8r8(flash->spi, CMD_READ_STATUS), buf, cmd[0], offset);
 
-	ret = sst_enable_writing(flash);
+	ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
 		return ret;
 
@@ -166,7 +140,7 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	}
 	offset += actual;
 
-	ret = sst_enable_writing(flash);
+	ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
 		goto done;
 
@@ -197,7 +171,7 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	}
 
 	if (!ret)
-		ret = sst_disable_writing(flash);
+		ret = spi_flash_cmd_write_disable(flash);
 
 	/* If there is a single trailing byte, write it out */
 	if (!ret && actual != len)
@@ -208,32 +182,6 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	      ret ? "failure" : "success", len, offset - actual);
 
 	spi_release_bus(flash->spi);
-	return ret;
-}
-
-static int sst_erase(struct spi_flash *flash, u32 offset, size_t len)
-{
-	return spi_flash_cmd_erase(flash, CMD_SST_SE, offset, len);
-}
-
-static int
-sst_unlock(struct spi_flash *flash)
-{
-	int ret;
-	u8 cmd, status;
-
-	ret = sst_enable_writing(flash);
-	if (ret)
-		return ret;
-
-	cmd = CMD_WRITE_STATUS;
-	status = 0;
-	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &status, 1);
-	if (ret)
-		debug("SF: Unable to set status byte\n");
-
-	debug("SF: sst: status = %x\n", spi_w8r8(flash->spi, CMD_READ_STATUS));
-
 	return ret;
 }
 
@@ -269,14 +217,14 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 		stm->flash.write = sst_write_wp;
 	else
 		stm->flash.write = spi_flash_cmd_write_multi;
-	stm->flash.erase = sst_erase;
+	stm->flash.erase = spi_flash_cmd_erase;
 	stm->flash.read = spi_flash_cmd_read_fast;
-	stm->flash.page_size = SST_PAGE_SIZE;
-	stm->flash.sector_size = SST_SECTOR_SIZE;
+	stm->flash.page_size = 256;
+	stm->flash.sector_size = 4096;
 	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
 
 	/* Flash powers up read-only, so clear BP# bits */
-	sst_unlock(&stm->flash);
+	spi_flash_cmd_write_status(&stm->flash, 0);
 
 	return &stm->flash;
 }

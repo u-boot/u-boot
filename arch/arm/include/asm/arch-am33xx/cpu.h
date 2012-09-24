@@ -234,6 +234,39 @@ struct vtp_reg {
 struct ctrl_stat {
 	unsigned int resv1[16];
 	unsigned int statusreg;		/* ofset 0x40 */
+	unsigned int resv2[51];
+	unsigned int secure_emif_sdram_config;	/* offset 0x0110 */
+};
+
+/* AM33XX GPIO registers */
+#define OMAP_GPIO_REVISION		0x0000
+#define OMAP_GPIO_SYSCONFIG		0x0010
+#define OMAP_GPIO_SYSSTATUS		0x0114
+#define OMAP_GPIO_IRQSTATUS1		0x002c
+#define OMAP_GPIO_IRQSTATUS2		0x0030
+#define OMAP_GPIO_CTRL			0x0130
+#define OMAP_GPIO_OE			0x0134
+#define OMAP_GPIO_DATAIN		0x0138
+#define OMAP_GPIO_DATAOUT		0x013c
+#define OMAP_GPIO_LEVELDETECT0		0x0140
+#define OMAP_GPIO_LEVELDETECT1		0x0144
+#define OMAP_GPIO_RISINGDETECT		0x0148
+#define OMAP_GPIO_FALLINGDETECT		0x014c
+#define OMAP_GPIO_DEBOUNCE_EN		0x0150
+#define OMAP_GPIO_DEBOUNCE_VAL		0x0154
+#define OMAP_GPIO_CLEARDATAOUT		0x0190
+#define OMAP_GPIO_SETDATAOUT		0x0194
+
+/* Control Device Register */
+struct ctrl_dev {
+	unsigned int deviceid;		/* offset 0x00 */
+	unsigned int resv1[11];
+	unsigned int macid0l;		/* offset 0x30 */
+	unsigned int macid0h;		/* offset 0x34 */
+	unsigned int macid1l;		/* offset 0x38 */
+	unsigned int macid1h;		/* offset 0x3c */
+	unsigned int resv2[4];
+	unsigned int miisel;		/* offset 0x50 */
 };
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */

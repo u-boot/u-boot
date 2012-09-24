@@ -142,7 +142,6 @@ struct venc_regs {
 };
 
 /* Few Register Offsets */
-#define FRAME_MODE_SHIFT			1
 #define TFTSTN_SHIFT				3
 #define DATALINES_SHIFT				8
 
@@ -181,6 +180,16 @@ struct panel_config {
 	u32 panel_color;
 	void *frame_buffer;
 };
+
+#define DSS_HBP(bp)    (((bp) - 1) << 20)
+#define DSS_HFP(fp)    (((fp) - 1) << 8)
+#define DSS_HSW(sw)    ((sw) - 1)
+#define DSS_VBP(bp)    ((bp) << 20)
+#define DSS_VFP(fp)    ((fp) << 8)
+#define DSS_VSW(sw)    ((sw) - 1)
+
+#define PANEL_TIMING_H(bp, fp, sw) (DSS_HBP(bp) | DSS_HFP(fp) | DSS_HSW(sw))
+#define PANEL_TIMING_V(bp, fp, sw) (DSS_VBP(bp) | DSS_VFP(fp) | DSS_VSW(sw))
 
 /* Generic DSS Functions */
 void omap3_dss_venc_config(const struct venc_regs *venc_cfg,

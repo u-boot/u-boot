@@ -1,5 +1,5 @@
 /*
- * sh_eth.c - Driver for Renesas SH7763's ethernet controler.
+ * sh_eth.c - Driver for Renesas ethernet controler.
  *
  * Copyright (C) 2008, 2011 Renesas Solutions Corp.
  * Copyright (c) 2008, 2011 Nobuhiro Iwamatsu
@@ -76,8 +76,8 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 		port_info->tx_desc_cur->td0 = TD_TACT | TD_TFP;
 
 	/* Restart the transmitter if disabled */
-	if (!(inl(EDTRR(port)) & EDTRR_TRNS))
-		outl(EDTRR_TRNS, EDTRR(port));
+	if (!(sh_eth_read(eth, EDTRR) & EDTRR_TRNS))
+		sh_eth_write(eth, EDTRR_TRNS, EDTRR);
 
 	/* Wait until packet is transmitted */
 	timeout = TIMEOUT_CNT;
@@ -129,25 +129,24 @@ int sh_eth_recv(struct eth_device *dev)
 	}
 
 	/* Restart the receiver if disabled */
-	if (!(inl(EDRRR(port)) & EDRRR_R))
-		outl(EDRRR_R, EDRRR(port));
+	if (!(sh_eth_read(eth, EDRRR) & EDRRR_R))
+		sh_eth_write(eth, EDRRR_R, EDRRR);
 
 	return len;
 }
 
 static int sh_eth_reset(struct sh_eth_dev *eth)
 {
-	int port = eth->port;
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	int ret = 0, i;
 
 	/* Start e-dmac transmitter and receiver */
-	outl(EDSR_ENALL, EDSR(port));
+	sh_eth_write(eth, EDSR_ENALL, EDSR);
 
 	/* Perform a software reset and wait for it to complete */
-	outl(EDMR_SRST, EDMR(port));
+	sh_eth_write(eth, EDMR_SRST, EDMR);
 	for (i = 0; i < TIMEOUT_CNT ; i++) {
-		if (!(inl(EDMR(port)) & EDMR_SRST))
+		if (!(sh_eth_read(eth, EDMR) & EDMR_SRST))
 			break;
 		udelay(1000);
 	}
@@ -159,9 +158,9 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 
 	return ret;
 #else
-	outl(inl(EDMR(port)) | EDMR_SRST, EDMR(port));
+	sh_eth_write(eth, sh_eth_read(eth, EDMR) | EDMR_SRST, EDMR);
 	udelay(3000);
-	outl(inl(EDMR(port)) & ~EDMR_SRST, EDMR(port));
+	sh_eth_write(eth, sh_eth_read(eth, EDMR) & ~EDMR_SRST, EDMR);
 
 	return 0;
 #endif
@@ -207,11 +206,11 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 
 	/* Point the controller to the tx descriptor list. Must use physical
 	   addresses */
-	outl(ADDR_TO_PHY(port_info->tx_desc_base), TDLAR(port));
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
-	outl(ADDR_TO_PHY(port_info->tx_desc_base), TDFAR(port));
-	outl(ADDR_TO_PHY(cur_tx_desc), TDFXR(port));
-	outl(0x01, TDFFR(port));/* Last discriptor bit */
+	sh_eth_write(eth, ADDR_TO_PHY(port_info->tx_desc_base), TDLAR);
+#if defined(SH_ETH_TYPE_GETHER)
+	sh_eth_write(eth, ADDR_TO_PHY(port_info->tx_desc_base), TDFAR);
+	sh_eth_write(eth, ADDR_TO_PHY(cur_tx_desc), TDFXR);
+	sh_eth_write(eth, 0x01, TDFFR);/* Last discriptor bit */
 #endif
 
 err:
@@ -275,11 +274,11 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 	cur_rx_desc->rd0 |= RD_RDLE;
 
 	/* Point the controller to the rx descriptor list */
-	outl(ADDR_TO_PHY(port_info->rx_desc_base), RDLAR(port));
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
-	outl(ADDR_TO_PHY(port_info->rx_desc_base), RDFAR(port));
-	outl(ADDR_TO_PHY(cur_rx_desc), RDFXR(port));
-	outl(RDFFR_RDLF, RDFFR(port));
+	sh_eth_write(eth, ADDR_TO_PHY(port_info->rx_desc_base), RDLAR);
+#if defined(SH_ETH_TYPE_GETHER)
+	sh_eth_write(eth, ADDR_TO_PHY(port_info->rx_desc_base), RDFAR);
+	sh_eth_write(eth, ADDR_TO_PHY(cur_rx_desc), RDFXR);
+	sh_eth_write(eth, RDFFR_RDLF, RDFFR);
 #endif
 
 	return ret;
@@ -364,49 +363,39 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	struct phy_device *phy;
 
 	/* Configure e-dmac registers */
-	outl((inl(EDMR(port)) & ~EMDR_DESC_R) | EDMR_EL, EDMR(port));
-	outl(0, EESIPR(port));
-	outl(0, TRSCER(port));
-	outl(0, TFTR(port));
-	outl((FIFO_SIZE_T | FIFO_SIZE_R), FDR(port));
-	outl(RMCR_RST, RMCR(port));
-#if !defined(CONFIG_CPU_SH7757) && !defined(CONFIG_CPU_SH7724)
-	outl(0, RPADIR(port));
+	sh_eth_write(eth, (sh_eth_read(eth, EDMR) & ~EMDR_DESC_R) | EDMR_EL,
+		     EDMR);
+	sh_eth_write(eth, 0, EESIPR);
+	sh_eth_write(eth, 0, TRSCER);
+	sh_eth_write(eth, 0, TFTR);
+	sh_eth_write(eth, (FIFO_SIZE_T | FIFO_SIZE_R), FDR);
+	sh_eth_write(eth, RMCR_RST, RMCR);
+#if defined(SH_ETH_TYPE_GETHER)
+	sh_eth_write(eth, 0, RPADIR);
 #endif
-	outl((FIFO_F_D_RFF | FIFO_F_D_RFD), FCFTR(port));
+	sh_eth_write(eth, (FIFO_F_D_RFF | FIFO_F_D_RFD), FCFTR);
 
 	/* Configure e-mac registers */
-#if defined(CONFIG_CPU_SH7757)
-	outl(ECSIPR_BRCRXIP | ECSIPR_PSRTOIP | ECSIPR_LCHNGIP |
-		ECSIPR_MPDIP | ECSIPR_ICDIP, ECSIPR(port));
-#else
-	outl(0, ECSIPR(port));
-#endif
+	sh_eth_write(eth, 0, ECSIPR);
 
 	/* Set Mac address */
 	val = dev->enetaddr[0] << 24 | dev->enetaddr[1] << 16 |
 	    dev->enetaddr[2] << 8 | dev->enetaddr[3];
-	outl(val, MAHR(port));
+	sh_eth_write(eth, val, MAHR);
 
 	val = dev->enetaddr[4] << 8 | dev->enetaddr[5];
-	outl(val, MALR(port));
+	sh_eth_write(eth, val, MALR);
 
-	outl(RFLR_RFL_MIN, RFLR(port));
-#if !defined(CONFIG_CPU_SH7757) && !defined(CONFIG_CPU_SH7724)
-	outl(0, PIPR(port));
-#endif
-#if !defined(CONFIG_CPU_SH7724)
-	outl(APR_AP, APR(port));
-	outl(MPR_MP, MPR(port));
-#endif
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
-	outl(TPAUSER_TPAUSE, TPAUSER(port));
-#elif defined(CONFIG_CPU_SH7757)
-	outl(TPAUSER_UNLIMITED, TPAUSER(port));
+	sh_eth_write(eth, RFLR_RFL_MIN, RFLR);
+#if defined(SH_ETH_TYPE_GETHER)
+	sh_eth_write(eth, 0, PIPR);
+	sh_eth_write(eth, APR_AP, APR);
+	sh_eth_write(eth, MPR_MP, MPR);
+	sh_eth_write(eth, TPAUSER_TPAUSE, TPAUSER);
 #endif
 
 #if defined(CONFIG_CPU_SH7734)
-	outl(CONFIG_SH_ETHER_SH7734_MII, RMII_MII(port));
+	sh_eth_write(eth, CONFIG_SH_ETHER_SH7734_MII, RMII_MII);
 #endif
 	/* Configure phy */
 	ret = sh_eth_phy_config(eth);
@@ -415,42 +404,47 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 		goto err_phy_cfg;
 	}
 	phy = port_info->phydev;
-	phy_startup(phy);
+	ret = phy_startup(phy);
+	if (ret) {
+		printf(SHETHER_NAME ": phy startup failure\n");
+		return ret;
+	}
 
 	val = 0;
 
 	/* Set the transfer speed */
 	if (phy->speed == 100) {
 		printf(SHETHER_NAME ": 100Base/");
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
-		outl(GECMR_100B, GECMR(port));
+#if defined(SH_ETH_TYPE_GETHER)
+		sh_eth_write(eth, GECMR_100B, GECMR);
 #elif defined(CONFIG_CPU_SH7757)
-		outl(1, RTRATE(port));
+		sh_eth_write(eth, 1, RTRATE);
 #elif defined(CONFIG_CPU_SH7724)
 		val = ECMR_RTM;
 #endif
 	} else if (phy->speed == 10) {
 		printf(SHETHER_NAME ": 10Base/");
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
-		outl(GECMR_10B, GECMR(port));
+#if defined(SH_ETH_TYPE_GETHER)
+		sh_eth_write(eth, GECMR_10B, GECMR);
 #elif defined(CONFIG_CPU_SH7757)
-		outl(0, RTRATE(port));
+		sh_eth_write(eth, 0, RTRATE);
 #endif
 	}
-#if defined(CONFIG_CPU_SH7763) || defined(CONFIG_CPU_SH7734)
+#if defined(SH_ETH_TYPE_GETHER)
 	else if (phy->speed == 1000) {
 		printf(SHETHER_NAME ": 1000Base/");
-		outl(GECMR_1000B, GECMR(port));
+		sh_eth_write(eth, GECMR_1000B, GECMR);
 	}
 #endif
 
 	/* Check if full duplex mode is supported by the phy */
 	if (phy->duplex) {
 		printf("Full\n");
-		outl(val | (ECMR_CHG_DM|ECMR_RE|ECMR_TE|ECMR_DM), ECMR(port));
+		sh_eth_write(eth, val | (ECMR_CHG_DM|ECMR_RE|ECMR_TE|ECMR_DM),
+			     ECMR);
 	} else {
 		printf("Half\n");
-		outl(val | (ECMR_CHG_DM|ECMR_RE|ECMR_TE),  ECMR(port));
+		sh_eth_write(eth, val | (ECMR_CHG_DM|ECMR_RE|ECMR_TE), ECMR);
 	}
 
 	return ret;
@@ -465,12 +459,12 @@ static void sh_eth_start(struct sh_eth_dev *eth)
 	 * Enable the e-dmac receiver only. The transmitter will be enabled when
 	 * we have something to transmit
 	 */
-	outl(EDRRR_R, EDRRR(eth->port));
+	sh_eth_write(eth, EDRRR_R, EDRRR);
 }
 
 static void sh_eth_stop(struct sh_eth_dev *eth)
 {
-	outl(~EDRRR_R, EDRRR(eth->port));
+	sh_eth_write(eth, ~EDRRR_R, EDRRR);
 }
 
 int sh_eth_init(struct eth_device *dev, bd_t *bd)
@@ -574,9 +568,8 @@ static int sh_eth_bb_init(struct bb_miiphy_bus *bus)
 static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
 {
 	struct sh_eth_dev *eth = bus->priv;
-	int port = eth->port;
 
-	outl(inl(PIR(port)) | PIR_MMD, PIR(port));
+	sh_eth_write(eth, sh_eth_read(eth, PIR) | PIR_MMD, PIR);
 
 	return 0;
 }
@@ -584,9 +577,8 @@ static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
 static int sh_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
 {
 	struct sh_eth_dev *eth = bus->priv;
-	int port = eth->port;
 
-	outl(inl(PIR(port)) & ~PIR_MMD, PIR(port));
+	sh_eth_write(eth, sh_eth_read(eth, PIR) & ~PIR_MMD, PIR);
 
 	return 0;
 }
@@ -594,12 +586,11 @@ static int sh_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
 static int sh_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
 {
 	struct sh_eth_dev *eth = bus->priv;
-	int port = eth->port;
 
 	if (v)
-		outl(inl(PIR(port)) | PIR_MDO, PIR(port));
+		sh_eth_write(eth, sh_eth_read(eth, PIR) | PIR_MDO, PIR);
 	else
-		outl(inl(PIR(port)) & ~PIR_MDO, PIR(port));
+		sh_eth_write(eth, sh_eth_read(eth, PIR) & ~PIR_MDO, PIR);
 
 	return 0;
 }
@@ -607,9 +598,8 @@ static int sh_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
 static int sh_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
 {
 	struct sh_eth_dev *eth = bus->priv;
-	int port = eth->port;
 
-	*v = (inl(PIR(port)) & PIR_MDI) >> 3;
+	*v = (sh_eth_read(eth, PIR) & PIR_MDI) >> 3;
 
 	return 0;
 }
@@ -617,12 +607,11 @@ static int sh_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
 static int sh_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
 {
 	struct sh_eth_dev *eth = bus->priv;
-	int port = eth->port;
 
 	if (v)
-		outl(inl(PIR(port)) | PIR_MDC, PIR(port));
+		sh_eth_write(eth, sh_eth_read(eth, PIR) | PIR_MDC, PIR);
 	else
-		outl(inl(PIR(port)) & ~PIR_MDC, PIR(port));
+		sh_eth_write(eth, sh_eth_read(eth, PIR) & ~PIR_MDC, PIR);
 
 	return 0;
 }

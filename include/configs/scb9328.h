@@ -27,7 +27,6 @@
 #define CONFIG_ARM920T		1     /* this is an ARM920T CPU	    */
 #define CONFIG_IMX		1     /* in a Motorola MC9328MXL Chip */
 #define CONFIG_SCB9328		1     /* on a scb9328tronix board */
-#undef	CONFIG_USE_IRQ		      /* don't need use IRQ/FIQ	   */
 
 #define CONFIG_IMX_SERIAL
 #define CONFIG_IMX_SERIAL1
@@ -99,13 +98,6 @@
  * Malloc pool need to host env + 128 Kb reserve for other allocations.
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128<<10) )
-
-#define CONFIG_STACKSIZE	(120<<10)      /* stack size		     */
-
-#ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	(4<<10)	       /* IRQ stack		     */
-#define CONFIG_STACKSIZE_FIQ	(4<<10)	       /* FIQ stack		     */
-#endif
 
 /* SDRAM Setup Values
 0x910a8300 Precharge Command CAS 3

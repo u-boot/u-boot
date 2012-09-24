@@ -521,7 +521,7 @@ static void setup_fec(void)
 }
 
 struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{MMC_SDHC1_BASE_ADDR, 1},
+	{MMC_SDHC1_BASE_ADDR},
 };
 
 int get_mmc_getcd(u8 *cd, struct mmc *mmc)
@@ -674,9 +674,16 @@ int board_late_init(void)
 	udelay(2000);
 #endif
 
-	setenv("stdout", "serial");
-
 	return 0;
+}
+
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
 }
 
 int checkboard(void)

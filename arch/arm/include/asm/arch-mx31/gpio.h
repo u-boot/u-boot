@@ -25,11 +25,6 @@
 #ifndef __ASM_ARCH_MX31_GPIO_H
 #define __ASM_ARCH_MX31_GPIO_H
 
-/* GPIO Registers */
-struct gpio_regs {
-	u32	gpio_dr;
-	u32	gpio_dir;
-	u32	gpio_psr;
-};
+#include <asm/imx-common/gpio.h>
 
 #endif

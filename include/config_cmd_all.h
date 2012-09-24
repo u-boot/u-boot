@@ -87,5 +87,6 @@
 #define CONFIG_CMD_UNZIP	/* unzip from memory to memory	*/
 #define CONFIG_CMD_USB		/* USB Support			*/
 #define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
+#define CONFIG_CMD_ZFS		/* ZFS Support			*/
 
 #endif	/* _CONFIG_CMD_ALL_H */

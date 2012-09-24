@@ -306,6 +306,7 @@ typedef volatile unsigned int *	dv_reg_p;
 
 void lpsc_on(unsigned int id);
 void lpsc_syncreset(unsigned int id);
+void lpsc_disable(unsigned int id);
 void dsp_on(void);
 
 void davinci_enable_uart0(void);
@@ -441,20 +442,50 @@ struct davinci_pllc_regs {
 #define davinci_pllc1_regs ((struct davinci_pllc_regs *)DAVINCI_PLL_CNTRL1_BASE)
 #define DAVINCI_PLLC_DIV_MASK	0x1f
 
-#define ASYNC3          get_async3_src()
-#define PLL1_SYSCLK2		((1 << 16) | 0x2)
-#define DAVINCI_SPI1_CLKID  (cpu_is_da830() ? 2 : ASYNC3)
-/* Clock IDs */
+/*
+ * A clock ID is a 32-bit number where bit 16 represents the PLL controller
+ * (clear is PLLC0, set is PLLC1) and the low 16 bits represent the divisor,
+ * counting from 1. Clock IDs may be passed to clk_get().
+ */
+
+/* flags to select PLL controller */
+#define DAVINCI_PLLC0_FLAG			(0)
+#define DAVINCI_PLLC1_FLAG			(1 << 16)
+
 enum davinci_clk_ids {
-	DAVINCI_SPI0_CLKID = 2,
-	DAVINCI_UART2_CLKID = 2,
-	DAVINCI_MMC_CLKID = 2,
-	DAVINCI_MDIO_CLKID = 4,
-	DAVINCI_ARM_CLKID = 6,
-	DAVINCI_PLLM_CLKID = 0xff,
-	DAVINCI_PLLC_CLKID = 0x100,
-	DAVINCI_AUXCLK_CLKID = 0x101
+	/*
+	 * Clock IDs for PLL outputs. Each may be switched on/off
+	 * independently, and each may map to one or more peripherals.
+	 */
+	DAVINCI_PLL0_SYSCLK2			= DAVINCI_PLLC0_FLAG | 2,
+	DAVINCI_PLL0_SYSCLK4			= DAVINCI_PLLC0_FLAG | 4,
+	DAVINCI_PLL0_SYSCLK6			= DAVINCI_PLLC0_FLAG | 6,
+	DAVINCI_PLL1_SYSCLK1			= DAVINCI_PLLC1_FLAG | 1,
+	DAVINCI_PLL1_SYSCLK2			= DAVINCI_PLLC1_FLAG | 2,
+
+	/* map peripherals to clock IDs */
+	DAVINCI_ARM_CLKID			= DAVINCI_PLL0_SYSCLK6,
+	DAVINCI_DDR_CLKID			= DAVINCI_PLL1_SYSCLK1,
+	DAVINCI_MDIO_CLKID			= DAVINCI_PLL0_SYSCLK4,
+	DAVINCI_MMC_CLKID			= DAVINCI_PLL0_SYSCLK2,
+	DAVINCI_SPI0_CLKID			= DAVINCI_PLL0_SYSCLK2,
+	DAVINCI_MMCSD_CLKID			= DAVINCI_PLL0_SYSCLK2,
+
+	/* special clock ID - output of PLL multiplier */
+	DAVINCI_PLLM_CLKID			= 0x0FF,
+
+	/* special clock ID - output of PLL post divisor */
+	DAVINCI_PLLC_CLKID			= 0x100,
+
+	/* special clock ID - PLL bypass */
+	DAVINCI_AUXCLK_CLKID			= 0x101,
 };
+
+#define DAVINCI_UART2_CLKID	(cpu_is_da830() ? DAVINCI_PLL0_SYSCLK2 \
+						: get_async3_src())
+
+#define DAVINCI_SPI1_CLKID	(cpu_is_da830() ? DAVINCI_PLL0_SYSCLK2 \
+						: get_async3_src())
 
 int clk_get(enum davinci_clk_ids id);
 
@@ -505,6 +536,7 @@ struct davinci_syscfg1_regs {
 	((struct davinci_syscfg1_regs *)DAVINCI_SYSCFG1_BASE)
 
 #define DDR_SLEW_CMOSEN_BIT	4
+#define DDR_SLEW_DDR_PDENA_BIT	5
 
 #define VTP_POWERDWN		(1 << 6)
 #define VTP_LOCK		(1 << 7)
@@ -570,10 +602,10 @@ static inline int cpu_is_da850(void)
 	return ((part_no == 0xb7d1) ? 1 : 0);
 }
 
-static inline int get_async3_src(void)
+static inline enum davinci_clk_ids get_async3_src(void)
 {
 	return (REG(&davinci_syscfg_regs->cfgchip3) & 0x10) ?
-			PLL1_SYSCLK2 : 2;
+			DAVINCI_PLL1_SYSCLK2 : DAVINCI_PLL0_SYSCLK2;
 }
 
 #endif /* CONFIG_SOC_DA8XX */

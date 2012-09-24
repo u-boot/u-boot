@@ -272,7 +272,11 @@ static int setup_phy(struct eth_device *dev)
 	phydev->advertising = phydev->supported;
 	priv->phydev = phydev;
 	phy_config(phydev);
-	phy_startup(phydev);
+	if (phy_startup(phydev)) {
+		printf("axiemac: could not initialize PHY %s\n",
+		       phydev->dev->name);
+		return 0;
+	}
 
 	switch (phydev->speed) {
 	case 1000:
