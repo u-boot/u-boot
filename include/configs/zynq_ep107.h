@@ -66,7 +66,6 @@
 		"go 0x8000\0"
 
 
-#define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */

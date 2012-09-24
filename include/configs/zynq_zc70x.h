@@ -29,7 +29,6 @@
 
 
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
-#define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 
 
