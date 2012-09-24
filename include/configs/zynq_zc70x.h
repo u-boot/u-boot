@@ -24,8 +24,6 @@
 
 #include <configs/zynq_common.h>
 
-#undef CONFIG_ZYNQ_XIL_LQSPI
-
 /* no NOR on zc702 */
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_NOWHERE
@@ -66,16 +64,6 @@
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_SPANSION
-
-/* Place a Xilinx Boot ROM header in u-boot image? */
-#undef CONFIG_ZYNQ_XILINX_FLASH_HEADER
-
-#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
-/* Address Xilinx boot rom should use to launch u-boot */
-#ifdef CONFIG_ZYNQ_XIL_LQSPI
-#define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
-#endif
-#endif
 
 /* Secure Digital */
 #define CONFIG_MMC

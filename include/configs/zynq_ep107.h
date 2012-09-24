@@ -28,8 +28,6 @@
 
 #include <configs/zynq_common.h>
 
-#undef CONFIG_ZYNQ_XIL_LQSPI
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
@@ -150,12 +148,8 @@
 
 #ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
 /* Address Xilinx boot rom should use to launch u-boot */
-#ifdef CONFIG_ZYNQ_XIL_LQSPI
-#define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
-#else
 /* NOR */
 #define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
-#endif
 #endif
 
 /* Secure Digital */

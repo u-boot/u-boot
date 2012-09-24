@@ -19,9 +19,6 @@
  */
 #undef CONFIG_OF_LIBFDT
 
-#undef CONFIG_ZYNQ_XIL_LQSPI
-#undef CONFIG_RTC_XPSSRTC
-
 #undef CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 
@@ -126,13 +123,8 @@
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 
 #ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
-/* Address Xilinx boot rom should use to launch u-boot */
-#ifdef CONFIG_ZYNQ_XIL_LQSPI
-#define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
-#else
 /* NOR */
 #define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
-#endif
 #endif
 
 #endif /* __CONFIG_H */
