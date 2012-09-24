@@ -71,9 +71,6 @@
 		"tftp 0x800000 ramdisk8M.image.gz;" \
 		"go 0x8000\0"
 
-#undef CONFIG_FIT
-#undef CONFIG_FIT_VERBOSE
-
 /* Place a Xilinx Boot ROM header in u-boot image? */
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
