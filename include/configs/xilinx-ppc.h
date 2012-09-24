@@ -84,7 +84,6 @@
 #define CONFIG_VERSION_VARIABLE		/* include version env variable */
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_HUSH_PARSER		/* Use the HUSH parser          */
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_LOADS_ECHO		/* echo on for serial download  */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change        */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)

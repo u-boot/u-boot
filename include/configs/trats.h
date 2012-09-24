@@ -34,6 +34,7 @@
 #define CONFIG_S5P		/* which is in a S5P Family */
 #define CONFIG_EXYNOS4210	/* which is in a EXYNOS4210 */
 #define CONFIG_TRATS		/* working with TRATS */
+#define CONFIG_TIZEN		/* TIZEN lib */
 
 #include <asm/arch/cpu.h>	/* get chip and board defs */
 
@@ -53,7 +54,6 @@
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -74,7 +74,8 @@
 /* MMC */
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC
-#define CONFIG_S5P_MMC
+#define CONFIG_S5P_SDHCI
+#define CONFIG_SDHCI
 
 /* PWM */
 #define CONFIG_PWM
@@ -151,7 +152,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"TRATS # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		384	/* Print Buffer Size */
@@ -165,18 +165,15 @@
 
 #define CONFIG_SYS_HZ			1000
 
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 /* Stack sizes */
 #define CONFIG_STACKSIZE		(256 << 10) /* regular stack 256KB */
 
 /* TRATS has 2 banks of DRAM */
 #define CONFIG_NR_DRAM_BANKS	2
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* LDDDR2 DMC 0 */
-#define PHYS_SDRAM_1_SIZE	(256 << 20)		/* 256 MB in CS 0 */
+#define PHYS_SDRAM_1_SIZE	(512 << 20)		/* 512 MB in CS 0 */
 #define PHYS_SDRAM_2		0x50000000		/* LPDDR2 DMC 1 */
-#define PHYS_SDRAM_2_SIZE	(256 << 20)		/* 256 MB in CS 0 */
+#define PHYS_SDRAM_2_SIZE	(512 << 20)		/* 512 MB in CS 0 */
 
 #define CONFIG_SYS_MEM_TOP_HIDE		(1 << 20)	/* ram console */
 
@@ -208,10 +205,21 @@
 
 #define CONFIG_PMIC
 #define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX8998
+#define CONFIG_PMIC_MAX8997
 
 #define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_S3C_UDC_OTG
 #define CONFIG_USB_GADGET_DUALSPEED
+
+/* LCD */
+#define CONFIG_EXYNOS_FB
+#define CONFIG_LCD
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_32BPP
+#define CONFIG_FB_ADDR		0x52504000
+#define CONFIG_S6E8AX0
+#define CONFIG_EXYNOS_MIPI_DSIM
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 120 * 4) + (1 << 12))
 
 #endif	/* __CONFIG_H */

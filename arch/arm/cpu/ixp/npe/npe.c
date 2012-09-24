@@ -518,7 +518,7 @@ static void npe_halt(struct eth_device *dev)
 }
 
 
-static int npe_send(struct eth_device *dev, volatile void *packet, int len)
+static int npe_send(struct eth_device *dev, void *packet, int len)
 {
 	struct npe *p_npe = (struct npe *)dev->priv;
 	u8 *dest;

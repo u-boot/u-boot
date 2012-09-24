@@ -78,7 +78,8 @@
 /* SD/MMC configuration */
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC
-#define CONFIG_S5P_MMC
+#define CONFIG_SDHCI
+#define CONFIG_S5P_SDHCI
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
@@ -101,6 +102,12 @@
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
+/* USB */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_EXYNOS
+#define CONFIG_USB_STORAGE
+
 /* MMC SPL */
 #define CONFIG_SPL
 #define COPY_BL2_FNPTR_ADDR	0x02020030
@@ -110,7 +117,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"SMDK5250 # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		384	/* Print Buffer Size */
@@ -124,9 +130,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 #define CONFIG_SYS_HZ			1000
-
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_RD_LVL
 

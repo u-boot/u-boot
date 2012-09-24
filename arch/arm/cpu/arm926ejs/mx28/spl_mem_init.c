@@ -39,7 +39,7 @@ uint32_t dram_vals[] = {
 	0x00000000, 0x00000100, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00010101, 0x01010101,
-	0x000f0f01, 0x0f02010a, 0x00000000, 0x00010101,
+	0x000f0f01, 0x0f02020a, 0x00000000, 0x00010101,
 	0x00000100, 0x00000100, 0x00000000, 0x00000002,
 	0x01010000, 0x05060302, 0x06005003, 0x0a0000c8,
 	0x02009c40, 0x0000030c, 0x0036a609, 0x031a0612,
@@ -82,9 +82,17 @@ uint32_t dram_vals[] = {
 	0x00000000, 0x00010001
 };
 
+void __mx28_adjust_memory_params(uint32_t *dram_vals)
+{
+}
+void mx28_adjust_memory_params(uint32_t *dram_vals)
+	__attribute__((weak, alias("__mx28_adjust_memory_params")));
+
 void init_m28_200mhz_ddr2(void)
 {
 	int i;
+
+	mx28_adjust_memory_params(dram_vals);
 
 	for (i = 0; i < ARRAY_SIZE(dram_vals); i++)
 		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
@@ -149,6 +157,8 @@ void mx28_mem_setup_cpu_and_hbus(void)
 	/* Disable CPU bypass */
 	writel(CLKCTRL_CLKSEQ_BYPASS_CPU,
 		&clkctrl_regs->hw_clkctrl_clkseq_clr);
+
+	early_delay(15000);
 }
 
 void mx28_mem_setup_vdda(void)
@@ -173,10 +183,8 @@ void mx28_mem_setup_vddd(void)
 		&power_regs->hw_power_vdddctrl);
 }
 
-void mx28_mem_get_size(void)
+uint32_t mx28_mem_get_size(void)
 {
-	struct mx28_digctl_regs *digctl_regs =
-		(struct mx28_digctl_regs *)MXS_DIGCTL_BASE;
 	uint32_t sz, da;
 	uint32_t *vt = (uint32_t *)0x20;
 	/* The following is "subs pc, r14, #4", used as return from DABT. */
@@ -187,11 +195,11 @@ void mx28_mem_get_size(void)
 	vt[4] = data_abort_memdetect_handler;
 
 	sz = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
-	writel(sz, &digctl_regs->hw_digctl_scratch0);
-	writel(sz, &digctl_regs->hw_digctl_scratch1);
 
 	/* Restore the old DABT handler. */
 	vt[4] = da;
+
+	return sz;
 }
 
 void mx28_mem_init(void)
@@ -239,6 +247,4 @@ void mx28_mem_init(void)
 	early_delay(10000);
 
 	mx28_mem_setup_cpu_and_hbus();
-
-	mx28_mem_get_size();
 }

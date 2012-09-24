@@ -122,9 +122,6 @@
 
 #define	CONFIG_SYS_HZ			(CPU_CLK_FREQ/64)
 
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 #define NS9750_ETH_PHY_ADDRESS	(0x0000)
 
 /*-----------------------------------------------------------------------

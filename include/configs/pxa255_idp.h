@@ -222,7 +222,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_HUSH_PARSER		1
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 #ifdef CONFIG_SYS_HUSH_PARSER
@@ -245,9 +244,6 @@
 #define CONFIG_SYS_CPUSPEED		0x161		/* set core clock to 400/200/100 MHz */
 
 #define RTC	1				/* enable 32KHz osc */
-
-						/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #ifdef CONFIG_MMC
 #define CONFIG_PXA_MMC

@@ -218,7 +218,7 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 		buf[4] = (val >> 16) & 0xff;
 		buf[5] = (val >> 8) & 0xff;
 		buf[6] = val & 0xff;
-		sprintf((char *)valbuf, "%pM", buf);
+		sprintf((char *)valbuf, "%pM", buf + 1);
 	}
 #endif
 #ifdef MACH_TYPE_KM_KIRKWOOD

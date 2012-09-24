@@ -331,7 +331,6 @@
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
 #ifdef  CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #endif
 
 /* What is the address of IO controller */
@@ -386,9 +385,6 @@
 
 #define CONFIG_SYS_MEMTEST_END     ( CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 \
 			    - CONFIG_SYS_MEM_END_USAGE )
-
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE  { 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Low Level Configuration Settings

@@ -399,4 +399,10 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(SDRC_CKE0),		(IDIS | PTU | EN  | M0)) /*sdrc_cke0*/\
 	MUX_VAL(CP(SDRC_CKE1),		(IDIS | PTU | EN  | M0)) /*sdrc_cke1*/
 
+#define MUX_PANDORA_3730() \
+	MUX_VAL(CP(GPIO126),		(IEN  | PTD | DIS | M4)) /*GPIO_126 - MMC1_WP*/\
+	MUX_VAL(CP(GPIO127),		(IEN  | PTD | DIS | M4)) /*GPIO_127 - MMC2_WP*/\
+	MUX_VAL(CP(GPIO128),		(IDIS | PTD | DIS | M4)) /*GPIO_128 - LED_MMC1*/\
+	MUX_VAL(CP(GPIO129),		(IDIS | PTD | DIS | M4)) /*GPIO_129 - LED_MMC2*/
+
 #endif

@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <ns16550.h>
+#include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/sys_proto.h>
@@ -30,12 +31,17 @@
 #include <asm/arch/board.h>
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/emc.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/pmc.h>
+#include <asm/arch/pmu.h>
 #include <asm/arch/uart.h>
+#include <asm/arch/warmboot.h>
 #include <spi.h>
 #include <asm/arch/usb.h>
 #include <i2c.h>
 #include "board.h"
+#include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,12 +64,35 @@ void __pin_mux_usb(void)
 
 void pin_mux_usb(void) __attribute__((weak, alias("__pin_mux_usb")));
 
+void __pin_mux_spi(void)
+{
+}
+
+void pin_mux_spi(void) __attribute__((weak, alias("__pin_mux_spi")));
+
+/*
+ * Routine: power_det_init
+ * Description: turn off power detects
+ */
+static void power_det_init(void)
+{
+#if defined(CONFIG_TEGRA2)
+	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)TEGRA2_PMC_BASE;
+
+	/* turn off power detects */
+	writel(0, &pmc->pmc_pwr_det_latch);
+	writel(0, &pmc->pmc_pwr_det);
+#endif
+}
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
  */
 int board_init(void)
 {
+	__maybe_unused int err;
+
 	/* Do clocks and UART first so that printf() works */
 	clock_init();
 	clock_verify();
@@ -71,32 +100,57 @@ int board_init(void)
 #ifdef CONFIG_SPI_UART_SWITCH
 	gpio_config_uart();
 #endif
-#ifdef CONFIG_TEGRA2_SPI
+#ifdef CONFIG_TEGRA_SPI
+	pin_mux_spi();
 	spi_init();
 #endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
+
+	power_det_init();
+
 #ifdef CONFIG_TEGRA_I2C
 #ifndef CONFIG_SYS_I2C_INIT_BOARD
 #error "You must define CONFIG_SYS_I2C_INIT_BOARD to use i2c on Nvidia boards"
 #endif
 	i2c_init_board();
-#endif
+# ifdef CONFIG_TEGRA_PMU
+	if (pmu_set_nominal())
+		debug("Failed to select nominal voltages\n");
+#  ifdef CONFIG_TEGRA_CLOCK_SCALING
+	err = board_emc_init();
+	if (err)
+		debug("Memory controller init failed: %d\n", err);
+#  endif
+# endif /* CONFIG_TEGRA_PMU */
+#endif /* CONFIG_TEGRA_I2C */
 
 #ifdef CONFIG_USB_EHCI_TEGRA
 	pin_mux_usb();
 	board_usb_init(gd->fdt_blob);
 #endif
 
+#ifdef CONFIG_TEGRA2_LP0
+	/* prepare the WB code to LP0 location */
+	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
+#endif
+
 	return 0;
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
+static void __gpio_early_init(void)
+{
+}
+
+void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
+
 int board_early_init_f(void)
 {
 	board_init_uart_f();
 
 	/* Initialize periph GPIOs */
+	gpio_early_init();
 #ifdef CONFIG_SPI_UART_SWITCH
 	gpio_early_init_uart();
 #else

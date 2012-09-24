@@ -100,9 +100,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
 #define CONFIG_SYS_NS16550_CLK		((18432000 * 20) / 25)	/* AG101P */
 
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 /*
  * Ethernet
  */

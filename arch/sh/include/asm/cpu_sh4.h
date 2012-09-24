@@ -46,6 +46,8 @@
 # include <asm/cpu_sh7723.h>
 #elif defined (CONFIG_CPU_SH7724)
 # include <asm/cpu_sh7724.h>
+#elif defined (CONFIG_CPU_SH7734)
+# include <asm/cpu_sh7734.h>
 #elif defined (CONFIG_CPU_SH7757)
 # include <asm/cpu_sh7757.h>
 #elif defined (CONFIG_CPU_SH7763)

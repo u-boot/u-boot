@@ -48,8 +48,6 @@
 /* Set TEXT at the beginning of the NOR flash */
 #define CONFIG_SYS_TEXT_BASE	0xA0000000
 
-#define CONFIG_SYS_64BIT_VSPRINTF
-
 /* This is required to setup the ESDC controller */
 #define CONFIG_BOARD_EARLY_INIT_F
 
@@ -68,7 +66,7 @@
  */
 #define CONFIG_HARD_I2C
 #define CONFIG_I2C_MXC
-#define CONFIG_SYS_I2C_MX35_PORT3
+#define CONFIG_SYS_I2C_BASE		I2C3_BASE_ADDR
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0xfe
 #define CONFIG_MXC_SPI
@@ -84,7 +82,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /*
  * Command definition
@@ -133,7 +130,6 @@
 #define CONFIG_SYS_PROMPT	"flea3 U-Boot > "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_HUSH_PARSER	/* Use the HUSH parser */
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */

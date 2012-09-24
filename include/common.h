@@ -222,6 +222,31 @@ typedef void (interrupt_handler_t)(void *);
 #define MIN(x, y)  min(x, y)
 #define MAX(x, y)  max(x, y)
 
+/*
+ * Return the absolute value of a number.
+ *
+ * This handles unsigned and signed longs, ints, shorts and chars.  For all
+ * input types abs() returns a signed long.
+ *
+ * For 64-bit types, use abs64()
+ */
+#define abs(x) ({						\
+		long ret;					\
+		if (sizeof(x) == sizeof(long)) {		\
+			long __x = (x);				\
+			ret = (__x < 0) ? -__x : __x;		\
+		} else {					\
+			int __x = (x);				\
+			ret = (__x < 0) ? -__x : __x;		\
+		}						\
+		ret;						\
+	})
+
+#define abs64(x) ({				\
+		s64 __x = (x);			\
+		(__x < 0) ? -__x : __x;		\
+	})
+
 #if defined(CONFIG_ENV_IS_EMBEDDED)
 #define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
 #elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
@@ -300,6 +325,12 @@ void	doc_probe(unsigned long physadr);
 /* common/cmd_net.c */
 int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
+/* common/cmd_fat.c */
+int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
+
+/* common/cmd_ext2.c */
+int do_ext2load(cmd_tbl_t *, int, int, char * const []);
+
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
@@ -330,6 +361,9 @@ int setenv_addr(const char *varname, const void *addr);
 # include <asm/mach-types.h>
 # include <asm/u-boot-nds32.h>
 #endif /* CONFIG_NDS32 */
+#ifdef CONFIG_MIPS
+# include <asm/u-boot-mips.h>
+#endif /* CONFIG_MIPS */
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
@@ -704,13 +738,6 @@ int gunzip(void *, int, unsigned char *, unsigned long *);
 int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 						int stoponerr, int offset);
 
-/* lib/net_utils.c */
-#include <net.h>
-static inline IPaddr_t getenv_IPaddr (char *var)
-{
-	return (string_to_ip(getenv(var)));
-}
-
 /* lib/qsort.c */
 void qsort(void *base, size_t nmemb, size_t size,
 	   int(*compar)(const void *, const void *));
@@ -732,6 +759,16 @@ char *	strmhz(char *buf, unsigned long hz);
 
 /* lib/crc32.c */
 #include <u-boot/crc.h>
+
+/* lib/rand.c */
+#if defined(CONFIG_RANDOM_MACADDR) || \
+	defined(CONFIG_BOOTP_RANDOM_DELAY) || \
+	defined(CONFIG_CMD_LINK_LOCAL)
+#define RAND_MAX -1U
+void srand(unsigned int seed);
+unsigned int rand(void);
+unsigned int rand_r(unsigned int *seedp);
+#endif
 
 /* common/console.c */
 int	console_init_f(void);	/* Before relocation; uses the serial  stuff	*/
@@ -779,6 +816,13 @@ void	fputc(int file, const char c);
 int	ftstc(int file);
 int	fgetc(int file);
 
+/* lib/net_utils.c */
+#include <net.h>
+static inline IPaddr_t getenv_IPaddr(char *var)
+{
+	return string_to_ip(getenv(var));
+}
+
 /*
  * CONSOLE multiplexing.
  */
@@ -793,6 +837,10 @@ int	pcmcia_init (void);
 #endif
 
 #include <bootstage.h>
+
+#ifdef CONFIG_SHOW_ACTIVITY
+void show_activity(int arg);
+#endif
 
 /* Multicore arch functions */
 #ifdef CONFIG_MP
@@ -896,11 +944,25 @@ int cpu_release(int nr, int argc, char * const argv[]);
  * of a function scoped static buffer.  It can not be used to create a cache
  * line aligned global buffer.
  */
-#define ALLOC_CACHE_ALIGN_BUFFER(type, name, size)			\
-	char __##name[ROUND(size * sizeof(type), ARCH_DMA_MINALIGN) +	\
-		      ARCH_DMA_MINALIGN - 1];				\
+#define ALLOC_ALIGN_BUFFER(type, name, size, align)			\
+	char __##name[ROUND(size * sizeof(type), align) + (align - 1)];	\
 									\
-	type *name = (type *) ALIGN((uintptr_t)__##name, ARCH_DMA_MINALIGN)
+	type *name = (type *) ALIGN((uintptr_t)__##name, align)
+#define ALLOC_CACHE_ALIGN_BUFFER(type, name, size)			\
+	ALLOC_ALIGN_BUFFER(type, name, size, ARCH_DMA_MINALIGN)
+
+/*
+ * DEFINE_CACHE_ALIGN_BUFFER() is similar to ALLOC_CACHE_ALIGN_BUFFER, but it's
+ * purpose is to allow allocating aligned buffers outside of function scope.
+ * Usage of this macro shall be avoided or used with extreme care!
+ */
+#define DEFINE_ALIGN_BUFFER(type, name, size, align)			\
+	static char __##name[roundup(size * sizeof(type), align)]	\
+			__attribute__((aligned(align)));				\
+									\
+	static type *name = (type *)__##name
+#define DEFINE_CACHE_ALIGN_BUFFER(type, name, size)			\
+	DEFINE_ALIGN_BUFFER(type, name, size, ARCH_DMA_MINALIGN)
 
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY

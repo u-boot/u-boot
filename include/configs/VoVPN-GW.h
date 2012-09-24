@@ -86,9 +86,6 @@
 /* don't allow baudrate change	*/
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
 
-/* supported baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200 }
-
 /*
  * select ethernet configuration
  *

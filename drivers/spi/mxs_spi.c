@@ -34,6 +34,8 @@
 
 #define	MXS_SPI_MAX_TIMEOUT	1000000
 #define	MXS_SPI_PORT_OFFSET	0x2000
+#define MXS_SSP_CHIPSELECT_MASK		0x00300000
+#define MXS_SSP_CHIPSELECT_SHIFT	20
 
 struct mxs_spi_slave {
 	struct spi_slave	slave;
@@ -51,14 +53,25 @@ void spi_init(void)
 {
 }
 
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	/* MXS SPI: 4 ports and 3 chip selects maximum */
+	if (bus > 3 || cs > 2)
+		return 0;
+	else
+		return 1;
+}
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				  unsigned int max_hz, unsigned int mode)
 {
 	struct mxs_spi_slave *mxs_slave;
 	uint32_t addr;
+	struct mx28_ssp_regs *ssp_regs;
+	int reg;
 
-	if (bus > 3) {
-		printf("MXS SPI: Max bus number is 3\n");
+	if (!spi_cs_is_valid(bus, cs)) {
+		printf("mxs_spi: invalid bus %d / chip select %d\n", bus, cs);
 		return NULL;
 	}
 
@@ -73,7 +86,13 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxs_slave->max_khz = max_hz / 1000;
 	mxs_slave->mode = mode;
 	mxs_slave->regs = (struct mx28_ssp_regs *)addr;
+	ssp_regs = mxs_slave->regs;
 
+	reg = readl(&ssp_regs->hw_ssp_ctrl0);
+	reg &= ~(MXS_SSP_CHIPSELECT_MASK);
+	reg |= cs << MXS_SSP_CHIPSELECT_SHIFT;
+
+	writel(reg, &ssp_regs->hw_ssp_ctrl0);
 	return &mxs_slave->slave;
 }
 

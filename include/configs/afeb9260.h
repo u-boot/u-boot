@@ -157,7 +157,6 @@
 				"rw rootfstype=jffs2 panic=20"
 
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 
 #define CONFIG_SYS_PROMPT		"U-Boot> "
 #define CONFIG_SYS_CBSIZE		256

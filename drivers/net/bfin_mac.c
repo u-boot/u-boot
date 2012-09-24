@@ -118,8 +118,7 @@ int bfin_EMAC_initialize(bd_t *bis)
 	return 0;
 }
 
-static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet,
-			  int length)
+static int bfin_EMAC_send(struct eth_device *dev, void *packet, int length)
 {
 	int i;
 	int result = 0;
@@ -191,8 +190,7 @@ static int bfin_EMAC_recv(struct eth_device *dev)
 
 		debug("%s: len = %d\n", __func__, length - 4);
 
-		NetRxPackets[rxIdx] =
-		    (volatile uchar *)(rxbuf[rxIdx]->FrmData->Dest);
+		NetRxPackets[rxIdx] = rxbuf[rxIdx]->FrmData->Dest;
 		NetReceive(NetRxPackets[rxIdx], length - 4);
 		bfin_write_DMA1_IRQ_STATUS(DMA_DONE | DMA_ERR);
 		rxbuf[rxIdx]->StatusWord = 0x00000000;
@@ -471,7 +469,7 @@ int ether_post_test(int flags)
 	for (i = 0; i < 42; i++)
 		buf[i + 22] = i;
 	printf("--------Send 64 bytes......\n");
-	bfin_EMAC_send(NULL, (volatile void *)buf, 64);
+	bfin_EMAC_send(NULL, buf, 64);
 	for (i = 0; i < 100; i++) {
 		udelay(10000);
 		if ((rxbuf[rxIdx]->StatusWord & RX_COMP) != 0) {

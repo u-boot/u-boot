@@ -57,7 +57,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONS_INDEX	1	/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200	/* Default baud rate */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* No NOR flash present */
 #define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
@@ -65,7 +64,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_64BIT_VSPRINTF
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_PROMPT	"MX25PDK U-Boot > "

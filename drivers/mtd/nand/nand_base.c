@@ -39,7 +39,7 @@
 #include <malloc.h>
 #include <watchdog.h>
 #include <linux/err.h>
-#include <linux/mtd/compat.h>
+#include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ecc.h>
@@ -2535,13 +2535,14 @@ static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip,
 		chip->read_byte(mtd) != 'F' || chip->read_byte(mtd) != 'I')
 		return 0;
 
-	printk(KERN_INFO "ONFI flash detected\n");
+	MTDDEBUG(MTD_DEBUG_LEVEL0, "ONFI flash detected\n");
 	chip->cmdfunc(mtd, NAND_CMD_PARAM, 0, -1);
 	for (i = 0; i < 3; i++) {
 		chip->read_buf(mtd, (uint8_t *)p, sizeof(*p));
 		if (onfi_crc16(ONFI_CRC_BASE, (uint8_t *)p, 254) ==
 				le16_to_cpu(p->crc)) {
-			printk(KERN_INFO "ONFI param page %d valid\n", i);
+			MTDDEBUG(MTD_DEBUG_LEVEL0,
+				 "ONFI param page %d valid\n", i);
 			break;
 		}
 	}

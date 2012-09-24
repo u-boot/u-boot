@@ -29,9 +29,14 @@
 #include <i2c.h>
 #include <twl4030.h>
 #include <twl6030.h>
+#include <twl6035.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
+
+/* common definitions for all OMAPs */
+#define SYSCTL_SRC	(1 << 25)
+#define SYSCTL_SRD	(1 << 26)
 
 /* If we fail after 1 second wait, something is really bad */
 #define MAX_RETRY_MS	1000
@@ -45,8 +50,8 @@ static struct mmc hsmmc_dev[2];
 static void omap4_vmmc_pbias_config(struct mmc *mmc)
 {
 	u32 value = 0;
-	struct omap4_sys_ctrl_regs *const ctrl =
-		(struct omap4_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
+	struct omap_sys_ctrl_regs *const ctrl =
+		(struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
 
 
 	value = readl(&ctrl->control_pbiaslite);
@@ -60,17 +65,51 @@ static void omap4_vmmc_pbias_config(struct mmc *mmc)
 }
 #endif
 
-unsigned char mmc_board_init(struct mmc *mmc)
+#if defined(CONFIG_OMAP54XX) && defined(CONFIG_TWL6035_POWER)
+static void omap5_pbias_config(struct mmc *mmc)
 {
-#if defined(CONFIG_TWL4030_POWER)
-	twl4030_power_mmc_init();
+	u32 value = 0;
+	struct omap_sys_ctrl_regs *const ctrl =
+		(struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
+
+	value = readl(&ctrl->control_pbias);
+	value &= ~(SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ);
+	value |= SDCARD_BIAS_HIZ_MODE;
+	writel(value, &ctrl->control_pbias);
+
+	twl6035_mmc1_poweron_ldo();
+
+	value = readl(&ctrl->control_pbias);
+	value &= ~SDCARD_BIAS_HIZ_MODE;
+	value |= SDCARD_PBIASLITE_VMODE | SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ;
+	writel(value, &ctrl->control_pbias);
+
+	value = readl(&ctrl->control_pbias);
+	if (value & (1 << 23)) {
+		value &= ~(SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ);
+		value |= SDCARD_BIAS_HIZ_MODE;
+		writel(value, &ctrl->control_pbias);
+	}
+}
 #endif
 
+unsigned char mmc_board_init(struct mmc *mmc)
+{
 #if defined(CONFIG_OMAP34XX)
 	t2_t *t2_base = (t2_t *)T2_BASE;
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	u32 pbias_lite;
 
-	writel(readl(&t2_base->pbias_lite) | PBIASLITEPWRDNZ1 |
+	pbias_lite = readl(&t2_base->pbias_lite);
+	pbias_lite &= ~(PBIASLITEPWRDNZ1 | PBIASLITEPWRDNZ0);
+	writel(pbias_lite, &t2_base->pbias_lite);
+#endif
+#if defined(CONFIG_TWL4030_POWER)
+	twl4030_power_mmc_init();
+	mdelay(100);	/* ramp-up delay from Linux code */
+#endif
+#if defined(CONFIG_OMAP34XX)
+	writel(pbias_lite | PBIASLITEPWRDNZ1 |
 		PBIASSPEEDCTRL0 | PBIASLITEPWRDNZ0,
 		&t2_base->pbias_lite);
 
@@ -79,6 +118,11 @@ unsigned char mmc_board_init(struct mmc *mmc)
 
 	writel(readl(&t2_base->devconf1) | MMCSDIO2ADPCLKISEL,
 		&t2_base->devconf1);
+
+	/* Change from default of 52MHz to 26MHz if necessary */
+	if (!(mmc->host_caps & MMC_MODE_HS_52MHz))
+		writel(readl(&t2_base->ctl_prog_io1) & ~CTLPROGIO1SPEEDCTRL,
+			&t2_base->ctl_prog_io1);
 
 	writel(readl(&prcm_base->fclken1_core) |
 		EN_MMC1 | EN_MMC2 | EN_MMC3,
@@ -93,6 +137,10 @@ unsigned char mmc_board_init(struct mmc *mmc)
 	/* PBIAS config needed for MMC1 only */
 	if (mmc->block_dev.dev == 0)
 		omap4_vmmc_pbias_config(mmc);
+#endif
+#if defined(CONFIG_OMAP54XX) && defined(CONFIG_TWL6035_POWER)
+	if (mmc->block_dev.dev == 0)
+		omap5_pbias_config(mmc);
 #endif
 
 	return 0;
@@ -189,6 +237,27 @@ static int mmc_init_setup(struct mmc *mmc)
 	return 0;
 }
 
+/*
+ * MMC controller internal finite state machine reset
+ *
+ * Used to reset command or data internal state machines, using respectively
+ * SRC or SRD bit of SYSCTL register
+ */
+static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
+{
+	ulong start;
+
+	mmc_reg_out(&mmc_base->sysctl, bit, bit);
+
+	start = get_timer(0);
+	while ((readl(&mmc_base->sysctl) & bit) != 0) {
+		if (get_timer(0) - start > MAX_RETRY_MS) {
+			printf("%s: timedout waiting for sysctl %x to clear\n",
+				__func__, bit);
+			return;
+		}
+	}
+}
 
 static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
@@ -209,7 +278,8 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	start = get_timer(0);
 	while (readl(&mmc_base->stat)) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
-			printf("%s: timedout waiting for stat!\n", __func__);
+			printf("%s: timedout waiting for STAT (%x) to clear\n",
+				__func__, readl(&mmc_base->stat));
 			return TIMEOUT;
 		}
 	}
@@ -277,9 +347,10 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	} while (!mmc_stat);
 
-	if ((mmc_stat & IE_CTO) != 0)
+	if ((mmc_stat & IE_CTO) != 0) {
+		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
 		return TIMEOUT;
-	else if ((mmc_stat & ERRI_MASK) != 0)
+	} else if ((mmc_stat & ERRI_MASK) != 0)
 		return -1;
 
 	if (mmc_stat & CC_MASK) {
@@ -329,6 +400,9 @@ static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size)
 				return TIMEOUT;
 			}
 		} while (mmc_stat == 0);
+
+		if ((mmc_stat & (IE_DTO | IE_DCRC | IE_DEB)) != 0)
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
 
 		if ((mmc_stat & ERRI_MASK) != 0)
 			return 1;
@@ -381,6 +455,9 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 				return TIMEOUT;
 			}
 		} while (mmc_stat == 0);
+
+		if ((mmc_stat & (IE_DTO | IE_DCRC | IE_DEB)) != 0)
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
 
 		if ((mmc_stat & ERRI_MASK) != 0)
 			return 1;
@@ -463,7 +540,7 @@ static void mmc_set_ios(struct mmc *mmc)
 	writel(readl(&mmc_base->sysctl) | CEN_ENABLE, &mmc_base->sysctl);
 }
 
-int omap_mmc_init(int dev_index)
+int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max)
 {
 	struct mmc *mmc;
 
@@ -494,11 +571,22 @@ int omap_mmc_init(int dev_index)
 		return 1;
 	}
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
-				MMC_MODE_HC;
+	mmc->host_caps = (MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
+				MMC_MODE_HC) & ~host_caps_mask;
 
 	mmc->f_min = 400000;
-	mmc->f_max = 52000000;
+
+	if (f_max != 0)
+		mmc->f_max = f_max;
+	else {
+		if (mmc->host_caps & MMC_MODE_HS) {
+			if (mmc->host_caps & MMC_MODE_HS_52MHz)
+				mmc->f_max = 52000000;
+			else
+				mmc->f_max = 26000000;
+		} else
+			mmc->f_max = 20000000;
+	}
 
 	mmc->b_max = 0;
 

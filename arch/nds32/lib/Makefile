@@ -29,7 +29,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).o
 
-OBJS	:= board.o bootm.o interrupts.o
+OBJS	:= board.o bootm.o cache.o interrupts.o
 
 all:	$(LIB)
 

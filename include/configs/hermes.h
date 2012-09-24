@@ -105,8 +105,6 @@
 
 #define	CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks	*/
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 #define	CONFIG_SYS_ALLOC_DPRAM		1	/* use allocation routines	*/
 /*
  * Low Level Configuration Settings

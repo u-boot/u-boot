@@ -95,8 +95,6 @@ int mv64360_eth_xmit (struct eth_device *, volatile void *packet, int length);
 #ifndef  UPDATE_STATS_BY_SOFTWARE
 static void mv64360_eth_print_stat (struct eth_device *dev);
 #endif
-/* Processes a received packet */
-extern void NetReceive (volatile uchar *, int);
 
 extern unsigned int INTERNAL_REG_BASE_ADDR;
 
@@ -192,8 +190,7 @@ int db64360_eth_poll (struct eth_device *dev)
 	return mv64360_eth_receive (dev);
 }
 
-int db64360_eth_transmit (struct eth_device *dev, volatile void *packet,
-			  int length)
+int db64360_eth_transmit(struct eth_device *dev, void *packet, int length)
 {
 	mv64360_eth_xmit (dev, packet, length);
 	return 0;

@@ -25,7 +25,8 @@
 
 #if defined(CONFIG_MX51)
 #define IRAM_BASE_ADDR		0x1FFE0000	/* internal ram */
-#define IPU_CTRL_BASE_ADDR	0x40000000
+#define IPU_SOC_BASE_ADDR	0x40000000
+#define IPU_SOC_OFFSET		0x1E000000
 #define SPBA0_BASE_ADDR         0x70000000
 #define AIPS1_BASE_ADDR         0x73F00000
 #define AIPS2_BASE_ADDR         0x83F00000
@@ -34,7 +35,8 @@
 #define NFC_BASE_ADDR_AXI       0xCFFF0000
 #define CS1_BASE_ADDR           0xB8000000
 #elif defined(CONFIG_MX53)
-#define IPU_CTRL_BASE_ADDR      0x18000000
+#define IPU_SOC_BASE_ADDR	0x18000000
+#define IPU_SOC_OFFSET		0x06000000
 #define SPBA0_BASE_ADDR         0x50000000
 #define AIPS1_BASE_ADDR         0x53F00000
 #define AIPS2_BASE_ADDR         0x63F00000
@@ -43,6 +45,7 @@
 #define NFC_BASE_ADDR_AXI       0xF7FF0000
 #define IRAM_BASE_ADDR          0xF8000000
 #define CS1_BASE_ADDR           0xF4000000
+#define SATA_BASE_ADDR		0x10000000
 #else
 #error "CPU_TYPE not defined"
 #endif
@@ -93,6 +96,7 @@
 #define GPIO5_BASE_ADDR         (AIPS1_BASE_ADDR + 0x000DC000)
 #define GPIO6_BASE_ADDR         (AIPS1_BASE_ADDR + 0x000E0000)
 #define GPIO7_BASE_ADDR         (AIPS1_BASE_ADDR + 0x000E4000)
+#define UART4_BASE_ADDR         (AIPS1_BASE_ADDR + 0x000F0000)
 #endif
 /*
  * AIPS 2
@@ -132,6 +136,10 @@
 #define TVE_BASE_ADDR		(AIPS2_BASE_ADDR + 0x000F0000)
 #define VPU_BASE_ADDR		(AIPS2_BASE_ADDR + 0x000F4000)
 #define SAHARA_BASE_ADDR	(AIPS2_BASE_ADDR + 0x000F8000)
+
+#if defined(CONFIG_MX53)
+#define UART5_BASE_ADDR         (AIPS2_BASE_ADDR + 0x00090000)
+#endif
 
 /*
  * WEIM CSnGCR1
@@ -483,6 +491,11 @@ struct iim_regs {
 		u32	fuse_regs[0x20];
 		u32	fuse_rsvd[0xe0];
 	} bank[4];
+};
+
+struct fuse_bank0_regs {
+	u32	fuse0_23[24];
+	u32	gp[8];
 };
 
 struct fuse_bank1_regs {

@@ -105,7 +105,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Flash & Environment
@@ -153,7 +152,6 @@
 #define CONFIG_SYS_NAND_BASE		0xd8000000
 #define CONFIG_JFFS2_NAND
 #define CONFIG_MXC_NAND_HWECC
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 /*
  * SD/MMC

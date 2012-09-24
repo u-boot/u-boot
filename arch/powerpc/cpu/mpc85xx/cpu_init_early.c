@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Freescale Semiconductor, Inc
+ * Copyright 2009-2012 Freescale Semiconductor, Inc
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +53,36 @@ void setup_ifc(void)
 
 	asm volatile("isync;msync;tlbwe;isync");
 
+#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB)
+/*
+ * TLB entry for debuggging in AS1
+ * Create temporary TLB entry in AS0 to handle debug exception
+ * As on debug exception MSR is cleared i.e. Address space is changed
+ * to 0. A TLB entry (in AS0) is required to handle debug exception generated
+ * in AS1.
+ *
+ * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
+ * bacause flash's physical address is going to change as
+ * CONFIG_SYS_FLASH_BASE_PHYS.
+ */
+	_mas0 = MAS0_TLBSEL(1) |
+			MAS0_ESEL(CONFIG_SYS_PPC_E500_DEBUG_TLB);
+	_mas1 = MAS1_VALID | MAS1_TID(0) | MAS1_IPROT |
+			MAS1_TSIZE(BOOKE_PAGESZ_4M);
+	_mas2 = FSL_BOOKE_MAS2(CONFIG_SYS_TEXT_BASE, MAS2_I|MAS2_G);
+	_mas3 = FSL_BOOKE_MAS3(flash_phys, 0, MAS3_SW|MAS3_SR|MAS3_SX);
+	_mas7 = FSL_BOOKE_MAS7(flash_phys);
+
+	mtspr(MAS0, _mas0);
+	mtspr(MAS1, _mas1);
+	mtspr(MAS2, _mas2);
+	mtspr(MAS3, _mas3);
+	mtspr(MAS7, _mas7);
+
+	asm volatile("isync;msync;tlbwe;isync");
+#endif
+
+	/* Change flash's physical address */
 	out_be32(&(ifc_regs->cspr_cs[0].cspr), CONFIG_SYS_CSPR0);
 	out_be32(&(ifc_regs->csor_cs[0].csor), CONFIG_SYS_CSOR0);
 	out_be32(&(ifc_regs->amask_cs[0].amask), CONFIG_SYS_AMASK0);

@@ -40,6 +40,22 @@ struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 #define UART_SMART_IDLE_EN	(0x1 << 0x3)
 #endif
 
+#ifdef CONFIG_SPL_BUILD
+/* Initialize timer */
+static void init_timer(void)
+{
+	/* Reset the Timer */
+	writel(0x2, (&timer_base->tscir));
+
+	/* Wait until the reset is done */
+	while (readl(&timer_base->tiocp_cfg) & 1)
+		;
+
+	/* Start the Timer */
+	writel(0x1, (&timer_base->tclr));
+}
+#endif
+
 /*
  * early system init of muxing and clocks.
  */
@@ -88,24 +104,10 @@ void s_init(void)
 	enable_mmc0_pin_mux();
 }
 
-/* Initialize timer */
-void init_timer(void)
-{
-	/* Reset the Timer */
-	writel(0x2, (&timer_base->tscir));
-
-	/* Wait until the reset is done */
-	while (readl(&timer_base->tiocp_cfg) & 1)
-		;
-
-	/* Start the Timer */
-	writel(0x1, (&timer_base->tclr));
-}
-
 #if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0);
+	return omap_mmc_init(0, 0, 0);
 }
 #endif
 

@@ -73,6 +73,9 @@
 #define MMDC1_ARB_BASE_ADDR             0x80000000
 #define MMDC1_ARB_END_ADDR              0xFFFFFFFF
 
+#define IPU_SOC_BASE_ADDR		IPU1_ARB_BASE_ADDR
+#define IPU_SOC_OFFSET			0x00200000
+
 /* Defines for Blocks connected via AIPS (SkyBlue) */
 #define ATZ1_BASE_ADDR              AIPS1_ARB_BASE_ADDR
 #define ATZ2_BASE_ADDR              AIPS2_ARB_BASE_ADDR
@@ -434,6 +437,15 @@ struct anatop_regs {
 	u32	usb2_misc_clr;		/* 0x258 */
 	u32	usb2_misc_tog;		/* 0x25c */
 	u32	digprog;		/* 0x260 */
+};
+
+struct iomuxc_base_regs {
+	u32     gpr[14];        /* 0x000 */
+	u32     obsrv[5];       /* 0x038 */
+	u32     swmux_ctl[197]; /* 0x04c */
+	u32     swpad_ctl[250]; /* 0x360 */
+	u32     swgrp[26];      /* 0x748 */
+	u32     daisy[104];     /* 0x7b0..94c */
 };
 
 #endif /* __ASSEMBLER__*/

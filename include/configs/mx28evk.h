@@ -16,8 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  */
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __MX28EVK_CONFIG_H__
+#define __MX28EVK_CONFIG_H__
 
 #include <asm/arch/regs-base.h>
 
@@ -34,7 +34,6 @@
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_ARCH_MISC_INIT
 
 /*
@@ -46,6 +45,7 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mx28/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_GPIO_SUPPORT
 
 /*
  * U-Boot Commands
@@ -53,11 +53,11 @@
 #include <config_cmd_default.h>
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_FAT
 
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
@@ -67,6 +67,8 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_BOOTZ
+#define CONFIG_CMD_I2C
 
 /*
  * Memory configurations
@@ -113,7 +115,6 @@
 #define CONFIG_AUTO_COMPLETE		/* Command auto complete */
 #define CONFIG_CMDLINE_EDITING		/* Command history etc */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * Serial Driver
@@ -123,7 +124,6 @@
 #define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200	/* Default baud rate */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * DMA
@@ -145,6 +145,16 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC_BOUNCE_BUFFER
 #define CONFIG_MXS_MMC
+#endif
+
+/*
+ * NAND Driver
+ */
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_NAND_MXS
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		0x60000000
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #endif
 
 /*
@@ -177,6 +187,13 @@
 #define	CONFIG_EHCI_MXS_PORT 1
 #define	CONFIG_EHCI_IS_TDI
 #define	CONFIG_USB_STORAGE
+#endif
+
+/* I2C */
+#ifdef CONFIG_CMD_I2C
+#define CONFIG_I2C_MXS
+#define CONFIG_HARD_I2C
+#define CONFIG_SYS_I2C_SPEED	400000
 #endif
 
 /*
@@ -225,6 +242,7 @@
 #define CONFIG_BOOTCOMMAND	"run bootcmd_net"
 #define CONFIG_LOADADDR	0x42000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+#define CONFIG_OF_LIBFDT
 
 /*
  * Extra Environments
@@ -239,4 +257,4 @@
 		"run netargs; " \
 		"dhcp ${uimage}; bootm\0" \
 
-#endif /* __CONFIG_H */
+#endif /* __MX28EVK_CONFIG_H__ */

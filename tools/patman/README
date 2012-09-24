@@ -68,7 +68,10 @@ How to configure it
 For most cases patman will locate and use the file 'doc/git-mailrc' in
 your U-Boot directory. This contains most of the aliases you will need.
 
-To add your own, create a file ~/.config/patman directory like this:
+During the first run patman creates a config file for you by taking the default
+user name and email address from the global .gitconfig file.
+
+To add your own, create a file ~/.patman like this:
 
 >>>>
 # patman alias file
@@ -93,17 +96,17 @@ How to run it
 
 First do a dry run:
 
-$ ./tools/scripts/patman/patman -n
+$ ./tools/patman/patman -n
 
 If it can't detect the upstream branch, try telling it how many patches
 there are in your series:
 
-$ ./tools/scripts/patman/patman -n -c5
+$ ./tools/patman/patman -n -c5
 
 This will create patch files in your current directory and tell you who
 it is thinking of sending them to. Take a look at the patch files.
 
-$ ./tools/scripts/patman/patman -n -c5 -s1
+$ ./tools/patman/patman -n -c5 -s1
 
 Similar to the above, but skip the first commit and take the next 5. This
 is useful if your top commit is for setting up testing.
@@ -197,7 +200,7 @@ patch series and see how the patches turn out.
 Where Patches Are Sent
 ======================
 
-Once the patches are created, patman sends them using gti send-email. The
+Once the patches are created, patman sends them using git send-email. The
 whole series is sent to the recipients in Series-to: and Series-cc.
 You can Cc individual patches to other people with the Cc: tag. Tags in the
 subject are also picked up to Cc patches. For example, a commit like this:

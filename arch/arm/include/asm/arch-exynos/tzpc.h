@@ -22,7 +22,7 @@
 #define __TZPC_H_
 
 #ifndef __ASSEMBLY__
-struct exynos5_tzpc {
+struct exynos_tzpc {
 	unsigned int r0size;
 	char res1[0x7FC];
 	unsigned int decprot0stat;

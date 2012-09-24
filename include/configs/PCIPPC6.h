@@ -50,7 +50,6 @@
 
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		9600
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_PREBOOT		""
 #define CONFIG_BOOTDELAY	5
@@ -98,9 +97,6 @@
 #define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
 #define CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 
 /* Print Buffer Size

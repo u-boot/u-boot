@@ -21,53 +21,54 @@
 #ifndef __ASM_ARCH_MMC_H_
 #define __ASM_ARCH_MMC_H_
 
-#ifndef __ASSEMBLY__
-struct s5p_mmc {
-	unsigned int	sysad;
-	unsigned short	blksize;
-	unsigned short	blkcnt;
-	unsigned int	argument;
-	unsigned short	trnmod;
-	unsigned short	cmdreg;
-	unsigned int	rspreg0;
-	unsigned int	rspreg1;
-	unsigned int	rspreg2;
-	unsigned int	rspreg3;
-	unsigned int	bdata;
-	unsigned int	prnsts;
-	unsigned char	hostctl;
-	unsigned char	pwrcon;
-	unsigned char	blkgap;
-	unsigned char	wakcon;
-	unsigned short	clkcon;
-	unsigned char	timeoutcon;
-	unsigned char	swrst;
-	unsigned int	norintsts;	/* errintsts */
-	unsigned int	norintstsen;	/* errintstsen */
-	unsigned int	norintsigen;	/* errintsigen */
-	unsigned short	acmd12errsts;
-	unsigned char	res1[2];
-	unsigned int	capareg;
-	unsigned char	res2[4];
-	unsigned int	maxcurr;
-	unsigned char	res3[0x34];
-	unsigned int	control2;
-	unsigned int	control3;
-	unsigned char	res4[4];
-	unsigned int	control4;
-	unsigned char	res5[0x6e];
-	unsigned short	hcver;
-	unsigned char	res6[0xFFF00];
-};
+#define SDHCI_CONTROL2		0x80
+#define SDHCI_CONTROL3		0x84
+#define SDHCI_CONTROL4		0x8C
 
-struct mmc_host {
-	struct s5p_mmc *reg;
-	unsigned int version;	/* SDHCI spec. version */
-	unsigned int clock;	/* Current clock (MHz) */
-	int dev_index;
-};
+#define SDHCI_CTRL2_ENSTAASYNCCLR	(1 << 31)
+#define SDHCI_CTRL2_ENCMDCNFMSK		(1 << 30)
+#define SDHCI_CTRL2_CDINVRXD3		(1 << 29)
+#define SDHCI_CTRL2_SLCARDOUT		(1 << 28)
 
-int s5p_mmc_init(int dev_index, int bus_width);
+#define SDHCI_CTRL2_FLTCLKSEL_MASK	(0xf << 24)
+#define SDHCI_CTRL2_FLTCLKSEL_SHIFT	(24)
+#define SDHCI_CTRL2_FLTCLKSEL(_x)	((_x) << 24)
 
-#endif	/* __ASSEMBLY__ */
+#define SDHCI_CTRL2_LVLDAT_MASK		(0xff << 16)
+#define SDHCI_CTRL2_LVLDAT_SHIFT	(16)
+#define SDHCI_CTRL2_LVLDAT(_x)		((_x) << 16)
+
+#define SDHCI_CTRL2_ENFBCLKTX		(1 << 15)
+#define SDHCI_CTRL2_ENFBCLKRX		(1 << 14)
+#define SDHCI_CTRL2_SDCDSEL		(1 << 13)
+#define SDHCI_CTRL2_SDSIGPC		(1 << 12)
+#define SDHCI_CTRL2_ENBUSYCHKTXSTART	(1 << 11)
+
+#define SDHCI_CTRL2_DFCNT_MASK(_x)	((_x) << 9)
+#define SDHCI_CTRL2_DFCNT_SHIFT		(9)
+
+#define SDHCI_CTRL2_ENCLKOUTHOLD	(1 << 8)
+#define SDHCI_CTRL2_RWAITMODE		(1 << 7)
+#define SDHCI_CTRL2_DISBUFRD		(1 << 6)
+#define SDHCI_CTRL2_SELBASECLK_MASK(_x)	((_x) << 4)
+#define SDHCI_CTRL2_SELBASECLK_SHIFT	(4)
+#define SDHCI_CTRL2_PWRSYNC		(1 << 3)
+#define SDHCI_CTRL2_ENCLKOUTMSKCON	(1 << 1)
+#define SDHCI_CTRL2_HWINITFIN		(1 << 0)
+
+#define SDHCI_CTRL3_FCSEL3		(1 << 31)
+#define SDHCI_CTRL3_FCSEL2		(1 << 23)
+#define SDHCI_CTRL3_FCSEL1		(1 << 15)
+#define SDHCI_CTRL3_FCSEL0		(1 << 7)
+
+#define SDHCI_CTRL4_DRIVE_MASK(_x)	((_x) << 16)
+#define SDHCI_CTRL4_DRIVE_SHIFT		(16)
+
+int s5p_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk, u32 quirks);
+
+static inline unsigned int s5p_mmc_init(int index, int bus_width)
+{
+	unsigned int base = samsung_get_base_mmc() + (0x10000 * index);
+	return s5p_sdhci_init(base, 52000000, 400000, index);
+}
 #endif

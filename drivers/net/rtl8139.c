@@ -184,7 +184,7 @@ static unsigned char rx_ring[RX_BUF_LEN+16] __attribute__((aligned(4)));
 static int rtl8139_probe(struct eth_device *dev, bd_t *bis);
 static int read_eeprom(int location, int addr_len);
 static void rtl_reset(struct eth_device *dev);
-static int rtl_transmit(struct eth_device *dev, volatile void *packet, int length);
+static int rtl_transmit(struct eth_device *dev, void *packet, int length);
 static int rtl_poll(struct eth_device *dev);
 static void rtl_disable(struct eth_device *dev);
 #ifdef CONFIG_MCAST_TFTP/*  This driver already accepts all b/mcast */
@@ -407,7 +407,7 @@ static void rtl_reset(struct eth_device *dev)
 	outw(0, ioaddr + IntrMask);
 }
 
-static int rtl_transmit(struct eth_device *dev, volatile void *packet, int length)
+static int rtl_transmit(struct eth_device *dev, void *packet, int length)
 {
 	unsigned int status;
 	unsigned long txstatus;

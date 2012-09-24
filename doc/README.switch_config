@@ -1,0 +1,25 @@
+On the enbw_cmc board is a KSZ8864RMN switch which needs
+configured through spi before working. This is done on
+startup from u-boot through a config file stored at an
+address specified in the "hwconfig" environment variable,
+subcommand "config".
+
+For example on the enbw_cmc board:
+
+hwconfig=switch:lan=on,pwl=off,config=0x60160000
+
+The file has the following structure:
+
+- a comment starts with a '#' or a ';' and ends with a newline
+- The switch needs for its config a reg/value pair, so we
+  have two columns in the file:
+    reg  : contains the register address
+    value: contains a 8 bit register value
+  This 2 columns are seperated through space or tab.
+
+example (minimal configuration on the enbw_cmc board):
+
+;reg    value   comment
+;-----------------------------------------
+0x01	0x00
+0x01	0x01    ; Start Switch with this configuration

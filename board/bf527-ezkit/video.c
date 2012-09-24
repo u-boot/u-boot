@@ -17,6 +17,10 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 
+#include <lzma/LzmaTypes.h>
+#include <lzma/LzmaDec.h>
+#include <lzma/LzmaTools.h>
+
 #include <asm/mach-common/bits/ppi.h>
 #include <asm/mach-common/bits/timer.h>
 
@@ -24,12 +28,9 @@
 #define LCD_Y_RES		240	/* Vertical Resolution */
 #define DMA_BUS_SIZE		16
 
-#ifdef CONFIG_BF527_EZKIT_REV_2_1 /* lq035q1 */
+#include EASYLOGO_HEADER
 
-#if !defined(CONFIG_LQ035Q1_USE_RGB888_8_BIT_PPI) && \
-    !defined(CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI)
-# define CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI
-#endif
+#ifdef CONFIG_BF527_EZKIT_REV_2_1 /* lq035q1 */
 
 /* Interface 16/18-bit TFT over an 8-bit wide PPI using a
  * small Programmable Logic Device (CPLD)
@@ -37,14 +38,12 @@
  */
 
 #ifdef CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI
-#include <asm/bfin_logo_rgb565_230x230.h>
 #define LCD_BPP		16	/* Bit Per Pixel */
 #define CLOCKS_PPIX	2	/* Clocks per pixel */
 #define CPLD_DELAY	3	/* RGB565 pipeline delay */
 #endif
 
 #ifdef CONFIG_LQ035Q1_USE_RGB888_8_BIT_PPI
-#include <asm/bfin_logo_230x230.h>
 #define LCD_BPP		24	/* Bit Per Pixel */
 #define CLOCKS_PPIX	3	/* Clocks per pixel */
 #define CPLD_DELAY	5	/* RGB888 pipeline delay */
@@ -96,7 +95,6 @@
 #endif
 
 #else /* t350mcqb */
-#include <asm/bfin_logo_230x230.h>
 
 #define LCD_BPP		24	/* Bit Per Pixel */
 #define CLOCKS_PPIX	3	/* Clocks per pixel */
@@ -419,13 +417,23 @@ int drv_video_init(void)
 #ifdef EASYLOGO_ENABLE_GZIP
 	unsigned char *data = EASYLOGO_DECOMP_BUFFER;
 	unsigned long src_len = EASYLOGO_ENABLE_GZIP;
-	if (gunzip(data, bfin_logo.size, bfin_logo.data, &src_len)) {
+	error = gunzip(data, bfin_logo.size, bfin_logo.data, &src_len);
+	bfin_logo.data = data;
+#elif defined(EASYLOGO_ENABLE_LZMA)
+	unsigned char *data = EASYLOGO_DECOMP_BUFFER;
+	SizeT lzma_len = bfin_logo.size;
+	error = lzmaBuffToBuffDecompress(data, &lzma_len,
+		bfin_logo.data, EASYLOGO_ENABLE_LZMA);
+	bfin_logo.data = data;
+#else
+	error = 0;
+#endif
+
+	if (error) {
 		puts("Failed to decompress logo\n");
 		free(dst);
 		return -1;
 	}
-	bfin_logo.data = data;
-#endif
 
 	memset(dst + ACTIVE_VIDEO_MEM_OFFSET, bfin_logo.data[0], fbmem_size - ACTIVE_VIDEO_MEM_OFFSET);
 

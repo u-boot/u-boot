@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009,2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2007-2009,2010-2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -423,9 +423,6 @@
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
 
 /*
  * Pass open firmware flat tree
@@ -714,6 +711,8 @@
 /*
  * USB
  */
+#define CONFIG_HAS_FSL_MPH_USB
+#ifdef CONFIG_HAS_FSL_MPH_USB
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
@@ -721,6 +720,7 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
+#endif
 #endif
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)

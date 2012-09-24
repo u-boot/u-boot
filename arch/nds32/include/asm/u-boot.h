@@ -40,7 +40,6 @@
 
 typedef struct bd_info {
 	int		bi_baudrate;	/* serial console baudrate */
-	unsigned long	bi_ip_addr;	/* IP Address */
 	unsigned char	bi_enetaddr[6]; /* Ethernet adress */
 	unsigned long	bi_arch_number;	/* unique id for this board */
 	unsigned long	bi_boot_params;	/* where this board expects params */

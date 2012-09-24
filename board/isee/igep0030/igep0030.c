@@ -39,8 +39,6 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
-	/* board id for Linux */
-	gd->bd->bi_arch_number = MACH_TYPE_IGEP0030;
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
@@ -50,7 +48,7 @@ int board_init(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	omap_mmc_init(0);
+	omap_mmc_init(0, 0, 0);
 	return 0;
 }
 #endif

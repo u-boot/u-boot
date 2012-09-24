@@ -32,6 +32,7 @@
 #undef	CONFIG_BOARD_LATE_INIT
 #undef	CONFIG_USE_IRQ
 #undef	CONFIG_SKIP_LOWLEVEL_INIT
+#define	CONFIG_PREBOOT
 
 /*
  * Environment settings
@@ -67,7 +68,6 @@
 #define	CONFIG_PXA_SERIAL
 #define	CONFIG_STUART			1
 #define	CONFIG_BAUDRATE			115200
-#define	CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Bootloader Components Configuration
@@ -133,7 +133,6 @@ unsigned char zipitz2_spi_read(void);
  * HUSH Shell Configuration
  */
 #define	CONFIG_SYS_HUSH_PARSER		1
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
 #ifdef	CONFIG_SYS_HUSH_PARSER

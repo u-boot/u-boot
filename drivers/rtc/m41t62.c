@@ -63,6 +63,8 @@
 #define M41T62_FEATURE_HT	(1 << 0)
 #define M41T62_FEATURE_BL	(1 << 1)
 
+#define M41T80_ALHOUR_HT	(1 << 6)	/* HT: Halt Update Bit */
+
 int rtc_get(struct rtc_time *tm)
 {
 	u8 buf[M41T62_DATETIME_REG_SIZE];
@@ -132,9 +134,15 @@ int rtc_set(struct rtc_time *tm)
 
 void rtc_reset(void)
 {
+	u8 val;
+
 	/*
-	 * Nothing to do
+	 * M41T82: Make sure HT (Halt Update) bit is cleared.
+	 * This bit is 0 in M41T62 so its save to clear it always.
 	 */
+	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, M41T62_REG_ALARM_HOUR, 1, &val, 1);
+	val &= ~M41T80_ALHOUR_HT;
+	i2c_write(CONFIG_SYS_I2C_RTC_ADDR, M41T62_REG_ALARM_HOUR, 1, &val, 1);
 }
 
 #endif

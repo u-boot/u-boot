@@ -146,6 +146,8 @@
 /* commands to include */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_ASKENV
+
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
@@ -213,7 +215,7 @@
 							/* partition */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY		2
+#define CONFIG_BOOTDELAY		3
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
@@ -314,7 +316,6 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"OMAP3 beagleboard.org # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
@@ -399,7 +400,7 @@
 #define CONFIG_SPL
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_TEXT_BASE		0x40200800
-#define CONFIG_SPL_MAX_SIZE		(45 * 1024)
+#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
@@ -410,6 +411,7 @@
 #define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
 #define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
 
+#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT

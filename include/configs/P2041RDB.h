@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011-2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -96,6 +96,11 @@
 	#define CONFIG_SYS_MMC_ENV_DEV          0
 	#define CONFIG_ENV_SIZE			0x2000
 	#define CONFIG_ENV_OFFSET		(512 * 1097)
+#elif defined(CONFIG_NAND)
+#define CONFIG_SYS_EXTRA_ENV_RELOC
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET		(5 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else
 	#define CONFIG_ENV_IS_IN_FLASH
 	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE \
@@ -186,10 +191,11 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 #endif
 
-#define CONFIG_SYS_BR0_PRELIM \
+#define CONFIG_SYS_FLASH_BR_PRELIM \
 		(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
-#define CONFIG_SYS_OR0_PRELIM ((0xf8000ff7 & ~OR_GPCM_SCY & ~OR_GPCM_EHTR) \
-				| OR_GPCM_SCY_8 | OR_GPCM_EHTR_CLEAR)
+#define CONFIG_SYS_FLASH_OR_PRELIM \
+		((0xf8000ff7 & ~OR_GPCM_SCY & ~OR_GPCM_EHTR) \
+		 | OR_GPCM_SCY_8 | OR_GPCM_EHTR_CLEAR)
 
 #define CONFIG_FSL_CPLD
 #define CPLD_BASE		0xffdf0000	/* CPLD registers */
@@ -220,6 +226,53 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #if defined(CONFIG_RAMBOOT_PBL)
 #define CONFIG_SYS_RAMBOOT
 #endif
+
+#define CONFIG_NAND_FSL_ELBC
+/* Nand Flash */
+#ifdef CONFIG_NAND_FSL_ELBC
+#define CONFIG_SYS_NAND_BASE		0xffa00000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_NAND_BASE_PHYS	0xfffa00000ull
+#else
+#define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
+#endif
+
+#define CONFIG_SYS_NAND_BASE_LIST     {CONFIG_SYS_NAND_BASE}
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_MTD_NAND_VERIFY_WRITE
+#define CONFIG_CMD_NAND
+#define CONFIG_SYS_NAND_BLOCK_SIZE    (128 * 1024)
+
+/* NAND flash config */
+#define CONFIG_SYS_NAND_BR_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
+			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
+			       | BR_PS_8	       /* Port Size = 8 bit */ \
+			       | BR_MS_FCM	       /* MSEL = FCM */ \
+			       | BR_V)		       /* valid */
+#define CONFIG_SYS_NAND_OR_PRELIM  (0xFFFC0000	      /* length 256K */ \
+			       | OR_FCM_PGS	       /* Large Page*/ \
+			       | OR_FCM_CSCT \
+			       | OR_FCM_CST \
+			       | OR_FCM_CHT \
+			       | OR_FCM_SCY_1 \
+			       | OR_FCM_TRLX \
+			       | OR_FCM_EHTR)
+
+#ifdef CONFIG_NAND
+#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
+#define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_FLASH_BR_PRELIM /* NOR Base Address */
+#define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_FLASH_OR_PRELIM /* NOR Options */
+#else
+#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_FLASH_BR_PRELIM /* NOR Base Address */
+#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_FLASH_OR_PRELIM /* NOR Options */
+#define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
+#endif
+#else
+#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_FLASH_BR_PRELIM /* NOR Base Address */
+#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_FLASH_OR_PRELIM /* NOR Options */
+#endif /* CONFIG_NAND_FSL_ELBC */
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_AMD_CHECK_DQ7
@@ -276,7 +329,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT
@@ -518,11 +570,17 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 /*
 * USB
 */
+#define CONFIG_HAS_FSL_DR_USB
+#define CONFIG_HAS_FSL_MPH_USB
+
+#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#endif
+
 #define CONFIG_CMD_EXT2
 
 #define CONFIG_MMC

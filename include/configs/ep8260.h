@@ -290,7 +290,6 @@
    with a somewhat smapper memory footprint.
 */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 
 /*
@@ -325,7 +324,6 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SNTP
 
-#undef CONFIG_CMD_DCR
 #undef CONFIG_CMD_XIMG
 
 /* Where do the internal registers live? */
@@ -376,9 +374,6 @@
 #define CONFIG_SYS_TFTP_LOADADDR 0x00100000   /* default load address for network file downloads */
 
 #define CONFIG_SYS_HZ            1000         /* decrementer freq: 1 ms ticks */
-
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Low Level Configuration Settings

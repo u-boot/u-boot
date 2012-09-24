@@ -70,7 +70,7 @@ struct mx28_register_32 {
 #define	mx28_reg_8(name)				\
 	union {						\
 		struct { __mx28_reg_8(name) };		\
-		struct mx28_register_32 name##_reg;	\
+		struct mx28_register_8 name##_reg;	\
 	};
 
 #define	mx28_reg_32(name)				\

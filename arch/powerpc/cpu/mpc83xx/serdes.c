@@ -1,7 +1,7 @@
 /*
  * Freescale SerDes initialization routine
  *
- * Copyright (C) 2007,2011 Freescale Semicondutor, Inc.
+ * Copyright 2007,2011 Freescale Semiconductor, Inc.
  * Copyright (C) 2008 MontaVista Software, Inc.
  *
  * Author: Li Yang <leoli@freescale.com>

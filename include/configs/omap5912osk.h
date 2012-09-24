@@ -44,8 +44,6 @@
 
 #undef CONFIG_USE_IRQ	/* we don't need IRQ/FIQ stuff */
 
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG      1       /* Required for ramdisk support */
@@ -83,8 +81,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE	115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 
 /*
  * Command line configuration.

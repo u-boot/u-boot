@@ -37,7 +37,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MXC_GPIO
 
@@ -70,7 +69,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /* Command definition */
 #include <config_cmd_default.h>
@@ -126,7 +124,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"MX6QARM2 U-Boot > "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256
@@ -168,6 +165,7 @@
 #define CONFIG_SYS_MMC_ENV_DEV		1
 
 #define CONFIG_OF_LIBFDT
+#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_SYS_DCACHE_OFF
 

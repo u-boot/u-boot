@@ -5,7 +5,7 @@
 #if 0
 #include <linux/compiler.h>
 #else
-#include <linux/mtd/compat.h>
+#include <linux/compat.h>
 #endif
 
 #include <asm/errno.h>

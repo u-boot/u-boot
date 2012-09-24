@@ -29,6 +29,16 @@
 #include <usb_defs.h>
 #include <usbdescriptors.h>
 
+/*
+ * The EHCI spec says that we must align to at least 32 bytes.  However,
+ * some platforms require larger alignment.
+ */
+#if ARCH_DMA_MINALIGN > 32
+#define USB_DMA_MINALIGN	ARCH_DMA_MINALIGN
+#else
+#define USB_DMA_MINALIGN	32
+#endif
+
 /* Everything is aribtrary */
 #define USB_ALTSETTINGALLOC		4
 #define USB_MAXALTSETTING		128	/* Hard limit */
@@ -109,7 +119,9 @@ struct usb_device {
 	int epmaxpacketout[16];		/* OUTput endpoint specific maximums */
 
 	int configno;			/* selected config number */
-	struct usb_device_descriptor descriptor; /* Device Descriptor */
+	/* Device Descriptor */
+	struct usb_device_descriptor descriptor
+		__attribute__((aligned(ARCH_DMA_MINALIGN)));
 	struct usb_config config; /* config descriptor */
 
 	int have_langid;		/* whether string_langid is valid yet */

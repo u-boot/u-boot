@@ -224,10 +224,16 @@ void __dram_init_banksize(void)
 void dram_init_banksize(void)
 	__attribute__((weak, alias("__dram_init_banksize")));
 
+int __arch_cpu_init(void)
+{
+	return 0;
+}
+int arch_cpu_init(void)
+	__attribute__((weak, alias("__arch_cpu_init")));
+
 init_fnc_t *init_sequence[] = {
-#if defined(CONFIG_ARCH_CPU_INIT)
 	arch_cpu_init,		/* basic arch cpu dependent setup */
-#endif
+
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
@@ -500,6 +506,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
 	mem_malloc_init (malloc_start, TOTAL_MALLOC_LEN);
 
+#ifdef CONFIG_ARCH_EARLY_INIT_R
+	arch_early_init_r();
+#endif
+
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts("Flash: ");
 
@@ -555,9 +565,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	arm_pci_init();
 #endif
 
-	/* IP Address */
-	gd->bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 	stdio_init();	/* get the devices list going. */
 
 	jumptable_init();
@@ -595,14 +602,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
-#if defined(CONFIG_CMD_NET)
-	{
-		char *s = getenv("bootfile");
-
-		if (s != NULL)
-			copy_filename(BootFile, s, sizeof(BootFile));
-	}
-#endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init();

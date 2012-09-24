@@ -141,8 +141,7 @@ static int pcnet_check (struct eth_device *dev)
 }
 
 static int pcnet_init (struct eth_device *dev, bd_t * bis);
-static int pcnet_send (struct eth_device *dev, volatile void *packet,
-		       int length);
+static int pcnet_send(struct eth_device *dev, void *packet, int length);
 static int pcnet_recv (struct eth_device *dev);
 static void pcnet_halt (struct eth_device *dev);
 static int pcnet_probe (struct eth_device *dev, bd_t * bis, int dev_num);
@@ -415,8 +414,7 @@ static int pcnet_init (struct eth_device *dev, bd_t * bis)
 	return 0;
 }
 
-static int pcnet_send (struct eth_device *dev, volatile void *packet,
-		       int pkt_len)
+static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 {
 	int i, status;
 	struct pcnet_tx_head *entry = &lp->tx_ring[lp->cur_tx];

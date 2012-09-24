@@ -24,11 +24,13 @@
 
 #define DEVICE_NOT_AVAILABLE		0
 
+#define EXYNOS_CPU_NAME			"Exynos"
 #define EXYNOS4_ADDR_BASE		0x10000000
 
 /* EXYNOS4 */
 #define EXYNOS4_GPIO_PART3_BASE		0x03860000
 #define EXYNOS4_PRO_ID			0x10000000
+#define EXYNOS4_SYSREG_BASE		0x10010000
 #define EXYNOS4_POWER_BASE		0x10020000
 #define EXYNOS4_SWRESET			0x10020400
 #define EXYNOS4_CLOCK_BASE		0x10030000
@@ -40,9 +42,11 @@
 #define EXYNOS4_GPIO_PART2_BASE		0x11000000
 #define EXYNOS4_GPIO_PART1_BASE		0x11400000
 #define EXYNOS4_FIMD_BASE		0x11C00000
+#define EXYNOS4_MIPI_DSIM_BASE		0x11C80000
 #define EXYNOS4_USBOTG_BASE		0x12480000
 #define EXYNOS4_MMC_BASE		0x12510000
 #define EXYNOS4_SROMC_BASE		0x12570000
+#define EXYNOS4_USB_HOST_EHCI_BASE	0x12580000
 #define EXYNOS4_USBPHY_BASE		0x125B0000
 #define EXYNOS4_UART_BASE		0x13800000
 #define EXYNOS4_ADC_BASE		0x13910000
@@ -65,10 +69,12 @@
 #define EXYNOS5_GPIO_PART3_BASE		0x10D10000
 #define EXYNOS5_DMC_CTRL_BASE		0x10DD0000
 #define EXYNOS5_GPIO_PART1_BASE		0x11400000
+#define EXYNOS5_MIPI_DSIM_BASE		0x11D00000
+#define EXYNOS5_USB_HOST_EHCI_BASE	0x12110000
+#define EXYNOS5_USBPHY_BASE		0x12130000
+#define EXYNOS5_USBOTG_BASE		0x12140000
 #define EXYNOS5_MMC_BASE		0x12200000
 #define EXYNOS5_SROMC_BASE		0x12250000
-#define EXYNOS5_USBOTG_BASE		0x12480000
-#define EXYNOS5_USBPHY_BASE		0x12480000
 #define EXYNOS5_UART_BASE		0x12C00000
 #define EXYNOS5_PWMTIMER_BASE		0x12DD0000
 #define EXYNOS5_GPIO_PART2_BASE		0x13400000
@@ -90,29 +96,42 @@ static inline int s5p_get_cpu_rev(void)
 
 static inline void s5p_set_cpu_id(void)
 {
-	s5p_cpu_id = readl(EXYNOS4_PRO_ID);
-	s5p_cpu_id = (0xC000 | ((s5p_cpu_id & 0x00FFF000) >> 12));
+	unsigned int pro_id = (readl(EXYNOS4_PRO_ID) & 0x00FFF000) >> 12;
 
-	/*
-	 * 0xC200: EXYNOS4210 EVT0
-	 * 0xC210: EXYNOS4210 EVT1
-	 */
-	if (s5p_cpu_id == 0xC200) {
-		s5p_cpu_id |= 0x10;
+	switch (pro_id) {
+	case 0x200:
+		/* Exynos4210 EVT0 */
+		s5p_cpu_id = 0x4210;
 		s5p_cpu_rev = 0;
-	} else if (s5p_cpu_id == 0xC210) {
-		s5p_cpu_rev = 1;
+		break;
+	case 0x210:
+		/* Exynos4210 EVT1 */
+		s5p_cpu_id = 0x4210;
+		break;
+	case 0x412:
+		/* Exynos4412 */
+		s5p_cpu_id = 0x4412;
+		break;
+	case 0x520:
+		/* Exynos5250 */
+		s5p_cpu_id = 0x5250;
+		break;
 	}
+}
+
+static inline char *s5p_get_cpu_name(void)
+{
+	return EXYNOS_CPU_NAME;
 }
 
 #define IS_SAMSUNG_TYPE(type, id)			\
 static inline int cpu_is_##type(void)			\
 {							\
-	return s5p_cpu_id == id ? 1 : 0;		\
+	return (s5p_cpu_id >> 12) == id;		\
 }
 
-IS_SAMSUNG_TYPE(exynos4, 0xc210)
-IS_SAMSUNG_TYPE(exynos5, 0xc520)
+IS_SAMSUNG_TYPE(exynos4, 0x4)
+IS_SAMSUNG_TYPE(exynos5, 0x5)
 
 #define SAMSUNG_BASE(device, base)				\
 static inline unsigned int samsung_get_base_##device(void)	\
@@ -127,7 +146,9 @@ static inline unsigned int samsung_get_base_##device(void)	\
 
 SAMSUNG_BASE(adc, ADC_BASE)
 SAMSUNG_BASE(clock, CLOCK_BASE)
+SAMSUNG_BASE(sysreg, SYSREG_BASE)
 SAMSUNG_BASE(fimd, FIMD_BASE)
+SAMSUNG_BASE(mipi_dsim, MIPI_DSIM_BASE)
 SAMSUNG_BASE(gpio_part1, GPIO_PART1_BASE)
 SAMSUNG_BASE(gpio_part2, GPIO_PART2_BASE)
 SAMSUNG_BASE(gpio_part3, GPIO_PART3_BASE)
@@ -140,6 +161,7 @@ SAMSUNG_BASE(swreset, SWRESET)
 SAMSUNG_BASE(timer, PWMTIMER_BASE)
 SAMSUNG_BASE(uart, UART_BASE)
 SAMSUNG_BASE(usb_phy, USBPHY_BASE)
+SAMSUNG_BASE(usb_ehci, USB_HOST_EHCI_BASE)
 SAMSUNG_BASE(usb_otg, USBOTG_BASE)
 SAMSUNG_BASE(watchdog, WATCHDOG_BASE)
 SAMSUNG_BASE(power, POWER_BASE)

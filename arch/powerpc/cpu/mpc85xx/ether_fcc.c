@@ -138,7 +138,7 @@ static RTXBD rtx __attribute__ ((aligned(8)));
 
 #undef ET_DEBUG
 
-static int fec_send(struct eth_device* dev, volatile void *packet, int length)
+static int fec_send(struct eth_device *dev, void *packet, int length)
 {
     int i = 0;
     int result = 0;

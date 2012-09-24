@@ -59,16 +59,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #if	!defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
 	!defined(CONFIG_ENV_IS_IN_FLASH)	&& \
 	!defined(CONFIG_ENV_IS_IN_DATAFLASH)	&& \
-	!defined(CONFIG_ENV_IS_IN_MG_DISK)	&& \
 	!defined(CONFIG_ENV_IS_IN_MMC)		&& \
 	!defined(CONFIG_ENV_IS_IN_FAT)		&& \
 	!defined(CONFIG_ENV_IS_IN_NAND)		&& \
 	!defined(CONFIG_ENV_IS_IN_NVRAM)	&& \
 	!defined(CONFIG_ENV_IS_IN_ONENAND)	&& \
 	!defined(CONFIG_ENV_IS_IN_SPI_FLASH)	&& \
+	!defined(CONFIG_ENV_IS_IN_REMOTE)	&& \
 	!defined(CONFIG_ENV_IS_NOWHERE)
 # error Define one of CONFIG_ENV_IS_IN_{EEPROM|FLASH|DATAFLASH|ONENAND|\
-SPI_FLASH|MG_DISK|NVRAM|MMC|FAT} or CONFIG_ENV_IS_NOWHERE
+SPI_FLASH|NVRAM|MMC|FAT|REMOTE} or CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define XMK_STR(x)	#x
@@ -203,7 +203,6 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
  */
 int _do_env_set(int flag, int argc, char * const argv[])
 {
-	bd_t  *bd = gd->bd;
 	int   i, len;
 	int   console = -1;
 	char  *name, *value, *s;
@@ -342,21 +341,7 @@ int _do_env_set(int flag, int argc, char * const argv[])
 	 * Some variables should be updated when the corresponding
 	 * entry in the environment is changed
 	 */
-	if (strcmp(name, "ipaddr") == 0) {
-		char *s = argv[2];	/* always use only one arg */
-		char *e;
-		unsigned long addr;
-		bd->bi_ip_addr = 0;
-		for (addr = 0, i = 0; i < 4; ++i) {
-			ulong val = s ? simple_strtoul(s, &e, 10) : 0;
-			addr <<= 8;
-			addr  |= val & 0xFF;
-			if (s)
-				s = *e ? e + 1 : e;
-		}
-		bd->bi_ip_addr = htonl(addr);
-		return 0;
-	} else if (strcmp(argv[1], "loadaddr") == 0) {
+	if (strcmp(argv[1], "loadaddr") == 0) {
 		load_addr = simple_strtoul(argv[2], NULL, 16);
 		return 0;
 	}

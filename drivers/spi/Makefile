@@ -43,7 +43,7 @@ COBJS-$(CONFIG_OMAP3_SPI) += omap3_spi.o
 COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
 COBJS-$(CONFIG_SH_SPI) += sh_spi.o
 COBJS-$(CONFIG_FSL_ESPI) += fsl_espi.o
-COBJS-$(CONFIG_TEGRA2_SPI) += tegra2_spi.o
+COBJS-$(CONFIG_TEGRA_SPI) += tegra_spi.o
 COBJS-$(CONFIG_ZYNQ_SPI) += zynq_qspi.o zynq_qspi_wrap.o
 
 COBJS	:= $(COBJS-y)

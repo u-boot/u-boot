@@ -349,7 +349,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
 #define CONFIG_SYS_MONITOR_LEN	(384 * 1024) /* Reserve 384 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN	(128 * 1024) /* Reserved for malloc */
+#define CONFIG_SYS_MALLOC_LEN	(256 * 1024) /* Reserved for malloc */
 
 /*
  * Local Bus LCRR and LBCR regs
@@ -558,7 +558,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_CMDLINE_EDITING		/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 #define CONFIG_SYS_HUSH_PARSER		/* Use the HUSH parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */

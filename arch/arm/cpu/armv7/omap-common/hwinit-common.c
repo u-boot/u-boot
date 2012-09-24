@@ -111,6 +111,10 @@ static void init_boot_params(void)
 void s_init(void)
 {
 	init_omap_revision();
+#ifdef CONFIG_SPL_BUILD
+	if (warm_reset() && (omap_revision() <= OMAP5430_ES1_0))
+		force_emif_self_refresh();
+#endif
 	watchdog_init();
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
@@ -162,11 +166,16 @@ void watchdog_init(void)
  */
 u32 omap_sdram_size(void)
 {
-	u32 section, i, total_size = 0, size, addr;
+	u32 section, i, valid;
+	u64 sdram_start = 0, sdram_end = 0, addr,
+	    size, total_size = 0, trap_size = 0;
 
 	for (i = 0; i < 4; i++) {
 		section	= __raw_readl(DMM_BASE + i*4);
+		valid = (section & EMIF_SDRC_ADDRSPC_MASK) >>
+			(EMIF_SDRC_ADDRSPC_SHIFT);
 		addr = section & EMIF_SYS_ADDR_MASK;
+
 		/* See if the address is valid */
 		if ((addr >= DRAM_ADDR_SPACE_START) &&
 		    (addr < DRAM_ADDR_SPACE_END)) {
@@ -174,9 +183,20 @@ u32 omap_sdram_size(void)
 				   EMIF_SYS_SIZE_SHIFT);
 			size = 1 << size;
 			size *= SZ_16M;
-			total_size += size;
+
+			if (valid != DMM_SDRC_ADDR_SPC_INVALID) {
+				if (!sdram_start || (addr < sdram_start))
+					sdram_start = addr;
+				if (!sdram_end || ((addr + size) > sdram_end))
+					sdram_end = addr + size;
+			} else {
+				trap_size = size;
+			}
+
 		}
+
 	}
+	total_size = (sdram_end - sdram_start) - (trap_size);
 
 	return total_size;
 }
@@ -203,21 +223,15 @@ int checkboard(void)
 }
 
 /*
-* This function is called by start_armboot. You can reliably use static
-* data. Any boot-time function that require static data should be
-* called from here
-*/
-int arch_cpu_init(void)
-{
-	return 0;
-}
-
-/*
  *  get_device_type(): tell if GP/HS/EMU/TST
  */
 u32 get_device_type(void)
 {
-	return 0;
+	struct omap_sys_ctrl_regs *ctrl =
+		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
+
+	return (readl(&ctrl->control_status) &
+				      (DEVICE_TYPE_MASK)) >> DEVICE_TYPE_SHIFT;
 }
 
 /*

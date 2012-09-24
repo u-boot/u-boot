@@ -258,8 +258,7 @@ static void ns8382x_init_txd(struct eth_device *dev);
 static void ns8382x_init_rxd(struct eth_device *dev);
 static void ns8382x_set_rx_mode(struct eth_device *dev);
 static void ns8382x_check_duplex(struct eth_device *dev);
-static int ns8382x_send(struct eth_device *dev, volatile void *packet,
-			int length);
+static int ns8382x_send(struct eth_device *dev, void *packet, int length);
 static int ns8382x_poll(struct eth_device *dev);
 static void ns8382x_disable(struct eth_device *dev);
 
@@ -735,8 +734,7 @@ ns8382x_check_duplex(struct eth_device *dev)
 /* Function: ns8382x_send
  * Description: transmits a packet and waits for completion or timeout.
  * Returns:   void.  */
-static int
-ns8382x_send(struct eth_device *dev, volatile void *packet, int length)
+static int ns8382x_send(struct eth_device *dev, void *packet, int length)
 {
 	u32 i, status = 0;
 	vu_long tx_stat = 0;

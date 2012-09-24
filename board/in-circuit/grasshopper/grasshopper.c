@@ -72,6 +72,13 @@ int board_early_init_f(void)
 	portmux_enable_usart0(PORTMUX_DRIVE_MIN);
 	portmux_enable_usart1(PORTMUX_DRIVE_MIN);
 #if defined(CONFIG_MACB)
+	/* set PHY reset and pwrdown to low */
+	portmux_select_gpio(PORTMUX_PORT_B, (1 << 29) | (1 << 30),
+		PORTMUX_DIR_OUTPUT | PORTMUX_INIT_LOW);
+	udelay(100);
+	/* release PHYs reset */
+	gpio_set_value(GPIO_PIN_PB(29), 1);
+
 	portmux_enable_macb0(PORTMUX_MACB_MII, PORTMUX_DRIVE_LOW);
 #endif
 

@@ -31,6 +31,28 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
 #include <asm/utils.h>
+#include <linux/compiler.h>
+
+void set_lpmode_selfrefresh(u32 base)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+	u32 reg;
+
+	reg = readl(&emif->emif_pwr_mgmt_ctrl);
+	reg &= ~EMIF_REG_LP_MODE_MASK;
+	reg |= LP_MODE_SELF_REFRESH << EMIF_REG_LP_MODE_SHIFT;
+	reg &= ~EMIF_REG_SR_TIM_MASK;
+	writel(reg, &emif->emif_pwr_mgmt_ctrl);
+
+	/* dummy read for the new SR_TIM to be loaded */
+	readl(&emif->emif_pwr_mgmt_ctrl);
+}
+
+void force_emif_self_refresh()
+{
+	set_lpmode_selfrefresh(EMIF1_BASE);
+	set_lpmode_selfrefresh(EMIF2_BASE);
+}
 
 inline u32 emif_num(u32 base)
 {
@@ -56,7 +78,12 @@ static inline u32 get_mr(u32 base, u32 cs, u32 mr_addr)
 		mr = readl(&emif->emif_lpddr2_mode_reg_data);
 	debug("get_mr: EMIF%d cs %d mr %08x val 0x%x\n", emif_num(base),
 	      cs, mr_addr, mr);
-	return mr;
+	if (((mr & 0x0000ff00) >>  8) == (mr & 0xff) &&
+	    ((mr & 0x00ff0000) >> 16) == (mr & 0xff) &&
+	    ((mr & 0xff000000) >> 24) == (mr & 0xff))
+		return mr & 0xff;
+	else
+		return mr;
 }
 
 static inline void set_mr(u32 base, u32 cs, u32 mr_addr, u32 mr_val)
@@ -90,15 +117,25 @@ static void do_lpddr2_init(u32 base, u32 cs)
 	 * tZQINIT = 1 us
 	 * Enough loops assuming a maximum of 2GHz
 	 */
+
 	sdelay(2000);
-	set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_3);
+
+	if (omap_revision() >= OMAP5430_ES1_0)
+		set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8);
+	else
+		set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_3);
+
 	set_mr(base, cs, LPDDR2_MR16, MR16_REF_FULL_ARRAY);
+
 	/*
 	 * Enable refresh along with writing MR2
 	 * Encoding of RL in MR2 is (RL - 2)
 	 */
 	mr_addr = LPDDR2_MR2 | EMIF_REG_REFRESH_EN_MASK;
 	set_mr(base, cs, mr_addr, RL_FINAL - 2);
+
+	if (omap_revision() >= OMAP5430_ES1_0)
+		set_mr(base, cs, LPDDR2_MR3, 0x1);
 }
 
 static void lpddr2_init(u32 base, const struct emif_regs *regs)
@@ -119,7 +156,9 @@ static void lpddr2_init(u32 base, const struct emif_regs *regs)
 	 * un-locked frequency & default RL
 	 */
 	writel(regs->sdram_config_init, &emif->emif_sdram_config);
-	writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
+	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);
+
+	do_ext_phy_settings(base, regs);
 
 	do_lpddr2_init(base, CS0);
 	if (regs->sdram_config & EMIF_REG_EBANK_MASK)
@@ -131,6 +170,10 @@ static void lpddr2_init(u32 base, const struct emif_regs *regs)
 	/* Enable refresh now */
 	clrbits_le32(&emif->emif_sdram_ref_ctrl, EMIF_REG_INITREF_DIS_MASK);
 
+	}
+
+__weak void do_ext_phy_settings(u32 base, const struct emif_regs *regs)
+{
 }
 
 void emif_update_timings(u32 base, const struct emif_regs *regs)
@@ -153,7 +196,7 @@ void emif_update_timings(u32 base, const struct emif_regs *regs)
 	writel(regs->temp_alert_config, &emif->emif_temp_alert_config);
 	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
 
-	if (omap_revision() == OMAP5430_ES1_0) {
+	if (omap_revision() >= OMAP5430_ES1_0) {
 		writel(EMIF_L3_CONFIG_VAL_SYS_10_MPU_5_LL_0,
 			&emif->emif_l3_config);
 	} else if (omap_revision() >= OMAP4460_ES1_0) {
@@ -163,6 +206,101 @@ void emif_update_timings(u32 base, const struct emif_regs *regs)
 		writel(EMIF_L3_CONFIG_VAL_SYS_10_LL_0,
 			&emif->emif_l3_config);
 	}
+}
+
+static void ddr3_leveling(u32 base, const struct emif_regs *regs)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+
+	/* keep sdram in self-refresh */
+	writel(((LP_MODE_SELF_REFRESH << EMIF_REG_LP_MODE_SHIFT)
+		& EMIF_REG_LP_MODE_MASK), &emif->emif_pwr_mgmt_ctrl);
+	__udelay(130);
+
+	/*
+	 * Set invert_clkout (if activated)--DDR_PHYCTRL_1
+	 * Invert clock adds an additional half cycle delay on the command
+	 * interface.  The additional half cycle, is usually meant to enable
+	 * leveling in the situation that DQS is later than CK on the board.It
+	 * also helps provide some additional margin for leveling.
+	 */
+	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);
+	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
+	__udelay(130);
+
+	writel(((LP_MODE_DISABLE << EMIF_REG_LP_MODE_SHIFT)
+		& EMIF_REG_LP_MODE_MASK), &emif->emif_pwr_mgmt_ctrl);
+
+	/* Launch Full leveling */
+	writel(DDR3_FULL_LVL, &emif->emif_rd_wr_lvl_ctl);
+
+	/* Wait till full leveling is complete */
+	readl(&emif->emif_rd_wr_lvl_ctl);
+	__udelay(130);
+
+	/* Read data eye leveling no of samples */
+	config_data_eye_leveling_samples(base);
+
+	/* Launch 8 incremental WR_LVL- to compensate for PHY limitation */
+	writel(0x2 << EMIF_REG_WRLVLINC_INT_SHIFT, &emif->emif_rd_wr_lvl_ctl);
+	__udelay(130);
+
+	/* Launch Incremental leveling */
+	writel(DDR3_INC_LVL, &emif->emif_rd_wr_lvl_ctl);
+	__udelay(130);
+}
+
+static void ddr3_init(u32 base, const struct emif_regs *regs)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+	u32 *ext_phy_ctrl_base = 0;
+	u32 *emif_ext_phy_ctrl_base = 0;
+	u32 i = 0;
+
+	/*
+	 * Set SDRAM_CONFIG and PHY control registers to locked frequency
+	 * and RL =7. As the default values of the Mode Registers are not
+	 * defined, contents of mode Registers must be fully initialized.
+	 * H/W takes care of this initialization
+	 */
+	writel(regs->sdram_config_init, &emif->emif_sdram_config);
+
+	writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
+
+	/* Update timing registers */
+	writel(regs->sdram_tim1, &emif->emif_sdram_tim_1);
+	writel(regs->sdram_tim2, &emif->emif_sdram_tim_2);
+	writel(regs->sdram_tim3, &emif->emif_sdram_tim_3);
+
+	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl);
+	writel(regs->read_idle_ctrl, &emif->emif_read_idlectrl);
+
+	ext_phy_ctrl_base = (u32 *) &(regs->emif_ddr_ext_phy_ctrl_1);
+	emif_ext_phy_ctrl_base = (u32 *) &(emif->emif_ddr_ext_phy_ctrl_1);
+
+	/* Configure external phy control timing registers */
+	for (i = 0; i < EMIF_EXT_PHY_CTRL_TIMING_REG; i++) {
+		writel(*ext_phy_ctrl_base, emif_ext_phy_ctrl_base++);
+		/* Update shadow registers */
+		writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
+	}
+
+	/*
+	 * external phy 6-24 registers do not change with
+	 * ddr frequency
+	 */
+	for (i = 0; i < EMIF_EXT_PHY_CTRL_CONST_REG; i++) {
+		writel(ddr3_ext_phy_ctrl_const_base[i],
+					emif_ext_phy_ctrl_base++);
+		/* Update shadow registers */
+		writel(ddr3_ext_phy_ctrl_const_base[i],
+					emif_ext_phy_ctrl_base++);
+	}
+
+	/* enable leveling */
+	writel(regs->emif_rd_wr_lvl_rmp_ctl, &emif->emif_rd_wr_lvl_rmp_ctl);
+
+	ddr3_leveling(base, regs);
 }
 
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
@@ -789,7 +927,7 @@ static u8 is_lpddr2_sdram_present(u32 base, u32 cs,
 	}
 
 	mr = get_mr(base, cs, LPDDR2_MR5);
-	if (mr >= 0xFF) {
+	if (mr > 0xFF) {
 		/* Mode register value bigger than 8 bit */
 		return 0;
 	}
@@ -858,7 +996,7 @@ struct lpddr2_device_details *emif_get_device_details(u32 emif_nr, u8 cs,
 		return NULL;
 
 	/* Do the minimum init for mode register accesses */
-	if (!running_from_sdram()) {
+	if (!(running_from_sdram() || warm_reset())) {
 		phy = get_ddr_phy_ctrl_1(get_sys_clk_freq() / 2, RL_BOOT);
 		writel(phy, &emif->emif_ddr_phy_ctrl_1);
 	}
@@ -938,8 +1076,12 @@ static void do_sdram_init(u32 base)
 	 * Changing the timing registers in EMIF can happen(going from one
 	 * OPP to another)
 	 */
-	if (!in_sdram)
-		lpddr2_init(base, regs);
+	if (!(in_sdram || warm_reset())) {
+		if (omap_revision() != OMAP5432_ES1_0)
+			lpddr2_init(base, regs);
+		else
+			ddr3_init(base, regs);
+	}
 
 	/* Write to the shadow registers */
 	emif_update_timings(base, regs);
@@ -1096,6 +1238,7 @@ void dmm_init(u32 base)
 void sdram_init(void)
 {
 	u32 in_sdram, size_prog, size_detect;
+	u32 omap_rev = omap_revision();
 
 	debug(">>sdram_init()\n");
 
@@ -1105,25 +1248,34 @@ void sdram_init(void)
 	in_sdram = running_from_sdram();
 	debug("in_sdram = %d\n", in_sdram);
 
-	if (!in_sdram)
-		bypass_dpll(&prcm->cm_clkmode_dpll_core);
-
+	if (!(in_sdram || warm_reset())) {
+		if (omap_rev != OMAP5432_ES1_0)
+			bypass_dpll(&prcm->cm_clkmode_dpll_core);
+		else
+			writel(CM_DLL_CTRL_NO_OVERRIDE, &prcm->cm_dll_ctrl);
+	}
 
 	do_sdram_init(EMIF1_BASE);
 	do_sdram_init(EMIF2_BASE);
 
-	if (!in_sdram) {
+	if (!in_sdram)
 		dmm_init(DMM_BASE);
+
+	if (!(in_sdram || warm_reset())) {
 		emif_post_init_config(EMIF1_BASE);
 		emif_post_init_config(EMIF2_BASE);
 	}
 
 	/* for the shadow registers to take effect */
-	freq_update_core();
+	if (omap_rev != OMAP5432_ES1_0)
+		freq_update_core();
 
 	/* Do some testing after the init */
 	if (!in_sdram) {
 		size_prog = omap_sdram_size();
+		size_prog = log_2_n_round_down(size_prog);
+		size_prog = (1 << size_prog);
+
 		size_detect = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 						size_prog);
 		/* Compare with the size programmed */

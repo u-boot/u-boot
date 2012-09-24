@@ -96,15 +96,6 @@ extern unsigned long nand_env_oob_offset;
 # endif
 #endif /* CONFIG_ENV_IS_IN_NAND */
 
-#if defined(CONFIG_ENV_IS_IN_MG_DISK)
-# ifndef CONFIG_ENV_ADDR
-#  error "Need to define CONFIG_ENV_ADDR when using CONFIG_ENV_IS_IN_MG_DISK"
-# endif
-# ifndef CONFIG_ENV_SIZE
-#  error "Need to define CONFIG_ENV_SIZE when using CONFIG_ENV_IS_IN_MG_DISK"
-# endif
-#endif /* CONFIG_ENV_IS_IN_MG_DISK */
-
 /* Embedded env is only supported for some flash types */
 #ifdef CONFIG_ENV_IS_EMBEDDED
 # if	!defined(CONFIG_ENV_IS_IN_FLASH)	&& \

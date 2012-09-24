@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2010,2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -212,9 +212,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#ifdef CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
 
 /*
  * Pass open firmware flat tree
@@ -399,6 +396,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
 #endif /* CONFIG_MMC */
 
+#define CONFIG_HAS_FSL_DR_USB
+#ifdef CONFIG_HAS_FSL_DR_USB
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
@@ -406,7 +405,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
-#define CONFIG_HAS_FSL_DR_USB
+#endif
 #endif
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
@@ -416,8 +415,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 
 /* Misc Extra Settings */
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
 #define CONFIG_CMD_DHCP			1
 
 #define CONFIG_CMD_DATE			1

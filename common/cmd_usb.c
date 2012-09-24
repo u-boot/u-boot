@@ -150,7 +150,8 @@ void usb_display_class_sub(unsigned char dclass, unsigned char subclass,
 
 void usb_display_string(struct usb_device *dev, int index)
 {
-	char buffer[256];
+	ALLOC_CACHE_ALIGN_BUFFER(char, buffer, 256);
+
 	if (index != 0) {
 		if (usb_string(dev, index, &buffer[0], 256) > 0)
 			printf("String: \"%s\"", buffer);

@@ -434,7 +434,7 @@ static int xgmac_init(struct eth_device *dev, bd_t * bis)
 	return 0;
 }
 
-static int xgmac_tx(struct eth_device *dev, volatile void *packet, int length)
+static int xgmac_tx(struct eth_device *dev, void *packet, int length)
 {
 	struct xgmac_regs *regs = (struct xgmac_regs *)dev->iobase;
 	struct calxeda_eth_dev *priv = dev->priv;
@@ -442,7 +442,7 @@ static int xgmac_tx(struct eth_device *dev, volatile void *packet, int length)
 	struct xgmac_dma_desc *txdesc = &priv->tx_chain[currdesc];
 	int timeout;
 
-	desc_set_buf_addr_and_size(txdesc, (void *)packet, length);
+	desc_set_buf_addr_and_size(txdesc, packet, length);
 	desc_set_tx_owner(txdesc, TXDESC_FIRST_SEG |
 		TXDESC_LAST_SEG | TXDESC_CRC_EN_APPEND);
 
@@ -476,7 +476,7 @@ static int xgmac_rx(struct eth_device *dev)
 
 	length = desc_get_rx_frame_len(rxdesc);
 
-	NetReceive((volatile unsigned char *)desc_get_buf_addr(rxdesc), length);
+	NetReceive(desc_get_buf_addr(rxdesc), length);
 
 	/* set descriptor back to owned by XGMAC */
 	desc_set_rx_owner(rxdesc);

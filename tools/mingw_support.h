@@ -34,6 +34,14 @@
 #define MAP_SHARED	0x01		/* Share changes */
 #define MAP_PRIVATE	0x02		/* Changes are private */
 
+/* File perms */
+#ifndef S_IRGRP
+# define S_IRGRP 0
+#endif
+#ifndef S_IWGRP
+# define S_IWGRP 0
+#endif
+
 /* Windows 64-bit access macros */
 #define LODWORD(x) ((DWORD)((DWORDLONG)(x)))
 #define HIDWORD(x) ((DWORD)(((DWORDLONG)(x) >> 32) & 0xffffffff))

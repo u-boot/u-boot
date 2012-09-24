@@ -31,6 +31,10 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= $(BOARD).o ../common/common.o ../common/ivm.o
 
+ifdef CONFIG_KM_FPGA_CONFIG
+COBJS	+= fpga_config.o
+endif
+
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))

@@ -473,11 +473,20 @@ struct omap5_prcm_regs {
 	u32 cm_wkup_rtc_clkctrl;		/* 4ae07880 */
 	u32 pad214;				/* 4ae07884 */
 	u32 cm_wkup_bandgap_clkctrl;		/* 4ae07888 */
-	u32 pad215[197];			/* 4ae0788c */
+	u32 pad215[1];				/* 4ae0788c */
+	u32 cm_wkupaon_scrm_clkctrl;		/* 4ae07890 */
+	u32 pad216[195];
 	u32 prm_vc_val_bypass;			/* 4ae07ba0 */
-	u32 pad216[4];
+	u32 pad217[4];
 	u32 prm_vc_cfg_i2c_mode;		/* 4ae07bb4 */
 	u32 prm_vc_cfg_i2c_clk;			/* 4ae07bb8 */
+	u32 pad218[2];
+	u32 prm_sldo_core_setup;		/* 4ae07bc4 */
+	u32 prm_sldo_core_ctrl;			/* 4ae07bc8 */
+	u32 prm_sldo_mpu_setup;			/* 4ae07bcc */
+	u32 prm_sldo_mpu_ctrl;			/* 4ae07bd0 */
+	u32 prm_sldo_mm_setup;			/* 4ae07bd4 */
+	u32 prm_sldo_mm_ctrl;			/* 4ae07bd8 */
 };
 
 /* DPLL register offsets */
@@ -487,6 +496,11 @@ struct omap5_prcm_regs {
 #define CM_CLKSEL_DPLL		0xC
 
 #define DPLL_CLKOUT_DIV_MASK	0x1F /* post-divider mask */
+
+/* CM_DLL_CTRL */
+#define CM_DLL_CTRL_OVERRIDE_SHIFT		0
+#define CM_DLL_CTRL_OVERRIDE_MASK		(1 << 0)
+#define CM_DLL_CTRL_NO_OVERRIDE			0
 
 /* CM_CLKMODE_DPLL */
 #define CM_CLKMODE_DPLL_REGM4XEN_SHIFT		11
@@ -513,6 +527,10 @@ struct omap5_prcm_regs {
 
 /* CM_IDLEST_DPLL fields */
 #define ST_DPLL_CLK_MASK		1
+
+/* SGX */
+#define CLKSEL_GPU_HYD_GCLK_MASK		(1 << 25)
+#define CLKSEL_GPU_CORE_GCLK_MASK		(1 << 24)
 
 /* CM_CLKSEL_DPLL */
 #define CM_CLKSEL_DPLL_DPLL_SD_DIV_SHIFT	24
@@ -591,6 +609,7 @@ struct omap5_prcm_regs {
 
 /* CM_L3INIT_HSMMCn_CLKCTRL */
 #define HSMMC_CLKCTRL_CLKSEL_MASK		(1 << 24)
+#define HSMMC_CLKCTRL_CLKSEL_DIV_MASK		(1 << 25)
 
 /* CM_WKUP_GPTIMER1_CLKCTRL */
 #define GPTIMER1_CLKCTRL_CLKSEL_MASK		(1 << 24)
@@ -610,36 +629,36 @@ struct omap5_prcm_regs {
 #define MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_SHIFT	25
 #define MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK	(1 << 25)
 
+/* CM_WKUPAON_SCRM_CLKCTRL */
+#define OPTFCLKEN_SCRM_PER_SHIFT		9
+#define OPTFCLKEN_SCRM_PER_MASK			(1 << 9)
+#define OPTFCLKEN_SCRM_CORE_SHIFT		8
+#define OPTFCLKEN_SCRM_CORE_MASK		(1 << 8)
+
 /* Clock frequencies */
 #define OMAP_SYS_CLK_FREQ_38_4_MHZ	38400000
 #define OMAP_SYS_CLK_IND_38_4_MHZ	6
 #define OMAP_32K_CLK_FREQ		32768
 
-/* PRM_VC_CFG_I2C_CLK */
-#define PRM_VC_CFG_I2C_CLK_SCLH_SHIFT		0
-#define PRM_VC_CFG_I2C_CLK_SCLH_MASK		0xFF
-#define PRM_VC_CFG_I2C_CLK_SCLL_SHIFT		8
-#define PRM_VC_CFG_I2C_CLK_SCLL_MASK		(0xFF << 8)
-
 /* PRM_VC_VAL_BYPASS */
 #define PRM_VC_I2C_CHANNEL_FREQ_KHZ	400
 
-#define PRM_VC_VAL_BYPASS_VALID_BIT	0x1000000
-#define PRM_VC_VAL_BYPASS_SLAVEADDR_SHIFT	0
-#define PRM_VC_VAL_BYPASS_SLAVEADDR_MASK	0x7F
-#define PRM_VC_VAL_BYPASS_REGADDR_SHIFT		8
-#define PRM_VC_VAL_BYPASS_REGADDR_MASK		0xFF
-#define PRM_VC_VAL_BYPASS_DATA_SHIFT		16
-#define PRM_VC_VAL_BYPASS_DATA_MASK		0xFF
-
 /* SMPS */
 #define SMPS_I2C_SLAVE_ADDR	0x12
-#define SMPS_REG_ADDR_VCORE1	0x55
-#define SMPS_REG_ADDR_VCORE2	0x5B
-#define SMPS_REG_ADDR_VCORE3	0x61
+#define SMPS_REG_ADDR_12_MPU	0x23
+#define SMPS_REG_ADDR_45_IVA	0x2B
+#define SMPS_REG_ADDR_8_CORE	0x37
 
-#define PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV		607700
-#define PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV	709000
+/* PALMAS VOLTAGE SETTINGS in mv for OPP_NOMINAL */
+#define VDD_MPU		1000
+#define VDD_MM		1000
+#define VDD_CORE	1040
+#define VDD_MPU_5432	1150
+#define VDD_MM_5432	1150
+#define VDD_CORE_5432	1150
+
+/* Standard offset is 0.5v expressed in uv */
+#define PALMAS_SMPS_BASE_VOLT_UV 500000
 
 /* TPS */
 #define TPS62361_I2C_SLAVE_ADDR		0x60
@@ -677,7 +696,7 @@ struct dpll_regs {
 	u32 cm_div_h12_dpll;
 	u32 cm_div_h13_dpll;
 	u32 cm_div_h14_dpll;
-	u32 reserved[2];
+	u32 reserved[3];
 	u32 cm_div_h22_dpll;
 	u32 cm_div_h23_dpll;
 };
@@ -700,10 +719,10 @@ extern struct omap5_prcm_regs *const prcm;
 extern const u32 sys_clk_array[8];
 
 void scale_vcores(void);
-void do_scale_tps62361(u32 reg, u32 volt_mv);
+void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv);
+u32 get_offset_code(u32 offset);
 u32 omap_ddr_clk(void);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv);
-void setup_sri2c(void);
 void setup_post_dividers(u32 *const base, const struct dpll_params *params);
 u32 get_sys_clk_index(void);
 void enable_basic_clocks(void);

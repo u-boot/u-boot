@@ -1557,8 +1557,7 @@ get_speed:
 }
 
 
-static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr,
-			      int len)
+static int ppc_4xx_eth_send(struct eth_device *dev, void *ptr, int len)
 {
 	struct enet_frame *ef_ptr;
 	ulong time_start, time_now;

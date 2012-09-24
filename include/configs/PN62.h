@@ -171,7 +171,6 @@
 /*
  * Serial port configuration
  */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL

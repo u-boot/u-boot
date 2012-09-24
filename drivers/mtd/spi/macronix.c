@@ -36,18 +36,9 @@
 #include "spi_flash_internal.h"
 
 /* MX25xx-specific commands */
-#define CMD_MX25XX_WREN		0x06	/* Write Enable */
-#define CMD_MX25XX_WRDI		0x04	/* Write Disable */
-#define CMD_MX25XX_RDSR		0x05	/* Read Status Register */
-#define CMD_MX25XX_WRSR		0x01	/* Write Status Register */
-#define CMD_MX25XX_READ		0x03	/* Read Data Bytes */
-#define CMD_MX25XX_FAST_READ	0x0b	/* Read Data Bytes at Higher Speed */
-#define CMD_MX25XX_PP		0x02	/* Page Program */
 #define CMD_MX25XX_SE		0x20	/* Sector Erase */
 #define CMD_MX25XX_BE		0xD8	/* Block Erase */
 #define CMD_MX25XX_CE		0xc7	/* Chip Erase */
-#define CMD_MX25XX_DP		0xb9	/* Deep Power-down */
-#define CMD_MX25XX_RES		0xab	/* Release from DP, and Read Signature */
 
 struct macronix_spi_flash_params {
 	u16 idcode;
@@ -128,7 +119,7 @@ static int macronix_write_status(struct spi_flash *flash, u8 sr)
 		return ret;
 	}
 
-	cmd = CMD_MX25XX_WRSR;
+	cmd = CMD_WRITE_STATUS;
 	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &sr, 1);
 	if (ret) {
 		debug("SF: fail to write status register\n");

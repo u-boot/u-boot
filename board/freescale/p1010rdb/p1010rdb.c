@@ -165,11 +165,7 @@ int checkboard(void)
 	struct cpu_type *cpu;
 
 	cpu = gd->cpu;
-	printf("Board: %sRDB ", cpu->name);
-#ifdef CONFIG_PHYS_64BIT
-	puts("(36-bit addrmap)");
-#endif
-	puts("\n");
+	printf("Board: %sRDB\n", cpu->name);
 
 	return 0;
 }
@@ -194,7 +190,7 @@ int board_eth_init(bd_t *bis)
 #endif
 #ifdef CONFIG_TSEC3
 	/* P1014 and it's derivatives do not support eTSEC3 */
-	if (cpu->soc_ver != SVR_P1014 && cpu->soc_ver != SVR_P1014_E) {
+	if (cpu->soc_ver != SVR_P1014) {
 		SET_STD_TSEC_INFO(tsec_info[num], 3);
 		num++;
 	}
@@ -256,6 +252,31 @@ void fdt_del_tdm(void *blob)
 	}
 }
 
+void fdt_del_sdhc(void *blob)
+{
+	int nodeoff = 0;
+
+	while ((nodeoff = fdt_node_offset_by_compatible(blob, 0,
+			"fsl,esdhc")) >= 0) {
+		fdt_del_node(blob, nodeoff);
+	}
+}
+
+void fdt_disable_uart1(void *blob)
+{
+	int nodeoff;
+
+	nodeoff = fdt_node_offset_by_compat_reg(blob, "fsl,ns16550",
+					CONFIG_SYS_NS16550_COM2);
+
+	if (nodeoff > 0) {
+		fdt_status_disabled(blob, nodeoff);
+	} else {
+		printf("WARNING unable to set status for fsl,ns16550 "
+			"uart1: %s\n", fdt_strerror(nodeoff));
+	}
+}
+
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
@@ -280,23 +301,30 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 
        /* P1014 and it's derivatives don't support CAN and eTSEC3 */
-	if (cpu->soc_ver == SVR_P1014 || cpu->soc_ver == SVR_P1014_E) {
+	if (cpu->soc_ver == SVR_P1014) {
 		fdt_del_flexcan(blob);
 		fdt_del_node_and_alias(blob, "ethernet2");
 	}
 #ifndef CONFIG_SDCARD
+	/* disable sdhc due to sdhc bug */
+	fdt_del_sdhc(blob);
 	if (hwconfig_subarg_cmp("fsl_p1010mux", "tdm_can", "can")) {
-		printf("fdt CAN");
 		fdt_del_tdm(blob);
 		fdt_del_spi_slic(blob);
-	}
-#ifndef CONFIG_SPIFLASH
-	else if (hwconfig_subarg_cmp("fsl_p1010mux", "tdm_can", "tdm")) {
-		printf("fdt TDM");
+	} else if (hwconfig_subarg_cmp("fsl_p1010mux", "tdm_can", "tdm")) {
 		fdt_del_flexcan(blob);
 		fdt_del_spi_flash(blob);
+		fdt_disable_uart1(blob);
+	} else {
+		/*
+		 * If we don't set fsl_p1010mux:tdm_can to "can" or "tdm"
+		 * explicitly, defaultly spi_cs_sel to spi-flash instead of
+		 * to tdm/slic.
+		 */
+		fdt_del_tdm(blob);
+		fdt_del_flexcan(blob);
+		fdt_disable_uart1(blob);
 	}
-#endif
 #endif
 }
 #endif
@@ -313,10 +341,7 @@ int misc_init_r(void)
 				MPC85xx_PMUXCR_CAN2_TDM |
 				MPC85xx_PMUXCR_CAN2_UART);
 		out_8(&cpld_data->tdm_can_sel, MUX_CPLD_CAN_UART);
-	}
-#ifndef CONFIG_SPIFLASH
-		if (hwconfig_subarg_cmp("fsl_p1010mux", "tdm_can", "tdm")) {
-			printf("TDM");
+	} else if (hwconfig_subarg_cmp("fsl_p1010mux", "tdm_can", "tdm")) {
 		clrbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_CAN2_UART |
 				MPC85xx_PMUXCR_CAN1_UART);
 		setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_CAN2_TDM |
@@ -325,8 +350,11 @@ int misc_init_r(void)
 		setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_UART_TDM);
 		out_8(&cpld_data->tdm_can_sel, MUX_CPLD_TDM);
 		out_8(&cpld_data->spi_cs0_sel, MUX_CPLD_SPICS0_SLIC);
-		}
-#endif
+	} else {
+		/* defaultly spi_cs_sel to flash */
+		out_8(&cpld_data->spi_cs0_sel, MUX_CPLD_SPICS0_FLASH);
+	}
+
 	return 0;
 }
 #endif

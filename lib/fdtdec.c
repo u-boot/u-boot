@@ -40,6 +40,9 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA20_USB, "nvidia,tegra20-ehci"),
 	COMPAT(NVIDIA_TEGRA20_I2C, "nvidia,tegra20-i2c"),
 	COMPAT(NVIDIA_TEGRA20_DVC, "nvidia,tegra20-i2c-dvc"),
+	COMPAT(NVIDIA_TEGRA20_EMC, "nvidia,tegra20-emc"),
+	COMPAT(NVIDIA_TEGRA20_EMC_TABLE, "nvidia,tegra20-emc-table"),
+	COMPAT(NVIDIA_TEGRA20_KBC, "nvidia,tegra20-kbc"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -131,6 +134,21 @@ int fdtdec_next_compatible(const void *blob, int node,
 		enum fdt_compat_id id)
 {
 	return fdt_node_offset_by_compatible(blob, node, compat_names[id]);
+}
+
+int fdtdec_next_compatible_subnode(const void *blob, int node,
+		enum fdt_compat_id id, int *depthp)
+{
+	do {
+		node = fdt_next_node(blob, node, depthp);
+	} while (*depthp > 1);
+
+	/* If this is a direct subnode, and compatible, return it */
+	if (*depthp == 1 && 0 == fdt_node_check_compatible(
+						blob, node, compat_names[id]))
+		return node;
+
+	return -FDT_ERR_NOTFOUND;
 }
 
 int fdtdec_next_alias(const void *blob, const char *name,
@@ -363,6 +381,17 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 	return err;
 }
 
+const u32 *fdtdec_locate_array(const void *blob, int node,
+			       const char *prop_name, int count)
+{
+	const u32 *cell;
+	int err;
+
+	cell = get_prop_check_min_len(blob, node, prop_name,
+				      sizeof(u32) * count, &err);
+	return err ? NULL : cell;
+}
+
 int fdtdec_get_bool(const void *blob, int node, const char *prop_name)
 {
 	const s32 *cell;
@@ -447,4 +476,28 @@ int fdtdec_setup_gpio(struct fdt_gpio_state *gpio)
 	if (gpio_request(gpio->gpio, gpio->name))
 		return -1;
 	return 0;
+}
+
+int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
+		u8 *array, int count)
+{
+	const u8 *cell;
+	int err;
+
+	cell = get_prop_check_min_len(blob, node, prop_name, count, &err);
+	if (!err)
+		memcpy(array, cell, count);
+	return err;
+}
+
+const u8 *fdtdec_locate_byte_array(const void *blob, int node,
+			     const char *prop_name, int count)
+{
+	const u8 *cell;
+	int err;
+
+	cell = get_prop_check_min_len(blob, node, prop_name, count, &err);
+	if (err)
+		return NULL;
+	return cell;
 }

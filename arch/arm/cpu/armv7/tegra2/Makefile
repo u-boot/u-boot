@@ -27,6 +27,7 @@
 # flags for any startup files it might use.
 CFLAGS_arch/arm/cpu/armv7/tegra2/ap20.o += -march=armv4t
 CFLAGS_arch/arm/cpu/armv7/tegra2/clock.o += -march=armv4t
+CFLAGS_arch/arm/cpu/armv7/tegra2/warmboot_avp.o += -march=armv4t
 
 include $(TOPDIR)/config.mk
 
@@ -34,7 +35,11 @@ LIB	=  $(obj)lib$(SOC).o
 
 SOBJS	:= lowlevel_init.o
 COBJS-y	:= ap20.o board.o clock.o funcmux.o pinmux.o sys_info.o timer.o
+COBJS-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
+COBJS-$(CONFIG_TEGRA_PMU) += pmu.o
 COBJS-$(CONFIG_USB_EHCI_TEGRA) += usb.o
+COBJS-$(CONFIG_TEGRA2_LP0) += crypto.o warmboot.o warmboot_avp.o
+COBJS-$(CONFIG_CMD_ENTERRCM) += cmd_enterrcm.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)

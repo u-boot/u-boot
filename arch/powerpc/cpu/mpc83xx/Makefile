@@ -41,6 +41,9 @@ COBJS-$(CONFIG_PCI) += pci.o
 COBJS-$(CONFIG_PCIE) += pcie.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 
+# Stub implementations of cache management functions for USB
+COBJS-y += cache.o
+
 ifdef CONFIG_FSL_DDR2
 COBJS_LN-$(CONFIG_MPC8349) += ddr-gen2.o
 else

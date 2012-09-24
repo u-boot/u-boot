@@ -64,6 +64,7 @@ static int dmfc_size_28, dmfc_size_29, dmfc_size_24, dmfc_size_27, dmfc_size_23;
 int g_di1_tvout;
 
 extern struct clk *g_ipu_clk;
+extern struct clk *g_ldb_clk;
 extern struct clk *g_di_clk[2];
 extern struct clk *g_pixel_clk[2];
 
@@ -941,7 +942,7 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 				udelay(10000);
 			}
 		}
-		clk_set_parent(g_pixel_clk[disp], g_di_clk[disp]);
+		clk_set_parent(g_pixel_clk[disp], g_ldb_clk);
 	} else {
 		if (clk_get_usecount(g_pixel_clk[disp]) != 0)
 			clk_set_parent(g_pixel_clk[disp], g_ipu_clk);

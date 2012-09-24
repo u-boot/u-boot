@@ -122,7 +122,6 @@
 
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /***********************************************************
  * Command definition
@@ -211,9 +210,6 @@
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser */
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #define CONFIG_MISC_INIT_R
 /*-----------------------------------------------------------------------

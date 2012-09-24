@@ -83,7 +83,6 @@
 #define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #define CONFIG_CMDLINE_EDITING
 
 /*
@@ -180,9 +179,6 @@
 
 /* we configure PWM Timer 4 to 1ms 1000Hz  */
 #define CONFIG_SYS_HZ			1000
-
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* support additional compression methods */
 #define CONFIG_BZIP2

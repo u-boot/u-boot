@@ -102,8 +102,7 @@ int ll_temac_recv_fifo(struct eth_device *dev)
 	return 0;
 }
 
-int ll_temac_send_fifo(struct eth_device *dev, volatile void *packet,
-							int length)
+int ll_temac_send_fifo(struct eth_device *dev, void *packet, int length)
 {
 	int i;
 	u32 *buf = (u32 *)packet;

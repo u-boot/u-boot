@@ -82,8 +82,7 @@ typedef volatile struct {
 
 
 static int plb2800_eth_init(struct eth_device *dev, bd_t * bis);
-static int plb2800_eth_send(struct eth_device *dev, volatile void *packet,
-						  int length);
+static int plb2800_eth_send(struct eth_device *dev, void *packet, int length);
 static int plb2800_eth_recv(struct eth_device *dev);
 static void plb2800_eth_halt(struct eth_device *dev);
 
@@ -162,8 +161,7 @@ static int plb2800_eth_init(struct eth_device *dev, bd_t * bis)
 }
 
 
-static int plb2800_eth_send(struct eth_device *dev, volatile void *packet,
-						  int length)
+static int plb2800_eth_send(struct eth_device *dev, void *packet, int length)
 {
 	int                    i;
 	int                    res         = -1;

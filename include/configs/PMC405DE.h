@@ -117,10 +117,6 @@
 #undef  CONFIG_SYS_EXT_SERIAL_CLOCK
 #define CONFIG_SYS_BASE_BAUD		691200
 
-/* The following table includes the supported baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	\
-	{ 9600, 19200, 38400, 57600, 115200 }
-
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 #define CONFIG_SYS_EXTBDINFO	1	/* To use extended board_into (bd_t) */
 

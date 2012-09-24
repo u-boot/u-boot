@@ -170,9 +170,6 @@
 #define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt	*/
 
 #define	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/

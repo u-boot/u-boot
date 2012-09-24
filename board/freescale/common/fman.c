@@ -37,31 +37,33 @@
  * ... update that Ethernet node's phy-handle property to point to the
  * ethernet-phy node.  This is how we link an Ethernet node to its PHY, so each
  * PHY in a virtual MDIO node must have an alias.
+ *
+ * Returns 0 on success, or a negative FDT error code on error.
  */
-void fdt_set_phy_handle(void *fdt, char *compat, phys_addr_t addr,
+int fdt_set_phy_handle(void *fdt, char *compat, phys_addr_t addr,
 			const char *alias)
 {
-	int offset, ph;
+	int offset;
+	unsigned int ph;
 	const char *path;
 
 	/* Get a path to the node that 'alias' points to */
 	path = fdt_get_alias(fdt, alias);
-	if (path) {
-		/* Get the offset of that node */
-		int off = fdt_path_offset(fdt, path);
-		if (off > 0)
-			ph = fdt_create_phandle(fdt, off);
-		else
-			return;
-	} else {
-		return ;
-	}
+	if (!path)
+		return -FDT_ERR_BADPATH;
 
-	/* failed to create a phandle */
-	if (ph <= 0)
-		return ;
+	/* Get the offset of that node */
+	offset = fdt_path_offset(fdt, path);
+	if (offset < 0)
+		return offset;
+
+	ph = fdt_create_phandle(fdt, offset);
+	if (!ph)
+		return -FDT_ERR_BADPHANDLE;
 
 	offset = fdt_node_offset_by_compat_reg(fdt, compat, addr);
-	if (offset > 0)
-		fdt_setprop(fdt, offset, "phy-handle", &ph, sizeof(ph));
+	if (offset < 0)
+		return offset;
+
+	return fdt_setprop(fdt, offset, "phy-handle", &ph, sizeof(ph));
 }

@@ -199,7 +199,7 @@ static int xemaclite_txbufferavailable(struct eth_device *dev)
 	return !(txpingbusy && txpongbusy);
 }
 
-static int emaclite_send(struct eth_device *dev, volatile void *ptr, int len)
+static int emaclite_send(struct eth_device *dev, void *ptr, int len)
 {
 	u32 reg;
 	u32 baseaddress;
@@ -240,7 +240,7 @@ static int emaclite_send(struct eth_device *dev, volatile void *ptr, int len)
 
 		debug("Send packet from 0x%x\n", baseaddress);
 		/* Write the frame to the buffer */
-		xemaclite_alignedwrite((void *) ptr, baseaddress, len);
+		xemaclite_alignedwrite(ptr, baseaddress, len);
 		out_be32 (baseaddress + XEL_TPLR_OFFSET,(len &
 			(XEL_TPLR_LENGTH_MASK_HI | XEL_TPLR_LENGTH_MASK_LO)));
 		reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
@@ -261,7 +261,7 @@ static int emaclite_send(struct eth_device *dev, volatile void *ptr, int len)
 				& XEL_TSR_XMIT_ACTIVE_MASK) == 0)) {
 			debug("Send packet from 0x%x\n", baseaddress);
 			/* Write the frame to the buffer */
-			xemaclite_alignedwrite((void *) ptr, baseaddress, len);
+			xemaclite_alignedwrite(ptr, baseaddress, len);
 			out_be32 (baseaddress + XEL_TPLR_OFFSET, (len &
 				(XEL_TPLR_LENGTH_MASK_HI |
 					XEL_TPLR_LENGTH_MASK_LO)));

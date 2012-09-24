@@ -637,7 +637,7 @@ static int tx_send_loop = 0;
  * positive number (number of bytes transmitted) or negative for error
  */
 static int davinci_eth_send_packet (struct eth_device *dev,
-					volatile void *packet, int length)
+					void *packet, int length)
 {
 	int ret_status = -1;
 	int index;
@@ -895,5 +895,13 @@ int davinci_emac_initialize(void)
 		miiphy_register(phy[i].name, davinci_mii_phy_read,
 						davinci_mii_phy_write);
 	}
+
+#if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
+		defined(CONFIG_MACH_DAVINCI_DA850_EVM)
+	for (i = 0; i < num_phy; i++) {
+		if (phy[i].is_phy_connected(i))
+			phy[i].auto_negotiate(i);
+	}
+#endif
 	return(1);
 }

@@ -1,6 +1,7 @@
 #ifndef _LINUX_LMB_H
 #define _LINUX_LMB_H
 #ifdef __KERNEL__
+#ifdef CONFIG_LMB
 
 #include <asm/types.h>
 /*
@@ -56,6 +57,7 @@ lmb_size_bytes(struct lmb_region *type, unsigned long region_nr)
 void board_lmb_reserve(struct lmb *lmb);
 void arch_lmb_reserve(struct lmb *lmb);
 
+#endif /* CONFIG_LMB */
 #endif /* __KERNEL__ */
 
 #endif /* _LINUX_LMB_H */

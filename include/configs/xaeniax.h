@@ -67,9 +67,6 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 } /* valid baudrates */
-
-
 /*
  * BOOTP options
  */
@@ -122,7 +119,6 @@
 #define CONFIG_SYS_LONGHELP				/* undef to save memory	*/
 #define CONFIG_SYS_HUSH_PARSER		1
 
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #ifdef CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"u-boot$ "	/* Monitor Command Prompt */

@@ -325,9 +325,6 @@
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
 
-#ifdef CONFIG_SYS_HUSH_PARSER
-# define CONFIG_SYS_PROMPT_HUSH_PS2  "> "
-#endif
 
 #define CONFIG_LOADS_ECHO            /* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE /* allow baudrate change */

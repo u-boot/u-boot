@@ -60,6 +60,9 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA20_USB,	/* Tegra2 USB port */
 	COMPAT_NVIDIA_TEGRA20_I2C,	/* Tegra2 i2c */
 	COMPAT_NVIDIA_TEGRA20_DVC,	/* Tegra2 dvc (really just i2c) */
+	COMPAT_NVIDIA_TEGRA20_EMC,	/* Tegra2 memory controller */
+	COMPAT_NVIDIA_TEGRA20_EMC_TABLE, /* Tegra2 memory timing table */
+	COMPAT_NVIDIA_TEGRA20_KBC,	/* Tegra2 Keyboard */
 
 	COMPAT_COUNT,
 };
@@ -115,6 +118,23 @@ int fdtdec_next_alias(const void *blob, const char *name,
  */
 int fdtdec_next_compatible(const void *blob, int node,
 		enum fdt_compat_id id);
+
+/**
+ * Find the next compatible subnode for a peripheral.
+ *
+ * Do the first call with node set to the parent and depth = 0. This
+ * function will return the offset of the next compatible node. Next time
+ * you call this function, pass the node value returned last time, with
+ * depth unchanged, and the next node will be provided.
+ *
+ * @param blob		FDT blob to use
+ * @param node		Start node for search
+ * @param id		Compatible ID to look for (enum fdt_compat_id)
+ * @param depthp	Current depth (set to 0 before first call)
+ * @return offset of next compatible node, or -FDT_ERR_NOTFOUND if no more
+ */
+int fdtdec_next_compatible_subnode(const void *blob, int node,
+		enum fdt_compat_id id, int *depthp);
 
 /**
  * Look up an address property in a node and return it as an address.
@@ -272,6 +292,25 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 		u32 *array, int count);
 
 /**
+ * Look up a property in a node and return a pointer to its contents as a
+ * unsigned int array of given length. The property must have at least enough
+ * data for the array ('count' cells). It may have more, but this will be
+ * ignored. The data is not copied.
+ *
+ * Note that you must access elements of the array with fdt32_to_cpu(),
+ * since the elements will be big endian even on a little endian machine.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param count		number of array elements
+ * @return pointer to array if found, or NULL if the property is not
+ *		found or there is not enough data
+ */
+const u32 *fdtdec_locate_array(const void *blob, int node,
+			       const char *prop_name, int count);
+
+/**
  * Look up a boolean property in a node and return it.
  *
  * A boolean properly is true if present in the device tree and false if not
@@ -311,3 +350,35 @@ int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
  * @return 0 if all ok or gpio was FDT_GPIO_NONE; -1 on error
  */
 int fdtdec_setup_gpio(struct fdt_gpio_state *gpio);
+
+/*
+ * Look up a property in a node and return its contents in a byte
+ * array of given length. The property must have at least enough data for
+ * the array (count bytes). It may have more, but this will be ignored.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param array		array to fill with data
+ * @param count		number of array elements
+ * @return 0 if ok, or -FDT_ERR_MISSING if the property is not found,
+ *		or -FDT_ERR_BADLAYOUT if not enough data
+ */
+int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
+		u8 *array, int count);
+
+/**
+ * Look up a property in a node and return a pointer to its contents as a
+ * byte array of given length. The property must have at least enough data
+ * for the array (count bytes). It may have more, but this will be ignored.
+ * The data is not copied.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param count		number of array elements
+ * @return pointer to byte array if found, or NULL if the property is not
+ *		found or there is not enough data
+ */
+const u8 *fdtdec_locate_byte_array(const void *blob, int node,
+			     const char *prop_name, int count);

@@ -33,6 +33,7 @@
 #define NV_PA_GPIO_BASE		0x6000D000
 #define NV_PA_EVP_BASE		0x6000F000
 #define NV_PA_APB_MISC_BASE	0x70000000
+#define TEGRA2_APB_MISC_GP_BASE	(NV_PA_APB_MISC_BASE + 0x0800)
 #define NV_PA_APB_UARTA_BASE	(NV_PA_APB_MISC_BASE + 0x6000)
 #define NV_PA_APB_UARTB_BASE	(NV_PA_APB_MISC_BASE + 0x6040)
 #define NV_PA_APB_UARTC_BASE	(NV_PA_APB_MISC_BASE + 0x6200)
@@ -40,9 +41,11 @@
 #define NV_PA_APB_UARTE_BASE	(NV_PA_APB_MISC_BASE + 0x6400)
 #define TEGRA2_SPI_BASE		(NV_PA_APB_MISC_BASE + 0xC380)
 #define TEGRA2_PMC_BASE		(NV_PA_APB_MISC_BASE + 0xE400)
+#define TEGRA2_FUSE_BASE	(NV_PA_APB_MISC_BASE + 0xF800)
 #define NV_PA_CSITE_BASE	0x70040000
 #define TEGRA_USB1_BASE		0xC5000000
 #define TEGRA_USB3_BASE		0xC5008000
+#define TEGRA_USB_ADDR_MASK	0xFFFFC000
 
 #define TEGRA2_SDRC_CS0		NV_PA_SDRAM_BASE
 #define LOW_LEVEL_SRAM_STACK	0x4000FFFC
@@ -54,6 +57,33 @@
 struct timerus {
 	unsigned int cntr_1us;
 };
+
+/* Address at which WB code runs, it must not overlap Bootrom's IRAM usage */
+#define AP20_WB_RUN_ADDRESS	0x40020000
+
+#define NVBOOTINFOTABLE_BCTSIZE	0x38	/* BCT size in BIT in IRAM */
+#define NVBOOTINFOTABLE_BCTPTR	0x3C	/* BCT pointer in BIT in IRAM */
+#define BCT_ODMDATA_OFFSET	4068	/* 12 bytes from end of BCT */
+
+/* These are the available SKUs (product types) for Tegra */
+enum {
+	SKU_ID_T20		= 0x8,
+	SKU_ID_T25SE		= 0x14,
+	SKU_ID_AP25		= 0x17,
+	SKU_ID_T25		= 0x18,
+	SKU_ID_AP25E		= 0x1b,
+	SKU_ID_T25E		= 0x1c,
+};
+
+/* These are the SOC categories that affect clocking */
+enum {
+	TEGRA_SOC_T20,
+	TEGRA_SOC_T25,
+
+	TEGRA_SOC_COUNT,
+	TEGRA_SOC_UNKNOWN	= -1,
+};
+
 #else  /* __ASSEMBLY__ */
 #define PRM_RSTCTRL		TEGRA2_PMC_BASE
 #endif

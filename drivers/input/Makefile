@@ -26,10 +26,13 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libinput.o
 
 COBJS-$(CONFIG_I8042_KBD) += i8042.o
+COBJS-$(CONFIG_TEGRA2_KEYBOARD) += tegra-kbc.o
 ifdef CONFIG_PS2KBD
 COBJS-y += keyboard.o pc_keyb.o
 COBJS-$(CONFIG_PS2MULT) += ps2mult.o ps2ser.o
 endif
+COBJS-y += input.o
+COBJS-$(CONFIG_OF_CONTROL) += key_matrix.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

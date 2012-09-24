@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include "linux/mtd/compat.h"
+#include "linux/compat.h"
 #include "linux/mtd/mtd.h"
 #include "linux/mtd/bbm.h"
 

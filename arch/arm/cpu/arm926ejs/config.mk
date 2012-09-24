@@ -31,3 +31,9 @@ PLATFORM_CPPFLAGS += -march=armv5te
 # =========================================================================
 PF_RELFLAGS_SLB_AT := $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
 PLATFORM_RELFLAGS += $(PF_RELFLAGS_SLB_AT)
+
+ifneq ($(CONFIG_IMX_CONFIG),)
+
+ALL-y	+= $(obj)u-boot.imx
+
+endif

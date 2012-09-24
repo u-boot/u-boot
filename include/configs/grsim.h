@@ -94,9 +94,6 @@
 
 #undef	CONFIG_BOOTARGS
 /*#define CONFIG_SYS_HUSH_PARSER 0*/
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\

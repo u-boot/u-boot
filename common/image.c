@@ -1829,7 +1829,7 @@ static int fit_parse_spec(const char *spec, char sepc, ulong addr_curr,
  *     addr and conf_name are set accordingly
  *     0 otherwise
  */
-inline int fit_parse_conf(const char *spec, ulong addr_curr,
+int fit_parse_conf(const char *spec, ulong addr_curr,
 		ulong *addr, const char **conf_name)
 {
 	return fit_parse_spec(spec, '#', addr_curr, addr, conf_name);
@@ -1855,7 +1855,7 @@ inline int fit_parse_conf(const char *spec, ulong addr_curr,
  *     addr and image_name are set accordingly
  *     0 otherwise
  */
-inline int fit_parse_subimage(const char *spec, ulong addr_curr,
+int fit_parse_subimage(const char *spec, ulong addr_curr,
 		ulong *addr, const char **image_name)
 {
 	return fit_parse_spec(spec, ':', addr_curr, addr, image_name);

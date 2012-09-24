@@ -153,13 +153,15 @@ static int curr_eth_dev; /* index for name of next device detected */
 static int smsc95xx_write_reg(struct ueth_data *dev, u32 index, u32 data)
 {
 	int len;
+	ALLOC_CACHE_ALIGN_BUFFER(u32, tmpbuf, 1);
 
 	cpu_to_le32s(&data);
+	tmpbuf[0] = data;
 
 	len = usb_control_msg(dev->pusb_dev, usb_sndctrlpipe(dev->pusb_dev, 0),
 		USB_VENDOR_REQUEST_WRITE_REGISTER,
 		USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-		00, index, &data, sizeof(data), USB_CTRL_SET_TIMEOUT);
+		00, index, tmpbuf, sizeof(data), USB_CTRL_SET_TIMEOUT);
 	if (len != sizeof(data)) {
 		debug("smsc95xx_write_reg failed: index=%d, data=%d, len=%d",
 		      index, data, len);
@@ -171,11 +173,13 @@ static int smsc95xx_write_reg(struct ueth_data *dev, u32 index, u32 data)
 static int smsc95xx_read_reg(struct ueth_data *dev, u32 index, u32 *data)
 {
 	int len;
+	ALLOC_CACHE_ALIGN_BUFFER(u32, tmpbuf, 1);
 
 	len = usb_control_msg(dev->pusb_dev, usb_rcvctrlpipe(dev->pusb_dev, 0),
 		USB_VENDOR_REQUEST_READ_REGISTER,
 		USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-		00, index, data, sizeof(data), USB_CTRL_GET_TIMEOUT);
+		00, index, tmpbuf, sizeof(data), USB_CTRL_GET_TIMEOUT);
+	*data = tmpbuf[0];
 	if (len != sizeof(data)) {
 		debug("smsc95xx_read_reg failed: index=%d, len=%d",
 		      index, len);
@@ -657,15 +661,15 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 	return 0;
 }
 
-static int smsc95xx_send(struct eth_device *eth, volatile void* packet,
-			 int length)
+static int smsc95xx_send(struct eth_device *eth, void* packet, int length)
 {
 	struct ueth_data *dev = (struct ueth_data *)eth->priv;
 	int err;
 	int actual_len;
 	u32 tx_cmd_a;
 	u32 tx_cmd_b;
-	unsigned char msg[PKTSIZE + sizeof(tx_cmd_a) + sizeof(tx_cmd_b)];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, msg,
+				 PKTSIZE + sizeof(tx_cmd_a) + sizeof(tx_cmd_b));
 
 	debug("** %s(), len %d, buf %#x\n", __func__, length, (int)msg);
 	if (length > PKTSIZE)
@@ -696,7 +700,7 @@ static int smsc95xx_send(struct eth_device *eth, volatile void* packet,
 static int smsc95xx_recv(struct eth_device *eth)
 {
 	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	static unsigned char  recv_buf[AX_RX_URB_SIZE];
+	DEFINE_CACHE_ALIGN_BUFFER(unsigned char, recv_buf, AX_RX_URB_SIZE);
 	unsigned char *buf_ptr;
 	int err;
 	int actual_len;

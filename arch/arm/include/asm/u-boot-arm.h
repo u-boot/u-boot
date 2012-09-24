@@ -52,6 +52,7 @@ void	cpu_init_cp15(void);
 /* cpu/.../arch/cpu.c */
 int	arch_cpu_init(void);
 int	arch_misc_init(void);
+int	arch_early_init_r(void);
 
 /* board/.../... */
 int	board_init(void);

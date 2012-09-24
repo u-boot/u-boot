@@ -87,7 +87,6 @@
 #define CONFIG_ENV_OVERWRITE     1
 #define	CONFIG_SYS_HZ		             1000	/* decrementer freq: 1 ms ticks	*/
 #define CONFIG_SYS_HUSH_PARSER			1
-#define CONFIG_SYS_PROMPT_HUSH_PS2		"> "
 #define CONFIG_SOURCE			1
 
 

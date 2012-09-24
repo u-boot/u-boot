@@ -122,7 +122,7 @@
 #define CONFIG_CMD_NET      /* bootp, tftpboot, rarpboot    */
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_SETECPR	/* Evaluate expressions		*/
+#define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
@@ -260,7 +260,6 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"OMAP Logic # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */

@@ -88,9 +88,6 @@
 #define CONFIG_SERIAL1          1	/* we use SERIAL 1 on SMDK6400	*/
 
 #define CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
-#ifdef CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #define CONFIG_CMDLINE_EDITING
 
@@ -143,9 +140,6 @@
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE	/* default load address	*/
 
 #define CONFIG_SYS_HZ			1000
-
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Stack sizes

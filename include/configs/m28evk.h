@@ -17,8 +17,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef __M28_H__
-#define __M28_H__
+#ifndef __M28EVK_CONFIG_H__
+#define __M28EVK_CONFIG_H__
 
 #include <asm/arch/regs-base.h>
 
@@ -40,7 +40,6 @@
 #define	CONFIG_SYS_ICACHE_OFF
 #define	CONFIG_SYS_DCACHE_OFF
 #define	CONFIG_BOARD_EARLY_INIT_F
-#define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_ARCH_MISC_INIT
 
 /*
@@ -52,6 +51,7 @@
 #define	CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mx28/u-boot-spl.lds"
 #define	CONFIG_SPL_LIBCOMMON_SUPPORT
 #define	CONFIG_SPL_LIBGENERIC_SUPPORT
+#define	CONFIG_SPL_GPIO_SUPPORT
 
 /*
  * U-Boot Commands
@@ -84,8 +84,8 @@
  */
 #define	CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
 #define	PHYS_SDRAM_1			0x40000000	/* Base address */
-#define	PHYS_SDRAM_1_SIZE		0x40000000	/* Max 1 GB RAM */
-#define	CONFIG_STACKSIZE		0x00010000	/* 128 KB stack */
+#define	PHYS_SDRAM_1_SIZE		0x20000000	/* Max 512 MB RAM */
+#define	CONFIG_STACKSIZE		(128 * 1024)	/* 128 KB stack */
 #define	CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */
 #define	CONFIG_SYS_GBL_DATA_SIZE	128		/* Initial data */
 #define	CONFIG_SYS_MEMTEST_START	0x40000000	/* Memtest start adr */
@@ -123,7 +123,6 @@
 #define	CONFIG_AUTO_COMPLETE			/* Command auto complete */
 #define	CONFIG_CMDLINE_EDITING			/* Command history etc */
 #define	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * Serial Driver
@@ -133,7 +132,6 @@
 #define	CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define	CONFIG_CONS_INDEX		0
 #define	CONFIG_BAUDRATE			115200	/* Default baud rate */
-#define	CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * MMC Driver
@@ -279,6 +277,7 @@
 #define	CONFIG_BOOTCOMMAND	"run bootcmd_net"
 #define	CONFIG_LOADADDR		0x42000000
 #define	CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+#define	CONFIG_OF_LIBFDT
 
 /*
  * Extra Environments
@@ -286,6 +285,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"update_nand_full_filename=u-boot.nand\0"			\
 	"update_nand_firmware_filename=u-boot.sb\0"			\
+	"update_sd_firmware_filename=u-boot.sd\0"			\
 	"update_nand_firmware_maxsz=0x100000\0"				\
 	"update_nand_stride=0x40\0"	/* MX28 datasheet ch. 12.12 */	\
 	"update_nand_count=0x4\0"	/* MX28 datasheet ch. 12.12 */	\
@@ -312,6 +312,14 @@
 		"nand erase ${fcb_sz} ${fw_sz} ; "			\
 		"nand write ${loadaddr} ${fcb_sz} ${filesize} ; "	\
 		"nand write ${loadaddr} ${fw_off} ${filesize} ; "	\
+		"fi\0"							\
+	"update_sd_firmware="		/* Update the SD firmware partition */ \
+		"if mmc rescan ; then "					\
+		"if tftp ${update_sd_firmware_filename} ; then "	\
+		"setexpr fw_sz ${filesize} / 0x200 ; "	/* SD block size */ \
+		"setexpr fw_sz ${fw_sz} + 1 ; "				\
+		"mmc write ${loadaddr} 0x800 ${fw_sz} ; "		\
+		"fi ; "							\
 		"fi\0"
 
-#endif /* __M28_H__ */
+#endif /* __M28EVK_CONFIG_H__ */

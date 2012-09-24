@@ -1288,7 +1288,7 @@ static void uec_halt(struct eth_device* dev)
 	uec_stop(uec, COMM_DIR_RX_AND_TX);
 }
 
-static int uec_send(struct eth_device* dev, volatile void *buf, int len)
+static int uec_send(struct eth_device *dev, void *buf, int len)
 {
 	uec_private_t		*uec;
 	ucc_fast_private_t	*uccf;

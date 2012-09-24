@@ -31,6 +31,8 @@
 #include <fat.h>
 #include <asm/byteorder.h>
 #include <part.h>
+#include <malloc.h>
+#include <linux/compiler.h>
 
 /*
  * Convert a string to lowercase.
@@ -62,13 +64,12 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 
 int fat_register_device (block_dev_desc_t * dev_desc, int part_no)
 {
-	unsigned char buffer[dev_desc->blksz];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
 	/* First close any currently found FAT filesystem */
 	cur_dev = NULL;
 
 #if (defined(CONFIG_CMD_IDE) || \
-     defined(CONFIG_CMD_MG_DISK) || \
      defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
@@ -293,7 +294,7 @@ get_cluster (fsdata *mydata, __u32 clustnum, __u8 *buffer,
 		return -1;
 	}
 	if (size % mydata->sect_size) {
-		__u8 tmpbuf[mydata->sect_size];
+		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
 
 		idx = size / mydata->sect_size;
 		ret = disk_read(startsect + idx, 1, tmpbuf);
@@ -428,8 +429,8 @@ static int slot2str (dir_slot *slotptr, char *l_name, int *idx)
  * into 'retdent'
  * Return 0 on success, -1 otherwise.
  */
-__attribute__ ((__aligned__ (__alignof__ (dir_entry))))
-__u8 get_vfatname_block[MAX_CLUSTSIZE];
+__u8 get_vfatname_block[MAX_CLUSTSIZE]
+	__aligned(ARCH_DMA_MINALIGN);
 
 static int
 get_vfatname (fsdata *mydata, int curclust, __u8 *cluster,
@@ -533,8 +534,8 @@ static __u8 mkcksum (const char *str)
  * Get the directory entry associated with 'filename' from the directory
  * starting at 'startsect'
  */
-__attribute__ ((__aligned__ (__alignof__ (dir_entry))))
-__u8 get_dentfromdir_block[MAX_CLUSTSIZE];
+__u8 get_dentfromdir_block[MAX_CLUSTSIZE]
+	__aligned(ARCH_DMA_MINALIGN);
 
 static dir_entry *get_dentfromdir (fsdata *mydata, int startsect,
 				   char *filename, dir_entry *retdent,
@@ -709,7 +710,7 @@ read_bootsectandvi (boot_sector *bs, volume_info *volinfo, int *fatsize)
 		return -1;
 	}
 
-	block = malloc(cur_dev->blksz);
+	block = memalign(ARCH_DMA_MINALIGN, cur_dev->blksz);
 	if (block == NULL) {
 		debug("Error: allocating block\n");
 		return -1;
@@ -765,8 +766,8 @@ exit:
 	return ret;
 }
 
-__attribute__ ((__aligned__ (__alignof__ (dir_entry))))
-__u8 do_fat_read_block[MAX_CLUSTSIZE];
+__u8 do_fat_read_block[MAX_CLUSTSIZE]
+	__aligned(ARCH_DMA_MINALIGN);
 
 long
 do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
@@ -828,7 +829,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	}
 
 	mydata->fatbufnum = -1;
-	mydata->fatbuf = malloc(FATBUFSIZE);
+	mydata->fatbuf = memalign(ARCH_DMA_MINALIGN, FATBUFSIZE);
 	if (mydata->fatbuf == NULL) {
 		debug("Error: allocating memory\n");
 		return -1;
@@ -1126,7 +1127,6 @@ int file_fat_detectfs (void)
 	}
 
 #if defined(CONFIG_CMD_IDE) || \
-    defined(CONFIG_CMD_MG_DISK) || \
     defined(CONFIG_CMD_SATA) || \
     defined(CONFIG_CMD_SCSI) || \
     defined(CONFIG_CMD_USB) || \

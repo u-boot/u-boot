@@ -435,7 +435,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_LOG
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_NFS
@@ -460,9 +459,6 @@
 #define CONFIG_SYS_PROMPT	        "=> "	/* Monitor Command Prompt	*/
 
 #define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	        1024	/* Console I/O Buffer Size	*/

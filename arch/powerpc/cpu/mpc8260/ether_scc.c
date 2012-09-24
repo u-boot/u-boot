@@ -105,7 +105,7 @@ typedef volatile struct CommonBufferDescriptor {
 static RTXBD *rtx;
 
 
-static int sec_send(struct eth_device *dev, volatile void *packet, int length)
+static int sec_send(struct eth_device *dev, void *packet, int length)
 {
     int i;
     int result = 0;

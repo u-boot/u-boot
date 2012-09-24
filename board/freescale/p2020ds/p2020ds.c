@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2011 Freescale Semiconductor, Inc.
+ * Copyright 2007-2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -61,12 +61,8 @@ int checkboard(void)
 {
 	u8 sw;
 
-	puts("Board: P2020DS ");
-#ifdef CONFIG_PHYS_64BIT
-	puts("(36-bit addrmap) ");
-#endif
-
-	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+	printf("Board: P2020DS Sys ID: 0x%02x, "
+	       "Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
 		in_8(&pixis->id), in_8(&pixis->arch), in_8(&pixis->scver));
 
 	sw = in_8(&PIXIS_SW(PIXIS_LBMAP_SWITCH));
@@ -260,6 +256,10 @@ void ft_board_setup(void *blob, bd_t *bd)
 	size = getenv_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
+
+#ifdef CONFIG_HAS_FSL_DR_USB
+	fdt_fixup_dr_usb(blob, bd);
+#endif
 
 	FT_FSL_PCI_SETUP;
 

@@ -245,6 +245,11 @@ void configure_mpu_dpll(void)
 			CM_CLKSEL_DCC_EN_MASK);
 	}
 
+	setbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+		MPU_CLKCTRL_CLKSEL_EMIF_DIV_MODE_MASK);
+	setbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+		MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK);
+
 	params = get_mpu_dpll_params();
 
 	do_setup_dpll(&prcm->cm_clkmode_dpll_mpu, params, DPLL_LOCK, "mpu");
@@ -294,8 +299,12 @@ static void setup_dplls(void)
 	 * Core DPLL will be locked after setting up EMIF
 	 * using the FREQ_UPDATE method(freq_update_core())
 	 */
-	do_setup_dpll(&prcm->cm_clkmode_dpll_core, params, DPLL_NO_LOCK,
-								"core");
+	if (omap_revision() != OMAP5432_ES1_0)
+		do_setup_dpll(&prcm->cm_clkmode_dpll_core, params,
+							DPLL_NO_LOCK, "core");
+	else
+		do_setup_dpll(&prcm->cm_clkmode_dpll_core, params,
+							DPLL_LOCK, "core");
 	/* Set the ratios for CORE_CLK, L3_CLK, L4_CLK */
 	temp = (CLKSEL_CORE_X2_DIV_1 << CLKSEL_CORE_SHIFT) |
 	    (CLKSEL_L3_CORE_DIV_2 << CLKSEL_L3_SHIFT) |
@@ -360,56 +369,51 @@ static void setup_non_essential_dplls(void)
 }
 #endif
 
-void do_scale_tps62361(u32 reg, u32 volt_mv)
+void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv)
 {
-	u32 temp, step;
+	u32 step;
+	int ret = 0;
+
+	/* See if we can first get the GPIO if needed */
+	if (gpio >= 0)
+		ret = gpio_request(gpio, "TPS62361_VSEL0_GPIO");
+	if (ret < 0) {
+		printf("%s: gpio %d request failed %d\n", __func__, gpio, ret);
+		gpio = -1;
+	}
+
+	/* Pull the GPIO low to select SET0 register, while we program SET1 */
+	if (gpio >= 0)
+		gpio_direction_output(gpio, 0);
 
 	step = volt_mv - TPS62361_BASE_VOLT_MV;
 	step /= 10;
 
-	temp = TPS62361_I2C_SLAVE_ADDR |
-	    (reg << PRM_VC_VAL_BYPASS_REGADDR_SHIFT) |
-	    (step << PRM_VC_VAL_BYPASS_DATA_SHIFT) |
-	    PRM_VC_VAL_BYPASS_VALID_BIT;
 	debug("do_scale_tps62361: volt - %d step - 0x%x\n", volt_mv, step);
-
-	writel(temp, &prcm->prm_vc_val_bypass);
-	if (!wait_on_value(PRM_VC_VAL_BYPASS_VALID_BIT, 0,
-				&prcm->prm_vc_val_bypass, LDELAY)) {
+	if (omap_vc_bypass_send_value(TPS62361_I2C_SLAVE_ADDR, reg, step))
 		puts("Scaling voltage failed for vdd_mpu from TPS\n");
-	}
+
+	/* Pull the GPIO high to select SET1 register */
+	if (gpio >= 0)
+		gpio_direction_output(gpio, 1);
 }
 
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
 {
-	u32 temp, offset_code;
-	u32 step = 12660; /* 12.66 mV represented in uV */
+	u32 offset_code;
 	u32 offset = volt_mv;
 
 	/* convert to uV for better accuracy in the calculations */
 	offset *= 1000;
 
-	if (omap_revision() == OMAP4430_ES1_0)
-		offset -= PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV;
-	else
-		offset -= PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV;
-
-	offset_code = (offset + step - 1) / step;
-	/* The code starts at 1 not 0 */
-	offset_code++;
+	offset_code = get_offset_code(offset);
 
 	debug("do_scale_vcore: volt - %d offset_code - 0x%x\n", volt_mv,
 		offset_code);
 
-	temp = SMPS_I2C_SLAVE_ADDR |
-	    (vcore_reg << PRM_VC_VAL_BYPASS_REGADDR_SHIFT) |
-	    (offset_code << PRM_VC_VAL_BYPASS_DATA_SHIFT) |
-	    PRM_VC_VAL_BYPASS_VALID_BIT;
-	writel(temp, &prcm->prm_vc_val_bypass);
-	if (!wait_on_value(PRM_VC_VAL_BYPASS_VALID_BIT, 0,
-				&prcm->prm_vc_val_bypass, LDELAY)) {
+	if (omap_vc_bypass_send_value(SMPS_I2C_SLAVE_ADDR,
+				vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
-	}
 }
 
 static inline void enable_clock_domain(u32 *const clkctrl_reg, u32 enable_mode)
@@ -452,6 +456,7 @@ void freq_update_core(void)
 {
 	u32 freq_config1 = 0;
 	const struct dpll_params *core_dpll_params;
+	u32 omap_rev = omap_revision();
 
 	core_dpll_params = get_core_dpll_params();
 	/* Put EMIF clock domain in sw wakeup mode */
@@ -477,11 +482,18 @@ void freq_update_core(void)
 		hang();
 	}
 
-	/* Put EMIF clock domain back in hw auto mode */
-	enable_clock_domain(&prcm->cm_memif_clkstctrl,
-				CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
-	wait_for_clk_enable(&prcm->cm_memif_emif_1_clkctrl);
-	wait_for_clk_enable(&prcm->cm_memif_emif_2_clkctrl);
+	/*
+	 * Putting EMIF in HW_AUTO is seen to be causing issues with
+	 * EMIF clocks and the master DLL. Put EMIF in SW_WKUP
+	 * in OMAP5430 ES1.0 silicon
+	 */
+	if (omap_rev != OMAP5430_ES1_0) {
+		/* Put EMIF clock domain back in hw auto mode */
+		enable_clock_domain(&prcm->cm_memif_clkstctrl,
+					CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
+		wait_for_clk_enable(&prcm->cm_memif_emif_1_clkctrl);
+		wait_for_clk_enable(&prcm->cm_memif_emif_2_clkctrl);
+	}
 }
 
 void bypass_dpll(u32 *const base)
@@ -527,29 +539,6 @@ void setup_clocks_for_console(void)
 	clrsetbits_le32(&prcm->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
 			CD_CLKCTRL_CLKTRCTRL_HW_AUTO <<
 			CD_CLKCTRL_CLKTRCTRL_SHIFT);
-}
-
-void setup_sri2c(void)
-{
-	u32 sys_clk_khz, cycles_hi, cycles_low, temp;
-
-	sys_clk_khz = get_sys_clk_freq() / 1000;
-
-	/*
-	 * Setup the dedicated I2C controller for Voltage Control
-	 * I2C clk - high period 40% low period 60%
-	 */
-	cycles_hi = sys_clk_khz * 4 / PRM_VC_I2C_CHANNEL_FREQ_KHZ / 10;
-	cycles_low = sys_clk_khz * 6 / PRM_VC_I2C_CHANNEL_FREQ_KHZ / 10;
-	/* values to be set in register - less by 5 & 7 respectively */
-	cycles_hi -= 5;
-	cycles_low -= 7;
-	temp = (cycles_hi << PRM_VC_CFG_I2C_CLK_SCLH_SHIFT) |
-	       (cycles_low << PRM_VC_CFG_I2C_CLK_SCLL_SHIFT);
-	writel(temp, &prcm->prm_vc_cfg_i2c_clk);
-
-	/* Disable high speed mode and all advanced features */
-	writel(0x0, &prcm->prm_vc_cfg_i2c_mode);
 }
 
 void do_enable_clocks(u32 *const *clk_domains,

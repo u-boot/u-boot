@@ -224,9 +224,6 @@ PXELINUX and U-boot's pxe support.
 - U-boot's pxe expects U-boot uimg's as kernels.  Anything that would work
   with the 'bootm' command in U-boot could work with the 'pxe boot' command.
 
-- U-boot's pxe doesn't recognize initrd options in the append command - you
-  must specify initrd files using the initrd command.
-
 - U-boot's pxe only recognizes a single file on the initrd command line.  It
   could be extended to support multiple.
 

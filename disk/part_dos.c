@@ -36,7 +36,6 @@
 #include "part_dos.h"
 
 #if defined(CONFIG_CMD_IDE) || \
-    defined(CONFIG_CMD_MG_DISK) || \
     defined(CONFIG_CMD_SATA) || \
     defined(CONFIG_CMD_SCSI) || \
     defined(CONFIG_CMD_USB) || \
@@ -87,7 +86,7 @@ static int test_block_type(unsigned char *buffer)
 
 int test_part_dos (block_dev_desc_t *dev_desc)
 {
-	unsigned char buffer[dev_desc->blksz];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
 	if ((dev_desc->block_read(dev_desc->dev, 0, 1, (ulong *) buffer) != 1) ||
 	    (buffer[DOS_PART_MAGIC_OFFSET + 0] != 0x55) ||
@@ -102,7 +101,7 @@ int test_part_dos (block_dev_desc_t *dev_desc)
 static void print_partition_extended (block_dev_desc_t *dev_desc, int ext_part_sector, int relative,
 							   int part_num)
 {
-	unsigned char buffer[dev_desc->blksz];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
 	int i;
 
@@ -166,7 +165,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 				 int relative, int part_num,
 				 int which_part, disk_partition_t *info)
 {
-	unsigned char buffer[dev_desc->blksz];
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
 	int i;
 

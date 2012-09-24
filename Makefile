@@ -22,8 +22,8 @@
 #
 
 VERSION = 2012
-PATCHLEVEL = 04
-SUBLEVEL = 01
+PATCHLEVEL = 07
+SUBLEVEL =
 EXTRAVERSION =
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
@@ -229,6 +229,9 @@ LIBS  = lib/libgeneric.o
 LIBS += lib/lzma/liblzma.o
 LIBS += lib/lzo/liblzo.o
 LIBS += lib/zlib/libz.o
+ifeq ($(CONFIG_TIZEN),y)
+LIBS += lib/tizen/libtizen.o
+endif
 LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
 	"board/$(VENDOR)/common/lib$(VENDOR).o"; fi)
 LIBS += $(CPUDIR)/lib$(CPU).o
@@ -453,6 +456,22 @@ $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
 		elftosb -zdf imx28 -c $(TOPDIR)/board/$(BOARDDIR)/u-boot.bd \
 			-o $(obj)u-boot.sb
 
+# On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
+# Both images are created using mkimage (crc etc), so that the ROM
+# bootloader can check its integrity. Padding needs to be done to the
+# SPL image (with mkimage header) and not the binary. Otherwise the resulting image
+# which is loaded/copied by the ROM bootloader to SRAM doesn't fit.
+# The resulting image containing both U-Boot images is called u-boot.spr
+$(obj)u-boot.spr:	$(obj)u-boot.img $(obj)spl/u-boot-spl.bin
+		$(obj)tools/mkimage -A $(ARCH) -T firmware -C none \
+		-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n XLOADER \
+		-d $(obj)spl/u-boot-spl.bin $(obj)spl/u-boot-spl.img
+		tr "\000" "\377" < /dev/zero | dd ibs=1 count=$(CONFIG_SPL_PAD_TO) \
+			of=$(obj)spl/u-boot-spl-pad.img 2>/dev/null
+		dd if=$(obj)spl/u-boot-spl.img of=$(obj)spl/u-boot-spl-pad.img \
+			conv=notrunc 2>/dev/null
+		cat $(obj)spl/u-boot-spl-pad.img $(obj)u-boot.img > $@
+
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
 		cd $(LNDIR) && $(CC) $(SYMS) -T $(obj)u-boot.lds \
@@ -556,6 +575,13 @@ SYSTEM_MAP = \
 $(obj)System.map:	$(obj)u-boot
 		@$(call SYSTEM_MAP,$<) > $(obj)System.map
 
+checkthumb:
+	@if test $(call cc-version) -lt 0404; then \
+		echo -n '*** Your GCC does not produce working '; \
+		echo 'binaries in THUMB mode.'; \
+		echo '*** Your board is configured for THUMB mode.'; \
+		false; \
+	fi
 #
 # Auto-generate the autoconf.mk file (which is included by all makefiles)
 #
@@ -591,7 +617,7 @@ $(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
 
 $(obj)include/generated/asm-offsets.h:	$(obj)include/autoconf.mk.dep \
 	$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
-	@echo Generating $@
+	@$(XECHO) Generating $@
 	tools/scripts/make-asm-offsets $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s $@
 
 $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s:	$(obj)include/autoconf.mk.dep
@@ -765,7 +791,8 @@ clobber:	tidy
 	@rm -f $(obj)u-boot.ais
 	@rm -f $(obj)u-boot.dtb
 	@rm -f $(obj)u-boot.sb
-	@rm -f $(obj)tools/inca-swap-bytes
+	@rm -f $(obj)u-boot.spr
+	@rm -f $(obj)tools/xway-swap-bytes
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)arch/powerpc/cpu/mpc83xx/ddr-gen?.c
 	@rm -fr $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm

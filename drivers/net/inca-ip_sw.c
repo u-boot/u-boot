@@ -158,7 +158,7 @@ static int initialized	= 0;
 
 
 static int inca_switch_init(struct eth_device *dev, bd_t * bis);
-static int inca_switch_send(struct eth_device *dev, volatile void *packet, int length);
+static int inca_switch_send(struct eth_device *dev, void *packet, int length);
 static int inca_switch_recv(struct eth_device *dev);
 static void inca_switch_halt(struct eth_device *dev);
 static void inca_init_switch_chip(void);
@@ -334,7 +334,7 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 }
 
 
-static int inca_switch_send(struct eth_device *dev, volatile void *packet, int length)
+static int inca_switch_send(struct eth_device *dev, void *packet, int length)
 {
 	int		       i;
 	int		       res	= -1;

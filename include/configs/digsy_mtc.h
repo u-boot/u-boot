@@ -119,7 +119,6 @@
 #ifdef CONFIG_VIDEO
 #define CONFIG_CMD_BMP
 #endif
-#define CONFIG_CMD_DFL
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
@@ -412,7 +411,6 @@
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_SYS_PROMPT	"=> "
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT "autoboot in %d seconds\n", bootdelay

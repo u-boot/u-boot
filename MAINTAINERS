@@ -21,6 +21,8 @@ Poonam Aggrwal <poonam.aggrwal@freescale.com>
 
 	P2020RDB	P2020
 
+	BSC9131RDB	BSC9131
+
 Greg Allen <gallen@arlut.utexas.edu>
 
 	UTX8245		MPC8245
@@ -65,6 +67,13 @@ Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
 Oliver Brown <obrown@adventnetworks.com>
 
 	gw8260		MPC8260
+
+Holger Brunck <holger.brunck@keymile.com>
+
+	kmeter1		MPC8360
+	kmcoge5ne	MPC8360
+	tuge1		MPC8321
+	tuxx1		MPC8321
 
 Cyril Chemparathy <cyril@ti.com>
 
@@ -431,7 +440,6 @@ Heiko Schocher <hs@denx.de>
 	charon		MPC5200
 	ids8247		MPC8247
 	jupiter		MPC5200
-	kmeter1		MPC8360
 	kmsupx5		MPC8321
 	mgcoge		MPC8247
 	mgcoge3ne	MPC8247
@@ -442,10 +450,6 @@ Heiko Schocher <hs@denx.de>
 	suvd3		MPC8321
 	uc101		MPC5200
 	ve8313		MPC8313
-
-Holger Brunck <holger.brunck@keymile.com>
-	tuge1		MPC8321
-	tuxx1		MPC8321
 
 Peter De Schrijver <p2@mind.be>
 
@@ -738,6 +742,9 @@ Sergey Lapin <slapin@ossfans.org>
 Valentin Longchamp <valentin.longchamp@keymile.com>
 
 	km_kirkwood	ARM926EJS (Kirkwood SoC)
+	kmnusa		ARM926EJS (Kirkwood SoC)
+	mgcoge3un	ARM926EJS (Kirkwood SoC)
+	kmcoge5un	ARM926EJS (Kirkwood SoC)
 	portl2		ARM926EJS (Kirkwood SoC)
 
 Nishanth Menon <nm@ti.com>
@@ -777,6 +784,10 @@ Linus Walleij <linus.walleij@linaro.org>
 	integratorap	various
 	integratorcp	various
 
+Luka Perkov <uboot@lukaperkov.net>
+
+	ib62x0		ARM926EJS
+
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
@@ -788,10 +799,21 @@ Stelian Pop <stelian@popies.net>
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
 
+Dave Purdy <david.c.purdy@gmail.com>
+
+	pogo_e02	ARM926EJS (Kirkwood SoC)
+
+Sricharan R <r.sricharan@ti.com>
+
+	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
+	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
+	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
+
 Thierry Reding <thierry.reding@avionic-design.de>
 
 	plutux		Tegra2 (ARM7 & A9 Dual Core)
 	medcom		Tegra2 (ARM7 & A9 Dual Core)
+	tec		Tegra2 (ARM7 & A9 Dual Core)
 
 Christian Riesch <christian.riesch@omicron.at>
 Manfred Rudigier <manfred.rudigier@omicron.at>
@@ -829,12 +851,12 @@ Steve Sakoman <sakoman@gmail.com>
 Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
+	vl_ma2sc	ARM926EJS (AT91SAM9263 SoC)
 
 Heiko Schocher <hs@denx.de>
 
 	enbw_cmc	ARM926EJS (AM1808 SoC)
 	magnesium	i.MX27
-	mgcoge3un	ARM926EJS (Kirkwood SoC)
 
 Michael Schwingen <michael@schwingen.org>
 
@@ -859,12 +881,6 @@ Greg Ungerer <greg.ungerer@opengear.com>
 	cm4008		ks8695p
 	cm4116		ks8695p
 	cm4148		ks8695p
-
-Aneesh V <aneesh@ti.com>
-
-	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
-	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
-	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
 
 Marek Vasut <marek.vasut@gmail.com>
 
@@ -894,6 +910,11 @@ Prafulla Wadaskar <prafulla@marvell.com>
 	rd6281a		ARM926EJS (Kirkwood SoC)
 	sheevaplug	ARM926EJS (Kirkwood SoC)
 
+Michael Walle <michael@walle.cc>
+
+	lschlv2		ARM926EJS (Kirkwood SoC)
+	lsxhl		ARM926EJS (Kirkwood SoC)
+
 Tom Warren <twarren@nvidia.com>
 
 	harmony		Tegra2 (ARM7 & A9 Dual Core)
@@ -904,6 +925,8 @@ Stephen Warren <swarren@nvidia.com>
 
 	ventana		Tegra2 (ARM7 & A9 Dual Core)
 	paz00		Tegra2 (ARM7 & A9 Dual Core)
+	trimslice	Tegra2 (ARM7 & A9 Dual Core)
+	whistler	Tegra2 (ARM7 & A9 Dual Core)
 
 Thomas Weber <weber@corscience.de>
 
@@ -931,6 +954,10 @@ Syed Mohammed Khasim <sm.khasim@gmail.com>
 Sughosh Ganu <urwithsughosh@gmail.com>
 
 	hawkboard	ARM926EJS (OMAP-L138)
+
+Vladimir Zapolskiy <vz@mleia.com>
+
+	devkit3250	lpc32xx
 
 -------------------------------------------------------------------------
 
@@ -1090,6 +1117,8 @@ Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 	AP325RXA	SH7723
 	SHMIN		SH7706
 	ECOVEC		SH7724
+	R0P7734     SH7734
+	AP_SH4A_4A  SH7734
 
 Mark Jonas <mark.jonas@de.bosch.com>
 
@@ -1191,6 +1220,7 @@ Macpaul Lin <macpaul@andestech.com>
 
 	ADP-AG101	N1213 (AG101 SoC)
 	ADP-AG101P	N1213 (AG101P XC5 FPGA)
+	ADP-AG102	N1213f (AG102 SoC with FPU)
 
 #########################################################################
 # OpenRISC Systems:							#

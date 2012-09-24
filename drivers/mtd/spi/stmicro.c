@@ -34,16 +34,8 @@
 #include "spi_flash_internal.h"
 
 /* M25Pxx-specific commands */
-#define CMD_M25PXX_WREN		0x06	/* Write Enable */
-#define CMD_M25PXX_WRDI		0x04	/* Write Disable */
-#define CMD_M25PXX_RDSR		0x05	/* Read Status Register */
-#define CMD_M25PXX_WRSR		0x01	/* Write Status Register */
-#define CMD_M25PXX_READ		0x03	/* Read Data Bytes */
-#define CMD_M25PXX_FAST_READ	0x0b	/* Read Data Bytes at Higher Speed */
-#define CMD_M25PXX_PP		0x02	/* Page Program */
 #define CMD_M25PXX_SE		0xd8	/* Sector Erase */
 #define CMD_M25PXX_BE		0xc7	/* Bulk Erase */
-#define CMD_M25PXX_DP		0xb9	/* Deep Power-down */
 #define CMD_M25PXX_RES		0xab	/* Release from DP, and Read Signature */
 
 struct stmicro_spi_flash_params {

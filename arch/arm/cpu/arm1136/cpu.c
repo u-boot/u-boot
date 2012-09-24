@@ -95,7 +95,7 @@ void flush_dcache_all(void)
 	asm volatile("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
 }
 
-static inline int bad_cache_range(unsigned long start, unsigned long stop)
+static int check_cache_range(unsigned long start, unsigned long stop)
 {
 	int ok = 1;
 
@@ -114,7 +114,7 @@ static inline int bad_cache_range(unsigned long start, unsigned long stop)
 
 void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
-	if (bad_cache_range(start, stop))
+	if (!check_cache_range(start, stop))
 		return;
 
 	while (start < stop) {
@@ -125,7 +125,7 @@ void invalidate_dcache_range(unsigned long start, unsigned long stop)
 
 void flush_dcache_range(unsigned long start, unsigned long stop)
 {
-	if (bad_cache_range(start, stop))
+	if (!check_cache_range(start, stop))
 		return;
 
 	while (start < stop) {

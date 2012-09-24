@@ -625,7 +625,6 @@
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
 #if defined(CONFIG_CMD_KGDB)

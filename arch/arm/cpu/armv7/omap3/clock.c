@@ -572,6 +572,22 @@ void prcm_init(void)
 	}
 
 	if (get_cpu_family() == CPU_OMAP36XX) {
+		/*
+		 * In warm reset conditions on OMAP36xx/AM/DM37xx
+		 * the rom code incorrectly sets the DPLL4 clock
+		 * input divider to /6.5. Section 3.5.3.3.3.2.1 of
+		 * the AM/DM37x TRM explains that the /6.5 divider
+		 * is used only when the input clock is 13MHz.
+		 *
+		 * If the part is in this cpu family *and* the input
+		 * clock *is not* 13 MHz, then reset the DPLL4 clock
+		 * input divider to /1 as it should never set to /6.5
+		 * in this case.
+		 */
+		if (sys_clkin_sel != 1) /* 13 MHz */
+			/* Bit 8: DPLL4_CLKINP_DIV */
+			sr32(&prm_base->clksrc_ctrl, 8, 1, 0);
+
 		/* Unlock MPU DPLL (slows things down, and needed later) */
 		sr32(&prcm_base->clken_pll_mpu, 0, 3, PLL_LOW_POWER_BYPASS);
 		wait_on_value(ST_MPU_CLK, 0, &prcm_base->idlest_pll_mpu,

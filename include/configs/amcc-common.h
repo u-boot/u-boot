@@ -112,9 +112,6 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET		/* don't print console @ startup*/
 
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser		*/
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE		/* allow baudrate change	*/

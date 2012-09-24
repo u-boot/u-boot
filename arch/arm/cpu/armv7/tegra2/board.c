@@ -23,12 +23,12 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include "ap20.h"
+#include <asm/arch/ap20.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
+#include <asm/arch/pmc.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/tegra2.h>
-#include <asm/arch/pmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -101,6 +101,22 @@ int arch_cpu_init(void)
 }
 #endif
 
+static int uart_configs[] = {
+#if defined(CONFIG_TEGRA2_UARTA_UAA_UAB)
+	FUNCMUX_UART1_UAA_UAB,
+#elif defined(CONFIG_TEGRA2_UARTA_GPU)
+	FUNCMUX_UART1_GPU,
+#elif defined(CONFIG_TEGRA2_UARTA_SDIO1)
+	FUNCMUX_UART1_SDIO1,
+#else
+	FUNCMUX_UART1_IRRX_IRTX,
+#endif
+	FUNCMUX_UART2_IRDA,
+	-1,
+	FUNCMUX_UART4_GMC,
+	-1,
+};
+
 /**
  * Set up the specified uarts
  *
@@ -120,7 +136,7 @@ static void setup_uarts(int uart_ids)
 		if (uart_ids & (1 << i)) {
 			enum periph_id id = id_for_uart[i];
 
-			funcmux_select(id, FUNCMUX_DEFAULT);
+			funcmux_select(id, uart_configs[i]);
 			clock_ll_start_uart(id);
 		}
 	}

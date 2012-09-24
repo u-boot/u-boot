@@ -50,9 +50,6 @@ int checkboard(void)
 	else
 		puts ("Promjet\n");
 
-#ifdef CONFIG_PHYS_64BIT
-	printf ("       36-bit physical address map\n");
-#endif
 	return 0;
 }
 

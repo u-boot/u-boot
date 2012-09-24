@@ -89,7 +89,6 @@
 #define CONFIG_SYS_NS16550_CLK	CONFIG_SYS_HZ_CLOCK	/* Input clock to NS16550 */
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 /*===================*/
 /* I2C Configuration */
 /*===================*/
@@ -171,7 +170,6 @@
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE		/* Won't work with hush so far, may be later */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY

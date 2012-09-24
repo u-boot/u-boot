@@ -34,6 +34,9 @@
 #include <asm/io.h>
 #include <linux/ctype.h>
 
+#if defined(CONFIG_POST)
+#include "post.h"
+#endif
 #include "common.h"
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
@@ -389,4 +392,37 @@ U_BOOT_CMD(km_checkbidhwk, 2, 0, do_checkboardidhwk,
 		"[v]\n  - check environment parameter "\
 		"\"boardIdListHex\" against stored boardid and hwkey "\
 		"from the IVM\n    v: verbose output"
+);
+
+/*
+ * command km_checktestboot
+ *  if the testpin of the board is asserted, return 1
+ *  *	else return 0
+ */
+int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	int testpin = 0;
+	char *s = NULL;
+	int testboot = 0;
+	int verbose = argc > 1 && *argv[1] == 'v';
+
+#if defined(CONFIG_POST)
+	testpin = post_hotkeys_pressed();
+	s = getenv("test_bank");
+#endif
+	/* when test_bank is not set, act as if testpin is not asserted */
+	testboot = (testpin != 0) && (s);
+	if (verbose) {
+		printf("testpin   = %d\n", testpin);
+		printf("test_bank = %s\n", s ? s : "not set");
+		printf("boot test app : %s\n", (testboot) ? "yes" : "no");
+	}
+	/* return 0 means: testboot, therefore we need the inversion */
+	return !testboot;
+}
+
+U_BOOT_CMD(km_checktestboot, 2, 0, do_checktestboot,
+		"check if testpin is asserted",
+		"[v]\n  v - verbose output"
 );

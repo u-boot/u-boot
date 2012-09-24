@@ -33,7 +33,6 @@
 #include <malloc.h>
 
 static int bmp_info (ulong addr);
-static int bmp_display (ulong addr, int x, int y);
 
 /*
  * Allocate and decompress a BMP image using gunzip().
@@ -221,7 +220,7 @@ static int bmp_info(ulong addr)
  * Return:      None
  *
  */
-static int bmp_display(ulong addr, int x, int y)
+int bmp_display(ulong addr, int x, int y)
 {
 	int ret;
 	bmp_image_t *bmp = (bmp_image_t *)addr;

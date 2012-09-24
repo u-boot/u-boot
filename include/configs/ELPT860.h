@@ -145,7 +145,6 @@
 #define CONFIG_ENV_IS_IN_FLASH	1      /* Environment is in FLASH	*/
 
 #define CONFIG_BAUDRATE		9600   /* console baudrate = 9600 bps	*/
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_ETHADDR		00:01:77:00:60:40
 #define CONFIG_IPADDR		192.168.0.30

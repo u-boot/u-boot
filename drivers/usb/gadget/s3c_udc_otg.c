@@ -30,13 +30,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
+#undef DEBUG
 #include <common.h>
 #include <asm/errno.h>
 #include <linux/list.h>
 #include <malloc.h>
 
 #include <linux/usb/ch9.h>
+#include <usbdescriptors.h>
 #include <linux/usb/gadget.h>
 
 #include <asm/byteorder.h>
@@ -53,19 +54,11 @@
 
 #define OTG_DMA_MODE		1
 
-#undef DEBUG_S3C_UDC_SETUP
-#undef DEBUG_S3C_UDC_EP0
-#undef DEBUG_S3C_UDC_ISR
-#undef DEBUG_S3C_UDC_OUT_EP
-#undef DEBUG_S3C_UDC_IN_EP
-#undef DEBUG_S3C_UDC
-
-/* #define DEBUG_S3C_UDC_SETUP */
-/* #define DEBUG_S3C_UDC_EP0 */
-/* #define DEBUG_S3C_UDC_ISR */
-/* #define DEBUG_S3C_UDC_OUT_EP */
-/* #define DEBUG_S3C_UDC_IN_EP */
-/* #define DEBUG_S3C_UDC */
+#define DEBUG_SETUP 0
+#define DEBUG_EP0 0
+#define DEBUG_ISR 0
+#define DEBUG_OUT_EP 0
+#define DEBUG_IN_EP 0
 
 #include <usb/s3c_udc.h>
 
@@ -131,6 +124,19 @@ static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed);
 static void nuke(struct s3c_ep *ep, int status);
 static int s3c_udc_set_halt(struct usb_ep *_ep, int value);
 static void s3c_udc_set_nak(struct s3c_ep *ep);
+
+void set_udc_gadget_private_data(void *p)
+{
+	debug_cond(DEBUG_SETUP != 0,
+		   "%s: the_controller: 0x%p, p: 0x%p\n", __func__,
+		   the_controller, p);
+	the_controller->gadget.dev.device_data = p;
+}
+
+void *get_udc_gadget_private_data(struct usb_gadget *gadget)
+{
+	return gadget->dev.device_data;
+}
 
 static struct usb_ep_ops s3c_ep_ops = {
 	.enable = s3c_ep_enable,
@@ -216,7 +222,7 @@ void otg_phy_off(struct s3c_udc *dev)
  */
 static void udc_disable(struct s3c_udc *dev)
 {
-	DEBUG_SETUP("%s: %p\n", __func__, dev);
+	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
 	udc_set_address(dev, 0);
 
@@ -234,7 +240,7 @@ static void udc_reinit(struct s3c_udc *dev)
 {
 	unsigned int i;
 
-	DEBUG_SETUP("%s: %p\n", __func__, dev);
+	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
 	/* device/ep0 records init */
 	INIT_LIST_HEAD(&dev->gadget.ep_list);
@@ -265,12 +271,13 @@ static void udc_reinit(struct s3c_udc *dev)
  */
 static int udc_enable(struct s3c_udc *dev)
 {
-	DEBUG_SETUP("%s: %p\n", __func__, dev);
+	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
 	otg_phy_init(dev);
 	reconfig_usbd();
 
-	DEBUG_SETUP("S3C USB 2.0 OTG Controller Core Initialized : 0x%x\n",
+	debug_cond(DEBUG_SETUP != 0,
+		   "S3C USB 2.0 OTG Controller Core Initialized : 0x%x\n",
 		    readl(&reg->gintmsk));
 
 	dev->gadget.speed = USB_SPEED_UNKNOWN;
@@ -287,7 +294,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	int retval = 0;
 	unsigned long flags;
 
-	DEBUG_SETUP("%s: %s\n", __func__, "no name");
+	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
 
 	if (!driver
 	    || (driver->speed != USB_SPEED_FULL
@@ -311,7 +318,8 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	retval = driver->bind(&dev->gadget);
 	if (retval) {
-		DEBUG_SETUP("%s: bind to driver --> error %d\n",
+		debug_cond(DEBUG_SETUP != 0,
+			   "%s: bind to driver --> error %d\n",
 			    dev->gadget.name, retval);
 		dev->driver = 0;
 		return retval;
@@ -319,7 +327,8 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	enable_irq(IRQ_OTG);
 
-	DEBUG_SETUP("Registered gadget driver %s\n", dev->gadget.name);
+	debug_cond(DEBUG_SETUP != 0,
+		   "Registered gadget driver %s\n", dev->gadget.name);
 	udc_enable(dev);
 
 	return 0;
@@ -377,7 +386,7 @@ static void done(struct s3c_ep *ep, struct s3c_request *req, int status)
 	/* don't modify queue heads during completion callback */
 	ep->stopped = 1;
 
-#ifdef DEBUG_S3C_UDC
+#ifdef DEBUG
 	printf("calling complete callback\n");
 	{
 		int i, len = req->req.length;
@@ -671,7 +680,7 @@ static struct usb_request *s3c_alloc_request(struct usb_ep *ep,
 
 	debug("%s: %s %p\n", __func__, ep->name, ep);
 
-	req = kmalloc(sizeof *req, gfp_flags);
+	req = memalign(CONFIG_SYS_CACHELINE_SIZE, sizeof(*req));
 	if (!req)
 		return 0;
 
@@ -865,7 +874,8 @@ int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 	the_controller = dev;
 
 	for (i = 0; i < S3C_MAX_ENDPOINTS+1; i++) {
-		dev->dma_buf[i] = kmalloc(DMA_BUFFER_SIZE, GFP_KERNEL);
+		dev->dma_buf[i] = memalign(CONFIG_SYS_CACHELINE_SIZE,
+					   DMA_BUFFER_SIZE);
 		dev->dma_addr[i] = (dma_addr_t) dev->dma_buf[i];
 		invalidate_dcache_range((unsigned long) dev->dma_buf[i],
 					(unsigned long) (dev->dma_buf[i]

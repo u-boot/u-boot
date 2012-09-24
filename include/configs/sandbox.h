@@ -45,7 +45,6 @@
 
 #define CONFIG_SYS_PROMPT		"=>"	/* Command Prompt */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_LONGHELP			/* #undef to save memory */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 

@@ -133,7 +133,8 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		/* READ or WRITE */
 		if (data->flags & MMC_DATA_READ) {
 			ctrl0 |= SSP_CTRL0_READ;
-		} else if (priv->mmc_is_wp(mmc->block_dev.dev)) {
+		} else if (priv->mmc_is_wp &&
+			priv->mmc_is_wp(mmc->block_dev.dev)) {
 			printf("MMC%d: Can not write a locked card!\n",
 				mmc->block_dev.dev);
 			return UNUSABLE_ERR;
@@ -406,7 +407,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 	 */
 	mmc->f_min = 400000;
 	mmc->f_max = mxc_get_clock(MXC_SSP0_CLK + id) * 1000 / 2;
-	mmc->b_max = 0x40;
+	mmc->b_max = 0x20;
 
 	mmc_register(mmc);
 	return 0;

@@ -68,7 +68,7 @@ extern char *eth0_rx_buffer[NR];
 extern char *eth_data;
 
 extern int gt6426x_eth_poll(void *v);
-extern int gt6426x_eth_transmit(void *v, volatile char *p, unsigned int s);
+extern int gt6426x_eth_transmit(void *v, char *p, unsigned int s);
 extern void gt6426x_eth_disable(void *v);
 extern int gt6426x_eth_probe(void *v, bd_t *bis);
 

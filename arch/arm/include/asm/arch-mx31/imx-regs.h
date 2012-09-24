@@ -606,6 +606,13 @@ struct esdc_regs {
 #define UART4_BASE	0x43FB0000
 #define UART5_BASE	0x43FB4000
 
+#define I2C1_BASE_ADDR          0x43f80000
+#define I2C1_CLK_OFFSET		26
+#define I2C2_BASE_ADDR          0x43F98000
+#define I2C2_CLK_OFFSET		28
+#define I2C3_BASE_ADDR          0x43f84000
+#define I2C3_CLK_OFFSET		30
+
 #define ESDCTL_SDE			(1 << 31)
 #define ESDCTL_CMD_RW			(0 << 28)
 #define ESDCTL_CMD_PRECHARGE		(1 << 28)

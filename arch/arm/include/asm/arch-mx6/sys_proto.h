@@ -28,11 +28,14 @@
 
 u32 get_cpu_rev(void);
 
+void set_vddsoc(u32 mv);
+
 /*
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
  */
 
 int fecmxc_initialize(bd_t *bis);
-
+u32 get_ahb_clk(void);
+u32 get_periph_clk(void);
 #endif

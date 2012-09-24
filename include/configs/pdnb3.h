@@ -117,8 +117,6 @@
 
 #define CONFIG_IXP425_TIMER_CLK		66666666
 #define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
-						/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Stack sizes

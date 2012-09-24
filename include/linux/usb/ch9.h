@@ -204,28 +204,6 @@ struct usb_descriptor_header {
 	__u8  bDescriptorType;
 } __attribute__ ((packed));
 
-
-/*-------------------------------------------------------------------------*/
-
-/* USB_DT_DEVICE: Device descriptor */
-struct usb_device_descriptor {
-	__u8  bLength;
-	__u8  bDescriptorType;
-
-	__le16 bcdUSB;
-	__u8  bDeviceClass;
-	__u8  bDeviceSubClass;
-	__u8  bDeviceProtocol;
-	__u8  bMaxPacketSize0;
-	__le16 idVendor;
-	__le16 idProduct;
-	__le16 bcdDevice;
-	__u8  iManufacturer;
-	__u8  iProduct;
-	__u8  iSerialNumber;
-	__u8  bNumConfigurations;
-} __attribute__ ((packed));
-
 #define USB_DT_DEVICE_SIZE		18
 
 
@@ -282,56 +260,11 @@ struct usb_config_descriptor {
 #define USB_CONFIG_ATT_WAKEUP		(1 << 5)	/* can wakeup */
 #define USB_CONFIG_ATT_BATTERY		(1 << 4)	/* battery powered */
 
-/*-------------------------------------------------------------------------*/
-
-/* USB_DT_STRING: String descriptor */
-struct usb_string_descriptor {
-	__u8  bLength;
-	__u8  bDescriptorType;
-
-	__le16 wData[1];		/* UTF-16LE encoded */
-} __attribute__ ((packed));
-
 /* note that "string" zero is special, it holds language codes that
  * the device supports, not Unicode characters.
  */
 
-/*-------------------------------------------------------------------------*/
-
-/* USB_DT_INTERFACE: Interface descriptor */
-struct usb_interface_descriptor {
-	__u8  bLength;
-	__u8  bDescriptorType;
-
-	__u8  bInterfaceNumber;
-	__u8  bAlternateSetting;
-	__u8  bNumEndpoints;
-	__u8  bInterfaceClass;
-	__u8  bInterfaceSubClass;
-	__u8  bInterfaceProtocol;
-	__u8  iInterface;
-} __attribute__ ((packed));
-
 #define USB_DT_INTERFACE_SIZE		9
-
-/*-------------------------------------------------------------------------*/
-
-/* USB_DT_ENDPOINT: Endpoint descriptor */
-struct usb_endpoint_descriptor {
-	__u8  bLength;
-	__u8  bDescriptorType;
-
-	__u8  bEndpointAddress;
-	__u8  bmAttributes;
-	__le16 wMaxPacketSize;
-	__u8  bInterval;
-
-	/* NOTE:  these two are _only_ in audio endpoints. */
-	/* use USB_DT_ENDPOINT*_SIZE in bLength, not sizeof. */
-	__u8  bRefresh;
-	__u8  bSynchAddress;
-} __attribute__ ((packed));
-
 #define USB_DT_ENDPOINT_SIZE		7
 #define USB_DT_ENDPOINT_AUDIO_SIZE	9	/* Audio extension */
 

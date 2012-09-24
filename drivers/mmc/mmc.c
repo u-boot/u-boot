@@ -333,6 +333,7 @@ mmc_berase(int dev_num, unsigned long start, lbaint_t blkcnt)
 	int err = 0;
 	struct mmc *mmc = find_mmc_device(dev_num);
 	lbaint_t blk = 0, blk_r = 0;
+	int timeout = 1000;
 
 	if (!mmc)
 		return -1;
@@ -352,6 +353,10 @@ mmc_berase(int dev_num, unsigned long start, lbaint_t blkcnt)
 			break;
 
 		blk += blk_r;
+
+		/* Waiting for the ready status */
+		if (mmc_send_status(mmc, timeout))
+			return 0;
 	}
 
 	return blk;
@@ -1195,11 +1200,13 @@ int mmc_startup(struct mmc *mmc)
 		}
 
 		if (mmc->card_caps & MMC_MODE_HS)
-			mmc_set_clock(mmc, 50000000);
+			mmc->tran_speed = 50000000;
 		else
-			mmc_set_clock(mmc, 25000000);
+			mmc->tran_speed = 25000000;
 	} else {
-		for (width = EXT_CSD_BUS_WIDTH_8; width >= 0; width--) {
+		width = ((mmc->host_caps & MMC_MODE_MASK_WIDTH_BITS) >>
+			 MMC_MODE_WIDTH_BITS_SHIFT);
+		for (; width >= 0; width--) {
 			/* Set the card to use 4 bit*/
 			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 					EXT_CSD_BUS_WIDTH, width);
@@ -1232,12 +1239,13 @@ int mmc_startup(struct mmc *mmc)
 
 		if (mmc->card_caps & MMC_MODE_HS) {
 			if (mmc->card_caps & MMC_MODE_HS_52MHz)
-				mmc_set_clock(mmc, 52000000);
+				mmc->tran_speed = 52000000;
 			else
-				mmc_set_clock(mmc, 26000000);
-		} else
-			mmc_set_clock(mmc, 20000000);
+				mmc->tran_speed = 26000000;
+		}
 	}
+
+	mmc_set_clock(mmc, mmc->tran_speed);
 
 	/* fill in device description */
 	mmc->block_dev.lun = 0;
@@ -1303,8 +1311,11 @@ int mmc_register(struct mmc *mmc)
 block_dev_desc_t *mmc_get_dev(int dev)
 {
 	struct mmc *mmc = find_mmc_device(dev);
+	if (!mmc)
+		return NULL;
 
-	return mmc ? &mmc->block_dev : NULL;
+	mmc_init(mmc);
+	return &mmc->block_dev;
 }
 #endif
 

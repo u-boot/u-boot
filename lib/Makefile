@@ -28,6 +28,7 @@ LIB	= $(obj)libgeneric.o
 ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_ADDR_MAP) += addr_map.o
 COBJS-$(CONFIG_BCH) += bch.o
+COBJS-$(CONFIG_AES) += aes.o
 COBJS-$(CONFIG_BZIP2) += bzlib.o
 COBJS-$(CONFIG_BZIP2) += bzlib_crctable.o
 COBJS-$(CONFIG_BZIP2) += bzlib_decompress.o
@@ -36,7 +37,6 @@ COBJS-$(CONFIG_BZIP2) += bzlib_huffman.o
 COBJS-$(CONFIG_USB_TTY) += circbuf.o
 COBJS-y += crc7.o
 COBJS-y += crc16.o
-COBJS-y += crc32.o
 COBJS-y += display_options.o
 COBJS-y += errno.o
 COBJS-$(CONFIG_OF_CONTROL) += fdtdec.o
@@ -59,14 +59,18 @@ endif
 ifdef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
 endif
+COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += div64.o
 COBJS-y += string.o
 COBJS-y += time.o
 COBJS-$(CONFIG_BOOTP_PXE) += uuid.o
 COBJS-y += vsprintf.o
+COBJS-$(CONFIG_RANDOM_MACADDR) += rand.o
+COBJS-$(CONFIG_BOOTP_RANDOM_DELAY) += rand.o
+COBJS-$(CONFIG_CMD_LINK_LOCAL) += rand.o
 
-COBJS	:= $(COBJS-y)
+COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

@@ -452,8 +452,8 @@ static void mpc512x_fec_halt (struct eth_device *dev)
 
 /********************************************************************/
 
-static int mpc512x_fec_send (struct eth_device *dev, volatile void *eth_data,
-		int data_length)
+static int mpc512x_fec_send(struct eth_device *dev, void *eth_data,
+			    int data_length)
 {
 	/*
 	 * This routine transmits one frame.  This routine only accepts

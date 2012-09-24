@@ -21,6 +21,9 @@
  * MA 02111-1307 USA
  */
 
+#ifndef __SYSCTRL_H
+#define __SYSCTRL_H
+
 struct syscntl_regs {
 	u32 scctrl;
 	u32 scsysstat;
@@ -36,3 +39,14 @@ struct syscntl_regs {
 	const u32 scperclken;
 	const u32 scperstat;
 };
+
+#define MODE_SHIFT          0x00000003
+
+#define NORMAL              0x00000004
+#define SLOW                0x00000002
+#define DOZE                0x00000001
+#define SLEEP               0x00000000
+
+#define PLL_TIM             0x01FFFFFF
+
+#endif

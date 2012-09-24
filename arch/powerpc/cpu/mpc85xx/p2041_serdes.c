@@ -78,7 +78,7 @@ enum srds_prtcl serdes_get_prtcl(int cfg, int lane)
 	prtcl = serdes_cfg_tbl[cfg][lane];
 
 	/* P2040[e] does not support XAUI */
-	if (((ver == SVR_P2040) || (ver == SVR_P2040_E)) && (prtcl == XAUI_FM1))
+	if (ver == SVR_P2040 && prtcl == XAUI_FM1)
 		prtcl = NONE;
 
 	return prtcl;
@@ -94,7 +94,7 @@ int is_serdes_prtcl_valid(u32 prtcl)
 		return 0;
 
 	/* P2040[e] does not support XAUI */
-	if (((ver == SVR_P2040) || (ver == SVR_P2040_E)) && (prtcl == XAUI_FM1))
+	if (ver == SVR_P2040 && prtcl == XAUI_FM1)
 		return 0;
 
 	for (i = 0; i < SRDS_MAX_LANES; i++) {

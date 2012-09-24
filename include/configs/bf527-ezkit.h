@@ -156,6 +156,15 @@
 #ifdef CONFIG_BF527_EZKIT_REV_2_1
 # define CONFIG_LQ035Q1_SPI_BUS	0
 # define CONFIG_LQ035Q1_SPI_CS	7
+# define CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI
+#else
+# define CONFIG_LQ035Q1_USE_RGB888_8_BIT_PPI
+#endif
+
+#ifdef CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI
+# define EASYLOGO_HEADER <asm/bfin_logo_rgb565_230x230_lzma.h>
+#else
+# define EASYLOGO_HEADER <asm/bfin_logo_230x230_lzma.h>
 #endif
 
 

@@ -186,8 +186,9 @@ enum periph_id {
 /* Mask value for a clock (within PERIPH_REG(id)) */
 #define PERIPH_MASK(id) (1 << ((id) & 0x1f))
 
-/* return 1 if a PLL ID is in range */
-#define clock_id_isvalid(id) ((id) >= CLOCK_ID_FIRST && (id) < CLOCK_ID_COUNT)
+/* return 1 if a PLL ID is in range, and not a simple PLL */
+#define clock_id_is_pll(id) ((id) >= CLOCK_ID_FIRST && \
+		(id) < CLOCK_ID_FIRST_SIMPLE)
 
 /* PLL stabilization delay in usec */
 #define CLOCK_PLL_STABLE_DELAY_US 300
@@ -209,6 +210,21 @@ enum clock_osc_freq clock_get_osc_freq(void);
  */
 unsigned long clock_start_pll(enum clock_id id, u32 divm, u32 divn,
 		u32 divp, u32 cpcon, u32 lfcon);
+
+/**
+ * Read low-level parameters of a PLL.
+ *
+ * @param id	clock id to read (note: USB is not supported)
+ * @param divm	returns input divider
+ * @param divn	returns feedback divider
+ * @param divp	returns post divider 2^n
+ * @param cpcon	returns charge pump setup control
+ * @param lfcon	returns loop filter setup control
+ *
+ * @returns 0 if ok, -1 on error (invalid clock id)
+ */
+int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
+		      u32 *divp, u32 *cpcon, u32 *lfcon);
 
 /*
  * Enable a clock
@@ -367,6 +383,13 @@ void clock_ll_start_uart(enum periph_id periph_id);
  * @return peripheral ID, or PERIPH_ID_NONE if none
  */
 enum periph_id clock_decode_periph_id(const void *blob, int node);
+
+/**
+ * Checks if the oscillator bypass is enabled (XOBP bit)
+ *
+ * @return 1 if bypass is enabled, 0 if not
+ */
+int clock_get_osc_bypass(void);
 
 /*
  * Checks that clocks are valid and prints a warning if not

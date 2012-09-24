@@ -70,6 +70,7 @@ COBJS-$(CONFIG_PPC_P3041)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P3060)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P4080)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P5020)	+= ddr-gen3.o
+COBJS-$(CONFIG_BSC9131)		+= ddr-gen3.o
 
 COBJS-$(CONFIG_CPM2)	+= ether_fcc.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
@@ -128,6 +129,9 @@ COBJS	+= interrupts.o
 COBJS	+= speed.o
 COBJS	+= tlb.o
 COBJS	+= traps.o
+
+# Stub implementations of cache management functions for USB
+COBJS += cache.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

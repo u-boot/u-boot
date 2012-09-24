@@ -22,6 +22,7 @@
 #include <config.h>
 #include <asm/arch/imx-regs.h>
 #include <generated/asm-offsets.h>
+#include <linux/linkage.h>
 
 /*
  * L2CC Cache setup/invalidation/disable
@@ -326,8 +327,7 @@
 
 .section ".text.init", "x"
 
-.globl lowlevel_init
-lowlevel_init:
+ENTRY(lowlevel_init)
 #if defined(CONFIG_MX51)
 	ldr r0, =GPIO1_BASE_ADDR
 	ldr r1, [r0, #0x0]
@@ -348,6 +348,7 @@ lowlevel_init:
 
 	/* r12 saved upper lr*/
 	mov pc,lr
+ENDPROC(lowlevel_init)
 
 /* Board level setting value */
 W_DP_OP_864:              .word DP_OP_864

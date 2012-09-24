@@ -14,6 +14,5 @@
 int	video_init	(void *videobase);
 void	video_putc	(const char c);
 void	video_puts	(const char *s);
-void	video_printf	(const char *fmt, ...);
 
 #endif

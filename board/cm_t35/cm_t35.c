@@ -99,12 +99,34 @@ int board_init(void)
 	return 0;
 }
 
+static u32 cm_t3x_rev;
+
+/*
+ * Routine: get_board_rev
+ * Description: read system revision
+ */
+u32 get_board_rev(void)
+{
+	if (!cm_t3x_rev)
+		cm_t3x_rev = cm_t3x_eeprom_get_board_rev();
+
+	return cm_t3x_rev;
+};
+
 /*
  * Routine: misc_init_r
  * Description: display die ID
  */
 int misc_init_r(void)
 {
+	u32 board_rev = get_board_rev();
+	u32 rev_major = board_rev / 100;
+	u32 rev_minor = board_rev - (rev_major * 100);
+
+	if ((rev_minor / 10) * 10 == rev_minor)
+		rev_minor = rev_minor / 10;
+
+	printf("PCB:   %u.%u\n", rev_major, rev_minor);
 	dieid_num_r();
 
 	return 0;
@@ -241,6 +263,12 @@ static void cm_t3x_set_common_muxconf(void)
 	/* I2C1 */
 	MUX_VAL(CP(I2C1_SCL),		(IEN  | PTU | EN  | M0)); /*I2C1_SCL*/
 	MUX_VAL(CP(I2C1_SDA),		(IEN  | PTU | EN  | M0)); /*I2C1_SDA*/
+	/* I2C2 */
+	MUX_VAL(CP(I2C2_SCL),		(IEN  | PTU | EN  | M0)); /*I2C2_SCL*/
+	MUX_VAL(CP(I2C2_SDA),		(IEN  | PTU | EN  | M0)); /*I2C2_SDA*/
+	/* I2C3 */
+	MUX_VAL(CP(I2C3_SCL),		(IEN  | PTU | EN  | M0)); /*I2C3_SCL*/
+	MUX_VAL(CP(I2C3_SDA),		(IEN  | PTU | EN  | M0)); /*I2C3_SDA*/
 
 	/* control and debug */
 	MUX_VAL(CP(SYS_32K),		(IEN  | PTD | DIS | M0)); /*SYS_32K*/
@@ -318,7 +346,7 @@ void set_muxconf_regs(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0);
+	return omap_mmc_init(0, 0, 0);
 }
 #endif
 

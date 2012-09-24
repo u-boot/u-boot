@@ -38,8 +38,6 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 #define CONFIG_PREBOOT	"echo;" \

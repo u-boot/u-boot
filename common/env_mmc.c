@@ -95,7 +95,7 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 
 int saveenv(void)
 {
-	env_t	env_new;
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	ssize_t	len;
 	char	*res;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
@@ -104,16 +104,16 @@ int saveenv(void)
 	if (init_mmc_for_env(mmc) || mmc_get_env_addr(mmc, &offset))
 		return 1;
 
-	res = (char *)&env_new.data;
+	res = (char *)&env_new->data;
 	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
 
-	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
+	env_new->crc = crc32(0, &env_new->data[0], ENV_SIZE);
 	printf("Writing to MMC(%d)... ", CONFIG_SYS_MMC_ENV_DEV);
-	if (write_env(mmc, CONFIG_ENV_SIZE, offset, (u_char *)&env_new)) {
+	if (write_env(mmc, CONFIG_ENV_SIZE, offset, (u_char *)env_new)) {
 		puts("failed\n");
 		return 1;
 	}
@@ -140,7 +140,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	char buf[CONFIG_ENV_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 	u32 offset;
 

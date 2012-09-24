@@ -69,17 +69,6 @@ int board_init(void)
 }
 
 /*
- * Routine: misc_init_r
- * Description: late init.
- */
-int misc_init_r(void)
-{
-	dieid_num_r();
-
-	return 0;
-}
-
-/*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the
  *		hardware. Many pins need to be moved from protect to primary
@@ -93,7 +82,7 @@ void set_muxconf_regs(void)
 #if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0);
+	return omap_mmc_init(0, 0, 0);
 }
 #endif
 

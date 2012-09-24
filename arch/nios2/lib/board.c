@@ -87,17 +87,15 @@ void board_init (void)
 {
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
+	static gd_t gd_data;
+	static bd_t bd_data;
 
-	/* Pointer is writable since we allocated a register for it.
-	 * Nios treats CONFIG_SYS_GBL_DATA_OFFSET as an address.
-	 */
-	gd = (gd_t *)CONFIG_SYS_GBL_DATA_OFFSET;
+	/* Pointer is writable since we allocated a register for it. */
+	gd = &gd_data;
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-	memset( gd, 0, GENERATED_GBL_DATA_SIZE );
-
-	gd->bd = (bd_t *)(gd+1);	/* At end of global data */
+	gd->bd = &bd_data;
 	gd->baudrate = CONFIG_BAUDRATE;
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
 
@@ -142,8 +140,6 @@ void board_init (void)
 
 	WATCHDOG_RESET ();
 	env_relocate();
-
-	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 
 	WATCHDOG_RESET ();
 	stdio_init();

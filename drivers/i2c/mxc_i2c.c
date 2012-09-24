@@ -59,27 +59,10 @@ struct mxc_i2c_regs {
 #define I2SR_IIF	(1 << 1)
 #define I2SR_RX_NO_AK	(1 << 0)
 
-#if defined(CONFIG_SYS_I2C_MX31_PORT1)
-#define I2C_BASE	0x43f80000
-#define I2C_CLK_OFFSET	26
-#elif defined (CONFIG_SYS_I2C_MX31_PORT2)
-#define I2C_BASE	0x43f98000
-#define I2C_CLK_OFFSET	28
-#elif defined (CONFIG_SYS_I2C_MX31_PORT3)
-#define I2C_BASE	0x43f84000
-#define I2C_CLK_OFFSET	30
-#elif defined(CONFIG_SYS_I2C_MX53_PORT1)
-#define I2C_BASE        I2C1_BASE_ADDR
-#elif defined(CONFIG_SYS_I2C_MX53_PORT2)
-#define I2C_BASE        I2C2_BASE_ADDR
-#elif defined(CONFIG_SYS_I2C_MX35_PORT1)
-#define I2C_BASE	I2C_BASE_ADDR
-#elif defined(CONFIG_SYS_I2C_MX35_PORT2)
-#define I2C_BASE	I2C2_BASE_ADDR
-#elif defined(CONFIG_SYS_I2C_MX35_PORT3)
-#define I2C_BASE	I2C3_BASE_ADDR
+#ifdef CONFIG_SYS_I2C_BASE
+#define I2C_BASE	CONFIG_SYS_I2C_BASE
 #else
-#error "define CONFIG_SYS_I2C_MX<Processor>_PORTx to use the mx I2C driver"
+#error "define CONFIG_SYS_I2C_BASE to use the mxc_i2c driver"
 #endif
 
 #define I2C_MAX_TIMEOUT		10000
@@ -114,7 +97,7 @@ static uint8_t i2c_imx_get_clk(unsigned int rate)
 		(struct clock_control_regs *)CCM_BASE;
 
 	/* start the required I2C clock */
-	writel(readl(&sc_regs->cgr0) | (3 << I2C_CLK_OFFSET),
+	writel(readl(&sc_regs->cgr0) | (3 << CONFIG_SYS_I2C_CLK_OFFSET),
 		&sc_regs->cgr0);
 #endif
 
@@ -248,12 +231,6 @@ int i2c_imx_start(void)
 	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
 	unsigned int temp = 0;
 	int result;
-	int speed = i2c_get_bus_speed();
-	u8 clk_idx = i2c_imx_get_clk(speed);
-	u8 idx = i2c_clk_div[clk_idx][1];
-
-	/* Store divider value */
-	writeb(idx, &i2c_regs->ifdr);
 
 	/* Enable I2C controller */
 	writeb(0, &i2c_regs->i2sr);

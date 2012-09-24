@@ -58,7 +58,6 @@
 
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		57600
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_AUTOBOOT_PROMPT	"autoboot in %d seconds\n", bootdelay

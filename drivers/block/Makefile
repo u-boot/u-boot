@@ -27,10 +27,10 @@ LIB	:= $(obj)libblock.o
 
 COBJS-$(CONFIG_SCSI_AHCI) += ahci.o
 COBJS-$(CONFIG_ATA_PIIX) += ata_piix.o
+COBJS-$(CONFIG_DWC_AHSATA) += dwc_ahsata.o
 COBJS-$(CONFIG_FSL_SATA) += fsl_sata.o
 COBJS-$(CONFIG_IDE_FTIDE020) += ftide020.o
 COBJS-$(CONFIG_LIBATA) += libata.o
-COBJS-$(CONFIG_CMD_MG_DISK) += mg_disk.o
 COBJS-$(CONFIG_MVSATA_IDE) += mvsata_ide.o
 COBJS-$(CONFIG_MX51_PATA) += mxc_ata.o
 COBJS-$(CONFIG_PATA_BFIN) += pata_bfin.o

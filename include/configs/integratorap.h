@@ -65,7 +65,6 @@
 #define CONFIG_CONS_INDEX	0
 #define CONFIG_BAUDRATE		38400
 #define CONFIG_PL01x_PORTS	{ (void *) (CONFIG_SYS_SERIAL0), (void *) (CONFIG_SYS_SERIAL1) }
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #define CONFIG_SYS_SERIAL0		0x16000000
 #define CONFIG_SYS_SERIAL1		0x17000000
 
@@ -94,7 +93,6 @@
 #define CONFIG_SYS_LONGHELP	/* undef to save memory	    */
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT	"Integrator-AP # "	/* Monitor Command Prompt   */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"# "
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size  */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)

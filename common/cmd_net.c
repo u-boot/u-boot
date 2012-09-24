@@ -153,12 +153,16 @@ static void netboot_update_env (void)
 		ip_to_string (NetOurIP, tmp);
 		setenv ("ipaddr", tmp);
 	}
-
+#if !defined(CONFIG_BOOTP_SERVERIP)
+	/*
+	 * Only attempt to change serverip if net/bootp.c:BootpCopyNetParams()
+	 * could have set it
+	 */
 	if (NetServerIP) {
 		ip_to_string (NetServerIP, tmp);
 		setenv ("serverip", tmp);
 	}
-
+#endif
 	if (NetOurDNSIP) {
 		ip_to_string (NetOurDNSIP, tmp);
 		setenv ("dnsip", tmp);
@@ -424,3 +428,34 @@ U_BOOT_CMD(
 );
 
 #endif	/* CONFIG_CMD_DNS */
+
+#if defined(CONFIG_CMD_LINK_LOCAL)
+static int do_link_local(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	char tmp[22];
+
+	if (NetLoop(LINKLOCAL) < 0)
+		return 1;
+
+	NetOurGatewayIP = 0;
+	ip_to_string(NetOurGatewayIP, tmp);
+	setenv("gatewayip", tmp);
+
+	ip_to_string(NetOurSubnetMask, tmp);
+	setenv("netmask", tmp);
+
+	ip_to_string(NetOurIP, tmp);
+	setenv("ipaddr", tmp);
+	setenv("llipaddr", tmp); /* store this for next time */
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	linklocal,	1,	1,	do_link_local,
+	"acquire a network IP address using the link-local protocol",
+	""
+);
+
+#endif  /* CONFIG_CMD_LINK_LOCAL */

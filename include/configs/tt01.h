@@ -171,7 +171,6 @@
 /* console is UART2 on TT-01 */
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /* ethernet setup for the onboard smc9118 */
 #define CONFIG_MII
@@ -249,7 +248,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_SYS_PROMPT	"TT01> "

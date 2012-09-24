@@ -29,8 +29,10 @@ endif
 
 LIB	= $(obj)lib$(VENDOR).o
 
+ifndef CONFIG_SPL_BUILD
 COBJS	:= spr_misc.o
 SOBJS	:= spr_lowlevel_init.o
+endif
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

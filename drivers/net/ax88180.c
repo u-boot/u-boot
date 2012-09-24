@@ -604,8 +604,7 @@ static int ax88180_recv (struct eth_device *dev)
 }
 
 /* Send a data block via Ethernet. */
-static int
-ax88180_send (struct eth_device *dev, volatile void *packet, int length)
+static int ax88180_send(struct eth_device *dev, void *packet, int length)
 {
 	struct ax88180_private *priv = (struct ax88180_private *)dev->priv;
 	unsigned short TXDES_addr;

@@ -17,7 +17,7 @@
 /* Note: The header order is impoertant */
 #include <onenand_uboot.h>
 
-#include <linux/mtd/compat.h>
+#include <linux/compat.h>
 #include <linux/mtd/bbm.h>
 
 #define MAX_DIES		2

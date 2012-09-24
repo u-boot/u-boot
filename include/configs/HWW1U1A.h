@@ -407,7 +407,6 @@
 #define CONFIG_SYS_CBSIZE 4096		/* Allow up to 4k command lines	*/
 #define CONFIG_SYS_BARGSIZE 4096	/* Allow up to 4k boot args	*/
 #define CONFIG_SYS_HUSH_PARSER		/* Enable a fancier shell	*/
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "	/* Command-line continuation	*/
 
 /* A little extra magic here for the prompt */
 #define CONFIG_SYS_PROMPT hww1u1a_get_ps1()
@@ -422,7 +421,7 @@ const char *hww1u1a_get_ps1(void);
 #define CONFIG_MD5
 #define CONFIG_SHA1
 #define CONFIG_CMD_MD5SUM
-#define CONFIG_CMD_SHA1
+#define CONFIG_CMD_SHA1SUM
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_SETEXPR
 

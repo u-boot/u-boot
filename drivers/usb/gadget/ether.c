@@ -24,6 +24,7 @@
 #include <asm/errno.h>
 #include <linux/netdevice.h>
 #include <linux/usb/ch9.h>
+#include <usbdescriptors.h>
 #include <linux/usb/cdc.h>
 #include <linux/usb/gadget.h>
 #include <net.h>
@@ -2396,8 +2397,7 @@ fail:
 	return -1;
 }
 
-static int usb_eth_send(struct eth_device *netdev,
-			volatile void *packet, int length)
+static int usb_eth_send(struct eth_device *netdev, void *packet, int length)
 {
 	int			retval;
 	void			*rndis_pkt = NULL;
@@ -2418,11 +2418,11 @@ static int usb_eth_send(struct eth_device *netdev,
 		}
 		rndis_add_hdr(rndis_pkt, length);
 		memcpy(rndis_pkt + sizeof(struct rndis_packet_msg_type),
-				(void *)packet, length);
+				packet, length);
 		packet = rndis_pkt;
 		length += sizeof(struct rndis_packet_msg_type);
 	}
-	req->buf = (void *)packet;
+	req->buf = packet;
 	req->context = NULL;
 	req->complete = tx_complete;
 

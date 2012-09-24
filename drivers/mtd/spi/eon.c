@@ -11,17 +11,8 @@
 #include "spi_flash_internal.h"
 
 /* EN25Q128-specific commands */
-#define CMD_EN25Q128_WREN	0x06    /* Write Enable */
-#define CMD_EN25Q128_WRDI	0x04    /* Write Disable */
-#define CMD_EN25Q128_RDSR	0x05    /* Read Status Register */
-#define CMD_EN25Q128_WRSR	0x01    /* Write Status Register */
-#define CMD_EN25Q128_READ	0x03    /* Read Data Bytes */
-#define CMD_EN25Q128_FAST_READ	0x0b    /* Read Data Bytes at Higher Speed */
-#define CMD_EN25Q128_PP		0x02    /* Page Program */
 #define CMD_EN25Q128_SE		0x20    /* Sector Erase */
 #define CMD_EN25Q128_BE		0xd8    /* Block Erase */
-#define CMD_EN25Q128_DP		0xb9    /* Deep Power-down */
-#define CMD_EN25Q128_RES	0xab    /* Release from DP, and Read Signature */
 
 struct eon_spi_flash_params {
 	u8 idcode1;

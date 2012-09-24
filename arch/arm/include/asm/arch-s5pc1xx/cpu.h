@@ -23,6 +23,7 @@
 #ifndef _S5PC1XX_CPU_H
 #define _S5PC1XX_CPU_H
 
+#define S5P_CPU_NAME		"S5P"
 #define S5PC1XX_ADDR_BASE	0xE0000000
 
 /* S5PC100 */
@@ -69,6 +70,11 @@ static inline void s5p_set_cpu_id(void)
 {
 	s5p_cpu_id = readl(S5PC100_PRO_ID);
 	s5p_cpu_id = 0xC000 | ((s5p_cpu_id & 0x00FFF000) >> 12);
+}
+
+static inline char *s5p_get_cpu_name(void)
+{
+	return S5P_CPU_NAME;
 }
 
 #define IS_SAMSUNG_TYPE(type, id)			\

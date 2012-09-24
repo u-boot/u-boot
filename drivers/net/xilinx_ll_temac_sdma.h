@@ -275,7 +275,6 @@ int ll_temac_reset_sdma(struct eth_device *dev);
 int ll_temac_recv_sdma(struct eth_device *dev);
 
 /* send buffered data to SDMA */
-int ll_temac_send_sdma(struct eth_device *dev, volatile void *packet,
-							int length);
+int ll_temac_send_sdma(struct eth_device *dev, void *packet, int length);
 
 #endif /* _XILINX_LL_TEMAC_SDMA_ */

@@ -121,7 +121,6 @@ struct da8xx_lcd_regs {
 #define LOWER_MARGIN	32
 
 #define calc_fbsize() (panel.plnSizeX * panel.plnSizeY * panel.gdfBytesPP)
-#define mdelay(n) ({unsigned long msec = (n); while (msec--) udelay(1000); })
 
 static struct da8xx_lcd_regs *da8xx_fb_reg_base;
 

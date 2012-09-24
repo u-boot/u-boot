@@ -85,7 +85,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /***********************************************************
  * Command definition
@@ -99,6 +98,7 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_BOOTZ
 
 /*
  * Disabled due to compilation errors in cmd_bootm.c (IMLS seems to require

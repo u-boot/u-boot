@@ -75,6 +75,7 @@ enum {
 };
 
 #define MAX8998_LDO3		(1 << 2)
+#define MAX8998_LDO4		(1 << 1)
 #define MAX8998_LDO8		(1 << 5)
 #define MAX8998_SAFEOUT1	(1 << 4)
 

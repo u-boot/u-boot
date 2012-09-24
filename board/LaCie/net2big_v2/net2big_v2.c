@@ -75,7 +75,7 @@ int board_early_init_f(void)
 		0
 	};
 
-	kirkwood_mpp_conf(kwmpp_config);
+	kirkwood_mpp_conf(kwmpp_config, NULL);
 
 	return 0;
 }
@@ -109,7 +109,7 @@ int misc_init_r(void)
 /* Configure and initialize PHY */
 void reset_phy(void)
 {
-	mv_phy_88e1116_init("egiga0");
+	mv_phy_88e1116_init("egiga0", 8);
 }
 #endif
 

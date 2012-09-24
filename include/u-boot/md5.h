@@ -11,7 +11,10 @@
 struct MD5Context {
 	__u32 buf[4];
 	__u32 bits[2];
-	unsigned char in[64];
+	union {
+		unsigned char in[64];
+		__u32 in32[16];
+	};
 };
 
 /*

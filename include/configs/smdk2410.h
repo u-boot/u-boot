@@ -104,7 +104,6 @@
 #define CONFIG_CMD_USB
 
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_CMDLINE_EDITING
 
 /* autoboot */
@@ -143,9 +142,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x30800000
 
 #define CONFIG_SYS_HZ			1000
-
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* support additional compression methods */
 #define CONFIG_BZIP2

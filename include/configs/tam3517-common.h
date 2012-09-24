@@ -146,7 +146,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
 							/* NAND devices */
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 
 #define CONFIG_AUTO_COMPLETE
 
@@ -155,7 +154,6 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
@@ -258,7 +256,7 @@
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
-#define CONFIG_SPL_MAX_SIZE		(45 << 10)	/* 45 K */
+#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x8f000000

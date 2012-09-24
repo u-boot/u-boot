@@ -162,9 +162,6 @@
 #if 0
 #define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
 #endif
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
@@ -181,8 +178,6 @@
 #define	CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address	*/
 
 #define	CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks	*/
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_AUTO_COMPLETE	1       /* add autocompletion support   */
 

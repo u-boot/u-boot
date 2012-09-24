@@ -68,9 +68,10 @@
 #define EXYNOS4_DEFAULT_UART_OFFSET	0x010000
 
 /* SD/MMC configuration */
-#define CONFIG_GENERIC_MMC		1
-#define CONFIG_MMC			1
-#define CONFIG_S5P_MMC			1
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MMC
+#define CONFIG_SDHCI
+#define CONFIG_S5P_SDHCI
 
 /* PWM */
 #define CONFIG_PWM			1
@@ -100,7 +101,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"SMDKV310 # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size*/
 #define CONFIG_SYS_PBSIZE		384	/* Print Buffer Size */
@@ -114,9 +114,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 #define CONFIG_SYS_HZ			1000
-
-/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* Stack sizes */
 #define CONFIG_STACKSIZE		(256 << 10)	/* 256KB */

@@ -176,19 +176,12 @@ void board_init (void)
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
 #if defined(CONFIG_CMD_NET)
-	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-
 	printf("Net:   ");
 	eth_initialize(gd->bd);
 
 	uchar enetaddr[6];
 	eth_getenv_enetaddr("ethaddr", enetaddr);
 	printf("MAC:   %pM\n", enetaddr);
-
-	s = getenv("bootfile");
-	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
 #endif
 
 	/* main_loop */

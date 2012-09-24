@@ -34,6 +34,7 @@ usage()
 	  CROSS_COMPILE    cross-compiler toolchain prefix (default: "")
 	  MAKEALL_LOGDIR   output all logs to here (default: ./LOG/)
 	  BUILD_DIR        output build directory (default: ./)
+	  BUILD_NBUILDS	   number of parallel targets (default: 1)
 
 	Examples:
 	  - build all Power Architecture boards:
@@ -178,18 +179,33 @@ else
 	LOG_DIR="LOG"
 fi
 
-if [ ! "${BUILD_DIR}" ] ; then
-	BUILD_DIR="."
+: ${BUILD_NBUILDS:=1}
+BUILD_MANY=0
+
+if [ "${BUILD_NBUILDS}" -gt 1 ] ; then
+	BUILD_MANY=1
+	: ${BUILD_DIR:=./build}
+	mkdir -p "${BUILD_DIR}/ERR"
+	find "${BUILD_DIR}/ERR/" -type f -exec rm -f {} +
 fi
 
-[ -d ${LOG_DIR} ] || mkdir ${LOG_DIR} || exit 1
+: ${BUILD_DIR:=.}
+
+OUTPUT_PREFIX="${BUILD_DIR}"
+
+[ -d ${LOG_DIR} ] || mkdir "${LOG_DIR}" || exit 1
+find "${LOG_DIR}/" -type f -exec rm -f {} +
 
 LIST=""
 
 # Keep track of the number of builds and errors
 ERR_CNT=0
 ERR_LIST=""
+WRN_CNT=0
+WRN_LIST=""
 TOTAL_CNT=0
+CURRENT_CNT=0
+OLDEST_IDX=1
 RC=0
 
 # Helper funcs for parsing boards.cfg
@@ -326,12 +342,7 @@ LIST_ARM9="$(boards_by_cpu arm920t)	\
 #########################################################################
 ## ARM11 Systems
 #########################################################################
-LIST_ARM11="$(boards_by_cpu arm1136)	\
-	imx31_phycore		\
-	imx31_phycore_eet	\
-	mx31pdk			\
-	smdk6400		\
-"
+LIST_ARM11="$(boards_by_cpu arm1136)"
 
 #########################################################################
 ## ARMV7 Systems
@@ -351,10 +362,7 @@ LIST_at91="$(boards_by_soc at91)"
 
 LIST_pxa="$(boards_by_cpu pxa)"
 
-LIST_ixp="$(boards_by_cpu ixp)
-	pdnb3		\
-	scpu		\
-"
+LIST_ixp="$(boards_by_cpu ixp)"
 
 #########################################################################
 ## ARM groups
@@ -592,41 +600,106 @@ list_target() {
 	echo ""
 }
 
+# Each finished build will have a file called ${donep}${n},
+# where n is the index of the build. Each build
+# we've already noted as finished will have ${skipp}${n}.
+# The code managing the build process will use this information
+# to ensure that only BUILD_NBUILDS builds are in flight at once
+donep="${LOG_DIR}/._done_"
+skipp="${LOG_DIR}/._skip_"
+
 build_target() {
 	target=$1
+	build_idx=$2
 
 	if [ "$ONLY_LIST" == 'y' ] ; then
 		list_target ${target}
 		return
 	fi
 
+	if [ $BUILD_MANY == 1 ] ; then
+		output_dir="${OUTPUT_PREFIX}/${target}"
+		mkdir -p "${output_dir}"
+	else
+		output_dir="${OUTPUT_PREFIX}"
+	fi
+
+	export BUILD_DIR="${output_dir}"
+
 	${MAKE} distclean >/dev/null
 	${MAKE} -s ${target}_config
 
-	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
-				| tee ${LOG_DIR}/$target.ERR
+	${MAKE} ${JOBS} all \
+		>${LOG_DIR}/$target.MAKELOG 2> ${LOG_DIR}/$target.ERR
 
 	# Check for 'make' errors
 	if [ ${PIPESTATUS[0]} -ne 0 ] ; then
 		RC=1
 	fi
 
-	if [ -s ${LOG_DIR}/$target.ERR ] ; then
-		ERR_CNT=$((ERR_CNT + 1))
-		ERR_LIST="${ERR_LIST} $target"
+	if [ $BUILD_MANY == 1 ] ; then
+		${MAKE} tidy
+
+		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
+			cp ${LOG_DIR}/${target}.ERR ${OUTPUT_PREFIX}/ERR/${target}
+		else
+			rm ${LOG_DIR}/${target}.ERR
+		fi
 	else
-		rm ${LOG_DIR}/$target.ERR
+		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
+			if grep -iw error ${LOG_DIR}/${target}.ERR ; then
+				: $(( ERR_CNT += 1 ))
+				ERR_LIST="${ERR_LIST} $target"
+			else
+				: $(( WRN_CNT += 1 ))
+				WRN_LIST="${WRN_LIST} $target"
+			fi
+		else
+			rm ${LOG_DIR}/${target}.ERR
+		fi
 	fi
 
-	TOTAL_CNT=$((TOTAL_CNT + 1))
-
-	OBJS=${BUILD_DIR}/u-boot
-	if [ -e ${BUILD_DIR}/spl/u-boot-spl ]; then
-		OBJS="${OBJS} ${BUILD_DIR}/spl/u-boot-spl"
+	OBJS=${output_dir}/u-boot
+	if [ -e ${output_dir}/spl/u-boot-spl ]; then
+		OBJS="${OBJS} ${output_dir}/spl/u-boot-spl"
 	fi
 
 	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
+
+	[ -e "${LOG_DIR}/${target}.ERR" ] && cat "${LOG_DIR}/${target}.ERR"
+
+	touch "${donep}${build_idx}"
 }
+
+manage_builds() {
+	search_idx=${OLDEST_IDX}
+	if [ "$ONLY_LIST" == 'y' ] ; then return ; fi
+
+	while true; do
+		if [ -e "${donep}${search_idx}" ] ; then
+			: $(( CURRENT_CNT-- ))
+			[ ${OLDEST_IDX} -eq ${search_idx} ] &&
+				: $(( OLDEST_IDX++ ))
+
+			# Only want to count it once
+			rm -f "${donep}${search_idx}"
+			touch "${skipp}${search_idx}"
+		elif [ -e "${skipp}${search_idx}" ] ; then
+			[ ${OLDEST_IDX} -eq ${search_idx} ] &&
+				: $(( OLDEST_IDX++ ))
+		fi
+		: $(( search_idx++ ))
+		if [ ${search_idx} -gt ${TOTAL_CNT} ] ; then
+			if [ ${CURRENT_CNT} -ge ${BUILD_NBUILDS} ] ; then
+				search_idx=${OLDEST_IDX}
+				sleep 1
+			else
+				break
+			fi
+		fi
+	done
+}
+
 build_targets() {
 	for t in "$@" ; do
 		# If a LIST_xxx var exists, use it.  But avoid variable
@@ -639,22 +712,70 @@ build_targets() {
 		if [ -n "${list}" ] ; then
 			build_targets ${list}
 		else
-			build_target ${t}
+			: $((TOTAL_CNT += 1))
+			: $((CURRENT_CNT += 1))
+			rm -f "${donep}${TOTAL_CNT}"
+			rm -f "${skipp}${TOTAL_CNT}"
+			if [ $BUILD_MANY == 1 ] ; then
+				build_target ${t} ${TOTAL_CNT} &
+			else
+				build_target ${t} ${TOTAL_CNT}
+			fi
+		fi
+
+		# We maintain a running count of all the builds we have done.
+		# Each finished build will have a file called ${donep}${n},
+		# where n is the index of the build. Each build
+		# we've already noted as finished will have ${skipp}${n}.
+		# We track the current index via TOTAL_CNT, and the oldest
+		# index. When we exceed the maximum number of parallel builds,
+		# We look from oldest to current for builds that have completed,
+		# and update the current count and oldest index as appropriate.
+		# If we've gone through the entire list, wait a second, and
+		# reprocess the entire list until we find a build that has
+		# completed
+		if [ ${CURRENT_CNT} -ge ${BUILD_NBUILDS} ] ; then
+			manage_builds
 		fi
 	done
 }
 
 #-----------------------------------------------------------------------
 
+kill_children() {
+	kill -- "-$1"
+
+	exit
+}
+
 print_stats() {
 	if [ "$ONLY_LIST" == 'y' ] ; then return ; fi
+
+	rm -f ${donep}* ${skipp}*
+
+	if [ $BUILD_MANY == 1 ] && [ -e "${OUTPUT_PREFIX}/ERR" ] ; then
+		ERR_LIST=`grep -iwl error ${OUTPUT_PREFIX}/ERR/*`
+		ERR_LIST=`for f in $ERR_LIST ; do echo -n " $(basename $f)" ; done`
+		ERR_CNT=`echo $ERR_LIST | wc -w | awk '{print $1}'`
+		WRN_LIST=`grep -iwL error ${OUTPUT_PREFIX}/ERR/*`
+		WRN_LIST=`for f in $WRN_LIST ; do echo -n " $(basename $f)" ; done`
+		WRN_CNT=`echo $WRN_LIST | wc -w | awk '{print $1}'`
+	fi
+
 	echo ""
 	echo "--------------------- SUMMARY ----------------------------"
 	echo "Boards compiled: ${TOTAL_CNT}"
 	if [ ${ERR_CNT} -gt 0 ] ; then
-		echo "Boards with warnings or errors: ${ERR_CNT} (${ERR_LIST} )"
+		echo "Boards with errors: ${ERR_CNT} (${ERR_LIST} )"
+	fi
+	if [ ${WRN_CNT} -gt 0 ] ; then
+		echo "Boards with warnings but no errors: ${WRN_CNT} (${WRN_LIST} )"
 	fi
 	echo "----------------------------------------------------------"
+
+	if [ $BUILD_MANY == 1 ] ; then
+		kill_children $$ &
+	fi
 
 	exit $RC
 }
@@ -666,3 +787,4 @@ set -- ${SELECTED} "$@"
 # run PowerPC by default
 [ $# = 0 ] && set -- powerpc
 build_targets "$@"
+wait

@@ -154,4 +154,11 @@ struct i2c_ctlr {
 #define I2C_INT_ARBITRATION_LOST_SHIFT	2
 #define I2C_INT_ARBITRATION_LOST_MASK	(1 << I2C_INT_ARBITRATION_LOST_SHIFT)
 
+/**
+ * Returns the bus number of the DVC controller
+ *
+ * @return number of bus, or -1 if there is no DVC active
+ */
+int tegra_i2c_get_dvc_bus_num(void);
+
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2010-2012 Freescale Semiconductor, Inc.
  *
  * Authors:  Roy Zang <tie-fei.zang@freescale.com>
  *	     Chunhe Lan <b25806@freescale.com>
@@ -299,9 +299,6 @@ extern unsigned long get_clock_freq(void);
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
 
 /*
  * Pass open firmware flat tree
@@ -309,9 +306,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_OF_STDOUT_VIA_ALIAS
-
-#define CONFIG_SYS_64BIT_VSPRINTF
-#define CONFIG_SYS_64BIT_STRTOUL
 
 /* new uImage format support */
 #define CONFIG_FIT
@@ -447,6 +441,8 @@ extern unsigned long get_clock_freq(void);
 /*
  * USB
  */
+#define CONFIG_HAS_FSL_DR_USB
+#ifdef CONFIG_HAS_FSL_DR_USB
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
@@ -458,6 +454,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
+#endif
 #endif
 
 /*

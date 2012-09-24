@@ -140,7 +140,6 @@ if we use PCI it has its own MAC addr */
 /*#define CONFIG_SYS_HUSH_PARSER */
 #undef CONFIG_SYS_HUSH_PARSER
 
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * The following defines let you select what serial you want to use

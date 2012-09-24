@@ -2,6 +2,7 @@
  * Copyright (C) 2011 Samsung Electronics
  * Heungjun Kim <riverful.kim@samsung.com>
  * Kyungmin Park <kyungmin.park@samsung.com>
+ * Donghwa Lee <dh09.lee@samsung.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,16 +24,20 @@
  */
 
 #include <common.h>
+#include <lcd.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/clk.h>
+#include <asm/arch/mipi_dsim.h>
 #include <asm/arch/watchdog.h>
 #include <asm/arch/power.h>
 #include <pmic.h>
 #include <usb/s3c_udc.h>
-#include <max8998_pmic.h>
+#include <max8997_pmic.h>
+#include <libtizen.h>
 
 #include "setup.h"
 
@@ -48,6 +53,11 @@ u32 get_board_rev(void)
 #endif
 
 static void check_hw_revision(void);
+
+static int hwrevision(int rev)
+{
+	return (board_rev & 0xf) == rev;
+}
 
 int board_init(void)
 {
@@ -210,32 +220,32 @@ int board_mmc_init(bd_t *bis)
 static int s5pc210_phy_control(int on)
 {
 	int ret = 0;
+	u32 val = 0;
 	struct pmic *p = get_pmic();
 
 	if (pmic_probe(p))
 		return -1;
 
 	if (on) {
-		ret |= pmic_set_output(p,
-				       MAX8998_REG_BUCK_ACTIVE_DISCHARGE3,
-				       MAX8998_SAFEOUT1, LDO_ON);
-		ret |= pmic_set_output(p, MAX8998_REG_ONOFF1,
-				      MAX8998_LDO3, LDO_ON);
-		ret |= pmic_set_output(p, MAX8998_REG_ONOFF2,
-				      MAX8998_LDO8, LDO_ON);
+		ret |= pmic_set_output(p, MAX8997_REG_SAFEOUTCTRL,
+				      ENSAFEOUT1, LDO_ON);
+		ret |= pmic_reg_read(p, MAX8997_REG_LDO3CTRL, &val);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, EN_LDO | val);
 
+		ret |= pmic_reg_read(p, MAX8997_REG_LDO8CTRL, &val);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, EN_LDO | val);
 	} else {
-		ret |= pmic_set_output(p, MAX8998_REG_ONOFF2,
-				      MAX8998_LDO8, LDO_OFF);
-		ret |= pmic_set_output(p, MAX8998_REG_ONOFF1,
-				      MAX8998_LDO3, LDO_OFF);
-		ret |= pmic_set_output(p,
-				       MAX8998_REG_BUCK_ACTIVE_DISCHARGE3,
-				       MAX8998_SAFEOUT1, LDO_OFF);
+		ret |= pmic_reg_read(p, MAX8997_REG_LDO8CTRL, &val);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO8CTRL, DIS_LDO | val);
+
+		ret |= pmic_reg_read(p, MAX8997_REG_LDO3CTRL, &val);
+		ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, DIS_LDO | val);
+		ret |= pmic_set_output(p, MAX8997_REG_SAFEOUTCTRL,
+				      ENSAFEOUT1, LDO_OFF);
 	}
 
 	if (ret) {
-		puts("MAX8998 LDO setting error!\n");
+		puts("MAX8997 LDO setting error!\n");
 		return -1;
 	}
 
@@ -363,4 +373,158 @@ int board_early_init_f(void)
 	board_power_init();
 
 	return 0;
+}
+
+static void lcd_reset(void)
+{
+	struct exynos4_gpio_part2 *gpio2 =
+		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
+
+	s5p_gpio_direction_output(&gpio2->y4, 5, 1);
+	udelay(10000);
+	s5p_gpio_direction_output(&gpio2->y4, 5, 0);
+	udelay(10000);
+	s5p_gpio_direction_output(&gpio2->y4, 5, 1);
+}
+
+static int lcd_power(void)
+{
+	int ret = 0;
+	struct pmic *p = get_pmic();
+
+	if (pmic_probe(p))
+		return 0;
+
+	/* LDO15 voltage: 2.2v */
+	ret |= pmic_reg_write(p, MAX8997_REG_LDO15CTRL, 0x1c | EN_LDO);
+	/* LDO13 voltage: 3.0v */
+	ret |= pmic_reg_write(p, MAX8997_REG_LDO13CTRL, 0x2c | EN_LDO);
+
+	if (ret) {
+		puts("MAX8997 LDO setting error!\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+static struct mipi_dsim_config dsim_config = {
+	.e_interface		= DSIM_VIDEO,
+	.e_virtual_ch		= DSIM_VIRTUAL_CH_0,
+	.e_pixel_format		= DSIM_24BPP_888,
+	.e_burst_mode		= DSIM_BURST_SYNC_EVENT,
+	.e_no_data_lane		= DSIM_DATA_LANE_4,
+	.e_byte_clk		= DSIM_PLL_OUT_DIV8,
+	.hfp			= 1,
+
+	.p			= 3,
+	.m			= 120,
+	.s			= 1,
+
+	/* D-PHY PLL stable time spec :min = 200usec ~ max 400usec */
+	.pll_stable_time	= 500,
+
+	/* escape clk : 10MHz */
+	.esc_clk		= 20 * 1000000,
+
+	/* stop state holding counter after bta change count 0 ~ 0xfff */
+	.stop_holding_cnt	= 0x7ff,
+	/* bta timeout 0 ~ 0xff */
+	.bta_timeout		= 0xff,
+	/* lp rx timeout 0 ~ 0xffff */
+	.rx_timeout		= 0xffff,
+};
+
+static struct exynos_platform_mipi_dsim s6e8ax0_platform_data = {
+	.lcd_panel_info = NULL,
+	.dsim_config = &dsim_config,
+};
+
+static struct mipi_dsim_lcd_device mipi_lcd_device = {
+	.name	= "s6e8ax0",
+	.id	= -1,
+	.bus_id	= 0,
+	.platform_data	= (void *)&s6e8ax0_platform_data,
+};
+
+static int mipi_power(void)
+{
+	int ret = 0;
+	struct pmic *p = get_pmic();
+
+	if (pmic_probe(p))
+		return 0;
+
+	/* LDO3 voltage: 1.1v */
+	ret |= pmic_reg_write(p, MAX8997_REG_LDO3CTRL, 0x6 | EN_LDO);
+	/* LDO4 voltage: 1.8v */
+	ret |= pmic_reg_write(p, MAX8997_REG_LDO4CTRL, 0x14 | EN_LDO);
+
+	if (ret) {
+		puts("MAX8997 LDO setting error!\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+vidinfo_t panel_info = {
+	.vl_freq	= 60,
+	.vl_col		= 720,
+	.vl_row		= 1280,
+	.vl_width	= 720,
+	.vl_height	= 1280,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_LOW,
+	.vl_vsp		= CONFIG_SYS_LOW,
+	.vl_dp		= CONFIG_SYS_LOW,
+	.vl_bpix	= 5,	/* Bits per pixel, 2^5 = 32 */
+
+	/* s6e8ax0 Panel infomation */
+	.vl_hspw	= 5,
+	.vl_hbpd	= 10,
+	.vl_hfpd	= 10,
+
+	.vl_vspw	= 2,
+	.vl_vbpd	= 1,
+	.vl_vfpd	= 13,
+	.vl_cmd_allow_len = 0xf,
+
+	.win_id		= 3,
+	.cfg_gpio	= NULL,
+	.backlight_on	= NULL,
+	.lcd_power_on	= NULL,	/* lcd_power_on in mipi dsi driver */
+	.reset_lcd	= lcd_reset,
+	.dual_lcd_enabled = 0,
+
+	.init_delay	= 0,
+	.power_on_delay = 0,
+	.reset_delay	= 0,
+	.interface_mode = FIMD_RGB_INTERFACE,
+	.mipi_enabled	= 1,
+};
+
+void init_panel_info(vidinfo_t *vid)
+{
+	vid->logo_on	= 1,
+	vid->resolution	= HD_RESOLUTION,
+	vid->rgb_mode	= MODE_RGB_P,
+
+#ifdef CONFIG_TIZEN
+	get_tizen_logo_info(vid);
+#endif
+
+	if (hwrevision(2))
+		mipi_lcd_device.reverse_panel = 1;
+
+	strcpy(s6e8ax0_platform_data.lcd_panel_name, mipi_lcd_device.name);
+	s6e8ax0_platform_data.lcd_power = lcd_power;
+	s6e8ax0_platform_data.mipi_power = mipi_power;
+	s6e8ax0_platform_data.phy_enable = set_mipi_phy_ctrl;
+	s6e8ax0_platform_data.lcd_panel_info = (void *)vid;
+	exynos_mipi_dsi_register_lcd_device(&mipi_lcd_device);
+	s6e8ax0_init();
+	exynos_set_dsim_platform_data(&s6e8ax0_platform_data);
+
+	setenv("lcdinfo", "lcd=s6e8ax0");
 }

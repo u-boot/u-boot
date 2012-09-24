@@ -198,7 +198,6 @@
  * ----------------------------------------------------------------------------
  */
 #define CONFIG_SYS_PROMPT		"OMAP3_EVM # "
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_MAXARGS		16	/* max args for a command */
 
 #define CONFIG_MISC_INIT_R
@@ -282,12 +281,13 @@
 /* Defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_TEXT_BASE		0x40200800
-#define CONFIG_SPL_MAX_SIZE		(45 * 1024)	/* 45 KB */
+#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 
+#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT

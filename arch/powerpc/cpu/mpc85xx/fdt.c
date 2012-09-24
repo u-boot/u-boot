@@ -139,16 +139,14 @@ static inline u32 l2cache_size(void)
 		break;
 	case 0x1:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
-		    ver == SVR_8541 || ver == SVR_8541_E ||
-		    ver == SVR_8555 || ver == SVR_8555_E)
+		    ver == SVR_8541 || ver == SVR_8555)
 			return 128;
 		else
 			return 256;
 		break;
 	case 0x2:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
-		    ver == SVR_8541 || ver == SVR_8541_E ||
-		    ver == SVR_8555 || ver == SVR_8555_E)
+		    ver == SVR_8541 || ver == SVR_8555)
 			return 256;
 		else
 			return 512;
@@ -231,8 +229,7 @@ static inline void ft_fixup_l2cache(void *blob)
 	int has_l2 = 1;
 
 	/* P2040/P2040E has no L2, so dont set any L2 props */
-	if ((SVR_SOC_VER(get_svr()) == SVR_P2040) ||
-	    (SVR_SOC_VER(get_svr()) == SVR_P2040_E))
+	if (SVR_SOC_VER(get_svr()) == SVR_P2040)
 		has_l2 = 0;
 
 	size = (l2cfg0 & 0x3fff) * 64 * 1024;
@@ -407,7 +404,7 @@ static void ft_fixup_qe_snum(void *blob)
 	unsigned int svr;
 
 	svr = mfspr(SPRN_SVR);
-	if (SVR_SOC_VER(svr) == SVR_8569_E) {
+	if (SVR_SOC_VER(svr) == SVR_8569) {
 		if(IS_SVR_REV(svr, 1, 0))
 			do_fixup_by_compat_u32(blob, "fsl,qe",
 				"fsl,qe-num-snums", 46, 1);

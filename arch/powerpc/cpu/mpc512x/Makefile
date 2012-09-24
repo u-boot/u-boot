@@ -41,6 +41,9 @@ COBJS-$(CONFIG_CMD_IDE) += ide.o
 COBJS-$(CONFIG_IIM) += iim.o
 COBJS-$(CONFIG_PCI) += pci.o
 
+# Stub implementations of cache management functions for USB
+COBJS-$(CONFIG_USB_EHCI) += cache.o
+
 COBJS	:= $(COBJS-y)
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

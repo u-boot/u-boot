@@ -146,7 +146,6 @@
  */
 #define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt	*/
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_LONGHELP				/* #undef to save memory	*/
 #define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)  /* Print Buffer Size */
@@ -159,8 +158,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* Default load address		*/
 
 #define CONFIG_SYS_HZ			1000		/* Decrementer freq: 1 ms ticks	*/
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_SYS_RESET_ADDRESS	0x09900000
 

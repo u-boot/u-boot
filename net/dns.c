@@ -45,7 +45,7 @@ DnsSend(void)
 	enum dns_query_type qtype = DNS_A_RECORD;
 
 	name = NetDNSResolve;
-	pkt = p = (uchar *)(NetTxPacket + NetEthHdrSize() + IP_HDR_SIZE);
+	pkt = p = (uchar *)(NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE);
 
 	/* Prepare DNS packet header */
 	header           = (struct header *) pkt;
@@ -98,7 +98,7 @@ static void
 DnsTimeout(void)
 {
 	puts("Timeout\n");
-	NetState = NETLOOP_FAIL;
+	net_set_state(NETLOOP_FAIL);
 }
 
 static void
@@ -128,7 +128,7 @@ DnsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 	/* Received 0 answers */
 	if (header->nanswers == 0) {
 		puts("DNS: host not found\n");
-		NetState = NETLOOP_SUCCESS;
+		net_set_state(NETLOOP_SUCCESS);
 		return;
 	}
 
@@ -141,7 +141,7 @@ DnsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 	/* We sent query class 1, query type 1 */
 	if (&p[5] > e || get_unaligned_be16(p+1) != DNS_A_RECORD) {
 		puts("DNS: response was not an A record\n");
-		NetState = NETLOOP_SUCCESS;
+		net_set_state(NETLOOP_SUCCESS);
 		return;
 	}
 
@@ -191,7 +191,7 @@ DnsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 			puts("server responded with invalid IP number\n");
 	}
 
-	NetState = NETLOOP_SUCCESS;
+	net_set_state(NETLOOP_SUCCESS);
 }
 
 void
@@ -200,7 +200,7 @@ DnsStart(void)
 	debug("%s\n", __func__);
 
 	NetSetTimeout(DNS_TIMEOUT, DnsTimeout);
-	NetSetHandler(DnsHandler);
+	net_set_udp_handler(DnsHandler);
 
 	DnsSend();
 }

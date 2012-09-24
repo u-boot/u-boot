@@ -162,6 +162,7 @@ void board_init_r(gd_t *id, ulong dummy)
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
+	case BOOT_DEVICE_MMC2_2:
 		spl_mmc_load_image();
 		break;
 #endif

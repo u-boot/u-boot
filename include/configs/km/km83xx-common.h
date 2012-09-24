@@ -15,13 +15,18 @@
 #include "keymile-common.h"
 #include "km-powerpc.h"
 
-#define MTDIDS_DEFAULT		"nor0=boot"
-#define MTDPARTS_DEFAULT	"mtdparts="			\
+#ifndef MTDIDS_DEFAULT
+# define MTDIDS_DEFAULT	"nor0=boot"
+#endif /* MTDIDS_DEFAULT */
+
+#ifndef MTDPARTS_DEFAULT
+# define MTDPARTS_DEFAULT	"mtdparts="			\
 	"boot:"							\
 		"768k(u-boot),"					\
 		"128k(env),"					\
 		"128k(envred),"					\
-		"-(" CONFIG_KM_UBI_PARTITION_NAME ")"
+		"-(" CONFIG_KM_UBI_PARTITION_NAME_BOOT ");"
+#endif /* MTDPARTS_DEFAULT */
 
 #define CONFIG_MISC_INIT_R
 /*
@@ -49,6 +54,8 @@
  */
 #define CONFIG_SYS_DDR_BASE		0x00000000 /* DDR is system memory */
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_BASE
+#define CONFIG_SYS_SDRAM_BASE2	(CONFIG_SYS_SDRAM_BASE + 0x10000000) /* +256M */
+
 #define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_DDR_BASE
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
 					DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)

@@ -29,73 +29,88 @@
 #include "rarp.h"
 #include "tftp.h"
 
-#define TIMEOUT		5000UL	/* Milliseconds before trying BOOTP again */
+#define TIMEOUT 5000UL /* Milliseconds before trying BOOTP again */
 #ifndef	CONFIG_NET_RETRY_COUNT
-# define TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
+#define TIMEOUT_COUNT 5 /* # of timeouts before giving up  */
 #else
-# define TIMEOUT_COUNT  (CONFIG_NET_RETRY_COUNT)
+#define TIMEOUT_COUNT (CONFIG_NET_RETRY_COUNT)
 #endif
 
-
-int		RarpTry;
+int RarpTry;
 
 /*
  *	Handle a RARP received packet.
  */
-static void
-RarpHandler(uchar *dummi0, unsigned dummi1, IPaddr_t sip, unsigned dummi2,
-	    unsigned dummi3)
+void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 {
-	debug("Got good RARP\n");
-	net_auto_load();
+	struct arp_hdr *arp;
+
+	debug_cond(DEBUG_NET_PKT, "Got RARP\n");
+	arp = (struct arp_hdr *)ip;
+	if (len < ARP_HDR_SIZE) {
+		printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
+		return;
+	}
+
+	if ((ntohs(arp->ar_op) != RARPOP_REPLY) ||
+		(ntohs(arp->ar_hrd) != ARP_ETHER)   ||
+		(ntohs(arp->ar_pro) != PROT_IP)     ||
+		(arp->ar_hln != 6) || (arp->ar_pln != 4)) {
+
+		puts("invalid RARP header\n");
+	} else {
+		NetCopyIP(&NetOurIP, &arp->ar_data[16]);
+		if (NetServerIP == 0)
+			NetCopyIP(&NetServerIP, &arp->ar_data[6]);
+		memcpy(NetServerEther, &arp->ar_data[0], 6);
+		debug_cond(DEBUG_DEV_PKT, "Got good RARP\n");
+		net_auto_load();
+	}
 }
 
 
 /*
  *	Timeout on BOOTP request.
  */
-static void
-RarpTimeout(void)
+static void RarpTimeout(void)
 {
 	if (RarpTry >= TIMEOUT_COUNT) {
-		puts ("\nRetry count exceeded; starting again\n");
-		NetStartAgain ();
+		puts("\nRetry count exceeded; starting again\n");
+		NetStartAgain();
 	} else {
-		NetSetTimeout (TIMEOUT, RarpTimeout);
-		RarpRequest ();
+		NetSetTimeout(TIMEOUT, RarpTimeout);
+		RarpRequest();
 	}
 }
 
 
-void
-RarpRequest (void)
+void RarpRequest(void)
 {
-	int i;
-	volatile uchar *pkt;
-	ARP_t *	rarp;
+	uchar *pkt;
+	struct arp_hdr *rarp;
+	int eth_hdr_size;
 
 	printf("RARP broadcast %d\n", ++RarpTry);
 	pkt = NetTxPacket;
 
-	pkt += NetSetEther(pkt, NetBcastAddr, PROT_RARP);
+	eth_hdr_size = NetSetEther(pkt, NetBcastAddr, PROT_RARP);
+	pkt += eth_hdr_size;
 
-	rarp = (ARP_t *)pkt;
+	rarp = (struct arp_hdr *)pkt;
 
-	rarp->ar_hrd = htons (ARP_ETHER);
-	rarp->ar_pro = htons (PROT_IP);
+	rarp->ar_hrd = htons(ARP_ETHER);
+	rarp->ar_pro = htons(PROT_IP);
 	rarp->ar_hln = 6;
 	rarp->ar_pln = 4;
-	rarp->ar_op  = htons (RARPOP_REQUEST);
-	memcpy (&rarp->ar_data[0],  NetOurEther, 6);	/* source ET addr */
-	memcpy (&rarp->ar_data[6],  &NetOurIP,   4);	/* source IP addr */
-	memcpy (&rarp->ar_data[10], NetOurEther, 6);	/* dest ET addr = source ET addr ??*/
-	/* dest. IP addr set to broadcast */
-	for (i = 0; i <= 3; i++) {
-		rarp->ar_data[16 + i] = 0xff;
-	}
+	rarp->ar_op  = htons(RARPOP_REQUEST);
+	memcpy(&rarp->ar_data[0],  NetOurEther, 6);	/* source ET addr */
+	memcpy(&rarp->ar_data[6],  &NetOurIP,   4);	/* source IP addr */
+	/* dest ET addr = source ET addr ??*/
+	memcpy(&rarp->ar_data[10], NetOurEther, 6);
+	/* dest IP addr set to broadcast */
+	memset(&rarp->ar_data[16], 0xff,        4);
 
-	NetSendPacket(NetTxPacket, (pkt - NetTxPacket) + ARP_HDR_SIZE);
+	NetSendPacket(NetTxPacket, eth_hdr_size + ARP_HDR_SIZE);
 
 	NetSetTimeout(TIMEOUT, RarpTimeout);
-	NetSetHandler(RarpHandler);
 }

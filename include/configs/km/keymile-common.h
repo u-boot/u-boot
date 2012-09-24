@@ -57,7 +57,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	  */
 #define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
@@ -126,12 +125,29 @@
 	"netdev=eth0\0"
 #endif
 
-#ifndef CONFIG_KM_UBI_PARTITION_NAME
-#define CONFIG_KM_UBI_PARTITION_NAME	"ubi0"
-#endif
-#ifndef CONFIG_KM_UBI_LINUX_MTD_NAME
-#define CONFIG_KM_UBI_LINUX_MTD_NAME	"ubi0"
-#endif
+#ifndef CONFIG_KM_UBI_PARTITION_NAME_BOOT
+#define CONFIG_KM_UBI_PARTITION_NAME_BOOT	"ubi0"
+#endif /* CONFIG_KM_UBI_PARTITION_NAME_BOOT */
+
+#ifndef CONFIG_KM_UBI_PARTITION_NAME_APP
+/* one flash chip only called boot */
+/* boot: CONFIG_KM_UBI_PARTITION_NAME_BOOT */
+# define CONFIG_KM_UBI_LINUX_MTD					\
+	"ubi.mtd=" CONFIG_KM_UBI_PARTITION_NAME_BOOT
+# define CONFIG_KM_DEV_ENV_FLASH_BOOT_UBI				\
+	"ubiattach=ubi part " CONFIG_KM_UBI_PARTITION_NAME_BOOT "\0"
+#else /* CONFIG_KM_UBI_PARTITION_NAME_APP */
+/* two flash chips called boot and app */
+/* boot: CONFIG_KM_UBI_PARTITION_NAME_BOOT */
+/* app:  CONFIG_KM_UBI_PARTITION_NAME_APP */
+# define CONFIG_KM_UBI_LINUX_MTD					\
+	"ubi.mtd=" CONFIG_KM_UBI_PARTITION_NAME_BOOT " "		\
+	"ubi.mtd=" CONFIG_KM_UBI_PARTITION_NAME_APP
+# define CONFIG_KM_DEV_ENV_FLASH_BOOT_UBI				\
+	"ubiattach=if test ${boot_bank} -eq 0; then; "			\
+	"ubi part " CONFIG_KM_UBI_PARTITION_NAME_BOOT "; else; "	\
+	"ubi part " CONFIG_KM_UBI_PARTITION_NAME_APP "; fi\0"
+#endif /* CONFIG_KM_UBI_PARTITION_NAME_APP */
 
 #define xstr(s)	str(s)
 #define str(s)	#s
@@ -173,7 +189,7 @@
 		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}"	\
 		" mem=${kernelmem} init=${init}"			\
 		" phram.phram=phvar,${varaddr}," xstr(CONFIG_KM_PHRAM)	\
-		" ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
+		" " CONFIG_KM_UBI_LINUX_MTD " "				\
 		CONFIG_KM_DEF_BOOT_ARGS_CPU				\
 		"\0"							\
 	"addpanic="							\
@@ -199,10 +215,9 @@
 #define CONFIG_KM_DEF_ENV_FLASH_BOOT					\
 	"cramfsaddr=" xstr(CONFIG_KM_CRAMFS_ADDR) "\0"			\
 	"cramfsloadkernel=cramfsload ${load_addr_r} uImage\0"		\
-	"ubiattach=ubi part " CONFIG_KM_UBI_PARTITION_NAME "\0"		\
 	"ubicopy=ubi read "xstr(CONFIG_KM_CRAMFS_ADDR)			\
 			" bootfs${boot_bank}\0"				\
-	""
+	CONFIG_KM_DEV_ENV_FLASH_BOOT_UBI
 
 /*
  * constants
@@ -229,12 +244,14 @@
 	CONFIG_KM_DEF_ENV_CONSTANTS					\
 	"altbootcmd=run bootcmd\0"					\
 	"bootcmd=km_checkbidhwk &&  "					\
-	"	setenv bootcmd \'setenv boot_bank ${actual_bank}; "	\
+		"setenv bootcmd \'if km_checktestboot; then; "          \
+				"setenv boot_bank ${test_bank}; else; " \
+				"setenv boot_bank ${actual_bank}; fi;"  \
 			"run ${subbootcmds}; reset\' && "		\
 		"setenv altbootcmd \'setenv boot_bank ${backup_bank}; "	\
 			"run ${subbootcmds}; reset\' && "		\
 		"saveenv && saveenv && boot\0"				\
-	"bootlimit=2\0"							\
+	"bootlimit=3\0"							\
 	"init=/sbin/init-overlay.sh\0"					\
 	"load_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"			\
 	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\

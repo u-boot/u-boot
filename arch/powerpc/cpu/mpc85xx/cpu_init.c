@@ -37,6 +37,7 @@
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
+#include <asm/fsl_srio.h>
 #include <linux/compiler.h>
 #include "mp.h"
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
@@ -47,8 +48,6 @@
 #include "../../../../drivers/block/fsl_sata.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-extern void srio_init(void);
 
 #ifdef CONFIG_QE
 extern qe_iop_conf_t qe_iop_conf_tab[];
@@ -309,10 +308,18 @@ int cpu_init_r(void)
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 #endif
 
-#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
-	flush_dcache();
-	mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
-	sync();
+#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
+	/*
+	 * CPU22 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * NMG_CPU_A011 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * also applies to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1
+	 */
+	if (SVR_SOC_VER(svr) != SVR_P4080 || SVR_MAJ(svr) < 3) {
+		flush_dcache();
+		mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
+		sync();
+	}
 #endif
 
 	puts ("L2:    ");
@@ -355,8 +362,7 @@ int cpu_init_r(void)
 		break;
 	case 0x1:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
-		    ver == SVR_8541 || ver == SVR_8541_E ||
-		    ver == SVR_8555 || ver == SVR_8555_E) {
+		    ver == SVR_8541 || ver == SVR_8555) {
 			puts("128 KB ");
 			/* set L2E=1, L2I=1, & L2BLKSZ=1 (128 Kbyte) */
 			cache_ctl = 0xc4000000;
@@ -367,8 +373,7 @@ int cpu_init_r(void)
 		break;
 	case 0x2:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
-		    ver == SVR_8541 || ver == SVR_8541_E ||
-		    ver == SVR_8555 || ver == SVR_8555_E) {
+		    ver == SVR_8541 || ver == SVR_8555) {
 			puts("256 KB ");
 			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 Kbyte) */
 			cache_ctl = 0xc8000000;
@@ -404,8 +409,7 @@ int cpu_init_r(void)
 		puts("enabled\n");
 	}
 #elif defined(CONFIG_BACKSIDE_L2_CACHE)
-	if ((SVR_SOC_VER(svr) == SVR_P2040) ||
-	    (SVR_SOC_VER(svr) == SVR_P2040_E)) {
+	if (SVR_SOC_VER(svr) == SVR_P2040) {
 		puts("N/A\n");
 		goto skip_l2;
 	}
@@ -443,6 +447,12 @@ skip_l2:
 
 #ifdef CONFIG_SYS_SRIO
 	srio_init();
+#ifdef CONFIG_SRIOBOOT_MASTER
+	srio_boot_master();
+#ifdef CONFIG_SRIOBOOT_SLAVE_HOLDOFF
+	srio_boot_master_release_slave();
+#endif
+#endif
 #endif
 
 #if defined(CONFIG_MP)
@@ -501,9 +511,7 @@ skip_l2:
 	 */
 	if (IS_SVR_REV(svr, 1, 0) &&
 	    ((SVR_SOC_VER(svr) == SVR_P1022) ||
-	     (SVR_SOC_VER(svr) == SVR_P1022_E) ||
-	     (SVR_SOC_VER(svr) == SVR_P1013) ||
-	     (SVR_SOC_VER(svr) == SVR_P1013_E))) {
+	     (SVR_SOC_VER(svr) == SVR_P1013))) {
 		fsl_sata_reg_t *reg;
 
 		/* first SATA controller */
@@ -532,7 +540,7 @@ void arch_preboot_os(void)
 	 * disabled by the time we get called.
 	 */
 	msr = mfmsr();
-	msr &= ~(MSR_ME|MSR_CE|MSR_DE);
+	msr &= ~(MSR_ME|MSR_CE);
 	mtmsr(msr);
 
 	setup_ivors();

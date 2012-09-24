@@ -406,8 +406,7 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
   Hardware start transmission.
   Send a packet to media from the upper layer.
 */
-static int dm9000_send(struct eth_device *netdev, volatile void *packet,
-		     int length)
+static int dm9000_send(struct eth_device *netdev, void *packet, int length)
 {
 	int tmo;
 	struct board_info *db = &dm9000_info;

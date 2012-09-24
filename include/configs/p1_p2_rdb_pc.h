@@ -184,7 +184,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_CMD_SATA
-#define CONFIG_SATA_SIL3114
+#define CONFIG_SATA_SIL
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LIBATA
 #define CONFIG_LBA48
@@ -227,7 +227,7 @@
 
 /* DDR Setup */
 #define CONFIG_FSL_DDR3
-#define CONFIG_DDR_RAW_TIMING
+#define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM 1
 #define SPD_EEPROM_ADDRESS 0x52
@@ -523,9 +523,6 @@
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#ifdef CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
 
 /*
  * Pass open firmware flat tree
@@ -533,9 +530,6 @@
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_OF_STDOUT_VIA_ALIAS
-
-#define CONFIG_SYS_64BIT_VSPRINTF
-#define CONFIG_SYS_64BIT_STRTOUL
 
 /* new uImage format support */
 #define CONFIG_FIT

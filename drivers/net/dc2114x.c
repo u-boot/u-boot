@@ -175,7 +175,7 @@ static void  read_hw_addr(struct eth_device* dev, bd_t * bis);
 static void  send_setup_frame(struct eth_device* dev, bd_t * bis);
 
 static int   dc21x4x_init(struct eth_device* dev, bd_t* bis);
-static int   dc21x4x_send(struct eth_device* dev, volatile void *packet, int length);
+static int   dc21x4x_send(struct eth_device *dev, void *packet, int length);
 static int   dc21x4x_recv(struct eth_device* dev);
 static void  dc21x4x_halt(struct eth_device* dev);
 #ifdef CONFIG_TULIP_SELECT_MEDIA
@@ -390,7 +390,7 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 	return 0;
 }
 
-static int dc21x4x_send(struct eth_device* dev, volatile void *packet, int length)
+static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
 {
 	int		status = -1;
 	int		i;

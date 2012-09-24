@@ -88,6 +88,26 @@ static const struct dpll_params mpu_dpll_params_1100mhz[NUM_SYS_CLKS] = {
 	{1375, 47, 1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
+static const struct dpll_params mpu_dpll_params_800mhz[NUM_SYS_CLKS] = {
+	{200, 2, 1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{1000, 20, 1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
+	{375, 8, 1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{400, 12, 1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{375, 17, 1, -1, -1, -1, -1, -1, -1, -1}		/* 38.4 MHz */
+};
+
+static const struct dpll_params mpu_dpll_params_400mhz[NUM_SYS_CLKS] = {
+	{200, 2, 2, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{1000, 20, 2, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
+	{375, 8, 2, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{400, 12, 2, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{375, 17, 2, -1, -1, -1, -1, -1, -1, -1}		/* 38.4 MHz */
+};
+
 static const struct dpll_params mpu_dpll_params_550mhz[NUM_SYS_CLKS] = {
 	{275, 2, 2, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
@@ -100,17 +120,6 @@ static const struct dpll_params mpu_dpll_params_550mhz[NUM_SYS_CLKS] = {
 
 static const struct dpll_params
 			core_dpll_params_2128mhz_ddr532[NUM_SYS_CLKS] = {
-	{266, 2, 1, 5, 8, 4, 62, 5, 5, 7},		/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{570, 8, 1, 5, 8, 4, 62, 5, 5, 7},		/* 16.8 MHz */
-	{665, 11, 1, 5, 8, 4, 62, 5, 5, 7},		/* 19.2 MHz */
-	{532, 12, 1, 5, 8, 4, 62, 5, 5, 7},		/* 26 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{665, 23, 1, 5, 8, 4, 62, 5, 5, 7}		/* 38.4 MHz */
-};
-
-static const struct dpll_params
-			core_dpll_params_2128mhz_ddr266[NUM_SYS_CLKS] = {
 	{266, 2, 2, 5, 8, 4, 62, 5, 5, 7},		/* 12 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
 	{570, 8, 2, 5, 8, 4, 62, 5, 5, 7},		/* 16.8 MHz */
@@ -118,6 +127,17 @@ static const struct dpll_params
 	{532, 12, 2, 5, 8, 4, 62, 5, 5, 7},		/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
 	{665, 23, 2, 5, 8, 4, 62, 5, 5, 7}		/* 38.4 MHz */
+};
+
+static const struct dpll_params
+			core_dpll_params_2128mhz_ddr266[NUM_SYS_CLKS] = {
+	{266, 2, 4, 5, 8, 8, 62, 10, 10, 14},		/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{570, 8, 4, 5, 8, 8, 62, 10, 10, 14},		/* 16.8 MHz */
+	{665, 11, 4, 5, 8, 8, 62, 10, 10, 14},		/* 19.2 MHz */
+	{532, 12, 4, 8, 8, 8, 62, 10, 10, 14},		/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{665, 23, 4, 8, 8, 8, 62, 10, 10, 14}		/* 38.4 MHz */
 };
 
 static const struct dpll_params per_dpll_params_768mhz[NUM_SYS_CLKS] = {
@@ -131,40 +151,40 @@ static const struct dpll_params per_dpll_params_768mhz[NUM_SYS_CLKS] = {
 };
 
 static const struct dpll_params iva_dpll_params_2330mhz[NUM_SYS_CLKS] = {
-	{931, 11, -1, -1, 4, 7, -1, -1},	/* 12 MHz   */
-	{931, 12, -1, -1, 4, 7, -1, -1},	/* 13 MHz   */
-	{665, 11, -1, -1, 4, 7, -1, -1},	/* 16.8 MHz */
-	{727, 14, -1, -1, 4, 7, -1, -1},	/* 19.2 MHz */
-	{931, 25, -1, -1, 4, 7, -1, -1},	/* 26 MHz   */
-	{931, 26, -1, -1, 4, 7, -1, -1},	/* 27 MHz   */
-	{412, 16, -1, -1, 4, 7, -1, -1}		/* 38.4 MHz */
+	{1165, 11, -1, -1, 5, 6, -1, -1, -1, -1},	/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{2011, 28, -1, -1, 5, 6, -1, -1, -1, -1},	/* 16.8 MHz */
+	{1881, 30, -1, -1, 5, 6, -1, -1, -1, -1},	/* 19.2 MHz */
+	{1165, 25, -1, -1, 5, 6, -1, -1, -1, -1},	/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{1972, 64, -1, -1, 5, 6, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
 /* ABE M & N values with sys_clk as source */
 static const struct dpll_params
 		abe_dpll_params_sysclk_196608khz[NUM_SYS_CLKS] = {
-	{49, 5, 1, 1, -1, -1, -1, -1},	/* 12 MHz   */
-	{68, 8, 1, 1, -1, -1, -1, -1},	/* 13 MHz   */
-	{35, 5, 1, 1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{46, 8, 1, 1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{34, 8, 1, 1, -1, -1, -1, -1},	/* 26 MHz   */
-	{29, 7, 1, 1, -1, -1, -1, -1},	/* 27 MHz   */
-	{64, 24, 1, 1, -1, -1, -1, -1}	/* 38.4 MHz */
+	{49, 5, 1, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{35, 5, 1, 1, -1, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{46, 8, 1, 1, -1, -1, -1, -1, -1, -1},		/* 19.2 MHz */
+	{34, 8, 1, 1, -1, -1, -1, -1, -1, -1},		/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{64, 24, 1, 1, -1, -1, -1, -1, -1, -1}		/* 38.4 MHz */
 };
 
 /* ABE M & N values with 32K clock as source */
 static const struct dpll_params abe_dpll_params_32k_196608khz = {
-	750, 0, 1, 1, -1, -1, -1, -1
+	750, 0, 1, 1, -1, -1, -1, -1, -1, -1
 };
 
 static const struct dpll_params usb_dpll_params_1920mhz[NUM_SYS_CLKS] = {
-	{80, 0, 2, -1, -1, -1, -1, -1},		/* 12 MHz   */
-	{960, 12, 2, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{400, 6, 2, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{50, 0, 2, -1, -1, -1, -1, -1},		/* 19.2 MHz */
-	{480, 12, 2, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{320, 8, 2, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{25, 0, 2, -1, -1, -1, -1, -1}		/* 38.4 MHz */
+	{400, 4, 2, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{400, 6, 2, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
+	{400, 7, 2, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{480, 12, 2, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{400, 15, 2, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
 void setup_post_dividers(u32 *const base, const struct dpll_params *params)
@@ -193,7 +213,7 @@ void setup_post_dividers(u32 *const base, const struct dpll_params *params)
 const struct dpll_params *get_mpu_dpll_params(void)
 {
 	u32 sysclk_ind = get_sys_clk_index();
-	return &mpu_dpll_params_1100mhz[sysclk_ind];
+	return &mpu_dpll_params_800mhz[sysclk_ind];
 }
 
 const struct dpll_params *get_core_dpll_params(void)
@@ -201,8 +221,7 @@ const struct dpll_params *get_core_dpll_params(void)
 	u32 sysclk_ind = get_sys_clk_index();
 
 	/* Configuring the DDR to be at 532mhz */
-	return &core_dpll_params_2128mhz_ddr266[sysclk_ind];
-
+	return &core_dpll_params_2128mhz_ddr532[sysclk_ind];
 }
 
 const struct dpll_params *get_per_dpll_params(void)
@@ -241,21 +260,46 @@ const struct dpll_params *get_abe_dpll_params(void)
  */
 void scale_vcores(void)
 {
-	u32 volt;
+	u32 volt_core, volt_mpu, volt_mm;
 
-	setup_sri2c();
+	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
-	/* Enable 1.22V from TPS for vdd_mpu */
-	volt = 1220;
-	do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
+	/* Palmas settings */
+	if (omap_revision() != OMAP5432_ES1_0) {
+		volt_core = VDD_CORE;
+		volt_mpu = VDD_MPU;
+		volt_mm = VDD_MM;
+	} else {
+		volt_core = VDD_CORE_5432;
+		volt_mpu = VDD_MPU_5432;
+		volt_mm = VDD_MM_5432;
+	}
 
-	/* VCORE 1 - for vdd_core */
-	volt = 1000;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+	do_scale_vcore(SMPS_REG_ADDR_8_CORE, volt_core);
+	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt_mpu);
+	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt_mm);
 
-	/* VCORE 2 - for vdd_MM */
-	volt = 1125;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
+	if (omap_revision() == OMAP5432_ES1_0) {
+		/* Configure LDO SRAM "magic" bits */
+		writel(2, &prcm->prm_sldo_core_setup);
+		writel(2, &prcm->prm_sldo_mpu_setup);
+		writel(2, &prcm->prm_sldo_mm_setup);
+	}
+}
+
+u32 get_offset_code(u32 volt_offset)
+{
+	u32 offset_code, step = 10000; /* 10 mV represented in uV */
+
+	volt_offset -= PALMAS_SMPS_BASE_VOLT_UV;
+
+	offset_code = (volt_offset + step - 1) / step;
+
+	/*
+	 * Offset codes 1-6 all give the base voltage in Palmas
+	 * Offset code 0 switches OFF the SMPS
+	 */
+	return offset_code + 6;
 }
 
 /*
@@ -273,6 +317,7 @@ void enable_basic_clocks(void)
 	};
 
 	u32 *const clk_modules_hw_auto_essential[] = {
+		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_memif_emif_1_clkctrl,
 		&prcm->cm_memif_emif_2_clkctrl,
 		&prcm->cm_l4cfg_l4_cfg_clkctrl,
@@ -306,6 +351,12 @@ void enable_basic_clocks(void)
 	setbits_le32(&prcm->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 
+	/* Set the correct clock dividers for mmc */
+	setbits_le32(&prcm->cm_l3init_hsmmc1_clkctrl,
+			HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
+	setbits_le32(&prcm->cm_l3init_hsmmc2_clkctrl,
+			HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
+
 	/* Select 32KHz clock as the source of GPTIMER1 */
 	setbits_le32(&prcm->cm_wkup_gptimer1_clkctrl,
 			GPTIMER1_CLKCTRL_CLKSEL_MASK);
@@ -314,6 +365,18 @@ void enable_basic_clocks(void)
 			 clk_modules_hw_auto_essential,
 			 clk_modules_explicit_en_essential,
 			 1);
+
+	/* Select 384Mhz for GPU as its the POR for ES1.0 */
+	setbits_le32(&prcm->cm_sgx_sgx_clkctrl,
+			CLKSEL_GPU_HYD_GCLK_MASK);
+	setbits_le32(&prcm->cm_sgx_sgx_clkctrl,
+			CLKSEL_GPU_CORE_GCLK_MASK);
+
+	/* Enable SCRM OPT clocks for PER and CORE dpll */
+	setbits_le32(&prcm->cm_wkupaon_scrm_clkctrl,
+			OPTFCLKEN_SCRM_PER_MASK);
+	setbits_le32(&prcm->cm_wkupaon_scrm_clkctrl,
+			OPTFCLKEN_SCRM_CORE_MASK);
 }
 
 void enable_basic_uboot_clocks(void)
@@ -331,6 +394,9 @@ void enable_basic_uboot_clocks(void)
 		&prcm->cm_l4per_i2c2_clkctrl,
 		&prcm->cm_l4per_i2c3_clkctrl,
 		&prcm->cm_l4per_i2c4_clkctrl,
+		&prcm->cm_l3init_hsusbtll_clkctrl,
+		&prcm->cm_l3init_hsusbhost_clkctrl,
+		&prcm->cm_l3init_fsusb_clkctrl,
 		0
 	};
 
@@ -365,12 +431,11 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_ivahd_ivahd_clkctrl,
 		&prcm->cm_ivahd_sl2_clkctrl,
 		&prcm->cm_dsp_dsp_clkctrl,
-		&prcm->cm_l3_2_gpmc_clkctrl,
 		&prcm->cm_l3instr_l3_3_clkctrl,
 		&prcm->cm_l3instr_l3_instr_clkctrl,
 		&prcm->cm_l3instr_intrconn_wp1_clkctrl,
 		&prcm->cm_l3init_hsi_clkctrl,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
+		&prcm->cm_l4per_hdq1w_clkctrl,
 		0
 	};
 
@@ -393,7 +458,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_l4per_gptimer11_clkctrl,
 		&prcm->cm_l4per_gptimer3_clkctrl,
 		&prcm->cm_l4per_gptimer4_clkctrl,
-		&prcm->cm_l4per_hdq1w_clkctrl,
 		&prcm->cm_l4per_mcspi2_clkctrl,
 		&prcm->cm_l4per_mcspi3_clkctrl,
 		&prcm->cm_l4per_mcspi4_clkctrl,
@@ -409,8 +473,6 @@ void enable_non_essential_clocks(void)
 		&prcm->cm_cam_fdif_clkctrl,
 		&prcm->cm_dss_dss_clkctrl,
 		&prcm->cm_sgx_sgx_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
-		&prcm->cm_l3init_fsusb_clkctrl,
 		0
 	};
 

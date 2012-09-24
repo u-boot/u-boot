@@ -45,7 +45,7 @@ void preloader_console_init(void);
 #define BOOT_DEVICE_ONE_NAND    4
 #define BOOT_DEVICE_MMC1        5
 #define BOOT_DEVICE_MMC2        6
-#define BOOT_DEVICE_MMC3	7
+#define BOOT_DEVICE_MMC2_2	7
 #elif defined(CONFIG_OMAP44XX) /* OMAP4 */
 #define BOOT_DEVICE_NONE	0
 #define BOOT_DEVICE_XIP		1
@@ -54,6 +54,7 @@ void preloader_console_init(void);
 #define BOOT_DEVICE_ONE_NAND	4
 #define BOOT_DEVICE_MMC1	5
 #define BOOT_DEVICE_MMC2	6
+#define BOOT_DEVICE_MMC2_2	0xFF
 #elif defined(CONFIG_OMAP34XX)	/* OMAP3 */
 #define BOOT_DEVICE_NONE	0
 #define BOOT_DEVICE_XIP		1
@@ -62,11 +63,13 @@ void preloader_console_init(void);
 #define BOOT_DEVICE_MMC2	5 /*emmc*/
 #define BOOT_DEVICE_MMC1	6
 #define BOOT_DEVICE_XIPWAIT	7
+#define BOOT_DEVICE_MMC2_2      0xFF
 #elif defined(CONFIG_AM33XX)	/* AM33XX */
 #define BOOT_DEVICE_NAND	5
 #define BOOT_DEVICE_MMC1	8
 #define BOOT_DEVICE_MMC2	0
 #define BOOT_DEVICE_UART	65
+#define BOOT_DEVICE_MMC2_2      0xFF
 #endif
 
 /* Boot type */
@@ -108,6 +111,12 @@ void spl_ymodem_load_image(void);
 void spl_board_init(void);
 #endif
 
+static inline u32 omap_revision(void)
+{
+	extern u32 *const omap_si_rev;
+	return *omap_si_rev;
+}
+
 /*
  * silicon revisions.
  * Moving this to common, so that most of code can be moved to common,
@@ -127,4 +136,5 @@ void spl_board_init(void);
 /* omap5 */
 #define OMAP5430_SILICON_ID_INVALID	0
 #define OMAP5430_ES1_0	0x54300100
+#define OMAP5432_ES1_0	0x54320100
 #endif /* _OMAP_COMMON_H_ */

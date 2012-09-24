@@ -26,11 +26,34 @@
 #ifndef __ASM_ARCH_CLOCK_H
 #define __ASM_ARCH_CLOCK_H
 
+enum mxc_clock {
+	MXC_CSI_CLK,
+	MXC_EPIT_CLK,
+	MXC_ESAI_CLK,
+	MXC_ESDHC1_CLK,
+	MXC_ESDHC2_CLK,
+	MXC_GPT_CLK,
+	MXC_I2C_CLK,
+	MXC_LCDC_CLK,
+	MXC_NFC_CLK,
+	MXC_OWIRE_CLK,
+	MXC_PWM_CLK,
+	MXC_SIM1_CLK,
+	MXC_SIM2_CLK,
+	MXC_SSI1_CLK,
+	MXC_SSI2_CLK,
+	MXC_UART_CLK,
+	MXC_ARM_CLK,
+	MXC_FEC_CLK,
+	MXC_CLK_NUM
+};
+
 ulong imx_get_perclk(int clk);
 ulong imx_get_ahbclk(void);
 
 #define imx_get_uartclk() imx_get_perclk(15)
 #define imx_get_fecclk() (imx_get_ahbclk()/2)
 
+unsigned int mxc_get_clock(enum mxc_clock clk);
 
 #endif /* __ASM_ARCH_CLOCK_H */

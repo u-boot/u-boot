@@ -54,9 +54,9 @@
 
 #define CONFIG_HARD_I2C
 #define CONFIG_I2C_MXC
-#define CONFIG_SYS_I2C_MX31_PORT2
+#define CONFIG_SYS_I2C_BASE		I2C2_BASE_ADDR
+#define CONFIG_SYS_I2C_CLK_OFFSET	I2C2_CLK_OFFSET
 #define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0xfe
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
@@ -65,7 +65,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /***********************************************************
  * Command definition

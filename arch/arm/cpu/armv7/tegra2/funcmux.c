@@ -31,11 +31,32 @@ int funcmux_select(enum periph_id id, int config)
 
 	switch (id) {
 	case PERIPH_ID_UART1:
-		if (config == FUNCMUX_UART1_IRRX_IRTX) {
+		switch (config) {
+		case FUNCMUX_UART1_IRRX_IRTX:
 			pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
 			pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
 			pinmux_tristate_disable(PINGRP_IRRX);
 			pinmux_tristate_disable(PINGRP_IRTX);
+			break;
+		case FUNCMUX_UART1_UAA_UAB:
+			pinmux_set_func(PINGRP_UAA, PMUX_FUNC_UARTA);
+			pinmux_set_func(PINGRP_UAB, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_UAA);
+			pinmux_tristate_disable(PINGRP_UAB);
+			bad_config = 0;
+			break;
+		case FUNCMUX_UART1_GPU:
+			pinmux_set_func(PINGRP_GPU, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_GPU);
+			bad_config = 0;
+			break;
+		case FUNCMUX_UART1_SDIO1:
+			pinmux_set_func(PINGRP_SDIO1, PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PINGRP_SDIO1);
+			bad_config = 0;
+			break;
+		}
+		if (!bad_config) {
 			/*
 			 * Tegra appears to boot with function UARTA pre-
 			 * selected on mux group SDB. If two mux groups are
@@ -106,6 +127,13 @@ int funcmux_select(enum periph_id id, int config)
 		}
 		break;
 
+	case PERIPH_ID_SDMMC1:
+		if (config == FUNCMUX_SDMMC1_SDIO1_4BIT) {
+			pinmux_set_func(PINGRP_SDIO1, PMUX_FUNC_SDIO1);
+			pinmux_tristate_disable(PINGRP_SDIO1);
+		}
+		break;
+
 	case PERIPH_ID_SDMMC2:
 		if (config == FUNCMUX_SDMMC2_DTA_DTD_8BIT) {
 			pinmux_set_func(PINGRP_DTA, PMUX_FUNC_SDIO2);
@@ -166,6 +194,43 @@ int funcmux_select(enum periph_id id, int config)
 			pinmux_tristate_disable(PINGRP_GMA);
 			bad_config = 0;
 			break;
+		}
+		break;
+
+	case PERIPH_ID_KBC:
+		if (config == FUNCMUX_DEFAULT) {
+			enum pmux_pingrp grp[] = {PINGRP_KBCA, PINGRP_KBCB,
+				PINGRP_KBCC, PINGRP_KBCD, PINGRP_KBCE,
+				PINGRP_KBCF};
+			int i;
+
+			for (i = 0; i < ARRAY_SIZE(grp); i++) {
+				pinmux_tristate_disable(grp[i]);
+				pinmux_set_func(grp[i], PMUX_FUNC_KBC);
+				pinmux_set_pullupdown(grp[i], PMUX_PULL_UP);
+			}
+		}
+		break;
+
+	case PERIPH_ID_USB2:
+		if (config == FUNCMUX_USB2_ULPI) {
+			pinmux_set_func(PINGRP_UAA, PMUX_FUNC_ULPI);
+			pinmux_set_func(PINGRP_UAB, PMUX_FUNC_ULPI);
+			pinmux_set_func(PINGRP_UDA, PMUX_FUNC_ULPI);
+
+			pinmux_tristate_disable(PINGRP_UAA);
+			pinmux_tristate_disable(PINGRP_UAB);
+			pinmux_tristate_disable(PINGRP_UDA);
+		}
+		break;
+
+	case PERIPH_ID_SPI1:
+		if (config == FUNCMUX_SPI1_GMC_GMD) {
+			pinmux_set_func(PINGRP_GMC, PMUX_FUNC_SFLASH);
+			pinmux_set_func(PINGRP_GMD, PMUX_FUNC_SFLASH);
+
+			pinmux_tristate_disable(PINGRP_GMC);
+			pinmux_tristate_disable(PINGRP_GMD);
 		}
 		break;
 

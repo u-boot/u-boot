@@ -181,7 +181,7 @@
 
 /* DDR Setup */
 #define CONFIG_FSL_DDR3
-#define CONFIG_DDR_RAW_TIMING
+#define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		1
 #define SPD_EEPROM_ADDRESS		0x52
@@ -464,9 +464,6 @@ extern unsigned long get_sdram_size(void);
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
-#endif
 
 /*
  * Pass open firmware flat tree

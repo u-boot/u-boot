@@ -197,8 +197,7 @@ int macb_miiphy_write(const char *devname, u8 phy_adr, u8 reg, u16 value)
 
 #if defined(CONFIG_CMD_NET)
 
-static int macb_send(struct eth_device *netdev, volatile void *packet,
-		     int length)
+static int macb_send(struct eth_device *netdev, void *packet, int length)
 {
 	struct macb_device *macb = to_macb(netdev);
 	unsigned long paddr, ctrl;
