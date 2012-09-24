@@ -56,7 +56,6 @@ COBJS-$(CONFIG_S3C44B0_SERIAL) += serial_s3c44b0.o
 COBJS-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
 COBJS-$(CONFIG_SANDBOX_SERIAL) += sandbox.o
 COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
-COBJS-$(CONFIG_PSS_SERIAL) += serial_xpsuart.o
 COBJS-$(CONFIG_ZYNQ_SERIAL) += serial_zynq.o
 
 ifndef CONFIG_SPL_BUILD
