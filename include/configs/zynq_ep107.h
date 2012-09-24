@@ -24,6 +24,8 @@
 #define CONFIG_ZYNQ_GEM0
 #define CONFIG_PHY_ADDR	23
 
+#define CONFIG_CPU_FREQ_HZ	12500000
+
 #include <configs/zynq_common.h>
 
 #undef CONFIG_ZYNQ_XIL_LQSPI

@@ -28,13 +28,17 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).o
 
-COBJS-y	= timer.o 
+COBJS-y	:= timer.o
+COBJS-y	+= cpu.o
 
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
+COBJS	:= $(COBJS-y)
 
-all:	$(obj).depend $(START) $(LIB)
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
-$(LIB):	$(OBJS)
+all:	$(obj).depend $(LIB)
+
+$(LIB): $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################

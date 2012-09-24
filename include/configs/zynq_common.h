@@ -63,6 +63,13 @@
 # define CONFIG_PHY_MARVELL
 #endif
 
+/* SCU timer address is hardcoded */
+#define CONFIG_SCUTIMER_BASEADDR       0xF8F00600
+#ifndef CONFIG_CPU_FREQ_HZ
+#define CONFIG_CPU_FREQ_HZ     800000000
+#endif
+#define CONFIG_SYS_HZ          1000
+
 #include <asm/arch/xparameters.h>
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000
@@ -155,11 +162,6 @@
 #define CONFIG_SYS_CBSIZE 2048
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
-/* HW to use */
-#define TIMER_INPUT_CLOCK	(XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ / 2)
-#define CONFIG_TIMER_PRESCALE	255
-#define TIMER_TICK_HZ		(TIMER_INPUT_CLOCK / CONFIG_TIMER_PRESCALE)
-#define CONFIG_SYS_HZ		1000
 
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */
 

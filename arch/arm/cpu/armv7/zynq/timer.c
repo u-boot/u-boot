@@ -1,4 +1,16 @@
 /*
+ * Copyright (C) 2012 Michal Simek <monstr@monstr.eu>
+ * Copyright (C) 2011-2012 Xilinx, Inc. All rights reserved.
+ *
+ * (C) Copyright 2008
+ * Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
+ *
+ * (C) Copyright 2004
+ * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>
+ *
+ * (C) Copyright 2002-2004
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ *
  * (C) Copyright 2003
  * Texas Instruments <www.ti.com>
  *
@@ -9,15 +21,6 @@
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
- *
- * (C) Copyright 2002-2004
- * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
- *
- * (C) Copyright 2004
- * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>
- *
- * (C) Copyright 2008
- * Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -39,123 +42,74 @@
  */
 
 #include <common.h>
-#include <asm/proc/ptrace.h>
 #include <div64.h>
+#include <asm/io.h>
 
-#include "xscutimer_hw.h"
+DECLARE_GLOBAL_DATA_PTR;
+
+struct scu_timer {
+	u32 load; /* Timer Load Register */
+	u32 counter; /* Timer Counter Register */
+	u32 control; /* Timer Control Register */
+};
+
+static struct scu_timer *timer_base =
+			      (struct scu_timer *) CONFIG_SCUTIMER_BASEADDR;
+
+#define SCUTIMER_CONTROL_PRESCALER_MASK	0x0000FF00 /* Prescaler */
+#define SCUTIMER_CONTROL_PRESCALER_SHIFT	8
+#define SCUTIMER_CONTROL_AUTO_RELOAD_MASK	0x00000002 /* Auto-reload */
+#define SCUTIMER_CONTROL_ENABLE_MASK		0x00000001 /* Timer enable */
 
 #define TIMER_LOAD_VAL 0xFFFFFFFF
+#define TIMER_PRESCALE 255
+#define TIMER_TICK_HZ  (CONFIG_CPU_FREQ_HZ / 2 / TIMER_PRESCALE)
 
-/* Internal tick units */
-/* Last decremneter snapshot */
-static unsigned long lastdec;
-/* Monotonic incrementing timer */
-static unsigned long long timestamp;
-
-static void XScuTimer_WriteReg (u32 Reg, u32 Data)
+int timer_init(void)
 {
-	*(volatile u32 *) (XPAR_SCUTIMER_BASEADDR + Reg) = Data;
-}
+	const u32 emask = SCUTIMER_CONTROL_AUTO_RELOAD_MASK |
+			(TIMER_PRESCALE << SCUTIMER_CONTROL_PRESCALER_SHIFT) |
+			SCUTIMER_CONTROL_ENABLE_MASK;
 
-static u32 XScuTimer_ReadReg (u32 Reg)
-{
-	return *(u32 *) (XPAR_SCUTIMER_BASEADDR + Reg);
-}
-
-#define XScuTimer_GetCounterValue()                          \
-        XScuTimer_ReadReg(XSCUTIMER_COUNTER_OFFSET)
-
-
-int timer_init()
-{
-	u32 val;
+	/* Load the timer counter register */
+	writel(0xFFFFFFFF, &timer_base->counter);
 
 	/*
-	 * Load the timer counter register.
+	 * Start the A9Timer device
+	 * Enable Auto reload mode, Clear prescaler control bits
+	 * Set prescaler value, Enable the decrementer
 	 */
-	XScuTimer_WriteReg(XSCUTIMER_LOAD_OFFSET, 0xFFFFFFFF);
+	clrsetbits_le32(&timer_base->control, SCUTIMER_CONTROL_PRESCALER_MASK,
+								emask);
 
-	/*
-	 * Start the A9Timer device.
-	 */
-	val = XScuTimer_ReadReg(XSCUTIMER_CONTROL_OFFSET);
-	/* Enable Auto reload mode.  */
-	val |= XSCUTIMER_CONTROL_AUTO_RELOAD_MASK;
-	/* Clear prescaler control bits */
-	val &= ~XSCUTIMER_CONTROL_PRESCALER_MASK;
-	/* Set prescaler value */
-	val |= (CONFIG_TIMER_PRESCALE << XSCUTIMER_CONTROL_PRESCALER_SHIFT);
-	/* Enable the decrementer */
-	val |= XSCUTIMER_CONTROL_ENABLE_MASK;
-	XScuTimer_WriteReg(XSCUTIMER_CONTROL_OFFSET, val);
-
-	/* This must not be called before relocation */
-	/*reset_timer_masked();*/
+	/* Reset time */
+	gd->lastinc = readl(&timer_base->counter) /
+					(TIMER_TICK_HZ / CONFIG_SYS_HZ);
+	gd->tbl = 0;
 
 	return 0;
 }
 
 /*
- * timer without interrupts
- */
-
-/*
  * This function is derived from PowerPC code (read timebase as long long).
  * On ARM it just returns the timer value.
  */
-unsigned long long get_ticks(void)
+ulong get_timer_masked(void)
 {
 	ulong now;
 
-	now = XScuTimer_GetCounterValue() /  (TIMER_TICK_HZ/CONFIG_SYS_HZ);
+	now = readl(&timer_base->counter) / (TIMER_TICK_HZ / CONFIG_SYS_HZ);
 
-	if (lastdec >= now) {
-		/* normal mode */
-		timestamp += lastdec - now;
+	if (gd->lastinc >= now) {
+		/* Normal mode */
+		gd->tbl += gd->lastinc - now;
 	} else {
-		/* we have an overflow ... */
-		timestamp += lastdec + TIMER_LOAD_VAL - now;
+		/* We have an overflow ... */
+		gd->tbl += gd->lastinc + TIMER_LOAD_VAL - now;
 	}
-	lastdec = now;
+	gd->lastinc = now;
 
-	return timestamp;
-}
-
-/*
- * This function is derived from PowerPC code (timebase clock frequency).
- * On ARM it returns the number of timer ticks per second.
- */
-ulong get_tbclk(void)
-{
-	return (ulong)CONFIG_SYS_HZ;
-}
-
-void reset_timer_masked(void)
-{
-	/* reset time */
-	lastdec = XScuTimer_GetCounterValue() / (TIMER_TICK_HZ/CONFIG_SYS_HZ);
-	timestamp = 0;
-}
-
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
-ulong get_timer_masked(void)
-{
-	unsigned long long res = get_ticks();
-	return res;
-}
-
-ulong get_timer(ulong base)
-{
-	return get_timer_masked() - base;
-}
-
-void set_timer(ulong t)
-{
-	timestamp = t;
+	return gd->tbl;
 }
 
 void __udelay(unsigned long usec)
@@ -164,10 +118,33 @@ void __udelay(unsigned long usec)
 	ulong tmo;
 
 	tmo = usec / (1000000 / CONFIG_SYS_HZ);
-	tmp = get_ticks() + tmo;	/* get current timestamp */
+	tmp = get_ticks() + tmo; /* Get current timestamp */
 
-	while (get_ticks() < tmp) { /* loop till event */ 
-		 /*NOP*/;
+	while (get_ticks() < tmp) { /* Loop till event */
+		 /* NOP */;
 	}
 }
 
+/* Timer without interrupts */
+ulong get_timer(ulong base)
+{
+	return get_timer_masked() - base;
+}
+
+/*
+ * This function is derived from PowerPC code (read timebase as long long).
+ * On ARM it just returns the timer value.
+ */
+unsigned long long get_ticks(void)
+{
+	return get_timer(0);
+}
+
+/*
+ * This function is derived from PowerPC code (timebase clock frequency).
+ * On ARM it returns the number of timer ticks per second.
+ */
+ulong get_tbclk(void)
+{
+	return CONFIG_SYS_HZ;
+}
