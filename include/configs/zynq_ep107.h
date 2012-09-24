@@ -66,8 +66,6 @@
 		"go 0x8000\0"
 
 
-#include <config_cmd_default.h>
-#define CONFIG_CMD_PING		/* Might be useful for debugging */
 #define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 

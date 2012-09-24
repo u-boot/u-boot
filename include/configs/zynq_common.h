@@ -65,6 +65,7 @@
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 # define CONFIG_PHYLIB
 # define CONFIG_PHY_MARVELL
+# define CONFIG_SYS_ENET
 #endif
 
 /* SCU timer address is hardcoded */
@@ -105,6 +106,21 @@
 #  endif
 # endif
 #endif
+
+
+
+#include <config_cmd_default.h>
+
+
+#ifdef CONFIG_SYS_ENET
+# define CONFIG_CMD_PING
+# define CONFIG_CMD_MII
+#else
+# undef CONFIG_CMD_NET
+# undef CONFIG_CMD_NFS
+#endif
+
+
 
 #include <asm/arch/xparameters.h>
 
@@ -213,5 +229,7 @@
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
 
 #define CONFIG_BOARD_LATE_INIT
+
+#undef CONFIG_BOOTM_NETBSD
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */

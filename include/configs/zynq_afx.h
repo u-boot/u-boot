@@ -30,7 +30,6 @@
 
 
 
-#include <config_cmd_default.h>
 #define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
@@ -51,13 +50,6 @@
  * Physical Memory map
  */
 #define PHYS_SDRAM_1_SIZE (128 * 1024 * 1024)
-
-/*
- * Ethernet Settings
- */
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_BOOTM_NETBSD
 
 /*
  * SPI Settings

@@ -47,7 +47,6 @@
 #include <configs/zynq_common.h>
 
 
-#include <config_cmd_default.h>
 #define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 
@@ -73,17 +72,6 @@
  */
 #define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
 
-
-/*
- * Ethernet Settings
- */
-#if defined(CONFIG_ZC770_XM010) || defined(CONFIG_ZC770_XM013)
-#define CONFIG_CMD_PING
-#else
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_BOOTM_NETBSD
-#endif
 
 /*
  * SPI Settings

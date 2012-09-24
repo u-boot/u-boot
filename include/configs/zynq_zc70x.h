@@ -28,13 +28,10 @@
 #include <configs/zynq_common.h>
 
 
-#include <config_cmd_default.h>
-#define CONFIG_CMD_PING		/* Might be useful for debugging */
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 
-#define CONFIG_CMD_MII
 
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
 

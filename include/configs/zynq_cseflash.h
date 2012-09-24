@@ -24,15 +24,11 @@
 
 
 
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_PING		/* Might be useful for debugging */
 #undef CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 #undef CONFIG_CMD_EDITENV
 #undef CONFIG_CMD_SAVEENV
 
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#undef CONFIG_CMD_NFS		/* NFS support			*/
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_XIMG
 
