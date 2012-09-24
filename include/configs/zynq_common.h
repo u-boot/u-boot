@@ -27,6 +27,10 @@
 #define CONFIG_IPADDR   192.168.0.99
 #define CONFIG_SERVERIP 192.168.0.101
 
+/* Serial drivers */
+#define CONFIG_BAUDRATE		115200
+#define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
+
 /* Zynq serial driver */
 #ifdef CONFIG_ZYNQ_SERIAL_UART0
 # define CONFIG_ZYNQ_SERIAL_BASEADDR0	0xE0000000
@@ -124,8 +128,6 @@
 /* default boot is according to the bootmode switch settings */
 #define CONFIG_BOOTCOMMAND "run modeboot"
 
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
 #define CONFIG_BOOTDELAY	3 /* -1 to Disable autoboot */
 
 #define	CONFIG_RTC_XPSSRTC
