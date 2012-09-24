@@ -31,7 +31,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 #include <config_cmd_default.h>
-#define CONFIG_CMD_DATE		/* RTC? */
 #define CONFIG_CMD_PING		/* Might be useful for debugging */
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #define CONFIG_REGINFO		/* Again, debugging */

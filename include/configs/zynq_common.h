@@ -130,8 +130,6 @@
 
 #define CONFIG_BOOTDELAY	3 /* -1 to Disable autoboot */
 
-#define	CONFIG_RTC_XPSSRTC
-
 #define CONFIG_SYS_PROMPT	"zynq-uboot> "
 
 /* CONFIG_SYS_MONITOR_BASE? */

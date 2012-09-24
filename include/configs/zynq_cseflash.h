@@ -26,7 +26,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 #include <config_cmd_default.h>
-#undef CONFIG_CMD_DATE		/* RTC? */
 #undef CONFIG_CMD_PING		/* Might be useful for debugging */
 #undef CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
