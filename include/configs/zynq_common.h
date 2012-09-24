@@ -141,6 +141,8 @@
 # define CONFIG_CMD_FAT
 # define CONFIG_CMD_EXT2
 # define CONFIG_DOS_PARTITION
+/* For now, use only single block reads for the MMC */
+# define CONFIG_SYS_MMC_MAX_BLK_COUNT	1
 #endif
 
 #ifdef CONFIG_NAND_ZYNQ
@@ -259,10 +261,6 @@
 /* FIT support */
 #define CONFIG_FIT		1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
-
-/* For now, use only single block reads for the MMC */
-
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT 1
 
 #define CONFIG_BOARD_LATE_INIT
 
