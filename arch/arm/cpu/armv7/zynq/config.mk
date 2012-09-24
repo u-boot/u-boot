@@ -27,6 +27,11 @@ PLATFORM_CPPFLAGS += -march=armv7-a
 PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/xilinx/common
 PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/$(BOARDDIR)
 
+# Xilinx, added to prevent unaligned accesses which started happening
+# with GCC 4.5.2 tools
+
+PLATFORM_CPPFLAGS += -mno-unaligned-access
+
 # =========================================================================
 #
 # Supply options according to compiler version
