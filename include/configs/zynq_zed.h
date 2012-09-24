@@ -20,11 +20,6 @@
 
 #include <configs/zynq_common.h>
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_ZED /* Community Board */
-
 /* Default environment */
 #define CONFIG_IPADDR   192.168.1.10
 #define CONFIG_SERVERIP 192.168.1.50

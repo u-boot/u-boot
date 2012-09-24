@@ -18,12 +18,6 @@
 #ifndef __CONFIG_ZYNQ_ZC70X_H
 #define __CONFIG_ZYNQ_ZC70X_H
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_ZC702 /* Board */
-#define CONFIG_ZC706 /* Board */
-
 #include <configs/zynq_common.h>
 
 /* Default environment */
@@ -36,7 +30,7 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 
-#include <config_cmd_default.h>	
+#include <config_cmd_default.h>
 #define CONFIG_CMD_DATE		/* RTC? */
 #define CONFIG_CMD_PING		/* Might be useful for debugging */
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */

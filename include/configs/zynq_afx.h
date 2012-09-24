@@ -18,11 +18,6 @@
 #ifndef __CONFIG_ZYNQ_AFX_H
 #define __CONFIG_ZYNQ_AFX_H
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_AFX /* Board */
-
 #include <configs/zynq_common.h>
 
 #if defined(CONFIG_AFX_NOR)

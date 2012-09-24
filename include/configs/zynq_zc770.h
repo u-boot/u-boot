@@ -18,11 +18,6 @@
 #ifndef __CONFIG_ZYNQ_ZC770_H
 #define __CONFIG_ZYNQ_ZC770_H
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_ZC770 /* Board */
-
 #include <configs/zynq_common.h>
 
 /* Default environment */
@@ -35,7 +30,7 @@
 #define CONFIG_SYS_NO_FLASH
 #endif
 
-#include <config_cmd_default.h>	
+#include <config_cmd_default.h>
 #define CONFIG_CMD_DATE		/* RTC? */
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #define CONFIG_REGINFO		/* Again, debugging */
@@ -63,7 +58,7 @@
  */
 #ifndef CONFIG_SYS_NO_FLASH
 
-#define CONFIG_SYS_FLASH_BASE           0xE2000000 
+#define CONFIG_SYS_FLASH_BASE           0xE2000000
 #define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
 #define CONFIG_SYS_MAX_FLASH_BANKS      1
 /* max number of sectors/blocks on one chip */

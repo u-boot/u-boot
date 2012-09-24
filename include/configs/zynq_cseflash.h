@@ -4,11 +4,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_CSEFLASH /* Board */
-
 #include <configs/zynq_common.h>
 
 /* Default environment */

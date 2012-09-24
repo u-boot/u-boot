@@ -18,9 +18,6 @@
 #ifndef __CONFIG_ZYNQ_EP107_H
 #define __CONFIG_ZYNQ_EP107_H
 
-/*
- * High Level Configuration Options
- */
 #define CONFIG_EP107 /* Board */
 
 #include <configs/zynq_common.h>
@@ -69,9 +66,9 @@
 		"go 0x8000\0"
 
 /* Uncomment it if you don't want Flash */
-//#define CONFIG_SYS_NO_FLASH	
+//#define CONFIG_SYS_NO_FLASH
 
-#include <config_cmd_default.h>	
+#include <config_cmd_default.h>
 #define CONFIG_CMD_DATE		/* RTC? */
 #define CONFIG_CMD_PING		/* Might be useful for debugging */
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
@@ -98,7 +95,7 @@
  */
 #ifndef CONFIG_SYS_NO_FLASH
 
-#define CONFIG_SYS_FLASH_BASE           0xE2000000 
+#define CONFIG_SYS_FLASH_BASE           0xE2000000
 #define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
 #define CONFIG_SYS_MAX_FLASH_BANKS      1
 /* max number of sectors/blocks on one chip */
