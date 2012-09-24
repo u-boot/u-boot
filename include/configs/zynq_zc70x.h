@@ -37,12 +37,15 @@
 #define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 
+#define CONFIG_CMD_MII
+
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
 
 #define CONFIG_PANIC_HANG /* For development/debugging */
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_SYS_LONGHELP
 
 /* this is to initialize GEM at uboot start */
 /* #define CONFIG_ZYNQ_INIT_GEM	*/
