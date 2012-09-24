@@ -74,6 +74,38 @@
 #endif
 #define CONFIG_SYS_HZ          1000
 
+
+/* no NOR flash */
+#ifdef CONFIG_SYS_NO_FLASH
+# define CONFIG_ENV_IS_NOWHERE
+#else
+# define CONFIG_SYS_FLASH_BASE           0xE2000000
+# define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
+# define CONFIG_SYS_MAX_FLASH_BANKS      1
+/* max number of sectors/blocks on one chip */
+# define CONFIG_SYS_MAX_FLASH_SECT       512
+# define CONFIG_SYS_FLASH_ERASE_TOUT     1000
+# define CONFIG_SYS_FLASH_WRITE_TOUT     5000
+# define CONFIG_FLASH_SHOW_PROGRESS	10
+
+# define CONFIG_SYS_FLASH_CFI
+# undef CONFIG_SYS_FLASH_EMPTY_INFO
+# define CONFIG_FLASH_CFI_DRIVER
+
+# undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
+# define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
+
+# ifndef CONFIG_ENV_IS_NOWHERE
+#  define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
+#  define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
+#  define CONFIG_ENV_IS_IN_FLASH
+#  define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
+#  ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
+#   define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
+#  endif
+# endif
+#endif
+
 #include <asm/arch/xparameters.h>
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000

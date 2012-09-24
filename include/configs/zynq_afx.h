@@ -20,16 +20,17 @@
 
 #define CONFIG_ZYNQ_SERIAL_UART1
 
-#include <configs/zynq_common.h>
-
-#if defined(CONFIG_AFX_NOR)
-#undef CONFIG_SYS_NO_FLASH
-#else
 #define CONFIG_SYS_NO_FLASH
+#if defined(CONFIG_AFX_NOR)
+# undef CONFIG_SYS_NO_FLASH
 #endif
 
+
+#include <configs/zynq_common.h>
+
+
+
 #include <config_cmd_default.h>
-#define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 #define CONFIG_TIMESTAMP	/* print image timestamp on bootm, etc */
@@ -45,34 +46,6 @@
 #define CONFIG_ZYNQ_XILINX_FLASH_HEADER
 #endif
 
-/*
- * NOR Flash Settings
- */
-#ifndef CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_FLASH_BASE           0xE2000000
-#define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
-#define CONFIG_SYS_MAX_FLASH_BANKS      1
-
-/* max number of sectors/blocks on one chip */
-#define CONFIG_SYS_MAX_FLASH_SECT       512
-#define CONFIG_SYS_FLASH_ERASE_TOUT     1000
-#define CONFIG_SYS_FLASH_WRITE_TOUT     5000
-#define CONFIG_FLASH_SHOW_PROGRESS	10
-
-#define CONFIG_SYS_FLASH_CFI
-#undef CONFIG_SYS_FLASH_EMPTY_INFO
-#define CONFIG_FLASH_CFI_DRIVER
-#undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
-#define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
-#define CONFIG_ENV_SECT_SIZE		0x20000		/*128 KB*/
-#define CONFIG_ENV_IS_IN_FLASH
-#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
-#define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
-#endif
-#else
-#define CONFIG_ENV_IS_NOWHERE
-#endif
 
 /*
  * Physical Memory map

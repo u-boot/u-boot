@@ -4,6 +4,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_ENV_IS_NOWHERE
+
 #include <configs/zynq_common.h>
 
 /* Disable uart console */
@@ -19,8 +21,8 @@
  */
 #undef CONFIG_OF_LIBFDT
 
-#undef CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_NOWHERE
+
+
 
 #include <config_cmd_default.h>
 #undef CONFIG_CMD_PING		/* Might be useful for debugging */
@@ -72,26 +74,6 @@
 /* #define CONFIG_ZYNQ_IP_ENV	*/
 
 
-#ifndef CONFIG_SYS_NO_FLASH
-
-/* FLASH organization */
-#define CONFIG_SYS_FLASH_BASE           0xE2000000
-#define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
-#define CONFIG_SYS_MAX_FLASH_BANKS      1
-/* max number of sectors/blocks on one chip */
-#define CONFIG_SYS_MAX_FLASH_SECT       512
-#define CONFIG_SYS_FLASH_ERASE_TOUT     1000
-#define CONFIG_SYS_FLASH_WRITE_TOUT     5000
-
-#define CONFIG_FLASH_SHOW_PROGRESS	10
-
-#define CONFIG_SYS_FLASH_CFI
-#undef CONFIG_SYS_FLASH_EMPTY_INFO
-#define CONFIG_FLASH_CFI_DRIVER
-
-#undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
-#endif
 
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
 #define CONFIG_SKIP_LOWLEVEL_INIT

@@ -22,11 +22,11 @@
 #define CONFIG_ZYNQ_GEM0
 #define CONFIG_PHY_ADDR	7
 
+#define CONFIG_SYS_NO_FLASH
+
+
 #include <configs/zynq_common.h>
 
-/* no NOR on zc702 */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_NOWHERE
 
 #include <config_cmd_default.h>
 #define CONFIG_CMD_PING		/* Might be useful for debugging */

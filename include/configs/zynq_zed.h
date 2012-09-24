@@ -22,11 +22,11 @@
 #define CONFIG_ZYNQ_GEM0
 #define CONFIG_PHY_ADDR	0
 
+#define CONFIG_SYS_NO_FLASH
+
 #include <configs/zynq_common.h>
 
-/* No NOR Flash available on ZedBoard */
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_NOWHERE
+
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS 	\
@@ -52,7 +52,6 @@
 
 #include <config_cmd_default.h>
 #define CONFIG_CMD_PING		/* Might be useful for debugging */
-#define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #define CONFIG_REGINFO		/* Again, debugging */
 #undef CONFIG_CMD_SETGETDCR	/* README says 4xx only */
 
