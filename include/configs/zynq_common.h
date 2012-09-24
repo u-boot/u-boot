@@ -23,6 +23,10 @@
 #define CONFIG_ARMV7 /* CPU */
 #define CONFIG_ZYNQ /* SoC */
 
+/* Default environment */
+#define CONFIG_IPADDR   192.168.0.99
+#define CONFIG_SERVERIP 192.168.0.101
+
 #include <asm/arch/xparameters.h>
 
 #define CONFIG_SYS_TEXT_BASE 0x04000000

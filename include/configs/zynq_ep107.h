@@ -22,10 +22,6 @@
 
 #include <configs/zynq_common.h>
 
-/* Default environment */
-#define CONFIG_IPADDR   10.10.70.102
-#define CONFIG_SERVERIP 10.10.70.101
-
 #undef CONFIG_ZYNQ_XIL_LQSPI
 
 #undef CONFIG_EXTRA_ENV_SETTINGS

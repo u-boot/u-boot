@@ -6,10 +6,6 @@
 
 #include <configs/zynq_common.h>
 
-/* Default environment */
-#define CONFIG_IPADDR   10.10.70.102
-#define CONFIG_SERVERIP 10.10.70.101
-
 #define CONFIG_ARM_DCC
 #define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
 

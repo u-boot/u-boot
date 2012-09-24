@@ -20,10 +20,6 @@
 
 #include <configs/zynq_common.h>
 
-/* Default environment */
-#define CONFIG_IPADDR   10.10.70.102
-#define CONFIG_SERVERIP 10.10.70.101
-
 #if defined(CONFIG_ZC770_XM012)
 #undef CONFIG_SYS_NO_FLASH
 #else

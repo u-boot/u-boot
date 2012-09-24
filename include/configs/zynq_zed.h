@@ -20,10 +20,6 @@
 
 #include <configs/zynq_common.h>
 
-/* Default environment */
-#define CONFIG_IPADDR   192.168.1.10
-#define CONFIG_SERVERIP 192.168.1.50
-
 #undef CONFIG_ZYNQ_XIL_LQSPI
 
 /* No NOR Flash available on ZedBoard */
