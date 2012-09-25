@@ -502,6 +502,7 @@ static int clock_periph_id_isvalid(enum periph_id id)
 		case PERIPH_ID_RESERVED81:
 		case PERIPH_ID_RESERVED82:
 		case PERIPH_ID_RESERVED83:
+		case PERIPH_ID_RESERVED91:
 			printf("Peripheral id %d is reserved\n", id);
 			break;
 		default:
