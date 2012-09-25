@@ -287,6 +287,10 @@
 # undef CONFIG_DCACHE
 #endif
 
+#ifndef XILINX_DCACHE_BYTE_SIZE
+#define XILINX_DCACHE_BYTE_SIZE	32768
+#endif
+
 /*
  * BOOTP options
  */
