@@ -30,22 +30,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Common IO for xgmac and xnand */
-/* Data Memory Barrier */
-#define dmb() __asm__ __volatile__ ("dmb" : : : "memory")
-#define SYNCHRONIZE_IO dmb()
+#define dmbp() __asm__ __volatile__ ("dmb" : : : "memory")
 
-void XIo_Out32(u32 OutAddress, u32 Value)
+static void XIo_Out32(u32 OutAddress, u32 Value)
 {
-	*(volatile u32 *) OutAddress = Value;
-	SYNCHRONIZE_IO;
+    *(volatile u32 *) OutAddress = Value;
+    dmbp();
 }
 
-u32 XIo_In32(u32 InAddress)
+static u32 XIo_In32(u32 InAddress)
 {
-	volatile u32 temp = *(volatile u32 *)InAddress;
-	SYNCHRONIZE_IO;
-	return temp;
+    volatile u32 temp = *(volatile u32 *)InAddress;
+    dmbp();
+    return temp;
 }
 
 #ifdef CONFIG_FPGA
