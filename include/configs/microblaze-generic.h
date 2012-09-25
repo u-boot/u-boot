@@ -305,6 +305,8 @@
 #define CONFIG_CMD_MFSL
 #define CONFIG_CMD_ECHO
 
+#define CONFIG_CMD_ROMFS
+
 #if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
 # define CONFIG_CMD_CACHE
 #else

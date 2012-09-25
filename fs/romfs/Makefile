@@ -20,24 +20,28 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-#
 
-subdirs-$(CONFIG_CMD_CRAMFS) := cramfs
-subdirs-$(CONFIG_CMD_EXT4) += ext4
-ifndef CONFIG_CMD_EXT4
-subdirs-$(CONFIG_CMD_EXT2) += ext4
-endif
-subdirs-$(CONFIG_CMD_FAT) += fat
-subdirs-$(CONFIG_CMD_FDOS) += fdos
-subdirs-$(CONFIG_CMD_JFFS2) += jffs2
-subdirs-$(CONFIG_CMD_REISER) += reiserfs
-subdirs-$(CONFIG_CMD_ROMFS) += romfs
-subdirs-$(CONFIG_YAFFS2) += yaffs2
-subdirs-$(CONFIG_CMD_UBIFS) += ubifs
-subdirs-$(CONFIG_CMD_ZFS) += zfs
+include $(TOPDIR)/config.mk
 
-SUBDIRS	:= $(subdirs-y)
+LIB	= $(obj)libromfs.o
 
-$(obj).depend all:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir $@ ; done
+AOBJS	=
+COBJS-$(CONFIG_CMD_ROMFS) := romfs.o
+
+SRCS	:= $(AOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS-y))
+
+
+all:	$(LIB) $(AOBJS)
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################
