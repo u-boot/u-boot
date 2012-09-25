@@ -26,7 +26,7 @@
 #define NOR_FLASH_MODE    (0x00000002)            /**< NOR  */
 #define NAND_FLASH_MODE   (0x00000004)            /**< NAND */
 #define SD_MODE           (0x00000005)            /**< Secure Digital card */
-#define JTAG_MODE	  (0x00000000)		  /**< JTAG */
+#define JTAG_MODE	  (0x00000000)            /**< JTAG */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -138,7 +138,10 @@ int board_nand_init(struct nand_chip *nand_chip)
 
 int dram_init(void)
 {
-	gd->ram_size = PHYS_SDRAM_1_SIZE;
+	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
+							CONFIG_SYS_SDRAM_SIZE);
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size = CONFIG_SYS_SDRAM_SIZE;
 
 	return 0;
 }
