@@ -64,6 +64,11 @@ static inline int board_is_bone(void)
 	return !strncmp(header.name, "A335BONE", HDR_NAME_LEN);
 }
 
+static inline int board_is_bone_lt(void)
+{
+	return !strncmp(header.name, "A335BNLT", HDR_NAME_LEN);
+}
+
 static inline int board_is_evm_sk(void)
 {
 	return !strncmp("A335X_SK", header.name, HDR_NAME_LEN);
@@ -124,7 +129,7 @@ static int read_eeprom(void)
 static short inline board_memory_type(void)
 {
 	/* The following boards are known to use DDR3. */
-	if (board_is_evm_sk())
+	if (board_is_evm_sk() || board_is_bone_lt())
 		return EMIF_REG_SDRAM_TYPE_DDR3;
 
 	return EMIF_REG_SDRAM_TYPE_DDR2;
@@ -285,7 +290,7 @@ int board_eth_init(bd_t *bis)
 			return -1;
 	}
 
-	if (board_is_bone()) {
+	if (board_is_bone() || board_is_bone_lt()) {
 		writel(MII_MODE_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
 				PHY_INTERFACE_MODE_MII;
