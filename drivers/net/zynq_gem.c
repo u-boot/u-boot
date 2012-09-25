@@ -34,10 +34,6 @@
 #include <miiphy.h>
 #include <watchdog.h>
 
-#if !defined(CONFIG_PHYLIB)
-# error XILINX_GEM_ETHERNET requires PHYLIB
-#endif
-
 /* Bit/mask specification */
 #define ZYNQ_GEM_PHYMNTNC_OP_MASK	0x40020000 /* operation mask bits */
 #define ZYNQ_GEM_PHYMNTNC_OP_R_MASK	0x20000000 /* read operation */
@@ -91,6 +87,17 @@
 					ZYNQ_GEM_DMACR_RXSIZE | \
 					ZYNQ_GEM_DMACR_TXSIZE | \
 					ZYNQ_GEM_DMACR_RXBUF)
+
+/* Use MII register 1 (MII status register) to detect PHY */
+#define PHY_DETECT_REG  1
+
+/* Mask used to verify certain PHY features (or register contents)
+ * in the register above:
+ *  0x1000: 10Mbps full duplex support
+ *  0x0800: 10Mbps half duplex support
+ *  0x0008: Auto-negotiation support
+ */
+#define PHY_DETECT_MASK 0x1808
 
 /* Device registers */
 struct zynq_gem_regs {
@@ -196,6 +203,65 @@ static u32 phywrite(struct eth_device *dev, u32 phy_addr, u32 regnum, u16 data)
 				ZYNQ_GEM_PHYMNTNC_OP_W_MASK, &data);
 }
 
+#ifndef CONFIG_PHYLIB
+static int phy_rst(struct eth_device *dev)
+{
+	struct zynq_gem_priv *priv = dev->priv;
+	u16 tmp;
+
+	puts("Resetting PHY...\n");
+	phyread(dev, priv->phyaddr, 0, &tmp);
+	tmp |= 0x8000;
+	phywrite(dev, priv->phyaddr, 0, tmp);
+
+	phyread(dev, priv->phyaddr, 0, &tmp);
+	while (tmp & 0x8000) {
+		putc('.');
+		if (ctrlc())
+			return 1;
+		phyread(dev, priv->phyaddr, 0, &tmp);
+	}
+	puts("\nPHY reset complete.\n");
+	return 0;
+}
+
+static void phy_detection(struct eth_device *dev)
+{
+	int i;
+	u16 phyreg;
+	struct zynq_gem_priv *priv = dev->priv;
+
+	if (priv->phyaddr != -1 ) {
+		phyread(dev, priv->phyaddr, PHY_DETECT_REG, &phyreg);
+		if ((phyreg != 0xFFFF) &&
+		((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+			/* Found a valid PHY address */
+			debug("Default phy address %d is valid\n", priv->phyaddr);
+			return;
+		} else {
+			debug("PHY address is not setup correctly %d\n", priv->phyaddr);
+			priv->phyaddr = -1;
+		}
+	}
+
+	debug("detecting phy address\n");
+	if (priv->phyaddr == -1 ) {
+		/* detect the PHY address */
+		for (i = 31; i >= 0; i--) {
+			phyread(dev, i, PHY_DETECT_REG, &phyreg);
+			if ((phyreg != 0xFFFF) &&
+			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+				/* Found a valid PHY address */
+				priv->phyaddr = i;
+				debug("Found valid phy address, %d\n", i);
+				return;
+			}
+		}
+	}
+	printf("PHY is not detected\n");
+}
+#endif
+
 static int zynq_gem_setup_mac(struct eth_device *dev)
 {
 	u32 i, macaddrlow, macaddrhigh;
@@ -283,6 +349,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK |
 			ZYNQ_GEM_NWCTRL_RXEN_MASK | ZYNQ_GEM_NWCTRL_TXEN_MASK);
 
+#ifdef CONFIG_PHYLIB
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
 
@@ -291,7 +358,50 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	priv->phydev = phydev;
 	phy_config(phydev);
 	phy_startup(phydev);
+#else
+	/* PHY Setup */
+#ifdef CONFIG_EP107
+	/* "add delay to RGMII rx interface" */
+	phywrite(dev, priv->phyaddr, 20, 0xc93);
+	phywrite(EmacPssInstancePtr, priv->phyaddr, 20, 0xc93);
+#else
+	phywrite(dev, priv->phyaddr, 22, 2);	/* page 2 */
 
+	/* rx clock transition when data stable */
+	phywrite(dev, priv->phyaddr, 21, 0x3030);
+
+	phywrite(dev, priv->phyaddr, 22, 0);	/* page 0 */
+#endif
+	u16 tmp;
+	phy_detection(dev);
+
+	/* link speed advertisement for autonegotiation */
+	phyread(dev, priv->phyaddr, 4, &tmp);
+	tmp |= 0xd80;		/* enable 100Mbps */
+	tmp &= ~0x60;		/* disable 10 Mbps */
+	phywrite(dev, priv->phyaddr, 4, tmp);
+
+	/* *disable* gigabit advertisement */
+	phyread(dev, priv->phyaddr, 9, &tmp);
+	tmp &= ~0x0300;
+	phywrite(dev, priv->phyaddr, 9, tmp);
+
+	/* enable autonegotiation, set 100Mbps, full-duplex, restart aneg */
+	phyread(dev, priv->phyaddr, 0, &tmp);
+	phywrite(dev, priv->phyaddr, 0, 0x3300 | (tmp & 0x1F));
+
+	if (phy_rst(dev))
+		return -1;
+
+	puts("\nWaiting for PHY to complete autonegotiation.");
+	do {
+		phyread(dev, priv->phyaddr, 1, &tmp);
+	} while (tmp & (1 << 5));
+
+	puts("\nPHY claims autonegotiation complete...\n");
+
+	puts("GEM link speed is 100Mbps\n");
+#endif
 	return 0;
 }
 
@@ -420,6 +530,7 @@ int zynq_gem_initialize(bd_t *bis, int base_addr)
 #else
 	priv->phyaddr = -1;
 #endif
+	priv->phyaddr = 7;
 
 	sprintf(dev->name, "Gem.%x", base_addr);
 
@@ -433,8 +544,10 @@ int zynq_gem_initialize(bd_t *bis, int base_addr)
 
 	eth_register(dev);
 
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	miiphy_register(dev->name, zynq_gem_miiphyread, zynq_gem_miiphy_write);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
+#endif
 
 	return 1;
 }
