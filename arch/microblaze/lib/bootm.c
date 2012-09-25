@@ -70,12 +70,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 #endif
 
 #ifdef XILINX_USE_DCACHE
-#ifdef XILINX_DCACHE_BYTE_SIZE
 	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
-#else
-#warning please rebuild BSPs and update configuration
-	flush_cache(0, 32768);
-#endif
 #endif
 	/*
 	 * Linux Kernel Parameters (passing device tree):
