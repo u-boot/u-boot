@@ -1,5 +1,28 @@
+Table of interleaving 2-4 controllers
+=====================================
+  +--------------+-----------------------------------------------------------+
+  |Configuration |                    Memory Controller                      |
+  |              |       1              2              3             4       |
+  |--------------+--------------+--------------+-----------------------------+
+  | Two memory   | Not Intlv'ed | Not Intlv'ed |                             |
+  | complexes    +--------------+--------------+                             |
+  |              |      2-way Intlv'ed         |                             |
+  |--------------+--------------+--------------+--------------+              |
+  |              | Not Intlv'ed | Not Intlv'ed | Not Intlv'ed |              |
+  | Three memory +--------------+--------------+--------------+              |
+  | complexes    |         2-way Intlv'ed      | Not Intlv'ed |              |
+  |              +-----------------------------+--------------+              |
+  |              |                  3-way Intlv'ed            |              |
+  +--------------+--------------+--------------+--------------+--------------+
+  |              | Not Intlv'ed | Not Intlv'ed | Not Intlv'ed | Not Intlv'ed |
+  | Four memory  +--------------+--------------+--------------+--------------+
+  | complexes    |       2-way Intlv'ed        |       2-way Intlv'ed        |
+  |              +-----------------------------+-----------------------------+
+  |              |                      4-way Intlv'ed                       |
+  +--------------+-----------------------------------------------------------+
 
-Table of interleaving modes supported in cpu/8xxx/ddr/
+
+Table of 2-way interleaving modes supported in cpu/8xxx/ddr/
 ======================================================
   +-------------+---------------------------------------------------------+
   |		|		    Rank Interleaving			  |
@@ -55,6 +78,15 @@ The ways to configure the ddr interleaving mode
 
   # superbank
   setenv hwconfig "fsl_ddr:ctlr_intlv=superbank"
+
+  # 1KB 3-way interleaving
+  setenv hwconfig "fsl_ddr:ctlr_intlv=3way_1KB"
+
+  # 4KB 3-way interleaving
+  setenv hwconfig "fsl_ddr:ctlr_intlv=3way_4KB"
+
+  # 8KB 3-way interleaving
+  setenv hwconfig "fsl_ddr:ctlr_intlv=3way_8KB"
 
   # disable bank (chip-select) interleaving
   setenv hwconfig "fsl_ddr:bank_intlv=null"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2011 Freescale Semiconductor, Inc.
+ * Copyright 2008-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,9 +32,21 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	case 0:
 		ddr = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
 		break;
+#if defined(CONFIG_SYS_MPC85xx_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	case 1:
 		ddr = (void *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
 		break;
+#endif
+#if defined(CONFIG_SYS_MPC85xx_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+	case 2:
+		ddr = (void *)CONFIG_SYS_MPC85xx_DDR3_ADDR;
+		break;
+#endif
+#if defined(CONFIG_SYS_MPC85xx_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+	case 3:
+		ddr = (void *)CONFIG_SYS_MPC85xx_DDR4_ADDR;
+		break;
+#endif
 	default:
 		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
 		return;
@@ -43,6 +55,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->eor, regs->ddr_eor);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	debug("Workaround for ERRATUM_DDR111_DDR134\n");
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		cs_sa = (regs->cs[i].bnds >> 16) & 0xfff;
 		cs_ea = regs->cs[i].bnds & 0xfff;
@@ -115,8 +128,12 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->ddr_cdr2, regs->ddr_cdr2);
 	out_be32(&ddr->err_disable, regs->err_disable);
 	out_be32(&ddr->err_int_en, regs->err_int_en);
-	for (i = 0; i < 32; i++)
-		out_be32(&ddr->debug[i], regs->debug[i]);
+	for (i = 0; i < 32; i++) {
+		if (regs->debug[i]) {
+			debug("Write to debug_%d as %08x\n", i+1, regs->debug[i]);
+			out_be32(&ddr->debug[i], regs->debug[i]);
+		}
+	}
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003474
 	out_be32(&ddr->debug[12], 0x00000015);
@@ -128,6 +145,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	temp_sdram_cfg &= ~(SDRAM_CFG_MEM_EN);
 	out_be32(&ddr->sdram_cfg, temp_sdram_cfg);
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003
+	debug("Workaround for ERRATUM_DDR_A003\n");
 	if (regs->ddr_sdram_rcw_2 & 0x00f00000) {
 		out_be32(&ddr->timing_cfg_2, regs->timing_cfg_2 & 0xf07fffff);
 		out_be32(&ddr->debug[2], 0x00000400);
@@ -209,6 +227,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	 * This erratum does not affect DDR3 mode, only for DDR2 mode.
 	 */
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR_115
+	debug("Workaround for ERRATUM_DDR_115\n");
 	if ((((in_be32(&ddr->sdram_cfg) >> 24) & 0x7) == SDRAM_TYPE_DDR2)
 	    && in_be32(&ddr->sdram_cfg) & 0x80000) {
 		/* set DEBUG_1[31] */
@@ -216,6 +235,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	}
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	debug("Workaround for ERRATUM_DDR111_DDR134\n");
 	/*
 	 * This is the combined workaround for DDR111 and DDR134
 	 * following the published errata for MPC8572

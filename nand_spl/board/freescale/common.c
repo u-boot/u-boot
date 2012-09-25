@@ -1,5 +1,6 @@
 /*
- * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2012 Freescale Semiconductor, Inc.
+ * Author: Matthew McClintock <msm@freescale.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -8,23 +9,32 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
  */
 
-#ifndef __P3060QDS_H__
-#define __P3060QDS_H__
+#include <common.h>
+#include <asm/processor.h>
+#include <asm/global_data.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/u-boot.h>
+DECLARE_GLOBAL_DATA_PTR;
 
-void fdt_fixup_board_enet(void *blob);
-void pci_of_setup(void *blob, bd_t *bd);
-extern fixed_ddr_parm_t fixed_ddr_parm_0[];
-
+#ifndef CONFIG_SYS_FSL_TBCLK_DIV
+#define CONFIG_SYS_FSL_TBCLK_DIV 8
 #endif
+
+void udelay(unsigned long usec)
+{
+	u32 ticks_per_usec = gd->bus_clk / (CONFIG_SYS_FSL_TBCLK_DIV * 1000000);
+	u32 ticks = ticks_per_usec * usec;
+	u32 s = mfspr(SPRN_TBRL);
+
+	while ((mfspr(SPRN_TBRL) - s) < ticks);
+}

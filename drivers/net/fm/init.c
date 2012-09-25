@@ -50,6 +50,9 @@ struct fm_eth_info fm_info[] = {
 #if (CONFIG_SYS_NUM_FM2_DTSEC >= 4)
 	FM_DTSEC_INFO_INITIALIZER(2, 4),
 #endif
+#if (CONFIG_SYS_NUM_FM2_DTSEC >= 5)
+	FM_DTSEC_INFO_INITIALIZER(2, 5),
+#endif
 #if (CONFIG_SYS_NUM_FM1_10GEC >= 1)
 	FM_TGEC_INFO_INITIALIZER(1, 1),
 #endif
@@ -152,6 +155,22 @@ void fm_info_set_phy_address(enum fm_port port, int address)
 }
 
 /*
+ * Returns the PHY address for a given Fman port
+ *
+ * The port must be set via a prior call to fm_info_set_phy_address().
+ * A negative error code is returned if the port is invalid.
+ */
+int fm_info_get_phy_address(enum fm_port port)
+{
+	int i = fm_port_to_index(port);
+
+	if (i == -1)
+		return -1;
+
+	return fm_info[i].phy_addr;
+}
+
+/*
  * Returns the type of the data interface between the given MAC and its PHY.
  * This is typically determined by the RCW.
  */
@@ -181,7 +200,8 @@ void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 
 static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 {
-	int off, ph;
+	int off;
+	uint32_t ph;
 	phys_addr_t paddr = CONFIG_SYS_CCSRBAR_PHYS + info->compat_offset;
 	u64 dtsec1_addr = (u64)CONFIG_SYS_CCSRBAR_PHYS +
 				CONFIG_SYS_FSL_FM1_DTSEC1_OFFSET;
@@ -198,12 +218,10 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
 
 	/* Don't disable FM1-DTSEC1 MAC as its used for MDIO */
-	if (paddr != dtsec1_addr) {
-		/* disable the mac node */
-		fdt_setprop_string(blob, off, "status", "disabled");
-	}
+	if (paddr != dtsec1_addr)
+		fdt_status_disabled(blob, off); /* disable the MAC node */
 
-	/* disable the node point to the mac */
+	/* disable the fsl,dpa-ethernet node that points to the MAC */
 	ph = fdt_get_phandle(blob, off);
 	do_fixup_by_prop(blob, "fsl,fman-mac", &ph, sizeof(ph),
 		"status", "disabled", strlen("disabled") + 1, 1);

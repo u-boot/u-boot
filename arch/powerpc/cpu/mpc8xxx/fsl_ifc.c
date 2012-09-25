@@ -44,12 +44,18 @@ void init_early_memctl_regs(void)
 	set_ifc_ftim(IFC_CS0, IFC_FTIM3, CONFIG_SYS_CS0_FTIM3);
 
 #if !defined(CONFIG_SYS_FSL_ERRATUM_IFC_A003399) || defined(CONFIG_SYS_RAMBOOT)
+#ifdef CONFIG_SYS_CSPR0_EXT
+	set_ifc_cspr_ext(IFC_CS0, CONFIG_SYS_CSPR0_EXT);
+#endif
 	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0);
 	set_ifc_amask(IFC_CS0, CONFIG_SYS_AMASK0);
 	set_ifc_csor(IFC_CS0, CONFIG_SYS_CSOR0);
 #endif
 #endif
 
+#ifdef CONFIG_SYS_CSPR1_EXT
+	set_ifc_cspr_ext(IFC_CS1, CONFIG_SYS_CSPR1_EXT);
+#endif
 #if defined(CONFIG_SYS_CSPR1) && defined(CONFIG_SYS_CSOR1)
 	set_ifc_ftim(IFC_CS1, IFC_FTIM0, CONFIG_SYS_CS1_FTIM0);
 	set_ifc_ftim(IFC_CS1, IFC_FTIM1, CONFIG_SYS_CS1_FTIM1);
@@ -61,6 +67,9 @@ void init_early_memctl_regs(void)
 	set_ifc_cspr(IFC_CS1, CONFIG_SYS_CSPR1);
 #endif
 
+#ifdef CONFIG_SYS_CSPR2_EXT
+	set_ifc_cspr_ext(IFC_CS2, CONFIG_SYS_CSPR2_EXT);
+#endif
 #if defined(CONFIG_SYS_CSPR2) && defined(CONFIG_SYS_CSOR2)
 	set_ifc_ftim(IFC_CS2, IFC_FTIM0, CONFIG_SYS_CS2_FTIM0);
 	set_ifc_ftim(IFC_CS2, IFC_FTIM1, CONFIG_SYS_CS2_FTIM1);
@@ -72,6 +81,9 @@ void init_early_memctl_regs(void)
 	set_ifc_cspr(IFC_CS2, CONFIG_SYS_CSPR2);
 #endif
 
+#ifdef CONFIG_SYS_CSPR3_EXT
+	set_ifc_cspr_ext(IFC_CS3, CONFIG_SYS_CSPR3_EXT);
+#endif
 #if defined(CONFIG_SYS_CSPR3) && defined(CONFIG_SYS_CSOR3)
 	set_ifc_ftim(IFC_CS3, IFC_FTIM0, CONFIG_SYS_CS3_FTIM0);
 	set_ifc_ftim(IFC_CS3, IFC_FTIM1, CONFIG_SYS_CS3_FTIM1);

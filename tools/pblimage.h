@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -11,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -20,20 +20,17 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/fsl_law.h>
-#include <asm/mmu.h>
+#ifndef PBLIMAGE_H
+#define PBLIMAGE_H
 
-struct law_entry law_table[] = {
-	SET_LAW(CONFIG_SYS_CPLD_BASE_PHYS, LAW_SIZE_1M, LAW_TRGT_IF_LBC),
-	SET_LAW(CONFIG_SYS_PMC_BASE_PHYS, LAW_SIZE_64K, LAW_TRGT_IF_LBC),
-#ifdef CONFIG_VSC7385_ENET
-	SET_LAW(CONFIG_SYS_VSC7385_BASE_PHYS, LAW_SIZE_1M, LAW_TRGT_IF_LBC),
-#endif
-	SET_LAW(CONFIG_SYS_FLASH_BASE_PHYS, LAW_SIZE_64M, LAW_TRGT_IF_LBC),
-#ifdef CONFIG_SYS_NAND_BASE_PHYS
-	SET_LAW(CONFIG_SYS_NAND_BASE_PHYS, LAW_SIZE_1M, LAW_TRGT_IF_LBC),
-#endif
+#define RCW_BYTES	64
+#define RCW_PREAMBLE	0xaa55aa55
+#define RCW_HEADER	0x010e0100
+
+struct pbl_header {
+	uint32_t preamble;
+	uint32_t rcwheader;
+	uint8_t rcw_data[RCW_BYTES];
 };
 
-int num_law_entries = ARRAY_SIZE(law_table);
+#endif /* PBLIMAGE_H */

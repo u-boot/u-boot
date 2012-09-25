@@ -383,6 +383,31 @@ The following options need to be configured:
 		symbol should be set to the TLB1 entry to be used for this
 		purpose.
 
+		CONFIG_SYS_FSL_ERRATUM_A004510
+
+		Enables a workaround for erratum A004510.  If set,
+		then CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV and
+		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY must be set.
+
+		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV
+		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2 (optional)
+
+		Defines one or two SoC revisions (low 8 bits of SVR)
+		for which the A004510 workaround should be applied.
+
+		The rest of SVR is either not relevant to the decision
+		of whether the erratum is present (e.g. p2040 versus
+		p2041) or is implied by the build target, which controls
+		whether CONFIG_SYS_FSL_ERRATUM_A004510 is set.
+
+		See Freescale App Note 4493 for more information about
+		this erratum.
+
+		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
+
+		This is the value to write into CCSR offset 0x18600
+		according to the A004510 workaround.
+
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
@@ -3100,12 +3125,12 @@ to save the current settings.
 	  These two #defines specify the address and size of the
 	  environment area within the remote memory space. The
 	  local device can get the environment from remote memory
-	  space by SRIO or other links.
+	  space by SRIO or PCIE links.
 
 BE CAREFUL! For some special cases, the local device can not use
 "saveenv" command. For example, the local device will get the
-environment stored in a remote NOR flash by SRIO link, but it can
-not erase, write this NOR flash by SRIO interface.
+environment stored in a remote NOR flash by SRIO or PCIE link,
+but it can not erase, write this NOR flash by SRIO or PCIE interface.
 
 - CONFIG_ENV_IS_IN_NAND:
 
@@ -3553,9 +3578,9 @@ within that device.
 - CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
 	Specifies that QE/FMAN firmware is located in the remote (master)
 	memory space.	CONFIG_SYS_FMAN_FW_ADDR is a virtual address which
-	can be mapped from slave TLB->slave LAW->slave SRIO outbound window
-	->master inbound window->master LAW->the ucode address in master's
-	NOR flash.
+	can be mapped from slave TLB->slave LAW->slave SRIO or PCIE outbound
+	window->master inbound window->master LAW->the ucode address in
+	master's memory space.
 
 Building the Software:
 ======================

@@ -39,6 +39,7 @@ struct mkimage_params params = {
 	.comp = IH_COMP_GZIP,
 	.dtc = MKIMAGE_DEFAULT_DTC_OPTIONS,
 	.imagename = "",
+	.imagename2 = "",
 };
 
 /*
@@ -150,6 +151,8 @@ main (int argc, char **argv)
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
 
+	/* Init Freescale PBL Boot image generation/list support */
+	init_pbl_image_type();
 	/* Init Kirkwood Boot image generation/list support */
 	init_kwb_image_type ();
 	/* Init Freescale imx Boot image generation/list support */
@@ -249,6 +252,15 @@ main (int argc, char **argv)
 				if (--argc <= 0)
 					usage ();
 				params.imagename = *++argv;
+				goto NXTARG;
+			case 'R':
+				if (--argc <= 0)
+					usage();
+				/*
+				 * This entry is for the second configuration
+				 * file, if only one is not enough.
+				 */
+				params.imagename2 = *++argv;
 				goto NXTARG;
 			case 's':
 				params.skipcpy = 1;
@@ -440,6 +452,9 @@ NXTARG:		;
 					break;
 				}
 			}
+		} else if (params.type == IH_TYPE_PBLIMAGE) {
+			/* PBL has special Image format, implements its' own */
+			pbl_load_uboot(ifd, &params);
 		} else {
 			copy_file (ifd, params.datafile, 0);
 		}

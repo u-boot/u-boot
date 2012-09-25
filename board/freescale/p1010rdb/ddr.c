@@ -147,10 +147,11 @@ phys_size_t fixed_sdram(void)
 	cpu = gd->cpu;
 	/* P1014 and it's derivatives support max 16bit DDR width */
 	if (cpu->soc_ver == SVR_P1014) {
+		ddr_cfg_regs.ddr_sdram_cfg &= ~SDRAM_CFG_DBW_MASK;
 		ddr_cfg_regs.ddr_sdram_cfg |= SDRAM_CFG_16_BE;
-		ddr_cfg_regs.cs[0].bnds = CONFIG_SYS_DDR_CS0_BNDS >> 1;
-		ddr_cfg_regs.ddr_sdram_cfg &= ~0x00180000;
-		ddr_cfg_regs.ddr_sdram_cfg |= 0x001080000;
+		/* divide SA and EA by two and then mask the rest so we don't
+		 * write to reserved fields */
+		ddr_cfg_regs.cs[0].bnds = (CONFIG_SYS_DDR_CS0_BNDS >> 1) & 0x0fff0fff;
 	}
 
 	ddr_size = (phys_size_t) CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2012 Freescale Semiconductor, Inc.
  *	Dave Liu <daveliu@freescale.com>
  *
  * calculate the organization and timing parameter
@@ -90,6 +90,7 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 {
 	unsigned int retval;
 	unsigned int mtb_ps;
+	int ftb_10th_ps;
 	int i;
 
 	if (spd->mem_type) {
@@ -197,6 +198,14 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	pdimm->mtb_ps = mtb_ps;
 
 	/*
+	 * FTB - fine timebase
+	 * use 1/10th of ps as our unit to avoid floating point
+	 * eg, 10 for 1ps, 25 for 2.5ps, 50 for 5ps
+	 */
+	ftb_10th_ps =
+		((spd->ftb_div & 0xf0) >> 4) * 10 / (spd->ftb_div & 0x0f);
+	pdimm->ftb_10th_ps = ftb_10th_ps;
+	/*
 	 * sdram minimum cycle time
 	 * we assume the MTB is 0.125ns
 	 * eg:
@@ -204,7 +213,8 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 *        =12 MTB (1.5ns) ->DDR3-1333
 	 *        =10 MTB (1.25ns) ->DDR3-1600
 	 */
-	pdimm->tCKmin_X_ps = spd->tCK_min * mtb_ps;
+	pdimm->tCKmin_X_ps = spd->tCK_min * mtb_ps +
+		(spd->fine_tCK_min * ftb_10th_ps) / 10;
 
 	/*
 	 * CAS latency supported
@@ -222,7 +232,8 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * DDR3-1333H	108 MTB (13.5ns)
 	 * DDR3-1600H	90 MTB (11.25ns)
 	 */
-	pdimm->tAA_ps = spd->tAA_min * mtb_ps;
+	pdimm->tAA_ps = spd->tAA_min * mtb_ps +
+		(spd->fine_tAA_min * ftb_10th_ps) / 10;
 
 	/*
 	 * min write recovery time
@@ -239,7 +250,8 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * DDR3-1333H	108 MTB (13.5ns)
 	 * DDR3-1600H	90 MTB (11.25)
 	 */
-	pdimm->tRCD_ps = spd->tRCD_min * mtb_ps;
+	pdimm->tRCD_ps = spd->tRCD_min * mtb_ps +
+		(spd->fine_tRCD_min * ftb_10th_ps) / 10;
 
 	/*
 	 * min row active to row active delay time
@@ -257,7 +269,8 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * DDR3-1333H	108 MTB (13.5ns)
 	 * DDR3-1600H	90 MTB (11.25ns)
 	 */
-	pdimm->tRP_ps = spd->tRP_min * mtb_ps;
+	pdimm->tRP_ps = spd->tRP_min * mtb_ps +
+		(spd->fine_tRP_min * ftb_10th_ps) / 10;
 
 	/* min active to precharge delay time
 	 * eg: tRAS_min =
@@ -277,7 +290,7 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * DDR3-1600H	370 MTB (46.25ns)
 	 */
 	pdimm->tRC_ps = (((spd->tRAS_tRC_ext & 0xf0) << 4) | spd->tRC_min_lsb)
-			* mtb_ps;
+			* mtb_ps + (spd->fine_tRC_min * ftb_10th_ps) / 10;
 	/*
 	 * min refresh recovery delay time
 	 * eg: tRFC_min =

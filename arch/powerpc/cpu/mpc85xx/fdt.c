@@ -57,8 +57,9 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 
 		if (reg) {
-			u64 val = *reg * SIZE_BOOT_ENTRY + spin_tbl_addr;
-			val = cpu_to_fdt32(val);
+			u32 phys_cpu_id = thread_to_core(*reg);
+			u64 val = phys_cpu_id * SIZE_BOOT_ENTRY + spin_tbl_addr;
+			val = cpu_to_fdt64(val);
 			if (*reg == id) {
 				fdt_setprop_string(blob, off, "status",
 								"okay");
@@ -534,7 +535,7 @@ void fdt_fixup_fman_firmware(void *blob)
 #define fdt_fixup_fman_firmware(x)
 #endif
 
-#if defined(CONFIG_PPC_P4080) || defined(CONFIG_PPC_P3060)
+#if defined(CONFIG_PPC_P4080)
 static void fdt_fixup_usb(void *fdt)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);

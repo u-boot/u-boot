@@ -76,6 +76,13 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define FSL_DDR_PAGE_INTERLEAVING	0x1
 #define FSL_DDR_BANK_INTERLEAVING	0x2
 #define FSL_DDR_SUPERBANK_INTERLEAVING	0x3
+#define FSL_DDR_3WAY_1KB_INTERLEAVING	0xA
+#define FSL_DDR_3WAY_4KB_INTERLEAVING	0xC
+#define FSL_DDR_3WAY_8KB_INTERLEAVING	0xD
+/* placeholder for 4-way interleaving */
+#define FSL_DDR_4WAY_1KB_INTERLEAVING	0x1A
+#define FSL_DDR_4WAY_4KB_INTERLEAVING	0x1C
+#define FSL_DDR_4WAY_8KB_INTERLEAVING	0x1D
 
 /* DDR_SDRAM_CFG - DDR SDRAM Control Configuration
  */
@@ -88,6 +95,7 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define SDRAM_CFG_SDRAM_TYPE_MASK	0x07000000
 #define SDRAM_CFG_SDRAM_TYPE_SHIFT	24
 #define SDRAM_CFG_DYN_PWR		0x00200000
+#define SDRAM_CFG_DBW_MASK		0x00180000
 #define SDRAM_CFG_32_BE			0x00080000
 #define SDRAM_CFG_16_BE			0x00100000
 #define SDRAM_CFG_8_BE			0x00040000
