@@ -240,13 +240,13 @@ int board_usb_init(const void *blob);
  * @param hcor		returns start address of EHCI HCOR registers
  * @return 0 if ok, -1 on error (generally invalid port number)
  */
-int tegrausb_start_port(unsigned portnum, u32 *hccr, u32 *hcor);
+int tegrausb_start_port(int portnum, u32 *hccr, u32 *hcor);
 
 /**
  * Stop the current port
  *
  * @return 0 if ok, -1 if no port was active
  */
-int tegrausb_stop_port(void);
+int tegrausb_stop_port(int portnum);
 
 #endif	/* _TEGRA_USB_H_ */

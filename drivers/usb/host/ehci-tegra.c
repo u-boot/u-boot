@@ -57,7 +57,7 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	 * Select the first port, as we don't have a way of selecting others
 	 * yet
 	 */
-	if (tegrausb_start_port(0, &our_hccr, &our_hcor))
+	if (tegrausb_start_port(index, &our_hccr, &our_hcor))
 		return -1;
 
 	*hccr = (struct ehci_hccr *)our_hccr;
@@ -72,6 +72,5 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
  */
 int ehci_hcd_stop(int index)
 {
-	tegrausb_stop_port();
-	return 0;
+	return tegrausb_stop_port(index);
 }

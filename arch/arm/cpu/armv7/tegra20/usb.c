@@ -77,7 +77,6 @@ struct fdt_usb {
 
 static struct fdt_usb port[USB_PORTS_MAX];	/* List of valid USB ports */
 static unsigned port_count;			/* Number of available ports */
-static int port_current;			/* Current port (-1 = none) */
 
 /*
  * This table has USB timing parameters for each Oscillator frequency we
@@ -351,30 +350,25 @@ static int add_port(struct fdt_usb *config, const u32 timing[])
 	return 0;
 }
 
-int tegrausb_start_port(unsigned portnum, u32 *hccr, u32 *hcor)
+int tegrausb_start_port(int portnum, u32 *hccr, u32 *hcor)
 {
 	struct usb_ctlr *usbctlr;
 
 	if (portnum >= port_count)
 		return -1;
-	tegrausb_stop_port();
 	set_host_mode(&port[portnum]);
 
 	usbctlr = port[portnum].reg;
 	*hccr = (u32)&usbctlr->cap_length;
 	*hcor = (u32)&usbctlr->usb_cmd;
-	port_current = portnum;
 	return 0;
 }
 
-int tegrausb_stop_port(void)
+int tegrausb_stop_port(int portnum)
 {
 	struct usb_ctlr *usbctlr;
 
-	if (port_current == -1)
-		return -1;
-
-	usbctlr = port[port_current].reg;
+	usbctlr = port[portnum].reg;
 
 	/* Stop controller */
 	writel(0, &usbctlr->usb_cmd);
@@ -383,7 +377,7 @@ int tegrausb_stop_port(void)
 	/* Initiate controller reset */
 	writel(2, &usbctlr->usb_cmd);
 	udelay(1000);
-	port_current = -1;
+
 	return 0;
 }
 
@@ -459,7 +453,6 @@ int board_usb_init(const void *blob)
 			return -1;
 		set_host_mode(&config);
 	}
-	port_current = -1;
 
 	return 0;
 }
