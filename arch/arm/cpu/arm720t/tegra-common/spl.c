@@ -63,11 +63,7 @@ void board_init_f(ulong dummy)
 	board_init_uart_f();
 
 	/* Initialize periph GPIOs */
-#ifdef CONFIG_SPI_UART_SWITCH
 	gpio_early_init_uart();
-#else
-	gpio_config_uart();
-#endif
 
 	/*
 	 * We call relocate_code() with relocation target same as the

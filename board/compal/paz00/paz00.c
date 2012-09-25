@@ -24,13 +24,6 @@
 #include <mmc.h>
 #endif
 
-/*
- * Routine: gpio_config_uart
- * Description: Does nothing on Paz00 - no conflict w/SPI.
- */
-void gpio_config_uart(void)
-{
-}
 
 #ifdef CONFIG_TEGRA_MMC
 /*

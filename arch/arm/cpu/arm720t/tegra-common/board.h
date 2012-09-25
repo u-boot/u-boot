@@ -22,4 +22,4 @@
  */
 
 void board_init_uart_f(void);
-void gpio_config_uart(void);
+void gpio_early_init_uart(void);

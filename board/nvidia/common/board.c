@@ -71,6 +71,13 @@ void __pin_mux_spi(void)
 
 void pin_mux_spi(void) __attribute__((weak, alias("__pin_mux_spi")));
 
+void __gpio_early_init_uart(void)
+{
+}
+
+void gpio_early_init_uart(void)
+__attribute__((weak, alias("__gpio_early_init_uart")));
+
 /*
  * Routine: power_det_init
  * Description: turn off power detects
@@ -155,11 +162,8 @@ int board_early_init_f(void)
 
 	/* Initialize periph GPIOs */
 	gpio_early_init();
-#ifdef CONFIG_SPI_UART_SWITCH
 	gpio_early_init_uart();
-#else
-	gpio_config_uart();
-#endif
+
 	return 0;
 }
 #endif	/* EARLY_INIT */

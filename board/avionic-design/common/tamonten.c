@@ -40,13 +40,6 @@
 #include <mmc.h>
 #endif
 
-/*
- * Routine: gpio_config_uart
- * Description: Does nothing on Tamonten - no conflict w/SPI.
- */
-void gpio_config_uart(void)
-{
-}
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 void gpio_early_init(void)

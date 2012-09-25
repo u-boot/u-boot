@@ -46,7 +46,7 @@ static void gpio_config_uart_seaboard(void)
 	gpio_direction_output(GPIO_PI3, 0);
 }
 
-void gpio_config_uart(void)
+void gpio_early_init_uart(void)
 {
 	if (machine_is_ventana())
 		return;

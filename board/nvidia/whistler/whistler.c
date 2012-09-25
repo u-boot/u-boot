@@ -34,13 +34,6 @@
 #include <mmc.h>
 #endif
 
-/*
- * Routine: gpio_config_uart
- * Description: Does nothing on Whistler - no UART-related GPIOs.
- */
-void gpio_config_uart(void)
-{
-}
 
 /*
  * Routine: pin_mux_mmc
