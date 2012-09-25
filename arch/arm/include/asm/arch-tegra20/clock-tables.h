@@ -176,6 +176,13 @@ enum periph_id {
 	PERIPH_ID_NONE = -1,
 };
 
+enum pll_out_id {
+	PLL_OUT1,
+	PLL_OUT2,
+	PLL_OUT3,
+	PLL_OUT4
+};
+
 /* Converts a clock number to a clock register: 0=L, 1=H, 2=U */
 #define PERIPH_REG(id) ((id) >> 5)
 

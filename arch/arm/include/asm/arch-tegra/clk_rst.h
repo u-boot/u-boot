@@ -27,8 +27,7 @@
 /* PLL registers - there are several PLLs in the clock controller */
 struct clk_pll {
 	uint pll_base;		/* the control register */
-	uint pll_out;		/* output control */
-	uint reserved;
+	uint pll_out[2];	/* output control */
 	uint pll_misc;		/* other misc things */
 };
 
@@ -111,6 +110,14 @@ struct clk_rst_ctlr {
 
 #define PLL_DIVM_SHIFT		0
 #define PLL_DIVM_MASK		(0x1f << PLL_DIVM_SHIFT)
+
+/* CLK_RST_CONTROLLER_PLLx_OUTx_0 */
+#define PLL_OUT_RSTN		(1 << 0)
+#define PLL_OUT_CLKEN		(1 << 1)
+#define PLL_OUT_OVRRIDE		(1 << 2)
+
+#define PLL_OUT_RATIO_SHIFT	8
+#define PLL_OUT_RATIO_MASK	(0xffU << PLL_OUT_RATIO_SHIFT)
 
 /* CLK_RST_CONTROLLER_PLLx_MISC_0 */
 #define PLL_CPCON_SHIFT		8

@@ -214,7 +214,7 @@ void wb_start(void)
 
 	reg = PLLM_OUT1_RSTN_RESET_DISABLE | PLLM_OUT1_CLKEN_ENABLE |
 	      PLLM_OUT1_RATIO_VAL_8;
-	writel(reg, &clkrst->crc_pll[CLOCK_ID_MEMORY].pll_out);
+	writel(reg, &clkrst->crc_pll[CLOCK_ID_MEMORY].pll_out[0]);
 
 	reg = SCLK_SWAKE_FIQ_SRC_PLLM_OUT1 | SCLK_SWAKE_IRQ_SRC_PLLM_OUT1 |
 	      SCLK_SWAKE_RUN_SRC_PLLM_OUT1 | SCLK_SWAKE_IDLE_SRC_PLLM_OUT1 |

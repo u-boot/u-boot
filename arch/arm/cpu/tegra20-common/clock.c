@@ -396,6 +396,16 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 	NONE(CRAM2),
 };
 
+/* number of clock outputs of a PLL */
+static const u8 pll_num_clkouts[] = {
+	1,	/* PLLC */
+	1,	/* PLLM */
+	4,	/* PLLP */
+	1,	/* PLLA */
+	0,	/* PLLU */
+	0,	/* PLLD */
+};
+
 /*
  * Get the oscillator frequency, from the corresponding hardware configuration
  * field.
@@ -602,6 +612,34 @@ unsigned long clock_get_periph_rate(enum periph_id periph_id,
 
 	return get_rate_from_divider(pll_rate[parent],
 		(readl(reg) & OUT_CLK_DIVISOR_MASK) >> OUT_CLK_DIVISOR_SHIFT);
+}
+
+int clock_set_pllout(enum clock_id clkid, enum pll_out_id pllout, unsigned rate)
+{
+	struct clk_pll *pll = get_pll(clkid);
+	int data = 0, div = 0, offset = 0;
+
+	if (!clock_id_is_pll(clkid))
+		return -1;
+
+	if (pllout + 1 > pll_num_clkouts[clkid])
+		return -1;
+
+	div = clk_get_divider(8, pll_rate[clkid], rate);
+
+	if (div < 0)
+		return -1;
+
+	/* out2 and out4 are in the high part of the register */
+	if (pllout == PLL_OUT2 || pllout == PLL_OUT4)
+		offset = 16;
+
+	data = (div << PLL_OUT_RATIO_SHIFT) |
+			PLL_OUT_OVRRIDE | PLL_OUT_CLKEN | PLL_OUT_RSTN;
+	clrsetbits_le32(&pll->pll_out[pllout >> 1],
+			PLL_OUT_RATIO_MASK << offset, data << offset);
+
+	return 0;
 }
 
 /**

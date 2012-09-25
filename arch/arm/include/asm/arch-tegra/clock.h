@@ -58,6 +58,18 @@ unsigned long clock_start_pll(enum clock_id id, u32 divm, u32 divn,
 		u32 divp, u32 cpcon, u32 lfcon);
 
 /**
+ * Set PLL output frequency
+ *
+ * @param clkid	clock id
+ * @param pllout	pll output id
+ * @param rate		desired output rate
+ *
+ * @return 0 if ok, -1 on error (invalid clock id or no suitable divider)
+ */
+int clock_set_pllout(enum clock_id clkid, enum pll_out_id pllout,
+		unsigned rate);
+
+/**
  * Read low-level parameters of a PLL.
  *
  * @param id	clock id to read (note: USB is not supported)
