@@ -27,7 +27,6 @@
 #include <asm/arch/system.h>
 #include <asm/arch/power.h>
 #include "ehci.h"
-#include "ehci-core.h"
 
 /* Setup the EHCI host controller. */
 static void setup_usb_phy(struct exynos_usb_phy *usb)
@@ -85,20 +84,20 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct exynos_usb_phy *usb;
 
 	usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
 	setup_usb_phy(usb);
 
-	hccr = (struct ehci_hccr *)samsung_get_base_usb_ehci();
-	hcor = (struct ehci_hcor *)((uint32_t) hccr
-				+ HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	*hccr = (struct ehci_hccr *)samsung_get_base_usb_ehci();
+	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
+				+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	debug("Exynos5-ehci: init hccr %x and hcor %x hc_length %d\n",
-		(uint32_t)hccr, (uint32_t)hcor,
-		(uint32_t)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+		(uint32_t)*hccr, (uint32_t)*hcor,
+		(uint32_t)HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	return 0;
 }
@@ -107,7 +106,7 @@ int ehci_hcd_init(void)
  * Destroy the appropriate control structures corresponding
  * the EHCI host controller.
  */
-int ehci_hcd_stop()
+int ehci_hcd_stop(int index)
 {
 	struct exynos_usb_phy *usb;
 

@@ -29,7 +29,6 @@
 #include <hwconfig.h>
 
 #include "ehci.h"
-#include "ehci-core.h"
 
 /*
  * Create the appropriate control structures to manage
@@ -37,7 +36,7 @@
  *
  * Excerpts from linux ehci fsl driver.
  */
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci;
 	const char *phy_type = NULL;
@@ -49,9 +48,9 @@ int ehci_hcd_init(void)
 #endif
 
 	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
-	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	hcor = (struct ehci_hcor *)((uint32_t) hccr +
-			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
+	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
+			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	/* Set to Host mode */
 	setbits_le32(&ehci->usbmode, CM_HOST);
@@ -82,14 +81,14 @@ int ehci_hcd_init(void)
 		setbits_be32(&ehci->control, UTMI_PHY_EN);
 		udelay(1000); /* delay required for PHY Clk to appear */
 #endif
-		out_le32(&(hcor->or_portsc[0]), PORT_PTS_UTMI);
+		out_le32(&(*hcor)->or_portsc[0], PORT_PTS_UTMI);
 	} else {
 #if defined(CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY)
 		clrbits_be32(&ehci->control, UTMI_PHY_EN);
 		setbits_be32(&ehci->control, PHY_CLK_SEL_ULPI);
 		udelay(1000); /* delay required for PHY Clk to appear */
 #endif
-		out_le32(&(hcor->or_portsc[0]), PORT_PTS_ULPI);
+		out_le32(&(*hcor)->or_portsc[0], PORT_PTS_ULPI);
 	}
 
 	/* Enable interface. */
@@ -108,7 +107,7 @@ int ehci_hcd_init(void)
  * Destroy the appropriate control structures corresponding
  * the the EHCI host controller.
  */
-int ehci_hcd_stop(void)
+int ehci_hcd_stop(int index)
 {
 	return 0;
 }

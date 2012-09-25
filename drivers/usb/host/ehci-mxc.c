@@ -25,7 +25,6 @@
 #include <errno.h>
 
 #include "ehci.h"
-#include "ehci-core.h"
 
 #define USBCTRL_OTGBASE_OFFSET	0x600
 
@@ -106,7 +105,7 @@ static int mxc_set_usbcontrol(int port, unsigned int flags)
 	return 0;
 }
 
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci;
 #ifdef CONFIG_MX31
@@ -121,9 +120,9 @@ int ehci_hcd_init(void)
 
 	ehci = (struct usb_ehci *)(IMX_USB_BASE +
 		(0x200 * CONFIG_MXC_USB_PORT));
-	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	hcor = (struct ehci_hcor *)((uint32_t) hccr +
-			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
+	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
+			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 	setbits_le32(&ehci->usbmode, CM_HOST);
 	__raw_writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
 	mxc_set_usbcontrol(CONFIG_MXC_USB_PORT, CONFIG_MXC_USB_FLAGS);
@@ -137,7 +136,7 @@ int ehci_hcd_init(void)
  * Destroy the appropriate control structures corresponding
  * the the EHCI host controller.
  */
-int ehci_hcd_stop(void)
+int ehci_hcd_stop(int index)
 {
 	return 0;
 }

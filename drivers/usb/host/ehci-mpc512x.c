@@ -33,7 +33,6 @@
 #include <usb/ehci-fsl.h>
 
 #include "ehci.h"
-#include "ehci-core.h"
 
 static void fsl_setup_phy(volatile struct ehci_hcor *);
 static void fsl_platform_set_host_mode(volatile struct usb_ehci *ehci);
@@ -46,21 +45,21 @@ static void usb_platform_dr_init(volatile struct usb_ehci *ehci);
  * This code is derived from EHCI FSL USB Linux driver for MPC5121
  *
  */
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	volatile struct usb_ehci *ehci;
 
 	/* Hook the memory mapped registers for EHCI-Controller */
 	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
-	hccr = (struct ehci_hccr *)((uint32_t)&(ehci->caplength));
-	hcor = (struct ehci_hcor *)((uint32_t) hccr +
-				HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	*hccr = (struct ehci_hccr *)((uint32_t)&(ehci->caplength));
+	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
+				HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	/* configure interface for UTMI_WIDE */
 	usb_platform_dr_init(ehci);
 
 	/* Init Phy USB0 to UTMI+ */
-	fsl_setup_phy(hcor);
+	fsl_setup_phy(*hcor);
 
 	/* Set to host mode */
 	fsl_platform_set_host_mode(ehci);
@@ -89,20 +88,14 @@ int ehci_hcd_init(void)
  * Destroy the appropriate control structures corresponding
  * the the EHCI host controller.
  */
-int ehci_hcd_stop(void)
+int ehci_hcd_stop(int index)
 {
 	volatile struct usb_ehci *ehci;
 	int exit_status = 0;
 
-	if (hcor) {
-		/* Unhook struct */
-		hccr = NULL;
-		hcor = NULL;
-
-		/* Reset the USB controller */
-		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
-		exit_status = reset_usb_controller(ehci);
-	}
+	/* Reset the USB controller */
+	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
+	exit_status = reset_usb_controller(ehci);
 
 	return exit_status;
 }

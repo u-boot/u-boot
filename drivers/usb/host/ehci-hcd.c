@@ -30,12 +30,17 @@
 
 #include "ehci.h"
 
-int rootdev;
-struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
-volatile struct ehci_hcor *hcor;
+#ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
+#endif
 
-static uint16_t portreset;
-DEFINE_ALIGN_BUFFER(struct QH, qh_list, 1, USB_DMA_MINALIGN);
+static struct ehci_ctrl {
+	struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
+	struct ehci_hcor *hcor;
+	int rootdev;
+	uint16_t portreset;
+	struct QH qh_list __attribute__((aligned(USB_DMA_MINALIGN)));
+} ehcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
 
 #define ALIGN_END_ADDR(type, ptr, size)			\
 	((uint32_t)(ptr) + roundup((size) * sizeof(type), USB_DMA_MINALIGN))
@@ -136,24 +141,25 @@ static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 	return -1;
 }
 
-static int ehci_reset(void)
+static int ehci_reset(int index)
 {
 	uint32_t cmd;
 	uint32_t tmp;
 	uint32_t *reg_ptr;
 	int ret = 0;
 
-	cmd = ehci_readl(&hcor->or_usbcmd);
+	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
 	cmd = (cmd & ~CMD_RUN) | CMD_RESET;
-	ehci_writel(&hcor->or_usbcmd, cmd);
-	ret = handshake((uint32_t *)&hcor->or_usbcmd, CMD_RESET, 0, 250 * 1000);
+	ehci_writel(&ehcic[index].hcor->or_usbcmd, cmd);
+	ret = handshake((uint32_t *)&ehcic[index].hcor->or_usbcmd,
+			CMD_RESET, 0, 250 * 1000);
 	if (ret < 0) {
 		printf("EHCI fail to reset\n");
 		goto out;
 	}
 
 	if (ehci_is_TDI()) {
-		reg_ptr = (uint32_t *)((u8 *)hcor + USBMODE);
+		reg_ptr = (uint32_t *)((u8 *)ehcic[index].hcor + USBMODE);
 		tmp = ehci_readl(reg_ptr);
 		tmp |= USBMODE_CM_HC;
 #if defined(CONFIG_EHCI_MMIO_BIG_ENDIAN)
@@ -163,10 +169,10 @@ static int ehci_reset(void)
 	}
 
 #ifdef CONFIG_USB_EHCI_TXFIFO_THRESH
-	cmd = ehci_readl(&hcor->or_txfilltuning);
+	cmd = ehci_readl(&ehcic[index].hcor->or_txfilltuning);
 	cmd &= ~TXFIFO_THRESH_MASK;
 	cmd |= TXFIFO_THRESH(CONFIG_USB_EHCI_TXFIFO_THRESH);
-	ehci_writel(&hcor->or_txfilltuning, cmd);
+	ehci_writel(&ehcic[index].hcor->or_txfilltuning, cmd);
 #endif
 out:
 	return ret;
@@ -212,7 +218,6 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	struct qTD *qtd;
 	int qtd_count = 0;
 	int qtd_counter = 0;
-
 	volatile struct qTD *vtd;
 	unsigned long ts;
 	uint32_t *tdp;
@@ -221,6 +226,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	uint32_t cmd;
 	int timeout;
 	int ret = 0;
+	struct ehci_ctrl *ctrl = dev->controller;
 
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d, req=%p\n", dev, pipe,
 	      buffer, length, req);
@@ -311,7 +317,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	 *   qh_overlay.qt_next ...... 13-10 H
 	 * - qh_overlay.qt_altnext
 	 */
-	qh->qh_link = cpu_to_hc32((uint32_t)qh_list | QH_LINK_TYPE_QH);
+	qh->qh_link = cpu_to_hc32((uint32_t)&ctrl->qh_list | QH_LINK_TYPE_QH);
 	c = usb_pipespeed(pipe) != USB_SPEED_HIGH && !usb_pipeendpoint(pipe);
 	maxpacket = usb_maxpacket(dev, pipe);
 	endpt = QH_ENDPT1_RL(8) | QH_ENDPT1_C(c) |
@@ -445,27 +451,27 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		tdp = &qtd[qtd_counter++].qt_next;
 	}
 
-	qh_list->qh_link = cpu_to_hc32((uint32_t)qh | QH_LINK_TYPE_QH);
+	ctrl->qh_list.qh_link = cpu_to_hc32((uint32_t)qh | QH_LINK_TYPE_QH);
 
 	/* Flush dcache */
-	flush_dcache_range((uint32_t)qh_list,
-		ALIGN_END_ADDR(struct QH, qh_list, 1));
+	flush_dcache_range((uint32_t)&ctrl->qh_list,
+		ALIGN_END_ADDR(struct QH, &ctrl->qh_list, 1));
 	flush_dcache_range((uint32_t)qh, ALIGN_END_ADDR(struct QH, qh, 1));
 	flush_dcache_range((uint32_t)qtd,
 			   ALIGN_END_ADDR(struct qTD, qtd, qtd_count));
 
 	/* Set async. queue head pointer. */
-	ehci_writel(&hcor->or_asynclistaddr, (uint32_t)qh_list);
+	ehci_writel(&ctrl->hcor->or_asynclistaddr, (uint32_t)&ctrl->qh_list);
 
-	usbsts = ehci_readl(&hcor->or_usbsts);
-	ehci_writel(&hcor->or_usbsts, (usbsts & 0x3f));
+	usbsts = ehci_readl(&ctrl->hcor->or_usbsts);
+	ehci_writel(&ctrl->hcor->or_usbsts, (usbsts & 0x3f));
 
 	/* Enable async. schedule. */
-	cmd = ehci_readl(&hcor->or_usbcmd);
+	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
 	cmd |= CMD_ASE;
-	ehci_writel(&hcor->or_usbcmd, cmd);
+	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
 
-	ret = handshake((uint32_t *)&hcor->or_usbsts, STS_ASS, STS_ASS,
+	ret = handshake((uint32_t *)&ctrl->hcor->or_usbsts, STS_ASS, STS_ASS,
 			100 * 1000);
 	if (ret < 0) {
 		printf("EHCI fail timeout STS_ASS set\n");
@@ -478,8 +484,8 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	timeout = USB_TIMEOUT_MS(pipe);
 	do {
 		/* Invalidate dcache */
-		invalidate_dcache_range((uint32_t)qh_list,
-			ALIGN_END_ADDR(struct QH, qh_list, 1));
+		invalidate_dcache_range((uint32_t)&ctrl->qh_list,
+			ALIGN_END_ADDR(struct QH, &ctrl->qh_list, 1));
 		invalidate_dcache_range((uint32_t)qh,
 			ALIGN_END_ADDR(struct QH, qh, 1));
 		invalidate_dcache_range((uint32_t)qtd,
@@ -508,11 +514,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		printf("EHCI timed out on TD - token=%#x\n", token);
 
 	/* Disable async schedule. */
-	cmd = ehci_readl(&hcor->or_usbcmd);
+	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
 	cmd &= ~CMD_ASE;
-	ehci_writel(&hcor->or_usbcmd, cmd);
+	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
 
-	ret = handshake((uint32_t *)&hcor->or_usbsts, STS_ASS, 0,
+	ret = handshake((uint32_t *)&ctrl->hcor->or_usbsts, STS_ASS, 0,
 			100 * 1000);
 	if (ret < 0) {
 		printf("EHCI fail timeout STS_ASS reset\n");
@@ -551,9 +557,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	} else {
 		dev->act_len = 0;
 		debug("dev=%u, usbsts=%#x, p[1]=%#x, p[2]=%#x\n",
-		      dev->devnum, ehci_readl(&hcor->or_usbsts),
-		      ehci_readl(&hcor->or_portsc[0]),
-		      ehci_readl(&hcor->or_portsc[1]));
+		      dev->devnum, ehci_readl(&ctrl->hcor->or_usbsts),
+		      ehci_readl(&ctrl->hcor->or_portsc[0]),
+		      ehci_readl(&ctrl->hcor->or_portsc[1]));
 	}
 
 	free(qtd);
@@ -584,13 +590,14 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int len, srclen;
 	uint32_t reg;
 	uint32_t *status_reg;
+	struct ehci_ctrl *ctrl = dev->controller;
 
 	if (le16_to_cpu(req->index) > CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
 		printf("The request port(%d) is not configured\n",
 			le16_to_cpu(req->index) - 1);
 		return -1;
 	}
-	status_reg = (uint32_t *)&hcor->or_portsc[
+	status_reg = (uint32_t *)&ctrl->hcor->or_portsc[
 						le16_to_cpu(req->index) - 1];
 	srclen = 0;
 
@@ -658,7 +665,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		break;
 	case USB_REQ_SET_ADDRESS | (USB_RECIP_DEVICE << 8):
 		debug("USB_REQ_SET_ADDRESS\n");
-		rootdev = le16_to_cpu(req->value);
+		ctrl->rootdev = le16_to_cpu(req->value);
 		break;
 	case DeviceOutRequest | USB_REQ_SET_CONFIGURATION:
 		debug("USB_REQ_SET_CONFIGURATION\n");
@@ -708,7 +715,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[2] |= USB_PORT_STAT_C_ENABLE;
 		if (reg & EHCI_PS_OCC)
 			tmpbuf[2] |= USB_PORT_STAT_C_OVERCURRENT;
-		if (portreset & (1 << le16_to_cpu(req->index)))
+		if (ctrl->portreset & (1 << le16_to_cpu(req->index)))
 			tmpbuf[2] |= USB_PORT_STAT_C_RESET;
 
 		srcptr = tmpbuf;
@@ -723,7 +730,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			ehci_writel(status_reg, reg);
 			break;
 		case USB_PORT_FEAT_POWER:
-			if (HCS_PPC(ehci_readl(&hccr->cr_hcsparams))) {
+			if (HCS_PPC(ehci_readl(&ctrl->hccr->cr_hcsparams))) {
 				reg |= EHCI_PS_PP;
 				ehci_writel(status_reg, reg);
 			}
@@ -760,7 +767,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				ret = handshake(status_reg, EHCI_PS_PR, 0,
 						2 * 1000);
 				if (!ret)
-					portreset |=
+					ctrl->portreset |=
 						1 << le16_to_cpu(req->index);
 				else
 					printf("port(%d) reset error\n",
@@ -772,7 +779,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			goto unknown;
 		}
 		/* unblock posted writes */
-		(void) ehci_readl(&hcor->or_usbcmd);
+		(void) ehci_readl(&ctrl->hcor->or_usbcmd);
 		break;
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 		reg = ehci_readl(status_reg);
@@ -784,7 +791,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_PE;
 			break;
 		case USB_PORT_FEAT_POWER:
-			if (HCS_PPC(ehci_readl(&hccr->cr_hcsparams)))
+			if (HCS_PPC(ehci_readl(&ctrl->hccr->cr_hcsparams)))
 				reg = reg & ~(EHCI_PS_CLEAR | EHCI_PS_PP);
 		case USB_PORT_FEAT_C_CONNECTION:
 			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_CSC;
@@ -793,7 +800,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_OCC;
 			break;
 		case USB_PORT_FEAT_C_RESET:
-			portreset &= ~(1 << le16_to_cpu(req->index));
+			ctrl->portreset &= ~(1 << le16_to_cpu(req->index));
 			break;
 		default:
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
@@ -801,7 +808,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		}
 		ehci_writel(status_reg, reg);
 		/* unblock posted write */
-		(void) ehci_readl(&hcor->or_usbcmd);
+		(void) ehci_readl(&ctrl->hcor->or_usbcmd);
 		break;
 	default:
 		debug("Unknown request\n");
@@ -831,25 +838,28 @@ unknown:
 
 int usb_lowlevel_stop(int index)
 {
-	return ehci_hcd_stop();
+	return ehci_hcd_stop(index);
 }
 
 int usb_lowlevel_init(int index, void **controller)
 {
 	uint32_t reg;
 	uint32_t cmd;
+	struct QH *qh_list;
 
-	if (ehci_hcd_init())
+	if (ehci_hcd_init(index, &ehcic[index].hccr, &ehcic[index].hcor))
 		return -1;
 
 	/* EHCI spec section 4.1 */
-	if (ehci_reset())
+	if (ehci_reset(index))
 		return -1;
 
 #if defined(CONFIG_EHCI_HCD_INIT_AFTER_RESET)
-	if (ehci_hcd_init())
+	if (ehci_hcd_init(index, &ehcic[index].hccr, &ehcic[index].hcor))
 		return -1;
 #endif
+
+	qh_list = &ehcic[index].qh_list;
 
 	/* Set head of reclaim list */
 	memset(qh_list, 0, sizeof(*qh_list));
@@ -862,7 +872,7 @@ int usb_lowlevel_init(int index, void **controller)
 	qh_list->qh_overlay.qt_token =
 			cpu_to_hc32(QT_TOKEN_STATUS(QT_TOKEN_STATUS_HALTED));
 
-	reg = ehci_readl(&hccr->cr_hcsparams);
+	reg = ehci_readl(&ehcic[index].hccr->cr_hcsparams);
 	descriptor.hub.bNbrPorts = HCS_N_PORTS(reg);
 	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
 	/* Port Indicators */
@@ -875,27 +885,28 @@ int usb_lowlevel_init(int index, void **controller)
 				| 0x01, &descriptor.hub.wHubCharacteristics);
 
 	/* Start the host controller. */
-	cmd = ehci_readl(&hcor->or_usbcmd);
+	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
 	/*
 	 * Philips, Intel, and maybe others need CMD_RUN before the
 	 * root hub will detect new devices (why?); NEC doesn't
 	 */
 	cmd &= ~(CMD_LRESET|CMD_IAAD|CMD_PSE|CMD_ASE|CMD_RESET);
 	cmd |= CMD_RUN;
-	ehci_writel(&hcor->or_usbcmd, cmd);
+	ehci_writel(&ehcic[index].hcor->or_usbcmd, cmd);
 
 	/* take control over the ports */
-	cmd = ehci_readl(&hcor->or_configflag);
+	cmd = ehci_readl(&ehcic[index].hcor->or_configflag);
 	cmd |= FLAG_CF;
-	ehci_writel(&hcor->or_configflag, cmd);
+	ehci_writel(&ehcic[index].hcor->or_configflag, cmd);
 	/* unblock posted write */
-	cmd = ehci_readl(&hcor->or_usbcmd);
+	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
 	mdelay(5);
-	reg = HC_VERSION(ehci_readl(&hccr->cr_capbase));
+	reg = HC_VERSION(ehci_readl(&ehcic[index].hccr->cr_capbase));
 	printf("USB EHCI %x.%02x\n", reg >> 8, reg & 0xff);
 
-	rootdev = 0;
+	ehcic[index].rootdev = 0;
 
+	*controller = &ehcic[index];
 	return 0;
 }
 
@@ -915,14 +926,15 @@ int
 submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int length, struct devrequest *setup)
 {
+	struct ehci_ctrl *ctrl = dev->controller;
 
 	if (usb_pipetype(pipe) != PIPE_CONTROL) {
 		debug("non-control pipe (type=%lu)", usb_pipetype(pipe));
 		return -1;
 	}
 
-	if (usb_pipedevice(pipe) == rootdev) {
-		if (!rootdev)
+	if (usb_pipedevice(pipe) == ctrl->rootdev) {
+		if (!ctrl->rootdev)
 			dev->speed = USB_SPEED_HIGH;
 		return ehci_submit_root(dev, pipe, buffer, length, setup);
 	}
