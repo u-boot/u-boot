@@ -121,17 +121,18 @@ COBJS-$(CONFIG_PPC_P5040) += p5040_serdes.o
 COBJS-$(CONFIG_PPC_T4240) += t4240_serdes.o
 COBJS-$(CONFIG_PPC_B4860) += b4860_serdes.o
 
-COBJS	= $(COBJS-y)
-COBJS	+= cpu.o
-COBJS	+= cpu_init.o
-COBJS	+= cpu_init_early.o
-COBJS	+= interrupts.o
-COBJS	+= speed.o
-COBJS	+= tlb.o
-COBJS	+= traps.o
+COBJS-y	+= cpu.o
+COBJS-y	+= cpu_init.o
+COBJS-y	+= cpu_init_early.o
+COBJS-y	+= interrupts.o
+COBJS-y	+= speed.o
+COBJS-y	+= tlb.o
+COBJS-y	+= traps.o
 
 # Stub implementations of cache management functions for USB
-COBJS += cache.o
+COBJS-y += cache.o
+
+COBJS	= $(COBJS-y)
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
