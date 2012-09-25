@@ -381,8 +381,7 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		bootstage_mark_name(BOOTSTAGE_ID_USB_START, "usb_start");
 		usb_stop();
 		printf("(Re)start USB...\n");
-		i = usb_init();
-		if (i >= 0) {
+		if (usb_init() >= 0) {
 #ifdef CONFIG_USB_STORAGE
 			/* try to recognize storage devices immediately */
 			usb_stor_curr_dev = usb_stor_scan(1);
@@ -390,6 +389,9 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_USB_HOST_ETHER
 			/* try to recognize ethernet devices immediately */
 			usb_ether_curr_dev = usb_host_eth_scan(1);
+#endif
+#ifdef CONFIG_USB_KEYBOARD
+			drv_usb_kbd_init();
 #endif
 		}
 		return 0;
@@ -417,8 +419,14 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 	if (strncmp(argv[1], "tree", 4) == 0) {
-		printf("\nDevice Tree:\n");
-		usb_show_tree(usb_get_dev_index(0));
+		puts("USB device tree:\n");
+		for (i = 0; i < USB_MAX_DEVICE; i++) {
+			dev = usb_get_dev_index(i);
+			if (dev == NULL)
+				break;
+			if (dev->parent == NULL)
+				usb_show_tree(dev);
+		}
 		return 0;
 	}
 	if (strncmp(argv[1], "inf", 3) == 0) {
