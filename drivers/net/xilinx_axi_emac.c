@@ -234,6 +234,42 @@ static u32 phywrite(struct eth_device *dev, u32 phyaddress, u32 registernum,
 	return 0;
 }
 
+static void phy_detection(struct eth_device *dev)
+{
+	int i;
+	u16 phyreg;
+	struct axidma_priv *priv = dev->priv;
+
+	if (priv->phyaddr != -1 ) {
+		phyreg = phyread(dev, priv->phyaddr, PHY_DETECT_REG);
+		if ((phyreg != 0xFFFF) &&
+			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+			/* Found a valid PHY address */
+			debug("Default phy address %d is valid\n", priv->phyaddr);
+			return;
+		} else {
+			debug("PHY address is not setup correctly %d\n", priv->phyaddr);
+			priv->phyaddr = -1;
+		}
+	}
+
+	debug("detecting phy address\n");
+	if (priv->phyaddr == -1 ) {
+		/* detect the PHY address */
+		for (i = 31; i >= 0; i--) {
+			phyreg = phyread(dev, i, PHY_DETECT_REG);
+			if ((phyreg != 0xFFFF) &&
+			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+				/* Found a valid PHY address */
+				priv->phyaddr = i;
+				debug("Found valid phy address, %d\n", i);
+				return;
+			}
+		}
+	}
+	printf("PHY is not detected\n");
+}
+
 /* Setting axi emac and phy to proper setting */
 static int setup_phy(struct eth_device *dev)
 {
@@ -250,20 +286,7 @@ static int setup_phy(struct eth_device *dev)
 			SUPPORTED_1000baseT_Half |
 			SUPPORTED_1000baseT_Full;
 
-	if (priv->phyaddr == -1) {
-		/* Detect the PHY address */
-		for (i = 31; i >= 0; i--) {
-			ret = phyread(dev, i, PHY_DETECT_REG, &phyreg);
-			if (!ret && (phyreg != 0xFFFF) &&
-			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
-				/* Found a valid PHY address */
-				priv->phyaddr = i;
-				debug("axiemac: Found valid phy address, %x\n",
-									phyreg);
-				break;
-			}
-		}
-	}
+	phy_detection(dev);
 
 	/* Interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
