@@ -28,19 +28,23 @@ endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS-y	:= board.o \
-	   ../common/xbasic_types.o
+COBJS-y	:= board.o
+SOBJS   := lowlevel_init.o
 
 COBJS	:= $(sort $(COBJS-y))
 
-SOBJS	:= lowlevel_init.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+SOBJS   := $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
+
+clean:
+	rm -f $(OBJS) $(SOBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 
