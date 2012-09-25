@@ -102,6 +102,8 @@ int xilinx_axiemac_initialize(bd_t *bis, unsigned long base_addr,
 							unsigned long dma_addr);
 int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 							int txpp, int rxpp);
+int xilinx_ll_temac_initialize(bd_t *bis, unsigned long base_addr,
+						int mode, unsigned long ctrl);
 int zynq_gem_initialize(bd_t *bis, int base_addr);
 /*
  * As long as the Xilinx xps_ll_temac ethernet driver has not its own interface

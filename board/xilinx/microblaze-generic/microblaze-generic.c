@@ -99,6 +99,19 @@ int board_eth_init(bd_t *bis)
 	ret |= xilinx_emaclite_initialize(bis, XILINX_EMACLITE_BASEADDR,
 			txpp, rxpp);
 #endif
-
+#ifdef CONFIG_XILINX_LL_TEMAC
+# ifdef XILINX_LLTEMAC_FIFO_BASEADDR
+	ret |= xilinx_ll_temac_initialize(bis, XILINX_LLTEMAC_BASEADDR, 0,
+					XILINX_LLTEMAC_FIFO_BASEADDR);
+# elif XILINX_LLTEMAC_SDMA_CTRL_BASEADDR
+#  if XILINX_LLTEMAC_SDMA_USE_DCR == 1
+	ret |= xilinx_ll_temac_initialize(bis, XILINX_LLTEMAC_BASEADDR, 3,
+					XILINX_LLTEMAC_SDMA_CTRL_BASEADDR);
+#  else
+	ret |= xilinx_ll_temac_initialize(bis, XILINX_LLTEMAC_BASEADDR, 1,
+					XILINX_LLTEMAC_SDMA_CTRL_BASEADDR);
+#  endif
+# endif
+#endif
 	return ret;
 }
