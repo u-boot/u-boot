@@ -184,6 +184,11 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+#if defined(CONFIG_CMD_NET)
+	struct eth_device *dev;
+	int i;
+#endif
+
 	bd_t *bd = gd->bd;
 	print_num("mem start      ",	(ulong)bd->bi_memstart);
 	print_lnum("mem size       ",	(u64)bd->bi_memsize);
@@ -195,7 +200,17 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("sram size      ",	(ulong)bd->bi_sramsize);
 #endif
 #if defined(CONFIG_CMD_NET)
-	print_eth(0);
+	i = 0;
+	while(1) {
+		dev = eth_get_dev_by_index(i);
+		if (dev) {
+			printf("eth%dname    = %s\n", i, dev->name);
+			print_eth(i);
+		} else
+			break;
+		i++;
+	}
+	printf("current eth = %s\n", eth_get_name());
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
 	printf("baudrate    = %ld bps\n", (ulong)bd->bi_baudrate);
@@ -355,6 +370,9 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	bd_t *bd = gd->bd;
+#if defined(CONFIG_CMD_NET)
+	struct eth_device *dev;
+#endif
 
 	print_num("arch_number",	bd->bi_arch_number);
 	print_num("boot_params",	(ulong)bd->bi_boot_params);
@@ -366,7 +384,17 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 #if defined(CONFIG_CMD_NET)
-	print_eth(0);
+	i = 0;
+	while(1) {
+		dev = eth_get_dev_by_index(i);
+		if (dev) {
+			printf("eth%dname    = %s\n", i, dev->name);
+			print_eth(i);
+		} else
+			break;
+		i++;
+	}
+	printf("current eth = %s\n", eth_get_name());
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
 	printf("baudrate    = %d bps\n", bd->bi_baudrate);
