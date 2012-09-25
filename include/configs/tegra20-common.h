@@ -107,6 +107,8 @@
 
 /* include default commands */
 #include <config_cmd_default.h>
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
 
 /* remove unused commands */
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect */
