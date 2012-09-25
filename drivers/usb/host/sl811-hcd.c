@@ -210,14 +210,14 @@ static int sl811_hc_reset(void)
 	return 1;
 }
 
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller)
 {
 	root_hub_devnum = 0;
 	sl811_hc_reset();
 	return 0;
 }
 
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	sl811_hc_reset();
 	return 0;

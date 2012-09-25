@@ -908,7 +908,7 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	return 0;
 }
 
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller))
 {
 	struct r8a66597 *r8a66597 = &gr8a66597;
 
@@ -931,7 +931,7 @@ int usb_lowlevel_init(void)
 	return 0;
 }
 
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	disable_controller(&gr8a66597);
 

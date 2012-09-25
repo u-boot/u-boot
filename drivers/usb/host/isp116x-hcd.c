@@ -1391,7 +1391,7 @@ int isp116x_check_id(struct isp116x *isp116x)
 	return 0;
 }
 
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller))
 {
 	struct isp116x *isp116x = &isp116x_dev;
 
@@ -1428,7 +1428,7 @@ int usb_lowlevel_init(void)
 	return 0;
 }
 
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	struct isp116x *isp116x = &isp116x_dev;
 

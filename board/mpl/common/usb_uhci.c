@@ -602,7 +602,7 @@ void handle_usb_interrupt(void)
 
 /* init uhci
  */
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller)
 {
 	unsigned char temp;
 	int	busdevfunc;
@@ -632,7 +632,7 @@ int usb_lowlevel_init(void)
 
 /* stop uhci
  */
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	if(irqvec==-1)
 		return 1;

@@ -1565,7 +1565,7 @@ static void hc_release_ohci (ohci_t *ohci)
  */
 static char ohci_inited = 0;
 
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller)
 {
 	u32 pin_func;
 	u32 sys_freqctrl, sys_clksrc;
@@ -1707,7 +1707,7 @@ int usb_lowlevel_init(void)
 	return -1;
 }
 
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	/* this gets called really early - before the controller has */
 	/* even been initialized! */

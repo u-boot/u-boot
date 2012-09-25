@@ -829,12 +829,12 @@ unknown:
 	return -1;
 }
 
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	return ehci_hcd_stop();
 }
 
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller)
 {
 	uint32_t reg;
 	uint32_t cmd;

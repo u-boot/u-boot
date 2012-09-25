@@ -244,7 +244,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 	mdelay(200);
 
 	/* Allocate a new device struct for it */
-	usb = usb_alloc_new_device();
+	usb = usb_alloc_new_device(dev->controller);
 
 	if (portstatus & USB_PORT_STAT_HIGH_SPEED)
 		usb->speed = USB_SPEED_HIGH;

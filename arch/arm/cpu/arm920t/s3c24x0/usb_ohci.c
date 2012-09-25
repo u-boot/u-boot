@@ -1659,7 +1659,7 @@ static void hc_release_ohci(struct ohci *ohci)
  */
 static char ohci_inited = 0;
 
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller)
 {
 	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
@@ -1738,7 +1738,7 @@ int usb_lowlevel_init(void)
 	return 0;
 }
 
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
 

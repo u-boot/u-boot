@@ -36,7 +36,7 @@ extern void srmmu_init_cpu(unsigned int entry);
 extern void prepare_bootargs(char *bootargs);
 
 #ifdef CONFIG_USB_UHCI
-extern int usb_lowlevel_stop(void);
+extern int usb_lowlevel_stop(int index);
 #endif
 
 /* sparc kernel argument (the ROM vector) */
