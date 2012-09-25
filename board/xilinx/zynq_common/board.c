@@ -157,6 +157,11 @@ void reset_cpu(ulong addr)
 
 	/* unlock SLCR */
 	*(slcr_p + 2) = 0xDF0D;
+	/* Clear 0x0F000000 bits of reboot status register to workaround
+	 * the FSBL not loading the bitstream after soft reset
+	 * This is a temporary solution until we know more.
+	 */
+	XIo_Out32(XPSS_SYS_CTRL_BASEADDR + 0x258, (XIo_In32(XPSS_SYS_CTRL_BASEADDR + 0x258) & 0xF0FFFFFF));
 	/* Tickle soft reset bit */
 	*(slcr_p + 128) = 1;
 
