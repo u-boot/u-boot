@@ -45,7 +45,7 @@
 #define CONFIG_VERSION_VARIABLE
 
 /* set to negative value for no autoboot */
-#define CONFIG_BOOTDELAY		3
+#define CONFIG_BOOTDELAY		1
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"fdtaddr=0x80F80000\0" \
@@ -54,7 +54,7 @@
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
 	"ramrootfstype=ext2\0" \
