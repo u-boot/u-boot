@@ -411,7 +411,6 @@ LIST_au1xx0="		\
 	dbau1100	\
 	dbau1500	\
 	dbau1550	\
-	gth2		\
 "
 
 LIST_mips="		\

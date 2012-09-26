@@ -1050,7 +1050,6 @@ Wolfgang Denk <wd@denx.de>
 
 Thomas Lange <thomas@corelatus.se>
 	dbau1x00	MIPS32 Au1000
-	gth2		MIPS32 Au1000
 
 Vlad Lungu <vlad.lungu@windriver.com>
 	qemu_mips	MIPS32
