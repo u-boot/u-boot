@@ -45,7 +45,9 @@ SECTIONS
 	.data ALIGN(0x4):
 	{
 		__data_start = .;
+#ifdef CONFIG_OF_EMBED
 		dts/libdts.o (.data)
+#endif
 		*(.data)
 		__data_end = .;
 	}
