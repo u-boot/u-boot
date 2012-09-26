@@ -11,10 +11,12 @@
 
 #ifndef __MX6QSABREAUTO_CONFIG_H
 #define __MX6QSABREAUTO_CONFIG_H
-#include "mx6qsabre_common.h"
 
 #define CONFIG_MACH_TYPE	3529
 #define CONFIG_MXC_UART_BASE	UART4_BASE
+#define CONFIG_CONSOLE_DEV		"ttymxc3"
 #define PHYS_SDRAM_SIZE		(2u * 1024 * 1024 * 1024)
+
+#include "mx6qsabre_common.h"
 
 #endif                         /* __MX6QSABREAUTO_CONFIG_H */

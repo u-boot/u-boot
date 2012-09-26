@@ -16,10 +16,12 @@
 
 #ifndef __MX6QSABRESD_CONFIG_H
 #define __MX6QSABRESD_CONFIG_H
-#include "mx6qsabre_common.h"
 
 #define CONFIG_MACH_TYPE	3980
 #define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CONFIG_CONSOLE_DEV		"ttymxc0"
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
+
+#include "mx6qsabre_common.h"
 
 #endif                         /* __MX6QSABRESD_CONFIG_H */
