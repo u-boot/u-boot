@@ -195,6 +195,9 @@ COBJS-$(CONFIG_CMD_DFU) += cmd_dfu.o
 endif
 
 ifdef CONFIG_SPL_BUILD
+COBJS-y += cmd_nvedit.o
+COBJS-y += env_common.o
+COBJS-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += cmd_nvedit.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_common.o
