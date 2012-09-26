@@ -1016,7 +1016,7 @@ Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
- 	Board		CPU	Last known maintainer / Comment
+	Board		CPU	Last known maintainer / Comment
 .........................................................................
 
 	omap1510inn	ARM925T         Kshitij Gupta <kshitij@ti.com>
@@ -1048,9 +1048,6 @@ Wolfgang Denk <wd@denx.de>
 
 	incaip		MIPS32 4Kc
 
-Thomas Lange <thomas@corelatus.se>
-	dbau1x00	MIPS32 Au1000
-
 Vlad Lungu <vlad.lungu@windriver.com>
 	qemu_mips	MIPS32
 
@@ -1061,6 +1058,14 @@ Stefan Roese <sr@denx.de>
 Xiangfu Liu <xiangfu@openmobilefree.net>
 
 	qi_lb60		MIPS32 (XBurst Jz4740 SoC)
+
+-------------------------------------------------------------------------
+
+Unknown / orphaned boards:
+ 	Board		CPU		Last known maintainer / Comment
+.........................................................................
+
+	dbau1x00	MIPS32 Au1000	Thomas Lange <thomas@corelatus.se>
 
 #########################################################################
 # Nios-II Systems:							#
