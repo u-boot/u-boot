@@ -43,8 +43,6 @@ SECTIONS
     drivers/pcmcia/libpcmcia.o		(.text.pcmcia_hardware_enable)
     drivers/rtc/librtc.o		(.text*)
     drivers/misc/libmisc.o		(.text*)
-    *(.text.print_buffer)
-    *(.text.print_size)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.ppcenv*)
