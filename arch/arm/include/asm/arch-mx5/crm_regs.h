@@ -85,115 +85,200 @@ struct mxc_ccm_reg {
 /* Define the bits in register CACRR */
 #define MXC_CCM_CACRR_ARM_PODF_OFFSET		0
 #define MXC_CCM_CACRR_ARM_PODF_MASK		0x7
+#define MXC_CCM_CACRR_ARM_PODF(v)		((v) & 0x7)
+#define MXC_CCM_CACRR_ARM_PODF_RD(r)		((r) & 0x7)
 
 /* Define the bits in register CBCDR */
 #define MXC_CCM_CBCDR_DDR_HIFREQ_SEL		(0x1 << 30)
-#define MXC_CCM_CBCDR_DDR_PODF_MASK		(0x7 << 27)
 #define MXC_CCM_CBCDR_DDR_PODF_OFFSET		27
+#define MXC_CCM_CBCDR_DDR_PODF_MASK		(0x7 << 27)
+#define MXC_CCM_CBCDR_DDR_PODF(v)		(((v) & 0x7) << 27)
+#define MXC_CCM_CBCDR_DDR_PODF_RD(r)		(((r) >> 27) & 0x7)
 #define MXC_CCM_CBCDR_EMI_CLK_SEL		(0x1 << 26)
 #define MXC_CCM_CBCDR_PERIPH_CLK_SEL		(0x1 << 25)
 #define MXC_CCM_CBCDR_EMI_PODF_OFFSET		22
 #define MXC_CCM_CBCDR_EMI_PODF_MASK		(0x7 << 22)
+#define MXC_CCM_CBCDR_EMI_PODF(v)		(((v) & 0x7) << 22)
+#define MXC_CCM_CBCDR_EMI_PODF_RD(r)		(((r) >> 22) & 0x7)
 #define MXC_CCM_CBCDR_AXI_B_PODF_OFFSET		19
 #define MXC_CCM_CBCDR_AXI_B_PODF_MASK		(0x7 << 19)
+#define MXC_CCM_CBCDR_AXI_B_PODF(v)		(((v) & 0x7) << 19)
+#define MXC_CCM_CBCDR_AXI_B_PODF_RD(r)		(((r) >> 19) & 0x7)
 #define MXC_CCM_CBCDR_AXI_A_PODF_OFFSET		16
 #define MXC_CCM_CBCDR_AXI_A_PODF_MASK		(0x7 << 16)
+#define MXC_CCM_CBCDR_AXI_A_PODF(v)		(((v) & 0x7) << 16)
+#define MXC_CCM_CBCDR_AXI_A_PODF_RD(r)		(((r) >> 16) & 0x7)
 #define MXC_CCM_CBCDR_NFC_PODF_OFFSET		13
 #define MXC_CCM_CBCDR_NFC_PODF_MASK		(0x7 << 13)
+#define MXC_CCM_CBCDR_NFC_PODF(v)		(((v) & 0x7) << 13)
+#define MXC_CCM_CBCDR_NFC_PODF_RD(r)		(((r) >> 13) & 0x7)
 #define MXC_CCM_CBCDR_AHB_PODF_OFFSET		10
 #define MXC_CCM_CBCDR_AHB_PODF_MASK		(0x7 << 10)
+#define MXC_CCM_CBCDR_AHB_PODF(v)		(((v) & 0x7) << 10)
+#define MXC_CCM_CBCDR_AHB_PODF_RD(r)		(((r) >> 10) & 0x7)
 #define MXC_CCM_CBCDR_IPG_PODF_OFFSET		8
 #define MXC_CCM_CBCDR_IPG_PODF_MASK		(0x3 << 8)
+#define MXC_CCM_CBCDR_IPG_PODF(v)		(((v) & 0x3) << 8)
+#define MXC_CCM_CBCDR_IPG_PODF_RD(r)		(((r) >> 8) & 0x3)
 #define MXC_CCM_CBCDR_PERCLK_PRED1_OFFSET	6
 #define MXC_CCM_CBCDR_PERCLK_PRED1_MASK		(0x3 << 6)
+#define MXC_CCM_CBCDR_PERCLK_PRED1(v)		(((v) & 0x3) << 6)
+#define MXC_CCM_CBCDR_PERCLK_PRED1_RD(r)	(((r) >> 6) & 0x3)
 #define MXC_CCM_CBCDR_PERCLK_PRED2_OFFSET	3
 #define MXC_CCM_CBCDR_PERCLK_PRED2_MASK		(0x7 << 3)
+#define MXC_CCM_CBCDR_PERCLK_PRED2(v)		(((v) & 0x7) << 3)
+#define MXC_CCM_CBCDR_PERCLK_PRED2_RD(r)	(((r) >> 3) & 0x7)
 #define MXC_CCM_CBCDR_PERCLK_PODF_OFFSET	0
 #define MXC_CCM_CBCDR_PERCLK_PODF_MASK		0x7
+#define MXC_CCM_CBCDR_PERCLK_PODF(v)		((v) & 0x7)
+#define MXC_CCM_CBCDR_PERCLK_PODF_RD(r)		((r) & 0x7)
 
 /* Define the bits in register CSCMR1 */
 #define MXC_CCM_CSCMR1_SSI_EXT2_CLK_SEL_OFFSET		30
 #define MXC_CCM_CSCMR1_SSI_EXT2_CLK_SEL_MASK		(0x3 << 30)
+#define MXC_CCM_CSCMR1_SSI_EXT2_CLK_SEL(v)		(((v) & 0x3) << 30)
+#define MXC_CCM_CSCMR1_SSI_EXT2_CLK_SEL_RD(r)		(((r) >> 30) & 0x3)
 #define MXC_CCM_CSCMR1_SSI_EXT1_CLK_SEL_OFFSET		28
 #define MXC_CCM_CSCMR1_SSI_EXT1_CLK_SEL_MASK		(0x3 << 28)
-#define MXC_CCM_CSCMR1_USB_PHY_CLK_SEL_OFFSET		26
+#define MXC_CCM_CSCMR1_SSI_EXT1_CLK_SEL(v)		(((v) & 0x3) << 28)
+#define MXC_CCM_CSCMR1_SSI_EXT1_CLK_SEL_RD(r)		(((r) >> 28) & 0x3)
 #define MXC_CCM_CSCMR1_USB_PHY_CLK_SEL			(0x1 << 26)
 #define MXC_CCM_CSCMR1_UART_CLK_SEL_OFFSET		24
 #define MXC_CCM_CSCMR1_UART_CLK_SEL_MASK		(0x3 << 24)
+#define MXC_CCM_CSCMR1_UART_CLK_SEL(v)			(((v) & 0x3) << 24)
+#define MXC_CCM_CSCMR1_UART_CLK_SEL_RD(r)		(((r) >> 24) & 0x3)
 #define MXC_CCM_CSCMR1_USBOH3_CLK_SEL_OFFSET		22
 #define MXC_CCM_CSCMR1_USBOH3_CLK_SEL_MASK		(0x3 << 22)
+#define MXC_CCM_CSCMR1_USBOH3_CLK_SEL(v)		(((v) & 0x3) << 22)
+#define MXC_CCM_CSCMR1_USBOH3_CLK_SEL_RD(r)		(((r) >> 22) & 0x3)
 #define MXC_CCM_CSCMR1_ESDHC1_MSHC1_CLK_SEL_OFFSET	20
 #define MXC_CCM_CSCMR1_ESDHC1_MSHC1_CLK_SEL_MASK	(0x3 << 20)
+#define MXC_CCM_CSCMR1_ESDHC1_MSHC1_CLK_SEL(v)		(((v) & 0x3) << 20)
+#define MXC_CCM_CSCMR1_ESDHC1_MSHC1_CLK_SEL_RD(r)	(((r) >> 20) & 0x3)
 #define MXC_CCM_CSCMR1_ESDHC3_CLK_SEL			(0x1 << 19)
 #define MXC_CCM_CSCMR1_ESDHC4_CLK_SEL			(0x1 << 18)
 #define MXC_CCM_CSCMR1_ESDHC2_MSHC2_CLK_SEL_OFFSET	16
 #define MXC_CCM_CSCMR1_ESDHC2_MSHC2_CLK_SEL_MASK	(0x3 << 16)
+#define MXC_CCM_CSCMR1_ESDHC2_MSHC2_CLK_SEL(v)		(((v) & 0x3) << 16)
+#define MXC_CCM_CSCMR1_ESDHC2_MSHC2_CLK_SEL_RD(r)	(((r) >> 16) & 0x3)
 #define MXC_CCM_CSCMR1_SSI1_CLK_SEL_OFFSET		14
 #define MXC_CCM_CSCMR1_SSI1_CLK_SEL_MASK		(0x3 << 14)
+#define MXC_CCM_CSCMR1_SSI1_CLK_SEL(v)			(((v) & 0x3) << 14)
+#define MXC_CCM_CSCMR1_SSI1_CLK_SEL_RD(r)		(((r) >> 14) & 0x3)
 #define MXC_CCM_CSCMR1_SSI2_CLK_SEL_OFFSET		12
 #define MXC_CCM_CSCMR1_SSI2_CLK_SEL_MASK		(0x3 << 12)
+#define MXC_CCM_CSCMR1_SSI2_CLK_SEL(v)			(((v) & 0x3) << 12)
+#define MXC_CCM_CSCMR1_SSI2_CLK_SEL_RD(r)		(((r) >> 12) & 0x3)
 #define MXC_CCM_CSCMR1_SSI3_CLK_SEL			(0x1 << 11)
 #define MXC_CCM_CSCMR1_VPU_RCLK_SEL			(0x1 << 10)
 #define MXC_CCM_CSCMR1_SSI_APM_CLK_SEL_OFFSET		8
 #define MXC_CCM_CSCMR1_SSI_APM_CLK_SEL_MASK		(0x3 << 8)
+#define MXC_CCM_CSCMR1_SSI_APM_CLK_SEL(v)		(((v) & 0x3) << 8)
+#define MXC_CCM_CSCMR1_SSI_APM_CLK_SEL_RD(r)		(((r) >> 8) & 0x3)
 #define MXC_CCM_CSCMR1_TVE_CLK_SEL			(0x1 << 7)
 #define MXC_CCM_CSCMR1_TVE_EXT_CLK_SEL			(0x1 << 6)
 #define MXC_CCM_CSCMR1_CSPI_CLK_SEL_OFFSET		4
 #define MXC_CCM_CSCMR1_CSPI_CLK_SEL_MASK		(0x3 << 4)
+#define MXC_CCM_CSCMR1_CSPI_CLK_SEL(v)			(((v) & 0x3) << 4)
+#define MXC_CCM_CSCMR1_CSPI_CLK_SEL_RD(r)		(((r) >> 4) & 0x3)
 #define MXC_CCM_CSCMR1_SPDIF_CLK_SEL_OFFSET		2
 #define MXC_CCM_CSCMR1_SPDIF_CLK_SEL_MASK		(0x3 << 2)
+#define MXC_CCM_CSCMR1_SPDIF_CLK_SEL(v)			(((v) & 0x3) << 2)
+#define MXC_CCM_CSCMR1_SPDIF_CLK_SEL_RD(r)		(((r) >> 2) & 0x3)
 #define MXC_CCM_CSCMR1_SSI_EXT2_COM_CLK_SEL		(0x1 << 1)
 #define MXC_CCM_CSCMR1_SSI_EXT1_COM_CLK_SEL		0x1
 
 /* Define the bits in register CSCDR2 */
 #define MXC_CCM_CSCDR2_CSPI_CLK_PRED_OFFSET		25
 #define MXC_CCM_CSCDR2_CSPI_CLK_PRED_MASK		(0x7 << 25)
+#define MXC_CCM_CSCDR2_CSPI_CLK_PRED(v)			(((v) & 0x7) << 25)
+#define MXC_CCM_CSCDR2_CSPI_CLK_PRED_RD(r)		(((r) >> 25) & 0x7)
 #define MXC_CCM_CSCDR2_CSPI_CLK_PODF_OFFSET		19
 #define MXC_CCM_CSCDR2_CSPI_CLK_PODF_MASK		(0x3F << 19)
+#define MXC_CCM_CSCDR2_CSPI_CLK_PODF(v)			(((v) & 0x3F) << 19)
+#define MXC_CCM_CSCDR2_CSPI_CLK_PODF_RD(r)		(((r) >> 19) & 0x3F)
 #define MXC_CCM_CSCDR2_SIM_CLK_PRED_OFFSET		16
 #define MXC_CCM_CSCDR2_SIM_CLK_PRED_MASK		(0x7 << 16)
+#define MXC_CCM_CSCDR2_SIM_CLK_PRED(v)			(((v) & 0x7) << 16)
+#define MXC_CCM_CSCDR2_SIM_CLK_PRED_RD(r)		(((r) >> 16) & 0x7)
 #define MXC_CCM_CSCDR2_SIM_CLK_PODF_OFFSET		9
 #define MXC_CCM_CSCDR2_SIM_CLK_PODF_MASK		(0x3F << 9)
+#define MXC_CCM_CSCDR2_SIM_CLK_PODF(v)			(((v) & 0x3F) << 9)
+#define MXC_CCM_CSCDR2_SIM_CLK_PODF_RD(r)		(((r) >> 9) & 0x3F)
 #define MXC_CCM_CSCDR2_SLIMBUS_CLK_PRED_OFFSET		6
-#define MXC_CCM_CSCDR2_SLIMBUS_PRED_MASK		(0x7 << 6)
-#define MXC_CCM_CSCDR2_SLIMBUS_PODF_OFFSET		0
-#define MXC_CCM_CSCDR2_SLIMBUS_PODF_MASK		0x3F
+#define MXC_CCM_CSCDR2_SLIMBUS_CLK_PRED_MASK		(0x7 << 6)
+#define MXC_CCM_CSCDR2_SLIMBUS_CLK_PRED(v)		(((v) & 0x7) << 6)
+#define MXC_CCM_CSCDR2_SLIMBUS_CLK_PRED_RD(r)		(((r) >> 6) & 0x7)
+#define MXC_CCM_CSCDR2_SLIMBUS_CLK_PODF_OFFSET		0
+#define MXC_CCM_CSCDR2_SLIMBUS_CLK_PODF_MASK		0x3F
+#define MXC_CCM_CSCDR2_SLIMBUS_CLK_PODF(v)		((v) & 0x3F)
+#define MXC_CCM_CSCDR2_SLIMBUS_CLK_PODF_RD(r)		((r) & 0x3F)
 
 /* Define the bits in register CBCMR */
 #define MXC_CCM_CBCMR_VPU_AXI_CLK_SEL_OFFSET		14
 #define MXC_CCM_CBCMR_VPU_AXI_CLK_SEL_MASK		(0x3 << 14)
+#define MXC_CCM_CBCMR_VPU_AXI_CLK_SEL(v)		(((v) & 0x3) << 14)
+#define MXC_CCM_CBCMR_VPU_AXI_CLK_SEL_RD(r)		(((r) >> 14) & 0x3)
 #define MXC_CCM_CBCMR_PERIPH_CLK_SEL_OFFSET		12
 #define MXC_CCM_CBCMR_PERIPH_CLK_SEL_MASK		(0x3 << 12)
+#define MXC_CCM_CBCMR_PERIPH_CLK_SEL(v)			(((v) & 0x3) << 12)
+#define MXC_CCM_CBCMR_PERIPH_CLK_SEL_RD(r)		(((r) >> 12) & 0x3)
 #define MXC_CCM_CBCMR_DDR_CLK_SEL_OFFSET		10
 #define MXC_CCM_CBCMR_DDR_CLK_SEL_MASK			(0x3 << 10)
+#define MXC_CCM_CBCMR_DDR_CLK_SEL(v)			(((v) & 0x3) << 10)
+#define MXC_CCM_CBCMR_DDR_CLK_SEL_RD(r)			(((r) >> 10) & 0x3)
 #define MXC_CCM_CBCMR_ARM_AXI_CLK_SEL_OFFSET		8
 #define MXC_CCM_CBCMR_ARM_AXI_CLK_SEL_MASK		(0x3 << 8)
+#define MXC_CCM_CBCMR_ARM_AXI_CLK_SEL(v)		(((v) & 0x3) << 8)
+#define MXC_CCM_CBCMR_ARM_AXI_CLK_SEL_RD(r)		(((r) >> 8) & 0x3)
 #define MXC_CCM_CBCMR_IPU_HSP_CLK_SEL_OFFSET		6
 #define MXC_CCM_CBCMR_IPU_HSP_CLK_SEL_MASK		(0x3 << 6)
+#define MXC_CCM_CBCMR_IPU_HSP_CLK_SEL(v)		(((v) & 0x3) << 6)
+#define MXC_CCM_CBCMR_IPU_HSP_CLK_SEL_RD(r)		(((r) >> 6) & 0x3)
 #define MXC_CCM_CBCMR_GPU_CLK_SEL_OFFSET		4
 #define MXC_CCM_CBCMR_GPU_CLK_SEL_MASK			(0x3 << 4)
+#define MXC_CCM_CBCMR_GPU_CLK_SEL(v)			(((v) & 0x3) << 4)
+#define MXC_CCM_CBCMR_GPU_CLK_SEL_RD(r)			(((r) >> 4) & 0x3)
 #define MXC_CCM_CBCMR_PERCLK_LP_APM_CLK_SEL		(0x1 << 1)
 #define MXC_CCM_CBCMR_PERCLK_IPG_CLK_SEL		(0x1 << 0)
 
 /* Define the bits in register CSCDR1 */
 #define MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PRED_OFFSET	22
 #define MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PRED_MASK	(0x7 << 22)
+#define MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PRED(v)		(((v) & 0x7) << 22)
+#define MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PRED_RD(r)	(((r) >> 22) & 0x7)
 #define MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PODF_OFFSET	19
 #define MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PODF_MASK	(0x7 << 19)
+#define MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PODF(v)		(((v) & 0x7) << 19)
+#define MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PODF_RD(r)	(((r) >> 19) & 0x7)
 #define MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PRED_OFFSET	16
 #define MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PRED_MASK	(0x7 << 16)
+#define MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PRED(v)		(((v) & 0x7) << 16)
+#define MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PRED_RD(r)	(((r) >> 16) & 0x7)
 #define MXC_CCM_CSCDR1_PGC_CLK_PODF_OFFSET		14
 #define MXC_CCM_CSCDR1_PGC_CLK_PODF_MASK		(0x3 << 14)
+#define MXC_CCM_CSCDR1_PGC_CLK_PODF(v)			(((v) & 0x3) << 14)
+#define MXC_CCM_CSCDR1_PGC_CLK_PODF_RD(r)		(((r) >> 14) & 0x3)
 #define MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PODF_OFFSET	11
 #define MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PODF_MASK	(0x7 << 11)
+#define MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PODF(v)		(((v) & 0x7) << 11)
+#define MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PODF_RD(r)	(((r) >> 11) & 0x7)
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PRED_OFFSET		8
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PRED_MASK		(0x7 << 8)
+#define MXC_CCM_CSCDR1_USBOH3_CLK_PRED(v)		(((v) & 0x7) << 8)
+#define MXC_CCM_CSCDR1_USBOH3_CLK_PRED_RD(r)		(((r) >> 8) & 0x7)
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PODF_OFFSET		6
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PODF_MASK		(0x3 << 6)
+#define MXC_CCM_CSCDR1_USBOH3_CLK_PODF(v)		(((v) & 0x3) << 6)
+#define MXC_CCM_CSCDR1_USBOH3_CLK_PODF_RD(r)		(((r) >> 6) & 0x3)
 #define MXC_CCM_CSCDR1_UART_CLK_PRED_OFFSET		3
 #define MXC_CCM_CSCDR1_UART_CLK_PRED_MASK		(0x7 << 3)
+#define MXC_CCM_CSCDR1_UART_CLK_PRED(v)			(((v) & 0x7) << 3)
+#define MXC_CCM_CSCDR1_UART_CLK_PRED_RD(r)		(((r) >> 3) & 0x7)
 #define MXC_CCM_CSCDR1_UART_CLK_PODF_OFFSET		0
 #define MXC_CCM_CSCDR1_UART_CLK_PODF_MASK		0x7
+#define MXC_CCM_CSCDR1_UART_CLK_PODF(v)			((v) & 0x7)
+#define MXC_CCM_CSCDR1_UART_CLK_PODF_RD(r)		((r) & 0x7)
 
 /* Define the bits in register CCDR */
 #define MXC_CCM_CCDR_IPU_HS_MASK			(0x1 << 17)
@@ -213,8 +298,10 @@ struct mxc_ccm_reg {
 #define	MXC_DPLLC_CTL_DPDCK0_2_EN			(1 << 12)
 
 #define	MXC_DPLLC_OP_PDF_MASK				0xf
-#define	MXC_DPLLC_OP_MFI_MASK				(0xf << 4)
 #define	MXC_DPLLC_OP_MFI_OFFSET				4
+#define	MXC_DPLLC_OP_MFI_MASK				(0xf << 4)
+#define	MXC_DPLLC_OP_MFI(v)				(((v) & 0xf) << 4)
+#define	MXC_DPLLC_OP_MFI_RD(r)				(((r) >> 4) & 0xf)
 
 #define	MXC_DPLLC_MFD_MFD_MASK				0x7ffffff
 
