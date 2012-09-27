@@ -874,7 +874,7 @@ int usb_lowlevel_init(int index, void **controller)
 
 	reg = ehci_readl(&ehcic[index].hccr->cr_hcsparams);
 	descriptor.hub.bNbrPorts = HCS_N_PORTS(reg);
-	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
+	debug("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
 	/* Port Indicators */
 	if (HCS_INDICATOR(reg))
 		put_unaligned(get_unaligned(&descriptor.hub.wHubCharacteristics)
