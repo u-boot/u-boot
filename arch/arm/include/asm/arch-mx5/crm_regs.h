@@ -82,6 +82,21 @@ struct mxc_ccm_reg {
 	u32 cmeor;
 };
 
+/* Define the bits in register CCR */
+#define MXC_CCM_CCR_COSC_EN			(0x1 << 12)
+#if defined(CONFIG_MX51)
+#define MXC_CCM_CCR_FPM_MULT			(0x1 << 11)
+#endif
+#define MXC_CCM_CCR_CAMP2_EN			(0x1 << 10)
+#define MXC_CCM_CCR_CAMP1_EN			(0x1 << 9)
+#if defined(CONFIG_MX51)
+#define MXC_CCM_CCR_FPM_EN			(0x1 << 8)
+#endif
+#define MXC_CCM_CCR_OSCNT_OFFSET		0
+#define MXC_CCM_CCR_OSCNT_MASK			0xFF
+#define MXC_CCM_CCR_OSCNT(v)			((v) & 0xFF)
+#define MXC_CCM_CCR_OSCNT_RD(r)			((r) & 0xFF)
+
 /* Define the bits in register CCSR */
 #if defined(CONFIG_MX51)
 #define MXC_CCM_CCSR_LP_APM			(0x1 << 9)

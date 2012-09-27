@@ -221,6 +221,24 @@ static uint32_t decode_pll(struct mxc_pll_reg *pll, uint32_t infreq)
 	return ret;
 }
 
+#ifdef CONFIG_MX51
+/*
+ * This function returns the Frequency Pre-Multiplier clock.
+ */
+static u32 get_fpm(void)
+{
+	u32 mult;
+	u32 ccr = readl(&mxc_ccm->ccr);
+
+	if (ccr & MXC_CCM_CCR_FPM_MULT)
+		mult = 1024;
+	else
+		mult = 512;
+
+	return MXC_CLK32 * mult;
+}
+#endif
+
 /*
  * Get mcu main rate
  */
@@ -326,7 +344,11 @@ static u32 get_lp_apm(void)
 	u32 ccsr = readl(&mxc_ccm->ccsr);
 
 	if (ccsr & MXC_CCM_CCSR_LP_APM)
-		ret_val = MXC_CLK32 * 1024;
+#if defined(CONFIG_MX51)
+		ret_val = get_fpm();
+#elif defined(CONFIG_MX53)
+		ret_val = decode_pll(mxc_plls[PLL4_CLOCK], MXC_HCLK);
+#endif
 	else
 		ret_val = MXC_HCLK;
 
