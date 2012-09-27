@@ -331,27 +331,39 @@ static u32 get_ipg_per_clk(void)
 	return freq / ((pred1 + 1) * (pred2 + 1) * (podf + 1));
 }
 
+/* Get the output clock rate of a standard PLL MUX for peripherals. */
+static u32 get_standard_pll_sel_clk(u32 clk_sel)
+{
+	u32 freq;
+
+	switch (clk_sel & 0x3) {
+	case 0:
+		freq = decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
+		break;
+	case 1:
+		freq = decode_pll(mxc_plls[PLL2_CLOCK], MXC_HCLK);
+		break;
+	case 2:
+		freq = decode_pll(mxc_plls[PLL3_CLOCK], MXC_HCLK);
+		break;
+	case 3:
+		freq = get_lp_apm();
+		break;
+	}
+
+	return freq;
+}
+
 /*
  * Get the rate of uart clk.
  */
 static u32 get_uart_clk(void)
 {
-	unsigned int freq, reg, pred, podf;
+	unsigned int clk_sel, freq, reg, pred, podf;
 
 	reg = readl(&mxc_ccm->cscmr1);
-	switch (MXC_CCM_CSCMR1_UART_CLK_SEL_RD(reg)) {
-	case 0x0:
-		freq = decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
-		break;
-	case 0x1:
-		freq = decode_pll(mxc_plls[PLL2_CLOCK], MXC_HCLK);
-		break;
-	case 0x2:
-		freq = decode_pll(mxc_plls[PLL3_CLOCK], MXC_HCLK);
-		break;
-	default:
-		return 66500000;
-	}
+	clk_sel = MXC_CCM_CSCMR1_UART_CLK_SEL_RD(reg);
+	freq = get_standard_pll_sel_clk(clk_sel);
 
 	reg = readl(&mxc_ccm->cscdr1);
 	pred = MXC_CCM_CSCDR1_UART_CLK_PRED_RD(reg);
