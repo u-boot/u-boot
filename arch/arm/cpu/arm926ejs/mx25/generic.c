@@ -29,11 +29,10 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/imx25-pinmux.h>
 #include <asm/arch/clock.h>
-#ifdef CONFIG_MXC_MMC
-#include <asm/arch/mxcmmc.h>
-#endif
 
 #ifdef CONFIG_FSL_ESDHC
+#include <fsl_esdhc.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
@@ -229,23 +228,25 @@ int cpu_eth_init(bd_t *bis)
 int get_clocks(void)
 {
 #ifdef CONFIG_FSL_ESDHC
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+#if CONFIG_SYS_FSL_ESDHC_ADDR == IMX_MMC_SDHC2_BASE
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+#else
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
+#endif
 #endif
 	return 0;
 }
 
+#ifdef CONFIG_FSL_ESDHC
 /*
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
 int cpu_mmc_init(bd_t *bis)
 {
-#ifdef CONFIG_MXC_MMC
-	return mxc_mmc_init(bis);
-#else
-	return 0;
-#endif
+	return fsl_esdhc_mmc_init(bis);
 }
+#endif
 
 #ifdef CONFIG_MXC_UART
 void mx25_uart1_init_pins(void)
