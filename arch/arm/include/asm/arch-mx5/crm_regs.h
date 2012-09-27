@@ -82,6 +82,29 @@ struct mxc_ccm_reg {
 	u32 cmeor;
 };
 
+/* Define the bits in register CCSR */
+#if defined(CONFIG_MX51)
+#define MXC_CCM_CCSR_LP_APM			(0x1 << 9)
+#elif defined(CONFIG_MX53)
+#define MXC_CCM_CCSR_LP_APM			(0x1 << 10)
+#define MXC_CCM_CCSR_PLL4_SW_CLK_SEL		(0x1 << 9)
+#endif
+#define MXC_CCM_CCSR_STEP_SEL_OFFSET		7
+#define MXC_CCM_CCSR_STEP_SEL_MASK		(0x3 << 7)
+#define MXC_CCM_CCSR_STEP_SEL(v)		(((v) & 0x3) << 7)
+#define MXC_CCM_CCSR_STEP_SEL_RD(r)		(((r) >> 7) & 0x3)
+#define MXC_CCM_CCSR_PLL2_DIV_PODF_OFFSET	5
+#define MXC_CCM_CCSR_PLL2_DIV_PODF_MASK		(0x3 << 5)
+#define MXC_CCM_CCSR_PLL2_DIV_PODF(v)		(((v) & 0x3) << 5)
+#define MXC_CCM_CCSR_PLL2_DIV_PODF_RD(r)	(((r) >> 5) & 0x3)
+#define MXC_CCM_CCSR_PLL3_DIV_PODF_OFFSET	3
+#define MXC_CCM_CCSR_PLL3_DIV_PODF_MASK		(0x3 << 3)
+#define MXC_CCM_CCSR_PLL3_DIV_PODF(v)		(((v) & 0x3) << 3)
+#define MXC_CCM_CCSR_PLL3_DIV_PODF_RD(r)	(((r) >> 3) & 0x3)
+#define MXC_CCM_CCSR_PLL1_SW_CLK_SEL		(0x1 << 2)
+#define MXC_CCM_CCSR_PLL2_SW_CLK_SEL		(0x1 << 1)
+#define MXC_CCM_CCSR_PLL3_SW_CLK_SEL		0x1
+
 /* Define the bits in register CACRR */
 #define MXC_CCM_CACRR_ARM_PODF_OFFSET		0
 #define MXC_CCM_CACRR_ARM_PODF_MASK		0x7

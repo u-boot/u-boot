@@ -36,7 +36,9 @@ enum pll_clocks {
 	PLL1_CLOCK = 0,
 	PLL2_CLOCK,
 	PLL3_CLOCK,
+#ifdef CONFIG_MX53
 	PLL4_CLOCK,
+#endif
 	PLL_CLOCKS,
 };
 
@@ -323,10 +325,10 @@ static u32 get_lp_apm(void)
 	u32 ret_val = 0;
 	u32 ccsr = readl(&mxc_ccm->ccsr);
 
-	if (((ccsr >> 9) & 1) == 0)
-		ret_val = MXC_HCLK;
-	else
+	if (ccsr & MXC_CCM_CCSR_LP_APM)
 		ret_val = MXC_CLK32 * 1024;
+	else
+		ret_val = MXC_HCLK;
 
 	return ret_val;
 }
@@ -593,40 +595,50 @@ static int config_pll_clk(enum pll_clocks index, struct pll_param *pll_param)
 	switch (index) {
 	case PLL1_CLOCK:
 		/* Switch ARM to PLL2 clock */
-		writel(ccsr | 0x4, &mxc_ccm->ccsr);
+		writel(ccsr | MXC_CCM_CCSR_PLL1_SW_CLK_SEL,
+				&mxc_ccm->ccsr);
 		CHANGE_PLL_SETTINGS(pll, pll_param->pd,
 					pll_param->mfi, pll_param->mfn,
 					pll_param->mfd);
 		/* Switch back */
-		writel(ccsr & ~0x4, &mxc_ccm->ccsr);
+		writel(ccsr & ~MXC_CCM_CCSR_PLL1_SW_CLK_SEL,
+				&mxc_ccm->ccsr);
 		break;
 	case PLL2_CLOCK:
 		/* Switch to pll2 bypass clock */
-		writel(ccsr | 0x2, &mxc_ccm->ccsr);
+		writel(ccsr | MXC_CCM_CCSR_PLL2_SW_CLK_SEL,
+				&mxc_ccm->ccsr);
 		CHANGE_PLL_SETTINGS(pll, pll_param->pd,
 					pll_param->mfi, pll_param->mfn,
 					pll_param->mfd);
 		/* Switch back */
-		writel(ccsr & ~0x2, &mxc_ccm->ccsr);
+		writel(ccsr & ~MXC_CCM_CCSR_PLL2_SW_CLK_SEL,
+				&mxc_ccm->ccsr);
 		break;
 	case PLL3_CLOCK:
 		/* Switch to pll3 bypass clock */
-		writel(ccsr | 0x1, &mxc_ccm->ccsr);
+		writel(ccsr | MXC_CCM_CCSR_PLL3_SW_CLK_SEL,
+				&mxc_ccm->ccsr);
 		CHANGE_PLL_SETTINGS(pll, pll_param->pd,
 					pll_param->mfi, pll_param->mfn,
 					pll_param->mfd);
 		/* Switch back */
-		writel(ccsr & ~0x1, &mxc_ccm->ccsr);
+		writel(ccsr & ~MXC_CCM_CCSR_PLL3_SW_CLK_SEL,
+				&mxc_ccm->ccsr);
 		break;
+#ifdef CONFIG_MX53
 	case PLL4_CLOCK:
 		/* Switch to pll4 bypass clock */
-		writel(ccsr | 0x20, &mxc_ccm->ccsr);
+		writel(ccsr | MXC_CCM_CCSR_PLL4_SW_CLK_SEL,
+				&mxc_ccm->ccsr);
 		CHANGE_PLL_SETTINGS(pll, pll_param->pd,
 					pll_param->mfi, pll_param->mfn,
 					pll_param->mfd);
 		/* Switch back */
-		writel(ccsr & ~0x20, &mxc_ccm->ccsr);
+		writel(ccsr & ~MXC_CCM_CCSR_PLL4_SW_CLK_SEL,
+				&mxc_ccm->ccsr);
 		break;
+#endif
 	default:
 		return -EINVAL;
 	}
