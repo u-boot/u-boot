@@ -111,12 +111,16 @@ void enable_usboh3_clk(unsigned char enable)
 }
 
 #ifdef CONFIG_I2C_MXC
-/* i2c_num can be from 0 - 2 */
+/* i2c_num can be from 0, to 1 for i.MX51 and 2 for i.MX53 */
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 {
 	u32 mask;
 
+#if defined(CONFIG_MX51)
+	if (i2c_num > 1)
+#elif defined(CONFIG_MX53)
 	if (i2c_num > 2)
+#endif
 		return -EINVAL;
 	mask = MXC_CCM_CCGR_CG_MASK <<
 			(MXC_CCM_CCGR1_I2C1_OFFSET + (i2c_num << 1));
