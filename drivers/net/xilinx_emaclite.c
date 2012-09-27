@@ -276,6 +276,10 @@ static int setup_phy(struct eth_device *dev)
 static int emaclite_init(struct eth_device *dev, bd_t *bis)
 {
 	struct xemaclite *emaclite = dev->priv;
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
+	u32 temp;
+#endif
+
 	debug("EmacLite: Initialization Started\n");
 
 /*
@@ -319,8 +323,11 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	/* Enable MII PHY */
-	out_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET), 0x8);
-	setup_phy(dev);
+	/* Enable MII PHY */
+	out_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET), XEL_MDIOCTRL_MDIOEN_MASK);
+	temp = in_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET));
+	if (temp & XEL_MDIOCTRL_MDIOEN_MASK)
+		setup_phy(dev);
 #endif
 
 	debug("EmacLite Initialization complete\n");
