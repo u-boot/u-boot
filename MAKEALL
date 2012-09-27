@@ -19,6 +19,7 @@ usage()
 	  -l,        --list            List all targets to be built
 	  -m,        --maintainers     List all targets and maintainer email
 	  -M,        --mails           List all targets and all affilated emails
+	  -C,        --check           Enable build checking
 	  -h,        --help            This help output
 
 	Selections by these options are logically ANDed; if the same option
@@ -51,8 +52,8 @@ usage()
 	exit ${ret}
 }
 
-SHORT_OPTS="ha:c:v:s:lmM"
-LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list,maintainers,mails"
+SHORT_OPTS="ha:c:v:s:lmMC"
+LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list,maintainers,mails,check"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
@@ -111,6 +112,9 @@ while true ; do
 		fi
 		SELECTED='y'
 		shift 2 ;;
+	-C|--check)
+		CHECK='C=1'
+		shift ;;
 	-l|--list)
 		ONLY_LIST='y'
 		shift ;;
@@ -627,7 +631,7 @@ build_target() {
 	${MAKE} distclean >/dev/null
 	${MAKE} -s ${target}_config
 
-	${MAKE} ${JOBS} all \
+	${MAKE} ${JOBS} ${CHECK} all \
 		>${LOG_DIR}/$target.MAKELOG 2> ${LOG_DIR}/$target.ERR
 
 	# Check for 'make' errors
