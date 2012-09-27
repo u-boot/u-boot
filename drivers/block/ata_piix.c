@@ -204,9 +204,6 @@ init_sata (int dev)
 				dev_print (&sata_dev_desc[devno]);
 				/* initialize partition type */
 				init_part (&sata_dev_desc[devno]);
-				if (sata_curr_device < 0)
-					sata_curr_device =
-					    i * CONFIG_SYS_SATA_DEVS_PER_BUS + j;
 			}
 		}
 	}
