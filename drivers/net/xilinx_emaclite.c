@@ -514,12 +514,6 @@ static int emaclite_miiphy_write(const char *devname, uchar addr,
 	debug("emaclite: Write MII 0x%x, 0x%x, 0x%x\n", addr, reg, val);
 	return phywrite(dev, addr, reg, val);
 }
-
-static int emaclite_bus_reset(struct mii_dev *bus)
-{
-	debug("emaclite: Bus reset\n");
-	return 0;
-}
 #endif
 
 int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
@@ -562,7 +556,6 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	miiphy_register(dev->name, emaclite_miiphy_read, emaclite_miiphy_write);
 	emaclite->bus = miiphy_get_dev_by_name(dev->name);
-	emaclite->bus->reset = emaclite_bus_reset;
 #endif
 
 	return 1;
