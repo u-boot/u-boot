@@ -129,9 +129,8 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		return imx_get_ahbclk();
 	case MXC_IPG_CLK:
 	case MXC_CSPI_CLK:
-		return imx_get_ipgclk();
 	case MXC_FEC_CLK:
-		return imx_get_ahbclk();
+		return imx_get_ipgclk();
 	default:
 		return imx_get_perclk(clk);
 	}
