@@ -394,6 +394,44 @@ static u32 imx_get_cspiclk(void)
 	return ret_val;
 }
 
+/*
+ * get esdhc clock rate.
+ */
+static u32 get_esdhc_clk(u32 port)
+{
+	u32 clk_sel = 0, pred = 0, podf = 0, freq = 0;
+	u32 cscmr1 = readl(&mxc_ccm->cscmr1);
+	u32 cscdr1 = readl(&mxc_ccm->cscdr1);
+
+	switch (port) {
+	case 0:
+		clk_sel = MXC_CCM_CSCMR1_ESDHC1_MSHC1_CLK_SEL_RD(cscmr1);
+		pred = MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PRED_RD(cscdr1);
+		podf = MXC_CCM_CSCDR1_ESDHC1_MSHC1_CLK_PODF_RD(cscdr1);
+		break;
+	case 1:
+		clk_sel = MXC_CCM_CSCMR1_ESDHC2_MSHC2_CLK_SEL_RD(cscmr1);
+		pred = MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PRED_RD(cscdr1);
+		podf = MXC_CCM_CSCDR1_ESDHC2_MSHC2_CLK_PODF_RD(cscdr1);
+		break;
+	case 2:
+		if (cscmr1 & MXC_CCM_CSCMR1_ESDHC3_CLK_SEL)
+			return get_esdhc_clk(1);
+		else
+			return get_esdhc_clk(0);
+	case 3:
+		if (cscmr1 & MXC_CCM_CSCMR1_ESDHC4_CLK_SEL)
+			return get_esdhc_clk(1);
+		else
+			return get_esdhc_clk(0);
+	default:
+		break;
+	}
+
+	freq = get_standard_pll_sel_clk(clk_sel) / ((pred + 1) * (podf + 1));
+	return freq;
+}
+
 static u32 get_axi_a_clk(void)
 {
 	u32 cbcdr = readl(&mxc_ccm->cbcdr);
@@ -477,6 +515,14 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		return get_uart_clk();
 	case MXC_CSPI_CLK:
 		return imx_get_cspiclk();
+	case MXC_ESDHC_CLK:
+		return get_esdhc_clk(0);
+	case MXC_ESDHC2_CLK:
+		return get_esdhc_clk(1);
+	case MXC_ESDHC3_CLK:
+		return get_esdhc_clk(2);
+	case MXC_ESDHC4_CLK:
+		return get_esdhc_clk(3);
 	case MXC_FEC_CLK:
 		return get_ipg_clk();
 	case MXC_SATA_CLK:
