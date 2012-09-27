@@ -39,6 +39,7 @@ typedef volatile unsigned char	vu_char;
 #include <linux/bitops.h>
 #include <linux/types.h>
 #include <linux/string.h>
+#include <linux/stringify.h>
 #include <asm/ptrace.h>
 #include <stdarg.h>
 #if defined(CONFIG_PCI) && (defined(CONFIG_4xx) && !defined(CONFIG_AP1000))
