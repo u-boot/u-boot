@@ -25,7 +25,7 @@ import gitutil
 import terminal
 
 # Series-xxx tags that we understand
-valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes'];
+valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name'];
 
 class Series(dict):
     """Holds information about a patch series, including all tags.
@@ -76,7 +76,7 @@ class Series(dict):
             self[name] = value
         else:
             raise ValueError("In %s: line '%s': Unknown 'Series-%s': valid "
-                        "options are %s" % (self.commit.hash, line, name,
+                        "options are %s" % (commit.hash, line, name,
                             ', '.join(valid_series)))
 
     def AddCommit(self, commit):
