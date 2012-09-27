@@ -474,7 +474,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_CSPI_CLK:
 		return imx_get_cspiclk();
 	case MXC_FEC_CLK:
-		return decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
+		return get_ipg_clk();
 	case MXC_SATA_CLK:
 		return get_ahb_clk();
 	case MXC_DDR_CLK:
@@ -490,10 +490,9 @@ u32 imx_get_uartclk(void)
 	return get_uart_clk();
 }
 
-
 u32 imx_get_fecclk(void)
 {
-	return mxc_get_clock(MXC_IPG_CLK);
+	return get_ipg_clk();
 }
 
 static int gcd(int m, int n)
