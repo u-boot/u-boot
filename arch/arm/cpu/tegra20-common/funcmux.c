@@ -235,9 +235,26 @@ int funcmux_select(enum periph_id id, int config)
 		break;
 
 	case PERIPH_ID_NDFLASH:
-		if (config == FUNCMUX_NDFLASH_ATC) {
+		switch (config) {
+		case FUNCMUX_NDFLASH_ATC:
 			pinmux_set_func(PINGRP_ATC, PMUX_FUNC_NAND);
 			pinmux_tristate_disable(PINGRP_ATC);
+			break;
+		case FUNCMUX_NDFLASH_KBC_8_BIT:
+			pinmux_set_func(PINGRP_KBCA, PMUX_FUNC_NAND);
+			pinmux_set_func(PINGRP_KBCC, PMUX_FUNC_NAND);
+			pinmux_set_func(PINGRP_KBCD, PMUX_FUNC_NAND);
+			pinmux_set_func(PINGRP_KBCE, PMUX_FUNC_NAND);
+			pinmux_set_func(PINGRP_KBCF, PMUX_FUNC_NAND);
+
+			pinmux_tristate_disable(PINGRP_KBCA);
+			pinmux_tristate_disable(PINGRP_KBCC);
+			pinmux_tristate_disable(PINGRP_KBCD);
+			pinmux_tristate_disable(PINGRP_KBCE);
+			pinmux_tristate_disable(PINGRP_KBCF);
+
+			bad_config = 0;
+			break;
 		}
 		break;
 
