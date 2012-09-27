@@ -80,12 +80,12 @@ ulong imx_get_armclk(void)
 	ulong div;
 
 	if (cctl & CCM_CCTL_ARM_SRC)
-		fref = lldiv((fref * 3), 4);
+		fref = lldiv((u64) fref * 3, 4);
 
 	div = ((cctl >> CCM_CCTL_ARM_DIV_SHIFT)
 	       & CCM_CCTL_ARM_DIV_MASK) + 1;
 
-	return lldiv(fref, div);
+	return fref / div;
 }
 
 ulong imx_get_ahbclk(void)
@@ -98,7 +98,7 @@ ulong imx_get_ahbclk(void)
 	div = ((cctl >> CCM_CCTL_AHB_DIV_SHIFT)
 	       & CCM_CCTL_AHB_DIV_MASK) + 1;
 
-	return lldiv(fref, div);
+	return fref / div;
 }
 
 ulong imx_get_perclk(int clk)
@@ -110,7 +110,7 @@ ulong imx_get_perclk(int clk)
 	div = readl(&ccm->pcdr[CCM_PERCLK_REG(clk)]);
 	div = ((div >> CCM_PERCLK_SHIFT(clk)) & CCM_PERCLK_MASK) + 1;
 
-	return lldiv(fref, div);
+	return fref / div;
 }
 
 unsigned int mxc_get_clock(enum mxc_clock clk)
