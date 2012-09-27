@@ -48,7 +48,7 @@ static unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
 {
 	unsigned int mfi = (pll >> CCM_PLL_MFI_SHIFT)
 	    & CCM_PLL_MFI_MASK;
-	unsigned int mfn = (pll >> CCM_PLL_MFN_SHIFT)
+	int mfn = (pll >> CCM_PLL_MFN_SHIFT)
 	    & CCM_PLL_MFN_MASK;
 	unsigned int mfd = (pll >> CCM_PLL_MFD_SHIFT)
 	    & CCM_PLL_MFD_MASK;
@@ -56,9 +56,12 @@ static unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
 	    & CCM_PLL_PD_MASK;
 
 	mfi = mfi <= 5 ? 5 : mfi;
+	mfn = mfn >= 512 ? mfn - 1024 : mfn;
+	mfd += 1;
+	pd += 1;
 
-	return lldiv(2 * (u64) f_ref * (mfi * (mfd + 1) + mfn),
-		      (mfd + 1) * (pd + 1));
+	return lldiv(2 * (u64) f_ref * (mfi * mfd + mfn),
+		     mfd * pd);
 }
 
 static ulong imx_get_mpllclk(void)
