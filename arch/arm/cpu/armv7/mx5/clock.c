@@ -315,16 +315,20 @@ static u32 get_ipg_clk(void)
  */
 static u32 get_ipg_per_clk(void)
 {
-	u32 pred1, pred2, podf;
+	u32 freq, pred1, pred2, podf;
 
 	if (readl(&mxc_ccm->cbcmr) & MXC_CCM_CBCMR_PERCLK_IPG_CLK_SEL)
 		return get_ipg_clk();
-	/* Fixme: not handle what about lpm*/
+
+	if (readl(&mxc_ccm->cbcmr) & MXC_CCM_CBCMR_PERCLK_LP_APM_CLK_SEL)
+		freq = get_lp_apm();
+	else
+		freq = get_periph_clk();
 	podf = readl(&mxc_ccm->cbcdr);
 	pred1 = MXC_CCM_CBCDR_PERCLK_PRED1_RD(podf);
 	pred2 = MXC_CCM_CBCDR_PERCLK_PRED2_RD(podf);
 	podf = MXC_CCM_CBCDR_PERCLK_PODF_RD(podf);
-	return get_periph_clk() / ((pred1 + 1) * (pred2 + 1) * (podf + 1));
+	return freq / ((pred1 + 1) * (pred2 + 1) * (podf + 1));
 }
 
 /*
