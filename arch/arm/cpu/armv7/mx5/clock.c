@@ -240,6 +240,26 @@ static u32 get_fpm(void)
 #endif
 
 /*
+ * This function returns the low power audio clock.
+ */
+static u32 get_lp_apm(void)
+{
+	u32 ret_val = 0;
+	u32 ccsr = readl(&mxc_ccm->ccsr);
+
+	if (ccsr & MXC_CCM_CCSR_LP_APM)
+#if defined(CONFIG_MX51)
+		ret_val = get_fpm();
+#elif defined(CONFIG_MX53)
+		ret_val = decode_pll(mxc_plls[PLL4_CLOCK], MXC_HCLK);
+#endif
+	else
+		ret_val = MXC_HCLK;
+
+	return ret_val;
+}
+
+/*
  * Get mcu main rate
  */
 u32 get_mcu_main_clk(void)
@@ -267,6 +287,8 @@ u32 get_periph_clk(void)
 		return decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
 	case 1:
 		return decode_pll(mxc_plls[PLL3_CLOCK], MXC_HCLK);
+	case 2:
+		return get_lp_apm();
 	default:
 		return 0;
 	}
@@ -333,26 +355,6 @@ static u32 get_uart_clk(void)
 	freq /= (pred + 1) * (podf + 1);
 
 	return freq;
-}
-
-/*
- * This function returns the low power audio clock.
- */
-static u32 get_lp_apm(void)
-{
-	u32 ret_val = 0;
-	u32 ccsr = readl(&mxc_ccm->ccsr);
-
-	if (ccsr & MXC_CCM_CCSR_LP_APM)
-#if defined(CONFIG_MX51)
-		ret_val = get_fpm();
-#elif defined(CONFIG_MX53)
-		ret_val = decode_pll(mxc_plls[PLL4_CLOCK], MXC_HCLK);
-#endif
-	else
-		ret_val = MXC_HCLK;
-
-	return ret_val;
 }
 
 /*
