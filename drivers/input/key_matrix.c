@@ -145,6 +145,8 @@ static uchar *create_keymap(struct key_matrix *config, u32 *data, int len,
 		key_code = tmp & 0xffff;
 		entry = row * config->num_cols + col;
 		map[entry] = key_code;
+		debug("   map %d, %d: pos=%d, keycode=%d\n", row, col,
+		      entry, key_code);
 		if (pos && map_keycode == key_code)
 			*pos = entry;
 	}
