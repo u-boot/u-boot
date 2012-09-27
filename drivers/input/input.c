@@ -356,7 +356,8 @@ int input_send_keycodes(struct input_config *config,
 		 * insert another character if we later realise that we
 		 * have missed a repeat slot.
 		 */
-		is_repeat = (int)get_timer(config->next_repeat_ms) >= 0;
+		is_repeat = config->repeat_rate_ms &&
+			(int)get_timer(config->next_repeat_ms) >= 0;
 		if (!is_repeat)
 			return 0;
 	}
@@ -392,13 +393,17 @@ int input_add_table(struct input_config *config, int left_keycode,
 	return 0;
 }
 
-int input_init(struct input_config *config, int leds, int repeat_delay_ms,
+void input_set_delays(struct input_config *config, int repeat_delay_ms,
 	       int repeat_rate_ms)
+{
+	config->repeat_delay_ms = repeat_delay_ms;
+	config->repeat_rate_ms = repeat_rate_ms;
+}
+
+int input_init(struct input_config *config, int leds)
 {
 	memset(config, '\0', sizeof(*config));
 	config->leds = leds;
-	config->repeat_delay_ms = repeat_delay_ms;
-	config->repeat_rate_ms = repeat_rate_ms;
 	if (input_add_table(config, -1, -1,
 			kbd_plain_xlate, ARRAY_SIZE(kbd_plain_xlate)) ||
 		input_add_table(config, KEY_LEFTSHIFT, KEY_RIGHTSHIFT,

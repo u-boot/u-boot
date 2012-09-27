@@ -126,16 +126,22 @@ int input_getc(struct input_config *config);
 int input_stdio_register(struct stdio_dev *dev);
 
 /**
+ * Set up the keyboard autorepeat delays
+ *
+ * @param repeat_delay_ms	Delay before key auto-repeat starts (in ms)
+ * @param repeat_rate_ms	Delay between successive key repeats (in ms)
+ */
+void input_set_delays(struct input_config *config, int repeat_delay_ms,
+	       int repeat_rate_ms);
+
+/**
  * Set up the input handler with basic key maps.
  *
  * @param config	Input state
  * @param leds		Initial LED value (INPUT_LED_ mask), 0 suggested
- * @param repeat_delay_ms	Delay before key auto-repeat starts (in ms)
- * @param repeat_rate_ms	Delay between successive key repeats (in ms)
  * @return 0 if ok, -1 on error
  */
-int input_init(struct input_config *config, int leds, int repeat_delay_ms,
-	       int repeat_rate_ms);
+int input_init(struct input_config *config, int leds);
 
 #ifdef CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 extern int overwrite_console(void);

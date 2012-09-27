@@ -321,6 +321,8 @@ static int init_tegra_keyboard(void)
 		debug("%s: No keyboard register found\n", __func__);
 		return -1;
 	}
+	input_set_delays(&config.input, KBC_REPEAT_DELAY_MS,
+			KBC_REPEAT_RATE_MS);
 
 	/* Decode the keyboard matrix information (16 rows, 8 columns) */
 	if (key_matrix_init(&config.matrix, 16, 8)) {
@@ -356,8 +358,7 @@ int drv_keyboard_init(void)
 {
 	struct stdio_dev dev;
 
-	if (input_init(&config.input, 0, KBC_REPEAT_DELAY_MS,
-			KBC_REPEAT_RATE_MS)) {
+	if (input_init(&config.input, 0)) {
 		debug("%s: Cannot set up input\n", __func__);
 		return -1;
 	}
