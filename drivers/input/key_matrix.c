@@ -46,6 +46,9 @@ static int has_ghosting(struct key_matrix *config, struct key_matrix_key *keys,
 	int key_in_same_col = 0, key_in_same_row = 0;
 	int i, j;
 
+	if (!config->ghost_filter || valid < 3)
+		return 0;
+
 	for (i = 0; i < valid; i++) {
 		/*
 		 * Find 2 keys such that one key is in the same row
@@ -92,7 +95,7 @@ int key_matrix_decode(struct key_matrix *config, struct key_matrix_key keys[],
 	}
 
 	/* For a ghost key config, ignore the keypresses for this iteration. */
-	if (valid >= 3 && has_ghosting(config, keys, valid)) {
+	if (has_ghosting(config, keys, valid)) {
 		valid = 0;
 		debug("    ghosting detected!\n");
 	}
@@ -200,12 +203,14 @@ int key_matrix_decode_fdt(struct key_matrix *config, const void *blob,
 	return 0;
 }
 
-int key_matrix_init(struct key_matrix *config, int rows, int cols)
+int key_matrix_init(struct key_matrix *config, int rows, int cols,
+		    int ghost_filter)
 {
 	memset(config, '\0', sizeof(*config));
 	config->num_rows = rows;
 	config->num_cols = cols;
 	config->key_count = rows * cols;
+	config->ghost_filter = ghost_filter;
 	assert(config->key_count > 0);
 
 	return 0;

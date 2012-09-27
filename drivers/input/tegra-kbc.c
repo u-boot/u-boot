@@ -325,7 +325,7 @@ static int init_tegra_keyboard(void)
 			KBC_REPEAT_RATE_MS);
 
 	/* Decode the keyboard matrix information (16 rows, 8 columns) */
-	if (key_matrix_init(&config.matrix, 16, 8)) {
+	if (key_matrix_init(&config.matrix, 16, 8, 1)) {
 		debug("%s: Could not init key matrix\n", __func__);
 		return -1;
 	}
