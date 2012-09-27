@@ -214,7 +214,7 @@ static struct clk ipu_clk = {
 #if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	.enable_reg = (u32 *)(CCM_BASE_ADDR +
 		offsetof(struct mxc_ccm_reg, CCGR5)),
-	.enable_shift = MXC_CCM_CCGR5_CG5_OFFSET,
+	.enable_shift = MXC_CCM_CCGR5_IPU_OFFSET,
 #else
 	.enable_reg = (u32 *)(CCM_BASE_ADDR +
 		offsetof(struct mxc_ccm_reg, CCGR3)),

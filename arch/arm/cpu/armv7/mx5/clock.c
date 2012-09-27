@@ -102,9 +102,9 @@ void set_usboh3_clk(void)
 void enable_usboh3_clk(unsigned char enable)
 {
 	if (enable)
-		setbits_le32(&mxc_ccm->CCGR2, 1 << MXC_CCM_CCGR2_CG14_OFFSET);
+		setbits_le32(&mxc_ccm->CCGR2, MXC_CCM_CCGR2_USBOH3_60M(1));
 	else
-		clrbits_le32(&mxc_ccm->CCGR2, 1 << MXC_CCM_CCGR2_CG14_OFFSET);
+		clrbits_le32(&mxc_ccm->CCGR2, MXC_CCM_CCGR2_USBOH3_60M(1));
 }
 
 #ifdef CONFIG_I2C_MXC
@@ -115,7 +115,8 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 
 	if (i2c_num > 2)
 		return -EINVAL;
-	mask = MXC_CCM_CCGR_CG_MASK << ((i2c_num + 9) << 1);
+	mask = MXC_CCM_CCGR_CG_MASK <<
+			(MXC_CCM_CCGR1_I2C1_OFFSET + (i2c_num << 1));
 	if (enable)
 		setbits_le32(&mxc_ccm->CCGR1, mask);
 	else
@@ -132,9 +133,9 @@ void set_usb_phy1_clk(void)
 void enable_usb_phy1_clk(unsigned char enable)
 {
 	if (enable)
-		setbits_le32(&mxc_ccm->CCGR4, 1 << MXC_CCM_CCGR4_CG5_OFFSET);
+		setbits_le32(&mxc_ccm->CCGR4, MXC_CCM_CCGR4_USB_PHY1(1));
 	else
-		clrbits_le32(&mxc_ccm->CCGR4, 1 << MXC_CCM_CCGR4_CG5_OFFSET);
+		clrbits_le32(&mxc_ccm->CCGR4, MXC_CCM_CCGR4_USB_PHY1(1));
 }
 
 void set_usb_phy2_clk(void)
@@ -145,9 +146,9 @@ void set_usb_phy2_clk(void)
 void enable_usb_phy2_clk(unsigned char enable)
 {
 	if (enable)
-		setbits_le32(&mxc_ccm->CCGR4, 1 << MXC_CCM_CCGR4_CG6_OFFSET);
+		setbits_le32(&mxc_ccm->CCGR4, MXC_CCM_CCGR4_USB_PHY2(1));
 	else
-		clrbits_le32(&mxc_ccm->CCGR4, 1 << MXC_CCM_CCGR4_CG6_OFFSET);
+		clrbits_le32(&mxc_ccm->CCGR4, MXC_CCM_CCGR4_USB_PHY2(1));
 }
 
 /*
