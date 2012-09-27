@@ -153,6 +153,8 @@ int key_matrix_decode_fdt(struct key_matrix *config, const void *blob,
 			  int node)
 {
 	const struct fdt_property *prop;
+	const char prefix[] = "linux,";
+	int plen = sizeof(prefix) - 1;
 	int offset;
 
 	/* Check each property name for ones that we understand */
@@ -168,16 +170,17 @@ int key_matrix_decode_fdt(struct key_matrix *config, const void *blob,
 
 		/* Name needs to match "1,<type>keymap" */
 		debug("%s: property '%s'\n", __func__, name);
-		if (strncmp(name, "1,", 2) || len < 8 ||
-		    strcmp(name + len - 6, "keymap"))
+		if (strncmp(name, prefix, plen) ||
+				len < plen + 6 ||
+				strcmp(name + len - 6, "keymap"))
 			continue;
 
-		len -= 8;
+		len -= plen + 6;
 		if (len == 0) {
 			config->plain_keycode = create_keymap(config,
 				(u32 *)prop->data, fdt32_to_cpu(prop->len),
 				KEY_FN, &config->fn_pos);
-		} else if (0 == strncmp(name + 2, "fn-", len)) {
+		} else if (0 == strncmp(name + plen, "fn-", len)) {
 			config->fn_keycode = create_keymap(config,
 				(u32 *)prop->data, fdt32_to_cpu(prop->len),
 				-1, NULL);
