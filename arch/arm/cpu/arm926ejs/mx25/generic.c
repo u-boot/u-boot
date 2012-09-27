@@ -101,6 +101,11 @@ ulong imx_get_ahbclk(void)
 	return fref / div;
 }
 
+static ulong imx_get_ipgclk(void)
+{
+	return imx_get_ahbclk() / 2;
+}
+
 ulong imx_get_perclk(int clk)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
@@ -120,6 +125,11 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	switch (clk) {
 	case MXC_ARM_CLK:
 		return imx_get_armclk();
+	case MXC_AHB_CLK:
+		return imx_get_ahbclk();
+	case MXC_IPG_CLK:
+	case MXC_CSPI_CLK:
+		return imx_get_ipgclk();
 	case MXC_FEC_CLK:
 		return imx_get_ahbclk();
 	default:

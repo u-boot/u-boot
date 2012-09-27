@@ -41,6 +41,7 @@
 #endif
 
 enum mxc_clock {
+	/* PER clocks (do not change order) */
 	MXC_CSI_CLK,
 	MXC_EPIT_CLK,
 	MXC_ESAI_CLK,
@@ -57,7 +58,11 @@ enum mxc_clock {
 	MXC_SSI1_CLK,
 	MXC_SSI2_CLK,
 	MXC_UART_CLK,
+	/* Other clocks */
 	MXC_ARM_CLK,
+	MXC_AHB_CLK,
+	MXC_IPG_CLK,
+	MXC_CSPI_CLK,
 	MXC_FEC_CLK,
 	MXC_CLK_NUM
 };
