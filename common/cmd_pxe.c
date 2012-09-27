@@ -450,6 +450,7 @@ struct pxe_label {
 	char *kernel;
 	char *append;
 	char *initrd;
+	char *fdt;
 	int attempted;
 	int localboot;
 	struct list_head list;
@@ -517,6 +518,9 @@ static void label_destroy(struct pxe_label *label)
 	if (label->initrd)
 		free(label->initrd);
 
+	if (label->fdt)
+		free(label->fdt);
+
 	free(label);
 }
 
@@ -541,6 +545,9 @@ static void label_print(void *data)
 
 	if (label->initrd)
 		printf("\t\tinitrd: %s\n", label->initrd);
+
+	if (label->fdt)
+		printf("\tfdt: %s\n", label->fdt);
 }
 
 /*
@@ -628,10 +635,29 @@ static void label_boot(struct pxe_label *label)
 	bootm_argv[1] = getenv("kernel_addr_r");
 
 	/*
-	 * fdt usage is optional.  If there is an fdt_addr specified, we will
-	 * pass it along to bootm, and adjust argc appropriately.
+	 * fdt usage is optional:
+	 * It handles the following scenarios. All scenarios are exclusive
+	 *
+	 * Scenario 1: If fdt_addr_r specified and "fdt" label is defined in
+	 * pxe file, retrieve fdt blob from server. Pass fdt_addr_r to bootm,
+	 * and adjust argc appropriately.
+	 *
+	 * Scenario 2: If there is an fdt_addr specified, pass it along to
+	 * bootm, and adjust argc appropriately.
+	 *
+	 * Scenario 3: fdt blob is not available.
 	 */
-	bootm_argv[3] = getenv("fdt_addr");
+	bootm_argv[3] = getenv("fdt_addr_r");
+
+	/* if fdt label is defined then get fdt from server */
+	if (bootm_argv[3] && label->fdt) {
+		if (get_relfile_envaddr(label->fdt, "fdt_addr_r") < 0) {
+			printf("Skipping %s for failure retrieving fdt\n",
+					label->name);
+			return;
+		}
+	} else
+		bootm_argv[3] = getenv("fdt_addr");
 
 	if (bootm_argv[3])
 		bootm_argc = 4;
@@ -658,6 +684,7 @@ enum token_type {
 	T_DEFAULT,
 	T_PROMPT,
 	T_INCLUDE,
+	T_FDT,
 	T_INVALID
 };
 
@@ -685,6 +712,7 @@ static const struct token keywords[] = {
 	{"append", T_APPEND},
 	{"initrd", T_INITRD},
 	{"include", T_INCLUDE},
+	{"fdt", T_FDT},
 	{NULL, T_INVALID}
 };
 
@@ -1072,6 +1100,11 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 		case T_INITRD:
 			if (!label->initrd)
 				err = parse_sliteral(c, &label->initrd);
+			break;
+
+		case T_FDT:
+			if (!label->fdt)
+				err = parse_sliteral(c, &label->fdt);
 			break;
 
 		case T_LOCALBOOT:

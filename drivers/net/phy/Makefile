@@ -27,6 +27,7 @@ LIB	:= $(obj)libphy.o
 
 COBJS-$(CONFIG_BITBANGMII) += miiphybb.o
 COBJS-$(CONFIG_MV88E61XX_SWITCH) += mv88e61xx.o
+COBJS-$(CONFIG_MV88E6352_SWITCH) += mv88e6352.o
 
 COBJS-$(CONFIG_PHYLIB) += phy.o
 COBJS-$(CONFIG_PHYLIB_10G) += generic_10g.o

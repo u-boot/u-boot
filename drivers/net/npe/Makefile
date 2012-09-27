@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB := $(obj)libnpe.o
 
-LOCAL_CFLAGS  += -I$(TOPDIR)/arch/arm/cpu/ixp/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB -D__linux
+LOCAL_CFLAGS  += -I$(TOPDIR)/drivers/net/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB -D__linux
 CFLAGS  += $(LOCAL_CFLAGS)
 CPPFLAGS  += $(LOCAL_CFLAGS) # needed for depend
 HOSTCFLAGS  += $(LOCAL_CFLAGS)

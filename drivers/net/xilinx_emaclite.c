@@ -28,6 +28,9 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <fdtdec.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #undef DEBUG
 
@@ -375,3 +378,30 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 
 	return 1;
 }
+
+#ifdef CONFIG_OF_CONTROL
+int xilinx_emaclite_init(bd_t *bis)
+{
+	int offset = 0;
+	u32 ret = 0;
+	u32 reg;
+
+	do {
+		offset = fdt_node_offset_by_compatible(gd->fdt_blob, offset,
+					"xlnx,xps-ethernetlite-1.00.a");
+		if (offset != -1) {
+			reg = fdtdec_get_addr(gd->fdt_blob, offset, "reg");
+			if (reg != FDT_ADDR_T_NONE) {
+				u32 rxpp = fdtdec_get_int(gd->fdt_blob, offset,
+							"xlnx,rx-ping-pong", 0);
+				u32 txpp = fdtdec_get_int(gd->fdt_blob, offset,
+							"xlnx,tx-ping-pong", 0);
+				ret |= xilinx_emaclite_initialize(bis, reg,
+								txpp, rxpp);
+			}
+		}
+	} while (offset != -1);
+
+	return ret;
+}
+#endif

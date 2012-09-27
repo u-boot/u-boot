@@ -31,8 +31,15 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 #include <asm/errno.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * Timeout the transfer after 5 mS. This is usually a bit more, since
+ * the code in the tightloops this timeout is used in adds some overhead.
+ */
+#define FEC_XFER_TIMEOUT	5000
 
 #ifndef CONFIG_MII
 #error "CONFIG_MII has to be defined!"
@@ -249,7 +256,7 @@ static int miiphy_wait_aneg(struct eth_device *dev)
 
 static int fec_rx_task_enable(struct fec_priv *fec)
 {
-	writel(1 << 24, &fec->eth->r_des_active);
+	writel(FEC_R_DES_ACTIVE_RDAR, &fec->eth->r_des_active);
 	return 0;
 }
 
@@ -260,7 +267,7 @@ static int fec_rx_task_disable(struct fec_priv *fec)
 
 static int fec_tx_task_enable(struct fec_priv *fec)
 {
-	writel(1 << 24, &fec->eth->x_des_active);
+	writel(FEC_X_DES_ACTIVE_TDAR, &fec->eth->x_des_active);
 	return 0;
 }
 
@@ -694,8 +701,10 @@ static void fec_halt(struct eth_device *dev)
 static int fec_send(struct eth_device *dev, void *packet, int length)
 {
 	unsigned int status;
-	uint32_t size;
+	uint32_t size, end;
 	uint32_t addr;
+	int timeout = FEC_XFER_TIMEOUT;
+	int ret = 0;
 
 	/*
 	 * This routine transmits one frame.  This routine only accepts
@@ -721,8 +730,9 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 #endif
 
 	addr = (uint32_t)packet;
-	size = roundup(length, ARCH_DMA_MINALIGN);
-	flush_dcache_range(addr, addr + size);
+	end = roundup(addr + length, ARCH_DMA_MINALIGN);
+	addr &= ~(ARCH_DMA_MINALIGN - 1);
+	flush_dcache_range(addr, end);
 
 	writew(length, &fec->tbd_base[fec->tbd_index].data_length);
 	writel(addr, &fec->tbd_base[fec->tbd_index].data_pointer);
@@ -758,22 +768,28 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 	 * invalidate data cache to see what's really in RAM. Also, we need
 	 * barrier here.
 	 */
-	invalidate_dcache_range(addr, addr + size);
-	while (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY) {
-		udelay(1);
-		invalidate_dcache_range(addr, addr + size);
+	while (--timeout) {
+		if (!(readl(&fec->eth->x_des_active) & FEC_X_DES_ACTIVE_TDAR))
+			break;
 	}
 
-	debug("fec_send: status 0x%x index %d\n",
+	if (!timeout)
+		ret = -EINVAL;
+
+	invalidate_dcache_range(addr, addr + size);
+	if (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY)
+		ret = -EINVAL;
+
+	debug("fec_send: status 0x%x index %d ret %i\n",
 			readw(&fec->tbd_base[fec->tbd_index].status),
-			fec->tbd_index);
+			fec->tbd_index, ret);
 	/* for next transmission use the other buffer */
 	if (fec->tbd_index)
 		fec->tbd_index = 0;
 	else
 		fec->tbd_index = 1;
 
-	return 0;
+	return ret;
 }
 
 /**
@@ -789,9 +805,9 @@ static int fec_recv(struct eth_device *dev)
 	int frame_length, len = 0;
 	struct nbuf *frame;
 	uint16_t bd_status;
-	uint32_t addr, size;
+	uint32_t addr, size, end;
 	int i;
-	uchar buff[FEC_MAX_PKT_SIZE];
+	uchar buff[FEC_MAX_PKT_SIZE] __aligned(ARCH_DMA_MINALIGN);
 
 	/*
 	 * Check if any critical events have happened
@@ -853,8 +869,9 @@ static int fec_recv(struct eth_device *dev)
 			 * Invalidate data cache over the buffer
 			 */
 			addr = (uint32_t)frame;
-			size = roundup(frame_length, ARCH_DMA_MINALIGN);
-			invalidate_dcache_range(addr, addr + size);
+			end = roundup(addr + frame_length, ARCH_DMA_MINALIGN);
+			addr &= ~(ARCH_DMA_MINALIGN - 1);
+			invalidate_dcache_range(addr, end);
 
 			/*
 			 *  Fill the buffer and pass it to upper layers

@@ -728,6 +728,8 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 			memcpy(&NetOurRootPath, popt + 2, size);
 			NetOurRootPath[size] = 0;
 			break;
+		case 28:	/* Ignore Broadcast Address Option */
+			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 		case 42:	/* NTP server IP */
 			NetCopyIP(&NetNtpServerIP, (popt + 2));

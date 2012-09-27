@@ -565,7 +565,7 @@ static int armdfec_send(struct eth_device *dev, void *dataptr, int datasize)
 	struct tx_desc *p_txdesc = darmdfec->p_txdesc;
 	void *p = (void *)dataptr;
 	int retry = PHY_WAIT_ITERATIONS * PHY_WAIT_MICRO_SECONDS;
-	u32 cmd_sts;
+	u32 cmd_sts, temp;
 
 	/* Copy buffer if it's misaligned */
 	if ((u32)dataptr & 0x07) {
@@ -586,7 +586,8 @@ static int armdfec_send(struct eth_device *dev, void *dataptr, int datasize)
 	p_txdesc->byte_cnt = datasize;
 
 	/* Apply send command using high priority TX queue */
-	writel((u32)p_txdesc, &regs->txcdp[TXQ]);
+	temp = (u32)&regs->txcdp[TXQ];
+	writel((u32)p_txdesc, temp);
 	writel(SDMA_CMD_TXDL | SDMA_CMD_TXDH | SDMA_CMD_ERD, &regs->sdma_cmd);
 
 	/*
