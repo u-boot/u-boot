@@ -209,9 +209,13 @@ void enable_caches(void)
 #endif
 }
 
+#if defined(CONFIG_FEC_MXC)
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_FEC_MXC)
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 	ulong val;
 
@@ -219,10 +223,8 @@ int cpu_eth_init(bd_t *bis)
 	val |= (1 << 23);
 	writel(val, &ccm->cgr0);
 	return fecmxc_initialize(bis);
-#else
-	return 0;
-#endif
 }
+#endif
 
 int get_clocks(void)
 {
