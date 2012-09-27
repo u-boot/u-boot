@@ -378,32 +378,15 @@ static u32 get_uart_clk(void)
  */
 static u32 imx_get_cspiclk(void)
 {
-	u32 ret_val = 0, pdf, pre_pdf, clk_sel;
+	u32 ret_val = 0, pdf, pre_pdf, clk_sel, freq;
 	u32 cscmr1 = readl(&mxc_ccm->cscmr1);
 	u32 cscdr2 = readl(&mxc_ccm->cscdr2);
 
 	pre_pdf = MXC_CCM_CSCDR2_CSPI_CLK_PRED_RD(cscdr2);
 	pdf = MXC_CCM_CSCDR2_CSPI_CLK_PODF_RD(cscdr2);
 	clk_sel = MXC_CCM_CSCMR1_CSPI_CLK_SEL_RD(cscmr1);
-
-	switch (clk_sel) {
-	case 0:
-		ret_val = decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK) /
-					((pre_pdf + 1) * (pdf + 1));
-		break;
-	case 1:
-		ret_val = decode_pll(mxc_plls[PLL2_CLOCK], MXC_HCLK) /
-					((pre_pdf + 1) * (pdf + 1));
-		break;
-	case 2:
-		ret_val = decode_pll(mxc_plls[PLL3_CLOCK], MXC_HCLK) /
-					((pre_pdf + 1) * (pdf + 1));
-		break;
-	default:
-		ret_val = get_lp_apm() / ((pre_pdf + 1) * (pdf + 1));
-		break;
-	}
-
+	freq = get_standard_pll_sel_clk(clk_sel);
+	ret_val = freq / ((pre_pdf + 1) * (pdf + 1));
 	return ret_val;
 }
 
