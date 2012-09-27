@@ -101,10 +101,11 @@ void set_usboh3_clk(void)
 
 void enable_usboh3_clk(unsigned char enable)
 {
-	if (enable)
-		setbits_le32(&mxc_ccm->CCGR2, MXC_CCM_CCGR2_USBOH3_60M(1));
-	else
-		clrbits_le32(&mxc_ccm->CCGR2, MXC_CCM_CCGR2_USBOH3_60M(1));
+	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
+
+	clrsetbits_le32(&mxc_ccm->CCGR2,
+			MXC_CCM_CCGR2_USBOH3_60M(MXC_CCM_CCGR_CG_MASK),
+			MXC_CCM_CCGR2_USBOH3_60M(cg));
 }
 
 #ifdef CONFIG_I2C_MXC
@@ -132,10 +133,11 @@ void set_usb_phy1_clk(void)
 
 void enable_usb_phy1_clk(unsigned char enable)
 {
-	if (enable)
-		setbits_le32(&mxc_ccm->CCGR4, MXC_CCM_CCGR4_USB_PHY1(1));
-	else
-		clrbits_le32(&mxc_ccm->CCGR4, MXC_CCM_CCGR4_USB_PHY1(1));
+	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
+
+	clrsetbits_le32(&mxc_ccm->CCGR4,
+			MXC_CCM_CCGR4_USB_PHY1(MXC_CCM_CCGR_CG_MASK),
+			MXC_CCM_CCGR4_USB_PHY1(cg));
 }
 
 void set_usb_phy2_clk(void)
@@ -145,10 +147,11 @@ void set_usb_phy2_clk(void)
 
 void enable_usb_phy2_clk(unsigned char enable)
 {
-	if (enable)
-		setbits_le32(&mxc_ccm->CCGR4, MXC_CCM_CCGR4_USB_PHY2(1));
-	else
-		clrbits_le32(&mxc_ccm->CCGR4, MXC_CCM_CCGR4_USB_PHY2(1));
+	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
+
+	clrsetbits_le32(&mxc_ccm->CCGR4,
+			MXC_CCM_CCGR4_USB_PHY2(MXC_CCM_CCGR_CG_MASK),
+			MXC_CCM_CCGR4_USB_PHY2(cg));
 }
 
 /*

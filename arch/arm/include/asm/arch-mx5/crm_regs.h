@@ -285,6 +285,9 @@ struct mxc_ccm_reg {
 
 /* Define the bits in register CCGRx */
 #define MXC_CCM_CCGR_CG_MASK				0x3
+#define MXC_CCM_CCGR_CG_OFF				0x0
+#define MXC_CCM_CCGR_CG_RUN_ON				0x1
+#define MXC_CCM_CCGR_CG_ON				0x3
 
 #define MXC_CCM_CCGR0_ARM_BUS_OFFSET			0
 #define MXC_CCM_CCGR0_ARM_BUS(v)			(((v) & 0x3) << 0)
