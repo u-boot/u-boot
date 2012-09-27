@@ -145,8 +145,9 @@ def CheckPatches(verbose, args):
             if len(problems) != error_count + warning_count:
                 print "Internal error: some problems lost"
             for item in problems:
-                print GetWarningMsg(col, item['type'], item['file'],
-                        item['line'], item['msg'])
+                print GetWarningMsg(col, item['type'],
+                        item.get('file', '<unknown>'),
+                        item.get('line', 0), item['msg'])
             #print stdout
     if error_count != 0 or warning_count != 0:
         str = 'checkpatch.pl found %d error(s), %d warning(s)' % (
