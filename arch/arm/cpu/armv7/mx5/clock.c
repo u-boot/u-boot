@@ -69,7 +69,7 @@ struct fixed_pll_mfd {
 };
 
 const struct fixed_pll_mfd fixed_mfd[] = {
-	{CONFIG_SYS_MX5_HCLK, 24 * 16},
+	{MXC_HCLK, 24 * 16},
 };
 
 struct pll_param {
@@ -242,7 +242,7 @@ u32 get_mcu_main_clk(void)
 
 	reg = (__raw_readl(&mxc_ccm->cacrr) & MXC_CCM_CACRR_ARM_PODF_MASK) >>
 		MXC_CCM_CACRR_ARM_PODF_OFFSET;
-	freq = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
+	freq = decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
 	return freq / (reg + 1);
 }
 
@@ -255,14 +255,14 @@ u32 get_periph_clk(void)
 
 	reg = __raw_readl(&mxc_ccm->cbcdr);
 	if (!(reg & MXC_CCM_CBCDR_PERIPH_CLK_SEL))
-		return decode_pll(mxc_plls[PLL2_CLOCK], CONFIG_SYS_MX5_HCLK);
+		return decode_pll(mxc_plls[PLL2_CLOCK], MXC_HCLK);
 	reg = __raw_readl(&mxc_ccm->cbcmr);
 	switch ((reg & MXC_CCM_CBCMR_PERIPH_CLK_SEL_MASK) >>
 		MXC_CCM_CBCMR_PERIPH_CLK_SEL_OFFSET) {
 	case 0:
-		return decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
+		return decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
 	case 1:
-		return decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_SYS_MX5_HCLK);
+		return decode_pll(mxc_plls[PLL3_CLOCK], MXC_HCLK);
 	default:
 		return 0;
 	}
@@ -317,16 +317,13 @@ static u32 get_uart_clk(void)
 	switch ((reg & MXC_CCM_CSCMR1_UART_CLK_SEL_MASK) >>
 		MXC_CCM_CSCMR1_UART_CLK_SEL_OFFSET) {
 	case 0x0:
-		freq = decode_pll(mxc_plls[PLL1_CLOCK],
-				    CONFIG_SYS_MX5_HCLK);
+		freq = decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
 		break;
 	case 0x1:
-		freq = decode_pll(mxc_plls[PLL2_CLOCK],
-				    CONFIG_SYS_MX5_HCLK);
+		freq = decode_pll(mxc_plls[PLL2_CLOCK], MXC_HCLK);
 		break;
 	case 0x2:
-		freq = decode_pll(mxc_plls[PLL3_CLOCK],
-				    CONFIG_SYS_MX5_HCLK);
+		freq = decode_pll(mxc_plls[PLL3_CLOCK], MXC_HCLK);
 		break;
 	default:
 		return 66500000;
@@ -353,9 +350,9 @@ static u32 get_lp_apm(void)
 	u32 ccsr = __raw_readl(&mxc_ccm->ccsr);
 
 	if (((ccsr >> 9) & 1) == 0)
-		ret_val = CONFIG_SYS_MX5_HCLK;
+		ret_val = MXC_HCLK;
 	else
-		ret_val = ((32768 * 1024));
+		ret_val = MXC_CLK32 * 1024;
 
 	return ret_val;
 }
@@ -378,18 +375,15 @@ static u32 imx_get_cspiclk(void)
 
 	switch (clk_sel) {
 	case 0:
-		ret_val = decode_pll(mxc_plls[PLL1_CLOCK],
-					CONFIG_SYS_MX5_HCLK) /
+		ret_val = decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK) /
 					((pre_pdf + 1) * (pdf + 1));
 		break;
 	case 1:
-		ret_val = decode_pll(mxc_plls[PLL2_CLOCK],
-					CONFIG_SYS_MX5_HCLK) /
+		ret_val = decode_pll(mxc_plls[PLL2_CLOCK], MXC_HCLK) /
 					((pre_pdf + 1) * (pdf + 1));
 		break;
 	case 2:
-		ret_val = decode_pll(mxc_plls[PLL3_CLOCK],
-					CONFIG_SYS_MX5_HCLK) /
+		ret_val = decode_pll(mxc_plls[PLL3_CLOCK], MXC_HCLK) /
 					((pre_pdf + 1) * (pdf + 1));
 		break;
 	default:
@@ -443,7 +437,7 @@ static u32 get_ddr_clk(void)
 		u32 ddr_clk_podf = (cbcdr & MXC_CCM_CBCDR_DDR_PODF_MASK) >> \
 					MXC_CCM_CBCDR_DDR_PODF_OFFSET;
 
-		ret_val = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
+		ret_val = decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
 		ret_val /= ddr_clk_podf + 1;
 
 		return ret_val;
@@ -489,8 +483,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_CSPI_CLK:
 		return imx_get_cspiclk();
 	case MXC_FEC_CLK:
-		return decode_pll(mxc_plls[PLL1_CLOCK],
-				    CONFIG_SYS_MX5_HCLK);
+		return decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
 	case MXC_SATA_CLK:
 		return get_ahb_clk();
 	case MXC_DDR_CLK:
@@ -875,14 +868,14 @@ int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 freq;
 
-	freq = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
+	freq = decode_pll(mxc_plls[PLL1_CLOCK], MXC_HCLK);
 	printf("PLL1       %8d MHz\n", freq / 1000000);
-	freq = decode_pll(mxc_plls[PLL2_CLOCK], CONFIG_SYS_MX5_HCLK);
+	freq = decode_pll(mxc_plls[PLL2_CLOCK], MXC_HCLK);
 	printf("PLL2       %8d MHz\n", freq / 1000000);
-	freq = decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_SYS_MX5_HCLK);
+	freq = decode_pll(mxc_plls[PLL3_CLOCK], MXC_HCLK);
 	printf("PLL3       %8d MHz\n", freq / 1000000);
 #ifdef	CONFIG_MX53
-	freq = decode_pll(mxc_plls[PLL4_CLOCK], CONFIG_SYS_MX5_HCLK);
+	freq = decode_pll(mxc_plls[PLL4_CLOCK], MXC_HCLK);
 	printf("PLL4       %8d MHz\n", freq / 1000000);
 #endif
 

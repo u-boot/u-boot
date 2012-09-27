@@ -394,7 +394,7 @@ static int power_init(void)
 static void clock_1GHz(void)
 {
 	int ret;
-	u32 ref_clk = CONFIG_SYS_MX5_HCLK;
+	u32 ref_clk = MXC_HCLK;
 	/*
 	 * After increasing voltage to 1.25V, we can switch
 	 * CPU clock to 1GHz and DDR to 400MHz safely

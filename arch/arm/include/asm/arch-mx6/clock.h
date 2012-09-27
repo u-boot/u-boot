@@ -24,6 +24,20 @@
 #ifndef __ASM_ARCH_CLOCK_H
 #define __ASM_ARCH_CLOCK_H
 
+#include <common.h>
+
+#ifdef CONFIG_SYS_MX6_HCLK
+#define MXC_HCLK	CONFIG_SYS_MX6_HCLK
+#else
+#define MXC_HCLK	24000000
+#endif
+
+#ifdef CONFIG_SYS_MX6_CLK32
+#define MXC_CLK32	CONFIG_SYS_MX6_CLK32
+#else
+#define MXC_CLK32	32768
+#endif
+
 enum mxc_clock {
 	MXC_ARM_CLK = 0,
 	MXC_PER_CLK,

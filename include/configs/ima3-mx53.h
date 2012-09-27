@@ -28,9 +28,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx5x_pins.h>
 
-#define CONFIG_SYS_MX5_HCLK		24000000
-#define CONFIG_SYS_MX5_CLK32		32768
-
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
