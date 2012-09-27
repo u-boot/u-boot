@@ -28,6 +28,7 @@
 #include <asm/byteorder.h>
 #include <asm/io.h>
 #include <ide.h>
+#include <sata.h>
 #include <libata.h>
 #include "sata_sil3114.h"
 
@@ -48,7 +49,6 @@ static u8 sata_chk_status (struct sata_ioports *ioaddr, u8 usealtstatus);
 static void msleep (int count);
 
 static u32 iobase[6] = { 0, 0, 0, 0, 0, 0};	/* PCI BAR registers for device */
-extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 
 static struct sata_port port[CONFIG_SYS_SATA_MAX_DEVICE];
 

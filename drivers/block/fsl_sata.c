@@ -26,9 +26,8 @@
 #include <malloc.h>
 #include <libata.h>
 #include <fis.h>
+#include <sata.h>
 #include "fsl_sata.h"
-
-extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 
 #ifndef CONFIG_SYS_SATA1_FLAGS
 	#define CONFIG_SYS_SATA1_FLAGS	FLAGS_DMA

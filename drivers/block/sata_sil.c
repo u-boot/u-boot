@@ -25,6 +25,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <fis.h>
+#include <sata.h>
 #include <libata.h>
 #include "sata_sil.h"
 

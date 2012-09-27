@@ -17,6 +17,7 @@
 #include <asm/portmux.h>
 #include <asm/mach-common/bits/pata.h>
 #include <ata.h>
+#include <sata.h>
 #include <libata.h>
 #include "pata_bfin.h"
 

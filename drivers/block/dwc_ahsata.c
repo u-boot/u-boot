@@ -24,6 +24,7 @@
 #include <libata.h>
 #include <ahci.h>
 #include <fis.h>
+#include <sata.h>
 
 #include <common.h>
 #include <malloc.h>

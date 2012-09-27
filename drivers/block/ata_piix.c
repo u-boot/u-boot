@@ -34,9 +34,7 @@
 #include <part.h>
 #include <ide.h>
 #include <ata.h>
-
-extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
-extern int sata_curr_device;
+#include <sata.h>
 
 #define DEBUG_SATA 0		/* For debug prints set DEBUG_SATA to 1 */
 
