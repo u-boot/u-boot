@@ -96,7 +96,7 @@ int get_env_id(void)
 static int env_print(char *name, int flag)
 {
 	char *res = NULL;
-	size_t len;
+	ssize_t len;
 
 	if (name) {		/* print a single name */
 		ENTRY e, *ep;
@@ -120,6 +120,7 @@ static int env_print(char *name, int flag)
 	}
 
 	/* should never happen */
+	printf("## Error: cannot export environment\n");
 	return 0;
 }
 
