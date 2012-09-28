@@ -126,11 +126,26 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 }
 #endif
 
-void set_usb_phy1_clk(void)
+void set_usb_phy_clk(void)
 {
 	clrbits_le32(&mxc_ccm->cscmr1, MXC_CCM_CSCMR1_USB_PHY_CLK_SEL);
 }
 
+#if defined(CONFIG_MX51)
+void enable_usb_phy1_clk(unsigned char enable)
+{
+	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
+
+	clrsetbits_le32(&mxc_ccm->CCGR2,
+			MXC_CCM_CCGR2_USB_PHY(MXC_CCM_CCGR_CG_MASK),
+			MXC_CCM_CCGR2_USB_PHY(cg));
+}
+
+void enable_usb_phy2_clk(unsigned char enable)
+{
+	/* i.MX51 has a single USB PHY clock, so do nothing here. */
+}
+#elif defined(CONFIG_MX53)
 void enable_usb_phy1_clk(unsigned char enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
@@ -138,11 +153,6 @@ void enable_usb_phy1_clk(unsigned char enable)
 	clrsetbits_le32(&mxc_ccm->CCGR4,
 			MXC_CCM_CCGR4_USB_PHY1(MXC_CCM_CCGR_CG_MASK),
 			MXC_CCM_CCGR4_USB_PHY1(cg));
-}
-
-void set_usb_phy2_clk(void)
-{
-	clrbits_le32(&mxc_ccm->cscmr1, MXC_CCM_CSCMR1_USB_PHY_CLK_SEL);
 }
 
 void enable_usb_phy2_clk(unsigned char enable)
@@ -153,6 +163,7 @@ void enable_usb_phy2_clk(unsigned char enable)
 			MXC_CCM_CCGR4_USB_PHY2(MXC_CCM_CCGR_CG_MASK),
 			MXC_CCM_CCGR4_USB_PHY2(cg));
 }
+#endif
 
 /*
  * Calculate the frequency of PLLn.
@@ -804,7 +815,7 @@ void mxc_set_sata_internal_clock(void)
 	u32 *tmp_base =
 		(u32 *)(IIM_BASE_ADDR + 0x180c);
 
-	set_usb_phy1_clk();
+	set_usb_phy_clk();
 
 	clrsetbits_le32(tmp_base, 0x6, 0x4);
 }

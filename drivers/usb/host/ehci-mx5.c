@@ -220,7 +220,8 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 
 	set_usboh3_clk();
 	enable_usboh3_clk(1);
-	set_usb_phy2_clk();
+	set_usb_phy_clk();
+	enable_usb_phy1_clk(1);
 	enable_usb_phy2_clk(1);
 	mdelay(1);
 
