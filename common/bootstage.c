@@ -33,13 +33,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-enum bootstage_flags {
-	BOOTSTAGEF_ERROR	= 1 << 0,	/* Error record */
-	BOOTSTAGEF_ALLOC	= 1 << 1,	/* Allocate an id */
-};
-
 struct bootstage_record {
 	ulong time_us;
+	uint32_t start_us;
 	const char *name;
 	int flags;		/* see enum bootstage_flags */
 	enum bootstage_id id;
@@ -49,10 +45,9 @@ static struct bootstage_record record[BOOTSTAGE_ID_COUNT] = { {1} };
 static int next_id = BOOTSTAGE_ID_USER;
 
 ulong bootstage_add_record(enum bootstage_id id, const char *name,
-			   int flags)
+			   int flags, ulong mark)
 {
 	struct bootstage_record *rec;
-	ulong mark = timer_get_boot_us();
 
 	if (flags & BOOTSTAGEF_ALLOC)
 		id = next_id++;
@@ -77,12 +72,13 @@ ulong bootstage_add_record(enum bootstage_id id, const char *name,
 
 ulong bootstage_mark(enum bootstage_id id)
 {
-	return bootstage_add_record(id, NULL, 0);
+	return bootstage_add_record(id, NULL, 0, timer_get_boot_us());
 }
 
 ulong bootstage_error(enum bootstage_id id)
 {
-	return bootstage_add_record(id, NULL, BOOTSTAGEF_ERROR);
+	return bootstage_add_record(id, NULL, BOOTSTAGEF_ERROR,
+				    timer_get_boot_us());
 }
 
 ulong bootstage_mark_name(enum bootstage_id id, const char *name)
@@ -91,7 +87,7 @@ ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 
 	if (id == BOOTSTAGE_ID_ALLOC)
 		flags = BOOTSTAGEF_ALLOC;
-	return bootstage_add_record(id, name, flags);
+	return bootstage_add_record(id, name, flags, timer_get_boot_us());
 }
 
 static void print_time(unsigned long us_time)

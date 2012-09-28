@@ -31,6 +31,12 @@
 #define CONFIG_BOOTSTAGE_USER_COUNT	20
 #endif
 
+/* Flags for each bootstage record */
+enum bootstage_flags {
+	BOOTSTAGEF_ERROR	= 1 << 0,	/* Error record */
+	BOOTSTAGEF_ALLOC	= 1 << 1,	/* Allocate an id */
+};
+
 /*
  * A list of boot stages that we know about. Each of these indicates the
  * state that we are at, and the action that we are about to perform. For
@@ -220,6 +226,17 @@ void show_boot_progress(int val);
 
 #ifdef CONFIG_BOOTSTAGE
 /* This is the full bootstage implementation */
+
+/**
+ * Add a new bootstage record
+ *
+ * @param id	Bootstage ID to use (ignored if flags & BOOTSTAGEF_ALLOC)
+ * @param name	Name of record, or NULL for none
+ * @param flags	Flags (BOOTSTAGEF_...)
+ * @param mark	Time to record in this record, in microseconds
+ */
+ulong bootstage_add_record(enum bootstage_id id, const char *name,
+			   int flags, ulong mark);
 
 /*
  * Mark a time stamp for the current boot stage.
