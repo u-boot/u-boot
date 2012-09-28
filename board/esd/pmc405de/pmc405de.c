@@ -415,7 +415,6 @@ U_BOOT_CMD(eepwren, 2, 0, do_eep_wren,
 
 #if defined(CONFIG_PRAM)
 #include <environment.h>
-extern env_t *env_ptr;
 
 int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
