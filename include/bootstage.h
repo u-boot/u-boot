@@ -277,6 +277,13 @@ uint32_t bootstage_accum(enum bootstage_id id);
 /* Print a report about boot time */
 void bootstage_report(void);
 
+/**
+ * Add bootstage information to the device tree
+ *
+ * @return 0 if ok, -ve on error
+ */
+int bootstage_fdt_add_report(void);
+
 #else
 /*
  * This is a dummy implementation which just calls show_boot_progress(),

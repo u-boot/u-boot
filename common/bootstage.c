@@ -124,9 +124,32 @@ static void print_time(unsigned long us_time)
 	}
 }
 
+/**
+ * Get a record name as a printable string
+ *
+ * @param buf	Buffer to put name if needed
+ * @param len	Length of buffer
+ * @param rec	Boot stage record to get the name from
+ * @return pointer to name, either from the record or pointing to buf.
+ */
+static const char *get_record_name(char *buf, int len,
+				   struct bootstage_record *rec)
+{
+	if (rec->name)
+		return rec->name;
+	else if (rec->id >= BOOTSTAGE_ID_USER)
+		snprintf(buf, len, "user_%d", rec->id - BOOTSTAGE_ID_USER);
+	else
+		snprintf(buf, len, "id=%d", rec->id);
+
+	return buf;
+}
+
 static uint32_t print_time_record(enum bootstage_id id,
 			struct bootstage_record *rec, uint32_t prev)
 {
+	char buf[20];
+
 	if (prev == -1U) {
 		printf("%11s", "");
 		print_time(rec->time_us);
@@ -134,12 +157,8 @@ static uint32_t print_time_record(enum bootstage_id id,
 		print_time(rec->time_us);
 		print_time(rec->time_us - prev);
 	}
-	if (rec->name)
-		printf("  %s\n", rec->name);
-	else if (id >= BOOTSTAGE_ID_USER)
-		printf("  user_%d\n", id - BOOTSTAGE_ID_USER);
-	else
-		printf("  id=%d\n", id);
+	printf("  %s\n", get_record_name(buf, sizeof(buf), rec));
+
 	return rec->time_us;
 }
 
@@ -149,6 +168,70 @@ static int h_compare_record(const void *r1, const void *r2)
 
 	return rec1->time_us > rec2->time_us ? 1 : -1;
 }
+
+#ifdef CONFIG_OF_LIBFDT
+/**
+ * Add all bootstage timings to a device tree.
+ *
+ * @param blob	Device tree blob
+ * @return 0 on success, != 0 on failure.
+ */
+static int add_bootstages_devicetree(struct fdt_header *blob)
+{
+	int bootstage;
+	char buf[20];
+	int id;
+	int i;
+
+	if (!blob)
+		return 0;
+
+	/*
+	 * Create the node for bootstage.
+	 * The address of flat device tree is set up by the command bootm.
+	 */
+	bootstage = fdt_add_subnode(blob, 0, "bootstage");
+	if (bootstage < 0)
+		return -1;
+
+	/*
+	 * Insert the timings to the device tree in the reverse order so
+	 * that they can be printed in the Linux kernel in the right order.
+	 */
+	for (id = BOOTSTAGE_ID_COUNT - 1, i = 0; id >= 0; id--, i++) {
+		struct bootstage_record *rec = &record[id];
+		int node;
+
+		if (id != BOOTSTAGE_ID_AWAKE && rec->time_us == 0)
+			continue;
+
+		node = fdt_add_subnode(blob, bootstage, simple_itoa(i));
+		if (node < 0)
+			break;
+
+		/* add properties to the node. */
+		if (fdt_setprop_string(blob, node, "name",
+				get_record_name(buf, sizeof(buf), rec)))
+			return -1;
+
+		/* Check if this is a 'mark' or 'accum' record */
+		if (fdt_setprop_cell(blob, node,
+				rec->start_us ? "accum" : "mark",
+				rec->time_us))
+			return -1;
+	}
+
+	return 0;
+}
+
+int bootstage_fdt_add_report(void)
+{
+	if (add_bootstages_devicetree(working_fdt))
+		puts("bootstage: Failed to add to device tree\n");
+
+	return 0;
+}
+#endif
 
 void bootstage_report(void)
 {
