@@ -44,6 +44,18 @@ struct bootstage_record {
 static struct bootstage_record record[BOOTSTAGE_ID_COUNT] = { {1} };
 static int next_id = BOOTSTAGE_ID_USER;
 
+enum {
+	BOOTSTAGE_VERSION	= 0,
+	BOOTSTAGE_MAGIC		= 0xb00757a3,
+};
+
+struct bootstage_hdr {
+	uint32_t version;	/* BOOTSTAGE_VERSION */
+	uint32_t count;		/* Number of records */
+	uint32_t size;		/* Total data size (non-zero if valid) */
+	uint32_t magic;		/* Unused */
+};
+
 ulong bootstage_add_record(enum bootstage_id id, const char *name,
 			   int flags, ulong mark)
 {
@@ -282,3 +294,150 @@ ulong __timer_get_boot_us(void)
 
 ulong timer_get_boot_us(void)
 	__attribute__((weak, alias("__timer_get_boot_us")));
+
+/**
+ * Append data to a memory buffer
+ *
+ * Write data to the buffer if there is space. Whether there is space or not,
+ * the buffer pointer is incremented.
+ *
+ * @param ptrp	Pointer to buffer, updated by this function
+ * @param end	Pointer to end of buffer
+ * @param data	Data to write to buffer
+ * @param size	Size of data
+ */
+static void append_data(char **ptrp, char *end, const void *data, int size)
+{
+	char *ptr = *ptrp;
+
+	*ptrp += size;
+	if (*ptrp > end)
+		return;
+
+	memcpy(ptr, data, size);
+}
+
+int bootstage_stash(void *base, int size)
+{
+	struct bootstage_hdr *hdr = (struct bootstage_hdr *)base;
+	struct bootstage_record *rec;
+	char buf[20];
+	char *ptr = base, *end = ptr + size;
+	uint32_t count;
+	int id;
+
+	if (hdr + 1 > (struct bootstage_hdr *)end) {
+		debug("%s: Not enough space for bootstage hdr\n", __func__);
+		return -1;
+	}
+
+	/* Write an arbitrary version number */
+	hdr->version = BOOTSTAGE_VERSION;
+
+	/* Count the number of records, and write that value first */
+	for (rec = record, id = count = 0; id < BOOTSTAGE_ID_COUNT;
+			id++, rec++) {
+		if (rec->time_us != 0)
+			count++;
+	}
+	hdr->count = count;
+	hdr->size = 0;
+	hdr->magic = BOOTSTAGE_MAGIC;
+	ptr += sizeof(*hdr);
+
+	/* Write the records, silently stopping when we run out of space */
+	for (rec = record, id = 0; id < BOOTSTAGE_ID_COUNT; id++, rec++) {
+		if (rec->time_us != 0)
+			append_data(&ptr, end, rec, sizeof(*rec));
+	}
+
+	/* Write the name strings */
+	for (rec = record, id = 0; id < BOOTSTAGE_ID_COUNT; id++, rec++) {
+		if (rec->time_us != 0) {
+			const char *name;
+
+			name = get_record_name(buf, sizeof(buf), rec);
+			append_data(&ptr, end, name, strlen(name) + 1);
+		}
+	}
+
+	/* Check for buffer overflow */
+	if (ptr > end) {
+		debug("%s: Not enough space for bootstage stash\n", __func__);
+		return -1;
+	}
+
+	/* Update total data size */
+	hdr->size = ptr - (char *)base;
+	printf("Stashed %d records\n", hdr->count);
+
+	return 0;
+}
+
+int bootstage_unstash(void *base, int size)
+{
+	struct bootstage_hdr *hdr = (struct bootstage_hdr *)base;
+	struct bootstage_record *rec;
+	char *ptr = base, *end = ptr + size;
+	uint rec_size;
+	int id;
+
+	if (size == -1)
+		end = (char *)(~(uintptr_t)0);
+
+	if (hdr + 1 > (struct bootstage_hdr *)end) {
+		debug("%s: Not enough space for bootstage hdr\n", __func__);
+		return -1;
+	}
+
+	if (hdr->magic != BOOTSTAGE_MAGIC) {
+		debug("%s: Invalid bootstage magic\n", __func__);
+		return -1;
+	}
+
+	if (ptr + hdr->size > end) {
+		debug("%s: Bootstage data runs past buffer end\n", __func__);
+		return -1;
+	}
+
+	if (hdr->count * sizeof(*rec) > hdr->size) {
+		debug("%s: Bootstage has %d records needing %d bytes, but "
+			"only %d bytes is available\n", __func__, hdr->count,
+		      hdr->count * sizeof(*rec), hdr->size);
+		return -1;
+	}
+
+	if (hdr->version != BOOTSTAGE_VERSION) {
+		debug("%s: Bootstage data version %#0x unrecognised\n",
+		      __func__, hdr->version);
+		return -1;
+	}
+
+	if (next_id + hdr->count > BOOTSTAGE_ID_COUNT) {
+		debug("%s: Bootstage has %d records, we have space for %d\n"
+			"- please increase CONFIG_BOOTSTAGE_USER_COUNT\n",
+		      __func__, hdr->count, BOOTSTAGE_ID_COUNT - next_id);
+		return -1;
+	}
+
+	ptr += sizeof(*hdr);
+
+	/* Read the records */
+	rec_size = hdr->count * sizeof(*record);
+	memcpy(record + next_id, ptr, rec_size);
+
+	/* Read the name strings */
+	ptr += rec_size;
+	for (rec = record + next_id, id = 0; id < hdr->count; id++, rec++) {
+		rec->name = ptr;
+
+		/* Assume no data corruption here */
+		ptr += strlen(ptr) + 1;
+	}
+
+	/* Mark the records as read */
+	next_id += hdr->count;
+	printf("Unstashed %d records\n", hdr->count);
+
+	return 0;
+}
