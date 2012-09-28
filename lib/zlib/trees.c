@@ -1168,14 +1168,14 @@ local int detect_data_type(s)
  * method would use a table)
  * IN assertion: 1 <= len <= 15
  */
-local unsigned bi_reverse(code, len)
-    unsigned code; /* the value to invert */
+local unsigned bi_reverse(value, len)
+    unsigned value; /* the value to invert */
     int len;       /* its bit length */
 {
     register unsigned res = 0;
     do {
-        res |= code & 1;
-        code >>= 1, res <<= 1;
+        res |= value & 1;
+        value >>= 1, res <<= 1;
     } while (--len > 0);
     return res >> 1;
 }
