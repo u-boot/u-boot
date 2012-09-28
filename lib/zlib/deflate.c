@@ -592,9 +592,7 @@ int ZEXPORT deflate (strm, flush)
     }
     s = strm->state;
 
-    if (strm->next_out == Z_NULL ||
-        (strm->next_in == Z_NULL && strm->avail_in != 0) ||
-        (s->status == FINISH_STATE && flush != Z_FINISH)) {
+    if (s->status == FINISH_STATE && flush != Z_FINISH) {
         ERR_RETURN(strm, Z_STREAM_ERROR);
     }
     if (strm->avail_out == 0) ERR_RETURN(strm, Z_BUF_ERROR);
