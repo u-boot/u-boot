@@ -90,6 +90,25 @@ ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 	return bootstage_add_record(id, name, flags, timer_get_boot_us());
 }
 
+uint32_t bootstage_start(enum bootstage_id id, const char *name)
+{
+	struct bootstage_record *rec = &record[id];
+
+	rec->start_us = timer_get_boot_us();
+	rec->name = name;
+	return rec->start_us;
+}
+
+uint32_t bootstage_accum(enum bootstage_id id)
+{
+	struct bootstage_record *rec = &record[id];
+	uint32_t duration;
+
+	duration = (uint32_t)timer_get_boot_us() - rec->start_us;
+	rec->time_us += duration;
+	return duration;
+}
+
 static void print_time(unsigned long us_time)
 {
 	char str[15], *s;
@@ -108,8 +127,13 @@ static void print_time(unsigned long us_time)
 static uint32_t print_time_record(enum bootstage_id id,
 			struct bootstage_record *rec, uint32_t prev)
 {
-	print_time(rec->time_us);
-	print_time(rec->time_us - prev);
+	if (prev == -1U) {
+		printf("%11s", "");
+		print_time(rec->time_us);
+	} else {
+		print_time(rec->time_us);
+		print_time(rec->time_us - prev);
+	}
 	if (rec->name)
 		printf("  %s\n", rec->name);
 	else if (id >= BOOTSTAGE_ID_USER)
@@ -144,13 +168,19 @@ void bootstage_report(void)
 	qsort(record, ARRAY_SIZE(record), sizeof(*rec), h_compare_record);
 
 	for (id = 0; id < BOOTSTAGE_ID_COUNT; id++, rec++) {
-		if (rec->time_us != 0)
+		if (rec->time_us != 0 && !rec->start_us)
 			prev = print_time_record(rec->id, rec, prev);
 	}
 	if (next_id > BOOTSTAGE_ID_COUNT)
 		printf("(Overflowed internal boot id table by %d entries\n"
 			"- please increase CONFIG_BOOTSTAGE_USER_COUNT\n",
 		       next_id - BOOTSTAGE_ID_COUNT);
+
+	puts("\nAccumulated time:\n");
+	for (id = 0, rec = record; id < BOOTSTAGE_ID_COUNT; id++, rec++) {
+		if (rec->start_us)
+			prev = print_time_record(id, rec, -1);
+	}
 }
 
 ulong __timer_get_boot_us(void)

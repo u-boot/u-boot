@@ -247,6 +247,33 @@ ulong bootstage_error(enum bootstage_id id);
 
 ulong bootstage_mark_name(enum bootstage_id id, const char *name);
 
+/**
+ * Mark the start of a bootstage activity. The end will be marked later with
+ * bootstage_accum() and at that point we accumulate the time taken. Calling
+ * this function turns the given id into a accumulator rather than and
+ * absolute mark in time. Accumulators record the total amount of time spent
+ * in an activty during boot.
+ *
+ * @param id	Bootstage id to record this timestamp against
+ * @param name	Textual name to display for this id in the report (maybe NULL)
+ * @return start timestamp in microseconds
+ */
+uint32_t bootstage_start(enum bootstage_id id, const char *name);
+
+/**
+ * Mark the end of a bootstage activity
+ *
+ * After previously marking the start of an activity with bootstage_start(),
+ * call this function to mark the end. You can call these functions in pairs
+ * as many times as you like.
+ *
+ * @param id	Bootstage id to record this timestamp against
+ * @return time spent in this iteration of the activity (i.e. the time now
+ *		less the start time recorded in the last bootstage_start() call
+ *		with this id.
+ */
+uint32_t bootstage_accum(enum bootstage_id id);
+
 /* Print a report about boot time */
 void bootstage_report(void);
 
