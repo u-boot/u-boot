@@ -885,5 +885,31 @@ static void *lcd_logo(void)
 #endif /* CONFIG_LCD_LOGO && !CONFIG_LCD_INFO_BELOW_LOGO */
 }
 
+void lcd_position_cursor(unsigned col, unsigned row)
+{
+	console_col = min(col, CONSOLE_COLS - 1);
+	console_row = min(row, CONSOLE_ROWS - 1);
+}
+
+int lcd_get_pixel_width(void)
+{
+	return panel_info.vl_col;
+}
+
+int lcd_get_pixel_height(void)
+{
+	return panel_info.vl_row;
+}
+
+int lcd_get_screen_rows(void)
+{
+	return CONSOLE_ROWS;
+}
+
+int lcd_get_screen_columns(void)
+{
+	return CONSOLE_COLS;
+}
+
 /************************************************************************/
 /************************************************************************/
