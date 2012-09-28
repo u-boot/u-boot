@@ -489,7 +489,8 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	disk_partition_t tmpinfo;
 
 	/* If no dev_part_str, use bootdevice environment variable */
-	if (!dev_part_str)
+	if (!dev_part_str || !strlen(dev_part_str) ||
+	    !strcmp(dev_part_str, "-"))
 		dev_part_str = getenv("bootdevice");
 
 	/* If still no dev_part_str, it's an error */
