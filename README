@@ -1469,6 +1469,11 @@ CBFS (Coreboot Filesystem) support
 		Normally display is black on white background; define
 		CONFIG_SYS_WHITE_ON_BLACK to get it inverted.
 
+		CONFIG_LCD_BMP_RLE8
+
+		Support drawing of RLE8-compressed bitmaps on the LCD.
+
+
 - Splash Screen Support: CONFIG_SPLASH_SCREEN
 
 		If this option is set, the environment is checked for
