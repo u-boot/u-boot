@@ -675,7 +675,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	uchar *fb;
 	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
 	uchar *bmap;
-	ushort padded_line;
+	ushort padded_width;
 	unsigned long width, height, byte_width;
 	unsigned long pwidth = panel_info.vl_col;
 	unsigned colors, bpix, bmp_bpix;
@@ -762,7 +762,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	}
 #endif
 
-	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
+	padded_width = (width&0x3) ? ((width&~0x3)+4) : (width);
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	splash_align_axis(&x, pwidth, width);
@@ -796,7 +796,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 					fb += sizeof(uint16_t) / sizeof(*fb);
 				}
 			}
-			bmap += (width - padded_line);
+			bmap += (padded_width - width);
 			fb   -= (byte_width + lcd_line_length);
 		}
 		break;
@@ -808,7 +808,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			for (j = 0; j < width; j++)
 				fb_put_word(&fb, &bmap);
 
-			bmap += (padded_line - width) * 2;
+			bmap += (padded_width - width) * 2;
 			fb   -= (width * 2 + lcd_line_length);
 		}
 		break;
