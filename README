@@ -1483,6 +1483,12 @@ The following options need to be configured:
 		can be displayed via the splashscreen support or the
 		bmp command.
 
+- Do compresssing for memory range:
+		CONFIG_CMD_ZIP
+
+		If this option is set, it would use zlib deflate method
+		to compress the specified memory at its best effort.
+
 - Compression support:
 		CONFIG_BZIP2
 
