@@ -2384,6 +2384,10 @@ The following options need to be configured:
 		 29,916,167 26,005,792  bootm_start
 		 30,361,327    445,160  start_kernel
 
+		CONFIG_CMD_BOOTSTAGE
+		Add a 'bootstage' command which supports printing a report
+		and un/stashing of bootstage data.
+
 		CONFIG_BOOTSTAGE_FDT
 		Stash the bootstage information in the FDT. A root 'bootstage'
 		node is created with each bootstage id as a child. Each child
