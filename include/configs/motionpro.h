@@ -2,7 +2,7 @@
  * (C) Copyright 2003-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Based on PRO Motion board config file by Andy Joseph, andy@promessdev.com
+ * Based on Motion-PRO board config file by Robert McCullough, rob@promessinc.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -100,6 +100,7 @@
 
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history	*/
 #define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
+#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #define CONFIG_ETHADDR		00:50:C2:40:10:00
 #define CONFIG_OVERWRITE_ETHADDR_ONCE	1
@@ -111,21 +112,21 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"hostname=motionpro\0"						\
-	"netmask=255.255.0.0\0"						\
-	"ipaddr=192.168.160.22\0"					\
-	"serverip=192.168.1.1\0"					\
-	"gatewayip=192.168.1.1\0"					\
+	"netmask=255.255.255.0\0"					\
+	"ipaddr=192.168.1.106\0"					\
+	"serverip=192.168.1.100\0"					\
+	"gatewayip=192.168.1.100\0"					\
 	"console=ttyPSC0,115200\0"					\
 	"u-boot_addr=400000\0"						\
 	"kernel_addr=400000\0"						\
 	"fdt_addr=700000\0"						\
 	"ramdisk_addr=800000\0"						\
 	"multi_image_addr=800000\0"					\
-	"rootpath=/opt/eldk/ppc_6xx\0"					\
-	"u-boot=motionpro/u-boot.bin\0"					\
-	"bootfile=motionpro/uImage\0"					\
-	"fdt_file=motionpro/motionpro.dtb\0"				\
-	"ramdisk_file=motionpro/uRamdisk\0"				\
+	"rootpath=/opt/eldk-4.2/ppc_6xx\0"				\
+	"u-boot=/tftpboot/motionpro/u-boot.bin\0"			\
+	"bootfile=/tftpboot/motionpro/uImage\0"				\
+	"fdt_file=/tftpboot/motionpro/motionpro.dtb\0"			\
+	"ramdisk_file=/tftpboot/motionpro/uRamdisk\0"			\
 	"multi_image_file=kernel+initrd+dtb.img\0"			\
 	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
 	"update=prot off fff00000 +${filesize};"			\
@@ -135,25 +136,32 @@
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
-	"fat_args=setenv bootargs rw\0"					\
-	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"fat_args=setenv bootargs root=/dev/sda rw\0"			\
+	"mtdids=nor0=ff000000.flash\0"					\
+	"mtdparts=ff000000.flash:13m(fs),2m(kernel),384k(uboot)," 	\
+				"128k(env),128k(redund_env),"	  	\
+				"128k(dtb),128k(user_data)\0"		\
+	"addcons=setenv bootargs ${bootargs} console=${console}\0"	\
+	"addmtd=setenv bootargs ${bootargs} mtdparts=${mtdparts}\0"	\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
 		"${netmask}:${hostname}:${netdev}:off panic=1 "		\
 		"console=${console}\0"					\
 	"net_nfs=tftp ${kernel_addr} ${bootfile}; "			\
-		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip; "	\
+		"tftp ${fdt_addr} ${fdt_file}; "			\
+		"run nfsargs addip addmtd; "				\
 		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
 	"net_self=tftp ${kernel_addr} ${bootfile}; "			\
 		"tftp ${fdt_addr} ${fdt_file}; "			\
 		"tftp ${ramdisk_addr} ${ramdisk_file}; "		\
-		"run ramargs addip; "					\
+		"nfs ${ramdisk_addr} ${serverip}:${rootpath}/images/uRamdisk; "	\
+		"run ramargs addip addcons addmtd; "			\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
-	"fat_multi=run fat_args addip; fatload ide 0:1 "		\
+	"fat_multi=run fat_args addip addmtd; fatload ide 0:1 "		\
 		"${multi_image_addr} ${multi_image_file}; "		\
 		"bootm ${multi_image_addr}\0"				\
 	""
-#define CONFIG_BOOTCOMMAND	"run net_nfs"
+#define CONFIG_BOOTCOMMAND	"run fat_multi"
 
 /*
  * do board-specific init
@@ -209,7 +217,7 @@
 #define CONFIG_SYS_RAMBOOT		1
 #endif
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 kB for Monitor */
+#define CONFIG_SYS_MONITOR_LEN		(384 << 10)	/* 384 kB for Monitor */
 #define CONFIG_SYS_MALLOC_LEN		(1024 << 10)	/* 1 MiB for malloc() */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* initial mem map for Linux */
 
@@ -274,7 +282,7 @@
 #define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=motionpro-0"
 #define MTDPARTS_DEFAULT	"mtdparts=motionpro-0:"			  \
-					"13m(fs),2m(kernel),256k(uboot)," \
+					"13m(fs),2m(kernel),384k(uboot)," \
 					"128k(env),128k(redund_env),"	  \
 					"128k(dtb),-(user_data)"
 
