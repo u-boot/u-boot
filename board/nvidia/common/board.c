@@ -27,6 +27,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/emc.h>
+#include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/pmu.h>
 #include <asm/arch/tegra.h>
@@ -76,6 +77,13 @@ void __gpio_early_init_uart(void)
 
 void gpio_early_init_uart(void)
 __attribute__((weak, alias("__gpio_early_init_uart")));
+
+void __pin_mux_nand(void)
+{
+	funcmux_select(PERIPH_ID_NDFLASH, FUNCMUX_DEFAULT);
+}
+
+void pin_mux_nand(void) __attribute__((weak, alias("__pin_mux_nand")));
 
 /*
  * Routine: power_det_init
@@ -135,6 +143,10 @@ int board_init(void)
 #ifdef CONFIG_USB_EHCI_TEGRA
 	pin_mux_usb();
 	board_usb_init(gd->fdt_blob);
+#endif
+
+#ifdef CONFIG_TEGRA_NAND
+	pin_mux_nand();
 #endif
 
 #ifdef CONFIG_TEGRA_LP0

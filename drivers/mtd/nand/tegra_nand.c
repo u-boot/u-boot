@@ -992,7 +992,6 @@ int tegra_nand_init(struct nand_chip *nand, int devnum)
 	/* Adjust timing for NAND device */
 	setup_timing(config->timing, info->reg);
 
-	funcmux_select(PERIPH_ID_NDFLASH, FUNCMUX_DEFAULT);
 	fdtdec_setup_gpio(&config->wp_gpio);
 	gpio_direction_output(config->wp_gpio.gpio, 1);
 
