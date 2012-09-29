@@ -758,7 +758,8 @@ static int fsl_sata_get_flush_ext(int dev)
 	return sata->flush_ext;
 }
 
-u32 ata_low_level_rw_lba48(int dev, u32 blknr, u32 blkcnt, void *buffer, int is_write)
+u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
+		const void *buffer, int is_write)
 {
 	u32 start, blks;
 	u8 *addr;
@@ -792,7 +793,8 @@ u32 ata_low_level_rw_lba48(int dev, u32 blknr, u32 blkcnt, void *buffer, int is_
 	return blkcnt;
 }
 
-u32 ata_low_level_rw_lba28(int dev, u32 blknr, u32 blkcnt, void *buffer, int is_write)
+u32 ata_low_level_rw_lba28(int dev, u32 blknr, u32 blkcnt, const void *buffer,
+		int is_write)
 {
 	u32 start, blks;
 	u8 *addr;
@@ -823,7 +825,7 @@ u32 ata_low_level_rw_lba28(int dev, u32 blknr, u32 blkcnt, void *buffer, int is_
 /*
  * SATA interface between low level driver and command layer
  */
-ulong sata_read(int dev, u32 blknr, u32 blkcnt, void *buffer)
+ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
 	u32 rc;
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
@@ -835,7 +837,7 @@ ulong sata_read(int dev, u32 blknr, u32 blkcnt, void *buffer)
 	return rc;
 }
 
-ulong sata_write(int dev, u32 blknr, u32 blkcnt, void *buffer)
+ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	u32 rc;
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
