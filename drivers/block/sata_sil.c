@@ -369,7 +369,7 @@ static ulong sil_sata_rw_cmd_ext(int dev, ulong start, ulong blkcnt,
 }
 
 ulong sil_sata_rw_lba28(int dev, ulong blknr, lbaint_t blkcnt,
-		void *buffer, int is_write)
+		const void *buffer, int is_write)
 {
 	ulong start, blks, max_blks;
 	u8 *addr;
@@ -397,7 +397,7 @@ ulong sil_sata_rw_lba28(int dev, ulong blknr, lbaint_t blkcnt,
 }
 
 ulong sil_sata_rw_lba48(int dev, ulong blknr, lbaint_t blkcnt,
-		void *buffer, int is_write)
+		const void *buffer, int is_write)
 {
 	ulong start, blks, max_blks;
 	u8 *addr;
@@ -502,7 +502,7 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 /*
  * SATA interface between low level driver and command layer
  */
-ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
+ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	struct sil_sata *sata = sata_dev_desc[dev].priv;
 	ulong rc;
