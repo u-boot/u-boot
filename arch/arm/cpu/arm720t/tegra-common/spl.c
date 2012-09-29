@@ -33,13 +33,13 @@
 #include <image.h>
 #include <malloc.h>
 #include <linux/compiler.h>
-#include "board.h"
 #include "cpu.h"
 
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/tegra.h>
+#include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/scu.h>

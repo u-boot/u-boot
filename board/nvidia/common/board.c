@@ -39,7 +39,6 @@
 #include <asm/arch-tegra/warmboot.h>
 #include <spi.h>
 #include <i2c.h>
-#include "board.h"
 #include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;

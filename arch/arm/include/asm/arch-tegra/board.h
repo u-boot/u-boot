@@ -24,7 +24,24 @@
 #ifndef _TEGRA_BOARD_H_
 #define _TEGRA_BOARD_H_
 
-/* Setup UARTs for the board according to the selected config */
+/* Set up pinmux to make UART usable */
+void gpio_config_uart(void);      /* CONFIG_SPI_UART_SWITCH */
+void gpio_early_init_uart(void);  /*!CONFIG_SPI_UART_SWITCH */
+
+/* Set up early UART output */
 void board_init_uart_f(void);
+
+/* Set up any early GPIOs the board might need for proper operation */
+void gpio_early_init(void);  /* overrideable GPIO config        */
+
+/*
+ * Hooks to allow boards to set up the pinmux for a specific function.
+ * Has to be implemented in the board files as we don't yet support pinmux
+ * setup from FTD. If a board file does not implement one of those functions
+ * an empty stub function will be called.
+ */
+
+void pin_mux_usb(void);      /* overrideable USB pinmux setup   */
+void pin_mux_spi(void);      /* overrideable SPI pinmux setup   */
 
 #endif
