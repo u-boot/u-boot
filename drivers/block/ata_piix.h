@@ -57,7 +57,7 @@ void dev_select(struct sata_ioports *ioaddr, int dev);
 u8 sata_busy_wait(struct sata_ioports *ioaddr, int bits, unsigned int max);
 u8 sata_chk_status(struct sata_ioports *ioaddr);
 ulong sata_read(int device, ulong blknr,lbaint_t blkcnt, void *buffer);
-ulong sata_write(int device,ulong blknr, lbaint_t blkcnt, void *buffer);
+ulong sata_write(int device,ulong blknr, lbaint_t blkcnt, const void *buffer);
 #endif
 
 /************DRIVER SPECIFIC DEFINITIONS AND DECLARATIONS**************/

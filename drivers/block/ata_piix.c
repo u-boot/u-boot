@@ -623,7 +623,7 @@ ulong sata_read(int device, ulong blknr, lbaint_t blkcnt, void *buff)
 	return n;
 }
 
-ulong sata_write(int device, ulong blknr, lbaint_t blkcnt, void *buff)
+ulong sata_write(int device, ulong blknr, lbaint_t blkcnt, const void *buff)
 {
 	ulong n = 0, *buffer = (ulong *)buff;
 	unsigned char status = 0, num = 0, dev = 0, mask = 0;
