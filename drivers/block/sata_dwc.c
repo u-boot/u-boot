@@ -1907,7 +1907,7 @@ err_out:
 #define SATA_MAX_WRITE_BLK 0xFFFF
 #endif
 
-ulong sata_write(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
+ulong sata_write(int device, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	ulong start,blks, buf_addr;
 	unsigned short smallblks;
