@@ -175,7 +175,6 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	disk_partition_t info;
 	int dev = 0;
 	int part = 1;
-	char *ep;
 
 	if (argc < 5)
 		return cmd_usage(cmdtp);
