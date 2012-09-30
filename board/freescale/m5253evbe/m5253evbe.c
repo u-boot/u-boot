@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007, 2012 Freescale Semiconductor, Inc.
  * Hayden Fraser (Hayden.Fraser@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <asm/immap.h>
+#include <asm/io.h>
 
 int checkboard(void)
 {
@@ -101,7 +102,7 @@ int ide_preinit(void)
 
 void ide_set_reset(int idereset)
 {
-	volatile atac_t *ata = (atac_t *) CONFIG_SYS_ATA_BASE_ADDR;
+	atac_t *ata = (atac_t *) CONFIG_SYS_ATA_BASE_ADDR;
 	long period;
 	/*  t1,  t2,  t3,  t4,  t5,  t6,  t9, tRD,  tA */
 	int piotms[5][9] = { {70, 165, 60, 30, 50, 5, 20, 0, 35},	/* PIO 0 */
@@ -112,7 +113,8 @@ void ide_set_reset(int idereset)
 	};
 
 	if (idereset) {
-		ata->cr = 0;	/* control reset */
+		/* control reset */
+		out_8(&ata->cr, 0);
 		udelay(100);
 	} else {
 		mbar2_writeLong(CIM_MISCCR, CIM_MISCCR_CPUEND);
@@ -121,17 +123,19 @@ void ide_set_reset(int idereset)
 		period = 1000000000 / (CONFIG_SYS_CLK / 2);	/* period in ns */
 
 		/*ata->ton = CALC_TIMING (180); */
-		ata->t1 = CALC_TIMING(piotms[2][0]);
-		ata->t2w = CALC_TIMING(piotms[2][1]);
-		ata->t2r = CALC_TIMING(piotms[2][1]);
-		ata->ta = CALC_TIMING(piotms[2][8]);
-		ata->trd = CALC_TIMING(piotms[2][7]);
-		ata->t4 = CALC_TIMING(piotms[2][3]);
-		ata->t9 = CALC_TIMING(piotms[2][6]);
+		out_8(&ata->t1, CALC_TIMING(piotms[2][0]));
+		out_8(&ata->t2w, CALC_TIMING(piotms[2][1]));
+		out_8(&ata->t2r, CALC_TIMING(piotms[2][1]));
+		out_8(&ata->ta, CALC_TIMING(piotms[2][8]));
+		out_8(&ata->trd, CALC_TIMING(piotms[2][7]));
+		out_8(&ata->t4, CALC_TIMING(piotms[2][3]));
+		out_8(&ata->t9, CALC_TIMING(piotms[2][6]));
 
-		ata->cr = 0x40;	/* IORDY enable */
+		/* IORDY enable */
+		out_8(&ata->cr, 0x40);
 		udelay(2000);
-		ata->cr |= 0x01;	/* IORDY enable */
+		/* IORDY enable */
+		setbits_8(&ata->cr, 0x01);
 	}
 }
 #endif				/* CONFIG_CMD_IDE */

@@ -1,0 +1,46 @@
+This patch series adds support for ext4 ls,load and write features in uboot
+Journaling is supported for write feature.
+
+To Enable ext2 ls and load commands, modify the board specific config file with
+#define CONFIG_CMD_EXT2
+
+To Enable ext4 ls and load commands, modify the board specific config file with
+#define CONFIG_CMD_EXT4
+
+To enable ext4 write command, modify the board specific config file with
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
+
+Steps to test:
+
+1. After applying the patch, ext4 specific commands can be seen
+   in the boot loader prompt using
+        UBOOT #help
+
+        ext4load- load binary file from a Ext4 file system
+        ext4ls  - list files in a directory (default /)
+        ext4write- create a file in ext4 formatted partition
+
+2. To list the files in ext4 formatted partition, execute
+        ext4ls <interface> <dev[:part]> [directory]
+        For example:
+        UBOOT #ext4ls mmc 0:5 /usr/lib
+
+3. To read and load a file from an ext4 formatted partition to RAM, execute
+        ext4load <interface> <dev[:part]> [addr] [filename] [bytes]
+        For example:
+        UBOOT #ext4load mmc 2:2 0x30007fc0 uImage
+
+4. To write a file to a ext4 formatted partition.
+        a) First load a file to RAM at a particular address for example 0x30007fc0.
+        Now execute ext4write command
+        ext4write <interface> <dev[:part]> [filename] [Address] [sizebytes]
+        For example:
+        UBOOT #ext4write mmc 2:2 /boot/uImage 0x30007fc0 6183120
+        (here 6183120 is the size of the file to be written)
+        Note: Absolute path is required for the file to be written
+
+References :
+	-- ext4 implementation in Linux Kernel
+	-- Uboot existing ext2 load and ls implementation
+	-- Journaling block device JBD2 implementation in linux Kernel

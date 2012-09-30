@@ -1,0 +1,334 @@
+The U-Boot Driver Model Project
+===============================
+Watchdog device subsystem analysis
+==================================
+
+Tomas Hlavacek <tmshlvck@gmail.com>
+2012-03-09
+
+I) Overview
+-----------
+
+U-Boot currently implements an API for HW watchdog devices as explicit drivers
+in drivers/watchdog directory. There are also drivers for both hardware and
+software watchdog on particular CPUs implemented in arch/*/cpu/*/cpu.c. There
+are macros in include/watchdog.h that selects between SW and HW watchdog and
+assembly SW implementation.
+
+The current common interface comprises of one set out of these two possible
+variants:
+
+    1)
+    void watchdog_reset(void);
+    int watchdog_disable(void);
+    int watchdog_init(void);
+
+    2)
+    void hw_watchdog_reset(void);
+    void hw_watchdog_init(void);
+
+The watchdog implementations are also spread through board/*/*.c that in
+some cases. The API and semantics is in most cases same as the above
+mentioned common functions.
+
+
+II) Approach
+------------
+
+  1) New API
+  ----------
+
+  In the UDM each watchdog driver would register itself by a function
+
+    int watchdog_device_register(struct instance *i,
+                                 const struct watchdog_device_ops *o);
+
+  The structure being defined as follows:
+
+    struct watchdog_device_ops {
+        int (*disable)(struct instance *i);
+        void (*reset)(struct instance *i);
+    };
+
+  The watchdog_init() function will be dissolved into probe() function.
+
+  2) Conversion thougths
+  ----------------------
+
+  Conversion of watchdog implementations to a new API could be divided
+  to three subsections: a) HW implementations, which are mostly compliant
+  to the above mentioned API; b) SW implementations, which are compliant
+  to the above mentioned API and c) SW implementations that are not compliant
+  to the API and has to be rectified or partially rewritten.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) drivers/watchdog/at91sam9_wdt.c
+  ----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  2) drivers/watchdog/ftwdt010_wdt.c
+  ----------------------------------
+  The driver is ad-hoc HW watchdog. Conversion has to take into account
+  driver parts spread in include/faraday/*. Restructuring the driver and
+  code cleanup has to be considered.
+
+
+  3) arch/arm/cpu/arm1136/mx31/timer.c
+  ------------------------------------
+  The driver is semi-standard ad-hoc HW watchdog. Conversion has to take
+  into account driver parts spread in the timer.c file.
+
+
+  4) arch/arm/cpu/arm926ejs/davinci/timer.c
+  -----------------------------------------
+  The driver is ad-hoc semi-standard HW watchdog. Conversion has to take
+  into account driver parts spread in the timer.c file.
+
+
+  5) arch/arm/cpu/armv7/omap-common/hwinit-common.c
+  -------------------------------------------------
+  The driver is non-standard ad-hoc HW watchdog. Conversion is possible
+  but functions has to be renamed and constants moved to another places.
+
+
+  6) arch/arm/cpu/armv7/omap3/board.c
+  -----------------------------------
+  The driver is non-standard ad-hoc HW watchdog. Conversion is possible
+  but functions has to be renamed and constants moved to another places.
+
+
+  7) arch/blackfin/cpu/watchdog.c
+  -------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  8) arch/m68k/cpu/mcf523x/cpu.c
+  ------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  9) arch/m68k/cpu/mcf52x2/cpu.c
+  ------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  10) arch/m68k/cpu/mcf532x/cpu.c
+  -------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  11) arch/m68k/cpu/mcf547x_8x/cpu.c
+  ----------------------------------
+  The driver is standard HW watchdog (there is slight naming convention
+  violation that has to be rectified). Simple conversion is possible.
+
+
+  12) arch/powerpc/cpu/74xx_7xx/cpu.c
+  -----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  13) arch/powerpc/cpu/mpc512x/cpu.c
+  ----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  14) arch/powerpc/cpu/mpc5xx/cpu.c
+  ---------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  15) arch/powerpc/cpu/mpc5xxx/cpu.c
+  ----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  16) arch/powerpc/cpu/mpc8260/cpu.c
+  ----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  17) arch/powerpc/cpu/mpc83xx/cpu.c
+  ----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  18) arch/powerpc/cpu/mpc85xx/cpu.c
+  ----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  19) arch/powerpc/cpu/mpc86xx/cpu.c
+  ----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  20) arch/powerpc/cpu/mpc8xx/cpu.c
+
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  21) arch/powerpc/cpu/ppc4xx/cpu.c
+  ---------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  22) arch/sh/cpu/sh2/watchdog.c
+  ------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  23) arch/sh/cpu/sh3/watchdog.c
+  ------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  24) arch/sh/cpu/sh4/watchdog.c
+  ------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  25) board/amcc/luan/luan.c
+  --------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  26) board/amcc/yosemite/yosemite.c
+  ----------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  27) board/apollon/apollon.c
+  ---------------------------
+  The driver is standard HW watchdog however the watchdog_init()
+  function is called in early initialization. Simple conversion is possible.
+
+
+  28) board/bmw/m48t59y.c
+  -----------------------
+  Special watchdog driver. Dead code. To be removed.
+
+
+  29) board/davedenx/qong/qong.c
+  ------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  30) board/dvlhost/watchdog.c
+  ----------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  31) board/eNET/eNET.c
+  ---------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  32) board/eltec/elppc/elppc.c
+  -----------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  33) board/enbw/enbw_cmc/enbw_cmc.c
+  ----------------------------------
+  Only function proxy call. Code cleanup needed.
+
+
+  34) board/freescale/mx31pdk/mx31pdk.c
+  -------------------------------------
+  Only function proxy call. Code cleanup needed.
+
+
+  35) board/gth2/gth2.c
+  ---------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  36) board/lwmon5/lwmon5.c
+  -------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  37) board/manroland/mucmc52/mucmc52.c
+  -------------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  38) board/manroland/uc101/uc101.c
+  ---------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  39) board/mousse/m48t59y.c
+  --------------------------
+  Special watchdog driver. Dead code. To be removed.
+
+
+  40) board/mvblue/mvblue.c
+  -------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  41) board/netphone/netphone.c
+  -----------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  42) board/netta/netta.c
+  -----------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  43) board/netta2/netta2.c
+  -------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  44) board/omicron/calimain/calimain.c
+  -------------------------------------
+  Only function proxy call. Code cleanup needed.
+
+
+  45) board/pcippc2/pcippc2.c
+  ---------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  46) board/pcs440ep/pcs440ep.c
+  -----------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  47) board/stx/stxxtc/stxxtc.c
+  -----------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  48) board/ti/omap2420h4/omap2420h4.c
+  ------------------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  49) board/ttcontrol/vision2/vision2.c
+  -------------------------------------
+  The driver is standard HW watchdog but namespace is polluted by
+  non-standard macros. Simple conversion is possible, code cleanup
+  needed.
+
+
+  50) board/v38b/v38b.c
+  ---------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  51) board/ve8313/ve8313.c
+  -------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.
+
+
+  52) board/w7o/watchdog.c
+  ------------------------
+  The driver is standard HW watchdog. Simple conversion is possible.

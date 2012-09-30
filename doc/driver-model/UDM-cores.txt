@@ -1,0 +1,126 @@
+The U-Boot Driver Model Project
+===============================
+Driver cores API document
+=========================
+
+Pavel Herrmann <morpheus.ibis@gmail.com>
+
+1) Overview
+-----------
+  Driver cores will be used as a wrapper for devices of the same type, and as
+  an abstraction for device driver APIs. For each driver API (which roughly
+  correspond to device types), there will be one driver core. Each driver core
+  will implement three APIs - a driver API (which will be the same as API of
+  drivers the core wraps around), a core API (which will be implemented by all
+  cores) and a command API (core-specific API which will be exposed to
+  commands).
+
+  A) Command API
+    The command API will provide access to shared functionality for a specific
+    device, which is currently located mostly in commands. Commands will be
+    rewritten to be more lightweight by using this API. As this API will be
+    different for each core, it is out of scope of this document.
+
+  B) Driver API
+    The driver API will act as a wrapper around actual device drivers,
+    providing a single entrypoint for device access. All functions in this API
+    have an instance* argument (probably called "this" or "i"), which will be
+    examined by the core, and a correct function for the specified driver will
+    get called.
+
+    If the core gets called with a group instance pointer (as discussed in
+    design), it will automatically select the instance that is associated
+    with this core, and use it as target of the call. if the group contains
+    multiple instances of a single type, the caller must explicitly use an
+    accessor to select the correct instance.
+
+    This accessor will look like:
+      struct instance *get_instance_from_group(struct instance *group, int i)
+
+    When called with a non-group instance, it will simply return the instance.
+
+  C) Core API
+    The core API will be implemented by all cores, and will provide
+    functionality for getting driver instances from non-driver code. This API
+    will consist of following functions:
+
+      int get_count(struct instance *core);
+      struct instance* get_instance(struct instance *core, int index);
+      int init(struct instance *core);
+      int bind(struct instance *core, struct instance *dev, void *ops,
+	       void *hint);
+      int unbind(struct instance *core, instance *dev);
+      int replace(struct instance *core, struct_instance *new_dev,
+		  struct instance *old_dev);
+      int destroy(struct instance *core);
+      int reloc(struct instance *new_core, struct instance *old_core);
+
+      The 'hint' parameter of bind() serves for additional data a driver can
+      pass to the core, to help it create the correct internal state for this
+      instance. the replace() function will get called during instance
+      relocation, and will replace the old instance with the new one, keeping
+      the internal state untouched.
+
+
+2) Lifetime of a driver core
+----------------------------
+  Driver cores will be initialized at runtime, to limit memory footprint in
+  early-init stage, when we have to fit into ~1KB of memory. All active cores
+  will be stored in a tree structure (referenced as "Core tree") in global data,
+  which provides good tradeoff between size and access time.
+  Every core will have a number constant associated with it, which will be used
+  to find the instance in Core tree, and to refer to the core in all calls
+  working with the Core tree.
+  The Core Tree should be implemented using B-tree (or a similar structure)
+  to guarantee acceptable time overhead in all cases.
+
+  Code for working with the core (i2c in this example) follows:
+
+    core_init(CORE_I2C);
+      This will check whether we already have a i2c core, and if not it creates
+      a new instance and adds it into the Core tree. This will not be exported,
+      all code should depend on get_core_instance to init the core when
+      necessary.
+
+    get_core_instance(CORE_I2C);
+      This is an accessor into the Core tree, which will return the instance
+      of i2c core, creating it if necessary
+
+    core_bind(CORE_I2C, instance, driver_ops);
+      This will get called in bind() function of a driver, and will add the
+      instance into cores internal list of devices. If the core is not found, it
+      will get created.
+
+    driver_activate(instance *inst);
+      This call will recursively activate all devices necessary for using the
+      specified device. the code could be simplified as:
+        {
+        if (is_activated(inst))
+          return;
+        driver_activate(inst->bus);
+        get_driver(inst)->probe(inst);
+        }
+
+      The case with multiple parents will need to be handled here as well.
+      get_driver is an accessor to available drivers, which will get struct
+      driver based on a name in the instance.
+
+    i2c_write(instance *inst, ...);
+      An actual call to some method of the driver. This code will look like:
+        {
+        driver_activate(inst);
+        struct instance *core = get_core_instance(CORE_I2C);
+        device_ops = get_ops(inst);
+        device_ops->write(...);
+        }
+
+      get_ops will not be an exported function, it will be internal and specific
+      to the core, as it needs to know how are the ops stored, and what type
+      they are.
+
+  Please note that above examples represent the algorithm, not the actual code,
+  as they are missing checks for validity of return values.
+
+  core_init() function will get called the first time the core is requested,
+  either by core_link() or core_get_instance(). This way, the cores will get
+  created only when they are necessary, which will reduce our memory footprint.

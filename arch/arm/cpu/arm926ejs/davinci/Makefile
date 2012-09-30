@@ -37,7 +37,7 @@ COBJS-$(CONFIG_SOC_DA850)	+= da850_pinmux.o
 COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= lxt972.o dp83848.o et1011c.o ksz8873.o
 
 ifdef CONFIG_SPL_BUILD
-COBJS-y	+= spl.o
+COBJS-$(CONFIG_SPL_FRAMEWORK)	+= spl.o
 COBJS-$(CONFIG_SOC_DM365)	+= dm365_lowlevel.o
 COBJS-$(CONFIG_SOC_DA8XX)	+= da850_lowlevel.o
 endif

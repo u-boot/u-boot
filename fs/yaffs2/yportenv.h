@@ -17,6 +17,7 @@
 #ifndef __YPORTENV_H__
 #define __YPORTENV_H__
 
+#include <linux/types.h>
 
 /* Definition of types */
 #ifdef CONFIG_YAFFS_DEFINES_TYPES

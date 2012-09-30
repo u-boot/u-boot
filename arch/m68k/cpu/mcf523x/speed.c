@@ -3,7 +3,7 @@
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -29,6 +29,7 @@
 #include <asm/processor.h>
 
 #include <asm/immap.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 /*
@@ -36,11 +37,12 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int get_clocks(void)
 {
-	volatile pll_t *pll = (volatile pll_t *)(MMAP_PLL);
+	pll_t *pll = (pll_t *)(MMAP_PLL);
 
-	pll->syncr = PLL_SYNCR_MFD(1);
+	out_be32(&pll->syncr, PLL_SYNCR_MFD(1));
 
-	while (!(pll->synsr & PLL_SYNSR_LOCK));
+	while (!(in_be32(&pll->synsr) & PLL_SYNSR_LOCK))
+		;
 
 	gd->bus_clk = CONFIG_SYS_CLK;
 	gd->cpu_clk = (gd->bus_clk * 2);

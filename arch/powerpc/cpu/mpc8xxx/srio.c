@@ -95,126 +95,92 @@ void srio_init(void)
 	}
 }
 
-#ifdef CONFIG_SRIOBOOT_MASTER
-void srio_boot_master(void)
+#ifdef CONFIG_FSL_CORENET
+void srio_boot_master(int port)
 {
 	struct ccsr_rio *srio = (void *)CONFIG_SYS_FSL_SRIO_ADDR;
 
 	/* set port accept-all */
-	out_be32((void *)&srio->impl.port[CONFIG_SRIOBOOT_MASTER_PORT].ptaacr,
+	out_be32((void *)&srio->impl.port[port - 1].ptaacr,
 				SRIO_PORT_ACCEPT_ALL);
 
-	debug("SRIOBOOT - MASTER: Master port [ %d ] for srio boot.\n",
-			CONFIG_SRIOBOOT_MASTER_PORT);
+	debug("SRIOBOOT - MASTER: Master port [ %d ] for srio boot.\n", port);
 	/* configure inbound window for slave's u-boot image */
 	debug("SRIOBOOT - MASTER: Inbound window for slave's image; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS1,
-			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS1,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[0].riwtar,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS1 >> 12);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[0].riwbar,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS1 >> 12);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[0].riwar,
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwtar,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS >> 12);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwbar,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1 >> 12);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE));
+			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE));
 
 	/* configure inbound window for slave's u-boot image */
 	debug("SRIOBOOT - MASTER: Inbound window for slave's image; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS2,
-			(u64)CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS2,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[1].riwtar,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_LAW_PHYS2 >> 12);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[1].riwbar,
-			CONFIG_SRIOBOOT_SLAVE_IMAGE_SRIO_PHYS2 >> 12);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[1].riwar,
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwtar,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS >> 12);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwbar,
+			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2 >> 12);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_IMAGE_SIZE));
+			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE));
 
-	/* configure inbound window for slave's ucode */
-	debug("SRIOBOOT - MASTER: Inbound window for slave's ucode; "
+	/* configure inbound window for slave's ucode and ENV */
+	debug("SRIOBOOT - MASTER: Inbound window for slave's ucode and ENV; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIOBOOT_SLAVE_UCODE_LAW_PHYS,
-			(u64)CONFIG_SRIOBOOT_SLAVE_UCODE_SRIO_PHYS,
-			CONFIG_SRIOBOOT_SLAVE_UCODE_SIZE);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[2].riwtar,
-			CONFIG_SRIOBOOT_SLAVE_UCODE_LAW_PHYS >> 12);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[2].riwbar,
-			CONFIG_SRIOBOOT_SLAVE_UCODE_SRIO_PHYS >> 12);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[2].riwar,
+			(u64)CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS,
+			(u64)CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS,
+			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwtar,
+			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS >> 12);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwbar,
+			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS >> 12);
+	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_UCODE_SIZE));
-
-	/* configure inbound window for slave's ENV */
-	debug("SRIOBOOT - MASTER: Inbound window for slave's ENV; "
-			"Local = 0x%llx, Siro = 0x%llx, Size = 0x%x\n",
-			CONFIG_SRIOBOOT_SLAVE_ENV_LAW_PHYS,
-			CONFIG_SRIOBOOT_SLAVE_ENV_SRIO_PHYS,
-			CONFIG_SRIOBOOT_SLAVE_ENV_SIZE);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[3].riwtar,
-			CONFIG_SRIOBOOT_SLAVE_ENV_LAW_PHYS >> 12);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[3].riwbar,
-			CONFIG_SRIOBOOT_SLAVE_ENV_SRIO_PHYS >> 12);
-	out_be32((void *)&srio->atmu
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].inbw[3].riwar,
-			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIOBOOT_SLAVE_ENV_SIZE));
+			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE));
 }
 
-#ifdef CONFIG_SRIOBOOT_SLAVE_HOLDOFF
-void srio_boot_master_release_slave(void)
+void srio_boot_master_release_slave(int port)
 {
 	struct ccsr_rio *srio = (void *)CONFIG_SYS_FSL_SRIO_ADDR;
 	u32 escsr;
 	debug("SRIOBOOT - MASTER: "
 			"Check the port status and release slave core ...\n");
 
-	escsr = in_be32((void *)&srio->lp_serial
-			.port[CONFIG_SRIOBOOT_MASTER_PORT].pescsr);
+	escsr = in_be32((void *)&srio->lp_serial.port[port - 1].pescsr);
 	if (escsr & 0x2) {
 		if (escsr & 0x10100) {
 			debug("SRIOBOOT - MASTER: Port [ %d ] is error.\n",
-					CONFIG_SRIOBOOT_MASTER_PORT);
+				port);
 		} else {
 			debug("SRIOBOOT - MASTER: "
-					"Port [ %d ] is ready, now release slave's core ...\n",
-					CONFIG_SRIOBOOT_MASTER_PORT);
+				"Port [ %d ] is ready, now release slave's core ...\n",
+				port);
 			/*
 			 * configure outbound window
 			 * with maintenance attribute to set slave's LCSBA1CSR
 			 */
-			out_be32((void *)&srio->atmu
-				.port[CONFIG_SRIOBOOT_MASTER_PORT]
+			out_be32((void *)&srio->atmu.port[port - 1]
 				.outbw[1].rowtar, 0);
-			out_be32((void *)&srio->atmu
-				.port[CONFIG_SRIOBOOT_MASTER_PORT]
+			out_be32((void *)&srio->atmu.port[port - 1]
 				.outbw[1].rowtear, 0);
-			if (CONFIG_SRIOBOOT_MASTER_PORT)
-				out_be32((void *)&srio->atmu
-					.port[CONFIG_SRIOBOOT_MASTER_PORT]
+			if (port - 1)
+				out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[1].rowbar,
 					CONFIG_SYS_SRIO2_MEM_PHYS >> 12);
 			else
-				out_be32((void *)&srio->atmu
-					.port[CONFIG_SRIOBOOT_MASTER_PORT]
+				out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[1].rowbar,
 					CONFIG_SYS_SRIO1_MEM_PHYS >> 12);
-			out_be32((void *)&srio->atmu
-					.port[CONFIG_SRIOBOOT_MASTER_PORT]
+			out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[1].rowar,
 					SRIO_OB_ATMU_AR_MAINT
 					| atmu_size_mask(SRIO_MAINT_WIN_SIZE));
@@ -223,27 +189,22 @@ void srio_boot_master_release_slave(void)
 			 * configure outbound window
 			 * with R/W attribute to set slave's BRR
 			 */
-			out_be32((void *)&srio->atmu
-				.port[CONFIG_SRIOBOOT_MASTER_PORT]
+			out_be32((void *)&srio->atmu.port[port - 1]
 				.outbw[2].rowtar,
 				SRIO_LCSBA1CSR >> 9);
-			out_be32((void *)&srio->atmu
-				.port[CONFIG_SRIOBOOT_MASTER_PORT]
+			out_be32((void *)&srio->atmu.port[port - 1]
 				.outbw[2].rowtear, 0);
-			if (CONFIG_SRIOBOOT_MASTER_PORT)
-				out_be32((void *)&srio->atmu
-					.port[CONFIG_SRIOBOOT_MASTER_PORT]
+			if (port - 1)
+				out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[2].rowbar,
 					(CONFIG_SYS_SRIO2_MEM_PHYS
 					+ SRIO_MAINT_WIN_SIZE) >> 12);
 			else
-				out_be32((void *)&srio->atmu
-					.port[CONFIG_SRIOBOOT_MASTER_PORT]
+				out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[2].rowbar,
 					(CONFIG_SYS_SRIO1_MEM_PHYS
 					+ SRIO_MAINT_WIN_SIZE) >> 12);
-			out_be32((void *)&srio->atmu
-				.port[CONFIG_SRIOBOOT_MASTER_PORT]
+			out_be32((void *)&srio->atmu.port[port - 1]
 				.outbw[2].rowar,
 				SRIO_OB_ATMU_AR_RW
 				| atmu_size_mask(SRIO_RW_WIN_SIZE));
@@ -252,7 +213,7 @@ void srio_boot_master_release_slave(void)
 			 * Set the LCSBA1CSR register in slave
 			 * by the maint-outbound window
 			 */
-			if (CONFIG_SRIOBOOT_MASTER_PORT) {
+			if (port - 1) {
 				out_be32((void *)CONFIG_SYS_SRIO2_MEM_VIRT
 					+ SRIO_LCSBA1CSR_OFFSET,
 					SRIO_LCSBA1CSR);
@@ -266,8 +227,8 @@ void srio_boot_master_release_slave(void)
 				 */
 				out_be32((void *)CONFIG_SYS_SRIO2_MEM_VIRT
 					+ SRIO_MAINT_WIN_SIZE
-					+ CONFIG_SRIOBOOT_SLAVE_BRR_OFFSET,
-					CONFIG_SRIOBOOT_SLAVE_RELEASE_MASK);
+					+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET,
+					CONFIG_SRIO_PCIE_BOOT_RELEASE_MASK);
 			} else {
 				out_be32((void *)CONFIG_SYS_SRIO1_MEM_VIRT
 					+ SRIO_LCSBA1CSR_OFFSET,
@@ -282,15 +243,13 @@ void srio_boot_master_release_slave(void)
 				 */
 				out_be32((void *)CONFIG_SYS_SRIO1_MEM_VIRT
 					+ SRIO_MAINT_WIN_SIZE
-					+ CONFIG_SRIOBOOT_SLAVE_BRR_OFFSET,
-					CONFIG_SRIOBOOT_SLAVE_RELEASE_MASK);
+					+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET,
+					CONFIG_SRIO_PCIE_BOOT_RELEASE_MASK);
 			}
 			debug("SRIOBOOT - MASTER: "
 					"Release slave successfully! Now the slave should start up!\n");
 		}
 	} else
-		debug("SRIOBOOT - MASTER: Port [ %d ] is not ready.\n",
-				CONFIG_SRIOBOOT_MASTER_PORT);
+		debug("SRIOBOOT - MASTER: Port [ %d ] is not ready.\n", port);
 }
-#endif
 #endif

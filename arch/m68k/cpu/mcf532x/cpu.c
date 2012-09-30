@@ -3,7 +3,7 @@
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * Copyright (C) 2004-2008 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2008, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -31,15 +31,16 @@
 #include <netdev.h>
 
 #include <asm/immap.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	volatile rcm_t *rcm = (rcm_t *) (MMAP_RCM);
+	rcm_t *rcm = (rcm_t *) (MMAP_RCM);
 
 	udelay(1000);
-	rcm->rcr |= RCM_RCR_SOFTRST;
+	setbits_8(&rcm->rcr, RCM_RCR_SOFTRST);
 
 	/* we don't return! */
 	return 0;
@@ -47,14 +48,14 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int checkcpu(void)
 {
-	volatile ccm_t *ccm = (ccm_t *) MMAP_CCM;
+	ccm_t *ccm = (ccm_t *) MMAP_CCM;
 	u16 msk;
 	u16 id = 0;
 	u8 ver;
 
 	puts("CPU:   ");
-	msk = (ccm->cir >> 6);
-	ver = (ccm->cir & 0x003f);
+	msk = (in_be16(&ccm->cir) >> 6);
+	ver = (in_be16(&ccm->cir) & 0x003f);
 	switch (msk) {
 #ifdef CONFIG_MCF5301x
 	case 0x78:
@@ -115,18 +116,20 @@ int checkcpu(void)
 /* Called by macro WATCHDOG_RESET */
 void watchdog_reset(void)
 {
-	volatile wdog_t *wdp = (wdog_t *) (MMAP_WDOG);
+	wdog_t *wdp = (wdog_t *) (MMAP_WDOG);
 
-	wdp->sr = 0x5555;	/* Count register */
-	wdp->sr = 0xAAAA;	/* Count register */
+	/* Count register */
+	out_be16(&wdp->sr, 0x5555);
+	out_be16(&wdp->sr, 0xaaaa);
 }
 
 int watchdog_disable(void)
 {
-	volatile wdog_t *wdp = (wdog_t *) (MMAP_WDOG);
+	wdog_t *wdp = (wdog_t *) (MMAP_WDOG);
 
 	/* UserManual, once the wdog is disabled, wdog cannot be re-enabled */
-	wdp->cr |= WTM_WCR_HALTED;	/* halted watchdog timer */
+	/* halted watchdog timer */
+	setbits_be16(&wdp->cr, WTM_WCR_HALTED);
 
 	puts("WATCHDOG:disabled\n");
 	return (0);
@@ -134,18 +137,18 @@ int watchdog_disable(void)
 
 int watchdog_init(void)
 {
-	volatile wdog_t *wdp = (wdog_t *) (MMAP_WDOG);
+	wdog_t *wdp = (wdog_t *) (MMAP_WDOG);
 	u32 wdog_module = 0;
 
 	/* set timeout and enable watchdog */
 	wdog_module = ((CONFIG_SYS_CLK / 1000) * CONFIG_WATCHDOG_TIMEOUT);
 #ifdef CONFIG_M5329
-	wdp->mr = (wdog_module / 8192);
+	out_be16(&wdp->mr, wdog_module / 8192);
 #else
-	wdp->mr = (wdog_module / 4096);
+	out_be16(&wdp->mr, wdog_module / 4096);
 #endif
 
-	wdp->cr = WTM_WCR_EN;
+	out_be16(&wdp->cr, WTM_WCR_EN);
 	puts("WATCHDOG:enabled\n");
 
 	return (0);

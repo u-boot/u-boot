@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Freescale Semiconductor, Inc.
+ * (C) Copyright 2007, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -25,6 +25,7 @@
 
 #include <asm/timer.h>
 #include <asm/immap.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,31 +43,32 @@ extern void dtimer_intr_setup(void);
 
 void __udelay(unsigned long usec)
 {
-	volatile slt_t *timerp = (slt_t *) (CONFIG_SYS_UDELAY_BASE);
+	slt_t *timerp = (slt_t *) (CONFIG_SYS_UDELAY_BASE);
 	u32 now, freq;
 
 	/* 1 us period */
 	freq = CONFIG_SYS_TIMER_PRESCALER;
 
-	timerp->cr = 0;		/* Disable */
-	timerp->tcnt = usec * freq;
-	timerp->cr = SLT_CR_TEN;
+	/* Disable */
+	out_be32(&timerp->cr, 0);
+	out_be32(&timerp->tcnt, usec * freq);
+	out_be32(&timerp->cr, SLT_CR_TEN);
 
-	now = timerp->cnt;
+	now = in_be32(&timerp->cnt);
 	while (now != 0)
-		now = timerp->cnt;
+		now = in_be32(&timerp->cnt);
 
-	timerp->sr |= SLT_SR_ST;
-	timerp->cr = 0;
+	setbits_be32(&timerp->sr, SLT_SR_ST);
+	out_be32(&timerp->cr, 0);
 }
 
 void dtimer_interrupt(void *not_used)
 {
-	volatile slt_t *timerp = (slt_t *) (CONFIG_SYS_TMR_BASE);
+	slt_t *timerp = (slt_t *) (CONFIG_SYS_TMR_BASE);
 
 	/* check for timer interrupt asserted */
 	if ((CONFIG_SYS_TMRPND_REG & CONFIG_SYS_TMRINTR_MASK) == CONFIG_SYS_TMRINTR_PEND) {
-		timerp->sr |= SLT_SR_ST;
+		setbits_be32(&timerp->sr, SLT_SR_ST);
 		timestamp++;
 		return;
 	}
@@ -74,25 +76,27 @@ void dtimer_interrupt(void *not_used)
 
 int timer_init(void)
 {
-	volatile slt_t *timerp = (slt_t *) (CONFIG_SYS_TMR_BASE);
+	slt_t *timerp = (slt_t *) (CONFIG_SYS_TMR_BASE);
 
 	timestamp = 0;
 
-	timerp->cr = 0;		/* disable timer */
-	timerp->tcnt = 0;
-	timerp->sr = SLT_SR_BE | SLT_SR_ST;	/* clear status */
+	/* disable timer */
+	out_be32(&timerp->cr, 0);
+	out_be32(&timerp->tcnt, 0);
+	/* clear status */
+	out_be32(&timerp->sr, SLT_SR_BE | SLT_SR_ST);
 
 	/* initialize and enable timer interrupt */
 	irq_install_handler(CONFIG_SYS_TMRINTR_NO, dtimer_interrupt, 0);
 
 	/* Interrupt every ms */
-	timerp->tcnt = 1000 * CONFIG_SYS_TIMER_PRESCALER;
+	out_be32(&timerp->tcnt, 1000 * CONFIG_SYS_TIMER_PRESCALER);
 
 	dtimer_intr_setup();
 
 	/* set a period of 1us, set timer mode to restart and
 	   enable timer and interrupt */
-	timerp->cr = SLT_CR_RUN | SLT_CR_IEN | SLT_CR_TEN;
+	out_be32(&timerp->cr, SLT_CR_RUN | SLT_CR_IEN | SLT_CR_TEN);
 	return 0;
 }
 

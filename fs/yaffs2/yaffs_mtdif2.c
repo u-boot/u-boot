@@ -28,7 +28,6 @@
 
 #include "yaffs_trace.h"
 #include "yaffs_packedtags2.h"
-#include "string.h"
 
 #define yaffs_dev_to_mtd(dev) ((struct mtd_info *)((dev)->driver_context))
 #define yaffs_dev_to_lc(dev) ((struct yaffs_linux_context *)((dev)->os_context))
@@ -46,9 +45,7 @@ int nandmtd2_write_chunk_tags(struct yaffs_dev *dev, int nand_chunk,
 	struct mtd_oob_ops ops;
 
 	int retval = 0;
-
 	loff_t addr;
-	u8 local_spare[128];
 
 	struct yaffs_packed_tags2 pt;
 

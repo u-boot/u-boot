@@ -83,6 +83,10 @@ extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 /* The minimum and maximum match lengths */
 
 	 /* functions */
+#ifdef CONFIG_GZIP_COMPRESSED
+#define PRESET_DICT 0x20 /* preset dictionary flag in zlib header */
+#  define OS_CODE  0x03  /* assume Unix */
+#endif
 
 #include <linux/string.h>
 #define zmemcpy memcpy

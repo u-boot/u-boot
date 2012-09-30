@@ -122,7 +122,7 @@ void portmux_enable_macb1(unsigned long flags, unsigned long drive_strength)
 		portd_mask |= (1 << 15);/* SPD	*/
 
 	/* REVISIT: Some pins are probably pure outputs */
-	portmux_select_peripheral(PORTMUX_PORT_D, portc_mask,
+	portmux_select_peripheral(PORTMUX_PORT_D, portd_mask,
 			PORTMUX_FUNC_B, PORTMUX_BUSKEEPER);
 	portmux_select_peripheral(PORTMUX_PORT_C, portc_mask,
 			PORTMUX_FUNC_B, PORTMUX_BUSKEEPER);

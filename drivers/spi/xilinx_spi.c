@@ -78,7 +78,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				  unsigned int max_hz, unsigned int mode)
 {
 	struct xilinx_spi_slave *xilspi;
-	struct xilinx_spi_reg *regs;
 
 	if (!spi_cs_is_valid(bus, cs)) {
 		printf("XILSPI error: %s: unsupported bus %d / cs %d\n",

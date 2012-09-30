@@ -76,6 +76,8 @@
 #define  SDHCI_SPACE_AVAILABLE	0x00000400
 #define  SDHCI_DATA_AVAILABLE	0x00000800
 #define  SDHCI_CARD_PRESENT	0x00010000
+#define  SDHCI_CARD_STATE_STABLE	0x00020000
+#define  SDHCI_CARD_DETECT_PIN_LEVEL	0x00040000
 #define  SDHCI_WRITE_PROTECT	0x00080000
 
 #define SDHCI_HOST_CONTROL	0x28
@@ -87,7 +89,9 @@
 #define   SDHCI_CTRL_ADMA1	0x08
 #define   SDHCI_CTRL_ADMA32	0x10
 #define   SDHCI_CTRL_ADMA64	0x18
-#define   SDHCI_CTRL_8BITBUS	0x20
+#define  SDHCI_CTRL_8BITBUS	0x20
+#define  SDHCI_CTRL_CD_TEST_INS	0x40
+#define  SDHCI_CTRL_CD_TEST	0x80
 
 #define SDHCI_POWER_CONTROL	0x29
 #define  SDHCI_POWER_ON		0x01
@@ -219,6 +223,7 @@
 #define SDHCI_QUIRK_BROKEN_R1B		(1 << 2)
 #define SDHCI_QUIRK_NO_HISPD_BIT	(1 << 3)
 #define SDHCI_QUIRK_BROKEN_VOLTAGE	(1 << 4)
+#define SDHCI_QUIRK_NO_CD		(1 << 5)
 
 /* to make gcc happy */
 struct sdhci_host;
@@ -248,8 +253,10 @@ struct sdhci_host {
 	unsigned int clock;
 	struct mmc *mmc;
 	const struct sdhci_ops *ops;
+	int index;
 
 	void (*set_control_reg)(struct sdhci_host *host);
+	void (*set_clock)(int dev_index, unsigned int div);
 	uint	voltages;
 };
 

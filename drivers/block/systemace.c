@@ -51,24 +51,36 @@
  * to be the base address for the chip, usually in the local
  * peripheral bus.
  */
-#if (CONFIG_SYS_SYSTEMACE_WIDTH == 8)
-#if !defined(__BIG_ENDIAN)
-#define ace_readw(off) ((readb(CONFIG_SYS_SYSTEMACE_BASE+off)<<8) | \
-			(readb(CONFIG_SYS_SYSTEMACE_BASE+off+1)))
-#define ace_writew(val, off) {writeb(val>>8, CONFIG_SYS_SYSTEMACE_BASE+off); \
-			      writeb(val, CONFIG_SYS_SYSTEMACE_BASE+off+1);}
-#else
-#define ace_readw(off) ((readb(CONFIG_SYS_SYSTEMACE_BASE+off)) | \
-			(readb(CONFIG_SYS_SYSTEMACE_BASE+off+1)<<8))
-#define ace_writew(val, off) {writeb(val, CONFIG_SYS_SYSTEMACE_BASE+off); \
-			      writeb(val>>8, CONFIG_SYS_SYSTEMACE_BASE+off+1);}
-#endif
-#else
-#define ace_readw(off) (in16(CONFIG_SYS_SYSTEMACE_BASE+off))
-#define ace_writew(val, off) (out16(CONFIG_SYS_SYSTEMACE_BASE+off,val))
-#endif
 
-/* */
+static u32 base = CONFIG_SYS_SYSTEMACE_BASE;
+static u32 width = CONFIG_SYS_SYSTEMACE_WIDTH;
+
+static void ace_writew(u16 val, unsigned off)
+{
+	if (width == 8) {
+#if !defined(__BIG_ENDIAN)
+		writeb(val >> 8, base + off);
+		writeb(val, base + off + 1);
+#else
+		writeb(val, base + off);
+		writeb(val >> 8, base + off + 1);
+#endif
+	}
+	out16(base + off, val);
+}
+
+static u16 ace_readw(unsigned off)
+{
+	if (width == 8) {
+#if !defined(__BIG_ENDIAN)
+		return (readb(base + off) << 8) | readb(base + off + 1);
+#else
+		return readb(base + off) | (readb(base + off + 1) << 8);
+#endif
+	}
+
+	return in16(base + off);
+}
 
 static unsigned long systemace_read(int dev, unsigned long start,
 				    unsigned long blkcnt, void *buffer);
@@ -121,7 +133,7 @@ block_dev_desc_t *systemace_get_dev(int dev)
 		/*
 		 * Ensure the correct bus mode (8/16 bits) gets enabled
 		 */
-		ace_writew(CONFIG_SYS_SYSTEMACE_WIDTH == 8 ? 0 : 0x0001, 0);
+		ace_writew(width == 8 ? 0 : 0x0001, 0);
 
 		init_part(&systemace_dev);
 

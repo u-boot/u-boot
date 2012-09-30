@@ -1,0 +1,106 @@
+The U-Boot Driver Model Project
+===============================
+GPIO analysis
+=============
+Viktor Krivak <viktor.krivak@gmail.com>
+2012-02-24
+
+I) Overview
+-----------
+
+  At this moment U-Boot provides standard API that consists of 7 functions.
+
+    int  gpio_request(unsigned gpio, const char *label)
+    int  gpio_free(unsigned gpio)
+    int  gpio_direction_input(unsigned gpio)
+    int  gpio_direction_output(unsigned gpio, int value)
+    int  gpio_get_value(unsigned gpio)
+    void gpio_set_value(unsigned gpio, int value)
+
+  Methods "gpio_request()" and "gpio_free()" are used for claiming and releasing
+  GPIOs. First one should check if the desired pin exists and if the pin wasn't
+  requested already elsewhere. The method also has a label argument that can be
+  used for debug purposes. The label argument should be copied into the internal
+  memory, but only if the DEBUG macro is set. The "gpio_free()" is the exact
+  opposite. It releases the particular pin. Other methods are used for setting
+  input or output direction and obtaining or setting values of the pins.
+
+II) Approach
+------------
+
+  1) Request and free GPIO
+  ------------------------
+
+    The "gpio_request()" implementation is basically the same for all boards.
+    The function checks if the particular GPIO is correct and checks if the
+    GPIO pin is still free. If the conditions are met, the method marks the
+    GPIO claimed in it's internal structure. If macro DEBUG is defined, the
+    function also copies the label argument to the structure. If the pin is
+    already locked, the function returns -1 and if DEBUG is defined, certain
+    debug output is generated, including the contents of the label argument.
+    The "gpio_free()" function releases the lock and eventually deallocates
+    data used by the copied label argument.
+
+  2) Internal data
+  ----------------
+
+  Internal data are driver specific. They have to contain some mechanism to
+  realise the locking though. This can be done for example using a bit field.
+
+  3) Operations provided by the driver
+  ------------------------------------
+
+  The driver operations basically meet API that is already defined and used.
+  Except for "gpio_request()" and "gpio_free()", all methods can be converted in
+  a simple manner. The driver provides the following structure:
+
+  struct gpio_driver_ops {
+    int  (*gpio_request)(struct instance *i, unsigned gpio,
+                         const char *label);
+    int  (*gpio_free)(struct instance *i, unsigned gpio);
+    int  (*gpio_direction_input)(struct instance *i, unsigned gpio);
+    int  (*gpio_direction_output)(struct instance *i, unsigned gpio,
+                                  int value);
+    int  (*gpio_get_value)(struct instance *i, unsigned gpio);
+    void (*gpio_set_value)(struct instance *i, unsigned gpio, int value);
+  }
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) altera_pio.c
+  ---------------
+  Meets standard API. Implements gpio_request() properly. Simple conversion
+  possible.
+
+  2) at91_gpio.c
+  --------------
+  Don't meet standard API. Need some other methods to implement.
+
+  3) da8xx_gpio.c
+  ---------------
+  Meets standard API. Implements gpio_request() properly. Simple conversion
+  possible.
+
+  4) kw_gpio.c
+  ------------
+  Doesn't meet standard API. Needs some other methods to implement and move some
+  methods to another file.
+
+  5) mpc83xx_gpio.c
+  -----------------
+  Meets standard API. Doesn't implement gpio_request() properly (only checks
+  if the pin is valid). Simple conversion possible.
+
+  6) mvgpio.c
+  -----------
+  Meets standard API. Doesn't implement gpio_request() properly (only checks
+  if the pin is valid). Simple conversion possible.
+
+  7) mvgpio.h
+  -----------
+  Wrong placement. Will be moved to another location.
+
+  8) mvmfp.c
+  ----------
+  Wrong placement. Will be moved to another location.

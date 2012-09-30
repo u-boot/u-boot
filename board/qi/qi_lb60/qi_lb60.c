@@ -69,7 +69,7 @@ static void gpio_init(void)
 static void cpm_init(void)
 {
 	struct jz4740_cpm *cpm = (struct jz4740_cpm *)JZ4740_CPM_BASE;
-	uint32_t reg = readw(&cpm->clkgr);
+	uint32_t reg = readl(&cpm->clkgr);
 
 	reg |=	CPM_CLKGR_IPU |
 		CPM_CLKGR_CIM |
@@ -81,7 +81,7 @@ static void cpm_init(void)
 		CPM_CLKGR_UDC |
 		CPM_CLKGR_AIC1;
 
-	writew(reg, &cpm->clkgr);
+	writel(reg, &cpm->clkgr);
 }
 
 int board_early_init_f(void)

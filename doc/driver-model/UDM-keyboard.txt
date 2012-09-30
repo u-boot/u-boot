@@ -1,0 +1,47 @@
+The U-Boot Driver Model Project
+===============================
+Keyboard input analysis
+=======================
+Marek Vasut <marek.vasut@gmail.com>
+2012-02-20
+
+I) Overview
+-----------
+
+The keyboard drivers are most often registered with STDIO subsystem. There are
+components of the keyboard drivers though, which operate in severe ad-hoc
+manner, often being related to interrupt-driven keypress reception. This
+components will require the most sanitization of all parts of keyboard input
+subsystem.
+
+Otherwise, the keyboard is no different from other standard input but with the
+necessity to decode scancodes. These are decoded using tables provided by
+keyboard drivers. These tables are often driver specific.
+
+II) Approach
+------------
+
+The most problematic part is the interrupt driven keypress reception. For this,
+the buffers that are currently shared throughout the whole U-Boot would need to
+be converted into driver's private data.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) board/mpl/common/kbd.c
+  -------------------------
+  This driver is a classic STDIO driver, no problem with conversion is expected.
+  Only necessary change will be to move this driver to a proper location.
+
+  2) board/rbc823/kbd.c
+  ---------------------
+  This driver is a classic STDIO driver, no problem with conversion is expected.
+  Only necessary change will be to move this driver to a proper location.
+
+  3) drivers/input/keyboard.c
+  ---------------------------
+  This driver is special in many ways. Firstly because this is a universal stub
+  driver for converting scancodes from i8042 and the likes. Secondly because the
+  buffer is filled by various other ad-hoc implementations of keyboard input by
+  using this buffer as an extern. This will need to be fixed by allowing drivers
+  to pass certain routines to this driver via platform data.

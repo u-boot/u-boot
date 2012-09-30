@@ -303,6 +303,7 @@
 
 /* Defines for SPL */
 #define CONFIG_SPL
+#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT

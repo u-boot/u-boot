@@ -248,7 +248,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong size;
 #endif
-	extern void malloc_bin_reloc(void);
 #ifndef CONFIG_ENV_IS_NOWHERE
 	extern char *env_name_spec;
 #endif

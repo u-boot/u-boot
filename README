@@ -383,6 +383,31 @@ The following options need to be configured:
 		symbol should be set to the TLB1 entry to be used for this
 		purpose.
 
+		CONFIG_SYS_FSL_ERRATUM_A004510
+
+		Enables a workaround for erratum A004510.  If set,
+		then CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV and
+		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY must be set.
+
+		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV
+		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2 (optional)
+
+		Defines one or two SoC revisions (low 8 bits of SVR)
+		for which the A004510 workaround should be applied.
+
+		The rest of SVR is either not relevant to the decision
+		of whether the erratum is present (e.g. p2040 versus
+		p2041) or is implied by the build target, which controls
+		whether CONFIG_SYS_FSL_ERRATUM_A004510 is set.
+
+		See Freescale App Note 4493 for more information about
+		this erratum.
+
+		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
+
+		This is the value to write into CCSR offset 0x18600
+		according to the A004510 workaround.
+
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
@@ -907,7 +932,8 @@ The following options need to be configured:
 		If this variable is defined, an environment variable
 		named "ver" is created by U-Boot showing the U-Boot
 		version as printed by the "version" command.
-		This variable is readonly.
+		Any change to this variable will be reverted at the
+		next reset.
 
 - Real-Time Clock:
 
@@ -950,13 +976,20 @@ The following options need to be configured:
 		commands like bootm or iminfo. This option is
 		automatically enabled when you select CONFIG_CMD_DATE .
 
-- Partition Support:
-		CONFIG_MAC_PARTITION and/or CONFIG_DOS_PARTITION
-		and/or CONFIG_ISO_PARTITION and/or CONFIG_EFI_PARTITION
+- Partition Labels (disklabels) Supported:
+		Zero or more of the following:
+		CONFIG_MAC_PARTITION   Apple's MacOS partition table.
+		CONFIG_DOS_PARTITION   MS Dos partition table, traditional on the
+				       Intel architecture, USB sticks, etc.
+		CONFIG_ISO_PARTITION   ISO partition table, used on CDROM etc.
+		CONFIG_EFI_PARTITION   GPT partition table, common when EFI is the
+				       bootloader.  Note 2TB partition limit; see
+				       disk/part_efi.c
+		CONFIG_MTD_PARTITIONS  Memory Technology Device partition table.
 
 		If IDE or SCSI support is enabled (CONFIG_CMD_IDE or
 		CONFIG_CMD_SCSI) you must configure support for at
-		least one partition type as well.
+		least one non-MTD partition type as well.
 
 - IDE Reset method:
 		CONFIG_IDE_RESET_ROUTINE - this is defined in several
@@ -1449,6 +1482,12 @@ The following options need to be configured:
 		If this option is set, 8-bit RLE compressed BMP images
 		can be displayed via the splashscreen support or the
 		bmp command.
+
+- Do compresssing for memory range:
+		CONFIG_CMD_ZIP
+
+		If this option is set, it would use zlib deflate method
+		to compress the specified memory at its best effort.
 
 - Compression support:
 		CONFIG_BZIP2
@@ -2564,6 +2603,15 @@ FIT uImage format:
 		CONFIG_SYS_SPL_MALLOC_SIZE
 		The size of the malloc pool used in SPL.
 
+		CONFIG_SPL_FRAMEWORK
+		Enable the SPL framework under common/.  This framework
+		supports MMC, NAND and YMODEM loading of U-Boot and NAND
+		NAND loading of the Linux Kernel.
+
+		CONFIG_SPL_DISPLAY_PRINT
+		For ARM, enable an optional function to print more information
+		about the running system.
+
 		CONFIG_SPL_LIBCOMMON_SUPPORT
 		Support for common/libcommon.o in SPL binary
 
@@ -2626,6 +2674,9 @@ FIT uImage format:
 
 		CONFIG_SPL_SPI_SUPPORT
 		Support for drivers/spi/libspi.o in SPL binary
+
+		CONFIG_SPL_RAM_DEVICE
+		Support for running image already present in ram, in SPL binary
 
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
@@ -3092,12 +3143,12 @@ to save the current settings.
 	  These two #defines specify the address and size of the
 	  environment area within the remote memory space. The
 	  local device can get the environment from remote memory
-	  space by SRIO or other links.
+	  space by SRIO or PCIE links.
 
 BE CAREFUL! For some special cases, the local device can not use
 "saveenv" command. For example, the local device will get the
-environment stored in a remote NOR flash by SRIO link, but it can
-not erase, write this NOR flash by SRIO interface.
+environment stored in a remote NOR flash by SRIO or PCIE link,
+but it can not erase, write this NOR flash by SRIO or PCIE interface.
 
 - CONFIG_ENV_IS_IN_NAND:
 
@@ -3377,6 +3428,13 @@ Low Level (hardware related) configuration options:
 		Disable PCI-Express on systems where it is supported but not
 		required.
 
+- CONFIG_PCI_ENUM_ONLY
+		Only scan through and get the devices on the busses.
+		Don't do any setup work, presumably because someone or
+		something has already done it, and we don't need to do it
+		a second time.	Useful for platforms that are pre-booted
+		by coreboot or similar.
+
 - CONFIG_SYS_SRIO:
 		Chip has SRIO or not
 
@@ -3538,9 +3596,9 @@ within that device.
 - CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
 	Specifies that QE/FMAN firmware is located in the remote (master)
 	memory space.	CONFIG_SYS_FMAN_FW_ADDR is a virtual address which
-	can be mapped from slave TLB->slave LAW->slave SRIO outbound window
-	->master inbound window->master LAW->the ucode address in master's
-	NOR flash.
+	can be mapped from slave TLB->slave LAW->slave SRIO or PCIE outbound
+	window->master inbound window->master LAW->the ucode address in
+	master's memory space.
 
 Building the Software:
 ======================

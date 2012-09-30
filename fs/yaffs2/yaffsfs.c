@@ -17,8 +17,6 @@
 #include "yportenv.h"
 #include "yaffs_trace.h"
 
-#include "string.h"
-
 #define YAFFSFS_MAX_SYMLINK_DEREFERENCES 5
 
 #ifndef NULL

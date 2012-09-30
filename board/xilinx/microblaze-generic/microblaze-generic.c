@@ -28,6 +28,7 @@
 #include <common.h>
 #include <config.h>
 #include <netdev.h>
+#include <asm/processor.h>
 #include <asm/microblaze_intc.h>
 #include <asm/asm.h>
 
@@ -68,6 +69,14 @@ int fsl_init2 (void) {
 	return 0;
 }
 #endif
+
+void board_init(void)
+{
+	gpio_init();
+#ifdef CONFIG_SYS_FSL_2
+	fsl_init2();
+#endif
+}
 
 int board_eth_init(bd_t *bis)
 {

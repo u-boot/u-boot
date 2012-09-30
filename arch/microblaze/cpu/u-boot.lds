@@ -45,6 +45,7 @@ SECTIONS
 	.data ALIGN(0x4):
 	{
 		__data_start = .;
+		dts/libdts.o (.data)
 		*(.data)
 		__data_end = .;
 	}

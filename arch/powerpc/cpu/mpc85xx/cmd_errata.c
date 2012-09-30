@@ -27,6 +27,9 @@
 
 static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011
+	extern int enable_cpu_a011_workaround;
+#endif
 	__maybe_unused u32 svr = get_svr();
 
 #if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)
@@ -56,8 +59,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/*
 	 * NMG_CPU_A011 applies to P4080 rev 1.0, 2.0, fixed in 3.0
 	 * also applies to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1
+	 * The SVR has been checked by cpu_init_r().
 	 */
-	if (SVR_SOC_VER(svr) != SVR_P4080 || SVR_MAJ(svr) < 3)
+	if (enable_cpu_a011_workaround)
 		puts("Work-around for Erratum CPU-A011 enabled\n");
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_CPU_A003999)
@@ -119,6 +123,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
 	if ((SVR_MAJ(svr) == 1) || IS_SVR_REV(svr, 2, 0))
 		puts("Work-around for Erratum NMG ETSEC129 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004510
+	puts("Work-around for Erratum A004510 enabled\n");
 #endif
 	return 0;
 }

@@ -47,7 +47,9 @@ get_ticks:
  */
 	.globl	wait_ticks
 wait_ticks:
-	mflr	r8		/* save link register */
+	stwu	r1, -16(r1)
+	mflr	r0		/* save link register */
+	stw	r0, 20(r1)	/* Use r0 or GDB will be unhappy */
 	mr	r7, r3		/* save tick count */
 	bl	get_ticks	/* Get start time */
 
@@ -61,5 +63,6 @@ wait_ticks:
 	subfe.	r3, r3, r6
 	bge	1b		/* Loop until time expired */
 
-	mtlr	r8		/* restore link register */
+	mtlr	r0		/* restore link register */
+	addi	r1,r1,16
 	blr

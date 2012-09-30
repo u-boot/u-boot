@@ -141,6 +141,7 @@ extern flash_info_t *flash_get_info(ulong base);
 #define ERR_UNKNOWN_FLASH_VENDOR	32
 #define ERR_UNKNOWN_FLASH_TYPE		64
 #define ERR_PROG_ERROR			128
+#define ERR_ABORTED			256
 
 /*-----------------------------------------------------------------------
  * Protection Flags for flash_protect():

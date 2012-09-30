@@ -41,6 +41,7 @@ typedef	struct	global_data {
 	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
 #endif
 	unsigned long	env_addr;	/* Address  of Environment struct */
+	const void	*fdt_blob;	/* Our device tree, NULL if none */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
 	unsigned long	fb_base;	/* base address of frame buffer */
 	void		**jt;		/* jump table */

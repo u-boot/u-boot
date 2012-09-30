@@ -221,6 +221,9 @@ void flash_perror (int err)
 	case ERR_PROG_ERROR:
 		puts ("General Flash Programming Error\n");
 		break;
+	case ERR_ABORTED:
+		puts("Flash Programming Aborted\n");
+		break;
 	default:
 		printf ("%s[%d] FIXME: rc=%d\n", __FILE__, __LINE__, err);
 		break;

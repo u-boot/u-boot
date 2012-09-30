@@ -79,11 +79,7 @@ skip_check_didle:
 	str	r1, [r0, #0x0]				@ GPIO_CON_OFFSET
 
 	ldr	r1, [r0, #0x4]				@ GPIO_DAT_OFFSET
-#ifdef CONFIG_ONENAND_IPL
-	orr	r1, r1, #(1 << 1)			@ 1 * 1-bit
-#else
 	bic	r1, r1, #(1 << 1)
-#endif
 	str	r1, [r0, #0x4]				@ GPIO_DAT_OFFSET
 
 	/* Don't setup at s5pc100 */
@@ -182,7 +178,6 @@ skip_check_didle:
 	/* Do not release retention here for S5PC110 */
 	streq	r1, [r0]
 
-#ifndef CONFIG_ONENAND_IPL
 	/* Disable Watchdog */
 	ldreq	r0, =S5PC100_WATCHDOG_BASE		@ 0xEA200000
 	ldrne	r0, =S5PC110_WATCHDOG_BASE		@ 0xE2700000
@@ -193,7 +188,6 @@ skip_check_didle:
 	ldrne	r0, =S5PC110_SROMC_BASE
 	ldr	r1, =0x9
 	str	r1, [r0]
-#endif
 
 	/* S5PC100 has 3 groups of interrupt sources */
 	ldreq	r0, =S5PC100_VIC0_BASE			@ 0xE4000000
@@ -207,7 +201,6 @@ skip_check_didle:
 	str	r3, [r1, #0x14]				@ INTENCLEAR
 	str	r3, [r2, #0x14]				@ INTENCLEAR
 
-#ifndef CONFIG_ONENAND_IPL
 	/* Set all interrupts as IRQ */
 	str	r5, [r0, #0xc]				@ INTSELECT
 	str	r5, [r1, #0xc]				@ INTSELECT
@@ -217,120 +210,12 @@ skip_check_didle:
 	str	r5, [r0, #0xf00]			@ INTADDRESS
 	str	r5, [r1, #0xf00]			@ INTADDRESS
 	str	r5, [r2, #0xf00]			@ INTADDRESS
-#endif
 
-#ifndef CONFIG_ONENAND_IPL
 	/* for UART */
 	bl	uart_asm_init
 
 	bl	internal_ram_init
-#endif
 
-#ifdef CONFIG_ONENAND_IPL
-	/* init system clock */
-	bl	system_clock_init
-
-	/* OneNAND Sync Read Support at S5PC110 only
-	 * RM[15]	: Sync Read
-	 * BRWL[14:12]	: 7 CLK
-	 * BL[11:9]	: Continuous
-	 * VHF[3]	: Very High Frequency Enable (Over 83MHz)
-	 * HF[2]	: High Frequency Enable (Over 66MHz)
-	 * WM[1]	: Sync Write
-	 */
-	cmp	r7, r8
-	ldrne	r1, =0xE006
-	ldrne	r0, =0xB001E442
-	strneh	r1, [r0]
-
-	/*
-	 * GCE[26]	: Gated Clock Enable
-	 * RPE[17]	: Enables Read Prefetch
-	 */
-	ldrne	r1, =((1 << 26) | (1 << 17) | 0xE006)
-	ldrne	r0, =0xB0600000
-	strne	r1, [r0, #0x100]			@ ONENAND_IF_CTRL
-	ldrne	r1, =0x1212
-	strne	r1, [r0, #0x108]
-
-	/* Board detection to set proper memory configuration */
-	cmp	r7, r8
-	moveq	r9, #1		/* r9 has 1Gib default at s5pc100 */
-	movne	r9, #2		/* r9 has 2Gib default at s5pc110 */
-
-	ldr	r2, =0xE0200200
-	ldr	r4, [r2, #0x48]
-
-	bic	r1, r4, #(0x3F << 4)	/* PULLUP_DISABLE: 3 * 2-bit */
-	bic	r1, r1, #(0x3 << 2)	/* PULLUP_DISABLE: 2 * 2-bit */
-	bic	r1, r1, #(0x3 << 14)	/* PULLUP_DISABLE: 2 * 2-bit */
-	str	r1, [r2, #0x48]
-	/* For write completion */
-	nop
-	nop
-
-	ldr	r3, [r2, #0x44]
-	and	r1, r3, #(0x7 << 2)
-	mov	r1, r1, lsr #2
-	cmp	r1, #0x5
-	moveq	r9, #3
-	cmp	r1, #0x6
-	moveq	r9, #1
-	cmp	r1, #0x7
-	moveq	r9, #2
-	and	r0, r3, #(0x1 << 1)
-	mov	r0, r0, lsr #1
-	orr	r1, r1, r0, lsl #3
-	cmp	r1, #0x8
-	moveq	r9, #3
-	and	r1, r3, #(0x7 << 2)
-	mov	r1, r1, lsr #2
-	and	r0, r3, #(0x1 << 7)
-	mov	r0, r0, lsr #7
-	orr	r1, r1, r0, lsl #3
-	cmp	r1, #0x9
-	moveq	r9, #3
-	str	r4, [r2, #0x48]		/* Restore PULLUP configuration */
-
-	bl	mem_ctrl_asm_init
-
-	/* Wakeup support. Don't know if it's going to be used, untested. */
-	ldreq	r0, =S5PC100_RST_STAT
-	ldrne	r0, =S5PC110_RST_STAT
-	ldr	r1, [r0]
-	biceq	r1, r1, #0xfffffff7
-	moveq	r2, #(1 << 3)
-	bicne	r1, r1, #0xfffeffff
-	movne	r2, #(1 << 16)
-	cmp	r1, r2
-	bne	1f
-wakeup:
-	/* turn off L2 cache */
-	bl	l2_cache_disable
-
-	cmp	r7, r8
-	ldreq	r0, =0xC100
-	ldrne	r0, =0xC110
-
-	/* invalidate L2 cache also */
-	bl	invalidate_dcache
-
-	/* turn on L2 cache */
-	bl	l2_cache_enable
-
-	cmp	r7, r8
-	/* Load return address and jump to kernel */
-	ldreq	r0, =S5PC100_INFORM0
-	ldrne	r0, =S5PC110_INFORM0
-
-	/* r1 = physical address of s5pc1xx_cpu_resume function */
-	ldr	r1, [r0]
-
-	/* Jump to kernel (sleep-s5pc1xx.S) */
-	mov	pc, r1
-	nop
-	nop
-#else
 	cmp	r7, r8
 	/* Clear wakeup status register */
 	ldreq	r0, =S5PC100_WAKEUP_STAT
@@ -347,7 +232,6 @@ wakeup:
 	orr	r1, r1, r2
 	str	r1, [r0]
 
-#endif
 	b	1f
 
 didle_wakeup:
@@ -517,7 +401,6 @@ system_clock_init:
 
 	mov	pc, lr
 
-#ifndef CONFIG_ONENAND_IPL
 internal_ram_init:
 	ldreq	r0, =0xE3800000
 	ldrne	r0, =0xF1500000
@@ -525,9 +408,7 @@ internal_ram_init:
 	str	r1, [r0]
 
 	mov	pc, lr
-#endif
 
-#ifndef CONFIG_ONENAND_IPL
 /*
  * uart_asm_init: Initialize UART's pins
  */
@@ -582,4 +463,3 @@ uart_asm_init:
 	str	r1, [r0, #0x4]			@ S5PC1XX_GPIO_DAT_OFFSET
 200:
 	mov	pc, lr
-#endif

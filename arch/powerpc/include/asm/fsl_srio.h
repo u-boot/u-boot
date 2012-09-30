@@ -55,10 +55,8 @@ enum atmu_size {
 #define atmu_size_bytes(x)	(1ULL << ((x & 0x3f) + 1))
 
 extern void srio_init(void);
-#ifdef CONFIG_SRIOBOOT_MASTER
-extern void srio_boot_master(void);
-#ifdef CONFIG_SRIOBOOT_SLAVE_HOLDOFF
-extern void srio_boot_master_release_slave(void);
-#endif
+#ifdef CONFIG_FSL_CORENET
+extern void srio_boot_master(int port);
+extern void srio_boot_master_release_slave(int port);
 #endif
 #endif

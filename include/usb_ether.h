@@ -50,12 +50,8 @@ struct ueth_data {
 	unsigned char	protocol;		/* .............. */
 	unsigned char	irqinterval;	/* Intervall for IRQ Pipe */
 
-	/* private fields for each driver can go here if needed */
-#ifdef CONFIG_USB_ETHER_SMSC95XX
-	size_t rx_urb_size;  /* maximum USB URB size */
-	u32 mac_cr;  /* MAC control register value */
-	int have_hwaddr;  /* 1 if we have a hardware MAC address */
-#endif
+	/* driver private */
+	void *dev_priv;
 };
 
 /*

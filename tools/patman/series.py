@@ -114,6 +114,13 @@ class Series(dict):
                 cc_list += gitutil.BuildEmailList(commit.tags)
             cc_list += gitutil.BuildEmailList(commit.cc_list)
 
+            # Skip items in To list
+            if 'to' in self:
+                try:
+                    map(cc_list.remove, gitutil.BuildEmailList(self.to))
+                except ValueError:
+                    pass
+
             for email in cc_list:
                 if email == None:
                     email = col.Color(col.YELLOW, "<alias '%s' not found>"
@@ -138,26 +145,25 @@ class Series(dict):
         Return:
             The change log as a list of strings, one per line
 
+            Changes in v2:
+            - Jog the dial back closer to the widget
+
             Changes in v1:
             - Fix the widget
             - Jog the dial
-
-            Changes in v2:
-            - Jog the dial back closer to the widget
 
             etc.
         """
         final = []
         need_blank = False
-        for change in sorted(self.changes):
+        for change in sorted(self.changes, reverse=True):
             out = []
             for this_commit, text in self.changes[change]:
                 if commit and this_commit != commit:
                     continue
-                if text not in out:
-                    out.append(text)
+                out.append(text)
             if out:
-                out = ['Changes in v%d:' % change] + sorted(out)
+                out = ['Changes in v%d:' % change] + out
                 if need_blank:
                     out = [''] + out
                 final += out
@@ -174,12 +180,13 @@ class Series(dict):
         col = terminal.Color()
         if self.get('version'):
             changes_copy = dict(self.changes)
-            for version in range(2, int(self.version) + 1):
+            for version in range(1, int(self.version) + 1):
                 if self.changes.get(version):
                     del changes_copy[version]
                 else:
-                    str = 'Change log missing for v%d' % version
-                    print col.Color(col.RED, str)
+                    if version > 1:
+                        str = 'Change log missing for v%d' % version
+                        print col.Color(col.RED, str)
             for version in changes_copy:
                 str = 'Change log for unknown version v%d' % version
                 print col.Color(col.RED, str)

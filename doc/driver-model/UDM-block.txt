@@ -1,0 +1,279 @@
+The U-Boot Driver Model Project
+===============================
+Block device subsystem analysis
+===============================
+
+Pavel Herrmann <morpheus.ibis@gmail.com>
+2012-03-08
+
+I) Overview
+-----------
+
+  U-Boot currently implements several distinct APIs for block devices - some
+  drivers use the SATA API, some drivers use the IDE API, sym53c8xx and
+  AHCI use the SCSI API, mg_disk has a separate API, and systemace also has a
+  separate API. There are also MMC and USB APIs used outside of drivers/block,
+  those will be detailed in their specific documents.
+
+  Block devices are described by block_dev_desc structure, that holds, among
+  other things, the read/write/erase callbacks. Block device structures are
+  stored in any way depending on the API, but can be accessed by
+
+    block_dev_desc_t * $api_get_dev(int dev)
+
+  function, as seen in disk/part.c.
+
+  1) SATA interface
+  -----------------
+
+    The SATA interface drivers implement the following functions:
+
+      int   init_sata(int dev)
+      int   scan_sata(int dev)
+      ulong sata_read(int dev, ulong blknr, ulong blkcnt, void *buffer)
+      ulong sata_write(int dev, ulong blknr, ulong blkcnt, const void *buffer)
+
+    Block devices are kept in sata_dev_desc[], which is prefilled with values
+    common to all SATA devices in cmd_sata.c, and then modified in init_sata
+    function in the drivers. Callbacks of the block device use SATA API
+    directly. The sata_get_dev function is defined in cmd_sata.c.
+
+  2) SCSI interface
+  -----------------
+
+    The SCSI interface drivers implement the following functions:
+
+      void scsi_print_error(ccb *pccb)
+      int  scsi_exec(ccb *pccb)
+      void scsi_bus_reset(void)
+      void scsi_low_level_init(int busdevfunc)
+
+    The SCSI API works through the scsi_exec function, the actual operation
+    requested is found in the ccb structure.
+
+    Block devices are kept in scsi_dev_desc[], which lives only in cmd_scsi.c.
+    Callbacks of the block device use functions from cmd_scsi.c, which in turn
+    call scsi_exec of the controller. The scsi_get_dev function is also defined
+    in cmd_scsi.c.
+
+  3) mg_disk interface
+  --------------------
+
+    The mg_disk interface drivers implement the following functions:
+
+      struct mg_drv_data* mg_get_drv_data (void)
+      uint   mg_disk_init (void)
+      uint   mg_disk_read (u32 addr, u8 *buff, u32 len)
+      uint   mg_disk_write(u32 addr, u8 *buff, u32 len)
+      uint   mg_disk_write_sects(void *buff, u32 sect_num, u32 sect_cnt)
+      uint   mg_disk_read_sects(void *buff, u32 sect_num, u32 sect_cnt)
+
+    The mg_get_drv_data function is to be overridden per-board, but there are no
+    board in-tree that do this.
+
+    Only one driver for this API exists, and it only supports one block device.
+    Callbacks for this device are implemented in mg_disk.c and call the mg_disk
+    API. The mg_disk_get_dev function is defined in mg_disk.c and ignores the
+    device number, always returning the same device.
+
+  4) systemace interface
+  ----------------------
+
+    The systemace interface does not define any driver API, and has no command
+    itself. The single defined function is systemace_get_devs() from
+    systemace.c, which returns a single static structure for the only supported
+    block device. Callbacks for this device are also implemented in systemace.c.
+
+  5) IDE interface
+  ----------------
+
+    The IDE interface drivers implement the following functions, but only if
+    CONFIG_IDE_AHB is set:
+
+      uchar ide_read_register(int dev, unsigned int port);
+      void  ide_write_register(int dev, unsigned int port, unsigned char val);
+      void  ide_read_data(int dev, ulong *sect_buf, int words);
+      void  ide_write_data(int dev, ulong *sect_buf, int words);
+
+    The first two functions are called from ide_inb()/ide_outb(), and will
+    default to direct memory access if CONFIG_IDE_AHB is not set, or
+    ide_inb()/ide_outb() functions will get overridden by the board altogether.
+
+    The second two functions are called from input_data()/output_data()
+    functions, and also default to direct memory access, but cannot be
+    overridden by the board.
+
+    One function shared by IDE drivers (but not defined in ide.h) is
+      int ide_preinit(void)
+    This function gets called from ide_init in cmd_ide.c if CONFIG_IDE_PREINIT
+    is defined, and will do the driver-specific initialization of the device.
+
+    Block devices are kept in ide_dev_desc[], which is filled in cmd_ide.c.
+    Callbacks of the block device are defined in cmd_ide.c, and use the
+    ide_inb()/ide_outb()/input_data()/output_data() functions mentioned above.
+    The ide_get_dev function is defined in cmd_ide.c.
+
+II) Approach
+------------
+
+  A new block controller core and an associated API will be created to mimic the
+  current SATA API, its drivers will have the following ops:
+
+  struct block_ctrl_ops {
+    int scan(instance *i);
+    int reset(instance *i, int port);
+    lbaint_t read(instance *i, int port, lbaint_t start, lbatin_t length,
+		  void *buffer);
+    lbaint_t write(instance *i, int port, lbaint_t start, lbatin_t length,
+		   void*buffer);
+  }
+
+  The current sata_init() function will be changed into the driver probe()
+  function. The read() and write() functions should never be called directly,
+  instead they should be called by block device driver for disks.
+
+  Other block APIs would either be transformed into this API, or be kept as
+  legacy for old drivers, or be dropped altogether.
+
+  Legacy driver APIs will each have its own driver core that will contain the
+  shared logic, which is currently located mostly in cmd_* files. Callbacks for
+  block device drivers will then probably be implemented as a part of the core
+  logic, and will use the driver ops (which will copy current state of
+  respective APIs) to do the work.
+
+  All drivers will be cleaned up, most ifdefs should be converted into
+  platform_data, to enable support for multiple devices with different settings.
+
+  A new block device core will also be created, and will keep track of all
+  block devices on all interfaces.
+
+  Current block_dev_desc structure will be changed to fit the driver model, all
+  identification and configuration will be placed in private data, and
+  a single accessor and modifier will be defined, to accommodate the need for
+  different sets of options for different interfaces, while keeping the
+  structure small. The new block device drivers will have the following ops
+  structure (lbaint_t is either 32bit or 64bit unsigned, depending on
+  CONFIG_LBA48):
+
+  struct blockdev_ops {
+    lbaint_t (*block_read)(struct instance *i, lbaint_t start, lbaint_t blkcnt,
+			   void *buffer);
+    lbaint_t (*block_write)(struct instance *i, lbaint_t start, lbaint_t blkcnt,
+			    void *buffer);
+    lbaint_t (*block_erase)(struct instance *i, lbaint_t start, lbaint_t blkcnt
+			    );
+    int	     (*get_option)(struct instance *i, enum blockdev_option_code op,
+			   struct option *res);
+    int	     (*set_option)(struct instance *i, enum blockdev_option_code op,
+			   struct option *val);
+  }
+
+  struct option {
+    uint32_t flags
+    union data {
+      uint64_t data_u;
+      char*    data_s;
+      void*    data_p;
+    }
+  }
+
+  enum blockdev_option_code {
+    BLKD_OPT_IFTYPE=0,
+    BLKD_OPT_TYPE,
+    BLKD_OPT_BLOCKSIZE,
+    BLKD_OPT_BLOCKCOUNT,
+    BLKD_OPT_REMOVABLE,
+    BLKD_OPT_LBA48,
+    BLKD_OPT_VENDOR,
+    BLKD_OPT_PRODICT,
+    BLKD_OPT_REVISION,
+    BLKD_OPT_SCSILUN,
+    BLKD_OPT_SCSITARGET,
+    BLKD_OPT_OFFSET
+  }
+
+  Flags in option above will contain the type of returned data (which should be
+  checked against what is expected, even though the option requested should
+  specify it), and a flag to indicate whether the returned pointer needs to be
+  free()'d.
+
+  The block device core will contain the logic now located in disk/part.c and
+  related files, and will be used to forward requests to block devices. The API
+  for the block device core will copy the ops of a block device (with a string
+  identifier instead of instance pointer). This means that partitions will also
+  be handled by the block device core, and exported as block devices, making
+  them transparent to the rest of the code.
+
+  Sadly, this will change how file systems can access the devices, and thus will
+  affect a lot of places. However, these changes should be localized and easy to
+  implement.
+
+  AHCI driver will be rewritten to fit the new unified block controller API,
+  making SCSI API easy to merge with sym53c8xx, or remove it once the device
+  driver has died.
+
+  Optionally, IDE core may be changed into one driver with unified block
+  controller API, as most of it is already in one place and device drivers are
+  just sets of hooks. Additionally, mg_disk driver is unused and may be removed
+  in near future.
+
+
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) ahci.c
+  ---------
+    SCSI API, will be rewritten for a different API.
+
+  2) ata_piix.c
+  -------------
+    SATA API, easy to port.
+
+  3) fsl_sata.c
+  -------------
+    SATA API, few CONFIG macros, easy to port.
+
+  4) ftide020.c
+  -------------
+    IDE API, defines CONFIG_IDE_AHB and ide_preinit hook functions.
+
+  5) mg_disk.c
+  ------------
+    Single driver with mg_disk API, not much to change, easy to port.
+
+  6) mvsata_ide.c
+  ---------------
+    IDE API, only defines ide_preinit hook function.
+
+  7) mxc_ata.c
+  ------------
+    IDE API, only defines ide_preinit hook function.
+
+  8) pata_bfin.c
+  --------------
+    SATA API, easy to port.
+
+  9) sata_dwc.c
+  -------------
+    SATA API, easy to port.
+
+  10) sata_sil3114.c
+  ------------------
+    SATA API, easy to port.
+
+  11) sata_sil.c
+  --------------
+    SATA API, easy to port.
+
+  12) sil680.c
+  ------------
+    IDE API, only defines ide_preinit hook function.
+
+  13) sym53c8xx.c
+  ---------------
+    SCSI API, may be merged with code from cmd_scsi.
+
+  14) systemace.c
+  ---------------
+    Single driver with systemace API, not much to change, easy to port.

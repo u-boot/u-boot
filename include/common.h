@@ -829,6 +829,13 @@ void	fputc(int file, const char c);
 int	ftstc(int file);
 int	fgetc(int file);
 
+/* lib/gzip.c */
+int gzip(void *dst, unsigned long *lenp,
+		unsigned char *src, unsigned long srclen);
+int zzip(void *dst, unsigned long *lenp, unsigned char *src,
+		unsigned long srclen, int stoponerr,
+		int (*func)(unsigned long, unsigned long));
+
 /* lib/net_utils.c */
 #include <net.h>
 static inline IPaddr_t getenv_IPaddr(char *var)

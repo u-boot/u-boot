@@ -85,8 +85,10 @@ extern void nand_wait_ready(struct mtd_info *mtd);
 #define NAND_CMD_RESET		0xff
 
 #define NAND_CMD_LOCK		0x2a
+#define NAND_CMD_LOCK_TIGHT	0x2c
 #define NAND_CMD_UNLOCK1	0x23
 #define NAND_CMD_UNLOCK2	0x24
+#define NAND_CMD_LOCK_STATUS	0x7a
 
 /* Extended commands for large page devices */
 #define NAND_CMD_READSTART	0x30
@@ -204,9 +206,6 @@ typedef enum {
 /* Large page NAND with SOFT_ECC should support subpage reads */
 #define NAND_SUBPAGE_READ(chip) ((chip->ecc.mode == NAND_ECC_SOFT) \
 					&& (chip->page_shift > 9))
-
-/* Mask to zero out the chip options, which come from the id table */
-#define NAND_CHIPOPTIONS_MSK	(0x0000ffff & ~NAND_NO_AUTOINCR)
 
 /* Non chip related options */
 /*

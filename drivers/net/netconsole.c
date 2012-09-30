@@ -28,7 +28,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static char input_buffer[512];
+#ifndef CONFIG_NETCONSOLE_BUFFER_SIZE
+#define CONFIG_NETCONSOLE_BUFFER_SIZE 512
+#endif
+
+static char input_buffer[CONFIG_NETCONSOLE_BUFFER_SIZE];
 static int input_size; /* char count in input buffer */
 static int input_offset; /* offset to valid chars in input buffer */
 static int input_recursion;
@@ -36,9 +40,15 @@ static int output_recursion;
 static int net_timeout;
 static uchar nc_ether[6]; /* server enet address */
 static IPaddr_t nc_ip; /* server ip */
-static short nc_port; /* source/target port */
+static short nc_out_port; /* target output port */
+static short nc_in_port; /* source input port */
 static const char *output_packet; /* used by first send udp */
 static int output_packet_len;
+/*
+ * Start with a default last protocol.
+ * We are only interested in NETCONS or not.
+ */
+enum proto_t net_loop_last_protocol = BOOTP;
 
 static void nc_wait_arp_handler(uchar *pkt, unsigned dest,
 				 IPaddr_t sip, unsigned src,
@@ -59,8 +69,69 @@ static void nc_timeout(void)
 	net_set_state(NETLOOP_SUCCESS);
 }
 
+static int is_broadcast(IPaddr_t ip)
+{
+	static IPaddr_t netmask;
+	static IPaddr_t our_ip;
+	static int env_changed_id;
+	int env_id = get_env_id();
+
+	/* update only when the environment has changed */
+	if (env_changed_id != env_id) {
+		netmask = getenv_IPaddr("netmask");
+		our_ip = getenv_IPaddr("ipaddr");
+
+		env_changed_id = env_id;
+	}
+
+	return (ip == ~0 ||				/* 255.255.255.255 */
+	    ((netmask & our_ip) == (netmask & ip) &&	/* on the same net */
+	    (netmask | ip) == ~0));		/* broadcast to our net */
+}
+
+static int refresh_settings_from_env(void)
+{
+	const char *p;
+	static int env_changed_id;
+	int env_id = get_env_id();
+
+	/* update only when the environment has changed */
+	if (env_changed_id != env_id) {
+		if (getenv("ncip")) {
+			nc_ip = getenv_IPaddr("ncip");
+			if (!nc_ip)
+				return -1;	/* ncip is 0.0.0.0 */
+			p = strchr(getenv("ncip"), ':');
+			if (p != NULL) {
+				nc_out_port = simple_strtoul(p + 1, NULL, 10);
+				nc_in_port = nc_out_port;
+			}
+		} else
+			nc_ip = ~0; /* ncip is not set, so broadcast */
+
+		p = getenv("ncoutport");
+		if (p != NULL)
+			nc_out_port = simple_strtoul(p, NULL, 10);
+		p = getenv("ncinport");
+		if (p != NULL)
+			nc_in_port = simple_strtoul(p, NULL, 10);
+
+		if (is_broadcast(nc_ip))
+			/* broadcast MAC address */
+			memset(nc_ether, 0xff, sizeof(nc_ether));
+		else
+			/* force arp request */
+			memset(nc_ether, 0, sizeof(nc_ether));
+	}
+	return 0;
+}
+
+/**
+ * Called from NetLoop in net/net.c before each packet
+ */
 void NcStart(void)
 {
+	refresh_settings_from_env();
 	if (!output_packet_len || memcmp(nc_ether, NetEtherNullAddr, 6)) {
 		/* going to check for input packet */
 		net_set_udp_handler(nc_handler);
@@ -71,17 +142,21 @@ void NcStart(void)
 		net_set_arp_handler(nc_wait_arp_handler);
 		pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
 		memcpy(pkt, output_packet, output_packet_len);
-		NetSendUDPPacket(nc_ether, nc_ip, nc_port, nc_port,
+		NetSendUDPPacket(nc_ether, nc_ip, nc_out_port, nc_in_port,
 			output_packet_len);
 	}
 }
 
-int nc_input_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len)
+int nc_input_packet(uchar *pkt, IPaddr_t src_ip, unsigned dest_port,
+	unsigned src_port, unsigned len)
 {
 	int end, chunk;
 
-	if (dest != nc_port || !len)
+	if (dest_port != nc_in_port || !len)
 		return 0; /* not for us */
+
+	if (src_ip != nc_ip && !is_broadcast(nc_ip))
+		return 0; /* not from our client */
 
 	debug_cond(DEBUG_DEV_PKT, "input: \"%*.*s\"\n", len, len, pkt);
 
@@ -131,47 +206,39 @@ static void nc_send_packet(const char *buf, int len)
 	}
 
 	if (eth->state != ETH_STATE_ACTIVE) {
-		if (eth_init(gd->bd) < 0)
-			return;
+		if (eth_is_on_demand_init()) {
+			if (eth_init(gd->bd) < 0)
+				return;
+			eth_set_last_protocol(NETCONS);
+		} else
+			eth_init_state_only(gd->bd);
+
 		inited = 1;
 	}
 	pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
 	memcpy(pkt, buf, len);
 	ether = nc_ether;
 	ip = nc_ip;
-	NetSendUDPPacket(ether, ip, nc_port, nc_port, len);
+	NetSendUDPPacket(ether, ip, nc_out_port, nc_in_port, len);
 
-	if (inited)
-		eth_halt();
+	if (inited) {
+		if (eth_is_on_demand_init())
+			eth_halt();
+		else
+			eth_halt_state_only();
+	}
 }
 
 static int nc_start(void)
 {
-	int netmask, our_ip;
+	int retval;
 
-	nc_port = 6666;		/* default port */
+	nc_out_port = 6666; /* default port */
+	nc_in_port = nc_out_port;
 
-	if (getenv("ncip")) {
-		char *p;
-
-		nc_ip = getenv_IPaddr("ncip");
-		if (!nc_ip)
-			return -1;	/* ncip is 0.0.0.0 */
-		p = strchr(getenv("ncip"), ':');
-		if (p != NULL)
-			nc_port = simple_strtoul(p + 1, NULL, 10);
-	} else
-		nc_ip = ~0;		/* ncip is not set */
-
-	our_ip = getenv_IPaddr("ipaddr");
-	netmask = getenv_IPaddr("netmask");
-
-	if (nc_ip == ~0 ||				/* 255.255.255.255 */
-	    ((netmask & our_ip) == (netmask & nc_ip) &&	/* on the same net */
-	    (netmask | nc_ip) == ~0))		/* broadcast to our net */
-		memset(nc_ether, 0xff, sizeof(nc_ether));
-	else
-		memset(nc_ether, 0, sizeof(nc_ether));	/* force arp request */
+	retval = refresh_settings_from_env();
+	if (retval != 0)
+		return retval;
 
 	/*
 	 * Initialize the static IP settings and buffer pointers
@@ -203,7 +270,7 @@ static void nc_puts(const char *s)
 
 	len = strlen(s);
 	while (len) {
-		int send_len = min(len, 512);
+		int send_len = min(len, sizeof(input_buffer));
 		nc_send_packet(s, send_len);
 		len -= send_len;
 		s += send_len;

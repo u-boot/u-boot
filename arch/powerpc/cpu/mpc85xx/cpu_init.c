@@ -38,6 +38,7 @@
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>
+#include <hwconfig.h>
 #include <linux/compiler.h>
 #include "mp.h"
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
@@ -311,11 +312,41 @@ int cpu_init_r(void)
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
 	/*
+	 * CPU22 and NMG_CPU_A011 share the same workaround.
 	 * CPU22 applies to P4080 rev 1.0, 2.0, fixed in 3.0
 	 * NMG_CPU_A011 applies to P4080 rev 1.0, 2.0, fixed in 3.0
-	 * also applies to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1
+	 * also applies to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1, both
+	 * fixed in 2.0. NMG_CPU_A011 is activated by default and can
+	 * be disabled by hwconfig with syntax:
+	 *
+	 * fsl_cpu_a011:disable
 	 */
-	if (SVR_SOC_VER(svr) != SVR_P4080 || SVR_MAJ(svr) < 3) {
+	extern int enable_cpu_a011_workaround;
+#ifdef CONFIG_SYS_P4080_ERRATUM_CPU22
+	enable_cpu_a011_workaround = (SVR_MAJ(svr) < 3);
+#else
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char *buf = NULL;
+	int n, res;
+
+	n = getenv_f("hwconfig", buffer, sizeof(buffer));
+	if (n > 0)
+		buf = buffer;
+
+	res = hwconfig_arg_cmp_f("fsl_cpu_a011", "disable", buf);
+	if (res > 0)
+		enable_cpu_a011_workaround = 0;
+	else {
+		if (n >= HWCONFIG_BUFFER_SIZE) {
+			printf("fsl_cpu_a011 was not found. hwconfig variable "
+				"may be too long\n");
+		}
+		enable_cpu_a011_workaround =
+			(SVR_SOC_VER(svr) == SVR_P4080 && SVR_MAJ(svr) < 3) ||
+			(SVR_SOC_VER(svr) != SVR_P4080 && SVR_MAJ(svr) < 2);
+	}
+#endif
+	if (enable_cpu_a011_workaround) {
 		flush_dcache();
 		mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
 		sync();
@@ -447,11 +478,18 @@ skip_l2:
 
 #ifdef CONFIG_SYS_SRIO
 	srio_init();
-#ifdef CONFIG_SRIOBOOT_MASTER
-	srio_boot_master();
-#ifdef CONFIG_SRIOBOOT_SLAVE_HOLDOFF
-	srio_boot_master_release_slave();
-#endif
+#ifdef CONFIG_FSL_CORENET
+	char *s = getenv("bootmaster");
+	if (s) {
+		if (!strcmp(s, "SRIO1")) {
+			srio_boot_master(1);
+			srio_boot_master_release_slave(1);
+		}
+		if (!strcmp(s, "SRIO2")) {
+			srio_boot_master(2);
+			srio_boot_master_release_slave(2);
+		}
+	}
 #endif
 #endif
 

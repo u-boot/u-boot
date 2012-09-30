@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 
 #include <asm/immap.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,7 +45,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void clock_enter_limp(int lpdiv)
 {
-	volatile ccm_t *ccm = (volatile ccm_t *)MMAP_CCM;
+	ccm_t *ccm = (ccm_t *)MMAP_CCM;
 	int i, j;
 
 	/* Check bounds of divider */
@@ -57,10 +58,10 @@ void clock_enter_limp(int lpdiv)
 	for (i = 0, j = lpdiv; j != 1; j >>= 1, i++) ;
 
 	/* Apply the divider to the system clock */
-	ccm->cdr = (ccm->cdr & 0xF0FF) | CCM_CDR_LPDIV(i);
+	clrsetbits_be16(&ccm->cdr, 0x0f00, CCM_CDR_LPDIV(i));
 
 	/* Enable Limp Mode */
-	ccm->misccr |= CCM_MISCCR_LIMP;
+	setbits_be16(&ccm->misccr, CCM_MISCCR_LIMP);
 }
 
 /*
@@ -69,14 +70,15 @@ void clock_enter_limp(int lpdiv)
  */
 void clock_exit_limp(void)
 {
-	volatile ccm_t *ccm = (volatile ccm_t *)MMAP_CCM;
-	volatile pll_t *pll = (volatile pll_t *)MMAP_PLL;
+	ccm_t *ccm = (ccm_t *)MMAP_CCM;
+	pll_t *pll = (pll_t *)MMAP_PLL;
 
 	/* Exit Limp mode */
-	ccm->misccr &= ~CCM_MISCCR_LIMP;
+	clrbits_be16(&ccm->misccr, CCM_MISCCR_LIMP);
 
 	/* Wait for the PLL to lock */
-	while (!(pll->psr & PLL_PSR_LOCK)) ;
+	while (!(in_be32(&pll->psr) & PLL_PSR_LOCK))
+		;
 }
 
 /*
@@ -85,12 +87,12 @@ void clock_exit_limp(void)
 int get_clocks(void)
 {
 
-	volatile ccm_t *ccm = (volatile ccm_t *)MMAP_CCM;
-	volatile pll_t *pll = (volatile pll_t *)MMAP_PLL;
+	ccm_t *ccm = (ccm_t *)MMAP_CCM;
+	pll_t *pll = (pll_t *)MMAP_PLL;
 	int vco, temp, pcrvalue, pfdr;
 	u8 bootmode;
 
-	pcrvalue = pll->pcr & 0xFF0F0FFF;
+	pcrvalue = in_be32(&pll->pcr) & 0xFF0F0FFF;
 	pfdr = pcrvalue >> 24;
 
 	if (pfdr == 0x1E)
@@ -102,32 +104,32 @@ int get_clocks(void)
 
 	if (bootmode == 0) {
 		/* Normal mode */
-		vco = ((pll->pcr & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
+		vco = ((in_be32(&pll->pcr) & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
 		if ((vco < CLOCK_PLL_FVCO_MIN) || (vco > CLOCK_PLL_FVCO_MAX)) {
 			/* Default value */
-			pcrvalue = (pll->pcr & 0x00FFFFFF);
+			pcrvalue = (in_be32(&pll->pcr) & 0x00FFFFFF);
 			pcrvalue |= 0x1E << 24;
-			pll->pcr = pcrvalue;
+			out_be32(&pll->pcr, pcrvalue);
 			vco =
-			    ((pll->pcr & 0xFF000000) >> 24) *
+			    ((in_be32(&pll->pcr) & 0xFF000000) >> 24) *
 			    CONFIG_SYS_INPUT_CLKSRC;
 		}
 		gd->vco_clk = vco;	/* Vco clock */
 	} else if (bootmode == 3) {
 		/* serial mode */
-		vco = ((pll->pcr & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
+		vco = ((in_be32(&pll->pcr) & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
 		gd->vco_clk = vco;	/* Vco clock */
 	}
 
-	if ((ccm->ccr & CCM_MISCCR_LIMP) == CCM_MISCCR_LIMP) {
+	if ((in_be16(&ccm->ccr) & CCM_MISCCR_LIMP) == CCM_MISCCR_LIMP) {
 		/* Limp mode */
 	} else {
 		gd->inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
 
-		temp = (pll->pcr & PLL_PCR_OUTDIV1_MASK) + 1;
+		temp = (in_be32(&pll->pcr) & PLL_PCR_OUTDIV1_MASK) + 1;
 		gd->cpu_clk = vco / temp;	/* cpu clock */
 
-		temp = ((pll->pcr & PLL_PCR_OUTDIV2_MASK) >> 4) + 1;
+		temp = ((in_be32(&pll->pcr) & PLL_PCR_OUTDIV2_MASK) >> 4) + 1;
 		gd->flb_clk = vco / temp;	/* flexbus clock */
 		gd->bus_clk = gd->flb_clk;
 	}

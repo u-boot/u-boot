@@ -57,13 +57,23 @@ struct hsearch_data {
 	struct _ENTRY *table;
 	unsigned int size;
 	unsigned int filled;
+/*
+ * Callback function which will check whether the given change for variable
+ * "name" from "oldval" to "newval" may be applied or not, and possibly apply
+ * such change.
+ * When (flag & H_FORCE) is set, it shall not print out any error message and
+ * shall force overwriting of write-once variables.
+.* Must return 0 for approval, 1 for denial.
+ */
+	int (*apply)(const char *name, const char *oldval,
+			const char *newval, int flag);
 };
 
 /* Create a new hashing table which will at most contain NEL elements.  */
 extern int hcreate_r(size_t __nel, struct hsearch_data *__htab);
 
 /* Destroy current internal hashing table.  */
-extern void hdestroy_r(struct hsearch_data *__htab);
+extern void hdestroy_r(struct hsearch_data *__htab, int do_apply);
 
 /*
  * Search for entry matching ITEM.key in internal hash table.  If
@@ -88,17 +98,25 @@ extern int hstrstr_r(const char *__match, int __last_idx, ENTRY ** __retval,
 		    struct hsearch_data *__htab);
 
 /* Search and delete entry matching ITEM.key in internal hash table. */
-extern int hdelete_r(const char *__key, struct hsearch_data *__htab);
+extern int hdelete_r(const char *__key, struct hsearch_data *__htab,
+			int do_apply);
 
 extern ssize_t hexport_r(struct hsearch_data *__htab,
 		     const char __sep, char **__resp, size_t __size,
 		     int argc, char * const argv[]);
 
+/*
+ * nvars: length of vars array
+ * vars: array of strings (variable names) to import (nvars == 0 means all)
+ * do_apply: whether to call callback function to check the new argument,
+ * and possibly apply changes (false means accept everything)
+ */
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
-		     int __flag);
+		     int __flag, int nvars, char * const vars[], int do_apply);
 
 /* Flags for himport_r() */
-#define	H_NOCLEAR	1	/* do not clear hash table before importing */
+#define	H_NOCLEAR	(1 << 0) /* do not clear hash table before importing */
+#define	H_FORCE		(1 << 1) /* overwrite read-only/write-once variables */
 
 #endif /* search.h */

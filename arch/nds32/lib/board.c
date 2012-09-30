@@ -306,8 +306,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	bd_t *bd;
 	ulong malloc_start;
 
-	extern void malloc_bin_reloc(void);
-
 	gd = id;
 	bd = gd->bd;
 

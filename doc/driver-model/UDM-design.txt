@@ -1,0 +1,315 @@
+The U-Boot Driver Model Project
+===============================
+Design document
+===============
+Marek Vasut <marek.vasut@gmail.com>
+Pavel Herrmann <morpheus.ibis@gmail.com>
+2012-05-17
+
+I) The modular concept
+----------------------
+
+The driver core design is done with modularity in mind. The long-term plan is to
+extend this modularity to allow loading not only drivers, but various other
+objects into U-Boot at runtime -- like commands, support for other boards etc.
+
+II) Driver core initialization stages
+-------------------------------------
+
+The drivers have to be initialized in two stages, since the U-Boot bootloader
+runs in two stages itself. The first stage is the one which is executed before
+the bootloader itself is relocated. The second stage then happens after
+relocation.
+
+  1) First stage
+  --------------
+
+  The first stage runs after the bootloader did very basic hardware init. This
+  means the stack pointer was configured, caches disabled and that's about it.
+  The problem with this part is the memory management isn't running at all. To
+  make things even worse, at this point, the RAM is still likely uninitialized
+  and therefore unavailable.
+
+  2) Second stage
+  ---------------
+
+  At this stage, the bootloader has initialized RAM and is running from it's
+  final location. Dynamic memory allocations are working at this point. Most of
+  the driver initialization is executed here.
+
+III) The drivers
+----------------
+
+  1) The structure of a driver
+  ----------------------------
+
+  The driver will contain a structure located in a separate section, which
+  will allow linker to create a list of compiled-in drivers at compile time.
+  Let's call this list "driver_list".
+
+  struct driver __attribute__((section(driver_list))) {
+    /* The name of the driver */
+    char		name[STATIC_CONFIG_DRIVER_NAME_LENGTH];
+
+    /*
+     * This function should connect this driver with cores it depends on and
+     * with other drivers, likely bus drivers
+     */
+    int			(*bind)(struct instance *i);
+
+    /* This function actually initializes the hardware. */
+    int			(*probe)(struct instance *i);
+
+    /*
+     * The function of the driver called when U-Boot finished relocation.
+     * This is particularly important to eg. move pointers to DMA buffers
+     * and such from the location before relocation to their final location.
+     */
+    int			(*reloc)(struct instance *i);
+
+    /*
+     * This is called when the driver is shuting down, to deinitialize the
+     * hardware.
+     */
+    int			(*remove)(struct instance *i);
+
+    /* This is called to remove the driver from the driver tree */
+    int			(*unbind)(struct instance *i);
+
+    /* This is a list of cores this driver depends on */
+    struct driver	*cores[];
+  };
+
+  The cores[] array in here is very important. It allows u-boot to figure out,
+  in compile-time, which possible cores can be activated at runtime. Therefore
+  if there are cores that won't be ever activated, GCC LTO might remove them
+  from the final binary. Actually, this information might be used to drive build
+  of the cores.
+
+  FIXME: Should *cores[] be really struct driver, pointing to drivers that
+         represent the cores? Shouldn't it be core instance pointer?
+
+  2) Instantiation of a driver
+  ----------------------------
+
+  The driver is instantiated by calling:
+
+    driver_bind(struct instance *bus, const struct driver_info *di)
+
+  The "struct instance *bus" is a pointer to a bus with which this driver should
+  be registered with. The "root" bus pointer is supplied to the board init
+  functions.
+
+  FIXME: We need some functions that will return list of busses of certain type
+         registered with the system so the user can find proper instance even if
+	 he has no bus pointer (this will come handy if the user isn't
+	 registering the driver from board init function, but somewhere else).
+
+  The "const struct driver_info *di" pointer points to a structure defining the
+  driver to be registered. The structure is defined as follows:
+
+  struct driver_info {
+	char			name[STATIC_CONFIG_DRIVER_NAME_LENGTH];
+	void			*platform_data;
+  }
+
+  The instantiation of a driver by calling driver_bind() creates an instance
+  of the driver by allocating "struct driver_instance". Note that only struct
+  instance is passed to the driver. The wrapping struct driver_instance is there
+  for purposes of the driver core:
+
+  struct driver_instance {
+    uint32_t          flags;
+    struct instance   i;
+  };
+
+  struct instance {
+	/* Pointer to a driver information passed by driver_register() */
+	const struct driver_info	*info;
+	/* Pointer to a bus this driver is bound with */
+	struct instance			*bus;
+	/* Pointer to this driver's own private data */
+	void				*private_data;
+	/* Pointer to the first block of successor nodes (optional) */
+	struct successor_block 		*succ;
+  }
+
+  The instantiation of a driver does not mean the hardware is initialized. The
+  driver_bind() call only creates the instance of the driver, fills in the "bus"
+  pointer and calls the drivers' .bind() function. The .bind() function of the
+  driver should hook the driver with the remaining cores and/or drivers it
+  depends on.
+
+  It's important to note here, that in case the driver instance has multiple
+  parents, such parent can be connected with this instance by calling:
+
+    driver_link(struct instance *parent, struct instance *dev);
+
+  This will connect the other parent driver with the newly instantiated driver.
+  Note that this must be called after driver_bind() and before driver_acticate()
+  (driver_activate() will be explained below). To allow struct instance to have
+  multiple parent pointer, the struct instance *bus will utilize it's last bit
+  to indicate if this is a pointer to struct instance or to an array if
+  instances, struct successor block. The approach is similar as the approach to
+  *succ in struct instance, described in the following paragraph.
+
+  The last pointer of the struct instance, the pointer to successor nodes, is
+  used only in case of a bus driver. Otherwise the pointer contains NULL value.
+  The last bit of this field indicates if this is a bus having a single child
+  node (so the last bit is 0) or if this bus has multiple child nodes (the last
+  bit is 1). In the former case, the driver core should clear the last bit and
+  this pointer points directly to the child node. In the later case of a bus
+  driver, the pointer points to an instance of structure:
+
+  struct successor_block {
+    /* Array of pointers to instances of devices attached to this bus */
+    struct instance                     *dev[BLOCKING_FACTOR];
+    /* Pointer to next block of successors */
+    struct successor_block              *next;
+  }
+
+  Some of the *dev[] array members might be NULL in case there are no more
+  devices attached. The *next is NULL in case the list of attached devices
+  doesn't continue anymore. The BLOCKING_FACTOR is used to allocate multiple
+  slots for successor devices at once to avoid fragmentation of memory.
+
+  3) The bind() function of a driver
+  ----------------------------------
+
+  The bind function of a driver connects the driver with various cores the
+  driver provides functions for. The driver model related part will look like
+  the following example for a bus driver:
+
+  int driver_bind(struct instance *in)
+  {
+	...
+        core_bind(&core_i2c_static_instance, in, i2c_bus_funcs);
+        ...
+  }
+
+  FIXME: What if we need to run-time determine, depending on some hardware
+         register, what kind of i2c_bus_funcs to pass?
+
+  This makes the i2c core aware of a new bus. The i2c_bus_funcs is a constant
+  structure of functions any i2c bus driver must provide to work. This will
+  allow the i2c command operate with the bus. The core_i2c_static_instance is
+  the pointer to the instance of a core this driver provides function to.
+
+  FIXME: Maybe replace "core-i2c" with CORE_I2C global pointer to an instance of
+         the core?
+
+  4) The instantiation of a core driver
+  -------------------------------------
+
+  The core driver is special in the way that it's single-instance driver. It is
+  always present in the system, though it might not be activated. The fact that
+  it's single instance allows it to be instantiated at compile time.
+
+  Therefore, all possible structures of this driver can be in read-only memory,
+  especially struct driver and struct driver_instance. But the successor list,
+  which needs special treatment.
+
+  To solve the problem with a successor list and the core driver flags, a new
+  entry in struct gd (global data) will be introduced. This entry will point to
+  runtime allocated array of struct driver_instance. It will be possible to
+  allocate the exact amount of struct driver_instance necessary, as the number
+  of cores that might be activated will be known at compile time. The cores will
+  then behave like any usual driver.
+
+  Pointers to the struct instance of cores can be computed at compile time,
+  therefore allowing the resulting u-boot binary to save some overhead.
+
+  5) The probe() function of a driver
+  -----------------------------------
+
+  The probe function of a driver allocates necessary resources and does required
+  initialization of the hardware itself. This is usually called only when the
+  driver is needed, as a part of the defered probe mechanism.
+
+  The driver core should implement a function called
+
+    int driver_activate(struct instance *in);
+
+  which should call the .probe() function of the driver and then configure the
+  state of the driver instance to "ACTIVATED". This state of a driver instance
+  should be stored in a wrap-around structure for the structure instance, the
+  struct driver_instance.
+
+  6) The command side interface to a driver
+  -----------------------------------------
+
+  The U-Boot command shall communicate only with the specific driver core. The
+  driver core in turn exports necessary API towards the command.
+
+  7) Demonstration imaginary board
+  --------------------------------
+
+  Consider the following computer:
+
+  *
+  |
+  +-- System power management logic
+  |
+  +-- CPU clock controlling logc
+  |
+  +-- NAND controller
+  |   |
+  |   +-- NAND flash chip
+  |
+  +-- 128MB of DDR DRAM
+  |
+  +-- I2C bus #0
+  |   |
+  |   +-- RTC
+  |   |
+  |   +-- EEPROM #0
+  |   |
+  |   +-- EEPROM #1
+  |
+  +-- USB host-only IP core
+  |   |
+  |   +-- USB storage device
+  |
+  +-- USB OTG-capable IP core
+  |   |
+  |   +-- connection to the host PC
+  |
+  +-- GPIO
+  |   |
+  |   +-- User LED #0
+  |   |
+  |   +-- User LED #1
+  |
+  +-- UART0
+  |
+  +-- UART1
+  |
+  +-- Ethernet controller #0
+  |
+  +-- Ethernet controller #1
+  |
+  +-- Audio codec
+  |
+  +-- PCI bridge
+  |   |
+  |   +-- Ethernet controller #2
+  |   |
+  |   +-- SPI host card
+  |   |   |
+  |   |   +-- Audio amplifier (must be operational before codec)
+  |   |
+  |   +-- GPIO host card
+  |       |
+  |       +-- User LED #2
+  |
+  +-- LCD controller
+  |
+  +-- PWM controller (must be enabled after LCD controller)
+  |
+  +-- SPI host controller
+  |   |
+  |   +-- SD/MMC connected via SPI
+  |   |
+  |   +-- SPI flash
+  |
+  +-- CPLD/FPGA with stored configuration of the board

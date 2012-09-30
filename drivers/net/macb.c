@@ -364,7 +364,7 @@ static int macb_phy_find(struct macb_device *macb)
 	}
 
 	/* PHY isn't up to snuff */
-	printf("%s: PHY not found", macb->netdev.name);
+	printf("%s: PHY not found\n", macb->netdev.name);
 
 	return 0;
 }

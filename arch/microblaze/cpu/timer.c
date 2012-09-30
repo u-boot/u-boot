@@ -27,42 +27,30 @@
 #include <asm/microblaze_intc.h>
 
 volatile int timestamp = 0;
+microblaze_timer_t *tmr;
 
-#ifdef CONFIG_SYS_TIMER_0
 ulong get_timer (ulong base)
 {
-	return (timestamp - base);
+	if (tmr)
+		return timestamp - base;
+	return timestamp++ - base;
 }
-#else
-ulong get_timer (ulong base)
-{
-	return (timestamp++ - base);
-}
-#endif
 
-#ifdef CONFIG_SYS_TIMER_0
 void __udelay(unsigned long usec)
 {
-	int i;
+	u32 i;
 
-	i = get_timer(0);
-	while ((get_timer(0) - i) < (usec / 1000))
-		;
+	if (tmr) {
+		i = get_timer(0);
+		while ((get_timer(0) - i) < (usec / 1000))
+			;
+	} else {
+		for (i = 0; i < (usec * XILINX_CLOCK_FREQ / 10000000); i++)
+			;
+	}
 }
-#else
-void __udelay(unsigned long usec)
-{
-	unsigned int i;
 
-	for (i = 0; i < (usec * CONFIG_XILINX_CLOCK_FREQ / 10000000); i++)
-		;
-}
-#endif
-
-#ifdef CONFIG_SYS_TIMER_0
-microblaze_timer_t *tmr = (microblaze_timer_t *) (CONFIG_SYS_TIMER_0_ADDR);
-
-void timer_isr (void *arg)
+static void timer_isr(void *arg)
 {
 	timestamp++;
 	tmr->control = tmr->control | TIMER_INTERRUPT;
@@ -70,15 +58,30 @@ void timer_isr (void *arg)
 
 int timer_init (void)
 {
-	tmr->loadreg = CONFIG_SYS_TIMER_0_PRELOAD;
-	tmr->control = TIMER_INTERRUPT | TIMER_RESET;
-	tmr->control =
-	    TIMER_ENABLE | TIMER_ENABLE_INTR | TIMER_RELOAD | TIMER_DOWN_COUNT;
-	timestamp = 0;
-	install_interrupt_handler (CONFIG_SYS_TIMER_0_IRQ, timer_isr, (void *)tmr);
+	int irq = -1;
+	u32 preload = 0;
+	u32 ret = 0;
+
+#if defined(CONFIG_SYS_TIMER_0_ADDR) && defined(CONFIG_SYS_INTC_0_NUM)
+	preload = XILINX_CLOCK_FREQ / CONFIG_SYS_HZ;
+	irq = CONFIG_SYS_TIMER_0_IRQ;
+	tmr = (microblaze_timer_t *) (CONFIG_SYS_TIMER_0_ADDR);
+#endif
+
+	if (tmr && preload && irq >= 0) {
+		tmr->loadreg = preload;
+		tmr->control = TIMER_INTERRUPT | TIMER_RESET;
+		tmr->control = TIMER_ENABLE | TIMER_ENABLE_INTR |\
+					TIMER_RELOAD | TIMER_DOWN_COUNT;
+		timestamp = 0;
+		ret = install_interrupt_handler (irq, timer_isr, (void *)tmr);
+		if (ret)
+			tmr = NULL;
+	}
+
+	/* No problem if timer is not found/initialized */
 	return 0;
 }
-#endif
 
 /*
  * This function is derived from PowerPC code (read timebase as long long).

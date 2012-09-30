@@ -1077,7 +1077,38 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 
 	for (sect = s_first; sect <= s_last; sect++) {
+		if (ctrlc()) {
+			printf("\n");
+			return 1;
+		}
+
 		if (info->protect[sect] == 0) { /* not protected */
+#ifdef CONFIG_SYS_FLASH_CHECK_BLANK_BEFORE_ERASE
+			int k;
+			int size;
+			int erased;
+			u32 *flash;
+
+			/*
+			 * Check if whole sector is erased
+			 */
+			size = flash_sector_size(info, sect);
+			erased = 1;
+			flash = (u32 *)info->start[sect];
+			/* divide by 4 for longword access */
+			size = size >> 2;
+			for (k = 0; k < size; k++) {
+				if (flash_read32(flash++) != 0xffffffff) {
+					erased = 0;
+					break;
+				}
+			}
+			if (erased) {
+				if (flash_verbose)
+					putc(',');
+				continue;
+			}
+#endif
 			switch (info->vendor) {
 			case CFI_CMDSET_INTEL_PROG_REGIONS:
 			case CFI_CMDSET_INTEL_STANDARD:
@@ -1353,6 +1384,9 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		src += i;
 		cnt -= i;
 		FLASH_SHOW_PROGRESS(scale, dots, digit, i);
+		/* Only check every once in a while */
+		if ((cnt & 0xFFFF) < buffered_size && ctrlc())
+			return ERR_ABORTED;
 	}
 #else
 	while (cnt >= info->portwidth) {
@@ -1365,6 +1399,9 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		wp += info->portwidth;
 		cnt -= info->portwidth;
 		FLASH_SHOW_PROGRESS(scale, dots, digit, info->portwidth);
+		/* Only check every once in a while */
+		if ((cnt & 0xFFFF) < info->portwidth && ctrlc())
+			return ERR_ABORTED;
 	}
 #endif /* CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 

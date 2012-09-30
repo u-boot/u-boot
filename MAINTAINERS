@@ -777,10 +777,6 @@ Nagendra T S  <nagendra@mistralsolutions.com>
 
    am3517_crane    ARM ARMV7 (AM35x SoC)
 
-Kyungmin Park <kyungmin.park@samsung.com>
-
-	apollon		ARM1136EJS
-
 Sandeep Paulraj <s-paulraj@ti.com>
 
 	davinci_dm355evm	ARM926EJS
@@ -1112,6 +1108,7 @@ Wolfgang Wegner <w.wegner@astro-kom.de>
 
 Andreas Bießmann <andreas.devel@googlemail.com>
 	grasshopper		AT32AP7000
+	atngw100mkii		AT32AP7000
 
 Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
 

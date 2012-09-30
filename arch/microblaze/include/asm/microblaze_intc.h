@@ -39,7 +39,16 @@ struct irq_action {
 	int count; /* number of interrupt */
 };
 
-void install_interrupt_handler (int irq, interrupt_handler_t * hdlr,
+/**
+ * Register and unregister interrupt handler rutines
+ *
+ * @param irq	IRQ number
+ * @param hdlr	Interrupt handler rutine
+ * @param arg	Pointer to argument which is passed to int. handler rutine
+ * @return	0 if registration pass, 1 if unregistration pass,
+ *		or an error code < 0 otherwise
+ */
+int install_interrupt_handler(int irq, interrupt_handler_t *hdlr,
 				       void *arg);
 
 int interrupts_init(void);

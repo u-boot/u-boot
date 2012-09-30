@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <ide.h>
+#include <malloc.h>
 #include <part.h>
 
 #undef	PART_DEBUG
@@ -70,7 +71,7 @@ static const struct block_drvr block_drvr[] = {
 
 DECLARE_GLOBAL_DATA_PTR;
 
-block_dev_desc_t *get_dev(char* ifname, int dev)
+block_dev_desc_t *get_dev(const char *ifname, int dev)
 {
 	const struct block_drvr *drvr = block_drvr;
 	block_dev_desc_t* (*reloc_get_dev)(int dev);
@@ -97,7 +98,7 @@ block_dev_desc_t *get_dev(char* ifname, int dev)
 	return NULL;
 }
 #else
-block_dev_desc_t *get_dev(char* ifname, int dev)
+block_dev_desc_t *get_dev(const char *ifname, int dev)
 {
 	return NULL;
 }
@@ -288,63 +289,9 @@ void init_part (block_dev_desc_t * dev_desc)
 	    return;
 	}
 #endif
+	dev_desc->part_type = PART_TYPE_UNKNOWN;
 }
 
-
-int get_partition_info (block_dev_desc_t *dev_desc, int part
-					, disk_partition_t *info)
-{
-	switch (dev_desc->part_type) {
-#ifdef CONFIG_MAC_PARTITION
-	case PART_TYPE_MAC:
-		if (get_partition_info_mac(dev_desc,part,info) == 0) {
-			PRINTF ("## Valid MAC partition found ##\n");
-			return (0);
-		}
-		break;
-#endif
-
-#ifdef CONFIG_DOS_PARTITION
-	case PART_TYPE_DOS:
-		if (get_partition_info_dos(dev_desc,part,info) == 0) {
-			PRINTF ("## Valid DOS partition found ##\n");
-			return (0);
-		}
-		break;
-#endif
-
-#ifdef CONFIG_ISO_PARTITION
-	case PART_TYPE_ISO:
-		if (get_partition_info_iso(dev_desc,part,info) == 0) {
-			PRINTF ("## Valid ISO boot partition found ##\n");
-			return (0);
-		}
-		break;
-#endif
-
-#ifdef CONFIG_AMIGA_PARTITION
-	case PART_TYPE_AMIGA:
-	    if (get_partition_info_amiga(dev_desc, part, info) == 0)
-	    {
-		PRINTF ("## Valid Amiga partition found ##\n");
-		return (0);
-	    }
-	    break;
-#endif
-
-#ifdef CONFIG_EFI_PARTITION
-	case PART_TYPE_EFI:
-		if (get_partition_info_efi(dev_desc,part,info) == 0) {
-			PRINTF ("## Valid EFI partition found ##\n");
-			return (0);
-		}
-		break;
-#endif
-	default:
-		break;
-	}
-	return (-1);
-}
 
 static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 {
@@ -433,3 +380,268 @@ void print_part (block_dev_desc_t * dev_desc)
 #endif
 
 #endif
+
+int get_partition_info(block_dev_desc_t *dev_desc, int part
+					, disk_partition_t *info)
+{
+#if defined(CONFIG_CMD_IDE) || \
+	defined(CONFIG_CMD_SATA) || \
+	defined(CONFIG_CMD_SCSI) || \
+	defined(CONFIG_CMD_USB) || \
+	defined(CONFIG_MMC) || \
+	defined(CONFIG_SYSTEMACE)
+
+#ifdef CONFIG_PARTITION_UUIDS
+	/* The common case is no UUID support */
+	info->uuid[0] = 0;
+#endif
+
+	switch (dev_desc->part_type) {
+#ifdef CONFIG_MAC_PARTITION
+	case PART_TYPE_MAC:
+		if (get_partition_info_mac(dev_desc, part, info) == 0) {
+			PRINTF("## Valid MAC partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_DOS_PARTITION
+	case PART_TYPE_DOS:
+		if (get_partition_info_dos(dev_desc, part, info) == 0) {
+			PRINTF("## Valid DOS partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_ISO_PARTITION
+	case PART_TYPE_ISO:
+		if (get_partition_info_iso(dev_desc, part, info) == 0) {
+			PRINTF("## Valid ISO boot partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_AMIGA_PARTITION
+	case PART_TYPE_AMIGA:
+		if (get_partition_info_amiga(dev_desc, part, info) == 0) {
+			PRINTF("## Valid Amiga partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_EFI_PARTITION
+	case PART_TYPE_EFI:
+		if (get_partition_info_efi(dev_desc, part, info) == 0) {
+			PRINTF("## Valid EFI partition found ##\n");
+			return 0;
+		}
+		break;
+#endif
+	default:
+		break;
+	}
+#endif
+
+	return -1;
+}
+
+int get_device(const char *ifname, const char *dev_str,
+	       block_dev_desc_t **dev_desc)
+{
+	char *ep;
+	int dev;
+
+	dev = simple_strtoul(dev_str, &ep, 16);
+	if (*ep) {
+		printf("** Bad device specification %s %s **\n",
+		       ifname, dev_str);
+		return -1;
+	}
+
+	*dev_desc = get_dev(ifname, dev);
+	if (!(*dev_desc) || ((*dev_desc)->type == DEV_TYPE_UNKNOWN)) {
+		printf("** Bad device %s %s **\n", ifname, dev_str);
+		return -1;
+	}
+
+	return dev;
+}
+
+#define PART_UNSPECIFIED -2
+#define PART_AUTO -1
+#define MAX_SEARCH_PARTITIONS 16
+int get_device_and_partition(const char *ifname, const char *dev_part_str,
+			     block_dev_desc_t **dev_desc,
+			     disk_partition_t *info, int allow_whole_dev)
+{
+	int ret = -1;
+	const char *part_str;
+	char *dup_str = NULL;
+	const char *dev_str;
+	int dev;
+	char *ep;
+	int p;
+	int part;
+	disk_partition_t tmpinfo;
+
+	/* If no dev_part_str, use bootdevice environment variable */
+	if (!dev_part_str || !strlen(dev_part_str) ||
+	    !strcmp(dev_part_str, "-"))
+		dev_part_str = getenv("bootdevice");
+
+	/* If still no dev_part_str, it's an error */
+	if (!dev_part_str) {
+		printf("** No device specified **\n");
+		goto cleanup;
+	}
+
+	/* Separate device and partition ID specification */
+	part_str = strchr(dev_part_str, ':');
+	if (part_str) {
+		dup_str = strdup(dev_part_str);
+		dup_str[part_str - dev_part_str] = 0;
+		dev_str = dup_str;
+		part_str++;
+	} else {
+		dev_str = dev_part_str;
+	}
+
+	/* Look up the device */
+	dev = get_device(ifname, dev_str, dev_desc);
+	if (dev < 0)
+		goto cleanup;
+
+	/* Convert partition ID string to number */
+	if (!part_str || !*part_str) {
+		part = PART_UNSPECIFIED;
+	} else if (!strcmp(part_str, "auto")) {
+		part = PART_AUTO;
+	} else {
+		/* Something specified -> use exactly that */
+		part = (int)simple_strtoul(part_str, &ep, 16);
+		/*
+		 * Less than whole string converted,
+		 * or request for whole device, but caller requires partition.
+		 */
+		if (*ep || (part == 0 && !allow_whole_dev)) {
+			printf("** Bad partition specification %s %s **\n",
+			    ifname, dev_part_str);
+			goto cleanup;
+		}
+	}
+
+	/*
+	 * No partition table on device,
+	 * or user requested partition 0 (entire device).
+	 */
+	if (((*dev_desc)->part_type == PART_TYPE_UNKNOWN) ||
+	    (part == 0)) {
+		if (!(*dev_desc)->lba) {
+			printf("** Bad device size - %s %s **\n", ifname,
+			       dev_str);
+			goto cleanup;
+		}
+
+		/*
+		 * If user specified a partition ID other than 0,
+		 * or the calling command only accepts partitions,
+		 * it's an error.
+		 */
+		if ((part > 0) || (!allow_whole_dev)) {
+			printf("** No partition table - %s %s **\n", ifname,
+			       dev_str);
+			goto cleanup;
+		}
+
+		info->start = 0;
+		info->size = (*dev_desc)->lba;
+		info->blksz = (*dev_desc)->blksz;
+		info->bootable = 0;
+#ifdef CONFIG_PARTITION_UUIDS
+		info->uuid[0] = 0;
+#endif
+
+		ret = 0;
+		goto cleanup;
+	}
+
+	/*
+	 * Now there's known to be a partition table,
+	 * not specifying a partition means to pick partition 1.
+	 */
+	if (part == PART_UNSPECIFIED)
+		part = 1;
+
+	/*
+	 * If user didn't specify a partition number, or did specify something
+	 * other than "auto", use that partition number directly.
+	 */
+	if (part != PART_AUTO) {
+		ret = get_partition_info(*dev_desc, part, info);
+		if (ret) {
+			printf("** Invalid partition %d **\n", part);
+			goto cleanup;
+		}
+	} else {
+		/*
+		 * Find the first bootable partition.
+		 * If none are bootable, fall back to the first valid partition.
+		 */
+		part = 0;
+		for (p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
+			ret = get_partition_info(*dev_desc, p, info);
+			if (ret)
+				continue;
+
+			/*
+			 * First valid partition, or new better partition?
+			 * If so, save partition ID.
+			 */
+			if (!part || info->bootable)
+				part = p;
+
+			/* Best possible partition? Stop searching. */
+			if (info->bootable)
+				break;
+
+			/*
+			 * We now need to search further for best possible.
+			 * If we what we just queried was the best so far,
+			 * save the info since we over-write it next loop.
+			 */
+			if (part == p)
+				tmpinfo = *info;
+		}
+		/* If we found any acceptable partition */
+		if (part) {
+			/*
+			 * If we searched all possible partition IDs,
+			 * return the first valid partition we found.
+			 */
+			if (p == MAX_SEARCH_PARTITIONS + 1)
+				*info = tmpinfo;
+			ret = 0;
+		} else {
+			printf("** No valid partitions found **\n");
+			goto cleanup;
+		}
+	}
+	if (strncmp((char *)info->type, BOOT_PART_TYPE, sizeof(info->type)) != 0) {
+		printf("** Invalid partition type \"%.32s\""
+			" (expect \"" BOOT_PART_TYPE "\")\n",
+			info->type);
+		ret  = -1;
+		goto cleanup;
+	}
+
+	ret = part;
+	goto cleanup;
+
+cleanup:
+	free(dup_str);
+	return ret;
+}

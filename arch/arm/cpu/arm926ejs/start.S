@@ -215,6 +215,7 @@ call_board_init_f:
 
 /*------------------------------------------------------------------------------*/
 
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_NAND_SPL)
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -344,6 +345,7 @@ _rel_dyn_end_ofs:
 	.word __rel_dyn_end - _start
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
+#endif
 
 /*
  *************************************************************************

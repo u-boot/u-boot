@@ -78,6 +78,7 @@
 #define CONFIG_MMC
 #define CONFIG_S5P_SDHCI
 #define CONFIG_SDHCI
+#define CONFIG_MMC_SDMA
 
 /* PWM */
 #define CONFIG_PWM
@@ -97,6 +98,21 @@
 #undef CONFIG_CMD_ONENAND
 #undef CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_DFU
+
+/* FAT */
+#define CONFIG_CMD_FAT
+#define CONFIG_FAT_WRITE
+
+/* USB Composite download gadget - g_dnl */
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+
+/* USB Samsung's IDs */
+#define CONFIG_G_DNL_VENDOR_NUM 0x04E8
+#define CONFIG_G_DNL_PRODUCT_NUM 0x6601
+#define CONFIG_G_DNL_MANUFACTURER "Samsung"
 
 #define CONFIG_BOOTDELAY		1
 #define CONFIG_ZERO_BOOTDELAY_CHECK
@@ -106,6 +122,11 @@
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 #define CONFIG_BOOTBLOCK		"10"
 #define CONFIG_ENV_COMMON_BOOT		"${console} ${meminfo}"
+
+#define CONFIG_DFU_ALT \
+	"dfu_alt_info=" \
+	"u-boot mmc 80 400;" \
+	"uImage fat 0 2\0" \
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
@@ -150,7 +171,8 @@
 	"mmcdev=0\0" \
 	"mmcbootpart=2\0" \
 	"mmcrootpart=3\0" \
-	"opts=always_resume=1"
+	"opts=always_resume=1\0" \
+	CONFIG_DFU_ALT
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
@@ -190,18 +212,28 @@
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_CACHELINE_SIZE       32
 
-#include <asm/arch/gpio.h>
-/*
- * I2C Settings
- */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part1_get_nr(b, 7)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part1_get_nr(b, 6)
 
 #define CONFIG_SOFT_I2C
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
+#define CONFIG_SYS_I2C_INIT_BOARD
 #define CONFIG_SYS_I2C_SPEED	50000
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_MAX_I2C_BUS	7
+#define CONFIG_SOFT_I2C_MULTI_BUS
+#define CONFIG_SYS_MAX_I2C_BUS	15
+
+#include <asm/arch/gpio.h>
+
+/* I2C PMIC */
+#define CONFIG_SOFT_I2C_I2C5_SCL exynos4_gpio_part1_get_nr(b, 7)
+#define CONFIG_SOFT_I2C_I2C5_SDA exynos4_gpio_part1_get_nr(b, 6)
+
+/* I2C FG */
+#define CONFIG_SOFT_I2C_I2C9_SCL exynos4_gpio_part2_get_nr(y4, 1)
+#define CONFIG_SOFT_I2C_I2C9_SDA exynos4_gpio_part2_get_nr(y4, 0)
+
+#define CONFIG_SOFT_I2C_GPIO_SCL get_multi_scl_pin()
+#define CONFIG_SOFT_I2C_GPIO_SDA get_multi_sda_pin()
+#define I2C_INIT multi_i2c_init()
 
 #define CONFIG_PMIC
 #define CONFIG_PMIC_I2C
@@ -210,6 +242,7 @@
 #define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_S3C_UDC_OTG
 #define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
 
 /* LCD */
 #define CONFIG_EXYNOS_FB

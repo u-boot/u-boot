@@ -33,6 +33,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
@@ -40,8 +41,11 @@
 #include <asm/armv7.h>
 #include <asm/arch/gpio.h>
 #include <asm/omap_common.h>
+#include <asm/arch/mmc_host_def.h>
 #include <i2c.h>
 #include <linux/compiler.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Declarations */
 extern omap3_sysinfo sysinfo;
@@ -69,16 +73,13 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_34xx;
 u32 omap3_boot_device = BOOT_DEVICE_NAND;
 
 /* auto boot mode detection is not possible for OMAP3 - hard code */
-u32 omap_boot_mode(void)
+u32 spl_boot_mode(void)
 {
-	switch (omap_boot_device()) {
+	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC2:
 		return MMCSD_MODE_RAW;
 	case BOOT_DEVICE_MMC1:
 		return MMCSD_MODE_FAT;
-		break;
-	case BOOT_DEVICE_NAND:
-		return NAND_MODE_HW_ECC;
 		break;
 	default:
 		puts("spl: ERROR:  unknown device - can't select boot mode\n");
@@ -86,13 +87,30 @@ u32 omap_boot_mode(void)
 	}
 }
 
-u32 omap_boot_device(void)
+u32 spl_boot_device(void)
 {
 	return omap3_boot_device;
 }
 
+int board_mmc_init(bd_t *bis)
+{
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_MMC1:
+		omap_mmc_init(0, 0, 0);
+		break;
+	case BOOT_DEVICE_MMC2:
+	case BOOT_DEVICE_MMC2_2:
+		omap_mmc_init(1, 0, 0);
+		break;
+	}
+	return 0;
+}
+
 void spl_board_init(void)
 {
+#ifdef CONFIG_SPL_NAND_SUPPORT
+	gpmc_init();
+#endif
 #ifdef CONFIG_SPL_I2C_SUPPORT
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
@@ -236,6 +254,8 @@ void s_init(void)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
+	gd = &gdata;
+
 	preloader_console_init();
 
 	timer_init();

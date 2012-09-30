@@ -142,7 +142,7 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
  * be freed and the local static variable can be marked as not used.
  */
 
-void hdestroy_r(struct hsearch_data *htab)
+void hdestroy_r(struct hsearch_data *htab, int do_apply)
 {
 	int i;
 
@@ -156,7 +156,10 @@ void hdestroy_r(struct hsearch_data *htab)
 	for (i = 1; i <= htab->size; ++i) {
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
-
+			if (do_apply && htab->apply != NULL) {
+				/* deletion is always forced */
+				htab->apply(ep->key, ep->data, NULL, H_FORCE);
+			}
 			free((void *)ep->key);
 			free(ep->data);
 		}
@@ -401,7 +404,7 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
  * do that.
  */
 
-int hdelete_r(const char *key, struct hsearch_data *htab)
+int hdelete_r(const char *key, struct hsearch_data *htab, int do_apply)
 {
 	ENTRY e, *ep;
 	int idx;
@@ -417,7 +420,8 @@ int hdelete_r(const char *key, struct hsearch_data *htab)
 
 	/* free used ENTRY */
 	debug("hdelete: DELETING key \"%s\"\n", key);
-
+	if (do_apply && htab->apply != NULL)
+		htab->apply(ep->key, ep->data, NULL, H_FORCE);
 	free((void *)ep->key);
 	free(ep->data);
 	htab->table[idx].used = -1;
@@ -604,6 +608,34 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
  */
 
 /*
+ * Check whether variable 'name' is amongst vars[],
+ * and remove all instances by setting the pointer to NULL
+ */
+static int drop_var_from_set(const char *name, int nvars, char * vars[])
+{
+	int i = 0;
+	int res = 0;
+
+	/* No variables specified means process all of them */
+	if (nvars == 0)
+		return 1;
+
+	for (i = 0; i < nvars; i++) {
+		if (vars[i] == NULL)
+			continue;
+		/* If we found it, delete all of them */
+		if (!strcmp(name, vars[i])) {
+			vars[i] = NULL;
+			res = 1;
+		}
+	}
+	if (!res)
+		debug("Skipping non-listed variable %s\n", name);
+
+	return res;
+}
+
+/*
  * Import linearized data into hash table.
  *
  * This is the inverse function to hexport(): it takes a linear list
@@ -639,9 +671,12 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
  */
 
 int himport_r(struct hsearch_data *htab,
-	      const char *env, size_t size, const char sep, int flag)
+		const char *env, size_t size, const char sep, int flag,
+		int nvars, char * const vars[], int do_apply)
 {
 	char *data, *sp, *dp, *name, *value;
+	char *localvars[nvars];
+	int i;
 
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
@@ -658,12 +693,16 @@ int himport_r(struct hsearch_data *htab,
 	memcpy(data, env, size);
 	dp = data;
 
+	/* make a local copy of the list of variables */
+	if (nvars)
+		memcpy(localvars, vars, sizeof(vars[0]) * nvars);
+
 	if ((flag & H_NOCLEAR) == 0) {
 		/* Destroy old hash table if one exists */
 		debug("Destroy Hash Table: %p table = %p\n", htab,
 		       htab->table);
 		if (htab->table)
-			hdestroy_r(htab);
+			hdestroy_r(htab, do_apply);
 	}
 
 	/*
@@ -726,8 +765,10 @@ int himport_r(struct hsearch_data *htab,
 			*dp++ = '\0';	/* terminate name */
 
 			debug("DELETE CANDIDATE: \"%s\"\n", name);
+			if (!drop_var_from_set(name, nvars, localvars))
+				continue;
 
-			if (hdelete_r(name, htab) == 0)
+			if (hdelete_r(name, htab, do_apply) == 0)
 				debug("DELETE ERROR ##############################\n");
 
 			continue;
@@ -743,9 +784,31 @@ int himport_r(struct hsearch_data *htab,
 		*sp++ = '\0';	/* terminate value */
 		++dp;
 
+		/* Skip variables which are not supposed to be processed */
+		if (!drop_var_from_set(name, nvars, localvars))
+			continue;
+
 		/* enter into hash table */
 		e.key = name;
 		e.data = value;
+
+		/* if there is an apply function, check what it has to say */
+		if (do_apply && htab->apply != NULL) {
+			debug("searching before calling cb function"
+				" for  %s\n", name);
+			/*
+			 * Search for variable in existing env, so to pass
+			 * its previous value to the apply callback
+			 */
+			hsearch_r(e, FIND, &rv, htab);
+			debug("previous value was %s\n", rv ? rv->data : "");
+			if (htab->apply(name, rv ? rv->data : NULL,
+				value, flag)) {
+				debug("callback function refused to set"
+					" variable %s, skipping it!\n", name);
+				continue;
+			}
+		}
 
 		hsearch_r(e, ENTER, &rv, htab);
 		if (rv == NULL) {
@@ -761,6 +824,24 @@ int himport_r(struct hsearch_data *htab,
 						/* without '\0' termination */
 	debug("INSERT: free(data = %p)\n", data);
 	free(data);
+
+	/* process variables which were not considered */
+	for (i = 0; i < nvars; i++) {
+		if (localvars[i] == NULL)
+			continue;
+		/*
+		 * All variables which were not deleted from the variable list
+		 * were not present in the imported env
+		 * This could mean two things:
+		 * a) if the variable was present in current env, we delete it
+		 * b) if the variable was not present in current env, we notify
+		 *    it might be a typo
+		 */
+		if (hdelete_r(localvars[i], htab, do_apply) == 0)
+			printf("WARNING: '%s' neither in running nor in imported env!\n", localvars[i]);
+		else
+			printf("WARNING: '%s' not in imported env, deleting it!\n", localvars[i]);
+	}
 
 	debug("INSERT: done\n");
 	return 1;		/* everything OK */

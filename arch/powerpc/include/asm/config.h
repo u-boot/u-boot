@@ -29,6 +29,10 @@
 #include <asm/config_mpc86xx.h>
 #endif
 
+#ifndef HWCONFIG_BUFFER_SIZE
+  #define HWCONFIG_BUFFER_SIZE 256
+#endif
+
 /* CONFIG_HARD_SPI triggers SPI bus initialization in PowerPC */
 #if defined(CONFIG_MPC8XXX_SPI) || defined(CONFIG_FSL_ESPI)
 # ifndef CONFIG_HARD_SPI

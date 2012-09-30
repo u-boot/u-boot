@@ -41,6 +41,7 @@ endif
 LIBS-y += board/$(BOARDDIR)/lib$(BOARD).o
 LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/lib$(VENDOR).o
 
+LIBS-$(CONFIG_SPL_FRAMEWORK) += common/spl/libspl.o
 LIBS-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/libcommon.o
 LIBS-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/libdisk.o
 LIBS-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/libi2c.o
@@ -135,9 +136,7 @@ $(obj)u-boot-spl.bin:	$(obj)u-boot-spl
 	$(OBJCOPY) $(OBJCFLAGS) -O binary $< $@
 
 GEN_UBOOT = \
-	UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) | \
-	sed  -n -e 's/.*\($(SYM_PREFIX)__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
-	cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) $$UNDEF_SYM $(__START) \
+	cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) $(__START) \
 		--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 		-Map u-boot-spl.map -o u-boot-spl
 

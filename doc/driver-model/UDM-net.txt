@@ -1,0 +1,434 @@
+The U-Boot Driver Model Project
+===============================
+Net system analysis
+===================
+Marek Vasut <marek.vasut@gmail.com>
+2012-03-03
+
+I) Overview
+-----------
+
+The networking subsystem already supports multiple devices. Therefore the
+conversion shall not be very hard.
+
+The network subsystem is operated from net/eth.c, which tracks all registered
+ethernet interfaces and calls their particular functions registered via
+eth_register().
+
+The eth_register() is called from the network driver initialization function,
+which in turn is called most often either from "board_net_init()" or
+"cpu_net_init()". This function has one important argument, which is the
+"struct eth_device", defined at include/net.h:
+
+struct eth_device {
+  /* DRIVER: Name of the device */
+  char name[NAMESIZE];
+  /* DRIVER: MAC address */
+  unsigned char enetaddr[6];
+  /* DRIVER: Register base address */
+  int iobase;
+  /* CORE: state of the device */
+  int state;
+
+  /* DRIVER: Device initialization function */
+  int  (*init) (struct eth_device*, bd_t*);
+  /* DRIVER: Function for sending packets */
+  int  (*send) (struct eth_device*, volatile void* packet, int length);
+  /* DRIVER: Function for receiving packets */
+  int  (*recv) (struct eth_device*);
+  /* DRIVER: Function to cease operation of the device */
+  void (*halt) (struct eth_device*);
+  /* DRIVER: Function to send multicast packet (OPTIONAL) */
+  int (*mcast) (struct eth_device*, u32 ip, u8 set);
+  /* DRIVER: Function to change ethernet MAC address */
+  int  (*write_hwaddr) (struct eth_device*);
+  /* CORE: Next device in the linked list of devices managed by net core */
+  struct eth_device *next;
+  /* CORE: Device index */
+  int index;
+  /* DRIVER: Driver's private data */
+  void *priv;
+};
+
+This structure defines the particular driver, though also contains elements that
+should not be exposed to the driver, like core state.
+
+Small, but important part of the networking subsystem is the PHY management
+layer, whose drivers are contained in drivers/net/phy. These drivers register in
+a very similar manner to network drivers, by calling "phy_register()" with the
+argument of "struct phy_driver":
+
+struct phy_driver {
+  /* DRIVER: Name of the PHY driver */
+  char *name;
+  /* DRIVER: UID of the PHY driver */
+  unsigned int uid;
+  /* DRIVER: Mask for UID of the PHY driver */
+  unsigned int mask;
+  /* DRIVER: MMDS of the PHY driver */
+  unsigned int mmds;
+  /* DRIVER: Features the PHY driver supports */
+  u32 features;
+  /* DRIVER: Initialize the PHY hardware */
+  int (*probe)(struct phy_device *phydev);
+  /* DRIVER: Reconfigure the PHY hardware */
+  int (*config)(struct phy_device *phydev);
+  /* DRIVER: Turn on the PHY hardware, allow it to send/receive */
+  int (*startup)(struct phy_device *phydev);
+  /* DRIVER: Turn off the PHY hardware */
+  int (*shutdown)(struct phy_device *phydev);
+  /* CORE: Allows this driver to be part of list of drivers */
+  struct list_head list;
+};
+
+II) Approach
+------------
+
+To convert the elements of network subsystem to proper driver model method, the
+"struct eth_device" will have to be split into multiple components. The first
+will be a structure defining the driver operations:
+
+struct eth_driver_ops {
+  int  (*init)(struct instance*, bd_t*);
+  int  (*send)(struct instance*, void *packet, int length);
+  int  (*recv)(struct instance*);
+  void (*halt)(struct instance*);
+  int  (*mcast)(struct instance*, u32 ip, u8 set);
+  int  (*write_hwaddr)(struct instance*);
+};
+
+Next, there'll be platform data which will be per-driver and will replace the
+"priv" part of "struct eth_device". Last part will be the per-device core state.
+
+With regards to the PHY part of the API, the "struct phy_driver" is almost ready
+to be used with the new driver model approach. The only change will be the
+replacement of per-driver initialization functions and removal of
+"phy_register()" function in favor or driver model approach.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) drivers/net/4xx_enet.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  2) drivers/net/altera_tse.c
+  ---------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  3) drivers/net/armada100_fec.c
+  ------------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  4) drivers/net/at91_emac.c
+  --------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  5) drivers/net/ax88180.c
+  ------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  6) drivers/net/ax88796.c
+  ------------------------
+
+  This file contains a components of the NE2000 driver, implementing only
+  different parts on the NE2000 clone AX88796. This being no standalone driver,
+  no conversion will be done here.
+
+  7) drivers/net/bfin_mac.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  8) drivers/net/calxedaxgmac.c
+  -----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  9) drivers/net/cs8900.c
+  -----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  10) drivers/net/davinci_emac.c
+  ------------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  11) drivers/net/dc2114x.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  12) drivers/net/designware.c
+  ----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  13) drivers/net/dm9000x.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  14) drivers/net/dnet.c
+  ----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  15) drivers/net/e1000.c
+  -----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  16) drivers/net/e1000_spi.c
+  ---------------------------
+
+  Driver for the SPI bus integrated on the Intel E1000. This is not part of the
+  network stack.
+
+  17) drivers/net/eepro100.c
+  --------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  18) drivers/net/enc28j60.c
+  --------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  19) drivers/net/ep93xx_eth.c
+  ----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  20) drivers/net/ethoc.c
+  -----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  21) drivers/net/fec_mxc.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  22) drivers/net/fsl_mcdmafec.c
+  ------------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  23) drivers/net/fsl_mdio.c
+  --------------------------
+
+  This file contains driver for FSL MDIO interface, which is not part of the
+  networking stack.
+
+  24) drivers/net/ftgmac100.c
+  ---------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  25) drivers/net/ftmac100.c
+  --------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  26) drivers/net/greth.c
+  -----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  27) drivers/net/inca-ip_sw.c
+  ----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  28) drivers/net/ks8695eth.c
+  ---------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  29) drivers/net/lan91c96.c
+  --------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  30) drivers/net/macb.c
+  ----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  31) drivers/net/mcffec.c
+  ------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  32) drivers/net/mcfmii.c
+  ------------------------
+
+  This file contains MII interface driver for MCF FEC.
+
+  33) drivers/net/mpc512x_fec.c
+  -----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  34) drivers/net/mpc5xxx_fec.c
+  -----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  35) drivers/net/mvgbe.c
+  -----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  36) drivers/net/natsemi.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  37) drivers/net/ne2000_base.c
+  -----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process. This driver contains the core
+  implementation of NE2000, which needs a few external functions, implemented by
+  AX88796, NE2000 etc.
+
+  38) drivers/net/ne2000.c
+  ------------------------
+
+  This file implements external functions necessary for native NE2000 compatible
+  networking card to work.
+
+  39) drivers/net/netarm_eth.c
+  ----------------------------
+
+  This driver uses the old, legacy, network API and will either have to be
+  converted or removed.
+
+  40) drivers/net/netconsole.c
+  ----------------------------
+
+  This is actually an STDIO driver.
+
+  41) drivers/net/ns8382x.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  42) drivers/net/pcnet.c
+  -----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  43) drivers/net/plb2800_eth.c
+  -----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  44) drivers/net/rtl8139.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  45) drivers/net/rtl8169.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  46) drivers/net/sh_eth.c
+  ------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  47) drivers/net/smc91111.c
+  --------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  48) drivers/net/smc911x.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  49) drivers/net/tsec.c
+  ----------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  50) drivers/net/tsi108_eth.c
+  ----------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  51) drivers/net/uli526x.c
+  -------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  52) drivers/net/vsc7385.c
+  -------------------------
+
+  This is a driver that only uploads firmware to a switch. This is not subject
+  of conversion.
+
+  53) drivers/net/xilinx_axi_emac.c
+  ---------------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.
+
+  54) drivers/net/xilinx_emaclite.c
+  ---------------------------------
+
+  This driver uses the standard new networking API, therefore there should be no
+  obstacles throughout the conversion process.

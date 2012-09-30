@@ -69,6 +69,7 @@ struct mkimage_params {
 	unsigned int addr;
 	unsigned int ep;
 	char *imagename;
+	char *imagename2;
 	char *datafile;
 	char *imagefile;
 	char *cmdname;
@@ -147,6 +148,8 @@ void mkimage_register (struct image_type_params *tparams);
  *
  * Supported image types init functions
  */
+void pbl_load_uboot(int fd, struct mkimage_params *mparams);
+void init_pbl_image_type(void);
 void init_ais_image_type(void);
 void init_kwb_image_type (void);
 void init_imx_image_type (void);

@@ -35,6 +35,7 @@ enum fm_port {
 	FM2_DTSEC2,
 	FM2_DTSEC3,
 	FM2_DTSEC4,
+	FM2_DTSEC5,
 	FM2_10GEC1,
 	NUM_FM_PORTS,
 };
@@ -109,6 +110,7 @@ void fman_enet_init(void);
 void fdt_fixup_fman_ethernet(void *fdt);
 phy_interface_t fm_info_get_enet_if(enum fm_port port);
 void fm_info_set_phy_address(enum fm_port port, int address);
+int fm_info_get_phy_address(enum fm_port port);
 void fm_info_set_mdio(enum fm_port port, struct mii_dev *bus);
 void fm_disable_port(enum fm_port port);
 

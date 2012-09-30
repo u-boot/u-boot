@@ -1,0 +1,118 @@
+The U-Boot Driver Model Project
+===============================
+Hwmon device subsystem analysis
+===============================
+
+Tomas Hlavacek <tmshlvck@gmail.com>
+2012-03-02
+
+I) Overview
+-----------
+
+U-Boot currently implements one API for HW monitoring devices. The
+interface is defined in include/dtt.h and comprises of functions:
+
+    void dtt_init(void);
+    int dtt_init_one(int);
+    int dtt_read(int sensor, int reg);
+    int dtt_write(int sensor, int reg, int val);
+    int dtt_get_temp(int sensor);
+
+The functions are implemented by a proper device driver in drivers/hwmon
+directory and the driver to be compiled in is selected in a Makefile.
+Drivers are mutually exclusive.
+
+Drivers depends on I2O code and naturally on board specific data. There are
+few ad-hoc constants put in dtt.h file and driver headers and code. This
+has to be consolidated into board specific data or driver headers if those
+constants makes sense globally.
+
+
+II) Approach
+------------
+
+  1) New API
+  ----------
+  In the UDM each hwmon driver would register itself by a function
+
+    int hwmon_device_register(struct instance *i,
+                              struct hwmon_device_ops *o);
+
+  The structure being defined as follows:
+
+    struct hwmon_device_ops {
+        int  (*read)(struct instance *i, int sensor, int reg);
+        int  (*write)(struct instance *i, int sensor, int reg,
+                      int val);
+        int  (*get_temp)(struct instance *i, int sensor);
+    };
+
+
+  2) Conversion thougths
+  ----------------------
+  U-Boot hwmon drivers exports virtually the same functions (with exceptions)
+  and we are considering low number of drivers and code anyway. The interface
+  is already similar and unified by the interface defined in dtt.h.
+  Current initialization functions dtt_init() and dtt_init_one() will be
+  converted into probe() and hwmon_device_register(), so the funcionality will
+  be kept in more proper places. Besides implementing core registration and
+  initialization we need to do code cleanup, especially separate
+  driver-specific and HW specific constants.
+
+  3) Special consideration due to early initialization
+  ----------------------------------------------------
+  The dtt_init() function call is used during early initialization in
+  board/gdsys/405ex/io64.c for starting up fans. The dtt code is perfectly
+  usable in the early stage because it uses only local variables and no heap
+  memory is required at this level. However the underlying code of I2C has to
+  keep the same properties with regard to possibility of running in early
+  initialization stage.
+
+III) Analysis of in-tree drivers
+--------------------------------
+
+  1) drivers/hwmon/lm81.c
+  -----------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  2) drivers/hwmon/ds1722.c
+  -------------------------
+  The driver is not standard dtt, but interface is similar to dtt.
+  The interface has to be changed in order to comply to above mentioned
+  specification.
+
+
+  3) drivers/hwmon/ds1775.c
+  -------------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  4) drivers/hwmon/lm73.c
+  -----------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  5) drivers/hwmon/lm63.c
+  -----------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  6) drivers/hwmon/adt7460.c
+  --------------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  7) drivers/hwmon/lm75.c
+  -----------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  8) drivers/hwmon/ds1621.c
+  -------------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  9) drivers/hwmon/adm1021.c
+  --------------------------
+  The driver is standard dtt. Simple conversion is possible.

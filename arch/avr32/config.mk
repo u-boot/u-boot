@@ -29,5 +29,3 @@ PLATFORM_RELFLAGS	+= -ffixed-r5 -fPIC -mno-init-got -mrelax
 PLATFORM_RELFLAGS	+= -ffunction-sections -fdata-sections
 
 LDFLAGS_u-boot		= --gc-sections --relax
-
-LDSCRIPT			= $(SRCTREE)/$(CPUDIR)/u-boot.lds
