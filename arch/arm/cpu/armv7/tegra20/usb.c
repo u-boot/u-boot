@@ -32,8 +32,16 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/uart.h>
 #include <asm/arch/usb.h>
+#include <usb/ulpi.h>
 #include <libfdt.h>
 #include <fdtdec.h>
+
+#ifdef CONFIG_USB_ULPI
+	#ifndef CONFIG_USB_ULPI_VIEWPORT
+	#error	"To use CONFIG_USB_ULPI on Tegra Boards you have to also \
+			define CONFIG_USB_ULPI_VIEWPORT"
+	#endif
+#endif
 
 enum {
 	USB_PORTS_MAX	= 4,			/* Maximum ports we allow */
@@ -68,11 +76,13 @@ enum dr_mode {
 struct fdt_usb {
 	struct usb_ctlr *reg;	/* address of registers in physical memory */
 	unsigned utmi:1;	/* 1 if port has external tranceiver, else 0 */
+	unsigned ulpi:1;	/* 1 if port has external ULPI transceiver */
 	unsigned enabled:1;	/* 1 to enable, 0 to disable */
 	unsigned has_legacy_mode:1; /* 1 if this port has legacy mode */
 	enum dr_mode dr_mode;	/* dual role mode */
 	enum periph_id periph_id;/* peripheral id */
 	struct fdt_gpio_state vbus_gpio;	/* GPIO for vbus enable */
+	struct fdt_gpio_state phy_reset_gpio; /* GPIO to reset ULPI phy */
 };
 
 static struct fdt_usb port[USB_PORTS_MAX];	/* List of valid USB ports */
@@ -187,8 +197,8 @@ void usbf_reset_controller(struct fdt_usb *config, struct usb_ctlr *usbctlr)
 	 */
 }
 
-/* set up the USB controller with the parameters provided */
-static int init_usb_controller(struct fdt_usb *config,
+/* set up the UTMI USB controller with the parameters provided */
+static int init_utmi_usb_controller(struct fdt_usb *config,
 				struct usb_ctlr *usbctlr, const u32 timing[])
 {
 	u32 val;
@@ -297,17 +307,115 @@ static int init_usb_controller(struct fdt_usb *config,
 	if (!loop_count)
 		return -1;
 
-	return 0;
-}
+	/* Disable ICUSB FS/LS transceiver */
+	clrbits_le32(&usbctlr->icusb_ctrl, IC_ENB1);
 
-static void power_up_port(struct usb_ctlr *usbctlr)
-{
+	/* Select UTMI parallel interface */
+	clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
+			PTS_UTMI << PTS_SHIFT);
+	clrbits_le32(&usbctlr->port_sc1, STS);
+
 	/* Deassert power down state */
 	clrbits_le32(&usbctlr->utmip_xcvr_cfg0, UTMIP_FORCE_PD_POWERDOWN |
 		UTMIP_FORCE_PD2_POWERDOWN | UTMIP_FORCE_PDZI_POWERDOWN);
 	clrbits_le32(&usbctlr->utmip_xcvr_cfg1, UTMIP_FORCE_PDDISC_POWERDOWN |
 		UTMIP_FORCE_PDCHRP_POWERDOWN | UTMIP_FORCE_PDDR_POWERDOWN);
+
+	return 0;
 }
+
+#ifdef CONFIG_USB_ULPI
+/* if board file does not set a ULPI reference frequency we default to 24MHz */
+#ifndef CONFIG_ULPI_REF_CLK
+#define CONFIG_ULPI_REF_CLK 24000000
+#endif
+
+/* set up the ULPI USB controller with the parameters provided */
+static int init_ulpi_usb_controller(struct fdt_usb *config,
+				struct usb_ctlr *usbctlr)
+{
+	u32 val;
+	int loop_count;
+	struct ulpi_viewport ulpi_vp;
+
+	/* set up ULPI reference clock on pllp_out4 */
+	clock_enable(PERIPH_ID_DEV2_OUT);
+	clock_set_pllout(CLOCK_ID_PERIPH, PLL_OUT4, CONFIG_ULPI_REF_CLK);
+
+	/* reset ULPI phy */
+	if (fdt_gpio_isvalid(&config->phy_reset_gpio)) {
+		fdtdec_setup_gpio(&config->phy_reset_gpio);
+		gpio_direction_output(config->phy_reset_gpio.gpio, 0);
+		mdelay(5);
+		gpio_set_value(config->phy_reset_gpio.gpio, 1);
+	}
+
+	/* Reset the usb controller */
+	clock_enable(config->periph_id);
+	usbf_reset_controller(config, usbctlr);
+
+	/* enable pinmux bypass */
+	setbits_le32(&usbctlr->ulpi_timing_ctrl_0,
+			ULPI_CLKOUT_PINMUX_BYP | ULPI_OUTPUT_PINMUX_BYP);
+
+	/* Select ULPI parallel interface */
+	clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK, PTS_ULPI << PTS_SHIFT);
+
+	/* enable ULPI transceiver */
+	setbits_le32(&usbctlr->susp_ctrl, ULPI_PHY_ENB);
+
+	/* configure ULPI transceiver timings */
+	val = 0;
+	writel(val, &usbctlr->ulpi_timing_ctrl_1);
+
+	val |= ULPI_DATA_TRIMMER_SEL(4);
+	val |= ULPI_STPDIRNXT_TRIMMER_SEL(4);
+	val |= ULPI_DIR_TRIMMER_SEL(4);
+	writel(val, &usbctlr->ulpi_timing_ctrl_1);
+	udelay(10);
+
+	val |= ULPI_DATA_TRIMMER_LOAD;
+	val |= ULPI_STPDIRNXT_TRIMMER_LOAD;
+	val |= ULPI_DIR_TRIMMER_LOAD;
+	writel(val, &usbctlr->ulpi_timing_ctrl_1);
+
+	/* set up phy for host operation with external vbus supply */
+	ulpi_vp.port_num = 0;
+	ulpi_vp.viewport_addr = (u32)&usbctlr->ulpi_viewport;
+
+	if (ulpi_init(&ulpi_vp)) {
+		printf("Tegra ULPI viewport init failed\n");
+		return -1;
+	}
+
+	ulpi_set_vbus(&ulpi_vp, 1, 1);
+	ulpi_set_vbus_indicator(&ulpi_vp, 1, 1, 0);
+
+	/* enable wakeup events */
+	setbits_le32(&usbctlr->port_sc1, WKCN | WKDS | WKOC);
+
+	/* Enable and wait for the phy clock to become valid in 100 ms */
+	setbits_le32(&usbctlr->susp_ctrl, USB_SUSP_CLR);
+	for (loop_count = 100000; loop_count != 0; loop_count--) {
+		if (readl(&usbctlr->susp_ctrl) & USB_PHY_CLK_VALID)
+			break;
+		udelay(1);
+	}
+	if (!loop_count)
+		return -1;
+	clrbits_le32(&usbctlr->susp_ctrl, USB_SUSP_CLR);
+
+	return 0;
+}
+#else
+static int init_ulpi_usb_controller(struct fdt_usb *config,
+				struct usb_ctlr *usbctlr)
+{
+	printf("No code to set up ULPI controller, please enable"
+			"CONFIG_USB_ULPI and CONFIG_USB_ULPI_VIEWPORT");
+	return -1;
+}
+#endif
 
 static void config_clock(const u32 timing[])
 {
@@ -327,24 +435,21 @@ static int add_port(struct fdt_usb *config, const u32 timing[])
 	struct usb_ctlr *usbctlr = config->reg;
 
 	if (port_count == USB_PORTS_MAX) {
-		debug("tegrausb: Cannot register more than %d ports\n",
+		printf("tegrausb: Cannot register more than %d ports\n",
 		      USB_PORTS_MAX);
 		return -1;
 	}
-	if (init_usb_controller(config, usbctlr, timing)) {
-		debug("tegrausb: Cannot init port\n");
+
+	if (config->utmi && init_utmi_usb_controller(config, usbctlr, timing)) {
+		printf("tegrausb: Cannot init port\n");
 		return -1;
 	}
-	if (config->utmi) {
-		/* Disable ICUSB FS/LS transceiver */
-		clrbits_le32(&usbctlr->icusb_ctrl, IC_ENB1);
 
-		/* Select UTMI parallel interface */
-		clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
-				PTS_UTMI << PTS_SHIFT);
-		clrbits_le32(&usbctlr->port_sc1, STS);
-		power_up_port(usbctlr);
+	if (config->ulpi && init_ulpi_usb_controller(config, usbctlr)) {
+		printf("tegrausb: Cannot init port\n");
+		return -1;
 	}
+
 	port[port_count++] = *config;
 
 	return 0;
@@ -406,6 +511,7 @@ int fdt_decode_usb(const void *blob, int node, unsigned osc_frequency_mhz,
 
 	phy = fdt_getprop(blob, node, "phy_type", NULL);
 	config->utmi = phy && 0 == strcmp("utmi", phy);
+	config->ulpi = phy && 0 == strcmp("ulpi", phy);
 	config->enabled = fdtdec_get_is_enabled(blob, node);
 	config->has_legacy_mode = fdtdec_get_bool(blob, node,
 						  "nvidia,has-legacy-mode");
@@ -415,10 +521,13 @@ int fdt_decode_usb(const void *blob, int node, unsigned osc_frequency_mhz,
 		return -FDT_ERR_NOTFOUND;
 	}
 	fdtdec_decode_gpio(blob, node, "nvidia,vbus-gpio", &config->vbus_gpio);
-	debug("enabled=%d, legacy_mode=%d, utmi=%d, periph_id=%d, vbus=%d, "
-	      "dr_mode=%d\n", config->enabled, config->has_legacy_mode,
-	      config->utmi, config->periph_id, config->vbus_gpio.gpio,
-	      config->dr_mode);
+	fdtdec_decode_gpio(blob, node, "nvidia,phy-reset-gpio",
+			&config->phy_reset_gpio);
+	debug("enabled=%d, legacy_mode=%d, utmi=%d, ulpi=%d, periph_id=%d, "
+		"vbus=%d, phy_reset=%d, dr_mode=%d\n",
+		config->enabled, config->has_legacy_mode, config->utmi,
+		config->ulpi, config->periph_id, config->vbus_gpio.gpio,
+		config->phy_reset_gpio.gpio, config->dr_mode);
 
 	return 0;
 }

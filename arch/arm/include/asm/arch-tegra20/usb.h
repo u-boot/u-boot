@@ -100,10 +100,12 @@ struct usb_ctlr {
 
 	/* 0x410 */
 	uint usb1_legacy_ctrl;
-	uint reserved12[3];
+	uint reserved12[4];
 
-	/* 0x420 */
-	uint reserved13[56];
+	/* 0x424 */
+	uint ulpi_timing_ctrl_0;
+	uint ulpi_timing_ctrl_1;
+	uint reserved13[53];
 
 	/* 0x500 */
 	uint reserved14[64 * 3];
@@ -144,10 +146,24 @@ struct usb_ctlr {
 #define VBUS_SENSE_CTL_AB_SESS_VLD		2
 #define VBUS_SENSE_CTL_A_SESS_VLD		3
 
+/* USB2_IF_ULPI_TIMING_CTRL_0 */
+#define ULPI_OUTPUT_PINMUX_BYP			(1 << 10)
+#define ULPI_CLKOUT_PINMUX_BYP			(1 << 11)
+
+/* USB2_IF_ULPI_TIMING_CTRL_1 */
+#define ULPI_DATA_TRIMMER_LOAD			(1 << 0)
+#define ULPI_DATA_TRIMMER_SEL(x)		(((x) & 0x7) << 1)
+#define ULPI_STPDIRNXT_TRIMMER_LOAD		(1 << 16)
+#define ULPI_STPDIRNXT_TRIMMER_SEL(x)	(((x) & 0x7) << 17)
+#define ULPI_DIR_TRIMMER_LOAD			(1 << 24)
+#define ULPI_DIR_TRIMMER_SEL(x)			(((x) & 0x7) << 25)
+
 /* USBx_IF_USB_SUSP_CTRL_0 */
+#define ULPI_PHY_ENB				(1 << 13)
 #define UTMIP_PHY_ENB			        (1 << 12)
 #define UTMIP_RESET			        (1 << 11)
 #define USB_PHY_CLK_VALID			(1 << 7)
+#define USB_SUSP_CLR				(1 << 5)
 
 /* USBx_UTMIP_MISC_CFG1 */
 #define UTMIP_PLLU_STABLE_COUNT_SHIFT		6
@@ -203,12 +219,15 @@ struct usb_ctlr {
 /* SB2_CONTROLLER_2_USB2D_PORTSC1_0 */
 #define PTS_SHIFT				30
 #define PTS_MASK				(3U << PTS_SHIFT)
-#define PTS_UTMI	0
+#define PTS_UTMI		0
 #define PTS_RESERVED	1
-#define PTS_ULP		2
+#define PTS_ULPI		2
 #define PTS_ICUSB_SER	3
 
 #define STS					(1 << 29)
+#define WKOC				(1 << 22)
+#define WKDS				(1 << 21)
+#define WKCN				(1 << 20)
 
 /* USBx_UTMIP_XCVR_CFG0_0 */
 #define UTMIP_FORCE_PD_POWERDOWN		(1 << 14)

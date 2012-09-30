@@ -1268,6 +1268,9 @@ The following options need to be configured:
 		viewport is supported.
 		To enable the ULPI layer support, define CONFIG_USB_ULPI and
 		CONFIG_USB_ULPI_VIEWPORT in your board configuration file.
+		If your ULPI phy needs a different reference clock than the
+		standard 24 MHz then you have to define CONFIG_ULPI_REF_CLK to
+		the appropriate value in Hz.
 
 - MMC Support:
 		The MMC controller on the Intel PXA is supported. To
