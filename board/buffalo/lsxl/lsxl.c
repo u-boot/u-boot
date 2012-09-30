@@ -195,9 +195,11 @@ int board_init(void)
 static void check_power_switch(void)
 {
 	if (kw_gpio_get_value(GPIO_POWER_SWITCH)) {
-		/* turn off HDD and USB power */
+		/* turn off fan, HDD and USB power */
 		kw_gpio_set_value(GPIO_HDD_POWER, 0);
 		kw_gpio_set_value(GPIO_USB_VBUS, 0);
+		kw_gpio_set_value(GPIO_FAN_HIGH, 1);
+		kw_gpio_set_value(GPIO_FAN_LOW, 1);
 		set_led(LED_OFF);
 
 		/* loop until released */
@@ -207,6 +209,8 @@ static void check_power_switch(void)
 		/* turn power on again */
 		kw_gpio_set_value(GPIO_HDD_POWER, 1);
 		kw_gpio_set_value(GPIO_USB_VBUS, 1);
+		kw_gpio_set_value(GPIO_FAN_HIGH, 0);
+		kw_gpio_set_value(GPIO_FAN_LOW, 0);
 		set_led(LED_POWER_BLINKING);
 	}
 }
