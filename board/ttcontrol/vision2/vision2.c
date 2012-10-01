@@ -28,6 +28,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
@@ -590,6 +591,7 @@ int board_mmc_init(bd_t *bis)
 	mxc_iomux_set_pad(MX51_PIN_GPIO1_1,
 		PAD_CTL_HYS_ENABLE);
 
+	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 }
 #endif

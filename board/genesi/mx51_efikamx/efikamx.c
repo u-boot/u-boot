@@ -29,6 +29,7 @@
 #include <asm/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/clock.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -348,6 +349,9 @@ int board_mmc_init(bd_t *bis)
 		imx_iomux_v3_setup_pad(efikamx_sdhc1_cd_pads[1]);
 		gpio_direction_input(EFIKASB_SDHC1_CD);
 	}
+
+	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+	esdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 
 	ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 

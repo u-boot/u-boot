@@ -114,6 +114,7 @@ int board_mmc_init(bd_t *bis)
 {
 	imx_iomux_v3_setup_multiple_pads(usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
 
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 #endif
