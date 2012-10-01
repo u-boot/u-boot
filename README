@@ -4688,7 +4688,10 @@ Over time, many people have reported problems when trying to use the
 consider minicom to be broken, and recommend not to use it. Under
 Unix, I recommend to use C-Kermit for general purpose use (and
 especially for kermit binary protocol download ("loadb" command), and
-use "cu" for S-Record download ("loads" command).
+use "cu" for S-Record download ("loads" command).  See
+http://www.denx.de/wiki/view/DULG/SystemSetup#Section_4.3.
+for help with kermit.
+
 
 Nevertheless, if you absolutely want to use it try adding this
 configuration to your "File transfer protocols" section:
