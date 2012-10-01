@@ -289,7 +289,7 @@
 	"userbutton_nonxm=gpio input 7;\0"
 /* "run userbutton" will return 1 (false) if is pressed and 0 (false) if not */
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run userbutton; then " \
 			"setenv bootenv uEnv.txt;" \
 		"else " \
