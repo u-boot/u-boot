@@ -52,22 +52,6 @@ static u8 iccl, icch;
 
 #define IRQ_WAIT 1000
 
-static void irq_wait(struct sh_i2c *base)
-{
-	int i;
-	u8 status;
-
-	for (i = 0 ; i < IRQ_WAIT ; i++) {
-		status = readb(&base->icsr);
-		if (SH_IC_WAIT & status)
-			break;
-
-		udelay(10);
-	}
-
-	writeb(status & ~SH_IC_WAIT, &base->icsr);
-}
-
 static void irq_dte(struct sh_i2c *base)
 {
 	int i;
