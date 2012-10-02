@@ -169,6 +169,17 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 #define USB_UHCI_VEND_ID	0x8086
 #define USB_UHCI_DEV_ID		0x7112
 
+/*
+ * PXA25x can only act as USB device. There are drivers
+ * which works with USB CDC gadgets implementations.
+ * Some of them have common routines which can be used
+ * in boards init functions e.g. udc_disconnect() used for
+ * forced device disconnection from host.
+ */
+#elif defined(CONFIG_USB_GADGET_PXA2XX)
+
+extern void udc_disconnect(void);
+
 #else
 #error USB Lowlevel not defined
 #endif
