@@ -30,6 +30,8 @@
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <asm/arch/sys_proto.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |            \
@@ -165,9 +167,38 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
+#define BOARD_REV_B  0x200
+#define BOARD_REV_A  0x100
+
+static int mx6sabre_rev(void)
+{
+	/*
+	 * Get Board ID information from OCOTP_GP1[15:8]
+	 * i.MX6Q ARD RevA: 0x01
+	 * i.MX6Q ARD RevB: 0x02
+	 */
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	int reg = readl(&ocotp->gp1);
+	int ret;
+
+	switch (reg >> 8 & 0x0F) {
+	case 0x02:
+		ret = BOARD_REV_B;
+		break;
+	case 0x01:
+	default:
+		ret = BOARD_REV_A;
+		break;
+	}
+
+	return ret;
+}
+
 u32 get_board_rev(void)
 {
-	return 0x63000;
+	int rev = mx6sabre_rev();
+
+	return (get_cpu_rev() & ~(0xF << 8)) | rev;
 }
 
 int board_early_init_f(void)
@@ -187,7 +218,20 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: MX6Q-Sabreauto\n");
+	int rev = mx6sabre_rev();
+	char *revname;
+
+	switch (rev) {
+	case BOARD_REV_B:
+		revname = "B";
+		break;
+	case BOARD_REV_A:
+	default:
+		revname = "A";
+		break;
+	}
+
+	printf("Board: MX6Q-Sabreauto rev%s\n", revname);
 
 	return 0;
 }
