@@ -78,10 +78,6 @@ Holger Brunck <holger.brunck@keymile.com>
 	tuge1		MPC8321
 	tuxx1		MPC8321
 
-Cyril Chemparathy <cyril@ti.com>
-
-	tnetv107x_evm	tnetv107x
-
 Conn Clark <clark@esteem.com>
 
 	ESTEEM192E	MPC8xx
@@ -362,6 +358,10 @@ Keith Outwater <Keith_Outwater@mvis.com>
 Frank Panno <fpanno@delphintech.com>
 
 	ep8260		MPC8260
+
+Chan-Taek Park <c-park@ti.com>
+
+	tnetv107x_evm	tnetv107x
 
 Denis Peter <d.peter@mpl.ch>
 
