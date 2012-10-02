@@ -44,12 +44,21 @@ extern struct platform_data brd;
 
 unsigned packet_received, packet_sent;
 
-#ifdef CONFIG_USB_GADGET_PXA2XX
-# undef DEV_CONFIG_CDC
-# define DEV_CONFIG_SUBSET 1
-#else
-# define DEV_CONFIG_CDC	1
+#undef DEV_CONFIG_CDC
+#undef DEV_CONFIG_SUBSET
+
+#if !defined(CONFIG_USB_ETH_CDC) && !defined(CONFIG_USB_ETH_SUBSET)
+# define DEV_CONFIG_CDC		1	/* preserve default behavior */
 #endif
+
+#if defined(CONFIG_USB_ETH_CDC)
+# define DEV_CONFIG_CDC		1
+#endif
+
+#if defined(CONFIG_USB_ETH_SUBSET)
+# define DEV_CONFIG_SUBSET	1
+#endif
+
 #define GFP_ATOMIC ((gfp_t) 0)
 #define GFP_KERNEL ((gfp_t) 0)
 
