@@ -24,9 +24,11 @@
 #include <errno.h>
 #include <linux/compiler.h>
 
-#define	CPU_MASK_PXA_REVID	0x00f
+#define	CPU_MASK_PXA_PRODID	0x000003f0
+#define	CPU_MASK_PXA_REVID	0x0000000f
 
-#define	CPU_MASK_PXA_PRODID	0x3f0
+#define	CPU_MASK_PRODREV	(CPU_MASK_PXA_PRODID | CPU_MASK_PXA_REVID)
+
 #define	CPU_VALUE_PXA25X	0x100
 #define	CPU_VALUE_PXA27X	0x110
 
@@ -49,6 +51,11 @@ int cpu_is_pxa27x(void)
 	uint32_t id = pxa_get_cpuid();
 	id &= CPU_MASK_PXA_PRODID;
 	return id == CPU_VALUE_PXA27X;
+}
+
+uint32_t pxa_get_cpu_revision(void)
+{
+	return pxa_get_cpuid() & CPU_MASK_PRODREV;
 }
 
 #ifdef	CONFIG_DISPLAY_CPUINFO
