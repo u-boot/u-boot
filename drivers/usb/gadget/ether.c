@@ -44,7 +44,12 @@ extern struct platform_data brd;
 
 unsigned packet_received, packet_sent;
 
-#define DEV_CONFIG_CDC	1
+#ifdef CONFIG_USB_GADGET_PXA2XX
+# undef DEV_CONFIG_CDC
+# define DEV_CONFIG_SUBSET 1
+#else
+# define DEV_CONFIG_CDC	1
+#endif
 #define GFP_ATOMIC ((gfp_t) 0)
 #define GFP_KERNEL ((gfp_t) 0)
 
@@ -864,7 +869,9 @@ static struct usb_gadget_strings	stringtab = {
 
 /*============================================================================*/
 static u8 control_req[USB_BUFSIZ];
+#if defined(DEV_CONFIG_CDC) || defined(CONFIG_USB_ETH_RNDIS)
 static u8 status_req[STATUS_BYTECOUNT] __attribute__ ((aligned(4)));
+#endif
 
 
 /**
@@ -1352,6 +1359,14 @@ eth_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		if (gadget_is_pxa(gadget)) {
 			value = eth_set_config(dev, DEV_CONFIG_VALUE,
 						GFP_ATOMIC);
+			/*
+			 * PXA25x driver use non-CDC ethernet gadget.
+			 * But only _CDC and _RNDIS code can signalize
+			 * that network is working. So we signalize it
+			 * here.
+			 */
+			l_ethdev.network_started = 1;
+			debug("USB network up!\n");
 			goto done_set_intf;
 		}
 
