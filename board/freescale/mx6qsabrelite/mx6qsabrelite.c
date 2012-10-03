@@ -70,12 +70,12 @@ int dram_init(void)
        return 0;
 }
 
-iomux_v3_cfg_t uart1_pads[] = {
+iomux_v3_cfg_t const uart1_pads[] = {
 	MX6Q_PAD_SD3_DAT6__UART1_RXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6Q_PAD_SD3_DAT7__UART1_TXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t uart2_pads[] = {
+iomux_v3_cfg_t const uart2_pads[] = {
        MX6Q_PAD_EIM_D26__UART2_TXD | MUX_PAD_CTRL(UART_PAD_CTRL),
        MX6Q_PAD_EIM_D27__UART2_RXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
@@ -124,7 +124,7 @@ struct i2c_pads_info i2c_pad_info2 = {
 	}
 };
 
-iomux_v3_cfg_t usdhc3_pads[] = {
+iomux_v3_cfg_t const usdhc3_pads[] = {
        MX6Q_PAD_SD3_CLK__USDHC3_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
        MX6Q_PAD_SD3_CMD__USDHC3_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
        MX6Q_PAD_SD3_DAT0__USDHC3_DAT0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -134,7 +134,7 @@ iomux_v3_cfg_t usdhc3_pads[] = {
        MX6Q_PAD_SD3_DAT5__GPIO_7_0    | MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
 };
 
-iomux_v3_cfg_t usdhc4_pads[] = {
+iomux_v3_cfg_t const usdhc4_pads[] = {
        MX6Q_PAD_SD4_CLK__USDHC4_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
        MX6Q_PAD_SD4_CMD__USDHC4_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
        MX6Q_PAD_SD4_DAT0__USDHC4_DAT0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -144,7 +144,7 @@ iomux_v3_cfg_t usdhc4_pads[] = {
        MX6Q_PAD_NANDF_D6__GPIO_2_6    | MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
 };
 
-iomux_v3_cfg_t enet_pads1[] = {
+iomux_v3_cfg_t const enet_pads1[] = {
 	MX6Q_PAD_ENET_MDIO__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_ENET_MDC__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_RGMII_TXC__ENET_RGMII_TXC	| MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -170,7 +170,7 @@ iomux_v3_cfg_t enet_pads1[] = {
 	MX6Q_PAD_EIM_D23__GPIO_3_23		| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-iomux_v3_cfg_t enet_pads2[] = {
+iomux_v3_cfg_t const enet_pads2[] = {
 	MX6Q_PAD_RGMII_RXC__ENET_RGMII_RXC	| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_RGMII_RD0__ENET_RGMII_RD0	| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_RGMII_RD1__ENET_RGMII_RD1	| MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -180,7 +180,7 @@ iomux_v3_cfg_t enet_pads2[] = {
 };
 
 /* Button assignments for J14 */
-static iomux_v3_cfg_t button_pads[] = {
+static iomux_v3_cfg_t const button_pads[] = {
 	/* Menu */
 	MX6Q_PAD_NANDF_D1__GPIO_2_1	| MUX_PAD_CTRL(BUTTON_PAD_CTRL),
 	/* Back */
@@ -213,7 +213,7 @@ static void setup_iomux_enet(void)
 	imx_iomux_v3_setup_multiple_pads(enet_pads2, ARRAY_SIZE(enet_pads2));
 }
 
-iomux_v3_cfg_t usb_pads[] = {
+iomux_v3_cfg_t const usb_pads[] = {
 	MX6Q_PAD_GPIO_17__GPIO_7_12 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
@@ -297,7 +297,7 @@ u32 get_board_rev(void)
 }
 
 #ifdef CONFIG_MXC_SPI
-iomux_v3_cfg_t ecspi1_pads[] = {
+iomux_v3_cfg_t const ecspi1_pads[] = {
 	/* SS1 */
 	MX6Q_PAD_EIM_D19__GPIO_3_19   | MUX_PAD_CTRL(SPI_PAD_CTRL),
 	MX6Q_PAD_EIM_D17__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),

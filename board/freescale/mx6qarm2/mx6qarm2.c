@@ -54,12 +54,12 @@ int dram_init(void)
 	return 0;
 }
 
-iomux_v3_cfg_t uart4_pads[] = {
+iomux_v3_cfg_t const uart4_pads[] = {
 	MX6Q_PAD_KEY_COL0__UART4_TXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6Q_PAD_KEY_ROW0__UART4_RXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t usdhc3_pads[] = {
+iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6Q_PAD_SD3_CLK__USDHC3_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6Q_PAD_SD3_CMD__USDHC3_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6Q_PAD_SD3_DAT0__USDHC3_DAT0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -73,7 +73,7 @@ iomux_v3_cfg_t usdhc3_pads[] = {
 	MX6Q_PAD_NANDF_CS0__GPIO_6_11  | MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
 };
 
-iomux_v3_cfg_t usdhc4_pads[] = {
+iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6Q_PAD_SD4_CLK__USDHC4_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6Q_PAD_SD4_CMD__USDHC4_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6Q_PAD_SD4_DAT0__USDHC4_DAT0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -86,7 +86,7 @@ iomux_v3_cfg_t usdhc4_pads[] = {
 	MX6Q_PAD_SD4_DAT7__USDHC4_DAT7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
-iomux_v3_cfg_t enet_pads[] = {
+iomux_v3_cfg_t const enet_pads[] = {
 	MX6Q_PAD_KEY_COL1__ENET_MDIO        | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_KEY_COL2__ENET_MDC         | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_RGMII_TXC__ENET_RGMII_TXC  | MUX_PAD_CTRL(ENET_PAD_CTRL),
