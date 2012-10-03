@@ -284,13 +284,6 @@ _dynsym_start_ofs:
  */
 
 cpu_init_crit:
-#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-	/* No specific initialisation for IntegratorAP/CM720T as yet */
-#elif defined(CONFIG_TEGRA)
-	/* No cpu_init_crit for tegra as yet */
-#else
-#error No cpu_init_crit() defined for current CPU type
-#endif
 
 #ifdef CONFIG_ARM7_REVD
 	/* set clock speed */
@@ -481,11 +474,3 @@ fiq:
 
 #endif
 #endif /* CONFIG_SPL_BUILD */
-
-#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-	/* No specific reset actions for IntegratorAP/CM720T as yet */
-#elif defined(CONFIG_TEGRA)
-	/* No specific reset actions for tegra as yet */
-#else
-#error No reset_cpu() defined for current CPU type
-#endif

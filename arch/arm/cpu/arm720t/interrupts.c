@@ -26,57 +26,22 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/proc-armv/ptrace.h>
-#include <asm/hardware.h>
-
-/* we always count down the max. */
-#define TIMER_LOAD_VAL 0xffff
-/* macro to read the 16 bit timer */
-#define READ_TIMER (IO_TC1D & 0xffff)
-
 #ifdef CONFIG_USE_IRQ
 void do_irq (struct pt_regs *pt_regs)
 {
-#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-	/* No do_irq() for IntegratorAP/CM720T as yet */
-#else
-#error do_irq() not defined for this CPU type
-#endif
 }
 #endif
 
-#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-	/* Use IntegratorAP routines in board/integratorap.c */
-#else
-
+#if defined(CONFIG_TEGRA)
 static ulong timestamp;
 static ulong lastdec;
 
 int timer_init (void)
 {
-#if defined(CONFIG_TEGRA)
 	/* No timer routines for tegra as yet */
 	lastdec = 0;
-#else
-#error No timer_init() defined for this CPU type
-#endif
 	timestamp = 0;
 
-	return (0);
+	return 0;
 }
-
-#endif /* ! IntegratorAP */
-
-/*
- * timer without interrupts
- */
-
-
-#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-	/* No timer routines for IntegratorAP/CM720T as yet */
-#elif defined(CONFIG_TEGRA)
-	/* No timer routines for tegra as yet */
-#else
-#error Timer routines not defined for this CPU type
 #endif

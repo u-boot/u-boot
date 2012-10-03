@@ -27,34 +27,12 @@
  */
 
 /*
- * CPU specific code
+ * cleanup_before_linux() - Prepare the CPU to jump to Linux
+ *
+ * This function is called just before we call Linux, it
+ * prepares the processor for linux
  */
-
-#include <common.h>
-#include <command.h>
-#include <asm/hardware.h>
-#include <asm/system.h>
-
-#if !defined(CONFIG_INTEGRATOR) || !defined(CONFIG_ARCH_INTEGRATOR)
-#error No cleanup_before_linux() defined for this CPU type
-#endif
-
-int cleanup_before_linux (void)
+int cleanup_before_linux(void)
 {
-	/*
-	 * this function is called just before we call linux
-	 * it prepares the processor for linux
-	 *
-	 * we turn off caches etc ...
-	 * and we set the CPU-speed to 73 MHz - see start.S for details
-	 */
-
-#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-	/* No cleanup before linux for IntegratorAP/CM720T as yet */
-#elif defined(CONFIG_TEGRA)
-	/* No cleanup before linux for tegra as yet */
-#else
-#error No cleanup_before_linux() defined for this CPU type
-#endif
 	return 0;
 }
