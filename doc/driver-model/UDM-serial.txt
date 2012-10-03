@@ -125,63 +125,59 @@ III) Analysis of in-tree drivers
   -------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  17) serial_lpc2292.c
+  17) serial_max3100.c
   --------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  18) serial_max3100.c
-  --------------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
-
-  19) serial_mxc.c
+  18) serial_mxc.c
   ----------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  20) serial_netarm.c
+  19) serial_netarm.c
   -------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  21) serial_pl01x.c
+  20) serial_pl01x.c
   ------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible, though this
   driver in fact contains two drivers in total.
 
-  22) serial_pxa.c
+  21) serial_pxa.c
   ----------------
   This driver is a bit complicated, but due to clean support for
   CONFIG_SERIAL_MULTI, there are no expected obstructions throughout the
   conversion process.
 
-  23) serial_s3c24x0.c
+  22) serial_s3c24x0.c
   --------------------
   This driver, being quite ad-hoc might need some work to bring back to shape.
 
-  24) serial_s3c44b0.c
+  23) serial_s3c44b0.c
   --------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  25) serial_s5p.c
+  24) serial_s5p.c
   ----------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  26) serial_sa1100.c
+  25) serial_sa1100.c
   -------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  27) serial_sh.c
+  26) serial_sh.c
   ---------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  28) serial_xuartlite.c
+  27) serial_xuartlite.c
   ----------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  29) usbtty.c
+  28) usbtty.c
   ------------
   This driver seems very complicated and entangled with USB framework. The
   conversion might be complicated here.
 
-  30) arch/powerpc/cpu/mpc512x/serial.c
+  29) arch/powerpc/cpu/mpc512x/serial.c
   -------------------------------------
   This driver supports CONFIG_SERIAL_MULTI. This driver will need to be moved to
   proper place.

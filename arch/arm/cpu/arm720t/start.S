@@ -43,11 +43,7 @@ _start: b	reset
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
 	ldr	pc, _data_abort
-#ifdef CONFIG_LPC2292
-	.word	0xB4405F76 /* 2's complement of the checksum of the vectors */
-#else
 	ldr	pc, _not_used
-#endif
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
@@ -149,10 +145,6 @@ reset:
 	 */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	bl	cpu_init_crit
-#endif
-
-#ifdef CONFIG_LPC2292
-	bl	lowlevel_init
 #endif
 
 /* Set stackpointer in internal RAM to call board_init_f */
@@ -291,16 +283,6 @@ _dynsym_start_ofs:
  *************************************************************************
  */
 
-#if defined(CONFIG_LPC2292)
-PLLCFG_ADR:	.word	PLLCFG
-PLLFEED_ADR:	.word	PLLFEED
-PLLCON_ADR:	.word	PLLCON
-PLLSTAT_ADR:	.word	PLLSTAT
-VPBDIV_ADR:	.word	VPBDIV
-MEMMAP_ADR:	.word	MEMMAP
-
-#endif
-
 cpu_init_crit:
 #if defined(CONFIG_NETARM)
 	/*
@@ -371,50 +353,6 @@ cpu_init_crit:
 
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific initialisation for IntegratorAP/CM720T as yet */
-#elif defined(CONFIG_LPC2292)
-	/* Set-up PLL */
-	mov	r3, #0xAA
-	mov	r4, #0x55
-	/* First disconnect and disable the PLL */
-	ldr	r0, PLLCON_ADR
-	mov	r1, #0x00
-	str	r1, [r0]
-	ldr	r0, PLLFEED_ADR /* start feed sequence */
-	str	r3, [r0]
-	str	r4, [r0]	/* feed sequence done */
-	/* Set new M and P values */
-	ldr	r0, PLLCFG_ADR
-	mov	r1, #0x23	/* M=4 and P=2 */
-	str	r1, [r0]
-	ldr	r0, PLLFEED_ADR /* start feed sequence */
-	str	r3, [r0]
-	str	r4, [r0]	/* feed sequence done */
-	/* Then enable the PLL */
-	ldr	r0, PLLCON_ADR
-	mov	r1, #0x01	/* PLL enable bit */
-	str	r1, [r0]
-	ldr	r0, PLLFEED_ADR /* start feed sequence */
-	str	r3, [r0]
-	str	r4, [r0]	/* feed sequence done */
-	/* Wait for the lock */
-	ldr	r0, PLLSTAT_ADR
-	mov	r1, #0x400	/* lock bit */
-lock_loop:
-	ldr	r2, [r0]
-	and	r2, r1, r2
-	cmp	r2, #0
-	beq	lock_loop
-	/* And finally connect the PLL */
-	ldr	r0, PLLCON_ADR
-	mov	r1, #0x03	/* PLL enable bit and connect bit */
-	str	r1, [r0]
-	ldr	r0, PLLFEED_ADR /* start feed sequence */
-	str	r3, [r0]
-	str	r4, [r0]	/* feed sequence done */
-	/* Set-up VPBDIV register */
-	ldr	r0, VPBDIV_ADR
-	mov	r1, #0x01	/* VPB clock is same as process clock */
-	str	r1, [r0]
 #elif defined(CONFIG_TEGRA)
 	/* No cpu_init_crit for tegra as yet */
 #else
@@ -432,7 +370,7 @@ lock_loop:
 	str	r1, [r0]
 #endif
 
-#if !defined(CONFIG_LPC2292) && !defined(CONFIG_TEGRA)
+#if !defined(CONFIG_TEGRA)
 	mov	ip, lr
 	/*
 	 * before relocating, we have to setup RAM timing
@@ -636,11 +574,6 @@ reset_cpu:
  * on external peripherals such as watchdog timers, etc. */
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific reset actions for IntegratorAP/CM720T as yet */
-#elif defined(CONFIG_LPC2292)
-	.align	5
-.globl reset_cpu
-reset_cpu:
-	mov	pc, r0
 #elif defined(CONFIG_TEGRA)
 	/* No specific reset actions for tegra as yet */
 #else
