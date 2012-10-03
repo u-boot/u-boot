@@ -478,7 +478,6 @@ int fw_setenv(int argc, char *argv[])
 	int i, len;
 	char *name;
 	char *value = NULL;
-	char *tmpval = NULL;
 
 	if (argc < 2) {
 		errno = EINVAL;
@@ -492,34 +491,28 @@ int fw_setenv(int argc, char *argv[])
 
 	name = argv[1];
 
-	len = strlen(name) + 2;
-	for (i = 2; i < argc; ++i)
-		len += strlen(argv[i]) + 1;
-
-	/* Allocate enough place to the data string */
+	len = 0;
 	for (i = 2; i < argc; ++i) {
 		char *val = argv[i];
+		size_t val_len = strlen(val);
+
+		value = realloc(value, len + val_len + 1);
 		if (!value) {
-			value = (char *)malloc(len - strlen(name));
-			if (!value) {
-				fprintf(stderr,
+			fprintf(stderr,
 				"Cannot malloc %zu bytes: %s\n",
-				len - strlen(name), strerror(errno));
-				return -1;
-			}
-			memset(value, 0, len - strlen(name));
-			tmpval = value;
+				len, strerror(errno));
+			return -1;
 		}
-		if (i != 2)
-			*tmpval++ = ' ';
-		while (*val != '\0')
-			*tmpval++ = *val++;
+
+		memcpy(value + len, val, val_len);
+		len += val_len;
+		value[len++] = ' ';
 	}
+	value[len - 1] = '\0';
 
 	fw_env_write(name, value);
 
-	if (value)
-		free(value);
+	free(value);
 
 	return fw_env_close();
 }
