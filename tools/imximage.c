@@ -196,8 +196,7 @@ static void set_dcd_rst_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 }
 
 static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
-					struct stat *sbuf,
-					struct mkimage_params *params)
+		uint32_t entry_point, uint32_t flash_offset)
 {
 	imx_header_v1_t *hdr_v1 = &imxhdr->header.hdr_v1;
 	flash_header_v1_t *fhdr_v1 = &hdr_v1->fhdr;
@@ -209,11 +208,11 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
 
-	fhdr_v1->app_dest_ptr = params->ep - imxhdr->flash_offset -
+	fhdr_v1->app_dest_ptr = entry_point - flash_offset -
 		sizeof(struct imx_header);
-	fhdr_v1->app_code_jump_vector = params->ep;
+	fhdr_v1->app_code_jump_vector = entry_point;
 
-	base_offset = fhdr_v1->app_dest_ptr + imxhdr->flash_offset ;
+	base_offset = fhdr_v1->app_dest_ptr + flash_offset;
 	fhdr_v1->dcd_ptr_ptr =
 		(uint32_t) (offsetof(flash_header_v1_t, dcd_ptr) -
 		offsetof(flash_header_v1_t, app_code_jump_vector) +
@@ -229,8 +228,7 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 }
 
 static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
-					struct stat *sbuf,
-					struct mkimage_params *params)
+		uint32_t entry_point, uint32_t flash_offset)
 {
 	imx_header_v2_t *hdr_v2 = &imxhdr->header.hdr_v2;
 	flash_header_v2_t *fhdr_v2 = &hdr_v2->fhdr;
@@ -240,9 +238,9 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 	fhdr_v2->header.length = cpu_to_be16(sizeof(flash_header_v2_t));
 	fhdr_v2->header.version = IVT_VERSION; /* 0x40 */
 
-	fhdr_v2->entry = params->ep;
+	fhdr_v2->entry = entry_point;
 	fhdr_v2->reserved1 = fhdr_v2->reserved2 = 0;
-	fhdr_v2->self = params->ep - sizeof(struct imx_header);
+	fhdr_v2->self = entry_point - sizeof(struct imx_header);
 
 	fhdr_v2->dcd_ptr = fhdr_v2->self +
 			offsetof(imx_header_v2_t, dcd_table);
@@ -250,7 +248,7 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 	fhdr_v2->boot_data_ptr = fhdr_v2->self +
 			offsetof(imx_header_v2_t, boot_data);
 
-	hdr_v2->boot_data.start = fhdr_v2->self - imxhdr->flash_offset;
+	hdr_v2->boot_data.start = fhdr_v2->self - flash_offset;
 
 	/* Security feature are not supported */
 	fhdr_v2->csf = 0;
@@ -524,7 +522,7 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	dcd_len = parse_cfg_file(imxhdr, params->imagename);
 
 	/* Set the imx header */
-	(*set_imx_hdr)(imxhdr, dcd_len, sbuf, params);
+	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imxhdr->flash_offset);
 	*header_size_ptr = sbuf->st_size + imxhdr->flash_offset;
 }
 
