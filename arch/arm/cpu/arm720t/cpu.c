@@ -46,7 +46,7 @@ int cleanup_before_linux (void)
 	 * and we set the CPU-speed to 73 MHz - see start.S for details
 	 */
 
-#if defined(CONFIG_NETARM) || defined(CONFIG_S3C4510B)
+#if defined(CONFIG_NETARM)
 	disable_interrupts ();
 	/* Nothing more needed */
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)

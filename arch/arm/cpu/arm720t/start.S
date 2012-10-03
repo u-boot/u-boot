@@ -335,22 +335,6 @@ cpu_init_crit:
 	ldr	r0, =NETARM_GEN_MODULE_BASE
 	str	r1, [r0, #+NETARM_GEN_INTR_ENABLE]
 
-#elif defined(CONFIG_S3C4510B)
-
-	/*
-	 * Mask off all IRQ sources
-	 */
-	ldr	r1, =REG_INTMASK
-	ldr	r0, =0x3FFFFF
-	str	r0, [r1]
-
-	/*
-	 * Disable Cache
-	 */
-	ldr r0, =REG_SYSCFG
-	ldr r1, =0x83ffffa0	/* cache-disabled  */
-	str r1, [r0]
-
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific initialisation for IntegratorAP/CM720T as yet */
 #elif defined(CONFIG_TEGRA)
@@ -569,9 +553,6 @@ reset_cpu:
 	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
 	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
 	mov	pc, r0
-#elif defined(CONFIG_S3C4510B)
-/* Nothing done here as reseting the CPU is board specific, depending
- * on external peripherals such as watchdog timers, etc. */
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific reset actions for IntegratorAP/CM720T as yet */
 #elif defined(CONFIG_TEGRA)
