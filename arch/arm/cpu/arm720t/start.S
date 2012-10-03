@@ -285,17 +285,6 @@ _dynsym_start_ofs:
 
 cpu_init_crit:
 
-#ifdef CONFIG_ARM7_REVD
-	/* set clock speed */
-	/* !!! we run @ 36 MHz due to a hardware flaw in Rev. D processors */
-	/* !!! not doing DRAM refresh properly! */
-	ldr	r0, SYSCON3
-	ldr	r1, [r0]
-	bic	r1, r1, #CLKCTL
-	orr	r1, r1, #CLKCTL_36
-	str	r1, [r0]
-#endif
-
 #if !defined(CONFIG_TEGRA)
 	mov	ip, lr
 	/*
