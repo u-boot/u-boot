@@ -24,13 +24,14 @@
 include $(TOPDIR)/config.mk
 
 HOSTSRCS := $(SRCTREE)/lib/crc32.c  fw_env.c  fw_env_main.c
-HEADERS	:= fw_env.h
+HEADERS	:= fw_env.h $(OBJTREE)/include/config.h
 
 # Compile for a hosted environment on the target
 HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
-		-DUSE_HOSTCC
+		-DUSE_HOSTCC \
+		-DTEXT_BASE=$(TEXT_BASE)
 
 ifeq ($(MTD_VERSION),old)
 HOSTCPPFLAGS += -DMTD_OLD

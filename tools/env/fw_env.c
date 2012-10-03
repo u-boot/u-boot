@@ -45,8 +45,6 @@
 
 #include "fw_env.h"
 
-#include <config.h>
-
 #define WHITESPACE(c) ((c == '\t') || (c == ' '))
 
 #define min(x, y) ({				\
@@ -81,7 +79,7 @@ static int dev_current;
 #define ENVSECTORS(i) envdevices[(i)].env_sectors
 #define DEVTYPE(i)    envdevices[(i)].mtd_type
 
-#define CONFIG_ENV_SIZE ENVSIZE(dev_current)
+#define CUR_ENVSIZE ENVSIZE(dev_current)
 
 #define ENV_SIZE      getenvsize()
 
@@ -226,7 +224,7 @@ static int get_config (char *);
 #endif
 static inline ulong getenvsize (void)
 {
-	ulong rc = CONFIG_ENV_SIZE - sizeof (long);
+	ulong rc = CUR_ENVSIZE - sizeof(long);
 
 	if (HaveRedundEnv)
 		rc -= sizeof (char);
@@ -442,7 +440,7 @@ int fw_env_write(char *name, char *value)
 		++env;
 	/*
 	 * Overflow when:
-	 * "name" + "=" + "val" +"\0\0"  > CONFIG_ENV_SIZE - (env-environment)
+	 * "name" + "=" + "val" +"\0\0"  > CUR_ENVSIZE - (env-environment)
 	 */
 	len = strlen (name) + 2;
 	/* add '=' for first arg, ' ' for all others */
@@ -957,8 +955,8 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 	printf ("Writing new environment at 0x%lx on %s\n",
 		DEVOFFSET (dev_target), DEVNAME (dev_target));
 #endif
-	rc = flash_write_buf (dev_target, fd_target, environment.image,
-			      CONFIG_ENV_SIZE, DEVOFFSET (dev_target),
+	rc = flash_write_buf(dev_target, fd_target, environment.image,
+			      CUR_ENVSIZE, DEVOFFSET(dev_target),
 			      DEVTYPE(dev_target));
 	if (rc < 0)
 		return rc;
@@ -997,10 +995,10 @@ static int flash_read (int fd)
 
 	DEVTYPE(dev_current) = mtdinfo.type;
 
-	rc = flash_read_buf (dev_current, fd, environment.image, CONFIG_ENV_SIZE,
+	rc = flash_read_buf(dev_current, fd, environment.image, CUR_ENVSIZE,
 			     DEVOFFSET (dev_current), mtdinfo.type);
 
-	return (rc != CONFIG_ENV_SIZE) ? -1 : 0;
+	return (rc != CUR_ENVSIZE) ? -1 : 0;
 }
 
 static int flash_io (int mode)
@@ -1097,11 +1095,11 @@ int fw_env_open(void)
 	if (parse_config ())		/* should fill envdevices */
 		return -1;
 
-	addr0 = calloc (1, CONFIG_ENV_SIZE);
+	addr0 = calloc(1, CUR_ENVSIZE);
 	if (addr0 == NULL) {
-		fprintf (stderr,
+		fprintf(stderr,
 			"Not enough memory for environment (%ld bytes)\n",
-			CONFIG_ENV_SIZE);
+			CUR_ENVSIZE);
 		return -1;
 	}
 
@@ -1136,11 +1134,11 @@ int fw_env_open(void)
 		flag0 = *environment.flags;
 
 		dev_current = 1;
-		addr1 = calloc (1, CONFIG_ENV_SIZE);
+		addr1 = calloc(1, CUR_ENVSIZE);
 		if (addr1 == NULL) {
-			fprintf (stderr,
+			fprintf(stderr,
 				"Not enough memory for environment (%ld bytes)\n",
-				CONFIG_ENV_SIZE);
+				CUR_ENVSIZE);
 			return -1;
 		}
 		redundant = addr1;
