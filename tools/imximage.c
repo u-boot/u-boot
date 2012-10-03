@@ -72,6 +72,7 @@ static set_dcd_val_t set_dcd_val;
 static set_dcd_rst_t set_dcd_rst;
 static set_imx_hdr_t set_imx_hdr;
 static uint32_t max_dcd_entries;
+static uint32_t *header_size_ptr;
 
 static uint32_t get_cfg_value(char *token, char *name,  int linenr)
 {
@@ -202,6 +203,8 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	flash_header_v1_t *fhdr_v1 = &hdr_v1->fhdr;
 	dcd_v1_t *dcd_v1 = &hdr_v1->dcd_table;
 	uint32_t base_offset;
+	uint32_t header_length = (((char *)&dcd_v1->addr_data[dcd_len].addr)
+			- ((char *)imxhdr));
 
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
@@ -219,13 +222,10 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	fhdr_v1->dcd_ptr = base_offset +
 			offsetof(imx_header_v1_t, dcd_table);
 
-	/* The external flash header must be at the end of the DCD table */
-	dcd_v1->addr_data[dcd_len].type = sbuf->st_size +
-				imxhdr->flash_offset;
-
 	/* Security feature are not supported */
 	fhdr_v1->app_code_csf = 0;
 	fhdr_v1->super_root_key = 0;
+	header_size_ptr = (uint32_t *)(((char *)imxhdr) + header_length - 4);
 }
 
 static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
@@ -251,11 +251,10 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 			offsetof(imx_header_v2_t, boot_data);
 
 	hdr_v2->boot_data.start = fhdr_v2->self - imxhdr->flash_offset;
-	hdr_v2->boot_data.size = sbuf->st_size +
-			imxhdr->flash_offset;
 
 	/* Security feature are not supported */
 	fhdr_v2->csf = 0;
+	header_size_ptr = &hdr_v2->boot_data.size;
 }
 
 static void set_hdr_func(struct imx_header *imxhdr)
@@ -526,6 +525,7 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	/* Set the imx header */
 	(*set_imx_hdr)(imxhdr, dcd_len, sbuf, params);
+	*header_size_ptr = sbuf->st_size + imxhdr->flash_offset;
 }
 
 int imximage_check_params(struct mkimage_params *params)
