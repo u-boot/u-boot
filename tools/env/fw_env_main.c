@@ -39,10 +39,13 @@
  *		  variable "name"
  */
 
+#include <fcntl.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <getopt.h>
+#include <sys/file.h>
+#include <unistd.h>
 #include "fw_env.h"
 
 #define	CMD_PRINTENV	"fw_printenv"
@@ -81,13 +84,27 @@ void usage(void)
 	);
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	char *p;
 	char *cmdname = *argv;
 	char *script_file = NULL;
 	int c;
+	const char *lockname = "/var/lock/" CMD_PRINTENV ".lock";
+	int lockfd = -1;
+	int retval = EXIT_SUCCESS;
+
+	lockfd = open(lockname, O_WRONLY | O_CREAT | O_TRUNC);
+	if (-1 == lockfd) {
+		fprintf(stderr, "Error opening lock file %s\n", lockname);
+		return EXIT_FAILURE;
+	}
+
+	if (-1 == flock(lockfd, LOCK_EX)) {
+		fprintf(stderr, "Error locking file %s\n", lockname);
+		close(lockfd);
+		return EXIT_FAILURE;
+	}
 
 	if ((p = strrchr (cmdname, '/')) != NULL) {
 		cmdname = p + 1;
@@ -104,38 +121,36 @@ main(int argc, char *argv[])
 			break;
 		case 'h':
 			usage();
-			return EXIT_SUCCESS;
+			goto exit;
 		default: /* '?' */
 			fprintf(stderr, "Try `%s --help' for more information."
 				"\n", cmdname);
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto exit;
 		}
 	}
 
-
 	if (strcmp(cmdname, CMD_PRINTENV) == 0) {
-
-		if (fw_printenv (argc, argv) != 0)
-			return EXIT_FAILURE;
-
-		return EXIT_SUCCESS;
-
+		if (fw_printenv(argc, argv) != 0)
+			retval = EXIT_FAILURE;
 	} else if (strcmp(cmdname, CMD_SETENV) == 0) {
 		if (!script_file) {
 			if (fw_setenv(argc, argv) != 0)
-				return EXIT_FAILURE;
+				retval = EXIT_FAILURE;
 		} else {
 			if (fw_parse_script(script_file) != 0)
-				return EXIT_FAILURE;
+				retval = EXIT_FAILURE;
 		}
-
-		return EXIT_SUCCESS;
-
+	} else {
+		fprintf(stderr,
+			"Identity crisis - may be called as `" CMD_PRINTENV
+			"' or as `" CMD_SETENV "' but not as `%s'\n",
+			cmdname);
+		retval = EXIT_FAILURE;
 	}
 
-	fprintf (stderr,
-		"Identity crisis - may be called as `" CMD_PRINTENV
-		"' or as `" CMD_SETENV "' but not as `%s'\n",
-		cmdname);
-	return EXIT_FAILURE;
+exit:
+	flock(lockfd, LOCK_UN);
+	close(lockfd);
+	return retval;
 }
