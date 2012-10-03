@@ -803,6 +803,7 @@ Veli-Pekka Peltola <veli-pekka.peltola@bluegiga.com>
 Luka Perkov <uboot@lukaperkov.net>
 
 	ib62x0		ARM926EJS
+	iconnect	ARM926EJS
 
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
