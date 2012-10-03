@@ -51,7 +51,7 @@ static void print_eth(int idx)
 }
 
 __maybe_unused
-static void print_lnum(const char *name, u64 value)
+static void print_lnum(const char *name, unsigned long long value)
 {
 	printf("%-12s= 0x%.8llX\n", name, value);
 }
