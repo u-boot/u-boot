@@ -221,8 +221,7 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 
 	/* The external flash header must be at the end of the DCD table */
 	dcd_v1->addr_data[dcd_len].type = sbuf->st_size +
-				imxhdr->flash_offset +
-				sizeof(struct imx_header);
+				imxhdr->flash_offset;
 
 	/* Security feature are not supported */
 	fhdr_v1->app_code_csf = 0;
@@ -253,8 +252,7 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 
 	hdr_v2->boot_data.start = fhdr_v2->self - imxhdr->flash_offset;
 	hdr_v2->boot_data.size = sbuf->st_size +
-			imxhdr->flash_offset +
-			sizeof(struct imx_header);
+			imxhdr->flash_offset;
 
 	/* Security feature are not supported */
 	fhdr_v2->csf = 0;
