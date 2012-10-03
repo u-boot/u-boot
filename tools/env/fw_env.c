@@ -255,9 +255,6 @@ char *fw_getenv (char *name)
 {
 	char *env, *nxt;
 
-	if (fw_env_open())
-		return NULL;
-
 	for (env = environment.data; *env; env = nxt + 1) {
 		char *val;
 
