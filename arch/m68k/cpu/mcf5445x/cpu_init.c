@@ -31,6 +31,7 @@
 #include <asm/processor.h>
 #include <asm/rtc.h>
 #include <asm/io.h>
+#include <linux/compiler.h>
 
 #if defined(CONFIG_CMD_NET)
 #include <config.h>
@@ -49,7 +50,7 @@ void cpu_init_f(void)
 {
 	scm1_t *scm1 = (scm1_t *) MMAP_SCM1;
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-	fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
+	fbcs_t *fbcs __maybe_unused = (fbcs_t *) MMAP_FBCS;
 
 	out_be32(&scm1->mpr, 0x77777777);
 	out_be32(&scm1->pacra, 0);
