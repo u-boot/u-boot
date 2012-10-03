@@ -1057,6 +1057,8 @@ exit:
 
 static char *envmatch (char * s1, char * s2)
 {
+	if (s1 == NULL || s2 == NULL)
+		return NULL;
 
 	while (*s1 == *s2++)
 		if (*s1++ == '=')

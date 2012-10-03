@@ -650,6 +650,9 @@ U_BOOT_CMD(
  */
 int envmatch(uchar *s1, int i2)
 {
+	if (s1 == NULL)
+		return -1;
+
 	while (*s1 == env_get_char(i2++))
 		if (*s1++ == '=')
 			return i2;
