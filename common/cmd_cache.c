@@ -51,7 +51,7 @@ int do_icache(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			invalidate_icache_all();
 			break;
 		}
-		/* FALL TROUGH */
+		break;
 	case 1:			/* get status */
 		printf("Instruction Cache is %s\n",
 			icache_status() ? "ON" : "OFF");
