@@ -401,8 +401,6 @@ Stefan Roese <sr@denx.de>
 
 	uc100		MPC857
 
-	TQM85xx		MPC8540/8541/8555/8560
-
 	acadia		PPC405EZ
 	alpr		PPC440GX
 	bamboo		PPC440EP
