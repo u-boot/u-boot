@@ -71,6 +71,7 @@ static uint32_t imximage_version;
 static set_dcd_val_t set_dcd_val;
 static set_dcd_rst_t set_dcd_rst;
 static set_imx_hdr_t set_imx_hdr;
+static uint32_t max_dcd_entries;
 
 static uint32_t get_cfg_value(char *token, char *name,  int linenr)
 {
@@ -170,13 +171,6 @@ static void set_dcd_rst_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 {
 	dcd_v1_t *dcd_v1 = &imxhdr->header.hdr_v1.dcd_table;
 
-	if (dcd_len > MAX_HW_CFG_SIZE_V1) {
-		fprintf(stderr, "Error: %s[%d] -"
-			"DCD table exceeds maximum size(%d)\n",
-			name, lineno, MAX_HW_CFG_SIZE_V1);
-		exit(EXIT_FAILURE);
-	}
-
 	dcd_v1->preamble.barker = DCD_BARKER;
 	dcd_v1->preamble.length = dcd_len * sizeof(dcd_type_addr_data_t);
 }
@@ -189,13 +183,6 @@ static void set_dcd_rst_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 						char *name, int lineno)
 {
 	dcd_v2_t *dcd_v2 = &imxhdr->header.hdr_v2.dcd_table;
-
-	if (dcd_len > MAX_HW_CFG_SIZE_V2) {
-		fprintf(stderr, "Error: %s[%d] -"
-			"DCD table exceeds maximum size(%d)\n",
-			name, lineno, MAX_HW_CFG_SIZE_V2);
-		exit(EXIT_FAILURE);
-	}
 
 	dcd_v2->header.tag = DCD_HEADER_TAG;
 	dcd_v2->header.length = cpu_to_be16(
@@ -295,11 +282,13 @@ static void set_hdr_func(struct imx_header *imxhdr)
 		set_dcd_val = set_dcd_val_v1;
 		set_dcd_rst = set_dcd_rst_v1;
 		set_imx_hdr = set_imx_hdr_v1;
+		max_dcd_entries = MAX_HW_CFG_SIZE_V1;
 		break;
 	case IMXIMAGE_V2:
 		set_dcd_val = set_dcd_val_v2;
 		set_dcd_rst = set_dcd_rst_v2;
 		set_imx_hdr = set_imx_hdr_v2;
+		max_dcd_entries = MAX_HW_CFG_SIZE_V2;
 		break;
 	default:
 		err_imximage_version(imximage_version);
@@ -426,8 +415,15 @@ static void parse_cfg_fld(struct imx_header *imxhdr, int32_t *cmd,
 		value = get_cfg_value(token, name, lineno);
 		(*set_dcd_val)(imxhdr, name, lineno, fld, value, *dcd_len);
 
-		if (fld == CFG_REG_VALUE)
+		if (fld == CFG_REG_VALUE) {
 			(*dcd_len)++;
+			if (*dcd_len > max_dcd_entries) {
+				fprintf(stderr, "Error: %s[%d] -"
+					"DCD table exceeds maximum size(%d)\n",
+					name, lineno, max_dcd_entries);
+				exit(EXIT_FAILURE);
+			}
+		}
 		break;
 	default:
 		break;
