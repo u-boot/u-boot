@@ -1161,7 +1161,7 @@ NetReceive(uchar *inpkt, int len)
 
 #ifdef CONFIG_NETCONSOLE
 		nc_input_packet((uchar *)ip + IP_UDP_HDR_SIZE,
-					ntohl(ip->ip_src),
+					src_ip,
 					ntohs(ip->udp_dst),
 					ntohs(ip->udp_src),
 					ntohs(ip->udp_len) - UDP_HDR_SIZE);
