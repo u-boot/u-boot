@@ -105,7 +105,6 @@ serial_initfunc(ks8695_serial_initialize);
 serial_initfunc(lh7a40x_serial_initialize);
 serial_initfunc(max3100_serial_initialize);
 serial_initfunc(mxc_serial_initialize);
-serial_initfunc(netarm_serial_initialize);
 serial_initfunc(pl01x_serial_initialize);
 serial_initfunc(s3c44b0_serial_initialize);
 serial_initfunc(sa1100_serial_initialize);
@@ -201,7 +200,6 @@ void serial_initialize(void)
 	lh7a40x_serial_initialize();
 	max3100_serial_initialize();
 	mxc_serial_initialize();
-	netarm_serial_initialize();
 	pl01x_serial_initialize();
 	s3c44b0_serial_initialize();
 	sa1100_serial_initialize();

@@ -284,58 +284,7 @@ _dynsym_start_ofs:
  */
 
 cpu_init_crit:
-#if defined(CONFIG_NETARM)
-	/*
-	 * prior to software reset : need to set pin PORTC4 to be *HRESET
-	 */
-	ldr	r0, =NETARM_GEN_MODULE_BASE
-	ldr	r1, =(NETARM_GEN_PORT_MODE(0x10) | \
-			NETARM_GEN_PORT_DIR(0x10))
-	str	r1, [r0, #+NETARM_GEN_PORTC]
-	/*
-	 * software reset : see HW Ref. Guide 8.2.4 : Software Service register
-	 *		    for an explanation of this process
-	 */
-	ldr	r0, =NETARM_GEN_MODULE_BASE
-	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
-	str	r1, [r0, #+NETARM_GEN_SOFTWARE_SERVICE]
-	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
-	str	r1, [r0, #+NETARM_GEN_SOFTWARE_SERVICE]
-	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
-	str	r1, [r0, #+NETARM_GEN_SOFTWARE_SERVICE]
-	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
-	str	r1, [r0, #+NETARM_GEN_SOFTWARE_SERVICE]
-	/*
-	 * setup PLL and System Config
-	 */
-	ldr	r0, =NETARM_GEN_MODULE_BASE
-
-	ldr	r1, =(	NETARM_GEN_SYS_CFG_LENDIAN | \
-			NETARM_GEN_SYS_CFG_BUSFULL | \
-			NETARM_GEN_SYS_CFG_USER_EN | \
-			NETARM_GEN_SYS_CFG_ALIGN_ABORT | \
-			NETARM_GEN_SYS_CFG_BUSARB_INT | \
-			NETARM_GEN_SYS_CFG_BUSMON_EN )
-
-	str	r1, [r0, #+NETARM_GEN_SYSTEM_CONTROL]
-
-#ifndef CONFIG_NETARM_PLL_BYPASS
-	ldr	r1, =(	NETARM_GEN_PLL_CTL_PLLCNT(NETARM_PLL_COUNT_VAL) | \
-			NETARM_GEN_PLL_CTL_POLTST_DEF | \
-			NETARM_GEN_PLL_CTL_INDIV(1) | \
-			NETARM_GEN_PLL_CTL_ICP_DEF | \
-			NETARM_GEN_PLL_CTL_OUTDIV(2) )
-	str	r1, [r0, #+NETARM_GEN_PLL_CONTROL]
-#endif
-
-	/*
-	 * mask all IRQs by clearing all bits in the INTMRs
-	 */
-	mov	r1, #0
-	ldr	r0, =NETARM_GEN_MODULE_BASE
-	str	r1, [r0, #+NETARM_GEN_INTR_ENABLE]
-
-#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific initialisation for IntegratorAP/CM720T as yet */
 #elif defined(CONFIG_TEGRA)
 	/* No cpu_init_crit for tegra as yet */
@@ -533,27 +482,7 @@ fiq:
 #endif
 #endif /* CONFIG_SPL_BUILD */
 
-#if defined(CONFIG_NETARM)
-	.align	5
-.globl reset_cpu
-reset_cpu:
-	ldr	r1, =NETARM_MEM_MODULE_BASE
-	ldr	r0, [r1, #+NETARM_MEM_CS0_BASE_ADDR]
-	ldr	r1, =0xFFFFF000
-	and	r0, r1, r0
-	ldr	r1, =(relocate-CONFIG_SYS_TEXT_BASE)
-	add	r0, r1, r0
-	ldr	r4, =NETARM_GEN_MODULE_BASE
-	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
-	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
-	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
-	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
-	ldr	r1, =NETARM_GEN_SW_SVC_RESETA
-	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
-	ldr	r1, =NETARM_GEN_SW_SVC_RESETB
-	str	r1, [r4, #+NETARM_GEN_SOFTWARE_SERVICE]
-	mov	pc, r0
-#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific reset actions for IntegratorAP/CM720T as yet */
 #elif defined(CONFIG_TEGRA)
 	/* No specific reset actions for tegra as yet */

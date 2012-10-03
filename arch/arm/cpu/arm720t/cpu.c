@@ -36,6 +36,10 @@
 #include <asm/hardware.h>
 #include <asm/system.h>
 
+#if !defined(CONFIG_INTEGRATOR) || !defined(CONFIG_ARCH_INTEGRATOR)
+#error No cleanup_before_linux() defined for this CPU type
+#endif
+
 int cleanup_before_linux (void)
 {
 	/*
@@ -46,10 +50,7 @@ int cleanup_before_linux (void)
 	 * and we set the CPU-speed to 73 MHz - see start.S for details
 	 */
 
-#if defined(CONFIG_NETARM)
-	disable_interrupts ();
-	/* Nothing more needed */
-#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No cleanup before linux for IntegratorAP/CM720T as yet */
 #elif defined(CONFIG_TEGRA)
 	/* No cleanup before linux for tegra as yet */
