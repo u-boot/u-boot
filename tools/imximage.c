@@ -213,7 +213,6 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
 
-	fhdr_v1->app_dest_ptr = params->addr;
 	fhdr_v1->app_dest_ptr = params->ep - imxhdr->flash_offset -
 		sizeof(struct imx_header);
 	fhdr_v1->app_code_jump_vector = params->ep;
