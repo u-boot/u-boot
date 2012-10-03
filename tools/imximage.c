@@ -201,25 +201,19 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	imx_header_v1_t *hdr_v1 = &imxhdr->header.hdr_v1;
 	flash_header_v1_t *fhdr_v1 = &hdr_v1->fhdr;
 	dcd_v1_t *dcd_v1 = &hdr_v1->dcd_table;
-	uint32_t base_offset;
+	uint32_t hdr_base;
 	uint32_t header_length = (((char *)&dcd_v1->addr_data[dcd_len].addr)
 			- ((char *)imxhdr));
 
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
 
-	fhdr_v1->app_dest_ptr = entry_point - flash_offset -
-		sizeof(struct imx_header);
+	hdr_base = entry_point - sizeof(struct imx_header);
+	fhdr_v1->app_dest_ptr = hdr_base - flash_offset;
 	fhdr_v1->app_code_jump_vector = entry_point;
 
-	base_offset = fhdr_v1->app_dest_ptr + flash_offset;
-	fhdr_v1->dcd_ptr_ptr =
-		(uint32_t) (offsetof(flash_header_v1_t, dcd_ptr) -
-		offsetof(flash_header_v1_t, app_code_jump_vector) +
-		base_offset);
-
-	fhdr_v1->dcd_ptr = base_offset +
-			offsetof(imx_header_v1_t, dcd_table);
+	fhdr_v1->dcd_ptr_ptr = hdr_base + offsetof(flash_header_v1_t, dcd_ptr);
+	fhdr_v1->dcd_ptr = hdr_base + offsetof(imx_header_v1_t, dcd_table);
 
 	/* Security feature are not supported */
 	fhdr_v1->app_code_csf = 0;
@@ -232,6 +226,7 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 {
 	imx_header_v2_t *hdr_v2 = &imxhdr->header.hdr_v2;
 	flash_header_v2_t *fhdr_v2 = &hdr_v2->fhdr;
+	uint32_t hdr_base;
 
 	/* Set magic number */
 	fhdr_v2->header.tag = IVT_HEADER_TAG; /* 0xD1 */
@@ -240,15 +235,12 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 
 	fhdr_v2->entry = entry_point;
 	fhdr_v2->reserved1 = fhdr_v2->reserved2 = 0;
-	fhdr_v2->self = entry_point - sizeof(struct imx_header);
+	fhdr_v2->self = hdr_base = entry_point - sizeof(struct imx_header);
 
-	fhdr_v2->dcd_ptr = fhdr_v2->self +
-			offsetof(imx_header_v2_t, dcd_table);
-
-	fhdr_v2->boot_data_ptr = fhdr_v2->self +
-			offsetof(imx_header_v2_t, boot_data);
-
-	hdr_v2->boot_data.start = fhdr_v2->self - flash_offset;
+	fhdr_v2->dcd_ptr = hdr_base + offsetof(imx_header_v2_t, dcd_table);
+	fhdr_v2->boot_data_ptr = hdr_base
+			+ offsetof(imx_header_v2_t, boot_data);
+	hdr_v2->boot_data.start = hdr_base - flash_offset;
 
 	/* Security feature are not supported */
 	fhdr_v2->csf = 0;
