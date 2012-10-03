@@ -94,7 +94,7 @@ struct ext_filesystem {
 	/* Superblock */
 	struct ext2_sblock *sb;
 	/* Block group descritpor table */
-	struct ext2_block_group *gd;
+	struct ext2_block_group *bgd;
 	char *gdtable;
 
 	/* Block Bitmap Related */
