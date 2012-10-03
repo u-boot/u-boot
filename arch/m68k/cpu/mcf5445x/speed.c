@@ -91,9 +91,12 @@ int get_clocks(void)
 	pll_t *pll = (pll_t *)MMAP_PLL;
 	int pllmult_nopci[] = { 20, 10, 24, 18, 12, 6, 16, 8 };
 	int pllmult_pci[] = { 12, 6, 16, 8 };
-	int vco = 0, bPci, temp, fbtemp, pcrvalue;
+	int vco = 0, temp, fbtemp, pcrvalue;
 	int *pPllmult = NULL;
 	u16 fbpll_mask;
+#ifdef CONFIG_PCI
+	int bPci;
+#endif
 
 #ifdef CONFIG_M54455EVB
 	u8 *cpld = (u8 *)(CONFIG_SYS_CS2_BASE + 3);
@@ -105,14 +108,16 @@ int get_clocks(void)
 	    ((in_be16(&ccm->ccr) & CCM_CCR_360_FBCONFIG_MASK) == 0x0060)) {
 		pPllmult = &pllmult_pci[0];
 		fbpll_mask = 3;		/* 11b */
+#ifdef CONFIG_PCI
 		bPci = 1;
+#endif
 	} else {
 		pPllmult = &pllmult_nopci[0];
 		fbpll_mask = 7;		/* 111b */
 #ifdef CONFIG_PCI
 		gd->pci_clk = 0;
-#endif
 		bPci = 0;
+#endif
 	}
 
 #ifdef CONFIG_M54455EVB
