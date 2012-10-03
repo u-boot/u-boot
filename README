@@ -858,7 +858,8 @@ The following options need to be configured:
 		CONFIG_CMD_SPI		* SPI serial bus support
 		CONFIG_CMD_TFTPSRV	* TFTP transfer in server mode
 		CONFIG_CMD_TFTPPUT	* TFTP put command (upload)
-		CONFIG_CMD_TIME		* run command and report execution time
+		CONFIG_CMD_TIME		* run command and report execution time (ARM specific)
+		CONFIG_CMD_TIMER	* access to the system tick timer
 		CONFIG_CMD_USB		* USB support
 		CONFIG_CMD_CDP		* Cisco Discover Protocol support
 		CONFIG_CMD_MFSL		* Microblaze FSL support
