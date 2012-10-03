@@ -32,7 +32,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <clps7111.h>
 #include <asm/hardware.h>
 #include <asm/system.h>
 

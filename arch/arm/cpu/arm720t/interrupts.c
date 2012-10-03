@@ -27,7 +27,6 @@
  */
 
 #include <common.h>
-#include <clps7111.h>
 #include <asm/proc-armv/ptrace.h>
 #include <asm/hardware.h>
 
