@@ -44,7 +44,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct fb_videomode nec_nl6448bc26_09c = {
+static struct fb_videomode const nec_nl6448bc26_09c = {
 	"NEC_NL6448BC26-09C",
 	60,	/* Refresh */
 	640,	/* xres */

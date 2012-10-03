@@ -471,7 +471,7 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-static struct fb_videomode claa_wvga = {
+static struct fb_videomode const claa_wvga = {
 	.name		= "CLAA07LC0ACW",
 	.refresh	= 57,
 	.xres		= 800,

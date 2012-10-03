@@ -412,7 +412,7 @@ static void clock_1GHz(void)
 		printf("CPU:   Switch DDR clock to 400MHz failed\n");
 }
 
-static struct fb_videomode claa_wvga = {
+static struct fb_videomode const claa_wvga = {
 	.name		= "CLAA07LC0ACW",
 	.refresh	= 57,
 	.xres		= 800,
