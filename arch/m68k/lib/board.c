@@ -29,6 +29,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <stdio_dev.h>
+#include <linux/compiler.h>
 
 #include <asm/immap.h>
 
@@ -387,7 +388,7 @@ board_init_f (ulong bootflag)
  */
 void board_init_r (gd_t *id, ulong dest_addr)
 {
-	char *s;
+	char *s __maybe_unused;
 	bd_t *bd;
 
 #ifndef CONFIG_ENV_IS_NOWHERE
