@@ -331,21 +331,17 @@
 /*
  * Memory map
  *
- * 0x0000_0000 0x7fff_ffff	DDR	Up to 2GB cacheable
+ * 0x0000_0000 0x7fff_ffff	DDR		Up to 2GB cacheable
  * 0x8000_0000 0xdfff_ffff	PCI Express Mem	1.5G non-cacheable(PCIe * 3)
+ * 0xec00_0000 0xefff_ffff	NOR flash	Up to 64M non-cacheable	CS0/1
+ * 0xff80_0000 0xff80_7fff	NAND flash	32K non-cacheable	CS1/0
+ * 0xff98_0000 0xff98_ffff	PMC		64K non-cacheable	CS2
+ * 0xffa0_0000 0xffaf_ffff	CPLD		1M non-cacheable	CS3
+ * 0xffb0_0000 0xffbf_ffff	VSC7385 switch  1M non-cacheable	CS2
  * 0xffc0_0000 0xffc3_ffff	PCI IO range	256k non-cacheable
- *
- * Localbus cacheable (TBD)
- * 0xXXXX_XXXX 0xXXXX_XXXX	SRAM	YZ M Cacheable
- *
- * Localbus non-cacheable
- * 0xec00_0000 0xefff_ffff	FLASH	Up to 64M non-cacheable
- * 0xff80_0000 0xff8f_ffff	NAND flash	1M non-cacheable
- * 0xff90_0000 0xff97_ffff	L2 SDRAM(REV.)  512K cacheable(optional)
- * 0xffa0_0000 0xffaf_ffff	CPLD	1M non-cacheable
- * 0xffb0_0000 0xffbf_ffff	VSC7385 switch  1M non-cacheable
- * 0xffd0_0000 0xffd0_3fff	L1 for stack	16K Cacheable TLB0
- * 0xffe0_0000 0xffef_ffff	CCSR	1M non-cacheable
+ * 0xffd0_0000 0xffd0_3fff	L1 for stack	16K cacheable
+ * 0xffd8_0000 0xffdf_ffff	L2 SRAM		Up to 512K cacheable
+ * 0xffe0_0000 0xffef_ffff	CCSR		1M non-cacheable
  */
 
 
