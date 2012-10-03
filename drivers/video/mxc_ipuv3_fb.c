@@ -45,7 +45,7 @@ static int mxcfb_unmap_video_memory(struct fb_info *fbi);
 
 /* graphics setup */
 static GraphicDevice panel;
-static struct fb_videomode *gmode;
+static struct fb_videomode const *gmode;
 static uint8_t gdisp;
 static uint32_t gpixfmt;
 
@@ -503,7 +503,7 @@ static struct fb_info *mxcfb_init_fbinfo(void)
  * @return      Appropriate error code to the kernel common code
  */
 static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
-			struct fb_videomode *mode)
+			struct fb_videomode const *mode)
 {
 	struct fb_info *fbi;
 	struct mxcfb_info *mxcfbi;
@@ -619,7 +619,9 @@ void video_set_lut(unsigned int index, /* color number */
 	return;
 }
 
-int ipuv3_fb_init(struct fb_videomode *mode, uint8_t disp, uint32_t pixfmt)
+int ipuv3_fb_init(struct fb_videomode const *mode,
+		  uint8_t disp,
+		  uint32_t pixfmt)
 {
 	gmode = mode;
 	gdisp = disp;
