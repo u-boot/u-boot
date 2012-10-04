@@ -155,10 +155,10 @@ struct kwgpio_registers {
 /*
  * functions
  */
-void reset_cpu(unsigned long ignored);
 unsigned char get_random_hex(void);
 unsigned int kw_sdram_bar(enum memory_bank bank);
 unsigned int kw_sdram_bs(enum memory_bank bank);
+void kw_sdram_size_adjust(enum memory_bank bank);
 int kw_config_adr_windows(void);
 void kw_config_gpio(unsigned int gpp0_oe_val, unsigned int gpp1_oe_val,
 		unsigned int gpp0_oe, unsigned int gpp1_oe);

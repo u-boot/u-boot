@@ -46,6 +46,7 @@ alias imx            uboot, sbabic
 alias kirkwood       uboot, prafulla
 alias omap           ti
 alias pxa            uboot, marex
+alias rmobile        uboot, iwamatsu
 alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom

@@ -155,6 +155,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			CONFIG_SYS_SPL_MALLOC_SIZE);
 #endif
 
+	timer_init();
+
 #ifdef CONFIG_SPL_BOARD_INIT
 	spl_board_init();
 #endif
@@ -192,6 +194,15 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #ifdef CONFIG_SPL_SPI_SUPPORT
 	case BOOT_DEVICE_SPI:
 		spl_spi_load_image();
+		break;
+#endif
+#ifdef CONFIG_SPL_ETH_SUPPORT
+	case BOOT_DEVICE_CPGMAC:
+#ifdef CONFIG_SPL_ETH_DEVICE
+		spl_net_load_image(CONFIG_SPL_ETH_DEVICE);
+#else
+		spl_net_load_image(NULL);
+#endif
 		break;
 #endif
 	default:

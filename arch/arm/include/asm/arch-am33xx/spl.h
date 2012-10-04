@@ -23,9 +23,11 @@
 #ifndef	_ASM_ARCH_SPL_H_
 #define	_ASM_SPL_H_
 
+#define BOOT_DEVICE_XIP       	2
 #define BOOT_DEVICE_NAND	5
 #define BOOT_DEVICE_MMC1	8
 #define BOOT_DEVICE_MMC2	9	/* eMMC or daughter card */
 #define BOOT_DEVICE_UART	65
+#define BOOT_DEVICE_CPGMAC	70
 #define BOOT_DEVICE_MMC2_2      0xFF
 #endif

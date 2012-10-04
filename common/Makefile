@@ -199,6 +199,10 @@ endif
 
 ifdef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += cmd_nvedit.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_common.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_nowhere.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
 endif
 COBJS-y += console.o
 COBJS-y += dlmalloc.o

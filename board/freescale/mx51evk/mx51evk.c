@@ -60,6 +60,14 @@ int dram_init(void)
 	return 0;
 }
 
+u32 get_board_rev(void)
+{
+	u32 rev = get_cpu_rev();
+	if (!gpio_get_value(IMX_GPIO_NR(1, 22)))
+		rev |= BOARD_REV_2_0 << BOARD_VER_OFFSET;
+	return rev;
+}
+
 static void setup_iomux_uart(void)
 {
 	unsigned int pad = PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE |

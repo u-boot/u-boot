@@ -45,7 +45,7 @@
 #define CONFIG_VERSION_VARIABLE
 
 /* set to negative value for no autoboot */
-#define CONFIG_BOOTDELAY		3
+#define CONFIG_BOOTDELAY		1
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"fdtaddr=0x80F80000\0" \
@@ -54,7 +54,7 @@
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
 	"ramrootfstype=ext2\0" \
@@ -195,7 +195,7 @@
 #define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x402F0400
-#define CONFIG_SPL_MAX_SIZE		(46 * 1024)
+#define CONFIG_SPL_MAX_SIZE		(101 * 1024)
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
@@ -215,6 +215,9 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
+#define CONFIG_SPL_NET_SUPPORT
+#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
+#define CONFIG_SPL_ETH_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 /*

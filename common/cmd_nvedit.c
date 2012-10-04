@@ -103,6 +103,7 @@ int get_env_id(void)
 	return env_id;
 }
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Command interface: print one or all environment variables
  *
@@ -196,6 +197,7 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 	return rcode;
 }
 #endif
+#endif /* CONFIG_SPL_BUILD */
 
 /*
  * Perform consistency checking before setting, replacing, or deleting an
@@ -437,6 +439,7 @@ int setenv_addr(const char *varname, const void *addr)
 	return setenv(varname, str);
 }
 
+#ifndef CONFIG_SPL_BUILD
 int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
@@ -536,6 +539,7 @@ int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return setenv(argv[1], buffer);
 }
 #endif /* CONFIG_CMD_EDITENV */
+#endif /* CONFIG_SPL_BUILD */
 
 /*
  * Look up variable from environment,
@@ -621,6 +625,7 @@ ulong getenv_ulong(const char *name, int base, ulong default_val)
 	return str ? simple_strtoul(str, NULL, base) : default_val;
 }
 
+#ifndef CONFIG_SPL_BUILD
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -635,6 +640,7 @@ U_BOOT_CMD(
 	""
 );
 #endif
+#endif /* CONFIG_SPL_BUILD */
 
 
 /*
@@ -656,6 +662,7 @@ int envmatch(uchar *s1, int i2)
 	return -1;
 }
 
+#ifndef CONFIG_SPL_BUILD
 static int do_env_default(cmd_tbl_t *cmdtp, int __flag,
 			  int argc, char * const argv[])
 {
@@ -1114,3 +1121,4 @@ U_BOOT_CMD_COMPLETE(
 	var_complete
 );
 #endif
+#endif /* CONFIG_SPL_BUILD */

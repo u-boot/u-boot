@@ -67,6 +67,14 @@
 	write32	0x53f80008, 0x20034000
 
 	/*
+	 * PCDR2: NFC = 33.25 MHz
+	 * This is required for the NAND Flash of this board, which is a Samsung
+	 * K9F1G08U0B with 25-ns R/W cycle times, in order to make it work with
+	 * the NFC driver in symmetric (i.e. one-cycle) mode.
+	 */
+	write32	0x53f80020, 0x01010103
+
+	/*
 	 * enable all implemented clocks in all three
 	 * clock control registers
 	 */

@@ -69,8 +69,8 @@ void arch_lmb_reserve(struct lmb *lmb)
 	sp = get_sp();
 	debug("## Current stack ends at 0x%08lx ", sp);
 
-	/* adjust sp by 1K to be safe */
-	sp -= 1024;
+	/* adjust sp by 4K to be safe */
+	sp -= 4096;
 	lmb_reserve(lmb, sp,
 		    gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size - sp);
 }
@@ -258,6 +258,9 @@ static int create_fdt(bootm_headers_t *images)
 	fixup_memory_node(*of_flat_tree);
 	fdt_fixup_ethernet(*of_flat_tree);
 	fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
+#ifdef CONFIG_OF_BOARD_SETUP
+	ft_board_setup(*of_flat_tree, gd->bd);
+#endif
 
 	return 0;
 }

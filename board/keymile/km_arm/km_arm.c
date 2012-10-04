@@ -250,7 +250,8 @@ int board_early_init_f(void)
 	tmp = readl(KW_GPIO0_BASE + 4);
 	writel(tmp & (~KM_KIRKWOOD_SOFT_I2C_GPIOS) , KW_GPIO0_BASE + 4);
 #endif
-
+	/* adjust SDRAM size for bank 0 */
+	kw_sdram_size_adjust(0);
 	kirkwood_mpp_conf(kwmpp_config, NULL);
 	return 0;
 }
@@ -365,6 +366,71 @@ void reset_phy(void)
 	/* reset the phy */
 	miiphy_reset(name, CONFIG_PHY_BASE_ADR);
 }
+#elif defined(CONFIG_KM_PIGGY4_88E6352)
+
+#include <mv88e6352.h>
+
+#if defined(CONFIG_KM_NUSA)
+struct mv88e_sw_reg extsw_conf[] = {
+	/*
+	 * port 0, PIGGY4, autoneg 
+	 * first the fix for the 1000Mbits Autoneg, this is from
+	 * a Marvell errata, the regs are undocumented
+	 */
+	{ PHY(0), PHY_PAGE, AN1000FIX_PAGE },
+	{ PHY(0), PHY_STATUS, AN1000FIX },
+	{ PHY(0), PHY_PAGE, 0 },
+	/* now the real port and phy configuration */
+	{ PORT(0), PORT_PHY, NO_SPEED_FOR },
+	{ PORT(0), PORT_CTRL, FORWARDING | EGRS_FLD_ALL },
+	{ PHY(0), PHY_1000_CTRL, NO_ADV },
+	{ PHY(0), PHY_SPEC_CTRL, AUTO_MDIX_EN },
+	{ PHY(0), PHY_CTRL, PHY_100_MBPS | AUTONEG_EN | AUTONEG_RST |
+		FULL_DUPLEX },
+	/* port 1, unused */
+	{ PORT(1), PORT_CTRL, PORT_DIS },
+	{ PHY(1), PHY_CTRL, PHY_PWR_DOWN },
+	{ PHY(1), PHY_SPEC_CTRL, SPEC_PWR_DOWN },
+	/* port 2, unused */
+	{ PORT(2), PORT_CTRL, PORT_DIS },
+	{ PHY(2), PHY_CTRL, PHY_PWR_DOWN },
+	{ PHY(2), PHY_SPEC_CTRL, SPEC_PWR_DOWN },
+	/* port 3, unused */
+	{ PORT(3), PORT_CTRL, PORT_DIS },
+	{ PHY(3), PHY_CTRL, PHY_PWR_DOWN },
+	{ PHY(3), PHY_SPEC_CTRL, SPEC_PWR_DOWN },
+	/* port 4, ICNEV, SerDes, SGMII */
+	{ PORT(4), PORT_STATUS, NO_PHY_DETECT },
+	{ PORT(4), PORT_PHY, SPEED_1000_FOR },
+	{ PORT(4), PORT_CTRL, FORWARDING | EGRS_FLD_ALL },
+	{ PHY(4), PHY_CTRL, PHY_PWR_DOWN },
+	{ PHY(4), PHY_SPEC_CTRL, SPEC_PWR_DOWN },
+	/* port 5, CPU_RGMII */
+	{ PORT(5), PORT_PHY, RX_RGMII_TIM | TX_RGMII_TIM | FLOW_CTRL_EN |
+		FLOW_CTRL_FOR | LINK_VAL | LINK_FOR | FULL_DPX |
+		FULL_DPX_FOR | SPEED_1000_FOR },
+	{ PORT(5), PORT_CTRL, FORWARDING | EGRS_FLD_ALL },
+	/* port 6, unused, this port has no phy */
+	{ PORT(6), PORT_CTRL, PORT_DIS },
+};
+#else
+struct mv88e_sw_reg extsw_conf[] = {};
+#endif
+
+void reset_phy(void)
+{
+#if defined(CONFIG_KM_MVEXTSW_ADDR)
+	char *name = "egiga0";
+
+	if (miiphy_set_current_dev(name))
+		return;
+
+	mv88e_sw_program(name, CONFIG_KM_MVEXTSW_ADDR, extsw_conf,
+		ARRAY_SIZE(extsw_conf));
+	mv88e_sw_reset(name, CONFIG_KM_MVEXTSW_ADDR);
+#endif
+}
+
 #else
 /* Configure and enable MV88E1118 PHY on the piggy*/
 void reset_phy(void)

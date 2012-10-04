@@ -231,6 +231,7 @@ int set_default_vars(int nvars, char * const vars[])
 				nvars, vars, 1 /* do_apply */);
 }
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Check if CRC is valid and (if yes) import the environment.
  * Note that "buf" may or may not be aligned.
@@ -262,6 +263,7 @@ int env_import(const char *buf, int check)
 
 	return 0;
 }
+#endif
 
 void env_relocate(void)
 {
@@ -269,7 +271,8 @@ void env_relocate(void)
 	env_reloc();
 #endif
 	if (gd->env_valid == 0) {
-#if defined(CONFIG_ENV_IS_NOWHERE)	/* Environment not changable */
+#if defined(CONFIG_ENV_IS_NOWHERE) || defined(CONFIG_SPL_BUILD)
+		/* Environment not changable */
 		set_default_env(NULL);
 #else
 		bootstage_error(BOOTSTAGE_ID_NET_CHECKSUM);
@@ -280,7 +283,7 @@ void env_relocate(void)
 	}
 }
 
-#ifdef CONFIG_AUTO_COMPLETE
+#if defined(CONFIG_AUTO_COMPLETE) && !defined(CONFIG_SPL_BUILD)
 int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf)
 {
 	ENTRY *match;

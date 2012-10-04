@@ -251,6 +251,10 @@ Klaus Heydeck <heydeck@kieback-peter.de>
 	KUP4K		MPC855
 	KUP4X		MPC859
 
+Gabriel Huau <contact@huau-gabriel.fr>
+
+	mini2440	s3c2440
+
 Gary Jennejohn <garyj@denx.de>
 
 	quad100hd	PPC405EP
@@ -777,6 +781,11 @@ Nagendra T S  <nagendra@mistralsolutions.com>
 
    am3517_crane    ARM ARMV7 (AM35x SoC)
 
+Dinh Nguyen <dinguyen@altera.com>
+Chin Liang See <clsee@altera.com>
+
+	socfpga		socfpga_cyclone5
+
 Sandeep Paulraj <s-paulraj@ti.com>
 
 	davinci_dm355evm	ARM926EJS
@@ -799,6 +808,7 @@ Veli-Pekka Peltola <veli-pekka.peltola@bluegiga.com>
 Luka Perkov <uboot@lukaperkov.net>
 
 	ib62x0		ARM926EJS
+	iconnect	ARM926EJS
 
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
@@ -852,6 +862,8 @@ John Rigby <jcrigby@gmail.com>
 
 Stefan Roese <sr@denx.de>
 
+	x600		ARM926EJS (spear600 Soc)
+
 	pdnb3		xscale/ixp
 	scpu		xscale/ixp
 
@@ -889,6 +901,10 @@ Matt Sealey <matt@genesi-usa.com>
 
 Bo Shen <voice.shen@atmel.com>
 	at91sam9x5ek		ARM926EJS (AT91SAM9G15,G25,G35,X25,X35 SoC)
+
+Michal Simek <monstr@monstr.eu>
+
+	zynq		ARM ARMV7 (Zynq SoC)
 
 Nick Thompson <nick.thompson@gefanuc.com>
 
@@ -989,6 +1005,14 @@ Vladimir Zapolskiy <vz@mleia.com>
 Zhong Hongbo <bocui107@gmail.com>
 
 	SMDK6400	ARM1176 (S3C6400 SoC)
+
+Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
+
+	kzm9g	SH73A0 (RMOBILE SoC)
+
+Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
+
+	armadillo-800eva	R8A7740 (RMOBILE SoC)
 
 -------------------------------------------------------------------------
 

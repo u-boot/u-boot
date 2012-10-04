@@ -77,5 +77,6 @@
 #define IPU_PIX_FMT_YUV422P fourcc('4', '2', '2', 'P')	/*< 16 YUV 4:2:2 */
 
 int ipuv3_fb_init(struct fb_videomode *mode, uint8_t disp, uint32_t pixfmt);
+void ipuv3_fb_shutdown(void);
 
 #endif

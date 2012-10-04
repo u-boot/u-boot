@@ -488,7 +488,7 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_USB_EHCI
+#if defined(CONFIG_USB_EHCI) && !defined(CONFIG_SPL_BUILD)
 /* Call usb_stop() before starting the kernel */
 void show_boot_progress(int val)
 {

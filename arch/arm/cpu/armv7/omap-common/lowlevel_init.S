@@ -27,6 +27,7 @@
  */
 
 #include <asm/arch/omap.h>
+#include <asm/arch/spl.h>
 #include <linux/linkage.h>
 
 ENTRY(save_boot_params)
@@ -59,9 +60,9 @@ ENTRY(save_boot_params)
 	strb	r2, [r3, #BOOT_DEVICE_OFFSET]	@ spl_boot_device <- r1
 
 	/* boot mode is passed only for devices that can raw/fat mode */
-	cmp	r2, #2
+	cmp	r2, #BOOT_DEVICE_XIP
 	blt	2f
-	cmp	r2, #7
+	cmp	r2, #BOOT_DEVICE_MMC2
 	bgt	2f
 	/* Store the boot mode (raw/FAT) in omap_bootmode */
 	ldr	r2, [r0, #DEV_DESC_PTR_OFFSET]	@ get the device descriptor ptr

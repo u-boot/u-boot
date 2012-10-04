@@ -1,0 +1,65 @@
+Summary
+=======
+
+This README is about U-Boot support for Renesas's ARM Cortex-A9 based RMOBILE[1]
+family of SoCs. Renesas's RMOBILE SoC family contains an ARM Cortex-A9.
+
+Currently the following boards are supported:
+
+* KMC KZM-A9-GT [2]
+
+* Atmark-Techno Armadillo-800-EVA [3]
+
+Toolchain
+=========
+
+ARM Cortex-A9 support ARM v7 instruction set (-march=armv7a).
+But currently we compile with -march=armv5 to allow more compilers to work.
+(For U-Boot code this has no performance impact.)
+Because there was no compiler which is supporting armv7a not much before.
+Currently, ELDK[4], Linaro[5], CodeSourcey[6] and Emdebian[7] supports -march=armv7a
+and you can get.
+
+Build
+=====
+
+* KZM-A9-GT
+
+make kzm9g_config
+make
+
+* Armadillo-800-EVA
+
+make armadillo-800eva_config
+make
+
+Links
+=====
+
+[1] Renesas RMOBILE:
+
+http://am.renesas.com/products/soc/assp/mobile/r_mobile/index.jsp
+
+[2] KZM-A9-GT
+
+http://www.kmckk.co.jp/kzma9-gt/index.html
+
+[3] Armadillo-800-EVA
+
+http://armadillo.atmark-techno.com/armadillo-800-EVA
+
+[4] ELDK
+
+http://www.denx.de/wiki/view/ELDK-5/WebHome#Section_1.6.
+
+[5] Linaro
+
+http://www.linaro.org/downloads/
+
+[6] CodeSourcey
+
+http://www.mentor.com/embedded-software/codesourcery
+
+[7] Emdebian
+
+http://www.emdebian.org/crosstools.html

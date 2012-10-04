@@ -107,7 +107,11 @@ int misc_init_r(void)
 /* Configure and initialize PHY */
 void reset_phy(void)
 {
+#if defined(CONFIG_NETSPACE_LITE_V2) || defined(CONFIG_NETSPACE_MINI_V2)
+	mv_phy_88e1318_init("egiga0", 0);
+#else
 	mv_phy_88e1116_init("egiga0", 8);
+#endif
 }
 #endif
 

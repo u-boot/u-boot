@@ -251,7 +251,6 @@ struct orion5x_ddr_addr_decode_registers {
 /*
  * functions
  */
-void reset_cpu(unsigned long ignored);
 u32 orion5x_device_id(void);
 u32 orion5x_device_rev(void);
 unsigned int orion5x_winctrl_calcsize(unsigned int sizeval);
