@@ -146,7 +146,7 @@
 	"config_nc_dhcp=setenv autoload_old ${autoload}; "		\
 		"setenv autoload no "					\
 		"&& bootp "						\
-		"&& setenv ncip ${serverip} "				\
+		"&& setenv ncip "					\
 		"&& setenv autoload ${autoload_old}; "			\
 		"setenv autoload_old\0"					\
 	"standard_env=setenv ipaddr; setenv netmask; setenv serverip; "	\
