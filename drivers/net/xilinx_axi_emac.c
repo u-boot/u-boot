@@ -237,7 +237,7 @@ static void phy_detection(struct eth_device *dev)
 	struct axidma_priv *priv = dev->priv;
 
 	if (priv->phyaddr != -1 ) {
-		phyreg = phyread(dev, priv->phyaddr, PHY_DETECT_REG);
+		phyread(dev, priv->phyaddr, PHY_DETECT_REG, &phyreg);
 		if ((phyreg != 0xFFFF) &&
 			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 			/* Found a valid PHY address */
@@ -253,7 +253,7 @@ static void phy_detection(struct eth_device *dev)
 	if (priv->phyaddr == -1 ) {
 		/* detect the PHY address */
 		for (i = 31; i >= 0; i--) {
-			phyreg = phyread(dev, i, PHY_DETECT_REG);
+			phyread(dev, i, PHY_DETECT_REG, &phyreg);
 			if ((phyreg != 0xFFFF) &&
 			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 				/* Found a valid PHY address */
@@ -331,6 +331,7 @@ static int setup_phy(struct eth_device *dev)
 #else
 	int i;
 	struct axidma_priv *priv = dev->priv;
+	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
 	unsigned retries = 100;
 	u16 phyreg;
 	u32 emmc_reg;
@@ -339,16 +340,16 @@ static int setup_phy(struct eth_device *dev)
 	debug("waiting for the phy to be up\n");
 
 	/* wait for link up and autonegotiation completed */
-	while (retries-- &&
-		((phyread(dev, priv->phyaddr, PHY_DETECT_REG) & 0x24) != 0x24))
-			;
+	phyread(dev, priv->phyaddr, PHY_DETECT_REG,  &phyreg);
+	while (retries-- && ((phyreg & 0x24) != 0x24))
+			phyread(dev, priv->phyaddr, PHY_DETECT_REG,  &phyreg);
 
 	phy_detection(dev);
 
 	/* get PHY id */
-	phyreg = phyread(dev, priv->phyaddr, 2);
+	phyread(dev, priv->phyaddr, 2, &phyreg);
 	i = phyreg << 16;
-	phyreg = phyread(dev, priv->phyaddr, 3);
+	phyread(dev, priv->phyaddr, 3, &phyreg);
 	i |= phyreg;
 	debug("axiemac: Phy ID 0x%x\n", i);
 
@@ -357,10 +358,10 @@ static int setup_phy(struct eth_device *dev)
 		debug("Marvell PHY recognized\n");
 
 		/* Setup the emac for the phy speed */
-		emmc_reg = in_be32(dev->iobase + XAE_EMMC_OFFSET);
+		emmc_reg = in_be32(&regs->emmc);
 		emmc_reg &= ~XAE_EMMC_LINKSPEED_MASK;
 
-		phyreg = phyread(dev, priv->phyaddr, 17);
+		phyread(dev, priv->phyaddr, 17, &phyreg);
 
 		if ((phyreg & 0x8000) == 0x8000) {
 			emmc_reg |= XAE_EMMC_LINKSPD_1000;
@@ -374,7 +375,7 @@ static int setup_phy(struct eth_device *dev)
 		}
 
 		/* Write new speed setting out to Axi Ethernet */
-		out_be32(dev->iobase + XAE_EMMC_OFFSET, emmc_reg);
+		out_be32(&regs->emmc, emmc_reg);
 
 		/*
 		 * Setting the operating speed of the MAC needs a delay. There
