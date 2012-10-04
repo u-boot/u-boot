@@ -76,17 +76,7 @@ loop0:
 	bne  loop0
 
 	ldr sp, MERAM_STACK
-
-	str ip, [sp]    /* stash old link register */
-	mov ip, lr      /* save link reg across call */
-
-	bl  s_init
-
-	ldr ip, [sp]    /* restore save ip */
-	mov lr, ip      /* restore link reg */
-
-	/* back to arch calling code */
-	mov pc, lr
+	b s_init
 
 	.pool
 	.align 4
