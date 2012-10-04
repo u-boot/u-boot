@@ -781,6 +781,11 @@ Nagendra T S  <nagendra@mistralsolutions.com>
 
    am3517_crane    ARM ARMV7 (AM35x SoC)
 
+Dinh Nguyen <dinguyen@altera.com>
+Chin Liang See <clsee@altera.com>
+
+	socfpga		socfpga_cyclone5
+
 Sandeep Paulraj <s-paulraj@ti.com>
 
 	davinci_dm355evm	ARM926EJS
