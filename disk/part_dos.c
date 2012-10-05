@@ -94,12 +94,13 @@ int test_part_dos (block_dev_desc_t *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
-	if ((dev_desc->block_read(dev_desc->dev, 0, 1, (ulong *) buffer) != 1) ||
-	    (buffer[DOS_PART_MAGIC_OFFSET + 0] != 0x55) ||
-	    (buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) ) {
-		return (-1);
-	}
-	return (0);
+	if (dev_desc->block_read(dev_desc->dev, 0, 1, (ulong *) buffer) != 1)
+		return -1;
+
+	if (test_block_type(buffer) != DOS_MBR)
+		return -1;
+
+	return 0;
 }
 
 /*  Print a partition that is relative to its Extended partition table
@@ -117,17 +118,13 @@ static void print_partition_extended (block_dev_desc_t *dev_desc, int ext_part_s
 		return;
 	}
 	i=test_block_type(buffer);
-	if(i==-1) {
+	if (i != DOS_MBR) {
 		printf ("bad MBR sector signature 0x%02x%02x\n",
 			buffer[DOS_PART_MAGIC_OFFSET],
 			buffer[DOS_PART_MAGIC_OFFSET + 1]);
 		return;
 	}
-	if(i==DOS_PBR) {
-		printf ("    1\t\t         0\t%10ld\t%2x\n",
-			dev_desc->lba, buffer[DOS_PBR_MEDIA_TYPE_OFFSET]);
-		return;
-	}
+
 	/* Print all primary/logical partitions */
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
 	for (i = 0; i < 4; i++, pt++) {
