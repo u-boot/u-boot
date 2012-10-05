@@ -254,6 +254,56 @@ static void fdt_fixup_srio_liodn(void *blob, struct srio_liodn_id_table *tbl)
 }
 #endif
 
+#define CONFIG_SYS_MAX_PCI_EPS		8
+#define CONFIG_SYS_PCI_EP_LIODN_START	256
+
+static void fdt_fixup_pci_liodn_offsets(void *fdt, const char *compat)
+{
+	int off, pci_idx = 0, pci_cnt = 0, i, rc;
+	const uint32_t *base_liodn;
+	uint32_t liodn_offs[CONFIG_SYS_MAX_PCI_EPS + 1] = { 0 };
+
+	/*
+	 * Count the number of pci nodes.
+	 * It's needed later when the interleaved liodn offsets are generated.
+	 */
+	off = fdt_node_offset_by_compatible(fdt, -1, compat);
+	while (off != -FDT_ERR_NOTFOUND) {
+		pci_cnt++;
+		off = fdt_node_offset_by_compatible(fdt, off, compat);
+	}
+
+	for (off = fdt_node_offset_by_compatible(fdt, -1, compat);
+	     off != -FDT_ERR_NOTFOUND;
+	     off = fdt_node_offset_by_compatible(fdt, off, compat)) {
+		base_liodn = fdt_getprop(fdt, off, "fsl,liodn", &rc);
+		if (!base_liodn) {
+			char path[64];
+
+			if (fdt_get_path(fdt, off, path, sizeof(path)) < 0)
+				strcpy(path, "(unknown)");
+			printf("WARNING Could not get liodn of node %s: %s\n",
+			       path, fdt_strerror(rc));
+			continue;
+		}
+		for (i = 0; i < CONFIG_SYS_MAX_PCI_EPS; i++)
+			liodn_offs[i + 1] = CONFIG_SYS_PCI_EP_LIODN_START +
+					i * pci_cnt + pci_idx - *base_liodn;
+		rc = fdt_setprop(fdt, off, "fsl,liodn-offset-list",
+				 liodn_offs, sizeof(liodn_offs));
+		if (rc) {
+			char path[64];
+
+			if (fdt_get_path(fdt, off, path, sizeof(path)) < 0)
+				strcpy(path, "(unknown)");
+			printf("WARNING Unable to set fsl,liodn-offset-list for "
+			       "node %s: %s\n", path, fdt_strerror(rc));
+			continue;
+		}
+		pci_idx++;
+	}
+}
+
 static void fdt_fixup_liodn_tbl(void *blob, struct liodn_id_table *tbl, int sz)
 {
 	int i;
@@ -303,4 +353,6 @@ void fdt_fixup_liodn(void *blob)
 #ifdef CONFIG_SYS_DPAA_RMAN
 	fdt_fixup_liodn_tbl(blob, rman_liodn_tbl, rman_liodn_tbl_sz);
 #endif
+
+	fdt_fixup_pci_liodn_offsets(blob, "fsl,qoriq-pcie-v2.4");
 }
