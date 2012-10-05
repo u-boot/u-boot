@@ -215,6 +215,9 @@ int env_check_apply(const char *name, const char *oldval,
 {
 	int   console = -1;
 
+	/* Default value for NULL to protect string-manipulating functions */
+	newval = newval ? : "";
+
 	/* Check for console redirection */
 	if (strcmp(name, "stdin") == 0)
 		console = stdin;
