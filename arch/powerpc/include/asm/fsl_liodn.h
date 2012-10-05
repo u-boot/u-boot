@@ -94,6 +94,11 @@ extern void fdt_fixup_liodn(void *blob);
 	SET_GUTS_LIODN(compat, liodn, pex##pciNum##liodnr,\
 		CONFIG_SYS_MPC85xx_PCIE##pciNum##_OFFSET)
 
+#define SET_PCI_LIODN_BASE(compat, pciNum, liodn) \
+	SET_LIODN_ENTRY_1(compat, liodn,\
+		offsetof(ccsr_pcix_t, liodn_base) + CONFIG_SYS_MPC85xx_PCIE##pciNum##_OFFSET,\
+		CONFIG_SYS_MPC85xx_PCIE##pciNum##_OFFSET)
+
 /* reg nodes for DMA start @ 0x300 */
 #define SET_DMA_LIODN(dmaNum, liodn) \
 	SET_GUTS_LIODN("fsl,eloplus-dma", liodn, dma##dmaNum##liodnr,\
