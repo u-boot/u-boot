@@ -159,20 +159,20 @@ __secondary_start_page:
 /*
  * PIR definition for E6500
  * 0-17 Reserved (logic 0s)
- * 8-19 CHIP_ID,    2’b00      - SoC 1
+ * 8-19 CHIP_ID,    2'b00      - SoC 1
  *                  all others - reserved
- * 20-24 CLUSTER_ID 5’b00000   - CCM 1
+ * 20-24 CLUSTER_ID 5'b00000   - CCM 1
  *                  all others - reserved
- * 25-26 CORE_CLUSTER_ID 2’b00 - cluster 1
- *                       2’b01 - cluster 2
- *                       2’b10 - cluster 3
- *                       2’b11 - cluster 4
- * 27-28 CORE_ID         2’b00 - core 0
- *                       2’b01 - core 1
- *                       2’b10 - core 2
- *                       2’b11 - core 3
- * 29-31 THREAD_ID       3’b000 - thread 0
- *                       3’b001 - thread 1
+ * 25-26 CORE_CLUSTER_ID 2'b00 - cluster 1
+ *                       2'b01 - cluster 2
+ *                       2'b10 - cluster 3
+ *                       2'b11 - cluster 4
+ * 27-28 CORE_ID         2'b00 - core 0
+ *                       2'b01 - core 1
+ *                       2'b10 - core 2
+ *                       2'b11 - core 3
+ * 29-31 THREAD_ID       3'b000 - thread 0
+ *                       3'b001 - thread 1
  */
 	rlwinm  r4,r0,29,25,31
 #elif	defined(CONFIG_E500MC)
