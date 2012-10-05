@@ -189,11 +189,13 @@ extern void fdt_fixup_liodn(void *blob);
 extern struct liodn_id_table liodn_tbl[], liodn_bases[], sec_liodn_tbl[];
 extern struct liodn_id_table raide_liodn_tbl[];
 extern struct liodn_id_table fman1_liodn_tbl[], fman2_liodn_tbl[];
+#ifdef CONFIG_SYS_SRIO
 extern struct srio_liodn_id_table srio_liodn_tbl[];
+extern int srio_liodn_tbl_sz;
+#endif
 extern struct liodn_id_table rman_liodn_tbl[];
 extern int liodn_tbl_sz, sec_liodn_tbl_sz, raide_liodn_tbl_sz;
 extern int fman1_liodn_tbl_sz, fman2_liodn_tbl_sz;
-extern int srio_liodn_tbl_sz;
 extern int rman_liodn_tbl_sz;
 
 #endif

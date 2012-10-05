@@ -40,6 +40,7 @@ int get_dpaa_liodn(enum fsl_dpaa_dev dpaa_dev, u32 *liodns, int liodn_offset)
 	return liodn_bases[dpaa_dev].num_ids;
 }
 
+#ifdef CONFIG_SYS_SRIO
 static void set_srio_liodn(struct srio_liodn_id_table *tbl, int size)
 {
 	int i;
@@ -54,6 +55,7 @@ static void set_srio_liodn(struct srio_liodn_id_table *tbl, int size)
 		}
 	}
 }
+#endif
 
 static void set_liodn(struct liodn_id_table *tbl, int size)
 {
@@ -181,8 +183,10 @@ void set_liodns(void)
 	/* setup general liodn offsets */
 	set_liodn(liodn_tbl, liodn_tbl_sz);
 
+#ifdef CONFIG_SYS_SRIO
 	/* setup SRIO port liodns */
 	set_srio_liodn(srio_liodn_tbl, srio_liodn_tbl_sz);
+#endif
 
 	/* setup SEC block liodn bases & offsets if we have one */
 	if (IS_E_PROCESSOR(get_svr())) {
@@ -219,6 +223,7 @@ void set_liodns(void)
 #endif
 }
 
+#ifdef CONFIG_SYS_SRIO
 static void fdt_fixup_srio_liodn(void *blob, struct srio_liodn_id_table *tbl)
 {
 	int i, srio_off;
@@ -247,6 +252,7 @@ static void fdt_fixup_srio_liodn(void *blob, struct srio_liodn_id_table *tbl)
 		}
 	}
 }
+#endif
 
 static void fdt_fixup_liodn_tbl(void *blob, struct liodn_id_table *tbl, int sz)
 {
@@ -277,7 +283,9 @@ static void fdt_fixup_liodn_tbl(void *blob, struct liodn_id_table *tbl, int sz)
 
 void fdt_fixup_liodn(void *blob)
 {
+#ifdef CONFIG_SYS_SRIO
 	fdt_fixup_srio_liodn(blob, srio_liodn_tbl);
+#endif
 
 	fdt_fixup_liodn_tbl(blob, liodn_tbl, liodn_tbl_sz);
 #ifdef CONFIG_SYS_DPAA_FMAN
