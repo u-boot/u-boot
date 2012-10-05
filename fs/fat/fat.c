@@ -85,7 +85,7 @@ int fat_register_device(block_dev_desc_t * dev_desc, int part_no)
 
 	/* Otherwise it might be a superfloppy (whole-disk FAT filesystem) */
 	if (!cur_dev) {
-		if (part_no != 1) {
+		if (part_no != 0) {
 			printf("** Partition %d not valid on device %d **\n",
 					part_no, dev_desc->dev);
 			return -1;
