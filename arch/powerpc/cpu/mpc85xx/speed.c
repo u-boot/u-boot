@@ -112,6 +112,8 @@ void get_sys_info (sys_info_t * sysInfo)
 #define HWA_ASYNC_DIV	0x04000000
 #if (CONFIG_SYS_FSL_NUM_CC_PLLS == 2)
 #define HWA_CC_PLL	1
+#elif (CONFIG_SYS_FSL_NUM_CC_PLLS == 3)
+#define HWA_CC_PLL	2
 #elif (CONFIG_SYS_FSL_NUM_CC_PLLS == 4)
 #define HWA_CC_PLL	2
 #else

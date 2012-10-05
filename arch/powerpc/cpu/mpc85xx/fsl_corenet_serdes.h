@@ -22,6 +22,11 @@
 #ifndef __FSL_CORENET_SERDES_H
 #define __FSL_CORENET_SERDES_H
 
+/*
+ * Note: For P5040, the fourth SerDes bank is on SerDes2, but U-boot currently
+ * only supports one SerDes controller.  For now, pretend that we have three
+ * banks and 18 lanes on the P5040.
+ */
 #define SRDS_MAX_LANES		18
 #define SRDS_MAX_BANK		3
 
