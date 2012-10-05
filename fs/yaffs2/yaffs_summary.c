@@ -191,10 +191,7 @@ int yaffs_summary_read(struct yaffs_dev *dev,
 	struct yaffs_summary_header hdr;
 	struct yaffs_block_info *bi = yaffs_get_block_info(dev, blk);
 	int sum_bytes_per_chunk = dev->data_bytes_per_chunk - sizeof(hdr);
-	int sum_tags_bytes;
 
-	sum_tags_bytes = sizeof(struct yaffs_summary_tags) *
-				dev->chunks_per_summary;
 	buffer = yaffs_get_temp_buffer(dev);
 	n_bytes = sizeof(struct yaffs_summary_tags) * dev->chunks_per_summary;
 	chunk_in_block = dev->chunks_per_summary;
