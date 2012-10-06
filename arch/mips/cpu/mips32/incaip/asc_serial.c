@@ -236,14 +236,6 @@ static void asc_serial_putc(const char c)
     }
 }
 
-static void asc_serial_puts(const char *s)
-{
-    while (*s)
-    {
-	serial_putc (*s++);
-    }
-}
-
 static int asc_serial_getc(void)
 {
     ulong symbol_mask;
@@ -292,7 +284,7 @@ static struct serial_device asc_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= asc_serial_setbrg,
 	.putc	= asc_serial_putc,
-	.puts	= asc_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= asc_serial_getc,
 	.tstc	= asc_serial_tstc,
 };

@@ -82,13 +82,6 @@ static void altera_serial_putc(char c)
 	writel ((unsigned char)c, &uart->txdata);
 }
 
-static void altera_serial_puts(const char *s)
-{
-	while (*s != 0) {
-		serial_putc (*s++);
-	}
-}
-
 static int altera_serial_tstc(void)
 {
 	return (readl (&uart->status) & NIOS_UART_RRDY);
@@ -107,7 +100,7 @@ static struct serial_device altera_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= altera_serial_setbrg,
 	.putc	= altera_serial_putc,
-	.puts	= altera_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= altera_serial_getc,
 	.tstc	= altera_serial_tstc,
 };

@@ -187,13 +187,6 @@ static int mxc_serial_tstc(void)
 	return 1;
 }
 
-static void mxc_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 /*
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
@@ -228,7 +221,7 @@ static struct serial_device mxc_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= mxc_serial_setbrg,
 	.putc	= mxc_serial_putc,
-	.puts	= mxc_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= mxc_serial_getc,
 	.tstc	= mxc_serial_tstc,
 };

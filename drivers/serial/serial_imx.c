@@ -214,20 +214,13 @@ static int imx_serial_tstc(void)
 	return 1;
 }
 
-static void imx_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device imx_serial_drv = {
 	.name	= "imx_serial",
 	.start	= imx_serial_init,
 	.stop	= NULL,
 	.setbrg	= imx_serial_setbrg,
 	.putc	= imx_serial_putc,
-	.puts	= imx_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= imx_serial_getc,
 	.tstc	= imx_serial_tstc,
 };

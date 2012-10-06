@@ -105,13 +105,6 @@ static void leon2_serial_putc(const char c)
 	leon2_serial_putc_raw(c);
 }
 
-static void leon2_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc(*s++);
-	}
-}
-
 static int leon2_serial_getc(void)
 {
 	LEON2_regs *leon2 = (LEON2_regs *) LEON2_PREGS;
@@ -172,7 +165,7 @@ static struct serial_device leon2_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= leon2_serial_setbrg,
 	.putc	= leon2_serial_putc,
-	.puts	= leon2_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= leon2_serial_getc,
 	.tstc	= leon2_serial_tstc,
 };

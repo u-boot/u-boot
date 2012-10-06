@@ -68,12 +68,6 @@ static void cogent_serial_putc(const char c)
 	cma_mb_reg_write (&mbsp->ser_thr, c);
 }
 
-static void cogent_serial_puts(const char *s)
-{
-	while (*s != '\0')
-		serial_putc (*s++);
-}
-
 static int cogent_serial_getc(void)
 {
 	cma_mb_serial *mbsp = (cma_mb_serial *) CMA_MB_SERIAL_BASE;
@@ -96,7 +90,7 @@ static struct serial_device cogent_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= cogent_serial_setbrg,
 	.putc	= cogent_serial_putc,
-	.puts	= cogent_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= cogent_serial_getc,
 	.tstc	= cogent_serial_tstc,
 };

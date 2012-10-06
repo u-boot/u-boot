@@ -59,12 +59,6 @@ static void altera_jtag_serial_putc(char c)
 	writel ((unsigned char)c, &jtag->data);
 }
 
-static void altera_jtag_serial_puts(const char *s)
-{
-	while (*s != 0)
-		serial_putc (*s++);
-}
-
 static int altera_jtag_serial_tstc(void)
 {
 	return ( readl (&jtag->control) & NIOS_JTAG_RRDY);
@@ -91,7 +85,7 @@ static struct serial_device altera_jtag_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= altera_jtag_serial_setbrg,
 	.putc	= altera_jtag_serial_putc,
-	.puts	= altera_jtag_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= altera_jtag_serial_getc,
 	.tstc	= altera_jtag_serial_tstc,
 };

@@ -84,13 +84,6 @@ static void mpc8220_serial_putc(const char c)
 	psc->xmitbuf[0] = c;
 }
 
-static void mpc8220_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static int mpc8220_serial_getc(void)
 {
 	volatile psc8220_t *psc = (psc8220_t *) PSC_BASE;
@@ -132,7 +125,7 @@ static struct serial_device mpc8220_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= mpc8220_serial_setbrg,
 	.putc	= mpc8220_serial_putc,
-	.puts	= mpc8220_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= mpc8220_serial_getc,
 	.tstc	= mpc8220_serial_tstc,
 };

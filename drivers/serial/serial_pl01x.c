@@ -179,13 +179,6 @@ static void pl01x_serial_putc(const char c)
 	pl01x_putc (CONSOLE_PORT, c);
 }
 
-static void pl01x_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static int pl01x_serial_getc(void)
 {
 	return pl01x_getc (CONSOLE_PORT);
@@ -259,7 +252,7 @@ static struct serial_device pl01x_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= pl01x_serial_setbrg,
 	.putc	= pl01x_serial_putc,
-	.puts	= pl01x_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= pl01x_serial_getc,
 	.tstc	= pl01x_serial_tstc,
 };

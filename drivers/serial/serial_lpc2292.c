@@ -89,13 +89,6 @@ static int lpc2292_serial_getc(void)
 	return GET8(U0RBR);
 }
 
-static void lpc2292_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 /* Test if there is a byte to read */
 static int lpc2292_serial_tstc(void)
 {
@@ -108,7 +101,7 @@ static struct serial_device lpc2292_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= lpc2292_serial_setbrg,
 	.putc	= lpc2292_serial_putc,
-	.puts	= lpc2292_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= lpc2292_serial_getc,
 	.tstc	= lpc2292_serial_tstc,
 };

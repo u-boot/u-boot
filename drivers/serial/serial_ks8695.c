@@ -102,13 +102,6 @@ static int ks8695_serial_tstc(void)
 	return 0;
 }
 
-static void ks8695_serial_puts(const char *s)
-{
-	char c;
-	while ((c = *s++) != 0)
-		serial_putc(c);
-}
-
 static int ks8695_serial_getc(void)
 {
 	volatile struct ks8695uart *uartp = KS8695_UART_ADDR;
@@ -124,7 +117,7 @@ static struct serial_device ks8695_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= ks8695_serial_setbrg,
 	.putc	= ks8695_serial_putc,
-	.puts	= ks8695_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= ks8695_serial_getc,
 	.tstc	= ks8695_serial_tstc,
 };

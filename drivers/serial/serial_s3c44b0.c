@@ -209,20 +209,13 @@ static int s3c44b0_serial_getc(void)
 	}
 }
 
-static void s3c44b0_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device s3c44b0_serial_drv = {
 	.name	= "s3c44b0_serial",
 	.start	= s3c44b0_serial_init,
 	.stop	= NULL,
 	.setbrg	= s3c44b0_serial_setbrg,
 	.putc	= s3c44b0_serial_putc,
-	.puts	= s3c44b0_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= s3c44b0_serial_getc,
 	.tstc	= s3c44b0_serial_tstc,
 };

@@ -112,20 +112,13 @@ static int clps7111_serial_getc(void)
 	return IO_UARTDR1 & 0xff;
 }
 
-static void clps7111_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device clps7111_serial_drv = {
 	.name	= "clps7111_serial",
 	.start	= clps7111_serial_init,
 	.stop	= NULL,
 	.setbrg	= clps7111_serial_setbrg,
 	.putc	= clps7111_serial_putc,
-	.puts	= clps7111_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= clps7111_serial_getc,
 	.tstc	= clps7111_serial_tstc,
 };

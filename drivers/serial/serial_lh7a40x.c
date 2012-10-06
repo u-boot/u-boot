@@ -175,20 +175,13 @@ static int lh7a40x_serial_tstc(void)
 	return(!(uart->status & UART_RXFE));
 }
 
-static void lh7a40x_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device lh7a40x_serial_drv = {
 	.name	= "lh7a40x_serial",
 	.start	= lh7a40x_serial_init,
 	.stop	= NULL,
 	.setbrg	= lh7a40x_serial_setbrg,
 	.putc	= lh7a40x_serial_putc,
-	.puts	= lh7a40x_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= lh7a40x_serial_getc,
 	.tstc	= lh7a40x_serial_tstc,
 };

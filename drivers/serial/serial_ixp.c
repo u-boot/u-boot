@@ -121,20 +121,13 @@ static int ixp_serial_getc(void)
 	return (char) RBR(CONFIG_SYS_IXP425_CONSOLE) & 0xff;
 }
 
-static void ixp_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device ixp_serial_drv = {
 	.name	= "ixp_serial",
 	.start	= ixp_serial_init,
 	.stop	= NULL,
 	.setbrg	= ixp_serial_setbrg,
 	.putc	= ixp_serial_putc,
-	.puts	= ixp_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= ixp_serial_getc,
 	.tstc	= ixp_serial_tstc,
 };

@@ -199,12 +199,10 @@ static int s3c4510b_serial_getc(void)
 
 static void s3c4510b_serial_puts(const char *s)
 {
-	while (*s) {
-		serial_putc (*s++);
-	}
+	default_serial_puts(s);
 
 	/* busy wait for tx complete */
-	while ( !uart->m_stat.bf.txComplete);
+	while (!uart->m_stat.bf.txComplete);
 
 	/* clear break */
 	uart->m_ctrl.bf.sendBreak = 0;

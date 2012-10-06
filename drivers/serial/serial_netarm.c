@@ -182,20 +182,13 @@ static int netarm_serial_getc(void)
 	return ch_uint & 0xff;
 }
 
-static void netarm_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device netarm_serial_drv = {
 	.name	= "netarm_serial",
 	.start	= netarm_serial_init,
 	.stop	= NULL,
 	.setbrg	= netarm_serial_setbrg,
 	.putc	= netarm_serial_putc,
-	.puts	= netarm_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= netarm_serial_getc,
 	.tstc	= netarm_serial_tstc,
 };

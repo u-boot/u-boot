@@ -75,21 +75,13 @@ static void p3mx_serial_setbrg(void)
 	galbrg_set_baudrate (CONFIG_MPSC_PORT, gd->baudrate);
 }
 
-
-static void p3mx_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device p3mx_serial_drv = {
 	.name	= "p3mx_serial",
 	.start	= p3mx_serial_init,
 	.stop	= NULL,
 	.setbrg	= p3mx_serial_setbrg,
 	.putc	= p3mx_serial_putc,
-	.puts	= p3mx_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= p3mx_serial_getc,
 	.tstc	= p3mx_serial_tstc,
 };

@@ -139,20 +139,13 @@ static void evb64260_serial_setbrg(void)
 
 #endif /* CONFIG_MPSC */
 
-static void evb64260_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device evb64260_serial_drv = {
 	.name	= "evb64260_serial",
 	.start	= evb64260_serial_init,
 	.stop	= NULL,
 	.setbrg	= evb64260_serial_setbrg,
 	.putc	= evb64260_serial_putc,
-	.puts	= evb64260_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= evb64260_serial_getc,
 	.tstc	= evb64260_serial_tstc,
 };

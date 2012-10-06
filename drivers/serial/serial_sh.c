@@ -136,13 +136,6 @@ static void sh_serial_putc(const char c)
 	serial_raw_putc(c);
 }
 
-static void sh_serial_puts(const char *s)
-{
-	char c;
-	while ((c = *s++) != 0)
-		serial_putc(c);
-}
-
 static int sh_serial_tstc(void)
 {
 	return serial_rx_fifo_level() ? 1 : 0;
@@ -196,7 +189,7 @@ static struct serial_device sh_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= sh_serial_setbrg,
 	.putc	= sh_serial_putc,
-	.puts	= sh_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= sh_serial_getc,
 	.tstc	= sh_serial_tstc,
 };

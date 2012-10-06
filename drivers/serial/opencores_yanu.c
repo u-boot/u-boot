@@ -161,14 +161,6 @@ static void oc_serial_putc(char c)
 	writel((unsigned char)c, &uart->data);
 }
 
-static void oc_serial_puts(const char *s)
-{
-	while (*s != 0) {
-		serial_putc (*s++);
-	}
-}
-
-
 static int oc_serial_tstc(void)
 {
 	unsigned status ;
@@ -195,7 +187,7 @@ static struct serial_device oc_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= oc_serial_setbrg,
 	.putc	= oc_serial_putc,
-	.puts	= oc_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= oc_serial_getc,
 	.tstc	= oc_serial_tstc,
 };

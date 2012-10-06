@@ -77,19 +77,13 @@ static int lpc32xx_serial_init(void)
 	return 0;
 }
 
-static void lpc32xx_serial_puts(const char *s)
-{
-	while (*s)
-		serial_putc(*s++);
-}
-
 static struct serial_device lpc32xx_serial_drv = {
 	.name	= "lpc32xx_serial",
 	.start	= lpc32xx_serial_init,
 	.stop	= NULL,
 	.setbrg	= lpc32xx_serial_setbrg,
 	.putc	= lpc32xx_serial_putc,
-	.puts	= lpc32xx_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= lpc32xx_serial_getc,
 	.tstc	= lpc32xx_serial_tstc,
 };
