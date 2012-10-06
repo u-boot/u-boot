@@ -416,7 +416,6 @@
 #define CONFIG_IPADDR					10.0.4.111
 
 #define CONFIG_SYS_LOAD_ADDR		0x00100000	/* default load address */
-#define	CONFIG_SYS_TFTP_LOADADDR	0x00100000
 
 /*
  * For booting Linux, the board info and command line data
