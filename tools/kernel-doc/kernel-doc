@@ -2424,6 +2424,9 @@ sub process_file($) {
 		    # Continued declaration purpose
 		    chomp($declaration_purpose);
 		    $declaration_purpose .= " " . xml_escape($1);
+		} elsif ($section =~ m/^Example/) {
+		    $_ =~ s/^\s*\*//;
+		    $contents .= $_;
 		} else {
 		    $contents .= $1 . "\n";
 		}
