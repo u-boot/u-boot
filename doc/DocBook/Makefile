@@ -8,7 +8,7 @@
 
 include $(TOPDIR)/config.mk
 
-DOCBOOKS :=
+DOCBOOKS := stdio.xml
 
 ###
 # The build process is as follows (targets):
