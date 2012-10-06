@@ -20,6 +20,8 @@ struct serial_device {
 	struct serial_device	*next;
 };
 
+void default_serial_puts(const char *s);
+
 extern struct serial_device serial_smc_device;
 extern struct serial_device serial_scc_device;
 extern struct serial_device *default_serial_console(void);

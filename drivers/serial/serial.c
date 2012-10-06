@@ -273,6 +273,13 @@ void serial_puts(const char *s)
 	get_current()->puts(s);
 }
 
+void default_serial_puts(const char *s)
+{
+	struct serial_device *dev = get_current();
+	while (*s)
+		dev->putc(*s++);
+}
+
 #if CONFIG_POST & CONFIG_SYS_POST_UART
 static const int bauds[] = CONFIG_SYS_BAUDRATE_TABLE;
 
