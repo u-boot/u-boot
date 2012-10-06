@@ -227,20 +227,23 @@ static struct serial_device *get_current(void)
 {
 	struct serial_device *dev;
 
-	if (!(gd->flags & GD_FLG_RELOC) || !serial_current) {
+	if (!(gd->flags & GD_FLG_RELOC))
 		dev = default_serial_console();
-
-		/* We must have a console device */
-		if (!dev) {
-#ifdef CONFIG_SPL_BUILD
-			puts("Cannot find console\n");
-			hang();
-#else
-			panic("Cannot find console\n");
-#endif
-		}
-	} else
+	else if (!serial_current)
+		dev = default_serial_console();
+	else
 		dev = serial_current;
+
+	/* We must have a console device */
+	if (!dev) {
+#ifdef CONFIG_SPL_BUILD
+		puts("Cannot find console\n");
+		hang();
+#else
+		panic("Cannot find console\n");
+#endif
+	}
+
 	return dev;
 }
 
