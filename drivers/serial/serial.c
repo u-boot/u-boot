@@ -26,6 +26,7 @@
 #include <stdio_dev.h>
 #include <post.h>
 #include <linux/compiler.h>
+#include <errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -205,13 +206,13 @@ int serial_assign(const char *name)
 	struct serial_device *s;
 
 	for (s = serial_devices; s; s = s->next) {
-		if (strcmp(s->name, name) == 0) {
-			serial_current = s;
-			return 0;
-		}
+		if (strcmp(s->name, name))
+			continue;
+		serial_current = s;
+		return 0;
 	}
 
-	return 1;
+	return -EINVAL;
 }
 
 void serial_reinit_all(void)
