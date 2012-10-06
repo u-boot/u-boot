@@ -7,4 +7,5 @@
 <!-- <param name="paper.type">A4</param> -->
 <param name="generate.section.toc.level">2</param>
 <param name="use.id.as.filename">1</param>
+<param name="html.stylesheet">../docbook.css</param>
 </stylesheet>
