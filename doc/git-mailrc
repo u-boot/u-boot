@@ -96,6 +96,7 @@ alias x86            uboot, gruss
 
 # Subsystem aliases
 alias cfi            uboot, stroese
+alias kerneldoc      uboot, marex
 alias fdt            uboot, Jerry Van Baren <vanbaren@cideas.com>
 alias i2c            uboot, hs
 alias mmc            uboot, afleming
