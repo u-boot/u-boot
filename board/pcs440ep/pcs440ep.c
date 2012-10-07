@@ -32,6 +32,7 @@
 #include <sha1.h>
 #include <asm/io.h>
 #include <net.h>
+#include <ata.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -713,3 +714,58 @@ void ide_set_reset (int idereset)
 	udelay (10000);
 }
 #endif /* defined (CONFIG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+
+
+/* this is motly the same as it should, causing a little code duplication */
+#if defined(CONFIG_CMD_IDE)
+#define EIEIO		__asm__ volatile ("eieio")
+
+void ide_input_swap_data(int dev, ulong *sect_buf, int words)
+{
+	volatile ushort *pbuf =
+		(ushort *) (ATA_CURR_BASE(dev) + ATA_DATA_REG);
+	ushort *dbuf = (ushort *) sect_buf;
+
+	debug("in input swap data base for read is %lx\n",
+		(unsigned long) pbuf);
+
+	while (words--) {
+		*dbuf++ = *pbuf;
+		*dbuf++ = *pbuf;
+	}
+}
+
+void ide_output_data(int dev, const ulong *sect_buf, int words)
+{
+	ushort *dbuf;
+	volatile ushort *pbuf;
+
+	pbuf = (ushort *) (ATA_CURR_BASE(dev) + ATA_DATA_REG);
+	dbuf = (ushort *) sect_buf;
+	while (words--) {
+		EIEIO;
+		*pbuf = ld_le16(dbuf++);
+		EIEIO;
+		*pbuf = ld_le16(dbuf++);
+	}
+}
+
+void ide_input_data(int dev, ulong *sect_buf, int words)
+{
+	ushort *dbuf;
+	volatile ushort *pbuf;
+
+	pbuf = (ushort *) (ATA_CURR_BASE(dev) + ATA_DATA_REG);
+	dbuf = (ushort *) sect_buf;
+
+	debug("in input data base for read is %lx\n", (unsigned long) pbuf);
+
+	while (words--) {
+		EIEIO;
+		*dbuf++ = ld_le16(pbuf);
+		EIEIO;
+		*dbuf++ = ld_le16(pbuf);
+	}
+}
+
+#endif

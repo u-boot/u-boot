@@ -522,9 +522,6 @@ void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
 #ifdef __MIPS__
 		*dbuf++ = swab16p((u16 *) pbuf);
 		*dbuf++ = swab16p((u16 *) pbuf);
-#elif defined(CONFIG_PCS440EP)
-		*dbuf++ = *pbuf;
-		*dbuf++ = *pbuf;
 #else
 		*dbuf++ = ld_le16(pbuf);
 		*dbuf++ = ld_le16(pbuf);
@@ -543,18 +540,10 @@ void __ide_output_data(int dev, const ulong *sect_buf, int words)
 	pbuf = (ushort *) (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	dbuf = (ushort *) sect_buf;
 	while (words--) {
-#if defined(CONFIG_PCS440EP)
-		/* not tested, because CF was write protected */
-		EIEIO;
-		*pbuf = ld_le16(dbuf++);
-		EIEIO;
-		*pbuf = ld_le16(dbuf++);
-#else
 		EIEIO;
 		*pbuf = *dbuf++;
 		EIEIO;
 		*pbuf = *dbuf++;
-#endif
 	}
 }
 #else  /* ! CONFIG_IDE_SWAP_IO */
@@ -580,17 +569,10 @@ void __ide_input_data(int dev, ulong *sect_buf, int words)
 	debug("in input data base for read is %lx\n", (unsigned long) pbuf);
 
 	while (words--) {
-#if defined(CONFIG_PCS440EP)
-		EIEIO;
-		*dbuf++ = ld_le16(pbuf);
-		EIEIO;
-		*dbuf++ = ld_le16(pbuf);
-#else
 		EIEIO;
 		*dbuf++ = *pbuf;
 		EIEIO;
 		*dbuf++ = *pbuf;
-#endif
 	}
 }
 #else  /* ! CONFIG_IDE_SWAP_IO */
