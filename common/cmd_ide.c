@@ -400,9 +400,6 @@ void ide_init(void)
 	unsigned char c;
 	int i, bus;
 
-#if defined(CONFIG_SC3)
-	unsigned int ata_reset_time = ATA_RESET_TIME;
-#endif
 #ifdef CONFIG_IDE_8xx_PCCARD
 	extern int pcmcia_on(void);
 	extern int ide_devices_found;	/* Initialized in check_ide_device() */
@@ -502,11 +499,7 @@ void ide_init(void)
 
 			c = ide_inb(dev, ATA_STATUS);
 			i++;
-#if defined(CONFIG_SC3)
-			if (i > (ata_reset_time * 100)) {
-#else
 			if (i > (ATA_RESET_TIME * 100)) {
-#endif
 				puts("** Timeout **\n");
 				/* LED's off */
 				ide_led((LED_IDE1 | LED_IDE2), 0);
