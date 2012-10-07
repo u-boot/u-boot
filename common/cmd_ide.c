@@ -81,19 +81,6 @@ static int ide_bus_ok[CONFIG_SYS_IDE_MAXBUS];
 block_dev_desc_t ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_IDE_LED
-# if !defined(CONFIG_BMS2003)	&& \
-     !defined(CONFIG_CPC45)	&& \
-     !defined(CONFIG_KUP4K) && \
-     !defined(CONFIG_KUP4X)
-static void  ide_led   (uchar led, uchar status);
-#else
-extern void  ide_led   (uchar led, uchar status);
-#endif
-#else
-#define ide_led(a,b)	/* dummy */
-#endif
-
 #ifdef CONFIG_IDE_RESET
 static void  ide_reset (void);
 #else
@@ -290,6 +277,33 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 /* ------------------------------------------------------------------------- */
 
+void __ide_led(uchar led, uchar status)
+{
+#if defined(CONFIG_IDE_LED) && defined(PER8_BASE) /* required by LED_PORT */
+	static uchar led_buffer;	/* Buffer for current LED status */
+
+	uchar *led_port = LED_PORT;
+
+	if (status)		/* switch LED on        */
+		led_buffer |= led;
+	else			/* switch LED off       */
+		led_buffer &= ~led;
+
+	*led_port = led_buffer;
+#endif
+}
+
+void ide_led(uchar led, uchar status)
+	__attribute__ ((weak, alias("__ide_led")));
+
+#ifndef CONFIG_IDE_LED	/* define LED macros, they are not used anyways */
+# define DEVICE_LED(x) 0
+# define LED_IDE1 1
+# define LED_IDE2 2
+#endif
+
+/* ------------------------------------------------------------------------- */
+
 inline void __ide_outb(int dev, int port, unsigned char val)
 {
 	debug("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
@@ -442,9 +456,7 @@ void ide_init(void)
 
 	curr_device = -1;
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i) {
-#ifdef CONFIG_IDE_LED
 		int led = (IDE_BUS(i) == 0) ? LED_IDE1 : LED_IDE2;
-#endif
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
 		ide_dev_desc[i].if_type = IF_TYPE_IDE;
 		ide_dev_desc[i].dev = i;
@@ -1144,27 +1156,6 @@ static void ide_reset(void)
 #endif /* CONFIG_IDE_RESET */
 
 /* ------------------------------------------------------------------------- */
-
-#if defined(CONFIG_IDE_LED)	&& \
-   !defined(CONFIG_CPC45)	&& \
-   !defined(CONFIG_KUP4K)	&& \
-   !defined(CONFIG_KUP4X)
-
-static uchar led_buffer;	/* Buffer for current LED status        */
-
-static void ide_led(uchar led, uchar status)
-{
-	uchar *led_port = LED_PORT;
-
-	if (status)		/* switch LED on        */
-		led_buffer |= led;
-	else			/* switch LED off       */
-		led_buffer &= ~led;
-
-	*led_port = led_buffer;
-}
-
-#endif /* CONFIG_IDE_LED */
 
 #if defined(CONFIG_OF_IDE_FIXUP)
 int ide_device_present(int dev)
