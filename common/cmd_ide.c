@@ -1169,9 +1169,6 @@ extern void ide_set_reset(int idereset);
 
 static void ide_reset(void)
 {
-#if defined(CONFIG_SYS_PB_12V_ENABLE) || defined(CONFIG_SYS_PB_IDE_MOTOR)
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-#endif
 	int i;
 
 	curr_device = -1;
@@ -1184,51 +1181,6 @@ static void ide_reset(void)
 
 	/* the reset signal shall be asserted for et least 25 us */
 	udelay(25);
-
-	WATCHDOG_RESET();
-
-#ifdef CONFIG_SYS_PB_12V_ENABLE
-	/* 12V Enable output OFF */
-	immr->im_cpm.cp_pbdat &= ~(CONFIG_SYS_PB_12V_ENABLE);
-
-	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_12V_ENABLE);
-	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_12V_ENABLE);
-	immr->im_cpm.cp_pbdir |= CONFIG_SYS_PB_12V_ENABLE;
-
-	/* wait 500 ms for the voltage to stabilize */
-	for (i = 0; i < 500; ++i)
-		udelay(1000);
-
-	/* 12V Enable output ON */
-	immr->im_cpm.cp_pbdat |= CONFIG_SYS_PB_12V_ENABLE;
-#endif /* CONFIG_SYS_PB_12V_ENABLE */
-
-#ifdef CONFIG_SYS_PB_IDE_MOTOR
-	/* configure IDE Motor voltage monitor pin as input */
-	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_IDE_MOTOR);
-	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_IDE_MOTOR);
-	immr->im_cpm.cp_pbdir &= ~(CONFIG_SYS_PB_IDE_MOTOR);
-
-	/* wait up to 1 s for the motor voltage to stabilize */
-	for (i = 0; i < 1000; ++i) {
-		if ((immr->im_cpm.cp_pbdat & CONFIG_SYS_PB_IDE_MOTOR) != 0) {
-			break;
-		}
-		udelay(1000);
-	}
-
-	if (i == 1000) {	/* Timeout */
-		printf("\nWarning: 5V for IDE Motor missing\n");
-#ifdef CONFIG_STATUS_LED
-#ifdef STATUS_LED_YELLOW
-		status_led_set(STATUS_LED_YELLOW, STATUS_LED_ON);
-#endif
-#ifdef STATUS_LED_GREEN
-		status_led_set(STATUS_LED_GREEN, STATUS_LED_OFF);
-#endif
-#endif /* CONFIG_STATUS_LED */
-	}
-#endif /* CONFIG_SYS_PB_IDE_MOTOR */
 
 	WATCHDOG_RESET();
 
