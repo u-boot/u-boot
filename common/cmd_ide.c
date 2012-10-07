@@ -38,14 +38,6 @@
 # include <pcmcia.h>
 #endif
 
-#ifdef CONFIG_8xx
-# include <mpc8xx.h>
-#endif
-
-#ifdef CONFIG_MPC5xxx
-#include <mpc5xxx.h>
-#endif
-
 #include <ide.h>
 #include <ata.h>
 
