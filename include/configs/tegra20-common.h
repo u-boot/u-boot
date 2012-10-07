@@ -200,5 +200,6 @@
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/tegra20/u-boot-spl.lds"
 
 #define CONFIG_SYS_NAND_SELF_INIT
+#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 #endif /* __TEGRA20_COMMON_H */
