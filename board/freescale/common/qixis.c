@@ -85,11 +85,11 @@ static void qixis_dump_regs(void)
 	printf("ctl_sys	= %02x\n", QIXIS_READ(ctl_sys));
 	printf("rcw_ctl = %02x\n", QIXIS_READ(rcw_ctl));
 	printf("present = %02x\n", QIXIS_READ(present));
+	printf("present2 = %02x\n", QIXIS_READ(present2));
 	printf("clk_spd = %02x\n", QIXIS_READ(clk_spd));
 	printf("stat_dut = %02x\n", QIXIS_READ(stat_dut));
 	printf("stat_sys = %02x\n", QIXIS_READ(stat_sys));
 	printf("stat_alrm = %02x\n", QIXIS_READ(stat_alrm));
-	printf("ctl_sys2 = %02x\n", QIXIS_READ(ctl_sys2));
 }
 #endif
 

@@ -26,7 +26,7 @@ struct qixis {
 	u8 stat_sys;
 	u8 stat_alrm;
 	u8 present;
-	u8 ctl_sys2;
+	u8 present2;    /* Presence Status Register 2,0x0c */
 	u8 rcw_ctl;
 	u8 ctl_led;
 	u8 i2cblk;
