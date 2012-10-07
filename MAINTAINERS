@@ -902,6 +902,10 @@ Michal Simek <monstr@monstr.eu>
 
 	zynq		ARM ARMV7 (Zynq SoC)
 
+Lucas Stach <dev@lynxeye.de>
+
+	colibri_t20_iris	Tegra20 (ARM7 & A9 Dual Core)
+
 Nick Thompson <nick.thompson@gefanuc.com>
 
 	da830evm	ARM926EJS (DA830/OMAP-L137)
