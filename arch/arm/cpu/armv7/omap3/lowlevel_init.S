@@ -214,7 +214,7 @@ pll_div_val5:
 
 ENTRY(lowlevel_init)
 	ldr	sp, SRAM_STACK
-	str	ip, [sp]	/* stash old link register */
+	str	ip, [sp]	/* stash ip register */
 	mov	ip, lr		/* save link reg across call */
 #if !defined(CONFIG_SYS_NAND_BOOT) && !defined(CONFIG_SYS_ONENAND_BOOT)
 /*
@@ -224,12 +224,11 @@ ENTRY(lowlevel_init)
 	ldr	r1, =SRAM_CLK_CODE
 	bl	cpy_clk_code
 #endif /* NAND Boot */
-	bl	s_init		/* go setup pll, mux, memory */
-	ldr	ip, [sp]	/* restore save ip */
 	mov	lr, ip		/* restore link reg */
+	ldr	ip, [sp]	/* restore save ip */
+	/* tail-call s_init to setup pll, mux, memory */
+	b	s_init
 
-	/* back to arch calling code */
-	mov	pc, lr
 ENDPROC(lowlevel_init)
 
 	/* the literal pools origin */
