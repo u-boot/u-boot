@@ -500,22 +500,6 @@ void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
 #else
 void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
 {
-#if defined(CONFIG_CPC45)
-	uchar i;
-	volatile uchar *pbuf_even =
-		(uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	volatile uchar *pbuf_odd =
-		(uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	ushort *dbuf = (ushort *) sect_buf;
-
-	while (words--) {
-		for (i = 0; i < 2; i++) {
-			*(((uchar *) (dbuf)) + 1) = *pbuf_even;
-			*(uchar *) dbuf = *pbuf_odd;
-			dbuf += 1;
-		}
-	}
-#else
 	volatile ushort *pbuf =
 		(ushort *) (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	ushort *dbuf = (ushort *) sect_buf;
@@ -535,7 +519,6 @@ void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
 		*dbuf++ = ld_le16(pbuf);
 #endif /* !MIPS */
 	}
-#endif
 }
 #endif /* __LITTLE_ENDIAN || CONFIG_AU1X00 */
 
@@ -543,25 +526,6 @@ void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
 #if defined(CONFIG_IDE_SWAP_IO)
 void __ide_output_data(int dev, const ulong *sect_buf, int words)
 {
-#if defined(CONFIG_CPC45)
-	uchar *dbuf;
-	volatile uchar *pbuf_even;
-	volatile uchar *pbuf_odd;
-
-	pbuf_even = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	pbuf_odd = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	dbuf = (uchar *) sect_buf;
-	while (words--) {
-		EIEIO;
-		*pbuf_even = *dbuf++;
-		EIEIO;
-		*pbuf_odd = *dbuf++;
-		EIEIO;
-		*pbuf_even = *dbuf++;
-		EIEIO;
-		*pbuf_odd = *dbuf++;
-	}
-#else
 	ushort *dbuf;
 	volatile ushort *pbuf;
 
@@ -581,7 +545,6 @@ void __ide_output_data(int dev, const ulong *sect_buf, int words)
 		*pbuf = *dbuf++;
 #endif
 	}
-#endif
 }
 #else  /* ! CONFIG_IDE_SWAP_IO */
 void __ide_output_data(int dev, const ulong *sect_buf, int words)
@@ -597,29 +560,6 @@ void __ide_output_data(int dev, const ulong *sect_buf, int words)
 #if defined(CONFIG_IDE_SWAP_IO)
 void __ide_input_data(int dev, ulong *sect_buf, int words)
 {
-#if defined(CONFIG_CPC45)
-	uchar *dbuf;
-	volatile uchar *pbuf_even;
-	volatile uchar *pbuf_odd;
-
-	pbuf_even = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	pbuf_odd = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	dbuf = (uchar *) sect_buf;
-	while (words--) {
-		*dbuf++ = *pbuf_even;
-		EIEIO;
-		SYNC;
-		*dbuf++ = *pbuf_odd;
-		EIEIO;
-		SYNC;
-		*dbuf++ = *pbuf_even;
-		EIEIO;
-		SYNC;
-		*dbuf++ = *pbuf_odd;
-		EIEIO;
-		SYNC;
-	}
-#else
 	ushort *dbuf;
 	volatile ushort *pbuf;
 
@@ -641,7 +581,6 @@ void __ide_input_data(int dev, ulong *sect_buf, int words)
 		*dbuf++ = *pbuf;
 #endif
 	}
-#endif
 }
 #else  /* ! CONFIG_IDE_SWAP_IO */
 void __ide_input_data(int dev, ulong *sect_buf, int words)
@@ -1254,20 +1193,6 @@ void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
  * we have our own transfer functions, 2 bytes alligned */
 void __ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#if defined(CONFIG_CPC45)
-	uchar *dbuf;
-	volatile uchar *pbuf_even;
-	volatile uchar *pbuf_odd;
-
-	pbuf_even = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	pbuf_odd = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	while (shorts--) {
-		EIEIO;
-		*pbuf_even = *dbuf++;
-		EIEIO;
-		*pbuf_odd = *dbuf++;
-	}
-#else
 	ushort *dbuf;
 	volatile ushort *pbuf;
 
@@ -1281,25 +1206,10 @@ void __ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 		EIEIO;
 		*pbuf = *dbuf++;
 	}
-#endif
 }
 
 void __ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#if defined(CONFIG_CPC45)
-	uchar *dbuf;
-	volatile uchar *pbuf_even;
-	volatile uchar *pbuf_odd;
-
-	pbuf_even = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	pbuf_odd = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	while (shorts--) {
-		EIEIO;
-		*dbuf++ = *pbuf_even;
-		EIEIO;
-		*dbuf++ = *pbuf_odd;
-	}
-#else
 	ushort *dbuf;
 	volatile ushort *pbuf;
 
@@ -1313,7 +1223,6 @@ void __ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
 		EIEIO;
 		*dbuf++ = *pbuf;
 	}
-#endif
 }
 
 #else  /* ! CONFIG_IDE_SWAP_IO */
