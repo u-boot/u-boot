@@ -68,6 +68,7 @@ COBJS-$(CONFIG_PPC_P4080)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P5020)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P5040)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_T4240)	+= ddr-gen3.o
+COBJS-$(CONFIG_PPC_B4860)	+= ddr-gen3.o
 COBJS-$(CONFIG_BSC9131)		+= ddr-gen3.o
 
 COBJS-$(CONFIG_CPM2)	+= ether_fcc.o
@@ -84,6 +85,7 @@ COBJS-$(CONFIG_PPC_P4080) += p4080_ids.o
 COBJS-$(CONFIG_PPC_P5020) += p5020_ids.o
 COBJS-$(CONFIG_PPC_P5040) += p5040_ids.o
 COBJS-$(CONFIG_PPC_T4240) += t4240_ids.o
+COBJS-$(CONFIG_PPC_B4860) += b4860_ids.o
 
 COBJS-$(CONFIG_QE)	+= qe_io.o
 COBJS-$(CONFIG_CPM2)	+= serial_scc.o
@@ -117,6 +119,7 @@ COBJS-$(CONFIG_PPC_P4080) += p4080_serdes.o
 COBJS-$(CONFIG_PPC_P5020) += p5020_serdes.o
 COBJS-$(CONFIG_PPC_P5040) += p5040_serdes.o
 COBJS-$(CONFIG_PPC_T4240) += t4240_serdes.o
+COBJS-$(CONFIG_PPC_B4860) += b4860_serdes.o
 
 COBJS	= $(COBJS-y)
 COBJS	+= cpu.o
