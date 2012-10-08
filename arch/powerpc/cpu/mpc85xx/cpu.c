@@ -181,6 +181,10 @@ int checkcpu (void)
 	}
 #endif
 
+#if defined(CONFIG_FSL_IFC)
+	printf("IFC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
+#endif
+
 #ifdef CONFIG_CPM2
 	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
 #endif

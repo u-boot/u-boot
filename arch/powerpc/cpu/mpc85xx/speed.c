@@ -39,6 +39,10 @@ DECLARE_GLOBAL_DATA_PTR;
 void get_sys_info (sys_info_t * sysInfo)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#ifdef CONFIG_FSL_IFC
+	struct fsl_ifc *ifc_regs = (void *)CONFIG_SYS_IFC_ADDR;
+	u32 ccr;
+#endif
 #ifdef CONFIG_FSL_CORENET
 	volatile ccsr_clk_t *clk = (void *)(CONFIG_SYS_FSL_CORENET_CLK_ADDR);
 	unsigned int cpu;
@@ -229,6 +233,13 @@ void get_sys_info (sys_info_t * sysInfo)
 		/* In case anyone cares what the unknown value is */
 		sysInfo->freqLocalBus = lcrr_div;
 	}
+#endif
+
+#if defined(CONFIG_FSL_IFC)
+	ccr = in_be32(&ifc_regs->ifc_ccr);
+	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
+
+	sysInfo->freqLocalBus = sysInfo->freqSystemBus / ccr;
 #endif
 }
 
