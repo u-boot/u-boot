@@ -33,10 +33,28 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct serial_device *serial_devices;
 static struct serial_device *serial_current;
 
+/**
+ * serial_null() - Void registration routine of a serial driver
+ *
+ * This routine implements a void registration routine of a serial
+ * driver. The registration routine of a particular driver is aliased
+ * to this empty function in case the driver is not compiled into
+ * U-Boot.
+ */
 static void serial_null(void)
 {
 }
 
+/**
+ * serial_initfunc() - Forward declare of driver registration routine
+ * @name:	Name of the real driver registration routine.
+ *
+ * This macro expands onto forward declaration of a driver registration
+ * routine, which is then used below in serial_initialize() function.
+ * The declaration is made weak and aliases to serial_null() so in case
+ * the driver is not compiled in, the function is still declared and can
+ * be used, but aliases to serial_null() and thus is optimized away.
+ */
 #define serial_initfunc(name)					\
 	void name(void)						\
 		__attribute__((weak, alias("serial_null")));
@@ -95,6 +113,16 @@ serial_initfunc(s3c44b0_serial_initialize);
 serial_initfunc(sa1100_serial_initialize);
 serial_initfunc(sh_serial_initialize);
 
+/**
+ * serial_register() - Register serial driver with serial driver core
+ * @dev:	Pointer to the serial driver structure
+ *
+ * This function registers the serial driver supplied via @dev with
+ * serial driver core, thus making U-Boot aware of it and making it
+ * available for U-Boot to use. On platforms that still require manual
+ * relocation of constant variables, relocation of the supplied structure
+ * is performed.
+ */
 void serial_register(struct serial_device *dev)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
@@ -118,6 +146,15 @@ void serial_register(struct serial_device *dev)
 	serial_devices = dev;
 }
 
+/**
+ * serial_initialize() - Register all compiled-in serial port drivers
+ *
+ * This function registers all serial port drivers that are compiled
+ * into the U-Boot binary with the serial core, thus making them
+ * available to U-Boot to use. Lastly, this function assigns a default
+ * serial port to the serial core. That serial port is then used as a
+ * default output.
+ */
 void serial_initialize(void)
 {
 	mpc8xx_serial_initialize();
@@ -177,6 +214,13 @@ void serial_initialize(void)
 	serial_assign(default_serial_console()->name);
 }
 
+/**
+ * serial_stdio_init() - Register serial ports with STDIO core
+ *
+ * This function generates a proxy driver for each serial port driver.
+ * These proxy drivers then register with the STDIO core, making the
+ * serial drivers available as STDIO devices.
+ */
 void serial_stdio_init(void)
 {
 	struct stdio_dev dev;
@@ -201,6 +245,18 @@ void serial_stdio_init(void)
 	}
 }
 
+/**
+ * serial_assign() - Select the serial output device by name
+ * @name:	Name of the serial driver to be used as default output
+ *
+ * This function configures the serial output multiplexing by
+ * selecting which serial device will be used as default. In case
+ * the STDIO "serial" device is selected as stdin/stdout/stderr,
+ * the serial device previously configured by this function will be
+ * used for the particular operation.
+ *
+ * Returns 0 on success, negative on error.
+ */
 int serial_assign(const char *name)
 {
 	struct serial_device *s;
@@ -215,6 +271,12 @@ int serial_assign(const char *name)
 	return -EINVAL;
 }
 
+/**
+ * serial_reinit_all() - Reinitialize all compiled-in serial ports
+ *
+ * This function reinitializes all serial ports that are compiled
+ * into U-Boot by calling their serial_start() functions.
+ */
 void serial_reinit_all(void)
 {
 	struct serial_device *s;
@@ -223,6 +285,21 @@ void serial_reinit_all(void)
 		s->start();
 }
 
+/**
+ * get_current() - Return pointer to currently selected serial port
+ *
+ * This function returns a pointer to currently selected serial port.
+ * The currently selected serial port is altered by serial_assign()
+ * function.
+ *
+ * In case this function is called before relocation or before any serial
+ * port is configured, this function calls default_serial_console() to
+ * determine the serial port. Otherwise, the configured serial port is
+ * returned.
+ *
+ * Returns pointer to the currently selected serial port on success,
+ * NULL on error.
+ */
 static struct serial_device *get_current(void)
 {
 	struct serial_device *dev;
@@ -247,36 +324,113 @@ static struct serial_device *get_current(void)
 	return dev;
 }
 
+/**
+ * serial_init() - Initialize currently selected serial port
+ *
+ * This function initializes the currently selected serial port. This
+ * usually involves setting up the registers of that particular port,
+ * enabling clock and such. This function uses the get_current() call
+ * to determine which port is selected.
+ *
+ * Returns 0 on success, negative on error.
+ */
 int serial_init(void)
 {
 	return get_current()->start();
 }
 
+/**
+ * serial_setbrg() - Configure baud-rate of currently selected serial port
+ *
+ * This function configures the baud-rate of the currently selected
+ * serial port. The baud-rate is retrieved from global data within
+ * the serial port driver. This function uses the get_current() call
+ * to determine which port is selected.
+ *
+ * Returns 0 on success, negative on error.
+ */
 void serial_setbrg(void)
 {
 	get_current()->setbrg();
 }
 
+/**
+ * serial_getc() - Read character from currently selected serial port
+ *
+ * This function retrieves a character from currently selected serial
+ * port. In case there is no character waiting on the serial port,
+ * this function will block and wait for the character to appear. This
+ * function uses the get_current() call to determine which port is
+ * selected.
+ *
+ * Returns the character on success, negative on error.
+ */
 int serial_getc(void)
 {
 	return get_current()->getc();
 }
 
+/**
+ * serial_tstc() - Test if data is available on currently selected serial port
+ *
+ * This function tests if one or more characters are available on
+ * currently selected serial port. This function never blocks. This
+ * function uses the get_current() call to determine which port is
+ * selected.
+ *
+ * Returns positive if character is available, zero otherwise.
+ */
 int serial_tstc(void)
 {
 	return get_current()->tstc();
 }
 
+/**
+ * serial_putc() - Output character via currently selected serial port
+ * @c:	Single character to be output from the serial port.
+ *
+ * This function outputs a character via currently selected serial
+ * port. This character is passed to the serial port driver responsible
+ * for controlling the hardware. The hardware may still be in process
+ * of transmitting another character, therefore this function may block
+ * for a short amount of time. This function uses the get_current()
+ * call to determine which port is selected.
+ */
 void serial_putc(const char c)
 {
 	get_current()->putc(c);
 }
 
+/**
+ * serial_puts() - Output string via currently selected serial port
+ * @s:	Zero-terminated string to be output from the serial port.
+ *
+ * This function outputs a zero-terminated string via currently
+ * selected serial port. This function behaves as an accelerator
+ * in case the hardware can queue multiple characters for transfer.
+ * The whole string that is to be output is available to the function
+ * implementing the hardware manipulation. Transmitting the whole
+ * string may take some time, thus this function may block for some
+ * amount of time. This function uses the get_current() call to
+ * determine which port is selected.
+ */
 void serial_puts(const char *s)
 {
 	get_current()->puts(s);
 }
 
+/**
+ * default_serial_puts() - Output string by calling serial_putc() in loop
+ * @s:	Zero-terminated string to be output from the serial port.
+ *
+ * This function outputs a zero-terminated string by calling serial_putc()
+ * in a loop. Most drivers do not support queueing more than one byte for
+ * transfer, thus this function precisely implements their serial_puts().
+ *
+ * To optimize the number of get_current() calls, this function only
+ * calls get_current() once and then directly accesses the putc() call
+ * of the &struct serial_device .
+ */
 void default_serial_puts(const char *s)
 {
 	struct serial_device *dev = get_current();
@@ -287,6 +441,17 @@ void default_serial_puts(const char *s)
 #if CONFIG_POST & CONFIG_SYS_POST_UART
 static const int bauds[] = CONFIG_SYS_BAUDRATE_TABLE;
 
+/**
+ * uart_post_test() - Test the currently selected serial port using POST
+ * @flags:	POST framework flags
+ *
+ * Do a loopback test of the currently selected serial port. This
+ * function is only useful in the context of the POST testing framwork.
+ * The serial port is firstly configured into loopback mode and then
+ * characters are sent through it.
+ *
+ * Returns 0 on success, value otherwise.
+ */
 /* Mark weak until post/cpu/.../uart.c migrate over */
 __weak
 int uart_post_test(int flags)
