@@ -220,12 +220,19 @@ static inline void ft_fixup_l2cache(void *blob)
 
 	/* we dont bother w/L3 since no platform of this type has one */
 }
-#elif defined(CONFIG_BACKSIDE_L2_CACHE)
+#elif defined(CONFIG_BACKSIDE_L2_CACHE) || \
+	defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
 static inline void ft_fixup_l2cache(void *blob)
 {
 	int off, l2_off, l3_off = -1;
 	u32 *ph;
+#ifdef	CONFIG_BACKSIDE_L2_CACHE
 	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
+#else
+	struct ccsr_cluster_l2 *l2cache =
+		(struct ccsr_cluster_l2 __iomem *)(CONFIG_SYS_FSL_CLUSTER_1_L2);
+	u32 l2cfg0 = in_be32(&l2cache->l2cfg0);
+#endif
 	u32 size, line_size, num_ways, num_sets;
 	int has_l2 = 1;
 
@@ -257,7 +264,12 @@ static inline void ft_fixup_l2cache(void *blob)
 		if (has_l2) {
 #ifdef CONFIG_SYS_CACHE_STASHING
 			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+			/* Only initialize every eighth thread */
+			if (reg && !((*reg) % 8))
+#else
 			if (reg)
+#endif
 				fdt_setprop_cell(blob, l2_off, "cache-stash-id",
 					 (*reg * 2) + 32 + 1);
 #endif

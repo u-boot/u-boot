@@ -169,7 +169,7 @@ l2_disabled:
 	 *
 	 */
 
-#if defined(CONFIG_E500MC) && defined(CONFIG_SYS_CACHE_STASHING)
+#ifdef CONFIG_SYS_CACHE_STASHING
 	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
 	li	r2,(32 + 0)
 	mtspr	L1CSR2,r2
@@ -749,6 +749,41 @@ delete_temp_tlbs:
 	delete_tlb0_entry 1, CONFIG_SYS_CCSRBAR + 0x1000, MAS2_I|MAS2_G, r3
 
 #endif /* #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS) */
+
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+create_ccsr_l2_tlb:
+	/*
+	 * Create a TLB for the MMR location of CCSR
+	 * to access L2CSR0 register
+	 */
+	create_tlb0_entry 0, \
+		0, BOOKE_PAGESZ_4K, \
+		CONFIG_SYS_CCSRBAR + 0xC20000, MAS2_I|MAS2_G, \
+		CONFIG_SYS_CCSRBAR_PHYS_LOW + 0xC20000, MAS3_SW|MAS3_SR, \
+		CONFIG_SYS_CCSRBAR_PHYS_HIGH, r3
+
+enable_l2_cluster_l2:
+	/* enable L2 cache */
+	lis	r3, (CONFIG_SYS_CCSRBAR + 0xC20000)@h
+	ori	r3, r3, (CONFIG_SYS_CCSRBAR + 0xC20000)@l
+	li	r4, 33	/* stash id */
+	stw	r4, 4(r3)
+	lis	r4, (L2CSR0_L2FI|L2CSR0_L2LFC)@h
+	ori	r4, r4, (L2CSR0_L2FI|L2CSR0_L2LFC)@l
+	sync
+	stw	r4, 0(r3)	/* invalidate L2 */
+1:	sync
+	lwz	r0, 0(r3)
+	twi	0, r0, 0
+	isync
+	and.	r1, r0, r4
+	bne	1b
+	lis	r4, L2CSR0_L2E@h
+	sync
+	stw	r4, 0(r3)	/* eanble L2 */
+delete_ccsr_l2_tlb:
+	delete_tlb0_entry 0, CONFIG_SYS_CCSRBAR + 0xC20000, MAS2_I|MAS2_G, r3
+#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004510
 #define DCSR_LAWBARH0	(CONFIG_SYS_CCSRBAR + 0x1000)

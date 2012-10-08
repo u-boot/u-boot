@@ -183,13 +183,6 @@ __secondary_start_page:
 	slwi	r8,r4,5
 	add	r10,r3,r8
 
-#if defined(CONFIG_E500MC) && defined(CONFIG_SYS_CACHE_STASHING)
-	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
-	slwi	r8,r4,1
-	addi	r8,r8,32
-	mtspr	L1CSR2,r8
-#endif
-
 #ifdef CONFIG_E6500
 	mfspr	r0,SPRN_PIR
 	/*
@@ -208,6 +201,13 @@ __secondary_start_page:
 #endif
 
 	mtspr	SPRN_PIR,r4	/* write to PIR register */
+
+#ifdef CONFIG_SYS_CACHE_STASHING
+	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
+	slwi	r8,r4,1
+	addi	r8,r8,32
+	mtspr	L1CSR2,r8
+#endif
 
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
