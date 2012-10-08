@@ -276,14 +276,18 @@ static void fsl_pcie_boot_master_release_slave(int port)
 		release_addr = CONFIG_SYS_PCIE1_MEM_VIRT
 			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
 		break;
+#ifdef CONFIG_SYS_PCIE2_MEM_VIRT
 	case 2:
 		release_addr = CONFIG_SYS_PCIE2_MEM_VIRT
 			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
 		break;
+#endif
+#ifdef CONFIG_SYS_PCIE3_MEM_VIRT
 	case 3:
 		release_addr = CONFIG_SYS_PCIE3_MEM_VIRT
 			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
 		break;
+#endif
 	default:
 		release_addr = 0;
 		break;
