@@ -1757,13 +1757,30 @@ typedef struct ccsr_gur {
 	u32	brrl;		/* Boot release */
 	u8	res17[24];
 	u32	rcwsr[16];	/* Reset control word status */
-#ifndef CONFIG_SYS_FSL_QORIQ_CHASSIS2
-#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	17
-#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x1f
-#else
+
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	16
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x3f
-#endif
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xfc000000
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	26
+#define FSL_CORENET2_RCWSR4_SRDS2_PRTCL		0x00fe0000
+#define FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT	17
+#define FSL_CORENET2_RCWSR4_SRDS3_PRTCL		0x0000f800
+#define FSL_CORENET2_RCWSR4_SRDS3_PRTCL_SHIFT	11
+#define FSL_CORENET2_RCWSR4_SRDS4_PRTCL		0x000000f8
+#define FSL_CORENET2_RCWSR4_SRDS4_PRTCL_SHIFT	3
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S1_PLL1	0x00800000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S1_PLL2	0x00400000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S2_PLL1	0x00200000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S2_PLL2	0x00100000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S3_PLL1	0x00080000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S3_PLL2	0x00040000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S4_PLL1	0x00020000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S4_PLL2	0x00010000
+
+#else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	17
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x1f
 #define FSL_CORENET_RCWSR4_SRDS_PRTCL		0xfc000000
 #define FSL_CORENET_RCWSR5_DDR_SYNC		0x00000080
 #define FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT		 7
@@ -1772,6 +1789,8 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_RCWSR6_BOOT_LOC	0x0f800000
 #define FSL_CORENET_RCWSRn_SRDS_LPD_B2		0x3c000000 /* bits 162..165 */
 #define FSL_CORENET_RCWSRn_SRDS_LPD_B3		0x003c0000 /* bits 170..173 */
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
 #define FSL_CORENET_RCWSR7_MCK_TO_PLAT_RAT	0x00400000
 #define FSL_CORENET_RCWSR8_HOST_AGT_B1		0x00e00000
 #define FSL_CORENET_RCWSR8_HOST_AGT_B2		0x00100000
@@ -2407,6 +2426,74 @@ typedef struct ccsr_gur {
 
 #define SDHCDCR_CD_INV		0x80000000 /* invert SDHC card detect */
 
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#define MAX_SERDES 4
+typedef struct serdes_corenet {
+	struct {
+		u32	rstctl;	/* Reset Control Register */
+#define SRDS_RSTCTL_RST		0x80000000
+#define SRDS_RSTCTL_RSTDONE	0x40000000
+#define SRDS_RSTCTL_RSTERR	0x20000000
+#define SRDS_RSTCTL_SWRST	0x10000000
+#define SRDS_RSTCTL_SDPD	0x00000020
+		u32	pllcr0; /* PLL Control Register 0 */
+#define SRDS_PLLCR0_POFF		0x80000000
+#define SRDS_PLLCR0_RFCK_SEL_MASK	0x70000000
+#define SRDS_PLLCR0_RFCK_SEL_100	0x00000000
+#define SRDS_PLLCR0_RFCK_SEL_125	0x10000000
+#define SRDS_PLLCR0_RFCK_SEL_156_25	0x20000000
+#define SRDS_PLLCR0_RFCK_SEL_150	0x30000000
+#define SRDS_PLLCR0_RFCK_SEL_161_13	0x40000000
+#define SRDS_PLLCR0_RFCK_SEL_122_88	0x50000000
+#define SRDS_PLLCR0_FRATE_SEL_MASK	0x000f0000
+#define SRDS_PLLCR0_FRATE_SEL_5		0x00000000
+#define SRDS_PLLCR0_FRATE_SEL_3_75	0x00050000
+#define SRDS_PLLCR0_FRATE_SEL_5_15	0x00060000
+#define SRDS_PLLCR0_FRATE_SEL_4		0x00070000
+#define SRDS_PLLCR0_FRATE_SEL_3_12	0x00090000
+#define SRDS_PLLCR0_FRATE_SEL_3		0x000a0000
+		u32	pllcr1; /* PLL Control Register 1 */
+#define SRDS_PLLCR1_PLL_BWSEL	0x08000000
+		u32	res_0c;	/* 0x00c */
+		u32	pllcr3;
+		u32	pllcr4;
+		u8	res_18[0x20-0x18];
+	} bank[2];
+	u8	res_40[0x90-0x40];
+	u32	srdstcalcr;	/* 0x90 TX Calibration Control */
+	u8	res_94[0xa0-0x94];
+	u32	srdsrcalcr;	/* 0xa0 RX Calibration Control */
+	u8	res_a4[0xb0-0xa4];
+	u32	srdsgr0;	/* 0xb0 General Register 0 */
+	u8	res_b4[0xe0-0xb4];
+	u32	srdspccr0;	/* 0xe0 Protocol Converter Config 0 */
+	u32	srdspccr1;	/* 0xe4 Protocol Converter Config 1 */
+	u32	srdspccr2;	/* 0xe8 Protocol Converter Config 2 */
+	u32	srdspccr3;	/* 0xec Protocol Converter Config 3 */
+	u32	srdspccr4;	/* 0xf0 Protocol Converter Config 4 */
+	u8	res_f4[0x100-0xf4];
+	struct {
+		u32	lnpssr;	/* 0x100, 0x120, ..., 0x1e0 */
+		u8	res_104[0x120-0x104];
+	} srdslnpssr[8];
+	u8	res_200[0x800-0x200];
+	struct {
+		u32	gcr0;	/* 0x800 General Control Register 0 */
+		u32	gcr1;	/* 0x804 General Control Register 1 */
+		u32	gcr2;	/* 0x808 General Control Register 2 */
+		u32	res_80c;
+		u32	recr0;	/* 0x810 Receive Equalization Control */
+		u32	res_814;
+		u32	tecr0;	/* 0x818 Transmit Equalization Control */
+		u32	res_81c;
+		u32	ttlcr0;	/* 0x820 Transition Tracking Loop Ctrl 0 */
+		u8	res_824[0x840-0x824];
+	} lane[8];	/* Lane A, B, C, D, E, F, G, H */
+	u8	res_a00[0x1000-0xa00];	/* from 0xa00 to 0xfff */
+} serdes_corenet_t;
+
+#else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
 typedef struct serdes_corenet {
 	struct {
 		u32	rstctl;	/* Reset Control Register */
@@ -2466,6 +2553,7 @@ typedef struct serdes_corenet {
 	} lane[24];
 	u32 res6[384];
 } serdes_corenet_t;
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
 enum {
 	FSL_SRDS_B1_LANE_A = 0,
