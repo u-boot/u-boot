@@ -416,6 +416,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_SRIO_A004034
 
 #elif defined(CONFIG_PPC_P5020) /* also supports P5010 */
+#define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS1
 #define CONFIG_MAX_CPUS			2
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
@@ -485,6 +486,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 
 #elif defined(CONFIG_PPC_T4240)
+#define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
@@ -516,6 +518,7 @@
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xfe000000
 
 #elif defined(CONFIG_PPC_B4860)
+#define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */

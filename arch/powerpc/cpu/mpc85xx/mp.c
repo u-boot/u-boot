@@ -33,6 +33,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 u32 fsl_ddr_get_intl3r(void);
 
+extern u32 __spin_table[];
+
 u32 get_my_id()
 {
 	return mfspr(SPRN_PIR);
@@ -78,10 +80,10 @@ int cpu_status(int nr)
 		return 0;
 
 	if (nr == id) {
-		table = (u32 *)get_spin_virt_addr();
+		table = (u32 *)&__spin_table;
 		printf("table base @ 0x%p\n", table);
 	} else {
-		table = (u32 *)get_spin_virt_addr() + nr * NUM_BOOT_ENTRY;
+		table = (u32 *)&__spin_table + nr * NUM_BOOT_ENTRY;
 		printf("Running on cpu %d\n", id);
 		printf("\n");
 		printf("table @ 0x%p\n", table);
@@ -154,7 +156,7 @@ static u8 boot_entry_map[4] = {
 
 int cpu_release(int nr, int argc, char * const argv[])
 {
-	u32 i, val, *table = (u32 *)get_spin_virt_addr() + nr * NUM_BOOT_ENTRY;
+	u32 i, val, *table = (u32 *)&__spin_table + nr * NUM_BOOT_ENTRY;
 	u64 boot_addr;
 
 	if (hold_cores_in_reset(1))
@@ -200,11 +202,11 @@ u32 determine_mp_bootpg(unsigned int *pagesize)
 	struct law_entry e;
 #endif
 
-	/* if we have 4G or more of memory, put the boot page at 4Gb-4k */
-	if ((u64)gd->ram_size > 0xfffff000)
-		bootpg = 0xfffff000;
-	else
-		bootpg = gd->ram_size - 4096;
+
+	/* use last 4K of mapped memory */
+	bootpg = ((gd->ram_size > CONFIG_MAX_MEM_MAPPED) ?
+		CONFIG_MAX_MEM_MAPPED : gd->ram_size) +
+		CONFIG_SYS_SDRAM_BASE - 4096;
 	if (pagesize)
 		*pagesize = 4096;
 
@@ -255,29 +257,16 @@ u32 determine_mp_bootpg(unsigned int *pagesize)
 	return bootpg;
 }
 
-ulong get_spin_phys_addr(void)
+phys_addr_t get_spin_phys_addr(void)
 {
-	extern ulong __secondary_start_page;
-	extern ulong __spin_table;
-
-	return (determine_mp_bootpg() +
-		(ulong)&__spin_table - (ulong)&__secondary_start_page);
-}
-
-ulong get_spin_virt_addr(void)
-{
-	extern ulong __secondary_start_page;
-	extern ulong __spin_table;
-
-	return (CONFIG_BPTR_VIRT_ADDR +
-		(ulong)&__spin_table - (ulong)&__secondary_start_page);
+	return virt_to_phys(&__spin_table);
 }
 
 #ifdef CONFIG_FSL_CORENET
 static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 {
 	u32 cpu_up_mask, whoami, brsize = LAW_SIZE_4K;
-	u32 *table = (u32 *)get_spin_virt_addr();
+	u32 *table = (u32 *)&__spin_table;
 	volatile ccsr_gur_t *gur;
 	volatile ccsr_local_t *ccm;
 	volatile ccsr_rcpm_t *rcpm;
@@ -356,7 +345,7 @@ static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 {
 	u32 up, cpu_up_mask, whoami;
-	u32 *table = (u32 *)get_spin_virt_addr();
+	u32 *table = (u32 *)&__spin_table;
 	volatile u32 bpcr;
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -440,10 +429,11 @@ void cpu_mp_lmb_reserve(struct lmb *lmb)
 
 void setup_mp(void)
 {
-	extern ulong __secondary_start_page;
-	extern ulong __bootpg_addr;
+	extern u32 __secondary_start_page;
+	extern u32 __bootpg_addr, __spin_table_addr, __second_half_boot_page;
 
-	ulong fixup = (ulong)&__secondary_start_page;
+	int i;
+	ulong fixup = (u32)&__secondary_start_page;
 	u32 bootpg, bootpg_map, pagesize;
 
 	bootpg = determine_mp_bootpg(&pagesize);
@@ -464,11 +454,20 @@ void setup_mp(void)
 	if (hold_cores_in_reset(0))
 		return;
 
-	/* Store the bootpg's SDRAM address for use by secondary CPU cores */
-	__bootpg_addr = bootpg;
+	/*
+	 * Store the bootpg's cache-able half address for use by secondary
+	 * CPU cores to continue to boot
+	 */
+	__bootpg_addr = (u32)virt_to_phys(&__second_half_boot_page);
+
+	/* Store spin table's physical address for use by secondary cores */
+	__spin_table_addr = (u32)get_spin_phys_addr();
+
+	/* flush bootpg it before copying invalidate any staled cacheline */
+	flush_cache(bootpg, 4096);
 
 	/* look for the tlb covering the reset page, there better be one */
-	int i = find_tlb_idx((void *)CONFIG_BPTR_VIRT_ADDR, 1);
+	i = find_tlb_idx((void *)CONFIG_BPTR_VIRT_ADDR, 1);
 
 	/* we found a match */
 	if (i != -1) {

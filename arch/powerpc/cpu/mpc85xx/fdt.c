@@ -47,7 +47,7 @@ extern void ft_srio_setup(void *blob);
 void ft_fixup_cpu(void *blob, u64 memory_limit)
 {
 	int off;
-	ulong spin_tbl_addr = get_spin_phys_addr();
+	phys_addr_t spin_tbl_addr = get_spin_phys_addr();
 	u32 bootpg = determine_mp_bootpg(NULL);
 	u32 id = get_my_id();
 	const char *enable_method;
@@ -97,7 +97,16 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 	if ((u64)bootpg < memory_limit) {
 		off = fdt_add_mem_rsv(blob, bootpg, (u64)4096);
 		if (off < 0)
-			printf("%s: %s\n", __FUNCTION__, fdt_strerror(off));
+			printf("Failed to reserve memory for bootpg: %s\n",
+				fdt_strerror(off));
+	}
+	/* Reserve spin table page */
+	if (spin_tbl_addr < memory_limit) {
+		off = fdt_add_mem_rsv(blob,
+			(spin_tbl_addr & ~0xffful), 4096);
+		if (off < 0)
+			printf("Failed to reserve memory for spin table: %s\n",
+				fdt_strerror(off));
 	}
 }
 #endif
