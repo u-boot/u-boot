@@ -321,6 +321,10 @@ static void board_power_init(void)
 	writel(0, (unsigned int)&pwr->lcd1_configuration);
 	writel(0, (unsigned int)&pwr->gps_configuration);
 	writel(0, (unsigned int)&pwr->gps_alive_configuration);
+
+	/* It is necessary to power down core 1 */
+	/* to successfully boot CPU1 in kernel */
+	writel(0, (unsigned int)&pwr->arm_core1_configuration);
 }
 
 static void board_uart_init(void)
