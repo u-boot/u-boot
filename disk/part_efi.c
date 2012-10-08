@@ -133,6 +133,15 @@ static void uuid_string(unsigned char *uuid, char *str)
 	}
 }
 
+static efi_guid_t system_guid = PARTITION_SYSTEM_GUID;
+
+static inline int is_bootable(gpt_entry *p)
+{
+	return p->attributes.fields.legacy_bios_bootable ||
+		!memcmp(&(p->partition_type_guid), &system_guid,
+			sizeof(efi_guid_t));
+}
+
 /*
  * Public Functions (include/part.h)
  */
@@ -219,6 +228,7 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	sprintf((char *)info->name, "%s",
 			print_efiname(&gpt_pte[part - 1]));
 	sprintf((char *)info->type, "U-Boot");
+	info->bootable = is_bootable(&gpt_pte[part - 1]);
 #ifdef CONFIG_PARTITION_UUIDS
 	uuid_string(gpt_pte[part - 1].unique_partition_guid.b, info->uuid);
 #endif
