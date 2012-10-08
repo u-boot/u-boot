@@ -121,6 +121,16 @@ void fsl_ddr_set_intl3r(const unsigned int granule_size)
 #endif
 }
 
+u32 fsl_ddr_get_intl3r(void)
+{
+	u32 val = 0;
+#ifdef CONFIG_E6500
+	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
+	val = *mcintl3r;
+#endif
+	return val;
+}
+
 void board_add_ram_info(int use_default)
 {
 #if defined(CONFIG_MPC83xx)

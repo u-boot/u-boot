@@ -27,9 +27,11 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include <asm/fsl_ddr_sdram.h>
 #include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+u32 fsl_ddr_get_intl3r(void);
 
 u32 get_my_id()
 {
@@ -191,13 +193,68 @@ int cpu_release(int nr, int argc, char * const argv[])
 	return 0;
 }
 
-u32 determine_mp_bootpg(void)
+u32 determine_mp_bootpg(unsigned int *pagesize)
 {
+	u32 bootpg;
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004468
+	u32 svr = get_svr();
+	u32 granule_size, check;
+	struct law_entry e;
+#endif
+
 	/* if we have 4G or more of memory, put the boot page at 4Gb-4k */
 	if ((u64)gd->ram_size > 0xfffff000)
-		return (0xfffff000);
+		bootpg = 0xfffff000;
+	else
+		bootpg = gd->ram_size - 4096;
+	if (pagesize)
+		*pagesize = 4096;
 
-	return (gd->ram_size - 4096);
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004468
+/*
+ * Erratum A004468 has two parts. The 3-way interleaving applies to T4240,
+ * to be fixed in rev 2.0. The 2-way interleaving applies to many SoCs. But
+ * the way boot page chosen in u-boot avoids hitting this erratum. So only
+ * thw workaround for 3-way interleaving is needed.
+ *
+ * To make sure boot page translation works with 3-Way DDR interleaving
+ * enforce a check for the following constrains
+ * 8K granule size requires BRSIZE=8K and
+ *    bootpg >> log2(BRSIZE) %3 == 1
+ * 4K and 1K granule size requires BRSIZE=4K and
+ *    bootpg >> log2(BRSIZE) %3 == 0
+ */
+	if (SVR_SOC_VER(svr) == SVR_T4240 && SVR_MAJ(svr) < 2) {
+		e = find_law(bootpg);
+		switch (e.trgt_id) {
+		case LAW_TRGT_IF_DDR_INTLV_123:
+			granule_size = fsl_ddr_get_intl3r() & 0x1f;
+			if (granule_size == FSL_DDR_3WAY_8KB_INTERLEAVING) {
+				if (pagesize)
+					*pagesize = 8192;
+				bootpg &= 0xffffe000;	/* align to 8KB */
+				check = bootpg >> 13;
+				while ((check % 3) != 1)
+					check--;
+				bootpg = check << 13;
+				debug("Boot page (8K) at 0x%08x\n", bootpg);
+				break;
+			} else {
+				bootpg &= 0xfffff000;	/* align to 4KB */
+				check = bootpg >> 12;
+				while ((check % 3) != 0)
+					check--;
+				bootpg = check << 12;
+				debug("Boot page (4K) at 0x%08x\n", bootpg);
+			}
+				break;
+		default:
+			break;
+		}
+	}
+#endif /* CONFIG_SYS_FSL_ERRATUM_A004468 */
+
+	return bootpg;
 }
 
 ulong get_spin_phys_addr(void)
@@ -219,9 +276,9 @@ ulong get_spin_virt_addr(void)
 }
 
 #ifdef CONFIG_FSL_CORENET
-static void plat_mp_up(unsigned long bootpg)
+static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 {
-	u32 cpu_up_mask, whoami;
+	u32 cpu_up_mask, whoami, brsize = LAW_SIZE_4K;
 	u32 *table = (u32 *)get_spin_virt_addr();
 	volatile ccsr_gur_t *gur;
 	volatile ccsr_local_t *ccm;
@@ -241,7 +298,11 @@ static void plat_mp_up(unsigned long bootpg)
 	out_be32(&ccm->bstrl, bootpg);
 
 	e = find_law(bootpg);
-	out_be32(&ccm->bstrar, LAW_EN | e.trgt_id << 20 | LAW_SIZE_4K);
+	/* pagesize is only 4K or 8K */
+	if (pagesize == 8192)
+		brsize = LAW_SIZE_8K;
+	out_be32(&ccm->bstrar, LAW_EN | e.trgt_id << 20 | brsize);
+	debug("BRSIZE is 0x%x\n", brsize);
 
 	/* readback to sync write */
 	in_be32(&ccm->bstrar);
@@ -294,7 +355,7 @@ static void plat_mp_up(unsigned long bootpg)
 #endif
 }
 #else
-static void plat_mp_up(unsigned long bootpg)
+static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 {
 	u32 up, cpu_up_mask, whoami;
 	u32 *table = (u32 *)get_spin_virt_addr();
@@ -374,7 +435,7 @@ static void plat_mp_up(unsigned long bootpg)
 
 void cpu_mp_lmb_reserve(struct lmb *lmb)
 {
-	u32 bootpg = determine_mp_bootpg();
+	u32 bootpg = determine_mp_bootpg(NULL);
 
 	lmb_reserve(lmb, bootpg, 4096);
 }
@@ -383,8 +444,23 @@ void setup_mp(void)
 {
 	extern ulong __secondary_start_page;
 	extern ulong __bootpg_addr;
+
 	ulong fixup = (ulong)&__secondary_start_page;
-	u32 bootpg = determine_mp_bootpg();
+	u32 bootpg, bootpg_map, pagesize;
+
+	bootpg = determine_mp_bootpg(&pagesize);
+
+	/*
+	 * pagesize is only 4K or 8K
+	 * we only use the last 4K of boot page
+	 * bootpg_map saves the address for the boot page
+	 * 8K is used for the workaround of 3-way DDR interleaving
+	 */
+
+	bootpg_map = bootpg;
+
+	if (pagesize == 8192)
+		bootpg += 4096;	/* use 2nd half */
 
 	/* Some OSes expect secondary cores to be held in reset */
 	if (hold_cores_in_reset(0))
@@ -407,7 +483,7 @@ void setup_mp(void)
 
 		memcpy((void *)CONFIG_BPTR_VIRT_ADDR, (void *)fixup, 4096);
 
-		plat_mp_up(bootpg);
+		plat_mp_up(bootpg_map, pagesize);
 	} else {
 		puts("WARNING: No reset page TLB. "
 			"Skipping secondary core setup\n");
