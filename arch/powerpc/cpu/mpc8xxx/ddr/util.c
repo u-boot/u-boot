@@ -142,13 +142,13 @@ void board_add_ram_info(int use_default)
 
 #if CONFIG_NUM_DDR_CONTROLLERS >= 2
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
-		ddr = (void *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
+		ddr = (void __iomem *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
 		sdram_cfg = in_be32(&ddr->sdram_cfg);
 	}
 #endif
 #if CONFIG_NUM_DDR_CONTROLLERS >= 3
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
-		ddr = (void *)CONFIG_SYS_MPC85xx_DDR3_ADDR;
+		ddr = (void __iomem *)CONFIG_SYS_MPC85xx_DDR3_ADDR;
 		sdram_cfg = in_be32(&ddr->sdram_cfg);
 	}
 #endif
