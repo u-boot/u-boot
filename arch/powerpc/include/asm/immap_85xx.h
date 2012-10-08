@@ -2428,6 +2428,8 @@ typedef struct ccsr_gur {
 
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 #define MAX_SERDES 4
+#define SRDS_MAX_LANES 8
+#define SRDS_MAX_BANK 2
 typedef struct serdes_corenet {
 	struct {
 		u32	rstctl;	/* Reset Control Register */
@@ -2494,6 +2496,8 @@ typedef struct serdes_corenet {
 
 #else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
+#define SRDS_MAX_LANES		18
+#define SRDS_MAX_BANK		3
 typedef struct serdes_corenet {
 	struct {
 		u32	rstctl;	/* Reset Control Register */

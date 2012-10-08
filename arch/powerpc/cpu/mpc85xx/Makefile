@@ -85,7 +85,8 @@ COBJS-$(CONFIG_PPC_P5040) += p5040_ids.o
 
 COBJS-$(CONFIG_QE)	+= qe_io.o
 COBJS-$(CONFIG_CPM2)	+= serial_scc.o
-COBJS-$(CONFIG_FSL_CORENET) += fsl_corenet_serdes.o
+COBJS-$(CONFIG_SYS_FSL_QORIQ_CHASSIS1) += fsl_corenet_serdes.o
+COBJS-$(CONFIG_SYS_FSL_QORIQ_CHASSIS2) += fsl_corenet2_serdes.o
 
 # SoC specific SERDES support
 COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o

@@ -1,7 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
- *
- * Author: Roy Zang <tie-fei.zang@freescale.com>
+ * Copyright 2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,23 +17,10 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __FSL_CORENET_SERDES_H
-#define __FSL_CORENET_SERDES_H
+#ifndef __FSL_CORENET2_SERDES_H
+#define __FSL_CORENET2_SERDES_H
 
-enum srds_bank {
-	FSL_SRDS_BANK_1  = 0,
-	FSL_SRDS_BANK_2  = 1,
-	FSL_SRDS_BANK_3  = 2,
-};
-
-int is_serdes_prtcl_valid(u32 prtcl);
-int serdes_get_lane_idx(int lane);
-int serdes_get_bank_by_lane(int lane);
+int is_serdes_prtcl_valid(int serdes, u32 prtcl);
 int serdes_lane_enabled(int lane);
-enum srds_prtcl serdes_get_prtcl(int cfg, int lane);
-
-#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
-extern uint16_t srds_lpd_b[SRDS_MAX_BANK];
-#endif
-
-#endif /* __FSL_CORENET_SERDES_H */
+enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane);
+#endif /* __FSL_CORENET2_SERDES_H */

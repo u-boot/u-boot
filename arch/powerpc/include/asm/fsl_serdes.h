@@ -37,11 +37,17 @@ enum srds_prtcl {
 	SGMII_FM1_DTSEC3,
 	SGMII_FM1_DTSEC4,
 	SGMII_FM1_DTSEC5,
+	SGMII_FM1_DTSEC6,
+	SGMII_FM1_DTSEC9,
+	SGMII_FM1_DTSEC10,
 	SGMII_FM2_DTSEC1,
 	SGMII_FM2_DTSEC2,
 	SGMII_FM2_DTSEC3,
 	SGMII_FM2_DTSEC4,
 	SGMII_FM2_DTSEC5,
+	SGMII_FM2_DTSEC6,
+	SGMII_FM2_DTSEC9,
+	SGMII_FM2_DTSEC10,
 	SGMII_TSEC1,
 	SGMII_TSEC2,
 	SGMII_TSEC3,
@@ -49,13 +55,49 @@ enum srds_prtcl {
 	XAUI_FM1,
 	XAUI_FM2,
 	AURORA,
+	CPRI1,
+	CPRI2,
+	CPRI3,
+	CPRI4,
+	CPRI5,
+	CPRI6,
+	CPRI7,
+	CPRI8,
+	XAUI_FM1_MAC9,
+	XAUI_FM1_MAC10,
+	XAUI_FM2_MAC9,
+	XAUI_FM2_MAC10,
+	HIGIG_FM1_MAC9,
+	HIGIG_FM1_MAC10,
+	HIGIG_FM2_MAC9,
+	HIGIG_FM2_MAC10,
+	QSGMII_FM1_A,		/* A indicates MACs 1-4 */
+	QSGMII_FM1_B,		/* B indicates MACs 5,6,9,10 */
+	QSGMII_FM2_A,
+	QSGMII_FM2_B,
+	XFI_FM1_MAC9,
+	XFI_FM1_MAC10,
+	XFI_FM2_MAC9,
+	XFI_FM2_MAC10,
+	INTERLAKEN,
+};
+
+enum srds {
+	FSL_SRDS_1  = 0,
+	FSL_SRDS_2  = 1,
+	FSL_SRDS_3  = 2,
+	FSL_SRDS_4  = 3,
 };
 
 int is_serdes_configured(enum srds_prtcl device);
 void fsl_serdes_init(void);
 
 #ifdef CONFIG_FSL_CORENET
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+int serdes_get_first_lane(u32 sd, enum srds_prtcl device);
+#else
 int serdes_get_first_lane(enum srds_prtcl device);
+#endif
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
 void serdes_reset_rx(enum srds_prtcl device);
 #endif
