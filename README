@@ -2390,6 +2390,11 @@ CBFS (Coreboot Filesystem) support
 		CONFIG_SF_DEFAULT_MODE 		(see include/spi.h)
 		CONFIG_SF_DEFAULT_SPEED		in Hz
 
+		CONFIG_CMD_SF_TEST
+
+		Define this option to include a destructive SPI flash
+		test ('sf test').
+
 - SystemACE Support:
 		CONFIG_SYSTEMACE
 
