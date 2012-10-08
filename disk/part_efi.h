@@ -113,7 +113,9 @@ typedef struct _gpt_header {
 
 typedef struct _gpt_entry_attributes {
 	unsigned long long required_to_function:1;
-	unsigned long long reserved:47;
+	unsigned long long no_block_io_protocol:1;
+	unsigned long long legacy_bios_bootable:1;
+	unsigned long long reserved:45;
 	unsigned long long type_guid_specific:16;
 } __attribute__ ((packed)) gpt_entry_attributes;
 
