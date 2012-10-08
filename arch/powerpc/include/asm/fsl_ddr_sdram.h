@@ -145,6 +145,31 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 
 /* DDR_CDR1 */
 #define DDR_CDR1_DHC_EN	0x80000000
+#define DDR_CDR1_ODT_SHIFT	17
+#define DDR_CDR1_ODT_MASK	0x6
+#define DDR_CDR2_ODT_MASK	0x1
+#define DDR_CDR1_ODT(x) ((x & DDR_CDR1_ODT_MASK) << DDR_CDR1_ODT_SHIFT)
+#define DDR_CDR2_ODT(x) (x & DDR_CDR2_ODT_MASK)
+
+#if (defined(CONFIG_SYS_FSL_DDR_VER) && \
+	(CONFIG_SYS_FSL_DDR_VER >= FSL_DDR_VER_4_7))
+#define DDR_CDR_ODT_OFF		0x0
+#define DDR_CDR_ODT_120ohm	0x1
+#define DDR_CDR_ODT_180ohm	0x2
+#define DDR_CDR_ODT_75ohm	0x3
+#define DDR_CDR_ODT_110ohm	0x4
+#define DDR_CDR_ODT_60hm	0x5
+#define DDR_CDR_ODT_70ohm	0x6
+#define DDR_CDR_ODT_47ohm	0x7
+#else
+#define DDR_CDR_ODT_75ohm	0x0
+#define DDR_CDR_ODT_55ohm	0x1
+#define DDR_CDR_ODT_60ohm	0x2
+#define DDR_CDR_ODT_50ohm	0x3
+#define DDR_CDR_ODT_150ohm	0x4
+#define DDR_CDR_ODT_43ohm	0x5
+#define DDR_CDR_ODT_120ohm	0x6
+#endif
 
 /* Record of register values computed */
 typedef struct fsl_ddr_cfg_regs_s {
@@ -177,6 +202,8 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int timing_cfg_5;
 	unsigned int ddr_zq_cntl;
 	unsigned int ddr_wrlvl_cntl;
+	unsigned int ddr_wrlvl_cntl_2;
+	unsigned int ddr_wrlvl_cntl_3;
 	unsigned int ddr_sr_cntr;
 	unsigned int ddr_sdram_rcw_1;
 	unsigned int ddr_sdram_rcw_2;
@@ -262,6 +289,8 @@ typedef struct memctl_options_s {
 	unsigned int wrlvl_override;
 	unsigned int wrlvl_sample;		/* Write leveling */
 	unsigned int wrlvl_start;
+	unsigned int wrlvl_ctl_2;
+	unsigned int wrlvl_ctl_3;
 
 	unsigned int half_strength_driver_enable;
 	unsigned int twoT_en;
@@ -288,6 +317,7 @@ typedef struct memctl_options_s {
 	unsigned int rcw_2;
 	/* control register 1 */
 	unsigned int ddr_cdr1;
+	unsigned int ddr_cdr2;
 
 	unsigned int trwt_override;
 	unsigned int trwt;			/* read-to-write turnaround */

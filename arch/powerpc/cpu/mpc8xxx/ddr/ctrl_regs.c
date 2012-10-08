@@ -451,8 +451,8 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 		| ((caslat_ctrl & 0xF) << 16)
 		| ((refrec_ctrl & 0xF) << 12)
 		| ((wrrec_mclk & 0x0F) << 8)
-		| ((acttoact_mclk & 0x07) << 4)
-		| ((wrtord_mclk & 0x07) << 0)
+		| ((acttoact_mclk & 0x0F) << 4)
+		| ((wrtord_mclk & 0x0F) << 0)
 		);
 	debug("FSLDDR: timing_cfg_1 = 0x%08x\n", ddr->timing_cfg_1);
 }
@@ -659,6 +659,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int dqs_cfg;		/* DQS configuration */
 	unsigned int odt_cfg = 0;	/* ODT configuration */
 	unsigned int num_pr;		/* Number of posted refreshes */
+	unsigned int slow = 0;		/* DDR will be run less than 1250 */
 	unsigned int obc_cfg;		/* On-The-Fly Burst Chop Cfg */
 	unsigned int ap_en;		/* Address Parity Enable */
 	unsigned int d_init;		/* DRAM data initialization */
@@ -692,6 +693,10 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	obc_cfg = 0;
 #endif
 
+#if (CONFIG_SYS_FSL_DDR_VER >= FSL_DDR_VER_4_7)
+	slow = get_ddr_freq(0) < 1249000000;
+#endif
+
 	if (popts->registered_dimm_en) {
 		rcw_en = 1;
 		ap_en = popts->ap_en;
@@ -720,6 +725,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((dqs_cfg & 0x3) << 26)
 		| ((odt_cfg & 0x3) << 21)
 		| ((num_pr & 0xf) << 12)
+		| ((slow & 1) << 11)
 		| (qd_en << 9)
 		| (unq_mrs_en << 8)
 		| ((obc_cfg & 0x1) << 6)
@@ -1347,6 +1353,11 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int wrlvl_en,
 			       | ((wrlvl_start & 0x1F) << 0)
 			       );
 	debug("FSLDDR: wrlvl_cntl = 0x%08x\n", ddr->ddr_wrlvl_cntl);
+	ddr->ddr_wrlvl_cntl_2 = popts->wrlvl_ctl_2;
+	debug("FSLDDR: wrlvl_cntl_2 = 0x%08x\n", ddr->ddr_wrlvl_cntl_2);
+	ddr->ddr_wrlvl_cntl_3 = popts->wrlvl_ctl_3;
+	debug("FSLDDR: wrlvl_cntl_3 = 0x%08x\n", ddr->ddr_wrlvl_cntl_3);
+
 }
 
 /* DDR Self Refresh Counter (DDR_SR_CNTR) */
@@ -1368,6 +1379,12 @@ static void set_ddr_cdr1(fsl_ddr_cfg_regs_t *ddr, const memctl_options_t *popts)
 {
 	ddr->ddr_cdr1 = popts->ddr_cdr1;
 	debug("FSLDDR: ddr_cdr1 = 0x%08x\n", ddr->ddr_cdr1);
+}
+
+static void set_ddr_cdr2(fsl_ddr_cfg_regs_t *ddr, const memctl_options_t *popts)
+{
+	ddr->ddr_cdr2 = popts->ddr_cdr2;
+	debug("FSLDDR: ddr_cdr2 = 0x%08x\n", ddr->ddr_cdr2);
 }
 
 unsigned int
@@ -1569,6 +1586,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 				cas_latency, additive_latency);
 
 	set_ddr_cdr1(ddr, popts);
+	set_ddr_cdr2(ddr, popts);
 	set_ddr_sdram_cfg(ddr, popts, common_dimm);
 	ip_rev = fsl_ddr_get_version();
 	if (ip_rev > 0x40400)

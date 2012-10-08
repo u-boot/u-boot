@@ -27,6 +27,8 @@
 #error "Do not define CONFIG_SYS_CCSRBAR_DEFAULT in the board header file."
 #endif
 
+#define FSL_DDR_VER_4_7	47
+
 /* Number of TLB CAM entries we have on FSL Book-E chips */
 #if defined(CONFIG_E500MC)
 #define CONFIG_SYS_NUM_TLBCAMS		64
