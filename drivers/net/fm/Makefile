@@ -32,6 +32,10 @@ COBJS-y += init.o
 COBJS-y += tgec.o
 COBJS-y += tgec_phy.o
 
+# Soc have FMAN v3 with mEMAC
+COBJS-$(CONFIG_SYS_FMAN_V3) += memac_phy.o
+COBJS-$(CONFIG_SYS_FMAN_V3) += memac.o
+
 # SoC specific SERDES support
 COBJS-$(CONFIG_P1017)	+= p1023.o
 COBJS-$(CONFIG_P1023)	+= p1023.o
