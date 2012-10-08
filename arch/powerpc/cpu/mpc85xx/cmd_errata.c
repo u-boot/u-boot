@@ -134,6 +134,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_SRIO_A004034
 	puts("Work-around for Erratum SRIO-A004034 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A_004934
+	puts("Work-around for Erratum A004934 enabled\n");
+#endif
 	return 0;
 }
 
