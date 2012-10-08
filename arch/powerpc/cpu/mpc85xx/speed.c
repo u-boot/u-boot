@@ -82,7 +82,11 @@ void get_sys_info (sys_info_t * sysInfo)
 	uint mem_pll_rat;
 
 	sysInfo->freqSystemBus = sysclk;
+#ifdef CONFIG_DDR_CLK_FREQ
+	sysInfo->freqDDRBus = CONFIG_DDR_CLK_FREQ;
+#else
 	sysInfo->freqDDRBus = sysclk;
+#endif
 
 	sysInfo->freqSystemBus *= (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
 	mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
