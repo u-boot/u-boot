@@ -245,3 +245,13 @@ __weak struct serial_device *default_serial_console(void)
 	return NULL;
 }
 #endif
+
+void zynq_serial_initalize(void)
+{
+#ifdef CONFIG_ZYNQ_SERIAL_BASEADDR0
+	serial_register(&uart_zynq_serial0_device);
+#endif
+#ifdef CONFIG_ZYNQ_SERIAL_BASEADDR1
+	serial_register(&uart_zynq_serial1_device);
+#endif
+}
