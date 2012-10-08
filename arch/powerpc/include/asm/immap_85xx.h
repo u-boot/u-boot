@@ -2549,13 +2549,16 @@ typedef struct ccsr_sec {
 #endif
 
 typedef struct ccsr_qman {
+#ifdef CONFIG_SYS_FSL_QMAN_V3
+	u8	res0[0x200];
+#else
 	struct {
 		u32	qcsp_lio_cfg;	/* 0x0 - SW Portal n LIO cfg */
 		u32	qcsp_io_cfg;	/* 0x4 - SW Portal n IO cfg */
 		u32	res;
 		u32	qcsp_dd_cfg;	/* 0xc - SW Portal n Dynamic Debug cfg */
 	} qcsp[32];
-
+#endif
 	/* Not actually reserved, but irrelevant to u-boot */
 	u8	res[0xbf8 - 0x200];
 	u32	ip_rev_1;
@@ -2580,6 +2583,14 @@ typedef struct ccsr_qman {
 	u32	ci_rlm_cfg;	/* Initiator Read Latency Monitor Cfg */
 	u32	ci_rlm_avg;	/* Initiator Read Latency Monitor Avg */
 	u8	res7[0x2e8];
+#ifdef CONFIG_SYS_FSL_QMAN_V3
+	struct {
+		u32	qcsp_lio_cfg;	/* 0x0 - SW Portal n LIO cfg */
+		u32	qcsp_io_cfg;	/* 0x4 - SW Portal n IO cfg */
+		u32	res;
+		u32	qcsp_dd_cfg;	/* 0xc - SW Portal n Dynamic Debug cfg*/
+	} qcsp[50];
+#endif
 } ccsr_qman_t;
 
 typedef struct ccsr_bman {
