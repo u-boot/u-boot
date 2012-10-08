@@ -474,6 +474,34 @@ static const struct dynamic_odt odt_unknown[4] = {
 	}
 };
 #endif
+
+/*
+ * Automatically seleect bank interleaving mode based on DIMMs
+ * in this order: cs0_cs1_cs2_cs3, cs0_cs1, null.
+ * This function only deal with one or two slots per controller.
+ */
+static inline unsigned int auto_bank_intlv(dimm_params_t *pdimm)
+{
+#if (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
+	if (pdimm[0].n_ranks == 4)
+		return FSL_DDR_CS0_CS1_CS2_CS3;
+	else if (pdimm[0].n_ranks == 2)
+		return FSL_DDR_CS0_CS1;
+#elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+#ifdef CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
+	if (pdimm[0].n_ranks == 4)
+		return FSL_DDR_CS0_CS1_CS2_CS3;
+#endif
+	if (pdimm[0].n_ranks == 2) {
+		if (pdimm[1].n_ranks == 2)
+			return FSL_DDR_CS0_CS1_CS2_CS3;
+		else
+			return FSL_DDR_CS0_CS1;
+	}
+#endif
+	return 0;
+}
+
 unsigned int populate_memctl_options(int all_DIMMs_registered,
 			memctl_options_t *popts,
 			dimm_params_t *pdimm,
@@ -908,6 +936,9 @@ done:
 		else if (hwconfig_subarg_cmp_f("fsl_ddr", "bank_intlv",
 						 "cs0_cs1_cs2_cs3", buf))
 			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1_CS2_CS3;
+		else if (hwconfig_subarg_cmp_f("fsl_ddr", "bank_intlv",
+						"auto", buf))
+			popts->ba_intlv_ctl = auto_bank_intlv(pdimm);
 		else
 			printf("hwconfig has unrecognized parameter for bank_intlv.\n");
 		switch (popts->ba_intlv_ctl & FSL_DDR_CS0_CS1_CS2_CS3) {
@@ -1075,7 +1106,7 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 			break;
 		}
 		debug("%d of %d controllers are interleaving.\n", j, k);
-		if (j != k) {
+		if (j && (j != k)) {
 			for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
 				pinfo->memctl_opts[i].memctl_interleaving = 0;
 			printf("Not all controllers have compatible "
