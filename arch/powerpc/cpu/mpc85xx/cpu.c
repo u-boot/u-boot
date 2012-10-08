@@ -127,6 +127,11 @@ int checkcpu (void)
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
 
+	if (nr_cores > CONFIG_MAX_CPUS) {
+		panic("\nUnexpected number of cores: %d, max is %d\n",
+			nr_cores, CONFIG_MAX_CPUS);
+	}
+
 	get_sys_info(&sysinfo);
 
 	puts("Clock Configuration:");
