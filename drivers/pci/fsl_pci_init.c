@@ -666,10 +666,17 @@ int fsl_configure_pcie(struct fsl_pci_info *info,
 }
 
 #if defined(CONFIG_FSL_CORENET)
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	#define _DEVDISR_PCIE1 FSL_CORENET_DEVDISR3_PCIE1
+	#define _DEVDISR_PCIE2 FSL_CORENET_DEVDISR3_PCIE2
+	#define _DEVDISR_PCIE3 FSL_CORENET_DEVDISR3_PCIE3
+	#define _DEVDISR_PCIE4 FSL_CORENET_DEVDISR3_PCIE4
+#else
 	#define _DEVDISR_PCIE1 FSL_CORENET_DEVDISR_PCIE1
 	#define _DEVDISR_PCIE2 FSL_CORENET_DEVDISR_PCIE2
 	#define _DEVDISR_PCIE3 FSL_CORENET_DEVDISR_PCIE3
 	#define _DEVDISR_PCIE4 FSL_CORENET_DEVDISR_PCIE4
+#endif
 	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CONFIG_SYS_MPC85xx_GUTS_ADDR
 #elif defined(CONFIG_MPC85xx)
 	#define _DEVDISR_PCIE1 MPC85xx_DEVDISR_PCIE
@@ -749,34 +756,42 @@ int fsl_pcie_init_board(int busno)
 {
 	struct fsl_pci_info pci_info;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC8xxx_GUTS_ADDR;
-	u32 devdisr = in_be32(&gur->devdisr);
+	u32 devdisr;
+	u32 *addr;
+
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	addr = &gur->devdisr3;
+#else
+	addr = &gur->devdisr;
+#endif
+	devdisr = in_be32(addr);
 
 #ifdef CONFIG_PCIE1
 	SET_STD_PCIE_INFO(pci_info, 1);
 	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE1, &pci_info);
 #else
-	setbits_be32(&gur->devdisr, _DEVDISR_PCIE1); /* disable */
+	setbits_be32(addr, _DEVDISR_PCIE1); /* disable */
 #endif
 
 #ifdef CONFIG_PCIE2
 	SET_STD_PCIE_INFO(pci_info, 2);
 	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE2, &pci_info);
 #else
-	setbits_be32(&gur->devdisr, _DEVDISR_PCIE2); /* disable */
+	setbits_be32(addr, _DEVDISR_PCIE2); /* disable */
 #endif
 
 #ifdef CONFIG_PCIE3
 	SET_STD_PCIE_INFO(pci_info, 3);
 	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE3, &pci_info);
 #else
-	setbits_be32(&gur->devdisr, _DEVDISR_PCIE3); /* disable */
+	setbits_be32(addr, _DEVDISR_PCIE3); /* disable */
 #endif
 
 #ifdef CONFIG_PCIE4
 	SET_STD_PCIE_INFO(pci_info, 4);
 	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE4, &pci_info);
 #else
-	setbits_be32(&gur->devdisr, _DEVDISR_PCIE4); /* disable */
+	setbits_be32(addr, _DEVDISR_PCIE4); /* disable */
 #endif
 
  	return busno;

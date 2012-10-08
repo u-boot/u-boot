@@ -34,8 +34,13 @@
 #define SRIO_LCSBA1CSR 0x60000000
 
 #if defined(CONFIG_FSL_CORENET)
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	#define _DEVDISR_SRIO1 FSL_CORENET_DEVDISR3_SRIO1
+	#define _DEVDISR_SRIO2 FSL_CORENET_DEVDISR3_SRIO2
+#else
 	#define _DEVDISR_SRIO1 FSL_CORENET_DEVDISR_SRIO1
 	#define _DEVDISR_SRIO2 FSL_CORENET_DEVDISR_SRIO2
+#endif
 	#define _DEVDISR_RMU   FSL_CORENET_DEVDISR_RMU
 	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CONFIG_SYS_MPC85xx_GUTS_ADDR
 #elif defined(CONFIG_MPC85xx)
@@ -236,7 +241,13 @@ void srio_init(void)
 {
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC8xxx_GUTS_ADDR;
 	int srio1_used = 0, srio2_used = 0;
+	u32 *devdisr;
 
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	devdisr = &gur->devdisr3;
+#else
+	devdisr = &gur->devdisr;
+#endif
 	if (is_serdes_configured(SRIO1)) {
 		set_next_law(CONFIG_SYS_SRIO1_MEM_PHYS,
 				law_size_bits(CONFIG_SYS_SRIO1_MEM_SIZE),
@@ -273,16 +284,16 @@ void srio_init(void)
 #ifdef CONFIG_FSL_CORENET
 	/* On FSL_CORENET devices we can disable individual ports */
 	if (!srio1_used)
-		setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO1);
+		setbits_be32(devdisr, _DEVDISR_SRIO1);
 	if (!srio2_used)
-		setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO2);
+		setbits_be32(devdisr, _DEVDISR_SRIO2);
 #endif
 
 	/* neither port is used - disable everything */
 	if (!srio1_used && !srio2_used) {
-		setbits_be32(&gur->devdisr, _DEVDISR_SRIO1);
-		setbits_be32(&gur->devdisr, _DEVDISR_SRIO2);
-		setbits_be32(&gur->devdisr, _DEVDISR_RMU);
+		setbits_be32(devdisr, _DEVDISR_SRIO1);
+		setbits_be32(devdisr, _DEVDISR_SRIO2);
+		setbits_be32(devdisr, _DEVDISR_RMU);
 	}
 }
 
