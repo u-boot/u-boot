@@ -138,15 +138,14 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 
 	printf("Part\tName\t\t\tStart LBA\tEnd LBA\n");
 	for (i = 0; i < le32_to_int(gpt_head->num_partition_entries); i++) {
+		/* Stop at the first non valid PTE */
+		if (!is_pte_valid(&gpt_pte[i]))
+			break;
 
-		if (is_pte_valid(&gpt_pte[i])) {
-			printf("%3d\t%-18s\t0x%08llX\t0x%08llX\n", (i + 1),
-				print_efiname(&gpt_pte[i]),
-				le64_to_int(gpt_pte[i].starting_lba),
-				le64_to_int(gpt_pte[i].ending_lba));
-		} else {
-			break;	/* Stop at the first non valid PTE */
-		}
+		printf("%3d\t%-18s\t0x%08llX\t0x%08llX\n", (i + 1),
+			print_efiname(&gpt_pte[i]),
+			le64_to_int(gpt_pte[i].starting_lba),
+			le64_to_int(gpt_pte[i].ending_lba));
 	}
 
 	/* Remember to free pte */
