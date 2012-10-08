@@ -1757,6 +1757,13 @@ typedef struct ccsr_gur {
 	u32	brrl;		/* Boot release */
 	u8	res17[24];
 	u32	rcwsr[16];	/* Reset control word status */
+#ifndef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	17
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x1f
+#else
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	16
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x3f
+#endif
 #define FSL_CORENET_RCWSR4_SRDS_PRTCL		0xfc000000
 #define FSL_CORENET_RCWSR5_DDR_SYNC		0x00000080
 #define FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT		 7

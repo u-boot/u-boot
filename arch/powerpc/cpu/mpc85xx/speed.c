@@ -85,7 +85,9 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->freqDDRBus = sysclk;
 
 	sysInfo->freqSystemBus *= (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
-	mem_pll_rat = (in_be32(&gur->rcwsr[0]) >> 17) & 0x1f;
+	mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
+			FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT)
+			& FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK;
 	if (mem_pll_rat > 2)
 		sysInfo->freqDDRBus *= mem_pll_rat;
 	else
