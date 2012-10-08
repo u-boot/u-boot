@@ -113,47 +113,6 @@ static char *print_efiname(gpt_entry *pte)
 	return name;
 }
 
-/*
- * Public Functions (include/part.h)
- */
-
-void print_part_efi(block_dev_desc_t * dev_desc)
-{
-	ALLOC_CACHE_ALIGN_BUFFER(gpt_header, gpt_head, 1);
-	gpt_entry *gpt_pte = NULL;
-	int i = 0;
-
-	if (!dev_desc) {
-		printf("%s: Invalid Argument(s)\n", __func__);
-		return;
-	}
-	/* This function validates AND fills in the GPT header and PTE */
-	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
-			 gpt_head, &gpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
-		return;
-	}
-
-	debug("%s: gpt-entry at %p\n", __func__, gpt_pte);
-
-	printf("Part\tStart LBA\tEnd LBA\t\tName\n");
-	for (i = 0; i < le32_to_int(gpt_head->num_partition_entries); i++) {
-		/* Stop at the first non valid PTE */
-		if (!is_pte_valid(&gpt_pte[i]))
-			break;
-
-		printf("%3d\t0x%08llx\t0x%08llx\t\"%s\"\n", (i + 1),
-			le64_to_int(gpt_pte[i].starting_lba),
-			le64_to_int(gpt_pte[i].ending_lba),
-			print_efiname(&gpt_pte[i]));
-	}
-
-	/* Remember to free pte */
-	free(gpt_pte);
-	return;
-}
-
-#ifdef CONFIG_PARTITION_UUIDS
 static void uuid_string(unsigned char *uuid, char *str)
 {
 	static const u8 le[16] = {3, 2, 1, 0, 5, 4, 7, 6, 8, 9, 10, 11,
@@ -173,7 +132,54 @@ static void uuid_string(unsigned char *uuid, char *str)
 		}
 	}
 }
-#endif
+
+/*
+ * Public Functions (include/part.h)
+ */
+
+void print_part_efi(block_dev_desc_t * dev_desc)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(gpt_header, gpt_head, 1);
+	gpt_entry *gpt_pte = NULL;
+	int i = 0;
+	char uuid[37];
+
+	if (!dev_desc) {
+		printf("%s: Invalid Argument(s)\n", __func__);
+		return;
+	}
+	/* This function validates AND fills in the GPT header and PTE */
+	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+			 gpt_head, &gpt_pte) != 1) {
+		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
+		return;
+	}
+
+	debug("%s: gpt-entry at %p\n", __func__, gpt_pte);
+
+	printf("Part\tStart LBA\tEnd LBA\t\tName\n");
+	printf("\tType UUID\n");
+	printf("\tPartition UUID\n");
+
+	for (i = 0; i < le32_to_int(gpt_head->num_partition_entries); i++) {
+		/* Stop at the first non valid PTE */
+		if (!is_pte_valid(&gpt_pte[i]))
+			break;
+
+		printf("%3d\t0x%08llx\t0x%08llx\t\"%s\"\n", (i + 1),
+			le64_to_int(gpt_pte[i].starting_lba),
+			le64_to_int(gpt_pte[i].ending_lba),
+			print_efiname(&gpt_pte[i]));
+		uuid_string(gpt_pte[i].partition_type_guid.b, uuid);
+		printf("\ttype:\t%s\n", uuid);
+		uuid_string(gpt_pte[i].unique_partition_guid.b, uuid);
+		printf("\tuuid:\t%s\n", uuid);
+	}
+
+	/* Remember to free pte */
+	free(gpt_pte);
+	return;
+}
 
 int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 				disk_partition_t * info)
