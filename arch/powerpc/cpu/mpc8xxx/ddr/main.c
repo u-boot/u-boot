@@ -77,7 +77,19 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 				sizeof(generic_spd_eeprom_t));
 
 	if (ret) {
-		printf("DDR: failed to read SPD from address %u\n", i2c_address);
+		if (i2c_address ==
+#ifdef SPD_EEPROM_ADDRESS
+				SPD_EEPROM_ADDRESS
+#elif defined(SPD_EEPROM_ADDRESS1)
+				SPD_EEPROM_ADDRESS1
+#endif
+				) {
+			printf("DDR: failed to read SPD from address %u\n",
+				i2c_address);
+		} else {
+			debug("DDR: failed to read SPD from address %u\n",
+				i2c_address);
+		}
 		memset(spd, 0, sizeof(generic_spd_eeprom_t));
 	}
 }
