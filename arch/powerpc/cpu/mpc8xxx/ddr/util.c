@@ -140,6 +140,18 @@ void board_add_ram_info(int use_default)
 	uint32_t sdram_cfg = in_be32(&ddr->sdram_cfg);
 	int cas_lat;
 
+#if CONFIG_NUM_DDR_CONTROLLERS >= 2
+	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
+		ddr = (void *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
+		sdram_cfg = in_be32(&ddr->sdram_cfg);
+	}
+#endif
+#if CONFIG_NUM_DDR_CONTROLLERS >= 3
+	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
+		ddr = (void *)CONFIG_SYS_MPC85xx_DDR3_ADDR;
+		sdram_cfg = in_be32(&ddr->sdram_cfg);
+	}
+#endif
 	puts(" (DDR");
 	switch ((sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK) >>
 		SDRAM_CFG_SDRAM_TYPE_SHIFT) {

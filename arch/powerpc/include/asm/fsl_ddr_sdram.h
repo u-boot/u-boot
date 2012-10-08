@@ -84,6 +84,8 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define FSL_DDR_4WAY_4KB_INTERLEAVING	0x1C
 #define FSL_DDR_4WAY_8KB_INTERLEAVING	0x1D
 
+#define SDRAM_CS_CONFIG_EN		0x80000000
+
 /* DDR_SDRAM_CFG - DDR SDRAM Control Configuration
  */
 #define SDRAM_CFG_MEM_EN		0x80000000

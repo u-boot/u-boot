@@ -229,6 +229,26 @@ static void set_csn_config_2(int i, fsl_ddr_cfg_regs_t *ddr)
 /* -3E = 667 CL5, -25 = CL6 800, -25E = CL5 800 */
 
 #if !defined(CONFIG_FSL_DDR1)
+static inline int avoid_odt_overlap(const dimm_params_t *dimm_params)
+{
+#if CONFIG_DIMM_SLOTS_PER_CTLR == 1
+	if (dimm_params[0].n_ranks == 4)
+		return 1;
+#endif
+
+#if CONFIG_DIMM_SLOTS_PER_CTLR == 2
+	if ((dimm_params[0].n_ranks == 2) &&
+		(dimm_params[1].n_ranks == 2))
+		return 1;
+
+#ifdef CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
+	if (dimm_params[0].n_ranks == 4)
+		return 1;
+#endif
+#endif
+	return 0;
+}
+
 /*
  * DDR SDRAM Timing Configuration 0 (TIMING_CFG_0)
  *
@@ -236,7 +256,8 @@ static void set_csn_config_2(int i, fsl_ddr_cfg_regs_t *ddr)
  * dreams up non-zero default values to be backwards compatible.
  */
 static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
-				const memctl_options_t *popts)
+				const memctl_options_t *popts,
+				const dimm_params_t *dimm_params)
 {
 	unsigned char trwt_mclk = 0;   /* Read-to-write turnaround */
 	unsigned char twrt_mclk = 0;   /* Write-to-read turnaround */
@@ -266,7 +287,18 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int data_rate = get_ddr_freq(0);
 	tmrd_mclk = 4;
 	/* set the turnaround time */
-	trwt_mclk = 1;
+
+	/*
+	 * for single quad-rank DIMM and two dual-rank DIMMs
+	 * to avoid ODT overlap
+	 */
+	if (avoid_odt_overlap(dimm_params)) {
+		twwt_mclk = 2;
+		trrt_mclk = 1;
+	}
+	/* for faster clock, need more time for data setup */
+	trwt_mclk = (data_rate/1000000 > 1800) ? 2 : 1;
+
 	if ((data_rate/1000000 > 1150) || (popts->memctl_interleaving))
 		twrt_mclk = 1;
 
@@ -1483,7 +1515,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 				break;
 			}
 			sa = common_dimm->base_address;
-			ea = common_dimm->total_mem - 1;
+			ea = sa + common_dimm->total_mem - 1;
 		} else if (!popts->memctl_interleaving) {
 			/*
 			 * If memory interleaving between controllers is NOT
@@ -1497,7 +1529,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			switch (popts->ba_intlv_ctl & FSL_DDR_CS0_CS1_CS2_CS3) {
 			case FSL_DDR_CS0_CS1_CS2_CS3:
 				sa = common_dimm->base_address;
-				ea = common_dimm->total_mem - 1;
+				ea = sa + common_dimm->total_mem - 1;
 				break;
 			case FSL_DDR_CS0_CS1_AND_CS2_CS3:
 				if ((i >= 2) && (dimm_number == 0)) {
@@ -1554,17 +1586,19 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 		sa >>= 24;
 		ea >>= 24;
 
-		ddr->cs[i].bnds = (0
-			| ((sa & 0xFFF) << 16)	/* starting address MSB */
-			| ((ea & 0xFFF) << 0)	/* ending address MSB */
-			);
+		if (cs_en) {
+			ddr->cs[i].bnds = (0
+				| ((sa & 0xFFF) << 16)/* starting address MSB */
+				| ((ea & 0xFFF) << 0)	/* ending address MSB */
+				);
+		} else {
+			debug("FSLDDR: setting bnds to 0 for inactive CS\n");
+			ddr->cs[i].bnds = 0;
+		}
 
 		debug("FSLDDR: cs[%d]_bnds = 0x%08x\n", i, ddr->cs[i].bnds);
-		if (cs_en) {
-			set_csn_config(dimm_number, i, ddr, popts, dimm_params);
-			set_csn_config_2(i, ddr);
-		} else
-			debug("CS%d is disabled.\n", i);
+		set_csn_config(dimm_number, i, ddr, popts, dimm_params);
+		set_csn_config_2(i, ddr);
 	}
 
 	/*
@@ -1577,7 +1611,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_ddr_eor(ddr, popts);
 
 #if !defined(CONFIG_FSL_DDR1)
-	set_timing_cfg_0(ddr, popts);
+	set_timing_cfg_0(ddr, popts, dimm_params);
 #endif
 
 	set_timing_cfg_3(ddr, popts, common_dimm, cas_latency);

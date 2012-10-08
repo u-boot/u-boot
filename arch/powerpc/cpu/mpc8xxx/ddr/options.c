@@ -510,6 +510,14 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 		}
 	} else if (CONFIG_DIMM_SLOTS_PER_CTLR == 2) {
 		switch (pdimm[0].n_ranks) {
+#ifdef CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
+		case 4:
+			pdodt = single_Q;
+			if (pdimm[1].n_ranks)
+				printf("Error: Quad- and Dual-rank DIMMs "
+					"cannot be used together\n");
+			break;
+#endif
 		case 2:
 			switch (pdimm[1].n_ranks) {
 			case 2:
@@ -912,6 +920,10 @@ done:
 					"interleaving disabled!\n", ctrl_num);
 			}
 #elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+#ifdef CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
+			if (pdimm[0].n_ranks == 4)
+				break;
+#endif
 			if ((pdimm[0].n_ranks < 2) && (pdimm[1].n_ranks < 2)) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for "
