@@ -60,7 +60,8 @@ int checkcpu (void)
 	uint major, minor;
 	struct cpu_type *cpu;
 	char buf1[32], buf2[32];
-#if defined(CONFIG_DDR_CLK_FREQ) || defined(CONFIG_FSL_CORENET)
+#if defined(CONFIG_DDR_CLK_FREQ) || \
+	(defined(CONFIG_FSL_CORENET) && !defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2))
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif /* CONFIG_FSL_CORENET */
 #ifdef CONFIG_DDR_CLK_FREQ
@@ -68,8 +69,13 @@ int checkcpu (void)
 		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 #else
 #ifdef CONFIG_FSL_CORENET
-	u32 ddr_sync = ((gur->rcwsr[5]) & FSL_CORENET_RCWSR5_DDR_SYNC)
+	u32 ddr_sync ;
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	ddr_sync = 0;	/* only async mode is supported */
+#else
+	ddr_sync = ((gur->rcwsr[5]) & FSL_CORENET_RCWSR5_DDR_SYNC)
 		>> FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT;
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 #else
 	u32 ddr_ratio = 0;
 #endif /* CONFIG_FSL_CORENET */
