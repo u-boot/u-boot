@@ -366,7 +366,7 @@ __secondary_start_page:
 	lwz	r3,ENTRY_R3_LOWER(r10)
 	li	r4,0
 	li	r5,0
-	lwz	r6,ENTRY_R6_LOWER(r10)
+	li	r6,0
 	lis	r7,(64*1024*1024)@h
 	li	r8,0
 	li	r9,0

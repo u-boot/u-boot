@@ -86,9 +86,8 @@ int cpu_status(int nr)
 		printf("\n");
 		printf("table @ 0x%p\n", table);
 		printf("   addr - 0x%08x\n", table[BOOT_ENTRY_ADDR_LOWER]);
-		printf("   pir  - 0x%08x\n", table[BOOT_ENTRY_PIR]);
 		printf("   r3   - 0x%08x\n", table[BOOT_ENTRY_R3_LOWER]);
-		printf("   r6   - 0x%08x\n", table[BOOT_ENTRY_R6_LOWER]);
+		printf("   pir  - 0x%08x\n", table[BOOT_ENTRY_PIR]);
 	}
 
 	return 0;
@@ -151,7 +150,6 @@ static u8 boot_entry_map[4] = {
 	0,
 	BOOT_ENTRY_PIR,
 	BOOT_ENTRY_R3_LOWER,
-	BOOT_ENTRY_R6_LOWER,
 };
 
 int cpu_release(int nr, int argc, char * const argv[])
@@ -174,8 +172,8 @@ int cpu_release(int nr, int argc, char * const argv[])
 
 	boot_addr = simple_strtoull(argv[0], NULL, 16);
 
-	/* handle pir, r3, r6 */
-	for (i = 1; i < 4; i++) {
+	/* handle pir, r3 */
+	for (i = 1; i < 3; i++) {
 		if (argv[i][0] != '-') {
 			u8 entry = boot_entry_map[i];
 			val = simple_strtoul(argv[i], NULL, 16);
