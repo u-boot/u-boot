@@ -65,7 +65,8 @@ static inline int is_bootable(dos_partition_t *p)
 	return p->boot_ind == 0x80;
 }
 
-static void print_one_part (dos_partition_t *p, int ext_part_sector, int part_num)
+static void print_one_part(dos_partition_t *p, int ext_part_sector,
+			   int part_num)
 {
 	int lba_start = ext_part_sector + le32_to_int (p->start4);
 	int lba_size  = le32_to_int (p->size4);
@@ -105,8 +106,9 @@ int test_part_dos (block_dev_desc_t *dev_desc)
 
 /*  Print a partition that is relative to its Extended partition table
  */
-static void print_partition_extended (block_dev_desc_t *dev_desc, int ext_part_sector, int relative,
-							   int part_num)
+static void print_partition_extended(block_dev_desc_t *dev_desc,
+				     int ext_part_sector, int relative,
+				     int part_num)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
@@ -135,7 +137,7 @@ static void print_partition_extended (block_dev_desc_t *dev_desc, int ext_part_s
 
 		if ((pt->sys_ind != 0) &&
 		    (ext_part_sector == 0 || !is_extended (pt->sys_ind)) ) {
-			print_one_part (pt, ext_part_sector, part_num);
+			print_one_part(pt, ext_part_sector, part_num);
 		}
 
 		/* Reverse engr the fdisk part# assignment rule! */
@@ -151,10 +153,9 @@ static void print_partition_extended (block_dev_desc_t *dev_desc, int ext_part_s
 		if (is_extended (pt->sys_ind)) {
 			int lba_start = le32_to_int (pt->start4) + relative;
 
-			print_partition_extended (dev_desc, lba_start,
-						  ext_part_sector == 0  ? lba_start
-									: relative,
-						  part_num);
+			print_partition_extended(dev_desc, lba_start,
+				ext_part_sector == 0  ? lba_start : relative,
+				part_num);
 		}
 	}
 
@@ -261,8 +262,8 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 
 void print_part_dos (block_dev_desc_t *dev_desc)
 {
-	printf ("Partition     Start Sector     Num Sectors     Type\n");
-	print_partition_extended (dev_desc, 0, 0, 1);
+	printf("Partition     Start Sector     Num Sectors     Type\n");
+	print_partition_extended(dev_desc, 0, 0, 1);
 }
 
 int get_partition_info_dos (block_dev_desc_t *dev_desc, int part, disk_partition_t * info)
