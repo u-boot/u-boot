@@ -624,9 +624,9 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 			 */
 			if (p == MAX_SEARCH_PARTITIONS + 1)
 				*info = tmpinfo;
-			ret = 0;
 		} else {
 			printf("** No valid partitions found **\n");
+			ret = -1;
 			goto cleanup;
 		}
 	}
