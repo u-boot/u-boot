@@ -66,13 +66,13 @@ static inline int is_bootable(dos_partition_t *p)
 }
 
 static void print_one_part(dos_partition_t *p, int ext_part_sector,
-			   int part_num)
+			   int part_num, unsigned int disksig)
 {
 	int lba_start = ext_part_sector + le32_to_int (p->start4);
 	int lba_size  = le32_to_int (p->size4);
 
-	printf("%5d\t\t%10d\t%10d\t%2x%s%s\n",
-		part_num, lba_start, lba_size, p->sys_ind,
+	printf("%3d\t%-10d\t%-10d\t%08x-%02x\t%02x%s%s\n",
+		part_num, lba_start, lba_size, disksig, part_num, p->sys_ind,
 		(is_extended(p->sys_ind) ? " Extd" : ""),
 		(is_bootable(p) ? " Boot" : ""));
 }
@@ -108,7 +108,7 @@ int test_part_dos (block_dev_desc_t *dev_desc)
  */
 static void print_partition_extended(block_dev_desc_t *dev_desc,
 				     int ext_part_sector, int relative,
-				     int part_num)
+				     int part_num, unsigned int disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
@@ -127,6 +127,9 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 		return;
 	}
 
+	if (!ext_part_sector)
+		disksig = le32_to_int(&buffer[DOS_PART_DISKSIG_OFFSET]);
+
 	/* Print all primary/logical partitions */
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
 	for (i = 0; i < 4; i++, pt++) {
@@ -137,7 +140,7 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 
 		if ((pt->sys_ind != 0) &&
 		    (ext_part_sector == 0 || !is_extended (pt->sys_ind)) ) {
-			print_one_part(pt, ext_part_sector, part_num);
+			print_one_part(pt, ext_part_sector, part_num, disksig);
 		}
 
 		/* Reverse engr the fdisk part# assignment rule! */
@@ -155,7 +158,7 @@ static void print_partition_extended(block_dev_desc_t *dev_desc,
 
 			print_partition_extended(dev_desc, lba_start,
 				ext_part_sector == 0  ? lba_start : relative,
-				part_num);
+				part_num, disksig);
 		}
 	}
 
@@ -262,8 +265,8 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 
 void print_part_dos (block_dev_desc_t *dev_desc)
 {
-	printf("Partition     Start Sector     Num Sectors     Type\n");
-	print_partition_extended(dev_desc, 0, 0, 1);
+	printf("Part\tStart Sector\tNum Sectors\tUUID\t\tType\n");
+	print_partition_extended(dev_desc, 0, 0, 1, 0);
 }
 
 int get_partition_info_dos (block_dev_desc_t *dev_desc, int part, disk_partition_t * info)
