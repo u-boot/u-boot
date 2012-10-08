@@ -39,6 +39,9 @@ enum fsl_dpaa_dev {
 #ifdef CONFIG_SYS_DPAA_RMAN
 	FSL_HW_PORTAL_RMAN,
 #endif
+#ifdef CONFIG_SYS_DPAA_DCE
+	FSL_HW_PORTAL_DCE,
+#endif
 
 };
 

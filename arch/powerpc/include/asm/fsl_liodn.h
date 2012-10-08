@@ -123,6 +123,12 @@ extern void fdt_fixup_liodn(void *blob);
 		CONFIG_SYS_FSL_CORENET_PME_OFFSET, \
 		CONFIG_SYS_FSL_CORENET_PME_OFFSET)
 
+#define SET_PMAN_LIODN(num, liodn) \
+	SET_LIODN_ENTRY_2("fsl,pman", liodn, 0, \
+		offsetof(struct ccsr_pman, ppa1) + \
+		CONFIG_SYS_FSL_CORENET_PMAN##num##_OFFSET, \
+		CONFIG_SYS_FSL_CORENET_PMAN##num##_OFFSET)
+
 /* -1 from portID due to how immap has the registers */
 #define FM_PPID_RX_PORT_OFFSET(fmNum, portID) \
 	CONFIG_SYS_FSL_FM##fmNum##_OFFSET + \

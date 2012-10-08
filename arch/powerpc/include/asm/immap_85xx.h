@@ -2600,8 +2600,8 @@ typedef struct ccsr_sec {
 	struct {
 		u32	ms;	/* DECO LIODN Register, MS */
 		u32	ls;	/* DECO LIODN Register, LS */
-	} decoliodnr[5];
-	u8	res4[0x58];
+	} decoliodnr[8];
+	u8	res4[0x40];
 	u32	dar;		/* DECO Avail Register */
 	u32	drr;		/* DECO Reset Register */
 	u8	res5[0xe78];
@@ -2746,8 +2746,41 @@ struct ccsr_rman {
 };
 #endif
 
+#ifdef CONFIG_SYS_PMAN
+struct ccsr_pman {
+	u8	res_00[0x40];
+	u32	poes1;		/* PMAN Operation Error Status Register 1 */
+	u32	poes2;		/* PMAN Operation Error Status Register 2 */
+	u32	poeah;		/* PMAN Operation Error Address High */
+	u32	poeal;		/* PMAN Operation Error Address Low */
+	u8	res_50[0x50];
+	u32	pr1;		/* PMAN Revision Register 1 */
+	u32	pr2;		/* PMAN Revision Register 2 */
+	u8	res_a8[0x8];
+	u32	pcap;		/* PMAN Capabilities Register */
+	u8	res_b4[0xc];
+	u32	pc1;		/* PMAN Control Register 1 */
+	u32	pc2;		/* PMAN Control Register 2 */
+	u32	pc3;		/* PMAN Control Register 3 */
+	u32	pc4;		/* PMAN Control Register 4 */
+	u32	pc5;		/* PMAN Control Register 5 */
+	u32	pc6;		/* PMAN Control Register 6 */
+	u8	res_d8[0x8];
+	u32	ppa1;		/* PMAN Prefetch Attributes Register 1 */
+	u32	ppa2;		/* PMAN Prefetch Attributes Register 2 */
+	u8	res_e8[0x8];
+	u32	pics;		/* PMAN Interrupt Control and Status */
+	u8	res_f4[0xf0c];
+};
+#endif
+
 #ifdef CONFIG_FSL_CORENET
 #define CONFIG_SYS_FSL_CORENET_CCM_OFFSET	0x0000
+#ifdef CONFIG_SYS_PMAN
+#define CONFIG_SYS_FSL_CORENET_PMAN1_OFFSET	0x4000
+#define CONFIG_SYS_FSL_CORENET_PMAN2_OFFSET	0x5000
+#define CONFIG_SYS_FSL_CORENET_PMAN3_OFFSET	0x6000
+#endif
 #define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x8000
 #define CONFIG_SYS_MPC85xx_DDR2_OFFSET		0x9000
 #define CONFIG_SYS_MPC85xx_DDR3_OFFSET		0xA000
@@ -2787,7 +2820,9 @@ struct ccsr_rman {
 #define CONFIG_SYS_FSL_FM1_RX2_1G_OFFSET	0x48a000
 #define CONFIG_SYS_FSL_FM1_RX3_1G_OFFSET	0x48b000
 #define CONFIG_SYS_FSL_FM1_RX4_1G_OFFSET	0x48c000
+#define CONFIG_SYS_FSL_FM1_RX5_1G_OFFSET	0x48d000
 #define CONFIG_SYS_FSL_FM1_RX0_10G_OFFSET	0x490000
+#define CONFIG_SYS_FSL_FM1_RX1_10G_OFFSET	0x491000
 #define CONFIG_SYS_FSL_FM1_DTSEC1_OFFSET	0x4e0000
 #define CONFIG_SYS_FSL_FM2_OFFSET		0x500000
 #define CONFIG_SYS_FSL_FM2_RX0_1G_OFFSET	0x588000
@@ -2795,7 +2830,9 @@ struct ccsr_rman {
 #define CONFIG_SYS_FSL_FM2_RX2_1G_OFFSET	0x58a000
 #define CONFIG_SYS_FSL_FM2_RX3_1G_OFFSET	0x58b000
 #define CONFIG_SYS_FSL_FM2_RX4_1G_OFFSET	0x58c000
+#define CONFIG_SYS_FSL_FM2_RX5_1G_OFFSET	0x58d000
 #define CONFIG_SYS_FSL_FM2_RX0_10G_OFFSET	0x590000
+#define CONFIG_SYS_FSL_FM2_RX1_10G_OFFSET	0x591000
 #define CONFIG_SYS_FSL_CLUSTER_1_L2_OFFSET	0xC20000
 #else
 #define CONFIG_SYS_MPC85xx_ECM_OFFSET		0x0000
