@@ -158,6 +158,7 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 	debug("%s: gpt-entry at %p\n", __func__, gpt_pte);
 
 	printf("Part\tStart LBA\tEnd LBA\t\tName\n");
+	printf("\tAttributes\n");
 	printf("\tType UUID\n");
 	printf("\tPartition UUID\n");
 
@@ -170,6 +171,7 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 			le64_to_int(gpt_pte[i].starting_lba),
 			le64_to_int(gpt_pte[i].ending_lba),
 			print_efiname(&gpt_pte[i]));
+		printf("\tattrs:\t0x%016llx\n", gpt_pte[i].attributes.raw);
 		uuid_string(gpt_pte[i].partition_type_guid.b, uuid);
 		printf("\ttype:\t%s\n", uuid);
 		uuid_string(gpt_pte[i].unique_partition_guid.b, uuid);

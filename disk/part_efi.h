@@ -111,12 +111,15 @@ typedef struct _gpt_header {
 	unsigned char reserved2[GPT_BLOCK_SIZE - 92];
 } __attribute__ ((packed)) gpt_header;
 
-typedef struct _gpt_entry_attributes {
-	unsigned long long required_to_function:1;
-	unsigned long long no_block_io_protocol:1;
-	unsigned long long legacy_bios_bootable:1;
-	unsigned long long reserved:45;
-	unsigned long long type_guid_specific:16;
+typedef union _gpt_entry_attributes {
+	struct {
+		unsigned long long required_to_function:1;
+		unsigned long long no_block_io_protocol:1;
+		unsigned long long legacy_bios_bootable:1;
+		unsigned long long reserved:45;
+		unsigned long long type_guid_specific:16;
+	} fields;
+	unsigned long long raw;
 } __attribute__ ((packed)) gpt_entry_attributes;
 
 #define PARTNAME_SZ	(72 / sizeof(efi_char16_t))
