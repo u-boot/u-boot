@@ -76,8 +76,8 @@ void get_sys_info (sys_info_t * sysInfo)
 		[13] = 2,	/* CC4 PPL / 2 */
 		[14] = 4,	/* CC4 PPL / 4 */
 	};
-	uint lcrr_div, i, freqCC_PLL[4], rcw_tmp;
-	uint ratio[4];
+	uint i, freqCC_PLL[6], rcw_tmp;
+	uint ratio[6];
 	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
 	uint mem_pll_rat;
 
@@ -97,13 +97,132 @@ void get_sys_info (sys_info_t * sysInfo)
 	ratio[1] = (in_be32(&clk->pllc2gsr) >> 1) & 0x3f;
 	ratio[2] = (in_be32(&clk->pllc3gsr) >> 1) & 0x3f;
 	ratio[3] = (in_be32(&clk->pllc4gsr) >> 1) & 0x3f;
-	for (i = 0; i < 4; i++) {
+	ratio[4] = (in_be32(&clk->pllc5gsr) >> 1) & 0x3f;
+	ratio[5] = (in_be32(&clk->pllc6gsr) >> 1) & 0x3f;
+	for (i = 0; i < 6; i++) {
 		if (ratio[i] > 4)
 			freqCC_PLL[i] = sysclk * ratio[i];
 		else
 			freqCC_PLL[i] = sysInfo->freqSystemBus * ratio[i];
 	}
-	rcw_tmp = in_be32(&gur->rcwsr[3]);
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	/*
+	 * Each cluster has up to 4 cores, sharing the same PLL selection.
+	 * The cluster assignment is fixed per SoC. There is no way identify the
+	 * assignment so far, presuming the "first configuration" which is to
+	 * fill the lower cluster group first before moving up to next group.
+	 * PLL1, PLL2, PLL3 are cluster group A, feeding core 0~3 on cluster 1
+	 * and core 4~7 on cluster 2
+	 * PLL4, PLL5, PLL6 are cluster group B, feeding core 8~11 on cluster 3
+	 * and core 12~15 on cluster 4 if existing
+	 */
+	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
+		u32 c_pll_sel = (in_be32(&clk->clkc0csr + (cpu / 4) * 8) >> 27)
+				& 0xf;
+		u32 cplx_pll = core_cplx_PLL[c_pll_sel];
+		if (cplx_pll > 3)
+			printf("Unsupported architecture configuration"
+				" in function %s\n", __func__);
+		cplx_pll += (cpu / 8) * 3;
+
+		sysInfo->freqProcessor[cpu] =
+			 freqCC_PLL[cplx_pll] / core_cplx_PLL_div[c_pll_sel];
+	}
+#define PME_CLK_SEL	0xe0000000
+#define PME_CLK_SHIFT	29
+#define FM1_CLK_SEL	0x1c000000
+#define FM1_CLK_SHIFT	26
+	rcw_tmp = in_be32(&gur->rcwsr[7]);
+
+#ifdef CONFIG_SYS_DPAA_PME
+	switch ((rcw_tmp & PME_CLK_SEL) >> PME_CLK_SHIFT) {
+	case 1:
+		sysInfo->freqPME = freqCC_PLL[0];
+		break;
+	case 2:
+		sysInfo->freqPME = freqCC_PLL[0] / 2;
+		break;
+	case 3:
+		sysInfo->freqPME = freqCC_PLL[0] / 3;
+		break;
+	case 4:
+		sysInfo->freqPME = freqCC_PLL[0] / 4;
+		break;
+	case 6:
+		sysInfo->freqPME = freqCC_PLL[1] / 2;
+		break;
+	case 7:
+		sysInfo->freqPME = freqCC_PLL[1] / 3;
+		break;
+	default:
+		printf("Error: Unknown PME clock select!\n");
+	case 0:
+		sysInfo->freqPME = sysInfo->freqSystemBus / 2;
+		break;
+
+	}
+#endif
+
+#ifdef CONFIG_SYS_DPAA_FMAN
+	switch ((rcw_tmp & FM1_CLK_SEL) >> FM1_CLK_SHIFT) {
+	case 1:
+		sysInfo->freqFMan[0] = freqCC_PLL[3];
+		break;
+	case 2:
+		sysInfo->freqFMan[0] = freqCC_PLL[3] / 2;
+		break;
+	case 3:
+		sysInfo->freqFMan[0] = freqCC_PLL[3] / 3;
+		break;
+	case 4:
+		sysInfo->freqFMan[0] = freqCC_PLL[3] / 4;
+		break;
+	case 6:
+		sysInfo->freqFMan[0] = freqCC_PLL[4] / 2;
+		break;
+	case 7:
+		sysInfo->freqFMan[0] = freqCC_PLL[4] / 3;
+		break;
+	default:
+		printf("Error: Unknown FMan1 clock select!\n");
+	case 0:
+		sysInfo->freqFMan[0] = sysInfo->freqSystemBus / 2;
+		break;
+	}
+#if (CONFIG_SYS_NUM_FMAN) == 2
+#define FM2_CLK_SEL	0x00000038
+#define FM2_CLK_SHIFT	3
+	rcw_tmp = in_be32(&gur->rcwsr[15]);
+	switch ((rcw_tmp & FM2_CLK_SEL) >> FM2_CLK_SHIFT) {
+	case 1:
+		sysInfo->freqFMan[1] = freqCC_PLL[4];
+		break;
+	case 2:
+		sysInfo->freqFMan[1] = freqCC_PLL[4] / 2;
+		break;
+	case 3:
+		sysInfo->freqFMan[1] = freqCC_PLL[4] / 3;
+		break;
+	case 4:
+		sysInfo->freqFMan[1] = freqCC_PLL[4] / 4;
+		break;
+	case 6:
+		sysInfo->freqFMan[1] = freqCC_PLL[3] / 2;
+		break;
+	case 7:
+		sysInfo->freqFMan[1] = freqCC_PLL[3] / 3;
+		break;
+	default:
+		printf("Error: Unknown FMan2 clock select!\n");
+	case 0:
+		sysInfo->freqFMan[1] = sysInfo->freqSystemBus / 2;
+		break;
+	}
+#endif	/* CONFIG_SYS_NUM_FMAN == 2 */
+#endif	/* CONFIG_SYS_DPAA_FMAN */
+
+#else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
 	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
 		u32 c_pll_sel = (in_be32(&clk->clkc0csr + cpu*8) >> 27) & 0xf;
 		u32 cplx_pll = core_cplx_PLL[c_pll_sel];
@@ -111,7 +230,6 @@ void get_sys_info (sys_info_t * sysInfo)
 		sysInfo->freqProcessor[cpu] =
 			 freqCC_PLL[cplx_pll] / core_cplx_PLL_div[c_pll_sel];
 	}
-
 #define PME_CLK_SEL	0x80000000
 #define FM1_CLK_SEL	0x40000000
 #define FM2_CLK_SEL	0x20000000
@@ -159,11 +277,10 @@ void get_sys_info (sys_info_t * sysInfo)
 #endif
 #endif
 
-#else
-	uint plat_ratio,e500_ratio,half_freqSystemBus;
-#if defined(CONFIG_FSL_LBC)
-	uint lcrr_div;
-#endif
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
+#else /* CONFIG_FSL_CORENET */
+	uint plat_ratio, e500_ratio, half_freqSystemBus;
 	int i;
 #ifdef CONFIG_QE
 	__maybe_unused u32 qe_ratio;
@@ -210,6 +327,7 @@ void get_sys_info (sys_info_t * sysInfo)
 #endif /* CONFIG_FSL_CORENET */
 
 #if defined(CONFIG_FSL_LBC)
+	uint lcrr_div;
 #if defined(CONFIG_SYS_LBC_LCRR)
 	/* We will program LCRR to this value later */
 	lcrr_div = CONFIG_SYS_LBC_LCRR & LCRR_CLKDIV;

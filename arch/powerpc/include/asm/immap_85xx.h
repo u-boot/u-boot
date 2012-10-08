@@ -1899,34 +1899,38 @@ typedef struct ccsr_gur {
 #define rmuliodnr rio1maintliodnr
 
 typedef struct ccsr_clk {
-	u32	clkc0csr;	/* Core 0 Clock control/status */
+	u32	clkc0csr;	/* 0x000 Core 0 Clock control/status */
 	u8	res1[0x1c];
-	u32	clkc1csr;	/* Core 1 Clock control/status */
+	u32	clkc1csr;	/* 0x020 Core 1 Clock control/status */
 	u8	res2[0x1c];
-	u32	clkc2csr;	/* Core 2 Clock control/status */
+	u32	clkc2csr;	/* 0x040 Core 2 Clock control/status */
 	u8	res3[0x1c];
-	u32	clkc3csr;	/* Core 3 Clock control/status */
+	u32	clkc3csr;	/* 0x060 Core 3 Clock control/status */
 	u8	res4[0x1c];
-	u32	clkc4csr;	/* Core 4 Clock control/status */
+	u32	clkc4csr;	/* 0x080 Core 4 Clock control/status */
 	u8	res5[0x1c];
-	u32	clkc5csr;	/* Core 5 Clock control/status */
+	u32	clkc5csr;	/* 0x0a0 Core 5 Clock control/status */
 	u8	res6[0x1c];
-	u32	clkc6csr;	/* Core 6 Clock control/status */
+	u32	clkc6csr;	/* 0x0c0 Core 6 Clock control/status */
 	u8	res7[0x1c];
-	u32	clkc7csr;	/* Core 7 Clock control/status */
+	u32	clkc7csr;	/* 0x0e0 Core 7 Clock control/status */
 	u8	res8[0x71c];
-	u32	pllc1gsr;	/* Cluster PLL 1 General Status */
+	u32	pllc1gsr;	/* 0x800 Cluster PLL 1 General Status */
 	u8	res10[0x1c];
-	u32	pllc2gsr;	/* Cluster PLL 2 General Status */
+	u32	pllc2gsr;	/* 0x820 Cluster PLL 2 General Status */
 	u8	res11[0x1c];
-	u32	pllc3gsr;	/* Cluster PLL 3 General Status */
+	u32	pllc3gsr;	/* 0x840 Cluster PLL 3 General Status */
 	u8	res12[0x1c];
-	u32	pllc4gsr;	/* Cluster PLL 4 General Status */
-	u8	res13[0x39c];
-	u32	pllpgsr;	/* Platform PLL General Status */
+	u32	pllc4gsr;	/* 0x860 Cluster PLL 4 General Status */
+	u8	res13[0x1c];
+	u32	pllc5gsr;	/* 0x880 Cluster PLL 5 General Status */
 	u8	res14[0x1c];
-	u32	plldgsr;	/* DDR PLL General Status */
-	u8	res15[0x3dc];
+	u32	pllc6gsr;	/* 0x8a0 Cluster PLL 6 General Status */
+	u8	res15[0x35c];
+	u32	pllpgsr;	/* 0xc00 Platform PLL General Status */
+	u8	res16[0x1c];
+	u32	plldgsr;	/* 0xc20 DDR PLL General Status */
+	u8	res17[0x3dc];
 } ccsr_clk_t;
 
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
