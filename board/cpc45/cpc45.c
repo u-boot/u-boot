@@ -260,21 +260,6 @@ int pcmcia_init(void)
 
 #endif
 
-# ifdef CONFIG_IDE_LED
-void ide_led (uchar led, uchar status)
-{
-	u_char  val;
-	/* We have one PCMCIA slot and use LED H4 for the IDE Interface */
-	val = readb(BCSR_BASE + 0x04);
-	if (status) {				/* led on */
-		val |= B_CTRL_LED0;
-	} else {
-		val &= ~B_CTRL_LED0;
-	}
-	writeb(val, BCSR_BASE + 0x04);
-}
-# endif
-
 int board_eth_init(bd_t *bis)
 {
 	return pci_eth_init(bis);

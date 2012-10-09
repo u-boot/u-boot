@@ -27,6 +27,7 @@
 #include <common.h>
 #include <ide.h>
 #include <ata.h>
+#include <asm/io.h>
 
 #define EIEIO		__asm__ volatile ("eieio")
 #define SYNC		__asm__ volatile ("sync")
@@ -128,3 +129,17 @@ void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 		*pbuf_odd = *dbuf++;
 	}
 }
+
+void ide_led(uchar led, uchar status)
+{
+	u_char	val;
+	/* We have one PCMCIA slot and use LED H4 for the IDE Interface */
+	val = readb(BCSR_BASE + 0x04);
+	if (status)				/* led on */
+		val |= B_CTRL_LED0;
+	else
+		val &= ~B_CTRL_LED0;
+
+	writeb(val, BCSR_BASE + 0x04);
+}
+
