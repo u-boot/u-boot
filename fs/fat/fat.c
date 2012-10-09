@@ -567,15 +567,16 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 }
 
 /* Calculate short name checksum */
-static __u8 mkcksum(const char *str)
+static __u8 mkcksum(const char name[8], const char ext[3])
 {
 	int i;
 
 	__u8 ret = 0;
 
-	for (i = 0; i < 11; i++) {
-		ret = (((ret & 1) << 7) | ((ret & 0xfe) >> 1)) + str[i];
-	}
+	for (i = 0; i < sizeof(name); i++)
+		ret = (((ret & 1) << 7) | ((ret & 0xfe) >> 1)) + name[i];
+	for (i = 0; i < sizeof(ext); i++)
+		ret = (((ret & 1) << 7) | ((ret & 0xfe) >> 1)) + ext[i];
 
 	return ret;
 }
@@ -678,7 +679,8 @@ static dir_entry *get_dentfromdir(fsdata *mydata, int startsect,
 				return NULL;
 			}
 #ifdef CONFIG_SUPPORT_VFAT
-			if (dols && mkcksum(dentptr->name) == prevcksum) {
+			__u8 csum = mkcksum(dentptr->name, dentptr->ext);
+			if (dols && csum == prevcksum) {
 				prevcksum = 0xffff;
 				dentptr++;
 				continue;
@@ -946,13 +948,16 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 
 		for (i = 0; i < DIRENTSPERBLOCK; i++) {
 			char s_name[14], l_name[VFAT_MAXLEN_BYTES];
+			__u8 csum;
 
 			l_name[0] = '\0';
 			if (dentptr->name[0] == DELETED_FLAG) {
 				dentptr++;
 				continue;
 			}
-			if ((dentptr->attr & ATTR_VOLUME)) {
+
+			csum = mkcksum(dentptr->name, dentptr->ext);
+			if (dentptr->attr & ATTR_VOLUME) {
 #ifdef CONFIG_SUPPORT_VFAT
 				if ((dentptr->attr & ATTR_VFAT) == ATTR_VFAT &&
 				    (dentptr->name[0] & LAST_LONG_ENTRY_MASK)) {
@@ -1015,8 +1020,7 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 				goto exit;
 			}
 #ifdef CONFIG_SUPPORT_VFAT
-			else if (dols == LS_ROOT &&
-				 mkcksum(dentptr->name) == prevcksum) {
+			else if (dols == LS_ROOT && csum == prevcksum) {
 				prevcksum = 0xffff;
 				dentptr++;
 				continue;
