@@ -194,8 +194,8 @@ u32 orion5x_device_rev(void)
  */
 int print_cpuinfo(void)
 {
-	char dev_str[] = "0x0000";
-	char rev_str[] = "0x00";
+	char dev_str[7]; /* room enough for 0x0000 plus null byte */
+	char rev_str[5]; /* room enough for 0x00 plus null byte */
 	char *dev_name = NULL;
 	char *rev_name = NULL;
 

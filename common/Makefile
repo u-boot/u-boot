@@ -232,6 +232,10 @@ $(obj)env_embedded.o: $(src)env_embedded.c $(obj)../tools/envcrc
 $(obj)../tools/envcrc:
 	$(MAKE) -C ../tools
 
+# SEE README.arm-unaligned-accesses
+$(obj)hush.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+$(obj)fdt_support.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+
 #########################################################################
 
 # defines $(obj).depend target
