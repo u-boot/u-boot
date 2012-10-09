@@ -672,7 +672,6 @@ U_BOOT_CMD(
  * ( bus per_addr 20 -30 is connectsd on CF bus A10-A0)
  * These values are shifted
  */
-extern ulong *ide_bus_offset;
 void inline ide_outb(int dev, int port, unsigned char val)
 {
 	debug ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",

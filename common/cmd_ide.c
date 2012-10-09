@@ -109,8 +109,6 @@ static uchar ide_wait  (int dev, ulong t);
 
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
-static void input_data(int dev, ulong *sect_buf, int words);
-static void output_data(int dev, const ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
 #ifndef CONFIG_SYS_ATA_PORT_ADDR
@@ -483,12 +481,24 @@ block_dev_desc_t *ide_get_dev(int dev)
 
 /* ------------------------------------------------------------------------- */
 
+void ide_input_swap_data(int dev, ulong *sect_buf, int words)
+	__attribute__ ((weak, alias("__ide_input_swap_data")));
+
+void ide_input_data(int dev, ulong *sect_buf, int words)
+	__attribute__ ((weak, alias("__ide_input_data")));
+
+void ide_output_data(int dev, const ulong *sect_buf, int words)
+	__attribute__ ((weak, alias("__ide_output_data")));
+
 /* We only need to swap data if we are running on a big endian cpu. */
 /* But Au1x00 cpu:s already swaps data in big endian mode! */
 #if defined(__LITTLE_ENDIAN) || defined(CONFIG_SOC_AU1X00)
-#define input_swap_data(x,y,z) input_data(x,y,z)
+void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
+{
+	ide_input_data(dev, sect_buf, words);
+}
 #else
-static void input_swap_data(int dev, ulong *sect_buf, int words)
+void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
 {
 #if defined(CONFIG_CPC45)
 	uchar i;
@@ -531,7 +541,7 @@ static void input_swap_data(int dev, ulong *sect_buf, int words)
 
 
 #if defined(CONFIG_IDE_SWAP_IO)
-static void output_data(int dev, const ulong *sect_buf, int words)
+void __ide_output_data(int dev, const ulong *sect_buf, int words)
 {
 #if defined(CONFIG_CPC45)
 	uchar *dbuf;
@@ -574,7 +584,7 @@ static void output_data(int dev, const ulong *sect_buf, int words)
 #endif
 }
 #else  /* ! CONFIG_IDE_SWAP_IO */
-static void output_data(int dev, const ulong *sect_buf, int words)
+void __ide_output_data(int dev, const ulong *sect_buf, int words)
 {
 #if defined(CONFIG_IDE_AHB)
 	ide_write_data(dev, sect_buf, words);
@@ -585,7 +595,7 @@ static void output_data(int dev, const ulong *sect_buf, int words)
 #endif /* CONFIG_IDE_SWAP_IO */
 
 #if defined(CONFIG_IDE_SWAP_IO)
-static void input_data(int dev, ulong *sect_buf, int words)
+void __ide_input_data(int dev, ulong *sect_buf, int words)
 {
 #if defined(CONFIG_CPC45)
 	uchar *dbuf;
@@ -634,7 +644,7 @@ static void input_data(int dev, ulong *sect_buf, int words)
 #endif
 }
 #else  /* ! CONFIG_IDE_SWAP_IO */
-static void input_data(int dev, ulong *sect_buf, int words)
+void __ide_input_data(int dev, ulong *sect_buf, int words)
 {
 #if defined(CONFIG_IDE_AHB)
 	ide_read_data(dev, sect_buf, words);
@@ -744,7 +754,7 @@ static void ide_ident(block_dev_desc_t *dev_desc)
 		return;
 #endif
 
-	input_swap_data(device, (ulong *)&iop, ATA_SECTORWORDS);
+	ide_input_swap_data(device, (ulong *)&iop, ATA_SECTORWORDS);
 
 	ident_cpy((unsigned char *) dev_desc->revision, iop.fw_rev,
 		  sizeof(dev_desc->revision));
@@ -1006,7 +1016,7 @@ ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 			break;
 		}
 
-		input_data(device, buffer, ATA_SECTORWORDS);
+		ide_input_data(device, buffer, ATA_SECTORWORDS);
 		(void) ide_inb(device, ATA_STATUS);	/* clear IRQ */
 
 		++n;
@@ -1099,7 +1109,7 @@ ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, const void *buffer)
 			goto WR_OUT;
 		}
 
-		output_data(device, buffer, ATA_SECTORWORDS);
+		ide_output_data(device, buffer, ATA_SECTORWORDS);
 		c = ide_inb(device, ATA_STATUS);	/* clear IRQ */
 		++n;
 		++blknr;
@@ -1232,10 +1242,17 @@ int ide_device_present(int dev)
  * ATAPI Support
  */
 
+void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
+	__attribute__ ((weak, alias("__ide_input_data_shorts")));
+
+void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
+	__attribute__ ((weak, alias("__ide_output_data_shorts")));
+
+
 #if defined(CONFIG_IDE_SWAP_IO)
 /* since ATAPI may use commands with not 4 bytes alligned length
  * we have our own transfer functions, 2 bytes alligned */
-static void output_data_shorts(int dev, ushort *sect_buf, int shorts)
+void __ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 #if defined(CONFIG_CPC45)
 	uchar *dbuf;
@@ -1267,7 +1284,7 @@ static void output_data_shorts(int dev, ushort *sect_buf, int shorts)
 #endif
 }
 
-static void input_data_shorts(int dev, ushort *sect_buf, int shorts)
+void __ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 #if defined(CONFIG_CPC45)
 	uchar *dbuf;
@@ -1300,12 +1317,12 @@ static void input_data_shorts(int dev, ushort *sect_buf, int shorts)
 }
 
 #else  /* ! CONFIG_IDE_SWAP_IO */
-static void output_data_shorts(int dev, ushort *sect_buf, int shorts)
+void __ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 	outsw(ATA_CURR_BASE(dev) + ATA_DATA_REG, sect_buf, shorts);
 }
 
-static void input_data_shorts(int dev, ushort *sect_buf, int shorts)
+void __ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 	insw(ATA_CURR_BASE(dev) + ATA_DATA_REG, sect_buf, shorts);
 }
@@ -1384,7 +1401,7 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	}
 
 	/* write command block */
-	output_data_shorts(device, (unsigned short *) ccb, ccblen / 2);
+	ide_output_data_shorts(device, (unsigned short *) ccb, ccblen / 2);
 
 	/* ATAPI Command written wait for completition */
 	udelay(5000);		/* device must set bsy */
@@ -1435,12 +1452,12 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 		/* ok now decide if it is an in or output */
 		if ((ide_inb(device, ATA_SECT_CNT) & 0x02) == 0) {
 			debug("Write to device\n");
-			output_data_shorts(device, (unsigned short *) buffer,
-					   n);
+			ide_output_data_shorts(device,
+				(unsigned short *) buffer, n);
 		} else {
 			debug("Read from device @ %p shorts %d\n", buffer, n);
-			input_data_shorts(device, (unsigned short *) buffer,
-					  n);
+			ide_input_data_shorts(device,
+				(unsigned short *) buffer, n);
 		}
 	}
 	udelay(5000);		/* seems that some CD ROMs need this... */

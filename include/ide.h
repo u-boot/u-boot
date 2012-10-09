@@ -27,6 +27,7 @@
 #define IDE_BUS(dev)	(dev / (CONFIG_SYS_IDE_MAXDEVICE / CONFIG_SYS_IDE_MAXBUS))
 
 #define	ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
+extern ulong ide_bus_offset[];
 
 #ifdef CONFIG_IDE_LED
 
@@ -72,4 +73,14 @@ void ide_write_register(int dev, unsigned int port, unsigned char val);
 void ide_read_data(int dev, ulong *sect_buf, int words);
 void ide_write_data(int dev, ulong *sect_buf, int words);
 #endif
+
+/*
+ * I/O function overrides
+ */
+void ide_input_swap_data(int dev, ulong *sect_buf, int words);
+void ide_input_data(int dev, ulong *sect_buf, int words);
+void ide_output_data(int dev, const ulong *sect_buf, int words);
+void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts);
+void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts);
+
 #endif /* _IDE_H */
