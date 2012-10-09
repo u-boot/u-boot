@@ -50,6 +50,7 @@ COBJS-y	+= cache.o
 COBJS-y	+= extable.o
 COBJS-y	+= interrupts.o
 COBJS-$(CONFIG_CMD_KGDB) += kgdb.o
+COBJS-${CONFIG_CMD_IDE} += ide.o
 COBJS-y	+= time.o
 
 # Workaround for local bus unaligned access problems

@@ -53,10 +53,6 @@
 # include <status_led.h>
 #endif
 
-#ifdef CONFIG_IDE_8xx_DIRECT
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 #ifdef __PPC__
 # define EIEIO		__asm__ volatile ("eieio")
 # define SYNC		__asm__ volatile ("sync")
@@ -64,45 +60,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # define EIEIO		/* nothing */
 # define SYNC		/* nothing */
 #endif
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-/* Timings for IDE Interface
- *
- * SETUP / LENGTH / HOLD - cycles valid for 50 MHz clk
- * 70	   165	    30	   PIO-Mode 0, [ns]
- *  4	     9	     2		       [Cycles]
- * 50	   125	    20	   PIO-Mode 1, [ns]
- *  3	     7	     2		       [Cycles]
- * 30	   100	    15	   PIO-Mode 2, [ns]
- *  2	     6	     1		       [Cycles]
- * 30	    80	    10	   PIO-Mode 3, [ns]
- *  2	     5	     1		       [Cycles]
- * 25	    70	    10	   PIO-Mode 4, [ns]
- *  2	     4	     1		       [Cycles]
- */
-
-const static pio_config_t pio_config_ns [IDE_MAX_PIO_MODE+1] =
-{
-    /*	Setup  Length  Hold  */
-	{ 70,	165,	30 },		/* PIO-Mode 0, [ns]	*/
-	{ 50,	125,	20 },		/* PIO-Mode 1, [ns]	*/
-	{ 30,	101,	15 },		/* PIO-Mode 2, [ns]	*/
-	{ 30,	 80,	10 },		/* PIO-Mode 3, [ns]	*/
-	{ 25,	 70,	10 },		/* PIO-Mode 4, [ns]	*/
-};
-
-static pio_config_t pio_config_clk [IDE_MAX_PIO_MODE+1];
-
-#ifndef	CONFIG_SYS_PIO_MODE
-#define	CONFIG_SYS_PIO_MODE	0		/* use a relaxed default */
-#endif
-static int pio_mode = CONFIG_SYS_PIO_MODE;
-
-/* Make clock cycles and always round up */
-
-#define PCMCIA_MK_CLKS( t, T ) (( (t) * (T) + 999U ) / 1000U )
-
-#endif /* CONFIG_IDE_8xx_DIRECT */
 
 /* ------------------------------------------------------------------------- */
 
@@ -165,10 +122,6 @@ static void	atapi_inquiry(block_dev_desc_t *dev_desc);
 ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer);
 #endif
 
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-static void set_pcmcia_timing (int pmode);
-#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -392,22 +345,14 @@ inline int ide_set_piomode(int pio_mode)
 
 void ide_init(void)
 {
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
-#endif
 	unsigned char c;
 	int i, bus;
 
 #ifdef CONFIG_IDE_8xx_PCCARD
-	extern int pcmcia_on(void);
 	extern int ide_devices_found;	/* Initialized in check_ide_device() */
 #endif /* CONFIG_IDE_8xx_PCCARD */
 
 #ifdef CONFIG_IDE_PREINIT
-	extern int ide_preinit(void);
-
 	WATCHDOG_RESET();
 
 	if (ide_preinit()) {
@@ -416,39 +361,7 @@ void ide_init(void)
 	}
 #endif /* CONFIG_IDE_PREINIT */
 
-#ifdef CONFIG_IDE_8xx_PCCARD
-	extern int pcmcia_on(void);
-	extern int ide_devices_found;	/* Initialized in check_ide_device() */
-
 	WATCHDOG_RESET();
-
-	ide_devices_found = 0;
-	/* initialize the PCMCIA IDE adapter card */
-	pcmcia_on();
-	if (!ide_devices_found)
-		return;
-	udelay(1000000);	/* 1 s */
-#endif /* CONFIG_IDE_8xx_PCCARD */
-
-	WATCHDOG_RESET();
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-	/* Initialize PIO timing tables */
-	for (i = 0; i <= IDE_MAX_PIO_MODE; ++i) {
-		pio_config_clk[i].t_setup =
-			PCMCIA_MK_CLKS(pio_config_ns[i].t_setup, gd->bus_clk);
-		pio_config_clk[i].t_length =
-			PCMCIA_MK_CLKS(pio_config_ns[i].t_length,
-				       gd->bus_clk);
-		pio_config_clk[i].t_hold =
-			PCMCIA_MK_CLKS(pio_config_ns[i].t_hold, gd->bus_clk);
-		debug("PIO Mode %d: setup=%2d ns/%d clk" "  len=%3d ns/%d clk"
-		      "  hold=%2d ns/%d clk\n", i, pio_config_ns[i].t_setup,
-		      pio_config_clk[i].t_setup, pio_config_ns[i].t_length,
-		      pio_config_clk[i].t_length, pio_config_ns[i].t_hold,
-		      pio_config_clk[i].t_hold);
-	}
-#endif /* CONFIG_IDE_8xx_DIRECT */
 
 	/*
 	 * Reset the IDE just to be sure.
@@ -459,14 +372,14 @@ void ide_init(void)
 	/* ATAPI Drives seems to need a proper IDE Reset */
 	ide_reset();
 
-#ifdef CONFIG_IDE_8xx_DIRECT
-	/* PCMCIA / IDE initialization for common mem space */
-	pcmp->pcmc_pgcrb = 0;
+#ifdef CONFIG_IDE_INIT_POSTRESET
+	WATCHDOG_RESET();
 
-	/* start in PIO mode 0 - most relaxed timings */
-	pio_mode = 0;
-	set_pcmcia_timing(pio_mode);
-#endif /* CONFIG_IDE_8xx_DIRECT */
+	if (ide_init_postreset()) {
+		puts("ide_preinit_postreset failed\n");
+		return;
+	}
+#endif /* CONFIG_IDE_INIT_POSTRESET */
 
 	/*
 	 * Wait for IDE to get ready.
@@ -567,95 +480,6 @@ block_dev_desc_t *ide_get_dev(int dev)
 	return (dev < CONFIG_SYS_IDE_MAXDEVICE) ? &ide_dev_desc[dev] : NULL;
 }
 #endif
-
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-
-static void set_pcmcia_timing(int pmode)
-{
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
-	ulong timings;
-
-	debug("Set timing for PIO Mode %d\n", pmode);
-
-	timings = PCMCIA_SHT(pio_config_clk[pmode].t_hold)
-		| PCMCIA_SST(pio_config_clk[pmode].t_setup)
-		| PCMCIA_SL(pio_config_clk[pmode].t_length);
-
-	/*
-	 * IDE 0
-	 */
-	pcmp->pcmc_pbr0 = CONFIG_SYS_PCMCIA_PBR0;
-	pcmp->pcmc_por0 = CONFIG_SYS_PCMCIA_POR0
-#if (CONFIG_SYS_PCMCIA_POR0 != 0)
-		| timings
-#endif
-		;
-	debug("PBR0: %08x  POR0: %08x\n", pcmp->pcmc_pbr0, pcmp->pcmc_por0);
-
-	pcmp->pcmc_pbr1 = CONFIG_SYS_PCMCIA_PBR1;
-	pcmp->pcmc_por1 = CONFIG_SYS_PCMCIA_POR1
-#if (CONFIG_SYS_PCMCIA_POR1 != 0)
-		| timings
-#endif
-		;
-	debug("PBR1: %08x  POR1: %08x\n", pcmp->pcmc_pbr1, pcmp->pcmc_por1);
-
-	pcmp->pcmc_pbr2 = CONFIG_SYS_PCMCIA_PBR2;
-	pcmp->pcmc_por2 = CONFIG_SYS_PCMCIA_POR2
-#if (CONFIG_SYS_PCMCIA_POR2 != 0)
-		| timings
-#endif
-		;
-	debug("PBR2: %08x  POR2: %08x\n", pcmp->pcmc_pbr2, pcmp->pcmc_por2);
-
-	pcmp->pcmc_pbr3 = CONFIG_SYS_PCMCIA_PBR3;
-	pcmp->pcmc_por3 = CONFIG_SYS_PCMCIA_POR3
-#if (CONFIG_SYS_PCMCIA_POR3 != 0)
-		| timings
-#endif
-		;
-	debug("PBR3: %08x  POR3: %08x\n", pcmp->pcmc_pbr3, pcmp->pcmc_por3);
-
-	/*
-	 * IDE 1
-	 */
-	pcmp->pcmc_pbr4 = CONFIG_SYS_PCMCIA_PBR4;
-	pcmp->pcmc_por4 = CONFIG_SYS_PCMCIA_POR4
-#if (CONFIG_SYS_PCMCIA_POR4 != 0)
-		| timings
-#endif
-		;
-	debug("PBR4: %08x  POR4: %08x\n", pcmp->pcmc_pbr4, pcmp->pcmc_por4);
-
-	pcmp->pcmc_pbr5 = CONFIG_SYS_PCMCIA_PBR5;
-	pcmp->pcmc_por5 = CONFIG_SYS_PCMCIA_POR5
-#if (CONFIG_SYS_PCMCIA_POR5 != 0)
-		| timings
-#endif
-		;
-	debug("PBR5: %08x  POR5: %08x\n", pcmp->pcmc_pbr5, pcmp->pcmc_por5);
-
-	pcmp->pcmc_pbr6 = CONFIG_SYS_PCMCIA_PBR6;
-	pcmp->pcmc_por6 = CONFIG_SYS_PCMCIA_POR6
-#if (CONFIG_SYS_PCMCIA_POR6 != 0)
-		| timings
-#endif
-		;
-	debug("PBR6: %08x  POR6: %08x\n", pcmp->pcmc_pbr6, pcmp->pcmc_por6);
-
-	pcmp->pcmc_pbr7 = CONFIG_SYS_PCMCIA_PBR7;
-	pcmp->pcmc_por7 = CONFIG_SYS_PCMCIA_POR7
-#if (CONFIG_SYS_PCMCIA_POR7 != 0)
-		| timings
-#endif
-		;
-	debug("PBR7: %08x  POR7: %08x\n", pcmp->pcmc_pbr7, pcmp->pcmc_por7);
-
-}
-
-#endif /* CONFIG_IDE_8xx_DIRECT */
 
 /* ------------------------------------------------------------------------- */
 
