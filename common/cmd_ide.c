@@ -503,8 +503,7 @@ void ide_output_data(int dev, const ulong *sect_buf, int words)
 	__attribute__ ((weak, alias("__ide_output_data")));
 
 /* We only need to swap data if we are running on a big endian cpu. */
-/* But Au1x00 cpu:s already swaps data in big endian mode! */
-#if defined(__LITTLE_ENDIAN) || defined(CONFIG_SOC_AU1X00)
+#if defined(__LITTLE_ENDIAN)
 void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
 {
 	ide_input_data(dev, sect_buf, words);
@@ -532,7 +531,7 @@ void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
 #endif /* !MIPS */
 	}
 }
-#endif /* __LITTLE_ENDIAN || CONFIG_AU1X00 */
+#endif /* __LITTLE_ENDIAN */
 
 
 #if defined(CONFIG_IDE_SWAP_IO)
