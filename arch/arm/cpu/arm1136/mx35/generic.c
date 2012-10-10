@@ -35,6 +35,7 @@
 #include <fsl_esdhc.h>
 #endif
 #include <netdev.h>
+#include <spl.h>
 
 #define CLK_CODE(arm, ahb, sel) (((arm) << 16) + ((ahb) << 8) + (sel))
 #define CLK_CODE_ARM(c)		(((c) >> 16) & 0xFF)
@@ -492,3 +493,77 @@ void reset_cpu(ulong addr)
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
 	writew(4, &wdog->wcr);
 }
+
+#define RCSR_MEM_CTL_WEIM	0
+#define RCSR_MEM_CTL_NAND	1
+#define RCSR_MEM_CTL_ATA	2
+#define RCSR_MEM_CTL_EXPANSION	3
+#define RCSR_MEM_TYPE_NOR	0
+#define RCSR_MEM_TYPE_ONENAND	2
+#define RCSR_MEM_TYPE_SD	0
+#define RCSR_MEM_TYPE_I2C	2
+#define RCSR_MEM_TYPE_SPI	3
+
+u32 spl_boot_device(void)
+{
+	struct ccm_regs *ccm =
+		(struct ccm_regs *)IMX_CCM_BASE;
+
+	u32 rcsr = readl(&ccm->rcsr);
+	u32 mem_type, mem_ctl;
+
+	/* In external mode, no boot device is returned */
+	if ((rcsr >> 10) & 0x03)
+		return BOOT_DEVICE_NONE;
+
+	mem_ctl = (rcsr >> 25) & 0x03;
+	mem_type = (rcsr >> 23) & 0x03;
+
+	switch (mem_ctl) {
+	case RCSR_MEM_CTL_WEIM:
+		switch (mem_type) {
+		case RCSR_MEM_TYPE_NOR:
+			return BOOT_DEVICE_NOR;
+		case RCSR_MEM_TYPE_ONENAND:
+			return BOOT_DEVICE_ONE_NAND;
+		default:
+			return BOOT_DEVICE_NONE;
+		}
+	case RCSR_MEM_CTL_NAND:
+		return BOOT_DEVICE_NAND;
+	case RCSR_MEM_CTL_EXPANSION:
+		switch (mem_type) {
+		case RCSR_MEM_TYPE_SD:
+			return BOOT_DEVICE_MMC1;
+		case RCSR_MEM_TYPE_I2C:
+			return BOOT_DEVICE_I2C;
+		case RCSR_MEM_TYPE_SPI:
+			return BOOT_DEVICE_SPI;
+		default:
+			return BOOT_DEVICE_NONE;
+		}
+	}
+
+	return BOOT_DEVICE_NONE;
+}
+
+#ifdef CONFIG_SPL_BUILD
+u32 spl_boot_mode(void)
+{
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_MMC1:
+#ifdef CONFIG_SPL_FAT_SUPPORT
+		return MMCSD_MODE_FAT;
+#else
+		return MMCSD_MODE_RAW;
+#endif
+		break;
+	case BOOT_DEVICE_NAND:
+		return 0;
+		break;
+	default:
+		puts("spl: ERROR:  unsupported device\n");
+		hang();
+	}
+}
+#endif
