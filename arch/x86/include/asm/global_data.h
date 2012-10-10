@@ -33,6 +33,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <asm/u-boot.h>
+
 typedef struct global_data gd_t;
 
 struct global_data {
