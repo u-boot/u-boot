@@ -561,6 +561,8 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 		info->size = (*dev_desc)->lba;
 		info->blksz = (*dev_desc)->blksz;
 		info->bootable = 0;
+		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->name, "Whole Disk");
 #ifdef CONFIG_PARTITION_UUIDS
 		info->uuid[0] = 0;
 #endif
