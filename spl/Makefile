@@ -123,6 +123,12 @@ $(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 endif
 
+ifneq ($(CONFIG_IMX_CONFIG),)
+$(OBJTREE)/SPL:	$(obj)u-boot-spl.bin
+	$(OBJTREE)/tools/mkimage -n  $(SRCTREE)/$(CONFIG_IMX_CONFIG) -T imximage \
+		-e $(CONFIG_SPL_TEXT_BASE) -d $< $@
+endif
+
 ALL-y	+= $(obj)u-boot-spl.bin
 
 ifdef CONFIG_SAMSUNG
