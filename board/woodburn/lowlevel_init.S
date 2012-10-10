@@ -1,9 +1,9 @@
 /*
- * (C) Copyright 2011
- * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
+ * Copyright (C) 2007, Guennadi Liakhovetski <lg@denx.de>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * (C) Copyright 2008-2010 Freescale Semiconductor, Inc.
+ *
+ * Copyright (C) 2011, Stefano Babic <sbabic@denx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,12 +21,18 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _SYS_PROTO_H_
-#define _SYS_PROTO_H_
+#include <config.h>
+#include <asm/arch/lowlevel_macro.S>
 
-u32 get_cpu_rev(void);
-void mx3_setup_sdram_bank(u32 start_address, u32 ddr2_config,
-	u32 row, u32 col, u32 dsize, u32 refresh);
-#define is_soc_rev(rev)	((get_cpu_rev() & 0xFF) - rev)
+.globl lowlevel_init
+lowlevel_init:
 
-#endif
+	core_init
+
+	init_aips
+
+	init_max
+
+	init_m3if
+
+	mov pc, lr

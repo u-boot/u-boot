@@ -1,9 +1,9 @@
 /*
- * (C) Copyright 2011
- * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
+ * (C) Copyright 2011, Stefano Babic <sbabic@denx.de>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * (C) Copyright 2008-2010 Freescale Semiconductor, Inc.
+ *
+ * Configuration for the woodburn board.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -21,12 +21,14 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _SYS_PROTO_H_
-#define _SYS_PROTO_H_
+#ifndef __CONFIG_H
+#define __CONFIG_H
 
-u32 get_cpu_rev(void);
-void mx3_setup_sdram_bank(u32 start_address, u32 ddr2_config,
-	u32 row, u32 col, u32 dsize, u32 refresh);
-#define is_soc_rev(rev)	((get_cpu_rev() & 0xFF) - rev)
+#include <asm/arch/imx-regs.h>
+#include "woodburn_common.h"
 
-#endif
+/* Set TEXT at the beginning of the NOR flash */
+#define CONFIG_SYS_TEXT_BASE	0xA0000000
+#define CONFIG_BOARD_EARLY_INIT_F
+
+#endif				/* __CONFIG_H */

@@ -584,6 +584,7 @@ Stefano Babic <sbabic@denx.de>
 	trizepsiv	xscale/pxa
 	twister		omap3
  	vision2		i.MX51
+	woodburn	i.MX35
 
 Jason Liu <r64343@freescale.com>
 
