@@ -73,8 +73,8 @@ typedef struct sysconf83xx {
 	u32 obir;		/* Output Buffer Impedance Register */
 	u8 res8[0xC];
 	u32 pecr1;		/* PCI Express control register 1 */
-#ifdef CONFIG_MPC8308
-	u32 sdhccr;		/* eSDHC Control Registers for MPC8308 */
+#if defined(CONFIG_MPC830x)
+	u32 sdhccr;		/* eSDHC Control Registers for MPC830x */
 #else
 	u32 pecr2;		/* PCI Express control register 2 */
 #endif

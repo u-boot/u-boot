@@ -185,7 +185,10 @@ int get_clocks(void)
 		/* unkown SCCR_TSEC1CM value */
 		return -2;
 	}
+#endif
 
+#if defined(CONFIG_MPC830x) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	switch ((sccr & SCCR_USBDRCM) >> SCCR_USBDRCM_SHIFT) {
 	case 0:
 		usbdr_clk = 0;
