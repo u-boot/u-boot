@@ -105,6 +105,8 @@ int get_clocks(void)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
+#elif defined(CONFIG_MPC8309)
+	u32 usbdr_clk;
 #endif
 #ifdef CONFIG_MPC834x
 	u32 usbmph_clk;
@@ -120,7 +122,9 @@ int get_clocks(void)
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
 #endif
+#if !defined(CONFIG_MPC8309)
 	u32 enc_clk;
+#endif
 	u32 lbiu_clk;
 	u32 lclk_clk;
 	u32 mem_clk;
@@ -263,6 +267,7 @@ int get_clocks(void)
 		return -6;
 	}
 #endif
+#if !defined(CONFIG_MPC8309)
 	switch ((sccr & SCCR_ENCCM) >> SCCR_ENCCM_SHIFT) {
 	case 0:
 		enc_clk = 0;
@@ -280,6 +285,7 @@ int get_clocks(void)
 		/* unkown SCCR_ENCCM value */
 		return -7;
 	}
+#endif
 
 #if defined(CONFIG_FSL_ESDHC)
 	switch ((sccr & SCCR_SDHCCM) >> SCCR_SDHCCM_SHIFT) {
@@ -332,6 +338,8 @@ int get_clocks(void)
 	i2c1_clk = sdhc_clk;
 #elif defined(CONFIG_MPC837x)
 	i2c1_clk = enc_clk;
+#elif defined(CONFIG_MPC8309)
+	i2c1_clk = csb_clk;
 #endif
 #if !defined(CONFIG_MPC832x)
 	i2c2_clk = csb_clk; /* i2c-2 clk is equal to csb clk */
@@ -460,6 +468,8 @@ int get_clocks(void)
 	gd->tsec1_clk = tsec1_clk;
 	gd->tsec2_clk = tsec2_clk;
 	gd->usbdr_clk = usbdr_clk;
+#elif defined(CONFIG_MPC8309)
+	gd->usbdr_clk = usbdr_clk;
 #endif
 #if defined(CONFIG_MPC834x)
 	gd->usbmph_clk = usbmph_clk;
@@ -475,7 +485,9 @@ int get_clocks(void)
 #if !defined(CONFIG_MPC832x)
 	gd->i2c2_clk = i2c2_clk;
 #endif
+#if !defined(CONFIG_MPC8309)
 	gd->enc_clk = enc_clk;
+#endif
 	gd->lbiu_clk = lbiu_clk;
 	gd->lclk_clk = lclk_clk;
 	gd->mem_clk = mem_clk;
@@ -536,7 +548,9 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_MPC8360)
 	printf("  DDR Secondary:       %-4s MHz\n", strmhz(buf, gd->mem_sec_clk));
 #endif
+#if !defined(CONFIG_MPC8309)
 	printf("  SEC:                 %-4s MHz\n", strmhz(buf, gd->enc_clk));
+#endif
 	printf("  I2C1:                %-4s MHz\n", strmhz(buf, gd->i2c1_clk));
 #if !defined(CONFIG_MPC832x)
 	printf("  I2C2:                %-4s MHz\n", strmhz(buf, gd->i2c2_clk));
@@ -551,6 +565,8 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	printf("  TSEC1:               %-4s MHz\n", strmhz(buf, gd->tsec1_clk));
 	printf("  TSEC2:               %-4s MHz\n", strmhz(buf, gd->tsec2_clk));
+	printf("  USB DR:              %-4s MHz\n", strmhz(buf, gd->usbdr_clk));
+#elif defined(CONFIG_MPC8309)
 	printf("  USB DR:              %-4s MHz\n", strmhz(buf, gd->usbdr_clk));
 #endif
 #if defined(CONFIG_MPC834x)

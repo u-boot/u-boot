@@ -63,6 +63,8 @@ typedef	struct	global_data {
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
+#elif defined(CONFIG_MPC8309)
+	u32 usbdr_clk;
 #endif
 #if defined (CONFIG_MPC834x)
 	u32 usbmph_clk;
