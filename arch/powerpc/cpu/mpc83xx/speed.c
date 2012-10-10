@@ -127,7 +127,7 @@ int get_clocks(void)
 #if defined(CONFIG_MPC8360)
 	u32 mem_sec_clk;
 #endif
-#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832x)
+#if defined(CONFIG_QE)
 	u32 qepmf;
 	u32 qepdf;
 	u32 qe_clk;
@@ -444,7 +444,7 @@ int get_clocks(void)
 		return -13;
 	}
 
-#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832x)
+#if defined(CONFIG_QE)
 	qepmf = (im->clk.spmr & SPMR_CEPMF) >> SPMR_CEPMF_SHIFT;
 	qepdf = (im->clk.spmr & SPMR_CEPDF) >> SPMR_CEPDF_SHIFT;
 	qe_clk = (pci_sync_in * qepmf) / (1 + qepdf);
@@ -479,7 +479,7 @@ int get_clocks(void)
 #if defined(CONFIG_MPC8360)
 	gd->mem_sec_clk = mem_sec_clk;
 #endif
-#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832x)
+#if defined(CONFIG_QE)
 	gd->qe_clk = qe_clk;
 	gd->brg_clk = brg_clk;
 #endif
@@ -523,7 +523,7 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	printf("Clock configuration:\n");
 	printf("  Core:                %-4s MHz\n", strmhz(buf, gd->core_clk));
 	printf("  Coherent System Bus: %-4s MHz\n", strmhz(buf, gd->csb_clk));
-#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832x)
+#if defined(CONFIG_QE)
 	printf("  QE:                  %-4s MHz\n", strmhz(buf, gd->qe_clk));
 	printf("  BRG:                 %-4s MHz\n", strmhz(buf, gd->brg_clk));
 #endif
