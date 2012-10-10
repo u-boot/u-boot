@@ -33,10 +33,12 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)lib$(SOC).o
 
+COBJS-$(CONFIG_SYS_COREBOOT) += coreboot.o
 COBJS-$(CONFIG_SYS_COREBOOT) += tables.o
 COBJS-$(CONFIG_SYS_COREBOOT) += ipchecksum.o
 COBJS-$(CONFIG_SYS_COREBOOT) += sdram.o
 COBJS-$(CONFIG_SYS_COREBOOT) += sysinfo.o
+COBJS-$(CONFIG_PCI) += pci.o
 
 SOBJS-$(CONFIG_SYS_COREBOOT) += coreboot_car.o
 
