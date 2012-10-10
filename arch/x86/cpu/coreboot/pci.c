@@ -25,6 +25,21 @@
  * MA 02111-1307 USA
  */
 
+#include <common.h>
+#include <pci.h>
+#include <asm/pci.h>
+
+static struct pci_controller coreboot_hose;
+
 void pci_init_board(void)
 {
+	coreboot_hose.first_busno = 0;
+	coreboot_hose.last_busno = 0xff;
+	coreboot_hose.region_count = 0;
+
+	pci_setup_type1(&coreboot_hose);
+
+	pci_register_hose(&coreboot_hose);
+
+	coreboot_hose.last_busno = pci_hose_scan(&coreboot_hose);
 }
