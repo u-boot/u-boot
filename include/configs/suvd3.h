@@ -33,9 +33,9 @@
 #include "km/km8321-common.h"
 
 #define CONFIG_SYS_APP1_BASE		0xA0000000
-#define	CONFIG_SYS_APP1_SIZE		256 /* Megabytes */
+#define CONFIG_SYS_APP1_SIZE		256 /* Megabytes */
 #define CONFIG_SYS_APP2_BASE		0xB0000000
-#define	CONFIG_SYS_APP2_SIZE		256 /* Megabytes */
+#define CONFIG_SYS_APP2_SIZE		256 /* Megabytes */
 
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
