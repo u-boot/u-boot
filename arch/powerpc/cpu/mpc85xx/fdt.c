@@ -411,6 +411,11 @@ static void ft_fixup_dpaa_clks(void *blob)
 #endif
 #endif
 
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	do_fixup_by_compat_u32(blob, "fsl,qman",
+			"clock-frequency", sysinfo.freqQMAN, 1);
+#endif
+
 #ifdef CONFIG_SYS_DPAA_PME
 	do_fixup_by_compat_u32(blob, "fsl,pme",
 		"clock-frequency", sysinfo.freqPME, 1);

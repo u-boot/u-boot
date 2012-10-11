@@ -217,6 +217,10 @@ int checkcpu (void)
 	}
 #endif
 
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	printf("       QMAN:  %s MHz\n", strmhz(buf1, sysinfo.freqQMAN));
+#endif
+
 #ifdef CONFIG_SYS_DPAA_PME
 	printf("       PME:   %s MHz\n", strmhz(buf1, sysinfo.freqPME));
 #endif

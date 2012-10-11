@@ -167,6 +167,10 @@ void get_sys_info (sys_info_t * sysInfo)
 	}
 #endif
 
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	sysInfo->freqQMAN = sysInfo->freqSystemBus / 2;
+#endif
+
 #ifdef CONFIG_SYS_DPAA_FMAN
 	switch ((rcw_tmp & FM1_CLK_SEL) >> FM1_CLK_SHIFT) {
 	case 1:
