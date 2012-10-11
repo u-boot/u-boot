@@ -40,6 +40,7 @@
 
 static ulong TftpTimeoutMSecs = TIMEOUT;
 static int TftpTimeoutCountMax = TIMEOUT_COUNT;
+static ulong time_start;   /* Record time we started tftp */
 
 /*
  * These globals govern the timeout behavior when attempting a connection to a
@@ -299,6 +300,12 @@ static void tftp_complete(void)
 		TftpNumchars++;
 	}
 #endif
+	time_start = get_timer(time_start);
+	if (time_start > 0) {
+		puts("\n\t ");	/* Line up with "Loading: " */
+		print_size(NetBootFileXferSize /
+			time_start * 1000, "/s");
+	}
 	puts("\ndone\n");
 	net_set_state(NETLOOP_SUCCESS);
 }
@@ -775,6 +782,7 @@ void TftpStart(enum proto_t protocol)
 		TftpState = STATE_SEND_RRQ;
 	}
 
+	time_start = get_timer(0);
 	TftpTimeoutCountMax = TftpRRQTimeoutCountMax;
 
 	NetSetTimeout(TftpTimeoutMSecs, TftpTimeout);
