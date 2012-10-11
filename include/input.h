@@ -84,6 +84,8 @@ struct stdio_dev;
  * @param config	Input state
  * @param keycode	List of key codes to examine
  * @param num_keycodes	Number of key codes
+ * @return number of ascii characters sent, or 0 if none, or -1 for an
+ *	internal error
  */
 int input_send_keycodes(struct input_config *config, int keycode[], int count);
 
