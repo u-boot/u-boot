@@ -89,9 +89,9 @@ void dtsec_configure_serdes(struct fm_eth *priv)
 static void dtsec_init_phy(struct eth_device *dev)
 {
 	struct fm_eth *fm_eth = dev->priv;
-
 #ifndef CONFIG_SYS_FMAN_V3
-	struct dtsec *regs = (struct dtsec *)fm_eth->mac->base;
+	struct dtsec *regs = (struct dtsec *)CONFIG_SYS_FSL_FM1_DTSEC1_ADDR;
+
 	/* Assign a Physical address to the TBI */
 	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
 #endif
