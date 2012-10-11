@@ -216,10 +216,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 			return 1;
 		}
 		memcpy(buffer, cmd_buf, cmd_len);
-		if (cmd_len != 1) {
-			if (data_in == NULL)
-				memcpy(buffer + cmd_len, data_out, data_len);
-		}
+		if (data_in == NULL)
+			memcpy(buffer + cmd_len, data_out, data_len);
 		break;
 	case SPI_XFER_BEGIN | SPI_XFER_END:
 		len = data_len;
