@@ -75,6 +75,19 @@ enum {
 
 /* exports */
 
+/**
+ * Flush all buffer from keyboard controller to host.
+ */
+void i8042_flush(void);
+
+/**
+ * Disables the keyboard so that key strokes no longer generate scancodes to
+ * the host.
+ *
+ * @return 0 if ok, -1 if keyboard input was found while disabling
+ */
+int i8042_disable(void);
+
 int i8042_kbd_init(void);
 int i8042_tstc(void);
 int i8042_getc(void);
