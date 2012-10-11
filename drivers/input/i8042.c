@@ -666,31 +666,53 @@ static int kbd_input_empty(void)
 
 /******************************************************************************/
 
+static int wait_until_kbd_output_full(void)
+{
+	int kbdTimeout = KBD_TIMEOUT * 1000;
+
+	while (((in8(I8042_STATUS_REG) & 0x01) == 0) && kbdTimeout--)
+		udelay(1);
+
+	return kbdTimeout != -1;
+}
+
+/******************************************************************************/
+
 static int kbd_reset(void)
 {
+	/* KB Reset */
 	if (kbd_input_empty() == 0)
 		return -1;
 
 	out8(I8042_DATA_REG, 0xff);
 
+	if (wait_until_kbd_output_full() == 0)
+		return -1;
+
+	if (in8(I8042_DATA_REG) != 0xfa) /* ACK */
+		return -1;
+
+	if (wait_until_kbd_output_full() == 0)
+		return -1;
+
+	if (in8(I8042_DATA_REG) != 0xaa) /* Test Pass*/
+		return -1;
+
 	if (kbd_input_empty() == 0)
 		return -1;
 
-#ifdef CONFIG_USE_CPCIDVI
+	/* Set KBC mode */
 	out8(I8042_COMMAND_REG, 0x60);
-#else
-	out8(I8042_DATA_REG, 0x60);
-#endif
 
 	if (kbd_input_empty() == 0)
 		return -1;
 
 	out8(I8042_DATA_REG, 0x45);
 
-
 	if (kbd_input_empty() == 0)
 		return -1;
 
+	/* Enable Keyboard */
 	out8(I8042_COMMAND_REG, 0xae);
 
 	if (kbd_input_empty() == 0)
