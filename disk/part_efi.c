@@ -422,7 +422,7 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 	count = le32_to_int(pgpt_head->num_partition_entries) *
 		le32_to_int(pgpt_head->sizeof_partition_entry);
 
-	debug("%s: count = %lu * %lu = %u\n", __func__,
+	debug("%s: count = %lu * %lu = %zu\n", __func__,
 		le32_to_int(pgpt_head->num_partition_entries),
 		le32_to_int(pgpt_head->sizeof_partition_entry), count);
 
@@ -432,7 +432,8 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 	}
 
 	if (count == 0 || pte == NULL) {
-		printf("%s: ERROR: Can't allocate 0x%X bytes for GPT Entries\n",
+		printf("%s: ERROR: Can't allocate 0x%zX "
+		       "bytes for GPT Entries\n",
 			__func__, count);
 		return NULL;
 	}
@@ -474,7 +475,7 @@ static int is_pte_valid(gpt_entry * pte)
 		sizeof(unused_guid.b)) == 0) {
 
 		debug("%s: Found an unused PTE GUID at 0x%08X\n", __func__,
-		(unsigned int)pte);
+		      (unsigned int)(uintptr_t)pte);
 
 		return 0;
 	} else {
