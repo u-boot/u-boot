@@ -35,7 +35,7 @@
 typedef struct global_data {
 	bd_t		*bd;
 	unsigned long	flags;
-	unsigned long	baudrate;
+	unsigned int	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz! */
 	unsigned long	have_console;	/* serial_init() was called */
 	phys_size_t	ram_size;	/* RAM size */
