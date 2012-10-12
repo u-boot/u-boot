@@ -148,7 +148,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("ethspeed",		bd->bi_ethspeed);
 #endif
 	printf("IP addr     = %s\n", getenv("ipaddr"));
-	printf("baudrate    = %6ld bps\n", bd->bi_baudrate);
+	printf("baudrate    = %6u bps\n", bd->bi_baudrate);
 	print_num("relocaddr", gd->relocaddr);
 	return 0;
 }
