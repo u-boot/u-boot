@@ -1316,6 +1316,13 @@ The following options need to be configured:
 		This will also enable the command "fatwrite" enabling the
 		user to write files to FAT.
 
+CBFS (Coreboot Filesystem) support
+		CONFIG_CMD_CBFS
+
+		Define this to enable support for reading from a Coreboot
+		filesystem. Available commands are cbfsinit, cbfsinfo, cbfsls
+		and cbfsload.
+
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD
 

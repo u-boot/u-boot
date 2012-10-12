@@ -1,7 +1,4 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -20,24 +17,27 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-#
 
-subdirs-$(CONFIG_CMD_CBFS) += cbfs
-subdirs-$(CONFIG_CMD_CRAMFS) := cramfs
-subdirs-$(CONFIG_CMD_EXT4) += ext4
-ifndef CONFIG_CMD_EXT4
-subdirs-$(CONFIG_CMD_EXT2) += ext4
-endif
-subdirs-$(CONFIG_CMD_FAT) += fat
-subdirs-$(CONFIG_CMD_FDOS) += fdos
-subdirs-$(CONFIG_CMD_JFFS2) += jffs2
-subdirs-$(CONFIG_CMD_REISER) += reiserfs
-subdirs-$(CONFIG_YAFFS2) += yaffs2
-subdirs-$(CONFIG_CMD_UBIFS) += ubifs
-subdirs-$(CONFIG_CMD_ZFS) += zfs
+include $(TOPDIR)/config.mk
 
-SUBDIRS	:= $(subdirs-y)
+LIB	= $(obj)libcbfs.o
 
-$(obj).depend all:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir $@ ; done
+COBJS-$(CONFIG_CMD_CBFS)	:= cbfs.o
+
+SRCS	:= $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+
+all:	$(LIB)
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################
