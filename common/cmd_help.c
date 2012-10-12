@@ -26,9 +26,9 @@
 
 int do_help(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	return _do_help(&__u_boot_cmd_start,
-			&__u_boot_cmd_end - &__u_boot_cmd_start,
-			cmdtp, flag, argc, argv);
+	cmd_tbl_t *start = ll_entry_start(cmd_tbl_t, cmd);
+	const int len = ll_entry_count(cmd_tbl_t, cmd);
+	return _do_help(start, len, cmdtp, flag, argc, argv);
 }
 
 U_BOOT_CMD(
@@ -41,7 +41,7 @@ U_BOOT_CMD(
 );
 
 /* This does not use the U_BOOT_CMD macro as ? can't be used in symbol names */
-cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
+ll_entry_declare(cmd_tbl_t, question_mark, cmd, cmd) = {
 	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
 	"alias for 'help'",
 #ifdef  CONFIG_SYS_LONGHELP

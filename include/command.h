@@ -28,6 +28,7 @@
 #define __COMMAND_H
 
 #include <config.h>
+#include <linker_lists.h>
 
 #ifndef NULL
 #define NULL	0
@@ -153,9 +154,6 @@ int cmd_process(int flag, int argc, char * const argv[],
 #define CMD_FLAG_REPEAT		0x0001	/* repeat last command		*/
 #define CMD_FLAG_BOOTD		0x0002	/* command is from bootd	*/
 
-#define Struct_Section  __attribute__((unused, section(".u_boot_cmd"), \
-		aligned(4)))
-
 #ifdef CONFIG_AUTO_COMPLETE
 # define _CMD_COMPLETE(x) x,
 #else
@@ -167,18 +165,22 @@ int cmd_process(int flag, int argc, char * const argv[],
 # define _CMD_HELP(x)
 #endif
 
-#define U_BOOT_CMD_MKENT_COMPLETE(name,maxargs,rep,cmd,usage,help,comp) \
-	{#name, maxargs, rep, cmd, usage, _CMD_HELP(help) _CMD_COMPLETE(comp)}
+#define U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
+				_usage, _help, _comp)			\
+		{ #_name, _maxargs, _rep, _cmd, _usage,			\
+			_CMD_HELP(_help) _CMD_COMPLETE(_comp) }
 
-#define U_BOOT_CMD_MKENT(name,maxargs,rep,cmd,usage,help) \
-	U_BOOT_CMD_MKENT_COMPLETE(name,maxargs,rep,cmd,usage,help,NULL)
+#define U_BOOT_CMD_MKENT(_name, _maxargs, _rep, _cmd, _usage, _help)	\
+	U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
+					_usage, _help, NULL)
 
-#define U_BOOT_CMD_COMPLETE(name,maxargs,rep,cmd,usage,help,comp) \
-	cmd_tbl_t __u_boot_cmd_##name Struct_Section = \
-		U_BOOT_CMD_MKENT_COMPLETE(name,maxargs,rep,cmd,usage,help,comp)
+#define U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, _comp) \
+	ll_entry_declare(cmd_tbl_t, _name, cmd, cmd) =			\
+		U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,	\
+						_usage, _help, _comp);
 
-#define U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \
-	U_BOOT_CMD_COMPLETE(name,maxargs,rep,cmd,usage,help,NULL)
+#define U_BOOT_CMD(_name, _maxargs, _rep, _cmd, _usage, _help)		\
+	U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, NULL)
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
