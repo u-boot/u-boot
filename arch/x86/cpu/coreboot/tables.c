@@ -33,6 +33,14 @@
 #include <asm/arch-coreboot/tables.h>
 
 /*
+ * This needs to be in the .data section so that it's copied over during
+ * relocation. By default it's put in the .bss section which is simply filled
+ * with zeroes when transitioning from "ROM", which is really RAM, to other
+ * RAM.
+ */
+struct sysinfo_t lib_sysinfo __attribute__((section(".data")));
+
+/*
  * Some of this is x86 specific, and the rest of it is generic. Right now,
  * since we only support x86, we'll avoid trying to make lots of infrastructure
  * we don't need. If in the future, we want to use coreboot on some other
