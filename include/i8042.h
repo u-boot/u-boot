@@ -39,6 +39,12 @@
 #define I8042_STATUS_REG    (CONFIG_SYS_ISA_IO + 0x0064)    /* keyboard status read */
 #define I8042_COMMAND_REG   (CONFIG_SYS_ISA_IO + 0x0064)    /* keyboard ctrl write */
 
+enum {
+	/* Output register (I8042_DATA_REG) has data for system */
+	I8042_STATUS_OUT_DATA	= 1 << 0,
+	I8042_STATUS_IN_DATA	= 1 << 1,
+};
+
 #define KBD_US              0        /* default US layout */
 #define KBD_GER             1        /* german layout */
 

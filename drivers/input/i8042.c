@@ -607,11 +607,10 @@ static void kbd_led_set(void)
 
 static int kbd_input_empty(void)
 {
-	int kbdTimeout = KBD_TIMEOUT;
+	int kbdTimeout = KBD_TIMEOUT * 1000;
 
-	/* wait for input buf empty */
-	while ((in8(I8042_STATUS_REG) & 0x02) && kbdTimeout--)
-		udelay(1000);
+	while ((in8(I8042_STATUS_REG) & I8042_STATUS_IN_DATA) && kbdTimeout--)
+		udelay(1);
 
 	return kbdTimeout != -1;
 }
@@ -624,8 +623,6 @@ static int kbd_reset(void)
 		return -1;
 
 	out8(I8042_DATA_REG, 0xff);
-
-	udelay(250000);
 
 	if (kbd_input_empty() == 0)
 		return -1;
