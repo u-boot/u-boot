@@ -231,7 +231,7 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
-	printf("baudrate               = %6ld bps\n", bd->bi_baudrate);
+	printf("baudrate               = %6u bps\n", bd->bi_baudrate);
 	return 0;
 }
 
