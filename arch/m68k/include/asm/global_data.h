@@ -34,7 +34,7 @@
 typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
-	unsigned long	baudrate;
+	unsigned int	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
 	unsigned long	bus_clk;
 #ifdef CONFIG_PCI
