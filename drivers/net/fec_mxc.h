@@ -213,6 +213,9 @@ struct ethernet_regs {
 
 #define FEC_X_WMRK_STRFWD		0x00000100
 
+#define FEC_X_DES_ACTIVE_TDAR		0x01000000
+#define FEC_R_DES_ACTIVE_RDAR		0x01000000
+
 #if defined(CONFIG_MX25) || defined(CONFIG_MX53)
 /* defines for MIIGSK */
 /* RMII frequency control: 0=50MHz, 1=5MHz */

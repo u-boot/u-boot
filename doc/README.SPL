@@ -66,6 +66,7 @@ CONFIG_SPL_DMA_SUPPORT (drivers/dma/libdma.o)
 CONFIG_SPL_POST_MEM_SUPPORT (post/drivers/memory.o)
 CONFIG_SPL_NAND_LOAD (drivers/mtd/nand/nand_spl_load.o)
 CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
+CONFIG_SPL_RAM_DEVICE (common/spl/spl.c)
 
 
 Normally CPU is assumed to be the same between the SPL and normal

@@ -897,7 +897,8 @@ int davinci_emac_initialize(void)
 	}
 
 #if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
-		defined(CONFIG_MACH_DAVINCI_DA850_EVM)
+		defined(CONFIG_MACH_DAVINCI_DA850_EVM) && \
+			!defined(CONFIG_DRIVER_TI_EMAC_RMII_NO_NEGOTIATE)
 	for (i = 0; i < num_phy; i++) {
 		if (phy[i].is_phy_connected(i))
 			phy[i].auto_negotiate(i);

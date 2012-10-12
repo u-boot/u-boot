@@ -37,9 +37,9 @@ SECTIONS
 {
 	.text      :
 	{
-	__start = .;
-	  arch/arm/cpu/armv7/start.o	(.text)
-	  *(.text*)
+		__start = .;
+		arch/arm/cpu/armv7/start.o	(.text)
+		*(.text*)
 	} >.sram
 
 	. = ALIGN(4);

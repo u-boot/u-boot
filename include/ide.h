@@ -24,7 +24,7 @@
 #ifndef	_IDE_H
 #define _IDE_H
 
-#define	IDE_BUS(dev)	(dev >> 1)
+#define IDE_BUS(dev)	(dev / (CONFIG_SYS_IDE_MAXDEVICE / CONFIG_SYS_IDE_MAXBUS))
 
 #define	ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
 

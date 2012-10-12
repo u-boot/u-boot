@@ -41,11 +41,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_ENV_OFFSET 0
 #endif
 
-uchar env_get_char_spec(int index)
-{
-	return *((uchar *)(gd->env_addr + index));
-}
-
 int env_init(void)
 {
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
@@ -62,8 +57,8 @@ int env_init(void)
 #ifdef CONFIG_CMD_SAVEENV
 int saveenv(void)
 {
-#ifdef CONFIG_SRIOBOOT_SLAVE
-	printf("Can not support the 'saveenv' when boot from SRIO!\n");
+#ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
+	printf("Can not support the 'saveenv' when boot from SRIO or PCIE!\n");
 	return 1;
 #else
 	return 0;

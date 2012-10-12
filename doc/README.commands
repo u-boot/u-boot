@@ -22,6 +22,13 @@ This makes it possible for the final link to extract all commands
 compiled into any object code and construct a static array so the
 command can be found in an array starting at __u_boot_cmd_start.
 
+To ensure that the linker does not discard these symbols when linking
+full U-Boot we generate a list of all the commands we have built (based
+on the sections mentioned above) and use that to force the linker to
+first enter the symbol as undefined in the output object so that there
+is then a need for the symbol to be kept (this is the UNDEF_SYM logic in
+the Makefile).
+
 If a new board is defined do not forget to define the command section
 by writing in u-boot.lds ($(TOPDIR)/board/boardname/u-boot.lds) these
 3 lines:

@@ -232,9 +232,11 @@
 
 /* Defines for SPL */
 #define CONFIG_SPL
+#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x40304350
 #define CONFIG_SPL_MAX_SIZE		(38 * 1024)
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SPL_DISPLAY_PRINT
 
 /*
  * 64 bytes before this address should be set aside for u-boot.img's

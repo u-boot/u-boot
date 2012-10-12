@@ -486,11 +486,13 @@
 #define SPRN_L2CFG0	0x207	/* L2 Cache Configuration Register 0 */
 #define SPRN_L1CSR0	0x3f2	/* L1 Data Cache Control and Status Register 0 */
 #define   L1CSR0_CPE		0x00010000	/* Data Cache Parity Enable */
+#define   L1CSR0_CUL		0x00000400	/* (D-)Cache Unable to Lock */
 #define   L1CSR0_DCLFR		0x00000100	/* D-Cache Lock Flash Reset */
 #define   L1CSR0_DCFI		0x00000002	/* Data Cache Flash Invalidate */
 #define   L1CSR0_DCE		0x00000001	/* Data Cache Enable */
 #define SPRN_L1CSR1	0x3f3	/* L1 Instruction Cache Control and Status Register 1 */
 #define   L1CSR1_CPE		0x00010000	/* Instruction Cache Parity Enable */
+#define   L1CSR1_ICUL		0x00000400	/* I-Cache Unable to Lock */
 #define   L1CSR1_ICLFR		0x00000100	/* I-Cache Lock Flash Reset */
 #define   L1CSR1_ICFI		0x00000002	/* Instruction Cache Flash Invalidate */
 #define   L1CSR1_ICE		0x00000001	/* Instruction Cache Enable */
@@ -513,6 +515,7 @@
 
 #define SPRN_TLB0CFG	0x2B0	/* TLB 0 Config Register */
 #define SPRN_TLB1CFG	0x2B1	/* TLB 1 Config Register */
+#define   TLBnCFG_NENTRY_MASK	0x00000fff
 #define SPRN_TLB0PS	0x158	/* TLB 0 Page Size Register */
 #define SPRN_TLB1PS	0x159	/* TLB 1 Page Size Register */
 #define SPRN_MMUCSR0	0x3f4	/* MMU control and status register 0 */
@@ -950,6 +953,7 @@
 #define PVR_VER_E500_V2	0x8021
 #define PVR_VER_E500MC	0x8023
 #define PVR_VER_E5500	0x8024
+#define PVR_VER_E6500	0x8040
 
 #define PVR_86xx	0x80040000
 
@@ -1077,8 +1081,6 @@
 #define SVR_P1012	0x80E501
 #define SVR_P1013	0x80E700
 #define SVR_P1014	0x80F101
-#define SVR_P1015	0x80E502
-#define SVR_P1016	0x80E503
 #define SVR_P1017	0x80F700
 #define SVR_P1020	0x80E400
 #define SVR_P1021	0x80E401
@@ -1091,7 +1093,6 @@
 #define SVR_P2040	0x821000
 #define SVR_P2041	0x821001
 #define SVR_P3041	0x821103
-#define SVR_P3060	0x820002
 #define SVR_P4040	0x820100
 #define SVR_P4080	0x820000
 #define SVR_P5010	0x822100
@@ -1160,6 +1161,7 @@ struct cpu_type {
 };
 
 struct cpu_type *identify_cpu(u32 ver);
+int fixup_cpu(void);
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 #define CPU_TYPE_ENTRY(n, v, nc) \

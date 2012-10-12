@@ -23,6 +23,7 @@
 #include <usb.h>
 #include <linux/mii.h>
 #include "usb_ether.h"
+#include <malloc.h>
 
 
 /* ASIX AX8817X based USB 2.0 Ethernet Devices */
@@ -31,10 +32,12 @@
 #define AX_CMD_READ_MII_REG		0x07
 #define AX_CMD_WRITE_MII_REG		0x08
 #define AX_CMD_SET_HW_MII		0x0a
+#define AX_CMD_READ_EEPROM		0x0b
 #define AX_CMD_READ_RX_CTL		0x0f
 #define AX_CMD_WRITE_RX_CTL		0x10
 #define AX_CMD_WRITE_IPG0		0x12
 #define AX_CMD_READ_NODE_ID		0x13
+#define AX_CMD_WRITE_NODE_ID	0x14
 #define AX_CMD_READ_PHY_ID		0x19
 #define AX_CMD_WRITE_MEDIUM_MODE	0x1b
 #define AX_CMD_WRITE_GPIOS		0x1f
@@ -97,8 +100,20 @@
 #define AX_RX_URB_SIZE 2048
 #define PHY_CONNECT_TIMEOUT 5000
 
+/* asix_flags defines */
+#define FLAG_NONE			0
+#define FLAG_TYPE_AX88172	(1U << 0)
+#define FLAG_TYPE_AX88772	(1U << 1)
+#define FLAG_TYPE_AX88772B	(1U << 2)
+#define FLAG_EEPROM_MAC		(1U << 3) /* initial mac address in eeprom */
+
 /* local vars */
 static int curr_eth_dev; /* index for name of next device detected */
+
+/* driver private */
+struct asix_private {
+	int flags;
+};
 
 /*
  * Asix infrastructure commands
@@ -284,6 +299,21 @@ static int asix_write_gpio(struct ueth_data *dev, u16 value, int sleep)
 	return ret;
 }
 
+static int asix_write_hwaddr(struct eth_device *eth)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	int ret;
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buf, ETH_ALEN);
+
+	memcpy(buf, eth->enetaddr, ETH_ALEN);
+
+	ret = asix_write_cmd(dev, AX_CMD_WRITE_NODE_ID, 0, 0, ETH_ALEN, buf);
+	if (ret < 0)
+		debug("Failed to set MAC address: %02x\n", ret);
+
+	return ret;
+}
+
 /*
  * mii commands
  */
@@ -310,66 +340,87 @@ static int mii_nway_restart(struct ueth_data *dev)
 	return r;
 }
 
-/*
- * Asix callbacks
- */
-static int asix_init(struct eth_device *eth, bd_t *bd)
+static int asix_read_mac(struct eth_device *eth)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	struct asix_private *priv = (struct asix_private *)dev->dev_priv;
+	int i;
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buf, ETH_ALEN);
+
+	if (priv->flags & FLAG_EEPROM_MAC) {
+		for (i = 0; i < (ETH_ALEN >> 1); i++) {
+			if (asix_read_cmd(dev, AX_CMD_READ_EEPROM,
+					  0x04 + i, 0, 2, buf) < 0) {
+				debug("Failed to read SROM address 04h.\n");
+				return -1;
+			}
+			memcpy((eth->enetaddr + i * 2), buf, 2);
+		}
+	} else {
+		if (asix_read_cmd(dev, AX_CMD_READ_NODE_ID, 0, 0, ETH_ALEN, buf)
+		     < 0) {
+			debug("Failed to read MAC address.\n");
+			return -1;
+		}
+		memcpy(eth->enetaddr, buf, ETH_ALEN);
+	}
+
+	return 0;
+}
+
+static int asix_basic_reset(struct ueth_data *dev)
 {
 	int embd_phy;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buf, ETH_ALEN);
 	u16 rx_ctl;
-	struct ueth_data	*dev = (struct ueth_data *)eth->priv;
-	int timeout = 0;
-#define TIMEOUT_RESOLUTION 50	/* ms */
-	int link_detected;
-
-	debug("** %s()\n", __func__);
 
 	if (asix_write_gpio(dev,
 			AX_GPIO_RSE | AX_GPIO_GPO_2 | AX_GPIO_GPO2EN, 5) < 0)
-		goto out_err;
+		return -1;
 
 	/* 0x10 is the phy id of the embedded 10/100 ethernet phy */
 	embd_phy = ((asix_get_phy_addr(dev) & 0x1f) == 0x10 ? 1 : 0);
 	if (asix_write_cmd(dev, AX_CMD_SW_PHY_SELECT,
 				embd_phy, 0, 0, NULL) < 0) {
 		debug("Select PHY #1 failed\n");
-		goto out_err;
+		return -1;
 	}
 
 	if (asix_sw_reset(dev, AX_SWRESET_IPPD | AX_SWRESET_PRL) < 0)
-		goto out_err;
+		return -1;
 
 	if (asix_sw_reset(dev, AX_SWRESET_CLEAR) < 0)
-		goto out_err;
+		return -1;
 
 	if (embd_phy) {
 		if (asix_sw_reset(dev, AX_SWRESET_IPRL) < 0)
-			goto out_err;
+			return -1;
 	} else {
 		if (asix_sw_reset(dev, AX_SWRESET_PRTE) < 0)
-			goto out_err;
+			return -1;
 	}
 
 	rx_ctl = asix_read_rx_ctl(dev);
 	debug("RX_CTL is 0x%04x after software reset\n", rx_ctl);
 	if (asix_write_rx_ctl(dev, 0x0000) < 0)
-		goto out_err;
+		return -1;
 
 	rx_ctl = asix_read_rx_ctl(dev);
 	debug("RX_CTL is 0x%04x setting to 0x0000\n", rx_ctl);
 
-	/* Get the MAC address */
-	if (asix_read_cmd(dev, AX_CMD_READ_NODE_ID,
-				0, 0, ETH_ALEN, buf) < 0) {
-		debug("Failed to read MAC address.\n");
-		goto out_err;
-	}
-	memcpy(eth->enetaddr, buf, ETH_ALEN);
-	debug("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
-		eth->enetaddr[0], eth->enetaddr[1],
-		eth->enetaddr[2], eth->enetaddr[3],
-		eth->enetaddr[4], eth->enetaddr[5]);
+	return 0;
+}
+
+/*
+ * Asix callbacks
+ */
+static int asix_init(struct eth_device *eth, bd_t *bd)
+{
+	struct ueth_data	*dev = (struct ueth_data *)eth->priv;
+	int timeout = 0;
+#define TIMEOUT_RESOLUTION 50	/* ms */
+	int link_detected;
+
+	debug("** %s()\n", __func__);
 
 	dev->phy_id = asix_get_phy_addr(dev);
 	if (dev->phy_id < 0)
@@ -493,13 +544,13 @@ static int asix_recv(struct eth_device *eth)
 		}
 		memcpy(&packet_len, buf_ptr, sizeof(packet_len));
 		le32_to_cpus(&packet_len);
-		if (((packet_len >> 16) ^ 0xffff) != (packet_len & 0xffff)) {
+		if (((~packet_len >> 16) & 0x7ff) != (packet_len & 0x7ff)) {
 			debug("Rx: malformed packet length: %#x (%#x:%#x)\n",
-			      packet_len, (packet_len >> 16) ^ 0xffff,
-			      packet_len & 0xffff);
+			      packet_len, (~packet_len >> 16) & 0x7ff,
+			      packet_len & 0x7ff);
 			return -1;
 		}
-		packet_len = packet_len & 0xffff;
+		packet_len = packet_len & 0x7ff;
 		if (packet_len > actual_len - sizeof(packet_len)) {
 			debug("Rx: too large packet: %d\n", packet_len);
 			return -1;
@@ -534,19 +585,24 @@ void asix_eth_before_probe(void)
 struct asix_dongle {
 	unsigned short vendor;
 	unsigned short product;
+	int flags;
 };
 
-static struct asix_dongle asix_dongles[] = {
-	{ 0x05ac, 0x1402 },	/* Apple USB Ethernet Adapter */
-	{ 0x07d1, 0x3c05 },	/* D-Link DUB-E100 H/W Ver B1 */
-	{ 0x0b95, 0x772a },	/* Cables-to-Go USB Ethernet Adapter */
-	{ 0x0b95, 0x7720 },	/* Trendnet TU2-ET100 V3.0R */
-	{ 0x0b95, 0x1720 },	/* SMC */
-	{ 0x0db0, 0xa877 },	/* MSI - ASIX 88772a */
-	{ 0x13b1, 0x0018 },	/* Linksys 200M v2.1 */
-	{ 0x1557, 0x7720 },	/* 0Q0 cable ethernet */
-	{ 0x2001, 0x3c05 },	/* DLink DUB-E100 H/W Ver B1 Alternate */
-	{ 0x0000, 0x0000 }	/* END - Do not remove */
+static const struct asix_dongle const asix_dongles[] = {
+	{ 0x05ac, 0x1402, FLAG_TYPE_AX88772 },	/* Apple USB Ethernet Adapter */
+	{ 0x07d1, 0x3c05, FLAG_TYPE_AX88772 },	/* D-Link DUB-E100 H/W Ver B1 */
+	/* Cables-to-Go USB Ethernet Adapter */
+	{ 0x0b95, 0x772a, FLAG_TYPE_AX88772 },
+	{ 0x0b95, 0x7720, FLAG_TYPE_AX88772 },	/* Trendnet TU2-ET100 V3.0R */
+	{ 0x0b95, 0x1720, FLAG_TYPE_AX88172 },	/* SMC */
+	{ 0x0db0, 0xa877, FLAG_TYPE_AX88772 },	/* MSI - ASIX 88772a */
+	{ 0x13b1, 0x0018, FLAG_TYPE_AX88172 },	/* Linksys 200M v2.1 */
+	{ 0x1557, 0x7720, FLAG_TYPE_AX88772 },	/* 0Q0 cable ethernet */
+	/* DLink DUB-E100 H/W Ver B1 Alternate */
+	{ 0x2001, 0x3c05, FLAG_TYPE_AX88772 },
+	/* ASIX 88772B */
+	{ 0x0b95, 0x772b, FLAG_TYPE_AX88772B | FLAG_EEPROM_MAC },
+	{ 0x0000, 0x0000, FLAG_NONE }	/* END - Do not remove */
 };
 
 /* Probe to see if a new device is actually an asix device */
@@ -555,6 +611,7 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 {
 	struct usb_interface *iface;
 	struct usb_interface_descriptor *iface_desc;
+	int ep_in_found = 0, ep_out_found = 0;
 	int i;
 
 	/* let's examine the device now */
@@ -583,6 +640,13 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 	ss->subclass = iface_desc->bInterfaceSubClass;
 	ss->protocol = iface_desc->bInterfaceProtocol;
 
+	/* alloc driver private */
+	ss->dev_priv = calloc(1, sizeof(struct asix_private));
+	if (!ss->dev_priv)
+		return 0;
+
+	((struct asix_private *)ss->dev_priv)->flags = asix_dongles[i].flags;
+
 	/*
 	 * We are expecting a minimum of 3 endpoints - in, out (bulk), and
 	 * int. We will ignore any others.
@@ -591,13 +655,20 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 		/* is it an BULK endpoint? */
 		if ((iface->ep_desc[i].bmAttributes &
 		     USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_BULK) {
-			if (iface->ep_desc[i].bEndpointAddress & USB_DIR_IN)
-				ss->ep_in = iface->ep_desc[i].bEndpointAddress &
-					USB_ENDPOINT_NUMBER_MASK;
-			else
-				ss->ep_out =
-					iface->ep_desc[i].bEndpointAddress &
-					USB_ENDPOINT_NUMBER_MASK;
+			u8 ep_addr = iface->ep_desc[i].bEndpointAddress;
+			if (ep_addr & USB_DIR_IN) {
+				if (!ep_in_found) {
+					ss->ep_in = ep_addr &
+						USB_ENDPOINT_NUMBER_MASK;
+					ep_in_found = 1;
+				}
+			} else {
+				if (!ep_out_found) {
+					ss->ep_out = ep_addr &
+						USB_ENDPOINT_NUMBER_MASK;
+					ep_out_found = 1;
+				}
+			}
 		}
 
 		/* is it an interrupt endpoint? */
@@ -624,6 +695,8 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 				struct eth_device *eth)
 {
+	struct asix_private *priv = (struct asix_private *)ss->dev_priv;
+
 	if (!eth) {
 		debug("%s: missing parameter.\n", __func__);
 		return 0;
@@ -633,7 +706,17 @@ int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	eth->send = asix_send;
 	eth->recv = asix_recv;
 	eth->halt = asix_halt;
+	if (!(priv->flags & FLAG_TYPE_AX88172))
+		eth->write_hwaddr = asix_write_hwaddr;
 	eth->priv = ss;
+
+	if (asix_basic_reset(ss))
+		return 0;
+
+	/* Get the MAC address */
+	if (asix_read_mac(eth))
+		return 0;
+	debug("MAC %pM\n", eth->enetaddr);
 
 	return 1;
 }

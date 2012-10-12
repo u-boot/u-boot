@@ -6,11 +6,16 @@ serial and network input/output devices by adjusting the 'stdin' and
 set either of these variables to "nc". Input and output can be
 switched independently.
 
+CONFIG_NETCONSOLE_BUFFER_SIZE - Override the default buffer size
+
 We use an environment variable 'ncip' to set the IP address and the
 port of the destination. The format is <ip_addr>:<port>. If <port> is
 omitted, the value of 6666 is used. If the env var doesn't exist, the
 broadcast address and port 6666 are used. If it is set to an IP
 address of 0 (or 0.0.0.0) then no messages are sent to the network.
+The source / listening port can be configured separately by setting
+the 'ncinport' environment variable and the destination port can be
+configured by setting the 'ncoutport' environment variable.
 
 For example, if your server IP is 192.168.1.1, you could use:
 

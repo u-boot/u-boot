@@ -383,6 +383,31 @@ The following options need to be configured:
 		symbol should be set to the TLB1 entry to be used for this
 		purpose.
 
+		CONFIG_SYS_FSL_ERRATUM_A004510
+
+		Enables a workaround for erratum A004510.  If set,
+		then CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV and
+		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY must be set.
+
+		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV
+		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2 (optional)
+
+		Defines one or two SoC revisions (low 8 bits of SVR)
+		for which the A004510 workaround should be applied.
+
+		The rest of SVR is either not relevant to the decision
+		of whether the erratum is present (e.g. p2040 versus
+		p2041) or is implied by the build target, which controls
+		whether CONFIG_SYS_FSL_ERRATUM_A004510 is set.
+
+		See Freescale App Note 4493 for more information about
+		this erratum.
+
+		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
+
+		This is the value to write into CCSR offset 0x18600
+		according to the A004510 workaround.
+
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
@@ -679,6 +704,8 @@ The following options need to be configured:
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
 		set to -1 to disable autoboot.
+		set to -2 to autoboot with no delay and not check for abort
+		(even when CONFIG_ZERO_BOOTDELAY_CHECK is defined).
 
 		See doc/README.autoboot for these options that
 		work with CONFIG_BOOTDELAY. None are required.
@@ -789,6 +816,7 @@ The following options need to be configured:
 		CONFIG_CMD_IMLS		  List all found images
 		CONFIG_CMD_IMMAP	* IMMR dump support
 		CONFIG_CMD_IMPORTENV	* import an environment
+		CONFIG_CMD_INI		* import data from an ini file into the env
 		CONFIG_CMD_IRQ		* irqinfo
 		CONFIG_CMD_ITEST	  Integer/string test of 2 values
 		CONFIG_CMD_JFFS2	* JFFS2 Support
@@ -830,7 +858,8 @@ The following options need to be configured:
 		CONFIG_CMD_SPI		* SPI serial bus support
 		CONFIG_CMD_TFTPSRV	* TFTP transfer in server mode
 		CONFIG_CMD_TFTPPUT	* TFTP put command (upload)
-		CONFIG_CMD_TIME		* run command and report execution time
+		CONFIG_CMD_TIME		* run command and report execution time (ARM specific)
+		CONFIG_CMD_TIMER	* access to the system tick timer
 		CONFIG_CMD_USB		* USB support
 		CONFIG_CMD_CDP		* Cisco Discover Protocol support
 		CONFIG_CMD_MFSL		* Microblaze FSL support
@@ -1457,6 +1486,12 @@ The following options need to be configured:
 		If this option is set, 8-bit RLE compressed BMP images
 		can be displayed via the splashscreen support or the
 		bmp command.
+
+- Do compresssing for memory range:
+		CONFIG_CMD_ZIP
+
+		If this option is set, it would use zlib deflate method
+		to compress the specified memory at its best effort.
 
 - Compression support:
 		CONFIG_BZIP2
@@ -2572,6 +2607,15 @@ FIT uImage format:
 		CONFIG_SYS_SPL_MALLOC_SIZE
 		The size of the malloc pool used in SPL.
 
+		CONFIG_SPL_FRAMEWORK
+		Enable the SPL framework under common/.  This framework
+		supports MMC, NAND and YMODEM loading of U-Boot and NAND
+		NAND loading of the Linux Kernel.
+
+		CONFIG_SPL_DISPLAY_PRINT
+		For ARM, enable an optional function to print more information
+		about the running system.
+
 		CONFIG_SPL_LIBCOMMON_SUPPORT
 		Support for common/libcommon.o in SPL binary
 
@@ -2634,6 +2678,9 @@ FIT uImage format:
 
 		CONFIG_SPL_SPI_SUPPORT
 		Support for drivers/spi/libspi.o in SPL binary
+
+		CONFIG_SPL_RAM_DEVICE
+		Support for running image already present in ram, in SPL binary
 
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
@@ -3100,12 +3147,12 @@ to save the current settings.
 	  These two #defines specify the address and size of the
 	  environment area within the remote memory space. The
 	  local device can get the environment from remote memory
-	  space by SRIO or other links.
+	  space by SRIO or PCIE links.
 
 BE CAREFUL! For some special cases, the local device can not use
 "saveenv" command. For example, the local device will get the
-environment stored in a remote NOR flash by SRIO link, but it can
-not erase, write this NOR flash by SRIO interface.
+environment stored in a remote NOR flash by SRIO or PCIE link,
+but it can not erase, write this NOR flash by SRIO or PCIE interface.
 
 - CONFIG_ENV_IS_IN_NAND:
 
@@ -3553,9 +3600,9 @@ within that device.
 - CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
 	Specifies that QE/FMAN firmware is located in the remote (master)
 	memory space.	CONFIG_SYS_FMAN_FW_ADDR is a virtual address which
-	can be mapped from slave TLB->slave LAW->slave SRIO outbound window
-	->master inbound window->master LAW->the ucode address in master's
-	NOR flash.
+	can be mapped from slave TLB->slave LAW->slave SRIO or PCIE outbound
+	window->master inbound window->master LAW->the ucode address in
+	master's memory space.
 
 Building the Software:
 ======================
@@ -4645,7 +4692,10 @@ Over time, many people have reported problems when trying to use the
 consider minicom to be broken, and recommend not to use it. Under
 Unix, I recommend to use C-Kermit for general purpose use (and
 especially for kermit binary protocol download ("loadb" command), and
-use "cu" for S-Record download ("loads" command).
+use "cu" for S-Record download ("loads" command).  See
+http://www.denx.de/wiki/view/DULG/SystemSetup#Section_4.3.
+for help with kermit.
+
 
 Nevertheless, if you absolutely want to use it try adding this
 configuration to your "File transfer protocols" section:

@@ -513,11 +513,41 @@ typedef gz_header FAR *gz_headerp;
    If the first character differs, the library code actually used is
    not compatible with the zlib.h header file used by the application.
    This check is automatically made by deflateInit and inflateInit.
- */
+   */
 
-ZEXTERN int ZEXPORT inflateInit_ OF((z_streamp strm, const char *version,
-				int stream_size));
+ZEXTERN int ZEXPORT deflate OF((z_streamp strm, int flush));
+ZEXTERN int ZEXPORT deflateInit_ OF((z_streamp strm, int level,
+			const char *version, int stream_size));
+ZEXTERN int ZEXPORT deflateEnd OF((z_streamp strm));
+ZEXTERN int ZEXPORT deflateInit2_ OF((z_streamp strm, int  level, int  method,
+			int windowBits, int memLevel,
+			int strategy, const char *version,
+			int stream_size));
+ZEXTERN int ZEXPORT deflateReset OF((z_streamp strm));
+ZEXTERN int ZEXPORT deflateSetDictionary OF((z_streamp strm,
+			const Bytef *dictionary,
+			uInt  dictLength));
+ZEXTERN int ZEXPORT deflateSetHeader OF((z_streamp strm,
+			gz_headerp head));
+ZEXTERN int ZEXPORT deflatePrime OF((z_streamp strm,
+			int bits,
+			int value));
+ZEXTERN int ZEXPORT deflateParams OF((z_streamp strm,
+			int level,
+			int strategy));
+ZEXTERN int ZEXPORT deflateTune OF((z_streamp strm,
+			int good_length,
+			int max_lazy,
+			int nice_length,
+			int max_chain));
+ZEXTERN uLong ZEXPORT deflateBound OF((z_streamp strm,
+			uLong sourceLen));
+ZEXTERN int ZEXPORT deflateCopy OF((z_streamp dest,
+			z_streamp source));
 
+
+ZEXTERN int ZEXPORT inflateInit_ OF((z_streamp strm,
+			const char *version, int stream_size));
 ZEXTERN int ZEXPORT inflate OF((z_streamp strm, int flush));
 /*
     inflate decompresses as much data as possible, and stops when the input

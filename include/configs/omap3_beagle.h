@@ -391,6 +391,7 @@
 
 /* Defines for SPL */
 #define CONFIG_SPL
+#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_TEXT_BASE		0x40200800
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */

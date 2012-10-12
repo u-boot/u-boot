@@ -34,6 +34,7 @@ COBJS-$(CONFIG_SYS_HUSH_PARSER) += hush.o
 COBJS-y += s_record.o
 COBJS-$(CONFIG_SERIAL_MULTI) += serial.o
 COBJS-y += xyzModem.o
+COBJS-y += cmd_disk.o
 
 # core command
 COBJS-y += cmd_boot.o
@@ -106,6 +107,7 @@ COBJS-$(CONFIG_CMD_GPIO) += cmd_gpio.o
 COBJS-$(CONFIG_CMD_I2C) += cmd_i2c.o
 COBJS-$(CONFIG_CMD_IDE) += cmd_ide.o
 COBJS-$(CONFIG_CMD_IMMAP) += cmd_immap.o
+COBJS-$(CONFIG_CMD_INI) += cmd_ini.o
 COBJS-$(CONFIG_CMD_IRQ) += cmd_irq.o
 COBJS-$(CONFIG_CMD_ITEST) += cmd_itest.o
 COBJS-$(CONFIG_CMD_JFFS2) += cmd_jffs2.o
@@ -135,6 +137,7 @@ COBJS-$(CONFIG_CMD_NAND) += cmd_nand.o
 COBJS-$(CONFIG_CMD_NET) += cmd_net.o
 COBJS-$(CONFIG_CMD_ONENAND) += cmd_onenand.o
 COBJS-$(CONFIG_CMD_OTP) += cmd_otp.o
+COBJS-$(CONFIG_CMD_PART) += cmd_part.o
 ifdef CONFIG_PCI
 COBJS-$(CONFIG_CMD_PCI) += cmd_pci.o
 endif
@@ -169,6 +172,7 @@ endif
 COBJS-$(CONFIG_CMD_XIMG) += cmd_ximg.o
 COBJS-$(CONFIG_YAFFS2) += cmd_yaffs2.o
 COBJS-$(CONFIG_CMD_SPL) += cmd_spl.o
+COBJS-$(CONFIG_CMD_ZIP) += cmd_zip.o
 COBJS-$(CONFIG_CMD_ZFS) += cmd_zfs.o
 
 # others
@@ -196,6 +200,10 @@ endif
 
 ifdef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += cmd_nvedit.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_common.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_nowhere.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
 endif
 COBJS-y += console.o
 COBJS-y += dlmalloc.o

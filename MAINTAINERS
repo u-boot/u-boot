@@ -78,10 +78,6 @@ Holger Brunck <holger.brunck@keymile.com>
 	tuge1		MPC8321
 	tuxx1		MPC8321
 
-Cyril Chemparathy <cyril@ti.com>
-
-	tnetv107x_evm	tnetv107x
-
 Conn Clark <clark@esteem.com>
 
 	ESTEEM192E	MPC8xx
@@ -255,6 +251,10 @@ Klaus Heydeck <heydeck@kieback-peter.de>
 	KUP4K		MPC855
 	KUP4X		MPC859
 
+Gabriel Huau <contact@huau-gabriel.fr>
+
+	mini2440	s3c2440
+
 Gary Jennejohn <garyj@denx.de>
 
 	quad100hd	PPC405EP
@@ -363,6 +363,10 @@ Frank Panno <fpanno@delphintech.com>
 
 	ep8260		MPC8260
 
+Chan-Taek Park <c-park@ti.com>
+
+	tnetv107x_evm	tnetv107x
+
 Denis Peter <d.peter@mpl.ch>
 
 	MIP405		PPC4xx
@@ -396,8 +400,6 @@ Stefan Roese <sr@denx.de>
 	P3M7448		MPC7448
 
 	uc100		MPC857
-
-	TQM85xx		MPC8540/8541/8555/8560
 
 	acadia		PPC405EZ
 	alpr		PPC440GX
@@ -727,7 +729,7 @@ Chander Kashyap <k.chander@samsung.com>
 	SMDKV310		ARM ARMV7 (EXYNOS4210 SoC)
 	SMDK5250		ARM ARMV7 (EXYNOS5250 SoC)
 
-Heungjun Kim <riverful.kim@samsung.com>
+Lukasz Majewski <l.majewski@samsung.com>
 
 	trats			ARM ARMV7 (EXYNOS4210 SoC)
 
@@ -777,6 +779,11 @@ Nagendra T S  <nagendra@mistralsolutions.com>
 
    am3517_crane    ARM ARMV7 (AM35x SoC)
 
+Dinh Nguyen <dinguyen@altera.com>
+Chin Liang See <clsee@altera.com>
+
+	socfpga		socfpga_cyclone5
+
 Sandeep Paulraj <s-paulraj@ti.com>
 
 	davinci_dm355evm	ARM926EJS
@@ -799,6 +806,7 @@ Veli-Pekka Peltola <veli-pekka.peltola@bluegiga.com>
 Luka Perkov <uboot@lukaperkov.net>
 
 	ib62x0		ARM926EJS
+	iconnect	ARM926EJS
 
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
@@ -852,6 +860,8 @@ John Rigby <jcrigby@gmail.com>
 
 Stefan Roese <sr@denx.de>
 
+	x600		ARM926EJS (spear600 Soc)
+
 	pdnb3		xscale/ixp
 	scpu		xscale/ixp
 
@@ -889,6 +899,10 @@ Matt Sealey <matt@genesi-usa.com>
 
 Bo Shen <voice.shen@atmel.com>
 	at91sam9x5ek		ARM926EJS (AT91SAM9G15,G25,G35,X25,X35 SoC)
+
+Michal Simek <monstr@monstr.eu>
+
+	zynq		ARM ARMV7 (Zynq SoC)
 
 Nick Thompson <nick.thompson@gefanuc.com>
 
@@ -989,6 +1003,15 @@ Vladimir Zapolskiy <vz@mleia.com>
 Zhong Hongbo <bocui107@gmail.com>
 
 	SMDK6400	ARM1176 (S3C6400 SoC)
+
+Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
+Tetsuyuki Kobayashi <koba@kmckk.co.jp>
+
+	kzm9g	SH73A0 (RMOBILE SoC)
+
+Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
+
+	armadillo-800eva	R8A7740 (RMOBILE SoC)
 
 -------------------------------------------------------------------------
 

@@ -25,4 +25,8 @@
 #define PLATFORM_FFS
 #include <asm/bitops/ffs.h>
 
+#define hweight32(x) generic_hweight32(x)
+#define hweight16(x) generic_hweight16(x)
+#define hweight8(x) generic_hweight8(x)
+
 #endif /* __ASM_GENERIC_BITOPS_H */

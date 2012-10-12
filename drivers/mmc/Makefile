@@ -25,8 +25,8 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libmmc.o
 
-ifdef CONFIG_SPL_MMC_LOAD
-COBJS-$(CONFIG_SPL_MMC_LOAD)	+= spl_mmc_load.o
+ifdef CONFIG_SPL_BUILD
+COBJS-$(CONFIG_SPL_MMC_SUPPORT) += spl_mmc.o
 endif
 
 COBJS-$(CONFIG_BFIN_SDH) += bfin_sdh.o

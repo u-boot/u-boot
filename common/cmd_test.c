@@ -33,12 +33,12 @@ int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 3)
 		return 1;
 
-#if 0
+#ifdef DEBUG
 	{
-		printf("test:");
+		debug("test(%d):", argc);
 		left = 1;
 		while (argv[left])
-			printf(" %s", argv[left++]);
+			debug(" '%s'", argv[left++]);
 	}
 #endif
 

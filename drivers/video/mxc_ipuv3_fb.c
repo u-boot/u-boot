@@ -38,6 +38,7 @@
 #include "videomodes.h"
 #include "ipu.h"
 #include "mxcfb.h"
+#include "ipu_regs.h"
 
 static int mxcfb_map_video_memory(struct fb_info *fbi);
 static int mxcfb_unmap_video_memory(struct fb_info *fbi);
@@ -574,6 +575,25 @@ static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
 
 err0:
 	return ret;
+}
+
+void ipuv3_fb_shutdown(void)
+{
+	int i;
+	struct ipu_stat *stat = (struct ipu_stat *)IPU_STAT;
+
+	for (i = 0; i < ARRAY_SIZE(mxcfb_info); i++) {
+		struct fb_info *fbi = mxcfb_info[i];
+		if (fbi) {
+			struct mxcfb_info *mxc_fbi = fbi->par;
+			ipu_disable_channel(mxc_fbi->ipu_ch);
+			ipu_uninit_channel(mxc_fbi->ipu_ch);
+		}
+	}
+	for (i = 0; i < ARRAY_SIZE(stat->int_stat); i++) {
+		__raw_writel(__raw_readl(&stat->int_stat[i]),
+			     &stat->int_stat[i]);
+	}
 }
 
 void *video_hw_init(void)

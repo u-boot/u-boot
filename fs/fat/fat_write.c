@@ -328,7 +328,7 @@ static void flush_dir_table(fsdata *mydata, dir_entry **dentptr);
 static void
 fill_dir_slot(fsdata *mydata, dir_entry **dentptr, const char *l_name)
 {
-	dir_slot *slotptr = (dir_slot *)get_vfatname_block;
+	dir_slot *slotptr = (dir_slot *)get_contents_vfatname_block;
 	__u8 counter = 0, checksum;
 	int idx = 0, ret;
 	char s_name[16];
@@ -373,7 +373,7 @@ static __u32 dir_curclust;
  * a slot) into 'l_name'. If successful also copy the real directory entry
  * into 'retdent'
  * If additional adjacent cluster for directory entries is read into memory,
- * then 'get_vfatname_block' is copied into 'get_dentfromdir_block' and
+ * then 'get_contents_vfatname_block' is copied into 'get_dentfromdir_block' and
  * the location of the real directory entry is returned by 'retdent'
  * Return 0 on success, -1 otherwise.
  */
@@ -416,13 +416,13 @@ get_long_file_name(fsdata *mydata, int curclust, __u8 *cluster,
 
 		dir_curclust = curclust;
 
-		if (get_cluster(mydata, curclust, get_vfatname_block,
+		if (get_cluster(mydata, curclust, get_contents_vfatname_block,
 				mydata->clust_size * mydata->sect_size) != 0) {
 			debug("Error: reading directory block\n");
 			return -1;
 		}
 
-		slotptr2 = (dir_slot *)get_vfatname_block;
+		slotptr2 = (dir_slot *)get_contents_vfatname_block;
 		while (counter > 0) {
 			if (((slotptr2->id & ~LAST_LONG_ENTRY_MASK)
 			    & 0xff) != counter)
@@ -433,7 +433,7 @@ get_long_file_name(fsdata *mydata, int curclust, __u8 *cluster,
 
 		/* Save the real directory entry */
 		realdent = (dir_entry *)slotptr2;
-		while ((__u8 *)slotptr2 > get_vfatname_block) {
+		while ((__u8 *)slotptr2 > get_contents_vfatname_block) {
 			slotptr2--;
 			slot2str(slotptr2, l_name, &idx);
 		}
@@ -459,9 +459,9 @@ get_long_file_name(fsdata *mydata, int curclust, __u8 *cluster,
 	*retdent = realdent;
 
 	if (slotptr2) {
-		memcpy(get_dentfromdir_block, get_vfatname_block,
+		memcpy(get_dentfromdir_block, get_contents_vfatname_block,
 			mydata->clust_size * mydata->sect_size);
-		cur_position = (__u8 *)realdent - get_vfatname_block;
+		cur_position = (__u8 *)realdent - get_contents_vfatname_block;
 		*retdent = (dir_entry *) &get_dentfromdir_block[cur_position];
 	}
 
@@ -980,11 +980,11 @@ static int do_fat_write(const char *filename, void *buffer,
 	if (disk_read(cursect,
 		(mydata->fatsize == 32) ?
 		(mydata->clust_size) :
-		PREFETCH_BLOCKS, do_fat_read_block) < 0) {
+		PREFETCH_BLOCKS, do_fat_read_at_block) < 0) {
 		debug("Error: reading rootdir block\n");
 		goto exit;
 	}
-	dentptr = (dir_entry *) do_fat_read_block;
+	dentptr = (dir_entry *) do_fat_read_at_block;
 
 	name_len = strlen(filename);
 	if (name_len >= VFAT_MAXLEN_BYTES)

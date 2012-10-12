@@ -65,10 +65,3 @@ static void cache_flush (void)
 	/* mem barrier to sync things */
 	asm ("mcr p15, 0, %0, c7, c10, 4": :"r" (0));
 }
-
-int arch_cpu_init(void)
-{
-	icache_enable();
-
-	return 0;
-}

@@ -18,6 +18,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/omap.h>
@@ -27,7 +28,6 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
-#include <asm/omap_common.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
 #include <i2c.h>
@@ -165,6 +165,8 @@ void s_init(void)
 	regVal = readl(&uart_base->uartsyscfg);
 	regVal |= UART_SMART_IDLE_EN;
 	writel(regVal, &uart_base->uartsyscfg);
+
+	gd = &gdata;
 
 	preloader_console_init();
 

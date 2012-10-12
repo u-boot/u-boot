@@ -93,8 +93,13 @@ pxe boot
      be passed to the bootm command to boot the kernel. These environment
      variables are required to be set.
 
-     fdt_addr - the location of a fdt blob. If this is set, it will be passed
-     to bootm when booting a kernel.
+     fdt_addr_r - location in RAM at which 'pxe boot' will store the fdt blob it
+     retrieves from tftp. The retrieval is possible if 'fdt' label is defined in
+     pxe file and 'fdt_addr_r' is set. If retrieval is possible, 'fdt_addr_r'
+     will be passed to bootm command to boot the kernel.
+
+     fdt_addr - the location of a fdt blob. 'fdt_addr' will be passed to bootm
+     command if it is set and 'fdt_addr_r' is not passed to bootm command.
 
 pxe file format
 ===============
@@ -155,6 +160,11 @@ initrd <path>	    - if this label is chosen, use tftp to retrieve the initrd
 		      at <path>. it will be stored at the address indicated in
 		      the initrd_addr_r environment variable, and that address
 		      will be passed to bootm.
+
+fdt <path>	    - if this label is chosen, use tftp to retrieve the fdt blob
+		      at <path>. it will be stored at the address indicated in
+		      the fdt_addr_r environment variable, and that address will
+		      be passed to bootm.
 
 localboot <flag>    - Run the command defined by "localcmd" in the environment.
 		      <flag> is ignored and is only here to match the syntax of

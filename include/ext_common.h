@@ -186,6 +186,8 @@ struct ext2_data {
 	struct ext2fs_node diropen;
 };
 
+extern unsigned long part_offset;
+
 int do_ext2ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ext2load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,

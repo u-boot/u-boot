@@ -28,10 +28,10 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <spl.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/emif.h>
-#include <asm/omap_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -92,6 +92,11 @@ static void init_boot_params(void)
 {
 	boot_params_ptr = (u32 *) &boot_params;
 }
+
+void spl_display_print(void)
+{
+	omap_rev_string();
+}
 #endif
 
 /*
@@ -119,6 +124,9 @@ void s_init(void)
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
 	setup_clocks_for_console();
+
+	gd = &gdata;
+
 	preloader_console_init();
 	do_io_settings();
 #endif

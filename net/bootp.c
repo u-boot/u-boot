@@ -341,6 +341,15 @@ BootpTimeout(void)
 	}
 }
 
+#define put_vci(e, str)						\
+	do {							\
+		size_t vci_strlen = strlen(str);		\
+		*e++ = 60;	/* Vendor Class Identifier */	\
+		*e++ = vci_strlen;				\
+		memcpy(e, str, vci_strlen);			\
+		e += vci_strlen;				\
+	} while (0)
+
 /*
  *	Initialize BOOTP extension fields in the request.
  */
@@ -352,7 +361,6 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID,
 	u8 *cnt;
 #if defined(CONFIG_BOOTP_PXE)
 	char *uuid;
-	size_t vci_strlen;
 	u16 clientarch;
 #endif
 
@@ -437,12 +445,10 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID,
 			printf("Invalid pxeuuid: %s\n", uuid);
 		}
 	}
+#endif
 
-	*e++ = 60;	/* Vendor Class Identifier */
-	vci_strlen = strlen(CONFIG_BOOTP_VCI_STRING);
-	*e++ = vci_strlen;
-	memcpy(e, CONFIG_BOOTP_VCI_STRING, vci_strlen);
-	e += vci_strlen;
+#ifdef CONFIG_BOOTP_VCI_STRING
+	put_vci(e, CONFIG_BOOTP_VCI_STRING);
 #endif
 
 #if defined(CONFIG_BOOTP_VENDOREX)
@@ -527,6 +533,15 @@ static int BootpExtended(u8 *e)
 	*e++ = 2;
 	*e++ = (576 - 312 + OPT_FIELD_SIZE) >> 16;
 	*e++ = (576 - 312 + OPT_FIELD_SIZE) & 0xff;
+#endif
+
+#if defined(CONFIG_BOOTP_VCI_STRING) || \
+	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING))
+#ifdef CONFIG_SPL_BUILD
+	put_vci(e, CONFIG_SPL_NET_VCI_STRING);
+#else
+	put_vci(e, CONFIG_BOOTP_VCI_STRING);
+#endif
 #endif
 
 #if defined(CONFIG_BOOTP_SUBNETMASK)
@@ -727,6 +742,8 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 				sizeof(NetOurRootPath), oplen);
 			memcpy(&NetOurRootPath, popt + 2, size);
 			NetOurRootPath[size] = 0;
+			break;
+		case 28:	/* Ignore Broadcast Address Option */
 			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 		case 42:	/* NTP server IP */

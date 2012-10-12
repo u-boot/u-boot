@@ -164,7 +164,6 @@
 void set_eat_machine_checks(int a_flag);
 int get_eat_machine_checks(void);
 unsigned int get_platform(void);
-unsigned int get_device(void);
 void* memcpyb(void * dest,const void *src,size_t count);
 int process_bootflag(ulong bootflag);
 void user_led_on(void);

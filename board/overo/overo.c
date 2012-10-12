@@ -101,16 +101,6 @@ int board_init(void)
 }
 
 /*
- * Routine: omap_rev_string
- * Description: For SPL builds output board rev
- */
-#ifdef CONFIG_SPL_BUILD
-void omap_rev_string(void)
-{
-}
-#endif
-
-/*
  * Routine: get_board_revision
  * Description: Returns the board revision
  */

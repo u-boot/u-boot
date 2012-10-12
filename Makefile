@@ -24,7 +24,7 @@
 VERSION = 2012
 PATCHLEVEL = 10
 SUBLEVEL =
-EXTRAVERSION = -rc1
+EXTRAVERSION = -rc3
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -238,7 +238,7 @@ ifdef SOC
 LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
 endif
 ifeq ($(CPU),ixp)
-LIBS-y += arch/arm/cpu/ixp/npe/libnpe.o
+LIBS-y += drivers/net/npe/libnpe.o
 endif
 LIBS-$(CONFIG_OF_EMBED) += dts/libdts.o
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
@@ -439,6 +439,11 @@ $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
 		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -d $< $@
 
+$(obj)u-boot.pbl:	$(obj)u-boot.bin
+		$(obj)tools/mkimage -n $(CONFIG_PBLRCW_CONFIG) \
+		-R $(CONFIG_PBLPBI_CONFIG) -T pblimage \
+		-d $< $@
+
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
 		$(obj)tools/ubsha1 $(obj)u-boot.bin
 
@@ -453,7 +458,7 @@ $(obj)u-boot.ubl:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		rm $(obj)u-boot-ubl.bin
 		rm $(obj)spl/u-boot-spl-pad.bin
 
-$(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
+$(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		$(obj)tools/mkimage -s -n $(if $(CONFIG_AIS_CONFIG_FILE),$(CONFIG_AIS_CONFIG_FILE),"/dev/null") \
 			-T aisimage \
 			-e $(CONFIG_SPL_TEXT_BASE) \
@@ -462,7 +467,7 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		$(OBJCOPY) ${OBJCFLAGS} -I binary \
 			--pad-to=$(CONFIG_SPL_MAX_SIZE) -O binary \
 			$(obj)spl/u-boot-spl.ais $(obj)spl/u-boot-spl-pad.ais
-		cat $(obj)spl/u-boot-spl-pad.ais $(obj)u-boot.bin > \
+		cat $(obj)spl/u-boot-spl-pad.ais $(obj)u-boot.img > \
 			$(obj)u-boot.ais
 
 # Specify the target for use in elftosb call
@@ -787,10 +792,6 @@ clean:
 	@rm -f $(obj)lib/asm-offsets.s
 	@rm -f $(obj)include/generated/asm-offsets.h
 	@rm -f $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
-	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-nand_spl.lds,u-boot-spl,u-boot-spl.map,System.map}
-	@rm -f $(ONENAND_BIN)
-	@rm -f $(obj)spl/{u-boot-spl,u-boot-spl.bin,u-boot-spl.lds,u-boot-spl.map}
-	@rm -f $(obj)MLO
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' -o -name '*.su' \
@@ -809,12 +810,16 @@ clobber:	tidy
 		$(obj)cscope.* $(obj)*.*~
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL-y)
 	@rm -f $(obj)u-boot.kwb
+	@rm -f $(obj)u-boot.pbl
 	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)u-boot.ubl
 	@rm -f $(obj)u-boot.ais
 	@rm -f $(obj)u-boot.dtb
 	@rm -f $(obj)u-boot.sb
 	@rm -f $(obj)u-boot.spr
+	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-nand_spl.lds,u-boot-spl,u-boot-spl.map,System.map}
+	@rm -f $(obj)spl/{u-boot-spl,u-boot-spl.bin,u-boot-spl.lds,u-boot-spl.map}
+	@rm -f $(obj)MLO
 	@rm -f $(obj)tools/xway-swap-bytes
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)arch/powerpc/cpu/mpc83xx/ddr-gen?.c

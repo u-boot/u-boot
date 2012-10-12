@@ -109,6 +109,14 @@ static const struct atmel_spi_flash_params atmel_spi_flash_table[] = {
 		.nr_sectors		= 32,
 		.name			= "AT45DB642D",
 	},
+	{
+		.idcode1		= 0x47,
+		.l2_page_size		= 8,
+		.pages_per_block	= 16,
+		.blocks_per_sector	= 16,
+		.nr_sectors		= 64,
+		.name			= "AT25DF321",
+	},
 };
 
 static int at45_wait_ready(struct spi_flash *flash, unsigned long timeout)
@@ -510,11 +518,19 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 			asf->flash.erase = dataflash_erase_p2;
 		}
 
+		asf->flash.page_size = page_size;
+		asf->flash.sector_size = page_size;
 		break;
 
 	case DF_FAMILY_AT26F:
 	case DF_FAMILY_AT26DF:
 		asf->flash.read = spi_flash_cmd_read_fast;
+		asf->flash.write = spi_flash_cmd_write_multi;
+		asf->flash.erase = spi_flash_cmd_erase;
+		asf->flash.page_size = page_size;
+		asf->flash.sector_size = 4096;
+		/* clear SPRL# bit for locked flash */
+		spi_flash_cmd_write_status(&asf->flash, 0);
 		break;
 
 	default:
@@ -522,7 +538,6 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 		goto err;
 	}
 
-	asf->flash.sector_size = page_size;
 	asf->flash.size = page_size * params->pages_per_block
 				* params->blocks_per_sector
 				* params->nr_sectors;

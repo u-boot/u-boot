@@ -31,7 +31,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_PANDA	/* working with Panda */
 
 /* USB UHH support options */
 #define CONFIG_CMD_USB

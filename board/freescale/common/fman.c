@@ -25,6 +25,9 @@
 #include <libfdt_env.h>
 #include <fdt_support.h>
 
+#include <fm_eth.h>
+#include <asm/fsl_serdes.h>
+
 /*
  * Given the following ...
  *
@@ -66,4 +69,32 @@ int fdt_set_phy_handle(void *fdt, char *compat, phys_addr_t addr,
 		return offset;
 
 	return fdt_setprop(fdt, offset, "phy-handle", &ph, sizeof(ph));
+}
+
+/*
+ * Return the SerDes device enum for a given Fman port
+ *
+ * This function just maps the fm_port namespace to the srds_prtcl namespace.
+ */
+enum srds_prtcl serdes_device_from_fm_port(enum fm_port port)
+{
+	static const enum srds_prtcl srds_table[] = {
+		[FM1_DTSEC1] = SGMII_FM1_DTSEC1,
+		[FM1_DTSEC2] = SGMII_FM1_DTSEC2,
+		[FM1_DTSEC3] = SGMII_FM1_DTSEC3,
+		[FM1_DTSEC4] = SGMII_FM1_DTSEC4,
+		[FM1_DTSEC5] = SGMII_FM1_DTSEC5,
+		[FM1_10GEC1] = XAUI_FM1,
+		[FM2_DTSEC1] = SGMII_FM2_DTSEC1,
+		[FM2_DTSEC2] = SGMII_FM2_DTSEC2,
+		[FM2_DTSEC3] = SGMII_FM2_DTSEC3,
+		[FM2_DTSEC4] = SGMII_FM2_DTSEC4,
+		[FM2_DTSEC5] = SGMII_FM2_DTSEC5,
+		[FM2_10GEC1] = XAUI_FM2,
+	};
+
+	if ((port < FM1_DTSEC1) || (port > FM2_10GEC1))
+		return NONE;
+	else
+		return srds_table[port];
 }

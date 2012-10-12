@@ -176,6 +176,9 @@ int board_early_init_f(void)
 	if (davinci_configure_pin_mux(gpio_pins, ARRAY_SIZE(gpio_pins)) != 0)
 		return 1;
 
+	/* Set DISP_ON high to enable LCD output*/
+	gpio_direction_output(97, 1);
+
 	/* Set the RESETOUTn low */
 	gpio_direction_output(111, 0);
 
@@ -187,9 +190,6 @@ int board_early_init_f(void)
 
 	/* Set LCD_B_PWR low to power down LCD Backlight*/
 	gpio_direction_output(102, 0);
-
-	/* Set DISP_ON low to disable LCD output*/
-	gpio_direction_output(97, 0);
 
 #ifndef CONFIG_USE_IRQ
 	irq_init();
@@ -250,13 +250,17 @@ int board_early_init_f(void)
 	writel(readl(&davinci_syscfg_regs->mstpri[2]) & 0x0fffffff,
 	       &davinci_syscfg_regs->mstpri[2]);
 
-	/* Set LCD_B_PWR low to power up LCD Backlight*/
-	gpio_set_value(102, 1);
-
-	/* Set DISP_ON low to disable LCD output*/
-	gpio_set_value(97, 1);
 
 	return 0;
+}
+
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
 }
 
 int board_init(void)
@@ -276,6 +280,9 @@ int board_init(void)
 
 int board_late_init(void)
 {
+	unsigned char buf[2];
+	int ret;
+
 	/* PinMux for HALTEN */
 	if (davinci_configure_pin_mux(halten_pin, ARRAY_SIZE(halten_pin)) != 0)
 		return 1;
@@ -283,8 +290,15 @@ int board_late_init(void)
 	/* Set HALTEN to high */
 	gpio_direction_output(134, 1);
 
-	setenv("stdout", "serial");
+	/* Set fixed contrast settings for LCD via I2C potentiometer */
+	buf[0] = 0x00;
+	buf[1] = 0xd7;
+	ret = i2c_write(0x2e, 6, 1, buf, 2);
+	if (ret)
+		puts("\nContrast Settings FAILED\n");
 
+	/* Set LCD_B_PWR high to power up LCD Backlight*/
+	gpio_set_value(102, 1);
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */

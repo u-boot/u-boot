@@ -402,6 +402,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 
 	puts("GEM link speed is 100Mbps\n");
 #endif
+
 	return 0;
 }
 
@@ -530,7 +531,6 @@ int zynq_gem_initialize(bd_t *bis, int base_addr)
 #else
 	priv->phyaddr = -1;
 #endif
-	priv->phyaddr = 7;
 
 	sprintf(dev->name, "Gem.%x", base_addr);
 

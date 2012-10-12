@@ -185,6 +185,7 @@ cat << EOF >> config.h
 #include <configs/${CONFIG_NAME}.h>
 #include <asm/config.h>
 #include <config_fallbacks.h>
+#include <config_uncmd_spl.h>
 EOF
 
 exit 0

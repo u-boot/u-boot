@@ -85,7 +85,7 @@ int fat_register_device(block_dev_desc_t * dev_desc, int part_no)
 
 	/* Otherwise it might be a superfloppy (whole-disk FAT filesystem) */
 	if (!cur_dev) {
-		if (part_no != 1) {
+		if (part_no != 0) {
 			printf("** Partition %d not valid on device %d **\n",
 					part_no, dev_desc->dev);
 			return -1;
@@ -328,13 +328,16 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 }
 
 /*
- * Read at most 'maxsize' bytes from the file associated with 'dentptr'
+ * Read at most 'maxsize' bytes from 'pos' in the file associated with 'dentptr'
  * into 'buffer'.
  * Return the number of bytes read or -1 on fatal errors.
  */
+__u8 get_contents_vfatname_block[MAX_CLUSTSIZE]
+	__aligned(ARCH_DMA_MINALIGN);
+
 static long
-get_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
-	     unsigned long maxsize)
+get_contents(fsdata *mydata, dir_entry *dentptr, unsigned long pos,
+	     __u8 *buffer, unsigned long maxsize)
 {
 	unsigned long filesize = FAT2CPU32(dentptr->size), gotsize = 0;
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
@@ -344,10 +347,57 @@ get_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 
 	debug("Filesize: %ld bytes\n", filesize);
 
-	if (maxsize > 0 && filesize > maxsize)
-		filesize = maxsize;
+	if (pos >= filesize) {
+		debug("Read position past EOF: %lu\n", pos);
+		return gotsize;
+	}
+
+	if (maxsize > 0 && filesize > pos + maxsize)
+		filesize = pos + maxsize;
 
 	debug("%ld bytes\n", filesize);
+
+	actsize = bytesperclust;
+
+	/* go to cluster at pos */
+	while (actsize <= pos) {
+		curclust = get_fatent(mydata, curclust);
+		if (CHECK_CLUST(curclust, mydata->fatsize)) {
+			debug("curclust: 0x%x\n", curclust);
+			debug("Invalid FAT entry\n");
+			return gotsize;
+		}
+		actsize += bytesperclust;
+	}
+
+	/* actsize > pos */
+	actsize -= bytesperclust;
+	filesize -= actsize;
+	pos -= actsize;
+
+	/* align to beginning of next cluster if any */
+	if (pos) {
+		actsize = min(filesize, bytesperclust);
+		if (get_cluster(mydata, curclust, get_contents_vfatname_block,
+				(int)actsize) != 0) {
+			printf("Error reading cluster\n");
+			return -1;
+		}
+		filesize -= actsize;
+		actsize -= pos;
+		memcpy(buffer, get_contents_vfatname_block + pos, actsize);
+		gotsize += actsize;
+		if (!filesize)
+			return gotsize;
+		buffer += actsize;
+
+		curclust = get_fatent(mydata, curclust);
+		if (CHECK_CLUST(curclust, mydata->fatsize)) {
+			debug("curclust: 0x%x\n", curclust);
+			debug("Invalid FAT entry\n");
+			return gotsize;
+		}
+	}
 
 	actsize = bytesperclust;
 	endclust = curclust;
@@ -433,9 +483,6 @@ static int slot2str(dir_slot *slotptr, char *l_name, int *idx)
  * into 'retdent'
  * Return 0 on success, -1 otherwise.
  */
-__u8 get_vfatname_block[MAX_CLUSTSIZE]
-	__aligned(ARCH_DMA_MINALIGN);
-
 static int
 get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 	     dir_entry *retdent, char *l_name)
@@ -474,13 +521,13 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 			return -1;
 		}
 
-		if (get_cluster(mydata, curclust, get_vfatname_block,
+		if (get_cluster(mydata, curclust, get_contents_vfatname_block,
 				mydata->clust_size * mydata->sect_size) != 0) {
 			debug("Error: reading directory block\n");
 			return -1;
 		}
 
-		slotptr2 = (dir_slot *)get_vfatname_block;
+		slotptr2 = (dir_slot *)get_contents_vfatname_block;
 		while (counter > 0) {
 			if (((slotptr2->id & ~LAST_LONG_ENTRY_MASK)
 			    & 0xff) != counter)
@@ -491,7 +538,7 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 
 		/* Save the real directory entry */
 		realdent = (dir_entry *)slotptr2;
-		while ((__u8 *)slotptr2 > get_vfatname_block) {
+		while ((__u8 *)slotptr2 > get_contents_vfatname_block) {
 			slotptr2--;
 			slot2str(slotptr2, l_name, &idx);
 		}
@@ -770,11 +817,12 @@ exit:
 	return ret;
 }
 
-__u8 do_fat_read_block[MAX_CLUSTSIZE]
+__u8 do_fat_read_at_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
 
 long
-do_fat_read(const char *filename, void *buffer, unsigned long maxsize, int dols)
+do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
+	       unsigned long maxsize, int dols)
 {
 	char fnamecopy[2048];
 	boot_sector bs;
@@ -888,12 +936,12 @@ do_fat_read(const char *filename, void *buffer, unsigned long maxsize, int dols)
 					(mydata->fatsize == 32) ?
 					(mydata->clust_size) :
 					PREFETCH_BLOCKS,
-					do_fat_read_block) < 0) {
+					do_fat_read_at_block) < 0) {
 				debug("Error: reading rootdir block\n");
 				goto exit;
 			}
 
-			dentptr = (dir_entry *) do_fat_read_block;
+			dentptr = (dir_entry *) do_fat_read_at_block;
 		}
 
 		for (i = 0; i < DIRENTSPERBLOCK; i++) {
@@ -913,7 +961,7 @@ do_fat_read(const char *filename, void *buffer, unsigned long maxsize, int dols)
 
 					get_vfatname(mydata,
 						     root_cluster,
-						     do_fat_read_block,
+						     do_fat_read_at_block,
 						     dentptr, l_name);
 
 					if (dols == LS_ROOT) {
@@ -1116,12 +1164,18 @@ rootdir_done:
 			subname = nextname;
 	}
 
-	ret = get_contents(mydata, dentptr, buffer, maxsize);
+	ret = get_contents(mydata, dentptr, pos, buffer, maxsize);
 	debug("Size: %d, got: %ld\n", FAT2CPU32(dentptr->size), ret);
 
 exit:
 	free(mydata->fatbuf);
 	return ret;
+}
+
+long
+do_fat_read(const char *filename, void *buffer, unsigned long maxsize, int dols)
+{
+	return do_fat_read_at(filename, 0, buffer, maxsize, dols);
 }
 
 int file_fat_detectfs(void)
@@ -1192,8 +1246,14 @@ int file_fat_ls(const char *dir)
 	return do_fat_read(dir, NULL, 0, LS_YES);
 }
 
-long file_fat_read(const char *filename, void *buffer, unsigned long maxsize)
+long file_fat_read_at(const char *filename, unsigned long pos, void *buffer,
+		      unsigned long maxsize)
 {
 	printf("reading %s\n", filename);
-	return do_fat_read(filename, buffer, maxsize, LS_NO);
+	return do_fat_read_at(filename, pos, buffer, maxsize, LS_NO);
+}
+
+long file_fat_read(const char *filename, void *buffer, unsigned long maxsize)
+{
+	return file_fat_read_at(filename, 0, buffer, maxsize);
 }

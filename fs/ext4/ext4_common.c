@@ -314,7 +314,7 @@ int ext4fs_checksum_update(unsigned int i)
 	struct ext_filesystem *fs = get_fs();
 	__u16 crc = 0;
 
-	desc = (struct ext2_block_group *)&fs->gd[i];
+	desc = (struct ext2_block_group *)&fs->bgd[i];
 	if (fs->sb->feature_ro_compat & EXT4_FEATURE_RO_COMPAT_GDT_CSUM) {
 		int offset = offsetof(struct ext2_block_group, bg_checksum);
 
@@ -874,17 +874,17 @@ long int ext4fs_get_new_blk_no(void)
 	char *zero_buffer = zalloc(fs->blksz);
 	if (!journal_buffer || !zero_buffer)
 		goto fail;
-	struct ext2_block_group *gd = (struct ext2_block_group *)fs->gdtable;
+	struct ext2_block_group *bgd = (struct ext2_block_group *)fs->gdtable;
 
 	if (fs->first_pass_bbmap == 0) {
 		for (i = 0; i < fs->no_blkgrp; i++) {
-			if (gd[i].free_blocks) {
-				if (gd[i].bg_flags & EXT4_BG_BLOCK_UNINIT) {
-					put_ext4(((uint64_t) (gd[i].block_id *
+			if (bgd[i].free_blocks) {
+				if (bgd[i].bg_flags & EXT4_BG_BLOCK_UNINIT) {
+					put_ext4(((uint64_t) (bgd[i].block_id *
 							      fs->blksz)),
 						 zero_buffer, fs->blksz);
-					gd[i].bg_flags =
-					    gd[i].
+					bgd[i].bg_flags =
+					    bgd[i].
 					    bg_flags & ~EXT4_BG_BLOCK_UNINIT;
 					memcpy(fs->blk_bmaps[i], zero_buffer,
 					       fs->blksz);
@@ -897,16 +897,16 @@ long int ext4fs_get_new_blk_no(void)
 				fs->curr_blkno = fs->curr_blkno +
 						(i * fs->blksz * 8);
 				fs->first_pass_bbmap++;
-				gd[i].free_blocks--;
+				bgd[i].free_blocks--;
 				fs->sb->free_blocks--;
-				status = ext4fs_devread(gd[i].block_id *
+				status = ext4fs_devread(bgd[i].block_id *
 							fs->sect_perblk, 0,
 							fs->blksz,
 							journal_buffer);
 				if (status == 0)
 					goto fail;
 				if (ext4fs_log_journal(journal_buffer,
-							gd[i].block_id))
+							bgd[i].block_id))
 					goto fail;
 				goto success;
 			} else {
@@ -935,19 +935,19 @@ restart:
 		if (bg_idx >= fs->no_blkgrp)
 			goto fail;
 
-		if (gd[bg_idx].free_blocks == 0) {
+		if (bgd[bg_idx].free_blocks == 0) {
 			debug("block group %u is full. Skipping\n", bg_idx);
 			fs->curr_blkno = fs->curr_blkno + blk_per_grp;
 			fs->curr_blkno--;
 			goto restart;
 		}
 
-		if (gd[bg_idx].bg_flags & EXT4_BG_BLOCK_UNINIT) {
+		if (bgd[bg_idx].bg_flags & EXT4_BG_BLOCK_UNINIT) {
 			memset(zero_buffer, '\0', fs->blksz);
-			put_ext4(((uint64_t) (gd[bg_idx].block_id * fs->blksz)),
-				 zero_buffer, fs->blksz);
+			put_ext4(((uint64_t) (bgd[bg_idx].block_id *
+					fs->blksz)), zero_buffer, fs->blksz);
 			memcpy(fs->blk_bmaps[bg_idx], zero_buffer, fs->blksz);
-			gd[bg_idx].bg_flags = gd[bg_idx].bg_flags &
+			bgd[bg_idx].bg_flags = bgd[bg_idx].bg_flags &
 						~EXT4_BG_BLOCK_UNINIT;
 		}
 
@@ -961,18 +961,18 @@ restart:
 		/* journal backup */
 		if (prev_bg_bitmap_index != bg_idx) {
 			memset(journal_buffer, '\0', fs->blksz);
-			status = ext4fs_devread(gd[bg_idx].block_id
+			status = ext4fs_devread(bgd[bg_idx].block_id
 						* fs->sect_perblk,
 						0, fs->blksz, journal_buffer);
 			if (status == 0)
 				goto fail;
 			if (ext4fs_log_journal(journal_buffer,
-						gd[bg_idx].block_id))
+						bgd[bg_idx].block_id))
 				goto fail;
 
 			prev_bg_bitmap_index = bg_idx;
 		}
-		gd[bg_idx].free_blocks--;
+		bgd[bg_idx].free_blocks--;
 		fs->sb->free_blocks--;
 		goto success;
 	}
@@ -1000,19 +1000,21 @@ int ext4fs_get_new_inode_no(void)
 	char *zero_buffer = zalloc(fs->blksz);
 	if (!journal_buffer || !zero_buffer)
 		goto fail;
-	struct ext2_block_group *gd = (struct ext2_block_group *)fs->gdtable;
+	struct ext2_block_group *bgd = (struct ext2_block_group *)fs->gdtable;
 
 	if (fs->first_pass_ibmap == 0) {
 		for (i = 0; i < fs->no_blkgrp; i++) {
-			if (gd[i].free_inodes) {
-				if (gd[i].bg_itable_unused != gd[i].free_inodes)
-					gd[i].bg_itable_unused =
-						gd[i].free_inodes;
-				if (gd[i].bg_flags & EXT4_BG_INODE_UNINIT) {
+			if (bgd[i].free_inodes) {
+				if (bgd[i].bg_itable_unused !=
+						bgd[i].free_inodes)
+					bgd[i].bg_itable_unused =
+						bgd[i].free_inodes;
+				if (bgd[i].bg_flags & EXT4_BG_INODE_UNINIT) {
 					put_ext4(((uint64_t)
-						  (gd[i].inode_id * fs->blksz)),
+						  (bgd[i].inode_id *
+							fs->blksz)),
 						 zero_buffer, fs->blksz);
-					gd[i].bg_flags = gd[i].bg_flags &
+					bgd[i].bg_flags = bgd[i].bg_flags &
 							~EXT4_BG_INODE_UNINIT;
 					memcpy(fs->inode_bmaps[i],
 					       zero_buffer, fs->blksz);
@@ -1025,17 +1027,17 @@ int ext4fs_get_new_inode_no(void)
 				fs->curr_inode_no = fs->curr_inode_no +
 							(i * inodes_per_grp);
 				fs->first_pass_ibmap++;
-				gd[i].free_inodes--;
-				gd[i].bg_itable_unused--;
+				bgd[i].free_inodes--;
+				bgd[i].bg_itable_unused--;
 				fs->sb->free_inodes--;
-				status = ext4fs_devread(gd[i].inode_id *
+				status = ext4fs_devread(bgd[i].inode_id *
 							fs->sect_perblk, 0,
 							fs->blksz,
 							journal_buffer);
 				if (status == 0)
 					goto fail;
 				if (ext4fs_log_journal(journal_buffer,
-							gd[i].inode_id))
+							bgd[i].inode_id))
 					goto fail;
 				goto success;
 			} else
@@ -1047,13 +1049,13 @@ restart:
 		fs->curr_inode_no++;
 		/* get the blockbitmap index respective to blockno */
 		ibmap_idx = fs->curr_inode_no / inodes_per_grp;
-		if (gd[ibmap_idx].bg_flags & EXT4_BG_INODE_UNINIT) {
+		if (bgd[ibmap_idx].bg_flags & EXT4_BG_INODE_UNINIT) {
 			memset(zero_buffer, '\0', fs->blksz);
-			put_ext4(((uint64_t) (gd[ibmap_idx].inode_id *
+			put_ext4(((uint64_t) (bgd[ibmap_idx].inode_id *
 					      fs->blksz)), zero_buffer,
 				 fs->blksz);
-			gd[ibmap_idx].bg_flags =
-			    gd[ibmap_idx].bg_flags & ~EXT4_BG_INODE_UNINIT;
+			bgd[ibmap_idx].bg_flags =
+			    bgd[ibmap_idx].bg_flags & ~EXT4_BG_INODE_UNINIT;
 			memcpy(fs->inode_bmaps[ibmap_idx], zero_buffer,
 				fs->blksz);
 		}
@@ -1069,21 +1071,22 @@ restart:
 		/* journal backup */
 		if (prev_inode_bitmap_index != ibmap_idx) {
 			memset(journal_buffer, '\0', fs->blksz);
-			status = ext4fs_devread(gd[ibmap_idx].inode_id
+			status = ext4fs_devread(bgd[ibmap_idx].inode_id
 						* fs->sect_perblk,
 						0, fs->blksz, journal_buffer);
 			if (status == 0)
 				goto fail;
 			if (ext4fs_log_journal(journal_buffer,
-						gd[ibmap_idx].inode_id))
+						bgd[ibmap_idx].inode_id))
 				goto fail;
 			prev_inode_bitmap_index = ibmap_idx;
 		}
-		if (gd[ibmap_idx].bg_itable_unused != gd[ibmap_idx].free_inodes)
-			gd[ibmap_idx].bg_itable_unused =
-					gd[ibmap_idx].free_inodes;
-		gd[ibmap_idx].free_inodes--;
-		gd[ibmap_idx].bg_itable_unused--;
+		if (bgd[ibmap_idx].bg_itable_unused !=
+				bgd[ibmap_idx].free_inodes)
+			bgd[ibmap_idx].bg_itable_unused =
+					bgd[ibmap_idx].free_inodes;
+		bgd[ibmap_idx].free_inodes--;
+		bgd[ibmap_idx].bg_itable_unused--;
 		fs->sb->free_inodes--;
 		goto success;
 	}

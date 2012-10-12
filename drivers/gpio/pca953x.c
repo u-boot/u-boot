@@ -221,7 +221,7 @@ cmd_tbl_t cmd_pca953x[] = {
 int do_pca953x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	static uint8_t chip = CONFIG_SYS_I2C_PCA953X_ADDR;
-	int val;
+	int ret = CMD_RET_USAGE, val;
 	ulong ul_arg2 = 0;
 	ulong ul_arg3 = 0;
 	cmd_tbl_t *c;
@@ -232,7 +232,7 @@ int do_pca953x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (!c || !((argc == (c->maxargs)) ||
 		(((int)c->cmd == PCA953X_CMD_DEVICE) &&
 		 (argc == (c->maxargs - 1))))) {
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	/* arg2 used as chip number or pin number */
@@ -246,32 +246,53 @@ int do_pca953x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	switch ((int)c->cmd) {
 #ifdef CONFIG_CMD_PCA953X_INFO
 	case PCA953X_CMD_INFO:
-		return pca953x_info(chip);
+		ret = pca953x_info(chip);
+		if (ret)
+			ret = CMD_RET_FAILURE;
+		break;
 #endif
+
 	case PCA953X_CMD_DEVICE:
 		if (argc == 3)
 			chip = (uint8_t)ul_arg2;
 		printf("Current device address: 0x%x\n", chip);
-		return 0;
+		ret = CMD_RET_SUCCESS;
+		break;
+
 	case PCA953X_CMD_INPUT:
-		pca953x_set_dir(chip, (1 << ul_arg2),
+		ret = pca953x_set_dir(chip, (1 << ul_arg2),
 				PCA953X_DIR_IN << ul_arg2);
 		val = (pca953x_get_val(chip) & (1 << ul_arg2)) != 0;
 
-		printf("chip 0x%02x, pin 0x%lx = %d\n", chip, ul_arg2, val);
-		return val;
+		if (ret)
+			ret = CMD_RET_FAILURE;
+		else
+			printf("chip 0x%02x, pin 0x%lx = %d\n", chip, ul_arg2,
+									val);
+		break;
+
 	case PCA953X_CMD_OUTPUT:
-		pca953x_set_dir(chip, (1 << ul_arg2),
+		ret = pca953x_set_dir(chip, (1 << ul_arg2),
 				(PCA953X_DIR_OUT << ul_arg2));
-		return pca953x_set_val(chip, (1 << ul_arg2),
-					(ul_arg3 << ul_arg2));
+		if (!ret)
+			ret = pca953x_set_val(chip, (1 << ul_arg2),
+						(ul_arg3 << ul_arg2));
+		if (ret)
+			ret = CMD_RET_FAILURE;
+		break;
+
 	case PCA953X_CMD_INVERT:
-		return pca953x_set_pol(chip, (1 << ul_arg2),
+		ret = pca953x_set_pol(chip, (1 << ul_arg2),
 					(ul_arg3 << ul_arg2));
-	default:
-		/* We should never get here */
-		return 1;
+		if (ret)
+			ret = CMD_RET_FAILURE;
+		break;
 	}
+
+	if (ret == CMD_RET_FAILURE)
+		eprintf("Error talking to chip at 0x%x\n", chip);
+
+	return ret;
 }
 
 U_BOOT_CMD(
@@ -287,7 +308,7 @@ U_BOOT_CMD(
 	"	- set pin as output and drive low or high\n"
 	"pca953x invert pin 0|1\n"
 	"	- disable/enable polarity inversion for reads\n"
-	"pca953x intput pin\n"
+	"pca953x input pin\n"
 	"	- set pin as input and read value"
 );
 

@@ -121,12 +121,8 @@ static struct {
 static unsigned int eth_rcv_current, eth_rcv_last;
 #endif
 
-static struct eth_device *eth_devices, *eth_current;
-
-struct eth_device *eth_get_dev(void)
-{
-	return eth_current;
-}
+static struct eth_device *eth_devices;
+struct eth_device *eth_current;
 
 struct eth_device *eth_get_dev_by_name(const char *devname)
 {
@@ -222,9 +218,12 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 	}
 
 	if (dev->write_hwaddr &&
-			!eth_mac_skip(eth_number) &&
-			is_valid_ether_addr(dev->enetaddr))
+			!eth_mac_skip(eth_number)) {
+		if (!is_valid_ether_addr(dev->enetaddr))
+			return -1;
+
 		ret = dev->write_hwaddr(dev);
+	}
 
 	return ret;
 }
@@ -500,10 +499,7 @@ int eth_receive(void *packet, int length)
 			return -1;
 	}
 
-	if (length < eth_rcv_bufs[eth_rcv_current].length)
-		return -1;
-
-	length = eth_rcv_bufs[eth_rcv_current].length;
+	length = min(eth_rcv_bufs[eth_rcv_current].length, length);
 
 	for (i = 0; i < length; i++)
 		p[i] = eth_rcv_bufs[eth_rcv_current].data[i];

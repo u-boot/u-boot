@@ -145,18 +145,18 @@ class Series(dict):
         Return:
             The change log as a list of strings, one per line
 
+            Changes in v2:
+            - Jog the dial back closer to the widget
+
             Changes in v1:
             - Fix the widget
             - Jog the dial
-
-            Changes in v2:
-            - Jog the dial back closer to the widget
 
             etc.
         """
         final = []
         need_blank = False
-        for change in sorted(self.changes):
+        for change in sorted(self.changes, reverse=True):
             out = []
             for this_commit, text in self.changes[change]:
                 if commit and this_commit != commit:

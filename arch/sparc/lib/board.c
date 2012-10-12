@@ -62,7 +62,6 @@ DECLARE_GLOBAL_DATA_PTR;
 */
 
 extern void timer_interrupt_init(void);
-extern void malloc_bin_reloc(void);
 extern int do_ambapp_print(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]);
 extern int prom_init(void);
 

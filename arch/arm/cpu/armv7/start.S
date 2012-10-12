@@ -199,6 +199,7 @@ call_board_init_f:
 
 /*------------------------------------------------------------------------------*/
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -229,7 +230,6 @@ copy_loop:
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
-#ifndef CONFIG_SPL_BUILD
 	/*
 	 * fix .rel.dyn relocations
 	 */
@@ -276,20 +276,12 @@ _rel_dyn_end_ofs:
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
 
-#endif	/* #ifndef CONFIG_SPL_BUILD */
-
 clear_bss:
-#ifdef CONFIG_SPL_BUILD
-	/* No relocation for SPL */
-	ldr	r0, =__bss_start
-	ldr	r1, =__bss_end__
-#else
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	mov	r4, r6			/* reloc addr */
 	add	r0, r0, r4
 	add	r1, r1, r4
-#endif
 	mov	r2, #0x00000000		/* clear			    */
 
 clbss_l:cmp	r0, r1			/* clear loop... */
@@ -316,12 +308,10 @@ jump_2_ram:
  * Move vector table
  */
 #if !defined(CONFIG_TEGRA20)
-#if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD))
 	/* Set vector address in CP15 VBAR register */
 	ldr     r0, =_start
 	add     r0, r0, r9
 	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
-#endif
 #endif /* !Tegra20 */
 
 	ldr	r0, _board_init_r_ofs
@@ -337,6 +327,7 @@ jump_2_ram:
 _board_init_r_ofs:
 	.word board_init_r - _start
 ENDPROC(relocate_code)
+#endif
 
 /*************************************************************************
  *
@@ -404,10 +395,7 @@ ENTRY(cpu_init_crit)
 	 * basic memory. Go here to bump up clock rate and handle
 	 * wake up conditions.
 	 */
-	mov	ip, lr			@ persevere link reg across call
-	bl	lowlevel_init		@ go setup pll,mux,memory
-	mov	lr, ip			@ restore link
-	mov	pc, lr			@ back to my caller
+	b	lowlevel_init		@ go setup pll,mux,memory
 ENDPROC(cpu_init_crit)
 #endif
 

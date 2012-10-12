@@ -154,6 +154,28 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 	return;
 }
 
+#ifdef CONFIG_PARTITION_UUIDS
+static void uuid_string(unsigned char *uuid, char *str)
+{
+	static const u8 le[16] = {3, 2, 1, 0, 5, 4, 7, 6, 8, 9, 10, 11,
+				  12, 13, 14, 15};
+	int i;
+
+	for (i = 0; i < 16; i++) {
+		sprintf(str, "%02x", uuid[le[i]]);
+		str += 2;
+		switch (i) {
+		case 3:
+		case 5:
+		case 7:
+		case 9:
+			*str++ = '-';
+			break;
+		}
+	}
+}
+#endif
+
 int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 				disk_partition_t * info)
 {
@@ -173,6 +195,13 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 		return -1;
 	}
 
+	if (part > le32_to_int(gpt_head->num_partition_entries) ||
+	    !is_pte_valid(&gpt_pte[part - 1])) {
+		printf("%s: *** ERROR: Invalid partition number %d ***\n",
+			__func__, part);
+		return -1;
+	}
+
 	/* The ulong casting limits the maximum disk size to 2 TB */
 	info->start = (ulong) le64_to_int(gpt_pte[part - 1].starting_lba);
 	/* The ending LBA is inclusive, to calculate size, add 1 to it */
@@ -183,6 +212,9 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	sprintf((char *)info->name, "%s",
 			print_efiname(&gpt_pte[part - 1]));
 	sprintf((char *)info->type, "U-Boot");
+#ifdef CONFIG_PARTITION_UUIDS
+	uuid_string(gpt_pte[part - 1].unique_partition_guid.b, info->uuid);
+#endif
 
 	debug("%s: start 0x%lX, size 0x%lX, name %s", __func__,
 		info->start, info->size, info->name);

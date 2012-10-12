@@ -21,6 +21,7 @@
 #include <common.h>
 #include <lcd.h>
 #include <mpc5xxx.h>
+#include <malloc.h>
 
 #ifdef CONFIG_LCD
 
@@ -210,4 +211,23 @@ void show_progress (int size, int tot)
 }
 
 #endif
+
+int bmp_display(ulong addr, int x, int y)
+{
+	int ret;
+	bmp_image_t *bmp = (bmp_image_t *)addr;
+
+	if (!bmp) {
+		printf("There is no valid bmp file at the given address\n");
+		return 1;
+	}
+
+	ret = lcd_display_bitmap((ulong)bmp, x, y);
+
+	if ((unsigned long)bmp != addr)
+		free(bmp);
+
+	return ret;
+}
+
 #endif /* CONFIG_LCD */

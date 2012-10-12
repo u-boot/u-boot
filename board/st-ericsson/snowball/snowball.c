@@ -253,6 +253,10 @@ int board_late_init(void)
 	if ((raise_ab8500_gpio16() < 0))
 		printf("error: cant' raise GPIO16\n");
 
+	/* empty UART RX FIFO */
+	while (tstc())
+		(void) getc();
+
 	return 0;
 }
 

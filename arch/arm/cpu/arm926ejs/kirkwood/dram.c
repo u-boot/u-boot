@@ -30,21 +30,54 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define KW_REG_CPUCS_WIN_BAR(x)		(KW_REGISTER(0x1500) + (x * 0x08))
-#define KW_REG_CPUCS_WIN_SZ(x)		(KW_REGISTER(0x1504) + (x * 0x08))
+struct kw_sdram_bank {
+	u32	win_bar;
+	u32	win_sz;
+};
+
+struct kw_sdram_addr_dec {
+	struct kw_sdram_bank	sdram_bank[4];
+};
+
+#define KW_REG_CPUCS_WIN_ENABLE		(1 << 0)
+#define KW_REG_CPUCS_WIN_WR_PROTECT	(1 << 1)
+#define KW_REG_CPUCS_WIN_WIN0_CS(x)	(((x) & 0x3) << 2)
+#define KW_REG_CPUCS_WIN_SIZE(x)	(((x) & 0xff) << 24)
+
 /*
  * kw_sdram_bar - reads SDRAM Base Address Register
  */
 u32 kw_sdram_bar(enum memory_bank bank)
 {
+	struct kw_sdram_addr_dec *base =
+		(struct kw_sdram_addr_dec *)KW_REGISTER(0x1500);
 	u32 result = 0;
-	u32 enable = 0x01 & readl(KW_REG_CPUCS_WIN_SZ(bank));
+	u32 enable = 0x01 & readl(&base->sdram_bank[bank].win_sz);
 
 	if ((!enable) || (bank > BANK3))
 		return 0;
 
-	result = readl(KW_REG_CPUCS_WIN_BAR(bank));
+	result = readl(&base->sdram_bank[bank].win_bar);
 	return result;
+}
+
+/*
+ * kw_sdram_bs_set - writes SDRAM Bank size
+ */
+static void kw_sdram_bs_set(enum memory_bank bank, u32 size)
+{
+	struct kw_sdram_addr_dec *base =
+		(struct kw_sdram_addr_dec *)KW_REGISTER(0x1500);
+	/* Read current register value */
+	u32 reg = readl(&base->sdram_bank[bank].win_sz);
+
+	/* Clear window size */
+	reg &= ~KW_REG_CPUCS_WIN_SIZE(0xFF);
+
+	/* Set new window size */
+	reg |= KW_REG_CPUCS_WIN_SIZE((size - 1) >> 24);
+
+	writel(reg, &base->sdram_bank[bank].win_sz);
 }
 
 /*
@@ -52,14 +85,27 @@ u32 kw_sdram_bar(enum memory_bank bank)
  */
 u32 kw_sdram_bs(enum memory_bank bank)
 {
+	struct kw_sdram_addr_dec *base =
+		(struct kw_sdram_addr_dec *)KW_REGISTER(0x1500);
 	u32 result = 0;
-	u32 enable = 0x01 & readl(KW_REG_CPUCS_WIN_SZ(bank));
+	u32 enable = 0x01 & readl(&base->sdram_bank[bank].win_sz);
 
 	if ((!enable) || (bank > BANK3))
 		return 0;
-	result = 0xff000000 & readl(KW_REG_CPUCS_WIN_SZ(bank));
+	result = 0xff000000 & readl(&base->sdram_bank[bank].win_sz);
 	result += 0x01000000;
 	return result;
+}
+
+void kw_sdram_size_adjust(enum memory_bank bank)
+{
+	u32 size;
+
+	/* probe currently equipped RAM size */
+	size = get_ram_size((void *)kw_sdram_bar(bank), kw_sdram_bs(bank));
+
+	/* adjust SDRAM window size accordingly */
+	kw_sdram_bs_set(bank, size);
 }
 
 #ifndef CONFIG_SYS_BOARD_DRAM_INIT

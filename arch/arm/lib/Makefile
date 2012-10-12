@@ -44,6 +44,8 @@ COBJS-y	+= interrupts.o
 COBJS-y	+= reset.o
 SOBJS-$(CONFIG_USE_ARCH_MEMSET) += memset.o
 SOBJS-$(CONFIG_USE_ARCH_MEMCPY) += memcpy.o
+else
+COBJS-$(CONFIG_SPL_FRAMEWORK) += spl.o
 endif
 
 COBJS-y	+= cache.o

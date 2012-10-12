@@ -21,6 +21,8 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <config.h>
+#include <spl.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <nand.h>
@@ -30,15 +32,9 @@
 #include <spi_flash.h>
 #include <mmc.h>
 
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-
 DECLARE_GLOBAL_DATA_PTR;
-/* Define global data structure pointer to it*/
-static gd_t gdata __attribute__ ((section(".data")));
-static bd_t bdata __attribute__ ((section(".data")));
 
-#else
-
+#ifndef CONFIG_SPL_LIBCOMMON_SUPPORT
 void puts(const char *str)
 {
 	while (*str)
@@ -52,53 +48,49 @@ void putc(char c)
 
 	NS16550_putc((NS16550_t)(CONFIG_SYS_NS16550_COM1), c);
 }
-
 #endif /* CONFIG_SPL_LIBCOMMON_SUPPORT */
-
-inline void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-	for (;;)
-		;
-}
 
 void board_init_f(ulong dummy)
 {
+	/* First, setup our stack pointer. */
+	asm volatile("mov sp, %0\n" : : "r"(CONFIG_SPL_STACK));
+
+	/* Second, perform our low-level init. */
 #ifdef CONFIG_SOC_DM365
 	dm36x_lowlevel_init(0);
 #endif
 #ifdef CONFIG_SOC_DA8XX
 	arch_cpu_init();
 #endif
-	relocate_code(CONFIG_SPL_STACK, NULL, CONFIG_SPL_TEXT_BASE);
+
+	/* Third, we clear the BSS. */
+	memset(__bss_start, 0, __bss_end__ - __bss_start);
+
+	/* Finally, setup gd and move to the next step. */
+	gd = &gdata;
+	board_init_r(NULL, 0);
 }
 
-void board_init_r(gd_t *id, ulong dummy)
+void spl_board_init(void)
 {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-	mem_malloc_init(CONFIG_SYS_TEXT_BASE - CONFIG_SYS_MALLOC_LEN,
-			CONFIG_SYS_MALLOC_LEN);
+	preloader_console_init();
+}
 
-	gd = &gdata;
-	gd->bd = &bdata;
-	gd->flags |= GD_FLG_RELOC;
-	gd->baudrate = CONFIG_BAUDRATE;
-	serial_init();          /* serial communications setup */
-	gd->have_console = 1;
+u32 spl_boot_mode(void)
+{
+	return MMCSD_MODE_RAW;
+}
 
-#endif
-
-#ifdef CONFIG_SPL_NAND_LOAD
-	nand_init();
-	puts("Nand boot...\n");
-	nand_boot();
-#endif
-#ifdef CONFIG_SPL_SPI_LOAD
-	puts("SPI boot...\n");
-	spi_boot();
-#endif
-#ifdef CONFIG_SPL_MMC_LOAD
-	puts("MMC boot...\n");
-	spl_mmc_load();
+u32 spl_boot_device(void)
+{
+#ifdef CONFIG_SPL_NAND_SIMPLE
+	return BOOT_DEVICE_NAND;
+#elif defined(CONFIG_SPL_SPI_LOAD)
+	return BOOT_DEVICE_SPI;
+#elif defined(CONFIG_SPL_MMC_LOAD)
+	return BOOT_DEVICE_MMC1;
+#else
+	puts("Unknown boot device\n");
+	hang();
 #endif
 }

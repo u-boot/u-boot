@@ -321,6 +321,8 @@
 #define BOARD_REV_1_0           0x0
 #define BOARD_REV_2_0           0x1
 
+#define BOARD_VER_OFFSET	0x8
+
 #define IMX_IIM_BASE            (IIM_BASE_ADDR)
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))

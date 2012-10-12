@@ -66,39 +66,42 @@ static void nand_load(unsigned int offs, int uboot_size, uchar *dst)
 
 	if (large) {
 		fmr |= FMR_ECCM;
-		out_be32(&regs->fcr, (NAND_CMD_READ0 << FCR_CMD0_SHIFT) |
-		                     (NAND_CMD_READSTART << FCR_CMD1_SHIFT));
-		out_be32(&regs->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-		         (FIR_OP_CW1 << FIR_OP3_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP4_SHIFT));
+		__raw_writel((NAND_CMD_READ0 << FCR_CMD0_SHIFT) |
+			(NAND_CMD_READSTART << FCR_CMD1_SHIFT),
+			&regs->fcr);
+		__raw_writel(
+			(FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			(FIR_OP_CA  << FIR_OP1_SHIFT) |
+			(FIR_OP_PA  << FIR_OP2_SHIFT) |
+			(FIR_OP_CW1 << FIR_OP3_SHIFT) |
+			(FIR_OP_RBW << FIR_OP4_SHIFT),
+			&regs->fir);
 	} else {
-		out_be32(&regs->fcr, NAND_CMD_READ0 << FCR_CMD0_SHIFT);
-		out_be32(&regs->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP3_SHIFT));
+		__raw_writel(NAND_CMD_READ0 << FCR_CMD0_SHIFT, &regs->fcr);
+		__raw_writel(
+			(FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			(FIR_OP_CA  << FIR_OP1_SHIFT) |
+			(FIR_OP_PA  << FIR_OP2_SHIFT) |
+			(FIR_OP_RBW << FIR_OP3_SHIFT),
+			&regs->fir);
 	}
 
-	out_be32(&regs->fbcr, 0);
-	clrsetbits_be32(&regs->bank[0].br, BR_DECC, BR_DECC_CHK_GEN);
+	__raw_writel(0, &regs->fbcr);
 
 	while (pos < uboot_size) {
 		int i = 0;
-		out_be32(&regs->fbar, offs >> block_shift);
+		__raw_writel(offs >> block_shift, &regs->fbar);
 
 		do {
 			int j;
 			unsigned int page_offs = (offs & (block_size - 1)) << 1;
 
-			out_be32(&regs->ltesr, ~0);
-			out_be32(&regs->lteatr, 0);
-			out_be32(&regs->fpar, page_offs);
-			out_be32(&regs->fmr, fmr);
-			out_be32(&regs->lsor, 0);
+			__raw_writel(~0, &regs->ltesr);
+			__raw_writel(0, &regs->lteatr);
+			__raw_writel(page_offs, &regs->fpar);
+			__raw_writel(fmr, &regs->fmr);
+			sync();
+			__raw_writel(0, &regs->lsor);
 			nand_wait();
 
 			page_offs %= WINDOW_SIZE;

@@ -1729,6 +1729,7 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_DEVDISR2_DTSEC2_2	0x00004000
 #define FSL_CORENET_DEVDISR2_DTSEC2_3	0x00002000
 #define FSL_CORENET_DEVDISR2_DTSEC2_4	0x00001000
+#define FSL_CORENET_DEVDISR2_DTSEC2_5	0x00000800
 #define FSL_CORENET_NUM_DEVDISR		2
 	u8	res7[8];
 	u32	powmgtcsr;	/* Power management status & control */
@@ -1758,13 +1759,14 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_RCWSR5_DDR_SYNC		0x00000080
 #define FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT		 7
 #define FSL_CORENET_RCWSR5_SRDS_EN		0x00002000
+#define FSL_CORENET_RCWSR6_BOOT_LOC	0x0f800000
 #define FSL_CORENET_RCWSRn_SRDS_LPD_B2		0x3c000000 /* bits 162..165 */
 #define FSL_CORENET_RCWSRn_SRDS_LPD_B3		0x003c0000 /* bits 170..173 */
 #define FSL_CORENET_RCWSR7_MCK_TO_PLAT_RAT	0x00400000
 #define FSL_CORENET_RCWSR8_HOST_AGT_B1		0x00e00000
 #define FSL_CORENET_RCWSR8_HOST_AGT_B2		0x00100000
 #define FSL_CORENET_RCWSR11_EC1			0x00c00000 /* bits 360..361 */
-#if defined(CONFIG_PPC_P4080) || defined(CONFIG_PPC_P3060)
+#ifdef CONFIG_PPC_P4080
 #define FSL_CORENET_RCWSR11_EC1_FM1_DTSEC1		0x00000000
 #define FSL_CORENET_RCWSR11_EC1_FM1_USB1		0x00800000
 #define FSL_CORENET_RCWSR11_EC2			0x001c0000 /* bits 363..365 */
@@ -1772,7 +1774,7 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_RCWSR11_EC2_FM1_DTSEC2		0x00080000
 #define FSL_CORENET_RCWSR11_EC2_USB2			0x00100000
 #endif
-#if defined(CONFIG_PPC_P2040) || defined(CONFIG_PPC_P2041) \
+#if defined(CONFIG_PPC_P2041) \
 	|| defined(CONFIG_PPC_P3041) || defined(CONFIG_PPC_P5020)
 #define FSL_CORENET_RCWSR11_EC1_FM1_DTSEC4_RGMII	0x00000000
 #define FSL_CORENET_RCWSR11_EC1_FM1_DTSEC4_MII		0x00800000
@@ -1836,7 +1838,13 @@ typedef struct ccsr_gur {
 	u8	res31[184];
 	u32	sriopstecr;	/* SRIO prescaler timer enable control */
 	u32	dcsrcr;		/* DCSR Control register */
-	u8	res32[1784];
+	u8	res31a[56];
+	u32	tp_ityp[64];	/* Topology Initiator Type Register */
+	struct {
+		u32	upper;
+		u32	lower;
+	} tp_cluster[16];	/* Core Cluster n Topology Register */
+	u8	res32[1344];
 	u32	pmuxcr;		/* Pin multiplexing control */
 	u8	res33[60];
 	u32	iovselsr;	/* I/O voltage selection status */
@@ -1848,6 +1856,18 @@ typedef struct ccsr_gur {
 	u32	sdhcpcr;	/* eSDHC polarity configuration */
 	u8	res37[380];
 } ccsr_gur_t;
+
+#define TP_ITYP_AV	0x00000001		/* Initiator available */
+#define TP_ITYP_TYPE(x)	(((x) & 0x6) >> 1)	/* Initiator Type */
+#define TP_ITYP_TYPE_OTHER	0x0
+#define TP_ITYP_TYPE_PPC	0x1	/* PowerPC */
+#define TP_ITYP_TYPE_SC		0x2	/* StarCore DSP */
+#define TP_ITYP_TYPE_HA		0x3	/* HW Accelerator */
+#define TP_ITYP_THDS(x)	(((x) & 0x18) >> 3)	/* # threads */
+#define TP_ITYP_VER(x)	(((x) & 0xe0) >> 5)	/* Initiator Version */
+
+#define TP_CLUSTER_EOC		0x80000000	/* end of clusters */
+#define TP_CLUSTER_INIT_MASK	0x0000003f	/* initiator mask */
 
 #define FSL_CORENET_DCSR_SZ_MASK	0x00000003
 #define FSL_CORENET_DCSR_SZ_4M		0x0
@@ -1890,6 +1910,73 @@ typedef struct ccsr_clk {
 	u8	res15[0x3dc];
 } ccsr_clk_t;
 
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+typedef struct ccsr_rcpm {
+	u8	res_00[12];
+	u32	tph10sr0;	/* Thread PH10 Status Register */
+	u8	res_10[12];
+	u32	tph10setr0;	/* Thread PH10 Set Control Register */
+	u8	res_20[12];
+	u32	tph10clrr0;	/* Thread PH10 Clear Control Register */
+	u8	res_30[12];
+	u32	tph10psr0;	/* Thread PH10 Previous Status Register */
+	u8	res_40[12];
+	u32	twaitsr0;	/* Thread Wait Status Register */
+	u8	res_50[96];
+	u32	pcph15sr;	/* Physical Core PH15 Status Register */
+	u32	pcph15setr;	/* Physical Core PH15 Set Control Register */
+	u32	pcph15clrr;	/* Physical Core PH15 Clear Control Register */
+	u32	pcph15psr;	/* Physical Core PH15 Prev Status Register */
+	u8	res_c0[16];
+	u32	pcph20sr;	/* Physical Core PH20 Status Register */
+	u32	pcph20setr;	/* Physical Core PH20 Set Control Register */
+	u32	pcph20clrr;	/* Physical Core PH20 Clear Control Register */
+	u32	pcph20psr;	/* Physical Core PH20 Prev Status Register */
+	u32	pcpw20sr;	/* Physical Core PW20 Status Register */
+	u8	res_e0[12];
+	u32	pcph30sr;	/* Physical Core PH30 Status Register */
+	u32	pcph30setr;	/* Physical Core PH30 Set Control Register */
+	u32	pcph30clrr;	/* Physical Core PH30 Clear Control Register */
+	u32	pcph30psr;	/* Physical Core PH30 Prev Status Register */
+	u8	res_100[32];
+	u32	ippwrgatecr;	/* IP Power Gating Control Register */
+	u8	res_124[12];
+	u32	powmgtcsr;	/* Power Management Control & Status Reg */
+	u8	res_134[12];
+	u32	ippdexpcr[4];	/* IP Powerdown Exception Control Reg */
+	u8	res_150[12];
+	u32	tpmimr0;	/* Thread PM Interrupt Mask Reg */
+	u8	res_160[12];
+	u32	tpmcimr0;	/* Thread PM Crit Interrupt Mask Reg */
+	u8	res_170[12];
+	u32	tpmmcmr0;	/* Thread PM Machine Check Interrupt Mask Reg */
+	u8	res_180[12];
+	u32	tpmnmimr0;	/* Thread PM NMI Mask Reg */
+	u8	res_190[12];
+	u32	tmcpmaskcr0;	/* Thread Machine Check Mask Control Reg */
+	u32	pctbenr;	/* Physical Core Time Base Enable Reg */
+	u32	pctbclkselr;	/* Physical Core Time Base Clock Select */
+	u32	tbclkdivr;	/* Time Base Clock Divider Register */
+	u8	res_1ac[4];
+	u32	ttbhltcr[4];	/* Thread Time Base Halt Control Register */
+	u32	clpcl10sr;	/* Cluster PCL10 Status Register */
+	u32	clpcl10setr;	/* Cluster PCL30 Set Control Register */
+	u32	clpcl10clrr;	/* Cluster PCL30 Clear Control Register */
+	u32	clpcl10psr;	/* Cluster PCL30 Prev Status Register */
+	u32	cddslpsetr;	/* Core Domain Deep Sleep Set Register */
+	u32	cddslpclrr;	/* Core Domain Deep Sleep Clear Register */
+	u32	cdpwroksetr;	/* Core Domain Power OK Set Register */
+	u32	cdpwrokclrr;	/* Core Domain Power OK Clear Register */
+	u32	cdpwrensr;	/* Core Domain Power Enable Status Register */
+	u32	cddslsr;	/* Core Domain Deep Sleep Status Register */
+	u8	res_1e8[8];
+	u32	dslpcntcr[8];	/* Deep Sleep Counter Cfg Register */
+	u8	res_300[3568];
+} ccsr_rcpm_t;
+
+#define ctbenrl pctbenr
+
+#else
 typedef struct ccsr_rcpm {
 	u8	res1[4];
 	u32	cdozsrl;	/* Core Doze Status */
@@ -1926,6 +2013,7 @@ typedef struct ccsr_rcpm {
 	u32	ctbhltcrl;	/* Core Time Base Halt Control */
 	u8	res18[0xf68];
 } ccsr_rcpm_t;
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
 #else
 typedef struct ccsr_gur {
@@ -2259,8 +2347,7 @@ typedef struct ccsr_gur {
 	u8	res11a[76];
 	par_io_t qe_par_io[7];
 	u8	res11b[1600];
-#elif defined(CONFIG_P1012) || defined(CONFIG_P1016) || \
-      defined(CONFIG_P1021) || defined(CONFIG_P1025)
+#elif defined(CONFIG_P1012) || defined(CONFIG_P1021) || defined(CONFIG_P1025)
 	u8      res11a[12];
 	u32     iovselsr;
 	u8      res11b[60];
@@ -2534,6 +2621,7 @@ struct ccsr_rman {
 #define CONFIG_SYS_FSL_CORENET_CCM_OFFSET	0x0000
 #define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x8000
 #define CONFIG_SYS_MPC85xx_DDR2_OFFSET		0x9000
+#define CONFIG_SYS_MPC85xx_DDR3_OFFSET		0xA000
 #define CONFIG_SYS_FSL_CORENET_CLK_OFFSET	0xE1000
 #define CONFIG_SYS_FSL_CORENET_RCPM_OFFSET	0xE2000
 #define CONFIG_SYS_FSL_CORENET_SERDES_OFFSET	0xEA000
@@ -2544,6 +2632,7 @@ struct ccsr_rman {
 #define CONFIG_SYS_MPC85xx_ESPI_OFFSET		0x110000
 #define CONFIG_SYS_MPC85xx_ESDHC_OFFSET		0x114000
 #define CONFIG_SYS_MPC85xx_LBC_OFFSET		0x124000
+#define CONFIG_SYS_MPC85xx_IFC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0x130000
 #define CONFIG_SYS_FSL_CORENET_RMAN_OFFSET	0x1e0000
 #define CONFIG_SYS_MPC85xx_PCIE1_OFFSET		0x200000
@@ -2652,6 +2741,8 @@ struct ccsr_rman {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR_OFFSET)
 #define CONFIG_SYS_MPC85xx_DDR2_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR2_OFFSET)
+#define CONFIG_SYS_MPC85xx_DDR3_ADDR \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR3_OFFSET)
 #define CONFIG_SYS_LBC_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_LBC_OFFSET)
 #define CONFIG_SYS_IFC_ADDR \

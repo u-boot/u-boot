@@ -43,11 +43,13 @@ int checkboard (void)
 	/* After a loadace command, the SystemAce control register is left in a wonky state. */
 	/* this code did not work in board_pre_init */
 	unsigned char *p = (unsigned char *) AP1000_SYSACE_REGBASE;
+	unsigned int *revision_reg_ptr = (unsigned int *) AP1xx_FPGA_REV_ADDR;
+	unsigned int device = (*revision_reg_ptr & AP1xx_TARGET_MASK);
 
 	p[SYSACE_CTRLREG0] = 0x0;
 
 	/* add platform and device to banner */
-	switch (get_device ()) {
+	switch (device) {
 	case AP1xx_AP107_TARGET:
 		puts (AP1xx_AP107_TARGET_STR);
 		break;
@@ -158,13 +160,6 @@ unsigned int get_platform (void)
 	unsigned int *revision_reg_ptr = (unsigned int *) AP1xx_FPGA_REV_ADDR;
 
 	return (*revision_reg_ptr & AP1xx_PLATFORM_MASK);
-}
-
-unsigned int get_device (void)
-{
-	unsigned int *revision_reg_ptr = (unsigned int *) AP1xx_FPGA_REV_ADDR;
-
-	return (*revision_reg_ptr & AP1xx_TARGET_MASK);
 }
 
 #if 0				/* loadace is not working; it appears to be a hardware issue with the system ace. */
