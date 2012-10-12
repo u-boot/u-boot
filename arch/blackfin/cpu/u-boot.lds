@@ -119,6 +119,10 @@ SECTIONS
 		___u_boot_cmd_end = .;
 	} >ram_data
 
+	.u_boot_list : {
+		#include <u-boot.lst>
+	} >ram_data
+
 	.text_l1 :
 	{
 		. = ALIGN(4);

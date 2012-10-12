@@ -48,6 +48,11 @@ SECTIONS
 	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
 	. = ALIGN(4);
 
+	.u_boot_list : {
+		#include <u-boot.lst>
+	} >.sram
+	. = ALIGN(4);
+
 	/* Align .machine_param on 256 byte boundary for easier searching */
 	.machine_param ALIGN(0x100) : { *(.machine_param) } >.sram
 	. = ALIGN(4);

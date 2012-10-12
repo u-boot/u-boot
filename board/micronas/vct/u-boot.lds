@@ -60,6 +60,11 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
+	.u_boot_list : {
+		#include <u-boot.lst>
+	}
+
+	. = ALIGN(4);
 	uboot_end_data = .;
 	num_got_entries = (__got_end - __got_start) >> 2;
 

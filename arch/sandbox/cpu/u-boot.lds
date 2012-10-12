@@ -28,6 +28,11 @@ SECTIONS
 	_u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;
 
+	. = ALIGN(4);
+	.u_boot_list : {
+	#include <u-boot.lst>
+	}
+
 	__u_boot_sandbox_option_start = .;
 	_u_boot_sandbox_getopt : { *(.u_boot_sandbox_getopt) }
 	__u_boot_sandbox_option_end = .;

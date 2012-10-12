@@ -51,6 +51,11 @@ SECTIONS
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;
 
+	. = ALIGN(4);
+	.u_boot_list : {
+	#include <u-boot.lst>
+	}
+
 	uboot_end_data = .;
 	num_got_entries = (__got_end - __got_start) >> 2;
 

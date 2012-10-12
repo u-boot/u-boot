@@ -46,6 +46,7 @@ SECTIONS
 	{
 		*(.data)
 	}
+
 	. = ALIGN(4);
 	__data_end = .;
 

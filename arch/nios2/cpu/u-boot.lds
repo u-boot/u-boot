@@ -53,6 +53,11 @@ SECTIONS
 	. = ALIGN(4);
 	__u_boot_cmd_end = .;
 
+	. = ALIGN(4);
+	.u_boot_list : {
+	#include <u-boot.lst>
+	}
+
 	/* INIT DATA sections - "Small" data (see the gcc -G option)
 	 * is always gp-relative. Here we make all init data sections
 	 * adjacent to simplify the startup code -- and provide

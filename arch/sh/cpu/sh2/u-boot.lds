@@ -80,6 +80,10 @@ SECTIONS
 	}
 	PROVIDE (__u_boot_cmd_end = .);
 
+	.u_boot_list : {
+		#include <u-boot.lst>
+	}
+
 	PROVIDE (reloc_dst_end = .);
 
 	PROVIDE (bss_start = .);
