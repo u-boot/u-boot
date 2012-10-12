@@ -26,6 +26,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <linux/stringify.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
