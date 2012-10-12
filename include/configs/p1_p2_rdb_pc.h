@@ -38,6 +38,7 @@
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0xe4
 #define __SW_BOOT_SD		0x54
+#define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
 #if defined(CONFIG_P1020UTM)
@@ -46,6 +47,7 @@
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0xe0
 #define __SW_BOOT_SD		0x50
+#define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
 #if defined(CONFIG_P1020RDB)
@@ -61,6 +63,7 @@
 #define __SW_BOOT_SD		0x9c
 #define __SW_BOOT_NAND		0xec
 #define __SW_BOOT_PCIE		0x6c
+#define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
 #if defined(CONFIG_P1021RDB)
@@ -78,6 +81,7 @@
 #define __SW_BOOT_SD		0x9c
 #define __SW_BOOT_NAND		0xec
 #define __SW_BOOT_PCIE		0x6c
+#define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
 #if defined(CONFIG_P1024RDB)
@@ -91,6 +95,7 @@
 #define __SW_BOOT_SPI		0x08
 #define __SW_BOOT_SD		0x04
 #define __SW_BOOT_NAND		0x0c
+#define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
 #if defined(CONFIG_P1025RDB)
@@ -108,6 +113,7 @@
 #define __SW_BOOT_SPI		0x08
 #define __SW_BOOT_SD		0x04
 #define __SW_BOOT_NAND		0x0c
+#define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
 #if defined(CONFIG_P2020RDB)
@@ -122,6 +128,14 @@
 #define __SW_BOOT_SD		0x68 /* or 0x18 */
 #define __SW_BOOT_NAND		0xe8
 #define __SW_BOOT_PCIE		0xa8
+#define CONFIG_SYS_L2_SIZE	(512 << 10)
+#endif
+
+#if CONFIG_SYS_L2_SIZE >= (512 << 10)
+/* must be 32-bit */
+#define CONFIG_SYS_INIT_L2_ADDR	0xf8f80000
+#define CONFIG_SYS_INIT_L2_ADDR_PHYS CONFIG_SYS_INIT_L2_ADDR
+#define CONFIG_SYS_INIT_L2_END  (CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -149,14 +163,28 @@
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 
-#define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xfffff000
 #define CONFIG_SPL_MAX_SIZE		(4 * 1024)
+
+#ifdef CONFIG_SYS_INIT_L2_ADDR
+/* We multiply CONFIG_SPL_MAX_SIZE by two to leave some room for BSS. */
+#define CONFIG_SYS_TEXT_BASE		0xf8f82000
+#define CONFIG_SPL_RELOC_TEXT_BASE	\
+	(CONFIG_SYS_INIT_L2_END - CONFIG_SPL_MAX_SIZE * 2)
+#define CONFIG_SPL_RELOC_STACK		\
+	(CONFIG_SYS_INIT_L2_END - CONFIG_SPL_MAX_SIZE * 2)
+#define CONFIG_SYS_NAND_U_BOOT_DST	(CONFIG_SYS_INIT_L2_ADDR)
+#define CONFIG_SYS_NAND_U_BOOT_START	\
+	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SPL_MAX_SIZE)
+#else
+#define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_RELOC_TEXT_BASE	0x00100000
 #define CONFIG_SPL_RELOC_STACK		0x00100000
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	((512 << 10) + CONFIG_SPL_MAX_SIZE)
 #define CONFIG_SYS_NAND_U_BOOT_DST	(0x00200000 - CONFIG_SPL_MAX_SIZE)
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
+#endif
+
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	((512 << 10) - 0x2000)
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0
 #define CONFIG_SYS_LDSCRIPT		"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #endif
@@ -261,39 +289,7 @@
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 
 /* Default settings for DDR3 */
-#ifdef CONFIG_P2020RDB
-#define CONFIG_SYS_DDR_CS0_BNDS		0x0000003f
-#define CONFIG_SYS_DDR_CS0_CONFIG	0x80014202
-#define CONFIG_SYS_DDR_CS0_CONFIG_2	0x00000000
-#define CONFIG_SYS_DDR_CS1_BNDS		0x00000000
-#define CONFIG_SYS_DDR_CS1_CONFIG	0x00000000
-#define CONFIG_SYS_DDR_CS1_CONFIG_2	0x00000000
-
-#define CONFIG_SYS_DDR_DATA_INIT	0xdeadbeef
-#define CONFIG_SYS_DDR_INIT_ADDR	0x00000000
-#define CONFIG_SYS_DDR_INIT_EXT_ADDR	0x00000000
-#define CONFIG_SYS_DDR_MODE_CONTROL	0x00000000
-
-#define CONFIG_SYS_DDR_ZQ_CONTROL	0x89080600
-#define CONFIG_SYS_DDR_WRLVL_CONTROL	0x8645F607
-#define CONFIG_SYS_DDR_SR_CNTR		0x00000000
-#define CONFIG_SYS_DDR_RCW_1		0x00000000
-#define CONFIG_SYS_DDR_RCW_2		0x00000000
-#define CONFIG_SYS_DDR_CONTROL		0xC7000000	/* Type = DDR3	*/
-#define CONFIG_SYS_DDR_CONTROL_2	0x24401000
-#define CONFIG_SYS_DDR_TIMING_4		0x00220001
-#define CONFIG_SYS_DDR_TIMING_5		0x02401400
-
-#define CONFIG_SYS_DDR_TIMING_3		0x00020000
-#define CONFIG_SYS_DDR_TIMING_0		0x00330104
-#define CONFIG_SYS_DDR_TIMING_1		0x6f6B4644
-#define CONFIG_SYS_DDR_TIMING_2		0x0FA88CCF
-#define CONFIG_SYS_DDR_CLK_CTRL		0x02000000
-#define CONFIG_SYS_DDR_MODE_1		0x00421422
-#define CONFIG_SYS_DDR_MODE_2		0x04000000
-#define CONFIG_SYS_DDR_INTERVAL		0x0C300100
-
-#else
+#ifndef CONFIG_P2020RDB
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000003f
 #define CONFIG_SYS_DDR_CS0_CONFIG	0x80014302
 #define CONFIG_SYS_DDR_CS0_CONFIG_2	0x00000000
@@ -334,13 +330,14 @@
  * 0x0000_0000 0x7fff_ffff	DDR		Up to 2GB cacheable
  * 0x8000_0000 0xdfff_ffff	PCI Express Mem	1.5G non-cacheable(PCIe * 3)
  * 0xec00_0000 0xefff_ffff	NOR flash	Up to 64M non-cacheable	CS0/1
+ * 0xf8f8_0000 0xf8ff_ffff	L2 SRAM		Up to 512K cacheable
+ *   (early boot only)
  * 0xff80_0000 0xff80_7fff	NAND flash	32K non-cacheable	CS1/0
  * 0xff98_0000 0xff98_ffff	PMC		64K non-cacheable	CS2
  * 0xffa0_0000 0xffaf_ffff	CPLD		1M non-cacheable	CS3
  * 0xffb0_0000 0xffbf_ffff	VSC7385 switch  1M non-cacheable	CS2
  * 0xffc0_0000 0xffc3_ffff	PCI IO range	256k non-cacheable
  * 0xffd0_0000 0xffd0_3fff	L1 for stack	16K cacheable
- * 0xffd8_0000 0xffdf_ffff	L2 SRAM		Up to 512K cacheable
  * 0xffe0_0000 0xffef_ffff	CCSR		1M non-cacheable
  */
 
