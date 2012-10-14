@@ -24,6 +24,7 @@
 #include <asm/fsl_srio.h>
 #include <asm/errno.h>
 
+#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER
 #define SRIO_PORT_ACCEPT_ALL 0x10000001
 #define SRIO_IB_ATMU_AR 0x80f55000
 #define SRIO_OB_ATMU_AR_MAINT 0x80077000
@@ -32,6 +33,7 @@
 #define SRIO_MAINT_WIN_SIZE 0x1000000 /* 16M */
 #define SRIO_RW_WIN_SIZE 0x100000 /* 1M */
 #define SRIO_LCSBA1CSR 0x60000000
+#endif
 
 #if defined(CONFIG_FSL_CORENET)
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
@@ -297,7 +299,7 @@ void srio_init(void)
 	}
 }
 
-#ifdef CONFIG_FSL_CORENET
+#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER
 void srio_boot_master(int port)
 {
 	struct ccsr_rio *srio = (void *)CONFIG_SYS_FSL_SRIO_ADDR;
