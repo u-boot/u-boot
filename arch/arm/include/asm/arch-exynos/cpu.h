@@ -139,6 +139,15 @@ static inline int cpu_is_##type(void)			\
 IS_SAMSUNG_TYPE(exynos4, 0x4)
 IS_SAMSUNG_TYPE(exynos5, 0x5)
 
+#define IS_EXYNOS_TYPE(type, id)			\
+static inline int proid_is_##type(void)			\
+{							\
+	return s5p_cpu_id == id;			\
+}
+
+IS_EXYNOS_TYPE(exynos4210, 0x4210)
+IS_EXYNOS_TYPE(exynos5250, 0x5250)
+
 #define SAMSUNG_BASE(device, base)				\
 static inline unsigned int samsung_get_base_##device(void)	\
 {								\
