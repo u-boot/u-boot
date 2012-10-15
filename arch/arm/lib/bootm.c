@@ -96,6 +96,9 @@ static void announce_and_cleanup(void)
 {
 	printf("\nStarting kernel ...\n\n");
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
+#ifdef CONFIG_BOOTSTAGE_FDT
+	bootstage_fdt_add_report();
+#endif
 #ifdef CONFIG_BOOTSTAGE_REPORT
 	bootstage_report();
 #endif

@@ -2391,6 +2391,31 @@ The following options need to be configured:
 		 29,916,167 26,005,792  bootm_start
 		 30,361,327    445,160  start_kernel
 
+		CONFIG_CMD_BOOTSTAGE
+		Add a 'bootstage' command which supports printing a report
+		and un/stashing of bootstage data.
+
+		CONFIG_BOOTSTAGE_FDT
+		Stash the bootstage information in the FDT. A root 'bootstage'
+		node is created with each bootstage id as a child. Each child
+		has a 'name' property and either 'mark' containing the
+		mark time in microsecond, or 'accum' containing the
+		accumulated time for that bootstage id in microseconds.
+		For example:
+
+		bootstage {
+			154 {
+				name = "board_init_f";
+				mark = <3575678>;
+			};
+			170 {
+				name = "lcd";
+				accum = <33482>;
+			};
+		};
+
+		Code in the Linux kernel can find this in /proc/devicetree.
+
 Legacy uImage format:
 
   Arg	Where			When
