@@ -494,6 +494,8 @@ int fw_setenv(int argc, char *argv[])
 		char *val = argv[i];
 		size_t val_len = strlen(val);
 
+		if (value)
+			value[len - 1] = ' ';
 		value = realloc(value, len + val_len + 1);
 		if (!value) {
 			fprintf(stderr,
@@ -504,9 +506,8 @@ int fw_setenv(int argc, char *argv[])
 
 		memcpy(value + len, val, val_len);
 		len += val_len;
-		value[len++] = ' ';
+		value[len++] = '\0';
 	}
-	value[len - 1] = '\0';
 
 	fw_env_write(name, value);
 
