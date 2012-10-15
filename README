@@ -1084,7 +1084,7 @@ The following options need to be configured:
 		CONFIG_CALXEDA_XGMAC
 		Support for the Calxeda XGMAC device
 
-		CONFIG_DRIVER_LAN91C96
+		CONFIG_LAN91C96
 		Support for SMSC's LAN91C96 chips.
 
 			CONFIG_LAN91C96_BASE
@@ -1094,7 +1094,7 @@ The following options need to be configured:
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
 
-		CONFIG_DRIVER_SMC91111
+		CONFIG_SMC91111
 		Support for SMSC's LAN91C111 chip
 
 			CONFIG_SMC91111_BASE
