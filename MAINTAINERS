@@ -585,6 +585,10 @@ Stefano Babic <sbabic@denx.de>
 	twister		omap3
  	vision2		i.MX51
 
+Lukasz Dalek <luk0104@gmail.com>
+
+	h2200		xscale/pxa
+
 Jason Liu <r64343@freescale.com>
 
 	mx53evk         i.MX53
