@@ -57,13 +57,6 @@
 #include <miiphy.h>
 #endif
 
-#ifdef CONFIG_DRIVER_SMC91111
-#include "../drivers/net/smc91111.h"
-#endif
-#ifdef CONFIG_DRIVER_LAN91C96
-#include "../drivers/net/lan91c96.h"
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 ulong monitor_flash_len;
@@ -612,16 +605,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	interrupt_init();
 	/* enable exceptions */
 	enable_interrupts();
-
-	/* Perform network card initialisation if necessary */
-#if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
-	/* XXX: this needs to be moved to board init */
-	if (getenv("ethaddr")) {
-		uchar enetaddr[6];
-		eth_getenv_enetaddr("ethaddr", enetaddr);
-		smc_set_mac_addr(enetaddr);
-	}
-#endif /* CONFIG_DRIVER_SMC91111 || CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
