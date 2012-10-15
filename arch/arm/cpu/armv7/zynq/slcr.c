@@ -61,3 +61,29 @@ void zynq_slcr_cpu_reset(void)
 
 	writel(1, &slcr_base->pss_rst_ctrl);
 }
+
+/* Setup clk for network */
+void zynq_slcr_gem_clk_setup(u32 gem_id, u32 rclk, u32 clk)
+{
+	zynq_slcr_unlock();
+
+	if (gem_id > 1) {
+		printf("Non existing GEM id %d\n", gem_id);
+		goto out;
+	}
+
+	if (gem_id) {
+		/* Set divisors for appropriate frequency in GEM_CLK_CTRL */
+		writel(clk, &slcr_base->gem1_clk_ctrl);
+		/* Configure GEM_RCLK_CTRL */
+		writel(rclk, &slcr_base->gem1_rclk_ctrl);
+	} else {
+		/* Set divisors for appropriate frequency in GEM_CLK_CTRL */
+		writel(clk, &slcr_base->gem0_clk_ctrl);
+		/* Configure GEM_RCLK_CTRL */
+		writel(rclk, &slcr_base->gem0_rclk_ctrl);
+	}
+
+out:
+	zynq_slcr_lock();
+}

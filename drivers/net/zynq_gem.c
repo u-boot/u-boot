@@ -33,6 +33,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
+#include <asm/arch/sys_proto.h>
 
 #if !defined(CONFIG_PHYLIB)
 # error XILINX_GEM_ETHERNET requires PHYLIB
@@ -67,13 +68,14 @@
 #define ZYNQ_GEM_NWCTRL_MDEN_MASK	0x00000010 /* Enable MDIO port */
 #define ZYNQ_GEM_NWCTRL_STARTTX_MASK	0x00000200 /* Start tx (tx_go) */
 
-#define ZYNQ_GEM_NWCFG_SPEED		0x00000001 /* 100 Mbps operation */
-#define ZYNQ_GEM_NWCFG_FDEN		0x00000002 /* Full Duplex mode */
-#define ZYNQ_GEM_NWCFG_FSREM		0x00020000 /* FCS removal */
+#define ZYNQ_GEM_NWCFG_SPEED100		0x000000001 /* 100 Mbps operation */
+#define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
+#define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
+#define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000080000 /* Div pclk by 32, 80MHz */
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV2	0x0000c0000 /* Div pclk by 48, 120MHz */
 
-#define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_NWCFG_SPEED | \
-					ZYNQ_GEM_NWCFG_FDEN | \
+#define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_NWCFG_FDEN | \
 					ZYNQ_GEM_NWCFG_FSREM | \
 					ZYNQ_GEM_NWCFG_MDCCLKDIV)
 
@@ -227,7 +229,7 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 
 static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 {
-	u32 i;
+	u32 i, rclk, clk = 0;
 	struct phy_device *phydev;
 	const u32 stat_size = (sizeof(struct zynq_gem_regs) -
 				offsetof(struct zynq_gem_regs, stat)) / 4;
@@ -277,16 +279,11 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		/* Write RxBDs to IP */
 		writel((u32)&(priv->rx_bd), &regs->rxqbase);
 
-		/* MAC Setup */
-		/* Setup Network Configuration register */
-		writel(ZYNQ_GEM_NWCFG_INIT, &regs->nwcfg);
-
 		/* Setup for DMA Configuration register */
 		writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
 
 		/* Setup for Network Control register, MDIO, Rx and Tx enable */
-		setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK |
-			ZYNQ_GEM_NWCTRL_RXEN_MASK | ZYNQ_GEM_NWCTRL_TXEN_MASK);
+		setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK);
 
 		priv->init++;
 	}
@@ -294,11 +291,37 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
 
-	phydev->supported &= supported;
+	phydev->supported = supported | ADVERTISED_Pause |
+			    ADVERTISED_Asym_Pause;
 	phydev->advertising = phydev->supported;
 	priv->phydev = phydev;
 	phy_config(phydev);
 	phy_startup(phydev);
+
+	switch (phydev->speed) {
+	case SPEED_1000:
+		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
+		       &regs->nwcfg);
+		rclk = (0 << 4) | (1 << 0);
+		clk = (1 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
+		break;
+	case SPEED_100:
+		clrsetbits_le32(&regs->nwcfg, ZYNQ_GEM_NWCFG_SPEED1000,
+				ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100);
+		rclk = 1 << 0;
+		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
+		break;
+	case SPEED_10:
+		rclk = 1 << 0;
+		/* FIXME untested */
+		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
+		break;
+	}
+	/* FIXME maybe better to define gem address in hardware.h */
+	zynq_slcr_gem_clk_setup(dev->iobase != 0xE000B000, rclk, clk);
+
+	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
+					ZYNQ_GEM_NWCTRL_TXEN_MASK);
 
 	return 0;
 }
@@ -380,8 +403,8 @@ static void zynq_gem_halt(struct eth_device *dev)
 {
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 
-	/* Disable the receiver & transmitter */
-	writel(0, &regs->nwctrl);
+	clrsetbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
+						ZYNQ_GEM_NWCTRL_TXEN_MASK, 0);
 }
 
 static int zynq_gem_miiphyread(const char *devname, uchar addr,
