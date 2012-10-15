@@ -484,10 +484,6 @@ static int zynq_gem_recv(struct eth_device *dev)
 
 static void zynq_gem_halt(struct eth_device *dev)
 {
-	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
-
-	/* Disable the receiver & transmitter */
-	writel(0, &regs->nwctrl);
 }
 
 static int zynq_gem_miiphyread(const char *devname, uchar addr,
