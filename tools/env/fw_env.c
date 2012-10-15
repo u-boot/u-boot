@@ -739,8 +739,8 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 			return -1;
 		}
 #ifdef DEBUG
-		fprintf (stderr, "Read 0x%x bytes at 0x%llx\n",
-			 rc, blockstart + block_seek);
+		fprintf(stderr, "Read 0x%x bytes at 0x%llx on %s\n",
+			 rc, blockstart + block_seek, DEVNAME(dev));
 #endif
 		processed += readlen;
 		readlen = min (blocklen, count - processed);
@@ -819,6 +819,18 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		if (write_total != rc)
 			return -1;
 
+#ifdef DEBUG
+		fprintf(stderr, "Preserving data ");
+		if (block_seek != 0)
+			fprintf(stderr, "0x%x - 0x%lx", 0, block_seek - 1);
+		if (block_seek + count != write_total) {
+			if (block_seek != 0)
+				fprintf(stderr, " and ");
+			fprintf(stderr, "0x%lx - 0x%x",
+				block_seek + count, write_total - 1);
+		}
+		fprintf(stderr, "\n");
+#endif
 		/* Overwrite the old environment */
 		memcpy (data + block_seek, buf, count);
 	} else {
@@ -877,7 +889,8 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		}
 
 #ifdef DEBUG
-		printf ("Write 0x%x bytes at 0x%llx\n", erasesize, blockstart);
+		fprintf(stderr, "Write 0x%x bytes at 0x%llx\n", erasesize,
+			blockstart);
 #endif
 		if (write (fd, data + processed, erasesize) != erasesize) {
 			fprintf (stderr, "Write error on %s: %s\n",
@@ -944,7 +957,7 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 	}
 
 #ifdef DEBUG
-	printf ("Writing new environment at 0x%lx on %s\n",
+	fprintf(stderr, "Writing new environment at 0x%lx on %s\n",
 		DEVOFFSET (dev_target), DEVNAME (dev_target));
 #endif
 	rc = flash_write_buf(dev_target, fd_target, environment.image,
@@ -958,7 +971,8 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 		off_t offset = DEVOFFSET (dev_current) +
 			offsetof (struct env_image_redundant, flags);
 #ifdef DEBUG
-		printf ("Setting obsolete flag in environment at 0x%lx on %s\n",
+		fprintf(stderr,
+			"Setting obsolete flag in environment at 0x%lx on %s\n",
 			DEVOFFSET (dev_current), DEVNAME (dev_current));
 #endif
 		flash_flag_obsolete (dev_current, fd_current, offset);
@@ -1225,6 +1239,9 @@ int fw_env_open(void)
 			/* Other pointers are already set */
 			free (addr1);
 		}
+#ifdef DEBUG
+		fprintf(stderr, "Selected env in %s\n", DEVNAME(dev_current));
+#endif
 	}
 	return 0;
 }
