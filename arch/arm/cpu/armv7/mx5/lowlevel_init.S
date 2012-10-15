@@ -296,20 +296,66 @@ setup_pll_func:
 
 	setup_pll PLL1_BASE_ADDR, 800
 
-	setup_pll PLL3_BASE_ADDR, 216
+        setup_pll PLL3_BASE_ADDR, 400
+
+        /* Switch peripheral to PLL3 */
+        ldr r0, =CCM_BASE_ADDR
+        ldr r1, =0x00015154
+        str r1, [r0, #CLKCTL_CBCMR]
+        ldr r1, =0x02888945
+        orr r1, r1, #(1 << 16)
+        str r1, [r0, #CLKCTL_CBCDR]
+        /* make sure change is effective */
+1:      ldr r1, [r0, #CLKCTL_CDHIPR]
+        cmp r1, #0x0
+        bne 1b
+
+        setup_pll PLL2_BASE_ADDR, 400
+
+	/* Switch peripheral to PLL2 */
+	ldr r0, =CCM_BASE_ADDR
+	ldr r1, =0x00808145
+	orr r1, r1, #(2 << 10)
+	orr r1, r1, #(0 << 16)
+	orr r1, r1, #(1 << 19)
+	str r1, [r0, #CLKCTL_CBCDR]
+
+	ldr r1, =0x00016154
+	str r1, [r0, #CLKCTL_CBCMR]
+
+	/*change uart clk parent to pll2*/
+	ldr r1, [r0, #CLKCTL_CSCMR1]
+	and r1, r1, #0xfcffffff
+	orr r1, r1, #0x01000000
+	str r1, [r0, #CLKCTL_CSCMR1]
+
+	/* make sure change is effective */
+1:      ldr r1, [r0, #CLKCTL_CDHIPR]
+	cmp r1, #0x0
+	bne 1b
+
+        setup_pll PLL3_BASE_ADDR, 216
+
+	setup_pll PLL4_BASE_ADDR, 455
 
 	/* Set the platform clock dividers */
 	ldr r0, =ARM_BASE_ADDR
-	ldr r1, =0x00000725
+	ldr r1, =0x00000124
 	str r1, [r0, #0x14]
 
 	ldr r0, =CCM_BASE_ADDR
-
 	mov r1, #0
 	str r1, [r0, #CLKCTL_CACRR]
 
-	/* Switch ARM back to PLL 1 */
-	str r4, [r0, #CLKCTL_CCSR]
+	/* Switch ARM back to PLL 1. */
+	mov r1, #0x0
+	str r1, [r0, #CLKCTL_CCSR]
+
+	/* make uart div=6 */
+	ldr r1, [r0, #CLKCTL_CSCDR1]
+	and r1, r1, #0xffffffc0
+	orr r1, r1, #0x0a
+	str r1, [r0, #CLKCTL_CSCDR1]
 
 	/* Restore the default values in the Gate registers */
 	ldr r1, =0xFFFFFFFF
@@ -322,36 +368,14 @@ setup_pll_func:
 	str r1, [r0, #CLKCTL_CCGR6]
 	str r1, [r0, #CLKCTL_CCGR7]
 
-	/* Switch peripheral to PLL2 */
-	ldr r0, =CCM_BASE_ADDR
-	ldr r1, =0x00808145
-	orr r1, r1, #2 << 10
-	orr r1, r1, #1 << 19
-	str r1, [r0, #CLKCTL_CBCDR]
+        mov r1, #0x00000
+        str r1, [r0, #CLKCTL_CCDR]
 
-	ldr r1, =0x00016154
-	str r1, [r0, #CLKCTL_CBCMR]
-	/* Change uart clk parent to pll2*/
-	ldr r1, [r0, #CLKCTL_CSCMR1]
-	and r1, r1, #0xfcffffff
-	orr r1, r1, #0x01000000
-	str r1, [r0, #CLKCTL_CSCMR1]
-	ldr r1, [r0, #CLKCTL_CSCDR1]
-	and r1, r1, #0xffffffc0
-	orr r1, r1, #0x0a
-	str r1, [r0, #CLKCTL_CSCDR1]
+        /* for cko - for ARM div by 8 */
+        mov r1, #0x000A0000
+        add r1, r1, #0x00000F0
+        str r1, [r0, #CLKCTL_CCOSR]
 
-	/* make sure divider effective */
-1:	ldr r1, [r0, #CLKCTL_CDHIPR]
-	cmp r1, #0x0
-	bne 1b
-
-	str r4, [r0, #CLKCTL_CCDR]
-
-	/* for cko - for ARM div by 8 */
-	mov r1, #0x000A0000
-	add r1, r1, #0x00000F0
-	str r1, [r0, #CLKCTL_CCOSR]
 #endif	/* CONFIG_MX53 */
 .endm
 
@@ -405,3 +429,9 @@ W_DP_665:		.word DP_OP_665
 W_DP_216:		.word DP_OP_216
 			.word DP_MFD_216
 			.word DP_MFN_216
+W_DP_400:               .word DP_OP_400
+			.word DP_MFD_400
+			.word DP_MFN_400
+W_DP_455:               .word DP_OP_455
+			.word DP_MFD_455
+			.word DP_MFN_455
