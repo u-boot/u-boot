@@ -344,7 +344,8 @@ def GetMetaData(start, count):
         start: Commit to start from: 0=HEAD, 1=next one, etc.
         count: Number of commits to list
     """
-    pipe = [['git', 'log', '--reverse', 'HEAD~%d' % start, '-n%d' % count]]
+    pipe = [['git', 'log', '--no-color', '--reverse', 'HEAD~%d' % start,
+	'-n%d' % count]]
     stdout = command.RunPipe(pipe, capture=True)
     series = Series()
     ps = PatchStream(series, is_log=True)
