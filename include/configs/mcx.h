@@ -256,22 +256,24 @@
 		"run nandargs; "					\
 		"ubi part nand0,4;"					\
 		"ubi readvol ${loadaddr} kernel;"			\
-		"run addip addtty addmtd addfb addeth addmisc;"		\
+		"run addtty addmtd addfb addeth addmisc;"		\
 		"bootm ${loadaddr}\0"					\
-	"swupdate_args=setenv bootargs ubi.mtd=6 root=ubi0:fs_recovery "\
-		"rootfstype=ubifs quiet loglevel=1 "			\
-			"consoleblank=0 ${swupdate_misc}\0"		\
+	"swupdate_args=setenv bootargs root=/dev/ram "			\
+		"quiet loglevel=1 "					\
+		"consoleblank=0 ${swupdate_misc}\0"			\
 	"swupdate=echo Running Sw-Update...;"				\
 		"if printenv mtdparts;then echo Starting SwUpdate...; "	\
 		"else mtdparts default;fi; "				\
 		"ubi part nand0,5;"					\
 		"ubi readvol 0x82000000 kernel_recovery;"		\
+		"ubi part nand0,6;"					\
+		"ubi readvol 0x84000000 fs_recovery;"			\
 		"run swupdate_args; "					\
 		"setenv bootargs ${bootargs} "				\
 			"${mtdparts} "					\
 			"vram=6M omapfb.vram=1:2M,2:2M,3:2M "		\
 			"omapdss.def_disp=lcd;"				\
-		"bootm ${loadaddr}\0"
+		"bootm 0x82000000 0x84000000\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"run nandboot"
