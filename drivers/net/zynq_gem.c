@@ -149,7 +149,7 @@ struct zynq_gem_priv {
 static inline int mdio_wait(struct eth_device *dev)
 {
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
-	u32 timeout = 200;
+	u32 timeout = 20000;
 
 	/* Wait till MDIO interface is ready to accept a new transaction. */
 	while (--timeout) {
