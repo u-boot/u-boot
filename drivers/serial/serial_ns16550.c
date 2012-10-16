@@ -78,20 +78,20 @@ static NS16550_t serial_ports[4] = {
 
 /* Multi serial device functions */
 #define DECLARE_ESERIAL_FUNCTIONS(port) \
-    int  eserial##port##_init (void) {\
+    static int  eserial##port##_init (void) {\
 	int clock_divisor; \
 	clock_divisor = calc_divisor(serial_ports[port-1]); \
 	NS16550_init(serial_ports[port-1], clock_divisor); \
 	return(0);}\
-    void eserial##port##_setbrg (void) {\
+    static void eserial##port##_setbrg (void) {\
 	serial_setbrg_dev(port);}\
-    int  eserial##port##_getc (void) {\
+    static int  eserial##port##_getc (void) {\
 	return serial_getc_dev(port);}\
-    int  eserial##port##_tstc (void) {\
+    static int  eserial##port##_tstc (void) {\
 	return serial_tstc_dev(port);}\
-    void eserial##port##_putc (const char c) {\
+    static void eserial##port##_putc (const char c) {\
 	serial_putc_dev(port, c);}\
-    void eserial##port##_puts (const char *s) {\
+    static void eserial##port##_puts (const char *s) {\
 	serial_puts_dev(port, s);}
 
 /* Serial device descriptor */
