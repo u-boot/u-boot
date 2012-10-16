@@ -112,16 +112,13 @@ LDPPFLAGS += \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
-ifdef CONFIG_OMAP
 $(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
-endif
-ifdef CONFIG_AM33XX
-$(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
-	$(OBJTREE)/tools/mkimage -T omapimage \
+
+$(OBJTREE)/MLO.byteswap: $(obj)u-boot-spl.bin
+	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
-endif
 
 ALL-y	+= $(obj)u-boot-spl.bin
 
