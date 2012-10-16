@@ -135,6 +135,10 @@ int board_eth_init(bd_t *bis)
 # endif
 #endif
 
+#ifdef CONFIG_ZYNQ_GEM_OLD
+	ret |= zynq_gem_initialize_old(bis);
+#endif
+
 	return ret;
 }
 #endif
