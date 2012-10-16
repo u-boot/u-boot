@@ -37,12 +37,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define HOT_WATER_BUTTON	38
+#define HOT_WATER_BUTTON	42
 
 #ifdef CONFIG_USB_EHCI
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
-	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[1] = OMAP_USBHS_PORT_MODE_UNUSED,
 	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
 };
 
@@ -87,6 +87,7 @@ int board_late_init(void)
 		return 0;
 
 	setenv("bootcmd", "run swupdate");
+
 	return 0;
 }
 #endif
@@ -106,19 +107,5 @@ void set_muxconf_regs(void)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0);
-}
-#endif
-
-#ifdef CONFIG_USB_EHCI_OMAP
-#define USB_HOST_PWR_EN		132
-int board_usb_init(void)
-{
-	if (gpio_request(USB_HOST_PWR_EN, "USB_HOST_PWR_EN") < 0) {
-		puts("Failed to get USB_HOST_PWR_EN pin\n");
-		return -ENODEV;
-	}
-	gpio_direction_output(USB_HOST_PWR_EN, 1);
-
-	return 0;
 }
 #endif

@@ -96,7 +96,7 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(GPMC_A7),		(IEN | PTU | EN  | M4)) \
 	MUX_VAL(CP(GPMC_A8),		(IEN | PTU | EN  | M4)) \
 	MUX_VAL(CP(GPMC_A9),		(IEN | PTU | EN  | M4)) \
-	MUX_VAL(CP(GPMC_A10),		(IDIS | PTU | DIS | M4)) \
+	MUX_VAL(CP(GPMC_A10),		(IEN | PTU | EN | M4)) \
 					/* GPIO_43 LCD buffer enable */ \
 	MUX_VAL(CP(GPMC_D0),		(IEN  | PTU | EN  | M0)) \
 	MUX_VAL(CP(GPMC_D1),		(IEN  | PTU | EN  | M0)) \
