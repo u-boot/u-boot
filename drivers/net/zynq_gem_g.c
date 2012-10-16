@@ -34,13 +34,13 @@
  * The configuration table for emacps device
  */
 
-XEmacPss_Config XEmacPss_ConfigTable[XPAR_XEMACPSS_NUM_INSTANCES] = {
+XEmacPss_Config XEmacPss_ConfigTable[2] = {
 	{
-	 XPAR_XEMACPSS_0_DEVICE_ID,  /* Device ID */
-	 XPAR_XEMACPSS_0_BASEADDR    /* Device base address */
+	 0,  /* Device ID */
+	 0xe000b000    /* Device base address */
 	},
 	{
-	 XPAR_XEMACPSS_1_DEVICE_ID,  /* Device ID */
-	 XPAR_XEMACPSS_1_BASEADDR    /* Device base address */
+	 1,  /* Device ID */
+	 0xe000c000    /* Device base address */
 	}
 };

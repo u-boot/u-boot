@@ -47,7 +47,7 @@ XEmacPss_Config *XEmacPss_LookupConfig(u16 DeviceId)
 	XEmacPss_Config *CfgPtr = NULL;
 	int i;
 
-	for (i = 0; i < XPAR_XEMACPSS_NUM_INSTANCES; i++) {
+	for (i = 0; i < 2; i++) {
 		if (XEmacPss_ConfigTable[i].DeviceId == DeviceId) {
 			CfgPtr = &XEmacPss_ConfigTable[i];
 			break;

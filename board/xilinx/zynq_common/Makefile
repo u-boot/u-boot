@@ -28,7 +28,7 @@ endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS-y	:= board.o
+COBJS-y	:= board.o ../common/xbasic_types.o
 SOBJS   := lowlevel_init.o
 
 COBJS	:= $(sort $(COBJS-y))

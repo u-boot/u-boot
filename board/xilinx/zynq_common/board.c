@@ -32,13 +32,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define dmbp() __asm__ __volatile__ ("dmb" : : : "memory")
 
-static void XIo_Out32(u32 OutAddress, u32 Value)
+void XIo_Out32(u32 OutAddress, u32 Value)
 {
     *(volatile u32 *) OutAddress = Value;
     dmbp();
 }
 
-static u32 XIo_In32(u32 InAddress)
+u32 XIo_In32(u32 InAddress)
 {
     volatile u32 temp = *(volatile u32 *)InAddress;
     dmbp();

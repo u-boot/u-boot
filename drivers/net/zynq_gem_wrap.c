@@ -523,7 +523,7 @@ static int Xgmac_write_hwaddr(struct eth_device *dev)
 	return 0;
 }
 
-int zynq_gem_initialize(bd_t *bis)
+int zynq_gem_initialize_old(bd_t *bis)
 {
 	struct eth_device *dev;
 	dev = malloc(sizeof(*dev));
