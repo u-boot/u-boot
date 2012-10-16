@@ -29,6 +29,9 @@ SECTIONS
   {
     arch/m68k/cpu/mcf52x2/start.o	(.text*)
 
+    . = DEFINED(env_offset) ? env_offset : .;
+    common/env_embedded.o      (.text*)
+
     *(.text*)
   }
   _etext = .;
