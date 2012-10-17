@@ -30,6 +30,7 @@
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/pmu.h>
+#include <asm/arch/pwm.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch/usb.h>
 #include <asm/arch-tegra/board.h>
@@ -118,6 +119,10 @@ int board_init(void)
 #ifdef CONFIG_TEGRA_SPI
 	pin_mux_spi();
 	spi_init();
+#endif
+#ifdef CONFIG_PWM_TEGRA
+	if (pwm_init(gd->fdt_blob))
+		debug("%s: Failed to init pwm\n", __func__);
 #endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
