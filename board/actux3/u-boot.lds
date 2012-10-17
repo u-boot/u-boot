@@ -54,11 +54,6 @@ SECTIONS
 		*(.got)
 	}
 	. =.;
-	__u_boot_cmd_start =.;
-	.u_boot_cmd : {
-		*(.u_boot_cmd)
-	}
-	__u_boot_cmd_end =.;
 
 	. = ALIGN(4);
 	.u_boot_list : {

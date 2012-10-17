@@ -33,10 +33,6 @@ SECTIONS
 	.text  : { *(.text*); }
 
 	. = ALIGN(4);
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
-	. = ALIGN(4);
-	__u_boot_cmd_end = .;
 
 	. = ALIGN(4);
 	.u_boot_list : {

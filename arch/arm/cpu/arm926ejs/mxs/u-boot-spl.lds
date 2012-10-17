@@ -50,9 +50,6 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
-	__u_boot_cmd_end = .;
 
 	.u_boot_list : {
 		#include <u-boot.lst>

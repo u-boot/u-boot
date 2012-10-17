@@ -533,12 +533,10 @@ GEN_UBOOT = \
 			$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map -o u-boot
 else
 GEN_UBOOT = \
-		UNDEF_SYM=`$(OBJDUMP) -x $(LIBBOARD) $(LIBS) | \
-		sed  -n -e 's/.*\($(SYM_PREFIX)__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
 		UNDEF_LST=`$(OBJDUMP) -x $(LIBBOARD) $(LIBS) | \
 		sed  -n -e 's/.*\($(SYM_PREFIX)_u_boot_list_.*\)/-u\1/p'|sort|uniq`;\
 		cd $(LNDIR) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
-			$$UNDEF_SYM $$UNDEF_LST $(__OBJS) \
+			$$UNDEF_LST $(__OBJS) \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
 endif

@@ -62,8 +62,6 @@ struct cmd_tbl_s {
 
 typedef struct cmd_tbl_s	cmd_tbl_t;
 
-extern cmd_tbl_t  __u_boot_cmd_start;
-extern cmd_tbl_t  __u_boot_cmd_end;
 
 #if defined(CONFIG_CMD_RUN)
 extern int do_run(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);

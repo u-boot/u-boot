@@ -112,12 +112,6 @@ SECTIONS
 		CONSTRUCTORS
 	} >ram_data
 
-	.u_boot_cmd :
-	{
-		___u_boot_cmd_start = .;
-		*(.u_boot_cmd)
-		___u_boot_cmd_end = .;
-	} >ram_data
 
 	.u_boot_list : {
 		#include <u-boot.lst>
