@@ -76,6 +76,11 @@
 #define CONFIG_LCD_ALIGNMENT PAGE_SIZE
 #endif
 
+/* By default we scroll by a single line */
+#ifndef CONFIG_CONSOLE_SCROLL_LINES
+#define CONFIG_CONSOLE_SCROLL_LINES 1
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 ulong lcd_setmem (ulong addr);
@@ -131,12 +136,20 @@ void lcd_set_flush_dcache(int flush)
 
 static void console_scrollup(void)
 {
-	/* Copy up rows ignoring the first one */
-	memcpy(CONSOLE_ROW_FIRST, CONSOLE_ROW_SECOND, CONSOLE_SCROLL_SIZE);
+	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
 
-	/* Clear the last one */
-	memset(CONSOLE_ROW_LAST, COLOR_MASK(lcd_color_bg), CONSOLE_ROW_SIZE);
+	/* Copy up rows ignoring those that will be overwritten */
+	memcpy(CONSOLE_ROW_FIRST,
+	       lcd_console_address + CONSOLE_ROW_SIZE * rows,
+	       CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows);
+
+	/* Clear the last rows */
+	memset(lcd_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows,
+		COLOR_MASK(lcd_color_bg),
+	       CONSOLE_ROW_SIZE * rows);
+
 	lcd_sync();
+	console_row -= rows;
 }
 
 /*----------------------------------------------------------------------*/
@@ -165,7 +178,6 @@ static inline void console_newline(void)
 	if (console_row >= CONSOLE_ROWS) {
 		/* Scroll everything up */
 		console_scrollup();
-		--console_row;
 	} else {
 		lcd_sync();
 	}
