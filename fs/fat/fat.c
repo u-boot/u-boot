@@ -92,8 +92,12 @@ int fat_register_device(block_dev_desc_t * dev_desc, int part_no)
 		cur_part_info.start = 0;
 		cur_part_info.size = dev_desc->lba;
 		cur_part_info.blksz = dev_desc->blksz;
-		memset(cur_part_info.name, 0, sizeof(cur_part_info.name));
-		memset(cur_part_info.type, 0, sizeof(cur_part_info.type));
+		cur_part_info.name[0] = 0;
+		cur_part_info.type[0] = 0;
+		cur_part_info.bootable = 0;
+#ifdef CONFIG_PARTITION_UUIDS
+		cur_part_info.uuid[0] = 0;
+#endif
 	}
 
 	/* Make sure it has a valid FAT header */
