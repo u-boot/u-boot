@@ -25,6 +25,30 @@
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 
+/*
+ * The PINMUX macro is used to set up pinmux tables.
+ */
+#define PINMUX(grp, mux, pupd, tri)                   \
+	{PINGRP_##grp, PMUX_FUNC_##mux, PMUX_PULL_##pupd, PMUX_TRI_##tri}
+
+static const struct pingroup_config disp1_default[] = {
+	PINMUX(LDI,   DISPA,      NORMAL,    NORMAL),
+	PINMUX(LHP0,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LHP1,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LHP2,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LHS,   DISPA,      NORMAL,    NORMAL),
+	PINMUX(LM0,   RSVD4,      NORMAL,    NORMAL),
+	PINMUX(LPP,   DISPA,      NORMAL,    NORMAL),
+	PINMUX(LPW0,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LPW2,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LSC0,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LSPI,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LVP1,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LVS,   DISPA,      NORMAL,    NORMAL),
+	PINMUX(SLXD,  SPDIF,      NORMAL,    NORMAL),
+};
+
+
 int funcmux_select(enum periph_id id, int config)
 {
 	int bad_config = config != FUNCMUX_DEFAULT;
@@ -255,6 +279,19 @@ int funcmux_select(enum periph_id id, int config)
 
 			bad_config = 0;
 			break;
+		}
+		break;
+	case PERIPH_ID_DISP1:
+		if (config == FUNCMUX_DEFAULT) {
+			int i;
+
+			for (i = PINGRP_LD0; i <= PINGRP_LD17; i++) {
+				pinmux_set_func(i, PMUX_FUNC_DISPA);
+				pinmux_tristate_disable(i);
+				pinmux_set_pullupdown(i, PMUX_PULL_NORMAL);
+			}
+			pinmux_config_table(disp1_default,
+					    ARRAY_SIZE(disp1_default));
 		}
 		break;
 
