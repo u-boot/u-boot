@@ -55,7 +55,7 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	dev = dev_desc->dev;
-	if (fat_register_device(dev_desc,part)!=0) {
+	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for fatload **\n",
 			argv[1], dev, part);
 		return 1;
@@ -111,7 +111,7 @@ int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	dev = dev_desc->dev;
-	if (fat_register_device(dev_desc,part)!=0) {
+	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for fatls **\n",
 			argv[1], dev, part);
 		return 1;
@@ -149,7 +149,7 @@ int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	dev = dev_desc->dev;
-	if (fat_register_device(dev_desc,part)!=0) {
+	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for fatinfo **\n",
 			argv[1], dev, part);
 		return 1;
@@ -185,7 +185,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 
 	dev = dev_desc->dev;
 
-	if (fat_register_device(dev_desc, part) != 0) {
+	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use %s %d:%d for fatwrite **\n",
 			argv[1], dev, part);
 		return 1;
