@@ -46,7 +46,6 @@ static void downcase(char *str)
 }
 
 static block_dev_desc_t *cur_dev;
-static unsigned int cur_part_nr;
 static disk_partition_t cur_part_info;
 
 #define DOS_BOOT_MAGIC_OFFSET	0x1fe
@@ -77,10 +76,8 @@ int fat_register_device(block_dev_desc_t * dev_desc, int part_no)
      defined(CONFIG_SYSTEMACE) )
 
 	/* Read the partition table, if present */
-	if (!get_partition_info(dev_desc, part_no, &cur_part_info)) {
+	if (!get_partition_info(dev_desc, part_no, &cur_part_info))
 		cur_dev = dev_desc;
-		cur_part_nr = part_no;
-	}
 #endif
 
 	/* Otherwise it might be a superfloppy (whole-disk FAT filesystem) */
@@ -92,7 +89,6 @@ int fat_register_device(block_dev_desc_t * dev_desc, int part_no)
 		}
 
 		cur_dev = dev_desc;
-		cur_part_nr = 1;
 		cur_part_info.start = 0;
 		cur_part_info.size = dev_desc->lba;
 		cur_part_info.blksz = dev_desc->blksz;
@@ -1239,8 +1235,7 @@ int file_fat_detectfs(void)
 	vol_label[11] = '\0';
 	volinfo.fs_type[5] = '\0';
 
-	printf("Partition %d: Filesystem: %s \"%s\"\n", cur_part_nr,
-		volinfo.fs_type, vol_label);
+	printf("Filesystem: %s \"%s\"\n", volinfo.fs_type, vol_label);
 
 	return 0;
 }
