@@ -211,4 +211,11 @@
 		compatible = "nvidia,tegra20-nand";
 		reg = <0x70008000 0x100>;
 	};
+
+	pwm: pwm@7000a000 {
+		compatible = "nvidia,tegra20-pwm";
+		reg = <0x7000a000 0x100>;
+		#pwm-cells = <2>;
+	};
+
 };
