@@ -218,4 +218,102 @@
 		#pwm-cells = <2>;
 	};
 
+	host1x {
+		compatible = "nvidia,tegra20-host1x", "simple-bus";
+		reg = <0x50000000 0x00024000>;
+		interrupts = <0 65 0x04   /* mpcore syncpt */
+			      0 67 0x04>; /* mpcore general */
+		status = "disabled";
+
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		ranges = <0x54000000 0x54000000 0x04000000>;
+
+		/* video-encoding/decoding */
+		mpe {
+			reg = <0x54040000 0x00040000>;
+			interrupts = <0 68 0x04>;
+			status = "disabled";
+		};
+
+		/* video input */
+		vi {
+			reg = <0x54080000 0x00040000>;
+			interrupts = <0 69 0x04>;
+			status = "disabled";
+		};
+
+		/* EPP */
+		epp {
+			reg = <0x540c0000 0x00040000>;
+			interrupts = <0 70 0x04>;
+			status = "disabled";
+		};
+
+		/* ISP */
+		isp {
+			reg = <0x54100000 0x00040000>;
+			interrupts = <0 71 0x04>;
+			status = "disabled";
+		};
+
+		/* 2D engine */
+		gr2d {
+			reg = <0x54140000 0x00040000>;
+			interrupts = <0 72 0x04>;
+			status = "disabled";
+		};
+
+		/* 3D engine */
+		gr3d {
+			reg = <0x54180000 0x00040000>;
+			status = "disabled";
+		};
+
+		/* display controllers */
+		dc@54200000 {
+			compatible = "nvidia,tegra20-dc";
+			reg = <0x54200000 0x00040000>;
+			interrupts = <0 73 0x04>;
+			status = "disabled";
+
+			rgb {
+				status = "disabled";
+			};
+		};
+
+		dc@54240000 {
+			compatible = "nvidia,tegra20-dc";
+			reg = <0x54240000 0x00040000>;
+			interrupts = <0 74 0x04>;
+			status = "disabled";
+
+			rgb {
+				status = "disabled";
+			};
+		};
+
+		/* outputs */
+		hdmi {
+			compatible = "nvidia,tegra20-hdmi";
+			reg = <0x54280000 0x00040000>;
+			interrupts = <0 75 0x04>;
+			status = "disabled";
+		};
+
+		tvo {
+			compatible = "nvidia,tegra20-tvo";
+			reg = <0x542c0000 0x00040000>;
+			interrupts = <0 76 0x04>;
+			status = "disabled";
+		};
+
+		dsi {
+			compatible = "nvidia,tegra20-dsi";
+			reg = <0x54300000 0x00040000>;
+			status = "disabled";
+		};
+	};
+
 };
