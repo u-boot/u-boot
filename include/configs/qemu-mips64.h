@@ -22,13 +22,13 @@
  */
 
 /*
- * This file contains the configuration parameters for qemu-mips target.
+ * This file contains the configuration parameters for qemu-mips64 target.
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MIPS32			/* MIPS32 CPU core */
+#define CONFIG_MIPS64			/* MIPS64 CPU core */
 #define CONFIG_QEMU_MIPS
 #define CONFIG_MISC_INIT_R
 
@@ -43,8 +43,8 @@
 	"addmisc=setenv bootargs ${bootargs} "				\
 		"console=ttyS0,${baudrate} "				\
 		"panic=1\0"						\
-	"bootfile=/tftpboot/vmlinux\0"				\
-	"load=tftp 80500000 ${u-boot}\0"				\
+	"bootfile=/tftpboot/vmlinux\0"					\
+	"load=tftp ffffffff80500000 ${u-boot}\0"			\
 	""
 
 #define CONFIG_BOOTCOMMAND	"bootp;bootelf"
@@ -70,13 +70,13 @@
 #define CONFIG_CMD_DHCP
 
 #define CONFIG_DRIVER_NE2000
-#define CONFIG_DRIVER_NE2000_BASE	0xb4000300
+#define CONFIG_DRIVER_NE2000_BASE	0xffffffffb4000300
 
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		115200
-#define CONFIG_SYS_NS16550_COM1		0xb40003f8
+#define CONFIG_SYS_NS16550_COM1		0xffffffffb40003f8
 #define CONFIG_CONS_INDEX		1
 
 #define CONFIG_CMD_IDE
@@ -87,9 +87,11 @@
 #define CONFIG_SYS_ATA_IDE1_OFFSET	0x170
 #define CONFIG_SYS_ATA_DATA_OFFSET	0
 #define CONFIG_SYS_ATA_REG_OFFSET	0
-#define CONFIG_SYS_ATA_BASE_ADDR	0xb4000000
+#define CONFIG_SYS_ATA_BASE_ADDR	0xffffffffb4000000
 
 #define CONFIG_SYS_IDE_MAXDEVICE	4
+
+#define CONFIG_CMD_RARP
 
 /*
  * Miscellaneous configurable options
@@ -98,9 +100,9 @@
 
 /* Monitor Command Prompt */
 #if defined(CONFIG_SYS_LITTLE_ENDIAN)
-#define CONFIG_SYS_PROMPT		"qemu-mipsel # "
+#define CONFIG_SYS_PROMPT		"qemu-mips64el # "
 #else
-#define CONFIG_SYS_PROMPT		"qemu-mips # "
+#define CONFIG_SYS_PROMPT		"qemu-mips64 # "
 #endif
 
 #define CONFIG_AUTO_COMPLETE
@@ -125,26 +127,26 @@
 #define CONFIG_SYS_HZ			1000
 
 /* Cached addr */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_SDRAM_BASE		0xffffffff80000000
 
 /* default load address */
-#define CONFIG_SYS_LOAD_ADDR		0x81000000
+#define CONFIG_SYS_LOAD_ADDR		0xffffffff81000000
 
-#define CONFIG_SYS_MEMTEST_START	0x80100000
-#define CONFIG_SYS_MEMTEST_END		0x80800000
+#define CONFIG_SYS_MEMTEST_START	0xffffffff80100000
+#define CONFIG_SYS_MEMTEST_END		0xffffffff80800000
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
 /* The following #defines are needed to get flash environment right */
-#define CONFIG_SYS_TEXT_BASE		0xbfc00000 /* Rom version */
+#define CONFIG_SYS_TEXT_BASE		0xffffffffbfc00000 /* Rom version */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
 #define CONFIG_SYS_INIT_SP_OFFSET	0x400000
 
 /* We boot from this flash, selected with dip switch */
-#define CONFIG_SYS_FLASH_BASE		0xbfc00000
+#define CONFIG_SYS_FLASH_BASE		0xffffffffbfc00000
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	128
 #define CONFIG_SYS_FLASH_CFI
