@@ -26,6 +26,7 @@
 #include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/display.h>
 #include <asm/arch/emc.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
@@ -124,6 +125,9 @@ int board_init(void)
 	if (pwm_init(gd->fdt_blob))
 		debug("%s: Failed to init pwm\n", __func__);
 #endif
+#ifdef CONFIG_LCD
+	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
+#endif
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
 
@@ -148,6 +152,9 @@ int board_init(void)
 #ifdef CONFIG_USB_EHCI_TEGRA
 	pin_mux_usb();
 	board_usb_init(gd->fdt_blob);
+#endif
+#ifdef CONFIG_LCD
+	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif
 
 #ifdef CONFIG_TEGRA_NAND
@@ -179,7 +186,19 @@ int board_early_init_f(void)
 	/* Initialize periph GPIOs */
 	gpio_early_init();
 	gpio_early_init_uart();
+#ifdef CONFIG_LCD
+	tegra_lcd_early_init(gd->fdt_blob);
+#endif
 
 	return 0;
 }
 #endif	/* EARLY_INIT */
+
+int board_late_init(void)
+{
+#ifdef CONFIG_LCD
+	/* Make sure we finish initing the LCD */
+	tegra_lcd_check_next_stage(gd->fdt_blob, 1);
+#endif
+	return 0;
+}
