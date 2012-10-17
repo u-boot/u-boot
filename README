@@ -1469,6 +1469,16 @@ CBFS (Coreboot Filesystem) support
 		Normally display is black on white background; define
 		CONFIG_SYS_WHITE_ON_BLACK to get it inverted.
 
+
+		CONFIG_LCD_ALIGNMENT
+
+		Normally the LCD is page-aligned (tyically 4KB). If this is
+		defined then the LCD will be aligned to this value instead.
+		For ARM it is sometimes useful to use MMU_SECTION_SIZE
+		here, since it is cheaper to change data cache settings on
+		a per-section basis.
+
+
 - Splash Screen Support: CONFIG_SPLASH_SCREEN
 
 		If this option is set, the environment is checked for
