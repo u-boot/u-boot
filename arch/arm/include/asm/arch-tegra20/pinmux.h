@@ -339,7 +339,7 @@ void pinmux_set_pullupdown(enum pmux_pingrp pin, enum pmux_pull pupd);
 void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func);
 
 /* Set the complete configuration for a pin group */
-void pinmux_config_pingroup(struct pingroup_config *config);
+void pinmux_config_pingroup(const struct pingroup_config *config);
 
 void pinmux_set_tristate(enum pmux_pingrp pin, int enable);
 
@@ -349,6 +349,6 @@ void pinmux_set_tristate(enum pmux_pingrp pin, int enable);
  * @param config	List of config items
  * @param len		Number of config items in list
  */
-void pinmux_config_table(struct pingroup_config *config, int len);
+void pinmux_config_table(const struct pingroup_config *config, int len);
 
 #endif	/* PINMUX_H */
