@@ -54,6 +54,7 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT		/* Make sure LCD init is complete */
 
 /* I2C */
 #define CONFIG_TEGRA_I2C
@@ -101,8 +102,16 @@
 
 #undef TEGRA_DEVICE_SETTINGS
 #define TEGRA_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
-				"stdout=serial\0" \
-				"stderr=serial\0"
+				"stdout=serial,lcd\0" \
+				"stderr=serial,lcd\0"
+
+/* LCD support */
+#define CONFIG_LCD
+#define CONFIG_PWM_TEGRA
+#define CONFIG_VIDEO_TEGRA
+#define LCD_BPP				LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define CONFIG_CONSOLE_SCROLL_LINES	10
 
 #include "tegra-common-post.h"
 
