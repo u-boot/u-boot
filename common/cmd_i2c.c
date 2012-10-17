@@ -223,6 +223,54 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	return 0;
 }
 
+static int do_i2c_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	u_char	chip;
+	uint	devaddr, alen, length;
+	u_char  *memaddr;
+
+	if (argc != 5)
+		return cmd_usage(cmdtp);
+
+	/*
+	 * memaddr is the address where to store things in memory
+	 */
+	memaddr = (u_char *)simple_strtoul(argv[1], NULL, 16);
+
+	/*
+	 * I2C chip address
+	 */
+	chip = simple_strtoul(argv[2], NULL, 16);
+
+	/*
+	 * I2C data address within the chip.  This can be 1 or
+	 * 2 bytes long.  Some day it might be 3 bytes long :-).
+	 */
+	devaddr = simple_strtoul(argv[3], NULL, 16);
+	alen = get_alen(argv[3]);
+	if (alen > 3)
+		return cmd_usage(cmdtp);
+
+	/*
+	 * Length is the number of objects, not number of bytes.
+	 */
+	length = simple_strtoul(argv[4], NULL, 16);
+
+	while (length-- > 0) {
+		if (i2c_write(chip, devaddr++, alen, memaddr++, 1) != 0) {
+			puts("Error writing to the chip.\n");
+			return 1;
+		}
+/*
+ * No write delay with FRAM devices.
+ */
+#if !defined(CONFIG_SYS_I2C_FRAM)
+		udelay(11000);
+#endif
+	}
+	return 0;
+}
+
 /*
  * Syntax:
  *	i2c md {i2c_chip} {addr}{.0, .1, .2} {len}
@@ -557,18 +605,28 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 
 /*
  * Syntax:
- *	i2c probe {addr}{.0, .1, .2}
+ *	i2c probe {addr}
+ *
+ * Returns zero (success) if one or more I2C devices was found
  */
 static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int j;
+	int addr = -1;
+	int found = 0;
 #if defined(CONFIG_SYS_I2C_NOPROBES)
 	int k, skip;
 	uchar bus = GET_BUS_NUM;
 #endif	/* NOPROBES */
 
+	if (argc == 2)
+		addr = simple_strtol(argv[1], 0, 16);
+
 	puts ("Valid chip addresses:");
 	for (j = 0; j < 128; j++) {
+		if ((0 <= addr) && (j != addr))
+			continue;
+
 #if defined(CONFIG_SYS_I2C_NOPROBES)
 		skip = 0;
 		for (k=0; k < NUM_ELEMENTS_NOPROBE; k++) {
@@ -580,8 +638,10 @@ static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		if (skip)
 			continue;
 #endif
-		if (i2c_probe(j) == 0)
+		if (i2c_probe(j) == 0) {
 			printf(" %02X", j);
+			found++;
+		}
 	}
 	putc ('\n');
 
@@ -594,7 +654,7 @@ static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	putc ('\n');
 #endif
 
-	return 0;
+	return (0 == found);
 }
 
 /*
@@ -1282,6 +1342,7 @@ static cmd_tbl_t cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(nm, 2, 1, do_i2c_nm, "", ""),
 	U_BOOT_CMD_MKENT(probe, 0, 1, do_i2c_probe, "", ""),
 	U_BOOT_CMD_MKENT(read, 5, 1, do_i2c_read, "", ""),
+	U_BOOT_CMD_MKENT(write, 5, 0, do_i2c_write, "", ""),
 	U_BOOT_CMD_MKENT(reset, 0, 1, do_i2c_reset, "", ""),
 #if defined(CONFIG_CMD_SDRAM)
 	U_BOOT_CMD_MKENT(sdram, 1, 1, do_sdram, "", ""),
@@ -1331,8 +1392,9 @@ U_BOOT_CMD(
 	"i2c mm chip address[.0, .1, .2] - write to I2C device (auto-incrementing)\n"
 	"i2c mw chip address[.0, .1, .2] value [count] - write to I2C device (fill)\n"
 	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
-	"i2c probe - show devices on the I2C bus\n"
+	"i2c probe [address] - test for and show device(s) on the I2C bus\n"
 	"i2c read chip address[.0, .1, .2] length memaddress - read to memory \n"
+	"i2c write memaddress chip address[.0, .1, .2] length - write memory to i2c\n"
 	"i2c reset - re-init the I2C Controller\n"
 #if defined(CONFIG_CMD_SDRAM)
 	"i2c sdram chip - print SDRAM configuration information\n"
