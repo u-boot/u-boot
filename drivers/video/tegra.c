@@ -146,6 +146,7 @@ static void update_panel_size(struct fdt_disp_config *config)
 void lcd_ctrl_init(void *lcdbase)
 {
 	int line_length, size;
+	int type = DCACHE_OFF;
 
 	assert(disp_config);
 
@@ -160,6 +161,16 @@ void lcd_ctrl_init(void *lcdbase)
 			&& disp_config->log2_bpp <= LCD_MAX_LOG2_BPP)
 		update_panel_size(disp_config);
 	size = lcd_get_size(&line_length);
+
+	/* Set up the LCD caching as requested */
+	if (config.cache_type & FDT_LCD_CACHE_WRITE_THROUGH)
+		type = DCACHE_WRITETHROUGH;
+	else if (config.cache_type & FDT_LCD_CACHE_WRITE_BACK)
+		type = DCACHE_WRITEBACK;
+	mmu_set_region_dcache_behaviour(disp_config->frame_buffer, size, type);
+
+	/* Enable flushing after LCD writes if requested */
+	lcd_set_flush_dcache(config.cache_type & FDT_LCD_CACHE_FLUSH);
 
 	debug("LCD frame buffer at %p\n", lcd_base);
 }
