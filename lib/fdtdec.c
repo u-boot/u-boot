@@ -44,6 +44,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA20_KBC, "nvidia,tegra20-kbc"),
 	COMPAT(NVIDIA_TEGRA20_NAND, "nvidia,tegra20-nand"),
 	COMPAT(NVIDIA_TEGRA20_PWM, "nvidia,tegra20-pwm"),
+	COMPAT(NVIDIA_TEGRA20_DC, "nvidia,tegra20-dc"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
