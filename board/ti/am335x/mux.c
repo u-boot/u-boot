@@ -18,6 +18,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include "board.h"
 
 #define MUX_CFG(value, offset)	\
 	__raw_writel(value, (CTRL_BASE + offset));
