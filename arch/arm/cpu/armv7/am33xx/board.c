@@ -36,8 +36,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
+static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
+#ifdef CONFIG_SPL_BUILD
+static struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
+#endif
 
 static const struct gpio_bank gpio_bank_am33xx[4] = {
 	{ (void *)AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
