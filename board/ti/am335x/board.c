@@ -133,75 +133,87 @@ static void rtc32k_enable(void)
 }
 
 static const struct ddr_data ddr2_data = {
-	.datardsratio0 = ((DDR2_RD_DQS<<30)|(DDR2_RD_DQS<<20)
-				|(DDR2_RD_DQS<<10)|(DDR2_RD_DQS<<0)),
-	.datawdsratio0 = ((DDR2_WR_DQS<<30)|(DDR2_WR_DQS<<20)
-				|(DDR2_WR_DQS<<10)|(DDR2_WR_DQS<<0)),
-	.datawiratio0 = ((DDR2_PHY_WRLVL<<30)|(DDR2_PHY_WRLVL<<20)
-				|(DDR2_PHY_WRLVL<<10)|(DDR2_PHY_WRLVL<<0)),
-	.datagiratio0 = ((DDR2_PHY_GATELVL<<30)|(DDR2_PHY_GATELVL<<20)
-				|(DDR2_PHY_GATELVL<<10)|(DDR2_PHY_GATELVL<<0)),
-	.datafwsratio0 = ((DDR2_PHY_FIFO_WE<<30)|(DDR2_PHY_FIFO_WE<<20)
-				|(DDR2_PHY_FIFO_WE<<10)|(DDR2_PHY_FIFO_WE<<0)),
-	.datawrsratio0 = ((DDR2_PHY_WR_DATA<<30)|(DDR2_PHY_WR_DATA<<20)
-				|(DDR2_PHY_WR_DATA<<10)|(DDR2_PHY_WR_DATA<<0)),
-	.datauserank0delay = DDR2_PHY_RANK0_DELAY,
+	.datardsratio0 = ((MT47H128M16RT25E_RD_DQS<<30) |
+			  (MT47H128M16RT25E_RD_DQS<<20) |
+			  (MT47H128M16RT25E_RD_DQS<<10) |
+			  (MT47H128M16RT25E_RD_DQS<<0)),
+	.datawdsratio0 = ((MT47H128M16RT25E_WR_DQS<<30) |
+			  (MT47H128M16RT25E_WR_DQS<<20) |
+			  (MT47H128M16RT25E_WR_DQS<<10) |
+			  (MT47H128M16RT25E_WR_DQS<<0)),
+	.datawiratio0 = ((MT47H128M16RT25E_PHY_WRLVL<<30) |
+			 (MT47H128M16RT25E_PHY_WRLVL<<20) |
+			 (MT47H128M16RT25E_PHY_WRLVL<<10) |
+			 (MT47H128M16RT25E_PHY_WRLVL<<0)),
+	.datagiratio0 = ((MT47H128M16RT25E_PHY_GATELVL<<30) |
+			 (MT47H128M16RT25E_PHY_GATELVL<<20) |
+			 (MT47H128M16RT25E_PHY_GATELVL<<10) |
+			 (MT47H128M16RT25E_PHY_GATELVL<<0)),
+	.datafwsratio0 = ((MT47H128M16RT25E_PHY_FIFO_WE<<30) |
+			  (MT47H128M16RT25E_PHY_FIFO_WE<<20) |
+			  (MT47H128M16RT25E_PHY_FIFO_WE<<10) |
+			  (MT47H128M16RT25E_PHY_FIFO_WE<<0)),
+	.datawrsratio0 = ((MT47H128M16RT25E_PHY_WR_DATA<<30) |
+			  (MT47H128M16RT25E_PHY_WR_DATA<<20) |
+			  (MT47H128M16RT25E_PHY_WR_DATA<<10) |
+			  (MT47H128M16RT25E_PHY_WR_DATA<<0)),
+	.datauserank0delay = MT47H128M16RT25E_PHY_RANK0_DELAY,
 	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr2_cmd_ctrl_data = {
-	.cmd0csratio = DDR2_RATIO,
-	.cmd0dldiff = DDR2_DLL_LOCK_DIFF,
-	.cmd0iclkout = DDR2_INVERT_CLKOUT,
+	.cmd0csratio = MT47H128M16RT25E_RATIO,
+	.cmd0dldiff = MT47H128M16RT25E_DLL_LOCK_DIFF,
+	.cmd0iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 
-	.cmd1csratio = DDR2_RATIO,
-	.cmd1dldiff = DDR2_DLL_LOCK_DIFF,
-	.cmd1iclkout = DDR2_INVERT_CLKOUT,
+	.cmd1csratio = MT47H128M16RT25E_RATIO,
+	.cmd1dldiff = MT47H128M16RT25E_DLL_LOCK_DIFF,
+	.cmd1iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 
-	.cmd2csratio = DDR2_RATIO,
-	.cmd2dldiff = DDR2_DLL_LOCK_DIFF,
-	.cmd2iclkout = DDR2_INVERT_CLKOUT,
+	.cmd2csratio = MT47H128M16RT25E_RATIO,
+	.cmd2dldiff = MT47H128M16RT25E_DLL_LOCK_DIFF,
+	.cmd2iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 };
 
 static const struct emif_regs ddr2_emif_reg_data = {
-	.sdram_config = DDR2_EMIF_SDCFG,
-	.ref_ctrl = DDR2_EMIF_SDREF,
-	.sdram_tim1 = DDR2_EMIF_TIM1,
-	.sdram_tim2 = DDR2_EMIF_TIM2,
-	.sdram_tim3 = DDR2_EMIF_TIM3,
-	.emif_ddr_phy_ctlr_1 = DDR2_EMIF_READ_LATENCY,
+	.sdram_config = MT47H128M16RT25E_EMIF_SDCFG,
+	.ref_ctrl = MT47H128M16RT25E_EMIF_SDREF,
+	.sdram_tim1 = MT47H128M16RT25E_EMIF_TIM1,
+	.sdram_tim2 = MT47H128M16RT25E_EMIF_TIM2,
+	.sdram_tim3 = MT47H128M16RT25E_EMIF_TIM3,
+	.emif_ddr_phy_ctlr_1 = MT47H128M16RT25E_EMIF_READ_LATENCY,
 };
 
 static const struct ddr_data ddr3_data = {
-	.datardsratio0 = DDR3_RD_DQS,
-	.datawdsratio0 = DDR3_WR_DQS,
-	.datafwsratio0 = DDR3_PHY_FIFO_WE,
-	.datawrsratio0 = DDR3_PHY_WR_DATA,
+	.datardsratio0 = MT41J128MJT125_RD_DQS,
+	.datawdsratio0 = MT41J128MJT125_WR_DQS,
+	.datafwsratio0 = MT41J128MJT125_PHY_FIFO_WE,
+	.datawrsratio0 = MT41J128MJT125_PHY_WR_DATA,
 	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr3_cmd_ctrl_data = {
-	.cmd0csratio = DDR3_RATIO,
-	.cmd0dldiff = DDR3_DLL_LOCK_DIFF,
-	.cmd0iclkout = DDR3_INVERT_CLKOUT,
+	.cmd0csratio = MT41J128MJT125_RATIO,
+	.cmd0dldiff = MT41J128MJT125_DLL_LOCK_DIFF,
+	.cmd0iclkout = MT41J128MJT125_INVERT_CLKOUT,
 
-	.cmd1csratio = DDR3_RATIO,
-	.cmd1dldiff = DDR3_DLL_LOCK_DIFF,
-	.cmd1iclkout = DDR3_INVERT_CLKOUT,
+	.cmd1csratio = MT41J128MJT125_RATIO,
+	.cmd1dldiff = MT41J128MJT125_DLL_LOCK_DIFF,
+	.cmd1iclkout = MT41J128MJT125_INVERT_CLKOUT,
 
-	.cmd2csratio = DDR3_RATIO,
-	.cmd2dldiff = DDR3_DLL_LOCK_DIFF,
-	.cmd2iclkout = DDR3_INVERT_CLKOUT,
+	.cmd2csratio = MT41J128MJT125_RATIO,
+	.cmd2dldiff = MT41J128MJT125_DLL_LOCK_DIFF,
+	.cmd2iclkout = MT41J128MJT125_INVERT_CLKOUT,
 };
 
 static struct emif_regs ddr3_emif_reg_data = {
-	.sdram_config = DDR3_EMIF_SDCFG,
-	.ref_ctrl = DDR3_EMIF_SDREF,
-	.sdram_tim1 = DDR3_EMIF_TIM1,
-	.sdram_tim2 = DDR3_EMIF_TIM2,
-	.sdram_tim3 = DDR3_EMIF_TIM3,
-	.zq_config = DDR3_ZQ_CFG,
-	.emif_ddr_phy_ctlr_1 = DDR3_EMIF_READ_LATENCY,
+	.sdram_config = MT41J128MJT125_EMIF_SDCFG,
+	.ref_ctrl = MT41J128MJT125_EMIF_SDREF,
+	.sdram_tim1 = MT41J128MJT125_EMIF_TIM1,
+	.sdram_tim2 = MT41J128MJT125_EMIF_TIM2,
+	.sdram_tim3 = MT41J128MJT125_EMIF_TIM3,
+	.zq_config = MT41J128MJT125_ZQ_CFG,
+	.emif_ddr_phy_ctlr_1 = MT41J128MJT125_EMIF_READ_LATENCY,
 };
 #endif
 
@@ -265,10 +277,10 @@ void s_init(void)
 	}
 
 	if (board_is_evm_sk() || board_is_bone_lt())
-		config_ddr(303, DDR3_IOCTRL_VALUE, &ddr3_data,
+		config_ddr(303, MT41J128MJT125_IOCTRL_VALUE, &ddr3_data,
 			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data);
 	else
-		config_ddr(266, DDR2_IOCTRL_VALUE, &ddr2_data,
+		config_ddr(266, MT47H128M16RT25E_IOCTRL_VALUE, &ddr2_data,
 			   &ddr2_cmd_ctrl_data, &ddr2_emif_reg_data);
 #endif
 }
