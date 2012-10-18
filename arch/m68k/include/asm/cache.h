@@ -1,7 +1,7 @@
 /*
  * ColdFire cache
  *
- * Copyright (C) 2004-2010 Freescale Semiconductor, Inc.
+ * Copyright 2004-2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -37,9 +37,8 @@
 
 #if defined(CONFIG_MCF547x_8x) || defined(CONFIG_MCF5445x)
 #define CONFIG_CF_V4
-#if defined(CONFIG_MCF5441x)
+#elif defined(CONFIG_MCF5441x)
 #define CONFIG_CF_V4E		/* Four Extra ACRn */
-#endif
 #endif
 
 /* ***** CACR ***** */
@@ -87,7 +86,7 @@
 #endif				/* CONFIG_CF_V3 */
 
 /* V4 Core */
-#ifdef CONFIG_CF_V4
+#if defined(CONFIG_CF_V4) || defined(CONFIG_CF_V4E)
 
 #define CF_CACR_DEC		(1 << 31)
 #define CF_CACR_DW		(1 << 30)
@@ -113,7 +112,7 @@
 #define CF_CACR_IDSP		(1 << 7)
 #define CF_CACR_EUSP		(1 << 5)
 
-#ifdef CONFIG_MCF5445x
+#if defined(CONFIG_MCF5445x) || defined(CONFIG_MCF5441x)
 #define CF_CACR_IVO		(1 << 20)
 #define CF_CACR_SPA		(1 << 14)
 #else
@@ -148,7 +147,7 @@
 #endif				/* CONFIG_CF_V2 */
 
 /* V4 Core */
-#ifdef CONFIG_CF_V4
+#if defined(CONFIG_CF_V4) || defined(CONFIG_CF_V4E)
 #define CF_ACR_AMM		(1 << 10)
 #define CF_ACR_SP		(1 << 3)
 #endif				/* CONFIG_CF_V4 */
