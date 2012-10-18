@@ -29,6 +29,7 @@
 #define PHY_DLL_LOCK_DIFF	0x0
 #define DDR_CKE_CTRL_NORMAL	0x1
 
+/* Micron MT47H128M16RT-25E */
 #define DDR2_EMIF_READ_LATENCY	0x100005	/* Enable Dynamic Power Down */
 #define DDR2_EMIF_TIM1		0x0666B3C9
 #define DDR2_EMIF_TIM2		0x243631CA
@@ -189,6 +190,8 @@ struct ddr_ctrl {
 	unsigned int ddrckectrl;
 };
 
-void config_ddr(short ddr_type);
+void config_ddr(unsigned int pll, unsigned int ioctrl,
+		const struct ddr_data *data, const struct cmd_control *ctrl,
+		const struct emif_regs *regs);
 
 #endif  /* _DDR_DEFS_H */
