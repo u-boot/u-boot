@@ -754,20 +754,6 @@ $(obj).boards.depend:	boards.cfg
 lcname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\L\1/')
 ucname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\U\1/')
 
-#========================================================================
-# ARM
-#========================================================================
-
-SX1_stdout_serial_config \
-SX1_config:		unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _stdout_serial_, $@)" ] ; then \
-		echo "#undef CONFIG_STDOUT_USBTTY" >> $(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_STDOUT_USBTTY" >> $(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ SX1 arm arm925t sx1
-
 #########################################################################
 ## ARM1176 Systems
 #########################################################################
