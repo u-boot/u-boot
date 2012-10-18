@@ -28,6 +28,8 @@
  */
 
 #include <common.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #include <asm/immap.h>
 #include <asm/uart.h>
