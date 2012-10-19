@@ -34,6 +34,7 @@
 #define CONFIG_S5P		1	/* which is in a S5P Family */
 #define CONFIG_EXYNOS4210	1	/* which is in a EXYNOS4210 */
 #define CONFIG_UNIVERSAL	1	/* working with Universal */
+#define CONFIG_TIZEN		1	/* TIZEN lib */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
@@ -283,5 +284,17 @@ void universal_spi_scl(int bit);
 void universal_spi_sda(int bit);
 int universal_spi_read(void);
 #endif
+
+/*
+ * LCD Settings
+ */
+#define CONFIG_EXYNOS_FB
+#define CONFIG_LCD
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_32BPP
+#define CONFIG_LD9040
+#define CONFIG_EXYNOS_MIPI_DSIM
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((520 * 120 * 4) + (1 << 12))
 
 #endif	/* __CONFIG_H */

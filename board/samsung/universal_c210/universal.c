@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <spi.h>
+#include <lcd.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/adc.h>
@@ -35,6 +36,8 @@
 #include <asm/arch/cpu.h>
 #include <max8998_pmic.h>
 #include <asm/arch/watchdog.h>
+#include <libtizen.h>
+#include <ld9040.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -316,6 +319,168 @@ int universal_spi_read(void)
 }
 #endif
 
+static void init_pmic_lcd(void)
+{
+	unsigned char val;
+	int ret = 0;
+
+	struct pmic *p = get_pmic();
+
+	if (pmic_probe(p))
+		return;
+
+	/* LDO7 1.8V */
+	val = 0x02; /* (1800 - 1600) / 100; */
+	ret |= pmic_reg_write(p,  MAX8998_REG_LDO7, val);
+
+	/* LDO17 3.0V */
+	val = 0xe; /* (3000 - 1600) / 100; */
+	ret |= pmic_reg_write(p,  MAX8998_REG_LDO17, val);
+
+	/* Disable unneeded regulators */
+	/*
+	 * ONOFF1
+	 * Buck1 ON, Buck2 OFF, Buck3 ON, Buck4 ON
+	 * LDO2 ON, LDO3 OFF, LDO4 OFF, LDO5 ON
+	 */
+	val = 0xB9;
+	ret |= pmic_reg_write(p,  MAX8998_REG_ONOFF1, val);
+
+	/* ONOFF2
+	 * LDO6 OFF, LDO7 ON, LDO8 OFF, LDO9 ON,
+	 * LDO10 OFF, LDO11 OFF, LDO12 OFF, LDO13 OFF
+	 */
+	val = 0x50;
+	ret |= pmic_reg_write(p,  MAX8998_REG_ONOFF2, val);
+
+	/* ONOFF3
+	 * LDO14 OFF, LDO15 OFF, LGO16 OFF, LDO17 OFF
+	 * EPWRHOLD OFF, EBATTMON OFF, ELBCNFG2 OFF, ELBCNFG1 OFF
+	 */
+	val = 0x00;
+	ret |= pmic_reg_write(p,  MAX8998_REG_ONOFF3, val);
+
+	if (ret)
+		puts("LCD pmic initialisation error!\n");
+}
+
+static void lcd_cfg_gpio(void)
+{
+	unsigned int i, f3_end = 4;
+
+	for (i = 0; i < 8; i++) {
+		/* set GPF0,1,2[0:7] for RGB Interface and Data lines (32bit) */
+		s5p_gpio_cfg_pin(&gpio1->f0, i, GPIO_FUNC(2));
+		s5p_gpio_cfg_pin(&gpio1->f1, i, GPIO_FUNC(2));
+		s5p_gpio_cfg_pin(&gpio1->f2, i, GPIO_FUNC(2));
+		/* pull-up/down disable */
+		s5p_gpio_set_pull(&gpio1->f0, i, GPIO_PULL_NONE);
+		s5p_gpio_set_pull(&gpio1->f1, i, GPIO_PULL_NONE);
+		s5p_gpio_set_pull(&gpio1->f2, i, GPIO_PULL_NONE);
+
+		/* drive strength to max (24bit) */
+		s5p_gpio_set_drv(&gpio1->f0, i, GPIO_DRV_4X);
+		s5p_gpio_set_rate(&gpio1->f0, i, GPIO_DRV_SLOW);
+		s5p_gpio_set_drv(&gpio1->f1, i, GPIO_DRV_4X);
+		s5p_gpio_set_rate(&gpio1->f1, i, GPIO_DRV_SLOW);
+		s5p_gpio_set_drv(&gpio1->f2, i, GPIO_DRV_4X);
+		s5p_gpio_set_rate(&gpio1->f0, i, GPIO_DRV_SLOW);
+	}
+
+	for (i = 0; i < f3_end; i++) {
+		/* set GPF3[0:3] for RGB Interface and Data lines (32bit) */
+		s5p_gpio_cfg_pin(&gpio1->f3, i, GPIO_FUNC(2));
+		/* pull-up/down disable */
+		s5p_gpio_set_pull(&gpio1->f3, i, GPIO_PULL_NONE);
+		/* drive strength to max (24bit) */
+		s5p_gpio_set_drv(&gpio1->f3, i, GPIO_DRV_4X);
+		s5p_gpio_set_rate(&gpio1->f3, i, GPIO_DRV_SLOW);
+	}
+
+	/* gpio pad configuration for LCD reset. */
+	s5p_gpio_cfg_pin(&gpio2->y4, 5, GPIO_OUTPUT);
+
+	spi_init();
+}
+
+static void reset_lcd(void)
+{
+	s5p_gpio_set_value(&gpio2->y4, 5, 1);
+	udelay(10000);
+	s5p_gpio_set_value(&gpio2->y4, 5, 0);
+	udelay(10000);
+	s5p_gpio_set_value(&gpio2->y4, 5, 1);
+	udelay(100);
+}
+
+static void lcd_power_on(void)
+{
+	struct pmic *p = get_pmic();
+
+	if (pmic_probe(p))
+		return;
+
+	pmic_set_output(p, MAX8998_REG_ONOFF3, MAX8998_LDO17, LDO_ON);
+	pmic_set_output(p, MAX8998_REG_ONOFF2, MAX8998_LDO7, LDO_ON);
+}
+
+vidinfo_t panel_info = {
+	.vl_freq	= 60,
+	.vl_col		= 480,
+	.vl_row		= 800,
+	.vl_width	= 480,
+	.vl_height	= 800,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_vsp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_HIGH,
+
+	.vl_bpix	= 5,	/* Bits per pixel */
+
+	/* LD9040 LCD Panel */
+	.vl_hspw	= 2,
+	.vl_hbpd	= 16,
+	.vl_hfpd	= 16,
+
+	.vl_vspw	= 2,
+	.vl_vbpd	= 8,
+	.vl_vfpd	= 8,
+	.vl_cmd_allow_len = 0xf,
+
+	.win_id		= 0,
+	.cfg_gpio	= lcd_cfg_gpio,
+	.backlight_on	= NULL,
+	.lcd_power_on	= lcd_power_on,
+	.reset_lcd	= reset_lcd,
+	.dual_lcd_enabled = 0,
+
+	.init_delay	= 0,
+	.power_on_delay = 10000,
+	.reset_delay	= 10000,
+	.interface_mode = FIMD_RGB_INTERFACE,
+	.mipi_enabled	= 0,
+};
+
+void init_panel_info(vidinfo_t *vid)
+{
+	vid->logo_on	= 1;
+	vid->resolution	= HD_RESOLUTION;
+	vid->rgb_mode	= MODE_RGB_P;
+
+#ifdef CONFIG_TIZEN
+	get_tizen_logo_info(vid);
+#endif
+
+	/* for LD9040. */
+	vid->pclk_name = 1;	/* MPLL */
+	vid->sclk_div = 1;
+
+	vid->cfg_ldo = ld9040_cfg_ldo;
+	vid->enable_ldo = ld9040_enable_ldo;
+
+	setenv("lcdinfo", "lcd=ld9040");
+}
+
 int board_init(void)
 {
 	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
@@ -326,6 +491,7 @@ int board_init(void)
 
 #if defined(CONFIG_PMIC)
 	pmic_init();
+	init_pmic_lcd();
 #endif
 #ifdef CONFIG_SOFT_SPI
 	soft_spi_init();
