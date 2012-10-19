@@ -263,4 +263,25 @@
 #define CONFIG_USB_GADGET_S3C_UDC_OTG
 #define CONFIG_USB_GADGET_DUALSPEED
 
+/*
+ * SPI Settings
+ */
+#define CONFIG_SOFT_SPI
+#define CONFIG_SOFT_SPI_MODE SPI_MODE_3
+#define CONFIG_SOFT_SPI_GPIO_SCLK exynos4_gpio_part2_get_nr(y3, 1)
+#define CONFIG_SOFT_SPI_GPIO_MOSI exynos4_gpio_part2_get_nr(y3, 3)
+#define CONFIG_SOFT_SPI_GPIO_MISO exynos4_gpio_part2_get_nr(y3, 0)
+#define CONFIG_SOFT_SPI_GPIO_CS exynos4_gpio_part2_get_nr(y4, 3)
+
+#define SPI_DELAY udelay(1)
+#undef SPI_INIT
+#define SPI_SCL(bit) universal_spi_scl(bit)
+#define SPI_SDA(bit) universal_spi_sda(bit)
+#define SPI_READ universal_spi_read()
+#ifndef	__ASSEMBLY__
+void universal_spi_scl(int bit);
+void universal_spi_sda(int bit);
+int universal_spi_read(void);
+#endif
+
 #endif	/* __CONFIG_H */

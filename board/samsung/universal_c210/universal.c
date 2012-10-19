@@ -23,7 +23,9 @@
  */
 
 #include <common.h>
+#include <spi.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/adc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
@@ -51,24 +53,6 @@ static int get_hwrev(void)
 }
 
 static void check_hw_revision(void);
-
-int board_init(void)
-{
-	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
-	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
-
-	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
-	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
-
-#if defined(CONFIG_PMIC)
-	pmic_init();
-#endif
-
-	check_hw_revision();
-	printf("HW Revision:\t0x%x\n", board_rev);
-
-	return 0;
-}
 
 int dram_init(void)
 {
@@ -281,6 +265,73 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 int board_early_init_f(void)
 {
 	wdt_stop();
+
+	return 0;
+}
+
+#ifdef CONFIG_SOFT_SPI
+static void soft_spi_init(void)
+{
+	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_SCLK,
+		CONFIG_SOFT_SPI_MODE & SPI_CPOL);
+	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_MOSI, 1);
+	gpio_direction_input(CONFIG_SOFT_SPI_GPIO_MISO);
+	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_CS,
+		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
+		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
+	SPI_SCL(1);
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
+		CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
+		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
+}
+
+int  spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void universal_spi_scl(int bit)
+{
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_SCLK, bit);
+}
+
+void universal_spi_sda(int bit)
+{
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_MOSI, bit);
+}
+
+int universal_spi_read(void)
+{
+	return gpio_get_value(CONFIG_SOFT_SPI_GPIO_MISO);
+}
+#endif
+
+int board_init(void)
+{
+	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
+	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
+
+	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
+	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+#if defined(CONFIG_PMIC)
+	pmic_init();
+#endif
+#ifdef CONFIG_SOFT_SPI
+	soft_spi_init();
+#endif
+	check_hw_revision();
+	printf("HW Revision:\t0x%x\n", board_rev);
 
 	return 0;
 }
