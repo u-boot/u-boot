@@ -151,6 +151,103 @@
 #define TWL4030_PM_MASTER_SW_EVENTS_DEVSLP		(1 << 1)
 #define TWL4030_PM_MASTER_SW_EVENTS_DEVOFF		(1 << 0)
 
+/* Power bus message definitions */
+
+/* The TWL4030/5030 splits its power-management resources (the various
+ * regulators, clock and reset lines) into 3 processor groups - P1, P2 and
+ * P3. These groups can then be configured to transition between sleep, wait-on
+ * and active states by sending messages to the power bus.  See Section 5.4.2
+ * Power Resources of TWL4030 TRM
+ */
+
+/* Processor groups */
+#define DEV_GRP_NULL		0x0
+#define DEV_GRP_P1		0x1	/* P1: all OMAP devices */
+#define DEV_GRP_P2		0x2	/* P2: all Modem devices */
+#define DEV_GRP_P3		0x4	/* P3: all peripheral devices */
+
+/* Resource groups */
+#define RES_GRP_RES		0x0	/* Reserved */
+#define RES_GRP_PP		0x1	/* Power providers */
+#define RES_GRP_RC		0x2	/* Reset and control */
+#define RES_GRP_PP_RC		0x3
+#define RES_GRP_PR		0x4	/* Power references */
+#define RES_GRP_PP_PR		0x5
+#define RES_GRP_RC_PR		0x6
+#define RES_GRP_ALL		0x7	/* All resource groups */
+
+#define RES_TYPE2_R0		0x0
+
+#define RES_TYPE_ALL		0x7
+
+/* Resource states */
+#define RES_STATE_WRST		0xF
+#define RES_STATE_ACTIVE	0xE
+#define RES_STATE_SLEEP		0x8
+#define RES_STATE_OFF		0x0
+
+/* Power resources */
+
+/* Power providers */
+#define RES_VAUX1               1
+#define RES_VAUX2               2
+#define RES_VAUX3               3
+#define RES_VAUX4               4
+#define RES_VMMC1               5
+#define RES_VMMC2               6
+#define RES_VPLL1               7
+#define RES_VPLL2               8
+#define RES_VSIM                9
+#define RES_VDAC                10
+#define RES_VINTANA1            11
+#define RES_VINTANA2            12
+#define RES_VINTDIG             13
+#define RES_VIO                 14
+#define RES_VDD1                15
+#define RES_VDD2                16
+#define RES_VUSB_1V5            17
+#define RES_VUSB_1V8            18
+#define RES_VUSB_3V1            19
+#define RES_VUSBCP              20
+#define RES_REGEN               21
+/* Reset and control */
+#define RES_NRES_PWRON          22
+#define RES_CLKEN               23
+#define RES_SYSEN               24
+#define RES_HFCLKOUT            25
+#define RES_32KCLKOUT           26
+#define RES_RESET               27
+/* Power Reference */
+#define RES_Main_Ref            28
+
+#define TOTAL_RESOURCES		28
+/*
+ * Power Bus Message Format ... these can be sent individually by Linux,
+ * but are usually part of downloaded scripts that are run when various
+ * power events are triggered.
+ *
+ *  Broadcast Message (16 Bits):
+ *    DEV_GRP[15:13] MT[12]  RES_GRP[11:9]  RES_TYPE2[8:7] RES_TYPE[6:4]
+ *    RES_STATE[3:0]
+ *
+ *  Singular Message (16 Bits):
+ *    DEV_GRP[15:13] MT[12]  RES_ID[11:4]  RES_STATE[3:0]
+ */
+
+#define MSG_BROADCAST(devgrp, grp, type, type2, state) \
+	((devgrp) << 13 | 1 << 12 | (grp) << 9 | (type2) << 7 \
+	| (type) << 4 | (state))
+
+#define MSG_SINGULAR(devgrp, id, state) \
+	((devgrp) << 13 | 0 << 12 | (id) << 4 | (state))
+
+#define MSG_BROADCAST_ALL(devgrp, state) \
+	((devgrp) << 5 | (state))
+
+#define MSG_BROADCAST_REF MSG_BROADCAST_ALL
+#define MSG_BROADCAST_PROV MSG_BROADCAST_ALL
+#define MSG_BROADCAST__CLK_RST MSG_BROADCAST_ALL
+
 /* Power Managment Receiver */
 #define TWL4030_PM_RECEIVER_SC_CONFIG			0x5B
 #define TWL4030_PM_RECEIVER_SC_DETECT1			0x5C
@@ -311,6 +408,7 @@
 #define TWL4030_PM_RECEIVER_VDAC_VSEL_18		0x03
 #define TWL4030_PM_RECEIVER_VMMC1_VSEL_30		0x02
 #define TWL4030_PM_RECEIVER_VMMC1_VSEL_32		0x03
+#define TWL4030_PM_RECEIVER_VSIM_VSEL_18		0x03
 
 /* Device Selection in PM Receiver Module */
 #define TWL4030_PM_RECEIVER_DEV_GRP_P1			0x20
