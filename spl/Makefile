@@ -154,8 +154,12 @@ $(START):	depend
 $(LIBS):	depend
 	$(MAKE) -C $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))
 
-$(obj)u-boot-spl.lds: $(LDSCRIPT) depend
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - < $< > $@
+# The following line expands into whole rule which generates u-boot.lst,
+# the file containing u-boots LG-array linker section. This is included into
+# $(LDSCRIPT). The function make_u_boot_list is defined in helper.mk file.
+$(eval $(call make_u_boot_list, $(obj)u-boot.lst, $(LIBS)))
+$(obj)u-boot-spl.lds: $(LDSCRIPT) $(obj)u-boot.lst depend
+	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
 
 depend:	$(obj).depend
 .PHONY: depend
