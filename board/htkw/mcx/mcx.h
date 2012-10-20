@@ -264,6 +264,8 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(I2C3_SDA),		(IEN  | PTU | EN  | M0)) \
 	MUX_VAL(CP(I2C4_SCL),		(IEN  | PTU | EN  | M0)) \
 	MUX_VAL(CP(I2C4_SDA),		(IEN  | PTU | EN  | M0)) \
+	MUX_VAL(CP(HDQ_SIO),		(IEN  | PTU | EN  | M4)) \
+					/* GPIO_170 Touchscreen ISR */\
 	/* McSPI */\
 	MUX_VAL(CP(MCSPI1_CLK),		(IEN  | PTD | DIS | M0)) \
 	MUX_VAL(CP(MCSPI1_SIMO),	(IEN  | PTD | DIS | M0)) \

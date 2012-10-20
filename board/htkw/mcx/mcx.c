@@ -27,6 +27,8 @@
 #include <asm/mach-types.h>
 #include <asm/gpio.h>
 #include <asm/omap_gpio.h>
+#include <asm/arch/dss.h>
+#include <asm/arch/clocks.h>
 #include "errno.h"
 #include <i2c.h>
 #ifdef CONFIG_USB_EHCI
@@ -38,6 +40,10 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define HOT_WATER_BUTTON	42
+#define LCD_OUTPUT		55
+
+/* Address of the framebuffer in RAM. */
+#define FB_START_ADDRESS 0x88000000
 
 #ifdef CONFIG_USB_EHCI
 static struct omap_usbhs_board_data usbhs_bdata = {
@@ -66,6 +72,8 @@ int board_init(void)
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
+
+	gpio_direction_output(LCD_OUTPUT, 0);
 
 	return 0;
 }
@@ -107,5 +115,38 @@ void set_muxconf_regs(void)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0);
+}
+#endif
+
+#if defined(CONFIG_VIDEO) && !defined(CONFIG_SPL_BUILD)
+
+static struct panel_config lcd_cfg = {
+	.timing_h       = PANEL_TIMING_H(40, 40, 48),
+	.timing_v       = PANEL_TIMING_V(29, 13, 3),
+	.pol_freq       = 0x00003000, /* Pol Freq */
+	.divisor        = 0x0001000E,
+	.panel_type     = 0x01, /* TFT */
+	.data_lines     = 0x03, /* 24 Bit RGB */
+	.load_mode      = 0x02, /* Frame Mode */
+	.panel_color	= 0,
+	.lcd_size	= PANEL_LCD_SIZE(800, 480),
+};
+
+int board_video_init(void)
+{
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	void *fb;
+
+	fb = (void *)FB_START_ADDRESS;
+
+	lcd_cfg.frame_buffer = fb;
+
+	setbits_le32(&prcm_base->fclken_dss, FCK_DSS_ON);
+	setbits_le32(&prcm_base->iclken_dss, ICK_DSS_ON);
+
+	omap3_dss_panel_config(&lcd_cfg);
+	omap3_dss_enable();
+
+	return 0;
 }
 #endif

@@ -181,7 +181,7 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000	/* sz of jffs2 part */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY	10
+#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_BOOTFILE		"uImage"
 
@@ -257,6 +257,10 @@
 		"ubi readvol ${loadaddr} kernel;"			\
 		"run addtty addmtd addfb addeth addmisc;"		\
 		"bootm ${loadaddr}\0"					\
+	"preboot=ubi part nand0,7;"					\
+		"ubi readvol ${loadaddr} splash;"			\
+		"bmp display ${loadaddr};"				\
+		"gpio set 55\0"						\
 	"swupdate_args=setenv bootargs root=/dev/ram "			\
 		"quiet loglevel=1 "					\
 		"consoleblank=0 ${swupdate_misc}\0"			\
@@ -303,6 +307,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
 								/* address */
+#define CONFIG_PREBOOT
 
 /*
  * AM3517 has 12 GP timers, they can be driven by the system clock
@@ -421,5 +426,14 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT 10
 #endif
+
+#define CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_CMD_BMP
+#define CONFIG_VIDEO_OMAP3
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #endif /* __CONFIG_H */
