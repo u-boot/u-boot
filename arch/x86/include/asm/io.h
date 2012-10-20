@@ -36,6 +36,8 @@
 
 #define IO_SPACE_LIMIT 0xffff
 
+#include <asm/types.h>
+
 
 #ifdef __KERNEL__
 
