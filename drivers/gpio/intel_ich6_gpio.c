@@ -32,6 +32,14 @@
  *   PCI config register "GPIOBASE"
  *     PCI I/O space + [GPIOBASE]  => start of GPIO registers
  *       GPIO registers => gpio pin function, direction, value
+ *
+ *
+ * Danger Will Robinson! Bank 0 (GPIOs 0-31) seems to be fairly stable. Most
+ * ICH versions have more, but the decoding the matrix that describes them is
+ * absurdly complex and constantly changing. We'll provide Bank 1 and Bank 2,
+ * but they will ONLY work for certain unspecified chipsets because the offset
+ * from GPIOBASE changes randomly. Even then, many GPIOs are unimplemented or
+ * reserved or subject to arcane restrictions.
  */
 
 #include <common.h>
@@ -42,21 +50,59 @@
 /* Where in config space is the register that points to the GPIO registers? */
 #define PCI_CFG_GPIOBASE 0x48
 
-/*
- * There are often more than 32 GPIOs, depending on the ICH version.
- * For now, we just support bank 0 because it's the same for all.
- */
-#define GPIO_MAX 31
+#define NUM_BANKS 3
 
 /* Within the I/O space, where are the registers to control the GPIOs? */
-#define OFS_GPIO_USE_SEL 0x00
-#define OFS_GPIO_IO_SEL  0x04
-#define OFS_GP_LVL       0x0C
+static struct {
+	u8 use_sel;
+	u8 io_sel;
+	u8 lvl;
+} gpio_bank[NUM_BANKS] = {
+	{ 0x00, 0x04, 0x0c },		/* Bank 0 */
+	{ 0x30, 0x34, 0x38 },		/* Bank 1 */
+	{ 0x40, 0x44, 0x48 }		/* Bank 2 */
+};
 
-static pci_dev_t dev;				/* handle for 0:1f:0 */
-static u32 gpiobase;				/* offset into I/O space */
-static int found_it_once;			/* valid GPIO device? */
-static int in_use[GPIO_MAX];			/* "lock" for access to pins */
+static pci_dev_t dev;			/* handle for 0:1f:0 */
+static u32 gpiobase;			/* offset into I/O space */
+static int found_it_once;		/* valid GPIO device? */
+static u32 lock[NUM_BANKS];		/* "lock" for access to pins */
+
+static int bad_arg(int num, int *bank, int *bitnum)
+{
+	int i = num / 32;
+	int j = num % 32;
+
+	if (num < 0 || i > NUM_BANKS) {
+		debug("%s: bogus gpio num: %d\n", __func__, num);
+		return -1;
+	}
+	*bank = i;
+	*bitnum = j;
+	return 0;
+}
+
+static int mark_gpio(int bank, int bitnum)
+{
+	if (lock[bank] & (1UL << bitnum)) {
+		debug("%s: %d.%d already marked\n", __func__, bank, bitnum);
+		return -1;
+	}
+	lock[bank] |= (1 << bitnum);
+	return 0;
+}
+
+static void clear_gpio(int bank, int bitnum)
+{
+	lock[bank] &= ~(1 << bitnum);
+}
+
+static int notmine(int num, int *bank, int *bitnum)
+{
+	if (bad_arg(num, bank, bitnum))
+		return -1;
+	return !(lock[*bank] & (1UL << *bitnum));
+}
 
 static int gpio_init(void)
 {
@@ -77,11 +123,14 @@ static int gpio_init(void)
 		debug("%s: wrong VendorID\n", __func__);
 		return -1;
 	}
+
+	pci_read_config_word(dev, PCI_DEVICE_ID, &tmpword);
+	debug("Found %04x:%04x\n", PCI_VENDOR_ID_INTEL, tmpword);
 	/*
-	 * We'd like to check the Device ID too, but pretty much any
+	 * We'd like to validate the Device ID too, but pretty much any
 	 * value is either a) correct with slight differences, or b)
-	 * correct but undocumented. We'll have to check other things
-	 * instead...
+	 * correct but undocumented. We'll have to check a bunch of other
+	 * things instead...
 	 */
 
 	/* I/O should already be enabled (it's a RO bit). */
@@ -143,100 +192,99 @@ static int gpio_init(void)
 	return 0;
 }
 
-int gpio_request(unsigned gpio, const char *label /* UNUSED */)
+int gpio_request(unsigned num, const char *label /* UNUSED */)
 {
 	u32 tmplong;
-
-	/* Are we doing it wrong? */
-	if (gpio > GPIO_MAX || in_use[gpio]) {
-		debug("%s: gpio unavailable\n", __func__);
-		return -1;
-	}
+	int i = 0, j = 0;
 
 	/* Is the hardware ready? */
-	if (gpio_init()) {
-		debug("%s: gpio_init failed\n", __func__);
+	if (gpio_init())
 		return -1;
-	}
+
+	if (bad_arg(num, &i, &j))
+		return -1;
 
 	/*
 	 * Make sure that the GPIO pin we want isn't already in use for some
 	 * built-in hardware function. We have to check this for every
 	 * requested pin.
 	 */
-	tmplong = inl(gpiobase + OFS_GPIO_USE_SEL);
-	if (!(tmplong & (1UL << gpio))) {
-		debug("%s: reserved for internal use\n", __func__);
+	tmplong = inl(gpiobase + gpio_bank[i].use_sel);
+	if (!(tmplong & (1UL << j))) {
+		debug("%s: gpio %d is reserved for internal use\n", __func__,
+		      num);
 		return -1;
 	}
 
-	in_use[gpio] = 1;
+	return mark_gpio(i, j);
+}
+
+int gpio_free(unsigned num)
+{
+	int i = 0, j = 0;
+
+	if (notmine(num, &i, &j))
+		return -1;
+
+	clear_gpio(i, j);
 	return 0;
 }
 
-int gpio_free(unsigned gpio)
+int gpio_direction_input(unsigned num)
 {
-	if (gpio > GPIO_MAX || !in_use[gpio]) {
-		debug("%s: gpio unavailable\n", __func__);
+	u32 tmplong;
+	int i = 0, j = 0;
+
+	if (notmine(num, &i, &j))
 		return -1;
-	}
-	in_use[gpio] = 0;
+
+	tmplong = inl(gpiobase + gpio_bank[i].io_sel);
+	tmplong |= (1UL << j);
+	outl(gpiobase + gpio_bank[i].io_sel, tmplong);
 	return 0;
 }
 
-int gpio_direction_input(unsigned gpio)
+int gpio_direction_output(unsigned num, int value)
 {
 	u32 tmplong;
+	int i = 0, j = 0;
 
-	if (gpio > GPIO_MAX || !in_use[gpio]) {
-		debug("%s: gpio unavailable\n", __func__);
+	if (notmine(num, &i, &j))
 		return -1;
-	}
-	tmplong = inl(gpiobase + OFS_GPIO_IO_SEL);
-	tmplong |= (1UL << gpio);
-	outl(gpiobase + OFS_GPIO_IO_SEL, tmplong);
+
+	tmplong = inl(gpiobase + gpio_bank[i].io_sel);
+	tmplong &= ~(1UL << j);
+	outl(gpiobase + gpio_bank[i].io_sel, tmplong);
 	return 0;
 }
 
-int gpio_direction_output(unsigned gpio, int value)
+int gpio_get_value(unsigned num)
 {
 	u32 tmplong;
+	int i = 0, j = 0;
+	int r;
 
-	if (gpio > GPIO_MAX || !in_use[gpio]) {
-		debug("%s: gpio unavailable\n", __func__);
+	if (notmine(num, &i, &j))
 		return -1;
-	}
-	tmplong = inl(gpiobase + OFS_GPIO_IO_SEL);
-	tmplong &= ~(1UL << gpio);
-	outl(gpiobase + OFS_GPIO_IO_SEL, tmplong);
-	return 0;
+
+	tmplong = inl(gpiobase + gpio_bank[i].lvl);
+	r = (tmplong & (1UL << j)) ? 1 : 0;
+	return r;
 }
 
-int gpio_get_value(unsigned gpio)
+int gpio_set_value(unsigned num, int value)
 {
 	u32 tmplong;
+	int i = 0, j = 0;
 
-	if (gpio > GPIO_MAX || !in_use[gpio]) {
-		debug("%s: gpio unavailable\n", __func__);
+	if (notmine(num, &i, &j))
 		return -1;
-	}
-	tmplong = inl(gpiobase + OFS_GP_LVL);
-	return (tmplong & (1UL << gpio)) ? 1 : 0;
-}
 
-int gpio_set_value(unsigned gpio, int value)
-{
-	u32 tmplong;
-
-	if (gpio > GPIO_MAX || !in_use[gpio]) {
-		debug("%s: gpio unavailable\n", __func__);
-		return -1;
-	}
-	tmplong = inl(gpiobase + OFS_GP_LVL);
+	tmplong = inl(gpiobase + gpio_bank[i].lvl);
 	if (value)
-		tmplong |= (1UL << gpio);
+		tmplong |= (1UL << j);
 	else
-		tmplong &= ~(1UL << gpio);
-	outl(gpiobase + OFS_GP_LVL, tmplong);
+		tmplong &= ~(1UL << j);
+	outl(gpiobase + gpio_bank[i].lvl, tmplong);
 	return 0;
 }
