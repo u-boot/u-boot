@@ -137,7 +137,7 @@ out:
 #ifdef SLOW_IO_BY_JUMPING
 #define __SLOW_DOWN_IO "\njmp 1f\n1:\tjmp 1f\n1:"
 #else
-#define __SLOW_DOWN_IO "\noutb %%al,$0x80"
+#define __SLOW_DOWN_IO "\noutb %%al,$0xed"
 #endif
 
 #ifdef REALLY_SLOW_IO
