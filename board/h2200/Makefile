@@ -1,9 +1,7 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# h2200 Support
 #
-# See file CREDITS for list of people who contributed to this
-# project.
+# Copyright (C) 2012 Lukasz Dalek <luk0104@gmail.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,18 +21,22 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).o
+LIB	= $(obj)lib$(BOARD).o
 
-START	= start.o
-COBJS	= cpu.o speed.o timer.o
+COBJS	:= h2200.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+SRCS	:= $(COBJS:.o=.c) h2200-header.S
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
-all:	$(obj).depend $(START) $(LIB)
+all: $(LIB) $(obj)h2200-header.bin
 
-$(LIB):	$(OBJS)
+$(obj)h2200-header.o: h2200-header.S
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(obj)h2200-header.bin: $(obj)h2200-header.o
+	$(OBJCOPY) -O binary $< $@
+
+$(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################

@@ -34,7 +34,7 @@ SECTIONS
 		net/libnet.o(.text*)
 		board/actux2/libactux2.o(.text*)
 		arch/arm/cpu/ixp/libixp.o(.text*)
-		drivers/serial/libserial.o(.text*)
+		drivers/input/libinput.o(.text*)
 
 		. = env_offset;
 		common/env_embedded.o(.ppcenv)
