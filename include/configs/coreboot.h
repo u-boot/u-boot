@@ -38,6 +38,7 @@
 #undef CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_LAST_STAGE_INIT
 #define CONFIG_X86_NO_RESET_VECTOR
+#define CONFIG_SYS_VSNPRINTF
 
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
