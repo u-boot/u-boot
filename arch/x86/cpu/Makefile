@@ -30,7 +30,7 @@ LIB	= $(obj)lib$(CPU).o
 
 START-y	= start.o
 RESET_OBJS-$(CONFIG_X86_NO_RESET_VECTOR) += resetvec.o start16.o
-COBJS	= interrupts.o cpu.o
+COBJS	= interrupts.o cpu.o timer.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
