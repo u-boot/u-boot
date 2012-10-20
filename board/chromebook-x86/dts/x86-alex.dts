@@ -1,0 +1,30 @@
+/dts-v1/;
+
+/ {
+        #address-cells = <1>;
+        #size-cells = <1>;
+	model = "Google Alex";
+	compatible = "google,alex", "intel,atom-pineview";
+
+	config {
+	       silent_console = <0>;
+	};
+
+	aliases {
+		console = "/serial@e0401000";
+	};
+
+	serial@e0401000 {
+		compatible = "ns16550";
+		reg = <0xe0401000 0x40>;
+		id = <1>;
+		reg-shift = <1>;
+		baudrate = <115200>;
+		clock-frequency = <4000000>;
+		multiplier = <1>;
+		status = "ok";
+	};
+
+        chosen { };
+        memory { device_type = "memory"; reg = <0 0>; };
+};
