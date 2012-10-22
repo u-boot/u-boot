@@ -191,7 +191,6 @@
 #ifdef	CONFIG_CMD_NET
 #define	CONFIG_ETHPRIME			"FEC0"
 #define	CONFIG_FEC_MXC
-#define	CONFIG_FEC_MXC_MULTI
 #define	CONFIG_MII
 #define	CONFIG_FEC_XCV_TYPE		RMII
 #endif

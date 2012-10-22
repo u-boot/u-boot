@@ -1021,7 +1021,7 @@ err1:
 	return ret;
 }
 
-#ifndef CONFIG_FEC_MXC_MULTI
+#ifdef CONFIG_FEC_MXC_PHYADDR
 int fecmxc_initialize(bd_t *bd)
 {
 	int lout = 1;
