@@ -225,6 +225,7 @@ static int phy_rst(struct eth_device *dev)
 	puts("\nPHY reset complete.\n");
 	return 0;
 }
+#endif
 
 static void phy_detection(struct eth_device *dev)
 {
@@ -261,7 +262,6 @@ static void phy_detection(struct eth_device *dev)
 	}
 	printf("PHY is not detected\n");
 }
-#endif
 
 static int zynq_gem_setup_mac(struct eth_device *dev)
 {
@@ -345,6 +345,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	/* Setup for Network Control register, MDIO, Rx and Tx enable */
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK );
 
+	phy_detection(dev);
+
 #ifdef CONFIG_PHYLIB
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
@@ -398,7 +400,6 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	phywrite(dev, priv->phyaddr, 22, 0);	/* page 0 */
 #endif
 	u16 tmp;
-	phy_detection(dev);
 
 	/* link speed advertisement for autonegotiation */
 	phyread(dev, priv->phyaddr, 4, &tmp);
