@@ -915,6 +915,11 @@ static int fec_recv(struct eth_device *dev)
 	return len;
 }
 
+static void fec_set_dev_name(char *dest, int dev_id)
+{
+	sprintf(dest, (dev_id == -1) ? "FEC" : "FEC%i", dev_id);
+}
+
 static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 {
 	struct eth_device *edev;
@@ -967,13 +972,8 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 
 	fec_reg_setup(fec);
 
-	if (dev_id == -1) {
-		sprintf(edev->name, "FEC");
-		fec->dev_id = 0;
-	} else {
-		sprintf(edev->name, "FEC%i", dev_id);
-		fec->dev_id = dev_id;
-	}
+	fec_set_dev_name(edev->name, dev_id);
+	fec->dev_id = (dev_id == -1) ? 0 : dev_id;
 	fec->phy_id = phy_id;
 
 	bus = mdio_alloc();
@@ -984,7 +984,7 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 	}
 	bus->read = fec_phy_read;
 	bus->write = fec_phy_write;
-	sprintf(bus->name, edev->name);
+	fec_set_dev_name(bus->name, dev_id);
 #ifdef CONFIG_MX28
 	/*
 	 * The i.MX28 has two ethernet interfaces, but they are not equal.
