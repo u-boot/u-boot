@@ -56,7 +56,7 @@ int ext4fs_indir3_blkno = -1;
 struct ext2_inode *g_parent_inode;
 static int symlinknest;
 
-#if defined(CONFIG_CMD_EXT4_WRITE)
+#if defined(CONFIG_EXT4_WRITE)
 uint32_t ext4fs_div_roundup(uint32_t size, uint32_t n)
 {
 	uint32_t res = size / n;

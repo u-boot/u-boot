@@ -196,7 +196,7 @@ int ext4fs_read(char *buf, unsigned len)
 	return ext4fs_read_file(ext4fs_file, 0, len, buf);
 }
 
-#if defined(CONFIG_CMD_EXT4_WRITE)
+#if defined(CONFIG_EXT4_WRITE)
 static void ext4fs_update(void)
 {
 	short i;

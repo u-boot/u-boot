@@ -37,7 +37,7 @@
 #include <ext4fs.h>
 #include <malloc.h>
 #include <asm/errno.h>
-#if defined(CONFIG_CMD_EXT4_WRITE)
+#if defined(CONFIG_EXT4_WRITE)
 #include "ext4_journal.h"
 #include "crc16.h"
 #endif
@@ -71,7 +71,7 @@ int ext4fs_find_file(const char *path, struct ext2fs_node *rootnode,
 int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 			struct ext2fs_node **fnode, int *ftype);
 
-#if defined(CONFIG_CMD_EXT4_WRITE)
+#if defined(CONFIG_EXT4_WRITE)
 uint32_t ext4fs_div_roundup(uint32_t size, uint32_t n);
 int ext4fs_checksum_update(unsigned int i);
 int ext4fs_get_parent_inode_num(const char *dirname, char *dname, int flags);
