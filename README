@@ -363,6 +363,12 @@ The following options need to be configured:
 		ICache only when Code runs from RAM.
 
 - 85xx CPU Options:
+		CONFIG_SYS_PPC64
+
+		Specifies that the core is a 64-bit PowerPC implementation (implements
+		the "64" category of the Power ISA). This is necessary for ePAPR
+		compliance, among other possible reasons.
+
 		CONFIG_SYS_FSL_TBCLK_DIV
 
 		Defines the core time base clock divider ratio compared to the

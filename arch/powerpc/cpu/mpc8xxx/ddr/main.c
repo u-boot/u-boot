@@ -77,7 +77,19 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 				sizeof(generic_spd_eeprom_t));
 
 	if (ret) {
-		printf("DDR: failed to read SPD from address %u\n", i2c_address);
+		if (i2c_address ==
+#ifdef SPD_EEPROM_ADDRESS
+				SPD_EEPROM_ADDRESS
+#elif defined(SPD_EEPROM_ADDRESS1)
+				SPD_EEPROM_ADDRESS1
+#endif
+				) {
+			printf("DDR: failed to read SPD from address %u\n",
+				i2c_address);
+		} else {
+			debug("DDR: failed to read SPD from address %u\n",
+				i2c_address);
+		}
 		memset(spd, 0, sizeof(generic_spd_eeprom_t));
 	}
 }
@@ -526,6 +538,17 @@ phys_size_t fsl_ddr_sdram(void)
 #endif
 		total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 0);
 
+	/* setup 3-way interleaving before enabling DDRC */
+	switch (info.memctl_opts[0].memctl_interleaving_mode) {
+	case FSL_DDR_3WAY_1KB_INTERLEAVING:
+	case FSL_DDR_3WAY_4KB_INTERLEAVING:
+	case FSL_DDR_3WAY_8KB_INTERLEAVING:
+		fsl_ddr_set_intl3r(info.memctl_opts[0].memctl_interleaving_mode);
+		break;
+	default:
+		break;
+	}
+
 	/* Program configuration registers. */
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 		debug("Programming controller %u\n", i);
@@ -561,7 +584,6 @@ phys_size_t fsl_ddr_sdram(void)
 			case FSL_DDR_3WAY_8KB_INTERLEAVING:
 				law_memctl = LAW_TRGT_IF_DDR_INTLV_123;
 				if (i == 0) {
-					fsl_ddr_set_intl3r(info.memctl_opts[i].memctl_interleaving_mode);
 					fsl_ddr_set_lawbar(&info.common_timing_params[i],
 						law_memctl, i);
 				}

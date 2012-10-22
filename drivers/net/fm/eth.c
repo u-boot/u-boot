@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Freescale Semiconductor, Inc.
+ * Copyright 2009-2012 Freescale Semiconductor, Inc.
  *	Dave Liu <daveliu@freescale.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 #include <phy.h>
 #include <asm/fsl_dtsec.h>
 #include <asm/fsl_tgec.h>
+#include <asm/fsl_memac.h>
 
 #include "fm.h"
 
@@ -47,6 +48,28 @@ static int num_controllers;
 /* Configure the TBI for SGMII operation */
 void dtsec_configure_serdes(struct fm_eth *priv)
 {
+#ifdef CONFIG_SYS_FMAN_V3
+	u32 value;
+	struct mii_dev bus;
+	bus.priv = priv->mac->phyregs;
+
+	/* SGMII IF mode + AN enable */
+	value = PHY_SGMII_IF_MODE_AN | PHY_SGMII_IF_MODE_SGMII;
+	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0x14, value);
+
+	/* Dev ability according to SGMII specification */
+	value = PHY_SGMII_DEV_ABILITY_SGMII;
+	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0x4, value);
+
+	/* Adjust link timer for SGMII  -
+	1.6 ms in units of 8 ns = 2 * 10^5 = 0x30d40 */
+	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0x13, 0x3);
+	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0x12, 0xd40);
+
+	/* Restart AN */
+	value = PHY_SGMII_CR_DEF_VAL | PHY_SGMII_CR_RESET_AN;
+	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0, value);
+#else
 	struct dtsec *regs = priv->mac->base;
 	struct tsec_mii_mng *phyregs = priv->mac->phyregs;
 
@@ -60,15 +83,18 @@ void dtsec_configure_serdes(struct fm_eth *priv)
 			TBIANA_SGMII_ACK);
 	tsec_local_mdio_write(phyregs, in_be32(&regs->tbipa), 0,
 			TBI_CR, TBICR_SETTINGS);
+#endif
 }
 
 static void dtsec_init_phy(struct eth_device *dev)
 {
 	struct fm_eth *fm_eth = dev->priv;
-	struct dtsec *regs = (struct dtsec *)fm_eth->mac->base;
+#ifndef CONFIG_SYS_FMAN_V3
+	struct dtsec *regs = (struct dtsec *)CONFIG_SYS_FSL_FM1_DTSEC1_ADDR;
 
 	/* Assign a Physical address to the TBI */
 	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
+#endif
 
 	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII)
 		dtsec_configure_serdes(fm_eth);
@@ -541,6 +567,10 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 
 	num = fm_eth->num;
 
+#ifdef CONFIG_SYS_FMAN_V3
+	base = &reg->memac[num].fm_memac;
+	phyregs = &reg->memac[num].fm_memac_mdio;
+#else
 	/* Get the mac registers base address */
 	if (fm_eth->type == FM_ETH_1G_E) {
 		base = &reg->mac_1g[num].fm_dtesc;
@@ -549,6 +579,7 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 		base = &reg->mac_10g[num].fm_10gec;
 		phyregs = &reg->mac_10g[num].fm_10gec_mdio;
 	}
+#endif
 
 	/* alloc mac controller */
 	mac = malloc(sizeof(struct fsl_enet_mac));
@@ -559,10 +590,14 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 	/* save the mac to fm_eth struct */
 	fm_eth->mac = mac;
 
+#ifdef CONFIG_SYS_FMAN_V3
+	init_memac(mac, base, phyregs, MAX_RXBUF_LEN);
+#else
 	if (fm_eth->type == FM_ETH_1G_E)
 		init_dtsec(mac, base, phyregs, MAX_RXBUF_LEN);
 	else
 		init_tgec(mac, base, phyregs, MAX_RXBUF_LEN);
+#endif
 
 	return 1;
 }
