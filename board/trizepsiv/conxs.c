@@ -34,6 +34,7 @@
 #include <common.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/arch/pxa.h>
+#include <asm/arch/regs-mmc.h>
 #include <netdev.h>
 #include <asm/io.h>
 
@@ -150,5 +151,13 @@ void dram_init_banksize(void)
 int board_eth_init(bd_t *bis)
 {
 	return dm9000_initialize(bis);
+}
+#endif
+
+#ifdef CONFIG_CMD_MMC
+int board_mmc_init(bd_t *bis)
+{
+	pxa_mmc_register(0);
+	return 0;
 }
 #endif

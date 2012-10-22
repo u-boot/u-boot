@@ -205,6 +205,7 @@ COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_common.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_nowhere.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
 endif
+COBJS-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 COBJS-y += console.o
 COBJS-y += dlmalloc.o
 COBJS-y += image.o
