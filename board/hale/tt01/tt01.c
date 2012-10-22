@@ -179,7 +179,7 @@ int board_init(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_HW_WATCHDOG
-	mxc_hw_watchdog_enable();
+	hw_watchdog_init();
 #endif
 
 	return 0;

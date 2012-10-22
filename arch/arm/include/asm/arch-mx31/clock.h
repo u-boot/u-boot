@@ -58,7 +58,5 @@ extern void mx31_set_gpr(enum iomux_gp_func gp, char en);
 void mx31_uart1_hw_init(void);
 void mx31_uart2_hw_init(void);
 void mx31_spi2_hw_init(void);
-void mxc_hw_watchdog_enable(void);
-void mxc_hw_watchdog_reset(void);
 
 #endif /* __ASM_ARCH_CLOCK_H */

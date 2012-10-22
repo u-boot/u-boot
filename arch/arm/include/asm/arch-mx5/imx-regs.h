@@ -218,16 +218,6 @@
  */
 #define WBED		1
 
-/*
- * WEIM WCR
- */
-#define BCM		1
-#define GBCD(x)		(((x) & 0x3) << 1)
-#define INTEN		(1 << 4)
-#define INTPOL		(1 << 5)
-#define WDOG_EN		(1 << 8)
-#define WDOG_LIMIT(x)	(((x) & 0x3) << 9)
-
 #define CS0_128					0
 #define CS0_64M_CS1_64M				1
 #define CS0_64M_CS1_32M_CS2_32M			2

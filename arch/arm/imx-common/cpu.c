@@ -175,11 +175,6 @@ int cpu_mmc_init(bd_t *bis)
 }
 #endif
 
-void reset_cpu(ulong addr)
-{
-	__raw_writew(4, WDOG1_BASE_ADDR);
-}
-
 u32 get_ahb_clk(void)
 {
 	struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
