@@ -1021,27 +1021,19 @@ err1:
 	return ret;
 }
 
+int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
+{
+	debug("eth_init: fec_probe(bd, %i, %i) @ %08x\n", dev_id, phy_id, addr);
+	return fec_probe(bd, dev_id, phy_id, addr);
+}
+
 #ifdef CONFIG_FEC_MXC_PHYADDR
 int fecmxc_initialize(bd_t *bd)
 {
-	int lout = 1;
-
-	debug("eth_init: fec_probe(bd)\n");
-	lout = fec_probe(bd, -1, CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
-
-	return lout;
+	return fecmxc_initialize_multi(bd, -1, CONFIG_FEC_MXC_PHYADDR,
+			IMX_FEC_BASE);
 }
 #endif
-
-int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
-{
-	int lout = 1;
-
-	debug("eth_init: fec_probe(bd, %i, %i) @ %08x\n", dev_id, phy_id, addr);
-	lout = fec_probe(bd, dev_id, phy_id, addr);
-
-	return lout;
-}
 
 #ifndef CONFIG_PHYLIB
 int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int))
