@@ -26,6 +26,7 @@
 #include <asm/arch/tegra.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch-tegra/mmc.h>
 #include <asm/gpio.h>
@@ -35,20 +36,13 @@
 
 /* TODO: Remove this code when the SPI switch is working */
 #if !defined(CONFIG_SPI_UART_SWITCH) && (CONFIG_MACH_TYPE != MACH_TYPE_VENTANA)
-/*
- * Routine: gpio_config_uart_seaboard
- * Description: Force GPIO_PI3 low on Seaboard so UART4 works.
- */
-static void gpio_config_uart_seaboard(void)
-{
-	/* Enable UART via GPIO_PI3 (port 8, bit 3) so serial console works */
-	gpio_request(GPIO_PI3, NULL);
-	gpio_direction_output(GPIO_PI3, 0);
-}
-
 void gpio_early_init_uart(void)
 {
-	gpio_config_uart_seaboard();
+	/* Enable UART via GPIO_PI3 (port 8, bit 3) so serial console works */
+#ifndef CONFIG_SPL_BUILD
+	gpio_request(GPIO_PI3, NULL);
+#endif
+	gpio_direction_output(GPIO_PI3, 0);
 }
 #endif
 
