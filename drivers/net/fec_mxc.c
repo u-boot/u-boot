@@ -135,15 +135,15 @@ static int fec_mdio_read(struct ethernet_regs *eth, uint8_t phyAddr,
 	return val;
 }
 
-static void fec_mii_setspeed(struct fec_priv *fec)
+static void fec_mii_setspeed(struct ethernet_regs *eth)
 {
 	/*
 	 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 	 * and do not drop the Preamble.
 	 */
 	writel((((imx_get_fecclk() / 1000000) + 2) / 5) << 1,
-			&fec->eth->mii_speed);
-	debug("%s: mii_speed %08x\n", __func__, readl(&fec->eth->mii_speed));
+			&eth->mii_speed);
+	debug("%s: mii_speed %08x\n", __func__, readl(&eth->mii_speed));
 }
 
 static int fec_mdio_write(struct ethernet_regs *eth, uint8_t phyAddr,
@@ -611,7 +611,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	fec_reg_setup(fec);
 
 	if (fec->xcv_type != SEVENWIRE)
-		fec_mii_setspeed(fec);
+		fec_mii_setspeed(fec->bus->priv);
 
 	/*
 	 * Set Opcode/Pause Duration Register
@@ -966,7 +966,6 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 	}
 
 	fec_reg_setup(fec);
-	fec_mii_setspeed(fec);
 
 	if (dev_id == -1) {
 		sprintf(edev->name, "FEC");
@@ -995,6 +994,7 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 #else
 	bus->priv = fec->eth;
 #endif
+	fec_mii_setspeed(bus->priv);
 	ret = mdio_register(bus);
 	if (ret) {
 		printf("mdio_register failed\n");
