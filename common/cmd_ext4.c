@@ -47,10 +47,10 @@
 #include <image.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
-#include <ext_common.h>
 #include <ext4fs.h>
 #include <linux/stat.h>
 #include <malloc.h>
+#include <fs.h>
 
 #if defined(CONFIG_CMD_USB) && defined(CONFIG_USB_STORAGE)
 #include <usb.h>
@@ -59,18 +59,12 @@
 int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,
 						char *const argv[])
 {
-	if (do_ext_load(cmdtp, flag, argc, argv))
-		return -1;
-
-	return 0;
+	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
 
 int do_ext4_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	if (do_ext_ls(cmdtp, flag, argc, argv))
-		return -1;
-
-	return 0;
+	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
 
 #if defined(CONFIG_CMD_EXT4_WRITE)

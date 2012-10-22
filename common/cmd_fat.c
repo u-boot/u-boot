@@ -31,54 +31,11 @@
 #include <ata.h>
 #include <part.h>
 #include <fat.h>
-
+#include <fs.h>
 
 int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	long size;
-	unsigned long offset;
-	unsigned long count = 0;
-	unsigned long pos = 0;
-	char buf [12];
-	block_dev_desc_t *dev_desc=NULL;
-	disk_partition_t info;
-	int part, dev;
-
-	if (argc < 5) {
-		printf("usage: fatload <interface> [<dev[:part]>] "
-			"<addr> <filename> [bytes [pos]]\n");
-		return 1;
-	}
-
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
-	if (part < 0)
-		return 1;
-
-	dev = dev_desc->dev;
-	if (fat_set_blk_dev(dev_desc, &info) != 0) {
-		printf("\n** Unable to use %s %d:%d for fatload **\n",
-			argv[1], dev, part);
-		return 1;
-	}
-	offset = simple_strtoul(argv[3], NULL, 16);
-	if (argc >= 6)
-		count = simple_strtoul(argv[5], NULL, 16);
-	if (argc >= 7)
-		pos = simple_strtoul(argv[6], NULL, 16);
-	size = file_fat_read_at(argv[4], pos, (unsigned char *)offset, count);
-
-	if(size==-1) {
-		printf("\n** Unable to read \"%s\" from %s %d:%d **\n",
-			argv[4], argv[1], dev, part);
-		return 1;
-	}
-
-	printf("\n%ld bytes read\n", size);
-
-	sprintf(buf, "%lX", size);
-	setenv("filesize", buf);
-
-	return 0;
+	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
 
 
@@ -96,34 +53,7 @@ U_BOOT_CMD(
 
 int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	char *filename = "/";
-	int ret, dev, part;
-	block_dev_desc_t *dev_desc=NULL;
-	disk_partition_t info;
-
-	if (argc < 2) {
-		printf("usage: fatls <interface> [<dev[:part]>] [directory]\n");
-		return 0;
-	}
-
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
-	if (part < 0)
-		return 1;
-
-	dev = dev_desc->dev;
-	if (fat_set_blk_dev(dev_desc, &info) != 0) {
-		printf("\n** Unable to use %s %d:%d for fatls **\n",
-			argv[1], dev, part);
-		return 1;
-	}
-	if (argc == 4)
-		ret = file_fat_ls(argv[3]);
-	else
-		ret = file_fat_ls(filename);
-
-	if(ret!=0)
-		printf("No Fat FS detected\n");
-	return ret;
+	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
 
 U_BOOT_CMD(

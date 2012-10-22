@@ -260,7 +260,8 @@ LIBS-y += drivers/net/npe/libnpe.o
 endif
 LIBS-$(CONFIG_OF_EMBED) += dts/libdts.o
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
-LIBS-y += fs/cbfs/libcbfs.o \
+LIBS-y += fs/libfs.o \
+	fs/cbfs/libcbfs.o \
 	fs/cramfs/libcramfs.o \
 	fs/ext4/libext4fs.o \
 	fs/fat/libfat.o \
