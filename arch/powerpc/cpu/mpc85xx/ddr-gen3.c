@@ -22,8 +22,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	volatile ccsr_ddr_t *ddr;
 	u32 temp_sdram_cfg;
 	u32 total_gb_size_per_controller;
-	int timeout, timeout_save;
+	int timeout;
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	int timeout_save;
 	volatile ccsr_local_ecm_t *ecm = (void *)CONFIG_SYS_MPC85xx_ECM_ADDR;
 	unsigned int csn_bnds_backup = 0, cs_sa, cs_ea, *csn_bnds_t;
 	int csn = -1;
@@ -305,7 +306,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			>> SDRAM_CFG_DBW_SHIFT);
 	timeout = ((total_gb_size_per_controller << (6 - bus_width)) * 100 /
 		(get_ddr_freq(0) >> 20)) << 1;
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
 	timeout_save = timeout;
+#endif
 	total_gb_size_per_controller >>= 4;	/* shift down to gb size */
 	debug("total %d GB\n", total_gb_size_per_controller);
 	debug("Need to wait up to %d * 10ms\n", timeout);
