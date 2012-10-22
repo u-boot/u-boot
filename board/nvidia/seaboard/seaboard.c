@@ -34,7 +34,7 @@
 #endif
 
 /* TODO: Remove this code when the SPI switch is working */
-#ifndef CONFIG_SPI_UART_SWITCH
+#if !defined(CONFIG_SPI_UART_SWITCH) && (CONFIG_MACH_TYPE != MACH_TYPE_VENTANA)
 /*
  * Routine: gpio_config_uart_seaboard
  * Description: Force GPIO_PI3 low on Seaboard so UART4 works.
@@ -48,8 +48,6 @@ static void gpio_config_uart_seaboard(void)
 
 void gpio_early_init_uart(void)
 {
-	if (machine_is_ventana())
-		return;
 	gpio_config_uart_seaboard();
 }
 #endif
