@@ -901,12 +901,16 @@ static void fec_set_dev_name(char *dest, int dev_id)
 	sprintf(dest, (dev_id == -1) ? "FEC" : "FEC%i", dev_id);
 }
 
-static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
+#ifdef CONFIG_PHYLIB
+int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
+		struct mii_dev *bus, struct phy_device *phydev)
+#else
+static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
+		struct mii_dev *bus, int phy_id)
+#endif
 {
-	struct phy_device *phydev;
 	struct eth_device *edev;
 	struct fec_priv *fec;
-	struct mii_dev *bus;
 	unsigned char ethaddr[6];
 	uint32_t start;
 	int ret = 0;
@@ -953,57 +957,25 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 	}
 
 	fec_reg_setup(fec);
-
 	fec_set_dev_name(edev->name, dev_id);
 	fec->dev_id = (dev_id == -1) ? 0 : dev_id;
-	fec->phy_id = phy_id;
-
-	bus = mdio_alloc();
-	if (!bus) {
-		printf("mdio_alloc failed\n");
-		ret = -ENOMEM;
-		goto err3;
-	}
-	bus->read = fec_phy_read;
-	bus->write = fec_phy_write;
-	fec_set_dev_name(bus->name, dev_id);
-#ifdef CONFIG_MX28
-	/*
-	 * The i.MX28 has two ethernet interfaces, but they are not equal.
-	 * Only the first one can access the MDIO bus.
-	 */
-	bus->priv = (struct ethernet_regs *)MXS_ENET0_BASE;
-#else
-	bus->priv = fec->eth;
-#endif
-	fec_mii_setspeed(bus->priv);
-	ret = mdio_register(bus);
-	if (ret) {
-		printf("mdio_register failed\n");
-		free(bus);
-		ret = -ENOMEM;
-		goto err3;
-	}
 	fec->bus = bus;
+	fec_mii_setspeed(bus->priv);
+#ifdef CONFIG_PHYLIB
+	fec->phydev = phydev;
+	phy_connect_dev(phydev, edev);
+	/* Configure phy */
+	phy_config(phydev);
+#else
+	fec->phy_id = phy_id;
+#endif
 	eth_register(edev);
 
 	if (fec_get_hwaddr(edev, dev_id, ethaddr) == 0) {
 		debug("got MAC%d address from fuse: %pM\n", dev_id, ethaddr);
 		memcpy(edev->enetaddr, ethaddr, 6);
 	}
-	/* Configure phy */
-#ifdef CONFIG_PHYLIB
-	phydev = phy_connect(fec->bus, phy_id, edev, PHY_INTERFACE_MODE_RGMII);
-	if (!phydev) {
-		free(bus);
-		ret = -ENOMEM;
-		goto err3;
-	}
-	fec->phydev = phydev;
-	phy_config(phydev);
-#endif
 	return ret;
-
 err3:
 	free(fec);
 err2:
@@ -1012,10 +984,71 @@ err1:
 	return ret;
 }
 
+struct mii_dev *fec_get_miibus(uint32_t base_addr, int dev_id)
+{
+	struct ethernet_regs *eth = (struct ethernet_regs *)base_addr;
+	struct mii_dev *bus;
+	int ret;
+
+	bus = mdio_alloc();
+	if (!bus) {
+		printf("mdio_alloc failed\n");
+		return NULL;
+	}
+	bus->read = fec_phy_read;
+	bus->write = fec_phy_write;
+	bus->priv = eth;
+	fec_set_dev_name(bus->name, dev_id);
+
+	ret = mdio_register(bus);
+	if (ret) {
+		printf("mdio_register failed\n");
+		free(bus);
+		return NULL;
+	}
+	fec_mii_setspeed(eth);
+	return bus;
+}
+
 int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 {
+	uint32_t base_mii;
+	struct mii_dev *bus = NULL;
+#ifdef CONFIG_PHYLIB
+	struct phy_device *phydev = NULL;
+#endif
+	int ret;
+
+#ifdef CONFIG_MX28
+	/*
+	 * The i.MX28 has two ethernet interfaces, but they are not equal.
+	 * Only the first one can access the MDIO bus.
+	 */
+	base_mii = MXS_ENET0_BASE;
+#else
+	base_mii = addr;
+#endif
 	debug("eth_init: fec_probe(bd, %i, %i) @ %08x\n", dev_id, phy_id, addr);
-	return fec_probe(bd, dev_id, phy_id, addr);
+	bus = fec_get_miibus(base_mii, dev_id);
+	if (!bus)
+		return -ENOMEM;
+#ifdef CONFIG_PHYLIB
+	phydev = phy_find_by_mask(bus, 1 << phy_id, PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		free(bus);
+		return -ENOMEM;
+	}
+	ret = fec_probe(bd, dev_id, addr, bus, phydev);
+#else
+	ret = fec_probe(bd, dev_id, addr, bus, phy_id);
+#endif
+	if (ret) {
+#ifdef CONFIG_PHYLIB
+		free(phydev);
+#endif
+		free(bus);
+	}
+	return ret;
 }
 
 #ifdef CONFIG_FEC_MXC_PHYADDR
