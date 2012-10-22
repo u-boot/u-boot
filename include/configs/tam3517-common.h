@@ -106,8 +106,6 @@
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
 #define CONFIG_USB_STORAGE
 
-/* #define CONFIG_EHCI_DCACHE */
-
 /* commands to include */
 #include <config_cmd_default.h>
 

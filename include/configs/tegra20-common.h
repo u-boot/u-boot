@@ -100,7 +100,6 @@
  */
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	10
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_EHCI_DCACHE
 
 /* Total I2C ports on Tegra20 */
 #define TEGRA_I2C_NUM_CONTROLLERS	4

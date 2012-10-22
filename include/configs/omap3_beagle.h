@@ -131,7 +131,6 @@
 #define CONFIG_USB_EHCI
 
 #define CONFIG_USB_EHCI_OMAP
-/*#define CONFIG_EHCI_DCACHE*/ /* leave it disabled for now */
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	147
 
 #define CONFIG_USB_ULPI
