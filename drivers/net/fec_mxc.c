@@ -392,21 +392,6 @@ static int fec_set_hwaddr(struct eth_device *dev)
 	return 0;
 }
 
-static void fec_eth_phy_config(struct eth_device *dev)
-{
-#ifdef CONFIG_PHYLIB
-	struct fec_priv *fec = (struct fec_priv *)dev->priv;
-	struct phy_device *phydev;
-
-	phydev = phy_connect(fec->bus, fec->phy_id, dev,
-			PHY_INTERFACE_MODE_RGMII);
-	if (phydev) {
-		fec->phydev = phydev;
-		phy_config(phydev);
-	}
-#endif
-}
-
 /*
  * Do initial configuration of the FEC registers
  */
@@ -511,9 +496,7 @@ static int fec_open(struct eth_device *edev)
 #endif
 
 #ifdef CONFIG_PHYLIB
-	if (!fec->phydev)
-		fec_eth_phy_config(edev);
-	if (fec->phydev) {
+	{
 		/* Start up the PHY */
 		int ret = phy_startup(fec->phydev);
 
@@ -523,8 +506,6 @@ static int fec_open(struct eth_device *edev)
 			return ret;
 		}
 		speed = fec->phydev->speed;
-	} else {
-		speed = _100BASET;
 	}
 #else
 	miiphy_wait_aneg(edev);
@@ -922,6 +903,7 @@ static void fec_set_dev_name(char *dest, int dev_id)
 
 static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 {
+	struct phy_device *phydev;
 	struct eth_device *edev;
 	struct fec_priv *fec;
 	struct mii_dev *bus;
@@ -1010,7 +992,16 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 		memcpy(edev->enetaddr, ethaddr, 6);
 	}
 	/* Configure phy */
-	fec_eth_phy_config(edev);
+#ifdef CONFIG_PHYLIB
+	phydev = phy_connect(fec->bus, phy_id, edev, PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		free(bus);
+		ret = -ENOMEM;
+		goto err3;
+	}
+	fec->phydev = phydev;
+	phy_config(phydev);
+#endif
 	return ret;
 
 err3:
