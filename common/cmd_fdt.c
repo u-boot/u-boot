@@ -35,6 +35,9 @@
 
 #define MAX_LEVEL	32		/* how deeply nested we will go */
 #define SCRATCHPAD	1024		/* bytes of scratchpad memory */
+#ifndef CONFIG_CMD_FDT_MAX_DUMP
+#define CONFIG_CMD_FDT_MAX_DUMP 64
+#endif
 
 /*
  * Global data (for the gd->bd)
@@ -44,6 +47,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int fdt_valid(void);
 static int fdt_parse_prop(char *const*newval, int count, char *data, int *len);
 static int fdt_print(const char *pathp, char *prop, int depth);
+static int is_printable_string(const void *data, int len);
 
 /*
  * The working_fdt points to our working flattened device tree.
@@ -58,6 +62,34 @@ void set_working_fdt_addr(void *addr)
 
 	sprintf(buf, "%lx", (unsigned long)addr);
 	setenv("fdtaddr", buf);
+}
+
+/*
+ * Get a value from the fdt and format it to be set in the environment
+ */
+static int fdt_value_setenv(const void *nodep, int len, const char *var)
+{
+	if (is_printable_string(nodep, len))
+		setenv(var, (void *)nodep);
+	else if (len == 4) {
+		char buf[11];
+
+		sprintf(buf, "0x%08X", *(uint32_t *)nodep);
+		setenv(var, buf);
+	} else if (len%4 == 0 && len <= 20) {
+		/* Needed to print things like sha1 hashes. */
+		char buf[41];
+		int i;
+
+		for (i = 0; i < len; i += sizeof(unsigned int))
+			sprintf(buf + (i * 2), "%08x",
+				*(unsigned int *)(nodep + i));
+		setenv(var, buf);
+	} else {
+		printf("error: unprintable value\n");
+		return 1;
+	}
+	return 0;
 }
 
 /*
@@ -248,6 +280,117 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		if (ret < 0) {
 			printf ("libfdt fdt_setprop(): %s\n", fdt_strerror(ret));
 			return 1;
+		}
+
+	/********************************************************************
+	 * Get the value of a property in the working_fdt.
+	 ********************************************************************/
+	} else if (argv[1][0] == 'g') {
+		char *subcmd;		/* sub-command */
+		char *pathp;		/* path */
+		char *prop;		/* property */
+		char *var;		/* variable to store result */
+		int  nodeoffset;	/* node offset from libfdt */
+		const void *nodep;	/* property node pointer */
+		int  len = 0;		/* new length of the property */
+
+		/*
+		 * Parameters: Node path, property, optional value.
+		 */
+		if (argc < 5)
+			return CMD_RET_USAGE;
+
+		subcmd = argv[2];
+
+		if (argc < 6 && subcmd[0] != 's')
+			return CMD_RET_USAGE;
+
+		var    = argv[3];
+		pathp  = argv[4];
+		prop   = argv[5];
+
+		nodeoffset = fdt_path_offset(working_fdt, pathp);
+		if (nodeoffset < 0) {
+			/*
+			 * Not found or something else bad happened.
+			 */
+			printf("libfdt fdt_path_offset() returned %s\n",
+				fdt_strerror(nodeoffset));
+			return 1;
+		}
+
+		if (subcmd[0] == 'n' || (subcmd[0] == 's' && argc == 5)) {
+			int reqIndex = -1;
+			int startDepth = fdt_node_depth(
+				working_fdt, nodeoffset);
+			int curDepth = startDepth;
+			int curIndex = -1;
+			int nextNodeOffset = fdt_next_node(
+				working_fdt, nodeoffset, &curDepth);
+
+			if (subcmd[0] == 'n')
+				reqIndex = simple_strtoul(argv[5], NULL, 16);
+
+			while (curDepth > startDepth) {
+				if (curDepth == startDepth + 1)
+					curIndex++;
+				if (subcmd[0] == 'n' && curIndex == reqIndex) {
+					const char *nodeName = fdt_get_name(
+					    working_fdt, nextNodeOffset, NULL);
+
+					setenv(var, (char *)nodeName);
+					return 0;
+				}
+				nextNodeOffset = fdt_next_node(
+					working_fdt, nextNodeOffset, &curDepth);
+				if (nextNodeOffset < 0)
+					break;
+			}
+			if (subcmd[0] == 's') {
+				/* get the num nodes at this level */
+				char buf[11];
+
+				sprintf(buf, "%d", curIndex + 1);
+				setenv(var, buf);
+			} else {
+				/* node index not found */
+				printf("libfdt node not found\n");
+				return 1;
+			}
+		} else {
+			nodep = fdt_getprop(
+				working_fdt, nodeoffset, prop, &len);
+			if (len == 0) {
+				/* no property value */
+				setenv(var, "");
+				return 0;
+			} else if (len > 0) {
+				if (subcmd[0] == 'v') {
+					int ret;
+
+					ret = fdt_value_setenv(nodep, len, var);
+					if (ret != 0)
+						return ret;
+				} else if (subcmd[0] == 'a') {
+					/* Get address */
+					char buf[11];
+
+					sprintf(buf, "0x%08X", (uint32_t)nodep);
+					setenv(var, buf);
+				} else if (subcmd[0] == 's') {
+					/* Get size */
+					char buf[11];
+
+					sprintf(buf, "0x%08X", len);
+					setenv(var, buf);
+				} else
+					return CMD_RET_USAGE;
+				return 0;
+			} else {
+				printf("libfdt fdt_getprop(): %s\n",
+					fdt_strerror(len));
+				return 1;
+			}
 		}
 
 	/*
@@ -611,12 +754,12 @@ static int is_printable_string(const void *data, int len)
 	if (len == 0)
 		return 0;
 
-	/* must terminate with zero */
-	if (s[len - 1] != '\0')
+	/* must terminate with zero or '\n' */
+	if (s[len - 1] != '\0' && s[len - 1] != '\n')
 		return 0;
 
 	/* printable or a null byte (concatenated strings) */
-	while (((*s == '\0') || isprint(*s)) && (len > 0)) {
+	while (((*s == '\0') || isprint(*s) || isspace(*s)) && (len > 0)) {
 		/*
 		 * If we see a null, there are three possibilities:
 		 * 1) If len == 1, it is the end of the string, printable
@@ -672,19 +815,28 @@ static void print_data(const void *data, int len)
 	}
 
 	if ((len %4) == 0) {
-		const u32 *p;
+		if (len > CONFIG_CMD_FDT_MAX_DUMP)
+			printf("* 0x%08x [0x%08x]", (unsigned int)data, len);
+		else {
+			const u32 *p;
 
-		printf("<");
-		for (j = 0, p = data; j < len/4; j ++)
-			printf("0x%x%s", fdt32_to_cpu(p[j]), j < (len/4 - 1) ? " " : "");
-		printf(">");
+			printf("<");
+			for (j = 0, p = data; j < len/4; j++)
+				printf("0x%08x%s", fdt32_to_cpu(p[j]),
+					j < (len/4 - 1) ? " " : "");
+			printf(">");
+		}
 	} else { /* anything else... hexdump */
-		const u8 *s;
+		if (len > CONFIG_CMD_FDT_MAX_DUMP)
+			printf("* 0x%08x [0x%08x]", (unsigned int)data, len);
+		else {
+			const u8 *s;
 
-		printf("[");
-		for (j = 0, s = data; j < len; j++)
-			printf("%02x%s", s[j], j < len - 1 ? " " : "");
-		printf("]");
+			printf("[");
+			for (j = 0, s = data; j < len; j++)
+				printf("%02x%s", s[j], j < len - 1 ? " " : "");
+			printf("]");
+		}
 	}
 }
 
@@ -824,6 +976,10 @@ U_BOOT_CMD(
 	"fdt resize                          - Resize fdt to size + padding to 4k addr\n"
 	"fdt print  <path> [<prop>]          - Recursive print starting at <path>\n"
 	"fdt list   <path> [<prop>]          - Print one level starting at <path>\n"
+	"fdt get value <var> <path> <prop>   - Get <property> and store in <var>\n"
+	"fdt get name <var> <path> <index>   - Get name of node <index> and store in <var>\n"
+	"fdt get addr <var> <path> <prop>    - Get start address of <property> and store in <var>\n"
+	"fdt get size <var> <path> [<prop>]  - Get size of [<property>] or num nodes and store in <var>\n"
 	"fdt set    <path> <prop> [<val>]    - Set <property> [to <val>]\n"
 	"fdt mknode <path> <node>            - Create a new node after <path>\n"
 	"fdt rm     <path> [<prop>]          - Delete the node or <property>\n"
