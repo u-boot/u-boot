@@ -25,5 +25,8 @@
 #define _SYS_PROTO_H_
 
 void mx25_uart1_init_pins(void);
+#if defined CONFIG_FEC_MXC
+extern void mx25_fec_init_pins(void);
+#endif
 
 #endif

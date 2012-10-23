@@ -36,10 +36,6 @@
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
-#ifdef CONFIG_FEC_MXC
-extern void mx25_fec_init_pins(void);
-#endif
-
 /* Clock Control Module (CCM) registers */
 struct ccm_regs {
 	u32 mpctl;	/* Core PLL Control */
