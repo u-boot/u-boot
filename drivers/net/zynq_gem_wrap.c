@@ -103,7 +103,7 @@ static u32 phy_rd(XEmacPss * e, u32 a)
 	u16 PhyData;
 
 	phy_spinwait(e);
-	XEmacPss_PhyRead(e, CONFIG_XGMAC_PHY_ADDR, a, &PhyData);
+	XEmacPss_PhyRead(e, e->phyaddr, a, &PhyData);
 	phy_spinwait(e);
 	return PhyData;
 }
@@ -111,7 +111,7 @@ static u32 phy_rd(XEmacPss * e, u32 a)
 static void phy_wr(XEmacPss * e, u32 a, u32 v)
 {
 	phy_spinwait(e);
-	XEmacPss_PhyWrite(e, CONFIG_XGMAC_PHY_ADDR, a, v);
+	XEmacPss_PhyWrite(e, e->phyaddr, a, v);
 	phy_spinwait(e);
 }
 
@@ -523,9 +523,46 @@ static int Xgmac_write_hwaddr(struct eth_device *dev)
 	return 0;
 }
 
+static void phy_detection(struct eth_device * dev)
+{
+	int i;
+	u16 phyreg;
+	struct XEmacPss *priv = dev->priv;
+
+	if (priv->phyaddr != -1 ) {
+		XEmacPss_PhyRead(dev->priv, priv->phyaddr, PHY_DETECT_REG, &phyreg);
+		if ((phyreg != 0xFFFF) &&
+		((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+			/* Found a valid PHY address */
+			debug("Default phy address %d is valid\n", priv->phyaddr);
+			return;
+		} else {
+			debug("PHY address is not setup correctly %d\n", priv->phyaddr);
+			priv->phyaddr = -1;
+		}
+	}
+
+	debug("detecting phy address\n");
+	if (priv->phyaddr == -1 ) {
+		/* detect the PHY address */
+		for (i = 31; i >= 0; i--) {
+			XEmacPss_PhyRead(dev->priv, i, PHY_DETECT_REG, &phyreg);
+			if ((phyreg != 0xFFFF) &&
+			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+				/* Found a valid PHY address */
+				priv->phyaddr = i;
+				debug("Found valid phy address, %d\n", i);
+				return;
+			}
+		}
+	}
+	printf("PHY is not detected\n");
+}
+
 int zynq_gem_initialize_old(bd_t *bis)
 {
 	struct eth_device *dev;
+	struct XEmacPss *priv;
 	dev = malloc(sizeof(*dev));
 	if (dev == NULL)
 		return 1;
@@ -544,8 +581,15 @@ int zynq_gem_initialize_old(bd_t *bis)
 	dev->send = Xgmac_send;
 	dev->recv = Xgmac_rx;
 	dev->write_hwaddr = Xgmac_write_hwaddr;
-
+	priv = dev->priv;
 	eth_register(dev);
+
+#ifdef CONFIG_PHY_ADDR
+	priv->phyaddr = CONFIG_PHY_ADDR;
+#else
+	priv->phyaddr = -1;
+#endif
+	phy_detection(dev);
 
 #if defined(CONFIG_CMD_MII) && !defined(CONFIG_BITBANGMII)
 	miiphy_register(dev->name, Xgmac_mii_read, Xgmac_mii_write);

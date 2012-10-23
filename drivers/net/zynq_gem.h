@@ -375,6 +375,16 @@ extern "C" {
 #define XEMACPSS_MAX_VLAN_FRAME_SIZE  (XEMACPSS_MTU + XEMACPSS_HDR_SIZE + \
         XEMACPSS_HDR_VLAN_SIZE + XEMACPSS_TRL_SIZE)
 
+/* Use MII register 1 (MII status register) to detect PHY */
+#define PHY_DETECT_REG  1
+
+/* Mask used to verify certain PHY features (or register contents)
+ * in the register above:
+ *  0x1000: 10Mbps full duplex support
+ *  0x0800: 10Mbps half duplex support
+ *  0x0008: Auto-negotiation support
+ */
+#define PHY_DETECT_MASK 0x1808
 
 /**************************** Type Definitions ******************************/
 /** @name Typedefs for callback functions
@@ -429,6 +439,7 @@ typedef struct XEmacPss {
 	u32 IsStarted;		/* Device is currently started */
 	u32 IsReady;		/* Device is initialized and ready */
 	u32 Options;		/* Current options word */
+	int phyaddr;		/* Phy address */
 
 	XEmacPss_BdRing TxBdRing;	/* Transmit BD ring */
 	XEmacPss_BdRing RxBdRing;	/* Receive BD ring */
