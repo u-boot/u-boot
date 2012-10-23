@@ -34,6 +34,7 @@
 #define is_soc_rev(rev)	((get_cpu_rev() & 0xFF) - rev)
 u32 get_cpu_rev(void);
 const char *get_imx_type(u32 imxtype);
+unsigned imx_ddr_size(void);
 
 void set_vddsoc(u32 mv);
 
