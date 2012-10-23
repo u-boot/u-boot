@@ -101,7 +101,7 @@ int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/* mount the filesystem */
 	if (!ext4fs_mount(info.size)) {
-		printf("Bad ext4 partition %s %d:%lu\n", argv[1], dev, part);
+		printf("Bad ext4 partition %s %d:%d\n", argv[1], dev, part);
 		goto fail;
 	}
 
