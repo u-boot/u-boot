@@ -60,6 +60,10 @@ int dram_init_f(void)
 		struct memrange *memrange = &lib_sysinfo.memrange[i];
 		unsigned long long end = memrange->base + memrange->size;
 
+		/* Ignore memory over 4GB, we can't use it. */
+		if (memrange->base > 0xffffffff)
+			continue;
+
 		if (memrange->type == CB_MEM_RAM && end > ram_size)
 			ram_size = end;
 	}
