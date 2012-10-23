@@ -67,18 +67,20 @@ char *get_reset_cause(void)
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 
-static const char *get_imx_type(u32 imxtype)
+const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
-	case 0x63:
+	case MXC_CPU_MX6Q:
 		return "6Q";	/* Quad-core version of the mx6 */
-	case 0x61:
-		return "6DS";	/* Dual/Solo version of the mx6 */
-	case 0x60:
+	case MXC_CPU_MX6DL:
+		return "6DL";	/* Dual Lite version of the mx6 */
+	case MXC_CPU_MX6SOLO:
+		return "6SOLO";	/* Solo version of the mx6 */
+	case MXC_CPU_MX6SL:
 		return "6SL";	/* Solo-Lite version of the mx6 */
-	case 0x51:
+	case MXC_CPU_MX51:
 		return "51";
-	case 0x53:
+	case MXC_CPU_MX53:
 		return "53";
 	default:
 		return "??";

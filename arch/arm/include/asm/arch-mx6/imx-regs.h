@@ -564,6 +564,8 @@ struct anatop_regs {
 	u32	usb2_misc_clr;		/* 0x258 */
 	u32	usb2_misc_tog;		/* 0x25c */
 	u32	digprog;		/* 0x260 */
+	u32	reserved1[7];
+	u32	digprog_sololite;	/* 0x280 */
 };
 
 #define ANATOP_PFD_480_PFD0_FRAC_SHIFT		0
