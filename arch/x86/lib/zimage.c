@@ -36,6 +36,9 @@
 #include <asm/realmode.h>
 #include <asm/byteorder.h>
 #include <asm/bootparam.h>
+#ifdef CONFIG_SYS_COREBOOT
+#include <asm/arch/timestamp.h>
+#endif
 
 /*
  * Memory lay-out:
@@ -283,6 +286,9 @@ void boot_zimage(void *setup_base, void *load_address)
 {
 	printf("\nStarting kernel ...\n\n");
 
+#ifdef CONFIG_SYS_COREBOOT
+	timestamp_add_now(TS_U_BOOT_START_KERNEL);
+#endif
 #if defined CONFIG_ZBOOT_32
 	/*
 	 * Set %ebx, %ebp, and %edi to 0, %esi to point to the boot_params

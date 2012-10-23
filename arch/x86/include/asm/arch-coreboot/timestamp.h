@@ -42,6 +42,7 @@ enum timestamp_id {
 
 	/* U-Boot entry IDs start at 1000 */
 	TS_U_BOOT_INITTED = 1000, /* This is where u-boot starts */
+	TS_U_BOOT_START_KERNEL = 1100, /* Right before jumping to kernel. */
 };
 
 void timestamp_init(void);
