@@ -28,6 +28,7 @@
 #include <netdev.h>
 #include <asm/arch-coreboot/tables.h>
 #include <asm/arch-coreboot/sysinfo.h>
+#include <asm/arch/timestamp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -41,6 +42,9 @@ int cpu_init_f(void)
 	int ret = get_coreboot_info(&lib_sysinfo);
 	if (ret != 0)
 		printf("Failed to parse coreboot tables.\n");
+
+	timestamp_init();
+
 	return ret;
 }
 
