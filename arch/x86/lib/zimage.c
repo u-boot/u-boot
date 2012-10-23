@@ -39,6 +39,7 @@
 #ifdef CONFIG_SYS_COREBOOT
 #include <asm/arch/timestamp.h>
 #endif
+#include <linux/compiler.h>
 
 /*
  * Memory lay-out:
@@ -282,8 +283,18 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	return 0;
 }
 
+/*
+ * Implement a weak default function for boards that optionally
+ * need to clean up the system before jumping to the kernel.
+ */
+__weak void board_final_cleanup(void)
+{
+}
+
 void boot_zimage(void *setup_base, void *load_address)
 {
+	board_final_cleanup();
+
 	printf("\nStarting kernel ...\n\n");
 
 #ifdef CONFIG_SYS_COREBOOT
