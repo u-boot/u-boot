@@ -511,6 +511,7 @@ static inline int image_check_target_arch(const image_header_t *hdr)
 #define FIT_HASH_NODENAME	"hash"
 #define FIT_ALGO_PROP		"algo"
 #define FIT_VALUE_PROP		"value"
+#define FIT_IGNORE_PROP		"uboot-ignore"
 
 /* image node */
 #define FIT_DATA_PROP		"data"
@@ -595,6 +596,9 @@ int fit_image_get_data(const void *fit, int noffset,
 int fit_image_hash_get_algo(const void *fit, int noffset, char **algo);
 int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 				int *value_len);
+#ifndef USE_HOSTCC
+int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore);
+#endif
 
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
 int fit_set_hashes(void *fit);
