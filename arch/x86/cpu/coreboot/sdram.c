@@ -71,5 +71,20 @@ int dram_init_f(void)
 
 int dram_init(void)
 {
+	int i, j;
+
+	if (CONFIG_NR_DRAM_BANKS) {
+		for (i = 0, j = 0; i < lib_sysinfo.n_memranges; i++) {
+			struct memrange *memrange = &lib_sysinfo.memrange[i];
+
+			if (memrange->type == CB_MEM_RAM) {
+				gd->bd->bi_dram[j].start = memrange->base;
+				gd->bd->bi_dram[j].size = memrange->size;
+				j++;
+				if (j >= CONFIG_NR_DRAM_BANKS)
+					break;
+			}
+		}
+	}
 	return 0;
 }
