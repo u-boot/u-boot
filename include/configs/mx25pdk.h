@@ -22,6 +22,7 @@
 #define CONFIG_MX25
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_TEXT_BASE		0x81200000
+#define CONFIG_MXC_GPIO
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -65,9 +66,10 @@
 /* No NOR flash present */
 #define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
 #define CONFIG_ENV_SIZE        (8 * 1024)
-#define CONFIG_ENV_IS_NOWHERE
 
 #define CONFIG_SYS_NO_FLASH
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV 0
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_PROMPT	"MX25PDK U-Boot > "
@@ -85,6 +87,9 @@
 /* U-Boot commands */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
 
 /* Ethernet */
 #define CONFIG_FEC_MXC
@@ -92,6 +97,15 @@
 #define CONFIG_MII
 #define CONFIG_CMD_NET
 #define CONFIG_ENV_OVERWRITE
+
+/* ESDHC driver */
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CONFIG_SYS_FSL_ESDHC_NUM	1
+
+#define CONFIG_DOS_PARTITION
 
 #define CONFIG_BOOTDELAY	3
 

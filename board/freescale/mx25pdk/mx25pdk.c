@@ -19,11 +19,23 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/imx25-pinmux.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/clock.h>
+#include <mmc.h>
+#include <fsl_esdhc.h>
+
+#define CARD_DETECT		IMX_GPIO_NR(2, 1)
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_FSL_ESDHC
+struct fsl_esdhc_cfg esdhc_cfg[1] = {
+	{IMX_MMC_SDHC1_BASE},
+};
+#endif
 
 int dram_init(void)
 {
@@ -47,6 +59,47 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_FSL_ESDHC
+int board_mmc_getcd(struct mmc *mmc)
+{
+	struct iomuxc_mux_ctl *muxctl;
+	struct iomuxc_pad_ctl *padctl;
+	u32 gpio_mux_mode = MX25_PIN_MUX_MODE(5);
+
+	/*
+	 * Set up the Card Detect pin.
+	 *
+	 * SD1_GPIO_CD: gpio2_1 is ALT 5 mode of pin A15
+	 *
+	 */
+	muxctl = (struct iomuxc_mux_ctl *)IMX_IOPADMUX_BASE;
+	padctl = (struct iomuxc_pad_ctl *)IMX_IOPADCTL_BASE;
+
+	writel(gpio_mux_mode, &muxctl->pad_a15);
+	writel(0x0, &padctl->pad_a15);
+
+	gpio_direction_input(CARD_DETECT);
+	return !gpio_get_value(CARD_DETECT);
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	struct iomuxc_mux_ctl *muxctl;
+	u32 sdhc1_mux_mode = MX25_PIN_MUX_MODE(0) | MX25_PIN_MUX_SION;
+
+	muxctl = (struct iomuxc_mux_ctl *)IMX_IOPADMUX_BASE;
+	writel(sdhc1_mux_mode, &muxctl->pad_sd1_cmd);
+	writel(sdhc1_mux_mode, &muxctl->pad_sd1_clk);
+	writel(sdhc1_mux_mode, &muxctl->pad_sd1_data0);
+	writel(sdhc1_mux_mode, &muxctl->pad_sd1_data1);
+	writel(sdhc1_mux_mode, &muxctl->pad_sd1_data2);
+	writel(sdhc1_mux_mode, &muxctl->pad_sd1_data3);
+
+	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
+	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
+}
+#endif
 
 int checkboard(void)
 {
