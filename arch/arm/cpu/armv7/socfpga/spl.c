@@ -21,7 +21,6 @@
 #include <asm/utils.h>
 #include <version.h>
 #include <image.h>
-#include <malloc.h>
 #include <asm/arch/reset_manager.h>
 #include <spl.h>
 
