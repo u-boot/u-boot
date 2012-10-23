@@ -47,6 +47,7 @@ COBJS-$(CONFIG_SYS_GENERIC_TIMER) += pcat_timer.o
 COBJS-$(CONFIG_PCI) += pci.o
 COBJS-$(CONFIG_PCI) += pci_type1.o
 COBJS-y	+= relocate.o
+COBJS-y += physmem.o
 COBJS-y	+= string.o
 COBJS-$(CONFIG_SYS_X86_ISR_TIMER)	+= timer.o
 COBJS-$(CONFIG_VIDEO)	+= video.o
