@@ -28,6 +28,8 @@
 
 #if defined(CONFIG_PMIC_FSL_MC13892)
 #define FSL_PMIC_I2C_LENGTH	3
+#elif defined(CONFIG_PMIC_FSL_MC34704)
+#define FSL_PMIC_I2C_LENGTH	1
 #endif
 
 #if defined(CONFIG_PMIC_SPI)
