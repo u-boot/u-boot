@@ -36,7 +36,6 @@ SECTIONS
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
     net/libnet.o			(.text*)
     board/esteem192e/libesteem192e.o	(.text*)
-    *(.text.*printf)
 
     . = env_offset;
     common/env_embedded.o		(.text*)
