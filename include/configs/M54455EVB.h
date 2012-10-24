@@ -189,11 +189,11 @@
 #undef CONFIG_MCFPIT
 
 /* I2c */
-#define CONFIG_FSL_I2C
-#define CONFIG_HARD_I2C		/* I2C with hardware support */
-#define CONFIG_SYS_I2C_SPEED		80000	/* I2C speed and slave address  */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_SYS_I2C_OFFSET		0x58000
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	80000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSLI2C_OFFSET	0x58000
 #define CONFIG_SYS_IMMR		CONFIG_SYS_MBAR
 
 /* DSPI and Serial Flash */

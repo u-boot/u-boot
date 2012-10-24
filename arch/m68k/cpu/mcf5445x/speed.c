@@ -273,7 +273,7 @@ void setup_5445x_clocks(void)
 #endif
 	}
 
-#ifdef CONFIG_FSL_I2C
+#ifdef CONFIG_SYS_I2C_FSL
 	gd->arch.i2c1_clk = gd->bus_clk;
 #endif
 }
@@ -289,7 +289,7 @@ int get_clocks(void)
 	setup_5445x_clocks();
 #endif
 
-#ifdef CONFIG_FSL_I2C
+#ifdef CONFIG_SYS_FSL_I2C
 	gd->arch.i2c1_clk = gd->bus_clk;
 #endif
 

@@ -1968,6 +1968,18 @@ CBFS (Coreboot Filesystem) support
 		    CONFIG_SYS_I2C_SOFT_SPEED_4 and CONFIG_SYS_I2C_SOFT_SLAVE_4
 		    for defining speed and slave address
 
+		- drivers/i2c/fsl_i2c.c:
+		  - activate i2c driver with CONFIG_SYS_I2C_FSL
+		    define CONFIG_SYS_FSL_I2C_OFFSET for setting the register
+		    offset CONFIG_SYS_FSL_I2C_SPEED for the i2c speed and
+		    CONFIG_SYS_FSL_I2C_SLAVE for the slave addr of the first
+		    bus.
+                  - If your board supports a second fsl i2c bus, define
+		    CONFIG_SYS_FSL_I2C2_OFFSET for the register offset
+		    CONFIG_SYS_FSL_I2C2_SPEED for the speed and
+		    CONFIG_SYS_FSL_I2C2_SLAVE for the slave address of the
+		    second bus.
+
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES
@@ -2212,11 +2224,6 @@ CBFS (Coreboot Filesystem) support
 		If defined, specifies the I2C address of the DTT device.
 		If not defined, then U-Boot uses predefined value for
 		specified DTT device.
-
-		CONFIG_FSL_I2C
-
-		Define this option if you want to use Freescale's I2C driver in
-		drivers/i2c/fsl_i2c.c.
 
 		CONFIG_I2C_MUX
 

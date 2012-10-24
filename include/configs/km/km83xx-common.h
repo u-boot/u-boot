@@ -204,14 +204,21 @@
 #endif /* CFG_SYS_RAMBOOT */
 
 /* I2C */
-#define CONFIG_HARD_I2C		/* I2C with hardware support */
-#define CONFIG_FSL_I2C
-#define CONFIG_SYS_I2C_SPEED	200000	/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SLAVE	0x7F
-#define CONFIG_SYS_I2C_OFFSET	0x3000
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_MAX_I2C_BUS		1
-#define CONFIG_I2C_MUX
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_NUM_I2C_BUSES	4
+#define CONFIG_SYS_I2C_MAX_HOPS		1
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	200000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_I2C_OFFSET		0x3000
+#define CONFIG_SYS_FSL_I2C2_SPEED	200000
+#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
+#define CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP} }, \
+		{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \
+		{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
+		{1, {I2C_NULL_HOP} } }
 
 /* I2C SYSMON (LM75, AD7414 is almost compatible) */
 #define CONFIG_DTT_LM75		/* ON Semi's LM75 */
@@ -219,7 +226,7 @@
 #define CONFIG_SYS_DTT_MAX_TEMP	70
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
-#define CONFIG_SYS_DTT_BUS_NUM		(CONFIG_SYS_MAX_I2C_BUS)
+#define CONFIG_SYS_DTT_BUS_NUM		1
 
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_NAND_KMETER1
@@ -315,7 +322,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_KM_DEF_ENV						\
 	CONFIG_KM_DEF_ARCH						\
-	"EEprom_ivm=pca9547:70:9\0"					\
+	"EEprom_ivm=2\0"						\
 	"newenv="							\
 		"prot off 0xF00C0000 +0x40000 && "			\
 		"era 0xF00C0000 +0x40000\0"				\

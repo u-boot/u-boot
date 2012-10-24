@@ -95,19 +95,6 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END},
 };
 
-static int board_init_i2c_busses(void)
-{
-	I2C_MUX_DEVICE *dev = NULL;
-	uchar *dtt_bus = (uchar *)"pca9547:70:a";
-
-	/* Set up the Bus for the DTTs */
-	dev = i2c_mux_ident_muxstring(dtt_bus);
-	if (dev == NULL)
-		printf("Error couldn't add Bus for DTT\n");
-
-	return 0;
-}
-
 #if defined(CONFIG_SUVD3)
 const uint upma_table[] = {
 	0x1ffedc00, 0x0ffcdc80, 0x0ffcdc80, 0x0ffcdc04, /* Words 0 to 3 */
@@ -206,8 +193,6 @@ int board_early_init_r(void)
 
 int misc_init_r(void)
 {
-	/* add board specific i2c busses */
-	board_init_i2c_busses();
 	return 0;
 }
 

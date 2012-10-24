@@ -186,11 +186,11 @@ static spd_eeprom_t default_spd_eeprom = {
 
 int vme8349_read_spd(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	int old_bus = I2C_GET_BUS();
+	int old_bus = i2c_get_bus_num();
 	unsigned int l, sum;
 	int valid = 0;
 
-	I2C_SET_BUS(0);
+	i2c_set_bus_num(0);
 
 	if (i2c_read(chip, addr, alen, buffer, len) == 0)
 		if (memcmp(&buffer[64], &default_spd_eeprom.mid[0], 8) == 0) {
@@ -215,7 +215,7 @@ int vme8349_read_spd(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		buffer[63] = sum;
 	}
 
-	I2C_SET_BUS(old_bus);
+	i2c_set_bus_num(old_bus);
 
 	return 0;
 }

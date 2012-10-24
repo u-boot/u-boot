@@ -26,7 +26,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
-#ifdef CONFIG_FSL_I2C
+#ifdef CONFIG_SYS_I2C_FSL
 	unsigned long	i2c1_clk;
 	unsigned long	i2c2_clk;
 #endif

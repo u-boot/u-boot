@@ -105,7 +105,7 @@ void cpu_init_f(void)
 	out_be32(&fbcs->csmr5, CONFIG_SYS_CS5_MASK);
 #endif
 
-#ifdef CONFIG_FSL_I2C
+#ifdef CONFIG_SYS_I2C_FSL
 	out_8(&gpio->par_i2c, GPIO_PAR_I2C_SCL_SCL | GPIO_PAR_I2C_SDA_SDA);
 #endif
 

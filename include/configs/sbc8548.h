@@ -444,12 +444,12 @@
 /*
  * I2C
  */
-#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
-#define CONFIG_HARD_I2C		/* I2C with hardware support*/
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	400000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_SYS_I2C_OFFSET		0x3000
 
 /*
  * General PCI

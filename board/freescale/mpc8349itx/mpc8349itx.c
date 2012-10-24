@@ -263,8 +263,7 @@ int misc_init_r(void)
 {
 	int rc = 0;
 
-#ifdef CONFIG_HARD_I2C
-
+#if defined(CONFIG_SYS_I2C)
 	unsigned int orig_bus = i2c_get_bus_num();
 	u8 i2c_data;
 

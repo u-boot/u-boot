@@ -270,7 +270,7 @@ int get_clocks(void)
 	gd->bus_clk = clock_pll(CONFIG_SYS_CLK / 1000, 0) * 1000;
 	gd->cpu_clk = (gd->bus_clk * 3);
 
-#ifdef CONFIG_FSL_I2C
+#ifdef CONFIG_SYS_I2C_FSL
 	gd->arch.i2c1_clk = gd->bus_clk;
 #endif
 

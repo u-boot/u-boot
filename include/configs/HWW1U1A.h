@@ -218,16 +218,16 @@
 /* -------------------------------------------------------------------- */
 
 /* Generic FreeScale hardware I2C support */
-#define CONFIG_HARD_I2C
-#define CONFIG_FSL_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	400000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_FSL_I2C2_SPEED	400000
+#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
+#define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x29} }
 #define CONFIG_CMD_I2C
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_OFFSET  0x3000
-#define CONFIG_SYS_I2C2_OFFSET 0x3100
-
-/* I2C bus configuration */
-#define CONFIG_SYS_I2C_SPEED 400000
-#define CONFIG_SYS_I2C_SLAVE 0x7F
 
 /* DDR2 SO-RDIMM SPD EEPROM is at I2C0-0x51 */
 #define CONFIG_SYS_SPD_BUS_NUM 0

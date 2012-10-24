@@ -213,7 +213,7 @@
 #undef CONFIG_MCFPIT
 
 /* I2c */
-#undef CONFIG_FSL_I2C
+#undef CONFIG_SYS_FSL_I2C
 #undef CONFIG_HARD_I2C		/* I2C with hardware support */
 #undef	CONFIG_SYS_I2C_SOFT	/* I2C bit-banged */
 /* I2C speed and slave address  */
