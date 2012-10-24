@@ -112,7 +112,7 @@ struct usb_kbd_pdata {
 	uint32_t	usb_out_pointer;
 	uint8_t		usb_kbd_buffer[USB_KBD_BUFFER_LEN];
 
-	uint8_t		new[8];
+	uint8_t		*new;
 	uint8_t		old[8];
 
 	uint8_t		flags;
@@ -434,6 +434,9 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 
 	/* Clear private data */
 	memset(data, 0, sizeof(struct usb_kbd_pdata));
+
+	/* allocate input buffer aligned and sized to USB DMA alignment */
+	data->new = memalign(USB_DMA_MINALIGN, roundup(8, USB_DMA_MINALIGN));
 
 	/* Insert private data into USB device structure */
 	dev->privptr = data;
