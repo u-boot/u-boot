@@ -99,6 +99,9 @@
 #define CONFIG_TEGRA_KEYBOARD
 #define CONFIG_KEYBOARD
 
+/* USB keyboard */
+#define CONFIG_USB_KEYBOARD
+
 #include "tegra-common-post.h"
 
 /* NAND support */
