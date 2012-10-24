@@ -95,6 +95,7 @@
 
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_SUBNETMASK
