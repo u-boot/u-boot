@@ -2311,6 +2311,12 @@ CBFS (Coreboot Filesystem) support
 		- CONFIG_SYS_VENDOR
 		- CONFIG_SYS_SOC
 
+		CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
+		Define this in order to add variables describing certain
+		run-time determined information about the hardware to the
+		environment.  These will be named board_name, board_rev.
+
 - DataFlash Support:
 		CONFIG_HAS_DATAFLASH
 
