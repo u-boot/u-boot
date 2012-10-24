@@ -144,7 +144,7 @@
  ***********************************************************/
 
 #include <config_cmd_default.h>
-
+#define CONFIG_CMD_BOOTZ
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_CMD_DATE
