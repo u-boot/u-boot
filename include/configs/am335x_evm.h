@@ -29,6 +29,7 @@
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT		"U-Boot# "
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_SYS_NO_FLASH
 #define MACH_TYPE_TIAM335EVM		3589	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_TIAM335EVM
@@ -46,11 +47,14 @@
 
 /* set to negative value for no autoboot */
 #define CONFIG_BOOTDELAY		1
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"fdtaddr=0x80F80000\0" \
 	"rdaddr=0x81000000\0" \
 	"bootfile=/boot/uImage\0" \
+	"fdtfile=\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
@@ -79,6 +83,13 @@
 	"ramboot=echo Booting from ramdisk ...; " \
 		"run ramargs; " \
 		"bootm ${loadaddr}\0" \
+	"findfdt="\
+		"if test $board_name = A335BONE; then " \
+			"setenv fdtfile am335x-bone.dtb; fi; " \
+		"if test $board_name = A33515BB; then " \
+			"setenv fdtfile am335x-evm.dtb; fi; " \
+		"if test $board_name = A335X_SK; then " \
+			"setenv fdtfile am335x-evmsk.dtb; fi\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \

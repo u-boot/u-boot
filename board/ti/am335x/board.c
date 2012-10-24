@@ -299,6 +299,26 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	char safe_string[HDR_NAME_LEN + 1];
+
+	/* Now set variables based on the header. */
+	strncpy(safe_string, (char *)header.name, sizeof(header.name));
+	safe_string[sizeof(header.name)] = 0;
+	setenv("board_name", safe_string);
+
+	strncpy(safe_string, (char *)header.version, sizeof(header.version));
+	safe_string[sizeof(header.version)] = 0;
+	setenv("board_rev", safe_string);
+#endif
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_DRIVER_TI_CPSW
 static void cpsw_control(int enabled)
 {
