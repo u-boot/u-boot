@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2012
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -41,8 +41,6 @@ SECTIONS
     drivers/net/libnet.o		(.text*)
     drivers/pcmcia/libpcmcia.o		(.text.pcmcia_on)
     drivers/pcmcia/libpcmcia.o		(.text.pcmcia_hardware_enable)
-    drivers/rtc/librtc.o		(.text*)
-    drivers/misc/libmisc.o		(.text*)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.ppcenv*)
