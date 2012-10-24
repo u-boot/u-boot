@@ -460,7 +460,7 @@ static void fec_pin_init(int fecidx)
 
 #endif /* !CONFIG_RMII */
 
-#elif !defined(CONFIG_ICU862) && !defined(CONFIG_IAD210)
+#elif !defined(CONFIG_ICU862)
 		/*
 		 * Configure all of port D for MII.
 		 */

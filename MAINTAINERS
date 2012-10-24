@@ -104,8 +104,6 @@ Wolfgang Denk <wd@denx.de>
 
 	ARIA		MPC5121e
 
-	AMX860		MPC860
-	ETX094		MPC850
 	FPS850L		MPC850
 	FPS860L		MPC860
 	ICU862		MPC862
@@ -116,7 +114,6 @@ Wolfgang Denk <wd@denx.de>
 	IVMS8		MPC860
 	IVMS8_128	MPC860
 	IVMS8_256	MPC860
-	LANTEC		MPC850
 	LWMON		MPC823
 	R360MPI		MPC823
 	RRvision	MPC823
@@ -128,7 +125,6 @@ Wolfgang Denk <wd@denx.de>
 	TQM855L		MPC855
 	TQM860L		MPC860
 	TQM860L_FEC	MPC860
-	c2mon		MPC855
 	hermes		MPC860
 	lwmon		MPC823
 
@@ -227,7 +223,6 @@ Wolfgang Grandegger <wg@denx.de>
 
 	PN62		MPC8240
 	IPHASE4539	MPC8260
-	SCM		MPC8260
 
 Anatolij Gustschin <agust@denx.de>
 
@@ -543,7 +538,6 @@ Unknown / orphaned boards:
 	FADS850SAR	MPC8xx
 	FADS860T	MPC8xx
 	GENIETV		MPC8xx
-	IAD210		MPC8xx
 	MBX		MPC8xx
 	MBX860T		MPC8xx
 	NX823		MPC8xx

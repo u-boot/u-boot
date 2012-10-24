@@ -2182,8 +2182,8 @@ CBFS (Coreboot Filesystem) support
 		following board configurations are known to be
 		"pRAM-clean":
 
-			ETX094, IVMS8, IVML24, SPD8xx, TQM8xxL,
-			HERMES, IP860, RPXlite, LWMON, LANTEC,
+			IVMS8, IVML24, SPD8xx, TQM8xxL,
+			HERMES, IP860, RPXlite, LWMON,
 			FLAGADM, TQM8260
 
 - Error Recovery:
