@@ -124,12 +124,8 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-/* Environment information, boards can override if required */
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define TEGRA_DEVICE_SETTINGS	"stdin=serial\0" \
-				"stdout=serial\0" \
-				"stderr=serial\0"
 
 #define CONFIG_LOADADDR		0x408000	/* def. location for kernel */
 #define CONFIG_BOOTDELAY	2		/* -1 to disable auto boot */
