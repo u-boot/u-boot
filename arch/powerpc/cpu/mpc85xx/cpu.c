@@ -451,21 +451,21 @@ static void dump_spd_ddr_reg(void)
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 		switch (i) {
 		case 0:
-			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+			ddr[i] = (void *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
 			break;
-#if defined(CONFIG_SYS_MPC85xx_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+#if defined(CONFIG_SYS_MPC8xxx_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
 		case 1:
-			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
+			ddr[i] = (void *)CONFIG_SYS_MPC8xxx_DDR2_ADDR;
 			break;
 #endif
-#if defined(CONFIG_SYS_MPC85xx_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+#if defined(CONFIG_SYS_MPC8xxx_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
 		case 2:
-			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR3_ADDR;
+			ddr[i] = (void *)CONFIG_SYS_MPC8xxx_DDR3_ADDR;
 			break;
 #endif
-#if defined(CONFIG_SYS_MPC85xx_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+#if defined(CONFIG_SYS_MPC8xxx_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
 		case 3:
-			ddr[i] = (void *)CONFIG_SYS_MPC85xx_DDR4_ADDR;
+			ddr[i] = (void *)CONFIG_SYS_MPC8xxx_DDR4_ADDR;
 			break;
 #endif
 		default:

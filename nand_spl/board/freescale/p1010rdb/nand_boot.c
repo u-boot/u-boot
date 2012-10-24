@@ -35,7 +35,7 @@ unsigned long ddr_freq_mhz;
 
 void sdram_init(void)
 {
-	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
 	/* mask off E bit */
 	u32 svr = SVR_SOC_VER(mfspr(SPRN_SVR));
 

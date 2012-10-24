@@ -74,7 +74,7 @@ int checkboard(void)
 phys_size_t fixed_sdram(void)
 {
 #ifndef CONFIG_SYS_RAMBOOT
-	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
 
 	set_next_law(0, LAW_SIZE_2G, LAW_TRGT_IF_DDR_1);
 

@@ -19,14 +19,11 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			     unsigned int ctrl_num)
 {
 	unsigned int i;
-#ifdef CONFIG_MPC83xx
-	ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC83xx_DDR_ADDR;
-#else
-	ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
-#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_DDR120
+	ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
+
+#if defined(CONFIG_SYS_FSL_ERRATUM_NMG_DDR120) && defined(CONFIG_MPC85xx)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	uint svr;
-#endif
 #endif
 
 	if (ctrl_num) {

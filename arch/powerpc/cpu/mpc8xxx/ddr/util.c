@@ -133,14 +133,8 @@ u32 fsl_ddr_get_intl3r(void)
 
 void board_add_ram_info(int use_default)
 {
-#if defined(CONFIG_MPC83xx)
-	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	ccsr_ddr_t *ddr = (void *)&immap->ddr;
-#elif defined(CONFIG_MPC85xx)
-	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
-#elif defined(CONFIG_MPC86xx)
-	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC86xx_DDR_ADDR);
-#endif
+	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
+
 #if	defined(CONFIG_E6500) && (CONFIG_NUM_DDR_CONTROLLERS == 3)
 	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
 #endif
@@ -152,13 +146,13 @@ void board_add_ram_info(int use_default)
 
 #if CONFIG_NUM_DDR_CONTROLLERS >= 2
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
-		ddr = (void __iomem *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
+		ddr = (void __iomem *)CONFIG_SYS_MPC8xxx_DDR2_ADDR;
 		sdram_cfg = in_be32(&ddr->sdram_cfg);
 	}
 #endif
 #if CONFIG_NUM_DDR_CONTROLLERS >= 3
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
-		ddr = (void __iomem *)CONFIG_SYS_MPC85xx_DDR3_ADDR;
+		ddr = (void __iomem *)CONFIG_SYS_MPC8xxx_DDR3_ADDR;
 		sdram_cfg = in_be32(&ddr->sdram_cfg);
 	}
 #endif
