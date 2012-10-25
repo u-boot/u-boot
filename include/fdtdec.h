@@ -182,6 +182,21 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 		s32 default_val);
 
 /**
+ * Look up a 64-bit integer property in a node and return it. The property
+ * must have at least 8 bytes of data (2 cells). The first two cells are
+ * concatenated to form a 8 bytes value, where the first cell is top half and
+ * the second cell is bottom half.
+ *
+ * @param blob	FDT blob
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @param default_val	default value to return if the property is not found
+ * @return integer value, if found, or default_val if not
+ */
+uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
+		uint64_t default_val);
+
+/**
  * Checks whether a node is enabled.
  * This looks for a 'status' property. If this exists, then returns 1 if
  * the status is 'ok' and 0 otherwise. If there is no status property,

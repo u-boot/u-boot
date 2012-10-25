@@ -111,6 +111,19 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 	return default_val;
 }
 
+uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
+		uint64_t default_val)
+{
+	const uint64_t *cell64;
+	int length;
+
+	cell64 = fdt_getprop(blob, node, prop_name, &length);
+	if (!cell64 || length < sizeof(*cell64))
+		return default_val;
+
+	return fdt64_to_cpu(*cell64);
+}
+
 int fdtdec_get_is_enabled(const void *blob, int node)
 {
 	const char *cell;
