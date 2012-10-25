@@ -238,9 +238,6 @@ int env_check_apply(const char *name, const char *oldval,
 		/* Try assigning specified device */
 		if (console_assign(console, newval) < 0)
 			return 1;
-
-		if (serial_assign(newval) < 0)
-			return 1;
 #endif /* CONFIG_CONSOLE_MUX */
 	}
 
