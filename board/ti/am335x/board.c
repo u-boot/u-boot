@@ -242,7 +242,24 @@ void s_init(void)
 	/* UART softreset */
 	u32 regVal;
 
+#ifdef CONFIG_SERIAL1
 	enable_uart0_pin_mux();
+#endif /* CONFIG_SERIAL1 */
+#ifdef CONFIG_SERIAL2
+	enable_uart1_pin_mux();
+#endif /* CONFIG_SERIAL2 */
+#ifdef CONFIG_SERIAL3
+	enable_uart2_pin_mux();
+#endif /* CONFIG_SERIAL3 */
+#ifdef CONFIG_SERIAL4
+	enable_uart3_pin_mux();
+#endif /* CONFIG_SERIAL4 */
+#ifdef CONFIG_SERIAL5
+	enable_uart4_pin_mux();
+#endif /* CONFIG_SERIAL5 */
+#ifdef CONFIG_SERIAL6
+	enable_uart5_pin_mux();
+#endif /* CONFIG_SERIAL6 */
 
 	regVal = readl(&uart_base->uartsyscfg);
 	regVal |= UART_RESET;

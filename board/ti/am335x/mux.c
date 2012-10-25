@@ -27,6 +27,36 @@ static struct module_pin_mux uart0_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux uart1_pin_mux[] = {
+	{OFFSET(uart1_rxd), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* UART1_RXD */
+	{OFFSET(uart1_txd), (MODE(0) | PULLUDEN)},		/* UART1_TXD */
+	{-1},
+};
+
+static struct module_pin_mux uart2_pin_mux[] = {
+	{OFFSET(spi0_sclk), (MODE(1) | PULLUP_EN | RXACTIVE)},	/* UART2_RXD */
+	{OFFSET(spi0_d0), (MODE(1) | PULLUDEN)},		/* UART2_TXD */
+	{-1},
+};
+
+static struct module_pin_mux uart3_pin_mux[] = {
+	{OFFSET(spi0_cs1), (MODE(1) | PULLUP_EN | RXACTIVE)},	/* UART3_RXD */
+	{OFFSET(ecap0_in_pwm0_out), (MODE(1) | PULLUDEN)},	/* UART3_TXD */
+	{-1},
+};
+
+static struct module_pin_mux uart4_pin_mux[] = {
+	{OFFSET(gpmc_wait0), (MODE(6) | PULLUP_EN | RXACTIVE)},	/* UART4_RXD */
+	{OFFSET(gpmc_wpn), (MODE(6) | PULLUDEN)},		/* UART4_TXD */
+	{-1},
+};
+
+static struct module_pin_mux uart5_pin_mux[] = {
+	{OFFSET(lcd_data9), (MODE(4) | PULLUP_EN | RXACTIVE)},	/* UART5_RXD */
+	{OFFSET(lcd_data8), (MODE(4) | PULLUDEN)},		/* UART5_TXD */
+	{-1},
+};
+
 static struct module_pin_mux mmc0_pin_mux[] = {
 	{OFFSET(mmc0_dat3), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT3 */
 	{OFFSET(mmc0_dat2), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT2 */
@@ -135,6 +165,30 @@ void enable_uart0_pin_mux(void)
 	configure_module_pin_mux(uart0_pin_mux);
 }
 
+void enable_uart1_pin_mux(void)
+{
+	configure_module_pin_mux(uart1_pin_mux);
+}
+
+void enable_uart2_pin_mux(void)
+{
+	configure_module_pin_mux(uart2_pin_mux);
+}
+
+void enable_uart3_pin_mux(void)
+{
+	configure_module_pin_mux(uart3_pin_mux);
+}
+
+void enable_uart4_pin_mux(void)
+{
+	configure_module_pin_mux(uart4_pin_mux);
+}
+
+void enable_uart5_pin_mux(void)
+{
+	configure_module_pin_mux(uart5_pin_mux);
+}
 
 void enable_i2c0_pin_mux(void)
 {
