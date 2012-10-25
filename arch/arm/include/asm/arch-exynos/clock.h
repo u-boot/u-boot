@@ -595,9 +595,38 @@ struct exynos5_clock {
 	unsigned int	pll_div2_sel;
 	unsigned char	res123[0xf5d8];
 };
+
+/* structure for epll configuration used in audio clock configuration */
+struct set_epll_con_val {
+	unsigned int freq_out;		/* frequency out */
+	unsigned int en_lock_det;	/* enable lock detect */
+	unsigned int m_div;		/* m divider value */
+	unsigned int p_div;		/* p divider value */
+	unsigned int s_div;		/* s divider value */
+	unsigned int k_dsm;		/* k value of delta signal modulator */
+};
 #endif
 
 #define MPLL_FOUT_SEL_SHIFT	4
+#define EXYNOS5_EPLLCON0_LOCKED_SHIFT	29  /* EPLL Locked bit position*/
+#define TIMEOUT_EPLL_LOCK		1000
+
+#define AUDIO_0_RATIO_MASK		0x0f
+#define AUDIO_1_RATIO_MASK		0x0f
+
+#define AUDIO1_SEL_MASK			0xf
+#define CLK_SRC_SCLK_EPLL		0x7
+
+/* CON0 bit-fields */
+#define EPLL_CON0_MDIV_MASK		0x1ff
+#define EPLL_CON0_PDIV_MASK		0x3f
+#define EPLL_CON0_SDIV_MASK		0x7
+#define EPLL_CON0_MDIV_SHIFT		16
+#define EPLL_CON0_PDIV_SHIFT		8
+#define EPLL_CON0_SDIV_SHIFT		0
+#define EPLL_CON0_LOCK_DET_EN_SHIFT	28
+#define EPLL_CON0_LOCK_DET_EN_MASK	1
+
 #define MPLL_FOUT_SEL_MASK	0x1
 #define BPLL_FOUT_SEL_SHIFT	0
 #define BPLL_FOUT_SEL_MASK	0x1

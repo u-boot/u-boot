@@ -26,6 +26,17 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>
 
+/* Epll Clock division values to achive different frequency output */
+static struct set_epll_con_val exynos5_epll_div[] = {
+	{ 192000000, 0, 48, 3, 1, 0 },
+	{ 180000000, 0, 45, 3, 1, 0 },
+	{  73728000, 1, 73, 3, 3, 47710 },
+	{  67737600, 1, 90, 4, 3, 20762 },
+	{  49152000, 0, 49, 3, 3, 9961 },
+	{  45158400, 0, 45, 3, 3, 10381 },
+	{ 180633600, 0, 45, 3, 1, 10381 }
+};
+
 /* exynos: return pll clock frequency */
 static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 {
@@ -706,6 +717,93 @@ static unsigned long exynos5_get_i2c_clk(void)
 	return aclk_66;
 }
 
+int exynos5_set_epll_clk(unsigned long rate)
+{
+	unsigned int epll_con, epll_con_k;
+	unsigned int i;
+	unsigned int lockcnt;
+	unsigned int start;
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+
+	epll_con = readl(&clk->epll_con0);
+	epll_con &= ~((EPLL_CON0_LOCK_DET_EN_MASK <<
+			EPLL_CON0_LOCK_DET_EN_SHIFT) |
+		EPLL_CON0_MDIV_MASK << EPLL_CON0_MDIV_SHIFT |
+		EPLL_CON0_PDIV_MASK << EPLL_CON0_PDIV_SHIFT |
+		EPLL_CON0_SDIV_MASK << EPLL_CON0_SDIV_SHIFT);
+
+	for (i = 0; i < ARRAY_SIZE(exynos5_epll_div); i++) {
+		if (exynos5_epll_div[i].freq_out == rate)
+			break;
+	}
+
+	if (i == ARRAY_SIZE(exynos5_epll_div))
+		return -1;
+
+	epll_con_k = exynos5_epll_div[i].k_dsm << 0;
+	epll_con |= exynos5_epll_div[i].en_lock_det <<
+				EPLL_CON0_LOCK_DET_EN_SHIFT;
+	epll_con |= exynos5_epll_div[i].m_div << EPLL_CON0_MDIV_SHIFT;
+	epll_con |= exynos5_epll_div[i].p_div << EPLL_CON0_PDIV_SHIFT;
+	epll_con |= exynos5_epll_div[i].s_div << EPLL_CON0_SDIV_SHIFT;
+
+	/*
+	 * Required period ( in cycles) to genarate a stable clock output.
+	 * The maximum clock time can be up to 3000 * PDIV cycles of PLLs
+	 * frequency input (as per spec)
+	 */
+	lockcnt = 3000 * exynos5_epll_div[i].p_div;
+
+	writel(lockcnt, &clk->epll_lock);
+	writel(epll_con, &clk->epll_con0);
+	writel(epll_con_k, &clk->epll_con1);
+
+	start = get_timer(0);
+
+	 while (!(readl(&clk->epll_con0) &
+			(0x1 << EXYNOS5_EPLLCON0_LOCKED_SHIFT))) {
+		if (get_timer(start) > TIMEOUT_EPLL_LOCK) {
+			debug("%s: Timeout waiting for EPLL lock\n", __func__);
+			return -1;
+		}
+	}
+	return 0;
+}
+
+void exynos5_set_i2s_clk_source(void)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+
+	clrsetbits_le32(&clk->src_peric1, AUDIO1_SEL_MASK,
+			(CLK_SRC_SCLK_EPLL));
+}
+
+int exynos5_set_i2s_clk_prescaler(unsigned int src_frq,
+					unsigned int dst_frq)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+	unsigned int div;
+
+	if ((dst_frq == 0) || (src_frq == 0)) {
+		debug("%s: Invalid requency input for prescaler\n", __func__);
+		debug("src frq = %d des frq = %d ", src_frq, dst_frq);
+		return -1;
+	}
+
+	div = (src_frq / dst_frq);
+	if (div > AUDIO_1_RATIO_MASK) {
+		debug("%s: Frequency ratio is out of range\n", __func__);
+		debug("src frq = %d des frq = %d ", src_frq, dst_frq);
+		return -1;
+	}
+	clrsetbits_le32(&clk->div_peric4, AUDIO_1_RATIO_MASK,
+				(div & AUDIO_1_RATIO_MASK));
+	return 0;
+}
+
 unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5())
@@ -776,4 +874,27 @@ void set_mipi_clk(void)
 {
 	if (cpu_is_exynos4())
 		exynos4_set_mipi_clk();
+}
+
+int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq)
+{
+
+	if (cpu_is_exynos5())
+		return exynos5_set_i2s_clk_prescaler(src_frq, dst_frq);
+	else
+		return 0;
+}
+
+void set_i2s_clk_source(void)
+{
+	if (cpu_is_exynos5())
+		exynos5_set_i2s_clk_source();
+}
+
+int set_epll_clk(unsigned long rate)
+{
+	if (cpu_is_exynos5())
+		return exynos5_set_epll_clk(rate);
+	else
+		return 0;
 }
