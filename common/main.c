@@ -333,6 +333,20 @@ err:
 	hang();
 }
 
+static void process_fdt_options(const void *blob)
+{
+	ulong addr;
+
+	/* Add an env variable to point to a kernel payload, if available */
+	addr = fdtdec_get_config_int(gd->fdt_blob, "kernel-offset", 0);
+	if (addr)
+		setenv_addr("kernaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
+
+	/* Add an env variable to point to a root disk, if available */
+	addr = fdtdec_get_config_int(gd->fdt_blob, "rootdisk-offset", 0);
+	if (addr)
+		setenv_addr("rootaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
+}
 #endif /* CONFIG_OF_CONTROL */
 
 
@@ -450,6 +464,8 @@ void main_loop (void)
 	env = fdtdec_get_config_string(gd->fdt_blob, "bootcmd");
 	if (env)
 		s = env;
+
+	process_fdt_options(gd->fdt_blob);
 
 	/*
 	 * If the bootsecure option was chosen, use secure_boot_cmd().
