@@ -513,16 +513,6 @@ const u8 *fdtdec_locate_byte_array(const void *blob, int node,
 	return cell;
 }
 
-/**
- * Look in the FDT for a config item with the given name and return its value
- * as a 32-bit integer. The property must have at least 4 bytes of data. The
- * value of the first cell is returned.
- *
- * @param blob		FDT blob to use
- * @param prop_name	Node property name
- * @param default_val	default value to return if the property is not found
- * @return integer value, if found, or default_val if not
- */
 int fdtdec_get_config_int(const void *blob, const char *prop_name,
 		int default_val)
 {
@@ -533,4 +523,22 @@ int fdtdec_get_config_int(const void *blob, const char *prop_name,
 	if (config_node < 0)
 		return default_val;
 	return fdtdec_get_int(blob, config_node, prop_name, default_val);
+}
+
+char *fdtdec_get_config_string(const void *blob, const char *prop_name)
+{
+	const char *nodep;
+	int nodeoffset;
+	int len;
+
+	debug("%s: %s\n", __func__, prop_name);
+	nodeoffset = fdt_path_offset(blob, "/config");
+	if (nodeoffset < 0)
+		return NULL;
+
+	nodep = fdt_getprop(blob, nodeoffset, prop_name, &len);
+	if (!nodep)
+		return NULL;
+
+	return (char *)nodep;
 }

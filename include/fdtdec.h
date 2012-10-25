@@ -367,6 +367,16 @@ int fdtdec_setup_gpio(struct fdt_gpio_state *gpio);
 int fdtdec_get_config_int(const void *blob, const char *prop_name,
 		int default_val);
 
+/**
+ * Look in the FDT for a config item with the given name and return its value
+ * as a string.
+ *
+ * @param blob          FDT blob
+ * @param prop_name     property name to look up
+ * @returns property string, NULL on error.
+ */
+char *fdtdec_get_config_string(const void *blob, const char *prop_name);
+
 /*
  * Look up a property in a node and return its contents in a byte
  * array of given length. The property must have at least enough data for
