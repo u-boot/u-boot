@@ -42,18 +42,18 @@
 #define CONFIG_IDENT_STRING		"\nKeymile Kirkwood"
 #define CONFIG_HOSTNAME			km_kirkwood
 #define CONFIG_KM_DISABLE_PCIE
-#define KM_IVM_BUS			1	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 
 /* KM_KIRKWOOD_PCI */
 #elif defined(CONFIG_KM_KIRKWOOD_PCI)
 #define CONFIG_IDENT_STRING		"\nKeymile Kirkwood PCI"
 #define CONFIG_HOSTNAME			km_kirkwood_pci
-#define KM_IVM_BUS			1	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #define CONFIG_KM_FPGA_CONFIG
 
 /* KM_NUSA */
 #elif defined(CONFIG_KM_NUSA)
-#define KM_IVM_BUS			1	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #define CONFIG_IDENT_STRING		"\nKeymile NUSA"
 #define CONFIG_HOSTNAME			kmnusa
 #undef CONFIG_SYS_KWD_CONFIG
@@ -69,7 +69,7 @@
 #elif defined(CONFIG_KM_MGCOGE3UN)
 #define CONFIG_IDENT_STRING		"\nKeymile COGE3UN"
 #define CONFIG_HOSTNAME			mgcoge3un
-#define KM_IVM_BUS			1	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #undef CONFIG_SYS_KWD_CONFIG
 #define CONFIG_SYS_KWD_CONFIG \
 		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
@@ -81,7 +81,7 @@
 /* KMCOGE5UN */
 #elif defined(CONFIG_KM_COGE5UN)
 #define CONFIG_IDENT_STRING		"\nKeymile COGE5UN"
-#define KM_IVM_BUS			1	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #undef	CONFIG_SYS_KWD_CONFIG
 #define CONFIG_SYS_KWD_CONFIG \
 		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_256M8_1.cfg
@@ -95,7 +95,7 @@
 #elif defined(CONFIG_KM_PORTL2)
 #define CONFIG_IDENT_STRING		"\nKeymile Port-L2"
 #define CONFIG_HOSTNAME			portl2
-#define KM_IVM_BUS			1	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #define CONFIG_KM_PIGGY4_88E6061
 
 /* KM_SUV31 */

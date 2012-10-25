@@ -315,16 +315,13 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 int ivm_read_eeprom(void)
 {
 	uchar i2c_buffer[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
-	char	*buf;
-	unsigned long dev_addr = CONFIG_SYS_IVM_EEPROM_ADR;
 	int ret;
 
-	buf = getenv("EEprom_ivm");
-	i2c_set_bus_num(buf ? (int)simple_strtol(buf, NULL, 10) : 0);
+	i2c_set_bus_num(CONFIG_KM_IVM_BUS);
 	/* add deblocking here */
 	i2c_make_abort();
 
-	ret = i2c_read(dev_addr, 0, 1, i2c_buffer,
+	ret = i2c_read(CONFIG_SYS_IVM_EEPROM_ADR, 0, 1, i2c_buffer,
 		CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	if (ret != 0) {
 		printf("Error reading EEprom\n");

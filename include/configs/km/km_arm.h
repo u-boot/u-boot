@@ -309,7 +309,6 @@ int get_scl(void);
 	CONFIG_KM_DEF_ENV						\
 	CONFIG_KM_NEW_ENV						\
 	"arch=arm\0"							\
-	"EEprom_ivm=" __stringify(KM_IVM_BUS) "\0"			\
 	""
 
 #if defined(CONFIG_SYS_NO_FLASH)

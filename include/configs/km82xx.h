@@ -212,7 +212,6 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_KM_BOARD_EXTRA_ENV					\
 	CONFIG_KM_DEF_ENV						\
-	"EEprom_ivm=1\0"						\
 	"unlock=yes\0"							\
 	"newenv="							\
 		"prot off 0xFE0C0000 +0x40000 && "			\
@@ -252,6 +251,8 @@
 #define CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP} }, \
 			{0, {{I2C_MUX_PCA9542, 0x70, 0} } }, \
 			{0, {{I2C_MUX_PCA9542, 0x70, 1} } } }
+
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 
 /*
  * Software (bit-bang) I2C driver configuration
