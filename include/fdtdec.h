@@ -354,6 +354,19 @@ int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
  */
 int fdtdec_setup_gpio(struct fdt_gpio_state *gpio);
 
+/**
+ * Look in the FDT for a config item with the given name and return its value
+ * as a 32-bit integer. The property must have at least 4 bytes of data. The
+ * value of the first cell is returned.
+ *
+ * @param blob		FDT blob to use
+ * @param prop_name	Node property name
+ * @param default_val	default value to return if the property is not found
+ * @return integer value, if found, or default_val if not
+ */
+int fdtdec_get_config_int(const void *blob, const char *prop_name,
+		int default_val);
+
 /*
  * Look up a property in a node and return its contents in a byte
  * array of given length. The property must have at least enough data for
