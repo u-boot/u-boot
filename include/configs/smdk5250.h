@@ -223,6 +223,14 @@
 #define CONFIG_MENU
 #endif
 
+/* Sound */
+#define CONFIG_CMD_SOUND
+#ifdef CONFIG_CMD_SOUND
+#define CONFIG_SOUND
+#define CONFIG_I2S
+#define CONFIG_SOUND_WM8994
+#endif
+
 /* Enable devicetree support */
 #define CONFIG_OF_LIBFDT
 
