@@ -640,7 +640,7 @@ build_target() {
 	fi
 
 	if [ $BUILD_MANY == 1 ] ; then
-		${MAKE} tidy
+		${MAKE} -s tidy
 
 		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
 			cp ${LOG_DIR}/${target}.ERR ${OUTPUT_PREFIX}/ERR/${target}
