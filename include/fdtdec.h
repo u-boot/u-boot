@@ -40,10 +40,12 @@
 typedef u64 fdt_addr_t;
 #define FDT_ADDR_T_NONE (-1ULL)
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
+#define fdt_size_to_cpu(reg) be64_to_cpu(reg)
 #else
 typedef u32 fdt_addr_t;
 #define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be32_to_cpu(reg)
+#define fdt_size_to_cpu(reg) be32_to_cpu(reg)
 #endif
 
 /* Information obtained about memory from the FDT */
@@ -408,4 +410,21 @@ int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
  */
 const u8 *fdtdec_locate_byte_array(const void *blob, int node,
 			     const char *prop_name, int count);
+
+/**
+ * Look up a property in a node which contains a memory region address and
+ * size. Then return a pointer to this address.
+ *
+ * The property must hold one address with a length. This is only tested on
+ * 32-bit machines.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param ptrp		returns pointer to region, or NULL if no address
+ * @param size		returns size of region
+ * @return 0 if ok, -1 on error (propery not found)
+ */
+int fdtdec_decode_region(const void *blob, int node,
+		const char *prop_name, void **ptrp, size_t *size);
 #endif
