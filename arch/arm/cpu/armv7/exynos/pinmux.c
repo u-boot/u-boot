@@ -230,6 +230,16 @@ static void exynos5_i2c_config(int peripheral, int flags)
 	}
 }
 
+static void exynos5_i2s_config(int peripheral)
+{
+	int i;
+	struct exynos5_gpio_part1 *gpio1 =
+		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
+
+	for (i = 0; i < 5; i++)
+		s5p_gpio_cfg_pin(&gpio1->b0, i, GPIO_FUNC(0x02));
+}
+
 static int exynos5_pinmux_config(int peripheral, int flags)
 {
 	switch (peripheral) {
@@ -256,6 +266,9 @@ static int exynos5_pinmux_config(int peripheral, int flags)
 	case PERIPH_ID_I2C6:
 	case PERIPH_ID_I2C7:
 		exynos5_i2c_config(peripheral, flags);
+		break;
+	case PERIPH_ID_I2S1:
+		exynos5_i2s_config(peripheral);
 		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
