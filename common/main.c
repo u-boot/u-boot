@@ -30,6 +30,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <version.h>
 #ifdef CONFIG_MODEM_SUPPORT
@@ -38,6 +39,10 @@
 
 #ifdef CONFIG_SYS_HUSH_PARSER
 #include <hush.h>
+#endif
+
+#ifdef CONFIG_OF_CONTROL
+#include <fdtdec.h>
 #endif
 
 #include <post.h>
@@ -284,7 +289,10 @@ void main_loop (void)
 	int rc = 1;
 	int flag;
 #endif
-
+#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0) && \
+		defined(CONFIG_OF_CONTROL)
+	char *env;
+#endif
 #if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
 	char *s;
 	int bootdelay;
@@ -380,6 +388,12 @@ void main_loop (void)
 	else
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 		s = getenv ("bootcmd");
+#ifdef CONFIG_OF_CONTROL
+	/* Allow the fdt to override the boot command */
+	env = fdtdec_get_config_string(gd->fdt_blob, "bootcmd");
+	if (env)
+		s = env;
+#endif /* CONFIG_OF_CONTROL */
 
 	debug ("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
