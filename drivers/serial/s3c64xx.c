@@ -22,7 +22,8 @@
  */
 
 #include <common.h>
-
+#include <linux/compiler.h>
+#include <serial.h>
 #include <asm/arch/s3c6400.h>
 
 DECLARE_GLOBAL_DATA_PTR;
