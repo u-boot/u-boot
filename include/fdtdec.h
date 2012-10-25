@@ -90,6 +90,22 @@ struct fdt_gpio_state {
 #define fdt_gpio_isvalid(x) ((x)->gpio != FDT_GPIO_NONE)
 
 /**
+ * Read the GPIO taking into account the polarity of the pin.
+ *
+ * @param gpio		pointer to the decoded gpio
+ * @return value of the gpio if successful, < 0 if unsuccessful
+ */
+int fdtdec_get_gpio(struct fdt_gpio_state *gpio);
+
+/**
+ * Write the GPIO taking into account the polarity of the pin.
+ *
+ * @param gpio		pointer to the decoded gpio
+ * @return 0 if successful
+ */
+int fdtdec_set_gpio(struct fdt_gpio_state *gpio, int val);
+
+/**
  * Find the next numbered alias for a peripheral. This is used to enumerate
  * all the peripherals of a certain type.
  *

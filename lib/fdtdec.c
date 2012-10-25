@@ -487,6 +487,26 @@ int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
 	return err == 1 ? 0 : err;
 }
 
+int fdtdec_get_gpio(struct fdt_gpio_state *gpio)
+{
+	int val;
+
+	if (!fdt_gpio_isvalid(gpio))
+		return -1;
+
+	val = gpio_get_value(gpio->gpio);
+	return gpio->flags & FDT_GPIO_ACTIVE_LOW ? val ^ 1 : val;
+}
+
+int fdtdec_set_gpio(struct fdt_gpio_state *gpio, int val)
+{
+	if (!fdt_gpio_isvalid(gpio))
+		return -1;
+
+	val = gpio->flags & FDT_GPIO_ACTIVE_LOW ? val ^ 1 : val;
+	return gpio_set_value(gpio->gpio, val);
+}
+
 int fdtdec_setup_gpio(struct fdt_gpio_state *gpio)
 {
 	/*
