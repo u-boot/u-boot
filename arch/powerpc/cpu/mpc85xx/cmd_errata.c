@@ -25,6 +25,65 @@
 #include <linux/compiler.h>
 #include <asm/processor.h>
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004849
+/*
+ * This work-around is implemented in PBI, so just check to see if the
+ * work-around was actually applied.  To do this, we check for specific data
+ * at specific addresses in DCSR.
+ *
+ * Array offsets[] contains a list of offsets within DCSR.  According to the
+ * erratum document, the value at each offset should be 2.
+ */
+static void check_erratum_a4849(uint32_t svr)
+{
+	void __iomem *dcsr = (void *)CONFIG_SYS_DCSRBAR + 0xb0000;
+	unsigned int i;
+
+#if defined(CONFIG_PPC_P2041) || defined(CONFIG_PPC_P3041)
+	static const uint8_t offsets[] = {
+		0x50, 0x54, 0x58, 0x90, 0x94, 0x98
+	};
+#endif
+#ifdef CONFIG_PPC_P4080
+	static const uint8_t offsets[] = {
+		0x60, 0x64, 0x68, 0x6c, 0xa0, 0xa4, 0xa8, 0xac
+	};
+#endif
+	uint32_t x108; /* The value that should be at offset 0x108 */
+
+	for (i = 0; i < ARRAY_SIZE(offsets); i++) {
+		if (in_be32(dcsr + offsets[i]) != 2) {
+			printf("Work-around for Erratum A004849 is not enabled\n");
+			return;
+		}
+	}
+
+#if defined(CONFIG_PPC_P2041) || defined(CONFIG_PPC_P3041)
+	x108 = 0x12;
+#endif
+
+#ifdef CONFIG_PPC_P4080
+	/*
+	 * For P4080, the erratum document says that the value at offset 0x108
+	 * should be 0x12 on rev2, or 0x1c on rev3.
+	 */
+	if (SVR_MAJ(svr) == 2)
+		x108 = 0x12;
+	if (SVR_MAJ(svr) == 3)
+		x108 = 0x1c;
+#endif
+
+	if (in_be32(dcsr + 0x108) != x108) {
+		printf("Work-around for Erratum A004849 is not enabled\n");
+		return;
+	}
+
+	/* Everything matches, so the erratum work-around was applied */
+
+	printf("Work-around for Erratum A004849 enabled\n");
+}
+#endif
+
 static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011
@@ -136,6 +195,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A_004934
 	puts("Work-around for Erratum A004934 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004849
+	/* This work-around is implemented in PBI, so just check for it */
+	check_erratum_a4849(svr);
 #endif
 	return 0;
 }
