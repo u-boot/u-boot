@@ -524,6 +524,20 @@ int fdtdec_get_config_int(const void *blob, const char *prop_name,
 	return fdtdec_get_int(blob, config_node, prop_name, default_val);
 }
 
+int fdtdec_get_config_bool(const void *blob, const char *prop_name)
+{
+	int config_node;
+	const void *prop;
+
+	debug("%s: %s\n", __func__, prop_name);
+	config_node = fdt_path_offset(blob, "/config");
+	if (config_node < 0)
+		return 0;
+	prop = fdt_get_property(blob, config_node, prop_name, NULL);
+
+	return prop != NULL;
+}
+
 char *fdtdec_get_config_string(const void *blob, const char *prop_name)
 {
 	const char *nodep;

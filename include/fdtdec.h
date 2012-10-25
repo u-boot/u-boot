@@ -399,6 +399,16 @@ int fdtdec_get_config_int(const void *blob, const char *prop_name,
 		int default_val);
 
 /**
+ * Look in the FDT for a config item with the given name
+ * and return whether it exists.
+ *
+ * @param blob		FDT blob
+ * @param prop_name	property name to look up
+ * @return 1, if it exists, or 0 if not
+ */
+int fdtdec_get_config_bool(const void *blob, const char *prop_name);
+
+/**
  * Look in the FDT for a config item with the given name and return its value
  * as a string.
  *
