@@ -345,6 +345,22 @@ int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
 		struct fdt_gpio_state *gpio);
 
 /**
+ * Decode a list of GPIOs from an FDT. This creates a list of GPIOs with no
+ * terminating item.
+ *
+ * @param blob         FDT blob to use
+ * @param node         Node to look at
+ * @param prop_name    Node property name
+ * @param gpio         Array of gpio elements to fill from FDT. This will be
+ *                     untouched if either 0 or an error is returned
+ * @param max_count    Maximum number of elements allowed
+ * @return number of GPIOs read if ok, -FDT_ERR_BADLAYOUT if max_count would
+ * be exceeded, or -FDT_ERR_NOTFOUND if the property is missing.
+ */
+int fdtdec_decode_gpios(const void *blob, int node, const char *prop_name,
+		struct fdt_gpio_state *gpio, int max_count);
+
+/**
  * Set up a GPIO pin according to the provided gpio information. At present this
  * just requests the GPIO.
  *

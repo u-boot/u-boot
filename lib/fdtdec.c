@@ -426,9 +426,8 @@ int fdtdec_get_bool(const void *blob, int node, const char *prop_name)
  * @return number of GPIOs read if ok, -FDT_ERR_BADLAYOUT if max_count would
  * be exceeded, or -FDT_ERR_NOTFOUND if the property is missing.
  */
-static int fdtdec_decode_gpios(const void *blob, int node,
-		const char *prop_name, struct fdt_gpio_state *gpio,
-		int max_count)
+int fdtdec_decode_gpios(const void *blob, int node, const char *prop_name,
+		struct fdt_gpio_state *gpio, int max_count)
 {
 	const struct fdt_property *prop;
 	const u32 *cell;
