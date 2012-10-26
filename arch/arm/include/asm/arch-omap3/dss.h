@@ -190,6 +190,7 @@ struct panel_config {
 
 #define PANEL_TIMING_H(bp, fp, sw) (DSS_HBP(bp) | DSS_HFP(fp) | DSS_HSW(sw))
 #define PANEL_TIMING_V(bp, fp, sw) (DSS_VBP(bp) | DSS_VFP(fp) | DSS_VSW(sw))
+#define PANEL_LCD_SIZE(xres, yres) ((yres - 1) << 16 | (xres - 1))
 
 /* Generic DSS Functions */
 void omap3_dss_venc_config(const struct venc_regs *venc_cfg,
