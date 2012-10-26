@@ -31,6 +31,7 @@
 #include <asm/arch/clk.h>
 #include <lcd.h>
 #include <atmel_hlcdc.h>
+#include <atmel_mci.h>
 #ifdef CONFIG_MACB
 #include <net.h>
 #endif
@@ -257,6 +258,15 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	}
 }
 #endif /* CONFIG_ATMEL_SPI */
+
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+int board_mmc_init(bd_t *bd)
+{
+	at91_mci_hw_init();
+
+	return atmel_mci_init((void *)ATMEL_BASE_HSMCI0);
+}
+#endif
 
 int board_early_init_f(void)
 {
