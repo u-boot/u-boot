@@ -202,7 +202,7 @@
 	"mtdids=" MTDIDS_DEFAULT "\0"	\
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
-	"autoboot=if mmc rescan ${mmcdev}; then " \
+	"autoboot=mmc dev ${mmcdev}; if mmc rescan; then " \
 			"if run loadbootscript; then " \
 				"run bootscript; " \
 			"else " \

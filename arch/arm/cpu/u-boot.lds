@@ -34,8 +34,8 @@ SECTIONS
 	.text :
 	{
 		__image_copy_start = .;
-		CPUDIR/start.o (.text)
-		*(.text)
+		CPUDIR/start.o (.text*)
+		*(.text*)
 	}
 
 	. = ALIGN(4);
@@ -43,7 +43,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	.data : {
-		*(.data)
+		*(.data*)
 	}
 
 	. = ALIGN(4);
@@ -83,7 +83,7 @@ SECTIONS
 
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
-		*(.bss)
+		*(.bss*)
 		 . = ALIGN(4);
 		__bss_end__ = .;
 	}

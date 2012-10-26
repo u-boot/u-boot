@@ -79,11 +79,6 @@ N: Oliver Brown
 E: obrown@adventnetworks.com
 D: Port to the gw8260 board
 
-N: Curt Brune
-E: curt@cucy.com
-D: Added support for Samsung S3C4510B CPU (ARM7tdmi based SoC)
-W: http://www.cucy.com
-
 N: Jonathan De Bruyne
 E: jonathan.debruyne@siemens.atea.be
 D: Port to Siemens IAD210 board

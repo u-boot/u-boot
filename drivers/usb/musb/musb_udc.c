@@ -640,8 +640,17 @@ static void musb_peri_ep0(void)
 
 static void musb_peri_rx_ep(unsigned int ep)
 {
-	u16 peri_rxcount = readw(&musbr->ep[ep].epN.rxcount);
+	u16 peri_rxcount;
+	u8 peri_rxcsr = readw(&musbr->ep[ep].epN.rxcsr);
 
+	if (!(peri_rxcsr & MUSB_RXCSR_RXPKTRDY)) {
+		if (debug_level > 0)
+			serial_printf("ERROR : %s %d without MUSB_RXCSR_RXPKTRDY set\n",
+				      __PRETTY_FUNCTION__, ep);
+		return;
+	}
+
+	peri_rxcount = readw(&musbr->ep[ep].epN.rxcount);
 	if (peri_rxcount) {
 		struct usb_endpoint_instance *endpoint;
 		u32 length;

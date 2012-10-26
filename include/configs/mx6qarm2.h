@@ -106,7 +106,7 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev};" \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \

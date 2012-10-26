@@ -45,6 +45,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BUZZER		140
 #define SPEAKER		141
+#define USB1_PWR	127
+#define USB2_PWR	149
 
 #ifndef CONFIG_FPGA
 #error "The Teejet mt_ventoux must have CONFIG_FPGA enabled"
@@ -246,6 +248,12 @@ int board_init(void)
 	gpio_request(SPEAKER, "SPEAKER");
 	gpio_direction_output(BUZZER, 0);
 	gpio_direction_output(SPEAKER, 0);
+
+	/* Activate USB power */
+	gpio_request(USB1_PWR, "USB1_PWR");
+	gpio_request(USB2_PWR, "USB2_PWR");
+	gpio_direction_output(USB1_PWR, 1);
+	gpio_direction_output(USB2_PWR, 1);
 
 	return 0;
 }
