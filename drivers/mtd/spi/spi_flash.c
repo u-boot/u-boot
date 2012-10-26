@@ -404,6 +404,10 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	printf("SF: Detected %s with page size ", flash->name);
 	print_size(flash->sector_size, ", total ");
 	print_size(flash->size, "\n");
+	if ((flash->addr_width == 3) && (flash->size > 0x1000000)) {
+		puts("SF: Warning - Only lower 16MB is accessible");
+		puts(" in 3 byte addressing mode\n");
+	}
 
 	spi_release_bus(spi);
 
