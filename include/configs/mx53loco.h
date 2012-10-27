@@ -58,7 +58,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
-#define CONFIG_HAS_ETH1
 #define CONFIG_MII
 
 #define CONFIG_FEC_MXC
@@ -222,6 +221,6 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_IPUV3_CLK	133000000
+#define CONFIG_IPUV3_CLK	200000000
 
 #endif				/* __CONFIG_H */

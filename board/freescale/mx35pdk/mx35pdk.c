@@ -27,6 +27,7 @@
 #include <asm/errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/mx35_pins.h>
 #include <asm/arch/iomux.h>
 #include <i2c.h>
@@ -292,6 +293,7 @@ int board_mmc_init(bd_t *bis)
 	mxc_request_iomux(MX35_PIN_SD1_DATA2, MUX_CONFIG_FUNC);
 	mxc_request_iomux(MX35_PIN_SD1_DATA3, MUX_CONFIG_FUNC);
 
+	esdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
 	return fsl_esdhc_initialize(bis, &esdhc_cfg);
 }
 

@@ -338,7 +338,7 @@ static u32 get_ipg_per_clk(void)
 /* Get the output clock rate of a standard PLL MUX for peripherals. */
 static u32 get_standard_pll_sel_clk(u32 clk_sel)
 {
-	u32 freq;
+	u32 freq = 0;
 
 	switch (clk_sel & 0x3) {
 	case 0:

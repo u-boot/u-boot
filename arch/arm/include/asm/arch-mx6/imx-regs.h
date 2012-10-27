@@ -200,6 +200,12 @@ struct src {
 	u32     gpr10;
 };
 
+/* OCOTP Registers */
+struct ocotp_regs {
+	u32	reserved[0x198];
+	u32	gp1;	/* 0x660 */
+};
+
 /* GPR3 bitfields */
 #define IOMUXC_GPR3_GPU_DBG_OFFSET		29
 #define IOMUXC_GPR3_GPU_DBG_MASK		(3<<IOMUXC_GPR3_GPU_DBG_OFFSET)

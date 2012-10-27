@@ -361,8 +361,12 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		return get_ipg_per_clk();
 	case MXC_UART_CLK:
 		return imx_get_uartclk();
-	case MXC_ESDHC_CLK:
+	case MXC_ESDHC1_CLK:
 		return mxc_get_peri_clock(ESDHC1_CLK);
+	case MXC_ESDHC2_CLK:
+		return mxc_get_peri_clock(ESDHC2_CLK);
+	case MXC_ESDHC3_CLK:
+		return mxc_get_peri_clock(ESDHC3_CLK);
 	case MXC_USB_CLK:
 		return mxc_get_main_clock(USB_CLK);
 	case MXC_FEC_CLK:
@@ -472,7 +476,13 @@ int cpu_mmc_init(bd_t *bis)
 int get_clocks(void)
 {
 #ifdef CONFIG_FSL_ESDHC
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+#if CONFIG_SYS_FSL_ESDHC_ADDR == MMC_SDHC2_BASE_ADDR
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+#elif CONFIG_SYS_FSL_ESDHC_ADDR == MMC_SDHC3_BASE_ADDR
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+#else
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
+#endif
 #endif
 	return 0;
 }

@@ -192,6 +192,9 @@ int board_mmc_init(bd_t *bis)
 	u32 index;
 	s32 status = 0;
 
+	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+	esdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+
 	for (index = 0; index < CONFIG_SYS_FSL_ESDHC_NUM; index++) {
 		switch (index) {
 		case 0:
@@ -409,7 +412,7 @@ static void clock_1GHz(void)
 		printf("CPU:   Switch DDR clock to 400MHz failed\n");
 }
 
-static struct fb_videomode claa_wvga = {
+static struct fb_videomode const claa_wvga = {
 	.name		= "CLAA07LC0ACW",
 	.refresh	= 57,
 	.xres		= 800,

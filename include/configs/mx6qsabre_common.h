@@ -45,6 +45,7 @@
 #define CONFIG_MMC
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
+#define CONFIG_MMC_BOUNCE_BUFFER
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
@@ -86,7 +87,7 @@
 	"initrd_high=0xffffffff\0" \
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
-	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
+	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
@@ -167,8 +168,6 @@
 #endif
 
 #define CONFIG_OF_LIBFDT
-
-#define CONFIG_SYS_DCACHE_OFF
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE
