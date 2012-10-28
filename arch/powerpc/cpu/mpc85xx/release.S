@@ -351,6 +351,13 @@ __secondary_reset_vector:
 	.align L1_CACHE_SHIFT
 	.global __second_half_boot_page
 __second_half_boot_page:
+#ifdef CONFIG_PPC_SPINTABLE_COMPATIBLE
+	lis	r3,(spin_table_compat - __second_half_boot_page)@h
+	ori	r3,r3,(spin_table_compat - __second_half_boot_page)@l
+	add	r3,r3,r11 /* r11 has the address of __second_half_boot_page */
+	lwz	r14,0(r3)
+#endif
+
 #define EPAPR_MAGIC		0x45504150
 #define ENTRY_ADDR_UPPER	0
 #define ENTRY_ADDR_LOWER	4
@@ -383,7 +390,24 @@ __second_half_boot_page:
 	stw	r8,ENTRY_ADDR_LOWER(r10)
 
 	/* spin waiting for addr */
-3:	lwz	r4,ENTRY_ADDR_LOWER(r10)
+3:
+/*
+ * To comply with ePAPR 1.1, the spin table has been moved to cache-enabled
+ * memory. Old OS may not work with this change. A patch is waiting to be
+ * accepted for Linux kernel. Other OS needs similar fix to spin table.
+ * For OSes with old spin table code, we can enable this temporary fix by
+ * setting environmental variable "spin_table_compat". For new OSes, set
+ * "spin_table_compat=no". After Linux is fixed, we can remove this macro
+ * and related code. For now, it is enabled by default.
+ */
+#ifdef CONFIG_PPC_SPINTABLE_COMPATIBLE
+	cmpwi   r14,0
+	beq     4f
+	dcbf    0, r10
+	sync
+4:
+#endif
+	lwz	r4,ENTRY_ADDR_LOWER(r10)
 	andi.	r11,r4,1
 	bne	3b
 	isync
@@ -460,5 +484,14 @@ __second_half_boot_page:
 	.globl __spin_table
 __spin_table:
 	.space CONFIG_MAX_CPUS*ENTRY_SIZE
+
+#ifdef CONFIG_PPC_SPINTABLE_COMPATIBLE
+	.align L1_CACHE_SHIFT
+	.global spin_table_compat
+spin_table_compat:
+	.long	1
+
+#endif
+
 __spin_table_end:
 	.space 4096 - (__spin_table_end - __spin_table)

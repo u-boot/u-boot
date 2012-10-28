@@ -27,6 +27,12 @@
 #error "Do not define CONFIG_SYS_CCSRBAR_DEFAULT in the board header file."
 #endif
 
+/*
+ * This macro should be removed when we no longer care about backwards
+ * compatibility with older operating systems.
+ */
+#define CONFIG_PPC_SPINTABLE_COMPATIBLE
+
 #define FSL_DDR_VER_4_7	47
 
 /* Number of TLB CAM entries we have on FSL Book-E chips */

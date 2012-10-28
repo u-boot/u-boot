@@ -350,6 +350,10 @@ int cpu_init_r(void)
 #elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
 	struct ccsr_cluster_l2 * l2cache = (void __iomem *)CONFIG_SYS_FSL_CLUSTER_1_L2;
 #endif
+#ifdef CONFIG_PPC_SPINTABLE_COMPATIBLE
+	extern int spin_table_compat;
+	const char *spin;
+#endif
 
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
@@ -393,6 +397,14 @@ int cpu_init_r(void)
 		mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
 		sync();
 	}
+#endif
+
+#ifdef CONFIG_PPC_SPINTABLE_COMPATIBLE
+	spin = getenv("spin_table_compat");
+	if (spin && (*spin == 'n'))
+		spin_table_compat = 0;
+	else
+		spin_table_compat = 1;
 #endif
 
 	puts ("L2:    ");
