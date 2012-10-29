@@ -189,6 +189,8 @@ void scsi_low_level_init(int busdevfunc);
 void scsi_init(void);
 void scsi_scan(int mode);
 
+/** @return the number of scsi disks */
+int scsi_get_disk_count(void);
 
 #define SCSI_IDENTIFY					0xC0  /* not used */
 
