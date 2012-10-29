@@ -34,7 +34,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct cpu_type cpu_type_list [] = {
+static struct cpu_type cpu_type_list[] = {
 #if defined(CONFIG_MPC85xx)
 	CPU_TYPE_ENTRY(8533, 8533, 1),
 	CPU_TYPE_ENTRY(8535, 8535, 1),
@@ -125,7 +125,7 @@ u32 compute_ppc_cpumask(void)
 #define compute_ppc_cpumask()	1
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
-struct cpu_type cpu_type_unknown = CPU_TYPE_ENTRY(Unknown, Unknown, 0);
+static struct cpu_type cpu_type_unknown = CPU_TYPE_ENTRY(Unknown, Unknown, 0);
 
 struct cpu_type *identify_cpu(u32 ver)
 {
@@ -143,7 +143,7 @@ struct cpu_type *identify_cpu(u32 ver)
 /*
  * Return a 32-bit mask indicating which cores are present on this SOC.
  */
-u32 cpu_mask()
+u32 cpu_mask(void)
 {
 	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
 	struct cpu_type *cpu = gd->cpu;
@@ -162,7 +162,8 @@ u32 cpu_mask()
 /*
  * Return the number of cores on this SOC.
  */
-int cpu_numcores() {
+int cpu_numcores(void)
+{
 	struct cpu_type *cpu = gd->cpu;
 
 	/*

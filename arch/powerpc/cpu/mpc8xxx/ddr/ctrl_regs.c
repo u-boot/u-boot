@@ -28,7 +28,7 @@
 	#error "Undefined _DDR_ADDR"
 #endif
 
-u32 fsl_ddr_get_version(void)
+static u32 fsl_ddr_get_version(void)
 {
 	ccsr_ddr_t *ddr;
 	u32 ver_major_minor_errata;

@@ -11,7 +11,8 @@
 
 #include "ddr.h"
 
-unsigned int
+#if defined(CONFIG_FSL_DDR3)
+static unsigned int
 compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 			 common_timing_params_t *outpdimm,
 			 unsigned int number_of_dimms)
@@ -65,6 +66,7 @@ compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 
 	return 0;
 }
+#endif
 
 /*
  * compute_lowest_common_dimm_parameters()
