@@ -110,13 +110,15 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	/* reset must complete within 1 second, or
 	 * the hardware should be considered fried.
 	 */
-	ssleep(1);
-
-	tmp = readl(mmio + HOST_CTL);
-	if (tmp & HOST_RESET) {
-		debug("controller reset failed (0x%x)\n", tmp);
-		return -1;
-	}
+	i = 1000;
+	do {
+		udelay(1000);
+		tmp = readl(mmio + HOST_CTL);
+		if (!i--) {
+			debug("controller reset failed (0x%x)\n", tmp);
+			return -1;
+		}
+	} while (tmp & HOST_RESET);
 
 	writel_with_flush(HOST_AHCI_EN, mmio + HOST_CTL);
 	writel(cap_save, mmio + HOST_CAP);
@@ -164,13 +166,17 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 		writel(PORT_CMD_SPIN_UP, port_mmio + PORT_CMD);
 
 		j = 0;
-		while (j < 100) {
-			msleep(10);
+		while (j < 1000) {
 			tmp = readl(port_mmio + PORT_SCR_STAT);
 			if ((tmp & 0xf) == 0x3)
 				break;
+			udelay(1000);
 			j++;
 		}
+		if (j == 1000)
+			debug("timeout.\n");
+		else
+			debug("ok.\n");
 
 		tmp = readl(port_mmio + PORT_SCR_ERR);
 		debug("PORT_SCR_ERR 0x%x\n", tmp);
