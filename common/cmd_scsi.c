@@ -34,6 +34,9 @@
 #include <image.h>
 #include <pci.h>
 
+#ifdef CONFIG_SCSI_DEV_LIST
+#define SCSI_DEV_LIST CONFIG_SCSI_DEV_LIST
+#else
 #ifdef CONFIG_SCSI_SYM53C8XX
 #define SCSI_VEND_ID	0x1000
 #ifndef CONFIG_SCSI_DEV_ID
@@ -49,8 +52,12 @@
 #elif !defined(CONFIG_SCSI_AHCI_PLAT)
 #error no scsi device defined
 #endif
+#define SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
+#endif
 
-
+#ifdef CONFIG_PCI
+const struct pci_device_id scsi_device_list[] = { SCSI_DEV_LIST };
+#endif
 static ccb tempccb;	/* temporary scsi command buffer */
 
 static unsigned char tempbuff[512]; /* temporary data buffer */
@@ -178,15 +185,38 @@ removable:
 void scsi_init(void)
 {
 	int busdevfunc;
+	int i;
+	/*
+	 * Find a device from the list, this driver will support a single
+	 * controller.
+	 */
+	for (i = 0; i < ARRAY_SIZE(scsi_device_list); i++) {
+		/* get PCI Device ID */
+		busdevfunc = pci_find_device(scsi_device_list[i].vendor,
+					     scsi_device_list[i].device,
+					     0);
+		if (busdevfunc != -1)
+			break;
+	}
 
-	busdevfunc=pci_find_device(SCSI_VEND_ID,SCSI_DEV_ID,0); /* get PCI Device ID */
-	if(busdevfunc==-1) {
-		printf("Error SCSI Controller (%04X,%04X) not found\n",SCSI_VEND_ID,SCSI_DEV_ID);
+	if (busdevfunc == -1) {
+		printf("Error: SCSI Controller(s) ");
+		for (i = 0; i < ARRAY_SIZE(scsi_device_list); i++) {
+			printf("%04X:%04X ",
+			       scsi_device_list[i].vendor,
+			       scsi_device_list[i].device);
+		}
+		printf("not found\n");
 		return;
 	}
 #ifdef DEBUG
 	else {
-		printf("SCSI Controller (%04X,%04X) found (%d:%d:%d)\n",SCSI_VEND_ID,SCSI_DEV_ID,(busdevfunc>>16)&0xFF,(busdevfunc>>11)&0x1F,(busdevfunc>>8)&0x7);
+		printf("SCSI Controller (%04X,%04X) found (%d:%d:%d)\n",
+		       scsi_device_list[i].vendor,
+		       scsi_device_list[i].device,
+		       (busdevfunc >> 16) & 0xFF,
+		       (busdevfunc >> 11) & 0x1F,
+		       (busdevfunc >> 8) & 0x7);
 	}
 #endif
 	scsi_low_level_init(busdevfunc);
