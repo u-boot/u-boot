@@ -163,7 +163,7 @@ static int init_baudrate(void)
 
 /***********************************************************************/
 
-void __board_add_ram_info(int use_default)
+static void __board_add_ram_info(int use_default)
 {
 	/* please define platform specific board_add_ram_info() */
 }
@@ -171,7 +171,7 @@ void __board_add_ram_info(int use_default)
 void board_add_ram_info(int)
 	__attribute__ ((weak, alias("__board_add_ram_info")));
 
-int __board_flash_wp_on(void)
+static int __board_flash_wp_on(void)
 {
 	/*
 	 * Most flashes can't be detected when write protection is enabled,
@@ -184,7 +184,7 @@ int __board_flash_wp_on(void)
 int board_flash_wp_on(void)
 	__attribute__ ((weak, alias("__board_flash_wp_on")));
 
-void __cpu_secondary_init_r(void)
+static void __cpu_secondary_init_r(void)
 {
 }
 
@@ -262,7 +262,7 @@ static int init_func_watchdog_reset(void)
  * Initialization sequence
  */
 
-init_fnc_t *init_sequence[] = {
+static init_fnc_t *init_sequence[] = {
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	probecpu,
 #endif
@@ -345,7 +345,7 @@ ulong get_effective_memsize(void)
 #endif
 }
 
-int __fixup_cpu(void)
+static int __fixup_cpu(void)
 {
 	return 0;
 }
@@ -402,7 +402,7 @@ void board_init_f(ulong bootflag)
 
 #ifdef CONFIG_POST
 	post_bootmode_init();
-	post_run(NULL, POST_ROM | post_bootmode_get(0));
+	post_run(NULL, POST_ROM | post_bootmode_get(NULL));
 #endif
 
 	WATCHDOG_RESET();

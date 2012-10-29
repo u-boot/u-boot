@@ -52,7 +52,7 @@ extern unsigned long search_exception_table(unsigned long);
 /*
  * Print stack backtrace
  */
-void print_backtrace(unsigned long *sp)
+static void print_backtrace(unsigned long *sp)
 {
 	int cnt = 0;
 	unsigned long i;
@@ -75,7 +75,7 @@ void print_backtrace(unsigned long *sp)
 /*
  * Print current registers
  */
-void show_regs(struct pt_regs * regs)
+void show_regs(struct pt_regs *regs)
 {
 	int i;
 	printf("NIP: %08lX XER: %08lX LR: %08lX REGS: %p TRAP: %04lx DAR: %08lX\n",
@@ -105,7 +105,7 @@ void show_regs(struct pt_regs * regs)
 /*
  * General exception handler routine
  */
-void _exception(int signr, struct pt_regs *regs)
+static void _exception(int signr, struct pt_regs *regs)
 {
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
