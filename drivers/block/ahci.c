@@ -707,7 +707,7 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 	fis[0] = 0x27;		 /* Host to device FIS. */
 	fis[1] = 1 << 7;	 /* Command FIS. */
 	/* Command byte (read/write). */
-	fis[2] = is_write ? ATA_CMD_WR_DMA : ATA_CMD_RD_DMA;
+	fis[2] = is_write ? ATA_CMD_WRITE_EXT : ATA_CMD_READ_EXT;
 
 	while (blocks) {
 		u16 now_blocks; /* number of blocks per iteration */
@@ -721,11 +721,15 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 			return -EIO;
 		}
 
-		/* LBA address, only support LBA28 in this driver */
+		/* LBA48 SATA command but only use 32bit address range within
+		 * that. The next smaller command range (28bit) is too small.
+		 */
 		fis[4] = (lba >> 0) & 0xff;
 		fis[5] = (lba >> 8) & 0xff;
 		fis[6] = (lba >> 16) & 0xff;
-		fis[7] = ((lba >> 24) & 0xf) | 0xe0;
+		fis[7] = 1 << 6; /* device reg: set LBA mode */
+		fis[8] = ((lba >> 24) & 0xff);
+		fis[3] = 0xe0; /* features */
 
 		/* Block (sector) count */
 		fis[12] = (now_blocks >> 0) & 0xff;
@@ -963,7 +967,7 @@ static int ata_io_flush(u8 port)
 	memset(fis, 0, 20);
 	fis[0] = 0x27;		 /* Host to device FIS. */
 	fis[1] = 1 << 7;	 /* Command FIS. */
-	fis[2] = ATA_CMD_FLUSH;
+	fis[2] = ATA_CMD_FLUSH_EXT;
 
 	memcpy((unsigned char *)pp->cmd_tbl, fis, 20);
 	ahci_fill_cmd_slot(pp, cmd_fis_len);
