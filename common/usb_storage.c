@@ -192,7 +192,7 @@ block_dev_desc_t *usb_stor_get_dev(int index)
 }
 #endif
 
-void usb_show_progress(void)
+static void usb_show_progress(void)
 {
 	debug(".");
 }
@@ -437,7 +437,7 @@ static int usb_stor_BBB_reset(struct us_data *us)
 	result = usb_control_msg(us->pusb_dev, usb_sndctrlpipe(us->pusb_dev, 0),
 				 US_BBB_RESET,
 				 USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-				 0, us->ifnum, 0, 0, USB_CNTL_TIMEOUT * 5);
+				 0, us->ifnum, NULL, 0, USB_CNTL_TIMEOUT * 5);
 
 	if ((result < 0) && (us->pusb_dev->status & USB_ST_STALLED)) {
 		USB_STOR_PRINTF("RESET:stall\n");
@@ -500,7 +500,7 @@ static int usb_stor_CB_reset(struct us_data *us)
  * Set up the command for a BBB device. Note that the actual SCSI
  * command is copied into cbw.CBWCDB.
  */
-int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
+static int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
 {
 	int result;
 	int actlen;
@@ -548,7 +548,7 @@ int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
 /* FIXME: we also need a CBI_command which sets up the completion
  * interrupt, and waits for it
  */
-int usb_stor_CB_comdat(ccb *srb, struct us_data *us)
+static int usb_stor_CB_comdat(ccb *srb, struct us_data *us)
 {
 	int result = 0;
 	int dir_in, retry;
@@ -617,7 +617,7 @@ int usb_stor_CB_comdat(ccb *srb, struct us_data *us)
 }
 
 
-int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
+static int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
 {
 	int timeout;
 
@@ -626,7 +626,7 @@ int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
 			(void *) &us->ip_data, us->irqmaxp, us->irqinterval);
 	timeout = 1000;
 	while (timeout--) {
-		if ((volatile int *) us->ip_wanted == 0)
+		if ((volatile int *) us->ip_wanted == NULL)
 			break;
 		mdelay(10);
 	}
@@ -665,18 +665,18 @@ int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
 #define USB_TRANSPORT_NOT_READY_RETRY 10
 
 /* clear a stall on an endpoint - special for BBB devices */
-int usb_stor_BBB_clear_endpt_stall(struct us_data *us, __u8 endpt)
+static int usb_stor_BBB_clear_endpt_stall(struct us_data *us, __u8 endpt)
 {
 	int result;
 
 	/* ENDPOINT_HALT = 0, so set value to 0 */
 	result = usb_control_msg(us->pusb_dev, usb_sndctrlpipe(us->pusb_dev, 0),
 				USB_REQ_CLEAR_FEATURE, USB_RECIP_ENDPOINT,
-				0, endpt, 0, 0, USB_CNTL_TIMEOUT * 5);
+				0, endpt, NULL, 0, USB_CNTL_TIMEOUT * 5);
 	return result;
 }
 
-int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
+static int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 {
 	int result, retry;
 	int dir_in;
@@ -798,7 +798,7 @@ again:
 	return result;
 }
 
-int usb_stor_CB_transport(ccb *srb, struct us_data *us)
+static int usb_stor_CB_transport(ccb *srb, struct us_data *us)
 {
 	int result, status;
 	ccb *psrb;

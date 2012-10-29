@@ -1279,7 +1279,7 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
 	void	*fdt_blob = *of_flat_tree;
-	void	*of_start = 0;
+	void	*of_start = NULL;
 	char	*fdt_high;
 	ulong	of_len = 0;
 	int	err;
@@ -1312,7 +1312,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			of_start =
 			    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
 							   (ulong)desired_addr);
-			if (of_start == 0) {
+			if (of_start == NULL) {
 				puts("Failed using fdt_high value for Device Tree");
 				goto error;
 			}
@@ -1327,7 +1327,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 						   + getenv_bootm_low());
 	}
 
-	if (of_start == 0) {
+	if (of_start == NULL) {
 		puts("device tree - allocation error\n");
 		goto error;
 	}
@@ -1703,7 +1703,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 	return 0;
 
 error:
-	*of_flat_tree = 0;
+	*of_flat_tree = NULL;
 	*of_size = 0;
 	return 1;
 }

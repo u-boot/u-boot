@@ -40,8 +40,15 @@ int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
 	int i;
 	int rcode = 0;
 
+	if (cmd_items > CONFIG_SYS_MAXARGS) {
+		printf("%s: cmd_items %d exceeds hardcoded limit %d."
+		       " Recompile with higher CONFIG_SYS_MAXARGS?\n",
+		       __func__, cmd_items, CONFIG_SYS_MAXARGS);
+		return -1;
+	}
+
 	if (argc == 1) {	/*show list of commands */
-		cmd_tbl_t *cmd_array[cmd_items];
+		cmd_tbl_t *cmd_array[CONFIG_SYS_MAXARGS];
 		int i, j, swaps;
 
 		/* Make array of commands from .uboot_cmd section */
