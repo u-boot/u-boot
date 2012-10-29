@@ -341,11 +341,7 @@ char	*getenv	     (const char *);
 int	getenv_f     (const char *name, char *buf, unsigned len);
 ulong getenv_ulong(const char *name, int base, ulong default_val);
 int	saveenv	     (void);
-#ifdef CONFIG_PPC		/* ARM version to be fixed! */
-int inline setenv    (const char *, const char *);
-#else
 int	setenv	     (const char *, const char *);
-#endif /* CONFIG_PPC */
 int setenv_ulong(const char *varname, ulong value);
 int setenv_addr(const char *varname, const void *addr);
 #ifdef CONFIG_ARM

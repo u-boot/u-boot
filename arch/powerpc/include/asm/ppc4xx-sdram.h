@@ -1404,7 +1404,7 @@ struct sdram_timing {
 /*
  * Prototypes
  */
-inline void ppc4xx_ibm_ddr2_register_dump(void);
+void ppc4xx_ibm_ddr2_register_dump(void);
 u32 mfdcr_any(u32);
 void mtdcr_any(u32, u32);
 u32 ddr_wrdtr(u32);

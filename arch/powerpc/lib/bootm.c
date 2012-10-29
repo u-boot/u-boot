@@ -326,7 +326,7 @@ static int boot_body_linux(bootm_headers_t *images)
 	return 0;
 }
 
-__attribute__((noinline))
+noinline
 int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
 {
 	int	ret;

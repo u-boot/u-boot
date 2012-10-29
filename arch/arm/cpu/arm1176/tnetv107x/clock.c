@@ -168,10 +168,6 @@ static unsigned long pll_div_mask[] = { 0x01ff, 0x00ff, 0x00ff };
 #define tdm_extra_clk		{TDM_PLL, 1}
 #define tdm1_clk		{TDM_PLL, 2}
 
-/* Optimization barrier */
-#define barrier()	\
-	__asm__ __volatile__("mov r0, r0\n" : : : "memory");
-
 static const struct lpsc_map lpsc_clk_map[] = {
 	[TNETV107X_LPSC_ARM]			= sys_arm1176_clk,
 	[TNETV107X_LPSC_GEM]			= sys_dsp_clk,

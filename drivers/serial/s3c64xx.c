@@ -40,8 +40,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #error "Bad: you didn't configure serial ..."
 #endif
 
-#define barrier() asm volatile("" ::: "memory")
-
 /*
  * The coefficient, used to calculate the baudrate on S3C6400 UARTs is
  * calculated as
