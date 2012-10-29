@@ -52,6 +52,10 @@ hd_driveid_t *ataid[AHCI_MAX_PORTS];
 #define MAX_SATA_BLOCKS_READ_WRITE	0x80
 #endif
 
+/* Maximum timeouts for each event */
+#define WAIT_MS_DATAIO	5000
+#define WAIT_MS_LINKUP	4
+
 static inline u32 ahci_port_base(u32 base, u32 port)
 {
 	return base + 0x100 + (port * 0x80);
@@ -201,14 +205,14 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 		writel(PORT_CMD_SPIN_UP, port_mmio + PORT_CMD);
 
 		j = 0;
-		while (j < 1000) {
+		while (j < WAIT_MS_LINKUP) {
 			tmp = readl(port_mmio + PORT_SCR_STAT);
 			if ((tmp & 0xf) == 0x3)
 				break;
 			udelay(1000);
 			j++;
 		}
-		if (j == 1000)
+		if (j == WAIT_MS_LINKUP)
 			debug("timeout.\n");
 		else
 			debug("ok.\n");
@@ -429,7 +433,8 @@ static void ahci_set_feature(u8 port)
 	writel(1, port_mmio + PORT_CMD_ISSUE);
 	readl(port_mmio + PORT_CMD_ISSUE);
 
-	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE, 150, 0x1)) {
+	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE,
+				WAIT_MS_DATAIO, 0x1)) {
 		printf("set feature error on port %d!\n", port);
 	}
 }
@@ -535,7 +540,8 @@ static int ahci_device_data_io(u8 port, u8 *fis, int fis_len, u8 *buf,
 
 	writel_with_flush(1, port_mmio + PORT_CMD_ISSUE);
 
-	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE, 150, 0x1)) {
+	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE,
+				WAIT_MS_DATAIO, 0x1)) {
 		printf("timeout exit!\n");
 		return -1;
 	}
