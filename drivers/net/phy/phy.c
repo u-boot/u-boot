@@ -43,7 +43,7 @@
  *   what is supported.  Returns < 0 on error, 0 if the PHY's advertisement
  *   hasn't changed, and > 0 if it has changed.
  */
-int genphy_config_advert(struct phy_device *phydev)
+static int genphy_config_advert(struct phy_device *phydev)
 {
 	u32 advertise;
 	int oldadv, adv;
@@ -118,7 +118,7 @@ int genphy_config_advert(struct phy_device *phydev)
  * Description: Configures MII_BMCR to force speed/duplex
  *   to the values in phydev. Assumes that the values are valid.
  */
-int genphy_setup_forced(struct phy_device *phydev)
+static int genphy_setup_forced(struct phy_device *phydev)
 {
 	int err;
 	int ctl = 0;
@@ -465,7 +465,7 @@ int phy_register(struct phy_driver *drv)
 	return 0;
 }
 
-int phy_probe(struct phy_device *phydev)
+static int phy_probe(struct phy_device *phydev)
 {
 	int err = 0;
 
@@ -488,7 +488,7 @@ static struct phy_driver *generic_for_interface(phy_interface_t interface)
 	return &genphy_driver;
 }
 
-struct phy_driver *get_phy_driver(struct phy_device *phydev,
+static struct phy_driver *get_phy_driver(struct phy_device *phydev,
 				phy_interface_t interface)
 {
 	struct list_head *entry;
@@ -505,8 +505,9 @@ struct phy_driver *get_phy_driver(struct phy_device *phydev,
 	return generic_for_interface(interface);
 }
 
-struct phy_device *phy_device_create(struct mii_dev *bus, int addr, int phy_id,
-					phy_interface_t interface)
+static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
+					    int phy_id,
+					    phy_interface_t interface)
 {
 	struct phy_device *dev;
 
@@ -549,7 +550,7 @@ struct phy_device *phy_device_create(struct mii_dev *bus, int addr, int phy_id,
  * Description: Reads the ID registers of the PHY at @addr on the
  *   @bus, stores it in @phy_id and returns zero on success.
  */
-int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
+static int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
 {
 	int phy_reg;
 
@@ -581,8 +582,8 @@ int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
  * Description: Reads the ID registers of the PHY at @addr on the
  *   @bus, then allocates and returns the phy_device to represent it.
  */
-struct phy_device *get_phy_device(struct mii_dev *bus, int addr,
-				phy_interface_t interface)
+static struct phy_device *get_phy_device(struct mii_dev *bus, int addr,
+					 phy_interface_t interface)
 {
 	u32 phy_id = 0x1fffffff;
 	int i;

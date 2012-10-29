@@ -46,7 +46,7 @@ static int num_controllers;
 			TBICR_FULL_DUPLEX | TBICR_SPEED1_SET)
 
 /* Configure the TBI for SGMII operation */
-void dtsec_configure_serdes(struct fm_eth *priv)
+static void dtsec_configure_serdes(struct fm_eth *priv)
 {
 #ifdef CONFIG_SYS_FMAN_V3
 	u32 value;
