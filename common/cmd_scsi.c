@@ -72,7 +72,6 @@ static block_dev_desc_t scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
  *  forward declerations of some Setup Routines
  */
 void scsi_setup_test_unit_ready(ccb * pccb);
-void scsi_setup_read_capacity(ccb * pccb);
 void scsi_setup_read6(ccb * pccb, unsigned long start, unsigned short blocks);
 void scsi_setup_read_ext(ccb * pccb, unsigned long start, unsigned short blocks);
 static void scsi_setup_write_ext(ccb *pccb, unsigned long start,
@@ -81,6 +80,8 @@ void scsi_setup_inquiry(ccb * pccb);
 void scsi_ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
 
+static int scsi_read_capacity(ccb *pccb, lbaint_t *capacity,
+			      unsigned long *blksz);
 static ulong scsi_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer);
 static ulong scsi_write(int device, ulong blknr,
 			lbaint_t blkcnt, const void *buffer);
@@ -93,7 +94,8 @@ static ulong scsi_write(int device, ulong blknr,
 void scsi_scan(int mode)
 {
 	unsigned char i,perq,modi,lun;
-	unsigned long capacity,blksz;
+	lbaint_t capacity;
+	unsigned long blksz;
 	ccb* pccb=(ccb *)&tempccb;
 
 	if(mode==1) {
@@ -158,16 +160,10 @@ void scsi_scan(int mode)
 				scsi_print_error(pccb);
 				continue;
 			}
-			pccb->datalen=8;
-			scsi_setup_read_capacity(pccb);
-			if(scsi_exec(pccb)!=TRUE) {
+			if (scsi_read_capacity(pccb, &capacity, &blksz)) {
 				scsi_print_error(pccb);
 				continue;
 			}
-			capacity=((unsigned long)tempbuff[0]<<24)|((unsigned long)tempbuff[1]<<16)|
-					((unsigned long)tempbuff[2]<<8)|((unsigned long)tempbuff[3]);
-			blksz=((unsigned long)tempbuff[4]<<24)|((unsigned long)tempbuff[5]<<16)|
-				((unsigned long)tempbuff[6]<<8)|((unsigned long)tempbuff[7]);
 			scsi_dev_desc[scsi_max_devs].lba=capacity;
 			scsi_dev_desc[scsi_max_devs].blksz=blksz;
 			scsi_dev_desc[scsi_max_devs].type=perq;
@@ -514,6 +510,67 @@ void scsi_trim_trail (unsigned char *str, unsigned int len)
 	}
 }
 
+int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
+{
+	*capacity = 0;
+
+	memset(pccb->cmd, 0, sizeof(pccb->cmd));
+	pccb->cmd[0] = SCSI_RD_CAPAC10;
+	pccb->cmd[1] = pccb->lun << 5;
+	pccb->cmdlen = 10;
+	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
+
+	pccb->datalen = 8;
+	if (scsi_exec(pccb) != TRUE)
+		return 1;
+
+	*capacity = ((lbaint_t)pccb->pdata[0] << 24) |
+		    ((lbaint_t)pccb->pdata[1] << 16) |
+		    ((lbaint_t)pccb->pdata[2] << 8)  |
+		    ((lbaint_t)pccb->pdata[3]);
+
+	if (*capacity != 0xffffffff) {
+		/* Read capacity (10) was sufficient for this drive. */
+		*blksz = ((unsigned long)pccb->pdata[4] << 24) |
+			 ((unsigned long)pccb->pdata[5] << 16) |
+			 ((unsigned long)pccb->pdata[6] << 8)  |
+			 ((unsigned long)pccb->pdata[7]);
+		return 0;
+	}
+
+	/* Read capacity (10) was insufficient. Use read capacity (16). */
+
+	memset(pccb->cmd, 0, sizeof(pccb->cmd));
+	pccb->cmd[0] = SCSI_RD_CAPAC16;
+	pccb->cmd[1] = 0x10;
+	pccb->cmdlen = 16;
+	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
+
+	pccb->datalen = 16;
+	if (scsi_exec(pccb) != TRUE)
+		return 1;
+
+	*capacity = ((uint64_t)pccb->pdata[0] << 56) |
+		    ((uint64_t)pccb->pdata[1] << 48) |
+		    ((uint64_t)pccb->pdata[2] << 40) |
+		    ((uint64_t)pccb->pdata[3] << 32) |
+		    ((uint64_t)pccb->pdata[4] << 24) |
+		    ((uint64_t)pccb->pdata[5] << 16) |
+		    ((uint64_t)pccb->pdata[6] << 8)  |
+		    ((uint64_t)pccb->pdata[7]);
+
+	*blksz = ((uint64_t)pccb->pdata[8]  << 56) |
+		 ((uint64_t)pccb->pdata[9]  << 48) |
+		 ((uint64_t)pccb->pdata[10] << 40) |
+		 ((uint64_t)pccb->pdata[11] << 32) |
+		 ((uint64_t)pccb->pdata[12] << 24) |
+		 ((uint64_t)pccb->pdata[13] << 16) |
+		 ((uint64_t)pccb->pdata[14] << 8)  |
+		 ((uint64_t)pccb->pdata[15]);
+
+	return 0;
+}
+
 
 /************************************************************************************
  * Some setup (fill-in) routines
@@ -528,23 +585,6 @@ void scsi_setup_test_unit_ready(ccb * pccb)
 	pccb->cmd[5]=0;
 	pccb->cmdlen=6;
 	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
-}
-
-void scsi_setup_read_capacity(ccb * pccb)
-{
-	pccb->cmd[0]=SCSI_RD_CAPAC;
-	pccb->cmd[1]=pccb->lun<<5;
-	pccb->cmd[2]=0;
-	pccb->cmd[3]=0;
-	pccb->cmd[4]=0;
-	pccb->cmd[5]=0;
-	pccb->cmd[6]=0;
-	pccb->cmd[7]=0;
-	pccb->cmd[8]=0;
-	pccb->cmd[9]=0;
-	pccb->cmdlen=10;
-	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
-
 }
 
 void scsi_setup_read_ext(ccb * pccb, unsigned long start, unsigned short blocks)
