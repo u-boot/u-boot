@@ -96,7 +96,8 @@ static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len
 
 #ifdef CONFIG_ATAPI
 static void	atapi_inquiry(block_dev_desc_t *dev_desc);
-ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer);
+static ulong atapi_read(int device, ulong blknr, lbaint_t blkcnt,
+			void *buffer);
 #endif
 
 
@@ -826,7 +827,7 @@ static void ide_ident(block_dev_desc_t *dev_desc)
 
 /* ------------------------------------------------------------------------- */
 
-ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
+ulong ide_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
@@ -840,7 +841,7 @@ ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		lba48 = 1;
 	}
 #endif
-	debug("ide_read dev %d start %lX, blocks %lX buffer at %lX\n",
+	debug("ide_read dev %d start %lX, blocks " LBAF " buffer at %lX\n",
 	      device, blknr, blkcnt, (ulong) buffer);
 
 	ide_led(DEVICE_LED(device), 1);	/* LED on       */
@@ -930,13 +931,8 @@ ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 
 		if ((c & (ATA_STAT_DRQ | ATA_STAT_BUSY | ATA_STAT_ERR)) !=
 		    ATA_STAT_DRQ) {
-#if defined(CONFIG_SYS_64BIT_LBA)
-			printf("Error (no IRQ) dev %d blk %lld: status 0x%02x\n",
+			printf("Error (no IRQ) dev %d blk %ld: status %#02x\n",
 				device, blknr, c);
-#else
-			printf("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
-				device, (ulong) blknr, c);
-#endif
 			break;
 		}
 
@@ -955,7 +951,7 @@ IDE_READ_E:
 /* ------------------------------------------------------------------------- */
 
 
-ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, const void *buffer)
+ulong ide_write(int device, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
@@ -1023,13 +1019,8 @@ ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, const void *buffer)
 
 		if ((c & (ATA_STAT_DRQ | ATA_STAT_BUSY | ATA_STAT_ERR)) !=
 		    ATA_STAT_DRQ) {
-#if defined(CONFIG_SYS_64BIT_LBA)
-			printf("Error (no IRQ) dev %d blk %lld: status 0x%02x\n",
+			printf("Error (no IRQ) dev %d blk %ld: status %#02x\n",
 				device, blknr, c);
-#else
-			printf("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
-				device, (ulong) blknr, c);
-#endif
 			goto WR_OUT;
 		}
 
@@ -1518,13 +1509,13 @@ static void atapi_inquiry(block_dev_desc_t *dev_desc)
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK	(ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE)
 
-ulong atapi_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
+ulong atapi_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
 	ulong n = 0;
 	unsigned char ccb[12];	/* Command descriptor block */
 	ulong cnt;
 
-	debug("atapi_read dev %d start %lX, blocks %lX buffer at %lX\n",
+	debug("atapi_read dev %d start %lX, blocks " LBAF " buffer at %lX\n",
 	      device, blknr, blkcnt, (ulong) buffer);
 
 	do {
