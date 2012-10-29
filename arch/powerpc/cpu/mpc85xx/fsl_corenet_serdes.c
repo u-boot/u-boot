@@ -489,7 +489,7 @@ static void wait_for_rstdone(unsigned int bank)
 }
 
 
-void __soc_serdes_init(void)
+static void __soc_serdes_init(void)
 {
 	/* Allow for SoC-specific initialization in <SOC>_serdes.c  */
 };

@@ -182,7 +182,7 @@ static void enable_cpc(void)
 	printf("Corenet Platform Cache: %d KB enabled\n", size);
 }
 
-void invalidate_cpc(void)
+static void invalidate_cpc(void)
 {
 	int i;
 	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
