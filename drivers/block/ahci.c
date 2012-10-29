@@ -53,6 +53,7 @@ hd_driveid_t *ataid[AHCI_MAX_PORTS];
 #endif
 
 /* Maximum timeouts for each event */
+#define WAIT_MS_SPINUP	10000
 #define WAIT_MS_DATAIO	5000
 #define WAIT_MS_LINKUP	4
 
@@ -129,7 +130,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	unsigned short vendor;
 #endif
 	volatile u8 *mmio = (volatile u8 *)probe_ent->mmio_base;
-	u32 tmp, cap_save;
+	u32 tmp, cap_save, cmd;
 	int i, j;
 	volatile u8 *port_mmio;
 
@@ -137,7 +138,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 
 	cap_save = readl(mmio + HOST_CAP);
 	cap_save &= ((1 << 28) | (1 << 17));
-	cap_save |= (1 << 27);
+	cap_save |= (1 << 27);  /* Staggered Spin-up. Not needed. */
 
 	/* global controller reset */
 	tmp = readl(mmio + HOST_CTL);
@@ -201,9 +202,18 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 			msleep(500);
 		}
 
-		debug("Spinning up port %d... ", i);
-		writel(PORT_CMD_SPIN_UP, port_mmio + PORT_CMD);
+		/* Add the spinup command to whatever mode bits may
+		 * already be on in the command register.
+		 */
+		cmd = readl(port_mmio + PORT_CMD);
+		cmd |= PORT_CMD_FIS_RX;
+		cmd |= PORT_CMD_SPIN_UP;
+		writel_with_flush(cmd, port_mmio + PORT_CMD);
 
+		/* Bring up SATA link.
+		 * SATA link bringup time is usually less than 1 ms; only very
+		 * rarely has it taken between 1-2 ms. Never seen it above 2 ms.
+		 */
 		j = 0;
 		while (j < WAIT_MS_LINKUP) {
 			tmp = readl(port_mmio + PORT_SCR_STAT);
@@ -212,7 +222,30 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 			udelay(1000);
 			j++;
 		}
-		if (j == WAIT_MS_LINKUP)
+		if (j == WAIT_MS_LINKUP) {
+			printf("SATA link %d timeout.\n", i);
+			continue;
+		} else {
+			debug("SATA link ok.\n");
+		}
+
+		/* Clear error status */
+		tmp = readl(port_mmio + PORT_SCR_ERR);
+		if (tmp)
+			writel(tmp, port_mmio + PORT_SCR_ERR);
+
+		debug("Spinning up device on SATA port %d... ", i);
+
+		j = 0;
+		while (j < WAIT_MS_SPINUP) {
+			tmp = readl(port_mmio + PORT_TFDATA);
+			if (!(tmp & (ATA_STAT_BUSY | ATA_STAT_DRQ)))
+				break;
+			udelay(1000);
+			j++;
+		}
+		printf("Target spinup took %d ms.\n", j);
+		if (j == WAIT_MS_SPINUP)
 			debug("timeout.\n");
 		else
 			debug("ok.\n");
