@@ -478,7 +478,7 @@ static int ahci_device_data_io(u8 port, u8 *fis, int fis_len, u8 *buf,
 	debug("Enter %s: for port %d\n", __func__, port);
 
 	if (port > probe_ent->n_ports) {
-		printf("Invaild port number %d\n", port);
+		printf("Invalid port number %d\n", port);
 		return -1;
 	}
 
