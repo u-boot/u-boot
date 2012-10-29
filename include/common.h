@@ -345,9 +345,9 @@ int	saveenv	     (void);
 int inline setenv    (const char *, const char *);
 #else
 int	setenv	     (const char *, const char *);
+#endif /* CONFIG_PPC */
 int setenv_ulong(const char *varname, ulong value);
 int setenv_addr(const char *varname, const void *addr);
-#endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
 # include <asm/setup.h>
