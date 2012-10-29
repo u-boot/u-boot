@@ -375,7 +375,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 					/* Get address */
 					char buf[11];
 
-					sprintf(buf, "0x%08X", (uint32_t)nodep);
+					sprintf(buf, "0x%p", nodep);
 					setenv(var, buf);
 				} else if (subcmd[0] == 's') {
 					/* Get size */
@@ -816,7 +816,7 @@ static void print_data(const void *data, int len)
 
 	if ((len %4) == 0) {
 		if (len > CONFIG_CMD_FDT_MAX_DUMP)
-			printf("* 0x%08x [0x%08x]", (unsigned int)data, len);
+			printf("* 0x%p [0x%08x]", data, len);
 		else {
 			const u32 *p;
 
@@ -828,7 +828,7 @@ static void print_data(const void *data, int len)
 		}
 	} else { /* anything else... hexdump */
 		if (len > CONFIG_CMD_FDT_MAX_DUMP)
-			printf("* 0x%08x [0x%08x]", (unsigned int)data, len);
+			printf("* 0x%p [0x%08x]", data, len);
 		else {
 			const u8 *s;
 
