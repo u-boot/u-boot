@@ -30,7 +30,7 @@ static int ar8021_config(struct phy_device *phydev)
 	return 0;
 }
 
-struct phy_driver AR8021_driver =  {
+static struct phy_driver AR8021_driver =  {
 	.name = "AR8021",
 	.uid = 0x4dd040,
 	.mask = 0xfffff0,

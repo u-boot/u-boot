@@ -102,12 +102,13 @@ extern int eth_register(struct eth_device* dev);/* Register network device */
 extern int eth_unregister(struct eth_device *dev);/* Remove network device */
 extern void eth_try_another(int first_restart);	/* Change the device */
 extern void eth_set_current(void);		/* set nterface to ethcur var */
+
 /* get the current device MAC */
+extern struct eth_device *eth_current;
+
 static inline __attribute__((always_inline))
 struct eth_device *eth_get_dev(void)
 {
-	extern struct eth_device *eth_current;
-
 	return eth_current;
 }
 extern struct eth_device *eth_get_dev_by_name(const char *devname);
@@ -517,10 +518,10 @@ enum net_loop_state {
 	NETLOOP_SUCCESS,
 	NETLOOP_FAIL
 };
+extern enum net_loop_state net_state;
+
 static inline void net_set_state(enum net_loop_state state)
 {
-	extern enum net_loop_state net_state;
-
 	debug_cond(DEBUG_INT_STATE, "--- NetState set to %d\n", state);
 	net_state = state;
 }

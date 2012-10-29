@@ -180,7 +180,7 @@ IPaddr_t	NetNtpServerIP;
 int		NetTimeOffset;
 #endif
 
-uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
+static uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
 
 /* Receive packet */
 uchar *NetRxPackets[PKTBUFSRX];
