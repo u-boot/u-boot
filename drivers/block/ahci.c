@@ -672,6 +672,7 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 static int ata_scsiop_read_capacity10(ccb *pccb)
 {
 	u32 cap;
+	u32 block_size;
 
 	if (!ataid[pccb->target]) {
 		printf("scsi_ahci: SCSI READ CAPACITY10 command failure. "
@@ -680,12 +681,53 @@ static int ata_scsiop_read_capacity10(ccb *pccb)
 		return -EPERM;
 	}
 
-	cap = be32_to_cpu(ataid[pccb->target]->lba_capacity);
+	cap = le32_to_cpu(ataid[pccb->target]->lba_capacity);
+	if (cap == 0xfffffff) {
+		unsigned short *cap48 = ataid[pccb->target]->lba48_capacity;
+		if (cap48[2] || cap48[3]) {
+			cap = 0xffffffff;
+		} else {
+			cap = (le16_to_cpu(cap48[1]) << 16) |
+			      (le16_to_cpu(cap48[0]));
+		}
+	}
+
+	cap = cpu_to_be32(cap);
 	memcpy(pccb->pdata, &cap, sizeof(cap));
 
-	pccb->pdata[4] = pccb->pdata[5] = 0;
-	pccb->pdata[6] = 512 >> 8;
-	pccb->pdata[7] = 512 & 0xff;
+	block_size = cpu_to_be32((u32)512);
+	memcpy(&pccb->pdata[4], &block_size, 4);
+
+	return 0;
+}
+
+
+/*
+ * SCSI READ CAPACITY16 command operation.
+ */
+static int ata_scsiop_read_capacity16(ccb *pccb)
+{
+	u64 cap;
+	u64 block_size;
+
+	if (!ataid[pccb->target]) {
+		printf("scsi_ahci: SCSI READ CAPACITY16 command failure. "
+		       "\tNo ATA info!\n"
+		       "\tPlease run SCSI commmand INQUIRY firstly!\n");
+		return -EPERM;
+	}
+
+	cap = le32_to_cpu(ataid[pccb->target]->lba_capacity);
+	if (cap == 0xfffffff) {
+		memcpy(&cap, ataid[pccb->target]->lba48_capacity, sizeof(cap));
+		cap = le64_to_cpu(cap);
+	}
+
+	cap = cpu_to_be64(cap);
+	memcpy(pccb->pdata, &cap, sizeof(cap));
+
+	block_size = cpu_to_be64((u64)512);
+	memcpy(&pccb->pdata[8], &block_size, 8);
 
 	return 0;
 }
@@ -711,8 +753,11 @@ int scsi_exec(ccb *pccb)
 	case SCSI_WRITE10:
 		ret = ata_scsiop_read_write(pccb, 1);
 		break;
-	case SCSI_RD_CAPAC:
+	case SCSI_RD_CAPAC10:
 		ret = ata_scsiop_read_capacity10(pccb);
+		break;
+	case SCSI_RD_CAPAC16:
+		ret = ata_scsiop_read_capacity16(pccb);
 		break;
 	case SCSI_TST_U_RDY:
 		ret = ata_scsiop_test_unit_ready(pccb);

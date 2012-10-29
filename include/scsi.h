@@ -150,6 +150,8 @@ typedef struct SCSI_cmd_block{
 #define SCSI_READ6		0x08		/* Read 6-byte (MANDATORY) */
 #define SCSI_READ10		0x28		/* Read 10-byte (MANDATORY) */
 #define SCSI_RD_CAPAC	0x25		/* Read Capacity (MANDATORY) */
+#define SCSI_RD_CAPAC10	SCSI_RD_CAPAC	/* Read Capacity (10) */
+#define SCSI_RD_CAPAC16	0x9e		/* Read Capacity (16) */
 #define SCSI_RD_DEFECT	0x37		/* Read Defect Data (O) */
 #define SCSI_READ_LONG	0x3E		/* Read Long (O) */
 #define SCSI_REASS_BLK	0x07		/* Reassign Blocks (O) */
