@@ -52,7 +52,7 @@ typedef struct {
 	mult_t vco_divider;
 } corecnf_t;
 
-corecnf_t corecnf_tab[] = {
+static corecnf_t corecnf_tab[] = {
 	{_byp, _byp},		/* 0x00 */
 	{_byp, _byp},		/* 0x01 */
 	{_byp, _byp},		/* 0x02 */
@@ -531,7 +531,7 @@ ulong get_ddr_freq(ulong dummy)
 	return gd->mem_clk;
 }
 
-int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char buf[32];
 
