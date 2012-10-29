@@ -37,6 +37,8 @@
 #include <linux/ctype.h>
 #include <ahci.h>
 
+static int ata_io_flush(u8 port);
+
 struct ahci_probe_ent *probe_ent = NULL;
 hd_driveid_t *ataid[AHCI_MAX_PORTS];
 
@@ -55,6 +57,7 @@ hd_driveid_t *ataid[AHCI_MAX_PORTS];
 /* Maximum timeouts for each event */
 #define WAIT_MS_SPINUP	10000
 #define WAIT_MS_DATAIO	5000
+#define WAIT_MS_FLUSH	5000
 #define WAIT_MS_LINKUP	4
 
 static inline u32 ahci_port_base(u32 base, u32 port)
@@ -267,7 +270,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 
 		/* register linkup ports */
 		tmp = readl(port_mmio + PORT_SCR_STAT);
-		debug("Port %d status: 0x%x\n", i, tmp);
+		debug("SATA port %d status: 0x%x\n", i, tmp);
 		if ((tmp & 0xf) == 0x03)
 			probe_ent->link_port_map |= (0x01 << i);
 	}
@@ -736,6 +739,17 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 			      is_write ? "WRITE" : "READ");
 			return -EIO;
 		}
+
+		/* If this transaction is a write, do a following flush.
+		 * Writes in u-boot are so rare, and the logic to know when is
+		 * the last write and do a flush only there is sufficiently
+		 * difficult. Just do a flush after every write. This incurs,
+		 * usually, one extra flush when the rare writes do happen.
+		 */
+		if (is_write) {
+			if (-EIO == ata_io_flush(pccb->target))
+				return -EIO;
+		}
 		user_buffer += transfer_size;
 		user_buffer_size -= transfer_size;
 		blocks -= now_blocks;
@@ -928,6 +942,42 @@ err_out:
 	return rc;
 }
 #endif
+
+/*
+ * In the general case of generic rotating media it makes sense to have a
+ * flush capability. It probably even makes sense in the case of SSDs because
+ * one cannot always know for sure what kind of internal cache/flush mechanism
+ * is embodied therein. At first it was planned to invoke this after the last
+ * write to disk and before rebooting. In practice, knowing, a priori, which
+ * is the last write is difficult. Because writing to the disk in u-boot is
+ * very rare, this flush command will be invoked after every block write.
+ */
+static int ata_io_flush(u8 port)
+{
+	u8 fis[20];
+	struct ahci_ioports *pp = &(probe_ent->port[port]);
+	volatile u8 *port_mmio = (volatile u8 *)pp->port_mmio;
+	u32 cmd_fis_len = 5;	/* five dwords */
+
+	/* Preset the FIS */
+	memset(fis, 0, 20);
+	fis[0] = 0x27;		 /* Host to device FIS. */
+	fis[1] = 1 << 7;	 /* Command FIS. */
+	fis[2] = ATA_CMD_FLUSH;
+
+	memcpy((unsigned char *)pp->cmd_tbl, fis, 20);
+	ahci_fill_cmd_slot(pp, cmd_fis_len);
+	writel_with_flush(1, port_mmio + PORT_CMD_ISSUE);
+
+	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE,
+			WAIT_MS_FLUSH, 0x1)) {
+		debug("scsi_ahci: flush command timeout on port %d.\n", port);
+		return -EIO;
+	}
+
+	return 0;
+}
+
 
 void scsi_bus_reset(void)
 {
