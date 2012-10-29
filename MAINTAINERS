@@ -1013,6 +1013,10 @@ Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 
 	armadillo-800eva	R8A7740 (RMOBILE SoC)
 
+Pali Rohár <pali.rohar@gmail.com>
+
+	nokia_rx51	ARM ARMV7 (OMAP34xx SoC)
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
