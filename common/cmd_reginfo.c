@@ -37,7 +37,8 @@ extern void mpc86xx_reginfo(void);
 extern void mpc85xx_reginfo(void);
 #endif
 
-int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_reginfo(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 #if defined(CONFIG_8xx)
 	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;

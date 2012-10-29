@@ -95,7 +95,7 @@ static int fdt_value_setenv(const void *nodep, int len, const char *var)
 /*
  * Flattened Device Tree command, see the help for parameter definitions.
  */
-int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -682,7 +682,7 @@ static int fdt_parse_prop(char * const *newval, int count, char *data, int *len)
 
 			cp = newp;
 			tmp = simple_strtoul(cp, &newp, 0);
-			*(uint32_t *)data = __cpu_to_be32(tmp);
+			*(__be32 *)data = __cpu_to_be32(tmp);
 			data  += 4;
 			*len += 4;
 
@@ -818,7 +818,7 @@ static void print_data(const void *data, int len)
 		if (len > CONFIG_CMD_FDT_MAX_DUMP)
 			printf("* 0x%p [0x%08x]", data, len);
 		else {
-			const u32 *p;
+			const __be32 *p;
 
 			printf("<");
 			for (j = 0, p = data; j < len/4; j++)
@@ -964,11 +964,9 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 }
 
 /********************************************************************/
-
-U_BOOT_CMD(
-	fdt,	255,	0,	do_fdt,
-	"flattened device tree utility commands",
-	    "addr   <addr> [<length>]        - Set the fdt location to <addr>\n"
+#ifdef CONFIG_SYS_LONGHELP
+static char fdt_help_text[] =
+	"addr   <addr> [<length>]        - Set the fdt location to <addr>\n"
 #ifdef CONFIG_OF_BOARD_SETUP
 	"fdt boardsetup                      - Do board-specific set up\n"
 #endif
@@ -992,5 +990,10 @@ U_BOOT_CMD(
 	"fdt chosen [<start> <end>]          - Add/update the /chosen branch in the tree\n"
 	"                                        <start>/<end> - initrd start/end addr\n"
 	"NOTE: Dereference aliases by omiting the leading '/', "
-		"e.g. fdt print ethernet0."
+		"e.g. fdt print ethernet0.";
+#endif
+
+U_BOOT_CMD(
+	fdt,	255,	0,	do_fdt,
+	"flattened device tree utility commands", fdt_help_text
 );

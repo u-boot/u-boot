@@ -115,7 +115,7 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Bus Width: %d-bit\n", mmc->bus_width);
 }
 
-int do_mmcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct mmc *mmc;
 
@@ -147,7 +147,7 @@ U_BOOT_CMD(
 	"- dislay info of the current MMC device"
 );
 
-int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	enum mmc_state state;
 
@@ -269,7 +269,7 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			addr = (void *)simple_strtoul(argv[idx], NULL, 16);
 			++idx;
 		} else
-			addr = 0;
+			addr = NULL;
 		blk = simple_strtoul(argv[idx], NULL, 16);
 		cnt = simple_strtoul(argv[idx + 1], NULL, 16);
 

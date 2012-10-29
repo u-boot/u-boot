@@ -133,7 +133,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DISP_LINE_LEN	16
 
 /* implement possible board specific board init */
-void __def_i2c_init_board(void)
+static void __def_i2c_init_board(void)
 {
 	return;
 }
@@ -141,14 +141,14 @@ void i2c_init_board(void)
 	__attribute__((weak, alias("__def_i2c_init_board")));
 
 /* TODO: Implement architecture-specific get/set functions */
-unsigned int __def_i2c_get_bus_speed(void)
+static unsigned int __def_i2c_get_bus_speed(void)
 {
 	return CONFIG_SYS_I2C_SPEED;
 }
 unsigned int i2c_get_bus_speed(void)
 	__attribute__((weak, alias("__def_i2c_get_bus_speed")));
 
-int __def_i2c_set_bus_speed(unsigned int speed)
+static int __def_i2c_set_bus_speed(unsigned int speed)
 {
 	if (speed != CONFIG_SYS_I2C_SPEED)
 		return -1;
@@ -1376,10 +1376,8 @@ static int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 }
 
 /***************************************************/
-
-U_BOOT_CMD(
-	i2c, 6, 1, do_i2c,
-	"I2C sub-system",
+#ifdef CONFIG_SYS_LONGHELP
+static char i2c_help_text[] =
 #if defined(CONFIG_I2C_MUX)
 	"bus [muxtype:muxaddr:muxchannel] - add a new bus reached over muxes\ni2c "
 #endif  /* CONFIG_I2C_MUX */
@@ -1399,7 +1397,13 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_SDRAM)
 	"i2c sdram chip - print SDRAM configuration information\n"
 #endif
-	"i2c speed [speed] - show or set I2C bus speed"
+	"i2c speed [speed] - show or set I2C bus speed";
+#endif
+
+U_BOOT_CMD(
+	i2c, 6, 1, do_i2c,
+	"I2C sub-system",
+	i2c_help_text
 );
 
 #if defined(CONFIG_I2C_MUX)

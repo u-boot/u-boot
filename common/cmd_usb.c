@@ -40,7 +40,7 @@ static int usb_ether_curr_dev = -1; /* current ethernet device */
 #endif
 
 /* some display routines (info command) */
-char *usb_get_class_desc(unsigned char dclass)
+static char *usb_get_class_desc(unsigned char dclass)
 {
 	switch (dclass) {
 	case USB_CLASS_PER_INTERFACE:
@@ -66,8 +66,8 @@ char *usb_get_class_desc(unsigned char dclass)
 	}
 }
 
-void usb_display_class_sub(unsigned char dclass, unsigned char subclass,
-			   unsigned char proto)
+static void usb_display_class_sub(unsigned char dclass, unsigned char subclass,
+				  unsigned char proto)
 {
 	switch (dclass) {
 	case USB_CLASS_PER_INTERFACE:
@@ -148,7 +148,7 @@ void usb_display_class_sub(unsigned char dclass, unsigned char subclass,
 	}
 }
 
-void usb_display_string(struct usb_device *dev, int index)
+static void usb_display_string(struct usb_device *dev, int index)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buffer, 256);
 
@@ -158,7 +158,7 @@ void usb_display_string(struct usb_device *dev, int index)
 	}
 }
 
-void usb_display_desc(struct usb_device *dev)
+static void usb_display_desc(struct usb_device *dev)
 {
 	if (dev->descriptor.bDescriptorType == USB_DT_DEVICE) {
 		printf("%d: %s,  USB Revision %x.%x\n", dev->devnum,
@@ -192,8 +192,8 @@ void usb_display_desc(struct usb_device *dev)
 
 }
 
-void usb_display_conf_desc(struct usb_configuration_descriptor *config,
-			   struct usb_device *dev)
+static void usb_display_conf_desc(struct usb_configuration_descriptor *config,
+				  struct usb_device *dev)
 {
 	printf("   Configuration: %d\n", config->bConfigurationValue);
 	printf("   - Interfaces: %d %s%s%dmA\n", config->bNumInterfaces,
@@ -207,8 +207,8 @@ void usb_display_conf_desc(struct usb_configuration_descriptor *config,
 	}
 }
 
-void usb_display_if_desc(struct usb_interface_descriptor *ifdesc,
-			 struct usb_device *dev)
+static void usb_display_if_desc(struct usb_interface_descriptor *ifdesc,
+				struct usb_device *dev)
 {
 	printf("     Interface: %d\n", ifdesc->bInterfaceNumber);
 	printf("     - Alternate Setting %d, Endpoints: %d\n",
@@ -224,7 +224,7 @@ void usb_display_if_desc(struct usb_interface_descriptor *ifdesc,
 	}
 }
 
-void usb_display_ep_desc(struct usb_endpoint_descriptor *epdesc)
+static void usb_display_ep_desc(struct usb_endpoint_descriptor *epdesc)
 {
 	printf("     - Endpoint %d %s ", epdesc->bEndpointAddress & 0xf,
 		(epdesc->bEndpointAddress & 0x80) ? "In" : "Out");
@@ -249,7 +249,7 @@ void usb_display_ep_desc(struct usb_endpoint_descriptor *epdesc)
 }
 
 /* main routine to diasplay the configs, interfaces and endpoints */
-void usb_display_config(struct usb_device *dev)
+static void usb_display_config(struct usb_device *dev)
 {
 	struct usb_config *config;
 	struct usb_interface *ifdesc;
@@ -280,7 +280,7 @@ static inline char *portspeed(int speed)
 }
 
 /* shows the device tree recursively */
-void usb_show_tree_graph(struct usb_device *dev, char *pre)
+static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 {
 	int i, index;
 	int has_child, last_child;
@@ -340,7 +340,7 @@ void usb_show_tree_graph(struct usb_device *dev, char *pre)
 }
 
 /* main routine for the tree command */
-void usb_show_tree(struct usb_device *dev)
+static void usb_show_tree(struct usb_device *dev)
 {
 	char preamble[32];
 
@@ -353,7 +353,7 @@ void usb_show_tree(struct usb_device *dev)
  * usb boot command intepreter. Derived from diskboot
  */
 #ifdef CONFIG_USB_STORAGE
-int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return common_diskboot(cmdtp, "usb", argc, argv);
 }
@@ -363,7 +363,7 @@ int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 /******************************************************************************
  * usb command intepreter
  */
-int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 
 	int i;

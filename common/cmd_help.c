@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-int do_help(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_help(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *start = ll_entry_start(cmd_tbl_t, cmd);
 	const int len = ll_entry_count(cmd_tbl_t, cmd);

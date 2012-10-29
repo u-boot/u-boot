@@ -52,7 +52,7 @@ U_BOOT_CMD(
 	"      All numeric parameters are assumed to be hex."
 );
 
-int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fat_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -64,7 +64,8 @@ U_BOOT_CMD(
 	"    - list files from 'dev' on 'interface' in a 'directory'"
 );
 
-int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fat_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[])
 {
 	int dev, part;
 	block_dev_desc_t *dev_desc;
