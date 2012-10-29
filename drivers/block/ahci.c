@@ -373,6 +373,7 @@ static void ahci_fill_cmd_slot(struct ahci_ioports *pp, u32 opts)
 }
 
 
+#ifdef CONFIG_AHCI_SETFEATURES_XFER
 static void ahci_set_feature(u8 port)
 {
 	struct ahci_ioports *pp = &(probe_ent->port[port]);
@@ -397,6 +398,7 @@ static void ahci_set_feature(u8 port)
 		printf("set feature error on port %d!\n", port);
 	}
 }
+#endif
 
 
 static int ahci_port_start(u8 port)
@@ -743,7 +745,9 @@ void scsi_low_level_init(int busdevfunc)
 				printf("Can not start port %d\n", i);
 				continue;
 			}
+#ifdef CONFIG_AHCI_SETFEATURES_XFER
 			ahci_set_feature((u8) i);
+#endif
 		}
 	}
 }
@@ -784,7 +788,9 @@ int ahci_init(u32 base)
 				printf("Can not start port %d\n", i);
 				continue;
 			}
+#ifdef CONFIG_AHCI_SETFEATURES_XFER
 			ahci_set_feature((u8) i);
+#endif
 		}
 	}
 err_out:
