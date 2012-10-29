@@ -70,6 +70,39 @@ static void ahci_setup_port(struct ahci_ioports *port, unsigned long base,
 
 #define msleep(a) udelay(a * 1000)
 
+static void ahci_dcache_flush_range(unsigned begin, unsigned len)
+{
+	const unsigned long start = begin;
+	const unsigned long end = start + len;
+
+	debug("%s: flush dcache: [%#lx, %#lx)\n", __func__, start, end);
+	flush_dcache_range(start, end);
+}
+
+/*
+ * SATA controller DMAs to physical RAM.  Ensure data from the
+ * controller is invalidated from dcache; next access comes from
+ * physical RAM.
+ */
+static void ahci_dcache_invalidate_range(unsigned begin, unsigned len)
+{
+	const unsigned long start = begin;
+	const unsigned long end = start + len;
+
+	debug("%s: invalidate dcache: [%#lx, %#lx)\n", __func__, start, end);
+	invalidate_dcache_range(start, end);
+}
+
+/*
+ * Ensure data for SATA controller is flushed out of dcache and
+ * written to physical memory.
+ */
+static void ahci_dcache_flush_sata_cmd(struct ahci_ioports *pp)
+{
+	ahci_dcache_flush_range((unsigned long)pp->cmd_slot,
+				AHCI_PORT_PRIV_DMA_SZ);
+}
+
 static int waiting_for_cmd_completed(volatile u8 *offset,
 				     int timeout_msec,
 				     u32 sign)
@@ -392,6 +425,7 @@ static void ahci_set_feature(u8 port)
 
 	memcpy((unsigned char *)pp->cmd_tbl, fis, sizeof(fis));
 	ahci_fill_cmd_slot(pp, cmd_fis_len);
+	ahci_dcache_flush_sata_cmd(pp);
 	writel(1, port_mmio + PORT_CMD_ISSUE);
 	readl(port_mmio + PORT_CMD_ISSUE);
 
@@ -496,12 +530,17 @@ static int ahci_device_data_io(u8 port, u8 *fis, int fis_len, u8 *buf,
 	opts = (fis_len >> 2) | (sg_count << 16) | (is_write << 6);
 	ahci_fill_cmd_slot(pp, opts);
 
+	ahci_dcache_flush_sata_cmd(pp);
+	ahci_dcache_flush_range((unsigned)buf, (unsigned)buf_len);
+
 	writel_with_flush(1, port_mmio + PORT_CMD_ISSUE);
 
 	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE, 150, 0x1)) {
 		printf("timeout exit!\n");
 		return -1;
 	}
+
+	ahci_dcache_invalidate_range((unsigned)buf, (unsigned)buf_len);
 	debug("%s: %d byte transferred.\n", __func__, pp->cmd_slot->status);
 
 	return 0;
