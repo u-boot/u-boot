@@ -68,7 +68,7 @@ struct fsl_esdhc {
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
-uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
+static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	uint xfertyp = 0;
 
@@ -410,7 +410,7 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	return 0;
 }
 
-void set_sysctl(struct mmc *mmc, uint clock)
+static void set_sysctl(struct mmc *mmc, uint clock)
 {
 	int sdhc_clk = gd->sdhc_clk;
 	int div, pre_div;
