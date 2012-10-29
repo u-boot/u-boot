@@ -28,7 +28,7 @@
 /* some reluctance to put this into a new limits.h, so it is here */
 #define INT_MAX		((int)(~0U>>1))
 
-const char hex_asc[] = "0123456789abcdef";
+static const char hex_asc[] = "0123456789abcdef";
 #define hex_asc_lo(x)   hex_asc[((x) & 0x0f)]
 #define hex_asc_hi(x)   hex_asc[((x) & 0xf0) >> 4]
 
@@ -395,7 +395,7 @@ static char *string(char *buf, char *end, char *s, int field_width,
 {
 	int len, i;
 
-	if (s == 0)
+	if (s == NULL)
 		s = "<NULL>";
 
 	len = strnlen(s, precision);
