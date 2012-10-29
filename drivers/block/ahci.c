@@ -194,7 +194,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 		/* set irq mask (enables interrupts) */
 		writel(DEF_PORT_IRQ, port_mmio + PORT_IRQ_MASK);
 
-		/*register linkup ports */
+		/* register linkup ports */
 		tmp = readl(port_mmio + PORT_SCR_STAT);
 		debug("Port %d status: 0x%x\n", i, tmp);
 		if ((tmp & 0xf) == 0x03)
@@ -222,12 +222,13 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 	u16 cc;
 #endif
 	volatile u8 *mmio = (volatile u8 *)probe_ent->mmio_base;
-	u32 vers, cap, impl, speed;
+	u32 vers, cap, cap2, impl, speed;
 	const char *speed_s;
 	const char *scc_s;
 
 	vers = readl(mmio + HOST_VERSION);
 	cap = probe_ent->cap;
+	cap2 = readl(mmio + HOST_CAP2);
 	impl = probe_ent->port_map;
 
 	speed = (cap >> 20) & 0xf;
@@ -235,6 +236,8 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 		speed_s = "1.5";
 	else if (speed == 2)
 		speed_s = "3";
+	else if (speed == 3)
+		speed_s = "6";
 	else
 		speed_s = "?";
 
@@ -260,8 +263,9 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 	       ((cap >> 8) & 0x1f) + 1, (cap & 0x1f) + 1, speed_s, impl, scc_s);
 
 	printf("flags: "
-	       "%s%s%s%s%s%s"
-	       "%s%s%s%s%s%s%s\n",
+	       "%s%s%s%s%s%s%s"
+	       "%s%s%s%s%s%s%s"
+	       "%s%s%s%s%s%s\n",
 	       cap & (1 << 31) ? "64bit " : "",
 	       cap & (1 << 30) ? "ncq " : "",
 	       cap & (1 << 28) ? "ilck " : "",
@@ -272,9 +276,16 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 	       cap & (1 << 19) ? "nz " : "",
 	       cap & (1 << 18) ? "only " : "",
 	       cap & (1 << 17) ? "pmp " : "",
+	       cap & (1 << 16) ? "fbss " : "",
 	       cap & (1 << 15) ? "pio " : "",
 	       cap & (1 << 14) ? "slum " : "",
-	       cap & (1 << 13) ? "part " : "");
+	       cap & (1 << 13) ? "part " : "",
+	       cap & (1 << 7) ? "ccc " : "",
+	       cap & (1 << 6) ? "ems " : "",
+	       cap & (1 << 5) ? "sxs " : "",
+	       cap2 & (1 << 2) ? "apst " : "",
+	       cap2 & (1 << 1) ? "nvmp " : "",
+	       cap2 & (1 << 0) ? "boh " : "");
 }
 
 #ifndef CONFIG_SCSI_AHCI_PLAT
@@ -369,7 +380,7 @@ static void ahci_set_feature(u8 port)
 	u32 cmd_fis_len = 5;	/* five dwords */
 	u8 fis[20];
 
-	/*set feature */
+	/* set feature */
 	memset(fis, 0, 20);
 	fis[0] = 0x27;
 	fis[1] = 1 << 7;
@@ -383,7 +394,7 @@ static void ahci_set_feature(u8 port)
 	readl(port_mmio + PORT_CMD_ISSUE);
 
 	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE, 150, 0x1)) {
-		printf("set feature error!\n");
+		printf("set feature error on port %d!\n", port);
 	}
 }
 

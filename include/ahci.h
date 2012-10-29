@@ -51,6 +51,7 @@
 #define HOST_IRQ_STAT		0x08 /* interrupt status */
 #define HOST_PORTS_IMPL		0x0c /* bitmap of implemented ports */
 #define HOST_VERSION		0x10 /* AHCI spec. version compliancy */
+#define HOST_CAP2		0x24 /* host capabilities, extended */
 
 /* HOST_CTL bits */
 #define HOST_RESET		(1 << 0)  /* reset controller; self-clear */
