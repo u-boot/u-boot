@@ -43,12 +43,13 @@ hd_driveid_t *ataid[AHCI_MAX_PORTS];
 #define writel_with_flush(a,b)	do { writel(a,b); readl(b); } while (0)
 
 /*
- * Some controllers limit number of blocks they can read at once. Contemporary
- * SSD devices work much faster if the read size is aligned to a power of 2.
- * Let's set default to 128 and allowing to be overwritten if needed.
+ * Some controllers limit number of blocks they can read/write at once.
+ * Contemporary SSD devices work much faster if the read/write size is aligned
+ * to a power of 2.  Let's set default to 128 and allowing to be overwritten if
+ * needed.
  */
-#ifndef MAX_SATA_BLOCKS_READ
-#define MAX_SATA_BLOCKS_READ	0x80
+#ifndef MAX_SATA_BLOCKS_READ_WRITE
+#define MAX_SATA_BLOCKS_READ_WRITE	0x80
 #endif
 
 static inline u32 ahci_port_base(u32 base, u32 port)
@@ -464,8 +465,8 @@ static int ahci_port_start(u8 port)
 }
 
 
-static int get_ahci_device_data(u8 port, u8 *fis, int fis_len, u8 *buf,
-				int buf_len)
+static int ahci_device_data_io(u8 port, u8 *fis, int fis_len, u8 *buf,
+				int buf_len, u8 is_write)
 {
 
 	struct ahci_ioports *pp = &(probe_ent->port[port]);
@@ -474,7 +475,7 @@ static int get_ahci_device_data(u8 port, u8 *fis, int fis_len, u8 *buf,
 	u32 port_status;
 	int sg_count;
 
-	debug("Enter get_ahci_device_data: for port %d\n", port);
+	debug("Enter %s: for port %d\n", __func__, port);
 
 	if (port > probe_ent->n_ports) {
 		printf("Invaild port number %d\n", port);
@@ -490,7 +491,7 @@ static int get_ahci_device_data(u8 port, u8 *fis, int fis_len, u8 *buf,
 	memcpy((unsigned char *)pp->cmd_tbl, fis, fis_len);
 
 	sg_count = ahci_fill_sg(port, buf, buf_len);
-	opts = (fis_len >> 2) | (sg_count << 16);
+	opts = (fis_len >> 2) | (sg_count << 16) | (is_write << 6);
 	ahci_fill_cmd_slot(pp, opts);
 
 	writel_with_flush(1, port_mmio + PORT_CMD_ISSUE);
@@ -499,8 +500,7 @@ static int get_ahci_device_data(u8 port, u8 *fis, int fis_len, u8 *buf,
 		printf("timeout exit!\n");
 		return -1;
 	}
-	debug("get_ahci_device_data: %d byte transferred.\n",
-	      pp->cmd_slot->status);
+	debug("%s: %d byte transferred.\n", __func__, pp->cmd_slot->status);
 
 	return 0;
 }
@@ -570,8 +570,8 @@ static int ata_scsiop_inquiry(ccb *pccb)
 	if (!(tmpid = malloc(sizeof(hd_driveid_t))))
 		return -ENOMEM;
 
-	if (get_ahci_device_data(port, (u8 *) & fis, 20,
-				 tmpid, sizeof(hd_driveid_t))) {
+	if (ahci_device_data_io(port, (u8 *) &fis, 20, tmpid,
+				sizeof(hd_driveid_t), 0)) {
 		debug("scsi_ahci: SCSI inquiry command failure.\n");
 		return -EIO;
 	}
@@ -590,9 +590,9 @@ static int ata_scsiop_inquiry(ccb *pccb)
 
 
 /*
- * SCSI READ10 command operation.
+ * SCSI READ10/WRITE10 command operation.
  */
-static int ata_scsiop_read10(ccb * pccb)
+static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 {
 	u32 lba = 0;
 	u16 blocks = 0;
@@ -616,20 +616,21 @@ static int ata_scsiop_read10(ccb * pccb)
 	 */
 	blocks = (((u16)pccb->cmd[7]) << 8) | ((u16) pccb->cmd[8]);
 
-	debug("scsi_ahci: read %d blocks starting from lba 0x%x\n",
-	      (unsigned)lba, blocks);
+	debug("scsi_ahci: %s %d blocks starting from lba 0x%x\n",
+	      is_write ?  "write" : "read", (unsigned)lba, blocks);
 
 	/* Preset the FIS */
 	memset(fis, 0, 20);
 	fis[0] = 0x27;		 /* Host to device FIS. */
 	fis[1] = 1 << 7;	 /* Command FIS. */
-	fis[2] = ATA_CMD_RD_DMA; /* Command byte. */
+	/* Command byte (read/write). */
+	fis[2] = is_write ? ATA_CMD_WR_DMA : ATA_CMD_RD_DMA;
 
 	while (blocks) {
 		u16 now_blocks; /* number of blocks per iteration */
 		u32 transfer_size; /* number of bytes per iteration */
 
-		now_blocks = min(MAX_SATA_BLOCKS_READ, blocks);
+		now_blocks = min(MAX_SATA_BLOCKS_READ_WRITE, blocks);
 
 		transfer_size = ATA_BLOCKSIZE * now_blocks;
 		if (transfer_size > user_buffer_size) {
@@ -647,10 +648,12 @@ static int ata_scsiop_read10(ccb * pccb)
 		fis[12] = (now_blocks >> 0) & 0xff;
 		fis[13] = (now_blocks >> 8) & 0xff;
 
-		/* Read from ahci */
-		if (get_ahci_device_data(pccb->target, (u8 *) &fis, sizeof(fis),
-					 user_buffer, user_buffer_size)) {
-			debug("scsi_ahci: SCSI READ10 command failure.\n");
+		/* Read/Write from ahci */
+		if (ahci_device_data_io(pccb->target, (u8 *) &fis, sizeof(fis),
+					user_buffer, user_buffer_size,
+					is_write)) {
+			debug("scsi_ahci: SCSI %s10 command failure.\n",
+			      is_write ? "WRITE" : "READ");
 			return -EIO;
 		}
 		user_buffer += transfer_size;
@@ -703,7 +706,10 @@ int scsi_exec(ccb *pccb)
 
 	switch (pccb->cmd[0]) {
 	case SCSI_READ10:
-		ret = ata_scsiop_read10(pccb);
+		ret = ata_scsiop_read_write(pccb, 0);
+		break;
+	case SCSI_WRITE10:
+		ret = ata_scsiop_read_write(pccb, 1);
 		break;
 	case SCSI_RD_CAPAC:
 		ret = ata_scsiop_read_capacity10(pccb);
