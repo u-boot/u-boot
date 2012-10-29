@@ -431,25 +431,27 @@ static int ahci_port_start(u8 port)
 	 * First item in chunk of DMA memory: 32-slot command table,
 	 * 32 bytes each in size
 	 */
-	pp->cmd_slot = (struct ahci_cmd_hdr *)mem;
+	pp->cmd_slot =
+		(struct ahci_cmd_hdr *)(uintptr_t)virt_to_phys((void *)mem);
 	debug("cmd_slot = 0x%x\n", (unsigned)pp->cmd_slot);
 	mem += (AHCI_CMD_SLOT_SZ + 224);
 
 	/*
 	 * Second item: Received-FIS area
 	 */
-	pp->rx_fis = mem;
+	pp->rx_fis = virt_to_phys((void *)mem);
 	mem += AHCI_RX_FIS_SZ;
 
 	/*
 	 * Third item: data area for storing a single command
 	 * and its scatter-gather table
 	 */
-	pp->cmd_tbl = mem;
+	pp->cmd_tbl = virt_to_phys((void *)mem);
 	debug("cmd_tbl_dma = 0x%x\n", pp->cmd_tbl);
 
 	mem += AHCI_CMD_TBL_HDR;
-	pp->cmd_tbl_sg = (struct ahci_sg *)mem;
+	pp->cmd_tbl_sg =
+			(struct ahci_sg *)(uintptr_t)virt_to_phys((void *)mem);
 
 	writel_with_flush((u32) pp->cmd_slot, port_mmio + PORT_LST_ADDR);
 
