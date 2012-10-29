@@ -383,14 +383,14 @@ static void ahci_set_feature(u8 port)
 	u8 fis[20];
 
 	/* set feature */
-	memset(fis, 0, 20);
+	memset(fis, 0, sizeof(fis));
 	fis[0] = 0x27;
 	fis[1] = 1 << 7;
 	fis[2] = ATA_CMD_SETF;
 	fis[3] = SETFEATURES_XFER;
 	fis[12] = __ilog2(probe_ent->udma_mask + 1) + 0x40 - 0x01;
 
-	memcpy((unsigned char *)pp->cmd_tbl, fis, 20);
+	memcpy((unsigned char *)pp->cmd_tbl, fis, sizeof(fis));
 	ahci_fill_cmd_slot(pp, cmd_fis_len);
 	writel(1, port_mmio + PORT_CMD_ISSUE);
 	readl(port_mmio + PORT_CMD_ISSUE);
@@ -559,7 +559,7 @@ static int ata_scsiop_inquiry(ccb *pccb)
 	if (pccb->datalen <= 35)
 		return 0;
 
-	memset(fis, 0, 20);
+	memset(fis, 0, sizeof(fis));
 	/* Construct the FIS */
 	fis[0] = 0x27;		/* Host to device FIS. */
 	fis[1] = 1 << 7;	/* Command FIS. */
@@ -570,7 +570,7 @@ static int ata_scsiop_inquiry(ccb *pccb)
 	if (!(tmpid = malloc(sizeof(hd_driveid_t))))
 		return -ENOMEM;
 
-	if (ahci_device_data_io(port, (u8 *) &fis, 20, tmpid,
+	if (ahci_device_data_io(port, (u8 *) &fis, sizeof(fis), tmpid,
 				sizeof(hd_driveid_t), 0)) {
 		debug("scsi_ahci: SCSI inquiry command failure.\n");
 		return -EIO;
@@ -620,7 +620,7 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 	      is_write ?  "write" : "read", (unsigned)lba, blocks);
 
 	/* Preset the FIS */
-	memset(fis, 0, 20);
+	memset(fis, 0, sizeof(fis));
 	fis[0] = 0x27;		 /* Host to device FIS. */
 	fis[1] = 1 << 7;	 /* Command FIS. */
 	/* Command byte (read/write). */
