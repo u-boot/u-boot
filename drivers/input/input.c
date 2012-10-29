@@ -110,7 +110,7 @@ static struct {
 /* Maximum number of output characters that an ANSI sequence expands to */
 #define ANSI_CHAR_MAX	3
 
-int input_queue_ascii(struct input_config *config, int ch)
+static int input_queue_ascii(struct input_config *config, int ch)
 {
 	if (config->fifo_in + 1 == INPUT_BUFFER_LEN) {
 		if (!config->fifo_out)
