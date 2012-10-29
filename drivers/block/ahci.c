@@ -42,6 +42,14 @@ hd_driveid_t *ataid[AHCI_MAX_PORTS];
 
 #define writel_with_flush(a,b)	do { writel(a,b); readl(b); } while (0)
 
+/*
+ * Some controllers limit number of blocks they can read at once. Contemporary
+ * SSD devices work much faster if the read size is aligned to a power of 2.
+ * Let's set default to 128 and allowing to be overwritten if needed.
+ */
+#ifndef MAX_SATA_BLOCKS_READ
+#define MAX_SATA_BLOCKS_READ	0x80
+#endif
 
 static inline u32 ahci_port_base(u32 base, u32 port)
 {
@@ -88,6 +96,8 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	int i, j;
 	volatile u8 *port_mmio;
 
+	debug("ahci_host_init: start\n");
+
 	cap_save = readl(mmio + HOST_CAP);
 	cap_save &= ((1 << 28) | (1 << 17));
 	cap_save |= (1 << 27);
@@ -128,6 +138,9 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 
 	debug("cap 0x%x  port_map 0x%x  n_ports %d\n",
 	      probe_ent->cap, probe_ent->port_map, probe_ent->n_ports);
+
+	if (probe_ent->n_ports > CONFIG_SYS_SCSI_MAX_SCSI_ID)
+		probe_ent->n_ports = CONFIG_SYS_SCSI_MAX_SCSI_ID;
 
 	for (i = 0; i < probe_ent->n_ports; i++) {
 		probe_ent->port[i].port_mmio = ahci_port_base((u32) mmio, i);
@@ -277,8 +290,8 @@ static int ahci_init_one(pci_dev_t pdev)
 	probe_ent->pio_mask = 0x1f;
 	probe_ent->udma_mask = 0x7f;	/*Fixme,assume to support UDMA6 */
 
-	probe_ent->mmio_base = (u32)pci_map_bar(pdev, AHCI_PCI_BAR,
-						PCI_REGION_MEM);
+	pci_read_config_dword(pdev, PCI_BASE_ADDRESS_5, &probe_ent->mmio_base);
+	debug("ahci mmio_base=0x%08x\n", probe_ent->mmio_base);
 
 	/* Take from kernel:
 	 * JMicron-specific fixup:
@@ -398,7 +411,7 @@ static int ahci_port_start(u8 port)
 	 * 32 bytes each in size
 	 */
 	pp->cmd_slot = (struct ahci_cmd_hdr *)mem;
-	debug("cmd_slot = %p\n", pp->cmd_slot);
+	debug("cmd_slot = 0x%x\n", (unsigned)pp->cmd_slot);
 	mem += (AHCI_CMD_SLOT_SZ + 224);
 
 	/*
@@ -561,42 +574,69 @@ static int ata_scsiop_inquiry(ccb *pccb)
  */
 static int ata_scsiop_read10(ccb * pccb)
 {
-	u32 len = 0;
+	u32 lba = 0;
+	u16 blocks = 0;
 	u8 fis[20];
+	u8 *user_buffer = pccb->pdata;
+	u32 user_buffer_size = pccb->datalen;
 
-	len = (((u32) pccb->cmd[7]) << 8) | ((u32) pccb->cmd[8]);
+	/* Retrieve the base LBA number from the ccb structure. */
+	memcpy(&lba, pccb->cmd + 2, sizeof(lba));
+	lba = be32_to_cpu(lba);
 
-	/* For 10-byte and 16-byte SCSI R/W commands, transfer
+	/*
+	 * And the number of blocks.
+	 *
+	 * For 10-byte and 16-byte SCSI R/W commands, transfer
 	 * length 0 means transfer 0 block of data.
 	 * However, for ATA R/W commands, sector count 0 means
 	 * 256 or 65536 sectors, not 0 sectors as in SCSI.
 	 *
 	 * WARNING: one or two older ATA drives treat 0 as 0...
 	 */
-	if (!len)
-		return 0;
+	blocks = (((u16)pccb->cmd[7]) << 8) | ((u16) pccb->cmd[8]);
+
+	debug("scsi_ahci: read %d blocks starting from lba 0x%x\n",
+	      (unsigned)lba, blocks);
+
+	/* Preset the FIS */
 	memset(fis, 0, 20);
+	fis[0] = 0x27;		 /* Host to device FIS. */
+	fis[1] = 1 << 7;	 /* Command FIS. */
+	fis[2] = ATA_CMD_RD_DMA; /* Command byte. */
 
-	/* Construct the FIS */
-	fis[0] = 0x27;		/* Host to device FIS. */
-	fis[1] = 1 << 7;	/* Command FIS. */
-	fis[2] = ATA_CMD_RD_DMA;	/* Command byte. */
+	while (blocks) {
+		u16 now_blocks; /* number of blocks per iteration */
+		u32 transfer_size; /* number of bytes per iteration */
 
-	/* LBA address, only support LBA28 in this driver */
-	fis[4] = pccb->cmd[5];
-	fis[5] = pccb->cmd[4];
-	fis[6] = pccb->cmd[3];
-	fis[7] = (pccb->cmd[2] & 0x0f) | 0xe0;
+		now_blocks = min(MAX_SATA_BLOCKS_READ, blocks);
 
-	/* Sector Count */
-	fis[12] = pccb->cmd[8];
-	fis[13] = pccb->cmd[7];
+		transfer_size = ATA_BLOCKSIZE * now_blocks;
+		if (transfer_size > user_buffer_size) {
+			printf("scsi_ahci: Error: buffer too small.\n");
+			return -EIO;
+		}
 
-	/* Read from ahci */
-	if (get_ahci_device_data(pccb->target, (u8 *) & fis, 20,
-				 pccb->pdata, pccb->datalen)) {
-		debug("scsi_ahci: SCSI READ10 command failure.\n");
-		return -EIO;
+		/* LBA address, only support LBA28 in this driver */
+		fis[4] = (lba >> 0) & 0xff;
+		fis[5] = (lba >> 8) & 0xff;
+		fis[6] = (lba >> 16) & 0xff;
+		fis[7] = ((lba >> 24) & 0xf) | 0xe0;
+
+		/* Block (sector) count */
+		fis[12] = (now_blocks >> 0) & 0xff;
+		fis[13] = (now_blocks >> 8) & 0xff;
+
+		/* Read from ahci */
+		if (get_ahci_device_data(pccb->target, (u8 *) &fis, sizeof(fis),
+					 user_buffer, user_buffer_size)) {
+			debug("scsi_ahci: SCSI READ10 command failure.\n");
+			return -EIO;
+		}
+		user_buffer += transfer_size;
+		user_buffer_size -= transfer_size;
+		blocks -= now_blocks;
+		lba += now_blocks;
 	}
 
 	return 0;
@@ -617,7 +657,7 @@ static int ata_scsiop_read_capacity10(ccb *pccb)
 		return -EPERM;
 	}
 
-	cap = le32_to_cpu(ataid[pccb->target]->lba_capacity);
+	cap = be32_to_cpu(ataid[pccb->target]->lba_capacity);
 	memcpy(pccb->pdata, &cap, sizeof(cap));
 
 	pccb->pdata[4] = pccb->pdata[5] = 0;
