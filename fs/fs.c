@@ -21,6 +21,8 @@
 #include <fat.h>
 #include <fs.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static block_dev_desc_t *fs_dev_desc;
 static disk_partition_t fs_partition;
 static int fs_type = FS_TYPE_ANY;
@@ -141,7 +143,7 @@ static inline void fs_close_ext(void)
 #define fs_read_ext fs_read_unsupported
 #endif
 
-static const struct {
+static struct {
 	int fstype;
 	int (*probe)(void);
 } fstypes[] = {
@@ -158,6 +160,15 @@ static const struct {
 int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 {
 	int part, i;
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	static int relocated;
+
+	if (!relocated) {
+		for (i = 0; i < ARRAY_SIZE(fstypes); i++)
+			fstypes[i].probe += gd->reloc_off;
+		relocated = 1;
+	}
+#endif
 
 	part = get_device_and_partition(ifname, dev_part_str, &fs_dev_desc,
 					&fs_partition, 1);
