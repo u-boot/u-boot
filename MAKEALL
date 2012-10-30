@@ -616,6 +616,13 @@ list_target() {
 donep="${LOG_DIR}/._done_"
 skipp="${LOG_DIR}/._skip_"
 
+build_target_killed() {
+	echo "Aborted $target build."
+	# Remove the logs for this board since it was aborted
+	rm -f ${LOG_DIR}/$target.MAKELOG ${LOG_DIR}/$target.ERR
+	exit
+}
+
 build_target() {
 	target=$1
 	build_idx=$2
@@ -628,6 +635,7 @@ build_target() {
 	if [ $BUILD_MANY == 1 ] ; then
 		output_dir="${OUTPUT_PREFIX}/${target}"
 		mkdir -p "${output_dir}"
+		trap build_target_killed TERM
 	else
 		output_dir="${OUTPUT_PREFIX}"
 	fi
@@ -646,6 +654,8 @@ build_target() {
 	fi
 
 	if [ $BUILD_MANY == 1 ] ; then
+		trap - TERM
+
 		${MAKE} -s tidy
 
 		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
@@ -727,7 +737,9 @@ build_targets() {
 			if [ $BUILD_MANY == 1 ] ; then
 				build_target ${t} ${TOTAL_CNT} &
 			else
+				CUR_TGT="${t}"
 				build_target ${t} ${TOTAL_CNT}
+				CUR_TGT=''
 			fi
 		fi
 
@@ -751,13 +763,20 @@ build_targets() {
 #-----------------------------------------------------------------------
 
 kill_children() {
-	kill -- "-$1"
+	local pgid=`ps -p $$ --no-headers -o "%r" | tr -d ' '`
+	local children=`pgrep -g $pgid | grep -v $$ | grep -v $pgid`
+
+	kill $children 2> /dev/null
+	wait $children 2> /dev/null
 
 	exit
 }
 
 print_stats() {
 	if [ "$ONLY_LIST" == 'y' ] ; then return ; fi
+
+	# Only count boards that completed
+	: $((TOTAL_CNT = `find ${skipp}* 2> /dev/null | wc -l`))
 
 	rm -f ${donep}* ${skipp}*
 
@@ -768,6 +787,9 @@ print_stats() {
 		WRN_LIST=`grep -riwL error ${OUTPUT_PREFIX}/ERR/`
 		WRN_LIST=`for f in $WRN_LIST ; do echo -n " $(basename $f)" ; done`
 		WRN_CNT=`echo $WRN_LIST | wc -w | awk '{print $1}'`
+	else
+		# Remove the logs for any board that was interrupted
+		rm -f ${LOG_DIR}/${CUR_TGT}.MAKELOG ${LOG_DIR}/${CUR_TGT}.ERR
 	fi
 
 	echo ""
@@ -782,7 +804,7 @@ print_stats() {
 	echo "----------------------------------------------------------"
 
 	if [ $BUILD_MANY == 1 ] ; then
-		kill_children $$ &
+		kill_children
 	fi
 
 	exit $RC
