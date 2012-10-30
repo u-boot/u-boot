@@ -495,9 +495,15 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		int field_width, int precision, int flags)
 {
+	/*
+	 * Being a boot loader, we explicitly allow pointers to
+	 * (physical) address null.
+	 */
+#if 0
 	if (!ptr)
 		return string(buf, end, "(null)", field_width, precision,
 			      flags);
+#endif
 
 #ifdef CONFIG_CMD_NET
 	switch (*fmt) {
