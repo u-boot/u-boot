@@ -35,7 +35,7 @@
 
 int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_FAT);
+	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_FAT, 16);
 }
 
 
@@ -48,7 +48,8 @@ U_BOOT_CMD(
 	"      'pos' gives the file position to start loading from.\n"
 	"      If 'pos' is omitted, 0 is used. 'pos' requires 'bytes'.\n"
 	"      'bytes' gives the size to load. If 'bytes' is 0 or omitted,\n"
-	"      the load stops on end of file."
+	"      the load stops on end of file.\n"
+	"      All numeric parameters are assumed to be hex."
 );
 
 int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

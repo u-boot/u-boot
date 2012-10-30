@@ -59,7 +59,7 @@
 int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,
 						char *const argv[])
 {
-	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_EXT);
+	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_EXT, 16);
 }
 
 int do_ext4_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -136,4 +136,5 @@ U_BOOT_CMD(ext4load, 6, 0, do_ext4_load,
 	   "load binary file from a Ext4 filesystem",
 	   "<interface> <dev[:part]> [addr] [filename] [bytes]\n"
 	   "    - load binary file 'filename' from 'dev' on 'interface'\n"
-	   "      to address 'addr' from ext4 filesystem");
+	   "      to address 'addr' from ext4 filesystem.\n"
+	   "      All numeric parameters are assumed to be hex.");
