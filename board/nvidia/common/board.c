@@ -151,7 +151,7 @@ int board_init(void)
 
 	power_det_init();
 
-#ifdef CONFIG_TEGRA_I2C
+#ifdef CONFIG_SYS_I2C_TEGRA
 #ifndef CONFIG_SYS_I2C_INIT_BOARD
 #error "You must define CONFIG_SYS_I2C_INIT_BOARD to use i2c on Nvidia boards"
 #endif
@@ -165,7 +165,7 @@ int board_init(void)
 		debug("Memory controller init failed: %d\n", err);
 #  endif
 # endif /* CONFIG_TEGRA_PMU */
-#endif /* CONFIG_TEGRA_I2C */
+#endif /* CONFIG_SYS_I2C_TEGRA */
 
 #ifdef CONFIG_USB_EHCI_TEGRA
 	pin_mux_usb();

@@ -165,8 +165,8 @@
 #endif
 
 /* remove I2C support */
-#ifdef CONFIG_TEGRA_I2C
-#undef CONFIG_TEGRA_I2C
+#ifdef CONFIG_SYS_I2C_TEGRA
+#undef CONFIG_SYS_I2C_TEGRA
 #endif
 #ifdef CONFIG_CMD_I2C
 #undef CONFIG_CMD_I2C
