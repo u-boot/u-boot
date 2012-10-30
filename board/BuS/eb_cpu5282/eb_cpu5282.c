@@ -35,18 +35,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_VIDEO
 unsigned long display_width;
 unsigned long display_height;
+#endif
 
 /*---------------------------------------------------------------------------*/
 
 int checkboard (void)
 {
-	puts ("Board: MCF-EV1 + MCF-EV23 (BuS Elektronik GmbH & Co. KG)\n");
+	puts("Board: EB+CPU5282 (BuS Elektronik GmbH & Co. KG)\n");
 #if (CONFIG_SYS_TEXT_BASE ==  CONFIG_SYS_INT_FLASH_BASE)
-	puts ("       Boot from Internal FLASH\n");
+	puts("       Boot from Internal FLASH\n");
 #endif
-
 	return 0;
 }
 
@@ -55,29 +56,39 @@ phys_size_t initdram (int board_type)
 	int size, i;
 
 	size = 0;
-	MCFSDRAMC_DCR = MCFSDRAMC_DCR_RTIM_6
-			| MCFSDRAMC_DCR_RC ((15 * CONFIG_SYS_CLK) >> 4);
+	MCFSDRAMC_DCR = MCFSDRAMC_DCR_RTIM_6 |
+			MCFSDRAMC_DCR_RC((15 * CONFIG_SYS_CLK / 1000000) >> 4);
+	asm (" nop");
 #ifdef CONFIG_SYS_SDRAM_BASE0
-
-	MCFSDRAMC_DACR0 = MCFSDRAMC_DACR_BASE (CONFIG_SYS_SDRAM_BASE0)
-			| MCFSDRAMC_DACR_CASL (1)
-			| MCFSDRAMC_DACR_CBM (3)
-			| MCFSDRAMC_DACR_PS_16;
+	MCFSDRAMC_DACR0 = MCFSDRAMC_DACR_BASE(CONFIG_SYS_SDRAM_BASE0)|
+		MCFSDRAMC_DACR_CASL(1) | MCFSDRAMC_DACR_CBM(3) |
+		MCFSDRAMC_DACR_PS_32;
+	asm (" nop");
 
 	MCFSDRAMC_DMR0 = MCFSDRAMC_DMR_BAM_16M | MCFSDRAMC_DMR_V;
+	asm (" nop");
 
 	MCFSDRAMC_DACR0 |= MCFSDRAMC_DACR_IP;
+	asm (" nop");
+	for (i = 0; i < 10; i++)
+		asm (" nop");
 
-	*(unsigned short *) (CONFIG_SYS_SDRAM_BASE0) = 0xA5A5;
+	*(unsigned long *)(CONFIG_SYS_SDRAM_BASE0) = 0xA5A5A5A5;
+	asm (" nop");
 	MCFSDRAMC_DACR0 |= MCFSDRAMC_DACR_RE;
+	asm (" nop");
+
 	for (i = 0; i < 2000; i++)
 		asm (" nop");
-	mbar_writeLong (MCFSDRAMC_DACR0,
-			mbar_readLong (MCFSDRAMC_DACR0) | MCFSDRAMC_DACR_IMRS);
-	*(unsigned int *) (CONFIG_SYS_SDRAM_BASE0 + 0x220) = 0xA5A5;
-	size += CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+
+	MCFSDRAMC_DACR0 |= MCFSDRAMC_DACR_IMRS;
+	asm (" nop");
+	/* write SDRAM mode register */
+	*(unsigned long *)(CONFIG_SYS_SDRAM_BASE0 + 0x80440) = 0xA5A5A5A5;
+	asm (" nop");
+	size += CONFIG_SYS_SDRAM_SIZE0 * 1024 * 1024;
 #endif
-#ifdef CONFIG_SYS_SDRAM_BASE1
+#ifdef CONFIG_SYS_SDRAM_BASE1xx
 	MCFSDRAMC_DACR1 = MCFSDRAMC_DACR_BASE (CONFIG_SYS_SDRAM_BASE1)
 			| MCFSDRAMC_DACR_CASL (1)
 			| MCFSDRAMC_DACR_CBM (3)
@@ -134,38 +145,74 @@ int testdram (void)
 }
 #endif
 
+#if defined(CONFIG_HW_WATCHDOG)
+
+void hw_watchdog_init(void)
+{
+	char *s;
+	int enable;
+
+	enable = 1;
+	s = getenv("watchdog");
+	if (s != NULL)
+		if ((strncmp(s, "off", 3) == 0) || (strncmp(s, "0", 1) == 0))
+			enable = 0;
+	if (enable)
+		MCFGPTA_GPTDDR  |= (1<<2);
+	else
+		MCFGPTA_GPTDDR  &= ~(1<<2);
+}
+
+void hw_watchdog_reset(void)
+{
+	MCFGPTA_GPTPORT  ^= (1<<2);
+}
+#endif
+
 int misc_init_r(void)
 {
 #ifdef	CONFIG_HW_WATCHDOG
 	hw_watchdog_init();
 #endif
-#ifndef CONFIG_VIDEO
-	vcxk_init(16, 16);
-#endif
 	return 1;
+}
+
+void __led_toggle(led_id_t mask)
+{
+	MCFGPTA_GPTPORT ^= (1 << 3);
+}
+
+void __led_init(led_id_t mask, int state)
+{
+	__led_set(mask, state);
+	MCFGPTA_GPTDDR  |= (1 << 3);
+}
+
+void __led_set(led_id_t mask, int state)
+{
+	if (state == STATUS_LED_ON)
+		MCFGPTA_GPTPORT |= (1 << 3);
+	else
+		MCFGPTA_GPTPORT &= ~(1 << 3);
 }
 
 #if defined(CONFIG_VIDEO)
 
-/*
- ****h* EB+CPU5282-T1/drv_video_init
- * FUNCTION
- ***
- */
-
 int drv_video_init(void)
 {
 	char *s;
+#ifdef CONFIG_SPLASH_SCREEN
 	unsigned long splash;
-
+#endif
 	printf("Init Video as ");
-
-	if ((s = getenv("displaywidth")) != NULL)
+	s = getenv("displaywidth");
+	if (s != NULL)
 		display_width = simple_strtoul(s, NULL, 10);
 	else
 		display_width = 256;
 
-	if ((s = getenv("displayheight")) != NULL)
+	s = getenv("displayheight");
+	if (s != NULL)
 		display_height = simple_strtoul(s, NULL, 10);
 	else
 		display_height = 256;
@@ -178,10 +225,9 @@ int drv_video_init(void)
 	vcxk_init(display_width, display_height);
 
 #ifdef CONFIG_SPLASH_SCREEN
-	if ((s = getenv("splashimage")) != NULL) {
-		debug("use splashimage: %s\n", s);
+	s = getenv("splashimage");
+	if (s != NULL) {
 		splash = simple_strtoul(s, NULL, 16);
-		debug("use splashimage: %x\n", splash);
 		vcxk_acknowledge_wait();
 		video_display_bitmap(splash, 0, 0);
 	}
