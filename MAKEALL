@@ -20,6 +20,8 @@ usage()
 	  -m,        --maintainers     List all targets and maintainer email
 	  -M,        --mails           List all targets and all affilated emails
 	  -C,        --check           Enable build checking
+	  -n,        --continue        Continue (skip boards already built)
+	  -r,        --rebuild-errors  Rebuild any boards that errored
 	  -h,        --help            This help output
 
 	Selections by these options are logically ANDed; if the same option
@@ -52,8 +54,8 @@ usage()
 	exit ${ret}
 }
 
-SHORT_OPTS="ha:c:v:s:lmMC"
-LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list,maintainers,mails,check"
+SHORT_OPTS="ha:c:v:s:lmMCnr"
+LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list,maintainers,mails,check,continue,rebuild-errors"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
@@ -73,6 +75,8 @@ SELECTED=''
 ONLY_LIST=''
 PRINT_MAINTS=''
 MAINTAINERS_ONLY=''
+CONTINUE=''
+REBUILD_ERRORS=''
 
 while true ; do
 	case "$1" in
@@ -114,6 +118,12 @@ while true ; do
 		shift 2 ;;
 	-C|--check)
 		CHECK='C=1'
+		shift ;;
+	-n|--continue)
+		CONTINUE='y'
+		shift ;;
+	-r|--rebuild-errors)
+		REBUILD_ERRORS='y'
 		shift ;;
 	-l|--list)
 		ONLY_LIST='y'
@@ -198,7 +208,9 @@ fi
 OUTPUT_PREFIX="${BUILD_DIR}"
 
 [ -d ${LOG_DIR} ] || mkdir "${LOG_DIR}" || exit 1
-find "${LOG_DIR}/" -type f -exec rm -f {} +
+if [ "$CONTINUE" != 'y' -a "$REBUILD_ERRORS" != 'y' ] ; then
+	find "${LOG_DIR}/" -type f -exec rm -f {} +
+fi
 
 LIST=""
 
@@ -208,6 +220,7 @@ ERR_LIST=""
 WRN_CNT=0
 WRN_LIST=""
 TOTAL_CNT=0
+SKIP_CNT=0
 CURRENT_CNT=0
 OLDEST_IDX=1
 RC=0
@@ -734,12 +747,20 @@ build_targets() {
 			: $((CURRENT_CNT += 1))
 			rm -f "${donep}${TOTAL_CNT}"
 			rm -f "${skipp}${TOTAL_CNT}"
-			if [ $BUILD_MANY == 1 ] ; then
-				build_target ${t} ${TOTAL_CNT} &
+			if [ "$CONTINUE" = 'y' -a -e ${LOG_DIR}/$t.MAKELOG ] ; then
+				: $((SKIP_CNT += 1))
+				touch "${donep}${TOTAL_CNT}"
+			elif [ "$REBUILD_ERRORS" = 'y' -a ! -e ${LOG_DIR}/$t.ERR ] ; then
+				: $((SKIP_CNT += 1))
+				touch "${donep}${TOTAL_CNT}"
 			else
-				CUR_TGT="${t}"
-				build_target ${t} ${TOTAL_CNT}
-				CUR_TGT=''
+				if [ $BUILD_MANY == 1 ] ; then
+					build_target ${t} ${TOTAL_CNT} &
+				else
+					CUR_TGT="${t}"
+					build_target ${t} ${TOTAL_CNT}
+					CUR_TGT=''
+				fi
 			fi
 		fi
 
@@ -792,8 +813,12 @@ print_stats() {
 		rm -f ${LOG_DIR}/${CUR_TGT}.MAKELOG ${LOG_DIR}/${CUR_TGT}.ERR
 	fi
 
+	: $((TOTAL_CNT -= ${SKIP_CNT}))
 	echo ""
 	echo "--------------------- SUMMARY ----------------------------"
+	if [ "$CONTINUE" = 'y' -o "$REBUILD_ERRORS" = 'y' ] ; then
+		echo "Boards skipped: ${SKIP_CNT}"
+	fi
 	echo "Boards compiled: ${TOTAL_CNT}"
 	if [ ${ERR_CNT} -gt 0 ] ; then
 		echo "Boards with errors: ${ERR_CNT} (${ERR_LIST} )"
