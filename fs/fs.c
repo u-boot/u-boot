@@ -258,10 +258,12 @@ int do_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	int len_read;
 	char buf[12];
 
-	if (argc < 5)
+	if (argc < 2)
+		return CMD_RET_USAGE;
+	if (argc > 7)
 		return CMD_RET_USAGE;
 
-	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+	if (fs_set_blk_dev(argv[1], (argc >= 3) ? argv[2] : NULL, fstype))
 		return 1;
 
 	if (argc >= 4) {
@@ -308,11 +310,13 @@ int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;
+	if (argc > 4)
+		return CMD_RET_USAGE;
 
 	if (fs_set_blk_dev(argv[1], (argc >= 3) ? argv[2] : NULL, fstype))
 		return 1;
 
-	if (fs_ls(argc == 4 ? argv[3] : "/"))
+	if (fs_ls(argc >= 4 ? argv[3] : "/"))
 		return 1;
 
 	return 0;
