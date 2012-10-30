@@ -94,6 +94,9 @@ static void lcd_setbgcolor(int color);
 
 char lcd_is_enabled = 0;
 
+static char lcd_flush_dcache;	/* 1 to flush dcache after each lcd update */
+
+
 #ifdef	NOT_USED_SO_FAR
 static void lcd_getcolreg(ushort regno,
 				ushort *red, ushort *green, ushort *blue);
@@ -101,6 +104,28 @@ static int lcd_getfgcolor(void);
 #endif	/* NOT_USED_SO_FAR */
 
 /************************************************************************/
+
+/* Flush LCD activity to the caches */
+void lcd_sync(void)
+{
+	/*
+	 * flush_dcache_range() is declared in common.h but it seems that some
+	 * architectures do not actually implement it. Is there a way to find
+	 * out whether it exists? For now, ARM is safe.
+	 */
+#if defined(CONFIG_ARM) && !defined(CONFIG_SYS_DCACHE_OFF)
+	int line_length;
+
+	if (lcd_flush_dcache)
+		flush_dcache_range((u32)lcd_base,
+			(u32)(lcd_base + lcd_get_size(&line_length)));
+#endif
+}
+
+void lcd_set_flush_dcache(int flush)
+{
+	lcd_flush_dcache = (flush != 0);
+}
 
 /*----------------------------------------------------------------------*/
 
@@ -111,6 +136,7 @@ static void console_scrollup(void)
 
 	/* Clear the last one */
 	memset(CONSOLE_ROW_LAST, COLOR_MASK(lcd_color_bg), CONSOLE_ROW_SIZE);
+	lcd_sync();
 }
 
 /*----------------------------------------------------------------------*/
@@ -140,6 +166,8 @@ static inline void console_newline(void)
 		/* Scroll everything up */
 		console_scrollup();
 		--console_row;
+	} else {
+		lcd_sync();
 	}
 }
 
@@ -195,6 +223,7 @@ void lcd_puts(const char *s)
 	while (*s) {
 		lcd_putc(*s++);
 	}
+	lcd_sync();
 }
 
 /*----------------------------------------------------------------------*/
@@ -362,13 +391,6 @@ int drv_lcd_init (void)
 }
 
 /*----------------------------------------------------------------------*/
-static
-int do_lcd_clear(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
-{
-	lcd_clear();
-	return 0;
-}
-
 void lcd_clear(void)
 {
 #if LCD_BPP == LCD_MONOCHROME
@@ -410,6 +432,14 @@ void lcd_clear(void)
 
 	console_col = 0;
 	console_row = 0;
+	lcd_sync();
+}
+
+static int do_lcd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	lcd_clear();
+	return 0;
 }
 
 U_BOOT_CMD(
@@ -621,6 +651,7 @@ void bitmap_plot(int x, int y)
 	}
 
 	WATCHDOG_RESET();
+	lcd_sync();
 }
 #else
 static inline void bitmap_plot(int x, int y) {}
@@ -842,6 +873,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		break;
 	};
 
+	lcd_sync();
 	return 0;
 }
 #endif
