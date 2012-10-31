@@ -52,28 +52,6 @@ const char *fdtdec_get_compatible(enum fdt_compat_id id)
 	return compat_names[id];
 }
 
-/**
- * Look in the FDT for an alias with the given name and return its node.
- *
- * @param blob	FDT blob
- * @param name	alias name to look up
- * @return node offset if found, or an error code < 0 otherwise
- */
-static int find_alias_node(const void *blob, const char *name)
-{
-	const char *path;
-	int alias_node;
-
-	debug("find_alias_node: %s\n", name);
-	alias_node = fdt_path_offset(blob, "/aliases");
-	if (alias_node < 0)
-		return alias_node;
-	path = fdt_getprop(blob, alias_node, name, NULL);
-	if (!path)
-		return -FDT_ERR_NOTFOUND;
-	return fdt_path_offset(blob, path);
-}
-
 fdt_addr_t fdtdec_get_addr(const void *blob, int node,
 		const char *prop_name)
 {
@@ -184,7 +162,7 @@ int fdtdec_next_alias(const void *blob, const char *name,
 	/* snprintf() is not available */
 	assert(strlen(name) < MAX_STR_LEN);
 	sprintf(str, "%.*s%d", MAX_STR_LEN, name, *upto);
-	node = find_alias_node(blob, str);
+	node = fdt_path_offset(blob, str);
 	if (node < 0)
 		return node;
 	err = fdt_node_check_compatible(blob, node, compat_names[id]);
