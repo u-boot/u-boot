@@ -35,7 +35,7 @@
 
 int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_FAT, 16);
+	return do_load(cmdtp, flag, argc, argv, FS_TYPE_FAT, 16);
 }
 
 

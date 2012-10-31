@@ -57,7 +57,7 @@ int fs_read(const char *filename, ulong addr, int offset, int len);
  * Common implementation for various filesystem commands, optionally limited
  * to a specific filesystem type via the fstype parameter.
  */
-int do_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype, int cmdline_base);
 int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);

@@ -247,7 +247,7 @@ int fs_read(const char *filename, ulong addr, int offset, int len)
 	return ret;
 }
 
-int do_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype, int cmdline_base)
 {
 	unsigned long addr;

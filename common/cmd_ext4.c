@@ -59,7 +59,7 @@
 int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,
 						char *const argv[])
 {
-	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_EXT, 16);
+	return do_load(cmdtp, flag, argc, argv, FS_TYPE_EXT, 16);
 }
 
 int do_ext4_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])

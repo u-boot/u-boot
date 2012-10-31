@@ -49,7 +49,7 @@ int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return do_fsload(cmdtp, flag, argc, argv, FS_TYPE_EXT, 16);
+	return do_load(cmdtp, flag, argc, argv, FS_TYPE_EXT, 16);
 }
 
 U_BOOT_CMD(
