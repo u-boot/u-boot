@@ -451,7 +451,7 @@
 	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage \0"		\
 	"kernel_addr_r=80600000\0"					\
 	"load_kernel=tftp ${kernel_addr_r} ${bootfile}\0"		\
-	"ubi_load_kernel=ubi part ubi 2048;ubifsmount ${img_volume};"	\
+	"ubi_load_kernel=ubi part ubi 2048;ubifsmount ubi:${img_volume};" \
 		"ubifsload ${kernel_addr_r} boot/uImage\0"		\
 	"fit_addr_r=" __stringify(CONFIG_BOARD_IMG_ADDR_R) "\0"		\
 	"img_addr_r=" __stringify(CONFIG_BOARD_IMG_ADDR_R) "\0"		\

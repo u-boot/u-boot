@@ -293,12 +293,12 @@
 		"bootm ${kernel_addr_r}\0"				\
 	"net_self_load=tftp ${kernel_addr_r} ${bootfile};"		\
 		"tftp ${ramdisk_addr_r} ${ramdisk_file};\0"		\
-	"nand_nand=ubi part nand0,${as};ubifsmount rootfs;"		\
+	"nand_nand=ubi part nand0,${as};ubifsmount ubi:rootfs;"		\
 		"ubifsload ${kernel_addr_r} /boot/uImage;"		\
 		"ubifsumount; run nandargs addip addtty "		\
 		"addmtd addmisc addmem;clrlogo;"			\
 		"bootm ${kernel_addr_r}\0"				\
-	"nand_nandrw=ubi part nand0,${as};ubifsmount rootfs;"		\
+	"nand_nandrw=ubi part nand0,${as};ubifsmount ubi:rootfs;"	\
 		"ubifsload ${kernel_addr_r} /boot/uImage;"		\
 		"ubifsumount; run nandrwargs addip addtty "		\
 		"addmtd addmisc addmem;clrlogo;"			\
@@ -309,7 +309,7 @@
 	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
 	"load_magic=if sf probe 0;then sf "				\
 		"read c0000000 0x10000 0x60000;fi\0"			\
-	"load_nand=ubi part nand0,${as};ubifsmount rootfs;"		\
+	"load_nand=ubi part nand0,${as};ubifsmount ubi:rootfs;"		\
 		"if ubifsload c0000014 /boot/u-boot.bin;"		\
 		"then mw c0000008 ${filesize};else echo Error reading"	\
 		" u-boot from nand!;fi\0"				\
