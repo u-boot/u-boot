@@ -24,6 +24,7 @@
 #include <command.h>
 #include <linux/compiler.h>
 #include <asm/processor.h>
+#include "fsl_corenet_serdes.h"
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004849
 /*
@@ -81,6 +82,49 @@ static void check_erratum_a4849(uint32_t svr)
 	/* Everything matches, so the erratum work-around was applied */
 
 	printf("Work-around for Erratum A004849 enabled\n");
+}
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004580
+/*
+ * This work-around is implemented in PBI, so just check to see if the
+ * work-around was actually applied.  To do this, we check for specific data
+ * at specific addresses in the SerDes register block.
+ *
+ * The work-around says that for each SerDes lane, write BnTTLCRy0 =
+ * 0x1B00_0001, Register 2 = 0x0088_0000, and Register 3 = 0x4000_0000.
+
+ */
+static void check_erratum_a4580(uint32_t svr)
+{
+	const serdes_corenet_t __iomem *srds_regs =
+		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	unsigned int lane;
+
+	for (lane = 0; lane < SRDS_MAX_LANES; lane++) {
+		if (serdes_lane_enabled(lane)) {
+			const struct serdes_lane __iomem *srds_lane =
+				&srds_regs->lane[serdes_get_lane_idx(lane)];
+
+			/*
+			 * Verify that the values we were supposed to write in
+			 * the PBI are actually there.  Also, the lower 15
+			 * bits of res4[3] should be the same as the upper 15
+			 * bits of res4[1].
+			 */
+			if ((in_be32(&srds_lane->ttlcr0) != 0x1b000001) ||
+			    (in_be32(&srds_lane->res4[1]) != 0x880000) ||
+			    (in_be32(&srds_lane->res4[3]) != 0x40000044)) {
+				printf("Work-around for Erratum A004580 is "
+				       "not enabled\n");
+				return;
+			}
+		}
+	}
+
+	/* Everything matches, so the erratum work-around was applied */
+
+	printf("Work-around for Erratum A004580 enabled\n");
 }
 #endif
 
@@ -199,6 +243,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004849
 	/* This work-around is implemented in PBI, so just check for it */
 	check_erratum_a4849(svr);
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004580
+	/* This work-around is implemented in PBI, so just check for it */
+	check_erratum_a4580(svr);
 #endif
 	return 0;
 }

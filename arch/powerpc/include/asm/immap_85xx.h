@@ -2619,7 +2619,7 @@ typedef struct serdes_corenet {
 #define SRDS_PCCR2_RST_XGMII1		0x00800000
 #define SRDS_PCCR2_RST_XGMII2		0x00400000
 	u32	res5[197];
-	struct {
+	struct serdes_lane {
 		u32	gcr0;	/* General Control Register 0 */
 #define SRDS_GCR0_RRST			0x00400000
 #define SRDS_GCR0_1STLANE		0x00010000
