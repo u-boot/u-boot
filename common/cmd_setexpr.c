@@ -57,12 +57,22 @@ static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int w;
 
 	/* Validate arguments */
-	if ((argc != 5) || (strlen(argv[3]) != 1))
+	if (argc != 5 && argc != 3)
+		return CMD_RET_USAGE;
+	if (argc == 5 && strlen(argv[3]) != 1)
 		return CMD_RET_USAGE;
 
 	w = cmd_get_data_size(argv[0], 4);
 
 	a = get_arg(argv[2], w);
+
+	if (argc == 3) {
+		sprintf(buf, "%lx", a);
+		setenv(argv[1], buf);
+
+		return 0;
+	}
+
 	b = get_arg(argv[4], w);
 
 	switch (argv[3][0]) {
@@ -87,8 +97,11 @@ static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	setexpr, 5, 0, do_setexpr,
 	"set environment variable as the result of eval expression",
-	"[.b, .w, .l] name value1 <op> value2\n"
+	"[.b, .w, .l] name [*]value1 <op> [*]value2\n"
 	"    - set environment variable 'name' to the result of the evaluated\n"
 	"      express specified by <op>.  <op> can be &, |, ^, +, -, *, /, %\n"
-	"      size argument is only meaningful if value1 and/or value2 are memory addresses"
+	"      size argument is only meaningful if value1 and/or value2 are\n"
+	"      memory addresses (*)\n"
+	"setexpr[.b, .w, .l] name *value\n"
+	"    - load a memory address into a variable"
 );
