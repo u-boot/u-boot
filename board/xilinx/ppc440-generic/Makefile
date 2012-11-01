@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	= $(BOARD).o
+COBJS	= ppc440-generic.o
 SOBJS   = init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
