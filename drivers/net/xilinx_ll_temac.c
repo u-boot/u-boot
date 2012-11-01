@@ -295,7 +295,6 @@ static void phy_detection(struct eth_device *dev)
 static int xps_ll_temac_phy_ctrl(struct eth_device *dev)
 {
 #ifdef CONFIG_PHYLIB
-	int i;
 	unsigned int temp, speed;
 	struct ll_priv *priv = dev->priv;
 	struct phy_device *phydev;
@@ -475,7 +474,7 @@ static void xps_ll_temac_bd_init(struct eth_device *dev)
 }
 
 static int ll_temac_send_sdma(struct eth_device *dev,
-				volatile void *buffer, int length)
+				void *buffer, int length)
 {
 	struct ll_priv *priv = dev->priv;
 
@@ -555,7 +554,7 @@ static void debugll(struct eth_device *dev, int count)
 #endif
 
 static int ll_temac_send_fifo(struct eth_device *dev,
-					volatile void *buffer, int length)
+					void *buffer, int length)
 {
 	struct ll_priv *priv = dev->priv;
 	struct ll_fifo_s *ll_fifo = (void *)priv->ctrl;
