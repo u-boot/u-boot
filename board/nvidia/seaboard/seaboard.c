@@ -71,9 +71,8 @@ int board_mmc_init(bd_t *bd)
 	pin_mux_mmc();
 
 	debug("board_mmc_init: init eMMC\n");
-	/* init dev 0, eMMC chip, with 4-bit bus */
-	/* The board has an 8-bit bus, but 8-bit doesn't work yet */
-	tegra_mmc_init(0, 4, -1, -1);
+	/* init dev 0, eMMC chip, with 8-bit bus */
+	tegra_mmc_init(0, 8, -1, -1);
 
 	debug("board_mmc_init: init SD slot\n");
 	/* init dev 1, SD slot, with 4-bit bus */
