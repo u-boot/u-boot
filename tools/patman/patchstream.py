@@ -30,8 +30,8 @@ import gitutil
 from series import Series
 
 # Tags that we detect and remove
-re_remove = re.compile('^BUG=|^TEST=|^Change-Id:|^Review URL:'
-    '|Reviewed-on:|Reviewed-by:')
+re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Change-Id:|^Review URL:'
+    '|Reviewed-on:|Reviewed-by:|Commit-Ready:')
 
 # Lines which are allowed after a TEST= line
 re_allowed_after_test = re.compile('^Signed-off-by:')
