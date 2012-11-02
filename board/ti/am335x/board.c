@@ -68,6 +68,11 @@ static inline int board_is_evm_sk(void)
 	return !strncmp("A335X_SK", header.name, HDR_NAME_LEN);
 }
 
+static inline int board_is_idk(void)
+{
+	return !strncmp(header.config, "SKU#02", 6);
+}
+
 /*
  * Read header information from EEPROM into global structure.
  */
@@ -378,7 +383,7 @@ int board_eth_init(bd_t *bis)
 			return -1;
 	}
 
-	if (board_is_bone() || board_is_bone_lt()) {
+	if (board_is_bone() || board_is_bone_lt() || board_is_idk()) {
 		writel(MII_MODE_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
 				PHY_INTERFACE_MODE_MII;

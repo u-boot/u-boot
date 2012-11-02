@@ -69,6 +69,17 @@ static struct module_pin_mux mmc0_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux mmc0_no_cd_pin_mux[] = {
+	{OFFSET(mmc0_dat3), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT3 */
+	{OFFSET(mmc0_dat2), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT2 */
+	{OFFSET(mmc0_dat1), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT1 */
+	{OFFSET(mmc0_dat0), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT0 */
+	{OFFSET(mmc0_clk), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_CLK */
+	{OFFSET(mmc0_cmd), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_CMD */
+	{OFFSET(mcasp0_aclkr), (MODE(4) | RXACTIVE)},		/* MMC0_WP */
+	{-1},
+};
+
 static struct module_pin_mux mmc0_pin_mux_sk_evm[] = {
 	{OFFSET(mmc0_dat3), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT3 */
 	{OFFSET(mmc0_dat2), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT2 */
@@ -250,6 +261,15 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 			configure_module_pin_mux(mmc1_pin_mux);
 			configure_module_pin_mux(spi0_pin_mux);
 		}
+	} else if (!strncmp(header->config, "SKU#02", 6)) {
+		/*
+		 * Industrial Motor Control (IDK)
+		 * note: IDK console is on UART3 by default.
+		 *       So u-boot mus be build with CONFIG_SERIAL4 and
+		 *       CONFIG_CONS_INDEX=4
+		 */
+		configure_module_pin_mux(mii1_pin_mux);
+		configure_module_pin_mux(mmc0_no_cd_pin_mux);
 	} else if (!strncmp(header->name, "A335X_SK", HDR_NAME_LEN)) {
 		/* Starter Kit EVM */
 		configure_module_pin_mux(i2c1_pin_mux);
