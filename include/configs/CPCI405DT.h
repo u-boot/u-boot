@@ -196,7 +196,7 @@
 #define CONFIG_SYS_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
 #define CONFIG_SYS_PCI_PTM2LA  0xffc00000      /* point to flash               */
 #define CONFIG_SYS_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */
-#define CONFIG_SYS_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
+#define CONFIG_SYS_PCI_PTM2PCI (bd->bi_memsize) /* host use this pci address */
 
 #define CONFIG_PCI_4xx_PTM_OVERWRITE	1 /* overwrite PTMx settings by env */
 
