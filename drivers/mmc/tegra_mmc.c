@@ -547,10 +547,11 @@ int tegra_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 	mmc->getcd = tegra_mmc_getcd;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	mmc->host_caps = 0;
 	if (bus_width == 8)
-		mmc->host_caps = MMC_MODE_8BIT;
-	else
-		mmc->host_caps = MMC_MODE_4BIT;
+		mmc->host_caps |= MMC_MODE_8BIT;
+	if (bus_width >= 4)
+		mmc->host_caps |= MMC_MODE_4BIT;
 	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
 
 	/*
