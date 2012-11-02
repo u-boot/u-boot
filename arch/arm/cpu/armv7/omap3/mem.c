@@ -42,13 +42,6 @@ static const u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG5,
 	M_NAND_GPMC_CONFIG6, 0
 };
-
-#if defined(CONFIG_ENV_IS_IN_NAND)
-#define GPMC_CS 0
-#else
-#define GPMC_CS 1
-#endif
-
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
@@ -60,13 +53,6 @@ static const u32 gpmc_onenand[GPMC_MAX_REG] = {
 	ONENAND_GPMC_CONFIG5,
 	ONENAND_GPMC_CONFIG6, 0
 };
-
-#if defined(CONFIG_ENV_IS_IN_ONENAND)
-#define GPMC_CS 0
-#else
-#define GPMC_CS 1
-#endif
-
 #endif
 
 /********************************************************
