@@ -24,6 +24,7 @@
 #include <asm/io.h>
 #include <i2c.h>
 #include <netdev.h>
+#include <spi.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
@@ -66,6 +67,9 @@ int board_init(void)
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
 #if defined(CONFIG_PMIC)
 	pmic_init();
+#endif
+#ifdef CONFIG_EXYNOS_SPI
+	spi_init();
 #endif
 	return 0;
 }
