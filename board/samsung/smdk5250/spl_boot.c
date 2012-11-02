@@ -23,6 +23,16 @@
 #include<common.h>
 #include<config.h>
 
+enum boot_mode {
+	BOOT_MODE_MMC = 4,
+	BOOT_MODE_SERIAL = 20,
+	/* Boot based on Operating Mode pin settings */
+	BOOT_MODE_OM = 32,
+	BOOT_MODE_USB,	/* Boot using USB download */
+};
+
+	typedef u32 (*spi_copy_func_t)(u32 offset, u32 nblock, u32 dst);
+
 /*
 * Copy U-boot from mmc to RAM:
 * COPY_BL2_FNPTR_ADDR: Address in iRAM, which Contains
@@ -30,9 +40,26 @@
 */
 void copy_uboot_to_ram(void)
 {
-	u32 (*copy_bl2)(u32, u32, u32) = (void *) *(u32 *)COPY_BL2_FNPTR_ADDR;
+	spi_copy_func_t spi_copy;
+	enum boot_mode bootmode;
+	u32 (*copy_bl2)(u32, u32, u32);
 
-	copy_bl2(BL2_START_OFFSET, BL2_SIZE_BLOC_COUNT, CONFIG_SYS_TEXT_BASE);
+	bootmode = readl(EXYNOS5_POWER_BASE) & OM_STAT;
+
+	switch (bootmode) {
+	case BOOT_MODE_SERIAL:
+		spi_copy = *(spi_copy_func_t *)EXYNOS_COPY_SPI_FNPTR_ADDR;
+		spi_copy(SPI_FLASH_UBOOT_POS, CONFIG_BL2_SIZE,
+						CONFIG_SYS_TEXT_BASE);
+		break;
+	case BOOT_MODE_MMC:
+		copy_bl2 = (void *) *(u32 *)COPY_BL2_FNPTR_ADDR;
+		copy_bl2(BL2_START_OFFSET, BL2_SIZE_BLOC_COUNT,
+						CONFIG_SYS_TEXT_BASE);
+		break;
+	default:
+		break;
+	}
 }
 
 void board_init_f(unsigned long bootflag)
