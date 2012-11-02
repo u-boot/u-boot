@@ -38,11 +38,11 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	*((u32 volatile *)(CONFIG_SYS_GPIO_0_ADDR)) =
 	    ++(*((u32 volatile *)(CONFIG_SYS_GPIO_0_ADDR)));
 #endif
-#ifdef CONFIG_SYS_RESET_ADDRESS
+
 	puts ("Reseting board\n");
 	disable_interrupts();
 	asm ("bra r0");
-#endif
+
 	return 0;
 }
 
