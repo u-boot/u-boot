@@ -193,15 +193,6 @@ void set_bootcount_addr(void)
 
 int misc_init_r(void)
 {
-	char *str;
-	int mach_type;
-
-	str = getenv("mach_type");
-	if (str != NULL) {
-		mach_type = simple_strtoul(str, NULL, 10);
-		printf("Overwriting MACH_TYPE with %d!!!\n", mach_type);
-		gd->bd->bi_arch_number = mach_type;
-	}
 #if defined(CONFIG_KM_MGCOGE3UN)
 	char *wait_for_ne;
 	wait_for_ne = getenv("waitforne");
@@ -258,11 +249,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/*
-	 * arch number of board
-	 */
-	gd->bd->bi_arch_number = MACH_TYPE_KM_KIRKWOOD;
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
 
