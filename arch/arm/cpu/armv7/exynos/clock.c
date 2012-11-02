@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>
+#include <asm/arch/periph.h>
 
 /* Epll Clock division values to achive different frequency output */
 static struct set_epll_con_val exynos5_epll_div[] = {
@@ -804,6 +805,122 @@ int exynos5_set_i2s_clk_prescaler(unsigned int src_frq,
 	return 0;
 }
 
+/**
+ * Linearly searches for the most accurate main and fine stage clock scalars
+ * (divisors) for a specified target frequency and scalar bit sizes by checking
+ * all multiples of main_scalar_bits values. Will always return scalars up to or
+ * slower than target.
+ *
+ * @param main_scalar_bits	Number of main scalar bits, must be > 0 and < 32
+ * @param fine_scalar_bits	Number of fine scalar bits, must be > 0 and < 32
+ * @param input_freq		Clock frequency to be scaled in Hz
+ * @param target_freq		Desired clock frequency in Hz
+ * @param best_fine_scalar	Pointer to store the fine stage divisor
+ *
+ * @return best_main_scalar	Main scalar for desired frequency or -1 if none
+ * found
+ */
+static int clock_calc_best_scalar(unsigned int main_scaler_bits,
+	unsigned int fine_scalar_bits, unsigned int input_rate,
+	unsigned int target_rate, unsigned int *best_fine_scalar)
+{
+	int i;
+	int best_main_scalar = -1;
+	unsigned int best_error = target_rate;
+	const unsigned int cap = (1 << fine_scalar_bits) - 1;
+	const unsigned int loops = 1 << main_scaler_bits;
+
+	debug("Input Rate is %u, Target is %u, Cap is %u\n", input_rate,
+			target_rate, cap);
+
+	assert(best_fine_scalar != NULL);
+	assert(main_scaler_bits <= fine_scalar_bits);
+
+	*best_fine_scalar = 1;
+
+	if (input_rate == 0 || target_rate == 0)
+		return -1;
+
+	if (target_rate >= input_rate)
+		return 1;
+
+	for (i = 1; i <= loops; i++) {
+		const unsigned int effective_div = max(min(input_rate / i /
+							target_rate, cap), 1);
+		const unsigned int effective_rate = input_rate / i /
+							effective_div;
+		const int error = target_rate - effective_rate;
+
+		debug("%d|effdiv:%u, effrate:%u, error:%d\n", i, effective_div,
+				effective_rate, error);
+
+		if (error >= 0 && error <= best_error) {
+			best_error = error;
+			best_main_scalar = i;
+			*best_fine_scalar = effective_div;
+		}
+	}
+
+	return best_main_scalar;
+}
+
+static int exynos5_set_spi_clk(enum periph_id periph_id,
+					unsigned int rate)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+	int main;
+	unsigned int fine;
+	unsigned shift, pre_shift;
+	unsigned mask = 0xff;
+	u32 *reg;
+
+	main = clock_calc_best_scalar(4, 8, 400000000, rate, &fine);
+	if (main < 0) {
+		debug("%s: Cannot set clock rate for periph %d",
+				__func__, periph_id);
+		return -1;
+	}
+	main = main - 1;
+	fine = fine - 1;
+
+	switch (periph_id) {
+	case PERIPH_ID_SPI0:
+		reg = &clk->div_peric1;
+		shift = 0;
+		pre_shift = 8;
+		break;
+	case PERIPH_ID_SPI1:
+		reg = &clk->div_peric1;
+		shift = 16;
+		pre_shift = 24;
+		break;
+	case PERIPH_ID_SPI2:
+		reg = &clk->div_peric2;
+		shift = 0;
+		pre_shift = 8;
+		break;
+	case PERIPH_ID_SPI3:
+		reg = &clk->sclk_div_isp;
+		shift = 0;
+		pre_shift = 4;
+		break;
+	case PERIPH_ID_SPI4:
+		reg = &clk->sclk_div_isp;
+		shift = 12;
+		pre_shift = 16;
+		break;
+	default:
+		debug("%s: Unsupported peripheral ID %d\n", __func__,
+		      periph_id);
+		return -1;
+	}
+	clrsetbits_le32(reg, mask << shift, (main & mask) << shift);
+	clrsetbits_le32(reg, mask << pre_shift, (fine & mask) << pre_shift);
+
+	return 0;
+}
+
 unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5())
@@ -874,6 +991,14 @@ void set_mipi_clk(void)
 {
 	if (cpu_is_exynos4())
 		exynos4_set_mipi_clk();
+}
+
+int set_spi_clk(int periph_id, unsigned int rate)
+{
+	if (cpu_is_exynos5())
+		return exynos5_set_spi_clk(periph_id, rate);
+	else
+		return 0;
 }
 
 int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq)
