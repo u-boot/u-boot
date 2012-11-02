@@ -38,10 +38,10 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)) =
 	    ++(*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)));
 #endif
-#ifdef CONFIG_SYS_RESET_ADDRESS
+
 	puts ("Reseting board\n");
 	asm ("bra r0");
-#endif
+
 	return 0;
 }
 
