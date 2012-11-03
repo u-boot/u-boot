@@ -154,6 +154,9 @@ init_fnc_t *init_sequence_r[] = {
 #ifndef CONFIG_SYS_NO_FLASH
 	flash_init_r,
 #endif
+#ifdef CONFIG_SPI
+	init_func_spi;
+#endif
 	env_relocate_r,
 #ifdef CONFIG_PCI
 	pci_init_r,

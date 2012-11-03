@@ -28,6 +28,7 @@
 #include <net.h>
 #include <ide.h>
 #include <serial.h>
+#include <spi.h>
 #include <status_led.h>
 #include <asm/processor.h>
 #include <asm/u-boot-x86.h>
@@ -158,5 +159,13 @@ int set_load_addr_r(void)
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
+	return 0;
+}
+
+int init_func_spi(void)
+{
+	puts("SPI:   ");
+	spi_init();
+	puts("ready\n");
 	return 0;
 }
