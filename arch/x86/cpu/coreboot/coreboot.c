@@ -35,8 +35,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
-
 /*
  * Miscellaneous platform dependent initializations
  */
@@ -93,7 +91,6 @@ void show_boot_progress(int val)
 	outb(val, 0x80);
 }
 
-
 int last_stage_init(void)
 {
 	return 0;
@@ -109,10 +106,6 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 int board_eth_init(bd_t *bis)
 {
 	return pci_eth_init(bis);
-}
-
-void setup_pcat_compatibility()
-{
 }
 
 #define MTRR_TYPE_WP          5
