@@ -55,8 +55,16 @@ _x86boot_start:
 	movl	%eax, %cr0
 	wbinvd
 
+	/* Tell 32-bit code it is being entered from an in-RAM copy */
+	movw	$GD_FLG_WARM_BOOT, %bx
+	jmp	1f
 _start:
-	/* This is the 32-bit cold-reset entry point */
+	/*
+	 * This is the 32-bit cold-reset entry point. Initialize %bx to 0
+	 * in case we're preceeded by some sort of boot stub.
+	 */
+	movw	$GD_FLG_COLD_BOOT, %bx
+1:
 
 	/* Load the segement registes to match the gdt loaded in start16.S */
 	movl	$(X86_GDT_ENTRY_32BIT_DS * X86_GDT_ENTRY_SIZE), %eax
