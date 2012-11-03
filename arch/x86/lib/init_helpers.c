@@ -32,6 +32,7 @@
 #include <status_led.h>
 #include <asm/processor.h>
 #include <asm/u-boot-x86.h>
+#include <linux/compiler.h>
 
 #include <asm/init_helpers.h>
 
@@ -72,7 +73,7 @@ int init_baudrate_f(void)
 	return 0;
 }
 
-int calculate_relocation_address(void)
+__weak int calculate_relocation_address(void)
 {
 	ulong text_start = (ulong)&__text_start;
 	ulong bss_end = (ulong)&__bss_end;
