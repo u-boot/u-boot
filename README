@@ -661,6 +661,10 @@ The following options need to be configured:
 						additional board info beside
 						the logo
 
+		When CONFIG_CFB_CONSOLE_ANSI is defined, console will support
+		a limited number of ANSI escape sequences (cursor control,
+		erase functions and limited graphics rendition control).
+
 		When CONFIG_CFB_CONSOLE is defined, video console is
 		default i/o. Serial console can be forced with
 		environment 'console=serial'.

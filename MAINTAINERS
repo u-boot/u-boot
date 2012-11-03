@@ -571,6 +571,10 @@ Albert ARIBAUD <albert.u.boot@aribaud.net>
 
 	edminiv2	ARM926EJS (Orion5x SoC)
 
+Raphael Assenat <raph@8d.com>
+
+	eco5pk		ARM ARMV7 (AM35x SoC)
+
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
@@ -1014,6 +1018,10 @@ Tetsuyuki Kobayashi <koba@kmckk.co.jp>
 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 
 	armadillo-800eva	R8A7740 (RMOBILE SoC)
+
+Pali Rohár <pali.rohar@gmail.com>
+
+	nokia_rx51	ARM ARMV7 (OMAP34xx SoC)
 
 -------------------------------------------------------------------------
 
