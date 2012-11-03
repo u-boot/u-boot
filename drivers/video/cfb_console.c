@@ -2293,6 +2293,8 @@ int video_get_screen_columns(void)
 
 void video_clear(void)
 {
+	if (!video_fb_address)
+		return;
 #ifdef VIDEO_HW_RECTFILL
 	video_hw_rectfill(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
 			  0,			/* dest pos x */
