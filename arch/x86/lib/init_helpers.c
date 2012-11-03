@@ -86,14 +86,15 @@ int calculate_relocation_address(void)
 
 	/* Stack is at top of available memory */
 	dest_addr = gd->ram_size;
-	gd->start_addr_sp = dest_addr;
 
-	/* U-Boot is below the stack */
-	dest_addr -= CONFIG_SYS_STACK_SIZE;
+	/* U-Boot is at the top */
 	dest_addr -= (bss_end - text_start);
 	dest_addr &= ~15;
 	gd->relocaddr = dest_addr;
 	gd->reloc_off = (dest_addr - text_start);
+
+	/* Stack is at the bottom, so it can grow down */
+	gd->start_addr_sp = dest_addr - CONFIG_SYS_MALLOC_LEN;
 
 	return 0;
 }
