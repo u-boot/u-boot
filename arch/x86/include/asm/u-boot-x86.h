@@ -63,7 +63,6 @@ u32 isa_map_rom(u32 bus_addr, int size);
 
 /* arch/x86/lib/... */
 int video_bios_init(void);
-int video_init(void);
 
 void	board_init_f_r_trampoline(ulong) __attribute__ ((noreturn));
 void	board_init_f_r(void) __attribute__ ((noreturn));
