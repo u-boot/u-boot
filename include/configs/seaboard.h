@@ -121,7 +121,4 @@
 
 /* Max number of NAND devices */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-
-/* Somewhat oddly, the NAND base address must be a config option */
-#define CONFIG_SYS_NAND_BASE	NV_PA_NAND_BASE
 #endif /* __CONFIG_H */

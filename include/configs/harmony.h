@@ -65,7 +65,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_TEGRA_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE	NV_PA_NAND_BASE
 
 /* Environment in NAND (which is 512M), aligned to start of last sector */
 #define CONFIG_ENV_IS_IN_NAND
