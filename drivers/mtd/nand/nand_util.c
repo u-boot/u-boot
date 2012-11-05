@@ -80,8 +80,8 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	struct mtd_oob_ops oob_opts;
 	struct nand_chip *chip = meminfo->priv;
 
-	if ((opts->offset & (meminfo->writesize - 1)) != 0) {
-		printf("Attempt to erase non page-aligned data\n");
+	if ((opts->offset & (meminfo->erasesize - 1)) != 0) {
+		printf("Attempt to erase non block-aligned data\n");
 		return -1;
 	}
 
