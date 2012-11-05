@@ -113,12 +113,13 @@
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define CONFIG_CONSOLE_SCROLL_LINES	10
 
-#include "tegra-common-post.h"
-
 /* NAND support */
 #define CONFIG_CMD_NAND
 #define CONFIG_TEGRA_NAND
 
 /* Max number of NAND devices */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
+
+#include "tegra-common-post.h"
+
 #endif /* __CONFIG_H */
