@@ -34,6 +34,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/bootm.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -269,6 +270,8 @@ static int create_fdt(bootm_headers_t *images)
 }
 #endif
 
+__weak void setup_board_tags(struct tag **in_params) {}
+
 /* Subcommand: PREP */
 static void boot_prep_linux(bootm_headers_t *images)
 {
@@ -310,6 +313,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 			setup_initrd_tag(gd->bd, images->rd_start,
 			images->rd_end);
 #endif
+		setup_board_tags(&params);
 		setup_end_tag(gd->bd);
 #else /* all tags */
 		printf("FDT and ATAGS support not compiled in - hanging\n");

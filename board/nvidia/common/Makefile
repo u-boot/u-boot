@@ -25,9 +25,7 @@ endif
 
 LIB	= $(obj)lib$(VENDOR).o
 
-COBJS-y += board.o
-COBJS-$(CONFIG_SPI_UART_SWITCH) += uart-spi-switch.o
-COBJS-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
+include common.mk
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)

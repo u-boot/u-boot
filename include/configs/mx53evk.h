@@ -73,7 +73,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
-#define CONFIG_HAS_ETH1
 #define CONFIG_MII
 
 #define CONFIG_FEC_MXC

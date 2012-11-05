@@ -2,7 +2,7 @@
  * Copyright (C) 2009, DENX Software Engineering
  * Author: John Rigby <jcrigby@gmail.com
  *
- *   Based on arch-mx31/mx31-regs.h
+ *   Based on arch-mx31/imx-regs.h
  *	Copyright (C) 2009 Ilya Yanok,
  *		Emcraft Systems <yanok@emcraft.com>
  *   and arch-mx27/imx-regs.h
@@ -33,8 +33,7 @@
 #ifndef _IMX_REGS_H
 #define _IMX_REGS_H
 
-#ifndef __ASSEMBLY__
-
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
 #ifdef CONFIG_FEC_MXC
@@ -254,6 +253,7 @@ struct aips_regs {
 
 /* 128K Internal Static RAM */
 #define IMX_RAM_BASE		(0x78000000)
+#define IMX_RAM_SIZE		(128 * 1024)
 
 /* SDRAM BANKS */
 #define IMX_SDRAM_BANK0_BASE	(0x80000000)

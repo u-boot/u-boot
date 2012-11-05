@@ -22,47 +22,6 @@
  */
 
 #include <config.h>
-#include <asm-offsets.h>
-#include <asm/arch/imx-regs.h>
-#include <generated/asm-offsets.h>
-
-/*
- * Configuration for the flea3 board.
- * These defines are used by the included macros and must
- * be defined first
- */
-#define AIPS_MPR_CONFIG		0x77777777
-#define AIPS_OPACR_CONFIG	0x00000000
-
-/* MPR - priority is M4 > M2 > M3 > M5 > M0 > M1 */
-#define MAX_MPR_CONFIG		0x00302154
-
-/* SGPCR - always park on last master */
-#define MAX_SGPCR_CONFIG	0x00000010
-
-/* MGPCR - restore default values */
-#define MAX_MGPCR_CONFIG	0x00000000
-
-/*
- * M3IF Control Register (M3IFCTL)
- * MRRP[0] = L2CC0 not on priority list (0 << 0) = 0x00000000
- * MRRP[1] = L2CC1 not on priority list (0 << 0) = 0x00000000
- * MRRP[2] = MBX not on priority list (0 << 0)   = 0x00000000
- * MRRP[3] = MAX1 not on priority list (0 << 0)  = 0x00000000
- * MRRP[4] = SDMA not on priority list (0 << 0)  = 0x00000000
- * MRRP[5] = MPEG4 not on priority list (0 << 0) = 0x00000000
- * MRRP[6] = IPU1 on priority list (1 << 6)      = 0x00000040
- * MRRP[7] = IPU2 not on priority list (0 << 0)  = 0x00000000
- *                                               ------------
- *                                                 0x00000040
- */
-#define M3IF_CONFIG		0x00000040
-
-#define CCM_PDR0_CONFIG		0x00801000
-
-/*
- * includes MX35 utility macros
- */
 #include <asm/arch/lowlevel_macro.S>
 
 .globl lowlevel_init

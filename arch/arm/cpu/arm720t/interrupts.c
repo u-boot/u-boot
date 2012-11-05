@@ -26,6 +26,8 @@
  * MA 02111-1307 USA
  */
 
+#include <common.h>
+
 #ifdef CONFIG_USE_IRQ
 void do_irq (struct pt_regs *pt_regs)
 {

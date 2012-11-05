@@ -30,6 +30,8 @@
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <asm/arch/sys_proto.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |            \
@@ -51,12 +53,12 @@ int dram_init(void)
 	return 0;
 }
 
-iomux_v3_cfg_t uart4_pads[] = {
+iomux_v3_cfg_t const uart4_pads[] = {
 	MX6Q_PAD_KEY_COL0__UART4_TXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6Q_PAD_KEY_ROW0__UART4_RXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t enet_pads[] = {
+iomux_v3_cfg_t const enet_pads[] = {
 	MX6Q_PAD_KEY_COL1__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_KEY_COL2__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_RGMII_TXC__ENET_RGMII_TXC	| MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -79,7 +81,7 @@ static void setup_iomux_enet(void)
 	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
 }
 
-iomux_v3_cfg_t usdhc3_pads[] = {
+iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6Q_PAD_SD3_CLK__USDHC3_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6Q_PAD_SD3_CMD__USDHC3_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6Q_PAD_SD3_DAT0__USDHC3_DAT0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -114,6 +116,7 @@ int board_mmc_init(bd_t *bis)
 {
 	imx_iomux_v3_setup_multiple_pads(usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
 
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 #endif
@@ -164,9 +167,38 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
+#define BOARD_REV_B  0x200
+#define BOARD_REV_A  0x100
+
+static int mx6sabre_rev(void)
+{
+	/*
+	 * Get Board ID information from OCOTP_GP1[15:8]
+	 * i.MX6Q ARD RevA: 0x01
+	 * i.MX6Q ARD RevB: 0x02
+	 */
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	int reg = readl(&ocotp->gp1);
+	int ret;
+
+	switch (reg >> 8 & 0x0F) {
+	case 0x02:
+		ret = BOARD_REV_B;
+		break;
+	case 0x01:
+	default:
+		ret = BOARD_REV_A;
+		break;
+	}
+
+	return ret;
+}
+
 u32 get_board_rev(void)
 {
-	return 0x63000;
+	int rev = mx6sabre_rev();
+
+	return (get_cpu_rev() & ~(0xF << 8)) | rev;
 }
 
 int board_early_init_f(void)
@@ -186,7 +218,20 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: MX6Q-Sabreauto\n");
+	int rev = mx6sabre_rev();
+	char *revname;
+
+	switch (rev) {
+	case BOARD_REV_B:
+		revname = "B";
+		break;
+	case BOARD_REV_A:
+	default:
+		revname = "A";
+		break;
+	}
+
+	printf("Board: MX6Q-Sabreauto rev%s\n", revname);
 
 	return 0;
 }

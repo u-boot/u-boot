@@ -565,6 +565,10 @@ Albert ARIBAUD <albert.u.boot@aribaud.net>
 
 	edminiv2	ARM926EJS (Orion5x SoC)
 
+Raphael Assenat <raph@8d.com>
+
+	eco5pk		ARM ARMV7 (AM35x SoC)
+
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
@@ -896,6 +900,10 @@ Michal Simek <monstr@monstr.eu>
 
 	zynq		ARM ARMV7 (Zynq SoC)
 
+Lucas Stach <dev@lynxeye.de>
+
+	colibri_t20_iris	Tegra20 (ARM7 & A9 Dual Core)
+
 Nick Thompson <nick.thompson@gefanuc.com>
 
 	da830evm	ARM926EJS (DA830/OMAP-L137)
@@ -1004,6 +1012,10 @@ Tetsuyuki Kobayashi <koba@kmckk.co.jp>
 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 
 	armadillo-800eva	R8A7740 (RMOBILE SoC)
+
+Pali Rohár <pali.rohar@gmail.com>
+
+	nokia_rx51	ARM ARMV7 (OMAP34xx SoC)
 
 -------------------------------------------------------------------------
 

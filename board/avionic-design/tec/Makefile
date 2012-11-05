@@ -29,9 +29,11 @@ $(shell mkdir -p $(obj)../common $(obj)../../nvidia/common)
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= ../../nvidia/common/board.o
-COBJS	+= ../common/tamonten.o
+COBJS-y	:= ../common/tamonten.o
 
+include ../../nvidia/common/common.mk
+
+COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

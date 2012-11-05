@@ -51,12 +51,12 @@ int dram_init(void)
 	return 0;
 }
 
-iomux_v3_cfg_t uart1_pads[] = {
+iomux_v3_cfg_t const uart1_pads[] = {
 	MX6Q_PAD_CSI0_DAT10__UART1_TXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6Q_PAD_CSI0_DAT11__UART1_RXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t enet_pads[] = {
+iomux_v3_cfg_t const enet_pads[] = {
 	MX6Q_PAD_ENET_MDIO__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_ENET_MDC__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6Q_PAD_RGMII_TXC__ENET_RGMII_TXC	| MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -86,7 +86,7 @@ static void setup_iomux_enet(void)
 	gpio_set_value(IMX_GPIO_NR(1, 25), 1);
 }
 
-iomux_v3_cfg_t usdhc3_pads[] = {
+iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6Q_PAD_SD3_CLK__USDHC3_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6Q_PAD_SD3_CMD__USDHC3_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6Q_PAD_SD3_DAT0__USDHC3_DAT0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -120,6 +120,7 @@ int board_mmc_init(bd_t *bis)
 {
 	imx_iomux_v3_setup_multiple_pads(usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
 
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 #endif

@@ -412,10 +412,10 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 static void set_sysctl(struct mmc *mmc, uint clock)
 {
-	int sdhc_clk = gd->sdhc_clk;
 	int div, pre_div;
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	volatile struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
+	int sdhc_clk = cfg->sdhc_clk;
 	uint clk;
 
 	if (clock < mmc->f_min)
@@ -598,6 +598,7 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 	cfg = malloc(sizeof(struct fsl_esdhc_cfg));
 	memset(cfg, 0, sizeof(struct fsl_esdhc_cfg));
 	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
+	cfg->sdhc_clk = gd->sdhc_clk;
 	return fsl_esdhc_initialize(bis, cfg);
 }
 

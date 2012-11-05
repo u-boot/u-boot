@@ -44,6 +44,11 @@ struct am335x_baseboard_id {
  * is required on the board.
  */
 void enable_uart0_pin_mux(void);
+void enable_uart1_pin_mux(void);
+void enable_uart2_pin_mux(void);
+void enable_uart3_pin_mux(void);
+void enable_uart4_pin_mux(void);
+void enable_uart5_pin_mux(void);
 void enable_i2c0_pin_mux(void);
 void enable_board_pin_mux(struct am335x_baseboard_id *header);
 #endif

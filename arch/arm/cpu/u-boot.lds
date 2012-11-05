@@ -94,3 +94,7 @@ SECTIONS
 	/DISCARD/ : { *(.interp*) }
 	/DISCARD/ : { *(.gnu*) }
 }
+
+#if defined(CONFIG_SPL_TEXT_BASE) && defined(CONFIG_SPL_MAX_SIZE)
+ASSERT(__bss_end__ < (CONFIG_SPL_TEXT_BASE + CONFIG_SPL_MAX_SIZE), "SPL image too big");
+#endif

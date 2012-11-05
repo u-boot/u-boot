@@ -9,7 +9,6 @@
 	aliases {
 		i2c0 = "/i2c@7000d000";
 		usb0 = "/usb@c5008000";
-		usb1 = "/usb@c5000000";
 	};
 
 	memory {
@@ -59,6 +58,10 @@
 				clock-frequency = <32768>;
 			};
 		};
+	};
+
+	usb@c5000000 {
+		status = "disabled";
 	};
 
 	usb@c5004000 {

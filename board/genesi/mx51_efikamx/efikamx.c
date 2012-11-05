@@ -29,6 +29,7 @@
 #include <asm/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/clock.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -93,7 +94,7 @@ static u32 get_mx_rev(void)
 	return (~rev & 0x7) + 1;
 }
 
-static iomux_v3_cfg_t efikasb_revision_pads[] = {
+static iomux_v3_cfg_t const efikasb_revision_pads[] = {
 	MX51_PAD_EIM_CS3__GPIO2_28,
 	MX51_PAD_EIM_CS4__GPIO2_29,
 };
@@ -140,7 +141,7 @@ int dram_init(void)
 /*
  * UART configuration
  */
-static iomux_v3_cfg_t efikamx_uart_pads[] = {
+static iomux_v3_cfg_t const efikamx_uart_pads[] = {
 	MX51_PAD_UART1_RXD__UART1_RXD,
 	MX51_PAD_UART1_TXD__UART1_TXD,
 	MX51_PAD_UART1_RTS__UART1_RTS,
@@ -150,7 +151,7 @@ static iomux_v3_cfg_t efikamx_uart_pads[] = {
 /*
  * SPI configuration
  */
-static iomux_v3_cfg_t efikamx_spi_pads[] = {
+static iomux_v3_cfg_t const efikamx_spi_pads[] = {
 	MX51_PAD_CSPI1_MOSI__ECSPI1_MOSI,
 	MX51_PAD_CSPI1_MISO__ECSPI1_MISO,
 	MX51_PAD_CSPI1_SCLK__ECSPI1_SCLK,
@@ -272,7 +273,7 @@ struct fsl_esdhc_cfg esdhc_cfg[2] = {
 	{MMC_SDHC2_BASE_ADDR},
 };
 
-static iomux_v3_cfg_t efikamx_sdhc1_pads[] = {
+static iomux_v3_cfg_t const efikamx_sdhc1_pads[] = {
 	MX51_PAD_SD1_CMD__SD1_CMD,
 	MX51_PAD_SD1_CLK__SD1_CLK,
 	MX51_PAD_SD1_DATA0__SD1_DATA0,
@@ -284,7 +285,7 @@ static iomux_v3_cfg_t efikamx_sdhc1_pads[] = {
 
 #define EFIKAMX_SDHC1_WP	IMX_GPIO_NR(1, 1)
 
-static iomux_v3_cfg_t efikamx_sdhc1_cd_pads[] = {
+static iomux_v3_cfg_t const efikamx_sdhc1_cd_pads[] = {
 	MX51_PAD_GPIO1_0__SD1_CD,
 	MX51_PAD_EIM_CS2__SD1_CD,
 };
@@ -292,7 +293,7 @@ static iomux_v3_cfg_t efikamx_sdhc1_cd_pads[] = {
 #define EFIKAMX_SDHC1_CD	IMX_GPIO_NR(1, 0)
 #define EFIKASB_SDHC1_CD	IMX_GPIO_NR(2, 27)
 
-static iomux_v3_cfg_t efikasb_sdhc2_pads[] = {
+static iomux_v3_cfg_t const efikasb_sdhc2_pads[] = {
 	MX51_PAD_SD2_CMD__SD2_CMD,
 	MX51_PAD_SD2_CLK__SD2_CLK,
 	MX51_PAD_SD2_DATA0__SD2_DATA0,
@@ -349,6 +350,9 @@ int board_mmc_init(bd_t *bis)
 		gpio_direction_input(EFIKASB_SDHC1_CD);
 	}
 
+	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+	esdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+
 	ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 
 	if (machine_is_efikasb()) {
@@ -368,7 +372,7 @@ int board_mmc_init(bd_t *bis)
 /*
  * PATA
  */
-static iomux_v3_cfg_t efikamx_pata_pads[] = {
+static iomux_v3_cfg_t const efikamx_pata_pads[] = {
 	MX51_PAD_NANDF_WE_B__PATA_DIOW,
 	MX51_PAD_NANDF_RE_B__PATA_DIOR,
 	MX51_PAD_NANDF_ALE__PATA_BUFFER_EN,
@@ -419,7 +423,7 @@ static inline void setup_iomux_usb(void) { }
 #define EFIKAMX_LED_GREEN	IMX_GPIO_NR(3, 14)
 #define EFIKAMX_LED_RED		IMX_GPIO_NR(3, 15)
 
-static iomux_v3_cfg_t efikasb_led_pads[] = {
+static iomux_v3_cfg_t const efikasb_led_pads[] = {
 	MX51_PAD_GPIO1_3__GPIO1_3,
 	MX51_PAD_EIM_CS0__GPIO2_25,
 };

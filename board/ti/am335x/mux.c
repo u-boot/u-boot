@@ -27,6 +27,36 @@ static struct module_pin_mux uart0_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux uart1_pin_mux[] = {
+	{OFFSET(uart1_rxd), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* UART1_RXD */
+	{OFFSET(uart1_txd), (MODE(0) | PULLUDEN)},		/* UART1_TXD */
+	{-1},
+};
+
+static struct module_pin_mux uart2_pin_mux[] = {
+	{OFFSET(spi0_sclk), (MODE(1) | PULLUP_EN | RXACTIVE)},	/* UART2_RXD */
+	{OFFSET(spi0_d0), (MODE(1) | PULLUDEN)},		/* UART2_TXD */
+	{-1},
+};
+
+static struct module_pin_mux uart3_pin_mux[] = {
+	{OFFSET(spi0_cs1), (MODE(1) | PULLUP_EN | RXACTIVE)},	/* UART3_RXD */
+	{OFFSET(ecap0_in_pwm0_out), (MODE(1) | PULLUDEN)},	/* UART3_TXD */
+	{-1},
+};
+
+static struct module_pin_mux uart4_pin_mux[] = {
+	{OFFSET(gpmc_wait0), (MODE(6) | PULLUP_EN | RXACTIVE)},	/* UART4_RXD */
+	{OFFSET(gpmc_wpn), (MODE(6) | PULLUDEN)},		/* UART4_TXD */
+	{-1},
+};
+
+static struct module_pin_mux uart5_pin_mux[] = {
+	{OFFSET(lcd_data9), (MODE(4) | PULLUP_EN | RXACTIVE)},	/* UART5_RXD */
+	{OFFSET(lcd_data8), (MODE(4) | PULLUDEN)},		/* UART5_TXD */
+	{-1},
+};
+
 static struct module_pin_mux mmc0_pin_mux[] = {
 	{OFFSET(mmc0_dat3), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT3 */
 	{OFFSET(mmc0_dat2), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT2 */
@@ -36,6 +66,17 @@ static struct module_pin_mux mmc0_pin_mux[] = {
 	{OFFSET(mmc0_cmd), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_CMD */
 	{OFFSET(mcasp0_aclkr), (MODE(4) | RXACTIVE)},		/* MMC0_WP */
 	{OFFSET(spi0_cs1), (MODE(5) | RXACTIVE | PULLUP_EN)},	/* MMC0_CD */
+	{-1},
+};
+
+static struct module_pin_mux mmc0_no_cd_pin_mux[] = {
+	{OFFSET(mmc0_dat3), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT3 */
+	{OFFSET(mmc0_dat2), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT2 */
+	{OFFSET(mmc0_dat1), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT1 */
+	{OFFSET(mmc0_dat0), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_DAT0 */
+	{OFFSET(mmc0_clk), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_CLK */
+	{OFFSET(mmc0_cmd), (MODE(0) | RXACTIVE | PULLUP_EN)},	/* MMC0_CMD */
+	{OFFSET(mcasp0_aclkr), (MODE(4) | RXACTIVE)},		/* MMC0_WP */
 	{-1},
 };
 
@@ -135,6 +176,30 @@ void enable_uart0_pin_mux(void)
 	configure_module_pin_mux(uart0_pin_mux);
 }
 
+void enable_uart1_pin_mux(void)
+{
+	configure_module_pin_mux(uart1_pin_mux);
+}
+
+void enable_uart2_pin_mux(void)
+{
+	configure_module_pin_mux(uart2_pin_mux);
+}
+
+void enable_uart3_pin_mux(void)
+{
+	configure_module_pin_mux(uart3_pin_mux);
+}
+
+void enable_uart4_pin_mux(void)
+{
+	configure_module_pin_mux(uart4_pin_mux);
+}
+
+void enable_uart5_pin_mux(void)
+{
+	configure_module_pin_mux(uart5_pin_mux);
+}
 
 void enable_i2c0_pin_mux(void)
 {
@@ -196,12 +261,27 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 			configure_module_pin_mux(mmc1_pin_mux);
 			configure_module_pin_mux(spi0_pin_mux);
 		}
+	} else if (!strncmp(header->config, "SKU#02", 6)) {
+		/*
+		 * Industrial Motor Control (IDK)
+		 * note: IDK console is on UART3 by default.
+		 *       So u-boot mus be build with CONFIG_SERIAL4 and
+		 *       CONFIG_CONS_INDEX=4
+		 */
+		configure_module_pin_mux(mii1_pin_mux);
+		configure_module_pin_mux(mmc0_no_cd_pin_mux);
 	} else if (!strncmp(header->name, "A335X_SK", HDR_NAME_LEN)) {
 		/* Starter Kit EVM */
 		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(gpio0_7_pin_mux);
 		configure_module_pin_mux(rgmii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux_sk_evm);
+	} else if (!strncmp(header->name, "A335BNLT", HDR_NAME_LEN)) {
+		/* Beaglebone LT pinmux */
+		configure_module_pin_mux(i2c1_pin_mux);
+		configure_module_pin_mux(mii1_pin_mux);
+		configure_module_pin_mux(mmc0_pin_mux);
+		configure_module_pin_mux(mmc1_pin_mux);
 	} else {
 		puts("Unknown board, cannot configure pinmux.");
 		hang();
