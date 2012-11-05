@@ -235,6 +235,7 @@
 
 #define CONFIG_SYS_DDR_CLKSEL	0
 #define CONFIG_SYS_CLKTL_CBCDR	0x59E35100
+#define CONFIG_SYS_MAIN_PWR_ON
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
