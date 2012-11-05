@@ -58,8 +58,11 @@
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
+#define CONFIG_FS_EXT4
+#define CONFIG_FS_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 
 /* NAND support */
 #define CONFIG_CMD_NAND

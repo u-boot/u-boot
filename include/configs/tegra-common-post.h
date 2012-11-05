@@ -30,18 +30,6 @@
 
 #else
 
-#ifdef CONFIG_CMD_EXT2
-#define BOOT_FSTYPE_EXT2 "ext2 "
-#else
-#define BOOT_FSTYPE_EXT2 ""
-#endif
-
-#ifdef CONFIG_CMD_FAT
-#define BOOT_FSTYPE_FAT "fat"
-#else
-#define BOOT_FSTYPE_FAT ""
-#endif
-
 #ifdef CONFIG_CMD_MMC
 #define BOOTCMDS_MMC \
 	"mmc_boot=" \
@@ -98,7 +86,7 @@
 	"rootpart=1\0" \
 	\
 	"script_boot="                                                    \
-		"if ${fs}load ${devtype} ${devnum}:${rootpart} "          \
+		"if load ${devtype} ${devnum}:${rootpart} "               \
 				"${scriptaddr} ${prefix}${script}; then " \
 			"echo ${script} found! Executing ...;"            \
 			"source ${scriptaddr};"                           \
@@ -106,11 +94,9 @@
 	\
 	"scan_boot="                                                      \
 		"echo Scanning ${devtype} ${devnum}...; "                 \
-		"for fs in ${boot_fstypes}; do "                          \
-			"for prefix in ${boot_prefixes}; do "             \
-				"for script in ${boot_scripts}; do "      \
-					"run script_boot; "               \
-				"done; "                                  \
+		"for prefix in ${boot_prefixes}; do "                     \
+			"for script in ${boot_scripts}; do "              \
+				"run script_boot; "                       \
 			"done; "                                          \
 		"done;\0"                                                 \
 	\
@@ -118,11 +104,6 @@
 		BOOT_TARGETS_MMC " " \
 		BOOT_TARGETS_USB " " \
 		BOOT_TARGETS_DHCP " " \
-		"\0" \
-	\
-	"boot_fstypes=" \
-		BOOT_FSTYPE_EXT2 " " \
-		BOOT_FSTYPE_FAT " " \
 		"\0" \
 	\
 	"boot_prefixes=/ /boot/\0" \
@@ -207,11 +188,23 @@
 #ifdef CONFIG_EFI_PARTITION
 #undef CONFIG_EFI_PARTITION
 #endif
+#ifdef CONFIG_CMD_FS_GENERIC
+#undef CONFIG_CMD_FS_GENERIC
+#endif
+#ifdef CONFIG_CMD_EXT4
+#undef CONFIG_CMD_EXT4
+#endif
 #ifdef CONFIG_CMD_EXT2
 #undef CONFIG_CMD_EXT2
 #endif
 #ifdef CONFIG_CMD_FAT
 #undef CONFIG_CMD_FAT
+#endif
+#ifdef CONFIG_FS_EXT4
+#undef CONFIG_FS_EXT4
+#endif
+#ifdef CONFIG_FS_FAT
+#undef CONFIG_FS_FAT
 #endif
 
 /* remove USB */

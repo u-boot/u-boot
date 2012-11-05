@@ -69,8 +69,11 @@
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
+#define CONFIG_FS_EXT4
+#define CONFIG_FS_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 
 /* Environment in SPI */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
