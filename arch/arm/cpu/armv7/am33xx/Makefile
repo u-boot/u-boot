@@ -18,6 +18,7 @@ LIB	= $(obj)lib$(SOC).o
 
 COBJS	+= clock.o
 COBJS	+= sys_info.o
+COBJS	+= mem.o
 COBJS	+= ddr.o
 COBJS	+= emif4.o
 COBJS	+= board.o

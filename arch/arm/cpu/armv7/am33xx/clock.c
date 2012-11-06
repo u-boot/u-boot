@@ -150,6 +150,11 @@ static void enable_per_clocks(void)
 		;
 #endif /* CONFIG_SERIAL6 */
 
+	/* GPMC */
+	writel(PRCM_MOD_EN, &cmper->gpmcclkctrl);
+	while (readl(&cmper->gpmcclkctrl) != PRCM_MOD_EN)
+		;
+
 	/* MMC0*/
 	writel(PRCM_MOD_EN, &cmper->mmc0clkctrl);
 	while (readl(&cmper->mmc0clkctrl) != PRCM_MOD_EN)
