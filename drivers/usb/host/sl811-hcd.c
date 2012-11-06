@@ -234,7 +234,7 @@ static int sl811_send_packet(struct usb_device *dev, unsigned long pipe, __u8 *b
 	__u16 status = 0;
 	int err = 0, time_start = get_timer(0);
 	int need_preamble = !(rh_status.wPortStatus & USB_PORT_STAT_LOW_SPEED) &&
-		usb_pipeslow(pipe);
+		(dev->speed == USB_SPEED_LOW);
 
 	if (len > 239)
 		return -1;

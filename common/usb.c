@@ -492,9 +492,9 @@ int usb_get_configuration_no(struct usb_device *dev,
 {
 	int result;
 	unsigned int tmp;
-	struct usb_configuration_descriptor *config;
+	struct usb_config_descriptor *config;
 
-	config = (struct usb_configuration_descriptor *)&buffer[0];
+	config = (struct usb_config_descriptor *)&buffer[0];
 	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 9);
 	if (result < 9) {
 		if (result < 0)
