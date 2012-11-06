@@ -34,6 +34,7 @@ typedef unsigned long dmaaddr_t;
 #define spin_unlock_irqrestore(lock, flags) do {} while (0)
 
 #define setup_timer(timer, func, data) do {} while (0)
+#define del_timer_sync(timer) do {} while (0)
 #define schedule_work(work) do {} while (0)
 #define INIT_WORK(work, fun) do {} while (0)
 
@@ -104,4 +105,12 @@ typedef unsigned long dmaaddr_t;
 #endif
 
 #define msleep(a)	udelay(a * 1000)
+
+/*
+ * Map U-Boot config options to Linux ones
+ */
+#ifdef CONFIG_OMAP34XX
+#define CONFIG_SOC_OMAP3430
+#endif
+
 #endif /* __LINUX_COMPAT_H__ */

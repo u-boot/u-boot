@@ -11,6 +11,7 @@ COBJS-$(CONFIG_MUSB_GADGET) += musb_uboot.o
 COBJS-$(CONFIG_MUSB_HOST) += musb_host.o musb_core.o musb_uboot.o
 COBJS-$(CONFIG_USB_MUSB_DSPS) += musb_dsps.o
 COBJS-$(CONFIG_USB_MUSB_AM35X) += am35x.o
+COBJS-$(CONFIG_USB_MUSB_OMAP2PLUS) += omap2430.o
 
 CFLAGS_NO_WARN := $(call cc-option,-Wno-unused-variable) \
 			$(call cc-option,-Wno-unused-but-set-variable) \
