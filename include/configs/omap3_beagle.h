@@ -120,6 +120,8 @@
 #define CONFIG_MUSB_UDC			1
 #define CONFIG_USB_OMAP3		1
 #define CONFIG_TWL4030_USB		1
+#define CONFIG_USB_ETHER
+#define CONFIG_USB_ETHER_RNDIS
 
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1
