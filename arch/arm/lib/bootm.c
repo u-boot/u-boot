@@ -308,9 +308,6 @@ static void boot_prep_linux(bootm_headers_t *images)
 			images->rd_end);
 #endif
 		setup_end_tag(gd->bd);
-#else /* all tags */
-		printf("FDT and ATAGS support not compiled in - hanging\n");
-		hang();
 #endif /* all tags */
 	}
 }
