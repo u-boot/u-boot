@@ -202,4 +202,7 @@
 #define CONFIG_SYS_NAND_SELF_INIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
+/* Misc utility code */
+#define CONFIG_BOUNCE_BUFFER
+
 #endif /* __TEGRA20_COMMON_H */
