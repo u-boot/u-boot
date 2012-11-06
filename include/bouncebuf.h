@@ -51,7 +51,6 @@
  */
 #define GEN_BB_RW	(GEN_BB_READ | GEN_BB_WRITE)
 
-#ifdef CONFIG_BOUNCE_BUFFER
 /**
  * bounce_buffer_start() -- Start the bounce buffer session
  * data:	pointer to buffer to be aligned
@@ -70,18 +69,5 @@ int bounce_buffer_start(void **data, size_t len, void **backup, uint8_t flags);
  * flags:	flags describing the transaction, see above.
  */
 int bounce_buffer_stop(void **data, size_t len, void **backup, uint8_t flags);
-#else
-static inline int bounce_buffer_start(void **data, size_t len, void **backup,
-					uint8_t flags)
-{
-	return 0;
-}
-
-static inline int bounce_buffer_stop(void **data, size_t len, void **backup,
-					uint8_t flags)
-{
-	return 0;
-}
-#endif
 
 #endif
