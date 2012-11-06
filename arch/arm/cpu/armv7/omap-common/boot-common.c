@@ -21,6 +21,7 @@
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/mmc_host_def.h>
+#include <asm/arch/sys_proto.h>
 
 /*
  * This is used to verify if the configuration header
