@@ -322,6 +322,7 @@ LIBS-y += drivers/usb/eth/libusb_eth.o
 LIBS-y += drivers/usb/gadget/libusb_gadget.o
 LIBS-y += drivers/usb/host/libusb_host.o
 LIBS-y += drivers/usb/musb/libusb_musb.o
+LIBS-y += drivers/usb/musb-new/libusb_musb-new.o
 LIBS-y += drivers/usb/phy/libusb_phy.o
 LIBS-y += drivers/usb/ulpi/libusb_ulpi.o
 LIBS-y += drivers/video/libvideo.o
