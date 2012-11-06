@@ -318,6 +318,8 @@ int board_init(void)
 
 	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
 
+	gpmc_init();
+
 	return 0;
 }
 

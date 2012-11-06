@@ -274,4 +274,16 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
+#define CONFIG_NAND
+/* NAND support */
+#ifdef CONFIG_NAND
+#define CONFIG_CMD_NAND
+#define CONFIG_NAND_OMAP_GPMC
+#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
+#define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
+							/* to access nand at */
+							/* CS0 */
+#define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
+#endif							/* devices */
+
 #endif	/* ! __CONFIG_AM335X_EVM_H */
