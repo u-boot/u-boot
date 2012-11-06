@@ -94,6 +94,15 @@ static const unsigned char usb_kbd_num_keypad[] = {
 };
 
 /*
+ * map arrow keys to ^F/^B ^N/^P, can't really use the proper
+ * ANSI sequence for arrow keys because the queuing code breaks
+ * when a single keypress expands to 3 queue elements
+ */
+static const unsigned char usb_kbd_arrow[] = {
+	0x6, 0x2, 0xe, 0x10
+};
+
+/*
  * NOTE: It's important for the NUM, CAPS, SCROLL-lock bits to be in this
  *       order. See usb_kbd_setled() function!
  */
@@ -223,6 +232,10 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 		else
 			keycode = usb_kbd_numkey[scancode - 0x1e];
 	}
+
+	/* Arrow keys */
+	if ((scancode >= 0x4f) && (scancode <= 0x52))
+		keycode = usb_kbd_arrow[scancode - 0x4f];
 
 	/* Numeric keypad */
 	if ((scancode >= 0x54) && (scancode <= 0x67))
