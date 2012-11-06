@@ -24,7 +24,6 @@
 #include <asm/errno.h>
 #include <linux/netdevice.h>
 #include <linux/usb/ch9.h>
-#include <usbdescriptors.h>
 #include <linux/usb/cdc.h>
 #include <linux/usb/gadget.h>
 #include <net.h>
