@@ -30,6 +30,7 @@ ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_SPL_NAND_SIMPLE
 COBJS-y += nand_spl_simple.o
 endif
+COBJS-$(CONFIG_SPL_NAND_AM33XX_BCH) += am335x_spl_bch.o
 ifdef CONFIG_SPL_NAND_LOAD
 COBJS-y	+= nand_spl_load.o
 endif
