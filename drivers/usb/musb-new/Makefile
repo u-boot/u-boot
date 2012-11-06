@@ -9,6 +9,7 @@ LIB	:= $(obj)libusb_musb-new.o
 COBJS-$(CONFIG_MUSB_GADGET) += musb_gadget.o musb_gadget_ep0.o musb_core.o
 COBJS-$(CONFIG_MUSB_GADGET) += musb_uboot.o
 COBJS-$(CONFIG_MUSB_HOST) += musb_host.o musb_core.o musb_uboot.o
+COBJS-$(CONFIG_USB_MUSB_DSPS) += musb_dsps.o
 
 CFLAGS_NO_WARN := $(call cc-option,-Wno-unused-variable) \
 			$(call cc-option,-Wno-unused-but-set-variable) \
