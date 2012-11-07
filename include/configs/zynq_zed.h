@@ -49,10 +49,10 @@
 		"go 0x8000\0" \
 	"sdboot=echo Copying Linux from SD to RAM...;" \
 		"mmcinfo;" \
-		"fatload mmc 0 0x8000 zImage;" \
-		"fatload mmc 0 0x1000000 devicetree.dtb;" \
-		"fatload mmc 0 0x800000 ramdisk8M.image.gz;" \
-		"go 0x8000\0" \
+		"fatload mmc 0 0x3000000 ${kernel_image};" \
+		"fatload mmc 0 0x2A00000 ${devicetree_image};" \
+		"fatload mmc 0 0x2000000 ${ramdisk_image};" \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"jtagboot=echo TFTPing Linux to RAM...;" \
 		"tftp 0x3000000 ${kernel_image};" \
 		"tftp 0x2A00000 ${devicetree_image};" \
