@@ -2164,14 +2164,7 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 		}
 
 		info->sector_count = sect_cnt;
-		/* info->buffer_size =
-			1 << le16_to_cpu(qry.max_buf_write_size); */
-		/*
-		 * Xilinx hack for now due to numonyx bug with 8 bit mode
-		 * The CFI data for the buffer size is wrong in the part.
-		 * It may be feasible to fix this better.
-		 */
-		info->buffer_size = 256;
+		info->buffer_size = 1 << le16_to_cpu(qry.max_buf_write_size);
 		tmp = 1 << qry.block_erase_timeout_typ;
 		info->erase_blk_tout = tmp *
 			(1 << qry.block_erase_timeout_max);
