@@ -37,6 +37,9 @@
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS 	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
+	"kernel_image=uImage\0"	\
+	"ramdisk_image=uramdisk.image.gz\0"	\
+	"devicetree_image=devicetree.dtb\0"	\
 	"kernel_size=0x140000\0" 	\
 	"ramdisk_size=0x200000\0" 	\
 	"qspiboot=sf probe 0 0 0;" \
@@ -51,9 +54,9 @@
 		"fatload mmc 0 0x800000 ramdisk8M.image.gz;" \
 		"go 0x8000\0" \
 	"jtagboot=echo TFTPing Linux to RAM...;" \
-		"tftp 0x8000 zImage;" \
-		"tftp 0x1000000 devicetree.dtb;" \
-		"tftp 0x800000 ramdisk8M.image.gz;" \
-		"go 0x8000\0"
+		"tftp 0x3000000 ${kernel_image};" \
+		"tftp 0x2A00000 ${devicetree_image};" \
+		"tftp 0x2000000 ${ramdisk_image};" \
+		"bootm 0x3000000 0x2000000 0x2A00000\0"
 
 #endif /* __CONFIG_ZYNQ_ZED_H */
