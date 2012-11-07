@@ -40,7 +40,8 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 	puts ("Reseting board\n");
-	asm ("bra r0");
+	__asm__ __volatile__ ("	mts rmsr, r0;" \
+				"bra r0");
 
 	return 0;
 }
