@@ -179,8 +179,6 @@
 	"kernel_size=0x400000\0"	\
 	"devicetree_size=0x20000\0"	\
 	"ramdisk_size=0x400000\0"	\
-	"nand_kernel_size=0x400000\0"	\
-	"nand_ramdisk_size=0x400000\0"	\
 	"fdt_high=0x20000000\0"	\
 	"initrd_high=0x20000000\0"	\
 	"norboot=echo Copying Linux from NOR flash to RAM...;" \

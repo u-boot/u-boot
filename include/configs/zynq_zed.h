@@ -40,8 +40,6 @@
 	"kernel_image=uImage\0"	\
 	"ramdisk_image=uramdisk.image.gz\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
-	"kernel_size=0x140000\0" 	\
-	"ramdisk_size=0x200000\0" 	\
 	"qspiboot=echo Copying Linux from QSPI flash to RAM...;" \
 		"sf probe 0 0 0;" \
 		"sf read 0x3000000 0x100000 0x400000;" \
