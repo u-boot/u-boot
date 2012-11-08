@@ -42,11 +42,13 @@
 	"devicetree_image=devicetree.dtb\0"	\
 	"kernel_size=0x140000\0" 	\
 	"ramdisk_size=0x200000\0" 	\
-	"qspiboot=sf probe 0 0 0;" \
-		"sf read 0x8000 0x100000 0x2c0000;" \
-		"sf read 0x1000000 0x3c0000 0x40000;" \
-		"sf read 0x800000 0x400000 0x800000;" \
-		"go 0x8000\0" \
+	"qspiboot=echo Copying Linux from QSPI flash to RAM...;" \
+		"sf probe 0 0 0;" \
+		"sf read 0x3000000 0x100000 0x400000;" \
+		"sf read 0x2A00000 0x600000 0x20000;" \
+		"echo Copying ramdisk...;" \
+		"sf read 0x2000000 0x800000 0x400000;" \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"sdboot=echo Copying Linux from SD to RAM...;" \
 		"mmcinfo;" \
 		"fatload mmc 0 0x3000000 ${kernel_image};" \
