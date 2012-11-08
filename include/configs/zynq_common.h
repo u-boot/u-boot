@@ -188,10 +188,11 @@
 		"cp 0xE3000000 0x2000000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"qspiboot=echo Copying Linux from QSPI flash to RAM...;" \
-		"cp 0xFC100000 0x3000000 ${kernel_size};" \
-		"cp 0xFC600000 0x2A00000 ${devicetree_size};" \
+		"sf probe 0 0 0;" \
+		"sf read 0x3000000 0x100000 ${kernel_size};" \
+		"sf read 0x2A00000 0x600000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
-		"cp 0xFC800000 0x2000000 ${ramdisk_size};" \
+		"sf read 0x2000000 0x800000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"sdboot=echo Copying Linux from SD to RAM...;" \
 		"mmcinfo;" \
