@@ -176,9 +176,9 @@
 	"kernel_image=uImage\0"	\
 	"ramdisk_image=uramdisk.image.gz\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
-	"kernel_size=0x140000\0"	\
+	"kernel_size=0x400000\0"	\
 	"devicetree_size=0x20000\0"	\
-	"ramdisk_size=0x200000\0"	\
+	"ramdisk_size=0x400000\0"	\
 	"nand_kernel_size=0x400000\0"	\
 	"nand_ramdisk_size=0x400000\0"	\
 	"fdt_high=0x20000000\0"	\
@@ -202,10 +202,10 @@
 		"fatload mmc 0 0x2000000 ${ramdisk_image};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM...;" \
-		"nand read 0x3000000 0x200000 ${nand_kernel_size};" \
+		"nand read 0x3000000 0x200000 ${kernel_size};" \
 		"nand read 0x2A00000 0x700000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
-		"nand read 0x2000000 0x900000 ${nand_ramdisk_size};" \
+		"nand read 0x2000000 0x900000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"jtagboot=echo TFTPing Linux to RAM...;" \
 		"tftp 0x3000000 ${kernel_image};" \
