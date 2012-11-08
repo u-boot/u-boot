@@ -390,12 +390,12 @@ __LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 ifneq ($(CONFIG_BOARD_SIZE_LIMIT),)
 BOARD_SIZE_CHECK = \
 	@actual=`wc -c $@ | awk '{print $$1}'`; \
-	limit=$(CONFIG_BOARD_SIZE_LIMIT); \
+	limit=`printf "%d" $(CONFIG_BOARD_SIZE_LIMIT)`; \
 	if test $$actual -gt $$limit; then \
-		echo "$@ exceeds file size limit:"; \
-		echo "  limit:  $$limit bytes"; \
-		echo "  actual: $$actual bytes"; \
-		echo "  excess: $$((actual - limit)) bytes"; \
+		echo "$@ exceeds file size limit:" >&2 ; \
+		echo "  limit:  $$limit bytes" >&2 ; \
+		echo "  actual: $$actual bytes" >&2 ; \
+		echo "  excess: $$((actual - limit)) bytes" >&2; \
 		exit 1; \
 	fi
 else
