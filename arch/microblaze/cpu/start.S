@@ -132,6 +132,12 @@ _start:
 	rsubi	r8, r10, 0x26
 	sh	r6, r0, r8
 
+	/* Flush cache before enable cache */
+	addik	r5, r0, 0
+	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
+flush:	bralid r15, flush_cache
+	nop
+
 	/* enable instruction and data cache */
 	mfs	r12, rmsr
 	ori	r12, r12, 0xa0
