@@ -429,7 +429,8 @@ int fw_env_write(char *name, char *value)
  */
 int fw_setenv(int argc, char *argv[])
 {
-	int i, len;
+	int i;
+	size_t len;
 	char *name;
 	char *value = NULL;
 
