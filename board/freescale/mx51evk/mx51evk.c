@@ -30,6 +30,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
+#include <asm/imx-common/mx5_video.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -37,12 +38,6 @@
 #include <fsl_pmic.h>
 #include <mc13892.h>
 #include <usb/ehci-fsl.h>
-#include <linux/fb.h>
-#include <ipu_pixfmt.h>
-
-#define MX51EVK_LCD_3V3		IMX_GPIO_NR(4, 9)
-#define MX51EVK_LCD_5V		IMX_GPIO_NR(4, 10)
-#define MX51EVK_LCD_BACKLIGHT	IMX_GPIO_NR(3, 4)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -471,54 +466,6 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-static struct fb_videomode const claa_wvga = {
-	.name		= "CLAA07LC0ACW",
-	.refresh	= 57,
-	.xres		= 800,
-	.yres		= 480,
-	.pixclock	= 37037,
-	.left_margin	= 40,
-	.right_margin	= 60,
-	.upper_margin	= 10,
-	.lower_margin	= 10,
-	.hsync_len	= 20,
-	.vsync_len	= 10,
-	.sync		= 0,
-	.vmode		= FB_VMODE_NONINTERLACED
-};
-
-void lcd_iomux(void)
-{
-	/* DI2_PIN15 */
-	mxc_request_iomux(MX51_PIN_DI_GP4, IOMUX_CONFIG_ALT4);
-
-	/* Pad settings for MX51_PIN_DI2_DISP_CLK */
-	mxc_iomux_set_pad(MX51_PIN_DI2_DISP_CLK, PAD_CTL_HYS_NONE |
-			  PAD_CTL_PKE_ENABLE | PAD_CTL_PUE_KEEPER |
-			  PAD_CTL_DRV_MAX | PAD_CTL_SRE_SLOW);
-
-	/* Turn on 3.3V voltage for LCD */
-	mxc_request_iomux(MX51_PIN_CSI2_D12, IOMUX_CONFIG_ALT3);
-	gpio_direction_output(MX51EVK_LCD_3V3, 1);
-
-	/* Turn on 5V voltage for LCD */
-	mxc_request_iomux(MX51_PIN_CSI2_D13, IOMUX_CONFIG_ALT3);
-	gpio_direction_output(MX51EVK_LCD_5V, 1);
-
-	/* Turn on GPIO backlight */
-	mxc_request_iomux(MX51_PIN_DI1_D1_CS, IOMUX_CONFIG_ALT4);
-	mxc_iomux_set_input(MX51_GPIO3_IPP_IND_G_IN_4_SELECT_INPUT,
-							INPUT_CTL_PATH1);
-	gpio_direction_output(MX51EVK_LCD_BACKLIGHT, 1);
-}
-
-void lcd_enable(void)
-{
-	int ret = ipuv3_fb_init(&claa_wvga, 1, IPU_PIX_FMT_RGB565);
-	if (ret)
-		printf("LCD cannot be configured: %d\n", ret);
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -526,7 +473,7 @@ int board_early_init_f(void)
 #ifdef CONFIG_USB_EHCI_MX5
 	setup_usb_h1();
 #endif
-	lcd_iomux();
+	setup_iomux_lcd();
 
 	return 0;
 }
