@@ -268,6 +268,9 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_SICRL
 	__raw_writel(CONFIG_SYS_SICRL, &im->sysconf.sicrl);
 #endif
+#ifdef CONFIG_SYS_GPR1
+	__raw_writel(CONFIG_SYS_GPR1, &im->sysconf.gpr1);
+#endif
 #ifdef CONFIG_SYS_DDRCDR /* DDR control driver register */
 	__raw_writel(CONFIG_SYS_DDRCDR, &im->sysconf.ddrcdr);
 #endif

@@ -224,6 +224,7 @@
 #define SDHCI_QUIRK_NO_HISPD_BIT	(1 << 3)
 #define SDHCI_QUIRK_BROKEN_VOLTAGE	(1 << 4)
 #define SDHCI_QUIRK_NO_CD		(1 << 5)
+#define SDHCI_QUIRK_WAIT_SEND_CMD	(1 << 6)
 
 /* to make gcc happy */
 struct sdhci_host;

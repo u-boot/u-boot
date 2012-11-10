@@ -103,12 +103,6 @@ static void au1x00_serial_putc(const char c)
 	*uart_tx = (u32)c;
 }
 
-static void au1x00_serial_puts(const char *s)
-{
-	while (*s)
-		serial_putc(*s++);
-}
-
 static int au1x00_serial_getc(void)
 {
 	volatile u32 *uart_rx = (volatile u32*)(UART0_ADDR+UART_RX);
@@ -137,7 +131,7 @@ static struct serial_device au1x00_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= au1x00_serial_setbrg,
 	.putc	= au1x00_serial_putc,
-	.puts	= au1x00_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= au1x00_serial_getc,
 	.tstc	= au1x00_serial_tstc,
 };

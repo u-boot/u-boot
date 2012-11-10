@@ -60,20 +60,32 @@ int checkcpu (void)
 	uint major, minor;
 	struct cpu_type *cpu;
 	char buf1[32], buf2[32];
-#if defined(CONFIG_DDR_CLK_FREQ) || defined(CONFIG_FSL_CORENET)
+#if (defined(CONFIG_DDR_CLK_FREQ) || \
+	defined(CONFIG_FSL_CORENET)) && !defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif /* CONFIG_FSL_CORENET */
+
+	/*
+	 * Cornet platforms use ddr sync bit in RCW to indicate sync vs async
+	 * mode. Previous platform use ddr ratio to do the same. This
+	 * information is only for display here.
+	 */
+#ifdef CONFIG_FSL_CORENET
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	u32 ddr_sync = 0;	/* only async mode is supported */
+#else
+	u32 ddr_sync = ((gur->rcwsr[5]) & FSL_CORENET_RCWSR5_DDR_SYNC)
+		>> FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT;
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+#else	/* CONFIG_FSL_CORENET */
 #ifdef CONFIG_DDR_CLK_FREQ
 	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
 		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 #else
-#ifdef CONFIG_FSL_CORENET
-	u32 ddr_sync = ((gur->rcwsr[5]) & FSL_CORENET_RCWSR5_DDR_SYNC)
-		>> FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT;
-#else
 	u32 ddr_ratio = 0;
-#endif /* CONFIG_FSL_CORENET */
 #endif /* CONFIG_DDR_CLK_FREQ */
+#endif /* CONFIG_FSL_CORENET */
+
 	unsigned int i, core, nr_cores = cpu_numcores();
 	u32 mask = cpu_mask();
 
@@ -126,6 +138,11 @@ int checkcpu (void)
 	}
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
+
+	if (nr_cores > CONFIG_MAX_CPUS) {
+		panic("\nUnexpected number of cores: %d, max is %d\n",
+			nr_cores, CONFIG_MAX_CPUS);
+	}
 
 	get_sys_info(&sysinfo);
 
@@ -181,6 +198,10 @@ int checkcpu (void)
 	}
 #endif
 
+#if defined(CONFIG_FSL_IFC)
+	printf("IFC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
+#endif
+
 #ifdef CONFIG_CPM2
 	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
 #endif
@@ -194,6 +215,10 @@ int checkcpu (void)
 		printf("       FMAN%d: %s MHz\n", i + 1,
 			strmhz(buf1, sysinfo.freqFMan[i]));
 	}
+#endif
+
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	printf("       QMAN:  %s MHz\n", strmhz(buf1, sysinfo.freqQMAN));
 #endif
 
 #ifdef CONFIG_SYS_DPAA_PME
@@ -270,10 +295,7 @@ reset_85xx_watchdog(void)
 	/*
 	 * Clear TSR(WIS) bit by writing 1
 	 */
-	unsigned long val;
-	val = mfspr(SPRN_TSR);
-	val |= TSR_WIS;
-	mtspr(SPRN_TSR, val);
+	mtspr(SPRN_TSR, TSR_WIS);
 }
 #endif	/* CONFIG_WATCHDOG */
 

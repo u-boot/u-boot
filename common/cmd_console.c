@@ -29,7 +29,7 @@
 #include <stdio_dev.h>
 
 extern void _do_coninfo (void);
-int do_coninfo (cmd_tbl_t * cmd, int flag, int argc, char * const argv[])
+static int do_coninfo(cmd_tbl_t *cmd, int flag, int argc, char * const argv[])
 {
 	int l;
 	struct list_head *list = stdio_get_list();

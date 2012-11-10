@@ -100,19 +100,6 @@ static void ns9750_serial_putc(const char c)
 }
 
 /***********************************************************************
- * @Function: serial_puts
- * @Return: n/a
- * @Descr: writes non-zero string to the FIFO.
- ***********************************************************************/
-
-static void ns9750_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc( *s++ );
-	}
-}
-
-/***********************************************************************
  * @Function: serial_getc
  * @Return: the character read
  * @Descr: performs only 8bit accesses to the FIFO. No error handling
@@ -215,7 +202,7 @@ static struct serial_device ns9750_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= ns9750_serial_setbrg,
 	.putc	= ns9750_serial_putc,
-	.puts	= ns9750_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= ns9750_serial_getc,
 	.tstc	= ns9750_serial_tstc,
 };

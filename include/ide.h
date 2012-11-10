@@ -27,6 +27,7 @@
 #define IDE_BUS(dev)	(dev / (CONFIG_SYS_IDE_MAXDEVICE / CONFIG_SYS_IDE_MAXBUS))
 
 #define	ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
+extern ulong ide_bus_offset[];
 
 #ifdef CONFIG_IDE_LED
 
@@ -42,8 +43,10 @@
 
 #ifdef CONFIG_SYS_64BIT_LBA
 typedef uint64_t lbaint_t;
+#define LBAF "%llx"
 #else
 typedef ulong lbaint_t;
+#define LBAF "%lx"
 #endif
 
 /*
@@ -53,6 +56,14 @@ typedef ulong lbaint_t;
 void ide_init(void);
 ulong ide_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer);
 ulong ide_write(int device, ulong blknr, lbaint_t blkcnt, const void *buffer);
+
+#ifdef CONFIG_IDE_PREINIT
+int ide_preinit(void);
+#endif
+
+#ifdef CONFIG_IDE_INIT_POSTRESET
+int ide_init_postreset(void);
+#endif
 
 #if defined(CONFIG_OF_IDE_FIXUP)
 int ide_device_present(int dev);
@@ -64,4 +75,14 @@ void ide_write_register(int dev, unsigned int port, unsigned char val);
 void ide_read_data(int dev, ulong *sect_buf, int words);
 void ide_write_data(int dev, ulong *sect_buf, int words);
 #endif
+
+/*
+ * I/O function overrides
+ */
+void ide_input_swap_data(int dev, ulong *sect_buf, int words);
+void ide_input_data(int dev, ulong *sect_buf, int words);
+void ide_output_data(int dev, const ulong *sect_buf, int words);
+void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts);
+void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts);
+
 #endif /* _IDE_H */

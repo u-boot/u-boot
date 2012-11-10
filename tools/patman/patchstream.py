@@ -30,8 +30,8 @@ import gitutil
 from series import Series
 
 # Tags that we detect and remove
-re_remove = re.compile('^BUG=|^TEST=|^Change-Id:|^Review URL:'
-    '|Reviewed-on:|Reviewed-by:')
+re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Change-Id:|^Review URL:'
+    '|Reviewed-on:|Reviewed-by:|Commit-Ready:')
 
 # Lines which are allowed after a TEST= line
 re_allowed_after_test = re.compile('^Signed-off-by:')
@@ -344,7 +344,8 @@ def GetMetaData(start, count):
         start: Commit to start from: 0=HEAD, 1=next one, etc.
         count: Number of commits to list
     """
-    pipe = [['git', 'log', '--reverse', 'HEAD~%d' % start, '-n%d' % count]]
+    pipe = [['git', 'log', '--no-color', '--reverse', 'HEAD~%d' % start,
+	'-n%d' % count]]
     stdout = command.RunPipe(pipe, capture=True)
     series = Series()
     ps = PatchStream(series, is_log=True)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2011 Freescale Semiconductor, Inc.
+ * Copyright 2007-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -211,7 +211,7 @@ static int fsl_pci_setup_inbound_windows(struct pci_controller *hose,
 	return 1;
 }
 
-#ifdef CONFIG_FSL_CORENET
+#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER
 static void fsl_pcie_boot_master(pit_t *pi)
 {
 	/* configure inbound window for slave's u-boot image */
@@ -276,14 +276,18 @@ static void fsl_pcie_boot_master_release_slave(int port)
 		release_addr = CONFIG_SYS_PCIE1_MEM_VIRT
 			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
 		break;
+#ifdef CONFIG_SYS_PCIE2_MEM_VIRT
 	case 2:
 		release_addr = CONFIG_SYS_PCIE2_MEM_VIRT
 			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
 		break;
+#endif
+#ifdef CONFIG_SYS_PCIE3_MEM_VIRT
 	case 3:
 		release_addr = CONFIG_SYS_PCIE3_MEM_VIRT
 			+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET;
 		break;
+#endif
 	default:
 		release_addr = 0;
 		break;
@@ -384,7 +388,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	/* see if we are a PCIe or PCI controller */
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
 
-#ifdef CONFIG_FSL_CORENET
+#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER
 	/* boot from PCIE --master */
 	char *s = getenv("bootmaster");
 	char pcie[6];
@@ -499,13 +503,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	}
 
 #ifndef CONFIG_PCI_NOSCAN
-	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &temp8);
-
-	/* Programming Interface (PCI_CLASS_PROG)
-	 * 0 == pci host or pcie root-complex,
-	 * 1 == pci agent or pcie end-point
-	 */
-	if (!temp8) {
+	if (!fsl_is_pci_agent(hose)) {
 		debug("           Scanning PCI bus %02x\n",
 			hose->current_busno);
 		hose->last_busno = pci_hose_scan_bus(hose, hose->current_busno);
@@ -543,12 +541,22 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 
 int fsl_is_pci_agent(struct pci_controller *hose)
 {
-	u8 prog_if;
+	u8 pcie_cap;
 	pci_dev_t dev = PCI_BDF(hose->first_busno, 0, 0);
 
-	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prog_if);
+	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
+	if (pcie_cap == PCI_CAP_ID_EXP) {
+		u8 header_type;
 
-	return (prog_if == FSL_PROG_IF_AGENT);
+		pci_hose_read_config_byte(hose, dev, PCI_HEADER_TYPE,
+					  &header_type);
+		return (header_type & 0x7f) == PCI_HEADER_TYPE_NORMAL;
+	} else {
+		u8 prog_if;
+
+		pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prog_if);
+		return (prog_if == FSL_PROG_IF_AGENT);
+	}
 }
 
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
@@ -594,7 +602,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	if (fsl_is_pci_agent(hose)) {
 		fsl_pci_config_unlock(hose);
 		hose->last_busno = hose->first_busno;
-#ifdef CONFIG_FSL_CORENET
+#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER
 	} else {
 		/* boot from PCIE --master releases slave's core 0 */
 		char *s = getenv("bootmaster");
@@ -618,12 +626,10 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 void fsl_pci_config_unlock(struct pci_controller *hose)
 {
 	pci_dev_t dev = PCI_BDF(hose->first_busno,0,0);
-	u8 agent;
 	u8 pcie_cap;
 	u16 pbfr;
 
-	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &agent);
-	if (!agent)
+	if (!fsl_is_pci_agent(hose))
 		return;
 
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
@@ -660,10 +666,17 @@ int fsl_configure_pcie(struct fsl_pci_info *info,
 }
 
 #if defined(CONFIG_FSL_CORENET)
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	#define _DEVDISR_PCIE1 FSL_CORENET_DEVDISR3_PCIE1
+	#define _DEVDISR_PCIE2 FSL_CORENET_DEVDISR3_PCIE2
+	#define _DEVDISR_PCIE3 FSL_CORENET_DEVDISR3_PCIE3
+	#define _DEVDISR_PCIE4 FSL_CORENET_DEVDISR3_PCIE4
+#else
 	#define _DEVDISR_PCIE1 FSL_CORENET_DEVDISR_PCIE1
 	#define _DEVDISR_PCIE2 FSL_CORENET_DEVDISR_PCIE2
 	#define _DEVDISR_PCIE3 FSL_CORENET_DEVDISR_PCIE3
 	#define _DEVDISR_PCIE4 FSL_CORENET_DEVDISR_PCIE4
+#endif
 	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CONFIG_SYS_MPC85xx_GUTS_ADDR
 #elif defined(CONFIG_MPC85xx)
 	#define _DEVDISR_PCIE1 MPC85xx_DEVDISR_PCIE
@@ -743,34 +756,42 @@ int fsl_pcie_init_board(int busno)
 {
 	struct fsl_pci_info pci_info;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC8xxx_GUTS_ADDR;
-	u32 devdisr = in_be32(&gur->devdisr);
+	u32 devdisr;
+	u32 *addr;
+
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	addr = &gur->devdisr3;
+#else
+	addr = &gur->devdisr;
+#endif
+	devdisr = in_be32(addr);
 
 #ifdef CONFIG_PCIE1
 	SET_STD_PCIE_INFO(pci_info, 1);
 	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE1, &pci_info);
 #else
-	setbits_be32(&gur->devdisr, _DEVDISR_PCIE1); /* disable */
+	setbits_be32(addr, _DEVDISR_PCIE1); /* disable */
 #endif
 
 #ifdef CONFIG_PCIE2
 	SET_STD_PCIE_INFO(pci_info, 2);
 	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE2, &pci_info);
 #else
-	setbits_be32(&gur->devdisr, _DEVDISR_PCIE2); /* disable */
+	setbits_be32(addr, _DEVDISR_PCIE2); /* disable */
 #endif
 
 #ifdef CONFIG_PCIE3
 	SET_STD_PCIE_INFO(pci_info, 3);
 	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE3, &pci_info);
 #else
-	setbits_be32(&gur->devdisr, _DEVDISR_PCIE3); /* disable */
+	setbits_be32(addr, _DEVDISR_PCIE3); /* disable */
 #endif
 
 #ifdef CONFIG_PCIE4
 	SET_STD_PCIE_INFO(pci_info, 4);
 	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE4, &pci_info);
 #else
-	setbits_be32(&gur->devdisr, _DEVDISR_PCIE4); /* disable */
+	setbits_be32(addr, _DEVDISR_PCIE4); /* disable */
 #endif
 
  	return busno;

@@ -230,6 +230,7 @@
 #define CONFIG_SYS_FLASH_PROTECTION	/* The devices have real protection */
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes */
 #endif
 
 #endif	/* __CONFIG_H */

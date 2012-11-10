@@ -34,6 +34,7 @@
 #define __IMAGE_H__
 
 #include "compiler.h"
+#include <asm/byteorder.h>
 
 #ifdef USE_HOSTCC
 
@@ -183,13 +184,13 @@
  * all data in network byte order (aka natural aka bigendian).
  */
 typedef struct image_header {
-	uint32_t	ih_magic;	/* Image Header Magic Number	*/
-	uint32_t	ih_hcrc;	/* Image Header CRC Checksum	*/
-	uint32_t	ih_time;	/* Image Creation Timestamp	*/
-	uint32_t	ih_size;	/* Image Data Size		*/
-	uint32_t	ih_load;	/* Data	 Load  Address		*/
-	uint32_t	ih_ep;		/* Entry Point Address		*/
-	uint32_t	ih_dcrc;	/* Image Data CRC Checksum	*/
+	__be32		ih_magic;	/* Image Header Magic Number	*/
+	__be32		ih_hcrc;	/* Image Header CRC Checksum	*/
+	__be32		ih_time;	/* Image Creation Timestamp	*/
+	__be32		ih_size;	/* Image Data Size		*/
+	__be32		ih_load;	/* Data	 Load  Address		*/
+	__be32		ih_ep;		/* Entry Point Address		*/
+	__be32		ih_dcrc;	/* Image Data CRC Checksum	*/
 	uint8_t		ih_os;		/* Operating System		*/
 	uint8_t		ih_arch;	/* CPU architecture		*/
 	uint8_t		ih_type;	/* Image Type			*/
@@ -511,6 +512,7 @@ static inline int image_check_target_arch(const image_header_t *hdr)
 #define FIT_HASH_NODENAME	"hash"
 #define FIT_ALGO_PROP		"algo"
 #define FIT_VALUE_PROP		"value"
+#define FIT_IGNORE_PROP		"uboot-ignore"
 
 /* image node */
 #define FIT_DATA_PROP		"data"
@@ -595,6 +597,9 @@ int fit_image_get_data(const void *fit, int noffset,
 int fit_image_hash_get_algo(const void *fit, int noffset, char **algo);
 int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 				int *value_len);
+#ifndef USE_HOSTCC
+int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore);
+#endif
 
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
 int fit_set_hashes(void *fit);

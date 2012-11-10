@@ -373,8 +373,7 @@ static void nand_print_and_set_info(int idx)
 {
 	nand_info_t *nand = &nand_info[idx];
 	struct nand_chip *chip = nand->priv;
-	const int bufsz = 32;
-	char buf[bufsz];
+	char buf[32];
 
 	printf("Device %d: ", idx);
 	if (chip->numchips > 1)
@@ -429,7 +428,7 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 	return ret;
 }
 
-int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, ret = 0;
 	ulong addr;
@@ -781,9 +780,8 @@ usage:
 	return CMD_RET_USAGE;
 }
 
-U_BOOT_CMD(
-	nand, CONFIG_SYS_MAXARGS, 1, do_nand,
-	"NAND sub-system",
+#ifdef CONFIG_SYS_LONGHELP
+static char nand_help_text[] =
 	"info - show available NAND devices\n"
 	"nand device [dev] - show or set current device\n"
 	"nand read - addr off|partition size\n"
@@ -829,6 +827,12 @@ U_BOOT_CMD(
 	"nand env.oob set off|partition - set enviromnent offset\n"
 	"nand env.oob get - get environment offset"
 #endif
+	"";
+#endif
+
+U_BOOT_CMD(
+	nand, CONFIG_SYS_MAXARGS, 1, do_nand,
+	"NAND sub-system", nand_help_text
 );
 
 static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
@@ -913,7 +917,8 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	return bootm_maybe_autostart(cmdtp, cmd);
 }
 
-int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_nandboot(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	char *boot_device = NULL;
 	int idx;

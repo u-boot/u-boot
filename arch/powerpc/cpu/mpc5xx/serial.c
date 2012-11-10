@@ -161,21 +161,13 @@ static void mpc5xx_serial_setbrg(void)
 #endif
 }
 
-static void mpc5xx_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc(*s);
-		++s;
-	}
-}
-
 static struct serial_device mpc5xx_serial_drv = {
 	.name	= "mpc5xx_serial",
 	.start	= mpc5xx_serial_init,
 	.stop	= NULL,
 	.setbrg	= mpc5xx_serial_setbrg,
 	.putc	= mpc5xx_serial_putc,
-	.puts	= mpc5xx_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= mpc5xx_serial_getc,
 	.tstc	= mpc5xx_serial_tstc,
 };

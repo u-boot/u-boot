@@ -100,7 +100,7 @@ static __inline__ __attribute__((const)) __u16 __fswab16(__u16 x)
 {
 	return __arch__swab16(x);
 }
-static __inline__ __u16 __swab16p(__u16 *x)
+static __inline__ __u16 __swab16p(const __u16 *x)
 {
 	return __arch__swab16p(x);
 }
@@ -113,7 +113,7 @@ static __inline__ __attribute__((const)) __u32 __fswab32(__u32 x)
 {
 	return __arch__swab32(x);
 }
-static __inline__ __u32 __swab32p(__u32 *x)
+static __inline__ __u32 __swab32p(const __u32 *x)
 {
 	return __arch__swab32p(x);
 }
@@ -133,7 +133,7 @@ static __inline__ __attribute__((const)) __u64 __fswab64(__u64 x)
 	return __arch__swab64(x);
 #  endif
 }
-static __inline__ __u64 __swab64p(__u64 *x)
+static __inline__ __u64 __swab64p(const __u64 *x)
 {
 	return __arch__swab64p(x);
 }

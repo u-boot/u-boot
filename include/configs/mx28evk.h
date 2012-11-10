@@ -142,7 +142,7 @@
 #ifdef	CONFIG_CMD_MMC
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC_BOUNCE_BUFFER
+#define CONFIG_BOUNCE_BUFFER
 #define CONFIG_MXS_MMC
 #endif
 
@@ -313,7 +313,7 @@
 		"dhcp ${uimage}; bootm\0"
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \

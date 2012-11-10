@@ -21,7 +21,6 @@
 #include <asm/utils.h>
 #include <version.h>
 #include <image.h>
-#include <malloc.h>
 #include <asm/arch/reset_manager.h>
 #include <spl.h>
 
@@ -37,9 +36,6 @@ u32 spl_boot_device(void)
  */
 void spl_board_init(void)
 {
-	/* init timer for enabling delay function */
-	timer_init();
-
 	/* de-assert reset for peripherals and bridges based on handoff */
 	reset_deassert_peripherals_handoff();
 

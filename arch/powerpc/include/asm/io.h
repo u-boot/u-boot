@@ -127,7 +127,6 @@ static inline void isync(void)
 /*
  * Non ordered and non-swapping "raw" accessors
  */
-#define __iomem
 #define PCI_FIX_ADDR(addr)	(addr)
 
 static inline unsigned char __raw_readb(const volatile void __iomem *addr)

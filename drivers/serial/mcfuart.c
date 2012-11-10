@@ -28,6 +28,8 @@
  */
 
 #include <common.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #include <asm/immap.h>
 #include <asm/uart.h>
@@ -87,13 +89,6 @@ static void mcf_serial_putc(const char c)
 	uart->utb = c;
 }
 
-static void mcf_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc(*s++);
-	}
-}
-
 static int mcf_serial_getc(void)
 {
 	volatile uart_t *uart = (volatile uart_t *)(CONFIG_SYS_UART_BASE);
@@ -136,7 +131,7 @@ static struct serial_device mcf_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= mcf_serial_setbrg,
 	.putc	= mcf_serial_putc,
-	.puts	= mcf_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= mcf_serial_getc,
 	.tstc	= mcf_serial_tstc,
 };

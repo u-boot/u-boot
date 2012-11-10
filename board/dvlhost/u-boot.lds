@@ -54,11 +54,11 @@ SECTIONS
 		*(.got)
 	}
 	. =.;
-	__u_boot_cmd_start =.;
-	.u_boot_cmd : {
-		*(.u_boot_cmd)
+
+	. = ALIGN(4);
+	.u_boot_list : {
+	#include <u-boot.lst>
 	}
-	__u_boot_cmd_end =.;
 
 	. = ALIGN (4);
 	.rel.dyn : {

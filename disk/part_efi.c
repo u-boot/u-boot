@@ -113,48 +113,6 @@ static char *print_efiname(gpt_entry *pte)
 	return name;
 }
 
-/*
- * Public Functions (include/part.h)
- */
-
-void print_part_efi(block_dev_desc_t * dev_desc)
-{
-	ALLOC_CACHE_ALIGN_BUFFER(gpt_header, gpt_head, 1);
-	gpt_entry *gpt_pte = NULL;
-	int i = 0;
-
-	if (!dev_desc) {
-		printf("%s: Invalid Argument(s)\n", __func__);
-		return;
-	}
-	/* This function validates AND fills in the GPT header and PTE */
-	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
-			 gpt_head, &gpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
-		return;
-	}
-
-	debug("%s: gpt-entry at %p\n", __func__, gpt_pte);
-
-	printf("Part\tName\t\t\tStart LBA\tEnd LBA\n");
-	for (i = 0; i < le32_to_int(gpt_head->num_partition_entries); i++) {
-
-		if (is_pte_valid(&gpt_pte[i])) {
-			printf("%3d\t%-18s\t0x%08llX\t0x%08llX\n", (i + 1),
-				print_efiname(&gpt_pte[i]),
-				le64_to_int(gpt_pte[i].starting_lba),
-				le64_to_int(gpt_pte[i].ending_lba));
-		} else {
-			break;	/* Stop at the first non valid PTE */
-		}
-	}
-
-	/* Remember to free pte */
-	free(gpt_pte);
-	return;
-}
-
-#ifdef CONFIG_PARTITION_UUIDS
 static void uuid_string(unsigned char *uuid, char *str)
 {
 	static const u8 le[16] = {3, 2, 1, 0, 5, 4, 7, 6, 8, 9, 10, 11,
@@ -174,7 +132,65 @@ static void uuid_string(unsigned char *uuid, char *str)
 		}
 	}
 }
-#endif
+
+static efi_guid_t system_guid = PARTITION_SYSTEM_GUID;
+
+static inline int is_bootable(gpt_entry *p)
+{
+	return p->attributes.fields.legacy_bios_bootable ||
+		!memcmp(&(p->partition_type_guid), &system_guid,
+			sizeof(efi_guid_t));
+}
+
+/*
+ * Public Functions (include/part.h)
+ */
+
+void print_part_efi(block_dev_desc_t * dev_desc)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(gpt_header, gpt_head, 1);
+	gpt_entry *gpt_pte = NULL;
+	int i = 0;
+	char uuid[37];
+
+	if (!dev_desc) {
+		printf("%s: Invalid Argument(s)\n", __func__);
+		return;
+	}
+	/* This function validates AND fills in the GPT header and PTE */
+	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+			 gpt_head, &gpt_pte) != 1) {
+		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
+		return;
+	}
+
+	debug("%s: gpt-entry at %p\n", __func__, gpt_pte);
+
+	printf("Part\tStart LBA\tEnd LBA\t\tName\n");
+	printf("\tAttributes\n");
+	printf("\tType UUID\n");
+	printf("\tPartition UUID\n");
+
+	for (i = 0; i < le32_to_int(gpt_head->num_partition_entries); i++) {
+		/* Stop at the first non valid PTE */
+		if (!is_pte_valid(&gpt_pte[i]))
+			break;
+
+		printf("%3d\t0x%08llx\t0x%08llx\t\"%s\"\n", (i + 1),
+			le64_to_int(gpt_pte[i].starting_lba),
+			le64_to_int(gpt_pte[i].ending_lba),
+			print_efiname(&gpt_pte[i]));
+		printf("\tattrs:\t0x%016llx\n", gpt_pte[i].attributes.raw);
+		uuid_string(gpt_pte[i].partition_type_guid.b, uuid);
+		printf("\ttype:\t%s\n", uuid);
+		uuid_string(gpt_pte[i].unique_partition_guid.b, uuid);
+		printf("\tuuid:\t%s\n", uuid);
+	}
+
+	/* Remember to free pte */
+	free(gpt_pte);
+	return;
+}
 
 int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 				disk_partition_t * info)
@@ -212,6 +228,7 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	sprintf((char *)info->name, "%s",
 			print_efiname(&gpt_pte[part - 1]));
 	sprintf((char *)info->type, "U-Boot");
+	info->bootable = is_bootable(&gpt_pte[part - 1]);
 #ifdef CONFIG_PARTITION_UUIDS
 	uuid_string(gpt_pte[part - 1].unique_partition_guid.b, info->uuid);
 #endif
@@ -405,7 +422,7 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 	count = le32_to_int(pgpt_head->num_partition_entries) *
 		le32_to_int(pgpt_head->sizeof_partition_entry);
 
-	debug("%s: count = %lu * %lu = %u\n", __func__,
+	debug("%s: count = %lu * %lu = %zu\n", __func__,
 		le32_to_int(pgpt_head->num_partition_entries),
 		le32_to_int(pgpt_head->sizeof_partition_entry), count);
 
@@ -415,7 +432,8 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 	}
 
 	if (count == 0 || pte == NULL) {
-		printf("%s: ERROR: Can't allocate 0x%X bytes for GPT Entries\n",
+		printf("%s: ERROR: Can't allocate 0x%zX "
+		       "bytes for GPT Entries\n",
 			__func__, count);
 		return NULL;
 	}
@@ -457,7 +475,7 @@ static int is_pte_valid(gpt_entry * pte)
 		sizeof(unused_guid.b)) == 0) {
 
 		debug("%s: Found an unused PTE GUID at 0x%08X\n", __func__,
-		(unsigned int)pte);
+		      (unsigned int)(uintptr_t)pte);
 
 		return 0;
 	} else {

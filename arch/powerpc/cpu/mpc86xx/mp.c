@@ -90,8 +90,11 @@ int cpu_release(int nr, int argc, char * const argv[])
 	return 1;
 }
 
-u32 determine_mp_bootpg(void)
+u32 determine_mp_bootpg(unsigned int *pagesize)
 {
+	if (pagesize)
+		*pagesize = 4096;
+
 	/* if we have 4G or more of memory, put the boot page at 4Gb-1M */
 	if ((u64)gd->ram_size > 0xfffff000)
 		return (0xfff00000);
@@ -101,7 +104,7 @@ u32 determine_mp_bootpg(void)
 
 void cpu_mp_lmb_reserve(struct lmb *lmb)
 {
-	u32 bootpg = determine_mp_bootpg();
+	u32 bootpg = determine_mp_bootpg(NULL);
 
 	/* tell u-boot we stole a page */
 	lmb_reserve(lmb, bootpg, 4096);
@@ -115,7 +118,7 @@ void setup_mp(void)
 {
 	extern ulong __secondary_start_page;
 	ulong fixup = (ulong)&__secondary_start_page;
-	u32 bootpg = determine_mp_bootpg();
+	u32 bootpg = determine_mp_bootpg(NULL);
 	u32 bootpg_va;
 
 	if (bootpg >= CONFIG_SYS_MAX_DDR_BAT_SIZE) {

@@ -18,12 +18,14 @@
 void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			     unsigned int ctrl_num)
 {
-	unsigned int i;
+	unsigned int i, bus_width;
 	volatile ccsr_ddr_t *ddr;
 	u32 temp_sdram_cfg;
-#ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
-	volatile ccsr_local_ecm_t *ecm = (void *)CONFIG_SYS_MPC85xx_ECM_ADDR;
 	u32 total_gb_size_per_controller;
+	int timeout;
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	int timeout_save;
+	volatile ccsr_local_ecm_t *ecm = (void *)CONFIG_SYS_MPC85xx_ECM_ADDR;
 	unsigned int csn_bnds_backup = 0, cs_sa, cs_ea, *csn_bnds_t;
 	int csn = -1;
 #endif
@@ -52,8 +54,8 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		return;
 	}
 
-	out_be32(&ddr->eor, regs->ddr_eor);
-
+	if (regs->ddr_eor)
+		out_be32(&ddr->eor, regs->ddr_eor);
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
 	debug("Workaround for ERRATUM_DDR111_DDR134\n");
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
@@ -121,6 +123,11 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->timing_cfg_5, regs->timing_cfg_5);
 	out_be32(&ddr->ddr_zq_cntl, regs->ddr_zq_cntl);
 	out_be32(&ddr->ddr_wrlvl_cntl, regs->ddr_wrlvl_cntl);
+	if (regs->ddr_wrlvl_cntl_2)
+		out_be32(&ddr->ddr_wrlvl_cntl_2, regs->ddr_wrlvl_cntl_2);
+	if (regs->ddr_wrlvl_cntl_3)
+		out_be32(&ddr->ddr_wrlvl_cntl_3, regs->ddr_wrlvl_cntl_3);
+
 	out_be32(&ddr->ddr_sr_cntr, regs->ddr_sr_cntr);
 	out_be32(&ddr->ddr_sdram_rcw_1, regs->ddr_sdram_rcw_1);
 	out_be32(&ddr->ddr_sdram_rcw_2, regs->ddr_sdram_rcw_2);
@@ -134,6 +141,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			out_be32(&ddr->debug[i], regs->debug[i]);
 		}
 	}
+#ifdef CONFIG_SYS_FSL_ERRATUM_A_004934
+	out_be32(&ddr->debug[28], 0x00003000);
+#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003474
 	out_be32(&ddr->debug[12], 0x00000015);
@@ -270,9 +280,48 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
 	asm volatile("sync;isync");
 
+	total_gb_size_per_controller = 0;
+	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+		if (!(regs->cs[i].config & 0x80000000))
+			continue;
+		total_gb_size_per_controller += 1 << (
+			((regs->cs[i].config >> 14) & 0x3) + 2 +
+			((regs->cs[i].config >> 8) & 0x7) + 12 +
+			((regs->cs[i].config >> 0) & 0x7) + 8 +
+			3 - ((regs->ddr_sdram_cfg >> 19) & 0x3) -
+			26);			/* minus 26 (count of 64M) */
+	}
+	if (fsl_ddr_get_intl3r() & 0x80000000)	/* 3-way interleaving */
+		total_gb_size_per_controller *= 3;
+	else if (regs->cs[0].config & 0x20000000) /* 2-way interleaving */
+		total_gb_size_per_controller <<= 1;
+	/*
+	 * total memory / bus width = transactions needed
+	 * transactions needed / data rate = seconds
+	 * to add plenty of buffer, double the time
+	 * For example, 2GB on 666MT/s 64-bit bus takes about 402ms
+	 * Let's wait for 800ms
+	 */
+	bus_width = 3 - ((ddr->sdram_cfg & SDRAM_CFG_DBW_MASK)
+			>> SDRAM_CFG_DBW_SHIFT);
+	timeout = ((total_gb_size_per_controller << (6 - bus_width)) * 100 /
+		(get_ddr_freq(0) >> 20)) << 1;
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	timeout_save = timeout;
+#endif
+	total_gb_size_per_controller >>= 4;	/* shift down to gb size */
+	debug("total %d GB\n", total_gb_size_per_controller);
+	debug("Need to wait up to %d * 10ms\n", timeout);
+
 	/* Poll DDR_SDRAM_CFG_2[D_INIT] bit until auto-data init is done.  */
-	while (in_be32(&ddr->sdram_cfg_2) & SDRAM_CFG2_D_INIT)
+	while ((in_be32(&ddr->sdram_cfg_2) & SDRAM_CFG2_D_INIT) &&
+		(timeout >= 0)) {
 		udelay(10000);		/* throttle polling rate */
+		timeout--;
+	}
+
+	if (timeout <= 0)
+		printf("Waiting for D_INIT timeout. Memory may not work.\n");
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
 	/* continue this workaround */
@@ -330,23 +379,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	while (in_be32(&ddr->debug[1]) & 0x400)
 		udelay(10000);          /* throttle polling rate */
 
-	/* 7. Wait for 400ms/GB */
-	total_gb_size_per_controller = 0;
-	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-		if (i == csn) {
-			total_gb_size_per_controller +=
-				((csn_bnds_backup & 0xFFFF) >> 6)
-				- (csn_bnds_backup >> 22) + 1;
-		} else {
-			total_gb_size_per_controller +=
-				((regs->cs[i].bnds & 0xFFFF) >> 6)
-				- (regs->cs[i].bnds >> 22) + 1;
-		}
-	}
-	if (in_be32(&ddr->sdram_cfg) & 0x80000)
-		total_gb_size_per_controller <<= 1;
-	debug("Wait for %d ms\n", total_gb_size_per_controller * 400);
-	udelay(total_gb_size_per_controller * 400000);
+	/* 7. Wait for state machine 2nd run, roughly 400ms/GB */
+	debug("Wait for %d * 10ms\n", timeout_save);
+	udelay(timeout_save * 10000);
 
 	/* 8. Set sdram_cfg_2[dinit] if options requires */
 	setbits_be32(&ddr->sdram_cfg_2,
@@ -354,8 +389,16 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	debug("Setting sdram_cfg_2 to 0x%08x\n", in_be32(&ddr->sdram_cfg_2));
 
 	/* 9. Poll until dinit is cleared */
-	while (in_be32(&ddr->sdram_cfg_2) & SDRAM_CFG2_D_INIT)
-		udelay(10000);
+	timeout = timeout_save;
+	debug("Need to wait up to %d * 10ms\n", timeout);
+	while ((in_be32(&ddr->sdram_cfg_2) & SDRAM_CFG2_D_INIT) &&
+		(timeout >= 0)) {
+		udelay(10000);		/* throttle polling rate */
+		timeout--;
+	}
+
+	if (timeout <= 0)
+		printf("Waiting for D_INIT timeout. Memory may not work.\n");
 
 	/* 10. Clear EEBACR[3] */
 	clrbits_be32(&ecm->eebacr, 10000000);

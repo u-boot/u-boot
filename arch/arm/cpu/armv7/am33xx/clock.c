@@ -44,6 +44,7 @@
 const struct cm_perpll *cmper = (struct cm_perpll *)CM_PER;
 const struct cm_wkuppll *cmwkup = (struct cm_wkuppll *)CM_WKUP;
 const struct cm_dpll *cmdpll = (struct cm_dpll *)CM_DPLL;
+const struct cm_rtc *cmrtc = (struct cm_rtc *)CM_RTC;
 
 static void enable_interface_clocks(void)
 {
@@ -114,6 +115,41 @@ static void enable_per_clocks(void)
 	while (readl(&cmwkup->wkup_uart0ctrl) != PRCM_MOD_EN)
 		;
 
+	/* UART1 */
+#ifdef CONFIG_SERIAL2
+	writel(PRCM_MOD_EN, &cmper->uart1clkctrl);
+	while (readl(&cmper->uart1clkctrl) != PRCM_MOD_EN)
+		;
+#endif /* CONFIG_SERIAL2 */
+
+	/* UART2 */
+#ifdef CONFIG_SERIAL3
+	writel(PRCM_MOD_EN, &cmper->uart2clkctrl);
+	while (readl(&cmper->uart2clkctrl) != PRCM_MOD_EN)
+		;
+#endif /* CONFIG_SERIAL3 */
+
+	/* UART3 */
+#ifdef CONFIG_SERIAL4
+	writel(PRCM_MOD_EN, &cmper->uart3clkctrl);
+	while (readl(&cmper->uart3clkctrl) != PRCM_MOD_EN)
+		;
+#endif /* CONFIG_SERIAL4 */
+
+	/* UART4 */
+#ifdef CONFIG_SERIAL5
+	writel(PRCM_MOD_EN, &cmper->uart4clkctrl);
+	while (readl(&cmper->uart4clkctrl) != PRCM_MOD_EN)
+		;
+#endif /* CONFIG_SERIAL5 */
+
+	/* UART5 */
+#ifdef CONFIG_SERIAL6
+	writel(PRCM_MOD_EN, &cmper->uart5clkctrl);
+	while (readl(&cmper->uart5clkctrl) != PRCM_MOD_EN)
+		;
+#endif /* CONFIG_SERIAL6 */
+
 	/* MMC0*/
 	writel(PRCM_MOD_EN, &cmper->mmc0clkctrl);
 	while (readl(&cmper->mmc0clkctrl) != PRCM_MOD_EN)
@@ -152,6 +188,11 @@ static void enable_per_clocks(void)
 	/* spi0 */
 	writel(PRCM_MOD_EN, &cmper->spi0clkctrl);
 	while (readl(&cmper->spi0clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* RTC */
+	writel(PRCM_MOD_EN, &cmrtc->rtcclkctrl);
+	while (readl(&cmrtc->rtcclkctrl) != PRCM_MOD_EN)
 		;
 }
 

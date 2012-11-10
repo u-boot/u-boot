@@ -2002,49 +2002,6 @@ zfs_fetch_nvlist(device_t dev, char **nvlist)
 	return err;
 }
 
-static int
-zfs_label(device_t device, char **label)
-{
-	char *nvlist;
-	int err;
-	struct zfs_data *data;
-
-	data = zfs_mount(device);
-	if (!data)
-		return ZFS_ERR_BAD_FS;
-
-	err = int_zfs_fetch_nvlist(data, &nvlist);
-	if (err) {
-		zfs_unmount(data);
-		return err;
-	}
-
-	*label = zfs_nvlist_lookup_string(nvlist, ZPOOL_CONFIG_POOL_NAME);
-	free(nvlist);
-	zfs_unmount(data);
-	return ZFS_ERR_NONE;
-}
-
-static int
-zfs_uuid(device_t device, char **uuid)
-{
-	struct zfs_data *data;
-
-	data = zfs_mount(device);
-	if (!data)
-		return ZFS_ERR_BAD_FS;
-
-	*uuid = malloc(17); /* %016llx + nil */
-	if (!*uuid)
-		return ZFS_ERR_OUT_OF_MEMORY;
-
-	/* *uuid = xasprintf ("%016llx", (long long unsigned) data->pool_guid);*/
-	snprintf(*uuid, 17, "%016llx", (long long unsigned) data->pool_guid);
-	zfs_unmount(data);
-
-	return ZFS_ERR_NONE;
-}
-
 /*
  * zfs_open() locates a file in the rootpool by following the
  * MOS and places the dnode of the file in the memory address DNODE.
@@ -2325,14 +2282,6 @@ zfs_ls(device_t device, const char *path,
 	struct zfs_data *data;
 	int err;
 	int isfs;
-#if 0
-	char *label = NULL;
-
-	zfs_label(device, &label);
-	if (label)
-		printf("ZPOOL label '%s'\n",
-			   label);
-#endif
 
 	data = zfs_mount(device);
 	if (!data)

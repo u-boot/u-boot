@@ -8,7 +8,7 @@
 
 include $(TOPDIR)/config.mk
 
-DOCBOOKS :=
+DOCBOOKS := linker_lists.xml stdio.xml
 
 ###
 # The build process is as follows (targets):

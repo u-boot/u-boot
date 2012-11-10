@@ -31,6 +31,7 @@
 #include <asm/immap.h>
 #include <asm/io.h>
 #include <asm/rtc.h>
+#include <linux/compiler.h>
 
 /*
  * Breath some life into the CPU...
@@ -41,12 +42,13 @@
  */
 void cpu_init_f(void)
 {
-	scm1_t *scm1 = (scm1_t *) MMAP_SCM1;
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-	fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
-	pll_t *pll = (pll_t *)MMAP_PLL;
+	fbcs_t *fbcs __maybe_unused = (fbcs_t *) MMAP_FBCS;
 
 #if !defined(CONFIG_CF_SBF)
+	scm1_t *scm1 = (scm1_t *) MMAP_SCM1;
+	pll_t *pll = (pll_t *)MMAP_PLL;
+
 	/* Workaround, must place before fbcs */
 	out_be32(&pll->psr, 0x12);
 

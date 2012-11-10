@@ -68,7 +68,7 @@ struct fsl_esdhc {
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
-uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
+static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	uint xfertyp = 0;
 

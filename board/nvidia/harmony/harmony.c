@@ -75,3 +75,12 @@ int board_mmc_init(bd_t *bd)
 	return 0;
 }
 #endif
+
+void pin_mux_usb(void)
+{
+	funcmux_select(PERIPH_ID_USB2, FUNCMUX_USB2_ULPI);
+	pinmux_set_func(PINGRP_CDEV2, PMUX_FUNC_PLLP_OUT4);
+	pinmux_tristate_disable(PINGRP_CDEV2);
+	/* USB2 PHY reset GPIO */
+	pinmux_tristate_disable(PINGRP_UAC);
+}

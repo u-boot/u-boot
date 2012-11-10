@@ -98,7 +98,10 @@ static inline int gpio_direction_input(unsigned gpio)
 
 static inline int gpio_direction_output(unsigned gpio, int value)
 {
-	mpc85xx_gpio_set_low(1U << gpio);
+	if (value)
+		mpc85xx_gpio_set_high(1U << gpio);
+	else
+		mpc85xx_gpio_set_low(1U << gpio);
 	return 0;
 }
 

@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).o
 
-COBJS	= au1x00_eth.o au1x00_serial.o au1x00_usb_ohci.o
+COBJS	= au1x00_eth.o au1x00_serial.o au1x00_usb_ohci.o au1x00_ide.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

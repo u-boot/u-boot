@@ -86,12 +86,6 @@ static void atmel_serial_putc(char c)
 	writel(c, &usart->thr);
 }
 
-static void atmel_serial_puts(const char *s)
-{
-	while (*s)
-		serial_putc(*s++);
-}
-
 static int atmel_serial_getc(void)
 {
 	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
@@ -113,7 +107,7 @@ static struct serial_device atmel_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= atmel_serial_setbrg,
 	.putc	= atmel_serial_putc,
-	.puts	= atmel_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= atmel_serial_getc,
 	.tstc	= atmel_serial_tstc,
 };

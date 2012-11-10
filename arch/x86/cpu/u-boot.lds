@@ -33,10 +33,11 @@ SECTIONS
 	.text  : { *(.text*); }
 
 	. = ALIGN(4);
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
+
 	. = ALIGN(4);
-	__u_boot_cmd_end = .;
+	.u_boot_list : {
+	#include <u-boot.lst>
+	}
 
 	. = ALIGN(4);
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }

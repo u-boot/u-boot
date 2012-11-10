@@ -30,9 +30,9 @@
 
 static int netboot_common(enum proto_t, cmd_tbl_t *, int, char * const []);
 
-int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bootp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return netboot_common (BOOTP, cmdtp, argc, argv);
+	return netboot_common(BOOTP, cmdtp, argc, argv);
 }
 
 U_BOOT_CMD(
@@ -41,7 +41,7 @@ U_BOOT_CMD(
 	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
 
-int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret;
 
@@ -91,9 +91,9 @@ U_BOOT_CMD(
 
 
 #ifdef CONFIG_CMD_RARP
-int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_rarpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return netboot_common (RARP, cmdtp, argc, argv);
+	return netboot_common(RARP, cmdtp, argc, argv);
 }
 
 U_BOOT_CMD(
@@ -104,7 +104,7 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_DHCP)
-int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_dhcp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common(DHCP, cmdtp, argc, argv);
 }
@@ -117,7 +117,7 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_NFS)
-int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_nfs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common(NFS, cmdtp, argc, argv);
 }
@@ -129,29 +129,29 @@ U_BOOT_CMD(
 );
 #endif
 
-static void netboot_update_env (void)
+static void netboot_update_env(void)
 {
 	char tmp[22];
 
 	if (NetOurGatewayIP) {
-		ip_to_string (NetOurGatewayIP, tmp);
-		setenv ("gatewayip", tmp);
+		ip_to_string(NetOurGatewayIP, tmp);
+		setenv("gatewayip", tmp);
 	}
 
 	if (NetOurSubnetMask) {
-		ip_to_string (NetOurSubnetMask, tmp);
-		setenv ("netmask", tmp);
+		ip_to_string(NetOurSubnetMask, tmp);
+		setenv("netmask", tmp);
 	}
 
 	if (NetOurHostName[0])
-		setenv ("hostname", NetOurHostName);
+		setenv("hostname", NetOurHostName);
 
 	if (NetOurRootPath[0])
-		setenv ("rootpath", NetOurRootPath);
+		setenv("rootpath", NetOurRootPath);
 
 	if (NetOurIP) {
-		ip_to_string (NetOurIP, tmp);
-		setenv ("ipaddr", tmp);
+		ip_to_string(NetOurIP, tmp);
+		setenv("ipaddr", tmp);
 	}
 #if !defined(CONFIG_BOOTP_SERVERIP)
 	/*
@@ -159,35 +159,35 @@ static void netboot_update_env (void)
 	 * could have set it
 	 */
 	if (NetServerIP) {
-		ip_to_string (NetServerIP, tmp);
-		setenv ("serverip", tmp);
+		ip_to_string(NetServerIP, tmp);
+		setenv("serverip", tmp);
 	}
 #endif
 	if (NetOurDNSIP) {
-		ip_to_string (NetOurDNSIP, tmp);
-		setenv ("dnsip", tmp);
+		ip_to_string(NetOurDNSIP, tmp);
+		setenv("dnsip", tmp);
 	}
 #if defined(CONFIG_BOOTP_DNS2)
 	if (NetOurDNS2IP) {
-		ip_to_string (NetOurDNS2IP, tmp);
-		setenv ("dnsip2", tmp);
+		ip_to_string(NetOurDNS2IP, tmp);
+		setenv("dnsip2", tmp);
 	}
 #endif
 	if (NetOurNISDomain[0])
-		setenv ("domain", NetOurNISDomain);
+		setenv("domain", NetOurNISDomain);
 
 #if defined(CONFIG_CMD_SNTP) \
     && defined(CONFIG_BOOTP_TIMEOFFSET)
 	if (NetTimeOffset) {
-		sprintf (tmp, "%d", NetTimeOffset);
-		setenv ("timeoffset", tmp);
+		sprintf(tmp, "%d", NetTimeOffset);
+		setenv("timeoffset", tmp);
 	}
 #endif
 #if defined(CONFIG_CMD_SNTP) \
     && defined(CONFIG_BOOTP_NTPSERVER)
 	if (NetNtpServerIP) {
-		ip_to_string (NetNtpServerIP, tmp);
-		setenv ("ntpserverip", tmp);
+		ip_to_string(NetNtpServerIP, tmp);
+		setenv("ntpserverip", tmp);
 	}
 #endif
 }
@@ -224,7 +224,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 		break;
 
 	case 3:	load_addr = simple_strtoul(argv[1], NULL, 16);
-		copy_filename (BootFile, argv[2], sizeof(BootFile));
+		copy_filename(BootFile, argv[2], sizeof(BootFile));
 
 		break;
 
@@ -274,7 +274,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 }
 
 #if defined(CONFIG_CMD_PING)
-int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ping(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
 		return -1;
@@ -322,7 +322,7 @@ static void cdp_update_env(void)
 
 }
 
-int do_cdp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_cdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int r;
 
@@ -345,27 +345,29 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_SNTP)
-int do_sntp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *toff;
 
 	if (argc < 2) {
-		NetNtpServerIP = getenv_IPaddr ("ntpserverip");
+		NetNtpServerIP = getenv_IPaddr("ntpserverip");
 		if (NetNtpServerIP == 0) {
-			printf ("ntpserverip not set\n");
+			printf("ntpserverip not set\n");
 			return (1);
 		}
 	} else {
 		NetNtpServerIP = string_to_ip(argv[1]);
 		if (NetNtpServerIP == 0) {
-			printf ("Bad NTP server IP address\n");
+			printf("Bad NTP server IP address\n");
 			return (1);
 		}
 	}
 
-	toff = getenv ("timeoffset");
-	if (toff == NULL) NetTimeOffset = 0;
-	else NetTimeOffset = simple_strtol (toff, NULL, 10);
+	toff = getenv("timeoffset");
+	if (toff == NULL)
+		NetTimeOffset = 0;
+	else
+		NetTimeOffset = simple_strtol(toff, NULL, 10);
 
 	if (NetLoop(SNTP) < 0) {
 		printf("SNTP failed: host %pI4 not responding\n",

@@ -296,7 +296,9 @@ typedef struct ccsr_pcix {
 	u32	cfg_addr;	/* PCIX Configuration Addr */
 	u32	cfg_data;	/* PCIX Configuration Data */
 	u32	int_ack;	/* PCIX IRQ Acknowledge */
-	u8	res1[3060];
+	u8	res000c[52];
+	u32	liodn_base;	/* PCIX LIODN base register */
+	u8	res0044[3004];
 	u32	potar0;		/* PCIX Outbound Transaction Addr 0 */
 	u32	potear0;	/* PCIX Outbound Translation Extended Addr 0 */
 	u32	powbar0;	/* PCIX Outbound Window Base Addr 0 */
@@ -1687,6 +1689,77 @@ typedef struct ccsr_gur {
 	u32	alt_pmuxcr;	/* Alt function signal multiplex control */
 	u8	res6[12];
 	u32	devdisr;	/* Device disable control */
+	u32	devdisr2;	/* Device disable control 2 */
+	u32	devdisr3;	/* Device disable control 3 */
+	u32	devdisr4;	/* Device disable control 4 */
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+	u32	devdisr5;	/* Device disable control 5 */
+#define FSL_CORENET_DEVDISR_PBL	0x80000000
+#define FSL_CORENET_DEVDISR_PMAN	0x40000000
+#define FSL_CORENET_DEVDISR_ESDHC	0x20000000
+#define FSL_CORENET_DEVDISR_DMA1	0x00800000
+#define FSL_CORENET_DEVDISR_DMA2	0x00400000
+#define FSL_CORENET_DEVDISR_USB1	0x00080000
+#define FSL_CORENET_DEVDISR_USB2	0x00040000
+#define FSL_CORENET_DEVDISR_SATA1	0x00008000
+#define FSL_CORENET_DEVDISR_SATA2	0x00004000
+#define FSL_CORENET_DEVDISR_PME	0x00000800
+#define FSL_CORENET_DEVDISR_SEC	0x00000200
+#define FSL_CORENET_DEVDISR_RMU	0x00000080
+#define FSL_CORENET_DEVDISR_DCE	0x00000040
+#define FSL_CORENET_DEVDISR2_DTSEC1_1	0x80000000
+#define FSL_CORENET_DEVDISR2_DTSEC1_2	0x40000000
+#define FSL_CORENET_DEVDISR2_DTSEC1_3	0x20000000
+#define FSL_CORENET_DEVDISR2_DTSEC1_4	0x10000000
+#define FSL_CORENET_DEVDISR2_DTSEC1_5	0x08000000
+#define FSL_CORENET_DEVDISR2_DTSEC1_6	0x04000000
+#define FSL_CORENET_DEVDISR2_DTSEC1_9	0x00800000
+#define FSL_CORENET_DEVDISR2_DTSEC1_10	0x00400000
+#define FSL_CORENET_DEVDISR2_10GEC1_1	0x00800000
+#define FSL_CORENET_DEVDISR2_10GEC1_2	0x00400000
+#define FSL_CORENET_DEVDISR2_DTSEC2_1	0x00080000
+#define FSL_CORENET_DEVDISR2_DTSEC2_2	0x00040000
+#define FSL_CORENET_DEVDISR2_DTSEC2_3	0x00020000
+#define FSL_CORENET_DEVDISR2_DTSEC2_4	0x00010000
+#define FSL_CORENET_DEVDISR2_DTSEC2_5	0x00008000
+#define FSL_CORENET_DEVDISR2_DTSEC2_6	0x00004000
+#define FSL_CORENET_DEVDISR2_DTSEC2_9	0x00000800
+#define FSL_CORENET_DEVDISR2_DTSEC2_10	0x00000400
+#define FSL_CORENET_DEVDISR2_10GEC2_1	0x00000800
+#define FSL_CORENET_DEVDISR2_10GEC2_2	0x00000400
+#define FSL_CORENET_DEVDISR2_FM1	0x00000080
+#define FSL_CORENET_DEVDISR2_FM2	0x00000040
+#define FSL_CORENET_DEVDISR2_CPRI	0x00000008
+#define FSL_CORENET_DEVDISR3_PCIE1	0x80000000
+#define FSL_CORENET_DEVDISR3_PCIE2	0x40000000
+#define FSL_CORENET_DEVDISR3_PCIE3	0x20000000
+#define FSL_CORENET_DEVDISR3_PCIE4	0x10000000
+#define FSL_CORENET_DEVDISR3_SRIO1	0x08000000
+#define FSL_CORENET_DEVDISR3_SRIO2	0x04000000
+#define FSL_CORENET_DEVDISR3_QMAN	0x00080000
+#define FSL_CORENET_DEVDISR3_BMAN	0x00040000
+#define FSL_CORENET_DEVDISR3_LA1	0x00008000
+#define FSL_CORENET_DEVDISR3_MAPLE1	0x00000800
+#define FSL_CORENET_DEVDISR3_MAPLE2	0x00000400
+#define FSL_CORENET_DEVDISR3_MAPLE3	0x00000200
+#define FSL_CORENET_DEVDISR4_I2C1	0x80000000
+#define FSL_CORENET_DEVDISR4_I2C2	0x40000000
+#define FSL_CORENET_DEVDISR4_DUART1	0x20000000
+#define FSL_CORENET_DEVDISR4_DUART2	0x10000000
+#define FSL_CORENET_DEVDISR4_ESPI	0x08000000
+#define FSL_CORENET_DEVDISR5_DDR1	0x80000000
+#define FSL_CORENET_DEVDISR5_DDR2	0x40000000
+#define FSL_CORENET_DEVDISR5_DDR3	0x20000000
+#define FSL_CORENET_DEVDISR5_CPC1	0x08000000
+#define FSL_CORENET_DEVDISR5_CPC2	0x04000000
+#define FSL_CORENET_DEVDISR5_CPC3	0x02000000
+#define FSL_CORENET_DEVDISR5_IFC	0x00800000
+#define FSL_CORENET_DEVDISR5_GPIO	0x00400000
+#define FSL_CORENET_DEVDISR5_DBG	0x00200000
+#define FSL_CORENET_DEVDISR5_NAL	0x00100000
+#define FSL_CORENET_DEVDISR5_TIMERS	0x00020000
+#define FSL_CORENET_NUM_DEVDISR		5
+#else
 #define FSL_CORENET_DEVDISR_PCIE1	0x80000000
 #define FSL_CORENET_DEVDISR_PCIE2	0x40000000
 #define FSL_CORENET_DEVDISR_PCIE3	0x20000000
@@ -1712,7 +1785,6 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_DEVDISR_I2C2	0x00000010
 #define FSL_CORENET_DEVDISR_DUART1	0x00000002
 #define FSL_CORENET_DEVDISR_DUART2	0x00000001
-	u32	devdisr2;	/* Device disable control 2 */
 #define FSL_CORENET_DEVDISR2_PME	0x80000000
 #define FSL_CORENET_DEVDISR2_SEC	0x40000000
 #define FSL_CORENET_DEVDISR2_QMBM	0x08000000
@@ -1731,8 +1803,8 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_DEVDISR2_DTSEC2_4	0x00001000
 #define FSL_CORENET_DEVDISR2_DTSEC2_5	0x00000800
 #define FSL_CORENET_NUM_DEVDISR		2
-	u8	res7[8];
 	u32	powmgtcsr;	/* Power management status & control */
+#endif
 	u8	res8[12];
 	u32	coredisru;	/* uppper portion for support of 64 cores */
 	u32	coredisrl;	/* lower portion for support of 64 cores */
@@ -1755,13 +1827,47 @@ typedef struct ccsr_gur {
 	u32	brrl;		/* Boot release */
 	u8	res17[24];
 	u32	rcwsr[16];	/* Reset control word status */
+
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	16
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x3f
+#if defined(CONFIG_PPC_T4240)
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xfc000000
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	26
+#define FSL_CORENET2_RCWSR4_SRDS2_PRTCL		0x00fe0000
+#define FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT	17
+#define FSL_CORENET2_RCWSR4_SRDS3_PRTCL		0x0000f800
+#define FSL_CORENET2_RCWSR4_SRDS3_PRTCL_SHIFT	11
+#define FSL_CORENET2_RCWSR4_SRDS4_PRTCL		0x000000f8
+#define FSL_CORENET2_RCWSR4_SRDS4_PRTCL_SHIFT	3
+#elif defined(CONFIG_PPC_B4860)
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL	0xfe000000
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	25
+#define FSL_CORENET2_RCWSR4_SRDS2_PRTCL	0x00ff0000
+#define FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT	16
+#endif
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S1_PLL1	0x00800000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S1_PLL2	0x00400000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S2_PLL1	0x00200000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S2_PLL2	0x00100000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S3_PLL1	0x00080000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S3_PLL2	0x00040000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S4_PLL1	0x00020000
+#define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S4_PLL2	0x00010000
+
+#else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	17
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x1f
 #define FSL_CORENET_RCWSR4_SRDS_PRTCL		0xfc000000
 #define FSL_CORENET_RCWSR5_DDR_SYNC		0x00000080
 #define FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT		 7
 #define FSL_CORENET_RCWSR5_SRDS_EN		0x00002000
+#define FSL_CORENET_RCWSR5_SRDS2_EN		0x00001000
 #define FSL_CORENET_RCWSR6_BOOT_LOC	0x0f800000
 #define FSL_CORENET_RCWSRn_SRDS_LPD_B2		0x3c000000 /* bits 162..165 */
 #define FSL_CORENET_RCWSRn_SRDS_LPD_B3		0x003c0000 /* bits 170..173 */
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
 #define FSL_CORENET_RCWSR7_MCK_TO_PLAT_RAT	0x00400000
 #define FSL_CORENET_RCWSR8_HOST_AGT_B1		0x00e00000
 #define FSL_CORENET_RCWSR8_HOST_AGT_B2		0x00100000
@@ -1783,6 +1889,24 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_RCWSR11_EC2_FM1_DTSEC5_RGMII	0x00000000
 #define FSL_CORENET_RCWSR11_EC2_FM1_DTSEC5_MII		0x00100000
 #define FSL_CORENET_RCWSR11_EC2_FM1_DTSEC5_NONE		0x00180000
+#endif
+#if defined(CONFIG_PPC_P5040)
+#define FSL_CORENET_RCWSR11_EC1_FM1_DTSEC5_RGMII        0x00000000
+#define FSL_CORENET_RCWSR11_EC1_FM1_DTSEC5_MII          0x00800000
+#define FSL_CORENET_RCWSR11_EC1_FM1_DTSEC5_NONE         0x00c00000
+#define FSL_CORENET_RCWSR11_EC2                 0x00180000 /* bits 363..364 */
+#define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_RGMII        0x00000000
+#define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_MII          0x00100000
+#define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_NONE         0x00180000
+#endif
+#if defined(CONFIG_PPC_T4240)
+#define FSL_CORENET_RCWSR13_EC1			0x60000000 /* bits 417..418 */
+#define FSL_CORENET_RCWSR13_EC1_FM2_DTSEC5_RGMII	0x00000000
+#define FSL_CORENET_RCWSR13_EC1_FM2_GPIO		0x40000000
+#define FSL_CORENET_RCWSR13_EC2			0x18000000 /* bits 419..420 */
+#define FSL_CORENET_RCWSR13_EC2_FM1_DTSEC5_RGMII	0x00000000
+#define FSL_CORENET_RCWSR13_EC2_FM1_DTSEC6_RGMII	0x08000000
+#define FSL_CORENET_RCWSR13_EC2_FM1_GPIO		0x10000000
 #endif
 	u8	res18[192];
 	u32	scratchrw[4];	/* Scratch Read/Write */
@@ -1880,34 +2004,38 @@ typedef struct ccsr_gur {
 #define rmuliodnr rio1maintliodnr
 
 typedef struct ccsr_clk {
-	u32	clkc0csr;	/* Core 0 Clock control/status */
+	u32	clkc0csr;	/* 0x000 Core 0 Clock control/status */
 	u8	res1[0x1c];
-	u32	clkc1csr;	/* Core 1 Clock control/status */
+	u32	clkc1csr;	/* 0x020 Core 1 Clock control/status */
 	u8	res2[0x1c];
-	u32	clkc2csr;	/* Core 2 Clock control/status */
+	u32	clkc2csr;	/* 0x040 Core 2 Clock control/status */
 	u8	res3[0x1c];
-	u32	clkc3csr;	/* Core 3 Clock control/status */
+	u32	clkc3csr;	/* 0x060 Core 3 Clock control/status */
 	u8	res4[0x1c];
-	u32	clkc4csr;	/* Core 4 Clock control/status */
+	u32	clkc4csr;	/* 0x080 Core 4 Clock control/status */
 	u8	res5[0x1c];
-	u32	clkc5csr;	/* Core 5 Clock control/status */
+	u32	clkc5csr;	/* 0x0a0 Core 5 Clock control/status */
 	u8	res6[0x1c];
-	u32	clkc6csr;	/* Core 6 Clock control/status */
+	u32	clkc6csr;	/* 0x0c0 Core 6 Clock control/status */
 	u8	res7[0x1c];
-	u32	clkc7csr;	/* Core 7 Clock control/status */
+	u32	clkc7csr;	/* 0x0e0 Core 7 Clock control/status */
 	u8	res8[0x71c];
-	u32	pllc1gsr;	/* Cluster PLL 1 General Status */
+	u32	pllc1gsr;	/* 0x800 Cluster PLL 1 General Status */
 	u8	res10[0x1c];
-	u32	pllc2gsr;	/* Cluster PLL 2 General Status */
+	u32	pllc2gsr;	/* 0x820 Cluster PLL 2 General Status */
 	u8	res11[0x1c];
-	u32	pllc3gsr;	/* Cluster PLL 3 General Status */
+	u32	pllc3gsr;	/* 0x840 Cluster PLL 3 General Status */
 	u8	res12[0x1c];
-	u32	pllc4gsr;	/* Cluster PLL 4 General Status */
-	u8	res13[0x39c];
-	u32	pllpgsr;	/* Platform PLL General Status */
+	u32	pllc4gsr;	/* 0x860 Cluster PLL 4 General Status */
+	u8	res13[0x1c];
+	u32	pllc5gsr;	/* 0x880 Cluster PLL 5 General Status */
 	u8	res14[0x1c];
-	u32	plldgsr;	/* DDR PLL General Status */
-	u8	res15[0x3dc];
+	u32	pllc6gsr;	/* 0x8a0 Cluster PLL 6 General Status */
+	u8	res15[0x35c];
+	u32	pllpgsr;	/* 0xc00 Platform PLL General Status */
+	u8	res16[0x1c];
+	u32	plldgsr;	/* 0xc20 DDR PLL General Status */
+	u8	res17[0x3dc];
 } ccsr_clk_t;
 
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
@@ -2384,6 +2512,78 @@ typedef struct ccsr_gur {
 
 #define SDHCDCR_CD_INV		0x80000000 /* invert SDHC card detect */
 
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#define MAX_SERDES 4
+#define SRDS_MAX_LANES 8
+#define SRDS_MAX_BANK 2
+typedef struct serdes_corenet {
+	struct {
+		u32	rstctl;	/* Reset Control Register */
+#define SRDS_RSTCTL_RST		0x80000000
+#define SRDS_RSTCTL_RSTDONE	0x40000000
+#define SRDS_RSTCTL_RSTERR	0x20000000
+#define SRDS_RSTCTL_SWRST	0x10000000
+#define SRDS_RSTCTL_SDPD	0x00000020
+		u32	pllcr0; /* PLL Control Register 0 */
+#define SRDS_PLLCR0_POFF		0x80000000
+#define SRDS_PLLCR0_RFCK_SEL_MASK	0x70000000
+#define SRDS_PLLCR0_RFCK_SEL_100	0x00000000
+#define SRDS_PLLCR0_RFCK_SEL_125	0x10000000
+#define SRDS_PLLCR0_RFCK_SEL_156_25	0x20000000
+#define SRDS_PLLCR0_RFCK_SEL_150	0x30000000
+#define SRDS_PLLCR0_RFCK_SEL_161_13	0x40000000
+#define SRDS_PLLCR0_RFCK_SEL_122_88	0x50000000
+#define SRDS_PLLCR0_FRATE_SEL_MASK	0x000f0000
+#define SRDS_PLLCR0_FRATE_SEL_5		0x00000000
+#define SRDS_PLLCR0_FRATE_SEL_3_75	0x00050000
+#define SRDS_PLLCR0_FRATE_SEL_5_15	0x00060000
+#define SRDS_PLLCR0_FRATE_SEL_4		0x00070000
+#define SRDS_PLLCR0_FRATE_SEL_3_12	0x00090000
+#define SRDS_PLLCR0_FRATE_SEL_3		0x000a0000
+		u32	pllcr1; /* PLL Control Register 1 */
+#define SRDS_PLLCR1_PLL_BWSEL	0x08000000
+		u32	res_0c;	/* 0x00c */
+		u32	pllcr3;
+		u32	pllcr4;
+		u8	res_18[0x20-0x18];
+	} bank[2];
+	u8	res_40[0x90-0x40];
+	u32	srdstcalcr;	/* 0x90 TX Calibration Control */
+	u8	res_94[0xa0-0x94];
+	u32	srdsrcalcr;	/* 0xa0 RX Calibration Control */
+	u8	res_a4[0xb0-0xa4];
+	u32	srdsgr0;	/* 0xb0 General Register 0 */
+	u8	res_b4[0xe0-0xb4];
+	u32	srdspccr0;	/* 0xe0 Protocol Converter Config 0 */
+	u32	srdspccr1;	/* 0xe4 Protocol Converter Config 1 */
+	u32	srdspccr2;	/* 0xe8 Protocol Converter Config 2 */
+	u32	srdspccr3;	/* 0xec Protocol Converter Config 3 */
+	u32	srdspccr4;	/* 0xf0 Protocol Converter Config 4 */
+	u8	res_f4[0x100-0xf4];
+	struct {
+		u32	lnpssr;	/* 0x100, 0x120, ..., 0x1e0 */
+		u8	res_104[0x120-0x104];
+	} srdslnpssr[8];
+	u8	res_200[0x800-0x200];
+	struct {
+		u32	gcr0;	/* 0x800 General Control Register 0 */
+		u32	gcr1;	/* 0x804 General Control Register 1 */
+		u32	gcr2;	/* 0x808 General Control Register 2 */
+		u32	res_80c;
+		u32	recr0;	/* 0x810 Receive Equalization Control */
+		u32	res_814;
+		u32	tecr0;	/* 0x818 Transmit Equalization Control */
+		u32	res_81c;
+		u32	ttlcr0;	/* 0x820 Transition Tracking Loop Ctrl 0 */
+		u8	res_824[0x840-0x824];
+	} lane[8];	/* Lane A, B, C, D, E, F, G, H */
+	u8	res_a00[0x1000-0xa00];	/* from 0xa00 to 0xfff */
+} serdes_corenet_t;
+
+#else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
+#define SRDS_MAX_LANES		18
+#define SRDS_MAX_BANK		3
 typedef struct serdes_corenet {
 	struct {
 		u32	rstctl;	/* Reset Control Register */
@@ -2392,11 +2592,13 @@ typedef struct serdes_corenet {
 #define SRDS_RSTCTL_RSTERR	0x20000000
 #define SRDS_RSTCTL_SDPD	0x00000020
 		u32	pllcr0; /* PLL Control Register 0 */
-#define SRDS_PLLCR0_RFCK_SEL_MASK	0x30000000
+#define SRDS_PLLCR0_RFCK_SEL_MASK	0x70000000
+#define SRDS_PLLCR0_PVCOCNT_EN		0x02000000
 #define SRDS_PLLCR0_RFCK_SEL_100	0x00000000
 #define SRDS_PLLCR0_RFCK_SEL_125	0x10000000
 #define SRDS_PLLCR0_RFCK_SEL_156_25	0x20000000
 #define SRDS_PLLCR0_RFCK_SEL_150	0x30000000
+#define SRDS_PLLCR0_RFCK_SEL_161_13	0x40000000
 #define SRDS_PLLCR0_FRATE_SEL_MASK	0x00030000
 #define SRDS_PLLCR0_FRATE_SEL_5		0x00000000
 #define SRDS_PLLCR0_FRATE_SEL_6_25	0x00010000
@@ -2421,6 +2623,7 @@ typedef struct serdes_corenet {
 		u32	gcr0;	/* General Control Register 0 */
 #define SRDS_GCR0_RRST			0x00400000
 #define SRDS_GCR0_1STLANE		0x00010000
+#define SRDS_GCR0_UOTHL			0x00100000
 		u32	gcr1;	/* General Control Register 1 */
 #define SRDS_GCR1_REIDL_CTL_MASK	0x001f0000
 #define SRDS_GCR1_REIDL_CTL_PCIE	0x00100000
@@ -2440,6 +2643,7 @@ typedef struct serdes_corenet {
 	} lane[24];
 	u32 res6[384];
 } serdes_corenet_t;
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
 enum {
 	FSL_SRDS_B1_LANE_A = 0,
@@ -2482,8 +2686,8 @@ typedef struct ccsr_sec {
 	struct {
 		u32	ms;	/* DECO LIODN Register, MS */
 		u32	ls;	/* DECO LIODN Register, LS */
-	} decoliodnr[5];
-	u8	res4[0x58];
+	} decoliodnr[8];
+	u8	res4[0x40];
 	u32	dar;		/* DECO Avail Register */
 	u32	drr;		/* DECO Reset Register */
 	u8	res5[0xe78];
@@ -2523,13 +2727,16 @@ typedef struct ccsr_sec {
 #endif
 
 typedef struct ccsr_qman {
+#ifdef CONFIG_SYS_FSL_QMAN_V3
+	u8	res0[0x200];
+#else
 	struct {
 		u32	qcsp_lio_cfg;	/* 0x0 - SW Portal n LIO cfg */
 		u32	qcsp_io_cfg;	/* 0x4 - SW Portal n IO cfg */
 		u32	res;
 		u32	qcsp_dd_cfg;	/* 0xc - SW Portal n Dynamic Debug cfg */
 	} qcsp[32];
-
+#endif
 	/* Not actually reserved, but irrelevant to u-boot */
 	u8	res[0xbf8 - 0x200];
 	u32	ip_rev_1;
@@ -2554,6 +2761,14 @@ typedef struct ccsr_qman {
 	u32	ci_rlm_cfg;	/* Initiator Read Latency Monitor Cfg */
 	u32	ci_rlm_avg;	/* Initiator Read Latency Monitor Avg */
 	u8	res7[0x2e8];
+#ifdef CONFIG_SYS_FSL_QMAN_V3
+	struct {
+		u32	qcsp_lio_cfg;	/* 0x0 - SW Portal n LIO cfg */
+		u32	qcsp_io_cfg;	/* 0x4 - SW Portal n IO cfg */
+		u32	res;
+		u32	qcsp_dd_cfg;	/* 0xc - SW Portal n Dynamic Debug cfg*/
+	} qcsp[50];
+#endif
 } ccsr_qman_t;
 
 typedef struct ccsr_bman {
@@ -2617,14 +2832,48 @@ struct ccsr_rman {
 };
 #endif
 
+#ifdef CONFIG_SYS_PMAN
+struct ccsr_pman {
+	u8	res_00[0x40];
+	u32	poes1;		/* PMAN Operation Error Status Register 1 */
+	u32	poes2;		/* PMAN Operation Error Status Register 2 */
+	u32	poeah;		/* PMAN Operation Error Address High */
+	u32	poeal;		/* PMAN Operation Error Address Low */
+	u8	res_50[0x50];
+	u32	pr1;		/* PMAN Revision Register 1 */
+	u32	pr2;		/* PMAN Revision Register 2 */
+	u8	res_a8[0x8];
+	u32	pcap;		/* PMAN Capabilities Register */
+	u8	res_b4[0xc];
+	u32	pc1;		/* PMAN Control Register 1 */
+	u32	pc2;		/* PMAN Control Register 2 */
+	u32	pc3;		/* PMAN Control Register 3 */
+	u32	pc4;		/* PMAN Control Register 4 */
+	u32	pc5;		/* PMAN Control Register 5 */
+	u32	pc6;		/* PMAN Control Register 6 */
+	u8	res_d8[0x8];
+	u32	ppa1;		/* PMAN Prefetch Attributes Register 1 */
+	u32	ppa2;		/* PMAN Prefetch Attributes Register 2 */
+	u8	res_e8[0x8];
+	u32	pics;		/* PMAN Interrupt Control and Status */
+	u8	res_f4[0xf0c];
+};
+#endif
+
 #ifdef CONFIG_FSL_CORENET
 #define CONFIG_SYS_FSL_CORENET_CCM_OFFSET	0x0000
+#ifdef CONFIG_SYS_PMAN
+#define CONFIG_SYS_FSL_CORENET_PMAN1_OFFSET	0x4000
+#define CONFIG_SYS_FSL_CORENET_PMAN2_OFFSET	0x5000
+#define CONFIG_SYS_FSL_CORENET_PMAN3_OFFSET	0x6000
+#endif
 #define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x8000
 #define CONFIG_SYS_MPC85xx_DDR2_OFFSET		0x9000
 #define CONFIG_SYS_MPC85xx_DDR3_OFFSET		0xA000
 #define CONFIG_SYS_FSL_CORENET_CLK_OFFSET	0xE1000
 #define CONFIG_SYS_FSL_CORENET_RCPM_OFFSET	0xE2000
 #define CONFIG_SYS_FSL_CORENET_SERDES_OFFSET	0xEA000
+#define CONFIG_SYS_FSL_CORENET_SERDES2_OFFSET	0xEB000
 #define CONFIG_SYS_FSL_CPC_OFFSET		0x10000
 #define CONFIG_SYS_MPC85xx_DMA1_OFFSET		0x100000
 #define CONFIG_SYS_MPC85xx_DMA2_OFFSET		0x101000
@@ -2635,10 +2884,17 @@ struct ccsr_rman {
 #define CONFIG_SYS_MPC85xx_IFC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0x130000
 #define CONFIG_SYS_FSL_CORENET_RMAN_OFFSET	0x1e0000
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#define CONFIG_SYS_MPC85xx_PCIE1_OFFSET		0x240000
+#define CONFIG_SYS_MPC85xx_PCIE2_OFFSET		0x250000
+#define CONFIG_SYS_MPC85xx_PCIE3_OFFSET		0x260000
+#define CONFIG_SYS_MPC85xx_PCIE4_OFFSET		0x270000
+#else
 #define CONFIG_SYS_MPC85xx_PCIE1_OFFSET		0x200000
 #define CONFIG_SYS_MPC85xx_PCIE2_OFFSET		0x201000
 #define CONFIG_SYS_MPC85xx_PCIE3_OFFSET		0x202000
 #define CONFIG_SYS_MPC85xx_PCIE4_OFFSET		0x203000
+#endif
 #define CONFIG_SYS_MPC85xx_USB1_OFFSET		0x210000
 #define CONFIG_SYS_MPC85xx_USB2_OFFSET		0x211000
 #define CONFIG_SYS_MPC85xx_USB_OFFSET		CONFIG_SYS_MPC85xx_USB1_OFFSET
@@ -2657,7 +2913,9 @@ struct ccsr_rman {
 #define CONFIG_SYS_FSL_FM1_RX2_1G_OFFSET	0x48a000
 #define CONFIG_SYS_FSL_FM1_RX3_1G_OFFSET	0x48b000
 #define CONFIG_SYS_FSL_FM1_RX4_1G_OFFSET	0x48c000
+#define CONFIG_SYS_FSL_FM1_RX5_1G_OFFSET	0x48d000
 #define CONFIG_SYS_FSL_FM1_RX0_10G_OFFSET	0x490000
+#define CONFIG_SYS_FSL_FM1_RX1_10G_OFFSET	0x491000
 #define CONFIG_SYS_FSL_FM1_DTSEC1_OFFSET	0x4e0000
 #define CONFIG_SYS_FSL_FM2_OFFSET		0x500000
 #define CONFIG_SYS_FSL_FM2_RX0_1G_OFFSET	0x588000
@@ -2665,7 +2923,10 @@ struct ccsr_rman {
 #define CONFIG_SYS_FSL_FM2_RX2_1G_OFFSET	0x58a000
 #define CONFIG_SYS_FSL_FM2_RX3_1G_OFFSET	0x58b000
 #define CONFIG_SYS_FSL_FM2_RX4_1G_OFFSET	0x58c000
+#define CONFIG_SYS_FSL_FM2_RX5_1G_OFFSET	0x58d000
 #define CONFIG_SYS_FSL_FM2_RX0_10G_OFFSET	0x590000
+#define CONFIG_SYS_FSL_FM2_RX1_10G_OFFSET	0x591000
+#define CONFIG_SYS_FSL_CLUSTER_1_L2_OFFSET	0xC20000
 #else
 #define CONFIG_SYS_MPC85xx_ECM_OFFSET		0x0000
 #define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x2000
@@ -2775,6 +3036,8 @@ struct ccsr_rman {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
 #define CONFIG_SYS_FSL_CORENET_SERDES_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CORENET_SERDES_OFFSET)
+#define CONFIG_SYS_FSL_CORENET_SERDES2_ADDR \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CORENET_SERDES2_OFFSET)
 #define CONFIG_SYS_MPC85xx_USB_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_USB_OFFSET)
 #define CONFIG_SYS_MPC85xx_USB1_PHY_ADDR \
@@ -2808,4 +3071,62 @@ struct ccsr_rman {
 #define TSEC_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
 #define MDIO_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_MDIO1_OFFSET)
 
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+struct ccsr_cluster_l2 {
+	u32 l2csr0;	/* 0x000 L2 cache control and status register 0 */
+	u32 l2csr1;	/* 0x004 L2 cache control and status register 1 */
+	u32 l2cfg0;	/* 0x008 L2 cache configuration register 0 */
+	u8  res_0c[500];/* 0x00c - 0x1ff */
+	u32 l2pir0;	/* 0x200 L2 cache partitioning ID register 0 */
+	u8  res_204[4];
+	u32 l2par0;	/* 0x208 L2 cache partitioning allocation register 0 */
+	u32 l2pwr0;	/* 0x20c L2 cache partitioning way register 0 */
+	u32 l2pir1;	/* 0x210 L2 cache partitioning ID register 1 */
+	u8  res_214[4];
+	u32 l2par1;	/* 0x218 L2 cache partitioning allocation register 1 */
+	u32 l2pwr1;	/* 0x21c L2 cache partitioning way register 1 */
+	u32 u2pir2;	/* 0x220 L2 cache partitioning ID register 2 */
+	u8  res_224[4];
+	u32 l2par2;	/* 0x228 L2 cache partitioning allocation register 2 */
+	u32 l2pwr2;	/* 0x22c L2 cache partitioning way register 2 */
+	u32 l2pir3;	/* 0x230 L2 cache partitioning ID register 3 */
+	u8  res_234[4];
+	u32 l2par3;	/* 0x238 L2 cache partitining allocation register 3 */
+	u32 l2pwr3;	/* 0x23c L2 cache partitining way register 3 */
+	u32 l2pir4;	/* 0x240 L2 cache partitioning ID register 3 */
+	u8  res244[4];
+	u32 l2par4;	/* 0x248 L2 cache partitioning allocation register 3 */
+	u32 l2pwr4;	/* 0x24c L2 cache partitioning way register 3 */
+	u32 l2pir5;	/* 0x250 L2 cache partitioning ID register 3 */
+	u8  res_254[4];
+	u32 l2par5;	/* 0x258 L2 cache partitioning allocation register 3 */
+	u32 l2pwr5;	/* 0x25c L2 cache partitioning way register 3 */
+	u32 l2pir6;	/* 0x260 L2 cache partitioning ID register 3 */
+	u8  res_264[4];
+	u32 l2par6;	/* 0x268 L2 cache partitioning allocation register 3 */
+	u32 l2pwr6;	/* 0x26c L2 cache partitioning way register 3 */
+	u32 l2pir7;	/* 0x270 L2 cache partitioning ID register 3 */
+	u8  res274[4];
+	u32 l2par7;	/* 0x278 L2 cache partitioning allocation register 3 */
+	u32 l2pwr7;	/* 0x27c L2 cache partitioning way register 3 */
+	u8  res_280[0xb80]; /* 0x280 - 0xdff */
+	u32 l2errinjhi;	/* 0xe00 L2 cache error injection mask high */
+	u32 l2errinjlo;	/* 0xe04 L2 cache error injection mask low */
+	u32 l2errinjctl;/* 0xe08 L2 cache error injection control */
+	u8  res_e0c[20];	/* 0xe0c - 0x01f */
+	u32 l2captdatahi; /* 0xe20 L2 cache error capture data high */
+	u32 l2captdatalo; /* 0xe24 L2 cache error capture data low */
+	u32 l2captecc;	/* 0xe28 L2 cache error capture ECC syndrome */
+	u8  res_e2c[20];	/* 0xe2c - 0xe3f */
+	u32 l2errdet;	/* 0xe40 L2 cache error detect */
+	u32 l2errdis;	/* 0xe44 L2 cache error disable */
+	u32 l2errinten;	/* 0xe48 L2 cache error interrupt enable */
+	u32 l2errattr;	/* 0xe4c L2 cache error attribute */
+	u32 l2erreaddr;	/* 0xe50 L2 cache error extended address */
+	u32 l2erraddr;	/* 0xe54 L2 cache error address */
+	u32 l2errctl;	/* 0xe58 L2 cache error control */
+};
+#define CONFIG_SYS_FSL_CLUSTER_1_L2 \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CLUSTER_1_L2_OFFSET)
+#endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 #endif /*__IMMAP_85xx__*/

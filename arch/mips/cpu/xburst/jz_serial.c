@@ -109,19 +109,13 @@ static int jz_serial_getc(void)
 	return readb(&uart->rbr_thr_dllr);
 }
 
-static void jz_serial_puts(const char *s)
-{
-	while (*s)
-		serial_putc(*s++);
-}
-
 static struct serial_device jz_serial_drv = {
 	.name	= "jz_serial",
 	.start	= jz_serial_init,
 	.stop	= NULL,
 	.setbrg	= jz_serial_setbrg,
 	.putc	= jz_serial_putc,
-	.puts	= jz_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= jz_serial_getc,
 	.tstc	= jz_serial_tstc,
 };

@@ -245,7 +245,8 @@
 #define RTC	1				/* enable 32KHz osc */
 
 #ifdef CONFIG_MMC
-#define CONFIG_PXA_MMC
+#define	CONFIG_GENERIC_MMC
+#define	CONFIG_PXA_MMC_GENERIC
 #define CONFIG_CMD_MMC
 #define CONFIG_SYS_MMC_BASE		0xF0000000
 #endif

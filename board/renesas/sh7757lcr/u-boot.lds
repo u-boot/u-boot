@@ -77,13 +77,10 @@ SECTIONS
 	}
 	PROVIDE (_egot = .);
 
-	PROVIDE (__u_boot_cmd_start = .);
-	.u_boot_cmd :
-	{
-		*(.u_boot_cmd)
-		. = ALIGN(4);
+
+	.u_boot_list : {
+		#include <u-boot.lst>
 	}
-	PROVIDE (__u_boot_cmd_end = .);
 
 	PROVIDE (reloc_dst_end = .);
 	/* _reloc_dst_end = .; */

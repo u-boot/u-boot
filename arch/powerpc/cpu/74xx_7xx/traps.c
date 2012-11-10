@@ -48,8 +48,7 @@ extern unsigned long search_exception_table(unsigned long);
  * Trap & Exception support
  */
 
-void
-print_backtrace(unsigned long *sp)
+static void print_backtrace(unsigned long *sp)
 {
 	int cnt = 0;
 	unsigned long i;
@@ -69,8 +68,7 @@ print_backtrace(unsigned long *sp)
 	printf("\n");
 }
 
-void
-show_regs(struct pt_regs * regs)
+void show_regs(struct pt_regs *regs)
 {
 	int i;
 
@@ -100,16 +98,14 @@ show_regs(struct pt_regs * regs)
 }
 
 
-void
-_exception(int signr, struct pt_regs *regs)
+static void _exception(int signr, struct pt_regs *regs)
 {
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
 	panic("Exception in kernel pc %lx signal %d",regs->nip,signr);
 }
 
-void
-MachineCheckException(struct pt_regs *regs)
+void MachineCheckException(struct pt_regs *regs)
 {
 	unsigned long fixup;
 
@@ -152,8 +148,7 @@ MachineCheckException(struct pt_regs *regs)
 	panic("machine check");
 }
 
-void
-AlignmentException(struct pt_regs *regs)
+void AlignmentException(struct pt_regs *regs)
 {
 #if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
@@ -164,8 +159,7 @@ AlignmentException(struct pt_regs *regs)
 	panic("Alignment Exception");
 }
 
-void
-ProgramCheckException(struct pt_regs *regs)
+void ProgramCheckException(struct pt_regs *regs)
 {
 	unsigned char *p = regs ? (unsigned char *)(regs->nip) : NULL;
 	int i, j;
@@ -190,8 +184,7 @@ ProgramCheckException(struct pt_regs *regs)
 	panic("Program Check Exception");
 }
 
-void
-SoftEmuException(struct pt_regs *regs)
+void SoftEmuException(struct pt_regs *regs)
 {
 #if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
@@ -202,9 +195,7 @@ SoftEmuException(struct pt_regs *regs)
 	panic("Software Emulation Exception");
 }
 
-
-void
-UnknownException(struct pt_regs *regs)
+void UnknownException(struct pt_regs *regs)
 {
 #if defined(CONFIG_CMD_KGDB)
 	if (debugger_exception_handler && (*debugger_exception_handler)(regs))
@@ -218,8 +209,7 @@ UnknownException(struct pt_regs *regs)
 /* Probe an address by reading.  If not present, return -1, otherwise
  * return 0.
  */
-int
-addr_probe(uint *addr)
+int addr_probe(uint *addr)
 {
 #if 0
 	int	retval;

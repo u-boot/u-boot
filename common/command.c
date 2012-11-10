@@ -137,8 +137,9 @@ cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len)
 
 cmd_tbl_t *find_cmd (const char *cmd)
 {
-	int len = &__u_boot_cmd_end - &__u_boot_cmd_start;
-	return find_cmd_tbl(cmd, &__u_boot_cmd_start, len);
+	cmd_tbl_t *start = ll_entry_start(cmd_tbl_t, cmd);
+	const int len = ll_entry_count(cmd_tbl_t, cmd);
+	return find_cmd_tbl(cmd, start, len);
 }
 
 int cmd_usage(const cmd_tbl_t *cmdtp)
@@ -181,7 +182,9 @@ int var_complete(int argc, char * const argv[], char last_char, int maxv, char *
 
 static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv, char *cmdv[])
 {
-	cmd_tbl_t *cmdtp;
+	cmd_tbl_t *cmdtp = ll_entry_start(cmd_tbl_t, cmd);
+	const int count = ll_entry_count(cmd_tbl_t, cmd);
+	const cmd_tbl_t *cmdend = cmdtp + count;
 	const char *p;
 	int len, clen;
 	int n_found = 0;
@@ -195,12 +198,12 @@ static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv
 
 	if (argc == 0) {
 		/* output full list of commands */
-		for (cmdtp = &__u_boot_cmd_start; cmdtp != &__u_boot_cmd_end; cmdtp++) {
+		for (; cmdtp != cmdend; cmdtp++) {
 			if (n_found >= maxv - 2) {
-				cmdv[n_found++] = "...";
+				cmdv[n_found] = "...";
 				break;
 			}
-			cmdv[n_found++] = cmdtp->name;
+			cmdv[n_found] = cmdtp->name;
 		}
 		cmdv[n_found] = NULL;
 		return n_found;
@@ -228,7 +231,7 @@ static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv
 		len = p - cmd;
 
 	/* return the partial matches */
-	for (cmdtp = &__u_boot_cmd_start; cmdtp != &__u_boot_cmd_end; cmdtp++) {
+	for (; cmdtp != cmdend; cmdtp++) {
 
 		clen = strlen(cmdtp->name);
 		if (clen < len)

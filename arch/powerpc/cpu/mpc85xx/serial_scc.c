@@ -220,13 +220,6 @@ static void mpc85xx_serial_putc(const char c)
 	tbdf->cbd_sc |= BD_SC_READY;
 }
 
-static void mpc85xx_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static int mpc85xx_serial_getc(void)
 {
 	volatile cbd_t		*rbdf;
@@ -268,7 +261,7 @@ static struct serial_device mpc85xx_serial_drv = {
 	.stop	= NULL,
 	.setbrg	= mpc85xx_serial_setbrg,
 	.putc	= mpc85xx_serial_putc,
-	.puts	= mpc85xx_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= mpc85xx_serial_getc,
 	.tstc	= mpc85xx_serial_tstc,
 };

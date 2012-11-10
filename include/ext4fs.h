@@ -116,7 +116,7 @@ struct ext_filesystem {
 extern struct ext2_data *ext4fs_root;
 extern struct ext2fs_node *ext4fs_file;
 
-#if defined(CONFIG_CMD_EXT4_WRITE)
+#if defined(CONFIG_EXT4_WRITE)
 extern struct ext2_inode *g_parent_inode;
 extern int gd_index;
 extern int gindex;

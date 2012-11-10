@@ -21,6 +21,7 @@ COBJS	+= sys_info.o
 COBJS	+= ddr.o
 COBJS	+= emif4.o
 COBJS	+= board.o
+COBJS	+= mux.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(COBJS-y) $(SOBJS))

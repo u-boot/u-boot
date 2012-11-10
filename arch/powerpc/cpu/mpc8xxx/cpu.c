@@ -34,7 +34,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct cpu_type cpu_type_list [] = {
+static struct cpu_type cpu_type_list[] = {
 #if defined(CONFIG_MPC85xx)
 	CPU_TYPE_ENTRY(8533, 8533, 1),
 	CPU_TYPE_ENTRY(8535, 8535, 1),
@@ -73,6 +73,17 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(P4080, P4080, 8),
 	CPU_TYPE_ENTRY(P5010, P5010, 1),
 	CPU_TYPE_ENTRY(P5020, P5020, 2),
+	CPU_TYPE_ENTRY(P5021, P5021, 2),
+	CPU_TYPE_ENTRY(P5040, P5040, 4),
+	CPU_TYPE_ENTRY(T4240, T4240, 0),
+	CPU_TYPE_ENTRY(T4120, T4120, 0),
+	CPU_TYPE_ENTRY(B4860, B4860, 0),
+	CPU_TYPE_ENTRY(G4860, G4860, 0),
+	CPU_TYPE_ENTRY(G4060, G4060, 0),
+	CPU_TYPE_ENTRY(B4440, B4440, 0),
+	CPU_TYPE_ENTRY(G4440, G4440, 0),
+	CPU_TYPE_ENTRY(B4420, B4420, 0),
+	CPU_TYPE_ENTRY(B4220, B4220, 0),
 	CPU_TYPE_ENTRY(BSC9130, 9130, 1),
 	CPU_TYPE_ENTRY(BSC9131, 9131, 1),
 #elif defined(CONFIG_MPC86xx)
@@ -114,7 +125,7 @@ u32 compute_ppc_cpumask(void)
 #define compute_ppc_cpumask()	1
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
-struct cpu_type cpu_type_unknown = CPU_TYPE_ENTRY(Unknown, Unknown, 0);
+static struct cpu_type cpu_type_unknown = CPU_TYPE_ENTRY(Unknown, Unknown, 0);
 
 struct cpu_type *identify_cpu(u32 ver)
 {
@@ -132,7 +143,7 @@ struct cpu_type *identify_cpu(u32 ver)
 /*
  * Return a 32-bit mask indicating which cores are present on this SOC.
  */
-u32 cpu_mask()
+u32 cpu_mask(void)
 {
 	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
 	struct cpu_type *cpu = gd->cpu;
@@ -151,7 +162,8 @@ u32 cpu_mask()
 /*
  * Return the number of cores on this SOC.
  */
-int cpu_numcores() {
+int cpu_numcores(void)
+{
 	struct cpu_type *cpu = gd->cpu;
 
 	/*

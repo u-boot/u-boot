@@ -27,7 +27,7 @@
 #include <common.h>
 #include <command.h>
 
-int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sleep(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong start = get_timer(0);
 	ulong delay;
@@ -38,10 +38,10 @@ int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	delay = simple_strtoul(argv[1], NULL, 10) * CONFIG_SYS_HZ;
 
 	while (get_timer(start) < delay) {
-		if (ctrlc ())
+		if (ctrlc())
 			return (-1);
 
-		udelay (100);
+		udelay(100);
 	}
 
 	return 0;

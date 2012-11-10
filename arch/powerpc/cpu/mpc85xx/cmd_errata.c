@@ -76,11 +76,15 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC111)
 	puts("Work-around for Erratum ESDHC111 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004468
+	puts("Work-around for Erratum A004468 enabled\n");
+#endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC135)
 	puts("Work-around for Erratum ESDHC135 enabled\n");
 #endif
-#if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC136)
-	puts("Work-around for Erratum ESDHC136 enabled\n");
+#if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC13)
+	if (SVR_MAJ(svr) < 3)
+		puts("Work-around for Erratum ESDHC13 enabled\n");
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC_A001)
 	puts("Work-around for Erratum ESDHC-A001 enabled\n");
@@ -126,6 +130,12 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004510
 	puts("Work-around for Erratum A004510 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_SRIO_A004034
+	puts("Work-around for Erratum SRIO-A004034 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A_004934
+	puts("Work-around for Erratum A004934 enabled\n");
 #endif
 	return 0;
 }

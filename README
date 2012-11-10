@@ -363,6 +363,12 @@ The following options need to be configured:
 		ICache only when Code runs from RAM.
 
 - 85xx CPU Options:
+		CONFIG_SYS_PPC64
+
+		Specifies that the core is a 64-bit PowerPC implementation (implements
+		the "64" category of the Power ISA). This is necessary for ePAPR
+		compliance, among other possible reasons.
+
 		CONFIG_SYS_FSL_TBCLK_DIV
 
 		Defines the core time base clock divider ratio compared to the
@@ -655,6 +661,10 @@ The following options need to be configured:
 						additional board info beside
 						the logo
 
+		When CONFIG_CFB_CONSOLE_ANSI is defined, console will support
+		a limited number of ANSI escape sequences (cursor control,
+		erase functions and limited graphics rendition control).
+
 		When CONFIG_CFB_CONSOLE is defined, video console is
 		default i/o. Serial console can be forced with
 		environment 'console=serial'.
@@ -801,9 +811,11 @@ The following options need to be configured:
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
 		CONFIG_CMD_EXPORTENV	* export the environment
+		CONFIG_CMD_EXT2		* ext2 command support
+		CONFIG_CMD_EXT4		* ext4 command support
 		CONFIG_CMD_SAVEENV	  saveenv
 		CONFIG_CMD_FDC		* Floppy Disk Support
-		CONFIG_CMD_FAT		* FAT partition support
+		CONFIG_CMD_FAT		* FAT command support
 		CONFIG_CMD_FDOS		* Dos diskette Support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
@@ -1033,6 +1045,9 @@ The following options need to be configured:
 		devices.
 		CONFIG_SYS_SCSI_SYM53C8XX_CCF to fix clock timing (80Mhz)
 
+                The environment variable 'scsidevs' is set to the number of
+                SCSI devices found during the last scan.
+
 - NETWORK Support (PCI):
 		CONFIG_E1000
 		Support for Intel 8254x/8257x gigabit chips.
@@ -1084,7 +1099,7 @@ The following options need to be configured:
 		CONFIG_CALXEDA_XGMAC
 		Support for the Calxeda XGMAC device
 
-		CONFIG_DRIVER_LAN91C96
+		CONFIG_LAN91C96
 		Support for SMSC's LAN91C96 chips.
 
 			CONFIG_LAN91C96_BASE
@@ -1094,7 +1109,7 @@ The following options need to be configured:
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
 
-		CONFIG_DRIVER_SMC91111
+		CONFIG_SMC91111
 		Support for SMSC's LAN91C111 chip
 
 			CONFIG_SMC91111_BASE
@@ -1315,6 +1330,13 @@ The following options need to be configured:
 
 		This will also enable the command "fatwrite" enabling the
 		user to write files to FAT.
+
+CBFS (Coreboot Filesystem) support
+		CONFIG_CMD_CBFS
+
+		Define this to enable support for reading from a Coreboot
+		filesystem. Available commands are cbfsinit, cbfsinfo, cbfsls
+		and cbfsload.
 
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD
@@ -2169,8 +2191,8 @@ The following options need to be configured:
 		following board configurations are known to be
 		"pRAM-clean":
 
-			ETX094, IVMS8, IVML24, SPD8xx, TQM8xxL,
-			HERMES, IP860, RPXlite, LWMON, LANTEC,
+			IVMS8, IVML24, SPD8xx, TQM8xxL,
+			HERMES, IP860, RPXlite, LWMON,
 			FLAGADM, TQM8260
 
 - Error Recovery:
@@ -2295,6 +2317,12 @@ The following options need to be configured:
 		- CONFIG_SYS_BOARD
 		- CONFIG_SYS_VENDOR
 		- CONFIG_SYS_SOC
+
+		CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
+		Define this in order to add variables describing certain
+		run-time determined information about the hardware to the
+		environment.  These will be named board_name, board_rev.
 
 - DataFlash Support:
 		CONFIG_HAS_DATAFLASH

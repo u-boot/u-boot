@@ -153,20 +153,13 @@ static int sa1100_serial_getc(void)
 #endif
 }
 
-static void sa1100_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device sa1100_serial_drv = {
 	.name	= "sa1100_serial",
 	.start	= sa1100_serial_init,
 	.stop	= NULL,
 	.setbrg	= sa1100_serial_setbrg,
 	.putc	= sa1100_serial_putc,
-	.puts	= sa1100_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= sa1100_serial_getc,
 	.tstc	= sa1100_serial_tstc,
 };

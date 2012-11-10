@@ -505,13 +505,13 @@ void reset_cmd_timeout(void)
 #define HIST_MAX		20
 #define HIST_SIZE		CONFIG_SYS_CBSIZE
 
-static int hist_max = 0;
-static int hist_add_idx = 0;
+static int hist_max;
+static int hist_add_idx;
 static int hist_cur = -1;
-unsigned hist_num = 0;
+static unsigned hist_num;
 
-char* hist_list[HIST_MAX];
-char hist_lines[HIST_MAX][HIST_SIZE + 1];	 /* Save room for NULL */
+static char *hist_list[HIST_MAX];
+static char hist_lines[HIST_MAX][HIST_SIZE + 1];	/* Save room for NULL */
 
 #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
 

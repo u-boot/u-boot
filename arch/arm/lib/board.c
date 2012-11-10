@@ -57,13 +57,6 @@
 #include <miiphy.h>
 #endif
 
-#ifdef CONFIG_DRIVER_SMC91111
-#include "../drivers/net/smc91111.h"
-#endif
-#ifdef CONFIG_DRIVER_LAN91C96
-#include "../drivers/net/lan91c96.h"
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 ulong monitor_flash_len;
@@ -274,6 +267,8 @@ void board_init_f(ulong bootflag)
 #ifdef CONFIG_PRAM
 	ulong reg;
 #endif
+	void *new_fdt = NULL;
+	size_t fdt_size = 0;
 
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
 
@@ -409,6 +404,22 @@ void board_init_f(ulong bootflag)
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
 			sizeof (gd_t), addr_sp);
 
+#if defined(CONFIG_OF_SEPARATE) && defined(CONFIG_OF_CONTROL)
+	/*
+	 * If the device tree is sitting immediate above our image then we
+	 * must relocate it. If it is embedded in the data section, then it
+	 * will be relocated with other data.
+	 */
+	if (gd->fdt_blob) {
+		fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob) + 0x1000, 32);
+
+		addr_sp -= fdt_size;
+		new_fdt = (void *)addr_sp;
+		debug("Reserving %zu Bytes for FDT at: %08lx\n",
+		      fdt_size, addr_sp);
+	}
+#endif
+
 	/* setup stackpointer for exeptions */
 	gd->irq_sp = addr_sp;
 #ifdef CONFIG_USE_IRQ
@@ -442,6 +453,10 @@ void board_init_f(ulong bootflag)
 	gd->start_addr_sp = addr_sp;
 	gd->reloc_off = addr - _TEXT_BASE;
 	debug("relocation Offset is: %08lx\n", gd->reloc_off);
+	if (new_fdt) {
+		memcpy(new_fdt, gd->fdt_blob, fdt_size);
+		gd->fdt_blob = new_fdt;
+	}
 	memcpy(id, (void *)gd, sizeof(gd_t));
 
 	relocate_code(addr_sp, id, addr);
@@ -590,16 +605,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	interrupt_init();
 	/* enable exceptions */
 	enable_interrupts();
-
-	/* Perform network card initialisation if necessary */
-#if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
-	/* XXX: this needs to be moved to board init */
-	if (getenv("ethaddr")) {
-		uchar enetaddr[6];
-		eth_getenv_enetaddr("ethaddr", enetaddr);
-		smc_set_mac_addr(enetaddr);
-	}
-#endif /* CONFIG_DRIVER_SMC91111 || CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);

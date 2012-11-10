@@ -36,7 +36,6 @@ SECTIONS
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
     net/libnet.o			(.text*)
     board/esteem192e/libesteem192e.o	(.text*)
-    *(.text.*printf)
 
     . = env_offset;
     common/env_embedded.o		(.text*)
@@ -75,9 +74,11 @@ SECTIONS
   PROVIDE (edata = .);
 
   . = .;
-  __u_boot_cmd_start = .;
-  .u_boot_cmd : { *(.u_boot_cmd) }
-  __u_boot_cmd_end = .;
+
+  . = ALIGN(4);
+  .u_boot_list : {
+	#include <u-boot.lst>
+  }
 
 
   . = .;

@@ -136,7 +136,8 @@ static int env_print(char *name)
 	return 0;
 }
 
-int do_env_print (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_env_print(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
 {
 	int i;
 	int rcode = 0;
@@ -238,9 +239,6 @@ int env_check_apply(const char *name, const char *oldval,
 		/* Try assigning specified device */
 		if (console_assign(console, newval) < 0)
 			return 1;
-
-		if (serial_assign(newval) < 0)
-			return 1;
 #endif /* CONFIG_CONSOLE_MUX */
 	}
 
@@ -325,7 +323,7 @@ int env_check_apply(const char *name, const char *oldval,
  * Set a new environment variable,
  * or replace or delete an existing one.
 */
-int _do_env_set(int flag, int argc, char * const argv[])
+static int _do_env_set(int flag, int argc, char * const argv[])
 {
 	int   i, len;
 	char  *name, *value, *s;
@@ -438,7 +436,7 @@ int setenv_addr(const char *varname, const void *addr)
 }
 
 #ifndef CONFIG_SPL_BUILD
-int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -517,7 +515,8 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * Interactively edit an environment variable
  */
 #if defined(CONFIG_CMD_EDITENV)
-int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	char buffer[CONFIG_SYS_CBSIZE];
 	char *init_val;
@@ -625,7 +624,8 @@ ulong getenv_ulong(const char *name, int base, ulong default_val)
 
 #ifndef CONFIG_SPL_BUILD
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	printf("Saving Environment to %s...\n", env_name_spec);
 
@@ -1023,9 +1023,8 @@ static int do_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_USAGE;
 }
 
-U_BOOT_CMD(
-	env, CONFIG_SYS_MAXARGS, 1, do_env,
-	"environment handling commands",
+#ifdef CONFIG_SYS_LONGHELP
+static char env_help_text[] =
 #if defined(CONFIG_CMD_ASKENV)
 	"ask name [message] [size] - ask for environment variable\nenv "
 #endif
@@ -1050,7 +1049,12 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 	"env save - save environment\n"
 #endif
-	"env set [-f] name [arg ...]\n"
+	"env set [-f] name [arg ...]\n";
+#endif
+
+U_BOOT_CMD(
+	env, CONFIG_SYS_MAXARGS, 1, do_env,
+	"environment handling commands", env_help_text
 );
 
 /*

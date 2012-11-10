@@ -161,7 +161,7 @@ static boot_os_fn *boot_os[] = {
 bootm_headers_t images;		/* pointers to os/initrd/fdt images */
 
 /* Allow for arch specific config before we boot */
-void __arch_preboot_os(void)
+static void __arch_preboot_os(void)
 {
 	/* please define platform specific arch_preboot_os() */
 }
@@ -474,7 +474,7 @@ static cmd_tbl_t cmd_bootm_sub[] = {
 	U_BOOT_CMD_MKENT(go, 0, 1, (void *)BOOTM_STATE_OS_GO, "", ""),
 };
 
-int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
 	int ret = 0;
@@ -1013,9 +1013,8 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	return (void *)img_addr;
 }
 
-U_BOOT_CMD(
-	bootm,	CONFIG_SYS_MAXARGS,	1,	do_bootm,
-	"boot application image from memory",
+#ifdef CONFIG_SYS_LONGHELP
+static char bootm_help_text[] =
 	"[addr [arg ...]]\n    - boot application image stored in memory\n"
 	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
 	"\t'arg' can be the address of an initrd image\n"
@@ -1048,7 +1047,12 @@ U_BOOT_CMD(
 	"\tcmdline - OS specific command line processing/setup\n"
 	"\tbdt     - OS specific bd_t processing\n"
 	"\tprep    - OS specific prep before relocation or go\n"
-	"\tgo      - start OS"
+	"\tgo      - start OS";
+#endif
+
+U_BOOT_CMD(
+	bootm,	CONFIG_SYS_MAXARGS,	1,	do_bootm,
+	"boot application image from memory", bootm_help_text
 );
 
 /*******************************************************************/
@@ -1084,7 +1088,7 @@ U_BOOT_CMD(
 /* iminfo - print header info for a requested image */
 /*******************************************************************/
 #if defined(CONFIG_CMD_IMI)
-int do_iminfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_iminfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int	arg;
 	ulong	addr;
@@ -1171,7 +1175,7 @@ U_BOOT_CMD(
 /* imls - list all images found in flash */
 /*******************************************************************/
 #if defined(CONFIG_CMD_IMLS)
-int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	flash_info_t *info;
 	int i, j;
@@ -1643,9 +1647,8 @@ static int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 1;
 }
 
-U_BOOT_CMD(
-	bootz,	CONFIG_SYS_MAXARGS,	1,	do_bootz,
-	"boot Linux zImage image from memory",
+#ifdef CONFIG_SYS_LONGHELP
+static char bootz_help_text[] =
 	"[addr [initrd[:size]] [fdt]]\n"
 	"    - boot Linux zImage stored in memory\n"
 	"\tThe argument 'initrd' is optional and specifies the address\n"
@@ -1658,5 +1661,11 @@ U_BOOT_CMD(
 	"\tuse a '-' for the second argument. If you do not pass a third\n"
 	"\ta bd_info struct will be passed instead\n"
 #endif
+	"";
+#endif
+
+U_BOOT_CMD(
+	bootz,	CONFIG_SYS_MAXARGS,	1,	do_bootz,
+	"boot Linux zImage image from memory", bootz_help_text
 );
 #endif	/* CONFIG_CMD_BOOTZ */

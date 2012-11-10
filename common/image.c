@@ -1279,7 +1279,7 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
 	void	*fdt_blob = *of_flat_tree;
-	void	*of_start = 0;
+	void	*of_start = NULL;
 	char	*fdt_high;
 	ulong	of_len = 0;
 	int	err;
@@ -1312,7 +1312,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			of_start =
 			    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
 							   (ulong)desired_addr);
-			if (of_start == 0) {
+			if (of_start == NULL) {
 				puts("Failed using fdt_high value for Device Tree");
 				goto error;
 			}
@@ -1327,7 +1327,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 						   + getenv_bootm_low());
 	}
 
-	if (of_start == 0) {
+	if (of_start == NULL) {
 		puts("device tree - allocation error\n");
 		goto error;
 	}
@@ -1703,7 +1703,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 	return 0;
 
 error:
-	*of_flat_tree = 0;
+	*of_flat_tree = NULL;
 	*of_size = 0;
 	return 1;
 }
@@ -2496,6 +2496,36 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 	return 0;
 }
 
+#ifndef USE_HOSTCC
+/**
+ * fit_image_hash_get_ignore - get hash ignore flag
+ * @fit: pointer to the FIT format image header
+ * @noffset: hash node offset
+ * @ignore: pointer to an int, will hold hash ignore flag
+ *
+ * fit_image_hash_get_ignore() finds hash ignore property in a given hash node.
+ * If the property is found and non-zero, the hash algorithm is not verified by
+ * u-boot automatically.
+ *
+ * returns:
+ *     0, on ignore not found
+ *     value, on ignore found
+ */
+int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
+{
+	int len;
+	int *value;
+
+	value = (int *)fdt_getprop(fit, noffset, FIT_IGNORE_PROP, &len);
+	if (value == NULL || len != sizeof(int))
+		*ignore = 0;
+	else
+		*ignore = *value;
+
+	return 0;
+}
+#endif
+
 /**
  * fit_set_timestamp - set node timestamp property
  * @fit: pointer to the FIT format image header
@@ -2759,6 +2789,9 @@ int fit_image_check_hashes(const void *fit, int image_noffset)
 	char		*algo;
 	uint8_t		*fit_value;
 	int		fit_value_len;
+#ifndef USE_HOSTCC
+	int		ignore;
+#endif
 	uint8_t		value[FIT_MAX_HASH_LEN];
 	int		value_len;
 	int		noffset;
@@ -2795,6 +2828,14 @@ int fit_image_check_hashes(const void *fit, int image_noffset)
 			}
 			printf("%s", algo);
 
+#ifndef USE_HOSTCC
+			fit_image_hash_get_ignore(fit, noffset, &ignore);
+			if (ignore) {
+				printf("-skipped ");
+				continue;
+			}
+#endif
+
 			if (fit_image_hash_get_value(fit, noffset, &fit_value,
 							&fit_value_len)) {
 				err_msg = " error!\nCan't get hash value "
@@ -2818,6 +2859,11 @@ int fit_image_check_hashes(const void *fit, int image_noffset)
 			}
 			printf("+ ");
 		}
+	}
+
+	if (noffset == -FDT_ERR_TRUNCATED || noffset == -FDT_ERR_BADSTRUCTURE) {
+		err_msg = " error!\nCorrupted or truncated tree";
+		goto error;
 	}
 
 	return 1;

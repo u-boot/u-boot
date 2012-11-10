@@ -752,8 +752,8 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
  */
 static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 {
-	static flash_sect_t saved_sector = 0; /* previously found sector */
-	static flash_info_t *saved_info = 0; /* previously used flash bank */
+	static flash_sect_t saved_sector; /* previously found sector */
+	static flash_info_t *saved_info; /* previously used flash bank */
 	flash_sect_t sector = saved_sector;
 
 	if ((info != saved_info) || (sector >= info->sector_count))
@@ -1147,8 +1147,9 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			}
 
 			if (use_flash_status_poll(info)) {
-				cfiword_t cword = (cfiword_t)0xffffffffffffffffULL;
+				cfiword_t cword;
 				void *dest;
+				cword.ll = 0xffffffffffffffffULL;
 				dest = flash_map(info, sect, 0);
 				st = flash_status_poll(info, &cword, dest,
 						       info->erase_blk_tout, "erase");
@@ -1430,8 +1431,8 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 
 static int cfi_protect_bugfix(flash_info_t *info, long sector, int prot)
 {
-	if ((info->manufacturer_id == (uchar)INTEL_MANUFACT) &&
-		(info->device_id == NUMONYX_256MBIT)) {
+	if (info->manufacturer_id == ((INTEL_MANUFACT & FLASH_VENDMASK) >> 16)
+	    && info->device_id == NUMONYX_256MBIT) {
 		/*
 		 * see errata called
 		 * "Numonyx Axcell P33/P30 Specification Update" :)
@@ -1487,7 +1488,8 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 		case CFI_CMDSET_AMD_EXTENDED:
 		case CFI_CMDSET_AMD_STANDARD:
 			/* U-Boot only checks the first byte */
-			if (info->manufacturer_id == (uchar)ATM_MANUFACT) {
+			if (info->manufacturer_id ==
+			    ((ATM_MANUFACT & FLASH_VENDMASK) >> 16)) {
 				if (prot) {
 					flash_unlock_seq (info, 0);
 					flash_write_cmd (info, 0,
@@ -1505,7 +1507,8 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 							0, ATM_CMD_UNLOCK_SECT);
 				}
 			}
-			if (info->manufacturer_id == (uchar)AMD_MANUFACT) {
+			if (info->manufacturer_id ==
+			    ((AMD_MANUFACT & FLASH_VENDMASK) >> 16)) {
 				int flag = disable_interrupts();
 				int lock_flag;
 
@@ -1735,7 +1738,8 @@ static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
 
 #ifdef CONFIG_SYS_FLASH_PROTECTION
-	if (info->ext_addr && info->manufacturer_id == (uchar)AMD_MANUFACT) {
+	if (info->ext_addr && info->manufacturer_id ==
+	    ((AMD_MANUFACT & FLASH_VENDMASK) >> 16)) {
 		ushort spus;
 
 		/* read sector protect/unprotect scheme */
@@ -1854,7 +1858,7 @@ static void flash_read_cfi (flash_info_t *info, void *buf,
 		p[i] = flash_read_uchar(info, start + i);
 }
 
-void __flash_cmd_reset(flash_info_t *info)
+static void __flash_cmd_reset(flash_info_t *info)
 {
 	/*
 	 * We do not yet know what kind of commandset to use, so we issue

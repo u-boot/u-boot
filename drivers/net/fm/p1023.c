@@ -23,7 +23,7 @@
 #include <asm/immap_85xx.h>
 #include <asm/fsl_serdes.h>
 
-u32 port_to_devdisr[] = {
+static u32 port_to_devdisr[] = {
 	[FM1_DTSEC1] = MPC85xx_DEVDISR_TSEC1,
 	[FM1_DTSEC2] = MPC85xx_DEVDISR_TSEC2,
 };

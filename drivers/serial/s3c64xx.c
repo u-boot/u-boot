@@ -40,8 +40,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #error "Bad: you didn't configure serial ..."
 #endif
 
-#define barrier() asm volatile("" ::: "memory")
-
 /*
  * The coefficient, used to calculate the baudrate on S3C6400 UARTs is
  * calculated as
@@ -166,19 +164,13 @@ static int s3c64xx_serial_tstc(void)
 	return uart->UTRSTAT & 0x1;
 }
 
-static void s3c64xx_serial_puts(const char *s)
-{
-	while (*s)
-		serial_putc(*s++);
-}
-
 static struct serial_device s3c64xx_serial_drv = {
 	.name	= "s3c64xx_serial",
 	.start	= s3c64xx_serial_init,
 	.stop	= NULL,
 	.setbrg	= s3c64xx_serial_setbrg,
 	.putc	= s3c64xx_serial_putc,
-	.puts	= s3c64xx_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= s3c64xx_serial_getc,
 	.tstc	= s3c64xx_serial_tstc,
 };

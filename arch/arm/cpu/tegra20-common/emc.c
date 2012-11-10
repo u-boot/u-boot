@@ -257,7 +257,7 @@ static int decode_emc(const void *blob, unsigned rate, struct emc_ctlr **emcp,
 int tegra_set_emc(const void *blob, unsigned rate)
 {
 	struct emc_ctlr *emc;
-	const u32 *table;
+	const u32 *table = NULL;
 	int err, i;
 
 	err = decode_emc(blob, rate, &emc, &table);

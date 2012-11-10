@@ -104,8 +104,6 @@ Wolfgang Denk <wd@denx.de>
 
 	ARIA		MPC5121e
 
-	AMX860		MPC860
-	ETX094		MPC850
 	FPS850L		MPC850
 	FPS860L		MPC860
 	ICU862		MPC862
@@ -116,7 +114,6 @@ Wolfgang Denk <wd@denx.de>
 	IVMS8		MPC860
 	IVMS8_128	MPC860
 	IVMS8_256	MPC860
-	LANTEC		MPC850
 	LWMON		MPC823
 	R360MPI		MPC823
 	RRvision	MPC823
@@ -128,7 +125,6 @@ Wolfgang Denk <wd@denx.de>
 	TQM855L		MPC855
 	TQM860L		MPC860
 	TQM860L_FEC	MPC860
-	c2mon		MPC855
 	hermes		MPC860
 	lwmon		MPC823
 
@@ -214,9 +210,7 @@ Siddarth Gore <gores@marvell.com>
 Paul Gortmaker <paul.gortmaker@windriver.com>
 
 	sbc8349		MPC8349
-	sbc8540		MPC8540
 	sbc8548		MPC8548
-	sbc8560		MPC8560
 	sbc8641d	MPC8641D
 
 Frank Gottschling <fgottschling@eltec.de>
@@ -229,7 +223,6 @@ Wolfgang Grandegger <wg@denx.de>
 
 	PN62		MPC8240
 	IPHASE4539	MPC8260
-	SCM		MPC8260
 
 Anatolij Gustschin <agust@denx.de>
 
@@ -545,7 +538,6 @@ Unknown / orphaned boards:
 	FADS850SAR	MPC8xx
 	FADS860T	MPC8xx
 	GENIETV		MPC8xx
-	IAD210		MPC8xx
 	MBX		MPC8xx
 	MBX860T		MPC8xx
 	NX823		MPC8xx
@@ -573,6 +565,10 @@ Albert ARIBAUD <albert.u.boot@aribaud.net>
 
 	edminiv2	ARM926EJS (Orion5x SoC)
 
+Raphael Assenat <raph@8d.com>
+
+	eco5pk		ARM ARMV7 (AM35x SoC)
+
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
@@ -585,6 +581,10 @@ Stefano Babic <sbabic@denx.de>
 	twister		omap3
  	vision2		i.MX51
 	woodburn	i.MX35
+
+Lukasz Dalek <luk0104@gmail.com>
+
+	h2200		xscale/pxa
 
 Jason Liu <r64343@freescale.com>
 
@@ -901,6 +901,10 @@ Michal Simek <monstr@monstr.eu>
 
 	zynq		ARM ARMV7 (Zynq SoC)
 
+Lucas Stach <dev@lynxeye.de>
+
+	colibri_t20_iris	Tegra20 (ARM7 & A9 Dual Core)
+
 Nick Thompson <nick.thompson@gefanuc.com>
 
 	da830evm	ARM926EJS (DA830/OMAP-L137)
@@ -1009,6 +1013,10 @@ Tetsuyuki Kobayashi <koba@kmckk.co.jp>
 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 
 	armadillo-800eva	R8A7740 (RMOBILE SoC)
+
+Pali Rohár <pali.rohar@gmail.com>
+
+	nokia_rx51	ARM ARMV7 (OMAP34xx SoC)
 
 -------------------------------------------------------------------------
 

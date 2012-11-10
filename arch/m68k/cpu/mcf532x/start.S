@@ -261,7 +261,7 @@ clear_bss:
 /* exception code */
 	.globl _fault
 _fault:
-	jmp _fault
+	bra _fault
 	.globl	_exc_handler
 
 _exc_handler:

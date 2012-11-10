@@ -75,21 +75,13 @@ static void cpci750_serial_setbrg(void)
 	galbrg_set_baudrate (CONFIG_MPSC_PORT, gd->baudrate);
 }
 
-
-static void cpci750_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device cpci750_serial_drv = {
 	.name	= "cpci750_serial",
 	.start	= cpci750_serial_init,
 	.stop	= NULL,
 	.setbrg	= cpci750_serial_setbrg,
 	.putc	= cpci750_serial_putc,
-	.puts	= cpci750_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= cpci750_serial_getc,
 	.tstc	= cpci750_serial_tstc,
 };

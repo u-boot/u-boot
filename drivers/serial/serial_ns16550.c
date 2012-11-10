@@ -34,7 +34,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_CONS_INDEX)
-#elif (CONFIG_CONS_INDEX < 1) || (CONFIG_CONS_INDEX > 4)
+#elif (CONFIG_CONS_INDEX < 1) || (CONFIG_CONS_INDEX > 6)
 #error	"Invalid console index value."
 #endif
 
@@ -46,12 +46,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #error	"Console port 3 defined but not configured."
 #elif CONFIG_CONS_INDEX == 4 && !defined(CONFIG_SYS_NS16550_COM4)
 #error	"Console port 4 defined but not configured."
+#elif CONFIG_CONS_INDEX == 5 && !defined(CONFIG_SYS_NS16550_COM5)
+#error	"Console port 5 defined but not configured."
+#elif CONFIG_CONS_INDEX == 6 && !defined(CONFIG_SYS_NS16550_COM6)
+#error	"Console port 6 defined but not configured."
 #endif
 
 /* Note: The port number specified in the functions is 1 based.
  *	 the array is 0 based.
  */
-static NS16550_t serial_ports[4] = {
+static NS16550_t serial_ports[6] = {
 #ifdef CONFIG_SYS_NS16550_COM1
 	(NS16550_t)CONFIG_SYS_NS16550_COM1,
 #else
@@ -68,7 +72,17 @@ static NS16550_t serial_ports[4] = {
 	NULL,
 #endif
 #ifdef CONFIG_SYS_NS16550_COM4
-	(NS16550_t)CONFIG_SYS_NS16550_COM4
+	(NS16550_t)CONFIG_SYS_NS16550_COM4,
+#else
+	NULL,
+#endif
+#ifdef CONFIG_SYS_NS16550_COM5
+	(NS16550_t)CONFIG_SYS_NS16550_COM5,
+#else
+	NULL,
+#endif
+#ifdef CONFIG_SYS_NS16550_COM6
+	(NS16550_t)CONFIG_SYS_NS16550_COM6
 #else
 	NULL
 #endif
@@ -78,21 +92,33 @@ static NS16550_t serial_ports[4] = {
 
 /* Multi serial device functions */
 #define DECLARE_ESERIAL_FUNCTIONS(port) \
-    int  eserial##port##_init (void) {\
-	int clock_divisor; \
-	clock_divisor = calc_divisor(serial_ports[port-1]); \
-	NS16550_init(serial_ports[port-1], clock_divisor); \
-	return(0);}\
-    void eserial##port##_setbrg (void) {\
-	serial_setbrg_dev(port);}\
-    int  eserial##port##_getc (void) {\
-	return serial_getc_dev(port);}\
-    int  eserial##port##_tstc (void) {\
-	return serial_tstc_dev(port);}\
-    void eserial##port##_putc (const char c) {\
-	serial_putc_dev(port, c);}\
-    void eserial##port##_puts (const char *s) {\
-	serial_puts_dev(port, s);}
+	static int  eserial##port##_init(void) \
+	{ \
+		int clock_divisor; \
+		clock_divisor = calc_divisor(serial_ports[port-1]); \
+		NS16550_init(serial_ports[port-1], clock_divisor); \
+		return 0 ; \
+	} \
+	static void eserial##port##_setbrg(void) \
+	{ \
+		serial_setbrg_dev(port); \
+	} \
+	static int  eserial##port##_getc(void) \
+	{ \
+		return serial_getc_dev(port); \
+	} \
+	static int  eserial##port##_tstc(void) \
+	{ \
+		return serial_tstc_dev(port); \
+	} \
+	static void eserial##port##_putc(const char c) \
+	{ \
+		serial_putc_dev(port, c); \
+	} \
+	static void eserial##port##_puts(const char *s) \
+	{ \
+		serial_puts_dev(port, s); \
+	}
 
 /* Serial device descriptor */
 #define INIT_ESERIAL_STRUCTURE(port, __name) {	\
@@ -231,6 +257,12 @@ struct serial_device eserial3_device =
 DECLARE_ESERIAL_FUNCTIONS(4);
 struct serial_device eserial4_device =
 	INIT_ESERIAL_STRUCTURE(4, "eserial3");
+DECLARE_ESERIAL_FUNCTIONS(5);
+struct serial_device eserial5_device =
+	INIT_ESERIAL_STRUCTURE(5, "eserial4");
+DECLARE_ESERIAL_FUNCTIONS(6);
+struct serial_device eserial6_device =
+	INIT_ESERIAL_STRUCTURE(6, "eserial5");
 
 __weak struct serial_device *default_serial_console(void)
 {
@@ -242,6 +274,10 @@ __weak struct serial_device *default_serial_console(void)
 	return &eserial3_device;
 #elif CONFIG_CONS_INDEX == 4
 	return &eserial4_device;
+#elif CONFIG_CONS_INDEX == 5
+	return &eserial5_device;
+#elif CONFIG_CONS_INDEX == 6
+	return &eserial6_device;
 #else
 #error "Bad CONFIG_CONS_INDEX."
 #endif
@@ -260,5 +296,11 @@ void ns16550_serial_initialize(void)
 #endif
 #if defined(CONFIG_SYS_NS16550_COM4)
 	serial_register(&eserial4_device);
+#endif
+#if defined(CONFIG_SYS_NS16550_COM5)
+	serial_register(&eserial5_device);
+#endif
+#if defined(CONFIG_SYS_NS16550_COM6)
+	serial_register(&eserial6_device);
 #endif
 }

@@ -45,6 +45,28 @@
 #undef CONFIG_WATCHDOG
 #undef CONFIG_HW_WATCHDOG
 
+/* SATA AHCI storage */
+
+#define CONFIG_SCSI_AHCI
+
+#ifdef CONFIG_SCSI_AHCI
+#define CONFIG_SYS_64BIT_LBA
+#define CONFIG_SATA_INTEL		1
+#define CONFIG_SCSI_DEV_LIST		{PCI_VENDOR_ID_INTEL, \
+			PCI_DEVICE_ID_INTEL_NM10_AHCI},	      \
+	{PCI_VENDOR_ID_INTEL,		\
+			PCI_DEVICE_ID_INTEL_COUGARPOINT_AHCI_MOBILE}, \
+	{PCI_VENDOR_ID_INTEL, \
+			PCI_DEVICE_ID_INTEL_COUGARPOINT_AHCI_SERIES6}, \
+	{PCI_VENDOR_ID_INTEL,		\
+			PCI_DEVICE_ID_INTEL_PANTHERPOINT_AHCI_MOBILE}
+
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
+#define CONFIG_SYS_SCSI_MAX_LUN		1
+#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+					 CONFIG_SYS_SCSI_MAX_LUN)
+#endif
+
 /*-----------------------------------------------------------------------
  * Real Time Clock Configuration
  */
@@ -92,6 +114,9 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION		/* Experimental */
 
+#define CONFIG_CMD_CBFS
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 
 /*-----------------------------------------------------------------------
  * Video Configuration

@@ -139,20 +139,13 @@ static void marvell_serial_setbrg(void)
 
 #endif /* CONFIG_MPSC */
 
-static void marvell_serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 static struct serial_device marvell_serial_drv = {
 	.name	= "marvell_serial",
 	.start	= marvell_serial_init,
 	.stop	= NULL,
 	.setbrg	= marvell_serial_setbrg,
 	.putc	= marvell_serial_putc,
-	.puts	= marvell_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= marvell_serial_getc,
 	.tstc	= marvell_serial_tstc,
 };

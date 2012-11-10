@@ -113,13 +113,13 @@ void spl_parse_image_header(const struct image_header *header)
 	}
 }
 
-static void __noreturn jump_to_image_no_args(void)
+__weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(u32 *);
 	image_entry_noargs_t image_entry =
-			(image_entry_noargs_t) spl_image.entry_point;
+			(image_entry_noargs_t) spl_image->entry_point;
 
-	debug("image entry point: 0x%X\n", spl_image.entry_point);
+	debug("image entry point: 0x%X\n", spl_image->entry_point);
 	/* Pass the saved boot_params from rom code */
 #if defined(CONFIG_VIRTIO) || defined(CONFIG_ZEBU)
 	image_entry = (image_entry_noargs_t)0x80100000;
@@ -223,7 +223,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	default:
 		debug("Unsupported OS image.. Jumping nevertheless..\n");
 	}
-	jump_to_image_no_args();
+	jump_to_image_no_args(&spl_image);
 }
 
 /*

@@ -114,6 +114,9 @@
 #define ATA_CMD_WRITE_EXT	0x34	/* Write Sectores (with retries) with 48bit addressing */
 #define ATA_CMD_VRFY_EXT	0x42	/* Read Verify	(with retries)	with 48bit addressing */
 
+#define ATA_CMD_FLUSH 0xE7 /* Flush drive cache */
+#define ATA_CMD_FLUSH_EXT 0xEA /* Flush drive cache, with 48bit addressing */
+
 /*
  * ATAPI Commands
  */

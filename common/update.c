@@ -37,6 +37,7 @@
 #include <command.h>
 #include <flash.h>
 #include <net.h>
+#include <net/tftp.h>
 #include <malloc.h>
 
 /* env variable holding the location of the update file */

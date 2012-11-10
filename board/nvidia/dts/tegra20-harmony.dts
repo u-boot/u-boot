@@ -8,6 +8,7 @@
 
 	aliases {
 		usb0 = "/usb@c5008000";
+		usb1 = "/usb@c5004000";
 	};
 
 	memory {
@@ -52,7 +53,7 @@
 	};
 
 	usb@c5004000 {
-		status = "disabled";
+		nvidia,phy-reset-gpio = <&gpio 169 0>; /* gpio PV1 */
 	};
 
 	nand-controller@70008000 {

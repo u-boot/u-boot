@@ -508,8 +508,8 @@ int usb_get_configuration_no(struct usb_device *dev,
 	tmp = le16_to_cpu(config->wTotalLength);
 
 	if (tmp > USB_BUFSIZ) {
-		USB_PRINTF("usb_get_configuration_no: failed to get " \
-			   "descriptor - too long: %d\n", tmp);
+		printf("usb_get_configuration_no: failed to get " \
+		       "descriptor - too long: %d\n", tmp);
 		return -1;
 	}
 
@@ -946,7 +946,13 @@ int usb_new_device(struct usb_device *dev)
 	le16_to_cpus(&dev->descriptor.idProduct);
 	le16_to_cpus(&dev->descriptor.bcdDevice);
 	/* only support for one config for now */
-	usb_get_configuration_no(dev, tmpbuf, 0);
+	err = usb_get_configuration_no(dev, tmpbuf, 0);
+	if (err < 0) {
+		printf("usb_new_device: Cannot read configuration, " \
+		       "skipping device %04x:%04x\n",
+		       dev->descriptor.idVendor, dev->descriptor.idProduct);
+		return -1;
+	}
 	usb_parse_config(dev, tmpbuf, 0);
 	usb_set_maxpacket(dev);
 	/* we set the default configuration here */

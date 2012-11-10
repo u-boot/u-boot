@@ -1978,8 +1978,8 @@ static int is_eth_addr_valid(char *str)
 			p = q;
 		}
 
-		if (i == 6) /* it looks ok */
-			return 1;
+		/* Now check the contents. */
+		return is_valid_ether_addr(ea);
 	}
 	return 0;
 }
