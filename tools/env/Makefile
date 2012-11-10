@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 HOSTSRCS := $(SRCTREE)/lib/crc32.c  fw_env.c  fw_env_main.c
 HOSTSRCS += $(SRCTREE)/lib/ctype.c $(SRCTREE)/lib/linux_string.c
 HOSTSRCS += $(SRCTREE)/common/env_attr.c $(SRCTREE)/common/env_flags.c
-HEADERS	:= fw_env.h $(OBJTREE)/include/config.h
+HEADERS	:= fw_env.h
 
 # Compile for a hosted environment on the target
 HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
@@ -35,6 +35,15 @@ HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
 		-idirafter $(SRCTREE)/tools/env \
 		-DUSE_HOSTCC \
 		-DTEXT_BASE=$(TEXT_BASE)
+
+# Pass CONFIG_xxx settings via the command line so that we can build w/out
+# a config.h file existing in the first place.  Useful for generic builds.
+CONFIG_VARS_TO_PASS = \
+	ENV_OVERWRITE \
+	OVERWRITE_ETHADDR_ONCE \
+	ETHADDR
+HOSTCPPFLAGS += \
+	$(foreach x,$(CONFIG_VARS_TO_PASS),$(if $(CONFIG_$(x)),-DCONFIG_$(x)=$(CONFIG_$(x))))
 
 ifeq ($(MTD_VERSION),old)
 HOSTCPPFLAGS += -DMTD_OLD
