@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 	int lockfd = -1;
 	int retval = EXIT_SUCCESS;
 
-	lockfd = open(lockname, O_WRONLY | O_CREAT | O_TRUNC);
+	lockfd = open(lockname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (-1 == lockfd) {
 		fprintf(stderr, "Error opening lock file %s\n", lockname);
 		return EXIT_FAILURE;
