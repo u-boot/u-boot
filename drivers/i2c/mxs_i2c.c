@@ -210,33 +210,50 @@ int i2c_probe(uchar chip)
 	return ret;
 }
 
+static struct mxs_i2c_speed_table {
+	uint32_t	speed;
+	uint32_t	timing0;
+	uint32_t	timing1;
+} mxs_i2c_tbl[] = {
+	{
+		100000,
+		(0x0078 << I2C_TIMING0_HIGH_COUNT_OFFSET) |
+		(0x0030 << I2C_TIMING0_RCV_COUNT_OFFSET),
+		(0x0080 << I2C_TIMING1_LOW_COUNT_OFFSET) |
+		(0x0030 << I2C_TIMING1_XMIT_COUNT_OFFSET)
+	},
+	{
+		400000,
+		(0x000f << I2C_TIMING0_HIGH_COUNT_OFFSET) |
+		(0x0007 << I2C_TIMING0_RCV_COUNT_OFFSET),
+		(0x001f << I2C_TIMING1_LOW_COUNT_OFFSET) |
+		(0x000f << I2C_TIMING1_XMIT_COUNT_OFFSET),
+	}
+};
+
+static struct mxs_i2c_speed_table *mxs_i2c_speed_to_cfg(uint32_t speed)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(mxs_i2c_tbl); i++)
+		if (mxs_i2c_tbl[i].speed == speed)
+			return &mxs_i2c_tbl[i];
+	return NULL;
+}
+
 void i2c_init(int speed, int slaveadd)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_speed_table *spd = mxs_i2c_speed_to_cfg(speed);
 
-	mxs_i2c_reset();
-
-	switch (speed) {
-	case 100000:
-		writel((0x0078 << I2C_TIMING0_HIGH_COUNT_OFFSET) |
-			(0x0030 << I2C_TIMING0_RCV_COUNT_OFFSET),
-			&i2c_regs->hw_i2c_timing0);
-		writel((0x0080 << I2C_TIMING1_LOW_COUNT_OFFSET) |
-			(0x0030 << I2C_TIMING1_XMIT_COUNT_OFFSET),
-			&i2c_regs->hw_i2c_timing1);
-		break;
-	case 400000:
-		writel((0x000f << I2C_TIMING0_HIGH_COUNT_OFFSET) |
-			(0x0007 << I2C_TIMING0_RCV_COUNT_OFFSET),
-			&i2c_regs->hw_i2c_timing0);
-		writel((0x001f << I2C_TIMING1_LOW_COUNT_OFFSET) |
-			(0x000f << I2C_TIMING1_XMIT_COUNT_OFFSET),
-			&i2c_regs->hw_i2c_timing1);
-		break;
-	default:
+	if (!spd) {
 		printf("MXS I2C: Invalid speed selected (%d Hz)\n", speed);
 		return;
 	}
+
+	mxs_i2c_reset();
+
+	writel(spd->timing0, &i2c_regs->hw_i2c_timing0);
+	writel(spd->timing1, &i2c_regs->hw_i2c_timing1);
 
 	writel((0x0015 << I2C_TIMING2_BUS_FREE_OFFSET) |
 		(0x000d << I2C_TIMING2_LEADIN_COUNT_OFFSET),
