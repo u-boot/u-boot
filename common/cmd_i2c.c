@@ -133,7 +133,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define DISP_LINE_LEN	16
 
-/* implement possible board specific board init */
+/**
+ * i2c_init_board() - Board-specific I2C bus init
+ *
+ * This function is the default no-op implementation of I2C bus
+ * initialization. This function can be overriden by board-specific
+ * implementation if needed.
+ */
 __weak
 void i2c_init_board(void)
 {
@@ -141,12 +147,38 @@ void i2c_init_board(void)
 }
 
 /* TODO: Implement architecture-specific get/set functions */
+
+/**
+ * i2c_get_bus_speed() - Return I2C bus speed
+ *
+ * This function is the default implementation of function for retrieveing
+ * the current I2C bus speed in Hz.
+ *
+ * A driver implementing runtime switching of I2C bus speed must override
+ * this function to report the speed correctly. Simple or legacy drivers
+ * can use this fallback.
+ *
+ * Returns I2C bus speed in Hz.
+ */
 __weak
 unsigned int i2c_get_bus_speed(void)
 {
 	return CONFIG_SYS_I2C_SPEED;
 }
 
+/**
+ * i2c_set_bus_speed() - Configure I2C bus speed
+ * @speed:	Newly set speed of the I2C bus in Hz
+ *
+ * This function is the default implementation of function for setting
+ * the I2C bus speed in Hz.
+ *
+ * A driver implementing runtime switching of I2C bus speed must override
+ * this function to report the speed correctly. Simple or legacy drivers
+ * can use this fallback.
+ *
+ * Returns zero on success, negative value on error.
+ */
 __weak
 int i2c_set_bus_speed(unsigned int speed)
 {
@@ -156,9 +188,10 @@ int i2c_set_bus_speed(unsigned int speed)
 	return 0;
 }
 
-/*
- * get_alen: small parser helper function to get address length
- * returns the address length
+/**
+ * get_alen() - Small parser helper function to get address length
+ *
+ * Returns the address length.
  */
 static uint get_alen(char *arg)
 {
@@ -176,11 +209,19 @@ static uint get_alen(char *arg)
 	return alen;
 }
 
-/*
+/**
+ * do_i2c_read() - Handle the "i2c read" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ *
  * Syntax:
  *	i2c read {i2c_chip} {devaddr}{.0, .1, .2} {len} {memaddr}
  */
-
 static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u_char	chip;
@@ -269,7 +310,16 @@ static int do_i2c_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 	return 0;
 }
 
-/*
+/**
+ * do_i2c_md() - Handle the "i2c md" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ *
  * Syntax:
  *	i2c md {i2c_chip} {addr}{.0, .1, .2} {len}
  */
@@ -361,8 +411,15 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	return 0;
 }
 
-
-/* Write (fill) memory
+/**
+ * do_i2c_mw() - Handle the "i2c mw" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
  *
  * Syntax:
  *	i2c mw {i2c_chip} {addr}{.0, .1, .2} {data} [{count}]
@@ -419,10 +476,20 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 #endif
 	}
 
-	return (0);
+	return 0;
 }
 
-/* Calculate a CRC on memory
+/**
+ * do_i2c_crc() - Handle the "i2c crc32" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Calculate a CRC on memory
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
  *
  * Syntax:
  *	i2c crc32 {i2c_chip} {addr}{.0, .1, .2} {count}
@@ -479,13 +546,22 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	return 0;
 }
 
-/* Modify memory.
+/**
+ * mod_i2c_mem() - Handle the "i2c mm" and "i2c nm" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Modify memory.
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
  *
  * Syntax:
  *	i2c mm{.b, .w, .l} {i2c_chip} {addr}{.0, .1, .2}
  *	i2c nm{.b, .w, .l} {i2c_chip} {addr}{.0, .1, .2}
  */
-
 static int
 mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 {
@@ -601,7 +677,16 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 	return 0;
 }
 
-/*
+/**
+ * do_i2c_probe() - Handle the "i2c probe" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ *
  * Syntax:
  *	i2c probe {addr}
  *
@@ -655,7 +740,16 @@ static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	return (0 == found);
 }
 
-/*
+/**
+ * do_i2c_loop() - Handle the "i2c loop" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ *
  * Syntax:
  *	i2c loop {i2c_chip} {addr}{.0, .1, .2} [{length}] [{delay}]
  *	{length} - Number of bytes to read
@@ -716,6 +810,8 @@ static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 /*
  * The SDRAM command is separately configured because many
  * (most?) embedded boards don't use SDRAM DIMMs.
+ *
+ * FIXME: Document and probably move elsewhere!
  */
 #if defined(CONFIG_CMD_SDRAM)
 static void print_ddr2_tcyc (u_char const b)
@@ -1245,6 +1341,15 @@ static int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 #if defined(CONFIG_I2C_MUX)
+/**
+ * do_i2c_add_bus() - Handle the "i2c bus" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero always.
+ */
 static int do_i2c_add_bus(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret=0;
@@ -1274,6 +1379,16 @@ static int do_i2c_add_bus(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 #endif  /* CONFIG_I2C_MUX */
 
 #if defined(CONFIG_I2C_MULTI_BUS)
+/**
+ * do_i2c_bus_num() - Handle the "i2c dev" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ */
 static int do_i2c_bus_num(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int bus_idx, ret=0;
@@ -1292,6 +1407,16 @@ static int do_i2c_bus_num(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 }
 #endif  /* CONFIG_I2C_MULTI_BUS */
 
+/**
+ * do_i2c_bus_speed() - Handle the "i2c speed" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ */
 static int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int speed, ret=0;
@@ -1309,16 +1434,45 @@ static int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	return ret;
 }
 
+/**
+ * do_i2c_mm() - Handle the "i2c mm" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ */
 static int do_i2c_mm(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	return mod_i2c_mem (cmdtp, 1, flag, argc, argv);
 }
 
+/**
+ * do_i2c_nm() - Handle the "i2c nm" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ */
 static int do_i2c_nm(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	return mod_i2c_mem (cmdtp, 0, flag, argc, argv);
 }
 
+/**
+ * do_i2c_reset() - Handle the "i2c reset" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero always.
+ */
 static int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
@@ -1354,6 +1508,16 @@ void i2c_reloc(void) {
 }
 #endif
 
+/**
+ * do_i2c() - Handle the "i2c" command-line command
+ * @cmdtp:	Command data struct pointer
+ * @flag:	Command flag
+ * @argc:	Command-line argument count
+ * @argv:	Array of command-line arguments
+ *
+ * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
+ * on error.
+ */
 static int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
