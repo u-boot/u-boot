@@ -287,22 +287,8 @@ unsigned int i2c_get_bus_speed(void)
 
 void i2c_init(int speed, int slaveadd)
 {
-	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
-	struct mxs_i2c_speed_table *spd = mxs_i2c_speed_to_cfg(speed);
-
-	if (!spd) {
-		printf("MXS I2C: Invalid speed selected (%d Hz)\n", speed);
-		return;
-	}
-
 	mxs_i2c_reset();
-
-	writel(spd->timing0, &i2c_regs->hw_i2c_timing0);
-	writel(spd->timing1, &i2c_regs->hw_i2c_timing1);
-
-	writel((0x0015 << I2C_TIMING2_BUS_FREE_OFFSET) |
-		(0x000d << I2C_TIMING2_LEADIN_COUNT_OFFSET),
-		&i2c_regs->hw_i2c_timing2);
+	i2c_set_bus_speed(speed);
 
 	return;
 }
