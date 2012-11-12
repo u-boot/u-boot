@@ -267,8 +267,8 @@ int i2c_set_bus_speed(unsigned int speed)
 	writel(spd->timing0, &i2c_regs->hw_i2c_timing0);
 	writel(spd->timing1, &i2c_regs->hw_i2c_timing1);
 
-	writel((0x0015 << I2C_TIMING2_BUS_FREE_OFFSET) |
-		(0x000d << I2C_TIMING2_LEADIN_COUNT_OFFSET),
+	writel((0x0030 << I2C_TIMING2_BUS_FREE_OFFSET) |
+		(0x0030 << I2C_TIMING2_LEADIN_COUNT_OFFSET),
 		&i2c_regs->hw_i2c_timing2);
 
 	return 0;
