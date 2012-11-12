@@ -240,6 +240,51 @@ static struct mxs_i2c_speed_table *mxs_i2c_speed_to_cfg(uint32_t speed)
 	return NULL;
 }
 
+static uint32_t mxs_i2c_cfg_to_speed(uint32_t timing0, uint32_t timing1)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(mxs_i2c_tbl); i++) {
+		if (mxs_i2c_tbl[i].timing0 != timing0)
+			continue;
+		if (mxs_i2c_tbl[i].timing1 != timing1)
+			continue;
+		return mxs_i2c_tbl[i].speed;
+	}
+
+	return 0;
+}
+
+int i2c_set_bus_speed(unsigned int speed)
+{
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_speed_table *spd = mxs_i2c_speed_to_cfg(speed);
+
+	if (!spd) {
+		printf("MXS I2C: Invalid speed selected (%d Hz)\n", speed);
+		return -EINVAL;
+	}
+
+	writel(spd->timing0, &i2c_regs->hw_i2c_timing0);
+	writel(spd->timing1, &i2c_regs->hw_i2c_timing1);
+
+	writel((0x0015 << I2C_TIMING2_BUS_FREE_OFFSET) |
+		(0x000d << I2C_TIMING2_LEADIN_COUNT_OFFSET),
+		&i2c_regs->hw_i2c_timing2);
+
+	return 0;
+}
+
+unsigned int i2c_get_bus_speed(void)
+{
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	uint32_t timing0, timing1;
+
+	timing0 = readl(&i2c_regs->hw_i2c_timing0);
+	timing1 = readl(&i2c_regs->hw_i2c_timing1);
+
+	return mxs_i2c_cfg_to_speed(timing0, timing1);
+}
+
 void i2c_init(int speed, int slaveadd)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
