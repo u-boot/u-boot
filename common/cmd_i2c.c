@@ -82,6 +82,7 @@
 #include <i2c.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
+#include <linux/compiler.h>
 
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.
@@ -133,30 +134,27 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DISP_LINE_LEN	16
 
 /* implement possible board specific board init */
-static void __def_i2c_init_board(void)
+__weak
+void i2c_init_board(void)
 {
 	return;
 }
-void i2c_init_board(void)
-	__attribute__((weak, alias("__def_i2c_init_board")));
 
 /* TODO: Implement architecture-specific get/set functions */
-static unsigned int __def_i2c_get_bus_speed(void)
+__weak
+unsigned int i2c_get_bus_speed(void)
 {
 	return CONFIG_SYS_I2C_SPEED;
 }
-unsigned int i2c_get_bus_speed(void)
-	__attribute__((weak, alias("__def_i2c_get_bus_speed")));
 
-static int __def_i2c_set_bus_speed(unsigned int speed)
+__weak
+int i2c_set_bus_speed(unsigned int speed)
 {
 	if (speed != CONFIG_SYS_I2C_SPEED)
 		return -1;
 
 	return 0;
 }
-int i2c_set_bus_speed(unsigned int)
-	__attribute__((weak, alias("__def_i2c_set_bus_speed")));
 
 /*
  * get_alen: small parser helper function to get address length
