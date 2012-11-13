@@ -124,37 +124,47 @@ struct pmic *pmic_get(const char *s)
 	return NULL;
 }
 
+const char *power_get_interface(int interface)
+{
+	const char *power_interface[] = {"I2C", "SPI", "|+|-|"};
+	return power_interface[interface];
+}
+
 static void pmic_list_names(void)
 {
 	struct pmic *p;
 
 	puts("PMIC devices:\n");
 	list_for_each_entry(p, &pmic_list, list) {
-		printf("name: %s\n", p->name);
+		printf("name: %s bus: %s_%d\n", p->name,
+		       power_get_interface(p->interface), p->bus);
 	}
 }
 
 int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 ret, reg, val;
+	char *cmd, *name;
 	struct pmic *p;
-	char *cmd;
 
 	/* at least two arguments please */
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	cmd = argv[1];
-
-	if (strcmp(cmd, "list") == 0) {
+	if (strcmp(argv[1], "list") == 0) {
 		pmic_list_names();
 		return CMD_RET_SUCCESS;
 	}
 
+	name = argv[1];
+	cmd = argv[2];
+
+	debug("%s: name: %s cmd: %s\n", __func__, name, cmd);
+	p = pmic_get(name);
+	if (!p)
+		return CMD_RET_FAILURE;
+
 	if (strcmp(cmd, "dump") == 0) {
-		p = pmic_get(argv[2]);
-		if (!p)
-			return CMD_RET_FAILURE;
 		if (pmic_dump(p))
 			return CMD_RET_FAILURE;
 		return CMD_RET_SUCCESS;
@@ -165,10 +175,6 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return CMD_RET_USAGE;
 
 		reg = simple_strtoul(argv[3], NULL, 16);
-		p = pmic_get(argv[2]);
-		if (!p)
-			return CMD_RET_FAILURE;
-
 		ret = pmic_reg_read(p, reg, &val);
 
 		if (ret)
@@ -185,10 +191,27 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		reg = simple_strtoul(argv[3], NULL, 16);
 		val = simple_strtoul(argv[4], NULL, 16);
-		p = pmic_get(argv[2]);
-		if (!p)
-			return CMD_RET_FAILURE;
 		pmic_reg_write(p, reg, val);
+
+		return CMD_RET_SUCCESS;
+	}
+
+	if (strcmp(cmd, "bat") == 0) {
+		if (argc < 4)
+			return CMD_RET_USAGE;
+
+		if (strcmp(argv[3], "state") == 0)
+			p->fg->fg_battery_check(p->pbat->fg, p);
+
+		if (strcmp(argv[3], "charge") == 0) {
+			if (p->pbat) {
+				printf("PRINT BAT charge %s\n", p->name);
+				if (p->low_power_mode)
+					p->low_power_mode();
+				if (p->pbat->battery_charge)
+					p->pbat->battery_charge(p);
+			}
+		}
 
 		return CMD_RET_SUCCESS;
 	}
@@ -201,7 +224,9 @@ U_BOOT_CMD(
 	pmic,	CONFIG_SYS_MAXARGS, 1, do_pmic,
 	"PMIC",
 	"list - list available PMICs\n"
-	"pmic dump name - dump named PMIC registers\n"
+	"pmic name dump - dump named PMIC registers\n"
 	"pmic name read <reg> - read register\n"
-	"pmic name write <reg> <value> - write register"
+	"pmic name write <reg> <value> - write register\n"
+	"pmic name bat state - write register\n"
+	"pmic name bat charge - write register\n"
 );
