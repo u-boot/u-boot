@@ -29,9 +29,9 @@
 #define MX5_USBOTHER_REGS_OFFSET 0x800
 
 
-#define MXC_OTG_OFFSET		0
-#define MXC_H1_OFFSET		0x200
-#define MXC_H2_OFFSET		0x400
+#define MXC_OTG_OFFSET			0
+#define MXC_H1_OFFSET			0x200
+#define MXC_H2_OFFSET			0x400
 
 #define MXC_USBCTRL_OFFSET		0
 #define MXC_USB_PHY_CTR_FUNC_OFFSET	0x8
@@ -40,23 +40,30 @@
 #define MXC_USBH2CTRL_OFFSET		0x14
 
 /* USB_CTRL */
-#define MXC_OTG_UCTRL_OWIE_BIT	(1 << 27) /* OTG wakeup intr enable */
-#define MXC_OTG_UCTRL_OPM_BIT	(1 << 24) /* OTG power mask */
-#define MXC_H1_UCTRL_H1UIE_BIT	(1 << 12) /* Host1 ULPI interrupt enable */
-#define MXC_H1_UCTRL_H1WIE_BIT	(1 << 11) /* HOST1 wakeup intr enable */
-#define MXC_H1_UCTRL_H1PM_BIT	(1 << 8) /* HOST1 power mask */
+/* OTG wakeup intr enable */
+#define MXC_OTG_UCTRL_OWIE_BIT		(1 << 27)
+/* OTG power mask */
+#define MXC_OTG_UCTRL_OPM_BIT		(1 << 24)
+/* Host1 ULPI interrupt enable */
+#define MXC_H1_UCTRL_H1UIE_BIT		(1 << 12)
+/* HOST1 wakeup intr enable */
+#define MXC_H1_UCTRL_H1WIE_BIT		(1 << 11)
+/* HOST1 power mask */
+#define MXC_H1_UCTRL_H1PM_BIT		(1 << 8)
 
 /* USB_PHY_CTRL_FUNC */
-#define MXC_OTG_PHYCTRL_OC_DIS_BIT (1 << 8) /* OTG Disable Overcurrent Event */
-#define MXC_H1_OC_DIS_BIT	(1 << 5) /* UH1 Disable Overcurrent Event */
+/* OTG Disable Overcurrent Event */
+#define MXC_OTG_PHYCTRL_OC_DIS_BIT	(1 << 8)
+/* UH1 Disable Overcurrent Event */
+#define MXC_H1_OC_DIS_BIT		(1 << 5)
 
 /* USBH2CTRL */
-#define MXC_H2_UCTRL_H2UIE_BIT	(1 << 8)
-#define MXC_H2_UCTRL_H2WIE_BIT	(1 << 7)
-#define MXC_H2_UCTRL_H2PM_BIT	(1 << 4)
+#define MXC_H2_UCTRL_H2UIE_BIT		(1 << 8)
+#define MXC_H2_UCTRL_H2WIE_BIT		(1 << 7)
+#define MXC_H2_UCTRL_H2PM_BIT		(1 << 4)
 
 /* USB_CTRL_1 */
-#define MXC_USB_CTRL_UH1_EXT_CLK_EN		(1 << 25)
+#define MXC_USB_CTRL_UH1_EXT_CLK_EN	(1 << 25)
 
 /* USB pin configuration */
 #define USB_PAD_CONFIG	(PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST | \
@@ -160,7 +167,7 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 			__raw_writel(v, usbother_base + MXC_USBCTRL_OFFSET);
 		}
 		break;
-	case 1:	/* Host 1 Host ULPI */
+	case 1:	/* Host 1 ULPI */
 #ifdef CONFIG_MX51
 		/* The clock for the USBH1 ULPI port will come externally
 		   from the PHY. */
@@ -171,9 +178,9 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 
 		v = __raw_readl(usbother_base + MXC_USBCTRL_OFFSET);
 		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
-			v &= ~MXC_H1_UCTRL_H1PM_BIT; /* HOST1 power mask used */
+			v &= ~MXC_H1_UCTRL_H1PM_BIT; /* H1 power mask unused */
 		else
-			v |= MXC_H1_UCTRL_H1PM_BIT; /* HOST1 power mask used */
+			v |= MXC_H1_UCTRL_H1PM_BIT; /* H1 power mask used */
 		__raw_writel(v, usbother_base + MXC_USBCTRL_OFFSET);
 
 		v = __raw_readl(usbother_base + MXC_USB_PHY_CTR_FUNC_OFFSET);
@@ -187,9 +194,9 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 	case 2: /* Host 2 ULPI */
 		v = __raw_readl(usbother_base + MXC_USBH2CTRL_OFFSET);
 		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
-			v &= ~MXC_H2_UCTRL_H2PM_BIT; /* HOST2 power mask used */
+			v &= ~MXC_H2_UCTRL_H2PM_BIT; /* H2 power mask unused */
 		else
-			v |= MXC_H2_UCTRL_H2PM_BIT; /* HOST2 power mask used */
+			v |= MXC_H2_UCTRL_H2PM_BIT; /* H2 power mask used */
 
 		__raw_writel(v, usbother_base + MXC_USBH2CTRL_OFFSET);
 		break;
