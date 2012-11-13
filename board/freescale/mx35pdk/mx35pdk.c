@@ -31,7 +31,7 @@
 #include <asm/arch/mx35_pins.h>
 #include <asm/arch/iomux.h>
 #include <i2c.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -207,7 +207,9 @@ int board_init(void)
 static inline int pmic_detect(void)
 {
 	unsigned int id;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("FSL_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	pmic_reg_read(p, REG_IDENTIFICATION, &id);
 
@@ -231,10 +233,14 @@ int board_late_init(void)
 	u8 val;
 	u32 pmic_val;
 	struct pmic *p;
+	int ret;
 
-	pmic_init();
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return ret;
+
 	if (pmic_detect()) {
-		p = get_pmic();
+		p = pmic_get("FSL_PMIC");
 		mxc_request_iomux(MX35_PIN_WATCHDOG_RST, MUX_CONFIG_SION |
 					MUX_CONFIG_ALT1);
 

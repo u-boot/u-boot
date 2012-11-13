@@ -34,9 +34,9 @@
 #include <asm/arch/mipi_dsim.h>
 #include <asm/arch/watchdog.h>
 #include <asm/arch/power.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <usb/s3c_udc.h>
-#include <max8997_pmic.h>
+#include <power/max8997_pmic.h>
 #include <libtizen.h>
 
 #include "setup.h"
@@ -69,7 +69,7 @@ int board_init(void)
 	printf("HW Revision:\t0x%x\n", board_rev);
 
 #if defined(CONFIG_PMIC)
-	pmic_init();
+	pmic_init(I2C_5);
 #endif
 
 	return 0;
@@ -238,7 +238,9 @@ static int s5pc210_phy_control(int on)
 {
 	int ret = 0;
 	u32 val = 0;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8997_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;
@@ -413,7 +415,9 @@ static void lcd_reset(void)
 static int lcd_power(void)
 {
 	int ret = 0;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8997_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return 0;
@@ -473,7 +477,9 @@ static struct mipi_dsim_lcd_device mipi_lcd_device = {
 static int mipi_power(void)
 {
 	int ret = 0;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8997_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return 0;

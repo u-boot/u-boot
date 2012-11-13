@@ -27,18 +27,21 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <linux/types.h>
-#include <pmic.h>
+#include <linux/list.h>
+#include <power/pmic.h>
 
-static struct pmic pmic;
+static LIST_HEAD(pmic_list);
 
-int check_reg(u32 reg)
+int check_reg(struct pmic *p, u32 reg)
 {
-	if (reg >= pmic.number_of_regs) {
+	if (reg >= p->number_of_regs) {
 		printf("<reg num> = %d is invalid. Should be less than %d\n",
-		       reg, pmic.number_of_regs);
+		       reg, p->number_of_regs);
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -65,10 +68,15 @@ static void pmic_show_info(struct pmic *p)
 	printf("PMIC: %s\n", p->name);
 }
 
-static void pmic_dump(struct pmic *p)
+static int pmic_dump(struct pmic *p)
 {
 	int i, ret;
 	u32 val;
+
+	if (!p) {
+		puts("Wrong PMIC name!\n");
+		return -1;
+	}
 
 	pmic_show_info(p);
 	for (i = 0; i < p->number_of_regs; i++) {
@@ -82,35 +90,84 @@ static void pmic_dump(struct pmic *p)
 		printf("%08x ", val);
 	}
 	puts("\n");
+	return 0;
 }
 
-struct pmic *get_pmic(void)
+struct pmic *pmic_alloc(void)
 {
-	return &pmic;
+	struct pmic *p;
+
+	p = calloc(sizeof(*p), 1);
+	if (!p) {
+		printf("%s: No available memory for allocation!\n", __func__);
+		return NULL;
+	}
+
+	list_add_tail(&p->list, &pmic_list);
+
+	debug("%s: new pmic struct: 0x%p\n", __func__, p);
+
+	return p;
+}
+
+struct pmic *pmic_get(const char *s)
+{
+	struct pmic *p;
+
+	list_for_each_entry(p, &pmic_list, list) {
+		if (strcmp(p->name, s) == 0) {
+			debug("%s: pmic %s -> 0x%p\n", __func__, p->name, p);
+			return p;
+		}
+	}
+
+	return NULL;
+}
+
+static void pmic_list_names(void)
+{
+	struct pmic *p;
+
+	puts("PMIC devices:\n");
+	list_for_each_entry(p, &pmic_list, list) {
+		printf("name: %s\n", p->name);
+	}
 }
 
 int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 ret, reg, val;
+	struct pmic *p;
 	char *cmd;
-
-	struct pmic *p = &pmic;
 
 	/* at least two arguments please */
 	if (argc < 2)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	cmd = argv[1];
+
+	if (strcmp(cmd, "list") == 0) {
+		pmic_list_names();
+		return CMD_RET_SUCCESS;
+	}
+
 	if (strcmp(cmd, "dump") == 0) {
-		pmic_dump(p);
-		return 0;
+		p = pmic_get(argv[2]);
+		if (!p)
+			return CMD_RET_FAILURE;
+		if (pmic_dump(p))
+			return CMD_RET_FAILURE;
+		return CMD_RET_SUCCESS;
 	}
 
 	if (strcmp(cmd, "read") == 0) {
-		if (argc < 3)
-			return cmd_usage(cmdtp);
+		if (argc < 4)
+			return CMD_RET_USAGE;
 
-		reg = simple_strtoul(argv[2], NULL, 16);
+		reg = simple_strtoul(argv[3], NULL, 16);
+		p = pmic_get(argv[2]);
+		if (!p)
+			return CMD_RET_FAILURE;
 
 		ret = pmic_reg_read(p, reg, &val);
 
@@ -119,29 +176,32 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		printf("\n0x%02x: 0x%08x\n", reg, val);
 
-		return 0;
+		return CMD_RET_SUCCESS;
 	}
 
 	if (strcmp(cmd, "write") == 0) {
-		if (argc < 4)
-			return cmd_usage(cmdtp);
+		if (argc < 5)
+			return CMD_RET_USAGE;
 
-		reg = simple_strtoul(argv[2], NULL, 16);
-		val = simple_strtoul(argv[3], NULL, 16);
-
+		reg = simple_strtoul(argv[3], NULL, 16);
+		val = simple_strtoul(argv[4], NULL, 16);
+		p = pmic_get(argv[2]);
+		if (!p)
+			return CMD_RET_FAILURE;
 		pmic_reg_write(p, reg, val);
 
-		return 0;
+		return CMD_RET_SUCCESS;
 	}
 
 	/* No subcommand found */
-	return 1;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
 	pmic,	CONFIG_SYS_MAXARGS, 1, do_pmic,
 	"PMIC",
-	"dump - dump PMIC registers\n"
-	"pmic read <reg> - read register\n"
-	"pmic write <reg> <value> - write register"
+	"list - list available PMICs\n"
+	"pmic dump name - dump named PMIC registers\n"
+	"pmic name read <reg> - read register\n"
+	"pmic name write <reg> <value> - write register"
 );

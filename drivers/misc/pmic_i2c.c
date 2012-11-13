@@ -28,7 +28,7 @@
 
 #include <common.h>
 #include <linux/types.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <i2c.h>
 #include <compiler.h>
 
@@ -36,7 +36,7 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 {
 	unsigned char buf[4] = { 0 };
 
-	if (check_reg(reg))
+	if (check_reg(p, reg))
 		return -1;
 
 	switch (pmic_i2c_tx_num) {
@@ -79,7 +79,7 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 	unsigned char buf[4] = { 0 };
 	u32 ret_val = 0;
 
-	if (check_reg(reg))
+	if (check_reg(p, reg))
 		return -1;
 
 	if (i2c_read(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num))

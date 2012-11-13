@@ -22,14 +22,20 @@
  */
 
 #include <common.h>
-#include <pmic.h>
-#include <max8997_pmic.h>
+#include <power/pmic.h>
+#include <power/max8997_pmic.h>
 #include <i2c.h>
+#include <errno.h>
 
-int pmic_init(void)
+int pmic_init(unsigned char bus)
 {
-	struct pmic *p = get_pmic();
 	static const char name[] = "MAX8997_PMIC";
+	struct pmic *p = pmic_alloc();
+
+	if (!p) {
+		printf("%s: POWER allocation error!\n", __func__);
+		return -ENOMEM;
+	}
 
 	puts("Board PMIC init\n");
 
@@ -38,7 +44,7 @@ int pmic_init(void)
 	p->number_of_regs = PMIC_NUM_OF_REGS;
 	p->hw.i2c.addr = MAX8997_I2C_ADDR;
 	p->hw.i2c.tx_num = 1;
-	p->bus = I2C_0;
+	p->bus = bus;
 
 	return 0;
 }

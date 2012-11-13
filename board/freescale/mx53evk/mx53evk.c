@@ -34,7 +34,7 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <asm/gpio.h>
 #include <mc13892.h>
@@ -123,9 +123,15 @@ void power_init(void)
 {
 	unsigned int val;
 	struct pmic *p;
+	int ret;
 
-	pmic_init();
-	p = get_pmic();
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return;
+
+	p = pmic_get("FSL_PMIC");
+	if (!p)
+		return;
 
 	/* Set VDDA to 1.25V */
 	pmic_reg_read(p, REG_SW_2, &val);

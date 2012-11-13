@@ -27,10 +27,10 @@
 #include <asm/arch/adc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
-#include <max8998_pmic.h>
+#include <power/max8998_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -59,7 +59,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 #if defined(CONFIG_PMIC)
-	pmic_init();
+	pmic_init(I2C_5);
 #endif
 
 	check_hw_revision();
@@ -112,7 +112,9 @@ static unsigned short get_adc_value(int channel)
 static int adc_power_control(int on)
 {
 	int ret;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;
@@ -280,7 +282,9 @@ int board_mmc_init(bd_t *bis)
 static int s5pc210_phy_control(int on)
 {
 	int ret = 0;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;

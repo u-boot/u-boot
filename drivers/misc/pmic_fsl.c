@@ -23,8 +23,9 @@
 
 #include <common.h>
 #include <spi.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
+#include <errno.h>
 
 #if defined(CONFIG_PMIC_SPI)
 static u32 pmic_spi_prepare_tx(u32 reg, u32 *val, u32 write)
@@ -33,10 +34,15 @@ static u32 pmic_spi_prepare_tx(u32 reg, u32 *val, u32 write)
 }
 #endif
 
-int pmic_init(void)
+int pmic_init(unsigned char bus)
 {
-	struct pmic *p = get_pmic();
 	static const char name[] = "FSL_PMIC";
+	struct pmic *p = pmic_alloc();
+
+	if (!p) {
+		printf("%s: POWER allocation error!\n", __func__);
+		return -ENOMEM;
+	}
 
 	p->name = name;
 	p->number_of_regs = PMIC_NUM_OF_REGS;
@@ -54,7 +60,7 @@ int pmic_init(void)
 	p->interface = PMIC_I2C;
 	p->hw.i2c.addr = CONFIG_SYS_FSL_PMIC_I2C_ADDR;
 	p->hw.i2c.tx_num = 3;
-	p->bus = I2C_PMIC;
+	p->bus = bus;
 #else
 #error "You must select CONFIG_PMIC_SPI or CONFIG_PMIC_I2C"
 #endif

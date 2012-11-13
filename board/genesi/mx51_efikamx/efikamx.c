@@ -33,7 +33,7 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
 
@@ -173,9 +173,15 @@ static void power_init(void)
 	unsigned int val;
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
 	struct pmic *p;
+	int ret;
 
-	pmic_init();
-	p = get_pmic();
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return;
+
+	p = pmic_get("FSL_PMIC");
+	if (!p)
+		return;
 
 	/* Write needed to Power Gate 2 register */
 	pmic_reg_read(p, REG_POWER_MISC, &val);

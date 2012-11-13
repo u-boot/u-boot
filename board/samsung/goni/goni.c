@@ -25,10 +25,10 @@
 #include <common.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
-#include <max8998_pmic.h>
+#include <power/max8998_pmic.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct s5pc110_gpio *s5pc110_gpio;
@@ -42,8 +42,9 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 #if defined(CONFIG_PMIC)
-	pmic_init();
+	pmic_init(I2C_5);
 #endif
+
 	return 0;
 }
 
@@ -108,7 +109,9 @@ static int s5pc1xx_phy_control(int on)
 {
 	int ret;
 	static int status;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;

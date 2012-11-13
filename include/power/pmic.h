@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011 Samsung Electronics
+ *  Copyright (C) 2011-2012 Samsung Electronics
  *  Lukasz Majewski <l.majewski@samsung.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,6 +23,10 @@
 
 #ifndef __CORE_PMIC_H_
 #define __CORE_PMIC_H_
+
+#include <common.h>
+#include <linux/list.h>
+#include <i2c.h>
 
 enum { PMIC_I2C, PMIC_SPI, };
 enum { I2C_PMIC, I2C_NUM, };
@@ -49,17 +53,20 @@ struct pmic {
 	unsigned char bus;
 	unsigned char interface;
 	unsigned char sensor_byte_order;
-	unsigned char number_of_regs;
+	unsigned int number_of_regs;
 	union hw {
 		struct p_i2c i2c;
 		struct p_spi spi;
 	} hw;
+
+	struct list_head list;
 };
 
-int pmic_init(void);
-int pmic_dialog_init(void);
-int check_reg(u32 reg);
-struct pmic *get_pmic(void);
+int pmic_init(unsigned char bus);
+int pmic_dialog_init(unsigned char bus);
+int check_reg(struct pmic *p, u32 reg);
+struct pmic *pmic_alloc(void);
+struct pmic *pmic_get(const char *s);
 int pmic_probe(struct pmic *p);
 int pmic_reg_read(struct pmic *p, u32 reg, u32 *val);
 int pmic_reg_write(struct pmic *p, u32 reg, u32 val);

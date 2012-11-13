@@ -28,7 +28,7 @@
 
 #include <common.h>
 #include <linux/types.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <spi.h>
 
 static struct spi_slave *slave;
@@ -59,7 +59,7 @@ static u32 pmic_reg(struct pmic *p, u32 reg, u32 *val, u32 write)
 			return -1;
 	}
 
-	if (check_reg(reg))
+	if (check_reg(p, reg))
 		return -1;
 
 	if (spi_claim_bus(slave))
