@@ -24,6 +24,7 @@
 #include <common.h>
 #include <pmic.h>
 #include <max8997_pmic.h>
+#include <i2c.h>
 
 int pmic_init(void)
 {
@@ -37,7 +38,7 @@ int pmic_init(void)
 	p->number_of_regs = PMIC_NUM_OF_REGS;
 	p->hw.i2c.addr = MAX8997_I2C_ADDR;
 	p->hw.i2c.tx_num = 1;
-	p->bus = I2C_PMIC;
+	p->bus = I2C_0;
 
 	return 0;
 }
