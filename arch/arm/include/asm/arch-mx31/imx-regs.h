@@ -895,6 +895,7 @@ struct esdc_regs {
 
 #define MX31_AIPS1_BASE_ADDR	0x43f00000
 #define IMX_USB_BASE		(MX31_AIPS1_BASE_ADDR + 0x88000)
+#define IMX_USB_PORT_OFFSET	0x200
 
 /*
  * CSPI register definitions

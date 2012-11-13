@@ -169,7 +169,7 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	udelay(80);
 
 	ehci = (struct usb_ehci *)(IMX_USB_BASE +
-		(0x200 * CONFIG_MXC_USB_PORT));
+			IMX_USB_PORT_OFFSET * CONFIG_MXC_USB_PORT);
 	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
 			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
