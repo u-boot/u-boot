@@ -27,6 +27,7 @@ LIB	:= $(obj)libpmic.o
 
 COBJS-$(CONFIG_PMIC_MAX8998) += pmic_max8998.o
 COBJS-$(CONFIG_PMIC_MAX8997) += pmic_max8997.o
+COBJS-$(CONFIG_POWER_MUIC_MAX8997) += muic_max8997.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
