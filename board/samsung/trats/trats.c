@@ -298,7 +298,9 @@ static int pmic_init_max8997(void)
 
 int power_init_board(void)
 {
-	int ret;
+	int chrg, ret;
+	struct power_battery *pb;
+	struct pmic *p_fg, *p_chrg, *p_muic, *p_bat;
 
 	ret = pmic_init(I2C_5);
 	ret |= pmic_init_max8997();
@@ -307,6 +309,51 @@ int power_init_board(void)
 	ret |= power_bat_init(0);
 	if (ret)
 		return ret;
+
+	p_fg = pmic_get("MAX17042_FG");
+	if (!p_fg) {
+		puts("MAX17042_FG: Not found\n");
+		return -ENODEV;
+	}
+
+	p_chrg = pmic_get("MAX8997_PMIC");
+	if (!p_chrg) {
+		puts("MAX8997_PMIC: Not found\n");
+		return -ENODEV;
+	}
+
+	p_muic = pmic_get("MAX8997_MUIC");
+	if (!p_muic) {
+		puts("MAX8997_MUIC: Not found\n");
+		return -ENODEV;
+	}
+
+	p_bat = pmic_get("BAT_TRATS");
+	if (!p_bat) {
+		puts("BAT_TRATS: Not found\n");
+		return -ENODEV;
+	}
+
+	p_fg->parent =  p_bat;
+	p_chrg->parent = p_bat;
+	p_muic->parent = p_bat;
+
+	p_bat->low_power_mode = trats_low_power_mode;
+	p_bat->pbat->battery_init(p_bat, p_fg, p_chrg, p_muic);
+
+	pb = p_bat->pbat;
+	chrg = p_muic->chrg->chrg_type(p_muic);
+	debug("CHARGER TYPE: %d\n", chrg);
+
+	if (!p_chrg->chrg->chrg_bat_present(p_chrg)) {
+		puts("No battery detected\n");
+		return -1;
+	}
+
+	p_fg->fg->fg_battery_check(p_fg, p_bat);
+
+	if (pb->bat->state == CHARGE && chrg == CHARGER_USB)
+		puts("CHARGE Battery !\n");
 
 	return 0;
 }
