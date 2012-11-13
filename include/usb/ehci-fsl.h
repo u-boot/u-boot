@@ -266,11 +266,13 @@ struct usb_ehci {
 #define MXC_EHCI_INTERFACE_MASK		(0xf)
 
 #define MXC_EHCI_POWER_PINS_ENABLED	(1 << 5)
-#define MXC_EHCI_TTL_ENABLED		(1 << 6)
+#define MXC_EHCI_PWR_PIN_ACTIVE_HIGH	(1 << 6)
+#define MXC_EHCI_OC_PIN_ACTIVE_LOW	(1 << 7)
+#define MXC_EHCI_TTL_ENABLED		(1 << 8)
 
-#define MXC_EHCI_INTERNAL_PHY		(1 << 7)
-#define MXC_EHCI_IPPUE_DOWN		(1 << 8)
-#define MXC_EHCI_IPPUE_UP		(1 << 9)
+#define MXC_EHCI_INTERNAL_PHY		(1 << 9)
+#define MXC_EHCI_IPPUE_DOWN		(1 << 10)
+#define MXC_EHCI_IPPUE_UP		(1 << 11)
 
 /* Board-specific initialization */
 int board_ehci_hcd_init(int port);

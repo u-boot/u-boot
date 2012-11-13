@@ -46,29 +46,43 @@
 #define MXC_OTG_UCTRL_OWIE_BIT		(1 << 27)
 /* OTG power mask */
 #define MXC_OTG_UCTRL_OPM_BIT		(1 << 24)
+/* OTG power pin polarity */
+#define MXC_OTG_UCTRL_O_PWR_POL_BIT	(1 << 24)
 /* Host1 ULPI interrupt enable */
 #define MXC_H1_UCTRL_H1UIE_BIT		(1 << 12)
 /* HOST1 wakeup intr enable */
 #define MXC_H1_UCTRL_H1WIE_BIT		(1 << 11)
 /* HOST1 power mask */
 #define MXC_H1_UCTRL_H1PM_BIT		(1 << 8)
+/* HOST1 power pin polarity */
+#define MXC_H1_UCTRL_H1_PWR_POL_BIT	(1 << 8)
 
 /* USB_PHY_CTRL_FUNC */
+/* OTG Polarity of Overcurrent */
+#define MXC_OTG_PHYCTRL_OC_POL_BIT	(1 << 9)
 /* OTG Disable Overcurrent Event */
 #define MXC_OTG_PHYCTRL_OC_DIS_BIT	(1 << 8)
+/* UH1 Polarity of Overcurrent */
+#define MXC_H1_OC_POL_BIT		(1 << 6)
 /* UH1 Disable Overcurrent Event */
 #define MXC_H1_OC_DIS_BIT		(1 << 5)
+/* OTG Power Pin Polarity */
+#define MXC_OTG_PHYCTRL_PWR_POL_BIT	(1 << 3)
 
 /* USBH2CTRL */
+#define MXC_H2_UCTRL_H2_OC_POL_BIT	(1 << 31)
 #define MXC_H2_UCTRL_H2_OC_DIS_BIT	(1 << 30)
 #define MXC_H2_UCTRL_H2UIE_BIT		(1 << 8)
 #define MXC_H2_UCTRL_H2WIE_BIT		(1 << 7)
 #define MXC_H2_UCTRL_H2PM_BIT		(1 << 4)
+#define MXC_H2_UCTRL_H2_PWR_POL_BIT	(1 << 4)
 
 /* USBH3CTRL */
+#define MXC_H3_UCTRL_H3_OC_POL_BIT	(1 << 31)
 #define MXC_H3_UCTRL_H3_OC_DIS_BIT	(1 << 30)
 #define MXC_H3_UCTRL_H3UIE_BIT		(1 << 8)
 #define MXC_H3_UCTRL_H3WIE_BIT		(1 << 7)
+#define MXC_H3_UCTRL_H3_PWR_POL_BIT	(1 << 4)
 
 /* USB_CTRL_1 */
 #define MXC_USB_CTRL_UH1_EXT_CLK_EN	(1 << 25)
@@ -158,12 +172,22 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 		if (flags & MXC_EHCI_INTERNAL_PHY) {
 			v = __raw_readl(usbother_base +
 					MXC_USB_PHY_CTR_FUNC_OFFSET);
+			if (flags & MXC_EHCI_OC_PIN_ACTIVE_LOW)
+				v |= MXC_OTG_PHYCTRL_OC_POL_BIT;
+			else
+				v &= ~MXC_OTG_PHYCTRL_OC_POL_BIT;
 			if (flags & MXC_EHCI_POWER_PINS_ENABLED)
 				/* OC/USBPWR is used */
 				v &= ~MXC_OTG_PHYCTRL_OC_DIS_BIT;
 			else
 				/* OC/USBPWR is not used */
 				v |= MXC_OTG_PHYCTRL_OC_DIS_BIT;
+#ifdef CONFIG_MX51
+			if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
+				v |= MXC_OTG_PHYCTRL_PWR_POL_BIT;
+			else
+				v &= ~MXC_OTG_PHYCTRL_PWR_POL_BIT;
+#endif
 			__raw_writel(v, usbother_base +
 					MXC_USB_PHY_CTR_FUNC_OFFSET);
 
@@ -173,6 +197,12 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 				v &= ~MXC_OTG_UCTRL_OPM_BIT;
 			else
 				v |= MXC_OTG_UCTRL_OPM_BIT;
+#endif
+#ifdef CONFIG_MX53
+			if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
+				v |= MXC_OTG_UCTRL_O_PWR_POL_BIT;
+			else
+				v &= ~MXC_OTG_UCTRL_O_PWR_POL_BIT;
 #endif
 			__raw_writel(v, usbother_base + MXC_USBCTRL_OFFSET);
 		}
@@ -193,9 +223,19 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 		else
 			v |= MXC_H1_UCTRL_H1PM_BIT; /* H1 power mask used */
 #endif
+#ifdef CONFIG_MX53
+		if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
+			v |= MXC_H1_UCTRL_H1_PWR_POL_BIT;
+		else
+			v &= ~MXC_H1_UCTRL_H1_PWR_POL_BIT;
+#endif
 		__raw_writel(v, usbother_base + MXC_USBCTRL_OFFSET);
 
 		v = __raw_readl(usbother_base + MXC_USB_PHY_CTR_FUNC_OFFSET);
+		if (flags & MXC_EHCI_OC_PIN_ACTIVE_LOW)
+			v |= MXC_H1_OC_POL_BIT;
+		else
+			v &= ~MXC_H1_OC_POL_BIT;
 		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
 			v &= ~MXC_H1_OC_DIS_BIT; /* OC is used */
 		else
@@ -212,20 +252,36 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 			v |= MXC_H2_UCTRL_H2PM_BIT; /* H2 power mask used */
 #endif
 #ifdef CONFIG_MX53
+		if (flags & MXC_EHCI_OC_PIN_ACTIVE_LOW)
+			v |= MXC_H2_UCTRL_H2_OC_POL_BIT;
+		else
+			v &= ~MXC_H2_UCTRL_H2_OC_POL_BIT;
 		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
 			v &= ~MXC_H2_UCTRL_H2_OC_DIS_BIT; /* OC is used */
 		else
 			v |= MXC_H2_UCTRL_H2_OC_DIS_BIT; /* OC is not used */
+		if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
+			v |= MXC_H2_UCTRL_H2_PWR_POL_BIT;
+		else
+			v &= ~MXC_H2_UCTRL_H2_PWR_POL_BIT;
 #endif
 		__raw_writel(v, usbother_base + MXC_USBH2CTRL_OFFSET);
 		break;
 #ifdef CONFIG_MX53
 	case 3: /* Host 3 ULPI */
 		v = __raw_readl(usbother_base + MXC_USBH3CTRL_OFFSET);
+		if (flags & MXC_EHCI_OC_PIN_ACTIVE_LOW)
+			v |= MXC_H3_UCTRL_H3_OC_POL_BIT;
+		else
+			v &= ~MXC_H3_UCTRL_H3_OC_POL_BIT;
 		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
 			v &= ~MXC_H3_UCTRL_H3_OC_DIS_BIT; /* OC is used */
 		else
 			v |= MXC_H3_UCTRL_H3_OC_DIS_BIT; /* OC is not used */
+		if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
+			v |= MXC_H3_UCTRL_H3_PWR_POL_BIT;
+		else
+			v &= ~MXC_H3_UCTRL_H3_PWR_POL_BIT;
 		__raw_writel(v, usbother_base + MXC_USBH3CTRL_OFFSET);
 		break;
 #endif
