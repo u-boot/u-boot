@@ -176,6 +176,15 @@ enum {
 #define ENSAFEOUT1 (1 << 6)
 #define ENSAFEOUT2 (1 << 7)
 
+#define ENBUCK (1 << 0)
+#define ACTIVE_DISCHARGE (1 << 3)
+#define GNSLCT (1 << 2)
+#define LDO_ADE (1 << 1)
+#define SAFEOUT_4_85V 0x00
+#define SAFEOUT_4_90V 0x01
+#define SAFEOUT_4_95V 0x02
+#define SAFEOUT_3_30V 0x03
+
 /* Charger */
 enum {CHARGER_ENABLE, CHARGER_DISABLE};
 #define DETBAT                  (1 << 2)
