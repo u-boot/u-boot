@@ -161,9 +161,9 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 
 			v = __raw_readl(usbother_base + MXC_USBCTRL_OFFSET);
 			if (flags & MXC_EHCI_POWER_PINS_ENABLED)
-				v |= MXC_OTG_UCTRL_OPM_BIT;
-			else
 				v &= ~MXC_OTG_UCTRL_OPM_BIT;
+			else
+				v |= MXC_OTG_UCTRL_OPM_BIT;
 			__raw_writel(v, usbother_base + MXC_USBCTRL_OFFSET);
 		}
 		break;
