@@ -39,6 +39,7 @@
 #include <power/max8997_pmic.h>
 #include <libtizen.h>
 #include <power/max8997_muic.h>
+#include <power/max17042_fg.h>
 
 #include "setup.h"
 
@@ -242,6 +243,7 @@ int power_init_board(void)
 
 	ret = pmic_init(I2C_5);
 	ret |= pmic_init_max8997();
+	ret |= power_fg_init(I2C_9);
 	ret |= power_muic_init(I2C_5);
 	if (ret)
 		return ret;
