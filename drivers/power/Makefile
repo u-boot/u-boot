@@ -32,7 +32,7 @@ COBJS-$(CONFIG_TWL6030_POWER)	+= twl6030.o
 COBJS-$(CONFIG_TWL6035_POWER)	+= twl6035.o
 
 COBJS-$(CONFIG_POWER) += power_core.o
-COBJS-$(CONFIG_DIALOG_PMIC) += power_dialog.o
+COBJS-$(CONFIG_DIALOG_POWER) += power_dialog.o
 COBJS-$(CONFIG_POWER_FSL) += power_fsl.o
 COBJS-$(CONFIG_POWER_I2C) += power_i2c.o
 COBJS-$(CONFIG_POWER_SPI) += power_spi.o
