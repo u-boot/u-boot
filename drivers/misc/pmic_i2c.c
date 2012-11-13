@@ -44,6 +44,10 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 		buf[1] = (val >> 8) & 0xff;
 		buf[2] = val & 0xff;
 		break;
+	case 2:
+		buf[0] = (val >> 8) & 0xff;
+		buf[1] = val & 0xff;
+		break;
 	case 1:
 		buf[0] = val & 0xff;
 		break;
@@ -73,6 +77,9 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 	case 3:
 		ret_val = buf[0] << 16 | buf[1] << 8 | buf[2];
 		break;
+	case 2:
+		ret_val = buf[0] << 8 | buf[1];
+		break;
 	case 1:
 		ret_val = buf[0];
 		break;
@@ -88,7 +95,7 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 int pmic_probe(struct pmic *p)
 {
 	I2C_SET_BUS(p->bus);
-	debug("PMIC:%s probed!\n", p->name);
+	debug("Bus: %d PMIC:%s probed!\n", p->bus, p->name);
 	if (i2c_probe(pmic_i2c_addr)) {
 		printf("Can't find PMIC:%s\n", p->name);
 		return -1;
