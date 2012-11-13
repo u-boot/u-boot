@@ -160,10 +160,12 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 					MXC_USB_PHY_CTR_FUNC_OFFSET);
 
 			v = __raw_readl(usbother_base + MXC_USBCTRL_OFFSET);
+#ifdef CONFIG_MX51
 			if (flags & MXC_EHCI_POWER_PINS_ENABLED)
 				v &= ~MXC_OTG_UCTRL_OPM_BIT;
 			else
 				v |= MXC_OTG_UCTRL_OPM_BIT;
+#endif
 			__raw_writel(v, usbother_base + MXC_USBCTRL_OFFSET);
 		}
 		break;
@@ -177,10 +179,12 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 #endif
 
 		v = __raw_readl(usbother_base + MXC_USBCTRL_OFFSET);
+#ifdef CONFIG_MX51
 		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
 			v &= ~MXC_H1_UCTRL_H1PM_BIT; /* H1 power mask unused */
 		else
 			v |= MXC_H1_UCTRL_H1PM_BIT; /* H1 power mask used */
+#endif
 		__raw_writel(v, usbother_base + MXC_USBCTRL_OFFSET);
 
 		v = __raw_readl(usbother_base + MXC_USB_PHY_CTR_FUNC_OFFSET);
@@ -193,11 +197,12 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 		break;
 	case 2: /* Host 2 ULPI */
 		v = __raw_readl(usbother_base + MXC_USBH2CTRL_OFFSET);
+#ifdef CONFIG_MX51
 		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
 			v &= ~MXC_H2_UCTRL_H2PM_BIT; /* H2 power mask unused */
 		else
 			v |= MXC_H2_UCTRL_H2PM_BIT; /* H2 power mask used */
-
+#endif
 		__raw_writel(v, usbother_base + MXC_USBH2CTRL_OFFSET);
 		break;
 	}
