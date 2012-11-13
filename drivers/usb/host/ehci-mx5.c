@@ -151,11 +151,11 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 			v = __raw_readl(usbother_base +
 					MXC_USB_PHY_CTR_FUNC_OFFSET);
 			if (flags & MXC_EHCI_POWER_PINS_ENABLED)
-				/* OC/USBPWR is not used */
-				v |= MXC_OTG_PHYCTRL_OC_DIS_BIT;
-			else
 				/* OC/USBPWR is used */
 				v &= ~MXC_OTG_PHYCTRL_OC_DIS_BIT;
+			else
+				/* OC/USBPWR is not used */
+				v |= MXC_OTG_PHYCTRL_OC_DIS_BIT;
 			__raw_writel(v, usbother_base +
 					MXC_USB_PHY_CTR_FUNC_OFFSET);
 
