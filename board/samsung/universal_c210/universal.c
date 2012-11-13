@@ -58,12 +58,19 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
-#if defined(CONFIG_POWER)
-	pmic_init(I2C_5);
-#endif
-
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);
+
+	return 0;
+}
+
+int power_init_board(void)
+{
+	int ret;
+
+	ret = pmic_init(I2C_5);
+	if (ret)
+		return ret;
 
 	return 0;
 }
