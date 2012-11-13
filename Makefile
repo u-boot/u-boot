@@ -293,7 +293,8 @@ LIBS-y += drivers/net/libnet.o
 LIBS-y += drivers/net/phy/libphy.o
 LIBS-y += drivers/pci/libpci.o
 LIBS-y += drivers/pcmcia/libpcmcia.o
-LIBS-y += drivers/power/libpower.o
+LIBS-y += drivers/power/libpower.o \
+	drivers/power/pmic/libpmic.o
 LIBS-y += drivers/spi/libspi.o
 LIBS-y += drivers/dfu/libdfu.o
 ifeq ($(CPU),mpc83xx)
