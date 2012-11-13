@@ -58,6 +58,22 @@
 #define MX31_H1_PM_BIT		(1 << 8)
 #define MX31_H1_DT_BIT		(1 << 4)
 
+#define MX35_OTG_SIC_SHIFT	29
+#define MX35_OTG_SIC_MASK	(0x3 << MX35_OTG_SIC_SHIFT)
+#define MX35_OTG_PM_BIT		(1 << 24)
+#define MX35_OTG_PP_BIT		(1 << 11)
+#define MX35_OTG_OCPOL_BIT	(1 << 3)
+
+#define MX35_H1_SIC_SHIFT	21
+#define MX35_H1_SIC_MASK	(0x3 << MX35_H1_SIC_SHIFT)
+#define MX35_H1_PP_BIT		(1 << 18)
+#define MX35_H1_PM_BIT		(1 << 8)
+#define MX35_H1_IPPUE_UP_BIT	(1 << 7)
+#define MX35_H1_IPPUE_DOWN_BIT	(1 << 6)
+#define MX35_H1_TLL_BIT		(1 << 5)
+#define MX35_H1_USBTE_BIT	(1 << 4)
+#define MX35_H1_OCPOL_BIT	(1 << 2)
+
 static int mxc_set_usbcontrol(int port, unsigned int flags)
 {
 	unsigned int v;
@@ -147,6 +163,55 @@ static int mxc_set_usbcontrol(int port, unsigned int flags)
 	default:
 		return -EINVAL;
 	}
+#elif defined(CONFIG_MX35)
+	switch (port) {
+	case 0:	/* OTG port */
+		v &= ~(MX35_OTG_SIC_MASK | MX35_OTG_PM_BIT | MX35_OTG_PP_BIT |
+				MX35_OTG_OCPOL_BIT);
+		v |= (flags & MXC_EHCI_INTERFACE_MASK) << MX35_OTG_SIC_SHIFT;
+
+		if (!(flags & MXC_EHCI_POWER_PINS_ENABLED))
+			v |= MX35_OTG_PM_BIT;
+
+		if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
+			v |= MX35_OTG_PP_BIT;
+
+		if (!(flags & MXC_EHCI_OC_PIN_ACTIVE_LOW))
+			v |= MX35_OTG_OCPOL_BIT;
+
+		break;
+	case 1: /* H1 port */
+		v &= ~(MX35_H1_SIC_MASK | MX35_H1_PM_BIT | MX35_H1_PP_BIT |
+				MX35_H1_OCPOL_BIT | MX35_H1_TLL_BIT |
+				MX35_H1_USBTE_BIT | MX35_H1_IPPUE_DOWN_BIT |
+				MX35_H1_IPPUE_UP_BIT);
+		v |= (flags & MXC_EHCI_INTERFACE_MASK) << MX35_H1_SIC_SHIFT;
+
+		if (!(flags & MXC_EHCI_POWER_PINS_ENABLED))
+			v |= MX35_H1_PM_BIT;
+
+		if (flags & MXC_EHCI_PWR_PIN_ACTIVE_HIGH)
+			v |= MX35_H1_PP_BIT;
+
+		if (!(flags & MXC_EHCI_OC_PIN_ACTIVE_LOW))
+			v |= MX35_H1_OCPOL_BIT;
+
+		if (!(flags & MXC_EHCI_TTL_ENABLED))
+			v |= MX35_H1_TLL_BIT;
+
+		if (flags & MXC_EHCI_INTERNAL_PHY)
+			v |= MX35_H1_USBTE_BIT;
+
+		if (flags & MXC_EHCI_IPPUE_DOWN)
+			v |= MX35_H1_IPPUE_DOWN_BIT;
+
+		if (flags & MXC_EHCI_IPPUE_UP)
+			v |= MX35_H1_IPPUE_UP_BIT;
+
+		break;
+	default:
+		return -EINVAL;
+	}
 #else
 #error MXC EHCI USB driver not supported on this platform
 #endif
@@ -176,6 +241,10 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	setbits_le32(&ehci->usbmode, CM_HOST);
 	__raw_writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
 	mxc_set_usbcontrol(CONFIG_MXC_USB_PORT, CONFIG_MXC_USB_FLAGS);
+#ifdef CONFIG_MX35
+	/* Workaround for ENGcm11601 */
+	__raw_writel(0, &ehci->sbuscfg);
+#endif
 
 	udelay(10000);
 
