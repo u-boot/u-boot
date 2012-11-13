@@ -128,7 +128,7 @@ int fdtdec_get_is_enabled(const void *blob, int node)
 	return 1;
 }
 
-enum fdt_compat_id fd_dec_lookup(const void *blob, int node)
+enum fdt_compat_id fdtdec_lookup(const void *blob, int node)
 {
 	enum fdt_compat_id id;
 
