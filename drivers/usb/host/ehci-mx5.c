@@ -290,12 +290,14 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 	return ret;
 }
 
-void __board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
+int __weak board_ehci_hcd_init(int port)
 {
+	return 0;
 }
 
-void board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
-	__attribute((weak, alias("__board_ehci_hcd_postinit")));
+void __weak board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
+{
+}
 
 int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
