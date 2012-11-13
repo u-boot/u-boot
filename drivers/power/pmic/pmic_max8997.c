@@ -27,6 +27,22 @@
 #include <i2c.h>
 #include <errno.h>
 
+unsigned char max8997_reg_ldo(int uV)
+{
+	unsigned char ret;
+	if (uV <= 800000)
+		return 0;
+	if (uV >= 3950000)
+		return MAX8997_LDO_MAX_VAL;
+	ret = (uV - 800000) / 50000;
+	if (ret > MAX8997_LDO_MAX_VAL) {
+		printf("MAX8997 LDO SETTING ERROR (%duV) -> %u\n", uV, ret);
+		ret = MAX8997_LDO_MAX_VAL;
+	}
+
+	return ret;
+}
+
 int pmic_init(unsigned char bus)
 {
 	static const char name[] = "MAX8997_PMIC";

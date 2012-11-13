@@ -200,4 +200,6 @@ enum {
 	EN_LDO = (0x3 << 6),
 };
 
+#define MAX8997_LDO_MAX_VAL 0x3F
+unsigned char max8997_reg_ldo(int uV);
 #endif /* __MAX8997_PMIC_H_ */
