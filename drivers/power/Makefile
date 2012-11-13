@@ -31,11 +31,11 @@ COBJS-$(CONFIG_TWL4030_POWER)	+= twl4030.o
 COBJS-$(CONFIG_TWL6030_POWER)	+= twl6030.o
 COBJS-$(CONFIG_TWL6035_POWER)	+= twl6035.o
 
-COBJS-$(CONFIG_PMIC) += pmic_core.o
-COBJS-$(CONFIG_DIALOG_PMIC) += pmic_dialog.o
-COBJS-$(CONFIG_PMIC_FSL) += pmic_fsl.o
-COBJS-$(CONFIG_PMIC_I2C) += pmic_i2c.o
-COBJS-$(CONFIG_PMIC_SPI) += pmic_spi.o
+COBJS-$(CONFIG_PMIC) += power_core.o
+COBJS-$(CONFIG_DIALOG_PMIC) += power_dialog.o
+COBJS-$(CONFIG_PMIC_FSL) += power_fsl.o
+COBJS-$(CONFIG_PMIC_I2C) += power_i2c.o
+COBJS-$(CONFIG_PMIC_SPI) += power_spi.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
