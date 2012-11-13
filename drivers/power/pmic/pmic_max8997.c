@@ -43,6 +43,62 @@ unsigned char max8997_reg_ldo(int uV)
 	return ret;
 }
 
+static int pmic_charger_state(struct pmic *p, int state, int current)
+{
+	unsigned char fc;
+	u32 val = 0;
+
+	if (pmic_probe(p))
+		return -1;
+
+	if (state == CHARGER_DISABLE) {
+		puts("Disable the charger.\n");
+		pmic_reg_read(p, MAX8997_REG_MBCCTRL2, &val);
+		val &= ~(MBCHOSTEN | VCHGR_FC);
+		pmic_reg_write(p, MAX8997_REG_MBCCTRL2, val);
+
+		return -1;
+	}
+
+	if (current < CHARGER_MIN_CURRENT || current > CHARGER_MAX_CURRENT) {
+		printf("%s: Wrong charge current: %d [mA]\n",
+		       __func__, current);
+		return -1;
+	}
+
+	fc = (current - CHARGER_MIN_CURRENT) / CHARGER_CURRENT_RESOLUTION;
+	fc = fc & 0xf; /* up to 950 mA */
+
+	printf("Enable the charger @ %d [mA]\n", fc * CHARGER_CURRENT_RESOLUTION
+	       + CHARGER_MIN_CURRENT);
+
+	val = fc | MBCICHFCSET;
+	pmic_reg_write(p, MAX8997_REG_MBCCTRL4, val);
+
+	pmic_reg_read(p, MAX8997_REG_MBCCTRL2, &val);
+	val = MBCHOSTEN | VCHGR_FC; /* enable charger & fast charge */
+	pmic_reg_write(p, MAX8997_REG_MBCCTRL2, val);
+
+	return 0;
+}
+
+static int pmic_charger_bat_present(struct pmic *p)
+{
+	u32 val;
+
+	if (pmic_probe(p))
+		return -1;
+
+	pmic_reg_read(p, MAX8997_REG_STATUS4, &val);
+
+	return !(val & DETBAT);
+}
+
+static struct power_chrg power_chrg_pmic_ops = {
+	.chrg_bat_present = pmic_charger_bat_present,
+	.chrg_state = pmic_charger_state,
+};
+
 int pmic_init(unsigned char bus)
 {
 	static const char name[] = "MAX8997_PMIC";
@@ -53,7 +109,7 @@ int pmic_init(unsigned char bus)
 		return -ENOMEM;
 	}
 
-	puts("Board PMIC init\n");
+	debug("Board PMIC init\n");
 
 	p->name = name;
 	p->interface = PMIC_I2C;
@@ -62,5 +118,6 @@ int pmic_init(unsigned char bus)
 	p->hw.i2c.tx_num = 1;
 	p->bus = bus;
 
+	p->chrg = &power_chrg_pmic_ops;
 	return 0;
 }
