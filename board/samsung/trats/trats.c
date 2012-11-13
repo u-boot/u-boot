@@ -89,6 +89,64 @@ void i2c_init_board(void)
 	s5p_gpio_direction_output(&gpio2->y4, 1, 1);
 }
 
+static void trats_low_power_mode(void)
+{
+	struct exynos4_clock *clk =
+	    (struct exynos4_clock *)samsung_get_base_clock();
+	struct exynos4_power *pwr =
+	    (struct exynos4_power *)samsung_get_base_power();
+
+	/* Power down CORE1 */
+	/* LOCAL_PWR_CFG [1:0] 0x3 EN, 0x0 DIS */
+	writel(0x0, &pwr->arm_core1_configuration);
+
+	/* Change the APLL frequency */
+	/* ENABLE (1 enable) | LOCKED (1 locked)  */
+	/* [31]              | [29]               */
+	/* FSEL      | MDIV          | PDIV            | SDIV */
+	/* [27]      | [25:16]       | [13:8]          | [2:0]      */
+	writel(0xa0c80604, &clk->apll_con0);
+
+	/* Change CPU0 clock divider */
+	/* CORE2_RATIO  | APLL_RATIO   | PCLK_DBG_RATIO | ATB_RATIO  */
+	/* [30:28]      | [26:24]      | [22:20]        | [18:16]    */
+	/* PERIPH_RATIO | COREM1_RATIO | COREM0_RATIO   | CORE_RATIO */
+	/* [14:12]      | [10:8]       | [6:4]          | [2:0]      */
+	writel(0x00000100, &clk->div_cpu0);
+
+	/* CLK_DIV_STAT_CPU0 - wait until clock gets stable (0 = stable) */
+	while (readl(&clk->div_stat_cpu0) & 0x1111111)
+		continue;
+
+	/* Change clock divider ratio for DMC */
+	/* DMCP_RATIO                  | DMCD_RATIO  */
+	/* [22:20]                     | [18:16]     */
+	/* DMC_RATIO | DPHY_RATIO | ACP_PCLK_RATIO   | ACP_RATIO */
+	/* [14:12]   | [10:8]     | [6:4]            | [2:0]     */
+	writel(0x13113117, &clk->div_dmc0);
+
+	/* CLK_DIV_STAT_DMC0 - wait until clock gets stable (0 = stable) */
+	while (readl(&clk->div_stat_dmc0) & 0x11111111)
+		continue;
+
+	/* Turn off unnecessary power domains */
+	writel(0x0, &pwr->xxti_configuration);	/* XXTI */
+	writel(0x0, &pwr->cam_configuration);	/* CAM */
+	writel(0x0, &pwr->tv_configuration);    /* TV */
+	writel(0x0, &pwr->mfc_configuration);   /* MFC */
+	writel(0x0, &pwr->g3d_configuration);   /* G3D */
+	writel(0x0, &pwr->gps_configuration);   /* GPS */
+	writel(0x0, &pwr->gps_alive_configuration);	/* GPS_ALIVE */
+
+	/* Turn off unnecessary clocks */
+	writel(0x0, &clk->gate_ip_cam);	/* CAM */
+	writel(0x0, &clk->gate_ip_tv);          /* TV */
+	writel(0x0, &clk->gate_ip_mfc);	/* MFC */
+	writel(0x0, &clk->gate_ip_g3d);	/* G3D */
+	writel(0x0, &clk->gate_ip_image);	/* IMAGE */
+	writel(0x0, &clk->gate_ip_gps);	/* GPS */
+}
+
 static int pmic_init_max8997(void)
 {
 	struct pmic *p = pmic_get("MAX8997_PMIC");
