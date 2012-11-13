@@ -68,10 +68,6 @@ int board_init(void)
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);
 
-#if defined(CONFIG_PMIC)
-	pmic_init(I2C_5);
-#endif
-
 	return 0;
 }
 
@@ -88,6 +84,17 @@ void i2c_init_board(void)
 	/* I2C_9 -> FG */
 	s5p_gpio_direction_output(&gpio2->y4, 0, 1);
 	s5p_gpio_direction_output(&gpio2->y4, 1, 1);
+}
+
+int power_init_board(void)
+{
+	int ret;
+
+	ret = pmic_init(I2C_5);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
 int dram_init(void)
