@@ -27,8 +27,9 @@
 #include <common.h>
 #include <linux/list.h>
 #include <i2c.h>
+#include <power/power_chrg.h>
 
-enum { PMIC_I2C, PMIC_SPI, };
+enum { PMIC_I2C, PMIC_SPI, PMIC_NONE};
 enum { I2C_PMIC, I2C_NUM, };
 enum { PMIC_READ, PMIC_WRITE, };
 enum { PMIC_SENSOR_BYTE_ORDER_LITTLE, PMIC_SENSOR_BYTE_ORDER_BIG, };
@@ -48,6 +49,27 @@ struct p_spi {
 	u32 (*prepare_tx)(u32 reg, u32 *val, u32 write);
 };
 
+struct pmic;
+struct power_fg {
+	int (*fg_battery_check) (struct pmic *p, struct pmic *bat);
+	int (*fg_battery_update) (struct pmic *p, struct pmic *bat);
+};
+
+struct power_chrg {
+	int (*chrg_type) (struct pmic *p);
+	int (*chrg_bat_present) (struct pmic *p);
+	int (*chrg_state) (struct pmic *p, int state, int current);
+};
+
+struct power_battery {
+	struct battery *bat;
+	int (*battery_init) (struct pmic *bat, struct pmic *p1,
+			     struct pmic *p2, struct pmic *p3);
+	int (*battery_charge) (struct pmic *bat);
+	/* Keep info about power devices involved with battery operation */
+	struct pmic *chrg, *fg, *muic;
+};
+
 struct pmic {
 	const char *name;
 	unsigned char bus;
@@ -59,6 +81,12 @@ struct pmic {
 		struct p_spi spi;
 	} hw;
 
+	void (*low_power_mode) (void);
+	struct power_battery *pbat;
+	struct power_chrg *chrg;
+	struct power_fg *fg;
+
+	struct pmic *parent;
 	struct list_head list;
 };
 
