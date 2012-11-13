@@ -215,9 +215,9 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE       64
 
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX8998
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX8998
 
 #include <asm/arch/gpio.h>
 /*

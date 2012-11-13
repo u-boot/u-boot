@@ -234,9 +234,9 @@
 #define CONFIG_SOFT_I2C_GPIO_SDA get_multi_sda_pin()
 #define I2C_INIT multi_i2c_init()
 
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX8997
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX8997
 
 #define CONFIG_POWER_FG
 #define CONFIG_POWER_FG_MAX17042
