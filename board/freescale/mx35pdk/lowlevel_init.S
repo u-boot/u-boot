@@ -94,6 +94,10 @@
 	orr r1, r1, #0x00000C00
 	orr r1, r1, #0x00000003
 	str r1, [r0, #CLKCTL_CGR1]
+
+	ldr r1, [r0, #CLKCTL_CGR2]
+	orr r1, r1, #0x00C00000
+	str r1, [r0, #CLKCTL_CGR2]
 .endm
 
 .macro setup_sdram
