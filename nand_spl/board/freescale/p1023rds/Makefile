@@ -63,7 +63,8 @@ $(nandobj)u-boot-spl:	$(OBJS) $(nandobj)u-boot-nand_spl.lds
 # $(LDSCRIPT). The function make_u_boot_list is defined in helper.mk file.
 $(eval $(call make_u_boot_list, $(LSTSCRIPT), $(OBJS)))
 $(nandobj)u-boot-nand_spl.lds: $(LDSCRIPT) $(LSTSCRIPT)
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj) -ansi -D__ASSEMBLY__ -P - <$< >$@
+	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(nandobj)/board/$(BOARDDIR) \
+		-ansi -D__ASSEMBLY__ -P - <$< >$@
 
 # create symbolic links for common files
 
