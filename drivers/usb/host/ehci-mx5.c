@@ -32,12 +32,14 @@
 #define MXC_OTG_OFFSET			0
 #define MXC_H1_OFFSET			0x200
 #define MXC_H2_OFFSET			0x400
+#define MXC_H3_OFFSET			0x600
 
 #define MXC_USBCTRL_OFFSET		0
 #define MXC_USB_PHY_CTR_FUNC_OFFSET	0x8
 #define MXC_USB_PHY_CTR_FUNC2_OFFSET	0xc
 #define MXC_USB_CTRL_1_OFFSET		0x10
 #define MXC_USBH2CTRL_OFFSET		0x14
+#define MXC_USBH3CTRL_OFFSET		0x18
 
 /* USB_CTRL */
 /* OTG wakeup intr enable */
@@ -58,9 +60,15 @@
 #define MXC_H1_OC_DIS_BIT		(1 << 5)
 
 /* USBH2CTRL */
+#define MXC_H2_UCTRL_H2_OC_DIS_BIT	(1 << 30)
 #define MXC_H2_UCTRL_H2UIE_BIT		(1 << 8)
 #define MXC_H2_UCTRL_H2WIE_BIT		(1 << 7)
 #define MXC_H2_UCTRL_H2PM_BIT		(1 << 4)
+
+/* USBH3CTRL */
+#define MXC_H3_UCTRL_H3_OC_DIS_BIT	(1 << 30)
+#define MXC_H3_UCTRL_H3UIE_BIT		(1 << 8)
+#define MXC_H3_UCTRL_H3WIE_BIT		(1 << 7)
 
 /* USB_CTRL_1 */
 #define MXC_USB_CTRL_UH1_EXT_CLK_EN	(1 << 25)
@@ -203,8 +211,24 @@ int mxc_set_usbcontrol(int port, unsigned int flags)
 		else
 			v |= MXC_H2_UCTRL_H2PM_BIT; /* H2 power mask used */
 #endif
+#ifdef CONFIG_MX53
+		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
+			v &= ~MXC_H2_UCTRL_H2_OC_DIS_BIT; /* OC is used */
+		else
+			v |= MXC_H2_UCTRL_H2_OC_DIS_BIT; /* OC is not used */
+#endif
 		__raw_writel(v, usbother_base + MXC_USBH2CTRL_OFFSET);
 		break;
+#ifdef CONFIG_MX53
+	case 3: /* Host 3 ULPI */
+		v = __raw_readl(usbother_base + MXC_USBH3CTRL_OFFSET);
+		if (flags & MXC_EHCI_POWER_PINS_ENABLED)
+			v &= ~MXC_H3_UCTRL_H3_OC_DIS_BIT; /* OC is used */
+		else
+			v |= MXC_H3_UCTRL_H3_OC_DIS_BIT; /* OC is not used */
+		__raw_writel(v, usbother_base + MXC_USBH3CTRL_OFFSET);
+		break;
+#endif
 	}
 
 	return ret;
