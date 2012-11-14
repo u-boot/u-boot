@@ -54,6 +54,11 @@ In case of problems see the CHANGELOG and CREDITS files to find out
 who contributed the specific port. The MAINTAINERS file lists board
 maintainers.
 
+Note: There is no CHANGELOG file in the actual U-Boot source tree;
+it can be created dynamically from the Git log using:
+
+	make CHANGELOG
+
 
 Where to get help:
 ==================
