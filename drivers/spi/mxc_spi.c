@@ -140,8 +140,8 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 	reg_ctrl = reg_read(&regs->ctrl);
 
 	/* Reset spi */
-	reg_write(&regs->ctrl, 0);
-	reg_write(&regs->ctrl, (reg_ctrl | 0x1));
+	reg_write(&regs->ctrl, (reg_ctrl & ~MXC_CSPICTRL_EN));
+	reg_write(&regs->ctrl, (reg_ctrl | MXC_CSPICTRL_EN));
 
 	/*
 	 * The following computation is taken directly from Freescale's code.
