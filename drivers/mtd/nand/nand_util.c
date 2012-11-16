@@ -683,3 +683,125 @@ int nand_read_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 
 	return 0;
 }
+
+#ifdef CONFIG_CMD_NAND_TORTURE
+
+/**
+ * check_pattern:
+ *
+ * Check if buffer contains only a certain byte pattern.
+ *
+ * @param buf buffer to check
+ * @param patt the pattern to check
+ * @param size buffer size in bytes
+ * @return 1 if there are only patt bytes in buf
+ *         0 if something else was found
+ */
+static int check_pattern(const u_char *buf, u_char patt, int size)
+{
+	int i;
+
+	for (i = 0; i < size; i++)
+		if (buf[i] != patt)
+			return 0;
+	return 1;
+}
+
+/**
+ * nand_torture:
+ *
+ * Torture a block of NAND flash.
+ * This is useful to determine if a block that caused a write error is still
+ * good or should be marked as bad.
+ *
+ * @param nand NAND device
+ * @param offset offset in flash
+ * @return 0 if the block is still good
+ */
+int nand_torture(nand_info_t *nand, loff_t offset)
+{
+	u_char patterns[] = {0xa5, 0x5a, 0x00};
+	struct erase_info instr = {
+		.mtd = nand,
+		.addr = offset,
+		.len = nand->erasesize,
+	};
+	size_t retlen;
+	int err, ret = -1, i, patt_count;
+	u_char *buf;
+
+	if ((offset & (nand->erasesize - 1)) != 0) {
+		puts("Attempt to torture a block at a non block-aligned offset\n");
+		return -EINVAL;
+	}
+
+	if (offset + nand->erasesize > nand->size) {
+		puts("Attempt to torture a block outside the flash area\n");
+		return -EINVAL;
+	}
+
+	patt_count = ARRAY_SIZE(patterns);
+
+	buf = malloc(nand->erasesize);
+	if (buf == NULL) {
+		puts("Out of memory for erase block buffer\n");
+		return -ENOMEM;
+	}
+
+	for (i = 0; i < patt_count; i++) {
+		err = nand->erase(nand, &instr);
+		if (err) {
+			printf("%s: erase() failed for block at 0x%llx: %d\n",
+				nand->name, instr.addr, err);
+			goto out;
+		}
+
+		/* Make sure the block contains only 0xff bytes */
+		err = nand->read(nand, offset, nand->erasesize, &retlen, buf);
+		if ((err && err != -EUCLEAN) || retlen != nand->erasesize) {
+			printf("%s: read() failed for block at 0x%llx: %d\n",
+				nand->name, instr.addr, err);
+			goto out;
+		}
+
+		err = check_pattern(buf, 0xff, nand->erasesize);
+		if (!err) {
+			printf("Erased block at 0x%llx, but a non-0xff byte was found\n",
+				offset);
+			ret = -EIO;
+			goto out;
+		}
+
+		/* Write a pattern and check it */
+		memset(buf, patterns[i], nand->erasesize);
+		err = nand->write(nand, offset, nand->erasesize, &retlen, buf);
+		if (err || retlen != nand->erasesize) {
+			printf("%s: write() failed for block at 0x%llx: %d\n",
+				nand->name, instr.addr, err);
+			goto out;
+		}
+
+		err = nand->read(nand, offset, nand->erasesize, &retlen, buf);
+		if ((err && err != -EUCLEAN) || retlen != nand->erasesize) {
+			printf("%s: read() failed for block at 0x%llx: %d\n",
+				nand->name, instr.addr, err);
+			goto out;
+		}
+
+		err = check_pattern(buf, patterns[i], nand->erasesize);
+		if (!err) {
+			printf("Pattern 0x%.2x checking failed for block at "
+					"0x%llx\n", patterns[i], offset);
+			ret = -EIO;
+			goto out;
+		}
+	}
+
+	ret = 0;
+
+out:
+	free(buf);
+	return ret;
+}
+
+#endif
