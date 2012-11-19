@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011 Samsung Electronics
+ *  Copyright (C) 2012 Samsung Electronics
  *  Lukasz Majewski <l.majewski@samsung.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -14,24 +14,25 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <pmic.h>
-#include <dialog_pmic.h>
+#ifndef __POWER_BATTERY_H_
+#define __POWER_BATTERY_H_
 
-int pmic_dialog_init(void)
-{
-	struct pmic *p = get_pmic();
-	static const char name[] = "DIALOG_PMIC";
+struct battery {
+	unsigned int version;
+	unsigned int state_of_chrg;
+	unsigned int time_to_empty;
+	unsigned int capacity;
+	unsigned int voltage_uV;
 
-	p->name = name;
-	p->number_of_regs = DIALOG_NUM_OF_REGS;
+	unsigned int state;
+};
 
-	p->interface = PMIC_I2C;
-	p->hw.i2c.addr = CONFIG_SYS_DIALOG_PMIC_I2C_ADDR;
-	p->hw.i2c.tx_num = 1;
-	p->bus = I2C_PMIC;
-
-	return 0;
-}
+int power_bat_init(unsigned char bus);
+#endif /* __POWER_BATTERY_H_ */

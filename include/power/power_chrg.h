@@ -21,23 +21,23 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <pmic.h>
-#include <max8997_pmic.h>
+#ifndef __POWER_CHARGER_H_
+#define __POWER_CHARGER_H_
 
-int pmic_init(void)
-{
-	struct pmic *p = get_pmic();
-	static const char name[] = "MAX8997_PMIC";
+/* Type of available chargers */
+enum {
+	CHARGER_NO = 0,
+	CHARGER_TA,
+	CHARGER_USB,
+	CHARGER_TA_500,
+	CHARGER_UNKNOWN,
+};
 
-	puts("Board PMIC init\n");
+enum {
+	UNKNOWN,
+	EXT_SOURCE,
+	CHARGE,
+	NORMAL,
+};
 
-	p->name = name;
-	p->interface = PMIC_I2C;
-	p->number_of_regs = PMIC_NUM_OF_REGS;
-	p->hw.i2c.addr = MAX8997_I2C_ADDR;
-	p->hw.i2c.tx_num = 1;
-	p->bus = I2C_PMIC;
-
-	return 0;
-}
+#endif /* __POWER_CHARGER_H_ */

@@ -14,30 +14,30 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
  */
 
 #include <common.h>
-#include <pmic.h>
-#include <max8998_pmic.h>
+#include <power/pmic.h>
+#include <dialog_pmic.h>
+#include <errno.h>
 
-int pmic_init(void)
+int pmic_dialog_init(unsigned char bus)
 {
-	struct pmic *p = get_pmic();
-	static const char name[] = "MAX8998_PMIC";
+	static const char name[] = "DIALOG_PMIC";
+	struct pmic *p = pmic_alloc();
 
-	puts("Board PMIC init\n");
+	if (!p) {
+		printf("%s: POWER allocation error!\n", __func__);
+		return -ENOMEM;
+	}
 
 	p->name = name;
+	p->number_of_regs = DIALOG_NUM_OF_REGS;
+
 	p->interface = PMIC_I2C;
-	p->number_of_regs = PMIC_NUM_OF_REGS;
-	p->hw.i2c.addr = MAX8998_I2C_ADDR;
+	p->hw.i2c.addr = CONFIG_SYS_DIALOG_PMIC_I2C_ADDR;
 	p->hw.i2c.tx_num = 1;
-	p->bus = I2C_PMIC;
+	p->bus = bus;
 
 	return 0;
 }

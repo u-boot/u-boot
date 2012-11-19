@@ -36,7 +36,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <dialog_pmic.h>
 #include <fsl_pmic.h>
 #include <linux/fb.h>
@@ -344,10 +344,16 @@ static int power_init(void)
 	unsigned int val;
 	int ret = -1;
 	struct pmic *p;
+	int retval;
 
 	if (!i2c_probe(CONFIG_SYS_DIALOG_PMIC_I2C_ADDR)) {
-		pmic_dialog_init();
-		p = get_pmic();
+		retval = pmic_dialog_init(I2C_PMIC);
+		if (retval)
+			return retval;
+
+		p = pmic_get("DIALOG_PMIC");
+		if (!p)
+			return -ENODEV;
 
 		/* Set VDDA to 1.25V */
 		val = DA9052_BUCKCORE_BCOREEN | DA_BUCKCORE_VBCORE_1_250V;
@@ -363,8 +369,13 @@ static int power_init(void)
 	}
 
 	if (!i2c_probe(CONFIG_SYS_FSL_PMIC_I2C_ADDR)) {
-		pmic_init();
-		p = get_pmic();
+		retval = pmic_init(I2C_PMIC);
+		if (retval)
+			return retval;
+
+		p = pmic_get("DIALOG_PMIC");
+		if (!p)
+			return -ENODEV;
 
 		/* Set VDDGP to 1.25V for 1GHz on SW1 */
 		pmic_reg_read(p, REG_SW_0, &val);

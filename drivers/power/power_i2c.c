@@ -28,24 +28,40 @@
 
 #include <common.h>
 #include <linux/types.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <i2c.h>
+#include <compiler.h>
 
 int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 {
 	unsigned char buf[4] = { 0 };
 
-	if (check_reg(reg))
+	if (check_reg(p, reg))
 		return -1;
 
 	switch (pmic_i2c_tx_num) {
 	case 3:
-		buf[0] = (val >> 16) & 0xff;
-		buf[1] = (val >> 8) & 0xff;
-		buf[2] = val & 0xff;
+		if (p->sensor_byte_order == PMIC_SENSOR_BYTE_ORDER_BIG) {
+			buf[2] = (cpu_to_le32(val) >> 16) & 0xff;
+			buf[1] = (cpu_to_le32(val) >> 8) & 0xff;
+			buf[0] = cpu_to_le32(val) & 0xff;
+		} else {
+			buf[0] = (cpu_to_le32(val) >> 16) & 0xff;
+			buf[1] = (cpu_to_le32(val) >> 8) & 0xff;
+			buf[2] = cpu_to_le32(val) & 0xff;
+		}
+		break;
+	case 2:
+		if (p->sensor_byte_order == PMIC_SENSOR_BYTE_ORDER_BIG) {
+			buf[1] = (cpu_to_le32(val) >> 8) & 0xff;
+			buf[0] = cpu_to_le32(val) & 0xff;
+		} else {
+			buf[0] = (cpu_to_le32(val) >> 8) & 0xff;
+			buf[1] = cpu_to_le32(val) & 0xff;
+		}
 		break;
 	case 1:
-		buf[0] = val & 0xff;
+		buf[0] = cpu_to_le32(val) & 0xff;
 		break;
 	default:
 		printf("%s: invalid tx_num: %d", __func__, pmic_i2c_tx_num);
@@ -63,7 +79,7 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 	unsigned char buf[4] = { 0 };
 	u32 ret_val = 0;
 
-	if (check_reg(reg))
+	if (check_reg(p, reg))
 		return -1;
 
 	if (i2c_read(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num))
@@ -71,10 +87,21 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 
 	switch (pmic_i2c_tx_num) {
 	case 3:
-		ret_val = buf[0] << 16 | buf[1] << 8 | buf[2];
+		if (p->sensor_byte_order == PMIC_SENSOR_BYTE_ORDER_BIG)
+			ret_val = le32_to_cpu(buf[2] << 16
+					      | buf[1] << 8 | buf[0]);
+		else
+			ret_val = le32_to_cpu(buf[0] << 16 |
+					      buf[1] << 8 | buf[2]);
+		break;
+	case 2:
+		if (p->sensor_byte_order == PMIC_SENSOR_BYTE_ORDER_BIG)
+			ret_val = le32_to_cpu(buf[1] << 8 | buf[0]);
+		else
+			ret_val = le32_to_cpu(buf[0] << 8 | buf[1]);
 		break;
 	case 1:
-		ret_val = buf[0];
+		ret_val = le32_to_cpu(buf[0]);
 		break;
 	default:
 		printf("%s: invalid tx_num: %d", __func__, pmic_i2c_tx_num);
@@ -88,7 +115,7 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 int pmic_probe(struct pmic *p)
 {
 	I2C_SET_BUS(p->bus);
-	debug("PMIC:%s probed!\n", p->name);
+	debug("Bus: %d PMIC:%s probed!\n", p->bus, p->name);
 	if (i2c_probe(pmic_i2c_addr)) {
 		printf("Can't find PMIC:%s\n", p->name);
 		return -1;

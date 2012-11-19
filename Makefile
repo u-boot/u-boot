@@ -293,7 +293,10 @@ LIBS-y += drivers/net/libnet.o
 LIBS-y += drivers/net/phy/libphy.o
 LIBS-y += drivers/pci/libpci.o
 LIBS-y += drivers/pcmcia/libpcmcia.o
-LIBS-y += drivers/power/libpower.o
+LIBS-y += drivers/power/libpower.o \
+	drivers/power/fuel_gauge/libfuel_gauge.o \
+	drivers/power/pmic/libpmic.o \
+	drivers/power/battery/libbattery.o
 LIBS-y += drivers/spi/libspi.o
 LIBS-y += drivers/dfu/libdfu.o
 ifeq ($(CPU),mpc83xx)
@@ -811,7 +814,7 @@ clean:
 	@rm -f $(obj)include/generated/asm-offsets.h
 	@rm -f $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
-	@$(MAKE) -C doc/DocBook/ cleandocs
+	@$(MAKE) -s -C doc/DocBook/ cleandocs
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' -o -name '*.su' \
 		-o -name '*.o'	-o -name '*.a' -o -name '*.exe'	\) -print \

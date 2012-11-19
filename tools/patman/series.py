@@ -145,10 +145,11 @@ class Series(dict):
         Return:
             The change log as a list of strings, one per line
 
-            Changes in v2:
+            Changes in v4:
             - Jog the dial back closer to the widget
 
-            Changes in v1:
+            Changes in v3: None
+            Changes in v2:
             - Fix the widget
             - Jog the dial
 
@@ -162,12 +163,16 @@ class Series(dict):
                 if commit and this_commit != commit:
                     continue
                 out.append(text)
-            if out:
-                out = ['Changes in v%d:' % change] + out
-                if need_blank:
-                    out = [''] + out
-                final += out
-                need_blank = True
+            line = 'Changes in v%d:' % change
+            have_changes = len(out) > 0
+            if have_changes:
+                out.insert(0, line)
+            else:
+                out = [line + ' None']
+            if need_blank:
+                out.insert(0, '')
+            final += out
+            need_blank = have_changes
         if self.changes:
             final.append('')
         return final

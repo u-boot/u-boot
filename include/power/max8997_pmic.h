@@ -111,7 +111,7 @@ enum {
 	MAX8997_REG_MBCCTRL6	= 0x55,
 	MAX8997_REG_OTPCGHCVS	= 0x56,
 
-	MAX8997_REG_SAFEOUTCTRL	= 0x5a,
+	MAX8997_REG_SAFEOUTCTRL = 0x5a,
 
 	MAX8997_REG_LBCNFG1	= 0x5e,
 	MAX8997_REG_LBCNFG2	= 0x5f,
@@ -171,8 +171,30 @@ enum {
 	PMIC_NUM_OF_REGS = 0x9b,
 };
 
+#define ACTDISSAFEO1 (1 << 4)
+#define ACTDISSAFEO2 (1 << 5)
 #define ENSAFEOUT1 (1 << 6)
 #define ENSAFEOUT2 (1 << 7)
+
+#define ENBUCK (1 << 0)
+#define ACTIVE_DISCHARGE (1 << 3)
+#define GNSLCT (1 << 2)
+#define LDO_ADE (1 << 1)
+#define SAFEOUT_4_85V 0x00
+#define SAFEOUT_4_90V 0x01
+#define SAFEOUT_4_95V 0x02
+#define SAFEOUT_3_30V 0x03
+
+/* Charger */
+enum {CHARGER_ENABLE, CHARGER_DISABLE};
+#define DETBAT                  (1 << 2)
+#define MBCICHFCSET             (1 << 4)
+#define MBCHOSTEN               (1 << 6)
+#define VCHGR_FC                (1 << 7)
+
+#define CHARGER_MIN_CURRENT 200
+#define CHARGER_MAX_CURRENT 950
+#define CHARGER_CURRENT_RESOLUTION 50
 
 #define MAX8997_I2C_ADDR        (0xCC >> 1)
 #define MAX8997_RTC_ADDR	(0x0C >> 1)
@@ -187,4 +209,6 @@ enum {
 	EN_LDO = (0x3 << 6),
 };
 
+#define MAX8997_LDO_MAX_VAL 0x3F
+unsigned char max8997_reg_ldo(int uV);
 #endif /* __MAX8997_PMIC_H_ */

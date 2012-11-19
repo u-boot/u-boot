@@ -1,7 +1,6 @@
 #
-# (C) Copyright 2000-2003
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-# Coldfire contribution by Bernhard Kuhn <bkuhn@metrowerks.com>
+# Copyright (C) 2012 Samsung Electronics
+# Lukasz Majewski <l.majewski@samsung.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -13,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -22,6 +21,27 @@
 # MA 02111-1307 USA
 #
 
-ifndef CONFIG_SYS_TEXT_BASE
-CONFIG_SYS_TEXT_BASE = 0xFE000000
-endif
+include $(TOPDIR)/config.mk
+
+LIB	:= $(obj)libbattery.o
+
+COBJS-$(CONFIG_POWER_BATTERY_TRATS) += bat_trats.o
+
+COBJS	:= $(COBJS-y)
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+
+all:	$(LIB)
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+########################################################################

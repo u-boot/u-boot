@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2009 Wind River Systems, Inc.
-# Tom Rix <Tom.Rix at windriver.com>
+# Copyright (C) 2012 Samsung Electronics
+# Lukasz Majewski <l.majewski@samsung.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -23,19 +23,9 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libpower.o
+LIB	:= $(obj)libfuel_gauge.o
 
-COBJS-$(CONFIG_FTPMU010_POWER)	+= ftpmu010.o
-COBJS-$(CONFIG_TPS6586X_POWER)	+= tps6586x.o
-COBJS-$(CONFIG_TWL4030_POWER)	+= twl4030.o
-COBJS-$(CONFIG_TWL6030_POWER)	+= twl6030.o
-COBJS-$(CONFIG_TWL6035_POWER)	+= twl6035.o
-
-COBJS-$(CONFIG_POWER) += power_core.o
-COBJS-$(CONFIG_DIALOG_POWER) += power_dialog.o
-COBJS-$(CONFIG_POWER_FSL) += power_fsl.o
-COBJS-$(CONFIG_POWER_I2C) += power_i2c.o
-COBJS-$(CONFIG_POWER_SPI) += power_spi.o
+COBJS-$(CONFIG_POWER_FG_MAX17042) += fg_max17042.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
