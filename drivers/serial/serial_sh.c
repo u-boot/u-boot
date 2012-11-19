@@ -117,6 +117,14 @@ static int serial_rx_fifo_level(void)
 	return scif_rxfill(&sh_sci);
 }
 
+static void handle_error(void)
+{
+	sci_in(&sh_sci, SCxSR);
+	sci_out(&sh_sci, SCxSR, SCxSR_ERROR_CLEAR(&sh_sci));
+	sci_in(&sh_sci, SCLSR);
+	sci_out(&sh_sci, SCLSR, 0x00);
+}
+
 void serial_raw_putc(const char c)
 {
 	while (1) {
@@ -138,16 +146,14 @@ static void sh_serial_putc(const char c)
 
 static int sh_serial_tstc(void)
 {
+	if (sci_in(&sh_sci, SCxSR) & SCIF_ERRORS) {
+		handle_error();
+		return 0;
+	}
+
 	return serial_rx_fifo_level() ? 1 : 0;
 }
 
-void handle_error(void)
-{
-	sci_in(&sh_sci, SCxSR);
-	sci_out(&sh_sci, SCxSR, SCxSR_ERROR_CLEAR(&sh_sci));
-	sci_in(&sh_sci, SCLSR);
-	sci_out(&sh_sci, SCLSR, 0x00);
-}
 
 int serial_getc_check(void)
 {
