@@ -642,6 +642,138 @@ static void splash_align_axis(int *axis, unsigned long panel_size,
 }
 #endif
 
+
+#ifdef CONFIG_LCD_BMP_RLE8
+
+#define BMP_RLE8_ESCAPE		0
+#define BMP_RLE8_EOL		0
+#define BMP_RLE8_EOBMP		1
+#define BMP_RLE8_DELTA		2
+
+static void draw_unencoded_bitmap(ushort **fbp, uchar *bmap, ushort *cmap,
+				  int cnt)
+{
+	while (cnt > 0) {
+		*(*fbp)++ = cmap[*bmap++];
+		cnt--;
+	}
+}
+
+static void draw_encoded_bitmap(ushort **fbp, ushort c, int cnt)
+{
+	ushort *fb = *fbp;
+	int cnt_8copy = cnt >> 3;
+
+	cnt -= cnt_8copy << 3;
+	while (cnt_8copy > 0) {
+		*fb++ = c;
+		*fb++ = c;
+		*fb++ = c;
+		*fb++ = c;
+		*fb++ = c;
+		*fb++ = c;
+		*fb++ = c;
+		*fb++ = c;
+		cnt_8copy--;
+	}
+	while (cnt > 0) {
+		*fb++ = c;
+		cnt--;
+	}
+	(*fbp) = fb;
+}
+
+/*
+ * Do not call this function directly, must be called from
+ * lcd_display_bitmap.
+ */
+static void lcd_display_rle8_bitmap(bmp_image_t *bmp, ushort *cmap, uchar *fb,
+				    int x_off, int y_off)
+{
+	uchar *bmap;
+	ulong width, height;
+	ulong cnt, runlen;
+	int x, y;
+	int decode = 1;
+
+	width = le32_to_cpu(bmp->header.width);
+	height = le32_to_cpu(bmp->header.height);
+	bmap = (uchar *)bmp + le32_to_cpu(bmp->header.data_offset);
+
+	x = 0;
+	y = height - 1;
+
+	while (decode) {
+		if (bmap[0] == BMP_RLE8_ESCAPE) {
+			switch (bmap[1]) {
+			case BMP_RLE8_EOL:
+				/* end of line */
+				bmap += 2;
+				x = 0;
+				y--;
+				/* 16bpix, 2-byte per pixel, width should *2 */
+				fb -= (width * 2 + lcd_line_length);
+				break;
+			case BMP_RLE8_EOBMP:
+				/* end of bitmap */
+				decode = 0;
+				break;
+			case BMP_RLE8_DELTA:
+				/* delta run */
+				x += bmap[2];
+				y -= bmap[3];
+				/* 16bpix, 2-byte per pixel, x should *2 */
+				fb = (uchar *) (lcd_base + (y + y_off - 1)
+					* lcd_line_length + (x + x_off) * 2);
+				bmap += 4;
+				break;
+			default:
+				/* unencoded run */
+				runlen = bmap[1];
+				bmap += 2;
+				if (y < height) {
+					if (x < width) {
+						if (x + runlen > width)
+							cnt = width - x;
+						else
+							cnt = runlen;
+						draw_unencoded_bitmap(
+							(ushort **)&fb,
+							bmap, cmap, cnt);
+					}
+					x += runlen;
+				}
+				bmap += runlen;
+				if (runlen & 1)
+					bmap++;
+			}
+		} else {
+			/* encoded run */
+			if (y < height) {
+				runlen = bmap[0];
+				if (x < width) {
+					/* aggregate the same code */
+					while (bmap[0] == 0xff &&
+					       bmap[2] != BMP_RLE8_ESCAPE &&
+					       bmap[1] == bmap[3]) {
+						runlen += bmap[2];
+						bmap += 2;
+					}
+					if (x + runlen > width)
+						cnt = width - x;
+					else
+						cnt = runlen;
+					draw_encoded_bitmap((ushort **)&fb,
+						cmap[bmap[1]], cnt);
+				}
+				x += runlen;
+			}
+			bmap += 2;
+		}
+	}
+}
+#endif
+
 #if defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
 #define FB_PUT_BYTE(fb, from) *(fb)++ = (255 - *(from)++)
 #else
@@ -675,7 +807,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	uchar *fb;
 	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
 	uchar *bmap;
-	ushort padded_line;
+	ushort padded_width;
 	unsigned long width, height, byte_width;
 	unsigned long pwidth = panel_info.vl_col;
 	unsigned colors, bpix, bmp_bpix;
@@ -762,7 +894,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	}
 #endif
 
-	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
+	padded_width = (width&0x3) ? ((width&~0x3)+4) : (width);
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	splash_align_axis(&x, pwidth, width);
@@ -781,6 +913,18 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	switch (bmp_bpix) {
 	case 1: /* pass through */
 	case 8:
+#ifdef CONFIG_LCD_BMP_RLE8
+		if (le32_to_cpu(bmp->header.compression) == BMP_BI_RLE8) {
+			if (bpix != 16) {
+				/* TODO implement render code for bpix != 16 */
+				printf("Error: only support 16 bpix");
+				return 1;
+			}
+			lcd_display_rle8_bitmap(bmp, cmap_base, fb, x, y);
+			break;
+		}
+#endif
+
 		if (bpix != 16)
 			byte_width = width;
 		else
@@ -796,7 +940,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 					fb += sizeof(uint16_t) / sizeof(*fb);
 				}
 			}
-			bmap += (width - padded_line);
+			bmap += (padded_width - width);
 			fb   -= (byte_width + lcd_line_length);
 		}
 		break;
@@ -808,7 +952,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			for (j = 0; j < width; j++)
 				fb_put_word(&fb, &bmap);
 
-			bmap += (padded_line - width) * 2;
+			bmap += (padded_width - width) * 2;
 			fb   -= (width * 2 + lcd_line_length);
 		}
 		break;
@@ -883,6 +1027,32 @@ static void *lcd_logo(void)
 #else
 	return (void *)lcd_base;
 #endif /* CONFIG_LCD_LOGO && !CONFIG_LCD_INFO_BELOW_LOGO */
+}
+
+void lcd_position_cursor(unsigned col, unsigned row)
+{
+	console_col = min(col, CONSOLE_COLS - 1);
+	console_row = min(row, CONSOLE_ROWS - 1);
+}
+
+int lcd_get_pixel_width(void)
+{
+	return panel_info.vl_col;
+}
+
+int lcd_get_pixel_height(void)
+{
+	return panel_info.vl_row;
+}
+
+int lcd_get_screen_rows(void)
+{
+	return CONSOLE_ROWS;
+}
+
+int lcd_get_screen_columns(void)
+{
+	return CONSOLE_COLS;
 }
 
 /************************************************************************/

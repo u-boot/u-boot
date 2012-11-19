@@ -31,6 +31,7 @@
 #include <command.h>
 #include <asm/byteorder.h>
 #include <malloc.h>
+#include <video.h>
 
 static int bmp_info (ulong addr);
 
@@ -238,9 +239,7 @@ int bmp_display(ulong addr, int x, int y)
 #if defined(CONFIG_LCD)
 	ret = lcd_display_bitmap((ulong)bmp, x, y);
 #elif defined(CONFIG_VIDEO)
-	extern int video_display_bitmap (ulong, int, int);
-
-	ret = video_display_bitmap ((unsigned long)bmp, x, y);
+	ret = video_display_bitmap((unsigned long)bmp, x, y);
 #else
 # error bmp_display() requires CONFIG_LCD or CONFIG_VIDEO
 #endif
