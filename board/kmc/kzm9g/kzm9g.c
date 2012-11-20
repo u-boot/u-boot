@@ -195,7 +195,7 @@ void s_init(void)
 
 	/* FRQCR Init */
 	writel(0x0012453C, &cpg->frqcra);
-	writel(0x80331350, &cpg->frqcrb);
+	writel(0x80431350, &cpg->frqcrb);    /* ETM TRCLK  78MHz */
 	cmp_loop(&cpg->frqcrb, 0x80000000, 0x0);
 	writel(0x00000B0B, &cpg->frqcrd);
 	cmp_loop(&cpg->frqcrd, 0x80000000, 0x0);
