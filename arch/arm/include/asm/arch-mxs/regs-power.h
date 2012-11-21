@@ -128,7 +128,7 @@ struct mxs_power_regs {
 #define	POWER_MINPWR_PWD_ANA_CMPS			(1 << 10)
 #define	POWER_MINPWR_ENABLE_OSC				(1 << 9)
 #define	POWER_MINPWR_SELECT_OSC				(1 << 8)
-#define	POWER_MINPWR_FBG_OFF				(1 << 7)
+#define	POWER_MINPWR_VBG_OFF				(1 << 7)
 #define	POWER_MINPWR_DOUBLE_FETS			(1 << 6)
 #define	POWER_MINPWR_HALFFETS				(1 << 5)
 #define	POWER_MINPWR_LESSANA_I				(1 << 4)
