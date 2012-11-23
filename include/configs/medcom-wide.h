@@ -42,6 +42,7 @@
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_ENV_IS_NOWHERE
 
@@ -76,6 +77,19 @@
 	"mmc rescan;"					\
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
+
+#undef TEGRA_DEVICE_SETTINGS
+#define TEGRA_DEVICE_SETTINGS	\
+	"stdin=serial\0"	\
+	"stdout=serial,lcd\0"	\
+	"stderr=serial,lcd\0"
+
+/* LCD support */
+#define CONFIG_LCD
+#define CONFIG_PWM_TEGRA
+#define CONFIG_VIDEO_TEGRA
+#define LCD_BPP LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
 
 #include "tegra-common-post.h"
 

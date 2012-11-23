@@ -24,6 +24,19 @@
 		};
 	};
 
+	host1x {
+		status = "okay";
+
+		dc@54200000 {
+			status = "okay";
+
+			rgb {
+				nvidia,panel = <&lcd_panel>;
+				status = "okay";
+			};
+		};
+	};
+
 	clock@60006000 {
 		clocks = <&clk_32k &osc>;
 	};
@@ -54,5 +67,24 @@
 
 	usb@c5004000 {
 		status = "disabled";
+	};
+
+	lcd_panel: panel {
+		clock = <61715000>;
+		xres = <1366>;
+		yres = <768>;
+		left-margin = <2>;
+		right-margin = <47>;
+		hsync-len = <136>;
+		lower-margin = <21>;
+		upper-margin = <11>;
+		vsync-len = <4>;
+
+		nvidia,bits-per-pixel = <16>;
+		nvidia,pwm = <&pwm 0 500000>;
+		nvidia,backlight-enable-gpios = <&gpio 13 0>; /* PB5 */
+		nvidia,backlight-vdd-gpios = <&gpio 176 0>; /* PW0 */
+		nvidia,lvds-shutdown-gpios = <&gpio 10 0>; /* PB2 */
+		nvidia,panel-timings = <0 0 0 0>;
 	};
 };
