@@ -145,8 +145,8 @@ static void update_panel_size(struct fdt_disp_config *config)
 
 void lcd_ctrl_init(void *lcdbase)
 {
-	int line_length, size;
 	int type = DCACHE_OFF;
+	int size;
 
 	assert(disp_config);
 
@@ -160,7 +160,7 @@ void lcd_ctrl_init(void *lcdbase)
 			&& disp_config->height <= LCD_MAX_HEIGHT
 			&& disp_config->log2_bpp <= LCD_MAX_LOG2_BPP)
 		update_panel_size(disp_config);
-	size = lcd_get_size(&line_length);
+	size = lcd_get_size(&lcd_line_length);
 
 	/* Set up the LCD caching as requested */
 	if (config.cache_type & FDT_LCD_CACHE_WRITE_THROUGH)
