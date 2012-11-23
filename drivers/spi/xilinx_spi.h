@@ -119,6 +119,9 @@ struct xilinx_spi_reg {
 #define SPIRFOR_OCYVAL_POS	0
 #define SPIRFOR_OCYVAL_MASK	(0xf << SPIRFOR_OCYVAL_POS)
 
+/* SPI Software Reset Register (ssr) */
+#define SPISSR_RESET_VALUE	0x0a
+
 struct xilinx_spi_slave {
 	struct spi_slave slave;
 	struct xilinx_spi_reg *regs;
