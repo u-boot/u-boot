@@ -98,9 +98,12 @@ int board_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 int misc_init_r(void)
 {
 	char *eth_addr;
+	struct tam3517_module_info info;
+	int ret;
 
 	dieid_num_r();
 
@@ -108,12 +111,13 @@ int misc_init_r(void)
 	if (eth_addr)
 		return 0;
 
-#ifndef CONFIG_SPL_BUILD
-	TAM3517_READ_MAC_FROM_EEPROM;
-#endif
+	TAM3517_READ_EEPROM(&info, ret);
+	if (!ret)
+		TAM3517_READ_MAC_FROM_EEPROM(&info);
 
 	return 0;
 }
+#endif
 
 /*
  * Routine: set_muxconf_regs

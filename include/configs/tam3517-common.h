@@ -357,7 +357,6 @@
  * I2C EEPROM
  */
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
-
 /*
  * The I2C EEPROM on the TAM3517 contains
  * mac address and production data
@@ -383,24 +382,29 @@ struct tam3517_module_info {
 	unsigned char _rev[100];
 };
 
-#define TAM3517_READ_MAC_FROM_EEPROM	\
-do {					\
-	struct tam3517_module_info info;\
-	char buf[80], ethname[20];	\
-	int i;				\
+#define TAM3517_READ_EEPROM(info, ret) \
+do {								\
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);	\
 	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,		\
-			(void *)&info, sizeof(info)))		\
-		break;						\
+		(void *)info, sizeof(*info)))			\
+		ret = 1;					\
+	else							\
+		ret = 0;					\
+} while (0)
+
+#define TAM3517_READ_MAC_FROM_EEPROM(info)			\
+do {								\
+	char buf[80], ethname[20];				\
+	int i;							\
 	memset(buf, 0, sizeof(buf));				\
-	for (i = 0 ; i < ARRAY_SIZE(info.eth_addr); i++) {	\
+	for (i = 0 ; i < ARRAY_SIZE((info)->eth_addr); i++) {	\
 		sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X",	\
-			info.eth_addr[i][5],			\
-			info.eth_addr[i][4],			\
-			info.eth_addr[i][3],			\
-			info.eth_addr[i][2],			\
-			info.eth_addr[i][1],			\
-			info.eth_addr[i][0]);			\
+			(info)->eth_addr[i][5],			\
+			(info)->eth_addr[i][4],			\
+			(info)->eth_addr[i][3],			\
+			(info)->eth_addr[i][2],			\
+			(info)->eth_addr[i][1],			\
+			(info)->eth_addr[i][0]);			\
 								\
 		if (i)						\
 			sprintf(ethname, "eth%daddr", i);	\
@@ -410,6 +414,30 @@ do {					\
 		setenv(ethname, buf);				\
 	}							\
 } while (0)
+
+/* The following macros are taken from Technexion's documentation */
+#define TAM3517_sequence_number(info) \
+	((info)->sequence_number % 0x1000000000000LL)
+#define TAM3517_week_of_year(info) (((info)->sequence_number >> 48) % 0x100)
+#define TAM3517_year(info) ((info)->sequence_number >> 56)
+#define TAM3517_revision_fixed(info) ((info)->revision % 0x100)
+#define TAM3517_revision_major(info) (((info)->revision >> 8) % 0x100)
+#define TAM3517_revision_tn(info) ((info)->revision >> 16)
+
+#define TAM3517_PRINT_SOM_INFO(info)				\
+do {								\
+	printf("Vendor:%s\n", (info)->customer);		\
+	printf("SOM:   %s\n", (info)->product);			\
+	printf("SeqNr: %02llu%02llu%012llu\n",			\
+		TAM3517_year(info),				\
+		TAM3517_week_of_year(info),			\
+		TAM3517_sequence_number(info));			\
+	printf("Rev:   TN%u %u.%u\n",				\
+		TAM3517_revision_tn(info),			\
+		TAM3517_revision_major(info),			\
+		TAM3517_revision_fixed(info));			\
+} while (0)
+
 #endif
 
 #endif /* __TAM3517_H */

@@ -258,21 +258,26 @@ int board_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 int misc_init_r(void)
 {
 	char *eth_addr;
+	struct tam3517_module_info info;
+	int ret;
 
+	TAM3517_READ_EEPROM(&info, ret);
 	dieid_num_r();
 
-	eth_addr = getenv("ethaddr");
-	if (eth_addr)
+	if (ret)
 		return 0;
+	eth_addr = getenv("ethaddr");
+	if (!eth_addr)
+		TAM3517_READ_MAC_FROM_EEPROM(&info);
 
-#ifndef CONFIG_SPL_BUILD
-	TAM3517_READ_MAC_FROM_EEPROM;
-#endif
+	TAM3517_PRINT_SOM_INFO(&info);
 	return 0;
 }
+#endif
 
 /*
  * Routine: set_muxconf_regs
