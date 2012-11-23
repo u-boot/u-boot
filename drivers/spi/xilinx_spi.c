@@ -99,6 +99,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	debug("%s: bus:%i cs:%i base:%p mode:%x max_hz:%d\n", __func__,
 		bus, cs, xilspi->regs, xilspi->mode, xilspi->freq);
 
+	writel(SPISSR_RESET_VALUE, &xilspi->regs->srr);
+
 	return &xilspi->slave;
 }
 
