@@ -24,6 +24,19 @@
 		};
 	};
 
+	host1x {
+		status = "okay";
+
+		dc@54200000 {
+			status = "okay";
+
+			rgb {
+				nvidia,panel = <&lcd_panel>;
+				status = "okay";
+			};
+		};
+	};
+
 	clock@60006000 {
 		clocks = <&clk_32k &osc>;
 	};
@@ -65,5 +78,24 @@
 			reg = <0>;
 			compatible = "hynix,hy27uf4g2b", "nand-flash";
 		};
+	};
+
+	lcd_panel: panel {
+		clock = <33260000>;
+		xres = <800>;
+		yres = <480>;
+		left-margin = <120>;
+		right-margin = <120>;
+		hsync-len = <16>;
+		lower-margin = <15>;
+		upper-margin = <15>;
+		vsync-len = <15>;
+
+		nvidia,bits-per-pixel = <16>;
+		nvidia,pwm = <&pwm 0 500000>;
+		nvidia,backlight-enable-gpios = <&gpio 13 0>; /* PB5 */
+		nvidia,backlight-vdd-gpios = <&gpio 176 0>; /* PW0 */
+		nvidia,lvds-shutdown-gpios = <&gpio 10 0>; /* PB2 */
+		nvidia,panel-timings = <0 0 0 0>;
 	};
 };

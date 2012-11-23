@@ -36,13 +36,13 @@
 /* High-level configuration options */
 #define V_PROMPT			"Tegra20 (TEC) # "
 #define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Tamonten Evaluation Carrier"
-#define CONFIG_SYS_BOARD_ODMDATA	0x2b0d8011
 
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTD	/* UARTD: debug UART */
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 
 /* SD/MMC */
 #define CONFIG_MMC
@@ -84,6 +84,19 @@
 	"mmc rescan;"					\
 	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
 	"bootm"
+
+#undef TEGRA_DEVICE_SETTINGS
+#define TEGRA_DEVICE_SETTINGS	\
+	"stdin=serial\0"	\
+	"stdout=serial,lcd\0"	\
+	"stderr=serial,lcd\0"
+
+/* LCD support */
+#define CONFIG_LCD
+#define CONFIG_PWM_TEGRA
+#define CONFIG_VIDEO_TEGRA
+#define LCD_BPP LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
 
 #include "tegra-common-post.h"
 
