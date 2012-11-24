@@ -7,6 +7,10 @@
 # and Cc: the <u-boot@lists.denx.de> mailing list.			#
 #									#
 # Note: lists sorted by Maintainer Name					#
+# Note: These are the maintainers for specific *boards*.  The		#
+#	custodians for general architectures and subsystems can		#
+#	be found here -- http://www.denx.de/wiki/U-Boot/Custodians	#
+#									#
 #########################################################################
 
 
