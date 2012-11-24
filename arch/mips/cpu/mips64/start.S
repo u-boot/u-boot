@@ -108,7 +108,12 @@ reset:
 	mtc0	t0, CP0_CONFIG
 #endif
 
-	/* Initialize $gp */
+	/*
+	 * Initialize $gp, force 8 byte alignment of bal instruction to forbid
+	 * the compiler to put nop's between bal and _gp. This is required to
+	 * keep _gp and ra aligned to 8 byte.
+	 */
+	.align	3
 	bal	1f
 	 nop
 	.dword	_gp
