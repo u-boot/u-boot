@@ -54,4 +54,36 @@
 	usb@c5004000 {
 		status = "disabled";
 	};
+
+	host1x {
+		status = "okay";
+		dc@54200000 {
+			status = "okay";
+			rgb {
+				status = "okay";
+				nvidia,panel = <&lcd_panel>;
+			};
+		};
+	};
+
+	lcd_panel: panel {
+		/* PAZ00 has 1024x600 */
+		clock = <54030000>;
+		xres = <1024>;
+		yres = <600>;
+		right-margin = <160>;
+		left-margin = <24>;
+		hsync-len = <136>;
+		upper-margin = <3>;
+		lower-margin = <61>;
+		vsync-len = <6>;
+		hsync-active-high;
+		nvidia,bits-per-pixel = <16>;
+		nvidia,pwm = <&pwm 0 0>;
+		nvidia,backlight-enable-gpios = <&gpio 164 0>;	/* PU4 */
+		nvidia,lvds-shutdown-gpios = <&gpio 102 0>;	/* PM6 */
+		nvidia,backlight-vdd-gpios = <&gpio 176 0>;	/* PW0 */
+		nvidia,panel-vdd-gpios = <&gpio 4 0>;		/* PA4 */
+		nvidia,panel-timings = <400 4 203 17 15>;
+	};
 };
