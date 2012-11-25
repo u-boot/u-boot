@@ -140,8 +140,8 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 	reg_ctrl = reg_read(&regs->ctrl);
 
 	/* Reset spi */
-	reg_write(&regs->ctrl, 0);
-	reg_write(&regs->ctrl, (reg_ctrl | 0x1));
+	reg_write(&regs->ctrl, (reg_ctrl & ~MXC_CSPICTRL_EN));
+	reg_write(&regs->ctrl, (reg_ctrl | MXC_CSPICTRL_EN));
 
 	/*
 	 * The following computation is taken directly from Freescale's code.
@@ -387,7 +387,7 @@ static int decode_cs(struct mxc_spi_slave *mxcs, unsigned int cs)
 	if (cs > 3) {
 		mxcs->gpio = cs >> 8;
 		cs &= 3;
-		ret = gpio_direction_output(mxcs->gpio, 0);
+		ret = gpio_direction_output(mxcs->gpio, !(mxcs->ss_pol));
 		if (ret) {
 			printf("mxc_spi: cannot setup gpio %d\n", mxcs->gpio);
 			return -EINVAL;
@@ -414,6 +414,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
+	mxcs->ss_pol = (mode & SPI_CS_HIGH) ? 1 : 0;
+
 	ret = decode_cs(mxcs, cs);
 	if (ret < 0) {
 		free(mxcs);
@@ -425,7 +427,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxcs->slave.bus = bus;
 	mxcs->slave.cs = cs;
 	mxcs->base = spi_bases[bus];
-	mxcs->ss_pol = (mode & SPI_CS_HIGH) ? 1 : 0;
 
 	ret = spi_cfg_mxc(mxcs, cs, max_hz, mode);
 	if (ret) {

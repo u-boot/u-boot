@@ -241,6 +241,7 @@ struct aips_regs {
 #define IMX_RTIC_BASE		(0x53FEC000)
 #define IMX_IIM_BASE		(0x53FF0000)
 #define IMX_USB_BASE		(0x53FF4000)
+#define IMX_USB_PORT_OFFSET	0x200
 #define IMX_CSI_BASE		(0x53FF8000)
 #define IMX_DRYICE_BASE		(0x53FFC000)
 

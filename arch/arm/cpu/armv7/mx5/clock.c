@@ -928,7 +928,9 @@ int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("IPG        %8d kHz\n", mxc_get_clock(MXC_IPG_CLK) / 1000);
 	printf("IPG PERCLK %8d kHz\n", mxc_get_clock(MXC_IPG_PERCLK) / 1000);
 	printf("DDR        %8d kHz\n", mxc_get_clock(MXC_DDR_CLK) / 1000);
-
+#ifdef CONFIG_MXC_SPI
+	printf("CSPI       %8d kHz\n", mxc_get_clock(MXC_CSPI_CLK) / 1000);
+#endif
 	return 0;
 }
 

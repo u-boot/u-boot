@@ -128,7 +128,7 @@ struct mxs_power_regs {
 #define	POWER_MINPWR_PWD_ANA_CMPS			(1 << 10)
 #define	POWER_MINPWR_ENABLE_OSC				(1 << 9)
 #define	POWER_MINPWR_SELECT_OSC				(1 << 8)
-#define	POWER_MINPWR_FBG_OFF				(1 << 7)
+#define	POWER_MINPWR_VBG_OFF				(1 << 7)
 #define	POWER_MINPWR_DOUBLE_FETS			(1 << 6)
 #define	POWER_MINPWR_HALFFETS				(1 << 5)
 #define	POWER_MINPWR_LESSANA_I				(1 << 4)
@@ -268,7 +268,7 @@ struct mxs_power_regs {
 #define	POWER_DCLIMITS_POSLIMIT_BUCK_MASK		(0x7f << 8)
 #define	POWER_DCLIMITS_POSLIMIT_BUCK_OFFSET		8
 #define	POWER_DCLIMITS_NEGLIMIT_MASK			0x7f
-#define	POWER_DCLIMITS_NETLIMIT_OFFSET			0
+#define	POWER_DCLIMITS_NEGLIMIT_OFFSET			0
 
 #define	POWER_LOOPCTRL_TOGGLE_DIF			(1 << 20)
 #define	POWER_LOOPCTRL_HYST_SIGN			(1 << 19)
