@@ -87,6 +87,12 @@ void __pin_mux_nand(void)
 
 void pin_mux_nand(void) __attribute__((weak, alias("__pin_mux_nand")));
 
+void __pin_mux_display(void)
+{
+}
+
+void pin_mux_display(void) __attribute__((weak, alias("__pin_mux_display")));
+
 /*
  * Routine: power_det_init
  * Description: turn off power detects
@@ -126,6 +132,7 @@ int board_init(void)
 		debug("%s: Failed to init pwm\n", __func__);
 #endif
 #ifdef CONFIG_LCD
+	pin_mux_display();
 	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif
 	/* boot param addr */
