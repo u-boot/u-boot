@@ -67,6 +67,10 @@
 					 CONFIG_SYS_SCSI_MAX_LUN)
 #endif
 
+/* Generic TPM interfaced through LPC bus */
+#define CONFIG_GENERIC_LPC_TPM
+#define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000
+
 /*-----------------------------------------------------------------------
  * Real Time Clock Configuration
  */
