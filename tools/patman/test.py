@@ -119,8 +119,8 @@ index 6f3748d..f9e4e65 100644
 --- a/README
 +++ b/README
 @@ -2026,6 +2026,17 @@ The following options need to be configured:
-		example, some LED's) on your board. At the moment,
-		the following checkpoints are implemented:
+ 		example, some LED's) on your board. At the moment,
+ 		the following checkpoints are implemented:
 
 +- Time boot progress
 +		CONFIG_BOOTSTAGE
@@ -134,7 +134,7 @@ index 6f3748d..f9e4e65 100644
 +		You can add calls to bootstage_mark() to set time markers.
 +
  - Standalone program support:
-		CONFIG_STANDALONE_LOAD_ADDR
+ 		CONFIG_STANDALONE_LOAD_ADDR
 
 diff --git a/common/bootstage.c b/common/bootstage.c
 new file mode 100644
