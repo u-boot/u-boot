@@ -248,6 +248,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* This work-around is implemented in PBI, so just check for it */
 	check_erratum_a4580(svr);
 #endif
+#ifdef CONFIG_SYS_P4080_ERRATUM_PCIE_A003
+	puts("Work-around for Erratum PCIe-A003 enabled\n");
+#endif
 	return 0;
 }
 
