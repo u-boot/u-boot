@@ -45,7 +45,7 @@ int board_early_init_f(void)
 	/* Set SATA activity LEDs to default off */
 	writel(MVSATAHC_LED_POLARITY_CTRL, MVSATAHC_LED_CONF_REG);
 	/* Multi-Purpose Pins Functionality configuration */
-	u32 kwmpp_config[] = {
+	static const u32 kwmpp_config[] = {
 		MPP0_NF_IO2,
 		MPP1_NF_IO3,
 		MPP2_NF_IO4,

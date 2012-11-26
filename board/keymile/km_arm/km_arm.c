@@ -54,7 +54,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MASK_RBI_DEFECT_16	0x01
 
 /* Multi-Purpose Pins Functionality configuration */
-u32 kwmpp_config[] = {
+static const u32 kwmpp_config[] = {
 	MPP0_NF_IO2,
 	MPP1_NF_IO3,
 	MPP2_NF_IO4,

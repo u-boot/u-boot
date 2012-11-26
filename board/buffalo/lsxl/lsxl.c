@@ -76,7 +76,7 @@ int board_early_init_f(void)
 	 * Multi-Purpose Pins Functionality configuration
 	 * These strappings are taken from the original vendor uboot port.
 	 */
-	u32 kwmpp_config[] = {
+	static const u32 kwmpp_config[] = {
 		MPP0_SPI_SCn,
 		MPP1_SPI_MOSI,
 		MPP2_SPI_SCK,
