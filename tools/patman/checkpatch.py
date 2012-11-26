@@ -26,10 +26,12 @@ import re
 import terminal
 
 def FindCheckPatch():
+    top_level = gitutil.GetTopLevel()
     try_list = [
         os.getcwd(),
         os.path.join(os.getcwd(), '..', '..'),
-        os.path.join(gitutil.GetTopLevel(), 'tools'),
+        os.path.join(top_level, 'tools'),
+        os.path.join(top_level, 'scripts'),
         '%s/bin' % os.getenv('HOME'),
         ]
     # Look in current dir
