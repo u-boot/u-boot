@@ -470,7 +470,7 @@ int cpu_init_r(void)
 				&& l2srbar >= CONFIG_SYS_FLASH_BASE) {
 			l2srbar = CONFIG_SYS_INIT_L2_ADDR;
 			l2cache->l2srbar0 = l2srbar;
-			printf("moving to 0x%08x", CONFIG_SYS_INIT_L2_ADDR);
+			printf(", moving to 0x%08x", CONFIG_SYS_INIT_L2_ADDR);
 		}
 #endif /* CONFIG_SYS_INIT_L2_ADDR */
 		puts("\n");

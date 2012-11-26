@@ -23,16 +23,18 @@
 #include <ns16550.h>
 #include <asm/io.h>
 #include <nand.h>
+#include <linux/compiler.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_SYS_INIT_L2_ADDR
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
  */
-void sdram_init(void)
+static void sdram_init(void)
 {
 	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC85xx_DDR_ADDR;
 
@@ -71,6 +73,7 @@ void sdram_init(void)
 
 	set_next_law(0, CONFIG_SYS_SDRAM_SIZE_LAW, LAW_TRGT_IF_DDR_1);
 }
+#endif
 
 void board_init_f(ulong bootflag)
 {
@@ -101,15 +104,16 @@ void board_init_f(ulong bootflag)
 	__raw_writel(0x00000000, &pgpio->gpdir);
 #endif
 
+#ifndef CONFIG_SYS_INIT_L2_ADDR
 	/* Initialize the DDR3 */
 	sdram_init();
+#endif
 
 	/* copy code to RAM and jump to it - this should not return */
 	/* NOTE - code has to be copied out of NAND buffer before
 	 * other blocks can be read.
 	 */
-	relocate_code(CONFIG_SYS_NAND_U_BOOT_RELOC_SP, 0,
-			CONFIG_SYS_NAND_U_BOOT_RELOC);
+	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);
 }
 
 void board_init_r(gd_t *gd, ulong dest_addr)

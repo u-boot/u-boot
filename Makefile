@@ -408,6 +408,7 @@ ALL-y += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
 ALL-$(CONFIG_NAND_U_BOOT) += $(obj)u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += $(obj)u-boot-onenand.bin
 ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
+ALL-$(CONFIG_SPL) += $(obj)$(subst ",,$(CONFIG_SPL_TARGET))
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 
 # enable combined SPL/u-boot/dtb rules for tegra
@@ -475,13 +476,14 @@ $(obj)u-boot.sha1:	$(obj)u-boot.bin
 $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
 
-$(obj)u-boot.ubl:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
+$(obj)u-boot-with-spl.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(PAD_TO) -O binary $(obj)spl/u-boot-spl $(obj)spl/u-boot-spl-pad.bin
-		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin > $(obj)u-boot-ubl.bin
-		$(obj)tools/mkimage -n $(UBL_CONFIG) -T ublimage \
-		-e $(CONFIG_SYS_TEXT_BASE) -d $(obj)u-boot-ubl.bin $(obj)u-boot.ubl
-		rm $(obj)u-boot-ubl.bin
+		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin > $@
 		rm $(obj)spl/u-boot-spl-pad.bin
+
+$(obj)u-boot.ubl:       $(obj)u-boot-with-spl.bin
+		$(obj)tools/mkimage -n $(UBL_CONFIG) -T ublimage \
+		-e $(CONFIG_SYS_TEXT_BASE) -d $< $(obj)u-boot.ubl
 
 $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		$(obj)tools/mkimage -s -n $(if $(CONFIG_AIS_CONFIG_FILE),$(CONFIG_AIS_CONFIG_FILE),"/dev/null") \
@@ -642,6 +644,16 @@ checkthumb:
 		echo '*** Your board is configured for THUMB mode.'; \
 		false; \
 	fi
+
+# GCC 3.x is reported to have problems generating the type of relocation
+# that U-Boot wants.
+# See http://lists.denx.de/pipermail/u-boot/2012-September/135156.html
+checkgcc4:
+	@if test $(call cc-version) -lt 0400; then \
+		echo -n '*** Your GCC is too old, please upgrade to GCC 4.x or newer'; \
+		false; \
+	fi
+
 #
 # Auto-generate the autoconf.mk file (which is included by all makefiles)
 #

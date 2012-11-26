@@ -32,9 +32,30 @@ START_PATH := $(CPUDIR)
 endif
 
 START := $(START_PATH)/start.o
+ifeq ($(CPU),x86)
+START += $(START_PATH)/start16.o
+START += $(START_PATH)/resetvec.o
+endif
+ifeq ($(CPU),ppc4xx)
+START += $(START_PATH)/resetvec.o
+endif
+ifeq ($(CPU),mpc85xx)
+START += $(START_PATH)/resetvec.o
+endif
 
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
+
 LIBS-y += $(CPUDIR)/lib$(CPU).o
+ifeq ($(CPU),mpc83xx)
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+endif
+ifeq ($(CPU),mpc85xx)
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+endif
+ifeq ($(CPU),mpc86xx)
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+endif
+
 ifdef SOC
 LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
 endif

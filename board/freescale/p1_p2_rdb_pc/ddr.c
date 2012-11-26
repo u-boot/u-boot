@@ -206,6 +206,7 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 }
 #endif /* CONFIG_SYS_DDR_RAW_TIMING */
 
+#ifdef CONFIG_SYS_DDR_CS0_BNDS
 /* Fixed sdram init -- doesn't use serial presence detect. */
 phys_size_t fixed_sdram(void)
 {
@@ -260,6 +261,7 @@ phys_size_t fixed_sdram(void)
 
 	return ddr_size;
 }
+#endif
 
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,

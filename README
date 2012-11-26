@@ -2664,6 +2664,10 @@ FIT uImage format:
 		CONFIG_SPL_TEXT_BASE
 		TEXT_BASE for linking the SPL binary.
 
+		CONFIG_SPL_RELOC_TEXT_BASE
+		Address to relocate to.  If unspecified, this is equal to
+		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).
+
 		CONFIG_SPL_BSS_START_ADDR
 		Link address for the BSS within the SPL binary.
 
@@ -2672,6 +2676,11 @@ FIT uImage format:
 
 		CONFIG_SPL_STACK
 		Adress of the start of the stack SPL will use
+
+		CONFIG_SPL_RELOC_STACK
+		Adress of the start of the stack SPL will use after
+		relocation.  If unspecified, this is equal to
+		CONFIG_SPL_STACK.
 
 		CONFIG_SYS_SPL_MALLOC_START
 		Starting address of the malloc pool used in SPL.
@@ -2687,6 +2696,9 @@ FIT uImage format:
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information
 		about the running system.
+
+		CONFIG_SPL_INIT_MINIMAL
+		Arch init code should be built for a very small image
 
 		CONFIG_SPL_LIBCOMMON_SUPPORT
 		Support for common/libcommon.o in SPL binary
@@ -2715,8 +2727,19 @@ FIT uImage format:
 		CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from FAT
 
+		CONFIG_SPL_NAND_BASE
+		Include nand_base.c in the SPL.  Requires
+		CONFIG_SPL_NAND_DRIVERS.
+
+		CONFIG_SPL_NAND_DRIVERS
+		SPL uses normal NAND drivers, not minimal drivers.
+
+		CONFIG_SPL_NAND_ECC
+		Include standard software ECC in the SPL
+
 		CONFIG_SPL_NAND_SIMPLE
-		Support for drivers/mtd/nand/libnand.o in SPL binary
+		Support for NAND boot using simple NAND drivers that
+		expose the cmd_ctrl() interface.
 
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
@@ -2724,15 +2747,19 @@ FIT uImage format:
 		CONFIG_SYS_NAND_ECCPOS, CONFIG_SYS_NAND_ECCSIZE,
 		CONFIG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
-		to read U-Boot with CONFIG_SPL_NAND_SIMPLE
+		to read U-Boot
 
 		CONFIG_SYS_NAND_U_BOOT_OFFS
-		Location in NAND for CONFIG_SPL_NAND_SIMPLE to read U-Boot
-		from.
+		Location in NAND to read U-Boot from
+
+		CONFIG_SYS_NAND_U_BOOT_DST
+		Location in memory to load U-Boot to
+
+		CONFIG_SYS_NAND_U_BOOT_SIZE
+		Size of image to load
 
 		CONFIG_SYS_NAND_U_BOOT_START
-		Location in memory for CONFIG_SPL_NAND_SIMPLE to load U-Boot
-		to.
+		Entry point in loaded image to jump to
 
 		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
 		Define this if you need to first read the OOB and then the
@@ -2756,6 +2783,11 @@ FIT uImage format:
 
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
+
+		CONFIG_SPL_TARGET
+		Final target image containing SPL and payload.  Some SPLs
+		use an arch-specific makefile fragment instead, for
+		example if more than one image needs to be produced.
 
 Modem Support:
 --------------
@@ -3859,6 +3891,7 @@ saveenv - save environment variables to persistent storage
 protect - enable or disable FLASH write protection
 erase	- erase FLASH memory
 flinfo	- print FLASH memory information
+nand	- NAND memory operations (see doc/README.nand)
 bdinfo	- print Board Info structure
 iminfo	- print header information for application image
 coninfo - print console devices and informations
