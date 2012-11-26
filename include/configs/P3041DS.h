@@ -32,6 +32,7 @@
 
 #define CONFIG_MMC
 #define CONFIG_NAND_FSL_ELBC
+#define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE3
 #define CONFIG_PCIE4
 #define CONFIG_SYS_DPAA_RMAN
