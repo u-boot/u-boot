@@ -217,6 +217,10 @@ def EmailPatches(series, cover_fname, args, dry_run, cc_fname,
     Returns:
         Git command that was/would be run
 
+    # For the duration of this doctest pretend that we ran patman with ./patman
+    >>> _old_argv0 = sys.argv[0]
+    >>> sys.argv[0] = './patman'
+
     >>> alias = {}
     >>> alias['fred'] = ['f.bloggs@napier.co.nz']
     >>> alias['john'] = ['j.bloggs@napier.co.nz']
@@ -244,6 +248,9 @@ def EmailPatches(series, cover_fname, args, dry_run, cc_fname,
     'git send-email --annotate --to "f.bloggs@napier.co.nz" --cc \
 "f.bloggs@napier.co.nz" --cc "j.bloggs@napier.co.nz" --cc \
 "m.poppins@cloud.net" --cc-cmd "./patman --cc-cmd cc-fname" cover p1 p2'
+
+    # Restore argv[0] since we clobbered it.
+    >>> sys.argv[0] = _old_argv0
     """
     to = BuildEmailList(series.get('to'), '--to', alias)
     if not to:
@@ -340,8 +347,8 @@ def GetTopLevel():
 
     This test makes sure that we are running tests in the right subdir
 
-    >>> os.path.realpath(os.getcwd()) == \
-            os.path.join(GetTopLevel(), 'tools', 'scripts', 'patman')
+    >>> os.path.realpath(os.path.dirname(__file__)) == \
+            os.path.join(GetTopLevel(), 'tools', 'patman')
     True
     """
     return command.OutputOneLine('git', 'rev-parse', '--show-toplevel')
