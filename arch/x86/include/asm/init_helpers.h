@@ -29,7 +29,6 @@ int display_dram_config(void);
 int init_baudrate_f(void);
 int calculate_relocation_address(void);
 
-int copy_gd_to_ram_f_r(void);
 int init_cache_f_r(void);
 
 int set_reloc_flag_r(void);

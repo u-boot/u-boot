@@ -83,13 +83,33 @@ car_init_ret:
 	 * or fully initialised SDRAM - we really don't care which)
 	 * starting at CONFIG_SYS_CAR_ADDR to be used as a temporary stack
 	 */
-	movl	$CONFIG_SYS_INIT_SP_ADDR, %esp
 
-	/* Initialise the Global Data Pointer */
-	movl	$CONFIG_SYS_INIT_GD_ADDR, %eax
-	movl	%eax, %edx
-	addl	$GENERATED_GBL_DATA_SIZE, %edx
-	call	init_gd;
+	/* Stack grows down from top of CAR */
+	movl	$(CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE), %esp
+
+	/* Reserve space on stack for global data */
+	subl	$GENERATED_GBL_DATA_SIZE, %esp
+
+	/* Align global data to 16-byte boundary */
+	andl	$0xfffffff0, %esp
+
+	/* Setup first parameter to setup_gdt */
+	movl	%esp, %eax
+
+	/* Reserve space for global descriptor table */
+	subl	$X86_GDT_SIZE, %esp
+
+	/* Align temporary global descriptor table to 16-byte boundary */
+	andl	$0xfffffff0, %esp
+
+	/* Set second parameter to setup_gdt */
+	movl	%esp, %edx
+
+	/* gd->gd_addr = gd (Required to allow gd->xyz to work) */
+	movl	%eax, (%eax)
+
+	/* Setup global descriptor table so gd->xyz works */
+	call	setup_gdt
 
 	/* Set parameter to board_init_f() to boot flags */
 	xorl	%eax, %eax
@@ -113,8 +133,41 @@ board_init_f_r_trampoline:
 	 * %eax = Address of top of new stack
 	 */
 
-	/* Setup stack in RAM */
+	/* Stack grows down from top of SDRAM */
 	movl	%eax, %esp
+
+	/* Reserve space on stack for global data */
+	subl	$GENERATED_GBL_DATA_SIZE, %esp
+
+	/* Align global data to 16-byte boundary */
+	andl	$0xfffffff0, %esp
+
+	/* Setup first parameter to memcpy (and setup_gdt) */
+	movl	%esp, %eax
+
+	/* Setup second parameter to memcpy */
+	fs movl 0, %edx
+
+	/* Set third parameter to memcpy */
+	movl	$GENERATED_GBL_DATA_SIZE, %ecx
+
+	/* Copy global data from CAR to SDRAM stack */
+	call	memcpy
+
+	/* Reserve space for global descriptor table */
+	subl	$X86_GDT_SIZE, %esp
+
+	/* Align global descriptor table to 16-byte boundary */
+	andl	$0xfffffff0, %esp
+
+	/* Set second parameter to setup_gdt */
+	movl	%esp, %edx
+
+	/* gd->gd_addr = gd (Required to allow gd->xyz to work) */
+	movl	%eax, (%eax)
+
+	/* Setup global descriptor table so gd->xyz works */
+	call	setup_gdt
 
 	/* Re-enter U-Boot by calling board_init_f_r */
 	call	board_init_f_r

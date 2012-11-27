@@ -36,6 +36,7 @@
 #include <stdio_dev.h>
 #include <asm/u-boot-x86.h>
 #include <asm/relocate.h>
+#include <asm/processor.h>
 
 #include <asm/init_helpers.h>
 #include <asm/init_wrappers.h>
@@ -121,7 +122,6 @@ init_fnc_t *init_sequence_f[] = {
  * initialise the CPU caches (to speed up the relocation process)
  */
 init_fnc_t *init_sequence_f_r[] = {
-	copy_gd_to_ram_f_r,
 	init_cache_f_r,
 	copy_uboot_to_ram,
 	clear_bss,

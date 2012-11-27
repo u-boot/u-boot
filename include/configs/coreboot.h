@@ -210,12 +210,11 @@
  * (128kB + Environment Sector Size) malloc pool
  */
 #define CONFIG_SYS_STACK_SIZE			(32 * 1024)
-#define CONFIG_SYS_INIT_SP_ADDR		(256 * 1024 + 16 * 1024)
+#define CONFIG_SYS_CAR_ADDR			0x19200000
+#define CONFIG_SYS_CAR_SIZE			(16 * 1024)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN			(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN			(0x20000 + 128 * 1024)
-/* Address of temporary Global Data */
-#define CONFIG_SYS_INIT_GD_ADDR		(256 * 1024)
 
 
 /* allow to overwrite serial and ethaddr */

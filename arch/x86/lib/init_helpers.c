@@ -83,18 +83,8 @@ int calculate_relocation_address(void)
 	 *       requirements
 	 */
 
-	/* Global Data is at top of available memory */
+	/* Stack is at top of available memory */
 	dest_addr = gd->ram_size;
-	dest_addr -= GENERATED_GBL_DATA_SIZE;
-	dest_addr &= ~15;
-	gd->new_gd_addr = dest_addr;
-
-	/* GDT is below Global Data */
-	dest_addr -= X86_GDT_SIZE;
-	dest_addr &= ~15;
-	gd->gdt_addr = dest_addr;
-
-	/* Stack is below GDT */
 	gd->start_addr_sp = dest_addr;
 
 	/* U-Boot is below the stack */
@@ -103,31 +93,6 @@ int calculate_relocation_address(void)
 	dest_addr &= ~15;
 	gd->relocaddr = dest_addr;
 	gd->reloc_off = (dest_addr - text_start);
-
-	return 0;
-}
-
-int copy_gd_to_ram_f_r(void)
-{
-	gd_t *ram_gd;
-
-	/*
-	 * Global data is still in temporary memory (the CPU cache).
-	 * calculate_relocation_address() has set gd->new_gd_addr to
-	 * where the global data lives in RAM but getting it there
-	 * safely is a bit tricky due to the 'F-Segment Hack' that
-	 * we need to use for x86
-	 */
-	ram_gd = (gd_t *)gd->new_gd_addr;
-	memcpy((void *)ram_gd, gd, sizeof(gd_t));
-
-	/*
-	 * Reload the Global Descriptor Table so FS points to the
-	 * in-RAM copy of Global Data (calculate_relocation_address()
-	 * has already calculated the in-RAM location of the GDT)
-	 */
-	ram_gd->gd_addr = ram_gd;
-	init_gd(ram_gd, (u64 *)gd->gdt_addr);
 
 	return 0;
 }

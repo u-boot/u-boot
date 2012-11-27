@@ -54,7 +54,6 @@ struct global_data {
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
 	unsigned long	gdt_addr;	/* Location of GDT */
-	unsigned long	new_gd_addr;	/* New location of Global Data */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot */
 	void		**jt;		/* jump table */
