@@ -49,4 +49,11 @@ extern const struct gpio_bank *const omap_gpio_bank;
 
 #define METHOD_GPIO_24XX	4
 
+/**
+ * Check if gpio is valid.
+ *
+ * @param gpio	GPIO number
+ * @return 1 if ok, 0 on error
+ */
+int gpio_is_valid(int gpio);
 #endif /* _GPIO_H_ */
