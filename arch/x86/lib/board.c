@@ -164,9 +164,6 @@ init_fnc_t *init_sequence_r[] = {
 #ifdef CONFIG_MISC_INIT_R
 	misc_init_r,
 #endif
-#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_CMD_IDE)
-	pci_init_r,
-#endif
 #if defined(CONFIG_CMD_KGDB)
 	kgdb_init_r,
 #endif
