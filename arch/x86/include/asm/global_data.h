@@ -33,9 +33,11 @@
 
 #ifndef __ASSEMBLY__
 
-typedef	struct global_data {
+typedef struct global_data gd_t;
+
+struct global_data {
 	/* NOTE: gd_addr MUST be first member of struct global_data! */
-	unsigned long	gd_addr;	/* Location of Global Data */
+	gd_t *gd_addr;	/* Location of Global Data */
 	bd_t		*bd;
 	unsigned long	flags;
 	unsigned int	baudrate;
@@ -57,7 +59,7 @@ typedef	struct global_data {
 	unsigned long	reset_status;	/* reset status register at boot */
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
-} gd_t;
+};
 
 static inline gd_t *get_fs_gd_ptr(void)
 {

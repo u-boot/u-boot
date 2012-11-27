@@ -126,7 +126,7 @@ int copy_gd_to_ram_f_r(void)
 	 * in-RAM copy of Global Data (calculate_relocation_address()
 	 * has already calculated the in-RAM location of the GDT)
 	 */
-	ram_gd->gd_addr = (ulong)ram_gd;
+	ram_gd->gd_addr = ram_gd;
 	init_gd(ram_gd, (u64 *)gd->gdt_addr);
 
 	return 0;

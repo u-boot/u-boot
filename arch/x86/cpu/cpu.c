@@ -92,7 +92,7 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 
 void init_gd(gd_t *id, u64 *gdt_addr)
 {
-	id->gd_addr = (ulong)id;
+	id->gd_addr = id;
 	setup_gdt(id, gdt_addr);
 }
 
