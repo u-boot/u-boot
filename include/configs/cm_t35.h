@@ -282,7 +282,6 @@
  */
 #define CONFIG_NR_DRAM_BANKS	1	/* CS1 is never populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization

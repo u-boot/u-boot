@@ -236,7 +236,6 @@
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 meg */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
 /*
