@@ -3664,6 +3664,10 @@ Low Level (hardware related) configuration options:
 		be used if available. These functions may be faster under some
 		conditions but may increase the binary size.
 
+- CONFIG_X86_NO_RESET_VECTOR
+		If defined, the x86 reset vector code is excluded. You will need
+		to do this when U-Boot is running from Coreboot.
+
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
 
