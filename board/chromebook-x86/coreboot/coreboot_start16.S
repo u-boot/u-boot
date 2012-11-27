@@ -22,19 +22,6 @@
  * MA 02111-1307 USA
  */
 
-/*
- * 16bit initialization code.
- * This code have to map the area of the boot flash
- * that is used by U-boot to its final destination.
- */
-
-.text
-.section .start16, "ax"
-.code16
-.globl board_init16
-board_init16:
-	jmp	board_init16_ret
-
 .section .bios, "ax"
 .code16
 .globl realmode_reset
