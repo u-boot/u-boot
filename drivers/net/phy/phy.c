@@ -280,7 +280,7 @@ int genphy_update_link(struct phy_device *phydev)
  *
  * Stolen from Linux's mii.c and phy_device.c
  */
-static int genphy_parse_link(struct phy_device *phydev)
+int genphy_parse_link(struct phy_device *phydev)
 {
 	int mii_reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMSR);
 
