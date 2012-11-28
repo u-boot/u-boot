@@ -72,12 +72,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
-#undef TEGRA_DEVICE_SETTINGS
-#define TEGRA_DEVICE_SETTINGS	\
-	"stdin=serial\0"	\
-	"stdout=serial,lcd\0"	\
-	"stderr=serial,lcd\0"
-
 /* LCD support */
 #define CONFIG_LCD
 #define CONFIG_PWM_TEGRA
