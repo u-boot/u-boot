@@ -33,9 +33,13 @@
 
 #ifndef __ASSEMBLY__
 
-typedef	struct global_data {
+#include <asm/u-boot.h>
+
+typedef struct global_data gd_t;
+
+struct global_data {
 	/* NOTE: gd_addr MUST be first member of struct global_data! */
-	unsigned long	gd_addr;	/* Location of Global Data */
+	gd_t *gd_addr;	/* Location of Global Data */
 	bd_t		*bd;
 	unsigned long	flags;
 	unsigned int	baudrate;
@@ -52,12 +56,11 @@ typedef	struct global_data {
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
 	unsigned long	gdt_addr;	/* Location of GDT */
-	unsigned long	new_gd_addr;	/* New location of Global Data */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot */
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
-} gd_t;
+};
 
 static inline gd_t *get_fs_gd_ptr(void)
 {

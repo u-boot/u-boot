@@ -90,12 +90,6 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 	asm volatile("lgdtl %0\n" : : "m" (gdt));
 }
 
-void init_gd(gd_t *id, u64 *gdt_addr)
-{
-	id->gd_addr = (ulong)id;
-	setup_gdt(id, gdt_addr);
-}
-
 void setup_gdt(gd_t *id, u64 *gdt_addr)
 {
 	/* CS: code, read/execute, 4 GB, base 0 */

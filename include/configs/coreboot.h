@@ -37,7 +37,7 @@
 #define CONFIG_SYS_COREBOOT
 #undef CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_LAST_STAGE_INIT
-
+#define CONFIG_X86_NO_RESET_VECTOR
 
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
@@ -66,6 +66,10 @@
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 					 CONFIG_SYS_SCSI_MAX_LUN)
 #endif
+
+/* Generic TPM interfaced through LPC bus */
+#define CONFIG_GENERIC_LPC_TPM
+#define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000
 
 /*-----------------------------------------------------------------------
  * Real Time Clock Configuration
@@ -210,12 +214,11 @@
  * (128kB + Environment Sector Size) malloc pool
  */
 #define CONFIG_SYS_STACK_SIZE			(32 * 1024)
-#define CONFIG_SYS_INIT_SP_ADDR		(256 * 1024 + 16 * 1024)
+#define CONFIG_SYS_CAR_ADDR			0x19200000
+#define CONFIG_SYS_CAR_SIZE			(16 * 1024)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN			(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN			(0x20000 + 128 * 1024)
-/* Address of temporary Global Data */
-#define CONFIG_SYS_INIT_GD_ADDR		(256 * 1024)
 
 
 /* allow to overwrite serial and ethaddr */
