@@ -389,7 +389,7 @@ void lbc_sdram_init(void)
 phys_size_t fixed_sdram(void)
 {
   #ifndef CONFIG_SYS_RAMBOOT
-	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
+	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
 
 	ddr->cs0_bnds = CONFIG_SYS_DDR_CS0_BNDS;
 	ddr->cs0_config = CONFIG_SYS_DDR_CS0_CONFIG;

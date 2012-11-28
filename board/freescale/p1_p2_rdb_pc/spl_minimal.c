@@ -36,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 static void sdram_init(void)
 {
-	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
 
 	__raw_writel(CONFIG_SYS_DDR_CS0_BNDS, &ddr->cs0_bnds);
 	__raw_writel(CONFIG_SYS_DDR_CS0_CONFIG, &ddr->cs0_config);

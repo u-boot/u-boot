@@ -21,26 +21,19 @@
  */
 
 /*
- * P5020 DS board configuration file
- * Also supports P5010 DS
+ * P5040 DS board configuration file
+ *
  */
-#define CONFIG_P5020DS
+#define CONFIG_P5040DS
 #define CONFIG_PHYS_64BIT
-#define CONFIG_PPC_P5020
+#define CONFIG_PPC_P5040
 
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
 #define CONFIG_MMC
 #define CONFIG_NAND_FSL_ELBC
-#define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE3
-#define CONFIG_PCIE4
 #define CONFIG_SYS_FSL_RAID_ENGINE
-#define CONFIG_SYS_DPAA_RMAN
-
-#define CONFIG_SYS_SRIO
-#define CONFIG_SRIO1			/* SRIO port 1 */
-#define CONFIG_SRIO2			/* SRIO port 2 */
 
 #define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
 
