@@ -524,48 +524,70 @@ static int sd_send_op_cond(struct mmc *mmc)
 	return 0;
 }
 
-static int mmc_send_op_cond(struct mmc *mmc)
+/* We pass in the cmd since otherwise the init seems to fail */
+static int mmc_send_op_cond_iter(struct mmc *mmc, struct mmc_cmd *cmd,
+		int use_arg)
 {
-	int timeout = 10000;
-	struct mmc_cmd cmd;
 	int err;
+
+	cmd->cmdidx = MMC_CMD_SEND_OP_COND;
+	cmd->resp_type = MMC_RSP_R3;
+	cmd->cmdarg = 0;
+	if (use_arg && !mmc_host_is_spi(mmc)) {
+		cmd->cmdarg =
+			(mmc->voltages &
+			(mmc->op_cond_response & OCR_VOLTAGE_MASK)) |
+			(mmc->op_cond_response & OCR_ACCESS_MODE);
+
+		if (mmc->host_caps & MMC_MODE_HC)
+			cmd->cmdarg |= OCR_HCS;
+	}
+	err = mmc_send_cmd(mmc, cmd, NULL);
+	if (err)
+		return err;
+	mmc->op_cond_response = cmd->response[0];
+	return 0;
+}
+
+int mmc_send_op_cond(struct mmc *mmc)
+{
+	struct mmc_cmd cmd;
+	int err, i;
 
 	/* Some cards seem to need this */
 	mmc_go_idle(mmc);
 
  	/* Asking to the card its capabilities */
- 	cmd.cmdidx = MMC_CMD_SEND_OP_COND;
- 	cmd.resp_type = MMC_RSP_R3;
- 	cmd.cmdarg = 0;
-
- 	err = mmc_send_cmd(mmc, &cmd, NULL);
-
- 	if (err)
- 		return err;
-
- 	udelay(1000);
-
-	do {
-		cmd.cmdidx = MMC_CMD_SEND_OP_COND;
-		cmd.resp_type = MMC_RSP_R3;
-		cmd.cmdarg = (mmc_host_is_spi(mmc) ? 0 :
-				(mmc->voltages &
-				(cmd.response[0] & OCR_VOLTAGE_MASK)) |
-				(cmd.response[0] & OCR_ACCESS_MODE));
-
-		if (mmc->host_caps & MMC_MODE_HC)
-			cmd.cmdarg |= OCR_HCS;
-
-		err = mmc_send_cmd(mmc, &cmd, NULL);
-
+	mmc->op_cond_pending = 1;
+	for (i = 0; i < 2; i++) {
+		err = mmc_send_op_cond_iter(mmc, &cmd, i != 0);
 		if (err)
 			return err;
 
-		udelay(1000);
-	} while (!(cmd.response[0] & OCR_BUSY) && timeout--);
+		/* exit if not busy (flag seems to be inverted) */
+		if (mmc->op_cond_response & OCR_BUSY)
+			return 0;
+	}
+	return IN_PROGRESS;
+}
 
-	if (timeout <= 0)
-		return UNUSABLE_ERR;
+int mmc_complete_op_cond(struct mmc *mmc)
+{
+	struct mmc_cmd cmd;
+	int timeout = 1000;
+	uint start;
+	int err;
+
+	mmc->op_cond_pending = 0;
+	start = get_timer(0);
+	do {
+		err = mmc_send_op_cond_iter(mmc, &cmd, 1);
+		if (err)
+			return err;
+		if (get_timer(start) > timeout)
+			return UNUSABLE_ERR;
+		udelay(100);
+	} while (!(mmc->op_cond_response & OCR_BUSY));
 
 	if (mmc_host_is_spi(mmc)) { /* read OCR for spi */
 		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
@@ -1274,7 +1296,7 @@ block_dev_desc_t *mmc_get_dev(int dev)
 }
 #endif
 
-int mmc_init(struct mmc *mmc)
+int mmc_start_init(struct mmc *mmc)
 {
 	int err;
 
@@ -1314,17 +1336,48 @@ int mmc_init(struct mmc *mmc)
 	if (err == TIMEOUT) {
 		err = mmc_send_op_cond(mmc);
 
-		if (err) {
+		if (err && err != IN_PROGRESS) {
 			printf("Card did not respond to voltage select!\n");
 			return UNUSABLE_ERR;
 		}
 	}
 
-	err = mmc_startup(mmc);
+	if (err == IN_PROGRESS)
+		mmc->init_in_progress = 1;
+
+	return err;
+}
+
+static int mmc_complete_init(struct mmc *mmc)
+{
+	int err = 0;
+
+	if (mmc->op_cond_pending)
+		err = mmc_complete_op_cond(mmc);
+
+	if (!err)
+		err = mmc_startup(mmc);
 	if (err)
 		mmc->has_init = 0;
 	else
 		mmc->has_init = 1;
+	mmc->init_in_progress = 0;
+	return err;
+}
+
+int mmc_init(struct mmc *mmc)
+{
+	int err = IN_PROGRESS;
+	unsigned start = get_timer(0);
+
+	if (mmc->has_init)
+		return 0;
+	if (!mmc->init_in_progress)
+		err = mmc_start_init(mmc);
+
+	if (!err || err == IN_PROGRESS)
+		err = mmc_complete_init(mmc);
+	debug("%s: %d, time %lu\n", __func__, err, get_timer(start));
 	return err;
 }
 
@@ -1362,6 +1415,25 @@ int get_mmc_num(void)
 	return cur_dev_num;
 }
 
+void mmc_set_preinit(struct mmc *mmc, int preinit)
+{
+	mmc->preinit = preinit;
+}
+
+static void do_preinit(void)
+{
+	struct mmc *m;
+	struct list_head *entry;
+
+	list_for_each(entry, &mmc_devices) {
+		m = list_entry(entry, struct mmc, link);
+
+		if (m->preinit)
+			mmc_start_init(m);
+	}
+}
+
+
 int mmc_initialize(bd_t *bis)
 {
 	INIT_LIST_HEAD (&mmc_devices);
@@ -1372,5 +1444,6 @@ int mmc_initialize(bd_t *bis)
 
 	print_mmc_devices(',');
 
+	do_preinit();
 	return 0;
 }

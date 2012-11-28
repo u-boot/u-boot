@@ -68,6 +68,7 @@
 #define UNUSABLE_ERR		-17 /* Unusable Card */
 #define COMM_ERR		-18 /* Communications Error */
 #define TIMEOUT			-19
+#define IN_PROGRESS		-20 /* operation is in progress */
 
 #define MMC_CMD_GO_IDLE_STATE		0
 #define MMC_CMD_SEND_OP_COND		1
@@ -270,6 +271,10 @@ struct mmc {
 	int (*getcd)(struct mmc *mmc);
 	int (*getwp)(struct mmc *mmc);
 	uint b_max;
+	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
+	char init_in_progress;	/* 1 if we have done mmc_start_init() */
+	char preinit;		/* start init as early as possible */
+	uint op_cond_response;	/* the response byte from the last op_cond */
 };
 
 int mmc_register(struct mmc *mmc);
@@ -286,6 +291,31 @@ int mmc_switch_part(int dev_num, unsigned int part_num);
 int mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
 void spl_mmc_load(void) __noreturn;
+
+/**
+ * Start device initialization and return immediately; it does not block on
+ * polling OCR (operation condition register) status.  Then you should call
+ * mmc_init, which would block on polling OCR status and complete the device
+ * initializatin.
+ *
+ * @param mmc	Pointer to a MMC device struct
+ * @return 0 on success, IN_PROGRESS on waiting for OCR status, <0 on error.
+ */
+int mmc_start_init(struct mmc *mmc);
+
+/**
+ * Set preinit flag of mmc device.
+ *
+ * This will cause the device to be pre-inited during mmc_initialize(),
+ * which may save boot time if the device is not accessed until later.
+ * Some eMMC devices take 200-300ms to init, but unfortunately they
+ * must be sent a series of commands to even get them to start preparing
+ * for operation.
+ *
+ * @param mmc		Pointer to a MMC device struct
+ * @param preinit	preinit flag value
+ */
+void mmc_set_preinit(struct mmc *mmc, int preinit);
 
 #ifdef CONFIG_GENERIC_MMC
 #define mmc_host_is_spi(mmc)	((mmc)->host_caps & MMC_MODE_SPI)
