@@ -3668,6 +3668,12 @@ Low Level (hardware related) configuration options:
 		If defined, the x86 reset vector code is excluded. You will need
 		to do this when U-Boot is running from Coreboot.
 
+- CONFIG_X86_NO_REAL_MODE
+		If defined, x86 real mode code is omitted. This assumes a
+		32-bit environment where such code is not needed. You will
+		need to do this when U-Boot is running from Coreboot.
+
+
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
 
