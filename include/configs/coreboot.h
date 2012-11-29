@@ -92,6 +92,15 @@
 #define CONFIG_SYS_NS16550_COM2	UART1_BASE
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
+#define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,eserial0\0" \
+					"stdout=vga,eserial0,cbmem\0" \
+					"stderr=vga,eserial0,cbmem\0"
+
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SYS_STDIO_DEREGISTER
+#define CONFIG_CBMEM_CONSOLE
+
 /* max. 1 IDE bus	*/
 #define CONFIG_SYS_IDE_MAXBUS		1
 /* max. 1 drive per IDE bus */
@@ -242,5 +251,8 @@
  * PCI configuration
  */
 #define CONFIG_PCI
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_STD_DEVICES_SETTINGS
 
 #endif	/* __CONFIG_H */
