@@ -40,7 +40,6 @@
 #include <asm/io.h>
 #include <asm/arch/pxa.h>
 
-#include <usbdescriptors.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <usb/lin_gadget_compat.h>
