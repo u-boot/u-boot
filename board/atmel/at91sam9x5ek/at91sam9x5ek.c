@@ -295,6 +295,9 @@ int board_init(void)
 	at91_macb_hw_init();
 #endif
 
+#if defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_EHCI)
+	at91_uhp_hw_init();
+#endif
 #ifdef CONFIG_LCD
 	at91sam9x5ek_lcd_hw_init();
 #endif
