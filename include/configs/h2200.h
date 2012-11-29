@@ -154,4 +154,29 @@
 
 #define CONFIG_BOOTARGS "root=/dev/ram0 ro console=ttyS0,115200n8"
 
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_USB_DEV_PULLUP_GPIO	33
+/* USB VBUS GPIO 3 */
+
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+
+#define CONFIG_BOOTDELAY		2
+#define CONFIG_BOOTCOMMAND		\
+	"setenv downloaded 0 ; while test $downloaded -eq 0 ; do " \
+	"if bootp ; then setenv downloaded 1 ; fi ; done ; " \
+	"source :script ; " \
+	"bootm ; "
+
+#define CONFIG_USB_GADGET_PXA2XX
+#define CONFIG_USB_ETHER
+#define CONFIG_USB_ETH_SUBSET
+
+#define CONFIG_USBNET_DEV_ADDR		"de:ad:be:ef:00:01"
+#define CONFIG_USBNET_HOST_ADDR	"de:ad:be:ef:00:02"
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"stdin=serial\0" \
+	"stdout=serial\0" \
+	"stderr=serial\0"
+
 #endif /* __CONFIG_H */
