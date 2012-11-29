@@ -90,6 +90,7 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_FAT
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -142,9 +143,12 @@
 /* MMC */
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_MMC
-#define CONFIG_CMD_FAT
 #define CONFIG_GENERIC_MMC
 #define CONFIG_GENERIC_ATMEL_MCI
+#endif
+
+/* FAT */
+#ifdef CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
 
