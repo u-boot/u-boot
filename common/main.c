@@ -53,9 +53,7 @@
 #include <linux/ctype.h>
 #include <menu.h>
 
-#if defined(CONFIG_SILENT_CONSOLE) || defined(CONFIG_POST) || defined(CONFIG_CMDLINE_EDITING)
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
