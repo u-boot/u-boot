@@ -91,6 +91,13 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_USB
+
+/*
+ * define CONFIG_USB_EHCI to enable USB Hi-Speed (aka 2.0)
+ * NB: in this case, USB 1.1 devices won't be recognized.
+ */
+
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -157,6 +164,22 @@
 #define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY
+
+/* USB */
+#ifdef CONFIG_CMD_USB
+#ifdef CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_ATMEL
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
+#else
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_SYS_USB_OHCI_CPU_INIT
+#define CONFIG_SYS_USB_OHCI_REGS_BASE		ATMEL_BASE_OHCI
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9x5"
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	3
+#endif
+#define CONFIG_USB_ATMEL
+#define CONFIG_USB_STORAGE
+#endif
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
