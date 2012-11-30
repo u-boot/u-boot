@@ -171,17 +171,6 @@ void mxs_mem_setup_vdda(void)
 		&power_regs->hw_power_vddactrl);
 }
 
-void mxs_mem_setup_vddd(void)
-{
-	struct mxs_power_regs *power_regs =
-		(struct mxs_power_regs *)MXS_POWER_BASE;
-
-	writel((0x1c << POWER_VDDDCTRL_TRG_OFFSET) |
-		(0x7 << POWER_VDDDCTRL_BO_OFFSET_OFFSET) |
-		POWER_VDDDCTRL_LINREG_OFFSET_1STEPS_BELOW,
-		&power_regs->hw_power_vdddctrl);
-}
-
 uint32_t mxs_mem_get_size(void)
 {
 	uint32_t sz, da;
@@ -240,8 +229,6 @@ void mxs_mem_init(void)
 	/* Wait for bit 20 (DRAM init complete) in DRAM_CTL58 */
 	while (!(readl(MXS_DRAM_BASE + 0xe8) & (1 << 20)))
 		;
-
-	mxs_mem_setup_vddd();
 
 	early_delay(10000);
 

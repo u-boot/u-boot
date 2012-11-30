@@ -897,7 +897,7 @@ void mxs_power_init(void)
 	mxs_enable_output_rail_protection();
 
 	mxs_power_set_vddx(&mxs_vddio_cfg, 3300, 3150);
-	mxs_power_set_vddx(&mxs_vddd_cfg, 1350, 1200);
+	mxs_power_set_vddx(&mxs_vddd_cfg, 1500, 1000);
 
 	writel(POWER_CTRL_VDDD_BO_IRQ | POWER_CTRL_VDDA_BO_IRQ |
 		POWER_CTRL_VDDIO_BO_IRQ | POWER_CTRL_VDD5V_DROOP_IRQ |
