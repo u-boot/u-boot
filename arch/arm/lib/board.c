@@ -489,6 +489,16 @@ static int should_load_env(void)
 #endif
 }
 
+#if defined(CONFIG_DISPLAY_BOARDINFO_LATE) && defined(CONFIG_OF_CONTROL)
+static void display_fdt_model(const void *blob)
+{
+	const char *model;
+
+	model = (char *)fdt_getprop(blob, 0, "model", NULL);
+	printf("Model: %s\n", model ? model : "<unknown>");
+}
+#endif
+
 /************************************************************************
  *
  * This is the next part if the initialization sequence: we are now
@@ -611,6 +621,15 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 
 	console_init_r();	/* fully init console as a device */
+
+#ifdef CONFIG_DISPLAY_BOARDINFO_LATE
+# ifdef CONFIG_OF_CONTROL
+	/* Put this here so it appears on the LCD, now it is ready */
+	display_fdt_model(gd->fdt_blob);
+# else
+	checkboard();
+# endif
+#endif
 
 #if defined(CONFIG_ARCH_MISC_INIT)
 	/* miscellaneous arch dependent initialisations */

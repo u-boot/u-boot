@@ -3462,6 +3462,11 @@ use the "saveenv" command to store a valid environment.
 		when U-Boot starts up. The board function checkboard() is called
 		to do this.
 
+- CONFIG_DISPLAY_BOARDINFO_LATE
+		Similar to the previous option, but display this information
+		later, once stdio is running and output goes to the LCD, if
+		present.
+
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
 
