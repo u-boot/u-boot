@@ -232,8 +232,17 @@ int __power_init_board(void)
 int power_init_board(void)
 	__attribute__((weak, alias("__power_init_board")));
 
+	/* Record the board_init_f() bootstage (after arch_cpu_init()) */
+static int mark_bootstage(void)
+{
+	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
+
+	return 0;
+}
+
 init_fnc_t *init_sequence[] = {
 	arch_cpu_init,		/* basic arch cpu dependent setup */
+	mark_bootstage,
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_check_fdt,
 #endif
@@ -276,8 +285,6 @@ void board_init_f(ulong bootflag)
 #endif
 	void *new_fdt = NULL;
 	size_t fdt_size = 0;
-
-	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
 
 	memset((void *)gd, 0, sizeof(gd_t));
 
