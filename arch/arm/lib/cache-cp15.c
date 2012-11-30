@@ -153,8 +153,11 @@ static void cache_disable(uint32_t cache_bit)
 			return;
 		/* if disabling data cache, disable mmu too */
 		cache_bit |= CR_M;
-		flush_dcache_all();
 	}
+	reg = get_cr();
+	cp_delay();
+	if (cache_bit == (CR_C | CR_M))
+		flush_dcache_all();
 	set_cr(reg & ~cache_bit);
 }
 #endif
