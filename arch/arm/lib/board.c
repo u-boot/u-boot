@@ -40,6 +40,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <environment.h>
 #include <malloc.h>
 #include <stdio_dev.h>
 #include <version.h>
@@ -467,7 +468,28 @@ static char *failed = "*** failed ***\n";
 #endif
 
 /*
- ************************************************************************
+ * Tell if it's OK to load the environment early in boot.
+ *
+ * If CONFIG_OF_CONFIG is defined, we'll check with the FDT to see
+ * if this is OK (defaulting to saying it's not OK).
+ *
+ * NOTE: Loading the environment early can be a bad idea if security is
+ *       important, since no verification is done on the environment.
+ *
+ * @return 0 if environment should not be loaded, !=0 if it is ok to load
+ */
+static int should_load_env(void)
+{
+#ifdef CONFIG_OF_CONTROL
+	return fdtdec_get_config_int(gd->fdt_blob, "load-environment", 0);
+#elif defined CONFIG_DELAY_ENVIRONMENT
+	return 0;
+#else
+	return 1;
+#endif
+}
+
+/************************************************************************
  *
  * This is the next part if the initialization sequence: we are now
  * running from RAM and have a "normal" C environment, i. e. global
@@ -570,7 +592,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 
 	/* initialize environment */
-	env_relocate();
+	if (should_load_env())
+		env_relocate();
+	else
+		set_default_env(NULL);
 
 #if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)
 	arm_pci_init();

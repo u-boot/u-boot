@@ -2378,6 +2378,15 @@ CBFS (Coreboot Filesystem) support
 		run-time determined information about the hardware to the
 		environment.  These will be named board_name, board_rev.
 
+		CONFIG_DELAY_ENVIRONMENT
+
+		Normally the environment is loaded when the board is
+		intialised so that it is available to U-Boot. This inhibits
+		that so that the environment is not available until
+		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
+		this is instead controlled by the value of
+		/config/load-environment.
+
 - DataFlash Support:
 		CONFIG_HAS_DATAFLASH
 
