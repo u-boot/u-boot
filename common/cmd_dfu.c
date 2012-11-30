@@ -50,7 +50,7 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (ret)
 		return CMD_RET_FAILURE;
 
-	if (strcmp(argv[3], "list") == 0) {
+	if (argc > 3 && strcmp(argv[3], "list") == 0) {
 		dfu_show_entities();
 		goto done;
 	}
