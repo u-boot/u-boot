@@ -55,7 +55,10 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		goto done;
 	}
 
+#ifdef CONFIG_TRATS
 	board_usb_init();
+#endif
+
 	g_dnl_register(s);
 	while (1) {
 		if (ctrlc())
