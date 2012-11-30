@@ -40,6 +40,7 @@ void mxs_i2c_reset(void)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	int ret;
+	int speed = i2c_get_bus_speed();
 
 	ret = mxs_reset_block(&i2c_regs->hw_i2c_ctrl0_reg);
 	if (ret) {
@@ -53,6 +54,8 @@ void mxs_i2c_reset(void)
 		&i2c_regs->hw_i2c_ctrl1_clr);
 
 	writel(I2C_QUEUECTRL_PIO_QUEUE_MODE, &i2c_regs->hw_i2c_queuectrl_set);
+
+	i2c_set_bus_speed(speed);
 }
 
 void mxs_i2c_setup_read(uint8_t chip, int len)
