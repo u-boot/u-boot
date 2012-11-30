@@ -233,12 +233,11 @@ int power_init_board(void)
 
 init_fnc_t *init_sequence[] = {
 	arch_cpu_init,		/* basic arch cpu dependent setup */
-
-#if defined(CONFIG_BOARD_EARLY_INIT_F)
-	board_early_init_f,
-#endif
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_check_fdt,
+#endif
+#if defined(CONFIG_BOARD_EARLY_INIT_F)
+	board_early_init_f,
 #endif
 	timer_init,		/* initialize timer */
 #ifdef CONFIG_BOARD_POSTCLK_INIT
