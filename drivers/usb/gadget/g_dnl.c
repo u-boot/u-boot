@@ -69,6 +69,7 @@ static struct usb_device_descriptor device_desc = {
 static struct usb_string g_dnl_string_defs[] = {
 	{ 0, manufacturer, },
 	{ 1, product, },
+	{  }		/* end of list */
 };
 
 static struct usb_gadget_strings g_dnl_string_tab = {
