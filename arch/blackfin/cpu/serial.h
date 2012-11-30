@@ -78,18 +78,30 @@ static inline void serial_early_puts(const char *s)
 #else
 
 .macro serial_early_init
-#ifdef CONFIG_DEBUG_EARLY_SERIAL
+#if defined(CONFIG_DEBUG_EARLY_SERIAL) && defined(BFIN_BOOT_BYPASS)
 	call _serial_initialize;
 #endif
 .endm
 
 .macro serial_early_set_baud
-#ifdef CONFIG_DEBUG_EARLY_SERIAL
+#if defined(CONFIG_DEBUG_EARLY_SERIAL) && defined(BFIN_BOOT_BYPASS)
 	R0.L = LO(CONFIG_BAUDRATE);
 	R0.H = HI(CONFIG_BAUDRATE);
 	call _serial_set_baud;
 #endif
 .endm
+
+#if CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS
+#define update_serial_early_string_addr \
+	R1.L = _start; \
+	R1.H = _start; \
+	R0 = R0 - R1; \
+	R1.L = 0; \
+	R1.H = 0x2000; \
+	R0 = R0 + R1;
+#else
+#define update_serial_early_string_addr
+#endif
 
 /* Since we embed the string right into our .text section, we need
  * to find its address.  We do this by getting our PC and adding 2
@@ -108,6 +120,7 @@ static inline void serial_early_puts(const char *s)
 	.previous; \
 	R0.L = 7b; \
 	R0.H = 7b; \
+	update_serial_early_string_addr \
 	call _serial_puts;
 #else
 # define serial_early_puts(str)

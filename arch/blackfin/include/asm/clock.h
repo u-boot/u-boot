@@ -10,7 +10,7 @@
 #include <asm/blackfin.h>
 #ifdef PLL_CTL
 #include <asm/mach-common/bits/pll.h>
-# define pll_is_bypassed() (bfin_read_PLL_STAT() & DF)
+# define pll_is_bypassed() (bfin_read_PLL_CTL() & BYPASS)
 #else
 #include <asm/mach-common/bits/cgu.h>
 # define pll_is_bypassed() (bfin_read_CGU_STAT() & PLLBP)
@@ -55,7 +55,11 @@ static inline uint32_t early_get_uart_clk(void)
 	if (!pll_is_bypassed()) {
 		div = bfin_read_PLL_DIV();
 		ssel = (div & SSEL) >> SSEL_P;
+#if CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS
+		sclk = vco/ssel;
+#else
 		sclk = early_division(vco, ssel);
+#endif
 	}
 	uclk = sclk;
 #ifdef CGU_DIV

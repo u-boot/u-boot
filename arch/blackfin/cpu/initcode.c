@@ -193,10 +193,12 @@ static inline void serial_init(void)
 	}
 #endif
 
+#if CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS
 	if (BFIN_DEBUG_EARLY_SERIAL) {
 		serial_early_init(uart_base);
 		serial_early_set_baud(uart_base, CONFIG_BAUDRATE);
 	}
+#endif
 }
 
 __attribute__((always_inline))
