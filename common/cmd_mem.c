@@ -33,6 +33,9 @@
 #include <dataflash.h>
 #endif
 #include <watchdog.h>
+#include <linux/compiler.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 
@@ -1203,6 +1206,22 @@ U_BOOT_CMD(
 
 #endif
 
+#ifdef CONFIG_CMD_MEMINFO
+__weak void board_show_dram(ulong size)
+{
+	puts("DRAM:  ");
+	print_size(size, "\n");
+}
+
+static int do_mem_info(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
+{
+	board_show_dram(gd->ram_size);
+
+	return 0;
+}
+#endif
+
 U_BOOT_CMD(
 	base,	2,	1,	do_mem_base,
 	"print or set address offset",
@@ -1243,3 +1262,11 @@ U_BOOT_CMD(
 	"[.b, .w, .l] address value delay(ms)"
 );
 #endif /* CONFIG_MX_CYCLIC */
+
+#ifdef CONFIG_CMD_MEMINFO
+U_BOOT_CMD(
+	meminfo,	3,	1,	do_mem_info,
+	"display memory information",
+	""
+);
+#endif

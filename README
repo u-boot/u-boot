@@ -849,6 +849,7 @@ The following options need to be configured:
 		CONFIG_CMD_LOADS	  loads
 		CONFIG_CMD_MD5SUM	  print md5 message digest
 					  (requires CONFIG_CMD_MEMORY and CONFIG_MD5)
+		CONFIG_CMD_MEMINFO	* Display detailed memory information
 		CONFIG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
 					  loop, loopw, mtest
 		CONFIG_CMD_MISC		  Misc functions like sleep etc
