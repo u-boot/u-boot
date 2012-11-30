@@ -87,7 +87,7 @@ void __mxs_adjust_memory_params(uint32_t *dram_vals)
 void mxs_adjust_memory_params(uint32_t *dram_vals)
 	__attribute__((weak, alias("__mxs_adjust_memory_params")));
 
-void init_mx28_200mhz_ddr2(void)
+static void init_mx28_200mhz_ddr2(void)
 {
 	int i;
 
@@ -97,7 +97,7 @@ void init_mx28_200mhz_ddr2(void)
 		writel(mx28_dram_vals[i], MXS_DRAM_BASE + (4 * i));
 }
 
-void mxs_mem_init_clock(void)
+static void mxs_mem_init_clock(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -128,7 +128,7 @@ void mxs_mem_init_clock(void)
 	early_delay(10000);
 }
 
-void mxs_mem_setup_cpu_and_hbus(void)
+static void mxs_mem_setup_cpu_and_hbus(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -160,7 +160,7 @@ void mxs_mem_setup_cpu_and_hbus(void)
 	early_delay(15000);
 }
 
-void mxs_mem_setup_vdda(void)
+static void mxs_mem_setup_vdda(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;

@@ -50,7 +50,7 @@ void early_delay(int delay)
 }
 
 #define	MUX_CONFIG_BOOTMODE_PAD	(MXS_PAD_3V3 | MXS_PAD_4MA | MXS_PAD_NOPULL)
-const iomux_cfg_t iomux_boot[] = {
+static const iomux_cfg_t iomux_boot[] = {
 	MX28_PAD_LCD_D00__GPIO_1_0 | MUX_CONFIG_BOOTMODE_PAD,
 	MX28_PAD_LCD_D01__GPIO_1_1 | MUX_CONFIG_BOOTMODE_PAD,
 	MX28_PAD_LCD_D02__GPIO_1_2 | MUX_CONFIG_BOOTMODE_PAD,
@@ -59,7 +59,7 @@ const iomux_cfg_t iomux_boot[] = {
 	MX28_PAD_LCD_D05__GPIO_1_5 | MUX_CONFIG_BOOTMODE_PAD,
 };
 
-uint8_t mxs_get_bootmode_index(void)
+static uint8_t mxs_get_bootmode_index(void)
 {
 	uint8_t bootmode = 0;
 	int i;
