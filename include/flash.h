@@ -44,6 +44,7 @@ typedef struct {
 	ulong	buffer_write_tout;	/* maximum buffer write timeout		*/
 	ushort	vendor;			/* the primary vendor id		*/
 	ushort	cmd_reset;		/* vendor specific reset command	*/
+	uchar   cmd_erase_sector;	/* vendor specific erase sect. command	*/
 	ushort	interface;		/* used for x8/x16 adjustments		*/
 	ushort	legacy_unlock;		/* support Intel legacy (un)locking	*/
 	ushort	manufacturer_id;	/* manufacturer id			*/

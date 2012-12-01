@@ -1128,7 +1128,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 						AMD_CMD_ERASE_START);
 				flash_unlock_seq (info, sect);
 				flash_write_cmd (info, sect, 0,
-						 AMD_CMD_ERASE_SECTOR);
+						 info->cmd_erase_sector);
 				break;
 #ifdef CONFIG_FLASH_CFI_LEGACY
 			case CFI_CMDSET_AMD_LEGACY:
@@ -1733,6 +1733,7 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 {
 	info->cmd_reset = AMD_CMD_RESET;
+	info->cmd_erase_sector = AMD_CMD_ERASE_SECTOR;
 
 	cmdset_amd_read_jedec_ids(info);
 	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
@@ -2003,6 +2004,25 @@ static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
 	}
 }
 
+static void flash_fixup_sst(flash_info_t *info, struct cfi_qry *qry)
+{
+	/*
+	 * SST, for many recent nor parallel flashes, says they are
+	 * CFI-conformant. This is not true, since qry struct.
+	 * reports a std. AMD command set (0x0002), while SST allows to
+	 * erase two different sector sizes for the same memory.
+	 * 64KB sector (SST call it block)  needs 0x30 to be erased.
+	 * 4KB  sector (SST call it sector) needs 0x50 to be erased.
+	 * Since CFI query detect the 4KB number of sectors, users expects
+	 * a sector granularity of 4KB, and it is here set.
+	 */
+	if (info->device_id == 0x5D23 || /* SST39VF3201B */
+	    info->device_id == 0x5C23) { /* SST39VF3202B */
+		/* set sector granularity to 4KB */
+		info->cmd_erase_sector=0x50;
+	}
+}
+
 /*
  * The following code cannot be run from FLASH!
  *
@@ -2080,6 +2100,9 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 			break;
 		case 0x0020:
 			flash_fixup_stm(info, &qry);
+			break;
+		case 0x00bf: /* SST */
+			flash_fixup_sst(info, &qry);
 			break;
 		}
 
