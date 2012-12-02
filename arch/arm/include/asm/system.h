@@ -61,6 +61,12 @@
 
 #define nop() __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t");
 
+#ifdef __ARM_ARCH_7A__
+#define wfi() __asm__ __volatile__ ("wfi" : : : "memory")
+#else
+#define wfi()
+#endif
+
 static inline unsigned int get_cr(void)
 {
 	unsigned int val;
