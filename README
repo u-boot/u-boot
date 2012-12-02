@@ -2200,6 +2200,14 @@ CBFS (Coreboot Filesystem) support
 			HERMES, IP860, RPXlite, LWMON,
 			FLAGADM, TQM8260
 
+- Access to physical memory region (> 4GB)
+		Some basic support is provided for operations on memory not
+		normally accessible to U-Boot - e.g. some architectures
+		support access to more than 4GB of memory on 32-bit
+		machines using physical address extension or similar.
+		Define CONFIG_PHYSMEM to access this basic support, which
+		currently only supports clearing the memory.
+
 - Error Recovery:
 		CONFIG_PANIC_HANG
 
