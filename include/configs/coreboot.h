@@ -138,6 +138,9 @@
 #undef CONFIG_VIDEO
 #undef CONFIG_CFB_CONSOLE
 
+/* x86 GPIOs are accessed through a PCI device */
+#define CONFIG_INTEL_ICH6_GPIO
+
 /*-----------------------------------------------------------------------
  * Command line configuration.
  */
@@ -150,6 +153,7 @@
 #define CONFIG_CMD_ECHO
 #undef CONFIG_CMD_FLASH
 #define CONFIG_CMD_FPGA
+#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_IMI
 #undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_IRQ
