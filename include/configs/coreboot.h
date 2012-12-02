@@ -39,6 +39,7 @@
 #define CONFIG_LAST_STAGE_INIT
 #define CONFIG_X86_NO_RESET_VECTOR
 #define CONFIG_SYS_VSNPRINTF
+#define CONFIG_ZBOOT_32
 
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
@@ -174,6 +175,8 @@
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
+
+#define CONFIG_CMD_ZBOOT
 
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 console=ttyS0,9600"
