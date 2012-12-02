@@ -28,6 +28,8 @@
  */
 
 #include <common.h>
+#include <asm/cache.h>
+#include <asm/control_regs.h>
 #include <asm/interrupt.h>
 #include <asm/io.h>
 #include <asm/processor-flags.h>
@@ -40,72 +42,6 @@
 	"irq_"#x":\n" \
 	"pushl $"#x"\n" \
 	"jmp irq_common_entry\n"
-
-/*
- * Volatile isn't enough to prevent the compiler from reordering the
- * read/write functions for the control registers and messing everything up.
- * A memory clobber would solve the problem, but would prevent reordering of
- * all loads stores around it, which can hurt performance. Solution is to
- * use a variable and mimic reads and writes to it to enforce serialisation
- */
-static unsigned long __force_order;
-
-static inline unsigned long read_cr0(void)
-{
-	unsigned long val;
-	asm volatile("mov %%cr0,%0\n\t" : "=r" (val), "=m" (__force_order));
-	return val;
-}
-
-static inline unsigned long read_cr2(void)
-{
-	unsigned long val;
-	asm volatile("mov %%cr2,%0\n\t" : "=r" (val), "=m" (__force_order));
-	return val;
-}
-
-static inline unsigned long read_cr3(void)
-{
-	unsigned long val;
-	asm volatile("mov %%cr3,%0\n\t" : "=r" (val), "=m" (__force_order));
-	return val;
-}
-
-static inline unsigned long read_cr4(void)
-{
-	unsigned long val;
-	asm volatile("mov %%cr4,%0\n\t" : "=r" (val), "=m" (__force_order));
-	return val;
-}
-
-static inline unsigned long get_debugreg(int regno)
-{
-	unsigned long val = 0;	/* Damn you, gcc! */
-
-	switch (regno) {
-	case 0:
-		asm("mov %%db0, %0" : "=r" (val));
-		break;
-	case 1:
-		asm("mov %%db1, %0" : "=r" (val));
-		break;
-	case 2:
-		asm("mov %%db2, %0" : "=r" (val));
-		break;
-	case 3:
-		asm("mov %%db3, %0" : "=r" (val));
-		break;
-	case 6:
-		asm("mov %%db6, %0" : "=r" (val));
-		break;
-	case 7:
-		asm("mov %%db7, %0" : "=r" (val));
-		break;
-	default:
-		val = 0;
-	}
-	return val;
-}
 
 void dump_regs(struct irq_regs *regs)
 {
