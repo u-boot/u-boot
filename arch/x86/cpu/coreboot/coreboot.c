@@ -28,6 +28,7 @@
 #include <netdev.h>
 #include <asm/msr.h>
 #include <asm/cache.h>
+#include <asm/io.h>
 #include <asm/arch-coreboot/tables.h>
 #include <asm/arch-coreboot/sysinfo.h>
 #include <asm/arch/timestamp.h>
@@ -68,6 +69,7 @@ int board_early_init_r(void)
 
 void show_boot_progress(int val)
 {
+	outb(val, 0x80);
 }
 
 
