@@ -432,6 +432,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 	mmc->set_ios = mxsmmc_set_ios;
 	mmc->init = mxsmmc_init;
 	mmc->getcd = NULL;
+	mmc->getwp = NULL;
 	mmc->priv = priv;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;

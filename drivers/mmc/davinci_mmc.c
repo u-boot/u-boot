@@ -388,6 +388,7 @@ int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
 	mmc->set_ios = dmmc_set_ios;
 	mmc->init = dmmc_init;
 	mmc->getcd = NULL;
+	mmc->getwp = NULL;
 
 	mmc->f_min = 200000;
 	mmc->f_max = 25000000;

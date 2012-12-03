@@ -552,6 +552,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	mmc->set_ios = esdhc_set_ios;
 	mmc->init = esdhc_init;
 	mmc->getcd = esdhc_getcd;
+	mmc->getwp = NULL;
 
 	voltage_caps = 0;
 	caps = regs->hostcapblt;

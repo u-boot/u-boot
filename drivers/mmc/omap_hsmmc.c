@@ -590,6 +590,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio)
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_init_setup;
 	mmc->getcd = omap_mmc_getcd;
+	mmc->getwp = NULL;
 	mmc->priv = priv_data;
 
 	switch (dev_index) {

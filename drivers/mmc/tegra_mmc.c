@@ -563,6 +563,7 @@ int tegra_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_core_init;
 	mmc->getcd = tegra_mmc_getcd;
+	mmc->getwp = NULL;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	mmc->host_caps = 0;
