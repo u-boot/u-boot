@@ -384,8 +384,6 @@ def GetDefaultUserEmail():
 
 def Setup():
     """Set up git utils, by reading the alias files."""
-    settings.Setup('')
-
     # Check for a git alias file also
     alias_fname = GetAliasFile()
     if alias_fname:

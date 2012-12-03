@@ -88,13 +88,43 @@ def CreatePatmanConfigFile(config_fname):
     print >>f, "[alias]\nme: %s <%s>" % (name, email)
     f.close();
 
-def Setup(config_fname=''):
+def _UpdateDefaults(parser, config):
+    """Update the given OptionParser defaults based on config.
+
+    We'll walk through all of the settings from the parser
+    For each setting we'll look for a default in the option parser.
+    If it's found we'll update the option parser default.
+
+    The idea here is that the .patman file should be able to update
+    defaults but that command line flags should still have the final
+    say.
+
+    Args:
+        parser: An instance of an OptionParser whose defaults will be
+            updated.
+        config: An instance of SafeConfigParser that we will query
+            for settings.
+    """
+    defaults = parser.get_default_values()
+    for name, val in config.items('settings'):
+        if hasattr(defaults, name):
+            default_val = getattr(defaults, name)
+            if isinstance(default_val, bool):
+                val = config.getboolean('settings', name)
+            elif isinstance(default_val, int):
+                val = config.getint('settings', name)
+            parser.set_default(name, val)
+        else:
+            print "WARNING: Unknown setting %s" % name
+
+def Setup(parser, config_fname=''):
     """Set up the settings module by reading config files.
 
     Args:
+        parser:         The parser to update
         config_fname:   Config filename to read ('' for default)
     """
-    settings = ConfigParser.SafeConfigParser()
+    config = ConfigParser.SafeConfigParser()
     if config_fname == '':
         config_fname = '%s/.patman' % os.getenv('HOME')
 
@@ -102,11 +132,12 @@ def Setup(config_fname=''):
         print "No config file found ~/.patman\nCreating one...\n"
         CreatePatmanConfigFile(config_fname)
 
-    settings.read(config_fname)
+    config.read(config_fname)
 
-    for name, value in settings.items('alias'):
+    for name, value in config.items('alias'):
         alias[name] = value.split(',')
 
+    _UpdateDefaults(parser, config)
 
 # These are the aliases we understand, indexed by alias. Each member is a list.
 alias = {}

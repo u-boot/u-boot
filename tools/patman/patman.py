@@ -34,6 +34,7 @@ import checkpatch
 import command
 import gitutil
 import patchstream
+import settings
 import terminal
 import test
 
@@ -64,6 +65,8 @@ parser.usage = """patman [options]
 Create patches from commits in a branch, check them and email them as
 specified by tags you place in the commits. Use -n to """
 
+
+settings.Setup(parser, '')
 (options, args) = parser.parse_args()
 
 # Run our meagre tests
