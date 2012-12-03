@@ -44,7 +44,7 @@
 static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size);
 static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 			unsigned int siz);
-static struct mmc hsmmc_dev[2];
+static struct mmc hsmmc_dev[3];
 
 #if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
 static void omap4_vmmc_pbias_config(struct mmc *mmc)
