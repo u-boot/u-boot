@@ -32,7 +32,6 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-SOBJS-y	+= coreboot_start16.o
 SOBJS-y	+= coreboot_start.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)

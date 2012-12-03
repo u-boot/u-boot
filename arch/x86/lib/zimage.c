@@ -171,7 +171,7 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 	else
 		*load_address = (void *)ZIMAGE_LOAD_ADDR;
 
-#if defined CONFIG_ZBOOT_32
+#if (defined CONFIG_ZBOOT_32 || defined CONFIG_X86_NO_REAL_MODE)
 	printf("Building boot_params at 0x%8.8lx\n", (ulong)setup_base);
 	memset(setup_base, 0, sizeof(*setup_base));
 	setup_base->hdr = params->hdr;
@@ -237,7 +237,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	struct setup_header *hdr = &setup_base->hdr;
 	int bootproto = get_boot_protocol(hdr);
 
-#if defined CONFIG_ZBOOT_32
+#if (defined CONFIG_ZBOOT_32 || defined CONFIG_X86_NO_REAL_MODE)
 	setup_base->e820_entries = install_e820_map(
 		ARRAY_SIZE(setup_base->e820_map), setup_base->e820_map);
 #endif

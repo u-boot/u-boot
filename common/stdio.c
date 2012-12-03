@@ -237,6 +237,8 @@ int stdio_init (void)
 #ifdef CONFIG_JTAG_CONSOLE
 	drv_jtag_console_init ();
 #endif
-
+#ifdef CONFIG_CBMEM_CONSOLE
+	cbmemc_init();
+#endif
 	return (0);
 }

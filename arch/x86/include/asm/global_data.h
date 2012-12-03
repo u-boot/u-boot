@@ -58,6 +58,7 @@ struct global_data {
 	unsigned long	gdt_addr;	/* Location of GDT */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot */
+	const void	*fdt_blob;	/* Our device tree, NULL if none */
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
 };
