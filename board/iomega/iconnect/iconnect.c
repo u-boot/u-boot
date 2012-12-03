@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2009-2012
  * Wojciech Dubowik <wojciech.dubowik@neratec.com>
- * Luka Perkov <uboot@lukaperkov.net>
+ * Luka Perkov <luka@openwrt.org>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
