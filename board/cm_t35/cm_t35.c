@@ -33,6 +33,7 @@
 #include <net.h>
 #include <i2c.h>
 #include <usb.h>
+#include <mmc.h>
 #include <twl4030.h>
 #include <linux/compiler.h>
 
@@ -377,6 +378,16 @@ void set_muxconf_regs(void)
 }
 
 #ifdef CONFIG_GENERIC_MMC
+int board_mmc_getcd(struct mmc *mmc)
+{
+	u8 val;
+
+	if (twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, &val, TWL4030_BASEADD_GPIO))
+		return -1;
+
+	return !(val & 1);
+}
+
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1);
