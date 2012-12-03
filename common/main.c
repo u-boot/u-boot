@@ -1452,7 +1452,7 @@ static int builtin_run_command(const char *cmd, int flag)
 			continue;
 		}
 
-		if (cmd_process(flag, argc, argv, &repeatable))
+		if (cmd_process(flag, argc, argv, &repeatable, NULL))
 			rc = -1;
 
 		/* Did the user stop this? */
