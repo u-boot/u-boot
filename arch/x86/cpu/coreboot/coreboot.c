@@ -94,6 +94,8 @@ void setup_pcat_compatibility()
 {
 }
 
+#define MTRR_TYPE_WP          5
+#define MTRRcap_MSR           0xfe
 #define MTRRphysBase_MSR(reg) (0x200 + 2 * (reg))
 #define MTRRphysMask_MSR(reg) (0x200 + 2 * (reg) + 1)
 
@@ -101,11 +103,20 @@ int board_final_cleanup(void)
 {
 	/* Un-cache the ROM so the kernel has one
 	 * more MTRR available.
+	 *
+	 * Coreboot should have assigned this to the
+	 * top available variable MTRR.
 	 */
-	disable_caches();
-	wrmsrl(MTRRphysBase_MSR(7), 0);
-	wrmsrl(MTRRphysMask_MSR(7), 0);
-	enable_caches();
+	u8 top_mtrr = (native_read_msr(MTRRcap_MSR) & 0xff) - 1;
+	u8 top_type = native_read_msr(MTRRphysBase_MSR(top_mtrr)) & 0xff;
+
+	/* Make sure this MTRR is the correct Write-Protected type */
+	if (top_type == MTRR_TYPE_WP) {
+		disable_caches();
+		wrmsrl(MTRRphysBase_MSR(top_mtrr), 0);
+		wrmsrl(MTRRphysMask_MSR(top_mtrr), 0);
+		enable_caches();
+	}
 
 	return 0;
 }
