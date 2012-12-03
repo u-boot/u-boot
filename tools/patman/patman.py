@@ -140,14 +140,16 @@ else:
             options.count + options.start):
         ok = False
 
+    cc_file = series.MakeCcFile(options.process_tags)
+
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''
     if ok or options.ignore_errors:
-        cc_file = series.MakeCcFile(options.process_tags)
         cmd = gitutil.EmailPatches(series, cover_fname, args,
                 options.dry_run, cc_file)
-        os.remove(cc_file)
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
         series.ShowActions(args, cmd, options.process_tags)
+
+    os.remove(cc_file)

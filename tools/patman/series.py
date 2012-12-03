@@ -46,6 +46,11 @@ class Series(dict):
         self.notes = []
         self.changes = {}
 
+        # Written in MakeCcFile()
+        #  key: name of patch file
+        #  value: list of email addresses
+        self._generated_cc = {}
+
     # These make us more like a dictionary
     def __setattr__(self, name, value):
         self[name] = value
@@ -109,10 +114,7 @@ class Series(dict):
         for upto in range(len(args)):
             commit = self.commits[upto]
             print col.Color(col.GREEN, '   %s' % args[upto])
-            cc_list = []
-            if process_tags:
-                cc_list += gitutil.BuildEmailList(commit.tags)
-            cc_list += gitutil.BuildEmailList(commit.cc_list)
+            cc_list = list(self._generated_cc[commit.patch])
 
             # Skip items in To list
             if 'to' in self:
@@ -202,6 +204,8 @@ class Series(dict):
     def MakeCcFile(self, process_tags):
         """Make a cc file for us to use for per-commit Cc automation
 
+        Also stores in self._generated_cc to make ShowActions() faster.
+
         Args:
             process_tags: Process tags as if they were aliases
         Return:
@@ -216,6 +220,7 @@ class Series(dict):
                 list += gitutil.BuildEmailList(commit.tags)
             list += gitutil.BuildEmailList(commit.cc_list)
             print >>fd, commit.patch, ', '.join(list)
+            self._generated_cc[commit.patch] = list
 
         fd.close()
         return fname
