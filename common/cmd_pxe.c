@@ -672,6 +672,7 @@ enum token_type {
 	T_PROMPT,
 	T_INCLUDE,
 	T_FDT,
+	T_ONTIMEOUT,
 	T_INVALID
 };
 
@@ -700,6 +701,7 @@ static const struct token keywords[] = {
 	{"initrd", T_INITRD},
 	{"include", T_INCLUDE},
 	{"fdt", T_FDT},
+	{"ontimeout", T_ONTIMEOUT,},
 	{NULL, T_INVALID}
 };
 
@@ -997,10 +999,8 @@ static int parse_label_menu(char **c, struct pxe_menu *cfg,
 
 	switch (t.type) {
 	case T_DEFAULT:
-		if (cfg->default_label)
-			free(cfg->default_label);
-
-		cfg->default_label = strdup(label->name);
+		if (!cfg->default_label)
+			cfg->default_label = strdup(label->name);
 
 		if (!cfg->default_label)
 			return -ENOMEM;
@@ -1159,6 +1159,7 @@ static int parse_pxefile_top(char *p, struct pxe_menu *cfg, int nest_level)
 			break;
 
 		case T_DEFAULT:
+		case T_ONTIMEOUT:
 			err = parse_sliteral(&p, &label_name);
 
 			if (label_name) {
@@ -1280,7 +1281,7 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 			return NULL;
 		}
 		if (cfg->default_label &&
-			(strcmp(label->name, cfg->default_label) == 0))
+		    (strcmp(label->name, cfg->default_label) == 0))
 			default_num = label->num;
 
 	}
