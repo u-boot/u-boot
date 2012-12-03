@@ -1155,6 +1155,7 @@ static int parse_pxefile_top(char *p, struct pxe_menu *cfg, int nest_level)
 		err = 0;
 		switch (t.type) {
 		case T_MENU:
+			cfg->prompt = 1;
 			err = parse_menu(&p, cfg, b, nest_level);
 			break;
 
@@ -1184,7 +1185,7 @@ static int parse_pxefile_top(char *p, struct pxe_menu *cfg, int nest_level)
 			break;
 
 		case T_PROMPT:
-			err = parse_integer(&p, &cfg->prompt);
+			eol_or_eof(&p);
 			break;
 
 		case T_EOL:
