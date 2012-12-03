@@ -1707,7 +1707,7 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bootm_headers_t	images;
 
