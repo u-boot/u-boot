@@ -101,6 +101,49 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#define CPLD_LANE_A_SEL	0x1
+#define CPLD_LANE_G_SEL	0x2
+#define CPLD_LANE_C_SEL	0x4
+#define CPLD_LANE_D_SEL	0x8
+
+void board_config_lanes_mux(void)
+{
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	int srds_prtcl = (in_be32(&gur->rcwsr[4]) &
+				FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
+
+	u8 mux = 0;
+	switch (srds_prtcl) {
+	case 0x2:
+	case 0x5:
+	case 0x9:
+	case 0xa:
+	case 0xf:
+		break;
+	case 0x8:
+		mux |= CPLD_LANE_C_SEL | CPLD_LANE_D_SEL;
+		break;
+	case 0x14:
+		mux |= CPLD_LANE_A_SEL;
+		break;
+	case 0x17:
+		mux |= CPLD_LANE_G_SEL;
+		break;
+	case 0x16:
+	case 0x19:
+	case 0x1a:
+		mux |= CPLD_LANE_G_SEL | CPLD_LANE_C_SEL | CPLD_LANE_D_SEL;
+		break;
+	case 0x1c:
+		mux |= CPLD_LANE_G_SEL | CPLD_LANE_A_SEL;
+		break;
+	default:
+		printf("Fman:Unsupported SerDes Protocol 0x%02x\n", srds_prtcl);
+		break;
+	}
+	CPLD_WRITE(serdes_mux, mux);
+}
+
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
@@ -124,6 +167,7 @@ int board_early_init_r(void)
 
 	set_liodns();
 	setup_portals();
+	board_config_lanes_mux();
 
 	return 0;
 }
