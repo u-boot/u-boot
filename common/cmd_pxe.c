@@ -452,6 +452,7 @@ struct pxe_label {
 	char *append;
 	char *initrd;
 	char *fdt;
+	int ipappend;
 	int attempted;
 	int localboot;
 	int localboot_val;
@@ -585,7 +586,11 @@ static int label_boot(struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
 	char initrd_str[22];
+	char mac_str[29] = "";
+	char ip_str[68] = "";
+	char *bootargs;
 	int bootm_argc = 3;
+	int len = 0;
 
 	label_print(label);
 
@@ -624,9 +629,39 @@ static int label_boot(struct pxe_label *label)
 		return 1;
 	}
 
-	if (label->append) {
-		setenv("bootargs", label->append);
-		printf("append: %s\n", label->append);
+	if (label->ipappend & 0x1) {
+		sprintf(ip_str, " ip=%s:%s:%s:%s",
+			getenv("ipaddr"), getenv("serverip"),
+			getenv("gatewayip"), getenv("netmask"));
+		len += strlen(ip_str);
+	}
+
+	if (label->ipappend & 0x2) {
+		int err;
+		strcpy(mac_str, " BOOTIF=");
+		err = format_mac_pxe(mac_str + 8, sizeof(mac_str) - 8);
+		if (err < 0)
+			mac_str[0] = '\0';
+		len += strlen(mac_str);
+	}
+
+	if (label->append)
+		len += strlen(label->append);
+
+	if (len) {
+		bootargs = malloc(len + 1);
+		if (!bootargs)
+			return 1;
+		bootargs[0] = '\0';
+		if (label->append)
+			strcpy(bootargs, label->append);
+		strcat(bootargs, ip_str);
+		strcat(bootargs, mac_str);
+
+		setenv("bootargs", bootargs);
+		printf("append: %s\n", bootargs);
+
+		free(bootargs);
 	}
 
 	bootm_argv[1] = getenv("kernel_addr_r");
@@ -689,6 +724,7 @@ enum token_type {
 	T_INCLUDE,
 	T_FDT,
 	T_ONTIMEOUT,
+	T_IPAPPEND,
 	T_INVALID
 };
 
@@ -718,6 +754,7 @@ static const struct token keywords[] = {
 	{"include", T_INCLUDE},
 	{"fdt", T_FDT},
 	{"ontimeout", T_ONTIMEOUT,},
+	{"ipappend", T_IPAPPEND,},
 	{NULL, T_INVALID}
 };
 
@@ -1107,6 +1144,10 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 		case T_LOCALBOOT:
 			label->localboot = 1;
 			err = parse_integer(c, &label->localboot_val);
+			break;
+
+		case T_IPAPPEND:
+			err = parse_integer(c, &label->ipappend);
 			break;
 
 		case T_EOL:
