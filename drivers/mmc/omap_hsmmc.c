@@ -30,6 +30,7 @@
 #include <twl4030.h>
 #include <twl6030.h>
 #include <twl6035.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
@@ -40,6 +41,7 @@
 
 struct omap_hsmmc_data {
 	struct hsmmc *base_addr;
+	int cd_gpio;
 };
 
 /* If we fail after 1 second wait, something is really bad */
@@ -50,6 +52,36 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 			unsigned int siz);
 static struct mmc hsmmc_dev[3];
 static struct omap_hsmmc_data hsmmc_dev_data[3];
+
+#if (defined(CONFIG_OMAP_GPIO) && !defined(CONFIG_SPL_BUILD)) || \
+	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
+static int omap_mmc_setup_gpio_in(int gpio, const char *label)
+{
+	if (!gpio_is_valid(gpio))
+		return -1;
+
+	if (gpio_request(gpio, label) < 0)
+		return -1;
+
+	if (gpio_direction_input(gpio) < 0)
+		return -1;
+
+	return gpio;
+}
+
+static int omap_mmc_getcd(struct mmc *mmc)
+{
+	int cd_gpio = ((struct omap_hsmmc_data *)mmc->priv)->cd_gpio;
+	return gpio_get_value(cd_gpio);
+}
+#else
+static inline int omap_mmc_setup_gpio_in(int gpio, const char *label)
+{
+	return -1;
+}
+
+#define omap_mmc_getcd NULL
+#endif
 
 #if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
 static void omap4_vmmc_pbias_config(struct mmc *mmc)
@@ -548,7 +580,7 @@ static void mmc_set_ios(struct mmc *mmc)
 	writel(readl(&mmc_base->sysctl) | CEN_ENABLE, &mmc_base->sysctl);
 }
 
-int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max)
+int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio)
 {
 	struct mmc *mmc = &hsmmc_dev[dev_index];
 	struct omap_hsmmc_data *priv_data = &hsmmc_dev_data[dev_index];
@@ -557,7 +589,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max)
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_init_setup;
-	mmc->getcd = NULL;
+	mmc->getcd = omap_mmc_getcd;
 	mmc->priv = priv_data;
 
 	switch (dev_index) {
@@ -578,6 +610,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max)
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE;
 		return 1;
 	}
+	priv_data->cd_gpio = omap_mmc_setup_gpio_in(cd_gpio, "mmc_cd");
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	mmc->host_caps = (MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
 				MMC_MODE_HC) & ~host_caps_mask;
