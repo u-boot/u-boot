@@ -22,6 +22,7 @@
 import itertools
 import os
 
+import get_maintainer
 import gitutil
 import terminal
 
@@ -225,6 +226,7 @@ class Series(dict):
             if process_tags:
                 list += gitutil.BuildEmailList(commit.tags)
             list += gitutil.BuildEmailList(commit.cc_list)
+            list += get_maintainer.GetMaintainer(commit.patch)
             all_ccs += list
             print >>fd, commit.patch, ', '.join(list)
             self._generated_cc[commit.patch] = list
