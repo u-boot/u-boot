@@ -38,6 +38,10 @@
 #define SYSCTL_SRC	(1 << 25)
 #define SYSCTL_SRD	(1 << 26)
 
+struct omap_hsmmc_data {
+	struct hsmmc *base_addr;
+};
+
 /* If we fail after 1 second wait, something is really bad */
 #define MAX_RETRY_MS	1000
 
@@ -45,6 +49,7 @@ static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size);
 static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 			unsigned int siz);
 static struct mmc hsmmc_dev[3];
+static struct omap_hsmmc_data hsmmc_dev_data[3];
 
 #if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
 static void omap4_vmmc_pbias_config(struct mmc *mmc)
@@ -177,11 +182,12 @@ void mmc_init_stream(struct hsmmc *mmc_base)
 
 static int mmc_init_setup(struct mmc *mmc)
 {
-	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
+	struct hsmmc *mmc_base;
 	unsigned int reg_val;
 	unsigned int dsor;
 	ulong start;
 
+	mmc_base = ((struct omap_hsmmc_data *)mmc->priv)->base_addr;
 	mmc_board_init(mmc);
 
 	writel(readl(&mmc_base->sysconfig) | MMC_SOFTRESET,
@@ -262,10 +268,11 @@ static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
 static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
-	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
+	struct hsmmc *mmc_base;
 	unsigned int flags, mmc_stat;
 	ulong start;
 
+	mmc_base = ((struct omap_hsmmc_data *)mmc->priv)->base_addr;
 	start = get_timer(0);
 	while ((readl(&mmc_base->pstate) & (DATI_MASK | CMDI_MASK)) != 0) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
@@ -489,10 +496,11 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 
 static void mmc_set_ios(struct mmc *mmc)
 {
-	struct hsmmc *mmc_base = (struct hsmmc *)mmc->priv;
+	struct hsmmc *mmc_base;
 	unsigned int dsor = 0;
 	ulong start;
 
+	mmc_base = ((struct omap_hsmmc_data *)mmc->priv)->base_addr;
 	/* configue bus width */
 	switch (mmc->bus_width) {
 	case 8:
@@ -542,32 +550,32 @@ static void mmc_set_ios(struct mmc *mmc)
 
 int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max)
 {
-	struct mmc *mmc;
-
-	mmc = &hsmmc_dev[dev_index];
+	struct mmc *mmc = &hsmmc_dev[dev_index];
+	struct omap_hsmmc_data *priv_data = &hsmmc_dev_data[dev_index];
 
 	sprintf(mmc->name, "OMAP SD/MMC");
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_init_setup;
 	mmc->getcd = NULL;
+	mmc->priv = priv_data;
 
 	switch (dev_index) {
 	case 0:
-		mmc->priv = (struct hsmmc *)OMAP_HSMMC1_BASE;
+		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE;
 		break;
 #ifdef OMAP_HSMMC2_BASE
 	case 1:
-		mmc->priv = (struct hsmmc *)OMAP_HSMMC2_BASE;
+		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
 		break;
 #endif
 #ifdef OMAP_HSMMC3_BASE
 	case 2:
-		mmc->priv = (struct hsmmc *)OMAP_HSMMC3_BASE;
+		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC3_BASE;
 		break;
 #endif
 	default:
-		mmc->priv = (struct hsmmc *)OMAP_HSMMC1_BASE;
+		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE;
 		return 1;
 	}
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
