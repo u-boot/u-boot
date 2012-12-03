@@ -55,37 +55,21 @@ static char *from_env(char *envvar)
  */
 static int format_mac_pxe(char *outbuf, size_t outbuf_len)
 {
-	size_t ethaddr_len;
-	char *p, *ethaddr;
+	uchar ethaddr[6];
 
-	ethaddr = from_env("ethaddr");
-
-	if (!ethaddr)
-		return -ENOENT;
-
-	ethaddr_len = strlen(ethaddr);
-
-	/*
-	 * ethaddr_len + 4 gives room for "01-", ethaddr, and a NUL byte at
-	 * the end.
-	 */
-	if (outbuf_len < ethaddr_len + 4) {
-		printf("outbuf is too small (%d < %d)\n",
-				outbuf_len, ethaddr_len + 4);
+	if (outbuf_len < 21) {
+		printf("outbuf is too small (%d < 21)\n", outbuf_len);
 
 		return -EINVAL;
 	}
 
-	strcpy(outbuf, "01-");
+	if (!eth_getenv_enetaddr_by_index("eth", eth_get_dev_index(),
+					  ethaddr))
+		return -ENOENT;
 
-	for (p = outbuf + 3; *ethaddr; ethaddr++, p++) {
-		if (*ethaddr == ':')
-			*p = '-';
-		else
-			*p = tolower(*ethaddr);
-	}
-
-	*p = '\0';
+	sprintf(outbuf, "01-%02x-%02x-%02x-%02x-%02x-%02x",
+		ethaddr[0], ethaddr[1], ethaddr[2],
+		ethaddr[3], ethaddr[4], ethaddr[5]);
 
 	return 1;
 }
