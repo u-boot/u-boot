@@ -26,6 +26,13 @@
 
 #define MAX_TFTP_PATH_LEN 127
 
+const char *pxe_default_paths[] = {
+	"default-" CONFIG_SYS_ARCH "-" CONFIG_SYS_SOC,
+	"default-" CONFIG_SYS_ARCH,
+	"default",
+	NULL
+};
+
 /*
  * Like getenv, but prints an error if envvar isn't defined in the
  * environment.  It always returns what getenv does, so it can be used in
@@ -339,7 +346,7 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *pxefile_addr_str;
 	unsigned long pxefile_addr_r;
-	int err;
+	int err, i = 0;
 
 	do_getfile = do_get_tftp;
 
@@ -360,14 +367,21 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * Keep trying paths until we successfully get a file we're looking
 	 * for.
 	 */
-	if (pxe_uuid_path((void *)pxefile_addr_r) > 0
-		|| pxe_mac_path((void *)pxefile_addr_r) > 0
-		|| pxe_ipaddr_paths((void *)pxefile_addr_r) > 0
-		|| get_pxelinux_path("default", (void *)pxefile_addr_r) > 0) {
-
+	if (pxe_uuid_path((void *)pxefile_addr_r) > 0 ||
+	    pxe_mac_path((void *)pxefile_addr_r) > 0 ||
+	    pxe_ipaddr_paths((void *)pxefile_addr_r) > 0) {
 		printf("Config file found\n");
 
 		return 0;
+	}
+
+	while (pxe_default_paths[i]) {
+		if (get_pxelinux_path(pxe_default_paths[i],
+				      (void *)pxefile_addr_r) > 0) {
+			printf("Config file found\n");
+			return 0;
+		}
+		i++;
 	}
 
 	printf("Config file not found\n");
