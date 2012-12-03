@@ -140,7 +140,7 @@ else:
             options.count + options.start):
         ok = False
 
-    cc_file = series.MakeCcFile(options.process_tags)
+    cc_file = series.MakeCcFile(options.process_tags, cover_fname)
 
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''

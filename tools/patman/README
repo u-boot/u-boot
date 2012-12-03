@@ -226,6 +226,9 @@ Date:	Mon Nov 7 23:18:44 2011 -0500
 will create a patch which is copied to x86, arm, sandbox, mikef, ag and
 afleming.
 
+If you have a cover letter it will get sent to the union of the CC lists of
+all of the other patches.
+
 
 Example Work Flow
 =================
