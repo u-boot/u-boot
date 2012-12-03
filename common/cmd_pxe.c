@@ -429,6 +429,7 @@ static int get_relfile_envaddr(const char *file_path, const char *envaddr_name)
  * list - lets these form a list, which a pxe_menu struct will hold.
  */
 struct pxe_label {
+	char num[4];
 	char *name;
 	char *menu;
 	char *kernel;
@@ -518,21 +519,9 @@ static void label_destroy(struct pxe_label *label)
 static void label_print(void *data)
 {
 	struct pxe_label *label = data;
-	const char *c = label->menu ? label->menu : label->kernel;
+	const char *c = label->menu ? label->menu : label->name;
 
-	printf("%s:\t%s\n", label->name, c);
-
-	if (label->kernel)
-		printf("\t\tkernel: %s\n", label->kernel);
-
-	if (label->append)
-		printf("\t\tappend: %s\n", label->append);
-
-	if (label->initrd)
-		printf("\t\tinitrd: %s\n", label->initrd);
-
-	if (label->fdt)
-		printf("\tfdt: %s\n", label->fdt);
+	printf("%s:\t%s\n", label->num, c);
 }
 
 /*
@@ -619,8 +608,10 @@ static int label_boot(struct pxe_label *label)
 		return 1;
 	}
 
-	if (label->append)
+	if (label->append) {
 		setenv("bootargs", label->append);
+		printf("append: %s\n", label->append);
+	}
 
 	bootm_argv[1] = getenv("kernel_addr_r");
 
@@ -1268,6 +1259,8 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 	struct list_head *pos;
 	struct menu *m;
 	int err;
+	int i = 1;
+	char *default_num = NULL;
 
 	/*
 	 * Create a menu and add items for all the labels.
@@ -1281,18 +1274,23 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 	list_for_each(pos, &cfg->labels) {
 		label = list_entry(pos, struct pxe_label, list);
 
-		if (menu_item_add(m, label->name, label) != 1) {
+		sprintf(label->num, "%d", i++);
+		if (menu_item_add(m, label->num, label) != 1) {
 			menu_destroy(m);
 			return NULL;
 		}
+		if (cfg->default_label &&
+			(strcmp(label->name, cfg->default_label) == 0))
+			default_num = label->num;
+
 	}
 
 	/*
 	 * After we've created items for each label in the menu, set the
 	 * menu's default label if one was specified.
 	 */
-	if (cfg->default_label) {
-		err = menu_default_set(m, cfg->default_label);
+	if (default_num) {
+		err = menu_default_set(m, default_num);
 		if (err != 1) {
 			if (err != -ENOENT) {
 				menu_destroy(m);
