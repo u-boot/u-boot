@@ -31,7 +31,7 @@
  * environment.  It always returns what getenv does, so it can be used in
  * place of getenv without changing error handling otherwise.
  */
-static char *from_env(char *envvar)
+static char *from_env(const char *envvar)
 {
 	char *ret;
 
@@ -115,14 +115,14 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 	return 1;
 }
 
-static int (*do_getfile)(char *file_path, char *file_addr);
+static int (*do_getfile)(const char *file_path, char *file_addr);
 
-static int do_get_tftp(char *file_path, char *file_addr)
+static int do_get_tftp(const char *file_path, char *file_addr)
 {
 	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
 
 	tftp_argv[1] = file_addr;
-	tftp_argv[2] = file_path;
+	tftp_argv[2] = (void *)file_path;
 
 	if (do_tftpb(NULL, 0, 3, tftp_argv))
 		return -ENOENT;
@@ -132,12 +132,12 @@ static int do_get_tftp(char *file_path, char *file_addr)
 
 static char *fs_argv[5];
 
-static int do_get_ext2(char *file_path, char *file_addr)
+static int do_get_ext2(const char *file_path, char *file_addr)
 {
 #ifdef CONFIG_CMD_EXT2
 	fs_argv[0] = "ext2load";
 	fs_argv[3] = file_addr;
-	fs_argv[4] = file_path;
+	fs_argv[4] = (void *)file_path;
 
 	if (!do_ext2load(NULL, 0, 5, fs_argv))
 		return 1;
@@ -145,12 +145,12 @@ static int do_get_ext2(char *file_path, char *file_addr)
 	return -ENOENT;
 }
 
-static int do_get_fat(char *file_path, char *file_addr)
+static int do_get_fat(const char *file_path, char *file_addr)
 {
 #ifdef CONFIG_CMD_FAT
 	fs_argv[0] = "fatload";
 	fs_argv[3] = file_addr;
-	fs_argv[4] = file_path;
+	fs_argv[4] = (void *)file_path;
 
 	if (!do_fat_fsload(NULL, 0, 5, fs_argv))
 		return 1;
@@ -166,7 +166,7 @@ static int do_get_fat(char *file_path, char *file_addr)
  *
  * Returns 1 for success, or < 0 on error.
  */
-static int get_relfile(char *file_path, void *file_addr)
+static int get_relfile(const char *file_path, void *file_addr)
 {
 	size_t path_len;
 	char relfile[MAX_TFTP_PATH_LEN+1];
@@ -205,7 +205,7 @@ static int get_relfile(char *file_path, void *file_addr)
  *
  * Returns 1 on success, or < 0 for error.
  */
-static int get_pxe_file(char *file_path, void *file_addr)
+static int get_pxe_file(const char *file_path, void *file_addr)
 {
 	unsigned long config_file_size;
 	char *tftp_filesize;
@@ -242,7 +242,7 @@ static int get_pxe_file(char *file_path, void *file_addr)
  *
  * Returns 1 on success or < 0 on error.
  */
-static int get_pxelinux_path(char *file, void *pxefile_addr_r)
+static int get_pxelinux_path(const char *file, void *pxefile_addr_r)
 {
 	size_t base_len = strlen(PXELINUX_DIR);
 	char path[MAX_TFTP_PATH_LEN+1];
@@ -382,7 +382,7 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  *
  * Returns 1 on success or < 0 on error.
  */
-static int get_relfile_envaddr(char *file_path, char *envaddr_name)
+static int get_relfile_envaddr(const char *file_path, const char *envaddr_name)
 {
 	unsigned long file_addr;
 	char *envaddr;
