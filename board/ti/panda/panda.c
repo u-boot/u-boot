@@ -179,7 +179,7 @@ void set_muxconf_regs_non_essential(void)
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0, 0, 0, -1);
+	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif
 

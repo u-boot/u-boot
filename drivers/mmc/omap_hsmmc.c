@@ -42,6 +42,7 @@
 struct omap_hsmmc_data {
 	struct hsmmc *base_addr;
 	int cd_gpio;
+	int wp_gpio;
 };
 
 /* If we fail after 1 second wait, something is really bad */
@@ -74,6 +75,12 @@ static int omap_mmc_getcd(struct mmc *mmc)
 	int cd_gpio = ((struct omap_hsmmc_data *)mmc->priv)->cd_gpio;
 	return gpio_get_value(cd_gpio);
 }
+
+static int omap_mmc_getwp(struct mmc *mmc)
+{
+	int wp_gpio = ((struct omap_hsmmc_data *)mmc->priv)->wp_gpio;
+	return gpio_get_value(wp_gpio);
+}
 #else
 static inline int omap_mmc_setup_gpio_in(int gpio, const char *label)
 {
@@ -81,6 +88,7 @@ static inline int omap_mmc_setup_gpio_in(int gpio, const char *label)
 }
 
 #define omap_mmc_getcd NULL
+#define omap_mmc_getwp NULL
 #endif
 
 #if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
@@ -580,7 +588,8 @@ static void mmc_set_ios(struct mmc *mmc)
 	writel(readl(&mmc_base->sysctl) | CEN_ENABLE, &mmc_base->sysctl);
 }
 
-int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio)
+int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
+		int wp_gpio)
 {
 	struct mmc *mmc = &hsmmc_dev[dev_index];
 	struct omap_hsmmc_data *priv_data = &hsmmc_dev_data[dev_index];
@@ -590,7 +599,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio)
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_init_setup;
 	mmc->getcd = omap_mmc_getcd;
-	mmc->getwp = NULL;
+	mmc->getwp = omap_mmc_getwp;
 	mmc->priv = priv_data;
 
 	switch (dev_index) {
@@ -612,6 +621,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio)
 		return 1;
 	}
 	priv_data->cd_gpio = omap_mmc_setup_gpio_in(cd_gpio, "mmc_cd");
+	priv_data->wp_gpio = omap_mmc_setup_gpio_in(wp_gpio, "mmc_wp");
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	mmc->host_caps = (MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
 				MMC_MODE_HC) & ~host_caps_mask;

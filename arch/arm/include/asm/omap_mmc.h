@@ -161,7 +161,8 @@ struct hsmmc {
 #define mmc_reg_out(addr, mask, val)\
 	writel((readl(addr) & (~(mask))) | ((val) & (mask)), (addr))
 
-int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio);
+int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
+		int wp_gpio);
 
 
 #endif /* OMAP_MMC_H_ */
