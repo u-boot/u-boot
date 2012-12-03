@@ -34,6 +34,7 @@ import checkpatch
 import command
 import gitutil
 import patchstream
+import project
 import settings
 import terminal
 import test
@@ -59,6 +60,9 @@ parser.add_option('--cc-cmd', dest='cc_cmd', type='string', action='store',
        default=None, help='Output cc list for patch file (used by git)')
 parser.add_option('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliaes")
+parser.add_option('-p', '--project', default=project.DetectProject(),
+                  help="Project name; affects default option values and "
+                  "aliases [default: %default]")
 
 parser.usage = """patman [options]
 
@@ -66,7 +70,10 @@ Create patches from commits in a branch, check them and email them as
 specified by tags you place in the commits. Use -n to """
 
 
-settings.Setup(parser, '')
+# Parse options twice: first to get the project and second to handle
+# defaults properly (which depends on project).
+(options, args) = parser.parse_args()
+settings.Setup(parser, options.project, '')
 (options, args) = parser.parse_args()
 
 # Run our meagre tests

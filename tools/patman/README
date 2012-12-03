@@ -114,6 +114,19 @@ verbose: True
 <<<
 
 
+If you want to adjust settings (or aliases) that affect just a single
+project you can add a section that looks like [project_settings] or
+[project_alias].  If you want to use tags for your linux work, you could
+do:
+
+>>>
+
+[linux_settings]
+process_tags: True
+
+<<<
+
+
 How to run it
 =============
 
