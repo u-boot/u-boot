@@ -85,8 +85,9 @@ if options.test:
     result = unittest.TestResult()
     suite.run(result)
 
-    suite = doctest.DocTestSuite('gitutil')
-    suite.run(result)
+    for module in ['gitutil', 'settings']:
+        suite = doctest.DocTestSuite(module)
+        suite.run(result)
 
     # TODO: Surely we can just 'print' result?
     print result
