@@ -30,7 +30,11 @@
 
 #include "mxs_init.h"
 
-static uint32_t mx28_dram_vals[] = {
+static uint32_t dram_vals[] = {
+/*
+ * i.MX28 DDR2 at 200MHz
+ */
+#if defined(CONFIG_MX28)
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -79,6 +83,9 @@ static uint32_t mx28_dram_vals[] = {
 	0x06120612, 0x04320432, 0x04320432, 0x00040004,
 	0x00040004, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00010001
+#else
+#error Unsupported memory initialization
+#endif
 };
 
 void __mxs_adjust_memory_params(uint32_t *dram_vals)
@@ -87,14 +94,14 @@ void __mxs_adjust_memory_params(uint32_t *dram_vals)
 void mxs_adjust_memory_params(uint32_t *dram_vals)
 	__attribute__((weak, alias("__mxs_adjust_memory_params")));
 
-static void init_mx28_200mhz_ddr2(void)
+static void initialize_dram_values(void)
 {
 	int i;
 
-	mxs_adjust_memory_params(mx28_dram_vals);
+	mxs_adjust_memory_params(dram_vals);
 
-	for (i = 0; i < ARRAY_SIZE(mx28_dram_vals); i++)
-		writel(mx28_dram_vals[i], MXS_DRAM_BASE + (4 * i));
+	for (i = 0; i < ARRAY_SIZE(dram_vals); i++)
+		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
 }
 
 static void mxs_mem_init_clock(void)
@@ -218,7 +225,7 @@ void mxs_mem_init(void)
 	/* Clear START bit from DRAM_CTL16 */
 	clrbits_le32(MXS_DRAM_BASE + 0x40, 1);
 
-	init_mx28_200mhz_ddr2();
+	initialize_dram_values();
 
 	/* Clear SREFRESH bit from DRAM_CTL17 */
 	clrbits_le32(MXS_DRAM_BASE + 0x44, 1);
