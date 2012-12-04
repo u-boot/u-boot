@@ -188,6 +188,7 @@
 
 /* Environment information */
 #define CONFIG_BOOTDELAY		10
+#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
