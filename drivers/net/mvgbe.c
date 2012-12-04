@@ -43,6 +43,8 @@
 #include <asm/arch/kirkwood.h>
 #elif defined(CONFIG_ORION5X)
 #include <asm/arch/orion5x.h>
+#elif defined(CONFIG_DOVE)
+#include <asm/arch/dove.h>
 #endif
 
 #include "mvgbe.h"

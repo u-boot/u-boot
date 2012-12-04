@@ -308,10 +308,17 @@
 #define EBAR_TARGET_GUNIT			0x00000007
 
 /* Window attrib */
+#if defined(CONFIG_DOVE)
+#define EBAR_DRAM_CS0				0x00000000
+#define EBAR_DRAM_CS1				0x00000000
+#define EBAR_DRAM_CS2				0x00000000
+#define EBAR_DRAM_CS3				0x00000000
+#else
 #define EBAR_DRAM_CS0				0x00000E00
 #define EBAR_DRAM_CS1				0x00000D00
 #define EBAR_DRAM_CS2				0x00000B00
 #define EBAR_DRAM_CS3				0x00000700
+#endif
 
 /* DRAM Target interface */
 #define EBAR_DRAM_NO_CACHE_COHERENCY		0x00000000
