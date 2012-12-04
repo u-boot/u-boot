@@ -117,10 +117,11 @@
 # undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
 # define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
 
+/* Environment in NOR flash */
 # ifndef CONFIG_ENV_IS_NOWHERE
-#  define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
-#  define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
 #  define CONFIG_ENV_IS_IN_FLASH
+#  define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
+#  define CONFIG_ENV_OFFSET		0xE0000
 #  define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 # endif
 #endif
