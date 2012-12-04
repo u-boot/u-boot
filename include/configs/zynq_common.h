@@ -154,6 +154,9 @@
 # elif defined(CONFIG_ZYNQ_SPI)
 /* Environment in Serial Flash */
 #  define CONFIG_ENV_IS_IN_SPI_FLASH
+# elif defined(CONFIG_NAND_ZYNQ)
+/* Environment in NAND flash */
+#  define CONFIG_ENV_IS_IN_NAND
 # endif
 
 # define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
