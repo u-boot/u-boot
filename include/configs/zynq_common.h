@@ -32,6 +32,8 @@
 
 /* Total Size of Environment Sector */
 #define CONFIG_ENV_SIZE		(128 << 10)
+/* allow to overwrite serial and ethaddr */
+#define CONFIG_ENV_OVERWRITE
 
 /* Serial drivers */
 #define CONFIG_BAUDRATE		115200
