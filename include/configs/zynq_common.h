@@ -183,7 +183,7 @@
 	"initrd_high=0x20000000\0"	\
 	"norboot=echo Copying Linux from NOR flash to RAM...;" \
 		"cp 0xE2100000 0x3000000 ${kernel_size};" \
-		"cp 0xE2600000 0x2A00000 {devicetree_size};" \
+		"cp 0xE2600000 0x2A00000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
 		"cp 0xE3000000 0x2000000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
