@@ -190,14 +190,14 @@
 		"cp 0xE2100000 0x3000000 ${kernel_size};" \
 		"cp 0xE2600000 0x2A00000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
-		"cp 0xE3000000 0x2000000 ${ramdisk_size};" \
+		"cp 0xE2620000 0x2000000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"qspiboot=echo Copying Linux from QSPI flash to RAM...;" \
 		"sf probe 0 0 0;" \
 		"sf read 0x3000000 0x100000 ${kernel_size};" \
 		"sf read 0x2A00000 0x600000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
-		"sf read 0x2000000 0x800000 ${ramdisk_size};" \
+		"sf read 0x2000000 0x620000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"sdboot=echo Copying Linux from SD to RAM...;" \
 		"mmcinfo;" \
@@ -206,10 +206,10 @@
 		"fatload mmc 0 0x2000000 ${ramdisk_image};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM...;" \
-		"nand read 0x3000000 0x200000 ${kernel_size};" \
-		"nand read 0x2A00000 0x700000 ${devicetree_size};" \
+		"nand read 0x3000000 0x100000 ${kernel_size};" \
+		"nand read 0x2A00000 0x600000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
-		"nand read 0x2000000 0x900000 ${ramdisk_size};" \
+		"nand read 0x2000000 0x620000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"jtagboot=echo TFTPing Linux to RAM...;" \
 		"tftp 0x3000000 ${kernel_image};" \
