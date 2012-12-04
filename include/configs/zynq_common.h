@@ -181,7 +181,7 @@
 	"kernel_image=uImage\0"	\
 	"ramdisk_image=uramdisk.image.gz\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
-	"kernel_size=0x400000\0"	\
+	"kernel_size=0x500000\0"	\
 	"devicetree_size=0x20000\0"	\
 	"ramdisk_size=0x400000\0"	\
 	"fdt_high=0x20000000\0"	\
