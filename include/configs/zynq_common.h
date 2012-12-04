@@ -125,7 +125,6 @@
 # define CONFIG_SPI_FLASH_WINBOND
 # define CONFIG_CMD_SPI
 # define CONFIG_CMD_SF
-# define CONFIG_CMD_SAVEENV
 #endif
 
 #ifdef CONFIG_MMC
@@ -152,6 +151,9 @@
 # ifndef CONFIG_SYS_NO_FLASH
 /* Environment in NOR flash */
 #  define CONFIG_ENV_IS_IN_FLASH
+# elif defined(CONFIG_ZYNQ_SPI)
+/* Environment in Serial Flash */
+#  define CONFIG_ENV_IS_IN_SPI_FLASH
 # endif
 
 # define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
