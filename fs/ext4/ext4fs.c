@@ -931,7 +931,6 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 	int previous_block_number = -1;
 	int delayed_start = 0;
 	int delayed_extent = 0;
-	int delayed_skipfirst = 0;
 	int delayed_next = 0;
 	char *delayed_buf = NULL;
 
@@ -964,7 +963,6 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 					previous_block_number = blknr;
 					delayed_start = blknr;
 					delayed_extent = blockend;
-					delayed_skipfirst = skipfirst;
 					delayed_buf = buf;
 					delayed_next = blknr +
 					    (blockend >> SECTOR_BITS);
@@ -973,7 +971,6 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 				previous_block_number = blknr;
 				delayed_start = blknr;
 				delayed_extent = blockend;
-				delayed_skipfirst = skipfirst;
 				delayed_buf = buf;
 				delayed_next = blknr +
 				    (blockend >> SECTOR_BITS);
