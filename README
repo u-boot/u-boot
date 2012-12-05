@@ -827,6 +827,7 @@ The following options need to be configured:
 		CONFIG_CMD_GETTIME	* Get time since boot
 		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_GREPENV	* search environment
+		CONFIG_CMD_HASH		* calculate hash / digest
 		CONFIG_CMD_HWFLOW	* RTS/CTS hw flow control
 		CONFIG_CMD_I2C		* I2C serial bus support
 		CONFIG_CMD_IDE		* IDE harddisk support
@@ -2410,6 +2411,23 @@ CBFS (Coreboot Filesystem) support
 		the remainder of the TFTP transfer to proceed normally.
 		A better solution is to properly configure the firewall,
 		but sometimes that is not allowed.
+
+- Hashing support:
+		CONFIG_CMD_HASH
+
+		This enables a generic 'hash' command which can produce
+		hashes / digests from a few algorithms (e.g. SHA1, SHA256).
+
+		CONFIG_HASH_VERIFY
+
+		Enable the hash verify command (hash -v). This adds to code
+		size a little.
+
+		CONFIG_SHA1 - support SHA1 hashing
+		CONFIG_SHA256 - support SHA256 hashing
+
+		Note: There is also a sha1sum command, which should perhaps
+		be deprecated in favour of 'hash sha1'.
 
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
