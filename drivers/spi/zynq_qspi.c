@@ -169,6 +169,19 @@ typedef enum irqreturn irqreturn_t;
 #define XQSPIPSS_ENABLE_ENABLE_MASK	0x00000001 /* QSPI Enable Bit Mask */
 
 /*
+ * QSPI Linear Configuration Register
+ *
+ * It is named Linear Configuration but it controls other modes when not in
+ * linear mode also.
+ */
+#define XQSPIPS_LCFG_TWO_MEM_MASK	0x40000000 /* QSPI Enable Bit Mask */
+#define XQSPIPS_LCFG_SEP_BUS_MASK	0x20000000 /* QSPI Enable Bit Mask */
+
+#define XQSPIPS_LCFG_DUMMY_SHIFT	8
+
+#define XQSPIPS_FAST_READ_QOUT_CODE	0x6B	/* read instruction code */
+
+/*
  * The modebits configurable by the driver to make the SPI support different
  * data formats
  */
@@ -363,7 +376,10 @@ void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
 	if (is_dual == 1)
 		/* Enable two memories on seperate buses */
 		xqspips_write(regs_base + XQSPIPSS_LINEAR_CFG_OFFSET,
-				0x6400016B);
+			(XQSPIPS_LCFG_TWO_MEM_MASK |
+			 XQSPIPS_LCFG_SEP_BUS_MASK |
+			 (1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
+			 XQSPIPS_FAST_READ_QOUT_CODE));
 
 	xqspips_write(regs_base + XQSPIPSS_ENABLE_OFFSET,
 			XQSPIPSS_ENABLE_ENABLE_MASK);
