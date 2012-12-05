@@ -1011,8 +1011,6 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	unsigned int blks_reqd_for_file;
 	unsigned int blocks_remaining;
 	int existing_file_inodeno;
-	char filename[256];
-
 	char *temp_ptr = NULL;
 	long int itable_blkno;
 	long int parent_itable_blkno;
@@ -1021,6 +1019,9 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	unsigned int inodes_per_block;
 	unsigned int ibmap_idx;
 	struct ext_filesystem *fs = get_fs();
+	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
+	memset(filename, 0x00, sizeof(filename));
+
 	g_parent_inode = zalloc(sizeof(struct ext2_inode));
 	if (!g_parent_inode)
 		goto fail;
