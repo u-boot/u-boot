@@ -537,7 +537,7 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 			break;
 #endif
-#if defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_LMB)
 		case BOOTM_STATE_FDT:
 		{
 			boot_fdt_add_mem_rsv_regions(&images.lmb,
