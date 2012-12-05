@@ -39,7 +39,9 @@
 #define CONFIG_LAST_STAGE_INIT
 #define CONFIG_X86_NO_RESET_VECTOR
 #define CONFIG_SYS_VSNPRINTF
+#define CONFIG_INTEL_CORE_ARCH	/* Sandy bridge and ivy bridge chipsets. */
 #define CONFIG_ZBOOT_32
+#define CONFIG_PHYSMEM
 
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
@@ -104,18 +106,9 @@
 #define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_CBMEM_CONSOLE
 
-/* max. 1 IDE bus	*/
-#define CONFIG_SYS_IDE_MAXBUS		1
-/* max. 1 drive per IDE bus */
-#define CONFIG_SYS_IDE_MAXDEVICE	(CONFIG_SYS_IDE_MAXBUS * 1)
-
-#define CONFIG_SYS_ATA_BASE_ADDR	CONFIG_SYS_ISA_IO_BASE_ADDRESS
-#define CONFIG_SYS_ATA_IDE0_OFFSET	0x01f0
-#define CONFIG_SYS_ATA_IDE1_OFFSET	0x0170
-#define CONFIG_SYS_ATA_DATA_OFFSET	0
-#define CONFIG_SYS_ATA_REG_OFFSET	0
-#define CONFIG_SYS_ATA_ALT_OFFSET	0x200
-
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_COMMAND_HISTORY
+#define CONFIG_AUTOCOMPLETE
 
 #define CONFIG_SUPPORT_VFAT
 /************************************************************
@@ -181,14 +174,19 @@
 #define CONFIG_CMD_SETGETDCR
 #define CONFIG_CMD_SOURCE
 #define CONFIG_CMD_XIMG
-#define CONFIG_CMD_IDE
+#define CONFIG_CMD_SCSI
+
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 
 #define CONFIG_CMD_ZBOOT
 
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS		"root=/dev/mtdblock0 console=ttyS0,9600"
+#define CONFIG_BOOTARGS		\
+	"root=/dev/sdb3 init=/sbin/init rootwait ro"
+#define CONFIG_BOOTCOMMAND	\
+	"ext2load scsi 0:3 01000000 /boot/vmlinuz; zboot 01000000"
+
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE			115200
