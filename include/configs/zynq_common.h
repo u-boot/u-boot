@@ -83,6 +83,19 @@
 #endif
 #define CONFIG_SYS_HZ          1000
 
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_SYS_LONGHELP
+
+#include <config_cmd_default.h>
+
+#ifdef CONFIG_SYS_ENET
+# define CONFIG_CMD_PING
+# define CONFIG_CMD_MII
+#else
+# undef CONFIG_CMD_NET
+# undef CONFIG_CMD_NFS
+#endif
 
 /* no NOR flash */
 #ifdef CONFIG_SYS_NO_FLASH
@@ -110,24 +123,6 @@
 #  define CONFIG_ENV_IS_IN_FLASH
 #  define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 # endif
-#endif
-
-
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_LONGHELP
-
-
-
-#include <config_cmd_default.h>
-
-
-#ifdef CONFIG_SYS_ENET
-# define CONFIG_CMD_PING
-# define CONFIG_CMD_MII
-#else
-# undef CONFIG_CMD_NET
-# undef CONFIG_CMD_NFS
 #endif
 
 #ifdef CONFIG_ZYNQ_SPI
