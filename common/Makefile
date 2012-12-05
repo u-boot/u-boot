@@ -188,6 +188,7 @@ COBJS-$(CONFIG_BOOTSTAGE) += bootstage.o
 COBJS-$(CONFIG_CONSOLE_MUX) += iomux.o
 COBJS-y += flash.o
 COBJS-$(CONFIG_CMD_KGDB) += kgdb.o kgdb_stubs.o
+COBJS-$(CONFIG_I2C_EDID) += edid.o
 COBJS-$(CONFIG_KALLSYMS) += kallsyms.o
 COBJS-$(CONFIG_LCD) += lcd.o
 COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
