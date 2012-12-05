@@ -591,7 +591,6 @@ int console_init_f(void)
 
 void stdio_print_current_devices(void)
 {
-#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
 	/* Print information */
 	puts("In:    ");
 	if (stdio_devices[stdin] == NULL) {
@@ -613,7 +612,6 @@ void stdio_print_current_devices(void)
 	} else {
 		printf ("%s\n", stdio_devices[stderr]->name);
 	}
-#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
 }
 
 #ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
@@ -685,7 +683,9 @@ done:
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
+#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
 	stdio_print_current_devices();
+#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
 
 #ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 	/* set the environment variables (will overwrite previous env settings) */
@@ -760,7 +760,9 @@ int console_init_r(void)
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
+#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
 	stdio_print_current_devices();
+#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
 
 	/* Setting environment variables */
 	for (i = 0; i < 3; i++) {
