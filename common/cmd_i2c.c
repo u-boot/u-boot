@@ -78,6 +78,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <edid.h>
 #include <environment.h>
 #include <i2c.h>
 #include <malloc.h>
@@ -1340,6 +1341,38 @@ static int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 }
 #endif
 
+/*
+ * Syntax:
+ *	i2c edid {i2c_chip}
+ */
+#if defined(CONFIG_I2C_EDID)
+int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	u_char chip;
+	struct edid1_info edid;
+
+	if (argc < 2) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	chip = simple_strtoul(argv[1], NULL, 16);
+	if (i2c_read(chip, 0, 1, (uchar *)&edid, sizeof(edid)) != 0) {
+		puts("Error reading EDID content.\n");
+		return 1;
+	}
+
+	if (edid_check_info(&edid)) {
+		puts("Content isn't valid EDID.\n");
+		return 1;
+	}
+
+	edid_print_info(&edid);
+	return 0;
+
+}
+#endif /* CONFIG_I2C_EDID */
+
 #if defined(CONFIG_I2C_MUX)
 /**
  * do_i2c_add_bus() - Handle the "i2c bus" command-line command
@@ -1487,6 +1520,9 @@ static cmd_tbl_t cmd_i2c_sub[] = {
 #if defined(CONFIG_I2C_MULTI_BUS)
 	U_BOOT_CMD_MKENT(dev, 1, 1, do_i2c_bus_num, "", ""),
 #endif  /* CONFIG_I2C_MULTI_BUS */
+#if defined(CONFIG_I2C_EDID)
+	U_BOOT_CMD_MKENT(edid, 1, 1, do_edid, "", ""),
+#endif  /* CONFIG_I2C_EDID */
 	U_BOOT_CMD_MKENT(loop, 3, 1, do_i2c_loop, "", ""),
 	U_BOOT_CMD_MKENT(md, 3, 1, do_i2c_md, "", ""),
 	U_BOOT_CMD_MKENT(mm, 2, 1, do_i2c_mm, "", ""),
@@ -1547,6 +1583,9 @@ static char i2c_help_text[] =
 #if defined(CONFIG_I2C_MULTI_BUS)
 	"i2c dev [dev] - show or set current I2C bus\n"
 #endif  /* CONFIG_I2C_MULTI_BUS */
+#if defined(CONFIG_I2C_EDID)
+	"i2c edid chip - print EDID configuration information\n"
+#endif  /* CONFIG_I2C_EDID */
 	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
 	"i2c md chip address[.0, .1, .2] [# of objects] - read from I2C device\n"
 	"i2c mm chip address[.0, .1, .2] - write to I2C device (auto-incrementing)\n"

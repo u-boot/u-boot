@@ -1488,6 +1488,11 @@ CBFS (Coreboot Filesystem) support
 
 		Support drawing of RLE8-compressed bitmaps on the LCD.
 
+		CONFIG_I2C_EDID
+
+		Enables an 'i2c edid' command which can read EDID
+		information over I2C from an attached LCD display.
+
 
 - Splash Screen Support: CONFIG_SPLASH_SCREEN
 
