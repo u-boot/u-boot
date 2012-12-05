@@ -97,10 +97,8 @@
 # undef CONFIG_CMD_NFS
 #endif
 
-/* no NOR flash */
-#ifdef CONFIG_SYS_NO_FLASH
-# define CONFIG_ENV_IS_NOWHERE
-#else
+/* NOR flash */
+#ifndef CONFIG_SYS_NO_FLASH
 # define CONFIG_SYS_FLASH_BASE           0xE2000000
 # define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
 # define CONFIG_SYS_MAX_FLASH_BANKS      1
@@ -116,14 +114,6 @@
 
 # undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
 # define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
-
-/* Environment in NOR flash */
-# ifndef CONFIG_ENV_IS_NOWHERE
-#  define CONFIG_ENV_IS_IN_FLASH
-#  define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
-#  define CONFIG_ENV_OFFSET		0xE0000
-#  define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
-# endif
 #endif
 
 #ifdef CONFIG_ZYNQ_SPI
@@ -156,6 +146,17 @@
 # define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
 # define CONFIG_SYS_NAND_ONFI_DETECTION
 # define CONFIG_MTD_DEVICE
+#endif
+
+#ifndef CONFIG_ENV_IS_NOWHERE
+# ifndef CONFIG_SYS_NO_FLASH
+/* Environment in NOR flash */
+#  define CONFIG_ENV_IS_IN_FLASH
+# endif
+
+# define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
+# define CONFIG_ENV_OFFSET		0xE0000
+# define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #endif
 
 /* For development/debugging */
