@@ -861,6 +861,7 @@ The following options need to be configured:
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
 					  host
 		CONFIG_CMD_PORTIO	* Port I/O
+		CONFIG_CMD_READ		* Read raw data from partition
 		CONFIG_CMD_REGINFO	* Register dump
 		CONFIG_CMD_RUN		  run command in env variable
 		CONFIG_CMD_SAVES	* save S record dump
