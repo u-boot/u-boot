@@ -34,29 +34,4 @@
 
 #include <configs/zynq_common.h>
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS 	\
-	"ethaddr=00:0a:35:00:01:22\0"	\
-	"kernel_image=uImage\0"	\
-	"ramdisk_image=uramdisk.image.gz\0"	\
-	"devicetree_image=devicetree.dtb\0"	\
-	"qspiboot=echo Copying Linux from QSPI flash to RAM...;" \
-		"sf probe 0 0 0;" \
-		"sf read 0x3000000 0x100000 0x400000;" \
-		"sf read 0x2A00000 0x600000 0x20000;" \
-		"echo Copying ramdisk...;" \
-		"sf read 0x2000000 0x800000 0x400000;" \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
-	"sdboot=echo Copying Linux from SD to RAM...;" \
-		"mmcinfo;" \
-		"fatload mmc 0 0x3000000 ${kernel_image};" \
-		"fatload mmc 0 0x2A00000 ${devicetree_image};" \
-		"fatload mmc 0 0x2000000 ${ramdisk_image};" \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
-	"jtagboot=echo TFTPing Linux to RAM...;" \
-		"tftp 0x3000000 ${kernel_image};" \
-		"tftp 0x2A00000 ${devicetree_image};" \
-		"tftp 0x2000000 ${ramdisk_image};" \
-		"bootm 0x3000000 0x2000000 0x2A00000\0"
-
 #endif /* __CONFIG_ZYNQ_ZED_H */
