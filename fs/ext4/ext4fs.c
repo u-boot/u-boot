@@ -40,6 +40,7 @@
 #include <linux/stat.h>
 #include <linux/time.h>
 #include <asm/byteorder.h>
+#include <div64.h>
 #include "ext4_common.h"
 
 int ext4fs_symlinknest;
@@ -1051,8 +1052,8 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	}
 	/* calucalate how many blocks required */
 	bytes_reqd_for_file = sizebytes;
-	blks_reqd_for_file = bytes_reqd_for_file / fs->blksz;
-	if (bytes_reqd_for_file % fs->blksz != 0) {
+	blks_reqd_for_file = lldiv(bytes_reqd_for_file, fs->blksz);
+	if (do_div(bytes_reqd_for_file, fs->blksz) != 0) {
 		blks_reqd_for_file++;
 		debug("total bytes for a file %u\n", blks_reqd_for_file);
 	}
