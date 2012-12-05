@@ -48,6 +48,7 @@
 #define CONFIG_CMD_IMI		/* iminfo			*/
 #define CONFIG_CMD_IMLS		/* List all found images	*/
 #define CONFIG_CMD_IMMAP	/* IMMR dump support		*/
+#define CONFIG_CMD_IO		/* Access to X86 IO space	*/
 #define CONFIG_CMD_IRQ		/* irqinfo			*/
 #define CONFIG_CMD_ITEST	/* Integer (and string) test	*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
