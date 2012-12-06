@@ -60,7 +60,9 @@ struct i2c_regs {
 	u32 ic_tx_abrt_source;
 };
 
+#if !defined(IC_CLK)
 #define IC_CLK			166
+#endif
 #define NANO_TO_MICRO		1000
 
 /* High and low times in different speed modes (in ns) */
