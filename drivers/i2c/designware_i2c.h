@@ -95,6 +95,7 @@ struct i2c_regs {
 
 /* i2c data buffer and command register definitions */
 #define IC_CMD			0x0100
+#define IC_STOP			0x0200
 
 /* i2c interrupt status register definitions */
 #define IC_GEN_CALL		0x0800

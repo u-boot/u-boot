@@ -283,7 +283,10 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 	start_time_rx = get_timer(0);
 	while (len) {
-		writel(IC_CMD, &i2c_regs_p->ic_cmd_data);
+		if (len == 1)
+			writel(IC_CMD | IC_STOP, &i2c_regs_p->ic_cmd_data);
+		else
+			writel(IC_CMD, &i2c_regs_p->ic_cmd_data);
 
 		if (readl(&i2c_regs_p->ic_status) & IC_STATUS_RFNE) {
 			*buffer++ = (uchar)readl(&i2c_regs_p->ic_cmd_data);
@@ -322,9 +325,11 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	start_time_tx = get_timer(0);
 	while (len) {
 		if (readl(&i2c_regs_p->ic_status) & IC_STATUS_TFNF) {
-			writel(*buffer, &i2c_regs_p->ic_cmd_data);
+			if (--len == 0)
+				writel(*buffer | IC_STOP, &i2c_regs_p->ic_cmd_data);
+			else
+				writel(*buffer, &i2c_regs_p->ic_cmd_data);
 			buffer++;
-			len--;
 			start_time_tx = get_timer(0);
 
 		} else if (get_timer(start_time_tx) > (nb * I2C_BYTE_TO)) {
