@@ -2836,6 +2836,10 @@ FIT uImage format:
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
 
+		CONFIG_SPL_PAD_TO
+		Linker address to which the SPL should be padded before
+		appending the SPL payload.
+
 		CONFIG_SPL_TARGET
 		Final target image containing SPL and payload.  Some SPLs
 		use an arch-specific makefile fragment instead, for
