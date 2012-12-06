@@ -1247,6 +1247,8 @@ void flash_print_info (flash_info_t * info)
 		printf(info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
 		info->device_id2);
 	}
+	if ((info->vendor == CFI_CMDSET_AMD_STANDARD) && (info->legacy_unlock))
+		printf("\n  Advanced Sector Protection (PPB) enabled");
 	printf ("\n  Erase timeout: %ld ms, write timeout: %ld ms\n",
 		info->erase_blk_tout,
 		info->write_tout);
