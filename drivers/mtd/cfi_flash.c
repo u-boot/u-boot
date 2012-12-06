@@ -1511,7 +1511,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 							0, ATM_CMD_UNLOCK_SECT);
 				}
 			}
-			if (manufact_match(info, AMD_MANUFACT)) {
+			if (info->legacy_unlock) {
 				int flag = disable_interrupts();
 				int lock_flag;
 
@@ -1742,12 +1742,9 @@ static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
 
 #ifdef CONFIG_SYS_FLASH_PROTECTION
-	if (info->ext_addr && manufact_match(info, AMD_MANUFACT)) {
-		ushort spus;
-
-		/* read sector protect/unprotect scheme */
-		spus = flash_read_uchar(info, info->ext_addr + 9);
-		if (spus == 0x8)
+	if (info->ext_addr) {
+		/* read sector protect/unprotect scheme (at 0x49) */
+		if (flash_read_uchar(info, info->ext_addr + 9) == 0x8)
 			info->legacy_unlock = 1;
 	}
 #endif
@@ -2185,7 +2182,7 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 					break;
 				case CFI_CMDSET_AMD_EXTENDED:
 				case CFI_CMDSET_AMD_STANDARD:
-					if (!manufact_match(info, AMD_MANUFACT)) {
+					if (!info->legacy_unlock) {
 						/* default: not protected */
 						info->protect[sect_cnt] = 0;
 						break;
