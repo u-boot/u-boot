@@ -2183,6 +2183,27 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 							     FLASH_OFFSET_PROTECT,
 							     FLASH_STATUS_PROTECT);
 					break;
+				case CFI_CMDSET_AMD_EXTENDED:
+				case CFI_CMDSET_AMD_STANDARD:
+					if (!manufact_match(info, AMD_MANUFACT)) {
+						/* default: not protected */
+						info->protect[sect_cnt] = 0;
+						break;
+					}
+
+					/* Read protection (PPB) from sector */
+					flash_write_cmd(info, 0, 0,
+							info->cmd_reset);
+					flash_unlock_seq(info, 0);
+					flash_write_cmd(info, 0,
+							info->addr_unlock1,
+							FLASH_CMD_READ_ID);
+					info->protect[sect_cnt] =
+						flash_isset(
+							info, sect_cnt,
+							FLASH_OFFSET_PROTECT,
+							FLASH_STATUS_PROTECT);
+					break;
 				default:
 					/* default: not protected */
 					info->protect[sect_cnt] = 0;
