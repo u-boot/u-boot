@@ -26,7 +26,12 @@
 #include <asm/arch/hardware.h>
 #include "designware_i2c.h"
 
-static struct i2c_regs *const i2c_regs_p =
+#ifdef CONFIG_I2C_MULTI_BUS
+static unsigned int bus_initialized[CONFIG_SYS_I2C_BUS_MAX];
+static unsigned int current_bus = 0;
+#endif
+
+static struct i2c_regs *i2c_regs_p =
     (struct i2c_regs *)CONFIG_SYS_I2C_BASE;
 
 /*
@@ -150,6 +155,10 @@ void i2c_init(int speed, int slaveadd)
 	enbl = readl(&i2c_regs_p->ic_enable);
 	enbl |= IC_ENABLE_0B;
 	writel(enbl, &i2c_regs_p->ic_enable);
+
+#ifdef CONFIG_I2C_MULTI_BUS
+	bus_initialized[current_bus] = 1;
+#endif
 }
 
 /*
@@ -344,3 +353,74 @@ int i2c_probe(uchar chip)
 
 	return ret;
 }
+
+#ifdef CONFIG_I2C_MULTI_BUS
+int i2c_set_bus_num(unsigned int bus)
+{
+	switch (bus) {
+	case 0:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE;
+		break;
+#ifdef CONFIG_SYS_I2C_BASE1
+	case 1:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE1;
+		break;
+#endif
+#ifdef CONFIG_SYS_I2C_BASE2
+	case 2:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE2;
+		break;
+#endif
+#ifdef CONFIG_SYS_I2C_BASE3
+	case 3:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE3;
+		break;
+#endif
+#ifdef CONFIG_SYS_I2C_BASE4
+	case 4:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE4;
+		break;
+#endif
+#ifdef CONFIG_SYS_I2C_BASE5
+	case 5:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE5;
+		break;
+#endif
+#ifdef CONFIG_SYS_I2C_BASE6
+	case 6:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE6;
+		break;
+#endif
+#ifdef CONFIG_SYS_I2C_BASE7
+	case 7:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE7;
+		break;
+#endif
+#ifdef CONFIG_SYS_I2C_BASE8
+	case 8:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE8;
+		break;
+#endif
+#ifdef CONFIG_SYS_I2C_BASE9
+	case 9:
+		i2c_regs_p = (void *)CONFIG_SYS_I2C_BASE9;
+		break;
+#endif
+	default:
+		printf("Bad bus: %d\n", bus);
+		return -1;
+	}
+
+	current_bus = bus;
+
+	if (!bus_initialized[current_bus])
+		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+
+	return 0;
+}
+
+int i2c_get_bus_num(void)
+{
+	return current_bus;
+}
+#endif
