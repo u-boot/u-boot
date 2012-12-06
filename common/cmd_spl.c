@@ -130,10 +130,12 @@ static int spl_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (call_bootm(argc, argv, subcmd_list[(int)c->cmd]))
 			return -1;
 		switch ((int)c->cmd) {
+#ifdef CONFIG_OF_LIBFDT
 		case SPL_EXPORT_FDT:
 			printf("Argument image is now in RAM: 0x%p\n",
 				(void *)images.ft_addr);
 			break;
+#endif
 		case SPL_EXPORT_ATAGS:
 			printf("Argument image is now in RAM at: 0x%p\n",
 				(void *)gd->bd->bi_boot_params);
