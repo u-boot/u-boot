@@ -65,9 +65,9 @@ struct i2c_regs {
 
 /* High and low times in different speed modes (in ns) */
 #define MIN_SS_SCL_HIGHTIME	4000
-#define MIN_SS_SCL_LOWTIME	5000
-#define MIN_FS_SCL_HIGHTIME	800
-#define MIN_FS_SCL_LOWTIME	1700
+#define MIN_SS_SCL_LOWTIME	4700
+#define MIN_FS_SCL_HIGHTIME	600
+#define MIN_FS_SCL_LOWTIME	1300
 #define MIN_HS_SCL_HIGHTIME	60
 #define MIN_HS_SCL_LOWTIME	160
 
