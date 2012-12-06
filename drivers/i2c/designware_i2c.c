@@ -44,7 +44,6 @@ static void set_speed(int i2c_spd)
 {
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
-	unsigned int high, low;
 	unsigned int enbl;
 
 	/* to set speed cltr must be disabled */
@@ -52,39 +51,38 @@ static void set_speed(int i2c_spd)
 	enbl &= ~IC_ENABLE_0B;
 	writel(enbl, &i2c_regs_p->ic_enable);
 
-
 	cntl = (readl(&i2c_regs_p->ic_con) & (~IC_CON_SPD_MSK));
 
 	switch (i2c_spd) {
 	case IC_SPEED_MODE_MAX:
 		cntl |= IC_CON_SPD_HS;
-		high = MIN_HS_SCL_HIGHTIME;
-		low = MIN_HS_SCL_LOWTIME;
+		hcnt = (IC_CLK * MIN_HS_SCL_HIGHTIME) / NANO_TO_MICRO;
+		writel(hcnt, &i2c_regs_p->ic_hs_scl_hcnt);
+		lcnt = (IC_CLK * MIN_HS_SCL_LOWTIME) / NANO_TO_MICRO;
+		writel(lcnt, &i2c_regs_p->ic_hs_scl_lcnt);
 		break;
 
 	case IC_SPEED_MODE_STANDARD:
 		cntl |= IC_CON_SPD_SS;
-		high = MIN_SS_SCL_HIGHTIME;
-		low = MIN_SS_SCL_LOWTIME;
+		hcnt = (IC_CLK * MIN_SS_SCL_HIGHTIME) / NANO_TO_MICRO;
+		writel(hcnt, &i2c_regs_p->ic_ss_scl_hcnt);
+		lcnt = (IC_CLK * MIN_SS_SCL_LOWTIME) / NANO_TO_MICRO;
+		writel(lcnt, &i2c_regs_p->ic_ss_scl_lcnt);
 		break;
 
 	case IC_SPEED_MODE_FAST:
 	default:
 		cntl |= IC_CON_SPD_FS;
-		high = MIN_FS_SCL_HIGHTIME;
-		low = MIN_FS_SCL_LOWTIME;
+		hcnt = (IC_CLK * MIN_FS_SCL_HIGHTIME) / NANO_TO_MICRO;
+		writel(hcnt, &i2c_regs_p->ic_fs_scl_hcnt);
+		lcnt = (IC_CLK * MIN_FS_SCL_LOWTIME) / NANO_TO_MICRO;
+		writel(lcnt, &i2c_regs_p->ic_fs_scl_lcnt);
 		break;
 	}
 
 	writel(cntl, &i2c_regs_p->ic_con);
 
-	hcnt = (IC_CLK * high) / NANO_TO_MICRO;
-	writel(hcnt, &i2c_regs_p->ic_fs_scl_hcnt);
-
-	lcnt = (IC_CLK * low) / NANO_TO_MICRO;
-	writel(lcnt, &i2c_regs_p->ic_fs_scl_lcnt);
-
-	/* re-enable i2c ctrl back now that speed is set */
+	/* Enable back i2c now speed set */
 	enbl |= IC_ENABLE_0B;
 	writel(enbl, &i2c_regs_p->ic_enable);
 }
