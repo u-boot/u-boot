@@ -1425,13 +1425,18 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	return flash_write_cfiword (info, wp, cword);
 }
 
+static inline int manufact_match(flash_info_t *info, u32 manu)
+{
+	return info->manufacturer_id == ((manu & FLASH_VENDMASK) >> 16);
+}
+
 /*-----------------------------------------------------------------------
  */
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 
 static int cfi_protect_bugfix(flash_info_t *info, long sector, int prot)
 {
-	if (info->manufacturer_id == ((INTEL_MANUFACT & FLASH_VENDMASK) >> 16)
+	if (manufact_match(info, INTEL_MANUFACT)
 	    && info->device_id == NUMONYX_256MBIT) {
 		/*
 		 * see errata called
@@ -1488,8 +1493,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 		case CFI_CMDSET_AMD_EXTENDED:
 		case CFI_CMDSET_AMD_STANDARD:
 			/* U-Boot only checks the first byte */
-			if (info->manufacturer_id ==
-			    ((ATM_MANUFACT & FLASH_VENDMASK) >> 16)) {
+			if (manufact_match(info, ATM_MANUFACT)) {
 				if (prot) {
 					flash_unlock_seq (info, 0);
 					flash_write_cmd (info, 0,
@@ -1507,8 +1511,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 							0, ATM_CMD_UNLOCK_SECT);
 				}
 			}
-			if (info->manufacturer_id ==
-			    ((AMD_MANUFACT & FLASH_VENDMASK) >> 16)) {
+			if (manufact_match(info, AMD_MANUFACT)) {
 				int flag = disable_interrupts();
 				int lock_flag;
 
@@ -1739,8 +1742,7 @@ static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
 
 #ifdef CONFIG_SYS_FLASH_PROTECTION
-	if (info->ext_addr && info->manufacturer_id ==
-	    ((AMD_MANUFACT & FLASH_VENDMASK) >> 16)) {
+	if (info->ext_addr && manufact_match(info, AMD_MANUFACT)) {
 		ushort spus;
 
 		/* read sector protect/unprotect scheme */
