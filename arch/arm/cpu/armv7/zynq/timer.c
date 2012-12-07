@@ -114,15 +114,43 @@ ulong get_timer_masked(void)
 
 void __udelay(unsigned long usec)
 {
-	unsigned long long tmp;
-	ulong tmo;
+	u32 countticks;
+	u32 timeend;
+	u32 timediff;
+	u32 timenow;
 
-	tmo = usec / (1000000 / CONFIG_SYS_HZ);
-	tmp = get_ticks() + tmo; /* Get current timestamp */
+	if (usec == 0)
+		return;
 
-	while (get_ticks() < tmp) { /* Loop till event */
-		 /* NOP */;
-	}
+	countticks = (u32) (((unsigned long long) TIMER_TICK_HZ * usec) /
+								1000000);
+
+	/* decrementing timer */
+	timeend = readl(&timer_base->counter) - countticks;
+
+#if TIMER_LOAD_VAL != 0xFFFFFFFF
+	/* do not manage multiple overflow */
+	if (countticks >= TIMER_LOAD_VAL)
+		countticks = TIMER_LOAD_VAL - 1;
+#endif
+
+	do {
+		timenow = readl(&timer_base->counter);
+
+		if (timenow >= timeend) {
+			/* normal case */
+			timediff = timenow - timeend;
+		} else {
+			if ((TIMER_LOAD_VAL - timeend + timenow) <=
+								countticks) {
+				/* overflow */
+				timediff = TIMER_LOAD_VAL - timeend + timenow;
+			} else {
+				/* missed the exact match */
+				break;
+			}
+		}
+	} while (timediff > 0);
 }
 
 /* Timer without interrupts */
