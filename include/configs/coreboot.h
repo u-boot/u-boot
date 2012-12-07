@@ -35,10 +35,13 @@
  * (easy to change)
  */
 #define CONFIG_SYS_COREBOOT
-#undef CONFIG_SHOW_BOOT_PROGRESS
+#define CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_LAST_STAGE_INIT
 #define CONFIG_X86_NO_RESET_VECTOR
 #define CONFIG_SYS_VSNPRINTF
+#define CONFIG_INTEL_CORE_ARCH	/* Sandy bridge and ivy bridge chipsets. */
+#define CONFIG_ZBOOT_32
+#define CONFIG_PHYSMEM
 
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
@@ -77,6 +80,7 @@
  */
 #define CONFIG_RTC_MC146818
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS	0
+#define CONFIG_SYS_ISA_IO      CONFIG_SYS_ISA_IO_BASE_ADDRESS
 
 /*-----------------------------------------------------------------------
  * Serial Configuration
@@ -102,18 +106,9 @@
 #define CONFIG_SYS_STDIO_DEREGISTER
 #define CONFIG_CBMEM_CONSOLE
 
-/* max. 1 IDE bus	*/
-#define CONFIG_SYS_IDE_MAXBUS		1
-/* max. 1 drive per IDE bus */
-#define CONFIG_SYS_IDE_MAXDEVICE	(CONFIG_SYS_IDE_MAXBUS * 1)
-
-#define CONFIG_SYS_ATA_BASE_ADDR	CONFIG_SYS_ISA_IO_BASE_ADDRESS
-#define CONFIG_SYS_ATA_IDE0_OFFSET	0x01f0
-#define CONFIG_SYS_ATA_IDE1_OFFSET	0x0170
-#define CONFIG_SYS_ATA_DATA_OFFSET	0
-#define CONFIG_SYS_ATA_REG_OFFSET	0
-#define CONFIG_SYS_ATA_ALT_OFFSET	0x200
-
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_COMMAND_HISTORY
+#define CONFIG_AUTOCOMPLETE
 
 #define CONFIG_SUPPORT_VFAT
 /************************************************************
@@ -124,19 +119,30 @@
 /************************************************************
  * DISK Partition support
  ************************************************************/
+#define CONFIG_EFI_PARTITION
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION		/* Experimental */
 
+#define CONFIG_CMD_PART
 #define CONFIG_CMD_CBFS
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
+#define CONFIG_PARTITION_UUIDS
 
 /*-----------------------------------------------------------------------
  * Video Configuration
  */
-#undef CONFIG_VIDEO
-#undef CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_COREBOOT
+#define CONFIG_VIDEO_SW_CURSOR
+#define VIDEO_FB_16BPP_WORD_SWAP
+#define CONFIG_I8042_KBD
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_SYS_CONSOLE_INFO_QUIET
+
+/* x86 GPIOs are accessed through a PCI device */
+#define CONFIG_INTEL_ICH6_GPIO
 
 /*-----------------------------------------------------------------------
  * Command line configuration.
@@ -150,6 +156,7 @@
 #define CONFIG_CMD_ECHO
 #undef CONFIG_CMD_FLASH
 #define CONFIG_CMD_FPGA
+#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_IMI
 #undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_IRQ
@@ -167,12 +174,19 @@
 #define CONFIG_CMD_SETGETDCR
 #define CONFIG_CMD_SOURCE
 #define CONFIG_CMD_XIMG
-#define CONFIG_CMD_IDE
+#define CONFIG_CMD_SCSI
+
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 
+#define CONFIG_CMD_ZBOOT
+
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS		"root=/dev/mtdblock0 console=ttyS0,9600"
+#define CONFIG_BOOTARGS		\
+	"root=/dev/sdb3 init=/sbin/init rootwait ro"
+#define CONFIG_BOOTCOMMAND	\
+	"ext2load scsi 0:3 01000000 /boot/vmlinuz; zboot 01000000"
+
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE			115200

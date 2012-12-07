@@ -78,6 +78,12 @@ static inline gd_t *get_fs_gd_ptr(void)
 
 #include <asm-generic/global_data_flags.h>
 
+/*
+ * Our private Global Data Flags
+ */
+#define GD_FLG_COLD_BOOT	0x00100	/* Cold Boot */
+#define GD_FLG_WARM_BOOT	0x00200	/* Warm Boot */
+
 #define DECLARE_GLOBAL_DATA_PTR
 
 #endif /* __ASM_GBL_DATA_H */

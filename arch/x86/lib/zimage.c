@@ -36,6 +36,10 @@
 #include <asm/realmode.h>
 #include <asm/byteorder.h>
 #include <asm/bootparam.h>
+#ifdef CONFIG_SYS_COREBOOT
+#include <asm/arch/timestamp.h>
+#endif
+#include <linux/compiler.h>
 
 /*
  * Memory lay-out:
@@ -279,10 +283,23 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	return 0;
 }
 
+/*
+ * Implement a weak default function for boards that optionally
+ * need to clean up the system before jumping to the kernel.
+ */
+__weak void board_final_cleanup(void)
+{
+}
+
 void boot_zimage(void *setup_base, void *load_address)
 {
+	board_final_cleanup();
+
 	printf("\nStarting kernel ...\n\n");
 
+#ifdef CONFIG_SYS_COREBOOT
+	timestamp_add_now(TS_U_BOOT_START_KERNEL);
+#endif
 #if defined CONFIG_ZBOOT_32
 	/*
 	 * Set %ebx, %ebp, and %edi to 0, %esi to point to the boot_params
@@ -292,9 +309,9 @@ void boot_zimage(void *setup_base, void *load_address)
 	 * itself in arch/i386/cpu/cpu.c.
 	 */
 	__asm__ __volatile__ (
-	"movl $0, %%ebp		\n"
-	"cli			\n"
-	"jmp %[kernel_entry]	\n"
+	"movl $0, %%ebp\n"
+	"cli\n"
+	"jmp *%[kernel_entry]\n"
 	:: [kernel_entry]"a"(load_address),
 	   [boot_params] "S"(setup_base),
 	   "b"(0), "D"(0)

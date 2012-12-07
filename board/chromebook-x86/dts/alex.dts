@@ -1,5 +1,7 @@
 /dts-v1/;
 
+/include/ "coreboot.dtsi"
+
 / {
         #address-cells = <1>;
         #size-cells = <1>;
@@ -10,19 +12,11 @@
 	       silent_console = <0>;
 	};
 
-	aliases {
-		console = "/serial@e0401000";
-	};
+        gpio: gpio {};
 
-	serial@e0401000 {
-		compatible = "ns16550";
-		reg = <0xe0401000 0x40>;
-		id = <1>;
-		reg-shift = <1>;
-		baudrate = <115200>;
-		clock-frequency = <4000000>;
-		multiplier = <1>;
-		status = "ok";
+	serial {
+		reg = <0x3f8 8>;
+		clock-frequency = <115200>;
 	};
 
         chosen { };

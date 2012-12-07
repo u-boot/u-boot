@@ -32,7 +32,7 @@ COBJS-y	+= realmode.o
 SOBJS-y	+= realmode_switch.o
 
 COBJS-$(CONFIG_SYS_PC_BIOS)	+= bios_setup.o
-COBJS-$(CONFIG_VIDEO)	+= video_bios.o
+COBJS-$(CONFIG_VIDEO_VGA)	+= video_bios.o
 endif
 
 COBJS-y	+= board.o
@@ -47,9 +47,10 @@ COBJS-$(CONFIG_SYS_GENERIC_TIMER) += pcat_timer.o
 COBJS-$(CONFIG_PCI) += pci.o
 COBJS-$(CONFIG_PCI) += pci_type1.o
 COBJS-y	+= relocate.o
+COBJS-y += physmem.o
 COBJS-y	+= string.o
 COBJS-$(CONFIG_SYS_X86_ISR_TIMER)	+= timer.o
-COBJS-$(CONFIG_VIDEO)	+= video.o
+COBJS-$(CONFIG_VIDEO_VGA)	+= video.o
 COBJS-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)

@@ -99,10 +99,17 @@ typedef int (init_fnc_t) (void);
 init_fnc_t *init_sequence_f[] = {
 	cpu_init_f,
 	board_early_init_f,
+#ifdef CONFIG_OF_CONTROL
+	find_fdt,
+	fdtdec_check_fdt,
+#endif
 	env_init,
 	init_baudrate_f,
 	serial_init,
 	console_init_f,
+#ifdef CONFIG_OF_CONTROL
+	prepare_fdt,
+#endif
 	dram_init_f,
 	calculate_relocation_address,
 
@@ -153,6 +160,9 @@ init_fnc_t *init_sequence_r[] = {
 	serial_initialize_r,
 #ifndef CONFIG_SYS_NO_FLASH
 	flash_init_r,
+#endif
+#ifdef CONFIG_SPI
+	init_func_spi;
 #endif
 	env_relocate_r,
 #ifdef CONFIG_PCI
