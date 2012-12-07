@@ -1022,7 +1022,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	extern struct mtd_info nand_info[];
 	unsigned long ecc_page_size;
 	int err = 0;
-	u8 maf_id, dev_id;
+	u8 maf_id, dev_id, i;
 	u8 get_feature[4];
 	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
 	unsigned long ecc_cfg;
@@ -1093,7 +1093,12 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 				(dev_id == 0xd3) || (dev_id == 0xc3))) {
 		nand_chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES,
 						ONDIE_ECC_FEATURE_ADDR, -1);
-		nand_chip->write_buf(mtd, set_feature, 4);
+
+		for (i = 0; i < 4; i++)
+			writeb(set_feature[i], nand_chip->IO_ADDR_W);
+
+		/* wait for 1us after writing data with SET_FEATURES command */
+		ndelay(1000);
 
 		nand_chip->cmdfunc(mtd, NAND_CMD_GET_FEATURES,
 						ONDIE_ECC_FEATURE_ADDR, -1);
