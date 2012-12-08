@@ -118,7 +118,8 @@ struct zynq_i2c_registers {
 #error You must select CONFIG_ZYNQ_I2C_CTLR_0 or CONFIG_ZYNQ_I2C_CTLR_1
 #endif
 
-#define ZYNQ_I2C_FIFO_DEPTH 16
+#define ZYNQ_I2C_FIFO_DEPTH		16
+#define ZYNQ_I2C_TRANSFERT_SIZE_MAX	255 /* Controller transfer limit */
 
 static struct zynq_i2c_registers *zynq_i2c =
 	(struct zynq_i2c_registers *) ZYNQ_I2C_BASE;
@@ -212,6 +213,10 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	u32 status;
 	u32 i=0;
 	u8 *cur_data = data;
+
+	/* check the hardware can handle the requested bytes */
+	if ((length < 0) || (length > ZYNQ_I2C_TRANSFERT_SIZE_MAX))
+		return -EINVAL;
 
 	/* Write the register address */
 	Xsetbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_CLR_FIFO |
