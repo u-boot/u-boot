@@ -868,7 +868,7 @@ static void mmc_set_bus_width(struct mmc *mmc, uint width)
 
 static int mmc_startup(struct mmc *mmc)
 {
-	int err, width;
+	int err;
 	uint mult, freq;
 	u64 cmult, csize, capacity;
 	struct mmc_cmd cmd;
@@ -1087,21 +1087,44 @@ static int mmc_startup(struct mmc *mmc)
 		else
 			mmc->tran_speed = 25000000;
 	} else {
-		width = ((mmc->host_caps & MMC_MODE_MASK_WIDTH_BITS) >>
-			 MMC_MODE_WIDTH_BITS_SHIFT);
-		for (; width >= 0; width--) {
-			/* Set the card to use 4 bit*/
+		int idx;
+
+		/* An array of possible bus widths in order of preference */
+		static unsigned ext_csd_bits[] = {
+			EXT_CSD_BUS_WIDTH_8,
+			EXT_CSD_BUS_WIDTH_4,
+			EXT_CSD_BUS_WIDTH_1,
+		};
+
+		/* An array to map CSD bus widths to host cap bits */
+		static unsigned ext_to_hostcaps[] = {
+			[EXT_CSD_BUS_WIDTH_4] = MMC_MODE_4BIT,
+			[EXT_CSD_BUS_WIDTH_8] = MMC_MODE_8BIT,
+		};
+
+		/* An array to map chosen bus width to an integer */
+		static unsigned widths[] = {
+			8, 4, 1,
+		};
+
+		for (idx=0; idx < ARRAY_SIZE(ext_csd_bits); idx++) {
+			unsigned int extw = ext_csd_bits[idx];
+
+			/*
+			 * Check to make sure the controller supports
+			 * this bus width, if it's more than 1
+			 */
+			if (extw != EXT_CSD_BUS_WIDTH_1 &&
+					!(mmc->host_caps & ext_to_hostcaps[extw]))
+				continue;
+
 			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
-					EXT_CSD_BUS_WIDTH, width);
+					EXT_CSD_BUS_WIDTH, extw);
 
 			if (err)
 				continue;
 
-			if (!width) {
-				mmc_set_bus_width(mmc, 1);
-				break;
-			} else
-				mmc_set_bus_width(mmc, 4 * width);
+			mmc_set_bus_width(mmc, widths[idx]);
 
 			err = mmc_send_ext_csd(mmc, test_csd);
 			if (!err && ext_csd[EXT_CSD_PARTITIONING_SUPPORT] \
@@ -1115,7 +1138,7 @@ static int mmc_startup(struct mmc *mmc)
 				 && memcmp(&ext_csd[EXT_CSD_SEC_CNT], \
 					&test_csd[EXT_CSD_SEC_CNT], 4) == 0) {
 
-				mmc->card_caps |= width;
+				mmc->card_caps |= ext_to_hostcaps[extw];
 				break;
 			}
 		}
@@ -1135,13 +1158,15 @@ static int mmc_startup(struct mmc *mmc)
 	mmc->block_dev.type = 0;
 	mmc->block_dev.blksz = mmc->read_bl_len;
 	mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
-	sprintf(mmc->block_dev.vendor, "Man %06x Snr %08x", mmc->cid[0] >> 8,
-			(mmc->cid[2] << 8) | (mmc->cid[3] >> 24));
-	sprintf(mmc->block_dev.product, "%c%c%c%c%c", mmc->cid[0] & 0xff,
-			(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
-			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
-	sprintf(mmc->block_dev.revision, "%d.%d", mmc->cid[2] >> 28,
-			(mmc->cid[2] >> 24) & 0xf);
+	sprintf(mmc->block_dev.vendor, "Man %06x Snr %04x%04x",
+		mmc->cid[0] >> 24, (mmc->cid[2] & 0xffff),
+		(mmc->cid[3] >> 16) & 0xffff);
+	sprintf(mmc->block_dev.product, "%c%c%c%c%c%c", mmc->cid[0] & 0xff,
+		(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
+		(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff,
+		(mmc->cid[2] >> 24) & 0xff);
+	sprintf(mmc->block_dev.revision, "%d.%d", (mmc->cid[2] >> 20) & 0xf,
+		(mmc->cid[2] >> 16) & 0xf);
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
 	init_part(&mmc->block_dev);
 #endif

@@ -615,6 +615,7 @@ int fit_image_check_type(const void *fit, int noffset, uint8_t type);
 int fit_image_check_comp(const void *fit, int noffset, uint8_t comp);
 int fit_check_format(const void *fit);
 
+int fit_conf_find_compat(const void *fit, const void *fdt);
 int fit_conf_get_node(const void *fit, const char *conf_uname);
 int fit_conf_get_kernel_node(const void *fit, int noffset);
 int fit_conf_get_ramdisk_node(const void *fit, int noffset);

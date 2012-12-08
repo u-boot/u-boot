@@ -31,6 +31,8 @@
 
 #include <serial.h>
 
+#ifndef CONFIG_NS16550_MIN_FUNCTIONS
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_CONS_INDEX)
@@ -304,3 +306,5 @@ void ns16550_serial_initialize(void)
 	serial_register(&eserial6_device);
 #endif
 }
+
+#endif /* !CONFIG_NS16550_MIN_FUNCTIONS */

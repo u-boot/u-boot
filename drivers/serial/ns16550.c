@@ -36,6 +36,9 @@
 
 void NS16550_init(NS16550_t com_port, int baud_divisor)
 {
+	while (!(serial_in(&com_port->lsr) & UART_LSR_TEMT))
+		;
+
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
 #if (defined(CONFIG_OMAP) && !defined(CONFIG_OMAP3_ZOOM2)) || \
 					defined(CONFIG_AM33XX)

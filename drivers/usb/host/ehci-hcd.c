@@ -210,6 +210,18 @@ static int ehci_td_buffer(struct qTD *td, void *buf, size_t sz)
 	return 0;
 }
 
+static inline u8 ehci_encode_speed(enum usb_device_speed speed)
+{
+	#define QH_HIGH_SPEED	2
+	#define QH_FULL_SPEED	0
+	#define QH_LOW_SPEED	1
+	if (speed == USB_SPEED_HIGH)
+		return QH_HIGH_SPEED;
+	if (speed == USB_SPEED_LOW)
+		return QH_LOW_SPEED;
+	return QH_FULL_SPEED;
+}
+
 static int
 ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int length, struct devrequest *req)
@@ -318,12 +330,12 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	 * - qh_overlay.qt_altnext
 	 */
 	qh->qh_link = cpu_to_hc32((uint32_t)&ctrl->qh_list | QH_LINK_TYPE_QH);
-	c = usb_pipespeed(pipe) != USB_SPEED_HIGH && !usb_pipeendpoint(pipe);
+	c = (dev->speed != USB_SPEED_HIGH) && !usb_pipeendpoint(pipe);
 	maxpacket = usb_maxpacket(dev, pipe);
 	endpt = QH_ENDPT1_RL(8) | QH_ENDPT1_C(c) |
 		QH_ENDPT1_MAXPKTLEN(maxpacket) | QH_ENDPT1_H(0) |
 		QH_ENDPT1_DTC(QH_ENDPT1_DTC_DT_FROM_QTD) |
-		QH_ENDPT1_EPS(usb_pipespeed(pipe)) |
+		QH_ENDPT1_EPS(ehci_encode_speed(dev->speed)) |
 		QH_ENDPT1_ENDPT(usb_pipeendpoint(pipe)) | QH_ENDPT1_I(0) |
 		QH_ENDPT1_DEVADDR(usb_pipedevice(pipe));
 	qh->qh_endpt1 = cpu_to_hc32(endpt);

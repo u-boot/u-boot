@@ -33,6 +33,11 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <asm/errno.h>
+#include <linux/usb/ch9.h>
+#include <linux/usb/gadget.h>
+#include <linux/usb/musb.h>
+#include <asm/omap_musb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -62,4 +67,84 @@ void setup_clocks_for_console(void)
 {
 	/* Not yet implemented */
 	return;
+}
+
+/* AM33XX has two MUSB controllers which can be host or gadget */
+#if (defined(CONFIG_MUSB_GADGET) || defined(CONFIG_MUSB_HOST)) && \
+	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1))
+static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
+
+/* USB 2.0 PHY Control */
+#define CM_PHY_PWRDN			(1 << 0)
+#define CM_PHY_OTG_PWRDN		(1 << 1)
+#define OTGVDET_EN			(1 << 19)
+#define OTGSESSENDEN			(1 << 20)
+
+static void am33xx_usb_set_phy_power(u8 on, u32 *reg_addr)
+{
+	if (on) {
+		clrsetbits_le32(reg_addr, CM_PHY_PWRDN | CM_PHY_OTG_PWRDN,
+				OTGVDET_EN | OTGSESSENDEN);
+	} else {
+		clrsetbits_le32(reg_addr, 0, CM_PHY_PWRDN | CM_PHY_OTG_PWRDN);
+	}
+}
+
+static struct musb_hdrc_config musb_config = {
+	.multipoint     = 1,
+	.dyn_fifo       = 1,
+	.num_eps        = 16,
+	.ram_bits       = 12,
+};
+
+#ifdef CONFIG_AM335X_USB0
+static void am33xx_otg0_set_phy_power(u8 on)
+{
+	am33xx_usb_set_phy_power(on, &cdev->usb_ctrl0);
+}
+
+struct omap_musb_board_data otg0_board_data = {
+	.set_phy_power = am33xx_otg0_set_phy_power,
+};
+
+static struct musb_hdrc_platform_data otg0_plat = {
+	.mode           = CONFIG_AM335X_USB0_MODE,
+	.config         = &musb_config,
+	.power          = 50,
+	.platform_ops	= &musb_dsps_ops,
+	.board_data	= &otg0_board_data,
+};
+#endif
+
+#ifdef CONFIG_AM335X_USB1
+static void am33xx_otg1_set_phy_power(u8 on)
+{
+	am33xx_usb_set_phy_power(on, &cdev->usb_ctrl1);
+}
+
+struct omap_musb_board_data otg1_board_data = {
+	.set_phy_power = am33xx_otg1_set_phy_power,
+};
+
+static struct musb_hdrc_platform_data otg1_plat = {
+	.mode           = CONFIG_AM335X_USB1_MODE,
+	.config         = &musb_config,
+	.power          = 50,
+	.platform_ops	= &musb_dsps_ops,
+	.board_data	= &otg1_board_data,
+};
+#endif
+#endif
+
+int arch_misc_init(void)
+{
+#ifdef CONFIG_AM335X_USB0
+	musb_register(&otg0_plat, &otg0_board_data,
+		(void *)AM335X_USB0_OTG_BASE);
+#endif
+#ifdef CONFIG_AM335X_USB1
+	musb_register(&otg1_plat, &otg1_board_data,
+		(void *)AM335X_USB1_OTG_BASE);
+#endif
+	return 0;
 }

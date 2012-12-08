@@ -553,6 +553,7 @@ extern unsigned long get_sdram_size(void);
 
 /* SATA */
 #define CONFIG_FSL_SATA
+#define CONFIG_FSL_SATA_V2
 #define CONFIG_LIBATA
 
 #ifdef CONFIG_FSL_SATA

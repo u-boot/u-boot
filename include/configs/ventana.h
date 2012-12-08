@@ -75,6 +75,9 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
+/* USB keyboard */
+#define CONFIG_USB_KEYBOARD
+
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

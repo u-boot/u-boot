@@ -1342,4 +1342,10 @@ void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 #endif
 #endif /* CONFIG_MACH_SPECIFIC */
 
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_440)
+ #define EPAPR_MAGIC	(0x45504150)
+#else
+ #define EPAPR_MAGIC	(0x65504150)
+#endif
+
 #endif /* __ASM_PPC_PROCESSOR_H */

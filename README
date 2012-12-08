@@ -54,6 +54,11 @@ In case of problems see the CHANGELOG and CREDITS files to find out
 who contributed the specific port. The MAINTAINERS file lists board
 maintainers.
 
+Note: There is no CHANGELOG file in the actual U-Boot source tree;
+it can be created dynamically from the Git log using:
+
+	make CHANGELOG
+
 
 Where to get help:
 ==================
@@ -1409,6 +1414,13 @@ CBFS (Coreboot Filesystem) support
 		boot.  See the documentation file README.video for a
 		description of this variable.
 
+		CONFIG_VIDEO_VGA
+
+		Enable the VGA video / BIOS for x86. The alternative if you
+		are using coreboot is to use the coreboot frame buffer
+		driver.
+
+
 - Keyboard Support:
 		CONFIG_KEYBOARD
 
@@ -1468,6 +1480,11 @@ CBFS (Coreboot Filesystem) support
 
 		Normally display is black on white background; define
 		CONFIG_SYS_WHITE_ON_BLACK to get it inverted.
+
+		CONFIG_LCD_BMP_RLE8
+
+		Support drawing of RLE8-compressed bitmaps on the LCD.
+
 
 - Splash Screen Support: CONFIG_SPLASH_SCREEN
 
@@ -2195,6 +2212,14 @@ CBFS (Coreboot Filesystem) support
 			HERMES, IP860, RPXlite, LWMON,
 			FLAGADM, TQM8260
 
+- Access to physical memory region (> 4GB)
+		Some basic support is provided for operations on memory not
+		normally accessible to U-Boot - e.g. some architectures
+		support access to more than 4GB of memory on 32-bit
+		machines using physical address extension or similar.
+		Define CONFIG_PHYSMEM to access this basic support, which
+		currently only supports clearing the memory.
+
 - Error Recovery:
 		CONFIG_PANIC_HANG
 
@@ -2597,6 +2622,17 @@ FIT uImage format:
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
 
+- FIT image support:
+		CONFIG_FIT
+		Enable support for the FIT uImage format.
+
+		CONFIG_FIT_BEST_MATCH
+		When no configuration is explicitly selected, default to the
+		one whose fdt's compatibility field best matches that of
+		U-Boot itself. A match is considered "best" if it matches the
+		most specific compatibility entry of U-Boot's fdt's root node.
+		The order of entries in the configuration's fdt is ignored.
+
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
 
@@ -2648,6 +2684,10 @@ FIT uImage format:
 		CONFIG_SPL_TEXT_BASE
 		TEXT_BASE for linking the SPL binary.
 
+		CONFIG_SPL_RELOC_TEXT_BASE
+		Address to relocate to.  If unspecified, this is equal to
+		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).
+
 		CONFIG_SPL_BSS_START_ADDR
 		Link address for the BSS within the SPL binary.
 
@@ -2656,6 +2696,11 @@ FIT uImage format:
 
 		CONFIG_SPL_STACK
 		Adress of the start of the stack SPL will use
+
+		CONFIG_SPL_RELOC_STACK
+		Adress of the start of the stack SPL will use after
+		relocation.  If unspecified, this is equal to
+		CONFIG_SPL_STACK.
 
 		CONFIG_SYS_SPL_MALLOC_START
 		Starting address of the malloc pool used in SPL.
@@ -2671,6 +2716,9 @@ FIT uImage format:
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information
 		about the running system.
+
+		CONFIG_SPL_INIT_MINIMAL
+		Arch init code should be built for a very small image
 
 		CONFIG_SPL_LIBCOMMON_SUPPORT
 		Support for common/libcommon.o in SPL binary
@@ -2699,8 +2747,19 @@ FIT uImage format:
 		CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from FAT
 
+		CONFIG_SPL_NAND_BASE
+		Include nand_base.c in the SPL.  Requires
+		CONFIG_SPL_NAND_DRIVERS.
+
+		CONFIG_SPL_NAND_DRIVERS
+		SPL uses normal NAND drivers, not minimal drivers.
+
+		CONFIG_SPL_NAND_ECC
+		Include standard software ECC in the SPL
+
 		CONFIG_SPL_NAND_SIMPLE
-		Support for drivers/mtd/nand/libnand.o in SPL binary
+		Support for NAND boot using simple NAND drivers that
+		expose the cmd_ctrl() interface.
 
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
@@ -2708,15 +2767,19 @@ FIT uImage format:
 		CONFIG_SYS_NAND_ECCPOS, CONFIG_SYS_NAND_ECCSIZE,
 		CONFIG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
-		to read U-Boot with CONFIG_SPL_NAND_SIMPLE
+		to read U-Boot
 
 		CONFIG_SYS_NAND_U_BOOT_OFFS
-		Location in NAND for CONFIG_SPL_NAND_SIMPLE to read U-Boot
-		from.
+		Location in NAND to read U-Boot from
+
+		CONFIG_SYS_NAND_U_BOOT_DST
+		Location in memory to load U-Boot to
+
+		CONFIG_SYS_NAND_U_BOOT_SIZE
+		Size of image to load
 
 		CONFIG_SYS_NAND_U_BOOT_START
-		Location in memory for CONFIG_SPL_NAND_SIMPLE to load U-Boot
-		to.
+		Entry point in loaded image to jump to
 
 		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
 		Define this if you need to first read the OOB and then the
@@ -2740,6 +2803,11 @@ FIT uImage format:
 
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
+
+		CONFIG_SPL_TARGET
+		Final target image containing SPL and payload.  Some SPLs
+		use an arch-specific makefile fragment instead, for
+		example if more than one image needs to be produced.
 
 Modem Support:
 --------------
@@ -3616,6 +3684,16 @@ Low Level (hardware related) configuration options:
 		be used if available. These functions may be faster under some
 		conditions but may increase the binary size.
 
+- CONFIG_X86_NO_RESET_VECTOR
+		If defined, the x86 reset vector code is excluded. You will need
+		to do this when U-Boot is running from Coreboot.
+
+- CONFIG_X86_NO_REAL_MODE
+		If defined, x86 real mode code is omitted. This assumes a
+		32-bit environment where such code is not needed. You will
+		need to do this when U-Boot is running from Coreboot.
+
+
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
 
@@ -3843,6 +3921,7 @@ saveenv - save environment variables to persistent storage
 protect - enable or disable FLASH write protection
 erase	- erase FLASH memory
 flinfo	- print FLASH memory information
+nand	- NAND memory operations (see doc/README.nand)
 bdinfo	- print Board Info structure
 iminfo	- print header information for application image
 coninfo - print console devices and informations

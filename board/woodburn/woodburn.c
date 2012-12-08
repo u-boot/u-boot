@@ -31,7 +31,7 @@
 #include <asm/arch/mx35_pins.h>
 #include <asm/arch/iomux.h>
 #include <i2c.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
 #include <mmc.h>
@@ -178,12 +178,16 @@ int board_init(void)
 {
 	struct pmic *p;
 	u32 val;
+	int ret;
 
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
-	pmic_init();
-	p = get_pmic();
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return ret;
+
+	p = pmic_get("FSL_PMIC");
 
 	/*
 	 * Set switchers in Auto in NORMAL mode & STANDBY mode

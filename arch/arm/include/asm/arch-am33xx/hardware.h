@@ -87,4 +87,8 @@
 /* RTC base address */
 #define AM335X_RTC_BASE			0x44E3E000
 
+/* OTG */
+#define AM335X_USB0_OTG_BASE		0x47401000
+#define AM335X_USB1_OTG_BASE		0x47401800
+
 #endif /* __AM33XX_HARDWARE_H */

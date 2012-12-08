@@ -120,5 +120,8 @@ int	drv_nc_init (void);
 #ifdef CONFIG_JTAG_CONSOLE
 int drv_jtag_console_init (void);
 #endif
+#ifdef CONFIG_CBMEM_CONSOLE
+int cbmemc_init(void);
+#endif
 
 #endif

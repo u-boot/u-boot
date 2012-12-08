@@ -99,10 +99,8 @@
 #define CONFIG_TEGRA_KEYBOARD
 #define CONFIG_KEYBOARD
 
-#undef TEGRA_DEVICE_SETTINGS
-#define TEGRA_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
-				"stdout=serial\0" \
-				"stderr=serial\0"
+/* USB keyboard */
+#define CONFIG_USB_KEYBOARD
 
 #include "tegra-common-post.h"
 

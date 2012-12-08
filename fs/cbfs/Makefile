@@ -1,6 +1,4 @@
-#
-# See file CREDITS for list of people who contributed to this
-# project.
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as

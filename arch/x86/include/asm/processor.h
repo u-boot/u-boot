@@ -41,6 +41,7 @@ enum {
 #else
 /* NOTE: If the above enum is modified, this define must be checked */
 #define X86_GDT_ENTRY_32BIT_DS	3
+#define X86_GDT_NUM_ENTRIES	7
 #endif
 
 #define X86_GDT_SIZE		(X86_GDT_NUM_ENTRIES * X86_GDT_ENTRY_SIZE)

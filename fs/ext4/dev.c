@@ -52,6 +52,7 @@ void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
 	part_info = info;
 	part_offset = info->start;
 	get_fs()->total_sect = (info->size * info->blksz) / SECTOR_SIZE;
+	get_fs()->dev_desc = rbdd;
 }
 
 int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)

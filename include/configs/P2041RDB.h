@@ -202,15 +202,21 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 /* Set the local bus clock 1/8 of platform clock */
 #define CONFIG_SYS_LBC_LCRR		LCRR_CLKDIV_8
 
-#define CONFIG_SYS_FLASH_BASE		0xe8000000	/* Start of PromJet */
+/*
+ * This board doesn't have a promjet connector.
+ * However, it uses commone corenet board LAW and TLB.
+ * It is necessary to use the same start address with proper offset.
+ */
+#define CONFIG_SYS_FLASH_BASE		0xe0000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_FLASH_BASE_PHYS	0xfe8000000ull
+#define CONFIG_SYS_FLASH_BASE_PHYS	0xfe0000000ull
 #else
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 #endif
 
 #define CONFIG_SYS_FLASH_BR_PRELIM \
-		(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
+		(BR_PHYS_ADDR((CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000)) | \
+		BR_PS_16 | BR_V)
 #define CONFIG_SYS_FLASH_OR_PRELIM \
 		((0xf8000ff7 & ~OR_GPCM_SCY & ~OR_GPCM_EHTR) \
 		 | OR_GPCM_SCY_8 | OR_GPCM_EHTR_CLEAR)
@@ -294,7 +300,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_AMD_CHECK_DQ7
-#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS}
+#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000}
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
@@ -539,7 +545,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xEF000000
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xEFF40000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
@@ -560,8 +566,10 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #endif	/* CONFIG_PCI */
 
 /* SATA */
+#define CONFIG_FSL_SATA_V2
+
+#ifdef CONFIG_FSL_SATA_V2
 #define CONFIG_FSL_SATA
-#ifdef CONFIG_FSL_SATA
 #define CONFIG_LIBATA
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
