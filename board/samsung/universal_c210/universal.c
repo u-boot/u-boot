@@ -55,6 +55,8 @@ static int get_hwrev(void)
 	return board_rev & 0xFF;
 }
 
+static void init_pmic_lcd(void);
+
 int power_init_board(void)
 {
 	int ret;
@@ -62,6 +64,8 @@ int power_init_board(void)
 	ret = pmic_init(I2C_5);
 	if (ret)
 		return ret;
+
+	init_pmic_lcd();
 
 	return 0;
 }
@@ -337,7 +341,7 @@ static void init_pmic_lcd(void)
 	unsigned char val;
 	int ret = 0;
 
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
 
 	if (pmic_probe(p))
 		return;
@@ -428,7 +432,7 @@ static void reset_lcd(void)
 
 static void lcd_power_on(void)
 {
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
 
 	if (pmic_probe(p))
 		return;
