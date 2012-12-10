@@ -18,15 +18,7 @@
 
 #include "ddr.h"
 
-#ifdef CONFIG_MPC83xx
-	#define _DDR_ADDR CONFIG_SYS_MPC83xx_DDR_ADDR
-#elif defined(CONFIG_MPC85xx)
-	#define _DDR_ADDR CONFIG_SYS_MPC85xx_DDR_ADDR
-#elif defined(CONFIG_MPC86xx)
-	#define _DDR_ADDR CONFIG_SYS_MPC86xx_DDR_ADDR
-#else
-	#error "Undefined _DDR_ADDR"
-#endif
+#define _DDR_ADDR CONFIG_SYS_MPC8xxx_DDR_ADDR
 
 static u32 fsl_ddr_get_version(void)
 {

@@ -1515,6 +1515,13 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 
 	padded_line = (((width * bpp + 7) / 8) + 3) & ~0x3;
 
+	/*
+	 * Just ignore elements which are completely beyond screen
+	 * dimensions.
+	 */
+	if ((x >= VIDEO_VISIBLE_COLS) || (y >= VIDEO_VISIBLE_ROWS))
+		return 0;
+
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	if (x == BMP_ALIGN_CENTER)
 		x = max(0, (VIDEO_VISIBLE_COLS - width) / 2);
@@ -2256,4 +2263,48 @@ int drv_video_init(void)
 
 	/* Return success */
 	return 1;
+}
+
+void video_position_cursor(unsigned col, unsigned row)
+{
+	console_col = min(col, CONSOLE_COLS - 1);
+	console_row = min(row, CONSOLE_ROWS - 1);
+}
+
+int video_get_pixel_width(void)
+{
+	return VIDEO_VISIBLE_COLS;
+}
+
+int video_get_pixel_height(void)
+{
+	return VIDEO_VISIBLE_ROWS;
+}
+
+int video_get_screen_rows(void)
+{
+	return CONSOLE_ROWS;
+}
+
+int video_get_screen_columns(void)
+{
+	return CONSOLE_COLS;
+}
+
+void video_clear(void)
+{
+	if (!video_fb_address)
+		return;
+#ifdef VIDEO_HW_RECTFILL
+	video_hw_rectfill(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
+			  0,			/* dest pos x */
+			  0,			/* dest pos y */
+			  VIDEO_VISIBLE_COLS,	/* frame width */
+			  VIDEO_VISIBLE_ROWS,	/* frame height */
+			  bgx			/* fill color */
+	);
+#else
+	memsetl(video_fb_address,
+		(VIDEO_VISIBLE_ROWS * VIDEO_LINE_LEN) / sizeof(int), bgx);
+#endif
 }

@@ -122,7 +122,6 @@ static __inline__ void __swab32s(__u32 *addr)
 	__arch__swab32s(addr);
 }
 
-#ifdef __BYTEORDER_HAS_U64__
 static __inline__ __attribute__((const)) __u64 __fswab64(__u64 x)
 {
 #  ifdef __SWAB_64_THRU_32__
@@ -141,7 +140,6 @@ static __inline__ void __swab64s(__u64 *addr)
 {
 	__arch__swab64s(addr);
 }
-#endif /* __BYTEORDER_HAS_U64__ */
 
 #if defined(__KERNEL__)
 #define swab16 __swab16

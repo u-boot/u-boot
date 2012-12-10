@@ -199,7 +199,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 		break;
 	}
 	puts ("\n");
-	if ((dev_desc->lba * dev_desc->blksz)>0L) {
+	if (dev_desc->lba > 0L && dev_desc->blksz > 0L) {
 		ulong mb, mb_quot, mb_rem, gb, gb_quot, gb_rem;
 		lbaint_t lba;
 

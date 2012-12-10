@@ -949,8 +949,19 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 			 * node
 			 */
 			bootstage_mark(BOOTSTAGE_ID_FIT_NO_UNIT_NAME);
+#ifdef CONFIG_FIT_BEST_MATCH
+			if (fit_uname_config)
+				cfg_noffset =
+					fit_conf_get_node(fit_hdr,
+							  fit_uname_config);
+			else
+				cfg_noffset =
+					fit_conf_find_compat(fit_hdr,
+							     gd->fdt_blob);
+#else
 			cfg_noffset = fit_conf_get_node(fit_hdr,
 							fit_uname_config);
+#endif
 			if (cfg_noffset < 0) {
 				bootstage_error(BOOTSTAGE_ID_FIT_NO_UNIT_NAME);
 				return NULL;

@@ -379,9 +379,14 @@ static struct cpsw_platform_data cpsw_data = {
 	.host_port_num		= 0,
 	.version		= CPSW_CTRL_VERSION_2,
 };
+#endif
 
+#if defined(CONFIG_DRIVER_TI_CPSW) || \
+	(defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET))
 int board_eth_init(bd_t *bis)
 {
+	int rv, n = 0;
+#ifdef CONFIG_DRIVER_TI_CPSW
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 
@@ -400,7 +405,7 @@ int board_eth_init(bd_t *bis)
 		if (is_valid_ether_addr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
 		else
-			return -1;
+			goto try_usbether;
 	}
 
 	if (board_is_bone() || board_is_bone_lt() || board_is_idk()) {
@@ -413,6 +418,20 @@ int board_eth_init(bd_t *bis)
 				PHY_INTERFACE_MODE_RGMII;
 	}
 
-	return cpsw_register(&cpsw_data);
+	rv = cpsw_register(&cpsw_data);
+	if (rv < 0)
+		printf("Error %d registering CPSW switch\n", rv);
+	else
+		n += rv;
+#endif
+try_usbether:
+#if defined(CONFIG_USB_ETHER) && !defined(CONFIG_SPL_BUILD)
+	rv = usb_eth_initialize(bis);
+	if (rv < 0)
+		printf("Error %d registering USB_ETHER\n", rv);
+	else
+		n += rv;
+#endif
+	return n;
 }
 #endif

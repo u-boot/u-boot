@@ -177,7 +177,7 @@ void board_gpio_init(void)
 	 */
 
 	setbits_be32(&pgpio->gpdir, 0x02130000);
-#ifndef CONFIG_SYS_RAMBOOT
+#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SPL)
 	/* init DDR3 reset signal */
 	setbits_be32(&pgpio->gpdir, 0x00200000);
 	setbits_be32(&pgpio->gpodr, 0x00200000);

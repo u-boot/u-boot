@@ -103,6 +103,9 @@
 #define CONFIG_TEGRA_KEYBOARD
 #define CONFIG_KEYBOARD
 
+/* USB keyboard */
+#define CONFIG_USB_KEYBOARD
+
 #undef TEGRA_DEVICE_SETTINGS
 #define TEGRA_DEVICE_SETTINGS	"stdin=serial,tegra-kbc\0" \
 				"stdout=serial,lcd\0" \

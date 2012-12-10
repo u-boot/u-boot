@@ -1,5 +1,5 @@
 /* LzmaDec.c -- LZMA Decoder
-2008-11-06 : Igor Pavlov : Public domain */
+2009-09-20 : Igor Pavlov : Public domain */
 
 #include <config.h>
 #include <common.h>
@@ -116,12 +116,6 @@
 StopCompilingDueBUG
 #endif
 
-static const Byte kLiteralNextStates[kNumStates * 2] =
-{
-  0, 0, 0, 0, 1, 2, 3,  4,  5,  6,  4,  5,
-  7, 7, 7, 7, 7, 7, 7, 10, 10, 10, 10, 10
-};
-
 #define LZMA_DIC_MIN (1 << 12)
 
 /* First LZMA-symbol is always decoded.
@@ -180,6 +174,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
 
       if (state < kNumLitStates)
       {
+        state -= (state < 4) ? state : 3;
         symbol = 1;
 
         WATCHDOG_RESET();
@@ -190,6 +185,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
       {
         unsigned matchByte = p->dic[(dicPos - rep0) + ((dicPos < rep0) ? dicBufSize : 0)];
         unsigned offs = 0x100;
+        state -= (state < 10) ? 3 : 6;
         symbol = 1;
 
         WATCHDOG_RESET();
@@ -207,9 +203,6 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
       }
       dic[dicPos++] = (Byte)symbol;
       processedPos++;
-
-      state = kLiteralNextStates[state];
-      /* if (state < 4) state = 0; else if (state < 10) state -= 3; else state -= 6; */
       continue;
     }
     else
@@ -395,7 +388,6 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
         else if (distance >= checkDicSize)
           return SZ_ERROR_DATA;
         state = (state < kNumStates + kNumLitStates) ? kNumLitStates : kNumLitStates + 3;
-        /* state = kLiteralNextStates[state]; */
       }
 
       len += kMatchMinLen;

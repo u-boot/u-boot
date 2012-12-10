@@ -42,6 +42,11 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
+#include <asm/omap_musb.h>
+#include <asm/errno.h>
+#include <linux/usb/ch9.h>
+#include <linux/usb/gadget.h>
+#include <linux/usb/musb.h>
 #include "beagle.h"
 #include <command.h>
 
@@ -285,6 +290,33 @@ static void beagle_dvi_pup(void)
 }
 #endif
 
+#ifdef CONFIG_USB_MUSB_OMAP2PLUS
+static struct musb_hdrc_config musb_config = {
+	.multipoint     = 1,
+	.dyn_fifo       = 1,
+	.num_eps        = 16,
+	.ram_bits       = 12,
+};
+
+static struct omap_musb_board_data musb_board_data = {
+	.interface_type	= MUSB_INTERFACE_ULPI,
+};
+
+static struct musb_hdrc_platform_data musb_plat = {
+#if defined(CONFIG_MUSB_HOST)
+	.mode           = MUSB_HOST,
+#elif defined(CONFIG_MUSB_GADGET)
+	.mode		= MUSB_PERIPHERAL,
+#else
+#error "Please define either CONFIG_MUSB_HOST or CONFIG_MUSB_GADGET"
+#endif
+	.config         = &musb_config,
+	.power          = 100,
+	.platform_ops	= &omap2430_ops,
+	.board_data	= &musb_board_data,
+};
+#endif
+
 /*
  * Routine: misc_init_r
  * Description: Configure board specific parts
@@ -466,6 +498,10 @@ int misc_init_r(void)
 	omap3_dss_enable();
 #endif
 
+#ifdef CONFIG_USB_MUSB_OMAP2PLUS
+	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
+#endif
+
 	return 0;
 }
 
@@ -513,3 +549,10 @@ int ehci_hcd_stop(int index)
 }
 
 #endif /* CONFIG_USB_EHCI */
+
+#if defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)
+int board_eth_init(bd_t *bis)
+{
+	return usb_eth_initialize(bis);
+}
+#endif

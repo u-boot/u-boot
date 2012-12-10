@@ -257,6 +257,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	unsigned long pos;
 	int len_read;
 	char buf[12];
+	unsigned long time;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -293,11 +294,19 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	else
 		pos = 0;
 
+	time = get_timer(0);
 	len_read = fs_read(filename, addr, pos, bytes);
+	time = get_timer(time);
 	if (len_read <= 0)
 		return 1;
 
-	printf("%d bytes read\n", len_read);
+	printf("%d bytes read in %lu ms", len_read, time);
+	if (time > 0) {
+		puts(" (");
+		print_size(len_read / time * 1000, "/s");
+		puts(")");
+	}
+	puts("\n");
 
 	sprintf(buf, "0x%x", len_read);
 	setenv("filesize", buf);

@@ -224,6 +224,13 @@ int __arch_cpu_init(void)
 int arch_cpu_init(void)
 	__attribute__((weak, alias("__arch_cpu_init")));
 
+int __power_init_board(void)
+{
+	return 0;
+}
+int power_init_board(void)
+	__attribute__((weak, alias("__power_init_board")));
+
 init_fnc_t *init_sequence[] = {
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 
@@ -525,6 +532,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r();
 #endif
+	power_init_board();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts("Flash: ");
