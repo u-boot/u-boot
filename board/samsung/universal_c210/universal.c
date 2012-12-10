@@ -343,6 +343,9 @@ static void init_pmic_lcd(void)
 
 	struct pmic *p = pmic_get("MAX8998_PMIC");
 
+	if (!p)
+		return;
+
 	if (pmic_probe(p))
 		return;
 
@@ -433,6 +436,9 @@ static void reset_lcd(void)
 static void lcd_power_on(void)
 {
 	struct pmic *p = pmic_get("MAX8998_PMIC");
+
+	if (!p)
+		return;
 
 	if (pmic_probe(p))
 		return;
