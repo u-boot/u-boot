@@ -299,6 +299,8 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
 
 	printf("PCIE%d: ", bus);
 
+#define PCI_LTSSM	0x404 /* PCIe Link Training, Status State Machine */
+#define PCI_LTSSM_L0	0x16 /* L0 state */
 	reg16 = in_le16(hose_cfg_base + PCI_LTSSM);
 	if (reg16 >= PCI_LTSSM_L0)
 		printf("link\n");
