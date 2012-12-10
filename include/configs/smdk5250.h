@@ -65,7 +65,7 @@
 #define INFORM1_OFFSET			0x804
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL3			/* use SERIAL 3 */
@@ -209,9 +209,9 @@
 #define CONFIG_SYS_I2C_SLAVE    0x0
 
 /* PMIC */
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX77686
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX77686
 
 /* SPI */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
