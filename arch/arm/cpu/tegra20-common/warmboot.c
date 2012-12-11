@@ -46,7 +46,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * This is the place in SRAM where the SDRAM parameters are stored. There
  * are 4 blocks, one for each RAM code
  */
-#define SDRAM_PARAMS_BASE	(AP20_BASE_PA_SRAM + 0x188)
+#define SDRAM_PARAMS_BASE	(NV_PA_BASE_SRAM + 0x188)
 
 /* TODO: If we later add support for the Misc GP controller, refactor this */
 union xm2cfga_reg {

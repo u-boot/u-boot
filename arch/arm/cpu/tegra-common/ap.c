@@ -20,10 +20,14 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 * MA 02111-1307 USA
 */
+
+/* Tegra AP (Application Processor) code */
+
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/clock.h>
 #include <asm/arch-tegra/fuse.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/scu.h>
@@ -56,6 +60,12 @@ int tegra_get_chip_type(void)
 		case SKU_ID_AP25E:
 		case SKU_ID_T25E:
 			return TEGRA_SOC_T25;
+		}
+		break;
+	case CHIPID_TEGRA30:
+		switch (tegra_sku_id) {
+		case SKU_ID_T30:
+			return TEGRA_SOC_T30;
 		}
 		break;
 	}
@@ -93,7 +103,7 @@ static u32 get_odmdata(void)
 
 	u32 bct_start, odmdata;
 
-	bct_start = readl(AP20_BASE_PA_SRAM + NVBOOTINFOTABLE_BCTPTR);
+	bct_start = readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BCTPTR);
 	odmdata = readl(bct_start + BCT_ODMDATA_OFFSET);
 
 	return odmdata;
@@ -127,5 +137,5 @@ void s_init(void)
 		"orr	r0, r0, #0x41\n"
 		"mcr	p15, 0, r0, c1, c0, 1\n");
 
-	/* FIXME: should have ap20's L2 disabled too? */
+	/* FIXME: should have SoC's L2 disabled too? */
 }
