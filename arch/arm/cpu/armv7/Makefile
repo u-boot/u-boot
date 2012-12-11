@@ -32,7 +32,7 @@ COBJS	+= cache_v7.o
 COBJS	+= cpu.o
 COBJS	+= syslib.o
 
-ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TEGRA20),)
+ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TEGRA),)
 SOBJS	+= lowlevel_init.o
 endif
 

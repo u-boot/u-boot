@@ -348,7 +348,7 @@ endif
 ifeq ($(SOC),exynos)
 LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
 LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
 LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o
@@ -413,7 +413,7 @@ ALL-$(CONFIG_SPL) += $(obj)$(subst ",,$(CONFIG_SPL_TARGET))
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 
 # enable combined SPL/u-boot/dtb rules for tegra
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 ifeq ($(CONFIG_OF_SEPARATE),y)
 ALL-y += $(obj)u-boot-dtb-tegra.bin
 else
@@ -530,7 +530,7 @@ $(obj)u-boot.spr:	$(obj)u-boot.img $(obj)spl/u-boot-spl.bin
 			conv=notrunc 2>/dev/null
 		cat $(obj)spl/u-boot-spl-pad.img $(obj)u-boot.img > $@
 
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 ifeq ($(CONFIG_OF_SEPARATE),y)
 nodtb=dtb
 dtbfile=$(obj)u-boot.dtb
