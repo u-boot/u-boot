@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011 Samsung Electronics
+ * Copyright (C) 2012 Samsung Electronics
  *
- * Configuration settings for the SAMSUNG SMDK5250 (EXYNOS5250) board.
+ * Configuration settings for the SAMSUNG EXYNOS5250 board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -36,6 +36,11 @@
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+
+/* Enable fdt support for Exynos5250 */
+#define CONFIG_ARCH_DEVICE_TREE		exynos5250
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_SEPARATE
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_DCACHE_OFF
