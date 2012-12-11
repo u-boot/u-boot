@@ -34,7 +34,7 @@
 #include <command.h>
 #include <ide.h>
 #include <malloc.h>
-#include "part_efi.h"
+#include <part_efi.h>
 #include <linux/ctype.h>
 
 #if defined(CONFIG_CMD_IDE) || \
@@ -44,34 +44,6 @@
     defined(CONFIG_MMC) || \
     defined(CONFIG_SYSTEMACE)
 
-/* Convert char[2] in little endian format to the host format integer
- */
-static inline unsigned short le16_to_int(unsigned char *le16)
-{
-	return ((le16[1] << 8) + le16[0]);
-}
-
-/* Convert char[4] in little endian format to the host format integer
- */
-static inline unsigned long le32_to_int(unsigned char *le32)
-{
-	return ((le32[3] << 24) + (le32[2] << 16) + (le32[1] << 8) + le32[0]);
-}
-
-/* Convert char[8] in little endian format to the host format integer
- */
-static inline unsigned long long le64_to_int(unsigned char *le64)
-{
-	return (((unsigned long long)le64[7] << 56) +
-		((unsigned long long)le64[6] << 48) +
-		((unsigned long long)le64[5] << 40) +
-		((unsigned long long)le64[4] << 32) +
-		((unsigned long long)le64[3] << 24) +
-		((unsigned long long)le64[2] << 16) +
-		((unsigned long long)le64[1] << 8) +
-		(unsigned long long)le64[0]);
-}
-
 /**
  * efi_crc32() - EFI version of crc32 function
  * @buf: buffer to calculate crc32 of
@@ -79,7 +51,7 @@ static inline unsigned long long le64_to_int(unsigned char *le64)
  *
  * Description: Returns EFI-style CRC32 value for @buf
  */
-static inline unsigned long efi_crc32(const void *buf, unsigned long len)
+static inline u32 efi_crc32(const void *buf, u32 len)
 {
 	return crc32(0, buf, len);
 }
@@ -171,14 +143,14 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 	printf("\tType UUID\n");
 	printf("\tPartition UUID\n");
 
-	for (i = 0; i < le32_to_int(gpt_head->num_partition_entries); i++) {
+	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
 		/* Stop at the first non valid PTE */
 		if (!is_pte_valid(&gpt_pte[i]))
 			break;
 
 		printf("%3d\t0x%08llx\t0x%08llx\t\"%s\"\n", (i + 1),
-			le64_to_int(gpt_pte[i].starting_lba),
-			le64_to_int(gpt_pte[i].ending_lba),
+			le64_to_cpu(gpt_pte[i].starting_lba),
+			le64_to_cpu(gpt_pte[i].ending_lba),
 			print_efiname(&gpt_pte[i]));
 		printf("\tattrs:\t0x%016llx\n", gpt_pte[i].attributes.raw);
 		uuid_string(gpt_pte[i].partition_type_guid.b, uuid);
@@ -211,7 +183,7 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 		return -1;
 	}
 
-	if (part > le32_to_int(gpt_head->num_partition_entries) ||
+	if (part > le32_to_cpu(gpt_head->num_partition_entries) ||
 	    !is_pte_valid(&gpt_pte[part - 1])) {
 		printf("%s: *** ERROR: Invalid partition number %d ***\n",
 			__func__, part);
@@ -219,9 +191,9 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	}
 
 	/* The ulong casting limits the maximum disk size to 2 TB */
-	info->start = (ulong) le64_to_int(gpt_pte[part - 1].starting_lba);
+	info->start = (u64)le64_to_cpu(gpt_pte[part - 1].starting_lba);
 	/* The ending LBA is inclusive, to calculate size, add 1 to it */
-	info->size = ((ulong)le64_to_int(gpt_pte[part - 1].ending_lba) + 1)
+	info->size = ((u64)le64_to_cpu(gpt_pte[part - 1].ending_lba) + 1)
 		     - info->start;
 	info->blksz = GPT_BLOCK_SIZE;
 
@@ -264,7 +236,7 @@ int test_part_efi(block_dev_desc_t * dev_desc)
 static int pmbr_part_valid(struct partition *part)
 {
 	if (part->sys_ind == EFI_PMBR_OSTYPE_EFI_GPT &&
-		le32_to_int(part->start_sect) == 1UL) {
+		le32_to_cpu(part->start_sect) == 1UL) {
 		return 1;
 	}
 
@@ -283,9 +255,8 @@ static int is_pmbr_valid(legacy_mbr * mbr)
 {
 	int i = 0;
 
-	if (!mbr || le16_to_int(mbr->signature) != MSDOS_MBR_SIGNATURE) {
+	if (!mbr || le16_to_cpu(mbr->signature) != MSDOS_MBR_SIGNATURE)
 		return 0;
-	}
 
 	for (i = 0; i < 4; i++) {
 		if (pmbr_part_valid(&mbr->partition_record[i])) {
@@ -308,8 +279,8 @@ static int is_pmbr_valid(legacy_mbr * mbr)
 static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 			gpt_header * pgpt_head, gpt_entry ** pgpt_pte)
 {
-	unsigned char crc32_backup[4] = { 0 };
-	unsigned long calc_crc32;
+	u32 crc32_backup = 0;
+	u32 calc_crc32;
 	unsigned long long lastlba;
 
 	if (!dev_desc || !pgpt_head) {
@@ -324,54 +295,54 @@ static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 	}
 
 	/* Check the GPT header signature */
-	if (le64_to_int(pgpt_head->signature) != GPT_HEADER_SIGNATURE) {
+	if (le64_to_cpu(pgpt_head->signature) != GPT_HEADER_SIGNATURE) {
 		printf("GUID Partition Table Header signature is wrong:"
 			"0x%llX != 0x%llX\n",
-			(unsigned long long)le64_to_int(pgpt_head->signature),
-			(unsigned long long)GPT_HEADER_SIGNATURE);
+			le64_to_cpu(pgpt_head->signature),
+			GPT_HEADER_SIGNATURE);
 		return 0;
 	}
 
 	/* Check the GUID Partition Table CRC */
-	memcpy(crc32_backup, pgpt_head->header_crc32, sizeof(crc32_backup));
-	memset(pgpt_head->header_crc32, 0, sizeof(pgpt_head->header_crc32));
+	memcpy(&crc32_backup, &pgpt_head->header_crc32, sizeof(crc32_backup));
+	memset(&pgpt_head->header_crc32, 0, sizeof(pgpt_head->header_crc32));
 
 	calc_crc32 = efi_crc32((const unsigned char *)pgpt_head,
-		le32_to_int(pgpt_head->header_size));
+		le32_to_cpu(pgpt_head->header_size));
 
-	memcpy(pgpt_head->header_crc32, crc32_backup, sizeof(crc32_backup));
+	memcpy(&pgpt_head->header_crc32, &crc32_backup, sizeof(crc32_backup));
 
-	if (calc_crc32 != le32_to_int(crc32_backup)) {
+	if (calc_crc32 != le32_to_cpu(crc32_backup)) {
 		printf("GUID Partition Table Header CRC is wrong:"
-			"0x%08lX != 0x%08lX\n",
-			le32_to_int(crc32_backup), calc_crc32);
+			"0x%x != 0x%x\n",
+		       le32_to_cpu(crc32_backup), calc_crc32);
 		return 0;
 	}
 
 	/* Check that the my_lba entry points to the LBA that contains the GPT */
-	if (le64_to_int(pgpt_head->my_lba) != lba) {
+	if (le64_to_cpu(pgpt_head->my_lba) != lba) {
 		printf("GPT: my_lba incorrect: %llX != %llX\n",
-			(unsigned long long)le64_to_int(pgpt_head->my_lba),
-			(unsigned long long)lba);
+			le64_to_cpu(pgpt_head->my_lba),
+			lba);
 		return 0;
 	}
 
 	/* Check the first_usable_lba and last_usable_lba are within the disk. */
 	lastlba = (unsigned long long)dev_desc->lba;
-	if (le64_to_int(pgpt_head->first_usable_lba) > lastlba) {
+	if (le64_to_cpu(pgpt_head->first_usable_lba) > lastlba) {
 		printf("GPT: first_usable_lba incorrect: %llX > %llX\n",
-			le64_to_int(pgpt_head->first_usable_lba), lastlba);
+			le64_to_cpu(pgpt_head->first_usable_lba), lastlba);
 		return 0;
 	}
-	if (le64_to_int(pgpt_head->last_usable_lba) > lastlba) {
+	if (le64_to_cpu(pgpt_head->last_usable_lba) > lastlba) {
 		printf("GPT: last_usable_lba incorrect: %llX > %llX\n",
-			le64_to_int(pgpt_head->last_usable_lba), lastlba);
+			(u64) le64_to_cpu(pgpt_head->last_usable_lba), lastlba);
 		return 0;
 	}
 
 	debug("GPT: first_usable_lba: %llX last_usable_lba %llX last lba %llX\n",
-		le64_to_int(pgpt_head->first_usable_lba),
-		le64_to_int(pgpt_head->last_usable_lba), lastlba);
+		le64_to_cpu(pgpt_head->first_usable_lba),
+		le64_to_cpu(pgpt_head->last_usable_lba), lastlba);
 
 	/* Read and allocate Partition Table Entries */
 	*pgpt_pte = alloc_read_gpt_entries(dev_desc, pgpt_head);
@@ -382,13 +353,13 @@ static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 
 	/* Check the GUID Partition Table Entry Array CRC */
 	calc_crc32 = efi_crc32((const unsigned char *)*pgpt_pte,
-		le32_to_int(pgpt_head->num_partition_entries) *
-		le32_to_int(pgpt_head->sizeof_partition_entry));
+		le32_to_cpu(pgpt_head->num_partition_entries) *
+		le32_to_cpu(pgpt_head->sizeof_partition_entry));
 
-	if (calc_crc32 != le32_to_int(pgpt_head->partition_entry_array_crc32)) {
+	if (calc_crc32 != le32_to_cpu(pgpt_head->partition_entry_array_crc32)) {
 		printf("GUID Partition Table Entry Array CRC is wrong:"
-			"0x%08lX != 0x%08lX\n",
-			le32_to_int(pgpt_head->partition_entry_array_crc32),
+			"0x%x != 0x%x\n",
+			le32_to_cpu(pgpt_head->partition_entry_array_crc32),
 			calc_crc32);
 
 		free(*pgpt_pte);
@@ -419,12 +390,12 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 		return NULL;
 	}
 
-	count = le32_to_int(pgpt_head->num_partition_entries) *
-		le32_to_int(pgpt_head->sizeof_partition_entry);
+	count = le32_to_cpu(pgpt_head->num_partition_entries) *
+		le32_to_cpu(pgpt_head->sizeof_partition_entry);
 
-	debug("%s: count = %lu * %lu = %zu\n", __func__,
-		le32_to_int(pgpt_head->num_partition_entries),
-		le32_to_int(pgpt_head->sizeof_partition_entry), count);
+	debug("%s: count = %u * %u = %zu\n", __func__,
+	      (u32) le32_to_cpu(pgpt_head->num_partition_entries),
+	      (u32) le32_to_cpu(pgpt_head->sizeof_partition_entry), count);
 
 	/* Allocate memory for PTE, remember to FREE */
 	if (count != 0) {
@@ -440,7 +411,7 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 
 	/* Read GPT Entries from device */
 	if (dev_desc->block_read (dev_desc->dev,
-		(unsigned long)le64_to_int(pgpt_head->partition_entry_lba),
+		le64_to_cpu(pgpt_head->partition_entry_lba),
 		(lbaint_t) (count / GPT_BLOCK_SIZE), pte)
 		!= (count / GPT_BLOCK_SIZE)) {
 
