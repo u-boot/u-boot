@@ -21,33 +21,33 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _TEGRA20_COMMON_H_
-#define _TEGRA20_COMMON_H_
+#ifndef _TEGRA30_COMMON_H_
+#define _TEGRA30_COMMON_H_
 #include "tegra-common.h"
 
 /*
  * NS16550 Configuration
  */
-#define V_NS16550_CLK		216000000	/* 216MHz (pllp_out0) */
+#define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
 /*
  * High Level Configuration Options
  */
-#define CONFIG_TEGRA20				/* in a NVidia Tegra20 core */
+#define CONFIG_TEGRA30			/* in a NVidia Tegra30 core */
 
 /* Environment information, boards can override if required */
-#define CONFIG_LOADADDR		0x00408000	/* def. location for kernel */
+#define CONFIG_LOADADDR		0x80408000	/* def. location for kernel */
 
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x00A00800	/* default */
-#define CONFIG_STACKBASE	0x02800000	/* 40MB */
+#define CONFIG_SYS_LOAD_ADDR	0x80A00800	/* default */
+#define CONFIG_STACKBASE	0x82800000	/* 40MB */
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_SYS_TEXT_BASE	0x0010E000
+#define CONFIG_SYS_TEXT_BASE	0x8010E000
 
 /*
  * Memory layout for where various images get loaded by boot scripts:
@@ -71,50 +71,16 @@
  *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
  */
 #define MEM_LAYOUT_ENV_SETTINGS \
-	"scriptaddr=0x10000000\0" \
-	"kernel_addr_r=0x01000000\0" \
-	"fdt_addr_r=0x02000000\0" \
-	"ramdisk_addr_r=0x02100000\0"
+	"scriptaddr=0x90000000\0" \
+	"kernel_addr_r=0x81000000\0" \
+	"fdt_addr_r=0x82000000\0" \
+	"ramdisk_addr_r=0x82100000\0"
 
 /* Defines for SPL */
-#define CONFIG_SPL_TEXT_BASE		0x00108000
-#define CONFIG_SYS_SPL_MALLOC_START	0x00090000
-#define CONFIG_SPL_STACK		0x000ffffc
+#define CONFIG_SPL_TEXT_BASE		0x80108000
+#define CONFIG_SYS_SPL_MALLOC_START	0x80090000
+#define CONFIG_SPL_STACK		0x800ffffc
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/tegra20/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/tegra30/u-boot-spl.lds"
 
-/* Align LCD to 1MB boundary */
-#define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
-
-#ifdef CONFIG_TEGRA_LP0
-#define TEGRA_LP0_ADDR			0x1C406000
-#define TEGRA_LP0_SIZE			0x2000
-#define TEGRA_LP0_VEC \
-	"lp0_vec=" __stringify(TEGRA_LP0_SIZE)  \
-	"@" __stringify(TEGRA_LP0_ADDR) " "
-#else
-#define TEGRA_LP0_VEC
-#endif
-
-/*
- * This parameter affects a TXFILLTUNING field that controls how much data is
- * sent to the latency fifo before it is sent to the wire. Without this
- * parameter, the default (2) causes occasional Data Buffer Errors in OUT
- * packets depending on the buffer address and size.
- */
-#define CONFIG_USB_EHCI_TXFIFO_THRESH	10
-#define CONFIG_EHCI_IS_TDI
-
-/* Total I2C ports on Tegra20 */
-#define TEGRA_I2C_NUM_CONTROLLERS	4
-
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
-
-#define CONFIG_SYS_NAND_SELF_INIT
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
-/* Misc utility code */
-#define CONFIG_BOUNCE_BUFFER
-
-#endif /* _TEGRA20_COMMON_H_ */
+#endif /* _TEGRA30_COMMON_H_ */
