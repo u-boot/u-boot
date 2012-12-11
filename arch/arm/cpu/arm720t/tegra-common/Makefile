@@ -28,6 +28,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libtegra-common.o
 
 COBJS-$(CONFIG_SPL_BUILD) += spl.o
+COBJS-y	+= cpu.o
 
 SRCS	:= $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
