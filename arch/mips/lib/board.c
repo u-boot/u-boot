@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <serial.h>
 #include <stdio_dev.h>
 #include <version.h>
 #include <net.h>
@@ -261,6 +262,8 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 
 	monitor_flash_len = (ulong)&uboot_end_data - dest_addr;
+
+	serial_initialize();
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/*
