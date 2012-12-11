@@ -1,0 +1,29 @@
+/*
+ * SAMSUNG SMDK5250 board device tree source
+ *
+ * Copyright (c) 2012 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/dts-v1/;
+/include/ ARCH_CPU_DTS
+
+/ {
+	model = "SAMSUNG SMDK5250 board based on EXYNOS5250";
+	compatible = "samsung,smdk5250", "samsung,exynos5250";
+
+	sromc@12250000 {
+		bank = <1>;
+		srom-timing = <1 9 12 1 6 1 1>;
+		width = <2>;
+		lan@5000000 {
+			compatible = "smsc,lan9215", "smsc,lan";
+			reg = <0x5000000 0x100>;
+			phy-mode = "mii";
+		};
+	};
+};
