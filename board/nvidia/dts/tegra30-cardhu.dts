@@ -1,0 +1,14 @@
+/dts-v1/;
+
+/memreserve/ 0x1c000000 0x04000000;
+/include/ ARCH_CPU_DTS
+
+/ {
+	model = "NVIDIA Cardhu";
+	compatible = "nvidia,cardhu", "nvidia,tegra30";
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x40000000>;
+	};
+};

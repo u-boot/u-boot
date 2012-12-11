@@ -1,0 +1,5 @@
+/include/ "skeleton.dtsi"
+
+/ {
+	compatible = "nvidia,tegra30";
+};
