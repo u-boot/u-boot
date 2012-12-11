@@ -70,6 +70,8 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA20_NAND,	/* Tegra2 NAND controller */
 	COMPAT_NVIDIA_TEGRA20_PWM,	/* Tegra 2 PWM controller */
 	COMPAT_NVIDIA_TEGRA20_DC,	/* Tegra 2 Display controller */
+	COMPAT_SMSC_LAN9215,		/* SMSC 10/100 Ethernet LAN9215 */
+	COMPAT_SAMSUNG_EXYNOS5_SROMC,	/* Exynos5 SROMC */
 
 	COMPAT_COUNT,
 };
