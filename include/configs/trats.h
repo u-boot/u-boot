@@ -98,6 +98,7 @@
 #undef CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_DFU
+#define CONFIG_CMD_GPT
 
 /* FAT */
 #define CONFIG_CMD_FAT
@@ -121,6 +122,26 @@
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 #define CONFIG_BOOTBLOCK		"10"
 #define CONFIG_ENV_COMMON_BOOT		"${console} ${meminfo}"
+
+/* Tizen - partitions definitions */
+#define PARTS_CSA		"csa-mmc"
+#define PARTS_BOOTLOADER	"u-boot"
+#define PARTS_BOOT		"boot"
+#define PARTS_ROOT		"platform"
+#define PARTS_DATA		"data"
+#define PARTS_CSC		"csc"
+#define PARTS_UMS		"ums"
+
+#define PARTS_DEFAULT \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name="PARTS_CSA",size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
+	"name="PARTS_BOOTLOADER",size=60MiB," \
+		"uuid=${uuid_gpt_"PARTS_BOOTLOADER"};" \
+	"name="PARTS_BOOT",size=100MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
+	"name="PARTS_ROOT",size=1GiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
+	"name="PARTS_DATA",size=3GiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
+	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
+	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
 #define CONFIG_DFU_ALT \
 	"dfu_alt_info=" \
@@ -171,7 +192,8 @@
 	"mmcbootpart=2\0" \
 	"mmcrootpart=3\0" \
 	"opts=always_resume=1\0" \
-	CONFIG_DFU_ALT
+	"partitions=" PARTS_DEFAULT \
+	CONFIG_DFU_ALT \
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
@@ -207,6 +229,10 @@
 #define CONFIG_ENV_OFFSET		((32 - 4) << 10) /* 32KiB - 4KiB */
 
 #define CONFIG_DOS_PARTITION
+
+/* GPT */
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_CACHELINE_SIZE       32
