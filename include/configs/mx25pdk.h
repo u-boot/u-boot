@@ -87,6 +87,7 @@
 
 /* U-Boot commands */
 #include <config_cmd_default.h>
+#define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_MMC
