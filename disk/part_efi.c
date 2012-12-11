@@ -37,6 +37,8 @@
 #include <part_efi.h>
 #include <linux/ctype.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_CMD_IDE) || \
     defined(CONFIG_CMD_SATA) || \
     defined(CONFIG_CMD_SCSI) || \
@@ -62,13 +64,10 @@ static inline u32 efi_crc32(const void *buf, u32 len)
 
 static int pmbr_part_valid(struct partition *part);
 static int is_pmbr_valid(legacy_mbr * mbr);
-
 static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 				gpt_header * pgpt_head, gpt_entry ** pgpt_pte);
-
 static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 				gpt_header * pgpt_head);
-
 static int is_pte_valid(gpt_entry * pte);
 
 static char *print_efiname(gpt_entry *pte)
@@ -114,6 +113,7 @@ static inline int is_bootable(gpt_entry *p)
 			sizeof(efi_guid_t));
 }
 
+#ifdef CONFIG_EFI_PARTITION
 /*
  * Public Functions (include/part.h)
  */
@@ -224,6 +224,281 @@ int test_part_efi(block_dev_desc_t * dev_desc)
 	}
 	return 0;
 }
+
+/**
+ * set_protective_mbr(): Set the EFI protective MBR
+ * @param dev_desc - block device descriptor
+ *
+ * @return - zero on success, otherwise error
+ */
+static int set_protective_mbr(block_dev_desc_t *dev_desc)
+{
+	legacy_mbr *p_mbr;
+
+	/* Setup the Protective MBR */
+	p_mbr = calloc(1, sizeof(p_mbr));
+	if (p_mbr == NULL) {
+		printf("%s: calloc failed!\n", __func__);
+		return -1;
+	}
+	/* Append signature */
+	p_mbr->signature = MSDOS_MBR_SIGNATURE;
+	p_mbr->partition_record[0].sys_ind = EFI_PMBR_OSTYPE_EFI_GPT;
+	p_mbr->partition_record[0].start_sect = 1;
+	p_mbr->partition_record[0].nr_sects = (u32) dev_desc->lba;
+
+	/* Write MBR sector to the MMC device */
+	if (dev_desc->block_write(dev_desc->dev, 0, 1, p_mbr) != 1) {
+		printf("** Can't write to device %d **\n",
+			dev_desc->dev);
+		free(p_mbr);
+		return -1;
+	}
+
+	free(p_mbr);
+	return 0;
+}
+
+/**
+ * string_uuid(); Convert UUID stored as string to bytes
+ *
+ * @param uuid - UUID represented as string
+ * @param dst - GUID buffer
+ *
+ * @return return 0 on successful conversion
+ */
+static int string_uuid(char *uuid, u8 *dst)
+{
+	efi_guid_t guid;
+	u16 b, c, d;
+	u64 e;
+	u32 a;
+	u8 *p;
+	u8 i;
+
+	const u8 uuid_str_len = 36;
+
+	/* The UUID is written in text: */
+	/* 1        9    14   19   24 */
+	/* xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx */
+
+	debug("%s: uuid: %s\n", __func__, uuid);
+
+	if (strlen(uuid) != uuid_str_len)
+		return -1;
+
+	for (i = 0; i < uuid_str_len; i++) {
+		if ((i == 8) || (i == 13) || (i == 18) || (i == 23)) {
+			if (uuid[i] != '-')
+				return -1;
+		} else {
+			if (!isxdigit(uuid[i]))
+				return -1;
+		}
+	}
+
+	a = (u32)simple_strtoul(uuid, NULL, 16);
+	b = (u16)simple_strtoul(uuid + 9, NULL, 16);
+	c = (u16)simple_strtoul(uuid + 14, NULL, 16);
+	d = (u16)simple_strtoul(uuid + 19, NULL, 16);
+	e = (u64)simple_strtoull(uuid + 24, NULL, 16);
+
+	p = (u8 *) &e;
+	guid = EFI_GUID(a, b, c, d >> 8, d & 0xFF,
+			*(p + 5), *(p + 4), *(p + 3),
+			*(p + 2), *(p + 1) , *p);
+
+	memcpy(dst, guid.b, sizeof(efi_guid_t));
+
+	return 0;
+}
+
+int write_gpt_table(block_dev_desc_t *dev_desc,
+		gpt_header *gpt_h, gpt_entry *gpt_e)
+{
+	const int pte_blk_num = (gpt_h->num_partition_entries
+		* sizeof(gpt_entry)) / dev_desc->blksz;
+
+	u32 calc_crc32;
+	u64 val;
+
+	debug("max lba: %x\n", (u32) dev_desc->lba);
+	/* Setup the Protective MBR */
+	if (set_protective_mbr(dev_desc) < 0)
+		goto err;
+
+	/* Generate CRC for the Primary GPT Header */
+	calc_crc32 = efi_crc32((const unsigned char *)gpt_e,
+			      le32_to_cpu(gpt_h->num_partition_entries) *
+			      le32_to_cpu(gpt_h->sizeof_partition_entry));
+	gpt_h->partition_entry_array_crc32 = cpu_to_le32(calc_crc32);
+
+	calc_crc32 = efi_crc32((const unsigned char *)gpt_h,
+			      le32_to_cpu(gpt_h->header_size));
+	gpt_h->header_crc32 = cpu_to_le32(calc_crc32);
+
+	/* Write the First GPT to the block right after the Legacy MBR */
+	if (dev_desc->block_write(dev_desc->dev, 1, 1, gpt_h) != 1)
+		goto err;
+
+	if (dev_desc->block_write(dev_desc->dev, 2, pte_blk_num, gpt_e)
+	    != pte_blk_num)
+		goto err;
+
+	/* recalculate the values for the Second GPT Header */
+	val = le64_to_cpu(gpt_h->my_lba);
+	gpt_h->my_lba = gpt_h->alternate_lba;
+	gpt_h->alternate_lba = cpu_to_le64(val);
+	gpt_h->header_crc32 = 0;
+
+	calc_crc32 = efi_crc32((const unsigned char *)gpt_h,
+			      le32_to_cpu(gpt_h->header_size));
+	gpt_h->header_crc32 = cpu_to_le32(calc_crc32);
+
+	if (dev_desc->block_write(dev_desc->dev,
+				  le32_to_cpu(gpt_h->last_usable_lba + 1),
+				  pte_blk_num, gpt_e) != pte_blk_num)
+		goto err;
+
+	if (dev_desc->block_write(dev_desc->dev,
+				  le32_to_cpu(gpt_h->my_lba), 1, gpt_h) != 1)
+		goto err;
+
+	debug("GPT successfully written to block device!\n");
+	return 0;
+
+ err:
+	printf("** Can't write to device %d **\n", dev_desc->dev);
+	return -1;
+}
+
+int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
+		disk_partition_t *partitions, int parts)
+{
+	u32 offset = (u32)le32_to_cpu(gpt_h->first_usable_lba);
+	ulong start;
+	int i, k;
+	size_t name_len;
+#ifdef CONFIG_PARTITION_UUIDS
+	char *str_uuid;
+#endif
+
+	for (i = 0; i < parts; i++) {
+		/* partition starting lba */
+		start = partitions[i].start;
+		if (start && (start < offset)) {
+			printf("Partition overlap\n");
+			return -1;
+		}
+		if (start) {
+			gpt_e[i].starting_lba = cpu_to_le64(start);
+			offset = start + partitions[i].size;
+		} else {
+			gpt_e[i].starting_lba = cpu_to_le64(offset);
+			offset += partitions[i].size;
+		}
+		if (offset >= gpt_h->last_usable_lba) {
+			printf("Partitions layout exceds disk size\n");
+			return -1;
+		}
+		/* partition ending lba */
+		if ((i == parts - 1) && (partitions[i].size == 0))
+			/* extend the last partition to maximuim */
+			gpt_e[i].ending_lba = gpt_h->last_usable_lba;
+		else
+			gpt_e[i].ending_lba = cpu_to_le64(offset - 1);
+
+		/* partition type GUID */
+		memcpy(gpt_e[i].partition_type_guid.b,
+			&PARTITION_BASIC_DATA_GUID, 16);
+
+#ifdef CONFIG_PARTITION_UUIDS
+		str_uuid = partitions[i].uuid;
+		if (string_uuid(str_uuid, gpt_e[i].unique_partition_guid.b)) {
+			printf("Partition no. %d: invalid guid: %s\n",
+				i, str_uuid);
+			return -1;
+		}
+#endif
+
+		/* partition attributes */
+		memset(&gpt_e[i].attributes, 0,
+		       sizeof(gpt_entry_attributes));
+
+		/* partition name */
+		name_len = sizeof(gpt_e[i].partition_name)
+			/ sizeof(efi_char16_t);
+		for (k = 0; k < name_len; k++)
+			gpt_e[i].partition_name[k] =
+				(efi_char16_t)(partitions[i].name[k]);
+
+		debug("%s: name: %s offset[%d]: 0x%x size[%d]: 0x%lx\n",
+		      __func__, partitions[i].name, i,
+		      offset, i, partitions[i].size);
+	}
+
+	return 0;
+}
+
+int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
+		char *str_guid, int parts_count)
+{
+	gpt_h->signature = cpu_to_le64(GPT_HEADER_SIGNATURE);
+	gpt_h->revision = cpu_to_le32(GPT_HEADER_REVISION_V1);
+	gpt_h->header_size = cpu_to_le32(sizeof(gpt_header));
+	gpt_h->my_lba = cpu_to_le64(1);
+	gpt_h->alternate_lba = cpu_to_le64(dev_desc->lba - 1);
+	gpt_h->first_usable_lba = cpu_to_le64(34);
+	gpt_h->last_usable_lba = cpu_to_le64(dev_desc->lba - 34);
+	gpt_h->partition_entry_lba = cpu_to_le64(2);
+	gpt_h->num_partition_entries = cpu_to_le32(GPT_ENTRY_NUMBERS);
+	gpt_h->sizeof_partition_entry = cpu_to_le32(sizeof(gpt_entry));
+	gpt_h->header_crc32 = 0;
+	gpt_h->partition_entry_array_crc32 = 0;
+
+	if (string_uuid(str_guid, gpt_h->disk_guid.b))
+		return -1;
+
+	return 0;
+}
+
+int gpt_restore(block_dev_desc_t *dev_desc, char *str_disk_guid,
+		disk_partition_t *partitions, int parts_count)
+{
+	int ret;
+
+	gpt_header *gpt_h = calloc(1, sizeof(gpt_header));
+	if (gpt_h == NULL) {
+		printf("%s: calloc failed!\n", __func__);
+		return -1;
+	}
+
+	gpt_entry *gpt_e = calloc(GPT_ENTRY_NUMBERS, sizeof(gpt_entry));
+	if (gpt_e == NULL) {
+		printf("%s: calloc failed!\n", __func__);
+		free(gpt_h);
+		return -1;
+	}
+
+	/* Generate Primary GPT header (LBA1) */
+	ret = gpt_fill_header(dev_desc, gpt_h, str_disk_guid, parts_count);
+	if (ret)
+		goto err;
+
+	/* Generate partition entries */
+	ret = gpt_fill_pte(gpt_h, gpt_e, partitions, parts_count);
+	if (ret)
+		goto err;
+
+	/* Write GPT partition table */
+	ret = write_gpt_table(dev_desc, gpt_h, gpt_e);
+
+err:
+	free(gpt_e);
+	free(gpt_h);
+	return ret;
+}
+#endif
 
 /*
  * Private functions
