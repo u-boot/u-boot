@@ -133,8 +133,7 @@ int woodburn_init(void)
 	mxc_request_iomux(MX35_PIN_SCKR, MUX_CONFIG_ALT5);
 	gpio_direction_output(4, 1);
 	mxc_request_iomux(MX35_PIN_HCKT, MUX_CONFIG_ALT5);
-	gpio_direction_output(9, 0);
-	gpio_set_value(9, 1);
+	gpio_direction_output(9, 1);
 
 	return 0;
 }
