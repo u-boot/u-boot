@@ -21,8 +21,8 @@
 
 /* Tegra clock control functions */
 
-#ifndef _CLOCK_H
-#define _CLOCK_H
+#ifndef _TEGRA_CLOCK_H_
+#define _TEGRA_CLOCK_H_
 
 /* Set of oscillator frequencies supported in the internal API. */
 enum clock_osc_freq {
@@ -136,7 +136,7 @@ enum crc_reset_id {
 /**
  * Put parts of the CPU complex into or out of reset.\
  *
- * @param cpu		cpu number (0 or 1 on Tegra2)
+ * @param cpu		cpu number (0 or 1 on Tegra2, 0-3 on Tegra3)
  * @param which		which parts of the complex to affect (OR of crc_reset_id)
  * @param reset		1 to assert reset, 0 to de-assert
  */
@@ -262,4 +262,4 @@ void clock_init(void);
 /* Initialize the PLLs */
 void clock_early_init(void);
 
-#endif	/* _CLOCK_H_ */
+#endif	/* _TEGRA_CLOCK_H_ */

@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _CLK_RST_H_
-#define _CLK_RST_H_
+#ifndef _TEGRA_CLK_RST_H_
+#define _TEGRA_CLK_RST_H_
 
 /* PLL registers - there are several PLLs in the clock controller */
 struct clk_pll {
@@ -37,6 +37,12 @@ struct clk_pll_simple {
 	uint pll_misc;		/* other misc things */
 };
 
+/* RST_DEV_(L,H,U,V,W)_(SET,CLR) and CLK_ENB_(L,H,U,V,W)_(SET,CLR) */
+struct clk_set_clr {
+	uint set;
+	uint clr;
+};
+
 /*
  * Most PLLs use the clk_pll structure, but some have a simpler two-member
  * structure for which we use clk_pll_simple. The reason for this non-
@@ -45,8 +51,10 @@ struct clk_pll_simple {
 enum {
 	TEGRA_CLK_PLLS		= 6,	/* Number of normal PLLs */
 	TEGRA_CLK_SIMPLE_PLLS	= 3,	/* Number of simple PLLs */
-	TEGRA_CLK_REGS		= 3,	/* Number of clock enable registers */
-	TEGRA_CLK_SOURCES	= 64,	/* Number of peripheral clock sources */
+	TEGRA_CLK_REGS		= 3,	/* Number of clock enable regs L/H/U */
+	TEGRA_CLK_SOURCES	= 64,	/* Number of ppl clock sources L/H/U */
+	TEGRA_CLK_REGS_VW	= 2,	/* Number of clock enable regs V/W */
+	TEGRA_CLK_SOURCES_VW	= 32,	/* Number of ppl clock sources V/W*/
 };
 
 /* Clock/Reset Controller (CLK_RST_CONTROLLER_) regs */
@@ -82,14 +90,53 @@ struct clk_rst_ctlr {
 	uint crc_reserved11;		/* _reserved_11,	0xFC */
 
 	uint crc_clk_src[TEGRA_CLK_SOURCES]; /*_I2S1_0...	0x100-1fc */
-	uint crc_reserved20[80];	/*			0x200-33C */
-	uint crc_cpu_cmplx_set;		/* _CPU_CMPLX_SET_0,	0x340	  */
-	uint crc_cpu_cmplx_clr;		/* _CPU_CMPLX_CLR_0,	0x344     */
+
+	uint crc_reserved20[64];	/* _reserved_20,	0x200-2fc */
+
+	/* _RST_DEV_L/H/U_SET_0 0x300 ~ 0x314 */
+	struct clk_set_clr crc_rst_dev_ex[TEGRA_CLK_REGS];
+
+	uint crc_reserved30[2];		/* _reserved_30,	0x318, 0x31c */
+
+	/* _CLK_ENB_L/H/U_CLR_0 0x320 ~ 0x334 */
+	struct clk_set_clr crc_clk_enb_ex[TEGRA_CLK_REGS];
+
+	uint crc_reserved31[2];		/* _reserved_31,	0x338, 0x33c */
+
+	uint crc_cpu_cmplx_set;		/* _RST_CPU_CMPLX_SET_0,    0x340 */
+	uint crc_cpu_cmplx_clr;		/* _RST_CPU_CMPLX_CLR_0,    0x344 */
+
+	/* Additional (T30) registers */
+	uint crc_clk_cpu_cmplx_set;	/* _CLK_CPU_CMPLX_SET_0,    0x348 */
+	uint crc_clk_cpu_cmplx_clr;	/* _CLK_CPU_CMPLX_SET_0,    0x34c */
+
+	uint crc_reserved32[2];		/* _reserved_32,      0x350,0x354 */
+
+	uint crc_rst_dev_vw[TEGRA_CLK_REGS_VW]; /* _RST_DEVICES_V/W_0 */
+	uint crc_clk_out_enb_vw[TEGRA_CLK_REGS_VW]; /* _CLK_OUT_ENB_V/W_0 */
+	uint crc_cclkg_brst_pol;	/* _CCLKG_BURST_POLICY_0,   0x368 */
+	uint crc_super_cclkg_div;	/* _SUPER_CCLKG_DIVIDER_0,  0x36C */
+	uint crc_cclklp_brst_pol;	/* _CCLKLP_BURST_POLICY_0,  0x370 */
+	uint crc_super_cclkp_div;	/* _SUPER_CCLKLP_DIVIDER_0, 0x374 */
+	uint crc_clk_cpug_cmplx;	/* _CLK_CPUG_CMPLX_0,       0x378 */
+	uint crc_clk_cpulp_cmplx;	/* _CLK_CPULP_CMPLX_0,      0x37C */
+	uint crc_cpu_softrst_ctrl;	/* _CPU_SOFTRST_CTRL_0,     0x380 */
+	uint crc_reserved33[11];	/* _reserved_33,        0x384-3ac */
+	uint crc_clk_src_vw[TEGRA_CLK_SOURCES_VW]; /* _G3D2_0..., 0x3b0-0x42c */
+	/* _RST_DEV_V/W_SET_0 0x430 ~ 0x43c */
+	struct clk_set_clr crc_rst_dev_ex_vw[TEGRA_CLK_REGS_VW];
+	/* _CLK_ENB_V/W_CLR_0 0x440 ~ 0x44c */
+	struct clk_set_clr crc_clk_enb_ex_vw[TEGRA_CLK_REGS_VW];
+	uint crc_reserved40[12];	/* _reserved_40,	0x450-47C */
+	uint crc_pll_cfg0;		/* _PLL_CFG0_0,		0x480 */
+	uint crc_pll_cfg1;		/* _PLL_CFG1_0,		0x484 */
+	uint crc_pll_cfg2;		/* _PLL_CFG2_0,		0x488 */
 };
 
 /* CLK_RST_CONTROLLER_CLK_CPU_CMPLX_0 */
+#define CPU3_CLK_STP_SHIFT	11
+#define CPU2_CLK_STP_SHIFT	10
 #define CPU1_CLK_STP_SHIFT	9
-
 #define CPU0_CLK_STP_SHIFT	8
 #define CPU0_CLK_STP_MASK	(1U << CPU0_CLK_STP_SHIFT)
 
@@ -120,6 +167,12 @@ struct clk_rst_ctlr {
 #define PLL_OUT_RATIO_MASK	(0xffU << PLL_OUT_RATIO_SHIFT)
 
 /* CLK_RST_CONTROLLER_PLLx_MISC_0 */
+#define PLL_DCCON_SHIFT		20
+#define PLL_DCCON_MASK		(1U << PLL_DCCON_SHIFT)
+
+#define PLL_LOCK_ENABLE_SHIFT	18
+#define PLL_LOCK_ENABLE_MASK	(1U << PLL_LOCK_ENABLE_SHIFT)
+
 #define PLL_CPCON_SHIFT		8
 #define PLL_CPCON_MASK		(15U << PLL_CPCON_SHIFT)
 
@@ -128,6 +181,22 @@ struct clk_rst_ctlr {
 
 #define PLLU_VCO_FREQ_SHIFT	20
 #define PLLU_VCO_FREQ_MASK	(1U << PLLU_VCO_FREQ_SHIFT)
+
+#define PLLP_OUT1_OVR		(1 << 2)
+#define PLLP_OUT2_OVR		(1 << 18)
+#define PLLP_OUT3_OVR		(1 << 2)
+#define PLLP_OUT4_OVR		(1 << 18)
+#define PLLP_OUT1_RATIO		8
+#define PLLP_OUT2_RATIO		24
+#define PLLP_OUT3_RATIO		8
+#define PLLP_OUT4_RATIO		24
+
+enum {
+	IN_408_OUT_204_DIVISOR = 2,
+	IN_408_OUT_102_DIVISOR = 6,
+	IN_408_OUT_48_DIVISOR = 15,
+	IN_408_OUT_9_6_DIVISOR = 83,
+};
 
 /* CLK_RST_CONTROLLER_OSC_CTRL_0 */
 #define OSC_FREQ_SHIFT		30
@@ -151,4 +220,65 @@ struct clk_rst_ctlr {
 #define OUT_CLK_SOURCE4_SHIFT	28
 #define OUT_CLK_SOURCE4_MASK	(15U << OUT_CLK_SOURCE4_SHIFT)
 
-#endif	/* CLK_RST_H */
+/* CLK_RST_CONTROLLER_SCLK_BURST_POLICY */
+#define SCLK_SYS_STATE_SHIFT    28U
+#define SCLK_SYS_STATE_MASK     (15U << SCLK_SYS_STATE_SHIFT)
+enum {
+	SCLK_SYS_STATE_STDBY,
+	SCLK_SYS_STATE_IDLE,
+	SCLK_SYS_STATE_RUN,
+	SCLK_SYS_STATE_IRQ = 4U,
+	SCLK_SYS_STATE_FIQ = 8U,
+};
+#define SCLK_COP_FIQ_MASK       (1 << 27)
+#define SCLK_CPU_FIQ_MASK       (1 << 26)
+#define SCLK_COP_IRQ_MASK       (1 << 25)
+#define SCLK_CPU_IRQ_MASK       (1 << 24)
+
+#define SCLK_SWAKEUP_FIQ_SOURCE_SHIFT		12
+#define SCLK_SWAKEUP_FIQ_SOURCE_MASK		\
+		(7 << SCLK_SWAKEUP_FIQ_SOURCE_SHIFT)
+#define SCLK_SWAKEUP_IRQ_SOURCE_SHIFT		8
+#define SCLK_SWAKEUP_IRQ_SOURCE_MASK		\
+		(7 << SCLK_SWAKEUP_FIQ_SOURCE_SHIFT)
+#define SCLK_SWAKEUP_RUN_SOURCE_SHIFT		4
+#define SCLK_SWAKEUP_RUN_SOURCE_MASK		\
+		(7 << SCLK_SWAKEUP_FIQ_SOURCE_SHIFT)
+#define SCLK_SWAKEUP_IDLE_SOURCE_SHIFT		0
+
+#define SCLK_SWAKEUP_IDLE_SOURCE_MASK		\
+		(7 << SCLK_SWAKEUP_FIQ_SOURCE_SHIFT)
+enum {
+	SCLK_SOURCE_CLKM,
+	SCLK_SOURCE_PLLC_OUT1,
+	SCLK_SOURCE_PLLP_OUT4,
+	SCLK_SOURCE_PLLP_OUT3,
+	SCLK_SOURCE_PLLP_OUT2,
+	SCLK_SOURCE_CLKD,
+	SCLK_SOURCE_CLKS,
+	SCLK_SOURCE_PLLM_OUT1,
+};
+#define SCLK_SWAKE_FIQ_SRC_PLLM_OUT1    (7 << 12)
+#define SCLK_SWAKE_IRQ_SRC_PLLM_OUT1    (7 << 8)
+#define SCLK_SWAKE_RUN_SRC_PLLM_OUT1    (7 << 4)
+#define SCLK_SWAKE_IDLE_SRC_PLLM_OUT1   (7 << 0)
+
+/* CLK_RST_CONTROLLER_SUPER_SCLK_DIVIDER */
+#define SUPER_SCLK_ENB_SHIFT		31U
+#define SUPER_SCLK_ENB_MASK		(1U << 31)
+#define SUPER_SCLK_DIVIDEND_SHIFT	8
+#define SUPER_SCLK_DIVIDEND_MASK	(0xff << SUPER_SCLK_DIVIDEND_SHIFT)
+#define SUPER_SCLK_DIVISOR_SHIFT	0
+#define SUPER_SCLK_DIVISOR_MASK		(0xff << SUPER_SCLK_DIVISOR_SHIFT)
+
+/* CLK_RST_CONTROLLER_CLK_SYSTEM_RATE */
+#define CLK_SYS_RATE_HCLK_DISABLE_SHIFT 7
+#define CLK_SYS_RATE_HCLK_DISABLE_MASK  (1 << CLK_SYS_RATE_HCLK_DISABLE_SHIFT)
+#define CLK_SYS_RATE_AHB_RATE_SHIFT     4
+#define CLK_SYS_RATE_AHB_RATE_MASK      (3 << CLK_SYS_RATE_AHB_RATE_SHIFT)
+#define CLK_SYS_RATE_PCLK_DISABLE_SHIFT 3
+#define CLK_SYS_RATE_PCLK_DISABLE_MASK  (1 << CLK_SYS_RATE_PCLK_DISABLE_SHIFT)
+#define CLK_SYS_RATE_APB_RATE_SHIFT     0
+#define CLK_SYS_RATE_APB_RATE_MASK      (3 << CLK_SYS_RATE_AHB_RATE_SHIFT)
+
+#endif	/* _TEGRA_CLK_RST_H_ */

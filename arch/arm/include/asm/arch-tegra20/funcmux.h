@@ -21,8 +21,10 @@
 
 /* Tegra20 high-level function multiplexing */
 
-#ifndef __FUNCMUX_H
-#define __FUNCMUX_H
+#ifndef _TEGRA20_FUNCMUX_H_
+#define _TEGRA20_FUNCMUX_H_
+
+#include <asm/arch-tegra/funcmux.h>
 
 /* Configs supported by the func mux */
 enum {
@@ -62,22 +64,4 @@ enum {
 	FUNCMUX_NDFLASH_ATC = 0,
 	FUNCMUX_NDFLASH_KBC_8_BIT,
 };
-
-/**
- * Select a config for a particular peripheral.
- *
- * Each peripheral can operate through a number of configurations,
- * which are sets of pins that it uses to bring out its signals.
- * The basic config is 0, and higher numbers indicate different
- * pinmux settings to bring the peripheral out on other pins,
- *
- * This function also disables tristate for the function's pins,
- * so that they operate in normal mode.
- *
- * @param id		Peripheral id
- * @param config	Configuration to use (FUNCMUX_...), 0 for default
- * @return 0 if ok, -1 on error (e.g. incorrect id or config)
- */
-int funcmux_select(enum periph_id id, int config);
-
-#endif
+#endif	/* _TEGRA20_FUNCMUX_H_ */
