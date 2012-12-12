@@ -107,7 +107,7 @@ extern int hdelete_r(const char *__key, struct hsearch_data *__htab,
 		     int __flag);
 
 extern ssize_t hexport_r(struct hsearch_data *__htab,
-		     const char __sep, char **__resp, size_t __size,
+		     const char __sep, int __flag, char **__resp, size_t __size,
 		     int argc, char * const argv[]);
 
 /*
@@ -120,9 +120,10 @@ extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
 		     int __flag, int nvars, char * const vars[]);
 
-/* Flags for himport_r(), hdelete_r(), and hsearch_r() */
+/* Flags for himport_r(), hexport_r(), hdelete_r(), and hsearch_r() */
 #define H_NOCLEAR	(1 << 0) /* do not clear hash table before importing */
 #define H_FORCE		(1 << 1) /* overwrite read-only/write-once variables */
 #define H_INTERACTIVE	(1 << 2) /* indicate that an import is user directed */
+#define H_HIDE_DOT	(1 << 3) /* don't print env vars that begin with '.' */
 
 #endif /* search.h */

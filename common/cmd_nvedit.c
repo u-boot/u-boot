@@ -106,7 +106,7 @@ int get_env_id(void)
  *
  * Returns 0 in case of error, or length of printed string
  */
-static int env_print(char *name)
+static int env_print(char *name, int flag)
 {
 	char *res = NULL;
 	size_t len;
@@ -116,7 +116,7 @@ static int env_print(char *name)
 
 		e.key = name;
 		e.data = NULL;
-		hsearch_r(e, FIND, &ep, &env_htab, 0);
+		hsearch_r(e, FIND, &ep, &env_htab, flag);
 		if (ep == NULL)
 			return 0;
 		len = printf("%s=%s\n", ep->key, ep->data);
@@ -124,7 +124,7 @@ static int env_print(char *name)
 	}
 
 	/* print whole list */
-	len = hexport_r(&env_htab, '\n', &res, 0, 0, NULL);
+	len = hexport_r(&env_htab, '\n', flag, &res, 0, 0, NULL);
 
 	if (len > 0) {
 		puts(res);
@@ -141,10 +141,17 @@ static int do_env_print(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	int i;
 	int rcode = 0;
+	int env_flag = H_HIDE_DOT;
+
+	if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'a') {
+		argc--;
+		argv++;
+		env_flag &= ~H_HIDE_DOT;
+	}
 
 	if (argc == 1) {
 		/* print all env vars */
-		rcode = env_print(NULL);
+		rcode = env_print(NULL, env_flag);
 		if (!rcode)
 			return 1;
 		printf("\nEnvironment size: %d/%ld bytes\n",
@@ -153,8 +160,9 @@ static int do_env_print(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	/* print selected env vars */
+	env_flag &= ~H_HIDE_DOT;
 	for (i = 1; i < argc; ++i) {
-		int rc = env_print(argv[i]);
+		int rc = env_print(argv[i], env_flag);
 		if (!rc) {
 			printf("## Error: \"%s\" not defined\n", argv[i]);
 			++rcode;
@@ -807,7 +815,7 @@ NXTARG:		;
 	argv++;
 
 	if (sep) {		/* export as text file */
-		len = hexport_r(&env_htab, sep, &addr, size, argc, argv);
+		len = hexport_r(&env_htab, sep, 0, &addr, size, argc, argv);
 		if (len < 0) {
 			error("Cannot export environment: errno = %d\n", errno);
 			return 1;
@@ -825,7 +833,7 @@ NXTARG:		;
 	else			/* export as raw binary data */
 		res = addr;
 
-	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE, argc, argv);
+	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, argc, argv);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
@@ -1037,7 +1045,7 @@ static char env_help_text[] =
 #if defined(CONFIG_CMD_IMPORTENV)
 	"env import [-d] [-t | -b | -c] addr [size] - import environment\n"
 #endif
-	"env print [name ...] - print environment\n"
+	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_RUN)
 	"env run var [...] - run commands in an environment variable\n"
 #endif
@@ -1069,7 +1077,7 @@ U_BOOT_CMD_COMPLETE(
 U_BOOT_CMD_COMPLETE(
 	printenv, CONFIG_SYS_MAXARGS, 1,	do_env_print,
 	"print environment variables",
-	"\n    - print values of all environment variables\n"
+	"[-a]\n    - print [all] values of all environment variables\n"
 	"printenv name ...\n"
 	"    - print value of environment variable 'name'",
 	var_complete

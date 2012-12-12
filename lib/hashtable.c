@@ -522,7 +522,7 @@ static int cmpkey(const void *p1, const void *p2)
 	return (strcmp(e1->key, e2->key));
 }
 
-ssize_t hexport_r(struct hsearch_data *htab, const char sep,
+ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 		 char **resp, size_t size,
 		 int argc, char * const argv[])
 {
@@ -557,6 +557,9 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 				}
 			}
 			if ((argc > 0) && (found == 0))
+				continue;
+
+			if ((flag & H_HIDE_DOT) && ep->key[0] == '.')
 				continue;
 
 			list[n++] = ep;
