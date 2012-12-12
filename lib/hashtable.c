@@ -247,6 +247,34 @@ int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
 	return 0;
 }
 
+/*
+ * Compare an existing entry with the desired key, and overwrite if the action
+ * is ENTER.  This is simply a helper function for hsearch_r().
+ */
+static inline int _compare_and_overwrite_entry(ENTRY item, ACTION action,
+	ENTRY **retval, struct hsearch_data *htab, int flag,
+	unsigned int hval, unsigned int idx)
+{
+	if (htab->table[idx].used == hval
+	    && strcmp(item.key, htab->table[idx].entry.key) == 0) {
+		/* Overwrite existing value? */
+		if ((action == ENTER) && (item.data != NULL)) {
+			free(htab->table[idx].entry.data);
+			htab->table[idx].entry.data = strdup(item.data);
+			if (!htab->table[idx].entry.data) {
+				__set_errno(ENOMEM);
+				*retval = NULL;
+				return 0;
+			}
+		}
+		/* return found entry */
+		*retval = &htab->table[idx].entry;
+		return idx;
+	}
+	/* keep searching */
+	return -1;
+}
+
 int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 	      struct hsearch_data *htab, int flag)
 {
@@ -255,6 +283,7 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 	unsigned int len = strlen(item.key);
 	unsigned int idx;
 	unsigned int first_deleted = 0;
+	int ret;
 
 	/* Compute an value for the given string. Perhaps use a better method. */
 	hval = len;
@@ -286,23 +315,10 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 		    && !first_deleted)
 			first_deleted = idx;
 
-		if (htab->table[idx].used == hval
-		    && strcmp(item.key, htab->table[idx].entry.key) == 0) {
-			/* Overwrite existing value? */
-			if ((action == ENTER) && (item.data != NULL)) {
-				free(htab->table[idx].entry.data);
-				htab->table[idx].entry.data =
-					strdup(item.data);
-				if (!htab->table[idx].entry.data) {
-					__set_errno(ENOMEM);
-					*retval = NULL;
-					return 0;
-				}
-			}
-			/* return found entry */
-			*retval = &htab->table[idx].entry;
-			return idx;
-		}
+		ret = _compare_and_overwrite_entry(item, action, retval, htab,
+			flag, hval, idx);
+		if (ret != -1)
+			return ret;
 
 		/*
 		 * Second hash function:
@@ -328,23 +344,10 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 				break;
 
 			/* If entry is found use it. */
-			if ((htab->table[idx].used == hval)
-			    && strcmp(item.key, htab->table[idx].entry.key) == 0) {
-				/* Overwrite existing value? */
-				if ((action == ENTER) && (item.data != NULL)) {
-					free(htab->table[idx].entry.data);
-					htab->table[idx].entry.data =
-						strdup(item.data);
-					if (!htab->table[idx].entry.data) {
-						__set_errno(ENOMEM);
-						*retval = NULL;
-						return 0;
-					}
-				}
-				/* return found entry */
-				*retval = &htab->table[idx].entry;
-				return idx;
-			}
+			ret = _compare_and_overwrite_entry(item, action, retval,
+				htab, flag, hval, idx);
+			if (ret != -1)
+				return ret;
 		}
 		while (htab->table[idx].used);
 	}
