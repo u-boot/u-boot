@@ -24,8 +24,17 @@
 #include <linux/string.h>
 #include <linux/ctype.h>
 
+#ifdef USE_HOSTCC /* Eliminate "ANSI does not permit..." warnings */
+#include <stdint.h>
+#include <stdio.h>
+#include "fw_env.h"
+#include <env_attr.h>
+#include <env_flags.h>
+#define getenv fw_getenv
+#else
 #include <common.h>
 #include <environment.h>
+#endif
 
 #ifdef CONFIG_CMD_NET
 #define ENV_FLAGS_NET_VARTYPE_REPS "im"
@@ -179,6 +188,70 @@ static inline int env_flags_lookup(const char *flags_list, const char *name,
 	return ret;
 }
 
+#ifdef USE_HOSTCC /* Functions only used from tools/env */
+/*
+ * Look up any flags directly from the .flags variable and the static list
+ * and convert them to the vartype enum.
+ */
+enum env_flags_vartype env_flags_get_type(const char *name)
+{
+	const char *flags_list = getenv(ENV_FLAGS_VAR);
+	char flags[ENV_FLAGS_ATTR_MAX_LEN + 1];
+
+	if (env_flags_lookup(flags_list, name, flags))
+		return env_flags_vartype_string;
+
+	if (strlen(flags) <= ENV_FLAGS_VARTYPE_LOC)
+		return env_flags_vartype_string;
+
+	return env_flags_parse_vartype(flags);
+}
+
+/*
+ * Validate that the proposed new value for "name" is valid according to the
+ * defined flags for that variable, if any.
+ */
+int env_flags_validate_type(const char *name, const char *value)
+{
+	enum env_flags_vartype type;
+
+	if (value == NULL)
+		return 0;
+	type = env_flags_get_type(name);
+	if (_env_flags_validate_type(value, type) < 0) {
+		printf("## Error: flags type check failure for "
+			"\"%s\" <= \"%s\" (type: %c)\n",
+			name, value, env_flags_vartype_rep[type]);
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ * Validate the parameters to "env set" directly
+ */
+int env_flags_validate_env_set_params(int argc, char * const argv[])
+{
+	if ((argc >= 3) && argv[2] != NULL) {
+		enum env_flags_vartype type = env_flags_get_type(argv[1]);
+
+		/*
+		 * we don't currently check types that need more than
+		 * one argument
+		 */
+		if (type != env_flags_vartype_string && argc > 3) {
+			printf("## Error: too many parameters for setting "
+				"\"%s\"\n", argv[1]);
+			return -1;
+		}
+		return env_flags_validate_type(argv[1], argv[2]);
+	}
+	/* ok */
+	return 0;
+}
+
+#else /* !USE_HOSTCC - Functions only used from lib/hashtable.c */
+
 /*
  * Parse the flag charachters from the .flags attribute list into the binary
  * form to be stored in the environment entry->flags field.
@@ -317,3 +390,5 @@ int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
 
 	return 0;
 }
+
+#endif

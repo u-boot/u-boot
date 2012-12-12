@@ -52,6 +52,23 @@ enum env_flags_vartype {
  */
 enum env_flags_vartype env_flags_parse_vartype(const char *flags);
 
+#ifdef USE_HOSTCC
+/*
+ * Look up the type of a variable directly from the .flags var.
+ */
+enum env_flags_vartype env_flags_get_type(const char *name);
+/*
+ * Validate the newval for its type to conform with the requirements defined by
+ * its flags (directly looked at the .flags var).
+ */
+int env_flags_validate_type(const char *name, const char *newval);
+/*
+ * Validate the parameters passed to "env set" for type compliance
+ */
+int env_flags_validate_env_set_params(int argc, char * const argv[]);
+
+#else /* !USE_HOSTCC */
+
 #include <search.h>
 
 /*
@@ -72,5 +89,7 @@ int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
  */
 #define ENV_FLAGS_VARTYPE_BIN_MASK	0x00000007
 /* The actual variable type values use the enum value (within the mask) */
+
+#endif /* USE_HOSTCC */
 
 #endif /* __ENV_FLAGS_H__ */

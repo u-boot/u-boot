@@ -25,6 +25,7 @@
  */
 
 #include <errno.h>
+#include <env_flags.h>
 #include <fcntl.h>
 #include <linux/stringify.h>
 #include <stdio.h>
@@ -395,6 +396,9 @@ int fw_setenv(int argc, char *argv[])
 
 	name = argv[1];
 
+	if (env_flags_validate_env_set_params(argc, argv) < 0)
+		return 1;
+
 	len = 0;
 	for (i = 2; i < argc; ++i) {
 		char *val = argv[i];
@@ -515,6 +519,11 @@ int fw_parse_script(char *fname)
 		fprintf(stderr, "Setting %s : %s\n",
 			name, val ? val : " removed");
 #endif
+
+		if (env_flags_validate_type(name, val) < 0) {
+			ret = -1;
+			break;
+		}
 
 		/*
 		 * If there is an error setting a variable,

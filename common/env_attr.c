@@ -21,7 +21,14 @@
  * MA 02111-1307 USA
  */
 
+#ifdef USE_HOSTCC /* Eliminate "ANSI does not permit..." warnings */
+#include <stdint.h>
+#include <stdio.h>
+#include <linux/linux_string.h>
+#else
 #include <common.h>
+#endif
+
 #include <env_attr.h>
 #include <errno.h>
 #include <linux/string.h>
