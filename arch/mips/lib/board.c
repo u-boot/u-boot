@@ -46,7 +46,7 @@ static char *failed = "*** failed ***\n";
  * mips_io_port_base is the begin of the address space to which x86 style
  * I/O ports are mapped.
  */
-unsigned long mips_io_port_base = -1;
+const unsigned long mips_io_port_base = -1;
 
 int __board_early_init_f(void)
 {
