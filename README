@@ -3128,7 +3128,8 @@ Configuration Settings:
 
 	The format of the list is:
 		type_attribute = [s|d|x|b|i|m]
-		attributes = type_attribute
+		access_atribute = [a|r|o|c]
+		attributes = type_attribute[access_atribute]
 		entry = variable_name[:attributes]
 		list = entry[,list]
 
@@ -3140,6 +3141,12 @@ Configuration Settings:
 		i - IP address
 		m - MAC address
 
+	The access attributes are:
+		a - Any (default)
+		r - Read-only
+		o - Write-once
+		c - Change-default
+
 	- CONFIG_ENV_FLAGS_LIST_DEFAULT
 		Define this to a list (string) to define the ".flags"
 		envirnoment variable in the default or embedded environment.
@@ -3150,6 +3157,10 @@ Configuration Settings:
 		environment variable.  To override a setting in the static
 		list, simply add an entry for the same variable name to the
 		".flags" variable.
+
+- CONFIG_ENV_ACCESS_IGNORE_FORCE
+	If defined, don't allow the -f switch to env set override variable
+	access flags.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the

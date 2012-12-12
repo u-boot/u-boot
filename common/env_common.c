@@ -95,6 +95,24 @@ int getenv_yesno(const char *var)
 		1 : 0;
 }
 
+/*
+ * Look up the variable from the default environment
+ */
+char *getenv_default(const char *name)
+{
+	char *ret_val;
+	unsigned long really_valid = gd->env_valid;
+	unsigned long real_gd_flags = gd->flags;
+
+	/* Pretend that the image is bad. */
+	gd->flags &= ~GD_FLG_ENV_READY;
+	gd->env_valid = 0;
+	ret_val = getenv(name);
+	gd->env_valid = really_valid;
+	gd->flags = real_gd_flags;
+	return ret_val;
+}
+
 void set_default_env(const char *s)
 {
 	int flags = 0;

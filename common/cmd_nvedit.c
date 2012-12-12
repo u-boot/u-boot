@@ -447,8 +447,11 @@ int do_env_callback(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static int print_static_flags(const char *var_name, const char *flags)
 {
 	enum env_flags_vartype type = env_flags_parse_vartype(flags);
+	enum env_flags_varaccess access = env_flags_parse_varaccess(flags);
 
-	printf("\t%-20s %-20s\n", var_name, env_flags_get_vartype_name(type));
+	printf("\t%-20s %-20s %-20s\n", var_name,
+		env_flags_get_vartype_name(type),
+		env_flags_get_varaccess_name(access));
 
 	return 0;
 }
@@ -456,13 +459,17 @@ static int print_static_flags(const char *var_name, const char *flags)
 static int print_active_flags(ENTRY *entry)
 {
 	enum env_flags_vartype type;
+	enum env_flags_varaccess access;
 
 	if (entry->flags == 0)
 		return 0;
 
 	type = (enum env_flags_vartype)
 		(entry->flags & ENV_FLAGS_VARTYPE_BIN_MASK);
-	printf("\t%-20s %-20s\n", entry->key, env_flags_get_vartype_name(type));
+	access = env_flags_parse_varaccess_from_binflags(entry->flags);
+	printf("\t%-20s %-20s %-20s\n", entry->key,
+		env_flags_get_vartype_name(type),
+		env_flags_get_varaccess_name(access));
 
 	return 0;
 }
@@ -480,17 +487,29 @@ int do_env_flags(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	env_flags_print_vartypes();
 	puts("\n");
 
+	/* Print the available variable access types */
+	printf("Available variable access flags (position %d):\n",
+		ENV_FLAGS_VARACCESS_LOC);
+	puts("\tFlag\tVariable Access Name\n");
+	puts("\t----\t--------------------\n");
+	env_flags_print_varaccess();
+	puts("\n");
+
 	/* Print the static flags that may exist */
 	puts("Static flags:\n");
-	printf("\t%-20s %-20s\n", "Variable Name", "Variable Type");
-	printf("\t%-20s %-20s\n", "-------------", "-------------");
+	printf("\t%-20s %-20s %-20s\n", "Variable Name", "Variable Type",
+		"Variable Access");
+	printf("\t%-20s %-20s %-20s\n", "-------------", "-------------",
+		"---------------");
 	env_attr_walk(ENV_FLAGS_LIST_STATIC, print_static_flags);
 	puts("\n");
 
 	/* walk through each variable and print the flags if non-default */
 	puts("Active flags:\n");
-	printf("\t%-20s %-20s\n", "Variable Name", "Variable Type");
-	printf("\t%-20s %-20s\n", "-------------", "-------------");
+	printf("\t%-20s %-20s %-20s\n", "Variable Name", "Variable Type",
+		"Variable Access");
+	printf("\t%-20s %-20s %-20s\n", "-------------", "-------------",
+		"---------------");
 	hwalk_r(&env_htab, print_active_flags);
 	return 0;
 }

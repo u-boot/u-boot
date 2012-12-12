@@ -43,6 +43,17 @@
 #endif
 
 static const char env_flags_vartype_rep[] = "sdxb" ENV_FLAGS_NET_VARTYPE_REPS;
+static const char env_flags_varaccess_rep[] = "aroc";
+static const int env_flags_varaccess_mask[] = {
+	0,
+	ENV_FLAGS_VARACCESS_PREVENT_DELETE |
+		ENV_FLAGS_VARACCESS_PREVENT_CREATE |
+		ENV_FLAGS_VARACCESS_PREVENT_OVERWR,
+	ENV_FLAGS_VARACCESS_PREVENT_DELETE |
+		ENV_FLAGS_VARACCESS_PREVENT_OVERWR,
+	ENV_FLAGS_VARACCESS_PREVENT_DELETE |
+		ENV_FLAGS_VARACCESS_PREVENT_NONDEF_OVERWR};
+
 #ifdef CONFIG_CMD_ENV_FLAGS
 static const char * const env_flags_vartype_names[] = {
 	"string",
@@ -53,6 +64,12 @@ static const char * const env_flags_vartype_names[] = {
 	"IP address",
 	"MAC address",
 #endif
+};
+static const char * const env_flags_varaccess_names[] = {
+	"any",
+	"read-only",
+	"write-once",
+	"change-default",
 };
 
 /*
@@ -70,11 +87,33 @@ void env_flags_print_vartypes(void)
 }
 
 /*
+ * Print the whole list of available access flags.
+ */
+void env_flags_print_varaccess(void)
+{
+	enum env_flags_varaccess curaccess = (enum env_flags_varaccess)0;
+
+	while (curaccess != env_flags_varaccess_end) {
+		printf("\t%c   -\t%s\n", env_flags_varaccess_rep[curaccess],
+			env_flags_varaccess_names[curaccess]);
+		curaccess++;
+	}
+}
+
+/*
  * Return the name of the type.
  */
 const char *env_flags_get_vartype_name(enum env_flags_vartype type)
 {
 	return env_flags_vartype_names[type];
+}
+
+/*
+ * Return the name of the access.
+ */
+const char *env_flags_get_varaccess_name(enum env_flags_varaccess access)
+{
+	return env_flags_varaccess_names[access];
 }
 #endif /* CONFIG_CMD_ENV_FLAGS */
 
@@ -98,6 +137,46 @@ enum env_flags_vartype env_flags_parse_vartype(const char *flags)
 	printf("## Warning: Unknown environment variable type '%c'\n",
 		flags[ENV_FLAGS_VARTYPE_LOC]);
 	return env_flags_vartype_string;
+}
+
+/*
+ * Parse the flags string from a .flags attribute list into the varaccess enum.
+ */
+enum env_flags_varaccess env_flags_parse_varaccess(const char *flags)
+{
+	char *access;
+
+	if (strlen(flags) <= ENV_FLAGS_VARACCESS_LOC)
+		return env_flags_varaccess_any;
+
+	access = strchr(env_flags_varaccess_rep,
+		flags[ENV_FLAGS_VARACCESS_LOC]);
+
+	if (access != NULL)
+		return (enum env_flags_varaccess)
+			(access - &env_flags_varaccess_rep[0]);
+
+	printf("## Warning: Unknown environment variable access method '%c'\n",
+		flags[ENV_FLAGS_VARACCESS_LOC]);
+	return env_flags_varaccess_any;
+}
+
+/*
+ * Parse the binary flags from a hash table entry into the varaccess enum.
+ */
+enum env_flags_varaccess env_flags_parse_varaccess_from_binflags(int binflags)
+{
+	int i;
+
+	for (i = 0; i < sizeof(env_flags_varaccess_mask); i++)
+		if (env_flags_varaccess_mask[i] ==
+		    (binflags & ENV_FLAGS_VARACCESS_BIN_MASK))
+			return (enum env_flags_varaccess)i;
+
+	printf("Warning: Non-standard access flags. (0x%x)\n",
+		binflags & ENV_FLAGS_VARACCESS_BIN_MASK);
+
+	return env_flags_varaccess_any;
 }
 
 static inline int is_hex_prefix(const char *value)
@@ -242,6 +321,23 @@ enum env_flags_vartype env_flags_get_type(const char *name)
 }
 
 /*
+ * Look up the access of a variable directly from the .flags var.
+ */
+enum env_flags_varaccess env_flags_get_varaccess(const char *name)
+{
+	const char *flags_list = getenv(ENV_FLAGS_VAR);
+	char flags[ENV_FLAGS_ATTR_MAX_LEN + 1];
+
+	if (env_flags_lookup(flags_list, name, flags))
+		return env_flags_varaccess_any;
+
+	if (strlen(flags) <= ENV_FLAGS_VARACCESS_LOC)
+		return env_flags_varaccess_any;
+
+	return env_flags_parse_varaccess(flags);
+}
+
+/*
  * Validate that the proposed new value for "name" is valid according to the
  * defined flags for that variable, if any.
  */
@@ -259,6 +355,21 @@ int env_flags_validate_type(const char *name, const char *value)
 		return -1;
 	}
 	return 0;
+}
+
+/*
+ * Validate that the proposed access to variable "name" is valid according to
+ * the defined flags for that variable, if any.
+ */
+int env_flags_validate_varaccess(const char *name, int check_mask)
+{
+	enum env_flags_varaccess access;
+	int access_mask;
+
+	access = env_flags_get_varaccess(name);
+	access_mask = env_flags_varaccess_mask[access];
+
+	return (check_mask & access_mask) != 0;
 }
 
 /*
@@ -292,7 +403,12 @@ int env_flags_validate_env_set_params(int argc, char * const argv[])
  */
 static int env_parse_flags_to_bin(const char *flags)
 {
-	return env_flags_parse_vartype(flags) & ENV_FLAGS_VARTYPE_BIN_MASK;
+	int binflags;
+
+	binflags = env_flags_parse_vartype(flags) & ENV_FLAGS_VARTYPE_BIN_MASK;
+	binflags |= env_flags_varaccess_mask[env_flags_parse_varaccess(flags)];
+
+	return binflags;
 }
 
 /*
@@ -377,13 +493,10 @@ int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
 	int flag)
 {
 	const char *name;
-#if !defined(CONFIG_ENV_OVERWRITE) && defined(CONFIG_OVERWRITE_ETHADDR_ONCE) \
-&& defined(CONFIG_ETHADDR)
 	const char *oldval = NULL;
 
 	if (op != env_op_create)
 		oldval = item->data;
-#endif
 
 	name = item->key;
 
@@ -420,6 +533,44 @@ int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
 				name, newval, env_flags_vartype_rep[type]);
 			return -1;
 		}
+	}
+
+	/* check for access permission */
+#ifndef CONFIG_ENV_ACCESS_IGNORE_FORCE
+	if (flag & H_FORCE)
+		return 0;
+#endif
+	switch (op) {
+	case env_op_delete:
+		if (item->flags & ENV_FLAGS_VARACCESS_PREVENT_DELETE) {
+			printf("## Error: Can't delete \"%s\"\n", name);
+			return 1;
+		}
+		break;
+	case env_op_overwrite:
+		if (item->flags & ENV_FLAGS_VARACCESS_PREVENT_OVERWR) {
+			printf("## Error: Can't overwrite \"%s\"\n", name);
+			return 1;
+		} else if (item->flags &
+		    ENV_FLAGS_VARACCESS_PREVENT_NONDEF_OVERWR) {
+			const char *defval = getenv_default(name);
+
+			if (defval == NULL)
+				defval = "";
+			printf("oldval: %s  defval: %s\n", oldval, defval);
+			if (strcmp(oldval, defval) != 0) {
+				printf("## Error: Can't overwrite \"%s\"\n",
+					name);
+				return 1;
+			}
+		}
+		break;
+	case env_op_create:
+		if (item->flags & ENV_FLAGS_VARACCESS_PREVENT_CREATE) {
+			printf("## Error: Can't create \"%s\"\n", name);
+			return 1;
+		}
+		break;
 	}
 
 	return 0;
