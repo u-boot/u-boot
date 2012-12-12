@@ -82,6 +82,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <environment.h>
 #include <net.h>
 #if defined(CONFIG_STATUS_LED)
 #include <miiphy.h>
@@ -207,6 +208,22 @@ static int net_check_prereq(enum proto_t protocol);
 static int NetTryCount;
 
 /**********************************************************************/
+
+static int on_bootfile(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	switch (op) {
+	case env_op_create:
+	case env_op_overwrite:
+		copy_filename(BootFile, value, sizeof(BootFile));
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(bootfile, on_bootfile);
 
 /*
  * Check if autoload is enabled. If so, use either NFS or TFTP to download

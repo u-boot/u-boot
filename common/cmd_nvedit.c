@@ -50,9 +50,6 @@
 #include <serial.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
-#if defined(CONFIG_CMD_NET)
-#include <net.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -328,12 +325,6 @@ int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
 		load_addr = simple_strtoul(newval, NULL, 16);
 		return 0;
 	}
-#if defined(CONFIG_CMD_NET)
-	else if (strcmp(name, "bootfile") == 0) {
-		copy_filename(BootFile, newval, sizeof(BootFile));
-		return 0;
-	}
-#endif
 	return 0;
 }
 
