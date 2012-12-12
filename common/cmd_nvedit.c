@@ -514,6 +514,81 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif
 
+#if defined(CONFIG_CMD_ENV_CALLBACK)
+static int print_static_binding(const char *var_name, const char *callback_name)
+{
+	printf("\t%-20s %-20s\n", var_name, callback_name);
+
+	return 0;
+}
+
+static int print_active_callback(ENTRY *entry)
+{
+	struct env_clbk_tbl *clbkp;
+	int i;
+	int num_callbacks;
+
+	if (entry->callback == NULL)
+		return 0;
+
+	/* look up the callback in the linker-list */
+	num_callbacks = ll_entry_count(struct env_clbk_tbl, env_clbk);
+	for (i = 0, clbkp = ll_entry_start(struct env_clbk_tbl, env_clbk);
+	     i < num_callbacks;
+	     i++, clbkp++) {
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+		if (entry->callback == clbkp->callback + gd->reloc_off)
+#else
+		if (entry->callback == clbkp->callback)
+#endif
+			break;
+	}
+
+	if (i == num_callbacks)
+		/* this should probably never happen, but just in case... */
+		printf("\t%-20s %p\n", entry->key, entry->callback);
+	else
+		printf("\t%-20s %-20s\n", entry->key, clbkp->name);
+
+	return 0;
+}
+
+/*
+ * Print the callbacks available and what they are bound to
+ */
+int do_env_callback(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	struct env_clbk_tbl *clbkp;
+	int i;
+	int num_callbacks;
+
+	/* Print the available callbacks */
+	puts("Available callbacks:\n");
+	puts("\tCallback Name\n");
+	puts("\t-------------\n");
+	num_callbacks = ll_entry_count(struct env_clbk_tbl, env_clbk);
+	for (i = 0, clbkp = ll_entry_start(struct env_clbk_tbl, env_clbk);
+	     i < num_callbacks;
+	     i++, clbkp++)
+		printf("\t%s\n", clbkp->name);
+	puts("\n");
+
+	/* Print the static bindings that may exist */
+	puts("Static callback bindings:\n");
+	printf("\t%-20s %-20s\n", "Variable Name", "Callback Name");
+	printf("\t%-20s %-20s\n", "-------------", "-------------");
+	env_attr_walk(ENV_CALLBACK_LIST_STATIC, print_static_binding);
+	puts("\n");
+
+	/* walk through each variable and print the callback if it has one */
+	puts("Active callback bindings:\n");
+	printf("\t%-20s %-20s\n", "Variable Name", "Callback Name");
+	printf("\t%-20s %-20s\n", "-------------", "-------------");
+	hwalk_r(&env_htab, print_active_callback);
+	return 0;
+}
+#endif
+
 /*
  * Interactively edit an environment variable
  */
@@ -981,6 +1056,9 @@ static cmd_tbl_t cmd_env_sub[] = {
 #if defined(CONFIG_CMD_EDITENV)
 	U_BOOT_CMD_MKENT(edit, 2, 0, do_env_edit, "", ""),
 #endif
+#if defined(CONFIG_CMD_ENV_CALLBACK)
+	U_BOOT_CMD_MKENT(callbacks, 1, 0, do_env_callback, "", ""),
+#endif
 #if defined(CONFIG_CMD_EXPORTENV)
 	U_BOOT_CMD_MKENT(export, 4, 0, do_env_export, "", ""),
 #endif
@@ -1030,6 +1108,9 @@ static int do_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static char env_help_text[] =
 #if defined(CONFIG_CMD_ASKENV)
 	"ask name [message] [size] - ask for environment variable\nenv "
+#endif
+#if defined(CONFIG_CMD_ENV_CALLBACK)
+	"callbacks - print callbacks and their associated variables\nenv "
 #endif
 	"default [-f] -a - [forcibly] reset default environment\n"
 	"env default [-f] var [...] - [forcibly] reset variable(s) to their default values\n"

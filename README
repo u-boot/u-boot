@@ -815,6 +815,7 @@ The following options need to be configured:
 		CONFIG_CMD_EDITENV	  edit env variable
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
+		CONFIG_CMD_ENV_CALLBACK	* display details about env callbacks
 		CONFIG_CMD_EXPORTENV	* export the environment
 		CONFIG_CMD_EXT2		* ext2 command support
 		CONFIG_CMD_EXT4		* ext4 command support
