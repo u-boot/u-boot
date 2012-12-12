@@ -73,6 +73,29 @@ static int on_console(const char *name, const char *value, enum env_op op,
 }
 U_BOOT_ENV_CALLBACK(console, on_console);
 
+#ifdef CONFIG_SILENT_CONSOLE
+static int on_silent(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+#ifndef CONFIG_SILENT_CONSOLE_UPDATE_ON_SET
+	if (flags & H_INTERACTIVE)
+		return 0;
+#endif
+#ifndef CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
+	if ((flags & H_INTERACTIVE) == 0)
+		return 0;
+#endif
+
+	if (value != NULL)
+		gd->flags |= GD_FLG_SILENT;
+	else
+		gd->flags &= ~GD_FLG_SILENT;
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(silent, on_silent);
+#endif
+
 #ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
 /*
  * if overwrite_console returns 1, the stdin, stderr and stdout

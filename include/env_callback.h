@@ -34,6 +34,12 @@
 #define CONFIG_ENV_CALLBACK_LIST_STATIC
 #endif
 
+#ifdef CONFIG_SILENT_CONSOLE
+#define SILENT_CALLBACK "silent:silent,"
+#else
+#define SILENT_CALLBACK
+#endif
+
 /*
  * This list of callback bindings is static, but may be overridden by defining
  * a new association in the ".callbacks" environment variable.
@@ -42,6 +48,7 @@
 	"baudrate:baudrate," \
 	"bootfile:bootfile," \
 	"loadaddr:loadaddr," \
+	SILENT_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC
 
