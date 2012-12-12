@@ -55,6 +55,7 @@
 #endif
 
 #include <env_callback.h>
+#include <env_flags.h>
 #include <search.h>
 
 /*
@@ -412,6 +413,8 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 
 		/* This is a new entry, so look up a possible callback */
 		env_callback_init(&htab->table[idx].entry);
+		/* Also look for flags */
+		env_flags_init(&htab->table[idx].entry);
 
 		/* check for permission */
 		if (htab->change_ok != NULL && htab->change_ok(
@@ -465,6 +468,7 @@ static void _hdelete(const char *key, struct hsearch_data *htab, ENTRY *ep,
 	free((void *)ep->key);
 	free(ep->data);
 	ep->callback = NULL;
+	ep->flags = 0;
 	htab->table[idx].used = -1;
 
 	--htab->filled;

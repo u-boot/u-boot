@@ -166,6 +166,7 @@ extern void env_reloc(void);
 
 #include <env_attr.h>
 #include <env_callback.h>
+#include <env_flags.h>
 #include <search.h>
 
 extern struct hsearch_data env_htab;
@@ -188,14 +189,6 @@ int set_default_vars(int nvars, char * const vars[]);
 
 /* Import from binary representation into hash table */
 int env_import(const char *buf, int check);
-
-/*
- * Check if variable "item" can be changed to newval
- * When (flag & H_FORCE) is set, it does not print out any error
- * message and forces overwriting of write-once variables.
- */
-int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
-	int flag);
 
 #endif /* DO_DEPS_ONLY */
 

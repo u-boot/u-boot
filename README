@@ -2188,6 +2188,11 @@ CBFS (Coreboot Filesystem) support
 		serial# is unaffected by this, i. e. it remains
 		read-only.]
 
+		The same can be accomplished in a more flexible way
+		for any variable by configuring the type of access
+		to allow for those variables in the ".flags" variable
+		or define CONFIG_ENV_FLAGS_LIST_STATIC.
+
 - Protected RAM:
 		CONFIG_PRAM
 
@@ -3112,6 +3117,38 @@ Configuration Settings:
 	setting is supposed to be generous and should work in most
 	cases. This setting can be used to tune behaviour; see
 	lib/hashtable.c for details.
+
+- CONFIG_ENV_FLAGS_LIST_DEFAULT
+- CONFIG_ENV_FLAGS_LIST_STATIC
+	Enable validation of the values given to enviroment variables when
+	calling env set.  Variables can be restricted to only decimal,
+	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
+	the variables can also be restricted to IP address or MAC address.
+
+	The format of the list is:
+		type_attribute = [s|d|x|b|i|m]
+		attributes = type_attribute
+		entry = variable_name[:attributes]
+		list = entry[,list]
+
+	The type attributes are:
+		s - String (default)
+		d - Decimal
+		x - Hexadecimal
+		b - Boolean ([1yYtT|0nNfF])
+		i - IP address
+		m - MAC address
+
+	- CONFIG_ENV_FLAGS_LIST_DEFAULT
+		Define this to a list (string) to define the ".flags"
+		envirnoment variable in the default or embedded environment.
+
+	- CONFIG_ENV_FLAGS_LIST_STATIC
+		Define this to a list (string) to define validation that
+		should be done if an entry is not found in the ".flags"
+		environment variable.  To override a setting in the static
+		list, simply add an entry for the same variable name to the
+		".flags" variable.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the

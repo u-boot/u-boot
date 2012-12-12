@@ -24,6 +24,7 @@
 #ifndef __ENV_CALLBACK_H__
 #define __ENV_CALLBACK_H__
 
+#include <env_flags.h>
 #include <linker_lists.h>
 #include <search.h>
 
@@ -45,6 +46,7 @@
  * a new association in the ".callbacks" environment variable.
  */
 #define ENV_CALLBACK_LIST_STATIC ENV_CALLBACK_VAR ":callbacks," \
+	ENV_FLAGS_VAR ":flags," \
 	"baudrate:baudrate," \
 	"bootfile:bootfile," \
 	"loadaddr:loadaddr," \

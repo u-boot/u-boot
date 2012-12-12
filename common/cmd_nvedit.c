@@ -192,57 +192,9 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 #endif /* CONFIG_SPL_BUILD */
 
 /*
- * Perform consistency checking before setting, replacing, or deleting an
- * environment variable, then (if successful) apply the changes to internals so
- * to make them effective.  Code for this function was taken out of
- * _do_env_set(), which now calls it instead.
- * Also called as a callback function by himport_r().
- * Returns 0 in case of success, 1 in case of failure.
- * When (flag & H_FORCE) is set, do not print out any error message and force
- * overwriting of write-once variables.
- */
-
-int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
-	int flag)
-{
-#ifndef CONFIG_ENV_OVERWRITE
-	const char *name;
-#if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-	const char *oldval = NULL;
-
-	if (op != env_op_create)
-		oldval = item->data;
-#endif
-
-	name = item->key;
-#endif
-
-#ifndef CONFIG_ENV_OVERWRITE
-	/*
-	 * Some variables like "ethaddr" and "serial#" can be set only once and
-	 * cannot be deleted, unless CONFIG_ENV_OVERWRITE is defined.
-	 */
-	if (op != env_op_create &&		/* variable exists */
-		(flag & H_FORCE) == 0) {	/* and we are not forced */
-		if (strcmp(name, "serial#") == 0 ||
-		    (strcmp(name, "ethaddr") == 0
-#if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-		     && strcmp(oldval, __stringify(CONFIG_ETHADDR)) != 0
-#endif	/* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
-			)) {
-			printf("Can't overwrite \"%s\"\n", name);
-			return 1;
-		}
-	}
-#endif
-
-	return 0;
-}
-
-/*
  * Set a new environment variable,
  * or replace or delete an existing one.
-*/
+ */
 static int _do_env_set(int flag, int argc, char * const argv[])
 {
 	int   i, len;
