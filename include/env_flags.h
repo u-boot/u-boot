@@ -47,6 +47,17 @@ enum env_flags_vartype {
 #define ENV_FLAGS_LIST_STATIC \
 	CONFIG_ENV_FLAGS_LIST_STATIC
 
+#ifdef CONFIG_CMD_ENV_FLAGS
+/*
+ * Print the whole list of available type flags.
+ */
+void env_flags_print_vartypes(void);
+/*
+ * Return the name of the type.
+ */
+const char *env_flags_get_vartype_name(enum env_flags_vartype type);
+#endif
+
 /*
  * Parse the flags string from a .flags attribute list into the vartype enum.
  */

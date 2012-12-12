@@ -443,6 +443,59 @@ int do_env_callback(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif
 
+#if defined(CONFIG_CMD_ENV_FLAGS)
+static int print_static_flags(const char *var_name, const char *flags)
+{
+	enum env_flags_vartype type = env_flags_parse_vartype(flags);
+
+	printf("\t%-20s %-20s\n", var_name, env_flags_get_vartype_name(type));
+
+	return 0;
+}
+
+static int print_active_flags(ENTRY *entry)
+{
+	enum env_flags_vartype type;
+
+	if (entry->flags == 0)
+		return 0;
+
+	type = (enum env_flags_vartype)
+		(entry->flags & ENV_FLAGS_VARTYPE_BIN_MASK);
+	printf("\t%-20s %-20s\n", entry->key, env_flags_get_vartype_name(type));
+
+	return 0;
+}
+
+/*
+ * Print the flags available and what variables have flags
+ */
+int do_env_flags(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	/* Print the available variable types */
+	printf("Available variable type flags (position %d):\n",
+		ENV_FLAGS_VARTYPE_LOC);
+	puts("\tFlag\tVariable Type Name\n");
+	puts("\t----\t------------------\n");
+	env_flags_print_vartypes();
+	puts("\n");
+
+	/* Print the static flags that may exist */
+	puts("Static flags:\n");
+	printf("\t%-20s %-20s\n", "Variable Name", "Variable Type");
+	printf("\t%-20s %-20s\n", "-------------", "-------------");
+	env_attr_walk(ENV_FLAGS_LIST_STATIC, print_static_flags);
+	puts("\n");
+
+	/* walk through each variable and print the flags if non-default */
+	puts("Active flags:\n");
+	printf("\t%-20s %-20s\n", "Variable Name", "Variable Type");
+	printf("\t%-20s %-20s\n", "-------------", "-------------");
+	hwalk_r(&env_htab, print_active_flags);
+	return 0;
+}
+#endif
+
 /*
  * Interactively edit an environment variable
  */
@@ -913,6 +966,9 @@ static cmd_tbl_t cmd_env_sub[] = {
 #if defined(CONFIG_CMD_ENV_CALLBACK)
 	U_BOOT_CMD_MKENT(callbacks, 1, 0, do_env_callback, "", ""),
 #endif
+#if defined(CONFIG_CMD_ENV_FLAGS)
+	U_BOOT_CMD_MKENT(flags, 1, 0, do_env_flags, "", ""),
+#endif
 #if defined(CONFIG_CMD_EXPORTENV)
 	U_BOOT_CMD_MKENT(export, 4, 0, do_env_export, "", ""),
 #endif
@@ -973,6 +1029,9 @@ static char env_help_text[] =
 #endif
 #if defined(CONFIG_CMD_EXPORTENV)
 	"env export [-t | -b | -c] [-s size] addr [var ...] - export environment\n"
+#endif
+#if defined(CONFIG_CMD_ENV_FLAGS)
+	"env flags - print variables that have non-default flags\n"
 #endif
 #if defined(CONFIG_CMD_GREPENV)
 	"env grep string [...] - search environment\n"

@@ -43,6 +43,40 @@
 #endif
 
 static const char env_flags_vartype_rep[] = "sdxb" ENV_FLAGS_NET_VARTYPE_REPS;
+#ifdef CONFIG_CMD_ENV_FLAGS
+static const char * const env_flags_vartype_names[] = {
+	"string",
+	"decimal",
+	"hexadecimal",
+	"boolean",
+#ifdef CONFIG_CMD_NET
+	"IP address",
+	"MAC address",
+#endif
+};
+
+/*
+ * Print the whole list of available type flags.
+ */
+void env_flags_print_vartypes(void)
+{
+	enum env_flags_vartype curtype = (enum env_flags_vartype)0;
+
+	while (curtype != env_flags_vartype_end) {
+		printf("\t%c   -\t%s\n", env_flags_vartype_rep[curtype],
+			env_flags_vartype_names[curtype]);
+		curtype++;
+	}
+}
+
+/*
+ * Return the name of the type.
+ */
+const char *env_flags_get_vartype_name(enum env_flags_vartype type)
+{
+	return env_flags_vartype_names[type];
+}
+#endif /* CONFIG_CMD_ENV_FLAGS */
 
 /*
  * Parse the flags string from a .flags attribute list into the vartype enum.
