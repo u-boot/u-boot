@@ -41,6 +41,7 @@
 #define ENV_CALLBACK_LIST_STATIC ENV_CALLBACK_VAR ":callbacks," \
 	"baudrate:baudrate," \
 	"bootfile:bootfile," \
+	"loadaddr:loadaddr," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC
 
 struct env_clbk_tbl {

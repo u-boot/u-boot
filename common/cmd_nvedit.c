@@ -73,10 +73,6 @@ SPI_FLASH|NVRAM|MMC|FAT|REMOTE} or CONFIG_ENV_IS_NOWHERE
  */
 #define	MAX_ENV_SIZE	(1 << 20)	/* 1 MiB */
 
-ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
-ulong save_addr;			/* Default Save Address */
-ulong save_size;			/* Default Save Size (in bytes) */
-
 /*
  * This variable is incremented on each do_env_set(), so it can
  * be used via get_env_id() as an indication, if the environment
@@ -270,14 +266,6 @@ int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
 	}
 #endif
 
-	/*
-	 * Some variables should be updated when the corresponding
-	 * entry in the environment is changed
-	 */
-	if (strcmp(name, "loadaddr") == 0) {
-		load_addr = simple_strtoul(newval, NULL, 16);
-		return 0;
-	}
 	return 0;
 }
 
