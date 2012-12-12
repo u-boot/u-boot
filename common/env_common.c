@@ -81,6 +81,20 @@ const uchar *env_get_addr(int index)
 		return &default_environment[index];
 }
 
+/*
+ * Read an environment variable as a boolean
+ * Return -1 if variable does not exist (default to true)
+ */
+int getenv_yesno(const char *var)
+{
+	char *s = getenv(var);
+
+	if (s == NULL)
+		return -1;
+	return (*s == '1' || *s == 'y' || *s == 'Y' || *s == 't' || *s == 'T') ?
+		1 : 0;
+}
+
 void set_default_env(const char *s)
 {
 	int flags = 0;

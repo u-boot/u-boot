@@ -540,15 +540,13 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	flash_size = flash_init();
 	if (flash_size > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM
-		char *s = getenv("flashchecksum");
-
 		print_size(flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
 		 *
 		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 		 */
-		if (s && (*s == 'y')) {
+		if (getenv_yesno("flashchecksum") == 1) {
 			printf("  CRC: %08X", crc32(0,
 				(const unsigned char *) CONFIG_SYS_FLASH_BASE,
 				flash_size));

@@ -214,26 +214,24 @@ static int NetTryCount;
  */
 void net_auto_load(void)
 {
+#if defined(CONFIG_CMD_NFS)
 	const char *s = getenv("autoload");
 
-	if (s != NULL) {
-		if (*s == 'n') {
-			/*
-			 * Just use BOOTP/RARP to configure system;
-			 * Do not use TFTP to load the bootfile.
-			 */
-			net_set_state(NETLOOP_SUCCESS);
-			return;
-		}
-#if defined(CONFIG_CMD_NFS)
-		if (strcmp(s, "NFS") == 0) {
-			/*
-			 * Use NFS to load the bootfile.
-			 */
-			NfsStart();
-			return;
-		}
+	if (s != NULL && strcmp(s, "NFS") == 0) {
+		/*
+		 * Use NFS to load the bootfile.
+		 */
+		NfsStart();
+		return;
+	}
 #endif
+	if (getenv_yesno("autoload") == 0) {
+		/*
+		 * Just use BOOTP/RARP to configure system;
+		 * Do not use TFTP to load the bootfile.
+		 */
+		net_set_state(NETLOOP_SUCCESS);
+		return;
 	}
 	TftpStart(TFTPGET);
 }
