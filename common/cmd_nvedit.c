@@ -200,7 +200,24 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 	int   i, len;
 	char  *name, *value, *s;
 	ENTRY e, *ep;
+	int env_flag = H_INTERACTIVE;
 
+	debug("Initial value for argc=%d\n", argc);
+	while (argc > 1 && **(argv + 1) == '-') {
+		char *arg = *++argv;
+
+		--argc;
+		while (*++arg) {
+			switch (*arg) {
+			case 'f':		/* force */
+				env_flag |= H_FORCE;
+				break;
+			default:
+				return CMD_RET_USAGE;
+			}
+		}
+	}
+	debug("Final value for argc=%d\n", argc);
 	name = argv[1];
 	value = argv[2];
 
@@ -214,7 +231,7 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 
 	/* Delete only ? */
 	if (argc < 3 || argv[2] == NULL) {
-		int rc = hdelete_r(name, &env_htab, H_INTERACTIVE);
+		int rc = hdelete_r(name, &env_htab, env_flag);
 		return !rc;
 	}
 
@@ -241,7 +258,7 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 
 	e.key	= name;
 	e.data	= value;
-	hsearch_r(e, ENTER, &ep, &env_htab, H_INTERACTIVE);
+	hsearch_r(e, ENTER, &ep, &env_htab, env_flag);
 	free(value);
 	if (!ep) {
 		printf("## Error inserting \"%s\" variable, errno=%d\n",
@@ -1109,10 +1126,10 @@ U_BOOT_CMD_COMPLETE(
 U_BOOT_CMD_COMPLETE(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
 	"set environment variables",
-	"name value ...\n"
-	"    - set environment variable 'name' to 'value ...'\n"
-	"setenv name\n"
-	"    - delete environment variable 'name'",
+	"[-f] name value ...\n"
+	"    - [forcibly] set environment variable 'name' to 'value ...'\n"
+	"setenv [-f] name\n"
+	"    - [forcibly] delete environment variable 'name'",
 	var_complete
 );
 
