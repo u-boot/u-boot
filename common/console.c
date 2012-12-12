@@ -24,10 +24,54 @@
 #include <common.h>
 #include <stdarg.h>
 #include <malloc.h>
+#include <serial.h>
 #include <stdio_dev.h>
 #include <exports.h>
+#include <environment.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static int on_console(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	int console = -1;
+
+	/* Check for console redirection */
+	if (strcmp(name, "stdin") == 0)
+		console = stdin;
+	else if (strcmp(name, "stdout") == 0)
+		console = stdout;
+	else if (strcmp(name, "stderr") == 0)
+		console = stderr;
+
+	/* if not actually setting a console variable, we don't care */
+	if (console == -1 || (gd->flags & GD_FLG_DEVINIT) == 0)
+		return 0;
+
+	switch (op) {
+	case env_op_create:
+	case env_op_overwrite:
+
+#ifdef CONFIG_CONSOLE_MUX
+		if (iomux_doenv(console, value))
+			return 1;
+#else
+		/* Try assigning specified device */
+		if (console_assign(console, value) < 0)
+			return 1;
+#endif /* CONFIG_CONSOLE_MUX */
+		return 0;
+
+	case env_op_delete:
+		if ((flags & H_FORCE) == 0)
+			printf("Can't delete \"%s\"\n", name);
+		return 1;
+
+	default:
+		return 0;
+	}
+}
+U_BOOT_ENV_CALLBACK(console, on_console);
 
 #ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
 /*

@@ -42,6 +42,7 @@
 	"baudrate:baudrate," \
 	"bootfile:bootfile," \
 	"loadaddr:loadaddr," \
+	"stdin:console,stdout:console,stderr:console," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC
 
 struct env_clbk_tbl {

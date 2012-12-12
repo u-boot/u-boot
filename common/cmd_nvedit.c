@@ -47,7 +47,6 @@
 #include <errno.h>
 #include <malloc.h>
 #include <watchdog.h>
-#include <serial.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
 
@@ -206,10 +205,9 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
 	int flag)
 {
-	int   console = -1;
+#ifndef CONFIG_ENV_OVERWRITE
 	const char *name;
-#if !defined(CONFIG_ENV_OVERWRITE) && defined(CONFIG_OVERWRITE_ETHADDR_ONCE) \
-&& defined(CONFIG_ETHADDR)
+#if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
 	const char *oldval = NULL;
 
 	if (op != env_op_create)
@@ -217,35 +215,7 @@ int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
 #endif
 
 	name = item->key;
-
-	/* Default value for NULL to protect string-manipulating functions */
-	newval = newval ? : "";
-
-	/* Check for console redirection */
-	if (strcmp(name, "stdin") == 0)
-		console = stdin;
-	else if (strcmp(name, "stdout") == 0)
-		console = stdout;
-	else if (strcmp(name, "stderr") == 0)
-		console = stderr;
-
-	if (console != -1 && (gd->flags & GD_FLG_DEVINIT) != 0) {
-		if ((newval == NULL) || (*newval == '\0')) {
-			/* We cannot delete stdin/stdout/stderr */
-			if ((flag & H_FORCE) == 0)
-				printf("Can't delete \"%s\"\n", name);
-			return 1;
-		}
-
-#ifdef CONFIG_CONSOLE_MUX
-		if (iomux_doenv(console, newval))
-			return 1;
-#else
-		/* Try assigning specified device */
-		if (console_assign(console, newval) < 0)
-			return 1;
-#endif /* CONFIG_CONSOLE_MUX */
-	}
+#endif
 
 #ifndef CONFIG_ENV_OVERWRITE
 	/*
