@@ -725,8 +725,36 @@ static int do_env_default(cmd_tbl_t *cmdtp, int __flag,
 static int do_env_delete(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
 {
-	printf("Not implemented yet\n");
-	return 0;
+	int env_flag = H_INTERACTIVE;
+	int ret = 0;
+
+	debug("Initial value for argc=%d\n", argc);
+	while (argc > 1 && **(argv + 1) == '-') {
+		char *arg = *++argv;
+
+		--argc;
+		while (*++arg) {
+			switch (*arg) {
+			case 'f':		/* force */
+				env_flag |= H_FORCE;
+				break;
+			default:
+				return CMD_RET_USAGE;
+			}
+		}
+	}
+	debug("Final value for argc=%d\n", argc);
+
+	env_id++;
+
+	while (--argc > 0) {
+		char *name = *++argv;
+
+		if (!hdelete_r(name, &env_htab, env_flag))
+			ret = 1;
+	}
+
+	return ret;
 }
 
 #ifdef CONFIG_CMD_EXPORTENV
@@ -995,7 +1023,7 @@ static cmd_tbl_t cmd_env_sub[] = {
 	U_BOOT_CMD_MKENT(ask, CONFIG_SYS_MAXARGS, 1, do_env_ask, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(default, 1, 0, do_env_default, "", ""),
-	U_BOOT_CMD_MKENT(delete, 2, 0, do_env_delete, "", ""),
+	U_BOOT_CMD_MKENT(delete, CONFIG_SYS_MAXARGS, 0, do_env_delete, "", ""),
 #if defined(CONFIG_CMD_EDITENV)
 	U_BOOT_CMD_MKENT(edit, 2, 0, do_env_edit, "", ""),
 #endif
@@ -1060,6 +1088,7 @@ static char env_help_text[] =
 #endif
 	"default [-f] -a - [forcibly] reset default environment\n"
 	"env default [-f] var [...] - [forcibly] reset variable(s) to their default values\n"
+	"env delete [-f] var [...] - [forcibly] delete variable(s)\n"
 #if defined(CONFIG_CMD_EDITENV)
 	"env edit name - edit environment variable\n"
 #endif
