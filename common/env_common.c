@@ -83,11 +83,8 @@ const uchar *env_get_addr(int index)
 
 void set_default_env(const char *s)
 {
-	/*
-	 * By default, do not apply changes as they will eventually
-	 * be applied by someone else
-	 */
-	int do_apply = 0;
+	int flags = 0;
+
 	if (sizeof(default_environment) > ENV_SIZE) {
 		puts("*** Error - default environment is too large\n\n");
 		return;
@@ -99,14 +96,7 @@ void set_default_env(const char *s)
 				"using default environment\n\n",
 				s + 1);
 		} else {
-			/*
-			 * This set_to_default was explicitly asked for
-			 * by the user, as opposed to being a recovery
-			 * mechanism.  Therefore we check every single
-			 * variable and apply changes to the system
-			 * right away (e.g. baudrate, console).
-			 */
-			do_apply = 1;
+			flags = H_INTERACTIVE;
 			puts(s);
 		}
 	} else {
@@ -114,8 +104,8 @@ void set_default_env(const char *s)
 	}
 
 	if (himport_r(&env_htab, (char *)default_environment,
-			sizeof(default_environment), '\0', 0,
-			0, NULL, do_apply) == 0)
+			sizeof(default_environment), '\0', flags,
+			0, NULL) == 0)
 		error("Environment import failed: errno = %d\n", errno);
 
 	gd->flags |= GD_FLG_ENV_READY;
@@ -130,8 +120,8 @@ int set_default_vars(int nvars, char * const vars[])
 	 * (and use \0 as a separator)
 	 */
 	return himport_r(&env_htab, (const char *)default_environment,
-				sizeof(default_environment), '\0', H_NOCLEAR,
-				nvars, vars, 1 /* do_apply */);
+				sizeof(default_environment), '\0',
+				H_NOCLEAR | H_INTERACTIVE, nvars, vars);
 }
 
 #ifndef CONFIG_SPL_BUILD
@@ -155,7 +145,7 @@ int env_import(const char *buf, int check)
 	}
 
 	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', 0,
-			0, NULL, 0 /* do_apply */)) {
+			0, NULL)) {
 		gd->flags |= GD_FLG_ENV_READY;
 		return 1;
 	}

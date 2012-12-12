@@ -116,7 +116,7 @@ static int env_print(char *name)
 
 		e.key = name;
 		e.data = NULL;
-		hsearch_r(e, FIND, &ep, &env_htab);
+		hsearch_r(e, FIND, &ep, &env_htab, 0);
 		if (ep == NULL)
 			return 0;
 		len = printf("%s=%s\n", ep->key, ep->data);
@@ -224,7 +224,7 @@ int env_check_apply(const char *name, const char *oldval,
 	else if (strcmp(name, "stderr") == 0)
 		console = stderr;
 
-	if (console != -1) {
+	if (console != -1 && (gd->flags & GD_FLG_DEVINIT) != 0) {
 		if ((newval == NULL) || (*newval == '\0')) {
 			/* We cannot delete stdin/stdout/stderr */
 			if ((flag & H_FORCE) == 0)
@@ -344,20 +344,19 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 	 */
 	e.key = name;
 	e.data = NULL;
-	hsearch_r(e, FIND, &ep, &env_htab);
+	hsearch_r(e, FIND, &ep, &env_htab, 0);
 
 	/*
-	 * Perform requested checks. Notice how since we are overwriting
-	 * a single variable, we need to set H_NOCLEAR
+	 * Perform requested checks.
 	 */
-	if (env_check_apply(name, ep ? ep->data : NULL, value, H_NOCLEAR)) {
+	if (env_check_apply(name, ep ? ep->data : NULL, value, 0)) {
 		debug("check function did not approve, refusing\n");
 		return 1;
 	}
 
 	/* Delete only ? */
 	if (argc < 3 || argv[2] == NULL) {
-		int rc = hdelete_r(name, &env_htab, 0);
+		int rc = hdelete_r(name, &env_htab, H_INTERACTIVE);
 		return !rc;
 	}
 
@@ -384,7 +383,7 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 
 	e.key	= name;
 	e.data	= value;
-	hsearch_r(e, ENTER, &ep, &env_htab);
+	hsearch_r(e, ENTER, &ep, &env_htab, H_INTERACTIVE);
 	free(value);
 	if (!ep) {
 		printf("## Error inserting \"%s\" variable, errno=%d\n",
@@ -552,7 +551,7 @@ char *getenv(const char *name)
 
 		e.key	= name;
 		e.data	= NULL;
-		hsearch_r(e, FIND, &ep, &env_htab);
+		hsearch_r(e, FIND, &ep, &env_htab, 0);
 
 		return ep ? ep->data : NULL;
 	}
@@ -951,7 +950,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	if (himport_r(&env_htab, addr, size, sep, del ? 0 : H_NOCLEAR,
-			0, NULL, 0 /* do_apply */) == 0) {
+			0, NULL) == 0) {
 		error("Environment import failed: errno = %d\n", errno);
 		return 1;
 	}

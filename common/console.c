@@ -681,8 +681,6 @@ int console_init_r(void)
 done:
 #endif
 
-	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
-
 #ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
 	stdio_print_current_devices();
 #endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
@@ -693,6 +691,8 @@ done:
 		setenv(stdio_names[i], stdio_devices[i]->name);
 	}
 #endif /* CONFIG_SYS_CONSOLE_ENV_OVERWRITE */
+
+	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
 #if 0
 	/* If nothing usable installed, use only the initial console */
@@ -758,8 +758,6 @@ int console_init_r(void)
 #endif
 	}
 
-	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
-
 #ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
 	stdio_print_current_devices();
 #endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
@@ -768,6 +766,8 @@ int console_init_r(void)
 	for (i = 0; i < 3; i++) {
 		setenv(stdio_names[i], stdio_devices[i]->name);
 	}
+
+	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
 #if 0
 	/* If nothing usable installed, use only the initial console */

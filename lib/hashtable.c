@@ -142,7 +142,7 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
  * be freed and the local static variable can be marked as not used.
  */
 
-void hdestroy_r(struct hsearch_data *htab, int do_apply)
+void hdestroy_r(struct hsearch_data *htab)
 {
 	int i;
 
@@ -156,10 +156,7 @@ void hdestroy_r(struct hsearch_data *htab, int do_apply)
 	for (i = 1; i <= htab->size; ++i) {
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
-			if (do_apply && htab->apply != NULL) {
-				/* deletion is always forced */
-				htab->apply(ep->key, ep->data, NULL, H_FORCE);
-			}
+
 			free((void *)ep->key);
 			free(ep->data);
 		}
@@ -251,7 +248,7 @@ int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
 }
 
 int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
-	      struct hsearch_data *htab)
+	      struct hsearch_data *htab, int flag)
 {
 	unsigned int hval;
 	unsigned int count;
@@ -404,7 +401,7 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
  * do that.
  */
 
-int hdelete_r(const char *key, struct hsearch_data *htab, int do_apply)
+int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 {
 	ENTRY e, *ep;
 	int idx;
@@ -413,15 +410,21 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int do_apply)
 
 	e.key = (char *)key;
 
-	if ((idx = hsearch_r(e, FIND, &ep, htab)) == 0) {
+	idx = hsearch_r(e, FIND, &ep, htab, 0);
+	if (idx == 0) {
 		__set_errno(ESRCH);
 		return 0;	/* not found */
 	}
 
+	/* Check for permission */
+	if (htab->apply != NULL &&
+	    htab->apply(ep->key, ep->data, NULL, flag)) {
+		__set_errno(EPERM);
+		return 0;
+	}
+
 	/* free used ENTRY */
 	debug("hdelete: DELETING key \"%s\"\n", key);
-	if (do_apply && htab->apply != NULL)
-		htab->apply(ep->key, ep->data, NULL, H_FORCE);
 	free((void *)ep->key);
 	free(ep->data);
 	htab->table[idx].used = -1;
@@ -674,7 +677,7 @@ static int drop_var_from_set(const char *name, int nvars, char * vars[])
 
 int himport_r(struct hsearch_data *htab,
 		const char *env, size_t size, const char sep, int flag,
-		int nvars, char * const vars[], int do_apply)
+		int nvars, char * const vars[])
 {
 	char *data, *sp, *dp, *name, *value;
 	char *localvars[nvars];
@@ -704,7 +707,7 @@ int himport_r(struct hsearch_data *htab,
 		debug("Destroy Hash Table: %p table = %p\n", htab,
 		       htab->table);
 		if (htab->table)
-			hdestroy_r(htab, do_apply);
+			hdestroy_r(htab);
 	}
 
 	/*
@@ -770,7 +773,7 @@ int himport_r(struct hsearch_data *htab,
 			if (!drop_var_from_set(name, nvars, localvars))
 				continue;
 
-			if (hdelete_r(name, htab, do_apply) == 0)
+			if (hdelete_r(name, htab, flag) == 0)
 				debug("DELETE ERROR ##############################\n");
 
 			continue;
@@ -795,14 +798,14 @@ int himport_r(struct hsearch_data *htab,
 		e.data = value;
 
 		/* if there is an apply function, check what it has to say */
-		if (do_apply && htab->apply != NULL) {
+		if (htab->apply != NULL) {
 			debug("searching before calling cb function"
 				" for  %s\n", name);
 			/*
 			 * Search for variable in existing env, so to pass
 			 * its previous value to the apply callback
 			 */
-			hsearch_r(e, FIND, &rv, htab);
+			hsearch_r(e, FIND, &rv, htab, 0);
 			debug("previous value was %s\n", rv ? rv->data : "");
 			if (htab->apply(name, rv ? rv->data : NULL,
 				value, flag)) {
@@ -812,7 +815,7 @@ int himport_r(struct hsearch_data *htab,
 			}
 		}
 
-		hsearch_r(e, ENTER, &rv, htab);
+		hsearch_r(e, ENTER, &rv, htab, flag);
 		if (rv == NULL) {
 			printf("himport_r: can't insert \"%s=%s\" into hash table\n",
 				name, value);
@@ -839,7 +842,7 @@ int himport_r(struct hsearch_data *htab,
 		 * b) if the variable was not present in current env, we notify
 		 *    it might be a typo
 		 */
-		if (hdelete_r(localvars[i], htab, do_apply) == 0)
+		if (hdelete_r(localvars[i], htab, flag) == 0)
 			printf("WARNING: '%s' neither in running nor in imported env!\n", localvars[i]);
 		else
 			printf("WARNING: '%s' not in imported env, deleting it!\n", localvars[i]);
