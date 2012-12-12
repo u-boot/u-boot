@@ -78,12 +78,6 @@ ulong save_addr;			/* Default Save Address */
 ulong save_size;			/* Default Save Size (in bytes) */
 
 /*
- * Table with supported baudrates (defined in config_xyz.h)
- */
-static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
-#define	N_BAUDRATES (sizeof(baudrate_table) / sizeof(baudrate_table[0]))
-
-/*
  * This variable is incremented on each do_env_set(), so it can
  * be used via get_env_id() as an indication, if the environment
  * has changed or not. So it is possible to reread an environment
@@ -275,47 +269,6 @@ int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
 		}
 	}
 #endif
-	/*
-	 * When we change baudrate, or we are doing an env default -a
-	 * (which will erase all variables prior to calling this),
-	 * we want the baudrate to actually change - for real.
-	 */
-	if (op != env_op_create ||		/* variable exists */
-		(flag & H_NOCLEAR) == 0) {	/* or env is clear */
-		/*
-		 * Switch to new baudrate if new baudrate is supported
-		 */
-		if (strcmp(name, "baudrate") == 0) {
-			int baudrate = simple_strtoul(newval, NULL, 10);
-			int i;
-			for (i = 0; i < N_BAUDRATES; ++i) {
-				if (baudrate == baudrate_table[i])
-					break;
-			}
-			if (i == N_BAUDRATES) {
-				if ((flag & H_FORCE) == 0)
-					printf("## Baudrate %d bps not "
-						"supported\n", baudrate);
-				return 1;
-			}
-			if (gd->baudrate == baudrate) {
-				/* If unchanged, we just say it's OK */
-				return 0;
-			}
-			printf("## Switch baudrate to %d bps and"
-				"press ENTER ...\n", baudrate);
-			udelay(50000);
-			gd->baudrate = baudrate;
-#if defined(CONFIG_PPC) || defined(CONFIG_MCF52x2)
-			gd->bd->bi_baudrate = baudrate;
-#endif
-
-			serial_setbrg();
-			udelay(50000);
-			while (getc() != '\r')
-				;
-		}
-	}
 
 	/*
 	 * Some variables should be updated when the corresponding

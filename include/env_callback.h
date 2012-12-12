@@ -39,6 +39,7 @@
  * a new association in the ".callbacks" environment variable.
  */
 #define ENV_CALLBACK_LIST_STATIC ENV_CALLBACK_VAR ":callbacks," \
+	"baudrate:baudrate," \
 	"bootfile:bootfile," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC
 
