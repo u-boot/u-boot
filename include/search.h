@@ -32,6 +32,12 @@
 
 #define __set_errno(val) do { errno = val; } while (0)
 
+enum env_op {
+	env_op_create,
+	env_op_delete,
+	env_op_overwrite,
+};
+
 /* Action which shall be performed in the call the hsearch.  */
 typedef enum {
 	FIND,
@@ -59,14 +65,13 @@ struct hsearch_data {
 	unsigned int filled;
 /*
  * Callback function which will check whether the given change for variable
- * "name" from "oldval" to "newval" may be applied or not, and possibly apply
- * such change.
+ * "item" to "newval" may be applied or not, and possibly apply such change.
  * When (flag & H_FORCE) is set, it shall not print out any error message and
  * shall force overwriting of write-once variables.
 .* Must return 0 for approval, 1 for denial.
  */
-	int (*apply)(const char *name, const char *oldval,
-			const char *newval, int flag);
+	int (*change_ok)(const ENTRY *__item, const char *newval, enum env_op,
+		int flag);
 };
 
 /* Create a new hashing table which will at most contain NEL elements.  */

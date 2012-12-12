@@ -40,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <env_default.h>
 
 struct hsearch_data env_htab = {
-	.apply = env_check_apply,
+	.change_ok = env_change_ok,
 };
 
 static uchar __env_get_char_spec(int index)
@@ -162,6 +162,7 @@ void env_relocate(void)
 {
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	env_reloc();
+	env_htab.change_ok += gd->reloc_off;
 #endif
 	if (gd->env_valid == 0) {
 #if defined(CONFIG_ENV_IS_NOWHERE) || defined(CONFIG_SPL_BUILD)

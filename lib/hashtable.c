@@ -66,11 +66,15 @@
  * Instead the interface of all functions is extended to take an argument
  * which describes the current status.
  */
+
 typedef struct _ENTRY {
 	int used;
 	ENTRY entry;
 } _ENTRY;
 
+
+static void _hdelete(const char *key, struct hsearch_data *htab, ENTRY *ep,
+	int idx);
 
 /*
  * hcreate()
@@ -259,6 +263,17 @@ static inline int _compare_and_overwrite_entry(ENTRY item, ACTION action,
 	    && strcmp(item.key, htab->table[idx].entry.key) == 0) {
 		/* Overwrite existing value? */
 		if ((action == ENTER) && (item.data != NULL)) {
+			/* check for permission */
+			if (htab->change_ok != NULL && htab->change_ok(
+			    &htab->table[idx].entry, item.data,
+			    env_op_overwrite, flag)) {
+				debug("change_ok() rejected setting variable "
+					"%s, skipping it!\n", item.key);
+				__set_errno(EPERM);
+				*retval = NULL;
+				return 0;
+			}
+
 			free(htab->table[idx].entry.data);
 			htab->table[idx].entry.data = strdup(item.data);
 			if (!htab->table[idx].entry.data) {
@@ -383,6 +398,17 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 
 		++htab->filled;
 
+		/* check for permission */
+		if (htab->change_ok != NULL && htab->change_ok(
+		    &htab->table[idx].entry, item.data, env_op_create, flag)) {
+			debug("change_ok() rejected setting variable "
+				"%s, skipping it!\n", item.key);
+			_hdelete(item.key, htab, &htab->table[idx].entry, idx);
+			__set_errno(EPERM);
+			*retval = NULL;
+			return 0;
+		}
+
 		/* return new entry */
 		*retval = &htab->table[idx].entry;
 		return 1;
@@ -404,6 +430,18 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
  * do that.
  */
 
+static void _hdelete(const char *key, struct hsearch_data *htab, ENTRY *ep,
+	int idx)
+{
+	/* free used ENTRY */
+	debug("hdelete: DELETING key \"%s\"\n", key);
+	free((void *)ep->key);
+	free(ep->data);
+	htab->table[idx].used = -1;
+
+	--htab->filled;
+}
+
 int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 {
 	ENTRY e, *ep;
@@ -420,19 +458,15 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 	}
 
 	/* Check for permission */
-	if (htab->apply != NULL &&
-	    htab->apply(ep->key, ep->data, NULL, flag)) {
+	if (htab->change_ok != NULL &&
+	    htab->change_ok(ep, NULL, env_op_delete, flag)) {
+		debug("change_ok() rejected deleting variable "
+			"%s, skipping it!\n", key);
 		__set_errno(EPERM);
 		return 0;
 	}
 
-	/* free used ENTRY */
-	debug("hdelete: DELETING key \"%s\"\n", key);
-	free((void *)ep->key);
-	free(ep->data);
-	htab->table[idx].used = -1;
-
-	--htab->filled;
+	_hdelete(key, htab, ep, idx);
 
 	return 1;
 }
@@ -799,24 +833,6 @@ int himport_r(struct hsearch_data *htab,
 		/* enter into hash table */
 		e.key = name;
 		e.data = value;
-
-		/* if there is an apply function, check what it has to say */
-		if (htab->apply != NULL) {
-			debug("searching before calling cb function"
-				" for  %s\n", name);
-			/*
-			 * Search for variable in existing env, so to pass
-			 * its previous value to the apply callback
-			 */
-			hsearch_r(e, FIND, &rv, htab, 0);
-			debug("previous value was %s\n", rv ? rv->data : "");
-			if (htab->apply(name, rv ? rv->data : NULL,
-				value, flag)) {
-				debug("callback function refused to set"
-					" variable %s, skipping it!\n", name);
-				continue;
-			}
-		}
 
 		hsearch_r(e, ENTER, &rv, htab, flag);
 		if (rv == NULL) {

@@ -208,10 +208,20 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
  * overwriting of write-once variables.
  */
 
-int env_check_apply(const char *name, const char *oldval,
-			const char *newval, int flag)
+int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
+	int flag)
 {
 	int   console = -1;
+	const char *name;
+#if !defined(CONFIG_ENV_OVERWRITE) && defined(CONFIG_OVERWRITE_ETHADDR_ONCE) \
+&& defined(CONFIG_ETHADDR)
+	const char *oldval = NULL;
+
+	if (op != env_op_create)
+		oldval = item->data;
+#endif
+
+	name = item->key;
 
 	/* Default value for NULL to protect string-manipulating functions */
 	newval = newval ? : "";
@@ -242,12 +252,12 @@ int env_check_apply(const char *name, const char *oldval,
 #endif /* CONFIG_CONSOLE_MUX */
 	}
 
+#ifndef CONFIG_ENV_OVERWRITE
 	/*
 	 * Some variables like "ethaddr" and "serial#" can be set only once and
 	 * cannot be deleted, unless CONFIG_ENV_OVERWRITE is defined.
 	 */
-#ifndef CONFIG_ENV_OVERWRITE
-	if (oldval != NULL &&			/* variable exists */
+	if (op != env_op_create &&		/* variable exists */
 		(flag & H_FORCE) == 0) {	/* and we are not forced */
 		if (strcmp(name, "serial#") == 0 ||
 		    (strcmp(name, "ethaddr") == 0
@@ -265,7 +275,7 @@ int env_check_apply(const char *name, const char *oldval,
 	 * (which will erase all variables prior to calling this),
 	 * we want the baudrate to actually change - for real.
 	 */
-	if (oldval != NULL ||			/* variable exists */
+	if (op != env_op_create ||		/* variable exists */
 		(flag & H_NOCLEAR) == 0) {	/* or env is clear */
 		/*
 		 * Switch to new baudrate if new baudrate is supported
@@ -339,20 +349,6 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 	}
 
 	env_id++;
-	/*
-	 * search if variable with this name already exists
-	 */
-	e.key = name;
-	e.data = NULL;
-	hsearch_r(e, FIND, &ep, &env_htab, 0);
-
-	/*
-	 * Perform requested checks.
-	 */
-	if (env_check_apply(name, ep ? ep->data : NULL, value, 0)) {
-		debug("check function did not approve, refusing\n");
-		return 1;
-	}
 
 	/* Delete only ? */
 	if (argc < 3 || argv[2] == NULL) {

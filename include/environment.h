@@ -188,13 +188,12 @@ int set_default_vars(int nvars, char * const vars[]);
 int env_import(const char *buf, int check);
 
 /*
- * Check if variable "name" can be changed from oldval to newval,
- * and if so, apply the changes (e.g. baudrate).
+ * Check if variable "item" can be changed to newval
  * When (flag & H_FORCE) is set, it does not print out any error
  * message and forces overwriting of write-once variables.
  */
-int env_check_apply(const char *name, const char *oldval,
-			const char *newval, int flag);
+int env_change_ok(const ENTRY *item, const char *newval, enum env_op op,
+	int flag);
 
 #endif /* DO_DEPS_ONLY */
 
