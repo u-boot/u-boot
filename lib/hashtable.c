@@ -54,7 +54,8 @@
 #define	CONFIG_ENV_MAX_ENTRIES 512
 #endif
 
-#include "search.h"
+#include <env_callback.h>
+#include <search.h>
 
 /*
  * [Aho,Sethi,Ullman] Compilers: Principles, Techniques and Tools, 1986
@@ -274,6 +275,17 @@ static inline int _compare_and_overwrite_entry(ENTRY item, ACTION action,
 				return 0;
 			}
 
+			/* If there is a callback, call it */
+			if (htab->table[idx].entry.callback &&
+			    htab->table[idx].entry.callback(item.key,
+			    item.data, env_op_overwrite, flag)) {
+				debug("callback() rejected setting variable "
+					"%s, skipping it!\n", item.key);
+				__set_errno(EINVAL);
+				*retval = NULL;
+				return 0;
+			}
+
 			free(htab->table[idx].entry.data);
 			htab->table[idx].entry.data = strdup(item.data);
 			if (!htab->table[idx].entry.data) {
@@ -398,6 +410,9 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 
 		++htab->filled;
 
+		/* This is a new entry, so look up a possible callback */
+		env_callback_init(&htab->table[idx].entry);
+
 		/* check for permission */
 		if (htab->change_ok != NULL && htab->change_ok(
 		    &htab->table[idx].entry, item.data, env_op_create, flag)) {
@@ -405,6 +420,18 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 				"%s, skipping it!\n", item.key);
 			_hdelete(item.key, htab, &htab->table[idx].entry, idx);
 			__set_errno(EPERM);
+			*retval = NULL;
+			return 0;
+		}
+
+		/* If there is a callback, call it */
+		if (htab->table[idx].entry.callback &&
+		    htab->table[idx].entry.callback(item.key, item.data,
+		    env_op_create, flag)) {
+			debug("callback() rejected setting variable "
+				"%s, skipping it!\n", item.key);
+			_hdelete(item.key, htab, &htab->table[idx].entry, idx);
+			__set_errno(EINVAL);
 			*retval = NULL;
 			return 0;
 		}
@@ -437,6 +464,7 @@ static void _hdelete(const char *key, struct hsearch_data *htab, ENTRY *ep,
 	debug("hdelete: DELETING key \"%s\"\n", key);
 	free((void *)ep->key);
 	free(ep->data);
+	ep->callback = NULL;
 	htab->table[idx].used = -1;
 
 	--htab->filled;
@@ -463,6 +491,15 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 		debug("change_ok() rejected deleting variable "
 			"%s, skipping it!\n", key);
 		__set_errno(EPERM);
+		return 0;
+	}
+
+	/* If there is a callback, call it */
+	if (htab->table[idx].entry.callback &&
+	    htab->table[idx].entry.callback(key, NULL, env_op_delete, flag)) {
+		debug("callback() rejected deleting variable "
+			"%s, skipping it!\n", key);
+		__set_errno(EINVAL);
 		return 0;
 	}
 
@@ -838,11 +875,9 @@ int himport_r(struct hsearch_data *htab,
 		e.data = value;
 
 		hsearch_r(e, ENTER, &rv, htab, flag);
-		if (rv == NULL) {
+		if (rv == NULL)
 			printf("himport_r: can't insert \"%s=%s\" into hash table\n",
 				name, value);
-			return 0;
-		}
 
 		debug("INSERT: table %p, filled %d/%d rv %p ==> name=\"%s\" value=\"%s\"\n",
 			htab, htab->filled, htab->size,
@@ -872,4 +907,28 @@ int himport_r(struct hsearch_data *htab,
 
 	debug("INSERT: done\n");
 	return 1;		/* everything OK */
+}
+
+/*
+ * hwalk_r()
+ */
+
+/*
+ * Walk all of the entries in the hash, calling the callback for each one.
+ * this allows some generic operation to be performed on each element.
+ */
+int hwalk_r(struct hsearch_data *htab, int (*callback)(ENTRY *))
+{
+	int i;
+	int retval;
+
+	for (i = 1; i <= htab->size; ++i) {
+		if (htab->table[i].used > 0) {
+			retval = callback(&htab->table[i].entry);
+			if (retval)
+				return retval;
+		}
+	}
+
+	return 0;
 }

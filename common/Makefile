@@ -44,6 +44,8 @@ COBJS-y += cmd_nvedit.o
 COBJS-y += cmd_version.o
 
 # environment
+COBJS-y += env_attr.o
+COBJS-y += env_callback.o
 COBJS-y += env_common.o
 COBJS-$(CONFIG_ENV_IS_IN_DATAFLASH) += env_dataflash.o
 COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += env_eeprom.o
@@ -207,6 +209,8 @@ COBJS-y += env_common.o
 COBJS-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += cmd_nvedit.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_attr.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_callback.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_common.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_nowhere.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o

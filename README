@@ -4213,6 +4213,36 @@ Please note that changes to some configuration parameters may take
 only effect after the next boot (yes, that's just like Windoze :-).
 
 
+Callback functions for environment variables:
+---------------------------------------------
+
+For some environment variables, the behavior of u-boot needs to change
+when their values are changed.  This functionailty allows functions to
+be associated with arbitrary variables.  On creation, overwrite, or
+deletion, the callback will provide the opportunity for some side
+effect to happen or for the change to be rejected.
+
+The callbacks are named and associated with a function using the
+U_BOOT_ENV_CALLBACK macro in your board or driver code.
+
+These callbacks are associated with variables in one of two ways.  The
+static list can be added to by defining CONFIG_ENV_CALLBACK_LIST_STATIC
+in the board configuration to a string that defines a list of
+associations.  The list must be in the following format:
+
+	entry = variable_name[:callback_name]
+	list = entry[,list]
+
+If the callback name is not specified, then the callback is deleted.
+Spaces are also allowed anywhere in the list.
+
+Callbacks can also be associated by defining the ".callbacks" variable
+with the same list format above.  Any association in ".callbacks" will
+override any association in the static list. You can define
+CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
+".callbacks" envirnoment variable in the default or embedded environment.
+
+
 Command Line Parsing:
 =====================
 

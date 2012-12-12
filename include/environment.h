@@ -164,6 +164,8 @@ extern void env_reloc(void);
 
 #ifndef DO_DEPS_ONLY
 
+#include <env_attr.h>
+#include <env_callback.h>
 #include <search.h>
 
 extern struct hsearch_data env_htab;

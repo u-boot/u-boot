@@ -47,6 +47,8 @@ typedef enum {
 typedef struct entry {
 	const char *key;
 	char *data;
+	int (*callback)(const char *name, const char *value, enum env_op op,
+		int flags);
 } ENTRY;
 
 /* Opaque type for internal use.  */
@@ -119,6 +121,9 @@ extern ssize_t hexport_r(struct hsearch_data *__htab,
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
 		     int __flag, int nvars, char * const vars[]);
+
+/* Walk the whole table calling the callback on each element */
+extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));
 
 /* Flags for himport_r(), hexport_r(), hdelete_r(), and hsearch_r() */
 #define H_NOCLEAR	(1 << 0) /* do not clear hash table before importing */

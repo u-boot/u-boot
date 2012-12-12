@@ -24,6 +24,8 @@
  * MA 02111-1307 USA
  */
 
+#include <env_callback.h>
+
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
 env_t environment __PPCENV__ = {
 	ENV_CRC,	/* CRC Sum */
@@ -35,6 +37,9 @@ env_t environment __PPCENV__ = {
 static char default_environment[] = {
 #else
 const uchar default_environment[] = {
+#endif
+#ifdef	CONFIG_ENV_CALLBACK_LIST_DEFAULT
+	ENV_CALLBACK_VAR "=" CONFIG_ENV_CALLBACK_LIST_DEFAULT "\0"
 #endif
 #ifdef	CONFIG_BOOTARGS
 	"bootargs="	CONFIG_BOOTARGS			"\0"
