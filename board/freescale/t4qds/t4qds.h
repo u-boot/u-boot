@@ -23,15 +23,4 @@
 void fdt_fixup_board_enet(void *blob);
 void pci_of_setup(void *blob, bd_t *bd);
 
-static const int8_t vsc3316_fsm1_tx[8][2] = { {0, 0}, {1, 1}, {6, 6}, {7, 7},
-				{8, 8}, {9, 9}, {14, 14}, {15, 15} };
-
-static const int8_t vsc3316_fsm2_tx[8][2] = { {2, 2}, {3, 3}, {4, 4}, {5, 5},
-				{10, 10}, {11, 11}, {12, 12}, {13, 13} };
-
-static const int8_t vsc3316_fsm1_rx[8][2] = { {2, 12}, {3, 13}, {4, 5}, {5, 4},
-				{10, 11}, {11, 10}, {12, 2}, {13, 3} };
-
-static const int8_t vsc3316_fsm2_rx[8][2] = { {0, 15}, {1, 14}, {6, 7}, {7, 6},
-				{8, 9}, {9, 8}, {14, 1}, {15, 0} };
 #endif
