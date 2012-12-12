@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <serial.h>
 #include <stdio_dev.h>
 #include <version.h>
 #include <net.h>
@@ -46,7 +47,7 @@ static char *failed = "*** failed ***\n";
  * mips_io_port_base is the begin of the address space to which x86 style
  * I/O ports are mapped.
  */
-unsigned long mips_io_port_base = -1;
+const unsigned long mips_io_port_base = -1;
 
 int __board_early_init_f(void)
 {
@@ -261,6 +262,8 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 
 	monitor_flash_len = (ulong)&uboot_end_data - dest_addr;
+
+	serial_initialize();
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/*
