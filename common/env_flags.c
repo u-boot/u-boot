@@ -503,25 +503,6 @@ int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
 	/* Default value for NULL to protect string-manipulating functions */
 	newval = newval ? : "";
 
-#ifndef CONFIG_ENV_OVERWRITE
-	/*
-	 * Some variables like "ethaddr" and "serial#" can be set only once and
-	 * cannot be deleted, unless CONFIG_ENV_OVERWRITE is defined.
-	 */
-	if (op != env_op_create &&		/* variable exists */
-		(flag & H_FORCE) == 0) {	/* and we are not forced */
-		if (strcmp(name, "serial#") == 0 ||
-		    (strcmp(name, "ethaddr") == 0
-#if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-		     && strcmp(oldval, __stringify(CONFIG_ETHADDR)) != 0
-#endif	/* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
-			)) {
-			printf("Can't overwrite \"%s\"\n", name);
-			return 1;
-		}
-	}
-#endif
-
 	/* validate the value to match the variable type */
 	if (op != env_op_delete) {
 		enum env_flags_vartype type = (enum env_flags_vartype)

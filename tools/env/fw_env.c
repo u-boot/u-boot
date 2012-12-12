@@ -369,23 +369,6 @@ int fw_env_write(char *name, char *value)
 		return 0;
 
 	if (deleting || overwriting) {
-#ifndef CONFIG_ENV_OVERWRITE
-		/*
-		 * Ethernet Address and serial# can be set only once
-		 */
-		if (
-		    (strcmp(name, "serial#") == 0) ||
-		    ((strcmp(name, "ethaddr") == 0)
-#if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-		    && (strcmp(oldval, __stringify(CONFIG_ETHADDR)) != 0)
-#endif /* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
-		   ) ) {
-			fprintf (stderr, "Can't overwrite \"%s\"\n", name);
-			errno = EROFS;
-			return -1;
-		}
-#endif /* CONFIG_ENV_OVERWRITE */
-
 		if (*++nxt == '\0') {
 			*env = '\0';
 		} else {

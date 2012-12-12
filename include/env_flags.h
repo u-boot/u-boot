@@ -53,7 +53,29 @@ enum env_flags_varaccess {
 #define CONFIG_ENV_FLAGS_LIST_STATIC ""
 #endif
 
+#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_ENV_OVERWRITE
+#define ETHADDR_FLAGS "ethaddr:ma,"
+#else
+#ifdef CONFIG_OVERWRITE_ETHADDR_ONCE
+#define ETHADDR_FLAGS "ethaddr:mc,"
+#else
+#define ETHADDR_FLAGS "ethaddr:mo,"
+#endif
+#endif
+#else
+#define ETHADDR_FLAGS ""
+#endif
+
+#ifndef CONFIG_ENV_OVERWRITE
+#define SERIAL_FLAGS "serial#:so,"
+#else
+#define SERIAL_FLAGS ""
+#endif
+
 #define ENV_FLAGS_LIST_STATIC \
+	ETHADDR_FLAGS \
+	SERIAL_FLAGS \
 	CONFIG_ENV_FLAGS_LIST_STATIC
 
 #ifdef CONFIG_CMD_ENV_FLAGS
