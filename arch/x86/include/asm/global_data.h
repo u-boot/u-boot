@@ -53,7 +53,6 @@ struct global_data {
 	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
 #endif
 	unsigned long	reloc_off;	/* Relocation Offset */
-	unsigned long	load_off;	/* Load Offset */
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
@@ -61,7 +60,6 @@ struct global_data {
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
 	phys_size_t	ram_size;	/* RAM size */
-	unsigned long	reset_status;	/* reset status register at boot */
 	const void	*fdt_blob;	/* Our device tree, NULL if none */
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
