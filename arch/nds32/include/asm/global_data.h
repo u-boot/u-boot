@@ -62,9 +62,6 @@ typedef	struct global_data {
 	unsigned long	mon_len;	/* monitor len */
 	unsigned long	irq_sp;		/* irq stack pointer */
 	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-	unsigned long	tlb_addr;
-#endif
 
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
