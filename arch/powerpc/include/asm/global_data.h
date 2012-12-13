@@ -125,6 +125,9 @@ struct arch_global_data {
 #ifdef CONFIG_SYS_FPGA_COUNT
 	unsigned fpga_state[CONFIG_SYS_FPGA_COUNT];
 #endif
+#if defined(CONFIG_WD_MAX_RATE)
+	unsigned long long wdt_last;	/* trace watch-dog triggering rate */
+#endif
 };
 
 /*
@@ -172,9 +175,6 @@ typedef	struct	global_data {
 #endif
 #if defined(CONFIG_LWMON) || defined(CONFIG_LWMON5)
 	unsigned long kbd_status;
-#endif
-#if defined(CONFIG_WD_MAX_RATE)
-	unsigned long long wdt_last;	/* trace watch-dog triggering rate */
 #endif
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
