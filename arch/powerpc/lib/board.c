@@ -586,7 +586,7 @@ void board_init_f(ulong bootflag)
 	bd->bi_vco = gd->arch.vco_out;
 #endif /* CONFIG_CPM2 */
 #if defined(CONFIG_MPC512X)
-	bd->bi_ipsfreq = gd->ips_clk;
+	bd->bi_ipsfreq = gd->arch.ips_clk;
 #endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC5xxx)
 	bd->bi_ipbfreq = gd->arch.ipb_clk;
