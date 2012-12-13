@@ -42,7 +42,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int checkboard (void)
 {
 	u8 sw;
-	struct cpu_type *cpu = gd->cpu;
+	struct cpu_type *cpu = gd->arch.cpu;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	unsigned int i;
 	static const char * const freq[] = {"100", "125", "156.25", "212.5" };

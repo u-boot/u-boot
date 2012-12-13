@@ -184,7 +184,7 @@ int checkboard(void)
 	struct cpu_type *cpu;
 	u8 sw;
 
-	cpu = gd->cpu;
+	cpu = gd->arch.cpu;
 	printf("Board: %sQDS\n", cpu->name);
 
 	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, FPGA Ver: 0x%02x,\n",

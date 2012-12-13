@@ -120,7 +120,7 @@ int get_clocks(void)
 	get_sys_info(&sys_info);
 	gd->cpu_clk = sys_info.freqProcessor;
 	gd->bus_clk = sys_info.freqSystemBus;
-	gd->lbc_clk = sys_info.freqLocalBus;
+	gd->arch.lbc_clk = sys_info.freqLocalBus;
 
 	/*
 	 * The base clock for I2C depends on the actual SOC.  Unfortunately,

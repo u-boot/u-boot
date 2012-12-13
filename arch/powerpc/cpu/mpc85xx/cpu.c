@@ -104,7 +104,7 @@ int checkcpu (void)
 		puts("CPU:   ");
 	}
 
-	cpu = gd->cpu;
+	cpu = gd->arch.cpu;
 
 	puts(cpu->name);
 	if (IS_E_PROCESSOR(svr))

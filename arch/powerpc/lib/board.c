@@ -649,10 +649,11 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	/*
-	 * The gd->cpu pointer is set to an address in flash before relocation.
-	 * We need to update it to point to the same CPU entry in RAM.
+	 * The gd->arch.cpu pointer is set to an address in flash before
+	 * relocation.  We need to update it to point to the same CPU entry
+	 * in RAM.
 	 */
-	gd->cpu += dest_addr - CONFIG_SYS_MONITOR_BASE;
+	gd->arch.cpu += dest_addr - CONFIG_SYS_MONITOR_BASE;
 
 	/*
 	 * If we didn't know the cpu mask & # cores, we can save them of

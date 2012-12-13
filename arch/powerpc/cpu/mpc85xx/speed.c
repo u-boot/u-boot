@@ -391,7 +391,7 @@ int get_clocks (void)
 	gd->cpu_clk = sys_info.freqProcessor[0];
 	gd->bus_clk = sys_info.freqSystemBus;
 	gd->mem_clk = sys_info.freqDDRBus;
-	gd->lbc_clk = sys_info.freqLocalBus;
+	gd->arch.lbc_clk = sys_info.freqLocalBus;
 
 #ifdef CONFIG_QE
 	gd->qe_clk = sys_info.freqQE;
