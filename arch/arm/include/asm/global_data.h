@@ -41,6 +41,9 @@ struct arch_global_data {
 	unsigned long tbl;
 	unsigned long lastinc;
 	unsigned long long timer_reset_value;
+#ifdef CONFIG_IXP425
+	unsigned long timestamp;
+#endif
 };
 
 /*
@@ -64,9 +67,6 @@ typedef	struct	global_data {
 	unsigned long	fb_base;	/* base address of frame buffer */
 #ifdef CONFIG_FSL_ESDHC
 	unsigned long	sdhc_clk;
-#endif
-#ifdef CONFIG_IXP425
-	unsigned long	timestamp;
 #endif
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t	ram_size;	/* RAM size */

@@ -70,14 +70,14 @@ unsigned long long get_ticks(void)
 
 	if (readl(IXP425_OSST) & IXP425_OSST_TIMER_TS_PEND) {
 		/* rollover of timestamp timer register */
-		gd->timestamp += (0xFFFFFFFF - gd->arch.lastinc) + now + 1;
+		gd->arch.timestamp += (0xFFFFFFFF - gd->arch.lastinc) + now + 1;
 		writel(IXP425_OSST_TIMER_TS_PEND, IXP425_OSST);
 	} else {
 		/* move stamp forward with absolut diff ticks */
-		gd->timestamp += (now - gd->arch.lastinc);
+		gd->arch.timestamp += (now - gd->arch.lastinc);
 	}
 	gd->arch.lastinc = now;
-	return gd->timestamp;
+	return gd->arch.timestamp;
 }
 
 
@@ -86,7 +86,7 @@ void reset_timer_masked(void)
 	/* capture current timestamp counter */
 	gd->arch.lastinc = readl(IXP425_OSTS_B);
 	/* start "advancing" time stamp from 0 */
-	gd->timestamp = 0;
+	gd->arch.timestamp = 0;
 }
 
 ulong get_timer_masked(void)
