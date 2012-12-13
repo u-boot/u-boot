@@ -25,6 +25,7 @@
 /* Architecture-specific global data */
 struct arch_global_data {
 	unsigned long stack_end;	/* highest stack address */
+	unsigned long cpu_hz;		/* cpu core clock frequency */
 };
 
 /*
@@ -46,7 +47,6 @@ typedef	struct	global_data {
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	env_addr;	/* Address of env struct */
 	unsigned long	env_valid;	/* Checksum of env valid? */
-	unsigned long	cpu_hz;		/* cpu core clock frequency */
 #if defined(CONFIG_LCD)
 	void		*fb_base;	/* framebuffer address */
 #endif
