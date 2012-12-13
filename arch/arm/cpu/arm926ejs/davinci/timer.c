@@ -61,7 +61,7 @@ int timer_init(void)
 	writel(TIMER_LOAD_VAL, &timer->prd34);
 	writel(2 << 22, &timer->tcr);
 	gd->arch.timer_rate_hz = CONFIG_SYS_HZ_CLOCK / TIM_CLK_DIV;
-	gd->timer_reset_value = 0;
+	gd->arch.timer_reset_value = 0;
 
 	return(0);
 }
@@ -85,7 +85,7 @@ ulong get_timer(ulong base)
 {
 	unsigned long long timer_diff;
 
-	timer_diff = get_ticks() - gd->timer_reset_value;
+	timer_diff = get_ticks() - gd->arch.timer_reset_value;
 
 	return lldiv(timer_diff,
 		     (gd->arch.timer_rate_hz / CONFIG_SYS_HZ)) - base;
