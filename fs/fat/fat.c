@@ -35,6 +35,12 @@
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 
+#ifdef CONFIG_SUPPORT_VFAT
+static const int vfat_enabled = 1;
+#else
+static const int vfat_enabled = 0;
+#endif
+
 /*
  * Convert a string to lowercase.
  */
@@ -442,7 +448,6 @@ getit:
 	} while (1);
 }
 
-#ifdef CONFIG_SUPPORT_VFAT
 /*
  * Extract the file name information from 'slotptr' into 'l_name',
  * starting at l_name[*idx].
@@ -577,7 +582,6 @@ static __u8 mkcksum(const char name[8], const char ext[3])
 
 	return ret;
 }
-#endif	/* CONFIG_SUPPORT_VFAT */
 
 /*
  * Get the directory entry associated with 'filename' from the directory
@@ -618,8 +622,8 @@ static dir_entry *get_dentfromdir(fsdata *mydata, int startsect,
 				continue;
 			}
 			if ((dentptr->attr & ATTR_VOLUME)) {
-#ifdef CONFIG_SUPPORT_VFAT
-				if ((dentptr->attr & ATTR_VFAT) == ATTR_VFAT &&
+				if (vfat_enabled &&
+				    (dentptr->attr & ATTR_VFAT) == ATTR_VFAT &&
 				    (dentptr->name[0] & LAST_LONG_ENTRY_MASK)) {
 					prevcksum = ((dir_slot *)dentptr)->alias_checksum;
 					get_vfatname(mydata, curclust,
@@ -659,9 +663,7 @@ static dir_entry *get_dentfromdir(fsdata *mydata, int startsect,
 						continue;
 					}
 					debug("vfatname: |%s|\n", l_name);
-				} else
-#endif
-				{
+				} else {
 					/* Volume label or VFAT entry */
 					dentptr++;
 					continue;
@@ -675,14 +677,15 @@ static dir_entry *get_dentfromdir(fsdata *mydata, int startsect,
 				debug("Dentname == NULL - %d\n", i);
 				return NULL;
 			}
-#ifdef CONFIG_SUPPORT_VFAT
-			__u8 csum = mkcksum(dentptr->name, dentptr->ext);
-			if (dols && csum == prevcksum) {
-				prevcksum = 0xffff;
-				dentptr++;
-				continue;
+			if (vfat_enabled) {
+				__u8 csum = mkcksum(dentptr->name, dentptr->ext);
+				if (dols && csum == prevcksum) {
+					prevcksum = 0xffff;
+					dentptr++;
+					continue;
+				}
 			}
-#endif
+
 			get_name(dentptr, s_name);
 			if (dols) {
 				int isdir = (dentptr->attr & ATTR_DIR);
@@ -885,9 +888,9 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 		return -1;
 	}
 
-#ifdef CONFIG_SUPPORT_VFAT
-	debug("VFAT Support enabled\n");
-#endif
+	if (vfat_enabled)
+		debug("VFAT Support enabled\n");
+
 	debug("FAT%d, fat_sect: %d, fatlength: %d\n",
 	       mydata->fatsize, mydata->fat_sect, mydata->fatlength);
 	debug("Rootdir begins at cluster: %d, sector: %d, offset: %x\n"
@@ -953,10 +956,12 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 				continue;
 			}
 
-			csum = mkcksum(dentptr->name, dentptr->ext);
+			if (vfat_enabled)
+				csum = mkcksum(dentptr->name, dentptr->ext);
+
 			if (dentptr->attr & ATTR_VOLUME) {
-#ifdef CONFIG_SUPPORT_VFAT
-				if ((dentptr->attr & ATTR_VFAT) == ATTR_VFAT &&
+				if (vfat_enabled &&
+				    (dentptr->attr & ATTR_VFAT) == ATTR_VFAT &&
 				    (dentptr->name[0] & LAST_LONG_ENTRY_MASK)) {
 					prevcksum =
 						((dir_slot *)dentptr)->alias_checksum;
@@ -1000,9 +1005,7 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 					}
 					debug("Rootvfatname: |%s|\n",
 					       l_name);
-				} else
-#endif
-				{
+				} else {
 					/* Volume label or VFAT entry */
 					dentptr++;
 					continue;
@@ -1016,13 +1019,13 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 				}
 				goto exit;
 			}
-#ifdef CONFIG_SUPPORT_VFAT
-			else if (dols == LS_ROOT && csum == prevcksum) {
+			else if (vfat_enabled &&
+				 dols == LS_ROOT && csum == prevcksum) {
 				prevcksum = 0xffff;
 				dentptr++;
 				continue;
 			}
-#endif
+
 			get_name(dentptr, s_name);
 
 			if (dols == LS_ROOT) {
