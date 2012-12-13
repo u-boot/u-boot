@@ -28,6 +28,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	struct global_data *gd_addr;		/* Location of Global Data */
 };
 
 /*
@@ -44,8 +45,6 @@ typedef struct global_data gd_t;
 
 struct global_data {
 	struct arch_global_data arch;	/* architecture-specific data */
-	/* NOTE: gd_addr MUST be first member of struct global_data! */
-	gd_t *gd_addr;	/* Location of Global Data */
 	bd_t		*bd;
 	unsigned long	flags;
 	unsigned int	baudrate;
