@@ -589,7 +589,7 @@ void board_init_f(ulong bootflag)
 	bd->bi_ipsfreq = gd->ips_clk;
 #endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC5xxx)
-	bd->bi_ipbfreq = gd->ipb_clk;
+	bd->bi_ipbfreq = gd->arch.ipb_clk;
 	bd->bi_pcifreq = gd->pci_clk;
 #endif /* CONFIG_MPC5xxx */
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
