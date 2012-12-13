@@ -136,52 +136,7 @@ struct arch_global_data {
 #endif
 };
 
-/*
- * The following data structure is placed in some memory wich is
- * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
- * some locked parts of the data cache) to allow for a minimum set of
- * global variables during system initialization (until we have set
- * up the memory controller so that we can use RAM).
- */
-
-typedef	struct	global_data {
-	bd_t		*bd;
-	unsigned long	flags;
-	unsigned int	baudrate;
-	unsigned long	cpu_clk;	/* CPU clock in Hz! */
-	unsigned long	bus_clk;
-	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
-	unsigned long pci_clk;
-	unsigned long   mem_clk;
-	phys_size_t	ram_size;	/* RAM size */
-	unsigned long	env_addr;	/* Address  of Environment struct	*/
-	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
-	unsigned long	have_console;	/* serial_init() was called		*/
-#ifdef CONFIG_PRE_CONSOLE_BUFFER
-	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
-#endif
-	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
-#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
-	unsigned long	fb_base;	/* Base address of framebuffer memory	*/
-#endif
-#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
-	unsigned long	post_log_word;  /* Record POST activities */
-	unsigned long	post_log_res; /* success of POST test */
-	unsigned long	post_init_f_time;  /* When post_init_f started */
-#endif
-#ifdef CONFIG_BOARD_TYPES
-	unsigned long	board_type;
-#endif
-#ifdef CONFIG_MODEM_SUPPORT
-	unsigned long do_mdm_init;
-	unsigned long be_quiet;
-#endif
-	void		**jt;		/* jump table */
-	char		env_buf[32];	/* buffer for getenv() before reloc. */
-	struct arch_global_data arch;	/* architecture-specific data */
-} gd_t;
-
-#include <asm-generic/global_data_flags.h>
+#include <asm-generic/global_data.h>
 
 #if 1
 #define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r2")
