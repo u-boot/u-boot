@@ -62,7 +62,7 @@ void cpu_init_f (volatile immap_t * im)
 #endif
 
 	/* RSR - Reset Status Register - clear all status */
-	gd->reset_status = im->reset.rsr;
+	gd->arch.reset_status = im->reset.rsr;
 	out_be32(&im->reset.rsr, ~RSR_RES);
 
 	/*

@@ -232,7 +232,7 @@ void cpu_init_f (volatile immap_t * im)
 	clrsetbits_be32(&im->clk.sccr, sccr_mask, sccr_val);
 
 	/* RSR - Reset Status Register - clear all status (4.6.1.3) */
-	gd->reset_status = __raw_readl(&im->reset.rsr);
+	gd->arch.reset_status = __raw_readl(&im->reset.rsr);
 	__raw_writel(~(RSR_RES), &im->reset.rsr);
 
 	/* AER - Arbiter Event Register - store status */
@@ -499,7 +499,7 @@ int prt_83xx_rsr(void)
 		RSR_HRS,  "External/Internal Hard"}
 	};
 	static int n = sizeof bits / sizeof bits[0];
-	ulong rsr = gd->reset_status;
+	ulong rsr = gd->arch.reset_status;
 	int i;
 	char *sep;
 

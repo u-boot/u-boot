@@ -107,6 +107,7 @@ struct arch_global_data {
 	unsigned long pev_clk;
 	unsigned long flb_clk;
 #endif
+	unsigned long reset_status;	/* reset status register at boot */
 };
 
 /*
@@ -130,7 +131,6 @@ typedef	struct	global_data {
 	u32 sdhc_clk;
 #endif
 	phys_size_t	ram_size;	/* RAM size */
-	unsigned long	reset_status;	/* reset status register at boot	*/
 #if defined(CONFIG_MPC83xx)
 	unsigned long	arbiter_event_attributes;
 	unsigned long	arbiter_event_address;
