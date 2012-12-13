@@ -75,13 +75,13 @@ ulong get_timer_masked(void)
 	/* current tick value */
 	now = timer_get_us() / (TIMER_CLK / CONFIG_SYS_HZ);
 
-	if (now >= gd->lastinc)	/* normal mode (non roll) */
+	if (now >= gd->arch.lastinc)	/* normal mode (non roll) */
 		/* move stamp forward with absolute diff ticks */
-		gd->arch.tbl += (now - gd->lastinc);
+		gd->arch.tbl += (now - gd->arch.lastinc);
 	else	/* we have rollover of incrementer */
 		gd->arch.tbl += ((TIMER_LOAD_VAL / (TIMER_CLK / CONFIG_SYS_HZ))
-				- gd->lastinc) + now;
-	gd->lastinc = now;
+				- gd->arch.lastinc) + now;
+	gd->arch.lastinc = now;
 	return gd->arch.tbl;
 }
 

@@ -51,7 +51,7 @@ int timer_init (void)
 	*((int32_t *) (CONFIG_SYS_TIMERBASE + TCLR)) = val;	/* start timer */
 
 	/* reset time */
-	gd->lastinc = READ_TIMER;	/* capture current incrementer value */
+	gd->arch.lastinc = READ_TIMER;	/* capture current incrementer value */
 	gd->arch.tbl = 0;		/* start "advancing" time stamp */
 
 	return(0);
@@ -81,7 +81,7 @@ void __udelay (unsigned long usec)
 	tmp = get_timer (0);		/* get current timestamp */
 	if ((tmo + tmp + 1) < tmp) {	/* if setting this forward will roll */
 					/* time stamp, then reset time */
-		gd->lastinc = READ_TIMER;	/* capture incrementer value */
+		gd->arch.lastinc = READ_TIMER;	/* capture incrementer value */
 		gd->arch.tbl = 0;			/* start time stamp */
 	} else {
 		tmo	+= tmp;		/* else, set advancing stamp wake up time */
@@ -94,14 +94,14 @@ ulong get_timer_masked (void)
 {
 	ulong now = READ_TIMER;		/* current tick value */
 
-	if (now >= gd->lastinc) {		/* normal mode (non roll) */
+	if (now >= gd->arch.lastinc) {		/* normal mode (non roll) */
 		/* move stamp fordward with absoulte diff ticks */
-		gd->arch.tbl += (now - gd->lastinc);
+		gd->arch.tbl += (now - gd->arch.lastinc);
 	} else {
 		/* we have rollover of incrementer */
-		gd->arch.tbl += (0xFFFFFFFF - gd->lastinc) + now;
+		gd->arch.tbl += (0xFFFFFFFF - gd->arch.lastinc) + now;
 	}
-	gd->lastinc = now;
+	gd->arch.lastinc = now;
 	return gd->arch.tbl;
 }
 

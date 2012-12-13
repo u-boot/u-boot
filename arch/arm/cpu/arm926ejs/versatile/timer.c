@@ -45,7 +45,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define timestamp gd->arch.tbl
-#define lastdec gd->lastinc
+#define lastdec gd->arch.lastinc
 
 #define TIMER_ENABLE	(1 << 7)
 #define TIMER_MODE_MSK	(1 << 6)

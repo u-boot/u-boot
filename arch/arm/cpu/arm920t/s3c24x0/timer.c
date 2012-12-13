@@ -62,7 +62,7 @@ int timer_init(void)
 	/* auto load, start timer 4 */
 	tmr = (tmr & ~0x0700000) | 0x0500000;
 	writel(tmr, &timers->tcon);
-	gd->lastinc = 0;
+	gd->arch.lastinc = 0;
 	gd->arch.tbl = 0;
 
 	return 0;
@@ -128,14 +128,14 @@ unsigned long long get_ticks(void)
 	struct s3c24x0_timers *timers = s3c24x0_get_base_timers();
 	ulong now = readl(&timers->tcnto4) & 0xffff;
 
-	if (gd->lastinc >= now) {
+	if (gd->arch.lastinc >= now) {
 		/* normal mode */
-		gd->arch.tbl += gd->lastinc - now;
+		gd->arch.tbl += gd->arch.lastinc - now;
 	} else {
 		/* we have an overflow ... */
-		gd->arch.tbl += gd->lastinc + gd->arch.tbu - now;
+		gd->arch.tbl += gd->arch.lastinc + gd->arch.tbu - now;
 	}
-	gd->lastinc = now;
+	gd->arch.lastinc = now;
 
 	return gd->arch.tbl;
 }

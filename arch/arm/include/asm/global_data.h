@@ -39,6 +39,7 @@ struct arch_global_data {
 	unsigned long timer_rate_hz;
 	unsigned long tbu;
 	unsigned long tbl;
+	unsigned long lastinc;
 };
 
 /*
@@ -66,7 +67,6 @@ typedef	struct	global_data {
 #ifdef CONFIG_ARM
 	/* "static data" needed by most of timer.c on ARM platforms */
 	unsigned long long	timer_reset_value;
-	unsigned long	lastinc;
 #endif
 #ifdef CONFIG_IXP425
 	unsigned long	timestamp;

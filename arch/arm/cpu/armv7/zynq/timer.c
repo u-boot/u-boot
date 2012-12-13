@@ -83,7 +83,7 @@ int timer_init(void)
 								emask);
 
 	/* Reset time */
-	gd->lastinc = readl(&timer_base->counter) /
+	gd->arch.lastinc = readl(&timer_base->counter) /
 					(TIMER_TICK_HZ / CONFIG_SYS_HZ);
 	gd->arch.tbl = 0;
 
@@ -100,14 +100,14 @@ ulong get_timer_masked(void)
 
 	now = readl(&timer_base->counter) / (TIMER_TICK_HZ / CONFIG_SYS_HZ);
 
-	if (gd->lastinc >= now) {
+	if (gd->arch.lastinc >= now) {
 		/* Normal mode */
-		gd->arch.tbl += gd->lastinc - now;
+		gd->arch.tbl += gd->arch.lastinc - now;
 	} else {
 		/* We have an overflow ... */
-		gd->arch.tbl += gd->lastinc + TIMER_LOAD_VAL - now;
+		gd->arch.tbl += gd->arch.lastinc + TIMER_LOAD_VAL - now;
 	}
-	gd->lastinc = now;
+	gd->arch.lastinc = now;
 
 	return gd->arch.tbl;
 }

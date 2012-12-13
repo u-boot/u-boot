@@ -45,7 +45,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define timestamp gd->arch.tbl
-#define lastdec gd->lastinc
+#define lastdec gd->arch.lastinc
 
 int timer_init (void)
 {

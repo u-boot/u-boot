@@ -34,7 +34,7 @@ static struct jz4740_tcu *tcu = (struct jz4740_tcu *)JZ4740_TCU_BASE;
 void reset_timer_masked(void)
 {
 	/* reset time */
-	gd->lastinc = readl(&tcu->tcnt0);
+	gd->arch.lastinc = readl(&tcu->tcnt0);
 	gd->arch.tbl = 0;
 }
 
@@ -42,14 +42,14 @@ ulong get_timer_masked(void)
 {
 	ulong now = readl(&tcu->tcnt0);
 
-	if (gd->lastinc <= now)
-		gd->arch.tbl += now - gd->lastinc; /* normal mode */
+	if (gd->arch.lastinc <= now)
+		gd->arch.tbl += now - gd->arch.lastinc; /* normal mode */
 	else {
 		/* we have an overflow ... */
-		gd->arch.tbl += TIMER_FDATA + now - gd->lastinc;
+		gd->arch.tbl += TIMER_FDATA + now - gd->arch.lastinc;
 	}
 
-	gd->lastinc = now;
+	gd->arch.lastinc = now;
 
 	return gd->arch.tbl;
 }
@@ -94,7 +94,7 @@ int timer_init(void)
 	writel(1 << TIMER_CHAN, &tcu->tscr); /* enable timer clock */
 	writeb(1 << TIMER_CHAN, &tcu->tesr); /* start counting up */
 
-	gd->lastinc = 0;
+	gd->arch.lastinc = 0;
 	gd->arch.tbl = 0;
 
 	return 0;

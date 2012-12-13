@@ -105,7 +105,7 @@ void reset_timer_masked(void)
 	struct s5p_timer *const timer = s5p_get_base_timer();
 
 	/* reset time */
-	gd->lastinc = readl(&timer->tcnto4);
+	gd->arch.lastinc = readl(&timer->tcnto4);
 	gd->arch.tbl = 0;
 }
 
@@ -123,12 +123,12 @@ unsigned long get_current_tick(void)
 	unsigned long now = readl(&timer->tcnto4);
 	unsigned long count_value = readl(&timer->tcntb4);
 
-	if (gd->lastinc >= now)
-		gd->arch.tbl += gd->lastinc - now;
+	if (gd->arch.lastinc >= now)
+		gd->arch.tbl += gd->arch.lastinc - now;
 	else
-		gd->arch.tbl += gd->lastinc + count_value - now;
+		gd->arch.tbl += gd->arch.lastinc + count_value - now;
 
-	gd->lastinc = now;
+	gd->arch.lastinc = now;
 
 	return gd->arch.tbl;
 }

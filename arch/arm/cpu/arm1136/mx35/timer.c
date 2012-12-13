@@ -33,7 +33,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define timestamp	(gd->arch.tbl)
-#define lastinc		(gd->lastinc)
+#define lastinc		(gd->arch.lastinc)
 
 /* General purpose timers bitfields */
 #define GPTCR_SWR       (1<<15)	/* Software reset */
