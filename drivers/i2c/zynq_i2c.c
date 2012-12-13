@@ -128,10 +128,10 @@ static struct zynq_i2c_registers *zynq_i2c =
  */
 void i2c_init(int requested_speed, int slaveadd)
 {
-	/* Assume APB speed is 100MHz */
-	/* For now, set it to ~400k always */
-	/* 100MHz / (12 + 1) / 22 = ~350kHz */
-	Xout_le32(&zynq_i2c->control, 12 << ZYNQ_I2C_CONTROL_DIV_B_SHIFT);
+	/* 111MHz / ( (3 * 17) * 22 ) = ~100KHz */
+	Xout_le32(&zynq_i2c->control, (16 << ZYNQ_I2C_CONTROL_DIV_B_SHIFT)
+				| (2 << ZYNQ_I2C_CONTROL_DIV_A_SHIFT));
+
 	/* Enable master mode, ack, and 7-bit addressing */
 	Xsetbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_MS |
 		ZYNQ_I2C_CONTROL_ACKEN | ZYNQ_I2C_CONTROL_NEA);
