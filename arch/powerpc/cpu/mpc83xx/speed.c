@@ -496,7 +496,7 @@ int get_clocks(void)
 #endif
 #if defined(CONFIG_QE)
 	gd->qe_clk = qe_clk;
-	gd->brg_clk = brg_clk;
+	gd->arch.brg_clk = brg_clk;
 #endif
 #if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
@@ -540,7 +540,8 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("  Coherent System Bus: %-4s MHz\n", strmhz(buf, gd->csb_clk));
 #if defined(CONFIG_QE)
 	printf("  QE:                  %-4s MHz\n", strmhz(buf, gd->qe_clk));
-	printf("  BRG:                 %-4s MHz\n", strmhz(buf, gd->brg_clk));
+	printf("  BRG:                 %-4s MHz\n",
+	       strmhz(buf, gd->arch.brg_clk));
 #endif
 	printf("  Local Bus Controller:%-4s MHz\n", strmhz(buf, gd->lbiu_clk));
 	printf("  Local Bus:           %-4s MHz\n", strmhz(buf, gd->lclk_clk));

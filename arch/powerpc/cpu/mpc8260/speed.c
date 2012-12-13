@@ -145,7 +145,7 @@ int get_clocks (void)
 	gd->cpm_clk = gd->vco_out / 2;
 	gd->bus_clk = clkin;
 	gd->scc_clk = gd->vco_out / 4;
-	gd->brg_clk = gd->vco_out / (1 << (2 * (dfbrg + 1)));
+	gd->arch.brg_clk = gd->vco_out / (1 << (2 * (dfbrg + 1)));
 
 	if (cp->b2c_mult > 0) {
 		gd->cpu_clk = (clkin * cp->b2c_mult) / 2;
@@ -231,7 +231,7 @@ int prt_8260_clks (void)
 			plldf, pllmf, pcidf);
 
 	printf (" - vco_out %10ld, scc_clk %10ld, brg_clk %10ld\n",
-			gd->vco_out, gd->scc_clk, gd->brg_clk);
+			gd->vco_out, gd->scc_clk, gd->arch.brg_clk);
 
 	printf (" - cpu_clk %10ld, cpm_clk %10ld, bus_clk %10ld\n",
 			gd->cpu_clk, gd->cpm_clk, gd->bus_clk);

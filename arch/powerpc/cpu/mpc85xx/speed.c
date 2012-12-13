@@ -395,7 +395,7 @@ int get_clocks (void)
 
 #ifdef CONFIG_QE
 	gd->qe_clk = sys_info.freqQE;
-	gd->brg_clk = gd->qe_clk / 2;
+	gd->arch.brg_clk = gd->qe_clk / 2;
 #endif
 	/*
 	 * The base clock for I2C depends on the actual SOC.  Unfortunately,
@@ -438,7 +438,7 @@ int get_clocks (void)
 	gd->vco_out = 2*sys_info.freqSystemBus;
 	gd->cpm_clk = gd->vco_out / 2;
 	gd->scc_clk = gd->vco_out / 4;
-	gd->brg_clk = gd->vco_out / (1 << (2 * (dfbrg + 1)));
+	gd->arch.brg_clk = gd->vco_out / (1 << (2 * (dfbrg + 1)));
 #endif
 
 	if(gd->cpu_clk != 0) return (0);

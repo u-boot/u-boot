@@ -220,7 +220,7 @@ void qe_assign_page(uint snum, uint para_ram_base)
    from CLKn pin, we have te change the function.
  */
 
-#define BRG_CLK		(gd->brg_clk)
+#define BRG_CLK		(gd->arch.brg_clk)
 
 int qe_set_brg(uint brg, uint rate)
 {

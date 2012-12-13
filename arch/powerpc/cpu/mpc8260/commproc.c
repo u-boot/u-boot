@@ -101,7 +101,7 @@ m8260_cpm_hostalloc(uint size, uint align)
  * Baud rate clocks are zero-based in the driver code (as that maps
  * to port numbers).  Documentation uses 1-based numbering.
  */
-#define BRG_INT_CLK	gd->brg_clk
+#define BRG_INT_CLK	gd->arch.brg_clk
 #define BRG_UART_CLK	(BRG_INT_CLK / 16)
 
 /* This function is used by UARTs, or anything else that uses a 16x

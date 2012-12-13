@@ -581,7 +581,7 @@ void board_init_f(ulong bootflag)
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
 #if defined(CONFIG_CPM2)
 	bd->bi_cpmfreq = gd->cpm_clk;
-	bd->bi_brgfreq = gd->brg_clk;
+	bd->bi_brgfreq = gd->arch.brg_clk;
 	bd->bi_sccfreq = gd->scc_clk;
 	bd->bi_vco = gd->vco_out;
 #endif /* CONFIG_CPM2 */

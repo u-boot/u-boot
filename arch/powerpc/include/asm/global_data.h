@@ -29,6 +29,15 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+#if defined(CONFIG_8xx)
+	unsigned long brg_clk;
+#endif
+#if defined(CONFIG_CPM2)
+	unsigned long brg_clk;
+#endif
+#if defined(CONFIG_QE)
+	u32 brg_clk;
+#endif
 };
 
 /*
@@ -45,15 +54,11 @@ typedef	struct	global_data {
 	unsigned int	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz! */
 	unsigned long	bus_clk;
-#if defined(CONFIG_8xx)
-	unsigned long	brg_clk;
-#endif
 #if defined(CONFIG_CPM2)
 	/* There are many clocks on the MPC8260 - see page 9-5 */
 	unsigned long	vco_out;
 	unsigned long	cpm_clk;
 	unsigned long	scc_clk;
-	unsigned long	brg_clk;
 #ifdef CONFIG_PCI
 	unsigned long	pci_clk;
 #endif
@@ -106,7 +111,6 @@ typedef	struct	global_data {
 #endif
 #if defined(CONFIG_QE)
 	u32 qe_clk;
-	u32 brg_clk;
 	uint mp_alloc_base;
 	uint mp_alloc_top;
 #endif /* CONFIG_QE */

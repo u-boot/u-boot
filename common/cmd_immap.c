@@ -453,7 +453,7 @@ static void prbrg (int n, uint val)
 #if defined(CONFIG_8xx)
 	ulong clock = gd->cpu_clk;
 #elif defined(CONFIG_8260)
-	ulong clock = gd->brg_clk;
+	ulong clock = gd->arch.brg_clk;
 #endif
 
 	printf ("BRG%d:", n);
