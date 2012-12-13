@@ -435,10 +435,10 @@ int get_clocks (void)
 #endif /* defined(CONFIG_FSL_ESDHC) */
 
 #if defined(CONFIG_CPM2)
-	gd->vco_out = 2*sys_info.freqSystemBus;
-	gd->cpm_clk = gd->vco_out / 2;
-	gd->scc_clk = gd->vco_out / 4;
-	gd->arch.brg_clk = gd->vco_out / (1 << (2 * (dfbrg + 1)));
+	gd->arch.vco_out = 2*sys_info.freqSystemBus;
+	gd->arch.cpm_clk = gd->arch.vco_out / 2;
+	gd->arch.scc_clk = gd->arch.vco_out / 4;
+	gd->arch.brg_clk = gd->arch.vco_out / (1 << (2 * (dfbrg + 1)));
 #endif
 
 	if(gd->cpu_clk != 0) return (0);

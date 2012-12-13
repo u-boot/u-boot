@@ -580,10 +580,10 @@ void board_init_f(ulong bootflag)
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
 #if defined(CONFIG_CPM2)
-	bd->bi_cpmfreq = gd->cpm_clk;
+	bd->bi_cpmfreq = gd->arch.cpm_clk;
 	bd->bi_brgfreq = gd->arch.brg_clk;
-	bd->bi_sccfreq = gd->scc_clk;
-	bd->bi_vco = gd->vco_out;
+	bd->bi_sccfreq = gd->arch.scc_clk;
+	bd->bi_vco = gd->arch.vco_out;
 #endif /* CONFIG_CPM2 */
 #if defined(CONFIG_MPC512X)
 	bd->bi_ipsfreq = gd->ips_clk;

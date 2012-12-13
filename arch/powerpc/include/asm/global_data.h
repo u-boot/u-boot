@@ -33,6 +33,10 @@ struct arch_global_data {
 	unsigned long brg_clk;
 #endif
 #if defined(CONFIG_CPM2)
+	/* There are many clocks on the MPC8260 - see page 9-5 */
+	unsigned long vco_out;
+	unsigned long cpm_clk;
+	unsigned long scc_clk;
 	unsigned long brg_clk;
 #endif
 #if defined(CONFIG_QE)
