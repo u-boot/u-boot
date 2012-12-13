@@ -870,6 +870,9 @@ int usb_lowlevel_init(int index, void **controller)
 	if (ehci_hcd_init(index, &ehcic[index].hccr, &ehcic[index].hcor))
 		return -1;
 #endif
+	/* Set the high address word (aka segment) for 64-bit controller */
+	if (ehci_readl(&ehcic[index].hccr->cr_hccparams) & 1)
+		ehci_writel(ehcic[index].hcor->or_ctrldssegment, 0);
 
 	qh_list = &ehcic[index].qh_list;
 
