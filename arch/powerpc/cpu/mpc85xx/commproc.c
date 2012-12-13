@@ -43,8 +43,8 @@ m8560_cpm_reset(void)
 
 	/* Reclaim the DP memory for our use.
 	*/
-	gd->dp_alloc_base = CPM_DATAONLY_BASE;
-	gd->dp_alloc_top = gd->dp_alloc_base + CPM_DATAONLY_SIZE;
+	gd->arch.dp_alloc_base = CPM_DATAONLY_BASE;
+	gd->arch.dp_alloc_top = gd->arch.dp_alloc_base + CPM_DATAONLY_SIZE;
 
 	/*
 	 * Reset CPM
@@ -69,21 +69,22 @@ m8560_cpm_dpalloc(uint size, uint align)
 	uint	savebase;
 
 	align_mask = align - 1;
-	savebase = gd->dp_alloc_base;
+	savebase = gd->arch.dp_alloc_base;
 
-	if ((off = (gd->dp_alloc_base & align_mask)) != 0)
-		gd->dp_alloc_base += (align - off);
+	off = gd->arch.dp_alloc_base & align_mask;
+	if (off != 0)
+		gd->arch.dp_alloc_base += (align - off);
 
 	if ((off = size & align_mask) != 0)
 		size += align - off;
 
-	if ((gd->dp_alloc_base + size) >= gd->dp_alloc_top) {
-		gd->dp_alloc_base = savebase;
+	if ((gd->arch.dp_alloc_base + size) >= gd->arch.dp_alloc_top) {
+		gd->arch.dp_alloc_base = savebase;
 		panic("m8560_cpm_dpalloc: ran out of dual port ram!");
 	}
 
-	retloc = gd->dp_alloc_base;
-	gd->dp_alloc_base += size;
+	retloc = gd->arch.dp_alloc_base;
+	gd->arch.dp_alloc_base += size;
 
 	memset((void *)&(cpm->im_dprambase[retloc]), 0, size);
 
