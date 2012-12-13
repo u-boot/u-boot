@@ -23,6 +23,13 @@
 
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
+
+#ifndef __ASSEMBLY__
+
+/* Architecture-specific global data */
+struct arch_global_data {
+};
+
 /*
  * The following data structure is placed in some memory wich is
  * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
@@ -31,13 +38,12 @@
  * up the memory controller so that we can use RAM).
  */
 
-#ifndef __ASSEMBLY__
-
 #include <asm/u-boot.h>
 
 typedef struct global_data gd_t;
 
 struct global_data {
+	struct arch_global_data arch;	/* architecture-specific data */
 	/* NOTE: gd_addr MUST be first member of struct global_data! */
 	gd_t *gd_addr;	/* Location of Global Data */
 	bd_t		*bd;

@@ -23,6 +23,10 @@
 #ifndef	__ASM_NIOS2_GLOBALDATA_H_
 #define __ASM_NIOS2_GLOBALDATA_H_
 
+/* Architecture-specific global data */
+struct arch_global_data {
+};
+
 typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
@@ -42,6 +46,7 @@ typedef	struct	global_data {
 #endif
 	void		**jt;		/* Standalone app jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
+	struct arch_global_data arch;	/* architecture-specific data */
 } gd_t;
 
 #include <asm-generic/global_data_flags.h>

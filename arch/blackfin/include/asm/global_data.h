@@ -30,6 +30,10 @@
 
 #include <asm/u-boot.h>
 
+/* Architecture-specific global data */
+struct arch_global_data {
+};
+
 /*
  * The following data structure is placed in some memory wich is
  * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
@@ -57,6 +61,7 @@ typedef struct global_data {
 
 	void	**jt;			/* jump table */
 	char	env_buf[32];		/* buffer for getenv() before reloc. */
+	struct arch_global_data arch;	/* architecture-specific data */
 } gd_t;
 
 #include <asm-generic/global_data_flags.h>

@@ -23,6 +23,11 @@
 
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
+
+/* Architecture-specific global data */
+struct arch_global_data {
+};
+
 /*
  * The following data structure is placed in some memory which is
  * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
@@ -83,6 +88,7 @@ typedef	struct	global_data {
 	unsigned long	post_log_res; /* success of POST test */
 	unsigned long	post_init_f_time; /* When post_init_f started */
 #endif
+	struct arch_global_data arch;	/* architecture-specific data */
 } gd_t;
 
 #include <asm-generic/global_data_flags.h>
