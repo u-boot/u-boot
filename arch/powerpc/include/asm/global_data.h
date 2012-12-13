@@ -88,6 +88,9 @@ struct arch_global_data {
 	uint mp_alloc_base;
 	uint mp_alloc_top;
 #endif /* CONFIG_QE */
+#if defined(CONFIG_FSL_LAW)
+	u32 used_laws;
+#endif
 };
 
 /*
@@ -109,9 +112,6 @@ typedef	struct	global_data {
 	unsigned long   mem_clk;
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
-#endif
-#if defined(CONFIG_FSL_LAW)
-	u32 used_laws;
 #endif
 #if defined(CONFIG_E500)
 	u32 used_tlb_cams[(CONFIG_SYS_NUM_TLBCAMS+31)/32];
