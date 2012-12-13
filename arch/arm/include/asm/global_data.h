@@ -26,6 +26,9 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+#if defined(CONFIG_FSL_ESDHC)
+	u32 sdhc_clk;
+#endif
 #ifdef CONFIG_AT91FAMILY
 	/* "static data" needed by at91's clock.c */
 	unsigned long	cpu_clk_rate_hz;
@@ -69,9 +72,6 @@ typedef	struct	global_data {
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
 	unsigned long	fb_base;	/* base address of frame buffer */
-#ifdef CONFIG_FSL_ESDHC
-	unsigned long	sdhc_clk;
-#endif
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	mon_len;	/* monitor len */

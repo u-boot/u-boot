@@ -29,6 +29,9 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+#if defined(CONFIG_FSL_ESDHC)
+	u32 sdhc_clk;
+#endif
 #if defined(CONFIG_8xx)
 	unsigned long brg_clk;
 #endif
@@ -150,9 +153,6 @@ typedef	struct	global_data {
 	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
 	unsigned long pci_clk;
 	unsigned long   mem_clk;
-#if defined(CONFIG_FSL_ESDHC)
-	u32 sdhc_clk;
-#endif
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
 	unsigned long	env_valid;	/* Checksum of Environment valid?	*/

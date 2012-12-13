@@ -478,7 +478,7 @@ int get_clocks(void)
 	gd->arch.tdm_clk = tdm_clk;
 #endif
 #if defined(CONFIG_FSL_ESDHC)
-	gd->sdhc_clk = sdhc_clk;
+	gd->arch.sdhc_clk = sdhc_clk;
 #endif
 	gd->arch.core_clk = core_clk;
 	gd->arch.i2c1_clk = i2c1_clk;
@@ -570,7 +570,8 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	       strmhz(buf, gd->arch.tdm_clk));
 #endif
 #if defined(CONFIG_FSL_ESDHC)
-	printf("  SDHC:                %-4s MHz\n", strmhz(buf, gd->sdhc_clk));
+	printf("  SDHC:                %-4s MHz\n",
+	       strmhz(buf, gd->arch.sdhc_clk));
 #endif
 #if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)

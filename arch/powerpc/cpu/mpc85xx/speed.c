@@ -428,9 +428,9 @@ int get_clocks (void)
 #if defined(CONFIG_FSL_ESDHC)
 #if defined(CONFIG_MPC8569) || defined(CONFIG_P1010) ||\
        defined(CONFIG_P1014)
-	gd->sdhc_clk = gd->bus_clk;
+	gd->arch.sdhc_clk = gd->bus_clk;
 #else
-	gd->sdhc_clk = gd->bus_clk / 2;
+	gd->arch.sdhc_clk = gd->bus_clk / 2;
 #endif
 #endif /* defined(CONFIG_FSL_ESDHC) */
 

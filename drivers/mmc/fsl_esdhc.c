@@ -583,7 +583,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 		mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	mmc->f_min = 400000;
-	mmc->f_max = MIN(gd->sdhc_clk, 52000000);
+	mmc->f_max = MIN(gd->arch.sdhc_clk, 52000000);
 
 	mmc->b_max = 0;
 	mmc_register(mmc);
@@ -598,7 +598,7 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 	cfg = malloc(sizeof(struct fsl_esdhc_cfg));
 	memset(cfg, 0, sizeof(struct fsl_esdhc_cfg));
 	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
-	cfg->sdhc_clk = gd->sdhc_clk;
+	cfg->sdhc_clk = gd->arch.sdhc_clk;
 	return fsl_esdhc_initialize(bis, cfg);
 }
 
@@ -616,7 +616,7 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 #endif
 
 	do_fixup_by_compat_u32(blob, compat, "clock-frequency",
-			       gd->sdhc_clk, 1);
+			       gd->arch.sdhc_clk, 1);
 
 	do_fixup_by_compat(blob, compat, "status", "okay",
 			   4 + 1, 1);
