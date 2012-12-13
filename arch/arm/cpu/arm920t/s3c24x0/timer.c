@@ -52,7 +52,7 @@ int timer_init(void)
 		 * @33.25MHz and 15625 @ 50 MHz
 		 */
 		gd->tbu = get_PCLK() / (2 * 16 * 100);
-		gd->timer_rate_hz = get_PCLK() / (2 * 16);
+		gd->arch.timer_rate_hz = get_PCLK() / (2 * 16);
 	}
 	/* load value for 10 ms timeout */
 	writel(gd->tbu, &timers->tcntb4);
@@ -93,7 +93,7 @@ ulong get_timer_masked(void)
 {
 	ulong tmr = get_ticks();
 
-	return tmr / (gd->timer_rate_hz / CONFIG_SYS_HZ);
+	return tmr / (gd->arch.timer_rate_hz / CONFIG_SYS_HZ);
 }
 
 void udelay_masked(unsigned long usec)

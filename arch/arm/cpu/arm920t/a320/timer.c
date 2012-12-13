@@ -31,14 +31,14 @@ DECLARE_GLOBAL_DATA_PTR;
 static inline unsigned long long tick_to_time(unsigned long long tick)
 {
 	tick *= CONFIG_SYS_HZ;
-	do_div(tick, gd->timer_rate_hz);
+	do_div(tick, gd->arch.timer_rate_hz);
 
 	return tick;
 }
 
 static inline unsigned long long usec_to_tick(unsigned long long usec)
 {
-	usec *= gd->timer_rate_hz;
+	usec *= gd->arch.timer_rate_hz;
 	do_div(usec, 1000000);
 
 	return usec;
@@ -74,7 +74,7 @@ int timer_init(void)
 	cr |= FTTMR010_TM3_ENABLE;
 	writel(cr, &tmr->cr);
 
-	gd->timer_rate_hz = TIMER_CLOCK;
+	gd->arch.timer_rate_hz = TIMER_CLOCK;
 	gd->tbu = gd->tbl = 0;
 
 	return 0;
@@ -126,5 +126,5 @@ ulong get_timer(ulong base)
  */
 ulong get_tbclk(void)
 {
-	return gd->timer_rate_hz;
+	return gd->arch.timer_rate_hz;
 }

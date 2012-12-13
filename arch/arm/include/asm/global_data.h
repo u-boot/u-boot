@@ -35,6 +35,8 @@ struct arch_global_data {
 	unsigned long	pllb_rate_hz;
 	unsigned long	at91_pllb_usb_init;
 #endif
+	/* "static data" needed by most of timer.c on ARM platforms */
+	unsigned long timer_rate_hz;
 };
 
 /*
@@ -61,7 +63,6 @@ typedef	struct	global_data {
 #endif
 #ifdef CONFIG_ARM
 	/* "static data" needed by most of timer.c on ARM platforms */
-	unsigned long	timer_rate_hz;
 	unsigned long	tbl;
 	unsigned long	tbu;
 	unsigned long long	timer_reset_value;
