@@ -99,7 +99,7 @@ static inline void use_tlb_cam(u8 idx)
 	int i = idx / 32;
 	int bit = idx % 32;
 
-	gd->used_tlb_cams[i] |= (1 << bit);
+	gd->arch.used_tlb_cams[i] |= (1 << bit);
 }
 
 static inline void free_tlb_cam(u8 idx)
@@ -107,7 +107,7 @@ static inline void free_tlb_cam(u8 idx)
 	int i = idx / 32;
 	int bit = idx % 32;
 
-	gd->used_tlb_cams[i] &= ~(1 << bit);
+	gd->arch.used_tlb_cams[i] &= ~(1 << bit);
 }
 
 void init_used_tlb_cams(void)
@@ -116,7 +116,7 @@ void init_used_tlb_cams(void)
 	unsigned int num_cam = mfspr(SPRN_TLB1CFG) & 0xfff;
 
 	for (i = 0; i < ((CONFIG_SYS_NUM_TLBCAMS+31)/32); i++)
-		gd->used_tlb_cams[i] = 0;
+		gd->arch.used_tlb_cams[i] = 0;
 
 	/* walk all the entries */
 	for (i = 0; i < num_cam; i++) {
@@ -133,7 +133,7 @@ int find_free_tlbcam(void)
 	u32 idx;
 
 	for (i = 0; i < ((CONFIG_SYS_NUM_TLBCAMS+31)/32); i++) {
-		idx = ffz(gd->used_tlb_cams[i]);
+		idx = ffz(gd->arch.used_tlb_cams[i]);
 
 		if (idx != 32)
 			break;
