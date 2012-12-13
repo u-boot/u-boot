@@ -101,6 +101,12 @@ struct arch_global_data {
 	u32 ips_clk;
 	u32 csb_clk;
 #endif /* CONFIG_MPC512X */
+#if defined(CONFIG_MPC8220)
+	unsigned long inp_clk;
+	unsigned long vco_clk;
+	unsigned long pev_clk;
+	unsigned long flb_clk;
+#endif
 };
 
 /*
@@ -122,13 +128,6 @@ typedef	struct	global_data {
 	unsigned long   mem_clk;
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
-#endif
-#if defined(CONFIG_MPC8220)
-	unsigned long   bExtUart;
-	unsigned long   inp_clk;
-	unsigned long   vco_clk;
-	unsigned long   pev_clk;
-	unsigned long   flb_clk;
 #endif
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot	*/

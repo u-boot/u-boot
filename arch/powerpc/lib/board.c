@@ -556,11 +556,11 @@ void board_init_f(ulong bootflag)
 #endif
 #if defined(CONFIG_MPC8220)
 	bd->bi_mbar_base = CONFIG_SYS_MBAR;	/* base of internal registers */
-	bd->bi_inpfreq = gd->inp_clk;
+	bd->bi_inpfreq = gd->arch.inp_clk;
 	bd->bi_pcifreq = gd->pci_clk;
-	bd->bi_vcofreq = gd->vco_clk;
-	bd->bi_pevfreq = gd->pev_clk;
-	bd->bi_flbfreq = gd->flb_clk;
+	bd->bi_vcofreq = gd->arch.vco_clk;
+	bd->bi_pevfreq = gd->arch.pev_clk;
+	bd->bi_flbfreq = gd->arch.flb_clk;
 
 	/* store bootparam to sram (backward compatible), here? */
 	{
@@ -568,10 +568,10 @@ void board_init_f(ulong bootflag)
 
 		*sram++ = gd->ram_size;
 		*sram++ = gd->bus_clk;
-		*sram++ = gd->inp_clk;
+		*sram++ = gd->arch.inp_clk;
 		*sram++ = gd->cpu_clk;
-		*sram++ = gd->vco_clk;
-		*sram++ = gd->flb_clk;
+		*sram++ = gd->arch.vco_clk;
+		*sram++ = gd->arch.flb_clk;
 		*sram++ = 0xb8c3ba11;	/* boot signature */
 	}
 #endif
