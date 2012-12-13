@@ -149,6 +149,15 @@
 # define CONFIG_MTD_DEVICE
 #endif
 
+/* I2C */
+#ifdef CONFIG_ZYNQ_I2C
+# define CONFIG_CMD_I2C
+# define CONFIG_ZYNQ_I2C_CTLR_0
+# define CONFIG_HARD_I2C		1
+# define CONFIG_SYS_I2C_SPEED		100000
+# define CONFIG_SYS_I2C_SLAVE		1
+#endif
+
 #ifndef CONFIG_ENV_IS_NOWHERE
 # ifndef CONFIG_SYS_NO_FLASH
 /* Environment in NOR flash */
