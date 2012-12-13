@@ -108,6 +108,10 @@ struct arch_global_data {
 	unsigned long flb_clk;
 #endif
 	unsigned long reset_status;	/* reset status register at boot */
+#if defined(CONFIG_MPC83xx)
+	unsigned long arbiter_event_attributes;
+	unsigned long arbiter_event_address;
+#endif
 };
 
 /*
@@ -131,10 +135,6 @@ typedef	struct	global_data {
 	u32 sdhc_clk;
 #endif
 	phys_size_t	ram_size;	/* RAM size */
-#if defined(CONFIG_MPC83xx)
-	unsigned long	arbiter_event_attributes;
-	unsigned long	arbiter_event_address;
-#endif
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
 	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
 	unsigned long	have_console;	/* serial_init() was called		*/
