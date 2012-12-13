@@ -113,9 +113,6 @@ car_init_ret:
 	/* Set second parameter to setup_gdt */
 	movl	%esp, %edx
 
-	/* gd->gd_addr = gd (Required to allow gd->xyz to work) */
-	movl	%eax, (%eax)
-
 	/* Setup global descriptor table so gd->xyz works */
 	call	setup_gdt
 
@@ -170,9 +167,6 @@ board_init_f_r_trampoline:
 
 	/* Set second parameter to setup_gdt */
 	movl	%esp, %edx
-
-	/* gd->gd_addr = gd (Required to allow gd->xyz to work) */
-	movl	%eax, (%eax)
 
 	/* Setup global descriptor table so gd->xyz works */
 	call	setup_gdt

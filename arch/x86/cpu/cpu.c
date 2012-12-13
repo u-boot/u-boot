@@ -100,7 +100,9 @@ void setup_gdt(gd_t *id, u64 *gdt_addr)
 	gdt_addr[X86_GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff);
 
 	/* FS: data, read/write, 4 GB, base (Global Data Pointer) */
-	gdt_addr[X86_GDT_ENTRY_32BIT_FS] = GDT_ENTRY(0xc093, (ulong)id, 0xfffff);
+	id->gd_addr = id;
+	gdt_addr[X86_GDT_ENTRY_32BIT_FS] = GDT_ENTRY(0xc093,
+		     (ulong)&id->gd_addr, 0xfffff);
 
 	/* 16-bit CS: code, read/execute, 64 kB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x109b, 0, 0x0ffff);
