@@ -296,10 +296,10 @@ int get_serial_clock(void)
 	 * the UART divisor is available
 	 */
 #ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
-	gd->uart_clk = CONFIG_SYS_EXT_SERIAL_CLOCK;
+	gd->arch.uart_clk = CONFIG_SYS_EXT_SERIAL_CLOCK;
 #else
 	get_sys_info(&sys_info);
-	gd->uart_clk = sys_info.freqUART / udiv;
+	gd->arch.uart_clk = sys_info.freqUART / udiv;
 #endif
 
 	return clk;

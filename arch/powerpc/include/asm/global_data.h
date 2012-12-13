@@ -116,6 +116,9 @@ struct arch_global_data {
 	unsigned int dp_alloc_base;
 	unsigned int dp_alloc_top;
 #endif
+#if defined(CONFIG_4xx)
+	u32 uart_clk;
+#endif /* CONFIG_4xx */
 };
 
 /*
@@ -145,9 +148,6 @@ typedef	struct	global_data {
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
 #endif
-#if defined(CONFIG_4xx)
-	u32  uart_clk;
-#endif /* CONFIG_4xx */
 #if defined(CONFIG_SYS_GT_6426x)
 	unsigned int	mirror_hack[16];
 #endif
