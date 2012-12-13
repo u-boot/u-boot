@@ -163,6 +163,11 @@ static u16 macb_mdio_read(struct macb_device *macb, u8 reg)
 	return MACB_BFEXT(DATA, frame);
 }
 
+static void __weak arch_get_mdio_control(const char *name)
+{
+	return;
+}
+
 #if defined(CONFIG_CMD_MII)
 
 int macb_miiphy_read(const char *devname, u8 phy_adr, u8 reg, u16 *value)
@@ -173,6 +178,7 @@ int macb_miiphy_read(const char *devname, u8 phy_adr, u8 reg, u16 *value)
 	if ( macb->phy_addr != phy_adr )
 		return -1;
 
+	arch_get_mdio_control(devname);
 	*value = macb_mdio_read(macb, reg);
 
 	return 0;
@@ -186,6 +192,7 @@ int macb_miiphy_write(const char *devname, u8 phy_adr, u8 reg, u16 value)
 	if ( macb->phy_addr != phy_adr )
 		return -1;
 
+	arch_get_mdio_control(devname);
 	macb_mdio_write(macb, reg, value);
 
 	return 0;
@@ -377,6 +384,7 @@ static int macb_phy_init(struct macb_device *macb)
 	int media, speed, duplex;
 	int i;
 
+	arch_get_mdio_control(netdev->name);
 #ifdef CONFIG_MACB_SEARCH_PHY
 	/* Auto-detect phy_addr */
 	if (!macb_phy_find(macb)) {
