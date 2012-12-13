@@ -95,10 +95,7 @@
 #define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 /* Partition tables */
-/* Only need DOS partition support for SPL, currently */
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EFI_PARTITION
-#endif
 #define CONFIG_DOS_PARTITION
 
 /* USB
