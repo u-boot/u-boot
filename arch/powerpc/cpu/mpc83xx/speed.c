@@ -495,7 +495,7 @@ int get_clocks(void)
 	gd->arch.mem_sec_clk = mem_sec_clk;
 #endif
 #if defined(CONFIG_QE)
-	gd->qe_clk = qe_clk;
+	gd->arch.qe_clk = qe_clk;
 	gd->arch.brg_clk = brg_clk;
 #endif
 #if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
@@ -541,7 +541,8 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("  Coherent System Bus: %-4s MHz\n",
 	       strmhz(buf, gd->arch.csb_clk));
 #if defined(CONFIG_QE)
-	printf("  QE:                  %-4s MHz\n", strmhz(buf, gd->qe_clk));
+	printf("  QE:                  %-4s MHz\n",
+	       strmhz(buf, gd->arch.qe_clk));
 	printf("  BRG:                 %-4s MHz\n",
 	       strmhz(buf, gd->arch.brg_clk));
 #endif

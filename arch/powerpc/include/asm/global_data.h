@@ -39,9 +39,6 @@ struct arch_global_data {
 	unsigned long scc_clk;
 	unsigned long brg_clk;
 #endif
-#if defined(CONFIG_QE)
-	u32 brg_clk;
-#endif
 	/* TODO: sjg@chromium.org: Should these be unslgned long? */
 #if defined(CONFIG_MPC83xx)
 	/* There are other clocks in the MPC83XX */
@@ -85,6 +82,12 @@ struct arch_global_data {
 	u32 i2c1_clk;
 	u32 i2c2_clk;
 #endif
+#if defined(CONFIG_QE)
+	u32 qe_clk;
+	u32 brg_clk;
+	uint mp_alloc_base;
+	uint mp_alloc_top;
+#endif /* CONFIG_QE */
 };
 
 /*
@@ -107,11 +110,6 @@ typedef	struct	global_data {
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
 #endif
-#if defined(CONFIG_QE)
-	u32 qe_clk;
-	uint mp_alloc_base;
-	uint mp_alloc_top;
-#endif /* CONFIG_QE */
 #if defined(CONFIG_FSL_LAW)
 	u32 used_laws;
 #endif
