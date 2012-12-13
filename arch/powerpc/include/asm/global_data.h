@@ -54,14 +54,13 @@ typedef	struct	global_data {
 	unsigned int	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz! */
 	unsigned long	bus_clk;
+	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
+	unsigned long	pci_clk;
 #if defined(CONFIG_CPM2)
 	/* There are many clocks on the MPC8260 - see page 9-5 */
 	unsigned long	vco_out;
 	unsigned long	cpm_clk;
 	unsigned long	scc_clk;
-#ifdef CONFIG_PCI
-	unsigned long	pci_clk;
-#endif
 #endif
 	unsigned long   mem_clk;
 #if defined(CONFIG_MPC83xx)
@@ -85,7 +84,6 @@ typedef	struct	global_data {
 	u32 enc_clk;
 	u32 lbiu_clk;
 	u32 lclk_clk;
-	u32 pci_clk;
 #if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 	u32 pciexp1_clk;
@@ -122,17 +120,14 @@ typedef	struct	global_data {
 #endif
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	ipb_clk;
-	unsigned long	pci_clk;
 #endif
 #if defined(CONFIG_MPC512X)
 	u32 ips_clk;
 	u32 csb_clk;
-	u32 pci_clk;
 #endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC8220)
 	unsigned long   bExtUart;
 	unsigned long   inp_clk;
-	unsigned long   pci_clk;
 	unsigned long   vco_clk;
 	unsigned long   pev_clk;
 	unsigned long   flb_clk;
