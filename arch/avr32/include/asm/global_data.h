@@ -24,6 +24,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	unsigned long stack_end;	/* highest stack address */
 };
 
 /*
@@ -38,7 +39,6 @@ typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
 	unsigned int	baudrate;
-	unsigned long	stack_end;	/* highest stack address */
 	unsigned long	have_console;	/* serial_init() was called */
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
