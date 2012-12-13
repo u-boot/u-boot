@@ -100,12 +100,14 @@ ulong get_timer_masked(void)
 	/* current tick value */
 	ulong now = TICKS_TO_HZ(READ_TIMER());
 
-	if (now >= gd->lastinc)	/* normal (non rollover) */
-		gd->tbl += (now - gd->lastinc);
-	else			/* rollover */
-		gd->tbl += (TICKS_TO_HZ(TIMER_LOAD_VAL) - gd->lastinc) + now;
+	if (now >= gd->lastinc) {	/* normal (non rollover) */
+		gd->arch.tbl += (now - gd->lastinc);
+	} else {			/* rollover */
+		gd->arch.tbl += (TICKS_TO_HZ(TIMER_LOAD_VAL) - gd->lastinc)
+				+ now;
+	}
 	gd->lastinc = now;
-	return gd->tbl;
+	return gd->arch.tbl;
 }
 
 /* Delay x useconds */

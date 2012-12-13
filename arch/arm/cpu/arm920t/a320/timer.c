@@ -75,7 +75,7 @@ int timer_init(void)
 	writel(cr, &tmr->cr);
 
 	gd->arch.timer_rate_hz = TIMER_CLOCK;
-	gd->arch.tbu = gd->tbl = 0;
+	gd->arch.tbu = gd->arch.tbl = 0;
 
 	return 0;
 }
@@ -89,10 +89,10 @@ unsigned long long get_ticks(void)
 	ulong now = TIMER_LOAD_VAL - readl(&tmr->timer3_counter);
 
 	/* increment tbu if tbl has rolled over */
-	if (now < gd->tbl)
+	if (now < gd->arch.tbl)
 		gd->arch.tbu++;
-	gd->tbl = now;
-	return (((unsigned long long)gd->arch.tbu) << 32) | gd->tbl;
+	gd->arch.tbl = now;
+	return (((unsigned long long)gd->arch.tbu) << 32) | gd->arch.tbl;
 }
 
 void __udelay(unsigned long usec)

@@ -83,13 +83,13 @@ ulong get_timer_masked(void)
 	if (gd->lastinc >= now) {
 		/* normal mode (non roll) */
 		/* move stamp forward with absolute diff ticks */
-		gd->tbl += gd->lastinc - now;
+		gd->arch.tbl += gd->lastinc - now;
 	} else {
 		/* we have overflow of the count down timer */
-		gd->tbl += TIMER_LOAD_VAL - gd->lastinc + now;
+		gd->arch.tbl += TIMER_LOAD_VAL - gd->lastinc + now;
 	}
 	gd->lastinc = now;
-	return gd->tbl;
+	return gd->arch.tbl;
 }
 
 /*
@@ -100,5 +100,5 @@ void reset_timer(void)
 	/* capture current decrementer value time */
 	gd->lastinc = read_timer() / (CONFIG_TIMER_CLOCK_KHZ/CONFIG_SYS_HZ);
 	/* start "advancing" time stamp from 0 */
-	gd->tbl = 0;
+	gd->arch.tbl = 0;
 }

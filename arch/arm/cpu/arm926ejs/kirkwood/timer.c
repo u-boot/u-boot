@@ -86,7 +86,7 @@ struct kwtmr_registers *kwtmr_regs = (struct kwtmr_registers *)KW_TIMER_BASE;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define timestamp gd->tbl
+#define timestamp gd->arch.tbl
 #define lastdec gd->lastinc
 
 ulong get_timer_masked(void)

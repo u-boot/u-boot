@@ -74,11 +74,11 @@ unsigned long long get_ticks(void)
 	unsigned long now = readl(&timer->tim34);
 
 	/* increment tbu if tbl has rolled over */
-	if (now < gd->tbl)
+	if (now < gd->arch.tbl)
 		gd->arch.tbu++;
-	gd->tbl = now;
+	gd->arch.tbl = now;
 
-	return (((unsigned long long)gd->arch.tbu) << 32) | gd->tbl;
+	return (((unsigned long long)gd->arch.tbu) << 32) | gd->arch.tbl;
 }
 
 ulong get_timer(ulong base)

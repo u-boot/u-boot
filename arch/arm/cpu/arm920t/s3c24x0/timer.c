@@ -63,7 +63,7 @@ int timer_init(void)
 	tmr = (tmr & ~0x0700000) | 0x0500000;
 	writel(tmr, &timers->tcon);
 	gd->lastinc = 0;
-	gd->tbl = 0;
+	gd->arch.tbl = 0;
 
 	return 0;
 }
@@ -130,14 +130,14 @@ unsigned long long get_ticks(void)
 
 	if (gd->lastinc >= now) {
 		/* normal mode */
-		gd->tbl += gd->lastinc - now;
+		gd->arch.tbl += gd->lastinc - now;
 	} else {
 		/* we have an overflow ... */
-		gd->tbl += gd->lastinc + gd->arch.tbu - now;
+		gd->arch.tbl += gd->lastinc + gd->arch.tbu - now;
 	}
 	gd->lastinc = now;
 
-	return gd->tbl;
+	return gd->arch.tbl;
 }
 
 /*

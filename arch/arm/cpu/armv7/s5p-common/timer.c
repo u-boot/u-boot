@@ -106,7 +106,7 @@ void reset_timer_masked(void)
 
 	/* reset time */
 	gd->lastinc = readl(&timer->tcnto4);
-	gd->tbl = 0;
+	gd->arch.tbl = 0;
 }
 
 unsigned long get_timer_masked(void)
@@ -124,13 +124,13 @@ unsigned long get_current_tick(void)
 	unsigned long count_value = readl(&timer->tcntb4);
 
 	if (gd->lastinc >= now)
-		gd->tbl += gd->lastinc - now;
+		gd->arch.tbl += gd->lastinc - now;
 	else
-		gd->tbl += gd->lastinc + count_value - now;
+		gd->arch.tbl += gd->lastinc + count_value - now;
 
 	gd->lastinc = now;
 
-	return gd->tbl;
+	return gd->arch.tbl;
 }
 
 /*

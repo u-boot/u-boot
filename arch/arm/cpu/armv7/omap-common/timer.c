@@ -57,7 +57,7 @@ int timer_init(void)
 
 	/* reset time, capture current incrementer value time */
 	gd->lastinc = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
-	gd->tbl = 0;		/* start "advancing" time stamp from 0 */
+	gd->arch.tbl = 0;	/* start "advancing" time stamp from 0 */
 
 	return 0;
 }
@@ -91,14 +91,15 @@ ulong get_timer_masked(void)
 	/* current tick value */
 	ulong now = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
 
-	if (now >= gd->lastinc)	/* normal mode (non roll) */
+	if (now >= gd->lastinc) {	/* normal mode (non roll) */
 		/* move stamp fordward with absoulte diff ticks */
-		gd->tbl += (now - gd->lastinc);
-	else	/* we have rollover of incrementer */
-		gd->tbl += ((TIMER_LOAD_VAL / (TIMER_CLOCK / CONFIG_SYS_HZ))
-			     - gd->lastinc) + now;
+		gd->arch.tbl += (now - gd->lastinc);
+	} else {	/* we have rollover of incrementer */
+		gd->arch.tbl += ((TIMER_LOAD_VAL / (TIMER_CLOCK /
+				CONFIG_SYS_HZ)) - gd->lastinc) + now;
+	}
 	gd->lastinc = now;
-	return gd->tbl;
+	return gd->arch.tbl;
 }
 
 /*
