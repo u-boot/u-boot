@@ -50,7 +50,6 @@ typedef struct global_data {
 
 	phys_size_t ram_size;		/* RAM size */
 	unsigned long reloc_off;	/* Relocation Offset */
-	unsigned long reset_status;	/* reset status register at boot        */
 	unsigned long env_addr;	/* Address  of Environment struct       */
 	unsigned long env_valid;	/* Checksum of Environment valid?       */
 	unsigned long have_console;	/* serial_init() was called */
@@ -72,9 +71,6 @@ typedef struct global_data {
 #ifdef CONFIG_MODEM_SUPPORT
 	unsigned long do_mdm_init;
 	unsigned long be_quiet;
-#endif
-#ifdef CONFIG_LWMON
-	unsigned long kbd_status;
 #endif
 	void	**jt;			/* jump table */
 	char	env_buf[32];		/* buffer for getenv() before reloc. */
