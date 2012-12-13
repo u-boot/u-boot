@@ -130,11 +130,11 @@ int get_clocks(void)
 	 * AN2919.
 	 */
 #ifdef CONFIG_MPC8610
-	gd->i2c1_clk = sys_info.freqSystemBus;
+	gd->arch.i2c1_clk = sys_info.freqSystemBus;
 #else
-	gd->i2c1_clk = sys_info.freqSystemBus / 2;
+	gd->arch.i2c1_clk = sys_info.freqSystemBus / 2;
 #endif
-	gd->i2c2_clk = gd->i2c1_clk;
+	gd->arch.i2c2_clk = gd->arch.i2c1_clk;
 
 	if (gd->cpu_clk != 0)
 		return 0;

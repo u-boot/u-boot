@@ -80,6 +80,11 @@ struct arch_global_data {
 	u32 lbc_clk;
 	void *cpu;
 #endif /* CONFIG_MPC85xx || CONFIG_MPC86xx */
+#if defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) || \
+		defined(CONFIG_MPC86xx)
+	u32 i2c1_clk;
+	u32 i2c2_clk;
+#endif
 };
 
 /*
@@ -101,10 +106,6 @@ typedef	struct	global_data {
 	unsigned long   mem_clk;
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
-#endif
-#if defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
-	u32 i2c1_clk;
-	u32 i2c2_clk;
 #endif
 #if defined(CONFIG_QE)
 	u32 qe_clk;

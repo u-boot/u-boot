@@ -481,9 +481,9 @@ int get_clocks(void)
 	gd->sdhc_clk = sdhc_clk;
 #endif
 	gd->arch.core_clk = core_clk;
-	gd->i2c1_clk = i2c1_clk;
+	gd->arch.i2c1_clk = i2c1_clk;
 #if !defined(CONFIG_MPC832x)
-	gd->i2c2_clk = i2c2_clk;
+	gd->arch.i2c2_clk = i2c2_clk;
 #endif
 #if !defined(CONFIG_MPC8309)
 	gd->arch.enc_clk = enc_clk;
@@ -558,9 +558,11 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("  SEC:                 %-4s MHz\n",
 	       strmhz(buf, gd->arch.enc_clk));
 #endif
-	printf("  I2C1:                %-4s MHz\n", strmhz(buf, gd->i2c1_clk));
+	printf("  I2C1:                %-4s MHz\n",
+	       strmhz(buf, gd->arch.i2c1_clk));
 #if !defined(CONFIG_MPC832x)
-	printf("  I2C2:                %-4s MHz\n", strmhz(buf, gd->i2c2_clk));
+	printf("  I2C2:                %-4s MHz\n",
+	       strmhz(buf, gd->arch.i2c2_clk));
 #endif
 #if defined(CONFIG_MPC8315)
 	printf("  TDM:                 %-4s MHz\n",

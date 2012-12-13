@@ -26,6 +26,10 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+#ifdef CONFIG_FSL_I2C
+	unsigned long	i2c1_clk;
+	unsigned long	i2c2_clk;
+#endif
 };
 
 /*
@@ -49,10 +53,6 @@ typedef	struct	global_data {
 	unsigned long	inp_clk;
 	unsigned long	vco_clk;
 	unsigned long	flb_clk;
-#endif
-#ifdef CONFIG_FSL_I2C
-	unsigned long	i2c1_clk;
-	unsigned long	i2c2_clk;
 #endif
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */

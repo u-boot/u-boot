@@ -406,7 +406,7 @@ int get_clocks (void)
 	 */
 #if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
 	defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555)
-	gd->i2c1_clk = sys_info.freqSystemBus;
+	gd->arch.i2c1_clk = sys_info.freqSystemBus;
 #elif defined(CONFIG_MPC8544)
 	/*
 	 * On the 8544, the I2C clock is the same as the SEC clock.  This can be
@@ -416,14 +416,14 @@ int get_clocks (void)
 	 * PORDEVSR2_SEC_CFG bit is 0 on all 85xx boards that are not an 8544.
 	 */
 	if (gur->pordevsr2 & MPC85xx_PORDEVSR2_SEC_CFG)
-		gd->i2c1_clk = sys_info.freqSystemBus / 3;
+		gd->arch.i2c1_clk = sys_info.freqSystemBus / 3;
 	else
-		gd->i2c1_clk = sys_info.freqSystemBus / 2;
+		gd->arch.i2c1_clk = sys_info.freqSystemBus / 2;
 #else
 	/* Most 85xx SOCs use CCB/2, so this is the default behavior. */
-	gd->i2c1_clk = sys_info.freqSystemBus / 2;
+	gd->arch.i2c1_clk = sys_info.freqSystemBus / 2;
 #endif
-	gd->i2c2_clk = gd->i2c1_clk;
+	gd->arch.i2c2_clk = gd->arch.i2c1_clk;
 
 #if defined(CONFIG_FSL_ESDHC)
 #if defined(CONFIG_MPC8569) || defined(CONFIG_P1010) ||\
