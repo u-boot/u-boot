@@ -119,6 +119,9 @@ struct arch_global_data {
 #if defined(CONFIG_4xx)
 	u32 uart_clk;
 #endif /* CONFIG_4xx */
+#if defined(CONFIG_SYS_GT_6426x)
+	unsigned int mirror_hack[16];
+#endif
 };
 
 /*
@@ -147,9 +150,6 @@ typedef	struct	global_data {
 	unsigned long	have_console;	/* serial_init() was called		*/
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
-#endif
-#if defined(CONFIG_SYS_GT_6426x)
-	unsigned int	mirror_hack[16];
 #endif
 #if defined(CONFIG_A3000)	|| \
     defined(CONFIG_HIDDEN_DRAGON)  || \
