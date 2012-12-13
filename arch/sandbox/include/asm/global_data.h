@@ -28,6 +28,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	u8		*ram_buf;	/* emulated RAM buffer */
 };
 
 /*
@@ -46,7 +47,6 @@ typedef	struct global_data {
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
 	unsigned long	fb_base;	/* base address of frame buffer */
-	u8		*ram_buf;	/* emulated RAM buffer */
 	phys_size_t	ram_size;	/* RAM size */
 	const void	*fdt_blob;	/* Our device tree, NULL if none */
 	void		**jt;		/* jump table */
