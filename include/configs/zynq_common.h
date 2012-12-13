@@ -32,12 +32,13 @@
 
 /* Total Size of Environment Sector */
 #define CONFIG_ENV_SIZE		(128 << 10)
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 /* Serial drivers */
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
+#define CONFIG_BAUDRATE			115200
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 38400, 115200 }
 
 /* Zynq serial driver */
 #ifdef CONFIG_ZYNQ_SERIAL_UART0
@@ -99,29 +100,27 @@
 # undef CONFIG_CMD_NFS
 #endif
 
-/* NOR flash */
+/* NOR */
 #ifndef CONFIG_SYS_NO_FLASH
-# define CONFIG_SYS_FLASH_BASE           0xE2000000
-# define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
-# define CONFIG_SYS_MAX_FLASH_BANKS      1
+# define CONFIG_SYS_FLASH_BASE		0xE2000000
+# define CONFIG_SYS_FLASH_SIZE		(16 * 1024 * 1024)
+# define CONFIG_SYS_MAX_FLASH_BANKS	1
 /* max number of sectors/blocks on one chip */
-# define CONFIG_SYS_MAX_FLASH_SECT       512
-# define CONFIG_SYS_FLASH_ERASE_TOUT     1000
-# define CONFIG_SYS_FLASH_WRITE_TOUT     5000
+# define CONFIG_SYS_MAX_FLASH_SECT	512
+# define CONFIG_SYS_FLASH_ERASE_TOUT	1000
+# define CONFIG_SYS_FLASH_WRITE_TOUT	5000
 # define CONFIG_FLASH_SHOW_PROGRESS	10
-
 # define CONFIG_SYS_FLASH_CFI
 # undef CONFIG_SYS_FLASH_EMPTY_INFO
 # define CONFIG_FLASH_CFI_DRIVER
-
 # undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
 # define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
 #endif
 
+/* QSPI */
 #ifdef CONFIG_ZYNQ_SPI
 # define CONFIG_SF_DEFAULT_SPEED	30000000
 # define CONFIG_SPI_FLASH
-/* # define CONFIG_SPI_FLASH_ATMEL */
 # define CONFIG_SPI_FLASH_SPANSION
 # define CONFIG_SPI_FLASH_STMICRO
 # define CONFIG_SPI_FLASH_WINBOND
@@ -129,6 +128,7 @@
 # define CONFIG_CMD_SF
 #endif
 
+/* MMC */
 #ifdef CONFIG_MMC
 # define CONFIG_GENERIC_MMC
 # define CONFIG_ZYNQ_MMC
@@ -140,6 +140,7 @@
 # define CONFIG_SYS_MMC_MAX_BLK_COUNT	1
 #endif
 
+/* NAND */
 #ifdef CONFIG_NAND_ZYNQ
 # define CONFIG_CMD_NAND
 # define CONFIG_CMD_NAND_LOCK_UNLOCK
@@ -241,8 +242,7 @@
 		"bootm 0x3000000 0x2000000 0x2A00000\0"
 
 /* default boot is according to the bootmode switch settings */
-#define CONFIG_BOOTCOMMAND "run modeboot"
-
+#define CONFIG_BOOTCOMMAND	"run modeboot"
 #define CONFIG_BOOTDELAY	3 /* -1 to Disable autoboot */
 
 #define CONFIG_SYS_PROMPT	"zynq-uboot> "
@@ -254,9 +254,7 @@
 #define CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
-/*
- * Physical Memory map
- */
+/* Physical Memory map */
 #define CONFIG_NR_DRAM_BANKS    	1
 #define PHYS_SDRAM_1            	0
 
@@ -280,7 +278,6 @@
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */
 
 /* Enable the PL to be downloaded */
-
 #define CONFIG_FPGA
 #define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_ZYNQPL
@@ -293,7 +290,6 @@
 #define CONFIG_BOARD_LATE_INIT
 
 #undef CONFIG_BOOTM_NETBSD
-
 
 /* FIXME this should be removed pretty soon */
 #define XPSS_QSPI_BASEADDR		0xE000D000

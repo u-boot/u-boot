@@ -55,7 +55,6 @@
 # define CONFIG_ZYNQ_SERIAL_UART0
 #endif
 
-
 #include <configs/zynq_common.h>
 
 /* Place a Xilinx Boot ROM header in u-boot image? */
