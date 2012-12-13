@@ -42,6 +42,40 @@ struct arch_global_data {
 #if defined(CONFIG_QE)
 	u32 brg_clk;
 #endif
+	/* TODO: sjg@chromium.org: Should these be unslgned long? */
+#if defined(CONFIG_MPC83xx)
+	/* There are other clocks in the MPC83XX */
+	u32 csb_clk;
+# if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
+	u32 tsec1_clk;
+	u32 tsec2_clk;
+	u32 usbdr_clk;
+# elif defined(CONFIG_MPC8309)
+	u32 usbdr_clk;
+# endif
+# if defined(CONFIG_MPC834x)
+	u32 usbmph_clk;
+# endif /* CONFIG_MPC834x */
+# if defined(CONFIG_MPC8315)
+	u32 tdm_clk;
+# endif
+	u32 core_clk;
+	u32 enc_clk;
+	u32 lbiu_clk;
+	u32 lclk_clk;
+# if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC837x)
+	u32 pciexp1_clk;
+	u32 pciexp2_clk;
+# endif
+# if defined(CONFIG_MPC837x) || defined(CONFIG_MPC8315)
+	u32 sata_clk;
+# endif
+# if defined(CONFIG_MPC8360)
+	u32 mem_sec_clk;
+# endif /* CONFIG_MPC8360 */
+#endif
 };
 
 /*
@@ -59,47 +93,8 @@ typedef	struct	global_data {
 	unsigned long	cpu_clk;	/* CPU clock in Hz! */
 	unsigned long	bus_clk;
 	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
-	unsigned long	pci_clk;
-#if defined(CONFIG_CPM2)
-	/* There are many clocks on the MPC8260 - see page 9-5 */
-	unsigned long	vco_out;
-	unsigned long	cpm_clk;
-	unsigned long	scc_clk;
-#endif
+	unsigned long pci_clk;
 	unsigned long   mem_clk;
-#if defined(CONFIG_MPC83xx)
-	/* There are other clocks in the MPC83XX */
-	u32 csb_clk;
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
-	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
-	u32 tsec1_clk;
-	u32 tsec2_clk;
-	u32 usbdr_clk;
-#elif defined(CONFIG_MPC8309)
-	u32 usbdr_clk;
-#endif
-#if defined (CONFIG_MPC834x)
-	u32 usbmph_clk;
-#endif /* CONFIG_MPC834x */
-#if defined(CONFIG_MPC8315)
-	u32 tdm_clk;
-#endif
-	u32 core_clk;
-	u32 enc_clk;
-	u32 lbiu_clk;
-	u32 lclk_clk;
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
-	defined(CONFIG_MPC837x)
-	u32 pciexp1_clk;
-	u32 pciexp2_clk;
-#endif
-#if defined(CONFIG_MPC837x) || defined(CONFIG_MPC8315)
-	u32 sata_clk;
-#endif
-#if defined(CONFIG_MPC8360)
-	u32  mem_sec_clk;
-#endif /* CONFIG_MPC8360 */
-#endif
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
 #endif

@@ -118,7 +118,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-		"clock-frequency", gd->core_clk, 1);
+		"clock-frequency", gd->arch.core_clk, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
 	do_fixup_by_compat_u32(blob, "fsl,soc",

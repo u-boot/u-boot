@@ -286,8 +286,8 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
 	get_clocks();
 	/* Configure the PCIE controller core clock ratio */
 	out_le32(hose_cfg_base + PEX_GCLK_RATIO,
-		(((bus ? gd->pciexp2_clk : gd->pciexp1_clk) / 1000000) * 16)
-		/ 333);
+		(((bus ? gd->arch.pciexp2_clk : gd->arch.pciexp1_clk)
+			/ 1000000) * 16) / 333);
 	udelay(1000000);
 
 	/* Do Type 1 bridge configuration */
