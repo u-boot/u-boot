@@ -28,34 +28,7 @@ struct arch_global_data {
 	unsigned long cpu_hz;		/* cpu core clock frequency */
 };
 
-/*
- * The following data structure is placed in some memory wich is
- * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
- * some locked parts of the data cache) to allow for a minimum set of
- * global variables during system initialization (until we have set
- * up the memory controller so that we can use RAM).
- */
-
-typedef	struct	global_data {
-	bd_t		*bd;
-	unsigned long	flags;
-	unsigned int	baudrate;
-	unsigned long	have_console;	/* serial_init() was called */
-#ifdef CONFIG_PRE_CONSOLE_BUFFER
-	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
-#endif
-	unsigned long	reloc_off;	/* Relocation Offset */
-	unsigned long	env_addr;	/* Address of env struct */
-	unsigned long	env_valid;	/* Checksum of env valid? */
-#if defined(CONFIG_LCD)
-	void		*fb_base;	/* framebuffer address */
-#endif
-	void		**jt;		/* jump table */
-	char		env_buf[32];	/* buffer for getenv() before reloc. */
-	struct arch_global_data arch;	/* architecture-specific data */
-} gd_t;
-
-#include <asm-generic/global_data_flags.h>
+#include <asm-generic/global_data.h>
 
 #define DECLARE_GLOBAL_DATA_PTR register gd_t *gd asm("r5")
 
