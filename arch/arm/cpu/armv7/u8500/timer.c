@@ -132,7 +132,7 @@ ulong get_timer(ulong base)
 /*
  * Emulation of Power architecture long long timebase.
  *
- * TODO: Support gd->tbu for real long long timebase.
+ * TODO: Support gd->arch.tbu for real long long timebase.
  */
 unsigned long long get_ticks(void)
 {

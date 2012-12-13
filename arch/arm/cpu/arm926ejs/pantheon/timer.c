@@ -60,7 +60,7 @@ struct panthtmr_registers {
 #define	COUNT_RD_REQ		0x1
 
 DECLARE_GLOBAL_DATA_PTR;
-/* Using gd->tbu from timestamp and gd->tbl for lastdec */
+/* Using gd->arch.tbu from timestamp and gd->tbl for lastdec */
 
 /*
  * For preventing risk of instability in reading counter value,
@@ -92,14 +92,14 @@ ulong get_timer_masked(void)
 
 	if (now >= gd->tbl) {
 		/* normal mode */
-		gd->tbu += now - gd->tbl;
+		gd->arch.tbu += now - gd->tbl;
 	} else {
 		/* we have an overflow ... */
-		gd->tbu += now + TIMER_LOAD_VAL - gd->tbl;
+		gd->arch.tbu += now + TIMER_LOAD_VAL - gd->tbl;
 	}
 	gd->tbl = now;
 
-	return gd->tbu;
+	return gd->arch.tbu;
 }
 
 ulong get_timer(ulong base)
@@ -144,9 +144,9 @@ int timer_init(void)
 
 	/* Enable timer 0 */
 	writel(0x1, &panthtimers->cer);
-	/* init the gd->tbu and gd->tbl value */
+	/* init the gd->arch.tbu and gd->tbl value */
 	gd->tbl = read_timer();
-	gd->tbu = 0;
+	gd->arch.tbu = 0;
 
 	return 0;
 }

@@ -75,10 +75,10 @@ unsigned long long get_ticks(void)
 
 	/* increment tbu if tbl has rolled over */
 	if (now < gd->tbl)
-		gd->tbu++;
+		gd->arch.tbu++;
 	gd->tbl = now;
 
-	return (((unsigned long long)gd->tbu) << 32) | gd->tbl;
+	return (((unsigned long long)gd->arch.tbu) << 32) | gd->tbl;
 }
 
 ulong get_timer(ulong base)

@@ -45,17 +45,17 @@ int timer_init(void)
 	/* use PWM Timer 4 because it has no output */
 	/* prescaler for Timer 4 is 16 */
 	writel(0x0f00, &timers->tcfg0);
-	if (gd->tbu == 0) {
+	if (gd->arch.tbu == 0) {
 		/*
 		 * for 10 ms clock period @ PCLK with 4 bit divider = 1/2
 		 * (default) and prescaler = 16. Should be 10390
 		 * @33.25MHz and 15625 @ 50 MHz
 		 */
-		gd->tbu = get_PCLK() / (2 * 16 * 100);
+		gd->arch.tbu = get_PCLK() / (2 * 16 * 100);
 		gd->arch.timer_rate_hz = get_PCLK() / (2 * 16);
 	}
 	/* load value for 10 ms timeout */
-	writel(gd->tbu, &timers->tcntb4);
+	writel(gd->arch.tbu, &timers->tcntb4);
 	/* auto load, manual update of timer 4 */
 	tmr = (readl(&timers->tcon) & ~0x0700000) | 0x0600000;
 	writel(tmr, &timers->tcon);
@@ -82,7 +82,7 @@ void __udelay (unsigned long usec)
 	ulong start = get_ticks();
 
 	tmo = usec / 1000;
-	tmo *= (gd->tbu * 100);
+	tmo *= (gd->arch.tbu * 100);
 	tmo /= 1000;
 
 	while ((ulong) (get_ticks() - start) < tmo)
@@ -104,10 +104,10 @@ void udelay_masked(unsigned long usec)
 
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= (gd->tbu * 100);
+		tmo *= (gd->arch.tbu * 100);
 		tmo /= 1000;
 	} else {
-		tmo = usec * (gd->tbu * 100);
+		tmo = usec * (gd->arch.tbu * 100);
 		tmo /= (1000 * 1000);
 	}
 
@@ -133,7 +133,7 @@ unsigned long long get_ticks(void)
 		gd->tbl += gd->lastinc - now;
 	} else {
 		/* we have an overflow ... */
-		gd->tbl += gd->lastinc + gd->tbu - now;
+		gd->tbl += gd->lastinc + gd->arch.tbu - now;
 	}
 	gd->lastinc = now;
 
