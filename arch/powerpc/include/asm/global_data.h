@@ -128,6 +128,9 @@ struct arch_global_data {
 #if defined(CONFIG_WD_MAX_RATE)
 	unsigned long long wdt_last;	/* trace watch-dog triggering rate */
 #endif
+#if defined(CONFIG_LWMON) || defined(CONFIG_LWMON5)
+	unsigned long kbd_status;
+#endif
 };
 
 /*
@@ -172,9 +175,6 @@ typedef	struct	global_data {
 #ifdef CONFIG_MODEM_SUPPORT
 	unsigned long do_mdm_init;
 	unsigned long be_quiet;
-#endif
-#if defined(CONFIG_LWMON) || defined(CONFIG_LWMON5)
-	unsigned long kbd_status;
 #endif
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
