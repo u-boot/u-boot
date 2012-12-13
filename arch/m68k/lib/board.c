@@ -349,9 +349,9 @@ board_init_f (ulong bootflag)
 	bd->bi_pcifreq = gd->pci_clk;		/* PCI Freq in Hz */
 #endif
 #ifdef CONFIG_EXTRA_CLOCK
-	bd->bi_inpfreq = gd->inp_clk;		/* input Freq in Hz */
-	bd->bi_vcofreq = gd->vco_clk;		/* vco Freq in Hz */
-	bd->bi_flbfreq = gd->flb_clk;		/* flexbus Freq in Hz */
+	bd->bi_inpfreq = gd->arch.inp_clk;		/* input Freq in Hz */
+	bd->bi_vcofreq = gd->arch.vco_clk;		/* vco Freq in Hz */
+	bd->bi_flbfreq = gd->arch.flb_clk;		/* flexbus Freq in Hz */
 #endif
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 

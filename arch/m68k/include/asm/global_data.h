@@ -30,6 +30,11 @@ struct arch_global_data {
 	unsigned long	i2c1_clk;
 	unsigned long	i2c2_clk;
 #endif
+#ifdef CONFIG_EXTRA_CLOCK
+	unsigned long inp_clk;
+	unsigned long vco_clk;
+	unsigned long flb_clk;
+#endif
 };
 
 /*
@@ -48,11 +53,6 @@ typedef	struct	global_data {
 	unsigned long	bus_clk;
 #ifdef CONFIG_PCI
 	unsigned long	pci_clk;
-#endif
-#ifdef CONFIG_EXTRA_CLOCK
-	unsigned long	inp_clk;
-	unsigned long	vco_clk;
-	unsigned long	flb_clk;
 #endif
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
