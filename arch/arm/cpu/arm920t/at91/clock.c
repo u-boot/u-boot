@@ -29,11 +29,11 @@ static unsigned long at91_css_to_rate(unsigned long css)
 	case AT91_PMC_MCKR_CSS_SLOW:
 		return CONFIG_SYS_AT91_SLOW_CLOCK;
 	case AT91_PMC_MCKR_CSS_MAIN:
-		return gd->main_clk_rate_hz;
+		return gd->arch.main_clk_rate_hz;
 	case AT91_PMC_MCKR_CSS_PLLA:
-		return gd->plla_rate_hz;
+		return gd->arch.plla_rate_hz;
 	case AT91_PMC_MCKR_CSS_PLLB:
-		return gd->pllb_rate_hz;
+		return gd->arch.pllb_rate_hz;
 	}
 
 	return 0;
@@ -124,10 +124,10 @@ int at91_clock_init(unsigned long main_clock)
 		main_clock = tmp * (CONFIG_SYS_AT91_SLOW_CLOCK / 16);
 	}
 #endif
-	gd->main_clk_rate_hz = main_clock;
+	gd->arch.main_clk_rate_hz = main_clock;
 
 	/* report if PLLA is more than mildly overclocked */
-	gd->plla_rate_hz = at91_pll_rate(main_clock, readl(&pmc->pllar));
+	gd->arch.plla_rate_hz = at91_pll_rate(main_clock, readl(&pmc->pllar));
 
 #ifdef CONFIG_USB_ATMEL
 	/*
@@ -136,9 +136,10 @@ int at91_clock_init(unsigned long main_clock)
 	 *
 	 * REVISIT:  assumes MCK doesn't derive from PLLB!
 	 */
-	gd->at91_pllb_usb_init = at91_pll_calc(main_clock, 48000000 * 2) |
+	gd->arch.at91_pllb_usb_init = at91_pll_calc(main_clock, 48000000 * 2) |
 			     AT91_PMC_PLLBR_USBDIV_2;
-	gd->pllb_rate_hz = at91_pll_rate(main_clock, gd->at91_pllb_usb_init);
+	gd->arch.pllb_rate_hz = at91_pll_rate(main_clock,
+					      gd->arch.at91_pllb_usb_init);
 #endif
 
 	/*
@@ -146,13 +147,14 @@ int at91_clock_init(unsigned long main_clock)
 	 * For now, assume this parentage won't change.
 	 */
 	mckr = readl(&pmc->mckr);
-	gd->mck_rate_hz = at91_css_to_rate(mckr & AT91_PMC_MCKR_CSS_MASK);
-	freq = gd->mck_rate_hz;
+	gd->arch.mck_rate_hz = at91_css_to_rate(mckr & AT91_PMC_MCKR_CSS_MASK);
+	freq = gd->arch.mck_rate_hz;
 
 	freq /= (1 << ((mckr & AT91_PMC_MCKR_PRES_MASK) >> 2));	/* prescale */
 	/* mdiv */
-	gd->mck_rate_hz = freq / (1 + ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
-	gd->cpu_clk_rate_hz = freq;
+	gd->arch.mck_rate_hz = freq /
+			(1 + ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
+	gd->arch.cpu_clk_rate_hz = freq;
 
 	return 0;
 }

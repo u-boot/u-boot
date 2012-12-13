@@ -26,6 +26,15 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+#ifdef CONFIG_AT91FAMILY
+	/* "static data" needed by at91's clock.c */
+	unsigned long	cpu_clk_rate_hz;
+	unsigned long	main_clk_rate_hz;
+	unsigned long	mck_rate_hz;
+	unsigned long	plla_rate_hz;
+	unsigned long	pllb_rate_hz;
+	unsigned long	at91_pllb_usb_init;
+#endif
 };
 
 /*
@@ -49,15 +58,6 @@ typedef	struct	global_data {
 	unsigned long	fb_base;	/* base address of frame buffer */
 #ifdef CONFIG_FSL_ESDHC
 	unsigned long	sdhc_clk;
-#endif
-#ifdef CONFIG_AT91FAMILY
-	/* "static data" needed by at91's clock.c */
-	unsigned long	cpu_clk_rate_hz;
-	unsigned long	main_clk_rate_hz;
-	unsigned long	mck_rate_hz;
-	unsigned long	plla_rate_hz;
-	unsigned long	pllb_rate_hz;
-	unsigned long	at91_pllb_usb_init;
 #endif
 #ifdef CONFIG_ARM
 	/* "static data" needed by most of timer.c on ARM platforms */

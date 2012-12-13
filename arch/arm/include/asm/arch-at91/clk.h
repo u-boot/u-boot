@@ -31,37 +31,37 @@
 static inline unsigned long get_cpu_clk_rate(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	return gd->cpu_clk_rate_hz;
+	return gd->arch.cpu_clk_rate_hz;
 }
 
 static inline unsigned long get_main_clk_rate(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	return gd->main_clk_rate_hz;
+	return gd->arch.main_clk_rate_hz;
 }
 
 static inline unsigned long get_mck_clk_rate(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	return gd->mck_rate_hz;
+	return gd->arch.mck_rate_hz;
 }
 
 static inline unsigned long get_plla_clk_rate(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	return gd->plla_rate_hz;
+	return gd->arch.plla_rate_hz;
 }
 
 static inline unsigned long get_pllb_clk_rate(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	return gd->pllb_rate_hz;
+	return gd->arch.pllb_rate_hz;
 }
 
 static inline u32 get_pllb_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	return gd->at91_pllb_usb_init;
+	return gd->arch.at91_pllb_usb_init;
 }
 
 static inline unsigned long get_macb_pclk_rate(unsigned int dev_id)
