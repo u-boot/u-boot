@@ -44,6 +44,10 @@ struct arch_global_data {
 #ifdef CONFIG_IXP425
 	unsigned long timestamp;
 #endif
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+	unsigned long tlb_addr;
+	unsigned long tlb_size;
+#endif
 };
 
 /*
@@ -74,10 +78,6 @@ typedef	struct	global_data {
 	unsigned long	irq_sp;		/* irq stack pointer */
 	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
 	unsigned long	reloc_off;
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-	unsigned long	tlb_addr;
-	unsigned long	tlb_size;
-#endif
 	const void	*fdt_blob;	/* Our device tree, NULL if none */
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */

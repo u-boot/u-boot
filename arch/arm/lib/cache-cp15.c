@@ -46,7 +46,7 @@ static void cp_delay (void)
 
 void set_section_dcache(int section, enum dcache_option option)
 {
-	u32 *page_table = (u32 *)gd->tlb_addr;
+	u32 *page_table = (u32 *)gd->arch.tlb_addr;
 	u32 value;
 
 	value = (section << MMU_SECTION_SHIFT) | (3 << 10);
@@ -65,7 +65,7 @@ void mmu_page_table_flush(unsigned long start, unsigned long stop)
 void mmu_set_region_dcache_behaviour(u32 start, int size,
 				     enum dcache_option option)
 {
-	u32 *page_table = (u32 *)gd->tlb_addr;
+	u32 *page_table = (u32 *)gd->arch.tlb_addr;
 	u32 upto, end;
 
 	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
@@ -111,7 +111,7 @@ static inline void mmu_setup(void)
 
 	/* Copy the page table address to cp15 */
 	asm volatile("mcr p15, 0, %0, c2, c0, 0"
-		     : : "r" (gd->tlb_addr) : "memory");
+		     : : "r" (gd->arch.tlb_addr) : "memory");
 	/* Set the access control to all-supervisor */
 	asm volatile("mcr p15, 0, %0, c3, c0, 0"
 		     : : "r" (~0));

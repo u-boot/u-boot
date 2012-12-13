@@ -371,7 +371,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	printf("baudrate    = %u bps\n", bd->bi_baudrate);
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-	print_num("TLB addr", gd->tlb_addr);
+	print_num("TLB addr", gd->arch.tlb_addr);
 #endif
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);

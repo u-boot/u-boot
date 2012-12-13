@@ -355,14 +355,14 @@ void board_init_f(ulong bootflag)
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	/* reserve TLB table */
-	gd->tlb_size = 4096 * 4;
-	addr -= gd->tlb_size;
+	gd->arch.tlb_size = 4096 * 4;
+	addr -= gd->arch.tlb_size;
 
 	/* round down to next 64 kB limit */
 	addr &= ~(0x10000 - 1);
 
-	gd->tlb_addr = addr;
-	debug("TLB table from %08lx to %08lx\n", addr, addr + gd->tlb_size);
+	gd->arch.tlb_addr = addr;
+	debug("TLB table from %08lx to %08lx\n", addr, addr + gd->arch.tlb_size);
 #endif
 
 	/* round down to next 4 kB limit */
