@@ -151,12 +151,6 @@ typedef	struct	global_data {
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
 #endif
-#if defined(CONFIG_A3000)	|| \
-    defined(CONFIG_HIDDEN_DRAGON)  || \
-    defined(CONFIG_MUSENKI)	||  \
-    defined(CONFIG_SANDPOINT)
-	void *		console_addr;
-#endif
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 #if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
 	unsigned long	fb_base;	/* Base address of framebuffer memory	*/
