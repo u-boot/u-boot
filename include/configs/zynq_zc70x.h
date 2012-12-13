@@ -33,6 +33,7 @@
 #define CONFIG_MMC
 #define CONFIG_ZYNQ_SPI
 #define CONFIG_ZYNQ_I2C
+#define CONFIG_ZYNQ_EEPROM
 
 #include <configs/zynq_common.h>
 
