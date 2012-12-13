@@ -259,6 +259,8 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 	/* Run it through the hoops (find a driver, etc) */
 	if (usb_new_device(usb)) {
 		/* Woops, disable the port */
+		usb_free_device();
+		dev->children[port] = NULL;
 		USB_HUB_PRINTF("hub: disabling port %d\n", port + 1);
 		usb_clear_port_feature(dev, port + 1, USB_PORT_FEAT_ENABLE);
 	}
