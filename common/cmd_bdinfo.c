@@ -377,7 +377,9 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("reloc off", gd->reloc_off);
 	print_num("irq_sp", gd->irq_sp);	/* irq stack pointer */
 	print_num("sp start ", gd->start_addr_sp);
+#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
 	print_num("FB base  ", gd->fb_base);
+#endif
 	/*
 	 * TODO: Currently only support for davinci SOC's is added.
 	 * Remove this check once all the board implement this.
@@ -463,7 +465,9 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
+#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
 	print_num("FB base  ", gd->fb_base);
+#endif
 	return 0;
 }
 
