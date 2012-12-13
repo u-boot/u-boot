@@ -31,40 +31,11 @@ struct arch_global_data {
 	struct global_data *gd_addr;		/* Location of Global Data */
 };
 
-/*
- * The following data structure is placed in some memory wich is
- * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
- * some locked parts of the data cache) to allow for a minimum set of
- * global variables during system initialization (until we have set
- * up the memory controller so that we can use RAM).
- */
-
-#include <asm/u-boot.h>
-
-typedef struct global_data gd_t;
-
-struct global_data {
-	struct arch_global_data arch;	/* architecture-specific data */
-	bd_t		*bd;
-	unsigned long	flags;
-	unsigned int	baudrate;
-	unsigned long	have_console;	/* serial_init() was called */
-#ifdef CONFIG_PRE_CONSOLE_BUFFER
-	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
 #endif
-	unsigned long	reloc_off;	/* Relocation Offset */
-	unsigned long	env_addr;	/* Address  of Environment struct */
-	unsigned long	env_valid;	/* Checksum of Environment valid? */
-	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
-	unsigned long	bus_clk;
-	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
-	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
-	phys_size_t	ram_size;	/* RAM size */
-	const void	*fdt_blob;	/* Our device tree, NULL if none */
-	void		**jt;		/* jump table */
-	char		env_buf[32];	/* buffer for getenv() before reloc. */
-};
 
+#include <asm-generic/global_data.h>
+
+#ifndef __ASSEMBLY__
 static inline gd_t *get_fs_gd_ptr(void)
 {
 	gd_t *gd_ptr;
@@ -77,8 +48,6 @@ static inline gd_t *get_fs_gd_ptr(void)
 #define gd	get_fs_gd_ptr()
 
 #endif
-
-#include <asm-generic/global_data_flags.h>
 
 /*
  * Our private Global Data Flags
