@@ -33,6 +33,7 @@
 #include <part.h>
 #include <malloc.h>
 #include <linux/compiler.h>
+#include <linux/ctype.h>
 
 /*
  * Convert a string to lowercase.
@@ -40,7 +41,7 @@
 static void downcase(char *str)
 {
 	while (*str != '\0') {
-		TOLOWER(*str);
+		*str = tolower(*str);
 		str++;
 	}
 }
