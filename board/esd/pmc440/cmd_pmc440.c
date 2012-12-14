@@ -391,7 +391,7 @@ int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	nextbase -= ((CONFIG_ENV_SIZE + 4096 - 1) & ~(4096 - 1));
 	envp = (env_t *)nextbase;
 	res = (char *)envp->data;
-	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE, 0, NULL);
+	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;

@@ -25,6 +25,7 @@
  */
 
 #include <errno.h>
+#include <env_flags.h>
 #include <fcntl.h>
 #include <linux/stringify.h>
 #include <stdio.h>
@@ -181,6 +182,32 @@ char *fw_getenv (char *name)
 }
 
 /*
+ * Search the default environment for a variable.
+ * Return the value, if found, or NULL, if not found.
+ */
+char *fw_getdefenv(char *name)
+{
+	char *env, *nxt;
+
+	for (env = default_environment; *env; env = nxt + 1) {
+		char *val;
+
+		for (nxt = env; *nxt; ++nxt) {
+			if (nxt >= &default_environment[ENV_SIZE]) {
+				fprintf(stderr, "## Error: "
+					"default environment not terminated\n");
+				return NULL;
+			}
+		}
+		val = envmatch(name, env);
+		if (!val)
+			continue;
+		return val;
+	}
+	return NULL;
+}
+
+/*
  * Print the current definition of one, or more, or all
  * environment variables
  */
@@ -281,6 +308,7 @@ int fw_env_write(char *name, char *value)
 	int len;
 	char *env, *nxt;
 	char *oldval = NULL;
+	int deleting, creating, overwriting;
 
 	/*
 	 * search if variable with this name already exists
@@ -298,27 +326,49 @@ int fw_env_write(char *name, char *value)
 			break;
 	}
 
-	/*
-	 * Delete any existing definition
-	 */
-	if (oldval) {
-#ifndef CONFIG_ENV_OVERWRITE
-		/*
-		 * Ethernet Address and serial# can be set only once
-		 */
-		if (
-		    (strcmp(name, "serial#") == 0) ||
-		    ((strcmp(name, "ethaddr") == 0)
-#if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
-		    && (strcmp(oldval, __stringify(CONFIG_ETHADDR)) != 0)
-#endif /* CONFIG_OVERWRITE_ETHADDR_ONCE && CONFIG_ETHADDR */
-		   ) ) {
-			fprintf (stderr, "Can't overwrite \"%s\"\n", name);
+	deleting = (oldval && !(value && strlen(value)));
+	creating = (!oldval && (value && strlen(value)));
+	overwriting = (oldval && (value && strlen(value)));
+
+	/* check for permission */
+	if (deleting) {
+		if (env_flags_validate_varaccess(name,
+		    ENV_FLAGS_VARACCESS_PREVENT_DELETE)) {
+			printf("Can't delete \"%s\"\n", name);
 			errno = EROFS;
 			return -1;
 		}
-#endif /* CONFIG_ENV_OVERWRITE */
+	} else if (overwriting) {
+		if (env_flags_validate_varaccess(name,
+		    ENV_FLAGS_VARACCESS_PREVENT_OVERWR)) {
+			printf("Can't overwrite \"%s\"\n", name);
+			errno = EROFS;
+			return -1;
+		} else if (env_flags_validate_varaccess(name,
+		    ENV_FLAGS_VARACCESS_PREVENT_NONDEF_OVERWR)) {
+			const char *defval = fw_getdefenv(name);
 
+			if (defval == NULL)
+				defval = "";
+			if (strcmp(oldval, defval)
+			    != 0) {
+				printf("Can't overwrite \"%s\"\n", name);
+				errno = EROFS;
+				return -1;
+			}
+		}
+	} else if (creating) {
+		if (env_flags_validate_varaccess(name,
+		    ENV_FLAGS_VARACCESS_PREVENT_CREATE)) {
+			printf("Can't create \"%s\"\n", name);
+			errno = EROFS;
+			return -1;
+		}
+	} else
+		/* Nothing to do */
+		return 0;
+
+	if (deleting || overwriting) {
 		if (*++nxt == '\0') {
 			*env = '\0';
 		} else {
@@ -394,6 +444,9 @@ int fw_setenv(int argc, char *argv[])
 	}
 
 	name = argv[1];
+
+	if (env_flags_validate_env_set_params(argc, argv) < 0)
+		return 1;
 
 	len = 0;
 	for (i = 2; i < argc; ++i) {
@@ -515,6 +568,11 @@ int fw_parse_script(char *fname)
 		fprintf(stderr, "Setting %s : %s\n",
 			name, val ? val : " removed");
 #endif
+
+		if (env_flags_validate_type(name, val) < 0) {
+			ret = -1;
+			break;
+		}
 
 		/*
 		 * If there is an error setting a variable,

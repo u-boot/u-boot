@@ -284,8 +284,7 @@ void board_init_f(ulong bootflag)
 		 *
 		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 		 */
-		s = getenv("flashchecksum");
-		if (s && (*s == 'y')) {
+		if (getenv_yesno("flashchecksum") == 1) {
 			printf("  CRC: %08lX",
 			       crc32(0, (const unsigned char *)CONFIG_SYS_FLASH_BASE,
 				     flash_size)

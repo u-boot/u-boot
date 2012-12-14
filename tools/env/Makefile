@@ -24,12 +24,15 @@
 include $(TOPDIR)/config.mk
 
 HOSTSRCS := $(SRCTREE)/lib/crc32.c  fw_env.c  fw_env_main.c
+HOSTSRCS += $(SRCTREE)/lib/ctype.c $(SRCTREE)/lib/linux_string.c
+HOSTSRCS += $(SRCTREE)/common/env_attr.c $(SRCTREE)/common/env_flags.c
 HEADERS	:= fw_env.h $(OBJTREE)/include/config.h
 
 # Compile for a hosted environment on the target
 HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
+		-idirafter $(SRCTREE)/tools/env \
 		-DUSE_HOSTCC \
 		-DTEXT_BASE=$(TEXT_BASE)
 

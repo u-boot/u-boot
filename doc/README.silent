@@ -1,9 +1,15 @@
 The config option CONFIG_SILENT_CONSOLE can be used to quiet messages
 on the console.  If the option has been enabled, the output can be
-silenced by setting the environment variable "silent".  The variable
-is latched into the global data at an early stage in the boot process
-so deleting it with "setenv" will not take effect until the system is
-restarted.
+silenced by setting the environment variable "silent".
+
+- CONFIG_SILENT_CONSOLE_UPDATE_ON_SET
+	When the "silent" variable is changed with env set, the change
+	will take effect immediately.
+
+- CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
+	Some environments are not available until relocation (e.g. NAND)
+	so this will make the value in the flash env take effect at
+	relocation.
 
 The following actions are taken if "silent" is set at boot time:
 

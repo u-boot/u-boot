@@ -815,6 +815,8 @@ The following options need to be configured:
 		CONFIG_CMD_EDITENV	  edit env variable
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
+		CONFIG_CMD_ENV_CALLBACK	* display details about env callbacks
+		CONFIG_CMD_ENV_FLAGS	* display details about env flags
 		CONFIG_CMD_EXPORTENV	* export the environment
 		CONFIG_CMD_EXT2		* ext2 command support
 		CONFIG_CMD_EXT4		* ext4 command support
@@ -824,8 +826,10 @@ The following options need to be configured:
 		CONFIG_CMD_FDOS		* Dos diskette Support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
+		CONFIG_CMD_GETTIME	* Get time since boot
 		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_GREPENV	* search environment
+		CONFIG_CMD_HASH		* calculate hash / digest
 		CONFIG_CMD_HWFLOW	* RTS/CTS hw flow control
 		CONFIG_CMD_I2C		* I2C serial bus support
 		CONFIG_CMD_IDE		* IDE harddisk support
@@ -860,6 +864,7 @@ The following options need to be configured:
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
 					  host
 		CONFIG_CMD_PORTIO	* Port I/O
+		CONFIG_CMD_READ		* Read raw data from partition
 		CONFIG_CMD_REGINFO	* Register dump
 		CONFIG_CMD_RUN		  run command in env variable
 		CONFIG_CMD_SAVES	* save S record dump
@@ -1484,6 +1489,11 @@ CBFS (Coreboot Filesystem) support
 		CONFIG_LCD_BMP_RLE8
 
 		Support drawing of RLE8-compressed bitmaps on the LCD.
+
+		CONFIG_I2C_EDID
+
+		Enables an 'i2c edid' command which can read EDID
+		information over I2C from an attached LCD display.
 
 
 - Splash Screen Support: CONFIG_SPLASH_SCREEN
@@ -2179,6 +2189,11 @@ CBFS (Coreboot Filesystem) support
 		serial# is unaffected by this, i. e. it remains
 		read-only.]
 
+		The same can be accomplished in a more flexible way
+		for any variable by configuring the type of access
+		to allow for those variables in the ".flags" variable
+		or define CONFIG_ENV_FLAGS_LIST_STATIC.
+
 - Protected RAM:
 		CONFIG_PRAM
 
@@ -2408,6 +2423,23 @@ CBFS (Coreboot Filesystem) support
 		the remainder of the TFTP transfer to proceed normally.
 		A better solution is to properly configure the firewall,
 		but sometimes that is not allowed.
+
+- Hashing support:
+		CONFIG_CMD_HASH
+
+		This enables a generic 'hash' command which can produce
+		hashes / digests from a few algorithms (e.g. SHA1, SHA256).
+
+		CONFIG_HASH_VERIFY
+
+		Enable the hash verify command (hash -v). This adds to code
+		size a little.
+
+		CONFIG_SHA1 - support SHA1 hashing
+		CONFIG_SHA256 - support SHA256 hashing
+
+		Note: There is also a sha1sum command, which should perhaps
+		be deprecated in favour of 'hash sha1'.
 
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
@@ -3086,6 +3118,49 @@ Configuration Settings:
 	setting is supposed to be generous and should work in most
 	cases. This setting can be used to tune behaviour; see
 	lib/hashtable.c for details.
+
+- CONFIG_ENV_FLAGS_LIST_DEFAULT
+- CONFIG_ENV_FLAGS_LIST_STATIC
+	Enable validation of the values given to enviroment variables when
+	calling env set.  Variables can be restricted to only decimal,
+	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
+	the variables can also be restricted to IP address or MAC address.
+
+	The format of the list is:
+		type_attribute = [s|d|x|b|i|m]
+		access_atribute = [a|r|o|c]
+		attributes = type_attribute[access_atribute]
+		entry = variable_name[:attributes]
+		list = entry[,list]
+
+	The type attributes are:
+		s - String (default)
+		d - Decimal
+		x - Hexadecimal
+		b - Boolean ([1yYtT|0nNfF])
+		i - IP address
+		m - MAC address
+
+	The access attributes are:
+		a - Any (default)
+		r - Read-only
+		o - Write-once
+		c - Change-default
+
+	- CONFIG_ENV_FLAGS_LIST_DEFAULT
+		Define this to a list (string) to define the ".flags"
+		envirnoment variable in the default or embedded environment.
+
+	- CONFIG_ENV_FLAGS_LIST_STATIC
+		Define this to a list (string) to define validation that
+		should be done if an entry is not found in the ".flags"
+		environment variable.  To override a setting in the static
+		list, simply add an entry for the same variable name to the
+		".flags" variable.
+
+- CONFIG_ENV_ACCESS_IGNORE_FORCE
+	If defined, don't allow the -f switch to env set override variable
+	access flags.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
@@ -4186,6 +4261,36 @@ Further special Environment Variables:
 
 Please note that changes to some configuration parameters may take
 only effect after the next boot (yes, that's just like Windoze :-).
+
+
+Callback functions for environment variables:
+---------------------------------------------
+
+For some environment variables, the behavior of u-boot needs to change
+when their values are changed.  This functionailty allows functions to
+be associated with arbitrary variables.  On creation, overwrite, or
+deletion, the callback will provide the opportunity for some side
+effect to happen or for the change to be rejected.
+
+The callbacks are named and associated with a function using the
+U_BOOT_ENV_CALLBACK macro in your board or driver code.
+
+These callbacks are associated with variables in one of two ways.  The
+static list can be added to by defining CONFIG_ENV_CALLBACK_LIST_STATIC
+in the board configuration to a string that defines a list of
+associations.  The list must be in the following format:
+
+	entry = variable_name[:callback_name]
+	list = entry[,list]
+
+If the callback name is not specified, then the callback is deleted.
+Spaces are also allowed anywhere in the list.
+
+Callbacks can also be associated by defining the ".callbacks" variable
+with the same list format above.  Any association in ".callbacks" will
+override any association in the static list. You can define
+CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
+".callbacks" envirnoment variable in the default or embedded environment.
 
 
 Command Line Parsing:

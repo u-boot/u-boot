@@ -103,7 +103,7 @@ long simple_strtol(const char *cp, char **endp, unsigned int base)
 	return simple_strtoul(cp, endp, base);
 }
 
-int ustrtoul(const char *cp, char **endp, unsigned int base)
+unsigned long ustrtoul(const char *cp, char **endp, unsigned int base)
 {
 	unsigned long result = simple_strtoul(cp, endp, base);
 	switch (**endp) {

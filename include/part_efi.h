@@ -29,6 +29,8 @@
  * http://developer.intel.com/technology/efi/efi.htm
 */
 
+#include <linux/compiler.h>
+
 #ifndef _DISK_PART_EFI_H
 #define _DISK_PART_EFI_H
 
@@ -41,6 +43,8 @@
 #define GPT_HEADER_REVISION_V1 0x00010000
 #define GPT_PRIMARY_PARTITION_TABLE_LBA 1ULL
 #define GPT_ENTRY_NAME "gpt"
+#define GPT_ENTRY_NUMBERS		128
+#define GPT_ENTRY_SIZE			128
 
 #define EFI_GUID(a,b,c,d0,d1,d2,d3,d4,d5,d6,d7) \
 	((efi_guid_t) \
@@ -72,73 +76,72 @@
 		0xa2, 0x3c, 0x23, 0x8f, 0x2a, 0x3d, 0xf9, 0x28)
 
 /* linux/include/efi.h */
-typedef unsigned short efi_char16_t;
+typedef u16 efi_char16_t;
 
 typedef struct {
-	unsigned char b[16];
+	u8 b[16];
 } efi_guid_t;
 
 /* based on linux/include/genhd.h */
 struct partition {
-	unsigned char boot_ind;		/* 0x80 - active */
-	unsigned char head;		/* starting head */
-	unsigned char sector;		/* starting sector */
-	unsigned char cyl;		/* starting cylinder */
-	unsigned char sys_ind;		/* What partition type */
-	unsigned char end_head;		/* end head */
-	unsigned char end_sector;	/* end sector */
-	unsigned char end_cyl;		/* end cylinder */
-	unsigned char start_sect[4];	/* starting sector counting from 0 */
-	unsigned char nr_sects[4];	/* nr of sectors in partition */
-} __attribute__ ((packed));
+	u8 boot_ind;		/* 0x80 - active */
+	u8 head;		/* starting head */
+	u8 sector;		/* starting sector */
+	u8 cyl;			/* starting cylinder */
+	u8 sys_ind;		/* What partition type */
+	u8 end_head;		/* end head */
+	u8 end_sector;		/* end sector */
+	u8 end_cyl;		/* end cylinder */
+	__le32 start_sect;	/* starting sector counting from 0 */
+	__le32 nr_sects;	/* nr of sectors in partition */
+} __packed;
 
 /* based on linux/fs/partitions/efi.h */
 typedef struct _gpt_header {
-	unsigned char signature[8];
-	unsigned char revision[4];
-	unsigned char header_size[4];
-	unsigned char header_crc32[4];
-	unsigned char reserved1[4];
-	unsigned char my_lba[8];
-	unsigned char alternate_lba[8];
-	unsigned char first_usable_lba[8];
-	unsigned char last_usable_lba[8];
+	__le64 signature;
+	__le32 revision;
+	__le32 header_size;
+	__le32 header_crc32;
+	__le32 reserved1;
+	__le64 my_lba;
+	__le64 alternate_lba;
+	__le64 first_usable_lba;
+	__le64 last_usable_lba;
 	efi_guid_t disk_guid;
-	unsigned char partition_entry_lba[8];
-	unsigned char num_partition_entries[4];
-	unsigned char sizeof_partition_entry[4];
-	unsigned char partition_entry_array_crc32[4];
-	unsigned char reserved2[GPT_BLOCK_SIZE - 92];
-} __attribute__ ((packed)) gpt_header;
+	__le64 partition_entry_lba;
+	__le32 num_partition_entries;
+	__le32 sizeof_partition_entry;
+	__le32 partition_entry_array_crc32;
+	u8 reserved2[GPT_BLOCK_SIZE - 92];
+} __packed gpt_header;
 
 typedef union _gpt_entry_attributes {
 	struct {
-		unsigned long long required_to_function:1;
-		unsigned long long no_block_io_protocol:1;
-		unsigned long long legacy_bios_bootable:1;
-		unsigned long long reserved:45;
-		unsigned long long type_guid_specific:16;
+		u64 required_to_function:1;
+		u64 no_block_io_protocol:1;
+		u64 legacy_bios_bootable:1;
+		u64 reserved:45;
+		u64 type_guid_specific:16;
 	} fields;
 	unsigned long long raw;
-} __attribute__ ((packed)) gpt_entry_attributes;
+} __packed gpt_entry_attributes;
 
 #define PARTNAME_SZ	(72 / sizeof(efi_char16_t))
 typedef struct _gpt_entry {
 	efi_guid_t partition_type_guid;
 	efi_guid_t unique_partition_guid;
-	unsigned char starting_lba[8];
-	unsigned char ending_lba[8];
+	__le64 starting_lba;
+	__le64 ending_lba;
 	gpt_entry_attributes attributes;
 	efi_char16_t partition_name[PARTNAME_SZ];
-}
-__attribute__ ((packed)) gpt_entry;
+} __packed gpt_entry;
 
 typedef struct _legacy_mbr {
-	unsigned char boot_code[440];
-	unsigned char unique_mbr_signature[4];
-	unsigned char unknown[2];
+	u8 boot_code[440];
+	__le32 unique_mbr_signature;
+	__le16 unknown;
 	struct partition partition_record[4];
-	unsigned char signature[2];
-} __attribute__ ((packed)) legacy_mbr;
+	__le16 signature;
+} __packed legacy_mbr;
 
 #endif	/* _DISK_PART_EFI_H */

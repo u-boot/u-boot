@@ -43,6 +43,7 @@
 #include <rtc.h>
 #endif
 
+#include <environment.h>
 #include <image.h>
 
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
@@ -416,11 +417,25 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 /* Shared dual-format routines */
 /*****************************************************************************/
 #ifndef USE_HOSTCC
-int getenv_yesno(char *var)
+ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
+ulong save_addr;			/* Default Save Address */
+ulong save_size;			/* Default Save Size (in bytes) */
+
+static int on_loadaddr(const char *name, const char *value, enum env_op op,
+	int flags)
 {
-	char *s = getenv(var);
-	return (s && (*s == 'n')) ? 0 : 1;
+	switch (op) {
+	case env_op_create:
+	case env_op_overwrite:
+		load_addr = simple_strtoul(value, NULL, 16);
+		break;
+	default:
+		break;
+	}
+
+	return 0;
 }
+U_BOOT_ENV_CALLBACK(loadaddr, on_loadaddr);
 
 ulong getenv_bootm_low(void)
 {

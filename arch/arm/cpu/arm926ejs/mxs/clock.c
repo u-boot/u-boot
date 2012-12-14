@@ -333,6 +333,8 @@ uint32_t mxc_get_clock(enum mxc_clock clk)
 		return mx28_get_sspclk(MXC_SSPCLK2);
 	case MXC_SSP3_CLK:
 		return mx28_get_sspclk(MXC_SSPCLK3);
+	case MXC_XTAL_CLK:
+		return XTAL_FREQ_KHZ * 1000;
 	}
 
 	return 0;
