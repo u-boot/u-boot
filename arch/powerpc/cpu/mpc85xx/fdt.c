@@ -100,6 +100,22 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 			printf("Failed to reserve memory for bootpg: %s\n",
 				fdt_strerror(off));
 	}
+
+#ifndef CONFIG_MPC8xxx_DISABLE_BPTR
+	/*
+	 * Reserve the default boot page so OSes dont use it.
+	 * The default boot page is always mapped to bootpg above using
+	 * boot page translation.
+	 */
+	if (0xfffff000ull < memory_limit) {
+		off = fdt_add_mem_rsv(blob, 0xfffff000ull, (u64)4096);
+		if (off < 0) {
+			printf("Failed to reserve memory for 0xfffff000: %s\n",
+				fdt_strerror(off));
+		}
+	}
+#endif
+
 	/* Reserve spin table page */
 	if (spin_tbl_addr < memory_limit) {
 		off = fdt_add_mem_rsv(blob,
