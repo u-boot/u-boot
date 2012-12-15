@@ -42,7 +42,7 @@ class CommandResult:
 
 def RunPipe(pipe_list, infile=None, outfile=None,
             capture=False, capture_stderr=False, oneline=False,
-            cwd=None, **kwargs):
+            raise_on_error=True, cwd=None, **kwargs):
     """
     Perform a command pipeline, with optional input/output filenames.
 
@@ -63,6 +63,7 @@ def RunPipe(pipe_list, infile=None, outfile=None,
     result = CommandResult()
     last_pipe = None
     pipeline = list(pipe_list)
+    user_pipestr =  '|'.join([' '.join(pipe) for pipe in pipe_list])
     while pipeline:
         cmd = pipeline.pop(0)
         if last_pipe is not None:
@@ -80,8 +81,10 @@ def RunPipe(pipe_list, infile=None, outfile=None,
             last_pipe = cros_subprocess.Popen(cmd, cwd=cwd, **kwargs)
         except Exception, err:
             result.exception = err
-            print 'exception', pipe_list, err
-            raise Exception("Error running '%s': %s" % (pipe_list, str))
+            if raise_on_error:
+                raise Exception("Error running '%s': %s" % (user_pipestr, str))
+            result.return_code = 255
+            return result
 
     if capture:
         result.stdout, result.stderr, result.combined = (
@@ -91,15 +94,17 @@ def RunPipe(pipe_list, infile=None, outfile=None,
         result.return_code = last_pipe.wait()
     else:
         result.return_code = os.waitpid(last_pipe.pid, 0)[1]
-    if result.return_code:
-        raise Exception("Error running '%s'" % pipe_list)
+    if raise_on_error and result.return_code:
+        raise Exception("Error running '%s'" % user_pipestr)
     return result
 
 def Output(*cmd):
-    return RunPipe([cmd], capture=True).stdout
+    return RunPipe([cmd], capture=True, raise_on_error=False).stdout
 
 def OutputOneLine(*cmd, **kwargs):
+    raise_on_error = kwargs.pop('raise_on_error', True)
     return (RunPipe([cmd], capture=True, oneline=True,
+            raise_on_error=raise_on_error,
             **kwargs).stdout.strip())
 
 def Run(*cmd, **kwargs):

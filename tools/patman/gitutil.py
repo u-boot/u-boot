@@ -359,7 +359,8 @@ def GetAliasFile():
     Returns:
         Filename of git alias file, or None if none
     """
-    fname = command.OutputOneLine('git', 'config', 'sendemail.aliasesfile')
+    fname = command.OutputOneLine('git', 'config', 'sendemail.aliasesfile',
+            raise_on_error=False)
     if fname:
         fname = os.path.join(GetTopLevel(), fname.strip())
     return fname
