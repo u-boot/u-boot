@@ -34,7 +34,8 @@ class Color(object):
   """Conditionally wraps text in ANSI color escape sequences."""
   BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
   BOLD = -1
-  COLOR_START = '\033[1;%dm'
+  BRIGHT_START = '\033[1;%dm'
+  NORMAL_START = '\033[22;%dm'
   BOLD_START = '\033[1m'
   RESET = '\033[0m'
 
@@ -48,7 +49,7 @@ class Color(object):
     self._enabled = (colored == COLOR_ALWAYS or
         (colored == COLOR_IF_TERMINAL and os.isatty(sys.stdout.fileno())))
 
-  def Start(self, color):
+  def Start(self, color, bright=True):
     """Returns a start color code.
 
     Args:
@@ -59,7 +60,8 @@ class Color(object):
       otherwise returns empty string
     """
     if self._enabled:
-      return self.COLOR_START % (color + 30)
+        base = self.BRIGHT_START if bright else self.NORMAL_START
+        return base % (color + 30)
     return ''
 
   def Stop(self):
@@ -70,10 +72,10 @@ class Color(object):
       returns empty string
     """
     if self._enabled:
-      return self.RESET
+        return self.RESET
     return ''
 
-  def Color(self, color, text):
+  def Color(self, color, text, bright=True):
     """Returns text with conditionally added color escape sequences.
 
     Keyword arguments:
@@ -85,9 +87,10 @@ class Color(object):
       returns text with color escape sequences based on the value of color.
     """
     if not self._enabled:
-      return text
+        return text
     if color == self.BOLD:
-      start = self.BOLD_START
+        start = self.BOLD_START
     else:
-      start = self.COLOR_START % (color + 30)
+        base = self.BRIGHT_START if bright else self.NORMAL_START
+        start = base % (color + 30)
     return start + text + self.RESET
