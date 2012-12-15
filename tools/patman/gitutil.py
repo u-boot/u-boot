@@ -23,10 +23,11 @@ import command
 import re
 import os
 import series
-import settings
 import subprocess
 import sys
 import terminal
+
+import settings
 
 
 def CountCommitsToBranch():
@@ -43,6 +44,119 @@ def CountCommitsToBranch():
     stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
     return patch_count
+
+def GetUpstream(git_dir, branch):
+    """Returns the name of the upstream for a branch
+
+    Args:
+        git_dir: Git directory containing repo
+        branch: Name of branch
+
+    Returns:
+        Name of upstream branch (e.g. 'upstream/master') or None if none
+    """
+    remote = command.OutputOneLine('git', '--git-dir', git_dir, 'config',
+            'branch.%s.remote' % branch)
+    merge = command.OutputOneLine('git', '--git-dir', git_dir, 'config',
+            'branch.%s.merge' % branch)
+    if remote == '.':
+        return merge
+    elif remote and merge:
+        leaf = merge.split('/')[-1]
+        return '%s/%s' % (remote, leaf)
+    else:
+        raise ValueError, ("Cannot determine upstream branch for branch "
+                "'%s' remote='%s', merge='%s'" % (branch, remote, merge))
+
+
+def GetRangeInBranch(git_dir, branch, include_upstream=False):
+    """Returns an expression for the commits in the given branch.
+
+    Args:
+        git_dir: Directory containing git repo
+        branch: Name of branch
+    Return:
+        Expression in the form 'upstream..branch' which can be used to
+        access the commits.
+    """
+    upstream = GetUpstream(git_dir, branch)
+    return '%s%s..%s' % (upstream, '~' if include_upstream else '', branch)
+
+def CountCommitsInBranch(git_dir, branch, include_upstream=False):
+    """Returns the number of commits in the given branch.
+
+    Args:
+        git_dir: Directory containing git repo
+        branch: Name of branch
+    Return:
+        Number of patches that exist on top of the branch
+    """
+    range_expr = GetRangeInBranch(git_dir, branch, include_upstream)
+    pipe = [['git', '--git-dir', git_dir, 'log', '--oneline', range_expr],
+            ['wc', '-l']]
+    result = command.RunPipe(pipe, capture=True, oneline=True)
+    patch_count = int(result.stdout)
+    return patch_count
+
+def CountCommits(commit_range):
+    """Returns the number of commits in the given range.
+
+    Args:
+        commit_range: Range of commits to count (e.g. 'HEAD..base')
+    Return:
+        Number of patches that exist on top of the branch
+    """
+    pipe = [['git', 'log', '--oneline', commit_range],
+            ['wc', '-l']]
+    stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
+    patch_count = int(stdout)
+    return patch_count
+
+def Checkout(commit_hash, git_dir=None, work_tree=None, force=False):
+    """Checkout the selected commit for this build
+
+    Args:
+        commit_hash: Commit hash to check out
+    """
+    pipe = ['git']
+    if git_dir:
+        pipe.extend(['--git-dir', git_dir])
+    if work_tree:
+        pipe.extend(['--work-tree', work_tree])
+    pipe.append('checkout')
+    if force:
+        pipe.append('-f')
+    pipe.append(commit_hash)
+    result = command.RunPipe([pipe], capture=True, raise_on_error=False)
+    if result.return_code != 0:
+        raise OSError, 'git checkout (%s): %s' % (pipe, result.stderr)
+
+def Clone(git_dir, output_dir):
+    """Checkout the selected commit for this build
+
+    Args:
+        commit_hash: Commit hash to check out
+    """
+    pipe = ['git', 'clone', git_dir, '.']
+    result = command.RunPipe([pipe], capture=True, cwd=output_dir)
+    if result.return_code != 0:
+        raise OSError, 'git clone: %s' % result.stderr
+
+def Fetch(git_dir=None, work_tree=None):
+    """Fetch from the origin repo
+
+    Args:
+        commit_hash: Commit hash to check out
+    """
+    pipe = ['git']
+    if git_dir:
+        pipe.extend(['--git-dir', git_dir])
+    if work_tree:
+        pipe.extend(['--work-tree', work_tree])
+    pipe.append('fetch')
+    result = command.RunPipe([pipe], capture=True)
+    if result.return_code != 0:
+        raise OSError, 'git fetch: %s' % result.stderr
 
 def CreatePatches(start, count, series):
     """Create a series of patches from the top of the current branch.
@@ -389,6 +503,14 @@ def Setup():
     alias_fname = GetAliasFile()
     if alias_fname:
         settings.ReadGitAliases(alias_fname)
+
+def GetHead():
+    """Get the hash of the current HEAD
+
+    Returns:
+        Hash of HEAD
+    """
+    return command.OutputOneLine('git', 'show', '-s', '--pretty=format:%H')
 
 if __name__ == "__main__":
     import doctest
