@@ -40,7 +40,7 @@ def CountCommitsToBranch():
     """
     pipe = [['git', 'log', '--no-color', '--oneline', '@{upstream}..'],
             ['wc', '-l']]
-    stdout = command.RunPipe(pipe, capture=True, oneline=True)
+    stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
     return patch_count
 

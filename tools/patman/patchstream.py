@@ -346,7 +346,7 @@ def GetMetaData(start, count):
     """
     pipe = [['git', 'log', '--no-color', '--reverse', 'HEAD~%d' % start,
 	'-n%d' % count]]
-    stdout = command.RunPipe(pipe, capture=True)
+    stdout = command.RunPipe(pipe, capture=True).stdout
     series = Series()
     ps = PatchStream(series, is_log=True)
     for line in stdout.splitlines():
