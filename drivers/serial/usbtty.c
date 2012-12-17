@@ -63,7 +63,7 @@
 /*
  * Buffers to hold input and output data
  */
-#define USBTTY_BUFFER_SIZE 256
+#define USBTTY_BUFFER_SIZE 2048
 static circbuf_t usbtty_input;
 static circbuf_t usbtty_output;
 
