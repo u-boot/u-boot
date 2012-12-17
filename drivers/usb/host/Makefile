@@ -54,6 +54,7 @@ COBJS-$(CONFIG_USB_EHCI_PPC4XX) += ehci-ppc4xx.o
 COBJS-$(CONFIG_USB_EHCI_IXP4XX) += ehci-ixp.o
 COBJS-$(CONFIG_USB_EHCI_MARVELL) += ehci-marvell.o
 COBJS-$(CONFIG_USB_EHCI_PCI) += ehci-pci.o
+COBJS-$(CONFIG_USB_EHCI_SPEAR) += ehci-spear.o
 COBJS-$(CONFIG_USB_EHCI_TEGRA) += ehci-tegra.o
 COBJS-$(CONFIG_USB_EHCI_VCT) += ehci-vct.o
 
