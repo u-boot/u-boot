@@ -1688,6 +1688,16 @@ e1000_init_hw(struct eth_device *nic)
 		E1000_WRITE_REG(hw, TXDCTL, ctrl);
 	}
 
+	/* Set the receive descriptor write back policy */
+
+	if (hw->mac_type >= e1000_82571) {
+		ctrl = E1000_READ_REG(hw, RXDCTL);
+		ctrl =
+		    (ctrl & ~E1000_RXDCTL_WTHRESH) |
+		    E1000_RXDCTL_FULL_RX_DESC_WB;
+		E1000_WRITE_REG(hw, RXDCTL, ctrl);
+	}
+
 	switch (hw->mac_type) {
 	default:
 		break;

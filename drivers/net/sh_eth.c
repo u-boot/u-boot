@@ -417,7 +417,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 		printf(SHETHER_NAME ": 100Base/");
 #if defined(SH_ETH_TYPE_GETHER)
 		sh_eth_write(eth, GECMR_100B, GECMR);
-#elif defined(CONFIG_CPU_SH7757)
+#elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
 		sh_eth_write(eth, 1, RTRATE);
 #elif defined(CONFIG_CPU_SH7724)
 		val = ECMR_RTM;
@@ -426,7 +426,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 		printf(SHETHER_NAME ": 10Base/");
 #if defined(SH_ETH_TYPE_GETHER)
 		sh_eth_write(eth, GECMR_10B, GECMR);
-#elif defined(CONFIG_CPU_SH7757)
+#elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
 		sh_eth_write(eth, 0, RTRATE);
 #endif
 	}

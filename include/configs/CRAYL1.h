@@ -153,7 +153,6 @@
 
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* where to load what we get from TFTP */
-#define CONFIG_SYS_TFTP_LOADADDR	CONFIG_SYS_LOAD_ADDR
 #define CONFIG_SYS_EXTBDINFO		1		/* To use extended board_into (bd_t) */
 #define CONFIG_SYS_DRAM_TEST		1
 

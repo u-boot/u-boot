@@ -2975,9 +2975,6 @@ Configuration Settings:
 		non page size aligned address and this could cause major
 		problems.
 
-- CONFIG_SYS_TFTP_LOADADDR:
-		Default load address for network file downloads
-
 - CONFIG_SYS_LOADS_BAUD_CHANGE:
 		Enable temporary baudrate change while serial download
 
