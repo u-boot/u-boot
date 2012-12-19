@@ -207,6 +207,7 @@
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_MAX_I2C_NUM	8
 #define CONFIG_SYS_I2C_SLAVE    0x0
+#define CONFIG_I2C_EDID
 
 /* PMIC */
 #define CONFIG_PMIC
@@ -258,5 +259,11 @@
 
 /* Enable devicetree support */
 #define CONFIG_OF_LIBFDT
+
+/* SHA hashing */
+#define CONFIG_CMD_HASH
+#define CONFIG_HASH_VERIFY
+#define CONFIG_SHA1
+#define CONFIG_SHA256
 
 #endif	/* __CONFIG_H */

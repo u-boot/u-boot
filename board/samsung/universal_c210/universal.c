@@ -38,6 +38,10 @@
 #include <asm/arch/watchdog.h>
 #include <libtizen.h>
 #include <ld9040.h>
+#include <power/pmic.h>
+#include <usb/s3c_udc.h>
+#include <asm/arch/cpu.h>
+#include <power/max8998_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,6 +60,31 @@ static int get_hwrev(void)
 }
 
 static void check_hw_revision(void);
+
+int board_init(void)
+{
+	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
+	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
+
+	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
+	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+	check_hw_revision();
+	printf("HW Revision:\t0x%x\n", board_rev);
+
+	return 0;
+}
+
+int power_init_board(void)
+{
+	int ret;
+
+	ret = pmic_init(I2C_5);
+	if (ret)
+		return ret;
+
+	return 0;
+}
 
 int dram_init(void)
 {
@@ -101,7 +130,9 @@ static unsigned short get_adc_value(int channel)
 static int adc_power_control(int on)
 {
 	int ret;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;
@@ -224,7 +255,9 @@ int board_mmc_init(bd_t *bis)
 static int s5pc210_phy_control(int on)
 {
 	int ret = 0;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;

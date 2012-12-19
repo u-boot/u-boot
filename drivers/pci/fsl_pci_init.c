@@ -470,6 +470,28 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 		}
 #endif
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_PCIE_A003
+		if (enabled == 0) {
+			serdes_corenet_t *srds_regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+			temp32 = in_be32(&srds_regs->srdspccr0);
+
+			if ((temp32 >> 28) == 3) {
+				int i;
+
+				out_be32(&srds_regs->srdspccr0, 2 << 28);
+				setbits_be32(&pci->pdb_stat, 0x08000000);
+				in_be32(&pci->pdb_stat);
+				udelay(100);
+				clrbits_be32(&pci->pdb_stat, 0x08000000);
+				asm("sync;isync");
+				for (i=0; i < 100 && ltssm < PCI_LTSSM_L0; i++) {
+					pci_hose_read_config_word(hose, dev, PCI_LTSSM, &ltssm);
+					udelay(1000);
+				}
+				enabled = ltssm >= PCI_LTSSM_L0;
+			}
+		}
+#endif
 		if (!enabled) {
 			/* Let the user know there's no PCIe link */
 			printf("no link, regs @ 0x%lx\n", pci_info->regs);

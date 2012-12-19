@@ -135,7 +135,6 @@ struct stdio_dev* stdio_clone(struct stdio_dev *dev)
 		return NULL;
 
 	memcpy(_dev, dev, sizeof(struct stdio_dev));
-	strncpy(_dev->name, dev->name, 16);
 
 	return _dev;
 }
@@ -237,6 +236,8 @@ int stdio_init (void)
 #ifdef CONFIG_JTAG_CONSOLE
 	drv_jtag_console_init ();
 #endif
-
+#ifdef CONFIG_CBMEM_CONSOLE
+	cbmemc_init();
+#endif
 	return (0);
 }

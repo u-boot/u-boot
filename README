@@ -54,6 +54,11 @@ In case of problems see the CHANGELOG and CREDITS files to find out
 who contributed the specific port. The MAINTAINERS file lists board
 maintainers.
 
+Note: There is no CHANGELOG file in the actual U-Boot source tree;
+it can be created dynamically from the Git log using:
+
+	make CHANGELOG
+
 
 Where to get help:
 ==================
@@ -810,6 +815,8 @@ The following options need to be configured:
 		CONFIG_CMD_EDITENV	  edit env variable
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
+		CONFIG_CMD_ENV_CALLBACK	* display details about env callbacks
+		CONFIG_CMD_ENV_FLAGS	* display details about env flags
 		CONFIG_CMD_EXPORTENV	* export the environment
 		CONFIG_CMD_EXT2		* ext2 command support
 		CONFIG_CMD_EXT4		* ext4 command support
@@ -819,8 +826,10 @@ The following options need to be configured:
 		CONFIG_CMD_FDOS		* Dos diskette Support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
+		CONFIG_CMD_GETTIME	* Get time since boot
 		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_GREPENV	* search environment
+		CONFIG_CMD_HASH		* calculate hash / digest
 		CONFIG_CMD_HWFLOW	* RTS/CTS hw flow control
 		CONFIG_CMD_I2C		* I2C serial bus support
 		CONFIG_CMD_IDE		* IDE harddisk support
@@ -855,6 +864,7 @@ The following options need to be configured:
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
 					  host
 		CONFIG_CMD_PORTIO	* Port I/O
+		CONFIG_CMD_READ		* Read raw data from partition
 		CONFIG_CMD_REGINFO	* Register dump
 		CONFIG_CMD_RUN		  run command in env variable
 		CONFIG_CMD_SAVES	* save S record dump
@@ -1409,6 +1419,13 @@ CBFS (Coreboot Filesystem) support
 		boot.  See the documentation file README.video for a
 		description of this variable.
 
+		CONFIG_VIDEO_VGA
+
+		Enable the VGA video / BIOS for x86. The alternative if you
+		are using coreboot is to use the coreboot frame buffer
+		driver.
+
+
 - Keyboard Support:
 		CONFIG_KEYBOARD
 
@@ -1469,7 +1486,6 @@ CBFS (Coreboot Filesystem) support
 		Normally display is black on white background; define
 		CONFIG_SYS_WHITE_ON_BLACK to get it inverted.
 
-
 		CONFIG_LCD_ALIGNMENT
 
 		Normally the LCD is page-aligned (tyically 4KB). If this is
@@ -1484,6 +1500,15 @@ CBFS (Coreboot Filesystem) support
 		lines to scroll by. It defaults to 1. Increasing this makes
 		the console jump but can help speed up operation when scrolling
 		is slow.
+
+		CONFIG_LCD_BMP_RLE8
+
+		Support drawing of RLE8-compressed bitmaps on the LCD.
+
+		CONFIG_I2C_EDID
+
+		Enables an 'i2c edid' command which can read EDID
+		information over I2C from an attached LCD display.
 
 - Splash Screen Support: CONFIG_SPLASH_SCREEN
 
@@ -2178,6 +2203,11 @@ CBFS (Coreboot Filesystem) support
 		serial# is unaffected by this, i. e. it remains
 		read-only.]
 
+		The same can be accomplished in a more flexible way
+		for any variable by configuring the type of access
+		to allow for those variables in the ".flags" variable
+		or define CONFIG_ENV_FLAGS_LIST_STATIC.
+
 - Protected RAM:
 		CONFIG_PRAM
 
@@ -2210,6 +2240,14 @@ CBFS (Coreboot Filesystem) support
 			IVMS8, IVML24, SPD8xx, TQM8xxL,
 			HERMES, IP860, RPXlite, LWMON,
 			FLAGADM, TQM8260
+
+- Access to physical memory region (> 4GB)
+		Some basic support is provided for operations on memory not
+		normally accessible to U-Boot - e.g. some architectures
+		support access to more than 4GB of memory on 32-bit
+		machines using physical address extension or similar.
+		Define CONFIG_PHYSMEM to access this basic support, which
+		currently only supports clearing the memory.
 
 - Error Recovery:
 		CONFIG_PANIC_HANG
@@ -2399,6 +2437,23 @@ CBFS (Coreboot Filesystem) support
 		the remainder of the TFTP transfer to proceed normally.
 		A better solution is to properly configure the firewall,
 		but sometimes that is not allowed.
+
+- Hashing support:
+		CONFIG_CMD_HASH
+
+		This enables a generic 'hash' command which can produce
+		hashes / digests from a few algorithms (e.g. SHA1, SHA256).
+
+		CONFIG_HASH_VERIFY
+
+		Enable the hash verify command (hash -v). This adds to code
+		size a little.
+
+		CONFIG_SHA1 - support SHA1 hashing
+		CONFIG_SHA256 - support SHA256 hashing
+
+		Note: There is also a sha1sum command, which should perhaps
+		be deprecated in favour of 'hash sha1'.
 
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
@@ -2613,6 +2668,17 @@ FIT uImage format:
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
 
+- FIT image support:
+		CONFIG_FIT
+		Enable support for the FIT uImage format.
+
+		CONFIG_FIT_BEST_MATCH
+		When no configuration is explicitly selected, default to the
+		one whose fdt's compatibility field best matches that of
+		U-Boot itself. A match is considered "best" if it matches the
+		most specific compatibility entry of U-Boot's fdt's root node.
+		The order of entries in the configuration's fdt is ignored.
+
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
 
@@ -2664,6 +2730,10 @@ FIT uImage format:
 		CONFIG_SPL_TEXT_BASE
 		TEXT_BASE for linking the SPL binary.
 
+		CONFIG_SPL_RELOC_TEXT_BASE
+		Address to relocate to.  If unspecified, this is equal to
+		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).
+
 		CONFIG_SPL_BSS_START_ADDR
 		Link address for the BSS within the SPL binary.
 
@@ -2672,6 +2742,11 @@ FIT uImage format:
 
 		CONFIG_SPL_STACK
 		Adress of the start of the stack SPL will use
+
+		CONFIG_SPL_RELOC_STACK
+		Adress of the start of the stack SPL will use after
+		relocation.  If unspecified, this is equal to
+		CONFIG_SPL_STACK.
 
 		CONFIG_SYS_SPL_MALLOC_START
 		Starting address of the malloc pool used in SPL.
@@ -2687,6 +2762,9 @@ FIT uImage format:
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information
 		about the running system.
+
+		CONFIG_SPL_INIT_MINIMAL
+		Arch init code should be built for a very small image
 
 		CONFIG_SPL_LIBCOMMON_SUPPORT
 		Support for common/libcommon.o in SPL binary
@@ -2715,8 +2793,19 @@ FIT uImage format:
 		CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from FAT
 
+		CONFIG_SPL_NAND_BASE
+		Include nand_base.c in the SPL.  Requires
+		CONFIG_SPL_NAND_DRIVERS.
+
+		CONFIG_SPL_NAND_DRIVERS
+		SPL uses normal NAND drivers, not minimal drivers.
+
+		CONFIG_SPL_NAND_ECC
+		Include standard software ECC in the SPL
+
 		CONFIG_SPL_NAND_SIMPLE
-		Support for drivers/mtd/nand/libnand.o in SPL binary
+		Support for NAND boot using simple NAND drivers that
+		expose the cmd_ctrl() interface.
 
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
@@ -2724,15 +2813,19 @@ FIT uImage format:
 		CONFIG_SYS_NAND_ECCPOS, CONFIG_SYS_NAND_ECCSIZE,
 		CONFIG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
-		to read U-Boot with CONFIG_SPL_NAND_SIMPLE
+		to read U-Boot
 
 		CONFIG_SYS_NAND_U_BOOT_OFFS
-		Location in NAND for CONFIG_SPL_NAND_SIMPLE to read U-Boot
-		from.
+		Location in NAND to read U-Boot from
+
+		CONFIG_SYS_NAND_U_BOOT_DST
+		Location in memory to load U-Boot to
+
+		CONFIG_SYS_NAND_U_BOOT_SIZE
+		Size of image to load
 
 		CONFIG_SYS_NAND_U_BOOT_START
-		Location in memory for CONFIG_SPL_NAND_SIMPLE to load U-Boot
-		to.
+		Entry point in loaded image to jump to
 
 		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
 		Define this if you need to first read the OOB and then the
@@ -2756,6 +2849,11 @@ FIT uImage format:
 
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
+
+		CONFIG_SPL_TARGET
+		Final target image containing SPL and payload.  Some SPLs
+		use an arch-specific makefile fragment instead, for
+		example if more than one image needs to be produced.
 
 Modem Support:
 --------------
@@ -2890,9 +2988,6 @@ Configuration Settings:
 		then the end address of the Linux memory will be located at a
 		non page size aligned address and this could cause major
 		problems.
-
-- CONFIG_SYS_TFTP_LOADADDR:
-		Default load address for network file downloads
 
 - CONFIG_SYS_LOADS_BAUD_CHANGE:
 		Enable temporary baudrate change while serial download
@@ -3034,6 +3129,49 @@ Configuration Settings:
 	setting is supposed to be generous and should work in most
 	cases. This setting can be used to tune behaviour; see
 	lib/hashtable.c for details.
+
+- CONFIG_ENV_FLAGS_LIST_DEFAULT
+- CONFIG_ENV_FLAGS_LIST_STATIC
+	Enable validation of the values given to enviroment variables when
+	calling env set.  Variables can be restricted to only decimal,
+	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
+	the variables can also be restricted to IP address or MAC address.
+
+	The format of the list is:
+		type_attribute = [s|d|x|b|i|m]
+		access_atribute = [a|r|o|c]
+		attributes = type_attribute[access_atribute]
+		entry = variable_name[:attributes]
+		list = entry[,list]
+
+	The type attributes are:
+		s - String (default)
+		d - Decimal
+		x - Hexadecimal
+		b - Boolean ([1yYtT|0nNfF])
+		i - IP address
+		m - MAC address
+
+	The access attributes are:
+		a - Any (default)
+		r - Read-only
+		o - Write-once
+		c - Change-default
+
+	- CONFIG_ENV_FLAGS_LIST_DEFAULT
+		Define this to a list (string) to define the ".flags"
+		envirnoment variable in the default or embedded environment.
+
+	- CONFIG_ENV_FLAGS_LIST_STATIC
+		Define this to a list (string) to define validation that
+		should be done if an entry is not found in the ".flags"
+		environment variable.  To override a setting in the static
+		list, simply add an entry for the same variable name to the
+		".flags" variable.
+
+- CONFIG_ENV_ACCESS_IGNORE_FORCE
+	If defined, don't allow the -f switch to env set override variable
+	access flags.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
@@ -3632,6 +3770,16 @@ Low Level (hardware related) configuration options:
 		be used if available. These functions may be faster under some
 		conditions but may increase the binary size.
 
+- CONFIG_X86_NO_RESET_VECTOR
+		If defined, the x86 reset vector code is excluded. You will need
+		to do this when U-Boot is running from Coreboot.
+
+- CONFIG_X86_NO_REAL_MODE
+		If defined, x86 real mode code is omitted. This assumes a
+		32-bit environment where such code is not needed. You will
+		need to do this when U-Boot is running from Coreboot.
+
+
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
 
@@ -3859,6 +4007,7 @@ saveenv - save environment variables to persistent storage
 protect - enable or disable FLASH write protection
 erase	- erase FLASH memory
 flinfo	- print FLASH memory information
+nand	- NAND memory operations (see doc/README.nand)
 bdinfo	- print Board Info structure
 iminfo	- print header information for application image
 coninfo - print console devices and informations
@@ -4123,6 +4272,36 @@ Further special Environment Variables:
 
 Please note that changes to some configuration parameters may take
 only effect after the next boot (yes, that's just like Windoze :-).
+
+
+Callback functions for environment variables:
+---------------------------------------------
+
+For some environment variables, the behavior of u-boot needs to change
+when their values are changed.  This functionailty allows functions to
+be associated with arbitrary variables.  On creation, overwrite, or
+deletion, the callback will provide the opportunity for some side
+effect to happen or for the change to be rejected.
+
+The callbacks are named and associated with a function using the
+U_BOOT_ENV_CALLBACK macro in your board or driver code.
+
+These callbacks are associated with variables in one of two ways.  The
+static list can be added to by defining CONFIG_ENV_CALLBACK_LIST_STATIC
+in the board configuration to a string that defines a list of
+associations.  The list must be in the following format:
+
+	entry = variable_name[:callback_name]
+	list = entry[,list]
+
+If the callback name is not specified, then the callback is deleted.
+Spaces are also allowed anywhere in the list.
+
+Callbacks can also be associated by defining the ".callbacks" variable
+with the same list format above.  Any association in ".callbacks" will
+override any association in the static list. You can define
+CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
+".callbacks" envirnoment variable in the default or embedded environment.
 
 
 Command Line Parsing:

@@ -1,0 +1,80 @@
+------------------------------------------------------------------------
+A3M071 board support
+------------------------------------------------------------------------
+
+
+SPL NOR flash support:
+----------------------
+To boot fast into the OS (Linux), this board port integrates the SPL
+framework. This means, that a special, stripped-down version of
+U-Boot runs in the beginning. In the case of the A3M071 board, this
+SPL U-Boot version is less than 16 KiB big. This SPL U-Boot can either
+boot the OS (Linux) or a "real", full-blown U-Boot. This detection
+on whether to boot Linux or U-Boot is done by using the "boot_os"
+environment variable. If "boot_os" is set to "yes", Linux will be
+loaded and booted from the SPL U-Boot version. Otherwise, the
+full-blown U-Boot version will be loaded and run.
+
+Enabling Linux booting:
+-----------------------
+From U-Boot:
+=> setenv boot_os yes
+=> saveenv
+
+From Linux:
+$ fw_setenv boot_os yes
+
+Enabling U-Boot booting:
+------------------------
+From U-Boot:
+=> setenv boot_os no
+=> saveenv
+
+From Linux:
+$ fw_setenv boot_os no
+
+
+Preparing Linux image(s) for booting from SPL U-Boot:
+-----------------------------------------------------
+To boot the Linux kernel from the SPL, the DT blob (fdt) needs to get
+prepard/patched first. U-Boot usually inserts some dynamic values into
+the DT binary (blob), e.g. autodetected memory size, MAC addresses,
+clocks speeds etc. To generate this patched DT blob, you can use
+the following command:
+
+1. Load fdt blob to SDRAM:
+=> tftp 1800000 a3m071/a3m071.dtb
+
+2. Set bootargs as desired for Linux booting (e.g. flash_mtd):
+=> run mtdargs addip2 addtty
+
+3. Use "fdt" commands to patch the DT blob:
+=> fdt addr 1800000
+=> fdt boardsetup
+=> fdt chosen
+
+4. Display patched DT blob (optional):
+=> fdt print
+
+5. Save fdt to NOR flash:
+=> erase fc060000 fc07ffff
+=> cp.b 1800000 fc060000 10000
+
+All this can be integrated into an environment command:
+=> setenv upd_fdt 'tftp 1800000 a3m071/a3m071.dtb;run mtdargs addip2 addtty; \
+	fdt addr 1800000;fdt boardsetup;erase fc060000 fc07ffff; \
+	cp.b 1800000 fc060000 10000'
+=> saveenv
+
+After this, only "run upd_fdt" needs to get called to load, patch
+and save the DT blob into NOR flash.
+
+Additionally, the Linux kernel image has to be saved uncompressed in
+its uImage file (and not gzip compressed). This can be done with this
+command:
+
+$ mkimage -A ppc -O linux -T kernel -C none -a 0 -e 0 \
+	-n "Linux Kernel Image" -d vmlinux.bin uImage.uncompressed
+
+------------------------------------------------------------------------
+Stefan Roese, 2012-08-23

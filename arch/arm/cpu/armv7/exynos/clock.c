@@ -919,6 +919,20 @@ static int exynos5_set_spi_clk(enum periph_id periph_id,
 	clrsetbits_le32(reg, mask << pre_shift, (fine & mask) << pre_shift);
 
 	return 0;
+
+static unsigned long exynos4_get_i2c_clk(void)
+{
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
+	unsigned long sclk, aclk_100;
+	unsigned int ratio;
+
+	sclk = get_pll_clk(APLL);
+
+	ratio = (readl(&clk->div_top)) >> 4;
+	ratio &= 0xf;
+	aclk_100 = sclk / (ratio + 1);
+	return aclk_100;
 }
 
 unsigned long get_pll_clk(int pllreg)
@@ -941,6 +955,8 @@ unsigned long get_i2c_clk(void)
 {
 	if (cpu_is_exynos5()) {
 		return exynos5_get_i2c_clk();
+	} else if (cpu_is_exynos4()) {
+		return exynos4_get_i2c_clk();
 	} else {
 		debug("I2C clock is not set for this CPU\n");
 		return 0;

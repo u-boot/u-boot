@@ -36,6 +36,9 @@
 #ifndef _U_BOOT_H_
 #define _U_BOOT_H_	1
 
+#include <config.h>
+#include <compiler.h>
+
 typedef struct bd_info {
 	unsigned long	bi_memstart;	/* start of DRAM memory */
 	phys_size_t	bi_memsize;	/* size	 of DRAM memory in bytes */

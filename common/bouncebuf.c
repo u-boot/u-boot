@@ -27,21 +27,19 @@
 #include <errno.h>
 #include <bouncebuf.h>
 
-static int addr_aligned(void *data, size_t len)
+static int addr_aligned(struct bounce_buffer *state)
 {
 	const ulong align_mask = ARCH_DMA_MINALIGN - 1;
 
 	/* Check if start is aligned */
-	if ((ulong)data & align_mask) {
-		debug("Unaligned start address %p\n", data);
+	if ((ulong)state->user_buffer & align_mask) {
+		debug("Unaligned buffer address %p\n", state->user_buffer);
 		return 0;
 	}
 
-	data += len;
-
-	/* Check if end is aligned */
-	if ((ulong)data & align_mask) {
-		debug("Unaligned end address %p\n", data);
+	/* Check if length is aligned */
+	if (state->len != state->len_aligned) {
+		debug("Unaligned buffer length %d\n", state->len);
 		return 0;
 	}
 
@@ -49,44 +47,53 @@ static int addr_aligned(void *data, size_t len)
 	return 1;
 }
 
-int bounce_buffer_start(void **data, size_t len, void **backup, uint8_t flags)
+int bounce_buffer_start(struct bounce_buffer *state, void *data,
+			size_t len, unsigned int flags)
 {
-	void *tmp;
-	size_t alen;
+	state->user_buffer = data;
+	state->bounce_buffer = data;
+	state->len = len;
+	state->len_aligned = roundup(len, ARCH_DMA_MINALIGN);
+	state->flags = flags;
 
-	if (addr_aligned(*data, len)) {
-		*backup = NULL;
-		return 0;
+	if (!addr_aligned(state)) {
+		state->bounce_buffer = memalign(ARCH_DMA_MINALIGN,
+						state->len_aligned);
+		if (!state->bounce_buffer)
+			return -ENOMEM;
+
+		if (state->flags & GEN_BB_READ)
+			memcpy(state->bounce_buffer, state->user_buffer,
+				state->len);
 	}
 
-	alen = roundup(len, ARCH_DMA_MINALIGN);
-	tmp = memalign(ARCH_DMA_MINALIGN, alen);
-
-	if (!tmp)
-		return -ENOMEM;
-
-	if (flags & GEN_BB_READ)
-		memcpy(tmp, *data, len);
-
-	*backup = *data;
-	*data = tmp;
+	/*
+	 * Flush data to RAM so DMA reads can pick it up,
+	 * and any CPU writebacks don't race with DMA writes
+	 */
+	flush_dcache_range((unsigned long)state->bounce_buffer,
+				(unsigned long)(state->bounce_buffer) +
+					state->len_aligned);
 
 	return 0;
 }
 
-int bounce_buffer_stop(void **data, size_t len, void **backup, uint8_t flags)
+int bounce_buffer_stop(struct bounce_buffer *state)
 {
-	void *tmp = *data;
+	if (state->flags & GEN_BB_WRITE) {
+		/* Invalidate cache so that CPU can see any newly DMA'd data */
+		invalidate_dcache_range((unsigned long)state->bounce_buffer,
+					(unsigned long)(state->bounce_buffer) +
+						state->len_aligned);
+	}
 
-	/* The buffer was already aligned, since "backup" is NULL. */
-	if (!*backup)
+	if (state->bounce_buffer == state->user_buffer)
 		return 0;
 
-	if (flags & GEN_BB_WRITE)
-		memcpy(*backup, *data, len);
+	if (state->flags & GEN_BB_WRITE)
+		memcpy(state->user_buffer, state->bounce_buffer, state->len);
 
-	*data = *backup;
-	free(tmp);
+	free(state->bounce_buffer);
 
 	return 0;
 }

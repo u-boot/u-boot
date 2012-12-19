@@ -1551,6 +1551,7 @@ struct e1000_hw {
 #define E1000_RXDCTL_HTHRESH 0x00003F00	/* RXDCTL Host Threshold */
 #define E1000_RXDCTL_WTHRESH 0x003F0000	/* RXDCTL Writeback Threshold */
 #define E1000_RXDCTL_GRAN    0x01000000	/* RXDCTL Granularity */
+#define E1000_RXDCTL_FULL_RX_DESC_WB 0x01010000	/* GRAN=1, WTHRESH=1 */
 
 /* Transmit Descriptor Control */
 #define E1000_TXDCTL_PTHRESH 0x0000003F	/* TXDCTL Prefetch Threshold */

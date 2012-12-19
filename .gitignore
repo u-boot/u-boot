@@ -38,12 +38,12 @@
 /u-boot.sha1
 /u-boot.dis
 /u-boot.lds
-/u-boot.lst
 /u-boot.ubl
 /u-boot.ais
 /u-boot.dtb
 /u-boot.sb
 /u-boot.geany
+/include/u-boot.lst
 
 #
 # Generated files

@@ -30,6 +30,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <version.h>
 #ifdef CONFIG_MODEM_SUPPORT
@@ -40,13 +41,19 @@
 #include <hush.h>
 #endif
 
+#ifdef CONFIG_OF_CONTROL
+#include <fdtdec.h>
+#endif
+
+#ifdef CONFIG_OF_LIBFDT
+#include <fdt_support.h>
+#endif /* CONFIG_OF_LIBFDT */
+
 #include <post.h>
 #include <linux/ctype.h>
 #include <menu.h>
 
-#if defined(CONFIG_SILENT_CONSOLE) || defined(CONFIG_POST) || defined(CONFIG_CMDLINE_EDITING)
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
@@ -274,6 +281,73 @@ int abortboot(int bootdelay)
 # endif	/* CONFIG_AUTOBOOT_KEYED */
 #endif	/* CONFIG_BOOTDELAY >= 0  */
 
+/*
+ * Runs the given boot command securely.  Specifically:
+ * - Doesn't run the command with the shell (run_command or parse_string_outer),
+ *   since that's a lot of code surface that an attacker might exploit.
+ *   Because of this, we don't do any argument parsing--the secure boot command
+ *   has to be a full-fledged u-boot command.
+ * - Doesn't check for keypresses before booting, since that could be a
+ *   security hole; also disables Ctrl-C.
+ * - Doesn't allow the command to return.
+ *
+ * Upon any failures, this function will drop into an infinite loop after
+ * printing the error message to console.
+ */
+
+#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0) && \
+	defined(CONFIG_OF_CONTROL)
+static void secure_boot_cmd(char *cmd)
+{
+	cmd_tbl_t *cmdtp;
+	int rc;
+
+	if (!cmd) {
+		printf("## Error: Secure boot command not specified\n");
+		goto err;
+	}
+
+	/* Disable Ctrl-C just in case some command is used that checks it. */
+	disable_ctrlc(1);
+
+	/* Find the command directly. */
+	cmdtp = find_cmd(cmd);
+	if (!cmdtp) {
+		printf("## Error: \"%s\" not defined\n", cmd);
+		goto err;
+	}
+
+	/* Run the command, forcing no flags and faking argc and argv. */
+	rc = (cmdtp->cmd)(cmdtp, 0, 1, &cmd);
+
+	/* Shouldn't ever return from boot command. */
+	printf("## Error: \"%s\" returned (code %d)\n", cmd, rc);
+
+err:
+	/*
+	 * Not a whole lot to do here.  Rebooting won't help much, since we'll
+	 * just end up right back here.  Just loop.
+	 */
+	hang();
+}
+
+static void process_fdt_options(const void *blob)
+{
+	ulong addr;
+
+	/* Add an env variable to point to a kernel payload, if available */
+	addr = fdtdec_get_config_int(gd->fdt_blob, "kernel-offset", 0);
+	if (addr)
+		setenv_addr("kernaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
+
+	/* Add an env variable to point to a root disk, if available */
+	addr = fdtdec_get_config_int(gd->fdt_blob, "rootdisk-offset", 0);
+	if (addr)
+		setenv_addr("rootaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
+}
+#endif /* CONFIG_OF_CONTROL */
+
+
 /****************************************************************************/
 
 void main_loop (void)
@@ -284,7 +358,10 @@ void main_loop (void)
 	int rc = 1;
 	int flag;
 #endif
-
+#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0) && \
+		defined(CONFIG_OF_CONTROL)
+	char *env;
+#endif
 #if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
 	char *s;
 	int bootdelay;
@@ -298,6 +375,8 @@ void main_loop (void)
 	char *bcs;
 	char bcs_set[16];
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
+
+	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
 
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();
@@ -380,6 +459,23 @@ void main_loop (void)
 	else
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 		s = getenv ("bootcmd");
+#ifdef CONFIG_OF_CONTROL
+	/* Allow the fdt to override the boot command */
+	env = fdtdec_get_config_string(gd->fdt_blob, "bootcmd");
+	if (env)
+		s = env;
+
+	process_fdt_options(gd->fdt_blob);
+
+	/*
+	 * If the bootsecure option was chosen, use secure_boot_cmd().
+	 * Always use 'env' in this case, since bootsecure requres that the
+	 * bootcmd was specified in the FDT too.
+	 */
+	if (fdtdec_get_config_int(gd->fdt_blob, "bootsecure", 0))
+		secure_boot_cmd(env);
+
+#endif /* CONFIG_OF_CONTROL */
 
 	debug ("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
@@ -403,6 +499,10 @@ void main_loop (void)
 	}
 #endif /* CONFIG_MENUKEY */
 #endif /* CONFIG_BOOTDELAY */
+
+#if defined CONFIG_OF_CONTROL
+	set_working_fdt_addr((void *)gd->fdt_blob);
+#endif /* CONFIG_OF_CONTROL */
 
 	/*
 	 * Main Loop for Monitor Command Processing

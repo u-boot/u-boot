@@ -378,7 +378,6 @@ void ext4fs_update_parent_dentry(char *filename, int *p_ino, int file_type)
 	struct ext_filesystem *fs = get_fs();
 	/* directory entry */
 	struct ext2_dirent *dir;
-	char *ptr = NULL;
 	char *temp_dir = NULL;
 
 	zero_buffer = zalloc(fs->blksz);
@@ -415,7 +414,6 @@ restart:
 	if (ext4fs_log_journal(root_first_block_buffer, first_block_no_of_root))
 		goto fail;
 	dir = (struct ext2_dirent *)root_first_block_buffer;
-	ptr = (char *)dir;
 	totalbytes = 0;
 	while (dir->direntlen > 0) {
 		/*
@@ -483,14 +481,12 @@ restart:
 			break;
 
 		dir = (struct ext2_dirent *)((char *)dir + templength);
-		ptr = (char *)dir;
 	}
 
 	/* make a pointer ready for creating next directory entry */
 	templength = dir->direntlen;
 	totalbytes = totalbytes + templength;
 	dir = (struct ext2_dirent *)((char *)dir + templength);
-	ptr = (char *)dir;
 
 	/* get the next available inode number */
 	inodeno = ext4fs_get_new_inode_no();
@@ -1200,6 +1196,11 @@ static void alloc_double_indirect_block(struct ext2_inode *file_inode,
 		status = ext4fs_devread(di_blockno_parent *
 					fs->sect_perblk, 0,
 					fs->blksz, (char *)di_parent_buffer);
+
+		if (!status) {
+			printf("%s: Device read error!\n", __func__);
+			goto fail;
+		}
 		memset(di_parent_buffer, '\0', fs->blksz);
 
 		/*
@@ -1227,6 +1228,11 @@ static void alloc_double_indirect_block(struct ext2_inode *file_inode,
 						fs->sect_perblk, 0,
 						fs->blksz,
 						(char *)di_child_buff);
+
+			if (!status) {
+				printf("%s: Device read error!\n", __func__);
+				goto fail;
+			}
 			memset(di_child_buff, '\0', fs->blksz);
 			/* filling of actual datablocks for each child */
 			for (j = 0; j < (fs->blksz / sizeof(int)); j++) {

@@ -739,16 +739,13 @@ void board_init_r(gd_t *id, ulong dest_addr)
 		flash_size = 0;
 	} else if ((flash_size = flash_init()) > 0) {
 #ifdef CONFIG_SYS_FLASH_CHECKSUM
-		char *s;
-
 		print_size(flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
 		 *
 		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 		 */
-		s = getenv("flashchecksum");
-		if (s && (*s == 'y')) {
+		if (getenv_yesno("flashchecksum") == 1) {
 			printf("  CRC: %08X",
 			       crc32(0,
 				     (const unsigned char *)
@@ -841,9 +838,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	 * "i2cfast" into account
 	 */
 	{
-		char *s = getenv("i2cfast");
-
-		if (s && ((*s == 'y') || (*s == 'Y'))) {
+		if (getenv_yesno("i2cfast") == 1) {
 			bd->bi_iic_fast[0] = 1;
 			bd->bi_iic_fast[1] = 1;
 		}

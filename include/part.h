@@ -176,10 +176,62 @@ int   test_part_amiga (block_dev_desc_t *dev_desc);
 #endif
 
 #ifdef CONFIG_EFI_PARTITION
+#include <part_efi.h>
 /* disk/part_efi.c */
 int get_partition_info_efi (block_dev_desc_t * dev_desc, int part, disk_partition_t *info);
 void print_part_efi (block_dev_desc_t *dev_desc);
 int   test_part_efi (block_dev_desc_t *dev_desc);
+
+/**
+ * write_gpt_table() - Write the GUID Partition Table to disk
+ *
+ * @param dev_desc - block device descriptor
+ * @param gpt_h - pointer to GPT header representation
+ * @param gpt_e - pointer to GPT partition table entries
+ *
+ * @return - zero on success, otherwise error
+ */
+int write_gpt_table(block_dev_desc_t *dev_desc,
+		  gpt_header *gpt_h, gpt_entry *gpt_e);
+
+/**
+ * gpt_fill_pte(): Fill the GPT partition table entry
+ *
+ * @param gpt_h - GPT header representation
+ * @param gpt_e - GPT partition table entries
+ * @param partitions - list of partitions
+ * @param parts - number of partitions
+ *
+ * @return zero on success
+ */
+int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
+		disk_partition_t *partitions, int parts);
+
+/**
+ * gpt_fill_header(): Fill the GPT header
+ *
+ * @param dev_desc - block device descriptor
+ * @param gpt_h - GPT header representation
+ * @param str_guid - disk guid string representation
+ * @param parts_count - number of partitions
+ *
+ * @return - error on str_guid conversion error
+ */
+int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
+		char *str_guid, int parts_count);
+
+/**
+ * gpt_restore(): Restore GPT partition table
+ *
+ * @param dev_desc - block device descriptor
+ * @param str_disk_guid - disk GUID
+ * @param partitions - list of partitions
+ * @param parts - number of partitions
+ *
+ * @return zero on success
+ */
+int gpt_restore(block_dev_desc_t *dev_desc, char *str_disk_guid,
+		disk_partition_t *partitions, const int parts_count);
 #endif
 
 #endif /* _PART_H */

@@ -80,7 +80,7 @@ static int fit_handle_file (struct mkimage_params *params)
 	}
 	sprintf (tmpfile, "%s%s", params->imagefile, MKIMAGE_TMPFILE_SUFFIX);
 
-	/* dtc -I dts -O -p 200 datafile > tmpfile */
+	/* dtc -I dts -O dtb -p 500 datafile > tmpfile */
 	sprintf (cmd, "%s %s %s > %s",
 		MKIMAGE_DTC, params->dtc, params->datafile, tmpfile);
 	debug ("Trying to execute \"%s\"\n", cmd);

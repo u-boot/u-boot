@@ -31,9 +31,11 @@ COBJS-y	+= ddr.o
 COBJS-$(CONFIG_P3041DS)	+= eth_hydra.o
 COBJS-$(CONFIG_P4080DS)	+= eth_p4080.o
 COBJS-$(CONFIG_P5020DS)	+= eth_hydra.o
+COBJS-$(CONFIG_P5040DS)	+= eth_superhydra.o
 COBJS-$(CONFIG_P3041DS)	+= p3041ds_ddr.o
 COBJS-$(CONFIG_P4080DS)	+= p4080ds_ddr.o
 COBJS-$(CONFIG_P5020DS)	+= p5020ds_ddr.o
+COBJS-$(CONFIG_P5040DS)	+= p5040ds_ddr.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))

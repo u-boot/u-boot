@@ -22,8 +22,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= mx53loco.o
+COBJS-y			+= mx53loco.o
+COBJS-$(CONFIG_VIDEO)	+= mx53loco_video.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

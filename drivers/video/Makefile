@@ -40,6 +40,7 @@ COBJS-$(CONFIG_S6E63D6) += s6e63d6.o
 COBJS-$(CONFIG_LD9040) += ld9040.o
 COBJS-$(CONFIG_SED156X) += sed156x.o
 COBJS-$(CONFIG_VIDEO_AMBA) += amba.o
+COBJS-$(CONFIG_VIDEO_COREBOOT) += coreboot_fb.o
 COBJS-$(CONFIG_VIDEO_CT69000) += ct69000.o videomodes.o
 COBJS-$(CONFIG_VIDEO_DA8XX) += da8xx-fb.o videomodes.o
 COBJS-$(CONFIG_VIDEO_MB862xx) += mb862xx.o videomodes.o

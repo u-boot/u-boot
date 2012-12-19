@@ -103,7 +103,6 @@
  */
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	10
 #define CONFIG_EHCI_IS_TDI
-#define CONFIG_EHCI_DCACHE
 
 /* Total I2C ports on Tegra20 */
 #define TEGRA_I2C_NUM_CONTROLLERS	4
@@ -128,12 +127,8 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-/* Environment information, boards can override if required */
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define TEGRA_DEVICE_SETTINGS	"stdin=serial\0" \
-				"stdout=serial\0" \
-				"stderr=serial\0"
 
 #define CONFIG_LOADADDR		0x408000	/* def. location for kernel */
 #define CONFIG_BOOTDELAY	2		/* -1 to disable auto boot */
@@ -209,5 +204,8 @@
 
 #define CONFIG_SYS_NAND_SELF_INIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
+
+/* Misc utility code */
+#define CONFIG_BOUNCE_BUFFER
 
 #endif /* __TEGRA20_COMMON_H */

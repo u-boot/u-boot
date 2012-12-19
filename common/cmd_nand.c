@@ -700,6 +700,25 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return ret == 0 ? 0 : 1;
 	}
 
+#ifdef CONFIG_CMD_NAND_TORTURE
+	if (strcmp(cmd, "torture") == 0) {
+		if (argc < 3)
+			goto usage;
+
+		if (!str2off(argv[2], &off)) {
+			puts("Offset is not a valid number\n");
+			return 1;
+		}
+
+		printf("\nNAND torture: device %d offset 0x%llx size 0x%x\n",
+			dev, off, nand->erasesize);
+		ret = nand_torture(nand, off);
+		printf(" %s\n", ret ? "Failed" : "Passed");
+
+		return ret == 0 ? 0 : 1;
+	}
+#endif
+
 	if (strcmp(cmd, "markbad") == 0) {
 		argc -= 2;
 		argv += 2;
@@ -810,6 +829,9 @@ static char nand_help_text[] =
 	"nand erase.chip [clean] - erase entire chip'\n"
 	"nand bad - show bad blocks\n"
 	"nand dump[.oob] off - dump page\n"
+#ifdef CONFIG_CMD_NAND_TORTURE
+	"nand torture off - torture block at offset\n"
+#endif
 	"nand scrub [-y] off size | scrub.part partition | scrub.chip\n"
 	"    really clean NAND erasing bad blocks (UNSAFE)\n"
 	"nand markbad off [...] - mark bad block(s) at offset (UNSAFE)\n"

@@ -54,28 +54,6 @@ const char *fdtdec_get_compatible(enum fdt_compat_id id)
 	return compat_names[id];
 }
 
-/**
- * Look in the FDT for an alias with the given name and return its node.
- *
- * @param blob	FDT blob
- * @param name	alias name to look up
- * @return node offset if found, or an error code < 0 otherwise
- */
-static int find_alias_node(const void *blob, const char *name)
-{
-	const char *path;
-	int alias_node;
-
-	debug("find_alias_node: %s\n", name);
-	alias_node = fdt_path_offset(blob, "/aliases");
-	if (alias_node < 0)
-		return alias_node;
-	path = fdt_getprop(blob, alias_node, name, NULL);
-	if (!path)
-		return -FDT_ERR_NOTFOUND;
-	return fdt_path_offset(blob, path);
-}
-
 fdt_addr_t fdtdec_get_addr(const void *blob, int node,
 		const char *prop_name)
 {
@@ -113,6 +91,19 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 	return default_val;
 }
 
+uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
+		uint64_t default_val)
+{
+	const uint64_t *cell64;
+	int length;
+
+	cell64 = fdt_getprop(blob, node, prop_name, &length);
+	if (!cell64 || length < sizeof(*cell64))
+		return default_val;
+
+	return fdt64_to_cpu(*cell64);
+}
+
 int fdtdec_get_is_enabled(const void *blob, int node)
 {
 	const char *cell;
@@ -130,7 +121,7 @@ int fdtdec_get_is_enabled(const void *blob, int node)
 	return 1;
 }
 
-enum fdt_compat_id fd_dec_lookup(const void *blob, int node)
+enum fdt_compat_id fdtdec_lookup(const void *blob, int node)
 {
 	enum fdt_compat_id id;
 
@@ -173,7 +164,7 @@ int fdtdec_next_alias(const void *blob, const char *name,
 	/* snprintf() is not available */
 	assert(strlen(name) < MAX_STR_LEN);
 	sprintf(str, "%.*s%d", MAX_STR_LEN, name, *upto);
-	node = find_alias_node(blob, str);
+	node = fdt_path_offset(blob, str);
 	if (node < 0)
 		return node;
 	err = fdt_node_check_compatible(blob, node, compat_names[id]);
@@ -428,9 +419,8 @@ int fdtdec_get_bool(const void *blob, int node, const char *prop_name)
  * @return number of GPIOs read if ok, -FDT_ERR_BADLAYOUT if max_count would
  * be exceeded, or -FDT_ERR_NOTFOUND if the property is missing.
  */
-static int fdtdec_decode_gpios(const void *blob, int node,
-		const char *prop_name, struct fdt_gpio_state *gpio,
-		int max_count)
+int fdtdec_decode_gpios(const void *blob, int node, const char *prop_name,
+		struct fdt_gpio_state *gpio, int max_count)
 {
 	const struct fdt_property *prop;
 	const u32 *cell;
@@ -477,6 +467,26 @@ int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
 	return err == 1 ? 0 : err;
 }
 
+int fdtdec_get_gpio(struct fdt_gpio_state *gpio)
+{
+	int val;
+
+	if (!fdt_gpio_isvalid(gpio))
+		return -1;
+
+	val = gpio_get_value(gpio->gpio);
+	return gpio->flags & FDT_GPIO_ACTIVE_LOW ? val ^ 1 : val;
+}
+
+int fdtdec_set_gpio(struct fdt_gpio_state *gpio, int val)
+{
+	if (!fdt_gpio_isvalid(gpio))
+		return -1;
+
+	val = gpio->flags & FDT_GPIO_ACTIVE_LOW ? val ^ 1 : val;
+	return gpio_set_value(gpio->gpio, val);
+}
+
 int fdtdec_setup_gpio(struct fdt_gpio_state *gpio)
 {
 	/*
@@ -513,4 +523,65 @@ const u8 *fdtdec_locate_byte_array(const void *blob, int node,
 	if (err)
 		return NULL;
 	return cell;
+}
+
+int fdtdec_get_config_int(const void *blob, const char *prop_name,
+		int default_val)
+{
+	int config_node;
+
+	debug("%s: %s\n", __func__, prop_name);
+	config_node = fdt_path_offset(blob, "/config");
+	if (config_node < 0)
+		return default_val;
+	return fdtdec_get_int(blob, config_node, prop_name, default_val);
+}
+
+int fdtdec_get_config_bool(const void *blob, const char *prop_name)
+{
+	int config_node;
+	const void *prop;
+
+	debug("%s: %s\n", __func__, prop_name);
+	config_node = fdt_path_offset(blob, "/config");
+	if (config_node < 0)
+		return 0;
+	prop = fdt_get_property(blob, config_node, prop_name, NULL);
+
+	return prop != NULL;
+}
+
+char *fdtdec_get_config_string(const void *blob, const char *prop_name)
+{
+	const char *nodep;
+	int nodeoffset;
+	int len;
+
+	debug("%s: %s\n", __func__, prop_name);
+	nodeoffset = fdt_path_offset(blob, "/config");
+	if (nodeoffset < 0)
+		return NULL;
+
+	nodep = fdt_getprop(blob, nodeoffset, prop_name, &len);
+	if (!nodep)
+		return NULL;
+
+	return (char *)nodep;
+}
+
+int fdtdec_decode_region(const void *blob, int node,
+		const char *prop_name, void **ptrp, size_t *size)
+{
+	const fdt_addr_t *cell;
+	int len;
+
+	debug("%s: %s\n", __func__, prop_name);
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (!cell || (len != sizeof(fdt_addr_t) * 2))
+		return -1;
+
+	*ptrp = (void *)fdt_addr_to_cpu(*cell);
+	*size = fdt_size_to_cpu(cell[1]);
+	debug("%s: size=%zx\n", __func__, *size);
+	return 0;
 }

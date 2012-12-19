@@ -153,7 +153,7 @@ int vcxk_init(unsigned long width, unsigned long height)
 #ifdef CONFIG_SYS_VCXK_DOUBLEBUFFERED
 	double_bws_word  = (u_short *)double_bws;
 	double_bws_long  = (u_long *)double_bws;
-	debug("%lx %lx %lx \n", double_bws, double_bws_word, double_bws_long);
+	debug("%px %px %px\n", double_bws, double_bws_word, double_bws_long);
 #endif
 	display_width  = width;
 	display_height = height;

@@ -164,6 +164,9 @@ extern void env_reloc(void);
 
 #ifndef DO_DEPS_ONLY
 
+#include <env_attr.h>
+#include <env_callback.h>
+#include <env_flags.h>
 #include <search.h>
 
 extern struct hsearch_data env_htab;
@@ -178,6 +181,9 @@ unsigned char env_get_char_memory(int index);
 /* Function that updates CRC of the enironment */
 void env_crc_update(void);
 
+/* Look up the variable from the default environment */
+char *getenv_default(const char *name);
+
 /* [re]set to the default environment */
 void set_default_env(const char *s);
 
@@ -186,15 +192,6 @@ int set_default_vars(int nvars, char * const vars[]);
 
 /* Import from binary representation into hash table */
 int env_import(const char *buf, int check);
-
-/*
- * Check if variable "name" can be changed from oldval to newval,
- * and if so, apply the changes (e.g. baudrate).
- * When (flag & H_FORCE) is set, it does not print out any error
- * message and forces overwriting of write-once variables.
- */
-int env_check_apply(const char *name, const char *oldval,
-			const char *newval, int flag);
 
 #endif /* DO_DEPS_ONLY */
 

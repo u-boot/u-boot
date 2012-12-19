@@ -30,6 +30,9 @@
 #include <ioports.h>
 #include <asm/io.h>
 #endif
+#if defined(CONFIG_AVR32)
+#include <asm/arch/portmux.h>
+#endif
 #if defined(CONFIG_AT91FAMILY)
 #include <asm/io.h>
 #include <asm/arch/hardware.h>

@@ -462,8 +462,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		 *
 		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 		 */
-		s = getenv ("flashchecksum");
-		if (s && (*s == 'y')) {
+		if (getenv_yesno("flashchecksum") == 1) {
 			printf ("  CRC: %08X",
 					crc32 (0,
 						   (const unsigned char *) CONFIG_SYS_FLASH_BASE,
