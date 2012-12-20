@@ -21,6 +21,15 @@
  * MA 02111-1307 USA
  */
 
+/* Pull in the current config to define the default environment */
+#ifndef __ASSEMBLY__
+#define __ASSEMBLY__ /* get only #defines from config.h */
+#include <config.h>
+#undef	__ASSEMBLY__
+#else
+#include <config.h>
+#endif
+
 /*
  * To build the utility with the static configuration
  * comment out the next line.
@@ -41,6 +50,22 @@
 #define ENV2_SIZE         0x4000
 #define DEVICE2_ESIZE     0x4000
 #define DEVICE2_ENVSECTORS     2
+#endif
+
+#ifndef CONFIG_BAUDRATE
+#define CONFIG_BAUDRATE		115200
+#endif
+
+#ifndef CONFIG_BOOTDELAY
+#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#endif
+
+#ifndef CONFIG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND							\
+	"bootp; "								\
+	"setenv bootargs root=/dev/nfs nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
+	"bootm"
 #endif
 
 extern int   fw_printenv(int argc, char *argv[]);
