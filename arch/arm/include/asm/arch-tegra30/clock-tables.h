@@ -351,6 +351,10 @@ enum periphc_internal_id {
 	PERIPHC_4fh,
 
 	/* 0x50 */
+	PERIPHC_50h,
+	PERIPHC_51h,
+	PERIPHC_52h,
+	PERIPHC_53h,
 	PERIPHC_SATAOOB,
 	PERIPHC_SATA,
 	PERIPHC_HDA,
