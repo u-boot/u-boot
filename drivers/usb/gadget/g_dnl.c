@@ -69,6 +69,7 @@ static struct usb_device_descriptor device_desc = {
 static struct usb_string g_dnl_string_defs[] = {
 	{ 0, manufacturer, },
 	{ 1, product, },
+	{  }		/* end of list */
 };
 
 static struct usb_gadget_strings g_dnl_string_tab = {
@@ -83,7 +84,12 @@ static struct usb_gadget_strings *g_dnl_composite_strings[] = {
 
 static int g_dnl_unbind(struct usb_composite_dev *cdev)
 {
-	debug("%s\n", __func__);
+	struct usb_gadget *gadget = cdev->gadget;
+
+	debug("%s: calling usb_gadget_disconnect for "
+			"controller '%s'\n", shortname, gadget->name);
+	usb_gadget_disconnect(gadget);
+
 	return 0;
 }
 
@@ -152,6 +158,10 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 			shortname, gadget->name);
 		device_desc.bcdDevice = __constant_cpu_to_le16(0x9999);
 	}
+
+	debug("%s: calling usb_gadget_connect for "
+			"controller '%s'\n", shortname, gadget->name);
+	usb_gadget_connect(gadget);
 
 	return 0;
 

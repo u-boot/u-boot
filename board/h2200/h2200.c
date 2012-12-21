@@ -22,8 +22,15 @@
 #include <asm/arch/pxa.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/io.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+int board_eth_init(bd_t *bis)
+{
+	usb_eth_initialize(bis);
+	return 0;
+}
 
 int board_init(void)
 {
@@ -35,6 +42,10 @@ int board_init(void)
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
+
+	/* Let host see that device is disconnected */
+	udc_disconnect();
+	mdelay(500);
 
 	return 0;
 }

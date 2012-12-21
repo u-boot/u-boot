@@ -970,6 +970,16 @@ static int usb_test_unit_ready(ccb *srb, struct us_data *ss)
 			return 0;
 		}
 		usb_request_sense(srb, ss);
+		/*
+		 * Check the Key Code Qualifier, if it matches
+		 * "Not Ready - medium not present"
+		 * (the sense Key equals 0x2 and the ASC is 0x3a)
+		 * return immediately as the medium being absent won't change
+		 * unless there is a user action.
+		 */
+		if ((srb->sense_buf[2] == 0x02) &&
+		    (srb->sense_buf[12] == 0x3a))
+			return -1;
 		mdelay(100);
 	} while (retries--);
 

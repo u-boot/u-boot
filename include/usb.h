@@ -392,5 +392,6 @@ int hub_port_reset(struct usb_device *dev, int port,
 struct usb_device *usb_alloc_new_device(void *controller);
 
 int usb_new_device(struct usb_device *dev);
+void usb_free_device(void);
 
 #endif /*_USB_H_ */
