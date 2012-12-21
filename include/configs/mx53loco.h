@@ -120,11 +120,8 @@
 	"uimage=uImage\0" \
 	"mmcdev=0\0" \
 	"mmcpart=2\0" \
-	"mmcroot=/dev/mmcblk0p3 rw\0" \
-	"mmcrootfstype=ext3 rootwait\0" \
-	"mmcargs=setenv bootargs console=ttymxc0,${baudrate} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0" \
+	"mmcroot=/dev/mmcblk0p3 rw rootwait\0" \
+	"mmcargs=setenv bootargs console=ttymxc0,${baudrate} root=${mmcroot} " \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
