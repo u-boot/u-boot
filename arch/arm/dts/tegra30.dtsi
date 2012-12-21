@@ -2,4 +2,65 @@
 
 / {
 	compatible = "nvidia,tegra30";
+
+	tegra_car: clock@60006000 {
+		compatible = "nvidia,tegra30-car", "nvidia,tegra20-car";
+		reg = <0x60006000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	clocks {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		osc: clock {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+		};
+	};
+
+	i2c@7000c000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "nvidia,tegra30-i2c", "nvidia,tegra20-i2c";
+		reg = <0x7000C000 0x100>;
+		/* PERIPH_ID_I2C1, CLK_M */
+		clocks = <&tegra_car 12>;
+	};
+
+	i2c@7000c400 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "nvidia,tegra30-i2c", "nvidia,tegra20-i2c";
+		reg = <0x7000C400 0x100>;
+		/* PERIPH_ID_I2C2, CLK_M */
+		clocks = <&tegra_car 54>;
+	};
+
+	i2c@7000c500 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "nvidia,tegra30-i2c", "nvidia,tegra20-i2c";
+		reg = <0x7000C500 0x100>;
+		/* PERIPH_ID_I2C3, CLK_M */
+		clocks = <&tegra_car 67>;
+	};
+
+	i2c@7000c700 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "nvidia,tegra30-i2c", "nvidia,tegra20-i2c";
+		reg = <0x7000C700 0x100>;
+		/* PERIPH_ID_I2C4, CLK_M */
+		clocks = <&tegra_car 103>;
+	};
+
+	i2c@7000d000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "nvidia,tegra30-i2c", "nvidia,tegra20-i2c";
+		reg = <0x7000D000 0x100>;
+		/* PERIPH_ID_I2C_DVC, CLK_M */
+		clocks = <&tegra_car 47>;
+	};
 };

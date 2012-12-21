@@ -7,8 +7,49 @@
 	model = "NVIDIA Cardhu";
 	compatible = "nvidia,cardhu", "nvidia,tegra30";
 
+	aliases {
+		i2c0 = "/i2c@7000d000";
+		i2c1 = "/i2c@7000c000";
+		i2c2 = "/i2c@7000c400";
+		i2c3 = "/i2c@7000c500";
+		i2c4 = "/i2c@7000c700";
+	};
+
 	memory {
 		device_type = "memory";
 		reg = <0x80000000 0x40000000>;
+	};
+
+	clocks {
+		clk_32k: clk_32K {
+			clock-frequency = <32768>;
+		};
+		osc {
+			clock-frequency = <12000000>;
+		};
+	};
+
+	clock@60006000 {
+		clocks = <&clk_32k &osc>;
+	};
+
+	i2c@7000c000 {
+		clock-frequency = <100000>;
+	};
+
+	i2c@7000c400 {
+		clock-frequency = <100000>;
+	};
+
+	i2c@7000c500 {
+		clock-frequency = <100000>;
+	};
+
+	i2c@7000c700 {
+		clock-frequency = <100000>;
+	};
+
+	i2c@7000d000 {
+		clock-frequency = <100000>;
 	};
 };
