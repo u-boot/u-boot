@@ -38,5 +38,9 @@ void set_mmc_clk(int dev_index, unsigned int div);
 unsigned long get_lcd_clk(void);
 void set_lcd_clk(void);
 void set_mipi_clk(void);
+void set_i2s_clk_source(void);
+int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq);
+int set_epll_clk(unsigned long rate);
+int set_spi_clk(int periph_id, unsigned int rate);
 
 #endif

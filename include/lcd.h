@@ -57,6 +57,14 @@ extern void lcd_initcolregs (void);
 extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
 extern int bmp_display(ulong addr, int x, int y);
 
+/**
+ * Set whether we need to flush the dcache when changing the LCD image. This
+ * defaults to off.
+ *
+ * @param flush		non-zero to flush cache after update, 0 to skip
+ */
+void lcd_set_flush_dcache(int flush);
+
 #if defined CONFIG_MPC823
 /*
  * LCD controller stucture for MPC823 CPU
@@ -332,6 +340,9 @@ void lcd_position_cursor(unsigned col, unsigned row);
 
 /* Allow boards to customize the information displayed */
 void lcd_show_board_info(void);
+
+/* Return the size of the LCD frame buffer, and the line length */
+int lcd_get_size(int *line_length);
 
 /************************************************************************/
 /* ** BITMAP DISPLAY SUPPORT						*/

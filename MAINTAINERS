@@ -586,6 +586,7 @@ Stefano Babic <sbabic@denx.de>
 	trizepsiv	xscale/pxa
 	twister		omap3
  	vision2		i.MX51
+	woodburn	i.MX35
 
 Lukasz Dalek <luk0104@gmail.com>
 

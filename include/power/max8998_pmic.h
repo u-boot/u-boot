@@ -76,7 +76,9 @@ enum {
 
 #define MAX8998_LDO3		(1 << 2)
 #define MAX8998_LDO4		(1 << 1)
+#define MAX8998_LDO7		(1 << 6)
 #define MAX8998_LDO8		(1 << 5)
+#define MAX8998_LDO17		(1 << 4)
 #define MAX8998_SAFEOUT1	(1 << 4)
 
 #define MAX8998_I2C_ADDR        (0xCC >> 1)

@@ -27,6 +27,12 @@
 #include <fsl_pmic.h>
 #include <errno.h>
 
+#if defined(CONFIG_PMIC_FSL_MC13892)
+#define FSL_PMIC_I2C_LENGTH	3
+#elif defined(CONFIG_PMIC_FSL_MC34704)
+#define FSL_PMIC_I2C_LENGTH	1
+#endif
+
 #if defined(CONFIG_POWER_SPI)
 static u32 pmic_spi_prepare_tx(u32 reg, u32 *val, u32 write)
 {
@@ -59,7 +65,7 @@ int pmic_init(unsigned char bus)
 #elif defined(CONFIG_POWER_I2C)
 	p->interface = PMIC_I2C;
 	p->hw.i2c.addr = CONFIG_SYS_FSL_PMIC_I2C_ADDR;
-	p->hw.i2c.tx_num = 3;
+	p->hw.i2c.tx_num = FSL_PMIC_I2C_LENGTH;
 	p->bus = bus;
 #else
 #error "You must select CONFIG_POWER_SPI or CONFIG_PMIC_I2C"

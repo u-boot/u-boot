@@ -93,6 +93,7 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_DIALOG_POWER
 #define CONFIG_POWER_FSL
+#define CONFIG_PMIC_FSL_MC13892
 #define CONFIG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x8
 
@@ -103,10 +104,11 @@
 
 /* Command definition */
 #include <config_cmd_default.h>
+#define CONFIG_CMD_BOOTZ
 
 #undef CONFIG_CMD_IMLS
 
-#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_ETHPRIME		"FEC0"
 

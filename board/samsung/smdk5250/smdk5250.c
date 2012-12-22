@@ -24,11 +24,13 @@
 #include <asm/io.h>
 #include <i2c.h>
 #include <netdev.h>
+#include <spi.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
+#include <power/pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,6 +65,9 @@ static int smc9115_pre_init(void)
 int board_init(void)
 {
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
+#ifdef CONFIG_EXYNOS_SPI
+	spi_init();
+#endif
 	return 0;
 }
 
@@ -78,6 +83,16 @@ int dram_init(void)
 			+ get_ram_size((long *)PHYS_SDRAM_8, PHYS_SDRAM_8_SIZE);
 	return 0;
 }
+
+#if defined(CONFIG_POWER)
+int power_init_board(void)
+{
+	if (pmic_init(I2C_PMIC))
+		return -1;
+	else
+		return 0;
+}
+#endif
 
 void dram_init_banksize(void)
 {

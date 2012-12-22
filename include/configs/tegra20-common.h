@@ -38,6 +38,9 @@
 
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
+/* Align LCD to 1MB boundary */
+#define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
+
 /*
  * Display CPU and Board information
  */

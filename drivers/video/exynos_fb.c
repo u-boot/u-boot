@@ -70,8 +70,19 @@ static void draw_logo(void)
 	int x, y;
 	ulong addr;
 
-	x = ((panel_width - panel_info.logo_width) >> 1);
-	y = ((panel_height - panel_info.logo_height) >> 1) - 4;
+	if (panel_width >= panel_info.logo_width) {
+		x = ((panel_width - panel_info.logo_width) >> 1);
+	} else {
+		x = 0;
+		printf("Warning: image width is bigger than display width\n");
+	}
+
+	if (panel_height >= panel_info.logo_height) {
+		y = ((panel_height - panel_info.logo_height) >> 1) - 4;
+	} else {
+		y = 0;
+		printf("Warning: image height is bigger than display height\n");
+	}
 
 	addr = panel_info.logo_addr;
 	bmp_display(addr, x, y);

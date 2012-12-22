@@ -72,6 +72,15 @@
 # endif
 #endif
 
+#ifndef CONFIG_LCD_ALIGNMENT
+#define CONFIG_LCD_ALIGNMENT PAGE_SIZE
+#endif
+
+/* By default we scroll by a single line */
+#ifndef CONFIG_CONSOLE_SCROLL_LINES
+#define CONFIG_CONSOLE_SCROLL_LINES 1
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 ulong lcd_setmem (ulong addr);
@@ -90,6 +99,9 @@ static void lcd_setbgcolor(int color);
 
 char lcd_is_enabled = 0;
 
+static char lcd_flush_dcache;	/* 1 to flush dcache after each lcd update */
+
+
 #ifdef	NOT_USED_SO_FAR
 static void lcd_getcolreg(ushort regno,
 				ushort *red, ushort *green, ushort *blue);
@@ -98,15 +110,46 @@ static int lcd_getfgcolor(void);
 
 /************************************************************************/
 
+/* Flush LCD activity to the caches */
+void lcd_sync(void)
+{
+	/*
+	 * flush_dcache_range() is declared in common.h but it seems that some
+	 * architectures do not actually implement it. Is there a way to find
+	 * out whether it exists? For now, ARM is safe.
+	 */
+#if defined(CONFIG_ARM) && !defined(CONFIG_SYS_DCACHE_OFF)
+	int line_length;
+
+	if (lcd_flush_dcache)
+		flush_dcache_range((u32)lcd_base,
+			(u32)(lcd_base + lcd_get_size(&line_length)));
+#endif
+}
+
+void lcd_set_flush_dcache(int flush)
+{
+	lcd_flush_dcache = (flush != 0);
+}
+
 /*----------------------------------------------------------------------*/
 
 static void console_scrollup(void)
 {
-	/* Copy up rows ignoring the first one */
-	memcpy(CONSOLE_ROW_FIRST, CONSOLE_ROW_SECOND, CONSOLE_SCROLL_SIZE);
+	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
 
-	/* Clear the last one */
-	memset(CONSOLE_ROW_LAST, COLOR_MASK(lcd_color_bg), CONSOLE_ROW_SIZE);
+	/* Copy up rows ignoring those that will be overwritten */
+	memcpy(CONSOLE_ROW_FIRST,
+	       lcd_console_address + CONSOLE_ROW_SIZE * rows,
+	       CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows);
+
+	/* Clear the last rows */
+	memset(lcd_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows,
+		COLOR_MASK(lcd_color_bg),
+	       CONSOLE_ROW_SIZE * rows);
+
+	lcd_sync();
+	console_row -= rows;
 }
 
 /*----------------------------------------------------------------------*/
@@ -135,7 +178,8 @@ static inline void console_newline(void)
 	if (console_row >= CONSOLE_ROWS) {
 		/* Scroll everything up */
 		console_scrollup();
-		--console_row;
+	} else {
+		lcd_sync();
 	}
 }
 
@@ -191,6 +235,7 @@ void lcd_puts(const char *s)
 	while (*s) {
 		lcd_putc(*s++);
 	}
+	lcd_sync();
 }
 
 /*----------------------------------------------------------------------*/
@@ -326,6 +371,12 @@ static void test_pattern(void)
 /* ** GENERIC Initialization Routines					*/
 /************************************************************************/
 
+int lcd_get_size(int *line_length)
+{
+	*line_length = (panel_info.vl_col * NBITS(panel_info.vl_bpix)) / 8;
+	return *line_length * panel_info.vl_row;
+}
+
 int drv_lcd_init (void)
 {
 	struct stdio_dev lcddev;
@@ -333,7 +384,7 @@ int drv_lcd_init (void)
 
 	lcd_base = (void *)(gd->fb_base);
 
-	lcd_line_length = (panel_info.vl_col * NBITS (panel_info.vl_bpix)) / 8;
+	lcd_get_size(&lcd_line_length);
 
 	lcd_init(lcd_base);		/* LCD initialization */
 
@@ -352,13 +403,6 @@ int drv_lcd_init (void)
 }
 
 /*----------------------------------------------------------------------*/
-static
-int do_lcd_clear(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
-{
-	lcd_clear();
-	return 0;
-}
-
 void lcd_clear(void)
 {
 #if LCD_BPP == LCD_MONOCHROME
@@ -400,6 +444,14 @@ void lcd_clear(void)
 
 	console_col = 0;
 	console_row = 0;
+	lcd_sync();
+}
+
+static int do_lcd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	lcd_clear();
+	return 0;
 }
 
 U_BOOT_CMD(
@@ -445,15 +497,16 @@ static int lcd_init(void *lcdbase)
 ulong lcd_setmem(ulong addr)
 {
 	ulong size;
-	int line_length = (panel_info.vl_col * NBITS(panel_info.vl_bpix)) / 8;
+	int line_length;
 
 	debug("LCD panel info: %d x %d, %d bit/pix\n", panel_info.vl_col,
 		panel_info.vl_row, NBITS(panel_info.vl_bpix));
 
-	size = line_length * panel_info.vl_row;
+	size = lcd_get_size(&line_length);
 
-	/* Round up to nearest full page */
-	size = (size + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	/* Round up to nearest full page, or MMU section if defined */
+	size = ALIGN(size, CONFIG_LCD_ALIGNMENT);
+	addr = ALIGN(addr - CONFIG_LCD_ALIGNMENT + 1, CONFIG_LCD_ALIGNMENT);
 
 	/* Allocate pages for the frame buffer. */
 	addr -= size;
@@ -610,6 +663,7 @@ void bitmap_plot(int x, int y)
 	}
 
 	WATCHDOG_RESET();
+	lcd_sync();
 }
 #else
 static inline void bitmap_plot(int x, int y) {}
@@ -975,6 +1029,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		break;
 	};
 
+	lcd_sync();
 	return 0;
 }
 #endif

@@ -30,6 +30,9 @@
 #define	CONFIG_CPU_PXA25X			1	/* Intel PXA255 CPU */
 #define	CONFIG_PALMTC			1	/* Palm Tungsten|C board */
 
+/* we will never enable dcache, because we have to setup MMU first */
+#define CONFIG_SYS_DCACHE_OFF
+
 /*
  * Environment settings
  */

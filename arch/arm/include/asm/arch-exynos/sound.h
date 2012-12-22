@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 Samsung Electronics
+ * Rajeshwari Shinde <rajeshwari.s@samsung.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,39 +21,24 @@
  * MA 02111-1307 USA
  */
 
-#include<common.h>
-#include<config.h>
 
-/*
-* Copy U-boot from mmc to RAM:
-* COPY_BL2_FNPTR_ADDR: Address in iRAM, which Contains
-* Pointer to API (Data transfer from mmc to ram)
-*/
-void copy_uboot_to_ram(void)
-{
-	u32 (*copy_bl2)(u32, u32, u32) = (void *) *(u32 *)COPY_BL2_FNPTR_ADDR;
+#ifndef __SOUND_ARCH_H__
+#define __SOUND_ARCH_H__
 
-	copy_bl2(BL2_START_OFFSET, BL2_SIZE_BLOC_COUNT, CONFIG_SYS_TEXT_BASE);
-}
+/* I2S values */
+#define I2S_PLL_CLK		192000000
+#define I2S_SAMPLING_RATE	48000
+#define I2S_BITS_PER_SAMPLE	16
+#define I2S_CHANNELS		2
+#define I2S_RFS			256
+#define I2S_BFS			32
 
-void board_init_f(unsigned long bootflag)
-{
-	__attribute__((noreturn)) void (*uboot)(void);
-	copy_uboot_to_ram();
+/* I2C values */
+#define AUDIO_I2C_BUS		1
+#define AUDIO_I2C_REG		0x1a
 
-	/* Jump to U-Boot image */
-	uboot = (void *)CONFIG_SYS_TEXT_BASE;
-	(*uboot)();
-	/* Never returns Here */
-}
+/* Audio Codec */
+#define AUDIO_CODEC		"wm8994"
 
-/* Place Holders */
-void board_init_r(gd_t *id, ulong dest_addr)
-{
-	/* Function attribute is no-return */
-	/* This Function never executes */
-	while (1)
-		;
-}
-
-void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3) {}
+#define AUDIO_COMPAT		1
+#endif

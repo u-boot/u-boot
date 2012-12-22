@@ -100,6 +100,10 @@ _TEXT_BASE:
 _bss_start_ofs:
 	.word __bss_start - _start
 
+.global	_image_copy_end_ofs
+_image_copy_end_ofs:
+	.word 	__image_copy_end - _start
+
 .globl _bss_end_ofs
 _bss_end_ofs:
 	.word __bss_end__ - _start
@@ -193,7 +197,7 @@ stack_setup:
 	moveq	r9, #0		/* no relocation. relocation offset(r9) = 0 */
 	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
-	ldr	r3, _bss_start_ofs
+	ldr	r3, _image_copy_end_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
 
 copy_loop:
@@ -241,15 +245,28 @@ fixnext:
 	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
+	b	clear_bss
+
+_rel_dyn_start_ofs:
+	.word __rel_dyn_start - _start
+_rel_dyn_end_ofs:
+	.word __rel_dyn_end - _start
+_dynsym_start_ofs:
+	.word __dynsym_start - _start
 #endif
 
 clear_bss:
-#ifndef CONFIG_SPL_BUILD
+#ifdef CONFIG_SPL_BUILD
+	/* No relocation for SPL */
+	ldr	r0, =__bss_start
+	ldr	r1, =__bss_end__
+#else
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	mov	r4, r6			/* reloc addr */
 	add	r0, r0, r4
 	add	r1, r1, r4
+#endif
 	mov	r2, #0x00000000		/* clear			    */
 
 clbss_l:cmp	r0, r1			/* clear loop... */
@@ -258,7 +275,6 @@ clbss_l:cmp	r0, r1			/* clear loop... */
 	add	r0, r0, #4
 	b	clbss_l
 clbss_e:
-#endif	/* #ifndef CONFIG_SPL_BUILD */
 
 /*
  * We are done. Do not return, instead branch to second part of board
@@ -273,7 +289,7 @@ _nand_boot_ofs:
 #else
 jump_2_ram:
 	ldr	r0, _board_init_r_ofs
-	ldr     r1, _TEXT_BASE
+	adr	r1, _start
 	add	lr, r0, r1
 	add	lr, lr, r9
 	/* setup parameters for board_init_r */
@@ -285,13 +301,6 @@ jump_2_ram:
 _board_init_r_ofs:
 	.word board_init_r - _start
 #endif
-
-_rel_dyn_start_ofs:
-	.word __rel_dyn_start - _start
-_rel_dyn_end_ofs:
-	.word __rel_dyn_end - _start
-_dynsym_start_ofs:
-	.word __dynsym_start - _start
 
 /*
  *************************************************************************

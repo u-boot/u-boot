@@ -17,6 +17,7 @@
 #ifndef __MX6QSABRE_COMMON_CONFIG_H
 #define __MX6QSABRE_COMMON_CONFIG_H
 
+#define CONFIG_MX6
 #define CONFIG_MX6Q
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -72,9 +73,10 @@
 /* Command definition */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_BOOTZ
 #undef CONFIG_CMD_IMLS
 
-#define CONFIG_BOOTDELAY               3
+#define CONFIG_BOOTDELAY               1
 
 #define CONFIG_LOADADDR                        0x10800000
 #define CONFIG_SYS_TEXT_BASE           0x17800000

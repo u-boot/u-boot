@@ -396,7 +396,7 @@ ENTRY(lowlevel_init)
 	mov r10, lr
 	mov r4, #0	/* Fix R4 to 0 */
 
-#if defined(CONFIG_MX51)
+#if defined(CONFIG_SYS_MAIN_PWR_ON)
 	ldr r0, =GPIO1_BASE_ADDR
 	ldr r1, [r0, #0x0]
 	orr r1, r1, #1 << 23

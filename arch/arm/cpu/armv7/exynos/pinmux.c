@@ -112,6 +112,7 @@ static int exynos5_mmc_config(int peripheral, int flags)
 		s5p_gpio_set_pull(bank, i, GPIO_PULL_UP);
 		s5p_gpio_set_drv(bank, i, GPIO_DRV_4X);
 	}
+
 	return 0;
 }
 
@@ -230,6 +231,59 @@ static void exynos5_i2c_config(int peripheral, int flags)
 	}
 }
 
+static void exynos5_i2s_config(int peripheral)
+{
+	int i;
+	struct exynos5_gpio_part1 *gpio1 =
+		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
+
+	for (i = 0; i < 5; i++)
+		s5p_gpio_cfg_pin(&gpio1->b0, i, GPIO_FUNC(0x02));
+}
+
+void exynos5_spi_config(int peripheral)
+{
+	int cfg = 0, pin = 0, i;
+	struct s5p_gpio_bank *bank = NULL;
+	struct exynos5_gpio_part1 *gpio1 =
+		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
+	struct exynos5_gpio_part2 *gpio2 =
+		(struct exynos5_gpio_part2 *) samsung_get_base_gpio_part2();
+
+	switch (peripheral) {
+	case PERIPH_ID_SPI0:
+		bank = &gpio1->a2;
+		cfg = GPIO_FUNC(0x2);
+		pin = 0;
+		break;
+	case PERIPH_ID_SPI1:
+		bank = &gpio1->a2;
+		cfg = GPIO_FUNC(0x2);
+		pin = 4;
+		break;
+	case PERIPH_ID_SPI2:
+		bank = &gpio1->b1;
+		cfg = GPIO_FUNC(0x5);
+		pin = 1;
+		break;
+	case PERIPH_ID_SPI3:
+		bank = &gpio2->f1;
+		cfg = GPIO_FUNC(0x2);
+		pin = 0;
+		break;
+	case PERIPH_ID_SPI4:
+		for (i = 0; i < 2; i++) {
+			s5p_gpio_cfg_pin(&gpio2->f0, i + 2, GPIO_FUNC(0x4));
+			s5p_gpio_cfg_pin(&gpio2->e0, i + 4, GPIO_FUNC(0x4));
+		}
+		break;
+	}
+	if (peripheral != PERIPH_ID_SPI4) {
+		for (i = pin; i < pin + 4; i++)
+			s5p_gpio_cfg_pin(bank, i, cfg);
+	}
+}
+
 static int exynos5_pinmux_config(int peripheral, int flags)
 {
 	switch (peripheral) {
@@ -256,6 +310,16 @@ static int exynos5_pinmux_config(int peripheral, int flags)
 	case PERIPH_ID_I2C6:
 	case PERIPH_ID_I2C7:
 		exynos5_i2c_config(peripheral, flags);
+		break;
+	case PERIPH_ID_I2S1:
+		exynos5_i2s_config(peripheral);
+		break;
+	case PERIPH_ID_SPI0:
+	case PERIPH_ID_SPI1:
+	case PERIPH_ID_SPI2:
+	case PERIPH_ID_SPI3:
+	case PERIPH_ID_SPI4:
+		exynos5_spi_config(peripheral);
 		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);

@@ -554,7 +554,7 @@ void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func)
 	writel(reg, muxctl);
 }
 
-void pinmux_config_pingroup(struct pingroup_config *config)
+void pinmux_config_pingroup(const struct pingroup_config *config)
 {
 	enum pmux_pingrp pin = config->pingroup;
 
@@ -563,7 +563,7 @@ void pinmux_config_pingroup(struct pingroup_config *config)
 	pinmux_set_tristate(pin, config->tristate);
 }
 
-void pinmux_config_table(struct pingroup_config *config, int len)
+void pinmux_config_table(const struct pingroup_config *config, int len)
 {
 	int i;
 

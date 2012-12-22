@@ -58,14 +58,16 @@
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
+#define CONFIG_FS_EXT4
+#define CONFIG_FS_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 
 /* NAND support */
 #define CONFIG_CMD_NAND
 #define CONFIG_TEGRA_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE	NV_PA_NAND_BASE
 
 /* Environment in NAND (which is 512M), aligned to start of last sector */
 #define CONFIG_ENV_IS_IN_NAND

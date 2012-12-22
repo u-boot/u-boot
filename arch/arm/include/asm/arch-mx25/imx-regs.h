@@ -36,10 +36,6 @@
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
-#ifdef CONFIG_FEC_MXC
-extern void mx25_fec_init_pins(void);
-#endif
-
 /* Clock Control Module (CCM) registers */
 struct ccm_regs {
 	u32 mpctl;	/* Core PLL Control */
@@ -245,6 +241,7 @@ struct aips_regs {
 #define IMX_RTIC_BASE		(0x53FEC000)
 #define IMX_IIM_BASE		(0x53FF0000)
 #define IMX_USB_BASE		(0x53FF4000)
+#define IMX_USB_PORT_OFFSET	0x200
 #define IMX_CSI_BASE		(0x53FF8000)
 #define IMX_DRYICE_BASE		(0x53FFC000)
 

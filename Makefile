@@ -316,6 +316,7 @@ LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 LIBS-y += drivers/rtc/librtc.o
 LIBS-y += drivers/serial/libserial.o
+LIBS-y += drivers/sound/libsound.o
 LIBS-$(CONFIG_GENERIC_LPC_TPM) += drivers/tpm/libtpm.o
 LIBS-y += drivers/twserial/libtws.o
 LIBS-y += drivers/usb/eth/libusb_eth.o
@@ -510,7 +511,7 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 ELFTOSB_TARGET-$(CONFIG_MX28) = imx28
 
 $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
-		elftosb -zdf $(ELFTOSB_TARGET-y) -c $(TOPDIR)/$(CPUDIR)/$(SOC)/u-boot-$(ELFTOSB_TARGET-y).bd \
+		elftosb -zf $(ELFTOSB_TARGET-y) -c $(TOPDIR)/$(CPUDIR)/$(SOC)/u-boot-$(ELFTOSB_TARGET-y).bd \
 			-o $(obj)u-boot.sb
 
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
@@ -869,6 +870,7 @@ clobber:	tidy
 	@rm -f $(obj)spl/{u-boot-spl,u-boot-spl.bin,u-boot-spl.map}
 	@rm -f $(obj)spl/{u-boot-spl.lds,u-boot.lst}
 	@rm -f $(obj)MLO
+	@rm -f $(obj)SPL
 	@rm -f $(obj)tools/xway-swap-bytes
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)arch/powerpc/cpu/mpc83xx/ddr-gen?.c

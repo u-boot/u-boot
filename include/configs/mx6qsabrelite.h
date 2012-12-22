@@ -22,6 +22,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_MX6
 #define CONFIG_MX6Q
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -143,7 +144,7 @@
 
 #undef CONFIG_CMD_IMLS
 
-#define CONFIG_BOOTDELAY	       3
+#define CONFIG_BOOTDELAY	       1
 
 #define CONFIG_PREBOOT                 ""
 

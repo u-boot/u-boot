@@ -28,6 +28,9 @@
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_PALMLD		1	/* Palm LifeDrive board */
 
+/* we will never enable dcache, because we have to setup MMU first */
+#define CONFIG_SYS_DCACHE_OFF
+
 /*
  * Environment settings
  */

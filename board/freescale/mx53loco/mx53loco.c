@@ -374,7 +374,7 @@ static int power_init(void)
 		if (retval)
 			return retval;
 
-		p = pmic_get("DIALOG_PMIC");
+		p = pmic_get("FSL_PMIC");
 		if (!p)
 			return -ENODEV;
 

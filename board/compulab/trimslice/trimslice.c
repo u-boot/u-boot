@@ -34,6 +34,14 @@
 #include <mmc.h>
 #endif
 
+void pin_mux_usb(void)
+{
+	/*
+	 * USB1 internal/external mux GPIO, which masquerades as a VBUS GPIO
+	 * in the current device tree.
+	 */
+	pinmux_tristate_disable(PINGRP_UAC);
+}
 
 void pin_mux_spi(void)
 {

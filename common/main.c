@@ -1141,8 +1141,16 @@ int readline_into_buffer(const char *const prompt, char *buffer, int timeout)
 					puts (tab_seq+(col&07));
 					col += 8 - (col&07);
 				} else {
-					++col;		/* echo input		*/
-					putc (c);
+					char buf[2];
+
+					/*
+					 * Echo input using puts() to force am
+					 * LCD flush if we are using an LCD
+					 */
+					++col;
+					buf[0] = c;
+					buf[1] = '\0';
+					puts(buf);
 				}
 				*p++ = c;
 				++n;

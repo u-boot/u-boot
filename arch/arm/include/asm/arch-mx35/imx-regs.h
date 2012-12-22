@@ -33,6 +33,8 @@
 #define IRAM_BASE_ADDR		0x10000000	/* internal ram */
 #define IRAM_SIZE		0x00020000	/* 128 KB */
 
+#define LOW_LEVEL_SRAM_STACK	0x1001E000
+
 /*
  * AIPS 1
  */
@@ -82,6 +84,8 @@
 #define PWM_BASE_ADDR		0x53FE0000
 #define RTIC_BASE_ADDR		0x53FEC000
 #define IIM_BASE_ADDR		0x53FF0000
+#define IMX_USB_BASE		0x53FF4000
+#define IMX_USB_PORT_OFFSET	0x400
 
 #define IMX_CCM_BASE		CCM_BASE_ADDR
 

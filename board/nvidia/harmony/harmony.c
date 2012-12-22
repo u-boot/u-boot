@@ -64,9 +64,8 @@ int board_mmc_init(bd_t *bd)
 	pin_mux_mmc();
 
 	debug("board_mmc_init: init SD slot J26\n");
-	/* init dev 0, SD slot J26, with 4-bit bus */
-	/* The board has an 8-bit bus, but 8-bit doesn't work yet */
-	tegra_mmc_init(0, 4, GPIO_PI6, GPIO_PH2);
+	/* init dev 0, SD slot J26, with 8-bit bus */
+	tegra_mmc_init(0, 8, GPIO_PI6, GPIO_PH2);
 
 	debug("board_mmc_init: init SD slot J5\n");
 	/* init dev 2, SD slot J5, with 4-bit bus */

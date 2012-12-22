@@ -98,6 +98,26 @@ static void setup_iomux_spi(void)
 	mxc_request_iomux(MX35_PIN_CSPI1_SCLK, MUX_CONFIG_SION);
 }
 
+static void setup_iomux_usbotg(void)
+{
+	int in_pad, out_pad;
+
+	/* Set up pins for USBOTG. */
+	mxc_request_iomux(MX35_PIN_USBOTG_PWR,
+			  MUX_CONFIG_SION | MUX_CONFIG_FUNC);
+	mxc_request_iomux(MX35_PIN_USBOTG_OC,
+			  MUX_CONFIG_SION | MUX_CONFIG_FUNC);
+
+	in_pad = PAD_CTL_DRV_3_3V | PAD_CTL_HYS_SCHMITZ | PAD_CTL_PKE_ENABLE |
+		PAD_CTL_PUE_PUD | PAD_CTL_100K_PD | PAD_CTL_ODE_CMOS |
+		PAD_CTL_DRV_NORMAL | PAD_CTL_SRE_SLOW;
+	out_pad = PAD_CTL_DRV_3_3V | PAD_CTL_HYS_CMOS | PAD_CTL_PKE_NONE |
+		PAD_CTL_ODE_CMOS | PAD_CTL_DRV_NORMAL | PAD_CTL_SRE_SLOW;
+
+	mxc_iomux_set_pad(MX35_PIN_USBOTG_PWR, out_pad);
+	mxc_iomux_set_pad(MX35_PIN_USBOTG_OC, in_pad);
+}
+
 static void setup_iomux_fec(void)
 {
 	int pad;
@@ -189,6 +209,7 @@ int board_early_init_f(void)
 	__raw_writel(readl(&ccm->rcsr) | MXC_CCM_RCSR_NFC_FMS, &ccm->rcsr);
 
 	setup_iomux_i2c();
+	setup_iomux_usbotg();
 	setup_iomux_fec();
 	setup_iomux_spi();
 

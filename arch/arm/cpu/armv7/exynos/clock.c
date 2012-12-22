@@ -25,42 +25,32 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>
+#include <asm/arch/periph.h>
 
-/* exynos4: return pll clock frequency */
-static unsigned long exynos4_get_pll_clk(int pllreg)
+/* Epll Clock division values to achive different frequency output */
+static struct set_epll_con_val exynos5_epll_div[] = {
+	{ 192000000, 0, 48, 3, 1, 0 },
+	{ 180000000, 0, 45, 3, 1, 0 },
+	{  73728000, 1, 73, 3, 3, 47710 },
+	{  67737600, 1, 90, 4, 3, 20762 },
+	{  49152000, 0, 49, 3, 3, 9961 },
+	{  45158400, 0, 45, 3, 3, 10381 },
+	{ 180633600, 0, 45, 3, 1, 10381 }
+};
+
+/* exynos: return pll clock frequency */
+static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 {
-	struct exynos4_clock *clk =
-		(struct exynos4_clock *)samsung_get_base_clock();
-	unsigned long r, m, p, s, k = 0, mask, fout;
+	unsigned long m, p, s = 0, mask, fout;
 	unsigned int freq;
-
-	switch (pllreg) {
-	case APLL:
-		r = readl(&clk->apll_con0);
-		break;
-	case MPLL:
-		r = readl(&clk->mpll_con0);
-		break;
-	case EPLL:
-		r = readl(&clk->epll_con0);
-		k = readl(&clk->epll_con1);
-		break;
-	case VPLL:
-		r = readl(&clk->vpll_con0);
-		k = readl(&clk->vpll_con1);
-		break;
-	default:
-		printf("Unsupported PLL (%d)\n", pllreg);
-		return 0;
-	}
-
 	/*
 	 * APLL_CON: MIDV [25:16]
 	 * MPLL_CON: MIDV [25:16]
 	 * EPLL_CON: MIDV [24:16]
 	 * VPLL_CON: MIDV [24:16]
+	 * BPLL_CON: MIDV [25:16]: Exynos5
 	 */
-	if (pllreg == APLL || pllreg == MPLL)
+	if (pllreg == APLL || pllreg == MPLL || pllreg == BPLL)
 		mask = 0x3ff;
 	else
 		mask = 0x1ff;
@@ -92,13 +82,43 @@ static unsigned long exynos4_get_pll_clk(int pllreg)
 	return fout;
 }
 
+/* exynos4: return pll clock frequency */
+static unsigned long exynos4_get_pll_clk(int pllreg)
+{
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
+	unsigned long r, k = 0;
+
+	switch (pllreg) {
+	case APLL:
+		r = readl(&clk->apll_con0);
+		break;
+	case MPLL:
+		r = readl(&clk->mpll_con0);
+		break;
+	case EPLL:
+		r = readl(&clk->epll_con0);
+		k = readl(&clk->epll_con1);
+		break;
+	case VPLL:
+		r = readl(&clk->vpll_con0);
+		k = readl(&clk->vpll_con1);
+		break;
+	default:
+		printf("Unsupported PLL (%d)\n", pllreg);
+		return 0;
+	}
+
+	return exynos_get_pll_clk(pllreg, r, k);
+}
+
 /* exynos5: return pll clock frequency */
 static unsigned long exynos5_get_pll_clk(int pllreg)
 {
 	struct exynos5_clock *clk =
 		(struct exynos5_clock *)samsung_get_base_clock();
-	unsigned long r, m, p, s, k = 0, mask, fout;
-	unsigned int freq, pll_div2_sel, fout_sel;
+	unsigned long r, k = 0, fout;
+	unsigned int pll_div2_sel, fout_sel;
 
 	switch (pllreg) {
 	case APLL:
@@ -123,41 +143,7 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 		return 0;
 	}
 
-	/*
-	 * APLL_CON: MIDV [25:16]
-	 * MPLL_CON: MIDV [25:16]
-	 * EPLL_CON: MIDV [24:16]
-	 * VPLL_CON: MIDV [24:16]
-	 * BPLL_CON: MIDV [25:16]
-	 */
-	if (pllreg == APLL || pllreg == MPLL || pllreg == BPLL)
-		mask = 0x3ff;
-	else
-		mask = 0x1ff;
-
-	m = (r >> 16) & mask;
-
-	/* PDIV [13:8] */
-	p = (r >> 8) & 0x3f;
-	/* SDIV [2:0] */
-	s = r & 0x7;
-
-	freq = CONFIG_SYS_CLK_FREQ;
-
-	if (pllreg == EPLL) {
-		k = k & 0xffff;
-		/* FOUT = (MDIV + K / 65536) * FIN / (PDIV * 2^SDIV) */
-		fout = (m + k / 65536) * (freq / (p * (1 << s)));
-	} else if (pllreg == VPLL) {
-		k = k & 0xfff;
-		/* FOUT = (MDIV + K / 1024) * FIN / (PDIV * 2^SDIV) */
-		fout = (m + k / 1024) * (freq / (p * (1 << s)));
-	} else {
-		if (s < 1)
-			s = 1;
-		/* FOUT = MDIV * FIN / (PDIV * 2^(SDIV - 1)) */
-		fout = m * (freq / (p * (1 << (s - 1))));
-	}
+	fout = exynos_get_pll_clk(pllreg, r, k);
 
 	/* According to the user manual, in EVT1 MPLL and BPLL always gives
 	 * 1.6GHz clock, so divide by 2 to get 800MHz MPLL clock.*/
@@ -732,6 +718,209 @@ static unsigned long exynos5_get_i2c_clk(void)
 	return aclk_66;
 }
 
+int exynos5_set_epll_clk(unsigned long rate)
+{
+	unsigned int epll_con, epll_con_k;
+	unsigned int i;
+	unsigned int lockcnt;
+	unsigned int start;
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+
+	epll_con = readl(&clk->epll_con0);
+	epll_con &= ~((EPLL_CON0_LOCK_DET_EN_MASK <<
+			EPLL_CON0_LOCK_DET_EN_SHIFT) |
+		EPLL_CON0_MDIV_MASK << EPLL_CON0_MDIV_SHIFT |
+		EPLL_CON0_PDIV_MASK << EPLL_CON0_PDIV_SHIFT |
+		EPLL_CON0_SDIV_MASK << EPLL_CON0_SDIV_SHIFT);
+
+	for (i = 0; i < ARRAY_SIZE(exynos5_epll_div); i++) {
+		if (exynos5_epll_div[i].freq_out == rate)
+			break;
+	}
+
+	if (i == ARRAY_SIZE(exynos5_epll_div))
+		return -1;
+
+	epll_con_k = exynos5_epll_div[i].k_dsm << 0;
+	epll_con |= exynos5_epll_div[i].en_lock_det <<
+				EPLL_CON0_LOCK_DET_EN_SHIFT;
+	epll_con |= exynos5_epll_div[i].m_div << EPLL_CON0_MDIV_SHIFT;
+	epll_con |= exynos5_epll_div[i].p_div << EPLL_CON0_PDIV_SHIFT;
+	epll_con |= exynos5_epll_div[i].s_div << EPLL_CON0_SDIV_SHIFT;
+
+	/*
+	 * Required period ( in cycles) to genarate a stable clock output.
+	 * The maximum clock time can be up to 3000 * PDIV cycles of PLLs
+	 * frequency input (as per spec)
+	 */
+	lockcnt = 3000 * exynos5_epll_div[i].p_div;
+
+	writel(lockcnt, &clk->epll_lock);
+	writel(epll_con, &clk->epll_con0);
+	writel(epll_con_k, &clk->epll_con1);
+
+	start = get_timer(0);
+
+	 while (!(readl(&clk->epll_con0) &
+			(0x1 << EXYNOS5_EPLLCON0_LOCKED_SHIFT))) {
+		if (get_timer(start) > TIMEOUT_EPLL_LOCK) {
+			debug("%s: Timeout waiting for EPLL lock\n", __func__);
+			return -1;
+		}
+	}
+	return 0;
+}
+
+void exynos5_set_i2s_clk_source(void)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+
+	clrsetbits_le32(&clk->src_peric1, AUDIO1_SEL_MASK,
+			(CLK_SRC_SCLK_EPLL));
+}
+
+int exynos5_set_i2s_clk_prescaler(unsigned int src_frq,
+					unsigned int dst_frq)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+	unsigned int div;
+
+	if ((dst_frq == 0) || (src_frq == 0)) {
+		debug("%s: Invalid requency input for prescaler\n", __func__);
+		debug("src frq = %d des frq = %d ", src_frq, dst_frq);
+		return -1;
+	}
+
+	div = (src_frq / dst_frq);
+	if (div > AUDIO_1_RATIO_MASK) {
+		debug("%s: Frequency ratio is out of range\n", __func__);
+		debug("src frq = %d des frq = %d ", src_frq, dst_frq);
+		return -1;
+	}
+	clrsetbits_le32(&clk->div_peric4, AUDIO_1_RATIO_MASK,
+				(div & AUDIO_1_RATIO_MASK));
+	return 0;
+}
+
+/**
+ * Linearly searches for the most accurate main and fine stage clock scalars
+ * (divisors) for a specified target frequency and scalar bit sizes by checking
+ * all multiples of main_scalar_bits values. Will always return scalars up to or
+ * slower than target.
+ *
+ * @param main_scalar_bits	Number of main scalar bits, must be > 0 and < 32
+ * @param fine_scalar_bits	Number of fine scalar bits, must be > 0 and < 32
+ * @param input_freq		Clock frequency to be scaled in Hz
+ * @param target_freq		Desired clock frequency in Hz
+ * @param best_fine_scalar	Pointer to store the fine stage divisor
+ *
+ * @return best_main_scalar	Main scalar for desired frequency or -1 if none
+ * found
+ */
+static int clock_calc_best_scalar(unsigned int main_scaler_bits,
+	unsigned int fine_scalar_bits, unsigned int input_rate,
+	unsigned int target_rate, unsigned int *best_fine_scalar)
+{
+	int i;
+	int best_main_scalar = -1;
+	unsigned int best_error = target_rate;
+	const unsigned int cap = (1 << fine_scalar_bits) - 1;
+	const unsigned int loops = 1 << main_scaler_bits;
+
+	debug("Input Rate is %u, Target is %u, Cap is %u\n", input_rate,
+			target_rate, cap);
+
+	assert(best_fine_scalar != NULL);
+	assert(main_scaler_bits <= fine_scalar_bits);
+
+	*best_fine_scalar = 1;
+
+	if (input_rate == 0 || target_rate == 0)
+		return -1;
+
+	if (target_rate >= input_rate)
+		return 1;
+
+	for (i = 1; i <= loops; i++) {
+		const unsigned int effective_div = max(min(input_rate / i /
+							target_rate, cap), 1);
+		const unsigned int effective_rate = input_rate / i /
+							effective_div;
+		const int error = target_rate - effective_rate;
+
+		debug("%d|effdiv:%u, effrate:%u, error:%d\n", i, effective_div,
+				effective_rate, error);
+
+		if (error >= 0 && error <= best_error) {
+			best_error = error;
+			best_main_scalar = i;
+			*best_fine_scalar = effective_div;
+		}
+	}
+
+	return best_main_scalar;
+}
+
+static int exynos5_set_spi_clk(enum periph_id periph_id,
+					unsigned int rate)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+	int main;
+	unsigned int fine;
+	unsigned shift, pre_shift;
+	unsigned mask = 0xff;
+	u32 *reg;
+
+	main = clock_calc_best_scalar(4, 8, 400000000, rate, &fine);
+	if (main < 0) {
+		debug("%s: Cannot set clock rate for periph %d",
+				__func__, periph_id);
+		return -1;
+	}
+	main = main - 1;
+	fine = fine - 1;
+
+	switch (periph_id) {
+	case PERIPH_ID_SPI0:
+		reg = &clk->div_peric1;
+		shift = 0;
+		pre_shift = 8;
+		break;
+	case PERIPH_ID_SPI1:
+		reg = &clk->div_peric1;
+		shift = 16;
+		pre_shift = 24;
+		break;
+	case PERIPH_ID_SPI2:
+		reg = &clk->div_peric2;
+		shift = 0;
+		pre_shift = 8;
+		break;
+	case PERIPH_ID_SPI3:
+		reg = &clk->sclk_div_isp;
+		shift = 0;
+		pre_shift = 4;
+		break;
+	case PERIPH_ID_SPI4:
+		reg = &clk->sclk_div_isp;
+		shift = 12;
+		pre_shift = 16;
+		break;
+	default:
+		debug("%s: Unsupported peripheral ID %d\n", __func__,
+		      periph_id);
+		return -1;
+	}
+	clrsetbits_le32(reg, mask << shift, (main & mask) << shift);
+	clrsetbits_le32(reg, mask << pre_shift, (fine & mask) << pre_shift);
+
+	return 0;
+}
+
 static unsigned long exynos4_get_i2c_clk(void)
 {
 	struct exynos4_clock *clk =
@@ -819,4 +1008,35 @@ void set_mipi_clk(void)
 {
 	if (cpu_is_exynos4())
 		exynos4_set_mipi_clk();
+}
+
+int set_spi_clk(int periph_id, unsigned int rate)
+{
+	if (cpu_is_exynos5())
+		return exynos5_set_spi_clk(periph_id, rate);
+	else
+		return 0;
+}
+
+int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq)
+{
+
+	if (cpu_is_exynos5())
+		return exynos5_set_i2s_clk_prescaler(src_frq, dst_frq);
+	else
+		return 0;
+}
+
+void set_i2s_clk_source(void)
+{
+	if (cpu_is_exynos5())
+		exynos5_set_i2s_clk_source();
+}
+
+int set_epll_clk(unsigned long rate)
+{
+	if (cpu_is_exynos5())
+		return exynos5_set_epll_clk(rate);
+	else
+		return 0;
 }

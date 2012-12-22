@@ -28,6 +28,8 @@ include $(TOPDIR)/config.mk
 LIB	=  $(obj)lib$(SOC).o
 
 COBJS-$(CONFIG_USB_EHCI_TEGRA) += usb.o
+COBJS-$(CONFIG_PWM_TEGRA) += pwm.o
+COBJS-$(CONFIG_VIDEO_TEGRA) += display.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
