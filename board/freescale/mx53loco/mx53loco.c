@@ -31,12 +31,13 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/clock.h>
 #include <asm/errno.h>
+#include <asm/imx-common/mx5_video.h>
 #include <netdev.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <dialog_pmic.h>
 #include <fsl_pmic.h>
 #include <linux/fb.h>
@@ -344,10 +345,16 @@ static int power_init(void)
 	unsigned int val;
 	int ret = -1;
 	struct pmic *p;
+	int retval;
 
 	if (!i2c_probe(CONFIG_SYS_DIALOG_PMIC_I2C_ADDR)) {
-		pmic_dialog_init();
-		p = get_pmic();
+		retval = pmic_dialog_init(I2C_PMIC);
+		if (retval)
+			return retval;
+
+		p = pmic_get("DIALOG_PMIC");
+		if (!p)
+			return -ENODEV;
 
 		/* Set VDDA to 1.25V */
 		val = DA9052_BUCKCORE_BCOREEN | DA_BUCKCORE_VBCORE_1_250V;
@@ -363,8 +370,13 @@ static int power_init(void)
 	}
 
 	if (!i2c_probe(CONFIG_SYS_FSL_PMIC_I2C_ADDR)) {
-		pmic_init();
-		p = get_pmic();
+		retval = pmic_init(I2C_PMIC);
+		if (retval)
+			return retval;
+
+		p = pmic_get("FSL_PMIC");
+		if (!p)
+			return -ENODEV;
 
 		/* Set VDDGP to 1.25V for 1GHz on SW1 */
 		pmic_reg_read(p, REG_SW_0, &val);
@@ -412,74 +424,11 @@ static void clock_1GHz(void)
 		printf("CPU:   Switch DDR clock to 400MHz failed\n");
 }
 
-static struct fb_videomode const claa_wvga = {
-	.name		= "CLAA07LC0ACW",
-	.refresh	= 57,
-	.xres		= 800,
-	.yres		= 480,
-	.pixclock	= 37037,
-	.left_margin	= 40,
-	.right_margin	= 60,
-	.upper_margin	= 10,
-	.lower_margin	= 10,
-	.hsync_len	= 20,
-	.vsync_len	= 10,
-	.sync		= 0,
-	.vmode		= FB_VMODE_NONINTERLACED
-};
-
-void lcd_iomux(void)
-{
-	mxc_request_iomux(MX53_PIN_DI0_DISP_CLK, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DI0_PIN15, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DI0_PIN2, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DI0_PIN3, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT0, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT1, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT2, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT3, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT4, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT5, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT6, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT7, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT8, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT9, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT10, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT11, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT12, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT13, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT14, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT15, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT16, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT17, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT18, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT19, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT20, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT21, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT22, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX53_PIN_DISP0_DAT23, IOMUX_CONFIG_ALT0);
-
-	/* Turn on GPIO backlight */
-	mxc_request_iomux(MX53_PIN_EIM_D24, IOMUX_CONFIG_ALT1);
-	gpio_direction_output(MX53LOCO_LCD_POWER, 1);
-
-	/* Turn on display contrast */
-	mxc_request_iomux(MX53_PIN_GPIO_1, IOMUX_CONFIG_ALT1);
-	gpio_direction_output(IOMUX_TO_GPIO(MX53_PIN_GPIO_1), 1);
-}
-
-void lcd_enable(void)
-{
-	int ret = ipuv3_fb_init(&claa_wvga, 0, IPU_PIX_FMT_RGB565);
-	if (ret)
-		printf("LCD cannot be configured: %d\n", ret);
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
 	setup_iomux_fec();
-	lcd_iomux();
+	setup_iomux_lcd();
 
 	return 0;
 }

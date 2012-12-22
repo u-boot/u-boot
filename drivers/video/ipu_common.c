@@ -94,6 +94,7 @@ struct ipu_ch_param {
 	temp1; \
 })
 
+#define IPU_SW_RST_TOUT_USEC	(10000)
 
 void clk_enable(struct clk *clk)
 {
@@ -398,11 +399,20 @@ void ipu_reset(void)
 {
 	u32 *reg;
 	u32 value;
+	int timeout = IPU_SW_RST_TOUT_USEC;
 
 	reg = (u32 *)SRC_BASE_ADDR;
 	value = __raw_readl(reg);
 	value = value | SW_IPU_RST;
 	__raw_writel(value, reg);
+
+	while (__raw_readl(reg) & SW_IPU_RST) {
+		udelay(1);
+		if (!(timeout--)) {
+			printf("ipu software reset timeout\n");
+			break;
+		}
+	};
 }
 
 /*

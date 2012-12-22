@@ -34,6 +34,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/control_regs.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
@@ -90,12 +91,6 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 	asm volatile("lgdtl %0\n" : : "m" (gdt));
 }
 
-void init_gd(gd_t *id, u64 *gdt_addr)
-{
-	id->gd_addr = (ulong)id;
-	setup_gdt(id, gdt_addr);
-}
-
 void setup_gdt(gd_t *id, u64 *gdt_addr)
 {
 	/* CS: code, read/execute, 4 GB, base 0 */
@@ -119,6 +114,11 @@ void setup_gdt(gd_t *id, u64 *gdt_addr)
 	load_gs(X86_GDT_ENTRY_32BIT_DS);
 	load_ss(X86_GDT_ENTRY_32BIT_DS);
 	load_fs(X86_GDT_ENTRY_32BIT_FS);
+}
+
+int __weak x86_cleanup_before_linux(void)
+{
+	return 0;
 }
 
 int x86_cpu_init_f(void)
@@ -148,15 +148,26 @@ int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
 
 void x86_enable_caches(void)
 {
-	const u32 nw_cd_rst = ~(X86_CR0_NW | X86_CR0_CD);
+	unsigned long cr0;
 
-	/* turn on the cache and disable write through */
-	asm("movl	%%cr0, %%eax\n"
-	    "andl	%0, %%eax\n"
-	    "movl	%%eax, %%cr0\n"
-	    "wbinvd\n" : : "i" (nw_cd_rst) : "eax");
+	cr0 = read_cr0();
+	cr0 &= ~(X86_CR0_NW | X86_CR0_CD);
+	write_cr0(cr0);
+	wbinvd();
 }
 void enable_caches(void) __attribute__((weak, alias("x86_enable_caches")));
+
+void x86_disable_caches(void)
+{
+	unsigned long cr0;
+
+	cr0 = read_cr0();
+	cr0 |= X86_CR0_NW | X86_CR0_CD;
+	wbinvd();
+	write_cr0(cr0);
+	wbinvd();
+}
+void disable_caches(void) __attribute__((weak, alias("x86_disable_caches")));
 
 int x86_init_cache(void)
 {
@@ -201,3 +212,17 @@ void __reset_cpu(ulong addr)
 	generate_gpf();			/* start the show */
 }
 void reset_cpu(ulong addr) __attribute__((weak, alias("__reset_cpu")));
+
+int dcache_status(void)
+{
+	return !(read_cr0() & 0x40000000);
+}
+
+/* Define these functions to allow ehch-hcd to function */
+void flush_dcache_range(unsigned long start, unsigned long stop)
+{
+}
+
+void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+}

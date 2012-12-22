@@ -834,15 +834,11 @@ int mem_test_walk (void)
 /*********************************************************************/
 int testdram (void)
 {
-	char *s;
 	int rundata, runaddress, runwalk;
 
-	s = getenv ("testdramdata");
-	rundata = (s && (*s == 'y')) ? 1 : 0;
-	s = getenv ("testdramaddress");
-	runaddress = (s && (*s == 'y')) ? 1 : 0;
-	s = getenv ("testdramwalk");
-	runwalk = (s && (*s == 'y')) ? 1 : 0;
+	rundata = getenv_yesno("testdramdata") == 1;
+	runaddress = getenv_yesno("testdramaddress") == 1;
+	runwalk = getenv_yesno("testdramwalk") == 1;
 
 /*    rundata = 1; */
 /*    runaddress = 0; */

@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
@@ -77,46 +74,47 @@ struct cbfs_cachenode {
 
 extern enum cbfs_result file_cbfs_result;
 
-/*
- * Return a string describing the most recent error condition.
+/**
+ * file_cbfs_error() - Return a string describing the most recent error
+ * condition.
  *
  * @return A pointer to the constant string.
  */
 const char *file_cbfs_error(void);
 
-/*
- * Initialize the CBFS driver and load metadata into RAM.
+/**
+ * file_cbfs_init() - Initialize the CBFS driver and load metadata into RAM.
  *
- * @param end_of_rom	Points to the end of the ROM the CBFS should be read
+ * @end_of_rom: Points to the end of the ROM the CBFS should be read
  *                      from.
  */
 void file_cbfs_init(uintptr_t end_of_rom);
 
-/*
- * Get the header structure for the current CBFS.
+/**
+ * file_cbfs_get_header() - Get the header structure for the current CBFS.
  *
  * @return A pointer to the constant structure, or NULL if there is none.
  */
 const struct cbfs_header *file_cbfs_get_header(void);
 
-/*
- * Get a handle for the first file in CBFS.
+/**
+ * file_cbfs_get_first() - Get a handle for the first file in CBFS.
  *
  * @return A handle for the first file in CBFS, NULL on error.
  */
 const struct cbfs_cachenode *file_cbfs_get_first(void);
 
-/*
- * Get a handle to the file after this one in CBFS.
+/**
+ * file_cbfs_get_next() - Get a handle to the file after this one in CBFS.
  *
- * @param file		A pointer to the handle to advance.
+ * @file:		A pointer to the handle to advance.
  */
 void file_cbfs_get_next(const struct cbfs_cachenode **file);
 
-/*
- * Find a file with a particular name in CBFS.
+/**
+ * file_cbfs_find() - Find a file with a particular name in CBFS.
  *
- * @param name		The name to search for.
+ * @name:		The name to search for.
  *
  * @return A handle to the file, or NULL on error.
  */
@@ -127,53 +125,55 @@ const struct cbfs_cachenode *file_cbfs_find(const char *name);
 /* All of the functions below can be used without first initializing CBFS. */
 /***************************************************************************/
 
-/*
- * Find a file with a particular name in CBFS without using the heap.
+/**
+ * file_cbfs_find_uncached() - Find a file with a particular name in CBFS
+ * without using the heap.
  *
- * @param end_of_rom	Points to the end of the ROM the CBFS should be read
+ * @end_of_rom:		Points to the end of the ROM the CBFS should be read
  *                      from.
- * @param name		The name to search for.
+ * @name:		The name to search for.
  *
  * @return A handle to the file, or NULL on error.
  */
 const struct cbfs_cachenode *file_cbfs_find_uncached(uintptr_t end_of_rom,
 						     const char *name);
 
-/*
- * Get the name of a file in CBFS.
+/**
+ * file_cbfs_name() - Get the name of a file in CBFS.
  *
- * @param file		The handle to the file.
+ * @file:		The handle to the file.
  *
  * @return The name of the file, NULL on error.
  */
 const char *file_cbfs_name(const struct cbfs_cachenode *file);
 
-/*
- * Get the size of a file in CBFS.
+/**
+ * file_cbfs_size() - Get the size of a file in CBFS.
  *
- * @param file		The handle to the file.
+ * @file:		The handle to the file.
  *
  * @return The size of the file, zero on error.
  */
 u32 file_cbfs_size(const struct cbfs_cachenode *file);
 
-/*
- * Get the type of a file in CBFS.
+/**
+ * file_cbfs_type() - Get the type of a file in CBFS.
  *
- * @param file		The handle to the file.
+ * @file:		The handle to the file.
  *
  * @return The type of the file, zero on error.
  */
 u32 file_cbfs_type(const struct cbfs_cachenode *file);
 
-/*
- * Read a file from CBFS into RAM
+/**
+ * file_cbfs_read() - Read a file from CBFS into RAM
  *
- * @param file		A handle to the file to read.
- * @param buffer	Where to read it into memory.
+ * @file:		A handle to the file to read.
+ * @buffer:		Where to read it into memory.
+ * @maxsize:		Maximum number of bytes to read
  *
  * @return If positive or zero, the number of characters read. If negative, an
- *         error occurred.
+ *	   error occurred.
  */
 long file_cbfs_read(const struct cbfs_cachenode *file, void *buffer,
 		    unsigned long maxsize);

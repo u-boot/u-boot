@@ -87,6 +87,7 @@
 
 /* U-Boot commands */
 #include <config_cmd_default.h>
+#define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_MMC
@@ -108,9 +109,9 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
 /* PMIC Configs */
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_FSL
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_FSL
 #define CONFIG_PMIC_FSL_MC34704
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x54
 

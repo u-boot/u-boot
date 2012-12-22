@@ -217,7 +217,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 #if CONFIG_SYS_FSL_SEC_COMPAT == 2 /* SEC 2.x/3.x */
 void fdt_fixup_crypto_node(void *blob, int sec_rev)
 {
-	const struct sec_rev_prop {
+	static const struct sec_rev_prop {
 		u32 sec_rev;
 		u32 num_channels;
 		u32 channel_fifo_len;
@@ -232,8 +232,8 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		{ 0x0301, 4, 24, 0xbfe, 0x03ab0ebf }, /* SEC 3.1 */
 		{ 0x0303, 4, 24, 0x97c, 0x03a30abf }, /* SEC 3.3 */
 	};
-	char compat_strlist[ARRAY_SIZE(sec_rev_prop_list) *
-			    sizeof("fsl,secX.Y")];
+	static char compat_strlist[ARRAY_SIZE(sec_rev_prop_list) *
+				   sizeof("fsl,secX.Y")];
 	int crypto_node, sec_idx, err;
 	char *p;
 	u32 val;

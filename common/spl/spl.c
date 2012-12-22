@@ -74,6 +74,16 @@ __weak int spl_start_uboot(void)
 }
 #endif
 
+/*
+ * Weak default function for board specific cleanup/preparation before
+ * Linux boot. Some boards/platforms might not need it, so just provide
+ * an empty stub here.
+ */
+__weak void spl_board_prepare_for_linux(void)
+{
+	/* Nothing to do! */
+}
+
 void spl_parse_image_header(const struct image_header *header)
 {
 	u32 header_size = sizeof(struct image_header);
@@ -155,7 +165,13 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			CONFIG_SYS_SPL_MALLOC_SIZE);
 #endif
 
+#ifndef CONFIG_PPC
+	/*
+	 * timer_init() does not exist on PPC systems. The timer is initialized
+	 * and enabled (decrementer) in interrupt_init() here.
+	 */
 	timer_init();
+#endif
 
 #ifdef CONFIG_SPL_BOARD_INIT
 	spl_board_init();

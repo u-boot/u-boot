@@ -27,7 +27,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mc34704.h>
 
@@ -110,11 +110,18 @@ int board_init(void)
 int board_late_init(void)
 {
 	struct pmic *p;
+	int ret;
 
 	mx25pdk_fec_init();
 
-	pmic_init();
-	p = get_pmic();
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return ret;
+
+	p = pmic_get("FSL_PMIC");
+	if (!p)
+		return -ENODEV;
+
 	/* Turn on Ethernet PHY supply */
 	pmic_reg_write(p, MC34704_GENERAL2_REG, ONOFFE);
 

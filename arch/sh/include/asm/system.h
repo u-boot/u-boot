@@ -274,8 +274,8 @@ void enable_hlt(void);
 
 static inline void trigger_address_error(void)
 {
+	set_bl_bit();
 	__asm__ __volatile__ (
-		"ldc %0, sr\n\t"
 		"mov.l @%1, %0"
 		:
 		: "r" (0x10000000), "r" (0x80000001)

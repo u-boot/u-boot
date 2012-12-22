@@ -1315,7 +1315,7 @@ int fdt_set_status_by_alias(void *fdt, const char* alias,
 	return fdt_set_node_status(fdt, offset, status, error_code);
 }
 
-#if defined(CONFIG_VIDEO)
+#if defined(CONFIG_VIDEO) || defined(CONFIG_LCD)
 int fdt_add_edid(void *blob, const char *compat, unsigned char *edid_buf)
 {
 	int noff;

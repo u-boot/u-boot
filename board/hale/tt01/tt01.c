@@ -25,12 +25,13 @@
 #include <common.h>
 #include <netdev.h>
 #include <command.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mc13783.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -195,14 +196,21 @@ int board_mmc_init(bd_t *bis)
 {
 	u32 val;
 	struct pmic *p;
+	int ret;
 
 	/*
 	* this is the first driver to use the pmic, so call
 	* pmic_init() here. board_late_init() is too late for
 	* the MMC driver.
 	*/
-	pmic_init();
-	p = get_pmic();
+
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return ret;
+
+	p = pmic_get("FSL_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	/* configure pins for SDHC1 only */
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SD1_CLK, MUX_CTL_FUNC));

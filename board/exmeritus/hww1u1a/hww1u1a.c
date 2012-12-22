@@ -105,7 +105,7 @@ int checkboard(void)
 	 * and delay a while before we continue.
 	 */
 	if (mpc85xx_gpio_get(GPIO_RESETS)) {
-		ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+		ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
 
 		puts("Debugger detected... extra device reset enabled!\n");
 

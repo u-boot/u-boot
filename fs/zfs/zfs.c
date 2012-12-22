@@ -30,6 +30,7 @@
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include "zfs_common.h"
+#include "div64.h"
 
 block_dev_desc_t *zfs_dev_desc;
 
@@ -2115,7 +2116,8 @@ zfs_read(zfs_file_t file, char *buf, uint64_t len)
 		/*
 		 * Find requested blkid and the offset within that block.
 		 */
-		uint64_t blkid = (file->offset + red) /	 blksz;
+		uint64_t blkid = file->offset + red;
+		blkid = do_div(blkid, blksz);
 		free(data->file_buf);
 		data->file_buf = 0;
 

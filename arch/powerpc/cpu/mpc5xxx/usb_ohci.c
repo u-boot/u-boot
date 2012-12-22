@@ -618,7 +618,7 @@ static ed_t * ep_add_ed (struct usb_device *usb_dev, unsigned long pipe)
 			| usb_pipeendpoint (pipe) << 7
 			| (usb_pipeisoc (pipe)? 0x8000: 0)
 			| (usb_pipecontrol (pipe)? 0: (usb_pipeout (pipe)? 0x800: 0x1000))
-			| usb_pipeslow (pipe) << 13
+			| (usb_dev->speed == USB_SPEED_LOW) << 13
 			| usb_maxpacket (usb_dev, pipe) << 16);
 
 	return ed_ret;

@@ -38,6 +38,7 @@ endif
 COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= emac.o
 COBJS-$(CONFIG_EMIF4)	+= emif4.o
 COBJS-$(CONFIG_SDRC)	+= sdrc.o
+COBJS-$(CONFIG_USB_MUSB_AM35X)	+= am35x_musb.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(COBJS-y) $(SOBJS))

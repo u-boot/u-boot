@@ -31,13 +31,13 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
-#include <pmic.h>
-#include <usb/s3c_udc.h>
-#include <asm/arch/cpu.h>
-#include <max8998_pmic.h>
 #include <asm/arch/watchdog.h>
 #include <libtizen.h>
 #include <ld9040.h>
+#include <power/pmic.h>
+#include <usb/s3c_udc.h>
+#include <asm/arch/cpu.h>
+#include <power/max8998_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,7 +55,20 @@ static int get_hwrev(void)
 	return board_rev & 0xFF;
 }
 
-static void check_hw_revision(void);
+static void init_pmic_lcd(void);
+
+int power_init_board(void)
+{
+	int ret;
+
+	ret = pmic_init(I2C_5);
+	if (ret)
+		return ret;
+
+	init_pmic_lcd();
+
+	return 0;
+}
 
 int dram_init(void)
 {
@@ -101,7 +114,9 @@ static unsigned short get_adc_value(int channel)
 static int adc_power_control(int on)
 {
 	int ret;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;
@@ -224,7 +239,9 @@ int board_mmc_init(bd_t *bis)
 static int s5pc210_phy_control(int on)
 {
 	int ret = 0;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;
@@ -324,7 +341,10 @@ static void init_pmic_lcd(void)
 	unsigned char val;
 	int ret = 0;
 
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+
+	if (!p)
+		return;
 
 	if (pmic_probe(p))
 		return;
@@ -415,7 +435,10 @@ static void reset_lcd(void)
 
 static void lcd_power_on(void)
 {
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+
+	if (!p)
+		return;
 
 	if (pmic_probe(p))
 		return;
@@ -489,10 +512,6 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
-#if defined(CONFIG_PMIC)
-	pmic_init();
-	init_pmic_lcd();
-#endif
 #ifdef CONFIG_SOFT_SPI
 	soft_spi_init();
 #endif

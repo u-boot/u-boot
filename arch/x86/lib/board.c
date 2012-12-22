@@ -36,6 +36,7 @@
 #include <stdio_dev.h>
 #include <asm/u-boot-x86.h>
 #include <asm/relocate.h>
+#include <asm/processor.h>
 
 #include <asm/init_helpers.h>
 #include <asm/init_wrappers.h>
@@ -98,10 +99,17 @@ typedef int (init_fnc_t) (void);
 init_fnc_t *init_sequence_f[] = {
 	cpu_init_f,
 	board_early_init_f,
+#ifdef CONFIG_OF_CONTROL
+	find_fdt,
+	fdtdec_check_fdt,
+#endif
 	env_init,
 	init_baudrate_f,
 	serial_init,
 	console_init_f,
+#ifdef CONFIG_OF_CONTROL
+	prepare_fdt,
+#endif
 	dram_init_f,
 	calculate_relocation_address,
 
@@ -121,7 +129,6 @@ init_fnc_t *init_sequence_f[] = {
  * initialise the CPU caches (to speed up the relocation process)
  */
 init_fnc_t *init_sequence_f_r[] = {
-	copy_gd_to_ram_f_r,
 	init_cache_f_r,
 	copy_uboot_to_ram,
 	clear_bss,
@@ -154,6 +161,9 @@ init_fnc_t *init_sequence_r[] = {
 #ifndef CONFIG_SYS_NO_FLASH
 	flash_init_r,
 #endif
+#ifdef CONFIG_SPI
+	init_func_spi;
+#endif
 	env_relocate_r,
 #ifdef CONFIG_PCI
 	pci_init_r,
@@ -163,9 +173,6 @@ init_fnc_t *init_sequence_r[] = {
 	console_init_r,
 #ifdef CONFIG_MISC_INIT_R
 	misc_init_r,
-#endif
-#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_CMD_IDE)
-	pci_init_r,
 #endif
 #if defined(CONFIG_CMD_KGDB)
 	kgdb_init_r,

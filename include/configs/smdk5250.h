@@ -65,7 +65,7 @@
 #define INFORM1_OFFSET			0x804
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL3			/* use SERIAL 3 */
@@ -207,11 +207,38 @@
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_MAX_I2C_NUM	8
 #define CONFIG_SYS_I2C_SLAVE    0x0
+#define CONFIG_I2C_EDID
 
 /* PMIC */
 #define CONFIG_PMIC
 #define CONFIG_PMIC_I2C
 #define CONFIG_PMIC_MAX77686
+
+/* SPI */
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SPI_FLASH
+
+#ifdef CONFIG_SPI_FLASH
+#define CONFIG_EXYNOS_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SPI
+#define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+#define CONFIG_SF_DEFAULT_SPEED		50000000
+#define EXYNOS5_SPI_NUM_CONTROLLERS	5
+#endif
+
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SPI_MODE	SPI_MODE_0
+#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
+#define CONFIG_ENV_SPI_BUS	1
+#define CONFIG_ENV_SPI_MAX_HZ	50000000
+#endif
+
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX77686
 
 /* SPI */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -258,5 +285,11 @@
 
 /* Enable devicetree support */
 #define CONFIG_OF_LIBFDT
+
+/* SHA hashing */
+#define CONFIG_CMD_HASH
+#define CONFIG_HASH_VERIFY
+#define CONFIG_SHA1
+#define CONFIG_SHA256
 
 #endif	/* __CONFIG_H */

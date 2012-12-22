@@ -714,9 +714,13 @@ void fsl_serdes_init(void)
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
 		/*
-		 * Set BnTTLCRy0[FLT_SEL] = 000011 and set BnTTLCRy0[17] = 1 for
-		 * each of the SerDes lanes selected as SGMII, XAUI, SRIO, or
-		 * AURORA before the device is initialized.
+		 * Set BnTTLCRy0[FLT_SEL] = 011011 and set BnTTLCRy0[31] = 1
+		 * for each of the SerDes lanes selected as SGMII, XAUI, SRIO,
+		 * or AURORA before the device is initialized.
+		 *
+		 * Note that this part of the SERDES-9 work-around is
+		 * redundant if the work-around for A-4580 has already been
+		 * applied via PBI.
 		 */
 		switch (lane_prtcl) {
 		case SGMII_FM1_DTSEC1:
@@ -733,10 +737,12 @@ void fsl_serdes_init(void)
 		case SRIO1:
 		case SRIO2:
 		case AURORA:
-			clrsetbits_be32(&srds_regs->lane[idx].ttlcr0,
-					SRDS_TTLCR0_FLT_SEL_MASK,
-					SRDS_TTLCR0_FLT_SEL_750PPM |
-					SRDS_TTLCR0_PM_DIS);
+			out_be32(&srds_regs->lane[idx].ttlcr0,
+				 SRDS_TTLCR0_FLT_SEL_KFR_26 |
+				 SRDS_TTLCR0_FLT_SEL_KPH_28 |
+				 SRDS_TTLCR0_FLT_SEL_750PPM |
+				 SRDS_TTLCR0_FREQOVD_EN);
+			break;
 		default:
 			break;
 		}

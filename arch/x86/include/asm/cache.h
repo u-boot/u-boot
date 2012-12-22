@@ -32,4 +32,20 @@
 #define ARCH_DMA_MINALIGN	64
 #endif
 
+static inline void wbinvd(void)
+{
+	asm volatile ("wbinvd" : : : "memory");
+}
+
+static inline void invd(void)
+{
+	asm volatile("invd" : : : "memory");
+}
+
+/* Enable caches and write buffer */
+void enable_caches(void);
+
+/* Disable caches and write buffer */
+void disable_caches(void);
+
 #endif /* __X86_CACHE_H__ */

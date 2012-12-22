@@ -27,7 +27,7 @@
  */
 
 #include <common.h>
-#ifdef CONFIG_EXYNOS5
+#if (defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #else
@@ -62,7 +62,7 @@
 
 static unsigned int g_current_bus;	/* Stores Current I2C Bus */
 
-#ifndef CONFIG_EXYNOS5
+#if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 static int GetI2CSDA(void)
 {
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
@@ -121,7 +121,12 @@ static void ReadWriteByte(struct s3c24x0_i2c *i2c)
 
 static struct s3c24x0_i2c *get_base_i2c(void)
 {
-#ifdef CONFIG_EXYNOS5
+#ifdef CONFIG_EXYNOS4
+	struct s3c24x0_i2c *i2c = (struct s3c24x0_i2c *)(samsung_get_base_i2c()
+							+ (EXYNOS4_I2C_SPACING
+							* g_current_bus));
+	return i2c;
+#elif defined CONFIG_EXYNOS5
 	struct s3c24x0_i2c *i2c = (struct s3c24x0_i2c *)(samsung_get_base_i2c()
 							+ (EXYNOS5_I2C_SPACING
 							* g_current_bus));
@@ -134,7 +139,7 @@ static struct s3c24x0_i2c *get_base_i2c(void)
 static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
 {
 	ulong freq, pres = 16, div;
-#ifdef CONFIG_EXYNOS5
+#if (defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 	freq = get_i2c_clk();
 #else
 	freq = get_PCLK();
@@ -188,7 +193,7 @@ unsigned int i2c_get_bus_num(void)
 void i2c_init(int speed, int slaveadd)
 {
 	struct s3c24x0_i2c *i2c;
-#ifndef CONFIG_EXYNOS5
+#if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
 #endif
 	int i;
@@ -204,7 +209,7 @@ void i2c_init(int speed, int slaveadd)
 		i--;
 	}
 
-#ifndef CONFIG_EXYNOS5
+#if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 	if ((readl(&i2c->iicstat) & I2CSTAT_BSY) || GetI2CSDA() == 0) {
 #ifdef CONFIG_S3C2410
 		ulong old_gpecon = readl(&gpio->gpecon);
@@ -248,7 +253,7 @@ void i2c_init(int speed, int slaveadd)
 		writel(old_gpecon, &gpio->pgcon);
 #endif
 	}
-#endif /* #ifndef CONFIG_EXYNOS5 */
+#endif /* #if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5) */
 	i2c_ch_init(i2c, speed, slaveadd);
 }
 

@@ -144,7 +144,7 @@ static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	mmcinfo, 1, 0, do_mmcinfo,
 	"display MMC info",
-	"- dislay info of the current MMC device"
+	"- display info of the current MMC device"
 );
 
 static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -250,14 +250,13 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
-	if (strcmp(argv[1], "read") == 0)
+	state = MMC_INVALID;
+	if (argc == 5 && strcmp(argv[1], "read") == 0)
 		state = MMC_READ;
-	else if (strcmp(argv[1], "write") == 0)
+	else if (argc == 5 && strcmp(argv[1], "write") == 0)
 		state = MMC_WRITE;
-	else if (strcmp(argv[1], "erase") == 0)
+	else if (argc == 4 && strcmp(argv[1], "erase") == 0)
 		state = MMC_ERASE;
-	else
-		state = MMC_INVALID;
 
 	if (state != MMC_INVALID) {
 		struct mmc *mmc = find_mmc_device(curr_device);

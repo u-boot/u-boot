@@ -1058,6 +1058,8 @@ int mxs_nand_init(struct mxs_nand_info *info)
 {
 	struct mxs_gpmi_regs *gpmi_regs =
 		(struct mxs_gpmi_regs *)MXS_GPMI_BASE;
+	struct mxs_bch_regs *bch_regs =
+		(struct mxs_bch_regs *)MXS_BCH_BASE;
 	int i = 0, j;
 
 	info->desc = malloc(sizeof(struct mxs_dma_desc *) *
@@ -1081,6 +1083,7 @@ int mxs_nand_init(struct mxs_nand_info *info)
 
 	/* Reset the GPMI block. */
 	mxs_reset_block(&gpmi_regs->hw_gpmi_ctrl0_reg);
+	mxs_reset_block(&bch_regs->hw_bch_ctrl_reg);
 
 	/*
 	 * Choose NAND mode, set IRQ polarity, disable write protection and

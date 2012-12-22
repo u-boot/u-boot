@@ -146,6 +146,25 @@
 	"fdt_addr_r=0x02000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 
+#ifdef CONFIG_TEGRA_KEYBOARD
+#define STDIN_KBD_KBC ",tegra-kbc"
+#else
+#define STDIN_KBD_KBC ""
+#endif
+
+#ifdef CONFIG_USB_KEYBOARD
+#define STDIN_KBD_USB ",usbkbd"
+#define CONFIG_SYS_USB_EVENT_POLL
+#define CONFIG_PREBOOT			"usb start"
+#else
+#define STDIN_KBD_USB ""
+#endif
+
+#define TEGRA_DEVICE_SETTINGS \
+	"stdin=serial" STDIN_KBD_KBC STDIN_KBD_USB "\0" \
+	"stdout=serial,lcd\0" \
+	"stderr=serial,lcd\0" \
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \

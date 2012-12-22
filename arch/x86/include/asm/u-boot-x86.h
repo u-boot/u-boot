@@ -40,6 +40,7 @@ int cpu_init_f(void);
 void init_gd(gd_t *id, u64 *gdt_addr);
 void setup_gdt(gd_t *id, u64 *gdt_addr);
 int init_cache(void);
+int cleanup_before_linux(void);
 
 /* cpu/.../timer.c */
 void timer_isr(void *);
@@ -62,9 +63,20 @@ u32 isa_map_rom(u32 bus_addr, int size);
 
 /* arch/x86/lib/... */
 int video_bios_init(void);
-int video_init(void);
 
 void	board_init_f_r_trampoline(ulong) __attribute__ ((noreturn));
 void	board_init_f_r(void) __attribute__ ((noreturn));
+
+/* Read the time stamp counter */
+static inline uint64_t rdtsc(void)
+{
+	uint32_t high, low;
+	__asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high));
+	return (((uint64_t)high) << 32) | low;
+}
+
+/* board/... */
+void timer_set_tsc_base(uint64_t new_base);
+uint64_t timer_get_tsc(void);
 
 #endif	/* _U_BOOT_I386_H_ */

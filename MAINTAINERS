@@ -7,6 +7,10 @@
 # and Cc: the <u-boot@lists.denx.de> mailing list.			#
 #									#
 # Note: lists sorted by Maintainer Name					#
+# Note: These are the maintainers for specific *boards*.  The		#
+#	custodians for general architectures and subsystems can		#
+#	be found here -- http://www.denx.de/wiki/U-Boot/Custodians	#
+#									#
 #########################################################################
 
 
@@ -387,6 +391,8 @@ Ricardo Ribalda <ricardo.ribalda@uam.es>
 	xilinx-ppc440-generic	PPC440x5
 
 Stefan Roese <sr@denx.de>
+
+	a3m071		MPC5200
 
 	P3M7448		MPC7448
 
@@ -800,7 +806,7 @@ Veli-Pekka Peltola <veli-pekka.peltola@bluegiga.com>
 
 	apx4devkit	i.MX28
 
-Luka Perkov <uboot@lukaperkov.net>
+Luka Perkov <luka@openwrt.org>
 
 	ib62x0		ARM926EJS
 	iconnect	ARM926EJS

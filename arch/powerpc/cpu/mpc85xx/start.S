@@ -44,6 +44,15 @@
 #undef	MSR_KERNEL
 #define MSR_KERNEL ( MSR_ME )	/* Machine Check */
 
+#if defined(CONFIG_NAND_SPL) || \
+	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_INIT_MINIMAL))
+#define MINIMAL_SPL
+#endif
+
+#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
+#define NOR_BOOT
+#endif
+
 /*
  * Set up GOT: Global Offset Table
  *
@@ -53,7 +62,7 @@
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(_FIXUP_TABLE_)
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	GOT_ENTRY(_start)
 	GOT_ENTRY(_start_of_vectors)
 	GOT_ENTRY(_end_of_vectors)
@@ -282,51 +291,8 @@ l2_disabled:
 	isync
 	.endm
 
-#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(CONFIG_NAND_SPL)
-/*
- * TLB entry for debuggging in AS1
- * Create temporary TLB entry in AS0 to handle debug exception
- * As on debug exception MSR is cleared i.e. Address space is changed
- * to 0. A TLB entry (in AS0) is required to handle debug exception generated
- * in AS1.
- */
-
-#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
-/*
- * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
- * bacause flash's virtual address maps to 0xff800000 - 0xffffffff.
- * and this window is outside of 4K boot window.
- */
-	create_tlb1_entry CONFIG_SYS_PPC_E500_DEBUG_TLB, \
-		0, BOOKE_PAGESZ_4M, \
-		CONFIG_SYS_MONITOR_BASE & 0xffc00000,  MAS2_I|MAS2_G, \
-		0xffc00000, MAS3_SX|MAS3_SW|MAS3_SR, \
-		0, r6
-
-#elif !defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
-	create_tlb1_entry CONFIG_SYS_PPC_E500_DEBUG_TLB, \
-		0, BOOKE_PAGESZ_1M, \
-		CONFIG_SYS_MONITOR_BASE, MAS2_I|MAS2_G, \
-		CONFIG_SYS_PBI_FLASH_WINDOW, MAS3_SX|MAS3_SW|MAS3_SR, \
-		0, r6
-#else
-/*
- * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
- * because "nexti" will resize TLB to 4K
- */
-	create_tlb1_entry CONFIG_SYS_PPC_E500_DEBUG_TLB, \
-		0, BOOKE_PAGESZ_256K, \
-		CONFIG_SYS_MONITOR_BASE, MAS2_I, \
-		CONFIG_SYS_MONITOR_BASE, MAS3_SX|MAS3_SW|MAS3_SR, \
-		0, r6
-#endif
-#endif
-
-/*
- * Ne need to setup interrupt vector for NAND SPL
- * because NAND SPL never compiles it.
- */
-#if !defined(CONFIG_NAND_SPL)
+/* Interrupt vectors do not fit in minimal SPL. */
+#if !defined(MINIMAL_SPL)
 	/* Setup interrupt vectors */
 	lis	r1,CONFIG_SYS_MONITOR_BASE@h
 	mtspr	IVPR,r1
@@ -534,10 +500,6 @@ nexti:	mflr	r1		/* R1 = our PC */
 	li	r3, 0
 	mtspr	MAS1, r3
 1:	cmpw	r3, r14
-#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(CONFIG_NAND_SPL)
-	cmpwi	cr1, r3, CONFIG_SYS_PPC_E500_DEBUG_TLB
-	cror	cr0*4+eq, cr0*4+eq, cr1*4+eq
-#endif
 	rlwinm	r5, r3, 16, MAS0_ESEL_MSK
 	addi	r3, r3, 1
 	beq	2f		/* skip the entry we're executing from */
@@ -552,6 +514,46 @@ nexti:	mflr	r1		/* R1 = our PC */
 
 2:	cmpw	r3, r4
 	blt	1b
+
+#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(MINIMAL_SPL)
+/*
+ * TLB entry for debuggging in AS1
+ * Create temporary TLB entry in AS0 to handle debug exception
+ * As on debug exception MSR is cleared i.e. Address space is changed
+ * to 0. A TLB entry (in AS0) is required to handle debug exception generated
+ * in AS1.
+ */
+
+#ifdef NOR_BOOT
+/*
+ * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
+ * bacause flash's virtual address maps to 0xff800000 - 0xffffffff.
+ * and this window is outside of 4K boot window.
+ */
+	create_tlb1_entry CONFIG_SYS_PPC_E500_DEBUG_TLB, \
+		0, BOOKE_PAGESZ_4M, \
+		CONFIG_SYS_MONITOR_BASE & 0xffc00000,  MAS2_I|MAS2_G, \
+		0xffc00000, MAS3_SX|MAS3_SW|MAS3_SR, \
+		0, r6
+
+#elif !defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
+	create_tlb1_entry CONFIG_SYS_PPC_E500_DEBUG_TLB, \
+		0, BOOKE_PAGESZ_1M, \
+		CONFIG_SYS_MONITOR_BASE, MAS2_I|MAS2_G, \
+		CONFIG_SYS_PBI_FLASH_WINDOW, MAS3_SX|MAS3_SW|MAS3_SR, \
+		0, r6
+#else
+/*
+ * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
+ * because "nexti" will resize TLB to 4K
+ */
+	create_tlb1_entry CONFIG_SYS_PPC_E500_DEBUG_TLB, \
+		0, BOOKE_PAGESZ_256K, \
+		CONFIG_SYS_MONITOR_BASE & 0xfffc0000, MAS2_I, \
+		CONFIG_SYS_MONITOR_BASE & 0xfffc0000, MAS3_SX|MAS3_SW|MAS3_SR, \
+		0, r6
+#endif
+#endif
 
 /*
  * Relocate CCSR, if necessary.  We relocate CCSR if (obviously) the default
@@ -1036,7 +1038,7 @@ create_init_ram_area:
 	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h
 	ori     r6,r6,FSL_BOOKE_MAS0(1, 15, 0)@l
 
-#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
+#ifdef NOR_BOOT
 	/* create a temp mapping in AS=1 to the 4M boot window */
 	create_tlb1_entry 15, \
 		1, BOOKE_PAGESZ_4M, \
@@ -1050,8 +1052,8 @@ create_init_ram_area:
 	*/
 	create_tlb1_entry 15, \
 		1, BOOKE_PAGESZ_1M, \
-		CONFIG_SYS_MONITOR_BASE, MAS2_I|MAS2_G, \
-		CONFIG_SYS_PBI_FLASH_WINDOW, MAS3_SX|MAS3_SW|MAS3_SR, \
+		CONFIG_SYS_MONITOR_BASE & 0xfff00000, MAS2_I|MAS2_G, \
+		CONFIG_SYS_PBI_FLASH_WINDOW & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
 #else
 	/*
@@ -1060,8 +1062,8 @@ create_init_ram_area:
 	 */
 	create_tlb1_entry 15, \
 		1, BOOKE_PAGESZ_1M, \
-		CONFIG_SYS_MONITOR_BASE, MAS2_I|MAS2_G, \
-		CONFIG_SYS_MONITOR_BASE, MAS3_SX|MAS3_SW|MAS3_SR, \
+		CONFIG_SYS_MONITOR_BASE & 0xfff00000, MAS2_I|MAS2_G, \
+		CONFIG_SYS_MONITOR_BASE & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
 #endif
 
@@ -1111,7 +1113,8 @@ switch_as:
 	bdnz	1b
 
 	/* Jump out the last 4K page and continue to 'normal' start */
-#ifdef CONFIG_SYS_RAMBOOT
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)
+	/* We assume that we're already running at the address we're linked at */
 	b	_start_cont
 #else
 	/* Calculate absolute address in FLASH and jump there		*/
@@ -1157,7 +1160,7 @@ _start_cont:
 
 	/* NOTREACHED - board_init_f() does not return */
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	. = EXC_OFF_SYS_RESET
 	.globl	_start_of_vectors
 _start_of_vectors:
@@ -1601,7 +1604,7 @@ in32:
 in32r:
 	lwbrx	r3,r0,r3
 	blr
-#endif  /* !CONFIG_NAND_SPL */
+#endif  /* !MINIMAL_SPL */
 
 /*------------------------------------------------------------------------------*/
 
@@ -1798,7 +1801,7 @@ clear_bss:
 	mr	r4,r10		/* Destination Address		*/
 	bl	board_init_r
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	/*
 	 * Copy exception vector code to low memory
 	 *
@@ -1971,4 +1974,4 @@ setup_ivors:
 
 #include "fixed_ivor.S"
 	blr
-#endif /* !CONFIG_NAND_SPL */
+#endif /* !MINIMAL_SPL */

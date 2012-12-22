@@ -96,11 +96,6 @@
 #define	CONFIG_SYS_LOADS_BAUD_CHANGE
 
 /*
- * Set default load address for tftp network downloads
- */
-#define	CONFIG_SYS_TFTP_LOADADDR				0x01000000
-
-/*
  * Turn off the watchdog timer
  */
 #undef	CONFIG_WATCHDOG

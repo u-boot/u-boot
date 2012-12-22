@@ -163,8 +163,8 @@ static int pl01x_serial_init(void)
 	}
 #endif
 	/* Finally, enable the UART */
-	writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE | UART_PL011_CR_RXE,
-	       &regs->pl011_cr);
+	writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE | UART_PL011_CR_RXE |
+	       UART_PL011_CR_RTS, &regs->pl011_cr);
 
 	return 0;
 }

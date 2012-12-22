@@ -329,54 +329,60 @@ static int exynos5_pinmux_config(int peripheral, int flags)
 	return 0;
 }
 
-static int exynos4_mmc_config(int peripheral, int flags)
+static void exynos4_i2c_config(int peripheral, int flags)
 {
-	struct exynos4_gpio_part2 *gpio2 =
-		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
-	struct s5p_gpio_bank *bank, *bank_ext;
-	int i;
+	struct exynos4_gpio_part1 *gpio1 =
+		(struct exynos4_gpio_part1 *) samsung_get_base_gpio_part1();
 
 	switch (peripheral) {
-	case PERIPH_ID_SDMMC0:
-		bank = &gpio2->k0;
-		bank_ext = &gpio2->k1;
+	case PERIPH_ID_I2C0:
+		s5p_gpio_cfg_pin(&gpio1->d1, 0, GPIO_FUNC(0x2));
+		s5p_gpio_cfg_pin(&gpio1->d1, 1, GPIO_FUNC(0x2));
 		break;
-	case PERIPH_ID_SDMMC2:
-		bank = &gpio2->k2;
-		bank_ext = &gpio2->k3;
+	case PERIPH_ID_I2C1:
+		s5p_gpio_cfg_pin(&gpio1->d1, 2, GPIO_FUNC(0x2));
+		s5p_gpio_cfg_pin(&gpio1->d1, 3, GPIO_FUNC(0x2));
 		break;
-	default:
-		return -1;
+	case PERIPH_ID_I2C2:
+		s5p_gpio_cfg_pin(&gpio1->a0, 6, GPIO_FUNC(0x3));
+		s5p_gpio_cfg_pin(&gpio1->a0, 7, GPIO_FUNC(0x3));
+		break;
+	case PERIPH_ID_I2C3:
+		s5p_gpio_cfg_pin(&gpio1->a1, 2, GPIO_FUNC(0x3));
+		s5p_gpio_cfg_pin(&gpio1->a1, 3, GPIO_FUNC(0x3));
+		break;
+	case PERIPH_ID_I2C4:
+		s5p_gpio_cfg_pin(&gpio1->b, 2, GPIO_FUNC(0x3));
+		s5p_gpio_cfg_pin(&gpio1->b, 3, GPIO_FUNC(0x3));
+		break;
+	case PERIPH_ID_I2C5:
+		s5p_gpio_cfg_pin(&gpio1->b, 6, GPIO_FUNC(0x3));
+		s5p_gpio_cfg_pin(&gpio1->b, 7, GPIO_FUNC(0x3));
+		break;
+	case PERIPH_ID_I2C6:
+		s5p_gpio_cfg_pin(&gpio1->c1, 3, GPIO_FUNC(0x4));
+		s5p_gpio_cfg_pin(&gpio1->c1, 4, GPIO_FUNC(0x4));
+		break;
+	case PERIPH_ID_I2C7:
+		s5p_gpio_cfg_pin(&gpio1->d0, 2, GPIO_FUNC(0x3));
+		s5p_gpio_cfg_pin(&gpio1->d0, 3, GPIO_FUNC(0x3));
+		break;
 	}
-	for (i = 0; i < 7; i++) {
-		if (i == 2)
-			continue;
-		s5p_gpio_cfg_pin(bank, i,  GPIO_FUNC(0x2));
-		s5p_gpio_set_pull(bank, i, GPIO_PULL_NONE);
-		s5p_gpio_set_drv(bank, i, GPIO_DRV_4X);
-	}
-	if (flags & PINMUX_FLAG_8BIT_MODE) {
-		for (i = 3; i < 7; i++) {
-			s5p_gpio_cfg_pin(bank_ext, i,  GPIO_FUNC(0x3));
-			s5p_gpio_set_pull(bank_ext, i, GPIO_PULL_NONE);
-			s5p_gpio_set_drv(bank_ext, i, GPIO_DRV_4X);
-		}
-	}
-
-	return 0;
 }
 
 static int exynos4_pinmux_config(int peripheral, int flags)
 {
 	switch (peripheral) {
-	case PERIPH_ID_SDMMC0:
-	case PERIPH_ID_SDMMC2:
-		return exynos4_mmc_config(peripheral, flags);
-	case PERIPH_ID_SDMMC1:
-	case PERIPH_ID_SDMMC3:
-	case PERIPH_ID_SDMMC4:
-		printf("SDMMC device %d not implemented\n", peripheral);
-		return -1;
+	case PERIPH_ID_I2C0:
+	case PERIPH_ID_I2C1:
+	case PERIPH_ID_I2C2:
+	case PERIPH_ID_I2C3:
+	case PERIPH_ID_I2C4:
+	case PERIPH_ID_I2C5:
+	case PERIPH_ID_I2C6:
+	case PERIPH_ID_I2C7:
+		exynos4_i2c_config(peripheral, flags);
+		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
 		return -1;

@@ -96,11 +96,11 @@ static int mxsmmc_send_cmd_pio(struct mxsmmc_priv *priv, struct mmc_data *data)
 static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 {
 	uint32_t data_count = data->blocksize * data->blocks;
-	uint32_t cache_data_count = roundup(data_count, ARCH_DMA_MINALIGN);
 	int dmach;
 	struct mxs_dma_desc *desc = priv->desc;
-	void *addr, *backup;
-	uint8_t flags;
+	void *addr;
+	unsigned int flags;
+	struct bounce_buffer bbstate;
 
 	memset(desc, 0, sizeof(struct mxs_dma_desc));
 	desc->address = (dma_addr_t)desc;
@@ -115,19 +115,9 @@ static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 		flags = GEN_BB_READ;
 	}
 
-	bounce_buffer_start(&addr, data_count, &backup, flags);
+	bounce_buffer_start(&bbstate, addr, data_count, flags);
 
-	priv->desc->cmd.address = (dma_addr_t)addr;
-
-	if (data->flags & MMC_DATA_WRITE) {
-		/* Flush data to DRAM so DMA can pick them up */
-		flush_dcache_range((uint32_t)addr,
-			(uint32_t)(addr) + cache_data_count);
-	}
-
-	/* Invalidate the area, so no writeback into the RAM races with DMA */
-	invalidate_dcache_range((uint32_t)priv->desc->cmd.address,
-			(uint32_t)(priv->desc->cmd.address + cache_data_count));
+	priv->desc->cmd.address = (dma_addr_t)bbstate.bounce_buffer;
 
 	priv->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
 				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
@@ -135,17 +125,11 @@ static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + priv->id;
 	mxs_dma_desc_append(dmach, priv->desc);
 	if (mxs_dma_go(dmach)) {
-		bounce_buffer_stop(&addr, data_count, &backup, flags);
+		bounce_buffer_stop(&bbstate);
 		return COMM_ERR;
 	}
 
-	/* The data arrived into DRAM, invalidate cache over them */
-	if (data->flags & MMC_DATA_READ) {
-		invalidate_dcache_range((uint32_t)addr,
-			(uint32_t)(addr) + cache_data_count);
-	}
-
-	bounce_buffer_stop(&addr, data_count, &backup, flags);
+	bounce_buffer_stop(&bbstate);
 
 	return 0;
 }
