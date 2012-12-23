@@ -456,3 +456,50 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_board_enet(blob);
 #endif
 }
+
+/*
+ * Dump board switch settings.
+ * The bits that cannot be read/sampled via some FPGA or some
+ * registers, they will be displayed as
+ * underscore in binary format. mask[] has those bits.
+ * Some bits are calculated differently than the actual switches
+ * if booting with overriding by FPGA.
+ */
+void qixis_dump_switch(void)
+{
+	int i;
+	u8 sw[5];
+
+	/*
+	 * Any bit with 1 means that bit cannot be reverse engineered.
+	 * It will be displayed as _ in binary format.
+	 */
+	static const u8 mask[] = {0x07, 0, 0, 0xff, 0};
+	char buf[10];
+	u8 brdcfg[16], dutcfg[16];
+
+	for (i = 0; i < 16; i++) {
+		brdcfg[i] = qixis_read(offsetof(struct qixis, brdcfg[0]) + i);
+		dutcfg[i] = qixis_read(offsetof(struct qixis, dutcfg[0]) + i);
+	}
+
+	sw[0] = ((brdcfg[0] & 0x0f) << 4)	| \
+		(brdcfg[9] & 0x08);
+	sw[1] = ((dutcfg[1] & 0x01) << 7)	| \
+		((dutcfg[2] & 0x07) << 4)       | \
+		((dutcfg[6] & 0x10) >> 1)       | \
+		((dutcfg[6] & 0x80) >> 5)       | \
+		((dutcfg[1] & 0x40) >> 5)       | \
+		(dutcfg[6] & 0x01);
+	sw[2] = dutcfg[0];
+	sw[3] = 0;
+	sw[4] = ((brdcfg[1] & 0x30) << 2)	| \
+		((brdcfg[1] & 0xc0) >> 2)	| \
+		(brdcfg[1] & 0x0f);
+
+	puts("DIP switch settings:\n");
+	for (i = 0; i < 5; i++) {
+		printf("SW%d         = 0b%s (0x%02x)\n",
+			i + 1, byte_to_binary_mask(sw[i], mask[i], buf), sw[i]);
+	}
+}
