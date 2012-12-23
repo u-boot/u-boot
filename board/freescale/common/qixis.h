@@ -91,6 +91,7 @@ void qixis_write(unsigned int reg, u8 value);
 u16 qixis_read_minor(void);
 char *qixis_read_time(char *result);
 char *qixis_read_tag(char *buf);
+const char *byte_to_binary_mask(u8 val, u8 mask, char *buf);
 
 #define QIXIS_READ(reg) qixis_read(offsetof(struct qixis, reg))
 #define QIXIS_WRITE(reg, value) qixis_write(offsetof(struct qixis, reg), value)

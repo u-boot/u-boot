@@ -76,6 +76,27 @@ char *qixis_read_tag(char *buf)
 	return buf;
 }
 
+/*
+ * return the string of binary of u8 in the format of
+ * 1010 10_0. The masked bit is filled as underscore.
+ */
+const char *byte_to_binary_mask(u8 val, u8 mask, char *buf)
+{
+	char *ptr;
+	int i;
+
+	ptr = buf;
+	for (i = 0x80; i > 0x08 ; i >>= 1, ptr++)
+		*ptr = (val & i) ? '1' : ((mask & i) ? '_' : '0');
+	*(ptr++) = ' ';
+	for (i = 0x08; i > 0 ; i >>= 1, ptr++)
+		*ptr = (val & i) ? '1' : ((mask & i) ? '_' : '0');
+
+	*ptr = '\0';
+
+	return buf;
+}
+
 void qixis_reset(void)
 {
 	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET);
@@ -107,7 +128,6 @@ void set_altbank(void)
 	QIXIS_WRITE(brdcfg[0], reg);
 }
 
-#ifdef DEBUG
 static void qixis_dump_regs(void)
 {
 	int i;
@@ -137,7 +157,14 @@ static void qixis_dump_regs(void)
 	printf("stat_sys = %02x\n", QIXIS_READ(stat_sys));
 	printf("stat_alrm = %02x\n", QIXIS_READ(stat_alrm));
 }
-#endif
+
+static void __qixis_dump_switch(void)
+{
+	puts("Reverse engineering switch is not implemented for this board\n");
+}
+
+void qixis_dump_switch(void)
+	__attribute__((weak, alias("__qixis_dump_switch")));
 
 int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -168,16 +195,13 @@ int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return 0;
 			}
 		}
-	}
-
-#ifdef DEBUG
-	else if (strcmp(argv[1], "dump") == 0) {
+	} else if (strcmp(argv[1], "dump") == 0) {
 		qixis_dump_regs();
 		return 0;
-	}
-#endif
-
-	else {
+	} else if (strcmp(argv[1], "switch") == 0) {
+		qixis_dump_switch();
+		return 0;
+	} else {
 		printf("Invalid option: %s\n", argv[1]);
 		return 1;
 	}
@@ -192,7 +216,6 @@ U_BOOT_CMD(
 	"qixis_reset altbank - reset to alternate bank\n"
 	"qixis watchdog <watchdog_period> - set the watchdog period\n"
 	"	period: 1s 2s 4s 8s 16s 32s 1min 2min 4min 8min\n"
-#ifdef DEBUG
 	"qixis_reset dump - display the QIXIS registers\n"
-#endif
+	"qixis_reset switch - display switch\n"
 	);
