@@ -525,6 +525,27 @@
 #define CONFIG_SYS_FSL_ERRATUM_A_004934
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xfe000000
 
+#elif defined(CONFIG_PPC_B4420)
+#define CONFIG_SYS_PPC64		/* 64-bit core */
+#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
+#define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
+#define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
+#define CONFIG_MAX_CPUS			2
+#define CONFIG_SYS_FSL_NUM_CC_PLLS	4
+#define CONFIG_SYS_FSL_NUM_LAWS		32
+#define CONFIG_SYS_FSL_SEC_COMPAT	4
+#define CONFIG_SYS_NUM_FMAN		1
+#define CONFIG_SYS_NUM_FM1_DTSEC	4
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_SYS_FSL_DDR_VER		FSL_DDR_VER_4_7
+#define CONFIG_SYS_FMAN_V3
+#define CONFIG_SYS_FM_MURAM_SIZE	0x60000
+#define CONFIG_SYS_FSL_TBCLK_DIV	16
+#define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.4"
+#define CONFIG_SYS_FSL_USB1_PHY_ENABLE
+#define CONFIG_SYS_FSL_ERRATUM_A_004934
+#define CONFIG_SYS_CCSRBAR_DEFAULT	0xfe000000
+
 #elif defined(CONFIG_PPC_B4860)
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */

@@ -31,6 +31,7 @@ struct serdes_config {
 	u8 lanes[SRDS_MAX_LANES];
 };
 
+#ifdef CONFIG_PPC_B4860
 static struct serdes_config serdes1_cfg_tbl[] = {
 	/* SerDes 1 */
 	{0x0D, {CPRI8, CPRI7, CPRI6, CPRI5,
@@ -128,6 +129,50 @@ static struct serdes_config serdes2_cfg_tbl[] = {
 		XAUI_FM1_MAC10, XAUI_FM1_MAC10}},
 	{}
 };
+#endif
+
+#ifdef CONFIG_PPC_B4420
+static struct serdes_config serdes1_cfg_tbl[] = {
+	{0x0D, {NONE, NONE, CPRI6, CPRI5,
+		CPRI4, CPRI3, NONE, NONE} },
+	{0x0E, {NONE, NONE, CPRI8, CPRI5,
+		CPRI4, CPRI3, NONE, NONE} },
+	{0x0F, {NONE, NONE, CPRI6, CPRI5,
+		CPRI4, CPRI3, NONE, NONE} },
+	{0x18, {NONE, NONE,
+		SGMII_FM1_DTSEC3, SGMII_FM1_DTSEC4,
+		NONE, NONE, NONE, NONE} },
+	{0x1B, {NONE, NONE,
+		SGMII_FM1_DTSEC3, SGMII_FM1_DTSEC4,
+		NONE, NONE, NONE, NONE} },
+	{0x1E, {NONE, NONE, AURORA, AURORA,
+		NONE, NONE, NONE, NONE} },
+	{0x21, {NONE, NONE, AURORA, AURORA,
+		NONE, NONE, NONE, NONE} },
+	{0x3E, {NONE, NONE, CPRI6, CPRI5,
+		CPRI4, CPRI3, NONE, NONE} },
+	{}
+};
+static struct serdes_config serdes2_cfg_tbl[] = {
+	{0x49, {SGMII_FM1_DTSEC1, SGMII_FM1_DTSEC2,
+		SGMII_FM1_DTSEC3, AURORA,
+		NONE, NONE, NONE, NONE} },
+	{0x4A, {SGMII_FM1_DTSEC1, SGMII_FM1_DTSEC2,
+		SGMII_FM1_DTSEC3, AURORA,
+		NONE, NONE, NONE, NONE} },
+	{0x6F, {SGMII_FM1_DTSEC1, SGMII_FM1_DTSEC2,
+		AURORA, AURORA,	NONE, NONE, NONE, NONE} },
+	{0x70, {SGMII_FM1_DTSEC1, SGMII_FM1_DTSEC2,
+		AURORA, AURORA,	NONE, NONE, NONE, NONE} },
+	{0x9A, {PCIE1, PCIE1,
+		SGMII_FM1_DTSEC3, SGMII_FM1_DTSEC4,
+		NONE, NONE, NONE, NONE} },
+	{0x9E, {PCIE1, PCIE1, PCIE1, PCIE1,
+		NONE, NONE, NONE, NONE} },
+	{}
+};
+#endif
+
 static struct serdes_config *serdes_cfg_tbl[] = {
 	serdes1_cfg_tbl,
 	serdes2_cfg_tbl,
