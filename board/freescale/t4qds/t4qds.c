@@ -56,14 +56,15 @@ static const int8_t vsc3316_fsm2_rx[8][2] = { {0, 15}, {1, 14}, {6, 7}, {7, 6},
 
 int checkboard(void)
 {
+	char buf[64];
 	u8 sw;
 	struct cpu_type *cpu = gd->cpu;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	unsigned int i;
 
 	printf("Board: %sQDS, ", cpu->name);
-	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
-		QIXIS_READ(id), QIXIS_READ(arch), QIXIS_READ(scver));
+	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, ",
+		QIXIS_READ(id), QIXIS_READ(arch));
 
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
@@ -76,6 +77,12 @@ int checkboard(void)
 		puts("NAND\n");
 	else
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
+
+	printf("FPGA: v%d (%s), build %d",
+		(int)QIXIS_READ(scver), qixis_read_tag(buf),
+		(int)qixis_read_minor());
+	/* the timestamp string contains "\n" at the end */
+	printf(" on %s", qixis_read_time(buf));
 
 	/* Display the RCW, so that no one gets confused as to what RCW
 	 * we're actually using for this boot.
