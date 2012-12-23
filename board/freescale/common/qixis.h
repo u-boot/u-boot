@@ -88,6 +88,9 @@ struct qixis {
 
 u8 qixis_read(unsigned int reg);
 void qixis_write(unsigned int reg, u8 value);
+u16 qixis_read_minor(void);
+char *qixis_read_time(char *result);
+char *qixis_read_tag(char *buf);
 
 #define QIXIS_READ(reg) qixis_read(offsetof(struct qixis, reg))
 #define QIXIS_WRITE(reg, value) qixis_write(offsetof(struct qixis, reg), value)
