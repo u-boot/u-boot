@@ -79,6 +79,67 @@ struct exynos4_gpio_part3 {
 	struct s5p_gpio_bank z;
 };
 
+struct exynos4x12_gpio_part1 {
+	struct s5p_gpio_bank a0;
+	struct s5p_gpio_bank a1;
+	struct s5p_gpio_bank b;
+	struct s5p_gpio_bank c0;
+	struct s5p_gpio_bank c1;
+	struct s5p_gpio_bank d0;
+	struct s5p_gpio_bank d1;
+	struct s5p_gpio_bank res1[0x5];
+	struct s5p_gpio_bank f0;
+	struct s5p_gpio_bank f1;
+	struct s5p_gpio_bank f2;
+	struct s5p_gpio_bank f3;
+	struct s5p_gpio_bank res2[0x2];
+	struct s5p_gpio_bank j0;
+	struct s5p_gpio_bank j1;
+};
+
+struct exynos4x12_gpio_part2 {
+	struct s5p_gpio_bank res1[0x2];
+	struct s5p_gpio_bank k0;
+	struct s5p_gpio_bank k1;
+	struct s5p_gpio_bank k2;
+	struct s5p_gpio_bank k3;
+	struct s5p_gpio_bank l0;
+	struct s5p_gpio_bank l1;
+	struct s5p_gpio_bank l2;
+	struct s5p_gpio_bank y0;
+	struct s5p_gpio_bank y1;
+	struct s5p_gpio_bank y2;
+	struct s5p_gpio_bank y3;
+	struct s5p_gpio_bank y4;
+	struct s5p_gpio_bank y5;
+	struct s5p_gpio_bank y6;
+	struct s5p_gpio_bank res2[0x3];
+	struct s5p_gpio_bank m0;
+	struct s5p_gpio_bank m1;
+	struct s5p_gpio_bank m2;
+	struct s5p_gpio_bank m3;
+	struct s5p_gpio_bank m4;
+	struct s5p_gpio_bank res3[0x48];
+	struct s5p_gpio_bank x0;
+	struct s5p_gpio_bank x1;
+	struct s5p_gpio_bank x2;
+	struct s5p_gpio_bank x3;
+};
+
+struct exynos4x12_gpio_part3 {
+	struct s5p_gpio_bank z;
+};
+
+struct exynos4x12_gpio_part4 {
+	struct s5p_gpio_bank v0;
+	struct s5p_gpio_bank v1;
+	struct s5p_gpio_bank res1[0x1];
+	struct s5p_gpio_bank v2;
+	struct s5p_gpio_bank v3;
+	struct s5p_gpio_bank res2[0x1];
+	struct s5p_gpio_bank v4;
+};
+
 struct exynos5_gpio_part1 {
 	struct s5p_gpio_bank a0;
 	struct s5p_gpio_bank a1;
@@ -162,6 +223,30 @@ void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode);
 				EXYNOS4_GPIO_PART2_BASE)->bank)) \
 	    - EXYNOS4_GPIO_PART2_BASE) / sizeof(struct s5p_gpio_bank)) \
 	  * GPIO_PER_BANK) + pin) + EXYNOS4_GPIO_PART1_MAX)
+
+#define exynos4x12_gpio_part1_get_nr(bank, pin) \
+	((((((unsigned int) &(((struct exynos4x12_gpio_part1 *) \
+			       EXYNOS4X12_GPIO_PART1_BASE)->bank)) \
+	    - EXYNOS4X12_GPIO_PART1_BASE) / sizeof(struct s5p_gpio_bank)) \
+	  * GPIO_PER_BANK) + pin)
+
+#define EXYNOS4X12_GPIO_PART1_MAX ((sizeof(struct exynos4x12_gpio_part1) \
+			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
+
+#define exynos4x12_gpio_part2_get_nr(bank, pin) \
+	(((((((unsigned int) &(((struct exynos4x12_gpio_part2 *) \
+				EXYNOS4X12_GPIO_PART2_BASE)->bank)) \
+	    - EXYNOS4X12_GPIO_PART2_BASE) / sizeof(struct s5p_gpio_bank)) \
+	  * GPIO_PER_BANK) + pin) + EXYNOS4X12_GPIO_PART1_MAX)
+
+#define EXYNOS4X12_GPIO_PART2_MAX ((sizeof(struct exynos4x12_gpio_part2) \
+			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
+
+#define exynos4x12_gpio_part3_get_nr(bank, pin) \
+	(((((((unsigned int) &(((struct exynos4x12_gpio_part3 *) \
+				EXYNOS4X12_GPIO_PART3_BASE)->bank)) \
+	    - EXYNOS4X12_GPIO_PART3_BASE) / sizeof(struct s5p_gpio_bank)) \
+	  * GPIO_PER_BANK) + pin) + EXYNOS4X12_GPIO_PART2_MAX)
 
 #define exynos5_gpio_part1_get_nr(bank, pin) \
 	((((((unsigned int) &(((struct exynos5_gpio_part1 *) \
