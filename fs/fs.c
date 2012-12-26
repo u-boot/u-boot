@@ -35,14 +35,12 @@ static inline int fs_probe_unsupported(void)
 
 static inline int fs_ls_unsupported(const char *dirname)
 {
-	printf("** Unrecognized filesystem type **\n");
 	return -1;
 }
 
 static inline int fs_read_unsupported(const char *filename, ulong addr,
 				      int offset, int len)
 {
-	printf("** Unrecognized filesystem type **\n");
 	return -1;
 }
 
@@ -189,6 +187,20 @@ static struct fstype_info fstypes[] = {
 	},
 };
 
+static struct fstype_info *fs_get_info(int fstype)
+{
+	struct fstype_info *info;
+	int i;
+
+	for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes) - 1; i++, info++) {
+		if (fstype == info->fstype)
+			return info;
+	}
+
+	/* Return the 'unsupported' sentinel */
+	return info;
+}
+
 int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 {
 	struct fstype_info *info;
@@ -229,17 +241,9 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 
 static void fs_close(void)
 {
-	switch (fs_type) {
-	case FS_TYPE_FAT:
-		fs_close_fat();
-		break;
-	case FS_TYPE_EXT:
-		fs_close_ext();
-		break;
-	default:
-		break;
-	}
+	struct fstype_info *info = fs_get_info(fs_type);
 
+	info->close();
 	fs_type = FS_TYPE_ANY;
 }
 
@@ -247,17 +251,9 @@ int fs_ls(const char *dirname)
 {
 	int ret;
 
-	switch (fs_type) {
-	case FS_TYPE_FAT:
-		ret = fs_ls_fat(dirname);
-		break;
-	case FS_TYPE_EXT:
-		ret = fs_ls_ext(dirname);
-		break;
-	default:
-		ret = fs_ls_unsupported(dirname);
-		break;
-	}
+	struct fstype_info *info = fs_get_info(fs_type);
+
+	ret = info->ls(dirname);
 
 	fs_close();
 
@@ -266,20 +262,16 @@ int fs_ls(const char *dirname)
 
 int fs_read(const char *filename, ulong addr, int offset, int len)
 {
+	struct fstype_info *info = fs_get_info(fs_type);
 	int ret;
 
-	switch (fs_type) {
-	case FS_TYPE_FAT:
-		ret = fs_read_fat(filename, addr, offset, len);
-		break;
-	case FS_TYPE_EXT:
-		ret = fs_read_ext(filename, addr, offset, len);
-		break;
-	default:
-		ret = fs_read_unsupported(filename, addr, offset, len);
-		break;
-	}
+	ret = info->read(filename, addr, offset, len);
 
+	/* If we requested a specific number of bytes, check we got it */
+	if (ret >= 0 && len && ret != len) {
+		printf("** Unable to read file %s **\n", filename);
+		ret = -1;
+	}
 	fs_close();
 
 	return ret;
