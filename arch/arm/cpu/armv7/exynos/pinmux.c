@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
@@ -447,3 +448,31 @@ int exynos_pinmux_config(int peripheral, int flags)
 		return -1;
 	}
 }
+
+#ifdef CONFIG_OF_CONTROL
+static int exynos5_pinmux_decode_periph_id(const void *blob, int node)
+{
+	int err;
+	u32 cell[3];
+
+	err = fdtdec_get_int_array(blob, node, "interrupts", cell,
+					ARRAY_SIZE(cell));
+	if (err)
+		return PERIPH_ID_NONE;
+
+	/* check for invalid peripheral id */
+	if ((PERIPH_ID_SDMMC4 > cell[1]) || (cell[1] < PERIPH_ID_UART0))
+		return cell[1];
+
+	debug(" invalid peripheral id\n");
+	return PERIPH_ID_NONE;
+}
+
+int pinmux_decode_periph_id(const void *blob, int node)
+{
+	if (cpu_is_exynos5())
+		return  exynos5_pinmux_decode_periph_id(blob, node);
+	else
+		return PERIPH_ID_NONE;
+}
+#endif
