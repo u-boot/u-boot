@@ -20,6 +20,7 @@
 #include <ext4fs.h>
 #include <fat.h>
 #include <fs.h>
+#include <sandboxfs.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -76,6 +77,15 @@ static struct fstype_info fstypes[] = {
 		.close = ext4fs_close,
 		.ls = ext4fs_ls,
 		.read = ext4_read_file,
+	},
+#endif
+#ifdef CONFIG_SANDBOX
+	{
+		.fstype = FS_TYPE_SANDBOX,
+		.probe = sandbox_fs_set_blk_dev,
+		.close = sandbox_fs_close,
+		.ls = sandbox_fs_ls,
+		.read = fs_read_sandbox,
 	},
 #endif
 	{

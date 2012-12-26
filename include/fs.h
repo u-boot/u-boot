@@ -21,6 +21,7 @@
 #define FS_TYPE_ANY	0
 #define FS_TYPE_FAT	1
 #define FS_TYPE_EXT	2
+#define FS_TYPE_SANDBOX	3
 
 /*
  * Tell the fs layer which block device an partition to use for future
