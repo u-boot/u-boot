@@ -462,11 +462,17 @@ int board_init(void)
 
 	mxc_set_sata_internal_clock();
 	setup_iomux_i2c();
+
+	lcd_enable();
+
+	return 0;
+}
+
+int board_late_init(void)
+{
 	if (!power_init())
 		clock_1GHz();
 	print_cpuinfo();
-
-	lcd_enable();
 
 	return 0;
 }
