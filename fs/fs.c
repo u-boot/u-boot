@@ -20,6 +20,7 @@
 #include <ext4fs.h>
 #include <fat.h>
 #include <fs.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,7 +40,7 @@ static inline int fs_ls_unsupported(const char *dirname)
 	return -1;
 }
 
-static inline int fs_read_unsupported(const char *filename, ulong addr,
+static inline int fs_read_unsupported(const char *filename, void *buf,
 				      int offset, int len)
 {
 	return -1;
@@ -62,12 +63,11 @@ static void fs_close_fat(void)
 
 #define fs_ls_fat file_fat_ls
 
-static int fs_read_fat(const char *filename, ulong addr, int offset, int len)
+static int fs_read_fat(const char *filename, void *buf, int offset, int len)
 {
 	int len_read;
 
-	len_read = file_fat_read_at(filename, offset,
-				    (unsigned char *)addr, len);
+	len_read = file_fat_read_at(filename, offset, buf, len);
 	if (len_read == -1) {
 		printf("** Unable to read file %s **\n", filename);
 		return -1;
@@ -110,7 +110,7 @@ static void fs_close_ext(void)
 
 #define fs_ls_ext ext4fs_ls
 
-static int fs_read_ext(const char *filename, ulong addr, int offset, int len)
+static int fs_read_ext(const char *filename, void *buf, int offset, int len)
 {
 	int file_len;
 	int len_read;
@@ -130,7 +130,7 @@ static int fs_read_ext(const char *filename, ulong addr, int offset, int len)
 	if (len == 0)
 		len = file_len;
 
-	len_read = ext4fs_read((char *)addr, len);
+	len_read = ext4fs_read(buf, len);
 	ext4fs_close();
 
 	if (len_read != len) {
@@ -159,7 +159,7 @@ struct fstype_info {
 	int (*probe)(block_dev_desc_t *fs_dev_desc,
 		     disk_partition_t *fs_partition);
 	int (*ls)(const char *dirname);
-	int (*read)(const char *filename, ulong addr, int offset, int len);
+	int (*read)(const char *filename, void *buf, int offset, int len);
 	void (*close)(void);
 };
 
@@ -267,9 +267,16 @@ int fs_ls(const char *dirname)
 int fs_read(const char *filename, ulong addr, int offset, int len)
 {
 	struct fstype_info *info = fs_get_info(fs_type);
+	void *buf;
 	int ret;
 
-	ret = info->read(filename, addr, offset, len);
+	/*
+	 * We don't actually know how many bytes are being read, since len==0
+	 * means read the whole file.
+	 */
+	buf = map_sysmem(addr, len);
+	ret = info->read(filename, buf, offset, len);
+	unmap_sysmem(buf);
 
 	/* If we requested a specific number of bytes, check we got it */
 	if (ret >= 0 && len && ret != len) {
