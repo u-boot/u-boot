@@ -97,6 +97,8 @@
 #define CONFIG_SHA1
 #define CONFIG_SHA256
 
+#define CONFIG_CMD_SANDBOX
+
 #define CONFIG_BOOTARGS ""
 
 #define CONFIG_EXTRA_ENV_SETTINGS	"stdin=serial\0" \
