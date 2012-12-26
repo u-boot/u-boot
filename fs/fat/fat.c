@@ -1260,3 +1260,20 @@ long file_fat_read(const char *filename, void *buffer, unsigned long maxsize)
 {
 	return file_fat_read_at(filename, 0, buffer, maxsize);
 }
+
+int fat_read_file(const char *filename, void *buf, int offset, int len)
+{
+	int len_read;
+
+	len_read = file_fat_read_at(filename, offset, buf, len);
+	if (len_read == -1) {
+		printf("** Unable to read file %s **\n", filename);
+		return -1;
+	}
+
+	return len_read;
+}
+
+void fat_close(void)
+{
+}

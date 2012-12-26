@@ -191,3 +191,40 @@ int ext4fs_read(char *buf, unsigned len)
 
 	return ext4fs_read_file(ext4fs_file, 0, len, buf);
 }
+
+int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
+		 disk_partition_t *fs_partition)
+{
+	ext4fs_set_blk_dev(fs_dev_desc, fs_partition);
+
+	if (!ext4fs_mount(fs_partition->size)) {
+		ext4fs_close();
+		return -1;
+	}
+
+	return 0;
+}
+
+int ext4_read_file(const char *filename, void *buf, int offset, int len)
+{
+	int file_len;
+	int len_read;
+
+	if (offset != 0) {
+		printf("** Cannot support non-zero offset **\n");
+		return -1;
+	}
+
+	file_len = ext4fs_open(filename);
+	if (file_len < 0) {
+		printf("** File not found %s **\n", filename);
+		return -1;
+	}
+
+	if (len == 0)
+		len = file_len;
+
+	len_read = ext4fs_read(buf, len);
+
+	return len_read;
+}
