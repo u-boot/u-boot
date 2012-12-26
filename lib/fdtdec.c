@@ -48,6 +48,8 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SMSC_LAN9215, "smsc,lan9215"),
 	COMPAT(SAMSUNG_EXYNOS5_SROMC, "samsung,exynos-sromc"),
 	COMPAT(SAMSUNG_S3C2440_I2C, "samsung,s3c2440-i2c"),
+	COMPAT(SAMSUNG_EXYNOS5_SOUND, "samsung,exynos-sound"),
+	COMPAT(WOLFSON_WM8994_CODEC, "wolfson,wm8994-codec"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
