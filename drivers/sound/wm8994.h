@@ -69,8 +69,7 @@ enum wm8994_type {
 /*
  * intialise wm8994 sound codec device for the given configuration
  *
- * @param pcodec_info		pointer value of the sound codec info structure
- *				parsed from device tree
+ * @param blob			FDT node for codec values
  * @param aif_id		enum value of codec interface port in which
  *				soc i2s is connected
  * @param sampling_rate		Sampling rate ranges between from 8khz to 96khz
@@ -80,8 +79,7 @@ enum wm8994_type {
  *
  * @returns -1 for error  and 0  Success.
  */
-int wm8994_init(struct sound_codec_info *pcodec_info,
-			enum en_audio_interface aif_id,
+int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 			int sampling_rate, int mclk_freq,
 			int bits_per_sample, unsigned int channels);
 #endif /*__WM8994_H__ */

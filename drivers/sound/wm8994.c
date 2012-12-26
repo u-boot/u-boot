@@ -26,9 +26,11 @@
 #include <asm/io.h>
 #include <common.h>
 #include <div64.h>
+#include <fdtdec.h>
 #include <i2c.h>
 #include <i2s.h>
 #include <sound.h>
+#include <asm/arch/sound.h>
 #include "wm8994.h"
 #include "wm8994_registers.h"
 
@@ -77,6 +79,7 @@ static int bclk_divs[] = {
 
 static struct wm8994_priv g_wm8994_info;
 static unsigned char g_wm8994_i2c_dev_addr;
+static struct sound_codec_info g_codec_info;
 
 /*
  * Initialise I2C for wm 8994
@@ -747,13 +750,80 @@ err:
 	return -1;
 }
 
+/*
+ * Gets fdt values for wm8994 config parameters
+ *
+ * @param pcodec_info	codec information structure
+ * @param blob		FDT blob
+ * @return		int value, 0 for success
+ */
+static int get_codec_values(struct sound_codec_info *pcodec_info,
+			const void *blob)
+{
+	int error = 0;
+#ifdef CONFIG_OF_CONTROL
+	enum fdt_compat_id compat;
+	int node;
+	int parent;
+
+	/* Get the node from FDT for codec */
+	node = fdtdec_next_compatible(blob, 0, COMPAT_WOLFSON_WM8994_CODEC);
+	if (node <= 0) {
+		debug("EXYNOS_SOUND: No node for codec in device tree\n");
+		debug("node = %d\n", node);
+		return -1;
+	}
+
+	parent = fdt_parent_offset(blob, node);
+	if (parent < 0) {
+		debug("%s: Cannot find node parent\n", __func__);
+		return -1;
+	}
+
+	compat = fdtdec_lookup(blob, parent);
+	switch (compat) {
+	case COMPAT_SAMSUNG_S3C2440_I2C:
+		pcodec_info->i2c_bus = i2c_get_bus_num_fdt(parent);
+		error |= pcodec_info->i2c_bus;
+		debug("i2c bus = %d\n", pcodec_info->i2c_bus);
+		pcodec_info->i2c_dev_addr = fdtdec_get_int(blob, node,
+							"reg", 0);
+		error |= pcodec_info->i2c_dev_addr;
+		debug("i2c dev addr = %d\n", pcodec_info->i2c_dev_addr);
+		break;
+	default:
+		debug("%s: Unknown compat id %d\n", __func__, compat);
+		return -1;
+	}
+#else
+	pcodec_info->i2c_bus = AUDIO_I2C_BUS;
+	pcodec_info->i2c_dev_addr = AUDIO_I2C_REG;
+	debug("i2c dev addr = %d\n", pcodec_info->i2c_dev_addr);
+#endif
+
+	pcodec_info->codec_type = CODEC_WM_8994;
+
+	if (error == -1) {
+		debug("fail to get wm8994 codec node properties\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 /*wm8994 Device Initialisation */
-int wm8994_init(struct sound_codec_info *pcodec_info,
-			enum en_audio_interface aif_id,
+int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 			int sampling_rate, int mclk_freq,
 			int bits_per_sample, unsigned int channels)
 {
 	int ret = 0;
+	struct sound_codec_info *pcodec_info = &g_codec_info;
+
+	/* Get the codec Values */
+	if (get_codec_values(pcodec_info, blob) < 0) {
+		debug("FDT Codec values failed\n");
+		return -1;
+	}
 
 	/* shift the device address by 1 for 7 bit addressing */
 	g_wm8994_i2c_dev_addr = pcodec_info->i2c_dev_addr;
