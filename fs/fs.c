@@ -27,6 +27,12 @@ static block_dev_desc_t *fs_dev_desc;
 static disk_partition_t fs_partition;
 static int fs_type = FS_TYPE_ANY;
 
+static inline int fs_probe_unsupported(void)
+{
+	printf("** Unrecognized filesystem type **\n");
+	return -1;
+}
+
 static inline int fs_ls_unsupported(const char *dirname)
 {
 	printf("** Unrecognized filesystem type **\n");
@@ -38,6 +44,10 @@ static inline int fs_read_unsupported(const char *filename, ulong addr,
 {
 	printf("** Unrecognized filesystem type **\n");
 	return -1;
+}
+
+static inline void fs_close_unsupported(void)
+{
 }
 
 #ifdef CONFIG_FS_FAT
@@ -143,29 +153,57 @@ static inline void fs_close_ext(void)
 #define fs_read_ext fs_read_unsupported
 #endif
 
-static struct {
+struct fstype_info {
 	int fstype;
 	int (*probe)(void);
-} fstypes[] = {
+	int (*ls)(const char *dirname);
+	int (*read)(const char *filename, ulong addr, int offset, int len);
+	void (*close)(void);
+};
+
+static struct fstype_info fstypes[] = {
+#ifdef CONFIG_FS_FAT
 	{
 		.fstype = FS_TYPE_FAT,
 		.probe = fs_probe_fat,
+		.close = fs_close_fat,
+		.ls = file_fat_ls,
+		.read = fs_read_fat,
 	},
+#endif
+#ifdef CONFIG_FS_EXT4
 	{
 		.fstype = FS_TYPE_EXT,
 		.probe = fs_probe_ext,
+		.close = fs_close_ext,
+		.ls = ext4fs_ls,
+		.read = fs_read_ext,
+	},
+#endif
+	{
+		.fstype = FS_TYPE_ANY,
+		.probe = fs_probe_unsupported,
+		.close = fs_close_unsupported,
+		.ls = fs_ls_unsupported,
+		.read = fs_read_unsupported,
 	},
 };
 
 int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 {
+	struct fstype_info *info;
 	int part, i;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated;
 
 	if (!relocated) {
-		for (i = 0; i < ARRAY_SIZE(fstypes); i++)
-			fstypes[i].probe += gd->reloc_off;
+		for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes);
+				i++, info++) {
+			info->probe += gd->reloc_off;
+			info->close += gd->reloc_off;
+			info->ls += gd->reloc_off;
+			info->read += gd->reloc_off;
+		}
 		relocated = 1;
 	}
 #endif
@@ -175,17 +213,17 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 	if (part < 0)
 		return -1;
 
-	for (i = 0; i < ARRAY_SIZE(fstypes); i++) {
-		if ((fstype != FS_TYPE_ANY) && (fstype != fstypes[i].fstype))
+	for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes); i++, info++) {
+		if (fstype != FS_TYPE_ANY && info->fstype != FS_TYPE_ANY &&
+				fstype != info->fstype)
 			continue;
 
-		if (!fstypes[i].probe()) {
-			fs_type = fstypes[i].fstype;
+		if (!info->probe()) {
+			fs_type = info->fstype;
 			return 0;
 		}
 	}
 
-	printf("** Unrecognized filesystem type **\n");
 	return -1;
 }
 
