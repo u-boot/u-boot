@@ -33,7 +33,7 @@ static int do_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret;
 
-	ret = sound_init();
+	ret = sound_init(gd->fdt_blob);
 	if (ret) {
 		printf("Initialise Audio driver failed\n");
 		return CMD_RET_FAILURE;
