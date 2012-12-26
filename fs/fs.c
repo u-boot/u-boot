@@ -27,7 +27,8 @@ static block_dev_desc_t *fs_dev_desc;
 static disk_partition_t fs_partition;
 static int fs_type = FS_TYPE_ANY;
 
-static inline int fs_probe_unsupported(void)
+static inline int fs_probe_unsupported(block_dev_desc_t *fs_dev_desc,
+				      disk_partition_t *fs_partition)
 {
 	printf("** Unrecognized filesystem type **\n");
 	return -1;
@@ -49,9 +50,10 @@ static inline void fs_close_unsupported(void)
 }
 
 #ifdef CONFIG_FS_FAT
-static int fs_probe_fat(void)
+static int fs_probe_fat(block_dev_desc_t *fs_dev_desc,
+			disk_partition_t *fs_partition)
 {
-	return fat_set_blk_dev(fs_dev_desc, &fs_partition);
+	return fat_set_blk_dev(fs_dev_desc, fs_partition);
 }
 
 static void fs_close_fat(void)
@@ -88,11 +90,12 @@ static inline void fs_close_fat(void)
 #endif
 
 #ifdef CONFIG_FS_EXT4
-static int fs_probe_ext(void)
+static int fs_probe_ext(block_dev_desc_t *fs_dev_desc,
+			disk_partition_t *fs_partition)
 {
-	ext4fs_set_blk_dev(fs_dev_desc, &fs_partition);
+	ext4fs_set_blk_dev(fs_dev_desc, fs_partition);
 
-	if (!ext4fs_mount(fs_partition.size)) {
+	if (!ext4fs_mount(fs_partition->size)) {
 		ext4fs_close();
 		return -1;
 	}
@@ -153,7 +156,8 @@ static inline void fs_close_ext(void)
 
 struct fstype_info {
 	int fstype;
-	int (*probe)(void);
+	int (*probe)(block_dev_desc_t *fs_dev_desc,
+		     disk_partition_t *fs_partition);
 	int (*ls)(const char *dirname);
 	int (*read)(const char *filename, ulong addr, int offset, int len);
 	void (*close)(void);
@@ -230,7 +234,7 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 				fstype != info->fstype)
 			continue;
 
-		if (!info->probe()) {
+		if (!info->probe(fs_dev_desc, &fs_partition)) {
 			fs_type = info->fstype;
 			return 0;
 		}
