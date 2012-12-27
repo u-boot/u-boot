@@ -60,6 +60,19 @@ int board_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_SHOW_BOOT_PROGRESS) && !defined(CONFIG_SPL_BUILD)
+void show_boot_progress(int val)
+{
+	if (val < 0) {
+		/* something went wrong */
+		return;
+	}
+
+	if (!gpio_request(IGEP00X0_GPIO_LED, ""))
+		gpio_direction_output(IGEP00X0_GPIO_LED, 1);
+}
+#endif
+
 #ifdef CONFIG_SPL_BUILD
 /*
  * Routine: omap_rev_string
