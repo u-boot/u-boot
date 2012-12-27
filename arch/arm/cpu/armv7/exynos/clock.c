@@ -484,6 +484,100 @@ static unsigned long exynos5_get_uart_clk(int dev_index)
 	return uclk;
 }
 
+static unsigned long exynos4_get_mmc_clk(int dev_index)
+{
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
+	unsigned long uclk, sclk;
+	unsigned int sel, ratio, pre_ratio;
+	int shift;
+
+	sel = readl(&clk->src_fsys);
+	sel = (sel >> (dev_index << 2)) & 0xf;
+
+	if (sel == 0x6)
+		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x7)
+		sclk = get_pll_clk(EPLL);
+	else if (sel == 0x8)
+		sclk = get_pll_clk(VPLL);
+	else
+		return 0;
+
+	switch (dev_index) {
+	case 0:
+	case 1:
+		ratio = readl(&clk->div_fsys1);
+		pre_ratio = readl(&clk->div_fsys1);
+		break;
+	case 2:
+	case 3:
+		ratio = readl(&clk->div_fsys2);
+		pre_ratio = readl(&clk->div_fsys2);
+		break;
+	case 4:
+		ratio = readl(&clk->div_fsys3);
+		pre_ratio = readl(&clk->div_fsys3);
+		break;
+	default:
+		return 0;
+	}
+
+	if (dev_index == 1 || dev_index == 3)
+		shift = 16;
+
+	ratio = (ratio >> shift) & 0xf;
+	pre_ratio = (pre_ratio >> (shift + 8)) & 0xff;
+	uclk = (sclk / (ratio + 1)) / (pre_ratio + 1);
+
+	return uclk;
+}
+
+static unsigned long exynos5_get_mmc_clk(int dev_index)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+	unsigned long uclk, sclk;
+	unsigned int sel, ratio, pre_ratio;
+	int shift;
+
+	sel = readl(&clk->src_fsys);
+	sel = (sel >> (dev_index << 2)) & 0xf;
+
+	if (sel == 0x6)
+		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x7)
+		sclk = get_pll_clk(EPLL);
+	else if (sel == 0x8)
+		sclk = get_pll_clk(VPLL);
+	else
+		return 0;
+
+	switch (dev_index) {
+	case 0:
+	case 1:
+		ratio = readl(&clk->div_fsys1);
+		pre_ratio = readl(&clk->div_fsys1);
+		break;
+	case 2:
+	case 3:
+		ratio = readl(&clk->div_fsys2);
+		pre_ratio = readl(&clk->div_fsys2);
+		break;
+	default:
+		return 0;
+	}
+
+	if (dev_index == 1 || dev_index == 3)
+		shift = 16;
+
+	ratio = (ratio >> shift) & 0xf;
+	pre_ratio = (pre_ratio >> (shift + 8)) & 0xff;
+	uclk = (sclk / (ratio + 1)) / (pre_ratio + 1);
+
+	return uclk;
+}
+
 /* exynos4: set the mmc clock */
 static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 {
@@ -1128,6 +1222,14 @@ unsigned long get_uart_clk(int dev_index)
 			return exynos4x12_get_uart_clk(dev_index);
 		return exynos4_get_uart_clk(dev_index);
 	}
+}
+
+unsigned long get_mmc_clk(int dev_index)
+{
+	if (cpu_is_exynos5())
+		return exynos5_get_mmc_clk(dev_index);
+	else
+		return exynos4_get_mmc_clk(dev_index);
 }
 
 void set_mmc_clk(int dev_index, unsigned int div)
