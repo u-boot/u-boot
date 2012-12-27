@@ -591,9 +591,14 @@ static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 	 * MMC0_PRE_RATIO [15:8], MMC1_PRE_RATIO [31:24]
 	 * CLK_DIV_FSYS2
 	 * MMC2_PRE_RATIO [15:8], MMC3_PRE_RATIO [31:24]
+	 * CLK_DIV_FSYS3
+	 * MMC4_PRE_RATIO [15:8]
 	 */
 	if (dev_index < 2) {
 		addr = (unsigned int)&clk->div_fsys1;
+	}  else if (dev_index == 4) {
+		addr = (unsigned int)&clk->div_fsys3;
+		dev_index -= 4;
 	} else {
 		addr = (unsigned int)&clk->div_fsys2;
 		dev_index -= 2;
