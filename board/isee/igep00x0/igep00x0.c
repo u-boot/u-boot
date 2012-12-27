@@ -21,29 +21,31 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include <netdev.h>
 #include <twl4030.h>
-#include <asm/io.h>
+#include <netdev.h>
 #include <asm/gpio.h>
+#include <asm/arch/omap_gpmc.h>
+#include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/omap_gpmc.h>
 #include <asm/mach-types.h>
-#include "igep0020.h"
+#include "igep00x0.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_CMD_NET)
 /* GPMC definitions for LAN9221 chips */
 static const u32 gpmc_lan_config[] = {
-    NET_LAN9221_GPMC_CONFIG1,
-    NET_LAN9221_GPMC_CONFIG2,
-    NET_LAN9221_GPMC_CONFIG3,
-    NET_LAN9221_GPMC_CONFIG4,
-    NET_LAN9221_GPMC_CONFIG5,
-    NET_LAN9221_GPMC_CONFIG6,
+	NET_LAN9221_GPMC_CONFIG1,
+	NET_LAN9221_GPMC_CONFIG2,
+	NET_LAN9221_GPMC_CONFIG3,
+	NET_LAN9221_GPMC_CONFIG4,
+	NET_LAN9221_GPMC_CONFIG5,
+	NET_LAN9221_GPMC_CONFIG6,
 };
+#endif
 
 /*
  * Routine: board_init
@@ -97,12 +99,12 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 }
 #endif
 
+#if defined(CONFIG_CMD_NET)
 /*
  * Routine: setup_net_chip
  * Description: Setting up the configuration GPMC registers specific to the
  *		Ethernet hardware.
  */
-#if defined(CONFIG_CMD_NET)
 static void setup_net_chip(void)
 {
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
@@ -128,6 +130,8 @@ static void setup_net_chip(void)
 		gpio_set_value(64, 1);
 	}
 }
+#else
+static inline void setup_net_chip(void) {}
 #endif
 
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
@@ -146,9 +150,7 @@ int misc_init_r(void)
 {
 	twl4030_power_init();
 
-#if defined(CONFIG_CMD_NET)
 	setup_net_chip();
-#endif
 
 	dieid_num_r();
 
@@ -164,8 +166,17 @@ int misc_init_r(void)
 void set_muxconf_regs(void)
 {
 	MUX_DEFAULT();
+
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
+	MUX_IGEP0020();
+#endif
+
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
+	MUX_IGEP0030();
+#endif
 }
 
+#if defined(CONFIG_CMD_NET)
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
@@ -174,3 +185,4 @@ int board_eth_init(bd_t *bis)
 #endif
 	return rc;
 }
+#endif

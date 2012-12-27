@@ -115,7 +115,9 @@
 #ifdef CONFIG_BOOT_NAND
 #define CONFIG_CMD_NAND
 #endif
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
 #define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
+#endif
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_NFS		/* NFS support			*/
