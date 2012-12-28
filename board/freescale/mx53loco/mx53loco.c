@@ -345,12 +345,11 @@ static int power_init(void)
 	unsigned int val;
 	int ret = -1;
 	struct pmic *p;
-	int retval;
 
 	if (!i2c_probe(CONFIG_SYS_DIALOG_PMIC_I2C_ADDR)) {
-		retval = pmic_dialog_init(I2C_PMIC);
-		if (retval)
-			return retval;
+		ret = pmic_dialog_init(I2C_PMIC);
+		if (ret)
+			return ret;
 
 		p = pmic_get("DIALOG_PMIC");
 		if (!p)
@@ -370,9 +369,9 @@ static int power_init(void)
 	}
 
 	if (!i2c_probe(CONFIG_SYS_FSL_PMIC_I2C_ADDR)) {
-		retval = pmic_init(I2C_PMIC);
-		if (retval)
-			return retval;
+		ret = pmic_init(I2C_PMIC);
+		if (ret)
+			return ret;
 
 		p = pmic_get("FSL_PMIC");
 		if (!p)
