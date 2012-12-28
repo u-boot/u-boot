@@ -343,7 +343,7 @@ static void setup_iomux_i2c(void)
 static int power_init(void)
 {
 	unsigned int val;
-	int ret = -1;
+	int ret;
 	struct pmic *p;
 
 	if (!i2c_probe(CONFIG_SYS_DIALOG_PMIC_I2C_ADDR)) {
@@ -358,14 +358,33 @@ static int power_init(void)
 		/* Set VDDA to 1.25V */
 		val = DA9052_BUCKCORE_BCOREEN | DA_BUCKCORE_VBCORE_1_250V;
 		ret = pmic_reg_write(p, DA9053_BUCKCORE_REG, val);
+		if (ret) {
+			printf("Writing to BUCKCORE_REG failed: %d\n", ret);
+			return ret;
+		}
 
-		ret |= pmic_reg_read(p, DA9053_SUPPLY_REG, &val);
+		pmic_reg_read(p, DA9053_SUPPLY_REG, &val);
 		val |= DA9052_SUPPLY_VBCOREGO;
-		ret |= pmic_reg_write(p, DA9053_SUPPLY_REG, val);
+		ret = pmic_reg_write(p, DA9053_SUPPLY_REG, val);
+		if (ret) {
+			printf("Writing to SUPPLY_REG failed: %d\n", ret);
+			return ret;
+		}
 
 		/* Set Vcc peripheral to 1.30V */
-		ret |= pmic_reg_write(p, DA9053_BUCKPRO_REG, 0x62);
-		ret |= pmic_reg_write(p, DA9053_SUPPLY_REG, 0x62);
+		ret = pmic_reg_write(p, DA9053_BUCKPRO_REG, 0x62);
+		if (ret) {
+			printf("Writing to BUCKPRO_REG failed: %d\n", ret);
+			return ret;
+		}
+
+		ret = pmic_reg_write(p, DA9053_SUPPLY_REG, 0x62);
+		if (ret) {
+			printf("Writing to SUPPLY_REG failed: %d\n", ret);
+			return ret;
+		}
+
+		return ret;
 	}
 
 	if (!i2c_probe(CONFIG_SYS_FSL_PMIC_I2C_ADDR)) {
@@ -381,28 +400,50 @@ static int power_init(void)
 		pmic_reg_read(p, REG_SW_0, &val);
 		val = (val & ~SWx_VOLT_MASK_MC34708) | SWx_1_250V_MC34708;
 		ret = pmic_reg_write(p, REG_SW_0, val);
+		if (ret) {
+			printf("Writing to REG_SW_0 failed: %d\n", ret);
+			return ret;
+		}
 
 		/* Set VCC as 1.30V on SW2 */
 		pmic_reg_read(p, REG_SW_1, &val);
 		val = (val & ~SWx_VOLT_MASK_MC34708) | SWx_1_300V_MC34708;
-		ret |= pmic_reg_write(p, REG_SW_1, val);
+		ret = pmic_reg_write(p, REG_SW_1, val);
+		if (ret) {
+			printf("Writing to REG_SW_1 failed: %d\n", ret);
+			return ret;
+		}
 
 		/* Set global reset timer to 4s */
 		pmic_reg_read(p, REG_POWER_CTL2, &val);
 		val = (val & ~TIMER_MASK_MC34708) | TIMER_4S_MC34708;
-		ret |= pmic_reg_write(p, REG_POWER_CTL2, val);
+		ret = pmic_reg_write(p, REG_POWER_CTL2, val);
+		if (ret) {
+			printf("Writing to REG_POWER_CTL2 failed: %d\n", ret);
+			return ret;
+		}
 
 		/* Set VUSBSEL and VUSBEN for USB PHY supply*/
 		pmic_reg_read(p, REG_MODE_0, &val);
 		val |= (VUSBSEL_MC34708 | VUSBEN_MC34708);
-		ret |= pmic_reg_write(p, REG_MODE_0, val);
+		ret = pmic_reg_write(p, REG_MODE_0, val);
+		if (ret) {
+			printf("Writing to REG_MODE_0 failed: %d\n", ret);
+			return ret;
+		}
 
 		/* Set SWBST to 5V in auto mode */
 		val = SWBST_AUTO;
-		ret |= pmic_reg_write(p, SWBST_CTRL, val);
+		ret = pmic_reg_write(p, SWBST_CTRL, val);
+		if (ret) {
+			printf("Writing to SWBST_CTRL failed: %d\n", ret);
+			return ret;
+		}
+
+		return ret;
 	}
 
-	return ret;
+	return -1;
 }
 
 static void clock_1GHz(void)
