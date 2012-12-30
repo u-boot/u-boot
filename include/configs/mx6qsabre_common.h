@@ -41,7 +41,6 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
-#define CONFIG_SYS_FSL_USDHC_NUM       2
 
 #define CONFIG_MMC
 #define CONFIG_CMD_MMC
@@ -166,7 +165,6 @@
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
-#define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 
 #define CONFIG_OF_LIBFDT
