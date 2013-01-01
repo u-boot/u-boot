@@ -285,6 +285,33 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
+int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear)
+{
+	u8 cmd;
+	int ret;
+
+	ret = spi_flash_cmd_write_enable(flash);
+	if (ret < 0) {
+		debug("SF: enabling write failed\n");
+		return ret;
+	}
+
+	cmd = CMD_BANKADDR_BRWR;
+	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &ear, 1);
+	if (ret) {
+		debug("SF: fail to write bank addr register\n");
+		return ret;
+	}
+
+	ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+	if (ret < 0) {
+		debug("SF: write config register timed out\n");
+		return ret;
+	}
+
+	return 0;
+}
+
 /*
  * The following table holds all device probe functions
  *

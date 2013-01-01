@@ -28,6 +28,9 @@
 #define CMD_ERASE_64K			0xd8
 #define CMD_ERASE_CHIP			0xc7
 
+/* Bank addr acess commands */
+#define CMD_BANKADDR_BRWR		0x17
+
 /* Common status */
 #define STATUS_WIP			0x01
 
@@ -76,6 +79,9 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 
 /* Program the status register. */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
+
+/* Program the bank address register */
+int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear);
 
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
