@@ -551,7 +551,7 @@ int imximage_check_params(struct mkimage_params *params)
  * imximage parameters
  */
 static struct image_type_params imximage_params = {
-	.name		= "Freescale i.MX 5x Boot Image support",
+	.name		= "Freescale i.MX Boot Image support",
 	.header_size	= sizeof(struct imx_header),
 	.hdr		= (void *)&imximage_header,
 	.check_image_type = imximage_check_image_types,
