@@ -65,8 +65,8 @@ static void ace_writew(u16 val, unsigned off)
 		writeb(val, base + off);
 		writeb(val >> 8, base + off + 1);
 #endif
-	}
-	out16(base + off, val);
+	} else
+	      out16(base + off, val);
 }
 
 static u16 ace_readw(unsigned off)
