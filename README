@@ -2714,10 +2714,13 @@ FIT uImage format:
 		CONFIG_FB_ADDR
 
 		Define CONFIG_FB_ADDR if you want to use specific
-		address for frame buffer.
-		Then system will reserve the frame buffer address to
-		defined address instead of lcd_setmem (this function
-		grabs the memory for frame buffer by panel's size).
+		address for frame buffer.  This is typically the case
+		when using a graphics controller has separate video
+		memory.  U-Boot will then place the frame buffer at
+		the given address instead of dynamically reserving it
+		in system RAM by calling lcd_setmem(), which grabs
+		the memory for the frame buffer depending on the
+		configured panel size.
 
 		Please see board_init_f function.
 
