@@ -263,17 +263,21 @@ Reference http://www.samsung.com/global/business/semiconductor/products/dram/dow
 Interactive DDR debugging
 ===========================
 
-For DDR parameter tuning up and debugging, the interactive DDR debugging can
-be activated by saving an environment variable "ddr_interactive". The value
-doesn't matter. Once activated, U-boot prompts "FSL DDR>" before enabling DDR
-controller. The available commands can be seen by typing "help".
+For DDR parameter tuning up and debugging, the interactive DDR debugger can
+be activated by setting the environment variable "ddr_interactive" to any
+value.  (The value of ddr_interactive may have a meaning in the future, but,
+for now, the presence of the variable will cause the debugger to run.)  Once
+activated, U-boot will show the prompt "FSL DDR>" before enabling the DDR
+controller.  The available commands are printed by typing "help".
 
-Another way to enter debug mode without using environment variable is to send
-a key press during boot, like one would do to abort auto boot. To save booting
-time, no additioal delay is added so the window to send the key press is very
-short. For example, user can send the key press using reset command followed by
-hitting enter key twice. In case of power on reset, user can keep hitting any
-key while applying the power.
+Another way to enter the interactive DDR debugger without setting the
+environment variable is to send the 'd' character early during the boot
+process.  To save booting time, no additional delay is added, so the window
+to send the key press is very short -- basically, it is the time before the
+memory controller code starts to run.  For example, when rebooting from
+within u-boot, the user must press 'd' IMMEDIATELY after hitting enter to
+initiate a 'reset' command.  In case of power on/reset, the user can hold
+down the 'd' key while applying power or hitting the board's reset button.
 
 The example flow of using interactive debugging is
 type command "compute" to calculate the parameters from the default
@@ -281,13 +285,16 @@ type command "print" with arguments to show SPD, options, registers
 type command "edit" with arguments to change any if desired
 type command "copy" with arguments to copy controller/dimm settings
 type command "go" to continue calculation and enable DDR controller
+
+Additional commands to restart the debugging are:
 type command "reset" to reset the board
 type command "recompute" to reload SPD and start over
 
 Note, check "next_step" to show the flow. For example, after edit opts, the
 next_step is STEP_ASSIGN_ADDRESSES. After editing registers, the next_step is
-STEP_PROGRAM_REGS. Upon issuing command "go", DDR controller will be enabled
-with current setting without further calculation.
+STEP_PROGRAM_REGS.  Upon issuing command "go", the debugger will program the
+DDR controller with the current setting without further calculation and then
+exit to resume the booting of the machine.
 
 The detail syntax for each commands are
 
@@ -340,7 +347,7 @@ Examples of debugging flow
 
 	FSL DDR>compute
 	Detected UDIMM UG51U6400N8SU-ACF
-	SL DDR>print
+	FSL DDR>print
 	print [c<n>] [d<n>] [spd] [dimmparms] [commonparms] [opts] [addresses] [regs]
 	FSL DDR>print dimmparms
 	DIMM parameters:  Controller=0 DIMM=0
