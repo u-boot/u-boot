@@ -1369,14 +1369,15 @@ struct data_strings {
 
 #define DATA_OPTIONS(name, step, dimm) {#name, step, dimm}
 
-unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
-{
-	unsigned long long ddrsize;
-	const char *prompt = "FSL DDR>";
-	char buffer[CONFIG_SYS_CBSIZE];
-	char *argv[CONFIG_SYS_MAXARGS + 1];	/* NULL terminated */
-	int argc;
-	unsigned int next_step = STEP_GET_SPD;
+static unsigned int fsl_ddr_parse_interactive_cmd(
+	char **argv,
+	int argc,
+	unsigned int *pstep_mask,
+	unsigned int *pctlr_mask,
+	unsigned int *pdimm_mask,
+	unsigned int *pdimm_number_required
+	 ) {
+
 	static const struct data_strings options[] = {
 		DATA_OPTIONS(spd, STEP_GET_SPD, 1),
 		DATA_OPTIONS(dimmparms, STEP_COMPUTE_DIMM_PARMS, 1),
@@ -1386,6 +1387,56 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		DATA_OPTIONS(regs, STEP_COMPUTE_REGS, 0),
 	};
 	static const unsigned int n_opts = ARRAY_SIZE(options);
+
+	unsigned int i, j;
+	unsigned int error = 0;
+	unsigned int matched = 0;
+
+	for (i = 1; i < argc; i++) {
+		for (j = 0; j < n_opts; j++) {
+			if (strcmp(options[j].data_name, argv[i]) != 0)
+				continue;
+			*pstep_mask |= options[j].step_mask;
+			*pdimm_number_required =
+				options[j].dimm_number_required;
+			matched = 1;
+			break;
+		}
+
+		if (matched)
+			continue;
+
+		if (argv[i][0] == 'c') {
+			char c = argv[i][1];
+			if (isdigit(c))
+				*pctlr_mask |= 1 << (c - '0');
+			continue;
+		}
+
+		if (argv[i][0] == 'd') {
+			char c = argv[i][1];
+			if (isdigit(c))
+				*pdimm_mask |= 1 << (c - '0');
+			continue;
+		}
+
+		printf("unknown arg %s\n", argv[i]);
+		*pstep_mask = 0;
+		error = 1;
+		break;
+	}
+
+	return error;
+}
+
+unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
+{
+	unsigned long long ddrsize;
+	const char *prompt = "FSL DDR>";
+	char buffer[CONFIG_SYS_CBSIZE];
+	char *argv[CONFIG_SYS_MAXARGS + 1];	/* NULL terminated */
+	int argc;
+	unsigned int next_step = STEP_GET_SPD;
 	const char *usage = {
 		"commands:\n"
 		"print      print SPD and intermediate computed data\n"
@@ -1426,7 +1477,6 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		}
 
 		if (strcmp(argv[0], "edit") == 0) {
-			unsigned int i, j;
 			unsigned int error = 0;
 			unsigned int step_mask = 0;
 			unsigned int ctlr_mask = 0;
@@ -1436,7 +1486,6 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 			unsigned int dimm_number_required = 0;
 			unsigned int ctrl_num;
 			unsigned int dimm_num;
-			unsigned int matched = 0;
 
 			if (argc == 1) {
 				/* Only the element and value must be last */
@@ -1448,41 +1497,13 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 				continue;
 			}
 
-			for (i = 1; i < argc - 2; i++) {
-				for (j = 0; j < n_opts; j++) {
-					if (strcmp(options[j].data_name,
-						argv[i]) != 0)
-						continue;
-					step_mask |= options[j].step_mask;
-					dimm_number_required =
-						options[j].dimm_number_required;
-					matched = 1;
-					break;
-				}
-
-				if (matched)
-					continue;
-
-				if (argv[i][0] == 'c') {
-					char c = argv[i][1];
-					if (isdigit(c))
-						ctlr_mask |= 1 << (c - '0');
-					continue;
-				}
-
-				if (argv[i][0] == 'd') {
-					char c = argv[i][1];
-					if (isdigit(c))
-						dimm_mask |= 1 << (c - '0');
-					continue;
-				}
-
-				printf("unknown arg %s\n", argv[i]);
-				step_mask = 0;
-				error = 1;
-				break;
-			}
-
+			error = fsl_ddr_parse_interactive_cmd(
+				argv, argc - 2,
+				&step_mask,
+				&ctlr_mask,
+				&dimm_mask,
+				&dimm_number_required
+			);
 
 			if (error)
 				continue;
@@ -1629,12 +1650,11 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		}
 
 		if (strcmp(argv[0], "print") == 0) {
-			unsigned int i, j;
 			unsigned int error = 0;
 			unsigned int step_mask = 0;
 			unsigned int ctlr_mask = 0;
 			unsigned int dimm_mask = 0;
-			unsigned int matched = 0;
+			unsigned int dimm_number_required = 0;
 
 			if (argc == 1) {
 				printf("print [c<n>] [d<n>] [spd] [dimmparms] "
@@ -1642,38 +1662,13 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 				continue;
 			}
 
-			for (i = 1; i < argc; i++) {
-				for (j = 0; j < n_opts; j++) {
-					if (strcmp(options[j].data_name,
-						argv[i]) != 0)
-						continue;
-					step_mask |= options[j].step_mask;
-					matched = 1;
-					break;
-				}
-
-				if (matched)
-					continue;
-
-				if (argv[i][0] == 'c') {
-					char c = argv[i][1];
-					if (isdigit(c))
-						ctlr_mask |= 1 << (c - '0');
-					continue;
-				}
-
-				if (argv[i][0] == 'd') {
-					char c = argv[i][1];
-					if (isdigit(c))
-						dimm_mask |= 1 << (c - '0');
-					continue;
-				}
-
-				printf("unknown arg %s\n", argv[i]);
-				step_mask = 0;
-				error = 1;
-				break;
-			}
+			error = fsl_ddr_parse_interactive_cmd(
+				argv, argc,
+				&step_mask,
+				&ctlr_mask,
+				&dimm_mask,
+				&dimm_number_required
+			);
 
 			if (error)
 				continue;
