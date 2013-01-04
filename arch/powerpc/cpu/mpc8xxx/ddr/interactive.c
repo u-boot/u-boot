@@ -1390,9 +1390,10 @@ static unsigned int fsl_ddr_parse_interactive_cmd(
 
 	unsigned int i, j;
 	unsigned int error = 0;
-	unsigned int matched = 0;
 
 	for (i = 1; i < argc; i++) {
+		unsigned int matched = 0;
+
 		for (j = 0; j < n_opts; j++) {
 			if (strcmp(options[j].data_name, argv[i]) != 0)
 				continue;
