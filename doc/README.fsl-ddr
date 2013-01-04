@@ -268,6 +268,13 @@ be activated by saving an environment variable "ddr_interactive". The value
 doesn't matter. Once activated, U-boot prompts "FSL DDR>" before enabling DDR
 controller. The available commands can be seen by typing "help".
 
+Another way to enter debug mode without using environment variable is to send
+a key press during boot, like one would do to abort auto boot. To save booting
+time, no additioal delay is added so the window to send the key press is very
+short. For example, user can send the key press using reset command followed by
+hitting enter key twice. In case of power on reset, user can keep hitting any
+key while applying the power.
+
 The example flow of using interactive debugging is
 type command "compute" to calculate the parameters from the default
 type command "print" with arguments to show SPD, options, registers
