@@ -1445,6 +1445,7 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		"recompute  reload SPD and options to default and recompute regs\n"
 		"edit       modify spd, parameter, or option\n"
 		"compute    recompute registers from current next_step to end\n"
+		"copy       copy parameters\n"
 		"next_step  shows current next_step\n"
 		"help       this message\n"
 		"go         program the memory controller and continue with u-boot\n"
@@ -1475,6 +1476,132 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 			       next_step,
 			       step_to_string(next_step));
 			continue;
+		}
+
+		if (strcmp(argv[0], "copy") == 0) {
+			unsigned int error = 0;
+			unsigned int step_mask = 0;
+			unsigned int src_ctlr_mask = 0;
+			unsigned int src_dimm_mask = 0;
+			unsigned int dimm_number_required = 0;
+			unsigned int src_ctlr_num = 0;
+			unsigned int src_dimm_num = 0;
+			unsigned int dst_ctlr_num = -1;
+			unsigned int dst_dimm_num = -1;
+			unsigned int i, num_dest_parms;
+
+			if (argc == 1) {
+				printf("copy <src c#> <src d#> <spd|dimmparms|commonparms|opts|addresses|regs> <dst c#> <dst d#>\n");
+				continue;
+			}
+
+			error = fsl_ddr_parse_interactive_cmd(
+				argv, argc,
+				&step_mask,
+				&src_ctlr_mask,
+				&src_dimm_mask,
+				&dimm_number_required
+			);
+
+			/* XXX: only dimm_number_required and step_mask will
+			   be used by this function.  Parse the controller and
+			   DIMM number separately because it is easier.  */
+
+			if (error)
+				continue;
+
+			/* parse source destination controller / DIMM */
+
+			num_dest_parms = dimm_number_required ? 2 : 1;
+
+			for (i = 0; i < argc; i++) {
+				if (argv[i][0] == 'c') {
+					char c = argv[i][1];
+					if (isdigit(c)) {
+						src_ctlr_num = (c - '0');
+						break;
+					}
+				}
+			}
+
+			for (i = 0; i < argc; i++) {
+				if (argv[i][0] == 'd') {
+					char c = argv[i][1];
+					if (isdigit(c)) {
+						src_dimm_num = (c - '0');
+						break;
+					}
+				}
+			}
+
+			/* parse destination controller / DIMM */
+
+			for (i = argc - 1; i >= argc - num_dest_parms; i--) {
+				if (argv[i][0] == 'c') {
+					char c = argv[i][1];
+					if (isdigit(c)) {
+						dst_ctlr_num = (c - '0');
+						break;
+					}
+				}
+			}
+
+			for (i = argc - 1; i >= argc - num_dest_parms; i--) {
+				if (argv[i][0] == 'd') {
+					char c = argv[i][1];
+					if (isdigit(c)) {
+						dst_dimm_num = (c - '0');
+						break;
+					}
+				}
+			}
+
+			/* TODO: validate inputs */
+
+			debug("src_ctlr_num = %u, src_dimm_num = %u, dst_ctlr_num = %u, dst_dimm_num = %u, step_mask = %x\n",
+				src_ctlr_num, src_dimm_num, dst_ctlr_num, dst_dimm_num, step_mask);
+
+
+			switch (step_mask) {
+
+			case STEP_GET_SPD:
+				memcpy(&(pinfo->spd_installed_dimms[dst_ctlr_num][dst_dimm_num]),
+					&(pinfo->spd_installed_dimms[src_ctlr_num][src_dimm_num]),
+					sizeof(pinfo->spd_installed_dimms[0][0]));
+				break;
+
+			case STEP_COMPUTE_DIMM_PARMS:
+				memcpy(&(pinfo->dimm_params[dst_ctlr_num][dst_dimm_num]),
+					&(pinfo->dimm_params[src_ctlr_num][src_dimm_num]),
+					sizeof(pinfo->dimm_params[0][0]));
+				break;
+
+			case STEP_COMPUTE_COMMON_PARMS:
+				memcpy(&(pinfo->common_timing_params[dst_ctlr_num]),
+					&(pinfo->common_timing_params[src_ctlr_num]),
+					sizeof(pinfo->common_timing_params[0]));
+				break;
+
+			case STEP_GATHER_OPTS:
+				memcpy(&(pinfo->memctl_opts[dst_ctlr_num]),
+					&(pinfo->memctl_opts[src_ctlr_num]),
+					sizeof(pinfo->memctl_opts[0]));
+				break;
+
+			/* someday be able to have addresses to copy addresses... */
+
+			case STEP_COMPUTE_REGS:
+				memcpy(&(pinfo->fsl_ddr_config_reg[dst_ctlr_num]),
+					&(pinfo->fsl_ddr_config_reg[src_ctlr_num]),
+					sizeof(pinfo->memctl_opts[0]));
+				break;
+
+			default:
+				printf("unexpected step_mask value\n");
+			}
+
+			continue;
+
 		}
 
 		if (strcmp(argv[0], "edit") == 0) {

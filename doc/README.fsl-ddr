@@ -279,6 +279,7 @@ The example flow of using interactive debugging is
 type command "compute" to calculate the parameters from the default
 type command "print" with arguments to show SPD, options, registers
 type command "edit" with arguments to change any if desired
+type command "copy" with arguments to copy controller/dimm settings
 type command "go" to continue calculation and enable DDR controller
 type command "reset" to reset the board
 type command "recompute" to reload SPD and start over
@@ -312,6 +313,10 @@ edit <c#> <d#> <spd|dimmparms|commonparms|opts|addresses|regs> <element> <value>
 	<element>	- name of the modified element
 			  byte number if the object is SPD
 	<value>		- decimal or heximal (prefixed with 0x) numbers
+
+copy <src c#> <src d#> <spd|dimmparms|commonparms|opts|addresses|regs> <dst c#> <dst d#>
+	same as for "edit" command
+	DIMM numbers ignored for commonparms, opts, and regs
 
 reset
 	no arguement	- reset the board
