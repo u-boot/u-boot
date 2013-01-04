@@ -387,18 +387,13 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 
 #else
 	/* PHY Setup */
-#ifdef CONFIG_EP107
-	/* "add delay to RGMII rx interface" */
-	phywrite(dev, priv->phyaddr, 20, 0xc93);
-	phywrite(EmacPssInstancePtr, priv->phyaddr, 20, 0xc93);
-#else
 	phywrite(dev, priv->phyaddr, 22, 2);	/* page 2 */
 
 	/* rx clock transition when data stable */
 	phywrite(dev, priv->phyaddr, 21, 0x3030);
 
 	phywrite(dev, priv->phyaddr, 22, 0);	/* page 0 */
-#endif
+
 	u16 tmp;
 
 	/* link speed advertisement for autonegotiation */

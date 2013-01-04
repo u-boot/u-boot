@@ -64,16 +64,6 @@ lowlevel_init:
 	ldr r2, =0x767B
 	str r2, [r1]
 
-#ifdef CONFIG_EP107
-	# this should not be needed after EP107
-
-	# Do nothing if DDR already running
-	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0)
-	ldr r2, [r1]
-	ldr r3, =0x201
-	cmp r2, r3
-	bne doit
-#endif
 	mov pc, lr
 
 doit:

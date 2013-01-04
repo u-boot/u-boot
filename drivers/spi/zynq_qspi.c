@@ -1418,15 +1418,6 @@ int xqspips_check_is_dual_flash(void __iomem *regs_base)
 	u32 mio_pin_index;
 	void *mio_base;
 
-#ifdef CONFIG_EP107
-#ifdef CONFIG_XILINX_PSS_QSPI_USE_DUAL_FLASH
-	is_dual = 1;
-#else
-	is_dual = 0;
-#endif
-	return is_dual;
-#endif
-
 	mio_base = regs_base + 0x700;
 
 	/* checking single QSPI MIO's */

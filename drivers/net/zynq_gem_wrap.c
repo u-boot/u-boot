@@ -277,15 +277,6 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 	tmp |= (1 << 10);	/* MAC pause implemented */
 	phy_wr(EmacPssInstancePtr, 4, tmp);
 
-#ifdef CONFIG_EP107
-	/* Extended PHY specific control register */
-	tmp = phy_rd(EmacPssInstancePtr, 20);
-	tmp |= (7 << 9);	/* max number of gigabit attempts */
-	tmp |= (1 << 8);	/* enable downshift */
-	tmp |= (1 << 7);	/* RGMII receive timing internally delayed */
-	tmp |= (1 << 1);	/* RGMII transmit clock internally delayed */
-	phy_wr(EmacPssInstancePtr, 20, tmp);
-#else
 	/* Copper specific control register 1 */
 	tmp = phy_rd(EmacPssInstancePtr, 16);
 	tmp |= (7 << 12);	/* max number of gigabit attempts */
@@ -299,7 +290,6 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 	tmp |= (1 << 4);	/* RGMII transmit clock internally delayed */
 	phy_wr(EmacPssInstancePtr, 21, tmp);
 	phy_wr(EmacPssInstancePtr, 22, 0);	/* page 0 */
-#endif
 
 	/* Control register */
 	tmp = phy_rd(EmacPssInstancePtr, 0);
@@ -308,16 +298,10 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 	phy_wr(EmacPssInstancePtr, 0, tmp);
 
 	/***** Try to establish a link at the highest speed possible  *****/
-#ifdef CONFIG_EP107
-	/* CR-659040:
-	 * Advertise link speed as 100Mbps for ep107 targets
-	 */
-	Xgmac_set_eth_advertise(EmacPssInstancePtr, 100);
-#else
 	/* CR-659040 */
 	/* Could be 1000 if an unknown bug is fixed */
 	Xgmac_set_eth_advertise(EmacPssInstancePtr, 1000);
-#endif
+
 	phy_rst(EmacPssInstancePtr);
 
 	/* Attempt auto-negotiation */
@@ -377,21 +361,12 @@ int Xgmac_init(struct eth_device *dev, bd_t * bis)
 	Out32(0xF8000138, ((0 << 4) | (1 << 0)));
 
 	/* Set divisors for appropriate frequency in GEM0_CLK_CTRL */
-#ifdef CONFIG_EP107
-	if (link_speed == 1000)		/* 125MHz */
-		Out32(0xF8000140, ((1 << 20) | (48 << 8) | (1 << 4) | (1 << 0)));
-	else if (link_speed == 100)	/* 25 MHz */
-		Out32(0xF8000140, ((1 << 20) | (48 << 8) | (0 << 4) | (1 << 0)));
-	else				/* 2.5 MHz */
-		Out32(0xF8000140, ((1 << 20) | (48 << 8) | (3 << 4) | (1 << 0)));
-#else
 	if (link_speed == 1000)		/* 125MHz */
 		Out32(0xF8000140, ((1 << 20) | (8 << 8) | (0 << 4) | (1 << 0)));
 	else if (link_speed == 100)	/* 25 MHz */
 		Out32(0xF8000140, ((1 << 20) | (40 << 8) | (0 << 4) | (1 << 0)));
 	else				/* 2.5 MHz */
 		Out32(0xF8000140, ((10 << 20) | (40 << 8) | (0 << 4) | (1 << 0)));
-#endif
 
 	/* SLCR lock */
 	Out32(0xF8000004, 0x767B);
