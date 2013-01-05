@@ -498,6 +498,8 @@ int Xgmac_rx(struct eth_device *dev)
 	status =
 	    XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
 			     XEMACPSS_RXSR_OFFSET);
+	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
+				XEMACPSS_RXSR_OFFSET, status);
 	if (status & XEMACPSS_RXSR_FRAMERX_MASK) {
 
 //		printf("rx packet received\n");
@@ -506,11 +508,6 @@ int Xgmac_rx(struct eth_device *dev)
 			retval = Xgmac_process_rx(EmacPssInstancePtr);
 		} while (retval == 0) ;
 	}
-
-	/* Clear interrupt status.
-	 */
-	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
-	                  XEMACPSS_RXSR_OFFSET, status);
 
 	return 1;
 }
