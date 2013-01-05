@@ -312,6 +312,14 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear)
 	return 0;
 }
 
+int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data)
+{
+	u8 cmd;
+
+	cmd = CMD_BANKADDR_BRRD;
+	return spi_flash_read_common(flash, &cmd, 1, data, 1);
+}
+
 /*
  * The following table holds all device probe functions
  *

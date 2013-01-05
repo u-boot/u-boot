@@ -30,6 +30,7 @@
 
 /* Bank addr acess commands */
 #define CMD_BANKADDR_BRWR		0x17
+#define CMD_BANKADDR_BRRD		0x16
 
 /* Common status */
 #define STATUS_WIP			0x01
@@ -82,6 +83,9 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
 /* Program the bank address register */
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear);
+
+/* Read the bank address register */
+int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data);
 
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
