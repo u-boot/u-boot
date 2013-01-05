@@ -461,7 +461,7 @@ int Xgmac_send(struct eth_device *dev, void *packet, int length)
 
 	if (Status & XEMACPSS_TXSR_TXCOMPL_MASK) {
 
-//		printf("tx packet sent\n");
+		debug("tx packet sent\n");
 
 		/*
 		 * Now that the frame has been sent, post process our TxBDs.
@@ -501,9 +501,6 @@ int Xgmac_rx(struct eth_device *dev)
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 				XEMACPSS_RXSR_OFFSET, status);
 	if (status & XEMACPSS_RXSR_FRAMERX_MASK) {
-
-//		printf("rx packet received\n");
-
 		do {
 			retval = Xgmac_process_rx(EmacPssInstancePtr);
 		} while (retval == 0) ;
@@ -639,6 +636,7 @@ int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr)
 	}
 	memcpy(buffer, (void *)hwbuf, frame_len);
 	Xgmac_next_rx_buf(EmacPssInstancePtr);
+	debug("rx packet received\n");
 	NetReceive(buffer, frame_len);
 
 	return (0);
