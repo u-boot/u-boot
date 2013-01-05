@@ -214,6 +214,8 @@ typedef enum irqreturn irqreturn_t;
 #define	XQSPIPSS_FLASH_OPCODE_RDID	0x9F	/* Read JEDEC ID */
 #define	XQSPIPSS_FLASH_OPCODE_BE	0xC7	/* Erase whole flash block */
 #define	XQSPIPSS_FLASH_OPCODE_SE	0xD8	/* Sector erase (usually 64KB)*/
+#define	XQSPIPSS_FLASH_OPCODE_BRWR	0x17	/* Bank addr register write */
+#define	XQSPIPSS_FLASH_OPCODE_BRRD	0x16	/* Bank addr register read */
 
 /*
  * Macros for the QSPI controller read/write
@@ -327,6 +329,8 @@ static struct xqspips_inst_format __devinitdata flash_inst[] = {
 	{ XQSPIPSS_FLASH_OPCODE_FAST_READ, 1, XQSPIPSS_TXD_00_01_OFFSET },
 	{ XQSPIPSS_FLASH_OPCODE_DUAL_READ, 1, XQSPIPSS_TXD_00_01_OFFSET },
 	{ XQSPIPSS_FLASH_OPCODE_QUAD_READ, 1, XQSPIPSS_TXD_00_01_OFFSET },
+	{ XQSPIPSS_FLASH_OPCODE_BRWR, 1, XQSPIPSS_TXD_00_01_OFFSET },
+	{ XQSPIPSS_FLASH_OPCODE_BRRD, 1, XQSPIPSS_TXD_00_01_OFFSET },
 	/* Add all the instructions supported by the flash device */
 };
 
@@ -901,7 +905,8 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		 * response contains the value */
 		if ((instruction == XQSPIPSS_FLASH_OPCODE_RDSR1) ||
 			(instruction == XQSPIPSS_FLASH_OPCODE_RDSR2) ||
-			(instruction == XQSPIPSS_FLASH_OPCODE_RDID)) {
+			(instruction == XQSPIPSS_FLASH_OPCODE_RDID) ||
+			(instruction == XQSPIPSS_FLASH_OPCODE_BRRD)) {
 			if (xqspi->bytes_to_transfer < 4)
 				xqspi->bytes_to_transfer = 0;
 			else
