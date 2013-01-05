@@ -12,6 +12,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <watchdog.h>
+#include <asm/sizes.h>
 
 #include "spi_flash_internal.h"
 
@@ -29,6 +30,30 @@ static void spi_flash_addr(struct spi_flash *flash,
 		cmd[2] = page_addr;
 		cmd[3] = byte_addr;
 	}
+}
+
+static int spi_flash_check_bankaddr_access(struct spi_flash *flash, u32 *offset)
+{
+	int ret;
+
+	if (*offset >= SZ_16M) {
+		ret = spi_flash_bankaddr_access(flash, STATUS_BANKADDR_ENABLE);
+		if (ret) {
+			debug("SF: fail to %s bank addr bit\n",
+				STATUS_BANKADDR_ENABLE ? "set" : "reset");
+			return ret;
+		}
+		*offset -= SZ_16M;
+	} else {
+		ret = spi_flash_bankaddr_access(flash, STATUS_BANKADDR_DISABLE);
+		if (ret) {
+			debug("SF: fail to %s bank addr bit\n",
+				STATUS_BANKADDR_DISABLE ? "set" : "reset");
+			return ret;
+		}
+	}
+
+	return ret;
 }
 
 static int spi_flash_read_write(struct spi_slave *spi,
@@ -80,6 +105,14 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 	size_t chunk_len, actual;
 	int ret;
 	u8 cmd[flash->addr_width+1];
+
+	if ((flash->size > SZ_16M) && (flash->addr_width == 3)) {
+		ret = spi_flash_check_bankaddr_access(flash, &offset);
+		if (ret) {
+			debug("SF: fail to acess bank_addr\n");
+			return ret;
+		}
+	}
 
 	page_size = flash->page_size;
 	page_addr = offset / page_size;
@@ -149,6 +182,15 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	unsigned long page_size;
 	unsigned long byte_addr;
 	u8 cmd[flash->addr_width+2];
+	int ret;
+
+	if ((flash->size > SZ_16M) && (flash->addr_width == 3)) {
+		ret = spi_flash_check_bankaddr_access(flash, &offset);
+		if (ret) {
+			debug("SF: fail to acess bank_addr\n");
+			return ret;
+		}
+	}
 
 	page_size = flash->page_size;
 	page_addr = offset / page_size;
@@ -210,6 +252,14 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	int ret;
 	unsigned long page_addr;
 	u8 cmd[flash->addr_width+1];
+
+	if ((flash->size > SZ_16M) && (flash->addr_width == 3)) {
+		ret = spi_flash_check_bankaddr_access(flash, &offset);
+		if (ret) {
+			debug("SF: fail to acess bank_addr\n");
+			return ret;
+		}
+	}
 
 	erase_size = flash->sector_size;
 	if (offset % erase_size || len % erase_size) {
@@ -318,6 +368,38 @@ int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data)
 
 	cmd = CMD_BANKADDR_BRRD;
 	return spi_flash_read_common(flash, &cmd, 1, data, 1);
+}
+
+int spi_flash_bankaddr_access(struct spi_flash *flash, u8 status)
+{
+	int ret, pass;
+	u8 data = 0, write_done = 0;
+
+	for (pass = 0; pass < 2; pass++) {
+		ret = spi_flash_cmd_bankaddr_read(flash, (void *)&data);
+		if (ret < 0) {
+			debug("SF: fail to read bank addr register\n");
+			return ret;
+		}
+
+		if ((data != status) & !write_done) {
+			debug("SF: need to %s bank addr bit\n",
+						status ? "set" : "reset");
+
+			write_done = 1;
+			ret = spi_flash_cmd_bankaddr_write(flash, status);
+			if (ret < 0) {
+				debug("SF: fail to write bank addr bit\n");
+				return ret;
+			}
+		} else {
+			debug("SF: bank addr bit is %s.\n",
+						status ? "set" : "reset");
+			return ret;
+		}
+	}
+
+	return -1;
 }
 
 /*

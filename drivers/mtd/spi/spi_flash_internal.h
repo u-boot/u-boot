@@ -34,6 +34,8 @@
 
 /* Common status */
 #define STATUS_WIP			0x01
+#define STATUS_BANKADDR_ENABLE		0x01
+#define STATUS_BANKADDR_DISABLE	0x00
 
 /* Send a single-byte command to the device and read the response */
 int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len);
@@ -86,6 +88,13 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear);
 
 /* Read the bank address register */
 int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data);
+
+/*
+ * Bank address access
+ * access 4th byte address in 3-byte addessing mode for flashes
+ * which has an actual size of > 16MB.
+ */
+int spi_flash_bankaddr_access(struct spi_flash *flash, u8 status);
 
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
