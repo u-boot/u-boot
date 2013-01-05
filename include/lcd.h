@@ -32,13 +32,11 @@
 extern char lcd_is_enabled;
 
 extern int lcd_line_length;
-extern int lcd_color_fg;
-extern int lcd_color_bg;
 
 /*
  * Frame buffer memory information
  */
-extern void *lcd_base;		/* Start of framebuffer memory	*/
+extern void *lcd_base;			/* Start of framebuffer memory	*/
 extern void *lcd_console_address;	/* Start of console buffer	*/
 
 extern short console_col;
@@ -53,6 +51,8 @@ extern int board_splash_screen_prepare(void);
 extern void lcd_setcolreg (ushort regno,
 				ushort red, ushort green, ushort blue);
 extern void lcd_initcolregs (void);
+
+extern int lcd_getfgcolor(void);
 
 /* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
 extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);

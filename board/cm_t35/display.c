@@ -382,8 +382,6 @@ static enum display_type env_parse_displaytype(char *displaytype)
 }
 
 int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
 void *lcd_base;
 short console_col;
 short console_row;

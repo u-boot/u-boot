@@ -29,8 +29,6 @@
 
 /* These variables are required by lcd.c -- although it sets them by itself */
 int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
 void *lcd_base;
 void *lcd_console_address;
 short console_col;

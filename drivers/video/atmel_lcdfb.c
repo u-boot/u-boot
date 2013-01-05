@@ -30,8 +30,6 @@
 #include <atmel_lcdc.h>
 
 int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
 
 void *lcd_base;				/* Start of framebuffer memory	*/
 void *lcd_console_address;		/* Start of console buffer	*/

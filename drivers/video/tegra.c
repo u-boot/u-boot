@@ -61,8 +61,6 @@ enum {
 };
 
 int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
 
 void *lcd_base;			/* Start of framebuffer memory	*/
 void *lcd_console_address;	/* Start of console buffer	*/
@@ -108,7 +106,7 @@ void lcd_toggle_cursor(void)
 
 		for (i = 0; i < lcd_cursor_width; ++i) {
 			color = *d;
-			color ^= lcd_color_fg;
+			color ^= lcd_getfgcolor();
 			*d = color;
 			++d;
 		}

@@ -70,9 +70,6 @@ vidinfo_t panel_info = {
 
 int lcd_line_length;
 
-int lcd_color_fg;
-int lcd_color_bg;
-
 /*
  * Frame buffer memory information
  */

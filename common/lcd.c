@@ -99,6 +99,9 @@ static int lcd_getbgcolor(void);
 static void lcd_setfgcolor(int color);
 static void lcd_setbgcolor(int color);
 
+static int lcd_color_fg;
+static int lcd_color_bg;
+
 char lcd_is_enabled = 0;
 
 static char lcd_flush_dcache;	/* 1 to flush dcache after each lcd update */
@@ -534,12 +537,10 @@ static void lcd_setbgcolor(int color)
 
 /*----------------------------------------------------------------------*/
 
-#ifdef	NOT_USED_SO_FAR
-static int lcd_getfgcolor(void)
+int lcd_getfgcolor(void)
 {
 	return lcd_color_fg;
 }
-#endif	/* NOT_USED_SO_FAR */
 
 /*----------------------------------------------------------------------*/
 

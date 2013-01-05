@@ -34,8 +34,6 @@
 #include "exynos_fb.h"
 
 int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
 
 void *lcd_base;
 void *lcd_console_address;
