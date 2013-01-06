@@ -59,10 +59,8 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-#ifdef DEBUG
-	printf("## Transferring control to Linux (at address %08lx) ...\n",
+	debug("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong) theKernel);
-#endif
 
 	linux_params_init(UNCACHED_SDRAM(gd->bd->bi_boot_params), commandline);
 
