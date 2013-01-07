@@ -592,12 +592,18 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
 
-	/* relocate boot function table */
 	if (!relocated) {
 		int i;
+
+		/* relocate boot function table */
 		for (i = 0; i < ARRAY_SIZE(boot_os); i++)
 			if (boot_os[i] != NULL)
 				boot_os[i] += gd->reloc_off;
+
+		/* relocate names of sub-command table */
+		for (i = 0; i < ARRAY_SIZE(cmd_bootm_sub); i++)
+			cmd_bootm_sub[i].name += gd->reloc_off;
+
 		relocated = 1;
 	}
 #endif
