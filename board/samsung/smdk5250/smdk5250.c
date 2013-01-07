@@ -35,11 +35,30 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_USB_EHCI_EXYNOS
+int board_usb_vbus_init(void)
+{
+	struct exynos5_gpio_part1 *gpio1 = (struct exynos5_gpio_part1 *)
+						samsung_get_base_gpio_part1();
+
+	/* Enable VBUS power switch */
+	s5p_gpio_direction_output(&gpio1->x2, 6, 1);
+
+	/* VBUS turn ON time */
+	mdelay(3);
+
+	return 0;
+}
+#endif
+
 int board_init(void)
 {
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
 #ifdef CONFIG_EXYNOS_SPI
 	spi_init();
+#endif
+#ifdef CONFIG_USB_EHCI_EXYNOS
+	board_usb_vbus_init();
 #endif
 	return 0;
 }
