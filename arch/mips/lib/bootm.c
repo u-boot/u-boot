@@ -104,8 +104,19 @@ static void boot_jump_linux(bootm_headers_t *images)
 int do_bootm_linux(int flag, int argc, char * const argv[],
 			bootm_headers_t *images)
 {
-	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
-		return 1;
+	/* No need for those on MIPS */
+	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
+		return -1;
+
+	if (flag & BOOTM_STATE_OS_PREP) {
+		boot_prep_linux(images);
+		return 0;
+	}
+
+	if (flag & BOOTM_STATE_OS_GO) {
+		boot_jump_linux(images);
+		return 0;
+	}
 
 	boot_prep_linux(images);
 	boot_jump_linux(images);
