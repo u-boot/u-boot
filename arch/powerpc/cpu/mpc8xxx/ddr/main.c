@@ -532,10 +532,10 @@ phys_size_t fsl_ddr_sdram(void)
 
 	/* Compute it once normally. */
 #ifdef CONFIG_FSL_DDR_INTERACTIVE
-	if (getenv("ddr_interactive")) {
-		total_memory = fsl_ddr_interactive(&info);
-	} else if (tstc() && (getc() == 'd')) {	/* we got a key press of 'd' */
-		total_memory = fsl_ddr_interactive(&info);
+	if (tstc() && (getc() == 'd')) {	/* we got a key press of 'd' */
+		total_memory = fsl_ddr_interactive(&info, 0);
+	} else if (fsl_ddr_interactive_env_var_exists()) {
+		total_memory = fsl_ddr_interactive(&info, 1);
 	} else
 #endif
 		total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 0);

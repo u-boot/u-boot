@@ -86,7 +86,8 @@ void fsl_ddr_set_lawbar(
 		unsigned int memctl_interleaved,
 		unsigned int ctrl_num);
 
-unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo);
+int fsl_ddr_interactive_env_var_exists(void);
+unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set);
 void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
 			   unsigned int ctrl_num);
 

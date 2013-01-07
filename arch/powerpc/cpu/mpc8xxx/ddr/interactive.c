@@ -1430,11 +1430,23 @@ static unsigned int fsl_ddr_parse_interactive_cmd(
 	return error;
 }
 
-unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
+int fsl_ddr_interactive_env_var_exists(void)
+{
+	char buffer[CONFIG_SYS_CBSIZE];
+
+	if (getenv_f("ddr_interactive", buffer, CONFIG_SYS_CBSIZE) >= 0)
+		return 1;
+
+	return 0;
+}
+
+unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
 {
 	unsigned long long ddrsize;
 	const char *prompt = "FSL DDR>";
 	char buffer[CONFIG_SYS_CBSIZE];
+	char buffer2[CONFIG_SYS_CBSIZE];
+	char *p = NULL;
 	char *argv[CONFIG_SYS_MAXARGS + 1];	/* NULL terminated */
 	int argc;
 	unsigned int next_step = STEP_GET_SPD;
@@ -1451,16 +1463,39 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		"go         program the memory controller and continue with u-boot\n"
 	};
 
+	if (var_is_set) {
+		if (getenv_f("ddr_interactive", buffer2, CONFIG_SYS_CBSIZE) > 0) {
+			p = buffer2;
+		} else {
+			var_is_set = 0;
+		}
+	}
+
 	/*
 	 * The strategy for next_step is that it points to the next
 	 * step in the computation process that needs to be done.
 	 */
 	while (1) {
-		/*
-		 * No need to worry for buffer overflow here in
-		 * this function;  readline() maxes out at CFG_CBSIZE
-		 */
-		readline_into_buffer(prompt, buffer, 0);
+		if (var_is_set) {
+			char *pend = strchr(p, ';');
+			if (pend) {
+				/* found command separator, copy sub-command */
+				*pend = '\0';
+				strcpy(buffer, p);
+				p = pend + 1;
+			} else {
+				/* separator not found, copy whole string */
+				strcpy(buffer, p);
+				p = NULL;
+				var_is_set = 0;
+			}
+		} else {
+			/*
+			 * No need to worry for buffer overflow here in
+			 * this function;  readline() maxes out at CFG_CBSIZE
+			 */
+			readline_into_buffer(prompt, buffer, 0);
+		}
 		argc = parse_line(buffer, argv);
 		if (argc == 0)
 			continue;
