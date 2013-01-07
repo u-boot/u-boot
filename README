@@ -616,6 +616,14 @@ The following options need to be configured:
 		boot loader that has already initialized the UART.  Define this
 		variable to flush the UART at init time.
 
+		CONFIG_SYS_NS16550_BROKEN_TEMT
+
+		16550 UART set the Transmitter Empty (TEMT) Bit when all output
+		has finished and the transmitter is totally empty. U-Boot waits
+		for this bit to be set to initialize the serial console. On some
+		broken platforms this bit is not set in SPL making U-Boot to
+		hang while waiting for TEMT. Define this option to avoid it.
+
 
 - Console Interface:
 		Depending on board, define exactly one serial port
