@@ -211,4 +211,6 @@ unsigned int exynos_init_dp(void)
 }
 #endif
 
+void exynos_set_dp_platform_data(struct exynos_dp_platform_data *pd);
+
 #endif /* _DP_INFO_H */
