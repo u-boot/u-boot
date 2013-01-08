@@ -88,7 +88,9 @@ static void draw_logo(void)
 	}
 
 	addr = panel_info.logo_addr;
+#ifdef CONFIG_CMD_BMP
 	bmp_display(addr, x, y);
+#endif
 }
 
 static void lcd_panel_on(vidinfo_t *vid)
