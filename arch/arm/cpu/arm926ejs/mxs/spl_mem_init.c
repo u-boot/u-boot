@@ -27,6 +27,7 @@
 #include <config.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <linux/compiler.h>
 
 #include "mxs_init.h"
 
@@ -104,11 +105,9 @@ static uint32_t dram_vals[] = {
 #endif
 };
 
-void __mxs_adjust_memory_params(uint32_t *dram_vals)
+__weak void mxs_adjust_memory_params(uint32_t *dram_vals)
 {
 }
-void mxs_adjust_memory_params(uint32_t *dram_vals)
-	__attribute__((weak, alias("__mxs_adjust_memory_params")));
 
 static void initialize_dram_values(void)
 {

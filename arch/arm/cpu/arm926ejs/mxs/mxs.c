@@ -35,6 +35,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -293,7 +294,7 @@ int cpu_eth_init(bd_t *bis)
 }
 #endif
 
-static void __mx28_adjust_mac(int dev_id, unsigned char *mac)
+__weak void mx28_adjust_mac(int dev_id, unsigned char *mac)
 {
 	mac[0] = 0x00;
 	mac[1] = 0x04; /* Use FSL vendor MAC address by default */
@@ -301,9 +302,6 @@ static void __mx28_adjust_mac(int dev_id, unsigned char *mac)
 	if (dev_id == 1) /* Let MAC1 be MAC0 + 1 by default */
 		mac[5] += 1;
 }
-
-void mx28_adjust_mac(int dev_id, unsigned char *mac)
-	__attribute__((weak, alias("__mx28_adjust_mac")));
 
 #ifdef	CONFIG_MX28_FEC_MAC_IN_OCOTP
 
