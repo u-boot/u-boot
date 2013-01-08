@@ -6,7 +6,7 @@ http://www.nongnu.org/qemu/
 
 Limitations & comments
 ----------------------
-Supports the "-m mips" configuration of qemu: serial,NE2000,IDE.
+Supports the "-M mips" configuration of qemu: serial,NE2000,IDE.
 Support is big endian only for now (or at least this is what I tested).
 Derived from au1x00 with a lot of things cut out.
 
