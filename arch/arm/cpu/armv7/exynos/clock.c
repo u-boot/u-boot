@@ -741,7 +741,7 @@ void exynos5_set_lcd_clk(void)
 	 */
 	cfg = readl(&clk->src_disp1_0);
 	cfg &= ~(0xf);
-	cfg |= 0x8;
+	cfg |= 0x6;
 	writel(cfg, &clk->src_disp1_0);
 
 	/*
