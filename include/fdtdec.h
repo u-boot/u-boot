@@ -78,6 +78,7 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS_SPI,	/* Exynos SPI */
 	COMPAT_SAMSUNG_EXYNOS_EHCI,	/* Exynos EHCI controller */
 	COMPAT_SAMSUNG_EXYNOS_USB_PHY,	/* Exynos phy controller for usb2.0 */
+	COMPAT_MAXIM_MAX77686_PMIC,	/* MAX77686 PMIC */
 
 	COMPAT_COUNT,
 };
