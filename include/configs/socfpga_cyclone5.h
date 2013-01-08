@@ -65,7 +65,7 @@
 #define CONFIG_SYS_BOOTMAPSZ		((256*1024*1024) - (4*1024))
 
 #define CONFIG_SPL_RAM_DEVICE
-#define CONFIG_SPL_STACK (&__stack_start)
+#define CONFIG_SPL_STACK CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SYS_SPL_MALLOC_START ((unsigned long) (&__malloc_start))
 #define CONFIG_SYS_SPL_MALLOC_SIZE (&__malloc_end - &__malloc_start)
 
