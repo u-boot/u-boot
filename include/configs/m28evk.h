@@ -178,6 +178,8 @@
 		"512k(environment),"		\
 		"512k(redundant-environment),"	\
 		"4m(kernel),"			\
+		"128k(fdt),"			\
+		"8m(ramdisk),"			\
 		"-(filesystem)"
 #else
 #define	CONFIG_ENV_IS_NOWHERE

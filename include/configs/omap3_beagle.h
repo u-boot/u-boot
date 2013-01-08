@@ -285,7 +285,7 @@
 		"else run userbutton_nonxm; fi;\0" \
 	"userbutton_xm=gpio input 4;\0" \
 	"userbutton_nonxm=gpio input 7;\0"
-/* "run userbutton" will return 1 (false) if is pressed and 0 (false) if not */
+/* "run userbutton" will return 1 (false) if pressed and 0 (true) if not */
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run userbutton; then " \

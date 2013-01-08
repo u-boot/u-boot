@@ -920,7 +920,10 @@ static int cpsw_phy_init(struct eth_device *dev, struct cpsw_slave *slave)
 			SUPPORTED_100baseT_Full |
 			SUPPORTED_1000baseT_Full);
 
-	phydev = phy_connect(priv->bus, 0, dev, slave->data->phy_if);
+	phydev = phy_connect(priv->bus,
+			CONFIG_PHY_ADDR,
+			dev,
+			slave->data->phy_if);
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;

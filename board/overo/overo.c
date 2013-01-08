@@ -147,34 +147,33 @@ int get_board_revision(void)
  * Description: If we use SPL then there is no x-loader nor config header
  * so we have to setup the DDR timings ourself on both banks.
  */
-void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
-		u32 *mr)
+void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
-	*mr = MICRON_V_MR_165;
+	timings->mr = MICRON_V_MR_165;
 	switch (get_board_revision()) {
 	case REVISION_0: /* Micron 1286MB/256MB, 1/2 banks of 128MB */
-		*mcfg = MICRON_V_MCFG_165(128 << 20);
-		*ctrla = MICRON_V_ACTIMA_165;
-		*ctrlb = MICRON_V_ACTIMB_165;
-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		timings->mcfg = MICRON_V_MCFG_165(128 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 		break;
 	case REVISION_1: /* Micron 256MB/512MB, 1/2 banks of 256MB */
-		*mcfg = MICRON_V_MCFG_165(256 << 20);
-		*ctrla = MICRON_V_ACTIMA_165;
-		*ctrlb = MICRON_V_ACTIMB_165;
-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		timings->mcfg = MICRON_V_MCFG_165(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 		break;
 	case REVISION_2: /* Hynix 256MB/512MB, 1/2 banks of 256MB */
-		*mcfg = HYNIX_V_MCFG_165(256 << 20);
-		*ctrla = HYNIX_V_ACTIMA_165;
-		*ctrlb = HYNIX_V_ACTIMB_165;
-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		timings->mcfg = HYNIX_V_MCFG_165(256 << 20);
+		timings->ctrla = HYNIX_V_ACTIMA_165;
+		timings->ctrlb = HYNIX_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 		break;
 	default:
-		*mcfg = MICRON_V_MCFG_165(128 << 20);
-		*ctrla = MICRON_V_ACTIMA_165;
-		*ctrlb = MICRON_V_ACTIMB_165;
-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		timings->mcfg = MICRON_V_MCFG_165(128 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 	}
 }
 #endif

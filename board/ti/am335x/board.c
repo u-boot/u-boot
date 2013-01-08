@@ -44,7 +44,7 @@ static struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 
 /* MII mode defines */
 #define MII_MODE_ENABLE		0x0
-#define RGMII_MODE_ENABLE	0xA
+#define RGMII_MODE_ENABLE	0x3A
 
 /* GPIO that controls power to DDR on EVM-SK */
 #define GPIO_DDR_VTT_EN		7
@@ -317,6 +317,8 @@ int board_init(void)
 		puts("Could not get board ID.\n");
 
 	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
+
+	gpmc_init();
 
 	return 0;
 }

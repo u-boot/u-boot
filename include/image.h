@@ -179,6 +179,9 @@
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
 #define IH_NMLEN		32	/* Image Name Length		*/
 
+/* Reused from common.h */
+#define ROUND(a, b)		(((a) + (b) - 1) & ~((b) - 1))
+
 /*
  * Legacy format image header,
  * all data in network byte order (aka natural aka bigendian).

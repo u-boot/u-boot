@@ -274,7 +274,7 @@ int board_late_init(void)
 		mxc_request_iomux(MX35_PIN_COMPARE, MUX_CONFIG_GPIO);
 		mxc_iomux_set_input(MUX_IN_GPIO1_IN_5, INPUT_CTL_PATH0);
 
-		gpio_direction_output(37, 1);
+		gpio_direction_output(IMX_GPIO_NR(2, 5), 1);
 	}
 
 	val = mc9sdz60_reg_read(MC9SDZ60_REG_GPIO_1) | 0x04;

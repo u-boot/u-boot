@@ -31,7 +31,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define I2C_TIMEOUT	1000
 
-static void wait_for_bb(void);
+static int wait_for_bb(void);
 static u16 wait_for_pin(void);
 static void flush_fifo(void);
 
@@ -159,7 +159,8 @@ static int i2c_read_byte(u8 devaddr, u16 regoffset, u8 alen, u8 *value)
 	u16 w;
 
 	/* wait until bus not busy */
-	wait_for_bb();
+	if (wait_for_bb())
+		return 1;
 
 	/* one byte only */
 	writew(alen, &i2c_base->cnt);
@@ -263,7 +264,8 @@ int i2c_probe(uchar chip)
 		return res;
 
 	/* wait until bus not busy */
-	wait_for_bb();
+	if (wait_for_bb())
+		return res;
 
 	/* try to read one byte */
 	writew(1, &i2c_base->cnt);
@@ -282,7 +284,10 @@ int i2c_probe(uchar chip)
 			res = 1;
 			writew(0xff, &i2c_base->stat);
 			writew (readw (&i2c_base->con) | I2C_CON_STP, &i2c_base->con);
-			wait_for_bb ();
+
+			if (wait_for_bb())
+				res = 1;
+
 			break;
 		}
 		if (status & I2C_STAT_ARDY) {
@@ -355,7 +360,8 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	}
 
 	/* wait until bus not busy */
-	wait_for_bb();
+	if (wait_for_bb())
+		return 1;
 
 	/* start address phase - will write regoffset + len bytes data */
 	/* TODO consider case when !CONFIG_OMAP243X/34XX/44XX */
@@ -399,7 +405,7 @@ write_exit:
 	return i2c_error;
 }
 
-static void wait_for_bb(void)
+static int wait_for_bb(void)
 {
 	int timeout = I2C_TIMEOUT;
 	u16 stat;
@@ -413,8 +419,10 @@ static void wait_for_bb(void)
 	if (timeout <= 0) {
 		printf("timed out in wait_for_bb: I2C_STAT=%x\n",
 			readw(&i2c_base->stat));
+		return 1;
 	}
 	writew(0xFFFF, &i2c_base->stat);	 /* clear delayed stuff*/
+	return 0;
 }
 
 static u16 wait_for_pin(void)

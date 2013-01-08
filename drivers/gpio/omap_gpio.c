@@ -53,18 +53,14 @@ static inline int get_gpio_index(int gpio)
 	return gpio & 0x1f;
 }
 
-static inline int gpio_valid(int gpio)
+int gpio_is_valid(int gpio)
 {
-	if (gpio < 0)
-		return -1;
-	if (gpio < 192)
-		return 0;
-	return -1;
+	return (gpio >= 0) && (gpio < 192);
 }
 
 static int check_gpio(int gpio)
 {
-	if (gpio_valid(gpio) < 0) {
+	if (!gpio_is_valid(gpio)) {
 		printf("ERROR : check_gpio: invalid GPIO %d\n", gpio);
 		return -1;
 	}

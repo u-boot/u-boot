@@ -515,7 +515,14 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	/* Set the imx header */
 	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imxhdr->flash_offset);
-	*header_size_ptr = sbuf->st_size + imxhdr->flash_offset;
+
+	/*
+	 * ROM bug alert
+	 * mx53 only loads 512 byte multiples.
+	 * The remaining fraction of a block bytes would
+	 * not be loaded.
+	 */
+	*header_size_ptr = ROUND(sbuf->st_size + imxhdr->flash_offset, 512);
 }
 
 int imximage_check_params(struct mkimage_params *params)
