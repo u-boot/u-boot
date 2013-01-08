@@ -59,4 +59,11 @@
 			compatible = "wolfson,wm8994-codec";
 		};
 	};
+
+	i2c@12c60000 {
+		pmic@9 {
+			reg = <0x9>;
+			compatible = "maxim,max77686_pmic";
+		};
+	};
 };
