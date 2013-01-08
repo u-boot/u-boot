@@ -95,6 +95,7 @@
 
 #include <config_cmd_default.h>
 
+#define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP

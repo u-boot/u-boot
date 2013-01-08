@@ -39,6 +39,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MXC_GPIO
 #define CONFIG_REVISION_TAG
 
@@ -112,7 +113,7 @@
 
 #define CONFIG_ETHPRIME		"FEC0"
 
-#define CONFIG_LOADADDR		0x70800000	/* loadaddr env var */
+#define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 #define CONFIG_SYS_TEXT_BASE    0x77800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -120,11 +121,8 @@
 	"uimage=uImage\0" \
 	"mmcdev=0\0" \
 	"mmcpart=2\0" \
-	"mmcroot=/dev/mmcblk0p3 rw\0" \
-	"mmcrootfstype=ext3 rootwait\0" \
-	"mmcargs=setenv bootargs console=ttymxc0,${baudrate} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0" \
+	"mmcroot=/dev/mmcblk0p3 rw rootwait\0" \
+	"mmcargs=setenv bootargs console=ttymxc0,${baudrate} root=${mmcroot} " \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
