@@ -73,10 +73,10 @@ static struct {
 
 static struct panel_config lcd_cfg[] = {
 	{
-	.timing_h       = PANEL_TIMING_H(4, 8, 41),
-	.timing_v       = PANEL_TIMING_V(2, 4, 10),
-	.pol_freq       = 0x00000000, /* Pol Freq */
-	.divisor        = 0x0001000d, /* 33Mhz Pixel Clock */
+	.timing_h       = PANEL_TIMING_H(40, 5, 2),
+	.timing_v       = PANEL_TIMING_V(8, 8, 2),
+	.pol_freq       = 0x00003000, /* Pol Freq */
+	.divisor        = 0x00010033, /* 9 Mhz Pixel Clock */
 	.panel_type     = 0x01, /* TFT */
 	.data_lines     = 0x03, /* 24 Bit RGB */
 	.load_mode      = 0x02, /* Frame Mode */
@@ -258,21 +258,26 @@ int board_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 int misc_init_r(void)
 {
 	char *eth_addr;
+	struct tam3517_module_info info;
+	int ret;
 
+	TAM3517_READ_EEPROM(&info, ret);
 	dieid_num_r();
 
-	eth_addr = getenv("ethaddr");
-	if (eth_addr)
+	if (ret)
 		return 0;
+	eth_addr = getenv("ethaddr");
+	if (!eth_addr)
+		TAM3517_READ_MAC_FROM_EEPROM(&info);
 
-#ifndef CONFIG_SPL_BUILD
-	TAM3517_READ_MAC_FROM_EEPROM;
-#endif
+	TAM3517_PRINT_SOM_INFO(&info);
 	return 0;
 }
+#endif
 
 /*
  * Routine: set_muxconf_regs

@@ -240,6 +240,38 @@
 #define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_NAND_AM33XX_BCH
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_BASE
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_ECC
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
+					 CONFIG_SYS_NAND_PAGE_SIZE)
+#define CONFIG_SYS_NAND_PAGE_SIZE	2048
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
+#define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
+					 10, 11, 12, 13, 14, 15, 16, 17, \
+					 18, 19, 20, 21, 22, 23, 24, 25, \
+					 26, 27, 28, 29, 30, 31, 32, 33, \
+					 34, 35, 36, 37, 38, 39, 40, 41, \
+					 42, 43, 44, 45, 46, 47, 48, 49, \
+					 50, 51, 52, 53, 54, 55, 56, 57, }
+
+#define CONFIG_SYS_NAND_ECCSIZE		512
+#define CONFIG_SYS_NAND_ECCBYTES	14
+
+#define CONFIG_SYS_NAND_ECCSTEPS	4
+#define	CONFIG_SYS_NAND_ECCTOTAL	(CONFIG_SYS_NAND_ECCBYTES * \
+						CONFIG_SYS_NAND_ECCSTEPS)
+
+#define	CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
  * 64 bytes before this address should be set aside for u-boot.img's
@@ -299,6 +331,24 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHYLIB
+#define CONFIG_PHY_ADDR			0
 #define CONFIG_PHY_SMSC
+
+#define CONFIG_NAND
+/* NAND support */
+#ifdef CONFIG_NAND
+#define CONFIG_CMD_NAND
+#define CONFIG_NAND_OMAP_GPMC
+#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
+#define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
+							/* to access nand at */
+							/* CS0 */
+#define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
+							   devices */
+#undef CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
+#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#endif
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */

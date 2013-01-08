@@ -72,27 +72,26 @@ void omap_rev_string(void)
  * Description: If we use SPL then there is no x-loader nor config header
  * so we have to setup the DDR timings ourself on both banks.
  */
-void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
-		u32 *mr)
+void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
-	*mr = MICRON_V_MR_165;
+	timings->mr = MICRON_V_MR_165;
 #ifdef CONFIG_BOOT_NAND
-	*mcfg = MICRON_V_MCFG_200(256 << 20);
-	*ctrla = MICRON_V_ACTIMA_200;
-	*ctrlb = MICRON_V_ACTIMB_200;
-	*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+	timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+	timings->ctrla = MICRON_V_ACTIMA_200;
+	timings->ctrlb = MICRON_V_ACTIMB_200;
+	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 #else
 	if (get_cpu_family() == CPU_OMAP34XX) {
-		*mcfg = NUMONYX_V_MCFG_165(256 << 20);
-		*ctrla = NUMONYX_V_ACTIMA_165;
-		*ctrlb = NUMONYX_V_ACTIMB_165;
-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		timings->mcfg = NUMONYX_V_MCFG_165(256 << 20);
+		timings->ctrla = NUMONYX_V_ACTIMA_165;
+		timings->ctrlb = NUMONYX_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 
 	} else {
-		*mcfg = NUMONYX_V_MCFG_200(256 << 20);
-		*ctrla = NUMONYX_V_ACTIMA_200;
-		*ctrlb = NUMONYX_V_ACTIMB_200;
-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+		timings->mcfg = NUMONYX_V_MCFG_200(256 << 20);
+		timings->ctrla = NUMONYX_V_ACTIMA_200;
+		timings->ctrlb = NUMONYX_V_ACTIMB_200;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 	}
 #endif
 }

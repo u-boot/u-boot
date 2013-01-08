@@ -50,16 +50,25 @@ void twl6035_init_settings(void)
 	return;
 }
 
-void twl6035_mmc1_poweron_ldo(void)
+int twl6035_mmc1_poweron_ldo(void)
 {
 	u8 val = 0;
 
 	/* set LDO9 TWL6035 to 3V */
 	val = 0x2b; /* (3 -.9)*28 +1 */
-	palmas_write_u8(0x48, LDO9_VOLTAGE, val);
+
+	if (palmas_write_u8(0x48, LDO9_VOLTAGE, val)) {
+		printf("twl6035: could not set LDO9 voltage.\n");
+		return 1;
+	}
 
 	/* TURN ON LDO9 */
 	val = LDO_ON | LDO_MODE_SLEEP | LDO_MODE_ACTIVE;
-	palmas_write_u8(0x48, LDO9_CTRL, val);
-	return;
+
+	if (palmas_write_u8(0x48, LDO9_CTRL, val)) {
+		printf("twl6035: could not turn on LDO9.\n");
+		return 1;
+	}
+
+	return 0;
 }

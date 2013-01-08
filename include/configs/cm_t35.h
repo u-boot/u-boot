@@ -188,6 +188,7 @@
 
 /* Environment information */
 #define CONFIG_BOOTDELAY		10
+#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
@@ -282,7 +283,6 @@
  */
 #define CONFIG_NR_DRAM_BANKS	1	/* CS1 is never populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization

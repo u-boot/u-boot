@@ -99,6 +99,7 @@ struct mcspi {
 #define OMAP3_MCSPI_CHSTAT_EOT		(1 << 2)
 
 #define OMAP3_MCSPI_CHCTRL_EN		(1 << 0)
+#define OMAP3_MCSPI_CHCTRL_DIS		(0 << 0)
 
 #define OMAP3_MCSPI_WAKEUPENABLE_WKEN	(1 << 0)
 
