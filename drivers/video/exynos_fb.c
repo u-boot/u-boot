@@ -63,6 +63,9 @@ static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
 static void exynos_lcd_init(vidinfo_t *vid)
 {
 	exynos_fimd_lcd_init(vid);
+
+	/* Enable flushing after LCD writes if requested */
+	lcd_set_flush_dcache(1);
 }
 
 static void draw_logo(void)
