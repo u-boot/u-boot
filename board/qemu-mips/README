@@ -23,7 +23,7 @@ I) Example usage:
 
 # ln -s u-boot.bin mips_bios.bin
 start it:
-qemu-system-mips -L . /dev/null -nographic
+qemu-system-mips -M mips -L . /dev/null -nographic
 
 or
 
