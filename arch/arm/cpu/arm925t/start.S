@@ -34,10 +34,6 @@
 #include <config.h>
 #include <version.h>
 
-#if defined(CONFIG_OMAP1510)
-#include <./configs/omap1510.h>
-#endif
-
 /*
  *************************************************************************
  *
