@@ -23,6 +23,7 @@ import command
 import gitutil
 import os
 import re
+import sys
 import terminal
 
 def FindCheckPatch():
@@ -47,8 +48,10 @@ def FindCheckPatch():
         if os.path.isfile(fname):
             return fname
         path = os.path.dirname(path)
-    print 'Could not find checkpatch.pl'
-    return None
+
+    print >> sys.stderr, ('Cannot find checkpatch.pl - please put it in your ' +
+                '~/bin directory or use --no-check')
+    sys.exit(1)
 
 def CheckPatch(fname, verbose=False):
     """Run checkpatch.pl on a file.
@@ -67,9 +70,6 @@ def CheckPatch(fname, verbose=False):
     error_count, warning_count, lines = 0, 0, 0
     problems = []
     chk = FindCheckPatch()
-    if not chk:
-        raise OSError, ('Cannot find checkpatch.pl - please put it in your ' +
-                '~/bin directory')
     item = {}
     stdout = command.Output(chk, '--no-tree', fname)
     #pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)

@@ -50,6 +50,9 @@ parser.add_option('-i', '--ignore-errors', action='store_true',
        help='Send patches email even if patch errors are found')
 parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
        default=False, help="Do a try run (create but don't email patches)")
+parser.add_option('-p', '--project', default=project.DetectProject(),
+                  help="Project name; affects default option values and "
+                  "aliases [default: %default]")
 parser.add_option('-s', '--start', dest='start', type='int',
        default=0, help='Commit to start creating patches from (0 = HEAD)')
 parser.add_option('-t', '--test', action='store_true', dest='test',
@@ -58,11 +61,11 @@ parser.add_option('-v', '--verbose', action='store_true', dest='verbose',
        default=False, help='Verbose output of errors and warnings')
 parser.add_option('--cc-cmd', dest='cc_cmd', type='string', action='store',
        default=None, help='Output cc list for patch file (used by git)')
+parser.add_option('--no-check', action='store_false', dest='check_patch',
+                  default=True,
+                  help="Don't check for patch compliance")
 parser.add_option('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliaes")
-parser.add_option('-p', '--project', default=project.DetectProject(),
-                  help="Project name; affects default option values and "
-                  "aliases [default: %default]")
 
 parser.usage = """patman [options]
 
@@ -146,7 +149,10 @@ else:
     series.DoChecks()
 
     # Check the patches, and run them through 'git am' just to be sure
-    ok = checkpatch.CheckPatches(options.verbose, args)
+    if options.check_patch:
+        ok = checkpatch.CheckPatches(options.verbose, args)
+    else:
+        ok = True
     if not gitutil.ApplyPatches(options.verbose, args,
             options.count + options.start):
         ok = False
