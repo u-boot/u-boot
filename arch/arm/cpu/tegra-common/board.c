@@ -113,7 +113,7 @@ static int uart_configs[] = {
  #else
 	FUNCMUX_UART1_IRRX_IRTX,
  #endif
-	FUNCMUX_UART2_IRDA,
+	FUNCMUX_UART2_UARTB,
 	-1,
 	FUNCMUX_UART4_GMC,
 	-1,

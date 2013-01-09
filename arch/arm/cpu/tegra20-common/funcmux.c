@@ -98,8 +98,8 @@ int funcmux_select(enum periph_id id, int config)
 		break;
 
 	case PERIPH_ID_UART2:
-		if (config == FUNCMUX_UART2_IRDA) {
-			pinmux_set_func(PINGRP_UAD, PMUX_FUNC_IRDA);
+		if (config == FUNCMUX_UART2_UARTB) {
+			pinmux_set_func(PINGRP_UAD, PMUX_FUNC_UARTB);
 			pinmux_tristate_disable(PINGRP_UAD);
 		}
 		break;
