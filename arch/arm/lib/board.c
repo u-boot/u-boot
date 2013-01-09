@@ -279,11 +279,6 @@ void board_init_f(ulong bootflag)
 
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
 
-	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) ((CONFIG_SYS_INIT_SP_ADDR) & ~0x07);
-	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
-
 	memset((void *)gd, 0, sizeof(gd_t));
 
 	gd->mon_len = _bss_end_ofs;
@@ -465,10 +460,6 @@ void board_init_f(ulong bootflag)
 		gd->fdt_blob = new_fdt;
 	}
 	memcpy(id, (void *)gd, sizeof(gd_t));
-
-	relocate_code(addr_sp, id, addr);
-
-	/* NOTREACHED - relocate_code() does not return */
 }
 
 #if !defined(CONFIG_SYS_NO_FLASH)
@@ -492,8 +483,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #if !defined(CONFIG_SYS_NO_FLASH)
 	ulong flash_size;
 #endif
-
-	gd = id;
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_R, "board_init_r");

@@ -164,12 +164,7 @@ reset:
 	bl	lock_cache_for_stack
 #endif
 
-/* Set stackpointer in internal RAM to call board_init_f */
-call_board_init_f:
-	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
-	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
-	ldr	r0, =0x00000000
-	bl	board_init_f
+	bl	_main
 
 /*------------------------------------------------------------------------------*/
 #ifndef CONFIG_SPL_BUILD
@@ -186,10 +181,6 @@ relocate_code:
 	mov	r5, r1	/* save addr of gd */
 	mov	r6, r2	/* save addr of destination */
 
-	/* Set up the stack						    */
-stack_setup:
-	mov	sp, r4
-
 /* Disable the Dcache RAM lock for stack now */
 #ifdef	CONFIG_CPU_PXA25X
 	bl	cpu_init_crit
@@ -198,7 +189,7 @@ stack_setup:
 	adr	r0, _start
 	cmp	r0, r6
 	moveq	r9, #0		/* no relocation. relocation offset(r9) = 0 */
-	beq	clear_bss		/* skip relocation */
+	beq	relocate_done		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
 	ldr	r3, _bss_start_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
@@ -250,48 +241,9 @@ fixnext:
 	blo	fixloop
 #endif
 
-clear_bss:
-#ifndef CONFIG_SPL_BUILD
-	ldr	r0, _bss_start_ofs
-	ldr	r1, _bss_end_ofs
-	mov	r4, r6			/* reloc addr */
-	add	r0, r0, r4
-	add	r1, r1, r4
-	mov	r2, #0x00000000		/* clear			    */
+relocate_done:
 
-clbss_l:cmp	r0, r1			/* clear loop... */
-	bhs	clbss_e			/* if reached end of bss, exit */
-	str	r2, [r0]
-	add	r0, r0, #4
-	b	clbss_l
-clbss_e:
-#endif	/* #ifndef CONFIG_SPL_BUILD */
-
-/*
- * We are done. Do not return, instead branch to second part of board
- * initialization, now running from RAM.
- */
-#ifdef CONFIG_ONENAND_SPL
-	ldr     r0, _onenand_boot_ofs
-	mov	pc, r0
-
-_onenand_boot_ofs:
-	.word onenand_boot
-#else
-jump_2_ram:
-	ldr	r0, _board_init_r_ofs
-	ldr     r1, _TEXT_BASE
-	add	lr, r0, r1
-	add	lr, lr, r9
-	/* setup parameters for board_init_r */
-	mov	r0, r5		/* gd_t */
-	mov	r1, r6		/* dest_addr */
-	/* jump to it ... */
-	mov	pc, lr
-
-_board_init_r_ofs:
-	.word board_init_r - _start
-#endif
+	bx	lr
 
 _rel_dyn_start_ofs:
 	.word __rel_dyn_start - _start
@@ -299,7 +251,14 @@ _rel_dyn_end_ofs:
 	.word __rel_dyn_end - _start
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
+
 #endif
+
+	.globl	c_runtime_cpu_setup
+c_runtime_cpu_setup:
+
+	bx	lr
+
 /*
  *************************************************************************
  *
