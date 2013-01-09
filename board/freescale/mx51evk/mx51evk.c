@@ -489,8 +489,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
-	lcd_enable();
-
 	return 0;
 }
 

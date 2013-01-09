@@ -48,6 +48,22 @@ static struct fb_videomode const claa_wvga = {
 	.vmode		= FB_VMODE_NONINTERLACED
 };
 
+static struct fb_videomode const dvi = {
+	.name		= "DVI panel",
+	.refresh	= 60,
+	.xres		= 1024,
+	.yres		= 768,
+	.pixclock	= 15385,
+	.left_margin	= 220,
+	.right_margin	= 40,
+	.upper_margin	= 21,
+	.lower_margin	= 7,
+	.hsync_len	= 60,
+	.vsync_len	= 10,
+	.sync		= 0,
+	.vmode		= FB_VMODE_NONINTERLACED
+};
+
 void setup_iomux_lcd(void)
 {
 	/* DI2_PIN15 */
@@ -73,9 +89,26 @@ void setup_iomux_lcd(void)
 	gpio_direction_output(MX51EVK_LCD_BACKLIGHT, 1);
 }
 
-void lcd_enable(void)
+int board_video_skip(void)
 {
-	int ret = ipuv3_fb_init(&claa_wvga, 1, IPU_PIX_FMT_RGB565);
+	int ret;
+	char const *e = getenv("panel");
+
+	if (e) {
+		if (strcmp(e, "claa") == 0) {
+			ret = ipuv3_fb_init(&claa_wvga, 1, IPU_PIX_FMT_RGB565);
+			if (ret)
+				printf("claa cannot be configured: %d\n", ret);
+			return ret;
+		}
+	}
+
+	/*
+	 * 'panel' env variable not found or has different value than 'claa'
+	 *  Defaulting to dvi output.
+	 */
+	ret = ipuv3_fb_init(&dvi, 0, IPU_PIX_FMT_RGB24);
 	if (ret)
-		printf("LCD cannot be configured: %d\n", ret);
+		printf("dvi cannot be configured: %d\n", ret);
+	return ret;
 }
