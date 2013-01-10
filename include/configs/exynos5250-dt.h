@@ -77,6 +77,17 @@
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
 
+/* Console configuration */
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define EXYNOS_DEVICE_SETTINGS \
+		"stdin=serial\0" \
+		"stdout=serial,lcd\0" \
+		"stderr=serial,lcd\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	EXYNOS_DEVICE_SETTINGS
+
 #define TZPC_BASE_OFFSET		0x10000
 
 /* SD/MMC configuration */
