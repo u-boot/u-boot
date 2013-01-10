@@ -21,6 +21,7 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONSOLE_DEV		"ttymxc0"
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"
+#define CONFIG_DEFAULT_FDT_FILE	"imx6q-sabresd.dtb"
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
 #include "mx6qsabre_common.h"
