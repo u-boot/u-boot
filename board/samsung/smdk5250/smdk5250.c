@@ -281,6 +281,7 @@ int board_early_init_f(void)
 }
 #endif
 
+#ifdef CONFIG_LCD
 void cfg_lcd_gpio(void)
 {
 	struct exynos5_gpio_part1 *gpio1 =
@@ -374,3 +375,4 @@ void init_panel_info(vidinfo_t *vid)
 
 	exynos_set_dp_platform_data(&dp_platform_data);
 }
+#endif
