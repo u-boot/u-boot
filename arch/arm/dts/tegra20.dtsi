@@ -116,6 +116,27 @@
 		#clock-cells = <1>;
 	};
 
+	apbdma: dma {
+		compatible = "nvidia,tegra20-apbdma";
+		reg = <0x6000a000 0x1200>;
+		interrupts = <0 104 0x04
+			      0 105 0x04
+			      0 106 0x04
+			      0 107 0x04
+			      0 108 0x04
+			      0 109 0x04
+			      0 110 0x04
+			      0 111 0x04
+			      0 112 0x04
+			      0 113 0x04
+			      0 114 0x04
+			      0 115 0x04
+			      0 116 0x04
+			      0 117 0x04
+			      0 118 0x04
+			      0 119 0x04>;
+	};
+
 	gpio: gpio@6000d000 {
 		compatible = "nvidia,tegra20-gpio";
 		reg = < 0x6000d000 0x1000 >;
