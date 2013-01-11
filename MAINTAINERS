@@ -815,6 +815,9 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
 
+Lars Poeschel <poeschel@lemonage.de>
+	pcm051  	ARM ARMV7 (AM33xx Soc)
+
 Mathieu Poirier <mathieu.poirier@linaro.org>
 
 	snowball	ARM ARMV7 (u8500 SoC)
