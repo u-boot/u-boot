@@ -47,8 +47,6 @@
 struct mxsmmc_priv {
 	int			id;
 	struct mxs_ssp_regs	*regs;
-	uint32_t		clkseq_bypass;
-	uint32_t		*clkctrl_ssp;
 	uint32_t		buswidth;
 	int			(*mmc_is_wp)(int);
 	struct mxs_dma_desc	*desc;
@@ -355,8 +353,6 @@ static int mxsmmc_init(struct mmc *mmc)
 
 int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 {
-	struct mxs_clkctrl_regs *clkctrl_regs =
-		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	struct mmc *mmc = NULL;
 	struct mxsmmc_priv *priv = NULL;
 	int ret;
@@ -387,23 +383,15 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 	switch (id) {
 	case 0:
 		priv->regs = (struct mxs_ssp_regs *)MXS_SSP0_BASE;
-		priv->clkseq_bypass = CLKCTRL_CLKSEQ_BYPASS_SSP0;
-		priv->clkctrl_ssp = &clkctrl_regs->hw_clkctrl_ssp0;
 		break;
 	case 1:
 		priv->regs = (struct mxs_ssp_regs *)MXS_SSP1_BASE;
-		priv->clkseq_bypass = CLKCTRL_CLKSEQ_BYPASS_SSP1;
-		priv->clkctrl_ssp = &clkctrl_regs->hw_clkctrl_ssp1;
 		break;
 	case 2:
 		priv->regs = (struct mxs_ssp_regs *)MXS_SSP2_BASE;
-		priv->clkseq_bypass = CLKCTRL_CLKSEQ_BYPASS_SSP2;
-		priv->clkctrl_ssp = &clkctrl_regs->hw_clkctrl_ssp2;
 		break;
 	case 3:
 		priv->regs = (struct mxs_ssp_regs *)MXS_SSP3_BASE;
-		priv->clkseq_bypass = CLKCTRL_CLKSEQ_BYPASS_SSP3;
-		priv->clkctrl_ssp = &clkctrl_regs->hw_clkctrl_ssp3;
 		break;
 	}
 
