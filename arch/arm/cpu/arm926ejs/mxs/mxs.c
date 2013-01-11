@@ -1,5 +1,5 @@
 /*
- * Freescale i.MX28 common code
+ * Freescale i.MX23/i.MX28 common code
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
@@ -196,6 +196,8 @@ static const char *get_cpu_type(void)
 		(struct mxs_digctl_regs *)MXS_DIGCTL_BASE;
 
 	switch (readl(&digctl_regs->hw_digctl_chipid) & HW_DIGCTL_CHIPID_MASK) {
+	case HW_DIGCTL_CHIPID_MX23:
+		return "23";
 	case HW_DIGCTL_CHIPID_MX28:
 		return "28";
 	default:
@@ -210,6 +212,21 @@ static const char *get_cpu_rev(void)
 	uint8_t rev = readl(&digctl_regs->hw_digctl_chipid) & 0x000000FF;
 
 	switch (readl(&digctl_regs->hw_digctl_chipid) & HW_DIGCTL_CHIPID_MASK) {
+	case HW_DIGCTL_CHIPID_MX23:
+		switch (rev) {
+		case 0x0:
+			return "1.0";
+		case 0x1:
+			return "1.1";
+		case 0x2:
+			return "1.2";
+		case 0x3:
+			return "1.3";
+		case 0x4:
+			return "1.4";
+		default:
+			return "??";
+		}
 	case HW_DIGCTL_CHIPID_MX28:
 		switch (rev) {
 		case 0x1:
