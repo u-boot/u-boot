@@ -508,6 +508,7 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 			$(obj)u-boot.ais
 
 # Specify the target for use in elftosb call
+ELFTOSB_TARGET-$(CONFIG_MX23) = imx23
 ELFTOSB_TARGET-$(CONFIG_MX28) = imx28
 
 $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
