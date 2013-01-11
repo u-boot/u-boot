@@ -34,7 +34,13 @@ int mxs_wait_mask_clr(struct mxs_register_32 *reg,
 int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int));
 
 #ifdef CONFIG_SPL_BUILD
+
+#if defined(CONFIG_MX23)
+#include <asm/arch/iomux-mx23.h>
+#elif defined(CONFIG_MX28)
 #include <asm/arch/iomux-mx28.h>
+#endif
+
 void mxs_common_spl_init(const iomux_cfg_t *iomux_setup,
 			const unsigned int iomux_size);
 #endif
