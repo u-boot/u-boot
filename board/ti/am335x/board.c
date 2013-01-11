@@ -393,7 +393,7 @@ int board_eth_init(bd_t *bis)
 	uint32_t mac_hi, mac_lo;
 
 	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
-		debug("<ethaddr> not set. Reading from E-fuse\n");
+		printf("<ethaddr> not set. Reading from E-fuse\n");
 		/* try reading mac address from efuse */
 		mac_lo = readl(&cdev->macid0l);
 		mac_hi = readl(&cdev->macid0h);
