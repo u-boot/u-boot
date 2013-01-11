@@ -137,7 +137,7 @@ int spi_claim_bus(struct spi_slave *slave)
 
 	writel(0, &ssp_regs->hw_ssp_cmd0);
 
-	mx28_set_ssp_busclock(slave->bus, mxs_slave->max_khz);
+	mxs_set_ssp_busclock(slave->bus, mxs_slave->max_khz);
 
 	return 0;
 }

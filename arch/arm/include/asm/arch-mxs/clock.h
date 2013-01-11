@@ -52,9 +52,9 @@ enum mxs_sspclock {
 
 uint32_t mxc_get_clock(enum mxc_clock clk);
 
-void mx28_set_ioclk(enum mxs_ioclock io, uint32_t freq);
-void mx28_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal);
-void mx28_set_ssp_busclock(unsigned int bus, uint32_t freq);
+void mxs_set_ioclk(enum mxs_ioclock io, uint32_t freq);
+void mxs_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal);
+void mxs_set_ssp_busclock(unsigned int bus, uint32_t freq);
 
 /* Compatibility with the FEC Ethernet driver */
 #define	imx_get_fecclk()	mxc_get_clock(MXC_AHB_CLK)

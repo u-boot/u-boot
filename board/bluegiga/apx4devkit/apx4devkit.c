@@ -43,12 +43,12 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_early_init_f(void)
 {
 	/* IO0 clock at 480MHz */
-	mx28_set_ioclk(MXC_IOCLK0, 480000);
+	mxs_set_ioclk(MXC_IOCLK0, 480000);
 	/* IO1 clock at 480MHz */
-	mx28_set_ioclk(MXC_IOCLK1, 480000);
+	mxs_set_ioclk(MXC_IOCLK1, 480000);
 
 	/* SSP0 clock at 96MHz */
-	mx28_set_sspclk(MXC_SSPCLK0, 96000, 0);
+	mxs_set_sspclk(MXC_SSPCLK0, 96000, 0);
 
 	return 0;
 }

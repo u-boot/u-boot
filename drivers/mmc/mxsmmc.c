@@ -304,7 +304,7 @@ static void mxsmmc_set_ios(struct mmc *mmc)
 
 	/* Set the clock speed */
 	if (mmc->clock)
-		mx28_set_ssp_busclock(priv->id, mmc->clock / 1000);
+		mxs_set_ssp_busclock(priv->id, mmc->clock / 1000);
 
 	switch (mmc->bus_width) {
 	case 1:
@@ -341,7 +341,7 @@ static int mxsmmc_init(struct mmc *mmc)
 		SSP_CTRL1_SSP_MODE_SD_MMC | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS);
 
 	/* Set initial bit clock 400 KHz */
-	mx28_set_ssp_busclock(priv->id, 400);
+	mxs_set_ssp_busclock(priv->id, 400);
 
 	/* Send initial 74 clock cycles (185 us @ 400 KHz)*/
 	writel(SSP_CMD0_CONT_CLKING_EN, &ssp_regs->hw_ssp_cmd0_set);

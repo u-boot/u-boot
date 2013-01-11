@@ -41,7 +41,7 @@
 #define	PLL_FREQ_MHZ	(PLL_FREQ_KHZ / 1000)
 #define	XTAL_FREQ_MHZ	(XTAL_FREQ_KHZ / 1000)
 
-static uint32_t mx28_get_pclk(void)
+static uint32_t mxs_get_pclk(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -73,7 +73,7 @@ static uint32_t mx28_get_pclk(void)
 	return (PLL_FREQ_MHZ * PLL_FREQ_COEF / frac) / div;
 }
 
-static uint32_t mx28_get_hclk(void)
+static uint32_t mxs_get_hclk(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -88,10 +88,10 @@ static uint32_t mx28_get_hclk(void)
 		return 0;
 
 	div = clkctrl & CLKCTRL_HBUS_DIV_MASK;
-	return mx28_get_pclk() / div;
+	return mxs_get_pclk() / div;
 }
 
-static uint32_t mx28_get_emiclk(void)
+static uint32_t mxs_get_emiclk(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -116,7 +116,7 @@ static uint32_t mx28_get_emiclk(void)
 	return (PLL_FREQ_MHZ * PLL_FREQ_COEF / frac) / div;
 }
 
-static uint32_t mx28_get_gpmiclk(void)
+static uint32_t mxs_get_gpmiclk(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -143,7 +143,7 @@ static uint32_t mx28_get_gpmiclk(void)
 /*
  * Set IO clock frequency, in kHz
  */
-void mx28_set_ioclk(enum mxs_ioclock io, uint32_t freq)
+void mxs_set_ioclk(enum mxs_ioclock io, uint32_t freq)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -176,7 +176,7 @@ void mx28_set_ioclk(enum mxs_ioclock io, uint32_t freq)
 /*
  * Get IO clock, returns IO clock in kHz
  */
-static uint32_t mx28_get_ioclk(enum mxs_ioclock io)
+static uint32_t mxs_get_ioclk(enum mxs_ioclock io)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -197,7 +197,7 @@ static uint32_t mx28_get_ioclk(enum mxs_ioclock io)
 /*
  * Configure SSP clock frequency, in kHz
  */
-void mx28_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal)
+void mxs_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -216,7 +216,7 @@ void mx28_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal)
 	if (xtal)
 		clk = XTAL_FREQ_KHZ;
 	else
-		clk = mx28_get_ioclk(ssp >> 1);
+		clk = mxs_get_ioclk(ssp >> 1);
 
 	if (freq > clk)
 		return;
@@ -241,7 +241,7 @@ void mx28_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal)
 /*
  * Return SSP frequency, in kHz
  */
-static uint32_t mx28_get_sspclk(enum mxs_sspclock ssp)
+static uint32_t mxs_get_sspclk(enum mxs_sspclock ssp)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -263,7 +263,7 @@ static uint32_t mx28_get_sspclk(enum mxs_sspclock ssp)
 	if (tmp == 0)
 		return 0;
 
-	clk = mx28_get_ioclk(ssp >> 1);
+	clk = mxs_get_ioclk(ssp >> 1);
 
 	return clk / tmp;
 }
@@ -271,10 +271,10 @@ static uint32_t mx28_get_sspclk(enum mxs_sspclock ssp)
 /*
  * Set SSP/MMC bus frequency, in kHz)
  */
-void mx28_set_ssp_busclock(unsigned int bus, uint32_t freq)
+void mxs_set_ssp_busclock(unsigned int bus, uint32_t freq)
 {
 	struct mxs_ssp_regs *ssp_regs;
-	const uint32_t sspclk = mx28_get_sspclk(bus);
+	const uint32_t sspclk = mxs_get_sspclk(bus);
 	uint32_t reg;
 	uint32_t divide, rate, tgtclk;
 
@@ -313,26 +313,26 @@ uint32_t mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
 	case MXC_ARM_CLK:
-		return mx28_get_pclk() * 1000000;
+		return mxs_get_pclk() * 1000000;
 	case MXC_GPMI_CLK:
-		return mx28_get_gpmiclk() * 1000000;
+		return mxs_get_gpmiclk() * 1000000;
 	case MXC_AHB_CLK:
 	case MXC_IPG_CLK:
-		return mx28_get_hclk() * 1000000;
+		return mxs_get_hclk() * 1000000;
 	case MXC_EMI_CLK:
-		return mx28_get_emiclk();
+		return mxs_get_emiclk();
 	case MXC_IO0_CLK:
-		return mx28_get_ioclk(MXC_IOCLK0);
+		return mxs_get_ioclk(MXC_IOCLK0);
 	case MXC_IO1_CLK:
-		return mx28_get_ioclk(MXC_IOCLK1);
+		return mxs_get_ioclk(MXC_IOCLK1);
 	case MXC_SSP0_CLK:
-		return mx28_get_sspclk(MXC_SSPCLK0);
+		return mxs_get_sspclk(MXC_SSPCLK0);
 	case MXC_SSP1_CLK:
-		return mx28_get_sspclk(MXC_SSPCLK1);
+		return mxs_get_sspclk(MXC_SSPCLK1);
 	case MXC_SSP2_CLK:
-		return mx28_get_sspclk(MXC_SSPCLK2);
+		return mxs_get_sspclk(MXC_SSPCLK2);
 	case MXC_SSP3_CLK:
-		return mx28_get_sspclk(MXC_SSPCLK3);
+		return mxs_get_sspclk(MXC_SSPCLK3);
 	case MXC_XTAL_CLK:
 		return XTAL_FREQ_KHZ * 1000;
 	}
