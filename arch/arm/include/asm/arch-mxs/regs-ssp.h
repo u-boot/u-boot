@@ -58,10 +58,12 @@ static inline struct mxs_ssp_regs *mxs_ssp_regs_by_bus(unsigned int port)
 		return (struct mxs_ssp_regs *)MXS_SSP0_BASE;
 	case 1:
 		return (struct mxs_ssp_regs *)MXS_SSP1_BASE;
+#ifdef CONFIG_MX28
 	case 2:
 		return (struct mxs_ssp_regs *)MXS_SSP2_BASE;
 	case 3:
 		return (struct mxs_ssp_regs *)MXS_SSP3_BASE;
+#endif
 	default:
 		return NULL;
 	}
