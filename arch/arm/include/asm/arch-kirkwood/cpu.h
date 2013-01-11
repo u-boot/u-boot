@@ -33,7 +33,7 @@
 			| (attr << 8) | (kw_winctrl_calcsize(size) << 16))
 
 #define KWGBE_PORT_SERIAL_CONTROL1_REG(_x)	\
-		((_x ? KW_EGIGA0_BASE : KW_EGIGA1_BASE) + 0x44c)
+		((_x ? KW_EGIGA1_BASE : KW_EGIGA0_BASE) + 0x44c)
 
 #define KW_REG_PCIE_DEVID		(KW_REG_PCIE_BASE + 0x00)
 #define KW_REG_PCIE_REVID		(KW_REG_PCIE_BASE + 0x08)

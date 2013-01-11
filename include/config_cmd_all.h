@@ -56,6 +56,7 @@
 #define CONFIG_CMD_LICENSE	/* console license display	*/
 #define CONFIG_CMD_LOADB	/* loadb			*/
 #define CONFIG_CMD_LOADS	/* loads			*/
+#define CONFIG_CMD_MEMINFO	/* meminfo			*/
 #define CONFIG_CMD_MEMORY	/* md mm nm mw cp cmp crc base loop mtest */
 #define CONFIG_CMD_MFSL		/* FSL support for Microblaze	*/
 #define CONFIG_CMD_MII		/* MII support			*/

@@ -42,13 +42,14 @@ ifndef CONFIG_SPL_BUILD
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
 COBJS-$(CONFIG_SYS_L2_PL310) += cache-pl310.o
-COBJS-y	+= interrupts.o
-COBJS-y	+= reset.o
 SOBJS-$(CONFIG_USE_ARCH_MEMSET) += memset.o
 SOBJS-$(CONFIG_USE_ARCH_MEMCPY) += memcpy.o
 else
 COBJS-$(CONFIG_SPL_FRAMEWORK) += spl.o
 endif
+
+COBJS-y	+= interrupts.o
+COBJS-y	+= reset.o
 
 COBJS-y	+= cache.o
 COBJS-y	+= cache-cp15.o

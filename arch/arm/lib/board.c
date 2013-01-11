@@ -40,6 +40,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <environment.h>
 #include <malloc.h>
 #include <stdio_dev.h>
 #include <version.h>
@@ -231,14 +232,22 @@ int __power_init_board(void)
 int power_init_board(void)
 	__attribute__((weak, alias("__power_init_board")));
 
+	/* Record the board_init_f() bootstage (after arch_cpu_init()) */
+static int mark_bootstage(void)
+{
+	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
+
+	return 0;
+}
+
 init_fnc_t *init_sequence[] = {
 	arch_cpu_init,		/* basic arch cpu dependent setup */
-
-#if defined(CONFIG_BOARD_EARLY_INIT_F)
-	board_early_init_f,
-#endif
+	mark_bootstage,
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_check_fdt,
+#endif
+#if defined(CONFIG_BOARD_EARLY_INIT_F)
+	board_early_init_f,
 #endif
 	timer_init,		/* initialize timer */
 #ifdef CONFIG_BOARD_POSTCLK_INIT
@@ -276,8 +285,6 @@ void board_init_f(ulong bootflag)
 #endif
 	void *new_fdt = NULL;
 	size_t fdt_size = 0;
-
-	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
 
 	memset((void *)gd, 0, sizeof(gd_t));
 
@@ -348,13 +355,14 @@ void board_init_f(ulong bootflag)
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	/* reserve TLB table */
-	addr -= (4096 * 4);
+	gd->tlb_size = 4096 * 4;
+	addr -= gd->tlb_size;
 
 	/* round down to next 64 kB limit */
 	addr &= ~(0x10000 - 1);
 
 	gd->tlb_addr = addr;
-	debug("TLB table at: %08lx\n", addr);
+	debug("TLB table from %08lx to %08lx\n", addr, addr + gd->tlb_size);
 #endif
 
 	/* round down to next 4 kB limit */
@@ -467,7 +475,38 @@ static char *failed = "*** failed ***\n";
 #endif
 
 /*
- ************************************************************************
+ * Tell if it's OK to load the environment early in boot.
+ *
+ * If CONFIG_OF_CONFIG is defined, we'll check with the FDT to see
+ * if this is OK (defaulting to saying it's not OK).
+ *
+ * NOTE: Loading the environment early can be a bad idea if security is
+ *       important, since no verification is done on the environment.
+ *
+ * @return 0 if environment should not be loaded, !=0 if it is ok to load
+ */
+static int should_load_env(void)
+{
+#ifdef CONFIG_OF_CONTROL
+	return fdtdec_get_config_int(gd->fdt_blob, "load-environment", 0);
+#elif defined CONFIG_DELAY_ENVIRONMENT
+	return 0;
+#else
+	return 1;
+#endif
+}
+
+#if defined(CONFIG_DISPLAY_BOARDINFO_LATE) && defined(CONFIG_OF_CONTROL)
+static void display_fdt_model(const void *blob)
+{
+	const char *model;
+
+	model = (char *)fdt_getprop(blob, 0, "model", NULL);
+	printf("Model: %s\n", model ? model : "<unknown>");
+}
+#endif
+
+/************************************************************************
  *
  * This is the next part if the initialization sequence: we are now
  * running from RAM and have a "normal" C environment, i. e. global
@@ -560,8 +599,8 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 
 #ifdef CONFIG_GENERIC_MMC
-       puts("MMC:   ");
-       mmc_initialize(gd->bd);
+	puts("MMC:   ");
+	mmc_initialize(gd->bd);
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH
@@ -570,7 +609,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 
 	/* initialize environment */
-	env_relocate();
+	if (should_load_env())
+		env_relocate();
+	else
+		set_default_env(NULL);
 
 #if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)
 	arm_pci_init();
@@ -586,6 +628,15 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 
 	console_init_r();	/* fully init console as a device */
+
+#ifdef CONFIG_DISPLAY_BOARDINFO_LATE
+# ifdef CONFIG_OF_CONTROL
+	/* Put this here so it appears on the LCD, now it is ready */
+	display_fdt_model(gd->fdt_blob);
+# else
+	checkboard();
+# endif
+#endif
 
 #if defined(CONFIG_ARCH_MISC_INIT)
 	/* miscellaneous arch dependent initialisations */

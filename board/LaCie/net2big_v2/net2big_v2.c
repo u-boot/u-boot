@@ -39,7 +39,7 @@ int board_early_init_f(void)
 			NET2BIG_V2_OE_LOW, NET2BIG_V2_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
-	u32 kwmpp_config[] = {
+	static const u32 kwmpp_config[] = {
 		MPP0_SPI_SCn,
 		MPP1_SPI_MOSI,
 		MPP2_SPI_SCK,

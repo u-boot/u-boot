@@ -253,9 +253,6 @@
 	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
-	"stderr=serial\0"						\
-	"stdin=serial\0"						\
-	"stdout=serial\0"						\
 	""
 #endif /* CONFIG_KM_DEF_ENV */
 

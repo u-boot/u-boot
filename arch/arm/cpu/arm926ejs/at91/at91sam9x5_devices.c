@@ -193,6 +193,19 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 }
 #endif
 
+#if defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_EHCI)
+void at91_uhp_hw_init(void)
+{
+	/* Enable VBus on UHP ports */
+	at91_set_pio_output(AT91_PIO_PORTD, 18, 0); /* port A */
+	at91_set_pio_output(AT91_PIO_PORTD, 19, 0); /* port B */
+#if defined(CONFIG_USB_OHCI_NEW)
+	/* port C is OHCI only */
+	at91_set_pio_output(AT91_PIO_PORTD, 20, 0); /* port C */
+#endif
+}
+#endif
+
 #ifdef CONFIG_MACB
 void at91_macb_hw_init(void)
 {

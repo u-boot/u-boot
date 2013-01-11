@@ -616,6 +616,14 @@ The following options need to be configured:
 		boot loader that has already initialized the UART.  Define this
 		variable to flush the UART at init time.
 
+		CONFIG_SYS_NS16550_BROKEN_TEMT
+
+		16550 UART set the Transmitter Empty (TEMT) Bit when all output
+		has finished and the transmitter is totally empty. U-Boot waits
+		for this bit to be set to initialize the serial console. On some
+		broken platforms this bit is not set in SPL making U-Boot to
+		hang while waiting for TEMT. Define this option to avoid it.
+
 
 - Console Interface:
 		Depending on board, define exactly one serial port
@@ -849,6 +857,7 @@ The following options need to be configured:
 		CONFIG_CMD_LOADS	  loads
 		CONFIG_CMD_MD5SUM	  print md5 message digest
 					  (requires CONFIG_CMD_MEMORY and CONFIG_MD5)
+		CONFIG_CMD_MEMINFO	* Display detailed memory information
 		CONFIG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
 					  loop, loopw, mtest
 		CONFIG_CMD_MISC		  Misc functions like sleep etc
@@ -2378,6 +2387,15 @@ CBFS (Coreboot Filesystem) support
 		run-time determined information about the hardware to the
 		environment.  These will be named board_name, board_rev.
 
+		CONFIG_DELAY_ENVIRONMENT
+
+		Normally the environment is loaded when the board is
+		intialised so that it is available to U-Boot. This inhibits
+		that so that the environment is not available until
+		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
+		this is instead controlled by the value of
+		/config/load-environment.
+
 - DataFlash Support:
 		CONFIG_HAS_DATAFLASH
 
@@ -3452,6 +3470,16 @@ use the "saveenv" command to store a valid environment.
 		drivers/serial/ns16550.c.  This option is useful for saving
 		space for already greatly restricted images, including but not
 		limited to NAND_SPL configurations.
+
+- CONFIG_DISPLAY_BOARDINFO
+		Display information about the board that U-Boot is running on
+		when U-Boot starts up. The board function checkboard() is called
+		to do this.
+
+- CONFIG_DISPLAY_BOARDINFO_LATE
+		Similar to the previous option, but display this information
+		later, once stdio is running and output goes to the LCD, if
+		present.
 
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
