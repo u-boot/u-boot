@@ -356,6 +356,16 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 	struct mmc *mmc = NULL;
 	struct mxsmmc_priv *priv = NULL;
 	int ret;
+#if defined(CONFIG_MX23)
+	const unsigned int mxsmmc_max_id = 2;
+	const unsigned int mxsmmc_clk_id = 0;
+#elif defined(CONFIG_MX28)
+	const unsigned int mxsmmc_max_id = 4;
+	const unsigned int mxsmmc_clk_id = id;
+#endif
+
+	if (id >= mxsmmc_max_id)
+		return -ENODEV;
 
 	mmc = malloc(sizeof(struct mmc));
 	if (!mmc)
@@ -401,7 +411,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 	 * CLOCK_RATE could be any integer from 0 to 255.
 	 */
 	mmc->f_min = 400000;
-	mmc->f_max = mxc_get_clock(MXC_SSP0_CLK + id) * 1000 / 2;
+	mmc->f_max = mxc_get_clock(MXC_SSP0_CLK + mxsmmc_clk_id) * 1000 / 2;
 	mmc->b_max = 0x20;
 
 	mmc_register(mmc);
