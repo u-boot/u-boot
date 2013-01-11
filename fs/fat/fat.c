@@ -569,9 +569,9 @@ static __u8 mkcksum(const char name[8], const char ext[3])
 
 	__u8 ret = 0;
 
-	for (i = 0; i < sizeof(name); i++)
+	for (i = 0; i < 8; i++)
 		ret = (((ret & 1) << 7) | ((ret & 0xfe) >> 1)) + name[i];
-	for (i = 0; i < sizeof(ext); i++)
+	for (i = 0; i < 3; i++)
 		ret = (((ret & 1) << 7) | ((ret & 0xfe) >> 1)) + ext[i];
 
 	return ret;
