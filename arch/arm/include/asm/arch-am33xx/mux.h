@@ -25,7 +25,8 @@
 /* PAD Control Fields */
 #define SLEWCTRL	(0x1 << 6)
 #define RXACTIVE	(0x1 << 5)
-#define PULLUP_EN	(0x1 << 4) /* Pull UP Selection */
+#define PULLDOWN_EN	(0x0 << 4) /* Pull Down Selection */
+#define PULLUP_EN	(0x1 << 4) /* Pull Up Selection */
 #define PULLUDEN	(0x0 << 3) /* Pull up enabled */
 #define PULLUDDIS	(0x1 << 3) /* Pull up disabled */
 #define MODE(val)	val	/* used for Readability */
