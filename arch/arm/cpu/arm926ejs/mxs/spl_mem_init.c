@@ -83,6 +83,22 @@ static uint32_t dram_vals[] = {
 	0x06120612, 0x04320432, 0x04320432, 0x00040004,
 	0x00040004, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00010001
+
+/*
+ * i.MX23 DDR at 133MHz
+ */
+#elif defined(CONFIG_MX23)
+	0x01010001, 0x00010100, 0x01000101, 0x00000001,
+	0x00000101, 0x00000000, 0x00010000, 0x01000001,
+	0x00000000, 0x00000001, 0x07000200, 0x00070202,
+	0x02020000, 0x04040a01, 0x00000201, 0x02040000,
+	0x02000000, 0x19000f08, 0x0d0d0000, 0x02021313,
+	0x02061521, 0x0000000a, 0x00080008, 0x00200020,
+	0x00200020, 0x00200020, 0x000003f7, 0x00000000,
+	0x00000000, 0x00000020, 0x00000020, 0x00c80000,
+	0x000a23cd, 0x000000c8, 0x00006665, 0x00000000,
+	0x00000101, 0x00040001, 0x00000000, 0x00000000,
+	0x00010000
 #else
 #error Unsupported memory initialization
 #endif
@@ -102,6 +118,10 @@ static void initialize_dram_values(void)
 
 	for (i = 0; i < ARRAY_SIZE(dram_vals); i++)
 		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
+
+#ifdef CONFIG_MX23
+	writel((1 << 24), MXS_DRAM_BASE + (4 * 8));
+#endif
 }
 
 static void mxs_mem_init_clock(void)
