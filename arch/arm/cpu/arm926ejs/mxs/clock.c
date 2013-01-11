@@ -278,7 +278,7 @@ void mx28_set_ssp_busclock(unsigned int bus, uint32_t freq)
 	uint32_t reg;
 	uint32_t divide, rate, tgtclk;
 
-	ssp_regs = (struct mxs_ssp_regs *)(MXS_SSP0_BASE + (bus * 0x2000));
+	ssp_regs = mxs_ssp_regs_by_bus(bus);
 
 	/*
 	 * SSP bit rate = SSPCLK / (CLOCK_DIVIDE * (1 + CLOCK_RATE)),

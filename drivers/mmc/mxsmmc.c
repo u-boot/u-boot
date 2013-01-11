@@ -380,20 +380,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 
 	priv->mmc_is_wp = wp;
 	priv->id = id;
-	switch (id) {
-	case 0:
-		priv->regs = (struct mxs_ssp_regs *)MXS_SSP0_BASE;
-		break;
-	case 1:
-		priv->regs = (struct mxs_ssp_regs *)MXS_SSP1_BASE;
-		break;
-	case 2:
-		priv->regs = (struct mxs_ssp_regs *)MXS_SSP2_BASE;
-		break;
-	case 3:
-		priv->regs = (struct mxs_ssp_regs *)MXS_SSP3_BASE;
-		break;
-	}
+	priv->regs = mxs_ssp_regs_by_bus(id);
 
 	sprintf(mmc->name, "MXS MMC");
 	mmc->send_cmd = mxsmmc_send_cmd;

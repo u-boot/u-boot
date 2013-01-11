@@ -50,6 +50,22 @@ struct mxs_ssp_regs {
 	mxs_reg_32(hw_ssp_debug)
 	mxs_reg_32(hw_ssp_version)
 };
+
+static inline struct mxs_ssp_regs *mxs_ssp_regs_by_bus(unsigned int port)
+{
+	switch (port) {
+	case 0:
+		return (struct mxs_ssp_regs *)MXS_SSP0_BASE;
+	case 1:
+		return (struct mxs_ssp_regs *)MXS_SSP1_BASE;
+	case 2:
+		return (struct mxs_ssp_regs *)MXS_SSP2_BASE;
+	case 3:
+		return (struct mxs_ssp_regs *)MXS_SSP3_BASE;
+	default:
+		return NULL;
+	}
+}
 #endif
 
 #define	SSP_CTRL0_SFTRST			(1 << 31)
