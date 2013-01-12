@@ -183,7 +183,9 @@ relocate_code:
 
 /* Disable the Dcache RAM lock for stack now */
 #ifdef	CONFIG_CPU_PXA25X
+	mov	r12, lr
 	bl	cpu_init_crit
+	mov	lr, r12
 #endif
 
 	adr	r0, _start
