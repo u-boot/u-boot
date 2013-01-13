@@ -67,9 +67,11 @@
  * variables to live in SRAM
  */
 static unsigned int g_current_bus __attribute__((section(".data")));
+#ifdef CONFIG_OF_CONTROL
+static int i2c_busses __attribute__((section(".data")));
 static struct s3c24x0_i2c_bus i2c_bus[CONFIG_MAX_I2C_NUM]
 			__attribute__((section(".data")));
-static int i2c_busses __attribute__((section(".data")));
+#endif
 
 #if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 static int GetI2CSDA(void)
