@@ -24,6 +24,25 @@ struct mtd_oob_buf {
 	unsigned char __user *ptr;
 };
 
+/*
+ * MTD operation modes
+ *
+ * @MTD_OPS_PLACE_OOB:	OOB data are placed at the given offset (default)
+ * @MTD_OPS_AUTO_OOB:	OOB data are automatically placed at the free areas
+ *			which are defined by the internal ecclayout
+ * @MTD_OPS_RAW:	data are transferred as-is, with no error correction;
+ *			this mode implies %MTD_OPS_PLACE_OOB
+ *
+ * These modes can be passed to ioctl(MEMWRITE) and are also used internally.
+ * See notes on "MTD file modes" for discussion on %MTD_OPS_RAW vs.
+ * %MTD_FILE_MODE_RAW.
+ */
+enum {
+	MTD_OPS_PLACE_OOB = 0,
+	MTD_OPS_AUTO_OOB = 1,
+	MTD_OPS_RAW = 2,
+};
+
 #define MTD_ABSENT		0
 #define MTD_RAM			1
 #define MTD_ROM			2
@@ -82,24 +101,42 @@ struct otp_info {
 	uint32_t locked;
 };
 
+/* Get basic MTD characteristics info (better to use sysfs) */
 #define MEMGETINFO		_IOR('M', 1, struct mtd_info_user)
+/* Erase segment of MTD */
 #define MEMERASE		_IOW('M', 2, struct erase_info_user)
+/* Write out-of-band data from MTD */
 #define MEMWRITEOOB		_IOWR('M', 3, struct mtd_oob_buf)
+/* Read out-of-band data from MTD */
 #define MEMREADOOB		_IOWR('M', 4, struct mtd_oob_buf)
+/* Lock a chip (for MTD that supports it) */
 #define MEMLOCK			_IOW('M', 5, struct erase_info_user)
+/* Unlock a chip (for MTD that supports it) */
 #define MEMUNLOCK		_IOW('M', 6, struct erase_info_user)
+/* Get the number of different erase regions */
 #define MEMGETREGIONCOUNT	_IOR('M', 7, int)
+/* Get information about the erase region for a specific index */
 #define MEMGETREGIONINFO	_IOWR('M', 8, struct region_info_user)
+/* Get info about OOB modes (e.g., RAW, PLACE, AUTO) - legacy interface */
 #define MEMSETOOBSEL		_IOW('M', 9, struct nand_oobinfo)
 #define MEMGETOOBSEL		_IOR('M', 10, struct nand_oobinfo)
+/* Check if an eraseblock is bad */
 #define MEMGETBADBLOCK		_IOW('M', 11, loff_t)
+/* Mark an eraseblock as bad */
 #define MEMSETBADBLOCK		_IOW('M', 12, loff_t)
+/* Set OTP (One-Time Programmable) mode (factory vs. user) */
 #define OTPSELECT		_IOR('M', 13, int)
+/* Get number of OTP (One-Time Programmable) regions */
 #define OTPGETREGIONCOUNT	_IOW('M', 14, int)
+/* Get all OTP (One-Time Programmable) info about MTD */
 #define OTPGETREGIONINFO	_IOW('M', 15, struct otp_info)
+/* Lock a given range of user data (must be in mode %MTD_FILE_MODE_OTP_USER) */
 #define OTPLOCK			_IOR('M', 16, struct otp_info)
+/* Get ECC layout (deprecated) */
 #define ECCGETLAYOUT		_IOR('M', 17, struct nand_ecclayout)
+/* Get statistics about corrected/uncorrected errors */
 #define ECCGETSTATS		_IOR('M', 18, struct mtd_ecc_stats)
+/* Set MTD mode on a per-file-descriptor basis (see "MTD file modes") */
 #define MTDFILEMODE		_IO('M', 19)
 
 /*
@@ -146,7 +183,21 @@ struct mtd_ecc_stats {
 };
 
 /*
- * Read/write file modes for access to MTD
+ * MTD file modes - for read/write access to MTD
+ *
+ * @MTD_FILE_MODE_NORMAL:	OTP disabled, ECC enabled
+ * @MTD_FILE_MODE_OTP_FACTORY:	OTP enabled in factory mode
+ * @MTD_FILE_MODE_OTP_USER:	OTP enabled in user mode
+ * @MTD_FILE_MODE_RAW:		OTP disabled, ECC disabled
+ *
+ * These modes can be set via ioctl(MTDFILEMODE). The mode mode will be retained
+ * separately for each open file descriptor.
+ *
+ * Note: %MTD_FILE_MODE_RAW provides the same functionality as %MTD_OPS_RAW -
+ * raw access to the flash, without error correction or autoplacement schemes.
+ * Wherever possible, the MTD_OPS_* mode will override the MTD_FILE_MODE_* mode
+ * (e.g., when using ioctl(MEMWRITE)), but in some cases, the MTD_FILE_MODE is
+ * used out of necessity (e.g., `write()', ioctl(MEMWRITEOOB64)).
  */
 enum mtd_file_modes {
 	MTD_MODE_NORMAL = MTD_OTP_OFF,

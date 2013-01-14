@@ -316,7 +316,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 /* Video */
-#define CONFIG_FSL_DIU_FB
 
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
@@ -336,7 +335,6 @@
 #endif
 
 #ifndef CONFIG_FSL_DIU_FB
-#define CONFIG_ATI
 #endif
 
 #ifdef CONFIG_ATI

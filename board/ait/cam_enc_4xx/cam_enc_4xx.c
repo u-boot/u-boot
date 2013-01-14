@@ -120,7 +120,7 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_NAND_DAVINCI
 static int
 davinci_std_read_page_syndrome(struct mtd_info *mtd, struct nand_chip *chip,
-				   uint8_t *buf, int page)
+				   uint8_t *buf, int oob_required, int page)
 {
 	struct nand_chip *this = mtd->priv;
 	int i, eccsize = chip->ecc.size;
@@ -167,8 +167,9 @@ davinci_std_read_page_syndrome(struct mtd_info *mtd, struct nand_chip *chip,
 	return 0;
 }
 
-static void davinci_std_write_page_syndrome(struct mtd_info *mtd,
-				    struct nand_chip *chip, const uint8_t *buf)
+static int davinci_std_write_page_syndrome(struct mtd_info *mtd,
+				    struct nand_chip *chip, const uint8_t *buf,
+				    int oob_required)
 {
 	unsigned char davinci_ecc_buf[NAND_MAX_OOBSIZE];
 	struct nand_chip *this = mtd->priv;
@@ -218,6 +219,7 @@ static void davinci_std_write_page_syndrome(struct mtd_info *mtd,
 	i = mtd->oobsize - (oob - chip->oob_poi);
 	if (i)
 		chip->write_buf(mtd, oob, i);
+	return 0;
 }
 
 static int davinci_std_write_oob_syndrome(struct mtd_info *mtd,
@@ -239,7 +241,7 @@ static int davinci_std_write_oob_syndrome(struct mtd_info *mtd,
 }
 
 static int davinci_std_read_oob_syndrome(struct mtd_info *mtd,
-	struct nand_chip *chip, int page, int sndcmd)
+	struct nand_chip *chip, int page)
 {
 	struct nand_chip *this = mtd->priv;
 	uint8_t *buf = chip->oob_poi;
@@ -249,7 +251,7 @@ static int davinci_std_read_oob_syndrome(struct mtd_info *mtd,
 
 	chip->read_buf(mtd, bufpoi, mtd->oobsize);
 
-	return 1;
+	return 0;
 }
 
 static void nand_dm365evm_select_chip(struct mtd_info *mtd, int chip)

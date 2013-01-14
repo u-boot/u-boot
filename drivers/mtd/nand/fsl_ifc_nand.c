@@ -686,9 +686,8 @@ static int fsl_ifc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 	return nand_fsr;
 }
 
-static int fsl_ifc_read_page(struct mtd_info *mtd,
-			      struct nand_chip *chip,
-			      uint8_t *buf, int page)
+static int fsl_ifc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
+			     uint8_t *buf, int oob_required, int page)
 {
 	struct fsl_ifc_mtd *priv = chip->priv;
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
@@ -705,12 +704,13 @@ static int fsl_ifc_read_page(struct mtd_info *mtd,
 /* ECC will be calculated automatically, and errors will be detected in
  * waitfunc.
  */
-static void fsl_ifc_write_page(struct mtd_info *mtd,
-				struct nand_chip *chip,
-				const uint8_t *buf)
+static int fsl_ifc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
+			       const uint8_t *buf, int oob_required)
 {
 	fsl_ifc_write_buf(mtd, buf, mtd->writesize);
 	fsl_ifc_write_buf(mtd, chip->oob_poi, mtd->oobsize);
+
+	return 0;
 }
 
 static void fsl_ifc_ctrl_init(void)
@@ -858,8 +858,8 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 	nand->bbt_md = &bbt_mirror_descr;
 
 	/* set up nand options */
-	nand->options = NAND_NO_READRDY | NAND_NO_AUTOINCR |
-			NAND_USE_FLASH_BBT | NAND_NO_SUBPAGE_WRITE;
+	nand->options = NAND_NO_SUBPAGE_WRITE;
+	nand->bbt_options = NAND_BBT_USE_FLASH;
 
 	if (cspr & CSPR_PORT_SIZE_16) {
 		nand->read_byte = fsl_ifc_read_byte16;
@@ -890,11 +890,13 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 			bbt_mirror_descr.offs = 0;
 		}
 
+		nand->ecc.strength = 4;
 		priv->bufnum_mask = 15;
 		break;
 
 	case CSOR_NAND_PGS_2K:
 		layout = &oob_2048_ecc4;
+		nand->ecc.strength = 4;
 		priv->bufnum_mask = 3;
 		break;
 
@@ -902,8 +904,10 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 		if ((csor & CSOR_NAND_ECC_MODE_MASK) ==
 		    CSOR_NAND_ECC_MODE_4) {
 			layout = &oob_4096_ecc4;
+			nand->ecc.strength = 4;
 		} else {
 			layout = &oob_4096_ecc8;
+			nand->ecc.strength = 8;
 			nand->ecc.bytes = 16;
 		}
 
