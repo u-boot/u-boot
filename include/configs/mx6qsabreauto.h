@@ -35,6 +35,7 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART		1	/* Boot partition 1 */
 #endif
 
 #endif                         /* __MX6QSABREAUTO_CONFIG_H */
