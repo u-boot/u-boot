@@ -35,7 +35,6 @@
  * Hardware watchdog
  */
 #ifdef CONFIG_HW_WATCHDOG
-	void hw_watchdog_init(void);
 	#if defined(__ASSEMBLY__)
 		#define WATCHDOG_RESET bl hw_watchdog_reset
 	#else
@@ -91,4 +90,8 @@
 	void reset_4xx_watchdog(void);
 #endif
 
+/* Freescale i.MX */
+#if defined(CONFIG_IMX_WATCHDOG) && !defined(__ASSEMBLY__)
+	void hw_watchdog_init(void);
+#endif
 #endif /* _WATCHDOG_H_ */
