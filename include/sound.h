@@ -46,10 +46,10 @@ struct sound_codec_info {
 
 /*
  * Initialises audio sub system
- *
+ * @param blob	Pointer of device tree node or NULL if none.
  * @return	int value 0 for success, -1 for error
  */
-int sound_init(void);
+int sound_init(const void *blob);
 
 /*
  * plays the pcm data buffer in pcm_data.h through i2s1 to make the

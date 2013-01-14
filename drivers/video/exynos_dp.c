@@ -857,7 +857,6 @@ unsigned int exynos_init_dp(void)
 {
 	unsigned int ret;
 	struct edp_device_info *edp_info;
-	struct edp_disp_info disp_info;
 
 	edp_info = kzalloc(sizeof(struct edp_device_info), GFP_KERNEL);
 	if (!edp_info) {
@@ -870,7 +869,6 @@ unsigned int exynos_init_dp(void)
 		debug("failed to get edp_info data.\n");
 		return -EFAULT;
 	}
-	disp_info = edp_info->disp_info;
 
 	exynos_dp_disp_info(&edp_info->disp_info);
 

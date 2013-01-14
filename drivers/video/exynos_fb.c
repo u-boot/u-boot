@@ -63,8 +63,12 @@ static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
 static void exynos_lcd_init(vidinfo_t *vid)
 {
 	exynos_fimd_lcd_init(vid);
+
+	/* Enable flushing after LCD writes if requested */
+	lcd_set_flush_dcache(1);
 }
 
+#ifdef CONFIG_CMD_BMP
 static void draw_logo(void)
 {
 	int x, y;
@@ -87,6 +91,7 @@ static void draw_logo(void)
 	addr = panel_info.logo_addr;
 	bmp_display(addr, x, y);
 }
+#endif
 
 static void lcd_panel_on(vidinfo_t *vid)
 {
@@ -145,7 +150,9 @@ void lcd_enable(void)
 	if (panel_info.logo_on) {
 		memset(lcd_base, 0, panel_width * panel_height *
 				(NBITS(panel_info.vl_bpix) >> 3));
+#ifdef CONFIG_CMD_BMP
 		draw_logo();
+#endif
 	}
 
 	lcd_panel_on(&panel_info);

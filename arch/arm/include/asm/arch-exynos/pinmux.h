@@ -55,4 +55,12 @@ enum {
  */
 int exynos_pinmux_config(int peripheral, int flags);
 
+/**
+ * Decode the peripheral id using the interrpt numbers.
+ *
+ * @param blob  Device tree blob
+ * @param node  FDT I2C node to find
+ * @return peripheral id if ok, PERIPH_ID_NONE on error
+ */
+int pinmux_decode_periph_id(const void *blob, int node);
 #endif

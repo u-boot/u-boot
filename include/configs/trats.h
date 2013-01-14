@@ -99,6 +99,7 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_DFU
 #define CONFIG_CMD_GPT
+#define CONFIG_CMD_SETEXPR
 
 /* FAT */
 #define CONFIG_CMD_FAT
@@ -144,9 +145,8 @@
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
 #define CONFIG_DFU_ALT \
-	"dfu_alt_info=" \
 	"u-boot mmc 80 400;" \
-	"uImage fat 0 2\0" \
+	"uImage ext4 0 2\0" \
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
@@ -165,20 +165,20 @@
 		"mmc read 0 0x42100000 0x80 0x200; run updatebackup\0" \
 	"lpj=lpj=3981312\0" \
 	"nfsboot=" \
-		"set bootargs root=/dev/nfs rw " \
+		"setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=${nfsroot},nolock,tcp " \
 		"ip=${ipaddr}:${serverip}:${gatewayip}:" \
 		"${netmask}:generic:usb0:off " CONFIG_ENV_COMMON_BOOT \
 		"; run bootk\0" \
 	"ramfsboot=" \
-		"set bootargs root=/dev/ram0 rw rootfstype=ext2 " \
+		"setenv bootargs root=/dev/ram0 rw rootfstype=ext2 " \
 		"${console} ${meminfo} " \
 		"initrd=0x43000000,8M ramdisk=8192\0" \
 	"mmcboot=" \
-		"set bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
+		"setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo}; " \
 		"run loaduimage; bootm 0x40007FC0\0" \
-	"bootchart=set opts init=/sbin/bootchartd; run bootcmd\0" \
+	"bootchart=setenv opts init=/sbin/bootchartd; run bootcmd\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"mmcoops=mmc read 0 0x40000000 0x40 8; md 0x40000000 0x400\0" \
 	"verify=n\0" \
@@ -187,13 +187,31 @@
 	"meminfo=crashkernel=32M@0x50000000\0" \
 	"nfsroot=/nfsroot/arm\0" \
 	"bootblock=" CONFIG_BOOTBLOCK "\0" \
-	"loaduimage=fatload mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
+	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
 	"mmcdev=0\0" \
 	"mmcbootpart=2\0" \
-	"mmcrootpart=3\0" \
+	"mmcrootpart=5\0" \
 	"opts=always_resume=1\0" \
 	"partitions=" PARTS_DEFAULT \
-	CONFIG_DFU_ALT \
+	"dfu_alt_info=" CONFIG_DFU_ALT \
+	"spladdr=0x40000100\0" \
+	"splsize=0x200\0" \
+	"splfile=falcon.bin\0" \
+	"spl_export=" \
+		   "setexpr spl_imgsize ${splsize} + 8 ;" \
+		   "setexpr spl_imgaddr ${spladdr} - 8 ;" \
+		   "setexpr spl_addr_tmp ${spladdr} - 4 ;" \
+		   "mw.b ${spl_imgaddr} 0x00 ${spl_imgsize};run loaduimage;" \
+		   "setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
+		   "${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo};" \
+		   "spl export atags 0x40007FC0;" \
+		   "crc32 ${spladdr} ${splsize} ${spl_imgaddr};" \
+		   "mw.l ${spl_addr_tmp} ${splsize};" \
+		   "ext4write mmc ${mmcdev}:${mmcbootpart}" \
+		   " /${splfile} ${spl_imgaddr} ${spl_imgsize};" \
+		   "setenv spl_imgsize;" \
+		   "setenv spl_imgaddr;" \
+		   "setenv spl_addr_tmp;\0"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
@@ -234,6 +252,14 @@
 #define CONFIG_ENV_OFFSET		((32 - 4) << 10) /* 32KiB - 4KiB */
 
 #define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+
+/* EXT4 */
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
+/* Falcon mode definitions */
+#define CONFIG_CMD_SPL
+#define CONFIG_SYS_SPL_ARGS_ADDR        PHYS_SDRAM_1 + 0x100
 
 /* GPT */
 #define CONFIG_EFI_PARTITION
@@ -241,7 +267,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_CACHELINE_SIZE       32
-
 
 #define CONFIG_SOFT_I2C
 #define CONFIG_SOFT_I2C_READ_REPEATED_START

@@ -112,6 +112,36 @@ static unsigned long exynos4_get_pll_clk(int pllreg)
 	return exynos_get_pll_clk(pllreg, r, k);
 }
 
+/* exynos4x12: return pll clock frequency */
+static unsigned long exynos4x12_get_pll_clk(int pllreg)
+{
+	struct exynos4x12_clock *clk =
+		(struct exynos4x12_clock *)samsung_get_base_clock();
+	unsigned long r, k = 0;
+
+	switch (pllreg) {
+	case APLL:
+		r = readl(&clk->apll_con0);
+		break;
+	case MPLL:
+		r = readl(&clk->mpll_con0);
+		break;
+	case EPLL:
+		r = readl(&clk->epll_con0);
+		k = readl(&clk->epll_con1);
+		break;
+	case VPLL:
+		r = readl(&clk->vpll_con0);
+		k = readl(&clk->vpll_con1);
+		break;
+	default:
+		printf("Unsupported PLL (%d)\n", pllreg);
+		return 0;
+	}
+
+	return exynos_get_pll_clk(pllreg, r, k);
+}
+
 /* exynos5: return pll clock frequency */
 static unsigned long exynos5_get_pll_clk(int pllreg)
 {
@@ -176,6 +206,28 @@ static unsigned long exynos4_get_arm_clk(void)
 {
 	struct exynos4_clock *clk =
 		(struct exynos4_clock *)samsung_get_base_clock();
+	unsigned long div;
+	unsigned long armclk;
+	unsigned int core_ratio;
+	unsigned int core2_ratio;
+
+	div = readl(&clk->div_cpu0);
+
+	/* CORE_RATIO: [2:0], CORE2_RATIO: [30:28] */
+	core_ratio = (div >> 0) & 0x7;
+	core2_ratio = (div >> 28) & 0x7;
+
+	armclk = get_pll_clk(APLL) / (core_ratio + 1);
+	armclk /= (core2_ratio + 1);
+
+	return armclk;
+}
+
+/* exynos4x12: return ARM clock frequency */
+static unsigned long exynos4x12_get_arm_clk(void)
+{
+	struct exynos4x12_clock *clk =
+		(struct exynos4x12_clock *)samsung_get_base_clock();
 	unsigned long div;
 	unsigned long armclk;
 	unsigned int core_ratio;
@@ -258,6 +310,20 @@ static unsigned long exynos4_get_pwm_clk(void)
 	return pclk;
 }
 
+/* exynos4x12: return pwm clock frequency */
+static unsigned long exynos4x12_get_pwm_clk(void)
+{
+	unsigned long pclk, sclk;
+	unsigned int ratio;
+
+	sclk = get_pll_clk(MPLL);
+	ratio = 8;
+
+	pclk = sclk / (ratio + 1);
+
+	return pclk;
+}
+
 /* exynos5: return pwm clock frequency */
 static unsigned long exynos5_get_pwm_clk(void)
 {
@@ -326,6 +392,51 @@ static unsigned long exynos4_get_uart_clk(int dev_index)
 	return uclk;
 }
 
+/* exynos4x12: return uart clock frequency */
+static unsigned long exynos4x12_get_uart_clk(int dev_index)
+{
+	struct exynos4x12_clock *clk =
+		(struct exynos4x12_clock *)samsung_get_base_clock();
+	unsigned long uclk, sclk;
+	unsigned int sel;
+	unsigned int ratio;
+
+	/*
+	 * CLK_SRC_PERIL0
+	 * UART0_SEL [3:0]
+	 * UART1_SEL [7:4]
+	 * UART2_SEL [8:11]
+	 * UART3_SEL [12:15]
+	 * UART4_SEL [16:19]
+	 */
+	sel = readl(&clk->src_peril0);
+	sel = (sel >> (dev_index << 2)) & 0xf;
+
+	if (sel == 0x6)
+		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x7)
+		sclk = get_pll_clk(EPLL);
+	else if (sel == 0x8)
+		sclk = get_pll_clk(VPLL);
+	else
+		return 0;
+
+	/*
+	 * CLK_DIV_PERIL0
+	 * UART0_RATIO [3:0]
+	 * UART1_RATIO [7:4]
+	 * UART2_RATIO [8:11]
+	 * UART3_RATIO [12:15]
+	 * UART4_RATIO [16:19]
+	 */
+	ratio = readl(&clk->div_peril0);
+	ratio = (ratio >> (dev_index << 2)) & 0xf;
+
+	uclk = sclk / (ratio + 1);
+
+	return uclk;
+}
+
 /* exynos5: return uart clock frequency */
 static unsigned long exynos5_get_uart_clk(int dev_index)
 {
@@ -373,11 +484,137 @@ static unsigned long exynos5_get_uart_clk(int dev_index)
 	return uclk;
 }
 
+static unsigned long exynos4_get_mmc_clk(int dev_index)
+{
+	struct exynos4_clock *clk =
+		(struct exynos4_clock *)samsung_get_base_clock();
+	unsigned long uclk, sclk;
+	unsigned int sel, ratio, pre_ratio;
+	int shift;
+
+	sel = readl(&clk->src_fsys);
+	sel = (sel >> (dev_index << 2)) & 0xf;
+
+	if (sel == 0x6)
+		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x7)
+		sclk = get_pll_clk(EPLL);
+	else if (sel == 0x8)
+		sclk = get_pll_clk(VPLL);
+	else
+		return 0;
+
+	switch (dev_index) {
+	case 0:
+	case 1:
+		ratio = readl(&clk->div_fsys1);
+		pre_ratio = readl(&clk->div_fsys1);
+		break;
+	case 2:
+	case 3:
+		ratio = readl(&clk->div_fsys2);
+		pre_ratio = readl(&clk->div_fsys2);
+		break;
+	case 4:
+		ratio = readl(&clk->div_fsys3);
+		pre_ratio = readl(&clk->div_fsys3);
+		break;
+	default:
+		return 0;
+	}
+
+	if (dev_index == 1 || dev_index == 3)
+		shift = 16;
+
+	ratio = (ratio >> shift) & 0xf;
+	pre_ratio = (pre_ratio >> (shift + 8)) & 0xff;
+	uclk = (sclk / (ratio + 1)) / (pre_ratio + 1);
+
+	return uclk;
+}
+
+static unsigned long exynos5_get_mmc_clk(int dev_index)
+{
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
+	unsigned long uclk, sclk;
+	unsigned int sel, ratio, pre_ratio;
+	int shift;
+
+	sel = readl(&clk->src_fsys);
+	sel = (sel >> (dev_index << 2)) & 0xf;
+
+	if (sel == 0x6)
+		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x7)
+		sclk = get_pll_clk(EPLL);
+	else if (sel == 0x8)
+		sclk = get_pll_clk(VPLL);
+	else
+		return 0;
+
+	switch (dev_index) {
+	case 0:
+	case 1:
+		ratio = readl(&clk->div_fsys1);
+		pre_ratio = readl(&clk->div_fsys1);
+		break;
+	case 2:
+	case 3:
+		ratio = readl(&clk->div_fsys2);
+		pre_ratio = readl(&clk->div_fsys2);
+		break;
+	default:
+		return 0;
+	}
+
+	if (dev_index == 1 || dev_index == 3)
+		shift = 16;
+
+	ratio = (ratio >> shift) & 0xf;
+	pre_ratio = (pre_ratio >> (shift + 8)) & 0xff;
+	uclk = (sclk / (ratio + 1)) / (pre_ratio + 1);
+
+	return uclk;
+}
+
 /* exynos4: set the mmc clock */
 static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 {
 	struct exynos4_clock *clk =
 		(struct exynos4_clock *)samsung_get_base_clock();
+	unsigned int addr;
+	unsigned int val;
+
+	/*
+	 * CLK_DIV_FSYS1
+	 * MMC0_PRE_RATIO [15:8], MMC1_PRE_RATIO [31:24]
+	 * CLK_DIV_FSYS2
+	 * MMC2_PRE_RATIO [15:8], MMC3_PRE_RATIO [31:24]
+	 * CLK_DIV_FSYS3
+	 * MMC4_PRE_RATIO [15:8]
+	 */
+	if (dev_index < 2) {
+		addr = (unsigned int)&clk->div_fsys1;
+	}  else if (dev_index == 4) {
+		addr = (unsigned int)&clk->div_fsys3;
+		dev_index -= 4;
+	} else {
+		addr = (unsigned int)&clk->div_fsys2;
+		dev_index -= 2;
+	}
+
+	val = readl(addr);
+	val &= ~(0xff << ((dev_index << 4) + 8));
+	val |= (div & 0xff) << ((dev_index << 4) + 8);
+	writel(val, addr);
+}
+
+/* exynos4x12: set the mmc clock */
+static void exynos4x12_set_mmc_clk(int dev_index, unsigned int div)
+{
+	struct exynos4x12_clock *clk =
+		(struct exynos4x12_clock *)samsung_get_base_clock();
 	unsigned int addr;
 	unsigned int val;
 
@@ -603,7 +840,7 @@ void exynos5_set_lcd_clk(void)
 	 */
 	cfg = readl(&clk->src_disp1_0);
 	cfg &= ~(0xf);
-	cfg |= 0x8;
+	cfg |= 0x6;
 	writel(cfg, &clk->src_disp1_0);
 
 	/*
@@ -940,16 +1177,22 @@ unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5())
 		return exynos5_get_pll_clk(pllreg);
-	else
+	else {
+		if (proid_is_exynos4412())
+			return exynos4x12_get_pll_clk(pllreg);
 		return exynos4_get_pll_clk(pllreg);
+	}
 }
 
 unsigned long get_arm_clk(void)
 {
 	if (cpu_is_exynos5())
 		return exynos5_get_arm_clk();
-	else
+	else {
+		if (proid_is_exynos4412())
+			return exynos4x12_get_arm_clk();
 		return exynos4_get_arm_clk();
+	}
 }
 
 unsigned long get_i2c_clk(void)
@@ -968,24 +1211,41 @@ unsigned long get_pwm_clk(void)
 {
 	if (cpu_is_exynos5())
 		return exynos5_get_pwm_clk();
-	else
+	else {
+		if (proid_is_exynos4412())
+			return exynos4x12_get_pwm_clk();
 		return exynos4_get_pwm_clk();
+	}
 }
 
 unsigned long get_uart_clk(int dev_index)
 {
 	if (cpu_is_exynos5())
 		return exynos5_get_uart_clk(dev_index);
-	else
+	else {
+		if (proid_is_exynos4412())
+			return exynos4x12_get_uart_clk(dev_index);
 		return exynos4_get_uart_clk(dev_index);
+	}
+}
+
+unsigned long get_mmc_clk(int dev_index)
+{
+	if (cpu_is_exynos5())
+		return exynos5_get_mmc_clk(dev_index);
+	else
+		return exynos4_get_mmc_clk(dev_index);
 }
 
 void set_mmc_clk(int dev_index, unsigned int div)
 {
 	if (cpu_is_exynos5())
 		exynos5_set_mmc_clk(dev_index, div);
-	else
+	else {
+		if (proid_is_exynos4412())
+			exynos4x12_set_mmc_clk(dev_index, div);
 		exynos4_set_mmc_clk(dev_index, div);
+	}
 }
 
 unsigned long get_lcd_clk(void)

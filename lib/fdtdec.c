@@ -45,6 +45,15 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA20_NAND, "nvidia,tegra20-nand"),
 	COMPAT(NVIDIA_TEGRA20_PWM, "nvidia,tegra20-pwm"),
 	COMPAT(NVIDIA_TEGRA20_DC, "nvidia,tegra20-dc"),
+	COMPAT(SMSC_LAN9215, "smsc,lan9215"),
+	COMPAT(SAMSUNG_EXYNOS5_SROMC, "samsung,exynos-sromc"),
+	COMPAT(SAMSUNG_S3C2440_I2C, "samsung,s3c2440-i2c"),
+	COMPAT(SAMSUNG_EXYNOS5_SOUND, "samsung,exynos-sound"),
+	COMPAT(WOLFSON_WM8994_CODEC, "wolfson,wm8994-codec"),
+	COMPAT(SAMSUNG_EXYNOS_SPI, "samsung,exynos-spi"),
+	COMPAT(SAMSUNG_EXYNOS_EHCI, "samsung,exynos-ehci"),
+	COMPAT(SAMSUNG_EXYNOS_USB_PHY, "samsung,exynos-usb-phy"),
+	COMPAT(MAXIM_MAX77686_PMIC, "maxim,max77686_pmic"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)

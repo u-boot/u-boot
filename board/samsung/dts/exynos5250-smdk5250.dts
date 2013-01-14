@@ -1,0 +1,69 @@
+/*
+ * SAMSUNG SMDK5250 board device tree source
+ *
+ * Copyright (c) 2012 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/dts-v1/;
+/include/ ARCH_CPU_DTS
+
+/ {
+	model = "SAMSUNG SMDK5250 board based on EXYNOS5250";
+	compatible = "samsung,smdk5250", "samsung,exynos5250";
+
+	aliases {
+		i2c0 = "/i2c@12c60000";
+		i2c1 = "/i2c@12c70000";
+		i2c2 = "/i2c@12c80000";
+		i2c3 = "/i2c@12c90000";
+		i2c4 = "/i2c@12ca0000";
+		i2c5 = "/i2c@12cb0000";
+		i2c6 = "/i2c@12cc0000";
+		i2c7 = "/i2c@12cd0000";
+		spi0 = "/spi@12d20000";
+		spi1 = "/spi@12d30000";
+		spi2 = "/spi@12d40000";
+		spi3 = "/spi@131a0000";
+		spi4 = "/spi@131b0000";
+	};
+
+	sromc@12250000 {
+		bank = <1>;
+		srom-timing = <1 9 12 1 6 1 1>;
+		width = <2>;
+		lan@5000000 {
+			compatible = "smsc,lan9215", "smsc,lan";
+			reg = <0x5000000 0x100>;
+			phy-mode = "mii";
+		};
+	};
+
+	sound@12d60000 {
+		samsung,i2s-epll-clock-frequency = <192000000>;
+		samsung,i2s-sampling-rate = <48000>;
+		samsung,i2s-bits-per-sample = <16>;
+		samsung,i2s-channels = <2>;
+		samsung,i2s-lr-clk-framesize = <256>;
+		samsung,i2s-bit-clk-framesize = <32>;
+		samsung,codec-type = "wm8994";
+	};
+
+	i2c@12c70000 {
+		soundcodec@1a {
+			reg = <0x1a>;
+			compatible = "wolfson,wm8994-codec";
+		};
+	};
+
+	i2c@12c60000 {
+		pmic@9 {
+			reg = <0x9>;
+			compatible = "maxim,max77686_pmic";
+		};
+	};
+};

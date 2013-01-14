@@ -67,7 +67,7 @@ struct s3c_plat_otg_data s5pc210_otg_data;
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SPL_ARGS_ADDR;
 
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);
