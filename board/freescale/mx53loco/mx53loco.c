@@ -503,8 +503,6 @@ int board_init(void)
 	mxc_set_sata_internal_clock();
 	setup_iomux_i2c();
 
-	lcd_enable();
-
 	return 0;
 }
 

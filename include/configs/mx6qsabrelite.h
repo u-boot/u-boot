@@ -152,43 +152,78 @@
 #define CONFIG_SYS_TEXT_BASE	       0x17800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-       "script=boot.scr\0" \
-       "uimage=uImage\0" \
+	"script=boot.scr\0" \
+	"uimage=uImage\0" \
 	"console=ttymxc1\0" \
-	"fdt_high=0xffffffff\0"	  \
+	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-       "mmcdev=0\0" \
-       "mmcpart=2\0" \
-       "mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
-       "mmcargs=setenv bootargs console=${console},${baudrate} " \
-	       "root=${mmcroot}\0" \
-       "loadbootscript=" \
-	       "fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
-       "bootscript=echo Running bootscript from mmc ...; " \
-	       "source\0" \
-       "loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
-       "mmcboot=echo Booting from mmc ...; " \
-	       "run mmcargs; " \
-	       "bootm\0" \
-       "netargs=setenv bootargs console=${console},${baudrate} " \
-	       "root=/dev/nfs " \
-	       "ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-       "netboot=echo Booting from net ...; " \
-	       "run netargs; " \
-	       "dhcp ${uimage}; bootm\0" \
+	"fdt_file=imx6q-sabrelite.dtb\0" \
+	"fdt_addr=0x11000000\0" \
+	"boot_fdt=try\0" \
+	"ip_dyn=yes\0" \
+	"mmcdev=0\0" \
+	"mmcpart=2\0" \
+	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
+	"mmcargs=setenv bootargs console=${console},${baudrate} " \
+		"root=${mmcroot}\0" \
+	"loadbootscript=" \
+		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+	"bootscript=echo Running bootscript from mmc ...; " \
+		"source\0" \
+	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+			"if run loadfdt; then " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootm; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"fi; " \
+		"else " \
+			"bootm; " \
+		"fi;\0" \
+	"netargs=setenv bootargs console=${console},${baudrate} " \
+		"root=/dev/nfs " \
+	"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
+		"netboot=echo Booting from net ...; " \
+		"run netargs; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${uimage}; " \
+		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootm; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"fi; " \
+		"else " \
+			"bootm; " \
+		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
-       "mmc dev ${mmcdev};" \
-       "mmc dev ${mmcdev}; if mmc rescan; then " \
-	       "if run loadbootscript; then " \
-		       "run bootscript; " \
-	       "else " \
-		       "if run loaduimage; then " \
-			       "run mmcboot; " \
-		       "else run netboot; " \
-		       "fi; " \
-	       "fi; " \
-       "else run netboot; fi"
+	   "mmc dev ${mmcdev};" \
+	   "mmc dev ${mmcdev}; if mmc rescan; then " \
+		   "if run loadbootscript; then " \
+			   "run bootscript; " \
+		   "else " \
+			   "if run loaduimage; then " \
+				   "run mmcboot; " \
+			   "else run netboot; " \
+			   "fi; " \
+		   "fi; " \
+	   "else run netboot; fi"
 
 #define CONFIG_ARP_TIMEOUT     200UL
 

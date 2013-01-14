@@ -20,6 +20,16 @@
 
 #include <linux/linkage.h>
 
+.macro init_arm_errata
+	/* ARM erratum ID #743622 */
+	mrc	p15, 0, r10, c15, c0, 1		/* read diagnostic register */
+	orr	r10, r10, #1 << 6		/* set bit #6 */
+	/* ARM erratum ID #751472 */
+	orr	r10, r10, #1 << 11		/* set bit #11 */
+	mcr	p15, 0, r10, c15, c0, 1		/* write diagnostic register */
+.endm
+
 ENTRY(lowlevel_init)
+	init_arm_errata
 	mov pc, lr
 ENDPROC(lowlevel_init)

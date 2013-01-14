@@ -488,12 +488,6 @@ int get_clocks(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
-{
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
-	writew(4, &wdog->wcr);
-}
-
 #define RCSR_MEM_CTL_WEIM	0
 #define RCSR_MEM_CTL_NAND	1
 #define RCSR_MEM_CTL_ATA	2

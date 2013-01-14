@@ -37,13 +37,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_HW_WATCHDOG
-void hw_watchdog_reset(void)
-{
-	mxc_hw_watchdog_reset();
-}
-#endif
-
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
@@ -188,7 +181,7 @@ int board_late_init(void)
 	pmic_reg_write(p, REG_INT_STATUS1, RTCRSTI);
 
 #ifdef CONFIG_HW_WATCHDOG
-	mxc_hw_watchdog_enable();
+	hw_watchdog_init();
 #endif
 
 	return 0;

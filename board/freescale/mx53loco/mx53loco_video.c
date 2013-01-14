@@ -46,6 +46,21 @@ static struct fb_videomode const claa_wvga = {
 	.vmode		= FB_VMODE_NONINTERLACED
 };
 
+static struct fb_videomode const seiko_wvga = {
+	.name		= "Seiko-43WVF1G",
+	.refresh	= 60,
+	.xres		= 800,
+	.yres		= 480,
+	.pixclock	= 29851, /* picosecond (33.5 MHz) */
+	.left_margin	= 89,
+	.right_margin	= 164,
+	.upper_margin	= 23,
+	.lower_margin	= 10,
+	.hsync_len	= 10,
+	.vsync_len	= 10,
+	.sync		= 0,
+};
+
 void setup_iomux_lcd(void)
 {
 	mxc_request_iomux(MX53_PIN_DI0_DISP_CLK, IOMUX_CONFIG_ALT0);
@@ -86,9 +101,26 @@ void setup_iomux_lcd(void)
 	gpio_direction_output(IOMUX_TO_GPIO(MX53_PIN_GPIO_1), 1);
 }
 
-void lcd_enable(void)
+int board_video_skip(void)
 {
-	int ret = ipuv3_fb_init(&claa_wvga, 0, IPU_PIX_FMT_RGB565);
+	int ret;
+	char const *e = getenv("panel");
+
+	if (e) {
+		if (strcmp(e, "seiko") == 0) {
+			ret = ipuv3_fb_init(&seiko_wvga, 0, IPU_PIX_FMT_RGB24);
+			if (ret)
+				printf("Seiko cannot be configured: %d\n", ret);
+			return ret;
+		}
+	}
+
+	/*
+	 * 'panel' env variable not found or has different value than 'seiko'
+	 *  Defaulting to claa lcd.
+	 */
+	ret = ipuv3_fb_init(&claa_wvga, 0, IPU_PIX_FMT_RGB565);
 	if (ret)
-		printf("LCD cannot be configured: %d\n", ret);
+		printf("CLAA cannot be configured: %d\n", ret);
+	return ret;
 }

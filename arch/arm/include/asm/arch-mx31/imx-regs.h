@@ -68,17 +68,6 @@ struct cspi_regs {
 	u32 test;
 };
 
-/* Watchdog Timer (WDOG) registers */
-#define WDOG_ENABLE	(1 << 2)
-#define WDOG_WT_SHIFT	8
-#define WDOG_WDZST	(1 << 0)
-
-struct wdog_regs {
-	u16 wcr;	/* Control */
-	u16 wsr;	/* Service */
-	u16 wrsr;	/* Reset Status */
-};
-
 /* IIM Control Registers */
 struct iim_regs {
 	u32 iim_stat;
@@ -687,7 +676,7 @@ struct esdc_regs {
 
 #define ARM_PPMRR		0x40000015
 
-#define WDOG_BASE		0x53FDC000
+#define WDOG1_BASE_ADDR		0x53FDC000
 
 /*
  * GPIO
