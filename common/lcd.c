@@ -888,7 +888,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	}
 
 	/* We support displaying 8bpp BMPs on 16bpp LCDs */
-	if (bpix != bmp_bpix && (bmp_bpix != 8 || bpix != 16 || bpix != 32)) {
+	if (bpix != bmp_bpix && !(bmp_bpix == 8 && bpix == 16)) {
 		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
 			bpix,
 			le16_to_cpu(bmp->header.bit_count));
