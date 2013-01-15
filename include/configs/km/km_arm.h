@@ -50,6 +50,9 @@
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_KM_KIRKWOOD
 
+#define CONFIG_NAND_ECC_BCH
+#define CONFIG_BCH
+
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
