@@ -14,19 +14,6 @@
 		reg = <0x00000000 0x40000000>;
 	};
 
-	clocks {
-		clk_32k: clk_32k {
-			clock-frequency = <32000>;
-		};
-		osc {
-			clock-frequency = <12000000>;
-		};
-	};
-
-	clock@60006000 {
-		clocks = <&clk_32k &osc>;
-	};
-
 	serial@70006300 {
 		clock-frequency = < 216000000 >;
 	};
