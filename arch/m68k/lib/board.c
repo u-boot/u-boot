@@ -403,13 +403,13 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
-	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
-
 	WATCHDOG_RESET ();
 
 	gd->reloc_off =  dest_addr - CONFIG_SYS_MONITOR_BASE;
 
 	serial_initialize();
+
+	debug("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
 	monitor_flash_len = (ulong)&__init_end - dest_addr;
 
