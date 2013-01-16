@@ -14,6 +14,17 @@
 		reg = <0x00000000 0x20000000>;
 	};
 
+	host1x {
+		status = "okay";
+		dc@54200000 {
+			status = "okay";
+			rgb {
+				status = "okay";
+				nvidia,panel = <&lcd_panel>;
+			};
+		};
+	};
+
 	serial@70006000 {
 		clock-frequency = < 216000000 >;
 	};
@@ -40,17 +51,6 @@
 
 	usb@c5004000 {
 		status = "disabled";
-	};
-
-	host1x {
-		status = "okay";
-		dc@54200000 {
-			status = "okay";
-			rgb {
-				status = "okay";
-				nvidia,panel = <&lcd_panel>;
-			};
-		};
 	};
 
 	lcd_panel: panel {
