@@ -380,6 +380,8 @@ in_ram:
 	/* Exception handlers */
 romReserved:
 	b	romReserved
+	 nop
 
 romExcHandle:
 	b	romExcHandle
+	 nop
