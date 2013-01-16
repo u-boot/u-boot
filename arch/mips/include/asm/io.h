@@ -268,7 +268,7 @@ __OUT1(s##c_p) __OUT2(m) : : "r" (__ioswab##w(value)), "ir" (port), "r" (mips_io
 	SLOW_DOWN_IO; }
 
 #define __IN1(t,s) \
-extern __inline__ t __in##s(unsigned int port) { t _v;
+extern inline t __in##s(unsigned int port) { t _v;
 
 /*
  * Required nops will be inserted by the assembler
