@@ -88,19 +88,19 @@ int board_late_init (void)
 	boot_mode = (XIo_In32(BOOT_MODE_REG) & BOOT_MODES_MASK);
 	switch(boot_mode) {
 	case QSPI_MODE:
-		setenv("modeboot", "run qspiboot");
+		setenv("modeboot", "qspiboot");
 		break;
 	case NAND_FLASH_MODE:
-		setenv("modeboot", "run nandboot");
+		setenv("modeboot", "nandboot");
 		break;
 	case NOR_FLASH_MODE:
-		setenv("modeboot", "run norboot");
+		setenv("modeboot", "norboot");
 		break;
 	case SD_MODE:
-		setenv("modeboot", "run sdboot");
+		setenv("modeboot", "sdboot");
 		break;
 	case JTAG_MODE:
-		setenv("modeboot", "run jtagboot");
+		setenv("modeboot", "jtagboot");
 		break;
 	default:
 		setenv("modeboot", "");
