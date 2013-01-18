@@ -85,7 +85,6 @@ enum {
 	TEGRA_SOC_T20,
 	TEGRA_SOC_T25,
 	TEGRA_SOC_T30,
-	TEGRA_SOC2_SLOW,	/* T2x needs to run at slow clock initially */
 
 	TEGRA_SOC_CNT,
 	TEGRA_SOC_UNKNOWN	= -1,

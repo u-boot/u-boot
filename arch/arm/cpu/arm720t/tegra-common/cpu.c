@@ -75,13 +75,6 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	 { 700, 6, 0, 8},
 	 { 700, 13, 0, 8},
 	},
-
-	/* TEGRA_SOC2_SLOW: 312 MHz */
-	{{ 312, 13, 0, 12},	/* OSC 13M */
-	 { 260, 16, 0, 8},	/* OSC 19.2M */
-	 { 312, 12, 0, 12},	/* OSC 12M */
-	 { 312, 26, 0, 12},	/* OSC 26M */
-	},
 };
 
 void adjust_pllp_out_freqs(void)
