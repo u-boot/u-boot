@@ -370,7 +370,7 @@ static void set_pin(int state, unsigned long mask);
  * will toggle once what forces the mgocge3un part to restart
  * immediately.
  */
-void handle_mgcoge3un_reset(void)
+static void handle_mgcoge3un_reset(void)
 {
 	char *bobcatreset = getenv("bobcatreset");
 	if (bobcatreset) {
