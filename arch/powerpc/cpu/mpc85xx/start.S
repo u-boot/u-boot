@@ -449,7 +449,7 @@ nexti:	mflr	r1		/* R1 = our PC */
 
 	/* Set the size of the TLB to 4KB */
 	mfspr	r3, MAS1
-	li	r2, 0xF00
+	li	r2, 0xF80
 	andc	r3, r3, r2	/* Clear the TSIZE bits */
 	ori	r3, r3, MAS1_TSIZE(BOOKE_PAGESZ_4K)@l
 	oris	r3, r3, MAS1_IPROT@h

@@ -66,7 +66,7 @@ void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 	_mas1 = mfspr(MAS1);
 
 	*valid = (_mas1 & MAS1_VALID);
-	*tsize = (_mas1 >> 8) & 0xf;
+	*tsize = (_mas1 >> 7) & 0x1f;
 	*epn = mfspr(MAS2) & MAS2_EPN;
 	*rpn = mfspr(MAS3) & MAS3_RPN;
 #ifdef CONFIG_ENABLE_36BIT_PHYS
@@ -155,6 +155,13 @@ void set_tlb(u8 tlb, u32 epn, u64 rpn,
 
 	if (tlb == 1)
 		use_tlb_cam(esel);
+
+	if ((mfspr(SPRN_MMUCFG) & MMUCFG_MAVN) == MMUCFG_MAVN_V1 &&
+	    tsize & 1) {
+		printf("%s: bad tsize %d on entry %d at 0x%08x\n",
+			__func__, tsize, tlb, epn);
+		return;
+	}
 
 	_mas0 = FSL_BOOKE_MAS0(tlb, esel, 0);
 	_mas1 = FSL_BOOKE_MAS1(1, iprot, 0, ts, tsize);
@@ -251,7 +258,7 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 	unsigned int tlb_size;
 	unsigned int wimge = MAS2_M;
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
-	unsigned int max_cam;
+	unsigned int max_cam, tsize_mask;
 	u64 size, memsize = (u64)memsize_in_meg << 20;
 
 #ifdef CONFIG_SYS_PPC_DDR_WIMGE
@@ -261,15 +268,17 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 	if ((mfspr(SPRN_MMUCFG) & MMUCFG_MAVN) == MMUCFG_MAVN_V1) {
 		/* Convert (4^max) kB to (2^max) bytes */
 		max_cam = ((mfspr(SPRN_TLB1CFG) >> 16) & 0xf) * 2 + 10;
+		tsize_mask = ~1U;
 	} else {
 		/* Convert (2^max) kB to (2^max) bytes */
 		max_cam = __ilog2(mfspr(SPRN_TLB1PS)) + 10;
+		tsize_mask = ~0U;
 	}
 
 	for (i = 0; size && i < 8; i++) {
 		int ram_tlb_index = find_free_tlbcam();
-		u32 camsize = __ilog2_u64(size) & ~1U;
-		u32 align = __ilog2(ram_tlb_address) & ~1U;
+		u32 camsize = __ilog2_u64(size) & tsize_mask;
+		u32 align = __ilog2(ram_tlb_address) & tsize_mask;
 
 		if (ram_tlb_index == -1)
 			break;
@@ -281,7 +290,7 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 		if (camsize > max_cam)
 			camsize = max_cam;
 
-		tlb_size = (camsize - 10) / 2;
+		tlb_size = camsize - 10;
 
 		set_tlb(1, ram_tlb_address, p_addr,
 			MAS3_SX|MAS3_SW|MAS3_SR, wimge,
