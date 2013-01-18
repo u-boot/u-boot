@@ -467,9 +467,8 @@ $(obj)u-boot.img:	$(obj)u-boot.bin
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
 		-d $< $@
 
-$(obj)u-boot.imx:       $(obj)u-boot.bin
-		$(obj)tools/mkimage -n  $(CONFIG_IMX_CONFIG) -T imximage \
-		-e $(CONFIG_SYS_TEXT_BASE) -d $< $@
+$(OBJTREE)/u-boot.imx : $(obj)u-boot.bin $(SUBDIR_TOOLS) depend
+		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common $@
 
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
@@ -844,7 +843,8 @@ clean:
 	@$(MAKE) -s -C doc/DocBook/ cleandocs
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' -o -name '*.su' \
-		-o -name '*.o'	-o -name '*.a' -o -name '*.exe'	\) -print \
+		-o -name '*.o'	-o -name '*.a' -o -name '*.exe' \
+		-o -name '*.cfgtmp' \) -print \
 		| xargs rm -f
 
 # Removes everything not needed for testing u-boot

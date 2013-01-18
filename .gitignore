@@ -15,6 +15,7 @@
 *.swp
 *.patch
 *.bin
+*.cfgtmp
 
 # Build tree
 /build-*
