@@ -1,5 +1,5 @@
 /*
- * Freescale i.MX28 clock setup code
+ * Freescale i.MX23/i.MX28 clock setup code
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
@@ -32,14 +32,23 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 
-/* The PLL frequency is always 480MHz, see section 10.2 in iMX28 datasheet. */
+/*
+ * The PLL frequency is 480MHz and XTAL frequency is 24MHz
+ *   iMX23: datasheet section 4.2
+ *   iMX28: datasheet section 10.2
+ */
 #define	PLL_FREQ_KHZ	480000
 #define	PLL_FREQ_COEF	18
-/* The XTAL frequency is always 24MHz, see section 10.2 in iMX28 datasheet. */
 #define	XTAL_FREQ_KHZ	24000
 
 #define	PLL_FREQ_MHZ	(PLL_FREQ_KHZ / 1000)
 #define	XTAL_FREQ_MHZ	(XTAL_FREQ_KHZ / 1000)
+
+#if defined(CONFIG_MX23)
+#define MXC_SSPCLK_MAX MXC_SSPCLK0
+#elif defined(CONFIG_MX28)
+#define MXC_SSPCLK_MAX MXC_SSPCLK3
+#endif
 
 static uint32_t mxs_get_pclk(void)
 {
@@ -120,7 +129,13 @@ static uint32_t mxs_get_gpmiclk(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
-
+#if defined(CONFIG_MX23)
+	uint8_t *reg =
+		&clkctrl_regs->hw_clkctrl_frac0[CLKCTRL_FRAC0_CPU];
+#elif defined(CONFIG_MX28)
+	uint8_t *reg =
+		&clkctrl_regs->hw_clkctrl_frac1[CLKCTRL_FRAC1_GPMI];
+#endif
 	uint32_t clkctrl, clkseq, div;
 	uint8_t clkfrac, frac;
 
@@ -134,7 +149,7 @@ static uint32_t mxs_get_gpmiclk(void)
 	}
 
 	/* REF Path */
-	clkfrac = readb(&clkctrl_regs->hw_clkctrl_frac1[CLKCTRL_FRAC1_GPMI]);
+	clkfrac = readb(reg);
 	frac = clkfrac & CLKCTRL_FRAC_FRAC_MASK;
 	div = clkctrl & CLKCTRL_GPMI_DIV_MASK;
 	return (PLL_FREQ_MHZ * PLL_FREQ_COEF / frac) / div;
@@ -203,7 +218,7 @@ void mxs_set_sspclk(enum mxs_sspclock ssp, uint32_t freq, int xtal)
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	uint32_t clk, clkreg;
 
-	if (ssp > MXC_SSPCLK3)
+	if (ssp > MXC_SSPCLK_MAX)
 		return;
 
 	clkreg = (uint32_t)(&clkctrl_regs->hw_clkctrl_ssp0) +
@@ -248,7 +263,7 @@ static uint32_t mxs_get_sspclk(enum mxs_sspclock ssp)
 	uint32_t clkreg;
 	uint32_t clk, tmp;
 
-	if (ssp > MXC_SSPCLK3)
+	if (ssp > MXC_SSPCLK_MAX)
 		return 0;
 
 	tmp = readl(&clkctrl_regs->hw_clkctrl_clkseq);
@@ -325,16 +340,18 @@ uint32_t mxc_get_clock(enum mxc_clock clk)
 		return mxs_get_ioclk(MXC_IOCLK0);
 	case MXC_IO1_CLK:
 		return mxs_get_ioclk(MXC_IOCLK1);
+	case MXC_XTAL_CLK:
+		return XTAL_FREQ_KHZ * 1000;
 	case MXC_SSP0_CLK:
 		return mxs_get_sspclk(MXC_SSPCLK0);
+#ifdef CONFIG_MX28
 	case MXC_SSP1_CLK:
 		return mxs_get_sspclk(MXC_SSPCLK1);
 	case MXC_SSP2_CLK:
 		return mxs_get_sspclk(MXC_SSPCLK2);
 	case MXC_SSP3_CLK:
 		return mxs_get_sspclk(MXC_SSPCLK3);
-	case MXC_XTAL_CLK:
-		return XTAL_FREQ_KHZ * 1000;
+#endif
 	}
 
 	return 0;
