@@ -312,13 +312,9 @@ int ivm_read_eeprom(void)
 
 #if defined(CONFIG_I2C_MUX)
 	/* First init the Bus, select the Bus */
-#if defined(CONFIG_SYS_I2C_IVM_BUS)
-	dev = i2c_mux_ident_muxstring((uchar *)CONFIG_SYS_I2C_IVM_BUS);
-#else
 	buf = (unsigned char *) getenv("EEprom_ivm");
 	if (buf != NULL)
 		dev = i2c_mux_ident_muxstring(buf);
-#endif
 	if (dev == NULL) {
 		printf("Error couldnt add Bus for IVM\n");
 		return -1;
