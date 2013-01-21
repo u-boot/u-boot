@@ -36,6 +36,9 @@
 #elif defined(CONFIG_TUXX1)	/* TUXX1 board (tuxa1/tuda1) specific */
 #define CONFIG_KM_BOARD_NAME	"tuxx1"
 #define CONFIG_HOSTNAME		tuxx1
+#elif defined(CONFIG_KMOPTI2)
+#define CONFIG_KM_BOARD_NAME	"kmopti2"
+#define CONFIG_HOSTNAME		kmopti2
 #else
 #error ("Board not supported")
 #endif
@@ -47,18 +50,18 @@
 
 #define CONFIG_SYS_APP1_BASE	0xA0000000    /* PAXG */
 #define	CONFIG_SYS_APP1_SIZE	256 /* Megabytes */
-#if defined(CONFIG_TUXX1)
+#if defined(CONFIG_TUXX1) || defined(CONFIG_KMOPTI2)
 #define CONFIG_SYS_APP2_BASE	0xB0000000    /* PINC3 */
 #define	CONFIG_SYS_APP2_SIZE	256 /* Megabytes */
 #endif
 
 /*
  * Init Local Bus Memory Controller:
- *
- * Bank Bus     Machine PortSz  Size  Device on TUDA1  TUXA1  TUGE1   KMSUPX4
- * ---- ---     ------- ------  -----  ---------------------------------------
- *  2   Local   GPCM    8 bit  256MB	         PAXG  LPXF   PAXI     LPXF
- *  3   Local   GPCM    8 bit  256MB	         PINC3 PINC2  unused   unused
+ *				      Device on
+ * Bank Bus     Machine PortSz  Size  TUDA1  TUXA1  TUGE1  KMSUPX4 KMOPTI2
+ * ---- ---     ------- ------  ----- ---------------------------------------
+ *  2   Local   GPCM    8 bit  256MB  PAXG  LPXF   PAXI     LPXF   PAXE
+ *  3   Local   GPCM    8 bit  256MB  PINC3 PINC2  unused  unused  OPI2(16 bit)
  *
  */
 
@@ -106,6 +109,22 @@
 #define CONFIG_SYS_MAMR		(MxMR_GPL_x4DIS | \
 				 0x0000c000 | \
 				 MxMR_WLFx_2X)
+#endif
+
+#if defined(CONFIG_KMOPTI2)
+/*
+ * Configuration for C3 on the local bus
+ */
+#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_APP2_BASE
+#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
+#define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_APP2_BASE | \
+				 BR_PS_16 |		\
+				 BR_MS_GPCM |		\
+				 BR_V)
+#define CONFIG_SYS_OR3_PRELIM	(MEG_TO_AM(CONFIG_SYS_APP2_SIZE) | \
+				 OR_GPCM_SCY_4 | \
+				 OR_GPCM_TRLX_CLEAR | \
+				 OR_GPCM_EHTR_CLEAR)
 #endif
 
 /*
