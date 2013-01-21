@@ -133,6 +133,28 @@ const uint upma_table[] = {
 };
 #endif
 
+static int piggy_present(void)
+{
+	struct km_bec_fpga __iomem *base =
+		(struct km_bec_fpga __iomem *)CONFIG_SYS_KMBEC_FPGA_BASE;
+
+	return in_8(&base->bprth) & PIGGY_PRESENT;
+}
+
+#if defined(CONFIG_KMVECT1)
+int ethernet_present(void)
+{
+	/* ethernet port connected to simple switch without piggy */
+	return 1;
+}
+#else
+int ethernet_present(void)
+{
+	return piggy_present();
+}
+#endif
+
+
 int board_early_init_r(void)
 {
 	struct km_bec_fpga *base =
@@ -280,7 +302,7 @@ int checkboard(void)
 {
 	puts("Board: Keymile " CONFIG_KM_BOARD_NAME);
 
-	if (ethernet_present())
+	if (piggy_present())
 		puts(" with PIGGY.");
 	puts("\n");
 	return 0;

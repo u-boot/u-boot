@@ -183,17 +183,6 @@ void i2c_init_board(void)
 }
 #endif
 
-
-#if !defined(MACH_TYPE_KM_KIRKWOOD)
-int ethernet_present(void)
-{
-	struct km_bec_fpga *base =
-		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
-
-	return in_8(&base->bprth) & PIGGY_PRESENT;
-}
-#endif
-
 int board_eth_init(bd_t *bis)
 {
 	if (ethernet_present())
