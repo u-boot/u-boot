@@ -312,7 +312,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_KM_DEF_ENV						\
 	CONFIG_KM_DEF_ARCH						\
-	"dtt_bus=pca9547:70:a\0"					\
 	"EEprom_ivm=pca9547:70:9\0"					\
 	"newenv="							\
 		"prot off 0xF00C0000 +0x40000 && "			\

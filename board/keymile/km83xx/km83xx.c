@@ -98,17 +98,13 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 static int board_init_i2c_busses(void)
 {
 	I2C_MUX_DEVICE *dev = NULL;
-	uchar	*buf;
+	uchar *dtt_bus = (uchar *)"pca9547:70:a";
 
 	/* Set up the Bus for the DTTs */
-	buf = (unsigned char *) getenv("dtt_bus");
-	if (buf != NULL)
-		dev = i2c_mux_ident_muxstring(buf);
-	if (dev == NULL) {
+	dev = i2c_mux_ident_muxstring(dtt_bus);
+	if (dev == NULL)
 		printf("Error couldn't add Bus for DTT\n");
-		printf("please setup dtt_bus to where your\n");
-		printf("DTT is found.\n");
-	}
+
 	return 0;
 }
 
