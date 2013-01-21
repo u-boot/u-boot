@@ -641,17 +641,28 @@ static int xqspips_setup(struct spi_device *qspi)
 static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
 {
 	u32 data = 0;
+	unsigned len, offset;
+	static const unsigned offsets[4] = {
+		XQSPIPSS_TXD_00_00_OFFSET, XQSPIPSS_TXD_00_01_OFFSET,
+		XQSPIPSS_TXD_00_10_OFFSET, XQSPIPSS_TXD_00_11_OFFSET };
 
 	while ((!(xqspips_read(xqspi->regs + XQSPIPSS_STATUS_OFFSET) &
 		XQSPIPSS_IXR_TXFULL_MASK)) && (xqspi->bytes_to_transfer > 0)) {
 		if (xqspi->bytes_to_transfer < 4) {
-			xqspips_copy_write_data(xqspi, &data,
-				xqspi->bytes_to_transfer);
+			/* Write TXD1, TXD2, TXD3 only if TxFIFO is empty. */
+			if (!(xqspips_read(xqspi->regs+XQSPIPSS_STATUS_OFFSET) &
+					XQSPIPSS_IXR_TXNFULL_MASK) &&
+					!xqspi->rxbuf)
+				return;
+			len = xqspi->bytes_to_transfer;
+			xqspips_copy_write_data(xqspi, &data, len);
+			offset = (xqspi->rxbuf) ? offsets[0] : offsets[len];
+			xqspips_write(xqspi->regs + offset, data);
 		} else {
 			xqspips_copy_write_data(xqspi, &data, 4);
+			xqspips_write(xqspi->regs + XQSPIPSS_TXD_00_00_OFFSET,
+					data);
 		}
-
-		xqspips_write(xqspi->regs + XQSPIPSS_TXD_00_00_OFFSET, data);
 	}
 }
 
