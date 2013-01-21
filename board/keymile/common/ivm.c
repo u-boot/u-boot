@@ -325,14 +325,6 @@ int ivm_read_eeprom(void)
 	}
 	i2c_set_bus_num(dev->busid);
 #endif
-
-	buf = (unsigned char *) getenv("EEprom_ivm_addr");
-	if (buf != NULL) {
-		ret = strict_strtoul((char *)buf, 16, &dev_addr);
-		if (ret != 0)
-			return -3;
-	}
-
 	/* add deblocking here */
 	i2c_make_abort();
 
