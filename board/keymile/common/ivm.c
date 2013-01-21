@@ -233,7 +233,13 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 	if (getenv("ethaddr") == NULL)
 		setenv((char *)"ethaddr", (char *)valbuf);
 #endif
-
+#ifdef CONFIG_KMVECT1
+/* KMVECT1 has two ethernet interfaces */
+	if (getenv("eth1addr") == NULL) {
+		calculate_mac_offset(buf, valbuf, 1);
+		setenv((char *)"eth1addr", (char *)valbuf);
+	}
+#endif
 	/* IVM_MacCount */
 	count = (buf[10] << 24) +
 		   (buf[11] << 16) +
