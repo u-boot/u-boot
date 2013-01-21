@@ -320,7 +320,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* The Malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
 	mem_malloc_init(malloc_start, TOTAL_MALLOC_LEN);
-	malloc_bin_reloc();
 
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
