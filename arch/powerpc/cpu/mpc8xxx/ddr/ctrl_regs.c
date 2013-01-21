@@ -1190,7 +1190,11 @@ static void set_ddr_data_init(fsl_ddr_cfg_regs_t *ddr)
 {
 	unsigned int init_value;	/* Initialization value */
 
+#ifdef CONFIG_MEM_INIT_VALUE
+	init_value = CONFIG_MEM_INIT_VALUE;
+#else
 	init_value = 0xDEADBEEF;
+#endif
 	ddr->ddr_data_init = init_value;
 }
 
