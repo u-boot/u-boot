@@ -38,9 +38,7 @@
 #include "post.h"
 #endif
 #include "common.h"
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
-#endif
 
 #if !defined(CONFIG_MPC83xx)
 static void i2c_write_start_seq(void);
