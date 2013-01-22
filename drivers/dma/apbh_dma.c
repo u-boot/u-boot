@@ -223,13 +223,19 @@ static int mxs_dma_reset(int channel)
 	struct mxs_apbh_regs *apbh_regs =
 		(struct mxs_apbh_regs *)MXS_APBH_BASE;
 	int ret;
+#if defined(CONFIG_MX23)
+	uint32_t setreg = (uint32_t)(&apbh_regs->hw_apbh_ctrl0_set);
+	uint32_t offset = APBH_CTRL0_RESET_CHANNEL_OFFSET;
+#elif defined(CONFIG_MX28)
+	uint32_t setreg = (uint32_t)(&apbh_regs->hw_apbh_channel_ctrl_set);
+	uint32_t offset = APBH_CHANNEL_CTRL_RESET_CHANNEL_OFFSET;
+#endif
 
 	ret = mxs_dma_validate_chan(channel);
 	if (ret)
 		return ret;
 
-	writel(1 << (channel + APBH_CHANNEL_CTRL_RESET_CHANNEL_OFFSET),
-		&apbh_regs->hw_apbh_channel_ctrl_set);
+	writel(1 << (channel + offset), setreg);
 
 	return 0;
 }
