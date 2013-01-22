@@ -60,13 +60,7 @@ enum {
 	LCD_MAX_LOG2_BPP	= 4,		/* 2^4 = 16 bpp */
 };
 
-int lcd_line_length;
-
 void *lcd_base;			/* Start of framebuffer memory	*/
-void *lcd_console_address;	/* Start of console buffer	*/
-
-short console_col;
-short console_row;
 
 vidinfo_t panel_info = {
 	/* Insert a value here so that we don't end up in the BSS */

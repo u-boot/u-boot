@@ -29,13 +29,7 @@
 #include <lcd.h>
 #include <atmel_lcdc.h>
 
-int lcd_line_length;
-
 void *lcd_base;				/* Start of framebuffer memory	*/
-void *lcd_console_address;		/* Start of console buffer	*/
-
-short console_col;
-short console_row;
 
 /* configurable parameters */
 #define ATMEL_LCDC_CVAL_DEFAULT		0xc8

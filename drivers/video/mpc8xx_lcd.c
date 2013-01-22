@@ -256,16 +256,10 @@ vidinfo_t panel_info = {
 /*----------------------------------------------------------------------*/
 
 
-int lcd_line_length;
-
 /*
  * Frame buffer memory information
  */
 void *lcd_base;			/* Start of framebuffer memory	*/
-void *lcd_console_address;	/* Start of console buffer	*/
-
-short console_col;
-short console_row;
 
 /************************************************************************/
 

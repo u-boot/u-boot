@@ -332,13 +332,7 @@ void lcd_getcolreg (ushort regno, ushort *red, ushort *green, ushort *blue);
 void lcd_ctrl_init	(void *lcdbase);
 void lcd_enable	(void);
 
-int lcd_line_length;
-
 void *lcd_base;			/* Start of framebuffer memory	*/
-void *lcd_console_address;		/* Start of console buffer	*/
-
-short console_col;
-short console_row;
 
 static int pxafb_init_mem (void *lcdbase, vidinfo_t *vid);
 static void pxafb_setup_gpio (vidinfo_t *vid);

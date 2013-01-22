@@ -101,8 +101,14 @@ static void lcd_setbgcolor(int color);
 
 static int lcd_color_fg;
 static int lcd_color_bg;
+int lcd_line_length;
 
 char lcd_is_enabled = 0;
+
+static short console_col;
+static short console_row;
+
+static void *lcd_console_address;
 
 static char lcd_flush_dcache;	/* 1 to flush dcache after each lcd update */
 

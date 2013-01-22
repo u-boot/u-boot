@@ -37,10 +37,7 @@ extern int lcd_line_length;
  * Frame buffer memory information
  */
 extern void *lcd_base;			/* Start of framebuffer memory	*/
-extern void *lcd_console_address;	/* Start of console buffer	*/
 
-extern short console_col;
-extern short console_row;
 extern struct vidinfo panel_info;
 
 extern void lcd_ctrl_init (void *lcdbase);

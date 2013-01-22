@@ -381,11 +381,7 @@ static enum display_type env_parse_displaytype(char *displaytype)
 	return NONE;
 }
 
-int lcd_line_length;
 void *lcd_base;
-short console_col;
-short console_row;
-void *lcd_console_address;
 
 void lcd_ctrl_init(void *lcdbase)
 {

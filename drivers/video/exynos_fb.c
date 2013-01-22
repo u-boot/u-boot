@@ -33,13 +33,7 @@
 
 #include "exynos_fb.h"
 
-int lcd_line_length;
-
 void *lcd_base;
-void *lcd_console_address;
-
-short console_col;
-short console_row;
 
 static unsigned int panel_width, panel_height;
 
