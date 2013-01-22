@@ -89,15 +89,6 @@
 
 #define TIMEOUT_COUNT 0x4000000
 
-#ifndef CONFIG_ARM_DCC_MULTI
-#define arm_dcc_init serial_init
-void serial_setbrg(void) {}
-#define arm_dcc_getc serial_getc
-#define arm_dcc_putc serial_putc
-#define arm_dcc_puts serial_puts
-#define arm_dcc_tstc serial_tstc
-#endif
-
 int arm_dcc_init(void)
 {
 	return 0;
@@ -147,7 +138,6 @@ int arm_dcc_tstc(void)
 	return reg;
 }
 
-#ifdef CONFIG_ARM_DCC_MULTI
 static struct stdio_dev arm_dcc_dev;
 
 int drv_arm_dcc_init(void)
@@ -167,4 +157,8 @@ int drv_arm_dcc_init(void)
 
 	return stdio_register(&arm_dcc_dev);
 }
-#endif
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return NULL;
+}
