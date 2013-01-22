@@ -22,9 +22,6 @@
 
 #include "zynq_qspips.h"
 
-#define spin_lock_irqsave(__X__, flags)		flags = 0;
-#define spin_unlock_irqrestore(__X__, flags)	flags |= 0;
-
 /* Register offset definitions */
 #define XQSPIPS_CONFIG_OFFSET		0x00 /* Configuration  Register, RW */
 #define XQSPIPS_STATUS_OFFSET		0x04 /* Interrupt Status Register, RO */
@@ -63,7 +60,7 @@
  * bit definitions.
  */
 #define XQSPIPS_IXR_TXNFULL_MASK	0x00000004 /* QSPI TX FIFO Overflow */
-#define XQSPIPS_IXR_TXFULL_MASK	0x00000008 /* QSPI TX FIFO is full */
+#define XQSPIPS_IXR_TXFULL_MASK		0x00000008 /* QSPI TX FIFO is full */
 #define XQSPIPS_IXR_RXNEMTY_MASK	0x00000010 /* QSPI RX FIFO Not Empty */
 #define XQSPIPS_IXR_ALL_MASK		(XQSPIPS_IXR_TXNFULL_MASK | \
 					XQSPIPS_IXR_RXNEMTY_MASK)
@@ -100,7 +97,7 @@
 
 /* Definitions of the flash commands - Flash opcodes in ascending order */
 #define	XQSPIPS_FLASH_OPCODE_WRSR	0x01	/* Write status register */
-#define	XQSPIPS_FLASH_OPCODE_PP	0x02	/* Page program */
+#define	XQSPIPS_FLASH_OPCODE_PP		0x02	/* Page program */
 #define	XQSPIPS_FLASH_OPCODE_NORM_READ	0x03	/* Normal read data bytes */
 #define	XQSPIPS_FLASH_OPCODE_WRDS	0x04	/* Write disable */
 #define	XQSPIPS_FLASH_OPCODE_RDSR1	0x05	/* Read status register 1 */
@@ -116,57 +113,25 @@
 #define	XQSPIPS_FLASH_OPCODE_ERASE_SUS	0x75	/* Erase suspend */
 #define	XQSPIPS_FLASH_OPCODE_ERASE_RES	0x7A	/* Erase resume */
 #define	XQSPIPS_FLASH_OPCODE_RDID	0x9F	/* Read JEDEC ID */
-#define	XQSPIPS_FLASH_OPCODE_BE	0xC7	/* Erase whole flash block */
-#define	XQSPIPS_FLASH_OPCODE_SE	0xD8	/* Sector erase (usually 64KB)*/
-
-#define dmbp() __asm__ __volatile__ ("dmb" : : : "memory")
-
-static void XIo_Out32(u32 OutAddress, u32 Value)
-{
-	*(volatile u32 *) OutAddress = Value;
-	dmbp();
-}
-
-static u32 XIo_In32(u32 InAddress)
-{
-	volatile u32 temp = *(volatile u32 *)InAddress;
-	dmbp();
-	return temp;
-}
-
-extern void XIo_Out32(u32 OutAddress, u32 Value);
-extern u32  XIo_In32(u32 InAddress);
+#define	XQSPIPS_FLASH_OPCODE_BE		0xC7	/* Erase whole flash block */
+#define	XQSPIPS_FLASH_OPCODE_SE		0xD8	/* Sector erase (usually 64KB)*/
 
 /* Macros for the QSPI controller read/write */
-static inline u32 xqspips_read(void *addr)
-{
-	u32 val;
-
-	val =  XIo_In32((unsigned)addr);
-	debug("xqspips_read:  addr: 0x%08x = 0x%08x\n",
-		(u32)addr, val);
-	return val;
-}
-static inline void xqspips_write(void *addr, u32 val)
-{
-	debug("xqspips_write: addr: 0x%08x = 0x%08x\n",
-		(u32)addr, val);
-	XIo_Out32((unsigned)addr, val);
-}
+#define xqspips_write(off, val)		__raw_writel(val, off)
+#define xqspips_read(off)		__raw_readl(off)
 
 struct zynq_spi_slave {
 	struct spi_slave  slave;
 	struct spi_device qspi;
 };
-
 #define to_zynq_spi_slave(s) container_of(s, struct zynq_spi_slave, slave)
 
-/**
+/*
  * struct xqspips_inst_format - Defines qspi flash instruction format
  * @opcode:		Operational code of instruction
  * @inst_size:		Size of the instruction including address bytes
  * @offset:		Register address where instruction has to be written
- **/
+ */
 struct xqspips_inst_format {
 	u8 opcode;
 	u8 inst_size;
@@ -197,7 +162,7 @@ static struct xqspips_inst_format flash_inst[] = {
 	/* Add all the instructions supported by the flash device */
 };
 
-/**
+/*
  * xqspips_init_hw - Initialize the hardware
  * @regs_base:		Base address of QSPI controller
  * @is_dual:		Indicates whether dual memories are used
@@ -217,7 +182,7 @@ static struct xqspips_inst_format flash_inst[] = {
  *	- Set the size of the word to be transferred as 32 bit
  *	- Set the little endian mode of TX FIFO and
  *	- Enable the QSPI controller
- **/
+ */
 void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
 {
 	u32 config_reg;
@@ -252,12 +217,12 @@ void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
 			XQSPIPS_ENABLE_ENABLE_MASK);
 }
 
-/**
+/*
  * xqspips_copy_read_data - Copy data to RX buffer
  * @xqspi:	Pointer to the xqspips structure
  * @data:	The 32 bit variable where data is stored
  * @size:	Number of bytes to be copied from data to RX buffer
- **/
+ */
 static void xqspips_copy_read_data(struct xqspips *xqspi, u32 data, u8 size)
 {
 	u8 byte3;
@@ -297,12 +262,12 @@ static void xqspips_copy_read_data(struct xqspips *xqspi, u32 data, u8 size)
 		xqspi->bytes_to_receive = 0;
 }
 
-/**
+/*
  * xqspips_copy_write_data - Copy data from TX buffer
  * @xqspi:	Pointer to the xqspips structure
  * @data:	Pointer to the 32 bit variable where data is to be copied
  * @size:	Number of bytes to be copied from TX buffer to data
- **/
+ */
 static void xqspips_copy_write_data(struct xqspips *xqspi, u32 *data, u8 size)
 {
 
@@ -345,20 +310,17 @@ static void xqspips_copy_write_data(struct xqspips *xqspi, u32 *data, u8 size)
 		xqspi->bytes_to_transfer = 0;
 }
 
-/**
+/*
  * xqspips_chipselect - Select or deselect the chip select line
  * @qspi:	Pointer to the spi_device structure
  * @is_on:	Select(1) or deselect (0) the chip select line
- **/
+ */
 static void xqspips_chipselect(struct spi_device *qspi, int is_on)
 {
 	struct xqspips *xqspi = &qspi->master;
 	u32 config_reg;
-	unsigned long flags;
 
 	debug("xqspips_chipselect: is_on: %d\n", is_on);
-
-	spin_lock_irqsave(&xqspi->config_reg_lock, flags);
 
 	config_reg = xqspips_read(xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 
@@ -372,11 +334,9 @@ static void xqspips_chipselect(struct spi_device *qspi, int is_on)
 		config_reg |= XQSPIPS_CONFIG_SSCTRL_MASK;
 
 	xqspips_write(xqspi->regs + XQSPIPS_CONFIG_OFFSET, config_reg);
-
-	spin_unlock_irqrestore(&xqspi->config_reg_lock, flags);
 }
 
-/**
+/*
  * xqspips_setup_transfer - Configure QSPI controller for specified transfer
  * @qspi:	Pointer to the spi_device structure
  * @transfer:	Pointer to the spi_transfer structure which provides information
@@ -385,7 +345,7 @@ static void xqspips_chipselect(struct spi_device *qspi, int is_on)
  * Sets the operational mode of QSPI controller for the next QSPI transfer and
  * sets the requested clock frequency.
  *
- * returns:	0 on success and -EINVAL on invalid input parameter
+ * returns:	0 on success and -1 on invalid input parameter
  *
  * Note: If the requested frequency is not an exact match with what can be
  * obtained using the prescalar value, the driver sets the clock frequency which
@@ -393,7 +353,7 @@ static void xqspips_chipselect(struct spi_device *qspi, int is_on)
  * the requested frequency is higher or lower than that is supported by the QSPI
  * controller the driver will set the highest or lowest frequency supported by
  * controller.
- **/
+ */
 int xqspips_setup_transfer(struct spi_device *qspi,
 		struct spi_transfer *transfer)
 {
@@ -402,7 +362,6 @@ int xqspips_setup_transfer(struct spi_device *qspi,
 	u32 config_reg;
 	u32 req_hz;
 	u32 baud_rate_val = 0;
-	unsigned long flags;
 
 	debug("xqspips_setup_transfer: qspi: 0x%08x transfer: 0x%08x\n",
 		(u32)qspi, (u32)transfer);
@@ -414,13 +373,11 @@ int xqspips_setup_transfer(struct spi_device *qspi,
 	if (qspi->mode & ~MODEBITS) {
 		printf("%s, unsupported mode bits %x\n",
 			__func__, qspi->mode & ~MODEBITS);
-		return -EINVAL;
+		return -1;
 	}
 
 	if (bits_per_word != 32)
 		bits_per_word = 32;
-
-	spin_lock_irqsave(&xqspi->config_reg_lock, flags);
 
 	config_reg = xqspips_read(xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 
@@ -446,18 +403,16 @@ int xqspips_setup_transfer(struct spi_device *qspi,
 
 	xqspips_write(xqspi->regs + XQSPIPS_CONFIG_OFFSET, config_reg);
 
-	spin_unlock_irqrestore(&xqspi->config_reg_lock, flags);
-
 	debug("xqspips_setup_transfer: mode %d, %u bits/w, %u clock speed\n",
 		qspi->mode & MODEBITS, qspi->bits_per_word, xqspi->speed_hz);
 
 	return 0;
 }
 
-/**
+/*
  * xqspips_fill_tx_fifo - Fills the TX FIFO with as many bytes as possible
  * @xqspi:	Pointer to the xqspips structure
- **/
+ */
 static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
 {
 	u32 data = 0;
@@ -467,11 +422,12 @@ static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
 		XQSPIPS_TXD_00_10_OFFSET, XQSPIPS_TXD_00_11_OFFSET };
 
 	while ((!(xqspips_read(xqspi->regs + XQSPIPS_STATUS_OFFSET) &
-		XQSPIPS_IXR_TXFULL_MASK)) && (xqspi->bytes_to_transfer > 0)) {
+			XQSPIPS_IXR_TXFULL_MASK)) &&
+			(xqspi->bytes_to_transfer > 0)) {
 		if (xqspi->bytes_to_transfer < 4) {
 			/* Write TXD1, TXD2, TXD3 only if TxFIFO is empty. */
-			if (!(xqspips_read(xqspi->regs+XQSPIPS_STATUS_OFFSET) &
-					XQSPIPS_IXR_TXNFULL_MASK) &&
+			if (!(xqspips_read(xqspi->regs+XQSPIPS_STATUS_OFFSET)
+					& XQSPIPS_IXR_TXNFULL_MASK) &&
 					!xqspi->rxbuf)
 				return;
 			len = xqspi->bytes_to_transfer;
@@ -486,10 +442,9 @@ static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
 	}
 }
 
-/**
+/*
  * xqspips_irq - Interrupt service routine of the QSPI controller
- * @irq:	IRQ number
- * @dev_id:	Pointer to the xqspi structure
+ * @xqspi:      Pointer to the xqspips structure
  *
  * This function handles TX empty and Mode Fault interrupts only.
  * On TX empty interrupt this function reads the received data from RX FIFO and
@@ -499,7 +454,7 @@ static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
  * transferred is non-zero.
  *
  * returns:	IRQ_HANDLED always
- **/
+ */
 static int xqspips_irq_poll(struct xqspips *xqspi)
 {
 	int max_loop;
@@ -507,40 +462,45 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 
 	debug("xqspips_irq_poll: xqspi: 0x%08x\n", (u32)xqspi);
 
-	/* u-boot: Poll until any of the interrupt status bits are set */
+	/* Poll until any of the interrupt status bits are set */
 	max_loop = 0;
 	do {
 		intr_status = xqspips_read(xqspi->regs +
 				XQSPIPS_STATUS_OFFSET);
 		max_loop++;
 	} while ((intr_status == 0) && (max_loop < 100000));
+
 	if (intr_status == 0) {
 		printf("xqspips_irq_poll: timeout\n");
 		return 0;
 	}
 
 	xqspips_write(xqspi->regs + XQSPIPS_STATUS_OFFSET , intr_status);
-	/* u-boot: Disable all interrupts */
+
+	/* Disable all interrupts */
 	xqspips_write(xqspi->regs + XQSPIPS_IDIS_OFFSET,
 			XQSPIPS_IXR_ALL_MASK);
 	if ((intr_status & XQSPIPS_IXR_TXNFULL_MASK) ||
-		   (intr_status & XQSPIPS_IXR_RXNEMTY_MASK)) {
-		/* This bit is set when Tx FIFO has < THRESHOLD entries. We have
-		   the THRESHOLD value set to 1, so this bit indicates Tx FIFO
-		   is empty */
+			(intr_status & XQSPIPS_IXR_RXNEMTY_MASK)) {
+
+		/*
+		 * This bit is set when Tx FIFO has < THRESHOLD entries. We have
+		 * the THRESHOLD value set to 1, so this bit indicates Tx FIFO
+		 * is empty
+		 */
 		u32 config_reg;
 
 		/* Read out the data from the RX FIFO */
 		while (xqspips_read(xqspi->regs + XQSPIPS_STATUS_OFFSET) &
-			XQSPIPS_IXR_RXNEMTY_MASK) {
+				XQSPIPS_IXR_RXNEMTY_MASK) {
 			u32 data;
 
 			data = xqspips_read(xqspi->regs + XQSPIPS_RXD_OFFSET);
 
 			if ((xqspi->inst_response) &&
-				(!((xqspi->curr_inst->opcode ==
+					(!((xqspi->curr_inst->opcode ==
 					XQSPIPS_FLASH_OPCODE_RDSR1) ||
-				(xqspi->curr_inst->opcode ==
+					(xqspi->curr_inst->opcode ==
 					XQSPIPS_FLASH_OPCODE_RDSR2)))) {
 				xqspi->inst_response = 0;
 				xqspips_copy_read_data(xqspi, data,
@@ -559,22 +519,21 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 			xqspips_write(xqspi->regs + XQSPIPS_IEN_OFFSET,
 					XQSPIPS_IXR_ALL_MASK);
 
-			spin_lock(&xqspi->config_reg_lock);
 			config_reg = xqspips_read(xqspi->regs +
 						XQSPIPS_CONFIG_OFFSET);
 
 			config_reg |= XQSPIPS_CONFIG_MANSRT_MASK;
 			xqspips_write(xqspi->regs + XQSPIPS_CONFIG_OFFSET,
-				config_reg);
-			spin_unlock(&xqspi->config_reg_lock);
+					config_reg);
 		} else {
-			/* If transfer and receive is completed then only send
-			 * complete signal */
+			/*
+			 * If transfer and receive is completed then only send
+			 * complete signal
+			 */
 			if (!xqspi->bytes_to_receive) {
-				/* u-boot: return "operation complete" */
-				xqspips_write(xqspi->regs +
-					XQSPIPS_IDIS_OFFSET,
-					XQSPIPS_IXR_ALL_MASK);
+				/* return operation complete */
+				xqspips_write(xqspi->regs + XQSPIPS_IDIS_OFFSET,
+						XQSPIPS_IXR_ALL_MASK);
 				return 1;
 			}
 		}
@@ -583,7 +542,7 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 	return 0;
 }
 
-/**
+/*
  * xqspips_start_transfer - Initiates the QSPI transfer
  * @qspi:	Pointer to the spi_device structure
  * @transfer:	Pointer to the spi_transfer structure which provide information
@@ -593,13 +552,12 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
  * transfer to be completed.
  *
  * returns:	Number of bytes transferred in the last transfer
- **/
+ */
 static int xqspips_start_transfer(struct spi_device *qspi,
 			struct spi_transfer *transfer)
 {
 	struct xqspips *xqspi = &qspi->master;
 	u32 config_reg;
-	unsigned long flags;
 	u32 data = 0;
 	u8 instruction = 0;
 	u8 index;
@@ -620,15 +578,18 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 			if (instruction == flash_inst[index].opcode)
 				break;
 
-		/* Instruction might have already been transmitted. This is a
-		 * 'data only' transfer */
+		/*
+		 * Instruction might have already been transmitted. This is a
+		 * 'data only' transfer
+		 */
 		if (index == ARRAY_SIZE(flash_inst))
 			goto xfer_data;
 
 		xqspi->curr_inst = &flash_inst[index];
 		xqspi->inst_response = 1;
 
-		/* In case of dual memories, convert 25 bit address to 24 bit
+		/*
+		 * In case of dual memories, convert 25 bit address to 24 bit
 		 * address before transmitting to the 2 memories
 		 */
 		if ((xqspi->is_dual == 1) &&
@@ -658,20 +619,23 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		xqspips_copy_write_data(xqspi, &data,
 			xqspi->curr_inst->inst_size);
 
-		/* Write the instruction to LSB of the FIFO. The core is
+		/*
+		 * Write the instruction to LSB of the FIFO. The core is
 		 * designed such that it is not necessary to check whether the
 		 * write FIFO is full before writing. However, write would be
 		 * delayed if the user tries to write when write FIFO is full
 		 */
 		xqspips_write(xqspi->regs + xqspi->curr_inst->offset, data);
 
-		/* Read status register and Read ID instructions don't require
+		/*
+		 * Read status register and Read ID instructions don't require
 		 * to ignore the extra bytes in response of instruction as
-		 * response contains the value */
+		 * response contains the value
+		 */
 		if ((instruction == XQSPIPS_FLASH_OPCODE_RDSR1) ||
-			(instruction == XQSPIPS_FLASH_OPCODE_RDSR2) ||
-			(instruction == XQSPIPS_FLASH_OPCODE_RDID) ||
-			(instruction == XQSPIPS_FLASH_OPCODE_BRRD)) {
+				(instruction == XQSPIPS_FLASH_OPCODE_RDSR2) ||
+				(instruction == XQSPIPS_FLASH_OPCODE_RDID) ||
+				(instruction == XQSPIPS_FLASH_OPCODE_BRRD)) {
 			if (xqspi->bytes_to_transfer < 4)
 				xqspi->bytes_to_transfer = 0;
 			else
@@ -680,23 +644,24 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 	}
 
 xfer_data:
-	/* In case of Fast, Dual and Quad reads, transmit the instruction first.
+	/*
+	 * In case of Fast, Dual and Quad reads, transmit the instruction first.
 	 * Address and dummy byte should be transmitted after instruction
-	 * is transmitted */
+	 * is transmitted
+	 */
 	if (((xqspi->is_inst == 0) && (xqspi->bytes_to_transfer)) ||
-	     ((xqspi->bytes_to_transfer) &&
-	      (instruction != XQSPIPS_FLASH_OPCODE_FAST_READ) &&
-	      (instruction != XQSPIPS_FLASH_OPCODE_DUAL_READ) &&
-	      (instruction != XQSPIPS_FLASH_OPCODE_QUAD_READ)))
+			((xqspi->bytes_to_transfer) &&
+			(instruction != XQSPIPS_FLASH_OPCODE_FAST_READ) &&
+			(instruction != XQSPIPS_FLASH_OPCODE_DUAL_READ) &&
+			(instruction != XQSPIPS_FLASH_OPCODE_QUAD_READ)))
 		xqspips_fill_tx_fifo(xqspi);
+
 	xqspips_write(xqspi->regs + XQSPIPS_IEN_OFFSET,
 			XQSPIPS_IXR_ALL_MASK);
 	/* Start the transfer by enabling manual start bit */
-	spin_lock_irqsave(&xqspi->config_reg_lock, flags);
 	config_reg = xqspips_read(xqspi->regs +
 			XQSPIPS_CONFIG_OFFSET) | XQSPIPS_CONFIG_MANSRT_MASK;
 	xqspips_write(xqspi->regs + XQSPIPS_CONFIG_OFFSET, config_reg);
-	spin_unlock_irqrestore(&xqspi->config_reg_lock, flags);
 
 	/* wait for completion */
 	do {
@@ -709,12 +674,8 @@ xfer_data:
 int xqspips_transfer(struct spi_device *qspi, struct spi_transfer *transfer)
 {
 	struct xqspips *xqspi = &qspi->master;
-	unsigned long flags;
 	unsigned cs_change = 1;
 	int status = 0;
-
-	spin_lock_irqsave(&xqspi->trans_queue_lock, flags);
-	xqspi->dev_busy = 1;
 
 	debug("xqspips_transfer\n");
 
@@ -732,7 +693,7 @@ int xqspips_transfer(struct spi_device *qspi, struct spi_transfer *transfer)
 		cs_change = transfer->cs_change;
 
 		if (!transfer->tx_buf && !transfer->rx_buf && transfer->len) {
-			status = -EINVAL;
+			status = -1;
 			break;
 		}
 
@@ -755,20 +716,16 @@ int xqspips_transfer(struct spi_device *qspi, struct spi_transfer *transfer)
 		if (cs_change)
 			/* Deselect the chip */
 			xqspips_chipselect(qspi, 0);
-			break;
+
+		break;
 	}
 
 	xqspips_setup_transfer(qspi, NULL);
 
-	spin_lock_irqsave(&xqspi->trans_queue_lock, flags);
-
-	xqspi->dev_busy = 0;
-	spin_unlock_irqrestore(&xqspi->trans_queue_lock, flags);
-
 	return 0;
 }
 
-/**
+/*
  * xqspips_check_is_dual_flash - checking for dual or single qspi
  *
  * This function will check the type of the flash whether it supports
@@ -814,7 +771,7 @@ int xqspips_check_is_dual_flash(void __iomem *regs_base)
 	return is_dual;
 }
 
-/**
+/*
  * xqspips_write_quad_bit - Write 1 to QUAD bit on flash
  *
  * This function will write a 1 to quad bit in flash
@@ -847,6 +804,7 @@ void xqspips_write_quad_bit(void __iomem *regs_base)
 	/* Read data receive register */
 	config_reg = xqspips_read(regs_base + XQSPIPS_RXD_OFFSET);
 }
+
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	debug("spi_cs_is_valid: bus: %d cs: %d\n",
@@ -869,7 +827,7 @@ void spi_init()
 	debug("spi_init\n");
 }
 
-/**
+/*
  * spi_enable_quad_bit - Enable the QUAD bit for SPI flash
  *
  * This function will enable the quad bit in flash using
@@ -973,7 +931,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	pspi->qspi.master.input_clk_hz = 100000000;
 	pspi->qspi.master.speed_hz = pspi->qspi.master.input_clk_hz / 2;
 	pspi->qspi.max_speed_hz = pspi->qspi.master.speed_hz;
-	pspi->qspi.master.dev_busy = 0;
 	pspi->qspi.master.regs = (void *)XPSS_QSPI_BASEADDR;
 	pspi->qspi.master.is_dual = is_dual;
 	pspi->qspi.mode = mode;
@@ -1022,7 +979,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	transfer.rx_buf = din;
 	transfer.len = bitlen / 8;
 
-	/* Festering sore.
+	/*
+	 * Festering sore.
 	 * Assume that the beginning of a transfer with bits to
 	 * transmit must contain a device command.
 	 */
