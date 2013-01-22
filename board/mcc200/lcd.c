@@ -75,13 +75,6 @@ vidinfo_t panel_info = {
 int serial_inited = 0;
 
 /*
- * Exported functions
- */
-void lcd_initcolregs (void);
-void lcd_ctrl_init (void *lcdbase);
-void lcd_enable (void);
-
-/*
  *  Imported functions to support the PSoC protocol
  */
 extern int serial_init_dev (unsigned long dev_base);

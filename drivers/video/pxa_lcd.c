@@ -317,26 +317,10 @@ vidinfo_t panel_info = {
 
 /*----------------------------------------------------------------------*/
 
-#if LCD_BPP == LCD_COLOR8
-void lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue);
-#endif
-#if LCD_BPP == LCD_MONOCHROME
-void lcd_initcolregs (void);
-#endif
-
-#ifdef NOT_USED_SO_FAR
-void lcd_disable (void);
-void lcd_getcolreg (ushort regno, ushort *red, ushort *green, ushort *blue);
-#endif /* NOT_USED_SO_FAR */
-
-void lcd_ctrl_init	(void *lcdbase);
-void lcd_enable	(void);
-
 static int pxafb_init_mem (void *lcdbase, vidinfo_t *vid);
 static void pxafb_setup_gpio (vidinfo_t *vid);
 static void pxafb_enable_controller (vidinfo_t *vid);
 static int pxafb_init (vidinfo_t *vid);
-/************************************************************************/
 
 /************************************************************************/
 /* ---------------  PXA chipset specific functions  ------------------- */
@@ -349,14 +333,6 @@ void lcd_ctrl_init (void *lcdbase)
 	pxafb_setup_gpio(&panel_info);
 	pxafb_enable_controller(&panel_info);
 }
-
-/*----------------------------------------------------------------------*/
-#ifdef NOT_USED_SO_FAR
-void
-lcd_getcolreg (ushort regno, ushort *red, ushort *green, ushort *blue)
-{
-}
-#endif /* NOT_USED_SO_FAR */
 
 /*----------------------------------------------------------------------*/
 #if LCD_BPP == LCD_COLOR8
@@ -405,15 +381,6 @@ void lcd_initcolregs (void)
 void lcd_enable (void)
 {
 }
-
-/*----------------------------------------------------------------------*/
-#ifdef	NOT_USED_SO_FAR
-static void lcd_disable (void)
-{
-}
-#endif /* NOT_USED_SO_FAR */
-
-/*----------------------------------------------------------------------*/
 
 /************************************************************************/
 /* ** PXA255 specific routines						*/
