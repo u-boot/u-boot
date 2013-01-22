@@ -53,8 +53,10 @@
 #define	CONFIG_DOS_PARTITION
 
 #define	CONFIG_CMD_CACHE
+#define	CONFIG_CMD_EXT2
 #define	CONFIG_CMD_FAT
 #define	CONFIG_CMD_GPIO
+#define	CONFIG_CMD_MMC
 
 /*
  * Memory configurations
@@ -108,6 +110,16 @@
 #define	CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define	CONFIG_CONS_INDEX		0
 #define	CONFIG_BAUDRATE			115200	/* Default baud rate */
+
+/*
+ * MMC Driver
+ */
+#ifdef	CONFIG_CMD_MMC
+#define CONFIG_MMC
+#define CONFIG_BOUNCE_BUFFER
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MXS_MMC
+#endif
 
 /*
  * APBH DMA
