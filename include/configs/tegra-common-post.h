@@ -133,10 +133,17 @@
 #define STDIN_KBD_USB ""
 #endif
 
+#ifdef CONFIG_VIDEO_TEGRA
+#define STDOUT_LCD ",lcd"
+#else
+#define STDOUT_LCD ""
+#endif
+
 #define TEGRA_DEVICE_SETTINGS \
 	"stdin=serial" STDIN_KBD_KBC STDIN_KBD_USB "\0" \
-	"stdout=serial,lcd\0" \
-	"stderr=serial,lcd\0" \
+	"stdout=serial" STDOUT_LCD "\0" \
+	"stderr=serial" STDOUT_LCD "\0" \
+	""
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
