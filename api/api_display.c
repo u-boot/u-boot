@@ -45,8 +45,8 @@ int display_get_info(int type, struct display_info *di)
 	case DISPLAY_TYPE_LCD:
 		di->pixel_width  = panel_info.vl_col;
 		di->pixel_height = panel_info.vl_row;
-		di->screen_rows = CONSOLE_ROWS;
-		di->screen_cols = CONSOLE_COLS;
+		di->screen_rows = lcd_get_screen_rows();
+		di->screen_cols = lcd_get_screen_columns();
 		break;
 #endif
 	}
