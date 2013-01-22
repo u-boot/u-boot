@@ -33,11 +33,6 @@ extern char lcd_is_enabled;
 
 extern int lcd_line_length;
 
-/*
- * Frame buffer memory information
- */
-extern void *lcd_base;			/* Start of framebuffer memory	*/
-
 extern struct vidinfo panel_info;
 
 extern void lcd_ctrl_init (void *lcdbase);

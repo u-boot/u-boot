@@ -60,8 +60,6 @@ enum {
 	LCD_MAX_LOG2_BPP	= 4,		/* 2^4 = 16 bpp */
 };
 
-void *lcd_base;			/* Start of framebuffer memory	*/
-
 vidinfo_t panel_info = {
 	/* Insert a value here so that we don't end up in the BSS */
 	.vl_col = -1,
@@ -90,8 +88,6 @@ void lcd_ctrl_init(void *lcdbase)
 
 	assert(disp_config);
 
-	lcd_base = (void *)disp_config->frame_buffer;
-
 	/* Make sure that we can acommodate the selected LCD */
 	assert(disp_config->width <= LCD_MAX_WIDTH);
 	assert(disp_config->height <= LCD_MAX_HEIGHT);
@@ -112,7 +108,7 @@ void lcd_ctrl_init(void *lcdbase)
 	/* Enable flushing after LCD writes if requested */
 	lcd_set_flush_dcache(config.cache_type & FDT_LCD_CACHE_FLUSH);
 
-	debug("LCD frame buffer at %p\n", lcd_base);
+	debug("LCD frame buffer at %08X\n", disp_config->frame_buffer);
 }
 
 ulong calc_fbsize(void)

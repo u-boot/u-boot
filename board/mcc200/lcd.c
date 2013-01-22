@@ -68,10 +68,6 @@ vidinfo_t panel_info = {
 	LCD_WIDTH, LCD_HEIGHT, LCD_BPP
 };
 
-/*
- * Frame buffer memory information
- */
-void *lcd_base;			/* Start of framebuffer memory  */
 
 /*
  *  The device we use to communicate with PSoC
@@ -147,12 +143,12 @@ void lcd_enable (void)
 
 #if !defined(SWAPPED_LCD)
 	for (i=0; i<fb_size; i++) {
-		serial_putc_raw_dev (PSOC_PSC, ((char *)lcd_base)[i]);
+		serial_putc_raw_dev(PSOC_PSC, ((char *)gd->fb_base)[i]);
 	}
 #else
     {
 	int x, y, pwidth;
-	char *p = (char *)lcd_base;
+	char *p = (char *)gd->fb_base;
 
 	pwidth = ((panel_info.vl_col+7) >> 3);
 	for (y=0; y<panel_info.vl_row; y++) {

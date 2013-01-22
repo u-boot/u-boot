@@ -109,6 +109,7 @@ static short console_col;
 static short console_row;
 
 static void *lcd_console_address;
+static void *lcd_base;			/* Start of framebuffer memory	*/
 
 static char lcd_flush_dcache;	/* 1 to flush dcache after each lcd update */
 

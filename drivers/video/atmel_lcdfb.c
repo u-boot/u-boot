@@ -29,8 +29,6 @@
 #include <lcd.h>
 #include <atmel_lcdc.h>
 
-void *lcd_base;				/* Start of framebuffer memory	*/
-
 /* configurable parameters */
 #define ATMEL_LCDC_CVAL_DEFAULT		0xc8
 #define ATMEL_LCDC_DMA_BURST_LEN	8

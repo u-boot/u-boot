@@ -33,7 +33,7 @@
 
 #include "exynos_fb.h"
 
-void *lcd_base;
+DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned int panel_width, panel_height;
 
@@ -44,11 +44,9 @@ static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
 
 	fb_size = vid->vl_row * vid->vl_col * (NBITS(vid->vl_bpix) >> 3);
 
-	lcd_base = lcdbase;
-
 	palette_size = NBITS(vid->vl_bpix) == 8 ? 256 : 16;
 
-	exynos_fimd_lcd_init_mem((unsigned long)lcd_base,
+	exynos_fimd_lcd_init_mem((unsigned long)lcdbase,
 			(unsigned long)fb_size, palette_size);
 }
 
@@ -140,7 +138,7 @@ void lcd_ctrl_init(void *lcdbase)
 void lcd_enable(void)
 {
 	if (panel_info.logo_on) {
-		memset(lcd_base, 0, panel_width * panel_height *
+		memset((void *) gd->fb_base, 0, panel_width * panel_height *
 				(NBITS(panel_info.vl_bpix) >> 3));
 #ifdef CONFIG_CMD_BMP
 		draw_logo();

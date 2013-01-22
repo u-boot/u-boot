@@ -255,14 +255,6 @@ vidinfo_t panel_info = {
 #endif
 /*----------------------------------------------------------------------*/
 
-
-/*
- * Frame buffer memory information
- */
-void *lcd_base;			/* Start of framebuffer memory	*/
-
-/************************************************************************/
-
 void lcd_ctrl_init (void *lcdbase);
 void lcd_enable (void);
 #if LCD_BPP == LCD_COLOR8
@@ -392,8 +384,8 @@ void lcd_ctrl_init (void *lcdbase)
 	 * BIG NOTE:  This has to be modified to load A and B depending
 	 * upon the split mode of the LCD.
 	 */
-	lcdp->lcd_lcfaa = (ulong)lcd_base;
-	lcdp->lcd_lcfba = (ulong)lcd_base;
+	lcdp->lcd_lcfaa = (ulong)lcdbase;
+	lcdp->lcd_lcfba = (ulong)lcdbase;
 
 	/* MORE HACKS...This must be updated according to 823 manual
 	 * for different panels.
