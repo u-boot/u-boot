@@ -49,11 +49,22 @@ struct mxsmmc_priv {
 	struct mxs_ssp_regs	*regs;
 	uint32_t		buswidth;
 	int			(*mmc_is_wp)(int);
+	int			(*mmc_cd)(int);
 	struct mxs_dma_desc	*desc;
 };
 
 #define	MXSMMC_MAX_TIMEOUT	10000
 #define MXSMMC_SMALL_TRANSFER	512
+
+static int mxsmmc_cd(struct mxsmmc_priv *priv)
+{
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
+
+	if (priv->mmc_cd)
+		return priv->mmc_cd(priv->id);
+
+	return !(readl(&ssp_regs->hw_ssp_status) & SSP_STATUS_CARD_DETECT);
+}
 
 static int mxsmmc_send_cmd_pio(struct mxsmmc_priv *priv, struct mmc_data *data)
 {
@@ -166,7 +177,7 @@ mxsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	}
 
 	/* See if card is present */
-	if (readl(&ssp_regs->hw_ssp_status) & SSP_STATUS_CARD_DETECT) {
+	if (!mxsmmc_cd(priv)) {
 		printf("MMC%d: No card detected!\n", mmc->block_dev.dev);
 		return NO_CARD_ERR;
 	}
@@ -357,7 +368,7 @@ static int mxsmmc_init(struct mmc *mmc)
 	return 0;
 }
 
-int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
+int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 {
 	struct mmc *mmc = NULL;
 	struct mxsmmc_priv *priv = NULL;
@@ -395,6 +406,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int))
 		return ret;
 
 	priv->mmc_is_wp = wp;
+	priv->mmc_cd = cd;
 	priv->id = id;
 	priv->regs = mxs_ssp_regs_by_bus(id);
 

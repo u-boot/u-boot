@@ -69,7 +69,7 @@ int board_init(void)
 #ifdef CONFIG_CMD_MMC
 int board_mmc_init(bd_t *bis)
 {
-	return mxsmmc_initialize(bis, 0, NULL);
+	return mxsmmc_initialize(bis, 0, NULL, NULL);
 }
 #endif
 

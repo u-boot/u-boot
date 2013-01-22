@@ -31,7 +31,7 @@ int mxs_wait_mask_clr(struct mxs_register_32 *reg,
 		       uint32_t mask,
 		       unsigned int timeout);
 
-int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int));
+int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int));
 
 #ifdef CONFIG_SPL_BUILD
 

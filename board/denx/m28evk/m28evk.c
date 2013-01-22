@@ -93,7 +93,7 @@ int board_mmc_init(bd_t *bis)
 	/* Turn on the power to the card. */
 	gpio_direction_output(MX28_PAD_PWM3__GPIO_3_28, 0);
 
-	return mxsmmc_initialize(bis, 0, m28_mmc_wp);
+	return mxsmmc_initialize(bis, 0, m28_mmc_wp, NULL);
 }
 #endif
 
