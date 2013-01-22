@@ -134,7 +134,7 @@
 #define SDRAMC_DCR_RC(x)		(((x)&0xFF)<<8)
 
 /* Bit definitions and macros for SDRAMC_DARCn */
-#define SDRAMC_DARCn_BA(x)		(((x)&0xFFFC)<<18)
+#define SDRAMC_DARCn_BA(x)		((x)&0xFFFC0000)
 #define SDRAMC_DARCn_RE			(0x00008000)
 #define SDRAMC_DARCn_CASL_MASK		(0x00003000)
 #define SDRAMC_DARCn_CASL_C0		(0x00000000)
