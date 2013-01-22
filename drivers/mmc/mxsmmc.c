@@ -334,11 +334,17 @@ static int mxsmmc_init(struct mmc *mmc)
 	/* Reset SSP */
 	mxs_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
 
-	/* 8 bits word length in MMC mode */
-	clrsetbits_le32(&ssp_regs->hw_ssp_ctrl1,
-		SSP_CTRL1_SSP_MODE_MASK | SSP_CTRL1_WORD_LENGTH_MASK |
-		SSP_CTRL1_DMA_ENABLE,
-		SSP_CTRL1_SSP_MODE_SD_MMC | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS);
+	/* Reconfigure the SSP block for MMC operation */
+	writel(SSP_CTRL1_SSP_MODE_SD_MMC |
+		SSP_CTRL1_WORD_LENGTH_EIGHT_BITS |
+		SSP_CTRL1_DMA_ENABLE |
+		SSP_CTRL1_POLARITY |
+		SSP_CTRL1_RECV_TIMEOUT_IRQ_EN |
+		SSP_CTRL1_DATA_CRC_IRQ_EN |
+		SSP_CTRL1_DATA_TIMEOUT_IRQ_EN |
+		SSP_CTRL1_RESP_TIMEOUT_IRQ_EN |
+		SSP_CTRL1_RESP_ERR_IRQ_EN,
+		&ssp_regs->hw_ssp_ctrl1_set);
 
 	/* Set initial bit clock 400 KHz */
 	mxs_set_ssp_busclock(priv->id, 400);
