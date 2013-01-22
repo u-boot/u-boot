@@ -54,6 +54,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0xff000000
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
+#define CONFIG_MPC8XX_LCD
 #define CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 #endif
 
