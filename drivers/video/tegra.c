@@ -73,61 +73,9 @@ vidinfo_t panel_info = {
 	.vl_col = -1,
 };
 
-char lcd_cursor_enabled;
-
-ushort lcd_cursor_width;
-ushort lcd_cursor_height;
-
 #ifndef CONFIG_OF_CONTROL
 #error "You must enable CONFIG_OF_CONTROL to get Tegra LCD support"
 #endif
-
-void lcd_cursor_size(ushort width, ushort height)
-{
-	lcd_cursor_width = width;
-	lcd_cursor_height = height;
-}
-
-void lcd_toggle_cursor(void)
-{
-	ushort x, y;
-	uchar *dest;
-	ushort row;
-
-	x = console_col * lcd_cursor_width;
-	y = console_row * lcd_cursor_height;
-	dest = (uchar *)(lcd_base + y * lcd_line_length + x * (1 << LCD_BPP) /
-			8);
-
-	for (row = 0; row < lcd_cursor_height; ++row, dest += lcd_line_length) {
-		ushort *d = (ushort *)dest;
-		ushort color;
-		int i;
-
-		for (i = 0; i < lcd_cursor_width; ++i) {
-			color = *d;
-			color ^= lcd_getfgcolor();
-			*d = color;
-			++d;
-		}
-	}
-}
-
-void lcd_cursor_on(void)
-{
-	lcd_cursor_enabled = 1;
-	lcd_toggle_cursor();
-}
-void lcd_cursor_off(void)
-{
-	lcd_cursor_enabled = 0;
-	lcd_toggle_cursor();
-}
-
-char lcd_is_cursor_enabled(void)
-{
-	return lcd_cursor_enabled;
-}
 
 static void update_panel_size(struct fdt_disp_config *config)
 {
