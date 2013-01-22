@@ -38,6 +38,7 @@
 #define CONFIG_LUBBOCK		1	/* on an LUBBOCK Board	    */
 #define CONFIG_LCD		1
 #ifdef CONFIG_LCD
+#define CONFIG_PXA_LCD
 #define CONFIG_SHARP_LM8V31
 #endif
 #define CONFIG_MMC
