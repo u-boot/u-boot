@@ -2150,7 +2150,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORPLLSR_DDR_RATIO	0x3e000000
 #define MPC85xx_PORPLLSR_DDR_RATIO_SHIFT	25
 #else
-#ifdef CONFIG_BSC9131
+#if defined(CONFIG_BSC9131) || defined(CONFIG_BSC9132)
 #define MPC85xx_PORPLLSR_DDR_RATIO	0x00003f00
 #else
 #define MPC85xx_PORPLLSR_DDR_RATIO	0x00003e00
@@ -2164,6 +2164,11 @@ typedef struct ccsr_gur {
 	u32	porbmsr;	/* POR boot mode status */
 #define MPC85xx_PORBMSR_HA		0x00070000
 #define MPC85xx_PORBMSR_HA_SHIFT	16
+#define MPC85XX_PORBMSR_ROMLOC_SHIFT	24
+#define PORBMSR_ROMLOC_SPI	0x6
+#define PORBMSR_ROMLOC_SDHC	0x7
+#define PORBMSR_ROMLOC_NAND_2K	0x9
+#define PORBMSR_ROMLOC_NOR	0xf
 	u32	porimpscr;	/* POR I/O impedance status & control */
 	u32	pordevsr;	/* POR I/O device status regsiter */
 #if defined(CONFIG_P1017) || defined(CONFIG_P1023)
@@ -2188,6 +2193,9 @@ typedef struct ccsr_gur {
 #if defined(CONFIG_P1010)
 #define MPC85xx_PORDEVSR_IO_SEL		0x00600000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	21
+#elif defined(CONFIG_BSC9132)
+#define MPC85xx_PORDEVSR_IO_SEL		0x00FE0000
+#define MPC85xx_PORDEVSR_IO_SEL_SHIFT	17
 #else
 #define MPC85xx_PORDEVSR_IO_SEL		0x00780000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	19
@@ -2345,6 +2353,10 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_SPI1_CS3_dbg_adi2_rxen	0x00000002
 #define MPC85xx_PMUXCR_SPI1_CS3_GPO76		0x00000003
 #endif
+#ifdef CONFIG_BSC9132
+#define MPC85xx_PMUXCR0_SIM_SEL_MASK	0x0003b000
+#define MPC85xx_PMUXCR0_SIM_SEL		0x00014000
+#endif
 	u32	pmuxcr2;	/* Alt. function signal multiplex control 2 */
 #if defined(CONFIG_P1010) || defined(CONFIG_P1014)
 #define MPC85xx_PMUXCR2_UART_GPIO		0x40000000
@@ -2375,6 +2387,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR2_ETSECUSB_MASK	0x001f8000
 #define MPC85xx_PMUXCR2_USB		0x00150000
 #endif
+#if defined(CONFIG_BSC9131) || defined(CONFIG_BSC9132)
 #if defined(CONFIG_BSC9131)
 #define MPC85xx_PMUXCR2_UART_CTS_B0_SIM_PD		0X40000000
 #define MPC85xx_PMUXCR2_UART_CTS_B0_DSP_TMS		0X80000000
@@ -2418,8 +2431,9 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR2_ANT3_AGC_GPO53			0x00000004
 #define MPC85xx_PMUXCR2_ANT3_DO_TDM			0x00000001
 #define MPC85xx_PMUXCR2_ANT3_DO_GPIO46_49		0x00000002
+#endif
 	u32	pmuxcr3;
-
+#if defined(CONFIG_BSC9131)
 #define MPC85xx_PMUXCR3_ANT3_DO4_5_TDM			0x40000000
 #define MPC85xx_PMUXCR3_ANT3_DO4_5_GPIO_50_51		0x80000000
 #define MPC85xx_PMUXCR3_ANT3_DO6_7_TRIG_IN_SRESET_B	0x10000000
@@ -2434,6 +2448,13 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR3_SPI2_CS3_GPO94			0x00040000
 #define MPC85xx_PMUXCR3_ANT2_AGC_RSVD			0x00010000
 #define MPC85xx_PMUXCR3_ANT2_GPO89			0x00030000
+#endif
+#ifdef CONFIG_BSC9132
+#define MPC85xx_PMUXCR3_USB_SEL_MASK	0x0000ff00
+#define MPC85xx_PMUXCR3_UART2_SEL	0x00005000
+#define MPC85xx_PMUXCR3_UART3_SEL_MASK	0xc0000000
+#define MPC85xx_PMUXCR3_UART3_SEL	0x40000000
+#endif
 	u32 pmuxcr4;
 #else
 	u8	res6[8];
