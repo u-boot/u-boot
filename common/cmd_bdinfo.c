@@ -216,7 +216,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_CMD_NET)
 	print_eths();
 #endif
-	printf("baudrate    = %u bps\n", (ulong)bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", bd->bi_baudrate);
 	return 0;
 }
 
