@@ -74,7 +74,6 @@
 #define CONFIG_CMD_REGINFO	/* Register dump		*/
 #define CONFIG_CMD_REISER	/* Reiserfs support		*/
 #define CONFIG_CMD_RARP		/* rarpboot support		*/
-#define CONFIG_CMD_ROMFS	/* ROMFS support		*/
 #define CONFIG_CMD_READ		/* Read data from partition	*/
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
 #define CONFIG_CMD_SAVEENV	/* saveenv			*/

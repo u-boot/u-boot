@@ -268,7 +268,6 @@ LIBS-y += fs/libfs.o \
 	fs/fdos/libfdos.o \
 	fs/jffs2/libjffs2.o \
 	fs/reiserfs/libreiserfs.o \
-	fs/romfs/libromfs.o \
 	fs/ubifs/libubifs.o \
 	fs/yaffs2/libyaffs2.o \
 	fs/zfs/libzfs.o

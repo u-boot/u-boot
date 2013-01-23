@@ -152,7 +152,6 @@ COBJS-$(CONFIG_CMD_PXE) += cmd_pxe.o
 COBJS-$(CONFIG_CMD_READ) += cmd_read.o
 COBJS-$(CONFIG_CMD_REGINFO) += cmd_reginfo.o
 COBJS-$(CONFIG_CMD_REISER) += cmd_reiser.o
-COBJS-$(CONFIG_CMD_ROMFS) += cmd_romfs.o
 COBJS-$(CONFIG_CMD_SATA) += cmd_sata.o
 COBJS-$(CONFIG_CMD_SF) += cmd_sf.o
 COBJS-$(CONFIG_CMD_SCSI) += cmd_scsi.o
