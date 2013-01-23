@@ -54,29 +54,9 @@ int gpio_init (void)
 	return 0;
 }
 
-#ifdef CONFIG_SYS_FSL_2
-void fsl_isr2 (void *arg) {
-	volatile int num;
-	*((unsigned int *)(CONFIG_SYS_GPIO_0_ADDR + 0x4)) =
-	    ++(*((unsigned int *)(CONFIG_SYS_GPIO_0_ADDR + 0x4)));
-	GET (num, 2);
-	NGET (num, 2);
-	puts("*");
-}
-
-int fsl_init2 (void) {
-	puts("fsl_init2\n");
-	install_interrupt_handler (FSL_INTR_2, fsl_isr2, NULL);
-	return 0;
-}
-#endif
-
 void board_init(void)
 {
 	gpio_init();
-#ifdef CONFIG_SYS_FSL_2
-	fsl_init2();
-#endif
 }
 
 int board_eth_init(bd_t *bis)
