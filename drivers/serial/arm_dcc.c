@@ -142,11 +142,6 @@ static struct stdio_dev arm_dcc_dev;
 
 int drv_arm_dcc_init(void)
 {
-	int rc;
-
-	/* Device initialization */
-	memset(&arm_dcc_dev, 0, sizeof(arm_dcc_dev));
-
 	strcpy(arm_dcc_dev.name, "dcc");
 	arm_dcc_dev.ext = 0;	/* No extensions */
 	arm_dcc_dev.flags = DEV_FLAGS_INPUT | DEV_FLAGS_OUTPUT;
