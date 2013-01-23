@@ -127,21 +127,84 @@
 #define CONFIG_APBH_DMA
 
 /*
- * ENV -- nowhere so far
- */
-#define	CONFIG_ENV_SIZE			(16 * 1024)
-#define	CONFIG_ENV_IS_NOWHERE
-
-/*
  * Boot Linux
  */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_BOOTDELAY	3
 #define	CONFIG_BOOTFILE		"uImage"
-#define	CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 "
 #define	CONFIG_LOADADDR		0x42000000
 #define	CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 #define	CONFIG_OF_LIBFDT
+
+/*
+ * Environment
+ */
+#define	CONFIG_ENV_IS_IN_MMC
+#define	CONFIG_ENV_OVERWRITE
+#ifdef	CONFIG_ENV_IS_IN_MMC
+#define	CONFIG_ENV_OFFSET	(256 * 1024)
+#define	CONFIG_ENV_SIZE	(16 * 1024)
+#define	CONFIG_SYS_MMC_ENV_DEV 0
+#endif
+
+/*
+ * Extra Environments
+ */
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"update_sd_firmware_filename=u-boot.sd\0" \
+	"update_sd_firmware="		/* Update the SD firmware partition */ \
+		"if mmc rescan ; then "	\
+		"if tftp ${update_sd_firmware_filename} ; then " \
+		"setexpr fw_sz ${filesize} / 0x200 ; "	/* SD block size */ \
+		"setexpr fw_sz ${fw_sz} + 1 ; "	\
+		"mmc write ${loadaddr} 0x800 ${fw_sz} ; " \
+		"fi ; "	\
+		"fi\0" \
+	"script=boot.scr\0"	\
+	"uimage=uImage\0" \
+	"console=ttyAMA0\0" \
+	"fdt_file=imx23-olinuxino.dtb\0" \
+	"fdt_addr=0x41000000\0" \
+	"boot_fdt=try\0" \
+	"mmcdev=0\0" \
+	"mmcpart=2\0" \
+	"mmcroot=/dev/mmcblk0p3 rw rootwait\0" \
+	"mmcargs=setenv bootargs console=${console},${baudrate} " \
+		"root=${mmcroot}\0" \
+	"loadbootscript="  \
+		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+	"bootscript=echo Running bootscript from mmc ...; "	\
+		"source\0" \
+	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+			"if run loadfdt; then " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootm; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"fi; " \
+		"else " \
+			"bootm; " \
+		"fi;\0"
+
+#define CONFIG_BOOTCOMMAND \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
+			"if run loaduimage; then " \
+				"run mmcboot; " \
+			"else " \
+				"echo ERR: Fail to boot from MMC; " \
+			"fi; " \
+		"fi; " \
+	"else exit; fi"
 
 #endif /* __MX23_OLINUXINO_CONFIG_H__ */
