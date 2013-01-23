@@ -30,6 +30,7 @@ LIB	= $(obj)lib$(SOC).o
 
 COBJS-y	:= timer.o
 COBJS-y	+= cpu.o
+COBJS-y	+= slcr.o
 
 COBJS	:= $(COBJS-y)
 

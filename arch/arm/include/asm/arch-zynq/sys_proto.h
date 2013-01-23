@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2012 Michal Simek <monstr@monstr.eu>
- * Copyright (C) 2012 Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2013 Xilinx Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -12,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -20,15 +19,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#include <common.h>
-#include <linux/compiler.h>
-#include <asm/arch/sys_proto.h>
 
-__weak void lowlevel_init(void) {}
+#ifndef _SYS_PROTO_H_
+#define _SYS_PROTO_H_
 
-void reset_cpu(ulong addr)
-{
-	zynq_slcr_cpu_reset();
-	while (1)
-		;
-}
+extern void zynq_slcr_lock(void);
+extern void zynq_slcr_unlock(void);
+extern void zynq_slcr_cpu_reset(void);
+
+#endif /* _SYS_PROTO_H_ */
