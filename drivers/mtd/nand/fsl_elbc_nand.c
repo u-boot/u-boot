@@ -748,7 +748,7 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 
   	/* set up nand options */
 	nand->options = NAND_NO_READRDY | NAND_NO_AUTOINCR |
-			NAND_USE_FLASH_BBT;
+			NAND_USE_FLASH_BBT | NAND_NO_SUBPAGE_WRITE;
 
 	nand->controller = &elbc_ctrl->controller;
 	nand->priv = priv;

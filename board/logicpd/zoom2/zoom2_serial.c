@@ -135,5 +135,10 @@ QUAD_INIT (3)
 
 struct serial_device *default_serial_console(void)
 {
-	return ZOOM2_DEFAULT_SERIAL_DEVICE;
+	switch (ZOOM2_DEFAULT_SERIAL_DEVICE) {
+	case 0: return &zoom2_serial_device0;
+	case 1: return &zoom2_serial_device1;
+	case 2: return &zoom2_serial_device2;
+	case 3: return &zoom2_serial_device3;
+	}
 }

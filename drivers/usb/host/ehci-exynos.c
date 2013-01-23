@@ -21,13 +21,70 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
+#include <libfdt.h>
+#include <malloc.h>
 #include <usb.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/ehci.h>
 #include <asm/arch/system.h>
 #include <asm/arch/power.h>
+#include <asm-generic/errno.h>
+#include <linux/compat.h>
 #include "ehci.h"
-#include "ehci-core.h"
+
+/* Declare global data pointer */
+DECLARE_GLOBAL_DATA_PTR;
+
+/**
+ * Contains pointers to register base addresses
+ * for the usb controller.
+ */
+struct exynos_ehci {
+	struct exynos_usb_phy *usb;
+	unsigned int *hcd;
+};
+
+static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
+{
+	unsigned int node;
+	int depth;
+
+	node = fdtdec_next_compatible(blob, 0, COMPAT_SAMSUNG_EXYNOS_EHCI);
+	if (node <= 0) {
+		debug("EHCI: Can't get device node for ehci\n");
+		return -ENODEV;
+	}
+
+	/*
+	 * Get the base address for EHCI controller from the device node
+	 */
+	exynos->hcd = (unsigned int *)fdtdec_get_addr(blob, node, "reg");
+	if (exynos->hcd == NULL) {
+		debug("Can't get the EHCI register address\n");
+		return -ENXIO;
+	}
+
+	depth = 0;
+	node = fdtdec_next_compatible_subnode(blob, node,
+					COMPAT_SAMSUNG_EXYNOS_USB_PHY, &depth);
+	if (node <= 0) {
+		debug("EHCI: Can't get device node for usb-phy controller\n");
+		return -ENODEV;
+	}
+
+	/*
+	 * Get the base address for usbphy from the device node
+	 */
+	exynos->usb = (struct exynos_usb_phy *)fdtdec_get_addr(blob, node,
+								"reg");
+	if (exynos->usb == NULL) {
+		debug("Can't get the usbphy register address\n");
+		return -ENXIO;
+	}
+
+	return 0;
+}
 
 /* Setup the EHCI host controller. */
 static void setup_usb_phy(struct exynos_usb_phy *usb)
@@ -85,20 +142,30 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	struct exynos_usb_phy *usb;
+	struct exynos_ehci *exynos = NULL;
 
-	usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
-	setup_usb_phy(usb);
+	exynos = (struct exynos_ehci *)
+			kzalloc(sizeof(struct exynos_ehci), GFP_KERNEL);
+	if (!exynos) {
+		debug("failed to allocate exynos ehci context\n");
+		return -ENOMEM;
+	}
 
-	hccr = (struct ehci_hccr *)samsung_get_base_usb_ehci();
-	hcor = (struct ehci_hcor *)((uint32_t) hccr
-				+ HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	exynos_usb_parse_dt(gd->fdt_blob, exynos);
+
+	setup_usb_phy(exynos->usb);
+
+	*hccr = (struct ehci_hccr *)(exynos->hcd);
+	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
+				+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	debug("Exynos5-ehci: init hccr %x and hcor %x hc_length %d\n",
-		(uint32_t)hccr, (uint32_t)hcor,
-		(uint32_t)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+		(uint32_t)*hccr, (uint32_t)*hcor,
+		(uint32_t)HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+
+	kfree(exynos);
 
 	return 0;
 }
@@ -107,12 +174,22 @@ int ehci_hcd_init(void)
  * Destroy the appropriate control structures corresponding
  * the EHCI host controller.
  */
-int ehci_hcd_stop()
+int ehci_hcd_stop(int index)
 {
-	struct exynos_usb_phy *usb;
+	struct exynos_ehci *exynos = NULL;
 
-	usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
-	reset_usb_phy(usb);
+	exynos = (struct exynos_ehci *)
+			kzalloc(sizeof(struct exynos_ehci), GFP_KERNEL);
+	if (!exynos) {
+		debug("failed to allocate exynos ehci context\n");
+		return -ENOMEM;
+	}
+
+	exynos_usb_parse_dt(gd->fdt_blob, exynos);
+
+	reset_usb_phy(exynos->usb);
+
+	kfree(exynos);
 
 	return 0;
 }

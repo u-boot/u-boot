@@ -57,6 +57,20 @@ static void spi_reset(struct omap3_spi_slave *ds)
 	writel(OMAP3_MCSPI_WAKEUPENABLE_WKEN, &ds->regs->wakeupenable);
 }
 
+static void omap3_spi_write_chconf(struct omap3_spi_slave *ds, int val)
+{
+	writel(val, &ds->regs->channel[ds->slave.cs].chconf);
+	/* Flash post writes to make immediate effect */
+	readl(&ds->regs->channel[ds->slave.cs].chconf);
+}
+
+static void omap3_spi_set_enable(struct omap3_spi_slave *ds, int enable)
+{
+	writel(enable, &ds->regs->channel[ds->slave.cs].chctrl);
+        /* Flash post writes to make immediate effect */
+	readl(&ds->regs->channel[ds->slave.cs].chctrl);
+}
+
 void spi_init()
 {
 	/* do nothing */
@@ -173,14 +187,13 @@ int spi_claim_bus(struct spi_slave *slave)
 	/* standard 4-wire master mode:	SCK, MOSI/out, MISO/in, nCS
 	 * REVISIT: this controller could support SPI_3WIRE mode.
 	 */
-#ifdef CONFIG_AM33XX
+#ifdef CONFIG_OMAP3_SPI_D0_D1_SWAPPED
 	/*
-	 * The reference design on AM33xx has D0 and D1 wired up opposite
-	 * of how it has been done on previous platforms.  We assume that
-	 * custom hardware will also follow this convention.
+	 * Some boards have D0 wired as MOSI / D1 as MISO instead of
+	 * The normal D0 as MISO / D1 as MOSI.
 	 */
-	conf &= OMAP3_MCSPI_CHCONF_DPE0;
-	conf |= ~(OMAP3_MCSPI_CHCONF_IS|OMAP3_MCSPI_CHCONF_DPE1);
+	conf &= ~OMAP3_MCSPI_CHCONF_DPE0;
+	conf |= OMAP3_MCSPI_CHCONF_IS|OMAP3_MCSPI_CHCONF_DPE1;
 #else
 	conf &= ~(OMAP3_MCSPI_CHCONF_IS|OMAP3_MCSPI_CHCONF_DPE1);
 	conf |= OMAP3_MCSPI_CHCONF_DPE0;
@@ -213,7 +226,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	/* Transmit & receive mode */
 	conf &= ~OMAP3_MCSPI_CHCONF_TRM_MASK;
 
-	writel(conf, &ds->regs->channel[ds->slave.cs].chconf);
+	omap3_spi_write_chconf(ds,conf);
 
 	return 0;
 }
@@ -234,14 +247,13 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
 	int timeout = SPI_WAIT_TIMEOUT;
 	int chconf = readl(&ds->regs->channel[ds->slave.cs].chconf);
 
-	if (flags & SPI_XFER_BEGIN)
-		writel(OMAP3_MCSPI_CHCTRL_EN,
-		       &ds->regs->channel[ds->slave.cs].chctrl);
+	/* Enable the channel */
+	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_EN);
 
 	chconf &= ~OMAP3_MCSPI_CHCONF_TRM_MASK;
 	chconf |= OMAP3_MCSPI_CHCONF_TRM_TX_ONLY;
 	chconf |= OMAP3_MCSPI_CHCONF_FORCE;
-	writel(chconf, &ds->regs->channel[ds->slave.cs].chconf);
+	omap3_spi_write_chconf(ds,chconf);
 
 	for (i = 0; i < len; i++) {
 		/* wait till TX register is empty (TXS == 1) */
@@ -257,15 +269,17 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
 		writel(txp[i], &ds->regs->channel[ds->slave.cs].tx);
 	}
 
+        /* wait to finish of transfer */
+        while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
+                         OMAP3_MCSPI_CHSTAT_EOT));
+
+	/* Disable the channel otherwise the next immediate RX will get affected */
+	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
+
 	if (flags & SPI_XFER_END) {
-		/* wait to finish of transfer */
-		while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
-			 OMAP3_MCSPI_CHSTAT_EOT));
 
 		chconf &= ~OMAP3_MCSPI_CHCONF_FORCE;
-		writel(chconf, &ds->regs->channel[ds->slave.cs].chconf);
-
-		writel(0, &ds->regs->channel[ds->slave.cs].chctrl);
+		omap3_spi_write_chconf(ds,chconf);
 	}
 	return 0;
 }
@@ -278,14 +292,13 @@ int omap3_spi_read(struct spi_slave *slave, unsigned int len, u8 *rxp,
 	int timeout = SPI_WAIT_TIMEOUT;
 	int chconf = readl(&ds->regs->channel[ds->slave.cs].chconf);
 
-	if (flags & SPI_XFER_BEGIN)
-		writel(OMAP3_MCSPI_CHCTRL_EN,
-		       &ds->regs->channel[ds->slave.cs].chctrl);
+	/* Enable the channel */
+	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_EN);
 
 	chconf &= ~OMAP3_MCSPI_CHCONF_TRM_MASK;
 	chconf |= OMAP3_MCSPI_CHCONF_TRM_RX_ONLY;
 	chconf |= OMAP3_MCSPI_CHCONF_FORCE;
-	writel(chconf, &ds->regs->channel[ds->slave.cs].chconf);
+	omap3_spi_write_chconf(ds,chconf);
 
 	writel(0, &ds->regs->channel[ds->slave.cs].tx);
 
@@ -299,15 +312,18 @@ int omap3_spi_read(struct spi_slave *slave, unsigned int len, u8 *rxp,
 				return -1;
 			}
 		}
+
+		/* Disable the channel to prevent furher receiving */
+		if(i == (len - 1))
+			omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
+
 		/* Read the data */
 		rxp[i] = readl(&ds->regs->channel[ds->slave.cs].rx);
 	}
 
 	if (flags & SPI_XFER_END) {
 		chconf &= ~OMAP3_MCSPI_CHCONF_FORCE;
-		writel(chconf, &ds->regs->channel[ds->slave.cs].chconf);
-
-		writel(0, &ds->regs->channel[ds->slave.cs].chctrl);
+		omap3_spi_write_chconf(ds,chconf);
 	}
 
 	return 0;
@@ -324,14 +340,12 @@ int omap3_spi_txrx(struct spi_slave *slave,
 	int i=0;
 
 	/*Enable SPI channel*/
-	if (flags & SPI_XFER_BEGIN)
-		writel(OMAP3_MCSPI_CHCTRL_EN,
-		       &ds->regs->channel[ds->slave.cs].chctrl);
+	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_EN);
 
 	/*set TRANSMIT-RECEIVE Mode*/
 	chconf &= ~OMAP3_MCSPI_CHCONF_TRM_MASK;
 	chconf |= OMAP3_MCSPI_CHCONF_FORCE;
-	writel(chconf, &ds->regs->channel[ds->slave.cs].chconf);
+	omap3_spi_write_chconf(ds,chconf);
 
 	/*Shift in and out 1 byte at time*/
 	for (i=0; i < len; i++){
@@ -360,13 +374,13 @@ int omap3_spi_txrx(struct spi_slave *slave,
 		/* Read the data */
 		rxp[i] = readl(&ds->regs->channel[ds->slave.cs].rx);
 	}
+	/* Disable the channel */
+        omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
 
 	/*if transfer must be terminated disable the channel*/
 	if (flags & SPI_XFER_END) {
 		chconf &= ~OMAP3_MCSPI_CHCONF_FORCE;
-		writel(chconf, &ds->regs->channel[ds->slave.cs].chconf);
-
-		writel(0, &ds->regs->channel[ds->slave.cs].chctrl);
+		omap3_spi_write_chconf(ds,chconf);
 	}
 
 	return 0;
@@ -390,17 +404,14 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		int chconf = readl(&ds->regs->channel[ds->slave.cs].chconf);
 
 		if (flags & SPI_XFER_BEGIN) {
-			writel(OMAP3_MCSPI_CHCTRL_EN,
-			       &ds->regs->channel[ds->slave.cs].chctrl);
+			omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_EN);
 			chconf |= OMAP3_MCSPI_CHCONF_FORCE;
-			writel(chconf,
-			       &ds->regs->channel[ds->slave.cs].chconf);
+			omap3_spi_write_chconf(ds,chconf);
 		}
 		if (flags & SPI_XFER_END) {
 			chconf &= ~OMAP3_MCSPI_CHCONF_FORCE;
-			writel(chconf,
-			       &ds->regs->channel[ds->slave.cs].chconf);
-			writel(0, &ds->regs->channel[ds->slave.cs].chctrl);
+			omap3_spi_write_chconf(ds,chconf);
+			omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
 		}
 		ret = 0;
 	} else {

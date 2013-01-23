@@ -30,7 +30,11 @@
 
 #include "mxs_init.h"
 
-static uint32_t mx28_dram_vals[] = {
+static uint32_t dram_vals[] = {
+/*
+ * i.MX28 DDR2 at 200MHz
+ */
+#if defined(CONFIG_MX28)
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -79,6 +83,9 @@ static uint32_t mx28_dram_vals[] = {
 	0x06120612, 0x04320432, 0x04320432, 0x00040004,
 	0x00040004, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00010001
+#else
+#error Unsupported memory initialization
+#endif
 };
 
 void __mxs_adjust_memory_params(uint32_t *dram_vals)
@@ -87,17 +94,17 @@ void __mxs_adjust_memory_params(uint32_t *dram_vals)
 void mxs_adjust_memory_params(uint32_t *dram_vals)
 	__attribute__((weak, alias("__mxs_adjust_memory_params")));
 
-void init_mx28_200mhz_ddr2(void)
+static void initialize_dram_values(void)
 {
 	int i;
 
-	mxs_adjust_memory_params(mx28_dram_vals);
+	mxs_adjust_memory_params(dram_vals);
 
-	for (i = 0; i < ARRAY_SIZE(mx28_dram_vals); i++)
-		writel(mx28_dram_vals[i], MXS_DRAM_BASE + (4 * i));
+	for (i = 0; i < ARRAY_SIZE(dram_vals); i++)
+		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
 }
 
-void mxs_mem_init_clock(void)
+static void mxs_mem_init_clock(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -128,7 +135,7 @@ void mxs_mem_init_clock(void)
 	early_delay(10000);
 }
 
-void mxs_mem_setup_cpu_and_hbus(void)
+static void mxs_mem_setup_cpu_and_hbus(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -160,7 +167,7 @@ void mxs_mem_setup_cpu_and_hbus(void)
 	early_delay(15000);
 }
 
-void mxs_mem_setup_vdda(void)
+static void mxs_mem_setup_vdda(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
@@ -169,17 +176,6 @@ void mxs_mem_setup_vdda(void)
 		(0x7 << POWER_VDDACTRL_BO_OFFSET_OFFSET) |
 		POWER_VDDACTRL_LINREG_OFFSET_1STEPS_BELOW,
 		&power_regs->hw_power_vddactrl);
-}
-
-void mxs_mem_setup_vddd(void)
-{
-	struct mxs_power_regs *power_regs =
-		(struct mxs_power_regs *)MXS_POWER_BASE;
-
-	writel((0x1c << POWER_VDDDCTRL_TRG_OFFSET) |
-		(0x7 << POWER_VDDDCTRL_BO_OFFSET_OFFSET) |
-		POWER_VDDDCTRL_LINREG_OFFSET_1STEPS_BELOW,
-		&power_regs->hw_power_vdddctrl);
 }
 
 uint32_t mxs_mem_get_size(void)
@@ -229,7 +225,7 @@ void mxs_mem_init(void)
 	/* Clear START bit from DRAM_CTL16 */
 	clrbits_le32(MXS_DRAM_BASE + 0x40, 1);
 
-	init_mx28_200mhz_ddr2();
+	initialize_dram_values();
 
 	/* Clear SREFRESH bit from DRAM_CTL17 */
 	clrbits_le32(MXS_DRAM_BASE + 0x44, 1);
@@ -240,8 +236,6 @@ void mxs_mem_init(void)
 	/* Wait for bit 20 (DRAM init complete) in DRAM_CTL58 */
 	while (!(readl(MXS_DRAM_BASE + 0xe8) & (1 << 20)))
 		;
-
-	mxs_mem_setup_vddd();
 
 	early_delay(10000);
 

@@ -55,3 +55,7 @@ partition where the environment resides.
 DEVICEx_ENVSECTORS defines the number of sectors that may be used for
 this environment instance. On NAND this is used to limit the range
 within which bad blocks are skipped, on NOR it is not used.
+
+To prevent losing changes to the environment and to prevent confusing the MTD
+drivers, a lock file at /var/lock/fw_printenv.lock is used to serialize access
+to the environment.

@@ -33,6 +33,8 @@
 #ifndef _CONFIG_ASTRO_MCF5373L_H
 #define _CONFIG_ASTRO_MCF5373L_H
 
+#include <linux/stringify.h>
+
 /*
  * set the card type to actually compile for; either of
  * the possibilities listed below has to be used!
@@ -209,12 +211,9 @@
  * u-boot: 'set' command
  */
 
-#define _QUOTEME(x)	#x
-#define QUOTEME(x)	_QUOTEME(x)
-
 #define CONFIG_EXTRA_ENV_SETTINGS			\
 	"loaderversion=11\0"				\
-	"card_id="QUOTEME(ASTRO_ID)"\0"			\
+	"card_id="__stringify(ASTRO_ID)"\0"			\
 	"alterafile=0\0"				\
 	"xilinxfile=0\0"				\
 	"xilinxload=imxtract 0x540000 $xilinxfile 0x41000000&&"\

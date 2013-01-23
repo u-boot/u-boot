@@ -27,9 +27,11 @@
  */
 
 #include <common.h>
-#ifdef CONFIG_EXYNOS5
+#include <fdtdec.h>
+#if (defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/pinmux.h>
 #else
 #include <asm/arch/s3c24x0_cpu.h>
 #endif
@@ -60,9 +62,18 @@
 #define I2C_TIMEOUT 1		/* 1 second */
 
 
-static unsigned int g_current_bus;	/* Stores Current I2C Bus */
+/*
+ * For SPL boot some boards need i2c before SDRAM is initialised so force
+ * variables to live in SRAM
+ */
+static unsigned int g_current_bus __attribute__((section(".data")));
+#ifdef CONFIG_OF_CONTROL
+static int i2c_busses __attribute__((section(".data")));
+static struct s3c24x0_i2c_bus i2c_bus[CONFIG_MAX_I2C_NUM]
+			__attribute__((section(".data")));
+#endif
 
-#ifndef CONFIG_EXYNOS5
+#if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 static int GetI2CSDA(void)
 {
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
@@ -121,7 +132,12 @@ static void ReadWriteByte(struct s3c24x0_i2c *i2c)
 
 static struct s3c24x0_i2c *get_base_i2c(void)
 {
-#ifdef CONFIG_EXYNOS5
+#ifdef CONFIG_EXYNOS4
+	struct s3c24x0_i2c *i2c = (struct s3c24x0_i2c *)(samsung_get_base_i2c()
+							+ (EXYNOS4_I2C_SPACING
+							* g_current_bus));
+	return i2c;
+#elif defined CONFIG_EXYNOS5
 	struct s3c24x0_i2c *i2c = (struct s3c24x0_i2c *)(samsung_get_base_i2c()
 							+ (EXYNOS5_I2C_SPACING
 							* g_current_bus));
@@ -134,7 +150,7 @@ static struct s3c24x0_i2c *get_base_i2c(void)
 static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
 {
 	ulong freq, pres = 16, div;
-#ifdef CONFIG_EXYNOS5
+#if (defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 	freq = get_i2c_clk();
 #else
 	freq = get_PCLK();
@@ -188,7 +204,7 @@ unsigned int i2c_get_bus_num(void)
 void i2c_init(int speed, int slaveadd)
 {
 	struct s3c24x0_i2c *i2c;
-#ifndef CONFIG_EXYNOS5
+#if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
 #endif
 	int i;
@@ -204,7 +220,7 @@ void i2c_init(int speed, int slaveadd)
 		i--;
 	}
 
-#ifndef CONFIG_EXYNOS5
+#if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 	if ((readl(&i2c->iicstat) & I2CSTAT_BSY) || GetI2CSDA() == 0) {
 #ifdef CONFIG_S3C2410
 		ulong old_gpecon = readl(&gpio->gpecon);
@@ -248,7 +264,7 @@ void i2c_init(int speed, int slaveadd)
 		writel(old_gpecon, &gpio->pgcon);
 #endif
 	}
-#endif /* #ifndef CONFIG_EXYNOS5 */
+#endif /* #if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5) */
 	i2c_ch_init(i2c, speed, slaveadd);
 }
 
@@ -507,4 +523,76 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		(i2c, I2C_WRITE, chip << 1, &xaddr[4 - alen], alen, buffer,
 		 len) != 0);
 }
+
+#ifdef CONFIG_OF_CONTROL
+void board_i2c_init(const void *blob)
+{
+	int node_list[CONFIG_MAX_I2C_NUM];
+	int count, i;
+
+	count = fdtdec_find_aliases_for_id(blob, "i2c",
+		COMPAT_SAMSUNG_S3C2440_I2C, node_list,
+		CONFIG_MAX_I2C_NUM);
+
+	for (i = 0; i < count; i++) {
+		struct s3c24x0_i2c_bus *bus;
+		int node = node_list[i];
+
+		if (node <= 0)
+			continue;
+		bus = &i2c_bus[i];
+		bus->regs = (struct s3c24x0_i2c *)
+			fdtdec_get_addr(blob, node, "reg");
+		bus->id = pinmux_decode_periph_id(blob, node);
+		bus->node = node;
+		bus->bus_num = i2c_busses++;
+		exynos_pinmux_config(bus->id, 0);
+	}
+}
+
+static struct s3c24x0_i2c_bus *get_bus(unsigned int bus_idx)
+{
+	if (bus_idx < i2c_busses)
+		return &i2c_bus[bus_idx];
+
+	debug("Undefined bus: %d\n", bus_idx);
+	return NULL;
+}
+
+int i2c_get_bus_num_fdt(int node)
+{
+	int i;
+
+	for (i = 0; i < i2c_busses; i++) {
+		if (node == i2c_bus[i].node)
+			return i;
+	}
+
+	debug("%s: Can't find any matched I2C bus\n", __func__);
+	return -1;
+}
+
+int i2c_reset_port_fdt(const void *blob, int node)
+{
+	struct s3c24x0_i2c_bus *i2c;
+	int bus;
+
+	bus = i2c_get_bus_num_fdt(node);
+	if (bus < 0) {
+		debug("could not get bus for node %d\n", node);
+		return -1;
+	}
+
+	i2c = get_bus(bus);
+	if (!i2c) {
+		debug("get_bus() failed for node node %d\n", node);
+		return -1;
+	}
+
+	i2c_ch_init(i2c->regs, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+
+	return 0;
+}
+#endif
+
 #endif /* CONFIG_HARD_I2C */

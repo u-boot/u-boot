@@ -22,37 +22,7 @@
  */
 
 #include <asm/macro.h>
-
-.macro init_aips
-	write32	0x43f00000, 0x77777777
-	write32	0x43f00004, 0x77777777
-	write32	0x43f00000, 0x77777777
-	write32	0x53f00004, 0x77777777
-.endm
-
-.macro init_max
-	write32	0x43f04000, 0x43210
-	write32	0x43f04100, 0x43210
-	write32	0x43f04200, 0x43210
-	write32	0x43f04300, 0x43210
-	write32	0x43f04400, 0x43210
-
-	write32	0x43f04010, 0x10
-	write32	0x43f04110, 0x10
-	write32	0x43f04210, 0x10
-	write32	0x43f04310, 0x10
-	write32	0x43f04410, 0x10
-
-	write32	0x43f04800, 0x0
-	write32	0x43f04900, 0x0
-	write32	0x43f04a00, 0x0
-	write32	0x43f04b00, 0x0
-	write32	0x43f04c00, 0x0
-.endm
-
-.macro init_m3if
-	write32 0xb8003000, 0x1
-.endm
+#include <asm/arch/macro.h>
 
 .macro init_clocks
 	/*
@@ -64,6 +34,8 @@
 	 * 0x00600000 makes CLKO parent clk the USB clk
 	 */
 	write32	0x53f80064, 0x45600000
+
+	/* CCTL: ARM = 399 MHz, AHB = 133 MHz */
 	write32	0x53f80008, 0x20034000
 
 	/*

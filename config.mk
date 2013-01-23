@@ -23,6 +23,8 @@
 
 #########################################################################
 
+include $(TOPDIR)/helper.mk
+
 ifeq ($(CURDIR),$(SRCTREE))
 dir :=
 else
@@ -149,6 +151,7 @@ OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 RANLIB	= $(CROSS_COMPILE)RANLIB
 DTC	= dtc
+CHECK	= sparse
 
 #########################################################################
 
@@ -275,6 +278,10 @@ ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_u-boot-spl += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 
+# Linus' kernel sanity checking tool
+CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
+                  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
+
 # Location of a usable BFD library, where we define "usable" as
 # "built for ${HOST}, supports ${TARGET}".  Sensible values are
 # - When cross-compiling: the root of the cross-environment
@@ -322,6 +329,9 @@ $(obj)%.s:	%.S
 $(obj)%.o:	%.S
 	$(CC)  $(ALL_AFLAGS) -o $@ $< -c
 $(obj)%.o:	%.c
+ifneq ($(CHECKSRC),0)
+	$(CHECK) $(CHECKFLAGS) $(ALL_CFLAGS) $<
+endif
 	$(CC)  $(ALL_CFLAGS) -o $@ $< -c
 $(obj)%.i:	%.c
 	$(CPP) $(ALL_CFLAGS) -o $@ $< -c

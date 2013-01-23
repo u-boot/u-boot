@@ -35,6 +35,7 @@
 #include <command.h>
 #include <asm/io.h>
 #include <asm/arch/pxa.h>
+#include <asm/arch/regs-mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -76,6 +77,14 @@ int board_init (void)
 
 	return 0;
 }
+
+#ifdef CONFIG_CMD_MMC
+int board_mmc_init(bd_t *bis)
+{
+	pxa_mmc_register(0);
+	return 0;
+}
+#endif
 
 int board_late_init(void)
 {

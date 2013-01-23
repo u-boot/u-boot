@@ -142,7 +142,7 @@
 #ifdef	CONFIG_CMD_MMC
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_MMC_BOUNCE_BUFFER
+#define CONFIG_BOUNCE_BUFFER
 #define CONFIG_MXS_MMC
 #endif
 
@@ -238,7 +238,7 @@
  */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTDELAY	1
 #define CONFIG_BOOTFILE	"uImage"
 #define CONFIG_LOADADDR	0x42000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
@@ -263,7 +263,7 @@
 		"if tftp ${update_nand_full_filename} ; then " \
 		"run update_nand_get_fcb_size ; " \
 		"nand scrub -y 0x0 ${filesize} ; " \
-		"nand write.raw ${loadaddr} 0x0 ${update_nand_fcb} ; " \
+		"nand write.raw ${loadaddr} 0x0 ${fcb_sz} ; " \
 		"setexpr update_off ${loadaddr} + ${update_nand_fcb} ; " \
 		"setexpr update_sz ${filesize} - ${update_nand_fcb} ; " \
 		"nand write ${update_off} ${update_nand_fcb} ${update_sz} ; " \
@@ -290,30 +290,63 @@
 	"uimage=uImage\0" \
 	"console_fsl=ttyAM0\0" \
 	"console_mainline=ttyAMA0\0" \
+	"fdt_file=imx28-evk.dtb\0" \
+	"fdt_addr=0x41000000\0" \
+	"boot_fdt=try\0" \
+	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcpart=2\0" \
-	"mmcroot=/dev/mmcblk0p3 rw\0" \
-	"mmcrootfstype=ext3 rootwait\0"	\
+	"mmcroot=/dev/mmcblk0p3 rw rootwait\0" \
 	"mmcargs=setenv bootargs console=${console_mainline},${baudrate} " \
-		"root=${mmcroot} " \
-		"rootfstype=${mmcrootfstype}\0"	\
+		"root=${mmcroot}\0" \
 	"loadbootscript="  \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; "	\
 		"source\0" \
 	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; "	\
-		"bootm\0" \
+		"run mmcargs; " \
+		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+			"if run loadfdt; then " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootm; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"fi; " \
+		"else " \
+			"bootm; " \
+		"fi;\0" \
 	"netargs=setenv bootargs console=${console_mainline},${baudrate} " \
 		"root=/dev/nfs " \
 		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
 	"netboot=echo Booting from net ...; " \
 		"run netargs; "	\
-		"dhcp ${uimage}; bootm\0"
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${uimage}; " \
+		"if test ${boot_fdt} = yes; then " \
+			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootm; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi;" \
+			"fi; " \
+		"else " \
+			"bootm; " \
+		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \

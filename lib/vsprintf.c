@@ -18,18 +18,17 @@
 #include <errno.h>
 
 #include <common.h>
-#if !defined (CONFIG_PANIC_HANG)
+#if !defined(CONFIG_PANIC_HANG)
 #include <command.h>
 #endif
 
 #include <div64.h>
-# define NUM_TYPE long long
 #define noinline __attribute__((noinline))
 
 /* some reluctance to put this into a new limits.h, so it is here */
 #define INT_MAX		((int)(~0U>>1))
 
-const char hex_asc[] = "0123456789abcdef";
+static const char hex_asc[] = "0123456789abcdef";
 #define hex_asc_lo(x)   hex_asc[((x) & 0x0f)]
 #define hex_asc_hi(x)   hex_asc[((x) & 0xf0) >> 4]
 
@@ -40,9 +39,11 @@ static inline char *pack_hex_byte(char *buf, u8 byte)
 	return buf;
 }
 
-unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
+unsigned long simple_strtoul(const char *cp, char **endp,
+				unsigned int base)
 {
-	unsigned long result = 0,value;
+	unsigned long result = 0;
+	unsigned long value;
 
 	if (*cp == '0') {
 		cp++;
@@ -50,20 +51,23 @@ unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
 			base = 16;
 			cp++;
 		}
-		if (!base) {
+
+		if (!base)
 			base = 8;
-		}
 	}
-	if (!base) {
+
+	if (!base)
 		base = 10;
-	}
+
 	while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
 	    ? toupper(*cp) : *cp)-'A'+10) < base) {
 		result = result*base + value;
 		cp++;
 	}
+
 	if (endp)
 		*endp = (char *)cp;
+
 	return result;
 }
 
@@ -91,18 +95,19 @@ int strict_strtoul(const char *cp, unsigned int base, unsigned long *res)
 	return -EINVAL;
 }
 
-long simple_strtol(const char *cp,char **endp,unsigned int base)
+long simple_strtol(const char *cp, char **endp, unsigned int base)
 {
-	if(*cp=='-')
-		return -simple_strtoul(cp+1,endp,base);
-	return simple_strtoul(cp,endp,base);
+	if (*cp == '-')
+		return -simple_strtoul(cp + 1, endp, base);
+
+	return simple_strtoul(cp, endp, base);
 }
 
-int ustrtoul(const char *cp, char **endp, unsigned int base)
+unsigned long ustrtoul(const char *cp, char **endp, unsigned int base)
 {
 	unsigned long result = simple_strtoul(cp, endp, base);
 	switch (**endp) {
-	case 'G' :
+	case 'G':
 		result *= 1024;
 		/* fall through */
 	case 'M':
@@ -121,31 +126,34 @@ int ustrtoul(const char *cp, char **endp, unsigned int base)
 	return result;
 }
 
-unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int base)
+unsigned long long simple_strtoull(const char *cp, char **endp,
+					unsigned int base)
 {
 	unsigned long long result = 0, value;
 
 	if (*cp == '0') {
 		cp++;
-		if ((*cp == 'x') && isxdigit (cp[1])) {
+		if ((*cp == 'x') && isxdigit(cp[1])) {
 			base = 16;
 			cp++;
 		}
-		if (!base) {
+
+		if (!base)
 			base = 8;
-		}
 	}
-	if (!base) {
+
+	if (!base)
 		base = 10;
-	}
-	while (isxdigit (*cp) && (value = isdigit (*cp)
-				? *cp - '0'
-				: (islower (*cp) ? toupper (*cp) : *cp) - 'A' + 10) < base) {
+
+	while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp - '0'
+		: (islower(*cp) ? toupper(*cp) : *cp) - 'A' + 10) < base) {
 		result = result * base + value;
 		cp++;
 	}
+
 	if (endp)
 		*endp = (char *) cp;
+
 	return result;
 }
 
@@ -154,10 +162,11 @@ unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int ba
 
 static int skip_atoi(const char **s)
 {
-	int i=0;
+	int i = 0;
 
 	while (is_digit(**s))
-		i = i*10 + *((*s)++) - '0';
+		i = i * 10 + *((*s)++) - '0';
+
 	return i;
 }
 
@@ -171,7 +180,7 @@ static int skip_atoi(const char **s)
 /* Formats correctly any integer in [0,99999].
  * Outputs from one to five digits depending on input.
  * On i386 gcc 4.1.2 -O2: ~250 bytes of code. */
-static char* put_dec_trunc(char *buf, unsigned q)
+static char *put_dec_trunc(char *buf, unsigned q)
 {
 	unsigned d3, d2, d1, d0;
 	d1 = (q>>4) & 0xf;
@@ -200,14 +209,14 @@ static char* put_dec_trunc(char *buf, unsigned q)
 				d3 = d3 - 10*q;
 				*buf++ = d3 + '0';  /* next digit */
 				if (q != 0)
-					*buf++ = q + '0';  /* most sign. digit */
+					*buf++ = q + '0'; /* most sign. digit */
 			}
 		}
 	}
 	return buf;
 }
 /* Same with if's removed. Always emits five digits */
-static char* put_dec_full(char *buf, unsigned q)
+static char *put_dec_full(char *buf, unsigned q)
 {
 	/* BTW, if q is in [0,9999], 8-bit ints will be enough, */
 	/* but anyway, gcc produces better code with full-sized ints */
@@ -249,7 +258,7 @@ static char* put_dec_full(char *buf, unsigned q)
 	return buf;
 }
 /* No inlining helps gcc to use registers better */
-static noinline char* put_dec(char *buf, unsigned NUM_TYPE num)
+static noinline char *put_dec(char *buf, u64 num)
 {
 	while (1) {
 		unsigned rem;
@@ -282,11 +291,11 @@ static noinline char* put_dec(char *buf, unsigned NUM_TYPE num)
 #define ADDCH(str, ch)	(*(str)++ = (ch))
 #endif
 
-static char *number(char *buf, char *end, unsigned NUM_TYPE num,
+static char *number(char *buf, char *end, u64 num,
 		int base, int size, int precision, int type)
 {
 	/* we are called with base 8, 10 or 16, only, thus don't need "G..."  */
-	static const char digits[16] = "0123456789ABCDEF"; /* "GHIJKLMNOPQRSTUVWXYZ"; */
+	static const char digits[16] = "0123456789ABCDEF";
 
 	char tmp[66];
 	char sign;
@@ -301,9 +310,9 @@ static char *number(char *buf, char *end, unsigned NUM_TYPE num,
 		type &= ~ZEROPAD;
 	sign = 0;
 	if (type & SIGN) {
-		if ((signed NUM_TYPE) num < 0) {
+		if ((s64) num < 0) {
 			sign = '-';
-			num = - (signed NUM_TYPE) num;
+			num = -(s64) num;
 			size--;
 		} else if (type & PLUS) {
 			sign = '+';
@@ -331,9 +340,13 @@ static char *number(char *buf, char *end, unsigned NUM_TYPE num,
 	else if (base != 10) { /* 8 or 16 */
 		int mask = base - 1;
 		int shift = 3;
-		if (base == 16) shift = 4;
+
+		if (base == 16)
+			shift = 4;
+
 		do {
-			tmp[i++] = (digits[((unsigned char)num) & mask] | locase);
+			tmp[i++] = (digits[((unsigned char)num) & mask]
+					| locase);
 			num >>= shift;
 		} while (num);
 	} else { /* base 10 */
@@ -382,7 +395,7 @@ static char *string(char *buf, char *end, char *s, int field_width,
 {
 	int len, i;
 
-	if (s == 0)
+	if (s == NULL)
 		s = "<NULL>";
 
 	len = strnlen(s, precision);
@@ -401,7 +414,8 @@ static char *string(char *buf, char *end, char *s, int field_width,
 static char *mac_address_string(char *buf, char *end, u8 *addr, int field_width,
 				int precision, int flags)
 {
-	char mac_addr[6 * 3]; /* (6 * 2 hex digits), 5 colons and trailing zero */
+	/* (6 * 2 hex digits), 5 colons and trailing zero */
+	char mac_addr[6 * 3];
 	char *p = mac_addr;
 	int i;
 
@@ -419,7 +433,8 @@ static char *mac_address_string(char *buf, char *end, u8 *addr, int field_width,
 static char *ip6_addr_string(char *buf, char *end, u8 *addr, int field_width,
 			 int precision, int flags)
 {
-	char ip6_addr[8 * 5]; /* (8 * 4 hex digits), 7 colons and trailing zero */
+	/* (8 * 4 hex digits), 7 colons and trailing zero */
+	char ip6_addr[8 * 5];
 	char *p = ip6_addr;
 	int i;
 
@@ -438,7 +453,8 @@ static char *ip6_addr_string(char *buf, char *end, u8 *addr, int field_width,
 static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 			 int precision, int flags)
 {
-	char ip4_addr[4 * 4]; /* (4 * 3 decimal digits), 3 dots and trailing zero */
+	/* (4 * 3 decimal digits), 3 dots and trailing zero */
+	char ip4_addr[4 * 4];
 	char temp[3];	/* hold each IP quad in reverse order */
 	char *p = ip4_addr;
 	int i, digits;
@@ -479,9 +495,15 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		int field_width, int precision, int flags)
 {
+	/*
+	 * Being a boot loader, we explicitly allow pointers to
+	 * (physical) address null.
+	 */
+#if 0
 	if (!ptr)
 		return string(buf, end, "(null)", field_width, precision,
 			      flags);
+#endif
 
 #ifdef CONFIG_CMD_NET
 	switch (*fmt) {
@@ -517,7 +539,7 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
 			      va_list args)
 {
-	unsigned NUM_TYPE num;
+	u64 num;
 	int base;
 	char *str;
 
@@ -549,14 +571,24 @@ static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
 
 		/* process flags */
 		flags = 0;
-		repeat:
+repeat:
 			++fmt;		/* this also skips first '%' */
 			switch (*fmt) {
-				case '-': flags |= LEFT; goto repeat;
-				case '+': flags |= PLUS; goto repeat;
-				case ' ': flags |= SPACE; goto repeat;
-				case '#': flags |= SPECIAL; goto repeat;
-				case '0': flags |= ZEROPAD; goto repeat;
+			case '-':
+				flags |= LEFT;
+				goto repeat;
+			case '+':
+				flags |= PLUS;
+				goto repeat;
+			case ' ':
+				flags |= SPACE;
+				goto repeat;
+			case '#':
+				flags |= SPECIAL;
+				goto repeat;
+			case '0':
+				flags |= ZEROPAD;
+				goto repeat;
 			}
 
 		/* get field width */
@@ -620,7 +652,7 @@ static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
 			continue;
 
 		case 'p':
-			str = pointer(fmt+1, str, end,
+			str = pointer(fmt + 1, str, end,
 					va_arg(args, void *),
 					field_width, precision, flags);
 			/* Skip all alphanumeric pointer suffixes */
@@ -630,10 +662,10 @@ static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
 
 		case 'n':
 			if (qualifier == 'l') {
-				long * ip = va_arg(args, long *);
+				long *ip = va_arg(args, long *);
 				*ip = (str - buf);
 			} else {
-				int * ip = va_arg(args, int *);
+				int *ip = va_arg(args, int *);
 				*ip = (str - buf);
 			}
 			continue;
@@ -700,7 +732,7 @@ static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
 	*str = '\0';
 #endif
 	/* the trailing null byte doesn't count towards the total */
-	return str-buf;
+	return str - buf;
 }
 
 #ifdef CONFIG_SYS_VSNPRINTF
@@ -766,29 +798,29 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 	return vsnprintf_internal(buf, INT_MAX, fmt, args);
 }
 
-int sprintf(char * buf, const char *fmt, ...)
+int sprintf(char *buf, const char *fmt, ...)
 {
 	va_list args;
 	int i;
 
 	va_start(args, fmt);
-	i=vsprintf(buf,fmt,args);
+	i = vsprintf(buf, fmt, args);
 	va_end(args);
 	return i;
 }
 
 void panic(const char *fmt, ...)
 {
-	va_list	args;
+	va_list args;
 	va_start(args, fmt);
 	vprintf(fmt, args);
 	putc('\n');
 	va_end(args);
-#if defined (CONFIG_PANIC_HANG)
+#if defined(CONFIG_PANIC_HANG)
 	hang();
 #else
-	udelay (100000);	/* allow messages to go out */
-	do_reset (NULL, 0, 0, NULL);
+	udelay(100000);	/* allow messages to go out */
+	do_reset(NULL, 0, 0, NULL);
 #endif
 	while (1)
 		;

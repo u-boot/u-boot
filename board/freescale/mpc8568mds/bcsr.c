@@ -25,7 +25,7 @@
 
 #include "bcsr.h"
 
-void enable_8568mds_duart()
+void enable_8568mds_duart(void)
 {
 	volatile uint* duart_mux	= (uint *)(CONFIG_SYS_CCSRBAR + 0xe0060);
 	volatile uint* devices		= (uint *)(CONFIG_SYS_CCSRBAR + 0xe0070);
@@ -36,21 +36,21 @@ void enable_8568mds_duart()
 	bcsr[5] |= 0x01;		/* Enable Duart in BCSR*/
 }
 
-void enable_8568mds_flash_write()
+void enable_8568mds_flash_write(void)
 {
 	volatile u8 *bcsr = (u8 *)(CONFIG_SYS_BCSR);
 
 	bcsr[9] |= 0x01;
 }
 
-void disable_8568mds_flash_write()
+void disable_8568mds_flash_write(void)
 {
 	volatile u8 *bcsr = (u8 *)(CONFIG_SYS_BCSR);
 
 	bcsr[9] &= ~(0x01);
 }
 
-void enable_8568mds_qe_mdio()
+void enable_8568mds_qe_mdio(void)
 {
 	u8 *bcsr = (u8 *)(CONFIG_SYS_BCSR);
 

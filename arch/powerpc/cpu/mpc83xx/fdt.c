@@ -88,7 +88,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 				u32 tmp[] = { 32, 0x8, 33, 0x8, 34, 0x8 };
 
 				path = fdt_path_offset(blob, prop);
-				prop = fdt_getprop(blob, path, "interrupts", 0);
+				prop = fdt_getprop(blob, path, "interrupts",
+						   NULL);
 				if (prop)
 					fdt_setprop(blob, path, "interrupts",
 						    &tmp, sizeof(tmp));
@@ -100,7 +101,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 				u32 tmp[] = { 35, 0x8, 36, 0x8, 37, 0x8 };
 
 				path = fdt_path_offset(blob, prop);
-				prop = fdt_getprop(blob, path, "interrupts", 0);
+				prop = fdt_getprop(blob, path, "interrupts",
+						   NULL);
 				if (prop)
 					fdt_setprop(blob, path, "interrupts",
 						    &tmp, sizeof(tmp));

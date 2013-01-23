@@ -262,4 +262,30 @@ extern int get_multi_scl_pin(void);
 extern int get_multi_sda_pin(void);
 extern int multi_i2c_init(void);
 #endif
+
+/**
+ * Get FDT values for i2c bus.
+ *
+ * @param blob  Device tree blbo
+ * @return the number of I2C bus
+ */
+void board_i2c_init(const void *blob);
+
+/**
+ * Find the I2C bus number by given a FDT I2C node.
+ *
+ * @param blob  Device tree blbo
+ * @param node  FDT I2C node to find
+ * @return the number of I2C bus (zero based), or -1 on error
+ */
+int i2c_get_bus_num_fdt(int node);
+
+/**
+ * Reset the I2C bus represented by the given a FDT I2C node.
+ *
+ * @param blob  Device tree blbo
+ * @param node  FDT I2C node to find
+ * @return 0 if port was reset, -1 if not found
+ */
+int i2c_reset_port_fdt(const void *blob, int node);
 #endif	/* _I2C_H_ */

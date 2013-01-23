@@ -36,6 +36,7 @@
 #include <asm/arch/pxa-regs.h>
 #include <asm/arch/regs-uart.h>
 #include <asm/io.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -72,21 +73,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	HWUART_INDEX	0xff
 #endif
 
-#ifndef CONFIG_SERIAL_MULTI
-#if defined(CONFIG_FFUART)
-#define UART_INDEX	FFUART_INDEX
-#elif defined(CONFIG_BTUART)
-#define UART_INDEX	BTUART_INDEX
-#elif defined(CONFIG_STUART)
-#define UART_INDEX	STUART_INDEX
-#elif defined(CONFIG_HWUART)
-#define UART_INDEX	HWUART_INDEX
-#else
-#error "Please select CONFIG_(FF|BT|ST|HW)UART in board config file."
-#endif
-#endif
-
-uint32_t pxa_uart_get_baud_divider(void)
+static uint32_t pxa_uart_get_baud_divider(void)
 {
 	if (gd->baudrate == 1200)
 		return 768;
@@ -104,7 +91,7 @@ uint32_t pxa_uart_get_baud_divider(void)
 		return 0;
 }
 
-struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
+static struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
 {
 	switch (uart_index) {
 	case FFUART_INDEX: return (struct pxa_uart_regs *)FFUART_BASE;
@@ -116,7 +103,7 @@ struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
 	}
 }
 
-void pxa_uart_toggle_clock(uint32_t uart_index, int enable)
+static void pxa_uart_toggle_clock(uint32_t uart_index, int enable)
 {
 	uint32_t clk_reg, clk_offset, reg;
 
@@ -269,14 +256,14 @@ void pxa_puts_dev(unsigned int uart_index, const char *s)
 #define	pxa_uart_desc(uart)						\
 	struct serial_device serial_##uart##_device =			\
 	{								\
-		"serial_"#uart,						\
-		uart##_init,						\
-		NULL,							\
-		uart##_setbrg,						\
-		uart##_getc,						\
-		uart##_tstc,						\
-		uart##_putc,						\
-		uart##_puts,						\
+		.name	= "serial_"#uart,				\
+		.start	= uart##_init,					\
+		.stop	= NULL,						\
+		.setbrg	= uart##_setbrg,				\
+		.getc	= uart##_getc,					\
+		.tstc	= uart##_tstc,					\
+		.putc	= uart##_putc,					\
+		.puts	= uart##_puts,					\
 	};
 
 #define	pxa_uart_multi(uart, UART)					\
@@ -296,6 +283,30 @@ void pxa_puts_dev(unsigned int uart_index, const char *s)
 	pxa_uart_multi(btuart, BTUART)
 #endif
 
-#ifndef	CONFIG_SERIAL_MULTI
-	pxa_uart(serial, UART)
+__weak struct serial_device *default_serial_console(void)
+{
+#if CONFIG_CONS_INDEX == 1
+	return &serial_hwuart_device;
+#elif CONFIG_CONS_INDEX == 2
+	return &serial_stuart_device;
+#elif CONFIG_CONS_INDEX == 3
+	return &serial_ffuart_device;
+#elif CONFIG_CONS_INDEX == 4
+	return &serial_btuart_device;
+#else
+#error "Bad CONFIG_CONS_INDEX."
 #endif
+}
+
+void pxa_serial_initialize(void)
+{
+#if defined(CONFIG_FFUART)
+	serial_register(&serial_ffuart_device);
+#endif
+#if defined(CONFIG_BTUART)
+	serial_register(&serial_btuart_device);
+#endif
+#if defined(CONFIG_STUART)
+	serial_register(&serial_stuart_device);
+#endif
+}

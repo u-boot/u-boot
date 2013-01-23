@@ -57,9 +57,9 @@ static int extract_range(char *input, int *plo, int *phi)
 	return 0;
 }
 
-int mdio_write_ranges(struct mii_dev *bus, int addrlo,
-			int addrhi, int devadlo, int devadhi,
-			int reglo, int reghi, unsigned short data)
+static int mdio_write_ranges(struct mii_dev *bus, int addrlo,
+			     int addrhi, int devadlo, int devadhi,
+			     int reglo, int reghi, unsigned short data)
 {
 	int addr, devad, reg;
 	int err = 0;
@@ -79,9 +79,9 @@ err_out:
 	return err;
 }
 
-int mdio_read_ranges(struct mii_dev *bus, int addrlo,
-			int addrhi, int devadlo, int devadhi,
-			int reglo, int reghi)
+static int mdio_read_ranges(struct mii_dev *bus, int addrlo,
+			    int addrhi, int devadlo, int devadhi,
+			    int reglo, int reghi)
 {
 	int addr, devad, reg;
 
@@ -112,8 +112,8 @@ int mdio_read_ranges(struct mii_dev *bus, int addrlo,
 }
 
 /* The register will be in the form [a[-b].]x[-y] */
-int extract_reg_range(char *input, int *devadlo, int *devadhi,
-		int *reglo, int *reghi)
+static int extract_reg_range(char *input, int *devadlo, int *devadhi,
+			     int *reglo, int *reghi)
 {
 	char *regstr;
 
@@ -141,8 +141,8 @@ int extract_reg_range(char *input, int *devadlo, int *devadhi,
 	return extract_range(regstr, reglo, reghi);
 }
 
-int extract_phy_range(char *const argv[], int argc, struct mii_dev **bus,
-		int *addrlo, int *addrhi)
+static int extract_phy_range(char *const argv[], int argc, struct mii_dev **bus,
+			     int *addrlo, int *addrhi)
 {
 	struct phy_device *phydev;
 

@@ -1097,6 +1097,17 @@
 #define SVR_P4080	0x820000
 #define SVR_P5010	0x822100
 #define SVR_P5020	0x822000
+#define SVR_P5021	0X820500
+#define SVR_P5040	0x820400
+#define SVR_T4240	0x824000
+#define SVR_T4120	0x824001
+#define SVR_B4860	0X868000
+#define SVR_G4860	0x868001
+#define SVR_G4060	0x868003
+#define SVR_B4440	0x868100
+#define SVR_G4440	0x868101
+#define SVR_B4420	0x868102
+#define SVR_B4220	0x868103
 
 #define SVR_8610	0x80A000
 #define SVR_8641	0x809000
@@ -1332,5 +1343,11 @@ void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 #error "Machine not defined correctly"
 #endif
 #endif /* CONFIG_MACH_SPECIFIC */
+
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_440)
+ #define EPAPR_MAGIC	(0x45504150)
+#else
+ #define EPAPR_MAGIC	(0x65504150)
+#endif
 
 #endif /* __ASM_PPC_PROCESSOR_H */

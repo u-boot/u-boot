@@ -72,22 +72,6 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
-/*****  ETX_094  ********************************************************/
-#elif defined(CONFIG_ETX094)
-
-# define STATUS_LED_PAR		im_ioport.iop_pdpar
-# define STATUS_LED_DIR		im_ioport.iop_pddir
-# undef  STATUS_LED_ODR
-# define STATUS_LED_DAT		im_ioport.iop_pddat
-
-# define STATUS_LED_BIT		0x00000001
-# define STATUS_LED_PERIOD	(CONFIG_SYS_HZ / 2)
-# define STATUS_LED_STATE	STATUS_LED_BLINKING
-
-# define STATUS_LED_ACTIVE	0		/* LED on for bit == 0	*/
-
-# define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
-
 /*****  GEN860T  *********************************************************/
 #elif defined(CONFIG_GEN860T)
 
@@ -169,26 +153,6 @@ void status_led_set  (int led, int state);
 # define STATUS_LED_YELLOW	0
 # define STATUS_LED_GREEN	1
 # define STATUS_LED_BOOT	2		/* IDE LED used for boot status */
-
-/*****  LANTEC  *********************************************************/
-#elif defined(CONFIG_LANTEC)
-
-# define STATUS_LED_PAR		im_ioport.iop_pdpar
-# define STATUS_LED_DIR		im_ioport.iop_pddir
-# undef  STATUS_LED_ODR
-# define STATUS_LED_DAT		im_ioport.iop_pddat
-
-# if CONFIG_LATEC < 2
-#  define STATUS_LED_BIT	0x1000
-# else
-#  define STATUS_LED_BIT	0x0800
-# endif
-# define STATUS_LED_PERIOD	(CONFIG_SYS_HZ / 2)
-# define STATUS_LED_STATE	STATUS_LED_BLINKING
-
-# define STATUS_LED_ACTIVE	0		/* LED on for bit == 0 */
-
-# define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
 /*****  ICU862   ********************************************************/
 #elif defined(CONFIG_ICU862)
@@ -307,9 +271,6 @@ void status_led_set  (int led, int state);
 /* XXX empty just to avoid the error */
 /*****  STx XTc    ********************************************************/
 #elif defined(CONFIG_STXXTC)
-/* XXX empty just to avoid the error */
-/************************************************************************/
-#elif defined(CONFIG_NIOS2)
 /* XXX empty just to avoid the error */
 /************************************************************************/
 #elif defined(CONFIG_V38B)

@@ -82,8 +82,15 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 				unsigned int start_addr)
 {
 	unsigned int stat, rdy, mask, timeout, block = 0;
+#ifdef CONFIG_MMC_SDMA
+	unsigned char ctrl;
+	ctrl = sdhci_readl(host, SDHCI_HOST_CONTROL);
+	ctrl &= ~SDHCI_CTRL_DMA_MASK;
+	ctrl |= SDHCI_CTRL_SDMA;
+	sdhci_writel(host, ctrl, SDHCI_HOST_CONTROL);
+#endif
 
-	timeout = 10000;
+	timeout = 1000000;
 	rdy = SDHCI_INT_SPACE_AVAIL | SDHCI_INT_DATA_AVAIL;
 	mask = SDHCI_DATA_AVAILABLE | SDHCI_SPACE_AVAILABLE;
 	do {
@@ -233,6 +240,9 @@ int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (!ret && data)
 		ret = sdhci_transfer_data(host, data, start_addr);
 
+	if (host->quirks & SDHCI_QUIRK_WAIT_SEND_CMD)
+		udelay(1000);
+
 	stat = sdhci_readl(host, SDHCI_INT_STATUS);
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 	if (!ret) {
@@ -329,6 +339,9 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 		sdhci_writeb(host, 0, SDHCI_POWER_CONTROL);
 		return;
 	}
+
+	if (host->quirks & SDHCI_QUIRK_NO_SIMULT_VDD_AND_POWER)
+		sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
 
 	pwr |= SDHCI_POWER_ON;
 

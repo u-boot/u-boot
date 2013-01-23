@@ -94,6 +94,7 @@ struct ipu_ch_param {
 	temp1; \
 })
 
+#define IPU_SW_RST_TOUT_USEC	(10000)
 
 void clk_enable(struct clk *clk)
 {
@@ -163,13 +164,13 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 
 static int clk_ipu_enable(struct clk *clk)
 {
-#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	u32 reg;
 
 	reg = __raw_readl(clk->enable_reg);
 	reg |= MXC_CCM_CCGR_CG_MASK << clk->enable_shift;
 	__raw_writel(reg, clk->enable_reg);
 
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	/* Handshake with IPU when certain clock rates are changed. */
 	reg = __raw_readl(&mxc_ccm->ccdr);
 	reg &= ~MXC_CCM_CCDR_IPU_HS_MASK;
@@ -185,13 +186,13 @@ static int clk_ipu_enable(struct clk *clk)
 
 static void clk_ipu_disable(struct clk *clk)
 {
-#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	u32 reg;
 
 	reg = __raw_readl(clk->enable_reg);
 	reg &= ~(MXC_CCM_CCGR_CG_MASK << clk->enable_shift);
 	__raw_writel(reg, clk->enable_reg);
 
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	/*
 	 * No handshake with IPU whe dividers are changed
 	 * as its not enabled.
@@ -211,9 +212,15 @@ static void clk_ipu_disable(struct clk *clk)
 static struct clk ipu_clk = {
 	.name = "ipu_clk",
 	.rate = CONFIG_IPUV3_CLK,
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	.enable_reg = (u32 *)(CCM_BASE_ADDR +
 		offsetof(struct mxc_ccm_reg, CCGR5)),
-	.enable_shift = MXC_CCM_CCGR5_CG5_OFFSET,
+	.enable_shift = MXC_CCM_CCGR5_IPU_OFFSET,
+#else
+	.enable_reg = (u32 *)(CCM_BASE_ADDR +
+		offsetof(struct mxc_ccm_reg, CCGR3)),
+	.enable_shift = MXC_CCM_CCGR3_IPU1_IPU_DI0_OFFSET,
+#endif
 	.enable = clk_ipu_enable,
 	.disable = clk_ipu_disable,
 	.usecount = 0,
@@ -392,11 +399,20 @@ void ipu_reset(void)
 {
 	u32 *reg;
 	u32 value;
+	int timeout = IPU_SW_RST_TOUT_USEC;
 
 	reg = (u32 *)SRC_BASE_ADDR;
 	value = __raw_readl(reg);
 	value = value | SW_IPU_RST;
 	__raw_writel(value, reg);
+
+	while (__raw_readl(reg) & SW_IPU_RST) {
+		udelay(1);
+		if (!(timeout--)) {
+			printf("ipu software reset timeout\n");
+			break;
+		}
+	};
 }
 
 /*

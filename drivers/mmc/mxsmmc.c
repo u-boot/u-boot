@@ -42,6 +42,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/dma.h>
+#include <bouncebuf.h>
 
 struct mxsmmc_priv {
 	int			id;
@@ -95,47 +96,40 @@ static int mxsmmc_send_cmd_pio(struct mxsmmc_priv *priv, struct mmc_data *data)
 static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 {
 	uint32_t data_count = data->blocksize * data->blocks;
-	uint32_t cache_data_count;
 	int dmach;
 	struct mxs_dma_desc *desc = priv->desc;
+	void *addr;
+	unsigned int flags;
+	struct bounce_buffer bbstate;
 
 	memset(desc, 0, sizeof(struct mxs_dma_desc));
 	desc->address = (dma_addr_t)desc;
 
-	if (data_count % ARCH_DMA_MINALIGN)
-		cache_data_count = roundup(data_count, ARCH_DMA_MINALIGN);
-	else
-		cache_data_count = data_count;
-
 	if (data->flags & MMC_DATA_READ) {
 		priv->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_WRITE;
-		priv->desc->cmd.address = (dma_addr_t)data->dest;
+		addr = data->dest;
+		flags = GEN_BB_WRITE;
 	} else {
 		priv->desc->cmd.data = MXS_DMA_DESC_COMMAND_DMA_READ;
-		priv->desc->cmd.address = (dma_addr_t)data->src;
-
-		/* Flush data to DRAM so DMA can pick them up */
-		flush_dcache_range((uint32_t)priv->desc->cmd.address,
-			(uint32_t)(priv->desc->cmd.address + cache_data_count));
+		addr = (void *)data->src;
+		flags = GEN_BB_READ;
 	}
 
-	/* Invalidate the area, so no writeback into the RAM races with DMA */
-	invalidate_dcache_range((uint32_t)priv->desc->cmd.address,
-			(uint32_t)(priv->desc->cmd.address + cache_data_count));
+	bounce_buffer_start(&bbstate, addr, data_count, flags);
+
+	priv->desc->cmd.address = (dma_addr_t)bbstate.bounce_buffer;
 
 	priv->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
 				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
 
 	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + priv->id;
 	mxs_dma_desc_append(dmach, priv->desc);
-	if (mxs_dma_go(dmach))
+	if (mxs_dma_go(dmach)) {
+		bounce_buffer_stop(&bbstate);
 		return COMM_ERR;
-
-	/* The data arrived into DRAM, invalidate cache over them */
-	if (data->flags & MMC_DATA_READ) {
-		invalidate_dcache_range((uint32_t)priv->desc->cmd.address,
-			(uint32_t)(priv->desc->cmd.address + cache_data_count));
 	}
+
+	bounce_buffer_stop(&bbstate);
 
 	return 0;
 }

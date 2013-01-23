@@ -60,7 +60,6 @@
 #define CONFIG_LCD_INFO		1	/* ... and some board info	*/
 #define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 
-#define CONFIG_SERIAL_MULTI	1
 #define CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/
 #define CONFIG_8xx_CONS_SCC2	1	/* Console is on SCC2		*/
 
@@ -495,6 +494,7 @@
  *-----------------------------------------------------------------------
  */
 
+#define CONFIG_IDE_PREINIT	1	/* Use preinit IDE hook */
 #define CONFIG_IDE_8xx_PCCARD	1	/* Use IDE with PC Card Adapter */
 
 #undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE	 not supported	*/

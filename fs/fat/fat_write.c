@@ -335,7 +335,7 @@ fill_dir_slot(fsdata *mydata, dir_entry **dentptr, const char *l_name)
 
 	/* Get short file name and checksum value */
 	strncpy(s_name, (*dentptr)->name, 16);
-	checksum = mkcksum(s_name);
+	checksum = mkcksum((*dentptr)->name, (*dentptr)->ext);
 
 	do {
 		memset(slotptr, 0x00, sizeof(dir_slot));

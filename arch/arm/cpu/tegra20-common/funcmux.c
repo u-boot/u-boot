@@ -25,6 +25,30 @@
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 
+/*
+ * The PINMUX macro is used to set up pinmux tables.
+ */
+#define PINMUX(grp, mux, pupd, tri)                   \
+	{PINGRP_##grp, PMUX_FUNC_##mux, PMUX_PULL_##pupd, PMUX_TRI_##tri}
+
+static const struct pingroup_config disp1_default[] = {
+	PINMUX(LDI,   DISPA,      NORMAL,    NORMAL),
+	PINMUX(LHP0,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LHP1,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LHP2,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LHS,   DISPA,      NORMAL,    NORMAL),
+	PINMUX(LM0,   RSVD4,      NORMAL,    NORMAL),
+	PINMUX(LPP,   DISPA,      NORMAL,    NORMAL),
+	PINMUX(LPW0,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LPW2,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LSC0,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LSPI,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LVP1,  DISPA,      NORMAL,    NORMAL),
+	PINMUX(LVS,   DISPA,      NORMAL,    NORMAL),
+	PINMUX(SLXD,  SPDIF,      NORMAL,    NORMAL),
+};
+
+
 int funcmux_select(enum periph_id id, int config)
 {
 	int bad_config = config != FUNCMUX_DEFAULT;
@@ -235,9 +259,39 @@ int funcmux_select(enum periph_id id, int config)
 		break;
 
 	case PERIPH_ID_NDFLASH:
-		if (config == FUNCMUX_NDFLASH_ATC) {
+		switch (config) {
+		case FUNCMUX_NDFLASH_ATC:
 			pinmux_set_func(PINGRP_ATC, PMUX_FUNC_NAND);
 			pinmux_tristate_disable(PINGRP_ATC);
+			break;
+		case FUNCMUX_NDFLASH_KBC_8_BIT:
+			pinmux_set_func(PINGRP_KBCA, PMUX_FUNC_NAND);
+			pinmux_set_func(PINGRP_KBCC, PMUX_FUNC_NAND);
+			pinmux_set_func(PINGRP_KBCD, PMUX_FUNC_NAND);
+			pinmux_set_func(PINGRP_KBCE, PMUX_FUNC_NAND);
+			pinmux_set_func(PINGRP_KBCF, PMUX_FUNC_NAND);
+
+			pinmux_tristate_disable(PINGRP_KBCA);
+			pinmux_tristate_disable(PINGRP_KBCC);
+			pinmux_tristate_disable(PINGRP_KBCD);
+			pinmux_tristate_disable(PINGRP_KBCE);
+			pinmux_tristate_disable(PINGRP_KBCF);
+
+			bad_config = 0;
+			break;
+		}
+		break;
+	case PERIPH_ID_DISP1:
+		if (config == FUNCMUX_DEFAULT) {
+			int i;
+
+			for (i = PINGRP_LD0; i <= PINGRP_LD17; i++) {
+				pinmux_set_func(i, PMUX_FUNC_DISPA);
+				pinmux_tristate_disable(i);
+				pinmux_set_pullupdown(i, PMUX_PULL_NORMAL);
+			}
+			pinmux_config_table(disp1_default,
+					    ARRAY_SIZE(disp1_default));
 		}
 		break;
 

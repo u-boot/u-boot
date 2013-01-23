@@ -93,8 +93,24 @@ static unsigned char kbd_ctrl_xlate[] = {
 	'\r', 0xff, 0xff
 };
 
+/*
+ * Scan key code to ANSI 3.64 escape sequence table.  This table is
+ * incomplete in that it does not include all possible extra keys.
+ */
+static struct {
+	int kbd_scan_code;
+	char *escape;
+} kbd_to_ansi364[] = {
+	{ KEY_UP, "\033[A"},
+	{ KEY_DOWN, "\033[B"},
+	{ KEY_RIGHT, "\033[C"},
+	{ KEY_LEFT, "\033[D"},
+};
 
-int input_queue_ascii(struct input_config *config, int ch)
+/* Maximum number of output characters that an ANSI sequence expands to */
+#define ANSI_CHAR_MAX	3
+
+static int input_queue_ascii(struct input_config *config, int ch)
 {
 	if (config->fifo_in + 1 == INPUT_BUFFER_LEN) {
 		if (!config->fifo_out)
@@ -289,24 +305,67 @@ static int input_check_keycodes(struct input_config *config,
 }
 
 /**
+ * Checks and converts a special key code into ANSI 3.64 escape sequence.
+ *
+ * @param config	Input state
+ * @param keycode	Key code to examine
+ * @param output_ch	Buffer to place output characters into. It should
+ *			be at least ANSI_CHAR_MAX bytes long, to allow for
+ *			an ANSI sequence.
+ * @param max_chars	Maximum number of characters to add to output_ch
+ * @return number of characters output, if the key was converted, otherwise 0.
+ *	This may be larger than max_chars, in which case the overflow
+ *	characters are not output.
+ */
+static int input_keycode_to_ansi364(struct input_config *config,
+		int keycode, char output_ch[], int max_chars)
+{
+	const char *escape;
+	int ch_count;
+	int i;
+
+	for (i = ch_count = 0; i < ARRAY_SIZE(kbd_to_ansi364); i++) {
+		if (keycode != kbd_to_ansi364[i].kbd_scan_code)
+			continue;
+		for (escape = kbd_to_ansi364[i].escape; *escape; escape++) {
+			if (ch_count < max_chars)
+				output_ch[ch_count] = *escape;
+			ch_count++;
+		}
+		return ch_count;
+	}
+
+	return 0;
+}
+
+/**
+ * Converts and queues a list of key codes in escaped ASCII string form
  * Convert a list of key codes into ASCII
  *
  * You must call input_check_keycodes() before this. It turns the keycode
- * list into a list of ASCII characters which are ready to send to the
- * input layer.
+ * list into a list of ASCII characters and sends them to the input layer.
  *
  * Characters which were seen last time do not generate fresh ASCII output.
+ * The output (calls to queue_ascii) may be longer than num_keycodes, if the
+ * keycode contains special keys that was encoded to longer escaped sequence.
  *
  * @param config	Input state
  * @param keycode	List of key codes to examine
  * @param num_keycodes	Number of key codes
+ * @param output_ch	Buffer to place output characters into. It should
+ *			be at last ANSI_CHAR_MAX * num_keycodes, to allow for
+ *			ANSI sequences.
+ * @param max_chars	Maximum number of characters to add to output_ch
  * @param same		Number of key codes which are the same
+ * @return number of characters written into output_ch, or -1 if we would
+ *	exceed max_chars chars.
  */
 static int input_keycodes_to_ascii(struct input_config *config,
-		int keycode[], int num_keycodes, char output_ch[], int same)
+		int keycode[], int num_keycodes, char output_ch[],
+		int max_chars, int same)
 {
 	struct input_key_xlate *table;
-	int ch_count;
+	int ch_count = 0;
 	int i;
 
 	table = &config->table[0];
@@ -321,17 +380,29 @@ static int input_keycodes_to_ascii(struct input_config *config,
 		}
 	}
 
-	/* now find normal keys */
-	for (i = ch_count = 0; i < num_keycodes; i++) {
+	/* Start conversion by looking for the first new keycode (by same). */
+	for (i = same; i < num_keycodes; i++) {
 		int key = keycode[i];
+		int ch = (key < table->num_entries) ? table->xlate[key] : 0xff;
 
-		if (key < table->num_entries && i >= same) {
-			int ch = table->xlate[key];
-
-			/* If a normal key with an ASCII value, add it! */
-			if (ch != 0xff)
-				output_ch[ch_count++] = (uchar)ch;
+		/*
+		 * For a normal key (with an ASCII value), add it; otherwise
+		 * translate special key to escape sequence if possible.
+		 */
+		if (ch != 0xff) {
+			if (ch_count < max_chars)
+				output_ch[ch_count] = (uchar)ch;
+			ch_count++;
+		} else {
+			ch_count += input_keycode_to_ansi364(config, key,
+						output_ch, max_chars);
 		}
+	}
+
+	if (ch_count > max_chars) {
+		debug("%s: Output char buffer overflow size=%d, need=%d\n",
+		      __func__, max_chars, ch_count);
+		return -1;
 	}
 
 	/* ok, so return keys */
@@ -341,7 +412,7 @@ static int input_keycodes_to_ascii(struct input_config *config,
 int input_send_keycodes(struct input_config *config,
 			int keycode[], int num_keycodes)
 {
-	char ch[num_keycodes];
+	char ch[num_keycodes * ANSI_CHAR_MAX];
 	int count, i, same = 0;
 	int is_repeat = 0;
 	unsigned delay_ms;
@@ -356,13 +427,14 @@ int input_send_keycodes(struct input_config *config,
 		 * insert another character if we later realise that we
 		 * have missed a repeat slot.
 		 */
-		is_repeat = (int)get_timer(config->next_repeat_ms) >= 0;
+		is_repeat = config->repeat_rate_ms &&
+			(int)get_timer(config->next_repeat_ms) >= 0;
 		if (!is_repeat)
 			return 0;
 	}
 
 	count = input_keycodes_to_ascii(config, keycode, num_keycodes,
-					ch, is_repeat ? 0 : same);
+					ch, sizeof(ch), is_repeat ? 0 : same);
 	for (i = 0; i < count; i++)
 		input_queue_ascii(config, ch[i]);
 	delay_ms = is_repeat ?
@@ -370,7 +442,8 @@ int input_send_keycodes(struct input_config *config,
 			config->repeat_delay_ms;
 
 	config->next_repeat_ms = get_timer(0) + delay_ms;
-	return 0;
+
+	return count;
 }
 
 int input_add_table(struct input_config *config, int left_keycode,
@@ -392,13 +465,17 @@ int input_add_table(struct input_config *config, int left_keycode,
 	return 0;
 }
 
-int input_init(struct input_config *config, int leds, int repeat_delay_ms,
+void input_set_delays(struct input_config *config, int repeat_delay_ms,
 	       int repeat_rate_ms)
+{
+	config->repeat_delay_ms = repeat_delay_ms;
+	config->repeat_rate_ms = repeat_rate_ms;
+}
+
+int input_init(struct input_config *config, int leds)
 {
 	memset(config, '\0', sizeof(*config));
 	config->leds = leds;
-	config->repeat_delay_ms = repeat_delay_ms;
-	config->repeat_rate_ms = repeat_rate_ms;
 	if (input_add_table(config, -1, -1,
 			kbd_plain_xlate, ARRAY_SIZE(kbd_plain_xlate)) ||
 		input_add_table(config, KEY_LEFTSHIFT, KEY_RIGHTSHIFT,

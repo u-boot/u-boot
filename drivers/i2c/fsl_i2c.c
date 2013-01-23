@@ -214,7 +214,7 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 	return speed;
 }
 
-unsigned int get_i2c_clock(int bus)
+static unsigned int get_i2c_clock(int bus)
 {
 	if (bus)
 		return gd->i2c2_clk;	/* I2C2 clock */

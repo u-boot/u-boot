@@ -30,9 +30,9 @@ ifndef CONFIG_SPL_BUILD
 COBJS-y += main.o
 COBJS-y += command.o
 COBJS-y += exports.o
+COBJS-y += hash.o
 COBJS-$(CONFIG_SYS_HUSH_PARSER) += hush.o
 COBJS-y += s_record.o
-COBJS-$(CONFIG_SERIAL_MULTI) += serial.o
 COBJS-y += xyzModem.o
 COBJS-y += cmd_disk.o
 
@@ -44,7 +44,10 @@ COBJS-y += cmd_nvedit.o
 COBJS-y += cmd_version.o
 
 # environment
+COBJS-y += env_attr.o
+COBJS-y += env_callback.o
 COBJS-y += env_common.o
+COBJS-y += env_flags.o
 COBJS-$(CONFIG_ENV_IS_IN_DATAFLASH) += env_dataflash.o
 COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += env_eeprom.o
 XCOBJS-$(CONFIG_ENV_IS_EMBEDDED) += env_embedded.o
@@ -69,11 +72,14 @@ COBJS-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
 COBJS-$(CONFIG_CMD_BEDBUG) += bedbug.o cmd_bedbug.o
 COBJS-$(CONFIG_CMD_BMP) += cmd_bmp.o
 COBJS-$(CONFIG_CMD_BOOTLDR) += cmd_bootldr.o
+COBJS-$(CONFIG_CMD_BOOTSTAGE) += cmd_bootstage.o
 COBJS-$(CONFIG_CMD_CACHE) += cmd_cache.o
+COBJS-$(CONFIG_CMD_CBFS) += cmd_cbfs.o
 COBJS-$(CONFIG_CMD_CONSOLE) += cmd_console.o
 COBJS-$(CONFIG_CMD_CPLBINFO) += cmd_cplbinfo.o
 COBJS-$(CONFIG_DATAFLASH_MMC_SELECT) += cmd_dataflash_mmc_mux.o
 COBJS-$(CONFIG_CMD_DATE) += cmd_date.o
+COBJS-$(CONFIG_CMD_SOUND) += cmd_sound.o
 ifdef CONFIG_4xx
 COBJS-$(CONFIG_CMD_SETGETDCR) += cmd_dcr.o
 endif
@@ -89,11 +95,6 @@ COBJS-$(CONFIG_CMD_ELF) += cmd_elf.o
 COBJS-$(CONFIG_SYS_HUSH_PARSER) += cmd_exit.o
 COBJS-$(CONFIG_CMD_EXT4) += cmd_ext4.o
 COBJS-$(CONFIG_CMD_EXT2) += cmd_ext2.o
-ifdef CONFIG_CMD_EXT4
-COBJS-y	+= cmd_ext_common.o
-else
-COBJS-$(CONFIG_CMD_EXT2) += cmd_ext_common.o
-endif
 COBJS-$(CONFIG_CMD_FAT) += cmd_fat.o
 COBJS-$(CONFIG_CMD_FDC)$(CONFIG_CMD_FDOS) += cmd_fdc.o
 COBJS-$(CONFIG_OF_LIBFDT) += cmd_fdt.o fdt_support.o
@@ -103,8 +104,11 @@ COBJS-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
 COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
 endif
+COBJS-$(CONFIG_CMD_FS_GENERIC) += cmd_fs.o
+COBJS-$(CONFIG_CMD_GETTIME) += cmd_gettime.o
 COBJS-$(CONFIG_CMD_GPIO) += cmd_gpio.o
 COBJS-$(CONFIG_CMD_I2C) += cmd_i2c.o
+COBJS-$(CONFIG_CMD_HASH) += cmd_hash.o
 COBJS-$(CONFIG_CMD_IDE) += cmd_ide.o
 COBJS-$(CONFIG_CMD_IMMAP) += cmd_immap.o
 COBJS-$(CONFIG_CMD_INI) += cmd_ini.o
@@ -120,6 +124,7 @@ COBJS-$(CONFIG_LOGBUFFER) += cmd_log.o
 COBJS-$(CONFIG_ID_EEPROM) += cmd_mac.o
 COBJS-$(CONFIG_CMD_MD5SUM) += cmd_md5sum.o
 COBJS-$(CONFIG_CMD_MEMORY) += cmd_mem.o
+COBJS-$(CONFIG_CMD_IO) += cmd_io.o
 COBJS-$(CONFIG_CMD_MFSL) += cmd_mfsl.o
 COBJS-$(CONFIG_MII) += miiphyutil.o
 COBJS-$(CONFIG_CMD_MII) += miiphyutil.o
@@ -144,6 +149,7 @@ endif
 COBJS-y += cmd_pcmcia.o
 COBJS-$(CONFIG_CMD_PORTIO) += cmd_portio.o
 COBJS-$(CONFIG_CMD_PXE) += cmd_pxe.o
+COBJS-$(CONFIG_CMD_READ) += cmd_read.o
 COBJS-$(CONFIG_CMD_REGINFO) += cmd_reginfo.o
 COBJS-$(CONFIG_CMD_REISER) += cmd_reiser.o
 COBJS-$(CONFIG_CMD_ROMFS) += cmd_romfs.o
@@ -188,6 +194,7 @@ COBJS-$(CONFIG_BOOTSTAGE) += bootstage.o
 COBJS-$(CONFIG_CONSOLE_MUX) += iomux.o
 COBJS-y += flash.o
 COBJS-$(CONFIG_CMD_KGDB) += kgdb.o kgdb_stubs.o
+COBJS-$(CONFIG_I2C_EDID) += edid.o
 COBJS-$(CONFIG_KALLSYMS) += kallsyms.o
 COBJS-$(CONFIG_LCD) += lcd.o
 COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
@@ -196,15 +203,23 @@ COBJS-$(CONFIG_MODEM_SUPPORT) += modem.o
 COBJS-$(CONFIG_UPDATE_TFTP) += update.o
 COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 COBJS-$(CONFIG_CMD_DFU) += cmd_dfu.o
+COBJS-$(CONFIG_CMD_GPT) += cmd_gpt.o
 endif
 
 ifdef CONFIG_SPL_BUILD
+COBJS-y += cmd_nvedit.o
+COBJS-y += env_common.o
+COBJS-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += cmd_nvedit.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_attr.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_callback.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_common.o
+COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_flags.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_nowhere.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
 endif
+COBJS-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 COBJS-y += console.o
 COBJS-y += dlmalloc.o
 COBJS-y += image.o
@@ -232,6 +247,10 @@ $(obj)env_embedded.o: $(src)env_embedded.c $(obj)../tools/envcrc
 
 $(obj)../tools/envcrc:
 	$(MAKE) -C ../tools
+
+# SEE README.arm-unaligned-accesses
+$(obj)hush.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+$(obj)fdt_support.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
 
 #########################################################################
 

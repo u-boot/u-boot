@@ -53,6 +53,7 @@
  */
 #define	CONFIG_PXA_SERIAL
 #define	CONFIG_STUART			1
+#define CONFIG_CONS_INDEX		2
 #define	CONFIG_BAUDRATE			115200
 
 /*

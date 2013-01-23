@@ -34,7 +34,7 @@ SECTIONS
 		net/libnet.o(.text*)
 		board/actux2/libactux2.o(.text*)
 		arch/arm/cpu/ixp/libixp.o(.text*)
-		drivers/serial/libserial.o(.text*)
+		drivers/input/libinput.o(.text*)
 
 		. = env_offset;
 		common/env_embedded.o(.ppcenv)
@@ -54,11 +54,11 @@ SECTIONS
 		*(.got)
 	}
 	. =.;
-	__u_boot_cmd_start =.;
-	.u_boot_cmd : {
-		*(.u_boot_cmd)
+
+	. = ALIGN(4);
+	.u_boot_list : {
+	#include <u-boot.lst>
 	}
-	__u_boot_cmd_end =.;
 
 	. = ALIGN (4);
 	.rel.dyn : {

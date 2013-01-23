@@ -43,7 +43,7 @@ static const char * const weekdays[] = {
 
 int mk_date (const char *, struct rtc_time *);
 
-int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct rtc_time tm;
 	int rcode = 0;

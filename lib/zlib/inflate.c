@@ -5,8 +5,7 @@
 local void fixedtables OF((struct inflate_state FAR *state));
 local int updatewindow OF((z_streamp strm, unsigned out));
 
-int ZEXPORT inflateReset(strm)
-z_streamp strm;
+int ZEXPORT inflateReset(z_streamp strm)
 {
     struct inflate_state FAR *state;
 
@@ -31,11 +30,8 @@ z_streamp strm;
     return Z_OK;
 }
 
-int ZEXPORT inflateInit2_(strm, windowBits, version, stream_size)
-z_streamp strm;
-int windowBits;
-const char *version;
-int stream_size;
+int ZEXPORT inflateInit2_(z_streamp strm, int windowBits, const char *version,
+			  int stream_size)
 {
     struct inflate_state FAR *state;
 
@@ -74,16 +70,12 @@ int stream_size;
     return inflateReset(strm);
 }
 
-int ZEXPORT inflateInit_(strm, version, stream_size)
-z_streamp strm;
-const char *version;
-int stream_size;
+int ZEXPORT inflateInit_(z_streamp strm, const char *version, int stream_size)
 {
     return inflateInit2_(strm, DEF_WBITS, version, stream_size);
 }
 
-local void fixedtables(state)
-struct inflate_state FAR *state;
+local void fixedtables(struct inflate_state FAR *state)
 {
     state->lencode = lenfix;
     state->lenbits = 9;
@@ -105,9 +97,7 @@ struct inflate_state FAR *state;
    output will fall in the output data, making match copies simpler and faster.
    The advantage may be dependent on the size of the processor's data caches.
  */
-local int updatewindow(strm, out)
-z_streamp strm;
-unsigned out;
+local int updatewindow(z_streamp strm, unsigned out)
 {
     struct inflate_state FAR *state;
     unsigned copy, dist;
@@ -335,9 +325,7 @@ unsigned out;
    when flush is set to Z_FINISH, inflate() cannot return Z_OK.  Instead it
    will return Z_BUF_ERROR if it has not reached the end of the stream.
  */
-int ZEXPORT inflate(strm, flush)
-z_streamp strm;
-int flush;
+int ZEXPORT inflate(z_streamp strm, int flush)
 {
     struct inflate_state FAR *state;
     unsigned char FAR *next;    /* next input */
@@ -938,8 +926,7 @@ int flush;
     return ret;
 }
 
-int ZEXPORT inflateEnd(strm)
-z_streamp strm;
+int ZEXPORT inflateEnd(z_streamp strm)
 {
     struct inflate_state FAR *state;
     if (strm == Z_NULL || strm->state == Z_NULL || strm->zfree == (free_func)0)

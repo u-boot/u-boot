@@ -39,7 +39,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define REBOOT_DO_POST	0x00000001
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
-extern env_t *env_ptr;
 
 ulong flash_get_size(ulong base, int banknum);
 void env_crc_update(void);

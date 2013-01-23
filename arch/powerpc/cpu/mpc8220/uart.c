@@ -29,13 +29,15 @@
 
 #include <common.h>
 #include <mpc8220.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define PSC_BASE   MMAP_PSC1
 
 #if defined(CONFIG_PSC_CONSOLE)
-int serial_init (void)
+static int mpc8220_serial_init(void)
 {
 	volatile psc8220_t *psc = (psc8220_t *) PSC_BASE;
 	u32 counter;
@@ -69,7 +71,7 @@ int serial_init (void)
 	return (0);
 }
 
-void serial_putc (const char c)
+static void mpc8220_serial_putc(const char c)
 {
 	volatile psc8220_t *psc = (psc8220_t *) PSC_BASE;
 
@@ -82,14 +84,7 @@ void serial_putc (const char c)
 	psc->xmitbuf[0] = c;
 }
 
-void serial_puts (const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
-int serial_getc (void)
+static int mpc8220_serial_getc(void)
 {
 	volatile psc8220_t *psc = (psc8220_t *) PSC_BASE;
 
@@ -98,14 +93,14 @@ int serial_getc (void)
 	return psc->xmitbuf[2];
 }
 
-int serial_tstc (void)
+static int mpc8220_serial_tstc(void)
 {
 	volatile psc8220_t *psc = (psc8220_t *) PSC_BASE;
 
 	return (psc->sr_csr & PSC_SR_RXRDY);
 }
 
-void serial_setbrg (void)
+static void mpc8220_serial_setbrg(void)
 {
 	volatile psc8220_t *psc = (psc8220_t *) PSC_BASE;
 	u32 counter;
@@ -122,5 +117,26 @@ void serial_setbrg (void)
 	psc->cr = PSC_CR_RST_TX_CMD;
 
 	psc->cr = PSC_CR_RX_ENABLE | PSC_CR_TX_ENABLE;
+}
+
+static struct serial_device mpc8220_serial_drv = {
+	.name	= "mpc8220_serial",
+	.start	= mpc8220_serial_init,
+	.stop	= NULL,
+	.setbrg	= mpc8220_serial_setbrg,
+	.putc	= mpc8220_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= mpc8220_serial_getc,
+	.tstc	= mpc8220_serial_tstc,
+};
+
+void mpc8220_serial_initialize(void)
+{
+	serial_register(&mpc8220_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &mpc8220_serial_drv;
 }
 #endif /* CONFIG_PSC_CONSOLE */

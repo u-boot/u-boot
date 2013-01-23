@@ -381,49 +381,6 @@ static void scc_init (int scc_index)
 	immr->im_cpm.cp_scc[scc_index].scc_psmr = SCC_PSMR_ENCRC |
 			SCC_PSMR_NIB22 | SCC_PSMR_LPB;
 
-#if 0
-	/*
-	 * Configure Ethernet TENA Signal
-	 */
-
-#if (defined(PC_ENET_TENA) && !defined(PB_ENET_TENA))
-	immr->im_ioport.iop_pcpar |= PC_ENET_TENA;
-	immr->im_ioport.iop_pcdir &= ~PC_ENET_TENA;
-#elif (defined(PB_ENET_TENA) && !defined(PC_ENET_TENA))
-	immr->im_cpm.cp_pbpar |= PB_ENET_TENA;
-	immr->im_cpm.cp_pbdir |= PB_ENET_TENA;
-#else
-#error Configuration Error: exactly ONE of PB_ENET_TENA, PC_ENET_TENA must be defined
-#endif
-
-#if defined(CONFIG_ADS) && defined(CONFIG_MPC860)
-	/*
-	 * Port C is used to control the PHY,MC68160.
-	 */
-	immr->im_ioport.iop_pcdir |=
-			(PC_ENET_ETHLOOP | PC_ENET_TPFLDL | PC_ENET_TPSQEL);
-
-	immr->im_ioport.iop_pcdat |= PC_ENET_TPFLDL;
-	immr->im_ioport.iop_pcdat &= ~(PC_ENET_ETHLOOP | PC_ENET_TPSQEL);
-	*((uint *) BCSR1) &= ~BCSR1_ETHEN;
-#endif /* MPC860ADS */
-
-#if defined(CONFIG_AMX860)
-	/*
-	 * Port B is used to control the PHY,MC68160.
-	 */
-	immr->im_cpm.cp_pbdir |=
-			(PB_ENET_ETHLOOP | PB_ENET_TPFLDL | PB_ENET_TPSQEL);
-
-	immr->im_cpm.cp_pbdat |= PB_ENET_TPFLDL;
-	immr->im_cpm.cp_pbdat &= ~(PB_ENET_ETHLOOP | PB_ENET_TPSQEL);
-
-	immr->im_ioport.iop_pddir |= PD_ENET_ETH_EN;
-	immr->im_ioport.iop_pddat &= ~PD_ENET_ETH_EN;
-#endif /* AMX860 */
-
-#endif /* 0 */
-
 #ifdef CONFIG_RPXCLASSIC
 	*((uchar *) BCSR0) &= ~BCSR0_ETHLPBK;
 	*((uchar *) BCSR0) |= (BCSR0_ETHEN | BCSR0_COLTEST | BCSR0_FULLDPLX);
@@ -449,7 +406,7 @@ static void scc_init (int scc_index)
 	 */
 #if defined (CONFIG_FADS)
 	udelay (10000);				/* wait 10 ms */
-#elif defined (CONFIG_AMX860) || defined(CONFIG_RPXCLASSIC)
+#elif defined(CONFIG_RPXCLASSIC)
 	udelay (100000);			/* wait 100 ms */
 #endif
 }

@@ -39,6 +39,8 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	rcm_t *rcm = (rcm_t *) (MMAP_RCM);
 	udelay(1000);
+	out_8(&rcm->rcr, RCM_RCR_FRCRSTOUT);
+	udelay(10000);
 	setbits_8(&rcm->rcr, RCM_RCR_SOFTRST);
 
 	/* we don't return! */
@@ -73,6 +75,21 @@ int checkcpu(void)
 		break;
 	case 0x4f:
 		id = 54450;
+		break;
+	case 0x9F:
+		id = 54410;
+		break;
+	case 0xA0:
+		id = 54415;
+		break;
+	case 0xA1:
+		id = 54416;
+		break;
+	case 0xA2:
+		id = 54417;
+		break;
+	case 0xA3:
+		id = 54418;
 		break;
 	}
 

@@ -53,6 +53,10 @@ SECTIONS
 	}
 	_edata  =  .;
 
+	.u_boot_list : {
+		#include <u-boot.lst>
+	}
+
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;

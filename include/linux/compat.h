@@ -1,9 +1,6 @@
 #ifndef _LINUX_COMPAT_H_
 #define _LINUX_COMPAT_H_
 
-#define __user
-#define __iomem
-
 #define ndelay(x)	udelay(1)
 
 #define printk	printf

@@ -163,7 +163,7 @@ static int init_baudrate(void)
 
 /***********************************************************************/
 
-void __board_add_ram_info(int use_default)
+static void __board_add_ram_info(int use_default)
 {
 	/* please define platform specific board_add_ram_info() */
 }
@@ -171,7 +171,7 @@ void __board_add_ram_info(int use_default)
 void board_add_ram_info(int)
 	__attribute__ ((weak, alias("__board_add_ram_info")));
 
-int __board_flash_wp_on(void)
+static int __board_flash_wp_on(void)
 {
 	/*
 	 * Most flashes can't be detected when write protection is enabled,
@@ -184,7 +184,7 @@ int __board_flash_wp_on(void)
 int board_flash_wp_on(void)
 	__attribute__ ((weak, alias("__board_flash_wp_on")));
 
-void __cpu_secondary_init_r(void)
+static void __cpu_secondary_init_r(void)
 {
 }
 
@@ -262,7 +262,7 @@ static int init_func_watchdog_reset(void)
  * Initialization sequence
  */
 
-init_fnc_t *init_sequence[] = {
+static init_fnc_t *init_sequence[] = {
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	probecpu,
 #endif
@@ -345,7 +345,7 @@ ulong get_effective_memsize(void)
 #endif
 }
 
-int __fixup_cpu(void)
+static int __fixup_cpu(void)
 {
 	return 0;
 }
@@ -402,7 +402,7 @@ void board_init_f(ulong bootflag)
 
 #ifdef CONFIG_POST
 	post_bootmode_init();
-	post_run(NULL, POST_ROM | post_bootmode_get(0));
+	post_run(NULL, POST_ROM | post_bootmode_get(NULL));
 #endif
 
 	WATCHDOG_RESET();
@@ -440,8 +440,8 @@ void board_init_f(ulong bootflag)
 	 * We need to make sure the location we intend to put secondary core
 	 * boot code is reserved and not used by any part of u-boot
 	 */
-	if (addr > determine_mp_bootpg()) {
-		addr = determine_mp_bootpg();
+	if (addr > determine_mp_bootpg(NULL)) {
+		addr = determine_mp_bootpg(NULL);
 		debug("Reserving MP boot page to %08lx\n", addr);
 	}
 #endif
@@ -672,9 +672,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	gd->env_addr += dest_addr - CONFIG_SYS_MONITOR_BASE;
 #endif
 
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
-#endif
 
 	debug("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
@@ -741,16 +739,13 @@ void board_init_r(gd_t *id, ulong dest_addr)
 		flash_size = 0;
 	} else if ((flash_size = flash_init()) > 0) {
 #ifdef CONFIG_SYS_FLASH_CHECKSUM
-		char *s;
-
 		print_size(flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
 		 *
 		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 		 */
-		s = getenv("flashchecksum");
-		if (s && (*s == 'y')) {
+		if (getenv_yesno("flashchecksum") == 1) {
 			printf("  CRC: %08X",
 			       crc32(0,
 				     (const unsigned char *)
@@ -843,9 +838,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	 * "i2cfast" into account
 	 */
 	{
-		char *s = getenv("i2cfast");
-
-		if (s && ((*s == 'y') || (*s == 'Y'))) {
+		if (getenv_yesno("i2cfast") == 1) {
 			bd->bi_iic_fast[0] = 1;
 			bd->bi_iic_fast[1] = 1;
 		}

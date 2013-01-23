@@ -54,7 +54,6 @@
 #endif
 
 #if defined(CONFIG_ZYNQ_SERIAL_UART0) || defined(CONFIG_ZYNQ_SERIAL_UART1)
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_ZYNQ_SERIAL
 #endif
 

@@ -40,6 +40,7 @@
 #include <linux/stat.h>
 #include <linux/time.h>
 #include <asm/byteorder.h>
+#include <div64.h>
 #include "ext4_common.h"
 
 int ext4fs_symlinknest;
@@ -196,7 +197,7 @@ int ext4fs_read(char *buf, unsigned len)
 	return ext4fs_read_file(ext4fs_file, 0, len, buf);
 }
 
-#if defined(CONFIG_CMD_EXT4_WRITE)
+#if defined(CONFIG_EXT4_WRITE)
 static void ext4fs_update(void)
 {
 	short i;
@@ -930,7 +931,6 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 	int previous_block_number = -1;
 	int delayed_start = 0;
 	int delayed_extent = 0;
-	int delayed_skipfirst = 0;
 	int delayed_next = 0;
 	char *delayed_buf = NULL;
 
@@ -963,7 +963,6 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 					previous_block_number = blknr;
 					delayed_start = blknr;
 					delayed_extent = blockend;
-					delayed_skipfirst = skipfirst;
 					delayed_buf = buf;
 					delayed_next = blknr +
 					    (blockend >> SECTOR_BITS);
@@ -972,7 +971,6 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 				previous_block_number = blknr;
 				delayed_start = blknr;
 				delayed_extent = blockend;
-				delayed_skipfirst = skipfirst;
 				delayed_buf = buf;
 				delayed_next = blknr +
 				    (blockend >> SECTOR_BITS);
@@ -1013,8 +1011,6 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	unsigned int blks_reqd_for_file;
 	unsigned int blocks_remaining;
 	int existing_file_inodeno;
-	char filename[256];
-
 	char *temp_ptr = NULL;
 	long int itable_blkno;
 	long int parent_itable_blkno;
@@ -1023,6 +1019,9 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	unsigned int inodes_per_block;
 	unsigned int ibmap_idx;
 	struct ext_filesystem *fs = get_fs();
+	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
+	memset(filename, 0x00, sizeof(filename));
+
 	g_parent_inode = zalloc(sizeof(struct ext2_inode));
 	if (!g_parent_inode)
 		goto fail;
@@ -1051,8 +1050,8 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	}
 	/* calucalate how many blocks required */
 	bytes_reqd_for_file = sizebytes;
-	blks_reqd_for_file = bytes_reqd_for_file / fs->blksz;
-	if (bytes_reqd_for_file % fs->blksz != 0) {
+	blks_reqd_for_file = lldiv(bytes_reqd_for_file, fs->blksz);
+	if (do_div(bytes_reqd_for_file, fs->blksz) != 0) {
 		blks_reqd_for_file++;
 		debug("total bytes for a file %u\n", blks_reqd_for_file);
 	}

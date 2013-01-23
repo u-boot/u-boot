@@ -36,16 +36,9 @@
 /*------------------------------------------------------------------------
  * Access to control regs
  *----------------------------------------------------------------------*/
-#define _str_(x) #x
 
-#define rdctl(reg)\
-	({unsigned int val;\
-	asm volatile( "rdctl %0, ctl" _str_(reg)\
-		: "=r" (val) ); val;})
-
-#define wrctl(reg,val)\
-	asm volatile( "wrctl ctl" _str_(reg) ",%0"\
-		: : "r" (val))
+#define rdctl(reg) __builtin_rdctl(reg)
+#define wrctl(reg, val) __builtin_wrctl(reg, val)
 
 /*------------------------------------------------------------------------
  * Control reg bit masks

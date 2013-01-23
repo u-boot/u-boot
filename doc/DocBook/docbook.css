@@ -1,0 +1,16 @@
+body {
+	font-family:		sans-serif;
+}
+
+.programlisting {
+	font-family:		monospace;
+	font-size:		1em;
+	display:		block;
+	padding:		10px;
+	border:			1px solid #aaa;
+	color:			#000;
+	background-color:	#eee;
+	overflow:		auto;
+	margin:			1em 0em;
+	border-radius:		6px;
+}

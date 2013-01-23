@@ -68,17 +68,6 @@ struct cspi_regs {
 	u32 test;
 };
 
-/* Watchdog Timer (WDOG) registers */
-#define WDOG_ENABLE	(1 << 2)
-#define WDOG_WT_SHIFT	8
-#define WDOG_WDZST	(1 << 0)
-
-struct wdog_regs {
-	u16 wcr;	/* Control */
-	u16 wsr;	/* Service */
-	u16 wrsr;	/* Reset Status */
-};
-
 /* IIM Control Registers */
 struct iim_regs {
 	u32 iim_stat;
@@ -569,7 +558,8 @@ struct esdc_regs {
 
 #define MX31_IIM_BASE_ADDR	0x5001C000
 
-#define PDR0_CSI_PODF(x)	(((x) & 0x1ff) << 23)
+#define PDR0_CSI_PODF(x)	(((x) & 0x3f) << 26)
+#define PDR0_CSI_PRDF(x)	(((x) & 0x7) << 23)
 #define PDR0_PER_PODF(x)	(((x) & 0x1f) << 16)
 #define PDR0_HSP_PODF(x)	(((x) & 0x7) << 11)
 #define PDR0_NFC_PODF(x)	(((x) & 0x7) << 8)
@@ -577,12 +567,23 @@ struct esdc_regs {
 #define PDR0_MAX_PODF(x)	(((x) & 0x7) << 3)
 #define PDR0_MCU_PODF(x)	((x) & 0x7)
 
+#define PDR1_USB_PRDF(x)	(((x) & 0x3) << 30)
+#define PDR1_USB_PODF(x)	(((x) & 0x7) << 27)
+#define PDR1_FIRI_PRDF(x)	(((x) & 0x7) << 24)
+#define PDR1_FIRI_PODF(x)	(((x) & 0x3f) << 18)
+#define PDR1_SSI2_PRDF(x)	(((x) & 0x7) << 15)
+#define PDR1_SSI2_PODF(x)	(((x) & 0x3f) << 9)
+#define PDR1_SSI1_PRDF(x)	(((x) & 0x7) << 6)
+#define PDR1_SSI1_PODF(x)	((x) & 0x3f)
+
+#define PLL_BRMO(x)		(((x) & 0x1) << 31)
 #define PLL_PD(x)		(((x) & 0xf) << 26)
 #define PLL_MFD(x)		(((x) & 0x3ff) << 16)
 #define PLL_MFI(x)		(((x) & 0xf) << 10)
 #define PLL_MFN(x)		(((x) & 0x3ff) << 0)
 
-#define GET_PDR0_CSI_PODF(x)	(((x) >> 23) & 0x1ff)
+#define GET_PDR0_CSI_PODF(x)	(((x) >> 26) & 0x3f)
+#define GET_PDR0_CSI_PRDF(x)	(((x) >> 23) & 0x7)
 #define GET_PDR0_PER_PODF(x)	(((x) >> 16) & 0x1f)
 #define GET_PDR0_HSP_PODF(x)	(((x) >> 11) & 0x7)
 #define GET_PDR0_NFC_PODF(x)	(((x) >> 8) & 0x7)
@@ -675,7 +676,7 @@ struct esdc_regs {
 
 #define ARM_PPMRR		0x40000015
 
-#define WDOG_BASE		0x53FDC000
+#define WDOG1_BASE_ADDR		0x53FDC000
 
 /*
  * GPIO
@@ -883,32 +884,7 @@ struct esdc_regs {
 
 #define MX31_AIPS1_BASE_ADDR	0x43f00000
 #define IMX_USB_BASE		(MX31_AIPS1_BASE_ADDR + 0x88000)
-
-/* USB portsc */
-/* values for portsc field */
-#define MXC_EHCI_PHY_LOW_POWER_SUSPEND	(1 << 23)
-#define MXC_EHCI_FORCE_FS		(1 << 24)
-#define MXC_EHCI_UTMI_8BIT		(0 << 28)
-#define MXC_EHCI_UTMI_16BIT		(1 << 28)
-#define MXC_EHCI_SERIAL			(1 << 29)
-#define MXC_EHCI_MODE_UTMI		(0 << 30)
-#define MXC_EHCI_MODE_PHILIPS		(1 << 30)
-#define MXC_EHCI_MODE_ULPI		(2 << 30)
-#define MXC_EHCI_MODE_SERIAL		(3 << 30)
-
-/* values for flags field */
-#define MXC_EHCI_INTERFACE_DIFF_UNI	(0 << 0)
-#define MXC_EHCI_INTERFACE_DIFF_BI	(1 << 0)
-#define MXC_EHCI_INTERFACE_SINGLE_UNI	(2 << 0)
-#define MXC_EHCI_INTERFACE_SINGLE_BI	(3 << 0)
-#define MXC_EHCI_INTERFACE_MASK		(0xf)
-
-#define MXC_EHCI_POWER_PINS_ENABLED	(1 << 5)
-#define MXC_EHCI_TTL_ENABLED		(1 << 6)
-
-#define MXC_EHCI_INTERNAL_PHY		(1 << 7)
-#define MXC_EHCI_IPPUE_DOWN		(1 << 8)
-#define MXC_EHCI_IPPUE_UP		(1 << 9)
+#define IMX_USB_PORT_OFFSET	0x200
 
 /*
  * CSPI register definitions

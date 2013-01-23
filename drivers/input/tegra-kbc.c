@@ -30,7 +30,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
-#include <asm/arch/timer.h>
+#include <asm/arch-tegra/timer.h>
 #include <linux/input.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -63,6 +63,7 @@ static struct keyb {
 	struct kbc_tegra *kbc;		/* tegra keyboard controller */
 	unsigned char inited;		/* 1 if keyboard has been inited */
 	unsigned char first_scan;	/* 1 if this is our first key scan */
+	unsigned char created;		/* 1 if driver has been created */
 
 	/*
 	 * After init we must wait a short time before polling the keyboard.
@@ -306,6 +307,10 @@ static void tegra_kbc_open(void)
  */
 static int init_tegra_keyboard(void)
 {
+	/* check if already created */
+	if (config.created)
+		return 0;
+
 #ifdef CONFIG_OF_CONTROL
 	int	node;
 
@@ -321,9 +326,11 @@ static int init_tegra_keyboard(void)
 		debug("%s: No keyboard register found\n", __func__);
 		return -1;
 	}
+	input_set_delays(&config.input, KBC_REPEAT_DELAY_MS,
+			KBC_REPEAT_RATE_MS);
 
 	/* Decode the keyboard matrix information (16 rows, 8 columns) */
-	if (key_matrix_init(&config.matrix, 16, 8)) {
+	if (key_matrix_init(&config.matrix, 16, 8, 1)) {
 		debug("%s: Could not init key matrix\n", __func__);
 		return -1;
 	}
@@ -347,6 +354,7 @@ static int init_tegra_keyboard(void)
 	config_kbc_gpio(config.kbc);
 
 	tegra_kbc_open();
+	config.created = 1;
 	debug("%s: Tegra keyboard ready\n", __func__);
 
 	return 0;
@@ -355,9 +363,10 @@ static int init_tegra_keyboard(void)
 int drv_keyboard_init(void)
 {
 	struct stdio_dev dev;
+	char *stdinname = getenv("stdin");
+	int error;
 
-	if (input_init(&config.input, 0, KBC_REPEAT_DELAY_MS,
-			KBC_REPEAT_RATE_MS)) {
+	if (input_init(&config.input, 0)) {
 		debug("%s: Cannot set up input\n", __func__);
 		return -1;
 	}
@@ -371,5 +380,13 @@ int drv_keyboard_init(void)
 	dev.start = init_tegra_keyboard;
 
 	/* Register the device. init_tegra_keyboard() will be called soon */
-	return input_stdio_register(&dev);
+	error = input_stdio_register(&dev);
+	if (error)
+		return error;
+#ifdef CONFIG_CONSOLE_MUX
+	error = iomux_doenv(stdin, stdinname);
+	if (error)
+		return error;
+#endif
+	return 0;
 }

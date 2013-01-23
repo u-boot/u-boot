@@ -39,7 +39,7 @@ int timer_init(void)
 	 * Timer 0 is used to increment system_tick 1000 times/sec
 	 * Timer 1 was used for DRAM refresh in early PC's
 	 * Timer 2 is used to drive the speaker
-	 * (to stasrt a beep: write 3 to port 0x61,
+	 * (to start a beep: write 3 to port 0x61,
 	 * to stop it again: write 0)
 	 */
 	outb(PIT_CMD_CTR0 | PIT_CMD_BOTH | PIT_CMD_MODE2,

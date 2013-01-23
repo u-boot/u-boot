@@ -210,14 +210,14 @@ static int sl811_hc_reset(void)
 	return 1;
 }
 
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller)
 {
 	root_hub_devnum = 0;
 	sl811_hc_reset();
 	return 0;
 }
 
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	sl811_hc_reset();
 	return 0;
@@ -234,7 +234,7 @@ static int sl811_send_packet(struct usb_device *dev, unsigned long pipe, __u8 *b
 	__u16 status = 0;
 	int err = 0, time_start = get_timer(0);
 	int need_preamble = !(rh_status.wPortStatus & USB_PORT_STAT_LOW_SPEED) &&
-		usb_pipeslow(pipe);
+		(dev->speed == USB_SPEED_LOW);
 
 	if (len > 239)
 		return -1;

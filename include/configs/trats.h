@@ -69,7 +69,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
 
 /* select serial console configuration */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_SERIAL2			/* use SERIAL 2 */
 #define CONFIG_BAUDRATE			115200
 
@@ -99,6 +98,8 @@
 #undef CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_DFU
+#define CONFIG_CMD_GPT
+#define CONFIG_CMD_SETEXPR
 
 /* FAT */
 #define CONFIG_CMD_FAT
@@ -123,10 +124,29 @@
 #define CONFIG_BOOTBLOCK		"10"
 #define CONFIG_ENV_COMMON_BOOT		"${console} ${meminfo}"
 
+/* Tizen - partitions definitions */
+#define PARTS_CSA		"csa-mmc"
+#define PARTS_BOOTLOADER	"u-boot"
+#define PARTS_BOOT		"boot"
+#define PARTS_ROOT		"platform"
+#define PARTS_DATA		"data"
+#define PARTS_CSC		"csc"
+#define PARTS_UMS		"ums"
+
+#define PARTS_DEFAULT \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name="PARTS_CSA",size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
+	"name="PARTS_BOOTLOADER",size=60MiB," \
+		"uuid=${uuid_gpt_"PARTS_BOOTLOADER"};" \
+	"name="PARTS_BOOT",size=100MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
+	"name="PARTS_ROOT",size=1GiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
+	"name="PARTS_DATA",size=3GiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
+	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
+	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
+
 #define CONFIG_DFU_ALT \
-	"dfu_alt_info=" \
 	"u-boot mmc 80 400;" \
-	"uImage fat 0 2\0" \
+	"uImage ext4 0 2\0" \
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
@@ -145,20 +165,20 @@
 		"mmc read 0 0x42100000 0x80 0x200; run updatebackup\0" \
 	"lpj=lpj=3981312\0" \
 	"nfsboot=" \
-		"set bootargs root=/dev/nfs rw " \
+		"setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=${nfsroot},nolock,tcp " \
 		"ip=${ipaddr}:${serverip}:${gatewayip}:" \
 		"${netmask}:generic:usb0:off " CONFIG_ENV_COMMON_BOOT \
 		"; run bootk\0" \
 	"ramfsboot=" \
-		"set bootargs root=/dev/ram0 rw rootfstype=ext2 " \
+		"setenv bootargs root=/dev/ram0 rw rootfstype=ext2 " \
 		"${console} ${meminfo} " \
 		"initrd=0x43000000,8M ramdisk=8192\0" \
 	"mmcboot=" \
-		"set bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
+		"setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo}; " \
 		"run loaduimage; bootm 0x40007FC0\0" \
-	"bootchart=set opts init=/sbin/bootchartd; run bootcmd\0" \
+	"bootchart=setenv opts init=/sbin/bootchartd; run bootcmd\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"mmcoops=mmc read 0 0x40000000 0x40 8; md 0x40000000 0x400\0" \
 	"verify=n\0" \
@@ -167,12 +187,31 @@
 	"meminfo=crashkernel=32M@0x50000000\0" \
 	"nfsroot=/nfsroot/arm\0" \
 	"bootblock=" CONFIG_BOOTBLOCK "\0" \
-	"loaduimage=fatload mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
+	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
 	"mmcdev=0\0" \
 	"mmcbootpart=2\0" \
-	"mmcrootpart=3\0" \
+	"mmcrootpart=5\0" \
 	"opts=always_resume=1\0" \
-	CONFIG_DFU_ALT
+	"partitions=" PARTS_DEFAULT \
+	"dfu_alt_info=" CONFIG_DFU_ALT \
+	"spladdr=0x40000100\0" \
+	"splsize=0x200\0" \
+	"splfile=falcon.bin\0" \
+	"spl_export=" \
+		   "setexpr spl_imgsize ${splsize} + 8 ;" \
+		   "setexpr spl_imgaddr ${spladdr} - 8 ;" \
+		   "setexpr spl_addr_tmp ${spladdr} - 4 ;" \
+		   "mw.b ${spl_imgaddr} 0x00 ${spl_imgsize};run loaduimage;" \
+		   "setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
+		   "${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo};" \
+		   "spl export atags 0x40007FC0;" \
+		   "crc32 ${spladdr} ${splsize} ${spl_imgaddr};" \
+		   "mw.l ${spl_addr_tmp} ${splsize};" \
+		   "ext4write mmc ${mmcdev}:${mmcbootpart}" \
+		   " /${splfile} ${spl_imgaddr} ${spl_imgsize};" \
+		   "setenv spl_imgsize;" \
+		   "setenv spl_imgaddr;" \
+		   "setenv spl_addr_tmp;\0"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
@@ -190,12 +229,17 @@
 
 #define CONFIG_SYS_HZ			1000
 
-/* TRATS has 2 banks of DRAM */
-#define CONFIG_NR_DRAM_BANKS	2
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* LDDDR2 DMC 0 */
-#define PHYS_SDRAM_1_SIZE	(512 << 20)		/* 512 MB in CS 0 */
-#define PHYS_SDRAM_2		0x50000000		/* LPDDR2 DMC 1 */
-#define PHYS_SDRAM_2_SIZE	(512 << 20)		/* 512 MB in CS 0 */
+/* TRATS has 4 banks of DRAM */
+#define CONFIG_NR_DRAM_BANKS	4
+#define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
+#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
+#define PHYS_SDRAM_1_SIZE	SDRAM_BANK_SIZE
+#define PHYS_SDRAM_2		(CONFIG_SYS_SDRAM_BASE + SDRAM_BANK_SIZE)
+#define PHYS_SDRAM_2_SIZE	SDRAM_BANK_SIZE
+#define PHYS_SDRAM_3		(CONFIG_SYS_SDRAM_BASE + (2 * SDRAM_BANK_SIZE))
+#define PHYS_SDRAM_3_SIZE	SDRAM_BANK_SIZE
+#define PHYS_SDRAM_4		(CONFIG_SYS_SDRAM_BASE + (3 * SDRAM_BANK_SIZE))
+#define PHYS_SDRAM_4_SIZE	SDRAM_BANK_SIZE
 
 #define CONFIG_SYS_MEM_TOP_HIDE		(1 << 20)	/* ram console */
 
@@ -208,10 +252,21 @@
 #define CONFIG_ENV_OFFSET		((32 - 4) << 10) /* 32KiB - 4KiB */
 
 #define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+
+/* EXT4 */
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
+/* Falcon mode definitions */
+#define CONFIG_CMD_SPL
+#define CONFIG_SYS_SPL_ARGS_ADDR        PHYS_SDRAM_1 + 0x100
+
+/* GPT */
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_CACHELINE_SIZE       32
-
 
 #define CONFIG_SOFT_I2C
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
@@ -235,10 +290,16 @@
 #define CONFIG_SOFT_I2C_GPIO_SDA get_multi_sda_pin()
 #define I2C_INIT multi_i2c_init()
 
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX8997
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX8997
 
+#define CONFIG_POWER_FG
+#define CONFIG_POWER_FG_MAX17042
+#define CONFIG_POWER_MUIC
+#define CONFIG_POWER_MUIC_MAX8997
+#define CONFIG_POWER_BATTERY
+#define CONFIG_POWER_BATTERY_TRATS
 #define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_S3C_UDC_OTG
 #define CONFIG_USB_GADGET_DUALSPEED

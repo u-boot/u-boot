@@ -55,7 +55,7 @@ void init_tlbs(void)
 	return ;
 }
 
-#ifndef CONFIG_NAND_SPL
+#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
 void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 		       phys_addr_t *rpn)
 {
@@ -249,7 +249,7 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 {
 	int i;
 	unsigned int tlb_size;
-	unsigned int wimge = 0;
+	unsigned int wimge = MAS2_M;
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
 	unsigned int max_cam;
 	u64 size, memsize = (u64)memsize_in_meg << 20;
@@ -332,4 +332,4 @@ void clear_ddr_tlbs(unsigned int memsize_in_meg)
 }
 
 
-#endif /* !CONFIG_NAND_SPL */
+#endif /* not SPL */

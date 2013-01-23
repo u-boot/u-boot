@@ -11,7 +11,14 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
-TQM85xx	powerpc	MPC85xx	-	  -		Stefan Roese <sr@denx.de>
+AMX860	powerpc	mpc860	-	  -		Wolfgang Denk <wd@denx.de>
+c2mon	powerpc	mpc855	-	  -		Wolfgang Denk <wd@denx.de>
+ETX094	powerpc	mpc850	-	  -		Wolfgang Denk <wd@denx.de>
+IAD210	powerpc	mpc860	-	  -		-
+LANTEC	powerpc	mpc850	-	  -		Wolfgang Denk <wd@denx.de>
+SCM	powerpc	mpc8260	-	  -		Wolfgang Grandegger <wg@denx.de>
+SX1	arm	arm925t	-         -
+TQM85xx	powerpc	MPC85xx	d923a5d5  2012-10-04	Stefan Roese <sr@denx.de>
 apollon arm     omap24xx 535c74f  2012-09-18    Kyungmin Park <kyungmin.park@samsung.com>
 tb0229	mips	mips32	3f3110d	  2011-12-12
 rmu	powerpc	MPC850	fb82fd7   2011-12-07	Wolfgang Denk <wd@denx.de>

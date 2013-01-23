@@ -33,6 +33,8 @@
 #define IRAM_BASE_ADDR		0x10000000	/* internal ram */
 #define IRAM_SIZE		0x00020000	/* 128 KB */
 
+#define LOW_LEVEL_SRAM_STACK	0x1001E000
+
 /*
  * AIPS 1
  */
@@ -78,10 +80,12 @@
 #define GPIO2_BASE_ADDR		0x53FD0000
 #define SDMA_BASE_ADDR		0x53FD4000
 #define RTC_BASE_ADDR		0x53FD8000
-#define WDOG_BASE_ADDR		0x53FDC000
+#define WDOG1_BASE_ADDR		0x53FDC000
 #define PWM_BASE_ADDR		0x53FE0000
 #define RTIC_BASE_ADDR		0x53FEC000
 #define IIM_BASE_ADDR		0x53FF0000
+#define IMX_USB_BASE		0x53FF4000
+#define IMX_USB_PORT_OFFSET	0x400
 
 #define IMX_CCM_BASE		CCM_BASE_ADDR
 
@@ -288,15 +292,6 @@ struct cspi_regs {
 	u32 test;
 };
 
-/* Watchdog Timer (WDOG) registers */
-struct wdog_regs {
-	u16 wcr;	/* Control */
-	u16 wsr;	/* Service */
-	u16 wrsr;	/* Reset Status */
-	u16 wicr;	/* Interrupt Control */
-	u16 wmcr;	/* Misc Control */
-};
-
 struct esdc_regs {
 	u32	esdctl0;
 	u32	esdcfg0;
@@ -313,6 +308,58 @@ struct esdc_regs {
 #define ESDC_MISC_MDDR_DL_RST	(1 << 3)
 #define ESDC_MISC_DDR_EN	(1 << 8)
 #define ESDC_MISC_DDR2_EN	(1 << 9)
+
+/* Multi-Layer AHB Crossbar Switch (MAX) registers */
+struct max_regs {
+	u32 mpr0;
+	u32 pad00[3];
+	u32 sgpcr0;
+	u32 pad01[59];
+	u32 mpr1;
+	u32 pad02[3];
+	u32 sgpcr1;
+	u32 pad03[59];
+	u32 mpr2;
+	u32 pad04[3];
+	u32 sgpcr2;
+	u32 pad05[59];
+	u32 mpr3;
+	u32 pad06[3];
+	u32 sgpcr3;
+	u32 pad07[59];
+	u32 mpr4;
+	u32 pad08[3];
+	u32 sgpcr4;
+	u32 pad09[251];
+	u32 mgpcr0;
+	u32 pad10[63];
+	u32 mgpcr1;
+	u32 pad11[63];
+	u32 mgpcr2;
+	u32 pad12[63];
+	u32 mgpcr3;
+	u32 pad13[63];
+	u32 mgpcr4;
+	u32 pad14[63];
+	u32 mgpcr5;
+};
+
+/* AHB <-> IP-Bus Interface (AIPS) */
+struct aips_regs {
+	u32 mpr_0_7;
+	u32 mpr_8_15;
+	u32 pad0[6];
+	u32 pacr_0_7;
+	u32 pacr_8_15;
+	u32 pacr_16_23;
+	u32 pacr_24_31;
+	u32 pad1[4];
+	u32 opacr_0_7;
+	u32 opacr_8_15;
+	u32 opacr_16_23;
+	u32 opacr_24_31;
+	u32 opacr_32_39;
+};
 
 /*
  * NFMS bit in RCSR register for pagesize of nandflash

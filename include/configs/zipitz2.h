@@ -41,6 +41,9 @@
 #define CONFIG_ENV_ADDR			0x40000
 #define CONFIG_ENV_SIZE			0x20000
 
+/* we will never enable dcache, because we have to setup MMU first */
+#define CONFIG_SYS_DCACHE_OFF
+
 #define	CONFIG_SYS_MALLOC_LEN		(128*1024)
 #define	CONFIG_ARCH_CPU_INIT
 
@@ -66,6 +69,7 @@
  */
 #define	CONFIG_PXA_SERIAL
 #define	CONFIG_STUART			1
+#define CONFIG_CONS_INDEX		2
 #define	CONFIG_BAUDRATE			115200
 
 /*

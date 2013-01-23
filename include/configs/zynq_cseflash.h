@@ -11,7 +11,6 @@
 #include <configs/zynq_common.h>
 
 /* Disable uart console */
-#undef CONFIG_SERIAL_MULTI
 #undef CONFIG_ZYNQ_SERIAL
 
 

@@ -192,7 +192,7 @@ static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
 };
 
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	int ret;
 	unsigned int utmi_clk;
@@ -202,14 +202,14 @@ int ehci_hcd_init(void)
 	utmi_clk |= HSUSBHOST_CLKCTRL_CLKSEL_UTMI_P1_MASK;
 	sr32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, 0, 32, utmi_clk);
 
-	ret = omap_ehci_hcd_init(&usbhs_bdata);
+	ret = omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
 	if (ret < 0)
 		return ret;
 
 	return 0;
 }
 
-int ehci_hcd_stop(void)
+int ehci_hcd_stop(int index)
 {
 	return omap_ehci_hcd_stop();
 }

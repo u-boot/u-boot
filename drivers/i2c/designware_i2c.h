@@ -60,14 +60,16 @@ struct i2c_regs {
 	u32 ic_tx_abrt_source;
 };
 
+#if !defined(IC_CLK)
 #define IC_CLK			166
+#endif
 #define NANO_TO_MICRO		1000
 
 /* High and low times in different speed modes (in ns) */
 #define MIN_SS_SCL_HIGHTIME	4000
-#define MIN_SS_SCL_LOWTIME	5000
-#define MIN_FS_SCL_HIGHTIME	800
-#define MIN_FS_SCL_LOWTIME	1700
+#define MIN_SS_SCL_LOWTIME	4700
+#define MIN_FS_SCL_HIGHTIME	600
+#define MIN_FS_SCL_LOWTIME	1300
 #define MIN_HS_SCL_HIGHTIME	60
 #define MIN_HS_SCL_LOWTIME	160
 
@@ -95,6 +97,7 @@ struct i2c_regs {
 
 /* i2c data buffer and command register definitions */
 #define IC_CMD			0x0100
+#define IC_STOP			0x0200
 
 /* i2c interrupt status register definitions */
 #define IC_GEN_CALL		0x0800

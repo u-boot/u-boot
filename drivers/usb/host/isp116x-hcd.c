@@ -617,7 +617,7 @@ static int isp116x_submit_job(struct usb_device *dev, unsigned long pipe,
 	int epnum = usb_pipeendpoint(pipe);
 	int max = usb_maxpacket(dev, pipe);
 	int dir_out = usb_pipeout(pipe);
-	int speed_low = usb_pipeslow(pipe);
+	int speed_low = (dev->speed == USB_SPEED_LOW);
 	int i, done = 0, stat, timeout, cc;
 
 	/* 500 frames or 0.5s timeout when function is busy and NAKs transactions for a while */
@@ -1391,7 +1391,7 @@ int isp116x_check_id(struct isp116x *isp116x)
 	return 0;
 }
 
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller))
 {
 	struct isp116x *isp116x = &isp116x_dev;
 
@@ -1428,7 +1428,7 @@ int usb_lowlevel_init(void)
 	return 0;
 }
 
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	struct isp116x *isp116x = &isp116x_dev;
 

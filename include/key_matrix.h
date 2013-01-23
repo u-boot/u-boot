@@ -40,6 +40,7 @@ struct key_matrix {
 	const u8 *plain_keycode;        /* key code for each row / column */
 	const u8 *fn_keycode;           /* ...when Fn held down */
 	int fn_pos;                     /* position of Fn key in key (or -1) */
+	int ghost_filter;		/* non-zero to enable ghost filter */
 };
 
 /* Information about a particular key (row, column pair) in the matrix */
@@ -92,8 +93,10 @@ int key_matrix_decode_fdt(struct key_matrix *config, const void *blob,
  * @param config	Keyboard matrix config
  * @param rows		Number of rows in key matrix
  * @param cols		Number of columns in key matrix
+ * @param ghost_filter	Non-zero to enable ghost filtering
  * @return 0 if ok, -1 on error
  */
-int key_matrix_init(struct key_matrix *config, int rows, int cols);
+int key_matrix_init(struct key_matrix *config, int rows, int cols,
+		    int ghost_filter);
 
 #endif

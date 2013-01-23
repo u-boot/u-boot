@@ -61,6 +61,7 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_HW_WATCHDOG
+#define CONFIG_IMX_WATCHDOG
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_HARD_SPI
@@ -69,9 +70,9 @@
 #define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 
 /* PMIC Controller */
-#define CONFIG_PMIC
-#define CONFIG_PMIC_SPI
-#define CONFIG_PMIC_FSL
+#define CONFIG_POWER
+#define CONFIG_POWER_SPI
+#define CONFIG_POWER_FSL
 #define CONFIG_FSL_PMIC_BUS	1
 #define CONFIG_FSL_PMIC_CS	2
 #define CONFIG_FSL_PMIC_CLK	1000000
@@ -106,7 +107,7 @@
 
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTDELAY	1
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootargs_base=setenv bootargs console=ttymxc0,115200\0"	\
@@ -203,11 +204,11 @@
 
 /* Configuration of lowlevel_init.S (clocks and SDRAM) */
 #define CCM_CCMR_SETUP		0x074B0BF5
-#define CCM_PDR0_SETUP_532MHZ	(PDR0_CSI_PODF(0x1ff) | PDR0_PER_PODF(7) | \
-				 PDR0_HSP_PODF(3) | PDR0_NFC_PODF(5) |     \
-				 PDR0_IPG_PODF(1) | PDR0_MAX_PODF(3) |     \
-				 PDR0_MCU_PODF(0))
-#define CCM_MPCTL_SETUP_532MHZ	(PLL_PD(0) | PLL_MFD(51) | PLL_MFI(10) |   \
+#define CCM_PDR0_SETUP_532MHZ	(PDR0_CSI_PODF(0x3f) | PDR0_CSI_PRDF(7) | \
+				 PDR0_PER_PODF(7) | PDR0_HSP_PODF(3) |    \
+				 PDR0_NFC_PODF(5) | PDR0_IPG_PODF(1) |    \
+				 PDR0_MAX_PODF(3) | PDR0_MCU_PODF(0))
+#define CCM_MPCTL_SETUP_532MHZ	(PLL_PD(0) | PLL_MFD(51) | PLL_MFI(10) |  \
 				 PLL_MFN(12))
 
 #define ESDMISC_MDDR_SETUP	0x00000004

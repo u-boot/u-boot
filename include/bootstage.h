@@ -31,6 +31,12 @@
 #define CONFIG_BOOTSTAGE_USER_COUNT	20
 #endif
 
+/* Flags for each bootstage record */
+enum bootstage_flags {
+	BOOTSTAGEF_ERROR	= 1 << 0,	/* Error record */
+	BOOTSTAGEF_ALLOC	= 1 << 1,	/* Allocate an id */
+};
+
 /*
  * A list of boot stages that we know about. Each of these indicates the
  * state that we are at, and the action that we are about to perform. For
@@ -181,6 +187,7 @@ enum bootstage_id {
 	 * rough boot timing information.
 	 */
 	BOOTSTAGE_ID_AWAKE,
+	BOOTSTAGE_ID_START_SPL,
 	BOOTSTAGE_ID_START_UBOOT_F,
 	BOOTSTAGE_ID_START_UBOOT_R,
 	BOOTSTAGE_ID_USB_START,
@@ -192,10 +199,14 @@ enum bootstage_id {
 	BOOTSTAGE_ID_MAIN_LOOP,
 	BOOTSTAGE_KERNELREAD_START,
 	BOOTSTAGE_KERNELREAD_STOP,
+	BOOTSTAGE_ID_BOARD_INIT,
+	BOOTSTAGE_ID_BOARD_INIT_DONE,
 
 	BOOTSTAGE_ID_CPU_AWAKE,
 	BOOTSTAGE_ID_MAIN_CPU_AWAKE,
 	BOOTSTAGE_ID_MAIN_CPU_READY,
+
+	BOOTSTAGE_ID_ACCUM_LCD,
 
 	/* a few spare for the user, from here */
 	BOOTSTAGE_ID_USER,
@@ -225,6 +236,17 @@ void show_boot_progress(int val);
 #if defined(CONFIG_BOOTSTAGE) && !defined(CONFIG_SPL_BUILD)
 /* This is the full bootstage implementation */
 
+/**
+ * Add a new bootstage record
+ *
+ * @param id	Bootstage ID to use (ignored if flags & BOOTSTAGEF_ALLOC)
+ * @param name	Name of record, or NULL for none
+ * @param flags	Flags (BOOTSTAGEF_...)
+ * @param mark	Time to record in this record, in microseconds
+ */
+ulong bootstage_add_record(enum bootstage_id id, const char *name,
+			   int flags, ulong mark);
+
 /*
  * Mark a time stamp for the current boot stage.
  */
@@ -234,8 +256,63 @@ ulong bootstage_error(enum bootstage_id id);
 
 ulong bootstage_mark_name(enum bootstage_id id, const char *name);
 
+/**
+ * Mark the start of a bootstage activity. The end will be marked later with
+ * bootstage_accum() and at that point we accumulate the time taken. Calling
+ * this function turns the given id into a accumulator rather than and
+ * absolute mark in time. Accumulators record the total amount of time spent
+ * in an activty during boot.
+ *
+ * @param id	Bootstage id to record this timestamp against
+ * @param name	Textual name to display for this id in the report (maybe NULL)
+ * @return start timestamp in microseconds
+ */
+uint32_t bootstage_start(enum bootstage_id id, const char *name);
+
+/**
+ * Mark the end of a bootstage activity
+ *
+ * After previously marking the start of an activity with bootstage_start(),
+ * call this function to mark the end. You can call these functions in pairs
+ * as many times as you like.
+ *
+ * @param id	Bootstage id to record this timestamp against
+ * @return time spent in this iteration of the activity (i.e. the time now
+ *		less the start time recorded in the last bootstage_start() call
+ *		with this id.
+ */
+uint32_t bootstage_accum(enum bootstage_id id);
+
 /* Print a report about boot time */
 void bootstage_report(void);
+
+/**
+ * Add bootstage information to the device tree
+ *
+ * @return 0 if ok, -ve on error
+ */
+int bootstage_fdt_add_report(void);
+
+/*
+ * Stash bootstage data into memory
+ *
+ * @param base	Base address of memory buffer
+ * @param size	Size of memory buffer
+ * @return 0 if stashed ok, -1 if out of space
+ */
+int bootstage_stash(void *base, int size);
+
+/**
+ * Read bootstage data from memory
+ *
+ * Bootstage data is read from memory and placed in the bootstage table
+ * in the user records.
+ *
+ * @param base	Base address of memory buffer
+ * @param size	Size of memory buffer (-1 if unknown)
+ * @return 0 if unstashed ok, -1 if bootstage info not found, or out of space
+ */
+int bootstage_unstash(void *base, int size);
 
 #else
 /*
@@ -260,7 +337,15 @@ static inline ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 	return 0;
 }
 
+static inline int bootstage_stash(void *base, int size)
+{
+	return 0;	/* Pretend to succeed */
+}
 
+static inline int bootstage_unstash(void *base, int size)
+{
+	return 0;	/* Pretend to succeed */
+}
 #endif /* CONFIG_BOOTSTAGE */
 
 #endif

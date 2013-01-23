@@ -141,16 +141,6 @@ void flush_cache(unsigned long start, unsigned long size)
 	flush_dcache_range(start, start + size);
 }
 
-void enable_caches(void)
-{
-#ifndef CONFIG_SYS_ICACHE_OFF
-	icache_enable();
-#endif
-#ifndef CONFIG_SYS_DCACHE_OFF
-	dcache_enable();
-#endif
-}
-
 #else /* #ifndef CONFIG_SYS_DCACHE_OFF */
 void invalidate_dcache_all(void)
 {
@@ -172,3 +162,15 @@ void flush_cache(unsigned long start, unsigned long size)
 {
 }
 #endif /* #ifndef CONFIG_SYS_DCACHE_OFF */
+
+#if !defined(CONFIG_SYS_ICACHE_OFF) || !defined(CONFIG_SYS_DCACHE_OFF)
+void enable_caches(void)
+{
+#ifndef CONFIG_SYS_ICACHE_OFF
+	icache_enable();
+#endif
+#ifndef CONFIG_SYS_DCACHE_OFF
+	dcache_enable();
+#endif
+}
+#endif

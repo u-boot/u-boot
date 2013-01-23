@@ -98,7 +98,7 @@ static uint8_t i2c_imx_get_clk(unsigned int rate)
 #endif
 
 	/* Divider value calculation */
-	i2c_clk_rate = mxc_get_clock(MXC_IPG_PERCLK);
+	i2c_clk_rate = mxc_get_clock(MXC_I2C_CLK);
 	div = (i2c_clk_rate + rate - 1) / rate;
 	if (div < i2c_clk_div[0][0])
 		clk_div = 0;
@@ -115,7 +115,7 @@ static uint8_t i2c_imx_get_clk(unsigned int rate)
 /*
  * Set I2C Bus speed
  */
-int bus_i2c_set_bus_speed(void *base, int speed)
+static int bus_i2c_set_bus_speed(void *base, int speed)
 {
 	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
 	u8 clk_idx = i2c_imx_get_clk(speed);
@@ -133,7 +133,7 @@ int bus_i2c_set_bus_speed(void *base, int speed)
 /*
  * Get I2C Speed
  */
-unsigned int bus_i2c_get_bus_speed(void *base)
+static unsigned int bus_i2c_get_bus_speed(void *base)
 {
 	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
 	u8 clk_idx = readb(&i2c_regs->ifdr);
@@ -142,7 +142,7 @@ unsigned int bus_i2c_get_bus_speed(void *base)
 	for (clk_div = 0; i2c_clk_div[clk_div][1] != clk_idx; clk_div++)
 		;
 
-	return mxc_get_clock(MXC_IPG_PERCLK) / i2c_clk_div[clk_div][0];
+	return mxc_get_clock(MXC_I2C_CLK) / i2c_clk_div[clk_div][0];
 }
 
 #define ST_BUS_IDLE (0 | (I2SR_IBB << 8))

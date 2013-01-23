@@ -22,25 +22,18 @@
  */
 
 #include <common.h>
-#include <i2c.h>
 #include <asm/io.h>
-#include <asm/arch/tegra20.h>
+#include <asm/arch/tegra.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/mmc.h>
+#include <asm/arch-tegra/mmc.h>
 #include <asm/gpio.h>
+#include <i2c.h>
 #ifdef CONFIG_TEGRA_MMC
 #include <mmc.h>
 #endif
 
-/*
- * Routine: gpio_config_uart
- * Description: Does nothing on Whistler - no UART-related GPIOs.
- */
-void gpio_config_uart(void)
-{
-}
 
 /*
  * Routine: pin_mux_mmc

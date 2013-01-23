@@ -24,7 +24,7 @@
  */
 
 #ifndef _PCI_I386_H_
-#define _PCI_I386_H_	1
+#define _PCI_I386_H_
 
 #define DEFINE_PCI_DEVICE_TABLE(_table) \
 	const struct pci_device_id _table[]

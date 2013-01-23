@@ -68,7 +68,6 @@
 /*
  * Serial
  */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE		(-4)

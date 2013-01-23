@@ -58,6 +58,11 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
+	.u_boot_list : {
+		#include <u-boot.lst>
+	}
+
+	. = ALIGN(4);
 	__rel_dyn_start = .;
 	__rel_dyn_end = .;
 	__dynsym_start = .;

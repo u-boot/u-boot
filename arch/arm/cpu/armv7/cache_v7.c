@@ -297,6 +297,12 @@ void arm_init_before_mmu(void)
 	v7_inval_tlb();
 }
 
+void mmu_page_table_flush(unsigned long start, unsigned long stop)
+{
+	flush_dcache_range(start, stop);
+	v7_inval_tlb();
+}
+
 /*
  * Flush range from all levels of d-cache/unified-cache used:
  * Affects the range [start, start + size - 1]
@@ -329,6 +335,11 @@ void arm_init_before_mmu(void)
 void  flush_cache(unsigned long start, unsigned long size)
 {
 }
+
+void mmu_page_table_flush(unsigned long start, unsigned long stop)
+{
+}
+
 #endif /* #ifndef CONFIG_SYS_DCACHE_OFF */
 
 #ifndef CONFIG_SYS_ICACHE_OFF

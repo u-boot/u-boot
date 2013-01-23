@@ -35,6 +35,7 @@
 #include <asm/io.h>
 #include <malloc.h>
 #include <ata.h>
+#include <sata.h>
 #include <linux/ctype.h>
 
 #include "sata_dwc.h"
@@ -267,8 +268,6 @@ static int sata_dwc_softreset(struct ata_port *ap);
 static int ata_dev_read_id(struct ata_device *dev, unsigned int *p_class,
 		unsigned int flags, u16 *id);
 static int check_sata_dev_state(void);
-
-extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 
 static const struct ata_port_info sata_dwc_port_info[] = {
 	{
@@ -1907,7 +1906,7 @@ err_out:
 #define SATA_MAX_WRITE_BLK 0xFFFF
 #endif
 
-ulong sata_write(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
+ulong sata_write(int device, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	ulong start,blks, buf_addr;
 	unsigned short smallblks;

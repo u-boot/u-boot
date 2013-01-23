@@ -42,6 +42,9 @@ all:	$(LIB) $(AOBJS)
 $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
+# SEE README.arm-unaligned-accesses
+$(obj)super.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+
 #########################################################################
 
 # defines $(obj).depend target

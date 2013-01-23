@@ -28,6 +28,8 @@
  */
 
 #include <common.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #include <asm/immap.h>
 #include <asm/uart.h>
@@ -36,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern void uart_port_conf(int port);
 
-int serial_init(void)
+static int mcf_serial_init(void)
 {
 	volatile uart_t *uart;
 	u32 counter;
@@ -74,7 +76,7 @@ int serial_init(void)
 	return (0);
 }
 
-void serial_putc(const char c)
+static void mcf_serial_putc(const char c)
 {
 	volatile uart_t *uart = (volatile uart_t *)(CONFIG_SYS_UART_BASE);
 
@@ -87,14 +89,7 @@ void serial_putc(const char c)
 	uart->utb = c;
 }
 
-void serial_puts(const char *s)
-{
-	while (*s) {
-		serial_putc(*s++);
-	}
-}
-
-int serial_getc(void)
+static int mcf_serial_getc(void)
 {
 	volatile uart_t *uart = (volatile uart_t *)(CONFIG_SYS_UART_BASE);
 
@@ -103,14 +98,14 @@ int serial_getc(void)
 	return uart->urb;
 }
 
-int serial_tstc(void)
+static int mcf_serial_tstc(void)
 {
 	volatile uart_t *uart = (volatile uart_t *)(CONFIG_SYS_UART_BASE);
 
 	return (uart->usr & UART_USR_RXRDY);
 }
 
-void serial_setbrg(void)
+static void mcf_serial_setbrg(void)
 {
 	volatile uart_t *uart = (volatile uart_t *)(CONFIG_SYS_UART_BASE);
 	u32 counter;
@@ -128,4 +123,25 @@ void serial_setbrg(void)
 	uart->ucr = UART_UCR_RESET_TX;
 
 	uart->ucr = UART_UCR_RX_ENABLED | UART_UCR_TX_ENABLED;
+}
+
+static struct serial_device mcf_serial_drv = {
+	.name	= "mcf_serial",
+	.start	= mcf_serial_init,
+	.stop	= NULL,
+	.setbrg	= mcf_serial_setbrg,
+	.putc	= mcf_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= mcf_serial_getc,
+	.tstc	= mcf_serial_tstc,
+};
+
+void mcf_serial_initialize(void)
+{
+	serial_register(&mcf_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &mcf_serial_drv;
 }

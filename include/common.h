@@ -39,9 +39,10 @@ typedef volatile unsigned char	vu_char;
 #include <linux/bitops.h>
 #include <linux/types.h>
 #include <linux/string.h>
+#include <linux/stringify.h>
 #include <asm/ptrace.h>
 #include <stdarg.h>
-#if defined(CONFIG_PCI) && (defined(CONFIG_4xx) && !defined(CONFIG_AP1000))
+#if defined(CONFIG_PCI) && defined(CONFIG_4xx)
 #include <pci.h>
 #endif
 #if defined(CONFIG_8xx)
@@ -194,18 +195,6 @@ typedef void (interrupt_handler_t)(void *);
 # endif
 #endif
 
-#ifndef CONFIG_SERIAL_MULTI
-
-#if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2) \
- || defined(CONFIG_8xx_CONS_SCC1) || defined(CONFIG_8xx_CONS_SCC2) \
- || defined(CONFIG_8xx_CONS_SCC3) || defined(CONFIG_8xx_CONS_SCC4)
-
-#define CONFIG_SERIAL_MULTI	1
-
-#endif
-
-#endif /* CONFIG_SERIAL_MULTI */
-
 /*
  * General Purpose Utilities
  */
@@ -311,7 +300,7 @@ int	abortboot(int bootdelay);
 extern char console_buffer[];
 
 /* arch/$(ARCH)/lib/board.c */
-void	board_init_f  (ulong) __attribute__ ((noreturn));
+void	board_init_f(ulong);
 void	board_init_r  (gd_t *, ulong) __attribute__ ((noreturn));
 int	checkboard    (void);
 int	checkflash    (void);
@@ -321,6 +310,15 @@ extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 _binary_dt_dtb_start[];	/* embedded device tree blob */
 int set_cpu_clk_info(void);
+
+/**
+ * Show the DRAM size in a board-specific way
+ *
+ * This is used by boards to display DRAM information in their own way.
+ *
+ * @param size	Size of DRAM (which should be displayed along with other info)
+ */
+void board_show_dram(ulong size);
 
 /* common/flash.c */
 void flash_perror (int);
@@ -351,14 +349,15 @@ int	envmatch     (uchar *, int);
 char	*getenv	     (const char *);
 int	getenv_f     (const char *name, char *buf, unsigned len);
 ulong getenv_ulong(const char *name, int base, ulong default_val);
+/*
+ * Read an environment variable as a boolean
+ * Return -1 if variable does not exist (default to true)
+ */
+int getenv_yesno(const char *var);
 int	saveenv	     (void);
-#ifdef CONFIG_PPC		/* ARM version to be fixed! */
-int inline setenv    (const char *, const char *);
-#else
 int	setenv	     (const char *, const char *);
 int setenv_ulong(const char *varname, ulong value);
 int setenv_addr(const char *varname, const void *addr);
-#endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
 # include <asm/setup.h>
@@ -387,7 +386,7 @@ void	pci_init      (void);
 void	pci_init_board(void);
 void	pciinfo	      (int, int);
 
-#if defined(CONFIG_PCI) && (defined(CONFIG_4xx) && !defined(CONFIG_AP1000))
+#if defined(CONFIG_PCI) && defined(CONFIG_4xx)
     int	   pci_pre_init	       (struct pci_controller *);
     int	   is_pci_host	       (struct pci_controller *);
 #endif
@@ -670,7 +669,7 @@ static inline ulong get_ddr_freq(ulong dummy)
 }
 #endif
 
-#if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
+#if defined(CONFIG_4xx)
 #  if defined(CONFIG_440)
 #	if defined(CONFIG_440SPE)
 	 unsigned long determine_sysper(void);

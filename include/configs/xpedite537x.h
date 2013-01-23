@@ -470,12 +470,12 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * f6f00000 - f7efffff     Sec OS image (16MB)
  * f0000000 - f6efffff     Sec OS Use/Filesystem (111MB)
  */
-#define CONFIG_UBOOT1_ENV_ADDR	MK_STR(0xfff80000)
-#define CONFIG_UBOOT2_ENV_ADDR	MK_STR(0xf7f80000)
-#define CONFIG_FDT1_ENV_ADDR	MK_STR(0xfff00000)
-#define CONFIG_FDT2_ENV_ADDR	MK_STR(0xf7f00000)
-#define CONFIG_OS1_ENV_ADDR	MK_STR(0xfef00000)
-#define CONFIG_OS2_ENV_ADDR	MK_STR(0xf6f00000)
+#define CONFIG_UBOOT1_ENV_ADDR	__stringify(0xfff80000)
+#define CONFIG_UBOOT2_ENV_ADDR	__stringify(0xf7f80000)
+#define CONFIG_FDT1_ENV_ADDR	__stringify(0xfff00000)
+#define CONFIG_FDT2_ENV_ADDR	__stringify(0xf7f00000)
+#define CONFIG_OS1_ENV_ADDR	__stringify(0xfef00000)
+#define CONFIG_OS2_ENV_ADDR	__stringify(0xf6f00000)
 
 #define CONFIG_PROG_UBOOT1						\
 	"$download_cmd $loadaddr $ubootfile; "				\

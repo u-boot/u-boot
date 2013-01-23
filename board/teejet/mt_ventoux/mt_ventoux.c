@@ -45,6 +45,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BUZZER		140
 #define SPEAKER		141
+#define USB1_PWR	127
+#define USB2_PWR	149
 
 #ifndef CONFIG_FPGA
 #error "The Teejet mt_ventoux must have CONFIG_FPGA enabled"
@@ -71,10 +73,10 @@ static struct {
 
 static struct panel_config lcd_cfg[] = {
 	{
-	.timing_h       = PANEL_TIMING_H(4, 8, 41),
-	.timing_v       = PANEL_TIMING_V(2, 4, 10),
-	.pol_freq       = 0x00000000, /* Pol Freq */
-	.divisor        = 0x0001000d, /* 33Mhz Pixel Clock */
+	.timing_h       = PANEL_TIMING_H(40, 5, 2),
+	.timing_v       = PANEL_TIMING_V(8, 8, 2),
+	.pol_freq       = 0x00003000, /* Pol Freq */
+	.divisor        = 0x00010033, /* 9 Mhz Pixel Clock */
 	.panel_type     = 0x01, /* TFT */
 	.data_lines     = 0x03, /* 24 Bit RGB */
 	.load_mode      = 0x02, /* Frame Mode */
@@ -110,12 +112,12 @@ static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
 };
 
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	return omap_ehci_hcd_init(&usbhs_bdata);
+	return omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
 }
 
-int ehci_hcd_stop(void)
+int ehci_hcd_stop(int index)
 {
 	return omap_ehci_hcd_stop();
 }
@@ -247,24 +249,35 @@ int board_init(void)
 	gpio_direction_output(BUZZER, 0);
 	gpio_direction_output(SPEAKER, 0);
 
+	/* Activate USB power */
+	gpio_request(USB1_PWR, "USB1_PWR");
+	gpio_request(USB2_PWR, "USB2_PWR");
+	gpio_direction_output(USB1_PWR, 1);
+	gpio_direction_output(USB2_PWR, 1);
+
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 int misc_init_r(void)
 {
 	char *eth_addr;
+	struct tam3517_module_info info;
+	int ret;
 
+	TAM3517_READ_EEPROM(&info, ret);
 	dieid_num_r();
 
-	eth_addr = getenv("ethaddr");
-	if (eth_addr)
+	if (ret)
 		return 0;
+	eth_addr = getenv("ethaddr");
+	if (!eth_addr)
+		TAM3517_READ_MAC_FROM_EEPROM(&info);
 
-#ifndef CONFIG_SPL_BUILD
-	TAM3517_READ_MAC_FROM_EEPROM;
-#endif
+	TAM3517_PRINT_SOM_INFO(&info);
 	return 0;
 }
+#endif
 
 /*
  * Routine: set_muxconf_regs

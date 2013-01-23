@@ -28,9 +28,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx5x_pins.h>
 
-#define CONFIG_SYS_MX5_HCLK		24000000
-#define CONFIG_SYS_MX5_CLK32		32768
-
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -180,8 +177,6 @@
  */
 
 #define HOSTNAME ima3-mx53
-#define xstr(s)	str(s)
-#define str(s)	#s
 
 #define CONFIG_HOSTNAME ima3-mx53
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
@@ -203,9 +198,9 @@
 	"loadaddr=70800000\0"						\
 	"kernel_addr_r=70800000\0"					\
 	"ramdisk_addr_r=71000000\0"					\
-	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
-	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
-	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/uRamdisk\0"		\
+	"hostname=" __stringify(CONFIG_HOSTNAME) "\0"			\
+	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
+	"ramdisk_file=" __stringify(CONFIG_HOSTNAME) "/uRamdisk\0"	\
 	"mmcargs=setenv bootargs root=${mmcroot} "			\
 		"rootfstype=${mmcrootfstype}\0"				\
 	"mmcroot=/dev/mmcblk0p3 rw\0"					\
@@ -234,7 +229,7 @@
 		"run satargs addip addtty addmtd addmisc;"		\
 		"sata init;ext2load sata 0:1 ${kernel_addr_r} "		\
 		"${satafile};bootm\0"					\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.imx\0"			\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.imx\0"		\
 	"uimage=uImage\0"						\
 	"load=tftp ${loadaddr} ${u-boot}\0"				\
 	"uboot_addr=0xf0001000\0"					\

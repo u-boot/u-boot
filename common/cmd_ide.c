@@ -38,23 +38,11 @@
 # include <pcmcia.h>
 #endif
 
-#ifdef CONFIG_8xx
-# include <mpc8xx.h>
-#endif
-
-#ifdef CONFIG_MPC5xxx
-#include <mpc5xxx.h>
-#endif
-
 #include <ide.h>
 #include <ata.h>
 
 #ifdef CONFIG_STATUS_LED
 # include <status_led.h>
-#endif
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #ifdef __PPC__
@@ -64,45 +52,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # define EIEIO		/* nothing */
 # define SYNC		/* nothing */
 #endif
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-/* Timings for IDE Interface
- *
- * SETUP / LENGTH / HOLD - cycles valid for 50 MHz clk
- * 70	   165	    30	   PIO-Mode 0, [ns]
- *  4	     9	     2		       [Cycles]
- * 50	   125	    20	   PIO-Mode 1, [ns]
- *  3	     7	     2		       [Cycles]
- * 30	   100	    15	   PIO-Mode 2, [ns]
- *  2	     6	     1		       [Cycles]
- * 30	    80	    10	   PIO-Mode 3, [ns]
- *  2	     5	     1		       [Cycles]
- * 25	    70	    10	   PIO-Mode 4, [ns]
- *  2	     4	     1		       [Cycles]
- */
-
-const static pio_config_t pio_config_ns [IDE_MAX_PIO_MODE+1] =
-{
-    /*	Setup  Length  Hold  */
-	{ 70,	165,	30 },		/* PIO-Mode 0, [ns]	*/
-	{ 50,	125,	20 },		/* PIO-Mode 1, [ns]	*/
-	{ 30,	101,	15 },		/* PIO-Mode 2, [ns]	*/
-	{ 30,	 80,	10 },		/* PIO-Mode 3, [ns]	*/
-	{ 25,	 70,	10 },		/* PIO-Mode 4, [ns]	*/
-};
-
-static pio_config_t pio_config_clk [IDE_MAX_PIO_MODE+1];
-
-#ifndef	CONFIG_SYS_PIO_MODE
-#define	CONFIG_SYS_PIO_MODE	0		/* use a relaxed default */
-#endif
-static int pio_mode = CONFIG_SYS_PIO_MODE;
-
-/* Make clock cycles and always round up */
-
-#define PCMCIA_MK_CLKS( t, T ) (( (t) * (T) + 999U ) / 1000U )
-
-#endif /* CONFIG_IDE_8xx_DIRECT */
 
 /* ------------------------------------------------------------------------- */
 
@@ -124,19 +73,6 @@ static int ide_bus_ok[CONFIG_SYS_IDE_MAXBUS];
 block_dev_desc_t ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_IDE_LED
-# if !defined(CONFIG_BMS2003)	&& \
-     !defined(CONFIG_CPC45)	&& \
-     !defined(CONFIG_KUP4K) && \
-     !defined(CONFIG_KUP4X)
-static void  ide_led   (uchar led, uchar status);
-#else
-extern void  ide_led   (uchar led, uchar status);
-#endif
-#else
-#define ide_led(a,b)	/* dummy */
-#endif
-
 #ifdef CONFIG_IDE_RESET
 static void  ide_reset (void);
 #else
@@ -152,8 +88,6 @@ static uchar ide_wait  (int dev, ulong t);
 
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
-static void input_data(int dev, ulong *sect_buf, int words);
-static void output_data(int dev, const ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
 #ifndef CONFIG_SYS_ATA_PORT_ADDR
@@ -162,13 +96,10 @@ static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len
 
 #ifdef CONFIG_ATAPI
 static void	atapi_inquiry(block_dev_desc_t *dev_desc);
-ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer);
+static ulong atapi_read(int device, ulong blknr, lbaint_t blkcnt,
+			void *buffer);
 #endif
 
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-static void set_pcmcia_timing (int pmode);
-#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -339,6 +270,33 @@ int do_diskboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 /* ------------------------------------------------------------------------- */
 
+void __ide_led(uchar led, uchar status)
+{
+#if defined(CONFIG_IDE_LED) && defined(PER8_BASE) /* required by LED_PORT */
+	static uchar led_buffer;	/* Buffer for current LED status */
+
+	uchar *led_port = LED_PORT;
+
+	if (status)		/* switch LED on        */
+		led_buffer |= led;
+	else			/* switch LED off       */
+		led_buffer &= ~led;
+
+	*led_port = led_buffer;
+#endif
+}
+
+void ide_led(uchar led, uchar status)
+	__attribute__ ((weak, alias("__ide_led")));
+
+#ifndef CONFIG_IDE_LED	/* define LED macros, they are not used anyways */
+# define DEVICE_LED(x) 0
+# define LED_IDE1 1
+# define LED_IDE2 2
+#endif
+
+/* ------------------------------------------------------------------------- */
+
 inline void __ide_outb(int dev, int port, unsigned char val)
 {
 	debug("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
@@ -392,25 +350,14 @@ inline int ide_set_piomode(int pio_mode)
 
 void ide_init(void)
 {
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
-#endif
 	unsigned char c;
 	int i, bus;
 
-#if defined(CONFIG_SC3)
-	unsigned int ata_reset_time = ATA_RESET_TIME;
-#endif
 #ifdef CONFIG_IDE_8xx_PCCARD
-	extern int pcmcia_on(void);
 	extern int ide_devices_found;	/* Initialized in check_ide_device() */
 #endif /* CONFIG_IDE_8xx_PCCARD */
 
 #ifdef CONFIG_IDE_PREINIT
-	extern int ide_preinit(void);
-
 	WATCHDOG_RESET();
 
 	if (ide_preinit()) {
@@ -419,39 +366,7 @@ void ide_init(void)
 	}
 #endif /* CONFIG_IDE_PREINIT */
 
-#ifdef CONFIG_IDE_8xx_PCCARD
-	extern int pcmcia_on(void);
-	extern int ide_devices_found;	/* Initialized in check_ide_device() */
-
 	WATCHDOG_RESET();
-
-	ide_devices_found = 0;
-	/* initialize the PCMCIA IDE adapter card */
-	pcmcia_on();
-	if (!ide_devices_found)
-		return;
-	udelay(1000000);	/* 1 s */
-#endif /* CONFIG_IDE_8xx_PCCARD */
-
-	WATCHDOG_RESET();
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-	/* Initialize PIO timing tables */
-	for (i = 0; i <= IDE_MAX_PIO_MODE; ++i) {
-		pio_config_clk[i].t_setup =
-			PCMCIA_MK_CLKS(pio_config_ns[i].t_setup, gd->bus_clk);
-		pio_config_clk[i].t_length =
-			PCMCIA_MK_CLKS(pio_config_ns[i].t_length,
-				       gd->bus_clk);
-		pio_config_clk[i].t_hold =
-			PCMCIA_MK_CLKS(pio_config_ns[i].t_hold, gd->bus_clk);
-		debug("PIO Mode %d: setup=%2d ns/%d clk" "  len=%3d ns/%d clk"
-		      "  hold=%2d ns/%d clk\n", i, pio_config_ns[i].t_setup,
-		      pio_config_clk[i].t_setup, pio_config_ns[i].t_length,
-		      pio_config_clk[i].t_length, pio_config_ns[i].t_hold,
-		      pio_config_clk[i].t_hold);
-	}
-#endif /* CONFIG_IDE_8xx_DIRECT */
 
 	/*
 	 * Reset the IDE just to be sure.
@@ -462,14 +377,14 @@ void ide_init(void)
 	/* ATAPI Drives seems to need a proper IDE Reset */
 	ide_reset();
 
-#ifdef CONFIG_IDE_8xx_DIRECT
-	/* PCMCIA / IDE initialization for common mem space */
-	pcmp->pcmc_pgcrb = 0;
+#ifdef CONFIG_IDE_INIT_POSTRESET
+	WATCHDOG_RESET();
 
-	/* start in PIO mode 0 - most relaxed timings */
-	pio_mode = 0;
-	set_pcmcia_timing(pio_mode);
-#endif /* CONFIG_IDE_8xx_DIRECT */
+	if (ide_init_postreset()) {
+		puts("ide_preinit_postreset failed\n");
+		return;
+	}
+#endif /* CONFIG_IDE_INIT_POSTRESET */
 
 	/*
 	 * Wait for IDE to get ready.
@@ -502,11 +417,7 @@ void ide_init(void)
 
 			c = ide_inb(dev, ATA_STATUS);
 			i++;
-#if defined(CONFIG_SC3)
-			if (i > (ata_reset_time * 100)) {
-#else
 			if (i > (ATA_RESET_TIME * 100)) {
-#endif
 				puts("** Timeout **\n");
 				/* LED's off */
 				ide_led((LED_IDE1 | LED_IDE2), 0);
@@ -538,9 +449,7 @@ void ide_init(void)
 
 	curr_device = -1;
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i) {
-#ifdef CONFIG_IDE_LED
 		int led = (IDE_BUS(i) == 0) ? LED_IDE1 : LED_IDE2;
-#endif
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
 		ide_dev_desc[i].if_type = IF_TYPE_IDE;
 		ide_dev_desc[i].dev = i;
@@ -575,121 +484,26 @@ block_dev_desc_t *ide_get_dev(int dev)
 }
 #endif
 
-
-#ifdef CONFIG_IDE_8xx_DIRECT
-
-static void set_pcmcia_timing(int pmode)
-{
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
-	ulong timings;
-
-	debug("Set timing for PIO Mode %d\n", pmode);
-
-	timings = PCMCIA_SHT(pio_config_clk[pmode].t_hold)
-		| PCMCIA_SST(pio_config_clk[pmode].t_setup)
-		| PCMCIA_SL(pio_config_clk[pmode].t_length);
-
-	/*
-	 * IDE 0
-	 */
-	pcmp->pcmc_pbr0 = CONFIG_SYS_PCMCIA_PBR0;
-	pcmp->pcmc_por0 = CONFIG_SYS_PCMCIA_POR0
-#if (CONFIG_SYS_PCMCIA_POR0 != 0)
-		| timings
-#endif
-		;
-	debug("PBR0: %08x  POR0: %08x\n", pcmp->pcmc_pbr0, pcmp->pcmc_por0);
-
-	pcmp->pcmc_pbr1 = CONFIG_SYS_PCMCIA_PBR1;
-	pcmp->pcmc_por1 = CONFIG_SYS_PCMCIA_POR1
-#if (CONFIG_SYS_PCMCIA_POR1 != 0)
-		| timings
-#endif
-		;
-	debug("PBR1: %08x  POR1: %08x\n", pcmp->pcmc_pbr1, pcmp->pcmc_por1);
-
-	pcmp->pcmc_pbr2 = CONFIG_SYS_PCMCIA_PBR2;
-	pcmp->pcmc_por2 = CONFIG_SYS_PCMCIA_POR2
-#if (CONFIG_SYS_PCMCIA_POR2 != 0)
-		| timings
-#endif
-		;
-	debug("PBR2: %08x  POR2: %08x\n", pcmp->pcmc_pbr2, pcmp->pcmc_por2);
-
-	pcmp->pcmc_pbr3 = CONFIG_SYS_PCMCIA_PBR3;
-	pcmp->pcmc_por3 = CONFIG_SYS_PCMCIA_POR3
-#if (CONFIG_SYS_PCMCIA_POR3 != 0)
-		| timings
-#endif
-		;
-	debug("PBR3: %08x  POR3: %08x\n", pcmp->pcmc_pbr3, pcmp->pcmc_por3);
-
-	/*
-	 * IDE 1
-	 */
-	pcmp->pcmc_pbr4 = CONFIG_SYS_PCMCIA_PBR4;
-	pcmp->pcmc_por4 = CONFIG_SYS_PCMCIA_POR4
-#if (CONFIG_SYS_PCMCIA_POR4 != 0)
-		| timings
-#endif
-		;
-	debug("PBR4: %08x  POR4: %08x\n", pcmp->pcmc_pbr4, pcmp->pcmc_por4);
-
-	pcmp->pcmc_pbr5 = CONFIG_SYS_PCMCIA_PBR5;
-	pcmp->pcmc_por5 = CONFIG_SYS_PCMCIA_POR5
-#if (CONFIG_SYS_PCMCIA_POR5 != 0)
-		| timings
-#endif
-		;
-	debug("PBR5: %08x  POR5: %08x\n", pcmp->pcmc_pbr5, pcmp->pcmc_por5);
-
-	pcmp->pcmc_pbr6 = CONFIG_SYS_PCMCIA_PBR6;
-	pcmp->pcmc_por6 = CONFIG_SYS_PCMCIA_POR6
-#if (CONFIG_SYS_PCMCIA_POR6 != 0)
-		| timings
-#endif
-		;
-	debug("PBR6: %08x  POR6: %08x\n", pcmp->pcmc_pbr6, pcmp->pcmc_por6);
-
-	pcmp->pcmc_pbr7 = CONFIG_SYS_PCMCIA_PBR7;
-	pcmp->pcmc_por7 = CONFIG_SYS_PCMCIA_POR7
-#if (CONFIG_SYS_PCMCIA_POR7 != 0)
-		| timings
-#endif
-		;
-	debug("PBR7: %08x  POR7: %08x\n", pcmp->pcmc_pbr7, pcmp->pcmc_por7);
-
-}
-
-#endif /* CONFIG_IDE_8xx_DIRECT */
-
 /* ------------------------------------------------------------------------- */
 
-/* We only need to swap data if we are running on a big endian cpu. */
-/* But Au1x00 cpu:s already swaps data in big endian mode! */
-#if defined(__LITTLE_ENDIAN) || \
-   (defined(CONFIG_SOC_AU1X00) && !defined(CONFIG_GTH2))
-#define input_swap_data(x,y,z) input_data(x,y,z)
-#else
-static void input_swap_data(int dev, ulong *sect_buf, int words)
-{
-#if defined(CONFIG_CPC45)
-	uchar i;
-	volatile uchar *pbuf_even =
-		(uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	volatile uchar *pbuf_odd =
-		(uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	ushort *dbuf = (ushort *) sect_buf;
+void ide_input_swap_data(int dev, ulong *sect_buf, int words)
+	__attribute__ ((weak, alias("__ide_input_swap_data")));
 
-	while (words--) {
-		for (i = 0; i < 2; i++) {
-			*(((uchar *) (dbuf)) + 1) = *pbuf_even;
-			*(uchar *) dbuf = *pbuf_odd;
-			dbuf += 1;
-		}
-	}
+void ide_input_data(int dev, ulong *sect_buf, int words)
+	__attribute__ ((weak, alias("__ide_input_data")));
+
+void ide_output_data(int dev, const ulong *sect_buf, int words)
+	__attribute__ ((weak, alias("__ide_output_data")));
+
+/* We only need to swap data if we are running on a big endian cpu. */
+#if defined(__LITTLE_ENDIAN)
+void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
+{
+	ide_input_data(dev, sect_buf, words);
+}
 #else
+void __ide_input_swap_data(int dev, ulong *sect_buf, int words)
+{
 	volatile ushort *pbuf =
 		(ushort *) (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	ushort *dbuf = (ushort *) sect_buf;
@@ -701,64 +515,32 @@ static void input_swap_data(int dev, ulong *sect_buf, int words)
 #ifdef __MIPS__
 		*dbuf++ = swab16p((u16 *) pbuf);
 		*dbuf++ = swab16p((u16 *) pbuf);
-#elif defined(CONFIG_PCS440EP)
-		*dbuf++ = *pbuf;
-		*dbuf++ = *pbuf;
 #else
 		*dbuf++ = ld_le16(pbuf);
 		*dbuf++ = ld_le16(pbuf);
 #endif /* !MIPS */
 	}
-#endif
 }
-#endif /* __LITTLE_ENDIAN || CONFIG_AU1X00 */
+#endif /* __LITTLE_ENDIAN */
 
 
 #if defined(CONFIG_IDE_SWAP_IO)
-static void output_data(int dev, const ulong *sect_buf, int words)
+void __ide_output_data(int dev, const ulong *sect_buf, int words)
 {
-#if defined(CONFIG_CPC45)
-	uchar *dbuf;
-	volatile uchar *pbuf_even;
-	volatile uchar *pbuf_odd;
-
-	pbuf_even = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	pbuf_odd = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	dbuf = (uchar *) sect_buf;
-	while (words--) {
-		EIEIO;
-		*pbuf_even = *dbuf++;
-		EIEIO;
-		*pbuf_odd = *dbuf++;
-		EIEIO;
-		*pbuf_even = *dbuf++;
-		EIEIO;
-		*pbuf_odd = *dbuf++;
-	}
-#else
 	ushort *dbuf;
 	volatile ushort *pbuf;
 
 	pbuf = (ushort *) (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	dbuf = (ushort *) sect_buf;
 	while (words--) {
-#if defined(CONFIG_PCS440EP)
-		/* not tested, because CF was write protected */
-		EIEIO;
-		*pbuf = ld_le16(dbuf++);
-		EIEIO;
-		*pbuf = ld_le16(dbuf++);
-#else
 		EIEIO;
 		*pbuf = *dbuf++;
 		EIEIO;
 		*pbuf = *dbuf++;
-#endif
 	}
-#endif
 }
 #else  /* ! CONFIG_IDE_SWAP_IO */
-static void output_data(int dev, const ulong *sect_buf, int words)
+void __ide_output_data(int dev, const ulong *sect_buf, int words)
 {
 #if defined(CONFIG_IDE_AHB)
 	ide_write_data(dev, sect_buf, words);
@@ -769,31 +551,8 @@ static void output_data(int dev, const ulong *sect_buf, int words)
 #endif /* CONFIG_IDE_SWAP_IO */
 
 #if defined(CONFIG_IDE_SWAP_IO)
-static void input_data(int dev, ulong *sect_buf, int words)
+void __ide_input_data(int dev, ulong *sect_buf, int words)
 {
-#if defined(CONFIG_CPC45)
-	uchar *dbuf;
-	volatile uchar *pbuf_even;
-	volatile uchar *pbuf_odd;
-
-	pbuf_even = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	pbuf_odd = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	dbuf = (uchar *) sect_buf;
-	while (words--) {
-		*dbuf++ = *pbuf_even;
-		EIEIO;
-		SYNC;
-		*dbuf++ = *pbuf_odd;
-		EIEIO;
-		SYNC;
-		*dbuf++ = *pbuf_even;
-		EIEIO;
-		SYNC;
-		*dbuf++ = *pbuf_odd;
-		EIEIO;
-		SYNC;
-	}
-#else
 	ushort *dbuf;
 	volatile ushort *pbuf;
 
@@ -803,22 +562,14 @@ static void input_data(int dev, ulong *sect_buf, int words)
 	debug("in input data base for read is %lx\n", (unsigned long) pbuf);
 
 	while (words--) {
-#if defined(CONFIG_PCS440EP)
-		EIEIO;
-		*dbuf++ = ld_le16(pbuf);
-		EIEIO;
-		*dbuf++ = ld_le16(pbuf);
-#else
 		EIEIO;
 		*dbuf++ = *pbuf;
 		EIEIO;
 		*dbuf++ = *pbuf;
-#endif
 	}
-#endif
 }
 #else  /* ! CONFIG_IDE_SWAP_IO */
-static void input_data(int dev, ulong *sect_buf, int words)
+void __ide_input_data(int dev, ulong *sect_buf, int words)
 {
 #if defined(CONFIG_IDE_AHB)
 	ide_read_data(dev, sect_buf, words);
@@ -928,7 +679,7 @@ static void ide_ident(block_dev_desc_t *dev_desc)
 		return;
 #endif
 
-	input_swap_data(device, (ulong *)&iop, ATA_SECTORWORDS);
+	ide_input_swap_data(device, (ulong *)&iop, ATA_SECTORWORDS);
 
 	ident_cpy((unsigned char *) dev_desc->revision, iop.fw_rev,
 		  sizeof(dev_desc->revision));
@@ -1076,7 +827,7 @@ static void ide_ident(block_dev_desc_t *dev_desc)
 
 /* ------------------------------------------------------------------------- */
 
-ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
+ulong ide_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
@@ -1090,7 +841,7 @@ ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		lba48 = 1;
 	}
 #endif
-	debug("ide_read dev %d start %lX, blocks %lX buffer at %lX\n",
+	debug("ide_read dev %d start %lX, blocks " LBAF " buffer at %lX\n",
 	      device, blknr, blkcnt, (ulong) buffer);
 
 	ide_led(DEVICE_LED(device), 1);	/* LED on       */
@@ -1180,17 +931,12 @@ ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 
 		if ((c & (ATA_STAT_DRQ | ATA_STAT_BUSY | ATA_STAT_ERR)) !=
 		    ATA_STAT_DRQ) {
-#if defined(CONFIG_SYS_64BIT_LBA)
-			printf("Error (no IRQ) dev %d blk %lld: status 0x%02x\n",
+			printf("Error (no IRQ) dev %d blk %ld: status %#02x\n",
 				device, blknr, c);
-#else
-			printf("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
-				device, (ulong) blknr, c);
-#endif
 			break;
 		}
 
-		input_data(device, buffer, ATA_SECTORWORDS);
+		ide_input_data(device, buffer, ATA_SECTORWORDS);
 		(void) ide_inb(device, ATA_STATUS);	/* clear IRQ */
 
 		++n;
@@ -1205,7 +951,7 @@ IDE_READ_E:
 /* ------------------------------------------------------------------------- */
 
 
-ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, const void *buffer)
+ulong ide_write(int device, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
@@ -1273,17 +1019,12 @@ ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, const void *buffer)
 
 		if ((c & (ATA_STAT_DRQ | ATA_STAT_BUSY | ATA_STAT_ERR)) !=
 		    ATA_STAT_DRQ) {
-#if defined(CONFIG_SYS_64BIT_LBA)
-			printf("Error (no IRQ) dev %d blk %lld: status 0x%02x\n",
+			printf("Error (no IRQ) dev %d blk %ld: status %#02x\n",
 				device, blknr, c);
-#else
-			printf("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
-				device, (ulong) blknr, c);
-#endif
 			goto WR_OUT;
 		}
 
-		output_data(device, buffer, ATA_SECTORWORDS);
+		ide_output_data(device, buffer, ATA_SECTORWORDS);
 		c = ide_inb(device, ATA_STATUS);	/* clear IRQ */
 		++n;
 		++blknr;
@@ -1353,9 +1094,6 @@ extern void ide_set_reset(int idereset);
 
 static void ide_reset(void)
 {
-#if defined(CONFIG_SYS_PB_12V_ENABLE) || defined(CONFIG_SYS_PB_IDE_MOTOR)
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-#endif
 	int i;
 
 	curr_device = -1;
@@ -1371,51 +1109,6 @@ static void ide_reset(void)
 
 	WATCHDOG_RESET();
 
-#ifdef CONFIG_SYS_PB_12V_ENABLE
-	/* 12V Enable output OFF */
-	immr->im_cpm.cp_pbdat &= ~(CONFIG_SYS_PB_12V_ENABLE);
-
-	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_12V_ENABLE);
-	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_12V_ENABLE);
-	immr->im_cpm.cp_pbdir |= CONFIG_SYS_PB_12V_ENABLE;
-
-	/* wait 500 ms for the voltage to stabilize */
-	for (i = 0; i < 500; ++i)
-		udelay(1000);
-
-	/* 12V Enable output ON */
-	immr->im_cpm.cp_pbdat |= CONFIG_SYS_PB_12V_ENABLE;
-#endif /* CONFIG_SYS_PB_12V_ENABLE */
-
-#ifdef CONFIG_SYS_PB_IDE_MOTOR
-	/* configure IDE Motor voltage monitor pin as input */
-	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_IDE_MOTOR);
-	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_IDE_MOTOR);
-	immr->im_cpm.cp_pbdir &= ~(CONFIG_SYS_PB_IDE_MOTOR);
-
-	/* wait up to 1 s for the motor voltage to stabilize */
-	for (i = 0; i < 1000; ++i) {
-		if ((immr->im_cpm.cp_pbdat & CONFIG_SYS_PB_IDE_MOTOR) != 0) {
-			break;
-		}
-		udelay(1000);
-	}
-
-	if (i == 1000) {	/* Timeout */
-		printf("\nWarning: 5V for IDE Motor missing\n");
-#ifdef CONFIG_STATUS_LED
-#ifdef STATUS_LED_YELLOW
-		status_led_set(STATUS_LED_YELLOW, STATUS_LED_ON);
-#endif
-#ifdef STATUS_LED_GREEN
-		status_led_set(STATUS_LED_GREEN, STATUS_LED_OFF);
-#endif
-#endif /* CONFIG_STATUS_LED */
-	}
-#endif /* CONFIG_SYS_PB_IDE_MOTOR */
-
-	WATCHDOG_RESET();
-
 	/* de-assert RESET signal */
 	ide_set_reset(0);
 
@@ -1427,27 +1120,6 @@ static void ide_reset(void)
 #endif /* CONFIG_IDE_RESET */
 
 /* ------------------------------------------------------------------------- */
-
-#if defined(CONFIG_IDE_LED)	&& \
-   !defined(CONFIG_CPC45)	&& \
-   !defined(CONFIG_KUP4K)	&& \
-   !defined(CONFIG_KUP4X)
-
-static uchar led_buffer;	/* Buffer for current LED status        */
-
-static void ide_led(uchar led, uchar status)
-{
-	uchar *led_port = LED_PORT;
-
-	if (status)		/* switch LED on        */
-		led_buffer |= led;
-	else			/* switch LED off       */
-		led_buffer &= ~led;
-
-	*led_port = led_buffer;
-}
-
-#endif /* CONFIG_IDE_LED */
 
 #if defined(CONFIG_OF_IDE_FIXUP)
 int ide_device_present(int dev)
@@ -1464,25 +1136,18 @@ int ide_device_present(int dev)
  * ATAPI Support
  */
 
+void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
+	__attribute__ ((weak, alias("__ide_input_data_shorts")));
+
+void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
+	__attribute__ ((weak, alias("__ide_output_data_shorts")));
+
+
 #if defined(CONFIG_IDE_SWAP_IO)
 /* since ATAPI may use commands with not 4 bytes alligned length
  * we have our own transfer functions, 2 bytes alligned */
-static void output_data_shorts(int dev, ushort *sect_buf, int shorts)
+void __ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#if defined(CONFIG_CPC45)
-	uchar *dbuf;
-	volatile uchar *pbuf_even;
-	volatile uchar *pbuf_odd;
-
-	pbuf_even = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	pbuf_odd = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	while (shorts--) {
-		EIEIO;
-		*pbuf_even = *dbuf++;
-		EIEIO;
-		*pbuf_odd = *dbuf++;
-	}
-#else
 	ushort *dbuf;
 	volatile ushort *pbuf;
 
@@ -1496,25 +1161,10 @@ static void output_data_shorts(int dev, ushort *sect_buf, int shorts)
 		EIEIO;
 		*pbuf = *dbuf++;
 	}
-#endif
 }
 
-static void input_data_shorts(int dev, ushort *sect_buf, int shorts)
+void __ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
-#if defined(CONFIG_CPC45)
-	uchar *dbuf;
-	volatile uchar *pbuf_even;
-	volatile uchar *pbuf_odd;
-
-	pbuf_even = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_EVEN);
-	pbuf_odd = (uchar *) (ATA_CURR_BASE(dev) + ATA_DATA_ODD);
-	while (shorts--) {
-		EIEIO;
-		*dbuf++ = *pbuf_even;
-		EIEIO;
-		*dbuf++ = *pbuf_odd;
-	}
-#else
 	ushort *dbuf;
 	volatile ushort *pbuf;
 
@@ -1528,16 +1178,15 @@ static void input_data_shorts(int dev, ushort *sect_buf, int shorts)
 		EIEIO;
 		*dbuf++ = *pbuf;
 	}
-#endif
 }
 
 #else  /* ! CONFIG_IDE_SWAP_IO */
-static void output_data_shorts(int dev, ushort *sect_buf, int shorts)
+void __ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 	outsw(ATA_CURR_BASE(dev) + ATA_DATA_REG, sect_buf, shorts);
 }
 
-static void input_data_shorts(int dev, ushort *sect_buf, int shorts)
+void __ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 	insw(ATA_CURR_BASE(dev) + ATA_DATA_REG, sect_buf, shorts);
 }
@@ -1616,7 +1265,7 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	}
 
 	/* write command block */
-	output_data_shorts(device, (unsigned short *) ccb, ccblen / 2);
+	ide_output_data_shorts(device, (unsigned short *) ccb, ccblen / 2);
 
 	/* ATAPI Command written wait for completition */
 	udelay(5000);		/* device must set bsy */
@@ -1667,12 +1316,12 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 		/* ok now decide if it is an in or output */
 		if ((ide_inb(device, ATA_SECT_CNT) & 0x02) == 0) {
 			debug("Write to device\n");
-			output_data_shorts(device, (unsigned short *) buffer,
-					   n);
+			ide_output_data_shorts(device,
+				(unsigned short *) buffer, n);
 		} else {
 			debug("Read from device @ %p shorts %d\n", buffer, n);
-			input_data_shorts(device, (unsigned short *) buffer,
-					  n);
+			ide_input_data_shorts(device,
+				(unsigned short *) buffer, n);
 		}
 	}
 	udelay(5000);		/* seems that some CD ROMs need this... */
@@ -1860,13 +1509,13 @@ static void atapi_inquiry(block_dev_desc_t *dev_desc)
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK	(ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE)
 
-ulong atapi_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer)
+ulong atapi_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
 	ulong n = 0;
 	unsigned char ccb[12];	/* Command descriptor block */
 	ulong cnt;
 
-	debug("atapi_read dev %d start %lX, blocks %lX buffer at %lX\n",
+	debug("atapi_read dev %d start %lX, blocks " LBAF " buffer at %lX\n",
 	      device, blknr, blkcnt, (ulong) buffer);
 
 	do {

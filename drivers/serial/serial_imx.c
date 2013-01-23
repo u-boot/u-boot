@@ -19,6 +19,8 @@
 
 #include <common.h>
 #include <asm/arch/imx-regs.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #if defined CONFIG_IMX_SERIAL1
 #define UART_BASE IMX_UART1_BASE
@@ -50,7 +52,7 @@ struct imx_serial {
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void serial_setbrg (void)
+static void imx_serial_setbrg(void)
 {
 	serial_init();
 }
@@ -62,7 +64,7 @@ extern void imx_gpio_mode(int gpio_mode);
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  *
  */
-int serial_init (void)
+static int imx_serial_init(void)
 {
 	volatile struct imx_serial* base = (struct imx_serial *)UART_BASE;
 	unsigned int ufcr_rfdiv;
@@ -163,7 +165,7 @@ int serial_init (void)
  * otherwise. When the function is successful, the character read is
  * written into its argument c.
  */
-int serial_getc (void)
+static int imx_serial_getc(void)
 {
 	volatile struct imx_serial* base = (struct imx_serial *)UART_BASE;
 	unsigned char ch;
@@ -185,7 +187,7 @@ int hwflow_onoff(int on)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc (const char c)
+static void imx_serial_putc(const char c)
 {
 	volatile struct imx_serial* base = (struct imx_serial *)UART_BASE;
 
@@ -202,7 +204,7 @@ void serial_putc (const char c)
 /*
  * Test whether a character is in the RX buffer
  */
-int serial_tstc (void)
+static int imx_serial_tstc(void)
 {
 	volatile struct imx_serial* base = (struct imx_serial *)UART_BASE;
 
@@ -212,10 +214,23 @@ int serial_tstc (void)
 	return 1;
 }
 
-void
-serial_puts (const char *s)
+static struct serial_device imx_serial_drv = {
+	.name	= "imx_serial",
+	.start	= imx_serial_init,
+	.stop	= NULL,
+	.setbrg	= imx_serial_setbrg,
+	.putc	= imx_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= imx_serial_getc,
+	.tstc	= imx_serial_tstc,
+};
+
+void imx_serial_initialize(void)
 {
-	while (*s) {
-		serial_putc (*s++);
-	}
+	serial_register(&imx_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &imx_serial_drv;
 }

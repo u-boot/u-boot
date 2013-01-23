@@ -566,7 +566,7 @@ static __inline__ int __test_and_change_bit(int nr, volatile void * addr)
  * @nr: bit number to test
  * @addr: Address to start counting from
  */
-static __inline__ int test_bit(int nr, volatile void *addr)
+static __inline__ int test_bit(int nr, const volatile void *addr)
 {
 	return ((1UL << (nr & 31)) & (((const unsigned int *) addr)[nr >> 5])) != 0;
 }

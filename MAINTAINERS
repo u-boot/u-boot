@@ -7,6 +7,10 @@
 # and Cc: the <u-boot@lists.denx.de> mailing list.			#
 #									#
 # Note: lists sorted by Maintainer Name					#
+# Note: These are the maintainers for specific *boards*.  The		#
+#	custodians for general architectures and subsystems can		#
+#	be found here -- http://www.denx.de/wiki/U-Boot/Custodians	#
+#									#
 #########################################################################
 
 
@@ -104,8 +108,6 @@ Wolfgang Denk <wd@denx.de>
 
 	ARIA		MPC5121e
 
-	AMX860		MPC860
-	ETX094		MPC850
 	FPS850L		MPC850
 	FPS860L		MPC860
 	ICU862		MPC862
@@ -116,7 +118,6 @@ Wolfgang Denk <wd@denx.de>
 	IVMS8		MPC860
 	IVMS8_128	MPC860
 	IVMS8_256	MPC860
-	LANTEC		MPC850
 	LWMON		MPC823
 	R360MPI		MPC823
 	RRvision	MPC823
@@ -128,7 +129,6 @@ Wolfgang Denk <wd@denx.de>
 	TQM855L		MPC855
 	TQM860L		MPC860
 	TQM860L_FEC	MPC860
-	c2mon		MPC855
 	hermes		MPC860
 	lwmon		MPC823
 
@@ -179,7 +179,6 @@ Thomas Frieden <ThomasF@hyperion-entertainment.com>
 
 Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 
-	ADCIOP		IOP480 (PPC401)
 	APC405		PPC405GP
 	AR405		PPC405GP
 	ASH405		PPC405EP
@@ -190,7 +189,6 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	CPCI405AB	PPC405GP
 	CPCI405DT	PPC405GP
 	CPCIISER4	PPC405GP
-	DASA_SIM	IOP480 (PPC401)
 	DP405		PPC405EP
 	DU405		PPC405GP
 	DU440		PPC440EPx
@@ -216,9 +214,7 @@ Siddarth Gore <gores@marvell.com>
 Paul Gortmaker <paul.gortmaker@windriver.com>
 
 	sbc8349		MPC8349
-	sbc8540		MPC8540
 	sbc8548		MPC8548
-	sbc8560		MPC8560
 	sbc8641d	MPC8641D
 
 Frank Gottschling <fgottschling@eltec.de>
@@ -231,7 +227,6 @@ Wolfgang Grandegger <wg@denx.de>
 
 	PN62		MPC8240
 	IPHASE4539	MPC8260
-	SCM		MPC8260
 
 Anatolij Gustschin <agust@denx.de>
 
@@ -397,6 +392,8 @@ Ricardo Ribalda <ricardo.ribalda@uam.es>
 
 Stefan Roese <sr@denx.de>
 
+	a3m071		MPC5200
+
 	P3M7448		MPC7448
 
 	uc100		MPC857
@@ -455,10 +452,6 @@ Heiko Schocher <hs@denx.de>
 	sc3		PPC405GP
 	uc101		MPC5200
 	ve8313		MPC8313
-
-Peter De Schrijver <p2@mind.be>
-
-	ML2		PPC4xx
 
 Andre Schwarz <andre.schwarz@matrix-vision.de>
 
@@ -551,7 +544,6 @@ Unknown / orphaned boards:
 	FADS850SAR	MPC8xx
 	FADS860T	MPC8xx
 	GENIETV		MPC8xx
-	IAD210		MPC8xx
 	MBX		MPC8xx
 	MBX860T		MPC8xx
 	NX823		MPC8xx
@@ -579,6 +571,10 @@ Albert ARIBAUD <albert.u.boot@aribaud.net>
 
 	edminiv2	ARM926EJS (Orion5x SoC)
 
+Raphael Assenat <raph@8d.com>
+
+	eco5pk		ARM ARMV7 (AM35x SoC)
+
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
@@ -590,6 +586,11 @@ Stefano Babic <sbabic@denx.de>
 	trizepsiv	xscale/pxa
 	twister		omap3
  	vision2		i.MX51
+	woodburn	i.MX35
+
+Lukasz Dalek <luk0104@gmail.com>
+
+	h2200		xscale/pxa
 
 Jason Liu <r64343@freescale.com>
 
@@ -656,6 +657,8 @@ Fabio Estevam <fabio.estevam@freescale.com>
 	mx31pdk		i.MX31
 	mx53ard		i.MX53
 	mx53smd		i.MX53
+	mx6qsabresd	i.MX6Q
+	mx6qsabreauto	i.MX6Q
 
 Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 
@@ -803,7 +806,7 @@ Veli-Pekka Peltola <veli-pekka.peltola@bluegiga.com>
 
 	apx4devkit	i.MX28
 
-Luka Perkov <uboot@lukaperkov.net>
+Luka Perkov <luka@openwrt.org>
 
 	ib62x0		ARM926EJS
 	iconnect	ARM926EJS
@@ -836,7 +839,7 @@ Sricharan R <r.sricharan@ti.com>
 Thierry Reding <thierry.reding@avionic-design.de>
 
 	plutux		Tegra20 (ARM7 & A9 Dual Core)
-	medcom		Tegra20 (ARM7 & A9 Dual Core)
+	medcom-wide	Tegra20 (ARM7 & A9 Dual Core)
 	tec		Tegra20 (ARM7 & A9 Dual Core)
 
 Christian Riesch <christian.riesch@omicron.at>
@@ -903,6 +906,10 @@ Bo Shen <voice.shen@atmel.com>
 Michal Simek <monstr@monstr.eu>
 
 	zynq		ARM ARMV7 (Zynq SoC)
+
+Lucas Stach <dev@lynxeye.de>
+
+	colibri_t20_iris	Tegra20 (ARM7 & A9 Dual Core)
 
 Nick Thompson <nick.thompson@gefanuc.com>
 
@@ -1013,10 +1020,14 @@ Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 
 	armadillo-800eva	R8A7740 (RMOBILE SoC)
 
+Pali Rohár <pali.rohar@gmail.com>
+
+	nokia_rx51	ARM ARMV7 (OMAP34xx SoC)
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
- 	Board		CPU	Last known maintainer / Comment
+	Board		CPU	Last known maintainer / Comment
 .........................................................................
 
 	omap1510inn	ARM925T         Kshitij Gupta <kshitij@ti.com>
@@ -1048,10 +1059,6 @@ Wolfgang Denk <wd@denx.de>
 
 	incaip		MIPS32 4Kc
 
-Thomas Lange <thomas@corelatus.se>
-	dbau1x00	MIPS32 Au1000
-	gth2		MIPS32 Au1000
-
 Vlad Lungu <vlad.lungu@windriver.com>
 	qemu_mips	MIPS32
 
@@ -1062,6 +1069,14 @@ Stefan Roese <sr@denx.de>
 Xiangfu Liu <xiangfu@openmobilefree.net>
 
 	qi_lb60		MIPS32 (XBurst Jz4740 SoC)
+
+-------------------------------------------------------------------------
+
+Unknown / orphaned boards:
+ 	Board		CPU		Last known maintainer / Comment
+.........................................................................
+
+	dbau1x00	MIPS32 Au1000	Thomas Lange <thomas@corelatus.se>
 
 #########################################################################
 # Nios-II Systems:							#
@@ -1188,6 +1203,7 @@ Mark Jonas <mark.jonas@de.bosch.com>
 Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
 	MS7720SE	SH7720
+	R0P77520000RZ	SH7752
 	R0P77570030RL	SH7757
 	R0P77850011RL	SH7785
 

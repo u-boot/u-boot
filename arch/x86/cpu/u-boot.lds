@@ -33,10 +33,11 @@ SECTIONS
 	.text  : { *(.text*); }
 
 	. = ALIGN(4);
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
+
 	. = ALIGN(4);
-	__u_boot_cmd_end = .;
+	.u_boot_list : {
+	#include <u-boot.lst>
+	}
 
 	. = ALIGN(4);
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
@@ -85,6 +86,8 @@ SECTIONS
 	__bios_start = LOADADDR(.bios);
 	__bios_size = SIZEOF(.bios);
 
+#ifndef CONFIG_X86_NO_RESET_VECTOR
+
 	/*
 	 * The following expressions place the 16-bit Real-Mode code and
 	 * Reset Vector at the end of the Flash ROM
@@ -94,4 +97,5 @@ SECTIONS
 
 	. = RESET_VEC_LOC;
 	.resetvec : AT (CONFIG_SYS_TEXT_BASE + (CONFIG_SYS_MONITOR_LEN - RESET_SEG_SIZE + RESET_VEC_LOC)) { KEEP(*(.resetvec)); }
+#endif
 }

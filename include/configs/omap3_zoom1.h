@@ -198,7 +198,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
@@ -252,7 +252,6 @@
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
 /*-----------------------------------------------------------------------

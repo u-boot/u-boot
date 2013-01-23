@@ -39,6 +39,7 @@
 
 #include <asm/errno.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/nand_ecc.h>
 
 /* The PPC4xx NDFC uses Smart Media (SMC) bytes order */
 #ifdef CONFIG_NAND_NDFC

@@ -76,10 +76,6 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
-#define CONFIG_SYS_SRIO
-#define CONFIG_SRIO1			/* SRIO port 1 */
-#define CONFIG_SRIO2			/* SRIO port 2 */
-
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
 
 #define CONFIG_ENV_OVERWRITE
@@ -553,7 +549,7 @@
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_QE_FMAN_FW_ADDR		0xEF000000
+#define CONFIG_SYS_QE_FMAN_FW_ADDR		0xEFF40000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
@@ -718,10 +714,10 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"bank_intlv=cs0_cs1;"					\
-	"usb1:dr_mode=host,phy_type=" MK_STR(__USB_PHY_TYPE) "\0"\
+	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
-	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"			\
-	"ubootaddr=" MK_STR(CONFIG_SYS_TEXT_BASE) "\0"			\
+	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
+	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
 	"protect off $ubootaddr +$filesize && "			\
 	"erase $ubootaddr +$filesize && "			\

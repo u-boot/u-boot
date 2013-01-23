@@ -24,9 +24,9 @@
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart-spi-switch.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/tegra_spi.h>
-
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/tegra_spi.h>
+#include <asm/arch-tegra/board.h>
 
 /* position of the UART/SPI select switch */
 enum spi_uart_switch {

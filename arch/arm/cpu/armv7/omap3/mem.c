@@ -42,14 +42,7 @@ static const u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG5,
 	M_NAND_GPMC_CONFIG6, 0
 };
-
-#if defined(CONFIG_ENV_IS_IN_NAND)
-#define GPMC_CS 0
-#else
-#define GPMC_CS 1
-#endif
-
-#endif
+#endif /* CONFIG_CMD_NAND */
 
 #if defined(CONFIG_CMD_ONENAND)
 static const u32 gpmc_onenand[GPMC_MAX_REG] = {
@@ -60,14 +53,7 @@ static const u32 gpmc_onenand[GPMC_MAX_REG] = {
 	ONENAND_GPMC_CONFIG5,
 	ONENAND_GPMC_CONFIG6, 0
 };
-
-#if defined(CONFIG_ENV_IS_IN_ONENAND)
-#define GPMC_CS 0
-#else
-#define GPMC_CS 1
-#endif
-
-#endif
+#endif /* CONFIG_CMD_ONENAND */
 
 /********************************************************
  *  mem_ok() - test used to see if timings are correct

@@ -39,7 +39,6 @@
 #define CONFIG_SYS_BOARD_ODMDATA	0x2b0d8011
 
 /* Board-specific serial config */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTD	/* UARTD: debug UART */
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
@@ -55,7 +54,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_TEGRA_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		NV_PA_NAND_BASE
 
 /* Environment in NAND, aligned to start of last sector */
 #define CONFIG_ENV_IS_IN_NAND

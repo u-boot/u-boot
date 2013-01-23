@@ -22,7 +22,8 @@
  */
 
 #include <common.h>
-
+#include <linux/compiler.h>
+#include <serial.h>
 #include <asm/arch/s3c6400.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,8 +40,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #else
 #error "Bad: you didn't configure serial ..."
 #endif
-
-#define barrier() asm volatile("" ::: "memory")
 
 /*
  * The coefficient, used to calculate the baudrate on S3C6400 UARTs is
@@ -68,7 +67,7 @@ static const int udivslot[] = {
 	0xffdf,
 };
 
-void serial_setbrg(void)
+static void s3c64xx_serial_setbrg(void)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 	u32 pclk = get_PCLK();
@@ -88,7 +87,7 @@ void serial_setbrg(void)
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  */
-int serial_init(void)
+static int s3c64xx_serial_init(void)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 
@@ -110,7 +109,7 @@ int serial_init(void)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_getc(void)
+static int s3c64xx_serial_getc(void)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 
@@ -137,7 +136,7 @@ void enable_putc(void)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc(const char c)
+static void s3c64xx_serial_putc(const char c)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 
@@ -159,15 +158,30 @@ void serial_putc(const char c)
 /*
  * Test whether a character is in the RX buffer
  */
-int serial_tstc(void)
+static int s3c64xx_serial_tstc(void)
 {
 	s3c64xx_uart *const uart = s3c64xx_get_base_uart(UART_NR);
 
 	return uart->UTRSTAT & 0x1;
 }
 
-void serial_puts(const char *s)
+static struct serial_device s3c64xx_serial_drv = {
+	.name	= "s3c64xx_serial",
+	.start	= s3c64xx_serial_init,
+	.stop	= NULL,
+	.setbrg	= s3c64xx_serial_setbrg,
+	.putc	= s3c64xx_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= s3c64xx_serial_getc,
+	.tstc	= s3c64xx_serial_tstc,
+};
+
+void s3c64xx_serial_initialize(void)
 {
-	while (*s)
-		serial_putc(*s++);
+	serial_register(&s3c64xx_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &s3c64xx_serial_drv;
 }

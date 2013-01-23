@@ -104,6 +104,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_CSPI_CLK:
 	case MXC_UART_CLK:
 	case MXC_ESDHC_CLK:
+	case MXC_I2C_CLK:
 		return mx31_get_ipg_clk();
 	case MXC_IPU_CLK:
 		return mx31_get_hsp_clk();

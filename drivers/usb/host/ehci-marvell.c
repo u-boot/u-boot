@@ -26,7 +26,6 @@
 #include <asm/io.h>
 #include <usb.h>
 #include "ehci.h"
-#include "ehci-core.h"
 #include <asm/arch/cpu.h>
 
 #if defined(CONFIG_KIRKWOOD)
@@ -91,17 +90,17 @@ static void usb_brg_adrdec_setup(void)
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	usb_brg_adrdec_setup();
 
-	hccr = (struct ehci_hccr *)(MVUSB0_BASE + 0x100);
-	hcor = (struct ehci_hcor *)((uint32_t) hccr
-			+ HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	*hccr = (struct ehci_hccr *)(MVUSB0_BASE + 0x100);
+	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
+			+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	debug("ehci-marvell: init hccr %x and hcor %x hc_length %d\n",
-		(uint32_t)hccr, (uint32_t)hcor,
-		(uint32_t)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+		(uint32_t)*hccr, (uint32_t)*hcor,
+		(uint32_t)HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	return 0;
 }
@@ -110,7 +109,7 @@ int ehci_hcd_init(void)
  * Destroy the appropriate control structures corresponding
  * the the EHCI host controller.
  */
-int ehci_hcd_stop(void)
+int ehci_hcd_stop(int index)
 {
 	return 0;
 }

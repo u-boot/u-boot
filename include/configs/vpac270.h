@@ -75,6 +75,7 @@
  */
 #define	CONFIG_PXA_SERIAL
 #define	CONFIG_FFUART			1
+#define CONFIG_CONS_INDEX		3
 #define	CONFIG_BAUDRATE			115200
 
 /*

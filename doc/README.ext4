@@ -1,15 +1,28 @@
 This patch series adds support for ext4 ls,load and write features in uboot
 Journaling is supported for write feature.
 
+To enable support for the ext4 (and ext2) filesystem implementation,
+#define CONFIG_FS_EXT4
+
+If you want write support,
+#define CONFIG_EXT4_WRITE
+
 To Enable ext2 ls and load commands, modify the board specific config file with
 #define CONFIG_CMD_EXT2
+This automatically defines CONFIG_FS_EXT4 for you.
 
 To Enable ext4 ls and load commands, modify the board specific config file with
 #define CONFIG_CMD_EXT4
+This automatically defines CONFIG_FS_EXT4 for you.
 
 To enable ext4 write command, modify the board specific config file with
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
+These automatically define CONFIG_FS_EXT4 and CONFIG_EXT4_WRITE for you.
+
+Also relevant are the generic filesystem commands,
+#define CONFIG_CMD_FS_GENERIC
+This does not automatically enable EXT4 support for you.
 
 Steps to test:
 

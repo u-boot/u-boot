@@ -56,7 +56,6 @@
  * Serial console configuration
  */
 #define CONFIG_PSC_CONSOLE	1	/* default console is on PSC1 */
-#define CONFIG_SERIAL_MULTI	1	/* support multiple consoles */
 #define CONFIG_PSC_CONSOLE2	6	/* second console is on PSC6 */
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }

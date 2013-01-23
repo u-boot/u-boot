@@ -48,7 +48,7 @@ typedef	struct	global_data {
 	unsigned long	tbl;
 	unsigned long	lastinc;
 #endif
-	unsigned long	baudrate;
+	unsigned int	baudrate;
 	unsigned long	have_console;	/* serial_init() was called */
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */

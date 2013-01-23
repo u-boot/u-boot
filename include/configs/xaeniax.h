@@ -54,7 +54,7 @@
  */
 #define CONFIG_PXA_SERIAL
 #define CONFIG_BTUART	       1       /* we use BTUART on XAENIAX */
-
+#define CONFIG_CONS_INDEX	4
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

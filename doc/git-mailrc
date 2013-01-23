@@ -30,6 +30,7 @@ alias rbohmer        Remy Bohmer <linux@bohmer.net>
 alias reinhardm      Reinhard Meyer <u-boot@emk-elektronik.de>
 alias sbabic         Stefano Babic <sbabic@denx.de>
 alias scottwood      Scott Wood <scottwood@freescale.com>
+alias sjg            Simon Glass <sjg@chromium.org>
 alias smcnutt        Scott McNutt <smcnutt@psyent.com>
 alias stroese        Stefan Roese <sr@denx.de>
 alias vapier         Mike Frysinger <vapier@gentoo.org>
@@ -50,7 +51,7 @@ alias rmobile        uboot, iwamatsu
 alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom
-alias tegra          uboot, Simon Glass <sjg@chromium.org>, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
+alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
 alias ti             uboot, Tom Rini <trini@ti.com>
 
@@ -84,7 +85,7 @@ alias ppc4xx         uboot, stroese
 alias ppc7xx         uboot, wd
 alias ppc74xx        uboot, wd
 
-alias sandbox        Simon Glass <sjg@chromium.org>
+alias sandbox        sjg
 alias sb             sandbox
 
 alias sparc          uboot, Daniel Hellstrom <daniel@gaisler.com>
@@ -92,10 +93,11 @@ alias sparc          uboot, Daniel Hellstrom <daniel@gaisler.com>
 alias superh         uboot, iwamatsu
 alias sh             superh
 
-alias x86            uboot, gruss
+alias x86            uboot, sjg, gruss
 
 # Subsystem aliases
 alias cfi            uboot, stroese
+alias kerneldoc      uboot, marex
 alias fdt            uboot, Jerry Van Baren <vanbaren@cideas.com>
 alias i2c            uboot, hs
 alias mmc            uboot, afleming

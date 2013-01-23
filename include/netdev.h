@@ -165,10 +165,9 @@ static inline int pci_eth_init(bd_t *bis)
  * the stuct and enums here are used to specify switch configuration params
  */
 #if defined(CONFIG_MV88E61XX_SWITCH)
-enum mv88e61xx_cfg_vlan {
-	MV88E61XX_VLANCFG_DEFAULT,
-	MV88E61XX_VLANCFG_ROUTER
-};
+
+/* constants for any 88E61xx switch */
+#define MV88E61XX_MAX_PORTS_NUM	6
 
 enum mv88e61xx_cfg_mdip {
 	MV88E61XX_MDIP_NOCHANGE,
@@ -194,7 +193,7 @@ enum mv88e61xx_cfg_prtstt {
 
 struct mv88e61xx_config {
 	char *name;
-	enum mv88e61xx_cfg_vlan vlancfg;
+	u8 vlancfg[MV88E61XX_MAX_PORTS_NUM];
 	enum mv88e61xx_cfg_rgmiid rgmii_delay;
 	enum mv88e61xx_cfg_prtstt portstate;
 	enum mv88e61xx_cfg_ledinit led_init;
@@ -202,6 +201,18 @@ struct mv88e61xx_config {
 	u32 ports_enabled;
 	u8 cpuport;
 };
+
+/*
+ * Common mappings for Internal VLANs
+ * These mappings consider that all ports are useable; the driver
+ * will mask inexistent/unused ports.
+ */
+
+/* Switch mode : routes any port to any port */
+#define MV88E61XX_VLANCFG_SWITCH { 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F }
+
+/* Router mode: routes only CPU port 5 to/from non-CPU ports 0-4 */
+#define MV88E61XX_VLANCFG_ROUTER { 0x20, 0x20, 0x20, 0x20, 0x20, 0x1F }
 
 int mv88e61xx_switch_initialize(struct mv88e61xx_config *swconfig);
 #endif /* CONFIG_MV88E61XX_SWITCH */

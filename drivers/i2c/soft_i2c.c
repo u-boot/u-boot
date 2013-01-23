@@ -30,6 +30,9 @@
 #include <ioports.h>
 #include <asm/io.h>
 #endif
+#if defined(CONFIG_AVR32)
+#include <asm/arch/portmux.h>
+#endif
 #if defined(CONFIG_AT91FAMILY)
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
@@ -40,9 +43,6 @@
 #endif
 #ifdef	CONFIG_IXP425			/* only valid for IXP425 */
 #include <asm/arch/ixp425.h>
-#endif
-#ifdef CONFIG_LPC2292
-#include <asm/arch/hardware.h>
 #endif
 #if defined(CONFIG_MPC852T) || defined(CONFIG_MPC866)
 #include <asm/io.h>

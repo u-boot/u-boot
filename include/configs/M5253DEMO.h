@@ -99,7 +99,7 @@
 
 #	define CONFIG_EXTRA_ENV_SETTINGS		\
 		"netdev=eth0\0"				\
-		"inpclk=" MK_STR(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
+		"inpclk=" __stringify(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
 		"loadaddr=10000\0"			\
 		"u-boot=u-boot.bin\0"			\
 		"load=tftp ${loadaddr) ${u-boot}\0"	\

@@ -30,7 +30,6 @@
 #include <ide.h>
 #include <pci.h>
 
-extern ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS];
 int cpci_hd_type;
 
 int ata_device(int dev)

@@ -103,6 +103,11 @@ The ways to configure the ddr interleaving mode
   # bank(chip-select) interleaving (cs0+cs1+cs2+cs3) (4x1)
   setenv hwconfig "fsl_ddr:bank_intlv=cs0_cs1_cs2_cs3"
 
+  # bank(chip-select) interleaving (auto)
+  setenv hwconfig "fsl_ddr:bank_intlv=auto"
+  This auto mode only select from cs0_cs1_cs2_cs3, cs0_cs1, null dependings
+  on DIMMs.
+
 Memory controller address hashing
 ==================================
 If the DDR controller supports address hashing, it can be enabled by hwconfig.

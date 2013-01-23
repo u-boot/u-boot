@@ -373,8 +373,7 @@ static void nand_print_and_set_info(int idx)
 {
 	nand_info_t *nand = &nand_info[idx];
 	struct nand_chip *chip = nand->priv;
-	const int bufsz = 32;
-	char buf[bufsz];
+	char buf[32];
 
 	printf("Device %d: ", idx);
 	if (chip->numchips > 1)
@@ -429,7 +428,7 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 	return ret;
 }
 
-int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, ret = 0;
 	ulong addr;
@@ -701,6 +700,25 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		return ret == 0 ? 0 : 1;
 	}
 
+#ifdef CONFIG_CMD_NAND_TORTURE
+	if (strcmp(cmd, "torture") == 0) {
+		if (argc < 3)
+			goto usage;
+
+		if (!str2off(argv[2], &off)) {
+			puts("Offset is not a valid number\n");
+			return 1;
+		}
+
+		printf("\nNAND torture: device %d offset 0x%llx size 0x%x\n",
+			dev, off, nand->erasesize);
+		ret = nand_torture(nand, off);
+		printf(" %s\n", ret ? "Failed" : "Passed");
+
+		return ret == 0 ? 0 : 1;
+	}
+#endif
+
 	if (strcmp(cmd, "markbad") == 0) {
 		argc -= 2;
 		argv += 2;
@@ -781,9 +799,8 @@ usage:
 	return CMD_RET_USAGE;
 }
 
-U_BOOT_CMD(
-	nand, CONFIG_SYS_MAXARGS, 1, do_nand,
-	"NAND sub-system",
+#ifdef CONFIG_SYS_LONGHELP
+static char nand_help_text[] =
 	"info - show available NAND devices\n"
 	"nand device [dev] - show or set current device\n"
 	"nand read - addr off|partition size\n"
@@ -812,6 +829,9 @@ U_BOOT_CMD(
 	"nand erase.chip [clean] - erase entire chip'\n"
 	"nand bad - show bad blocks\n"
 	"nand dump[.oob] off - dump page\n"
+#ifdef CONFIG_CMD_NAND_TORTURE
+	"nand torture off - torture block at offset\n"
+#endif
 	"nand scrub [-y] off size | scrub.part partition | scrub.chip\n"
 	"    really clean NAND erasing bad blocks (UNSAFE)\n"
 	"nand markbad off [...] - mark bad block(s) at offset (UNSAFE)\n"
@@ -829,6 +849,12 @@ U_BOOT_CMD(
 	"nand env.oob set off|partition - set enviromnent offset\n"
 	"nand env.oob get - get environment offset"
 #endif
+	"";
+#endif
+
+U_BOOT_CMD(
+	nand, CONFIG_SYS_MAXARGS, 1, do_nand,
+	"NAND sub-system", nand_help_text
 );
 
 static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
@@ -913,7 +939,8 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	return bootm_maybe_autostart(cmdtp, cmd);
 }
 
-int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_nandboot(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	char *boot_device = NULL;
 	int idx;

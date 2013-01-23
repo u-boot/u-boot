@@ -24,8 +24,6 @@
 
 #define CONFIG_MX53
 
-#define CONFIG_SYS_MX5_HCLK	24000000
-#define CONFIG_SYS_MX5_CLK32		32768
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -57,10 +55,11 @@
 #define CONFIG_SYS_I2C_SPEED            100000
 
 /* PMIC Configs */
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_FSL
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_FSL
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR    8
+#define CONFIG_PMIC_FSL_MC13892
 #define CONFIG_RTC_MC13XXX
 
 /* MMC Configs */
@@ -75,7 +74,6 @@
 #define CONFIG_DOS_PARTITION
 
 /* Eth Configs */
-#define CONFIG_HAS_ETH1
 #define CONFIG_MII
 
 #define CONFIG_FEC_MXC
@@ -134,7 +132,7 @@
 		"dhcp ${uimage}; bootm\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \

@@ -548,9 +548,6 @@
 				"then; run fitboot;else;run ubiboot;fi;"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200n8"
 
-#define XMK_STR(x)	#x
-#define MK_STR(x)	XMK_STR(x)
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console_nr=0\0"\
 	"stdin=serial\0"\
@@ -559,15 +556,15 @@
 	"boot_sqfs=1\0"\
 	"usb_dr_mode=host\0"\
 	"bootfile=MergerBox.fit\0"\
-	"baudrate=" MK_STR(CONFIG_BAUDRATE) "\0"\
+	"baudrate=" __stringify(CONFIG_BAUDRATE) "\0"\
 	"fpga=0\0"\
-	"fpgadata=" MK_STR(MV_FPGA_DATA) "\0"\
-	"fpgadatasize=" MK_STR(MV_FPGA_SIZE) "\0"\
-	"mv_kernel_ram=" MK_STR(MV_KERNEL_ADDR_RAM) "\0"\
-	"mv_initrd_ram=" MK_STR(MV_INITRD_ADDR_RAM) "\0"\
-	"mv_dtb_ram=" MK_STR(MV_DTB_ADDR_RAM) "\0"\
-	"uboota=" MK_STR(CONFIG_SYS_TEXT_BASE) "\0"\
-	"fitaddr=" MK_STR(MV_FITADDR) "\0"\
+	"fpgadata=" __stringify(MV_FPGA_DATA) "\0"\
+	"fpgadatasize=" __stringify(MV_FPGA_SIZE) "\0"\
+	"mv_kernel_ram=" __stringify(MV_KERNEL_ADDR_RAM) "\0"\
+	"mv_initrd_ram=" __stringify(MV_INITRD_ADDR_RAM) "\0"\
+	"mv_dtb_ram=" __stringify(MV_DTB_ADDR_RAM) "\0"\
+	"uboota=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"\
+	"fitaddr=" __stringify(MV_FITADDR) "\0"\
 	"mv_version=" U_BOOT_VERSION "\0"\
 	"mtdids=" MTDIDS_DEFAULT "\0"\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"\
@@ -602,11 +599,8 @@
 	"i2c_speed=i2c dev 0;i2c speed 300000;i2c dev 1;i2c speed 120000\0"\
 	"init_sdi_tx=i2c mw 21 6 0;i2c mw 21 2 0;i2c mw 21 3 0;sleep 1;"\
 		"i2c mw 21 2 ff;i2c mw 21 3 3c\0"\
-	"splashimage=" MK_STR(MV_SPLAH_ADDR) "\0"\
+	"splashimage=" __stringify(MV_SPLAH_ADDR) "\0"\
 	""
-
-#undef MK_STR
-#undef XMK_STR
 
 /*
  * FPGA

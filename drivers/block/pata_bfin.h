@@ -41,8 +41,6 @@ struct ata_port {
 	unsigned char dev_mask;
 };
 
-extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
-
 #define DRV_NAME		"pata-bfin"
 #define DRV_VERSION		"0.9"
 #define __iomem

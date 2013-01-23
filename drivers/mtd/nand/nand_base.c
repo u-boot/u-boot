@@ -1250,7 +1250,8 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 			if (unlikely(ops->mode == MTD_OOB_RAW))
 				ret = chip->ecc.read_page_raw(mtd, chip,
 							      bufpoi, page);
-			else if (!aligned && NAND_HAS_SUBPAGE_READ(chip) && !oob)
+			else if (!aligned && NAND_HAS_SUBPAGE_READ(chip) &&
+			    !oob)
 				ret = chip->ecc.read_subpage(mtd, chip,
 							col, bytes, bufpoi);
 			else
@@ -2606,6 +2607,7 @@ static const struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 						  int *maf_id, int *dev_id,
 						  const struct nand_flash_dev *type)
 {
+	const char *name;
 	int i, maf_idx;
 	u8 id_data[8];
 	int ret;
@@ -2853,14 +2855,14 @@ ident_done:
 		chip->cmdfunc = nand_command_lp;
 
 	/* TODO onfi flash name */
-	MTDDEBUG (MTD_DEBUG_LEVEL0, "NAND device: Manufacturer ID:"
-		" 0x%02x, Chip ID: 0x%02x (%s %s)\n", *maf_id, *dev_id,
-		nand_manuf_ids[maf_idx].name,
+	name = type->name;
 #ifdef CONFIG_SYS_NAND_ONFI_DETECTION
-		chip->onfi_version ? chip->onfi_params.model : type->name);
-#else
-		type->name);
+	if (chip->onfi_version)
+		name = chip->onfi_params.model;
 #endif
+	MTDDEBUG(MTD_DEBUG_LEVEL0, "NAND device: Manufacturer ID:"
+		 " 0x%02x, Chip ID: 0x%02x (%s %s)\n", *maf_id, *dev_id,
+		 nand_manuf_ids[maf_idx].name, name);
 
 	return type;
 }

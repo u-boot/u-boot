@@ -28,18 +28,12 @@
 
 #define CONFIG_MX51	/* in a mx51 */
 
-#define CONFIG_SYS_MX5_HCLK	24000000
-#define CONFIG_SYS_MX5_CLK32		32768
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SYS_TEXT_BASE	0x97800000
 
 #include <asm/arch/imx-regs.h>
-/*
- * Disabled for now due to build problems under Debian and a significant
- * increase in the final file size: 144260 vs. 109536 Bytes.
- */
 
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -71,9 +65,9 @@
 #define CONFIG_MXC_SPI
 
 /* PMIC Controller */
-#define CONFIG_PMIC
-#define CONFIG_PMIC_SPI
-#define CONFIG_PMIC_FSL
+#define CONFIG_POWER
+#define CONFIG_POWER_SPI
+#define CONFIG_POWER_FSL
 #define CONFIG_FSL_PMIC_BUS	0
 #define CONFIG_FSL_PMIC_CS	0
 #define CONFIG_FSL_PMIC_CLK	2500000
@@ -98,7 +92,6 @@
 /*
  * Eth Configs
  */
-#define CONFIG_HAS_ETH1
 #define CONFIG_MII
 
 #define CONFIG_FEC_MXC
@@ -147,12 +140,12 @@
  ***********************************************************/
 
 #include <config_cmd_default.h>
-
+#define CONFIG_CMD_BOOTZ
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_CMD_DATE
 
-#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_ETHPRIME		"FEC0"
 
@@ -184,7 +177,7 @@
 		"dhcp ${uimage}; bootm\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
@@ -238,6 +231,7 @@
 
 #define CONFIG_SYS_DDR_CLKSEL	0
 #define CONFIG_SYS_CLKTL_CBCDR	0x59E35100
+#define CONFIG_SYS_MAIN_PWR_ON
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization

@@ -60,6 +60,59 @@
 
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
+struct gpmc_cs {
+	u32 config1;		/* 0x00 */
+	u32 config2;		/* 0x04 */
+	u32 config3;		/* 0x08 */
+	u32 config4;		/* 0x0C */
+	u32 config5;		/* 0x10 */
+	u32 config6;		/* 0x14 */
+	u32 config7;		/* 0x18 */
+	u32 nand_cmd;		/* 0x1C */
+	u32 nand_adr;		/* 0x20 */
+	u32 nand_dat;		/* 0x24 */
+	u8 res[8];		/* blow up to 0x30 byte */
+};
+
+struct bch_res_0_3 {
+	u32 bch_result_x[4];
+};
+
+struct gpmc {
+	u8 res1[0x10];
+	u32 sysconfig;		/* 0x10 */
+	u8 res2[0x4];
+	u32 irqstatus;		/* 0x18 */
+	u32 irqenable;		/* 0x1C */
+	u8 res3[0x20];
+	u32 timeout_control;	/* 0x40 */
+	u8 res4[0xC];
+	u32 config;		/* 0x50 */
+	u32 status;		/* 0x54 */
+	u8 res5[0x8];		/* 0x58 */
+	struct gpmc_cs cs[8];	/* 0x60, 0x90, .. */
+	u8 res6[0x14];		/* 0x1E0 */
+	u32 ecc_config;		/* 0x1F4 */
+	u32 ecc_control;	/* 0x1F8 */
+	u32 ecc_size_config;	/* 0x1FC */
+	u32 ecc1_result;	/* 0x200 */
+	u32 ecc2_result;	/* 0x204 */
+	u32 ecc3_result;	/* 0x208 */
+	u32 ecc4_result;	/* 0x20C */
+	u32 ecc5_result;	/* 0x210 */
+	u32 ecc6_result;	/* 0x214 */
+	u32 ecc7_result;	/* 0x218 */
+	u32 ecc8_result;	/* 0x21C */
+	u32 ecc9_result;	/* 0x220 */
+	u8 res7[12];		/* 0x224 */
+	u32 testmomde_ctrl;	/* 0x230 */
+	u8 res8[12];		/* 0x234 */
+	struct bch_res_0_3 bch_result_0_3[2];	/* 0x240 */
+};
+
+/* Used for board specific gpmc initialization */
+extern struct gpmc *gpmc_cfg;
+
 /* Encapsulating core pll registers */
 struct cm_wkuppll {
 	unsigned int wkclkstctrl;	/* offset 0x00 */
@@ -82,7 +135,8 @@ struct cm_wkuppll {
 	unsigned int clkseldpllcore;	/* offset 0x68 */
 	unsigned int resv9[1];
 	unsigned int idlestdpllper;	/* offset 0x70 */
-	unsigned int resv10[3];
+	unsigned int resv10[2];
+	unsigned int clkdcoldodpllper;	/* offset 0x7c */
 	unsigned int divm4dpllcore;	/* offset 0x80 */
 	unsigned int divm5dpllcore;	/* offset 0x84 */
 	unsigned int clkmoddpllmpu;	/* offset 0x88 */
@@ -169,6 +223,12 @@ struct cm_dpll {
 	unsigned int clktimer2clk;	/* offset 0x08 */
 };
 
+/* Control Module RTC registers */
+struct cm_rtc {
+	unsigned int rtcclkctrl;	/* offset 0x0 */
+	unsigned int clkstctrl;		/* offset 0x4 */
+};
+
 /* Watchdog timer registers */
 struct wd_timer {
 	unsigned int resv1[4];
@@ -218,6 +278,15 @@ struct gptimer {
 	unsigned int tcar2;		/* offset 0x58 */
 };
 
+/* RTC Registers */
+struct rtc_regs {
+	unsigned int res[21];
+	unsigned int osc;		/* offset 0x54 */
+	unsigned int res2[5];
+	unsigned int kick0r;		/* offset 0x6c */
+	unsigned int kick1r;		/* offset 0x70 */
+};
+
 /* UART Registers */
 struct uart_sys {
 	unsigned int resv1[21];
@@ -260,12 +329,16 @@ struct ctrl_stat {
 /* Control Device Register */
 struct ctrl_dev {
 	unsigned int deviceid;		/* offset 0x00 */
-	unsigned int resv1[11];
+	unsigned int resv1[7];
+	unsigned int usb_ctrl0;		/* offset 0x20 */
+	unsigned int resv2;
+	unsigned int usb_ctrl1;		/* offset 0x28 */
+	unsigned int resv3;
 	unsigned int macid0l;		/* offset 0x30 */
 	unsigned int macid0h;		/* offset 0x34 */
 	unsigned int macid1l;		/* offset 0x38 */
 	unsigned int macid1h;		/* offset 0x3c */
-	unsigned int resv2[4];
+	unsigned int resv4[4];
 	unsigned int miisel;		/* offset 0x50 */
 };
 #endif /* __ASSEMBLY__ */

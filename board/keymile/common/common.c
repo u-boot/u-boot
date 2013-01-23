@@ -121,7 +121,7 @@ int i2c_make_abort(void)
 {
 
 #if defined(CONFIG_HARD_I2C) && !defined(MACH_TYPE_KM_KIRKWOOD)
-	immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
+	immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;
 
 	/*

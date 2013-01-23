@@ -466,39 +466,6 @@ typedef struct scc_enet {
 
 #endif	/* MPC860ADS */
 
-/***  AMX860  **********************************************/
-
-#if defined(CONFIG_AMX860)
-
-/* This ENET stuff is for the AMX860 with ethernet on SCC1.
- */
-
-#define PROFF_ENET	PROFF_SCC1
-#define CPM_CR_ENET	CPM_CR_CH_SCC1
-#define SCC_ENET	0
-
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0400)
-#define PA_ENET_RCLK	((ushort)0x0800)
-
-#define PB_ENET_TENA	((uint)0x00001000)
-
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000003e)
-
-/* 68160 PHY control */
-
-#define PB_ENET_ETHLOOP	((uint)0x00020000)
-#define PB_ENET_TPFLDL	((uint)0x00010000)
-#define PB_ENET_TPSQEL	((uint)0x00008000)
-#define PD_ENET_ETH_EN	((ushort)0x0004)
-
-#endif	/* CONFIG_AMX860 */
-
 /***  BSEIP  **********************************************************/
 
 #ifdef CONFIG_BSEIP
@@ -546,38 +513,6 @@ typedef struct scc_enet {
 #define SICR_ENET_MASK	((uint)0x0000ff00)
 #define SICR_ENET_CLKRT	((uint)0x00003400)
 #endif	/* CONFIG_FLAGADM */
-
-/***  C2MON  **********************************************************/
-
-#ifdef CONFIG_C2MON
-
-# ifndef CONFIG_FEC_ENET	/* use SCC for 10Mbps Ethernet	*/
-#  error "Ethernet on SCC not supported on C2MON Board!"
-# else				/* Use FEC for Fast Ethernet */
-
-#undef	SCC_ENET
-#define FEC_ENET
-
-#define PD_MII_TXD1	((ushort)0x1000)	/* PD  3 */
-#define PD_MII_TXD2	((ushort)0x0800)	/* PD  4 */
-#define PD_MII_TXD3	((ushort)0x0400)	/* PD  5 */
-#define PD_MII_RX_DV	((ushort)0x0200)	/* PD  6 */
-#define PD_MII_RX_ERR	((ushort)0x0100)	/* PD  7 */
-#define PD_MII_RX_CLK	((ushort)0x0080)	/* PD  8 */
-#define PD_MII_TXD0	((ushort)0x0040)	/* PD  9 */
-#define PD_MII_RXD0	((ushort)0x0020)	/* PD 10 */
-#define PD_MII_TX_ERR	((ushort)0x0010)	/* PD 11 */
-#define PD_MII_MDC	((ushort)0x0008)	/* PD 12 */
-#define PD_MII_RXD1	((ushort)0x0004)	/* PD 13 */
-#define PD_MII_RXD2	((ushort)0x0002)	/* PD 14 */
-#define PD_MII_RXD3	((ushort)0x0001)	/* PD 15 */
-
-#define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3...15 */
-
-# endif	/* CONFIG_FEC_ENET */
-#endif	/* CONFIG_C2MON */
-
-/*********************************************************************/
 
 /***  ELPT860 *********************************************************/
 
@@ -828,33 +763,6 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_HERMES */
 
-/***  IAD210  **********************************************************/
-
-/* The IAD210 uses the FEC on a MPC860P for Ethernet */
-
-#if defined(CONFIG_IAD210)
-
-# define  FEC_ENET    /* use FEC for Ethernet */
-# undef   SCC_ENET
-
-# define PD_MII_TXD1    ((ushort) 0x1000 )	/* PD  3 */
-# define PD_MII_TXD2    ((ushort) 0x0800 )	/* PD  4 */
-# define PD_MII_TXD3    ((ushort) 0x0400 )	/* PD  5 */
-# define PD_MII_RX_DV   ((ushort) 0x0200 )	/* PD  6 */
-# define PD_MII_RX_ERR  ((ushort) 0x0100 )	/* PD  7 */
-# define PD_MII_RX_CLK  ((ushort) 0x0080 )	/* PD  8 */
-# define PD_MII_TXD0    ((ushort) 0x0040 )	/* PD  9 */
-# define PD_MII_RXD0    ((ushort) 0x0020 )	/* PD 10 */
-# define PD_MII_TX_ERR  ((ushort) 0x0010 )	/* PD 11 */
-# define PD_MII_MDC     ((ushort) 0x0008 )	/* PD 12 */
-# define PD_MII_RXD1    ((ushort) 0x0004 )	/* PD 13 */
-# define PD_MII_RXD2    ((ushort) 0x0002 )	/* PD 14 */
-# define PD_MII_RXD3    ((ushort) 0x0001 )	/* PD 15 */
-
-# define PD_MII_MASK    ((ushort) 0x1FFF )   /* PD 3...15 */
-
-#endif	/* CONFIG_IAD210 */
-
 /*** ICU862  **********************************************************/
 
 #if defined(CONFIG_ICU862)
@@ -953,34 +861,6 @@ typedef struct scc_enet {
 #define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3...15 */
 
 #endif	/* CONFIG_KUP4K */
-
-
-/***  LANTEC  *********************************************************/
-
-#if defined(CONFIG_LANTEC) && CONFIG_LANTEC >= 2
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC2 use.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA  6 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-
-#define PC_ENET_LBK	((ushort)0x0010)	/* PC 11 */
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC  8 */
-
-/* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK2) to
- * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x0000FF00)
-#define SICR_ENET_CLKRT	((uint)0x00002E00)
-#endif	/* CONFIG_LANTEC v2 */
 
 /***  LWMON  **********************************************************/
 
@@ -1373,15 +1253,14 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_SXNI855T */
 
-/***  MVS1, TQM823L/M, TQM850L/M, TQM885D, ETX094, R360MPI  **********/
+/***  MVS1, TQM823L/M, TQM850L/M, TQM885D, R360MPI  **********/
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
     defined(CONFIG_R360MPI) || defined(CONFIG_RBC823)  || \
-    defined(CONFIG_TQM823L) || defined(CONFIG_TQM823M) || \
-    defined(CONFIG_TQM850L) || defined(CONFIG_TQM850M) || \
-    defined(CONFIG_TQM885D) || defined(CONFIG_ETX094)  || \
-    defined(CONFIG_RRVISION)|| defined(CONFIG_VIRTLAB2)|| \
-   (defined(CONFIG_LANTEC) && CONFIG_LANTEC < 2)
+    defined(CONFIG_RRVISION)|| defined(CONFIG_TQM823L) || \
+    defined(CONFIG_TQM823M) || defined(CONFIG_TQM850L) || \
+    defined(CONFIG_TQM850M) || defined(CONFIG_TQM885D) || \
+    defined(CONFIG_RRVISION)|| defined(CONFIG_VIRTLAB2)
 
 /* Bits in parallel I/O port registers that have to be set/cleared
  * to configure the pins for SCC2 use.

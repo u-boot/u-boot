@@ -50,7 +50,9 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Declarations */
 extern omap3_sysinfo sysinfo;
 static void omap3_setup_aux_cr(void);
+#ifndef CONFIG_SYS_L2CACHE_OFF
 static void omap3_invalidate_l2_cache_secure(void);
+#endif
 
 static const struct gpio_bank gpio_bank_34xx[6] = {
 	{ (void *)OMAP34XX_GPIO1_BASE, METHOD_GPIO_24XX },
@@ -410,19 +412,6 @@ static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
 	}
 }
 
-static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
-{
-	u32 acr;
-
-	/* Read ACR */
-	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
-	acr &= ~clear_bits;
-	acr |= set_bits;
-
-	/* Write ACR - affects non-secure banked bits */
-	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
-}
-
 static void omap3_setup_aux_cr(void)
 {
 	/* Workaround for Cortex-A8 errata: #454179 #430973
@@ -436,6 +425,19 @@ static void omap3_setup_aux_cr(void)
 }
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
+static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
+{
+	u32 acr;
+
+	/* Read ACR */
+	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
+	acr &= ~clear_bits;
+	acr |= set_bits;
+
+	/* Write ACR - affects non-secure banked bits */
+	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
+}
+
 /* Invalidate the entire L2 cache from secure mode */
 static void omap3_invalidate_l2_cache_secure(void)
 {
@@ -476,7 +478,7 @@ void omap3_outer_cache_disable(void)
 	 */
 	omap3_update_aux_cr(0, 0x2);
 }
-#endif
+#endif /* !CONFIG_SYS_L2CACHE_OFF */
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
@@ -484,4 +486,4 @@ void enable_caches(void)
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }
-#endif
+#endif /* !CONFIG_SYS_DCACHE_OFF */

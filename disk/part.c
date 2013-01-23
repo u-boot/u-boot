@@ -35,12 +35,15 @@
 #define PRINTF(fmt,args...)
 #endif
 
+/* Rather than repeat this expression each time, add a define for it */
 #if (defined(CONFIG_CMD_IDE) || \
      defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
      defined(CONFIG_SYSTEMACE) )
+#define HAVE_BLOCK_DEVICE
+#endif
 
 struct block_drvr {
 	char *name;
@@ -71,6 +74,7 @@ static const struct block_drvr block_drvr[] = {
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef HAVE_BLOCK_DEVICE
 block_dev_desc_t *get_dev(const char *ifname, int dev)
 {
 	const struct block_drvr *drvr = block_drvr;
@@ -104,12 +108,7 @@ block_dev_desc_t *get_dev(const char *ifname, int dev)
 }
 #endif
 
-#if (defined(CONFIG_CMD_IDE) || \
-     defined(CONFIG_CMD_SATA) || \
-     defined(CONFIG_CMD_SCSI) || \
-     defined(CONFIG_CMD_USB) || \
-     defined(CONFIG_MMC) || \
-     defined(CONFIG_SYSTEMACE) )
+#ifdef HAVE_BLOCK_DEVICE
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -200,7 +199,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 		break;
 	}
 	puts ("\n");
-	if ((dev_desc->lba * dev_desc->blksz)>0L) {
+	if (dev_desc->lba > 0L && dev_desc->blksz > 0L) {
 		ulong mb, mb_quot, mb_rem, gb, gb_quot, gb_rem;
 		lbaint_t lba;
 
@@ -239,18 +238,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 }
 #endif
 
-#if (defined(CONFIG_CMD_IDE) || \
-     defined(CONFIG_CMD_SATA) || \
-     defined(CONFIG_CMD_SCSI) || \
-     defined(CONFIG_CMD_USB) || \
-     defined(CONFIG_MMC)		|| \
-     defined(CONFIG_SYSTEMACE) )
-
-#if defined(CONFIG_MAC_PARTITION) || \
-    defined(CONFIG_DOS_PARTITION) || \
-    defined(CONFIG_ISO_PARTITION) || \
-    defined(CONFIG_AMIGA_PARTITION) || \
-    defined(CONFIG_EFI_PARTITION)
+#ifdef HAVE_BLOCK_DEVICE
 
 void init_part (block_dev_desc_t * dev_desc)
 {
@@ -293,6 +281,12 @@ void init_part (block_dev_desc_t * dev_desc)
 }
 
 
+#if defined(CONFIG_MAC_PARTITION) || \
+	defined(CONFIG_DOS_PARTITION) || \
+	defined(CONFIG_ISO_PARTITION) || \
+	defined(CONFIG_AMIGA_PARTITION) || \
+	defined(CONFIG_EFI_PARTITION)
+
 static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 {
 	puts ("\nPartition Map for ");
@@ -325,6 +319,8 @@ static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 	printf (" device %d  --   Partition Type: %s\n\n",
 			dev_desc->dev, type);
 }
+
+#endif /* any CONFIG_..._PARTITION */
 
 void print_part (block_dev_desc_t * dev_desc)
 {
@@ -372,24 +368,12 @@ void print_part (block_dev_desc_t * dev_desc)
 	puts ("## Unknown partition table\n");
 }
 
-
-#else	/* neither MAC nor DOS nor ISO nor AMIGA nor EFI partition configured */
-# error neither CONFIG_MAC_PARTITION nor CONFIG_DOS_PARTITION
-# error nor CONFIG_ISO_PARTITION nor CONFIG_AMIGA_PARTITION
-# error nor CONFIG_EFI_PARTITION configured!
-#endif
-
-#endif
+#endif /* HAVE_BLOCK_DEVICE */
 
 int get_partition_info(block_dev_desc_t *dev_desc, int part
 					, disk_partition_t *info)
 {
-#if defined(CONFIG_CMD_IDE) || \
-	defined(CONFIG_CMD_SATA) || \
-	defined(CONFIG_CMD_SCSI) || \
-	defined(CONFIG_CMD_USB) || \
-	defined(CONFIG_MMC) || \
-	defined(CONFIG_SYSTEMACE)
+#ifdef HAVE_BLOCK_DEVICE
 
 #ifdef CONFIG_PARTITION_UUIDS
 	/* The common case is no UUID support */
@@ -444,7 +428,7 @@ int get_partition_info(block_dev_desc_t *dev_desc, int part
 	default:
 		break;
 	}
-#endif
+#endif /* HAVE_BLOCK_DEVICE */
 
 	return -1;
 }
@@ -561,6 +545,8 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 		info->size = (*dev_desc)->lba;
 		info->blksz = (*dev_desc)->blksz;
 		info->bootable = 0;
+		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->name, "Whole Disk");
 #ifdef CONFIG_PARTITION_UUIDS
 		info->uuid[0] = 0;
 #endif
@@ -624,9 +610,9 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 			 */
 			if (p == MAX_SEARCH_PARTITIONS + 1)
 				*info = tmpinfo;
-			ret = 0;
 		} else {
 			printf("** No valid partitions found **\n");
+			ret = -1;
 			goto cleanup;
 		}
 	}

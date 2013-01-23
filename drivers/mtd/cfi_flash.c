@@ -752,8 +752,8 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
  */
 static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 {
-	static flash_sect_t saved_sector = 0; /* previously found sector */
-	static flash_info_t *saved_info = 0; /* previously used flash bank */
+	static flash_sect_t saved_sector; /* previously found sector */
+	static flash_info_t *saved_info; /* previously used flash bank */
 	flash_sect_t sector = saved_sector;
 
 	if ((info != saved_info) || (sector >= info->sector_count))
@@ -1128,7 +1128,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 						AMD_CMD_ERASE_START);
 				flash_unlock_seq (info, sect);
 				flash_write_cmd (info, sect, 0,
-						 AMD_CMD_ERASE_SECTOR);
+						 info->cmd_erase_sector);
 				break;
 #ifdef CONFIG_FLASH_CFI_LEGACY
 			case CFI_CMDSET_AMD_LEGACY:
@@ -1147,8 +1147,9 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			}
 
 			if (use_flash_status_poll(info)) {
-				cfiword_t cword = (cfiword_t)0xffffffffffffffffULL;
+				cfiword_t cword;
 				void *dest;
+				cword.ll = 0xffffffffffffffffULL;
 				dest = flash_map(info, sect, 0);
 				st = flash_status_poll(info, &cword, dest,
 						       info->erase_blk_tout, "erase");
@@ -1246,6 +1247,8 @@ void flash_print_info (flash_info_t * info)
 		printf(info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
 		info->device_id2);
 	}
+	if ((info->vendor == CFI_CMDSET_AMD_STANDARD) && (info->legacy_unlock))
+		printf("\n  Advanced Sector Protection (PPB) enabled");
 	printf ("\n  Erase timeout: %ld ms, write timeout: %ld ms\n",
 		info->erase_blk_tout,
 		info->write_tout);
@@ -1424,14 +1427,19 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	return flash_write_cfiword (info, wp, cword);
 }
 
+static inline int manufact_match(flash_info_t *info, u32 manu)
+{
+	return info->manufacturer_id == ((manu & FLASH_VENDMASK) >> 16);
+}
+
 /*-----------------------------------------------------------------------
  */
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 
 static int cfi_protect_bugfix(flash_info_t *info, long sector, int prot)
 {
-	if ((info->manufacturer_id == (uchar)INTEL_MANUFACT) &&
-		(info->device_id == NUMONYX_256MBIT)) {
+	if (manufact_match(info, INTEL_MANUFACT)
+	    && info->device_id == NUMONYX_256MBIT) {
 		/*
 		 * see errata called
 		 * "Numonyx Axcell P33/P30 Specification Update" :)
@@ -1487,7 +1495,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 		case CFI_CMDSET_AMD_EXTENDED:
 		case CFI_CMDSET_AMD_STANDARD:
 			/* U-Boot only checks the first byte */
-			if (info->manufacturer_id == (uchar)ATM_MANUFACT) {
+			if (manufact_match(info, ATM_MANUFACT)) {
 				if (prot) {
 					flash_unlock_seq (info, 0);
 					flash_write_cmd (info, 0,
@@ -1505,7 +1513,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 							0, ATM_CMD_UNLOCK_SECT);
 				}
 			}
-			if (info->manufacturer_id == (uchar)AMD_MANUFACT) {
+			if (info->legacy_unlock) {
 				int flag = disable_interrupts();
 				int lock_flag;
 
@@ -1730,17 +1738,15 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
 {
 	info->cmd_reset = AMD_CMD_RESET;
+	info->cmd_erase_sector = AMD_CMD_ERASE_SECTOR;
 
 	cmdset_amd_read_jedec_ids(info);
 	flash_write_cmd(info, 0, info->cfi_offset, FLASH_CMD_CFI);
 
 #ifdef CONFIG_SYS_FLASH_PROTECTION
-	if (info->ext_addr && info->manufacturer_id == (uchar)AMD_MANUFACT) {
-		ushort spus;
-
-		/* read sector protect/unprotect scheme */
-		spus = flash_read_uchar(info, info->ext_addr + 9);
-		if (spus == 0x8)
+	if (info->ext_addr) {
+		/* read sector protect/unprotect scheme (at 0x49) */
+		if (flash_read_uchar(info, info->ext_addr + 9) == 0x8)
 			info->legacy_unlock = 1;
 	}
 #endif
@@ -1854,7 +1860,7 @@ static void flash_read_cfi (flash_info_t *info, void *buf,
 		p[i] = flash_read_uchar(info, start + i);
 }
 
-void __flash_cmd_reset(flash_info_t *info)
+static void __flash_cmd_reset(flash_info_t *info)
 {
 	/*
 	 * We do not yet know what kind of commandset to use, so we issue
@@ -1999,6 +2005,25 @@ static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
 	}
 }
 
+static void flash_fixup_sst(flash_info_t *info, struct cfi_qry *qry)
+{
+	/*
+	 * SST, for many recent nor parallel flashes, says they are
+	 * CFI-conformant. This is not true, since qry struct.
+	 * reports a std. AMD command set (0x0002), while SST allows to
+	 * erase two different sector sizes for the same memory.
+	 * 64KB sector (SST call it block)  needs 0x30 to be erased.
+	 * 4KB  sector (SST call it sector) needs 0x50 to be erased.
+	 * Since CFI query detect the 4KB number of sectors, users expects
+	 * a sector granularity of 4KB, and it is here set.
+	 */
+	if (info->device_id == 0x5D23 || /* SST39VF3201B */
+	    info->device_id == 0x5C23) { /* SST39VF3202B */
+		/* set sector granularity to 4KB */
+		info->cmd_erase_sector=0x50;
+	}
+}
+
 /*
  * The following code cannot be run from FLASH!
  *
@@ -2077,6 +2102,9 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 		case 0x0020:
 			flash_fixup_stm(info, &qry);
 			break;
+		case 0x00bf: /* SST */
+			flash_fixup_sst(info, &qry);
+			break;
 		}
 
 		debug ("manufacturer is %d\n", info->vendor);
@@ -2153,6 +2181,27 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 						flash_isset (info, sect_cnt,
 							     FLASH_OFFSET_PROTECT,
 							     FLASH_STATUS_PROTECT);
+					break;
+				case CFI_CMDSET_AMD_EXTENDED:
+				case CFI_CMDSET_AMD_STANDARD:
+					if (!info->legacy_unlock) {
+						/* default: not protected */
+						info->protect[sect_cnt] = 0;
+						break;
+					}
+
+					/* Read protection (PPB) from sector */
+					flash_write_cmd(info, 0, 0,
+							info->cmd_reset);
+					flash_unlock_seq(info, 0);
+					flash_write_cmd(info, 0,
+							info->addr_unlock1,
+							FLASH_CMD_READ_ID);
+					info->protect[sect_cnt] =
+						flash_isset(
+							info, sect_cnt,
+							FLASH_OFFSET_PROTECT,
+							FLASH_STATUS_PROTECT);
 					break;
 				default:
 					/* default: not protected */

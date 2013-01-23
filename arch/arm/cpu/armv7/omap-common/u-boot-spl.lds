@@ -47,6 +47,11 @@ SECTIONS
 
 	. = ALIGN(4);
 	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
+
+	.u_boot_list : {
+		#include <u-boot.lst>
+	}
+
 	. = ALIGN(4);
 	__image_copy_end = .;
 	_end = .;

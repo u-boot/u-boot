@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <usb.h>
 #include "musb_hcd.h"
 
 /* MSC control transfers */
@@ -485,8 +486,8 @@ static int ctrlreq_in_status_phase(struct usb_device *dev)
  */
 static u8 get_dev_speed(struct usb_device *dev)
 {
-	return (dev->speed & USB_SPEED_HIGH) ? MUSB_TYPE_SPEED_HIGH :
-		((dev->speed & USB_SPEED_LOW) ? MUSB_TYPE_SPEED_LOW :
+	return (dev->speed == USB_SPEED_HIGH) ? MUSB_TYPE_SPEED_HIGH :
+		((dev->speed == USB_SPEED_LOW) ? MUSB_TYPE_SPEED_LOW :
 						MUSB_TYPE_SPEED_FULL);
 }
 
@@ -1092,7 +1093,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 /*
  * This function initializes the usb controller module.
  */
-int usb_lowlevel_init(void)
+int usb_lowlevel_init(int index, void **controller)
 {
 	u8  power;
 	u32 timeout;
@@ -1144,7 +1145,7 @@ int usb_lowlevel_init(void)
 /*
  * This function stops the operation of the davinci usb module.
  */
-int usb_lowlevel_stop(void)
+int usb_lowlevel_stop(int index)
 {
 	/* Reset the USB module */
 	musb_platform_deinit();

@@ -30,18 +30,6 @@
 
 #else
 
-#ifdef CONFIG_CMD_EXT2
-#define BOOT_FSTYPE_EXT2 "ext2 "
-#else
-#define BOOT_FSTYPE_EXT2 ""
-#endif
-
-#ifdef CONFIG_CMD_FAT
-#define BOOT_FSTYPE_FAT "fat"
-#else
-#define BOOT_FSTYPE_FAT ""
-#endif
-
 #ifdef CONFIG_CMD_MMC
 #define BOOTCMDS_MMC \
 	"mmc_boot=" \
@@ -95,12 +83,10 @@
 #endif
 
 #define BOOTCMDS_COMMON \
-	"scriptaddr=0x400000\0" \
-	\
 	"rootpart=1\0" \
 	\
 	"script_boot="                                                    \
-		"if ${fs}load ${devtype} ${devnum}:${rootpart} "          \
+		"if load ${devtype} ${devnum}:${rootpart} "               \
 				"${scriptaddr} ${prefix}${script}; then " \
 			"echo ${script} found! Executing ...;"            \
 			"source ${scriptaddr};"                           \
@@ -108,11 +94,9 @@
 	\
 	"scan_boot="                                                      \
 		"echo Scanning ${devtype} ${devnum}...; "                 \
-		"for fs in ${boot_fstypes}; do "                          \
-			"for prefix in ${boot_prefixes}; do "             \
-				"for script in ${boot_scripts}; do "      \
-					"run script_boot; "               \
-				"done; "                                  \
+		"for prefix in ${boot_prefixes}; do "                     \
+			"for script in ${boot_scripts}; do "              \
+				"run script_boot; "                       \
 			"done; "                                          \
 		"done;\0"                                                 \
 	\
@@ -120,11 +104,6 @@
 		BOOT_TARGETS_MMC " " \
 		BOOT_TARGETS_USB " " \
 		BOOT_TARGETS_DHCP " " \
-		"\0" \
-	\
-	"boot_fstypes=" \
-		BOOT_FSTYPE_EXT2 " " \
-		BOOT_FSTYPE_FAT " " \
 		"\0" \
 	\
 	"boot_prefixes=/ /boot/\0" \
@@ -140,10 +119,55 @@
 
 #endif
 
+/*
+ * Memory layout for where various images get loaded by boot scripts:
+ *
+ * scriptaddr can be pretty much anywhere that doesn't conflict with something
+ *   else. Put it above BOOTMAPSZ to eliminate conflicts.
+ *
+ * kernel_addr_r must be within the first 128M of RAM in order for the
+ *   kernel's CONFIG_AUTO_ZRELADDR option to work. Since the kernel will
+ *   decompress itself to 0x8000 after the start of RAM, kernel_addr_r
+ *   should not overlap that area, or the kernel will have to copy itself
+ *   somewhere else before decompression. Similarly, the address of any other
+ *   data passed to the kernel shouldn't overlap the start of RAM. Pushing
+ *   this up to 16M allows for a sizable kernel to be decompressed below the
+ *   compressed load address.
+ *
+ * fdt_addr_r simply shouldn't overlap anything else. Choosing 32M allows for
+ *   the compressed kernel to be up to 16M too.
+ *
+ * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 33M allows
+ *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
+ */
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"scriptaddr=0x10000000\0" \
+	"kernel_addr_r=0x01000000\0" \
+	"fdt_addr_r=0x02000000\0" \
+	"ramdisk_addr_r=0x02100000\0" \
+
+#ifdef CONFIG_TEGRA_KEYBOARD
+#define STDIN_KBD_KBC ",tegra-kbc"
+#else
+#define STDIN_KBD_KBC ""
+#endif
+
+#ifdef CONFIG_USB_KEYBOARD
+#define STDIN_KBD_USB ",usbkbd"
+#define CONFIG_SYS_USB_EVENT_POLL
+#define CONFIG_PREBOOT			"usb start"
+#else
+#define STDIN_KBD_USB ""
+#endif
+
+#define TEGRA_DEVICE_SETTINGS \
+	"stdin=serial" STDIN_KBD_KBC STDIN_KBD_USB "\0" \
+	"stdout=serial,lcd\0" \
+	"stderr=serial,lcd\0" \
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
-	"fdt_load=0x01000000\0" \
-	"fdt_high=01100000\0" \
+	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTCMDS_COMMON
 
 /* overrides for SPL build here */
@@ -152,11 +176,6 @@
 /* remove devicetree support */
 #ifdef CONFIG_OF_CONTROL
 #undef CONFIG_OF_CONTROL
-#endif
-
-/* remove SERIAL_MULTI */
-#ifdef CONFIG_SERIAL_MULTI
-#undef CONFIG_SERIAL_MULTI
 #endif
 
 /* remove I2C support */
@@ -188,11 +207,23 @@
 #ifdef CONFIG_EFI_PARTITION
 #undef CONFIG_EFI_PARTITION
 #endif
+#ifdef CONFIG_CMD_FS_GENERIC
+#undef CONFIG_CMD_FS_GENERIC
+#endif
+#ifdef CONFIG_CMD_EXT4
+#undef CONFIG_CMD_EXT4
+#endif
 #ifdef CONFIG_CMD_EXT2
 #undef CONFIG_CMD_EXT2
 #endif
 #ifdef CONFIG_CMD_FAT
 #undef CONFIG_CMD_FAT
+#endif
+#ifdef CONFIG_FS_EXT4
+#undef CONFIG_FS_EXT4
+#endif
+#ifdef CONFIG_FS_FAT
+#undef CONFIG_FS_FAT
 #endif
 
 /* remove USB */
@@ -207,6 +238,15 @@
 #endif
 #ifdef CONFIG_CMD_USB
 #undef CONFIG_CMD_USB
+#endif
+
+/* remove part command support */
+#ifdef CONFIG_PARTITION_UUIDS
+#undef CONFIG_PARTITION_UUIDS
+#endif
+
+#ifdef CONFIG_CMD_PART
+#undef CONFIG_CMD_PART
 #endif
 
 #endif /* CONFIG_SPL_BUILD */

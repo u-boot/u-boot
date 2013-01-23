@@ -718,30 +718,30 @@
 #define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
- "perf_mode=performance\0"			\
+"perf_mode=performance\0"			\
 	"hwconfig=fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1;"	\
 	"usb1:dr_mode=host,phy_type=ulpi\0"			\
- "netdev=eth0\0"						\
- "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
- "tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
-	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
- "satabootcmd=setenv bootargs root=/dev/$bdev rw "	\
+"netdev=eth0\0"						\
+"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"			\
+"tftpflash=tftpboot $loadaddr $uboot; "			\
+	"protect off " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; " \
+	"erase " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"cp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE) " $filesize; " \
+	"protect on " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE) " $filesize\0" \
+"satabootcmd=setenv bootargs root=/dev/$bdev rw "	\
 	"console=$consoledev,$baudrate $othbootargs;"	\
 	"tftp $loadaddr $bootfile;"			\
 	"tftp $fdtaddr $fdtfile;"			\
 	"bootm $loadaddr - $fdtaddr"			\
- "consoledev=ttyS0\0"				\
- "ramdiskaddr=2000000\0"			\
- "ramdiskfile=p2020ds/ramdisk.uboot\0"		\
- "fdtaddr=c00000\0"				\
- "othbootargs=cache-sram-size=0x10000\0"	\
- "fdtfile=p2020ds/p2020ds.dtb\0"		\
- "bdev=sda3\0"					\
- "partition=scsi 0:0\0"
+"consoledev=ttyS0\0"				\
+"ramdiskaddr=2000000\0"			\
+"ramdiskfile=p2020ds/ramdisk.uboot\0"		\
+"fdtaddr=c00000\0"				\
+"othbootargs=cache-sram-size=0x10000\0"	\
+"fdtfile=p2020ds/p2020ds.dtb\0"		\
+"bdev=sda3\0"					\
+"partition=scsi 0:0\0"
 
 #define CONFIG_HDBOOT				\
  "setenv bootargs root=/dev/$bdev rw "		\

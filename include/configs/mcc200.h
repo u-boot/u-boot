@@ -76,16 +76,11 @@
  */
 #if !defined(CONFIG_PRS200)
 /* MCC200 configuration: */
-#define CONFIG_SERIAL_MULTI	1
 #define CONFIG_PSC_CONSOLE	1	/* PSC1 may be COM */
 #define CONFIG_PSC_CONSOLE2	2	/* PSC2 is PSoC */
 #else
 /* PRS200 configuration: */
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1		*/
-#endif
-#if defined(CONFIG_QUART_CONSOLE) && defined(CONFIG_PSC_CONSOLE) && \
-	!defined(CONFIG_SERIAL_MULTI)
-#error "Select only one console device!"
 #endif
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
@@ -134,9 +129,6 @@
 
 #undef	CONFIG_BOOTARGS
 
-#define XMK_STR(x)		#x
-#define MK_STR(x)		XMK_STR(x)
-
 #ifdef CONFIG_PRS200
 # define CONFIG_SYS__BOARDNAME		"prs200"
 # define CONFIG_SYS__LINUX_CONSOLE	"ttyS0"
@@ -155,7 +147,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"ubootver=" U_BOOT_VERSION "\0"					\
 	"netdev=eth0\0"							\
-	"hostname=" CONFIG_SYS__BOARDNAME "\0"					\
+	"hostname=" CONFIG_SYS__BOARDNAME "\0"				\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/mtdblock2 "			\
@@ -176,15 +168,13 @@
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/" CONFIG_SYS__BOARDNAME "/uImage\0"		\
 	"load=tftp 200000 /tftpboot/" CONFIG_SYS__BOARDNAME "/u-boot.bin\0"	\
-	"text_base=" MK_STR(CONFIG_SYS_TEXT_BASE) "\0"				\
+	"text_base=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"		\
 	"kernel_addr=0xFC0C0000\0"					\
 	"update=protect off ${text_base} +${filesize};"			\
 		"era ${text_base} +${filesize};"			\
 		"cp.b 200000 ${text_base} ${filesize}\0"		\
 	"unlock=yes\0"							\
 	""
-#undef MK_STR
-#undef XMK_STR
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

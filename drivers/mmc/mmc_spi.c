@@ -176,8 +176,8 @@ static int mmc_spi_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	u8 r1;
 	int i;
 	int ret = 0;
-	debug("%s:cmd%d %x %x %x\n", __func__,
-	      cmd->cmdidx, cmd->resp_type, cmd->cmdarg, cmd->flags);
+	debug("%s:cmd%d %x %x\n", __func__,
+	      cmd->cmdidx, cmd->resp_type, cmd->cmdarg);
 	spi_claim_bus(spi);
 	spi_cs_activate(spi);
 	r1 = mmc_spi_sendcmd(mmc, cmd->cmdidx, cmd->cmdarg);

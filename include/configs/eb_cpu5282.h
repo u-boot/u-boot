@@ -38,7 +38,7 @@
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
-#define CONFIG_BAUDRATE 9600
+#define CONFIG_BAUDRATE			115200
 
 #undef	CONFIG_MONITOR_IS_IN_RAM		/* starts uboot direct */
 
@@ -52,20 +52,24 @@
 #define CONFIG_RESET_TO_RETRY
 #define CONFIG_SPLASH_SCREEN
 
+#define CONFIG_HW_WATCHDOG
+
+#define CONFIG_STATUS_LED
+#define CONFIG_BOARD_SPECIFIC_LED
+#define STATUS_LED_ACTIVE		0
+#define STATUS_LED_BIT			0x0008	/* Timer7 GPIO */
+#define STATUS_LED_BOOT			0
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_STATE		STATUS_LED_OFF
+
 /*----------------------------------------------------------------------*
  * Configuration for environment					*
  * Environment is in the second sector of the first 256k of flash	*
  *----------------------------------------------------------------------*/
 
-#ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_ENV_ADDR		0xF003C000	/* End of 256K */
-#define CONFIG_ENV_SECT_SIZE	0x4000
+#define CONFIG_ENV_ADDR		0xFF040000
+#define CONFIG_ENV_SECT_SIZE	0x00020000
 #define CONFIG_ENV_IS_IN_FLASH	1
-#else
-#define CONFIG_ENV_ADDR		0xFFE04000
-#define CONFIG_ENV_SECT_SIZE	0x2000
-#define CONFIG_ENV_IS_IN_FLASH	1
-#endif
 
 /*
  * BOOTP options
@@ -78,26 +82,24 @@
 /*
  * Command line configuration.
  */
+#define CONFIG_CMDLINE_EDITING
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_LOADB
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_LED
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
 
 #define CONFIG_MCFTMR
 
-
 #define CONFIG_BOOTDELAY	5
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT	"\nEB+CPU5282> "
 #define	CONFIG_SYS_LONGHELP	1
 
-#if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size	*/
-#else
-#define	CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size	*/
-#endif
 #define	CONFIG_SYS_PBSIZE 	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define	CONFIG_SYS_MAXARGS	16	/* max number of command args	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
@@ -112,12 +114,12 @@
 /*----------------------------------------------------------------------*
  * Clock and PLL Configuration						*
  *----------------------------------------------------------------------*/
-#define CONFIG_SYS_HZ			10000000
-#define	CONFIG_SYS_CLK			58982400       /* 9,8304MHz * 6 */
+#define CONFIG_SYS_HZ			1000
+#define	CONFIG_SYS_CLK			80000000      /* 8MHz * 8 */
 
-/* PLL Configuration: Ext Clock * 6 (see table 9-4 of MCF user manual) */
+/* PLL Configuration: Ext Clock * 8 (see table 9-4 of MCF user manual) */
 
-#define CONFIG_SYS_MFD		0x01	/* PLL Multiplication Factor Devider */
+#define CONFIG_SYS_MFD		0x02	/* PLL Multiplication Factor Devider */
 #define CONFIG_SYS_RFD		0x00	/* PLL Reduce Frecuency Devider */
 
 /*----------------------------------------------------------------------*
@@ -135,7 +137,6 @@
 #define CONFIG_SYS_FEC0_MIIBASE		CONFIG_SYS_FEC0_IOBASE
 #define MCFFEC_TOUT_LOOP		50000
 
-#define CONFIG_ETHADDR			00:CF:52:82:EB:01
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 
 /*-------------------------------------------------------------------------
@@ -151,7 +152,7 @@
  *-----------------------------------------------------------------------*/
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
-#define CONFIG_SYS_INIT_RAM_SIZE		0x10000
+#define CONFIG_SYS_INIT_RAM_SIZE	0x10000
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
@@ -161,20 +162,11 @@
  * (Set up by the startup code)
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CONFIG_SYS_SDRAM_BASE1		0x00000000
-#define	CONFIG_SYS_SDRAM_SIZE1		16	/* SDRAM size in MB */
+#define CONFIG_SYS_SDRAM_BASE0		0x00000000
+#define	CONFIG_SYS_SDRAM_SIZE0		16	/* SDRAM size in MB */
 
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_SDRAM_BASE1
-#define	CONFIG_SYS_SDRAM_SIZE		CONFIG_SYS_SDRAM_SIZE1
-
-
-/* If M5282 port is fully implemented the monitor base will be behind
- * the vector table. */
-#if (CONFIG_SYS_TEXT_BASE !=  CONFIG_SYS_INT_FLASH_BASE)
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE + 0x400)
-#else
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE + 0x418) /* 24 Byte for CFM-Config */
-#endif
+#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_SDRAM_BASE0
+#define	CONFIG_SYS_SDRAM_SIZE		CONFIG_SYS_SDRAM_SIZE0
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)
@@ -190,15 +182,23 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
+#define CONFIG_FLASH_SHOW_PROGRESS	45
 
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 #define	CONFIG_SYS_INT_FLASH_BASE	0xF0000000
 #define CONFIG_SYS_INT_FLASH_ENABLE	0x21
 
-#define	CONFIG_SYS_MAX_FLASH_SECT	35
-#define	CONFIG_SYS_MAX_FLASH_BANKS	2
+#define	CONFIG_SYS_MAX_FLASH_SECT	128
+#define	CONFIG_SYS_MAX_FLASH_BANKS	1
 #define	CONFIG_SYS_FLASH_ERASE_TOUT	10000000
 #define	CONFIG_SYS_FLASH_PROTECTION
+
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_SYS_FLASH_SIZE		16*1024*1024
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -221,12 +221,16 @@
  * Memory bank definitions
  */
 
-#define CONFIG_SYS_CS0_BASE		0xFFE00000
+#define CONFIG_SYS_CS0_BASE		0xFF000000
 #define CONFIG_SYS_CS0_CTRL		0x00001980
-#define CONFIG_SYS_CS0_MASK		0x001F0001
+#define CONFIG_SYS_CS0_MASK		0x00FF0001
 
-#define CONFIG_SYS_CS3_BASE		0xE0000000
-#define CONFIG_SYS_CS0_CTRL		0x00001980
+#define CONFIG_SYS_CS2_BASE		0xE0000000
+#define CONFIG_SYS_CS2_CTRL		0x00001980
+#define CONFIG_SYS_CS2_MASK		0x000F0001
+
+#define CONFIG_SYS_CS3_BASE		0xE0100000
+#define CONFIG_SYS_CS3_CTRL		0x00001980
 #define CONFIG_SYS_CS3_MASK		0x000F0001
 
 /*-----------------------------------------------------------------------
@@ -248,10 +252,29 @@
 #define CONFIG_SYS_PCDDR		0x0000000
 #define CONFIG_SYS_PCDAT		0x0000000
 
+#define CONFIG_SYS_PASPAR		0x0F0F
 #define CONFIG_SYS_PEHLPAR		0xC0
 #define CONFIG_SYS_PUAPAR		0x0F
 #define CONFIG_SYS_DDRUA		0x05
 #define CONFIG_SYS_PJPAR		0xFF
+
+/*-----------------------------------------------------------------------
+ * I2C
+ */
+
+#define CONFIG_HARD_I2C
+#define CONFIG_FSL_I2C
+
+#define CONFIG_SYS_I2C_OFFSET		0x00000300
+#define CONFIG_SYS_IMMR			CONFIG_SYS_MBAR
+
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_SLAVE		0
+
+#ifdef CONFIG_CMD_DATE
+#define CONFIG_RTC_DS1338
+#define CONFIG_I2C_RTC_ADDR		0x68
+#endif
 
 /*-----------------------------------------------------------------------
  * VIDEO configuration
@@ -260,12 +283,11 @@
 #define CONFIG_VIDEO
 
 #ifdef CONFIG_VIDEO
-#define	CONFIG_VIDEO_VCXK			1
+#define CONFIG_VIDEO_VCXK			1
 
 #define CONFIG_SYS_VCXK_DEFAULT_LINEALIGN	2
 #define	CONFIG_SYS_VCXK_DOUBLEBUFFERED		1
-#define CONFIG_SYS_VCXK_BASE			CONFIG_SYS_CS3_BASE
-#define CONFIG_SYS_VCXK_AUTODETECT		1
+#define CONFIG_SYS_VCXK_BASE			CONFIG_SYS_CS2_BASE
 
 #define CONFIG_SYS_VCXK_ACKNOWLEDGE_PORT	MCFGPTB_GPTPORT
 #define CONFIG_SYS_VCXK_ACKNOWLEDGE_DDR		MCFGPTB_GPTDDR

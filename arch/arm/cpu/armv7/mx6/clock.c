@@ -43,9 +43,9 @@ void enable_usboh3_clk(unsigned char enable)
 
 	reg = __raw_readl(&imx_ccm->CCGR6);
 	if (enable)
-		reg |= MXC_CCM_CCGR_CG_MASK << MXC_CCM_CCGR0_CG0_OFFSET;
+		reg |= MXC_CCM_CCGR6_USBOH3_MASK;
 	else
-		reg &= ~(MXC_CCM_CCGR_CG_MASK << MXC_CCM_CCGR0_CG0_OFFSET);
+		reg &= ~(MXC_CCM_CCGR6_USBOH3_MASK);
 	__raw_writel(reg, &imx_ccm->CCGR6);
 
 }
@@ -59,7 +59,9 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 
 	if (i2c_num > 2)
 		return -EINVAL;
-	mask = MXC_CCM_CCGR_CG_MASK << ((i2c_num + 3) << 1);
+
+	mask = MXC_CCM_CCGR_CG_MASK
+		<< (MXC_CCM_CCGR2_I2C1_SERIAL_OFFSET + (i2c_num << 1));
 	reg = __raw_readl(&imx_ccm->CCGR2);
 	if (enable)
 		reg |= mask;
@@ -108,7 +110,7 @@ static u32 get_mcu_main_clk(void)
 	reg = __raw_readl(&imx_ccm->cacrr);
 	reg &= MXC_CCM_CACRR_ARM_PODF_MASK;
 	reg >>= MXC_CCM_CACRR_ARM_PODF_OFFSET;
-	freq = decode_pll(PLL_SYS, CONFIG_SYS_MX6_HCLK);
+	freq = decode_pll(PLL_SYS, MXC_HCLK);
 
 	return freq / (reg + 1);
 }
@@ -125,11 +127,11 @@ u32 get_periph_clk(void)
 
 		switch (reg) {
 		case 0:
-			freq = decode_pll(PLL_USBOTG, CONFIG_SYS_MX6_HCLK);
+			freq = decode_pll(PLL_USBOTG, MXC_HCLK);
 			break;
 		case 1:
 		case 2:
-			freq = CONFIG_SYS_MX6_HCLK;
+			freq = MXC_HCLK;
 			break;
 		default:
 			break;
@@ -141,7 +143,7 @@ u32 get_periph_clk(void)
 
 		switch (reg) {
 		case 0:
-			freq = decode_pll(PLL_BUS, CONFIG_SYS_MX6_HCLK);
+			freq = decode_pll(PLL_BUS, MXC_HCLK);
 			break;
 		case 1:
 			freq = PLL2_PFD2_FREQ;
@@ -237,7 +239,7 @@ static u32 get_emi_slow_clk(void)
 		root_freq = get_axi_clk();
 		break;
 	case 1:
-		root_freq = decode_pll(PLL_USBOTG, CONFIG_SYS_MX6_HCLK);
+		root_freq = decode_pll(PLL_USBOTG, MXC_HCLK);
 		break;
 	case 2:
 		root_freq = PLL2_PFD2_FREQ;
@@ -309,7 +311,7 @@ u32 imx_get_uartclk(void)
 
 u32 imx_get_fecclk(void)
 {
-	return decode_pll(PLL_ENET, CONFIG_SYS_MX6_HCLK);
+	return decode_pll(PLL_ENET, MXC_HCLK);
 }
 
 int enable_sata_clock(void)
@@ -321,7 +323,7 @@ int enable_sata_clock(void)
 
 	/* Enable sata clock */
 	reg = readl(&imx_ccm->CCGR5); /* CCGR5 */
-	reg |= MXC_CCM_CCGR5_CG2_MASK;
+	reg |= MXC_CCM_CCGR5_SATA_MASK;
 	writel(reg, &imx_ccm->CCGR5);
 
 	/* Enable PLLs */
@@ -355,6 +357,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_IPG_CLK:
 		return get_ipg_clk();
 	case MXC_IPG_PERCLK:
+	case MXC_I2C_CLK:
 		return get_ipg_per_clk();
 	case MXC_UART_CLK:
 		return get_uart_clk();
@@ -389,19 +392,21 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 int do_mx6_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 freq;
-	freq = decode_pll(PLL_SYS, CONFIG_SYS_MX6_HCLK);
+	freq = decode_pll(PLL_SYS, MXC_HCLK);
 	printf("PLL_SYS    %8d MHz\n", freq / 1000000);
-	freq = decode_pll(PLL_BUS, CONFIG_SYS_MX6_HCLK);
+	freq = decode_pll(PLL_BUS, MXC_HCLK);
 	printf("PLL_BUS    %8d MHz\n", freq / 1000000);
-	freq = decode_pll(PLL_USBOTG, CONFIG_SYS_MX6_HCLK);
+	freq = decode_pll(PLL_USBOTG, MXC_HCLK);
 	printf("PLL_OTG    %8d MHz\n", freq / 1000000);
-	freq = decode_pll(PLL_ENET, CONFIG_SYS_MX6_HCLK);
+	freq = decode_pll(PLL_ENET, MXC_HCLK);
 	printf("PLL_NET    %8d MHz\n", freq / 1000000);
 
 	printf("\n");
 	printf("IPG        %8d kHz\n", mxc_get_clock(MXC_IPG_CLK) / 1000);
 	printf("UART       %8d kHz\n", mxc_get_clock(MXC_UART_CLK) / 1000);
+#ifdef CONFIG_MXC_SPI
 	printf("CSPI       %8d kHz\n", mxc_get_clock(MXC_CSPI_CLK) / 1000);
+#endif
 	printf("AHB        %8d kHz\n", mxc_get_clock(MXC_AHB_CLK) / 1000);
 	printf("AXI        %8d kHz\n", mxc_get_clock(MXC_AXI_CLK) / 1000);
 	printf("DDR        %8d kHz\n", mxc_get_clock(MXC_DDR_CLK) / 1000);

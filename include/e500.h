@@ -18,6 +18,9 @@ typedef struct
 #ifdef CONFIG_SYS_DPAA_FMAN
   unsigned long freqFMan[CONFIG_SYS_NUM_FMAN];
 #endif
+#ifdef CONFIG_SYS_DPAA_QBMAN
+  unsigned long freqQMAN;
+#endif
 #ifdef CONFIG_SYS_DPAA_PME
   unsigned long freqPME;
 #endif
