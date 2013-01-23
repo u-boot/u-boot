@@ -23,4 +23,6 @@
 
 #define BCT_ODMDATA_OFFSET	6116	/* 12 bytes from end of BCT */
 
+#define MAX_NUM_CPU		4
+
 #endif	/* TEGRA30_H */

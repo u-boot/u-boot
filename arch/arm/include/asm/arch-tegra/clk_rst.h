@@ -199,8 +199,6 @@ enum {
 };
 
 /* CLK_RST_CONTROLLER_OSC_CTRL_0 */
-#define OSC_FREQ_SHIFT		30
-#define OSC_FREQ_MASK		(3U << OSC_FREQ_SHIFT)
 #define OSC_XOBP_SHIFT		1
 #define OSC_XOBP_MASK		(1U << OSC_XOBP_SHIFT)
 
