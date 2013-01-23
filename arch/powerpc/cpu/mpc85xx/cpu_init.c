@@ -548,6 +548,20 @@ skip_l2:
 	/* needs to be in ram since code uses global static vars */
 	fsl_serdes_init();
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005871
+	if (IS_SVR_REV(svr, 1, 0)) {
+		int i;
+		__be32 *p = (void __iomem *)CONFIG_SYS_DCSRBAR + 0xb004c;
+
+		for (i = 0; i < 12; i++) {
+			p += i + (i > 5 ? 11 : 0);
+			out_be32(p, 0x2);
+		}
+		p = (void __iomem *)CONFIG_SYS_DCSRBAR + 0xb0108;
+		out_be32(p, 0x34);
+	}
+#endif
+
 #ifdef CONFIG_SYS_SRIO
 	srio_init();
 #ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER 
