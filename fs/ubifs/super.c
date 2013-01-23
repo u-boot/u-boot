@@ -1164,9 +1164,10 @@ static struct file_system_type ubifs_fs_type = {
 	.get_sb  = ubifs_get_sb,
 };
 
-int ubifs_mount(char *name)
+int ubifs_mount(char *vol_name)
 {
 	int flags;
+	char name[80] = "ubi:";
 	void *data;
 	struct vfsmount *mnt;
 	int ret;
@@ -1185,6 +1186,7 @@ int ubifs_mount(char *name)
 	 * Mount in read-only mode
 	 */
 	flags = MS_RDONLY;
+	strcat(name, vol_name);
 	data = NULL;
 	mnt = NULL;
 	ret = ubifs_get_sb(&ubifs_fs_type, flags, name, data, mnt);
