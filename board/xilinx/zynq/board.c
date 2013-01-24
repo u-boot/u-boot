@@ -25,6 +25,7 @@
 #include <asm/arch/nand.h>
 #include <netdev.h>
 #include <zynqpl.h>
+#include <asm/arch/hardware.h>
 
 #define BOOT_MODE_REG     (XPSS_SYS_CTRL_BASEADDR + 0x25C)
 #define BOOT_MODES_MASK    0x0000000F

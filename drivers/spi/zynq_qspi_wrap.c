@@ -17,6 +17,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/arch/hardware.h>
 
 #include "zynq_qspi.h"
 
