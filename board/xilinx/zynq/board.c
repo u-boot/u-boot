@@ -141,11 +141,6 @@ int board_eth_init(bd_t *bis)
 	ret |= zynq_gem_initialize(bis, CONFIG_ZYNQ_GEM_BASEADDR1);
 # endif
 #endif
-
-#ifdef CONFIG_ZYNQ_GEM_OLD
-	ret |= zynq_gem_initialize_old(bis);
-#endif
-
 	return ret;
 }
 #endif
