@@ -313,7 +313,7 @@ relocate_code:
 	lw	t3, 0(t0)
 	sw	t3, 0(t1)
 	addu	t0, 4
-	ble	t0, t2, 1b
+	blt	t0, t2, 1b
 	 addu	t1, 4
 
 	/* If caches were enabled, we would have to flush them here. */
