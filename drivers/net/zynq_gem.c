@@ -134,6 +134,7 @@ struct zynq_gem_priv {
 	u32 rxbd_current;
 	u32 rx_first_buf;
 	int phyaddr;
+	int init;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };
@@ -239,49 +240,56 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 			SUPPORTED_1000baseT_Half |
 			SUPPORTED_1000baseT_Full;
 
-	/* Disable all interrupts */
-	writel(0xFFFFFFFF, &regs->idr);
+	if (!priv->init) {
+		/* Disable all interrupts */
+		writel(0xFFFFFFFF, &regs->idr);
 
-	/* Disable the receiver & transmitter */
-	writel(0, &regs->nwctrl);
-	writel(0, &regs->txsr);
-	writel(0, &regs->rxsr);
-	writel(0, &regs->phymntnc);
+		/* Disable the receiver & transmitter */
+		writel(0, &regs->nwctrl);
+		writel(0, &regs->txsr);
+		writel(0, &regs->rxsr);
+		writel(0, &regs->phymntnc);
 
-	/* Clear the Hash registers for the mac address pointed by AddressPtr */
-	writel(0x0, &regs->hashl);
-	/* Write bits [63:32] in TOP */
-	writel(0x0, &regs->hashh);
+		/* Clear the Hash registers for the mac address
+		 * pointed by AddressPtr
+		 */
+		writel(0x0, &regs->hashl);
+		/* Write bits [63:32] in TOP */
+		writel(0x0, &regs->hashh);
 
-	/* Clear all counters */
-	for (i = 0; i <= stat_size; i++)
-		readl(&regs->stat[i]);
+		/* Clear all counters */
+		for (i = 0; i <= stat_size; i++)
+			readl(&regs->stat[i]);
 
-	/* Setup RxBD space */
-	memset(&(priv->rx_bd), 0, sizeof(priv->rx_bd));
-	/* Create the RxBD ring */
-	memset(&(priv->rxbuffers), 0, sizeof(priv->rxbuffers));
+		/* Setup RxBD space */
+		memset(&(priv->rx_bd), 0, sizeof(priv->rx_bd));
+		/* Create the RxBD ring */
+		memset(&(priv->rxbuffers), 0, sizeof(priv->rxbuffers));
 
-	for (i = 0; i < RX_BUF; i++) {
-		priv->rx_bd[i].status = 0xF0000000;
-		priv->rx_bd[i].addr = (u32)((char *) &(priv->rxbuffers) +
+		for (i = 0; i < RX_BUF; i++) {
+			priv->rx_bd[i].status = 0xF0000000;
+			priv->rx_bd[i].addr =
+					(u32)((char *)&(priv->rxbuffers) +
 							(i * PKTSIZE_ALIGN));
-	}
-	/* WRAP bit to last BD */
-	priv->rx_bd[--i].addr |= ZYNQ_GEM_RXBUF_WRAP_MASK;
-	/* Write RxBDs to IP */
-	writel((u32) &(priv->rx_bd), &regs->rxqbase);
+		}
+		/* WRAP bit to last BD */
+		priv->rx_bd[--i].addr |= ZYNQ_GEM_RXBUF_WRAP_MASK;
+		/* Write RxBDs to IP */
+		writel((u32)&(priv->rx_bd), &regs->rxqbase);
 
-	/* MAC Setup */
-	/* Setup Network Configuration register */
-	writel(ZYNQ_GEM_NWCFG_INIT, &regs->nwcfg);
+		/* MAC Setup */
+		/* Setup Network Configuration register */
+		writel(ZYNQ_GEM_NWCFG_INIT, &regs->nwcfg);
 
-	/* Setup for DMA Configuration register */
-	writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
+		/* Setup for DMA Configuration register */
+		writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
 
-	/* Setup for Network Control register, MDIO, Rx and Tx enable */
-	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK |
+		/* Setup for Network Control register, MDIO, Rx and Tx enable */
+		setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK |
 			ZYNQ_GEM_NWCTRL_RXEN_MASK | ZYNQ_GEM_NWCTRL_TXEN_MASK);
+
+		priv->init++;
+	}
 
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
@@ -307,7 +315,7 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	writel((u32)&(priv->tx_bd), &regs->txqbase);
 
 	/* Setup Tx BD */
-	memset((void *) &(priv->tx_bd), 0, sizeof(struct emac_bd));
+	memset((void *)&(priv->tx_bd), 0, sizeof(struct emac_bd));
 
 	priv->tx_bd.addr = (u32)ptr;
 	priv->tx_bd.status = len | ZYNQ_GEM_TXBUF_LAST_MASK;
