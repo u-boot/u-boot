@@ -175,13 +175,6 @@ relocate_code:
 	 * t1 = target address
 	 * t2 = source end address
 	 */
-
-	/*
-	 * Save destination address and size for dlater usage in flush_cache()
-	 */
-	move	a0, t1			# a0 <-- destination addr
-	dsub	a1, t2, t0		# a1 <-- size
-
 1:
 	lw	t3, 0(t0)
 	sw	t3, 0(t1)
@@ -190,11 +183,10 @@ relocate_code:
 	 daddu	t1, 4
 
 	/* If caches were enabled, we would have to flush them here. */
-
-	/* a0 & a1 are already set up for flush_cache(start, size) */
+	dsub	a1, t1, s2		# a1 <-- size
 	dla	t9, flush_cache
 	jalr	t9
-	 nop
+	 move	a0, s2			# a0 <-- destination address
 
 	/* Jump to where we've relocated ourselves */
 	daddi	t0, s2, in_ram - _start
