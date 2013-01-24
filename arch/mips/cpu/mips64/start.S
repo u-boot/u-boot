@@ -137,8 +137,7 @@ reset:
 #endif
 
 	/* Set up temporary stack */
-	dli	t0, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
-	dla	sp, 0(t0)
+	dli	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
 
 	dla	t9, board_init_f
 	jr	t9
