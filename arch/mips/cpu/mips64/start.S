@@ -162,19 +162,13 @@ relocate_code:
 	move	s2, a2			# save destination address in s2
 
 	dli	t0, CONFIG_SYS_MONITOR_BASE
+	dsub	s1, s2, t0		# s1 <-- relocation offset
+
 	dla	t3, in_ram
 	ld	t2, -24(t3)		# t2 <-- uboot_end_data
 	move	t1, a2
 
-	/*
-	 * Fix $gp:
-	 *
-	 * New $gp = (Old $gp - CONFIG_SYS_MONITOR_BASE) + Destination Address
-	 */
-	move	t8, gp
-	dsub	gp, CONFIG_SYS_MONITOR_BASE
-	dadd	gp, a2			# gp now adjusted
-	dsub	s1, gp, t8		# s1 <-- relocation offset
+	dadd	gp, s1			# adjust gp
 
 	/*
 	 * t0 = source address
