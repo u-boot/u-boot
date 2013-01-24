@@ -158,11 +158,13 @@ reset:
 relocate_code:
 	move	sp, a0			# set new stack pointer
 
+	move	s0, a1			# save gd in s0
+	move	s2, a2			# save destination address in s2
+
 	dli	t0, CONFIG_SYS_MONITOR_BASE
 	dla	t3, in_ram
 	ld	t2, -24(t3)		# t2 <-- uboot_end_data
 	move	t1, a2
-	move	s2, a2			# s2 <-- destination address
 
 	/*
 	 * Fix $gp:
@@ -183,7 +185,6 @@ relocate_code:
 	/*
 	 * Save destination address and size for dlater usage in flush_cache()
 	 */
-	move	s0, a1			# save gd in s0
 	move	a0, t1			# a0 <-- destination addr
 	dsub	a1, t2, t0		# a1 <-- size
 
