@@ -508,11 +508,9 @@ static int zynq_gem_recv(struct eth_device *dev)
 
 		if ((++priv->rxbd_current) >= RX_BUF)
 			priv->rxbd_current = 0;
-
-		return frame_len;
 	}
 
-	return 0;
+	return frame_len;
 }
 
 static void zynq_gem_halt(struct eth_device *dev)
