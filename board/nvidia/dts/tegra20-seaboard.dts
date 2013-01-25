@@ -27,6 +27,17 @@
 		reg = < 0x00000000 0x40000000 >;
 	};
 
+	host1x {
+		status = "okay";
+		dc@54200000 {
+			status = "okay";
+			rgb {
+				status = "okay";
+				nvidia,panel = <&lcd_panel>;
+			};
+		};
+	};
+
 	/* This is not used in U-Boot, but is expected to be in kernel .dts */
 	i2c@7000d000 {
 		clock-frequency = <100000>;
