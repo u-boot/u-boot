@@ -136,8 +136,6 @@
 # define CONFIG_CMD_FAT
 # define CONFIG_CMD_EXT2
 # define CONFIG_DOS_PARTITION
-/* For now, use only single block reads for the MMC */
-# define CONFIG_SYS_MMC_MAX_BLK_COUNT	1
 #endif
 
 /* NAND */
