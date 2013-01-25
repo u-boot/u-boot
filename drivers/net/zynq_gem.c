@@ -33,6 +33,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
+#include <asm/arch/sys_proto.h>
 
 /* Bit/mask specification */
 #define ZYNQ_GEM_PHYMNTNC_OP_MASK	0x40020000 /* operation mask bits */
@@ -357,6 +358,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	phy_detection(dev);
 
 #ifdef CONFIG_PHYLIB
+	u32 rclk, clk = 0;
+
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
 
@@ -370,29 +373,23 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	case SPEED_1000:
 		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
 								&regs->nwcfg);
-
-		/******* GEM0_CLK Setup *************************/
-		/* SLCR unlock */
-		*(volatile u32 *) 0xF8000008 = 0xDF0D;
-
-		/* Configure GEM0_RCLK_CTRL */
-		*(volatile u32 *) 0xF8000138 = (0 << 4) | (1 << 0);
-
-		/* Set divisors for appropriate frequency in GEM0_CLK_CTRL */
-		*(volatile u32 *) 0xF8000140 = (1 << 20) | (8 << 8) |
-						(0 << 4) | (1 << 0);
-
-		/* SLCR lock */
-		*(volatile u32 *) 0xF8000004 = 0x767B;
-
+		rclk = (0 << 4) | (1 << 0);
+		clk = (1 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	case SPEED_100:
 		clrsetbits_le32(&regs->nwcfg, ZYNQ_GEM_NWCFG_SPEED1000,
 			ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100);
+		rclk = 1 << 0;
+		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	case SPEED_10:
+		rclk = 1 << 0;
+		/* FIXME untested */
+		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	}
+	/* FIXME maybe better to define gem address in hardware.h */
+	zynq_slcr_gem_clk_setup(dev->iobase != 0xE000B000, rclk, clk);
 
 #else
 	/* PHY Setup */
