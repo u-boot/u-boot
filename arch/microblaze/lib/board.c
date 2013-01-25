@@ -39,10 +39,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_HW_WATCHDOG)
-extern int hw_watchdog_init(void);
-#endif /* CONFIG_WATCHDOG */
-
 /*
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the
@@ -65,6 +61,9 @@ init_fnc_t *init_sequence[] = {
 	serial_init,
 	console_init_f,
 	interrupts_init,
+#ifdef CONFIG_XILINX_TB_WATCHDOG
+	hw_watchdog_init,
+#endif
 	timer_init,
 	NULL,
 };
@@ -112,10 +111,6 @@ void board_init_f(ulong not_used)
 	mem_malloc_init (CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 
 	serial_initialize();
-
-#if defined(CONFIG_HW_WATCHDOG)
-	hw_watchdog_init();
-#endif
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET ();

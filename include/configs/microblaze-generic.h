@@ -140,6 +140,13 @@
 # error Please setup TIMER in BSP
 #endif
 
+#if defined(XILINX_WATCHDOG_BASEADDR) && defined(XILINX_WATCHDOG_IRQ)
+# define CONFIG_WATCHDOG_BASEADDR	XILINX_WATCHDOG_BASEADDR
+# define CONFIG_WATCHDOG_IRQ		XILINX_WATCHDOG_IRQ
+# define CONFIG_HW_WATCHDOG		1
+# define CONFIG_XILINX_TB_WATCHDOG	1
+#endif
+
 /*
  * memory layout - Example
  * TEXT_BASE = 0x1200_0000;

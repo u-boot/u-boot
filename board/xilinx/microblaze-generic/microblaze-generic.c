@@ -39,6 +39,10 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	    ++(*((u32 volatile *)(CONFIG_SYS_GPIO_0_ADDR)));
 #endif
 
+#ifdef CONFIG_XILINX_TB_WATCHDOG
+	hw_watchdog_disable();
+#endif
+
 	puts ("Reseting board\n");
 	__asm__ __volatile__ ("	mts rmsr, r0;" \
 				"bra r0");
