@@ -6,8 +6,8 @@ http://www.nongnu.org/qemu/
 
 Limitations & comments
 ----------------------
-Supports the "-m mips" configuration of qemu: serial,NE2000,IDE.
-Support is big endian only for now (or at least this is what I tested).
+Supports the "-M mips" configuration of qemu: serial,NE2000,IDE.
+Supports little and big endian as well as 32 bit and 64 bit.
 Derived from au1x00 with a lot of things cut out.
 
 Supports emulated flash (patch Jean-Christophe PLAGNIOL-VILLARD) with
@@ -21,19 +21,33 @@ Notes for the Qemu MIPS port
 
 I) Example usage:
 
-# ln -s u-boot.bin mips_bios.bin
-start it:
-qemu-system-mips -L . /dev/null -nographic
+Using u-boot.bin as ROM (replaces Qemu monitor):
 
-or
+32 bit, big endian:
+# make qemu_mips
+# qemu-system-mips -M mips -bios u-boot.bin -nographic
+
+32 bit, little endian:
+# make qemu_mipsel
+# qemu-system-mipsel -M mips -bios u-boot.bin -nographic
+
+64 bit, big endian:
+# make qemu_mips64
+# qemu-system-mips64 -cpu MIPS64R2-generic -M mips -bios u-boot.bin -nographic
+
+64 bit, little endian:
+# make qemu_mips64el
+# qemu-system-mips64el -cpu MIPS64R2-generic -M mips -bios u-boot.bin -nographic
+
+or using u-boot.bin from emulated flash:
 
 if you use a qemu version after commit 4224
 
 create image:
 # dd of=flash bs=1k count=4k if=/dev/zero
 # dd of=flash bs=1k conv=notrunc if=u-boot.bin
-start it:
-# qemu-system-mips -M mips -pflash flash -monitor null -nographic
+start it (see above):
+# qemu-system-mips[64][el] [-cpu MIPS64R2-generic] -M mips -pflash flash -nographic
 
 2) Download kernel + initrd
 

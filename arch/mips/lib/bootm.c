@@ -43,26 +43,11 @@ static int linux_env_idx;
 static void linux_params_init(ulong start, char *commandline);
 static void linux_env_set(char *env_name, char *env_val);
 
-int do_bootm_linux(int flag, int argc, char * const argv[],
-			bootm_headers_t *images)
+static void boot_prep_linux(bootm_headers_t *images)
 {
-	void (*theKernel) (int, char **, char **, int *);
 	char *commandline = getenv("bootargs");
 	char env_buf[12];
 	char *cp;
-
-	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
-		return 1;
-
-	/* find kernel entry point */
-	theKernel = (void (*)(int, char **, char **, int *))images->ep;
-
-	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
-
-#ifdef DEBUG
-	printf("## Transferring control to Linux (at address %08lx) ...\n",
-		(ulong) theKernel);
-#endif
 
 	linux_params_init(UNCACHED_SDRAM(gd->bd->bi_boot_params), commandline);
 
@@ -96,11 +81,45 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	cp = getenv("eth1addr");
 	if (cp)
 		linux_env_set("eth1addr", cp);
+}
+
+static void boot_jump_linux(bootm_headers_t *images)
+{
+	void (*theKernel) (int, char **, char **, int *);
+
+	/* find kernel entry point */
+	theKernel = (void (*)(int, char **, char **, int *))images->ep;
+
+	debug("## Transferring control to Linux (at address %08lx) ...\n",
+		(ulong) theKernel);
+
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	/* we assume that the kernel is in place */
 	printf("\nStarting kernel ...\n\n");
 
 	theKernel(linux_argc, linux_argv, linux_env, 0);
+}
+
+int do_bootm_linux(int flag, int argc, char * const argv[],
+			bootm_headers_t *images)
+{
+	/* No need for those on MIPS */
+	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
+		return -1;
+
+	if (flag & BOOTM_STATE_OS_PREP) {
+		boot_prep_linux(images);
+		return 0;
+	}
+
+	if (flag & BOOTM_STATE_OS_GO) {
+		boot_jump_linux(images);
+		return 0;
+	}
+
+	boot_prep_linux(images);
+	boot_jump_linux(images);
 
 	/* does not return */
 	return 1;
