@@ -25,30 +25,24 @@
 #include <asm/arch-tegra/scu.h>
 #include "cpu.h"
 
-enum tegra_family_t {
-	TEGRA_FAMILY_T2x,
-	TEGRA_FAMILY_T3x,
-};
-
-
-enum tegra_family_t get_family(void)
-{
-	u32 reg, chip_id;
-
-	reg = readl(NV_PA_APB_MISC_BASE + GP_HIDREV);
-
-	chip_id = reg >> 8;
-	chip_id &= 0xff;
-	debug("  tegra_get_family: chip_id = %x\n", chip_id);
-	if (chip_id == 0x30)
-		return TEGRA_FAMILY_T3x;
-	else
-		return TEGRA_FAMILY_T2x;
-}
-
 int get_num_cpus(void)
 {
-	return get_family() == TEGRA_FAMILY_T3x ? 4 : 2;
+	struct apb_misc_gp_ctlr *gp;
+	uint rev;
+
+	gp = (struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
+	rev = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK) >> HIDREV_CHIPID_SHIFT;
+
+	switch (rev) {
+	case CHIPID_TEGRA20:
+		return 2;
+		break;
+	case CHIPID_TEGRA30:
+	case CHIPID_TEGRA114:
+	default:
+		return 4;
+		break;
+	}
 }
 
 /*
@@ -56,6 +50,7 @@ int get_num_cpus(void)
  */
 struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	/* T20: 1 GHz */
+	/*  n,  m, p, cpcon */
 	{{ 1000, 13, 0, 12},	/* OSC 13M */
 	 { 625,  12, 0, 8},	/* OSC 19.2M */
 	 { 1000, 12, 0, 12},	/* OSC 12M */
@@ -73,6 +68,13 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	{{ 862, 8, 0, 8},
 	 { 583, 8, 0, 4},
 	 { 700, 6, 0, 8},
+	 { 700, 13, 0, 8},
+	},
+
+	/* T114: 1.4 GHz */
+	{{ 862, 8, 0, 8},
+	 { 583, 8, 0, 4},
+	 { 696, 12, 0, 8},
 	 { 700, 13, 0, 8},
 	},
 };
@@ -159,8 +161,8 @@ void init_pllx(void)
 	sel = &tegra_pll_x_table[chip_type][osc];
 	pllx_set_rate(pll, sel->n, sel->m, sel->p, sel->cpcon);
 
-	/* adjust PLLP_out1-4 on T30 */
-	if (chip_type == TEGRA_SOC_T30) {
+	/* adjust PLLP_out1-4 on T30/T114 */
+	if (chip_type == TEGRA_SOC_T30 || chip_type == TEGRA_SOC_T114) {
 		debug("  init_pllx: adjusting PLLP out freqs\n");
 		adjust_pllp_out_freqs();
 	}
@@ -196,10 +198,9 @@ void enable_cpu_clock(int enable)
 	 */
 	clk = readl(&clkrst->crc_clk_cpu_cmplx);
 	clk |= 1 << CPU1_CLK_STP_SHIFT;
-#if defined(CONFIG_TEGRA30)
-	clk |= 1 << CPU2_CLK_STP_SHIFT;
-	clk |= 1 << CPU3_CLK_STP_SHIFT;
-#endif
+	if (get_num_cpus() == 4)
+		clk |= (1 << CPU2_CLK_STP_SHIFT) + (1 << CPU3_CLK_STP_SHIFT);
+
 	/* Stop/Unstop the CPU clock */
 	clk &= ~CPU0_CLK_STP_MASK;
 	clk |= !enable << CPU0_CLK_STP_SHIFT;
@@ -285,7 +286,8 @@ void reset_A9_cpu(int reset)
 
 void clock_enable_coresight(int enable)
 {
-	u32 rst, src;
+	u32 rst, src = 2;
+	int chip;
 
 	debug("clock_enable_coresight entry\n");
 	clock_set_enable(PERIPH_ID_CORESIGHT, enable);
@@ -301,20 +303,23 @@ void clock_enable_coresight(int enable)
 		 * Clock divider request for 204MHz would setup CSITE clock as
 		 * 144MHz for PLLP base 216MHz and 204MHz for PLLP base 408MHz
 		 */
-		if (tegra_get_chip_type() == TEGRA_SOC_T30)
+		chip = tegra_get_chip_type();
+		if (chip == TEGRA_SOC_T30 || chip == TEGRA_SOC_T114)
 			src = CLK_DIVIDER(NVBL_PLLP_KHZ, 204000);
-		else
+		else if (chip == TEGRA_SOC_T20 || chip == TEGRA_SOC_T25)
 			src = CLK_DIVIDER(NVBL_PLLP_KHZ, 144000);
+		else
+			printf("%s: Unknown chip type %X!\n", __func__, chip);
 		clock_ll_set_source_divisor(PERIPH_ID_CSI, 0, src);
 
 		/* Unlock the CPU CoreSight interfaces */
 		rst = CORESIGHT_UNLOCK;
 		writel(rst, CSITE_CPU_DBG0_LAR);
 		writel(rst, CSITE_CPU_DBG1_LAR);
-#if defined(CONFIG_TEGRA30)
-		writel(rst, CSITE_CPU_DBG2_LAR);
-		writel(rst, CSITE_CPU_DBG3_LAR);
-#endif
+		if (get_num_cpus() == 4) {
+			writel(rst, CSITE_CPU_DBG2_LAR);
+			writel(rst, CSITE_CPU_DBG3_LAR);
+		}
 	}
 }
 

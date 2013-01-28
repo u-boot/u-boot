@@ -26,10 +26,12 @@
 #define PLL_STABILIZATION_DELAY (300)
 #define IO_STABILIZATION_DELAY	(1000)
 
-#if defined(CONFIG_TEGRA30)
-#define NVBL_PLLP_KHZ	(408000)
-#else	/* Tegra20 */
+#if defined(CONFIG_TEGRA20)
 #define NVBL_PLLP_KHZ	(216000)
+#elif defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114)
+#define NVBL_PLLP_KHZ	(408000)
+#else
+#error "Unknown Tegra chip!"
 #endif
 
 #define PLLX_ENABLED		(1 << 30)
