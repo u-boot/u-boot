@@ -197,7 +197,7 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
-#if defined(CONFIG_TEGRA30)
+#if !defined(CONFIG_TEGRA20)
 	pinmux_init();
 #endif
 	board_init_uart_f();
