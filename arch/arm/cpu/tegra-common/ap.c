@@ -31,6 +31,7 @@
 #include <asm/arch-tegra/fuse.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/scu.h>
+#include <asm/arch-tegra/tegra.h>
 #include <asm/arch-tegra/warmboot.h>
 
 int tegra_get_chip_type(void)
@@ -42,7 +43,7 @@ int tegra_get_chip_type(void)
 	/*
 	 * This is undocumented, Chip ID is bits 15:8 of the register
 	 * APB_MISC + 0x804, and has value 0x20 for Tegra20, 0x30 for
-	 * Tegra30
+	 * Tegra30, and 0x35 for T114.
 	 */
 	gp = (struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
 	rev = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK) >> HIDREV_CHIPID_SHIFT;
@@ -66,6 +67,12 @@ int tegra_get_chip_type(void)
 		switch (tegra_sku_id) {
 		case SKU_ID_T30:
 			return TEGRA_SOC_T30;
+		}
+		break;
+	case CHIPID_TEGRA114:
+		switch (tegra_sku_id) {
+		case SKU_ID_T114_ENG:
+			return TEGRA_SOC_T114;
 		}
 		break;
 	}

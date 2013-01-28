@@ -37,8 +37,10 @@ enum {
 	/* UARTs which we can enable */
 	UARTA	= 1 << 0,
 	UARTB	= 1 << 1,
+	UARTC	= 1 << 2,
 	UARTD	= 1 << 3,
-	UART_COUNT = 4,
+	UARTE	= 1 << 4,
+	UART_COUNT = 5,
 };
 
 /*
@@ -68,7 +70,7 @@ unsigned int query_sdram_size(void)
 	case 3:
 		return 0x40000000;	/* 1GB */
 	}
-#else	/* Tegra30 */
+#else	/* Tegra30/Tegra114 */
 	/* bits 31:28 in OdmData are used for RAM size on T30  */
 	switch ((reg) >> 28) {
 	case 0:
@@ -117,11 +119,17 @@ static int uart_configs[] = {
 	-1,
 	FUNCMUX_UART4_GMC,
 	-1,
-#else	/* Tegra30 */
+#elif defined(CONFIG_TEGRA30)
 	FUNCMUX_UART1_ULPI,	/* UARTA */
 	-1,
 	-1,
 	-1,
+	-1,
+#else	/* Tegra114 */
+	-1,
+	-1,
+	-1,
+	FUNCMUX_UART4_GMI,	/* UARTD */
 	-1,
 #endif
 };
@@ -138,6 +146,7 @@ static void setup_uarts(int uart_ids)
 		PERIPH_ID_UART2,
 		PERIPH_ID_UART3,
 		PERIPH_ID_UART4,
+		PERIPH_ID_UART5,
 	};
 	size_t i;
 
@@ -161,8 +170,14 @@ void board_init_uart_f(void)
 #ifdef CONFIG_TEGRA_ENABLE_UARTB
 	uart_ids |= UARTB;
 #endif
+#ifdef CONFIG_TEGRA_ENABLE_UARTC
+	uart_ids |= UARTC;
+#endif
 #ifdef CONFIG_TEGRA_ENABLE_UARTD
 	uart_ids |= UARTD;
+#endif
+#ifdef CONFIG_TEGRA_ENABLE_UARTE
+	uart_ids |= UARTE;
 #endif
 	setup_uarts(uart_ids);
 }
