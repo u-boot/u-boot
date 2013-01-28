@@ -87,3 +87,29 @@ void zynq_slcr_gem_clk_setup(u32 gem_id, u32 rclk, u32 clk)
 out:
 	zynq_slcr_lock();
 }
+
+void zynq_slcr_devcfg_disable(void)
+{
+	zynq_slcr_unlock();
+
+	/* Disable AXI interface */
+	writel(0xFFFFFFFF, &slcr_base->fpga_rst_ctrl);
+
+	/* Set Level Shifters DT618760 */
+	writel(0xA, &slcr_base->lvl_shftr_en);
+
+	zynq_slcr_lock();
+}
+
+void zynq_slcr_devcfg_enable(void)
+{
+	zynq_slcr_unlock();
+
+	/* Set Level Shifters DT618760 */
+	writel(0xF, &slcr_base->lvl_shftr_en);
+
+	/* Disable AXI interface */
+	writel(0x0, &slcr_base->fpga_rst_ctrl);
+
+	zynq_slcr_lock();
+}

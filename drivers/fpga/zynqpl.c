@@ -25,6 +25,21 @@
 #include <common.h>
 #include <asm/io.h>
 #include <zynqpl.h>
+#include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
+
+#define DEVCFG_CTRL_PCFG_PROG_B		0x40000000
+#define DEVCFG_ISR_FATAL_ERROR_MASK	0x00740040
+#define DEVCFG_ISR_ERROR_FLAGS_MASK	0x00340840
+#define DEVCFG_ISR_RX_FIFO_OV		0x00040000
+#define DEVCFG_ISR_DMA_DONE		0x00002000
+#define DEVCFG_ISR_PCFG_DONE		0x00000004
+#define DEVCFG_STATUS_DMA_CMD_Q_F	0x80000000
+#define DEVCFG_STATUS_DMA_CMD_Q_E	0x40000000
+#define DEVCFG_STATUS_DMA_DONE_CNT_MASK	0x30000000
+#define DEVCFG_STATUS_PCFG_INIT		0x00000010
+#define DEVCFG_MCTRL_RFIFO_FLUSH	0x00000002
+#define DEVCFG_MCTRL_WFIFO_FLUSH	0x00000001
 
 #ifndef CONFIG_SYS_FPGA_WAIT
 #define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/100	/* 10 ms */
@@ -34,43 +49,6 @@
 #define CONFIG_SYS_FPGA_PROG_TIME CONFIG_SYS_HZ	/* 1 s */
 #endif
 
-#define SLCR_BASEADDR 0xF8000000
-#define SLCR_LOCK (SLCR_BASEADDR + 0x04)
-#define SLCR_LOCK_VALUE 0x767B
-#define SLCR_UNLOCK (SLCR_BASEADDR + 0x08)
-#define SLCR_UNLOCK_VALUE 0xDF0D
-#define SLCR_FPGA_RST_CTRL (SLCR_BASEADDR + 0x240)
-#define SLCR_LVL_SHFTR_EN (SLCR_BASEADDR + 0x900)
-
-#define DEVCFG_BASEADDR 0xF8007000
-#define DEVCFG_CTRL (DEVCFG_BASEADDR + 0x00)
-#define DEVCFG_CTRL_PCFG_PROG_B 0x40000000
-#define DEVCFG_LOCK (DEVCFG_BASEADDR + 0x04)
-#define DEVCFG_CFG (DEVCFG_BASEADDR + 0x08)
-#define DEVCFG_ISR (DEVCFG_BASEADDR + 0x0C)
-#define DEVCFG_ISR_FATAL_ERROR_MASK 0x00740040
-#define DEVCFG_ISR_ERROR_FLAGS_MASK 0x00340840
-#define DEVCFG_ISR_RX_FIFO_OV 0x00040000
-#define DEVCFG_ISR_DMA_DONE 0x00002000
-#define DEVCFG_ISR_PCFG_DONE 0x00000004
-#define DEVCFG_STATUS (DEVCFG_BASEADDR + 0x14)
-#define DEVCFG_STATUS_DMA_CMD_Q_F 0x80000000
-#define DEVCFG_STATUS_DMA_CMD_Q_E 0x40000000
-#define DEVCFG_STATUS_DMA_DONE_CNT_MASK 0x30000000
-#define DEVCFG_STATUS_PCFG_INIT 0x00000010
-#define DEVCFG_DMA_SRC_ADDR (DEVCFG_BASEADDR + 0x18)
-#define DEVCFG_DMA_DST_ADDR (DEVCFG_BASEADDR + 0x1C)
-#define DEVCFG_DMA_SRC_LEN (DEVCFG_BASEADDR + 0x20)
-#define DEVCFG_DMA_DEST_LEN (DEVCFG_BASEADDR + 0x24)
-#define DEVCFG_MCTRL (DEVCFG_BASEADDR + 0x80)
-#define DEVCFG_MCTRL_RFIFO_FLUSH 0x00000002
-#define DEVCFG_MCTRL_WFIFO_FLUSH 0x00000001
-#define DEVCFG_DEBUG_XFER_WRITE_COUNT (DEVCFG_BASEADDR + 0x88)
-#define DEVCFG_DEBUG_XFER_READ_COUNT (DEVCFG_BASEADDR + 0x8C)
-
-/* ------------------------------------------------------------------------- */
-/* Zynq Implementation */
-
 int zynq_info(Xilinx_desc *desc)
 {
 	return FPGA_SUCCESS;
@@ -78,24 +56,24 @@ int zynq_info(Xilinx_desc *desc)
 
 int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
-	unsigned long ts;		/* timestamp */
+	unsigned long ts; /* Timestamp */
 	u32 control;
 	u32 isr_status;
 	u32 status;
 
-	out_le32(SLCR_UNLOCK, SLCR_UNLOCK_VALUE);
-	out_le32(SLCR_FPGA_RST_CTRL, 0xFFFFFFFF); /* Disable AXI interface */
-	/* Set Level Shifters DT618760*/
-	out_le32(SLCR_LVL_SHFTR_EN, 0x0000000A);
+	/* FIXME Add checking that passing bin is not a bitstream */
+
+	zynq_slcr_devcfg_disable();
+
 	/* Setting PCFG_PROG_B signal to high */
-	control = in_le32(DEVCFG_CTRL);
-	out_le32(DEVCFG_CTRL, control | DEVCFG_CTRL_PCFG_PROG_B);
+	control = readl(&devcfg_base->ctrl);
+	writel(control | DEVCFG_CTRL_PCFG_PROG_B, &devcfg_base->ctrl);
 	/* Setting PCFG_PROG_B signal to low */
-	out_le32(DEVCFG_CTRL, control & ~DEVCFG_CTRL_PCFG_PROG_B);
+	writel(control & ~DEVCFG_CTRL_PCFG_PROG_B, &devcfg_base->ctrl);
 
 	/* Polling the PCAP_INIT status for Reset */
 	ts = get_timer(0);
-	while (in_le32(DEVCFG_STATUS) & DEVCFG_STATUS_PCFG_INIT) {
+	while (readl(&devcfg_base->status) & DEVCFG_STATUS_PCFG_INIT) {
 		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT) {
 			puts("Error: Timeout waiting for INIT to clear.\n");
 			return FPGA_FAIL;
@@ -103,36 +81,34 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	}
 
 	/* Setting PCFG_PROG_B signal to high */
-	out_le32(DEVCFG_CTRL, control | DEVCFG_CTRL_PCFG_PROG_B);
+	writel(control | DEVCFG_CTRL_PCFG_PROG_B, &devcfg_base->ctrl);
 
 	/* Polling the PCAP_INIT status for Set */
 	ts = get_timer(0);
-	while (!(in_le32(DEVCFG_STATUS) & DEVCFG_STATUS_PCFG_INIT)) {
+	while (!(readl(&devcfg_base->status) & DEVCFG_STATUS_PCFG_INIT)) {
 		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT) {
 			puts("Error: Timeout waiting for INIT to set.\n");
 			return FPGA_FAIL;
 		}
 	}
 
-	out_le32(SLCR_LOCK, SLCR_LOCK_VALUE);
-
-	isr_status = in_le32(DEVCFG_ISR);
+	isr_status = readl(&devcfg_base->int_sts);
 
 	/* Clear it all, so if Boot ROM comes back, it can proceed */
-	out_le32(DEVCFG_ISR, 0xFFFFFFFF);
+	writel(0xFFFFFFFF, &devcfg_base->int_sts);
 
 	if (isr_status & DEVCFG_ISR_FATAL_ERROR_MASK) {
 		debug("Fatal errors in PCAP 0x%X\n", isr_status);
 
 		/* If RX FIFO overflow, need to flush RX FIFO first */
 		if (isr_status & DEVCFG_ISR_RX_FIFO_OV) {
-			out_le32(DEVCFG_MCTRL, DEVCFG_MCTRL_RFIFO_FLUSH);
-			out_le32(DEVCFG_ISR, 0xFFFFFFFF);
+			writel(DEVCFG_MCTRL_RFIFO_FLUSH, &devcfg_base->mctrl);
+			writel(0xFFFFFFFF, &devcfg_base->int_sts);
 		}
 		return FPGA_FAIL;
 	}
 
-	status = in_le32(DEVCFG_STATUS);
+	status = readl(&devcfg_base->status);
 
 	debug("status = 0x%08X\n", status);
 
@@ -144,31 +120,31 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	debug("device ready\n");
 
 	if (!(status & DEVCFG_STATUS_DMA_CMD_Q_E)) {
-		if (!(in_le32(DEVCFG_ISR) & DEVCFG_ISR_DMA_DONE)) {
-			/* error state, transfer cannot occur */
+		if (!(readl(&devcfg_base->int_sts) & DEVCFG_ISR_DMA_DONE)) {
+			/* Error state, transfer cannot occur */
 			debug("isr indicates error\n");
 			return FPGA_FAIL;
 		} else {
-			/* clear out the status */
-			out_le32(DEVCFG_ISR, DEVCFG_ISR_DMA_DONE);
+			/* Clear out the status */
+			writel(DEVCFG_ISR_DMA_DONE, &devcfg_base->int_sts);
 		}
 	}
 
 	if (status & DEVCFG_STATUS_DMA_DONE_CNT_MASK) {
 		/* Clear the count of completed DMA transfers */
-		out_le32(DEVCFG_STATUS, DEVCFG_STATUS_DMA_DONE_CNT_MASK);
+		writel(DEVCFG_STATUS_DMA_DONE_CNT_MASK, &devcfg_base->status);
 	}
 
 	debug("Source = 0x%08X\n", (u32)buf);
 	debug("Size = %zu\n", bsize);
 
-	/* set up the transfer */
-	out_le32(DEVCFG_DMA_SRC_ADDR, (u32)buf | 1);
-	out_le32(DEVCFG_DMA_DST_ADDR, 0xFFFFFFFF);
-	out_le32(DEVCFG_DMA_SRC_LEN, bsize >> 2);
-	out_le32(DEVCFG_DMA_DEST_LEN, 0);
+	/* Set up the transfer */
+	writel((u32)buf | 1, &devcfg_base->dma_src_addr);
+	writel(0xFFFFFFFF, &devcfg_base->dma_dst_addr);
+	writel(bsize >> 2, &devcfg_base->dma_src_len);
+	writel(0, &devcfg_base->dma_dst_len);
 
-	isr_status = in_le32(DEVCFG_ISR);
+	isr_status = readl(&devcfg_base->int_sts);
 
 	/* Polling the PCAP_INIT status for Set */
 	ts = get_timer(0);
@@ -176,9 +152,9 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
 			debug("Error: isr = 0x%08X\n", isr_status);
 			debug("Write count = 0x%08X\n",
-				in_le32(DEVCFG_DEBUG_XFER_WRITE_COUNT));
+				readl(&devcfg_base->write_count));
 			debug("Read count = 0x%08X\n",
-				in_le32(DEVCFG_DEBUG_XFER_READ_COUNT));
+				readl(&devcfg_base->read_count));
 
 			return FPGA_FAIL;
 		}
@@ -186,7 +162,7 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 			puts("Error: Timeout waiting for DMA to complete.\n");
 			return FPGA_FAIL;
 		}
-		isr_status = in_le32(DEVCFG_ISR);
+		isr_status = readl(&devcfg_base->int_sts);
 	}
 
 	debug("DMA transfer is done\n");
@@ -198,22 +174,15 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 			puts("Error: Timeout waiting for FPGA to config.\n");
 			return FPGA_FAIL;
 		}
-		isr_status = in_le32(DEVCFG_ISR);
+		isr_status = readl(&devcfg_base->int_sts);
 	}
 
 	debug("FPGA config done\n");
 
-	/* clear out the DMA status */
-	out_le32(DEVCFG_ISR, DEVCFG_ISR_DMA_DONE);
+	/* Clear out the DMA status */
+	writel(DEVCFG_ISR_DMA_DONE, &devcfg_base->int_sts);
 
-	out_le32(SLCR_UNLOCK, SLCR_UNLOCK_VALUE);
-
-	/* Set Level Shifters DT618760*/
-	out_le32(SLCR_LVL_SHFTR_EN, 0x0000000F);
-	/* Disable AXI interface */
-	out_le32(SLCR_FPGA_RST_CTRL, 0x00000000);
-
-	out_le32(SLCR_LOCK, SLCR_LOCK_VALUE);
+	zynq_slcr_devcfg_enable();
 
 	return FPGA_SUCCESS;
 }
