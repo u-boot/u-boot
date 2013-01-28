@@ -35,5 +35,6 @@
 /* CHIPID field returned from APB_MISC_GP_HIDREV register */
 #define CHIPID_TEGRA20			0x20
 #define CHIPID_TEGRA30			0x30
+#define CHIPID_TEGRA114			0x35
 
 #endif	/* _TEGRA_GP_PADCTRL_H_ */

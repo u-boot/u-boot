@@ -79,6 +79,7 @@ enum {
 	SKU_ID_AP25E		= 0x1b,
 	SKU_ID_T25E		= 0x1c,
 	SKU_ID_T30		= 0x81, /* Cardhu value */
+	SKU_ID_T114_ENG		= 0x00, /* Dalmore value, unfused */
 };
 
 /*
@@ -91,6 +92,7 @@ enum {
 	TEGRA_SOC_T20,
 	TEGRA_SOC_T25,
 	TEGRA_SOC_T30,
+	TEGRA_SOC_T114,
 
 	TEGRA_SOC_CNT,
 	TEGRA_SOC_UNKNOWN	= -1,
