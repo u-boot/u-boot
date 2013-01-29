@@ -106,7 +106,7 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Rd Block Len: %d\n", mmc->read_bl_len);
 
 	printf("%s version %d.%d\n", IS_SD(mmc) ? "SD" : "MMC",
-			(mmc->version >> 4) & 0xf, mmc->version & 0xf);
+			(mmc->version >> 8) & 0xf, mmc->version & 0xff);
 
 	printf("High Capacity: %s\n", mmc->high_capacity ? "Yes" : "No");
 	puts("Capacity: ");

@@ -1054,6 +1054,24 @@ static int mmc_startup(struct mmc *mmc)
 				mmc->capacity = capacity;
 		}
 
+		switch (ext_csd[EXT_CSD_REV]) {
+		case 1:
+			mmc->version = MMC_VERSION_4_1;
+			break;
+		case 2:
+			mmc->version = MMC_VERSION_4_2;
+			break;
+		case 3:
+			mmc->version = MMC_VERSION_4_3;
+			break;
+		case 5:
+			mmc->version = MMC_VERSION_4_41;
+			break;
+		case 6:
+			mmc->version = MMC_VERSION_4_5;
+			break;
+		}
+
 		/*
 		 * Check whether GROUP_DEF is set, if yes, read out
 		 * group size from ext_csd directly, or calculate
