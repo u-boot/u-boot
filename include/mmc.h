@@ -30,6 +30,7 @@
 #include <linux/compiler.h>
 
 #define SD_VERSION_SD	0x20000
+#define SD_VERSION_3	(SD_VERSION_SD | 0x300)
 #define SD_VERSION_2	(SD_VERSION_SD | 0x200)
 #define SD_VERSION_1_0	(SD_VERSION_SD | 0x100)
 #define SD_VERSION_1_10	(SD_VERSION_SD | 0x10a)
