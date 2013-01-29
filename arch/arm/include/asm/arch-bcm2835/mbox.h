@@ -144,6 +144,32 @@ struct bcm2835_mbox_tag_get_arm_mem {
 	} body;
 };
 
+#define BCM2835_MBOX_TAG_GET_CLOCK_RATE	0x00030002
+
+#define BCM2835_MBOX_CLOCK_ID_EMMC	1
+#define BCM2835_MBOX_CLOCK_ID_UART	2
+#define BCM2835_MBOX_CLOCK_ID_ARM	3
+#define BCM2835_MBOX_CLOCK_ID_CORE	4
+#define BCM2835_MBOX_CLOCK_ID_V3D	5
+#define BCM2835_MBOX_CLOCK_ID_H264	6
+#define BCM2835_MBOX_CLOCK_ID_ISP	7
+#define BCM2835_MBOX_CLOCK_ID_SDRAM	8
+#define BCM2835_MBOX_CLOCK_ID_PIXEL	9
+#define BCM2835_MBOX_CLOCK_ID_PWM	10
+
+struct bcm2835_mbox_tag_get_clock_rate {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+			u32 clock_id;
+		} req;
+		struct {
+			u32 clock_id;
+			u32 rate_hz;
+		} resp;
+	} body;
+};
+
 #define BCM2835_MBOX_TAG_ALLOCATE_BUFFER	0x00040001
 
 struct bcm2835_mbox_tag_allocate_buffer {
