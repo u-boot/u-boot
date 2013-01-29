@@ -37,7 +37,7 @@
 
 #define	MXS_I2C_MAX_TIMEOUT	1000000
 
-void mxs_i2c_reset(void)
+static void mxs_i2c_reset(void)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	int ret;
@@ -59,7 +59,7 @@ void mxs_i2c_reset(void)
 	i2c_set_bus_speed(speed);
 }
 
-void mxs_i2c_setup_read(uint8_t chip, int len)
+static void mxs_i2c_setup_read(uint8_t chip, int len)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 
@@ -77,7 +77,7 @@ void mxs_i2c_setup_read(uint8_t chip, int len)
 	writel(I2C_QUEUECTRL_QUEUE_RUN, &i2c_regs->hw_i2c_queuectrl_set);
 }
 
-void mxs_i2c_write(uchar chip, uint addr, int alen,
+static void mxs_i2c_write(uchar chip, uint addr, int alen,
 			uchar *buf, int blen, int stop)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
@@ -121,7 +121,7 @@ void mxs_i2c_write(uchar chip, uint addr, int alen,
 	writel(I2C_QUEUECTRL_QUEUE_RUN, &i2c_regs->hw_i2c_queuectrl_set);
 }
 
-int mxs_i2c_wait_for_ack(void)
+static int mxs_i2c_wait_for_ack(void)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	uint32_t tmp;

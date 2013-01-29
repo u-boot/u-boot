@@ -142,8 +142,6 @@
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0
-#define CONFIG_SYS_I2C_BUS		0 /* This isn't used anywhere ?? */
-#define CONFIG_SYS_I2C_BUS_SELECT	1 /* This isn't used anywhere ?? */
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 #define CONFIG_I2C_MULTI_BUS		1
 
