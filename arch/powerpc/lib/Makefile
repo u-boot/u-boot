@@ -47,7 +47,8 @@ endif
 endif
 
 ifdef MINIMAL
-COBJS-y += cache.o
+COBJS-y += cache.o time.o
+SOBJS-y += ticks.o
 else
 
 SOBJS-y	+= ppcstring.o

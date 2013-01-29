@@ -2819,6 +2819,12 @@ FIT uImage format:
 		CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from FAT
 
+		CONFIG_SPL_MPC83XX_WAIT_FOR_NAND
+		Set this for NAND SPL on PPC mpc83xx targets, so that
+		start.S waits for the rest of the SPL to load before
+		continuing (the hardware starts execution after just
+		loading the first page rather than the full 4K).
+
 		CONFIG_SPL_NAND_BASE
 		Include nand_base.c in the SPL.  Requires
 		CONFIG_SPL_NAND_DRIVERS.
@@ -2875,6 +2881,10 @@ FIT uImage format:
 
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
+
+		CONFIG_SPL_PAD_TO
+		Linker address to which the SPL should be padded before
+		appending the SPL payload.
 
 		CONFIG_SPL_TARGET
 		Final target image containing SPL and payload.  Some SPLs
