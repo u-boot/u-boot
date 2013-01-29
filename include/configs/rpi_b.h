@@ -23,6 +23,7 @@
 #define CONFIG_ARM1176
 #define CONFIG_BCM2835
 #define CONFIG_ARCH_CPU_INIT
+#define CONFIG_SYS_DCACHE_OFF
 /*
  * 2835 is a SKU in a series for which the 2708 is the first or primary SoC,
  * so 2708 has historically been used rather than a dedicated 2835 ID.
