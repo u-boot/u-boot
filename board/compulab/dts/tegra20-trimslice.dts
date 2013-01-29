@@ -23,6 +23,11 @@
 		status = "disabled";
 	};
 
+	spi@7000c380 {
+		status = "okay";
+		spi-max-frequency = <25000000>;
+	};
+
 	i2c@7000c400 {
 		status = "disabled";
 	};
