@@ -34,8 +34,8 @@
 #ifdef CONFIG_LOGBUFFER
 #include <logbuff.h>
 #endif
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C) || \
-		defined(CONFIG_SYS_I2C_ADAPTERS)
+
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 #include <i2c.h>
 #endif
 
@@ -216,11 +216,9 @@ int stdio_init (void)
 	drv_arm_dcc_init ();
 #endif
 #ifdef CONFIG_SYS_I2C
-#ifdef CONFIG_SYS_I2C_ADAPTERS
 	i2c_init_all();
-#endif
 #else
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C)
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 #endif

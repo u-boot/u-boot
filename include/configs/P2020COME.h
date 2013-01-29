@@ -227,7 +227,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /* I2C */
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
-#undef  CONFIG_SOFT_I2C		/* I2C bit-banged */
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_I2C_CMD_TREE
 #define CONFIG_SYS_I2C_SPEED		400000  /* I2C speed and slave address*/

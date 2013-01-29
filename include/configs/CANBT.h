@@ -180,6 +180,7 @@
 /*-----------------------------------------------------------------------
  * I2C EEPROM (CAT24WC08) for environment
  */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address	*/
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
 #define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */

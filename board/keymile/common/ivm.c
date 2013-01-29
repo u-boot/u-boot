@@ -318,10 +318,14 @@ int ivm_read_eeprom(void)
 	I2C_MUX_DEVICE *dev = NULL;
 #endif
 	uchar i2c_buffer[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
-	uchar	*buf;
+	char	*buf;
 	unsigned long dev_addr = CONFIG_SYS_IVM_EEPROM_ADR;
 	int ret;
 
+#if defined(CONFIG_SYS_I2C)
+	buf = getenv("EEprom_ivm");
+	i2c_set_bus_num(buf ? (int)simple_strtol(buf, NULL, 10) : 0);
+#else
 #if defined(CONFIG_I2C_MUX)
 	/* First init the Bus, select the Bus */
 	buf = (unsigned char *) getenv("EEprom_ivm");

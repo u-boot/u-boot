@@ -86,8 +86,8 @@
  * PCI stuff
  *-----------------------------------------------------------------------
  */
-#define CONFIG_HARD_I2C		1		/* To enable I2C support	*/
-#undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
+#define CONFIG_HARD_I2C		1		/* To enable I2C support */
+#undef	CONFIG_SYS_I2C_SOFT			/* I2C bit-banged */
 #define CONFIG_SYS_I2C_SPEED		400000		/* I2C speed and slave address	*/
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 

@@ -212,7 +212,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_KM_BOARD_EXTRA_ENV					\
 	CONFIG_KM_DEF_ENV						\
-	"EEprom_ivm=pca9544a:70:4 \0"					\
+	"EEprom_ivm=1\0"						\
 	"unlock=yes\0"							\
 	"newenv="							\
 		"prot off 0xFE0C0000 +0x40000 && "			\
@@ -242,10 +242,16 @@
 #endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /* enable I2C and select the hardware/software driver */
-#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
-#define CONFIG_SYS_I2C_SPEED		50000	/* I2C speed */
-#define CONFIG_SYS_I2C_SLAVE		0x7F	/* I2C slave address */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_NUM_I2C_BUSES	3
+#define CONFIG_SYS_I2C_MAX_HOPS		1
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SPEED		CONFIG_SYS_I2C_SOFT_SPEED
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
+#define CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP} }, \
+			{0, {{I2C_MUX_PCA9542, 0x70, 0} } }, \
+			{0, {{I2C_MUX_PCA9542, 0x70, 1} } } }
 
 /*
  * Software (bit-bang) I2C driver configuration
@@ -282,7 +288,7 @@ int get_scl(void);
 #define CONFIG_SYS_DTT_MAX_TEMP	70
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
-#define CONFIG_SYS_DTT_BUS_NUM		(CONFIG_SYS_MAX_I2C_BUS)
+#define CONFIG_SYS_DTT_BUS_NUM		2
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 

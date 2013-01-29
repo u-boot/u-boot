@@ -131,8 +131,6 @@
 #define I2C_8574_PCI66		0x20	/* 0=33MHz PCI, 1=66MHz PCI */
 #define I2C_8574_FLASHSIDE	0x40	/* 0=Reset vector from U4, 1=from U7*/
 
-#undef CONFIG_SOFT_I2C
-
 #endif
 
 /* Compact Flash */

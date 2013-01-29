@@ -63,7 +63,7 @@ static const u32 kwmpp_config[] = {
 	MPP5_NF_IO7,
 	MPP6_SYSRST_OUTn,
 	MPP7_PEX_RST_OUTn,
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	MPP8_GPIO,		/* SDA */
 	MPP9_GPIO,		/* SCL */
 #endif
@@ -234,7 +234,7 @@ int misc_init_r(void)
 
 int board_early_init_f(void)
 {
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	u32 tmp;
 
 	/* set the 2 bitbang i2c pins as output gpios */
@@ -260,7 +260,7 @@ int board_init(void)
 	kw_gpio_set_valid(KM_FLASH_GPIO_PIN, 1);
 	kw_gpio_direction_output(KM_FLASH_GPIO_PIN, 1);
 
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	/*
 	 * Reinit the GPIO for I2C Bitbang driver so that the now
 	 * available gpio framework is consistent. The calls to
@@ -440,7 +440,7 @@ int hush_init_var(void)
 }
 #endif
 
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 void set_sda(int state)
 {
 	I2C_ACTIVE;

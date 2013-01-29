@@ -97,7 +97,6 @@
 /* I2C */
 #define CONFIG_FSL_I2C
 #define CONFIG_HARD_I2C			/* I2C with hw support */
-#undef CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CONFIG_SYS_I2C_SPEED		80000
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 #define CONFIG_SYS_I2C_OFFSET		0x58000

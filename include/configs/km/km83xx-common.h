@@ -209,6 +209,9 @@
 #define CONFIG_SYS_I2C_SPEED	200000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE	0x7F
 #define CONFIG_SYS_I2C_OFFSET	0x3000
+#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_SYS_MAX_I2C_BUS		1
+#define CONFIG_I2C_MUX
 
 /* I2C SYSMON (LM75, AD7414 is almost compatible) */
 #define CONFIG_DTT_LM75		/* ON Semi's LM75 */

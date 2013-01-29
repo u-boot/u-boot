@@ -136,19 +136,11 @@
 /*-----------------------------------------------------------------------
  * I2C
  */
-#define	CONFIG_SOFT_I2C
-#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC32		*/
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2	/* Bytes of address		*/
-/* mask of address bits that overflow into the "EEPROM chip address"	*/
-#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x01
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 5	/* The Catalyst CAT24WC32 has	*/
-					/* 32 byte page write mode using*/
-					/* last 5 bits of the address	*/
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	100000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
 
-#if defined (CONFIG_SOFT_I2C)
 #if 0 /* push-pull */
 #define	SDA	        0x00800000
 #define	SCL	        0x00000008
@@ -182,7 +174,17 @@
 #define	I2C_ACTIVE	{DIR1|=SDA;}
 #define	I2C_TRISTATE    {DIR1&=~SDA;}
 #endif
-#endif
+
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC32	*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2	/* Bytes of address	*/
+/* mask of address bits that overflow into the "EEPROM chip address"	*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x01
+/*
+ * The Catalyst CAT24WC32 has 32 byte page write mode using
+ * last 5 bits of the address
+ */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 5
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10 /* and takes up to 10 msec */
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)

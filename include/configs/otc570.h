@@ -115,14 +115,13 @@
 /* RTC and I2C stuff */
 #define CONFIG_RTC_DS1338
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
-#undef CONFIG_HARD_I2C
-#define CONFIG_SOFT_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0x7F
 
-#ifdef CONFIG_SOFT_I2C
-# define CONFIG_I2C_CMD_TREE
-# define CONFIG_I2C_MULTI_BUS
+#define CONFIG_SYS_I2C
+#define	CONFIG_SYS_I2C_SOFT	/* I2C bit-banged	*/
+#ifdef CONFIG_SYS_I2C_SOFT
+#define CONFIG_SYS_I2C_SOFT_SPEED	100000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
+
 /* Configure data and clock pins for pio */
 # define I2C_INIT { \
 	at91_set_pio_output(AT91_PIO_PORTB, 4, 0); \
@@ -140,7 +139,7 @@
 /* Set clock pin */
 # define I2C_SCL(bit)		at91_set_pio_value(AT91_PIO_PORTB, 5, bit)
 # define I2C_DELAY		udelay(2) /* 1/4 I2C clock duration */
-#endif /* CONFIG_SOFT_I2C */
+#endif /* CONFIG_SYS_I2C_SOFT */
 
 /*
  * BOOTP options

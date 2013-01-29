@@ -201,11 +201,12 @@
 #define CONFIG_CMD_USB
 
 /* I2C support must always be enabled */
-#define CONFIG_SOFT_I2C
 #define CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C_SPEED		400000
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	400000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
+
 #define I2C0_PORT			AT91_PIO_PORTA
 #define SDA0_PIN			23
 #define SCL0_PIN			24

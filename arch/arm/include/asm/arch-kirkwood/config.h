@@ -144,7 +144,7 @@
  * I2C related stuff
  */
 #ifdef CONFIG_CMD_I2C
-#ifndef CONFIG_SOFT_I2C
+#ifndef CONFIG_SYS_I2C_SOFT
 #define CONFIG_I2C_MVTWSI
 #endif
 #define CONFIG_SYS_I2C_SLAVE		0x0

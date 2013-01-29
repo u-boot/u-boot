@@ -106,12 +106,10 @@
 #define CONFIG_DOS_PARTITION
 
 /* enable I2C and select the hardware/software driver */
-#undef  CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
-# define CONFIG_SYS_I2C_SPEED		50000
-# define CONFIG_SYS_I2C_SLAVE		0xFE
-# define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
-# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
 /*
  * Software (bit-bang) I2C driver configuration
  */
@@ -132,6 +130,9 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS  4	/* 16 bytes page write mode	*/
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
+
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address */
 
 
 /*

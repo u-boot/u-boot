@@ -97,10 +97,13 @@
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
 #define CONFIG_HARD_I2C		1	/* To I2C with hardware support */
-#undef CONFIG_SORT_I2C			/* To I2C with software support */
+#undef CONFIG_SYS_I2C_SOFT		/* To I2C with software support */
 #define CONFIG_SYS_I2C_SPEED		4700	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
+#if defined(CONFIG_SYS_I2C_SOFT)
+#define CONFIG_SYS_SYS_I2C_SOFT_SPEED	4700 /* I2C speed and slave address */
+#define CONFIG_SYS_SYS_I2C_SOFT_SLAVE	0x7F
 /*
  * Software (bit-bang) I2C driver configuration
  */
@@ -116,6 +119,7 @@
 #define I2C_SCL(bit)		if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
 				else    immr->im_cpm.cp_pbdat &= ~PB_SCL
 #define I2C_DELAY		udelay(50)
+#endif /* #define(CONFIG_SYS_I2C_SOFT) */
 
 #define CONFIG_SYS_I2C_LCD_ADDR	0x8	/* LCD Control */
 #define CONFIG_SYS_I2C_KEY_ADDR	0x9	/* Keyboard coprocessor */

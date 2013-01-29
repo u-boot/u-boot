@@ -1954,6 +1954,19 @@ CBFS (Coreboot Filesystem) support
 		interface.
 
 		ported i2c driver to the new framework:
+		- drivers/i2c/soft_i2c.c:
+		  - activate first bus with CONFIG_SYS_I2C_SOFT define
+		    CONFIG_SYS_I2C_SOFT_SPEED and CONFIG_SYS_I2C_SOFT_SLAVE
+		    for defining speed and slave address
+		  - activate second bus with I2C_SOFT_DECLARATIONS2 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_2 and CONFIG_SYS_I2C_SOFT_SLAVE_2
+		    for defining speed and slave address
+		  - activate third bus with I2C_SOFT_DECLARATIONS3 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_3 and CONFIG_SYS_I2C_SOFT_SLAVE_3
+		    for defining speed and slave address
+		  - activate fourth bus with I2C_SOFT_DECLARATIONS4 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_4 and CONFIG_SYS_I2C_SOFT_SLAVE_4
+		    for defining speed and slave address
 
 		additional defines:
 
@@ -1992,18 +2005,18 @@ CBFS (Coreboot Filesystem) support
 
 		which defines
 			bus 0 on adapter 0 without a mux
-			bus 1 on adapter 0 without a PCA9547 on address 0x70 port 1
-			bus 2 on adapter 0 without a PCA9547 on address 0x70 port 2
-			bus 3 on adapter 0 without a PCA9547 on address 0x70 port 3
-			bus 4 on adapter 0 without a PCA9547 on address 0x70 port 4
-			bus 5 on adapter 0 without a PCA9547 on address 0x70 port 5
+			bus 1 on adapter 0 with a PCA9547 on address 0x70 port 1
+			bus 2 on adapter 0 with a PCA9547 on address 0x70 port 2
+			bus 3 on adapter 0 with a PCA9547 on address 0x70 port 3
+			bus 4 on adapter 0 with a PCA9547 on address 0x70 port 4
+			bus 5 on adapter 0 with a PCA9547 on address 0x70 port 5
 			bus 6 on adapter 1 without a mux
-			bus 7 on adapter 1 without a PCA9544 on address 0x72 port 1
-			bus 8 on adapter 1 without a PCA9544 on address 0x72 port 2
+			bus 7 on adapter 1 with a PCA9544 on address 0x72 port 1
+			bus 8 on adapter 1 with a PCA9544 on address 0x72 port 2
 
 		If you do not have i2c muxes on your board, omit this define.
 
-- Legacy I2C Support:	CONFIG_HARD_I2C | CONFIG_SOFT_I2C
+- Legacy I2C Support:	CONFIG_HARD_I2C
 
 		NOTE: It is intended to move drivers to CONFIG_SYS_I2C which
 		provides the following compelling advantages:
@@ -2014,9 +2027,9 @@ CBFS (Coreboot Filesystem) support
 
 		** Please consider updating your I2C driver now. **
 
-		These enable legacy I2C serial bus commands. Defining either of
-		(but not both of) CONFIG_HARD_I2C or CONFIG_SOFT_I2C will
-		include the appropriate I2C driver for the selected CPU.
+		These enable legacy I2C serial bus commands. Defining
+		CONFIG_HARD_I2C will include the appropriate I2C driver
+		for the selected CPU.
 
 		This will allow you to use i2c commands at the u-boot
 		command line (as long as you set CONFIG_CMD_I2C in
@@ -2026,12 +2039,8 @@ CBFS (Coreboot Filesystem) support
 
 		CONFIG_HARD_I2C selects a hardware I2C controller.
 
-		CONFIG_SOFT_I2C configures u-boot to use a software (aka
-		bit-banging) driver instead of CPM or similar hardware
-		support for I2C.
-
 		There are several other quantities that must also be
-		defined when you define CONFIG_HARD_I2C or CONFIG_SOFT_I2C.
+		defined when you define CONFIG_HARD_I2C.
 
 		In both cases you will need to define CONFIG_SYS_I2C_SPEED
 		to be the frequency (in Hz) at which you wish your i2c bus
@@ -2053,7 +2062,7 @@ CBFS (Coreboot Filesystem) support
 
 		That's all that's required for CONFIG_HARD_I2C.
 
-		If you use the software i2c interface (CONFIG_SOFT_I2C)
+		If you use the software i2c interface (CONFIG_SYS_I2C_SOFT)
 		then the following macros need to be defined (examples are
 		from include/configs/lwmon.h):
 
@@ -3672,7 +3681,7 @@ to save the current settings.
 	  I2C muxes, you can define here, how to reach this
 	  EEPROM. For example:
 
-	  #define CONFIG_I2C_ENV_EEPROM_BUS	  "pca9547:70:d\0"
+	  #define CONFIG_I2C_ENV_EEPROM_BUS	  1
 
 	  EEPROM which holds the environment, is reached over
 	  a pca9547 i2c mux with address 0x70, channel 3.

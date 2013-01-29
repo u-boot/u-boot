@@ -56,7 +56,7 @@
 #include <version.h>
 
 #if defined(CONFIG_HARD_I2C) || \
-	defined(CONFIG_SOFT_I2C)
+	defined(CONFIG_SYS_I2C)
 #include <i2c.h>
 #endif
 
@@ -142,8 +142,7 @@ static int init_func_ram (void)
 
 /***********************************************************************/
 
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C) || \
-		defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_HARD_I2C) ||	defined(CONFIG_SYS_I2C)
 static int init_func_i2c (void)
 {
 	puts ("I2C:   ");
@@ -183,8 +182,7 @@ init_fnc_t *init_sequence[] = {
 	display_options,
 	checkcpu,
 	checkboard,
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C) || \
-		defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 	init_func_i2c,
 #endif
 #if defined(CONFIG_HARD_SPI)

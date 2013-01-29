@@ -200,10 +200,13 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_MISC_INIT_R
 
-#undef	CONFIG_HARD_I2C			/* I2C with hardware support */
-#define	CONFIG_SOFT_I2C		1	/* I2C with softwate support */
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
 
-#if defined (CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
+#  define CONFIG_SYS_I2C
+#  define CONFIG_SYS_I2C_SOFT_SPEED	100000
+#  define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
+/**/
 #  define SDA0			0x40
 #  define SCL0			0x80
 #  define GPIOE0		*((volatile uchar*)(CONFIG_SYS_MBAR+0x0c00))
@@ -218,8 +221,7 @@
 #  define I2C_DELAY		{udelay(5);}
 #  define I2C_ACTIVE	{DDR0|=SDA0;}
 #  define I2C_TRISTATE	{DDR0&=~SDA0;}
-#  define CONFIG_SYS_I2C_SPEED		100000
-#  define CONFIG_SYS_I2C_SLAVE		0x7F
+
 #define CONFIG_SYS_I2C_EEPROM_ADDR 0x57
 #define CONFIG_SYS_I2C_FACT_ADDR	0x57
 #endif
