@@ -49,6 +49,17 @@
 
 #define CONFIG_ENV_IS_NOWHERE
 
+/* SPI */
+#define CONFIG_TEGRA_SLINK
+#define CONFIG_TEGRA_SLINK_CTRLS       6
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SF_DEFAULT_MODE         SPI_MODE_0
+#define CONFIG_SF_DEFAULT_SPEED        24000000
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH_SIZE          (4 << 20)
+
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */
