@@ -131,10 +131,11 @@ int board_init(void)
 #ifdef CONFIG_SPI_UART_SWITCH
 	gpio_config_uart();
 #endif
-#ifdef CONFIG_TEGRA_SPI
+#if defined(CONFIG_TEGRA_SPI) || defined(CONFIG_TEGRA_SLINK)
 	pin_mux_spi();
 	spi_init();
 #endif
+
 #ifdef CONFIG_PWM_TEGRA
 	if (pwm_init(gd->fdt_blob))
 		debug("%s: Failed to init pwm\n", __func__);
