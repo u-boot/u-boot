@@ -290,7 +290,7 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 
 	/* 40 */
 	NONE(KFUSE),
-	NONE(SBC1),     /* SBC1, 0x34, is this SPI1? */
+	PERIPHC_SBC1,
 	PERIPHC_NOR,
 	NONE(RESERVED43),
 	PERIPHC_SBC2,
