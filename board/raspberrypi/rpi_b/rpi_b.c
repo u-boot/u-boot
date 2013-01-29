@@ -15,13 +15,32 @@
  */
 
 #include <common.h>
+#include <asm/arch/mbox.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct msg_get_arm_mem {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_get_arm_mem get_arm_mem;
+	u32 end_tag;
+};
+
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	ALLOC_ALIGN_BUFFER(struct msg_get_arm_mem, msg, 1, 16);
+	int ret;
+
+	BCM2835_MBOX_INIT_HDR(msg);
+	BCM2835_MBOX_INIT_TAG(&msg->get_arm_mem, GET_ARM_MEMORY);
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
+	if (ret) {
+		printf("bcm2835: Could not query ARM memory size\n");
+		return -1;
+	}
+
+	gd->ram_size = msg->get_arm_mem.body.resp.mem_size;
 
 	return 0;
 }
