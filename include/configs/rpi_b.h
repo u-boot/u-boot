@@ -58,6 +58,17 @@
 /* Devices */
 /* GPIO */
 #define CONFIG_BCM2835_GPIO
+/* LCD */
+#define CONFIG_LCD
+#define LCD_BPP				LCD_COLOR16
+/*
+ * Prevent allocation of RAM for FB; the real FB address is queried
+ * dynamically from the VideoCore co-processor, and comes from RAM
+ * not owned by the ARM CPU.
+ */
+#define CONFIG_FB_ADDR			0
+#define CONFIG_VIDEO_BCM2835
+#define CONFIG_SYS_WHITE_ON_BLACK
 
 /* Console UART */
 #define CONFIG_PL011_SERIAL
@@ -75,6 +86,11 @@
 #define CONFIG_ENV_SIZE			SZ_16K
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_EXTRA_ENV_SETTINGS	"stdin=serial\0" \
+					"stderr=serial,lcd\0" \
+					"stdout=serial,lcd\0"
 
 /* Shell */
 #define CONFIG_SYS_HUSH_PARSER
