@@ -39,4 +39,9 @@
 	i2c@7000d000 {
 		clock-frequency = <100000>;
 	};
+
+	spi@7000da00 {
+		status = "okay";
+		spi-max-frequency = <25000000>;
+	};
 };
