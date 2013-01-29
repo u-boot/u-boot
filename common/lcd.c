@@ -386,8 +386,6 @@ int drv_lcd_init (void)
 
 	lcd_base = (void *)(gd->fb_base);
 
-	lcd_get_size(&lcd_line_length);
-
 	lcd_init(lcd_base);		/* LCD initialization */
 
 	/* Device initialization */
@@ -470,6 +468,8 @@ static int lcd_init(void *lcdbase)
 	debug("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
 
 	lcd_ctrl_init(lcdbase);
+	lcd_get_size(&lcd_line_length);
+	lcd_line_length = (panel_info.vl_col * NBITS(panel_info.vl_bpix)) / 8;
 	lcd_is_enabled = 1;
 	lcd_clear();
 	lcd_enable ();
