@@ -1034,6 +1034,18 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 }
 #endif
 
+#ifdef CONFIG_SPLASH_SCREEN_PREPARE
+static inline int splash_screen_prepare(void)
+{
+	return board_splash_screen_prepare();
+}
+#else
+static inline int splash_screen_prepare(void)
+{
+	return 0;
+}
+#endif
+
 static void *lcd_logo(void)
 {
 #ifdef CONFIG_SPLASH_SCREEN
@@ -1044,6 +1056,9 @@ static void *lcd_logo(void)
 	if (do_splash && (s = getenv("splashimage")) != NULL) {
 		int x = 0, y = 0;
 		do_splash = 0;
+
+		if (splash_screen_prepare())
+			return (void *)gd->fb_base;
 
 		addr = simple_strtoul (s, NULL, 16);
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
