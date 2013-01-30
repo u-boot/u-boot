@@ -21,10 +21,6 @@
  * MA 02111-1307 USA
  */
 
-/*
-OUTPUT_FORMAT("elf32-bigmips", "elf32-bigmips", "elf32-bigmips")
-*/
-OUTPUT_FORMAT("elf32-tradbigmips", "elf32-tradbigmips", "elf32-tradlittlemips")
 OUTPUT_ARCH(mips)
 ENTRY(_start)
 SECTIONS
