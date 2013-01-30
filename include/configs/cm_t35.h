@@ -336,4 +336,11 @@
 #define CONFIG_OMAP3_GPIO_6	/* GPIO186 is in GPIO bank 6  */
 #endif
 
+/* Display Configuration */
+#define CONFIG_OMAP3_GPIO_2
+#define CONFIG_VIDEO_OMAP3
+#define LCD_BPP		LCD_COLOR16
+
+#define CONFIG_LCD
+
 #endif /* __CONFIG_H */
