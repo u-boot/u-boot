@@ -70,8 +70,4 @@
 #undef CONFIG_ENV_SIZE
 #define CONFIG_ENV_SIZE 896
 
-/* Place a Xilinx Boot ROM header in u-boot image? */
-#define CONFIG_ZYNQ_XILINX_FLASH_HEADER
-#define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
-
 #endif /* __CONFIG_H */
