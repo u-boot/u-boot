@@ -3,6 +3,8 @@
  *
  * Authors: Nikita Kiryanov <nikita@compulab.co.il>
  *
+ * Parsing code based on linux/drivers/video/pxafb.c
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -33,6 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 enum display_type {
 	NONE,
 	DVI,
+	DVI_CUSTOM,
 };
 
 #define CMAP_ADDR	0x80100000
@@ -152,6 +155,206 @@ static enum display_type set_dvi_preset(const struct panel_config preset,
 }
 
 /*
+ * parse_mode() - parse the mode parameter of custom lcd settings
+ *
+ * @mode:	<res_x>x<res_y>
+ *
+ * Returns -1 on error, 0 on success.
+ */
+static int parse_mode(const char *mode)
+{
+	unsigned int modelen = strlen(mode);
+	int res_specified = 0;
+	unsigned int xres = 0, yres = 0;
+	int yres_specified = 0;
+	int i;
+
+	for (i = modelen - 1; i >= 0; i--) {
+		switch (mode[i]) {
+		case 'x':
+			if (!yres_specified) {
+				yres = simple_strtoul(&mode[i + 1], NULL, 0);
+				yres_specified = 1;
+			} else {
+				goto done_parsing;
+			}
+
+			break;
+		case '0' ... '9':
+			break;
+		default:
+			goto done_parsing;
+		}
+	}
+
+	if (i < 0 && yres_specified) {
+		xres = simple_strtoul(mode, NULL, 0);
+		res_specified = 1;
+	}
+
+done_parsing:
+	if (res_specified) {
+		set_resolution_params(xres, yres);
+	} else {
+		printf("LCD: invalid mode: %s\n", mode);
+		return -1;
+	}
+
+	return 0;
+}
+
+#define PIXEL_CLK_NUMERATOR (26 * 432 / 39)
+/*
+ * parse_pixclock() - Parse the pixclock parameter of custom lcd settings
+ *
+ * @pixclock:	the desired pixel clock
+ *
+ * Returns -1 on error, 0 on success.
+ *
+ * Handling the pixel_clock:
+ *
+ * Pixel clock is defined in the OMAP35x TRM as follows:
+ * pixel_clock =
+ * (SYS_CLK * 2 * PRCM.CM_CLKSEL2_PLL[18:8]) /
+ * (DSS.DISPC_DIVISOR[23:16] * DSS.DISPC_DIVISOR[6:0] *
+ * PRCM.CM_CLKSEL_DSS[4:0] * (PRCM.CM_CLKSEL2_PLL[6:0] + 1))
+ *
+ * In practice, this means that in order to set the
+ * divisor for the desired pixel clock one needs to
+ * solve the following equation:
+ *
+ * 26 * 432 / (39 * <pixel_clock>) = DSS.DISPC_DIVISOR[6:0]
+ *
+ * NOTE: the explicit equation above is reduced. Do not
+ * try to infer anything from these numbers.
+ */
+static int parse_pixclock(char *pixclock)
+{
+	int divisor, pixclock_val;
+	char *pixclk_start = pixclock;
+
+	pixclock_val = simple_strtoul(pixclock, &pixclock, 10);
+	divisor = DIV_ROUND_UP(PIXEL_CLK_NUMERATOR, pixclock_val);
+	/* 0 and 1 are illegal values for PCD */
+	if (divisor <= 1)
+		divisor = 2;
+
+	panel_cfg.divisor = divisor | (1 << 16);
+	if (pixclock[0] != '\0') {
+		printf("LCD: invalid value for pixclock:%s\n", pixclk_start);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ * parse_setting() - parse a single setting of custom lcd parameters
+ *
+ * @setting:	The custom lcd setting <name>:<value>
+ *
+ * Returns -1 on failure, 0 on success.
+ */
+static int parse_setting(char *setting)
+{
+	int num_val;
+	char *setting_start = setting;
+
+	if (!strncmp(setting, "mode:", 5)) {
+		return parse_mode(setting + 5);
+	} else if (!strncmp(setting, "pixclock:", 9)) {
+		return parse_pixclock(setting + 9);
+	} else if (!strncmp(setting, "left:", 5)) {
+		num_val = simple_strtoul(setting + 5, &setting, 0);
+		panel_cfg.timing_h |= DSS_HBP(num_val);
+	} else if (!strncmp(setting, "right:", 6)) {
+		num_val = simple_strtoul(setting + 6, &setting, 0);
+		panel_cfg.timing_h |= DSS_HFP(num_val);
+	} else if (!strncmp(setting, "upper:", 6)) {
+		num_val = simple_strtoul(setting + 6, &setting, 0);
+		panel_cfg.timing_v |= DSS_VBP(num_val);
+	} else if (!strncmp(setting, "lower:", 6)) {
+		num_val = simple_strtoul(setting + 6, &setting, 0);
+		panel_cfg.timing_v |= DSS_VFP(num_val);
+	} else if (!strncmp(setting, "hsynclen:", 9)) {
+		num_val = simple_strtoul(setting + 9, &setting, 0);
+		panel_cfg.timing_h |= DSS_HSW(num_val);
+	} else if (!strncmp(setting, "vsynclen:", 9)) {
+		num_val = simple_strtoul(setting + 9, &setting, 0);
+		panel_cfg.timing_v |= DSS_VSW(num_val);
+	} else if (!strncmp(setting, "hsync:", 6)) {
+		if (simple_strtoul(setting + 6, &setting, 0) == 0)
+			panel_cfg.pol_freq |= DSS_IHS;
+		else
+			panel_cfg.pol_freq &= ~DSS_IHS;
+	} else if (!strncmp(setting, "vsync:", 6)) {
+		if (simple_strtoul(setting + 6, &setting, 0) == 0)
+			panel_cfg.pol_freq |= DSS_IVS;
+		else
+			panel_cfg.pol_freq &= ~DSS_IVS;
+	} else if (!strncmp(setting, "outputen:", 9)) {
+		if (simple_strtoul(setting + 9, &setting, 0) == 0)
+			panel_cfg.pol_freq |= DSS_IEO;
+		else
+			panel_cfg.pol_freq &= ~DSS_IEO;
+	} else if (!strncmp(setting, "pixclockpol:", 12)) {
+		if (simple_strtoul(setting + 12, &setting, 0) == 0)
+			panel_cfg.pol_freq |= DSS_IPC;
+		else
+			panel_cfg.pol_freq &= ~DSS_IPC;
+	} else if (!strncmp(setting, "active", 6)) {
+		panel_cfg.panel_type = ACTIVE_DISPLAY;
+		return 0; /* Avoid sanity check below */
+	} else if (!strncmp(setting, "passive", 7)) {
+		panel_cfg.panel_type = PASSIVE_DISPLAY;
+		return 0; /* Avoid sanity check below */
+	} else if (!strncmp(setting, "display:", 8)) {
+		if (!strncmp(setting + 8, "dvi", 3)) {
+			lcd_def = DVI_CUSTOM;
+			return 0; /* Avoid sanity check below */
+		}
+	} else {
+		printf("LCD: unknown option %s\n", setting_start);
+		return -1;
+	}
+
+	if (setting[0] != '\0') {
+		printf("LCD: invalid value for %s\n", setting_start);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ * env_parse_customlcd() - parse custom lcd params from an environment variable.
+ *
+ * @custom_lcd_params:	The environment variable containing the lcd params.
+ *
+ * Returns -1 on failure, 0 on success.
+ */
+static int parse_customlcd(char *custom_lcd_params)
+{
+	char params_cpy[160];
+	char *setting;
+
+	strncpy(params_cpy, custom_lcd_params, 160);
+	setting = strtok(params_cpy, ",");
+	while (setting) {
+		if (parse_setting(setting) < 0)
+			return -1;
+
+		setting = strtok(NULL, ",");
+	}
+
+	/* Currently we don't support changing this via custom lcd params */
+	panel_cfg.data_lines = LCD_INTERFACE_24_BIT;
+	panel_cfg.gfx_format = GFXFORMAT_RGB16; /* See dvi predefines note */
+
+	return 0;
+}
+
+/*
  * env_parse_displaytype() - parse display type.
  *
  * Parses the environment variable "displaytype", which contains the
@@ -189,14 +392,19 @@ void *lcd_console_address;
 void lcd_ctrl_init(void *lcdbase)
 {
 	struct prcm *prcm = (struct prcm *)PRCM_BASE;
+	char *custom_lcd;
 	char *displaytype = getenv("displaytype");
 
 	if (displaytype == NULL)
 		return;
 
 	lcd_def = env_parse_displaytype(displaytype);
-	if (lcd_def == NONE)
-		return;
+	/* If we did not recognize the preset, check if it's an env variable */
+	if (lcd_def == NONE) {
+		custom_lcd = getenv(displaytype);
+		if (custom_lcd == NULL || parse_customlcd(custom_lcd) < 0)
+			return;
+	}
 
 	panel_cfg.frame_buffer = lcdbase;
 	omap3_dss_panel_config(&panel_cfg);
@@ -211,7 +419,7 @@ void lcd_ctrl_init(void *lcdbase)
 
 void lcd_enable(void)
 {
-	if (lcd_def == DVI) {
+	if (lcd_def == DVI || lcd_def == DVI_CUSTOM) {
 		gpio_direction_output(54, 0); /* Turn on DVI */
 		omap3_dss_enable();
 	}
