@@ -208,6 +208,7 @@ struct panel_config {
 	u32 data_lines;
 	u32 load_mode;
 	u32 panel_color;
+	u32 gfx_format;
 	void *frame_buffer;
 };
 

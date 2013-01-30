@@ -130,6 +130,7 @@ static struct panel_config lcd_cfg = {
 	.load_mode      = 0x02, /* Frame Mode */
 	.panel_color	= 0,
 	.lcd_size	= PANEL_LCD_SIZE(800, 480),
+	.gfx_format	= GFXFORMAT_RGB24_UNPACKED,
 };
 
 int board_video_init(void)

@@ -81,6 +81,7 @@ static struct panel_config lcd_cfg[] = {
 	.data_lines     = 0x03, /* 24 Bit RGB */
 	.load_mode      = 0x02, /* Frame Mode */
 	.panel_color	= 0,
+	.gfx_format	= GFXFORMAT_RGB24_UNPACKED,
 	},
 	{
 	.timing_h       = PANEL_TIMING_H(20, 192, 4),
@@ -91,6 +92,7 @@ static struct panel_config lcd_cfg[] = {
 	.data_lines     = 0x03, /* 24 Bit RGB */
 	.load_mode      = 0x02, /* Frame Mode */
 	.panel_color	= 0,
+	.gfx_format	= GFXFORMAT_RGB24_UNPACKED,
 	}
 };
 #endif
