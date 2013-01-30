@@ -193,7 +193,6 @@ relocate_code:
 	jr	t0
 	 nop
 
-	.dword	_gp
 	.dword	_GLOBAL_OFFSET_TABLE_
 	.dword	uboot_end_data
 	.dword	uboot_end
@@ -208,9 +207,7 @@ in_ram:
 	 */
 	ld	t3, -8(t0)		# t3 <-- num_got_entries
 	ld	t8, -32(t0)		# t8 <-- _GLOBAL_OFFSET_TABLE_
-	ld	t9, -40(t0)		# t9 <-- _gp
-	dsub	t8, t9			# compute offset
-	dadd	t8, t8, gp		# t8 now holds relocated _G_O_T_
+	dadd	t8, s1			# t8 now holds relocated _G_O_T_
 	daddi	t8, t8, 16		# skipping first two entries
 	dli	t2, 2
 1:
