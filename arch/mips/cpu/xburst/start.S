@@ -64,19 +64,13 @@ relocate_code:
 	move	sp, a0			# set new stack pointer
 
 	li	t0, CONFIG_SYS_MONITOR_BASE
+	sub	t6, a2, t0		# t6 <-- relocation offset
+
 	la	t3, in_ram
 	lw	t2, -12(t3)		# t2 <-- uboot_end_data
 	move	t1, a2
 
-	/*
-	 * Fix $gp:
-	 *
-	 * New $gp = (Old $gp - CONFIG_SYS_MONITOR_BASE) + Destination Address
-	 */
-	move	t6, gp
-	sub	gp, CONFIG_SYS_MONITOR_BASE
-	add	gp, a2			# gp now adjusted
-	sub	t6, gp, t6		# t6 <-- relocation offset
+	add	gp, t6			# adjust gp
 
 	/*
 	 * t0 = source address
@@ -87,7 +81,7 @@ relocate_code:
 	lw	t3, 0(t0)
 	sw	t3, 0(t1)
 	addu	t0, 4
-	ble	t0, t2, 1b
+	blt	t0, t2, 1b
 	 addu	t1, 4
 
 	/* If caches were enabled, we would have to flush them here. */
@@ -122,7 +116,6 @@ relocate_code:
 	jr	t0
 	 nop
 
-	.word	_gp
 	.word	_GLOBAL_OFFSET_TABLE_
 	.word	uboot_end_data
 	.word	uboot_end
@@ -137,9 +130,7 @@ in_ram:
 	 */
 	lw	t3, -4(t0)		# t3 <-- num_got_entries
 	lw	t4, -16(t0)		# t4 <-- _GLOBAL_OFFSET_TABLE_
-	lw	t5, -20(t0)		# t5 <-- _gp
-	sub	t4, t5			# compute offset
-	add	t4, t4, gp		# t4 now holds relocated _G_O_T_
+	add	t4, t6			# t4 now holds relocated _G_O_T_
 	addi	t4, t4, 8		# skipping first two entries
 	li	t2, 2
 1:

@@ -21,10 +21,12 @@
  * MA 02111-1307 USA
  */
 
-/*
-OUTPUT_FORMAT("elf32-bigmips", "elf32-bigmips", "elf32-bigmips")
-*/
-OUTPUT_FORMAT("elf32-tradlittlemips", "elf32-tradbigmips", "elf32-tradlittlemips")
+#if defined(CONFIG_64BIT)
+#define PTR_COUNT_SHIFT	3
+#else
+#define PTR_COUNT_SHIFT	2
+#endif
+
 OUTPUT_ARCH(mips)
 ENTRY(_start)
 SECTIONS
@@ -32,27 +34,33 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text       :
-	{
-	  *(.text*)
+	.text : {
+		*(.text*)
 	}
 
 	. = ALIGN(4);
-	.rodata  : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+	.rodata : {
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
+	}
 
 	. = ALIGN(4);
-	.data  : { *(.data*) }
+	.data : {
+		*(.data*)
+	}
 
 	. = .;
 	_gp = ALIGN(16) + 0x7ff0;
 
 	.got : {
-	  __got_start = .;
-	  *(.got)
-	  __got_end = .;
+		__got_start = .;
+		*(.got)
+		__got_end = .;
 	}
 
-	.sdata  : { *(.sdata*) }
+	. = ALIGN(4);
+	.sdata : {
+		*(.sdata*)
+	}
 
 	. = ALIGN(4);
 	.u_boot_list : {
@@ -60,10 +68,17 @@ SECTIONS
 	}
 
 	uboot_end_data = .;
-	num_got_entries = (__got_end - __got_start) >> 2;
+
+	num_got_entries = (__got_end - __got_start) >> PTR_COUNT_SHIFT;
 
 	. = ALIGN(4);
-	.sbss (NOLOAD)  : { *(.sbss*) }
-	.bss (NOLOAD)  : { *(.bss*) . = ALIGN(4); }
+	.sbss : {
+		*(.sbss*)
+	}
+
+	.bss : {
+		*(.bss*)
+		. = ALIGN(4);
+	}
 	uboot_end = .;
 }
