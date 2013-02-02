@@ -141,11 +141,8 @@ $(OBJTREE)/MLO.byteswap: $(obj)u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
-ifneq ($(CONFIG_IMX_CONFIG),)
-$(OBJTREE)/SPL:	$(obj)u-boot-spl.bin
-	$(OBJTREE)/tools/mkimage -n  $(SRCTREE)/$(CONFIG_IMX_CONFIG) -T imximage \
-		-e $(CONFIG_SPL_TEXT_BASE) -d $< $@
-endif
+$(OBJTREE)/SPL : $(obj)u-boot-spl.bin depend
+		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common $@
 
 ALL-y	+= $(obj)u-boot-spl.bin
 

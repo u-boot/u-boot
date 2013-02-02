@@ -80,7 +80,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				  unsigned int max_hz, unsigned int mode)
 {
 	struct mxs_spi_slave *mxs_slave;
-	uint32_t addr;
 	struct mxs_ssp_regs *ssp_regs;
 	int reg;
 
@@ -96,13 +95,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (mxs_dma_init_channel(bus))
 		goto err_init;
 
-	addr = MXS_SSP0_BASE + (bus * MXS_SPI_PORT_OFFSET);
-
 	mxs_slave->slave.bus = bus;
 	mxs_slave->slave.cs = cs;
 	mxs_slave->max_khz = max_hz / 1000;
 	mxs_slave->mode = mode;
-	mxs_slave->regs = (struct mxs_ssp_regs *)addr;
+	mxs_slave->regs = mxs_ssp_regs_by_bus(bus);
 	ssp_regs = mxs_slave->regs;
 
 	reg = readl(&ssp_regs->hw_ssp_ctrl0);
@@ -140,7 +137,7 @@ int spi_claim_bus(struct spi_slave *slave)
 
 	writel(0, &ssp_regs->hw_ssp_cmd0);
 
-	mx28_set_ssp_busclock(slave->bus, mxs_slave->max_khz);
+	mxs_set_ssp_busclock(slave->bus, mxs_slave->max_khz);
 
 	return 0;
 }

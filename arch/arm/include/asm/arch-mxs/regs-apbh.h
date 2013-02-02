@@ -29,6 +29,87 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
+
+#if defined(CONFIG_MX23)
+struct mxs_apbh_regs {
+	mxs_reg_32(hw_apbh_ctrl0)
+	mxs_reg_32(hw_apbh_ctrl1)
+	mxs_reg_32(hw_apbh_ctrl2)
+	mxs_reg_32(hw_apbh_channel_ctrl)
+
+	union {
+	struct {
+		mxs_reg_32(hw_apbh_ch_curcmdar)
+		mxs_reg_32(hw_apbh_ch_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch_cmd)
+		mxs_reg_32(hw_apbh_ch_bar)
+		mxs_reg_32(hw_apbh_ch_sema)
+		mxs_reg_32(hw_apbh_ch_debug1)
+		mxs_reg_32(hw_apbh_ch_debug2)
+	} ch[8];
+	struct {
+		mxs_reg_32(hw_apbh_ch0_curcmdar)
+		mxs_reg_32(hw_apbh_ch0_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch0_cmd)
+		mxs_reg_32(hw_apbh_ch0_bar)
+		mxs_reg_32(hw_apbh_ch0_sema)
+		mxs_reg_32(hw_apbh_ch0_debug1)
+		mxs_reg_32(hw_apbh_ch0_debug2)
+		mxs_reg_32(hw_apbh_ch1_curcmdar)
+		mxs_reg_32(hw_apbh_ch1_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch1_cmd)
+		mxs_reg_32(hw_apbh_ch1_bar)
+		mxs_reg_32(hw_apbh_ch1_sema)
+		mxs_reg_32(hw_apbh_ch1_debug1)
+		mxs_reg_32(hw_apbh_ch1_debug2)
+		mxs_reg_32(hw_apbh_ch2_curcmdar)
+		mxs_reg_32(hw_apbh_ch2_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch2_cmd)
+		mxs_reg_32(hw_apbh_ch2_bar)
+		mxs_reg_32(hw_apbh_ch2_sema)
+		mxs_reg_32(hw_apbh_ch2_debug1)
+		mxs_reg_32(hw_apbh_ch2_debug2)
+		mxs_reg_32(hw_apbh_ch3_curcmdar)
+		mxs_reg_32(hw_apbh_ch3_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch3_cmd)
+		mxs_reg_32(hw_apbh_ch3_bar)
+		mxs_reg_32(hw_apbh_ch3_sema)
+		mxs_reg_32(hw_apbh_ch3_debug1)
+		mxs_reg_32(hw_apbh_ch3_debug2)
+		mxs_reg_32(hw_apbh_ch4_curcmdar)
+		mxs_reg_32(hw_apbh_ch4_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch4_cmd)
+		mxs_reg_32(hw_apbh_ch4_bar)
+		mxs_reg_32(hw_apbh_ch4_sema)
+		mxs_reg_32(hw_apbh_ch4_debug1)
+		mxs_reg_32(hw_apbh_ch4_debug2)
+		mxs_reg_32(hw_apbh_ch5_curcmdar)
+		mxs_reg_32(hw_apbh_ch5_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch5_cmd)
+		mxs_reg_32(hw_apbh_ch5_bar)
+		mxs_reg_32(hw_apbh_ch5_sema)
+		mxs_reg_32(hw_apbh_ch5_debug1)
+		mxs_reg_32(hw_apbh_ch5_debug2)
+		mxs_reg_32(hw_apbh_ch6_curcmdar)
+		mxs_reg_32(hw_apbh_ch6_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch6_cmd)
+		mxs_reg_32(hw_apbh_ch6_bar)
+		mxs_reg_32(hw_apbh_ch6_sema)
+		mxs_reg_32(hw_apbh_ch6_debug1)
+		mxs_reg_32(hw_apbh_ch6_debug2)
+		mxs_reg_32(hw_apbh_ch7_curcmdar)
+		mxs_reg_32(hw_apbh_ch7_nxtcmdar)
+		mxs_reg_32(hw_apbh_ch7_cmd)
+		mxs_reg_32(hw_apbh_ch7_bar)
+		mxs_reg_32(hw_apbh_ch7_sema)
+		mxs_reg_32(hw_apbh_ch7_debug1)
+		mxs_reg_32(hw_apbh_ch7_debug2)
+	};
+	};
+	mxs_reg_32(hw_apbh_version)
+};
+
+#elif defined(CONFIG_MX28)
 struct mxs_apbh_regs {
 	mxs_reg_32(hw_apbh_ctrl0)
 	mxs_reg_32(hw_apbh_ctrl1)
@@ -169,10 +250,26 @@ struct mxs_apbh_regs {
 };
 #endif
 
+#endif
+
 #define	APBH_CTRL0_SFTRST				(1 << 31)
 #define	APBH_CTRL0_CLKGATE				(1 << 30)
 #define	APBH_CTRL0_AHB_BURST8_EN			(1 << 29)
 #define	APBH_CTRL0_APB_BURST_EN				(1 << 28)
+#if defined(CONFIG_MX23)
+#define	APBH_CTRL0_RSVD0_MASK				(0xf << 24)
+#define	APBH_CTRL0_RSVD0_OFFSET				24
+#define	APBH_CTRL0_RESET_CHANNEL_MASK			(0xff << 16)
+#define	APBH_CTRL0_RESET_CHANNEL_OFFSET			16
+#define	APBH_CTRL0_CLKGATE_CHANNEL_MASK			(0xff << 8)
+#define	APBH_CTRL0_CLKGATE_CHANNEL_OFFSET		8
+#define	APBH_CTRL0_CLKGATE_CHANNEL_SSP0			0x02
+#define	APBH_CTRL0_CLKGATE_CHANNEL_SSP1			0x04
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND0		0x10
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND1		0x20
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND2		0x40
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND3		0x80
+#elif defined(CONFIG_MX28)
 #define	APBH_CTRL0_RSVD0_MASK				(0xfff << 16)
 #define	APBH_CTRL0_RSVD0_OFFSET				16
 #define	APBH_CTRL0_CLKGATE_CHANNEL_MASK			0xffff
@@ -191,6 +288,7 @@ struct mxs_apbh_regs {
 #define	APBH_CTRL0_CLKGATE_CHANNEL_NAND7		0x0800
 #define	APBH_CTRL0_CLKGATE_CHANNEL_HSADC		0x1000
 #define	APBH_CTRL0_CLKGATE_CHANNEL_LCDIF		0x2000
+#endif
 
 #define	APBH_CTRL1_CH15_CMDCMPLT_IRQ_EN			(1 << 31)
 #define	APBH_CTRL1_CH14_CMDCMPLT_IRQ_EN			(1 << 30)
@@ -260,6 +358,7 @@ struct mxs_apbh_regs {
 #define	APBH_CTRL2_CH1_ERROR_IRQ			(1 << 1)
 #define	APBH_CTRL2_CH0_ERROR_IRQ			(1 << 0)
 
+#if defined(CONFIG_MX28)
 #define	APBH_CHANNEL_CTRL_RESET_CHANNEL_MASK		(0xffff << 16)
 #define	APBH_CHANNEL_CTRL_RESET_CHANNEL_OFFSET		16
 #define	APBH_CHANNEL_CTRL_RESET_CHANNEL_SSP0		(0x0001 << 16)
@@ -292,7 +391,26 @@ struct mxs_apbh_regs {
 #define	APBH_CHANNEL_CTRL_FREEZE_CHANNEL_NAND7		0x0800
 #define	APBH_CHANNEL_CTRL_FREEZE_CHANNEL_HSADC		0x1000
 #define	APBH_CHANNEL_CTRL_FREEZE_CHANNEL_LCDIF		0x2000
+#endif
 
+#if defined(CONFIG_MX23)
+#define	APBH_DEVSEL_CH7_MASK				(0xf << 28)
+#define	APBH_DEVSEL_CH7_OFFSET				28
+#define	APBH_DEVSEL_CH6_MASK				(0xf << 24)
+#define	APBH_DEVSEL_CH6_OFFSET				24
+#define	APBH_DEVSEL_CH5_MASK				(0xf << 20)
+#define	APBH_DEVSEL_CH5_OFFSET				20
+#define	APBH_DEVSEL_CH4_MASK				(0xf << 16)
+#define	APBH_DEVSEL_CH4_OFFSET				16
+#define	APBH_DEVSEL_CH3_MASK				(0xf << 12)
+#define	APBH_DEVSEL_CH3_OFFSET				12
+#define	APBH_DEVSEL_CH2_MASK				(0xf << 8)
+#define	APBH_DEVSEL_CH2_OFFSET				8
+#define	APBH_DEVSEL_CH1_MASK				(0xf << 4)
+#define	APBH_DEVSEL_CH1_OFFSET				4
+#define	APBH_DEVSEL_CH0_MASK				(0xf << 0)
+#define	APBH_DEVSEL_CH0_OFFSET				0
+#elif defined(CONFIG_MX28)
 #define	APBH_DEVSEL_CH15_MASK				(0x3 << 30)
 #define	APBH_DEVSEL_CH15_OFFSET				30
 #define	APBH_DEVSEL_CH14_MASK				(0x3 << 28)
@@ -325,7 +443,9 @@ struct mxs_apbh_regs {
 #define	APBH_DEVSEL_CH1_OFFSET				2
 #define	APBH_DEVSEL_CH0_MASK				(0x3 << 0)
 #define	APBH_DEVSEL_CH0_OFFSET				0
+#endif
 
+#if defined(CONFIG_MX28)
 #define	APBH_DMA_BURST_SIZE_CH15_MASK			(0x3 << 30)
 #define	APBH_DMA_BURST_SIZE_CH15_OFFSET			30
 #define	APBH_DMA_BURST_SIZE_CH14_MASK			(0x3 << 28)
@@ -377,6 +497,7 @@ struct mxs_apbh_regs {
 #define	APBH_DMA_BURST_SIZE_CH0_BURST8			0x2
 
 #define	APBH_DEBUG_GPMI_ONE_FIFO			(1 << 0)
+#endif
 
 #define	APBH_CHn_CURCMDAR_CMD_ADDR_MASK			0xffffffff
 #define	APBH_CHn_CURCMDAR_CMD_ADDR_OFFSET		0

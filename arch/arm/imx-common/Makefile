@@ -42,6 +42,19 @@ all:	$(obj).depend $(LIB)
 $(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
+$(OBJTREE)/$(patsubst "%",%,$(CONFIG_IMX_CONFIG)).cfgtmp: $(OBJTREE)/%.cfgtmp : $(SRCTREE)/%
+	mkdir -p $(dir $@)
+	$(CC) -E -x c $< $(CPPFLAGS) -o $@
+
+$(OBJTREE)/u-boot.imx: $(OBJTREE)/u-boot.bin $(OBJTREE)/$(patsubst "%",%,$(CONFIG_IMX_CONFIG)).cfgtmp
+	$(OBJTREE)/tools/mkimage -n $(filter-out %.bin,$^) -T imximage \
+	-e $(CONFIG_SYS_TEXT_BASE) -d $< $@
+
+$(OBJTREE)/SPL: $(OBJTREE)/spl/u-boot-spl.bin $(OBJTREE)/$(patsubst "%",%,$(CONFIG_IMX_CONFIG)).cfgtmp
+	$(OBJTREE)/tools/mkimage -n $(filter-out %.bin,$^) -T imximage \
+	-e $(CONFIG_SPL_TEXT_BASE) -d $< $@
+
+
 #########################################################################
 
 # defines $(obj).depend target

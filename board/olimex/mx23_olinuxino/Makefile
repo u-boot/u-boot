@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2002
-# Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+# (C) Copyright 2000-2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,19 +21,27 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fno-common -ffixed-r8 -msoft-float
+include $(TOPDIR)/config.mk
 
-PLATFORM_CPPFLAGS += -march=armv5te
-# =========================================================================
-#
-# Supply options according to compiler version
-#
-# =========================================================================
-PF_RELFLAGS_SLB_AT := $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
-PLATFORM_RELFLAGS += $(PF_RELFLAGS_SLB_AT)
+LIB	= $(obj)lib$(BOARD).o
 
-ifneq ($(CONFIG_IMX_CONFIG),)
-
-ALL-y	+= $(OBJTREE)/u-boot.imx
-
+ifndef	CONFIG_SPL_BUILD
+COBJS	:= mx23_olinuxino.o
+else
+COBJS	:= spl_boot.o
 endif
+
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

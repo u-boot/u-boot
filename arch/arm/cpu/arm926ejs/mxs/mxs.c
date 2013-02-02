@@ -1,5 +1,5 @@
 /*
- * Freescale i.MX28 common code
+ * Freescale i.MX23/i.MX28 common code
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
@@ -35,6 +35,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -196,6 +197,8 @@ static const char *get_cpu_type(void)
 		(struct mxs_digctl_regs *)MXS_DIGCTL_BASE;
 
 	switch (readl(&digctl_regs->hw_digctl_chipid) & HW_DIGCTL_CHIPID_MASK) {
+	case HW_DIGCTL_CHIPID_MX23:
+		return "23";
 	case HW_DIGCTL_CHIPID_MX28:
 		return "28";
 	default:
@@ -210,6 +213,21 @@ static const char *get_cpu_rev(void)
 	uint8_t rev = readl(&digctl_regs->hw_digctl_chipid) & 0x000000FF;
 
 	switch (readl(&digctl_regs->hw_digctl_chipid) & HW_DIGCTL_CHIPID_MASK) {
+	case HW_DIGCTL_CHIPID_MX23:
+		switch (rev) {
+		case 0x0:
+			return "1.0";
+		case 0x1:
+			return "1.1";
+		case 0x2:
+			return "1.2";
+		case 0x3:
+			return "1.3";
+		case 0x4:
+			return "1.4";
+		default:
+			return "??";
+		}
 	case HW_DIGCTL_CHIPID_MX28:
 		switch (rev) {
 		case 0x1:
@@ -276,7 +294,7 @@ int cpu_eth_init(bd_t *bis)
 }
 #endif
 
-static void __mx28_adjust_mac(int dev_id, unsigned char *mac)
+__weak void mx28_adjust_mac(int dev_id, unsigned char *mac)
 {
 	mac[0] = 0x00;
 	mac[1] = 0x04; /* Use FSL vendor MAC address by default */
@@ -284,9 +302,6 @@ static void __mx28_adjust_mac(int dev_id, unsigned char *mac)
 	if (dev_id == 1) /* Let MAC1 be MAC0 + 1 by default */
 		mac[5] += 1;
 }
-
-void mx28_adjust_mac(int dev_id, unsigned char *mac)
-	__attribute__((weak, alias("__mx28_adjust_mac")));
 
 #ifdef	CONFIG_MX28_FEC_MAC_IN_OCOTP
 
