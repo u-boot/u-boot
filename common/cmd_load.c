@@ -1064,8 +1064,8 @@ U_BOOT_CMD(
 	"    - save S-Record file over serial line with offset 'off' and size 'size'"
 );
 #endif	/* CONFIG_SYS_LOADS_BAUD_CHANGE */
-#endif
-#endif
+#endif	/* CONFIG_CMD_SAVES */
+#endif	/* CONFIG_CMD_LOADS */
 
 
 #if defined(CONFIG_CMD_LOADB)
@@ -1085,7 +1085,7 @@ U_BOOT_CMD(
 	" with offset 'off' and baudrate 'baud'"
 );
 
-#endif
+#endif	/* CONFIG_CMD_LOADB */
 
 /* -------------------------------------------------------------------- */
 
@@ -1115,4 +1115,4 @@ U_BOOT_CMD(
 	"[on|off]"
 );
 
-#endif
+#endif	/* CONFIG_CMD_HWFLOW */
