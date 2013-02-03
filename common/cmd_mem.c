@@ -462,7 +462,8 @@ static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	/* Check for a size spefication.
+	/*
+	 * Check for a size specification.
 	 * Defaults to long if no or incorrect specification.
 	 */
 	if ((size = cmd_get_data_size(argv[0], 4)) < 0)
@@ -531,7 +532,8 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	/* Check for a size spefication.
+	/*
+	 * Check for a size specification.
 	 * Defaults to long if no or incorrect specification.
 	 */
 	if ((size = cmd_get_data_size(argv[0], 4)) < 0)
@@ -683,7 +685,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * Data line test: write a pattern to the first
 		 * location, write the 1's complement to a 'parking'
 		 * address (changes the state of the data bus so a
-		 * floating bus doen't give a false OK), and then
+		 * floating bus doesn't give a false OK), and then
 		 * read the value back. Note that we read it back
 		 * into a variable because the next time we read it,
 		 * it might be right (been there, tough to explain to
@@ -747,7 +749,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		 *              1's test on the relevant bits of the
 		 *              address and checking for aliasing.
 		 *              This test will find single-bit
-		 *              address failures such as stuck -high,
+		 *              address failures such as stuck-high,
 		 *              stuck-low, and shorted pins. The base
 		 *              address and size of the region are
 		 *              selected by the caller.
