@@ -198,7 +198,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * defaults to 0x4200
 	 */
 	tmp = getenv("bootaddr");
-	if (tmp)
+	if (!tmp)
 		bootaddr = CONFIG_SYS_VXWORKS_BOOT_ADDR;
 	else
 		bootaddr = simple_strtoul(tmp, NULL, 16);
