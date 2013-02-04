@@ -51,6 +51,25 @@ static void print_eth(int idx)
 }
 
 __maybe_unused
+static void print_eths(void)
+{
+	struct eth_device *dev;
+	int i = 0;
+
+	do {
+		dev = eth_get_dev_by_index(i);
+		if (dev) {
+			printf("eth%dname    = %s\n", i, dev->name);
+			print_eth(i);
+			i++;
+		}
+	} while (dev);
+
+	printf("current eth = %s\n", eth_get_name());
+	printf("ip_addr     = %s\n", getenv("ipaddr"));
+}
+
+__maybe_unused
 static void print_lnum(const char *name, unsigned long long value)
 {
 	printf("%-12s= 0x%.8llX\n", name, value);
@@ -195,10 +214,9 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("sram size      ",	(ulong)bd->bi_sramsize);
 #endif
 #if defined(CONFIG_CMD_NET)
-	print_eth(0);
-	printf("ip_addr     = %s\n", getenv("ipaddr"));
+	print_eths();
 #endif
-	printf("baudrate    = %u bps\n", (ulong)bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", bd->bi_baudrate);
 	return 0;
 }
 
@@ -366,8 +384,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 #if defined(CONFIG_CMD_NET)
-	print_eth(0);
-	printf("ip_addr     = %s\n", getenv("ipaddr"));
+	print_eths();
 #endif
 	printf("baudrate    = %u bps\n", bd->bi_baudrate);
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
