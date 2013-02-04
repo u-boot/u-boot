@@ -28,6 +28,7 @@
 #include <fat.h>
 #include <asm/byteorder.h>
 #include <part.h>
+#include <linux/ctype.h>
 #include "fat.c"
 
 static void uppercase(char *str, int len)
@@ -35,7 +36,7 @@ static void uppercase(char *str, int len)
 	int i;
 
 	for (i = 0; i < len; i++) {
-		TOUPPER(*str);
+		*str = toupper(*str);
 		str++;
 	}
 }
@@ -248,7 +249,6 @@ static __u32 get_fatent_value(fsdata *mydata, __u32 entry)
 	return ret;
 }
 
-#ifdef CONFIG_SUPPORT_VFAT
 /*
  * Set the file name information from 'name' into 'slotptr',
  */
@@ -467,8 +467,6 @@ get_long_file_name(fsdata *mydata, int curclust, __u8 *cluster,
 
 	return 0;
 }
-
-#endif
 
 /*
  * Set the entry at index 'entry' in a FAT (16/32) table.
@@ -853,16 +851,14 @@ static dir_entry *find_directory_entry(fsdata *mydata, int startsect,
 				continue;
 			}
 			if ((dentptr->attr & ATTR_VOLUME)) {
-#ifdef CONFIG_SUPPORT_VFAT
-				if ((dentptr->attr & ATTR_VFAT) &&
+				if (vfat_enabled &&
+				    (dentptr->attr & ATTR_VFAT) &&
 				    (dentptr->name[0] & LAST_LONG_ENTRY_MASK)) {
 					get_long_file_name(mydata, curclust,
 						     get_dentfromdir_block,
 						     &dentptr, l_name);
 					debug("vfatname: |%s|\n", l_name);
-				} else
-#endif
-				{
+				} else {
 					/* Volume label or VFAT entry */
 					dentptr++;
 					if (is_next_clust(mydata, dentptr))

@@ -231,7 +231,7 @@ void board_init_f(ulong board_type)
 
 	/* And finally, a new, bigger stack. */
 	new_sp = (unsigned long *)addr;
-	gd->stack_end = addr;
+	gd->arch.stack_end = addr;
 	*(--new_sp) = 0;
 	*(--new_sp) = 0;
 

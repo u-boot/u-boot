@@ -60,8 +60,8 @@ int timer_init(void)
 	writel(0x0, &timer->tim34);
 	writel(TIMER_LOAD_VAL, &timer->prd34);
 	writel(2 << 22, &timer->tcr);
-	gd->timer_rate_hz = CONFIG_SYS_HZ_CLOCK / TIM_CLK_DIV;
-	gd->timer_reset_value = 0;
+	gd->arch.timer_rate_hz = CONFIG_SYS_HZ_CLOCK / TIM_CLK_DIV;
+	gd->arch.timer_reset_value = 0;
 
 	return(0);
 }
@@ -74,27 +74,28 @@ unsigned long long get_ticks(void)
 	unsigned long now = readl(&timer->tim34);
 
 	/* increment tbu if tbl has rolled over */
-	if (now < gd->tbl)
-		gd->tbu++;
-	gd->tbl = now;
+	if (now < gd->arch.tbl)
+		gd->arch.tbu++;
+	gd->arch.tbl = now;
 
-	return (((unsigned long long)gd->tbu) << 32) | gd->tbl;
+	return (((unsigned long long)gd->arch.tbu) << 32) | gd->arch.tbl;
 }
 
 ulong get_timer(ulong base)
 {
 	unsigned long long timer_diff;
 
-	timer_diff = get_ticks() - gd->timer_reset_value;
+	timer_diff = get_ticks() - gd->arch.timer_reset_value;
 
-	return lldiv(timer_diff, (gd->timer_rate_hz / CONFIG_SYS_HZ)) - base;
+	return lldiv(timer_diff,
+		     (gd->arch.timer_rate_hz / CONFIG_SYS_HZ)) - base;
 }
 
 void __udelay(unsigned long usec)
 {
 	unsigned long long endtime;
 
-	endtime = lldiv((unsigned long long)usec * gd->timer_rate_hz,
+	endtime = lldiv((unsigned long long)usec * gd->arch.timer_rate_hz,
 			1000000UL);
 	endtime += get_ticks();
 
@@ -108,7 +109,7 @@ void __udelay(unsigned long usec)
  */
 ulong get_tbclk(void)
 {
-	return gd->timer_rate_hz;
+	return gd->arch.timer_rate_hz;
 }
 
 #ifdef CONFIG_HW_WATCHDOG

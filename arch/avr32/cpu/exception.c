@@ -112,11 +112,11 @@ void do_unknown_exception(unsigned int ecr, struct pt_regs *regs)
 	printf("CPU Mode: %s\n", cpu_modes[mode]);
 
 	/* Avoid exception loops */
-	if (regs->sp < (gd->stack_end - CONFIG_STACKSIZE)
-			|| regs->sp >= gd->stack_end)
+	if (regs->sp < (gd->arch.stack_end - CONFIG_STACKSIZE)
+			|| regs->sp >= gd->arch.stack_end)
 		printf("\nStack pointer seems bogus, won't do stack dump\n");
 	else
-		dump_mem("\nStack: ", regs->sp, gd->stack_end);
+		dump_mem("\nStack: ", regs->sp, gd->arch.stack_end);
 
 	panic("Unhandled exception\n");
 }

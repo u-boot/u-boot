@@ -58,21 +58,22 @@ uint qe_muram_alloc(uint size, uint align)
 	uint	savebase;
 
 	align_mask = align - 1;
-	savebase = gd->mp_alloc_base;
+	savebase = gd->arch.mp_alloc_base;
 
-	if ((off = (gd->mp_alloc_base & align_mask)) != 0)
-		gd->mp_alloc_base += (align - off);
+	off = gd->arch.mp_alloc_base & align_mask;
+	if (off != 0)
+		gd->arch.mp_alloc_base += (align - off);
 
 	if ((off = size & align_mask) != 0)
 		size += (align - off);
 
-	if ((gd->mp_alloc_base + size) >= gd->mp_alloc_top) {
-		gd->mp_alloc_base = savebase;
+	if ((gd->arch.mp_alloc_base + size) >= gd->arch.mp_alloc_top) {
+		gd->arch.mp_alloc_base = savebase;
 		printf("%s: ran out of ram.\n",  __FUNCTION__);
 	}
 
-	retloc = gd->mp_alloc_base;
-	gd->mp_alloc_base += size;
+	retloc = gd->arch.mp_alloc_base;
+	gd->arch.mp_alloc_base += size;
 
 	memset((void *)&qe_immr->muram[retloc], 0, size);
 
@@ -183,8 +184,8 @@ void qe_init(uint qe_base)
 	out_be32(&qe_immr->iram.iready,QE_IRAM_READY);
 #endif
 
-	gd->mp_alloc_base = QE_DATAONLY_BASE;
-	gd->mp_alloc_top = gd->mp_alloc_base + QE_DATAONLY_SIZE;
+	gd->arch.mp_alloc_base = QE_DATAONLY_BASE;
+	gd->arch.mp_alloc_top = gd->arch.mp_alloc_base + QE_DATAONLY_SIZE;
 
 	qe_sdma_init();
 	qe_snums_init();
@@ -220,7 +221,7 @@ void qe_assign_page(uint snum, uint para_ram_base)
    from CLKn pin, we have te change the function.
  */
 
-#define BRG_CLK		(gd->brg_clk)
+#define BRG_CLK		(gd->arch.brg_clk)
 
 int qe_set_brg(uint brg, uint rate)
 {

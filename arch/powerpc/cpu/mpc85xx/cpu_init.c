@@ -312,19 +312,33 @@ int enable_cluster_l2(void)
 
 	/* Look through the remaining clusters, and set up their caches */
 	do {
+		int j, cluster_valid = 0;
+
 		l2cache = (void __iomem *)(CONFIG_SYS_FSL_CLUSTER_1_L2 + i * 0x40000);
+
 		cluster = in_be32(&gur->tp_cluster[i].lower);
 
-		/* set stash ID to (cluster) * 2 + 32 + 1 */
-		clrsetbits_be32(&l2cache->l2csr1, 0xff, 32 + i * 2 + 1);
+		/* check that at least one core/accel is enabled in cluster */
+		for (j = 0; j < 4; j++) {
+			u32 idx = (cluster >> (j*8)) & TP_CLUSTER_INIT_MASK;
+			u32 type = in_be32(&gur->tp_ityp[idx]);
 
-		printf("enable l2 for cluster %d %p\n", i, l2cache);
+			if (type & TP_ITYP_AV)
+				cluster_valid = 1;
+		}
 
-		out_be32(&l2cache->l2csr0, L2CSR0_L2FI|L2CSR0_L2LFC);
-		while ((in_be32(&l2cache->l2csr0) &
-			(L2CSR0_L2FI|L2CSR0_L2LFC)) != 0)
-			;
-		out_be32(&l2cache->l2csr0, L2CSR0_L2E);
+		if (cluster_valid) {
+			/* set stash ID to (cluster) * 2 + 32 + 1 */
+			clrsetbits_be32(&l2cache->l2csr1, 0xff, 32 + i * 2 + 1);
+
+			printf("enable l2 for cluster %d %p\n", i, l2cache);
+
+			out_be32(&l2cache->l2csr0, L2CSR0_L2FI|L2CSR0_L2LFC);
+			while ((in_be32(&l2cache->l2csr0)
+				& (L2CSR0_L2FI|L2CSR0_L2LFC)) != 0)
+					;
+			out_be32(&l2cache->l2csr0, L2CSR0_L2E);
+		}
 		i++;
 	} while (!(cluster & TP_CLUSTER_EOC));
 
@@ -533,6 +547,20 @@ skip_l2:
 
 	/* needs to be in ram since code uses global static vars */
 	fsl_serdes_init();
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005871
+	if (IS_SVR_REV(svr, 1, 0)) {
+		int i;
+		__be32 *p = (void __iomem *)CONFIG_SYS_DCSRBAR + 0xb004c;
+
+		for (i = 0; i < 12; i++) {
+			p += i + (i > 5 ? 11 : 0);
+			out_be32(p, 0x2);
+		}
+		p = (void __iomem *)CONFIG_SYS_DCSRBAR + 0xb0108;
+		out_be32(p, 0x34);
+	}
+#endif
 
 #ifdef CONFIG_SYS_SRIO
 	srio_init();

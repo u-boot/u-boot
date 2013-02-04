@@ -67,7 +67,7 @@ checkcpu(void)
 	}
 	puts("CPU:   ");
 
-	cpu = gd->cpu;
+	cpu = gd->arch.cpu;
 
 	puts(cpu->name);
 

@@ -137,8 +137,7 @@ reset:
 #endif
 
 	/* Set up temporary stack */
-	dli	t0, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
-	dla	sp, 0(t0)
+	dli	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
 
 	dla	t9, board_init_f
 	jr	t9
@@ -159,55 +158,41 @@ reset:
 relocate_code:
 	move	sp, a0			# set new stack pointer
 
+	move	s0, a1			# save gd in s0
+	move	s2, a2			# save destination address in s2
+
 	dli	t0, CONFIG_SYS_MONITOR_BASE
+	dsub	s1, s2, t0		# s1 <-- relocation offset
+
 	dla	t3, in_ram
 	ld	t2, -24(t3)		# t2 <-- uboot_end_data
 	move	t1, a2
-	move	s2, a2			# s2 <-- destination address
 
-	/*
-	 * Fix $gp:
-	 *
-	 * New $gp = (Old $gp - CONFIG_SYS_MONITOR_BASE) + Destination Address
-	 */
-	move	t8, gp
-	dsub	gp, CONFIG_SYS_MONITOR_BASE
-	dadd	gp, a2			# gp now adjusted
-	dsub	s1, gp, t8		# s1 <-- relocation offset
+	dadd	gp, s1			# adjust gp
 
 	/*
 	 * t0 = source address
 	 * t1 = target address
 	 * t2 = source end address
 	 */
-
-	/*
-	 * Save destination address and size for dlater usage in flush_cache()
-	 */
-	move	s0, a1			# save gd in s0
-	move	a0, t1			# a0 <-- destination addr
-	dsub	a1, t2, t0		# a1 <-- size
-
 1:
 	lw	t3, 0(t0)
 	sw	t3, 0(t1)
 	daddu	t0, 4
-	ble	t0, t2, 1b
+	blt	t0, t2, 1b
 	 daddu	t1, 4
 
 	/* If caches were enabled, we would have to flush them here. */
-
-	/* a0 & a1 are already set up for flush_cache(start, size) */
+	dsub	a1, t1, s2		# a1 <-- size
 	dla	t9, flush_cache
 	jalr	t9
-	 nop
+	 move	a0, s2			# a0 <-- destination address
 
 	/* Jump to where we've relocated ourselves */
 	daddi	t0, s2, in_ram - _start
 	jr	t0
 	 nop
 
-	.dword	_gp
 	.dword	_GLOBAL_OFFSET_TABLE_
 	.dword	uboot_end_data
 	.dword	uboot_end
@@ -222,9 +207,7 @@ in_ram:
 	 */
 	ld	t3, -8(t0)		# t3 <-- num_got_entries
 	ld	t8, -32(t0)		# t8 <-- _GLOBAL_OFFSET_TABLE_
-	ld	t9, -40(t0)		# t9 <-- _gp
-	dsub	t8, t9			# compute offset
-	dadd	t8, t8, gp		# t8 now holds relocated _G_O_T_
+	dadd	t8, s1			# t8 now holds relocated _G_O_T_
 	daddi	t8, t8, 16		# skipping first two entries
 	dli	t2, 2
 1:
@@ -259,3 +242,4 @@ in_ram:
 	/* Exception handlers */
 romReserved:
 	b	romReserved
+	 nop

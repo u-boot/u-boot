@@ -233,7 +233,7 @@ void setup_5445x_clocks(void)
 
 			out_be32(&pll->pcr, pcrvalue);
 		}
-		gd->vco_clk = vco;	/* Vco clock */
+		gd->arch.vco_clk = vco;	/* Vco clock */
 	} else if (bootmode == 2) {
 		/* Normal mode */
 		vco =  ((in_be32(&pll->pcr) & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
@@ -244,17 +244,17 @@ void setup_5445x_clocks(void)
 			out_be32(&pll->pcr, pcrvalue);
 			vco = ((in_be32(&pll->pcr) & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
 		}
-		gd->vco_clk = vco;	/* Vco clock */
+		gd->arch.vco_clk = vco;	/* Vco clock */
 	} else if (bootmode == 3) {
 		/* serial mode */
 		vco =  ((in_be32(&pll->pcr) & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
-		gd->vco_clk = vco;	/* Vco clock */
+		gd->arch.vco_clk = vco;	/* Vco clock */
 	}
 
 	if ((in_be16(&ccm->ccr) & CCM_MISCCR_LIMP) == CCM_MISCCR_LIMP) {
 		/* Limp mode */
 	} else {
-		gd->inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
+		gd->arch.inp_clk = CONFIG_SYS_INPUT_CLKSRC; /* Input clock */
 
 		temp = (in_be32(&pll->pcr) & PLL_PCR_OUTDIV1_MASK) + 1;
 		gd->cpu_clk = vco / temp;	/* cpu clock */
@@ -263,7 +263,7 @@ void setup_5445x_clocks(void)
 		gd->bus_clk = vco / temp;	/* bus clock */
 
 		temp = ((in_be32(&pll->pcr) & PLL_PCR_OUTDIV3_MASK) >> 8) + 1;
-		gd->flb_clk = vco / temp;	/* FlexBus clock */
+		gd->arch.flb_clk = vco / temp;	/* FlexBus clock */
 
 #ifdef CONFIG_PCI
 		if (bPci) {
@@ -274,7 +274,7 @@ void setup_5445x_clocks(void)
 	}
 
 #ifdef CONFIG_FSL_I2C
-	gd->i2c1_clk = gd->bus_clk;
+	gd->arch.i2c1_clk = gd->bus_clk;
 #endif
 }
 #endif
@@ -290,7 +290,7 @@ int get_clocks(void)
 #endif
 
 #ifdef CONFIG_FSL_I2C
-	gd->i2c1_clk = gd->bus_clk;
+	gd->arch.i2c1_clk = gd->bus_clk;
 #endif
 
 	return (0);

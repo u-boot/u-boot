@@ -31,8 +31,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define	TIMER_LOAD_VAL	0xffffffff
 
-#define	timestamp	(gd->tbl)
-#define	lastinc		(gd->lastinc)
+#define	timestamp	(gd->arch.tbl)
+#define	lastinc		(gd->arch.lastinc)
 
 #if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 #define	TIMER_FREQ_HZ	3250000

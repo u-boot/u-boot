@@ -120,10 +120,6 @@
 #  define CONFIG_SYS_TIMER_0_IRQ	XILINX_TIMER_IRQ
 #endif
 
-/* FSL */
-/* #define	CONFIG_SYS_FSL_2 */
-/* #define	FSL_INTR_2	1 */
-
 /*
  * memory layout - Example
  * CONFIG_SYS_TEXT_BASE = 0x1200_0000;	defined in config.mk

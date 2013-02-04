@@ -356,7 +356,7 @@ uint dpalloc (uint size, uint align)
 	/* Pointer to initial global data area */
 
 	if (dpinit_done == 0) {
-		dpbase = gd->dp_alloc_base;
+		dpbase = gd->arch.dp_alloc_base;
 		dpinit_done = 1;
 	}
 
@@ -369,7 +369,7 @@ uint dpalloc (uint size, uint align)
 	if ((off = size & align_mask) != 0)
 		size += align - off;
 
-	if ((dpbase + size) >= gd->dp_alloc_top) {
+	if ((dpbase + size) >= gd->arch.dp_alloc_top) {
 		dpbase = savebase;
 		printf ("dpalloc: ran out of dual port ram!");
 		return 0;

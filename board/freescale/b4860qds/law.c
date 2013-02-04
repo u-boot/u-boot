@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2003
- * Wolfgang Denk Engineering, <wd@denx.de>
+ * Copyright 2011-2012 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,49 +20,25 @@
  * MA 02111-1307 USA
  */
 
-OUTPUT_FORMAT("elf32-tradbigmips", "elf32-tradbigmips", "elf32-tradlittlemips")
-OUTPUT_ARCH(mips)
-ENTRY(_start)
-SECTIONS
-{
-	. = 0x00000000;
+#include <common.h>
+#include <asm/fsl_law.h>
+#include <asm/mmu.h>
 
-	. = ALIGN(4);
-	.text       :
-	{
-	  *(.text*)
-	}
+struct law_entry law_table[] = {
+	SET_LAW(CONFIG_SYS_FLASH_BASE_PHYS, LAW_SIZE_256M, LAW_TRGT_IF_IFC),
+#ifdef CONFIG_SYS_BMAN_MEM_PHYS
+	SET_LAW(CONFIG_SYS_BMAN_MEM_PHYS, LAW_SIZE_32M, LAW_TRGT_IF_BMAN),
+#endif
+#ifdef CONFIG_SYS_QMAN_MEM_PHYS
+	SET_LAW(CONFIG_SYS_QMAN_MEM_PHYS, LAW_SIZE_32M, LAW_TRGT_IF_QMAN),
+#endif
+	SET_LAW(QIXIS_BASE_PHYS, LAW_SIZE_4K, LAW_TRGT_IF_IFC),
+#ifdef CONFIG_SYS_DCSRBAR_PHYS
+	SET_LAW(CONFIG_SYS_DCSRBAR_PHYS, LAW_SIZE_4M, LAW_TRGT_IF_DCSR),
+#endif
+#ifdef CONFIG_SYS_NAND_BASE_PHYS
+	SET_LAW(CONFIG_SYS_NAND_BASE_PHYS, LAW_SIZE_64K, LAW_TRGT_IF_IFC),
+#endif
+};
 
-	. = ALIGN(4);
-	.rodata  : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
-
-	. = ALIGN(4);
-	.data  : { *(.data*) }
-
-	. = .;
-	_gp = ALIGN(16) + 0x7ff0;
-
-	.got : {
-	  __got_start = .;
-	  *(.got)
-	  __got_end = .;
-	}
-
-	. = ALIGN(4);
-	.sdata  : { *(.sdata*) }
-
-	. = ALIGN(4);
-	.u_boot_list : {
-		#include <u-boot.lst>
-	}
-
-	. = ALIGN(4);
-	uboot_end_data = .;
-	num_got_entries = (__got_end - __got_start) >> 2;
-
-	. = ALIGN(4);
-	.sbss (NOLOAD)  : { *(.sbss*) }
-	. = ALIGN(4);
-	.bss (NOLOAD)  : { *(.bss*) }
-	uboot_end = .;
-}
+int num_law_entries = ARRAY_SIZE(law_table);

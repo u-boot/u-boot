@@ -258,8 +258,7 @@ reset:
 #endif
 
 	/* Set up temporary stack */
-	li	t0, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
-	la	sp, 0(t0)
+	li	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
 
 	la	t9, board_init_f
 	jr	t9
@@ -280,55 +279,41 @@ reset:
 relocate_code:
 	move	sp, a0			# set new stack pointer
 
+	move	s0, a1			# save gd in s0
+	move	s2, a2			# save destination address in s2
+
 	li	t0, CONFIG_SYS_MONITOR_BASE
+	sub	s1, s2, t0		# s1 <-- relocation offset
+
 	la	t3, in_ram
 	lw	t2, -12(t3)		# t2 <-- uboot_end_data
 	move	t1, a2
-	move	s2, a2			# s2 <-- destination address
 
-	/*
-	 * Fix $gp:
-	 *
-	 * New $gp = (Old $gp - CONFIG_SYS_MONITOR_BASE) + Destination Address
-	 */
-	move	t6, gp
-	sub	gp, CONFIG_SYS_MONITOR_BASE
-	add	gp, a2			# gp now adjusted
-	sub	s1, gp, t6		# s1 <-- relocation offset
+	add	gp, s1			# adjust gp
 
 	/*
 	 * t0 = source address
 	 * t1 = target address
 	 * t2 = source end address
 	 */
-
-	/*
-	 * Save destination address and size for later usage in flush_cache()
-	 */
-	move	s0, a1			# save gd in s0
-	move	a0, t1			# a0 <-- destination addr
-	sub	a1, t2, t0		# a1 <-- size
-
 1:
 	lw	t3, 0(t0)
 	sw	t3, 0(t1)
 	addu	t0, 4
-	ble	t0, t2, 1b
+	blt	t0, t2, 1b
 	 addu	t1, 4
 
 	/* If caches were enabled, we would have to flush them here. */
-
-	/* a0 & a1 are already set up for flush_cache(start, size) */
+	sub	a1, t1, s2		# a1 <-- size
 	la	t9, flush_cache
 	jalr	t9
-	 nop
+	 move	a0, s2			# a0 <-- destination address
 
 	/* Jump to where we've relocated ourselves */
 	addi	t0, s2, in_ram - _start
 	jr	t0
 	 nop
 
-	.word	_gp
 	.word	_GLOBAL_OFFSET_TABLE_
 	.word	uboot_end_data
 	.word	uboot_end
@@ -343,9 +328,7 @@ in_ram:
 	 */
 	lw	t3, -4(t0)		# t3 <-- num_got_entries
 	lw	t4, -16(t0)		# t4 <-- _GLOBAL_OFFSET_TABLE_
-	lw	t5, -20(t0)		# t5 <-- _gp
-	sub	t4, t5			# compute offset
-	add	t4, t4, gp		# t4 now holds relocated _G_O_T_
+	add	t4, s1			# t4 now holds relocated _G_O_T_
 	addi	t4, t4, 8		# skipping first two entries
 	li	t2, 2
 1:
@@ -380,6 +363,8 @@ in_ram:
 	/* Exception handlers */
 romReserved:
 	b	romReserved
+	 nop
 
 romExcHandle:
 	b	romExcHandle
+	 nop

@@ -122,7 +122,7 @@ int checkcpu(void)
 
 	printf(" at %s MHz, ", strmhz(buf, clock));
 
-	printf("CSB: %s MHz\n", strmhz(buf, gd->csb_clk));
+	printf("CSB: %s MHz\n", strmhz(buf, gd->arch.csb_clk));
 
 	return 0;
 }

@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2006
- * Ingenic Semiconductor, <jlwei@ingenic.cn>
+ * Copyright 2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,46 +17,21 @@
  * MA 02111-1307 USA
  */
 
-OUTPUT_FORMAT("elf32-tradlittlemips", "elf32-tradlittlemips", "elf32-tradlittlemips")
+#ifndef __B4860QDS_QIXIS_H__
+#define __B4860QDS_QIXIS_H__
 
-OUTPUT_ARCH(mips)
-ENTRY(_start)
-SECTIONS
-{
-	. = 0x00000000;
+/* Definitions of QIXIS Registers for B4860QDS */
 
-	. = ALIGN(4);
-	.text :
-	{
-	  *(.text*)
-	}
+/* BRDCFG4[4:7]] select EC1 and EC2 as a pair */
+#define BRDCFG4_EMISEL_MASK		0xE0
+#define BRDCFG4_EMISEL_SHIFT		5
 
-	. = ALIGN(4);
-	.rodata  : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+/* CLK */
+#define QIXIS_CLK_66		0x0
+#define QIXIS_CLK_100		0x1
+#define QIXIS_CLK_125		0x2
+#define QIXIS_CLK_133		0x3
 
-	. = ALIGN(4);
-	.data  : { *(.data*) }
-
-	. = .;
-	_gp = ALIGN(16) + 0x7ff0;
-
-	__got_start = .;
-	.got  : { *(.got) }
-	__got_end = .;
-
-	.sdata  : { *(.sdata*) }
-
-
-	. = ALIGN(4);
-	.u_boot_list : {
-	#include <u-boot.lst>
-	}
-
-	uboot_end_data = .;
-	num_got_entries = (__got_end - __got_start) >> 2;
-
-	. = ALIGN(4);
-	.sbss  : { *(.sbss*) }
-	.bss  : { *(.bss*) . = ALIGN(4); }
-	uboot_end = .;
-}
+#define QIXIS_SRDS1CLK_122		0x5a
+#define QIXIS_SRDS1CLK_125		0x5e
+#endif
