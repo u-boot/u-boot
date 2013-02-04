@@ -227,6 +227,14 @@ static unsigned int get_expansion_id(void)
 	i2c_read(EXPANSION_EEPROM_I2C_ADDRESS, 0, 1, (u8 *)&expansion_config,
 		 sizeof(expansion_config));
 
+	/* retry reading configuration data with 16bit addressing */
+	if ((expansion_config.device_vendor == 0xFFFFFF00) ||
+	    (expansion_config.device_vendor == 0xFFFFFFFF)) {
+		printf("EEPROM is blank or 8bit addressing failed: retrying with 16bit:\n");
+		i2c_read(EXPANSION_EEPROM_I2C_ADDRESS, 0, 2, (u8 *)&expansion_config,
+			 sizeof(expansion_config));
+	}
+
 	i2c_set_bus_num(TWL4030_I2C_BUS);
 
 	return expansion_config.device_vendor;
