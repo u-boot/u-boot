@@ -56,60 +56,47 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
 /* LPDDR2 specific IO settings */
 static void io_settings_lpddr2(void)
 {
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
-				(*ctrl)->control_ddrch1_0);
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
-				(*ctrl)->control_ddrch1_1);
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
-				(*ctrl)->control_ddrch2_0);
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
-				(*ctrl)->control_ddrch2_1);
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
-				(*ctrl)->control_lpddr2ch1_0);
-	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
-				(*ctrl)->control_lpddr2ch1_1);
-	writel(DDR_IO_0_DDR2_DQ_INT_EN_ALL_DDR3_CA_DIS_ALL,
-				(*ctrl)->control_ddrio_0);
-	writel(DDR_IO_1_DQ_OUT_EN_ALL_DQ_INT_EN_ALL,
-				(*ctrl)->control_ddrio_1);
-	writel(DDR_IO_2_CA_OUT_EN_ALL_CA_INT_EN_ALL,
-				(*ctrl)->control_ddrio_2);
+	const struct ctrl_ioregs *ioregs;
+
+	get_ioregs(&ioregs);
+	writel(ioregs->ctrl_ddrch, (*ctrl)->control_ddrch1_0);
+	writel(ioregs->ctrl_ddrch, (*ctrl)->control_ddrch1_1);
+	writel(ioregs->ctrl_ddrch, (*ctrl)->control_ddrch2_0);
+	writel(ioregs->ctrl_ddrch, (*ctrl)->control_ddrch2_1);
+	writel(ioregs->ctrl_lpddr2ch, (*ctrl)->control_lpddr2ch1_0);
+	writel(ioregs->ctrl_lpddr2ch, (*ctrl)->control_lpddr2ch1_1);
+	writel(ioregs->ctrl_ddrio_0, (*ctrl)->control_ddrio_0);
+	writel(ioregs->ctrl_ddrio_1, (*ctrl)->control_ddrio_1);
+	writel(ioregs->ctrl_ddrio_2, (*ctrl)->control_ddrio_2);
 }
 
 /* DDR3 specific IO settings */
 static void io_settings_ddr3(void)
 {
 	u32 io_settings = 0;
+	const struct ctrl_ioregs *ioregs;
 
-	writel(DDR_IO_I_40OHM_SR_SLOWEST_WD_DQ_NO_PULL_DQS_NO_PULL,
-				(*ctrl)->control_ddr3ch1_0);
-	writel(DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
-				(*ctrl)->control_ddrch1_0);
-	writel(DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
-				(*ctrl)->control_ddrch1_1);
+	get_ioregs(&ioregs);
+	writel(ioregs->ctrl_ddr3ch, (*ctrl)->control_ddr3ch1_0);
+	writel(ioregs->ctrl_ddrch, (*ctrl)->control_ddrch1_0);
+	writel(ioregs->ctrl_ddrch, (*ctrl)->control_ddrch1_1);
 
-	writel(DDR_IO_I_40OHM_SR_SLOWEST_WD_DQ_NO_PULL_DQS_NO_PULL,
-				(*ctrl)->control_ddr3ch2_0);
-	writel(DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
-				(*ctrl)->control_ddrch2_0);
-	writel(DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
-				(*ctrl)->control_ddrch2_1);
+	writel(ioregs->ctrl_ddr3ch, (*ctrl)->control_ddr3ch2_0);
+	writel(ioregs->ctrl_ddrch, (*ctrl)->control_ddrch2_0);
+	writel(ioregs->ctrl_ddrch, (*ctrl)->control_ddrch2_1);
 
-	writel(DDR_IO_0_VREF_CELLS_DDR3_VALUE,
-				(*ctrl)->control_ddrio_0);
-	writel(DDR_IO_1_VREF_CELLS_DDR3_VALUE,
-				(*ctrl)->control_ddrio_1);
-	writel(DDR_IO_2_VREF_CELLS_DDR3_VALUE,
-				(*ctrl)->control_ddrio_2);
+	writel(ioregs->ctrl_ddrio_0, (*ctrl)->control_ddrio_0);
+	writel(ioregs->ctrl_ddrio_1, (*ctrl)->control_ddrio_1);
+	writel(ioregs->ctrl_ddrio_2, (*ctrl)->control_ddrio_2);
 
 	/* omap5432 does not use lpddr2 */
-	writel(0x0, (*ctrl)->control_lpddr2ch1_0);
-	writel(0x0, (*ctrl)->control_lpddr2ch1_1);
+	writel(ioregs->ctrl_lpddr2ch, (*ctrl)->control_lpddr2ch1_0);
+	writel(ioregs->ctrl_lpddr2ch, (*ctrl)->control_lpddr2ch1_1);
 
-	writel(SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
-			(*ctrl)->control_emif1_sdram_config_ext);
-	writel(SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
-			(*ctrl)->control_emif2_sdram_config_ext);
+	writel(ioregs->ctrl_emif_sdram_config_ext,
+	       (*ctrl)->control_emif1_sdram_config_ext);
+	writel(ioregs->ctrl_emif_sdram_config_ext,
+	       (*ctrl)->control_emif2_sdram_config_ext);
 
 	/* Disable DLL select */
 	io_settings = (readl((*ctrl)->control_port_emif1_sdram_config)

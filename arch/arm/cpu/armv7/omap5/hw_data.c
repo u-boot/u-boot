@@ -32,6 +32,7 @@
 #include <asm/arch/clocks.h>
 #include <asm/omap_gpio.h>
 #include <asm/io.h>
+#include <asm/emif.h>
 
 struct prcm_regs const **prcm =
 			(struct prcm_regs const **) OMAP_SRAM_SCRATCH_PRCM_PTR;
@@ -414,6 +415,24 @@ void enable_non_essential_clocks(void)
 			MODULE_CLKCTRL_MODULEMODE_SHIFT);
 }
 
+const struct ctrl_ioregs ioregs_omap5430 = {
+	.ctrl_ddrch = DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
+	.ctrl_lpddr2ch = DDR_IO_I_34OHM_SR_FASTEST_WD_CK_CKE_NCS_CA_PULL_DOWN,
+	.ctrl_ddrio_0 = DDR_IO_0_DDR2_DQ_INT_EN_ALL_DDR3_CA_DIS_ALL,
+	.ctrl_ddrio_1 = DDR_IO_1_DQ_OUT_EN_ALL_DQ_INT_EN_ALL,
+	.ctrl_ddrio_2 = DDR_IO_2_CA_OUT_EN_ALL_CA_INT_EN_ALL,
+};
+
+const struct ctrl_ioregs ioregs_omap5432_es1 = {
+	.ctrl_ddrch = DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL,
+	.ctrl_lpddr2ch = 0x0,
+	.ctrl_ddr3ch = DDR_IO_I_40OHM_SR_SLOWEST_WD_DQ_NO_PULL_DQS_NO_PULL,
+	.ctrl_ddrio_0 = DDR_IO_0_VREF_CELLS_DDR3_VALUE,
+	.ctrl_ddrio_1 = DDR_IO_1_VREF_CELLS_DDR3_VALUE,
+	.ctrl_ddrio_2 = DDR_IO_2_VREF_CELLS_DDR3_VALUE,
+	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
+};
+
 void hw_data_init(void)
 {
 	u32 omap_rev = omap_revision();
@@ -437,4 +456,21 @@ void hw_data_init(void)
 	}
 
 	*ctrl = &omap5_ctrl;
+}
+
+void get_ioregs(const struct ctrl_ioregs **regs)
+{
+	u32 omap_rev = omap_revision();
+
+	switch (omap_rev) {
+	case OMAP5430_ES1_0:
+		*regs = &ioregs_omap5430;
+	break;
+	case OMAP5432_ES1_0:
+		*regs = &ioregs_omap5432_es1;
+	break;
+
+	default:
+		printf("\n INVALID OMAP REVISION ");
+	}
 }

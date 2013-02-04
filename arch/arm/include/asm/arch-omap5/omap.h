@@ -229,5 +229,15 @@ struct omap_boot_parameters {
 	unsigned char reset_reason;
 	unsigned char ch_flags;
 };
+
+struct ctrl_ioregs {
+	u32 ctrl_ddrch;
+	u32 ctrl_lpddr2ch;
+	u32 ctrl_ddr3ch;
+	u32 ctrl_ddrio_0;
+	u32 ctrl_ddrio_1;
+	u32 ctrl_ddrio_2;
+	u32 ctrl_emif_sdram_config_ext;
+};
 #endif /* __ASSEMBLY__ */
 #endif
