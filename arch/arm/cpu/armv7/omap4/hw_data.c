@@ -39,6 +39,8 @@ struct dplls const **dplls_data =
 			(struct dplls const **) OMAP_SRAM_SCRATCH_DPLLS_PTR;
 struct vcores_data const **omap_vcores =
 		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
+struct omap_sys_ctrl_regs const **ctrl =
+	(struct omap_sys_ctrl_regs const **)OMAP4_SRAM_SCRATCH_SYS_CTRL;
 
 /*
  * The M & N values in the following tables are created using the
@@ -470,4 +472,5 @@ void hw_data_init(void)
 		printf("\n INVALID OMAP REVISION ");
 	}
 
+	*ctrl = &omap4_ctrl;
 }

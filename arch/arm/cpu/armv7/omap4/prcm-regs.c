@@ -293,3 +293,23 @@ struct prcm_regs const omap4_prcm = {
 	.prm_vc_cfg_i2c_mode = 0x4a307ba8,
 	.prm_vc_cfg_i2c_clk = 0x4a307bac,
 };
+
+struct omap_sys_ctrl_regs const omap4_ctrl = {
+	.control_id_code			= 0x4A002204,
+	.control_std_fuse_opp_bgap		= 0x4a002260,
+	.control_status				= 0x4a0022c4,
+	.control_ldosram_iva_voltage_ctrl	= 0x4A002320,
+	.control_ldosram_mpu_voltage_ctrl	= 0x4A002324,
+	.control_ldosram_core_voltage_ctrl	= 0x4A002328,
+	.control_pbiaslite			= 0x4A100600,
+	.control_lpddr2io1_0			= 0x4A100638,
+	.control_lpddr2io1_1			= 0x4A10063C,
+	.control_lpddr2io1_2			= 0x4A100640,
+	.control_lpddr2io1_3			= 0x4A100644,
+	.control_lpddr2io2_0			= 0x4A100648,
+	.control_lpddr2io2_1			= 0x4A10064C,
+	.control_lpddr2io2_2			= 0x4A100650,
+	.control_lpddr2io2_3			= 0x4A100654,
+	.control_efuse_1			= 0x4A100700,
+	.control_efuse_2			= 0x4A100704,
+};

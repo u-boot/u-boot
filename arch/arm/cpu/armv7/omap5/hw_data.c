@@ -39,6 +39,8 @@ struct dplls const **dplls_data =
 			(struct dplls const **) OMAP_SRAM_SCRATCH_DPLLS_PTR;
 struct vcores_data const **omap_vcores =
 		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
+struct omap_sys_ctrl_regs const **ctrl =
+	(struct omap_sys_ctrl_regs const **)OMAP5_SRAM_SCRATCH_SYS_CTRL;
 
 static const struct dpll_params mpu_dpll_params_1_5ghz[NUM_SYS_CLKS] = {
 	{125, 0, 1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
@@ -433,4 +435,6 @@ void hw_data_init(void)
 	default:
 		printf("\n INVALID OMAP REVISION ");
 	}
+
+	*ctrl = &omap5_ctrl;
 }

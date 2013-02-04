@@ -238,10 +238,7 @@ int checkboard(void)
  */
 u32 get_device_type(void)
 {
-	struct omap_sys_ctrl_regs *ctrl =
-		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
-
-	return (readl(&ctrl->control_status) &
+	return (readl((*ctrl)->control_status) &
 				      (DEVICE_TYPE_MASK)) >> DEVICE_TYPE_SHIFT;
 }
 
