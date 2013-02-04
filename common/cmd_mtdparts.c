@@ -1420,7 +1420,7 @@ static int delete_partition(const char *id)
 			return 1;
 
 		if (generate_mtdparts_save(last_parts, MTDPARTS_MAXLEN) != 0) {
-			printf("generated mtdparts too long, reseting to null\n");
+			printf("generated mtdparts too long, resetting to null\n");
 			return 1;
 		}
 		return 0;
@@ -1518,7 +1518,7 @@ static int spread_partitions(void)
 	index_partitions();
 
 	if (generate_mtdparts_save(last_parts, MTDPARTS_MAXLEN) != 0) {
-		printf("generated mtdparts too long, reseting to null\n");
+		printf("generated mtdparts too long, resetting to null\n");
 		return 1;
 	}
 	return 0;
@@ -2016,7 +2016,7 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 
 		if (generate_mtdparts_save(last_parts, MTDPARTS_MAXLEN) != 0) {
-			printf("generated mtdparts too long, reseting to null\n");
+			printf("generated mtdparts too long, resetting to null\n");
 			return 1;
 		}
 
