@@ -31,7 +31,7 @@ static u32 kirkwood_variant(void)
 #define MPP_CTRL(i)	(KW_MPP_BASE + (i* 4))
 #define MPP_NR_REGS	(1 + MPP_MAX/8)
 
-void kirkwood_mpp_conf(u32 *mpp_list, u32 *mpp_save)
+void kirkwood_mpp_conf(const u32 *mpp_list, u32 *mpp_save)
 {
 	u32 mpp_ctrl[MPP_NR_REGS];
 	unsigned int variant_mask;

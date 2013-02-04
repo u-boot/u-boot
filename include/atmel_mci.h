@@ -38,7 +38,7 @@ typedef struct atmel_mci {
 	u32	sdcr;	/* 0x0c */
 	u32	argr;	/* 0x10 */
 	u32	cmdr;	/* 0x14 */
-	u32	_18;	/* 0x18 */
+	u32	blkr;	/* 0x18 */
 	u32	_1c;	/* 0x1c */
 	u32	rspr;	/* 0x20 */
 	u32	rspr1;	/* 0x24 */
@@ -117,6 +117,11 @@ typedef struct atmel_mci {
 #define MMCI_TRDIR_SIZE				1
 #define MMCI_TRTYP_OFFSET			19
 #define MMCI_TRTYP_SIZE				2
+
+/* Bitfields in BLKR */
+/* MMCI_BLKLEN_OFFSET/SIZE already defined in MR */
+#define MMCI_BCNT_OFFSET			0
+#define MMCI_BCNT_SIZE			16
 
 /* Bitfields in RSPRx */
 #define MMCI_RSP_OFFSET				0

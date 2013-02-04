@@ -15,12 +15,12 @@ help:	 Long description. This is a string
 
 **** Behind the scene ******
 
-The structure created is named with a special prefix (__u_boot_cmd_)
+The structure created is named with a special prefix (__u_boot_list_cmd_)
 and placed by the linker in a special section.
 
 This makes it possible for the final link to extract all commands
 compiled into any object code and construct a static array so the
-command can be found in an array starting at __u_boot_cmd_start.
+command can be found in an array starting at _u_boot_list_cmd__start.
 
 To ensure that the linker does not discard these symbols when linking
 full U-Boot we generate a list of all the commands we have built (based
@@ -33,6 +33,6 @@ If a new board is defined do not forget to define the command section
 by writing in u-boot.lds ($(TOPDIR)/board/boardname/u-boot.lds) these
 3 lines:
 
-	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
-	__u_boot_cmd_end = .;
+	.u_boot_list : {
+	#include "u-boot.lst";
+	}

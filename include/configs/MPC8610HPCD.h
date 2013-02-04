@@ -591,58 +591,63 @@
 
 #ifdef ENV_DEBUG
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
- "netdev=eth0\0"						\
- "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
- "tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
- "consoledev=ttyS0\0"						\
- "ramdiskaddr=2000000\0"					\
- "ramdiskfile=8610hpcd/ramdisk.uboot\0"				\
- "fdtaddr=c00000\0"						\
- "fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"				\
- "bdev=sda3\0"					\
- "en-wd=mw.b f8100010 0x08; echo -expect:- 08; md.b f8100010 1\0" \
- "dis-wd=mw.b f8100010 0x00; echo -expect:- 00; md.b f8100010 1\0" \
- "maxcpus=1"	\
- "eoi=mw e00400b0 0\0"						\
- "iack=md e00400a0 1\0"						\
- "ddrreg=md ${a}000 8; md ${a}080 8;md ${a}100 d; md ${a}140 4;" \
+"netdev=eth0\0"							\
+"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"			\
+"tftpflash=tftpboot $loadaddr $uboot; "				\
+	"protect off " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		" +$filesize; "	\
+	"erase " __stringify(CONFIG_SYS_TEXT_BASE)		\
+		" +$filesize; "	\
+	"cp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		" $filesize; "	\
+	"protect on " __stringify(CONFIG_SYS_TEXT_BASE)		\
+		" +$filesize; "	\
+	"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		" $filesize\0"	\
+"consoledev=ttyS0\0"						\
+"ramdiskaddr=2000000\0"					\
+"ramdiskfile=8610hpcd/ramdisk.uboot\0"				\
+"fdtaddr=c00000\0"						\
+"fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"				\
+"bdev=sda3\0"					\
+"en-wd=mw.b f8100010 0x08; echo -expect:- 08; md.b f8100010 1\0" \
+"dis-wd=mw.b f8100010 0x00; echo -expect:- 00; md.b f8100010 1\0" \
+"maxcpus=1"	\
+"eoi=mw e00400b0 0\0"						\
+"iack=md e00400a0 1\0"						\
+"ddrreg=md ${a}000 8; md ${a}080 8;md ${a}100 d; md ${a}140 4;" \
 	"md ${a}bf0 4; md ${a}e00 3; md ${a}e20 3; md ${a}e40 7;" \
 	"md ${a}f00 5\0" \
- "ddr1regs=setenv a e0002; run ddrreg\0" \
- "gureg=md ${a}000 2c; md ${a}0b0 1; md ${a}0c0 1; md ${a}800 1;" \
+"ddr1regs=setenv a e0002; run ddrreg\0" \
+"gureg=md ${a}000 2c; md ${a}0b0 1; md ${a}0c0 1; md ${a}800 1;" \
 	"md ${a}900 6; md ${a}a00 1; md ${a}b20 3; md ${a}e00 1;" \
 	"md ${a}e60 1; md ${a}ef0 1d\0" \
- "guregs=setenv a e00e0; run gureg\0" \
- "mcmreg=md ${a}000 1b; md ${a}bf8 2; md ${a}e00 5\0" \
- "mcmregs=setenv a e0001; run mcmreg\0" \
- "diuregs=md e002c000 1d\0" \
- "dium=mw e002c01c\0" \
- "diuerr=md e002c014 1\0" \
- "pmregs=md e00e1000 2b\0" \
- "lawregs=md e0000c08 4b\0" \
- "lbcregs=md e0005000 36\0" \
- "dma0regs=md e0021100 12\0" \
- "dma1regs=md e0021180 12\0" \
- "dma2regs=md e0021200 12\0" \
- "dma3regs=md e0021280 12\0" \
+"guregs=setenv a e00e0; run gureg\0" \
+"mcmreg=md ${a}000 1b; md ${a}bf8 2; md ${a}e00 5\0" \
+"mcmregs=setenv a e0001; run mcmreg\0" \
+"diuregs=md e002c000 1d\0" \
+"dium=mw e002c01c\0" \
+"diuerr=md e002c014 1\0" \
+"pmregs=md e00e1000 2b\0" \
+"lawregs=md e0000c08 4b\0" \
+"lbcregs=md e0005000 36\0" \
+"dma0regs=md e0021100 12\0" \
+"dma1regs=md e0021180 12\0" \
+"dma2regs=md e0021200 12\0" \
+"dma3regs=md e0021280 12\0" \
  PCI_ENV \
  PCIE_ENV \
  DMA_ENV
 #else
-#define CONFIG_EXTRA_ENV_SETTINGS                               \
- "netdev=eth0\0"                                                \
- "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"                         \
- "consoledev=ttyS0\0"                                           \
- "ramdiskaddr=2000000\0"                                        \
- "ramdiskfile=8610hpcd/ramdisk.uboot\0"                         \
- "fdtaddr=c00000\0"                                             \
- "fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"                          \
- "bdev=sda3\0"
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+	"netdev=eth0\0"						\
+	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
+	"consoledev=ttyS0\0"					\
+	"ramdiskaddr=2000000\0"					\
+	"ramdiskfile=8610hpcd/ramdisk.uboot\0"			\
+	"fdtaddr=c00000\0"					\
+	"fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"			\
+	"bdev=sda3\0"
 #endif
 
 #define CONFIG_NFSBOOTCOMMAND					\

@@ -16,9 +16,6 @@
 #ifndef __MICROBLAZE_POSIX_TYPES_H__
 #define __MICROBLAZE_POSIX_TYPES_H__
 
-#include <asm/bitops.h>
-
-
 typedef unsigned int	__kernel_dev_t;
 typedef unsigned long	__kernel_ino_t;
 typedef unsigned long long __kernel_ino64_t;

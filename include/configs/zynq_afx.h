@@ -33,10 +33,4 @@
 
 #include <configs/zynq_common.h>
 
-/* Place a Xilinx Boot ROM header in u-boot image? */
-#if defined(CONFIG_AFX_QSPI)
-#define CONFIG_ZYNQ_XILINX_FLASH_HEADER
-#define CONFIG_ZYNQ_XIP_START XPSS_QSPI_LIN_BASEADDR
-#endif
-
 #endif /* __CONFIG_ZYNQ_AFX_H */

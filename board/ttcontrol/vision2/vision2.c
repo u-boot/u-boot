@@ -28,12 +28,13 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
 #include <mmc.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_esdhc.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
@@ -43,7 +44,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct fb_videomode nec_nl6448bc26_09c = {
+static struct fb_videomode const nec_nl6448bc26_09c = {
 	"NEC_NL6448BC26-09C",
 	60,	/* Refresh */
 	640,	/* xres */
@@ -305,9 +306,15 @@ static void power_init_mx51(void)
 {
 	unsigned int val;
 	struct pmic *p;
+	int ret;
 
-	pmic_init();
-	p = get_pmic();
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return;
+
+	p = pmic_get("FSL_PMIC");
+	if (!p)
+		return;
 
 	/* Write needed to Power Gate 2 register */
 	pmic_reg_read(p, REG_POWER_MISC, &val);
@@ -590,6 +597,7 @@ int board_mmc_init(bd_t *bis)
 	mxc_iomux_set_pad(MX51_PIN_GPIO1_1,
 		PAD_CTL_HYS_ENABLE);
 
+	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 }
 #endif

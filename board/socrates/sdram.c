@@ -41,7 +41,7 @@
  */
 phys_size_t fixed_sdram(void)
 {
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
+	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
 
 	/*
 	 * Disable memory controller.

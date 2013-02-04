@@ -49,9 +49,8 @@
  * you can do this only with a working network connection. Therefore, a random
  * ethernet address is generated if none is set and a DHCP request is sent.
  * After a successful DHCP response is received, the network settings are
- * configured and the ncip parameter is set to the serverip. Eg. for a working
- * resuce mode, you should set 'next-server' to the host where the netconsole
- * client is started.
+ * configured and the ncip is unset. Therefore, all netconsole packets are
+ * broadcasted.
  * Additionally, the bootsource is set to 'rescue'.
  */
 
@@ -76,7 +75,7 @@ int board_early_init_f(void)
 	 * Multi-Purpose Pins Functionality configuration
 	 * These strappings are taken from the original vendor uboot port.
 	 */
-	u32 kwmpp_config[] = {
+	static const u32 kwmpp_config[] = {
 		MPP0_SPI_SCn,
 		MPP1_SPI_MOSI,
 		MPP2_SPI_SCK,

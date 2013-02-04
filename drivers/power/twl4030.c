@@ -71,7 +71,7 @@ void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
 	ret = twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, vsel_val,
 				vsel_reg);
 	if (ret != 0) {
-		printf("Could could not write vsel to reg %02x (%d)\n",
+		printf("Could not write vsel to reg %02x (%d)\n",
 			vsel_reg, ret);
 		return;
 	}
@@ -80,7 +80,7 @@ void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
 	ret = twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, dev_grp_sel,
 				dev_grp);
 	if (ret != 0)
-		printf("Could could not write grp_sel to reg %02x (%d)\n",
+		printf("Could not write grp_sel to reg %02x (%d)\n",
 			dev_grp, ret);
 }
 

@@ -37,7 +37,7 @@
 #define _U_BOOT_H_	1
 
 typedef struct bd_info {
-    int			bi_baudrate;	/* serial console baudrate */
+	unsigned int	bi_baudrate;	/* serial console baudrate */
     ulong	        bi_arch_number;	/* unique id for this board */
     ulong	        bi_boot_params;	/* where this board expects params */
 	unsigned long	bi_arm_freq; /* arm frequency */

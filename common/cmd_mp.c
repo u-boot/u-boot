@@ -23,7 +23,7 @@
 #include <common.h>
 #include <command.h>
 
-int
+static int
 cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long cpuid;
@@ -61,8 +61,14 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#ifdef CONFIG_SYS_LONGHELP
+static char cpu_help_text[] =
+	    "<num> reset                 - Reset cpu <num>\n"
+	"cpu <num> status                - Status of cpu <num>\n"
+	"cpu <num> disable               - Disable cpu <num>\n"
+	"cpu <num> release <addr> [args] - Release cpu <num> at <addr> with [args]"
 #ifdef CONFIG_PPC
-#define CPU_ARCH_HELP \
+	"\n"
 	"                         [args] : <pir> <r3> <r6>\n" \
 	"                                   pir - processor id (if writeable)\n" \
 	"                                    r3 - value for gpr 3\n" \
@@ -74,16 +80,10 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	"     When cpu <num> is released r4 and r5 = 0.\n" \
 	"     r7 will contain the size of the initial mapped area"
 #endif
+	"";
+#endif
 
 U_BOOT_CMD(
 	cpu, CONFIG_SYS_MAXARGS, 1, cpu_cmd,
-	"Multiprocessor CPU boot manipulation and release",
-	    "<num> reset                 - Reset cpu <num>\n"
-	"cpu <num> status                - Status of cpu <num>\n"
-	"cpu <num> disable               - Disable cpu <num>\n"
-	"cpu <num> release <addr> [args] - Release cpu <num> at <addr> with [args]"
-#ifdef CPU_ARCH_HELP
-	"\n"
-	CPU_ARCH_HELP
-#endif
+	"Multiprocessor CPU boot manipulation and release", cpu_help_text
 );

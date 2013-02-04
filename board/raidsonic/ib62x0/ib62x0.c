@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2011-2012
  * Gerald Kerma <dreagle@doukki.net>
- * Luka Perkov <uboot@lukaperkov.net>
+ * Luka Perkov <luka@openwrt.org>
  * Simon Baatz <gmbnomis@gmail.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -45,7 +45,7 @@ int board_early_init_f(void)
 	/* Set SATA activity LEDs to default off */
 	writel(MVSATAHC_LED_POLARITY_CTRL, MVSATAHC_LED_CONF_REG);
 	/* Multi-Purpose Pins Functionality configuration */
-	u32 kwmpp_config[] = {
+	static const u32 kwmpp_config[] = {
 		MPP0_NF_IO2,
 		MPP1_NF_IO3,
 		MPP2_NF_IO4,

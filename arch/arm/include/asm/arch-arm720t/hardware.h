@@ -24,9 +24,7 @@
  * MA 02111-1307 USA
  */
 
-#if defined(CONFIG_NETARM)
-#include <asm/arch-arm720t/netarm_registers.h>
-#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
+#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 /* include IntegratorCP/CM720T specific hardware file if there was one */
 #else
 #error No hardware file defined for this configuration

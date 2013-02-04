@@ -29,6 +29,7 @@
 #include <watchdog.h>
 #include <pci.h>
 #include <netdev.h>
+#include <serial.h>
 
 #include "hardware.h"
 #include "pcippc2.h"
@@ -129,7 +130,7 @@ int misc_init_r (void)
 	fpga_serial_init (sconsole_get_baudrate ());
 
 	sconsole_putc   = fpga_serial_putc;
-	sconsole_puts   = fpga_serial_puts;
+	sconsole_puts   = default_serial_puts;
 	sconsole_getc   = fpga_serial_getc;
 	sconsole_tstc   = fpga_serial_tstc;
 	sconsole_setbrg = fpga_serial_setbrg;

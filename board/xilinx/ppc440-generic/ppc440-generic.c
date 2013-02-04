@@ -54,11 +54,9 @@ void __get_sys_info(sys_info_t *sysInfo)
 
 void get_sys_info(sys_info_t *) __attribute__((weak, alias("__get_sys_info")));
 
-#define stringify(foo) #foo
-
 int __checkboard(void)
 {
-	/*puts(stringify(#XILINX_BOARD_NAME) "\n");*/
+	/*puts(__stringify(XILINX_BOARD_NAME) "\n");*/
 	return 0;
 }
 int checkboard(void) __attribute__((weak, alias("__checkboard")));

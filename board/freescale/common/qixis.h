@@ -26,7 +26,7 @@ struct qixis {
 	u8 stat_sys;
 	u8 stat_alrm;
 	u8 present;
-	u8 ctl_sys2;
+	u8 present2;    /* Presence Status Register 2,0x0c */
 	u8 rcw_ctl;
 	u8 ctl_led;
 	u8 i2cblk;
@@ -85,12 +85,6 @@ struct qixis {
 	u8 aux_da;
 	u8 res15[16];
 };
-
-#define QIXIS_BASE		0xffdf0000
-#define QIXIS_LBMAP_SWITCH	7
-#define QIXIS_LBMAP_MASK	0x0f
-#define QIXIS_LBMAP_SHIFT	0
-#define QIXIS_LBMAP_ALTBANK	0x04
 
 u8 qixis_read(unsigned int reg);
 void qixis_write(unsigned int reg, u8 value);

@@ -33,6 +33,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
+#include <asm/arch/sys_proto.h>
 
 /* Bit/mask specification */
 #define ZYNQ_GEM_PHYMNTNC_OP_MASK	0x40020000 /* operation mask bits */
@@ -142,6 +143,7 @@ struct zynq_gem_priv {
 	u32 rxbd_current;
 	u32 rx_first_buf;
 	int phyaddr;
+	int init;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };
@@ -306,48 +308,58 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 			SUPPORTED_1000baseT_Half |
 			SUPPORTED_1000baseT_Full;
 
-	/* Disable all interrupts */
-	writel(0xFFFFFFFF, &regs->idr);
+	if (!priv->init) {
+		/* Disable all interrupts */
+		writel(0xFFFFFFFF, &regs->idr);
 
-	/* Disable the receiver & transmitter */
-	writel(0, &regs->nwctrl);
-	writel(0, &regs->txsr);
-	writel(0, &regs->rxsr);
-	writel(0, &regs->phymntnc);
+		/* Disable the receiver & transmitter */
+		writel(0, &regs->nwctrl);
+		writel(0, &regs->txsr);
+		writel(0, &regs->rxsr);
+		writel(0, &regs->phymntnc);
 
-	/* Clear the Hash registers for the mac address pointed by AddressPtr */
-	writel(0x0, &regs->hashl);
-	/* Write bits [63:32] in TOP */
-	writel(0x0, &regs->hashh);
+		/*
+		 * Clear the Hash registers for the mac address
+		 * pointed by AddressPtr
+		 */
+		writel(0x0, &regs->hashl);
+		/* Write bits [63:32] in TOP */
+		writel(0x0, &regs->hashh);
 
-	/* Clear all counters */
-	for (i = 0; i <= stat_size; i++)
-		readl(&regs->stat[i]);
+		/* Clear all counters */
+		for (i = 0; i <= stat_size; i++)
+			readl(&regs->stat[i]);
 
-	/* Setup RxBD space */
-	memset(&(priv->rx_bd), 0, sizeof(priv->rx_bd));
-	/* Create the RxBD ring */
-	memset(&(priv->rxbuffers), 0, sizeof(priv->rxbuffers));
+		/* Setup RxBD space */
+		memset(&(priv->rx_bd), 0, sizeof(priv->rx_bd));
+		/* Create the RxBD ring */
+		memset(&(priv->rxbuffers), 0, sizeof(priv->rxbuffers));
 
-	for (i = 0; i < RX_BUF; i++) {
-		priv->rx_bd[i].status = 0xF0000000;
-		priv->rx_bd[i].addr = (u32)((char *) &(priv->rxbuffers) +
+		for (i = 0; i < RX_BUF; i++) {
+			priv->rx_bd[i].status = 0xF0000000;
+			priv->rx_bd[i].addr =
+					(u32)((char *) &(priv->rxbuffers) +
 							(i * PKTSIZE_ALIGN));
+		}
+		/* WRAP bit to last BD */
+		priv->rx_bd[--i].addr |= ZYNQ_GEM_RXBUF_WRAP_MASK;
+		/* Write RxBDs to IP */
+		writel((u32) &(priv->rx_bd), &regs->rxqbase);
+
+		/* Setup for DMA Configuration register */
+		writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
+
+		/* Setup for Network Control register, MDIO, Rx and Tx enable */
+		setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK);
+
+		priv->init++;
 	}
-	/* WRAP bit to last BD */
-	priv->rx_bd[--i].addr |= ZYNQ_GEM_RXBUF_WRAP_MASK;
-	/* Write RxBDs to IP */
-	writel((u32) &(priv->rx_bd), &regs->rxqbase);
-
-	/* Setup for DMA Configuration register */
-	writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
-
-	/* Setup for Network Control register, MDIO, Rx and Tx enable */
-	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK );
 
 	phy_detection(dev);
 
 #ifdef CONFIG_PHYLIB
+	u32 rclk, clk = 0;
+
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
 
@@ -361,44 +373,33 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	case SPEED_1000:
 		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
 								&regs->nwcfg);
-
-		/******* GEM0_CLK Setup *************************/
-		/* SLCR unlock */
-		*(volatile u32 *) 0xF8000008 = 0xDF0D;
-
-		/* Configure GEM0_RCLK_CTRL */
-		*(volatile u32 *) 0xF8000138 = (0 << 4) | (1 << 0);
-
-		/* Set divisors for appropriate frequency in GEM0_CLK_CTRL */
-		*(volatile u32 *) 0xF8000140 = (1 << 20) | (8 << 8) |
-						(0 << 4) | (1 << 0);
-
-		/* SLCR lock */
-		*(volatile u32 *) 0xF8000004 = 0x767B;
-
+		rclk = (0 << 4) | (1 << 0);
+		clk = (1 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	case SPEED_100:
 		clrsetbits_le32(&regs->nwcfg, ZYNQ_GEM_NWCFG_SPEED1000,
 			ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100);
+		rclk = 1 << 0;
+		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	case SPEED_10:
+		rclk = 1 << 0;
+		/* FIXME untested */
+		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	}
+	/* FIXME maybe better to define gem address in hardware.h */
+	zynq_slcr_gem_clk_setup(dev->iobase != 0xE000B000, rclk, clk);
 
 #else
 	/* PHY Setup */
-#ifdef CONFIG_EP107
-	/* "add delay to RGMII rx interface" */
-	phywrite(dev, priv->phyaddr, 20, 0xc93);
-	phywrite(EmacPssInstancePtr, priv->phyaddr, 20, 0xc93);
-#else
 	phywrite(dev, priv->phyaddr, 22, 2);	/* page 2 */
 
 	/* rx clock transition when data stable */
 	phywrite(dev, priv->phyaddr, 21, 0x3030);
 
 	phywrite(dev, priv->phyaddr, 22, 0);	/* page 0 */
-#endif
+
 	u16 tmp;
 
 	/* link speed advertisement for autonegotiation */
@@ -504,11 +505,9 @@ static int zynq_gem_recv(struct eth_device *dev)
 
 		if ((++priv->rxbd_current) >= RX_BUF)
 			priv->rxbd_current = 0;
-
-		return frame_len;
 	}
 
-	return 0;
+	return frame_len;
 }
 
 static void zynq_gem_halt(struct eth_device *dev)

@@ -3,8 +3,7 @@
 
 #include <asm/mp.h>
 
-ulong get_spin_phys_addr(void);
-ulong get_spin_virt_addr(void);
+phys_addr_t get_spin_phys_addr(void);
 u32 get_my_id(void);
 int hold_cores_in_reset(int verbose);
 
@@ -16,7 +15,7 @@ int hold_cores_in_reset(int verbose);
 #define BOOT_ENTRY_PIR		5
 #define BOOT_ENTRY_R6_UPPER	6
 #define BOOT_ENTRY_R6_LOWER	7
-#define NUM_BOOT_ENTRY		8
+#define NUM_BOOT_ENTRY		16	/* pad to 64 bytes */
 #define SIZE_BOOT_ENTRY		(NUM_BOOT_ENTRY * sizeof(u32))
 
 #endif

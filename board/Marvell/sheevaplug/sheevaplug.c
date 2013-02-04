@@ -43,7 +43,7 @@ int board_early_init_f(void)
 			SHEEVAPLUG_OE_LOW, SHEEVAPLUG_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
-	u32 kwmpp_config[] = {
+	static const u32 kwmpp_config[] = {
 		MPP0_NF_IO2,
 		MPP1_NF_IO3,
 		MPP2_NF_IO4,

@@ -28,6 +28,8 @@
 #include <config.h>
 #include <common.h>
 #include <asm/au1x00.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 /******************************************************************************
 *
@@ -40,7 +42,7 @@
 * RETURNS: N/A
 */
 
-int serial_init (void)
+static int au1x00_serial_init(void)
 {
 	volatile u32 *uart_fifoctl = (volatile u32*)(UART0_ADDR+UART_FCR);
 	volatile u32 *uart_enable = (volatile u32*)(UART0_ADDR+UART_ENABLE);
@@ -63,7 +65,7 @@ int serial_init (void)
 }
 
 
-void serial_setbrg (void)
+static void au1x00_serial_setbrg(void)
 {
 	volatile u32 *uart_clk = (volatile u32*)(UART0_ADDR+UART_CLK);
 	volatile u32 *uart_lcr = (volatile u32*)(UART0_ADDR+UART_LCR);
@@ -87,12 +89,13 @@ void serial_setbrg (void)
 	*uart_lcr = UART_LCR_WLEN8;
 }
 
-void serial_putc (const char c)
+static void au1x00_serial_putc(const char c)
 {
 	volatile u32 *uart_lsr = (volatile u32*)(UART0_ADDR+UART_LSR);
 	volatile u32 *uart_tx = (volatile u32*)(UART0_ADDR+UART_TX);
 
-	if (c == '\n') serial_putc ('\r');
+	if (c == '\n')
+		au1x00_serial_putc('\r');
 
 	/* Wait for fifo to shift out some bytes */
 	while((*uart_lsr&UART_LSR_THRE)==0);
@@ -100,15 +103,7 @@ void serial_putc (const char c)
 	*uart_tx = (u32)c;
 }
 
-void serial_puts (const char *s)
-{
-	while (*s)
-	{
-		serial_putc (*s++);
-	}
-}
-
-int serial_getc (void)
+static int au1x00_serial_getc(void)
 {
 	volatile u32 *uart_rx = (volatile u32*)(UART0_ADDR+UART_RX);
 	char c;
@@ -119,7 +114,7 @@ int serial_getc (void)
 	return c;
 }
 
-int serial_tstc (void)
+static int au1x00_serial_tstc(void)
 {
 	volatile u32 *uart_lsr = (volatile u32*)(UART0_ADDR+UART_LSR);
 
@@ -128,4 +123,25 @@ int serial_tstc (void)
 		return(1);
 	}
 	return 0;
+}
+
+static struct serial_device au1x00_serial_drv = {
+	.name	= "au1x00_serial",
+	.start	= au1x00_serial_init,
+	.stop	= NULL,
+	.setbrg	= au1x00_serial_setbrg,
+	.putc	= au1x00_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= au1x00_serial_getc,
+	.tstc	= au1x00_serial_tstc,
+};
+
+void au1x00_serial_initialize(void)
+{
+	serial_register(&au1x00_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &au1x00_serial_drv;
 }

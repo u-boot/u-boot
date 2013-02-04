@@ -28,7 +28,6 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(SOC).o
 
 COBJS-y	+= cpu.o
-COBJS-$(CONFIG_SPL_BUILD) += spl.o
 
 SRCS	:= $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))

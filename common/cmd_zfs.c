@@ -46,7 +46,7 @@
 #define DOS_FS_TYPE_OFFSET	0x36
 #define DOS_FS32_TYPE_OFFSET	0x52
 
-static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = NULL;
 	int dev;
@@ -146,7 +146,7 @@ int zfs_print(const char *entry, const struct zfs_dirhook_info *data)
 
 
 
-static int do_zfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_zfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *filename = "/";
 	int part;

@@ -56,8 +56,6 @@ void yaffs_qsort(void *aa, size_t n, size_t es,
 
 #ifdef NO_inline
 #define inline
-#else
-#define inline __inline__
 #endif
 
 #define cond_resched()  do {} while (0)

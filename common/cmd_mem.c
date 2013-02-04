@@ -33,6 +33,9 @@
 #include <dataflash.h>
 #endif
 #include <watchdog.h>
+#include <linux/compiler.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 
@@ -51,7 +54,7 @@ static	ulong	base_address = 0;
  *	md{.b, .w, .l} {addr} {len}
  */
 #define DISP_LINE_LEN	16
-int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_md(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong	addr, length;
 #if defined(CONFIG_HAS_DATAFLASH)
@@ -147,16 +150,16 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return (rc);
 }
 
-int do_mem_mm ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_mm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return mod_mem (cmdtp, 1, flag, argc, argv);
 }
-int do_mem_nm ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_nm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return mod_mem (cmdtp, 0, flag, argc, argv);
 }
 
-int do_mem_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong	addr, writeval, count;
 	int	size;
@@ -253,7 +256,7 @@ int do_mem_mwc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif /* CONFIG_MX_CYCLIC */
 
-int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong	addr1, addr2, count, ngood;
 	int	size;
@@ -323,7 +326,7 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return rcode;
 }
 
-int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong	addr, dest, count;
 	int	size;
@@ -433,7 +436,8 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_mem_base (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_base(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	if (argc > 1) {
 		/* Set new base address.
@@ -446,7 +450,8 @@ int do_mem_base (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_mem_loop (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	ulong	addr, length, i;
 	int	size;
@@ -592,7 +597,8 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * configured using CONFIG_SYS_ALT_MEMTEST. The complete test loops until
  * interrupted by ctrl-c or by a failure of one of the sub-tests.
  */
-int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
 {
 	vu_long	*addr, *start, *end;
 	ulong	val;
@@ -612,7 +618,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_SYS_MEMTEST_SCRATCH)
 	vu_long *dummy = (vu_long*)CONFIG_SYS_MEMTEST_SCRATCH;
 #else
-	vu_long *dummy = 0;	/* yes, this is address 0x0, not NULL */
+	vu_long *dummy = NULL;	/* yes, this is address 0x0, not NULL */
 #endif
 	int	j;
 
@@ -1054,7 +1060,7 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 
 #ifndef CONFIG_CRC32_VERIFY
 
-int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_crc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr, length;
 	ulong crc;
@@ -1200,6 +1206,22 @@ U_BOOT_CMD(
 
 #endif
 
+#ifdef CONFIG_CMD_MEMINFO
+__weak void board_show_dram(ulong size)
+{
+	puts("DRAM:  ");
+	print_size(size, "\n");
+}
+
+static int do_mem_info(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
+{
+	board_show_dram(gd->ram_size);
+
+	return 0;
+}
+#endif
+
 U_BOOT_CMD(
 	base,	2,	1,	do_mem_base,
 	"print or set address offset",
@@ -1240,3 +1262,11 @@ U_BOOT_CMD(
 	"[.b, .w, .l] address value delay(ms)"
 );
 #endif /* CONFIG_MX_CYCLIC */
+
+#ifdef CONFIG_CMD_MEMINFO
+U_BOOT_CMD(
+	meminfo,	3,	1,	do_mem_info,
+	"display memory information",
+	""
+);
+#endif

@@ -16,7 +16,7 @@
 void reset_cpu(unsigned long a)
 {
 	struct davinci_timer *const wdttimer =
-		(struct davinci_timer *)DAVINCI_TIMER1_BASE;
+		(struct davinci_timer *)DAVINCI_WDOG_BASE;
 	writel(0x08, &wdttimer->tgcr);
 	writel(readl(&wdttimer->tgcr) | 0x03, &wdttimer->tgcr);
 	writel(0, &wdttimer->tim12);

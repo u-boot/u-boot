@@ -65,20 +65,72 @@ char *get_reset_cause(void)
 	}
 }
 
+#if defined(CONFIG_MX53) || defined(CONFIG_MX6)
+#if defined(CONFIG_MX53)
+#define MEMCTL_BASE	ESDCTL_BASE_ADDR;
+#else
+#define MEMCTL_BASE	MMDC_P0_BASE_ADDR;
+#endif
+static const unsigned char col_lookup[] = {9, 10, 11, 8, 12, 9, 9, 9};
+static const unsigned char bank_lookup[] = {3, 2};
+
+struct esd_mmdc_regs {
+	uint32_t	ctl;
+	uint32_t	pdc;
+	uint32_t	otc;
+	uint32_t	cfg0;
+	uint32_t	cfg1;
+	uint32_t	cfg2;
+	uint32_t	misc;
+	uint32_t	scr;
+	uint32_t	ref;
+	uint32_t	rsvd1;
+	uint32_t	rsvd2;
+	uint32_t	rwd;
+	uint32_t	or;
+	uint32_t	mrr;
+	uint32_t	cfg3lp;
+	uint32_t	mr4;
+};
+
+#define ESD_MMDC_CTL_GET_ROW(mdctl)	((ctl >> 24) & 7)
+#define ESD_MMDC_CTL_GET_COLUMN(mdctl)	((ctl >> 20) & 7)
+#define ESD_MMDC_CTL_GET_WIDTH(mdctl)	((ctl >> 16) & 3)
+#define ESD_MMDC_CTL_GET_CS1(mdctl)	((ctl >> 30) & 1)
+#define ESD_MMDC_MISC_GET_BANK(mdmisc)	((misc >> 5) & 1)
+
+unsigned imx_ddr_size(void)
+{
+	struct esd_mmdc_regs *mem = (struct esd_mmdc_regs *)MEMCTL_BASE;
+	unsigned ctl = readl(&mem->ctl);
+	unsigned misc = readl(&mem->misc);
+	int bits = 11 + 0 + 0 + 1;      /* row + col + bank + width */
+
+	bits += ESD_MMDC_CTL_GET_ROW(ctl);
+	bits += col_lookup[ESD_MMDC_CTL_GET_COLUMN(ctl)];
+	bits += bank_lookup[ESD_MMDC_MISC_GET_BANK(misc)];
+	bits += ESD_MMDC_CTL_GET_WIDTH(ctl);
+	bits += ESD_MMDC_CTL_GET_CS1(ctl);
+	return 1 << bits;
+}
+#endif
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 
-static const char *get_imx_type(u32 imxtype)
+const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
-	case 0x63:
+	case MXC_CPU_MX6Q:
 		return "6Q";	/* Quad-core version of the mx6 */
-	case 0x61:
-		return "6DS";	/* Dual/Solo version of the mx6 */
-	case 0x60:
+	case MXC_CPU_MX6DL:
+		return "6DL";	/* Dual Lite version of the mx6 */
+	case MXC_CPU_MX6SOLO:
+		return "6SOLO";	/* Solo version of the mx6 */
+	case MXC_CPU_MX6SL:
 		return "6SL";	/* Solo-Lite version of the mx6 */
-	case 0x51:
+	case MXC_CPU_MX51:
 		return "51";
-	case 0x53:
+	case MXC_CPU_MX53:
 		return "53";
 	default:
 		return "??";
@@ -122,11 +174,6 @@ int cpu_mmc_init(bd_t *bis)
 	return fsl_esdhc_mmc_init(bis);
 }
 #endif
-
-void reset_cpu(ulong addr)
-{
-	__raw_writew(4, WDOG1_BASE_ADDR);
-}
 
 u32 get_ahb_clk(void)
 {

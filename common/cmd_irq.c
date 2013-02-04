@@ -24,7 +24,8 @@
 #include <config.h>
 #include <command.h>
 
-int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[])
 {
 
 	if (argc != 2)

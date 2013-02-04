@@ -4,7 +4,7 @@
 
 / {
 	model = "Avionic Design Plutux";
-	compatible = "avionic-design,plutux", "nvidia,tegra20";
+	compatible = "ad,plutux", "nvidia,tegra20";
 
 	aliases {
 		usb0 = "/usb@c5008000";

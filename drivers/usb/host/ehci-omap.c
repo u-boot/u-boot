@@ -33,7 +33,8 @@
 #include <asm/gpio.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
-#include "ehci-core.h"
+
+#include "ehci.h"
 
 static struct omap_uhh *const uhh = (struct omap_uhh *)OMAP_UHH_BASE;
 static struct omap_usbtll *const usbtll = (struct omap_usbtll *)OMAP_USBTLL_BASE;
@@ -155,7 +156,8 @@ int omap_ehci_hcd_stop(void)
  * Based on "drivers/usb/host/ehci-omap.c" from Linux 3.1
  * See there for additional Copyrights.
  */
-int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata)
+int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	int ret;
 	unsigned int i, reg = 0, rev = 0;
@@ -246,8 +248,8 @@ int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata)
 		if (is_ehci_phy_mode(usbhs_pdata->port_mode[i]))
 			omap_ehci_soft_phy_reset(i);
 
-	hccr = (struct ehci_hccr *)(OMAP_EHCI_BASE);
-	hcor = (struct ehci_hcor *)(OMAP_EHCI_BASE + 0x10);
+	*hccr = (struct ehci_hccr *)(OMAP_EHCI_BASE);
+	*hcor = (struct ehci_hcor *)(OMAP_EHCI_BASE + 0x10);
 
 	debug("OMAP EHCI init done\n");
 	return 0;

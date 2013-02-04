@@ -351,6 +351,11 @@ static __inline__ int ffs(int x)
 }
 #define PLATFORM_FFS
 
+static inline int __ilog2(unsigned int x)
+{
+	return generic_fls(x) - 1;
+}
+
 /**
  * hweightN - returns the hamming weight of a N-bit word
  * @x: the word to weigh

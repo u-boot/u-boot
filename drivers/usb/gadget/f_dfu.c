@@ -25,7 +25,6 @@
 #include <malloc.h>
 
 #include <linux/usb/ch9.h>
-#include <usbdescriptors.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/composite.h>
 

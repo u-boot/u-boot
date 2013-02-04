@@ -28,6 +28,7 @@
 #include <config.h>
 #undef	__ASSEMBLY__
 #include <environment.h>
+#include <linux/stringify.h>
 
 /* Handle HOSTS that have prepended crap on symbol names, not TARGETS. */
 #if defined(__APPLE__)
@@ -81,13 +82,6 @@
 	GEN_SET_VALUE(name, value)
 
 /*
- * Macros to transform values
- * into environment strings.
- */
-#define XMK_STR(x)	#x
-#define MK_STR(x)	XMK_STR(x)
-
-/*
  * Check to see if we are building with a
  * computed CRC.  Otherwise define it as ~0.
  */
@@ -95,107 +89,9 @@
 #  define ENV_CRC	(~0)
 #endif
 
-env_t environment __PPCENV__ = {
-	ENV_CRC,	/* CRC Sum */
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-	1,		/* Flags: valid */
-#endif
-	{
-#if defined(CONFIG_BOOTARGS)
-	"bootargs="	CONFIG_BOOTARGS			"\0"
-#endif
-#if defined(CONFIG_BOOTCOMMAND)
-	"bootcmd="	CONFIG_BOOTCOMMAND		"\0"
-#endif
-#if defined(CONFIG_RAMBOOTCOMMAND)
-	"ramboot="	CONFIG_RAMBOOTCOMMAND		"\0"
-#endif
-#if defined(CONFIG_NFSBOOTCOMMAND)
-	"nfsboot="	CONFIG_NFSBOOTCOMMAND		"\0"
-#endif
-#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
-	"bootdelay="	MK_STR(CONFIG_BOOTDELAY)	"\0"
-#endif
-#if defined(CONFIG_BAUDRATE) && (CONFIG_BAUDRATE >= 0)
-	"baudrate="	MK_STR(CONFIG_BAUDRATE)		"\0"
-#endif
-#ifdef	CONFIG_LOADS_ECHO
-	"loads_echo="	MK_STR(CONFIG_LOADS_ECHO)	"\0"
-#endif
-#ifdef	CONFIG_ETHADDR
-	"ethaddr="	MK_STR(CONFIG_ETHADDR)		"\0"
-#endif
-#ifdef	CONFIG_ETH1ADDR
-	"eth1addr="	MK_STR(CONFIG_ETH1ADDR)		"\0"
-#endif
-#ifdef	CONFIG_ETH2ADDR
-	"eth2addr="	MK_STR(CONFIG_ETH2ADDR)		"\0"
-#endif
-#ifdef	CONFIG_ETH3ADDR
-	"eth3addr="	MK_STR(CONFIG_ETH3ADDR)		"\0"
-#endif
-#ifdef	CONFIG_ETH4ADDR
-	"eth4addr="	MK_STR(CONFIG_ETH4ADDR)		"\0"
-#endif
-#ifdef	CONFIG_ETH5ADDR
-	"eth5addr="	MK_STR(CONFIG_ETH5ADDR)		"\0"
-#endif
-#ifdef	CONFIG_ETHPRIME
-	"ethprime="	CONFIG_ETHPRIME			"\0"
-#endif
-#ifdef	CONFIG_IPADDR
-	"ipaddr="	MK_STR(CONFIG_IPADDR)		"\0"
-#endif
-#ifdef	CONFIG_SERVERIP
-	"serverip="	MK_STR(CONFIG_SERVERIP)		"\0"
-#endif
-#ifdef	CONFIG_SYS_AUTOLOAD
-	"autoload="	CONFIG_SYS_AUTOLOAD		"\0"
-#endif
-#ifdef	CONFIG_ROOTPATH
-	"rootpath="	CONFIG_ROOTPATH			"\0"
-#endif
-#ifdef	CONFIG_GATEWAYIP
-	"gatewayip="	MK_STR(CONFIG_GATEWAYIP)	"\0"
-#endif
-#ifdef	CONFIG_NETMASK
-	"netmask="	MK_STR(CONFIG_NETMASK)		"\0"
-#endif
-#ifdef	CONFIG_HOSTNAME
-	"hostname="	MK_STR(CONFIG_HOSTNAME)		"\0"
-#endif
-#ifdef	CONFIG_BOOTFILE
-	"bootfile="	CONFIG_BOOTFILE			"\0"
-#endif
-#ifdef	CONFIG_LOADADDR
-	"loadaddr="	MK_STR(CONFIG_LOADADDR)		"\0"
-#endif
-#ifdef	CONFIG_PREBOOT
-	"preboot="	CONFIG_PREBOOT			"\0"
-#endif
-#ifdef	CONFIG_CLOCKS_IN_MHZ
-	"clocks_in_mhz=" "1"				"\0"
-#endif
-#if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
-	"pcidelay="	MK_STR(CONFIG_PCI_BOOTDELAY)	"\0"
-#endif
-#ifdef	CONFIG_ENV_VARS_UBOOT_CONFIG
-	"arch="		CONFIG_SYS_ARCH			"\0"
-	"cpu="		CONFIG_SYS_CPU			"\0"
-	"board="	CONFIG_SYS_BOARD		"\0"
-#ifdef CONFIG_SYS_VENDOR
-	"vendor="	CONFIG_SYS_VENDOR		"\0"
-#endif
-#ifdef CONFIG_SYS_SOC
-	"soc="		CONFIG_SYS_SOC			"\0"
-#endif
-#endif
-#ifdef	CONFIG_EXTRA_ENV_SETTINGS
-	CONFIG_EXTRA_ENV_SETTINGS
-#endif
-	"\0"		/* Term. env_t.data with 2 NULs */
-	}
-};
+#define DEFAULT_ENV_INSTANCE_EMBEDDED
+#include <env_default.h>
+
 #ifdef CONFIG_ENV_ADDR_REDUND
 env_t redundand_environment __PPCENV__ = {
 	0,		/* CRC Sum: invalid */

@@ -16,6 +16,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/errno.h>
+#include "vsc7385.h"
 
 /*
  * Upload a Vitesse VSC7385 firmware image to the hardware

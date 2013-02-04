@@ -37,15 +37,11 @@
 /*
  * Ext2fs support
  */
-#include <common.h>
-#include <ext_common.h>
+#include <fs.h>
 
 int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (do_ext_ls(cmdtp, flag, argc, argv))
-		return -1;
-
-	return 0;
+	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
 
 /******************************************************************************
@@ -53,10 +49,7 @@ int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (do_ext_load(cmdtp, flag, argc, argv))
-		return -1;
-
-	return 0;
+	return do_load(cmdtp, flag, argc, argv, FS_TYPE_EXT, 16);
 }
 
 U_BOOT_CMD(
@@ -71,5 +64,6 @@ U_BOOT_CMD(
 	"load binary file from a Ext2 filesystem",
 	"<interface> <dev[:part]> [addr] [filename] [bytes]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
-	"      to address 'addr' from ext2 filesystem"
+	"      to address 'addr' from ext2 filesystem.\n"
+	"      All numeric parameters are assumed to be hex."
 );

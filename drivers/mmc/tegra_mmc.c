@@ -19,13 +19,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <bouncebuf.h>
 #include <common.h>
-#include <mmc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/tegra_mmc.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/tegra_mmc.h>
+#include <mmc.h>
 
 /* support 4 mmc hosts */
 struct mmc mmc_dev[4];
@@ -66,14 +67,17 @@ static void tegra_get_setup(struct mmc_host *host, int dev_index)
 	host->reg = (struct tegra_mmc *)host->base;
 }
 
-static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
+static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data,
+				struct bounce_buffer *bbstate)
 {
 	unsigned char ctrl;
 
-	debug("data->dest: %08X, data->blocks: %u, data->blocksize: %u\n",
-	(u32)data->dest, data->blocks, data->blocksize);
 
-	writel((u32)data->dest, &host->reg->sysad);
+	debug("buf: %p (%p), data->blocks: %u, data->blocksize: %u\n",
+		bbstate->bounce_buffer, bbstate->user_buffer, data->blocks,
+		data->blocksize);
+
+	writel((u32)bbstate->bounce_buffer, &host->reg->sysad);
 	/*
 	 * DMASEL[4:3]
 	 * 00 = Selects SDMA
@@ -114,14 +118,6 @@ static void mmc_set_transfer_mode(struct mmc_host *host, struct mmc_data *data)
 	if (data->flags & MMC_DATA_READ)
 		mode |= TEGRA_MMC_TRNMOD_DATA_XFER_DIR_SEL_READ;
 
-	if (data->flags & MMC_DATA_WRITE) {
-		if ((uintptr_t)data->src & (ARCH_DMA_MINALIGN - 1))
-			printf("Warning: unaligned write to %p may fail\n",
-			       data->src);
-		flush_dcache_range((ulong)data->src, (ulong)data->src +
-			data->blocks * data->blocksize);
-	}
-
 	writew(mode, &host->reg->trnmod);
 }
 
@@ -156,8 +152,8 @@ static int mmc_wait_inhibit(struct mmc_host *host,
 	return 0;
 }
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			struct mmc_data *data)
+static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
+			struct mmc_data *data, struct bounce_buffer *bbstate)
 {
 	struct mmc_host *host = (struct mmc_host *)mmc->priv;
 	int flags, i;
@@ -172,7 +168,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		return result;
 
 	if (data)
-		mmc_prepare_data(host, data);
+		mmc_prepare_data(host, data, bbstate);
 
 	debug("cmd->arg: %08x\n", cmd->cmdarg);
 	writel(cmd->cmdarg, &host->reg->argument);
@@ -322,18 +318,40 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			}
 		}
 		writel(mask, &host->reg->norintsts);
-		if (data->flags & MMC_DATA_READ) {
-			if ((uintptr_t)data->dest & (ARCH_DMA_MINALIGN - 1))
-				printf("Warning: unaligned read from %p "
-					"may fail\n", data->dest);
-			invalidate_dcache_range((ulong)data->dest,
-				(ulong)data->dest +
-					data->blocks * data->blocksize);
-		}
 	}
 
 	udelay(1000);
 	return 0;
+}
+
+static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			struct mmc_data *data)
+{
+	void *buf;
+	unsigned int bbflags;
+	size_t len;
+	struct bounce_buffer bbstate;
+	int ret;
+
+	if (data) {
+		if (data->flags & MMC_DATA_READ) {
+			buf = data->dest;
+			bbflags = GEN_BB_WRITE;
+		} else {
+			buf = (void *)data->src;
+			bbflags = GEN_BB_READ;
+		}
+		len = data->blocks * data->blocksize;
+
+		bounce_buffer_start(&bbstate, buf, len, bbflags);
+	}
+
+	ret = mmc_send_cmd_bounced(mmc, cmd, data, &bbstate);
+
+	if (data)
+		bounce_buffer_stop(&bbstate);
+
+	return ret;
 }
 
 static void mmc_change_clock(struct mmc_host *host, uint clock)
@@ -547,10 +565,11 @@ int tegra_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio)
 	mmc->getcd = tegra_mmc_getcd;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	mmc->host_caps = 0;
 	if (bus_width == 8)
-		mmc->host_caps = MMC_MODE_8BIT;
-	else
-		mmc->host_caps = MMC_MODE_4BIT;
+		mmc->host_caps |= MMC_MODE_8BIT;
+	if (bus_width >= 4)
+		mmc->host_caps |= MMC_MODE_4BIT;
 	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
 
 	/*

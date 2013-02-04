@@ -19,122 +19,121 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/arch/imx-regs.h>
+#include <generated/asm-offsets.h>
+#include <asm/macro.h>
+
 /*
  * AIPS setup - Only setup MPROTx registers.
  * The PACR default values are good.
+ *
+ * Default argument values:
+ *  - MPR: Set all MPROTx to be non-bufferable, trusted for R/W, not forced to
+ *    user-mode.
+ *  - OPACR: Clear the on and off peripheral modules Supervisor Protect bit for
+ *    SDMA to access them.
  */
-.macro init_aips
-	/*
-	 * Set all MPROTx to be non-bufferable, trusted for R/W,
-	 * not forced to user-mode.
-	 */
-	ldr r0, =AIPS1_BASE_ADDR
-	ldr r1, =AIPS_MPR_CONFIG
-	str r1, [r0, #0x00]
-	str r1, [r0, #0x04]
-	ldr r0, =AIPS2_BASE_ADDR
-	str r1, [r0, #0x00]
-	str r1, [r0, #0x04]
+.macro init_aips mpr=0x77777777, opacr=0x00000000
+	ldr	r0, =AIPS1_BASE_ADDR
+	ldr	r1, =\mpr
+	str	r1, [r0, #AIPS_MPR_0_7]
+	str	r1, [r0, #AIPS_MPR_8_15]
+	ldr	r2, =AIPS2_BASE_ADDR
+	str	r1, [r2, #AIPS_MPR_0_7]
+	str	r1, [r2, #AIPS_MPR_8_15]
 
-	/*
-	 * Clear the on and off peripheral modules Supervisor Protect bit
-	 * for SDMA to access them. Did not change the AIPS control registers
-	 * (offset 0x20) access type
-	 */
-	ldr r0, =AIPS1_BASE_ADDR
-	ldr r1, =AIPS_OPACR_CONFIG
-	str r1, [r0, #0x40]
-	str r1, [r0, #0x44]
-	str r1, [r0, #0x48]
-	str r1, [r0, #0x4C]
-	str r1, [r0, #0x50]
-	ldr r0, =AIPS2_BASE_ADDR
-	str r1, [r0, #0x40]
-	str r1, [r0, #0x44]
-	str r1, [r0, #0x48]
-	str r1, [r0, #0x4C]
-	str r1, [r0, #0x50]
+	/* Did not change the AIPS control registers access type. */
+	ldr	r1, =\opacr
+	str	r1, [r0, #AIPS_OPACR_0_7]
+	str	r1, [r0, #AIPS_OPACR_8_15]
+	str	r1, [r0, #AIPS_OPACR_16_23]
+	str	r1, [r0, #AIPS_OPACR_24_31]
+	str	r1, [r0, #AIPS_OPACR_32_39]
+	str	r1, [r2, #AIPS_OPACR_0_7]
+	str	r1, [r2, #AIPS_OPACR_8_15]
+	str	r1, [r2, #AIPS_OPACR_16_23]
+	str	r1, [r2, #AIPS_OPACR_24_31]
+	str	r1, [r2, #AIPS_OPACR_32_39]
 .endm
 
-/* MAX (Multi-Layer AHB Crossbar Switch) setup */
-.macro init_max
-	ldr r0, =MAX_BASE_ADDR
-	/* MPR - priority is M4 > M2 > M3 > M5 > M0 > M1 */
-	ldr r1, =MAX_MPR_CONFIG
-	str r1, [r0, #0x000]        /* for S0 */
-	str r1, [r0, #0x100]        /* for S1 */
-	str r1, [r0, #0x200]        /* for S2 */
-	str r1, [r0, #0x300]        /* for S3 */
-	str r1, [r0, #0x400]        /* for S4 */
-	/* SGPCR - always park on last master */
-	ldr r1, =MAX_SGPCR_CONFIG
-	str r1, [r0, #0x010]        /* for S0 */
-	str r1, [r0, #0x110]        /* for S1 */
-	str r1, [r0, #0x210]        /* for S2 */
-	str r1, [r0, #0x310]        /* for S3 */
-	str r1, [r0, #0x410]        /* for S4 */
-	/* MGPCR - restore default values */
-	ldr r1, =MAX_MGPCR_CONFIG
-	str r1, [r0, #0x800]        /* for M0 */
-	str r1, [r0, #0x900]        /* for M1 */
-	str r1, [r0, #0xA00]        /* for M2 */
-	str r1, [r0, #0xB00]        /* for M3 */
-	str r1, [r0, #0xC00]        /* for M4 */
-	str r1, [r0, #0xD00]        /* for M5 */
+/*
+ * MAX (Multi-Layer AHB Crossbar Switch) setup
+ *
+ * Default argument values:
+ *  - MPR: priority is M4 > M2 > M3 > M5 > M0 > M1
+ *  - SGPCR: always park on last master
+ *  - MGPCR: restore default values
+ */
+.macro init_max mpr=0x00302154, sgpcr=0x00000010, mgpcr=0x00000000
+	ldr	r0, =MAX_BASE_ADDR
+	ldr	r1, =\mpr
+	str	r1, [r0, #MAX_MPR0]	/* for S0 */
+	str	r1, [r0, #MAX_MPR1]	/* for S1 */
+	str	r1, [r0, #MAX_MPR2]	/* for S2 */
+	str	r1, [r0, #MAX_MPR3]	/* for S3 */
+	str	r1, [r0, #MAX_MPR4]	/* for S4 */
+	ldr	r1, =\sgpcr
+	str	r1, [r0, #MAX_SGPCR0]	/* for S0 */
+	str	r1, [r0, #MAX_SGPCR1]	/* for S1 */
+	str	r1, [r0, #MAX_SGPCR2]	/* for S2 */
+	str	r1, [r0, #MAX_SGPCR3]	/* for S3 */
+	str	r1, [r0, #MAX_SGPCR4]	/* for S4 */
+	ldr	r1, =\mgpcr
+	str	r1, [r0, #MAX_MGPCR0]	/* for M0 */
+	str	r1, [r0, #MAX_MGPCR1]	/* for M1 */
+	str	r1, [r0, #MAX_MGPCR2]	/* for M2 */
+	str	r1, [r0, #MAX_MGPCR3]	/* for M3 */
+	str	r1, [r0, #MAX_MGPCR4]	/* for M4 */
+	str	r1, [r0, #MAX_MGPCR5]	/* for M5 */
 .endm
 
-/* M3IF setup */
-.macro init_m3if
-	/* Configure M3IF registers */
-	ldr r1, =M3IF_BASE_ADDR
-	/*
-	* M3IF Control Register (M3IFCTL)
-	* MRRP[0] = L2CC0 not on priority list (0 << 0)	= 0x00000000
-	* MRRP[1] = L2CC1 not on priority list (0 << 0)	= 0x00000000
-	* MRRP[2] = MBX not on priority list (0 << 0)	= 0x00000000
-	* MRRP[3] = MAX1 not on priority list (0 << 0)	= 0x00000000
-	* MRRP[4] = SDMA not on priority list (0 << 0)	= 0x00000000
-	* MRRP[5] = MPEG4 not on priority list (0 << 0)	= 0x00000000
-	* MRRP[6] = IPU1 on priority list (1 << 6)	= 0x00000040
-	* MRRP[7] = IPU2 not on priority list (0 << 0)	= 0x00000000
-	*						------------
-	*						  0x00000040
-	*/
-	ldr r0, =M3IF_CONFIG
-	str r0, [r1]  /* M3IF control reg */
+/*
+ * M3IF setup
+ *
+ * Default argument values:
+ *  - CTL:
+ * MRRP[0] = L2CC0 not on priority list (0 << 0)	= 0x00000000
+ * MRRP[1] = L2CC1 not on priority list (0 << 1)	= 0x00000000
+ * MRRP[2] = MBX not on priority list (0 << 2)		= 0x00000000
+ * MRRP[3] = MAX1 not on priority list (0 << 3)		= 0x00000000
+ * MRRP[4] = SDMA not on priority list (0 << 4)		= 0x00000000
+ * MRRP[5] = MPEG4 not on priority list (0 << 5)	= 0x00000000
+ * MRRP[6] = IPU1 on priority list (1 << 6)		= 0x00000040
+ * MRRP[7] = IPU2 not on priority list (0 << 7)		= 0x00000000
+ *							------------
+ *							  0x00000040
+ */
+.macro init_m3if ctl=0x00000040
+	/* M3IF Control Register (M3IFCTL) */
+	write32	M3IF_BASE_ADDR, \ctl
 .endm
 
 .macro core_init
-	mrc 15, 0, r1, c1, c0, 0
-
-	mrc 15, 0, r0, c1, c0, 1
-	orr r0, r0, #7
-	mcr 15, 0, r0, c1, c0, 1
-	orr r1, r1, #(1<<11)
-
-	/* Set unaligned access enable */
-	orr r1, r1, #(1<<22)
-
-	/* Set low int latency enable */
-	orr r1, r1, #(1<<21)
-
-	mcr 15, 0, r1, c1, c0, 0
-
-	mov r0, #0
+	mrc	p15, 0, r1, c1, c0, 0
 
 	/* Set branch prediction enable */
-	mcr 15, 0, r0, c15, c2, 4
+	mrc	p15, 0, r0, c1, c0, 1
+	orr	r0, r0, #7
+	mcr	p15, 0, r0, c1, c0, 1
+	orr	r1, r1, #1 << 11
 
-	mcr 15, 0, r0, c7, c7, 0        /* invalidate I cache and D cache */
-	mcr 15, 0, r0, c8, c7, 0        /* invalidate TLBs */
-	mcr 15, 0, r0, c7, c10, 4       /* Drain the write buffer */
+	/* Set unaligned access enable */
+	orr	r1, r1, #1 << 22
 
-	/*
-	 * initializes very early AIPS
-	 * Then it also initializes Multi-Layer AHB Crossbar Switch,
-	 * M3IF
-	 * Also setup the Peripheral Port Remap register inside the core
-	 */
-	ldr r0, =0x40000015        /* start from AIPS 2GB region */
-	mcr p15, 0, r0, c15, c2, 4
+	/* Set low int latency enable */
+	orr	r1, r1, #1 << 21
+
+	mcr	p15, 0, r1, c1, c0, 0
+
+	mov	r0, #0
+
+	mcr	p15, 0, r0, c15, c2, 4
+
+	mcr	p15, 0, r0, c7, c7, 0	/* Invalidate I cache and D cache */
+	mcr	p15, 0, r0, c8, c7, 0	/* Invalidate TLBs */
+	mcr	p15, 0, r0, c7, c10, 4	/* Drain the write buffer */
+
+	/* Setup the Peripheral Port Memory Remap Register */
+	ldr	r0, =0x40000015		/* Start from AIPS 2-GB region */
+	mcr	p15, 0, r0, c15, c2, 4
 .endm

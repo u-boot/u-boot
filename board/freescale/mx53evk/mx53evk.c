@@ -26,6 +26,7 @@
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/errno.h>
 #include <asm/imx-common/boot_mode.h>
@@ -33,7 +34,7 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <asm/gpio.h>
 #include <mc13892.h>
@@ -122,9 +123,15 @@ void power_init(void)
 {
 	unsigned int val;
 	struct pmic *p;
+	int ret;
 
-	pmic_init();
-	p = get_pmic();
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return;
+
+	p = pmic_get("FSL_PMIC");
+	if (!p)
+		return;
 
 	/* Set VDDA to 1.25V */
 	pmic_reg_read(p, REG_SW_2, &val);
@@ -231,6 +238,9 @@ int board_mmc_init(bd_t *bis)
 {
 	u32 index;
 	s32 status = 0;
+
+	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+	esdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 
 	for (index = 0; index < CONFIG_SYS_FSL_ESDHC_NUM; index++) {
 		switch (index) {

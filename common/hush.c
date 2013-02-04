@@ -289,8 +289,7 @@ struct variables {
 char **global_argv;
 unsigned int global_argc;
 #endif
-unsigned int last_return_code;
-int nesting_level;
+static unsigned int last_return_code;
 #ifndef __U_BOOT__
 extern char **environ; /* This is in <unistd.h>, but protected with __USE_GNU */
 #endif
@@ -2172,7 +2171,7 @@ int set_local_var(const char *s, int flg_export)
 	 * NAME=VALUE format.  So the first order of business is to
 	 * split 's' on the '=' into 'name' and 'value' */
 	value = strchr(name, '=');
-	if (value==0 && ++value==0) {
+	if (value == NULL && ++value == NULL) {
 		free(name);
 		return -1;
 	}
@@ -2207,13 +2206,13 @@ int set_local_var(const char *s, int flg_export)
 			result = -1;
 		} else {
 			cur->name = strdup(name);
-			if(cur->name == 0) {
+			if (cur->name == NULL) {
 				free(cur);
 				result = -1;
 			} else {
 				struct variables *bottom = top_vars;
 				cur->value = strdup(value);
-				cur->next = 0;
+				cur->next = NULL;
 				cur->flg_export = flg_export;
 				cur->flg_read_only = 0;
 				while(bottom->next) bottom=bottom->next;
@@ -2246,7 +2245,7 @@ void unset_local_var(const char *name)
 			if(strcmp(cur->name, name)==0)
 				break;
 		}
-		if(cur!=0) {
+		if (cur != NULL) {
 			struct variables *next = top_vars;
 			if(cur->flg_read_only) {
 				error_msg("%s: readonly variable", name);
@@ -2329,7 +2328,8 @@ static int setup_redirect(struct p_context *ctx, int fd, redir_type style,
 }
 #endif
 
-struct pipe *new_pipe(void) {
+static struct pipe *new_pipe(void)
+{
 	struct pipe *pi;
 	pi = xmalloc(sizeof(struct pipe));
 	pi->num_progs = 0;
@@ -2387,7 +2387,7 @@ static struct reserved_combo reserved_list[] = {
 };
 #define NRES (sizeof(reserved_list)/sizeof(struct reserved_combo))
 
-int reserved_word(o_string *dest, struct p_context *ctx)
+static int reserved_word(o_string *dest, struct p_context *ctx)
 {
 	struct reserved_combo *r;
 	for (r=reserved_list;
@@ -2924,8 +2924,8 @@ int parse_string(o_string *dest, struct p_context *ctx, const char *src)
 #endif
 
 /* return code is 0 for normal exit, 1 for syntax error */
-int parse_stream(o_string *dest, struct p_context *ctx,
-	struct in_str *input, int end_trigger)
+static int parse_stream(o_string *dest, struct p_context *ctx,
+			struct in_str *input, int end_trigger)
 {
 	unsigned int ch, m;
 #ifndef __U_BOOT__
@@ -3124,13 +3124,13 @@ int parse_stream(o_string *dest, struct p_context *ctx,
 	return 0;
 }
 
-void mapset(const unsigned char *set, int code)
+static void mapset(const unsigned char *set, int code)
 {
 	const unsigned char *s;
 	for (s=set; *s; s++) map[*s] = code;
 }
 
-void update_ifs_map(void)
+static void update_ifs_map(void)
 {
 	/* char *ifs and char map[256] are both globals. */
 	ifs = (uchar *)getenv("IFS");
@@ -3158,7 +3158,7 @@ void update_ifs_map(void)
 
 /* most recursion does not come through here, the exeception is
  * from builtin_source() */
-int parse_stream_outer(struct in_str *inp, int flag)
+static int parse_stream_outer(struct in_str *inp, int flag)
 {
 
 	struct p_context ctx;
@@ -3292,7 +3292,7 @@ int u_boot_hush_start(void)
 		top_vars = malloc(sizeof(struct variables));
 		top_vars->name = "HUSH_VERSION";
 		top_vars->value = "0.01";
-		top_vars->next = 0;
+		top_vars->next = NULL;
 		top_vars->flg_export = 0;
 		top_vars->flg_read_only = 1;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
@@ -3628,7 +3628,8 @@ static char * make_string(char ** inp)
 }
 
 #ifdef __U_BOOT__
-int do_showvar (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_showvar(cmd_tbl_t *cmdtp, int flag, int argc,
+		      char * const argv[])
 {
 	int i, k;
 	int rcode = 0;

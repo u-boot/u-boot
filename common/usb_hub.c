@@ -244,7 +244,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 	mdelay(200);
 
 	/* Allocate a new device struct for it */
-	usb = usb_alloc_new_device();
+	usb = usb_alloc_new_device(dev->controller);
 
 	if (portstatus & USB_PORT_STAT_HIGH_SPEED)
 		usb->speed = USB_SPEED_HIGH;
@@ -259,6 +259,8 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 	/* Run it through the hoops (find a driver, etc) */
 	if (usb_new_device(usb)) {
 		/* Woops, disable the port */
+		usb_free_device();
+		dev->children[port] = NULL;
 		USB_HUB_PRINTF("hub: disabling port %d\n", port + 1);
 		usb_clear_port_feature(dev, port + 1, USB_PORT_FEAT_ENABLE);
 	}
@@ -396,14 +398,37 @@ static int usb_hub_configure(struct usb_device *dev)
 	for (i = 0; i < dev->maxchild; i++) {
 		ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 		unsigned short portstatus, portchange;
+		int ret;
+		ulong start = get_timer(0);
 
-		if (usb_get_port_status(dev, i + 1, portsts) < 0) {
-			USB_HUB_PRINTF("get_port_status failed\n");
+		/*
+		 * Wait for (whichever finishes first)
+		 *  - A maximum of 10 seconds
+		 *    This is a purely observational value driven by connecting
+		 *    a few broken pen drives and taking the max * 1.5 approach
+		 *  - connection_change and connection state to report same
+		 *    state
+		 */
+		do {
+			ret = usb_get_port_status(dev, i + 1, portsts);
+			if (ret < 0) {
+				USB_HUB_PRINTF("get_port_status failed\n");
+				break;
+			}
+
+			portstatus = le16_to_cpu(portsts->wPortStatus);
+			portchange = le16_to_cpu(portsts->wPortChange);
+
+			if ((portchange & USB_PORT_STAT_C_CONNECTION) ==
+				(portstatus & USB_PORT_STAT_CONNECTION))
+				break;
+
+			mdelay(100);
+		} while (get_timer(start) < CONFIG_SYS_HZ * 10);
+
+		if (ret < 0)
 			continue;
-		}
 
-		portstatus = le16_to_cpu(portsts->wPortStatus);
-		portchange = le16_to_cpu(portsts->wPortChange);
 		USB_HUB_PRINTF("Port %d Status %X Change %X\n",
 				i + 1, portstatus, portchange);
 

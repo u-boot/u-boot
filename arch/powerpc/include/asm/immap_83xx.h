@@ -73,12 +73,19 @@ typedef struct sysconf83xx {
 	u32 obir;		/* Output Buffer Impedance Register */
 	u8 res8[0xC];
 	u32 pecr1;		/* PCI Express control register 1 */
-#ifdef CONFIG_MPC8308
-	u32 sdhccr;		/* eSDHC Control Registers for MPC8308 */
+#if defined(CONFIG_MPC830x)
+	u32 sdhccr;		/* eSDHC Control Registers for MPC830x */
 #else
 	u32 pecr2;		/* PCI Express control register 2 */
 #endif
+#if defined(CONFIG_MPC8309)
+	u32 can_dbg_ctrl;
+	u32 res9a;
+	u32 gpr1;
+	u8 res9b[0xAC];
+#else
 	u8 res9[0xB8];
+#endif
 } sysconf83xx_t;
 
 /*
@@ -708,7 +715,11 @@ typedef struct serdes83xx {
  * On Chip ROM
  */
 typedef struct rom83xx {
+#if defined(CONFIG_MPC8309)
+	u8 mem[0x8000];
+#else
 	u8 mem[0x10000];
+#endif
 } rom83xx_t;
 
 /*
@@ -972,11 +983,61 @@ typedef struct immap {
 	u8			res8[0xC0000];
 	u8			qe[0x100000];	/* QE block */
 } immap_t;
+#elif defined(CONFIG_MPC8309)
+typedef struct immap {
+	sysconf83xx_t		sysconf;	/* System configuration */
+	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
+	rtclk83xx_t		rtc;		/* Real Time Clock Module Registers */
+	rtclk83xx_t		pit;		/* Periodic Interval Timer */
+	gtm83xx_t		gtm[2];		/* Global Timers Module */
+	ipic83xx_t		ipic;		/* Integrated Programmable Interrupt Controller */
+	arbiter83xx_t		arbiter;	/* System Arbiter Registers */
+	reset83xx_t		reset;		/* Reset Module */
+	clk83xx_t		clk;		/* System Clock Module */
+	pmc83xx_t		pmc;		/* Power Management Control Module */
+	gpio83xx_t		gpio[2];	/* General purpose I/O module */
+	u8			res0[0x500];	/* res0 1.25 KBytes added for 8309 */
+	qepi83xx_t		qepi;		/* QE Ports Interrupts Registers */
+	qepio83xx_t		qepio;		/* QE Parallel I/O ports */
+	u8			res1[0x800];
+	ddr83xx_t		ddr;		/* DDR Memory Controller Memory */
+	fsl_i2c_t		i2c[2];		/* I2C Controllers */
+	u8			res2[0x1300];
+	duart83xx_t		duart[2];	/* DUART */
+	u8			res3[0x200];
+	duart83xx_t		duart1[2];	/* DUART */
+	u8			res4[0x500];
+	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
+	u8			res5[0x1000];
+	u8			spi[0x100];
+	u8			res6[0xf00];
+	dma83xx_t		dma;		/* DMA */
+	pciconf83xx_t		pci_conf[1];	/* PCI Configuration Registers */
+	u8			res7[0x80];
+	ios83xx_t		ios;		/* Sequencer (IOS) */
+	pcictrl83xx_t		pci_ctrl[1];	/* PCI Control & Status Registers */
+	u8			res8[0x13A00];
+	u8			can1[0x1000];	/* Flexcan 1 */
+	u8			can2[0x1000];	/* Flexcan 2 */
+	u8			res9[0x5000];
+	usb83xx_t		usb;
+	u8			res10[0x5000];
+	u8			can3[0x1000];	/* Flexcan 3 */
+	u8			can4[0x1000];	/* Flexcan 4 */
+	u8			res11[0x1000];
+	u8			dma1[0x2000];	/* DMA */
+	sdhc83xx_t		sdhc;		/* SDHC Controller */
+	u8			res12[0xC1000];
+	rom83xx_t		rom;		/* On Chip ROM */
+	u8			res13[0x8000];
+	u8			qe[0x100000];	/* QE block */
+	u8			res14[0xE00000];/* Added for 8309 */
+} immap_t;
 #endif
 
-#define CONFIG_SYS_MPC83xx_DDR_OFFSET	(0x2000)
-#define CONFIG_SYS_MPC83xx_DDR_ADDR \
-			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_DDR_OFFSET)
+#define CONFIG_SYS_MPC8xxx_DDR_OFFSET	(0x2000)
+#define CONFIG_SYS_MPC8xxx_DDR_ADDR \
+			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC8xxx_DDR_OFFSET)
 #define CONFIG_SYS_MPC83xx_DMA_OFFSET	(0x8000)
 #define CONFIG_SYS_MPC83xx_DMA_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_DMA_OFFSET)

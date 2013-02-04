@@ -30,8 +30,8 @@
  * until the write is done before it returns.  All PHY configuration has to be
  * done through the TSEC1 MIIM regs
  */
-int tgec_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
-			int regnum, u16 value)
+static int tgec_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
+			   int regnum, u16 value)
 {
 	u32 mdio_ctl;
 	u32 stat_val;
@@ -72,8 +72,8 @@ int tgec_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
  * Clears miimcom first.  All PHY configuration has to be done through the
  * TSEC1 MIIM regs
  */
-int tgec_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
-			int regnum)
+static int tgec_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
+			  int regnum)
 {
 	u32 mdio_ctl;
 	u32 stat_val;
@@ -114,7 +114,7 @@ int tgec_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
 	return in_be32(&regs->mdio_data) & 0xffff;
 }
 
-int tgec_mdio_reset(struct mii_dev *bus)
+static int tgec_mdio_reset(struct mii_dev *bus)
 {
 	return 0;
 }

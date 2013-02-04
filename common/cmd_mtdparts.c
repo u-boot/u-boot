@@ -147,10 +147,10 @@ static char last_partition[PARTITION_MAXLEN];
 extern void jffs2_free_cache(struct part_info *part);
 
 /* mtdids mapping list, filled by parse_ids() */
-struct list_head mtdids;
+static struct list_head mtdids;
 
 /* device/partition list, parse_cmdline() parses into here */
-struct list_head devices;
+static struct list_head devices;
 
 /* current active device and partition number */
 struct mtd_device *current_mtd_dev = NULL;
@@ -710,7 +710,7 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
  * @param size a pointer to the size of the mtd device (output)
  * @return 0 if device is valid, 1 otherwise
  */
-int mtd_device_validate(u8 type, u8 num, u32 *size)
+static int mtd_device_validate(u8 type, u8 num, u32 *size)
 {
 	struct mtd_info *mtd = NULL;
 
@@ -1042,7 +1042,8 @@ static struct mtdids* id_find_by_mtd_id(const char *mtd_id, unsigned int mtd_id_
  * @param dev_num parsed device number (output)
  * @return 0 on success, 1 otherwise
  */
-int mtd_id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num)
+int mtd_id_parse(const char *id, const char **ret_id, u8 *dev_type,
+		 u8 *dev_num)
 {
 	const char *p = id;
 
@@ -1884,7 +1885,7 @@ static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 /* command line only */
 	struct mtd_device *dev;
@@ -1922,7 +1923,8 @@ int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	if (argc == 2) {
 		if (strcmp(argv[1], "default") == 0) {
@@ -2046,9 +2048,8 @@ U_BOOT_CMD(
 	"    - change active partition (e.g. part-id = nand0,1)"
 );
 
-U_BOOT_CMD(
-	mtdparts,	6,	0,	do_mtdparts,
-	"define flash/nand partitions",
+#ifdef CONFIG_SYS_LONGHELP
+static char mtdparts_help_text[] =
 	"\n"
 	"    - list partition table\n"
 	"mtdparts delall\n"
@@ -2090,6 +2091,11 @@ U_BOOT_CMD(
 	"<size>     := standard linux memsize OR '-' to denote all remaining space\n"
 	"<offset>   := partition start offset within the device\n"
 	"<name>     := '(' NAME ')'\n"
-	"<ro-flag>  := when set to 'ro' makes partition read-only (not used, passed to kernel)"
+	"<ro-flag>  := when set to 'ro' makes partition read-only (not used, passed to kernel)";
+#endif
+
+U_BOOT_CMD(
+	mtdparts,	6,	0,	do_mtdparts,
+	"define flash/nand partitions", mtdparts_help_text
 );
 /***************************************************/

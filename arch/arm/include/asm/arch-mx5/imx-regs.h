@@ -218,16 +218,6 @@
  */
 #define WBED		1
 
-/*
- * WEIM WCR
- */
-#define BCM		1
-#define GBCD(x)		(((x) & 0x3) << 1)
-#define INTEN		(1 << 4)
-#define INTPOL		(1 << 5)
-#define WDOG_EN		(1 << 8)
-#define WDOG_LIMIT(x)	(((x) & 0x3) << 9)
-
 #define CS0_128					0
 #define CS0_64M_CS1_64M				1
 #define CS0_64M_CS1_32M_CS2_32M			2
@@ -307,6 +297,10 @@
 #define DP_OP_400	((8 << 4) + ((2 - 1)  << 0))
 #define DP_MFD_400	(3 - 1)
 #define DP_MFN_400	1
+
+#define DP_OP_455	((9 << 4) + ((2 - 1)  << 0))
+#define DP_MFD_455	(48 - 1)
+#define DP_MFN_455	23
 
 #define DP_OP_216	((6 << 4) + ((3 - 1)  << 0))
 #define DP_MFD_216	(4 - 1)

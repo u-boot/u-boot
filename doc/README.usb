@@ -63,7 +63,7 @@ Common USB Commands:
 Storage USB Commands:
 - usb scan:	    scans the USB for storage devices.The USB must be
 		    running for this command (usb start)
-- usb device [dev]: show or set current USB staorage device
+- usb device [dev]: show or set current USB storage device
 - usb part [dev]:   print partition table of one or all USB storage
 		    devices
 - usb read addr blk# cnt:

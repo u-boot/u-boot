@@ -21,6 +21,8 @@
 #include <watchdog.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #define __REG(x)     (*((volatile u32 *)(x)))
 
@@ -29,10 +31,6 @@
 #endif
 
 #define UART_PHYS	CONFIG_MXC_UART_BASE
-
-#ifdef CONFIG_SERIAL_MULTI
-#warning "MXC driver does not support MULTI serials."
-#endif
 
 /* Register definitions */
 #define URXD  0x0  /* Receiver Register */
@@ -145,7 +143,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void serial_setbrg (void)
+static void mxc_serial_setbrg(void)
 {
 	u32 clk = imx_get_uartclk();
 
@@ -158,14 +156,14 @@ void serial_setbrg (void)
 
 }
 
-int serial_getc (void)
+static int mxc_serial_getc(void)
 {
 	while (__REG(UART_PHYS + UTS) & UTS_RXEMPTY)
 		WATCHDOG_RESET();
 	return (__REG(UART_PHYS + URXD) & URXD_RX_DATA); /* mask out status from upper word */
 }
 
-void serial_putc (const char c)
+static void mxc_serial_putc(const char c)
 {
 	__REG(UART_PHYS + UTXD) = c;
 
@@ -181,7 +179,7 @@ void serial_putc (const char c)
 /*
  * Test whether a character is in the RX buffer
  */
-int serial_tstc (void)
+static int mxc_serial_tstc(void)
 {
 	/* If receive fifo is empty, return false */
 	if (__REG(UART_PHYS + UTS) & UTS_RXEMPTY)
@@ -189,20 +187,12 @@ int serial_tstc (void)
 	return 1;
 }
 
-void
-serial_puts (const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
 /*
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  *
  */
-int serial_init (void)
+static int mxc_serial_init(void)
 {
 	__REG(UART_PHYS + UCR1) = 0x0;
 	__REG(UART_PHYS + UCR2) = 0x0;
@@ -223,4 +213,25 @@ int serial_init (void)
 	__REG(UART_PHYS + UCR1) = UCR1_UARTEN;
 
 	return 0;
+}
+
+static struct serial_device mxc_serial_drv = {
+	.name	= "mxc_serial",
+	.start	= mxc_serial_init,
+	.stop	= NULL,
+	.setbrg	= mxc_serial_setbrg,
+	.putc	= mxc_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= mxc_serial_getc,
+	.tstc	= mxc_serial_tstc,
+};
+
+void mxc_serial_initialize(void)
+{
+	serial_register(&mxc_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &mxc_serial_drv;
 }

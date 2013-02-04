@@ -322,6 +322,7 @@
  * Serial console configuration
  */
 #define CONFIG_PSC_CONSOLE		3	/* console on PSC3 */
+#define CONFIG_SYS_PSC3
 #if CONFIG_PSC_CONSOLE != 3
 #error CONFIG_PSC_CONSOLE must be 3
 #endif

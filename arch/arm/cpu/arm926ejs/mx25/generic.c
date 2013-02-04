@@ -29,11 +29,10 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/imx25-pinmux.h>
 #include <asm/arch/clock.h>
-#ifdef CONFIG_MXC_MMC
-#include <asm/arch/mxcmmc.h>
-#endif
 
 #ifdef CONFIG_FSL_ESDHC
+#include <fsl_esdhc.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
@@ -48,7 +47,7 @@ static unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
 {
 	unsigned int mfi = (pll >> CCM_PLL_MFI_SHIFT)
 	    & CCM_PLL_MFI_MASK;
-	unsigned int mfn = (pll >> CCM_PLL_MFN_SHIFT)
+	int mfn = (pll >> CCM_PLL_MFN_SHIFT)
 	    & CCM_PLL_MFN_MASK;
 	unsigned int mfd = (pll >> CCM_PLL_MFD_SHIFT)
 	    & CCM_PLL_MFD_MASK;
@@ -56,9 +55,12 @@ static unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref)
 	    & CCM_PLL_PD_MASK;
 
 	mfi = mfi <= 5 ? 5 : mfi;
+	mfn = mfn >= 512 ? mfn - 1024 : mfn;
+	mfd += 1;
+	pd += 1;
 
-	return lldiv(2 * (u64) f_ref * (mfi * (mfd + 1) + mfn),
-		      (mfd + 1) * (pd + 1));
+	return lldiv(2 * (u64) f_ref * (mfi * mfd + mfn),
+		     mfd * pd);
 }
 
 static ulong imx_get_mpllclk(void)
@@ -69,7 +71,7 @@ static ulong imx_get_mpllclk(void)
 	return imx_decode_pll(readl(&ccm->mpctl), fref);
 }
 
-ulong imx_get_armclk(void)
+static ulong imx_get_armclk(void)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 	ulong cctl = readl(&ccm->cctl);
@@ -77,15 +79,15 @@ ulong imx_get_armclk(void)
 	ulong div;
 
 	if (cctl & CCM_CCTL_ARM_SRC)
-		fref = lldiv((fref * 3), 4);
+		fref = lldiv((u64) fref * 3, 4);
 
 	div = ((cctl >> CCM_CCTL_ARM_DIV_SHIFT)
 	       & CCM_CCTL_ARM_DIV_MASK) + 1;
 
-	return lldiv(fref, div);
+	return fref / div;
 }
 
-ulong imx_get_ahbclk(void)
+static ulong imx_get_ahbclk(void)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 	ulong cctl = readl(&ccm->cctl);
@@ -95,10 +97,15 @@ ulong imx_get_ahbclk(void)
 	div = ((cctl >> CCM_CCTL_AHB_DIV_SHIFT)
 	       & CCM_CCTL_AHB_DIV_MASK) + 1;
 
-	return lldiv(fref, div);
+	return fref / div;
 }
 
-ulong imx_get_perclk(int clk)
+static ulong imx_get_ipgclk(void)
+{
+	return imx_get_ahbclk() / 2;
+}
+
+static ulong imx_get_perclk(int clk)
 {
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 	ulong fref = imx_get_ahbclk();
@@ -107,7 +114,7 @@ ulong imx_get_perclk(int clk)
 	div = readl(&ccm->pcdr[CCM_PERCLK_REG(clk)]);
 	div = ((div >> CCM_PERCLK_SHIFT(clk)) & CCM_PERCLK_MASK) + 1;
 
-	return lldiv(fref, div);
+	return fref / div;
 }
 
 unsigned int mxc_get_clock(enum mxc_clock clk)
@@ -117,8 +124,12 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	switch (clk) {
 	case MXC_ARM_CLK:
 		return imx_get_armclk();
-	case MXC_FEC_CLK:
+	case MXC_AHB_CLK:
 		return imx_get_ahbclk();
+	case MXC_IPG_CLK:
+	case MXC_CSPI_CLK:
+	case MXC_FEC_CLK:
+		return imx_get_ipgclk();
 	default:
 		return imx_get_perclk(clk);
 	}
@@ -139,6 +150,9 @@ u32 get_cpu_rev(void)
 		break;
 	case 0x01:
 		system_rev |= CHIP_REV_1_1;
+		break;
+	case 0x02:
+		system_rev |= CHIP_REV_1_2;
 		break;
 	default:
 		system_rev |= 0x8000;
@@ -194,9 +208,13 @@ void enable_caches(void)
 #endif
 }
 
+#if defined(CONFIG_FEC_MXC)
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_FEC_MXC)
 	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
 	ulong val;
 
@@ -204,31 +222,31 @@ int cpu_eth_init(bd_t *bis)
 	val |= (1 << 23);
 	writel(val, &ccm->cgr0);
 	return fecmxc_initialize(bis);
-#else
-	return 0;
-#endif
 }
+#endif
 
 int get_clocks(void)
 {
 #ifdef CONFIG_FSL_ESDHC
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+#if CONFIG_SYS_FSL_ESDHC_ADDR == IMX_MMC_SDHC2_BASE
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+#else
+	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
+#endif
 #endif
 	return 0;
 }
 
+#ifdef CONFIG_FSL_ESDHC
 /*
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
 int cpu_mmc_init(bd_t *bis)
 {
-#ifdef CONFIG_MXC_MMC
-	return mxc_mmc_init(bis);
-#else
-	return 0;
-#endif
+	return fsl_esdhc_mmc_init(bis);
 }
+#endif
 
 #ifdef CONFIG_MXC_UART
 void mx25_uart1_init_pins(void)

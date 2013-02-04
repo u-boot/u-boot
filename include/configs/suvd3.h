@@ -23,19 +23,28 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_SUVD3		/* SUVD3 board specific */
-#define CONFIG_HOSTNAME		suvd3
-#define CONFIG_KM_BOARD_NAME   "suvd3"
 
+/* This needs to be set prior to including km/km83xx-common.h */
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
 
+#if defined(CONFIG_SUVD3)	/* SUVD3 board specific */
+#define CONFIG_HOSTNAME		suvd3
+#define CONFIG_KM_BOARD_NAME   "suvd3"
 /* include common defines/options for all 8321 Keymile boards */
 #include "km/km8321-common.h"
+#elif defined(CONFIG_KMVECT1)   /* VECT1 board specific */
+#define CONFIG_HOSTNAME		kmvect1
+#define CONFIG_KM_BOARD_NAME   "kmvect1"
+/* include common defines/options for all 8309 Keymile boards */
+#include "km/km8309-common.h"
+#else
+#error Supported boards are: SUVD3, KMVECT1
+#endif
 
 #define CONFIG_SYS_APP1_BASE		0xA0000000
-#define	CONFIG_SYS_APP1_SIZE		256 /* Megabytes */
+#define CONFIG_SYS_APP1_SIZE		256 /* Megabytes */
 #define CONFIG_SYS_APP2_BASE		0xB0000000
-#define	CONFIG_SYS_APP2_SIZE		256 /* Megabytes */
+#define CONFIG_SYS_APP2_SIZE		256 /* Megabytes */
 
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1

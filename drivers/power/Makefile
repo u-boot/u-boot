@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libpower.o
+LIB	:= $(obj)libpower.o
 
 COBJS-$(CONFIG_FTPMU010_POWER)	+= ftpmu010.o
 COBJS-$(CONFIG_TPS6586X_POWER)	+= tps6586x.o
@@ -31,9 +31,15 @@ COBJS-$(CONFIG_TWL4030_POWER)	+= twl4030.o
 COBJS-$(CONFIG_TWL6030_POWER)	+= twl6030.o
 COBJS-$(CONFIG_TWL6035_POWER)	+= twl6035.o
 
+COBJS-$(CONFIG_POWER) += power_core.o
+COBJS-$(CONFIG_DIALOG_POWER) += power_dialog.o
+COBJS-$(CONFIG_POWER_FSL) += power_fsl.o
+COBJS-$(CONFIG_POWER_I2C) += power_i2c.o
+COBJS-$(CONFIG_POWER_SPI) += power_spi.o
+
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

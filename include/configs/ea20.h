@@ -236,8 +236,6 @@
  * Default environment and default scripts
  * to update uboot and load kernel
  */
-#define xstr(s)	str(s)
-#define str(s)	#s
 
 #define CONFIG_HOSTNAME ea20
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
@@ -277,9 +275,9 @@
 	"loadaddr=c0000014\0"						\
 	"memory=32M\0"							\
 	"kernel_addr_r=c0700000\0"					\
-	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
-	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
-	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/image.ext2\0"		\
+	"hostname=" __stringify(CONFIG_HOSTNAME) "\0"			\
+	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
+	"ramdisk_file=" __stringify(CONFIG_HOSTNAME) "/image.ext2\0"	\
 	"flash_self=run ramargs addip addtty addmtd addmisc addmem;"	\
 			"bootm ${kernel_addr_r}\0"			\
 	"flash_nfs=run nfsargs addip addtty addmtd addmisc addmem;"	\
@@ -308,7 +306,7 @@
 	"net_nandrw=tftp ${kernel_addr_r} ${bootfile}; run nandrwargs"	\
 		" addip addtty addmtd addmisc addmem;"			\
 		"clrlogo;bootm ${kernel_addr_r}\0"			\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
 	"load_magic=if sf probe 0;then sf "				\
 		"read c0000000 0x10000 0x60000;fi\0"			\
 	"load_nand=ubi part nand0,${as};ubifsmount rootfs;"		\

@@ -1,8 +1,8 @@
 /* LzmaDec.h -- LZMA Decoder
-2008-10-04 : Igor Pavlov : Public domain */
+2009-02-07 : Igor Pavlov : Public domain */
 
-#ifndef __LZMADEC_H
-#define __LZMADEC_H
+#ifndef __LZMA_DEC_H
+#define __LZMA_DEC_H
 
 #include "Types.h"
 

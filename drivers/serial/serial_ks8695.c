@@ -20,6 +20,8 @@
 
 #include <common.h>
 #include <asm/arch/platform.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #ifndef CONFIG_SERIAL1
 #error "Bad: you didn't configure serial ..."
@@ -54,7 +56,7 @@ struct ks8695uart {
 int serial_console = 1;
 
 
-void serial_setbrg(void)
+static void ks8695_serial_setbrg(void)
 {
 	volatile struct ks8695uart *uartp = KS8695_UART_ADDR;
 
@@ -63,14 +65,14 @@ void serial_setbrg(void)
 	uartp->LCR = KS8695_UART_LINEC_WLEN8;
 }
 
-int serial_init(void)
+static int ks8695_serial_init(void)
 {
 	serial_console = 1;
 	serial_setbrg();
 	return 0;
 }
 
-void serial_raw_putc(const char c)
+static void ks8695_serial_raw_putc(const char c)
 {
 	volatile struct ks8695uart *uartp = KS8695_UART_ADDR;
 	int i;
@@ -83,16 +85,16 @@ void serial_raw_putc(const char c)
 	uartp->TX = c;
 }
 
-void serial_putc(const char c)
+static void ks8695_serial_putc(const char c)
 {
 	if (serial_console) {
-		serial_raw_putc(c);
+		ks8695_serial_raw_putc(c);
 		if (c == '\n')
-			serial_raw_putc('\r');
+			ks8695_serial_raw_putc('\r');
 	}
 }
 
-int serial_tstc(void)
+static int ks8695_serial_tstc(void)
 {
 	volatile struct ks8695uart *uartp = KS8695_UART_ADDR;
 	if (serial_console)
@@ -100,18 +102,32 @@ int serial_tstc(void)
 	return 0;
 }
 
-void serial_puts(const char *s)
-{
-	char c;
-	while ((c = *s++) != 0)
-		serial_putc(c);
-}
-
-int serial_getc(void)
+static int ks8695_serial_getc(void)
 {
 	volatile struct ks8695uart *uartp = KS8695_UART_ADDR;
 
 	while ((uartp->LSR & KS8695_UART_LINES_RXFE) == 0)
 		;
 	return (uartp->RX);
+}
+
+static struct serial_device ks8695_serial_drv = {
+	.name	= "ks8695_serial",
+	.start	= ks8695_serial_init,
+	.stop	= NULL,
+	.setbrg	= ks8695_serial_setbrg,
+	.putc	= ks8695_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= ks8695_serial_getc,
+	.tstc	= ks8695_serial_tstc,
+};
+
+void ks8695_serial_initialize(void)
+{
+	serial_register(&ks8695_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &ks8695_serial_drv;
 }

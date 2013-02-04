@@ -170,37 +170,6 @@ static int uart_zynq_serial_getc(const int port)
 	return readl(&regs->tx_rx_fifo);
 }
 
-#if !defined(CONFIG_SERIAL_MULTI)
-int serial_init(void)
-{
-	return uart_zynq_serial_init(0);
-}
-
-void serial_setbrg(void)
-{
-	uart_zynq_serial_setbrg(0);
-}
-
-void serial_putc(const char c)
-{
-	uart_zynq_serial_putc(c, 0);
-}
-
-void serial_puts(const char *s)
-{
-	uart_zynq_serial_puts(s, 0);
-}
-
-int serial_getc(void)
-{
-	return uart_zynq_serial_getc(0);
-}
-
-int serial_tstc(void)
-{
-	return uart_zynq_serial_tstc(0);
-}
-#else
 /* Multi serial device functions */
 #define DECLARE_PSSERIAL_FUNCTIONS(port) \
 	int uart_zynq##port##_init(void) \
@@ -219,8 +188,8 @@ int serial_tstc(void)
 /* Serial device descriptor */
 #define INIT_PSSERIAL_STRUCTURE(port, __name) {	\
 	  .name   = __name,			\
-	  .init   = uart_zynq##port##_init,	\
-	  .uninit = NULL,			\
+	  .start  = uart_zynq##port##_init,	\
+	  .stop   = NULL,			\
 	  .setbrg = uart_zynq##port##_setbrg,	\
 	  .getc   = uart_zynq##port##_getc,	\
 	  .tstc   = uart_zynq##port##_tstc,	\
@@ -244,4 +213,13 @@ __weak struct serial_device *default_serial_console(void)
 
 	return NULL;
 }
+
+void zynq_serial_initalize(void)
+{
+#ifdef CONFIG_ZYNQ_SERIAL_BASEADDR0
+	serial_register(&uart_zynq_serial0_device);
 #endif
+#ifdef CONFIG_ZYNQ_SERIAL_BASEADDR1
+	serial_register(&uart_zynq_serial1_device);
+#endif
+}

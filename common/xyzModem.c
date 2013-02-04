@@ -100,7 +100,7 @@ static struct
 
 #ifndef REDBOOT			/*SB */
 typedef int cyg_int32;
-int
+static int
 CYGACC_COMM_IF_GETC_TIMEOUT (char chan, char *c)
 {
 #define DELAY 20
@@ -118,7 +118,7 @@ CYGACC_COMM_IF_GETC_TIMEOUT (char chan, char *c)
   return 0;
 }
 
-void
+static void
 CYGACC_COMM_IF_PUTC (char x, char y)
 {
   putc (y);
@@ -165,7 +165,7 @@ _tolower (char c)
 }
 
 /* Parse (scan) a number */
-bool
+static bool
 parse_num (char *s, unsigned long *val, char **es, char *delim)
 {
   bool first = true;

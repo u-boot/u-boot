@@ -289,7 +289,7 @@ flash_fill_sect_ranges (ulong addr_first, ulong addr_last,
 }
 #endif /* CONFIG_SYS_NO_FLASH */
 
-int do_flinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_flinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong bank;
@@ -321,7 +321,7 @@ int do_flinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_flerase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifndef CONFIG_SYS_NO_FLASH
 	flash_info_t *info = NULL;
@@ -454,7 +454,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 }
 #endif /* CONFIG_SYS_NO_FLASH */
 
-int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rcode = 0;
 #ifndef CONFIG_SYS_NO_FLASH

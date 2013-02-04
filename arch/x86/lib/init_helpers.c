@@ -28,9 +28,11 @@
 #include <net.h>
 #include <ide.h>
 #include <serial.h>
+#include <spi.h>
 #include <status_led.h>
 #include <asm/processor.h>
 #include <asm/u-boot-x86.h>
+#include <linux/compiler.h>
 
 #include <asm/init_helpers.h>
 
@@ -71,7 +73,7 @@ int init_baudrate_f(void)
 	return 0;
 }
 
-int calculate_relocation_address(void)
+__weak int calculate_relocation_address(void)
 {
 	ulong text_start = (ulong)&__text_start;
 	ulong bss_end = (ulong)&__bss_end;
@@ -83,51 +85,17 @@ int calculate_relocation_address(void)
 	 *       requirements
 	 */
 
-	/* Global Data is at top of available memory */
+	/* Stack is at top of available memory */
 	dest_addr = gd->ram_size;
-	dest_addr -= GENERATED_GBL_DATA_SIZE;
-	dest_addr &= ~15;
-	gd->new_gd_addr = dest_addr;
 
-	/* GDT is below Global Data */
-	dest_addr -= X86_GDT_SIZE;
-	dest_addr &= ~15;
-	gd->gdt_addr = dest_addr;
-
-	/* Stack is below GDT */
-	gd->start_addr_sp = dest_addr;
-
-	/* U-Boot is below the stack */
-	dest_addr -= CONFIG_SYS_STACK_SIZE;
+	/* U-Boot is at the top */
 	dest_addr -= (bss_end - text_start);
 	dest_addr &= ~15;
 	gd->relocaddr = dest_addr;
 	gd->reloc_off = (dest_addr - text_start);
 
-	return 0;
-}
-
-int copy_gd_to_ram_f_r(void)
-{
-	gd_t *ram_gd;
-
-	/*
-	 * Global data is still in temporary memory (the CPU cache).
-	 * calculate_relocation_address() has set gd->new_gd_addr to
-	 * where the global data lives in RAM but getting it there
-	 * safely is a bit tricky due to the 'F-Segment Hack' that
-	 * we need to use for x86
-	 */
-	ram_gd = (gd_t *)gd->new_gd_addr;
-	memcpy((void *)ram_gd, gd, sizeof(gd_t));
-
-	/*
-	 * Reload the Global Descriptor Table so FS points to the
-	 * in-RAM copy of Global Data (calculate_relocation_address()
-	 * has already calculated the in-RAM location of the GDT)
-	 */
-	ram_gd->gd_addr = (ulong)ram_gd;
-	init_gd(ram_gd, (u64 *)gd->gdt_addr);
+	/* Stack is at the bottom, so it can grow down */
+	gd->start_addr_sp = dest_addr - CONFIG_SYS_MALLOC_LEN;
 
 	return 0;
 }
@@ -195,3 +163,40 @@ int set_load_addr_r(void)
 
 	return 0;
 }
+
+int init_func_spi(void)
+{
+	puts("SPI:   ");
+	spi_init();
+	puts("ready\n");
+	return 0;
+}
+
+#ifdef CONFIG_OF_CONTROL
+int find_fdt(void)
+{
+#ifdef CONFIG_OF_EMBED
+	/* Get a pointer to the FDT */
+	gd->fdt_blob = _binary_dt_dtb_start;
+#elif defined CONFIG_OF_SEPARATE
+	/* FDT is at end of image */
+	gd->fdt_blob = (void *)(_end_ofs + _TEXT_BASE);
+#endif
+	/* Allow the early environment to override the fdt address */
+	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
+						(uintptr_t)gd->fdt_blob);
+
+	return 0;
+}
+
+int prepare_fdt(void)
+{
+	/* For now, put this check after the console is ready */
+	if (fdtdec_prepare_fdt()) {
+		panic("** CONFIG_OF_CONTROL defined but no FDT - please see "
+			"doc/README.fdt-control");
+	}
+
+	return 0;
+}
+#endif

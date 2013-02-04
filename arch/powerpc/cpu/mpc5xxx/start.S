@@ -50,6 +50,7 @@
 #define MSR_KERNEL (MSR_FP|MSR_ME|MSR_RI)
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Set up GOT: Global Offset Table
  *
@@ -68,6 +69,7 @@
 	GOT_ENTRY(__bss_end__)
 	GOT_ENTRY(__bss_start)
 	END_GOT
+#endif
 
 /*
  * Version string
@@ -84,6 +86,18 @@ version_string:
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
 _start:
+
+#if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
+	/*
+	 * This is the entry of the real U-Boot from a board port
+	 * that supports SPL booting on the MPC5200. We only need
+	 * to call board_init_f() here. Everything else has already
+	 * been done in the SPL u-boot version.
+	 */
+	GET_GOT			/* initialize GOT access		*/
+	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
+	/* NOTREACHED - board_init_f() does not return */
+#else
 	mfmsr	r5			/* save msr contents		*/
 
 	/* Move CSBoot and adjust instruction pointer                   */
@@ -152,7 +166,9 @@ lowboot_reentry:
 	/* Be careful to keep code relocatable !			*/
 	/*--------------------------------------------------------------*/
 
+#ifndef CONFIG_SPL_BUILD
 	GET_GOT			/* initialize GOT access		*/
+#endif
 
 	/* r3: IMMR */
 	bl	cpu_init_f	/* run low-level CPU init code (in Flash)*/
@@ -160,7 +176,9 @@ lowboot_reentry:
 	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
 
 	/* NOTREACHED - board_init_f() does not return */
+#endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Vector Table
  */
@@ -333,6 +351,7 @@ int_return:
 	lwz	r1,GPR1(r1)
 	SYNC
 	rfi
+#endif /* CONFIG_SPL_BUILD */
 
 /*
  * This code initialises the MPC5xxx processor core
@@ -522,6 +541,7 @@ get_pvr:
 	mfspr	r3, PVR
 	blr
 
+#ifndef CONFIG_SPL_BUILD
 /*------------------------------------------------------------------------------*/
 
 /*
@@ -759,3 +779,5 @@ trap_init:
 
 	mtlr	r4			/* restore link register    */
 	blr
+
+#endif /* CONFIG_SPL_BUILD */

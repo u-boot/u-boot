@@ -25,9 +25,8 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libomap-common.o
 
-SOBJS	:= reset.o
-
-COBJS	:= timer.o
+COBJS	:= reset.o
+COBJS	+= timer.o
 COBJS	+= utils.o
 
 ifneq ($(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)

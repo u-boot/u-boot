@@ -1,6 +1,8 @@
 #ifndef _ASM_IO_H
 #define _ASM_IO_H
 
+#include <compiler.h>
+
 /*
  * This file contains the definitions for the x86 IO instructions
  * inb/inw/inl/outb/outw/outl and the "string versions" of the same
@@ -35,6 +37,8 @@
   */
 
 #define IO_SPACE_LIMIT 0xffff
+
+#include <asm/types.h>
 
 
 #ifdef __KERNEL__
@@ -135,7 +139,7 @@ out:
 #ifdef SLOW_IO_BY_JUMPING
 #define __SLOW_DOWN_IO "\njmp 1f\n1:\tjmp 1f\n1:"
 #else
-#define __SLOW_DOWN_IO "\noutb %%al,$0x80"
+#define __SLOW_DOWN_IO "\noutb %%al,$0xed"
 #endif
 
 #ifdef REALLY_SLOW_IO
@@ -218,7 +222,7 @@ static inline void sync(void)
 static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
-	return (void *)paddr;
+	return (void *)(uintptr_t)paddr;
 }
 
 /*
@@ -231,7 +235,15 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 
 static inline phys_addr_t virt_to_phys(void * vaddr)
 {
-	return (phys_addr_t)(vaddr);
+	return (phys_addr_t)(uintptr_t)(vaddr);
 }
+
+/*
+ * TODO: The kernel offers some more advanced versions of barriers, it might
+ * have some advantages to use them instead of the simple one here.
+ */
+#define dmb()		__asm__ __volatile__ ("" : : : "memory")
+#define __iormb()	dmb()
+#define __iowmb()	dmb()
 
 #endif

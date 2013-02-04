@@ -91,15 +91,14 @@ int board_mmc_init(bd_t *bis)
  * provides the timing values back to the function that configures
  * the memory.  We have either one or two banks of 128MB DDR.
  */
-void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
-				u32 *mr)
+void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
 	/* General SDRC config */
-	*mcfg = MICRON_V_MCFG_165(128 << 20);
-	*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	timings->mcfg = MICRON_V_MCFG_165(128 << 20);
+	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 
 	/* AC timings */
-	*ctrla = MICRON_V_ACTIMA_165;
-	*ctrlb = MICRON_V_ACTIMB_165;
-	*mr = MICRON_V_MR_165;
+	timings->ctrla = MICRON_V_ACTIMA_165;
+	timings->ctrlb = MICRON_V_ACTIMB_165;
+	timings->mr = MICRON_V_MR_165;
 }

@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <environment.h>
 #include <serial.h>
 #include <kgdb.h>
 #include <scsi.h>
@@ -36,10 +37,35 @@ int serial_initialize_r(void)
 	return 0;
 }
 
+/*
+ * Tell if it's OK to load the environment early in boot.
+ *
+ * If CONFIG_OF_CONFIG is defined, we'll check with the FDT to see
+ * if this is OK (defaulting to saying it's not OK).
+ *
+ * NOTE: Loading the environment early can be a bad idea if security is
+ *       important, since no verification is done on the environment.
+ *
+ * @return 0 if environment should not be loaded, !=0 if it is ok to load
+ */
+static int should_load_env(void)
+{
+#ifdef CONFIG_OF_CONTROL
+	return fdtdec_get_config_int(gd->fdt_blob, "load-environment", 0);
+#elif defined CONFIG_DELAY_ENVIRONMENT
+	return 0;
+#else
+	return 1;
+#endif
+}
+
 int env_relocate_r(void)
 {
 	/* initialize environment */
-	env_relocate();
+	if (should_load_env())
+		env_relocate();
+	else
+		set_default_env(NULL);
 
 	return 0;
 }

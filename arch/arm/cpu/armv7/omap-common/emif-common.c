@@ -33,6 +33,8 @@
 #include <asm/utils.h>
 #include <linux/compiler.h>
 
+static int emif1_enabled = -1, emif2_enabled = -1;
+
 void set_lpmode_selfrefresh(u32 base)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
@@ -1109,6 +1111,7 @@ void emif_post_init_config(u32 base)
 void dmm_init(u32 base)
 {
 	const struct dmm_lisa_map_regs *lisa_map_regs;
+	u32 i, section, valid;
 
 #ifdef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 	emif_get_dmm_regs(&lisa_map_regs);
@@ -1216,6 +1219,29 @@ void dmm_init(u32 base)
 		writel(lisa_map_regs->dmm_lisa_map_0,
 			&hw_lisa_map_regs->dmm_lisa_map_0);
 	}
+
+	/*
+	 * EMIF should be configured only when
+	 * memory is mapped on it. Using emif1_enabled
+	 * and emif2_enabled variables for this.
+	 */
+	emif1_enabled = 0;
+	emif2_enabled = 0;
+	for (i = 0; i < 4; i++) {
+		section	= __raw_readl(DMM_BASE + i*4);
+		valid = (section & EMIF_SDRC_MAP_MASK) >>
+			(EMIF_SDRC_MAP_SHIFT);
+		if (valid == 3) {
+			emif1_enabled = 1;
+			emif2_enabled = 1;
+			break;
+		} else if (valid == 1) {
+			emif1_enabled = 1;
+		} else if (valid == 2) {
+			emif2_enabled = 1;
+		}
+	}
+
 }
 
 /*
@@ -1255,15 +1281,20 @@ void sdram_init(void)
 			writel(CM_DLL_CTRL_NO_OVERRIDE, &prcm->cm_dll_ctrl);
 	}
 
-	do_sdram_init(EMIF1_BASE);
-	do_sdram_init(EMIF2_BASE);
-
 	if (!in_sdram)
 		dmm_init(DMM_BASE);
 
+	if (emif1_enabled)
+		do_sdram_init(EMIF1_BASE);
+
+	if (emif2_enabled)
+		do_sdram_init(EMIF2_BASE);
+
 	if (!(in_sdram || warm_reset())) {
-		emif_post_init_config(EMIF1_BASE);
-		emif_post_init_config(EMIF2_BASE);
+		if (emif1_enabled)
+			emif_post_init_config(EMIF1_BASE);
+		if (emif2_enabled)
+			emif_post_init_config(EMIF2_BASE);
 	}
 
 	/* for the shadow registers to take effect */

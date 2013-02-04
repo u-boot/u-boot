@@ -23,5 +23,3 @@
 PLATFORM_RELFLAGS += -fno-strict-aliasing
 # Xilinx, added to prevent unaligned accesses which started happening # with GCC 4.5.2 tools
 PLATFORM_RELFLAGS += -mno-unaligned-access
-
-PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/xilinx/common

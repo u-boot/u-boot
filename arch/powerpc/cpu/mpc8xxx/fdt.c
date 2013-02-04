@@ -139,6 +139,8 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 	const char *phys[] = { "ulpi", "utmi" };
 	const char *mode = NULL;
 	const char *phy_type = NULL;
+	const char *dr_mode_type = NULL;
+	const char *dr_phy_type = NULL;
 	char usb1_defined = 0;
 	int usb_mode_off = -1;
 	int usb_phy_off = -1;
@@ -156,6 +158,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 					break;
 				}
 			}
+
 			for (j = 0; j < ARRAY_SIZE(phys); j++) {
 				if (hwconfig_subarg_cmp(str, "phy_type",
 						phys[j])) {
@@ -163,31 +166,46 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 					break;
 				}
 			}
-			if (mode_idx >= 0) {
-				usb_mode_off = fdt_fixup_usb_mode_phy_type(blob,
-					modes[mode_idx], NULL, usb_mode_off);
-				if (usb_mode_off < 0)
-					return;
-			}
-			if (phy_idx >= 0) {
-				usb_phy_off = fdt_fixup_usb_mode_phy_type(blob,
-					NULL, phys[phy_idx], usb_phy_off);
-				if (usb_phy_off < 0)
-					return;
-			}
+
+			dr_mode_type = modes[mode_idx];
+			dr_phy_type = phys[phy_idx];
+
+			/* use usb_dr_mode and usb_phy_type if
+			   usb1_defined = 0; these variables are to
+			   be deprecated */
 			if (!strcmp(str, "usb1"))
 				usb1_defined = 1;
-			if (mode_idx < 0 && phy_idx < 0)
+
+			if (mode_idx < 0 && phy_idx < 0) {
 				printf("WARNING: invalid phy or mode\n");
+				return;
+			}
 		}
+
+		usb_mode_off = fdt_fixup_usb_mode_phy_type(blob,
+			dr_mode_type, NULL, usb_mode_off);
+
+		if (usb_mode_off < 0)
+			return;
+
+		usb_phy_off = fdt_fixup_usb_mode_phy_type(blob,
+			NULL, dr_phy_type, usb_phy_off);
+
+		if (usb_phy_off < 0)
+			return;
 	}
+
 	if (!usb1_defined) {
 		int usb_off = -1;
 		mode = getenv("usb_dr_mode");
 		phy_type = getenv("usb_phy_type");
-		if (!mode && !phy_type)
-			return;
-		fdt_fixup_usb_mode_phy_type(blob, mode, phy_type, usb_off);
+		if (mode || phy_type) {
+			printf("WARNING: usb_dr_mode and usb_phy_type "
+				"are to be deprecated soon. Use "
+				"hwconfig to set these values instead!!\n");
+			fdt_fixup_usb_mode_phy_type(blob, mode,
+				phy_type, usb_off);
+		}
 	}
 }
 #endif /* defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB) */
@@ -199,7 +217,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 #if CONFIG_SYS_FSL_SEC_COMPAT == 2 /* SEC 2.x/3.x */
 void fdt_fixup_crypto_node(void *blob, int sec_rev)
 {
-	const struct sec_rev_prop {
+	static const struct sec_rev_prop {
 		u32 sec_rev;
 		u32 num_channels;
 		u32 channel_fifo_len;
@@ -214,8 +232,8 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		{ 0x0301, 4, 24, 0xbfe, 0x03ab0ebf }, /* SEC 3.1 */
 		{ 0x0303, 4, 24, 0x97c, 0x03a30abf }, /* SEC 3.3 */
 	};
-	char compat_strlist[ARRAY_SIZE(sec_rev_prop_list) *
-			    sizeof("fsl,secX.Y")];
+	static char compat_strlist[ARRAY_SIZE(sec_rev_prop_list) *
+				   sizeof("fsl,secX.Y")];
 	int crypto_node, sec_idx, err;
 	char *p;
 	u32 val;

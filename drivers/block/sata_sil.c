@@ -25,7 +25,9 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <fis.h>
+#include <sata.h>
 #include <libata.h>
+#include <sata.h>
 #include "sata_sil.h"
 
 /* Convert sectorsize to wordsize */
@@ -368,8 +370,8 @@ static ulong sil_sata_rw_cmd_ext(int dev, ulong start, ulong blkcnt,
 	return blkcnt;
 }
 
-ulong sil_sata_rw_lba28(int dev, ulong blknr, lbaint_t blkcnt,
-		void *buffer, int is_write)
+static ulong sil_sata_rw_lba28(int dev, ulong blknr, lbaint_t blkcnt,
+			       const void *buffer, int is_write)
 {
 	ulong start, blks, max_blks;
 	u8 *addr;
@@ -396,8 +398,8 @@ ulong sil_sata_rw_lba28(int dev, ulong blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-ulong sil_sata_rw_lba48(int dev, ulong blknr, lbaint_t blkcnt,
-		void *buffer, int is_write)
+static ulong sil_sata_rw_lba48(int dev, ulong blknr, lbaint_t blkcnt,
+			       const void *buffer, int is_write)
 {
 	ulong start, blks, max_blks;
 	u8 *addr;
@@ -426,7 +428,7 @@ ulong sil_sata_rw_lba48(int dev, ulong blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-void sil_sata_cmd_flush_cache(int dev)
+static void sil_sata_cmd_flush_cache(int dev)
 {
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
 
@@ -438,7 +440,7 @@ void sil_sata_cmd_flush_cache(int dev)
 	sil_exec_cmd(dev, pcmd, 0);
 }
 
-void sil_sata_cmd_flush_cache_ext(int dev)
+static void sil_sata_cmd_flush_cache_ext(int dev)
 {
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
 
@@ -502,7 +504,7 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 /*
  * SATA interface between low level driver and command layer
  */
-ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
+ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	struct sil_sata *sata = sata_dev_desc[dev].priv;
 	ulong rc;

@@ -44,7 +44,7 @@
  */
 #define printf(fmt, args...)
 #define puts(s)
-#endif
+#endif /* !CONFIG_SPL_BUILD */
 
 struct omap4_prcm_regs *const prcm = (struct omap4_prcm_regs *)0x4A004100;
 

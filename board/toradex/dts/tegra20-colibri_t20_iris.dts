@@ -1,0 +1,38 @@
+/dts-v1/;
+
+/include/ ARCH_CPU_DTS
+
+/ {
+	model = "Toradex Colibri T20";
+	compatible = "toradex,t20", "nvidia,tegra20";
+
+	aliases {
+		usb0 = "/usb@c5008000";
+		usb1 = "/usb@c5000000";
+		usb2 = "/usb@c5004000";
+	};
+
+	usb@c5000000 {
+		dr_mode = "otg";
+	};
+
+	usb@c5004000 {
+		nvidia,phy-reset-gpio = <&gpio 169 0>; /* PV1 */
+		nvidia,vbus-gpio = <&gpio 217 0>; /* PBB1 */
+	};
+
+	usb@c5008000 {
+		nvidia,vbus-gpio = <&gpio 178 1>; /* PW2 low-active */
+	};
+
+	nand-controller@70008000 {
+		nvidia,wp-gpios = <&gpio 144 0>; /* PS0 */
+		nvidia,width = <8>;
+		nvidia,timing = <15 100 25 80 25 10 15 10 100>;
+
+		nand@0 {
+			reg = <0>;
+			compatible = "nand-flash";
+		};
+	};
+};

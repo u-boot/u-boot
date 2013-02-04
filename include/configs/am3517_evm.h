@@ -97,15 +97,16 @@
 
 /*
  * USB configuration
- * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
- * Enable CONFIG_MUSB_UDC for Device functionalities.
+ * Enable CONFIG_MUSB_HOST for Host functionalities MSC, keyboard
+ * Enable CONFIG_MUSB_GADGET for Device functionalities.
  */
-#define CONFIG_USB_AM35X		1
-#define CONFIG_MUSB_HCD			1
+#define CONFIG_USB_MUSB_AM35X
+#define CONFIG_MUSB_HOST
+#define CONFIG_MUSB_PIO_ONLY
 
-#ifdef CONFIG_USB_AM35X
+#ifdef CONFIG_USB_MUSB_AM35X
 
-#ifdef CONFIG_MUSB_HCD
+#ifdef CONFIG_MUSB_HOST
 #define CONFIG_CMD_USB
 
 #define CONFIG_USB_STORAGE
@@ -117,21 +118,15 @@
 #define CONFIG_PREBOOT "usb start"
 #endif /* CONFIG_USB_KEYBOARD */
 
-#endif /* CONFIG_MUSB_HCD */
+#endif /* CONFIG_MUSB_HOST */
 
-#ifdef CONFIG_MUSB_UDC
-/* USB device configuration */
-#define CONFIG_USB_DEVICE		1
-#define CONFIG_USB_TTY			1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
-/* Change these to suit your needs */
-#define CONFIG_USBD_VENDORID		0x0451
-#define CONFIG_USBD_PRODUCTID		0x5678
-#define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
-#define CONFIG_USBD_PRODUCT_NAME	"AM3517EVM"
-#endif /* CONFIG_MUSB_UDC */
+#ifdef CONFIG_MUSB_GADGET
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_ETHER
+#define CONFIG_USB_ETH_RNDIS
+#endif /* CONFIG_MUSB_GADGET */
 
-#endif /* CONFIG_USB_AM35X */
+#endif /* CONFIG_USB_MUSB_AM35X */
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -206,7 +201,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
@@ -336,6 +331,9 @@
 #define CONFIG_SPL_FAT_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_BASE
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 

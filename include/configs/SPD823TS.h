@@ -303,6 +303,8 @@
  * IDE/ATA stuff
  *-----------------------------------------------------------------------
  */
+#define CONFIG_IDE_PREINIT	1	/* Use preinit IDE hook */
+#define CONFIG_IDE_INIT_POSTRESET	1	/* Use postreset IDE hook */
 #define CONFIG_IDE_8xx_DIRECT	1	/* PCMCIA interface required	*/
 #define CONFIG_IDE_LED		1	/* LED   for ide supported	*/
 #define CONFIG_IDE_RESET	1	/* reset for ide supported	*/

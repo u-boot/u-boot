@@ -410,7 +410,7 @@ int ext4fs_check_journal_state(int recovery_flag)
 	int transaction_state = TRANSACTION_COMPLETE;
 	int prev_desc_logical_no = 0;
 	int curr_desc_logical_no = 0;
-	int ofs, flags, block;
+	int ofs, flags;
 	struct ext2_inode inode_journal;
 	struct journal_superblock_t *jsb = NULL;
 	struct journal_header_t *jdb = NULL;
@@ -453,7 +453,6 @@ int ext4fs_check_journal_state(int recovery_flag)
 
 	i = be32_to_cpu(jsb->s_first);
 	while (1) {
-		block = be32_to_cpu(jsb->s_first);
 		blknr = read_allocated_block(&inode_journal, i);
 		memset(temp_buff1, '\0', fs->blksz);
 		ext4fs_devread(blknr * fs->sect_perblk,

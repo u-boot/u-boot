@@ -359,6 +359,8 @@
 
 #undef	CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
 
+#define CONFIG_IDE_PREINIT	1	/* Use preinit IDE hook */
+#define CONFIG_IDE_INIT_POSTRESET	1	/* Use postreset IDE hook */
 #define	CONFIG_IDE_8xx_DIRECT	1	/* Direct IDE    not supported	*/
 #undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/

@@ -915,8 +915,6 @@
 #define PVR_440SPe_RA	0x53521890 /* 440SPe rev A without RAID 6 support	*/
 #define PVR_440SPe_6_RB	0x53421891 /* 440SPe rev B with RAID 6 support enabled	*/
 #define PVR_440SPe_RB	0x53521891 /* 440SPe rev B without RAID 6 support	*/
-#define PVR_440x5_R1x	0x7ff21910 /* 440 rev 1.x in Xilinx Virtex-5 FXT FPGA */
-#define PVR_440x5_R20	0x7ff21911 /* 440 rev 2.0 in Xilinx Virtex-5 FXT FPGA */
 #define PVR_460EX_SE_RA	0x130218A2 /* 460EX rev A with Security Engine	  */
 #define PVR_460EX_RA	0x130218A3 /* 460EX rev A without Security Engine */
 #define PVR_460EX_RB	0x130218A4 /* 460EX rev B with and without Sec Eng*/
@@ -1097,6 +1095,17 @@
 #define SVR_P4080	0x820000
 #define SVR_P5010	0x822100
 #define SVR_P5020	0x822000
+#define SVR_P5021	0X820500
+#define SVR_P5040	0x820400
+#define SVR_T4240	0x824000
+#define SVR_T4120	0x824001
+#define SVR_B4860	0X868000
+#define SVR_G4860	0x868001
+#define SVR_G4060	0x868003
+#define SVR_B4440	0x868100
+#define SVR_G4440	0x868101
+#define SVR_B4420	0x868102
+#define SVR_B4220	0x868103
 
 #define SVR_8610	0x80A000
 #define SVR_8641	0x809000
@@ -1332,5 +1341,11 @@ void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 #error "Machine not defined correctly"
 #endif
 #endif /* CONFIG_MACH_SPECIFIC */
+
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_440)
+ #define EPAPR_MAGIC	(0x45504150)
+#else
+ #define EPAPR_MAGIC	(0x65504150)
+#endif
 
 #endif /* __ASM_PPC_PROCESSOR_H */

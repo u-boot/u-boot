@@ -41,6 +41,10 @@ COBJS-y += speed.o
 COBJS-$(CONFIG_CMD_USB) += usb_ohci.o
 COBJS-$(CONFIG_CMD_USB) += usb.o
 
+ifdef CONFIG_SPL_BUILD
+COBJS-y += spl_boot.o
+endif
+
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 START	:= $(addprefix $(obj),$(SSTART) $(CSTART))

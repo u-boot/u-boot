@@ -32,13 +32,14 @@ include $(TOPDIR)/config.mk
 nandobj	:= $(OBJTREE)/nand_spl/
 
 LDSCRIPT= $(TOPDIR)/$(CPUDIR)/u-boot-nand_spl.lds
+LSTSCRIPT= $(nandobj)/board/$(BOARDDIR)/u-boot.lst
 LDFLAGS := -T $(nandobj)u-boot-nand_spl.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \
 		$(LDFLAGS) $(LDFLAGS_FINAL)
 AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
 SOBJS	= start.o resetvec.o
-COBJS	= cache.o cpu_init_early.o cpu_init_nand.o fsl_law.o law.o \
+COBJS	= cache.o cpu_init_early.o spl_minimal.o fsl_law.o law.o \
 	  nand_boot.o nand_boot_fsl_elbc.o ns16550.o tlb.o tlb_table.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
@@ -61,8 +62,13 @@ $(nandobj)u-boot-spl:	$(OBJS) $(nandobj)u-boot-nand_spl.lds
 		-Map $(nandobj)u-boot-spl.map \
 		-o $(nandobj)u-boot-spl
 
-$(nandobj)u-boot-nand_spl.lds: $(LDSCRIPT)
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
+# The following line expands into whole rule which generates $(LSTSCRIPT),
+# the file containing u-boots LG-array linker section. This is included into
+# $(LDSCRIPT). The function make_u_boot_list is defined in helper.mk file.
+$(eval $(call make_u_boot_list, $(LSTSCRIPT), $(OBJS)))
+$(nandobj)u-boot-nand_spl.lds: $(LDSCRIPT) $(LSTSCRIPT)
+	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(nandobj)/board/$(BOARDDIR) \
+		-ansi -D__ASSEMBLY__ -P - <$< >$@
 
 # create symbolic links for common files
 
@@ -74,13 +80,13 @@ $(obj)cpu_init_early.c:
 	@rm -f $(obj)cpu_init_early.c
 	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/cpu_init_early.c $(obj)cpu_init_early.c
 
-$(obj)cpu_init_nand.c:
-	@rm -f $(obj)cpu_init_nand.c
-	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/cpu_init_nand.c $(obj)cpu_init_nand.c
+$(obj)spl_minimal.c:
+	@rm -f $(obj)spl_minimal.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/spl_minimal.c $(obj)spl_minimal.c
 
 $(obj)fsl_law.c:
 	@rm -f $(obj)fsl_law.c
-	ln -sf $(SRCTREE)/drivers/misc/fsl_law.c $(obj)fsl_law.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc8xxx/law.c $(obj)fsl_law.c
 
 $(obj)law.c:
 	@rm -f $(obj)law.c

@@ -63,17 +63,66 @@ static int tpm_process(int argc, char * const argv[], cmd_tbl_t *cmdtp)
 	return rv;
 }
 
-static int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+#define CHECK(exp) do {							\
+		int _rv = exp;						\
+		if (_rv) {						\
+			printf("CHECK: %s %d %x\n", #exp, __LINE__, _rv);\
+		}							\
+	} while (0)
+
+static int tpm_process_stress(int repeat_count)
+{
+	int i;
+	int rv = 0;
+	u8 request[] = {0x0, 0xc1,
+			0x0, 0x0, 0x0, 0x16,
+			0x0, 0x0, 0x0, 0x65,
+			0x0, 0x0, 0x0, 0x4,
+			0x0, 0x0, 0x0, 0x4,
+			0x0, 0x0, 0x1, 0x9};
+	u8 response[MAX_TRANSACTION_SIZE];
+	u32 rlength = MAX_TRANSACTION_SIZE;
+
+	CHECK(tis_init());
+
+	for (i = 0; i < repeat_count; i++) {
+		CHECK(tis_open());
+		rv = tis_sendrecv(request, sizeof(request), response, &rlength);
+		if (rv) {
+			printf("tpm test failed at step %d with 0x%x\n", i, rv);
+			CHECK(tis_close());
+			break;
+		}
+		CHECK(tis_close());
+		if ((response[6] || response[7] || response[8] || response[9])
+		    && response[9] != 0x26) {
+			/* Ignore postinit errors */
+			printf("tpm command failed at step %d\n"
+			       "tpm error code: %02x%02x%02x%02x\n", i,
+			       response[6], response[7],
+			       response[8], response[9]);
+			rv = -1;
+			break;
+		}
+	}
+	return rv;
+}
+
+
+static int do_tpm_many(cmd_tbl_t *cmdtp, int flag,
+		       int argc, char * const argv[], int repeat_count)
+
 {
 	int rv = 0;
 
-	/*
-	 * Verify that in case it is present, the first argument, it is
-	 * exactly one character in size.
-	 */
-	if (argc < 7) {
+	if (argc < 7 && repeat_count == 0) {
 		puts("command should be at least six bytes in size\n");
 		return -1;
+	}
+
+	if (repeat_count > 0) {
+		rv = tpm_process_stress(repeat_count);
+		return rv;
 	}
 
 	if (tis_init()) {
@@ -96,8 +145,40 @@ static int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return rv;
 }
 
+
+static int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	return do_tpm_many(cmdtp, flag, argc, argv, 0);
+}
+
+
 U_BOOT_CMD(tpm, MAX_TRANSACTION_SIZE, 1, do_tpm,
 	   "<byte> [<byte> ...]   - write data and read response",
 	   "send arbitrary data (at least 6 bytes) to the TPM "
 	   "device and read the response"
+);
+
+static int do_tpm_stress(cmd_tbl_t *cmdtp, int flag,
+			 int argc, char * const argv[])
+{
+	long unsigned int n;
+	int rv;
+
+	if (argc != 2) {
+		puts("usage: tpm_stress <count>\n");
+		return -1;
+	}
+
+	rv = strict_strtoul(argv[1], 10, &n);
+	if (rv) {
+		puts("tpm_stress: bad count");
+		return -1;
+	}
+
+	return do_tpm_many(cmdtp, flag, argc, argv, n);
+}
+
+U_BOOT_CMD(tpm_stress, 2, 1, do_tpm_stress,
+	   "<n>   - stress-test communication with TPM",
+	   "Repeat a TPM transaction (request-response) N times"
 );

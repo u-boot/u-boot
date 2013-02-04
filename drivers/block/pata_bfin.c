@@ -17,6 +17,7 @@
 #include <asm/portmux.h>
 #include <asm/mach-common/bits/pata.h>
 #include <ata.h>
+#include <sata.h>
 #include <libata.h>
 #include "pata_bfin.h"
 
@@ -1079,7 +1080,7 @@ static u8 do_one_read(struct ata_port *ap, u64 blknr, u8 blkcnt, u16 *buffer,
 	return sr;
 }
 
-ulong sata_read(int dev, ulong block, ulong blkcnt, void *buff)
+ulong sata_read(int dev, ulong block, lbaint_t blkcnt, void *buff)
 {
 	struct ata_port *ap = &port[dev];
 	ulong n = 0, sread;
@@ -1121,7 +1122,7 @@ ulong sata_read(int dev, ulong block, ulong blkcnt, void *buff)
 	return n;
 }
 
-ulong sata_write(int dev, ulong block, ulong blkcnt, const void *buff)
+ulong sata_write(int dev, ulong block, lbaint_t blkcnt, const void *buff)
 {
 	struct ata_port *ap = &port[dev];
 	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;

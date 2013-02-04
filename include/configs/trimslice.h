@@ -37,7 +37,6 @@
 #define CONFIG_TEGRA_BOARD_STRING	"Compulab Trimslice"
 
 /* Board-specific serial config */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_TEGRA_UARTA_GPU
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
@@ -70,8 +69,11 @@
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
+#define CONFIG_FS_EXT4
+#define CONFIG_FS_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 
 /* Environment in SPI */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -81,6 +83,7 @@
 #define CONFIG_ENV_OFFSET		(512 * 1024)
 
 /* USB Host support */
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_STORAGE

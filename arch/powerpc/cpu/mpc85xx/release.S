@@ -150,29 +150,33 @@ __secondary_start_page:
 #define toreset(x) (x - __secondary_start_page + 0xfffff000)
 
 	/* get our PIR to figure out our table entry */
-	lis	r3,toreset(__spin_table)@h
-	ori	r3,r3,toreset(__spin_table)@l
+	lis	r3,toreset(__spin_table_addr)@h
+	ori	r3,r3,toreset(__spin_table_addr)@l
+	lwz	r3,0(r3)
 
-	/* r10 has the base address for the entry */
+	/*
+	 * r10 has the base address for the entry.
+	 * we cannot access it yet before setting up a new TLB
+	 */
 	mfspr	r0,SPRN_PIR
 #if	defined(CONFIG_E6500)
 /*
  * PIR definition for E6500
  * 0-17 Reserved (logic 0s)
- * 8-19 CHIP_ID,    2’b00      - SoC 1
+ * 8-19 CHIP_ID,    2'b00      - SoC 1
  *                  all others - reserved
- * 20-24 CLUSTER_ID 5’b00000   - CCM 1
+ * 20-24 CLUSTER_ID 5'b00000   - CCM 1
  *                  all others - reserved
- * 25-26 CORE_CLUSTER_ID 2’b00 - cluster 1
- *                       2’b01 - cluster 2
- *                       2’b10 - cluster 3
- *                       2’b11 - cluster 4
- * 27-28 CORE_ID         2’b00 - core 0
- *                       2’b01 - core 1
- *                       2’b10 - core 2
- *                       2’b11 - core 3
- * 29-31 THREAD_ID       3’b000 - thread 0
- *                       3’b001 - thread 1
+ * 25-26 CORE_CLUSTER_ID 2'b00 - cluster 1
+ *                       2'b01 - cluster 2
+ *                       2'b10 - cluster 3
+ *                       2'b11 - cluster 4
+ * 27-28 CORE_ID         2'b00 - core 0
+ *                       2'b01 - core 1
+ *                       2'b10 - core 2
+ *                       2'b11 - core 3
+ * 29-31 THREAD_ID       3'b000 - thread 0
+ *                       3'b001 - thread 1
  */
 	rlwinm  r4,r0,29,25,31
 #elif	defined(CONFIG_E500MC)
@@ -180,15 +184,8 @@ __secondary_start_page:
 #else
 	mr	r4,r0
 #endif
-	slwi	r8,r4,5
+	slwi	r8,r4,6	/* spin table is padded to 64 byte */
 	add	r10,r3,r8
-
-#if defined(CONFIG_E500MC) && defined(CONFIG_SYS_CACHE_STASHING)
-	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
-	slwi	r8,r4,1
-	addi	r8,r8,32
-	mtspr	L1CSR2,r8
-#endif
 
 #ifdef CONFIG_E6500
 	mfspr	r0,SPRN_PIR
@@ -208,6 +205,13 @@ __secondary_start_page:
 #endif
 
 	mtspr	SPRN_PIR,r4	/* write to PIR register */
+
+#ifdef CONFIG_SYS_CACHE_STASHING
+	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
+	slwi	r8,r4,1
+	addi	r8,r8,32
+	mtspr	L1CSR2,r8
+#endif
 
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
@@ -277,73 +281,134 @@ __secondary_start_page:
 	beq	2b
 #endif
 3:
+	/* setup mapping for the spin table, WIMGE=0b00100 */
+	lis	r13,toreset(__spin_table_addr)@h
+	ori	r13,r13,toreset(__spin_table_addr)@l
+	lwz	r13,0(r13)
+	/* mask by 4K */
+	rlwinm	r13,r13,0,0,19
 
-#define EPAPR_MAGIC		(0x45504150)
+	lis	r11,(MAS0_TLBSEL(1)|MAS0_ESEL(1))@h
+	mtspr	SPRN_MAS0,r11
+	lis	r11,(MAS1_VALID|MAS1_IPROT)@h
+	ori	r11,r11,(MAS1_TS|MAS1_TSIZE(BOOKE_PAGESZ_4K))@l
+	mtspr	SPRN_MAS1,r11
+	oris	r11,r13,(MAS2_M|MAS2_G)@h
+	ori	r11,r13,(MAS2_M|MAS2_G)@l
+	mtspr	SPRN_MAS2,r11
+	oris	r11,r13,(MAS3_SX|MAS3_SW|MAS3_SR)@h
+	ori	r11,r13,(MAS3_SX|MAS3_SW|MAS3_SR)@l
+	mtspr	SPRN_MAS3,r11
+	li	r11,0
+	mtspr	SPRN_MAS7,r11
+	tlbwe
+
+	/*
+	 * __bootpg_addr has the address of __second_half_boot_page
+	 * jump there in AS=1 space with cache enabled
+	 */
+	lis	r13,toreset(__bootpg_addr)@h
+	ori	r13,r13,toreset(__bootpg_addr)@l
+	lwz	r11,0(r13)
+	mtspr	SPRN_SRR0,r11
+	mfmsr	r13
+	ori	r12,r13,MSR_IS|MSR_DS@l
+	mtspr	SPRN_SRR1,r12
+	rfi
+
+	/*
+	 * Allocate some space for the SDRAM address of the bootpg.
+	 * This variable has to be in the boot page so that it can
+	 * be accessed by secondary cores when they come out of reset.
+	 */
+	.align L1_CACHE_SHIFT
+	.globl __bootpg_addr
+__bootpg_addr:
+	.long	0
+
+	.global __spin_table_addr
+__spin_table_addr:
+	.long	0
+
+	/*
+	 * This variable is set by cpu_init_r() after parsing hwconfig
+	 * to enable workaround for erratum NMG_CPU_A011.
+	 */
+	.align L1_CACHE_SHIFT
+	.global enable_cpu_a011_workaround
+enable_cpu_a011_workaround:
+	.long	1
+
+	/* Fill in the empty space.  The actual reset vector is
+	 * the last word of the page */
+__secondary_start_code_end:
+	.space 4092 - (__secondary_start_code_end - __secondary_start_page)
+__secondary_reset_vector:
+	b	__secondary_start_page
+
+
+/* this is a separated page for the spin table and cacheable boot code */
+	.align L1_CACHE_SHIFT
+	.global __second_half_boot_page
+__second_half_boot_page:
+#ifdef CONFIG_PPC_SPINTABLE_COMPATIBLE
+	lis	r3,(spin_table_compat - __second_half_boot_page)@h
+	ori	r3,r3,(spin_table_compat - __second_half_boot_page)@l
+	add	r3,r3,r11 /* r11 has the address of __second_half_boot_page */
+	lwz	r14,0(r3)
+#endif
+
 #define ENTRY_ADDR_UPPER	0
 #define ENTRY_ADDR_LOWER	4
 #define ENTRY_R3_UPPER		8
 #define ENTRY_R3_LOWER		12
 #define ENTRY_RESV		16
 #define ENTRY_PIR		20
-#define ENTRY_R6_UPPER		24
-#define ENTRY_R6_LOWER		28
-#define ENTRY_SIZE		32
-
-	/* setup the entry */
+#define ENTRY_SIZE		64
+	/*
+	 * setup the entry
+	 * r10 has the base address of the spin table.
+	 * spin table is defined as
+	 * struct {
+	 *	uint64_t entry_addr;
+	 *	uint64_t r3;
+	 *	uint32_t rsvd1;
+	 *	uint32_t pir;
+	 * };
+	 * we pad this struct to 64 bytes so each entry is in its own cacheline
+	 */
 	li	r3,0
 	li	r8,1
-	stw	r4,ENTRY_PIR(r10)
+	mfspr	r4,SPRN_PIR
 	stw	r3,ENTRY_ADDR_UPPER(r10)
-	stw	r8,ENTRY_ADDR_LOWER(r10)
 	stw	r3,ENTRY_R3_UPPER(r10)
 	stw	r4,ENTRY_R3_LOWER(r10)
-	stw	r3,ENTRY_R6_UPPER(r10)
-	stw	r3,ENTRY_R6_LOWER(r10)
-
-	/* load r13 with the address of the 'bootpg' in SDRAM */
-	lis	r13,toreset(__bootpg_addr)@h
-	ori	r13,r13,toreset(__bootpg_addr)@l
-	lwz	r13,0(r13)
-
-	/* setup mapping for AS = 1, and jump there */
-	lis	r11,(MAS0_TLBSEL(1)|MAS0_ESEL(1))@h
-	mtspr	SPRN_MAS0,r11
-	lis	r11,(MAS1_VALID|MAS1_IPROT)@h
-	ori	r11,r11,(MAS1_TS|MAS1_TSIZE(BOOKE_PAGESZ_4K))@l
-	mtspr	SPRN_MAS1,r11
-	oris	r11,r13,(MAS2_I|MAS2_G)@h
-	ori	r11,r13,(MAS2_I|MAS2_G)@l
-	mtspr	SPRN_MAS2,r11
-	oris	r11,r13,(MAS3_SX|MAS3_SW|MAS3_SR)@h
-	ori	r11,r13,(MAS3_SX|MAS3_SW|MAS3_SR)@l
-	mtspr	SPRN_MAS3,r11
-	tlbwe
-
-	bl	1f
-1:	mflr	r11
-	/*
-	 * OR in 0xfff to create a mask of the bootpg SDRAM address.  We use
-	 * this mask to fixup the cpu spin table and the address that we want
-	 * to jump to, eg change them from 0xfffffxxx to 0x7ffffxxx if the
-	 * bootpg is at 0x7ffff000 in SDRAM.
-	 */
-	ori	r13,r13,0xfff
-	and	r11, r11, r13
-	and	r10, r10, r13
-
-	addi	r11,r11,(2f-1b)
-	mfmsr	r13
-	ori	r12,r13,MSR_IS|MSR_DS@l
-
-	mtspr	SPRN_SRR0,r11
-	mtspr	SPRN_SRR1,r12
-	rfi
+	stw	r3,ENTRY_RESV(r10)
+	stw	r4,ENTRY_PIR(r10)
+	msync
+	stw	r8,ENTRY_ADDR_LOWER(r10)
 
 	/* spin waiting for addr */
-2:
+3:
+/*
+ * To comply with ePAPR 1.1, the spin table has been moved to cache-enabled
+ * memory. Old OS may not work with this change. A patch is waiting to be
+ * accepted for Linux kernel. Other OS needs similar fix to spin table.
+ * For OSes with old spin table code, we can enable this temporary fix by
+ * setting environmental variable "spin_table_compat". For new OSes, set
+ * "spin_table_compat=no". After Linux is fixed, we can remove this macro
+ * and related code. For now, it is enabled by default.
+ */
+#ifdef CONFIG_PPC_SPINTABLE_COMPATIBLE
+	cmpwi   r14,0
+	beq     4f
+	dcbf    0, r10
+	sync
+4:
+#endif
 	lwz	r4,ENTRY_ADDR_LOWER(r10)
 	andi.	r11,r4,1
-	bne	2b
+	bne	3b
 	isync
 
 	/* setup IVORs to match fixed offsets */
@@ -362,11 +427,20 @@ __secondary_start_page:
 	/* mask by ~64M to setup our tlb we will jump to */
 	rlwinm	r12,r4,0,0,5
 
-	/* setup r3, r4, r5, r6, r7, r8, r9 */
+	/*
+	 * setup r3, r4, r5, r6, r7, r8, r9
+	 * r3 contains the value to put in the r3 register at secondary cpu
+	 * entry. The high 32-bits are ignored on 32-bit chip implementations.
+	 * 64-bit chip implementations however shall load all 64-bits
+	 */
+#ifdef CONFIG_SYS_PPC64
+	ld	r3,ENTRY_R3_UPPER(r10)
+#else
 	lwz	r3,ENTRY_R3_LOWER(r10)
+#endif
 	li	r4,0
 	li	r5,0
-	lwz	r6,ENTRY_R6_LOWER(r10)
+	li	r6,0
 	lis	r7,(64*1024*1024)@h
 	li	r8,0
 	li	r9,0
@@ -404,32 +478,19 @@ __secondary_start_page:
 	mtspr	SPRN_SRR1,r13
 	rfi
 
-	/*
-	 * Allocate some space for the SDRAM address of the bootpg.
-	 * This variable has to be in the boot page so that it can
-	 * be accessed by secondary cores when they come out of reset.
-	 */
-	.globl __bootpg_addr
-__bootpg_addr:
-	.long	0
 
-	.align L1_CACHE_SHIFT
+	.align 6
 	.globl __spin_table
 __spin_table:
 	.space CONFIG_MAX_CPUS*ENTRY_SIZE
 
-	/*
-	 * This variable is set by cpu_init_r() after parsing hwconfig
-	 * to enable workaround for erratum NMG_CPU_A011.
-	 */
+#ifdef CONFIG_PPC_SPINTABLE_COMPATIBLE
 	.align L1_CACHE_SHIFT
-	.global enable_cpu_a011_workaround
-enable_cpu_a011_workaround:
+	.global spin_table_compat
+spin_table_compat:
 	.long	1
 
-	/* Fill in the empty space.  The actual reset vector is
-	 * the last word of the page */
-__secondary_start_code_end:
-	.space 4092 - (__secondary_start_code_end - __secondary_start_page)
-__secondary_reset_vector:
-	b	__secondary_start_page
+#endif
+
+__spin_table_end:
+	.space 4096 - (__spin_table_end - __spin_table)

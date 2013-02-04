@@ -133,6 +133,11 @@ Series-prefix: prefix
 	Sets the subject prefix. Normally empty but it can be RFC for
 	RFC patches, or RESEND if you are being ignored.
 
+Series-name: name
+	Sets the name of the series. You don't need to have a name, and
+	patman does not yet use it, but it is convenient to put the branch
+	name here to help you keep track of multiple upstreaming efforts.
+
 Cover-letter:
 This is the patch set title
 blah blah

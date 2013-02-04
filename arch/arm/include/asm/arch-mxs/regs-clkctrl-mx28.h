@@ -31,9 +31,11 @@
 #ifndef	__ASSEMBLY__
 struct mxs_clkctrl_regs {
 	mxs_reg_32(hw_clkctrl_pll0ctrl0)	/* 0x00 */
-	mxs_reg_32(hw_clkctrl_pll0ctrl1)	/* 0x10 */
+	uint32_t	hw_clkctrl_pll0ctrl1;	/* 0x10 */
+	uint32_t	reserved_pll0ctrl1[3];	/* 0x14-0x1c */
 	mxs_reg_32(hw_clkctrl_pll1ctrl0)	/* 0x20 */
-	mxs_reg_32(hw_clkctrl_pll1ctrl1)	/* 0x30 */
+	uint32_t	hw_clkctrl_pll1ctrl1;	/* 0x30 */
+	uint32_t	reserved_pll1ctrl1[3];	/* 0x34-0x3c */
 	mxs_reg_32(hw_clkctrl_pll2ctrl0)	/* 0x40 */
 	mxs_reg_32(hw_clkctrl_cpu)		/* 0x50 */
 	mxs_reg_32(hw_clkctrl_hbus)		/* 0x60 */

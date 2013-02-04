@@ -24,17 +24,17 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/errno.h>
-#include <asm/arch/ap20.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/pmc.h>
-#include <asm/arch/pinmux.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/fuse.h>
 #include <asm/arch/emc.h>
 #include <asm/arch/gp_padctrl.h>
-#include <asm/arch/warmboot.h>
+#include <asm/arch/pinmux.h>
 #include <asm/arch/sdram_param.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/fuse.h>
+#include <asm/arch-tegra/warmboot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -361,8 +361,8 @@ int warmboot_prepare_code(u32 seg_address, u32 seg_length)
 	/* Populate the header. */
 	dst_header->length_insecure = length + sizeof(struct wb_header);
 	dst_header->length_secure = length + sizeof(struct wb_header);
-	dst_header->destination = AP20_WB_RUN_ADDRESS;
-	dst_header->entry_point = AP20_WB_RUN_ADDRESS;
+	dst_header->destination = NV_WB_RUN_ADDRESS;
+	dst_header->entry_point = NV_WB_RUN_ADDRESS;
 	dst_header->code_length = length;
 
 	if (is_encrypted) {

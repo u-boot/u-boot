@@ -220,9 +220,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
-#endif
 
 #ifdef CONFIG_POST
 	post_output_backlog();

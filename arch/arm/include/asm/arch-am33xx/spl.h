@@ -27,6 +27,7 @@
 #define BOOT_DEVICE_NAND	5
 #define BOOT_DEVICE_MMC1	8
 #define BOOT_DEVICE_MMC2	9	/* eMMC or daughter card */
+#define BOOT_DEVICE_SPI		11
 #define BOOT_DEVICE_UART	65
 #define BOOT_DEVICE_CPGMAC	70
 #define BOOT_DEVICE_MMC2_2      0xFF

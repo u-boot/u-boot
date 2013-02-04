@@ -30,6 +30,9 @@
 #define	CONFIG_CPU_PXA25X			1	/* Intel PXA255 CPU */
 #define	CONFIG_PALMTC			1	/* Palm Tungsten|C board */
 
+/* we will never enable dcache, because we have to setup MMU first */
+#define CONFIG_SYS_DCACHE_OFF
+
 /*
  * Environment settings
  */
@@ -58,6 +61,7 @@
  */
 #define	CONFIG_PXA_SERIAL
 #define	CONFIG_FFUART			1
+#define CONFIG_CONS_INDEX		3
 #define	CONFIG_BAUDRATE			115200
 
 /*
@@ -76,7 +80,8 @@
  */
 #ifdef	CONFIG_CMD_MMC
 #define	CONFIG_MMC
-#define	CONFIG_PXA_MMC
+#define	CONFIG_GENERIC_MMC
+#define	CONFIG_PXA_MMC_GENERIC
 #define	CONFIG_SYS_MMC_BASE		0xF0000000
 #define	CONFIG_CMD_FAT
 #define	CONFIG_CMD_EXT2

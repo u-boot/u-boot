@@ -22,7 +22,6 @@
 #define __G_DOWNLOAD_H_
 
 #include <linux/usb/ch9.h>
-#include <usbdescriptors.h>
 #include <linux/usb/gadget.h>
 
 int g_dnl_register(const char *s);

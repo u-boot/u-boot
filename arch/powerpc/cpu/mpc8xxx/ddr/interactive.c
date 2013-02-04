@@ -452,6 +452,8 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		CTRL_OPTIONS(rcw_override),
 		CTRL_OPTIONS(rcw_1),
 		CTRL_OPTIONS(rcw_2),
+		CTRL_OPTIONS(ddr_cdr1),
+		CTRL_OPTIONS(ddr_cdr2),
 		CTRL_OPTIONS(tCKE_clock_pulse_width_ps),
 		CTRL_OPTIONS(tFAW_window_four_activates_ps),
 		CTRL_OPTIONS(trwt_override),
@@ -518,6 +520,8 @@ static void print_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr)
 		CFG_REGS(timing_cfg_5),
 		CFG_REGS(ddr_zq_cntl),
 		CFG_REGS(ddr_wrlvl_cntl),
+		CFG_REGS(ddr_wrlvl_cntl_2),
+		CFG_REGS(ddr_wrlvl_cntl_3),
 		CFG_REGS(ddr_sr_cntr),
 		CFG_REGS(ddr_sdram_rcw_1),
 		CFG_REGS(ddr_sdram_rcw_2),
@@ -525,6 +529,7 @@ static void print_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr)
 		CFG_REGS(ddr_cdr2),
 		CFG_REGS(err_disable),
 		CFG_REGS(err_int_en),
+		CFG_REGS(ddr_eor),
 	};
 	static const unsigned int n_opts = ARRAY_SIZE(options);
 
@@ -584,6 +589,8 @@ static void fsl_ddr_regs_edit(fsl_ddr_info_t *pinfo,
 		CFG_REGS(timing_cfg_5),
 		CFG_REGS(ddr_zq_cntl),
 		CFG_REGS(ddr_wrlvl_cntl),
+		CFG_REGS(ddr_wrlvl_cntl_2),
+		CFG_REGS(ddr_wrlvl_cntl_3),
 		CFG_REGS(ddr_sr_cntr),
 		CFG_REGS(ddr_sdram_rcw_1),
 		CFG_REGS(ddr_sdram_rcw_2),
@@ -593,7 +600,7 @@ static void fsl_ddr_regs_edit(fsl_ddr_info_t *pinfo,
 		CFG_REGS(err_int_en),
 		CFG_REGS(ddr_sdram_rcw_2),
 		CFG_REGS(ddr_sdram_rcw_2),
-
+		CFG_REGS(ddr_eor),
 	};
 	static const unsigned int n_opts = ARRAY_SIZE(options);
 
@@ -689,6 +696,8 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS(rcw_override),
 		CTRL_OPTIONS(rcw_1),
 		CTRL_OPTIONS(rcw_2),
+		CTRL_OPTIONS_HEX(ddr_cdr1),
+		CTRL_OPTIONS_HEX(ddr_cdr2),
 		CTRL_OPTIONS(tCKE_clock_pulse_width_ps),
 		CTRL_OPTIONS(tFAW_window_four_activates_ps),
 		CTRL_OPTIONS(trwt_override),
@@ -1597,6 +1606,7 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 			 * doesn't return
 			 */
 			do_reset(NULL, 0, 0, NULL);
+			printf("Reset didn't work\n");
 		}
 
 		if (strcmp(argv[0], "recompute") == 0) {

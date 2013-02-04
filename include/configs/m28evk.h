@@ -135,7 +135,7 @@
  */
 #ifdef	CONFIG_CMD_MMC
 #define	CONFIG_MMC
-#define	CONFIG_MMC_BOUNCE_BUFFER
+#define	CONFIG_BOUNCE_BUFFER
 #define	CONFIG_GENERIC_MMC
 #define	CONFIG_MXS_MMC
 #endif
@@ -178,6 +178,8 @@
 		"512k(environment),"		\
 		"512k(redundant-environment),"	\
 		"4m(kernel),"			\
+		"128k(fdt),"			\
+		"8m(ramdisk),"			\
 		"-(filesystem)"
 #else
 #define	CONFIG_ENV_IS_NOWHERE
@@ -297,7 +299,7 @@
 		"if tftp ${update_nand_full_filename} ; then "		\
 		"run update_nand_get_fcb_size ; "			\
 		"nand scrub -y 0x0 ${filesize} ; "			\
-		"nand write.raw ${loadaddr} 0x0 ${update_nand_fcb} ; "	\
+		"nand write.raw ${loadaddr} 0x0 ${fcb_sz} ; "	\
 		"setexpr update_off ${loadaddr} + ${update_nand_fcb} ; " \
 		"setexpr update_sz ${filesize} - ${update_nand_fcb} ; " \
 		"nand write ${update_off} ${update_nand_fcb} ${update_sz} ; " \

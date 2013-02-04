@@ -94,6 +94,15 @@ static const unsigned char usb_kbd_num_keypad[] = {
 };
 
 /*
+ * map arrow keys to ^F/^B ^N/^P, can't really use the proper
+ * ANSI sequence for arrow keys because the queuing code breaks
+ * when a single keypress expands to 3 queue elements
+ */
+static const unsigned char usb_kbd_arrow[] = {
+	0x6, 0x2, 0xe, 0x10
+};
+
+/*
  * NOTE: It's important for the NUM, CAPS, SCROLL-lock bits to be in this
  *       order. See usb_kbd_setled() function!
  */
@@ -112,7 +121,7 @@ struct usb_kbd_pdata {
 	uint32_t	usb_out_pointer;
 	uint8_t		usb_kbd_buffer[USB_KBD_BUFFER_LEN];
 
-	uint8_t		new[8];
+	uint8_t		*new;
 	uint8_t		old[8];
 
 	uint8_t		flags;
@@ -223,6 +232,10 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 		else
 			keycode = usb_kbd_numkey[scancode - 0x1e];
 	}
+
+	/* Arrow keys */
+	if ((scancode >= 0x4f) && (scancode <= 0x52))
+		keycode = usb_kbd_arrow[scancode - 0x4f];
 
 	/* Numeric keypad */
 	if ((scancode >= 0x54) && (scancode <= 0x67))
@@ -434,6 +447,9 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 
 	/* Clear private data */
 	memset(data, 0, sizeof(struct usb_kbd_pdata));
+
+	/* allocate input buffer aligned and sized to USB DMA alignment */
+	data->new = memalign(USB_DMA_MINALIGN, roundup(8, USB_DMA_MINALIGN));
 
 	/* Insert private data into USB device structure */
 	dev->privptr = data;

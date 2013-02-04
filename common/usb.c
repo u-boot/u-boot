@@ -72,44 +72,72 @@
 
 static struct usb_device usb_dev[USB_MAX_DEVICE];
 static int dev_index;
-static int running;
 static int asynch_allowed;
 
 char usb_started; /* flag for the started/stopped USB status */
 
-/**********************************************************************
- * some forward declerations...
- */
-static void usb_scan_devices(void);
+#ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
+#endif
 
 /***************************************************************************
  * Init USB Device
  */
-
 int usb_init(void)
 {
-	int result;
+	void *ctrl;
+	struct usb_device *dev;
+	int i, start_index = 0;
 
-	running = 0;
 	dev_index = 0;
 	asynch_allowed = 1;
 	usb_hub_reset();
+
+	/* first make all devices unknown */
+	for (i = 0; i < USB_MAX_DEVICE; i++) {
+		memset(&usb_dev[i], 0, sizeof(struct usb_device));
+		usb_dev[i].devnum = -1;
+	}
+
 	/* init low_level USB */
-	printf("USB:   ");
-	result = usb_lowlevel_init();
-	/* if lowlevel init is OK, scan the bus for devices
-	 * i.e. search HUBs and configure them */
-	if (result == 0) {
-		printf("scanning bus for devices... ");
-		running = 1;
-		usb_scan_devices();
+	for (i = 0; i < CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
+		/* init low_level USB */
+		printf("USB%d:   ", i);
+		if (usb_lowlevel_init(i, &ctrl)) {
+			puts("lowlevel init failed\n");
+			continue;
+		}
+		/*
+		 * lowlevel init is OK, now scan the bus for devices
+		 * i.e. search HUBs and configure them
+		 */
+		start_index = dev_index;
+		printf("scanning bus %d for devices... ", i);
+		dev = usb_alloc_new_device(ctrl);
+		/*
+		 * device 0 is always present
+		 * (root hub, so let it analyze)
+		 */
+		if (dev)
+			usb_new_device(dev);
+
+		if (start_index == dev_index)
+			puts("No USB Device found\n");
+		else
+			printf("%d USB Device(s) found\n",
+				dev_index - start_index);
+
 		usb_started = 1;
-		return 0;
-	} else {
-		printf("Error, couldn't init Lowlevel part\n");
-		usb_started = 0;
+	}
+
+	USB_PRINTF("scan end\n");
+	/* if we were not able to find at least one working bus, bail out */
+	if (!usb_started) {
+		puts("USB error: all controllers failed lowlevel init\n");
 		return -1;
 	}
+
+	return 0;
 }
 
 /******************************************************************************
@@ -117,15 +145,20 @@ int usb_init(void)
  */
 int usb_stop(void)
 {
-	int res = 0;
+	int i;
 
 	if (usb_started) {
 		asynch_allowed = 1;
 		usb_started = 0;
 		usb_hub_reset();
-		res = usb_lowlevel_stop();
+
+		for (i = 0; i < CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
+			if (usb_lowlevel_stop(i))
+				printf("failed to stop USB controller %d\n", i);
+		}
 	}
-	return res;
+
+	return 0;
 }
 
 /*
@@ -459,9 +492,9 @@ int usb_get_configuration_no(struct usb_device *dev,
 {
 	int result;
 	unsigned int tmp;
-	struct usb_configuration_descriptor *config;
+	struct usb_config_descriptor *config;
 
-	config = (struct usb_configuration_descriptor *)&buffer[0];
+	config = (struct usb_config_descriptor *)&buffer[0];
 	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 9);
 	if (result < 9) {
 		if (result < 0)
@@ -475,8 +508,8 @@ int usb_get_configuration_no(struct usb_device *dev,
 	tmp = le16_to_cpu(config->wTotalLength);
 
 	if (tmp > USB_BUFSIZ) {
-		USB_PRINTF("usb_get_configuration_no: failed to get " \
-			   "descriptor - too long: %d\n", tmp);
+		printf("usb_get_configuration_no: failed to get " \
+		       "descriptor - too long: %d\n", tmp);
 		return -1;
 	}
 
@@ -750,11 +783,10 @@ struct usb_device *usb_get_dev_index(int index)
 		return &usb_dev[index];
 }
 
-
 /* returns a pointer of a new device structure or NULL, if
  * no device struct is available
  */
-struct usb_device *usb_alloc_new_device(void)
+struct usb_device *usb_alloc_new_device(void *controller)
 {
 	int i;
 	USB_PRINTF("New Device %d\n", dev_index);
@@ -768,10 +800,23 @@ struct usb_device *usb_alloc_new_device(void)
 	for (i = 0; i < USB_MAXCHILDREN; i++)
 		usb_dev[dev_index].children[i] = NULL;
 	usb_dev[dev_index].parent = NULL;
+	usb_dev[dev_index].controller = controller;
 	dev_index++;
 	return &usb_dev[dev_index - 1];
 }
 
+/*
+ * Free the newly created device node.
+ * Called in error cases where configuring a newly attached
+ * device fails for some reason.
+ */
+void usb_free_device(void)
+{
+	dev_index--;
+	USB_PRINTF("Freeing device node: %d\n", dev_index);
+	memset(&usb_dev[dev_index], 0, sizeof(struct usb_device));
+	usb_dev[dev_index].devnum = -1;
+}
 
 /*
  * By the time we get here, the device has gotten a new device ID
@@ -913,7 +958,13 @@ int usb_new_device(struct usb_device *dev)
 	le16_to_cpus(&dev->descriptor.idProduct);
 	le16_to_cpus(&dev->descriptor.bcdDevice);
 	/* only support for one config for now */
-	usb_get_configuration_no(dev, tmpbuf, 0);
+	err = usb_get_configuration_no(dev, tmpbuf, 0);
+	if (err < 0) {
+		printf("usb_new_device: Cannot read configuration, " \
+		       "skipping device %04x:%04x\n",
+		       dev->descriptor.idVendor, dev->descriptor.idProduct);
+		return -1;
+	}
 	usb_parse_config(dev, tmpbuf, 0);
 	usb_set_maxpacket(dev);
 	/* we set the default configuration here */
@@ -943,31 +994,6 @@ int usb_new_device(struct usb_device *dev)
 	/* now prode if the device is a hub */
 	usb_hub_probe(dev, 0);
 	return 0;
-}
-
-/* build device Tree  */
-static void usb_scan_devices(void)
-{
-	int i;
-	struct usb_device *dev;
-
-	/* first make all devices unknown */
-	for (i = 0; i < USB_MAX_DEVICE; i++) {
-		memset(&usb_dev[i], 0, sizeof(struct usb_device));
-		usb_dev[i].devnum = -1;
-	}
-	dev_index = 0;
-	/* device 0 is always present (root hub, so let it analyze) */
-	dev = usb_alloc_new_device();
-	if (usb_new_device(dev))
-		printf("No USB Device found\n");
-	else
-		printf("%d USB Device(s) found\n", dev_index);
-	/* insert "driver" if possible */
-#ifdef CONFIG_USB_KEYBOARD
-	drv_usb_kbd_init();
-#endif
-	USB_PRINTF("scan end\n");
 }
 
 /* EOF */

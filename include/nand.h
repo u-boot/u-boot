@@ -139,6 +139,7 @@ int nand_read_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 			u_char *buffer, int flags);
 int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
+int nand_torture(nand_info_t *nand, loff_t offset);
 
 #define NAND_LOCK_STATUS_TIGHT	0x01
 #define NAND_LOCK_STATUS_UNLOCK 0x04

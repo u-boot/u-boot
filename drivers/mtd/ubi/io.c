@@ -916,7 +916,7 @@ int ubi_io_read_vid_hdr(struct ubi_device *ubi, int pnum,
 
 	p = (char *)vid_hdr - ubi->vid_hdr_shift;
 	err = ubi_io_read(ubi, p, pnum, ubi->vid_hdr_aloffset,
-			  UBI_VID_HDR_SIZE);
+			  ubi->vid_hdr_alsize);
 	if (err) {
 		if (err != UBI_IO_BITFLIPS && err != -EBADMSG)
 			return err;

@@ -46,7 +46,7 @@ int board_early_init_f(void)
 			DREAMPLUG_OE_LOW, DREAMPLUG_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
-	u32 kwmpp_config[] = {
+	static const u32 kwmpp_config[] = {
 		MPP0_SPI_SCn,		/* SPI Flash */
 		MPP1_SPI_MOSI,
 		MPP2_SPI_SCK,

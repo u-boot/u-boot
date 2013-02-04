@@ -40,6 +40,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <environment.h>
 #include <malloc.h>
 #include <stdio_dev.h>
 #include <version.h>
@@ -55,13 +56,6 @@
 
 #ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
-#endif
-
-#ifdef CONFIG_DRIVER_SMC91111
-#include "../drivers/net/smc91111.h"
-#endif
-#ifdef CONFIG_DRIVER_LAN91C96
-#include "../drivers/net/lan91c96.h"
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -231,14 +225,29 @@ int __arch_cpu_init(void)
 int arch_cpu_init(void)
 	__attribute__((weak, alias("__arch_cpu_init")));
 
+int __power_init_board(void)
+{
+	return 0;
+}
+int power_init_board(void)
+	__attribute__((weak, alias("__power_init_board")));
+
+	/* Record the board_init_f() bootstage (after arch_cpu_init()) */
+static int mark_bootstage(void)
+{
+	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
+
+	return 0;
+}
+
 init_fnc_t *init_sequence[] = {
 	arch_cpu_init,		/* basic arch cpu dependent setup */
-
-#if defined(CONFIG_BOARD_EARLY_INIT_F)
-	board_early_init_f,
-#endif
+	mark_bootstage,
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_check_fdt,
+#endif
+#if defined(CONFIG_BOARD_EARLY_INIT_F)
+	board_early_init_f,
 #endif
 	timer_init,		/* initialize timer */
 #ifdef CONFIG_BOARD_POSTCLK_INIT
@@ -274,13 +283,8 @@ void board_init_f(ulong bootflag)
 #ifdef CONFIG_PRAM
 	ulong reg;
 #endif
-
-	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
-
-	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) ((CONFIG_SYS_INIT_SP_ADDR) & ~0x07);
-	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
+	void *new_fdt = NULL;
+	size_t fdt_size = 0;
 
 	memset((void *)gd, 0, sizeof(gd_t));
 
@@ -351,13 +355,14 @@ void board_init_f(ulong bootflag)
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	/* reserve TLB table */
-	addr -= (4096 * 4);
+	gd->tlb_size = 4096 * 4;
+	addr -= gd->tlb_size;
 
 	/* round down to next 64 kB limit */
 	addr &= ~(0x10000 - 1);
 
 	gd->tlb_addr = addr;
-	debug("TLB table at: %08lx\n", addr);
+	debug("TLB table from %08lx to %08lx\n", addr, addr + gd->tlb_size);
 #endif
 
 	/* round down to next 4 kB limit */
@@ -409,6 +414,22 @@ void board_init_f(ulong bootflag)
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
 			sizeof (gd_t), addr_sp);
 
+#if defined(CONFIG_OF_SEPARATE) && defined(CONFIG_OF_CONTROL)
+	/*
+	 * If the device tree is sitting immediate above our image then we
+	 * must relocate it. If it is embedded in the data section, then it
+	 * will be relocated with other data.
+	 */
+	if (gd->fdt_blob) {
+		fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob) + 0x1000, 32);
+
+		addr_sp -= fdt_size;
+		new_fdt = (void *)addr_sp;
+		debug("Reserving %zu Bytes for FDT at: %08lx\n",
+		      fdt_size, addr_sp);
+	}
+#endif
+
 	/* setup stackpointer for exeptions */
 	gd->irq_sp = addr_sp;
 #ifdef CONFIG_USE_IRQ
@@ -442,11 +463,11 @@ void board_init_f(ulong bootflag)
 	gd->start_addr_sp = addr_sp;
 	gd->reloc_off = addr - _TEXT_BASE;
 	debug("relocation Offset is: %08lx\n", gd->reloc_off);
+	if (new_fdt) {
+		memcpy(new_fdt, gd->fdt_blob, fdt_size);
+		gd->fdt_blob = new_fdt;
+	}
 	memcpy(id, (void *)gd, sizeof(gd_t));
-
-	relocate_code(addr_sp, id, addr);
-
-	/* NOTREACHED - relocate_code() does not return */
 }
 
 #if !defined(CONFIG_SYS_NO_FLASH)
@@ -454,7 +475,38 @@ static char *failed = "*** failed ***\n";
 #endif
 
 /*
- ************************************************************************
+ * Tell if it's OK to load the environment early in boot.
+ *
+ * If CONFIG_OF_CONFIG is defined, we'll check with the FDT to see
+ * if this is OK (defaulting to saying it's not OK).
+ *
+ * NOTE: Loading the environment early can be a bad idea if security is
+ *       important, since no verification is done on the environment.
+ *
+ * @return 0 if environment should not be loaded, !=0 if it is ok to load
+ */
+static int should_load_env(void)
+{
+#ifdef CONFIG_OF_CONTROL
+	return fdtdec_get_config_int(gd->fdt_blob, "load-environment", 0);
+#elif defined CONFIG_DELAY_ENVIRONMENT
+	return 0;
+#else
+	return 1;
+#endif
+}
+
+#if defined(CONFIG_DISPLAY_BOARDINFO_LATE) && defined(CONFIG_OF_CONTROL)
+static void display_fdt_model(const void *blob)
+{
+	const char *model;
+
+	model = (char *)fdt_getprop(blob, 0, "model", NULL);
+	printf("Model: %s\n", model ? model : "<unknown>");
+}
+#endif
+
+/************************************************************************
  *
  * This is the next part if the initialization sequence: we are now
  * running from RAM and have a "normal" C environment, i. e. global
@@ -470,8 +522,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #if !defined(CONFIG_SYS_NO_FLASH)
 	ulong flash_size;
 #endif
-
-	gd = id;
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_R, "board_init_r");
@@ -492,9 +542,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info(); /* Setup clock information */
 #endif
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
-#endif
 
 	debug("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
@@ -512,6 +560,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r();
 #endif
+	power_init_board();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts("Flash: ");
@@ -519,15 +568,13 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	flash_size = flash_init();
 	if (flash_size > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM
-		char *s = getenv("flashchecksum");
-
 		print_size(flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
 		 *
 		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 		 */
-		if (s && (*s == 'y')) {
+		if (getenv_yesno("flashchecksum") == 1) {
 			printf("  CRC: %08X", crc32(0,
 				(const unsigned char *) CONFIG_SYS_FLASH_BASE,
 				flash_size));
@@ -552,8 +599,8 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 
 #ifdef CONFIG_GENERIC_MMC
-       puts("MMC:   ");
-       mmc_initialize(gd->bd);
+	puts("MMC:   ");
+	mmc_initialize(gd->bd);
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH
@@ -562,7 +609,10 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #endif
 
 	/* initialize environment */
-	env_relocate();
+	if (should_load_env())
+		env_relocate();
+	else
+		set_default_env(NULL);
 
 #if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)
 	arm_pci_init();
@@ -579,6 +629,15 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	console_init_r();	/* fully init console as a device */
 
+#ifdef CONFIG_DISPLAY_BOARDINFO_LATE
+# ifdef CONFIG_OF_CONTROL
+	/* Put this here so it appears on the LCD, now it is ready */
+	display_fdt_model(gd->fdt_blob);
+# else
+	checkboard();
+# endif
+#endif
+
 #if defined(CONFIG_ARCH_MISC_INIT)
 	/* miscellaneous arch dependent initialisations */
 	arch_misc_init();
@@ -592,16 +651,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	interrupt_init();
 	/* enable exceptions */
 	enable_interrupts();
-
-	/* Perform network card initialisation if necessary */
-#if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
-	/* XXX: this needs to be moved to board init */
-	if (getenv("ethaddr")) {
-		uchar enetaddr[6];
-		eth_getenv_enetaddr("ethaddr", enetaddr);
-		smc_set_mac_addr(enetaddr);
-	}
-#endif /* CONFIG_DRIVER_SMC91111 || CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */
 	load_addr = getenv_ulong("loadaddr", 16, load_addr);

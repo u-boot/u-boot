@@ -32,9 +32,30 @@ START_PATH := $(CPUDIR)
 endif
 
 START := $(START_PATH)/start.o
+ifeq ($(CPU),x86)
+START += $(START_PATH)/start16.o
+START += $(START_PATH)/resetvec.o
+endif
+ifeq ($(CPU),ppc4xx)
+START += $(START_PATH)/resetvec.o
+endif
+ifeq ($(CPU),mpc85xx)
+START += $(START_PATH)/resetvec.o
+endif
 
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
+
 LIBS-y += $(CPUDIR)/lib$(CPU).o
+ifeq ($(CPU),mpc83xx)
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+endif
+ifeq ($(CPU),mpc85xx)
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+endif
+ifeq ($(CPU),mpc86xx)
+LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+endif
+
 ifdef SOC
 LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
 endif
@@ -67,6 +88,8 @@ endif
 
 ifeq ($(SOC),tegra20)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
+LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
+LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o
 endif
 
 # Add GCC lib
@@ -110,15 +133,18 @@ LDPPFLAGS += \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
-ifdef CONFIG_OMAP
 $(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
-endif
-ifdef CONFIG_AM33XX
-$(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
-	$(OBJTREE)/tools/mkimage -T omapimage \
+
+$(OBJTREE)/MLO.byteswap: $(obj)u-boot-spl.bin
+	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
+
+ifneq ($(CONFIG_IMX_CONFIG),)
+$(OBJTREE)/SPL:	$(obj)u-boot-spl.bin
+	$(OBJTREE)/tools/mkimage -n  $(SRCTREE)/$(CONFIG_IMX_CONFIG) -T imximage \
+		-e $(CONFIG_SPL_TEXT_BASE) -d $< $@
 endif
 
 ALL-y	+= $(obj)u-boot-spl.bin
@@ -152,8 +178,12 @@ $(START):	depend
 $(LIBS):	depend
 	$(MAKE) -C $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))
 
-$(obj)u-boot-spl.lds: $(LDSCRIPT) depend
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - < $< > $@
+# The following line expands into whole rule which generates u-boot.lst,
+# the file containing u-boots LG-array linker section. This is included into
+# $(LDSCRIPT). The function make_u_boot_list is defined in helper.mk file.
+$(eval $(call make_u_boot_list, $(obj)u-boot.lst, $(LIBS)))
+$(obj)u-boot-spl.lds: $(LDSCRIPT) $(obj)u-boot.lst depend
+	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
 
 depend:	$(obj).depend
 .PHONY: depend

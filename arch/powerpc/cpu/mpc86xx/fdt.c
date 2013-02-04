@@ -20,7 +20,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_MP
 	int off;
-	u32 bootpg = determine_mp_bootpg();
+	u32 bootpg = determine_mp_bootpg(NULL);
 #endif
 
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,

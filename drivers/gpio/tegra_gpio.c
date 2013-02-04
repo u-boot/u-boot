@@ -30,7 +30,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/bitops.h>
-#include <asm/arch/tegra20.h>
+#include <asm/arch/tegra.h>
 #include <asm/gpio.h>
 
 enum {

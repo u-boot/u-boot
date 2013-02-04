@@ -116,7 +116,7 @@ void do_io_settings(void)
 	if ((omap4_rev < OMAP4460_ES1_0) || !readl(&ctrl->control_efuse_2))
 		writel(CONTROL_EFUSE_2_OVERRIDE, &ctrl->control_efuse_2);
 }
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
 /* dummy fuction for omap4 */
 void config_data_eye_leveling_samples(u32 emif_base)
@@ -182,4 +182,4 @@ void v7_outer_cache_disable(void)
 {
 	set_pl310_ctrl_reg(0);
 }
-#endif
+#endif /* !CONFIG_SYS_L2CACHE_OFF */

@@ -42,6 +42,11 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
+#include <asm/omap_musb.h>
+#include <asm/errno.h>
+#include <linux/usb/ch9.h>
+#include <linux/usb/gadget.h>
+#include <linux/usb/musb.h>
 #include "beagle.h"
 #include <command.h>
 
@@ -139,8 +144,7 @@ static int get_board_revision(void)
  * Description: If we use SPL then there is no x-loader nor config header
  * so we have to setup the DDR timings ourself on both banks.
  */
-void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
-		u32 *mr)
+void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
 	int pop_mfr, pop_id;
 
@@ -151,29 +155,29 @@ void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
 	 */
 	identify_nand_chip(&pop_mfr, &pop_id);
 
-	*mr = MICRON_V_MR_165;
+	timings->mr = MICRON_V_MR_165;
 	switch (get_board_revision()) {
 	case REVISION_C4:
 		if (pop_mfr == NAND_MFR_STMICRO && pop_id == 0xba) {
 			/* 512MB DDR */
-			*mcfg = NUMONYX_V_MCFG_165(512 << 20);
-			*ctrla = NUMONYX_V_ACTIMA_165;
-			*ctrlb = NUMONYX_V_ACTIMB_165;
-			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+			timings->mcfg = NUMONYX_V_MCFG_165(512 << 20);
+			timings->ctrla = NUMONYX_V_ACTIMA_165;
+			timings->ctrlb = NUMONYX_V_ACTIMB_165;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 			break;
 		} else if (pop_mfr == NAND_MFR_MICRON && pop_id == 0xba) {
 			/* Beagleboard Rev C4, 512MB Nand/256MB DDR*/
-			*mcfg = MICRON_V_MCFG_165(128 << 20);
-			*ctrla = MICRON_V_ACTIMA_165;
-			*ctrlb = MICRON_V_ACTIMB_165;
-			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+			timings->mcfg = MICRON_V_MCFG_165(128 << 20);
+			timings->ctrla = MICRON_V_ACTIMA_165;
+			timings->ctrlb = MICRON_V_ACTIMB_165;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 			break;
 		} else if (pop_mfr == NAND_MFR_MICRON && pop_id == 0xbc) {
 			/* Beagleboard Rev C5, 256MB DDR */
-			*mcfg = MICRON_V_MCFG_200(256 << 20);
-			*ctrla = MICRON_V_ACTIMA_200;
-			*ctrlb = MICRON_V_ACTIMB_200;
-			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+			timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+			timings->ctrla = MICRON_V_ACTIMA_200;
+			timings->ctrlb = MICRON_V_ACTIMB_200;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 			break;
 		}
 	case REVISION_XM_A:
@@ -181,24 +185,24 @@ void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
 	case REVISION_XM_C:
 		if (pop_mfr == 0) {
 			/* 256MB DDR */
-			*mcfg = MICRON_V_MCFG_200(256 << 20);
-			*ctrla = MICRON_V_ACTIMA_200;
-			*ctrlb = MICRON_V_ACTIMB_200;
-			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+			timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+			timings->ctrla = MICRON_V_ACTIMA_200;
+			timings->ctrlb = MICRON_V_ACTIMB_200;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 		} else {
 			/* 512MB DDR */
-			*mcfg = NUMONYX_V_MCFG_165(512 << 20);
-			*ctrla = NUMONYX_V_ACTIMA_165;
-			*ctrlb = NUMONYX_V_ACTIMB_165;
-			*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+			timings->mcfg = NUMONYX_V_MCFG_165(512 << 20);
+			timings->ctrla = NUMONYX_V_ACTIMA_165;
+			timings->ctrlb = NUMONYX_V_ACTIMB_165;
+			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 		}
 		break;
 	default:
 		/* Assume 128MB and Micron/165MHz timings to be safe */
-		*mcfg = MICRON_V_MCFG_165(128 << 20);
-		*ctrla = MICRON_V_ACTIMA_165;
-		*ctrlb = MICRON_V_ACTIMB_165;
-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		timings->mcfg = MICRON_V_MCFG_165(128 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 	}
 }
 #endif
@@ -283,6 +287,33 @@ static void beagle_dvi_pup(void)
 		break;
 	}
 }
+#endif
+
+#ifdef CONFIG_USB_MUSB_OMAP2PLUS
+static struct musb_hdrc_config musb_config = {
+	.multipoint     = 1,
+	.dyn_fifo       = 1,
+	.num_eps        = 16,
+	.ram_bits       = 12,
+};
+
+static struct omap_musb_board_data musb_board_data = {
+	.interface_type	= MUSB_INTERFACE_ULPI,
+};
+
+static struct musb_hdrc_platform_data musb_plat = {
+#if defined(CONFIG_MUSB_HOST)
+	.mode           = MUSB_HOST,
+#elif defined(CONFIG_MUSB_GADGET)
+	.mode		= MUSB_PERIPHERAL,
+#else
+#error "Please define either CONFIG_MUSB_HOST or CONFIG_MUSB_GADGET"
+#endif
+	.config         = &musb_config,
+	.power          = 100,
+	.platform_ops	= &omap2430_ops,
+	.board_data	= &musb_board_data,
+};
 #endif
 
 /*
@@ -466,6 +497,10 @@ int misc_init_r(void)
 	omap3_dss_enable();
 #endif
 
+#ifdef CONFIG_USB_MUSB_OMAP2PLUS
+	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
+#endif
+
 	return 0;
 }
 
@@ -502,14 +537,21 @@ static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED
 };
 
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	return omap_ehci_hcd_init(&usbhs_bdata);
+	return omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
 }
 
-int ehci_hcd_stop(void)
+int ehci_hcd_stop(int index)
 {
 	return omap_ehci_hcd_stop();
 }
 
 #endif /* CONFIG_USB_EHCI */
+
+#if defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)
+int board_eth_init(bd_t *bis)
+{
+	return usb_eth_initialize(bis);
+}
+#endif

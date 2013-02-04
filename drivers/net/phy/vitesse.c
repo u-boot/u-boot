@@ -123,7 +123,7 @@ static int cis8204_config(struct phy_device *phydev)
 }
 
 /* Vitesse VSC8601 */
-int vsc8601_config(struct phy_device *phydev)
+static int vsc8601_config(struct phy_device *phydev)
 {
 	/* Configure some basic stuff */
 #ifdef CONFIG_SYS_VSC8601_SKEWFIX

@@ -43,12 +43,18 @@ static struct sh_i2c *base;
 #define SH_I2C_ICCR_SCP		(1 << 0)
 
 /* ICSR / ICIC */
-#define SH_IC_BUSY	(1 << 3)
+#define SH_IC_BUSY	(1 << 4)
 #define SH_IC_TACK	(1 << 2)
 #define SH_IC_WAIT	(1 << 1)
 #define SH_IC_DTE	(1 << 0)
 
-static u8 iccl, icch;
+#ifdef CONFIG_SH_I2C_8BIT
+/* store 8th bit of iccl and icch in ICIC register */
+#define SH_I2C_ICIC_ICCLB8	(1 << 7)
+#define SH_I2C_ICIC_ICCHB8	(1 << 6)
+#endif
+
+static u16 iccl, icch;
 
 #define IRQ_WAIT 1000
 
@@ -63,6 +69,20 @@ static void irq_dte(struct sh_i2c *base)
 	}
 }
 
+static int irq_dte_with_tack(struct sh_i2c *base)
+{
+	int i;
+
+	for (i = 0 ; i < IRQ_WAIT ; i++) {
+		if (SH_IC_DTE & readb(&base->icsr))
+			break;
+		if (SH_IC_TACK & readb(&base->icsr))
+			return -1;
+		udelay(10);
+	}
+	return 0;
+}
+
 static void irq_busy(struct sh_i2c *base)
 {
 	int i;
@@ -74,71 +94,97 @@ static void irq_busy(struct sh_i2c *base)
 	}
 }
 
-static void i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
+static int i2c_set_addr(struct sh_i2c *base, u8 id, u8 reg, int stop)
 {
-	writeb(readb(&base->iccr) & ~SH_I2C_ICCR_ICE, &base->iccr);
-	writeb(readb(&base->iccr) | SH_I2C_ICCR_ICE, &base->iccr);
+	u8 icic = SH_IC_TACK;
 
-	writeb(iccl, &base->iccl);
-	writeb(icch, &base->icch);
-	writeb(0, &base->icic);
+	clrbits_8(&base->iccr, SH_I2C_ICCR_ICE);
+	setbits_8(&base->iccr, SH_I2C_ICCR_ICE);
+
+	writeb(iccl & 0xff, &base->iccl);
+	writeb(icch & 0xff, &base->icch);
+#ifdef CONFIG_SH_I2C_8BIT
+	if (iccl > 0xff)
+		icic |= SH_I2C_ICIC_ICCLB8;
+	if (icch > 0xff)
+		icic |= SH_I2C_ICIC_ICCHB8;
+#endif
+	writeb(icic, &base->icic);
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS|SH_I2C_ICCR_BUSY), &base->iccr);
 	irq_dte(base);
 
+	clrbits_8(&base->icsr, SH_IC_TACK);
 	writeb(id << 1, &base->icdr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		return -1;
 
 	writeb(reg, &base->icdr);
 	if (stop)
 		writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS), &base->iccr);
 
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		return -1;
+	return 0;
 }
 
 static void i2c_finish(struct sh_i2c *base)
 {
 	writeb(0, &base->icsr);
-	writeb(readb(&base->iccr) & ~SH_I2C_ICCR_ICE, &base->iccr);
+	clrbits_8(&base->iccr, SH_I2C_ICCR_ICE);
 }
 
-static void i2c_raw_write(struct sh_i2c *base, u8 id, u8 reg, u8 val)
+static int i2c_raw_write(struct sh_i2c *base, u8 id, u8 reg, u8 val)
 {
-	i2c_set_addr(base, id, reg, 0);
+	int ret = -1;
+	if (i2c_set_addr(base, id, reg, 0) != 0)
+		goto exit0;
 	udelay(10);
 
 	writeb(val, &base->icdr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		goto exit0;
 
 	writeb((SH_I2C_ICCR_ICE | SH_I2C_ICCR_RTS), &base->iccr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		goto exit0;
 	irq_busy(base);
-
+	ret = 0;
+exit0:
 	i2c_finish(base);
+	return ret;
 }
 
-static u8 i2c_raw_read(struct sh_i2c *base, u8 id, u8 reg)
+static int i2c_raw_read(struct sh_i2c *base, u8 id, u8 reg)
 {
-	u8 ret;
+	int ret = -1;
 
-	i2c_set_addr(base, id, reg, 1);
+#if defined(CONFIG_SH73A0)
+	if (i2c_set_addr(base, id, reg, 0) != 0)
+		goto exit0;
+#else
+	if (i2c_set_addr(base, id, reg, 1) != 0)
+		goto exit0;
 	udelay(100);
+#endif
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS|SH_I2C_ICCR_BUSY), &base->iccr);
 	irq_dte(base);
 
 	writeb(id << 1 | 0x01, &base->icdr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		goto exit0;
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_SCP), &base->iccr);
-	irq_dte(base);
+	if (irq_dte_with_tack(base) != 0)
+		goto exit0;
 
-	ret = readb(&base->icdr);
+	ret = readb(&base->icdr) & 0xff;
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RACK), &base->iccr);
 	readb(&base->icdr); /* Dummy read */
 	irq_busy(base);
-
+exit0:
 	i2c_finish(base);
 
 	return ret;
@@ -166,6 +212,21 @@ int i2c_set_bus_num(unsigned int bus)
 	case 1:
 		base = (void *)CONFIG_SH_I2C_BASE1;
 		break;
+#ifdef CONFIG_SH_I2C_BASE2
+	case 2:
+		base = (void *)CONFIG_SH_I2C_BASE2;
+		break;
+#endif
+#ifdef CONFIG_SH_I2C_BASE3
+	case 3:
+		base = (void *)CONFIG_SH_I2C_BASE3;
+		break;
+#endif
+#ifdef CONFIG_SH_I2C_BASE4
+	case 4:
+		base = (void *)CONFIG_SH_I2C_BASE4;
+		break;
+#endif
 	default:
 		return -1;
 	}
@@ -206,18 +267,18 @@ void i2c_init(int speed, int slaveaddr)
 	denom = speed * (CONFIG_SH_I2C_DATA_HIGH + CONFIG_SH_I2C_DATA_LOW);
 	tmp = num * 10 / denom;
 	if (tmp % 10 >= 5)
-		iccl = (u8)((num/denom) + 1);
+		iccl = (u16)((num/denom) + 1);
 	else
-		iccl = (u8)(num/denom);
+		iccl = (u16)(num/denom);
 
 	/* Calculate the value for icch. From the data sheet:
 	   icch = (p clock / transfer rate) * (H / (L + H)) */
 	num = CONFIG_SH_I2C_CLOCK * CONFIG_SH_I2C_DATA_HIGH;
 	tmp = num * 10 / denom;
 	if (tmp % 10 >= 5)
-		icch = (u8)((num/denom) + 1);
+		icch = (u16)((num/denom) + 1);
 	else
-		icch = (u8)(num/denom);
+		icch = (u16)(num/denom);
 }
 
 /*
@@ -235,10 +296,14 @@ void i2c_init(int speed, int slaveaddr)
  */
 int i2c_read(u8 chip, u32 addr, int alen, u8 *buffer, int len)
 {
+	int ret;
 	int i = 0;
-	for (i = 0 ; i < len ; i++)
-		buffer[i] = i2c_raw_read(base, chip, addr + i);
-
+	for (i = 0 ; i < len ; i++) {
+		ret = i2c_raw_read(base, chip, addr + i);
+		if (ret < 0)
+			return -1;
+		buffer[i] = ret & 0xff;
+	}
 	return 0;
 }
 
@@ -259,8 +324,8 @@ int i2c_write(u8 chip, u32 addr, int alen, u8 *buffer, int len)
 {
 	int i = 0;
 	for (i = 0; i < len ; i++)
-		i2c_raw_write(base, chip, addr + i, buffer[i]);
-
+		if (i2c_raw_write(base, chip, addr + i, buffer[i]) != 0)
+			return -1;
 	return 0;
 }
 
@@ -272,5 +337,9 @@ int i2c_write(u8 chip, u32 addr, int alen, u8 *buffer, int len)
  */
 int i2c_probe(u8 chip)
 {
-	return 0;
+	int ret;
+
+	ret = i2c_set_addr(base, chip, 0, 1);
+	i2c_finish(base);
+	return ret;
 }

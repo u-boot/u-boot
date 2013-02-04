@@ -46,13 +46,11 @@ SECTIONS
 	 * the initialization code relocates the command table as
 	 * well -- admittedly, this is just pure laziness ;-)
 	 */
-	__u_boot_cmd_start = .;
-	.u_boot_cmd :
-	{
-	  *(.u_boot_cmd)
-	}
+
 	. = ALIGN(4);
-	__u_boot_cmd_end = .;
+	.u_boot_list : {
+	#include <u-boot.lst>
+	}
 
 	/* INIT DATA sections - "Small" data (see the gcc -G option)
 	 * is always gp-relative. Here we make all init data sections

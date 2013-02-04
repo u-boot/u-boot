@@ -48,6 +48,10 @@ SECTIONS
 	. = ALIGN(4);
 	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
 	. = ALIGN(4);
+	.u_boot_list : {
+		#include <u-boot.lst>
+	} >.sram
+	. = ALIGN(4);
 	.rel.dyn : {
 		__rel_dyn_start = .;
 		*(.rel*)

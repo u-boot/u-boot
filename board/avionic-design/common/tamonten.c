@@ -27,27 +27,19 @@
 #include <ns16550.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/board.h>
-#include <asm/arch/tegra20.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/uart.h>
-#include <asm/arch/mmc.h>
-
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/board.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/mmc.h>
+#include <asm/arch-tegra/sys_proto.h>
+#include <asm/arch-tegra/uart.h>
 #ifdef CONFIG_TEGRA_MMC
 #include <mmc.h>
 #endif
 
-/*
- * Routine: gpio_config_uart
- * Description: Does nothing on Tamonten - no conflict w/SPI.
- */
-void gpio_config_uart(void)
-{
-}
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 void gpio_early_init(void)

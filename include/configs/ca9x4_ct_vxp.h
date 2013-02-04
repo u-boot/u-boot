@@ -163,6 +163,8 @@
 /* Room required on the stack for the environment data */
 #define CONFIG_ENV_SIZE			FLASH_MAX_SECTOR_SIZE
 
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes */
+
 /*
  * Amount of flash used for environment:
  * We don't know which end has the small erase blocks so we use the penultimate

@@ -108,6 +108,9 @@ Configuration Options:
    CONFIG_CMD_NAND
       Enables NAND support and commmands.
 
+   CONFIG_CMD_NAND_TORTURE
+      Enables the torture command (see description of this command below).
+
    CONFIG_MTD_NAND_ECC_JFFS2
       Define this if you want the Error Correction Code information in
       the out-of-band data to be formatted to match the JFFS2 file system.
@@ -212,6 +215,24 @@ Miscellaneous and testing commands:
   like "erase" but don't skip bad block. Instead erase them.
   DANGEROUS!!! Factory set bad blocks will be lost. Use only
   to remove artificial bad blocks created with the "markbad" command.
+
+  "torture offset"
+  Torture block to determine if it is still reliable.
+  Enabled by the CONFIG_CMD_NAND_TORTURE configuration option.
+  This command returns 0 if the block is still reliable, else 1.
+  If the block is detected as unreliable, it is up to the user to decide to
+  mark this block as bad.
+  The analyzed block is put through 3 erase / write cycles (or less if the block
+  is detected as unreliable earlier).
+  This command can be used in scripts, e.g. together with the markbad command to
+  automate retries and handling of possibly newly detected bad blocks if the
+  nand write command fails.
+  It can also be used manually by users having seen some NAND errors in logs to
+  search the root cause of these errors.
+  The underlying nand_torture() function is also useful for code willing to
+  automate actions following a nand->write() error. This would e.g. be required
+  in order to program or update safely firmware to NAND, especially for the UBI
+  part of such firmware.
 
 
 NAND locking command (for chips with active LOCKPRE pin)

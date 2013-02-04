@@ -71,6 +71,8 @@ static uint32_t imximage_version;
 static set_dcd_val_t set_dcd_val;
 static set_dcd_rst_t set_dcd_rst;
 static set_imx_hdr_t set_imx_hdr;
+static uint32_t max_dcd_entries;
+static uint32_t *header_size_ptr;
 
 static uint32_t get_cfg_value(char *token, char *name,  int linenr)
 {
@@ -170,13 +172,6 @@ static void set_dcd_rst_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 {
 	dcd_v1_t *dcd_v1 = &imxhdr->header.hdr_v1.dcd_table;
 
-	if (dcd_len > MAX_HW_CFG_SIZE_V1) {
-		fprintf(stderr, "Error: %s[%d] -"
-			"DCD table exceeds maximum size(%d)\n",
-			name, lineno, MAX_HW_CFG_SIZE_V1);
-		exit(EXIT_FAILURE);
-	}
-
 	dcd_v1->preamble.barker = DCD_BARKER;
 	dcd_v1->preamble.length = dcd_len * sizeof(dcd_type_addr_data_t);
 }
@@ -190,13 +185,6 @@ static void set_dcd_rst_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 {
 	dcd_v2_t *dcd_v2 = &imxhdr->header.hdr_v2.dcd_table;
 
-	if (dcd_len > MAX_HW_CFG_SIZE_V2) {
-		fprintf(stderr, "Error: %s[%d] -"
-			"DCD table exceeds maximum size(%d)\n",
-			name, lineno, MAX_HW_CFG_SIZE_V2);
-		exit(EXIT_FAILURE);
-	}
-
 	dcd_v2->header.tag = DCD_HEADER_TAG;
 	dcd_v2->header.length = cpu_to_be16(
 			dcd_len * sizeof(dcd_addr_data_t) + 8);
@@ -208,84 +196,55 @@ static void set_dcd_rst_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 }
 
 static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
-					struct stat *sbuf,
-					struct mkimage_params *params)
+		uint32_t entry_point, uint32_t flash_offset)
 {
 	imx_header_v1_t *hdr_v1 = &imxhdr->header.hdr_v1;
 	flash_header_v1_t *fhdr_v1 = &hdr_v1->fhdr;
 	dcd_v1_t *dcd_v1 = &hdr_v1->dcd_table;
-	uint32_t base_offset;
-
-	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
-	if(imxhdr->flash_offset == FLASH_OFFSET_UNDEFINED) {
-		fprintf(stderr, "Error: Header v1: No BOOT_FROM tag in %s\n",
-			params->imagename);
-		exit(EXIT_FAILURE);
-	}
+	uint32_t hdr_base;
+	uint32_t header_length = (((char *)&dcd_v1->addr_data[dcd_len].addr)
+			- ((char *)imxhdr));
 
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
 
-	fhdr_v1->app_dest_ptr = params->addr;
-	fhdr_v1->app_dest_ptr = params->ep - imxhdr->flash_offset -
-		sizeof(struct imx_header);
-	fhdr_v1->app_code_jump_vector = params->ep;
+	hdr_base = entry_point - sizeof(struct imx_header);
+	fhdr_v1->app_dest_ptr = hdr_base - flash_offset;
+	fhdr_v1->app_code_jump_vector = entry_point;
 
-	base_offset = fhdr_v1->app_dest_ptr + imxhdr->flash_offset ;
-	fhdr_v1->dcd_ptr_ptr =
-		(uint32_t) (offsetof(flash_header_v1_t, dcd_ptr) -
-		offsetof(flash_header_v1_t, app_code_jump_vector) +
-		base_offset);
-
-	fhdr_v1->dcd_ptr = base_offset +
-			offsetof(imx_header_v1_t, dcd_table);
-
-	/* The external flash header must be at the end of the DCD table */
-	dcd_v1->addr_data[dcd_len].type = sbuf->st_size +
-				imxhdr->flash_offset +
-				sizeof(struct imx_header);
+	fhdr_v1->dcd_ptr_ptr = hdr_base + offsetof(flash_header_v1_t, dcd_ptr);
+	fhdr_v1->dcd_ptr = hdr_base + offsetof(imx_header_v1_t, dcd_table);
 
 	/* Security feature are not supported */
 	fhdr_v1->app_code_csf = 0;
 	fhdr_v1->super_root_key = 0;
+	header_size_ptr = (uint32_t *)(((char *)imxhdr) + header_length - 4);
 }
 
 static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
-					struct stat *sbuf,
-					struct mkimage_params *params)
+		uint32_t entry_point, uint32_t flash_offset)
 {
 	imx_header_v2_t *hdr_v2 = &imxhdr->header.hdr_v2;
 	flash_header_v2_t *fhdr_v2 = &hdr_v2->fhdr;
-
-	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
-	if(imxhdr->flash_offset == FLASH_OFFSET_UNDEFINED) {
-		fprintf(stderr, "Error: Header v2: No BOOT_FROM tag in %s\n",
-			params->imagename);
-		exit(EXIT_FAILURE);
-	}
+	uint32_t hdr_base;
 
 	/* Set magic number */
 	fhdr_v2->header.tag = IVT_HEADER_TAG; /* 0xD1 */
 	fhdr_v2->header.length = cpu_to_be16(sizeof(flash_header_v2_t));
 	fhdr_v2->header.version = IVT_VERSION; /* 0x40 */
 
-	fhdr_v2->entry = params->ep;
+	fhdr_v2->entry = entry_point;
 	fhdr_v2->reserved1 = fhdr_v2->reserved2 = 0;
-	fhdr_v2->self = params->ep - sizeof(struct imx_header);
+	fhdr_v2->self = hdr_base = entry_point - sizeof(struct imx_header);
 
-	fhdr_v2->dcd_ptr = fhdr_v2->self +
-			offsetof(imx_header_v2_t, dcd_table);
-
-	fhdr_v2->boot_data_ptr = fhdr_v2->self +
-			offsetof(imx_header_v2_t, boot_data);
-
-	hdr_v2->boot_data.start = fhdr_v2->self - imxhdr->flash_offset;
-	hdr_v2->boot_data.size = sbuf->st_size +
-			imxhdr->flash_offset +
-			sizeof(struct imx_header);
+	fhdr_v2->dcd_ptr = hdr_base + offsetof(imx_header_v2_t, dcd_table);
+	fhdr_v2->boot_data_ptr = hdr_base
+			+ offsetof(imx_header_v2_t, boot_data);
+	hdr_v2->boot_data.start = hdr_base - flash_offset;
 
 	/* Security feature are not supported */
 	fhdr_v2->csf = 0;
+	header_size_ptr = &hdr_v2->boot_data.size;
 }
 
 static void set_hdr_func(struct imx_header *imxhdr)
@@ -295,11 +254,13 @@ static void set_hdr_func(struct imx_header *imxhdr)
 		set_dcd_val = set_dcd_val_v1;
 		set_dcd_rst = set_dcd_rst_v1;
 		set_imx_hdr = set_imx_hdr_v1;
+		max_dcd_entries = MAX_HW_CFG_SIZE_V1;
 		break;
 	case IMXIMAGE_V2:
 		set_dcd_val = set_dcd_val_v2;
 		set_dcd_rst = set_dcd_rst_v2;
 		set_imx_hdr = set_imx_hdr_v2;
+		max_dcd_entries = MAX_HW_CFG_SIZE_V2;
 		break;
 	default:
 		err_imximage_version(imximage_version);
@@ -426,8 +387,15 @@ static void parse_cfg_fld(struct imx_header *imxhdr, int32_t *cmd,
 		value = get_cfg_value(token, name, lineno);
 		(*set_dcd_val)(imxhdr, name, lineno, fld, value, *dcd_len);
 
-		if (fld == CFG_REG_VALUE)
+		if (fld == CFG_REG_VALUE) {
 			(*dcd_len)++;
+			if (*dcd_len > max_dcd_entries) {
+				fprintf(stderr, "Error: %s[%d] -"
+					"DCD table exceeds maximum size(%d)\n",
+					name, lineno, max_dcd_entries);
+				exit(EXIT_FAILURE);
+			}
+		}
 		break;
 	default:
 		break;
@@ -480,6 +448,11 @@ static uint32_t parse_cfg_file(struct imx_header *imxhdr, char *name)
 	(*set_dcd_rst)(imxhdr, dcd_len, name, lineno);
 	fclose(fd);
 
+	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
+	if (imxhdr->flash_offset == FLASH_OFFSET_UNDEFINED) {
+		fprintf(stderr, "Error: No BOOT_FROM tag in %s\n", name);
+		exit(EXIT_FAILURE);
+	}
 	return dcd_len;
 }
 
@@ -541,7 +514,15 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	dcd_len = parse_cfg_file(imxhdr, params->imagename);
 
 	/* Set the imx header */
-	(*set_imx_hdr)(imxhdr, dcd_len, sbuf, params);
+	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imxhdr->flash_offset);
+
+	/*
+	 * ROM bug alert
+	 * mx53 only loads 512 byte multiples.
+	 * The remaining fraction of a block bytes would
+	 * not be loaded.
+	 */
+	*header_size_ptr = ROUND(sbuf->st_size + imxhdr->flash_offset, 512);
 }
 
 int imximage_check_params(struct mkimage_params *params)

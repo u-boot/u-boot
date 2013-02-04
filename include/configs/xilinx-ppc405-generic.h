@@ -33,7 +33,7 @@
 #define CONFIG_XILINX_405       1
 
 /* PPC-specific memory layout */
-#define CONFIG_SYS_MONITOR_BASE TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN          (192 * 1024)
 #define CONFIG_SYS_MALLOC_LEN           (128 * 1024)
 
@@ -65,7 +65,6 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /* use serial multi for all serial devices */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV 1
 
 #ifdef XILINX_UARTLITE_BASEADDR

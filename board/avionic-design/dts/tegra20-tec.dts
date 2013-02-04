@@ -4,7 +4,7 @@
 
 / {
 	model = "Avionic Design Tamonten Evaluation Carrier";
-	compatible = "avionic-design,tec", "nvidia,tegra20";
+	compatible = "ad,tec", "nvidia,tegra20";
 
 	aliases {
 		usb0 = "/usb@c5008000";

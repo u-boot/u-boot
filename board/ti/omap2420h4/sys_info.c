@@ -237,20 +237,20 @@ u32 wait_on_value(u32 read_bit_mask, u32 match_value, u32 read_addr, u32 bound)
  *********************************************************************/
 void display_board_info(u32 btype)
 {
-	char cpu_2420[] = "2420";   /* cpu type */
-	char cpu_2422[] = "2422";
-	char cpu_2423[] = "2423";
-	char db_men[] = "Menelaus"; /* board type */
-	char db_ip[] = "IP";
-	char mem_sdr[] = "mSDR";    /* memory type */
-	char mem_ddr[] = "mDDR";
-	char t_tst[] = "TST";	    /* security level */
-	char t_emu[] = "EMU";
-	char t_hs[] = "HS";
-	char t_gp[] = "GP";
-	char unk[] = "?";
+	static const char cpu_2420 [] = "2420";   /* cpu type */
+	static const char cpu_2422 [] = "2422";
+	static const char cpu_2423 [] = "2423";
+	static const char db_men [] = "Menelaus"; /* board type */
+	static const char db_ip [] = "IP";
+	static const char mem_sdr [] = "mSDR";    /* memory type */
+	static const char mem_ddr [] = "mDDR";
+	static const char t_tst [] = "TST";	    /* security level */
+	static const char t_emu [] = "EMU";
+	static const char t_hs [] = "HS";
+	static const char t_gp [] = "GP";
+	static const char unk [] = "?";
 
-	char *cpu_s, *db_s, *mem_s, *sec_s;
+	const char *cpu_s, *db_s, *mem_s, *sec_s;
 	u32 cpu, rev, sec;
 
 	rev = get_cpu_rev();

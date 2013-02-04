@@ -26,6 +26,7 @@
 /* includes */
 
 #include <common.h>
+#include <linux/compiler.h>
 
 #ifdef CONFIG_USE_CPCIDVI
 extern u8 gt_cpcidvi_in8(u32 offset);
@@ -320,6 +321,54 @@ static int kbd_controller_present(void)
 	return in8(I8042_STATUS_REG) != 0xff;
 }
 
+/*
+ * Implement a weak default function for boards that optionally
+ * need to skip the i8042 initialization.
+ */
+int __weak board_i8042_skip(void)
+{
+	/* As default, don't skip */
+	return 0;
+}
+
+void i8042_flush(void)
+{
+	int timeout;
+
+	/*
+	 * The delay is to give the keyboard controller some time to fill the
+	 * next byte.
+	 */
+	while (1) {
+		timeout = 100;  /* wait for no longer than 100us */
+		while (timeout > 0 && !(in8(I8042_STATUS_REG) & 0x01)) {
+			udelay(1);
+			timeout--;
+		}
+
+		/* Try to pull next byte if not timeout. */
+		if (in8(I8042_STATUS_REG) & 0x01)
+			in8(I8042_DATA_REG);
+		else
+			break;
+	}
+}
+
+int i8042_disable(void)
+{
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	/* Disable keyboard */
+	out8(I8042_COMMAND_REG, 0xad);
+
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	return 0;
+}
+
+
 /*******************************************************************************
  *
  * i8042_kbd_init - reset keyboard and init state flags
@@ -329,7 +378,7 @@ int i8042_kbd_init(void)
 	int keymap, try;
 	char *penv;
 
-	if (!kbd_controller_present())
+	if (!kbd_controller_present() || board_i8042_skip())
 		return -1;
 
 #ifdef CONFIG_USE_CPCIDVI
@@ -607,11 +656,22 @@ static void kbd_led_set(void)
 
 static int kbd_input_empty(void)
 {
-	int kbdTimeout = KBD_TIMEOUT;
+	int kbdTimeout = KBD_TIMEOUT * 1000;
 
-	/* wait for input buf empty */
-	while ((in8(I8042_STATUS_REG) & 0x02) && kbdTimeout--)
-		udelay(1000);
+	while ((in8(I8042_STATUS_REG) & I8042_STATUS_IN_DATA) && kbdTimeout--)
+		udelay(1);
+
+	return kbdTimeout != -1;
+}
+
+/******************************************************************************/
+
+static int wait_until_kbd_output_full(void)
+{
+	int kbdTimeout = KBD_TIMEOUT * 1000;
+
+	while (((in8(I8042_STATUS_REG) & 0x01) == 0) && kbdTimeout--)
+		udelay(1);
 
 	return kbdTimeout != -1;
 }
@@ -620,31 +680,39 @@ static int kbd_input_empty(void)
 
 static int kbd_reset(void)
 {
+	/* KB Reset */
 	if (kbd_input_empty() == 0)
 		return -1;
 
 	out8(I8042_DATA_REG, 0xff);
 
-	udelay(250000);
+	if (wait_until_kbd_output_full() == 0)
+		return -1;
+
+	if (in8(I8042_DATA_REG) != 0xfa) /* ACK */
+		return -1;
+
+	if (wait_until_kbd_output_full() == 0)
+		return -1;
+
+	if (in8(I8042_DATA_REG) != 0xaa) /* Test Pass*/
+		return -1;
 
 	if (kbd_input_empty() == 0)
 		return -1;
 
-#ifdef CONFIG_USE_CPCIDVI
+	/* Set KBC mode */
 	out8(I8042_COMMAND_REG, 0x60);
-#else
-	out8(I8042_DATA_REG, 0x60);
-#endif
 
 	if (kbd_input_empty() == 0)
 		return -1;
 
 	out8(I8042_DATA_REG, 0x45);
 
-
 	if (kbd_input_empty() == 0)
 		return -1;
 
+	/* Enable Keyboard */
 	out8(I8042_COMMAND_REG, 0xae);
 
 	if (kbd_input_empty() == 0)

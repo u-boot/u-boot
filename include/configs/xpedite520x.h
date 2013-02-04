@@ -398,12 +398,12 @@
  * faf00000 - fbefffff     Sec OS image (16MB)
  * f8000000 - faefffff     Sec OS Use/Filesystem (47MB)
  */
-#define CONFIG_UBOOT1_ENV_ADDR	MK_STR(0xfff80000)
-#define CONFIG_UBOOT2_ENV_ADDR	MK_STR(0xfbf80000)
-#define CONFIG_FDT1_ENV_ADDR	MK_STR(0xfff00000)
-#define CONFIG_FDT2_ENV_ADDR	MK_STR(0xfbf00000)
-#define CONFIG_OS1_ENV_ADDR	MK_STR(0xfef00000)
-#define CONFIG_OS2_ENV_ADDR	MK_STR(0xfaf00000)
+#define CONFIG_UBOOT1_ENV_ADDR	__stringify(0xfff80000)
+#define CONFIG_UBOOT2_ENV_ADDR	__stringify(0xfbf80000)
+#define CONFIG_FDT1_ENV_ADDR	__stringify(0xfff00000)
+#define CONFIG_FDT2_ENV_ADDR	__stringify(0xfbf00000)
+#define CONFIG_OS1_ENV_ADDR	__stringify(0xfef00000)
+#define CONFIG_OS2_ENV_ADDR	__stringify(0xfaf00000)
 
 #define CONFIG_PROG_UBOOT1						\
 	"$download_cmd $loadaddr $ubootfile; "				\

@@ -30,9 +30,15 @@
 #define CONFIG_SYS_SDRAM_BASE	0
 #define CONFIG_SYS_SDRAM_SIZE	PHYS_SDRAM_1_SIZE
 
+/* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE		(128 << 10)
+
+/* allow to overwrite serial and ethaddr */
+#define CONFIG_ENV_OVERWRITE
+
 /* Serial drivers */
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
+#define CONFIG_BAUDRATE			115200
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 38400, 115200 }
 
 /* Zynq serial driver */
 #ifdef CONFIG_ZYNQ_SERIAL_UART0
@@ -48,7 +54,6 @@
 #endif
 
 #if defined(CONFIG_ZYNQ_SERIAL_UART0) || defined(CONFIG_ZYNQ_SERIAL_UART1)
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_ZYNQ_SERIAL
 #endif
 
@@ -78,44 +83,13 @@
 #endif
 #define CONFIG_SYS_HZ          1000
 
-
-/* no NOR flash */
-#ifdef CONFIG_SYS_NO_FLASH
-# define CONFIG_ENV_IS_NOWHERE
-#else
-# define CONFIG_SYS_FLASH_BASE           0xE2000000
-# define CONFIG_SYS_FLASH_SIZE           (16 * 1024 * 1024)
-# define CONFIG_SYS_MAX_FLASH_BANKS      1
-/* max number of sectors/blocks on one chip */
-# define CONFIG_SYS_MAX_FLASH_SECT       512
-# define CONFIG_SYS_FLASH_ERASE_TOUT     1000
-# define CONFIG_SYS_FLASH_WRITE_TOUT     5000
-# define CONFIG_FLASH_SHOW_PROGRESS	10
-
-# define CONFIG_SYS_FLASH_CFI
-# undef CONFIG_SYS_FLASH_EMPTY_INFO
-# define CONFIG_FLASH_CFI_DRIVER
-
-# undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
-# define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
-
-# ifndef CONFIG_ENV_IS_NOWHERE
-#  define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
-#  define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
-#  define CONFIG_ENV_IS_IN_FLASH
-#  define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
-# endif
-#endif
-
-
 #define CONFIG_AUTO_COMPLETE
+#define CONFIG_SYS_HUSH_PARSER	/* use "hush" command parser */
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_LONGHELP
 
-
-
 #include <config_cmd_default.h>
-
 
 #ifdef CONFIG_SYS_ENET
 # define CONFIG_CMD_PING
@@ -125,29 +99,47 @@
 # undef CONFIG_CMD_NFS
 #endif
 
+/* NOR */
+#ifndef CONFIG_SYS_NO_FLASH
+# define CONFIG_SYS_FLASH_BASE		0xE2000000
+# define CONFIG_SYS_FLASH_SIZE		(16 * 1024 * 1024)
+# define CONFIG_SYS_MAX_FLASH_BANKS	1
+/* max number of sectors/blocks on one chip */
+# define CONFIG_SYS_MAX_FLASH_SECT	512
+# define CONFIG_SYS_FLASH_ERASE_TOUT	1000
+# define CONFIG_SYS_FLASH_WRITE_TOUT	5000
+# define CONFIG_FLASH_SHOW_PROGRESS	10
+# define CONFIG_SYS_FLASH_CFI
+# undef CONFIG_SYS_FLASH_EMPTY_INFO
+# define CONFIG_FLASH_CFI_DRIVER
+# undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
+# define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
+#endif
+
+/* QSPI */
 #ifdef CONFIG_ZYNQ_SPI
 # define CONFIG_SF_DEFAULT_SPEED	30000000
 # define CONFIG_SPI_FLASH
-/* # define CONFIG_SPI_FLASH_ATMEL */
 # define CONFIG_SPI_FLASH_SPANSION
 # define CONFIG_SPI_FLASH_STMICRO
 # define CONFIG_SPI_FLASH_WINBOND
 # define CONFIG_CMD_SPI
 # define CONFIG_CMD_SF
-# define CONFIG_CMD_SAVEENV
 #endif
 
+/* MMC */
 #ifdef CONFIG_MMC
 # define CONFIG_GENERIC_MMC
-# define CONFIG_ZYNQ_MMC
+# define CONFIG_SDHCI
+# define CONFIG_ZYNQ_SDHCI
 # define CONFIG_CMD_MMC
 # define CONFIG_CMD_FAT
+# define CONFIG_SUPPORT_VFAT
 # define CONFIG_CMD_EXT2
 # define CONFIG_DOS_PARTITION
-/* For now, use only single block reads for the MMC */
-# define CONFIG_SYS_MMC_MAX_BLK_COUNT	1
 #endif
 
+/* NAND */
 #ifdef CONFIG_NAND_ZYNQ
 # define CONFIG_CMD_NAND
 # define CONFIG_CMD_NAND_LOCK_UNLOCK
@@ -155,6 +147,42 @@
 # define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
 # define CONFIG_SYS_NAND_ONFI_DETECTION
 # define CONFIG_MTD_DEVICE
+#endif
+
+/* I2C */
+#ifdef CONFIG_ZYNQ_I2C
+# define CONFIG_CMD_I2C
+# define CONFIG_ZYNQ_I2C_CTLR_0
+# define CONFIG_HARD_I2C		1
+# define CONFIG_SYS_I2C_SPEED		100000
+# define CONFIG_SYS_I2C_SLAVE		1
+#endif
+
+/* EEPROM */
+#ifdef CONFIG_ZYNQ_EEPROM
+# define CONFIG_CMD_EEPROM
+# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
+# define CONFIG_SYS_I2C_EEPROM_ADDR		0x54
+# define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
+# define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
+# define CONFIG_SYS_EEPROM_SIZE			1024 /* Bytes */
+#endif
+
+#ifndef CONFIG_ENV_IS_NOWHERE
+# ifndef CONFIG_SYS_NO_FLASH
+/* Environment in NOR flash */
+#  define CONFIG_ENV_IS_IN_FLASH
+# elif defined(CONFIG_ZYNQ_SPI)
+/* Environment in Serial Flash */
+#  define CONFIG_ENV_IS_IN_SPI_FLASH
+# elif defined(CONFIG_NAND_ZYNQ)
+/* Environment in NAND flash */
+#  define CONFIG_ENV_IS_IN_NAND
+# endif
+
+# define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
+# define CONFIG_ENV_OFFSET		0xE0000
+# define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #endif
 
 /* For development/debugging */
@@ -176,23 +204,23 @@
 	"kernel_image=uImage\0"	\
 	"ramdisk_image=uramdisk.image.gz\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
-	"kernel_size=0x140000\0"	\
-	"ramdisk_size=0x200000\0"	\
-	"nand_kernel_size=0x400000\0"	\
-	"nand_ramdisk_size=0x400000\0"	\
+	"kernel_size=0x500000\0"	\
+	"devicetree_size=0x20000\0"	\
+	"ramdisk_size=0x5E0000\0"	\
 	"fdt_high=0x20000000\0"	\
 	"initrd_high=0x20000000\0"	\
 	"norboot=echo Copying Linux from NOR flash to RAM...;" \
 		"cp 0xE2100000 0x3000000 ${kernel_size};" \
-		"cp 0xE2600000 0x2A00000 0x20000;" \
+		"cp 0xE2600000 0x2A00000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
-		"cp 0xE3000000 0x2000000 ${ramdisk_size};" \
+		"cp 0xE2620000 0x2000000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"qspiboot=echo Copying Linux from QSPI flash to RAM...;" \
-		"cp 0xFC100000 0x3000000 ${kernel_size};" \
-		"cp 0xFC600000 0x2A00000 0x20000;" \
+		"sf probe 0 0 0;" \
+		"sf read 0x3000000 0x100000 ${kernel_size};" \
+		"sf read 0x2A00000 0x600000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
-		"cp 0xFC800000 0x2000000 ${ramdisk_size};" \
+		"sf read 0x2000000 0x620000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"sdboot=echo Copying Linux from SD to RAM...;" \
 		"mmcinfo;" \
@@ -201,10 +229,10 @@
 		"fatload mmc 0 0x2000000 ${ramdisk_image};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM...;" \
-		"nand read 0x3000000 0x200000 ${nand_kernel_size};" \
-		"nand read 0x2A00000 0x700000 0x20000;" \
+		"nand read 0x3000000 0x100000 ${kernel_size};" \
+		"nand read 0x2A00000 0x600000 ${devicetree_size};" \
 		"echo Copying ramdisk...;" \
-		"nand read 0x2000000 0x900000 ${nand_ramdisk_size};" \
+		"nand read 0x2000000 0x620000 ${ramdisk_size};" \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"jtagboot=echo TFTPing Linux to RAM...;" \
 		"tftp 0x3000000 ${kernel_image};" \
@@ -213,8 +241,7 @@
 		"bootm 0x3000000 0x2000000 0x2A00000\0"
 
 /* default boot is according to the bootmode switch settings */
-#define CONFIG_BOOTCOMMAND "run modeboot"
-
+#define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	3 /* -1 to Disable autoboot */
 
 #define CONFIG_SYS_PROMPT	"zynq-uboot> "
@@ -226,9 +253,7 @@
 #define CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
-/*
- * Physical Memory map
- */
+/* Physical Memory map */
 #define CONFIG_NR_DRAM_BANKS    	1
 #define PHYS_SDRAM_1            	0
 
@@ -243,7 +268,6 @@
 					CONFIG_SYS_INIT_RAM_SIZE - \
 					GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_ENV_SIZE 0x10000
 #define CONFIG_SYS_MALLOC_LEN 0x400000
 #define CONFIG_SYS_MAXARGS 16
 #define CONFIG_SYS_CBSIZE 2048
@@ -253,7 +277,6 @@
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */
 
 /* Enable the PL to be downloaded */
-
 #define CONFIG_FPGA
 #define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_ZYNQPL
@@ -267,26 +290,11 @@
 
 #undef CONFIG_BOOTM_NETBSD
 
-
 /* FIXME this should be removed pretty soon */
 #define XPSS_QSPI_BASEADDR		0xE000D000
-#define SD_BASEADDR			0xE0100000
 #define XPSS_NAND_BASEADDR		0xE1000000
 #define XPSS_CRTL_PARPORT_BASEADDR	0xE000E000
-
-#define RTL_30
-#ifdef RTL_30
-# define XPSS_QSPI_LIN_BASEADDR		0xFC000000
-# define XPSS_SYS_CTRL_BASEADDR		0xF8000000
-# define XPSS_DDR_CTRL_BASEADDR		0xF8006000
-# define XPSS_SCU_BASEADDR		0xF8F00000
-# define XPSS_DEV_CFG_APB_BASEADDR	0xF8007000
-#else
-# define XPSS_QSPI_LIN_BASEADDR		0xE6000000
-# define XPSS_SYS_CTRL_BASEADDR		0xFE000000
-# define XPSS_DDR_CTRL_BASEADDR		0xFE006000
-# define XPSS_SCU_BASEADDR		0xFEF00000
-# define XPSS_DEV_CFG_APB_BASEADDR	0xFE007000
-#endif
+#define SD_BASEADDR			0xE0100000
+#define XPSS_QSPI_LIN_BASEADDR		0xFC000000
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */

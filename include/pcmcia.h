@@ -58,8 +58,6 @@
 # define CONFIG_PCMCIA_SLOT_B
 #elif defined(CONFIG_ICU862)		/* The ICU862 use SLOT_B	*/
 # define CONFIG_PCMCIA_SLOT_B
-#elif defined(CONFIG_C2MON)		/* The C2MON  use SLOT_B	*/
-# define CONFIG_PCMCIA_SLOT_B
 #elif defined(CONFIG_R360MPI)		/* The R360MPI use SLOT_B	*/
 # define CONFIG_PCMCIA_SLOT_B
 #elif defined(CONFIG_ATC)		/* The ATC use SLOT_A	*/

@@ -35,6 +35,7 @@ enum mxc_clock {
 	MXC_SSP1_CLK,
 	MXC_SSP2_CLK,
 	MXC_SSP3_CLK,
+	MXC_XTAL_CLK,
 };
 
 enum mxs_ioclock {

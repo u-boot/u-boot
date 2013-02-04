@@ -96,7 +96,7 @@ relocate_code:
 	li	t0, KSEG0
 	addi	t1, t0, CONFIG_SYS_DCACHE_SIZE
 2:
-	cache	Index_Writeback_Inv_D, 0(t0)
+	cache	INDEX_WRITEBACK_INV_D, 0(t0)
 	bne	t0, t1, 2b
 	 addi	t0, CONFIG_SYS_CACHELINE_SIZE
 
@@ -106,7 +106,7 @@ relocate_code:
 	li	t0, KSEG0
 	addi	t1, t0, CONFIG_SYS_ICACHE_SIZE
 3:
-	cache	Index_Invalidate_I, 0(t0)
+	cache	INDEX_INVALIDATE_I, 0(t0)
 	bne	t0, t1, 3b
 	 addi	t0, CONFIG_SYS_CACHELINE_SIZE
 

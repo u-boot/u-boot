@@ -23,14 +23,21 @@
  */
 
 #include <common.h>
+#include <spi.h>
+#include <lcd.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/adc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
-#include <pmic.h>
+#include <asm/arch/pinmux.h>
+#include <asm/arch/watchdog.h>
+#include <libtizen.h>
+#include <ld9040.h>
+#include <power/pmic.h>
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
-#include <max8998_pmic.h>
+#include <power/max8998_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,22 +55,17 @@ static int get_hwrev(void)
 	return board_rev & 0xFF;
 }
 
-static void check_hw_revision(void);
+static void init_pmic_lcd(void);
 
-int board_init(void)
+int power_init_board(void)
 {
-	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
-	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
+	int ret;
 
-	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
-	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+	ret = pmic_init(I2C_5);
+	if (ret)
+		return ret;
 
-#if defined(CONFIG_PMIC)
-	pmic_init();
-#endif
-
-	check_hw_revision();
-	printf("HW Revision:\t0x%x\n", board_rev);
+	init_pmic_lcd();
 
 	return 0;
 }
@@ -112,7 +114,9 @@ static unsigned short get_adc_value(int channel)
 static int adc_power_control(int on)
 {
 	int ret;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;
@@ -177,7 +181,7 @@ int checkboard(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	int i, err;
+	int err;
 
 	switch (get_hwrev()) {
 	case 0:
@@ -200,75 +204,30 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	/*
-	 * eMMC GPIO:
-	 * SDR 8-bit@48MHz at MMC0
-	 * GPK0[0]	SD_0_CLK(2)
-	 * GPK0[1]	SD_0_CMD(2)
-	 * GPK0[2]	SD_0_CDn	-> Not used
-	 * GPK0[3:6]	SD_0_DATA[0:3](2)
-	 * GPK1[3:6]	SD_0_DATA[0:3](3)
-	 *
-	 * DDR 4-bit@26MHz at MMC4
-	 * GPK0[0]	SD_4_CLK(3)
-	 * GPK0[1]	SD_4_CMD(3)
-	 * GPK0[2]	SD_4_CDn	-> Not used
-	 * GPK0[3:6]	SD_4_DATA[0:3](3)
-	 * GPK1[3:6]	SD_4_DATA[4:7](4)
+	 * MMC device init
+	 * mmc0	 : eMMC (8-bit buswidth)
+	 * mmc2	 : SD card (4-bit buswidth)
 	 */
-	for (i = 0; i < 7; i++) {
-		if (i == 2)
-			continue;
-		/* GPK0[0:6] special function 2 */
-		s5p_gpio_cfg_pin(&gpio2->k0, i, 0x2);
-		/* GPK0[0:6] pull disable */
-		s5p_gpio_set_pull(&gpio2->k0, i, GPIO_PULL_NONE);
-		/* GPK0[0:6] drv 4x */
-		s5p_gpio_set_drv(&gpio2->k0, i, GPIO_DRV_4X);
-	}
-
-	for (i = 3; i < 7; i++) {
-		/* GPK1[3:6] special function 3 */
-		s5p_gpio_cfg_pin(&gpio2->k1, i, 0x3);
-		/* GPK1[3:6] pull disable */
-		s5p_gpio_set_pull(&gpio2->k1, i, GPIO_PULL_NONE);
-		/* GPK1[3:6] drv 4x */
-		s5p_gpio_set_drv(&gpio2->k1, i, GPIO_DRV_4X);
-	}
+	err = exynos_pinmux_config(PERIPH_ID_SDMMC0, PINMUX_FLAG_8BIT_MODE);
+	if (err)
+		debug("SDMMC0 not configured\n");
+	else
+		err = s5p_mmc_init(0, 8);
 
 	/* T-flash detect */
 	s5p_gpio_cfg_pin(&gpio2->x3, 4, 0xf);
 	s5p_gpio_set_pull(&gpio2->x3, 4, GPIO_PULL_UP);
 
 	/*
-	 * MMC device init
-	 * mmc0	 : eMMC (8-bit buswidth)
-	 * mmc2	 : SD card (4-bit buswidth)
-	 */
-	err = s5p_mmc_init(0, 8);
-
-	/*
 	 * Check the T-flash  detect pin
 	 * GPX3[4] T-flash detect pin
 	 */
 	if (!s5p_gpio_get_value(&gpio2->x3, 4)) {
-		/*
-		 * SD card GPIO:
-		 * GPK2[0]	SD_2_CLK(2)
-		 * GPK2[1]	SD_2_CMD(2)
-		 * GPK2[2]	SD_2_CDn	-> Not used
-		 * GPK2[3:6]	SD_2_DATA[0:3](2)
-		 */
-		for (i = 0; i < 7; i++) {
-			if (i == 2)
-				continue;
-			/* GPK2[0:6] special function 2 */
-			s5p_gpio_cfg_pin(&gpio2->k2, i, 0x2);
-			/* GPK2[0:6] pull disable */
-			s5p_gpio_set_pull(&gpio2->k2, i, GPIO_PULL_NONE);
-			/* GPK2[0:6] drv 4x */
-			s5p_gpio_set_drv(&gpio2->k2, i, GPIO_DRV_4X);
-		}
-		err = s5p_mmc_init(2, 4);
+		err = exynos_pinmux_config(PERIPH_ID_SDMMC2, PINMUX_FLAG_NONE);
+		if (err)
+			debug("SDMMC2 not configured\n");
+		else
+			err = s5p_mmc_init(2, 4);
 	}
 
 	return err;
@@ -280,7 +239,9 @@ int board_mmc_init(bd_t *bis)
 static int s5pc210_phy_control(int on)
 {
 	int ret = 0;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	if (pmic_probe(p))
 		return -1;
@@ -320,3 +281,242 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_flags = PHY0_SLEEP,
 };
 #endif
+
+int board_early_init_f(void)
+{
+	wdt_stop();
+
+	return 0;
+}
+
+#ifdef CONFIG_SOFT_SPI
+static void soft_spi_init(void)
+{
+	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_SCLK,
+		CONFIG_SOFT_SPI_MODE & SPI_CPOL);
+	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_MOSI, 1);
+	gpio_direction_input(CONFIG_SOFT_SPI_GPIO_MISO);
+	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_CS,
+		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
+		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
+	SPI_SCL(1);
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
+		CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
+		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
+}
+
+int  spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void universal_spi_scl(int bit)
+{
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_SCLK, bit);
+}
+
+void universal_spi_sda(int bit)
+{
+	gpio_set_value(CONFIG_SOFT_SPI_GPIO_MOSI, bit);
+}
+
+int universal_spi_read(void)
+{
+	return gpio_get_value(CONFIG_SOFT_SPI_GPIO_MISO);
+}
+#endif
+
+static void init_pmic_lcd(void)
+{
+	unsigned char val;
+	int ret = 0;
+
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+
+	if (!p)
+		return;
+
+	if (pmic_probe(p))
+		return;
+
+	/* LDO7 1.8V */
+	val = 0x02; /* (1800 - 1600) / 100; */
+	ret |= pmic_reg_write(p,  MAX8998_REG_LDO7, val);
+
+	/* LDO17 3.0V */
+	val = 0xe; /* (3000 - 1600) / 100; */
+	ret |= pmic_reg_write(p,  MAX8998_REG_LDO17, val);
+
+	/* Disable unneeded regulators */
+	/*
+	 * ONOFF1
+	 * Buck1 ON, Buck2 OFF, Buck3 ON, Buck4 ON
+	 * LDO2 ON, LDO3 OFF, LDO4 OFF, LDO5 ON
+	 */
+	val = 0xB9;
+	ret |= pmic_reg_write(p,  MAX8998_REG_ONOFF1, val);
+
+	/* ONOFF2
+	 * LDO6 OFF, LDO7 ON, LDO8 OFF, LDO9 ON,
+	 * LDO10 OFF, LDO11 OFF, LDO12 OFF, LDO13 OFF
+	 */
+	val = 0x50;
+	ret |= pmic_reg_write(p,  MAX8998_REG_ONOFF2, val);
+
+	/* ONOFF3
+	 * LDO14 OFF, LDO15 OFF, LGO16 OFF, LDO17 OFF
+	 * EPWRHOLD OFF, EBATTMON OFF, ELBCNFG2 OFF, ELBCNFG1 OFF
+	 */
+	val = 0x00;
+	ret |= pmic_reg_write(p,  MAX8998_REG_ONOFF3, val);
+
+	if (ret)
+		puts("LCD pmic initialisation error!\n");
+}
+
+static void lcd_cfg_gpio(void)
+{
+	unsigned int i, f3_end = 4;
+
+	for (i = 0; i < 8; i++) {
+		/* set GPF0,1,2[0:7] for RGB Interface and Data lines (32bit) */
+		s5p_gpio_cfg_pin(&gpio1->f0, i, GPIO_FUNC(2));
+		s5p_gpio_cfg_pin(&gpio1->f1, i, GPIO_FUNC(2));
+		s5p_gpio_cfg_pin(&gpio1->f2, i, GPIO_FUNC(2));
+		/* pull-up/down disable */
+		s5p_gpio_set_pull(&gpio1->f0, i, GPIO_PULL_NONE);
+		s5p_gpio_set_pull(&gpio1->f1, i, GPIO_PULL_NONE);
+		s5p_gpio_set_pull(&gpio1->f2, i, GPIO_PULL_NONE);
+
+		/* drive strength to max (24bit) */
+		s5p_gpio_set_drv(&gpio1->f0, i, GPIO_DRV_4X);
+		s5p_gpio_set_rate(&gpio1->f0, i, GPIO_DRV_SLOW);
+		s5p_gpio_set_drv(&gpio1->f1, i, GPIO_DRV_4X);
+		s5p_gpio_set_rate(&gpio1->f1, i, GPIO_DRV_SLOW);
+		s5p_gpio_set_drv(&gpio1->f2, i, GPIO_DRV_4X);
+		s5p_gpio_set_rate(&gpio1->f0, i, GPIO_DRV_SLOW);
+	}
+
+	for (i = 0; i < f3_end; i++) {
+		/* set GPF3[0:3] for RGB Interface and Data lines (32bit) */
+		s5p_gpio_cfg_pin(&gpio1->f3, i, GPIO_FUNC(2));
+		/* pull-up/down disable */
+		s5p_gpio_set_pull(&gpio1->f3, i, GPIO_PULL_NONE);
+		/* drive strength to max (24bit) */
+		s5p_gpio_set_drv(&gpio1->f3, i, GPIO_DRV_4X);
+		s5p_gpio_set_rate(&gpio1->f3, i, GPIO_DRV_SLOW);
+	}
+
+	/* gpio pad configuration for LCD reset. */
+	s5p_gpio_cfg_pin(&gpio2->y4, 5, GPIO_OUTPUT);
+
+	spi_init();
+}
+
+static void reset_lcd(void)
+{
+	s5p_gpio_set_value(&gpio2->y4, 5, 1);
+	udelay(10000);
+	s5p_gpio_set_value(&gpio2->y4, 5, 0);
+	udelay(10000);
+	s5p_gpio_set_value(&gpio2->y4, 5, 1);
+	udelay(100);
+}
+
+static void lcd_power_on(void)
+{
+	struct pmic *p = pmic_get("MAX8998_PMIC");
+
+	if (!p)
+		return;
+
+	if (pmic_probe(p))
+		return;
+
+	pmic_set_output(p, MAX8998_REG_ONOFF3, MAX8998_LDO17, LDO_ON);
+	pmic_set_output(p, MAX8998_REG_ONOFF2, MAX8998_LDO7, LDO_ON);
+}
+
+vidinfo_t panel_info = {
+	.vl_freq	= 60,
+	.vl_col		= 480,
+	.vl_row		= 800,
+	.vl_width	= 480,
+	.vl_height	= 800,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_vsp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_HIGH,
+
+	.vl_bpix	= 5,	/* Bits per pixel */
+
+	/* LD9040 LCD Panel */
+	.vl_hspw	= 2,
+	.vl_hbpd	= 16,
+	.vl_hfpd	= 16,
+
+	.vl_vspw	= 2,
+	.vl_vbpd	= 8,
+	.vl_vfpd	= 8,
+	.vl_cmd_allow_len = 0xf,
+
+	.win_id		= 0,
+	.cfg_gpio	= lcd_cfg_gpio,
+	.backlight_on	= NULL,
+	.lcd_power_on	= lcd_power_on,
+	.reset_lcd	= reset_lcd,
+	.dual_lcd_enabled = 0,
+
+	.init_delay	= 0,
+	.power_on_delay = 10000,
+	.reset_delay	= 10000,
+	.interface_mode = FIMD_RGB_INTERFACE,
+	.mipi_enabled	= 0,
+};
+
+void init_panel_info(vidinfo_t *vid)
+{
+	vid->logo_on	= 1;
+	vid->resolution	= HD_RESOLUTION;
+	vid->rgb_mode	= MODE_RGB_P;
+
+#ifdef CONFIG_TIZEN
+	get_tizen_logo_info(vid);
+#endif
+
+	/* for LD9040. */
+	vid->pclk_name = 1;	/* MPLL */
+	vid->sclk_div = 1;
+
+	vid->cfg_ldo = ld9040_cfg_ldo;
+	vid->enable_ldo = ld9040_enable_ldo;
+
+	setenv("lcdinfo", "lcd=ld9040");
+}
+
+int board_init(void)
+{
+	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
+	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
+
+	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
+	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+#ifdef CONFIG_SOFT_SPI
+	soft_spi_init();
+#endif
+	check_hw_revision();
+	printf("HW Revision:\t0x%x\n", board_rev);
+
+	return 0;
+}

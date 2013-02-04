@@ -106,18 +106,42 @@ int ulpi_select_transceiver(struct ulpi_viewport *ulpi_vp, unsigned speed)
 	return ulpi_write(ulpi_vp, &ulpi->function_ctrl, val);
 }
 
-int ulpi_set_vbus(struct ulpi_viewport *ulpi_vp, int on, int ext_power,
-			int ext_ind)
+int ulpi_set_vbus(struct ulpi_viewport *ulpi_vp, int on, int ext_power)
 {
 	u32 flags = ULPI_OTG_DRVVBUS;
 	u8 *reg = on ? &ulpi->otg_ctrl_set : &ulpi->otg_ctrl_clear;
 
 	if (ext_power)
 		flags |= ULPI_OTG_DRVVBUS_EXT;
-	if (ext_ind)
-		flags |= ULPI_OTG_EXTVBUSIND;
 
 	return ulpi_write(ulpi_vp, reg, flags);
+}
+
+int ulpi_set_vbus_indicator(struct ulpi_viewport *ulpi_vp, int external,
+			int passthu, int complement)
+{
+	u32 flags, val;
+	u8 *reg;
+
+	reg = external ? &ulpi->otg_ctrl_set : &ulpi->otg_ctrl_clear;
+	val = ulpi_write(ulpi_vp, reg, ULPI_OTG_EXTVBUSIND);
+	if (val)
+		return val;
+
+	flags = passthu ? ULPI_IFACE_PASSTHRU : 0;
+	flags |= complement ? ULPI_IFACE_EXTVBUS_COMPLEMENT : 0;
+
+	val = ulpi_read(ulpi_vp, &ulpi->iface_ctrl);
+	if (val == ULPI_ERROR)
+		return val;
+
+	val = val & ~(ULPI_IFACE_PASSTHRU & ULPI_IFACE_EXTVBUS_COMPLEMENT);
+	val |= flags;
+	val = ulpi_write(ulpi_vp, &ulpi->iface_ctrl, val);
+	if (val)
+		return val;
+
+	return 0;
 }
 
 int ulpi_set_pd(struct ulpi_viewport *ulpi_vp, int enable)

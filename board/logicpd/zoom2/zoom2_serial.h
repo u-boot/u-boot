@@ -22,6 +22,8 @@
 #ifndef ZOOM2_SERIAL_H
 #define ZOOM2_SERIAL_H
 
+#include <linux/stringify.h>
+
 extern int zoom2_debug_board_connected (void);
 
 #define SERIAL_TL16CP754C_BASE	0x10000000	/* Zoom2 Serial chip address */
@@ -30,9 +32,6 @@ extern int zoom2_debug_board_connected (void);
 #define QUAD_BASE_1	(SERIAL_TL16CP754C_BASE + 0x100)
 #define QUAD_BASE_2	(SERIAL_TL16CP754C_BASE + 0x200)
 #define QUAD_BASE_3	(SERIAL_TL16CP754C_BASE + 0x300)
-
-#define S(a) #a
-#define N(a) S(quad##a)
 
 #define QUAD_INIT(n)				\
 int quad_init_##n(void)				\
@@ -61,14 +60,14 @@ int quad_tstc_##n(void)				\
 }						\
 struct serial_device zoom2_serial_device##n =	\
 {						\
-	N(n),					\
-	quad_init_##n,				\
-	NULL,					\
-	quad_setbrg_##n,			\
-	quad_getc_##n,				\
-	quad_tstc_##n,				\
-	quad_putc_##n,				\
-	quad_puts_##n,				\
+	.name	= __stringify(n),		\
+	.start	= quad_init_##n,		\
+	.stop	= NULL,				\
+	.setbrg	= quad_setbrg_##n,		\
+	.getc	= quad_getc_##n,		\
+	.tstc	= quad_tstc_##n,		\
+	.putc	= quad_putc_##n,		\
+	.puts	= quad_puts_##n,		\
 };
 
 #endif /* ZOOM2_SERIAL_H */

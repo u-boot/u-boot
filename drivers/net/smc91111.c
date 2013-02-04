@@ -178,8 +178,6 @@ static void smc_phy_configure(struct eth_device *dev);
  * inx,outx functions fixed this problem.
  */
 
-#define barrier() __asm__ __volatile__("": : :"memory")
-
 static inline word SMC_inw(struct eth_device *dev, dword offset)
 {
 	word v;

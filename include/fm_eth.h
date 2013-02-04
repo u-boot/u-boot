@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Freescale Semiconductor, Inc.
+ * Copyright 2009-2012 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,13 +30,21 @@ enum fm_port {
 	FM1_DTSEC3,
 	FM1_DTSEC4,
 	FM1_DTSEC5,
+	FM1_DTSEC6,
+	FM1_DTSEC9,
+	FM1_DTSEC10,
 	FM1_10GEC1,
+	FM1_10GEC2,
 	FM2_DTSEC1,
 	FM2_DTSEC2,
 	FM2_DTSEC3,
 	FM2_DTSEC4,
 	FM2_DTSEC5,
+	FM2_DTSEC6,
+	FM2_DTSEC9,
+	FM2_DTSEC10,
 	FM2_10GEC1,
+	FM2_10GEC2,
 	NUM_FM_PORTS,
 };
 
@@ -45,8 +53,15 @@ enum fm_eth_type {
 	FM_ETH_10G_E,
 };
 
+#ifdef CONFIG_SYS_FMAN_V3
+#define CONFIG_SYS_FM1_DTSEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xfc000)
+#define CONFIG_SYS_FM1_TGEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xfd000)
+#define CONFIG_SYS_FM2_DTSEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM2_ADDR + 0xfc000)
+#define CONFIG_SYS_FM2_TGEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM2_ADDR + 0xfd000)
+#else
 #define CONFIG_SYS_FM1_DTSEC1_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xe1120)
 #define CONFIG_SYS_FM1_TGEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xf1000)
+#endif
 
 #define DEFAULT_FM_MDIO_NAME "FSL_MDIO0"
 #define DEFAULT_FM_TGEC_MDIO_NAME "FM_TGEC_MDIO"
@@ -57,6 +72,33 @@ enum fm_eth_type {
 	.phy_regs	= (void *)pregs,				\
 	.enet_if	= PHY_INTERFACE_MODE_NONE,			\
 
+#ifdef CONFIG_SYS_FMAN_V3
+#define FM_DTSEC_INFO_INITIALIZER(idx, n) \
+{									\
+	FM_ETH_INFO_INITIALIZER(idx, CONFIG_SYS_FM1_DTSEC_MDIO_ADDR)	\
+	.index		= idx,						\
+	.num		= n - 1,					\
+	.type		= FM_ETH_1G_E,					\
+	.port		= FM##idx##_DTSEC##n,				\
+	.rx_port_id	= RX_PORT_1G_BASE + n - 1,			\
+	.tx_port_id	= TX_PORT_1G_BASE + n - 1,			\
+	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+				offsetof(struct ccsr_fman, memac[n-1]),\
+}
+
+#define FM_TGEC_INFO_INITIALIZER(idx, n) \
+{									\
+	FM_ETH_INFO_INITIALIZER(idx, CONFIG_SYS_FM1_TGEC_MDIO_ADDR)	\
+	.index		= idx,						\
+	.num		= n - 1,					\
+	.type		= FM_ETH_10G_E,					\
+	.port		= FM##idx##_10GEC##n,				\
+	.rx_port_id	= RX_PORT_10G_BASE + n - 1,			\
+	.tx_port_id	= TX_PORT_10G_BASE + n - 1,			\
+	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+				offsetof(struct ccsr_fman, memac[n-1]),\
+}
+#else
 #define FM_DTSEC_INFO_INITIALIZER(idx, n) \
 {									\
 	FM_ETH_INFO_INITIALIZER(idx, CONFIG_SYS_FM1_DTSEC1_MDIO_ADDR)	\
@@ -82,7 +124,7 @@ enum fm_eth_type {
 	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, mac_10g[n-1]),\
 }
-
+#endif
 struct fm_eth_info {
 	u8 enabled;
 	u8 fm;
@@ -104,7 +146,14 @@ struct tgec_mdio_info {
 	char *name;
 };
 
+struct memac_mdio_info {
+	struct memac_mdio_controller *regs;
+	char *name;
+};
+
 int fm_tgec_mdio_init(bd_t *bis, struct tgec_mdio_info *info);
+int fm_memac_mdio_init(bd_t *bis, struct memac_mdio_info *info);
+
 int fm_standard_init(bd_t *bis);
 void fman_enet_init(void);
 void fdt_fixup_fman_ethernet(void *fdt);

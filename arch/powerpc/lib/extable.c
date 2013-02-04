@@ -63,8 +63,6 @@ search_one_table(const struct exception_table_entry *first,
 	return 0;
 }
 
-int	ex_tab_message = 1;
-
 unsigned long
 search_exception_table(unsigned long addr)
 {
@@ -74,8 +72,7 @@ search_exception_table(unsigned long addr)
 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
 	/* if the serial port does not hang in exception, printf can be used */
 #if !defined(CONFIG_SYS_SERIAL_HANG_IN_EXCEPTION)
-	if (ex_tab_message)
-		debug("Bus Fault @ 0x%08lx, fixup 0x%08lx\n", addr, ret);
+	debug("Bus Fault @ 0x%08lx, fixup 0x%08lx\n", addr, ret);
 #endif
 	if (ret) return ret;
 

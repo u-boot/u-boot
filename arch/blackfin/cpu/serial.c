@@ -236,8 +236,8 @@ static void uart##n##_loop(int state) \
 \
 struct serial_device bfin_serial##n##_device = { \
 	.name   = "bfin_uart"#n, \
-	.init   = uart##n##_init, \
-	.uninit = uart##n##_uninit, \
+	.start  = uart##n##_init, \
+	.stop   = uart##n##_uninit, \
 	.setbrg = uart##n##_setbrg, \
 	.getc   = uart##n##_getc, \
 	.tstc   = uart##n##_tstc, \
@@ -272,7 +272,7 @@ __weak struct serial_device *default_serial_console(void)
 #endif
 }
 
-void serial_register_bfin_uart(void)
+void bfin_serial_initialize(void)
 {
 #ifdef UART0_DLL
 	serial_register(&bfin_serial0_device);

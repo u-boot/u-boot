@@ -42,6 +42,18 @@
 #define OMAP_GP_HDR_SIZE (sizeof(struct gp_header))
 #define OMAP_FILE_HDR_SIZE (OMAP_CH_HDR_SIZE+OMAP_GP_HDR_SIZE)
 
+static int do_swap32 = 0;
+
+static uint32_t omapimage_swap32(uint32_t data)
+{
+	uint32_t result = 0;
+	result  = (data & 0xFF000000) >> 24;
+	result |= (data & 0x00FF0000) >> 8;
+	result |= (data & 0x0000FF00) << 8;
+	result |= (data & 0x000000FF) << 24;
+	return result;
+}
+
 static uint8_t omapimage_header[OMAP_FILE_HDR_SIZE];
 
 static int omapimage_check_image_types(uint8_t type)
@@ -80,12 +92,17 @@ static int omapimage_verify_header(unsigned char *ptr, int image_size,
 {
 	struct ch_toc *toc = (struct ch_toc *)ptr;
 	struct gp_header *gph = (struct gp_header *)(ptr+OMAP_CH_HDR_SIZE);
-	uint32_t offset, size;
+	uint32_t offset, size, gph_size, gph_load_addr;
 
 	while (toc->section_offset != 0xffffffff
 			&& toc->section_size != 0xffffffff) {
-		offset = toc->section_offset;
-		size = toc->section_size;
+		if (do_swap32) {
+			offset = omapimage_swap32(toc->section_offset);
+			size = omapimage_swap32(toc->section_size);
+		} else {
+			offset = toc->section_offset;
+			size = toc->section_size;
+		}
 		if (!offset || !size)
 			return -1;
 		if (offset >= OMAP_CH_HDR_SIZE ||
@@ -93,9 +110,18 @@ static int omapimage_verify_header(unsigned char *ptr, int image_size,
 			return -1;
 		toc++;
 	}
-	if (!valid_gph_size(gph->size))
+
+	if (do_swap32) {
+		gph_size = omapimage_swap32(gph->size);
+		gph_load_addr = omapimage_swap32(gph->load_addr);
+	} else {
+		gph_size = gph->size;
+		gph_load_addr = gph->load_addr;
+	}
+
+	if (!valid_gph_size(gph_size))
 		return -1;
-	if (!valid_gph_load_addr(gph->load_addr))
+	if (!valid_gph_load_addr(gph_load_addr))
 		return -1;
 
 	return 0;
@@ -128,12 +154,17 @@ static void omapimage_print_header(const void *ptr)
 	const struct ch_toc *toc = (struct ch_toc *)ptr;
 	const struct gp_header *gph =
 			(struct gp_header *)(ptr+OMAP_CH_HDR_SIZE);
-	uint32_t offset, size;
+	uint32_t offset, size, gph_size, gph_load_addr;
 
 	while (toc->section_offset != 0xffffffff
 			&& toc->section_size != 0xffffffff) {
-		offset = toc->section_offset;
-		size = toc->section_size;
+		if (do_swap32) {
+			offset = omapimage_swap32(toc->section_offset);
+			size = omapimage_swap32(toc->section_size);
+		} else {
+			offset = toc->section_offset;
+			size = toc->section_size;
+		}
 
 		if (offset >= OMAP_CH_HDR_SIZE ||
 		    offset+size >= OMAP_CH_HDR_SIZE)
@@ -148,22 +179,26 @@ static void omapimage_print_header(const void *ptr)
 		toc++;
 	}
 
-	if (!valid_gph_size(gph->size)) {
-		fprintf(stderr,
-			"Error: invalid image size %x\n",
-			gph->size);
+	if (do_swap32) {
+		gph_size = omapimage_swap32(gph->size);
+		gph_load_addr = omapimage_swap32(gph->load_addr);
+	} else {
+		gph_size = gph->size;
+		gph_load_addr = gph->load_addr;
+	}
+
+	if (!valid_gph_size(gph_size)) {
+		fprintf(stderr, "Error: invalid image size %x\n", gph_size);
 		exit(EXIT_FAILURE);
 	}
 
-	if (!valid_gph_load_addr(gph->load_addr)) {
-		fprintf(stderr,
-			"Error: invalid image load address %x\n",
-			gph->size);
+	if (!valid_gph_load_addr(gph_load_addr)) {
+		fprintf(stderr, "Error: invalid image load address %x\n",
+				gph_load_addr);
 		exit(EXIT_FAILURE);
 	}
 
-	printf("GP Header: Size %x LoadAddr %x\n",
-		gph->size, gph->load_addr);
+	printf("GP Header: Size %x LoadAddr %x\n", gph_size, gph_load_addr);
 }
 
 static int toc_offset(void *hdr, void *member)
@@ -194,6 +229,18 @@ static void omapimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	gph->size = sbuf->st_size - OMAP_FILE_HDR_SIZE;
 	gph->load_addr = params->addr;
+
+	if (strncmp(params->imagename, "byteswap", 8) == 0) {
+		do_swap32 = 1;
+		int swapped = 0;
+		uint32_t *data = (uint32_t *)ptr;
+
+		while (swapped <= (sbuf->st_size / sizeof(uint32_t))) {
+			*data = omapimage_swap32(*data);
+			swapped++;
+			data++;
+		}
+	}
 }
 
 int omapimage_check_params(struct mkimage_params *params)

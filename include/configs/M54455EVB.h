@@ -125,12 +125,12 @@
 #define	CONFIG_SYS_LOAD_ADDR2		0x40010013
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
-	"inpclk=" MK_STR(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
+	"inpclk=" __stringify(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
 	"loadaddr=0x40010000\0"			\
 	"sbfhdr=sbfhdr.bin\0"			\
 	"uboot=u-boot.bin\0"			\
 	"load=tftp ${loadaddr} ${sbfhdr};"	\
-	"tftp " MK_STR(CONFIG_SYS_LOAD_ADDR2) " ${uboot} \0"	\
+	"tftp " __stringify(CONFIG_SYS_LOAD_ADDR2) " ${uboot} \0"	\
 	"upd=run load; run prog\0"		\
 	"prog=sf probe 0:1 1000000 3;"		\
 	"sf erase 0 30000;"			\
@@ -146,16 +146,16 @@
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
-	"inpclk=" MK_STR(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
+	"inpclk=" __stringify(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
 	"loadaddr=0x40010000\0"			\
 	"uboot=u-boot.bin\0"			\
 	"load=tftp ${loadaddr} ${uboot}\0"	\
 	"upd=run load; run prog\0"		\
-	"prog=prot off " MK_STR(CONFIG_SYS_FLASH_BASE)	\
-	" " MK_STR(CONFIG_SYS_UBOOT_END) ";"		\
-	"era " MK_STR(CONFIG_SYS_FLASH_BASE) " "	\
-	MK_STR(CONFIG_SYS_UBOOT_END) ";"		\
-	"cp.b ${loadaddr} " MK_STR(CONFIG_SYS_FLASH_BASE)	\
+	"prog=prot off " __stringify(CONFIG_SYS_FLASH_BASE)	\
+	" " __stringify(CONFIG_SYS_UBOOT_END) ";"		\
+	"era " __stringify(CONFIG_SYS_FLASH_BASE) " "		\
+	__stringify(CONFIG_SYS_UBOOT_END) ";"			\
+	"cp.b ${loadaddr} " __stringify(CONFIG_SYS_FLASH_BASE)	\
 	" ${filesize}; save\0"			\
 	""
 #endif

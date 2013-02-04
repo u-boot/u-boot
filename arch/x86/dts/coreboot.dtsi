@@ -1,0 +1,16 @@
+/include/ "skeleton.dtsi"
+
+/ {
+	aliases {
+		console = "/serial";
+	};
+
+	serial {
+		compatible = "ns16550";
+		reg-shift = <1>;
+		io-mapped = <1>;
+		multiplier = <1>;
+		baudrate = <115200>;
+		status = "disabled";
+	};
+};

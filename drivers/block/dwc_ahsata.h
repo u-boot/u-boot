@@ -330,6 +330,4 @@
 #define READ_CMD	0
 #define WRITE_CMD	1
 
-extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
-
 #endif /* __FSL_SATA_H__ */

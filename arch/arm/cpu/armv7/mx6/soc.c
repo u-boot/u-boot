@@ -31,17 +31,33 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/imx-common/boot_mode.h>
 
+struct scu_regs {
+	u32	ctrl;
+	u32	config;
+	u32	status;
+	u32	invalidate;
+	u32	fpga_rev;
+};
+
 u32 get_cpu_rev(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	int reg = readl(&anatop->digprog);
+	u32 reg = readl(&anatop->digprog_sololite);
+	u32 type = ((reg >> 16) & 0xff);
 
-	/* Read mx6 variant: quad, dual or solo */
-	int system_rev = (reg >> 4) & 0xFF000;
-	/* Read mx6 silicon revision */
-	system_rev |= (reg & 0xFF) + 0x10;
+	if (type != MXC_CPU_MX6SL) {
+		reg = readl(&anatop->digprog);
+		type = ((reg >> 16) & 0xff);
+		if (type == MXC_CPU_MX6DL) {
+			struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
+			u32 cfg = readl(&scu->config) & 3;
 
-	return system_rev;
+			if (!cfg)
+				type = MXC_CPU_MX6SOLO;
+		}
+	}
+	reg &= 0xff;		/* mx6 silicon revision */
+	return (type << 12) | (reg + 0x10);
 }
 
 void init_aips(void)
@@ -146,7 +162,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 void boot_mode_apply(unsigned cfg_val)
 {
 	unsigned reg;
-	struct src_regs *psrc = (struct src_regs *)SRC_BASE_ADDR;
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	writel(cfg_val, &psrc->gpr9);
 	reg = readl(&psrc->gpr10);
 	if (cfg_val)

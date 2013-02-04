@@ -41,7 +41,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 {
 	struct spi_slave *slave;
 	u32 data;
-	u32 kwspi_mpp_config[] = { 0, 0 };
+	static const u32 kwspi_mpp_config[2][2] = {
+		{ MPP0_SPI_SCn, 0 }, /* if cs == 0 */
+		{ MPP7_SPI_SCn, 0 } /* if cs != 0 */
+	};
 
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
@@ -68,12 +71,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	writel(KWSPI_IRQMASK, &spireg->irq_mask);
 
 	/* program mpp registers to select  SPI_CSn */
-	if (cs) {
-		kwspi_mpp_config[0] = MPP7_SPI_SCn;
-	} else {
-		kwspi_mpp_config[0] = MPP0_SPI_SCn;
-	}
-	kirkwood_mpp_conf(kwspi_mpp_config, cs_spi_mpp_back);
+	kirkwood_mpp_conf(kwspi_mpp_config[cs ? 1 : 0], cs_spi_mpp_back);
 
 	return slave;
 }

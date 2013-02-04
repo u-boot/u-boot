@@ -11,7 +11,6 @@
 #include <configs/zynq_common.h>
 
 /* Disable uart console */
-#undef CONFIG_SERIAL_MULTI
 #undef CONFIG_ZYNQ_SERIAL
 
 
@@ -70,9 +69,5 @@
 /* Why? */
 #undef CONFIG_ENV_SIZE
 #define CONFIG_ENV_SIZE 896
-
-/* Place a Xilinx Boot ROM header in u-boot image? */
-#define CONFIG_ZYNQ_XILINX_FLASH_HEADER
-#define CONFIG_ZYNQ_XIP_START CONFIG_SYS_FLASH_BASE
 
 #endif /* __CONFIG_H */

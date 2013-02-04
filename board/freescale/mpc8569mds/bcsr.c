@@ -25,17 +25,17 @@
 
 #include "bcsr.h"
 
-void enable_8569mds_flash_write()
+void enable_8569mds_flash_write(void)
 {
 	setbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 17), BCSR17_FLASH_nWP);
 }
 
-void disable_8569mds_flash_write()
+void disable_8569mds_flash_write(void)
 {
 	clrbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 17), BCSR17_FLASH_nWP);
 }
 
-void enable_8569mds_qe_uec()
+void enable_8569mds_qe_uec(void)
 {
 #if defined(CONFIG_SYS_UCC_RGMII_MODE)
 	setbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 7),
@@ -60,7 +60,7 @@ void enable_8569mds_qe_uec()
 #endif
 }
 
-void disable_8569mds_brd_eeprom_write_protect()
+void disable_8569mds_brd_eeprom_write_protect(void)
 {
 	clrbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 7), BCSR7_BRD_WRT_PROTECT);
 }

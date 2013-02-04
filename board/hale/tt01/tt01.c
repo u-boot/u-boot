@@ -25,12 +25,13 @@
 #include <common.h>
 #include <netdev.h>
 #include <command.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mc13783.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,7 +53,7 @@ static void board_setup_clocks(void)
 	writel((CCM_CCMR_SETUP | CCMR_MPE) & ~CCMR_MDS, &ccm->ccmr);
 
 	/* Set up clock to 532MHz */
-	writel(PDR0_CSI_PODF(0x1ff) | PDR0_PER_PODF(7) |
+	writel(PDR0_CSI_PODF(0x3f) | PDR0_CSI_PRDF(7) | PDR0_PER_PODF(7) |
 			PDR0_HSP_PODF(3) | PDR0_NFC_PODF(5) |
 			PDR0_IPG_PODF(1) | PDR0_MAX_PODF(3) |
 			PDR0_MCU_PODF(0), &ccm->pdr0);
@@ -178,7 +179,7 @@ int board_init(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_HW_WATCHDOG
-	mxc_hw_watchdog_enable();
+	hw_watchdog_init();
 #endif
 
 	return 0;
@@ -195,14 +196,21 @@ int board_mmc_init(bd_t *bis)
 {
 	u32 val;
 	struct pmic *p;
+	int ret;
 
 	/*
 	* this is the first driver to use the pmic, so call
 	* pmic_init() here. board_late_init() is too late for
 	* the MMC driver.
 	*/
-	pmic_init();
-	p = get_pmic();
+
+	ret = pmic_init(I2C_PMIC);
+	if (ret)
+		return ret;
+
+	p = pmic_get("FSL_PMIC");
+	if (!p)
+		return -ENODEV;
 
 	/* configure pins for SDHC1 only */
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SD1_CLK, MUX_CTL_FUNC));

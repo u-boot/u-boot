@@ -68,6 +68,7 @@
 #define CONFIG_SYS_ALTERA_PIO_GPIO_NUM	LED_PIO_WIDTH
 
 #define CONFIG_STATUS_LED		/* Enable status driver */
+#define CONFIG_BOARD_SPECIFIC_LED
 #define CONFIG_GPIO_LED		/* Enable GPIO LED driver */
 #define CONFIG_GPIO			/* Enable GPIO driver */
 

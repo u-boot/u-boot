@@ -35,8 +35,6 @@
 #include <asm/io.h>
 #include <pci.h>
 
-unsigned char	ShortPCIListing = 1;
-
 /*
  * Follows routines for the output of infos about devices on PCI bus.
  */
@@ -408,7 +406,7 @@ pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag
  *      pci modify[.b, .w, .l] bus.device.function [addr]
  *      pci write[.b, .w, .l] bus.device.function addr value
  */
-int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr = 0, value = 0, size = 0;
 	pci_dev_t bdf = 0;
@@ -485,10 +483,8 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 /***************************************************/
 
-
-U_BOOT_CMD(
-	pci,	5,	1,	do_pci,
-	"list and access PCI Configuration Space",
+#ifdef CONFIG_SYS_LONGHELP
+static char pci_help_text[] =
 	"[bus] [long]\n"
 	"    - short or long list of PCI devices on bus 'bus'\n"
 #ifdef CONFIG_CMD_PCI_ENUM
@@ -504,5 +500,10 @@ U_BOOT_CMD(
 	"pci modify[.b, .w, .l] b.d.f address\n"
 	"    -  modify, auto increment CFG address\n"
 	"pci write[.b, .w, .l] b.d.f address value\n"
-	"    - write to CFG address"
+	"    - write to CFG address";
+#endif
+
+U_BOOT_CMD(
+	pci,	5,	1,	do_pci,
+	"list and access PCI Configuration Space", pci_help_text
 );

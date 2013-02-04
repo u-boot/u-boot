@@ -217,6 +217,7 @@ int board_mmc_init(bd_t *bis)
 		PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH | PAD_CTL_PUE_PULL |
 		PAD_CTL_PKE_ENABLE | PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
 
+	esdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 	return fsl_esdhc_initialize(bis, &esdhc_cfg);
 }
 #endif

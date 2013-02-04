@@ -45,6 +45,7 @@ int checkboard (void)
 	struct cpu_type *cpu = gd->cpu;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	unsigned int i;
+	static const char * const freq[] = {"100", "125", "156.25", "212.5" };
 
 	printf("Board: %sDS, ", cpu->name);
 	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
@@ -83,20 +84,28 @@ int checkboard (void)
 	 * don't match.
 	 */
 	puts("SERDES Reference Clocks: ");
-#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS)
+#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS) \
+	|| defined(CONFIG_P5040DS)
 	sw = in_8(&PIXIS_SW(5));
 	for (i = 0; i < 3; i++) {
-		static const char *freq[] = {"100", "125", "156.25", "212.5" };
 		unsigned int clock = (sw >> (6 - (2 * i))) & 3;
 
 		printf("Bank%u=%sMhz ", i+1, freq[clock]);
 	}
+#ifdef CONFIG_P5040DS
+	/* On P5040DS, SW11[7:8] determines the Bank 4 frequency */
+	sw = in_8(&PIXIS_SW(9));
+	printf("Bank4=%sMhz ", freq[sw & 3]);
+#endif
 	puts("\n");
 #else
 	sw = in_8(&PIXIS_SW(3));
-	printf("Bank1=%uMHz ", (sw & 0x40) ? 125 : 100);
-	printf("Bank2=%sMHz ", (sw & 0x20) ? "156.25" : "125");
-	printf("Bank3=%sMHz\n", (sw & 0x10) ? "156.25" : "125");
+	/* SW3[2]: 0 = 100 Mhz, 1 = 125 MHz */
+	/* SW3[3]: 0 = 125 Mhz, 1 = 156.25 MHz */
+	/* SW3[4]: 0 = 125 Mhz, 1 = 156.25 MHz */
+	printf("Bank1=%sMHz ", freq[!!(sw & 0x40)]);
+	printf("Bank2=%sMHz ", freq[1 + !!(sw & 0x20)]);
+	printf("Bank3=%sMHz\n", freq[1 + !!(sw & 0x10)]);
 #endif
 
 	return 0;
@@ -168,7 +177,8 @@ int misc_init_r(void)
 	unsigned int i;
 	u8 sw;
 
-#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS)
+#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS) \
+	|| defined(CONFIG_P5040DS)
 	sw = in_8(&PIXIS_SW(5));
 	for (i = 0; i < 3; i++) {
 		unsigned int clock = (sw >> (6 - (2 * i))) & 3;

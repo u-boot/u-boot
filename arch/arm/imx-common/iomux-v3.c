@@ -54,9 +54,10 @@ int imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 	return 0;
 }
 
-int imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t *pad_list, unsigned count)
+int imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
+				     unsigned count)
 {
-	iomux_v3_cfg_t *p = pad_list;
+	iomux_v3_cfg_t const *p = pad_list;
 	int i;
 	int ret;
 

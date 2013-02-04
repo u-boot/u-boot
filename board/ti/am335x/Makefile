@@ -22,6 +22,7 @@ ifdef CONFIG_SPL_BUILD
 COBJS	:= mux.o
 endif
 
+COBJS	+= board.o
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))

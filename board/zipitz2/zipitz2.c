@@ -62,11 +62,6 @@ int board_init (void)
 	return 0;
 }
 
-struct serial_device *default_serial_console (void)
-{
-	return &serial_stuart_device;
-}
-
 int dram_init(void)
 {
 	pxa2xx_dram_init();

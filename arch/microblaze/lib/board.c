@@ -39,10 +39,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_HW_WATCHDOG)
-extern int hw_watchdog_init(void);
-#endif /* CONFIG_WATCHDOG */
-
 /*
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the
@@ -65,6 +61,9 @@ init_fnc_t *init_sequence[] = {
 	serial_init,
 	console_init_f,
 	interrupts_init,
+#ifdef CONFIG_XILINX_TB_WATCHDOG
+	hw_watchdog_init,
+#endif
 	timer_init,
 	NULL,
 };
@@ -78,7 +77,6 @@ void board_init_f(ulong not_used)
 	gd = (gd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET);
 	bd = (bd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET \
 						- GENERATED_BD_INFO_SIZE);
-	__maybe_unused char *s;
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
@@ -112,13 +110,7 @@ void board_init_f(ulong not_used)
 	 */
 	mem_malloc_init (CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 
-#ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
-#endif
-
-#if defined(CONFIG_HW_WATCHDOG)
-	hw_watchdog_init();
-#endif
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET ();
@@ -153,8 +145,7 @@ void board_init_f(ulong not_used)
 		 *
 		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
 		 */
-		s = getenv ("flashchecksum");
-		if (s && (*s == 'y')) {
+		if (getenv_yesno("flashchecksum") == 1) {
 			printf ("  CRC: %08X",
 				crc32(0, (const u8 *)bd->bi_flashstart,
 							flash_size)

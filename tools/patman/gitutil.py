@@ -38,7 +38,7 @@ def CountCommitsToBranch():
     Return:
         Number of patches that exist on top of the branch
     """
-    pipe = [['git', 'log', '--oneline', '@{upstream}..'],
+    pipe = [['git', 'log', '--no-color', '--oneline', '@{upstream}..'],
             ['wc', '-l']]
     stdout = command.RunPipe(pipe, capture=True, oneline=True)
     patch_count = int(stdout)

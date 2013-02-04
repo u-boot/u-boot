@@ -72,10 +72,10 @@ lowlevel_init:
 	 * enable UART for early debug trace
 	 */
 	ldr	r1, =(KS8695_IO_BASE+KS8695_UART_DIVISOR)
-	mov	r2, #0xd9
-	str	r2, [r1]		/* 115200 baud */
+	mov	r2, #((25000000+CONFIG_BAUDRATE/2) / CONFIG_BAUDRATE)
+	str	r2, [r1]
 	ldr	r1, =(KS8695_IO_BASE+KS8695_UART_LINE_CTRL)
-	mov	r2, #0x03
+	mov	r2, #KS8695_UART_LINEC_WLEN8
 	str	r2, [r1]		/* 8 data bits, no parity, 1 stop */
 	ldr	r1, =(KS8695_IO_BASE+KS8695_UART_TX_HOLDING)
 	mov	r2, #0x41

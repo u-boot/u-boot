@@ -173,7 +173,7 @@
 
 #define BOOT_ENV_SETTINGS \
 	"update=tftpboot $(loadaddr) u-boot.ldr;" \
-		"sf probe " MK_STR(BFIN_BOOT_SPI_SSEL) ";" \
+		"sf probe " __stringify(BFIN_BOOT_SPI_SSEL) ";" \
 		"sf erase 0 0x30000;" \
 		"sf write $(loadaddr) 0 $(filesize)" \
 	"flashboot=sf read 0x1000000 0x30000 0x320000;" \

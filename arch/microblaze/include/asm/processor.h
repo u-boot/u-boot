@@ -31,4 +31,8 @@ extern char __text_start[];
 /* Microblaze board initialization function */
 void board_init(void);
 
+/* Watchdog functions */
+int hw_watchdog_init(void);
+void hw_watchdog_disable(void);
+
 #endif /* __ASM_MICROBLAZE_PROCESSOR_H */

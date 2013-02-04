@@ -36,7 +36,6 @@ static unsigned long timestamp;
 int timer_init(void)
 {
 	/* Set up the timer for the first expiration. */
-	timestamp = 0;
 	write_c0_compare(read_c0_count() + CYCLES_PER_JIFFY);
 
 	return 0;

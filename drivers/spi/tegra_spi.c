@@ -23,16 +23,15 @@
  */
 
 #include <common.h>
-
 #include <malloc.h>
-#include <spi.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart-spi-switch.h>
-#include <asm/arch/tegra_spi.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/tegra_spi.h>
+#include <spi.h>
 
 #if defined(CONFIG_SPI_CORRUPTS_UART)
  #define corrupt_delay()	udelay(CONFIG_SPI_CORRUPTS_UART_DLY);

@@ -812,14 +812,6 @@ unsigned long determine_pci_clock_per(void)
 extern void get_sys_info (sys_info_t * sysInfo);
 extern ulong get_PCI_freq (void);
 
-#elif defined(CONFIG_AP1000)
-void get_sys_info (sys_info_t * sysInfo)
-{
-	sysInfo->freqProcessor = 240 * 1000 * 1000;
-	sysInfo->freqPLB = 80 * 1000 * 1000;
-	sysInfo->freqPCI = 33 * 1000 * 1000;
-}
-
 #elif defined(CONFIG_405)
 
 void get_sys_info (sys_info_t * sysInfo)
@@ -1190,22 +1182,12 @@ void get_sys_info (sys_info_t * sysInfo)
 
 int get_clocks (void)
 {
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
-    defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
-    defined(CONFIG_405EX) || defined(CONFIG_405) || \
-    defined(CONFIG_440)
 	sys_info_t sys_info;
 
 	get_sys_info (&sys_info);
 	gd->cpu_clk = sys_info.freqProcessor;
 	gd->bus_clk = sys_info.freqPLB;
 
-#endif	/* defined(CONFIG_405GP) || defined(CONFIG_405CR) */
-
-#ifdef CONFIG_IOP480
-	gd->cpu_clk = 66000000;
-	gd->bus_clk = 66000000;
-#endif
 	return (0);
 }
 
@@ -1226,11 +1208,6 @@ ulong get_bus_freq (ulong dummy)
 
 	get_sys_info (&sys_info);
 	val = sys_info.freqPLB;
-
-#elif defined(CONFIG_IOP480)
-
-	val = 66;
-
 #else
 # error get_bus_freq() not implemented
 #endif
@@ -1238,7 +1215,6 @@ ulong get_bus_freq (ulong dummy)
 	return val;
 }
 
-#if !defined(CONFIG_IOP480)
 ulong get_OPB_freq (void)
 {
 	PPC4xx_SYS_INFO sys_info;
@@ -1247,4 +1223,3 @@ ulong get_OPB_freq (void)
 
 	return sys_info.freqOPB;
 }
-#endif

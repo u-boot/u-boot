@@ -37,7 +37,6 @@
 #define IT8212_PCI_IdeBusSkewCONTROL	0x4c
 #define IT8212_PCI_IdeDrivingCURRENT	0x42
 
-extern ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS];
 extern struct pci_controller hose;
 
 int ide_preinit (void)

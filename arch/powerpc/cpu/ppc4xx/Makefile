@@ -53,7 +53,6 @@ COBJS	+= ecc.o
 COBJS-$(CONFIG_CMD_ECCTEST) += cmd_ecctest.o
 COBJS	+= fdt.o
 COBJS	+= interrupts.o
-COBJS	+= iop480_uart.o
 COBJS-$(CONFIG_CMD_REGINFO) += reginfo.o
 COBJS	+= sdram.o
 COBJS	+= speed.o

@@ -43,6 +43,7 @@
 #include <rtc.h>
 #endif
 
+#include <environment.h>
 #include <image.h>
 
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
@@ -416,11 +417,25 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 /* Shared dual-format routines */
 /*****************************************************************************/
 #ifndef USE_HOSTCC
-int getenv_yesno(char *var)
+ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
+ulong save_addr;			/* Default Save Address */
+ulong save_size;			/* Default Save Size (in bytes) */
+
+static int on_loadaddr(const char *name, const char *value, enum env_op op,
+	int flags)
 {
-	char *s = getenv(var);
-	return (s && (*s == 'n')) ? 0 : 1;
+	switch (op) {
+	case env_op_create:
+	case env_op_overwrite:
+		load_addr = simple_strtoul(value, NULL, 16);
+		break;
+	default:
+		break;
+	}
+
+	return 0;
 }
+U_BOOT_ENV_CALLBACK(loadaddr, on_loadaddr);
 
 ulong getenv_bootm_low(void)
 {
@@ -1279,7 +1294,7 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
 	void	*fdt_blob = *of_flat_tree;
-	void	*of_start = 0;
+	void	*of_start = NULL;
 	char	*fdt_high;
 	ulong	of_len = 0;
 	int	err;
@@ -1312,7 +1327,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			of_start =
 			    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
 							   (ulong)desired_addr);
-			if (of_start == 0) {
+			if (of_start == NULL) {
 				puts("Failed using fdt_high value for Device Tree");
 				goto error;
 			}
@@ -1327,7 +1342,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 						   + getenv_bootm_low());
 	}
 
-	if (of_start == 0) {
+	if (of_start == NULL) {
 		puts("device tree - allocation error\n");
 		goto error;
 	}
@@ -1703,7 +1718,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 	return 0;
 
 error:
-	*of_flat_tree = 0;
+	*of_flat_tree = NULL;
 	*of_size = 0;
 	return 1;
 }
@@ -2496,6 +2511,36 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 	return 0;
 }
 
+#ifndef USE_HOSTCC
+/**
+ * fit_image_hash_get_ignore - get hash ignore flag
+ * @fit: pointer to the FIT format image header
+ * @noffset: hash node offset
+ * @ignore: pointer to an int, will hold hash ignore flag
+ *
+ * fit_image_hash_get_ignore() finds hash ignore property in a given hash node.
+ * If the property is found and non-zero, the hash algorithm is not verified by
+ * u-boot automatically.
+ *
+ * returns:
+ *     0, on ignore not found
+ *     value, on ignore found
+ */
+int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
+{
+	int len;
+	int *value;
+
+	value = (int *)fdt_getprop(fit, noffset, FIT_IGNORE_PROP, &len);
+	if (value == NULL || len != sizeof(int))
+		*ignore = 0;
+	else
+		*ignore = *value;
+
+	return 0;
+}
+#endif
+
 /**
  * fit_set_timestamp - set node timestamp property
  * @fit: pointer to the FIT format image header
@@ -2759,6 +2804,9 @@ int fit_image_check_hashes(const void *fit, int image_noffset)
 	char		*algo;
 	uint8_t		*fit_value;
 	int		fit_value_len;
+#ifndef USE_HOSTCC
+	int		ignore;
+#endif
 	uint8_t		value[FIT_MAX_HASH_LEN];
 	int		value_len;
 	int		noffset;
@@ -2795,6 +2843,14 @@ int fit_image_check_hashes(const void *fit, int image_noffset)
 			}
 			printf("%s", algo);
 
+#ifndef USE_HOSTCC
+			fit_image_hash_get_ignore(fit, noffset, &ignore);
+			if (ignore) {
+				printf("-skipped ");
+				continue;
+			}
+#endif
+
 			if (fit_image_hash_get_value(fit, noffset, &fit_value,
 							&fit_value_len)) {
 				err_msg = " error!\nCan't get hash value "
@@ -2818,6 +2874,11 @@ int fit_image_check_hashes(const void *fit, int image_noffset)
 			}
 			printf("+ ");
 		}
+	}
+
+	if (noffset == -FDT_ERR_TRUNCATED || noffset == -FDT_ERR_BADSTRUCTURE) {
+		err_msg = " error!\nCorrupted or truncated tree";
+		goto error;
 	}
 
 	return 1;
@@ -3001,6 +3062,133 @@ int fit_check_format(const void *fit)
 	}
 
 	return 1;
+}
+
+
+/**
+ * fit_conf_find_compat
+ * @fit: pointer to the FIT format image header
+ * @fdt: pointer to the device tree to compare against
+ *
+ * fit_conf_find_compat() attempts to find the configuration whose fdt is the
+ * most compatible with the passed in device tree.
+ *
+ * Example:
+ *
+ * / o image-tree
+ *   |-o images
+ *   | |-o fdt@1
+ *   | |-o fdt@2
+ *   |
+ *   |-o configurations
+ *     |-o config@1
+ *     | |-fdt = fdt@1
+ *     |
+ *     |-o config@2
+ *       |-fdt = fdt@2
+ *
+ * / o U-Boot fdt
+ *   |-compatible = "foo,bar", "bim,bam"
+ *
+ * / o kernel fdt1
+ *   |-compatible = "foo,bar",
+ *
+ * / o kernel fdt2
+ *   |-compatible = "bim,bam", "baz,biz"
+ *
+ * Configuration 1 would be picked because the first string in U-Boot's
+ * compatible list, "foo,bar", matches a compatible string in the root of fdt1.
+ * "bim,bam" in fdt2 matches the second string which isn't as good as fdt1.
+ *
+ * returns:
+ *     offset to the configuration to use if one was found
+ *     -1 otherwise
+ */
+int fit_conf_find_compat(const void *fit, const void *fdt)
+{
+	int ndepth = 0;
+	int noffset, confs_noffset, images_noffset;
+	const void *fdt_compat;
+	int fdt_compat_len;
+	int best_match_offset = 0;
+	int best_match_pos = 0;
+
+	confs_noffset = fdt_path_offset(fit, FIT_CONFS_PATH);
+	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
+	if (confs_noffset < 0 || images_noffset < 0) {
+		debug("Can't find configurations or images nodes.\n");
+		return -1;
+	}
+
+	fdt_compat = fdt_getprop(fdt, 0, "compatible", &fdt_compat_len);
+	if (!fdt_compat) {
+		debug("Fdt for comparison has no \"compatible\" property.\n");
+		return -1;
+	}
+
+	/*
+	 * Loop over the configurations in the FIT image.
+	 */
+	for (noffset = fdt_next_node(fit, confs_noffset, &ndepth);
+			(noffset >= 0) && (ndepth > 0);
+			noffset = fdt_next_node(fit, noffset, &ndepth)) {
+		const void *kfdt;
+		const char *kfdt_name;
+		int kfdt_noffset;
+		const char *cur_fdt_compat;
+		int len;
+		size_t size;
+		int i;
+
+		if (ndepth > 1)
+			continue;
+
+		kfdt_name = fdt_getprop(fit, noffset, "fdt", &len);
+		if (!kfdt_name) {
+			debug("No fdt property found.\n");
+			continue;
+		}
+		kfdt_noffset = fdt_subnode_offset(fit, images_noffset,
+						  kfdt_name);
+		if (kfdt_noffset < 0) {
+			debug("No image node named \"%s\" found.\n",
+			      kfdt_name);
+			continue;
+		}
+		/*
+		 * Get a pointer to this configuration's fdt.
+		 */
+		if (fit_image_get_data(fit, kfdt_noffset, &kfdt, &size)) {
+			debug("Failed to get fdt \"%s\".\n", kfdt_name);
+			continue;
+		}
+
+		len = fdt_compat_len;
+		cur_fdt_compat = fdt_compat;
+		/*
+		 * Look for a match for each U-Boot compatibility string in
+		 * turn in this configuration's fdt.
+		 */
+		for (i = 0; len > 0 &&
+		     (!best_match_offset || best_match_pos > i); i++) {
+			int cur_len = strlen(cur_fdt_compat) + 1;
+
+			if (!fdt_node_check_compatible(kfdt, 0,
+						       cur_fdt_compat)) {
+				best_match_offset = noffset;
+				best_match_pos = i;
+				break;
+			}
+			len -= cur_len;
+			cur_fdt_compat += cur_len;
+		}
+	}
+	if (!best_match_offset) {
+		debug("No match found.\n");
+		return -1;
+	}
+
+	return best_match_offset;
 }
 
 /**

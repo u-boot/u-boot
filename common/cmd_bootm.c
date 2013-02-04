@@ -161,7 +161,7 @@ static boot_os_fn *boot_os[] = {
 bootm_headers_t images;		/* pointers to os/initrd/fdt images */
 
 /* Allow for arch specific config before we boot */
-void __arch_preboot_os(void)
+static void __arch_preboot_os(void)
 {
 	/* please define platform specific arch_preboot_os() */
 }
@@ -474,7 +474,7 @@ static cmd_tbl_t cmd_bootm_sub[] = {
 	U_BOOT_CMD_MKENT(go, 0, 1, (void *)BOOTM_STATE_OS_GO, "", ""),
 };
 
-int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
 	int ret = 0;
@@ -537,7 +537,7 @@ int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 			break;
 #endif
-#if defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_LMB)
 		case BOOTM_STATE_FDT:
 		{
 			boot_fdt_add_mem_rsv_regions(&images.lmb,
@@ -592,12 +592,18 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
 
-	/* relocate boot function table */
 	if (!relocated) {
 		int i;
+
+		/* relocate boot function table */
 		for (i = 0; i < ARRAY_SIZE(boot_os); i++)
 			if (boot_os[i] != NULL)
 				boot_os[i] += gd->reloc_off;
+
+		/* relocate names of sub-command table */
+		for (i = 0; i < ARRAY_SIZE(cmd_bootm_sub); i++)
+			cmd_bootm_sub[i].name += gd->reloc_off;
+
 		relocated = 1;
 	}
 #endif
@@ -949,8 +955,19 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 			 * node
 			 */
 			bootstage_mark(BOOTSTAGE_ID_FIT_NO_UNIT_NAME);
+#ifdef CONFIG_FIT_BEST_MATCH
+			if (fit_uname_config)
+				cfg_noffset =
+					fit_conf_get_node(fit_hdr,
+							  fit_uname_config);
+			else
+				cfg_noffset =
+					fit_conf_find_compat(fit_hdr,
+							     gd->fdt_blob);
+#else
 			cfg_noffset = fit_conf_get_node(fit_hdr,
 							fit_uname_config);
+#endif
 			if (cfg_noffset < 0) {
 				bootstage_error(BOOTSTAGE_ID_FIT_NO_UNIT_NAME);
 				return NULL;
@@ -1013,9 +1030,8 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	return (void *)img_addr;
 }
 
-U_BOOT_CMD(
-	bootm,	CONFIG_SYS_MAXARGS,	1,	do_bootm,
-	"boot application image from memory",
+#ifdef CONFIG_SYS_LONGHELP
+static char bootm_help_text[] =
 	"[addr [arg ...]]\n    - boot application image stored in memory\n"
 	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
 	"\t'arg' can be the address of an initrd image\n"
@@ -1048,7 +1064,12 @@ U_BOOT_CMD(
 	"\tcmdline - OS specific command line processing/setup\n"
 	"\tbdt     - OS specific bd_t processing\n"
 	"\tprep    - OS specific prep before relocation or go\n"
-	"\tgo      - start OS"
+	"\tgo      - start OS";
+#endif
+
+U_BOOT_CMD(
+	bootm,	CONFIG_SYS_MAXARGS,	1,	do_bootm,
+	"boot application image from memory", bootm_help_text
 );
 
 /*******************************************************************/
@@ -1084,7 +1105,7 @@ U_BOOT_CMD(
 /* iminfo - print header info for a requested image */
 /*******************************************************************/
 #if defined(CONFIG_CMD_IMI)
-int do_iminfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_iminfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int	arg;
 	ulong	addr;
@@ -1171,7 +1192,7 @@ U_BOOT_CMD(
 /* imls - list all images found in flash */
 /*******************************************************************/
 #if defined(CONFIG_CMD_IMLS)
-int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	flash_info_t *info;
 	int i, j;
@@ -1643,9 +1664,8 @@ static int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 1;
 }
 
-U_BOOT_CMD(
-	bootz,	CONFIG_SYS_MAXARGS,	1,	do_bootz,
-	"boot Linux zImage image from memory",
+#ifdef CONFIG_SYS_LONGHELP
+static char bootz_help_text[] =
 	"[addr [initrd[:size]] [fdt]]\n"
 	"    - boot Linux zImage stored in memory\n"
 	"\tThe argument 'initrd' is optional and specifies the address\n"
@@ -1658,5 +1678,11 @@ U_BOOT_CMD(
 	"\tuse a '-' for the second argument. If you do not pass a third\n"
 	"\ta bd_info struct will be passed instead\n"
 #endif
+	"";
+#endif
+
+U_BOOT_CMD(
+	bootz,	CONFIG_SYS_MAXARGS,	1,	do_bootz,
+	"boot Linux zImage image from memory", bootz_help_text
 );
 #endif	/* CONFIG_CMD_BOOTZ */

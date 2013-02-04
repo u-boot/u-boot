@@ -18,7 +18,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			     unsigned int ctrl_num)
 {
 	unsigned int i;
-	volatile ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+	volatile ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
 
 	if (ctrl_num != 0) {
 		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
@@ -73,7 +73,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 void
 ddr_enable_ecc(unsigned int dram_size)
 {
-	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
+	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
 
 	dma_meminit(CONFIG_MEM_INIT_VALUE, dram_size);
 

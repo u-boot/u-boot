@@ -46,35 +46,14 @@
 #define outl(x, addr)	((void) writel (x, addr))
 
 /* Some #definitions to keep strange Xilinx code happy */
-extern inline int in_8(volatile unsigned char *addr)
-{
-	return readb(addr);
-}
+#define in_8(addr)	readb (addr)
+#define in_be16(addr)	readw (addr)
+#define in_be32(addr)	readl (addr)
 
-extern inline int in_be16(volatile unsigned short *addr)
-{
-	return readw(addr);
-}
+#define out_8(addr,x )	outb (x,addr)
+#define out_be16(addr,x )	outw (x,addr)
+#define out_be32(addr,x )	outl (x,addr)
 
-extern inline int in_be32(volatile unsigned int *addr)
-{
-	return readl(addr);
-}
-
-extern inline void out_8(volatile unsigned char *addr, char val)
-{
-	outb(val, addr);
-}
-
-extern inline void out_be16(volatile unsigned short *addr, short val)
-{
-	outw(val, addr);
-}
-
-extern inline void out_be32(volatile unsigned int *addr, int val)
-{
-	outl(val, addr);
-}
 
 #define inb_p(port)		inb((port))
 #define outb_p(val, port)	outb((val), (port))

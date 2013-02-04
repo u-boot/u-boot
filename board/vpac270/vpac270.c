@@ -50,11 +50,6 @@ int board_init(void)
 	return 0;
 }
 
-struct serial_device *default_serial_console(void)
-{
-	return &serial_ffuart_device;
-}
-
 int dram_init(void)
 {
 #ifndef	CONFIG_ONENAND

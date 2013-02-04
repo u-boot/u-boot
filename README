@@ -54,6 +54,11 @@ In case of problems see the CHANGELOG and CREDITS files to find out
 who contributed the specific port. The MAINTAINERS file lists board
 maintainers.
 
+Note: There is no CHANGELOG file in the actual U-Boot source tree;
+it can be created dynamically from the Git log using:
+
+	make CHANGELOG
+
 
 Where to get help:
 ==================
@@ -363,6 +368,12 @@ The following options need to be configured:
 		ICache only when Code runs from RAM.
 
 - 85xx CPU Options:
+		CONFIG_SYS_PPC64
+
+		Specifies that the core is a 64-bit PowerPC implementation (implements
+		the "64" category of the Power ISA). This is necessary for ePAPR
+		compliance, among other possible reasons.
+
 		CONFIG_SYS_FSL_TBCLK_DIV
 
 		Defines the core time base clock divider ratio compared to the
@@ -605,6 +616,14 @@ The following options need to be configured:
 		boot loader that has already initialized the UART.  Define this
 		variable to flush the UART at init time.
 
+		CONFIG_SYS_NS16550_BROKEN_TEMT
+
+		16550 UART set the Transmitter Empty (TEMT) Bit when all output
+		has finished and the transmitter is totally empty. U-Boot waits
+		for this bit to be set to initialize the serial console. On some
+		broken platforms this bit is not set in SPL making U-Boot to
+		hang while waiting for TEMT. Define this option to avoid it.
+
 
 - Console Interface:
 		Depending on board, define exactly one serial port
@@ -654,6 +673,10 @@ The following options need to be configured:
 			CONFIG_CONSOLE_EXTRA_INFO
 						additional board info beside
 						the logo
+
+		When CONFIG_CFB_CONSOLE_ANSI is defined, console will support
+		a limited number of ANSI escape sequences (cursor control,
+		erase functions and limited graphics rendition control).
 
 		When CONFIG_CFB_CONSOLE is defined, video console is
 		default i/o. Serial console can be forced with
@@ -800,15 +823,21 @@ The following options need to be configured:
 		CONFIG_CMD_EDITENV	  edit env variable
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
+		CONFIG_CMD_ENV_CALLBACK	* display details about env callbacks
+		CONFIG_CMD_ENV_FLAGS	* display details about env flags
 		CONFIG_CMD_EXPORTENV	* export the environment
+		CONFIG_CMD_EXT2		* ext2 command support
+		CONFIG_CMD_EXT4		* ext4 command support
 		CONFIG_CMD_SAVEENV	  saveenv
 		CONFIG_CMD_FDC		* Floppy Disk Support
-		CONFIG_CMD_FAT		* FAT partition support
+		CONFIG_CMD_FAT		* FAT command support
 		CONFIG_CMD_FDOS		* Dos diskette Support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
+		CONFIG_CMD_GETTIME	* Get time since boot
 		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_GREPENV	* search environment
+		CONFIG_CMD_HASH		* calculate hash / digest
 		CONFIG_CMD_HWFLOW	* RTS/CTS hw flow control
 		CONFIG_CMD_I2C		* I2C serial bus support
 		CONFIG_CMD_IDE		* IDE harddisk support
@@ -828,6 +857,7 @@ The following options need to be configured:
 		CONFIG_CMD_LOADS	  loads
 		CONFIG_CMD_MD5SUM	  print md5 message digest
 					  (requires CONFIG_CMD_MEMORY and CONFIG_MD5)
+		CONFIG_CMD_MEMINFO	* Display detailed memory information
 		CONFIG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
 					  loop, loopw, mtest
 		CONFIG_CMD_MISC		  Misc functions like sleep etc
@@ -843,6 +873,7 @@ The following options need to be configured:
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
 					  host
 		CONFIG_CMD_PORTIO	* Port I/O
+		CONFIG_CMD_READ		* Read raw data from partition
 		CONFIG_CMD_REGINFO	* Register dump
 		CONFIG_CMD_RUN		  run command in env variable
 		CONFIG_CMD_SAVES	* save S record dump
@@ -1033,6 +1064,9 @@ The following options need to be configured:
 		devices.
 		CONFIG_SYS_SCSI_SYM53C8XX_CCF to fix clock timing (80Mhz)
 
+                The environment variable 'scsidevs' is set to the number of
+                SCSI devices found during the last scan.
+
 - NETWORK Support (PCI):
 		CONFIG_E1000
 		Support for Intel 8254x/8257x gigabit chips.
@@ -1084,7 +1118,7 @@ The following options need to be configured:
 		CONFIG_CALXEDA_XGMAC
 		Support for the Calxeda XGMAC device
 
-		CONFIG_DRIVER_LAN91C96
+		CONFIG_LAN91C96
 		Support for SMSC's LAN91C96 chips.
 
 			CONFIG_LAN91C96_BASE
@@ -1094,7 +1128,7 @@ The following options need to be configured:
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
 
-		CONFIG_DRIVER_SMC91111
+		CONFIG_SMC91111
 		Support for SMSC's LAN91C111 chip
 
 			CONFIG_SMC91111_BASE
@@ -1268,6 +1302,9 @@ The following options need to be configured:
 		viewport is supported.
 		To enable the ULPI layer support, define CONFIG_USB_ULPI and
 		CONFIG_USB_ULPI_VIEWPORT in your board configuration file.
+		If your ULPI phy needs a different reference clock than the
+		standard 24 MHz then you have to define CONFIG_ULPI_REF_CLK to
+		the appropriate value in Hz.
 
 - MMC Support:
 		The MMC controller on the Intel PXA is supported. To
@@ -1312,6 +1349,13 @@ The following options need to be configured:
 
 		This will also enable the command "fatwrite" enabling the
 		user to write files to FAT.
+
+CBFS (Coreboot Filesystem) support
+		CONFIG_CMD_CBFS
+
+		Define this to enable support for reading from a Coreboot
+		filesystem. Available commands are cbfsinit, cbfsinfo, cbfsls
+		and cbfsload.
 
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD
@@ -1384,6 +1428,13 @@ The following options need to be configured:
 		boot.  See the documentation file README.video for a
 		description of this variable.
 
+		CONFIG_VIDEO_VGA
+
+		Enable the VGA video / BIOS for x86. The alternative if you
+		are using coreboot is to use the coreboot frame buffer
+		driver.
+
+
 - Keyboard Support:
 		CONFIG_KEYBOARD
 
@@ -1443,6 +1494,30 @@ The following options need to be configured:
 
 		Normally display is black on white background; define
 		CONFIG_SYS_WHITE_ON_BLACK to get it inverted.
+
+		CONFIG_LCD_ALIGNMENT
+
+		Normally the LCD is page-aligned (tyically 4KB). If this is
+		defined then the LCD will be aligned to this value instead.
+		For ARM it is sometimes useful to use MMU_SECTION_SIZE
+		here, since it is cheaper to change data cache settings on
+		a per-section basis.
+
+		CONFIG_CONSOLE_SCROLL_LINES
+
+		When the console need to be scrolled, this is the number of
+		lines to scroll by. It defaults to 1. Increasing this makes
+		the console jump but can help speed up operation when scrolling
+		is slow.
+
+		CONFIG_LCD_BMP_RLE8
+
+		Support drawing of RLE8-compressed bitmaps on the LCD.
+
+		CONFIG_I2C_EDID
+
+		Enables an 'i2c edid' command which can read EDID
+		information over I2C from an attached LCD display.
 
 - Splash Screen Support: CONFIG_SPLASH_SCREEN
 
@@ -2137,6 +2212,11 @@ The following options need to be configured:
 		serial# is unaffected by this, i. e. it remains
 		read-only.]
 
+		The same can be accomplished in a more flexible way
+		for any variable by configuring the type of access
+		to allow for those variables in the ".flags" variable
+		or define CONFIG_ENV_FLAGS_LIST_STATIC.
+
 - Protected RAM:
 		CONFIG_PRAM
 
@@ -2166,9 +2246,17 @@ The following options need to be configured:
 		following board configurations are known to be
 		"pRAM-clean":
 
-			ETX094, IVMS8, IVML24, SPD8xx, TQM8xxL,
-			HERMES, IP860, RPXlite, LWMON, LANTEC,
+			IVMS8, IVML24, SPD8xx, TQM8xxL,
+			HERMES, IP860, RPXlite, LWMON,
 			FLAGADM, TQM8260
+
+- Access to physical memory region (> 4GB)
+		Some basic support is provided for operations on memory not
+		normally accessible to U-Boot - e.g. some architectures
+		support access to more than 4GB of memory on 32-bit
+		machines using physical address extension or similar.
+		Define CONFIG_PHYSMEM to access this basic support, which
+		currently only supports clearing the memory.
 
 - Error Recovery:
 		CONFIG_PANIC_HANG
@@ -2293,6 +2381,21 @@ The following options need to be configured:
 		- CONFIG_SYS_VENDOR
 		- CONFIG_SYS_SOC
 
+		CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
+		Define this in order to add variables describing certain
+		run-time determined information about the hardware to the
+		environment.  These will be named board_name, board_rev.
+
+		CONFIG_DELAY_ENVIRONMENT
+
+		Normally the environment is loaded when the board is
+		intialised so that it is available to U-Boot. This inhibits
+		that so that the environment is not available until
+		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
+		this is instead controlled by the value of
+		/config/load-environment.
+
 - DataFlash Support:
 		CONFIG_HAS_DATAFLASH
 
@@ -2318,6 +2421,11 @@ The following options need to be configured:
 		CONFIG_SF_DEFAULT_CS		Chip-select
 		CONFIG_SF_DEFAULT_MODE 		(see include/spi.h)
 		CONFIG_SF_DEFAULT_SPEED		in Hz
+
+		CONFIG_CMD_SF_TEST
+
+		Define this option to include a destructive SPI flash
+		test ('sf test').
 
 - SystemACE Support:
 		CONFIG_SYSTEMACE
@@ -2353,6 +2461,23 @@ The following options need to be configured:
 		A better solution is to properly configure the firewall,
 		but sometimes that is not allowed.
 
+- Hashing support:
+		CONFIG_CMD_HASH
+
+		This enables a generic 'hash' command which can produce
+		hashes / digests from a few algorithms (e.g. SHA1, SHA256).
+
+		CONFIG_HASH_VERIFY
+
+		Enable the hash verify command (hash -v). This adds to code
+		size a little.
+
+		CONFIG_SHA1 - support SHA1 hashing
+		CONFIG_SHA256 - support SHA256 hashing
+
+		Note: There is also a sha1sum command, which should perhaps
+		be deprecated in favour of 'hash sha1'.
+
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
 
@@ -2387,6 +2512,31 @@ The following options need to be configured:
 		  3,910,375    250,777  main_loop
 		 29,916,167 26,005,792  bootm_start
 		 30,361,327    445,160  start_kernel
+
+		CONFIG_CMD_BOOTSTAGE
+		Add a 'bootstage' command which supports printing a report
+		and un/stashing of bootstage data.
+
+		CONFIG_BOOTSTAGE_FDT
+		Stash the bootstage information in the FDT. A root 'bootstage'
+		node is created with each bootstage id as a child. Each child
+		has a 'name' property and either 'mark' containing the
+		mark time in microsecond, or 'accum' containing the
+		accumulated time for that bootstage id in microseconds.
+		For example:
+
+		bootstage {
+			154 {
+				name = "board_init_f";
+				mark = <3575678>;
+			};
+			170 {
+				name = "lcd";
+				accum = <33482>;
+			};
+		};
+
+		Code in the Linux kernel can find this in /proc/devicetree.
 
 Legacy uImage format:
 
@@ -2541,6 +2691,17 @@ FIT uImage format:
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
 
+- FIT image support:
+		CONFIG_FIT
+		Enable support for the FIT uImage format.
+
+		CONFIG_FIT_BEST_MATCH
+		When no configuration is explicitly selected, default to the
+		one whose fdt's compatibility field best matches that of
+		U-Boot itself. A match is considered "best" if it matches the
+		most specific compatibility entry of U-Boot's fdt's root node.
+		The order of entries in the configuration's fdt is ignored.
+
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
 
@@ -2553,10 +2714,13 @@ FIT uImage format:
 		CONFIG_FB_ADDR
 
 		Define CONFIG_FB_ADDR if you want to use specific
-		address for frame buffer.
-		Then system will reserve the frame buffer address to
-		defined address instead of lcd_setmem (this function
-		grabs the memory for frame buffer by panel's size).
+		address for frame buffer.  This is typically the case
+		when using a graphics controller has separate video
+		memory.  U-Boot will then place the frame buffer at
+		the given address instead of dynamically reserving it
+		in system RAM by calling lcd_setmem(), which grabs
+		the memory for the frame buffer depending on the
+		configured panel size.
 
 		Please see board_init_f function.
 
@@ -2592,6 +2756,10 @@ FIT uImage format:
 		CONFIG_SPL_TEXT_BASE
 		TEXT_BASE for linking the SPL binary.
 
+		CONFIG_SPL_RELOC_TEXT_BASE
+		Address to relocate to.  If unspecified, this is equal to
+		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).
+
 		CONFIG_SPL_BSS_START_ADDR
 		Link address for the BSS within the SPL binary.
 
@@ -2600,6 +2768,11 @@ FIT uImage format:
 
 		CONFIG_SPL_STACK
 		Adress of the start of the stack SPL will use
+
+		CONFIG_SPL_RELOC_STACK
+		Adress of the start of the stack SPL will use after
+		relocation.  If unspecified, this is equal to
+		CONFIG_SPL_STACK.
 
 		CONFIG_SYS_SPL_MALLOC_START
 		Starting address of the malloc pool used in SPL.
@@ -2615,6 +2788,9 @@ FIT uImage format:
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information
 		about the running system.
+
+		CONFIG_SPL_INIT_MINIMAL
+		Arch init code should be built for a very small image
 
 		CONFIG_SPL_LIBCOMMON_SUPPORT
 		Support for common/libcommon.o in SPL binary
@@ -2643,8 +2819,19 @@ FIT uImage format:
 		CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from FAT
 
+		CONFIG_SPL_NAND_BASE
+		Include nand_base.c in the SPL.  Requires
+		CONFIG_SPL_NAND_DRIVERS.
+
+		CONFIG_SPL_NAND_DRIVERS
+		SPL uses normal NAND drivers, not minimal drivers.
+
+		CONFIG_SPL_NAND_ECC
+		Include standard software ECC in the SPL
+
 		CONFIG_SPL_NAND_SIMPLE
-		Support for drivers/mtd/nand/libnand.o in SPL binary
+		Support for NAND boot using simple NAND drivers that
+		expose the cmd_ctrl() interface.
 
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
@@ -2652,15 +2839,19 @@ FIT uImage format:
 		CONFIG_SYS_NAND_ECCPOS, CONFIG_SYS_NAND_ECCSIZE,
 		CONFIG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
-		to read U-Boot with CONFIG_SPL_NAND_SIMPLE
+		to read U-Boot
 
 		CONFIG_SYS_NAND_U_BOOT_OFFS
-		Location in NAND for CONFIG_SPL_NAND_SIMPLE to read U-Boot
-		from.
+		Location in NAND to read U-Boot from
+
+		CONFIG_SYS_NAND_U_BOOT_DST
+		Location in memory to load U-Boot to
+
+		CONFIG_SYS_NAND_U_BOOT_SIZE
+		Size of image to load
 
 		CONFIG_SYS_NAND_U_BOOT_START
-		Location in memory for CONFIG_SPL_NAND_SIMPLE to load U-Boot
-		to.
+		Entry point in loaded image to jump to
 
 		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
 		Define this if you need to first read the OOB and then the
@@ -2684,6 +2875,11 @@ FIT uImage format:
 
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
+
+		CONFIG_SPL_TARGET
+		Final target image containing SPL and payload.  Some SPLs
+		use an arch-specific makefile fragment instead, for
+		example if more than one image needs to be produced.
 
 Modem Support:
 --------------
@@ -2818,9 +3014,6 @@ Configuration Settings:
 		then the end address of the Linux memory will be located at a
 		non page size aligned address and this could cause major
 		problems.
-
-- CONFIG_SYS_TFTP_LOADADDR:
-		Default load address for network file downloads
 
 - CONFIG_SYS_LOADS_BAUD_CHANGE:
 		Enable temporary baudrate change while serial download
@@ -2962,6 +3155,49 @@ Configuration Settings:
 	setting is supposed to be generous and should work in most
 	cases. This setting can be used to tune behaviour; see
 	lib/hashtable.c for details.
+
+- CONFIG_ENV_FLAGS_LIST_DEFAULT
+- CONFIG_ENV_FLAGS_LIST_STATIC
+	Enable validation of the values given to enviroment variables when
+	calling env set.  Variables can be restricted to only decimal,
+	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
+	the variables can also be restricted to IP address or MAC address.
+
+	The format of the list is:
+		type_attribute = [s|d|x|b|i|m]
+		access_atribute = [a|r|o|c]
+		attributes = type_attribute[access_atribute]
+		entry = variable_name[:attributes]
+		list = entry[,list]
+
+	The type attributes are:
+		s - String (default)
+		d - Decimal
+		x - Hexadecimal
+		b - Boolean ([1yYtT|0nNfF])
+		i - IP address
+		m - MAC address
+
+	The access attributes are:
+		a - Any (default)
+		r - Read-only
+		o - Write-once
+		c - Change-default
+
+	- CONFIG_ENV_FLAGS_LIST_DEFAULT
+		Define this to a list (string) to define the ".flags"
+		envirnoment variable in the default or embedded environment.
+
+	- CONFIG_ENV_FLAGS_LIST_STATIC
+		Define this to a list (string) to define validation that
+		should be done if an entry is not found in the ".flags"
+		environment variable.  To override a setting in the static
+		list, simply add an entry for the same variable name to the
+		".flags" variable.
+
+- CONFIG_ENV_ACCESS_IGNORE_FORCE
+	If defined, don't allow the -f switch to env set override variable
+	access flags.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
@@ -3237,6 +3473,16 @@ use the "saveenv" command to store a valid environment.
 		drivers/serial/ns16550.c.  This option is useful for saving
 		space for already greatly restricted images, including but not
 		limited to NAND_SPL configurations.
+
+- CONFIG_DISPLAY_BOARDINFO
+		Display information about the board that U-Boot is running on
+		when U-Boot starts up. The board function checkboard() is called
+		to do this.
+
+- CONFIG_DISPLAY_BOARDINFO_LATE
+		Similar to the previous option, but display this information
+		later, once stdio is running and output goes to the LCD, if
+		present.
 
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
@@ -3560,6 +3806,16 @@ Low Level (hardware related) configuration options:
 		be used if available. These functions may be faster under some
 		conditions but may increase the binary size.
 
+- CONFIG_X86_NO_RESET_VECTOR
+		If defined, the x86 reset vector code is excluded. You will need
+		to do this when U-Boot is running from Coreboot.
+
+- CONFIG_X86_NO_REAL_MODE
+		If defined, x86 real mode code is omitted. This assumes a
+		32-bit environment where such code is not needed. You will
+		need to do this when U-Boot is running from Coreboot.
+
+
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
 
@@ -3787,6 +4043,7 @@ saveenv - save environment variables to persistent storage
 protect - enable or disable FLASH write protection
 erase	- erase FLASH memory
 flinfo	- print FLASH memory information
+nand	- NAND memory operations (see doc/README.nand)
 bdinfo	- print Board Info structure
 iminfo	- print header information for application image
 coninfo - print console devices and informations
@@ -4051,6 +4308,36 @@ Further special Environment Variables:
 
 Please note that changes to some configuration parameters may take
 only effect after the next boot (yes, that's just like Windoze :-).
+
+
+Callback functions for environment variables:
+---------------------------------------------
+
+For some environment variables, the behavior of u-boot needs to change
+when their values are changed.  This functionailty allows functions to
+be associated with arbitrary variables.  On creation, overwrite, or
+deletion, the callback will provide the opportunity for some side
+effect to happen or for the change to be rejected.
+
+The callbacks are named and associated with a function using the
+U_BOOT_ENV_CALLBACK macro in your board or driver code.
+
+These callbacks are associated with variables in one of two ways.  The
+static list can be added to by defining CONFIG_ENV_CALLBACK_LIST_STATIC
+in the board configuration to a string that defines a list of
+associations.  The list must be in the following format:
+
+	entry = variable_name[:callback_name]
+	list = entry[,list]
+
+If the callback name is not specified, then the callback is deleted.
+Spaces are also allowed anywhere in the list.
+
+Callbacks can also be associated by defining the ".callbacks" variable
+with the same list format above.  Any association in ".callbacks" will
+override any association in the static list. You can define
+CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
+".callbacks" envirnoment variable in the default or embedded environment.
 
 
 Command Line Parsing:

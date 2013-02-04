@@ -779,27 +779,31 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_BOOTDELAY	6
 
-#define XMK_STR(x)	#x
-#define MK_STR(x)	XMK_STR(x)
-
 #define CONFIG_BOOTARGS \
 	"root=/dev/nfs rw" \
-	" nfsroot=" MK_STR(CONFIG_SERVERIP) ":" CONFIG_ROOTPATH		\
-	" ip=" MK_STR(CONFIG_IPADDR) ":" MK_STR(CONFIG_SERVERIP) ":"	\
-		MK_STR(CONFIG_GATEWAYIP) ":" MK_STR(CONFIG_NETMASK) ":"	\
+	" nfsroot=" __stringify(CONFIG_SERVERIP) ":" CONFIG_ROOTPATH	\
+	" ip=" __stringify(CONFIG_IPADDR) ":"		\
+		__stringify(CONFIG_SERVERIP) ":"	\
+		__stringify(CONFIG_GATEWAYIP) ":"	\
+		__stringify(CONFIG_NETMASK) ":"		\
 		CONFIG_HOSTNAME ":" CONFIG_NETDEV ":off"		\
-	" console=" MK_STR(CONFIG_CONSOLE) "," MK_STR(CONFIG_BAUDRATE)
+	" console=" __stringify(CONFIG_CONSOLE) "," __stringify(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=" MK_STR(CONFIG_CONSOLE) "\0"				\
+	"console=" __stringify(CONFIG_CONSOLE) "\0"			\
 	"netdev=" CONFIG_NETDEV "\0"					\
 	"uboot=" CONFIG_UBOOTPATH "\0"					\
 	"tftpflash=tftpboot $loadaddr $uboot; "				\
-		"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "\
-		"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-		"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "\
-		"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "\
-		"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"\
+		"protect off " __stringify(CONFIG_SYS_TEXT_BASE)	\
+			" +$filesize; "	\
+		"erase " __stringify(CONFIG_SYS_TEXT_BASE)		\
+			" +$filesize; "	\
+		"cp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+			" $filesize; "	\
+		"protect on " __stringify(CONFIG_SYS_TEXT_BASE)		\
+			" +$filesize; "	\
+		"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+			" $filesize\0"	\
 	"fdtaddr=780000\0"						\
 	"fdtfile=" CONFIG_FDTFILE "\0"
 
@@ -818,8 +822,5 @@ boards, we say we have two, but don't display a message if we find only one. */
 	"tftp $loadaddr $bootfile;"					\
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#undef MK_STR
-#undef XMK_STR
 
 #endif

@@ -73,13 +73,6 @@ void fpga_serial_putc (char c)
 	}
 }
 
-void fpga_serial_puts (const char *s)
-{
-	while (*s) {
-		fpga_serial_print (*s++);
-	}
-}
-
 int fpga_serial_getc (void)
 {
 	while ((in8 (UART (LSR)) & 0x01) == 0);

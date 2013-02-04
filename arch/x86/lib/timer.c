@@ -37,6 +37,7 @@ struct timer_isr_function {
 
 static struct timer_isr_function *first_timer_isr;
 static unsigned long system_ticks;
+static uint64_t base_value;
 
 /*
  * register_timer_isr() allows multiple architecture and board specific
@@ -97,4 +98,20 @@ void timer_isr(void *unused)
 ulong get_timer(ulong base)
 {
 	return system_ticks - base;
+}
+
+void timer_set_tsc_base(uint64_t new_base)
+{
+	base_value = new_base;
+}
+
+uint64_t timer_get_tsc(void)
+{
+	uint64_t time_now;
+
+	time_now = rdtsc();
+	if (!base_value)
+		base_value = time_now;
+
+	return time_now - base_value;
 }

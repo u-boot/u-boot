@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2012 Freescale Semiconductor, Inc.
  *	Jun-jie Zhang <b18070@freescale.com>
  *	Mingkai Hu <Mingkai.hu@freescale.com>
  *
@@ -51,6 +51,10 @@ int tsec_local_mdio_read(struct tsec_mii_mng *phyregs, int port_addr,
 int tsec_phy_read(struct mii_dev *bus, int addr, int dev_addr, int regnum);
 int tsec_phy_write(struct mii_dev *bus, int addr, int dev_addr, int regnum,
 		u16 value);
+int memac_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
+		int regnum, u16 value);
+int memac_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
+		int regnum);
 
 struct fsl_pq_mdio_info {
 	struct tsec_mii_mng *regs;

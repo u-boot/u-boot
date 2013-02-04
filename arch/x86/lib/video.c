@@ -222,8 +222,10 @@ int video_init(void)
 
 int drv_video_init(void)
 {
+#ifndef CONFIG_X86_NO_REAL_MODE
 	if (video_bios_init())
 		return 1;
+#endif
 
 	return video_init();
 }

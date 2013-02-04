@@ -112,7 +112,6 @@
 # define CONFIG_BAUDRATE	57600
 #endif
 #ifndef CONFIG_DEBUG_EARLY_SERIAL
-# define CONFIG_SERIAL_MULTI
 # define CONFIG_SYS_BFIN_UART
 #endif
 
@@ -150,13 +149,14 @@
 #endif
 #define CONFIG_BOOTARGS	\
 	"root=" CONFIG_BOOTARGS_ROOT " " \
-	"clkin_hz=" MK_STR(CONFIG_CLKIN_HZ) " " \
+	"clkin_hz=" __stringify(CONFIG_CLKIN_HZ) " " \
 	"earlyprintk=" \
 		"serial," \
-		"uart" MK_STR(CONFIG_UART_CONSOLE) "," \
-		MK_STR(CONFIG_BAUDRATE) " " \
+		"uart" __stringify(CONFIG_UART_CONSOLE) "," \
+		__stringify(CONFIG_BAUDRATE) " " \
 	CONFIG_BOOTARGS_VIDEO \
-	"console=ttyBF" MK_STR(CONFIG_UART_CONSOLE) "," MK_STR(CONFIG_BAUDRATE)
+	"console=ttyBF" __stringify(CONFIG_UART_CONSOLE) "," \
+			__stringify(CONFIG_BAUDRATE)
 #if defined(CONFIG_CMD_NAND)
 # define NAND_ENV_SETTINGS \
 	"nandargs=set bootargs " CONFIG_BOOTARGS "\0" \
@@ -183,8 +183,8 @@
 #    define CONFIG_BFIN_SPI_IMG_SIZE 0x40000
 #   endif
 #   define UBOOT_ENV_UPDATE \
-		"sf probe " MK_STR(BFIN_BOOT_SPI_SSEL) ";" \
-		"sf erase 0 " MK_STR(CONFIG_BFIN_SPI_IMG_SIZE) ";" \
+		"sf probe " __stringify(BFIN_BOOT_SPI_SSEL) ";" \
+		"sf erase 0 " __stringify(CONFIG_BFIN_SPI_IMG_SIZE) ";" \
 		"sf write $(loadaddr) 0 $(filesize)"
 #  endif
 # elif (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_NAND)

@@ -128,8 +128,7 @@ int board_init(void)
  * provides the timing values back to the function that configures
  * the memory.
  */
-void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
-		u32 *mr)
+void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
 	int pop_mfr, pop_id;
 
@@ -142,17 +141,17 @@ void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
 
 	if (pop_mfr == NAND_MFR_HYNIX && pop_id == 0xbc) {
 		/* 256MB DDR */
-		*mcfg = HYNIX_V_MCFG_200(256 << 20);
-		*ctrla = HYNIX_V_ACTIMA_200;
-		*ctrlb = HYNIX_V_ACTIMB_200;
+		timings->mcfg = HYNIX_V_MCFG_200(256 << 20);
+		timings->ctrla = HYNIX_V_ACTIMA_200;
+		timings->ctrlb = HYNIX_V_ACTIMB_200;
 	} else {
 		/* 128MB DDR */
-		*mcfg = MICRON_V_MCFG_165(128 << 20);
-		*ctrla = MICRON_V_ACTIMA_165;
-		*ctrlb = MICRON_V_ACTIMB_165;
+		timings->mcfg = MICRON_V_MCFG_165(128 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
 	}
-	*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
-	*mr = MICRON_V_MR_165;
+	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	timings->mr = MICRON_V_MR_165;
 }
 #endif
 

@@ -59,7 +59,6 @@
  * select serial console configuration
  */
 #define CONFIG_SERIAL2			1	/* use SERIAL2 */
-#define CONFIG_SERIAL_MULTI		1
 #define CONFIG_BAUDRATE			115200
 
 /* MMC */
@@ -216,9 +215,9 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE       64
 
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX8998
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX8998
 
 #include <asm/arch/gpio.h>
 /*

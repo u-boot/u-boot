@@ -1,4 +1,4 @@
-LZMA SDK 4.65
+LZMA SDK 9.20
 -------------
 
 LZMA SDK provides the documentation, samples, header files, libraries,
@@ -20,6 +20,10 @@ LICENSE
 
 LZMA SDK is written and placed in the public domain by Igor Pavlov.
 
+Some code in LZMA SDK is based on public domain code from another developers:
+  1) PPMd var.H (2001): Dmitry Shkarin
+  2) SHA-256: Wei Dai (Crypto++ library)
+
 
 LZMA SDK Contents
 -----------------
@@ -33,7 +37,7 @@ LZMA SDK includes:
 UNIX/Linux version
 ------------------
 To compile C++ version of file->file LZMA encoding, go to directory
-C++/7zip/Compress/LZMA_Alone
+CPP/7zip/Bundles/LzmaCon
 and call make to recompile it:
   make -f makefile.gcc clean all
 
@@ -49,6 +53,7 @@ lzma.txt     - LZMA SDK description (this file)
 7zC.txt      - 7z ANSI-C Decoder description
 methods.txt  - Compression method IDs for .7z
 lzma.exe     - Compiled file->file LZMA encoder/decoder for Windows
+7zr.exe      - 7-Zip with 7z/lzma/xz support.
 history.txt  - history of the LZMA SDK
 
 
@@ -66,7 +71,7 @@ C/  - C files
         LzmaEnc.*  - LZMA encoding
         LzmaLib.*  - LZMA Library for DLL calling
         Types.h    - Basic types for another .c files
-	Threads.*  - The code for multithreading.
+        Threads.*  - The code for multithreading.
 
     LzmaLib  - LZMA Library (.DLL for Windows)
 
@@ -86,12 +91,6 @@ CPP/ -- CPP files
 
     Compress - files related to compression/decompression
 
-      Copy         - Copy coder
-      RangeCoder   - Range Coder (special code of compression/decompression)
-      LZMA         - LZMA compression/decompression on C++
-      LZMA_Alone   - file->file LZMA compression/decompression
-      Branch       - Filters for x86, IA-64, ARM, ARM-Thumb, PowerPC and SPARC code
-
     Archive - files related to archiving
 
       Common   - common files for archive handling
@@ -100,6 +99,7 @@ CPP/ -- CPP files
     Bundles    - Modules that are bundles of other modules
 
       Alone7z           - 7zr.exe: Standalone version of 7z.exe that supports only 7z/LZMA/BCJ/BCJ2
+      LzmaCon           - lzma.exe: LZMA compression/decompression
       Format7zR         - 7zr.dll: Reduced version of 7za.dll: extracting/compressing to 7z/LZMA/BCJ/BCJ2
       Format7zExtractR  - 7zxr.dll: Reduced version of 7zxa.dll: extracting from 7z/LZMA/BCJ/BCJ2.
 
@@ -369,8 +369,8 @@ Interface:
     propData - LZMA properties  (5 bytes)
     propSize - size of propData buffer (5 bytes)
     finishMode - It has meaning only if the decoding reaches output limit (*destLen).
-	 LZMA_FINISH_ANY - Decode just destLen bytes.
-	 LZMA_FINISH_END - Stream must be finished after (*destLen).
+         LZMA_FINISH_ANY - Decode just destLen bytes.
+         LZMA_FINISH_END - Stream must be finished after (*destLen).
                            You can use LZMA_FINISH_END, when you know that
                            current output buffer covers last bytes of stream.
     alloc    - Memory allocator.
@@ -431,7 +431,7 @@ Memory Requirements:
   {
     ...
     int res = LzmaDec_DecodeToBuf(CLzmaDec *p, Byte *dest, SizeT *destLen,
-	const Byte *src, SizeT *srcLen, ELzmaFinishMode finishMode);
+        const Byte *src, SizeT *srcLen, ELzmaFinishMode finishMode);
     ...
   }
 
@@ -527,7 +527,8 @@ static ISzAlloc g_Alloc = { SzAlloc, SzFree };
   LzmaEnc_Destroy(enc, &g_Alloc, &g_Alloc);
 
 
-If callback function return some error code, LzmaEnc_Encode also returns that code.
+If callback function return some error code, LzmaEnc_Encode also returns that code
+or it can return the code like SZ_ERROR_READ, SZ_ERROR_WRITE or SZ_ERROR_PROGRESS.
 
 
 Single-call RAM->RAM Compression
@@ -549,8 +550,8 @@ Return code:
 
 
 
-LZMA Defines
-------------
+Defines
+-------
 
 _LZMA_SIZE_OPT - Enable some optimizations in LZMA Decoder to get smaller executable code.
 
@@ -560,6 +561,9 @@ _LZMA_PROB32   - It can increase the speed on some 32-bit CPUs, but memory usage
 _LZMA_UINT32_IS_ULONG  - Define it if int is 16-bit on your compiler and long is 32-bit.
 
 _LZMA_NO_SYSTEM_SIZE_T  - Define it if you don't want to use size_t type.
+
+
+_7ZIP_PPMD_SUPPPORT - Define it if you don't want to support PPMD method in AMSI-C .7z decoder.
 
 
 C++ LZMA Encoder/Decoder

@@ -28,8 +28,6 @@
 #include <post.h>
 #include <serial.h>
 
-#if defined(CONFIG_SERIAL_MULTI)
-
 /*
  * Actually the termination sequence of the coprocessor
  * commands is "\r\n" (CR LF), but here we use a side effect of
@@ -94,4 +92,3 @@ int coprocessor_post_test(int flags)
 
 	return 0;
 }
-#endif	/* CONFIG_SERIAL_MULTI */

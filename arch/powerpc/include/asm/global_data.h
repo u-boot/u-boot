@@ -38,7 +38,7 @@
 typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
-	unsigned long	baudrate;
+	unsigned int	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz! */
 	unsigned long	bus_clk;
 #if defined(CONFIG_8xx)
@@ -62,6 +62,8 @@ typedef	struct	global_data {
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
+	u32 usbdr_clk;
+#elif defined(CONFIG_MPC8309)
 	u32 usbdr_clk;
 #endif
 #if defined (CONFIG_MPC834x)

@@ -123,7 +123,7 @@ int usb_host_eth_scan(int mode)
 
 
 	if (mode == 1)
-		printf("       scanning bus for ethernet devices... ");
+		printf("       scanning usb for ethernet devices... ");
 
 	old_async = usb_disable_asynch(1); /* asynch transfer not allowed */
 

@@ -768,22 +768,18 @@ int mem_test_walk (void)
 /*********************************************************************/
 int testdram (void)
 {
-	char *s;
 	int rundata    = 0;
 	int runaddress = 0;
 	int runwalk    = 0;
 
 #ifdef CONFIG_SYS_DRAM_TEST_DATA
-	s = getenv ("testdramdata");
-	rundata = (s && (*s == 'y')) ? 1 : 0;
+	rundata = getenv_yesno("testdramdata") == 1;
 #endif
 #ifdef CONFIG_SYS_DRAM_TEST_ADDRESS
-	s = getenv ("testdramaddress");
-	runaddress = (s && (*s == 'y')) ? 1 : 0;
+	runaddress = getenv_yesno("testdramaddress") == 1;
 #endif
 #ifdef CONFIG_SYS_DRAM_TEST_WALK
-	s = getenv ("testdramwalk");
-	runwalk = (s && (*s == 'y')) ? 1 : 0;
+	runwalk = getenv_yesno("testdramwalk") == 1;
 #endif
 
 	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1))

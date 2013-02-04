@@ -45,7 +45,7 @@ typedef struct ngpixis {
 	struct {
 		u8 sw;
 		u8 en;
-	} s[8];
+	} s[9];		/* s[0]..s[7] is SW1..SW8, and s[8] is SW11 */
 } __attribute__ ((packed)) ngpixis_t;
 
 /* Pointer to the PIXIS register set */

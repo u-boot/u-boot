@@ -40,7 +40,7 @@ typedef struct bd_info {
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
 	unsigned long	bi_sramstart;	/* start of SRAM memory */
 	unsigned long	bi_sramsize;	/* size	 of SRAM memory */
-	unsigned long	bi_baudrate;	/* Console Baudrate */
+	unsigned int	bi_baudrate;	/* Console Baudrate */
 } bd_t;
 
 /* For image.h:image_check_target_arch() */

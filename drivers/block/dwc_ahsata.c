@@ -24,6 +24,7 @@
 #include <libata.h>
 #include <ahci.h>
 #include <fis.h>
+#include <sata.h>
 
 #include <common.h>
 #include <malloc.h>
@@ -794,7 +795,7 @@ static void dwc_ahsata_init_wcache(int dev, u16 *id)
 }
 
 u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
-				void *buffer, int is_write)
+				const void *buffer, int is_write)
 {
 	u32 start, blks;
 	u8 *addr;
@@ -828,7 +829,7 @@ u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
 }
 
 u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
-				void *buffer, int is_write)
+				const void *buffer, int is_write)
 {
 	u32 start, blks;
 	u8 *addr;
@@ -863,7 +864,7 @@ u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
 /*
  * SATA interface between low level driver and command layer
  */
-ulong sata_read(int dev, unsigned long blknr, lbaint_t blkcnt, void *buffer)
+ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
 	u32 rc;
 
@@ -876,7 +877,7 @@ ulong sata_read(int dev, unsigned long blknr, lbaint_t blkcnt, void *buffer)
 	return rc;
 }
 
-ulong sata_write(int dev, unsigned long blknr, lbaint_t blkcnt, void *buffer)
+ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
 	u32 rc;
 	struct ahci_probe_ent *probe_ent =

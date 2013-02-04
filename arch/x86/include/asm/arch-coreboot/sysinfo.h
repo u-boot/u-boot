@@ -30,32 +30,52 @@
 #ifndef _COREBOOT_SYSINFO_H
 #define _COREBOOT_SYSINFO_H
 
+#include <common.h>
 #include <compiler.h>
+#include <fdt.h>
+#include <asm/arch/tables.h>
 
 /* Allow a maximum of 16 memory range definitions. */
 #define SYSINFO_MAX_MEM_RANGES 16
+/* Allow a maximum of 8 GPIOs */
+#define SYSINFO_MAX_GPIOS 8
 
 struct sysinfo_t {
-	unsigned int cpu_khz;
-	unsigned short ser_ioport;
-	unsigned long ser_base; /* for mmapped serial */
-
 	int n_memranges;
-
 	struct memrange {
 		unsigned long long base;
 		unsigned long long size;
 		unsigned int type;
 	} memrange[SYSINFO_MAX_MEM_RANGES];
 
-	struct cb_cmos_option_table *option_table;
 	u32 cmos_range_start;
 	u32 cmos_range_end;
 	u32 cmos_checksum_location;
+	u32 vbnv_start;
+	u32 vbnv_size;
+
+	char *version;
+	char *extra_version;
+	char *build;
+	char *compile_time;
+	char *compile_by;
+	char *compile_host;
+	char *compile_domain;
+	char *compiler;
+	char *linker;
+	char *assembler;
 
 	struct cb_framebuffer *framebuffer;
 
-	unsigned long *mbtable; /** Pointer to the multiboot table */
+	int num_gpios;
+	struct cb_gpio gpios[SYSINFO_MAX_GPIOS];
+
+	void	*vdat_addr;
+	u32	vdat_size;
+	void	*tstamp_table;
+	void	*cbmem_cons;
+
+	struct cb_serial *serial;
 };
 
 extern struct sysinfo_t lib_sysinfo;

@@ -267,3 +267,8 @@ struct meminfo {
 extern struct meminfo meminfo;
 
 #endif
+
+/*
+ * Board specified tags
+ */
+void setup_board_tags(struct tag **in_params);

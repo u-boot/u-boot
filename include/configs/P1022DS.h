@@ -360,6 +360,7 @@
 /* SATA */
 #define CONFIG_LIBATA
 #define CONFIG_FSL_SATA
+#define CONFIG_FSL_SATA_V2
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_SATA1
@@ -540,8 +541,8 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
-	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"			\
-	"ubootaddr=" MK_STR(CONFIG_SYS_TEXT_BASE) "\0"		\
+	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
+	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
 		"protect off $ubootaddr +$filesize && "		\
 		"erase $ubootaddr +$filesize && "		\

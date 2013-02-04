@@ -184,10 +184,10 @@
  */
 #define CONFIG_BOOTARGS \
 	"root=/dev/mtdblock0 rw " \
-	"clkin_hz=" MK_STR(CONFIG_CLKIN_HZ) " " \
+	"clkin_hz=" __stringify(CONFIG_CLKIN_HZ) " " \
 	"earlyprintk=serial,uart0," \
-	MK_STR(CONFIG_BAUDRATE) " " \
-	"console=ttyBF0," MK_STR(CONFIG_BAUDRATE) " "
+	__stringify(CONFIG_BAUDRATE) " " \
+	"console=ttyBF0," __stringify(CONFIG_BAUDRATE) " "
 
 /* Convenience env variables & commands.
  * Reserve kernstart = 0x20000  = 128 kB for U-Boot.

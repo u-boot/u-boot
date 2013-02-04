@@ -61,8 +61,8 @@ void flush_cache(ulong start_addr, ulong size)
 		return;
 
 	while (1) {
-		cache_op(Hit_Writeback_Inv_D, addr);
-		cache_op(Hit_Invalidate_I, addr);
+		cache_op(HIT_WRITEBACK_INV_D, addr);
+		cache_op(HIT_INVALIDATE_I, addr);
 		if (addr == aend)
 			break;
 		addr += lsize;
@@ -76,7 +76,7 @@ void flush_dcache_range(ulong start_addr, ulong stop)
 	unsigned long aend = (stop - 1) & ~(lsize - 1);
 
 	while (1) {
-		cache_op(Hit_Writeback_Inv_D, addr);
+		cache_op(HIT_WRITEBACK_INV_D, addr);
 		if (addr == aend)
 			break;
 		addr += lsize;
@@ -90,7 +90,7 @@ void invalidate_dcache_range(ulong start_addr, ulong stop)
 	unsigned long aend = (stop - 1) & ~(lsize - 1);
 
 	while (1) {
-		cache_op(Hit_Invalidate_D, addr);
+		cache_op(HIT_INVALIDATE_D, addr);
 		if (addr == aend)
 			break;
 		addr += lsize;

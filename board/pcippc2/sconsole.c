@@ -23,6 +23,8 @@
 
 #include <config.h>
 #include <common.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
 #include "sconsole.h"
 
@@ -34,7 +36,7 @@ int	(*sconsole_getc) (void) = 0;
 int	(*sconsole_tstc) (void) = 0;
 void	(*sconsole_setbrg) (void) = 0;
 
-int serial_init (void)
+static int sconsole_serial_init(void)
 {
 	sconsole_buffer_t *sb = SCONSOLE_BUFFER;
 
@@ -46,7 +48,7 @@ int serial_init (void)
 	return (0);
 }
 
-void serial_putc (char c)
+static void sconsole_serial_putc(char c)
 {
 	if (sconsole_putc) {
 		(*sconsole_putc) (c);
@@ -65,7 +67,7 @@ void serial_putc (char c)
 	}
 }
 
-void serial_puts (const char *s)
+static void sconsole_serial_puts(const char *s)
 {
 	if (sconsole_puts) {
 		(*sconsole_puts) (s);
@@ -84,7 +86,7 @@ void serial_puts (const char *s)
 	}
 }
 
-int serial_getc (void)
+static int sconsole_serial_getc(void)
 {
 	if (sconsole_getc) {
 		return (*sconsole_getc) ();
@@ -93,7 +95,7 @@ int serial_getc (void)
 	}
 }
 
-int serial_tstc (void)
+static int sconsole_serial_tstc(void)
 {
 	if (sconsole_tstc) {
 		return (*sconsole_tstc) ();
@@ -102,7 +104,7 @@ int serial_tstc (void)
 	}
 }
 
-void serial_setbrg (void)
+static void sconsole_serial_setbrg(void)
 {
 	if (sconsole_setbrg) {
 		(*sconsole_setbrg) ();
@@ -111,6 +113,27 @@ void serial_setbrg (void)
 
 		sb->baud = gd->baudrate;
 	}
+}
+
+static struct serial_device sconsole_serial_drv = {
+	.name	= "sconsole_serial",
+	.start	= sconsole_serial_init,
+	.stop	= NULL,
+	.setbrg	= sconsole_serial_setbrg,
+	.putc	= sconsole_serial_putc,
+	.puts	= sconsole_serial_puts,
+	.getc	= sconsole_serial_getc,
+	.tstc	= sconsole_serial_tstc,
+};
+
+void sconsole_serial_initialize(void)
+{
+	serial_register(&sconsole_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &sconsole_serial_drv;
 }
 
 int sconsole_get_baudrate (void)

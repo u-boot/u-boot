@@ -371,7 +371,6 @@
 #define	CONFIG_CLOCKS_IN_MHZ	1      /* clocks passsed to Linux in MHz */
 
 #define CONFIG_SYS_LOAD_ADDR     0x00100000   /* default load address */
-#define CONFIG_SYS_TFTP_LOADADDR 0x00100000   /* default load address for network file downloads */
 
 #define CONFIG_SYS_HZ            1000         /* decrementer freq: 1 ms ticks */
 

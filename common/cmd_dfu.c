@@ -30,7 +30,7 @@
 static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *str_env;
-	char s[] = "dfu";
+	char *s = "dfu";
 	char *env_bkp;
 	int ret;
 

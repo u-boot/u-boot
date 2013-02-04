@@ -30,6 +30,8 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/io.h>
+#include <serial.h>
+#include <linux/compiler.h>
 #include "serial_pl01x.h"
 
 /*
@@ -54,7 +56,7 @@ static struct pl01x_regs *pl01x_get_regs(int portnum)
 
 #ifdef CONFIG_PL010_SERIAL
 
-int serial_init (void)
+static int pl01x_serial_init(void)
 {
 	struct pl01x_regs *regs = pl01x_get_regs(CONSOLE_PORT);
 	unsigned int divisor;
@@ -104,7 +106,7 @@ int serial_init (void)
 
 #ifdef CONFIG_PL011_SERIAL
 
-int serial_init (void)
+static int pl01x_serial_init(void)
 {
 	struct pl01x_regs *regs = pl01x_get_regs(CONSOLE_PORT);
 	unsigned int temp;
@@ -161,15 +163,15 @@ int serial_init (void)
 	}
 #endif
 	/* Finally, enable the UART */
-	writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE | UART_PL011_CR_RXE,
-	       &regs->pl011_cr);
+	writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE | UART_PL011_CR_RXE |
+	       UART_PL011_CR_RTS, &regs->pl011_cr);
 
 	return 0;
 }
 
 #endif /* CONFIG_PL011_SERIAL */
 
-void serial_putc (const char c)
+static void pl01x_serial_putc(const char c)
 {
 	if (c == '\n')
 		pl01x_putc (CONSOLE_PORT, '\r');
@@ -177,24 +179,17 @@ void serial_putc (const char c)
 	pl01x_putc (CONSOLE_PORT, c);
 }
 
-void serial_puts (const char *s)
-{
-	while (*s) {
-		serial_putc (*s++);
-	}
-}
-
-int serial_getc (void)
+static int pl01x_serial_getc(void)
 {
 	return pl01x_getc (CONSOLE_PORT);
 }
 
-int serial_tstc (void)
+static int pl01x_serial_tstc(void)
 {
 	return pl01x_tstc (CONSOLE_PORT);
 }
 
-void serial_setbrg (void)
+static void pl01x_serial_setbrg(void)
 {
 	struct pl01x_regs *regs = pl01x_get_regs(CONSOLE_PORT);
 
@@ -249,4 +244,25 @@ static int pl01x_tstc (int portnum)
 
 	WATCHDOG_RESET();
 	return !(readl(&regs->fr) & UART_PL01x_FR_RXFE);
+}
+
+static struct serial_device pl01x_serial_drv = {
+	.name	= "pl01x_serial",
+	.start	= pl01x_serial_init,
+	.stop	= NULL,
+	.setbrg	= pl01x_serial_setbrg,
+	.putc	= pl01x_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= pl01x_serial_getc,
+	.tstc	= pl01x_serial_tstc,
+};
+
+void pl01x_serial_initialize(void)
+{
+	serial_register(&pl01x_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &pl01x_serial_drv;
 }

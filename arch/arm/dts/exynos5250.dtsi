@@ -1,0 +1,154 @@
+/*
+ * SAMSUNG EXYNOS5250 SoC device tree source
+ *
+ * Copyright (c) 2012 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SAMSUNG EXYNOS5250 SoC device nodes are listed in this file.
+ * EXYNOS5250 based board files can include this file and provide
+ * values for board specfic bindings.
+ *
+ * Note: This file does not include device nodes for all the controllers in
+ * EXYNOS5250 SoC. As device tree coverage for EXYNOS5250 increases,
+ * additional nodes can be added to this file.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/include/ "skeleton.dtsi"
+
+/ {
+	compatible = "samsung,exynos5250";
+
+	sromc@12250000 {
+		compatible = "samsung,exynos-sromc";
+		reg = <0x12250000 0x20>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+
+	i2c@12c60000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		reg = <0x12C60000 0x100>;
+		interrupts = <0 56 0>;
+	};
+
+	i2c@12c70000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		reg = <0x12C70000 0x100>;
+		interrupts = <0 57 0>;
+	};
+
+	i2c@12c80000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		reg = <0x12C80000 0x100>;
+		interrupts = <0 58 0>;
+	};
+
+	i2c@12c90000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		reg = <0x12C90000 0x100>;
+		interrupts = <0 59 0>;
+	};
+
+	i2c@12ca0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		reg = <0x12CA0000 0x100>;
+		interrupts = <0 60 0>;
+	};
+
+	i2c@12cb0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		reg = <0x12CB0000 0x100>;
+		interrupts = <0 61 0>;
+	};
+
+	i2c@12cc0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		reg = <0x12CC0000 0x100>;
+		interrupts = <0 62 0>;
+	};
+
+	i2c@12cd0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		reg = <0x12CD0000 0x100>;
+		interrupts = <0 63 0>;
+	};
+
+	sound@12d60000 {
+		compatible = "samsung,exynos-sound";
+		reg = <0x12d60000 0x20>;
+	};
+
+	spi@12d20000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-spi";
+		reg = <0x12d20000 0x30>;
+		interrupts = <0 68 0>;
+	};
+
+	spi@12d30000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-spi";
+		reg = <0x12d30000 0x30>;
+		interrupts = <0 69 0>;
+	};
+
+	spi@12d40000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-spi";
+		reg = <0x12d40000 0x30>;
+		clock-frequency = <50000000>;
+		interrupts = <0 70 0>;
+        };
+
+	spi@131a0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-spi";
+		reg = <0x131a0000 0x30>;
+		interrupts = <0 129 0>;
+	};
+
+	spi@131b0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-spi";
+		reg = <0x131b0000 0x30>;
+		interrupts = <0 130 0>;
+	};
+
+	ehci@12110000 {
+		compatible = "samsung,exynos-ehci";
+		reg = <0x12110000 0x100>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		phy {
+			compatible = "samsung,exynos-usb-phy";
+			reg = <0x12130000 0x100>;
+		};
+	};
+
+};

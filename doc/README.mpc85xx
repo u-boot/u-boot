@@ -26,7 +26,7 @@ Major Config Switches during various boot Modes
 ----------------------------------------------
 
 NOR boot
-		!defined(CONFIG_SYS_RAMBOOT)
+		!defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SPL)
 NOR boot Secure
 		!defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
 RAMBOOT(SD, SPI & NAND boot)

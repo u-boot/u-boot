@@ -95,10 +95,7 @@
 #define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 /* Partition tables */
-/* Only need DOS partition support for SPL, currently */
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EFI_PARTITION
-#endif
 #define CONFIG_DOS_PARTITION
 
 /* USB
@@ -113,6 +110,9 @@
 /* NAND SPL */
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_BASE
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
@@ -162,7 +162,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc rescan ${mmcdev}; then " \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \

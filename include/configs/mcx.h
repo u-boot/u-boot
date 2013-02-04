@@ -114,9 +114,7 @@
 #define CONFIG_USB_EHCI_OMAP
 #define CONFIG_USB_ULPI
 #define CONFIG_USB_ULPI_VIEWPORT_OMAP
-/*#define CONFIG_EHCI_DCACHE*/ /* leave it disabled for now */
-#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	154
-#define CONFIG_OMAP_EHCI_PHY2_RESET_GPIO	152
+#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	57
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
 
 /* commands to include */
@@ -182,7 +180,7 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000	/* sz of jffs2 part */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY	10
+#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_BOOTFILE		"uImage"
 
@@ -256,22 +254,28 @@
 		"run nandargs; "					\
 		"ubi part nand0,4;"					\
 		"ubi readvol ${loadaddr} kernel;"			\
-		"run addip addtty addmtd addfb addeth addmisc;"		\
+		"run addtty addmtd addfb addeth addmisc;"		\
 		"bootm ${loadaddr}\0"					\
-	"swupdate_args=setenv bootargs ubi.mtd=6 root=ubi0:fs_recovery "\
-		"rootfstype=ubifs quiet loglevel=1 "			\
-			"consoleblank=0 ${swupdate_misc}\0"		\
+	"preboot=ubi part nand0,7;"					\
+		"ubi readvol ${loadaddr} splash;"			\
+		"bmp display ${loadaddr};"				\
+		"gpio set 55\0"						\
+	"swupdate_args=setenv bootargs root=/dev/ram "			\
+		"quiet loglevel=1 "					\
+		"consoleblank=0 ${swupdate_misc}\0"			\
 	"swupdate=echo Running Sw-Update...;"				\
 		"if printenv mtdparts;then echo Starting SwUpdate...; "	\
 		"else mtdparts default;fi; "				\
 		"ubi part nand0,5;"					\
 		"ubi readvol 0x82000000 kernel_recovery;"		\
+		"ubi part nand0,6;"					\
+		"ubi readvol 0x84000000 fs_recovery;"			\
 		"run swupdate_args; "					\
 		"setenv bootargs ${bootargs} "				\
 			"${mtdparts} "					\
 			"vram=6M omapfb.vram=1:2M,2:2M,3:2M "		\
 			"omapdss.def_disp=lcd;"				\
-		"bootm ${loadaddr}\0"
+		"bootm 0x82000000 0x84000000\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"run nandboot"
@@ -302,6 +306,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
 								/* address */
+#define CONFIG_PREBOOT
 
 /*
  * AM3517 has 12 GP timers, they can be driven by the system clock
@@ -317,7 +322,6 @@
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
 /*
@@ -373,6 +377,9 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_BASE
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
@@ -420,5 +427,14 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT 10
 #endif
+
+#define CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_CMD_BMP
+#define CONFIG_VIDEO_OMAP3
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #endif /* __CONFIG_H */

@@ -57,8 +57,10 @@ void clock_enter_limp(int lpdiv)
 	/* Round divider down to nearest power of two */
 	for (i = 0, j = lpdiv; j != 1; j >>= 1, i++) ;
 
+#ifdef CONFIG_MCF5445x
 	/* Apply the divider to the system clock */
 	clrsetbits_be16(&ccm->cdr, 0x0f00, CCM_CDR_LPDIV(i));
+#endif
 
 	/* Enable Limp Mode */
 	setbits_be16(&ccm->misccr, CCM_MISCCR_LIMP);
@@ -81,19 +83,76 @@ void clock_exit_limp(void)
 		;
 }
 
-/*
- * get_clocks() fills in gd->cpu_clock and gd->bus_clk
- */
-int get_clocks(void)
+#ifdef CONFIG_MCF5441x
+void setup_5441x_clocks(void)
 {
+	ccm_t *ccm = (ccm_t *)MMAP_CCM;
+	pll_t *pll = (pll_t *)MMAP_PLL;
+	int temp, vco = 0, bootmod_ccr, pdr;
 
+	bootmod_ccr = (in_be16(&ccm->ccr) & CCM_CCR_BOOTMOD) >> 14;
+
+	switch (bootmod_ccr) {
+	case 0:
+		out_be32(&pll->pcr, 0x00000013);
+		out_be32(&pll->pdr, 0x00e70c61);
+		clock_exit_limp();
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	}
+
+	/*Change frequency for Modelo SER1 USB host*/
+#ifdef CONFIG_LOW_MCFCLK
+	temp = in_be32(&pll->pcr);
+	temp &= ~0x3f;
+	temp |= 5;
+	out_be32(&pll->pcr, temp);
+
+	temp = in_be32(&pll->pdr);
+	temp &= ~0x001f0000;
+	temp |= 0x00040000;
+	out_be32(&pll->pdr, temp);
+	__asm__("tpf");
+#endif
+
+	setbits_be16(&ccm->misccr2, 0x02);
+
+	vco =  ((in_be32(&pll->pcr) & PLL_CR_FBKDIV_BITS) + 1) *
+		CONFIG_SYS_INPUT_CLKSRC;
+	gd->vco_clk = vco;
+
+	gd->inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
+
+	pdr = in_be32(&pll->pdr);
+	temp = (pdr & PLL_DR_OUTDIV1_BITS) + 1;
+	gd->cpu_clk = vco / temp;	/* cpu clock */
+	gd->flb_clk = vco / temp;	/* FlexBus clock */
+	gd->flb_clk >>= 1;
+	if (in_be16(ccm->misccr2) & 2)		/* fsys/4 */
+		gd->flb_clk >>= 1;
+
+	temp = ((pdr & PLL_DR_OUTDIV2_BITS) >> 5) + 1;
+	gd->bus_clk = vco / temp;	/* bus clock */
+
+}
+#endif
+
+#ifdef CONFIG_MCF5445x
+void setup_5445x_clocks(void)
+{
 	ccm_t *ccm = (ccm_t *)MMAP_CCM;
 	pll_t *pll = (pll_t *)MMAP_PLL;
 	int pllmult_nopci[] = { 20, 10, 24, 18, 12, 6, 16, 8 };
 	int pllmult_pci[] = { 12, 6, 16, 8 };
-	int vco = 0, bPci, temp, fbtemp, pcrvalue;
+	int vco = 0, temp, fbtemp, pcrvalue;
 	int *pPllmult = NULL;
 	u16 fbpll_mask;
+#ifdef CONFIG_PCI
+	int bPci;
+#endif
 
 #ifdef CONFIG_M54455EVB
 	u8 *cpld = (u8 *)(CONFIG_SYS_CS2_BASE + 3);
@@ -105,14 +164,16 @@ int get_clocks(void)
 	    ((in_be16(&ccm->ccr) & CCM_CCR_360_FBCONFIG_MASK) == 0x0060)) {
 		pPllmult = &pllmult_pci[0];
 		fbpll_mask = 3;		/* 11b */
+#ifdef CONFIG_PCI
 		bPci = 1;
+#endif
 	} else {
 		pPllmult = &pllmult_nopci[0];
 		fbpll_mask = 7;		/* 111b */
 #ifdef CONFIG_PCI
 		gd->pci_clk = 0;
-#endif
 		bPci = 0;
+#endif
 	}
 
 #ifdef CONFIG_M54455EVB
@@ -211,6 +272,22 @@ int get_clocks(void)
 		}
 #endif
 	}
+
+#ifdef CONFIG_FSL_I2C
+	gd->i2c1_clk = gd->bus_clk;
+#endif
+}
+#endif
+
+/* get_clocks() fills in gd->cpu_clock and gd->bus_clk */
+int get_clocks(void)
+{
+#ifdef CONFIG_MCF5441x
+	setup_5441x_clocks();
+#endif
+#ifdef CONFIG_MCF5445x
+	setup_5445x_clocks();
+#endif
 
 #ifdef CONFIG_FSL_I2C
 	gd->i2c1_clk = gd->bus_clk;

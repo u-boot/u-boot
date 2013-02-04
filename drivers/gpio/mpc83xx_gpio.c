@@ -163,7 +163,7 @@ int gpio_set_value(unsigned gpio, int value)
 }
 
 /* Configure GPIO registers early */
-void mpc83xx_gpio_init_f()
+void mpc83xx_gpio_init_f(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 
@@ -187,7 +187,7 @@ void mpc83xx_gpio_init_f()
 }
 
 /* Initialize GPIO soft-copies */
-void mpc83xx_gpio_init_r()
+void mpc83xx_gpio_init_r(void)
 {
 #if MPC83XX_GPIO_CTRLRS >= 1
 	gpio_output_value[0] = CONFIG_MPC83XX_GPIO_0_INIT_VALUE;

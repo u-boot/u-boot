@@ -70,22 +70,22 @@ int checkboard(void)
 #ifndef CONFIG_NAND_SPL
 static struct pci_region pci_regions[] = {
 	{
-		bus_start: CONFIG_SYS_PCI1_MEM_BASE,
-		phys_start: CONFIG_SYS_PCI1_MEM_PHYS,
-		size: CONFIG_SYS_PCI1_MEM_SIZE,
-		flags: PCI_REGION_MEM | PCI_REGION_PREFETCH
+		.bus_start = CONFIG_SYS_PCI1_MEM_BASE,
+		.phys_start = CONFIG_SYS_PCI1_MEM_PHYS,
+		.size = CONFIG_SYS_PCI1_MEM_SIZE,
+		.flags = PCI_REGION_MEM | PCI_REGION_PREFETCH
 	},
 	{
-		bus_start: CONFIG_SYS_PCI1_MMIO_BASE,
-		phys_start: CONFIG_SYS_PCI1_MMIO_PHYS,
-		size: CONFIG_SYS_PCI1_MMIO_SIZE,
-		flags: PCI_REGION_MEM
+		.bus_start = CONFIG_SYS_PCI1_MMIO_BASE,
+		.phys_start = CONFIG_SYS_PCI1_MMIO_PHYS,
+		.size = CONFIG_SYS_PCI1_MMIO_SIZE,
+		.flags = PCI_REGION_MEM
 	},
 	{
-		bus_start: CONFIG_SYS_PCI1_IO_BASE,
-		phys_start: CONFIG_SYS_PCI1_IO_PHYS,
-		size: CONFIG_SYS_PCI1_IO_SIZE,
-		flags: PCI_REGION_IO
+		.bus_start = CONFIG_SYS_PCI1_IO_BASE,
+		.phys_start = CONFIG_SYS_PCI1_IO_PHYS,
+		.size = CONFIG_SYS_PCI1_IO_SIZE,
+		.flags = PCI_REGION_IO
 	}
 };
 

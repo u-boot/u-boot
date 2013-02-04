@@ -45,7 +45,7 @@ int board_early_init_f(void)
 			MV88F6281GTW_GE_OE_LOW, MV88F6281GTW_GE_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
-	u32 kwmpp_config[] = {
+	static const u32 kwmpp_config[] = {
 		MPP0_SPI_SCn,
 		MPP1_SPI_MOSI,
 		MPP2_SPI_SCK,

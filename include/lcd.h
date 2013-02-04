@@ -57,6 +57,14 @@ extern void lcd_initcolregs (void);
 extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
 extern int bmp_display(ulong addr, int x, int y);
 
+/**
+ * Set whether we need to flush the dcache when changing the LCD image. This
+ * defaults to off.
+ *
+ * @param flush		non-zero to flush cache after update, 0 to skip
+ */
+void lcd_set_flush_dcache(int flush);
+
 #if defined CONFIG_MPC823
 /*
  * LCD controller stucture for MPC823 CPU
@@ -294,8 +302,47 @@ void	lcd_printf	(const char *fmt, ...);
 void	lcd_clear(void);
 int	lcd_display_bitmap(ulong bmp_image, int x, int y);
 
+/**
+ * Get the width of the LCD in pixels
+ *
+ * @return width of LCD in pixels
+ */
+int lcd_get_pixel_width(void);
+
+/**
+ * Get the height of the LCD in pixels
+ *
+ * @return height of LCD in pixels
+ */
+int lcd_get_pixel_height(void);
+
+/**
+ * Get the number of text lines/rows on the LCD
+ *
+ * @return number of rows
+ */
+int lcd_get_screen_rows(void);
+
+/**
+ * Get the number of text columns on the LCD
+ *
+ * @return number of columns
+ */
+int lcd_get_screen_columns(void);
+
+/**
+ * Set the position of the text cursor
+ *
+ * @param col	Column to place cursor (0 = left side)
+ * @param row	Row to place cursor (0 = top line)
+ */
+void lcd_position_cursor(unsigned col, unsigned row);
+
 /* Allow boards to customize the information displayed */
 void lcd_show_board_info(void);
+
+/* Return the size of the LCD frame buffer, and the line length */
+int lcd_get_size(int *line_length);
 
 /************************************************************************/
 /* ** BITMAP DISPLAY SUPPORT						*/

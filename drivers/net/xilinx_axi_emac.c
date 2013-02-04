@@ -270,8 +270,7 @@ static void phy_detection(struct eth_device *dev)
 static int setup_phy(struct eth_device *dev)
 {
 #ifdef CONFIG_PHYLIB
-	u16 phyreg;
-	u32 i, speed, emmc_reg, ret;
+	u32 speed, emmc_reg;
 	struct axidma_priv *priv = dev->priv;
 	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
 	struct phy_device *phydev;
@@ -479,8 +478,8 @@ static void axi_dma_init(struct eth_device *dev)
 	while (timeout--) {
 		/* Check transmit/receive channel */
 		/* Reset is done when the reset bit is low */
-		if (!(in_be32(&priv->dmatx->control) |
-				in_be32(&priv->dmarx->control))
+		if ((!(in_be32(&priv->dmatx->control) |
+				in_be32(&priv->dmarx->control)))
 						& XAXIDMA_CR_RESET_MASK) {
 			break;
 		}
@@ -589,7 +588,7 @@ static int axiemac_send(struct eth_device *dev, void *ptr, int len)
 	/* Wait for transmission to complete */
 	debug("axiemac: Waiting for tx to be done\n");
 	timeout = 200;
-	while (timeout && (!in_be32(&priv->dmatx->status) &
+	while (timeout && ((!in_be32(&priv->dmatx->status)) &
 			(XAXIDMA_IRQ_DELAY_MASK | XAXIDMA_IRQ_IOC_MASK))) {
 		timeout--;
 		udelay(1);

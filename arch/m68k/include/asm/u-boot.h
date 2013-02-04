@@ -58,7 +58,7 @@ typedef struct bd_info {
 	unsigned long bi_vcofreq;	/* vco Freq in MHz */
 	unsigned long bi_flbfreq;	/* Flexbus Freq in MHz */
 #endif
-	unsigned long bi_baudrate;	/* Console Baudrate */
+	unsigned int bi_baudrate;	/* Console Baudrate */
 } bd_t;
 
 #endif				/* __ASSEMBLY__ */

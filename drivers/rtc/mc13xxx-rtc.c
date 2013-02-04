@@ -23,16 +23,18 @@
 #include <common.h>
 #include <rtc.h>
 #include <spi.h>
-#include <pmic.h>
+#include <power/pmic.h>
 #include <fsl_pmic.h>
 
 int rtc_get(struct rtc_time *rtc)
 {
 	u32 day1, day2, time;
 	int tim, i = 0;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("FSL_PMIC");
 	int ret;
 
+	if (!p)
+		return -1;
 	do {
 		ret = pmic_reg_read(p, REG_RTC_DAY, &day1);
 		if (ret < 0)
@@ -61,7 +63,9 @@ int rtc_get(struct rtc_time *rtc)
 int rtc_set(struct rtc_time *rtc)
 {
 	u32 time, day;
-	struct pmic *p = get_pmic();
+	struct pmic *p = pmic_get("FSL_PMIC");
+	if (!p)
+		return -1;
 
 	time = mktime(rtc->tm_year, rtc->tm_mon, rtc->tm_mday,
 		      rtc->tm_hour, rtc->tm_min, rtc->tm_sec);

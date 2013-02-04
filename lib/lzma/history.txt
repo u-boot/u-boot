@@ -1,6 +1,41 @@
 HISTORY of the LZMA SDK
 -----------------------
 
+9.18 beta      2010-11-02
+-------------------------
+- New small SFX module for installers (SfxSetup).
+
+
+9.12 beta      2010-03-24
+-------------------------
+- The BUG in LZMA SDK 9.* was fixed: LZMA2 codec didn't work,
+  if more than 10 threads were used (or more than 20 threads in some modes).
+
+
+9.11 beta      2010-03-15
+-------------------------
+- PPMd compression method support
+
+
+9.09           2009-12-12
+-------------------------
+- The bug was fixed:
+   Utf16_To_Utf8 funstions in UTFConvert.cpp and 7zMain.c
+   incorrectly converted surrogate characters (the code >= 0x10000) to UTF-8.
+- Some bugs were fixed
+
+
+9.06           2009-08-17
+-------------------------
+- Some changes in ANSI-C 7z Decoder interfaces.
+
+
+9.04           2009-05-30
+-------------------------
+- LZMA2 compression method support
+- xz format support
+
+
 4.65           2009-02-03
 -------------------------
 - Some minor fixes

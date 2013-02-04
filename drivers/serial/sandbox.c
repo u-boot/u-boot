@@ -27,28 +27,30 @@
 
 #include <common.h>
 #include <os.h>
+#include <serial.h>
+#include <linux/compiler.h>
 
-int serial_init(void)
+static int sandbox_serial_init(void)
 {
 	os_tty_raw(0);
 	return 0;
 }
 
-void serial_setbrg(void)
+static void sandbox_serial_setbrg(void)
 {
 }
 
-void serial_putc(const char ch)
+static void sandbox_serial_putc(const char ch)
 {
 	os_write(1, &ch, 1);
 }
 
-void serial_puts(const char *str)
+static void sandbox_serial_puts(const char *str)
 {
 	os_write(1, str, strlen(str));
 }
 
-int serial_getc(void)
+static int sandbox_serial_getc(void)
 {
 	char buf;
 	ssize_t count;
@@ -57,7 +59,28 @@ int serial_getc(void)
 	return count == 1 ? buf : 0;
 }
 
-int serial_tstc(void)
+static int sandbox_serial_tstc(void)
 {
 	return 0;
+}
+
+static struct serial_device sandbox_serial_drv = {
+	.name	= "sandbox_serial",
+	.start	= sandbox_serial_init,
+	.stop	= NULL,
+	.setbrg	= sandbox_serial_setbrg,
+	.putc	= sandbox_serial_putc,
+	.puts	= sandbox_serial_puts,
+	.getc	= sandbox_serial_getc,
+	.tstc	= sandbox_serial_tstc,
+};
+
+void sandbox_serial_initialize(void)
+{
+	serial_register(&sandbox_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &sandbox_serial_drv;
 }

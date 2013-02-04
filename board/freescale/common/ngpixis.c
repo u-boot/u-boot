@@ -237,13 +237,17 @@ int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-U_BOOT_CMD(
-	pixis_reset, CONFIG_SYS_MAXARGS, 1, pixis_reset_cmd,
-	"Reset the board using the FPGA sequencer",
+#ifdef CONFIG_SYS_LONGHELP
+static char pixis_help_text[] =
 	"- hard reset to default bank\n"
 	"pixis_reset altbank - reset to alternate bank\n"
 #ifdef DEBUG
 	"pixis_reset dump - display the PIXIS registers\n"
 #endif
-	"pixis_reset sysclk <SYSCLK_freq> - reset with SYSCLK frequency(KHz)\n"
+	"pixis_reset sysclk <SYSCLK_freq> - reset with SYSCLK frequency(KHz)\n";
+#endif
+
+U_BOOT_CMD(
+	pixis_reset, CONFIG_SYS_MAXARGS, 1, pixis_reset_cmd,
+	"Reset the board using the FPGA sequencer", pixis_help_text
 	);

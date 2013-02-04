@@ -246,8 +246,8 @@ lowlevel_init:
 	/* COSR */
 	str	r1, [r0, #0x1c]
 
-	/* RedBoot sets 0x1ff, 7, 3, 5, 1, 3, 0 */
-/*	REG	CCM_PDR0, PDR0_CSI_PODF(0x1ff) | PDR0_PER_PODF(7) | PDR0_HSP_PODF(2) | PDR0_NFC_PODF(6) | PDR0_IPG_PODF(1) | PDR0_MAX_PODF(2) | PDR0_MCU_PODF(0)*/
+	/* RedBoot sets 0x3f, 7, 7, 3, 5, 1, 3, 0 */
+/*	REG	CCM_PDR0, PDR0_CSI_PODF(0x3f) | PDR0_CSI_PRDF(7) | PDR0_PER_PODF(7) | PDR0_HSP_PODF(2) | PDR0_NFC_PODF(6) | PDR0_IPG_PODF(1) | PDR0_MAX_PODF(2) | PDR0_MCU_PODF(0)*/
 
 	/* Redboot: 0, 51, 10, 12 / 0, 14, 9, 13 */
 /*	REG	CCM_MPCTL, PLL_PD(0) | PLL_MFD(0x33) | PLL_MFI(7) | PLL_MFN(0x23)*/

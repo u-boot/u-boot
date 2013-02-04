@@ -144,9 +144,11 @@ void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode)
 
 struct s5p_gpio_bank *s5p_gpio_get_bank(unsigned gpio)
 {
-	int bank = gpio / GPIO_PER_BANK;
-	bank *= sizeof(struct s5p_gpio_bank);
+	int bank;
+	unsigned g = gpio - s5p_gpio_part_max(gpio);
 
+	bank = g / GPIO_PER_BANK;
+	bank *= sizeof(struct s5p_gpio_bank);
 	return (struct s5p_gpio_bank *) (s5p_gpio_base(gpio) + bank);
 }
 

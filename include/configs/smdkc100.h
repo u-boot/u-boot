@@ -64,7 +64,6 @@
  * select serial console configuration
  */
 #define CONFIG_SERIAL0			1	/* use SERIAL 0 on SMDKC100 */
-#define CONFIG_SERIAL_MULTI		1
 
 /* PWM */
 #define CONFIG_PWM			1

@@ -60,7 +60,7 @@ void sha256_starts(sha256_context * ctx)
 	ctx->state[7] = 0x5BE0CD19;
 }
 
-void sha256_process(sha256_context * ctx, uint8_t data[64])
+static void sha256_process(sha256_context *ctx, const uint8_t data[64])
 {
 	uint32_t temp1, temp2;
 	uint32_t W[64];
@@ -191,7 +191,7 @@ void sha256_process(sha256_context * ctx, uint8_t data[64])
 	ctx->state[7] += H;
 }
 
-void sha256_update(sha256_context * ctx, uint8_t * input, uint32_t length)
+void sha256_update(sha256_context *ctx, const uint8_t *input, uint32_t length)
 {
 	uint32_t left, fill;
 
@@ -259,4 +259,37 @@ void sha256_finish(sha256_context * ctx, uint8_t digest[32])
 	PUT_UINT32_BE(ctx->state[5], digest, 20);
 	PUT_UINT32_BE(ctx->state[6], digest, 24);
 	PUT_UINT32_BE(ctx->state[7], digest, 28);
+}
+
+/*
+ * Output = SHA-256( input buffer ). Trigger the watchdog every 'chunk_sz'
+ * bytes of input processed.
+ */
+void sha256_csum_wd(const unsigned char *input, unsigned int ilen,
+		unsigned char *output, unsigned int chunk_sz)
+{
+	sha256_context ctx;
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	unsigned char *end, *curr;
+	int chunk;
+#endif
+
+	sha256_starts(&ctx);
+
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	curr = input;
+	end = input + ilen;
+	while (curr < end) {
+		chunk = end - curr;
+		if (chunk > chunk_sz)
+			chunk = chunk_sz;
+		sha256_update(&ctx, curr, chunk);
+		curr += chunk;
+		WATCHDOG_RESET();
+	}
+#else
+	sha256_update(&ctx, input, ilen);
+#endif
+
+	sha256_finish(&ctx, output);
 }

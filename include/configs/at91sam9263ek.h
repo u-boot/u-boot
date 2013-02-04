@@ -156,11 +156,8 @@
 /* Address and size of Primary Environment Sector */
 #define CONFIG_ENV_SIZE		0x10000
 
-#define xstr(s)   str(s)
-#define str(s)	#s
-
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"monitor_base=" xstr(CONFIG_SYS_MONITOR_BASE) "\0" \
+	"monitor_base=" __stringify(CONFIG_SYS_MONITOR_BASE) "\0" \
 	"update=" \
 		"protect off ${monitor_base} +${filesize};" \
 		"erase ${monitor_base} +${filesize};" \

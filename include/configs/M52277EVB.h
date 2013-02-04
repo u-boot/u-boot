@@ -81,11 +81,11 @@
 #ifdef CONFIG_SYS_STMICRO_BOOT
 /* ST Micro serial flash */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
-	"inpclk=" MK_STR(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
+	"inpclk=" __stringify(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
 	"loadaddr=0x40010000\0"			\
 	"uboot=u-boot.bin\0"			\
 	"load=loadb ${loadaddr} ${baudrate};"	\
-	"loadb " MK_STR(CONFIG_SYS_LOAD_ADDR2) " ${baudrate} \0"	\
+	"loadb " __stringify(CONFIG_SYS_LOAD_ADDR2) " ${baudrate} \0"	\
 	"upd=run load; run prog\0"		\
 	"prog=sf probe 0:2 10000 1;"		\
 	"sf erase 0 30000;"			\
@@ -95,20 +95,20 @@
 #endif
 #ifdef CONFIG_SYS_SPANSION_BOOT
 #define CONFIG_EXTRA_ENV_SETTINGS		\
-	"inpclk=" MK_STR(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
+	"inpclk=" __stringify(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
 	"loadaddr=0x40010000\0"			\
 	"uboot=u-boot.bin\0"			\
 	"load=loadb ${loadaddr} ${baudrate}\0"	\
 	"upd=run load; run prog\0"		\
-	"prog=prot off " MK_STR(CONFIG_SYS_FLASH_BASE)	\
-	" " MK_STR(CONFIG_SYS_UBOOT_END) ";"		\
-	"era " MK_STR(CONFIG_SYS_FLASH_BASE) " "	\
-	MK_STR(CONFIG_SYS_UBOOT_END) ";"		\
-	"cp.b ${loadaddr} " MK_STR(CONFIG_SYS_FLASH_BASE)	\
+	"prog=prot off " __stringify(CONFIG_SYS_FLASH_BASE)	\
+	" " __stringify(CONFIG_SYS_UBOOT_END) ";"		\
+	"era " __stringify(CONFIG_SYS_FLASH_BASE) " "		\
+	__stringify(CONFIG_SYS_UBOOT_END) ";"			\
+	"cp.b ${loadaddr} " __stringify(CONFIG_SYS_FLASH_BASE)	\
 	" ${filesize}; save\0"			\
 	"updsbf=run loadsbf; run progsbf\0"	\
 	"loadsbf=loadb ${loadaddr} ${baudrate};"	\
-	"loadb " MK_STR(CONFIG_SYS_LOAD_ADDR2) " ${baudrate} \0"	\
+	"loadb " __stringify(CONFIG_SYS_LOAD_ADDR2) " ${baudrate} \0"	\
 	"progsbf=sf probe 0:2 10000 1;"		\
 	"sf erase 0 30000;"			\
 	"sf write ${loadaddr} 0 30000;"		\

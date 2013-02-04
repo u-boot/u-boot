@@ -51,8 +51,6 @@
 
 #include "macb.h"
 
-#define barrier() asm volatile("" ::: "memory")
-
 #define CONFIG_SYS_MACB_RX_BUFFER_SIZE		4096
 #define CONFIG_SYS_MACB_RX_RING_SIZE		(CONFIG_SYS_MACB_RX_BUFFER_SIZE / 128)
 #define CONFIG_SYS_MACB_TX_RING_SIZE		16

@@ -401,7 +401,7 @@ symbol		=	value
 #ifdef CONFIG_SGI_IP28
 /* Inhibit speculative stores to volatile (e.g.DMA) or invalid addresses. */
 #include <asm/cacheops.h>
-#define R10KCBARRIER(addr)  cache   Cache_Barrier, addr;
+#define R10KCBARRIER(addr)  cache   CACHE_BARRIER, addr;
 #else
 #define R10KCBARRIER(addr)
 #endif

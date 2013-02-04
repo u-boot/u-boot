@@ -2,7 +2,7 @@
  * Copyright (C) 2011-2012
  * Gerald Kerma <dreagle@doukki.net>
  * Simon Baatz <gmbnomis@gmail.com>
- * Luka Perkov <uboot@lukaperkov.net>
+ * Luka Perkov <luka@openwrt.org>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

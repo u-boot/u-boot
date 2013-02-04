@@ -44,41 +44,6 @@ _start: b	reset
 	ldr	pc, _not_used
 	ldr	pc, _irq
 	ldr	pc, _fiq
-#ifdef CONFIG_ZYNQ_XILINX_FLASH_HEADER
-#if !defined(CONFIG_ZYNQ_XIP_START) || CONFIG_ZYNQ_XIP_START == 0
-#error CONFIG_ZYNQ_XIP_START must be defined for CONFIG_ZYNQ_XILINX_FLASH_HEADER
-#else
-/* These fields MUST immediately follow the vectors */
-#define HDR_20 0xAA995566
-#define HDR_24 0x584C4E58
-#define HDR_28 0x00000000
-#define HDR_2C 0x544F4F42
-#define HDR_30 0x00000120
-#define HDR_34 0x00000000
-#define HDR_38 0x00000000
-#define HDR_3C CONFIG_ZYNQ_XIP_START
-#define HDR_40 0x00000000
-#define HDR_44 0x00000001
-#define HDR_CSUM (~(HDR_20+HDR_24+HDR_28+HDR_2C+HDR_30+HDR_34+HDR_38+HDR_3C+HDR_40+HDR_44))
-
-.word   HDR_20	/* 0xaa995566 required for sizing of the FLASH */
-.word   HDR_24	/* signature 0x584C4E58 identifies the format of the image */
-.word   HDR_28	/* 0xA5C3C5A3 for encrypted images */
-.word   HDR_2C	/* UserData can be anything */
-.word   HDR_30	/* LoadStart offset into FLASH where image starts */
-.word   HDR_34	/* LoadLength length of image in bytes */
-.word   HDR_38	/* DestinationAddress where in OCM the image is to be written to */
-.word   HDR_3C	/* ImageStartAddress where to jump to at handoff (_start) */
-.word   HDR_40	/* TotalImageLength - should be the same for unencrypted images */
-.word   HDR_44	/* QSPIConfigWord x1 device */
-.word   HDR_CSUM	/* checksum - 0x20 - 0x44, complement */
-.word   0,0,0,0,0,0,0,0
-.word   0,0,0,0,0,0,0,0
-.word   0,0,0,0,0
-.word   0xFFFFFFFF      /* 0xA0 */
-.word   0x00000000
-#endif
-#endif
 #ifdef CONFIG_SPL_BUILD
 _undefined_instruction: .word _undefined_instruction
 _software_interrupt:	.word _software_interrupt
@@ -190,12 +155,7 @@ reset:
 	bl	cpu_init_crit
 #endif
 
-/* Set stackpointer in internal RAM to call board_init_f */
-call_board_init_f:
-	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
-	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
-	ldr	r0,=0x00000000
-	bl	board_init_f
+	bl	_main
 
 /*------------------------------------------------------------------------------*/
 
@@ -212,14 +172,10 @@ ENTRY(relocate_code)
 	mov	r5, r1	/* save addr of gd */
 	mov	r6, r2	/* save addr of destination */
 
-	/* Set up the stack						    */
-stack_setup:
-	mov	sp, r4
-
 	adr	r0, _start
 	cmp	r0, r6
 	moveq	r9, #0		/* no relocation. relocation offset(r9) = 0 */
-	beq	clear_bss		/* skip relocation */
+	beq	relocate_done		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
 	ldr	r3, _image_copy_end_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
@@ -268,34 +224,22 @@ fixnext:
 	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
-	b	clear_bss
+
+relocate_done:
+
+	bx	lr
+
 _rel_dyn_start_ofs:
 	.word __rel_dyn_start - _start
 _rel_dyn_end_ofs:
 	.word __rel_dyn_end - _start
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
+ENDPROC(relocate_code)
 
-clear_bss:
-	ldr	r0, _bss_start_ofs
-	ldr	r1, _bss_end_ofs
-	mov	r4, r6			/* reloc addr */
-	add	r0, r0, r4
-	add	r1, r1, r4
-	mov	r2, #0x00000000		/* clear			    */
+#endif
 
-clbss_l:cmp	r0, r1			/* clear loop... */
-	bhs	clbss_e			/* if reached end of bss, exit */
-	str	r2, [r0]
-	add	r0, r0, #4
-	b	clbss_l
-clbss_e:
-
-/*
- * We are done. Do not return, instead branch to second part of board
- * initialization, now running from RAM.
- */
-jump_2_ram:
+ENTRY(c_runtime_cpu_setup)
 /*
  * If I-cache is enabled invalidate it
  */
@@ -314,20 +258,9 @@ jump_2_ram:
 	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
 #endif /* !Tegra20 */
 
-	ldr	r0, _board_init_r_ofs
-	adr	r1, _start
-	add	lr, r0, r1
-	add	lr, lr, r9
-	/* setup parameters for board_init_r */
-	mov	r0, r5		/* gd_t */
-	mov	r1, r6		/* dest_addr */
-	/* jump to it ... */
-	mov	pc, lr
+	bx	lr
 
-_board_init_r_ofs:
-	.word board_init_r - _start
-ENDPROC(relocate_code)
-#endif
+ENDPROC(c_runtime_cpu_setup)
 
 /*************************************************************************
  *

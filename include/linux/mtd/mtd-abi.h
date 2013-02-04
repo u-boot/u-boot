@@ -11,6 +11,8 @@
 #include <linux/compat.h>
 #endif
 
+#include <linux/compiler.h>
+
 struct erase_info_user {
 	uint32_t start;
 	uint32_t length;

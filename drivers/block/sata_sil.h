@@ -24,8 +24,6 @@
 #define READ_CMD	0
 #define WRITE_CMD	1
 
-extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
-
 /*
  * SATA device driver struct for each dev
  */

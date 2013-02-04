@@ -182,7 +182,7 @@ static void enable_cpc(void)
 	printf("Corenet Platform Cache: %d KB enabled\n", size);
 }
 
-void invalidate_cpc(void)
+static void invalidate_cpc(void)
 {
 	int i;
 	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
@@ -295,6 +295,43 @@ static void __fsl_serdes__init(void)
 }
 __attribute__((weak, alias("__fsl_serdes__init"))) void fsl_serdes_init(void);
 
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+int enable_cluster_l2(void)
+{
+	int i = 0;
+	u32 cluster;
+	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	struct ccsr_cluster_l2 __iomem *l2cache;
+
+	cluster = in_be32(&gur->tp_cluster[i].lower);
+	if (cluster & TP_CLUSTER_EOC)
+		return 0;
+
+	/* The first cache has already been set up, so skip it */
+	i++;
+
+	/* Look through the remaining clusters, and set up their caches */
+	do {
+		l2cache = (void __iomem *)(CONFIG_SYS_FSL_CLUSTER_1_L2 + i * 0x40000);
+		cluster = in_be32(&gur->tp_cluster[i].lower);
+
+		/* set stash ID to (cluster) * 2 + 32 + 1 */
+		clrsetbits_be32(&l2cache->l2csr1, 0xff, 32 + i * 2 + 1);
+
+		printf("enable l2 for cluster %d %p\n", i, l2cache);
+
+		out_be32(&l2cache->l2csr0, L2CSR0_L2FI|L2CSR0_L2LFC);
+		while ((in_be32(&l2cache->l2csr0) &
+			(L2CSR0_L2FI|L2CSR0_L2LFC)) != 0)
+			;
+		out_be32(&l2cache->l2csr0, L2CSR0_L2E);
+		i++;
+	} while (!(cluster & TP_CLUSTER_EOC));
+
+	return 0;
+}
+#endif
+
 /*
  * Initialize L2 as cache.
  *
@@ -306,7 +343,16 @@ int cpu_init_r(void)
 {
 	__maybe_unused u32 svr = get_svr();
 #ifdef CONFIG_SYS_LBC_LCRR
-	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
+	fsl_lbc_t *lbc = (void __iomem *)LBC_BASE_ADDR;
+#endif
+#ifdef CONFIG_L2_CACHE
+	ccsr_l2cache_t *l2cache = (void __iomem *)CONFIG_SYS_MPC85xx_L2_ADDR;
+#elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
+	struct ccsr_cluster_l2 * l2cache = (void __iomem *)CONFIG_SYS_FSL_CLUSTER_1_L2;
+#endif
+#if defined(CONFIG_PPC_SPINTABLE_COMPATIBLE) && defined(CONFIG_MP)
+	extern int spin_table_compat;
+	const char *spin;
 #endif
 
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
@@ -353,10 +399,17 @@ int cpu_init_r(void)
 	}
 #endif
 
+#if defined(CONFIG_PPC_SPINTABLE_COMPATIBLE) && defined(CONFIG_MP)
+	spin = getenv("spin_table_compat");
+	if (spin && (*spin == 'n'))
+		spin_table_compat = 0;
+	else
+		spin_table_compat = 1;
+#endif
+
 	puts ("L2:    ");
 
 #if defined(CONFIG_L2_CACHE)
-	volatile ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
 	volatile uint cache_ctl;
 	uint ver;
 	u32 l2siz_field;
@@ -429,7 +482,7 @@ int cpu_init_r(void)
 				&& l2srbar >= CONFIG_SYS_FLASH_BASE) {
 			l2srbar = CONFIG_SYS_INIT_L2_ADDR;
 			l2cache->l2srbar0 = l2srbar;
-			printf("moving to 0x%08x", CONFIG_SYS_INIT_L2_ADDR);
+			printf(", moving to 0x%08x", CONFIG_SYS_INIT_L2_ADDR);
 		}
 #endif /* CONFIG_SYS_INIT_L2_ADDR */
 		puts("\n");
@@ -467,6 +520,11 @@ int cpu_init_r(void)
 	}
 
 skip_l2:
+#elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
+	if (l2cache->l2csr0 & L2CSR0_L2E)
+		printf("%d KB enabled\n", (l2cache->l2cfg0 & 0x3fff) * 64);
+
+	enable_cluster_l2();
 #else
 	puts("disabled\n");
 #endif
@@ -478,7 +536,7 @@ skip_l2:
 
 #ifdef CONFIG_SYS_SRIO
 	srio_init();
-#ifdef CONFIG_FSL_CORENET
+#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER 
 	char *s = getenv("bootmaster");
 	if (s) {
 		if (!strcmp(s, "SRIO1")) {
@@ -497,11 +555,13 @@ skip_l2:
 	setup_mp();
 #endif
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC136
+#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC13
 	{
-		void *p;
-		p = (void *)CONFIG_SYS_DCSRBAR + 0x20520;
-		setbits_be32(p, 1 << (31 - 14));
+		if (SVR_MAJ(svr) < 3) {
+			void *p;
+			p = (void *)CONFIG_SYS_DCSRBAR + 0x20520;
+			setbits_be32(p, 1 << (31 - 14));
+		}
 	}
 #endif
 

@@ -176,10 +176,11 @@ typedef struct fsl_sata_reg {
 * Command Header Entry
 */
 typedef struct cmd_hdr_entry {
-	u32 cda;		/* Command Descriptor Address, 4 bytes aligned */
-	u32 prde_fis_len;	/* Number of PRD entries and FIS length */
-	u32 ttl;		/* Total transfer length */
-	u32 attribute;		/* the attribute of command */
+	__le32 cda;		/* Command Descriptor Address,
+				   4 bytes aligned */
+	__le32 prde_fis_len;	/* Number of PRD entries and FIS length */
+	__le32 ttl;		/* Total transfer length */
+	__le32 attribute;	/* the attribute of command */
 } __attribute__ ((packed)) cmd_hdr_entry_t;
 
 #define SATA_HC_CMD_HDR_ENTRY_SIZE	sizeof(struct cmd_hdr_entry)
@@ -230,10 +231,10 @@ typedef struct cmd_hdr_tbl {
 * PRD entry - Physical Region Descriptor entry
 */
 typedef struct prd_entry {
-	u32 dba;	/* Data base address, 4 bytes aligned */
+	__le32 dba;	/* Data base address, 4 bytes aligned */
 	u32 res1;
 	u32 res2;
-	u32 ext_c_ddc;	/* Indirect PRD flags, snoop and data word count */
+	__le32 ext_c_ddc; /* Indirect PRD flags, snoop and data word count */
 } __attribute__ ((packed)) prd_entry_t;
 
 #define SATA_HC_CMD_DESC_PRD_SIZE	sizeof(struct prd_entry)

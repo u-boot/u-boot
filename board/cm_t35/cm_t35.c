@@ -32,6 +32,7 @@
 #include <netdev.h>
 #include <net.h>
 #include <i2c.h>
+#include <usb.h>
 #include <twl4030.h>
 #include <linux/compiler.h>
 
@@ -41,6 +42,8 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
+#include <asm/ehci-omap.h>
+#include <asm/gpio.h>
 
 #include "eeprom.h"
 
@@ -260,6 +263,36 @@ static void cm_t3x_set_common_muxconf(void)
 	MUX_VAL(CP(HSUSB0_DATA6),	(IEN  | PTD | DIS | M0)); /*HSUSB0_DATA6*/
 	MUX_VAL(CP(HSUSB0_DATA7),	(IEN  | PTD | DIS | M0)); /*HSUSB0_DATA7*/
 
+	/* USB EHCI */
+	MUX_VAL(CP(ETK_D0_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DT0*/
+	MUX_VAL(CP(ETK_D1_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DT1*/
+	MUX_VAL(CP(ETK_D2_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DT2*/
+	MUX_VAL(CP(ETK_D7_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DT3*/
+	MUX_VAL(CP(ETK_D4_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DT4*/
+	MUX_VAL(CP(ETK_D5_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DT5*/
+	MUX_VAL(CP(ETK_D6_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DT6*/
+	MUX_VAL(CP(ETK_D3_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DT7*/
+	MUX_VAL(CP(ETK_D8_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_DIR*/
+	MUX_VAL(CP(ETK_D9_ES2),		(IEN  | PTD | EN  | M3)); /*HSUSB1_NXT*/
+	MUX_VAL(CP(ETK_CTL_ES2),	(IDIS | PTD | DIS | M3)); /*HSUSB1_CLK*/
+	MUX_VAL(CP(ETK_CLK_ES2),	(IDIS | PTU | DIS | M3)); /*HSUSB1_STP*/
+
+	MUX_VAL(CP(ETK_D14_ES2),	(IEN  | PTD | EN  | M3)); /*HSUSB2_DT0*/
+	MUX_VAL(CP(ETK_D15_ES2),	(IEN  | PTD | EN  | M3)); /*HSUSB2_DT1*/
+	MUX_VAL(CP(MCSPI1_CS3),		(IEN  | PTD | EN  | M3)); /*HSUSB2_DT2*/
+	MUX_VAL(CP(MCSPI2_CS1),		(IEN  | PTD | EN  | M3)); /*HSUSB2_DT3*/
+	MUX_VAL(CP(MCSPI2_SIMO),	(IEN  | PTD | EN  | M3)); /*HSUSB2_DT4*/
+	MUX_VAL(CP(MCSPI2_SOMI),	(IEN  | PTD | EN  | M3)); /*HSUSB2_DT5*/
+	MUX_VAL(CP(MCSPI2_CS0),		(IEN  | PTD | EN  | M3)); /*HSUSB2_DT6*/
+	MUX_VAL(CP(MCSPI2_CLK),		(IEN  | PTD | EN  | M3)); /*HSUSB2_DT7*/
+	MUX_VAL(CP(ETK_D12_ES2),	(IEN  | PTD | EN  | M3)); /*HSUSB2_DIR*/
+	MUX_VAL(CP(ETK_D13_ES2),	(IEN  | PTD | EN  | M3)); /*HSUSB2_NXT*/
+	MUX_VAL(CP(ETK_D10_ES2),	(IDIS | PTD | DIS | M3)); /*HSUSB2_CLK*/
+	MUX_VAL(CP(ETK_D11_ES2),	(IDIS | PTU | DIS | M3)); /*HSUSB2_STP*/
+
+	/* SB_T35_USB_HUB_RESET_GPIO */
+	MUX_VAL(CP(CAM_WEN),		(IDIS | PTD | DIS | M4)); /*GPIO_167*/
+
 	/* I2C1 */
 	MUX_VAL(CP(I2C1_SCL),		(IEN  | PTU | EN  | M0)); /*I2C1_SCL*/
 	MUX_VAL(CP(I2C1_SDA),		(IEN  | PTU | EN  | M0)); /*I2C1_SDA*/
@@ -461,3 +494,47 @@ void __weak get_board_serial(struct tag_serialnr *serialnr)
 	serialnr->low = 0;
 	serialnr->high = 0;
 };
+
+#ifdef CONFIG_USB_EHCI_OMAP
+struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
+};
+
+#define SB_T35_USB_HUB_RESET_GPIO	167
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+{
+	u8 val;
+	int offset;
+
+	if (gpio_request(SB_T35_USB_HUB_RESET_GPIO, "SB-T35 usb hub reset")) {
+		printf("Error: can't obtain GPIO %d for SB-T35 usb hub reset",
+				SB_T35_USB_HUB_RESET_GPIO);
+		return -1;
+	}
+
+	gpio_direction_output(SB_T35_USB_HUB_RESET_GPIO, 0);
+	udelay(10);
+	gpio_set_value(SB_T35_USB_HUB_RESET_GPIO, 1);
+	udelay(1000);
+
+	offset = TWL4030_BASEADD_GPIO + TWL4030_GPIO_GPIODATADIR1;
+	twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, &val, offset);
+	/* Set GPIO6 and GPIO7 of TPS65930 as output */
+	val |= 0xC0;
+	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, val, offset);
+	offset = TWL4030_BASEADD_GPIO + TWL4030_GPIO_SETGPIODATAOUT1;
+	/* Take both PHYs out of reset */
+	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0xC0, offset);
+	udelay(1);
+
+	return omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
+}
+
+int ehci_hcd_stop(void)
+{
+	return omap_ehci_hcd_stop();
+}
+
+#endif /* CONFIG_USB_EHCI_OMAP */

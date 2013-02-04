@@ -22,13 +22,13 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/ap20.h>
-#include <asm/arch/clk_rst.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/emc.h>
 #include <asm/arch/pmu.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/tegra20.h>
+#include <asm/arch/tegra.h>
+#include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

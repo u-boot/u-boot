@@ -25,6 +25,7 @@
 #include <asm/arch/nand.h>
 #include <netdev.h>
 #include <zynqpl.h>
+#include <asm/arch/hardware.h>
 
 #define BOOT_MODE_REG     (XPSS_SYS_CTRL_BASEADDR + 0x25C)
 #define BOOT_MODES_MASK    0x0000000F
@@ -88,19 +89,19 @@ int board_late_init (void)
 	boot_mode = (XIo_In32(BOOT_MODE_REG) & BOOT_MODES_MASK);
 	switch(boot_mode) {
 	case QSPI_MODE:
-		setenv("modeboot", "run qspiboot");
+		setenv("modeboot", "qspiboot");
 		break;
 	case NAND_FLASH_MODE:
-		setenv("modeboot", "run nandboot");
+		setenv("modeboot", "nandboot");
 		break;
 	case NOR_FLASH_MODE:
-		setenv("modeboot", "run norboot");
+		setenv("modeboot", "norboot");
 		break;
 	case SD_MODE:
-		setenv("modeboot", "run sdboot");
+		setenv("modeboot", "sdboot");
 		break;
 	case JTAG_MODE:
-		setenv("modeboot", "run jtagboot");
+		setenv("modeboot", "jtagboot");
 		break;
 	default:
 		setenv("modeboot", "");
@@ -140,11 +141,6 @@ int board_eth_init(bd_t *bis)
 	ret |= zynq_gem_initialize(bis, CONFIG_ZYNQ_GEM_BASEADDR1);
 # endif
 #endif
-
-#ifdef CONFIG_ZYNQ_GEM_OLD
-	ret |= zynq_gem_initialize_old(bis);
-#endif
-
 	return ret;
 }
 #endif
@@ -171,26 +167,4 @@ int dram_init(void)
 	gd->bd->bi_dram[0].size = CONFIG_SYS_SDRAM_SIZE;
 
 	return 0;
-}
-
-/*
- * OK, and resets too.
- */
-void reset_cpu(ulong addr)
-{
-	u32 *slcr_p;
-
-	slcr_p = (u32*)XPSS_SYS_CTRL_BASEADDR;
-
-	/* unlock SLCR */
-	*(slcr_p + 2) = 0xDF0D;
-	/* Clear 0x0F000000 bits of reboot status register to workaround
-	 * the FSBL not loading the bitstream after soft reset
-	 * This is a temporary solution until we know more.
-	 */
-	XIo_Out32(XPSS_SYS_CTRL_BASEADDR + 0x258, (XIo_In32(XPSS_SYS_CTRL_BASEADDR + 0x258) & 0xF0FFFFFF));
-	/* Tickle soft reset bit */
-	*(slcr_p + 128) = 1;
-
-	while(1) {;}
 }

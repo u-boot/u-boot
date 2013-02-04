@@ -153,7 +153,7 @@ void wait_for_command_complete(unsigned int wd_base)
  ******************************************************************/
 void ether_init (void)
 {
-#ifdef CONFIG_DRIVER_LAN91C96
+#ifdef CONFIG_LAN91C96
 	int cnt = 20;
 
 	__raw_writeb(0x3,OMAP2420_CTRL_BASE+0x10a); /*protect->gpio95 */

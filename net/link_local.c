@@ -103,7 +103,7 @@ static void configure_wait(void)
 void link_local_start(void)
 {
 	ip = getenv_IPaddr("llipaddr");
-	if (ip != 0 && (ip & IN_CLASSB_NET) != LINKLOCAL_ADDR) {
+	if (ip != 0 && (ntohl(ip) & IN_CLASSB_NET) != LINKLOCAL_ADDR) {
 		puts("invalid link address");
 		net_set_state(NETLOOP_FAIL);
 		return;

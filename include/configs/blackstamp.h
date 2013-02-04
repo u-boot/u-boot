@@ -130,12 +130,12 @@
 #define CONFIG_BOOTCOMMAND   "run ramboot"
 #define CONFIG_BOOTARGS \
 	"root=/dev/mtdblock0 rw " \
-	"clkin_hz=" MK_STR(CONFIG_CLKIN_HZ) " " \
+	"clkin_hz=" __stringify(CONFIG_CLKIN_HZ) " " \
 	"earlyprintk=" \
 		"serial," \
-		"uart" MK_STR(CONFIG_UART_CONSOLE) "," \
-		MK_STR(CONFIG_BAUDRATE) " " \
-	"console=ttyBF0," MK_STR(CONFIG_BAUDRATE)
+		"uart" __stringify(CONFIG_UART_CONSOLE) "," \
+		__stringify(CONFIG_BAUDRATE) " " \
+	"console=ttyBF0," __stringify(CONFIG_BAUDRATE)
 
 #if defined(CONFIG_CMD_NET)
 # if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
@@ -149,7 +149,7 @@
 		"eeprom write $(loadaddr) 0x0 $(filesize)"
 #  else
 #   define UBOOT_ENV_UPDATE \
-		"sf probe " MK_STR(BFIN_BOOT_SPI_SSEL) ";" \
+		"sf probe " __stringify(BFIN_BOOT_SPI_SSEL) ";" \
 		"sf erase 0 0x40000;" \
 		"sf write $(loadaddr) 0 $(filesize)"
 #  endif

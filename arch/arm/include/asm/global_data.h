@@ -34,7 +34,7 @@
 typedef	struct	global_data {
 	bd_t		*bd;
 	unsigned long	flags;
-	unsigned long	baudrate;
+	unsigned int	baudrate;
 	unsigned long	have_console;	/* serial_init() was called */
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
@@ -73,6 +73,7 @@ typedef	struct	global_data {
 	unsigned long	reloc_off;
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	unsigned long	tlb_addr;
+	unsigned long	tlb_size;
 #endif
 	const void	*fdt_blob;	/* Our device tree, NULL if none */
 	void		**jt;		/* jump table */

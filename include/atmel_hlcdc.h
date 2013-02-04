@@ -217,6 +217,13 @@ struct atmel_hlcd_regs {
 #define LCDC_BASECFG3_RDEF(value) \
 	((LCDC_BASECFG3_RDEF_Msk & ((value) << LCDC_BASECFG3_RDEF_Pos)))
 
+#define LCDC_BASECLUT_BCLUT_Pos 0
+#define LCDC_BASECLUT_BCLUT_Msk (0xff << LCDC_BASECLUT_BCLUT_Pos)
+#define LCDC_BASECLUT_GCLUT_Pos 8
+#define LCDC_BASECLUT_GCLUT_Msk (0xff << LCDC_BASECLUT_GCLUT_Pos)
+#define LCDC_BASECLUT_RCLUT_Pos 16
+#define LCDC_BASECLUT_RCLUT_Msk (0xff << LCDC_BASECLUT_RCLUT_Pos)
+
 #define LCDC_BASECFG4_DMA	(0x1 << 8)
 #define LCDC_BASECFG4_REP	(0x1 << 9)
 

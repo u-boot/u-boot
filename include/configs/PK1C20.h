@@ -142,6 +142,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_LEDPIO_ADDR		0x02120870	/* LED PIO base addr	*/
 #define CONFIG_STATUS_LED			/* Enable status driver */
+#define CONFIG_BOARD_SPECIFIC_LED
 
 #define STATUS_LED_BIT		1		/* Bit-0 on PIO		*/
 #define STATUS_LED_STATE	1		/* Blinking		*/

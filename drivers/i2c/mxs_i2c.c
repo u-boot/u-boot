@@ -28,6 +28,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <i2c.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -40,6 +41,7 @@ void mxs_i2c_reset(void)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	int ret;
+	int speed = i2c_get_bus_speed();
 
 	ret = mxs_reset_block(&i2c_regs->hw_i2c_ctrl0_reg);
 	if (ret) {
@@ -53,6 +55,8 @@ void mxs_i2c_reset(void)
 		&i2c_regs->hw_i2c_ctrl1_clr);
 
 	writel(I2C_QUEUECTRL_PIO_QUEUE_MODE, &i2c_regs->hw_i2c_queuectrl_set);
+
+	i2c_set_bus_speed(speed);
 }
 
 void mxs_i2c_setup_read(uint8_t chip, int len)
@@ -210,37 +214,65 @@ int i2c_probe(uchar chip)
 	return ret;
 }
 
-void i2c_init(int speed, int slaveadd)
+int i2c_set_bus_speed(unsigned int speed)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	/*
+	 * The timing derivation algorithm. There is no documentation for this
+	 * algorithm available, it was derived by using the scope and fiddling
+	 * with constants until the result observed on the scope was good enough
+	 * for 20kHz, 50kHz, 100kHz, 200kHz, 300kHz and 400kHz. It should be
+	 * possible to assume the algorithm works for other frequencies as well.
+	 *
+	 * Note it was necessary to cap the frequency on both ends as it's not
+	 * possible to configure completely arbitrary frequency for the I2C bus
+	 * clock.
+	 */
+	uint32_t clk = mxc_get_clock(MXC_XTAL_CLK);
+	uint32_t base = ((clk / speed) - 38) / 2;
+	uint16_t high_count = base + 3;
+	uint16_t low_count = base - 3;
+	uint16_t rcv_count = (high_count * 3) / 4;
+	uint16_t xmit_count = low_count / 4;
 
-	mxs_i2c_reset();
-
-	switch (speed) {
-	case 100000:
-		writel((0x0078 << I2C_TIMING0_HIGH_COUNT_OFFSET) |
-			(0x0030 << I2C_TIMING0_RCV_COUNT_OFFSET),
-			&i2c_regs->hw_i2c_timing0);
-		writel((0x0080 << I2C_TIMING1_LOW_COUNT_OFFSET) |
-			(0x0030 << I2C_TIMING1_XMIT_COUNT_OFFSET),
-			&i2c_regs->hw_i2c_timing1);
-		break;
-	case 400000:
-		writel((0x000f << I2C_TIMING0_HIGH_COUNT_OFFSET) |
-			(0x0007 << I2C_TIMING0_RCV_COUNT_OFFSET),
-			&i2c_regs->hw_i2c_timing0);
-		writel((0x001f << I2C_TIMING1_LOW_COUNT_OFFSET) |
-			(0x000f << I2C_TIMING1_XMIT_COUNT_OFFSET),
-			&i2c_regs->hw_i2c_timing1);
-		break;
-	default:
-		printf("MXS I2C: Invalid speed selected (%d Hz)\n", speed);
-		return;
+	if (speed > 540000) {
+		printf("MXS I2C: Speed too high (%d Hz)\n", speed);
+		return -EINVAL;
 	}
 
-	writel((0x0015 << I2C_TIMING2_BUS_FREE_OFFSET) |
-		(0x000d << I2C_TIMING2_LEADIN_COUNT_OFFSET),
+	if (speed < 12000) {
+		printf("MXS I2C: Speed too low (%d Hz)\n", speed);
+		return -EINVAL;
+	}
+
+	writel((high_count << 16) | rcv_count, &i2c_regs->hw_i2c_timing0);
+	writel((low_count << 16) | xmit_count, &i2c_regs->hw_i2c_timing1);
+
+	writel((0x0030 << I2C_TIMING2_BUS_FREE_OFFSET) |
+		(0x0030 << I2C_TIMING2_LEADIN_COUNT_OFFSET),
 		&i2c_regs->hw_i2c_timing2);
+
+	return 0;
+}
+
+unsigned int i2c_get_bus_speed(void)
+{
+	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	uint32_t clk = mxc_get_clock(MXC_XTAL_CLK);
+	uint32_t timing0;
+
+	timing0 = readl(&i2c_regs->hw_i2c_timing0);
+	/*
+	 * This is a reverse version of the algorithm presented in
+	 * i2c_set_bus_speed(). Please refer there for details.
+	 */
+	return clk / ((((timing0 >> 16) - 3) * 2) + 38);
+}
+
+void i2c_init(int speed, int slaveadd)
+{
+	mxs_i2c_reset();
+	i2c_set_bus_speed(speed);
 
 	return;
 }

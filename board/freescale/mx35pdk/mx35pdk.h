@@ -26,31 +26,6 @@
 #ifndef __BOARD_MX35_3STACK_H
 #define __BOARD_MX35_3STACK_H
 
-#define AIPS_MPR_CONFIG		0x77777777
-#define AIPS_OPACR_CONFIG	0x00000000
-
-/* MPR - priority is M4 > M2 > M3 > M5 > M0 > M1 */
-#define MAX_MPR_CONFIG		0x00302154
-/* SGPCR - always park on last master */
-#define MAX_SGPCR_CONFIG	0x00000010
-/* MGPCR - restore default values */
-#define MAX_MGPCR_CONFIG	0x00000000
-
-/*
- * M3IF Control Register (M3IFCTL)
- * MRRP[0] = L2CC0 not on priority list (0 << 0) = 0x00000000
- * MRRP[1] = L2CC1 not on priority list (0 << 0) = 0x00000000
- * MRRP[2] = MBX not on priority list (0 << 0)   = 0x00000000
- * MRRP[3] = MAX1 not on priority list (0 << 0)  = 0x00000000
- * MRRP[4] = SDMA not on priority list (0 << 0)  = 0x00000000
- * MRRP[5] = MPEG4 not on priority list (0 << 0) = 0x00000000
- * MRRP[6] = IPU1 on priority list (1 << 6)      = 0x00000040
- * MRRP[7] = IPU2 not on priority list (0 << 0)  = 0x00000000
- *                                               ------------
- *                                                 0x00000040
- */
-#define M3IF_CONFIG	0x00000040
-
 #define DBG_BASE_ADDR		WEIM_CTRL_CS5
 #define DBG_CSCR_U_CONFIG	0x0000D843
 #define DBG_CSCR_L_CONFIG	0x22252521

@@ -147,5 +147,5 @@ struct ept_queue_item {
 #define INFO_BUFFER_ERROR     (1 << 5)
 #define INFO_TX_ERROR         (1 << 3)
 
-extern int usb_lowlevel_init(void);
+extern int usb_lowlevel_init(int index, void **controller);
 #endif /* __MV_UDC_H__ */

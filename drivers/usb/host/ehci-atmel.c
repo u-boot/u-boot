@@ -31,14 +31,13 @@
 #include <asm/arch/clk.h>
 
 #include "ehci.h"
-#include "ehci-core.h"
 
 /* Enable UTMI PLL time out 500us
  * 10 times as datasheet specified
  */
 #define EN_UPLL_TIMEOUT	500UL
 
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
 	ulong start_time, tmp_time;
@@ -58,14 +57,14 @@ int ehci_hcd_init(void)
 	/* Enable USB Host clock */
 	writel(1 << ATMEL_ID_UHPHS, &pmc->pcer);
 
-	hccr = (struct ehci_hccr *)ATMEL_BASE_EHCI;
-	hcor = (struct ehci_hcor *)((uint32_t)hccr +
-			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	*hccr = (struct ehci_hccr *)ATMEL_BASE_EHCI;
+	*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
+			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	return 0;
 }
 
-int ehci_hcd_stop(void)
+int ehci_hcd_stop(int index)
 {
 	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
 	ulong start_time, tmp_time;

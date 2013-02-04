@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB 	:= $(obj)libgpio.o
 
 COBJS-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
+COBJS-$(CONFIG_INTEL_ICH6_GPIO)	+= intel_ich6_gpio.o
 COBJS-$(CONFIG_KIRKWOOD_GPIO)	+= kw_gpio.o
 COBJS-$(CONFIG_MARVELL_GPIO)	+= mvgpio.o
 COBJS-$(CONFIG_MARVELL_MFP)	+= mvmfp.o

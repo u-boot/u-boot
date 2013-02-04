@@ -34,6 +34,7 @@
 #define CONFIG_S5P		1	/* which is in a S5P Family */
 #define CONFIG_EXYNOS4210	1	/* which is in a EXYNOS4210 */
 #define CONFIG_UNIVERSAL	1	/* working with Universal */
+#define CONFIG_TIZEN		1	/* TIZEN lib */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
@@ -56,12 +57,13 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
 
 /* select serial console configuration */
-#define CONFIG_SERIAL_MULTI	1
 #define CONFIG_SERIAL2		1	/* use SERIAL 2 */
 #define CONFIG_BAUDRATE		115200
 
@@ -254,12 +256,45 @@
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_MAX_I2C_BUS	7
 
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX8998
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX8998
 
 #define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_S3C_UDC_OTG
 #define CONFIG_USB_GADGET_DUALSPEED
+
+/*
+ * SPI Settings
+ */
+#define CONFIG_SOFT_SPI
+#define CONFIG_SOFT_SPI_MODE SPI_MODE_3
+#define CONFIG_SOFT_SPI_GPIO_SCLK exynos4_gpio_part2_get_nr(y3, 1)
+#define CONFIG_SOFT_SPI_GPIO_MOSI exynos4_gpio_part2_get_nr(y3, 3)
+#define CONFIG_SOFT_SPI_GPIO_MISO exynos4_gpio_part2_get_nr(y3, 0)
+#define CONFIG_SOFT_SPI_GPIO_CS exynos4_gpio_part2_get_nr(y4, 3)
+
+#define SPI_DELAY udelay(1)
+#undef SPI_INIT
+#define SPI_SCL(bit) universal_spi_scl(bit)
+#define SPI_SDA(bit) universal_spi_sda(bit)
+#define SPI_READ universal_spi_read()
+#ifndef	__ASSEMBLY__
+void universal_spi_scl(int bit);
+void universal_spi_sda(int bit);
+int universal_spi_read(void);
+#endif
+
+/*
+ * LCD Settings
+ */
+#define CONFIG_EXYNOS_FB
+#define CONFIG_LCD
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_32BPP
+#define CONFIG_LD9040
+#define CONFIG_EXYNOS_MIPI_DSIM
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((520 * 120 * 4) + (1 << 12))
 
 #endif	/* __CONFIG_H */

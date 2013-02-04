@@ -44,6 +44,7 @@ typedef struct {
 	ulong	buffer_write_tout;	/* maximum buffer write timeout		*/
 	ushort	vendor;			/* the primary vendor id		*/
 	ushort	cmd_reset;		/* vendor specific reset command	*/
+	uchar   cmd_erase_sector;	/* vendor specific erase sect. command	*/
 	ushort	interface;		/* used for x8/x16 adjustments		*/
 	ushort	legacy_unlock;		/* support Intel legacy (un)locking	*/
 	ushort	manufacturer_id;	/* manufacturer id			*/
@@ -348,7 +349,6 @@ extern flash_info_t *flash_get_info(ulong base);
 
 #define TOSH_ID_FVT160	0xC2		/* TC58FVT160 ID (16 M, top )		*/
 #define TOSH_ID_FVB160	0x43		/* TC58FVT160 ID (16 M, bottom )	*/
-#define PHILIPS_LPC2292 0x0401FF13  /* LPC2292 internal FLASH			*/
 #define NUMONYX_256MBIT	0x8922		/* Numonyx P33/30 256MBit 65nm	*/
 
 /*-----------------------------------------------------------------------

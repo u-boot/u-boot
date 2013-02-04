@@ -70,7 +70,6 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /* use serial multi for all serial devices */
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV 1
 
 #ifdef XILINX_UARTLITE_BASEADDR

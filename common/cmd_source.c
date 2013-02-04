@@ -177,9 +177,8 @@ do_source (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return rcode;
 }
 
-U_BOOT_CMD(
-	source, 2, 0,	do_source,
-	"run script from memory",
+#ifdef CONFIG_SYS_LONGHELP
+static char source_help_text[] =
 	"[addr]\n"
 	"\t- run script starting at addr\n"
 	"\t- A valid image header must be present"
@@ -188,5 +187,11 @@ U_BOOT_CMD(
 	"For FIT format uImage addr must include subimage\n"
 	"unit name in the form of addr:<subimg_uname>"
 #endif
+	"";
+#endif
+
+U_BOOT_CMD(
+	source, 2, 0,	do_source,
+	"run script from memory", source_help_text
 );
 #endif

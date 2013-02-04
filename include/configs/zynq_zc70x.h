@@ -21,17 +21,15 @@
 #define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
 
 #define CONFIG_ZYNQ_SERIAL_UART1
+#define CONFIG_ZYNQ_GEM0
 #define CONFIG_PHY_ADDR	7
-
-#define CONFIG_ZYNQ_GEM_OLD
-#define CONFIG_XGMAC_PHY_ADDR CONFIG_PHY_ADDR
-#define CONFIG_SYS_ENET
-
 
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_MMC
 #define CONFIG_ZYNQ_SPI
+#define CONFIG_ZYNQ_I2C
+#define CONFIG_ZYNQ_EEPROM
 
 #include <configs/zynq_common.h>
 

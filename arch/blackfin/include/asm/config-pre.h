@@ -10,8 +10,6 @@
 #define __ASM_BLACKFIN_CONFIG_PRE_H__
 
 /* Misc helper functions */
-#define XMK_STR(x) #x
-#define MK_STR(x) XMK_STR(x)
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 /* Bootmode defines -- your config needs to select this via CONFIG_BFIN_BOOT_MODE.
