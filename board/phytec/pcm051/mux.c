@@ -63,11 +63,6 @@ static struct module_pin_mux spi0_pin_mux[] = {
 };
 #endif
 
-static struct module_pin_mux gpio0_7_pin_mux[] = {
-	{OFFSET(ecap0_in_pwm0_out), (MODE(7) | PULLUDEN)},	/* GPIO0_7 */
-	{-1},
-};
-
 static struct module_pin_mux rmii1_pin_mux[] = {
 	{OFFSET(mii1_crs), MODE(1) | RXACTIVE},     /* RMII1_CRS */
 	{OFFSET(mii1_rxerr), MODE(1) | RXACTIVE},   /* RMII1_RXERR */
