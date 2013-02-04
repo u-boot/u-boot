@@ -242,11 +242,6 @@
 #define DPLL_NO_LOCK	0
 #define DPLL_LOCK	1
 
-void scale_vcores(void);
-void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv);
-u32 get_offset_code(u32 offset);
-void do_scale_vcore(u32 vcore_reg, u32 volt_mv);
-
 struct omap4_scrm_regs {
 	u32 revision;           /* 0x0000 */
 	u32 pad00[63];

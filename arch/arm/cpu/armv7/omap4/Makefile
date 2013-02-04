@@ -27,7 +27,6 @@ LIB	=  $(obj)lib$(SOC).o
 
 COBJS	+= sdram_elpida.o
 COBJS	+= hwinit.o
-COBJS	+= clocks.o
 COBJS	+= emif.o
 COBJS	+= prcm-regs.o
 COBJS	+= hw_data.o

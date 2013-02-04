@@ -30,12 +30,15 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
 #include <asm/arch/clocks.h>
+#include <asm/omap_gpio.h>
 #include <asm/io.h>
 
 struct prcm_regs const **prcm =
 			(struct prcm_regs const **) OMAP_SRAM_SCRATCH_PRCM_PTR;
 struct dplls const **dplls_data =
 			(struct dplls const **) OMAP_SRAM_SCRATCH_DPLLS_PTR;
+struct vcores_data const **omap_vcores =
+		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
 
 static const struct dpll_params mpu_dpll_params_1_5ghz[NUM_SYS_CLKS] = {
 	{125, 0, 1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
@@ -177,6 +180,44 @@ struct dplls omap5_dplls_es1 = {
 	.abe = &abe_dpll_params_32k_196608khz,
 #endif
 	.usb = usb_dpll_params_1920mhz
+};
+
+struct pmic_data palmas = {
+	.base_offset = PALMAS_SMPS_BASE_VOLT_UV,
+	.step = 10000, /* 10 mV represented in uV */
+	/*
+	 * Offset codes 1-6 all give the base voltage in Palmas
+	 * Offset code 0 switches OFF the SMPS
+	 */
+	.start_code = 6,
+};
+
+struct vcores_data omap5430_volts = {
+	.mpu.value = VDD_MPU,
+	.mpu.addr = SMPS_REG_ADDR_12_MPU,
+	.mpu.pmic = &palmas,
+
+	.core.value = VDD_CORE,
+	.core.addr = SMPS_REG_ADDR_8_CORE,
+	.core.pmic = &palmas,
+
+	.mm.value = VDD_MM,
+	.mm.addr = SMPS_REG_ADDR_45_IVA,
+	.mm.pmic = &palmas,
+};
+
+struct vcores_data omap5432_volts = {
+	.mpu.value = VDD_MPU_5432,
+	.mpu.addr = SMPS_REG_ADDR_12_MPU,
+	.mpu.pmic = &palmas,
+
+	.core.value = VDD_CORE_5432,
+	.core.addr = SMPS_REG_ADDR_8_CORE,
+	.core.pmic = &palmas,
+
+	.mm.value = VDD_MM_5432,
+	.mm.addr = SMPS_REG_ADDR_45_IVA,
+	.mm.pmic = &palmas,
 };
 
 /*
@@ -380,11 +421,13 @@ void hw_data_init(void)
 	case OMAP5430_ES1_0:
 	*prcm = &omap5_es1_prcm;
 	*dplls_data = &omap5_dplls_es1;
+	*omap_vcores = &omap5430_volts;
 	break;
 
 	case OMAP5432_ES1_0:
 	*prcm = &omap5_es1_prcm;
 	*dplls_data = &omap5_dplls_es1;
+	*omap_vcores = &omap5432_volts;
 	break;
 
 	default:

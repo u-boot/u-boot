@@ -30,12 +30,15 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
 #include <asm/arch/clocks.h>
+#include <asm/omap_gpio.h>
 #include <asm/io.h>
 
 struct prcm_regs const **prcm =
 			(struct prcm_regs const **) OMAP_SRAM_SCRATCH_PRCM_PTR;
 struct dplls const **dplls_data =
 			(struct dplls const **) OMAP_SRAM_SCRATCH_DPLLS_PTR;
+struct vcores_data const **omap_vcores =
+		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
 
 /*
  * The M & N values in the following tables are created using the
@@ -192,6 +195,70 @@ struct dplls omap4460_dplls = {
 	.abe = &abe_dpll_params_32k_196608khz,
 #endif
 	.usb = usb_dpll_params_1920mhz
+};
+
+struct pmic_data twl6030_4430es1 = {
+	.base_offset = PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV,
+	.step = 12660, /* 10 mV represented in uV */
+	/* The code starts at 1 not 0 */
+	.start_code = 1,
+};
+
+struct pmic_data twl6030 = {
+	.base_offset = PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV,
+	.step = 12660, /* 10 mV represented in uV */
+	/* The code starts at 1 not 0 */
+	.start_code = 1,
+};
+
+struct pmic_data tps62361 = {
+	.base_offset = TPS62361_BASE_VOLT_MV,
+	.step = 10000, /* 10 mV represented in uV */
+	.start_code = 0,
+	.gpio = TPS62361_VSEL0_GPIO,
+	.gpio_en = 1
+};
+
+struct vcores_data omap4430_volts_es1 = {
+	.mpu.value = 1325,
+	.mpu.addr = SMPS_REG_ADDR_VCORE1,
+	.mpu.pmic = &twl6030_4430es1,
+
+	.core.value = 1200,
+	.core.addr = SMPS_REG_ADDR_VCORE3,
+	.core.pmic = &twl6030_4430es1,
+
+	.mm.value = 1200,
+	.mm.addr = SMPS_REG_ADDR_VCORE2,
+	.mm.pmic = &twl6030_4430es1,
+};
+
+struct vcores_data omap4430_volts = {
+	.mpu.value = 1325,
+	.mpu.addr = SMPS_REG_ADDR_VCORE1,
+	.mpu.pmic = &twl6030,
+
+	.core.value = 1200,
+	.core.addr = SMPS_REG_ADDR_VCORE3,
+	.core.pmic = &twl6030,
+
+	.mm.value = 1200,
+	.mm.addr = SMPS_REG_ADDR_VCORE2,
+	.mm.pmic = &twl6030,
+};
+
+struct vcores_data omap4460_volts = {
+	.mpu.value = 1203,
+	.mpu.addr = TPS62361_REG_ADDR_SET1,
+	.mpu.pmic = &tps62361,
+
+	.core.value = 1200,
+	.core.addr = SMPS_REG_ADDR_VCORE1,
+	.core.pmic = &tps62361,
+
+	.mm.value = 1200,
+	.mm.addr = SMPS_REG_ADDR_VCORE2,
+	.mm.pmic = &tps62361,
 };
 
 /*
@@ -382,6 +449,7 @@ void hw_data_init(void)
 
 	case OMAP4430_ES1_0:
 	*dplls_data = &omap4430_dplls_es1;
+	*omap_vcores = &omap4430_volts_es1;
 	break;
 
 	case OMAP4430_ES2_0:
@@ -389,11 +457,13 @@ void hw_data_init(void)
 	case OMAP4430_ES2_2:
 	case OMAP4430_ES2_3:
 	*dplls_data = &omap4430_dplls;
+	*omap_vcores = &omap4430_volts;
 	break;
 
 	case OMAP4460_ES1_0:
 	case OMAP4460_ES1_1:
 	*dplls_data = &omap4460_dplls;
+	*omap_vcores = &omap4460_volts;
 	break;
 
 	default:

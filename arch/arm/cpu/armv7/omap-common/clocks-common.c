@@ -443,44 +443,45 @@ static void setup_non_essential_dplls(void)
 }
 #endif
 
-void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv)
+u32 get_offset_code(u32 volt_offset, struct pmic_data *pmic)
 {
-	u32 step;
-	int ret = 0;
+	u32 offset_code;
 
-	/* See if we can first get the GPIO if needed */
-	if (gpio >= 0)
-		ret = gpio_request(gpio, "TPS62361_VSEL0_GPIO");
-	if (ret < 0) {
-		printf("%s: gpio %d request failed %d\n", __func__, gpio, ret);
-		gpio = -1;
-	}
+	volt_offset -= pmic->base_offset;
 
-	/* Pull the GPIO low to select SET0 register, while we program SET1 */
-	if (gpio >= 0)
-		gpio_direction_output(gpio, 0);
+	offset_code = (volt_offset + pmic->step - 1) / pmic->step;
 
-	step = volt_mv - TPS62361_BASE_VOLT_MV;
-	step /= 10;
-
-	debug("do_scale_tps62361: volt - %d step - 0x%x\n", volt_mv, step);
-	if (omap_vc_bypass_send_value(TPS62361_I2C_SLAVE_ADDR, reg, step))
-		puts("Scaling voltage failed for vdd_mpu from TPS\n");
-
-	/* Pull the GPIO high to select SET1 register */
-	if (gpio >= 0)
-		gpio_direction_output(gpio, 1);
+	/*
+	 * Offset codes 1-6 all give the base voltage in Palmas
+	 * Offset code 0 switches OFF the SMPS
+	 */
+	return offset_code + pmic->start_code;
 }
 
-void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
+void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 {
 	u32 offset_code;
 	u32 offset = volt_mv;
+	int ret = 0;
+
+	/* See if we can first get the GPIO if needed */
+	if (pmic->gpio_en)
+		ret = gpio_request(pmic->gpio, "PMIC_GPIO");
+
+	if (ret < 0) {
+		printf("%s: gpio %d request failed %d\n", __func__,
+							pmic->gpio, ret);
+		return;
+	}
+
+	/* Pull the GPIO low to select SET0 register, while we program SET1 */
+	if (pmic->gpio_en)
+		gpio_direction_output(pmic->gpio, 0);
 
 	/* convert to uV for better accuracy in the calculations */
 	offset *= 1000;
 
-	offset_code = get_offset_code(offset);
+	offset_code = get_offset_code(offset, pmic);
 
 	debug("do_scale_vcore: volt - %d offset_code - 0x%x\n", volt_mv,
 		offset_code);
@@ -488,6 +489,36 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
 	if (omap_vc_bypass_send_value(SMPS_I2C_SLAVE_ADDR,
 				vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
+
+	if (pmic->gpio_en)
+		gpio_direction_output(pmic->gpio, 1);
+}
+
+/*
+ * Setup the voltages for vdd_mpu, vdd_core, and vdd_iva
+ * We set the maximum voltages allowed here because Smart-Reflex is not
+ * enabled in bootloader. Voltage initialization in the kernel will set
+ * these to the nominal values after enabling Smart-Reflex
+ */
+void scale_vcores(struct vcores_data const *vcores)
+{
+	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
+
+	do_scale_vcore(vcores->core.addr, vcores->core.value,
+					  vcores->core.pmic);
+
+	do_scale_vcore(vcores->mpu.addr, vcores->mpu.value,
+					  vcores->mpu.pmic);
+
+	do_scale_vcore(vcores->mm.addr, vcores->mm.value,
+					  vcores->mm.pmic);
+
+	 if (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3) {
+		/* Configure LDO SRAM "magic" bits */
+		writel(2, (*prcm)->prm_sldo_core_setup);
+		writel(2, (*prcm)->prm_sldo_mpu_setup);
+		writel(2, (*prcm)->prm_sldo_mm_setup);
+	}
 }
 
 static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)
@@ -656,7 +687,7 @@ void prcm_init(void)
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
 		enable_basic_clocks();
-		scale_vcores();
+		scale_vcores(*omap_vcores);
 		setup_dplls();
 #ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
 		setup_non_essential_dplls();

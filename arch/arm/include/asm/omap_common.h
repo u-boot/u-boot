@@ -364,10 +364,31 @@ struct dplls {
 	const struct dpll_params *usb;
 };
 
+struct pmic_data {
+	u32 base_offset;
+	u32 step;
+	u32 start_code;
+	unsigned gpio;
+	int gpio_en;
+};
+
+struct volts {
+	u32 value;
+	u32 addr;
+	struct pmic_data *pmic;
+};
+
+struct vcores_data {
+	struct volts mpu;
+	struct volts core;
+	struct volts mm;
+};
+
 extern struct prcm_regs const **prcm;
 extern struct prcm_regs const omap5_es1_prcm;
 extern struct prcm_regs const omap4_prcm;
 extern struct dplls const **dplls_data;
+extern struct vcores_data const **omap_vcores;
 extern const u32 sys_clk_array[8];
 
 void hw_data_init(void);
@@ -391,6 +412,9 @@ u32 get_sys_clk_index(void);
 void enable_basic_clocks(void);
 void enable_basic_uboot_clocks(void);
 void enable_non_essential_clocks(void);
+void scale_vcores(struct vcores_data const *);
+u32 get_offset_code(u32 volt_offset, struct pmic_data *pmic);
+void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic);
 
 /* Max value for DPLL multiplier M */
 #define OMAP_DPLL_MAX_N	127
