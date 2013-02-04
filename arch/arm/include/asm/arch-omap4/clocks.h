@@ -242,55 +242,10 @@
 #define DPLL_NO_LOCK	0
 #define DPLL_LOCK	1
 
-#define NUM_SYS_CLKS	7
-
-struct dpll_regs {
-	u32 cm_clkmode_dpll;
-	u32 cm_idlest_dpll;
-	u32 cm_autoidle_dpll;
-	u32 cm_clksel_dpll;
-	u32 cm_div_m2_dpll;
-	u32 cm_div_m3_dpll;
-	u32 cm_div_m4_dpll;
-	u32 cm_div_m5_dpll;
-	u32 cm_div_m6_dpll;
-	u32 cm_div_m7_dpll;
-};
-
-/* DPLL parameter table */
-struct dpll_params {
-	u32 m;
-	u32 n;
-	s8 m2;
-	s8 m3;
-	s8 m4;
-	s8 m5;
-	s8 m6;
-	s8 m7;
-};
-
-extern const u32 sys_clk_array[8];
-
 void scale_vcores(void);
 void do_scale_tps62361(int gpio, u32 reg, u32 volt_mv);
 u32 get_offset_code(u32 offset);
-u32 omap_ddr_clk(void);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv);
-void setup_post_dividers(u32 const base, const struct dpll_params *params);
-u32 get_sys_clk_index(void);
-void enable_basic_clocks(void);
-void enable_basic_uboot_clocks(void);
-void enable_non_essential_clocks(void);
-void do_enable_clocks(u32 const *clk_domains,
-		      u32 const *clk_modules_hw_auto,
-		      u32 const *clk_modules_explicit_en,
-		      u8 wait_for_enable);
-const struct dpll_params *get_mpu_dpll_params(void);
-const struct dpll_params *get_core_dpll_params(void);
-const struct dpll_params *get_per_dpll_params(void);
-const struct dpll_params *get_iva_dpll_params(void);
-const struct dpll_params *get_usb_dpll_params(void);
-const struct dpll_params *get_abe_dpll_params(void);
 
 struct omap4_scrm_regs {
 	u32 revision;           /* 0x0000 */

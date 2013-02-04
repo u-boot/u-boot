@@ -27,6 +27,8 @@
 
 #include <common.h>
 
+#define NUM_SYS_CLKS	7
+
 struct prcm_regs {
 	/* cm1.ckgen */
 	u32 cm_clksel_core;
@@ -324,11 +326,72 @@ struct prcm_regs {
 	u32 prm_vc_cfg_channel;
 };
 
+struct dpll_params {
+	u32 m;
+	u32 n;
+	s8 m2;
+	s8 m3;
+	s8 m4_h11;
+	s8 m5_h12;
+	s8 m6_h13;
+	s8 m7_h14;
+	s8 h22;
+	s8 h23;
+};
+
+struct dpll_regs {
+	u32 cm_clkmode_dpll;
+	u32 cm_idlest_dpll;
+	u32 cm_autoidle_dpll;
+	u32 cm_clksel_dpll;
+	u32 cm_div_m2_dpll;
+	u32 cm_div_m3_dpll;
+	u32 cm_div_m4_h11_dpll;
+	u32 cm_div_m5_h12_dpll;
+	u32 cm_div_m6_h13_dpll;
+	u32 cm_div_m7_h14_dpll;
+	u32 reserved[3];
+	u32 cm_div_h22_dpll;
+	u32 cm_div_h23_dpll;
+};
+
+struct dplls {
+	const struct dpll_params *mpu;
+	const struct dpll_params *core;
+	const struct dpll_params *per;
+	const struct dpll_params *abe;
+	const struct dpll_params *iva;
+	const struct dpll_params *usb;
+};
+
 extern struct prcm_regs const **prcm;
 extern struct prcm_regs const omap5_es1_prcm;
 extern struct prcm_regs const omap4_prcm;
+extern struct dplls const **dplls_data;
+extern const u32 sys_clk_array[8];
 
 void hw_data_init(void);
+
+const struct dpll_params *get_mpu_dpll_params(struct dplls const *);
+const struct dpll_params *get_core_dpll_params(struct dplls const *);
+const struct dpll_params *get_per_dpll_params(struct dplls const *);
+const struct dpll_params *get_iva_dpll_params(struct dplls const *);
+const struct dpll_params *get_usb_dpll_params(struct dplls const *);
+const struct dpll_params *get_abe_dpll_params(struct dplls const *);
+
+void do_enable_clocks(u32 const *clk_domains,
+		      u32 const *clk_modules_hw_auto,
+		      u32 const *clk_modules_explicit_en,
+		      u8 wait_for_enable);
+
+void setup_post_dividers(u32 const base,
+			const struct dpll_params *params);
+u32 omap_ddr_clk(void);
+u32 get_sys_clk_index(void);
+void enable_basic_clocks(void);
+void enable_basic_uboot_clocks(void);
+void enable_non_essential_clocks(void);
+
 /* Max value for DPLL multiplier M */
 #define OMAP_DPLL_MAX_N	127
 

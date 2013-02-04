@@ -47,6 +47,16 @@
 #define puts(s)
 #endif
 
+const u32 sys_clk_array[8] = {
+	12000000,	       /* 12 MHz */
+	13000000,	       /* 13 MHz */
+	16800000,	       /* 16.8 MHz */
+	19200000,	       /* 19.2 MHz */
+	26000000,	       /* 26 MHz */
+	27000000,	       /* 27 MHz */
+	38400000,	       /* 38.4 MHz */
+};
+
 static inline u32 __get_sys_clk_index(void)
 {
 	u32 ind;
@@ -74,6 +84,29 @@ u32 get_sys_clk_freq(void)
 {
 	u8 index = get_sys_clk_index();
 	return sys_clk_array[index];
+}
+
+void setup_post_dividers(u32 const base, const struct dpll_params *params)
+{
+	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
+
+	/* Setup post-dividers */
+	if (params->m2 >= 0)
+		writel(params->m2, &dpll_regs->cm_div_m2_dpll);
+	if (params->m3 >= 0)
+		writel(params->m3, &dpll_regs->cm_div_m3_dpll);
+	if (params->m4_h11 >= 0)
+		writel(params->m4_h11, &dpll_regs->cm_div_m4_h11_dpll);
+	if (params->m5_h12 >= 0)
+		writel(params->m5_h12, &dpll_regs->cm_div_m5_h12_dpll);
+	if (params->m6_h13 >= 0)
+		writel(params->m6_h13, &dpll_regs->cm_div_m6_h13_dpll);
+	if (params->m7_h14 >= 0)
+		writel(params->m7_h14, &dpll_regs->cm_div_m7_h14_dpll);
+	if (params->h22 >= 0)
+		writel(params->h22, &dpll_regs->cm_div_h22_dpll);
+	if (params->h23 >= 0)
+		writel(params->h23, &dpll_regs->cm_div_h23_dpll);
 }
 
 static inline void do_bypass_dpll(u32 const base)
@@ -122,6 +155,46 @@ inline u32 check_for_lock(u32 const base)
 	u32 lock = readl(&dpll_regs->cm_idlest_dpll) & ST_DPLL_CLK_MASK;
 
 	return lock;
+}
+
+const struct dpll_params *get_mpu_dpll_params(struct dplls const *dpll_data)
+{
+	u32 sysclk_ind = get_sys_clk_index();
+	return &dpll_data->mpu[sysclk_ind];
+}
+
+const struct dpll_params *get_core_dpll_params(struct dplls const *dpll_data)
+{
+	u32 sysclk_ind = get_sys_clk_index();
+	return &dpll_data->core[sysclk_ind];
+}
+
+const struct dpll_params *get_per_dpll_params(struct dplls const *dpll_data)
+{
+	u32 sysclk_ind = get_sys_clk_index();
+	return &dpll_data->per[sysclk_ind];
+}
+
+const struct dpll_params *get_iva_dpll_params(struct dplls const *dpll_data)
+{
+	u32 sysclk_ind = get_sys_clk_index();
+	return &dpll_data->iva[sysclk_ind];
+}
+
+const struct dpll_params *get_usb_dpll_params(struct dplls const *dpll_data)
+{
+	u32 sysclk_ind = get_sys_clk_index();
+	return &dpll_data->usb[sysclk_ind];
+}
+
+const struct dpll_params *get_abe_dpll_params(struct dplls const *dpll_data)
+{
+#ifdef CONFIG_SYS_OMAP_ABE_SYSCK
+	u32 sysclk_ind = get_sys_clk_index();
+	return &dpll_data->abe[sysclk_ind];
+#else
+	return dpll_data->abe;
+#endif
 }
 
 static void do_setup_dpll(u32 const base, const struct dpll_params *params,
@@ -184,7 +257,7 @@ u32 omap_ddr_clk(void)
 	omap_rev = omap_revision();
 	sys_clk_khz = get_sys_clk_freq() / 1000;
 
-	core_dpll_params = get_core_dpll_params();
+	core_dpll_params = get_core_dpll_params(*dplls_data);
 
 	debug("sys_clk %d\n ", sys_clk_khz * 1000);
 
@@ -251,7 +324,7 @@ void configure_mpu_dpll(void)
 	setbits_le32((*prcm)->cm_mpu_mpu_clkctrl,
 		MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK);
 
-	params = get_mpu_dpll_params();
+	params = get_mpu_dpll_params(*dplls_data);
 
 	do_setup_dpll((*prcm)->cm_clkmode_dpll_mpu, params, DPLL_LOCK, "mpu");
 	debug("MPU DPLL locked\n");
@@ -272,7 +345,7 @@ static void setup_usb_dpll(void)
 	 * Use CLKINP in KHz and adjust the denominator accordingly so
 	 * that we have enough accuracy and at the same time no overflow
 	 */
-	params = get_usb_dpll_params();
+	params = get_usb_dpll_params(*dplls_data);
 	num = params->m * sys_clk_khz;
 	den = (params->n + 1) * 250 * 1000;
 	num += den - 1;
@@ -294,7 +367,7 @@ static void setup_dplls(void)
 	debug("setup_dplls\n");
 
 	/* CORE dpll */
-	params = get_core_dpll_params();	/* default - safest */
+	params = get_core_dpll_params(*dplls_data);	/* default - safest */
 	/*
 	 * Do not lock the core DPLL now. Just set it up.
 	 * Core DPLL will be locked after setting up EMIF
@@ -314,7 +387,7 @@ static void setup_dplls(void)
 	debug("Core DPLL configured\n");
 
 	/* lock PER dpll */
-	params = get_per_dpll_params();
+	params = get_per_dpll_params(*dplls_data);
 	do_setup_dpll((*prcm)->cm_clkmode_dpll_per,
 			params, DPLL_LOCK, "per");
 	debug("PER DPLL locked\n");
@@ -337,11 +410,11 @@ static void setup_non_essential_dplls(void)
 	clrsetbits_le32((*prcm)->cm_bypclk_dpll_iva,
 		CM_BYPCLK_DPLL_IVA_CLKSEL_MASK, DPLL_IVA_CLKSEL_CORE_X2_DIV_2);
 
-	params = get_iva_dpll_params();
+	params = get_iva_dpll_params(*dplls_data);
 	do_setup_dpll((*prcm)->cm_clkmode_dpll_iva, params, DPLL_LOCK, "iva");
 
 	/* Configure ABE dpll */
-	params = get_abe_dpll_params();
+	params = get_abe_dpll_params(*dplls_data);
 #ifdef CONFIG_SYS_OMAP_ABE_SYSCK
 	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_SYSCLK;
 #else
@@ -459,7 +532,7 @@ void freq_update_core(void)
 	const struct dpll_params *core_dpll_params;
 	u32 omap_rev = omap_revision();
 
-	core_dpll_params = get_core_dpll_params();
+	core_dpll_params = get_core_dpll_params(*dplls_data);
 	/* Put EMIF clock domain in sw wakeup mode */
 	enable_clock_domain((*prcm)->cm_memif_clkstctrl,
 				CD_CLKCTRL_CLKTRCTRL_SW_WKUP);
