@@ -116,57 +116,20 @@ const struct dmm_lisa_map_regs lisa_map_4G_x_2_x_2 = {
 	.dmm_lisa_map_3 = 0xFF020100
 };
 
-const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
-	0x01004010,
-	0x00001004,
-	0x04010040,
-	0x01004010,
-	0x00001004,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x80080080,
-	0x00800800,
-	0x08102040,
-	0x00000001,
-	0x540A8150,
-	0xA81502a0,
-	0x002A0540,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000077
-};
-
-const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
-	0x01004010,
-	0x00001004,
-	0x04010040,
-	0x01004010,
-	0x00001004,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x80080080,
-	0x00800800,
-	0x08102040,
-	0x00000002,
-	0x0,
-	0x0,
-	0x0,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000057
-};
-
 static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 {
-	if (omap_revision() == OMAP5432_ES1_0)
-		*regs = &emif_regs_ddr3_532_mhz_1cs;
-	else
+	switch (omap_revision()) {
+	case OMAP5430_ES1_0:
 		*regs = &emif_regs_532_mhz_2cs;
+		break;
+	case OMAP5432_ES1_0:
+		*regs = &emif_regs_ddr3_532_mhz_1cs;
+		break;
+	default:
+		*regs = &emif_regs_ddr3_532_mhz_1cs;
+	}
 }
+
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 	__attribute__((weak, alias("emif_get_reg_dump_sdp")));
 
@@ -178,7 +141,6 @@ static void emif_get_dmm_regs_sdp(const struct dmm_lisa_map_regs
 
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 	__attribute__((weak, alias("emif_get_dmm_regs_sdp")));
-
 #else
 
 static const struct lpddr2_device_details dev_4G_S4_details = {
@@ -204,10 +166,82 @@ void emif_get_device_details(u32 emif_nr,
 
 #endif /* CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS */
 
+const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
+	0x01004010,
+	0x00001004,
+	0x04010040,
+	0x01004010,
+	0x00001004,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x80080080,
+	0x00800800,
+	0x08102040,
+	0x00000001,
+	0x540A8150,
+	0xA81502a0,
+	0x002A0540,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000077
+};
+
+const u32 ddr3_ext_phy_ctrl_const_base_es1[EMIF_EXT_PHY_CTRL_CONST_REG] = {
+	0x01004010,
+	0x00001004,
+	0x04010040,
+	0x01004010,
+	0x00001004,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x80080080,
+	0x00800800,
+	0x08102040,
+	0x00000002,
+	0x0,
+	0x0,
+	0x0,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000057
+};
+
+const struct lpddr2_mr_regs mr_regs = {
+	.mr1	= MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8,
+	.mr2	= 0x6,
+	.mr3	= 0x1,
+	.mr10	= MR10_ZQ_ZQINIT,
+	.mr16	= MR16_REF_FULL_ARRAY
+};
+
+static void emif_get_ext_phy_ctrl_const_regs(const u32 **regs)
+{
+	switch (omap_revision()) {
+	case OMAP5430_ES1_0:
+		*regs = ext_phy_ctrl_const_base;
+		break;
+	case OMAP5432_ES1_0:
+		*regs = ddr3_ext_phy_ctrl_const_base_es1;
+		break;
+	default:
+		*regs = ddr3_ext_phy_ctrl_const_base_es1;
+	}
+}
+
+void get_lpddr2_mr_regs(const struct lpddr2_mr_regs **regs)
+{
+	*regs = &mr_regs;
+}
+
 void do_ext_phy_settings(u32 base, const struct emif_regs *regs)
 {
 	u32 *ext_phy_ctrl_base = 0;
 	u32 *emif_ext_phy_ctrl_base = 0;
+	const u32 *ext_phy_ctrl_const_regs;
 	u32 i = 0;
 
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
@@ -226,12 +260,13 @@ void do_ext_phy_settings(u32 base, const struct emif_regs *regs)
 	 * external phy 6-24 registers do not change with
 	 * ddr frequency
 	 */
+	emif_get_ext_phy_ctrl_const_regs(&ext_phy_ctrl_const_regs);
 	for (i = 0; i < EMIF_EXT_PHY_CTRL_CONST_REG; i++) {
-		writel(ext_phy_ctrl_const_base[i],
-					emif_ext_phy_ctrl_base++);
+		writel(ext_phy_ctrl_const_regs[i],
+		       emif_ext_phy_ctrl_base++);
 		/* Update shadow registers */
-		writel(ext_phy_ctrl_const_base[i],
-					emif_ext_phy_ctrl_base++);
+		writel(ext_phy_ctrl_const_regs[i],
+		       emif_ext_phy_ctrl_base++);
 	}
 }
 

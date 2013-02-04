@@ -698,9 +698,6 @@ struct dmm_lisa_map_regs {
 	u32 dmm_lisa_map_3;
 };
 
-extern const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
-extern const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
-
 #define CS0	0
 #define CS1	1
 /* The maximum frequency at which the LPDDR2 interface can operate in Hz*/
@@ -1134,6 +1131,14 @@ struct emif_regs {
 	u32 emif_rd_wr_exec_thresh;
 };
 
+struct lpddr2_mr_regs {
+	s8 mr1;
+	s8 mr2;
+	s8 mr3;
+	s8 mr10;
+	s8 mr16;
+};
+
 /* assert macros */
 #if defined(DEBUG)
 #define emif_assert(c)	({ if (!(c)) for (;;); })
@@ -1153,6 +1158,7 @@ void emif_get_device_timings(u32 emif_nr,
 #endif
 
 void do_ext_phy_settings(u32 base, const struct emif_regs *regs);
+void get_lpddr2_mr_regs(const struct lpddr2_mr_regs **regs);
 
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 extern u32 *const T_num;
