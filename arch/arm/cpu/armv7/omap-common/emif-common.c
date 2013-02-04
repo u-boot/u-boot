@@ -1289,9 +1289,9 @@ void sdram_init(void)
 
 	if (!(in_sdram || warm_reset())) {
 		if (sdram_type == EMIF_SDRAM_TYPE_LPDDR2)
-			bypass_dpll(&prcm->cm_clkmode_dpll_core);
+			bypass_dpll((*prcm)->cm_clkmode_dpll_core);
 		else
-			writel(CM_DLL_CTRL_NO_OVERRIDE, &prcm->cm_dll_ctrl);
+			writel(CM_DLL_CTRL_NO_OVERRIDE, (*prcm)->cm_dll_ctrl);
 	}
 
 	if (!in_sdram)

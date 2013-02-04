@@ -32,6 +32,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/emif.h>
+#include <asm/omap_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -116,6 +117,8 @@ void spl_display_print(void)
 void s_init(void)
 {
 	init_omap_revision();
+	hw_data_init();
+
 #ifdef CONFIG_SPL_BUILD
 	if (warm_reset() && (omap_revision() <= OMAP5430_ES1_0))
 		force_emif_self_refresh();

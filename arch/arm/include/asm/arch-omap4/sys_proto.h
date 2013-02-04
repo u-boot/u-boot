@@ -44,7 +44,7 @@ void sdelay(unsigned long);
 void set_pl310_ctrl_reg(u32 val);
 void setup_clocks_for_console(void);
 void prcm_init(void);
-void bypass_dpll(u32 *const base);
+void bypass_dpll(u32 const base);
 void freq_update_core(void);
 u32 get_sys_clk_freq(void);
 u32 omap4_ddr_clk(void);

@@ -61,7 +61,7 @@ static inline u32 __get_sys_clk_index(void)
 		ind = OMAP_SYS_CLK_IND_38_4_MHZ;
 	else {
 		/* SYS_CLKSEL - 1 to match the dpll param array indices */
-		ind = (readl(&prcm->cm_sys_clksel) &
+		ind = (readl((*prcm)->cm_sys_clksel) &
 			CM_SYS_CLKSEL_SYS_CLKSEL_MASK) - 1;
 	}
 	return ind;
@@ -76,7 +76,7 @@ u32 get_sys_clk_freq(void)
 	return sys_clk_array[index];
 }
 
-static inline void do_bypass_dpll(u32 *const base)
+static inline void do_bypass_dpll(u32 const base)
 {
 	struct dpll_regs *dpll_regs = (struct dpll_regs *)base;
 
@@ -86,17 +86,17 @@ static inline void do_bypass_dpll(u32 *const base)
 			CM_CLKMODE_DPLL_EN_SHIFT);
 }
 
-static inline void wait_for_bypass(u32 *const base)
+static inline void wait_for_bypass(u32 const base)
 {
 	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
 
 	if (!wait_on_value(ST_DPLL_CLK_MASK, 0, &dpll_regs->cm_idlest_dpll,
 				LDELAY)) {
-		printf("Bypassing DPLL failed %p\n", base);
+		printf("Bypassing DPLL failed %x\n", base);
 	}
 }
 
-static inline void do_lock_dpll(u32 *const base)
+static inline void do_lock_dpll(u32 const base)
 {
 	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
 
@@ -105,18 +105,18 @@ static inline void do_lock_dpll(u32 *const base)
 		      DPLL_EN_LOCK << CM_CLKMODE_DPLL_EN_SHIFT);
 }
 
-static inline void wait_for_lock(u32 *const base)
+static inline void wait_for_lock(u32 const base)
 {
 	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
 
 	if (!wait_on_value(ST_DPLL_CLK_MASK, ST_DPLL_CLK_MASK,
 		&dpll_regs->cm_idlest_dpll, LDELAY)) {
-		printf("DPLL locking failed for %p\n", base);
+		printf("DPLL locking failed for %x\n", base);
 		hang();
 	}
 }
 
-inline u32 check_for_lock(u32 *const base)
+inline u32 check_for_lock(u32 const base)
 {
 	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
 	u32 lock = readl(&dpll_regs->cm_idlest_dpll) & ST_DPLL_CLK_MASK;
@@ -124,7 +124,7 @@ inline u32 check_for_lock(u32 *const base)
 	return lock;
 }
 
-static void do_setup_dpll(u32 *const base, const struct dpll_params *params,
+static void do_setup_dpll(u32 const base, const struct dpll_params *params,
 				u8 lock, char *dpll)
 {
 	u32 temp, M, N;
@@ -236,24 +236,24 @@ void configure_mpu_dpll(void)
 	 */
 	if ((omap_rev >= OMAP4460_ES1_0) && (omap_rev < OMAP5430_ES1_0)) {
 		mpu_dpll_regs =
-			(struct dpll_regs *)&prcm->cm_clkmode_dpll_mpu;
-		bypass_dpll(&prcm->cm_clkmode_dpll_mpu);
-		clrbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+			(struct dpll_regs *)((*prcm)->cm_clkmode_dpll_mpu);
+		bypass_dpll((*prcm)->cm_clkmode_dpll_mpu);
+		clrbits_le32((*prcm)->cm_mpu_mpu_clkctrl,
 			MPU_CLKCTRL_CLKSEL_EMIF_DIV_MODE_MASK);
-		setbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+		setbits_le32((*prcm)->cm_mpu_mpu_clkctrl,
 			MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK);
 		clrbits_le32(&mpu_dpll_regs->cm_clksel_dpll,
 			CM_CLKSEL_DCC_EN_MASK);
 	}
 
-	setbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+	setbits_le32((*prcm)->cm_mpu_mpu_clkctrl,
 		MPU_CLKCTRL_CLKSEL_EMIF_DIV_MODE_MASK);
-	setbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+	setbits_le32((*prcm)->cm_mpu_mpu_clkctrl,
 		MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK);
 
 	params = get_mpu_dpll_params();
 
-	do_setup_dpll(&prcm->cm_clkmode_dpll_mpu, params, DPLL_LOCK, "mpu");
+	do_setup_dpll((*prcm)->cm_clkmode_dpll_mpu, params, DPLL_LOCK, "mpu");
 	debug("MPU DPLL locked\n");
 }
 
@@ -277,12 +277,12 @@ static void setup_usb_dpll(void)
 	den = (params->n + 1) * 250 * 1000;
 	num += den - 1;
 	sd_div = num / den;
-	clrsetbits_le32(&prcm->cm_clksel_dpll_usb,
+	clrsetbits_le32((*prcm)->cm_clksel_dpll_usb,
 			CM_CLKSEL_DPLL_DPLL_SD_DIV_MASK,
 			sd_div << CM_CLKSEL_DPLL_DPLL_SD_DIV_SHIFT);
 
 	/* Now setup the dpll with the regular function */
-	do_setup_dpll(&prcm->cm_clkmode_dpll_usb, params, DPLL_LOCK, "usb");
+	do_setup_dpll((*prcm)->cm_clkmode_dpll_usb, params, DPLL_LOCK, "usb");
 }
 #endif
 
@@ -301,21 +301,21 @@ static void setup_dplls(void)
 	 * using the FREQ_UPDATE method(freq_update_core())
 	 */
 	if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
-		do_setup_dpll(&prcm->cm_clkmode_dpll_core, params,
+		do_setup_dpll((*prcm)->cm_clkmode_dpll_core, params,
 							DPLL_NO_LOCK, "core");
 	else
-		do_setup_dpll(&prcm->cm_clkmode_dpll_core, params,
+		do_setup_dpll((*prcm)->cm_clkmode_dpll_core, params,
 							DPLL_LOCK, "core");
 	/* Set the ratios for CORE_CLK, L3_CLK, L4_CLK */
 	temp = (CLKSEL_CORE_X2_DIV_1 << CLKSEL_CORE_SHIFT) |
 	    (CLKSEL_L3_CORE_DIV_2 << CLKSEL_L3_SHIFT) |
 	    (CLKSEL_L4_L3_DIV_2 << CLKSEL_L4_SHIFT);
-	writel(temp, &prcm->cm_clksel_core);
+	writel(temp, (*prcm)->cm_clksel_core);
 	debug("Core DPLL configured\n");
 
 	/* lock PER dpll */
 	params = get_per_dpll_params();
-	do_setup_dpll(&prcm->cm_clkmode_dpll_per,
+	do_setup_dpll((*prcm)->cm_clkmode_dpll_per,
 			params, DPLL_LOCK, "per");
 	debug("PER DPLL locked\n");
 
@@ -334,11 +334,11 @@ static void setup_non_essential_dplls(void)
 	const struct dpll_params *params;
 
 	/* IVA */
-	clrsetbits_le32(&prcm->cm_bypclk_dpll_iva,
+	clrsetbits_le32((*prcm)->cm_bypclk_dpll_iva,
 		CM_BYPCLK_DPLL_IVA_CLKSEL_MASK, DPLL_IVA_CLKSEL_CORE_X2_DIV_2);
 
 	params = get_iva_dpll_params();
-	do_setup_dpll(&prcm->cm_clkmode_dpll_iva, params, DPLL_LOCK, "iva");
+	do_setup_dpll((*prcm)->cm_clkmode_dpll_iva, params, DPLL_LOCK, "iva");
 
 	/* Configure ABE dpll */
 	params = get_abe_dpll_params();
@@ -350,23 +350,23 @@ static void setup_non_essential_dplls(void)
 	 * We need to enable some additional options to achieve
 	 * 196.608MHz from 32768 Hz
 	 */
-	setbits_le32(&prcm->cm_clkmode_dpll_abe,
+	setbits_le32((*prcm)->cm_clkmode_dpll_abe,
 			CM_CLKMODE_DPLL_DRIFTGUARD_EN_MASK|
 			CM_CLKMODE_DPLL_RELOCK_RAMP_EN_MASK|
 			CM_CLKMODE_DPLL_LPMODE_EN_MASK|
 			CM_CLKMODE_DPLL_REGM4XEN_MASK);
 	/* Spend 4 REFCLK cycles at each stage */
-	clrsetbits_le32(&prcm->cm_clkmode_dpll_abe,
+	clrsetbits_le32((*prcm)->cm_clkmode_dpll_abe,
 			CM_CLKMODE_DPLL_RAMP_RATE_MASK,
 			1 << CM_CLKMODE_DPLL_RAMP_RATE_SHIFT);
 #endif
 
 	/* Select the right reference clk */
-	clrsetbits_le32(&prcm->cm_abe_pll_ref_clksel,
+	clrsetbits_le32((*prcm)->cm_abe_pll_ref_clksel,
 			CM_ABE_PLL_REF_CLKSEL_CLKSEL_MASK,
 			abe_ref_clk << CM_ABE_PLL_REF_CLKSEL_CLKSEL_SHIFT);
 	/* Lock the dpll */
-	do_setup_dpll(&prcm->cm_clkmode_dpll_abe, params, DPLL_LOCK, "abe");
+	do_setup_dpll((*prcm)->cm_clkmode_dpll_abe, params, DPLL_LOCK, "abe");
 }
 #endif
 
@@ -417,14 +417,14 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
 }
 
-static inline void enable_clock_domain(u32 *const clkctrl_reg, u32 enable_mode)
+static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)
 {
 	clrsetbits_le32(clkctrl_reg, CD_CLKCTRL_CLKTRCTRL_MASK,
 			enable_mode << CD_CLKCTRL_CLKTRCTRL_SHIFT);
-	debug("Enable clock domain - %p\n", clkctrl_reg);
+	debug("Enable clock domain - %x\n", clkctrl_reg);
 }
 
-static inline void wait_for_clk_enable(u32 *clkctrl_addr)
+static inline void wait_for_clk_enable(u32 clkctrl_addr)
 {
 	u32 clkctrl, idlest = MODULE_CLKCTRL_IDLEST_DISABLED;
 	u32 bound = LDELAY;
@@ -436,19 +436,19 @@ static inline void wait_for_clk_enable(u32 *clkctrl_addr)
 		idlest = (clkctrl & MODULE_CLKCTRL_IDLEST_MASK) >>
 			 MODULE_CLKCTRL_IDLEST_SHIFT;
 		if (--bound == 0) {
-			printf("Clock enable failed for 0x%p idlest 0x%x\n",
+			printf("Clock enable failed for 0x%x idlest 0x%x\n",
 				clkctrl_addr, clkctrl);
 			return;
 		}
 	}
 }
 
-static inline void enable_clock_module(u32 *const clkctrl_addr, u32 enable_mode,
+static inline void enable_clock_module(u32 const clkctrl_addr, u32 enable_mode,
 				u32 wait_for_enable)
 {
 	clrsetbits_le32(clkctrl_addr, MODULE_CLKCTRL_MODULEMODE_MASK,
 			enable_mode << MODULE_CLKCTRL_MODULEMODE_SHIFT);
-	debug("Enable clock module - %p\n", clkctrl_addr);
+	debug("Enable clock module - %x\n", clkctrl_addr);
 	if (wait_for_enable)
 		wait_for_clk_enable(clkctrl_addr);
 }
@@ -461,10 +461,10 @@ void freq_update_core(void)
 
 	core_dpll_params = get_core_dpll_params();
 	/* Put EMIF clock domain in sw wakeup mode */
-	enable_clock_domain(&prcm->cm_memif_clkstctrl,
+	enable_clock_domain((*prcm)->cm_memif_clkstctrl,
 				CD_CLKCTRL_CLKTRCTRL_SW_WKUP);
-	wait_for_clk_enable(&prcm->cm_memif_emif_1_clkctrl);
-	wait_for_clk_enable(&prcm->cm_memif_emif_2_clkctrl);
+	wait_for_clk_enable((*prcm)->cm_memif_emif_1_clkctrl);
+	wait_for_clk_enable((*prcm)->cm_memif_emif_2_clkctrl);
 
 	freq_config1 = SHADOW_FREQ_CONFIG1_FREQ_UPDATE_MASK |
 	    SHADOW_FREQ_CONFIG1_DLL_RESET_MASK;
@@ -476,9 +476,9 @@ void freq_update_core(void)
 			SHADOW_FREQ_CONFIG1_M2_DIV_SHIFT) &
 			SHADOW_FREQ_CONFIG1_M2_DIV_MASK;
 
-	writel(freq_config1, &prcm->cm_shadow_freq_config1);
+	writel(freq_config1, (*prcm)->cm_shadow_freq_config1);
 	if (!wait_on_value(SHADOW_FREQ_CONFIG1_FREQ_UPDATE_MASK, 0,
-				&prcm->cm_shadow_freq_config1, LDELAY)) {
+			(u32 *) (*prcm)->cm_shadow_freq_config1, LDELAY)) {
 		puts("FREQ UPDATE procedure failed!!");
 		hang();
 	}
@@ -490,20 +490,20 @@ void freq_update_core(void)
 	 */
 	if (omap_rev != OMAP5430_ES1_0) {
 		/* Put EMIF clock domain back in hw auto mode */
-		enable_clock_domain(&prcm->cm_memif_clkstctrl,
+		enable_clock_domain((*prcm)->cm_memif_clkstctrl,
 					CD_CLKCTRL_CLKTRCTRL_HW_AUTO);
-		wait_for_clk_enable(&prcm->cm_memif_emif_1_clkctrl);
-		wait_for_clk_enable(&prcm->cm_memif_emif_2_clkctrl);
+		wait_for_clk_enable((*prcm)->cm_memif_emif_1_clkctrl);
+		wait_for_clk_enable((*prcm)->cm_memif_emif_2_clkctrl);
 	}
 }
 
-void bypass_dpll(u32 *const base)
+void bypass_dpll(u32 const base)
 {
 	do_bypass_dpll(base);
 	wait_for_bypass(base);
 }
 
-void lock_dpll(u32 *const base)
+void lock_dpll(u32 const base)
 {
 	do_lock_dpll(base);
 	wait_for_lock(base);
@@ -512,39 +512,39 @@ void lock_dpll(u32 *const base)
 void setup_clocks_for_console(void)
 {
 	/* Do not add any spl_debug prints in this function */
-	clrsetbits_le32(&prcm->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
+	clrsetbits_le32((*prcm)->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
 			CD_CLKCTRL_CLKTRCTRL_SW_WKUP <<
 			CD_CLKCTRL_CLKTRCTRL_SHIFT);
 
 	/* Enable all UARTs - console will be on one of them */
-	clrsetbits_le32(&prcm->cm_l4per_uart1_clkctrl,
+	clrsetbits_le32((*prcm)->cm_l4per_uart1_clkctrl,
 			MODULE_CLKCTRL_MODULEMODE_MASK,
 			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
 			MODULE_CLKCTRL_MODULEMODE_SHIFT);
 
-	clrsetbits_le32(&prcm->cm_l4per_uart2_clkctrl,
+	clrsetbits_le32((*prcm)->cm_l4per_uart2_clkctrl,
 			MODULE_CLKCTRL_MODULEMODE_MASK,
 			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
 			MODULE_CLKCTRL_MODULEMODE_SHIFT);
 
-	clrsetbits_le32(&prcm->cm_l4per_uart3_clkctrl,
+	clrsetbits_le32((*prcm)->cm_l4per_uart3_clkctrl,
 			MODULE_CLKCTRL_MODULEMODE_MASK,
 			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
 			MODULE_CLKCTRL_MODULEMODE_SHIFT);
 
-	clrsetbits_le32(&prcm->cm_l4per_uart3_clkctrl,
+	clrsetbits_le32((*prcm)->cm_l4per_uart3_clkctrl,
 			MODULE_CLKCTRL_MODULEMODE_MASK,
 			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
 			MODULE_CLKCTRL_MODULEMODE_SHIFT);
 
-	clrsetbits_le32(&prcm->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
+	clrsetbits_le32((*prcm)->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
 			CD_CLKCTRL_CLKTRCTRL_HW_AUTO <<
 			CD_CLKCTRL_CLKTRCTRL_SHIFT);
 }
 
-void do_enable_clocks(u32 *const *clk_domains,
-			    u32 *const *clk_modules_hw_auto,
-			    u32 *const *clk_modules_explicit_en,
+void do_enable_clocks(u32 const *clk_domains,
+			    u32 const *clk_modules_hw_auto,
+			    u32 const *clk_modules_explicit_en,
 			    u8 wait_for_enable)
 {
 	u32 i, max = 100;

@@ -47,8 +47,6 @@
 #define puts(s)
 #endif
 
-struct omap5_prcm_regs *const prcm = (struct omap5_prcm_regs *)0x4A004100;
-
 const u32 sys_clk_array[8] = {
 	12000000,	       /* 12 MHz */
 	0,		       /* NA */
@@ -188,7 +186,7 @@ static const struct dpll_params usb_dpll_params_1920mhz[NUM_SYS_CLKS] = {
 	{400, 15, 2, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
-void setup_post_dividers(u32 *const base, const struct dpll_params *params)
+void setup_post_dividers(u32 const base, const struct dpll_params *params)
 {
 	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
 
@@ -282,9 +280,9 @@ void scale_vcores(void)
 
 	if (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3) {
 		/* Configure LDO SRAM "magic" bits */
-		writel(2, &prcm->prm_sldo_core_setup);
-		writel(2, &prcm->prm_sldo_mpu_setup);
-		writel(2, &prcm->prm_sldo_mm_setup);
+		writel(2, (*prcm)->prm_sldo_core_setup);
+		writel(2, (*prcm)->prm_sldo_mpu_setup);
+		writel(2, (*prcm)->prm_sldo_mm_setup);
 	}
 }
 
@@ -309,57 +307,57 @@ u32 get_offset_code(u32 volt_offset)
  */
 void enable_basic_clocks(void)
 {
-	u32 *const clk_domains_essential[] = {
-		&prcm->cm_l4per_clkstctrl,
-		&prcm->cm_l3init_clkstctrl,
-		&prcm->cm_memif_clkstctrl,
-		&prcm->cm_l4cfg_clkstctrl,
+	u32 const clk_domains_essential[] = {
+		(*prcm)->cm_l4per_clkstctrl,
+		(*prcm)->cm_l3init_clkstctrl,
+		(*prcm)->cm_memif_clkstctrl,
+		(*prcm)->cm_l4cfg_clkstctrl,
 		0
 	};
 
-	u32 *const clk_modules_hw_auto_essential[] = {
-		&prcm->cm_l3_2_gpmc_clkctrl,
-		&prcm->cm_memif_emif_1_clkctrl,
-		&prcm->cm_memif_emif_2_clkctrl,
-		&prcm->cm_l4cfg_l4_cfg_clkctrl,
-		&prcm->cm_wkup_gpio1_clkctrl,
-		&prcm->cm_l4per_gpio2_clkctrl,
-		&prcm->cm_l4per_gpio3_clkctrl,
-		&prcm->cm_l4per_gpio4_clkctrl,
-		&prcm->cm_l4per_gpio5_clkctrl,
-		&prcm->cm_l4per_gpio6_clkctrl,
+	u32 const clk_modules_hw_auto_essential[] = {
+		(*prcm)->cm_l3_2_gpmc_clkctrl,
+		(*prcm)->cm_memif_emif_1_clkctrl,
+		(*prcm)->cm_memif_emif_2_clkctrl,
+		(*prcm)->cm_l4cfg_l4_cfg_clkctrl,
+		(*prcm)->cm_wkup_gpio1_clkctrl,
+		(*prcm)->cm_l4per_gpio2_clkctrl,
+		(*prcm)->cm_l4per_gpio3_clkctrl,
+		(*prcm)->cm_l4per_gpio4_clkctrl,
+		(*prcm)->cm_l4per_gpio5_clkctrl,
+		(*prcm)->cm_l4per_gpio6_clkctrl,
 		0
 	};
 
-	u32 *const clk_modules_explicit_en_essential[] = {
-		&prcm->cm_wkup_gptimer1_clkctrl,
-		&prcm->cm_l3init_hsmmc1_clkctrl,
-		&prcm->cm_l3init_hsmmc2_clkctrl,
-		&prcm->cm_l4per_gptimer2_clkctrl,
-		&prcm->cm_wkup_wdtimer2_clkctrl,
-		&prcm->cm_l4per_uart3_clkctrl,
-		&prcm->cm_l4per_i2c1_clkctrl,
+	u32 const clk_modules_explicit_en_essential[] = {
+		(*prcm)->cm_wkup_gptimer1_clkctrl,
+		(*prcm)->cm_l3init_hsmmc1_clkctrl,
+		(*prcm)->cm_l3init_hsmmc2_clkctrl,
+		(*prcm)->cm_l4per_gptimer2_clkctrl,
+		(*prcm)->cm_wkup_wdtimer2_clkctrl,
+		(*prcm)->cm_l4per_uart3_clkctrl,
+		(*prcm)->cm_l4per_i2c1_clkctrl,
 		0
 	};
 
 	/* Enable optional additional functional clock for GPIO4 */
-	setbits_le32(&prcm->cm_l4per_gpio4_clkctrl,
+	setbits_le32((*prcm)->cm_l4per_gpio4_clkctrl,
 			GPIO4_CLKCTRL_OPTFCLKEN_MASK);
 
 	/* Enable 96 MHz clock for MMC1 & MMC2 */
-	setbits_le32(&prcm->cm_l3init_hsmmc1_clkctrl,
+	setbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
-	setbits_le32(&prcm->cm_l3init_hsmmc2_clkctrl,
+	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 
 	/* Set the correct clock dividers for mmc */
-	setbits_le32(&prcm->cm_l3init_hsmmc1_clkctrl,
+	setbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
-	setbits_le32(&prcm->cm_l3init_hsmmc2_clkctrl,
+	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
 
 	/* Select 32KHz clock as the source of GPTIMER1 */
-	setbits_le32(&prcm->cm_wkup_gptimer1_clkctrl,
+	setbits_le32((*prcm)->cm_wkup_gptimer1_clkctrl,
 			GPTIMER1_CLKCTRL_CLKSEL_MASK);
 
 	do_enable_clocks(clk_domains_essential,
@@ -368,36 +366,36 @@ void enable_basic_clocks(void)
 			 1);
 
 	/* Select 384Mhz for GPU as its the POR for ES1.0 */
-	setbits_le32(&prcm->cm_sgx_sgx_clkctrl,
+	setbits_le32((*prcm)->cm_sgx_sgx_clkctrl,
 			CLKSEL_GPU_HYD_GCLK_MASK);
-	setbits_le32(&prcm->cm_sgx_sgx_clkctrl,
+	setbits_le32((*prcm)->cm_sgx_sgx_clkctrl,
 			CLKSEL_GPU_CORE_GCLK_MASK);
 
 	/* Enable SCRM OPT clocks for PER and CORE dpll */
-	setbits_le32(&prcm->cm_wkupaon_scrm_clkctrl,
+	setbits_le32((*prcm)->cm_wkupaon_scrm_clkctrl,
 			OPTFCLKEN_SCRM_PER_MASK);
-	setbits_le32(&prcm->cm_wkupaon_scrm_clkctrl,
+	setbits_le32((*prcm)->cm_wkupaon_scrm_clkctrl,
 			OPTFCLKEN_SCRM_CORE_MASK);
 }
 
 void enable_basic_uboot_clocks(void)
 {
-	u32 *const clk_domains_essential[] = {
+	u32 const clk_domains_essential[] = {
 		0
 	};
 
-	u32 *const clk_modules_hw_auto_essential[] = {
+	u32 const clk_modules_hw_auto_essential[] = {
 		0
 	};
 
-	u32 *const clk_modules_explicit_en_essential[] = {
-		&prcm->cm_l4per_mcspi1_clkctrl,
-		&prcm->cm_l4per_i2c2_clkctrl,
-		&prcm->cm_l4per_i2c3_clkctrl,
-		&prcm->cm_l4per_i2c4_clkctrl,
-		&prcm->cm_l3init_hsusbtll_clkctrl,
-		&prcm->cm_l3init_hsusbhost_clkctrl,
-		&prcm->cm_l3init_fsusb_clkctrl,
+	u32 const clk_modules_explicit_en_essential[] = {
+		(*prcm)->cm_l4per_mcspi1_clkctrl,
+		(*prcm)->cm_l4per_i2c2_clkctrl,
+		(*prcm)->cm_l4per_i2c3_clkctrl,
+		(*prcm)->cm_l4per_i2c4_clkctrl,
+		(*prcm)->cm_l3init_hsusbtll_clkctrl,
+		(*prcm)->cm_l3init_hsusbhost_clkctrl,
+		(*prcm)->cm_l3init_fsusb_clkctrl,
 		0
 	};
 
@@ -413,75 +411,75 @@ void enable_basic_uboot_clocks(void)
  */
 void enable_non_essential_clocks(void)
 {
-	u32 *const clk_domains_non_essential[] = {
-		&prcm->cm_mpu_m3_clkstctrl,
-		&prcm->cm_ivahd_clkstctrl,
-		&prcm->cm_dsp_clkstctrl,
-		&prcm->cm_dss_clkstctrl,
-		&prcm->cm_sgx_clkstctrl,
-		&prcm->cm1_abe_clkstctrl,
-		&prcm->cm_c2c_clkstctrl,
-		&prcm->cm_cam_clkstctrl,
-		&prcm->cm_dss_clkstctrl,
-		&prcm->cm_sdma_clkstctrl,
+	u32 const clk_domains_non_essential[] = {
+		(*prcm)->cm_mpu_m3_clkstctrl,
+		(*prcm)->cm_ivahd_clkstctrl,
+		(*prcm)->cm_dsp_clkstctrl,
+		(*prcm)->cm_dss_clkstctrl,
+		(*prcm)->cm_sgx_clkstctrl,
+		(*prcm)->cm1_abe_clkstctrl,
+		(*prcm)->cm_c2c_clkstctrl,
+		(*prcm)->cm_cam_clkstctrl,
+		(*prcm)->cm_dss_clkstctrl,
+		(*prcm)->cm_sdma_clkstctrl,
 		0
 	};
 
-	u32 *const clk_modules_hw_auto_non_essential[] = {
-		&prcm->cm_mpu_m3_mpu_m3_clkctrl,
-		&prcm->cm_ivahd_ivahd_clkctrl,
-		&prcm->cm_ivahd_sl2_clkctrl,
-		&prcm->cm_dsp_dsp_clkctrl,
-		&prcm->cm_l3instr_l3_3_clkctrl,
-		&prcm->cm_l3instr_l3_instr_clkctrl,
-		&prcm->cm_l3instr_intrconn_wp1_clkctrl,
-		&prcm->cm_l3init_hsi_clkctrl,
-		&prcm->cm_l4per_hdq1w_clkctrl,
+	u32 const clk_modules_hw_auto_non_essential[] = {
+		(*prcm)->cm_mpu_m3_mpu_m3_clkctrl,
+		(*prcm)->cm_ivahd_ivahd_clkctrl,
+		(*prcm)->cm_ivahd_sl2_clkctrl,
+		(*prcm)->cm_dsp_dsp_clkctrl,
+		(*prcm)->cm_l3instr_l3_3_clkctrl,
+		(*prcm)->cm_l3instr_l3_instr_clkctrl,
+		(*prcm)->cm_l3instr_intrconn_wp1_clkctrl,
+		(*prcm)->cm_l3init_hsi_clkctrl,
+		(*prcm)->cm_l4per_hdq1w_clkctrl,
 		0
 	};
 
-	u32 *const clk_modules_explicit_en_non_essential[] = {
-		&prcm->cm1_abe_aess_clkctrl,
-		&prcm->cm1_abe_pdm_clkctrl,
-		&prcm->cm1_abe_dmic_clkctrl,
-		&prcm->cm1_abe_mcasp_clkctrl,
-		&prcm->cm1_abe_mcbsp1_clkctrl,
-		&prcm->cm1_abe_mcbsp2_clkctrl,
-		&prcm->cm1_abe_mcbsp3_clkctrl,
-		&prcm->cm1_abe_slimbus_clkctrl,
-		&prcm->cm1_abe_timer5_clkctrl,
-		&prcm->cm1_abe_timer6_clkctrl,
-		&prcm->cm1_abe_timer7_clkctrl,
-		&prcm->cm1_abe_timer8_clkctrl,
-		&prcm->cm1_abe_wdt3_clkctrl,
-		&prcm->cm_l4per_gptimer9_clkctrl,
-		&prcm->cm_l4per_gptimer10_clkctrl,
-		&prcm->cm_l4per_gptimer11_clkctrl,
-		&prcm->cm_l4per_gptimer3_clkctrl,
-		&prcm->cm_l4per_gptimer4_clkctrl,
-		&prcm->cm_l4per_mcspi2_clkctrl,
-		&prcm->cm_l4per_mcspi3_clkctrl,
-		&prcm->cm_l4per_mcspi4_clkctrl,
-		&prcm->cm_l4per_mmcsd3_clkctrl,
-		&prcm->cm_l4per_mmcsd4_clkctrl,
-		&prcm->cm_l4per_mmcsd5_clkctrl,
-		&prcm->cm_l4per_uart1_clkctrl,
-		&prcm->cm_l4per_uart2_clkctrl,
-		&prcm->cm_l4per_uart4_clkctrl,
-		&prcm->cm_wkup_keyboard_clkctrl,
-		&prcm->cm_wkup_wdtimer2_clkctrl,
-		&prcm->cm_cam_iss_clkctrl,
-		&prcm->cm_cam_fdif_clkctrl,
-		&prcm->cm_dss_dss_clkctrl,
-		&prcm->cm_sgx_sgx_clkctrl,
+	u32 const clk_modules_explicit_en_non_essential[] = {
+		(*prcm)->cm1_abe_aess_clkctrl,
+		(*prcm)->cm1_abe_pdm_clkctrl,
+		(*prcm)->cm1_abe_dmic_clkctrl,
+		(*prcm)->cm1_abe_mcasp_clkctrl,
+		(*prcm)->cm1_abe_mcbsp1_clkctrl,
+		(*prcm)->cm1_abe_mcbsp2_clkctrl,
+		(*prcm)->cm1_abe_mcbsp3_clkctrl,
+		(*prcm)->cm1_abe_slimbus_clkctrl,
+		(*prcm)->cm1_abe_timer5_clkctrl,
+		(*prcm)->cm1_abe_timer6_clkctrl,
+		(*prcm)->cm1_abe_timer7_clkctrl,
+		(*prcm)->cm1_abe_timer8_clkctrl,
+		(*prcm)->cm1_abe_wdt3_clkctrl,
+		(*prcm)->cm_l4per_gptimer9_clkctrl,
+		(*prcm)->cm_l4per_gptimer10_clkctrl,
+		(*prcm)->cm_l4per_gptimer11_clkctrl,
+		(*prcm)->cm_l4per_gptimer3_clkctrl,
+		(*prcm)->cm_l4per_gptimer4_clkctrl,
+		(*prcm)->cm_l4per_mcspi2_clkctrl,
+		(*prcm)->cm_l4per_mcspi3_clkctrl,
+		(*prcm)->cm_l4per_mcspi4_clkctrl,
+		(*prcm)->cm_l4per_mmcsd3_clkctrl,
+		(*prcm)->cm_l4per_mmcsd4_clkctrl,
+		(*prcm)->cm_l4per_mmcsd5_clkctrl,
+		(*prcm)->cm_l4per_uart1_clkctrl,
+		(*prcm)->cm_l4per_uart2_clkctrl,
+		(*prcm)->cm_l4per_uart4_clkctrl,
+		(*prcm)->cm_wkup_keyboard_clkctrl,
+		(*prcm)->cm_wkup_wdtimer2_clkctrl,
+		(*prcm)->cm_cam_iss_clkctrl,
+		(*prcm)->cm_cam_fdif_clkctrl,
+		(*prcm)->cm_dss_dss_clkctrl,
+		(*prcm)->cm_sgx_sgx_clkctrl,
 		0
 	};
 
 	/* Enable optional functional clock for ISS */
-	setbits_le32(&prcm->cm_cam_iss_clkctrl, ISS_CLKCTRL_OPTFCLKEN_MASK);
+	setbits_le32((*prcm)->cm_cam_iss_clkctrl, ISS_CLKCTRL_OPTFCLKEN_MASK);
 
 	/* Enable all optional functional clocks of DSS */
-	setbits_le32(&prcm->cm_dss_dss_clkctrl, DSS_CLKCTRL_OPTFCLKEN_MASK);
+	setbits_le32((*prcm)->cm_dss_dss_clkctrl, DSS_CLKCTRL_OPTFCLKEN_MASK);
 
 	do_enable_clocks(clk_domains_non_essential,
 			 clk_modules_hw_auto_non_essential,
@@ -489,7 +487,8 @@ void enable_non_essential_clocks(void)
 			 0);
 
 	/* Put camera module in no sleep mode */
-	clrsetbits_le32(&prcm->cm_cam_clkstctrl, MODULE_CLKCTRL_MODULEMODE_MASK,
+	clrsetbits_le32((*prcm)->cm_cam_clkstctrl,
+			MODULE_CLKCTRL_MODULEMODE_MASK,
 			CD_CLKCTRL_CLKTRCTRL_NO_SLEEP <<
 			MODULE_CLKCTRL_MODULEMODE_SHIFT);
 }
