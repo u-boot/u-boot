@@ -36,6 +36,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/utils.h>
 #include <asm/omap_gpio.h>
+#include <asm/emif.h>
 
 #ifndef CONFIG_SPL_BUILD
 /*
@@ -299,7 +300,7 @@ static void setup_dplls(void)
 	 * Core DPLL will be locked after setting up EMIF
 	 * using the FREQ_UPDATE method(freq_update_core())
 	 */
-	if (omap_revision() != OMAP5432_ES1_0)
+	if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
 		do_setup_dpll(&prcm->cm_clkmode_dpll_core, params,
 							DPLL_NO_LOCK, "core");
 	else

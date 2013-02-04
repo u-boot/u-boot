@@ -191,7 +191,7 @@ void do_io_settings(void)
 		       (sc_fast << 17) | (sc_fast << 14);
 	writel(io_settings, &(ioregs_base->control_smart3io_padconf_1));
 
-	if (omap_revision() <= OMAP5430_ES1_0)
+	if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
 		io_settings_lpddr2();
 	else
 		io_settings_ddr3();

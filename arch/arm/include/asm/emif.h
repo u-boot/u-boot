@@ -1027,6 +1027,11 @@ extern const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
 #define MR8_IO_WIDTH_SHIFT	0x6
 #define MR8_IO_WIDTH_MASK	(0x3 << 0x6)
 
+/* SDRAM TYPE */
+#define EMIF_SDRAM_TYPE_DDR2	0x2
+#define EMIF_SDRAM_TYPE_DDR3	0x3
+#define EMIF_SDRAM_TYPE_LPDDR2	0x4
+
 struct lpddr2_addressing {
 	u8	num_banks;
 	u8	t_REFI_us_x10;
@@ -1156,4 +1161,5 @@ extern u32 *const emif_sizes;
 #endif
 
 void config_data_eye_leveling_samples(u32 emif_base);
+u32 emif_sdram_type(void);
 #endif

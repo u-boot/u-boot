@@ -36,6 +36,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/utils.h>
 #include <asm/omap_gpio.h>
+#include <asm/emif.h>
 
 #ifndef CONFIG_SPL_BUILD
 /*
@@ -279,7 +280,7 @@ void scale_vcores(void)
 	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt_mpu);
 	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt_mm);
 
-	if (omap_revision() == OMAP5432_ES1_0) {
+	if (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3) {
 		/* Configure LDO SRAM "magic" bits */
 		writel(2, &prcm->prm_sldo_core_setup);
 		writel(2, &prcm->prm_sldo_mpu_setup);

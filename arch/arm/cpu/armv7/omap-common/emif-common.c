@@ -66,6 +66,19 @@ inline u32 emif_num(u32 base)
 		return 0;
 }
 
+/*
+ * Get SDRAM type connected to EMIF.
+ * Assuming similar SDRAM parts are connected to both EMIF's
+ * which is typically the case. So it is sufficient to get
+ * SDRAM type from EMIF1.
+ */
+u32 emif_sdram_type()
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+
+	return (readl(&emif->emif_sdram_config) &
+		EMIF_REG_SDRAM_TYPE_MASK) >> EMIF_REG_SDRAM_TYPE_SHIFT;
+}
 
 static inline u32 get_mr(u32 base, u32 cs, u32 mr_addr)
 {
@@ -1079,7 +1092,7 @@ static void do_sdram_init(u32 base)
 	 * OPP to another)
 	 */
 	if (!(in_sdram || warm_reset())) {
-		if (omap_revision() != OMAP5432_ES1_0)
+		if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
 			lpddr2_init(base, regs);
 		else
 			ddr3_init(base, regs);
@@ -1264,7 +1277,7 @@ void dmm_init(u32 base)
 void sdram_init(void)
 {
 	u32 in_sdram, size_prog, size_detect;
-	u32 omap_rev = omap_revision();
+	u32 sdram_type = emif_sdram_type();
 
 	debug(">>sdram_init()\n");
 
@@ -1275,7 +1288,7 @@ void sdram_init(void)
 	debug("in_sdram = %d\n", in_sdram);
 
 	if (!(in_sdram || warm_reset())) {
-		if (omap_rev != OMAP5432_ES1_0)
+		if (sdram_type == EMIF_SDRAM_TYPE_LPDDR2)
 			bypass_dpll(&prcm->cm_clkmode_dpll_core);
 		else
 			writel(CM_DLL_CTRL_NO_OVERRIDE, &prcm->cm_dll_ctrl);
@@ -1298,7 +1311,7 @@ void sdram_init(void)
 	}
 
 	/* for the shadow registers to take effect */
-	if (omap_rev != OMAP5432_ES1_0)
+	if (sdram_type == EMIF_SDRAM_TYPE_LPDDR2)
 		freq_update_core();
 
 	/* Do some testing after the init */
