@@ -195,6 +195,14 @@ static void uart_loop(uint32_t uart_base, int state)
 
 #endif
 
+static inline void __serial_set_baud(uint32_t uart_base, uint32_t baud)
+{
+	uint16_t divisor = (get_uart_clk() + (baud * 8)) / (baud * 16)
+			- ANOMALY_05000230;
+
+	/* Program the divisor to get the baud rate we want */
+	serial_set_divisor(uart_base, divisor);
+}
 #ifdef CONFIG_SYS_BFIN_UART
 
 static void uart_puts(uint32_t uart_base, const char *s)
@@ -209,7 +217,7 @@ static int uart##n##_init(void) \
 	const unsigned short pins[] = { _P_UART(n, RX), _P_UART(n, TX), 0, }; \
 	peripheral_request_list(pins, "bfin-uart"); \
 	uart_init(MMR_UART(n)); \
-	serial_early_set_baud(MMR_UART(n), gd->baudrate); \
+	__serial_set_baud(MMR_UART(n), gd->baudrate); \
 	uart_lsr_clear(MMR_UART(n)); \
 	return 0; \
 } \
@@ -221,7 +229,7 @@ static int uart##n##_uninit(void) \
 \
 static void uart##n##_setbrg(void) \
 { \
-	serial_early_set_baud(MMR_UART(n), gd->baudrate); \
+	__serial_set_baud(MMR_UART(n), gd->baudrate); \
 } \
 \
 static int uart##n##_getc(void) \

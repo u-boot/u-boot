@@ -15,6 +15,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <asm/clock.h>
+
 #define MMR_UART(n) _PASTE_UART(n, UART, DLL)
 #ifdef UART_DLL
 # define UART0_DLL UART_DLL
@@ -230,19 +232,6 @@ static inline void serial_early_do_portmux(void)
 }
 
 __attribute__((always_inline))
-static inline uint32_t uart_sclk(void)
-{
-#if defined(BFIN_IN_INITCODE) || defined(CONFIG_DEBUG_EARLY_SERIAL)
-	/* We cannot use get_sclk() early on as it uses
-	 * caches in external memory
-	 */
-	return CONFIG_CLKIN_HZ * CONFIG_VCO_MULT / CONFIG_SCLK_DIV;
-#else
-	return get_sclk();
-#endif
-}
-
-__attribute__((always_inline))
 static inline int uart_init(uint32_t uart_base)
 {
 	/* always enable UART -- avoids anomalies 05000309 and 05000350 */
@@ -275,21 +264,8 @@ static inline int serial_early_uninit(uint32_t uart_base)
 }
 
 __attribute__((always_inline))
-static inline int serial_early_enabled(uint32_t uart_base)
+static inline void serial_set_divisor(uint32_t uart_base, uint16_t divisor)
 {
-	return bfin_read(&pUART->gctl) & UCEN;
-}
-
-__attribute__((always_inline))
-static inline void serial_early_set_baud(uint32_t uart_base, uint32_t baud)
-{
-	/* Translate from baud into divisor in terms of SCLK.  The
-	 * weird multiplication is to make sure we over sample just
-	 * a little rather than under sample the incoming signals.
-	 */
-	uint16_t divisor = (uart_sclk() + (baud * 8)) / (baud * 16) -
-			ANOMALY_05000230;
-
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH();
 	SSYNC();
@@ -302,6 +278,19 @@ static inline void serial_early_set_baud(uint32_t uart_base, uint32_t baud)
 	/* Clear DLAB in LCR to Access THR RBR IER */
 	ACCESS_PORT_IER();
 	SSYNC();
+}
+
+__attribute__((always_inline))
+static inline void serial_early_set_baud(uint32_t uart_base, uint32_t baud)
+{
+	/* Translate from baud into divisor in terms of SCLK.  The
+	 * weird multiplication is to make sure we over sample just
+	 * a little rather than under sample the incoming signals.
+	 */
+	uint16_t divisor = early_division(early_get_uart_clk() + (baud * 8),
+			baud * 16) - ANOMALY_05000230;
+
+	serial_set_divisor(uart_base, divisor);
 }
 
 __attribute__((always_inline))

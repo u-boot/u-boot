@@ -15,6 +15,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <asm/clock.h>
+
 #define MMR_UART(n) _PASTE_UART(n, UART, REVID)
 #define UART_BASE MMR_UART(CONFIG_UART_CONSOLE)
 
@@ -84,20 +86,6 @@ static inline void serial_early_do_portmux(void)
 }
 
 __attribute__((always_inline))
-static inline uint32_t uart_sclk(void)
-{
-#if defined(BFIN_IN_INITCODE) || defined(CONFIG_DEBUG_EARLY_SERIAL)
-	/* We cannot use get_sclk() early on as it uses caches in
-	 * external memory
-	 */
-	return CONFIG_CLKIN_HZ * CONFIG_VCO_MULT / CONFIG_SCLK_DIV /
-		CONFIG_SCLK0_DIV;
-#else
-	return get_sclk0();
-#endif
-}
-
-__attribute__((always_inline))
 static inline int uart_init(uint32_t uart_base)
 {
 	/* always enable UART to 8-bit mode */
@@ -127,19 +115,20 @@ static inline int serial_early_uninit(uint32_t uart_base)
 }
 
 __attribute__((always_inline))
-static inline int serial_early_enabled(uint32_t uart_base)
+static inline void serial_set_divisor(uint32_t uart_base, uint16_t divisor)
 {
-	return bfin_read(&pUART->control) & UEN;
+	/* Program the divisor to get the baud rate we want */
+	bfin_write(&pUART->clock, divisor);
+	SSYNC();
 }
 
 __attribute__((always_inline))
 static inline void serial_early_set_baud(uint32_t uart_base, uint32_t baud)
 {
-	uint32_t divisor = uart_sclk() / (baud * 16);
+	uint16_t divisor = early_division(early_get_uart_clk(), baud * 16);
 
 	/* Program the divisor to get the baud rate we want */
-	bfin_write(&pUART->clock, divisor);
-	SSYNC();
+	serial_set_divisor(uart_base, divisor);
 }
 
 __attribute__((always_inline))
