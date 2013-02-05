@@ -6,8 +6,10 @@
  * Licensed under the GPL-2 or later.
  */
 
-#ifndef __SOFT_SWITCH_H__
-#define __SOFT_SWITCH_H__
+#ifndef __BOARD_SOFT_SWITCH_H__
+#define __BOARD_SOFT_SWITCH_H__
+
+#include <asm/soft_switch.h>
 
 /* switch 0 port A */
 #define CAN_EN                 0x1
@@ -61,11 +63,18 @@
 #define PD3_SPI0MOSI_EN        0x1
 #define PD4_SPI0CK_EN          0x2
 
-#define IO_PORT_A              0
-#define IO_PORT_B              1
-#define IO_PORT_INPUT          0
-#define IO_PORT_OUTPUT         1
-
-int config_switch_bit(int num, int port, int bit, int dir, uchar value);
-int setup_board_switches(void);
+#ifdef CONFIG_BFIN_BOARD_VERSION_1_0
+#define SWITCH_ADDR     0x21
+#else
+#define SWITCH_ADDR     0x20
 #endif
+
+#define NUM_SWITCH      3
+#define IODIRA          0x0
+#define IODIRB          0x1
+#define OLATA           0x14
+#define OLATB           0x15
+
+int setup_board_switches(void);
+
+#endif /* __BOARD_SOFT_SWITCH_H__ */

@@ -12,14 +12,6 @@
 #include <i2c.h>
 #include "soft_switch.h"
 
-#define SWITCH_ADDR     0x21
-
-#define NUM_SWITCH      3
-#define IODIRA          0x0
-#define IODIRB          0x1
-#define OLATA           0x14
-#define OLATB           0x15
-
 struct switch_config {
 	uchar dir0; /* IODIRA */
 	uchar dir1; /* IODIRB */
@@ -126,9 +118,8 @@ static int setup_soft_switch(int addr, struct switch_config *config)
 	return i2c_write(addr, IODIRB, 1, &config->dir1, 1);
 }
 
-int config_switch_bit(int num, int port, int bit, int dir, uchar value)
+int config_switch_bit(int addr, int port, int bit, int dir, uchar value)
 {
-	int addr = SWITCH_ADDR + num;
 	int ret, data_reg, dir_reg;
 	uchar tmp;
 
