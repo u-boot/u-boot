@@ -239,6 +239,7 @@
 #define CONFIG_SPL_SPI_CS		0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
+#define CONFIG_SPL_MUSB_NEW_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 #define CONFIG_SPL_BOARD_INIT
@@ -312,7 +313,20 @@
 #ifdef CONFIG_MUSB_GADGET
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
+#define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
 #endif /* CONFIG_MUSB_GADGET */
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+/* disable host part of MUSB in SPL */
+#undef CONFIG_MUSB_HOST
+/*
+ * Disable UART, CPSW ethernet support and extra environment settings so we
+ * will fit within 101KiB.
+ */
+#undef CONFIG_SPL_ETH_SUPPORT
+#undef CONFIG_SPL_YMODEM_SUPPORT
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#endif
 
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
