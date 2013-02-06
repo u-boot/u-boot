@@ -56,8 +56,8 @@ struct mvsata_port_registers {
  * Sanity checks:
  * - to compile at all, we need CONFIG_SYS_ATA_BASE_ADDR.
  * - for ide_preinit to make sense, we need at least one of
- *   CONFIG_SYS_ATA_IDE0_OFFSET or CONFIG_SYS_ATA_IDE0_OFFSET;
- * - for inde_preinit to be called, we need CONFIG_IDE_PREINIT.
+ *   CONFIG_SYS_ATA_IDE0_OFFSET or CONFIG_SYS_ATA_IDE1_OFFSET;
+ * - for ide_preinit to be called, we need CONFIG_IDE_PREINIT.
  * Fail with an explanation message if these conditions are not met.
  * This is particularly important for CONFIG_IDE_PREINIT, because
  * its lack would not cause a build error.
