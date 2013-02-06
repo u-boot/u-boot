@@ -12,7 +12,6 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <watchdog.h>
-#include <asm/sizes.h>
 
 #include "spi_flash_internal.h"
 
@@ -36,14 +35,14 @@ static int spi_flash_check_bankaddr_access(struct spi_flash *flash, u32 *offset)
 {
 	int ret;
 
-	if (*offset >= SZ_16M) {
+	if (*offset >= 0x1000000) {
 		ret = spi_flash_bankaddr_access(flash, STATUS_BANKADDR_ENABLE);
 		if (ret) {
 			debug("SF: fail to %s bank addr bit\n",
 				STATUS_BANKADDR_ENABLE ? "set" : "reset");
 			return ret;
 		}
-		*offset -= SZ_16M;
+		*offset -= 0x1000000;
 	} else {
 		ret = spi_flash_bankaddr_access(flash, STATUS_BANKADDR_DISABLE);
 		if (ret) {
@@ -106,7 +105,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 	int ret;
 	u8 cmd[flash->addr_width+1];
 
-	if ((flash->size > SZ_16M) && (flash->addr_width == 3)) {
+	if ((flash->size > 0x1000000) && (flash->addr_width == 3)) {
 		ret = spi_flash_check_bankaddr_access(flash, &offset);
 		if (ret) {
 			debug("SF: fail to acess bank_addr\n");
@@ -184,7 +183,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	u8 cmd[flash->addr_width+2];
 	int ret;
 
-	if ((flash->size > SZ_16M) && (flash->addr_width == 3)) {
+	if ((flash->size > 0x1000000) && (flash->addr_width == 3)) {
 		ret = spi_flash_check_bankaddr_access(flash, &offset);
 		if (ret) {
 			debug("SF: fail to acess bank_addr\n");
@@ -253,7 +252,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	unsigned long page_addr;
 	u8 cmd[flash->addr_width+1];
 
-	if ((flash->size > SZ_16M) && (flash->addr_width == 3)) {
+	if ((flash->size > 0x1000000) && (flash->addr_width == 3)) {
 		ret = spi_flash_check_bankaddr_access(flash, &offset);
 		if (ret) {
 			debug("SF: fail to acess bank_addr\n");
