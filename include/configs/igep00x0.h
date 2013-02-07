@@ -36,6 +36,7 @@
 
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap3.h>
+#include <asm/mach-types.h>
 
 /*
  * Display CPU and Board information
