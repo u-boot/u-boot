@@ -150,9 +150,6 @@ Wolfgang Denk <wd@denx.de>
 
 	P3G4		MPC7410
 
-	PCIPPC2		MPC750
-	PCIPPC6		MPC750
-
 Phil Edworthy <phil.edworthy@renesas.com>
 
 	rsk7264		SH7264

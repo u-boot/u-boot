@@ -49,20 +49,6 @@ static void rtc_write (short reg, uchar val)
 	out8(RTC_PORT_DATA, val);
 }
 
-#elif defined(CONFIG_PCIPPC2)
-
-#include "../board/pcippc2/pcippc2.h"
-
-static uchar rtc_read (short reg)
-{
-	return in8(RTC(reg));
-}
-
-static void rtc_write (short reg, uchar val)
-{
-	out8(RTC(reg),val);
-}
-
 #elif defined(CONFIG_EVAL5200)
 
 static uchar rtc_read (short reg)

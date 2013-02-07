@@ -229,8 +229,7 @@ soft_restart(unsigned long addr)
 }
 
 
-#if !defined(CONFIG_PCIPPC2) && \
-    !defined(CONFIG_BAB7xx)  && \
+#if !defined(CONFIG_BAB7xx)  && \
     !defined(CONFIG_ELPPC)   && \
     !defined(CONFIG_PPMC7XX)
 /* no generic way to do board reset. simply call soft_reset. */
@@ -288,13 +287,13 @@ unsigned long get_tbclk(void)
 /* ------------------------------------------------------------------------- */
 
 #if defined(CONFIG_WATCHDOG)
-#if !defined(CONFIG_PCIPPC2) && !defined(CONFIG_BAB7xx)
+#if !defined(CONFIG_BAB7xx)
 void
 watchdog_reset(void)
 {
 
 }
-#endif  /* !CONFIG_PCIPPC2 && !CONFIG_BAB7xx */
+#endif  /* !CONFIG_BAB7xx */
 #endif	/* CONFIG_WATCHDOG */
 
 /* ------------------------------------------------------------------------- */
