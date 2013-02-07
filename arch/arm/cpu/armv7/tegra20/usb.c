@@ -79,6 +79,7 @@ struct fdt_usb {
 	unsigned ulpi:1;	/* 1 if port has external ULPI transceiver */
 	unsigned enabled:1;	/* 1 to enable, 0 to disable */
 	unsigned has_legacy_mode:1; /* 1 if this port has legacy mode */
+	unsigned initialized:1; /* has this port already been initialized? */
 	enum dr_mode dr_mode;	/* dual role mode */
 	enum periph_id periph_id;/* peripheral id */
 	struct fdt_gpio_state vbus_gpio;	/* GPIO for vbus enable */
@@ -426,44 +427,36 @@ static void config_clock(const u32 timing[])
 		timing[PARAM_CPCON], timing[PARAM_LFCON]);
 }
 
-/**
- * Add a new USB port to the list of available ports.
- *
- * @param config	USB port configuration
- * @return 0 if ok, -1 if error (too many ports)
- */
-static int add_port(struct fdt_usb *config)
-{
-	if (port_count == USB_PORTS_MAX) {
-		printf("tegrausb: Cannot register more than %d ports\n",
-		      USB_PORTS_MAX);
-		return -1;
-	}
-
-	if (config->utmi && init_utmi_usb_controller(config)) {
-		printf("tegrausb: Cannot init port\n");
-		return -1;
-	}
-
-	if (config->ulpi && init_ulpi_usb_controller(config)) {
-		printf("tegrausb: Cannot init port\n");
-		return -1;
-	}
-
-	port[port_count++] = *config;
-
-	return 0;
-}
-
 int tegrausb_start_port(int portnum, u32 *hccr, u32 *hcor)
 {
+	struct fdt_usb *config;
 	struct usb_ctlr *usbctlr;
 
 	if (portnum >= port_count)
 		return -1;
-	set_host_mode(&port[portnum]);
 
-	usbctlr = port[portnum].reg;
+	config = &port[portnum];
+
+	/* skip init, if the port is already initialized */
+	if (config->initialized)
+		goto success;
+
+	if (config->utmi && init_utmi_usb_controller(config)) {
+		printf("tegrausb: Cannot init port %d\n", portnum);
+		return -1;
+	}
+
+	if (config->ulpi && init_ulpi_usb_controller(config)) {
+		printf("tegrausb: Cannot init port %d\n", portnum);
+		return -1;
+	}
+
+	set_host_mode(config);
+
+	config->initialized = 1;
+
+success:
+	usbctlr = config->reg;
 	*hccr = (u32)&usbctlr->cap_length;
 	*hcor = (u32)&usbctlr->usb_cmd;
 	return 0;
@@ -482,6 +475,8 @@ int tegrausb_stop_port(int portnum)
 	/* Initiate controller reset */
 	writel(2, &usbctlr->usb_cmd);
 	udelay(1000);
+
+	port[portnum].initialized = 0;
 
 	return 0;
 }
@@ -546,6 +541,12 @@ int board_usb_init(const void *blob)
 	count = fdtdec_find_aliases_for_id(blob, "usb",
 			COMPAT_NVIDIA_TEGRA20_USB, node_list, USB_PORTS_MAX);
 	for (i = 0; i < count; i++) {
+		if (port_count == USB_PORTS_MAX) {
+			printf("tegrausb: Cannot register more than %d ports\n",
+				USB_PORTS_MAX);
+			return -1;
+		}
+
 		debug("USB %d: ", i);
 		node = node_list[i];
 		if (!node)
@@ -555,10 +556,10 @@ int board_usb_init(const void *blob)
 			      fdt_get_name(blob, node, NULL));
 			return -1;
 		}
+		config.initialized = 0;
 
-		if (add_port(&config))
-			return -1;
-		set_host_mode(&config);
+		/* add new USB port to the list of available ports */
+		port[port_count++] = config;
 	}
 
 	return 0;
