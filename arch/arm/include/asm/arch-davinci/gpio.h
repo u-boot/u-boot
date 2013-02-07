@@ -65,9 +65,15 @@ struct davinci_gpio_bank {
 #define davinci_gpio_bank67 ((struct davinci_gpio *)DAVINCI_GPIO_BANK67)
 #define davinci_gpio_bank8 ((struct davinci_gpio *)DAVINCI_GPIO_BANK8)
 
+#if defined(CONFIG_SOC_DM644X)
+/* GPIO0 to GPIO53, omit the V3.3 volts one */
+#define MAX_NUM_GPIOS		70
+#else
+#define MAX_NUM_GPIOS		144
+#endif
+
 #define gpio_status()		gpio_info()
 #define GPIO_NAME_SIZE		20
-#define MAX_NUM_GPIOS		144
 #define GPIO_BANK(gp)		(davinci_gpio_bank01 + ((gp) >> 5))
 #define GPIO_BIT(gp)		((gp) & 0x1F)
 
