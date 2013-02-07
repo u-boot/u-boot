@@ -197,6 +197,11 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		spl_nand_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_ONENAND_SUPPORT
+	case BOOT_DEVICE_ONENAND:
+		spl_onenand_load_image();
+		break;
+#endif
 #ifdef CONFIG_SPL_NOR_SUPPORT
 	case BOOT_DEVICE_NOR:
 		spl_nor_load_image();
