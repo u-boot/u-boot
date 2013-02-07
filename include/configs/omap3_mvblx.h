@@ -185,6 +185,7 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype} " \
+		"mvfw.fpgavers=${fpgavers} " \
 		"${cmdline_suffix}\0" \
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
