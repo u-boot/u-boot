@@ -115,14 +115,15 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		linelen = DEFAULT_LINE_LENGTH_BYTES / width;
 
 	while (count) {
+		uint thislinelen = linelen;
 		printf("%08lx:", addr);
 
 		/* check for overflow condition */
-		if (count < linelen)
-			linelen = count;
+		if (count < thislinelen)
+			thislinelen = count;
 
 		/* Copy from memory into linebuf and print hex values */
-		for (i = 0; i < linelen; i++) {
+		for (i = 0; i < thislinelen; i++) {
 			uint32_t x;
 			if (width == 4)
 				x = lb.ui[i] = *(volatile uint32_t *)data;
@@ -134,8 +135,15 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 			data += width;
 		}
 
+		while (thislinelen < linelen) {
+			/* fill line with whitespace for nice ASCII print */
+			for (i=0; i<width*2+1; i++)
+				puts(" ");
+			linelen--;
+		}
+
 		/* Print data in ASCII characters */
-		for (i = 0; i < linelen * width; i++) {
+		for (i = 0; i < thislinelen * width; i++) {
 			if (!isprint(lb.uc[i]) || lb.uc[i] >= 0x80)
 				lb.uc[i] = '.';
 		}
@@ -143,8 +151,8 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		printf("    %s\n", lb.uc);
 
 		/* update references */
-		addr += linelen * width;
-		count -= linelen;
+		addr += thislinelen * width;
+		count -= thislinelen;
 
 		if (ctrlc())
 			return -1;
