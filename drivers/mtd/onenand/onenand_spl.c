@@ -112,7 +112,7 @@ static int onenand_spl_read_page(uint32_t block, uint32_t page, uint32_t *buf,
 void onenand_spl_load_image(uint32_t offs, uint32_t size, void *dst)
 {
 	uint32_t *addr = (uint32_t *)dst;
-	uint32_t total_pages;
+	uint32_t to_page;
 	uint32_t block;
 	uint32_t page, rpage;
 	enum onenand_spl_pagesize pagesize;
@@ -125,22 +125,20 @@ void onenand_spl_load_image(uint32_t offs, uint32_t size, void *dst)
 	 * pulling further unwanted functions into the SPL.
 	 */
 	if (pagesize == 2048) {
-		total_pages = DIV_ROUND_UP(size, 2048);
 		page = offs / 2048;
+		to_page = page + DIV_ROUND_UP(size, 2048);
 	} else {
-		total_pages = DIV_ROUND_UP(size, 4096);
 		page = offs / 4096;
+		to_page = page + DIV_ROUND_UP(size, 4096);
 	}
 
-	for (; page <= total_pages; page++) {
+	for (; page <= to_page; page++) {
 		block = page / ONENAND_PAGES_PER_BLOCK;
 		rpage = page & (ONENAND_PAGES_PER_BLOCK - 1);
 		ret = onenand_spl_read_page(block, rpage, addr, pagesize);
-		if (ret) {
-			total_pages += ONENAND_PAGES_PER_BLOCK;
+		if (ret)
 			page += ONENAND_PAGES_PER_BLOCK - 1;
-		} else {
+		else
 			addr += pagesize / 4;
-		}
 	}
 }
