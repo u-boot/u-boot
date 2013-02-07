@@ -87,7 +87,10 @@
 #define CONFIG_DOS_PARTITION		1
 
 /* define to enable boot progress via leds */
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020) || \
+    (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
 #define CONFIG_SHOW_BOOT_PROGRESS
+#endif
 
 /* USB */
 #define CONFIG_MUSB_UDC			1
@@ -119,7 +122,8 @@
 #ifdef CONFIG_BOOT_NAND
 #define CONFIG_CMD_NAND
 #endif
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020) || \
+    (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0032)
 #define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #endif
 #define CONFIG_CMD_DHCP

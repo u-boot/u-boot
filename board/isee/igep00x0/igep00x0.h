@@ -39,6 +39,9 @@ const omap3_sysinfo sysinfo = {
 #if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
 	"IGEP COM MODULE/ELECTRON",
 #endif
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0032)
+	"IGEP COM PROTON",
+#endif
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	"ONENAND",
 #else
