@@ -486,8 +486,7 @@ int tegrausb_stop_port(int portnum)
 	return 0;
 }
 
-int fdt_decode_usb(const void *blob, int node, unsigned osc_frequency_mhz,
-		   struct fdt_usb *config)
+int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 {
 	const char *phy, *mode;
 
@@ -535,7 +534,6 @@ int fdt_decode_usb(const void *blob, int node, unsigned osc_frequency_mhz,
 int board_usb_init(const void *blob)
 {
 	struct fdt_usb config;
-	unsigned osc_freq = clock_get_rate(CLOCK_ID_OSC);
 	enum clock_osc_freq freq;
 	int node_list[USB_PORTS_MAX];
 	int node, count, i;
@@ -552,7 +550,7 @@ int board_usb_init(const void *blob)
 		node = node_list[i];
 		if (!node)
 			continue;
-		if (fdt_decode_usb(blob, node, osc_freq, &config)) {
+		if (fdt_decode_usb(blob, node, &config)) {
 			debug("Cannot decode USB node %s\n",
 			      fdt_get_name(blob, node, NULL));
 			return -1;
