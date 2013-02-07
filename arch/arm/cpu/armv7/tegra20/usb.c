@@ -25,21 +25,15 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/pinmux.h>
-#include <asm/arch/tegra.h>
 #include <asm/arch/usb.h>
 #include <usb/ulpi.h>
-#include <asm/arch-tegra/clk_rst.h>
-#include <asm/arch-tegra/sys_proto.h>
-#include <asm/arch-tegra/uart.h>
 #include <libfdt.h>
 #include <fdtdec.h>
 
 #ifdef CONFIG_USB_ULPI
 	#ifndef CONFIG_USB_ULPI_VIEWPORT
 	#error	"To use CONFIG_USB_ULPI on Tegra Boards you have to also \
-			define CONFIG_USB_ULPI_VIEWPORT"
+		define CONFIG_USB_ULPI_VIEWPORT"
 	#endif
 #endif
 
@@ -191,11 +185,6 @@ void usbf_reset_controller(struct fdt_usb *config, struct usb_ctlr *usbctlr)
 	/* Enable the UTMIP PHY */
 	if (config->utmi)
 		setbits_le32(&usbctlr->susp_ctrl, UTMIP_PHY_ENB);
-
-	/*
-	 * TODO: where do we take the USB1 out of reset? The old code would
-	 * take USB3 out of reset, but not USB1. This code doesn't do either.
-	 */
 }
 
 /* set up the UTMI USB controller with the parameters provided */

@@ -243,9 +243,6 @@ struct usb_ctlr {
 #define VBUS_VLD_STS			(1 << 26)
 
 
-/* Change the USB host port into host mode */
-void usb_set_host_mode(void);
-
 /* Setup USB on the board */
 int board_usb_init(const void *blob);
 
