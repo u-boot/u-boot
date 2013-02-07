@@ -802,8 +802,20 @@ build_targets() {
 #-----------------------------------------------------------------------
 
 kill_children() {
-	local pgid=`ps -p $$ --no-headers -o "%r" | tr -d ' '`
-	local children=`pgrep -g $pgid | grep -v $$ | grep -v $pgid`
+	local OS=$(uname -s)
+	local children=""
+	case "${OS}" in
+		"Darwin")
+			# Mac OS X is known to have BSD style ps
+			local pgid=$(ps -p $$ -o pgid | sed -e "/PGID/d")
+			children=$(ps -g $pgid -o pid | sed -e "/PID\|$$\|$pgid/d")
+			;;
+		*)
+			# everything else tries the GNU style
+			local pgid=$(ps -p $$ --no-headers -o "%r" | tr -d ' ')
+			children=$(pgrep -g $pgid | sed -e "/$$\|$pgid/d")
+			;;
+	esac
 
 	kill $children 2> /dev/null
 	wait $children 2> /dev/null
