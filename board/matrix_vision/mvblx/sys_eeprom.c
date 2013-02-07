@@ -326,10 +326,28 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+static inline int is_portrait(void)
+{
+	int i;
+	unsigned int orient_index = 0; /* idx of char which determines orientation */
+
+	for (i = sizeof(e.id)/sizeof(*e.id) - 1; i>=0; i--) {
+		if (e.id[i] == '-') {
+			orient_index = i+1;
+			break;
+		}
+	}
+
+	return (orient_index &&
+			(e.id[orient_index] >= '5') && (e.id[orient_index] <= '8'));
+}
+
 int mac_read_from_eeprom(void)
 {
 	u32 crc, crc_offset = offsetof(struct eeprom, crc);
 	u32 *crcp; /* Pointer to the CRC in the data read from the EEPROM */
+#define FILENAME_LANDSCAPE "mvBlueLynx_X.rbf"
+#define FILENAME_PORTRAIT "mvBlueLynx_X_sensor_cd.rbf"
 
 	if (read_eeprom()) {
 		printf("EEPROM Read failed.\n");
@@ -373,6 +391,12 @@ int mac_read_from_eeprom(void)
 		if (!getenv("serial#"))
 			setenv("serial#", serial_num);
 	}
+
+	/* decide which fpga file to load depending on orientation */
+	if (is_portrait())
+		setenv("fpgafilename", FILENAME_PORTRAIT);
+	else
+		setenv("fpgafilename", FILENAME_LANDSCAPE);
 
 	/* TODO should I calculate CRC here? */
 	return 0;

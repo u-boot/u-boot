@@ -170,9 +170,9 @@
 	"vram=12M\0" \
 	"dvimode=1024x768-24@60\0" \
 	"defaultdisplay=dvi\0" \
-	"fpgafilename=mvbluelynx_x.rbf\0" \
-	"loadfpga=if fatload mmc ${mmcdev} ${loadaddr} ${fpgafilename}; then " \
-		"fpga load 0 ${loadaddr} ${filesize}; " \
+	"loadfpga=if ext2load mmc ${mmcdev}:2 ${loadaddr} "\
+		"/lib/firmware/mvblx/${fpgafilename}; then " \
+			"fpga load 0 ${loadaddr} ${filesize}; " \
 		"fi;\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
