@@ -44,7 +44,7 @@
 #endif
 
 enum {
-	USB_PORTS_MAX	= 4,			/* Maximum ports we allow */
+	USB_PORTS_MAX	= 3,		/* Maximum ports we allow */
 };
 
 /* Parameters we need for USB */
