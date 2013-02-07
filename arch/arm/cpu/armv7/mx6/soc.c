@@ -30,6 +30,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/imx-common/boot_mode.h>
+#include <stdbool.h>
 
 struct scu_regs {
 	u32	ctrl;
@@ -121,12 +122,23 @@ void set_vddsoc(u32 mv)
 	writel(reg, &anatop->reg_core);
 }
 
+static void imx_set_wdog_powerdown(bool enable)
+{
+	struct wdog_regs *wdog1 = (struct wdog_regs *)WDOG1_BASE_ADDR;
+	struct wdog_regs *wdog2 = (struct wdog_regs *)WDOG2_BASE_ADDR;
+
+	/* Write to the PDE (Power Down Enable) bit */
+	writew(enable, &wdog1->wmcr);
+	writew(enable, &wdog2->wmcr);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
 
 	set_vddsoc(1200);	/* Set VDDSOC to 1.2V */
 
+	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 	return 0;
 }
 
