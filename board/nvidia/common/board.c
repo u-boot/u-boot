@@ -46,7 +46,7 @@
 #include <asm/arch/emc.h>
 #endif
 #ifdef CONFIG_USB_EHCI_TEGRA
-#include <asm/arch/usb.h>
+#include <asm/arch-tegra/usb.h>
 #endif
 #include <i2c.h>
 #include <spi.h>
