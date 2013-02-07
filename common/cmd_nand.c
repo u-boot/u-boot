@@ -608,7 +608,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		size_t rwsize;
 		ulong pagecount = 1;
 		int read;
-		int raw;
+		int raw = 0;
 
 		if (argc < 4)
 			goto usage;
