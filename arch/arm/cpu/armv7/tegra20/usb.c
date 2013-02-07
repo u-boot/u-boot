@@ -198,11 +198,12 @@ void usbf_reset_controller(struct fdt_usb *config, struct usb_ctlr *usbctlr)
 }
 
 /* set up the UTMI USB controller with the parameters provided */
-static int init_utmi_usb_controller(struct fdt_usb *config,
-				struct usb_ctlr *usbctlr, const u32 timing[])
+static int init_utmi_usb_controller(struct fdt_usb *config)
 {
 	u32 val;
 	int loop_count;
+	const unsigned *timing;
+	struct usb_ctlr *usbctlr = config->reg;
 
 	clock_enable(config->periph_id);
 
@@ -229,6 +230,8 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 	 * PLL Delay CONFIGURATION settings. The following parameters control
 	 * the bring up of the plls.
 	 */
+	timing = usb_pll[clock_get_osc_freq()];
+
 	val = readl(&usbctlr->utmip_misc_cfg1);
 	clrsetbits_le32(&val, UTMIP_PLLU_STABLE_COUNT_MASK,
 		timing[PARAM_STABLE_COUNT] << UTMIP_PLLU_STABLE_COUNT_SHIFT);
@@ -331,12 +334,12 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 #endif
 
 /* set up the ULPI USB controller with the parameters provided */
-static int init_ulpi_usb_controller(struct fdt_usb *config,
-				struct usb_ctlr *usbctlr)
+static int init_ulpi_usb_controller(struct fdt_usb *config)
 {
 	u32 val;
 	int loop_count;
 	struct ulpi_viewport ulpi_vp;
+	struct usb_ctlr *usbctlr = config->reg;
 
 	/* set up ULPI reference clock on pllp_out4 */
 	clock_enable(PERIPH_ID_DEV2_OUT);
@@ -408,8 +411,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 	return 0;
 }
 #else
-static int init_ulpi_usb_controller(struct fdt_usb *config,
-				struct usb_ctlr *usbctlr)
+static int init_ulpi_usb_controller(struct fdt_usb *config)
 {
 	printf("No code to set up ULPI controller, please enable"
 			"CONFIG_USB_ULPI and CONFIG_USB_ULPI_VIEWPORT");
@@ -430,22 +432,20 @@ static void config_clock(const u32 timing[])
  * @param config	USB port configuration
  * @return 0 if ok, -1 if error (too many ports)
  */
-static int add_port(struct fdt_usb *config, const u32 timing[])
+static int add_port(struct fdt_usb *config)
 {
-	struct usb_ctlr *usbctlr = config->reg;
-
 	if (port_count == USB_PORTS_MAX) {
 		printf("tegrausb: Cannot register more than %d ports\n",
 		      USB_PORTS_MAX);
 		return -1;
 	}
 
-	if (config->utmi && init_utmi_usb_controller(config, usbctlr, timing)) {
+	if (config->utmi && init_utmi_usb_controller(config)) {
 		printf("tegrausb: Cannot init port\n");
 		return -1;
 	}
 
-	if (config->ulpi && init_ulpi_usb_controller(config, usbctlr)) {
+	if (config->ulpi && init_ulpi_usb_controller(config)) {
 		printf("tegrausb: Cannot init port\n");
 		return -1;
 	}
@@ -558,7 +558,7 @@ int board_usb_init(const void *blob)
 			return -1;
 		}
 
-		if (add_port(&config, usb_pll[freq]))
+		if (add_port(&config))
 			return -1;
 		set_host_mode(&config);
 	}
