@@ -246,23 +246,4 @@ struct usb_ctlr {
 /* Setup USB on the board */
 int board_usb_init(const void *blob);
 
-/**
- * Start up the given port number (ports are numbered from 0 on each board).
- * This returns values for the appropriate hccr and hcor addresses to use for
- * USB EHCI operations.
- *
- * @param portnum	port number to start
- * @param hccr		returns start address of EHCI HCCR registers
- * @param hcor		returns start address of EHCI HCOR registers
- * @return 0 if ok, -1 on error (generally invalid port number)
- */
-int tegrausb_start_port(int portnum, u32 *hccr, u32 *hcor);
-
-/**
- * Stop the current port
- *
- * @return 0 if ok, -1 if no port was active
- */
-int tegrausb_stop_port(int portnum);
-
 #endif	/* _TEGRA_USB_H_ */

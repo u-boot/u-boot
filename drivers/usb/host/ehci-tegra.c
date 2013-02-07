@@ -438,60 +438,6 @@ static void config_clock(const u32 timing[])
 		timing[PARAM_CPCON], timing[PARAM_LFCON]);
 }
 
-int tegrausb_start_port(int portnum, u32 *hccr, u32 *hcor)
-{
-	struct fdt_usb *config;
-	struct usb_ctlr *usbctlr;
-
-	if (portnum >= port_count)
-		return -1;
-
-	config = &port[portnum];
-
-	/* skip init, if the port is already initialized */
-	if (config->initialized)
-		goto success;
-
-	if (config->utmi && init_utmi_usb_controller(config)) {
-		printf("tegrausb: Cannot init port %d\n", portnum);
-		return -1;
-	}
-
-	if (config->ulpi && init_ulpi_usb_controller(config)) {
-		printf("tegrausb: Cannot init port %d\n", portnum);
-		return -1;
-	}
-
-	set_host_mode(config);
-
-	config->initialized = 1;
-
-success:
-	usbctlr = config->reg;
-	*hccr = (u32)&usbctlr->cap_length;
-	*hcor = (u32)&usbctlr->usb_cmd;
-	return 0;
-}
-
-int tegrausb_stop_port(int portnum)
-{
-	struct usb_ctlr *usbctlr;
-
-	usbctlr = port[portnum].reg;
-
-	/* Stop controller */
-	writel(0, &usbctlr->usb_cmd);
-	udelay(1000);
-
-	/* Initiate controller reset */
-	writel(2, &usbctlr->usb_cmd);
-	udelay(1000);
-
-	port[portnum].initialized = 0;
-
-	return 0;
-}
-
 int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 {
 	const char *phy, *mode;
@@ -576,32 +522,69 @@ int board_usb_init(const void *blob)
 	return 0;
 }
 
-/*
- * Create the appropriate control structures to manage
- * a new EHCI host controller.
+/**
+ * Start up the given port number (ports are numbered from 0 on each board).
+ * This returns values for the appropriate hccr and hcor addresses to use for
+ * USB EHCI operations.
+ *
+ * @param index	port number to start
+ * @param hccr		returns start address of EHCI HCCR registers
+ * @param hcor		returns start address of EHCI HCOR registers
+ * @return 0 if ok, -1 on error (generally invalid port number)
  */
 int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	u32 our_hccr, our_hcor;
+	struct fdt_usb *config;
+	struct usb_ctlr *usbctlr;
 
-	/*
-	 * Select the first port, as we don't have a way of selecting others
-	 * yet
-	 */
-	if (tegrausb_start_port(index, &our_hccr, &our_hcor))
+	if (index >= port_count)
 		return -1;
 
-	*hccr = (struct ehci_hccr *)our_hccr;
-	*hcor = (struct ehci_hcor *)our_hcor;
+	config = &port[index];
 
+	/* skip init, if the port is already initialized */
+	if (config->initialized)
+		goto success;
+
+	if (config->utmi && init_utmi_usb_controller(config)) {
+		printf("tegrausb: Cannot init port %d\n", index);
+		return -1;
+	}
+
+	if (config->ulpi && init_ulpi_usb_controller(config)) {
+		printf("tegrausb: Cannot init port %d\n", index);
+		return -1;
+	}
+
+	set_host_mode(config);
+
+	config->initialized = 1;
+
+success:
+	usbctlr = config->reg;
+	*hccr = (struct ehci_hccr *)&usbctlr->cap_length;
+	*hcor = (struct ehci_hcor *)&usbctlr->usb_cmd;
 	return 0;
 }
 
 /*
- * Destroy the appropriate control structures corresponding
- * the the EHCI host controller.
+ * Bring down the specified USB controller
  */
 int ehci_hcd_stop(int index)
 {
-	return tegrausb_stop_port(index);
+	struct usb_ctlr *usbctlr;
+
+	usbctlr = port[index].reg;
+
+	/* Stop controller */
+	writel(0, &usbctlr->usb_cmd);
+	udelay(1000);
+
+	/* Initiate controller reset */
+	writel(2, &usbctlr->usb_cmd);
+	udelay(1000);
+
+	port[index].initialized = 0;
+
+	return 0;
 }
