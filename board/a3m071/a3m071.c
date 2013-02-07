@@ -255,7 +255,7 @@ void spl_board_init(void)
 	 * MPC5XXX_WU_GPIO_DIR direction is already 0 (INPUT)
 	 * set bit 0(msb) to 1
 	 */
-	setbits_be32((void *)MPC5XXX_WU_GPIO_ENABLE, 1 << (31 - 0));
+	setbits_be32((void *)MPC5XXX_WU_GPIO_ENABLE, CONFIG_WDOG_GPIO_PIN);
 
 #if defined(CONFIG_A4M2K)
 	/* Setup USB[x] as MPCDiag[0..3] GPIO outputs */
@@ -409,4 +409,58 @@ int spl_start_uboot(void)
 
 	return 1;
 }
+#endif
+
+#if defined(CONFIG_HW_WATCHDOG)
+static int watchdog_toggle;
+
+void hw_watchdog_reset(void)
+{
+	int val;
+
+	/*
+	 * Check if watchdog is enabled via user command
+	 */
+	if ((gd->flags & GD_FLG_RELOC) && watchdog_toggle) {
+		/* Set direction to output */
+		setbits_be32((void *)MPC5XXX_WU_GPIO_DIR, CONFIG_WDOG_GPIO_PIN);
+
+		/*
+		 * Toggle watchdog output
+		 */
+		val = (in_be32((void *)MPC5XXX_WU_GPIO_DATA_O) &
+		       CONFIG_WDOG_GPIO_PIN);
+		if (val) {
+			clrbits_be32((void *)MPC5XXX_WU_GPIO_DATA_O,
+				     CONFIG_WDOG_GPIO_PIN);
+		} else {
+			setbits_be32((void *)MPC5XXX_WU_GPIO_DATA_O,
+				     CONFIG_WDOG_GPIO_PIN);
+		}
+	}
+}
+
+int do_wdog_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc != 2)
+		goto usage;
+
+	if (strncmp(argv[1], "on", 2) == 0)
+		watchdog_toggle = 1;
+	else if (strncmp(argv[1], "off", 3) == 0)
+		watchdog_toggle = 0;
+	else
+		goto usage;
+
+	return 0;
+usage:
+	printf("Usage: wdogtoggle %s\n", cmdtp->usage);
+	return 1;
+}
+
+U_BOOT_CMD(
+	wdogtoggle, CONFIG_SYS_MAXARGS, 2, do_wdog_toggle,
+	"toggle GPIO pin to service watchdog",
+	"[on/off] - Switch watchdog toggling via GPIO pin on/off"
+);
 #endif

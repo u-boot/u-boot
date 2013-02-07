@@ -166,6 +166,11 @@
 #define CONFIG_SYS_GPS_PORT_CONFIG_2	0x1005C005
 #endif
 
+#define CONFIG_WDOG_GPIO_PIN		GPIO_WKUP_7
+#if defined(CONFIG_A4M2K) && !defined(CONFIG_SPL_BUILD)
+#define CONFIG_HW_WATCHDOG		/* Use external HW-Watchdog	*/
+#endif
+
 /*
  * Configuration matrix
  *                        MSB                          LSB
