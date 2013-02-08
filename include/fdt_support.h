@@ -26,8 +26,7 @@
 
 #ifdef CONFIG_OF_LIBFDT
 
-#include <libfdt_env.h>
-#include <fdt.h>
+#include <libfdt.h>
 
 u32 fdt_getprop_u32_default(const void *fdt, const char *path,
 				const char *prop, const u32 dflt);
