@@ -238,6 +238,12 @@ typedef struct clk512x {
 #define SCFR1_LPC_DIV_MASK	0x00003800
 #define SCFR1_LPC_DIV_SHIFT	11
 
+#define SCFR1_NFC_DIV_MASK	0x00000700
+#define SCFR1_NFC_DIV_SHIFT	8
+
+#define SCFR1_DIU_DIV_MASK	0x000000FF
+#define SCFR1_DIU_DIV_SHIFT	0
+
 /* SCFR2 System Clock Frequency Register 2 */
 #define SCFR2_SYS_DIV		0xFC000000
 #define SCFR2_SYS_DIV_SHIFT	26

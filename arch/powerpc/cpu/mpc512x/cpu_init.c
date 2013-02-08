@@ -172,6 +172,21 @@ void cpu_init_f (volatile immap_t * im)
 	ips_div |= SCFR1_IPS_DIV << SCFR1_IPS_DIV_SHIFT;
 	out_be32(&im->clk.scfr[0], ips_div);
 
+#ifdef SCFR1_LPC_DIV
+	clrsetbits_be32(&im->clk.scfr[0], SCFR1_LPC_DIV_MASK,
+			SCFR1_LPC_DIV << SCFR1_LPC_DIV_SHIFT);
+#endif
+
+#ifdef SCFR1_NFC_DIV
+	clrsetbits_be32(&im->clk.scfr[0], SCFR1_NFC_DIV_MASK,
+			SCFR1_NFC_DIV << SCFR1_NFC_DIV_SHIFT);
+#endif
+
+#ifdef SCFR1_DIU_DIV
+	clrsetbits_be32(&im->clk.scfr[0], SCFR1_DIU_DIV_MASK,
+			SCFR1_DIU_DIV << SCFR1_DIU_DIV_SHIFT);
+#endif
+
 	/*
 	 * Enable Time Base/Decrementer
 	 *
