@@ -55,37 +55,6 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_early_init_f(void)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 spridr;
-
-	/*
-	 * Initialize Local Window for the On Board FPGA access
-	 */
-	out_be32(&im->sysconf.lpcs2aw,
-		CSAW_START(CONFIG_SYS_ARIA_FPGA_BASE) |
-		CSAW_STOP(CONFIG_SYS_ARIA_FPGA_BASE, CONFIG_SYS_ARIA_FPGA_SIZE)
-	);
-	out_be32(&im->lpc.cs_cfg[2], CONFIG_SYS_CS2_CFG);
-	sync_law(&im->sysconf.lpcs2aw);
-
-	/*
-	 * Initialize Local Window for the On Board SRAM access
-	 */
-	out_be32(&im->sysconf.lpcs6aw,
-		CSAW_START(CONFIG_SYS_ARIA_SRAM_BASE) |
-		CSAW_STOP(CONFIG_SYS_ARIA_SRAM_BASE, CONFIG_SYS_ARIA_SRAM_SIZE)
-	);
-	out_be32(&im->lpc.cs_cfg[6], CONFIG_SYS_CS6_CFG);
-	sync_law(&im->sysconf.lpcs6aw);
-
-	/*
-	 * Configure Flash Speed
-	 */
-	out_be32(&im->lpc.cs_cfg[0], CONFIG_SYS_CS0_CFG);
-
-	spridr = in_be32(&im->sysconf.spridr);
-
-	if (SVR_MJREV(spridr) >= 2)
-		out_be32(&im->lpc.altr, CONFIG_SYS_CS_ALETIMING);
 
 	/*
 	 * Enable clocks

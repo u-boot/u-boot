@@ -65,16 +65,7 @@ int eeprom_write_enable(unsigned dev_addr, int state)
 int board_early_init_f(void)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 spridr;
 	int i;
-
-	/*
-	 * Initialize Local Window for NOR FLASH access
-	 */
-	out_be32(&im->sysconf.lpcs0aw,
-		 CSAW_START(CONFIG_SYS_FLASH_BASE) |
-		 CSAW_STOP(CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_SIZE));
-	sync_law(&im->sysconf.lpcs0aw);
 
 	/*
 	 * Initialize Local Window for boot access
@@ -82,28 +73,6 @@ int board_early_init_f(void)
 	out_be32(&im->sysconf.lpbaw,
 		 CSAW_START(0xffb00000) | CSAW_STOP(0xffb00000, 0x00010000));
 	sync_law(&im->sysconf.lpbaw);
-
-	/*
-	 * Initialize Local Window for VPC3 access
-	 */
-	out_be32(&im->sysconf.lpcs1aw,
-		 CSAW_START(CONFIG_SYS_VPC3_BASE) |
-		 CSAW_STOP(CONFIG_SYS_VPC3_BASE, CONFIG_SYS_VPC3_SIZE));
-	sync_law(&im->sysconf.lpcs1aw);
-
-	/*
-	 * Configure Flash Speed
-	 */
-	out_be32(&im->lpc.cs_cfg[0], CONFIG_SYS_CS0_CFG);
-
-	/*
-	 * Configure VPC3 Speed
-	 */
-	out_be32(&im->lpc.cs_cfg[1], CONFIG_SYS_CS1_CFG);
-
-	spridr = in_be32(&im->sysconf.spridr);
-	if (SVR_MJREV(spridr) >= 2)
-		out_be32(&im->lpc.altr, CONFIG_SYS_CS_ALETIMING);
 
 	/*
 	 * Enable clocks

@@ -64,32 +64,6 @@ int board_early_init_f(void)
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 
 	/*
-	 * Initialize Local Window for FLASH-Bank1 access (CS1)
-	 */
-	out_be32(&im->sysconf.lpcs1aw,
-		CSAW_START(CONFIG_SYS_FLASH1_BASE) |
-		CSAW_STOP(CONFIG_SYS_FLASH1_BASE, CONFIG_SYS_FLASH_SIZE)
-	);
-	out_be32(&im->lpc.cs_cfg[1], CONFIG_SYS_CS1_CFG);
-
-	/*
-	 * Local Window for MRAM access (CS2)
-	 */
-	out_be32(&im->sysconf.lpcs2aw,
-		CSAW_START(CONFIG_SYS_MRAM_BASE) |
-		CSAW_STOP(CONFIG_SYS_MRAM_BASE, CONFIG_SYS_MRAM_SIZE)
-	);
-	out_be32(&im->lpc.cs_cfg[2], CONFIG_SYS_CS2_CFG);
-
-	sync_law(&im->sysconf.lpcs2aw);
-
-	/*
-	 * Configure Flash Speed
-	 */
-	out_be32(&im->lpc.cs_cfg[0], CONFIG_SYS_CS0_CFG);
-	out_be32(&im->lpc.altr, CONFIG_SYS_CS_ALETIMING);
-
-	/*
 	 * Enable clocks
 	 */
 	out_be32(&im->clk.sccr[0], SCCR1_CLOCKS_EN);

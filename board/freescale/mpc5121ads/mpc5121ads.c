@@ -84,18 +84,6 @@ void mpc5121_nfc_select_chip(struct mtd_info *mtd, int chip)
 int board_early_init_f(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	u32 spridr;
-
-	/*
-	 * Initialize Local Window for the CPLD registers access (CS2 selects
-	 * the CPLD chip)
-	 */
-	out_be32(&im->sysconf.lpcs2aw,
-		CSAW_START(CONFIG_SYS_CPLD_BASE) |
-		CSAW_STOP(CONFIG_SYS_CPLD_BASE, CONFIG_SYS_CPLD_SIZE)
-	);
-	out_be32(&im->lpc.cs_cfg[2], CONFIG_SYS_CS2_CFG);
-	sync_law(&im->sysconf.lpcs2aw);
 
 	/*
 	 * Disable Boot NOR FLASH write protect - CPLD Reg 8 NOR FLASH Control
@@ -114,15 +102,6 @@ int board_early_init_f(void)
 		out_8((u8 *)(CONFIG_SYS_CPLD_BASE + 0x08), 0x32);
 	}
 #endif
-	/*
-	 * Configure Flash Speed
-	 */
-	out_be32(&im->lpc.cs_cfg[0], CONFIG_SYS_CS0_CFG);
-
-	spridr = in_be32(&im->sysconf.spridr);
-
-	if (SVR_MJREV (spridr) >= 2)
-		out_be32 (&im->lpc.altr, CONFIG_SYS_CS_ALETIMING);
 
 	/*
 	 * Enable clocks
