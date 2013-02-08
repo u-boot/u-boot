@@ -227,7 +227,9 @@ typedef struct clk512x {
 #define CLOCK_SCCR2_IIM_EN		0x00080000
 
 /* SCFR1 System Clock Frequency Register 1 */
+#ifndef SCFR1_IPS_DIV
 #define SCFR1_IPS_DIV		0x3
+#endif
 #define SCFR1_IPS_DIV_MASK	0x03800000
 #define SCFR1_IPS_DIV_SHIFT	23
 
