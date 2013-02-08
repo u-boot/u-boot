@@ -95,7 +95,7 @@ extern void mdm_init(void); /* defined in board.c */
  * Watch for 'delay' seconds for autoboot stop or autoboot delay string.
  * returns: 0 -  no key string, allow autoboot 1 - got key string, abort
  */
-#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
+#if defined(CONFIG_BOOTDELAY)
 # if defined(CONFIG_AUTOBOOT_KEYED)
 #ifndef CONFIG_MENU
 static inline
@@ -279,7 +279,7 @@ int abortboot(int bootdelay)
 	return abort;
 }
 # endif	/* CONFIG_AUTOBOOT_KEYED */
-#endif	/* CONFIG_BOOTDELAY >= 0  */
+#endif	/* CONFIG_BOOTDELAY */
 
 /*
  * Runs the given boot command securely.  Specifically:
@@ -295,8 +295,7 @@ int abortboot(int bootdelay)
  * printing the error message to console.
  */
 
-#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0) && \
-	defined(CONFIG_OF_CONTROL)
+#if defined(CONFIG_BOOTDELAY) && defined(CONFIG_OF_CONTROL)
 static void secure_boot_cmd(char *cmd)
 {
 	cmd_tbl_t *cmdtp;
@@ -358,11 +357,10 @@ void main_loop (void)
 	int rc = 1;
 	int flag;
 #endif
-#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0) && \
-		defined(CONFIG_OF_CONTROL)
+#if defined(CONFIG_BOOTDELAY) && defined(CONFIG_OF_CONTROL)
 	char *env;
 #endif
-#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
+#if defined(CONFIG_BOOTDELAY)
 	char *s;
 	int bootdelay;
 #endif
@@ -435,7 +433,7 @@ void main_loop (void)
 	update_tftp (0UL);
 #endif /* CONFIG_UPDATE_TFTP */
 
-#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
+#if defined(CONFIG_BOOTDELAY)
 	s = getenv ("bootdelay");
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
