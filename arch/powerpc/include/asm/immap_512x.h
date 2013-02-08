@@ -879,6 +879,19 @@ typedef struct iopin_t {
 void iopin_initialize(iopin_t *,int);
 
 /*
+ * support to adjust individual parts of the IO pin setup
+ */
+
+#define IO_PIN_OVER_EACH	(1 << 0) /* for compatibility */
+#define IO_PIN_OVER_FMUX	(1 << 1)
+#define IO_PIN_OVER_HOLD	(1 << 2)
+#define IO_PIN_OVER_PULL	(1 << 3)
+#define IO_PIN_OVER_STRIG	(1 << 4)
+#define IO_PIN_OVER_DRVSTR	(1 << 5)
+
+void iopin_initialize_bits(iopin_t *, int);
+
+/*
  * IIM
  */
 typedef struct iim512x {
