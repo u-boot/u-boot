@@ -242,6 +242,23 @@
 #define CONSOLE_FIFO_RX_SIZE	FIFOC_PSC3_RX_SIZE
 #define CONSOLE_FIFO_RX_ADDR	FIFOC_PSC3_RX_ADDR
 
+/*
+ * Clocks in use
+ */
+#define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
+			 CLOCK_SCCR1_LPC_EN |				\
+			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
+			 CLOCK_SCCR1_PSCFIFO_EN |			\
+			 CLOCK_SCCR1_DDR_EN |				\
+			 CLOCK_SCCR1_FEC_EN |				\
+			 CLOCK_SCCR1_NFC_EN |				\
+			 CLOCK_SCCR1_PCI_EN |				\
+			 CLOCK_SCCR1_TPR_EN)
+
+#define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |	\
+			 CLOCK_SCCR2_I2C_EN)
+
+
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER

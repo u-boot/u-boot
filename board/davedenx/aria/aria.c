@@ -35,39 +35,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Clocks in use */
-#define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
-			 CLOCK_SCCR1_LPC_EN |				\
-			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
-			 CLOCK_SCCR1_PSCFIFO_EN |			\
-			 CLOCK_SCCR1_DDR_EN |				\
-			 CLOCK_SCCR1_FEC_EN |				\
-			 CLOCK_SCCR1_NFC_EN |				\
-			 CLOCK_SCCR1_PATA_EN |				\
-			 CLOCK_SCCR1_PCI_EN |				\
-			 CLOCK_SCCR1_TPR_EN)
-
-#define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |		\
-			 CLOCK_SCCR2_SPDIF_EN |		\
-			 CLOCK_SCCR2_DIU_EN |		\
-			 CLOCK_SCCR2_I2C_EN)
-
-int board_early_init_f(void)
-{
-	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-
-	/*
-	 * Enable clocks
-	 */
-	out_be32(&im->clk.sccr[0], SCCR1_CLOCKS_EN);
-	out_be32(&im->clk.sccr[1], SCCR2_CLOCKS_EN);
-#if defined(CONFIG_IIM) || defined(CONFIG_CMD_FUSE)
-	setbits_be32(&im->clk.sccr[1], CLOCK_SCCR2_IIM_EN);
-#endif
-
-	return 0;
-}
-
 phys_size_t initdram (int board_type)
 {
 	return fixed_sdram(NULL, NULL, 0);

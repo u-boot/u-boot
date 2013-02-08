@@ -33,20 +33,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Clocks in use */
-#define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
-			 CLOCK_SCCR1_LPC_EN |				\
-			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
-			 CLOCK_SCCR1_PSCFIFO_EN |			\
-			 CLOCK_SCCR1_DDR_EN |				\
-			 CLOCK_SCCR1_FEC_EN |				\
-			 CLOCK_SCCR1_NFC_EN |				\
-			 CLOCK_SCCR1_PCI_EN |				\
-			 CLOCK_SCCR1_TPR_EN)
-
-#define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |	\
-			 CLOCK_SCCR2_I2C_EN)
-
 int eeprom_write_enable(unsigned dev_addr, int state)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
@@ -73,15 +59,6 @@ int board_early_init_f(void)
 	out_be32(&im->sysconf.lpbaw,
 		 CSAW_START(0xffb00000) | CSAW_STOP(0xffb00000, 0x00010000));
 	sync_law(&im->sysconf.lpbaw);
-
-	/*
-	 * Enable clocks
-	 */
-	out_be32(&im->clk.sccr[0], SCCR1_CLOCKS_EN);
-	out_be32(&im->clk.sccr[1], SCCR2_CLOCKS_EN);
-#if defined(CONFIG_IIM) || defined(CONFIG_CMD_FUSE)
-	setbits_be32(&im->clk.sccr[1], CLOCK_SCCR2_IIM_EN);
-#endif
 
 	/*
 	 * Configure MSCAN clocks
