@@ -500,7 +500,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 	int rc, i = 0;
 
 	ft_cpu_setup(blob, bd);
-	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
 	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
 #endif
