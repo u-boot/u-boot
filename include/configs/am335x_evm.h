@@ -75,6 +75,15 @@
 		"${optargs} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
+	"spiroot=/dev/mtdblock4 rw\0" \
+	"spirootfstype=jffs2\0" \
+	"spisrcaddr=0xe0000\0" \
+	"spiimgsize=0x362000\0" \
+	"spibusno=0\0" \
+	"spiargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${spiroot} " \
+		"rootfstype=${spirootfstype}\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
@@ -92,6 +101,11 @@
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} ${nandsrcaddr} ${nandimgsize}; " \
+		"bootm ${loadaddr}\0" \
+	"spiboot=echo Booting from spi ...; " \
+		"run spiargs; " \
+		"sf probe ${spibusno}:0; " \
+		"sf read ${loadaddr} ${spisrcaddr} ${spiimgsize}; " \
 		"bootm ${loadaddr}\0" \
 	"ramboot=echo Booting from ramdisk ...; " \
 		"run ramargs; " \
