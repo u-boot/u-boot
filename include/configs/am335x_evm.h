@@ -280,8 +280,7 @@
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x80000
 #define CONFIG_SPL_MUSB_NEW_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
@@ -371,6 +370,26 @@
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #endif
 
+/*
+ * Default to using SPI for environment, etc.  We have multiple copies
+ * of SPL as the ROM will check these locations.
+ * 0x0 - 0x20000 : First copy of SPL
+ * 0x20000 - 0x40000 : Second copy of SPL
+ * 0x40000 - 0x60000 : Third copy of SPL
+ * 0x60000 - 0x80000 : Fourth copy of SPL
+ * 0x80000 - 0xDF000 : U-Boot
+ * 0xDF000 - 0xE0000 : U-Boot Environment
+ * 0xE0000 - 0x442000 : Linux Kernel
+ * 0x442000 - 0x800000 : Userland
+ */
+#if defined(CONFIG_SPI_BOOT)
+# undef CONFIG_ENV_IS_NOWHERE
+# define CONFIG_ENV_IS_IN_SPI_FLASH
+# define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
+# define CONFIG_ENV_OFFSET		(892 << 10) /* 892 KiB in */
+# define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
+#endif /* SPI support */
+
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
 
@@ -403,10 +422,12 @@
 							/* CS0 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
 							   devices */
+#if !defined(CONFIG_SPI_BOOT)
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#endif
 #endif
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */
