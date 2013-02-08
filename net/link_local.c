@@ -206,6 +206,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 {
 	int source_ip_conflict;
 	int target_ip_conflict;
+	IPaddr_t null_ip = 0;
 
 	if (state == DISABLED)
 		return;
@@ -267,10 +268,18 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 	) {
 		source_ip_conflict = 1;
 	}
-	if (arp->ar_op == htons(ARPOP_REQUEST)
-	 && memcmp(&arp->ar_tpa, &ip, ARP_PLEN) == 0
-	 && memcmp(&arp->ar_tha, NetOurEther, ARP_HLEN) != 0
-	) {
+
+	/*
+	 * According to RFC 3927, section 2.2.1:
+	 * Check if packet is an ARP probe by checking for a null source IP
+	 * then check that target IP is equal to ours and source hw addr
+	 * is not equal to ours. This condition should cause a conflict only
+	 * during probe.
+	 */
+	if (arp->ar_op == htons(ARPOP_REQUEST) &&
+	    memcmp(&arp->ar_spa, &null_ip, ARP_PLEN) == 0 &&
+	    memcmp(&arp->ar_tpa, &ip, ARP_PLEN) == 0 &&
+	    memcmp(&arp->ar_sha, NetOurEther, ARP_HLEN) != 0) {
 		target_ip_conflict = 1;
 	}
 
