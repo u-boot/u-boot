@@ -46,6 +46,7 @@ struct i2c_bus {
 	struct i2c_control	*control;
 	struct i2c_ctlr		*regs;
 	int			is_dvc;	/* DVC type, rather than I2C */
+	int			is_scs;	/* single clock source (T114+) */
 	int			inited;	/* bus is inited */
 };
 
@@ -88,7 +89,28 @@ static void i2c_init_controller(struct i2c_bus *i2c_bus)
 	 * 16 to get the right frequency.
 	 */
 	clock_start_periph_pll(i2c_bus->periph_id, CLOCK_ID_PERIPH,
-			       i2c_bus->speed * 2 * 8);
+		i2c_bus->speed * 2 * 8);
+
+	if (i2c_bus->is_scs) {
+		/*
+		 * T114 I2C went to a single clock source for standard/fast and
+		 * HS clock speeds. The new clock rate setting calculation is:
+		 *  SCL = CLK_SOURCE.I2C /
+		 *   (CLK_MULT_STD_FAST_MODE * (I2C_CLK_DIV_STD_FAST_MODE+1) *
+		 *   I2C FREQUENCY DIVISOR) as per the T114 TRM (sec 30.3.1).
+		 *
+		 * NOTE: We do this here, after the initial clock/pll start,
+		 * because if we read the clk_div reg before the controller
+		 * is running, we hang, and we need it for the new calc.
+		 */
+		int clk_div_stdfst_mode = readl(&i2c_bus->regs->clk_div) >> 16;
+		debug("%s: CLK_DIV_STD_FAST_MODE setting = %d\n", __func__,
+			clk_div_stdfst_mode);
+
+		clock_start_periph_pll(i2c_bus->periph_id, CLOCK_ID_PERIPH,
+			CLK_MULT_STD_FAST_MODE * (clk_div_stdfst_mode + 1) *
+			i2c_bus->speed * 2);
+	}
 
 	/* Reset I2C controller. */
 	i2c_reset_controller(i2c_bus);
@@ -352,10 +374,11 @@ static int i2c_get_config(const void *blob, int node, struct i2c_bus *i2c_bus)
  * @param node_list	list of nodes to process (any <=0 are ignored)
  * @param count		number of nodes to process
  * @param is_dvc	1 if these are DVC ports, 0 if standard I2C
+ * @param is_scs	1 if this HW uses a single clock source (T114+)
  * @return 0 if ok, -1 on error
  */
 static int process_nodes(const void *blob, int node_list[], int count,
-			 int is_dvc)
+			 int is_dvc, int is_scs)
 {
 	struct i2c_bus *i2c_bus;
 	int i;
@@ -374,6 +397,8 @@ static int process_nodes(const void *blob, int node_list[], int count,
 			printf("i2c_init_board: failed to decode bus %d\n", i);
 			return -1;
 		}
+
+		i2c_bus->is_scs = is_scs;
 
 		i2c_bus->is_dvc = is_dvc;
 		if (is_dvc) {
@@ -403,18 +428,25 @@ void i2c_init_board(void)
 	const void *blob = gd->fdt_blob;
 	int count;
 
-	/* First get the normal i2c ports */
+	/* First check for newer (T114+) I2C ports */
+	count = fdtdec_find_aliases_for_id(blob, "i2c",
+			COMPAT_NVIDIA_TEGRA114_I2C, node_list,
+			TEGRA_I2C_NUM_CONTROLLERS);
+	if (process_nodes(blob, node_list, count, 0, 1))
+		return;
+
+	/* Now get the older (T20/T30) normal I2C ports */
 	count = fdtdec_find_aliases_for_id(blob, "i2c",
 			COMPAT_NVIDIA_TEGRA20_I2C, node_list,
 			TEGRA_I2C_NUM_CONTROLLERS);
-	if (process_nodes(blob, node_list, count, 0))
+	if (process_nodes(blob, node_list, count, 0, 0))
 		return;
 
 	/* Now look for dvc ports */
 	count = fdtdec_add_aliases_for_id(blob, "i2c",
 			COMPAT_NVIDIA_TEGRA20_DVC, node_list,
 			TEGRA_I2C_NUM_CONTROLLERS);
-	if (process_nodes(blob, node_list, count, 1))
+	if (process_nodes(blob, node_list, count, 1, 0))
 		return;
 }
 
