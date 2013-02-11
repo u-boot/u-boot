@@ -61,6 +61,12 @@
 						CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 
+/* Enable the PL to be downloaded */
+#define CONFIG_FPGA
+#define CONFIG_FPGA_XILINX
+#define CONFIG_FPGA_ZYNQPL
+#define CONFIG_CMD_FPGA
+
 /* Get common PetaLinux board setup */
 #include <configs/petalinux-auto-board.h>
 
