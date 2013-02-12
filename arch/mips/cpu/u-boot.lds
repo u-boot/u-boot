@@ -52,10 +52,10 @@ SECTIONS
 	_gp = ALIGN(16) + 0x7ff0;
 
 	.got : {
-		__got_start = .;
 		*(.got)
-		__got_end = .;
 	}
+
+	num_got_entries = SIZEOF(.got) >> PTR_COUNT_SHIFT;
 
 	. = ALIGN(4);
 	.sdata : {
@@ -68,8 +68,6 @@ SECTIONS
 	}
 
 	uboot_end_data = .;
-
-	num_got_entries = (__got_end - __got_start) >> PTR_COUNT_SHIFT;
 
 	. = ALIGN(4);
 	.sbss : {
