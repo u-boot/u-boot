@@ -473,6 +473,16 @@ const struct ctrl_ioregs ioregs_omap5432_es1 = {
 	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
 };
 
+const struct ctrl_ioregs ioregs_omap5432_es2 = {
+	.ctrl_ddrch = DDR_IO_I_40OHM_SR_FAST_WD_DQ_NO_PULL_DQS_NO_PULL_ES2,
+	.ctrl_lpddr2ch = 0x0,
+	.ctrl_ddr3ch = DDR_IO_I_40OHM_SR_SLOWEST_WD_DQ_NO_PULL_DQS_NO_PULL_ES2,
+	.ctrl_ddrio_0 = DDR_IO_0_VREF_CELLS_DDR3_VALUE_ES2,
+	.ctrl_ddrio_1 = DDR_IO_1_VREF_CELLS_DDR3_VALUE_ES2,
+	.ctrl_ddrio_2 = DDR_IO_2_VREF_CELLS_DDR3_VALUE_ES2,
+	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
+};
+
 void hw_data_init(void)
 {
 	u32 omap_rev = omap_revision();
@@ -506,10 +516,14 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 
 	switch (omap_rev) {
 	case OMAP5430_ES1_0:
+	case OMAP5430_ES2_0:
 		*regs = &ioregs_omap5430;
 	break;
 	case OMAP5432_ES1_0:
 		*regs = &ioregs_omap5432_es1;
+	break;
+	case OMAP5432_ES2_0:
+		*regs = &ioregs_omap5432_es2;
 	break;
 
 	default:

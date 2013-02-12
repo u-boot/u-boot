@@ -67,6 +67,25 @@ const struct emif_regs emif_regs_532_mhz_2cs = {
 	.emif_ddr_ext_phy_ctrl_5	= 0x04010040
 };
 
+const struct emif_regs emif_regs_532_mhz_2cs_es2 = {
+	.sdram_config_init		= 0x80800EBA,
+	.sdram_config			= 0x808022BA,
+	.ref_ctrl			= 0x0000081A,
+	.sdram_tim1			= 0x772F6873,
+	.sdram_tim2			= 0x304a129a,
+	.sdram_tim3			= 0x02f7e45f,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x100b3215,
+	.temp_alert_config		= 0x08000a05,
+	.emif_ddr_phy_ctlr_1_init	= 0x0E30400d,
+	.emif_ddr_phy_ctlr_1		= 0x0E30400d,
+	.emif_ddr_ext_phy_ctrl_1	= 0x04020080,
+	.emif_ddr_ext_phy_ctrl_2	= 0x28C518A3,
+	.emif_ddr_ext_phy_ctrl_3	= 0x518A3146,
+	.emif_ddr_ext_phy_ctrl_4	= 0x0014628C,
+	.emif_ddr_ext_phy_ctrl_5	= 0xC330CC33,
+};
+
 const struct emif_regs emif_regs_266_mhz_2cs = {
 	.sdram_config_init		= 0x80800EBA,
 	.sdram_config			= 0x808022BA,
@@ -109,6 +128,29 @@ const struct emif_regs emif_regs_ddr3_532_mhz_1cs = {
 	.emif_rd_wr_exec_thresh		= 0x00000305
 };
 
+const struct emif_regs emif_regs_ddr3_532_mhz_1cs_es2 = {
+	.sdram_config_init              = 0x61851B32,
+	.sdram_config                   = 0x61851B32,
+	.ref_ctrl                       = 0x00001035,
+	.sdram_tim1                     = 0xCCCF36B3,
+	.sdram_tim2                     = 0x308F7FDA,
+	.sdram_tim3                     = 0x027F88A8,
+	.read_idle_ctrl                 = 0x00050000,
+	.zq_config                      = 0x1007190B,
+	.temp_alert_config              = 0x00000000,
+	.emif_ddr_phy_ctlr_1_init       = 0x0030400A,
+	.emif_ddr_phy_ctlr_1            = 0x0034400A,
+	.emif_ddr_ext_phy_ctrl_1        = 0x04040100,
+	.emif_ddr_ext_phy_ctrl_2        = 0x00000000,
+	.emif_ddr_ext_phy_ctrl_3        = 0x00000000,
+	.emif_ddr_ext_phy_ctrl_4        = 0x00000000,
+	.emif_ddr_ext_phy_ctrl_5        = 0x4350D435,
+	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl         = 0x80000000,
+	.emif_rd_wr_lvl_ctl             = 0x00000000,
+	.emif_rd_wr_exec_thresh         = 0x40000305
+};
+
 const struct dmm_lisa_map_regs lisa_map_4G_x_2_x_2 = {
 	.dmm_lisa_map_0 = 0x0,
 	.dmm_lisa_map_1 = 0x0,
@@ -125,8 +167,12 @@ static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 	case OMAP5432_ES1_0:
 		*regs = &emif_regs_ddr3_532_mhz_1cs;
 		break;
+	case OMAP5430_ES2_0:
+		*regs = &emif_regs_532_mhz_2cs_es2;
+		break;
+	case OMAP5432_ES2_0:
 	default:
-		*regs = &emif_regs_ddr3_532_mhz_1cs;
+		*regs = &emif_regs_ddr3_532_mhz_1cs_es2;
 	}
 }
 
@@ -210,6 +256,28 @@ const u32 ddr3_ext_phy_ctrl_const_base_es1[EMIF_EXT_PHY_CTRL_CONST_REG] = {
 	0x00000057
 };
 
+const u32 ddr3_ext_phy_ctrl_const_base_es2[EMIF_EXT_PHY_CTRL_CONST_REG] = {
+	0x50D4350D,
+	0x00000D43,
+	0x04010040,
+	0x01004010,
+	0x00001004,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x80080080,
+	0x00800800,
+	0x08102040,
+	0x00000002,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000057
+};
+
 const struct lpddr2_mr_regs mr_regs = {
 	.mr1	= MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8,
 	.mr2	= 0x6,
@@ -222,13 +290,16 @@ static void emif_get_ext_phy_ctrl_const_regs(const u32 **regs)
 {
 	switch (omap_revision()) {
 	case OMAP5430_ES1_0:
+	case OMAP5430_ES2_0:
 		*regs = ext_phy_ctrl_const_base;
 		break;
 	case OMAP5432_ES1_0:
 		*regs = ddr3_ext_phy_ctrl_const_base_es1;
 		break;
+	case OMAP5432_ES2_0:
 	default:
-		*regs = ddr3_ext_phy_ctrl_const_base_es1;
+		*regs = ddr3_ext_phy_ctrl_const_base_es2;
+
 	}
 }
 
