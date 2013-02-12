@@ -586,6 +586,7 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 		*regs = &ioregs_omap5432_es1;
 	break;
 	case OMAP5432_ES2_0:
+	case DRA752_ES1_0:
 		*regs = &ioregs_omap5432_es2;
 	break;
 

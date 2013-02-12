@@ -1191,7 +1191,7 @@ void dmm_init(u32 base)
 	writel(lisa_map_regs->dmm_lisa_map_0,
 		&hw_lisa_map_regs->dmm_lisa_map_0);
 
-	if (omap_revision() >= OMAP4460_ES1_0) {
+	if (lisa_map_regs->is_ma_present) {
 		hw_lisa_map_regs =
 		    (struct dmm_lisa_map_regs *)MA_BASE;
 

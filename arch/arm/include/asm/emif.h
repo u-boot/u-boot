@@ -697,6 +697,7 @@ struct dmm_lisa_map_regs {
 	u32 dmm_lisa_map_1;
 	u32 dmm_lisa_map_2;
 	u32 dmm_lisa_map_3;
+	u8 is_ma_present;
 };
 
 #define CS0	0

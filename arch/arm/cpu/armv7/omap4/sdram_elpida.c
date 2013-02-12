@@ -94,14 +94,24 @@ const struct dmm_lisa_map_regs lisa_map_2G_x_1_x_2 = {
 	.dmm_lisa_map_0 = 0xFF020100,
 	.dmm_lisa_map_1 = 0,
 	.dmm_lisa_map_2 = 0,
-	.dmm_lisa_map_3 = 0x80540300
+	.dmm_lisa_map_3 = 0x80540300,
+	.is_ma_present	= 0x0
 };
 
 const struct dmm_lisa_map_regs lisa_map_2G_x_2_x_2 = {
 	.dmm_lisa_map_0 = 0xFF020100,
 	.dmm_lisa_map_1 = 0,
 	.dmm_lisa_map_2 = 0,
-	.dmm_lisa_map_3 = 0x80640300
+	.dmm_lisa_map_3 = 0x80640300,
+	.is_ma_present	= 0x0
+};
+
+const struct dmm_lisa_map_regs ma_lisa_map_2G_x_2_x_2 = {
+	.dmm_lisa_map_0 = 0xFF020100,
+	.dmm_lisa_map_1 = 0,
+	.dmm_lisa_map_2 = 0,
+	.dmm_lisa_map_3 = 0x80640300,
+	.is_ma_present	= 0x1
 };
 
 static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
@@ -126,8 +136,10 @@ static void emif_get_dmm_regs_sdp(const struct dmm_lisa_map_regs
 
 	if (omap_rev == OMAP4430_ES1_0)
 		*dmm_lisa_regs = &lisa_map_2G_x_1_x_2;
-	else
+	else if (omap_rev < OMAP4460_ES1_0)
 		*dmm_lisa_regs = &lisa_map_2G_x_2_x_2;
+	else
+		*dmm_lisa_regs = &ma_lisa_map_2G_x_2_x_2;
 }
 
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
