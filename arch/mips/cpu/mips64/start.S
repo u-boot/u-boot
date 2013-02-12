@@ -220,17 +220,19 @@ in_ram:
 	blt	t2, t3, 1b
 	 daddi	t8, 8
 
-	/* Clear BSS */
-	ld	t1, -24(t0)		# t1 <-- uboot_end_data
-	ld	t2, -16(t0)		# t2 <-- uboot_end
-	dadd	t1, s1			# adjust pointers
-	dadd	t2, s1
+	/*
+	 * Clear BSS
+	 *
+	 * GOT is now relocated. Thus __bss_start and __bss_end can be
+	 * accessed directly via $gp.
+	 */
+	dla	t1, __bss_start		# t1 <-- __bss_start
+	dla	t2, __bss_end		# t2 <-- __bss_end
 
-	dsub	t1, 8
 1:
-	daddi	t1, 8
-	bltl	t1, t2, 1b
-	 sd	zero, 0(t1)
+	sd	zero, 0(t1)
+	blt	t1, t2, 1b
+	 daddi	t1, 8
 
 	move	a0, s0			# a0 <-- gd
 	dla	t9, board_init_r
