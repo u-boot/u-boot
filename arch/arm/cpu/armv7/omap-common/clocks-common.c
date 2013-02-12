@@ -55,11 +55,12 @@ const u32 sys_clk_array[8] = {
 	26000000,	       /* 26 MHz */
 	27000000,	       /* 27 MHz */
 	38400000,	       /* 38.4 MHz */
+	20000000,		/* 20 MHz */
 };
 
 static inline u32 __get_sys_clk_index(void)
 {
-	u32 ind;
+	s8 ind;
 	/*
 	 * For ES1 the ROM code calibration of sys clock is not reliable
 	 * due to hw issue. So, use hard-coded value. If this value is not
@@ -73,6 +74,13 @@ static inline u32 __get_sys_clk_index(void)
 		/* SYS_CLKSEL - 1 to match the dpll param array indices */
 		ind = (readl((*prcm)->cm_sys_clksel) &
 			CM_SYS_CLKSEL_SYS_CLKSEL_MASK) - 1;
+		/*
+		 * SYS_CLKSEL value for 20MHz is 0. This is introduced newly
+		 * in DRA7XX socs. SYS_CLKSEL -1 will be greater than
+		 * NUM_SYS_CLK. So considering the last 3 bits as the index
+		 * for the dpll param array.
+		 */
+		ind &= CM_SYS_CLKSEL_SYS_CLKSEL_MASK;
 	}
 	return ind;
 }
@@ -201,11 +209,24 @@ const struct dpll_params *get_abe_dpll_params(struct dplls const *dpll_data)
 #endif
 }
 
+static const struct dpll_params *get_ddr_dpll_params
+			(struct dplls const *dpll_data)
+{
+	u32 sysclk_ind = get_sys_clk_index();
+
+	if (!dpll_data->ddr)
+		return NULL;
+	return &dpll_data->ddr[sysclk_ind];
+}
+
 static void do_setup_dpll(u32 const base, const struct dpll_params *params,
 				u8 lock, char *dpll)
 {
 	u32 temp, M, N;
 	struct dpll_regs *const dpll_regs = (struct dpll_regs *)base;
+
+	if (!params)
+		return;
 
 	temp = readl(&dpll_regs->cm_clksel_dpll);
 
@@ -397,6 +418,9 @@ static void setup_dplls(void)
 #ifdef CONFIG_USB_EHCI_OMAP
 	setup_usb_dpll();
 #endif
+	params = get_ddr_dpll_params(*dplls_data);
+	do_setup_dpll((*prcm)->cm_clkmode_dpll_ddrphy,
+		      params, DPLL_LOCK, "ddr");
 }
 
 #ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL

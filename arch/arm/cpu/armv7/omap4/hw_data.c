@@ -182,7 +182,8 @@ struct dplls omap4430_dplls_es1 = {
 #else
 	.abe = &abe_dpll_params_32k_196608khz,
 #endif
-	.usb = usb_dpll_params_1920mhz
+	.usb = usb_dpll_params_1920mhz,
+	.ddr = NULL
 };
 
 struct dplls omap4430_dplls = {
@@ -195,7 +196,8 @@ struct dplls omap4430_dplls = {
 #else
 	.abe = &abe_dpll_params_32k_196608khz,
 #endif
-	.usb = usb_dpll_params_1920mhz
+	.usb = usb_dpll_params_1920mhz,
+	.ddr = NULL
 };
 
 struct dplls omap4460_dplls = {
@@ -208,7 +210,8 @@ struct dplls omap4460_dplls = {
 #else
 	.abe = &abe_dpll_params_32k_196608khz,
 #endif
-	.usb = usb_dpll_params_1920mhz
+	.usb = usb_dpll_params_1920mhz,
+	.ddr = NULL
 };
 
 struct pmic_data twl6030_4430es1 = {

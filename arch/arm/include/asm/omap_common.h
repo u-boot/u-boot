@@ -27,7 +27,7 @@
 
 #include <common.h>
 
-#define NUM_SYS_CLKS	7
+#define NUM_SYS_CLKS	8
 
 struct prcm_regs {
 	/* cm1.ckgen */
@@ -473,6 +473,7 @@ struct dplls {
 	const struct dpll_params *abe;
 	const struct dpll_params *iva;
 	const struct dpll_params *usb;
+	const struct dpll_params *ddr;
 };
 
 struct pmic_data {

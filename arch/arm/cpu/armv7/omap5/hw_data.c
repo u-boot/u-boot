@@ -98,6 +98,17 @@ static const struct dpll_params mpu_dpll_params_499mhz[NUM_SYS_CLKS] = {
 	{493, 37, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
+static const struct dpll_params mpu_dpll_params_1ghz[NUM_SYS_CLKS] = {
+	{250, 2, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{119, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
+	{625, 11, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{500, 12, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{625, 23, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 38.4 MHz */
+	{50, 0, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}		/* 20 MHz   */
+};
+
 static const struct dpll_params
 			core_dpll_params_2128mhz_ddr532[NUM_SYS_CLKS] = {
 	{266, 2, 2, 5, 8, 4, 62, 5, -1, 5, 7, -1},		/* 12 MHz   */
@@ -118,6 +129,18 @@ static const struct dpll_params
 	{368, 8, 2, 5, 8, 4, 62, 63, 6, 5, 7, 6},		/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
 	{277, 9, 2, 5, 8, 4, 62, 63, 6, 5, 7, 6}		/* 38.4 MHz */
+};
+
+static const struct dpll_params
+		core_dpll_params_2128mhz_ddr532_dra7xx[NUM_SYS_CLKS] = {
+	{266, 2, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{443, 6, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 16.8 MHz */
+	{277, 4, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 19.2 MHz */
+	{368, 8, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{277, 9, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 38.4 MHz */
+	{266, 4, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6}		/* 20 MHz   */
 };
 
 static const struct dpll_params
@@ -162,6 +185,17 @@ static const struct dpll_params per_dpll_params_768mhz_es2[NUM_SYS_CLKS] = {
 	{10, 0, 4, 3, 3, 4, -1, 2, -1, -1, -1, -1}		/* 38.4 MHz */
 };
 
+static const struct dpll_params per_dpll_params_768mhz_dra7xx[NUM_SYS_CLKS] = {
+	{32, 0, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{160, 6, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 16.8 MHz */
+	{20, 0, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 19.2 MHz */
+	{192, 12, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{10, 0, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 38.4 MHz */
+	{96, 4, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1}		/* 20 MHz   */
+};
+
 static const struct dpll_params iva_dpll_params_2330mhz[NUM_SYS_CLKS] = {
 	{1165, 11, -1, -1, 5, 6, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
@@ -196,7 +230,19 @@ static const struct dpll_params usb_dpll_params_1920mhz[NUM_SYS_CLKS] = {
 	{400, 7, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
 	{480, 12, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{400, 15, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
+	{400, 15, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 38.4 MHz */
+	{48, 0, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1}		/* 20 MHz   */
+};
+
+static const struct dpll_params ddr_dpll_params_1066mhz[NUM_SYS_CLKS] = {
+	{533, 11, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{222, 6, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{111, 3, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 19.2 MHz */
+	{41, 1, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{347, 24, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 38.4 MHz */
+	{533, 19, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1}		/* 20 MHz   */
 };
 
 struct dplls omap5_dplls_es1 = {
@@ -209,7 +255,8 @@ struct dplls omap5_dplls_es1 = {
 #else
 	.abe = &abe_dpll_params_32k_196608khz,
 #endif
-	.usb = usb_dpll_params_1920mhz
+	.usb = usb_dpll_params_1920mhz,
+	.ddr = NULL
 };
 
 struct dplls omap5_dplls_es2 = {
@@ -222,7 +269,16 @@ struct dplls omap5_dplls_es2 = {
 #else
 	.abe = &abe_dpll_params_32k_196608khz,
 #endif
-	.usb = usb_dpll_params_1920mhz
+	.usb = usb_dpll_params_1920mhz,
+	.ddr = NULL
+};
+
+struct dplls dra7xx_dplls = {
+	.mpu = mpu_dpll_params_1ghz,
+	.core = core_dpll_params_2128mhz_ddr532_dra7xx,
+	.per = per_dpll_params_768mhz_dra7xx,
+	.usb = usb_dpll_params_1920mhz,
+	.ddr = ddr_dpll_params_1066mhz,
 };
 
 struct pmic_data palmas = {
@@ -505,6 +561,8 @@ void hw_data_init(void)
 
 	case DRA752_ES1_0:
 	*prcm = &dra7xx_prcm;
+	*dplls_data = &dra7xx_dplls;
+	*omap_vcores = &omap5430_volts_es2;
 	break;
 
 	default:
