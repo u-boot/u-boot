@@ -155,4 +155,36 @@ enum {
 	EN_LDO = (0x3 << 6),
 };
 
+/* Buck1 1 volt value */
+#define MAX77686_BUCK1OUT_1V	0x5
+#define MAX77686_BUCK1CTRL_EN	(3 << 0)
+/* Buck2 1.3 volt value */
+#define MAX77686_BUCK2DVS1_1_3V	0x38
+#define MAX77686_BUCK2CTRL_ON	(1 << 4)
+/* Buck3 1.0125 volt value */
+#define MAX77686_BUCK3DVS1_1_0125V	0x21
+#define MAX77686_BUCK3CTRL_ON	(1 << 4)
+/* Buck4 1.2 volt value */
+#define MAX77686_BUCK4DVS1_1_2V	0x30
+#define MAX77686_BUCK4CTRL_ON	(1 << 4)
+/* LDO2 1.5 volt value */
+#define MAX77686_LD02CTRL1_1_5V	0x1c
+/* LDO3 1.8 volt value */
+#define MAX77686_LD03CTRL1_1_8V	0x14
+/* LDO5 1.8 volt value */
+#define MAX77686_LD05CTRL1_1_8V	0x14
+/* LDO10 1.8 volt value */
+#define MAX77686_LD10CTRL1_1_8V	0x14
+/*
+ * MAX77686_REG_PMIC_32KHZ set to 32KH CP
+ * output is activated
+ */
+#define MAX77686_32KHCP_EN	(1 << 1)
+/*
+ * MAX77686_REG_PMIC_BBAT set to
+ * Back up batery charger on and
+ * limit voltage setting to 3.5v
+ */
+#define MAX77686_BBCHOSTEN	(1 << 0)
+#define MAX77686_BBCVS_3_5V	(3 << 3)
 #endif /* __MAX77686_PMIC_H_ */
