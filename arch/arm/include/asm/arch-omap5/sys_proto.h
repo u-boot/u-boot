@@ -25,8 +25,12 @@
 #include <asm/io.h>
 #include <asm/arch/clocks.h>
 #include <asm/omap_common.h>
-#include <asm/arch/mux_omap5.h>
 #include <asm/arch/clocks.h>
+
+struct pad_conf_entry {
+	u32 offset;
+	u32 val;
+};
 
 struct omap_sysinfo {
 	char *board_string;
