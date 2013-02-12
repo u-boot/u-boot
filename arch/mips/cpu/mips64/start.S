@@ -52,40 +52,40 @@
 	.globl _start
 	.text
 _start:
-	.org 0x000
+	/* U-boot entry point */
 	b	reset
 	 nop
-	.org 0x080
-	b	romReserved
-	 nop
-	.org 0x100
-	b	romReserved
-	 nop
-	.org 0x180
-	b	romReserved
-	 nop
+
 	.org 0x200
-	b	romReserved
-	 nop
-	.org 0x280
-	b	romReserved
-	 nop
-	.org 0x300
-	b	romReserved
-	 nop
-	.org 0x380
-	b	romReserved
-	 nop
-	.org 0x480
-	b	romReserved
+	/* TLB refill, 32 bit task */
+1:	b	1b
 	 nop
 
-	/*
-	 * We hope there are no more reserved vectors!
-	 * 128 * 8 == 1024 == 0x400
-	 * so this is address R_VEC+0x400 == 0xbfc00400
-	 */
-	.org 0x500
+	.org 0x280
+	/* XTLB refill, 64 bit task */
+1:	b	1b
+	 nop
+
+	.org 0x300
+	/* Cache error exception */
+1:	b	1b
+	 nop
+
+	.org 0x380
+	/* General exception */
+1:	b	1b
+	 nop
+
+	.org 0x400
+	/* Catch interrupt exceptions */
+1:	b	1b
+	 nop
+
+	.org 0x480
+	/* EJTAG debug exception */
+1:	b	1b
+	 nop
+
 	.align 4
 reset:
 
@@ -238,8 +238,3 @@ in_ram:
 	 move	a1, s2
 
 	.end	relocate_code
-
-	/* Exception handlers */
-romReserved:
-	b	romReserved
-	 nop
