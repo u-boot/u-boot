@@ -8,4 +8,16 @@
 extern ulong uboot_end_data;
 extern ulong uboot_end;
 
+static inline unsigned long bss_start(void)
+{
+	extern ulong __bss_start;
+	return (unsigned long) &__bss_start;
+}
+
+static inline unsigned long bss_end(void)
+{
+	extern ulong __bss_end;
+	return (unsigned long) &__bss_end;
+}
+
 extern int incaip_set_cpuclk(void);

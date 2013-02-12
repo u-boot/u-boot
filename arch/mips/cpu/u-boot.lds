@@ -70,13 +70,14 @@ SECTIONS
 	uboot_end_data = .;
 
 	. = ALIGN(4);
-	.sbss : {
-		*(.sbss*)
+	.bss : {
+		__bss_start = .;
+		*(.sbss.*)
+		*(.bss.*)
+		*(COMMON)
+		. = ALIGN(4);
+		__bss_end = .;
 	}
 
-	.bss : {
-		*(.bss*)
-		. = ALIGN(4);
-	}
 	uboot_end = .;
 }
