@@ -73,6 +73,11 @@ static inline int board_is_idk(void)
 	return !strncmp(header.config, "SKU#02", 6);
 }
 
+static int board_is_gp_evm(void)
+{
+	return !strncmp("A33515BB", header.name, 8);
+}
+
 int board_is_evm_15_or_later(void)
 {
 	return (!strncmp("A33515BB", header.name, 8) &&
@@ -466,6 +471,28 @@ int board_eth_init(bd_t *bis)
 		printf("Error %d registering CPSW switch\n", rv);
 	else
 		n += rv;
+
+	/*
+	 *
+	 * CPSW RGMII Internal Delay Mode is not supported in all PVT
+	 * operating points.  So we must set the TX clock delay feature
+	 * in the AR8051 PHY.  Since we only support a single ethernet
+	 * device in U-Boot, we only do this for the first instance.
+	 */
+#define AR8051_PHY_DEBUG_ADDR_REG	0x1d
+#define AR8051_PHY_DEBUG_DATA_REG	0x1e
+#define AR8051_DEBUG_RGMII_CLK_DLY_REG	0x5
+#define AR8051_RGMII_TX_CLK_DLY		0x100
+
+	if (board_is_evm_sk() || board_is_gp_evm()) {
+		const char *devname;
+		devname = miiphy_get_current_dev();
+
+		miiphy_write(devname, 0x0, AR8051_PHY_DEBUG_ADDR_REG,
+				AR8051_DEBUG_RGMII_CLK_DLY_REG);
+		miiphy_write(devname, 0x0, AR8051_PHY_DEBUG_DATA_REG,
+				AR8051_RGMII_TX_CLK_DLY);
+	}
 #endif
 try_usbether:
 #if defined(CONFIG_USB_ETHER) && !defined(CONFIG_SPL_BUILD)
