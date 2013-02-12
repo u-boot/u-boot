@@ -67,8 +67,6 @@ SECTIONS
 		#include <u-boot.lst>
 	}
 
-	uboot_end_data = .;
-
 	. = ALIGN(4);
 	__image_copy_end = .;
 
@@ -80,6 +78,4 @@ SECTIONS
 		. = ALIGN(4);
 		__bss_end = .;
 	}
-
-	uboot_end = .;
 }
