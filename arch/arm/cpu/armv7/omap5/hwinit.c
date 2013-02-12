@@ -204,17 +204,22 @@ void init_omap_revision(void)
 	 */
 	unsigned int rev = cortex_rev();
 
-	switch (rev) {
-	case MIDR_CORTEX_A15_R0P0:
-		switch (readl(CONTROL_ID_CODE)) {
-		case OMAP5430_CONTROL_ID_CODE_ES1_0:
-			*omap_si_rev = OMAP5430_ES1_0;
-			break;
-		case OMAP5432_CONTROL_ID_CODE_ES1_0:
-		default:
-			*omap_si_rev = OMAP5432_ES1_0;
-			break;
-		}
+	switch (readl(CONTROL_ID_CODE)) {
+	case OMAP5430_CONTROL_ID_CODE_ES1_0:
+		*omap_si_rev = OMAP5430_ES1_0;
+		if (rev == MIDR_CORTEX_A15_R2P2)
+			*omap_si_rev = OMAP5430_ES2_0;
+		break;
+	case OMAP5432_CONTROL_ID_CODE_ES1_0:
+		*omap_si_rev = OMAP5432_ES1_0;
+		if (rev == MIDR_CORTEX_A15_R2P2)
+			*omap_si_rev = OMAP5432_ES2_0;
+		break;
+	case OMAP5430_CONTROL_ID_CODE_ES2_0:
+		*omap_si_rev = OMAP5430_ES2_0;
+		break;
+	case OMAP5432_CONTROL_ID_CODE_ES2_0:
+		*omap_si_rev = OMAP5432_ES2_0;
 		break;
 	default:
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;

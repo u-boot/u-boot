@@ -33,6 +33,7 @@
 
 /* Cortex-A15 revisions */
 #define MIDR_CORTEX_A15_R0P0	0x410FC0F0
+#define MIDR_CORTEX_A15_R2P2	0x412FC0F2
 
 /* CCSIDR */
 #define CCSIDR_LINE_SIZE_OFFSET		0
