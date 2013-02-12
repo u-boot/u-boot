@@ -47,14 +47,6 @@
 	.set	pop
 	.endm
 
-	.macro	setup_c0_status_reset
-#ifdef CONFIG_64BIT
-	setup_c0_status ST0_KX 0
-#else
-	setup_c0_status 0 0
-#endif
-	.endm
-
 #define RVECENT(f,n) \
    b f; nop
 #define XVECENT(f,bev) \
@@ -222,7 +214,7 @@ reset:
 	/* WP(Watch Pending), SW0/1 should be cleared */
 	mtc0	zero, CP0_CAUSE
 
-	setup_c0_status_reset
+	setup_c0_status 0 0
 
 	/* Init Timer */
 	mtc0	zero, CP0_COUNT
