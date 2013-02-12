@@ -397,9 +397,6 @@
 #ifndef CONFIG_ZYNQ
 #define CONFIG_CMD_IRQ
 #endif
-#ifdef CONFIG_MICROBLAZE
-#define CONFIG_CMD_MFSL
-#endif
 #define CONFIG_CMD_ECHO
 
 /* #define CONFIG_CMD_ROMFS */
