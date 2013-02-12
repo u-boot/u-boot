@@ -550,6 +550,7 @@ void hw_data_init(void)
 	*prcm = &omap5_es1_prcm;
 	*dplls_data = &omap5_dplls_es1;
 	*omap_vcores = &omap5430_volts;
+	*ctrl = &omap5_ctrl;
 	break;
 
 	case OMAP5430_ES2_0:
@@ -557,19 +558,19 @@ void hw_data_init(void)
 	*prcm = &omap5_es2_prcm;
 	*dplls_data = &omap5_dplls_es2;
 	*omap_vcores = &omap5430_volts_es2;
+	*ctrl = &omap5_ctrl;
 	break;
 
 	case DRA752_ES1_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra7xx_dplls;
 	*omap_vcores = &omap5430_volts_es2;
+	*ctrl = &dra7xx_ctrl;
 	break;
 
 	default:
 		printf("\n INVALID OMAP REVISION ");
 	}
-
-	*ctrl = &omap5_ctrl;
 }
 
 void get_ioregs(const struct ctrl_ioregs **regs)

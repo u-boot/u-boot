@@ -347,11 +347,19 @@ struct prcm_regs {
 
 struct omap_sys_ctrl_regs {
 	u32 control_status;
+	u32 control_core_mmr_lock1;
+	u32 control_core_mmr_lock2;
+	u32 control_core_mmr_lock3;
+	u32 control_core_mmr_lock4;
+	u32 control_core_mmr_lock5;
+	u32 control_core_control_io1;
+	u32 control_core_control_io2;
 	u32 control_id_code;
 	u32 control_std_fuse_opp_bgap;
 	u32 control_ldosram_iva_voltage_ctrl;
 	u32 control_ldosram_mpu_voltage_ctrl;
 	u32 control_ldosram_core_voltage_ctrl;
+	u32 control_padconf_core_base;
 	u32 control_paconf_global;
 	u32 control_paconf_mode;
 	u32 control_smart1io_padconf_0;
@@ -431,6 +439,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_efuse_11;
 	u32 control_efuse_12;
 	u32 control_efuse_13;
+	u32 control_padconf_wkup_base;
 };
 
 struct dpll_params {
@@ -507,6 +516,7 @@ extern const u32 sys_clk_array[8];
 extern struct omap_sys_ctrl_regs const **ctrl;
 extern struct omap_sys_ctrl_regs const omap4_ctrl;
 extern struct omap_sys_ctrl_regs const omap5_ctrl;
+extern struct omap_sys_ctrl_regs const dra7xx_ctrl;
 
 void hw_data_init(void);
 
