@@ -193,4 +193,8 @@ enum pll_out_id {
 #define clock_id_is_pll(id) ((id) >= CLOCK_ID_FIRST && \
 		(id) < CLOCK_ID_FIRST_SIMPLE)
 
+/* return 1 if a peripheral ID is in range */
+#define clock_periph_id_isvalid(id) ((id) >= PERIPH_ID_FIRST && \
+		(id) < PERIPH_ID_COUNT)
+
 #endif	/* _CLOCK_TABLES_H_ */

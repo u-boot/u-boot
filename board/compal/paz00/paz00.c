@@ -71,3 +71,14 @@ int board_mmc_init(bd_t *bd)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_LCD
+/* this is a weak define that we are overriding */
+void pin_mux_display(void)
+{
+	debug("init display pinmux\n");
+
+	/* EN_VDD_PANEL GPIO A4 */
+	pinmux_tristate_disable(PINGRP_DAP2);
+}
+#endif

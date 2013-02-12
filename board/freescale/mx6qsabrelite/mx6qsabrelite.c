@@ -33,6 +33,7 @@
 #include <asm/imx-common/boot_mode.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <malloc.h>
 #include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -338,14 +339,31 @@ int board_phy_config(struct phy_device *phydev)
 
 int board_eth_init(bd_t *bis)
 {
+	uint32_t base = IMX_FEC_BASE;
+	struct mii_dev *bus = NULL;
+	struct phy_device *phydev = NULL;
 	int ret;
 
 	setup_iomux_enet();
 
-	ret = cpu_eth_init(bis);
-	if (ret)
+#ifdef CONFIG_FEC_MXC
+	bus = fec_get_miibus(base, -1);
+	if (!bus)
+		return 0;
+	/* scan phy 4,5,6,7 */
+	phydev = phy_find_by_mask(bus, (0xf << 4), PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		free(bus);
+		return 0;
+	}
+	printf("using phy at %d\n", phydev->addr);
+	ret  = fec_probe(bis, -1, base, bus, phydev);
+	if (ret) {
 		printf("FEC MXC: %s:failed\n", __func__);
-
+		free(phydev);
+		free(bus);
+	}
+#endif
 	return 0;
 }
 

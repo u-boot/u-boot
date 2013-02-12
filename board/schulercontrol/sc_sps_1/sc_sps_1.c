@@ -43,14 +43,14 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_early_init_f(void)
 {
 	/* IO0 clock at 480MHz */
-	mx28_set_ioclk(MXC_IOCLK0, 480000);
+	mxs_set_ioclk(MXC_IOCLK0, 480000);
 	/* IO1 clock at 480MHz */
-	mx28_set_ioclk(MXC_IOCLK1, 480000);
+	mxs_set_ioclk(MXC_IOCLK1, 480000);
 
 	/* SSP0 clock at 96MHz */
-	mx28_set_sspclk(MXC_SSPCLK0, 96000, 0);
+	mxs_set_sspclk(MXC_SSPCLK0, 96000, 0);
 	/* SSP2 clock at 96MHz */
-	mx28_set_sspclk(MXC_SSPCLK2, 96000, 0);
+	mxs_set_sspclk(MXC_SSPCLK2, 96000, 0);
 
 #ifdef	CONFIG_CMD_USB
 	mxs_iomux_setup_pad(MX28_PAD_AUART1_CTS__USB0_OVERCURRENT);
@@ -78,7 +78,7 @@ int dram_init(void)
 #ifdef	CONFIG_CMD_MMC
 int board_mmc_init(bd_t *bis)
 {
-	return mxsmmc_initialize(bis, 0, NULL);
+	return mxsmmc_initialize(bis, 0, NULL, NULL);
 }
 #endif
 

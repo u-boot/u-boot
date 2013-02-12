@@ -20,12 +20,25 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef _IGEP0020_H_
-#define _IGEP0020_H_
+#ifndef _IGEP00X0_H_
+#define _IGEP00X0_H_
+
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
+#define IGEP00X0_GPIO_LED 27
+#endif
+
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
+#define IGEP00X0_GPIO_LED 16
+#endif
 
 const omap3_sysinfo sysinfo = {
 	DDR_STACKED,
-	"IGEP v2 board",
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
+	"OMAP3 IGEP v2 board",
+#endif
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
+	"OMAP3 IGEP COM Module",
+#endif
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	"ONENAND",
 #else
@@ -125,7 +138,6 @@ static void setup_net_chip(void);
 	MUX_VAL(CP(GPMC_NBE1),      (IEN  | PTD | DIS | M0)) /* GPMC_nBE1 */\
 	MUX_VAL(CP(GPMC_NWP),       (IEN  | PTD | DIS | M0)) /* GPMC_nWP */\
 	MUX_VAL(CP(GPMC_WAIT0),     (IEN  | PTU | EN  | M0)) /* GPMC_WAIT0 */\
-	MUX_VAL(CP(GPMC_WAIT2),     (IEN  | PTU | DIS | M4)) /* GPIO_64-ETH_NRST */\
 	MUX_VAL(CP(MMC1_CLK),       (IDIS | PTU | EN  | M0)) /* MMC1_CLK */\
 	MUX_VAL(CP(MMC1_CMD),       (IEN  | PTU | EN  | M0)) /* MMC1_CMD */\
 	MUX_VAL(CP(MMC1_DAT0),      (IEN  | PTU | EN  | M0)) /* MMC1_DAT0 */\
@@ -149,3 +161,10 @@ static void setup_net_chip(void);
 	MUX_VAL(CP(SDRC_CKE0),      (IDIS | PTU | EN  | M0)) /* SDRC_CKE0 */\
 	MUX_VAL(CP(SDRC_CKE1),      (IDIS | PTU | EN  | M0)) /* SDRC_CKE1 */
 #endif
+
+#define MUX_IGEP0020() \
+	MUX_VAL(CP(GPMC_WAIT2),     (IEN  | PTU | DIS | M4)) /* GPIO_64-ETH_NRST */\
+
+#define MUX_IGEP0030() \
+	MUX_VAL(CP(UART1_TX),       (IDIS | PTD | DIS | M0)) /* UART1_TX */\
+	MUX_VAL(CP(UART1_RX),       (IEN  | PTD | DIS | M0)) /* UART1_RX */

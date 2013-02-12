@@ -41,8 +41,9 @@ void gpio_early_init(void);  /* overrideable GPIO config        */
  * an empty stub function will be called.
  */
 
-void pin_mux_usb(void);      /* overrideable USB pinmux setup   */
-void pin_mux_spi(void);      /* overrideable SPI pinmux setup   */
-void pin_mux_nand(void);     /* overrideable NAND pinmux setup  */
+void pin_mux_usb(void);      /* overrideable USB pinmux setup     */
+void pin_mux_spi(void);      /* overrideable SPI pinmux setup     */
+void pin_mux_nand(void);     /* overrideable NAND pinmux setup    */
+void pin_mux_display(void);  /* overrideable DISPLAY pinmux setup */
 
 #endif

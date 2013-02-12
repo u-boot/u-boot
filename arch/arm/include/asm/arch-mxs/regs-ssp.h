@@ -28,6 +28,28 @@
 #include <asm/arch/regs-common.h>
 
 #ifndef	__ASSEMBLY__
+#if defined(CONFIG_MX23)
+struct mxs_ssp_regs {
+	mxs_reg_32(hw_ssp_ctrl0)
+	mxs_reg_32(hw_ssp_cmd0)
+	mxs_reg_32(hw_ssp_cmd1)
+	mxs_reg_32(hw_ssp_compref)
+	mxs_reg_32(hw_ssp_compmask)
+	mxs_reg_32(hw_ssp_timing)
+	mxs_reg_32(hw_ssp_ctrl1)
+	mxs_reg_32(hw_ssp_data)
+	mxs_reg_32(hw_ssp_sdresp0)
+	mxs_reg_32(hw_ssp_sdresp1)
+	mxs_reg_32(hw_ssp_sdresp2)
+	mxs_reg_32(hw_ssp_sdresp3)
+	mxs_reg_32(hw_ssp_status)
+
+	uint32_t	reserved1[12];
+
+	mxs_reg_32(hw_ssp_debug)
+	mxs_reg_32(hw_ssp_version)
+};
+#elif defined(CONFIG_MX28)
 struct mxs_ssp_regs {
 	mxs_reg_32(hw_ssp_ctrl0)
 	mxs_reg_32(hw_ssp_cmd0)
@@ -52,6 +74,25 @@ struct mxs_ssp_regs {
 };
 #endif
 
+static inline struct mxs_ssp_regs *mxs_ssp_regs_by_bus(unsigned int port)
+{
+	switch (port) {
+	case 0:
+		return (struct mxs_ssp_regs *)MXS_SSP0_BASE;
+	case 1:
+		return (struct mxs_ssp_regs *)MXS_SSP1_BASE;
+#ifdef CONFIG_MX28
+	case 2:
+		return (struct mxs_ssp_regs *)MXS_SSP2_BASE;
+	case 3:
+		return (struct mxs_ssp_regs *)MXS_SSP3_BASE;
+#endif
+	default:
+		return NULL;
+	}
+}
+#endif
+
 #define	SSP_CTRL0_SFTRST			(1 << 31)
 #define	SSP_CTRL0_CLKGATE			(1 << 30)
 #define	SSP_CTRL0_RUN				(1 << 29)
@@ -72,6 +113,11 @@ struct mxs_ssp_regs {
 #define	SSP_CTRL0_GET_RESP			(1 << 17)
 #define	SSP_CTRL0_ENABLE			(1 << 16)
 
+#ifdef CONFIG_MX23
+#define	SSP_CTRL0_XFER_COUNT_OFFSET		0
+#define	SSP_CTRL0_XFER_COUNT_MASK		0xffff
+#endif
+
 #define	SSP_CMD0_SOFT_TERMINATE			(1 << 26)
 #define	SSP_CMD0_DBL_DATA_RATE_EN		(1 << 25)
 #define	SSP_CMD0_PRIM_BOOT_OP_EN		(1 << 24)
@@ -79,6 +125,12 @@ struct mxs_ssp_regs {
 #define	SSP_CMD0_SLOW_CLKING_EN			(1 << 22)
 #define	SSP_CMD0_CONT_CLKING_EN			(1 << 21)
 #define	SSP_CMD0_APPEND_8CYC			(1 << 20)
+#if defined(CONFIG_MX23)
+#define	SSP_CMD0_BLOCK_SIZE_MASK		(0xf << 16)
+#define	SSP_CMD0_BLOCK_SIZE_OFFSET		16
+#define	SSP_CMD0_BLOCK_COUNT_MASK		(0xff << 8)
+#define	SSP_CMD0_BLOCK_COUNT_OFFSET		8
+#endif
 #define	SSP_CMD0_CMD_MASK			0xff
 #define	SSP_CMD0_CMD_OFFSET			0
 #define	SSP_CMD0_CMD_MMC_GO_IDLE_STATE		0x00
@@ -152,6 +204,7 @@ struct mxs_ssp_regs {
 #define	SSP_CMD1_CMD_ARG_MASK			0xffffffff
 #define	SSP_CMD1_CMD_ARG_OFFSET			0
 
+#if defined(CONFIG_MX28)
 #define	SSP_XFER_SIZE_XFER_COUNT_MASK		0xffffffff
 #define	SSP_XFER_SIZE_XFER_COUNT_OFFSET		0
 
@@ -159,6 +212,7 @@ struct mxs_ssp_regs {
 #define	SSP_BLOCK_SIZE_BLOCK_COUNT_OFFSET	4
 #define	SSP_BLOCK_SIZE_BLOCK_SIZE_MASK		0xf
 #define	SSP_BLOCK_SIZE_BLOCK_SIZE_OFFSET	0
+#endif
 
 #define	SSP_COMPREF_REFERENCE_MASK		0xffffffff
 #define	SSP_COMPREF_REFERENCE_OFFSET		0

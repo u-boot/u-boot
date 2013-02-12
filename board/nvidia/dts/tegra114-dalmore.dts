@@ -1,0 +1,13 @@
+/dts-v1/;
+
+/include/ ARCH_CPU_DTS
+
+/ {
+	model = "NVIDIA Dalmore";
+	compatible = "nvidia,dalmore", "nvidia,tegra114";
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x80000000>;
+	};
+};

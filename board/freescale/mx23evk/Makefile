@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000, 2001, 2002
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,7 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= igep0020.o
+ifndef	CONFIG_SPL_BUILD
+COBJS	:= mx23evk.o
+else
+COBJS	:= spl_boot.o
+endif
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
