@@ -580,4 +580,7 @@ static inline u32 omap_revision(void)
 #define OMAP5432_ES1_0	0x54320100
 #define OMAP5430_ES2_0  0x54300200
 #define OMAP5432_ES2_0  0x54320200
+
+/* DRA7XX */
+#define DRA752_ES1_0	0x07520100
 #endif /* _OMAP_COMMON_H_ */

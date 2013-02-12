@@ -81,12 +81,17 @@ u32 cortex_rev(void)
 void omap_rev_string(void)
 {
 	u32 omap_rev = omap_revision();
+	u32 soc_variant	= (omap_rev & 0xF0000000) >> 28;
 	u32 omap_variant = (omap_rev & 0xFFFF0000) >> 16;
 	u32 major_rev = (omap_rev & 0x00000F00) >> 8;
 	u32 minor_rev = (omap_rev & 0x000000F0) >> 4;
 
-	printf("OMAP%x ES%x.%x\n", omap_variant, major_rev,
-		minor_rev);
+	if (soc_variant)
+		printf("OMAP");
+	else
+		printf("DRA");
+	printf("%x ES%x.%x\n", omap_variant, major_rev,
+	       minor_rev);
 }
 
 #ifdef CONFIG_SPL_BUILD
