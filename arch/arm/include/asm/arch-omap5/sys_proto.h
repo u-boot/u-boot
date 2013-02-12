@@ -59,6 +59,7 @@ int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data);
 u32 warm_reset(void);
 void force_emif_self_refresh(void);
 void get_ioregs(const struct ctrl_ioregs **regs);
+void srcomp_enable(void);
 
 /*
  * This is used to verify if the configuration header

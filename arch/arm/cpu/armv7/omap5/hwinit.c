@@ -32,6 +32,7 @@
 #include <asm/armv7.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/clocks.h>
 #include <asm/sizes.h>
 #include <asm/utils.h>
 #include <asm/arch/gpio.h>
@@ -181,6 +182,121 @@ void do_io_settings(void)
 	writel(EFUSE_2, (*ctrl)->control_efuse_2);
 	writel(EFUSE_3, (*ctrl)->control_efuse_3);
 	writel(EFUSE_4, (*ctrl)->control_efuse_4);
+}
+
+static const struct srcomp_params srcomp_parameters[NUM_SYS_CLKS] = {
+	{0x45, 0x1},	/* 12 MHz   */
+	{-1, -1},	/* 13 MHz   */
+	{0x63, 0x2},	/* 16.8 MHz */
+	{0x57, 0x2},	/* 19.2 MHz */
+	{0x20, 0x1},	/* 26 MHz   */
+	{-1, -1},	/* 27 MHz   */
+	{0x41, 0x3}	/* 38.4 MHz */
+};
+
+void srcomp_enable(void)
+{
+	u32 srcomp_value, mul_factor, div_factor, clk_val, i;
+	u32 sysclk_ind	= get_sys_clk_index();
+	u32 omap_rev	= omap_revision();
+
+	mul_factor = srcomp_parameters[sysclk_ind].multiply_factor;
+	div_factor = srcomp_parameters[sysclk_ind].divide_factor;
+
+	for (i = 0; i < 4; i++) {
+		srcomp_value = readl((*ctrl)->control_srcomp_north_side + i*4);
+		srcomp_value &=
+			~(MULTIPLY_FACTOR_XS_MASK | DIVIDE_FACTOR_XS_MASK);
+		srcomp_value |= (mul_factor << MULTIPLY_FACTOR_XS_SHIFT) |
+			(div_factor << DIVIDE_FACTOR_XS_SHIFT);
+		writel(srcomp_value, (*ctrl)->control_srcomp_north_side + i*4);
+	}
+
+	if ((omap_rev == OMAP5430_ES1_0) || (omap_rev == OMAP5432_ES1_0)) {
+		clk_val = readl((*prcm)->cm_coreaon_io_srcomp_clkctrl);
+		clk_val |= OPTFCLKEN_SRCOMP_FCLK_MASK;
+		writel(clk_val, (*prcm)->cm_coreaon_io_srcomp_clkctrl);
+
+		for (i = 0; i < 4; i++) {
+			srcomp_value =
+				readl((*ctrl)->control_srcomp_north_side + i*4);
+			srcomp_value &= ~PWRDWN_XS_MASK;
+			writel(srcomp_value,
+			       (*ctrl)->control_srcomp_north_side + i*4);
+
+			while (((readl((*ctrl)->control_srcomp_north_side + i*4)
+				& SRCODE_READ_XS_MASK) >>
+				SRCODE_READ_XS_SHIFT) == 0)
+				;
+
+			srcomp_value =
+				readl((*ctrl)->control_srcomp_north_side + i*4);
+			srcomp_value &= ~OVERRIDE_XS_MASK;
+			writel(srcomp_value,
+			       (*ctrl)->control_srcomp_north_side + i*4);
+		}
+	} else {
+		srcomp_value = readl((*ctrl)->control_srcomp_east_side_wkup);
+		srcomp_value &= ~(MULTIPLY_FACTOR_XS_MASK |
+				  DIVIDE_FACTOR_XS_MASK);
+		srcomp_value |= (mul_factor << MULTIPLY_FACTOR_XS_SHIFT) |
+				(div_factor << DIVIDE_FACTOR_XS_SHIFT);
+		writel(srcomp_value, (*ctrl)->control_srcomp_east_side_wkup);
+
+		for (i = 0; i < 4; i++) {
+			srcomp_value =
+				readl((*ctrl)->control_srcomp_north_side + i*4);
+			srcomp_value |= SRCODE_OVERRIDE_SEL_XS_MASK;
+			writel(srcomp_value,
+			       (*ctrl)->control_srcomp_north_side + i*4);
+
+			srcomp_value =
+				readl((*ctrl)->control_srcomp_north_side + i*4);
+			srcomp_value &= ~OVERRIDE_XS_MASK;
+			writel(srcomp_value,
+			       (*ctrl)->control_srcomp_north_side + i*4);
+		}
+
+		srcomp_value =
+			readl((*ctrl)->control_srcomp_east_side_wkup);
+		srcomp_value |= SRCODE_OVERRIDE_SEL_XS_MASK;
+		writel(srcomp_value, (*ctrl)->control_srcomp_east_side_wkup);
+
+		srcomp_value =
+			readl((*ctrl)->control_srcomp_east_side_wkup);
+		srcomp_value &= ~OVERRIDE_XS_MASK;
+		writel(srcomp_value, (*ctrl)->control_srcomp_east_side_wkup);
+
+		clk_val = readl((*prcm)->cm_coreaon_io_srcomp_clkctrl);
+		clk_val |= OPTFCLKEN_SRCOMP_FCLK_MASK;
+		writel(clk_val, (*prcm)->cm_coreaon_io_srcomp_clkctrl);
+
+		clk_val = readl((*prcm)->cm_wkupaon_io_srcomp_clkctrl);
+		clk_val |= OPTFCLKEN_SRCOMP_FCLK_MASK;
+		writel(clk_val, (*prcm)->cm_wkupaon_io_srcomp_clkctrl);
+
+		for (i = 0; i < 4; i++) {
+			while (((readl((*ctrl)->control_srcomp_north_side + i*4)
+				& SRCODE_READ_XS_MASK) >>
+				SRCODE_READ_XS_SHIFT) == 0)
+				;
+
+			srcomp_value =
+				readl((*ctrl)->control_srcomp_north_side + i*4);
+			srcomp_value &= ~SRCODE_OVERRIDE_SEL_XS_MASK;
+			writel(srcomp_value,
+			       (*ctrl)->control_srcomp_north_side + i*4);
+		}
+
+		while (((readl((*ctrl)->control_srcomp_east_side_wkup) &
+			SRCODE_READ_XS_MASK) >> SRCODE_READ_XS_SHIFT) == 0)
+			;
+
+		srcomp_value =
+			readl((*ctrl)->control_srcomp_east_side_wkup);
+		srcomp_value &= ~SRCODE_OVERRIDE_SEL_XS_MASK;
+		writel(srcomp_value, (*ctrl)->control_srcomp_east_side_wkup);
+	}
 }
 #endif
 

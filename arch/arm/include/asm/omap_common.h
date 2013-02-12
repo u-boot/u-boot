@@ -153,6 +153,7 @@ struct prcm_regs {
 
 	/* cm2.core */
 	u32 cm_coreaon_bandgap_clkctrl;
+	u32 cm_coreaon_io_srcomp_clkctrl;
 	u32 cm_l3_1_clkstctrl;
 	u32 cm_l3_1_dynamicdep;
 	u32 cm_l3_1_l3_1_clkctrl;
@@ -300,6 +301,7 @@ struct prcm_regs {
 	u32 cm_wkup_rtc_clkctrl;
 	u32 cm_wkup_bandgap_clkctrl;
 	u32 cm_wkupaon_scrm_clkctrl;
+	u32 cm_wkupaon_io_srcomp_clkctrl;
 	u32 prm_vc_val_bypass;
 	u32 prm_vc_cfg_i2c_mode;
 	u32 prm_vc_cfg_i2c_clk;

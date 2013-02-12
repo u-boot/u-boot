@@ -149,6 +149,7 @@ struct prcm_regs const omap5_es1_prcm = {
 
 	/* cm2.core */
 	.cm_coreaon_bandgap_clkctrl = 0x4a008648,
+	.cm_coreaon_io_srcomp_clkctrl = 0x4a008650,
 	.cm_l3_1_clkstctrl = 0x4a008700,
 	.cm_l3_1_dynamicdep = 0x4a008708,
 	.cm_l3_1_l3_1_clkctrl = 0x4a008720,
@@ -294,6 +295,7 @@ struct prcm_regs const omap5_es1_prcm = {
 	.cm_wkup_rtc_clkctrl = 0x4ae07880,
 	.cm_wkup_bandgap_clkctrl = 0x4ae07888,
 	.cm_wkupaon_scrm_clkctrl = 0x4ae07890,
+	.cm_wkupaon_io_srcomp_clkctrl = 0x4ae07898,
 	.prm_vc_val_bypass = 0x4ae07ba0,
 	.prm_vc_cfg_i2c_mode = 0x4ae07bb4,
 	.prm_vc_cfg_i2c_clk = 0x4ae07bb8,
@@ -502,7 +504,7 @@ struct prcm_regs const omap5_es2_prcm = {
 	.cm_ssc_deltamstep_dpll_unipro = 0x4a0081e8,
 	.cm_ssc_modfreqdiv_dpll_unipro = 0x4a0081ec,
 	.cm_coreaon_bandgap_clkctrl = 0x4a008648,
-
+	.cm_coreaon_io_srcomp_clkctrl = 0x4a008650,
 
 	/* cm2.core */
 	.cm_l3_1_clkstctrl = 0x4a008700,
@@ -650,6 +652,7 @@ struct prcm_regs const omap5_es2_prcm = {
 	.cm_wkup_rtc_clkctrl = 0x4ae07980,
 	.cm_wkup_bandgap_clkctrl = 0x4ae07988,
 	.cm_wkupaon_scrm_clkctrl = 0x4ae07990,
+	.cm_wkupaon_io_srcomp_clkctrl = 0x4ae07998,
 	.prm_vc_val_bypass = 0x4ae07ca0,
 	.prm_vc_cfg_i2c_mode = 0x4ae07cb4,
 	.prm_vc_cfg_i2c_clk = 0x4ae07cb8,

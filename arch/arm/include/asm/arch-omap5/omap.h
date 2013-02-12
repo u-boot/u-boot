@@ -229,7 +229,26 @@ struct s32ktimer {
 #define CH_FLAGS_CHFLASH	(0x1 << 2)
 #define CH_FLAGS_CHMMCSD	(0x1 << 3)
 
+/* CONTROL_SRCOMP_XXX_SIDE */
+#define OVERRIDE_XS_SHIFT		30
+#define OVERRIDE_XS_MASK		(1 << 30)
+#define SRCODE_READ_XS_SHIFT		12
+#define SRCODE_READ_XS_MASK		(0xff << 12)
+#define PWRDWN_XS_SHIFT			11
+#define PWRDWN_XS_MASK			(1 << 11)
+#define DIVIDE_FACTOR_XS_SHIFT		4
+#define DIVIDE_FACTOR_XS_MASK		(0x7f << 4)
+#define MULTIPLY_FACTOR_XS_SHIFT	1
+#define MULTIPLY_FACTOR_XS_MASK		(0x7 << 1)
+#define SRCODE_OVERRIDE_SEL_XS_SHIFT	0
+#define SRCODE_OVERRIDE_SEL_XS_MASK	(1 << 0)
+
 #ifndef __ASSEMBLY__
+struct srcomp_params {
+	s8 divide_factor;
+	s8 multiply_factor;
+};
+
 struct omap_boot_parameters {
 	char *boot_message;
 	unsigned int mem_boot_descriptor;

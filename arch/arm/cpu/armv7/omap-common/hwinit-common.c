@@ -33,6 +33,7 @@
 #include <asm/sizes.h>
 #include <asm/emif.h>
 #include <asm/omap_common.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -100,6 +101,10 @@ void spl_display_print(void)
 }
 #endif
 
+void __weak srcomp_enable(void)
+{
+}
+
 /*
  * Routine: s_init
  * Description: Does early system init of watchdog, muxing,  andclocks
@@ -126,6 +131,7 @@ void s_init(void)
 	watchdog_init();
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
+	srcomp_enable();
 	setup_clocks_for_console();
 
 	gd = &gdata;
