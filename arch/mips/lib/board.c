@@ -143,7 +143,7 @@ void board_init_f(ulong bootflag)
 	gd_t gd_data, *id;
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	ulong addr, addr_sp, len = (ulong)&uboot_end - CONFIG_SYS_MONITOR_BASE;
+	ulong addr, addr_sp, len;
 	ulong *s;
 
 	/* Pointer is writable since we allocated a register for it.
@@ -176,6 +176,7 @@ void board_init_f(ulong bootflag)
 	/* Reserve memory for U-Boot code, data & bss
 	 * round down to next 16 kB limit
 	 */
+	len = bss_end() - CONFIG_SYS_MONITOR_BASE;
 	addr -= len;
 	addr &= ~(16 * 1024 - 1);
 
@@ -261,7 +262,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 
-	monitor_flash_len = (ulong)&uboot_end_data - dest_addr;
+	monitor_flash_len = image_copy_end() - dest_addr;
 
 	serial_initialize();
 
