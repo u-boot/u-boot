@@ -44,6 +44,8 @@ struct prcm_regs {
 	u32 cm_div_h12_dpll_core;
 	u32 cm_div_h13_dpll_core;
 	u32 cm_div_h14_dpll_core;
+	u32 cm_div_h21_dpll_core;
+	u32 cm_div_h24_dpll_core;
 	u32 cm_ssc_deltamstep_dpll_core;
 	u32 cm_ssc_modfreqdiv_dpll_core;
 	u32 cm_emu_override_dpll_core;
@@ -128,6 +130,7 @@ struct prcm_regs {
 	u32 cm_div_m3_dpll_per;
 	u32 cm_div_h11_dpll_per;
 	u32 cm_div_h12_dpll_per;
+	u32 cm_div_h13_dpll_per;
 	u32 cm_div_h14_dpll_per;
 	u32 cm_ssc_deltamstep_dpll_per;
 	u32 cm_ssc_modfreqdiv_dpll_per;
@@ -474,6 +477,7 @@ struct vcores_data {
 
 extern struct prcm_regs const **prcm;
 extern struct prcm_regs const omap5_es1_prcm;
+extern struct prcm_regs const omap5_es2_prcm;
 extern struct prcm_regs const omap4_prcm;
 extern struct dplls const **dplls_data;
 extern struct vcores_data const **omap_vcores;

@@ -451,6 +451,11 @@ void hw_data_init(void)
 	*omap_vcores = &omap5432_volts;
 	break;
 
+	case OMAP5430_ES2_0:
+	case OMAP5432_ES2_0:
+	*prcm = &omap5_es2_prcm;
+	break;
+
 	default:
 		printf("\n INVALID OMAP REVISION ");
 	}
