@@ -20,4 +20,10 @@ static inline unsigned long bss_end(void)
 	return (unsigned long) &__bss_end;
 }
 
+static inline unsigned long image_copy_end(void)
+{
+	extern ulong __image_copy_end;
+	return (unsigned long) &__image_copy_end;
+}
+
 extern int incaip_set_cpuclk(void);

@@ -70,6 +70,8 @@ SECTIONS
 	uboot_end_data = .;
 
 	. = ALIGN(4);
+	__image_copy_end = .;
+
 	.bss : {
 		__bss_start = .;
 		*(.sbss.*)
