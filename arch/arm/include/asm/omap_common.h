@@ -426,8 +426,10 @@ struct dpll_params {
 	s8 m5_h12;
 	s8 m6_h13;
 	s8 m7_h14;
+	s8 h21;
 	s8 h22;
 	s8 h23;
+	s8 h24;
 };
 
 struct dpll_regs {
@@ -441,9 +443,11 @@ struct dpll_regs {
 	u32 cm_div_m5_h12_dpll;
 	u32 cm_div_m6_h13_dpll;
 	u32 cm_div_m7_h14_dpll;
-	u32 reserved[3];
+	u32 reserved[2];
+	u32 cm_div_h21_dpll;
 	u32 cm_div_h22_dpll;
 	u32 cm_div_h23_dpll;
+	u32 cm_div_h24_dpll;
 };
 
 struct dplls {

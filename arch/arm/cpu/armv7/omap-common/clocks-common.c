@@ -103,10 +103,14 @@ void setup_post_dividers(u32 const base, const struct dpll_params *params)
 		writel(params->m6_h13, &dpll_regs->cm_div_m6_h13_dpll);
 	if (params->m7_h14 >= 0)
 		writel(params->m7_h14, &dpll_regs->cm_div_m7_h14_dpll);
+	if (params->h21 >= 0)
+		writel(params->h21, &dpll_regs->cm_div_h21_dpll);
 	if (params->h22 >= 0)
 		writel(params->h22, &dpll_regs->cm_div_h22_dpll);
 	if (params->h23 >= 0)
 		writel(params->h23, &dpll_regs->cm_div_h23_dpll);
+	if (params->h24 >= 0)
+		writel(params->h24, &dpll_regs->cm_div_h24_dpll);
 }
 
 static inline void do_bypass_dpll(u32 const base)
@@ -318,11 +322,6 @@ void configure_mpu_dpll(void)
 		clrbits_le32(&mpu_dpll_regs->cm_clksel_dpll,
 			CM_CLKSEL_DCC_EN_MASK);
 	}
-
-	setbits_le32((*prcm)->cm_mpu_mpu_clkctrl,
-		MPU_CLKCTRL_CLKSEL_EMIF_DIV_MODE_MASK);
-	setbits_le32((*prcm)->cm_mpu_mpu_clkctrl,
-		MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK);
 
 	params = get_mpu_dpll_params(*dplls_data);
 
