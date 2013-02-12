@@ -31,6 +31,14 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
+#ifdef CONFIG_SYS_LITTLE_ENDIAN
+#define MIPS64_R_INFO(ssym, r_type3, r_type2, r_type) \
+	(((r_type) << 24) | ((r_type2) << 16) | ((r_type3) << 8) | (ssym))
+#else
+#define MIPS64_R_INFO(ssym, r_type3, r_type2, r_type) \
+	((r_type) | ((r_type2) << 8) | ((r_type3) << 16) | (ssym) << 24)
+#endif
+
 	/*
 	 * For the moment disable interrupts, mark the kernel mode and
 	 * set ST0_KX so that the CPU does not spit fire when using
@@ -193,6 +201,8 @@ relocate_code:
 	jr	t0
 	 nop
 
+	.dword	__rel_dyn_end
+	.dword	__rel_dyn_start
 	.dword	__image_copy_end
 	.dword	_GLOBAL_OFFSET_TABLE_
 	.dword	num_got_entries
@@ -218,6 +228,32 @@ in_ram:
 	daddi	t2, 1
 	blt	t2, t3, 1b
 	 daddi	t8, 8
+
+	/* Update dynamic relocations */
+	ld	t1, -32(t0)		# t1 <-- __rel_dyn_start
+	ld	t2, -40(t0)		# t2 <-- __rel_dyn_end
+
+	b	2f			# skip first reserved entry
+	 daddi	t1, 16
+
+1:
+	lw	t8, -4(t1)		# t8 <-- relocation info
+
+	dli	t3, MIPS64_R_INFO(0x00, 0x00, 0x12, 0x03)
+	bne	t8, t3, 2f		# skip non R_MIPS_REL32 entries
+	 nop
+
+	ld	t3, -16(t1)		# t3 <-- location to fix up in FLASH
+
+	ld	t8, 0(t3)		# t8 <-- original pointer
+	dadd	t8, s1			# t8 <-- adjusted pointer
+
+	dadd	t3, s1			# t3 <-- location to fix up in RAM
+	sd	t8, 0(t3)
+
+2:
+	blt	t1, t2, 1b
+	 daddi	t1, 16			# each rel.dyn entry is 16 bytes
 
 	/*
 	 * Clear BSS

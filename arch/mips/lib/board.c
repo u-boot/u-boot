@@ -266,14 +266,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	serial_initialize();
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	/*
-	 * We have to relocate the command table manually
-	 */
-	fixup_cmdtable(ll_entry_start(cmd_tbl_t, cmd),
-			ll_entry_count(cmd_tbl_t, cmd));
-#endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
-
 	/* there are some other pointer constants we must deal with */
 #ifndef CONFIG_ENV_IS_NOWHERE
 	env_name_spec += gd->reloc_off;
@@ -284,7 +276,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* The Malloc area is immediately below the monitor copy in DRAM */
 	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			TOTAL_MALLOC_LEN, TOTAL_MALLOC_LEN);
-	malloc_bin_reloc();
 
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */

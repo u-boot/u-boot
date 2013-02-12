@@ -201,6 +201,8 @@ relocate_code:
 	jr	t0
 	 nop
 
+	.word	__rel_dyn_end
+	.word	__rel_dyn_start
 	.word	__image_copy_end
 	.word	_GLOBAL_OFFSET_TABLE_
 	.word	num_got_entries
@@ -226,6 +228,32 @@ in_ram:
 	addi	t2, 1
 	blt	t2, t3, 1b
 	 addi	t4, 4
+
+	/* Update dynamic relocations */
+	lw	t1, -16(t0)		# t1 <-- __rel_dyn_start
+	lw	t2, -20(t0)		# t2 <-- __rel_dyn_end
+
+	b	2f			# skip first reserved entry
+	 addi	t1, 8
+
+1:
+	lw	t3, -4(t1)		# t3 <-- relocation info
+
+	sub	t3, 3
+	bnez	t3, 2f			# skip non R_MIPS_REL32 entries
+	 nop
+
+	lw	t3, -8(t1)		# t3 <-- location to fix up in FLASH
+
+	lw	t4, 0(t3)		# t4 <-- original pointer
+	add	t4, s1			# t4 <-- adjusted pointer
+
+	add	t3, s1			# t3 <-- location to fix up in RAM
+	sw	t4, 0(t3)
+
+2:
+	blt	t1, t2, 1b
+	 addi	t1, 8			# each rel.dyn entry is 8 bytes
 
 	/*
 	 * Clear BSS
