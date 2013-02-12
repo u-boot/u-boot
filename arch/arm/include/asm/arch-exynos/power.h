@@ -864,4 +864,13 @@ void set_dp_phy_ctrl(unsigned int enable);
 
 #define EXYNOS_DP_PHY_ENABLE		(1 << 0)
 
+#define EXYNOS_PS_HOLD_CONTROL_DATA_HIGH	(1 << 8)
+
+/*
+ * Set ps_hold data driving value high
+ * This enables the machine to stay powered on
+ * after the initial power-on condition goes away
+ * (e.g. power button).
+ */
+void set_ps_hold_ctrl(void);
 #endif
