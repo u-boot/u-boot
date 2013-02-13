@@ -611,15 +611,16 @@ void bitmap_plot(int x, int y)
 	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	cpm8xx_t *cp = &(immr->im_cpm);
 #endif
+	unsigned bpix = NBITS(panel_info.vl_bpix);
 
 	debug("Logo: width %d  height %d  colors %d  cmap %d\n",
 		BMP_LOGO_WIDTH, BMP_LOGO_HEIGHT, BMP_LOGO_COLORS,
 		ARRAY_SIZE(bmp_logo_palette));
 
 	bmap = &bmp_logo_bitmap[0];
-	fb   = (uchar *)(lcd_base + y * lcd_line_length + x);
+	fb   = (uchar *)(lcd_base + y * lcd_line_length + x * bpix / 8);
 
-	if (NBITS(panel_info.vl_bpix) < 12) {
+	if (bpix < 12) {
 		/* Leave room for default color map
 		 * default case: generic system with no cmap (most likely 16bpp)
 		 * cmap was set to the source palette, so no change is done.
@@ -670,7 +671,7 @@ void bitmap_plot(int x, int y)
 	}
 	else { /* true color mode */
 		u16 col16;
-		fb16 = (ushort *)(lcd_base + y * lcd_line_length + x);
+		fb16 = (ushort *)fb;
 		for (i = 0; i < BMP_LOGO_HEIGHT; ++i) {
 			for (j = 0; j < BMP_LOGO_WIDTH; j++) {
 				col16 = bmp_logo_palette[(bmap[j]-16)];
