@@ -111,3 +111,20 @@ void set_ps_hold_ctrl(void)
 	if (cpu_is_exynos5())
 		exynos5_set_ps_hold_ctrl();
 }
+
+
+static void exynos5_set_xclkout(void)
+{
+	struct exynos5_power *power =
+		(struct exynos5_power *)samsung_get_base_power();
+
+	/* use xxti for xclk out */
+	clrsetbits_le32(&power->pmu_debug, PMU_DEBUG_CLKOUT_SEL_MASK,
+				PMU_DEBUG_XXTI);
+}
+
+void set_xclkout(void)
+{
+	if (cpu_is_exynos5())
+		exynos5_set_xclkout();
+}

@@ -873,4 +873,15 @@ void set_dp_phy_ctrl(unsigned int enable);
  * (e.g. power button).
  */
 void set_ps_hold_ctrl(void);
+
+/* PMU_DEBUG bits [12:8] = 0x1000 selects XXTI clock source */
+#define PMU_DEBUG_XXTI                          0x1000
+/* Mask bit[12:8] for xxti clock selection */
+#define PMU_DEBUG_CLKOUT_SEL_MASK               0x1f00
+
+/*
+ * Pmu debug is used for xclkout, enable xclkout with
+ * source as XXTI
+ */
+void set_xclkout(void);
 #endif
