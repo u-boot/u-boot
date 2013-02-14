@@ -86,7 +86,7 @@ SECTIONS
 	__bios_start = LOADADDR(.bios);
 	__bios_size = SIZEOF(.bios);
 
-#ifndef CONFIG_X86_NO_RESET_VECTOR
+#ifdef CONFIG_X86_RESET_VECTOR
 
 	/*
 	 * The following expressions place the 16-bit Real-Mode code and
