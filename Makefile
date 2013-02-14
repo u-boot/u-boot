@@ -230,10 +230,6 @@ endif
 # U-Boot objects....order is important (i.e. start must be first)
 
 OBJS  = $(CPUDIR)/start.o
-ifeq ($(CPU),x86)
-RESET_OBJS-$(CONFIG_X86_NO_RESET_VECTOR) += $(CPUDIR)/start16.o
-RESET_OBJS-$(CONFIG_X86_NO_RESET_VECTOR) += $(CPUDIR)/resetvec.o
-endif
 ifeq ($(CPU),ppc4xx)
 OBJS += $(CPUDIR)/resetvec.o
 endif
@@ -241,7 +237,7 @@ ifeq ($(CPU),mpc85xx)
 OBJS += $(CPUDIR)/resetvec.o
 endif
 
-OBJS := $(addprefix $(obj),$(OBJS) $(RESET_OBJS-))
+OBJS := $(addprefix $(obj),$(OBJS))
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
 
