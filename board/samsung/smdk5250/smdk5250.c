@@ -56,6 +56,18 @@ int board_usb_vbus_init(void)
 }
 #endif
 
+#ifdef CONFIG_SOUND_MAX98095
+static void  board_enable_audio_codec(void)
+{
+	struct exynos5_gpio_part1 *gpio1 = (struct exynos5_gpio_part1 *)
+						samsung_get_base_gpio_part1();
+
+	/* Enable MAX98095 Codec */
+	s5p_gpio_direction_output(&gpio1->x1, 7, 1);
+	s5p_gpio_set_pull(&gpio1->x1, 7, GPIO_PULL_NONE);
+}
+#endif
+
 int board_init(void)
 {
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
@@ -64,6 +76,9 @@ int board_init(void)
 #endif
 #ifdef CONFIG_USB_EHCI_EXYNOS
 	board_usb_vbus_init();
+#endif
+#ifdef CONFIG_SOUND_MAX98095
+	board_enable_audio_codec();
 #endif
 	return 0;
 }
