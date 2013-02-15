@@ -250,9 +250,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong size;
 #endif
-#ifndef CONFIG_ENV_IS_NOWHERE
-	extern char *env_name_spec;
-#endif
 	bd_t *bd;
 
 	gd = id;
@@ -265,11 +262,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	monitor_flash_len = image_copy_end() - dest_addr;
 
 	serial_initialize();
-
-	/* there are some other pointer constants we must deal with */
-#ifndef CONFIG_ENV_IS_NOWHERE
-	env_name_spec += gd->reloc_off;
-#endif
 
 	bd = gd->bd;
 
