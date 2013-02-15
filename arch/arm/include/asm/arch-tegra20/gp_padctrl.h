@@ -21,8 +21,10 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _GP_PADCTRL_H_
-#define _GP_PADCTRL_H_
+#ifndef _TEGRA20_GP_PADCTRL_H_
+#define _TEGRA20_GP_PADCTRL_H_
+
+#include <asm/arch-tegra/gp_padctrl.h>
 
 /* APB_MISC_GP and padctrl registers */
 struct apb_misc_gp_ctlr {
@@ -61,13 +63,4 @@ struct apb_misc_gp_ctlr {
 	u32	memcomp;	/* 0xD4: APB_MISC_GP_MEMCOMPPADCTRL */
 };
 
-/* bit fields definitions for APB_MISC_GP_HIDREV register */
-#define HIDREV_CHIPID_SHIFT		8
-#define HIDREV_CHIPID_MASK		(0xff << HIDREV_CHIPID_SHIFT)
-#define HIDREV_MAJORPREV_SHIFT		4
-#define HIDREV_MAJORPREV_MASK		(0xf << HIDREV_MAJORPREV_SHIFT)
-
-/* CHIPID field returned from APB_MISC_GP_HIDREV register */
-#define CHIPID_TEGRA20				0x20
-
-#endif
+#endif	/* _TEGRA20_GP_PADCTRL_H_ */

@@ -22,8 +22,13 @@
 #define _LIBFDT_ENV_H
 
 #include "compiler.h"
+#include "linux/types.h"
 
 extern struct fdt_header *working_fdt;  /* Pointer to the working fdt */
+
+typedef __be16 fdt16_t;
+typedef __be32 fdt32_t;
+typedef __be64 fdt64_t;
 
 #define fdt32_to_cpu(x)		be32_to_cpu(x)
 #define cpu_to_fdt32(x)		cpu_to_be32(x)

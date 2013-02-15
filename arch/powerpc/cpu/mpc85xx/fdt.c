@@ -811,7 +811,7 @@ int ft_verify_fdt(void *fdt)
 #ifdef CONFIG_SYS_LBC_ADDR
 	off = fdt_node_offset_by_compatible(fdt, -1, "fsl,elbc");
 	if (off > 0) {
-		const u32 *reg = fdt_getprop(fdt, off, "reg", NULL);
+		const fdt32_t *reg = fdt_getprop(fdt, off, "reg", NULL);
 		if (reg) {
 			uint64_t uaddr = CCSR_VIRT_TO_PHYS(CONFIG_SYS_LBC_ADDR);
 

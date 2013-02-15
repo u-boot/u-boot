@@ -230,10 +230,6 @@ endif
 # U-Boot objects....order is important (i.e. start must be first)
 
 OBJS  = $(CPUDIR)/start.o
-ifeq ($(CPU),x86)
-RESET_OBJS-$(CONFIG_X86_NO_RESET_VECTOR) += $(CPUDIR)/start16.o
-RESET_OBJS-$(CONFIG_X86_NO_RESET_VECTOR) += $(CPUDIR)/resetvec.o
-endif
 ifeq ($(CPU),ppc4xx)
 OBJS += $(CPUDIR)/resetvec.o
 endif
@@ -241,7 +237,7 @@ ifeq ($(CPU),mpc85xx)
 OBJS += $(CPUDIR)/resetvec.o
 endif
 
-OBJS := $(addprefix $(obj),$(OBJS) $(RESET_OBJS-))
+OBJS := $(addprefix $(obj),$(OBJS))
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
 
@@ -348,7 +344,7 @@ endif
 ifeq ($(SOC),exynos)
 LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
 LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
 LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o
@@ -413,7 +409,7 @@ ALL-$(CONFIG_SPL) += $(obj)$(subst ",,$(CONFIG_SPL_TARGET))
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 
 # enable combined SPL/u-boot/dtb rules for tegra
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 ifeq ($(CONFIG_OF_SEPARATE),y)
 ALL-y += $(obj)u-boot-dtb-tegra.bin
 else
@@ -467,9 +463,8 @@ $(obj)u-boot.img:	$(obj)u-boot.bin
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
 		-d $< $@
 
-$(obj)u-boot.imx:       $(obj)u-boot.bin
-		$(obj)tools/mkimage -n  $(CONFIG_IMX_CONFIG) -T imximage \
-		-e $(CONFIG_SYS_TEXT_BASE) -d $< $@
+$(OBJTREE)/u-boot.imx : $(obj)u-boot.bin $(SUBDIR_TOOLS) depend
+		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common $@
 
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
@@ -512,6 +507,7 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 			$(obj)u-boot.ais
 
 # Specify the target for use in elftosb call
+ELFTOSB_TARGET-$(CONFIG_MX23) = imx23
 ELFTOSB_TARGET-$(CONFIG_MX28) = imx28
 
 $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
@@ -534,7 +530,7 @@ $(obj)u-boot.spr:	$(obj)u-boot.img $(obj)spl/u-boot-spl.bin
 			conv=notrunc 2>/dev/null
 		cat $(obj)spl/u-boot-spl-pad.img $(obj)u-boot.img > $@
 
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 ifeq ($(CONFIG_OF_SEPARATE),y)
 nodtb=dtb
 dtbfile=$(obj)u-boot.dtb
@@ -847,7 +843,8 @@ clean:
 	@$(MAKE) -s -C doc/DocBook/ cleandocs
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' -o -name '*.su' \
-		-o -name '*.o'	-o -name '*.a' -o -name '*.exe'	\) -print \
+		-o -name '*.o'	-o -name '*.a' -o -name '*.exe' \
+		-o -name '*.cfgtmp' \) -print \
 		| xargs rm -f
 
 # Removes everything not needed for testing u-boot

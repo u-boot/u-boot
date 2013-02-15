@@ -1,0 +1,27 @@
+U-boot config options used in fec_mxc.c
+
+CONFIG_FEC_MXC
+	Selects fec_mxc.c to be compiled into u-boot.
+
+CONFIG_MII
+	Must be defined if CONFIG_FEC_MXC is defined.
+
+CONFIG_FEC_XCV_TYPE
+	Defaults to MII100 for 100 Base-tx.
+	RGMII selects 1000 Base-tx reduced pin count interface.
+	RMII selects 100 Base-tx reduced pin count interface.
+
+CONFIG_FEC_MXC_SWAP_PACKET
+	Forced on iff MX28.
+	Swaps the bytes order of all words(4 byte units) in the packet.
+	This should not be specified by a board file. It is cpu specific.
+
+CONFIG_PHYLIB
+	fec_mxc supports PHYLIB and should be used for new boards.
+
+CONFIG_FEC_MXC_NO_ANEG
+	Relevant only if PHYLIB not used. Skips auto-negotiation restart.
+
+CONFIG_FEC_MXC_PHYADDR
+	Optional, selects the exact phy address that should be connected
+	and function fecmxc_initialize will try to initialize it.

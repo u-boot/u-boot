@@ -23,7 +23,6 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include "cpu.h"
 #include <spl.h>
 
 #include <asm/io.h>
@@ -32,7 +31,7 @@
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch/spl.h>
-
+#include "cpu.h"
 
 void spl_board_init(void)
 {

@@ -881,10 +881,22 @@ static void mxs_setup_batt_detect(void)
 	early_delay(10);
 }
 
+static void mxs_ungate_power(void)
+{
+#ifdef CONFIG_MX23
+	struct mxs_power_regs *power_regs =
+		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	writel(POWER_CTRL_CLKGATE, &power_regs->hw_power_ctrl_clr);
+#endif
+}
+
 void mxs_power_init(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	mxs_ungate_power();
 
 	mxs_power_clock2xtal();
 	mxs_power_clear_auto_restart();

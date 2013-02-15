@@ -73,6 +73,17 @@ static inline int board_is_idk(void)
 	return !strncmp(header.config, "SKU#02", 6);
 }
 
+static int board_is_gp_evm(void)
+{
+	return !strncmp("A33515BB", header.name, 8);
+}
+
+int board_is_evm_15_or_later(void)
+{
+	return (!strncmp("A33515BB", header.name, 8) &&
+		strncmp("1.5", header.version, 3) <= 0);
+}
+
 /*
  * Read header information from EEPROM into global structure.
  */
@@ -197,6 +208,14 @@ static const struct ddr_data ddr3_data = {
 	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
+static const struct ddr_data ddr3_evm_data = {
+	.datardsratio0 = MT41J512M8RH125_RD_DQS,
+	.datawdsratio0 = MT41J512M8RH125_WR_DQS,
+	.datafwsratio0 = MT41J512M8RH125_PHY_FIFO_WE,
+	.datawrsratio0 = MT41J512M8RH125_PHY_WR_DATA,
+	.datadldiff0 = PHY_DLL_LOCK_DIFF,
+};
+
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = MT41J128MJT125_RATIO,
 	.cmd0dldiff = MT41J128MJT125_DLL_LOCK_DIFF,
@@ -211,6 +230,20 @@ static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd2iclkout = MT41J128MJT125_INVERT_CLKOUT,
 };
 
+static const struct cmd_control ddr3_evm_cmd_ctrl_data = {
+	.cmd0csratio = MT41J512M8RH125_RATIO,
+	.cmd0dldiff = MT41J512M8RH125_DLL_LOCK_DIFF,
+	.cmd0iclkout = MT41J512M8RH125_INVERT_CLKOUT,
+
+	.cmd1csratio = MT41J512M8RH125_RATIO,
+	.cmd1dldiff = MT41J512M8RH125_DLL_LOCK_DIFF,
+	.cmd1iclkout = MT41J512M8RH125_INVERT_CLKOUT,
+
+	.cmd2csratio = MT41J512M8RH125_RATIO,
+	.cmd2dldiff = MT41J512M8RH125_DLL_LOCK_DIFF,
+	.cmd2iclkout = MT41J512M8RH125_INVERT_CLKOUT,
+};
+
 static struct emif_regs ddr3_emif_reg_data = {
 	.sdram_config = MT41J128MJT125_EMIF_SDCFG,
 	.ref_ctrl = MT41J128MJT125_EMIF_SDREF,
@@ -219,6 +252,16 @@ static struct emif_regs ddr3_emif_reg_data = {
 	.sdram_tim3 = MT41J128MJT125_EMIF_TIM3,
 	.zq_config = MT41J128MJT125_ZQ_CFG,
 	.emif_ddr_phy_ctlr_1 = MT41J128MJT125_EMIF_READ_LATENCY,
+};
+
+static struct emif_regs ddr3_evm_emif_reg_data = {
+	.sdram_config = MT41J512M8RH125_EMIF_SDCFG,
+	.ref_ctrl = MT41J512M8RH125_EMIF_SDREF,
+	.sdram_tim1 = MT41J512M8RH125_EMIF_TIM1,
+	.sdram_tim2 = MT41J512M8RH125_EMIF_TIM2,
+	.sdram_tim3 = MT41J512M8RH125_EMIF_TIM3,
+	.zq_config = MT41J512M8RH125_ZQ_CFG,
+	.emif_ddr_phy_ctlr_1 = MT41J512M8RH125_EMIF_READ_LATENCY,
 };
 #endif
 
@@ -301,6 +344,9 @@ void s_init(void)
 	if (board_is_evm_sk() || board_is_bone_lt())
 		config_ddr(303, MT41J128MJT125_IOCTRL_VALUE, &ddr3_data,
 			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data);
+	else if (board_is_evm_15_or_later())
+		config_ddr(303, MT41J512M8RH125_IOCTRL_VALUE, &ddr3_evm_data,
+			   &ddr3_evm_cmd_ctrl_data, &ddr3_evm_emif_reg_data);
 	else
 		config_ddr(266, MT47H128M16RT25E_IOCTRL_VALUE, &ddr2_data,
 			   &ddr2_cmd_ctrl_data, &ddr2_emif_reg_data);
@@ -393,7 +439,7 @@ int board_eth_init(bd_t *bis)
 	uint32_t mac_hi, mac_lo;
 
 	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
-		debug("<ethaddr> not set. Reading from E-fuse\n");
+		printf("<ethaddr> not set. Reading from E-fuse\n");
 		/* try reading mac address from efuse */
 		mac_lo = readl(&cdev->macid0l);
 		mac_hi = readl(&cdev->macid0h);
@@ -425,6 +471,28 @@ int board_eth_init(bd_t *bis)
 		printf("Error %d registering CPSW switch\n", rv);
 	else
 		n += rv;
+
+	/*
+	 *
+	 * CPSW RGMII Internal Delay Mode is not supported in all PVT
+	 * operating points.  So we must set the TX clock delay feature
+	 * in the AR8051 PHY.  Since we only support a single ethernet
+	 * device in U-Boot, we only do this for the first instance.
+	 */
+#define AR8051_PHY_DEBUG_ADDR_REG	0x1d
+#define AR8051_PHY_DEBUG_DATA_REG	0x1e
+#define AR8051_DEBUG_RGMII_CLK_DLY_REG	0x5
+#define AR8051_RGMII_TX_CLK_DLY		0x100
+
+	if (board_is_evm_sk() || board_is_gp_evm()) {
+		const char *devname;
+		devname = miiphy_get_current_dev();
+
+		miiphy_write(devname, 0x0, AR8051_PHY_DEBUG_ADDR_REG,
+				AR8051_DEBUG_RGMII_CLK_DLY_REG);
+		miiphy_write(devname, 0x0, AR8051_PHY_DEBUG_DATA_REG,
+				AR8051_RGMII_TX_CLK_DLY);
+	}
 #endif
 try_usbether:
 #if defined(CONFIG_USB_ETHER) && !defined(CONFIG_SPL_BUILD)

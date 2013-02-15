@@ -37,7 +37,6 @@
 #define CONFIG_SYS_COREBOOT
 #define CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_LAST_STAGE_INIT
-#define CONFIG_X86_NO_RESET_VECTOR
 #define CONFIG_SYS_VSNPRINTF
 #define CONFIG_INTEL_CORE_ARCH	/* Sandy bridge and ivy bridge chipsets. */
 #define CONFIG_ZBOOT_32

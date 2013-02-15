@@ -25,16 +25,6 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).o
 
-ifeq ($(CONFIG_X86_NO_REAL_MODE),)
-SOBJS-$(CONFIG_SYS_PC_BIOS)	+= bios.o
-SOBJS-$(CONFIG_SYS_PCI_BIOS)	+= bios_pci.o
-COBJS-y	+= realmode.o
-SOBJS-y	+= realmode_switch.o
-
-COBJS-$(CONFIG_SYS_PC_BIOS)	+= bios_setup.o
-COBJS-$(CONFIG_VIDEO_VGA)	+= video_bios.o
-endif
-
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
 COBJS-y	+= cmd_boot.o

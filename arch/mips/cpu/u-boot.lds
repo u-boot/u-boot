@@ -52,10 +52,10 @@ SECTIONS
 	_gp = ALIGN(16) + 0x7ff0;
 
 	.got : {
-		__got_start = .;
 		*(.got)
-		__got_end = .;
 	}
+
+	num_got_entries = SIZEOF(.got) >> PTR_COUNT_SHIFT;
 
 	. = ALIGN(4);
 	.sdata : {
@@ -67,18 +67,55 @@ SECTIONS
 		#include <u-boot.lst>
 	}
 
-	uboot_end_data = .;
-
-	num_got_entries = (__got_end - __got_start) >> PTR_COUNT_SHIFT;
-
 	. = ALIGN(4);
-	.sbss : {
-		*(.sbss*)
+	__image_copy_end = .;
+
+	.rel.dyn : {
+		__rel_dyn_start = .;
+		*(.rel.dyn)
+		__rel_dyn_end = .;
 	}
 
-	.bss : {
-		*(.bss*)
-		. = ALIGN(4);
+	.deadcode : {
+		/*
+		 * Workaround for a binutils feature (or bug?).
+		 *
+		 * The GNU ld from binutils puts the dynamic relocation
+		 * entries into the .rel.dyn section. Sometimes it
+		 * allocates more dynamic relocation entries than it needs
+		 * and the unused slots are set to R_MIPS_NONE entries.
+		 *
+		 * However the size of the .rel.dyn section in the ELF
+		 * section header does not cover the unused entries, so
+		 * objcopy removes those during stripping.
+		 *
+		 * Create a small section here to avoid that.
+		 */
+		LONG(0xffffffff);
 	}
-	uboot_end = .;
+
+	.dynsym : {
+		*(.dynsym)
+	}
+
+	.bss __rel_dyn_start (OVERLAY) : {
+		__bss_start = .;
+		*(.sbss.*)
+		*(.bss.*)
+		*(COMMON)
+		. = ALIGN(4);
+		__bss_end = .;
+	}
+
+	/DISCARD/ : {
+		*(.dynbss)
+		*(.dynstr)
+		*(.dynamic)
+		*(.interp)
+		*(.hash)
+		*(.gnu.*)
+		*(.plt)
+		*(.got.plt)
+		*(.rel.plt)
+	}
 }

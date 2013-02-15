@@ -241,9 +241,10 @@ int board_mmc_init(bd_t *bis)
 	mxc_iomux_set_input(MUX_IN_GPIO1_IN_7, 0x1);
 	gpio_direction_input(GPIO_MMC_CD);
 
+	/* MMC Write Protection on GPIO1_8 */
 	mxc_request_iomux(MX35_PIN_FST, MUX_CONFIG_ALT5);
 	mxc_iomux_set_input(MUX_IN_GPIO1_IN_8, 0x1);
-	gpio_direction_output(GPIO_MMC_WP, 0);
+	gpio_direction_input(GPIO_MMC_WP);
 
 	esdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
 

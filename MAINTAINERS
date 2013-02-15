@@ -819,6 +819,9 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
 
+Lars Poeschel <poeschel@lemonage.de>
+	pcm051  	ARM ARMV7 (AM33xx Soc)
+
 Mathieu Poirier <mathieu.poirier@linaro.org>
 
 	snowball	ARM ARMV7 (u8500 SoC)
@@ -939,6 +942,7 @@ Marek Vasut <marek.vasut@gmail.com>
 	palmtc		xscale/pxa
 	vpac270		xscale/pxa
 	zipitz2		xscale/pxa
+	mx23_olinuxino	i.MX23
 	m28evk		i.MX28
 	sc_sps_1	i.MX28
 
@@ -949,6 +953,10 @@ Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 Matt Waddel <matt.waddel@linaro.org>
 
 	ca9x4_ct_vxp	ARM ARMV7 (Quad Core)
+
+Otavio Salvador <otavio@ossystems.com.br>
+
+	mx23evk		i.MX23
 
 Prafulla Wadaskar <prafulla@marvell.com>
 

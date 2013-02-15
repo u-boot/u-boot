@@ -32,6 +32,9 @@ struct arch_global_data {
 	/* There are other clocks in the jz4740 */
 	unsigned long per_clk;	/* Peripheral bus clock */
 	unsigned long dev_clk;	/* Device clock */
+	unsigned long sys_clk;
+	unsigned long tbl;
+	unsigned long lastinc;
 #endif
 };
 
