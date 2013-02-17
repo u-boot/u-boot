@@ -1,9 +1,9 @@
 /*
  * (C) Copyright 2013
  * Texas Instruments Incorporated.
- * Sricharan R	  <r.sricharan@ti.com>
+ * Lokesh Vutla	  <lokeshvutla@ti.com>
  *
- * Configuration settings for the TI EVM5430 board.
+ * Configuration settings for the TI DRA7XX board.
  * See omap5_common.h for omap5 common settings.
  *
  * See file CREDITS for list of people who contributed to this
@@ -25,16 +25,12 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_OMAP5_EVM_H
-#define __CONFIG_OMAP5_EVM_H
+#ifndef __CONFIG_DRA7XX_EVM_H
+#define __CONFIG_DRA7XX_EVM_H
 
 #include <configs/omap5_common.h>
 
-/* TWL6035 */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_TWL6035_POWER
-#endif
+#define CONFIG_DRA7XX		/* in a TI DRA7XX core */
+#define CONFIG_SYS_PROMPT		"DRA752 EVM # "
 
-#define CONFIG_SYS_PROMPT		"OMAP5430 EVM # "
-
-#endif /* __CONFIG_OMAP5_EVM_H */
+#endif /* __CONFIG_DRA7XX_EVM_H */
