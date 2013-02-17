@@ -167,6 +167,11 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 				}
 			}
 
+			if (mode_idx < 0 || phy_idx < 0) {
+				puts("ERROR: wrong usb mode/phy defined!!\n");
+				return;
+			}
+
 			dr_mode_type = modes[mode_idx];
 			dr_phy_type = phys[phy_idx];
 
