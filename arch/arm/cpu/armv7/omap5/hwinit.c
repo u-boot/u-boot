@@ -351,7 +351,12 @@ void reset_cpu(ulong ignored)
 	 * So use cold reset in case instead.
 	 */
 	if (omap_rev == OMAP5430_ES1_0)
-		writel(PRM_RSTCTRL_RESET << 0x1, PRM_RSTCTRL);
+		writel(PRM_RSTCTRL_RESET << 0x1, (*prcm)->prm_rstctrl);
 	else
-		writel(PRM_RSTCTRL_RESET, PRM_RSTCTRL);
+		writel(PRM_RSTCTRL_RESET, (*prcm)->prm_rstctrl);
+}
+
+u32 warm_reset(void)
+{
+	return readl((*prcm)->prm_rstst) & PRM_RSTST_WARM_RESET_MASK;
 }

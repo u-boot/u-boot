@@ -85,6 +85,7 @@ struct prcm_regs {
 	u32 cm_div_h12_dpll_ddrphy;
 	u32 cm_div_h13_dpll_ddrphy;
 	u32 cm_ssc_deltamstep_dpll_ddrphy;
+	u32 cm_clkmode_dpll_dsp;
 	u32 cm_shadow_freq_config1;
 	u32 cm_mpu_mpu_clkctrl;
 
@@ -143,6 +144,11 @@ struct prcm_regs {
 	u32 cm_ssc_deltamstep_dpll_usb;
 	u32 cm_ssc_modfreqdiv_dpll_usb;
 	u32 cm_clkdcoldo_dpll_usb;
+	u32 cm_clkmode_dpll_pcie_ref;
+	u32 cm_clkmode_apll_pcie;
+	u32 cm_idlest_apll_pcie;
+	u32 cm_div_m2_apll_pcie;
+	u32 cm_clkvcoldo_apll_pcie;
 	u32 cm_clkmode_dpll_unipro;
 	u32 cm_idlest_dpll_unipro;
 	u32 cm_autoidle_dpll_unipro;
@@ -160,7 +166,7 @@ struct prcm_regs {
 	u32 cm_l3_2_clkstctrl;
 	u32 cm_l3_2_dynamicdep;
 	u32 cm_l3_2_l3_2_clkctrl;
-	u32 cm_l3_2_gpmc_clkctrl;
+	u32 cm_l3_gpmc_clkctrl;
 	u32 cm_l3_2_ocmc_ram_clkctrl;
 	u32 cm_mpu_m3_clkstctrl;
 	u32 cm_mpu_m3_staticdep;
@@ -205,6 +211,12 @@ struct prcm_regs {
 	u32 cm_cam_clkstctrl;
 	u32 cm_cam_iss_clkctrl;
 	u32 cm_cam_fdif_clkctrl;
+	u32 cm_cam_vip1_clkctrl;
+	u32 cm_cam_vip2_clkctrl;
+	u32 cm_cam_vip3_clkctrl;
+	u32 cm_cam_lvdsrx_clkctrl;
+	u32 cm_cam_csi1_clkctrl;
+	u32 cm_cam_csi2_clkctrl;
 
 	/* cm2.dss */
 	u32 cm_dss_clkstctrl;
@@ -302,6 +314,8 @@ struct prcm_regs {
 	u32 cm_wkup_bandgap_clkctrl;
 	u32 cm_wkupaon_scrm_clkctrl;
 	u32 cm_wkupaon_io_srcomp_clkctrl;
+	u32 prm_rstctrl;
+	u32 prm_rstst;
 	u32 prm_vc_val_bypass;
 	u32 prm_vc_cfg_i2c_mode;
 	u32 prm_vc_cfg_i2c_clk;
@@ -485,6 +499,7 @@ extern struct prcm_regs const **prcm;
 extern struct prcm_regs const omap5_es1_prcm;
 extern struct prcm_regs const omap5_es2_prcm;
 extern struct prcm_regs const omap4_prcm;
+extern struct prcm_regs const dra7xx_prcm;
 extern struct dplls const **dplls_data;
 extern struct vcores_data const **omap_vcores;
 extern const u32 sys_clk_array[8];

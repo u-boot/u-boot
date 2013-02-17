@@ -278,7 +278,7 @@ void enable_basic_clocks(void)
 	};
 
 	u32 const clk_modules_hw_auto_essential[] = {
-		(*prcm)->cm_l3_2_gpmc_clkctrl,
+		(*prcm)->cm_l3_gpmc_clkctrl,
 		(*prcm)->cm_memif_emif_1_clkctrl,
 		(*prcm)->cm_memif_emif_2_clkctrl,
 		(*prcm)->cm_l4cfg_l4_cfg_clkctrl,
@@ -501,6 +501,10 @@ void hw_data_init(void)
 	*prcm = &omap5_es2_prcm;
 	*dplls_data = &omap5_dplls_es2;
 	*omap_vcores = &omap5430_volts_es2;
+	break;
+
+	case DRA752_ES1_0:
+	*prcm = &dra7xx_prcm;
 	break;
 
 	default:
