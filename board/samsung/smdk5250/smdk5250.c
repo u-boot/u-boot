@@ -336,8 +336,17 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
-	printf("\nBoard: SMDK5250\n");
+#ifdef CONFIG_OF_CONTROL
+	const char *board_name;
 
+	board_name = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+	if (board_name == NULL)
+		printf("\nUnknown Board\n");
+	else
+		printf("\nBoard: %s\n", board_name);
+#else
+	printf("\nBoard: SMDK5250\n");
+#endif
 	return 0;
 }
 #endif
