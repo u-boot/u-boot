@@ -78,11 +78,12 @@ struct spl_machine_param {
 	 */
 	u32		uboot_size;
 	enum boot_mode	boot_source;	/* Boot device */
-	enum mem_manuf	mem_manuf;	/* Memory Manufacturer */
 	unsigned	frequency_mhz;	/* Frequency of memory in MHz */
 	unsigned	arm_freq_mhz;	/* ARM Frequency in MHz */
 	u32		serial_base;	/* Serial base address */
 	u32		i2c_base;	/* i2c base address */
+	u32		board_rev_gpios;	/* Board revision GPIOs */
+	enum mem_manuf	mem_manuf;	/* Memory Manufacturer */
 } __attribute__((__packed__));
 #endif
 
