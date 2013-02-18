@@ -201,6 +201,22 @@ static int ivm_check_crc(unsigned char *buf, int block)
 	return 0;
 }
 
+static int calculate_mac_offset(unsigned char *valbuf, unsigned char *buf,
+				int offset)
+{
+	unsigned long val = (buf[4] << 16) + (buf[5] << 8) + buf[6];
+
+	if (offset == 0)
+		return 0;
+
+	val += offset;
+	buf[4] = (val >> 16) & 0xff;
+	buf[5] = (val >> 8) & 0xff;
+	buf[6] = val & 0xff;
+	sprintf((char *)valbuf, "%pM", buf + 1);
+	return 0;
+}
+
 static int ivm_analyze_block2(unsigned char *buf, int len)
 {
 	unsigned char	valbuf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN];
@@ -210,24 +226,20 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 	sprintf((char *)valbuf, "%pM", buf + 1);
 	ivm_set_value("IVM_MacAddress", (char *)valbuf);
 	/* if an offset is defined, add it */
-#if defined(CONFIG_PIGGY_MAC_ADRESS_OFFSET)
-	if (CONFIG_PIGGY_MAC_ADRESS_OFFSET > 0) {
-		unsigned long val = (buf[4] << 16) + (buf[5] << 8) + buf[6];
-
-		val += CONFIG_PIGGY_MAC_ADRESS_OFFSET;
-		buf[4] = (val >> 16) & 0xff;
-		buf[5] = (val >> 8) & 0xff;
-		buf[6] = val & 0xff;
-		sprintf((char *)valbuf, "%pM", buf + 1);
-	}
-#endif
+	calculate_mac_offset(buf, valbuf, CONFIG_PIGGY_MAC_ADRESS_OFFSET);
 #ifdef MACH_TYPE_KM_KIRKWOOD
 	setenv((char *)"ethaddr", (char *)valbuf);
 #else
 	if (getenv("ethaddr") == NULL)
 		setenv((char *)"ethaddr", (char *)valbuf);
 #endif
-
+#ifdef CONFIG_KMVECT1
+/* KMVECT1 has two ethernet interfaces */
+	if (getenv("eth1addr") == NULL) {
+		calculate_mac_offset(buf, valbuf, 1);
+		setenv((char *)"eth1addr", (char *)valbuf);
+	}
+#endif
 	/* IVM_MacCount */
 	count = (buf[10] << 24) +
 		   (buf[11] << 16) +
@@ -312,27 +324,15 @@ int ivm_read_eeprom(void)
 
 #if defined(CONFIG_I2C_MUX)
 	/* First init the Bus, select the Bus */
-#if defined(CONFIG_SYS_I2C_IVM_BUS)
-	dev = i2c_mux_ident_muxstring((uchar *)CONFIG_SYS_I2C_IVM_BUS);
-#else
 	buf = (unsigned char *) getenv("EEprom_ivm");
 	if (buf != NULL)
 		dev = i2c_mux_ident_muxstring(buf);
-#endif
 	if (dev == NULL) {
 		printf("Error couldnt add Bus for IVM\n");
 		return -1;
 	}
 	i2c_set_bus_num(dev->busid);
 #endif
-
-	buf = (unsigned char *) getenv("EEprom_ivm_addr");
-	if (buf != NULL) {
-		ret = strict_strtoul((char *)buf, 16, &dev_addr);
-		if (ret != 0)
-			return -3;
-	}
-
 	/* add deblocking here */
 	i2c_make_abort();
 

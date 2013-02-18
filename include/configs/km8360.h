@@ -25,6 +25,8 @@
 #define CONFIG_KM_BOARD_NAME	"kmcoge5ne"
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth1\0"
 #define CONFIG_CMD_NAND
+#define CONFIG_NAND_ECC_BCH
+#define CONFIG_BCH
 #define CONFIG_NAND_KMETER1
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define NAND_MAX_CHIPS				1

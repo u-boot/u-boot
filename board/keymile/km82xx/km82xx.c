@@ -385,6 +385,14 @@ void handle_mgcoge3un_reset(void)
 }
 #endif
 
+int ethernet_present(void)
+{
+	struct km_bec_fpga *base =
+		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
+
+	return in_8(&base->bprth) & PIGGY_PRESENT;
+}
+
 /*
  * Early board initalization.
  */
