@@ -86,13 +86,6 @@ static int GetI2CSDA(void)
 #endif
 }
 
-#if 0
-static void SetI2CSDA(int x)
-{
-	rGPEDAT = (rGPEDAT & ~0x8000) | (x & 1) << 15;
-}
-#endif
-
 static void SetI2CSCL(int x)
 {
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
