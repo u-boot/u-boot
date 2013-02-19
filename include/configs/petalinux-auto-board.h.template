@@ -549,7 +549,7 @@
 #endif
 
 #if defined(XILINX_PS7_SDIO_BASEADDR)
-	#if defined(FLASH) || defined(CONFIG_SPI_FLASH)
+	#if defined(FLASH) || defined(CONFIG_SPI_FLASH) || defined(CONFIG_NAND_ZYNQ)
 		#define CONFIG_EXTRA_SD_FLASH_UPDATE_ENV \
 			"sd_update_boot=echo Updating BOOT from SD;mmcinfo; fatload mmc 0:1 ${clobstart} BOOT.BIN; run install_uboot\0" \
 			"sd_update_kernel=echo Updating Kernel from SD;mmcinfo; fatload mmc 0:1 ${clobstart} ${bootfile}; set fileaddr ${clobstart};run install_kernel\0"
@@ -563,7 +563,7 @@
 #define CONFIG_EXTRA_SD_ENV_SETTINGS
 #endif
 
-#if defined(FLASH) || defined(CONFIG_SPI_FLASH)
+#if defined(FLASH) || defined(CONFIG_SPI_FLASH) || defined(CONFIG_NAND_FLASH)
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
 	CONFIG_EXTRA_SD_ENV_SETTINGS \
 	CONFIG_EXTRA_ARCH_ENV_SETTINGS \
@@ -646,6 +646,23 @@
 		"sf write ${clobstart} ${dtbstart} 0x${filesize}\0" \
 	"sfboot=sf probe 0; sf read ${netstart} ${kernstart} ${kernsize}; bootm ${netstart}\0" \
 	"dtbboot=sf probe 0; sf read ${netstart} ${kernstart} ${kernsize}; sf read ${dtbnetstart} ${dtbstart} ${dtbsize}; bootm ${netstart} - ${dtbnetstart}\0" \
+	""
+#elif defined(CONFIG_NAND_FLASH) /* NAND Flash */
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_EXTRA_ENV_SETTINGS_COMMON \
+	"eraseenv=nand unlock ${bootenvstart} ${bootenvsize}; nand erase ${bootenvstart} ${bootenvsize}\0" \
+	"eraseconf=nand unlock ${confstart} ${confsize}; nand erase ${confstart} ${confsize}\0" \
+	"cp_dtb2ram=cp.b ${dtbstart} ${clobstart} ${dtbsize}\0" \
+	"install_kernel=nand unlock ${kernstart} ${kernsize};nand erase ${kernstart} ${kernsize};" \
+		"nand write ${fileaddr} ${kernstart} ${filesize}\0" \
+	"install_uboot=nand unlock ${bootstart} ${bootsize};nand erase ${bootstart} ${bootsize};" \
+		"nand write ${clobstart} ${bootstart} ${filesize}\0" \
+	"install_jffs2=nand unlock ${jffs2start} ${jffs2size};nand erase ${jffs2start} ${jffs2size};" \
+		"nand write.jffs2 ${clobstart} ${jffs2start} ${filesize}\0" \
+	"install_dtb=nand unlock ${dtbstart} ${dtbsize};nand erase ${dtbstart} ${dtbsize};" \
+		"nand write ${clobstart} ${dtbstart} ${filesize}\0" \
+	"nandboot=nand read ${netstart} ${kernstart} ${kernsize}; bootm ${netstart}\0" \
+	"dtbboot=nand read ${netstart} ${kernstart} ${kernsize}; nand read ${dtbnetstart} ${dtbstart} ${dtbsize}; bootm ${netstart} - ${dtbnetstart}\0" \
 	""
 #else /* No Flash */
 #define	CONFIG_EXTRA_ENV_SETTINGS \
