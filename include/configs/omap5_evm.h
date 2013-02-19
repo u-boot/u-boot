@@ -55,6 +55,7 @@
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_OF_LIBFDT
+#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_CMDLINE_TAG /* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
