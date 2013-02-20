@@ -325,41 +325,50 @@ static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char message[CONFIG_SYS_CBSIZE];
-	int size = CONFIG_SYS_CBSIZE - 1;
-	int i, len, pos;
+	int i, len, pos, size;
 	char *local_args[4];
+	char *endptr;
 
 	local_args[0] = argv[0];
 	local_args[1] = argv[1];
 	local_args[2] = NULL;
 	local_args[3] = NULL;
 
-	/* Check the syntax */
-	switch (argc) {
-	case 1:
+	/*
+	 * Check the syntax:
+	 *
+	 * env_ask envname [message1 ...] [size]
+	 */
+	if (argc == 1)
 		return CMD_RET_USAGE;
 
-	case 2:		/* env_ask envname */
-		sprintf(message, "Please enter '%s':", argv[1]);
-		break;
+	/*
+	 * We test the last argument if it can be converted
+	 * into a decimal number.  If yes, we assume it's
+	 * the size.  Otherwise we echo it as part of the
+	 * message.
+	 */
+	i = simple_strtoul(argv[argc - 1], &endptr, 10);
+	if (*endptr != '\0') {			/* no size */
+		size = CONFIG_SYS_CBSIZE - 1;
+	} else {				/* size given */
+		size = i;
+		--argc;
+	}
 
-	case 3:		/* env_ask envname size */
-		sprintf(message, "Please enter '%s':", argv[1]);
-		size = simple_strtoul(argv[2], NULL, 10);
-		break;
-
-	default:	/* env_ask envname message1 ... messagen size */
-		for (i = 2, pos = 0; i < argc - 1; i++) {
+	if (argc <= 2) {
+		sprintf(message, "Please enter '%s': ", argv[1]);
+	} else {
+		/* env_ask envname message1 ... messagen [size] */
+		for (i = 2, pos = 0; i < argc; i++) {
 			if (pos)
 				message[pos++] = ' ';
 
 			strcpy(message + pos, argv[i]);
 			pos += strlen(argv[i]);
 		}
-
+		message[pos++] = ' ';
 		message[pos] = '\0';
-		size = simple_strtoul(argv[argc - 1], NULL, 10);
-		break;
 	}
 
 	if (size >= CONFIG_SYS_CBSIZE)
@@ -1168,14 +1177,7 @@ U_BOOT_CMD(
 	askenv,	CONFIG_SYS_MAXARGS,	1,	do_env_ask,
 	"get environment variables from stdin",
 	"name [message] [size]\n"
-	"    - get environment variable 'name' from stdin (max 'size' chars)\n"
-	"askenv name\n"
-	"    - get environment variable 'name' from stdin\n"
-	"askenv name size\n"
-	"    - get environment variable 'name' from stdin (max 'size' chars)\n"
-	"askenv name [message] size\n"
-	"    - display 'message' string and get environment variable 'name'"
-	"from stdin (max 'size' chars)"
+	"    - get environment variable 'name' from stdin (max 'size' chars)"
 );
 #endif
 
