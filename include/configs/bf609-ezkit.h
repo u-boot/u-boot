@@ -156,6 +156,8 @@
 #undef CONFIG_UART_CONSOLE_IS_JTAG
 #endif
 
+#define CONFIG_BOARD_SIZE_LIMIT $$((512 * 1024))
+
 /*
  * Run core 1 from L1 SRAM start address when init uboot on core 0
  */
