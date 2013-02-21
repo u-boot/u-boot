@@ -34,10 +34,13 @@
 const omap3_sysinfo sysinfo = {
 	DDR_STACKED,
 #if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
-	"OMAP3 IGEP v2 board",
+	"IGEPv2",
 #endif
 #if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
-	"OMAP3 IGEP COM Module",
+	"IGEP COM MODULE/ELECTRON",
+#endif
+#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0032)
+	"IGEP COM PROTON",
 #endif
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	"ONENAND",
