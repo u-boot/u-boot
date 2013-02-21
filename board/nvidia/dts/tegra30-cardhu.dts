@@ -1,7 +1,7 @@
 /dts-v1/;
 
 /memreserve/ 0x1c000000 0x04000000;
-/include/ ARCH_CPU_DTS
+#include ARCH_CPU_DTS
 
 / {
 	model = "NVIDIA Cardhu";
