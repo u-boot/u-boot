@@ -85,6 +85,7 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS_EHCI,	/* Exynos EHCI controller */
 	COMPAT_SAMSUNG_EXYNOS_USB_PHY,	/* Exynos phy controller for usb2.0 */
 	COMPAT_SAMSUNG_EXYNOS_TMU,	/* Exynos TMU */
+	COMPAT_SAMSUNG_EXYNOS_FIMD,	/* Exynos Display controller */
 	COMPAT_MAXIM_MAX77686_PMIC,	/* MAX77686 PMIC */
 	COMPAT_MAXIM_98095_CODEC,	/* MAX98095 Codec */
 
