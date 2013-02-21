@@ -352,8 +352,10 @@ void env_relocate_spec(void)
 		puts("*** Warning - some problems detected "
 		     "reading environment; recovered successfully\n");
 
-	crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc;
-	crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc;
+	crc1_ok = !read1_fail &&
+		(crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
+	crc2_ok = !read2_fail &&
+		(crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
 
 	if (!crc1_ok && !crc2_ok) {
 		set_default_env("!bad CRC");
