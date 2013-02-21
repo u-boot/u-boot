@@ -48,6 +48,9 @@
 #ifdef CONFIG_USB_EHCI_TEGRA
 #include <asm/arch-tegra/usb.h>
 #endif
+#ifdef CONFIG_TEGRA_MMC
+#include <asm/arch-tegra/mmc.h>
+#endif
 #include <i2c.h>
 #include <spi.h>
 #include "emc.h"
@@ -221,3 +224,25 @@ int board_late_init(void)
 #endif
 	return 0;
 }
+
+#if defined(CONFIG_TEGRA_MMC)
+void __pin_mux_mmc(void)
+{
+}
+
+void pin_mux_mmc(void) __attribute__((weak, alias("__pin_mux_mmc")));
+
+/* this is a weak define that we are overriding */
+int board_mmc_init(bd_t *bd)
+{
+	debug("%s called\n", __func__);
+
+	/* Enable muxes, etc. for SDMMC controllers */
+	pin_mux_mmc();
+
+	debug("%s: init MMC\n", __func__);
+	tegra_mmc_init();
+
+	return 0;
+}
+#endif

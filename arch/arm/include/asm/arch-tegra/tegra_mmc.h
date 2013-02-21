@@ -27,6 +27,8 @@
 #define TEGRA_SDMMC3_BASE	0xC8000400
 #define TEGRA_SDMMC4_BASE	0xC8000600
 
+#define MAX_HOSTS		4	/* Max number of 'hosts'/controllers */
+
 #ifndef __ASSEMBLY__
 struct tegra_mmc {
 	unsigned int	sysad;		/* _SYSTEM_ADDRESS_0 */
@@ -119,12 +121,15 @@ struct tegra_mmc {
 
 struct mmc_host {
 	struct tegra_mmc *reg;
+	int id;			/* device id/number, 0-3 */
+	int enabled;		/* 1 to enable, 0 to disable */
+	int width;		/* Bus Width, 1, 4 or 8 */
+	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
+	struct fdt_gpio_state cd_gpio;		/* Change Detect GPIO */
+	struct fdt_gpio_state pwr_gpio;		/* Power GPIO */
+	struct fdt_gpio_state wp_gpio;		/* Write Protect GPIO */
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
-	unsigned int base;	/* Base address, SDMMC1/2/3/4 */
-	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
-	int pwr_gpio;		/* Power GPIO */
-	int cd_gpio;		/* Change Detect GPIO */
 };
 
 #endif	/* __ASSEMBLY__ */
