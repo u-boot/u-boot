@@ -876,6 +876,8 @@ unsigned int exynos_init_dp(void)
 		return -EFAULT;
 	}
 
+	exynos_dp_set_base_addr();
+
 	exynos_dp_disp_info(&edp_info->disp_info);
 
 	exynos_set_dp_phy(1);

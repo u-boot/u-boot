@@ -76,5 +76,6 @@ void exynos_dp_set_video_timing_mode(unsigned int type);
 void exynos_dp_enable_video_master(unsigned int enable);
 void exynos_dp_start_video(void);
 unsigned int exynos_dp_is_video_stream_on(void);
+void exynos_dp_set_base_addr(void);
 
 #endif /* _EXYNOS_DP_LOWLEVEL_H */
