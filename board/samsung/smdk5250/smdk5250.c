@@ -471,6 +471,12 @@ void exynos_cfg_lcd_gpio(void)
 	s5p_gpio_cfg_pin(&gpio1->x0, 7, GPIO_FUNC(0x3));
 }
 
+void exynos_set_dp_phy(unsigned int onoff)
+{
+	set_dp_phy_ctrl(onoff);
+}
+
+#ifndef CONFIG_OF_CONTROL
 vidinfo_t panel_info = {
 	.vl_freq	= 60,
 	.vl_col		= 2560,
@@ -502,11 +508,6 @@ vidinfo_t panel_info = {
 	.interface_mode = FIMD_RGB_INTERFACE,
 	.dp_enabled	= 1,
 };
-
-void exynos_set_dp_phy(unsigned int onoff)
-{
-	set_dp_phy_ctrl(onoff);
-}
 
 static struct edp_device_info edp_info = {
 	.disp_info = {
@@ -541,10 +542,13 @@ static struct exynos_dp_platform_data dp_platform_data = {
 	.edp_dev_info	= &edp_info,
 };
 
+#endif
 void init_panel_info(vidinfo_t *vid)
 {
+#ifndef CONFIG_OF_CONTROL
 	vid->rgb_mode   = MODE_RGB_P,
 
 	exynos_set_dp_platform_data(&dp_platform_data);
+#endif
 }
 #endif
