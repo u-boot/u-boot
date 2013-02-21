@@ -104,4 +104,19 @@
 		samsung,dp-enabled = <1>;
 		samsung,dual-lcd-enabled = <0>;
 	};
+
+	dp@145b0000 {
+		samsung,lt-status = <0>;
+
+		samsung,master-mode = <0>;
+		samsung,bist-mode = <0>;
+		samsung,bist-pattern = <0>;
+		samsung,h-sync-polarity = <0>;
+		samsung,v-sync-polarity = <0>;
+		samsung,interlaced = <0>;
+		samsung,color-space = <0>;
+		samsung,dynamic-range = <0>;
+		samsung,ycbcr-coeff = <0>;
+		samsung,color-depth = <1>;
+	};
 };
