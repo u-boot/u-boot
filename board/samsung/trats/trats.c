@@ -635,7 +635,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-static void lcd_reset(void)
+void exynos_reset_lcd(void)
 {
 	struct exynos4_gpio_part2 *gpio2 =
 		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
@@ -755,10 +755,6 @@ vidinfo_t panel_info = {
 	.vl_cmd_allow_len = 0xf,
 
 	.win_id		= 3,
-	.cfg_gpio	= NULL,
-	.backlight_on	= NULL,
-	.lcd_power_on	= NULL,	/* lcd_power_on in mipi dsi driver */
-	.reset_lcd	= lcd_reset,
 	.dual_lcd_enabled = 0,
 
 	.init_delay	= 0,

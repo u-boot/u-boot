@@ -454,7 +454,7 @@ int board_early_init_f(void)
 #endif
 
 #ifdef CONFIG_LCD
-void cfg_lcd_gpio(void)
+void exynos_cfg_lcd_gpio(void)
 {
 	struct exynos5_gpio_part1 *gpio1 =
 		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
@@ -494,10 +494,6 @@ vidinfo_t panel_info = {
 	.vl_cmd_allow_len = 0xf,
 
 	.win_id		= 3,
-	.cfg_gpio	= cfg_lcd_gpio,
-	.backlight_on	= NULL,
-	.lcd_power_on	= NULL,
-	.reset_lcd	= NULL,
 	.dual_lcd_enabled = 0,
 
 	.init_delay	= 0,

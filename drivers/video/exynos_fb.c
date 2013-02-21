@@ -93,37 +93,72 @@ static void draw_logo(void)
 }
 #endif
 
+void __exynos_cfg_lcd_gpio(void)
+{
+}
+void exynos_cfg_lcd_gpio(void)
+	__attribute__((weak, alias("__exynos_cfg_lcd_gpio")));
+
+void __exynos_backlight_on(unsigned int onoff)
+{
+}
+void exynos_backlight_on(unsigned int onoff)
+	__attribute__((weak, alias("__exynos_cfg_lcd_gpio")));
+
+void __exynos_reset_lcd(void)
+{
+}
+void exynos_reset_lcd(void)
+	__attribute__((weak, alias("__exynos_reset_lcd")));
+
+void __exynos_lcd_power_on(void)
+{
+}
+void exynos_lcd_power_on(void)
+	__attribute__((weak, alias("__exynos_lcd_power_on")));
+
+void __exynos_cfg_ldo(void)
+{
+}
+void exynos_cfg_ldo(void)
+	__attribute__((weak, alias("__exynos_cfg_ldo")));
+
+void __exynos_enable_ldo(unsigned int onoff)
+{
+}
+void exynos_enable_ldo(unsigned int onoff)
+	__attribute__((weak, alias("__exynos_enable_ldo")));
+
+void __exynos_backlight_reset(void)
+{
+}
+void exynos_backlight_reset(void)
+	__attribute__((weak, alias("__exynos_backlight_reset")));
+
 static void lcd_panel_on(vidinfo_t *vid)
 {
 	udelay(vid->init_delay);
 
-	if (vid->backlight_reset)
-		vid->backlight_reset();
+	exynos_backlight_reset();
 
-	if (vid->cfg_gpio)
-		vid->cfg_gpio();
+	exynos_cfg_lcd_gpio();
 
-	if (vid->lcd_power_on)
-		vid->lcd_power_on();
+	exynos_lcd_power_on();
 
 	udelay(vid->power_on_delay);
 
 	if (vid->dp_enabled)
 		exynos_init_dp();
 
-	if (vid->reset_lcd) {
-		vid->reset_lcd();
-		udelay(vid->reset_delay);
-	}
+	exynos_reset_lcd();
 
-	if (vid->backlight_on)
-		vid->backlight_on(1);
+	udelay(vid->reset_delay);
 
-	if (vid->cfg_ldo)
-		vid->cfg_ldo();
+	exynos_backlight_on(1);
 
-	if (vid->enable_ldo)
-		vid->enable_ldo(1);
+	exynos_cfg_ldo();
+
+	exynos_enable_ldo(1);
 
 	if (vid->mipi_enabled)
 		exynos_mipi_dsi_init();
