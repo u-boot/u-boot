@@ -1,6 +1,6 @@
 /dts-v1/;
 
-#include ARCH_CPU_DTS
+#include "tegra114.dtsi"
 
 / {
 	model = "NVIDIA Dalmore";

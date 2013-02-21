@@ -8,6 +8,7 @@
 
 	aliases {
 		usb0 = "/usb@c5008000";
+		sdhci0 = "/sdhci@c8000600";
 	};
 
 	memory {
