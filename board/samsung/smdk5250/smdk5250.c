@@ -503,6 +503,11 @@ vidinfo_t panel_info = {
 	.dp_enabled	= 1,
 };
 
+void exynos_set_dp_phy(unsigned int onoff)
+{
+	set_dp_phy_ctrl(onoff);
+}
+
 static struct edp_device_info edp_info = {
 	.disp_info = {
 		.h_res = 2560,
@@ -533,7 +538,6 @@ static struct edp_device_info edp_info = {
 };
 
 static struct exynos_dp_platform_data dp_platform_data = {
-	.phy_enable	= set_dp_phy_ctrl,
 	.edp_dev_info	= &edp_info,
 };
 

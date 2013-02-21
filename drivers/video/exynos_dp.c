@@ -32,6 +32,12 @@
 
 static struct exynos_dp_platform_data *dp_pd;
 
+void __exynos_set_dp_phy(unsigned int onoff)
+{
+}
+void exynos_set_dp_phy(unsigned int onoff)
+	__attribute__((weak, alias("__exynos_set_dp_phy")));
+
 static void exynos_dp_disp_info(struct edp_disp_info *disp_info)
 {
 	disp_info->h_total = disp_info->h_res + disp_info->h_sync_width +
@@ -872,8 +878,7 @@ unsigned int exynos_init_dp(void)
 
 	exynos_dp_disp_info(&edp_info->disp_info);
 
-	if (dp_pd->phy_enable)
-		dp_pd->phy_enable(1);
+	exynos_set_dp_phy(1);
 
 	ret = exynos_dp_init_dp();
 	if (ret != EXYNOS_DP_SUCCESS) {
