@@ -79,4 +79,29 @@
 		samsung,slope		= <274761730>;
 		samsung,dc-value	= <25>;
 	};
+
+	fimd@14400000 {
+		samsung,vl-freq = <60>;
+		samsung,vl-col = <2560>;
+		samsung,vl-row = <1600>;
+		samsung,vl-width = <2560>;
+		samsung,vl-height = <1600>;
+
+		samsung,vl-clkp;
+		samsung,vl-dp;
+		samsung,vl-bpix = <4>;
+
+		samsung,vl-hspw = <32>;
+		samsung,vl-hbpd = <80>;
+		samsung,vl-hfpd = <48>;
+		samsung,vl-vspw = <6>;
+		samsung,vl-vbpd = <37>;
+		samsung,vl-vfpd = <3>;
+		samsung,vl-cmd-allow-len = <0xf>;
+
+		samsung,winid = <3>;
+		samsung,interface-mode = <1>;
+		samsung,dp-enabled = <1>;
+		samsung,dual-lcd-enabled = <0>;
+	};
 };
