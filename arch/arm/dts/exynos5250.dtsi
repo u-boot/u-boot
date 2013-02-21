@@ -162,4 +162,11 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 	};
+
+	dp@145b0000 {
+		compatible = "samsung,exynos5-dp";
+		reg = <0x145b0000 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+	};
 };
