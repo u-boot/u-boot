@@ -25,12 +25,29 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/dp_info.h>
 #include <asm/arch/dp.h>
+#include <fdtdec.h>
+#include <libfdt.h>
+
+/* Declare global data pointer */
+DECLARE_GLOBAL_DATA_PTR;
 
 struct exynos_dp *dp_regs;
 
 void exynos_dp_set_base_addr(void)
 {
+#ifdef CONFIG_OF_CONTROL
+	unsigned int node = fdtdec_next_compatible(gd->fdt_blob,
+					0, COMPAT_SAMSUNG_EXYNOS5_DP);
+	if (node <= 0)
+		debug("exynos_dp: Can't get device node for dp\n");
+
+	dp_regs = (struct exynos_dp *)fdtdec_get_addr(gd->fdt_blob,
+								node, "reg");
+	if (dp_regs == NULL)
+		debug("Can't get the DP base address\n");
+#else
 	dp_regs = (struct exynos_dp *)samsung_get_base_dp();
+#endif
 }
 
 static void exynos_dp_enable_video_input(unsigned int enable)
