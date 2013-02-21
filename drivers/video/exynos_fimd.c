@@ -25,10 +25,14 @@
 #include <asm/io.h>
 #include <lcd.h>
 #include <div64.h>
+#include <fdtdec.h>
+#include <libfdt.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
 #include "exynos_fb.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned long *lcd_base_addr;
 static vidinfo_t *pvid;
@@ -264,6 +268,19 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 {
 	unsigned int cfg = 0, rgb_mode;
 	unsigned int offset;
+#ifdef CONFIG_OF_CONTROL
+	unsigned int node;
+
+	node = fdtdec_next_compatible(gd->fdt_blob,
+					0, COMPAT_SAMSUNG_EXYNOS_FIMD);
+	if (node <= 0)
+		debug("exynos_fb: Can't get device node for fimd\n");
+
+	fimd_ctrl = (struct exynos_fb *)fdtdec_get_addr(gd->fdt_blob,
+								node, "reg");
+	if (fimd_ctrl == NULL)
+		debug("Can't get the FIMD base address\n");
+#endif
 	fimd_ctrl = (struct exynos_fb *)samsung_get_base_fimd();
 
 	offset = exynos_fimd_get_base_offset();
