@@ -554,6 +554,18 @@ endif
 $(obj)u-boot-img.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		cat $(obj)spl/u-boot-spl.bin $(obj)u-boot.img > $@
 
+# PPC4xx needs the SPL at the end of the image, since the reset vector
+# is located at 0xfffffffc. So we can't use the "u-boot-img.bin" target
+# and need to introduce a new build target with the full blown U-Boot
+# at the start padded up to the start of the SPL image. And then concat
+# the SPL image to the end.
+$(obj)u-boot-img-spl-at-end.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
+		tr "\000" "\377" < /dev/zero | dd ibs=1 count=$(CONFIG_UBOOT_PAD_TO) \
+			of=$(obj)u-boot-pad.img 2>/dev/null
+		dd if=$(obj)u-boot.img of=$(obj)u-boot-pad.img \
+			conv=notrunc 2>/dev/null
+		cat $(obj)u-boot-pad.img $(obj)spl/u-boot-spl.bin > $@
+
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
 		cd $(LNDIR) && $(CC) $(SYMS) -T $(obj)u-boot.lds \
