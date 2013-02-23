@@ -70,7 +70,7 @@ void spi_init(void)
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	/* MXS SPI: 4 ports and 3 chip selects maximum */
-	if (bus > 3 || cs > 2)
+	if (!mxs_ssp_bus_id_valid(bus) || cs > 2)
 		return 0;
 	else
 		return 1;
@@ -92,7 +92,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!mxs_slave)
 		return NULL;
 
-	if (mxs_dma_init_channel(bus))
+	if (mxs_dma_init_channel(MXS_DMA_CHANNEL_AHB_APBH_SSP0 + bus))
 		goto err_init;
 
 	mxs_slave->slave.bus = bus;

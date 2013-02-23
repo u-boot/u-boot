@@ -289,7 +289,8 @@ static uint32_t mxs_get_sspclk(enum mxs_sspclock ssp)
 void mxs_set_ssp_busclock(unsigned int bus, uint32_t freq)
 {
 	struct mxs_ssp_regs *ssp_regs;
-	const uint32_t sspclk = mxs_get_sspclk(bus);
+	const enum mxs_sspclock clk = mxs_ssp_clock_by_bus(bus);
+	const uint32_t sspclk = mxs_get_sspclk(clk);
 	uint32_t reg;
 	uint32_t divide, rate, tgtclk;
 
