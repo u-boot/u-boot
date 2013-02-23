@@ -27,6 +27,7 @@
 #include <config.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 #include <linux/compiler.h>
 
 #include "mxs_init.h"
@@ -229,7 +230,7 @@ static void mx23_mem_setup_vddmem(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
-	writel((0x12 << POWER_VDDMEMCTRL_TRG_OFFSET) |
+	writel((0x10 << POWER_VDDMEMCTRL_TRG_OFFSET) |
 		POWER_VDDMEMCTRL_ENABLE_ILIMIT |
 		POWER_VDDMEMCTRL_ENABLE_LINREG |
 		POWER_VDDMEMCTRL_PULLDOWN_ACTIVE,
@@ -237,13 +238,20 @@ static void mx23_mem_setup_vddmem(void)
 
 	early_delay(10000);
 
-	writel((0x12 << POWER_VDDMEMCTRL_TRG_OFFSET) |
+	writel((0x10 << POWER_VDDMEMCTRL_TRG_OFFSET) |
 		POWER_VDDMEMCTRL_ENABLE_LINREG,
 		&power_regs->hw_power_vddmemctrl);
 }
 
 static void mx23_mem_init(void)
 {
+	/*
+	 * Reset/ungate the EMI block. This is essential, otherwise the system
+	 * suffers from memory instability. This thing is mx23 specific and is
+	 * no longer present on mx28.
+	 */
+	mxs_reset_block((struct mxs_register_32 *)MXS_EMI_BASE);
+
 	mx23_mem_setup_vddmem();
 
 	/*
