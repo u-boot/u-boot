@@ -42,16 +42,29 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static const int8_t vsc3316_fsm1_tx[8][2] = { {0, 0}, {1, 1}, {6, 6}, {7, 7},
+				{8, 8}, {9, 9}, {14, 14}, {15, 15} };
+
+static const int8_t vsc3316_fsm2_tx[8][2] = { {2, 2}, {3, 3}, {4, 4}, {5, 5},
+				{10, 10}, {11, 11}, {12, 12}, {13, 13} };
+
+static const int8_t vsc3316_fsm1_rx[8][2] = { {2, 12}, {3, 13}, {4, 5}, {5, 4},
+				{10, 11}, {11, 10}, {12, 2}, {13, 3} };
+
+static const int8_t vsc3316_fsm2_rx[8][2] = { {0, 15}, {1, 14}, {6, 7}, {7, 6},
+				{8, 9}, {9, 8}, {14, 1}, {15, 0} };
+
 int checkboard(void)
 {
+	char buf[64];
 	u8 sw;
-	struct cpu_type *cpu = gd->cpu;
+	struct cpu_type *cpu = gd->arch.cpu;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	unsigned int i;
 
 	printf("Board: %sQDS, ", cpu->name);
-	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
-		QIXIS_READ(id), QIXIS_READ(arch), QIXIS_READ(scver));
+	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, ",
+		QIXIS_READ(id), QIXIS_READ(arch));
 
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
@@ -64,6 +77,12 @@ int checkboard(void)
 		puts("NAND\n");
 	else
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
+
+	printf("FPGA: v%d (%s), build %d",
+		(int)QIXIS_READ(scver), qixis_read_tag(buf),
+		(int)qixis_read_minor());
+	/* the timestamp string contains "\n" at the end */
+	printf(" on %s", qixis_read_time(buf));
 
 	/* Display the RCW, so that no one gets confused as to what RCW
 	 * we're actually using for this boot.
@@ -392,4 +411,64 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_ethernet(blob);
 	fdt_fixup_board_enet(blob);
 #endif
+}
+
+/*
+ * Reverse engineering switch settings.
+ * Some bits cannot be figured out. They will be displayed as
+ * underscore in binary format. mask[] has those bits.
+ * Some bits are calculated differently than the actual switches
+ * if booting with overriding by FPGA.
+ */
+void qixis_dump_switch(void)
+{
+	int i;
+	u8 sw[9];
+
+	/*
+	 * Any bit with 1 means that bit cannot be reverse engineered.
+	 * It will be displayed as _ in binary format.
+	 */
+	static const u8 mask[] = {0, 0, 0, 0, 0, 0x1, 0xdf, 0x3f, 0x1f};
+	char buf[10];
+	u8 brdcfg[16], dutcfg[16];
+
+	for (i = 0; i < 16; i++) {
+		brdcfg[i] = qixis_read(offsetof(struct qixis, brdcfg[0]) + i);
+		dutcfg[i] = qixis_read(offsetof(struct qixis, dutcfg[0]) + i);
+	}
+
+	sw[0] = dutcfg[0];
+	sw[1] = (dutcfg[1] << 0x07)		| \
+		((dutcfg[12] & 0xC0) >> 1)	| \
+		((dutcfg[11] & 0xE0) >> 3)	| \
+		((dutcfg[6] & 0x80) >> 6)	| \
+		((dutcfg[1] & 0x80) >> 7);
+	sw[2] = ((brdcfg[1] & 0x0f) << 4)	| \
+		((brdcfg[1] & 0x30) >> 2)	| \
+		((brdcfg[1] & 0x40) >> 5)	| \
+		((brdcfg[1] & 0x80) >> 7);
+	sw[3] = brdcfg[2];
+	sw[4] = ((dutcfg[2] & 0x01) << 7)	| \
+		((dutcfg[2] & 0x06) << 4)	| \
+		((~QIXIS_READ(present)) & 0x10)	| \
+		((brdcfg[3] & 0x80) >> 4)	| \
+		((brdcfg[3] & 0x01) << 2)	| \
+		((brdcfg[6] == 0x62) ? 3 :	\
+		((brdcfg[6] == 0x5a) ? 2 :	\
+		((brdcfg[6] == 0x5e) ? 1 : 0)));
+	sw[5] = ((brdcfg[0] & 0x0f) << 4)	| \
+		((QIXIS_READ(rst_ctl) & 0x30) >> 2) | \
+		((brdcfg[0] & 0x40) >> 5);
+	sw[6] = (brdcfg[11] & 0x20);
+	sw[7] = (((~QIXIS_READ(rst_ctl)) & 0x40) << 1) | \
+		((brdcfg[5] & 0x10) << 2);
+	sw[8] = ((brdcfg[12] & 0x08) << 4)	| \
+		((brdcfg[12] & 0x03) << 5);
+
+	puts("DIP switch (reverse-engineering)\n");
+	for (i = 0; i < 9; i++) {
+		printf("SW%d         = 0b%s (0x%02x)\n",
+			i + 1, byte_to_binary_mask(sw[i], mask[i], buf), sw[i]);
+	}
 }

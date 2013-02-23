@@ -207,7 +207,7 @@ int stdio_init (void)
 	/* Initialize the list */
 	INIT_LIST_HEAD(&(devs.list));
 
-#ifdef CONFIG_ARM_DCC_MULTI
+#ifdef CONFIG_ARM_DCC
 	drv_arm_dcc_init ();
 #endif
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)

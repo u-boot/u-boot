@@ -29,7 +29,6 @@
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
-#include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 

@@ -32,6 +32,9 @@
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/tegra_spi.h>
 #include <spi.h>
+#include <fdtdec.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_SPI_CORRUPTS_UART)
  #define corrupt_delay()	udelay(CONFIG_SPI_CORRUPTS_UART_DLY);
@@ -44,6 +47,7 @@ struct tegra_spi_slave {
 	struct spi_tegra *regs;
 	unsigned int freq;
 	unsigned int mode;
+	int periph_id;
 };
 
 static inline struct tegra_spi_slave *to_tegra_spi(struct spi_slave *slave)
@@ -84,8 +88,45 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 	spi->slave.bus = bus;
 	spi->slave.cs = cs;
-	spi->freq = max_hz;
+#ifdef CONFIG_OF_CONTROL
+	int node = fdtdec_next_compatible(gd->fdt_blob, 0,
+					  COMPAT_NVIDIA_TEGRA20_SFLASH);
+	if (node < 0) {
+		debug("%s: cannot locate sflash node\n", __func__);
+		return NULL;
+	}
+	if (!fdtdec_get_is_enabled(gd->fdt_blob, node)) {
+		debug("%s: sflash is disabled\n", __func__);
+		return NULL;
+	}
+	spi->regs = (struct spi_tegra *)fdtdec_get_addr(gd->fdt_blob,
+							node, "reg");
+	if ((fdt_addr_t)spi->regs == FDT_ADDR_T_NONE) {
+		debug("%s: no sflash register found\n", __func__);
+		return NULL;
+	}
+	spi->freq = fdtdec_get_int(gd->fdt_blob, node, "spi-max-frequency", 0);
+	if (!spi->freq) {
+		debug("%s: no sflash max frequency found\n", __func__);
+		return NULL;
+	}
+	spi->periph_id = clock_decode_periph_id(gd->fdt_blob, node);
+	if (spi->periph_id == PERIPH_ID_NONE) {
+		debug("%s: could not decode periph id\n", __func__);
+		return NULL;
+	}
+#else
 	spi->regs = (struct spi_tegra *)NV_PA_SPI_BASE;
+	spi->freq = TEGRA_SPI_MAX_FREQ;
+	spi->periph_id = PERIPH_ID_SPI1;
+#endif
+	if (max_hz < spi->freq) {
+		debug("%s: limiting frequency from %u to %u\n", __func__,
+		      spi->freq, max_hz);
+		spi->freq = max_hz;
+	}
+	debug("%s: controller initialized at %p, freq = %u, periph_id = %d\n",
+	      __func__, spi->regs, spi->freq, spi->periph_id);
 	spi->mode = mode;
 
 	return &spi->slave;
@@ -110,7 +151,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	u32 reg;
 
 	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
-	clock_start_periph_pll(PERIPH_ID_SPI1, CLOCK_ID_PERIPH, spi->freq);
+	clock_start_periph_pll(spi->periph_id, CLOCK_ID_PERIPH, spi->freq);
 
 	/* Clear stale status here */
 	reg = SPI_STAT_RDY | SPI_STAT_RXF_FLUSH | SPI_STAT_TXF_FLUSH | \

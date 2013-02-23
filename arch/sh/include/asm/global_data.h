@@ -27,24 +27,11 @@
 #ifndef	__ASM_SH_GLOBALDATA_H_
 #define __ASM_SH_GLOBALDATA_H_
 
-typedef	struct global_data
-{
-	bd_t		*bd;
-	unsigned long	flags;
-	unsigned int	baudrate;
-	unsigned long	cpu_clk;	/* CPU clock in Hz! */
-	unsigned long	have_console;	/* serial_init() was called */
-#ifdef CONFIG_PRE_CONSOLE_BUFFER
-	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
-#endif
-	phys_size_t	ram_size;	/* RAM size */
-	unsigned long	env_addr;	/* Address  of Environment struct */
-	unsigned long	env_valid;	/* Checksum of Environment valid */
-	void		**jt;		/* Standalone app jump table */
-	char		env_buf[32];	/* buffer for getenv() before reloc. */
-} gd_t;
+/* Architecture-specific global data */
+struct arch_global_data {
+};
 
-#include <asm-generic/global_data_flags.h>
+#include <asm-generic/global_data.h>
 
 #define DECLARE_GLOBAL_DATA_PTR	register gd_t *gd asm ("r13")
 

@@ -225,6 +225,7 @@ static inline
 int abortboot(int bootdelay)
 {
 	int abort = 0;
+	unsigned long ts;
 
 #ifdef CONFIG_MENUPROMPT
 	printf(CONFIG_MENUPROMPT);
@@ -248,11 +249,10 @@ int abortboot(int bootdelay)
 #endif
 
 	while ((bootdelay > 0) && (!abort)) {
-		int i;
-
 		--bootdelay;
-		/* delay 100 * 10ms */
-		for (i=0; !abort && i<100; ++i) {
+		/* delay 1000 ms */
+		ts = get_timer(0);
+		do {
 			if (tstc()) {	/* we got a key press	*/
 				abort  = 1;	/* don't auto boot	*/
 				bootdelay = 0;	/* no more delay	*/
@@ -264,7 +264,7 @@ int abortboot(int bootdelay)
 				break;
 			}
 			udelay(10000);
-		}
+		} while (!abort && get_timer(ts) < 1000);
 
 		printf("\b\b\b%2d ", bootdelay);
 	}
@@ -1452,7 +1452,7 @@ static int builtin_run_command(const char *cmd, int flag)
 			continue;
 		}
 
-		if (cmd_process(flag, argc, argv, &repeatable))
+		if (cmd_process(flag, argc, argv, &repeatable, NULL))
 			rc = -1;
 
 		/* Did the user stop this? */

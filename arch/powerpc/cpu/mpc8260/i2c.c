@@ -259,7 +259,7 @@ void i2c_init(int speed, int slaveadd)
 	 * divide BRGCLK by 1)
 	 */
 	debug("[I2C] Setting rate...\n");
-	i2c_setrate(gd->brg_clk, CONFIG_SYS_I2C_SPEED);
+	i2c_setrate(gd->arch.brg_clk, CONFIG_SYS_I2C_SPEED);
 
 	/* Set I2C controller in master mode */
 	i2c->i2c_i2com = 0x01;

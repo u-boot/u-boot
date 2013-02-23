@@ -22,36 +22,6 @@
 #include <common.h>
 #include <command.h>
 
-/*
- * TODO(clchiou): This function actually minics the bottom-half of the
- * run_command() function.  Since this function has ARM-dependent timer
- * codes, we cannot merge it with the run_command() for now.
- */
-static int run_command_and_time_it(int flag, int argc, char * const argv[],
-		ulong *cycles)
-{
-	cmd_tbl_t *cmdtp = find_cmd(argv[0]);
-	int retval = 0;
-
-	if (!cmdtp) {
-		printf("%s: command not found\n", argv[0]);
-		return 1;
-	}
-	if (argc > cmdtp->maxargs)
-		return CMD_RET_USAGE;
-
-	/*
-	 * TODO(clchiou): get_timer_masked() is only defined in certain ARM
-	 * boards.  We could use the new timer API that Graeme is proposing
-	 * so that this piece of code would be arch-independent.
-	 */
-	*cycles = get_timer_masked();
-	retval = cmdtp->cmd(cmdtp, flag, argc, argv);
-	*cycles = get_timer_masked() - *cycles;
-
-	return retval;
-}
-
 static void report_time(ulong cycles)
 {
 	ulong minutes, seconds, milliseconds;
@@ -75,11 +45,12 @@ static int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong cycles = 0;
 	int retval = 0;
+	int repeatable;
 
 	if (argc == 1)
 		return CMD_RET_USAGE;
 
-	retval = run_command_and_time_it(0, argc - 1, argv + 1, &cycles);
+	retval = cmd_process(0, argc - 1, argv + 1, &repeatable, &cycles);
 	report_time(cycles);
 
 	return retval;

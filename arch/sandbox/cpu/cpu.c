@@ -54,7 +54,7 @@ int cleanup_before_linux(void)
 
 void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
-	return (void *)(gd->ram_buf + paddr);
+	return (void *)(gd->arch.ram_buf + paddr);
 }
 
 void flush_dcache_range(unsigned long start, unsigned long stop)

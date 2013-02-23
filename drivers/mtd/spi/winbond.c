@@ -67,6 +67,11 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 		.nr_blocks		= 128,
 		.name			= "W25Q80",
 	},
+	{
+		.id			= 0x6017,
+		.nr_blocks		= 128,
+		.name			= "W25Q64DW",
+	},
 };
 
 struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)

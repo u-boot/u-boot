@@ -114,28 +114,28 @@ int get_clocks(void)
 			    ((in_be32(&pll->pcr) & 0xFF000000) >> 24) *
 			    CONFIG_SYS_INPUT_CLKSRC;
 		}
-		gd->vco_clk = vco;	/* Vco clock */
+		gd->arch.vco_clk = vco;	/* Vco clock */
 	} else if (bootmode == 3) {
 		/* serial mode */
 		vco = ((in_be32(&pll->pcr) & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
-		gd->vco_clk = vco;	/* Vco clock */
+		gd->arch.vco_clk = vco;	/* Vco clock */
 	}
 
 	if ((in_be16(&ccm->ccr) & CCM_MISCCR_LIMP) == CCM_MISCCR_LIMP) {
 		/* Limp mode */
 	} else {
-		gd->inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
+		gd->arch.inp_clk = CONFIG_SYS_INPUT_CLKSRC; /* Input clock */
 
 		temp = (in_be32(&pll->pcr) & PLL_PCR_OUTDIV1_MASK) + 1;
 		gd->cpu_clk = vco / temp;	/* cpu clock */
 
 		temp = ((in_be32(&pll->pcr) & PLL_PCR_OUTDIV2_MASK) >> 4) + 1;
-		gd->flb_clk = vco / temp;	/* flexbus clock */
-		gd->bus_clk = gd->flb_clk;
+		gd->arch.flb_clk = vco / temp;	/* flexbus clock */
+		gd->bus_clk = gd->arch.flb_clk;
 	}
 
 #ifdef CONFIG_FSL_I2C
-	gd->i2c1_clk = gd->bus_clk;
+	gd->arch.i2c1_clk = gd->bus_clk;
 #endif
 
 	return (0);

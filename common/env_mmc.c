@@ -46,13 +46,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_ENV_OFFSET 0
 #endif
 
-static int __mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
+__weak int mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
 {
 	*env_addr = CONFIG_ENV_OFFSET;
 	return 0;
 }
-int mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
-	__attribute__((weak, alias("__mmc_get_env_addr")));
 
 int env_init(void)
 {

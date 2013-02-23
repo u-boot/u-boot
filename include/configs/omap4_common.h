@@ -91,8 +91,6 @@
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_SYS_I2C_BUS		0
-#define CONFIG_SYS_I2C_BUS_SELECT	1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 #define CONFIG_I2C_MULTI_BUS		1
 
@@ -159,6 +157,9 @@
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
 		"source ${loadaddr}\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
+		"env import -t ${loadaddr} ${filesize}\0" \
 	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc${mmcdev} ...; " \
 		"run mmcargs; " \
@@ -166,12 +167,20 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
+		"echo SD/MMC found on device ${mmcdev};" \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"fi; " \
+			"if run loadbootenv; then " \
+				"run importbootenv; " \
+			"fi;" \
+			"if test -n ${uenvcmd}; then " \
+				"echo Running uenvcmd ...;" \
+				"run uenvcmd;" \
+			"fi;" \
+		"fi;" \
+		"if run loaduimage; then " \
+			"run mmcboot; " \
 		"fi; " \
 	"fi"
 

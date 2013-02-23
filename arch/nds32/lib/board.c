@@ -207,17 +207,6 @@ void board_init_f(ulong bootflag)
 
 	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;
 
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-	/* reserve TLB table */
-	addr -= (4096 * 4);
-
-	/* round down to next 64 kB limit */
-	addr &= ~(0x10000 - 1);
-
-	gd->tlb_addr = addr;
-	debug("TLB table at: %08lx\n", addr);
-#endif
-
 	/* round down to next 4 kB limit */
 	addr &= ~(4096 - 1);
 	debug("Top of RAM usable for U-Boot at: %08lx\n", addr);

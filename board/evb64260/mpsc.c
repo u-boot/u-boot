@@ -88,7 +88,7 @@ static void galsdma_enable_rx(void);
 
 
 /* GT64240A errata: cant read MPSC/BRG registers... so make mirrors in ram for read/modify write */
-#define MIRROR_HACK ((struct _tag_mirror_hack *)&(gd->mirror_hack[0]))
+#define MIRROR_HACK ((struct _tag_mirror_hack *)&(gd->arch.mirror_hack[0]))
 
 #define GT_REG_WRITE_MIRROR_G(a,d) {MIRROR_HACK->a ## _M = d; GT_REG_WRITE(a,d);}
 #define GTREGREAD_MIRROR_G(a) (MIRROR_HACK->a ## _M)

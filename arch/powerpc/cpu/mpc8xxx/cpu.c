@@ -86,6 +86,8 @@ static struct cpu_type cpu_type_list[] = {
 	CPU_TYPE_ENTRY(B4220, B4220, 0),
 	CPU_TYPE_ENTRY(BSC9130, 9130, 1),
 	CPU_TYPE_ENTRY(BSC9131, 9131, 1),
+	CPU_TYPE_ENTRY(BSC9132, 9132, 2),
+	CPU_TYPE_ENTRY(BSC9232, 9232, 2),
 #elif defined(CONFIG_MPC86xx)
 	CPU_TYPE_ENTRY(8610, 8610, 1),
 	CPU_TYPE_ENTRY(8641, 8641, 2),
@@ -146,7 +148,7 @@ struct cpu_type *identify_cpu(u32 ver)
 u32 cpu_mask(void)
 {
 	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
-	struct cpu_type *cpu = gd->cpu;
+	struct cpu_type *cpu = gd->arch.cpu;
 
 	/* better to query feature reporting register than just assume 1 */
 	if (cpu == &cpu_type_unknown)
@@ -164,7 +166,7 @@ u32 cpu_mask(void)
  */
 int cpu_numcores(void)
 {
-	struct cpu_type *cpu = gd->cpu;
+	struct cpu_type *cpu = gd->arch.cpu;
 
 	/*
 	 * Report # of cores in terms of the cpu_mask if we haven't
@@ -194,7 +196,7 @@ int probecpu (void)
 	svr = get_svr();
 	ver = SVR_SOC_VER(svr);
 
-	gd->cpu = identify_cpu(ver);
+	gd->arch.cpu = identify_cpu(ver);
 
 	return 0;
 }
@@ -202,7 +204,7 @@ int probecpu (void)
 /* Once in memory, compute mask & # cores once and save them off */
 int fixup_cpu(void)
 {
-	struct cpu_type *cpu = gd->cpu;
+	struct cpu_type *cpu = gd->arch.cpu;
 
 	if (cpu->num_cores == 0) {
 		cpu->mask = cpu_mask();

@@ -65,4 +65,5 @@ PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic $(ENDIANNESS)
 PLATFORM_CPPFLAGS		+= -msoft-float
 PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib $(ENDIANNESS)
 PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
-LDFLAGS_FINAL			+= --gc-sections
+LDFLAGS_FINAL			+= --gc-sections -pie
+OBJCFLAGS			+= --remove-section=.dynsym

@@ -27,6 +27,10 @@ Poonam Aggrwal <poonam.aggrwal@freescale.com>
 
 	BSC9131RDB	BSC9131
 
+Naveen Burmi <NaveenBurmi@freescale.com>
+
+	BSC9132QDS	BSC9132
+
 Greg Allen <gallen@arlut.utexas.edu>
 
 	UTX8245		MPC8245
@@ -603,6 +607,7 @@ Enric Balletbo i Serra <eballetbo@iseebcn.com>
 
 	igep0020	ARM ARMV7 (OMAP3xx SoC)
 	igep0030	ARM ARMV7 (OMAP3xx SoC)
+	igep0032	ARM ARMV7 (OMAP3xx SoC)
 
 Eric Benard <eric@eukrea.com>
 
@@ -814,6 +819,9 @@ Luka Perkov <luka@openwrt.org>
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
+
+Lars Poeschel <poeschel@lemonage.de>
+	pcm051  	ARM ARMV7 (AM33xx Soc)
 
 Mathieu Poirier <mathieu.poirier@linaro.org>
 

@@ -81,12 +81,14 @@ LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/memory.o
 LIBS-$(CONFIG_SPL_NET_SUPPORT) += net/libnet.o
 LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/libnet.o
 LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/libphy.o
+LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/libusb_musb-new.o
+LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/libusb_gadget.o
 
 ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
 LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
 LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o

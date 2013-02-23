@@ -229,9 +229,9 @@ int get_clocks(void)
 {
 #ifdef CONFIG_FSL_ESDHC
 #if CONFIG_SYS_FSL_ESDHC_ADDR == IMX_MMC_SDHC2_BASE
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 #else
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
 #endif
 #endif
 	return 0;

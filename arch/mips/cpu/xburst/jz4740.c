@@ -201,10 +201,10 @@ void calc_clocks(void)
 	pllout = __cpm_get_pllout();
 
 	gd->cpu_clk = pllout / div[__cpm_get_cdiv()];
-	gd->sys_clk = pllout / div[__cpm_get_hdiv()];
-	gd->per_clk = pllout / div[__cpm_get_pdiv()];
+	gd->arch.sys_clk = pllout / div[__cpm_get_hdiv()];
+	gd->arch.per_clk = pllout / div[__cpm_get_pdiv()];
 	gd->mem_clk = pllout / div[__cpm_get_mdiv()];
-	gd->dev_clk = CONFIG_SYS_EXTAL;
+	gd->arch.dev_clk = CONFIG_SYS_EXTAL;
 }
 
 void rtc_init(void)

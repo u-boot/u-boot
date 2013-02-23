@@ -145,9 +145,6 @@ extern void *rm_int1e;
 extern void *rm_int1f;
 extern void *rm_def_int;
 
-extern void *realmode_reset;
-extern void *realmode_pci_bios_call_entry;
-
 #define RELOC_16_LONG(seg, off) (*(u32 *)(seg << 4 | (u32)&off))
 #define RELOC_16_WORD(seg, off) (*(u16 *)(seg << 4 | (u32)&off))
 #define RELOC_16_BYTE(seg, off) (*(u8 *)(seg << 4 | (u32)&off))

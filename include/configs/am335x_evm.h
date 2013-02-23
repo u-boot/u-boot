@@ -52,6 +52,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"fdtaddr=0x80F80000\0" \
+	"fdt_high=0xffffffff\0" \
 	"rdaddr=0x81000000\0" \
 	"bootfile=/boot/uImage\0" \
 	"fdtfile=\0" \
@@ -60,12 +61,38 @@
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
+	"nandroot=ubi0:rootfs rw ubi.mtd=7,2048\0" \
+	"nandrootfstype=ubifs rootwait=1\0" \
+	"nandsrcaddr=0x280000\0" \
+	"nandimgsize=0x500000\0" \
+	"rootpath=/export/rootfs\0" \
+	"nfsopts=nolock\0" \
+	"static_ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}" \
+		"::off\0" \
 	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
 	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
+	"nandargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype}\0" \
+	"spiroot=/dev/mtdblock4 rw\0" \
+	"spirootfstype=jffs2\0" \
+	"spisrcaddr=0xe0000\0" \
+	"spiimgsize=0x362000\0" \
+	"spibusno=0\0" \
+	"spiargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${spiroot} " \
+		"rootfstype=${spirootfstype}\0" \
+	"netargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=/dev/nfs " \
+		"nfsroot=${serverip}:${rootpath},${nfsopts} rw " \
+		"ip=dhcp\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
@@ -79,6 +106,21 @@
 	"loaduimage=ext2load mmc ${mmcdev}:2 ${loadaddr} ${bootfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
+		"bootm ${loadaddr}\0" \
+	"nandboot=echo Booting from nand ...; " \
+		"run nandargs; " \
+		"nand read ${loadaddr} ${nandsrcaddr} ${nandimgsize}; " \
+		"bootm ${loadaddr}\0" \
+	"spiboot=echo Booting from spi ...; " \
+		"run spiargs; " \
+		"sf probe ${spibusno}:0; " \
+		"sf read ${loadaddr} ${spisrcaddr} ${spiimgsize}; " \
+		"bootm ${loadaddr}\0" \
+	"netboot=echo Booting from network ...; " \
+		"setenv autoload no; " \
+		"dhcp; " \
+		"tftp ${loadaddr} ${bootfile}; " \
+		"run netargs; " \
 		"bootm ${loadaddr}\0" \
 	"ramboot=echo Booting from ramdisk ...; " \
 		"run ramargs; " \
@@ -105,6 +147,8 @@
 		"if run loaduimage; then " \
 			"run mmcboot;" \
 		"fi;" \
+	"else " \
+		"run nandboot;" \
 	"fi;" \
 
 /* Clock Defines */
@@ -236,8 +280,8 @@
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x80000
+#define CONFIG_SPL_MUSB_NEW_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 #define CONFIG_SPL_BOARD_INIT
@@ -311,7 +355,40 @@
 #ifdef CONFIG_MUSB_GADGET
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
+#define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
 #endif /* CONFIG_MUSB_GADGET */
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+/* disable host part of MUSB in SPL */
+#undef CONFIG_MUSB_HOST
+/*
+ * Disable UART, CPSW ethernet support and extra environment settings so we
+ * will fit within 101KiB.
+ */
+#undef CONFIG_SPL_ETH_SUPPORT
+#undef CONFIG_SPL_YMODEM_SUPPORT
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#endif
+
+/*
+ * Default to using SPI for environment, etc.  We have multiple copies
+ * of SPL as the ROM will check these locations.
+ * 0x0 - 0x20000 : First copy of SPL
+ * 0x20000 - 0x40000 : Second copy of SPL
+ * 0x40000 - 0x60000 : Third copy of SPL
+ * 0x60000 - 0x80000 : Fourth copy of SPL
+ * 0x80000 - 0xDF000 : U-Boot
+ * 0xDF000 - 0xE0000 : U-Boot Environment
+ * 0xE0000 - 0x442000 : Linux Kernel
+ * 0x442000 - 0x800000 : Userland
+ */
+#if defined(CONFIG_SPI_BOOT)
+# undef CONFIG_ENV_IS_NOWHERE
+# define CONFIG_ENV_IS_IN_SPI_FLASH
+# define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
+# define CONFIG_ENV_OFFSET		(892 << 10) /* 892 KiB in */
+# define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
+#endif /* SPI support */
 
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
@@ -345,10 +422,12 @@
 							/* CS0 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
 							   devices */
+#if !defined(CONFIG_SPI_BOOT)
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#endif
 #endif
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */

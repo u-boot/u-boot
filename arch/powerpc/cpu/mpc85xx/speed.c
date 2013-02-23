@@ -391,11 +391,11 @@ int get_clocks (void)
 	gd->cpu_clk = sys_info.freqProcessor[0];
 	gd->bus_clk = sys_info.freqSystemBus;
 	gd->mem_clk = sys_info.freqDDRBus;
-	gd->lbc_clk = sys_info.freqLocalBus;
+	gd->arch.lbc_clk = sys_info.freqLocalBus;
 
 #ifdef CONFIG_QE
-	gd->qe_clk = sys_info.freqQE;
-	gd->brg_clk = gd->qe_clk / 2;
+	gd->arch.qe_clk = sys_info.freqQE;
+	gd->arch.brg_clk = gd->arch.qe_clk / 2;
 #endif
 	/*
 	 * The base clock for I2C depends on the actual SOC.  Unfortunately,
@@ -406,7 +406,7 @@ int get_clocks (void)
 	 */
 #if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
 	defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555)
-	gd->i2c1_clk = sys_info.freqSystemBus;
+	gd->arch.i2c1_clk = sys_info.freqSystemBus;
 #elif defined(CONFIG_MPC8544)
 	/*
 	 * On the 8544, the I2C clock is the same as the SEC clock.  This can be
@@ -416,29 +416,29 @@ int get_clocks (void)
 	 * PORDEVSR2_SEC_CFG bit is 0 on all 85xx boards that are not an 8544.
 	 */
 	if (gur->pordevsr2 & MPC85xx_PORDEVSR2_SEC_CFG)
-		gd->i2c1_clk = sys_info.freqSystemBus / 3;
+		gd->arch.i2c1_clk = sys_info.freqSystemBus / 3;
 	else
-		gd->i2c1_clk = sys_info.freqSystemBus / 2;
+		gd->arch.i2c1_clk = sys_info.freqSystemBus / 2;
 #else
 	/* Most 85xx SOCs use CCB/2, so this is the default behavior. */
-	gd->i2c1_clk = sys_info.freqSystemBus / 2;
+	gd->arch.i2c1_clk = sys_info.freqSystemBus / 2;
 #endif
-	gd->i2c2_clk = gd->i2c1_clk;
+	gd->arch.i2c2_clk = gd->arch.i2c1_clk;
 
 #if defined(CONFIG_FSL_ESDHC)
 #if defined(CONFIG_MPC8569) || defined(CONFIG_P1010) ||\
        defined(CONFIG_P1014)
-	gd->sdhc_clk = gd->bus_clk;
+	gd->arch.sdhc_clk = gd->bus_clk;
 #else
-	gd->sdhc_clk = gd->bus_clk / 2;
+	gd->arch.sdhc_clk = gd->bus_clk / 2;
 #endif
 #endif /* defined(CONFIG_FSL_ESDHC) */
 
 #if defined(CONFIG_CPM2)
-	gd->vco_out = 2*sys_info.freqSystemBus;
-	gd->cpm_clk = gd->vco_out / 2;
-	gd->scc_clk = gd->vco_out / 4;
-	gd->brg_clk = gd->vco_out / (1 << (2 * (dfbrg + 1)));
+	gd->arch.vco_out = 2*sys_info.freqSystemBus;
+	gd->arch.cpm_clk = gd->arch.vco_out / 2;
+	gd->arch.scc_clk = gd->arch.vco_out / 4;
+	gd->arch.brg_clk = gd->arch.vco_out / (1 << (2 * (dfbrg + 1)));
 #endif
 
 	if(gd->cpu_clk != 0) return (0);

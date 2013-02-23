@@ -80,7 +80,7 @@ int ps2ser_init(void)
 
 	/* select clock sources */
 	psc->psc_clock_select = 0;
-	baseclk = (gd->ipb_clk + 16) / 32;
+	baseclk = (gd->arch.ipb_clk + 16) / 32;
 
 	/* switch to UART mode */
 	psc->sicr = 0;

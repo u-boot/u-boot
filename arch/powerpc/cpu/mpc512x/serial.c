@@ -140,7 +140,7 @@ void serial_setbrg_dev(unsigned int idx)
 	}
 
 	/* calculate divisor for setting PSC CTUR and CTLR registers */
-	baseclk = (gd->ips_clk + 8) / 16;
+	baseclk = (gd->arch.ips_clk + 8) / 16;
 	div = (baseclk + (baudrate / 2)) / baudrate;
 
 	out_8(&psc->ctur, (div >> 8) & 0xff);

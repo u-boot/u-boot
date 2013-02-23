@@ -98,9 +98,6 @@
 #endif
 #endif
 
-#define TOLOWER(c)	if((c) >= 'A' && (c) <= 'Z'){(c)+=('a' - 'A');}
-#define TOUPPER(c)	if ((c) >= 'a' && (c) <= 'z') \
-				(c) -= ('a' - 'A');
 #define START(dent)	(FAT2CPU16((dent)->start) \
 			+ (mydata->fatsize != 32 ? 0 : \
 			  (FAT2CPU16((dent)->starthi) << 16)))

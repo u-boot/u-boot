@@ -187,7 +187,7 @@ static int ser_init(volatile struct mpc5xxx_psc *psc, int baudrate)
 	/* select clock sources */
 
 	out_be16(&psc->psc_clock_select, 0);
-	baseclk = (gd->ipb_clk + 16) / 32;
+	baseclk = (gd->arch.ipb_clk + 16) / 32;
 
 	/* switch to UART mode */
 	out_be32(&psc->sicr, 0);
@@ -369,7 +369,7 @@ static void buzzer_turn_on(unsigned int freq)
 {
 	volatile struct mpc5xxx_gpt *gpt = (struct mpc5xxx_gpt *)(BUZZER_GPT);
 
-	const u32 prescale = gd->ipb_clk / freq / 128;
+	const u32 prescale = gd->arch.ipb_clk / freq / 128;
 	const u32 count = 128;
 	const u32 width = 64;
 
@@ -405,9 +405,9 @@ static int do_inkadiag_buzzer(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	freq = simple_strtol(argv[0], NULL, 0);
 	/* avoid zero prescale in buzzer_turn_on() */
-	if (freq > gd->ipb_clk / 128) {
+	if (freq > gd->arch.ipb_clk / 128) {
 		printf("%dHz exceeds maximum (%ldHz)\n", freq,
-		       gd->ipb_clk / 128);
+		       gd->arch.ipb_clk / 128);
 	} else if (!freq)
 		printf("Zero frequency is senseless\n");
 	else

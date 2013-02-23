@@ -58,7 +58,13 @@
 #define MSR_KERNEL (MSR_FP|MSR_ME|MSR_RI)
 #endif
 
-#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SYS_RAMBOOT)
+#if defined(CONFIG_NAND_SPL) || \
+	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_INIT_MINIMAL))
+#define MINIMAL_SPL
+#endif
+
+#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NAND_SPL) && \
+	!defined(CONFIG_SYS_RAMBOOT)
 #define CONFIG_SYS_FLASHBOOT
 #endif
 
@@ -72,7 +78,7 @@
 	GOT_ENTRY(__bss_start)
 	GOT_ENTRY(__bss_end__)
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	GOT_ENTRY(_FIXUP_TABLE_)
 	GOT_ENTRY(_start)
 	GOT_ENTRY(_start_of_vectors)
@@ -206,7 +212,8 @@ _start: /* time t 0 */
 	/* Initialise the E300 processor core		*/
 	/*------------------------------------------*/
 
-#ifdef CONFIG_NAND_SPL
+#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_MPC83XX_WAIT_FOR_NAND)) || \
+		defined(CONFIG_NAND_SPL)
 	/* The FCM begins execution after only the first page
 	 * is loaded.  Wait for the rest before branching
 	 * to another flash page.
@@ -292,7 +299,7 @@ in_flash:
 
 	/* NOTREACHED - board_init_f() does not return */
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 /*
  * Vector Table
  */
@@ -467,7 +474,7 @@ int_return:
 	lwz	r1,GPR1(r1)
 	SYNC
 	rfi
-#endif /* !CONFIG_NAND_SPL */
+#endif /* !MINIMAL_SPL */
 
 /*
  * This code initialises the E300 processor core
@@ -724,7 +731,7 @@ setup_bats:
  * Note: requires that all cache bits in
  * HID0 are in the low half word.
  */
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	.globl	icache_enable
 icache_enable:
 	mfspr	r3, HID0
@@ -753,7 +760,7 @@ icache_status:
 	mfspr	r3, HID0
 	rlwinm	r3, r3, (31 - HID0_ICE_SHIFT + 1), 31, 31
 	blr
-#endif	/* !CONFIG_NAND_SPL */
+#endif	/* !MINIMAL_SPL */
 
 	.globl	dcache_enable
 dcache_enable:
@@ -936,7 +943,7 @@ in_ram:
 	stw	r0,0(r3)
 2:	bdnz	1b
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	/*
 	 * Now adjust the fixups and the pointers to the fixups
 	 * in case we need to move ourselves again.
@@ -991,7 +998,7 @@ clear_bss:
 	mr	r4, r10		/* Destination Address		*/
 	bl	board_init_r
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 	/*
 	 * Copy exception vector code to low memory
 	 *
@@ -1061,7 +1068,7 @@ trap_init:
 	mtlr	r4			/* restore link register    */
 	blr
 
-#endif /* !CONFIG_NAND_SPL */
+#endif /* !MINIMAL_SPL */
 
 #ifdef CONFIG_SYS_INIT_RAM_LOCK
 lock_ram_in_cache:
@@ -1085,7 +1092,7 @@ lock_ram_in_cache:
 	sync
 	blr
 
-#ifndef CONFIG_NAND_SPL
+#ifndef MINIMAL_SPL
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
@@ -1111,7 +1118,7 @@ unlock_ram_in_cache:
 	sync
 	mtspr	HID0, r3		/* no invalidate, unlock */
 	blr
-#endif /* !CONFIG_NAND_SPL */
+#endif /* !MINIMAL_SPL */
 #endif /* CONFIG_SYS_INIT_RAM_LOCK */
 
 #ifdef CONFIG_SYS_FLASHBOOT

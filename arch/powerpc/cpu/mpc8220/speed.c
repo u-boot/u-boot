@@ -71,7 +71,7 @@ int get_clocks (void)
 #error clock measuring not implemented yet - define CONFIG_SYS_MPC8220_CLKIN
 #endif
 
-	gd->inp_clk = CONFIG_SYS_MPC8220_CLKIN;
+	gd->arch.inp_clk = CONFIG_SYS_MPC8220_CLKIN;
 
 	/* Read XLB to PCI(INP) clock multiplier */
 	pci2bus = (*((volatile u32 *)PCI_REG_PCIGSCR) &
@@ -85,7 +85,7 @@ int get_clocks (void)
 
 	/* FlexBus is temporary set as the same as input clock */
 	/* will do dynamic in the future */
-	gd->flb_clk = CONFIG_SYS_MPC8220_CLKIN;
+	gd->arch.flb_clk = CONFIG_SYS_MPC8220_CLKIN;
 
 	/* CPU Clock - Read HID1 */
 	asm volatile ("mfspr %0, 1009":"=r" (hid1):);
@@ -97,12 +97,14 @@ int get_clocks (void)
 	for (i = 0; i < size; i++)
 		if (hid1 == bus2core[i].hid1) {
 			gd->cpu_clk = (bus2core[i].multi * gd->bus_clk) >> 1;
-			gd->vco_clk = CONFIG_SYS_MPC8220_SYSPLL_VCO_MULTIPLIER * (gd->pci_clk * bus2core[i].vco_div)/2;
+			gd->arch.vco_clk =
+				CONFIG_SYS_MPC8220_SYSPLL_VCO_MULTIPLIER *
+				(gd->pci_clk * bus2core[i].vco_div) / 2;
 			break;
 		}
 
 	/* hardcoded 81MHz for now */
-	gd->pev_clk = 81000000;
+	gd->arch.pev_clk = 81000000;
 
 	return (0);
 }
@@ -115,7 +117,7 @@ int prt_mpc8220_clks (void)
 		strmhz(buf1, gd->bus_clk),
 		strmhz(buf2, gd->cpu_clk),
 		strmhz(buf3, gd->pci_clk),
-		strmhz(buf4, gd->vco_clk)
+		strmhz(buf4, gd->arch.vco_clk)
 	);
 	return (0);
 }

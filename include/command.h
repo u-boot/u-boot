@@ -139,10 +139,12 @@ enum command_ret_t {
  * @param repeatable	This function sets this to 0 if the command is not
  *			repeatable. If the command is repeatable, the value
  *			is left unchanged.
+ * @param ticks		If ticks is not null, this function set it to the
+ *			number of ticks the command took to complete.
  * @return 0 if the command succeeded, 1 if it failed
  */
 int cmd_process(int flag, int argc, char * const argv[],
-			       int *repeatable);
+			       int *repeatable, unsigned long *ticks);
 
 #endif	/* __ASSEMBLY__ */
 

@@ -46,7 +46,7 @@ static unsigned long tb_factor;
 
 unsigned long get_tbclk(void)
 {
-	return gd->cpu_hz;
+	return gd->arch.cpu_hz;
 }
 
 unsigned long long get_ticks(void)
@@ -115,8 +115,8 @@ int timer_init(void)
 	sysreg_write(COUNT, 0);
 
 	tmp = (u64)CONFIG_SYS_HZ << 32;
-	tmp += gd->cpu_hz / 2;
-	do_div(tmp, gd->cpu_hz);
+	tmp += gd->arch.cpu_hz / 2;
+	do_div(tmp, gd->arch.cpu_hz);
 	tb_factor = (u32)tmp;
 
 	if (set_interrupt_handler(0, &timer_interrupt_handler, 3))

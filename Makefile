@@ -230,10 +230,6 @@ endif
 # U-Boot objects....order is important (i.e. start must be first)
 
 OBJS  = $(CPUDIR)/start.o
-ifeq ($(CPU),x86)
-RESET_OBJS-$(CONFIG_X86_NO_RESET_VECTOR) += $(CPUDIR)/start16.o
-RESET_OBJS-$(CONFIG_X86_NO_RESET_VECTOR) += $(CPUDIR)/resetvec.o
-endif
 ifeq ($(CPU),ppc4xx)
 OBJS += $(CPUDIR)/resetvec.o
 endif
@@ -241,7 +237,7 @@ ifeq ($(CPU),mpc85xx)
 OBJS += $(CPUDIR)/resetvec.o
 endif
 
-OBJS := $(addprefix $(obj),$(OBJS) $(RESET_OBJS-))
+OBJS := $(addprefix $(obj),$(OBJS))
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
 
@@ -348,7 +344,7 @@ endif
 ifeq ($(SOC),exynos)
 LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
 LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
 LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o
@@ -413,7 +409,7 @@ ALL-$(CONFIG_SPL) += $(obj)$(subst ",,$(CONFIG_SPL_TARGET))
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 
 # enable combined SPL/u-boot/dtb rules for tegra
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 ifeq ($(CONFIG_OF_SEPARATE),y)
 ALL-y += $(obj)u-boot-dtb-tegra.bin
 else
@@ -485,8 +481,12 @@ $(obj)u-boot.sha1:	$(obj)u-boot.bin
 $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
 
+
+
 $(obj)u-boot-with-spl.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
-		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(PAD_TO) -O binary $(obj)spl/u-boot-spl $(obj)spl/u-boot-spl-pad.bin
+		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(or $(CONFIG_SPL_PAD_TO),0) \
+			-O binary $(obj)spl/u-boot-spl \
+			$(obj)spl/u-boot-spl-pad.bin
 		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin > $@
 		rm $(obj)spl/u-boot-spl-pad.bin
 
@@ -530,7 +530,7 @@ $(obj)u-boot.spr:	$(obj)u-boot.img $(obj)spl/u-boot-spl.bin
 			conv=notrunc 2>/dev/null
 		cat $(obj)spl/u-boot-spl-pad.img $(obj)u-boot.img > $@
 
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 ifeq ($(CONFIG_OF_SEPARATE),y)
 nodtb=dtb
 dtbfile=$(obj)u-boot.dtb

@@ -27,7 +27,21 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).o
 
+MINIMAL=
+
+ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_INIT_MINIMAL
+MINIMAL=y
+endif
+endif
+
 START	= start.o
+
+ifdef MINIMAL
+
+COBJS-y	+= spl_minimal.o
+
+else
 
 COBJS-y += traps.o
 COBJS-y += cpu.o
@@ -50,6 +64,8 @@ else
 COBJS-y += spd_sdram.o
 endif
 COBJS-$(CONFIG_FSL_DDR2) += law.o
+
+endif # not minimal
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c) $(addprefix $(obj),$(COBJS_LN-y:.o=.c))
