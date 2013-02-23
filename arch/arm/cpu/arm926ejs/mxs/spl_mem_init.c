@@ -120,6 +120,10 @@ static void initialize_dram_values(void)
 		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
 
 #ifdef CONFIG_MX23
+	/*
+	 * Enable tRAS lockout in HW_DRAM_CTL08 ; it must be the last
+	 * element to be set
+	 */
 	writel((1 << 24), MXS_DRAM_BASE + (4 * 8));
 #endif
 }
