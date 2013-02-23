@@ -168,7 +168,12 @@ static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 
 	while (length--) {
 		/* We transfer 1 byte */
+#if defined(CONFIG_MX23)
+		writel(SSP_CTRL0_XFER_COUNT_MASK, &ssp_regs->hw_ssp_ctrl0_clr);
+		writel(1, &ssp_regs->hw_ssp_ctrl0_set);
+#elif defined(CONFIG_MX28)
 		writel(1, &ssp_regs->hw_ssp_xfer_size);
+#endif
 
 		if ((flags & SPI_XFER_END) && !length)
 			mxs_spi_end_xfer(ssp_regs);
@@ -226,6 +231,12 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 	int tl;
 	int ret = 0;
 
+#if defined(CONFIG_MX23)
+	const int mxs_spi_pio_words = 1;
+#elif defined(CONFIG_MX28)
+	const int mxs_spi_pio_words = 4;
+#endif
+
 	ALLOC_CACHE_ALIGN_BUFFER(struct mxs_dma_desc, desc, desc_count);
 
 	memset(desc, 0, sizeof(struct mxs_dma_desc) * desc_count);
@@ -281,7 +292,7 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 
 		dp->cmd.data |=
 			((tl & 0xffff) << MXS_DMA_DESC_BYTES_OFFSET) |
-			(4 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
+			(mxs_spi_pio_words << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
 			MXS_DMA_DESC_HALT_ON_TERMINATE |
 			MXS_DMA_DESC_TERMINATE_FLUSH;
 
@@ -298,15 +309,19 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 		}
 
 		/*
-		 * Write CTRL0, CMD0, CMD1, XFER_SIZE registers. It is
+		 * Write CTRL0, CMD0, CMD1 and XFER_SIZE registers in
+		 * case of MX28, write only CTRL0 in case of MX23 due
+		 * to the difference in register layout. It is utterly
 		 * essential that the XFER_SIZE register is written on
 		 * a per-descriptor basis with the same size as is the
 		 * descriptor!
 		 */
 		dp->cmd.pio_words[0] = ctrl0;
+#ifdef CONFIG_MX28
 		dp->cmd.pio_words[1] = 0;
 		dp->cmd.pio_words[2] = 0;
 		dp->cmd.pio_words[3] = tl;
+#endif
 
 		mxs_dma_desc_append(dmach, dp);
 
