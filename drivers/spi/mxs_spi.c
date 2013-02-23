@@ -40,17 +40,6 @@
 
 #define MXSSSP_SMALL_TRANSFER	512
 
-/*
- * CONFIG_MXS_SPI_DMA_ENABLE: Experimental mixed PIO/DMA support for MXS SPI
- *                            host. Use with utmost caution!
- *
- *                            Enabling this is not yet recommended since this
- *                            still doesn't support transfers to/from unaligned
- *                            addresses. Therefore this driver will not work
- *                            for example with saving environment. This is
- *                            caused by DMA alignment constraints on MXS.
- */
-
 struct mxs_spi_slave {
 	struct spi_slave	slave;
 	uint32_t		max_khz;
@@ -347,12 +336,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	char dummy;
 	int write = 0;
 	char *data = NULL;
-
-#ifdef CONFIG_MXS_SPI_DMA_ENABLE
 	int dma = 1;
-#else
-	int dma = 0;
-#endif
 
 	if (bitlen == 0) {
 		if (flags & SPI_XFER_END) {
