@@ -28,6 +28,9 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -66,6 +69,10 @@ int board_init(void)
 {
 	/* Adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_STATE);
+#endif
 
 	return 0;
 }

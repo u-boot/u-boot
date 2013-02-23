@@ -19,6 +19,8 @@
 #ifndef __MX23_OLINUXINO_CONFIG_H__
 #define __MX23_OLINUXINO_CONFIG_H__
 
+#include <asm/arch/iomux-mx23.h>
+
 /*
  * SoC configurations
  */
@@ -56,6 +58,7 @@
 #define	CONFIG_CMD_EXT2
 #define	CONFIG_CMD_FAT
 #define	CONFIG_CMD_GPIO
+#define	CONFIG_CMD_LED
 #define	CONFIG_CMD_MMC
 
 /*
@@ -110,6 +113,17 @@
 #define	CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define	CONFIG_CONS_INDEX		0
 #define	CONFIG_BAUDRATE			115200	/* Default baud rate */
+
+/*
+ * Status LED
+ */
+#define	CONFIG_STATUS_LED
+#define	CONFIG_GPIO_LED
+#define	CONFIG_BOARD_SPECIFIC_LED
+#define	STATUS_LED_BOOT	0
+#define	STATUS_LED_BIT	MX23_PAD_SSP1_DETECT__GPIO_2_1
+#define	STATUS_LED_STATE	STATUS_LED_ON
+#define	STATUS_LED_PERIOD	(CONFIG_SYS_HZ / 2)
 
 /*
  * MMC Driver
