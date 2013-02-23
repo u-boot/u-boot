@@ -354,7 +354,6 @@
 
 /* SPL OS boot options */
 #define CONFIG_SPL_OS_BOOT
-#define CONFIG_SPL_OS_BOOT_KEY	26
 
 #define CONFIG_CMD_SPL
 #define CONFIG_CMD_SPL_WRITE_SIZE       0x400 /* 1024 byte */
