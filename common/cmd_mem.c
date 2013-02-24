@@ -33,6 +33,7 @@
 #include <dataflash.h>
 #endif
 #include <watchdog.h>
+#include <asm/io.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -138,9 +139,13 @@ static int do_mem_md(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 # endif
 
 	{
+		ulong bytes = size * length;
+		const void *buf = map_sysmem(addr, bytes);
+
 		/* Print the lines. */
-		print_buffer(addr, (void*)addr, size, length, DISP_LINE_LEN/size);
-		addr += size*length;
+		print_buffer(addr, buf, size, length, DISP_LINE_LEN / size);
+		addr += bytes;
+		unmap_sysmem(buf);
 	}
 #endif
 
@@ -163,6 +168,8 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong	addr, writeval, count;
 	int	size;
+	void *buf;
+	ulong bytes;
 
 	if ((argc < 3) || (argc > 4))
 		return CMD_RET_USAGE;
@@ -188,15 +195,18 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		count = 1;
 	}
 
+	bytes = size * count;
+	buf = map_sysmem(addr, bytes);
 	while (count-- > 0) {
 		if (size == 4)
-			*((ulong  *)addr) = (ulong )writeval;
+			*((ulong *)buf) = (ulong)writeval;
 		else if (size == 2)
-			*((ushort *)addr) = (ushort)writeval;
+			*((ushort *)buf) = (ushort)writeval;
 		else
-			*((u_char *)addr) = (u_char)writeval;
-		addr += size;
+			*((u_char *)buf) = (u_char)writeval;
+		buf += size;
 	}
+	unmap_sysmem(buf);
 	return 0;
 }
 
@@ -258,10 +268,11 @@ int do_mem_mwc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong	addr1, addr2, count, ngood;
+	ulong	addr1, addr2, count, ngood, bytes;
 	int	size;
 	int     rcode = 0;
 	const char *type;
+	const void *buf1, *buf2, *base;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -294,33 +305,40 @@ static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
+	bytes = size * count;
+	base = buf1 = map_sysmem(addr1, bytes);
+	buf2 = map_sysmem(addr2, bytes);
 	for (ngood = 0; ngood < count; ++ngood) {
 		ulong word1, word2;
 		if (size == 4) {
-			word1 = *(ulong *)addr1;
-			word2 = *(ulong *)addr2;
+			word1 = *(ulong *)buf1;
+			word2 = *(ulong *)buf2;
 		} else if (size == 2) {
-			word1 = *(ushort *)addr1;
-			word2 = *(ushort *)addr2;
+			word1 = *(ushort *)buf1;
+			word2 = *(ushort *)buf2;
 		} else {
-			word1 = *(u_char *)addr1;
-			word2 = *(u_char *)addr2;
+			word1 = *(u_char *)buf1;
+			word2 = *(u_char *)buf2;
 		}
 		if (word1 != word2) {
+			ulong offset = buf1 - base;
+
 			printf("%s at 0x%08lx (%#0*lx) != %s at 0x%08lx (%#0*lx)\n",
-				type, addr1, size, word1,
-				type, addr2, size, word2);
+				type, (ulong)(addr1 + offset), size, word1,
+				type, (ulong)(addr2 + offset), size, word2);
 			rcode = 1;
 			break;
 		}
 
-		addr1 += size;
-		addr2 += size;
+		buf1 += size;
+		buf2 += size;
 
 		/* reset watchdog from time to time */
 		if ((ngood % (64 << 10)) == 0)
 			WATCHDOG_RESET();
 	}
+	unmap_sysmem(buf1);
+	unmap_sysmem(buf2);
 
 	printf("Total of %ld %s(s) were the same\n", ngood, type);
 	return rcode;
@@ -328,8 +346,10 @@ static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong	addr, dest, count;
+	ulong	addr, dest, count, bytes;
 	int	size;
+	const void *src;
+	void *buf;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -419,15 +439,18 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
+	bytes = size * count;
+	buf = map_sysmem(addr, bytes);
+	src = map_sysmem(addr, bytes);
 	while (count-- > 0) {
 		if (size == 4)
-			*((ulong  *)dest) = *((ulong  *)addr);
+			*((ulong *)buf) = *((ulong  *)src);
 		else if (size == 2)
-			*((ushort *)dest) = *((ushort *)addr);
+			*((ushort *)buf) = *((ushort *)src);
 		else
-			*((u_char *)dest) = *((u_char *)addr);
-		addr += size;
-		dest += size;
+			*((u_char *)buf) = *((u_char *)src);
+		src += size;
+		buf += size;
 
 		/* reset watchdog from time to time */
 		if ((count % (64 << 10)) == 0)
@@ -453,11 +476,12 @@ static int do_mem_base(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	ulong	addr, length, i;
+	ulong	addr, length, i, bytes;
 	int	size;
 	volatile uint	*longp;
 	volatile ushort *shortp;
 	volatile u_char	*cp;
+	const void *buf;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -477,28 +501,31 @@ static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 	*/
 	length = simple_strtoul(argv[2], NULL, 16);
 
+	bytes = size * length;
+	buf = map_sysmem(addr, bytes);
+
 	/* We want to optimize the loops to run as fast as possible.
 	 * If we have only one object, just run infinite loops.
 	 */
 	if (length == 1) {
 		if (size == 4) {
-			longp = (uint *)addr;
+			longp = (uint *)buf;
 			for (;;)
 				i = *longp;
 		}
 		if (size == 2) {
-			shortp = (ushort *)addr;
+			shortp = (ushort *)buf;
 			for (;;)
 				i = *shortp;
 		}
-		cp = (u_char *)addr;
+		cp = (u_char *)buf;
 		for (;;)
 			i = *cp;
 	}
 
 	if (size == 4) {
 		for (;;) {
-			longp = (uint *)addr;
+			longp = (uint *)buf;
 			i = length;
 			while (i-- > 0)
 				*longp++;
@@ -506,28 +533,30 @@ static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 	if (size == 2) {
 		for (;;) {
-			shortp = (ushort *)addr;
+			shortp = (ushort *)buf;
 			i = length;
 			while (i-- > 0)
 				*shortp++;
 		}
 	}
 	for (;;) {
-		cp = (u_char *)addr;
+		cp = (u_char *)buf;
 		i = length;
 		while (i-- > 0)
 			*cp++;
 	}
+	unmap_sysmem(buf);
 }
 
 #ifdef CONFIG_LOOPW
 int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong	addr, length, i, data;
+	ulong	addr, length, i, data, bytes;
 	int	size;
 	volatile uint	*longp;
 	volatile ushort *shortp;
 	volatile u_char	*cp;
+	void *buf;
 
 	if (argc < 4)
 		return CMD_RET_USAGE;
@@ -550,28 +579,31 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* data to write */
 	data = simple_strtoul(argv[3], NULL, 16);
 
+	bytes = size * length;
+	buf = map_sysmem(addr, bytes);
+
 	/* We want to optimize the loops to run as fast as possible.
 	 * If we have only one object, just run infinite loops.
 	 */
 	if (length == 1) {
 		if (size == 4) {
-			longp = (uint *)addr;
+			longp = (uint *)buf;
 			for (;;)
 				*longp = data;
 					}
 		if (size == 2) {
-			shortp = (ushort *)addr;
+			shortp = (ushort *)buf;
 			for (;;)
 				*shortp = data;
 		}
-		cp = (u_char *)addr;
+		cp = (u_char *)buf;
 		for (;;)
 			*cp = data;
 	}
 
 	if (size == 4) {
 		for (;;) {
-			longp = (uint *)addr;
+			longp = (uint *)buf;
 			i = length;
 			while (i-- > 0)
 				*longp++ = data;
@@ -579,14 +611,14 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	if (size == 2) {
 		for (;;) {
-			shortp = (ushort *)addr;
+			shortp = (ushort *)buf;
 			i = length;
 			while (i-- > 0)
 				*shortp++ = data;
 		}
 	}
 	for (;;) {
-		cp = (u_char *)addr;
+		cp = (u_char *)buf;
 		i = length;
 		while (i-- > 0)
 			*cp++ = data;
@@ -962,6 +994,7 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 {
 	ulong	addr, i;
 	int	nbytes, size;
+	void *ptr = NULL;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -1006,13 +1039,14 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 	 * the next value.  A non-converted value exits.
 	 */
 	do {
+		ptr = map_sysmem(addr, size);
 		printf("%08lx:", addr);
 		if (size == 4)
-			printf(" %08x", *((uint   *)addr));
+			printf(" %08x", *((uint *)ptr));
 		else if (size == 2)
-			printf(" %04x", *((ushort *)addr));
+			printf(" %04x", *((ushort *)ptr));
 		else
-			printf(" %02x", *((u_char *)addr));
+			printf(" %02x", *((u_char *)ptr));
 
 		nbytes = readline (" ? ");
 		if (nbytes == 0 || (nbytes == 1 && console_buffer[0] == '-')) {
@@ -1042,16 +1076,18 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 				reset_cmd_timeout();
 #endif
 				if (size == 4)
-					*((uint   *)addr) = i;
+					*((uint *)ptr) = i;
 				else if (size == 2)
-					*((ushort *)addr) = i;
+					*((ushort *)ptr) = i;
 				else
-					*((u_char *)addr) = i;
+					*((u_char *)ptr) = i;
 				if (incrflag)
 					addr += size;
 			}
 		}
 	} while (nbytes);
+	if (ptr)
+		unmap_sysmem(ptr);
 
 	mm_last_addr = addr;
 	mm_last_size = size;
