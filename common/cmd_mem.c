@@ -39,6 +39,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_SYS_MEMTEST_SCRATCH
+#define CONFIG_SYS_MEMTEST_SCRATCH 0
+#endif
+
 static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 
 /* Display values from last command.
@@ -641,11 +645,7 @@ static ulong mem_test_alt(ulong start_addr, ulong end_addr)
 	vu_long temp;
 	vu_long anti_pattern;
 	vu_long num_words;
-#if defined(CONFIG_SYS_MEMTEST_SCRATCH)
 	vu_long *dummy = (vu_long *)CONFIG_SYS_MEMTEST_SCRATCH;
-#else
-	vu_long *dummy = NULL;	/* yes, this is address 0x0, not NULL */
-#endif
 	static const ulong bitpattern[] = {
 		0x00000001,	/* single bit */
 		0x00000003,	/* two adjacent bits */
