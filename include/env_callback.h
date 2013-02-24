@@ -41,6 +41,12 @@
 #define SILENT_CALLBACK
 #endif
 
+#ifdef CONFIG_SPLASHIMAGE_GUARD
+#define SPLASHIMAGE_CALLBACK "splashimage:splashimage,"
+#else
+#define SPLASHIMAGE_CALLBACK
+#endif
+
 /*
  * This list of callback bindings is static, but may be overridden by defining
  * a new association in the ".callbacks" environment variable.
@@ -51,6 +57,7 @@
 	"bootfile:bootfile," \
 	"loadaddr:loadaddr," \
 	SILENT_CALLBACK \
+	SPLASHIMAGE_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC
 

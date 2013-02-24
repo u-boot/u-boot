@@ -33,6 +33,8 @@
 #include <common.h>
 #include <command.h>
 #include <stdarg.h>
+#include <search.h>
+#include <env_callback.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
 #if defined(CONFIG_POST)
@@ -1098,6 +1100,30 @@ static void *lcd_logo(void)
 	return (void *)lcd_base;
 #endif /* CONFIG_LCD_LOGO && !CONFIG_LCD_INFO_BELOW_LOGO */
 }
+
+#ifdef CONFIG_SPLASHIMAGE_GUARD
+static int on_splashimage(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	ulong addr;
+	int aligned;
+
+	if (op == env_op_delete)
+		return 0;
+
+	addr = simple_strtoul(value, NULL, 16);
+	/* See README.displaying-bmps */
+	aligned = (addr % 4 == 2);
+	if (!aligned) {
+		printf("Invalid splashimage value. Value must be 16 bit aligned, but not 32 bit aligned\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+U_BOOT_ENV_CALLBACK(splashimage, on_splashimage);
+#endif
 
 void lcd_position_cursor(unsigned col, unsigned row)
 {
