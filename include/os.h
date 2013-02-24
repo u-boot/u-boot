@@ -40,6 +40,16 @@ struct sandbox_state;
 ssize_t os_read(int fd, void *buf, size_t count);
 
 /**
+ * Access to the OS read() system call with non-blocking access
+ *
+ * \param fd	File descriptor as returned by os_open()
+ * \param buf	Buffer to place data
+ * \param count	Number of bytes to read
+ * \return number of bytes read, or -1 on error
+ */
+ssize_t os_read_no_block(int fd, void *buf, size_t count);
+
+/**
  * Access to the OS write() system call
  *
  * \param fd	File descriptor as returned by os_open()
