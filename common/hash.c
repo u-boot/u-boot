@@ -34,13 +34,19 @@
  * crypto could perhaps add named version of these algorithms here.
  */
 static struct hash_algo hash_algo[] = {
-#ifdef CONFIG_SHA1
+	/*
+	 * This is CONFIG_CMD_SHA1SUM instead of CONFIG_SHA1 since otherwise
+	 * it bloats the code for boards which use SHA1 but not the 'hash'
+	 * or 'sha1sum' commands.
+	 */
+#ifdef CONFIG_CMD_SHA1SUM
 	{
 		"SHA1",
 		SHA1_SUM_LEN,
 		sha1_csum_wd,
 		CHUNKSZ_SHA1,
 	},
+#define MULTI_HASH
 #endif
 #ifdef CONFIG_SHA256
 	{
@@ -49,8 +55,26 @@ static struct hash_algo hash_algo[] = {
 		sha256_csum_wd,
 		CHUNKSZ_SHA256,
 	},
+#define MULTI_HASH
 #endif
+	{
+		"CRC32",
+		4,
+		crc32_wd_buf,
+		CHUNKSZ_CRC32,
+	},
 };
+
+#if defined(CONFIG_HASH_VERIFY) || defined(CONFIG_CMD_HASH)
+#define MULTI_HASH
+#endif
+
+/* Try to minimize code size for boards that don't want much hashing */
+#ifdef MULTI_HASH
+#define multi_hash()	1
+#else
+#define multi_hash()	0
+#endif
 
 /**
  * store_result: Store the resulting sum to an address or variable
@@ -192,10 +216,7 @@ static void show_hash(struct hash_algo *algo, ulong addr, ulong len,
 int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 		 int argc, char * const argv[])
 {
-	struct hash_algo *algo;
 	ulong addr, len;
-	u8 output[HASH_MAX_DIGEST_SIZE];
-	u8 vsum[HASH_MAX_DIGEST_SIZE];
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -203,52 +224,73 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 	addr = simple_strtoul(*argv++, NULL, 16);
 	len = simple_strtoul(*argv++, NULL, 16);
 
-	algo = find_hash_algo(algo_name);
-	if (!algo) {
-		printf("Unknown hash algorithm '%s'\n", algo_name);
-		return CMD_RET_USAGE;
-	}
-	argc -= 2;
+	if (multi_hash()) {
+		struct hash_algo *algo;
+		u8 output[HASH_MAX_DIGEST_SIZE];
+		u8 vsum[HASH_MAX_DIGEST_SIZE];
 
-	if (algo->digest_size > HASH_MAX_DIGEST_SIZE) {
-		puts("HASH_MAX_DIGEST_SIZE exceeded\n");
-		return 1;
-	}
-
-	algo->hash_func_ws((const unsigned char *)addr, len, output,
-			   algo->chunk_size);
-
-	/* Try to avoid code bloat when verify is not needed */
-#ifdef CONFIG_HASH_VERIFY
-	if (flags & HASH_FLAG_VERIFY) {
-#else
-	if (0) {
-#endif
-		if (!argc)
+		algo = find_hash_algo(algo_name);
+		if (!algo) {
+			printf("Unknown hash algorithm '%s'\n", algo_name);
 			return CMD_RET_USAGE;
-		if (parse_verify_sum(algo, *argv, vsum,
+		}
+		argc -= 2;
+
+		if (algo->digest_size > HASH_MAX_DIGEST_SIZE) {
+			puts("HASH_MAX_DIGEST_SIZE exceeded\n");
+			return 1;
+		}
+
+		algo->hash_func_ws((const unsigned char *)addr, len, output,
+				   algo->chunk_size);
+
+		/* Try to avoid code bloat when verify is not needed */
+#ifdef CONFIG_HASH_VERIFY
+		if (flags & HASH_FLAG_VERIFY) {
+#else
+		if (0) {
+#endif
+			if (!argc)
+				return CMD_RET_USAGE;
+			if (parse_verify_sum(algo, *argv, vsum,
 					flags & HASH_FLAG_ENV)) {
-			printf("ERROR: %s does not contain a valid %s sum\n",
-				*argv, algo->name);
-			return 1;
-		}
-		if (memcmp(output, vsum, algo->digest_size) != 0) {
-			int i;
+				printf("ERROR: %s does not contain a valid "
+					"%s sum\n", *argv, algo->name);
+				return 1;
+			}
+			if (memcmp(output, vsum, algo->digest_size) != 0) {
+				int i;
 
+				show_hash(algo, addr, len, output);
+				printf(" != ");
+				for (i = 0; i < algo->digest_size; i++)
+					printf("%02x", vsum[i]);
+				puts(" ** ERROR **\n");
+				return 1;
+			}
+		} else {
 			show_hash(algo, addr, len, output);
-			printf(" != ");
-			for (i = 0; i < algo->digest_size; i++)
-				printf("%02x", vsum[i]);
-			puts(" ** ERROR **\n");
-			return 1;
-		}
-	} else {
-		show_hash(algo, addr, len, output);
-		printf("\n");
+			printf("\n");
 
-		if (argc) {
-			store_result(algo, output, *argv,
-				flags & HASH_FLAG_ENV);
+			if (argc) {
+				store_result(algo, output, *argv,
+					flags & HASH_FLAG_ENV);
+			}
+		}
+
+	/* Horrible code size hack for boards that just want crc32 */
+	} else {
+		ulong crc;
+		ulong *ptr;
+
+		crc = crc32_wd(0, (const uchar *)addr, len, CHUNKSZ_CRC32);
+
+		printf("CRC32 for %08lx ... %08lx ==> %08lx\n",
+				addr, addr + len - 1, crc);
+
+		if (argc > 3) {
+			ptr = (ulong *)simple_strtoul(argv[3], NULL, 16);
+			*ptr = crc;
 		}
 	}
 

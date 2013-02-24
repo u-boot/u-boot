@@ -32,6 +32,7 @@
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 #endif
+#include <hash.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
@@ -1098,89 +1099,27 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 
 #ifdef CONFIG_CMD_CRC32
 
-#ifndef CONFIG_CRC32_VERIFY
-
 static int do_mem_crc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong addr, length;
-	ulong crc;
-	ulong *ptr;
+	int flags = 0;
+	int ac;
+	char * const *av;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul (argv[1], NULL, 16);
-	addr += base_address;
-
-	length = simple_strtoul (argv[2], NULL, 16);
-
-	crc = crc32_wd (0, (const uchar *) addr, length, CHUNKSZ_CRC32);
-
-	printf ("CRC32 for %08lx ... %08lx ==> %08lx\n",
-			addr, addr + length - 1, crc);
-
-	if (argc > 3) {
-		ptr = (ulong *) simple_strtoul (argv[3], NULL, 16);
-		*ptr = crc;
-	}
-
-	return 0;
-}
-
-#else	/* CONFIG_CRC32_VERIFY */
-
-int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	ulong addr, length;
-	ulong crc;
-	ulong *ptr;
-	ulong vcrc;
-	int verify;
-	int ac;
-	char * const *av;
-
-	if (argc < 3) {
-usage:
-		return CMD_RET_USAGE;
-	}
-
 	av = argv + 1;
 	ac = argc - 1;
+#ifdef CONFIG_HASH_VERIFY
 	if (strcmp(*av, "-v") == 0) {
-		verify = 1;
+		flags |= HASH_FLAG_VERIFY;
 		av++;
 		ac--;
-		if (ac < 3)
-			goto usage;
-	} else
-		verify = 0;
-
-	addr = simple_strtoul(*av++, NULL, 16);
-	addr += base_address;
-	length = simple_strtoul(*av++, NULL, 16);
-
-	crc = crc32_wd (0, (const uchar *) addr, length, CHUNKSZ_CRC32);
-
-	if (!verify) {
-		printf ("CRC32 for %08lx ... %08lx ==> %08lx\n",
-				addr, addr + length - 1, crc);
-		if (ac > 2) {
-			ptr = (ulong *) simple_strtoul (*av++, NULL, 16);
-			*ptr = crc;
-		}
-	} else {
-		vcrc = simple_strtoul(*av++, NULL, 16);
-		if (vcrc != crc) {
-			printf ("CRC32 for %08lx ... %08lx ==> %08lx != %08lx ** ERROR **\n",
-					addr, addr + length - 1, crc, vcrc);
-			return 1;
-		}
 	}
+#endif
 
-	return 0;
-
+	return hash_command("crc32", flags, cmdtp, flag, ac, av);
 }
-#endif	/* CONFIG_CRC32_VERIFY */
 
 #endif
 

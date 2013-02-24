@@ -22,7 +22,7 @@
 #ifndef _HASH_H
 #define _HASH_H
 
-#ifdef CONFIG_SHA1SUM_VERIFY
+#if defined(CONFIG_SHA1SUM_VERIFY) || defined(CONFIG_CRC32_VERIFY)
 #define CONFIG_HASH_VERIFY
 #endif
 

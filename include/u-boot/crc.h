@@ -30,4 +30,15 @@ uint32_t crc32 (uint32_t, const unsigned char *, uint);
 uint32_t crc32_wd (uint32_t, const unsigned char *, uint, uint);
 uint32_t crc32_no_comp (uint32_t, const unsigned char *, uint);
 
+/**
+ * crc32_wd_buf - Perform CRC32 on a buffer and return result in buffer
+ *
+ * @input:	Input buffer
+ * @ilen:	Input buffer length
+ * @output:	Place to put checksum result (4 bytes)
+ * @chunk_sz:	Trigger watchdog after processing this many bytes
+ */
+void crc32_wd_buf(const unsigned char *input, uint ilen,
+		    unsigned char *output, uint chunk_sz);
+
 #endif /* _UBOOT_CRC_H */
