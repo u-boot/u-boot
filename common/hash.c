@@ -58,19 +58,31 @@ static struct hash_algo hash_algo[] = {
  * @algo:		Hash algorithm being used
  * @sum:		Hash digest (algo->digest_size bytes)
  * @dest:		Destination, interpreted as a hex address if it starts
- *			with * or otherwise as an environment variable.
+ *			with * (or allow_env_vars is 0) or otherwise as an
+ *			environment variable.
+ * @allow_env_vars:	non-zero to permit storing the result to an
+ *			variable environment
  */
 static void store_result(struct hash_algo *algo, const u8 *sum,
-			 const char *dest)
+			 const char *dest, int allow_env_vars)
 {
 	unsigned int i;
+	int env_var = 0;
 
-	if (*dest == '*') {
-		u8 *ptr;
+	/*
+	 * If environment variables are allowed, then we assume that 'dest'
+	 * is an environment variable, unless it starts with *, in which
+	 * case we assume it is an address. If not allowed, it is always an
+	 * address. This is to support the crc32 command.
+	 */
+	if (allow_env_vars) {
+		if (*dest == '*')
+			dest++;
+		else
+			env_var = 1;
+	}
 
-		ptr = (u8 *)simple_strtoul(dest + 1, NULL, 16);
-		memcpy(ptr, sum, algo->digest_size);
-	} else {
+	if (env_var) {
 		char str_output[HASH_MAX_DIGEST_SIZE * 2 + 1];
 		char *str_ptr = str_output;
 
@@ -80,6 +92,11 @@ static void store_result(struct hash_algo *algo, const u8 *sum,
 		}
 		str_ptr = '\0';
 		setenv(dest, str_output);
+	} else {
+		u8 *ptr;
+
+		ptr = (u8 *)simple_strtoul(dest, NULL, 16);
+		memcpy(ptr, sum, algo->digest_size);
 	}
 }
 
@@ -94,14 +111,28 @@ static void store_result(struct hash_algo *algo, const u8 *sum,
  *			Otherwise we assume it is an environment variable, and
  *			look up its value (it must contain a hex digest).
  * @vsum:		Returns binary digest value (algo->digest_size bytes)
+ * @allow_env_vars:	non-zero to permit storing the result to an environment
+ *			variable. If 0 then verify_str is assumed to be an
+ *			address, and the * prefix is not expected.
  * @return 0 if ok, non-zero on error
  */
-static int parse_verify_sum(struct hash_algo *algo, char *verify_str, u8 *vsum)
+static int parse_verify_sum(struct hash_algo *algo, char *verify_str, u8 *vsum,
+			    int allow_env_vars)
 {
-	if (*verify_str == '*') {
+	int env_var = 0;
+
+	/* See comment above in store_result() */
+	if (allow_env_vars) {
+		if (*verify_str == '*')
+			verify_str++;
+		else
+			env_var = 1;
+	}
+
+	if (env_var) {
 		u8 *ptr;
 
-		ptr = (u8 *)simple_strtoul(verify_str + 1, NULL, 16);
+		ptr = (u8 *)simple_strtoul(verify_str, NULL, 16);
 		memcpy(vsum, ptr, algo->digest_size);
 	} else {
 		unsigned int i;
@@ -158,7 +189,7 @@ static void show_hash(struct hash_algo *algo, ulong addr, ulong len,
 		printf("%02x", output[i]);
 }
 
-int hash_command(const char *algo_name, int verify, cmd_tbl_t *cmdtp, int flag,
+int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 		 int argc, char * const argv[])
 {
 	struct hash_algo *algo;
@@ -169,13 +200,14 @@ int hash_command(const char *algo_name, int verify, cmd_tbl_t *cmdtp, int flag,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+	addr = simple_strtoul(*argv++, NULL, 16);
+	len = simple_strtoul(*argv++, NULL, 16);
+
 	algo = find_hash_algo(algo_name);
 	if (!algo) {
 		printf("Unknown hash algorithm '%s'\n", algo_name);
 		return CMD_RET_USAGE;
 	}
-	addr = simple_strtoul(*argv++, NULL, 16);
-	len = simple_strtoul(*argv++, NULL, 16);
 	argc -= 2;
 
 	if (algo->digest_size > HASH_MAX_DIGEST_SIZE) {
@@ -188,13 +220,14 @@ int hash_command(const char *algo_name, int verify, cmd_tbl_t *cmdtp, int flag,
 
 	/* Try to avoid code bloat when verify is not needed */
 #ifdef CONFIG_HASH_VERIFY
-	if (verify) {
+	if (flags & HASH_FLAG_VERIFY) {
 #else
 	if (0) {
 #endif
 		if (!argc)
 			return CMD_RET_USAGE;
-		if (parse_verify_sum(algo, *argv, vsum)) {
+		if (parse_verify_sum(algo, *argv, vsum,
+					flags & HASH_FLAG_ENV)) {
 			printf("ERROR: %s does not contain a valid %s sum\n",
 				*argv, algo->name);
 			return 1;
@@ -213,8 +246,10 @@ int hash_command(const char *algo_name, int verify, cmd_tbl_t *cmdtp, int flag,
 		show_hash(algo, addr, len, output);
 		printf("\n");
 
-		if (argc)
-			store_result(algo, output, *argv);
+		if (argc) {
+			store_result(algo, output, *argv,
+				flags & HASH_FLAG_ENV);
+		}
 	}
 
 	return 0;

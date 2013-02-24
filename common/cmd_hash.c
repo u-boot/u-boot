@@ -30,22 +30,22 @@
 static int do_hash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_HASH_VERIFY
-	int verify = 0;
+	int flags = HASH_FLAG_ENV;
 
 	if (argc < 4)
 		return CMD_RET_USAGE;
 	if (!strcmp(argv[1], "-v")) {
-		verify = 1;
+		flags |= HASH_FLAG_VERIFY;
 		argc--;
 		argv++;
 	}
 #else
-	const int verify = 0;
+	const int flags = HASH_FLAG_ENV;
 #endif
 	/* Move forward to 'algorithm' parameter */
 	argc--;
 	argv++;
-	return hash_command(*argv, verify, cmdtp, flag, argc - 1, argv + 1);
+	return hash_command(*argv, flags, cmdtp, flag, argc - 1, argv + 1);
 }
 
 #ifdef CONFIG_HASH_VERIFY
