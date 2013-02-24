@@ -891,8 +891,7 @@ NXTARG:		;
 		envp->flags = ACTIVE_FLAG;
 #endif
 	}
-	sprintf(buf, "%zX", (size_t)(len + offsetof(env_t, data)));
-	setenv("filesize", buf);
+	setenv_hex("filesize", len + offsetof(env_t, data));
 
 	return 0;
 

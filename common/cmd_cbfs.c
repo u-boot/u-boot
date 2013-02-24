@@ -65,7 +65,6 @@ int do_cbfs_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	const struct cbfs_cachenode *file;
 	unsigned long offset;
 	unsigned long count;
-	char buf[12];
 	long size;
 
 	if (argc < 3) {
@@ -95,8 +94,7 @@ int do_cbfs_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	printf("\n%ld bytes read\n", size);
 
-	sprintf(buf, "%lX", size);
-	setenv("filesize", buf);
+	setenv_hex("filesize", size);
 
 	return 0;
 }

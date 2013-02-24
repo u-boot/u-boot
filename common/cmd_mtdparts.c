@@ -230,7 +230,6 @@ static void memsize_format(char *buf, u32 size)
  */
 static void index_partitions(void)
 {
-	char buf[16];
 	u16 mtddevnum;
 	struct part_info *part;
 	struct list_head *dentry;
@@ -244,8 +243,7 @@ static void index_partitions(void)
 			dev = list_entry(dentry, struct mtd_device, link);
 			if (dev == current_mtd_dev) {
 				mtddevnum += current_mtd_partnum;
-				sprintf(buf, "%d", mtddevnum);
-				setenv("mtddevnum", buf);
+				setenv_ulong("mtddevnum", mtddevnum);
 				break;
 			}
 			mtddevnum += dev->num_parts;
