@@ -626,36 +626,26 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif /* CONFIG_LOOPW */
 
-/*
- * Perform a memory test. A more complete alternative test can be
- * configured using CONFIG_SYS_ALT_MEMTEST. The complete test loops until
- * interrupted by ctrl-c or by a failure of one of the sub-tests.
- */
-static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int mem_test_alt(vu_long *start, vu_long *end,
+			  int iteration_limit)
 {
-	vu_long	*addr, *start, *end;
-	ulong	val;
-	ulong	readback;
-	ulong	errs = 0;
+	vu_long *addr;
 	int iterations = 1;
-	int iteration_limit;
-
-#if defined(CONFIG_SYS_ALT_MEMTEST)
-	vu_long	len;
-	vu_long	offset;
-	vu_long	test_offset;
-	vu_long	pattern;
-	vu_long	temp;
-	vu_long	anti_pattern;
-	vu_long	num_words;
+	ulong errs = 0;
+	ulong val, readback;
+	int j;
+	vu_long len;
+	vu_long offset;
+	vu_long test_offset;
+	vu_long pattern;
+	vu_long temp;
+	vu_long anti_pattern;
+	vu_long num_words;
 #if defined(CONFIG_SYS_MEMTEST_SCRATCH)
-	vu_long *dummy = (vu_long*)CONFIG_SYS_MEMTEST_SCRATCH;
+	vu_long *dummy = (vu_long *)CONFIG_SYS_MEMTEST_SCRATCH;
 #else
 	vu_long *dummy = NULL;	/* yes, this is address 0x0, not NULL */
 #endif
-	int	j;
-
 	static const ulong bitpattern[] = {
 		0x00000001,	/* single bit */
 		0x00000003,	/* two adjacent bits */
@@ -666,42 +656,17 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		0x00000055,	/* four non-adjacent bits */
 		0xaaaaaaaa,	/* alternating 1/0 */
 	};
-#else
-	ulong	incr;
-	ulong	pattern;
-#endif
 
-	if (argc > 1)
-		start = (ulong *)simple_strtoul(argv[1], NULL, 16);
-	else
-		start = (ulong *)CONFIG_SYS_MEMTEST_START;
-
-	if (argc > 2)
-		end = (ulong *)simple_strtoul(argv[2], NULL, 16);
-	else
-		end = (ulong *)(CONFIG_SYS_MEMTEST_END);
-
-	if (argc > 3)
-		pattern = (ulong)simple_strtoul(argv[3], NULL, 16);
-	else
-		pattern = 0;
-
-	if (argc > 4)
-		iteration_limit = (ulong)simple_strtoul(argv[4], NULL, 16);
-	else
-		iteration_limit = 0;
-
-#if defined(CONFIG_SYS_ALT_MEMTEST)
-	printf ("Testing %08x ... %08x:\n", (uint)start, (uint)end);
+	printf("Testing %08x ... %08x:\n", (uint)(uintptr_t)start,
+	       (uint)(uintptr_t)end);
 	debug("%s:%d: start 0x%p end 0x%p\n",
-		__FUNCTION__, __LINE__, start, end);
+		__func__, __LINE__, start, end);
 
 	for (;;) {
 		if (ctrlc()) {
-			putc ('\n');
+			putc('\n');
 			return 1;
 		}
-
 
 		if (iteration_limit && iterations > iteration_limit) {
 			printf("Tested %d iteration(s) with %lu errors.\n",
@@ -731,34 +696,35 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * pattern and ~pattern).
 		 */
 		addr = start;
-		for (j = 0; j < sizeof(bitpattern)/sizeof(bitpattern[0]); j++) {
+		for (j = 0; j < sizeof(bitpattern) / sizeof(bitpattern[0]);
+				j++) {
 		    val = bitpattern[j];
-		    for(; val != 0; val <<= 1) {
+		    for (; val != 0; val <<= 1) {
 			*addr  = val;
-			*dummy  = ~val; /* clear the test data off of the bus */
+			*dummy  = ~val; /* clear the test data off the bus */
 			readback = *addr;
 			if(readback != val) {
-			    printf ("FAILURE (data line): "
-				"expected %08lx, actual %08lx\n",
-					  val, readback);
-			    errs++;
-			    if (ctrlc()) {
-				putc ('\n');
-				return 1;
-			    }
+				printf("FAILURE (data line): "
+					"expected %08lx, actual %08lx\n",
+						val, readback);
+				errs++;
+				if (ctrlc()) {
+					putc('\n');
+					return 1;
+				}
 			}
 			*addr  = ~val;
 			*dummy  = val;
 			readback = *addr;
-			if(readback != ~val) {
-			    printf ("FAILURE (data line): "
-				"Is %08lx, should be %08lx\n",
-					readback, ~val);
-			    errs++;
-			    if (ctrlc()) {
-				putc ('\n');
-				return 1;
-			    }
+			if (readback != ~val) {
+				printf("FAILURE (data line): "
+					"Is %08lx, should be %08lx\n",
+						readback, ~val);
+				errs++;
+				if (ctrlc()) {
+					putc('\n');
+					return 1;
+				}
 			}
 		    }
 		}
@@ -802,15 +768,13 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		anti_pattern = (vu_long) 0x55555555;
 
 		debug("%s:%d: length = 0x%.8lx\n",
-			__FUNCTION__, __LINE__,
-			len);
+			__func__, __LINE__, len);
 		/*
 		 * Write the default pattern at each of the
 		 * power-of-two offsets.
 		 */
-		for (offset = 1; offset < len; offset <<= 1) {
+		for (offset = 1; offset < len; offset <<= 1)
 			start[offset] = pattern;
-		}
 
 		/*
 		 * Check for address bits stuck high.
@@ -821,12 +785,12 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		for (offset = 1; offset < len; offset <<= 1) {
 		    temp = start[offset];
 		    if (temp != pattern) {
-			printf ("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
+			printf("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx\n",
 				(ulong)&start[offset], pattern, temp);
 			errs++;
 			if (ctrlc()) {
-			    putc ('\n');
+			    putc('\n');
 			    return 1;
 			}
 		    }
@@ -843,12 +807,12 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		    for (offset = 1; offset < len; offset <<= 1) {
 			temp = start[offset];
 			if ((temp != pattern) && (offset != test_offset)) {
-			    printf ("\nFAILURE: Address bit stuck low or shorted @"
+			    printf("\nFAILURE: Address bit stuck low or shorted @"
 				" 0x%.8lx: expected 0x%.8lx, actual 0x%.8lx\n",
 				(ulong)&start[offset], pattern, temp);
 			    errs++;
 			    if (ctrlc()) {
-				putc ('\n');
+				putc('\n');
 				return 1;
 			    }
 			}
@@ -885,13 +849,13 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		    WATCHDOG_RESET();
 		    temp = start[offset];
 		    if (temp != pattern) {
-			printf ("\nFAILURE (read/write) @ 0x%.8lx:"
+			printf("\nFAILURE (read/write) @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx)\n",
 				(ulong)&start[offset], pattern, temp);
 			errs++;
 			if (ctrlc()) {
-			    putc ('\n');
-			    return 1;
+				putc('\n');
+				return 1;
 			}
 		    }
 
@@ -907,24 +871,33 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		    anti_pattern = ~pattern;
 		    temp = start[offset];
 		    if (temp != anti_pattern) {
-			printf ("\nFAILURE (read/write): @ 0x%.8lx:"
+			printf("\nFAILURE (read/write): @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx)\n",
 				(ulong)&start[offset], anti_pattern, temp);
 			errs++;
 			if (ctrlc()) {
-			    putc ('\n');
-			    return 1;
+				putc('\n');
+				return 1;
 			}
 		    }
 		    start[offset] = 0;
 		}
 	}
+}
 
-#else /* The original, quickie test */
+static int mem_test_quick(vu_long *start, vu_long *end,
+			  int iteration_limit, vu_long pattern)
+{
+	vu_long *addr;
+	int iterations = 1;
+	ulong errs = 0;
+	ulong incr;
+	ulong val, readback;
+
 	incr = 1;
 	for (;;) {
 		if (ctrlc()) {
-			putc ('\n');
+			putc('\n');
 			return 1;
 		}
 
@@ -935,29 +908,29 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 		++iterations;
 
-		printf ("\rPattern %08lX  Writing..."
+		printf("\rPattern %08lX  Writing..."
 			"%12s"
 			"\b\b\b\b\b\b\b\b\b\b",
 			pattern, "");
 
-		for (addr=start,val=pattern; addr<end; addr++) {
+		for (addr = start, val = pattern; addr < end; addr++) {
 			WATCHDOG_RESET();
 			*addr = val;
-			val  += incr;
+			val += incr;
 		}
 
-		puts ("Reading...");
+		puts("Reading...");
 
-		for (addr=start,val=pattern; addr<end; addr++) {
+		for (addr = start, val = pattern; addr < end; addr++) {
 			WATCHDOG_RESET();
 			readback = *addr;
 			if (readback != val) {
-				printf ("\nMem error @ 0x%08X: "
+				printf("\nMem error @ 0x%08X: "
 					"found %08lX, expected %08lX\n",
 					(uint)(uintptr_t)addr, readback, val);
 				errs++;
 				if (ctrlc()) {
-					putc ('\n');
+					putc('\n');
 					return 1;
 				}
 			}
@@ -970,16 +943,58 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * the "negative" patterns and increment the "positive"
 		 * patterns to preserve this feature.
 		 */
-		if(pattern & 0x80000000) {
+		if (pattern & 0x80000000)
 			pattern = -pattern;	/* complement & increment */
-		}
-		else {
+		else
 			pattern = ~pattern;
-		}
 		incr = -incr;
 	}
+}
+
+/*
+ * Perform a memory test. A more complete alternative test can be
+ * configured using CONFIG_SYS_ALT_MEMTEST. The complete test loops until
+ * interrupted by ctrl-c or by a failure of one of the sub-tests.
+ */
+static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	vu_long *start, *end;
+	int iteration_limit;
+	int ret;
+	ulong pattern;
+#if defined(CONFIG_SYS_ALT_MEMTEST)
+	const int alt_test = 1;
+#else
+	const int alt_test = 0;
 #endif
-	return 0;	/* not reached */
+
+	if (argc > 1)
+		start = (ulong *)simple_strtoul(argv[1], NULL, 16);
+	else
+		start = (ulong *)CONFIG_SYS_MEMTEST_START;
+
+	if (argc > 2)
+		end = (ulong *)simple_strtoul(argv[2], NULL, 16);
+	else
+		end = (ulong *)(CONFIG_SYS_MEMTEST_END);
+
+	if (argc > 3)
+		pattern = (ulong)simple_strtoul(argv[3], NULL, 16);
+	else
+		pattern = 0;
+
+	if (argc > 4)
+		iteration_limit = (ulong)simple_strtoul(argv[4], NULL, 16);
+	else
+		iteration_limit = 0;
+
+	if (alt_test)
+		ret = mem_test_alt(start, end, iteration_limit);
+	else
+		ret = mem_test_quick(start, end, iteration_limit, pattern);
+
+	return ret;	/* not reached */
 }
 
 
