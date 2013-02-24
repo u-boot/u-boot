@@ -61,7 +61,7 @@ enum {
  *
  * This common function is used to implement specific hash commands.
  *
- * @algo_name:		Hash algorithm being used
+ * @algo_name:		Hash algorithm being used (lower case!)
  * @flags:		Flags value (HASH_FLAG_...)
  * @cmdtp:		Pointer to command table entry
  * @flag:		Some flags normally 0 (see CMD_FLAG_.. above)

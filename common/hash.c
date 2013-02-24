@@ -32,7 +32,8 @@
 
 /*
  * These are the hash algorithms we support. Chips which support accelerated
- * crypto could perhaps add named version of these algorithms here.
+ * crypto could perhaps add named version of these algorithms here. Note that
+ * algorithm names must be in lower case.
  */
 static struct hash_algo hash_algo[] = {
 	/*
@@ -42,7 +43,7 @@ static struct hash_algo hash_algo[] = {
 	 */
 #ifdef CONFIG_CMD_SHA1SUM
 	{
-		"SHA1",
+		"sha1",
 		SHA1_SUM_LEN,
 		sha1_csum_wd,
 		CHUNKSZ_SHA1,
@@ -51,7 +52,7 @@ static struct hash_algo hash_algo[] = {
 #endif
 #ifdef CONFIG_SHA256
 	{
-		"SHA256",
+		"sha256",
 		SHA256_SUM_LEN,
 		sha256_csum_wd,
 		CHUNKSZ_SHA256,
@@ -59,7 +60,7 @@ static struct hash_algo hash_algo[] = {
 #define MULTI_HASH
 #endif
 	{
-		"CRC32",
+		"crc32",
 		4,
 		crc32_wd_buf,
 		CHUNKSZ_CRC32,
@@ -202,7 +203,7 @@ static struct hash_algo *find_hash_algo(const char *name)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
-		if (!strcasecmp(name, hash_algo[i].name))
+		if (!strcmp(name, hash_algo[i].name))
 			return &hash_algo[i];
 	}
 

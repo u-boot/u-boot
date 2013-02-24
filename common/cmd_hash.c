@@ -26,9 +26,11 @@
 #include <common.h>
 #include <command.h>
 #include <hash.h>
+#include <linux/ctype.h>
 
 static int do_hash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	char *s;
 #ifdef CONFIG_HASH_VERIFY
 	int flags = HASH_FLAG_ENV;
 
@@ -45,6 +47,8 @@ static int do_hash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Move forward to 'algorithm' parameter */
 	argc--;
 	argv++;
+	for (s = *argv; *s; s++)
+		*s = tolower(*s);
 	return hash_command(*argv, flags, cmdtp, flag, argc - 1, argv + 1);
 }
 
