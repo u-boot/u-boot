@@ -331,6 +331,8 @@
 #define STATUS_LED_BOOT			STATUS_LED_BIT
 #define GREEN_LED_GPIO			186 /* CM-T35 Green LED is GPIO186 */
 
+#define CONFIG_SPLASHIMAGE_GUARD
+
 /* GPIO banks */
 #ifdef CONFIG_STATUS_LED
 #define CONFIG_OMAP3_GPIO_6	/* GPIO186 is in GPIO bank 6  */
