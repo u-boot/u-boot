@@ -626,8 +626,9 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif /* CONFIG_LOOPW */
 
-static ulong mem_test_alt(vu_long *start, vu_long *end)
+static ulong mem_test_alt(ulong start_addr, ulong end_addr)
 {
+	vu_long *start, *end;
 	vu_long *addr;
 	ulong errs = 0;
 	ulong val, readback;
@@ -654,6 +655,9 @@ static ulong mem_test_alt(vu_long *start, vu_long *end)
 		0x00000055,	/* four non-adjacent bits */
 		0xaaaaaaaa,	/* alternating 1/0 */
 	};
+
+	start = (vu_long *)start_addr;
+	end = (vu_long *)end_addr;
 
 	/*
 	 * Data line test: write a pattern to the first
@@ -735,7 +739,7 @@ static ulong mem_test_alt(vu_long *start, vu_long *end)
 	 *
 	 * Returns:     0 if the test succeeds, 1 if the test fails.
 	 */
-	len = ((ulong)end - (ulong)start)/sizeof(vu_long);
+	len = (end_addr - start_addr) / sizeof(vu_long);
 	pattern = (vu_long) 0xaaaaaaaa;
 	anti_pattern = (vu_long) 0x55555555;
 
@@ -851,9 +855,10 @@ static ulong mem_test_alt(vu_long *start, vu_long *end)
 	return 0;
 }
 
-static ulong mem_test_quick(vu_long *start, vu_long *end, vu_long pattern,
+static ulong mem_test_quick(ulong start_addr, ulong end_addr, vu_long pattern,
 			    int iteration)
 {
+	vu_long *start, *end;
 	vu_long *addr;
 	ulong errs = 0;
 	ulong incr;
@@ -874,6 +879,8 @@ static ulong mem_test_quick(vu_long *start, vu_long *end, vu_long pattern,
 		else
 			pattern = ~pattern;
 	}
+	start = (vu_long *)start_addr;
+	end = (vu_long *)end_addr;
 	printf("\rPattern %08lX  Writing..."
 		"%12s"
 		"\b\b\b\b\b\b\b\b\b\b",
@@ -912,7 +919,7 @@ static ulong mem_test_quick(vu_long *start, vu_long *end, vu_long pattern,
 static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
-	vu_long *start, *end;
+	ulong start, end;
 	int iteration_limit;
 	int ret;
 	ulong errs = 0;	/* number of errors, or -1 if interrupted */
@@ -925,14 +932,14 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 
 	if (argc > 1)
-		start = (ulong *)simple_strtoul(argv[1], NULL, 16);
+		start = simple_strtoul(argv[1], NULL, 16);
 	else
-		start = (ulong *)CONFIG_SYS_MEMTEST_START;
+		start = CONFIG_SYS_MEMTEST_START;
 
 	if (argc > 2)
-		end = (ulong *)simple_strtoul(argv[2], NULL, 16);
+		end = simple_strtoul(argv[2], NULL, 16);
 	else
-		end = (ulong *)(CONFIG_SYS_MEMTEST_END);
+		end = CONFIG_SYS_MEMTEST_END;
 
 	if (argc > 3)
 		pattern = (ulong)simple_strtoul(argv[3], NULL, 16);
@@ -944,10 +951,9 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	else
 		iteration_limit = 0;
 
-	printf("Testing %08x ... %08x:\n", (uint)(uintptr_t)start,
-	       (uint)(uintptr_t)end);
-	debug("%s:%d: start 0x%p end 0x%p\n",
-		__func__, __LINE__, start, end);
+	printf("Testing %08x ... %08x:\n", (uint)start, (uint)end);
+	debug("%s:%d: start %#08lx end %#08lx\n", __func__, __LINE__,
+	      start, end);
 
 	for (iteration = 0;
 			!iteration_limit || iteration < iteration_limit;
