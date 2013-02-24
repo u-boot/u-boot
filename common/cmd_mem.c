@@ -626,11 +626,9 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif /* CONFIG_LOOPW */
 
-static int mem_test_alt(vu_long *start, vu_long *end,
-			  int iteration_limit)
+static ulong mem_test_alt(vu_long *start, vu_long *end)
 {
 	vu_long *addr;
-	int iterations = 1;
 	ulong errs = 0;
 	ulong val, readback;
 	int j;
@@ -656,27 +654,6 @@ static int mem_test_alt(vu_long *start, vu_long *end,
 		0x00000055,	/* four non-adjacent bits */
 		0xaaaaaaaa,	/* alternating 1/0 */
 	};
-
-	printf("Testing %08x ... %08x:\n", (uint)(uintptr_t)start,
-	       (uint)(uintptr_t)end);
-	debug("%s:%d: start 0x%p end 0x%p\n",
-		__func__, __LINE__, start, end);
-
-	for (;;) {
-		if (ctrlc()) {
-			putc('\n');
-			return 1;
-		}
-
-		if (iteration_limit && iterations > iteration_limit) {
-			printf("Tested %d iteration(s) with %lu errors.\n",
-				iterations-1, errs);
-			return errs != 0;
-		}
-
-		printf("Iteration: %6d\r", iterations);
-		debug("\n");
-		iterations++;
 
 		/*
 		 * Data line test: write a pattern to the first
@@ -710,7 +687,7 @@ static int mem_test_alt(vu_long *start, vu_long *end,
 				errs++;
 				if (ctrlc()) {
 					putc('\n');
-					return 1;
+					return -1;
 				}
 			}
 			*addr  = ~val;
@@ -723,7 +700,7 @@ static int mem_test_alt(vu_long *start, vu_long *end,
 				errs++;
 				if (ctrlc()) {
 					putc('\n');
-					return 1;
+					return -1;
 				}
 			}
 		    }
@@ -791,7 +768,7 @@ static int mem_test_alt(vu_long *start, vu_long *end,
 			errs++;
 			if (ctrlc()) {
 			    putc('\n');
-			    return 1;
+			    return -1;
 			}
 		    }
 		}
@@ -813,7 +790,7 @@ static int mem_test_alt(vu_long *start, vu_long *end,
 			    errs++;
 			    if (ctrlc()) {
 				putc('\n');
-				return 1;
+				return -1;
 			    }
 			}
 		    }
@@ -855,7 +832,7 @@ static int mem_test_alt(vu_long *start, vu_long *end,
 			errs++;
 			if (ctrlc()) {
 				putc('\n');
-				return 1;
+				return -1;
 			}
 		    }
 
@@ -877,37 +854,38 @@ static int mem_test_alt(vu_long *start, vu_long *end,
 			errs++;
 			if (ctrlc()) {
 				putc('\n');
-				return 1;
+				return -1;
 			}
 		    }
 		    start[offset] = 0;
 		}
-	}
+
+	return 0;
 }
 
-static int mem_test_quick(vu_long *start, vu_long *end,
-			  int iteration_limit, vu_long pattern)
+static ulong mem_test_quick(vu_long *start, vu_long *end, vu_long pattern,
+			    int iteration)
 {
 	vu_long *addr;
-	int iterations = 1;
 	ulong errs = 0;
 	ulong incr;
 	ulong val, readback;
 
+	/* Alternate the pattern */
 	incr = 1;
-	for (;;) {
-		if (ctrlc()) {
-			putc('\n');
-			return 1;
-		}
-
-		if (iteration_limit && iterations > iteration_limit) {
-			printf("Tested %d iteration(s) with %lu errors.\n",
-				iterations-1, errs);
-			return errs != 0;
-		}
-		++iterations;
-
+	if (iteration & 1) {
+		incr = -incr;
+		/*
+		 * Flip the pattern each time to make lots of zeros and
+		 * then, the next time, lots of ones.  We decrement
+		 * the "negative" patterns and increment the "positive"
+		 * patterns to preserve this feature.
+		 */
+		if (pattern & 0x80000000)
+			pattern = -pattern;	/* complement & increment */
+		else
+			pattern = ~pattern;
+	}
 		printf("\rPattern %08lX  Writing..."
 			"%12s"
 			"\b\b\b\b\b\b\b\b\b\b",
@@ -931,24 +909,13 @@ static int mem_test_quick(vu_long *start, vu_long *end,
 				errs++;
 				if (ctrlc()) {
 					putc('\n');
-					return 1;
+					return -1;
 				}
 			}
 			val += incr;
 		}
 
-		/*
-		 * Flip the pattern each time to make lots of zeros and
-		 * then, the next time, lots of ones.  We decrement
-		 * the "negative" patterns and increment the "positive"
-		 * patterns to preserve this feature.
-		 */
-		if (pattern & 0x80000000)
-			pattern = -pattern;	/* complement & increment */
-		else
-			pattern = ~pattern;
-		incr = -incr;
-	}
+	return 0;
 }
 
 /*
@@ -962,7 +929,9 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	vu_long *start, *end;
 	int iteration_limit;
 	int ret;
+	ulong errs = 0;	/* number of errors, or -1 if interrupted */
 	ulong pattern;
+	int iteration;
 #if defined(CONFIG_SYS_ALT_MEMTEST)
 	const int alt_test = 1;
 #else
@@ -989,10 +958,36 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	else
 		iteration_limit = 0;
 
-	if (alt_test)
-		ret = mem_test_alt(start, end, iteration_limit);
-	else
-		ret = mem_test_quick(start, end, iteration_limit, pattern);
+	printf("Testing %08x ... %08x:\n", (uint)(uintptr_t)start,
+	       (uint)(uintptr_t)end);
+	debug("%s:%d: start 0x%p end 0x%p\n",
+		__func__, __LINE__, start, end);
+
+	for (iteration = 0;
+			!iteration_limit || iteration < iteration_limit;
+			iteration++) {
+		if (ctrlc()) {
+			putc('\n');
+			errs = -1UL;
+			break;
+		}
+
+		printf("Iteration: %6d\r", iteration + 1);
+		debug("\n");
+		if (alt_test)
+			errs = mem_test_alt(start, end);
+		else
+			errs = mem_test_quick(start, end, pattern, iteration);
+	}
+
+	if (errs == -1UL) {
+		/* Memory test was aborted */
+		ret = 1;
+	} else {
+		printf("Tested %d iteration(s) with %lu errors.\n",
+			iteration, errs);
+		ret = errs != 0;
+	}
 
 	return ret;	/* not reached */
 }
