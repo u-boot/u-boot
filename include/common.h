@@ -870,6 +870,18 @@ int cpu_disable(int nr);
 int cpu_release(int nr, int argc, char * const argv[]);
 #endif
 
+/* Define a null map_sysmem() if the architecture doesn't use it */
+# ifndef CONFIG_ARCH_MAP_SYSMEM
+static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
+{
+	return (void *)(uintptr_t)paddr;
+}
+
+static inline void unmap_sysmem(const void *vaddr)
+{
+}
+# endif
+
 #endif /* __ASSEMBLY__ */
 
 #ifdef CONFIG_PPC

@@ -3811,6 +3811,15 @@ Low Level (hardware related) configuration options:
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.
 
+- CONFIG_ARCH_MAP_SYSMEM
+		Generally U-Boot (and in particular the md command) uses
+		effective address. It is therefore not necessary to regard
+		U-Boot address as virtual addresses that need to be translated
+		to physical addresses. However, sandbox requires this, since
+		it maintains its own little RAM buffer which contains all
+		addressable memory. This option causes some memory accesses
+		to be mapped through map_sysmem() / unmap_sysmem().
+
 - CONFIG_USE_ARCH_MEMCPY
   CONFIG_USE_ARCH_MEMSET
 		If these options are used a optimized version of memcpy/memset will
