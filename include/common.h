@@ -270,7 +270,8 @@ int	cpu_init(void);
 phys_size_t initdram (int);
 int	display_options (void);
 void	print_size(unsigned long long, const char *);
-int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
+int print_buffer(ulong addr, const void *data, uint width, uint count,
+		 uint linelen);
 
 /* common/main.c */
 void	main_loop	(void);
