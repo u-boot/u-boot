@@ -358,7 +358,19 @@ int getenv_yesno(const char *var);
 int	saveenv	     (void);
 int	setenv	     (const char *, const char *);
 int setenv_ulong(const char *varname, ulong value);
-int setenv_addr(const char *varname, const void *addr);
+int setenv_hex(const char *varname, ulong value);
+/**
+ * setenv_addr - Set an environment variable to an address in hex
+ *
+ * @varname:	Environmet variable to set
+ * @addr:	Value to set it to
+ * @return 0 if ok, 1 on error
+ */
+static inline int setenv_addr(const char *varname, const void *addr)
+{
+	return setenv_hex(varname, (ulong)addr);
+}
+
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
 # include <asm/setup.h>
