@@ -28,6 +28,7 @@
 #include <hash.h>
 #include <sha1.h>
 #include <sha256.h>
+#include <asm/io.h>
 
 /*
  * These are the hash algorithms we support. Chips which support accelerated
@@ -117,10 +118,13 @@ static void store_result(struct hash_algo *algo, const u8 *sum,
 		str_ptr = '\0';
 		setenv(dest, str_output);
 	} else {
-		u8 *ptr;
+		ulong addr;
+		void *buf;
 
-		ptr = (u8 *)simple_strtoul(dest, NULL, 16);
-		memcpy(ptr, sum, algo->digest_size);
+		addr = simple_strtoul(dest, NULL, 16);
+		buf = map_sysmem(addr, algo->digest_size);
+		memcpy(buf, sum, algo->digest_size);
+		unmap_sysmem(buf);
 	}
 }
 
@@ -154,10 +158,12 @@ static int parse_verify_sum(struct hash_algo *algo, char *verify_str, u8 *vsum,
 	}
 
 	if (env_var) {
-		u8 *ptr;
+		ulong addr;
+		void *buf;
 
-		ptr = (u8 *)simple_strtoul(verify_str, NULL, 16);
-		memcpy(vsum, ptr, algo->digest_size);
+		addr = simple_strtoul(verify_str, NULL, 16);
+		buf = map_sysmem(addr, algo->digest_size);
+		memcpy(vsum, buf, algo->digest_size);
 	} else {
 		unsigned int i;
 		char *vsum_str;
@@ -228,6 +234,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 		struct hash_algo *algo;
 		u8 output[HASH_MAX_DIGEST_SIZE];
 		u8 vsum[HASH_MAX_DIGEST_SIZE];
+		void *buf;
 
 		algo = find_hash_algo(algo_name);
 		if (!algo) {
@@ -241,8 +248,9 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 			return 1;
 		}
 
-		algo->hash_func_ws((const unsigned char *)addr, len, output,
-				   algo->chunk_size);
+		buf = map_sysmem(addr, len);
+		algo->hash_func_ws(buf, len, output, algo->chunk_size);
+		unmap_sysmem(buf);
 
 		/* Try to avoid code bloat when verify is not needed */
 #ifdef CONFIG_HASH_VERIFY
