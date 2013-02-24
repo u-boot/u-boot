@@ -32,11 +32,15 @@ static int do_hash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_HASH_VERIFY
 	int verify = 0;
 
+	if (argc < 4)
+		return CMD_RET_USAGE;
 	if (!strcmp(argv[1], "-v")) {
 		verify = 1;
 		argc--;
 		argv++;
 	}
+#else
+	const int verify = 0;
 #endif
 	/* Move forward to 'algorithm' parameter */
 	argc--;
