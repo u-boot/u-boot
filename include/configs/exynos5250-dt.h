@@ -117,6 +117,9 @@
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
+/* Thermal Management Unit */
+#define CONFIG_EXYNOS_TMU
+
 /* USB */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
