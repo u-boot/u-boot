@@ -50,7 +50,7 @@ SECTIONS
 
 	. = align(4);
 	.u_boot_list : {
-		#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	. = align(4);

@@ -44,7 +44,6 @@
 /u-boot.dtb
 /u-boot.sb
 /u-boot.geany
-/include/u-boot.lst
 
 #
 # Generated files

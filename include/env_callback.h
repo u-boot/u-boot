@@ -83,7 +83,7 @@ void env_callback_init(ENTRY *var_entry);
 	}
 #else
 #define U_BOOT_ENV_CALLBACK(name, callback) \
-	ll_entry_declare(struct env_clbk_tbl, name, env_clbk, env_clbk) = \
+	ll_entry_declare(struct env_clbk_tbl, name, env_clbk) = \
 	{#name, callback}
 #endif
 
