@@ -39,6 +39,7 @@ GLCOBJS	+= div0.o
 SOBJS-y += crt0.o
 
 ifndef CONFIG_SPL_BUILD
+COBJS-y += bss.o
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
 COBJS-$(CONFIG_SYS_L2_PL310) += cache-pl310.o

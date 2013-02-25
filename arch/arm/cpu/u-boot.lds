@@ -81,11 +81,17 @@ SECTIONS
 		*(.mmutable)
 	}
 
-	.bss __rel_dyn_start (OVERLAY) : {
-		__bss_start = .;
+	.bss_start __rel_dyn_start (OVERLAY) : {
+		KEEP(*(.__bss_start));
+	}
+
+	.bss __bss_start (OVERLAY) : {
 		*(.bss*)
 		 . = ALIGN(4);
-		__bss_end__ = .;
+		 ___bssend___ = .;
+	}
+	.bss_end ___bssend___ (OVERLAY) : {
+		KEEP(*(.__bss_end__));
 	}
 
 	/DISCARD/ : { *(.dynstr*) }

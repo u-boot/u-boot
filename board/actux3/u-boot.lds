@@ -72,13 +72,21 @@ SECTIONS
 		*(.dynsym)
 	}
 
-	.bss __rel_dyn_start (OVERLAY) : {
-		__bss_start = .;
+	_end = .;
+
+	.bss_start __rel_dyn_start (OVERLAY) : {
+		KEEP(*(.__bss_start));
+	}
+
+	.bss __bss_start (OVERLAY) : {
 		*(.bss*)
 		 . = ALIGN(4);
-		_end = .;
+		 ___bssend___ = .;
 	}
-	__bss_end__ =.;
+	.bss_end ___bssend___ (OVERLAY) : {
+		KEEP(*(.__bss_end__));
+	}
+
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynamic*) }
 	/DISCARD/ : { *(.plt*) }
