@@ -27,7 +27,9 @@
 
 #include <dtt.h>
 #include <i2c.h>
+#include <tmu.h>
 
+#if defined CONFIG_DTT_SENSORS
 static unsigned long sensor_initialized;
 
 static void _initialize_dtt(void)
@@ -59,9 +61,11 @@ void dtt_init(void)
 	/* switch back to original I2C bus */
 	I2C_SET_BUS(old_bus);
 }
+#endif
 
-int do_dtt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int dtt_i2c(void)
 {
+#if defined CONFIG_DTT_SENSORS
 	int i;
 	unsigned char sensors[] = CONFIG_DTT_SENSORS;
 	int old_bus;
@@ -83,8 +87,34 @@ int do_dtt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	/* switch back to original I2C bus */
 	I2C_SET_BUS(old_bus);
+#endif
 
 	return 0;
+}
+
+int dtt_tmu(void)
+{
+#if defined CONFIG_TMU_CMD_DTT
+	int cur_temp;
+
+	/* Sense and return latest thermal info */
+	if (tmu_monitor(&cur_temp) == TMU_STATUS_INIT) {
+		puts("TMU is in unknown state, temperature is invalid\n");
+		return -1;
+	}
+	printf("Current temperature: %u degrees Celsius\n", cur_temp);
+#endif
+	return 0;
+}
+
+int do_dtt(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	int err = 0;
+
+	err |= dtt_i2c();
+	err |= dtt_tmu();
+
+	return err;
 }	/* do_dtt() */
 
 /***************************************************/
