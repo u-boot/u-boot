@@ -8,7 +8,9 @@ Required properties:
  - samsung,max-temp : Maximum temperature value (125 degree celsius)
 	- Current temperature of SoC should be less than this value.
  - samsung,start-warning : Temperature at which TMU starts giving warning (degree celsius)
- - samsung,start-tripping : Temperature at which system will trip and shutdown (degree celsius)
+ - samsung,start-tripping : Temperature at which TMU shuts down the system (degree celsius)
+ - samsung,hw-tripping : Temperature at which hardware tripping should happen
+	in case TMU fails to power off (degree celsius)
  - samsung,efuse-min-value : SOC efuse min value (Constant 40)
 	- efuse-value should be more than this value.
  - samsung,efuse-value : SOC actual efuse value (Literal value)
@@ -33,6 +35,7 @@ tmu@10060000 {
 	samsung,max-temp = <125>;
 	samsung,start-warning = <95>;
 	samsung,start-tripping = <105>;
+	samsung,hw-tripping = <110>;
 	samsung,efuse-min-value = <40>;
 	samsung,efuse-value = <55>;
 	samsung,efuse-max-value = <100>;
