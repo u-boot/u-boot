@@ -682,12 +682,10 @@
 	ESERIAL3 \
 	PSSERIAL0 \
 	PSSERIAL1 \
-	"autoload=no\0" \
 	"bootfile=image.ub\0" \
 	"netstart=@nstart@\0" \
 	"dtbnetstart=@dtbnstart@\0" \
 	"loadaddr=@nstart@\0" \
-	"bootcmd=run netboot\0" \
 	"netboot=tftp ${netstart} image.ub && bootm\0" \
 	"dtbnetboot=tftp ${netstart} image.ub; tftp ${dtbnetstart} system.dtb; bootm ${netstart} - ${dtbnetstart}\0" \
 	""
