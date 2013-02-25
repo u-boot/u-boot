@@ -50,7 +50,7 @@ SECTIONS
 
 	.u_boot_list : {
 		#include <u-boot.lst>
-	}
+	} > .sram
 
 	. = ALIGN(4);
 	__image_copy_end = .;
