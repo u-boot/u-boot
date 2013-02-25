@@ -119,7 +119,7 @@ ifeq ($(wildcard $(LDSCRIPT)),)
 	LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
+	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
@@ -177,11 +177,7 @@ $(START):	depend
 $(LIBS):	depend
 	$(MAKE) -C $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))
 
-# The following line expands into whole rule which generates u-boot.lst,
-# the file containing u-boots LG-array linker section. This is included into
-# $(LDSCRIPT). The function make_u_boot_list is defined in helper.mk file.
-$(eval $(call make_u_boot_list, $(obj)u-boot.lst, $(LIBS)))
-$(obj)u-boot-spl.lds: $(LDSCRIPT) $(obj)u-boot.lst depend
+$(obj)u-boot-spl.lds: $(LDSCRIPT) depend
 	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
 
 depend:	$(obj).depend

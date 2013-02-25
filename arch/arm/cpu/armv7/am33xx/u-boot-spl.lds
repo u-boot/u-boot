@@ -1,12 +1,10 @@
 /*
- * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
- * on behalf of DENX Software Engineering GmbH
- *
- * January 2004 - Changed to support H4 device
- * Copyright (c) 2004-2008 Texas Instruments
- *
  * (C) Copyright 2002
  * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ *
+ * (C) Copyright 2010
+ * Texas Instruments, <www.ti.com>
+ *	Aneesh V <aneesh@ti.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,56 +25,43 @@
  * MA 02111-1307 USA
  */
 
+MEMORY { .sram : ORIGIN = CONFIG_SPL_TEXT_BASE,\
+		LENGTH = CONFIG_SPL_MAX_SIZE }
+MEMORY { .sdram : ORIGIN = CONFIG_SPL_BSS_START_ADDR, \
+		LENGTH = CONFIG_SPL_BSS_MAX_SIZE }
+
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
 {
-	. = 0x00000000;
-
-	. = ALIGN(4);
-	.text	:
+	.text      :
 	{
-		arch/arm/cpu/arm926ejs/spear/start.o	(.text)
-		*(.text)
-	}
+		__start = .;
+		arch/arm/cpu/armv7/start.o	(.text)
+		*(.text*)
+	} >.sram
 
 	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+	.rodata : { *(SORT_BY_ALIGNMENT(.rodata*)) } >.sram
 
 	. = ALIGN(4);
-	.data : {
-		*(.data)
-	}
+	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
+
+	.u_boot_list : {
+		#include <u-boot.lst>
+	} >.sram
 
 	. = ALIGN(4);
+	__image_copy_end = .;
+	_end = .;
 
-	.rel.dyn : {
-		__rel_dyn_start = .;
-		*(.rel*)
-		__rel_dyn_end = .;
-	}
-
-	.dynsym : {
-		__dynsym_start = .;
-		*(.dynsym)
-	}
-
-	.bss : {
+	.bss :
+	{
 		. = ALIGN(4);
 		__bss_start = .;
 		*(.bss*)
 		. = ALIGN(4);
 		__bss_end__ = .;
-	}
-
-	_end = .;
-
-	/DISCARD/ : { *(.dynstr*) }
-	/DISCARD/ : { *(.dynsym*) }
-	/DISCARD/ : { *(.dynamic*) }
-	/DISCARD/ : { *(.hash*) }
-	/DISCARD/ : { *(.plt*) }
-	/DISCARD/ : { *(.interp*) }
-	/DISCARD/ : { *(.gnu*) }
+	} >.sdram
 }

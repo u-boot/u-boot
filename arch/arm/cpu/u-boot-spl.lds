@@ -1,8 +1,4 @@
 /*
- * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
- * on behalf of DENX Software Engineering GmbH
- *
- * January 2004 - Changed to support H4 device
  * Copyright (c) 2004-2008 Texas Instruments
  *
  * (C) Copyright 2002
@@ -35,10 +31,11 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text	:
+	.text :
 	{
-		arch/arm/cpu/arm926ejs/spear/start.o	(.text)
-		*(.text)
+		__image_copy_start = .;
+		CPUDIR/start.o (.text*)
+		*(.text*)
 	}
 
 	. = ALIGN(4);
@@ -46,10 +43,14 @@ SECTIONS
 
 	. = ALIGN(4);
 	.data : {
-		*(.data)
+		*(.data*)
 	}
 
 	. = ALIGN(4);
+
+	. = .;
+
+	__image_copy_end = .;
 
 	.rel.dyn : {
 		__rel_dyn_start = .;
@@ -62,21 +63,31 @@ SECTIONS
 		*(.dynsym)
 	}
 
-	.bss : {
-		. = ALIGN(4);
+	_end = .;
+
+	/*
+	 * Deprecated: this MMU section is used by pxa at present but
+	 * should not be used by new boards/CPUs.
+	 */
+	. = ALIGN(4096);
+	.mmutable : {
+		*(.mmutable)
+	}
+
+	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
 		*(.bss*)
-		. = ALIGN(4);
+		 . = ALIGN(4);
 		__bss_end__ = .;
 	}
 
-	_end = .;
-
 	/DISCARD/ : { *(.dynstr*) }
-	/DISCARD/ : { *(.dynsym*) }
 	/DISCARD/ : { *(.dynamic*) }
-	/DISCARD/ : { *(.hash*) }
 	/DISCARD/ : { *(.plt*) }
 	/DISCARD/ : { *(.interp*) }
 	/DISCARD/ : { *(.gnu*) }
 }
+
+#if defined(CONFIG_SPL_TEXT_BASE) && defined(CONFIG_SPL_MAX_SIZE)
+ASSERT(__bss_end__ < (CONFIG_SPL_TEXT_BASE + CONFIG_SPL_MAX_SIZE), "SPL image too big");
+#endif

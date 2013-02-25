@@ -57,10 +57,6 @@ SECTIONS
 		*(.data)
 	}
 
-	.u_boot_list : {
-		#include <u-boot.lst>
-	}
-
 	. = ALIGN(4);
 
 	.rel.dyn : {
