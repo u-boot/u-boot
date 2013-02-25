@@ -37,8 +37,38 @@
 #include <asm/arch/dp_info.h>
 #include <power/pmic.h>
 #include <power/max77686_pmic.h>
+#include <tmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if defined CONFIG_EXYNOS_TMU
+/*
+ * Boot Time Thermal Analysis for SoC temperature threshold breach
+ */
+static void boot_temp_check(void)
+{
+	int temp;
+
+	switch (tmu_monitor(&temp)) {
+	/* Status TRIPPED ans WARNING means corresponding threshold breach */
+	case TMU_STATUS_TRIPPED:
+		puts("EXYNOS_TMU: TRIPPING! Device power going down ...\n");
+		set_ps_hold_ctrl();
+		hang();
+		break;
+	case TMU_STATUS_WARNING:
+		puts("EXYNOS_TMU: WARNING! Temperature very high\n");
+		break;
+	/*
+	 * TMU_STATUS_INIT means something is wrong with temperature sensing
+	 * and TMU status was changed back from NORMAL to INIT.
+	 */
+	case TMU_STATUS_INIT:
+	default:
+		debug("EXYNOS_TMU: Unknown TMU state\n");
+	}
+}
+#endif
 
 #ifdef CONFIG_USB_EHCI_EXYNOS
 int board_usb_vbus_init(void)
@@ -71,6 +101,15 @@ static void  board_enable_audio_codec(void)
 int board_init(void)
 {
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
+
+#if defined CONFIG_EXYNOS_TMU
+	if (tmu_init(gd->fdt_blob) != TMU_STATUS_NORMAL) {
+		debug("%s: Failed to init TMU\n", __func__);
+		return -1;
+	}
+	boot_temp_check();
+#endif
+
 #ifdef CONFIG_EXYNOS_SPI
 	spi_init();
 #endif
