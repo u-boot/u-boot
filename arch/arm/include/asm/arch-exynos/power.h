@@ -857,6 +857,9 @@ void set_mipi_phy_ctrl(unsigned int dev_index, unsigned int enable);
 
 void set_usbhost_phy_ctrl(unsigned int enable);
 
+/* Enables hardware tripping to power off the system when TMU fails */
+void set_hw_thermal_trip(void);
+
 #define POWER_USB_HOST_PHY_CTRL_EN		(1 << 0)
 #define POWER_USB_HOST_PHY_CTRL_DISABLE		(0 << 0)
 
@@ -865,6 +868,7 @@ void set_dp_phy_ctrl(unsigned int enable);
 #define EXYNOS_DP_PHY_ENABLE		(1 << 0)
 
 #define EXYNOS_PS_HOLD_CONTROL_DATA_HIGH	(1 << 8)
+#define POWER_ENABLE_HW_TRIP			(1UL << 31)
 
 /*
  * Set ps_hold data driving value high
