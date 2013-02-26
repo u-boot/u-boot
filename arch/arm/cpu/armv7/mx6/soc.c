@@ -205,3 +205,7 @@ const struct boot_mode soc_boot_modes[] = {
 	{"esdhc4",	MAKE_CFGVAL(0x40, 0x38, 0x00, 0x00)},
 	{NULL,		0},
 };
+
+void s_init(void)
+{
+}
