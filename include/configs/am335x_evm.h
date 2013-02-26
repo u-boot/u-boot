@@ -365,11 +365,9 @@
 /* disable host part of MUSB in SPL */
 #undef CONFIG_MUSB_HOST
 /*
- * Disable UART, CPSW ethernet support and extra environment settings so we
- * will fit within 101KiB.
+ * Disable CPSW SPL support so we fit within the 101KiB limit.
  */
 #undef CONFIG_SPL_ETH_SUPPORT
-#undef CONFIG_SPL_YMODEM_SUPPORT
 #endif
 
 /*

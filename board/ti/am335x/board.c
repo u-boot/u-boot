@@ -73,7 +73,7 @@ static inline int board_is_idk(void)
 	return !strncmp(header.config, "SKU#02", 6);
 }
 
-static int board_is_gp_evm(void)
+static int __maybe_unused board_is_gp_evm(void)
 {
 	return !strncmp("A33515BB", header.name, 8);
 }
