@@ -756,19 +756,7 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	nand->ecc.read_page = fsl_elbc_read_page;
 	nand->ecc.write_page = fsl_elbc_write_page;
 
-#ifdef CONFIG_FSL_ELBC_FMR
-	priv->fmr = CONFIG_FSL_ELBC_FMR;
-#else
 	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
-
-	/*
-	 * Hardware expects small page has ECCM0, large page has ECCM1
-	 * when booting from NAND.  Board config can override if not
-	 * booting from NAND.
-	 */
-	if (or & OR_FCM_PGS)
-		priv->fmr |= FMR_ECCM;
-#endif
 
 	/* If CS Base Register selects full hardware ECC then use it */
 	if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
@@ -786,10 +774,25 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 		nand->ecc.mode = NAND_ECC_SOFT;
 	}
 
+	ret = nand_scan_ident(mtd, 1, NULL);
+	if (ret)
+		return ret;
+
 	/* Large-page-specific setup */
-	if (or & OR_FCM_PGS) {
+	if (mtd->writesize == 2048) {
+		setbits_be32(&elbc_ctrl->regs->bank[priv->bank].or,
+			     OR_FCM_PGS);
+		in_be32(&elbc_ctrl->regs->bank[priv->bank].or);
+
 		priv->page_size = 1;
 		nand->badblock_pattern = &largepage_memorybased;
+
+		/*
+		 * Hardware expects small page has ECCM0, large page has
+		 * ECCM1 when booting from NAND, and we follow that even
+		 * when not booting from NAND.
+		 */
+		priv->fmr |= FMR_ECCM;
 
 		/* adjust ecc setup if needed */
 		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
@@ -798,11 +801,13 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 					   &fsl_elbc_oob_lp_eccm1 :
 					   &fsl_elbc_oob_lp_eccm0;
 		}
+	} else if (mtd->writesize == 512) {
+		clrbits_be32(&elbc_ctrl->regs->bank[priv->bank].or,
+			     OR_FCM_PGS);
+		in_be32(&elbc_ctrl->regs->bank[priv->bank].or);
+	} else {
+		return -ENODEV;
 	}
-
-	ret = nand_scan_ident(mtd, 1, NULL);
-	if (ret)
-		return ret;
 
 	ret = nand_scan_tail(mtd);
 	if (ret)
