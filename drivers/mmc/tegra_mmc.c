@@ -21,7 +21,6 @@
 
 #include <bouncebuf.h>
 #include <common.h>
-#include <fdtdec.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -37,6 +36,38 @@ struct mmc_host mmc_host[MAX_HOSTS];
 #ifndef CONFIG_OF_CONTROL
 #error "Please enable device tree support to use this driver"
 #endif
+
+static void mmc_set_power(struct mmc_host *host, unsigned short power)
+{
+	u8 pwr = 0;
+	debug("%s: power = %x\n", __func__, power);
+
+	if (power != (unsigned short)-1) {
+		switch (1 << power) {
+		case MMC_VDD_165_195:
+			pwr = TEGRA_MMC_PWRCTL_SD_BUS_VOLTAGE_V1_8;
+			break;
+		case MMC_VDD_29_30:
+		case MMC_VDD_30_31:
+			pwr = TEGRA_MMC_PWRCTL_SD_BUS_VOLTAGE_V3_0;
+			break;
+		case MMC_VDD_32_33:
+		case MMC_VDD_33_34:
+			pwr = TEGRA_MMC_PWRCTL_SD_BUS_VOLTAGE_V3_3;
+			break;
+		}
+	}
+	debug("%s: pwr = %X\n", __func__, pwr);
+
+	/* Set the bus voltage first (if any) */
+	writeb(pwr, &host->reg->pwrcon);
+	if (pwr == 0)
+		return;
+
+	/* Now enable bus power */
+	pwr |= TEGRA_MMC_PWRCTL_SD_BUS_POWER;
+	writeb(pwr, &host->reg->pwrcon);
+}
 
 static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data,
 				struct bounce_buffer *bbstate)
@@ -334,8 +365,7 @@ static void mmc_change_clock(struct mmc_host *host, uint clock)
 	debug(" mmc_change_clock called\n");
 
 	/*
-	 * Change Tegra SDMMCx clock divisor here. Source is 216MHz,
-	 * PLLP_OUT0
+	 * Change Tegra SDMMCx clock divisor here. Source is PLLP_OUT0
 	 */
 	if (clock == 0)
 		goto out;
@@ -410,7 +440,7 @@ static void mmc_set_ios(struct mmc *mmc)
 	debug("mmc_set_ios: hostctl = %08X\n", ctrl);
 }
 
-static void mmc_reset(struct mmc_host *host)
+static void mmc_reset(struct mmc_host *host, struct mmc *mmc)
 {
 	unsigned int timeout;
 	debug(" mmc_reset called\n");
@@ -436,6 +466,14 @@ static void mmc_reset(struct mmc_host *host)
 		timeout--;
 		udelay(1000);
 	}
+
+	/* Set SD bus voltage & enable bus power */
+	mmc_set_power(host, fls(mmc->voltages) - 1);
+	debug("%s: power control = %02X, host control = %02X\n", __func__,
+		readb(&host->reg->pwrcon), readb(&host->reg->hostctl));
+
+	/* Make sure SDIO pads are set up */
+	pad_init_mmc(host);
 }
 
 static int mmc_core_init(struct mmc *mmc)
@@ -444,7 +482,7 @@ static int mmc_core_init(struct mmc *mmc)
 	unsigned int mask;
 	debug(" mmc_core_init called\n");
 
-	mmc_reset(host);
+	mmc_reset(host, mmc);
 
 	host->version = readw(&host->reg->hcver);
 	debug("host version = %x\n", host->version);
@@ -642,12 +680,21 @@ void tegra_mmc_init(void)
 	const void *blob = gd->fdt_blob;
 	debug("%s entry\n", __func__);
 
+	/* See if any Tegra30 MMC controllers are present */
+	count = fdtdec_find_aliases_for_id(blob, "sdhci",
+		COMPAT_NVIDIA_TEGRA30_SDMMC, node_list, MAX_HOSTS);
+	debug("%s: count of T30 sdhci nodes is %d\n", __func__, count);
+	if (process_nodes(blob, node_list, count)) {
+		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
+		return;
+	}
+
+	/* Now look for any Tegra20 MMC controllers */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",
 		COMPAT_NVIDIA_TEGRA20_SDMMC, node_list, MAX_HOSTS);
-	debug("%s: count of sdhci nodes is %d\n", __func__, count);
-
+	debug("%s: count of T20 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
-		printf("%s: Error processing mmc node(s)!\n", __func__);
+		printf("%s: Error processing T20 mmc node(s)!\n", __func__);
 		return;
 	}
 }
