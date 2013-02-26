@@ -1056,7 +1056,7 @@ static char bootm_help_text[] =
 	"issued in the order below (it's ok to not issue all sub-commands):\n"
 	"\tstart [addr [arg ...]]\n"
 	"\tloados  - load OS image\n"
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
+#if defined(CONFIG_SYS_BOOT_RAMDISK_HIGH)
 	"\tramdisk - relocate initrd, set env initrd_start/initrd_end\n"
 #endif
 #if defined(CONFIG_OF_LIBFDT)
