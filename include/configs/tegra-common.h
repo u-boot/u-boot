@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __TEGRA_COMMON_H
-#define __TEGRA_COMMON_H
+#ifndef _TEGRA_COMMON_H_
+#define _TEGRA_COMMON_H_
 #include <asm/sizes.h>
 #include <linux/stringify.h>
 
@@ -56,10 +56,8 @@
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
 
 /*
- * PllX Configuration
+ * NS16550 Configuration
  */
-#define CONFIG_SYS_CPU_OSC_FREQUENCY	1000000	/* Set CPU clock to 1GHz */
-
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
