@@ -976,6 +976,8 @@ Tom Warren <twarren@nvidia.com>
 
 	harmony		Tegra20 (ARM7 & A9 Dual Core)
 	seaboard	Tegra20 (ARM7 & A9 Dual Core)
+	cardhu		Tegra30 (ARM7 & A9 Quad Core)
+	dalmore		Tegra114 (ARM7 & A15 Quad Core)
 
 Tom Warren <twarren@nvidia.com>
 Stephen Warren <swarren@nvidia.com>
