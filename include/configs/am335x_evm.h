@@ -49,6 +49,7 @@
 #define CONFIG_BOOTDELAY		1
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"fdtaddr=0x80F80000\0" \
@@ -132,6 +133,8 @@
 			"setenv fdtfile am335x-evm.dtb; fi; " \
 		"if test $board_name = A335X_SK; then " \
 			"setenv fdtfile am335x-evmsk.dtb; fi\0" \
+
+#endif
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -367,7 +370,6 @@
  */
 #undef CONFIG_SPL_ETH_SUPPORT
 #undef CONFIG_SPL_YMODEM_SUPPORT
-#undef CONFIG_EXTRA_ENV_SETTINGS
 #endif
 
 /*
