@@ -425,6 +425,31 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 	return ret;
 }
 
+/* Adjust a chip/partition size down for bad blocks so we don't
+ * read/write/erase past the end of a chip/partition by accident.
+ */
+static void adjust_size_for_badblocks(loff_t *size, loff_t offset, int dev)
+{
+	/* We grab the nand info object here fresh because this is usually
+	 * called after arg_off_size() which can change the value of dev.
+	 */
+	nand_info_t *nand = &nand_info[dev];
+	loff_t maxoffset = offset + *size;
+	int badblocks = 0;
+
+	/* count badblocks in NAND from offset to offset + size */
+	for (; offset < maxoffset; offset += nand->erasesize) {
+		if (nand_block_isbad(nand, offset))
+			badblocks++;
+	}
+	/* adjust size if any bad blocks found */
+	if (badblocks) {
+		*size -= badblocks * nand->erasesize;
+		printf("size adjusted to 0x%llx (%d bad blocks)\n",
+		       (unsigned long long)*size, badblocks);
+	}
+}
+
 static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, ret = 0;
@@ -521,6 +546,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		int scrub = !strncmp(cmd, "scrub", 5);
 		int spread = 0;
 		int args = 2;
+		int adjust_size = 0;
 		const char *scrub_warn =
 			"Warning: "
 			"scrub option will erase all factory set bad blocks!\n"
@@ -537,8 +563,10 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				spread = 1;
 			} else if (!strcmp(&cmd[5], ".part")) {
 				args = 1;
+				adjust_size = 1;
 			} else if (!strcmp(&cmd[5], ".chip")) {
 				args = 0;
+				adjust_size = 1;
 			} else {
 				goto usage;
 			}
@@ -557,6 +585,10 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (arg_off_size(argc - o, argv + o, &dev, &off, &size,
 				 &maxsize) != 0)
 			return 1;
+
+		/* size is unspecified */
+		if (adjust_size && !scrub)
+			adjust_size_for_badblocks(&size, off, dev);
 
 		nand = &nand_info[dev];
 
@@ -642,6 +674,9 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						&off, &size, &maxsize) != 0)
 				return 1;
 
+			/* size is unspecified */
+			if (argc < 5)
+				adjust_size_for_badblocks(&size, off, dev);
 			rwsize = size;
 		}
 
