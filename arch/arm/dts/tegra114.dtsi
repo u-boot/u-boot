@@ -11,10 +11,27 @@
 		i2c4 = "/i2c@7000c700";
 	};
 
-	tegra_car: clock@60006000 {
+	tegra_car: clock {
 		compatible = "nvidia,tegra114-car";
 		reg = <0x60006000 0x1000>;
 		#clock-cells = <1>;
+	};
+
+	gpio: gpio {
+		compatible = "nvidia,tegra114-gpio", "nvidia,tegra30-gpio";
+		reg = <0x6000d000 0x1000>;
+		interrupts = <0 32 0x04
+			      0 33 0x04
+			      0 34 0x04
+			      0 35 0x04
+			      0 55 0x04
+			      0 87 0x04
+			      0 89 0x04
+			      0 125 0x04>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		#interrupt-cells = <2>;
+		interrupt-controller;
 	};
 
 	i2c@7000c000 {
