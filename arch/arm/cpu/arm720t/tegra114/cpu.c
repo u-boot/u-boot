@@ -201,6 +201,7 @@ void t114_init_clocks(void)
 	reset_set_enable(PERIPH_ID_MSELECT, 0);
 	reset_set_enable(PERIPH_ID_EMC1, 0);
 	reset_set_enable(PERIPH_ID_MC1, 0);
+	reset_set_enable(PERIPH_ID_DVFS, 0);
 
 	debug("t114_init_clocks exit\n");
 }
