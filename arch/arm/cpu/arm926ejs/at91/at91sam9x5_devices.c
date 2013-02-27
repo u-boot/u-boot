@@ -246,14 +246,14 @@ void at91_macb_hw_init(void)
 #ifndef CONFIG_RMII
 	/* Only emac0 support MII */
 	if (has_emac0()) {
-		at91_set_b_periph(AT91_PIO_PORTB, 16, 0);	/* ECRS */
-		at91_set_b_periph(AT91_PIO_PORTB, 17, 0);	/* ECOL */
-		at91_set_b_periph(AT91_PIO_PORTB, 13, 0);	/* ERX2 */
-		at91_set_b_periph(AT91_PIO_PORTB, 14, 0);	/* ERX3 */
-		at91_set_b_periph(AT91_PIO_PORTB, 15, 0);	/* ERXCK */
-		at91_set_b_periph(AT91_PIO_PORTB, 11, 0);	/* ETX2 */
-		at91_set_b_periph(AT91_PIO_PORTB, 12, 0);	/* ETX3 */
-		at91_set_b_periph(AT91_PIO_PORTB, 8, 0);	/* ETXER */
+		at91_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* ECRS */
+		at91_set_a_periph(AT91_PIO_PORTB, 17, 0);	/* ECOL */
+		at91_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* ERX2 */
+		at91_set_a_periph(AT91_PIO_PORTB, 14, 0);	/* ERX3 */
+		at91_set_a_periph(AT91_PIO_PORTB, 15, 0);	/* ERXCK */
+		at91_set_a_periph(AT91_PIO_PORTB, 11, 0);	/* ETX2 */
+		at91_set_a_periph(AT91_PIO_PORTB, 12, 0);	/* ETX3 */
+		at91_set_a_periph(AT91_PIO_PORTB, 8, 0);	/* ETXER */
 	}
 #endif
 }
