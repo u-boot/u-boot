@@ -32,7 +32,11 @@
 #include <asm/arch/sys_proto.h>
 
 /* Maximum fixed count */
-#define TIMER_LOAD_VAL	0xffffffff
+#if defined(CONFIG_MX23)
+#define TIMER_LOAD_VAL 0xffff
+#elif defined(CONFIG_MX28)
+#define TIMER_LOAD_VAL 0xffffffff
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -69,7 +73,11 @@ int timer_init(void)
 	mxs_reset_block(&timrot_regs->hw_timrot_rotctrl_reg);
 
 	/* Set fixed_count to 0 */
+#if defined(CONFIG_MX23)
+	writel(0, &timrot_regs->hw_timrot_timcount0);
+#elif defined(CONFIG_MX28)
 	writel(0, &timrot_regs->hw_timrot_fixed_count0);
+#endif
 
 	/* Set UPDATE bit and 1Khz frequency */
 	writel(TIMROT_TIMCTRLn_UPDATE | TIMROT_TIMCTRLn_RELOAD |
@@ -77,7 +85,11 @@ int timer_init(void)
 		&timrot_regs->hw_timrot_timctrl0);
 
 	/* Set fixed_count to maximal value */
+#if defined(CONFIG_MX23)
+	writel(TIMER_LOAD_VAL - 1, &timrot_regs->hw_timrot_timcount0);
+#elif defined(CONFIG_MX28)
 	writel(TIMER_LOAD_VAL, &timrot_regs->hw_timrot_fixed_count0);
+#endif
 
 	return 0;
 }
@@ -86,9 +98,16 @@ unsigned long long get_ticks(void)
 {
 	struct mxs_timrot_regs *timrot_regs =
 		(struct mxs_timrot_regs *)MXS_TIMROT_BASE;
+	uint32_t now;
 
 	/* Current tick value */
-	uint32_t now = readl(&timrot_regs->hw_timrot_running_count0);
+#if defined(CONFIG_MX23)
+	/* Upper bits are the valid ones. */
+	now = readl(&timrot_regs->hw_timrot_timcount0) >>
+		TIMROT_RUNNING_COUNTn_RUNNING_COUNT_OFFSET;
+#elif defined(CONFIG_MX28)
+	now = readl(&timrot_regs->hw_timrot_running_count0);
+#endif
 
 	if (lastdec >= now) {
 		/*
