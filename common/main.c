@@ -378,6 +378,10 @@ void main_loop (void)
 
 	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
 
+#if defined CONFIG_OF_CONTROL
+       set_working_fdt_addr((void *)gd->fdt_blob);
+#endif /* CONFIG_OF_CONTROL */
+
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();
 	bootcount++;
@@ -499,10 +503,6 @@ void main_loop (void)
 	}
 #endif /* CONFIG_MENUKEY */
 #endif /* CONFIG_BOOTDELAY */
-
-#if defined CONFIG_OF_CONTROL
-	set_working_fdt_addr((void *)gd->fdt_blob);
-#endif /* CONFIG_OF_CONTROL */
 
 	/*
 	 * Main Loop for Monitor Command Processing
