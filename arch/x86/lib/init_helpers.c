@@ -188,7 +188,7 @@ int find_fdt(void)
 	gd->fdt_blob = _binary_dt_dtb_start;
 #elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
-	gd->fdt_blob = (void *)(_end_ofs + _TEXT_BASE);
+	gd->fdt_blob = (ulong *)&_end;
 #endif
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,

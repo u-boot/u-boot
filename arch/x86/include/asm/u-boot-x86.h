@@ -31,6 +31,7 @@ extern ulong __rel_dyn_start;
 extern ulong __rel_dyn_end;
 extern ulong __bss_start;
 extern ulong __bss_end;
+extern ulong _end;
 
 /* cpu/.../cpu.c */
 int x86_cpu_init_r(void);

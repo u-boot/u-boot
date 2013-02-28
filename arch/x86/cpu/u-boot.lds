@@ -67,6 +67,8 @@ SECTIONS
 	__rel_dyn_start = .;
 	.rel.dyn : { *(.rel.dyn) }
 	__rel_dyn_end = .;
+	. = ALIGN(4);
+	_end = .;
 
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynamic*) }
