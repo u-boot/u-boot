@@ -631,21 +631,19 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif /* CONFIG_LOOPW */
 
-static ulong mem_test_alt(ulong start_addr, ulong end_addr)
+static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
+			  vu_long *dummy)
 {
-	vu_long *start, *end;
 	vu_long *addr;
 	ulong errs = 0;
 	ulong val, readback;
 	int j;
-	vu_long len;
 	vu_long offset;
 	vu_long test_offset;
 	vu_long pattern;
 	vu_long temp;
 	vu_long anti_pattern;
 	vu_long num_words;
-	vu_long *dummy = (vu_long *)CONFIG_SYS_MEMTEST_SCRATCH;
 	static const ulong bitpattern[] = {
 		0x00000001,	/* single bit */
 		0x00000003,	/* two adjacent bits */
@@ -657,8 +655,7 @@ static ulong mem_test_alt(ulong start_addr, ulong end_addr)
 		0xaaaaaaaa,	/* alternating 1/0 */
 	};
 
-	start = (vu_long *)start_addr;
-	end = (vu_long *)end_addr;
+	num_words = (end_addr - start_addr) / sizeof(vu_long);
 
 	/*
 	 * Data line test: write a pattern to the first
@@ -677,11 +674,11 @@ static ulong mem_test_alt(ulong start_addr, ulong end_addr)
 	 * '0's and '0' bits through a field of '1's (i.e.
 	 * pattern and ~pattern).
 	 */
-	addr = start;
+	addr = buf;
 	for (j = 0; j < sizeof(bitpattern) / sizeof(bitpattern[0]); j++) {
 		val = bitpattern[j];
 		for (; val != 0; val <<= 1) {
-			*addr  = val;
+			*addr = val;
 			*dummy  = ~val; /* clear the test data off the bus */
 			readback = *addr;
 			if (readback != val) {
@@ -740,58 +737,56 @@ static ulong mem_test_alt(ulong start_addr, ulong end_addr)
 	 *
 	 * Returns:     0 if the test succeeds, 1 if the test fails.
 	 */
-	len = (end_addr - start_addr) / sizeof(vu_long);
 	pattern = (vu_long) 0xaaaaaaaa;
 	anti_pattern = (vu_long) 0x55555555;
 
-	debug("%s:%d: length = 0x%.8lx\n",
-		__func__, __LINE__, len);
+	debug("%s:%d: length = 0x%.8lx\n", __func__, __LINE__, num_words);
 	/*
 	 * Write the default pattern at each of the
 	 * power-of-two offsets.
 	 */
-	for (offset = 1; offset < len; offset <<= 1)
-		start[offset] = pattern;
+	for (offset = 1; offset < num_words; offset <<= 1)
+		addr[offset] = pattern;
 
 	/*
 	 * Check for address bits stuck high.
 	 */
 	test_offset = 0;
-	start[test_offset] = anti_pattern;
+	addr[test_offset] = anti_pattern;
 
-	for (offset = 1; offset < len; offset <<= 1) {
-		temp = start[offset];
+	for (offset = 1; offset < num_words; offset <<= 1) {
+		temp = addr[offset];
 		if (temp != pattern) {
 			printf("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx\n",
-				(ulong)&start[offset], pattern, temp);
+				start_addr + offset, pattern, temp);
 			errs++;
 			if (ctrlc())
 				return -1;
 		}
 	}
-	start[test_offset] = pattern;
+	addr[test_offset] = pattern;
 	WATCHDOG_RESET();
 
 	/*
 	 * Check for addr bits stuck low or shorted.
 	 */
-	for (test_offset = 1; test_offset < len; test_offset <<= 1) {
-		start[test_offset] = anti_pattern;
+	for (test_offset = 1; test_offset < num_words; test_offset <<= 1) {
+		addr[test_offset] = anti_pattern;
 
-		for (offset = 1; offset < len; offset <<= 1) {
-			temp = start[offset];
+		for (offset = 1; offset < num_words; offset <<= 1) {
+			temp = addr[offset];
 			if ((temp != pattern) && (offset != test_offset)) {
 				printf("\nFAILURE: Address bit stuck low or"
 					" shorted @ 0x%.8lx: expected 0x%.8lx,"
 					" actual 0x%.8lx\n",
-					(ulong)&start[offset], pattern, temp);
+					start_addr + offset, pattern, temp);
 				errs++;
 				if (ctrlc())
 					return -1;
 			}
 		}
-		start[test_offset] = pattern;
+		addr[test_offset] = pattern;
 	}
 
 	/*
@@ -806,14 +801,14 @@ static ulong mem_test_alt(ulong start_addr, ulong end_addr)
 	 *
 	 * Returns:     0 if the test succeeds, 1 if the test fails.
 	 */
-	num_words = ((ulong)end - (ulong)start)/sizeof(vu_long) + 1;
+	num_words++;
 
 	/*
 	 * Fill memory with a known pattern.
 	 */
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
 		WATCHDOG_RESET();
-		start[offset] = pattern;
+		addr[offset] = pattern;
 	}
 
 	/*
@@ -821,18 +816,18 @@ static ulong mem_test_alt(ulong start_addr, ulong end_addr)
 	 */
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
 		WATCHDOG_RESET();
-		temp = start[offset];
+		temp = addr[offset];
 		if (temp != pattern) {
 			printf("\nFAILURE (read/write) @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx)\n",
-				(ulong)&start[offset], pattern, temp);
+				start_addr + offset, pattern, temp);
 			errs++;
 			if (ctrlc())
 				return -1;
 		}
 
 		anti_pattern = ~pattern;
-		start[offset] = anti_pattern;
+		addr[offset] = anti_pattern;
 	}
 
 	/*
@@ -841,28 +836,28 @@ static ulong mem_test_alt(ulong start_addr, ulong end_addr)
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
 		WATCHDOG_RESET();
 		anti_pattern = ~pattern;
-		temp = start[offset];
+		temp = addr[offset];
 		if (temp != anti_pattern) {
 			printf("\nFAILURE (read/write): @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx)\n",
-				(ulong)&start[offset], anti_pattern, temp);
+				start_addr + offset, anti_pattern, temp);
 			errs++;
 			if (ctrlc())
 				return -1;
 		}
-		start[offset] = 0;
+		addr[offset] = 0;
 	}
 
 	return 0;
 }
 
-static ulong mem_test_quick(ulong start_addr, ulong end_addr, vu_long pattern,
-			    int iteration)
+static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
+			    vu_long pattern, int iteration)
 {
-	vu_long *start, *end;
+	vu_long *end;
 	vu_long *addr;
 	ulong errs = 0;
-	ulong incr;
+	ulong incr, length;
 	ulong val, readback;
 
 	/* Alternate the pattern */
@@ -880,14 +875,14 @@ static ulong mem_test_quick(ulong start_addr, ulong end_addr, vu_long pattern,
 		else
 			pattern = ~pattern;
 	}
-	start = (vu_long *)start_addr;
-	end = (vu_long *)end_addr;
+	length = (end_addr - start_addr) / sizeof(ulong);
+	end = buf + length;
 	printf("\rPattern %08lX  Writing..."
 		"%12s"
 		"\b\b\b\b\b\b\b\b\b\b",
 		pattern, "");
 
-	for (addr = start, val = pattern; addr < end; addr++) {
+	for (addr = buf, val = pattern; addr < end; addr++) {
 		WATCHDOG_RESET();
 		*addr = val;
 		val += incr;
@@ -895,13 +890,16 @@ static ulong mem_test_quick(ulong start_addr, ulong end_addr, vu_long pattern,
 
 	puts("Reading...");
 
-	for (addr = start, val = pattern; addr < end; addr++) {
+	for (addr = buf, val = pattern; addr < end; addr++) {
 		WATCHDOG_RESET();
 		readback = *addr;
 		if (readback != val) {
+			ulong offset = addr - buf;
+
 			printf("\nMem error @ 0x%08X: "
 				"found %08lX, expected %08lX\n",
-				(uint)(uintptr_t)addr, readback, val);
+				(uint)(uintptr_t)(start_addr + offset),
+				readback, val);
 			errs++;
 			if (ctrlc())
 				return -1;
@@ -921,6 +919,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
 	ulong start, end;
+	vu_long *buf, *dummy;
 	int iteration_limit;
 	int ret;
 	ulong errs = 0;	/* number of errors, or -1 if interrupted */
@@ -956,6 +955,8 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	debug("%s:%d: start %#08lx end %#08lx\n", __func__, __LINE__,
 	      start, end);
 
+	buf = map_sysmem(start, end - start);
+	dummy = map_sysmem(CONFIG_SYS_MEMTEST_SCRATCH, sizeof(vu_long));
 	for (iteration = 0;
 			!iteration_limit || iteration < iteration_limit;
 			iteration++) {
@@ -966,10 +967,27 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		printf("Iteration: %6d\r", iteration + 1);
 		debug("\n");
-		if (alt_test)
-			errs = mem_test_alt(start, end);
-		else
-			errs = mem_test_quick(start, end, pattern, iteration);
+		if (alt_test) {
+			errs = mem_test_alt(buf, start, end, dummy);
+		} else {
+			errs = mem_test_quick(buf, start, end, pattern,
+					      iteration);
+		}
+		if (errs == -1UL)
+			break;
+	}
+
+	/*
+	 * Work-around for eldk-4.2 which gives this warning if we try to
+	 * case in the unmap_sysmem() call:
+	 * warning: initialization discards qualifiers from pointer target type
+	 */
+	{
+		void *vbuf = (void *)buf;
+		void *vdummy = (void *)dummy;
+
+		unmap_sysmem(vbuf);
+		unmap_sysmem(vdummy);
 	}
 
 	if (errs == -1UL) {
