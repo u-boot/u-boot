@@ -35,16 +35,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-/* Rather than repeat this expression each time, add a define for it */
-#if (defined(CONFIG_CMD_IDE) || \
-     defined(CONFIG_CMD_SATA) || \
-     defined(CONFIG_CMD_SCSI) || \
-     defined(CONFIG_CMD_USB) || \
-     defined(CONFIG_MMC) || \
-     defined(CONFIG_SYSTEMACE) )
-#define HAVE_BLOCK_DEVICE
-#endif
-
 struct block_drvr {
 	char *name;
 	block_dev_desc_t* (*get_dev)(int dev);
