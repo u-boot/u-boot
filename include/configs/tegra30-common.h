@@ -86,7 +86,4 @@
 /* Total I2C ports on Tegra30 */
 #define TEGRA_I2C_NUM_CONTROLLERS	5
 
-/* Misc utility code */
-#define CONFIG_BOUNCE_BUFFER
-
 #endif /* _TEGRA30_COMMON_H_ */

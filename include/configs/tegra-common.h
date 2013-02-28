@@ -155,4 +155,7 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
 
+/* Misc utility code */
+#define CONFIG_BOUNCE_BUFFER
+
 #endif /* _TEGRA_COMMON_H_ */
