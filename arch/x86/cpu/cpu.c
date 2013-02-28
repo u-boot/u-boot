@@ -228,3 +228,26 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
 }
+
+void dcache_enable(void)
+{
+	enable_caches();
+}
+
+void dcache_disable(void)
+{
+	disable_caches();
+}
+
+void icache_enable(void)
+{
+}
+
+void icache_disable(void)
+{
+}
+
+int icache_status(void)
+{
+	return 1;
+}
