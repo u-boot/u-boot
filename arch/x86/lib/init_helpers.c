@@ -22,6 +22,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <fdtdec.h>
 #include <stdio_dev.h>
 #include <version.h>
 #include <malloc.h>
@@ -85,17 +86,35 @@ int calculate_relocation_address(void)
 			(uintptr_t)&__text_start;
 	ulong total_size;
 	ulong dest_addr;
+	ulong fdt_size = 0;
 
+#if defined(CONFIG_OF_SEPARATE) && defined(CONFIG_OF_CONTROL)
+	if (gd->fdt_blob)
+		fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob) + 0x1000, 32);
+#endif
 	total_size = ALIGN(uboot_size, 1 << 12) + CONFIG_SYS_MALLOC_LEN +
-		CONFIG_SYS_STACK_SIZE;
+		CONFIG_SYS_STACK_SIZE + fdt_size;
 
+	dest_addr = board_get_usable_ram_top(total_size);
 	/*
 	 * NOTE: All destination address are rounded down to 16-byte
 	 *       boundary to satisfy various worst-case alignment
 	 *       requirements
 	 */
-	dest_addr = board_get_usable_ram_top(total_size);
+	dest_addr &= ~15;
 
+#if defined(CONFIG_OF_SEPARATE) && defined(CONFIG_OF_CONTROL)
+	/*
+	 * If the device tree is sitting immediate above our image then we
+	 * must relocate it. If it is embedded in the data section, then it
+	 * will be relocated with other data.
+	 */
+	if (gd->fdt_blob) {
+		dest_addr -= fdt_size;
+		gd->arch.new_fdt = (void *)dest_addr;
+		dest_addr &= ~15;
+	}
+#endif
 	/* U-Boot is below the FDT */
 	dest_addr -= uboot_size;
 	dest_addr &= ~((1 << 12) - 1);
