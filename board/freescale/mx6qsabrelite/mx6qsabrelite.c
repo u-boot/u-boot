@@ -455,32 +455,26 @@ struct display_info_t {
 
 static int detect_hdmi(struct display_info_t const *dev)
 {
-	return __raw_readb(HDMI_ARB_BASE_ADDR+HDMI_PHY_STAT0) & HDMI_PHY_HPD;
+	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
+	return readb(&hdmi->phy_stat0) & HDMI_PHY_HPD;
 }
 
 static void enable_hdmi(struct display_info_t const *dev)
 {
+	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
 	u8 reg;
 	printf("%s: setup HDMI monitor\n", __func__);
-	reg = __raw_readb(
-			HDMI_ARB_BASE_ADDR
-			+HDMI_PHY_CONF0);
+	reg = readb(&hdmi->phy_conf0);
 	reg |= HDMI_PHY_CONF0_PDZ_MASK;
-	__raw_writeb(reg,
-		     HDMI_ARB_BASE_ADDR
-			+HDMI_PHY_CONF0);
+	writeb(reg, &hdmi->phy_conf0);
+
 	udelay(3000);
 	reg |= HDMI_PHY_CONF0_ENTMDS_MASK;
-	__raw_writeb(reg,
-		     HDMI_ARB_BASE_ADDR
-			+HDMI_PHY_CONF0);
+	writeb(reg, &hdmi->phy_conf0);
 	udelay(3000);
 	reg |= HDMI_PHY_CONF0_GEN2_TXPWRON_MASK;
-	__raw_writeb(reg,
-		     HDMI_ARB_BASE_ADDR
-			+HDMI_PHY_CONF0);
-	__raw_writeb(HDMI_MC_PHYRSTZ_ASSERT,
-		     HDMI_ARB_BASE_ADDR+HDMI_MC_PHYRSTZ);
+	writeb(reg, &hdmi->phy_conf0);
+	writeb(HDMI_MC_PHYRSTZ_ASSERT, &hdmi->mc_phyrstz);
 }
 
 static int detect_i2c(struct display_info_t const *dev)
@@ -638,6 +632,7 @@ static void setup_display(void)
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
 
 	int reg;
 
@@ -654,8 +649,7 @@ static void setup_display(void)
 	writel(reg, &mxc_ccm->CCGR2);
 
 	/* clear HDMI PHY reset */
-	__raw_writeb(HDMI_MC_PHYRSTZ_DEASSERT,
-		     HDMI_ARB_BASE_ADDR+HDMI_MC_PHYRSTZ);
+	writeb(HDMI_MC_PHYRSTZ_DEASSERT, &hdmi->mc_phyrstz);
 
 	/* set PFD1_FRAC to 0x13 == 455 MHz (480*18)/0x13 */
 	writel(ANATOP_PFD_480_PFD1_FRAC_MASK, &anatop->pfd_480_clr);
