@@ -150,6 +150,18 @@
 #define USB_REQ_SET_IDLE            0x0A
 #define USB_REQ_SET_PROTOCOL        0x0B
 
+/* Device features */
+#define USB_FEAT_HALT               0x00
+#define USB_FEAT_WAKEUP             0x01
+#define USB_FEAT_TEST               0x02
+
+/* Test modes */
+#define USB_TEST_MODE_J             0x01
+#define USB_TEST_MODE_K             0x02
+#define USB_TEST_MODE_SE0_NAK       0x03
+#define USB_TEST_MODE_PACKET        0x04
+#define USB_TEST_MODE_FORCE_ENABLE  0x05
+
 
 /* "pipe" definitions */
 
@@ -208,6 +220,7 @@
 #define USB_PORT_FEAT_C_SUSPEND      18
 #define USB_PORT_FEAT_C_OVER_CURRENT 19
 #define USB_PORT_FEAT_C_RESET        20
+#define USB_PORT_FEAT_TEST           21
 
 /* wPortStatus bits */
 #define USB_PORT_STAT_CONNECTION    0x0001

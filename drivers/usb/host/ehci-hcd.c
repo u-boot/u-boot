@@ -623,15 +623,14 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int len, srclen;
 	uint32_t reg;
 	uint32_t *status_reg;
+	int port = le16_to_cpu(req->index) & 0xff;
 	struct ehci_ctrl *ctrl = dev->controller;
 
-	if (le16_to_cpu(req->index) > CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
-		printf("The request port(%d) is not configured\n",
-			le16_to_cpu(req->index) - 1);
+	if (port > CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
+		printf("The request port(%d) is not configured\n", port - 1);
 		return -1;
 	}
-	status_reg = (uint32_t *)&ctrl->hcor->or_portsc[
-						le16_to_cpu(req->index) - 1];
+	status_reg = (uint32_t *)&ctrl->hcor->or_portsc[port - 1];
 	srclen = 0;
 
 	debug("req=%u (%#x), type=%u (%#x), value=%u, index=%u\n",
@@ -748,7 +747,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[2] |= USB_PORT_STAT_C_ENABLE;
 		if (reg & EHCI_PS_OCC)
 			tmpbuf[2] |= USB_PORT_STAT_C_OVERCURRENT;
-		if (ctrl->portreset & (1 << le16_to_cpu(req->index)))
+		if (ctrl->portreset & (1 << port))
 			tmpbuf[2] |= USB_PORT_STAT_C_RESET;
 
 		srcptr = tmpbuf;
@@ -774,7 +773,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			    EHCI_PS_IS_LOWSPEED(reg)) {
 				/* Low speed device, give up ownership. */
 				debug("port %d low speed --> companion\n",
-				      req->index - 1);
+				      port - 1);
 				reg |= EHCI_PS_PO;
 				ehci_writel(status_reg, reg);
 				break;
@@ -800,12 +799,16 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				ret = handshake(status_reg, EHCI_PS_PR, 0,
 						2 * 1000);
 				if (!ret)
-					ctrl->portreset |=
-						1 << le16_to_cpu(req->index);
+					ctrl->portreset |= 1 << port;
 				else
 					printf("port(%d) reset error\n",
-					le16_to_cpu(req->index) - 1);
+					       port - 1);
 			}
+			break;
+		case USB_PORT_FEAT_TEST:
+			reg &= ~(0xf << 16);
+			reg |= ((le16_to_cpu(req->index) >> 8) & 0xf) << 16;
+			ehci_writel(status_reg, reg);
 			break;
 		default:
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
@@ -833,7 +836,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_OCC;
 			break;
 		case USB_PORT_FEAT_C_RESET:
-			ctrl->portreset &= ~(1 << le16_to_cpu(req->index));
+			ctrl->portreset &= ~(1 << port);
 			break;
 		default:
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
