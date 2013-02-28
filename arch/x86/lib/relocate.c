@@ -73,12 +73,16 @@ int clear_bss(void)
 	return 0;
 }
 
+/*
+ * This function has more error checking than you might expect. Please see
+ * the commit message for more informaiton.
+ */
 int do_elf_reloc_fixups(void)
 {
 	Elf32_Rel *re_src = (Elf32_Rel *)(&__rel_dyn_start);
 	Elf32_Rel *re_end = (Elf32_Rel *)(&__rel_dyn_end);
 
-	Elf32_Addr *offset_ptr_rom;
+	Elf32_Addr *offset_ptr_rom, *last_offset = NULL;
 	Elf32_Addr *offset_ptr_ram;
 
 	/* The size of the region of u-boot that runs out of RAM. */
@@ -89,7 +93,8 @@ int do_elf_reloc_fixups(void)
 		offset_ptr_rom = (Elf32_Addr *)re_src->r_offset;
 
 		/* Check that the location of the relocation is in .text */
-		if (offset_ptr_rom >= (Elf32_Addr *)CONFIG_SYS_TEXT_BASE) {
+		if (offset_ptr_rom >= (Elf32_Addr *)CONFIG_SYS_TEXT_BASE &&
+				offset_ptr_rom > last_offset) {
 
 			/* Switch to the in-RAM version */
 			offset_ptr_ram = (Elf32_Addr *)((ulong)offset_ptr_rom +
@@ -100,8 +105,19 @@ int do_elf_reloc_fixups(void)
 					*offset_ptr_ram <=
 					(CONFIG_SYS_TEXT_BASE + size)) {
 				*offset_ptr_ram += gd->reloc_off;
+			} else {
+				debug("   %p: rom reloc %x, ram %p, value %x,"
+					" limit %lx\n", re_src,
+					re_src->r_offset, offset_ptr_ram,
+					*offset_ptr_ram,
+					CONFIG_SYS_TEXT_BASE + size);
 			}
+		} else {
+			debug("   %p: rom reloc %x, last %p\n", re_src,
+			       re_src->r_offset, last_offset);
 		}
+		last_offset = offset_ptr_rom;
+
 	} while (++re_src < re_end);
 
 	return 0;
