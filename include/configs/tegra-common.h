@@ -88,6 +88,18 @@
 #define CONFIG_COMMAND_HISTORY
 #define CONFIG_AUTO_COMPLETE
 
+/* turn on commonly used storage-related commands */
+
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_FS_EXT4
+#define CONFIG_FS_FAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_PART
+
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_CONSOLE_MUX
