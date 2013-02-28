@@ -73,26 +73,34 @@ int init_baudrate_f(void)
 	return 0;
 }
 
-__weak int calculate_relocation_address(void)
+/* Get the top of usable RAM */
+__weak ulong board_get_usable_ram_top(ulong total_size)
 {
-	ulong text_start = (ulong)&__text_start;
-	ulong bss_end = (ulong)&__bss_end;
+	return gd->ram_size;
+}
+
+int calculate_relocation_address(void)
+{
+	const ulong uboot_size = (uintptr_t)&__bss_end -
+			(uintptr_t)&__text_start;
+	ulong total_size;
 	ulong dest_addr;
+
+	total_size = ALIGN(uboot_size, 1 << 12) + CONFIG_SYS_MALLOC_LEN +
+		CONFIG_SYS_STACK_SIZE;
 
 	/*
 	 * NOTE: All destination address are rounded down to 16-byte
 	 *       boundary to satisfy various worst-case alignment
 	 *       requirements
 	 */
+	dest_addr = board_get_usable_ram_top(total_size);
 
-	/* Stack is at top of available memory */
-	dest_addr = gd->ram_size;
-
-	/* U-Boot is at the top */
-	dest_addr -= (bss_end - text_start);
-	dest_addr &= ~15;
+	/* U-Boot is below the FDT */
+	dest_addr -= uboot_size;
+	dest_addr &= ~((1 << 12) - 1);
 	gd->relocaddr = dest_addr;
-	gd->reloc_off = (dest_addr - text_start);
+	gd->reloc_off = dest_addr - (uintptr_t)&__text_start;
 
 	/* Stack is at the bottom, so it can grow down */
 	gd->start_addr_sp = dest_addr - CONFIG_SYS_MALLOC_LEN;
