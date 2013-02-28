@@ -68,24 +68,21 @@ int board_early_init_r(void)
 void show_boot_progress(int val)
 {
 #if MIN_PORT80_KCLOCKS_DELAY
-	static uint32_t prev_stamp;
-	static uint32_t base;
-
 	/*
 	 * Scale the time counter reading to avoid using 64 bit arithmetics.
 	 * Can't use get_timer() here becuase it could be not yet
 	 * initialized or even implemented.
 	 */
-	if (!prev_stamp) {
-		base = rdtsc() / 1000;
-		prev_stamp = 0;
+	if (!gd->arch.tsc_prev) {
+		gd->arch.tsc_base_kclocks = rdtsc() / 1000;
+		gd->arch.tsc_prev = 0;
 	} else {
 		uint32_t now;
 
 		do {
-			now = rdtsc() / 1000 - base;
-		} while (now < (prev_stamp + MIN_PORT80_KCLOCKS_DELAY));
-		prev_stamp = now;
+			now = rdtsc() / 1000 - gd->arch.tsc_base_kclocks;
+		} while (now < (gd->arch.tsc_prev + MIN_PORT80_KCLOCKS_DELAY));
+		gd->arch.tsc_prev = now;
 	}
 #endif
 	outb(val, 0x80);
