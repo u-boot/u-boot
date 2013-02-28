@@ -46,22 +46,22 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * This driver uses 1kHz clock source.
  */
-#define	MX28_INCREMENTER_HZ		1000
+#define	MXS_INCREMENTER_HZ		1000
 
 static inline unsigned long tick_to_time(unsigned long tick)
 {
-	return tick / (MX28_INCREMENTER_HZ / CONFIG_SYS_HZ);
+	return tick / (MXS_INCREMENTER_HZ / CONFIG_SYS_HZ);
 }
 
 static inline unsigned long time_to_tick(unsigned long time)
 {
-	return time * (MX28_INCREMENTER_HZ / CONFIG_SYS_HZ);
+	return time * (MXS_INCREMENTER_HZ / CONFIG_SYS_HZ);
 }
 
 /* Calculate how many ticks happen in "us" microseconds */
 static inline unsigned long us_to_tick(unsigned long us)
 {
-	return (us * MX28_INCREMENTER_HZ) / 1000000;
+	return (us * MXS_INCREMENTER_HZ) / 1000000;
 }
 
 int timer_init(void)
@@ -136,17 +136,17 @@ ulong get_timer(ulong base)
 }
 
 /* We use the HW_DIGCTL_MICROSECONDS register for sub-millisecond timer. */
-#define	MX28_HW_DIGCTL_MICROSECONDS	0x8001c0c0
+#define	MXS_HW_DIGCTL_MICROSECONDS	0x8001c0c0
 
 void __udelay(unsigned long usec)
 {
 	uint32_t old, new, incr;
 	uint32_t counter = 0;
 
-	old = readl(MX28_HW_DIGCTL_MICROSECONDS);
+	old = readl(MXS_HW_DIGCTL_MICROSECONDS);
 
 	while (counter < usec) {
-		new = readl(MX28_HW_DIGCTL_MICROSECONDS);
+		new = readl(MXS_HW_DIGCTL_MICROSECONDS);
 
 		/* Check if the timer wrapped. */
 		if (new < old) {
@@ -171,5 +171,5 @@ void __udelay(unsigned long usec)
 
 ulong get_tbclk(void)
 {
-	return MX28_INCREMENTER_HZ;
+	return MXS_INCREMENTER_HZ;
 }
