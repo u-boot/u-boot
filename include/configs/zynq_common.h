@@ -178,6 +178,8 @@
 # elif defined(CONFIG_NAND_ZYNQ)
 /* Environment in NAND flash */
 #  define CONFIG_ENV_IS_IN_NAND
+# elif defined(CONFIG_SYS_NO_FLASH)
+#  define CONFIG_ENV_IS_NOWHERE
 # endif
 
 # define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
