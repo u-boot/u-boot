@@ -458,7 +458,8 @@ static int check_skip_len(nand_info_t *nand, loff_t offset, size_t length,
 static size_t drop_ffs(const nand_info_t *nand, const u_char *buf,
 			const size_t *len)
 {
-	size_t i, l = *len;
+	size_t l = *len;
+	ssize_t i;
 
 	for (i = l - 1; i >= 0; i--)
 		if (buf[i] != 0xFF)
