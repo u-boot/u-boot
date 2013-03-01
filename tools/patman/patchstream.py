@@ -52,7 +52,7 @@ re_series = re.compile('^Series-(\w*): *(.*)')
 re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Cc): (.*)')
 
 # The start of a new commit in the git log
-re_commit = re.compile('^commit (.*)')
+re_commit = re.compile('^commit ([0-9a-f]*)$')
 
 # We detect these since checkpatch doesn't always do it
 re_space_before_tab = re.compile('^[+].* \t')
