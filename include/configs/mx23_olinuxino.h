@@ -60,6 +60,7 @@
 #define	CONFIG_CMD_GPIO
 #define	CONFIG_CMD_LED
 #define	CONFIG_CMD_MMC
+#define	CONFIG_CMD_USB
 
 /*
  * Memory configurations
@@ -139,6 +140,16 @@
  * APBH DMA
  */
 #define CONFIG_APBH_DMA
+
+/* USB */
+#ifdef	CONFIG_CMD_USB
+#define	CONFIG_USB_EHCI
+#define	CONFIG_USB_EHCI_MXS
+#define	CONFIG_EHCI_MXS_PORT0
+#define	CONFIG_USB_MAX_CONTROLLER_COUNT 1
+#define	CONFIG_EHCI_IS_TDI
+#define	CONFIG_USB_STORAGE
+#endif
 
 /*
  * Boot Linux

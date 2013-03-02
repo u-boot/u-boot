@@ -95,6 +95,10 @@ const iomux_cfg_t iomux_setup[] = {
 	MX23_PAD_SSP1_DATA2__SSP1_DATA2 | MUX_CONFIG_SSP,
 	MX23_PAD_SSP1_DATA3__SSP1_DATA3 | MUX_CONFIG_SSP,
 	MX23_PAD_SSP1_SCK__SSP1_SCK | MUX_CONFIG_SSP,
+
+	/* Ethernet */
+	MX23_PAD_GPMI_ALE__GPIO_0_17 |
+		(MXS_PAD_3V3 | MXS_PAD_12MA | MXS_PAD_NOPULL),
 };
 
 void board_init_ll(void)
