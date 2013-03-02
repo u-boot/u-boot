@@ -55,11 +55,13 @@
 #define	CONFIG_DOS_PARTITION
 
 #define	CONFIG_CMD_CACHE
+#define	CONFIG_CMD_DHCP
 #define	CONFIG_CMD_EXT2
 #define	CONFIG_CMD_FAT
 #define	CONFIG_CMD_GPIO
 #define	CONFIG_CMD_LED
 #define	CONFIG_CMD_MMC
+#define	CONFIG_CMD_NET
 #define	CONFIG_CMD_USB
 
 /*
@@ -151,6 +153,12 @@
 #define	CONFIG_USB_STORAGE
 #endif
 
+/* Ethernet */
+#ifdef	CONFIG_CMD_NET
+#define	CONFIG_USB_HOST_ETHER
+#define	CONFIG_USB_ETHER_SMSC95XX
+#endif
+
 /*
  * Boot Linux
  */
@@ -192,6 +200,7 @@
 	"fdt_file=imx23-olinuxino.dtb\0" \
 	"fdt_addr=0x41000000\0" \
 	"boot_fdt=try\0" \
+	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcpart=2\0" \
 	"mmcroot=/dev/mmcblk0p3 rw rootwait\0" \
@@ -217,6 +226,31 @@
 			"fi; " \
 		"else " \
 			"bootm; " \
+		"fi;\0" \
+	"netargs=setenv bootargs console=${console_mainline},${baudrate} " \
+		"root=/dev/nfs " \
+		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
+	"netboot=echo Booting from net ...; " \
+		"usb start; " \
+		"run netargs; "	\
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${uimage}; " \
+		"if test ${boot_fdt} = yes; then " \
+			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootm; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi;" \
+			"fi; " \
+		"else " \
+			"bootm; " \
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
@@ -226,10 +260,9 @@
 		"else " \
 			"if run loaduimage; then " \
 				"run mmcboot; " \
-			"else " \
-				"echo ERR: Fail to boot from MMC; " \
+			"else run netboot; " \
 			"fi; " \
 		"fi; " \
-	"else exit; fi"
+	"else run netboot; fi"
 
 #endif /* __MX23_OLINUXINO_CONFIG_H__ */
